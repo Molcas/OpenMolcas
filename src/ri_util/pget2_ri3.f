@@ -32,6 +32,7 @@
       use pso_stuff, only: lPSO, nnp, Thpkl, ipAorb
       use Basis_Info, only: nBas, nBas_Aux
       use Symmetry_Info, only: nIrrep
+      use ExTerm, only: CijK
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 #include "real.fh"
@@ -265,9 +266,8 @@
                    lCVec = nIJR(j3+1,j4+1,iSO)*jBas
                    iAdr =  iAdrCVec(j2+1,j3+1,1)
      &                  +  nIJR(j3+1,j4+1,iSO)*(jSO_Off-1)
-                   Call dDaFile(LuCVector(j2+1,1),2,Work(ip_Cijk),
-     &                          lCVec,iAdr)
-*                  Call RecPrt('C(ij,K)',' ',Work(ip_CijK),
+                   Call dDaFile(LuCVector(j2+1,1),2,Cijk,lCVec,iAdr)
+*                  Call RecPrt('C(ij,K)',' ',CijK,
 *    &                         nIJR(j3+1,j4+1,iSO),jBas)
 *
 *                  Extract only those C_kl^Js for which we deem k and l
@@ -282,13 +282,13 @@
                          Do i=1,nk
                             imo=kYmnij(i+iOff_Ymnij(j3+1,1))
 *
-                            jC=ip_Cijk-1+nChOrb(j3,iSO)*(jmo-1)+imo
+                            jC=imo+nChOrb(j3,iSO)*(jmo-1)
                             jr=ip_CilK+ij
 *
 *                           For this particular ij combination pick
 *                           the whole row.
 *
-                            call dcopy_(jBas,Work(jC),nChOrb(j3,iSO)*
+                            call dcopy_(jBas,CijK(jC),nChOrb(j3,iSO)*
      &                                               nChOrb(j4,iSO),
      &                                      Work(jr),nk*nl)
                             ij=ij+1
@@ -297,8 +297,7 @@
 *
 *                     Copy back to original memory position.
 *
-                      call dcopy_(nk*nl*jBas,Work(ip_CilK),1,
-     &                                      Work(ip_CijK),1)
+                      call dcopy_(nk*nl*jBas,Work(ip_CilK),1,CijK,1)
                    End If
 *
 *                  Transform according to Eq. 16 (step 4) and
@@ -307,12 +306,12 @@
 *
 *                  E(jK,m) = Sum_i C(i,jK)' * X(i,m)
 *
-*                  Call RecPrt('C(ij,K)',' ',Work(ip_CijK),
+*                  Call RecPrt('C(ij,K)',' ',CijK,
 *    &                         nk*nl,jBas)
 *                  Call RecPrt('X(i,mu)',' ',Work(jp_Xki),
 *    &                          nk,kBas)
                    Call dGEMM_('T','N',nl*jBas,kBas,nk,
-     &                        1.0D0,Work(ip_CijK),nk,
+     &                        1.0D0,CijK,nk,
      &                              Work(jp_Xki),nk,
      &                        0.0D0,Work(ip_CilK),nl*jBas)
 *

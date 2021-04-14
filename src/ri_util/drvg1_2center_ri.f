@@ -212,7 +212,6 @@
 *
          Call mma_allocate(CijK,nIJRMax*MxChVInShl*(nKvec+1),
      &                     Label='CijK')
-         ip_CijK=ip_of_Work(CijK(1))
 *
       End If
 *                                                                      *

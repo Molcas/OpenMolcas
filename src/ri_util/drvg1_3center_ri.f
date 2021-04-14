@@ -359,7 +359,6 @@
          lCilK = MxInShl*nIMax*MxChVInShl
          lCilK = Max(lCilK,lCijK) ! it is used as scratch in pget
          Call mma_allocate(CijK,lCilK,Label='CijK')
-         ip_CijK=ip_of_Work(CijK(1))
          If (lPSO) lCilK=Max(lCilK,maxnAct) ! used as scratch
          Call GetMem('CilK','Allo','Real',ip_CilK,lCilK)
          lBklK = MxInShl**2*MxChVInShl

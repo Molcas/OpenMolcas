@@ -31,6 +31,7 @@
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: lPSO, lsa, ipAorb, Thpkl
+      use ExTerm, only: CijK
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -192,7 +193,7 @@
 *
             lCVec = nIJR(kSym,lSym,1)*jBas ! Block size
             iAdr = nIJR(kSym,lSym,1)*(jSO_off-1) + iAdrCVec(jSym,kSym,1)
-            Call dDaFile(LuCVector(jSym,1),2,Work(ip_CijK),lCVec,iAdr)
+            Call dDaFile(LuCVector(jSym,1),2,CijK,lCVec,iAdr)
 *
 *           Extract only those C_kl^Js for which we deem k and l to
 *           belong to the shell-pair and to be of significance.
@@ -203,14 +204,14 @@
                  jmo=kYmnij(j,1)
                  Do i=1,nj(1)
                    imo=kYmnij(i,1)
-                   jC=ip_CijK-1+NumOrb(1)*(jmo-1)+imo
+                   jC=imo+NumOrb(1)*(jmo-1)
                    jr=ip_CilK+ij
-                   call dcopy_(jBas,Work(jC),NumOrb(1)**2,Work(jr),
+                   call dcopy_(jBas,CijK(jC),NumOrb(1)**2,Work(jr),
      &                        nj(1)**2)
                    ij=ij+1
                  End Do
                End Do
-              Call dCopy_(nj(1)**2*jBas,Work(ip_CilK),1,Work(ip_CijK),1)
+              Call dCopy_(nj(1)**2*jBas,Work(ip_CilK),1,CijK,1)
             End If
 *
 *           Transform according to Eq. 16 (step 4) and generate B_kl^J
@@ -218,7 +219,7 @@
 *** ----    E(jK,m) = Sum_i C(i,jK)' * X(i,m)
 *
             Call dGEMM_('T','N',nj(1)*jBas,nKBas,nj(1),
-     &                   1.0d0,Work(ip_CijK),nj(1),
+     &                   1.0d0,CijK,nj(1),
      &                         Work(jp_Xki),nj(1),
      &                   0.0d0,Work(ip_CilK),nj(1)*jBas)
 *
@@ -352,8 +353,7 @@
                  lCVec = nIJR(kSym,lSym,iSO)*jBas ! Block size
                  iAdr = nIJR(kSym,lSym,iSO)*(jSO_off-1) +
      &                  iAdrCVec(jSym,kSym,iSO)
-                 Call dDaFile(LuCVector(jSym,iSO),2,Work(ip_CijK),
-     &                        lCVec,iAdr)
+                 Call dDaFile(LuCVector(jSym,iSO),2,CijK,lCVec,iAdr)
 *
 *           Extract only those C_kl^Js for which we deem k and l to
 *           belong to the shell-pair and to be of significance.
@@ -364,15 +364,14 @@
                       jmo=kYmnij(j,iSO)
                       Do i=1,nj(iSO)
                         imo=kYmnij(i,iSO)
-                        jC=ip_CijK-1+NumOrb(iSO)*(jmo-1)+imo
+                        jC=imo+NumOrb(iSO)*(jmo-1)
                         jr=ip_CilK+ij
-                        call dcopy_(jBas,Work(jC),NumOrb(iSO)**2,
+                        call dcopy_(jBas,CijK(jC),NumOrb(iSO)**2,
      &                        Work(jr),nj(iSO)**2)
                         ij=ij+1
                       End Do
                     End Do
-                    Call dCopy_(nj(iSO)**2*jBas,Work(ip_CilK),1,
-     &                         Work(ip_CijK),1)
+                    Call dCopy_(nj(iSO)**2*jBas,Work(ip_CilK),1,CijK,1)
                  End If
 *
 *           Transform according to Eq. 16 (step 4) and generate B_kl^J
@@ -380,7 +379,7 @@
 *** ----    E(jK,m) = Sum_i C(i,jK)' * X(i,m)
 *
                  Call dGEMM_('T','N',nj(iSO)*jBas,nKBas,nj(iSO),
-     &                        1.0d0,Work(ip_CijK),nj(iSO),
+     &                        1.0d0,CijK,nj(iSO),
      &                              Work(jp_Xki2(iSO)),nj(iSO),
      &                        0.0d0,Work(ip_CilK),nj(iSO)*jBas)
 *
@@ -503,7 +502,7 @@
 *
             lCVec = nIJR(kSym,lSym,1)*jBas ! Block size
             iAdr = nIJR(kSym,lSym,1)*(jSO_off-1) + iAdrCVec(jSym,kSym,1)
-            Call dDaFile(LuCVector(jSym,1),2,Work(ip_CijK),lCVec,iAdr)
+            Call dDaFile(LuCVector(jSym,1),2,CijK,lCVec,iAdr)
 *
 *           Extract only those C_kl^Js for which we deem k and l to
 *           belong to the shell-pair and to be of significance.
@@ -515,15 +514,14 @@
                    jmo=kYmnij(j,1)
                    Do i=1,nj(1)
                      imo=kYmnij(i,1)
-                     jC=ip_CijK-1+NumOrb(1)*(jmo-1)+imo
+                     jC=imo+NumOrb(1)*(jmo-1)
                      jr=ip_CilK+ij
-                     call dcopy_(jBas,Work(jC),NumOrb(1)**2,Work(jr),
+                     call dcopy_(jBas,CijK(jC),NumOrb(1)**2,Work(jr),
      &                          nj(1)**2)
                      ij=ij+1
                    End Do
                  End Do
-                 Call dCopy_(nj(1)**2*jBas,Work(ip_CilK),1,
-     &                                    Work(ip_CijK),1)
+                 Call dCopy_(nj(1)**2*jBas,Work(ip_CilK),1,CijK,1)
               End If
 *
 *             Transform according to Eq. 16 (step 4) and generate B_kl^J
@@ -531,7 +529,7 @@
 *** ----      E(jK,m) = Sum_i C(i,jK)' * X(i,m)
 *
               Call dGEMM_('T','N',nj(1)*jBas,nKBas,nj(1),
-     &                     1.0d0,Work(ip_CijK),nj(1),
+     &                     1.0d0,CijK,nj(1),
      &                           Work(jp_Xki),nj(1),
      &                     0.0d0,Work(ip_CilK),nj(1)*jBas)
 *
@@ -750,7 +748,7 @@
                 lCVec = nIJR(kSym,lSym,iSO)*jBas ! Block size
                 iAdr = nIJR(kSym,lSym,iSO)*(jSO_off-1) +
      &                 iAdrCVec(jSym,kSym,iSO)
-                Call dDaFile(LuCVector(jSym,iSO),2,Work(ip_CijK),
+                Call dDaFile(LuCVector(jSym,iSO),2,CijK,
      &               lCVec,iAdr)
 *
 *           Extract only those C_kl^Js for which we deem k and l to
@@ -764,16 +762,16 @@
                      jmo=kYmnij(j,iMOleft)
                      Do i=1,nj(iMOright)
                        imo=kYmnij(i,iMOright)
-                       jC=ip_CijK-1+NumOrb(iMOright)*(jmo-1)+imo
+                       jC=imo+NumOrb(iMOright)*(jmo-1)
                        jr=ip_CilK+ij
-                       call dcopy_(jBas,Work(jC),NumOrb(iMOright)*
+                       call dcopy_(jBas,CijK(jC),NumOrb(iMOright)*
      &                             NumOrb(iMOleft),Work(jr),
      &                             nj(iMOright)*nj(iMOleft))
                        ij=ij+1
                      End Do
                    End Do
                    Call dCopy_(nj(iMOright)*nj(iMOleft)*jBas,
-     &                       Work(ip_CilK),1,Work(ip_CijK),1)
+     &                       Work(ip_CilK),1,CijK,1)
                  End If
 *
 *           Transform according to Eq. 16 (step 4) and generate B_kl^J
@@ -781,7 +779,7 @@
 *** ----    E(jK,m) = Sum_i C(i,jK)' * X(i,m)
 *
                 Call dGEMM_('T','N',nj(iMOleft)*jBas,nKBas,nj(iMOright),
-     &                     1.0d0,Work(ip_CijK),nj(iMOright),
+     &                     1.0d0,CijK,nj(iMOright),
      &                           Work(jp_Xki2(iSO)),nj(iMOright),
      &                     0.0d0,Work(ip_CilK),nj(iMOleft)*jBas)
 *
@@ -797,7 +795,7 @@
 *
 *Transpose Cijk->Cjik
                 Do ijBas=0,jBas-1
-                  ijbas_off=ip_CijK+ijBas*nj(iMOleft)*nj(iMOright)
+                  ijbas_off=1+ijBas*nj(iMOleft)*nj(iMOright)
                   ijbas_off2=ip_CilK+ijBas*nj(iMOleft)*nj(iMOright)
                   Do ileft=0,nj(iMOleft)-1
                     ileft_off=ileft*nj(iMOright)+ijbas_off
@@ -805,7 +803,7 @@
                       iright_off=ileft_off+iright
                       iright_off2=ijbas_off2+iright*nj(iMOleft)+ileft
 *
-                      Work(iright_off2)=Work(iright_off)
+                      Work(iright_off2)=CijK(iright_off)
                     End Do
                   End Do
                 End Do
@@ -815,12 +813,12 @@
                 Call dGEMM_('T','N',nj(iMOright)*jBas,nKBas,nj(iMOleft),
      &                     1.0d0,Work(ip_CilK),nj(iMOleft),
      &                           Work(jp_Xki3(iSO)),nj(iMOleft),
-     &                     0.0d0,Work(ip_CijK),nj(iMOright)*jBas)
+     &                     0.0d0,CijK,nj(iMOright)*jBas)
 *
 *** ----    B(Km,n) = Sum_j E(i,Km)' * X(i,n)
 *
                 Call dGEMM_('T','N',jBas*nKBas,nLBas,nj(iMOright),
-     &                     1.0d0,Work(ip_CijK),nj(iMOright),
+     &                     1.0d0,CijK,nj(iMOright),
      &                           Work(jp_Xli3(iSO)),nj(iMOright),
      &                     Factor,Work(ip_BklK),jBas*nKBas)
               EndIf
@@ -972,7 +970,7 @@
 *
             lCVec = nIJR(kSym,lSym,1)*jBas
             iAdr = nIJR(kSym,lSym,1)*(jSO_off-1) + iAdrCVec(jSym,kSym,1)
-            Call dDaFile(LuCVector(jSym,1),2,Work(ip_CijK),lCVec,iAdr)
+            Call dDaFile(LuCVector(jSym,1),2,CijK,lCVec,iAdr)
 *
             If (nj(1).le.NumOrb(1) .and. jSkip(1).eq.0) Then
                ij=0
@@ -980,20 +978,20 @@
                  jmo=kYmnij(j,1)
                  Do i=1,nj(1)
                    imo=kYmnij(i,1)
-                   jC=ip_CijK-1+NumOrb(1)*(jmo-1)+imo
+                   jC=imo+NumOrb(1)*(jmo-1)
                    jr=ip_CilK+ij
-                   call dcopy_(jBas,Work(jC),NumOrb(1)**2,Work(jr),
+                   call dcopy_(jBas,CijK(jC),NumOrb(1)**2,Work(jr),
      &                        nj(1)**2)
                    ij=ij+1
                  End Do
                End Do
-              call dcopy_(nj(1)**2*jBas,Work(ip_CilK),1,Work(ip_CijK),1)
+              call dcopy_(nj(1)**2*jBas,Work(ip_CilK),1,CijK,1)
             EndIf
 *
 *** ---- C(jK,m) = sum_i C(i,jK)' * X(i,m)
 *
             Call dGEMM_('T','N',nj(1)*jBas,nKBas,nj(1),
-     &                   1.0d0,Work(ip_CijK),nj(1),
+     &                   1.0d0,CijK,nj(1),
      &                         Work(jp_Xki),nj(1),
      &                   0.0d0,Work(ip_CilK),nj(1)*jBas)
 *

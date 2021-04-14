@@ -17,13 +17,13 @@
       Integer iChOrbT(8,2),iChOrbR(8,8,2)
       Real*8 tbvec(2), tavec(2)
       Integer NumAuxVec(8)
-      Integer MxChVInShl,ip_CijK,lijlist,ipijList,ipijListTri,ljkvec,   &
+      Integer MxChVInShl,lijlist,ipijList,ipijListTri,ljkvec,   &
      &        nScreen,ip_CilK,ip_BklK,ip_A
       Common /ExTe1/ nChOrb, ipChM,                                     &
      &               nIJ1,nIJR,                                         &
      &               ip_CMOi,lCMOi,iOff_CMOi,                           &
      &               LuCVector, MxChVInShl,                             &
-     &               ip_CijK, iAdrCVec, lijlist, ipijList,              &
+     &               iAdrCVec, lijlist, ipijList,                       &
      &               ipijListTri,iChOrbT,iChOrbR,ljkvec,                &
      &               nScreen, ip_CilK, ip_BklK,                         &
      &               NumAuxVec, ip_A
