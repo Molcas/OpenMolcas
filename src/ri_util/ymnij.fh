@@ -8,6 +8,5 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Integer ipYmnij(5),jr_Xki(5), jr_Xli(5)
-      Integer nYmnij(8,5), iOff_Ymnij(8,5)
-      Common /Ymnij_screen/ ipYmnij, jr_Xki, jr_Xli, nYmnij, iOff_Ymnij
+      Integer jr_Xki(5), jr_Xli(5)
+      Common /Ymnij_screen/ jr_Xki, jr_Xli

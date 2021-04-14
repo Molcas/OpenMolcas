@@ -33,7 +33,7 @@
       use Basis_Info, only: nBas, nBas_Aux
       use Symmetry_Info, only: nIrrep
       use ExTerm, only: CijK, CilK, BklK
-      use ExTerm, only: Ymnij
+      use ExTerm, only: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 #include "real.fh"

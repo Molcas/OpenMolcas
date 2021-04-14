@@ -45,7 +45,7 @@
       use RICD_Info, only: Do_RI
       use Symmetry_Info, only: nIrrep
       use ExTerm, only: CijK, CilK, BklK, VJ
-      use ExTerm, only: Ymnij
+      use ExTerm, only: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
       Implicit Real*8 (A-H,O-Z)
       Logical, External :: Rsv_Tsk2
 #include "Molcas.fh"
