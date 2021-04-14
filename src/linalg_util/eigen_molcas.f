@@ -1,49 +1,49 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2000, Markus P. Fuelscher                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2000, Markus P. Fuelscher                              *
+!***********************************************************************
       Subroutine Eigen_Molcas(N,X,D,E)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Compute eigenvalues and eigenvectors of a symmetric real matrix  *
-*     by the method of Householder (QR algorithm)                      *
-*                                                                      *
-*     reference:                                                       *
-*     R.S. Martin, C. Reinsch and J.H. Wilkinson                       *
-*     Num. Mat. Vol 11, p 181.-195 (1968)                              *
-*                                                                      *
-*     calling arguments:                                               *
-*     N       : Type integer, input.                                   *
-*               Dimensions of the matrix X and vectors D and E         *
-*     X       : Type real*8 real, input/output                         *
-*               on input it is the matrix to diagonalized              *
-*               on output it contains the eigenvectors                 *
-*     D       : Type real*8 real, output.                              *
-*               vector of eigenvalues                                  *
-*     E       : Type real*8 real, input/output.                        *
-*               Scratch area of length N                               *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher, University of Lund, Sweden, 2000                 *
-*     (the subrotine is based on a old implementation written          *
-*      by the comp. center in Munich)                                  *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Compute eigenvalues and eigenvectors of a symmetric real matrix  *
+!     by the method of Householder (QR algorithm)                      *
+!                                                                      *
+!     reference:                                                       *
+!     R.S. Martin, C. Reinsch and J.H. Wilkinson                       *
+!     Num. Mat. Vol 11, p 181.-195 (1968)                              *
+!                                                                      *
+!     calling arguments:                                               *
+!     N       : Type integer, input.                                   *
+!               Dimensions of the matrix X and vectors D and E         *
+!     X       : Type real*8 real, input/output                         *
+!               on input it is the matrix to diagonalized              *
+!               on output it contains the eigenvectors                 *
+!     D       : Type real*8 real, output.                              *
+!               vector of eigenvalues                                  *
+!     E       : Type real*8 real, input/output.                        *
+!               Scratch area of length N                               *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher, University of Lund, Sweden, 2000                 *
+!     (the subrotine is based on a old implementation written          *
+!      by the comp. center in Munich)                                  *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -59,9 +59,9 @@
         X(1,1) = One
         Return
       End If
-C
-C     HOUSEHOLDER REDUCTION
-C
+!
+!     HOUSEHOLDER REDUCTION
+!
       Do ii = 2,N
         i = N+2-ii
         l = i-2
@@ -109,9 +109,9 @@ C
         D(i) = H
         E(i-1) = G
       End Do
-C
-C     ACCUMULATION OF TRANSFORMATION MATRICES
-C
+!
+!     ACCUMULATION OF TRANSFORMATION MATRICES
+!
       D(1) = X(1,1)
       X(1,1) = One
       Do i = 2,N
@@ -134,9 +134,9 @@ C
           X(j,i) = Zero
         End Do
       End Do
-C
-C     DIAGONAlIZATION OF THE TRIDIAGONAL MATRIX
-C
+!
+!     DIAGONAlIZATION OF THE TRIDIAGONAL MATRIX
+!
       B = Zero
       F = Zero
       E(N) = Zero
@@ -196,9 +196,9 @@ C
 100     Continue
         D(l) = D(l)+F
       End Do
-C
-C     ORDERING OF EIGENVALUES
-C
+!
+!     ORDERING OF EIGENVALUES
+!
       Do i = 1,N-1
         Do j = i+1,N
           If ( D(j).lt.D(i) ) then
@@ -213,9 +213,9 @@ C
           End If
         End Do
       End Do
-C
-C     FIXING OF SIGN
-C
+!
+!     FIXING OF SIGN
+!
       Do i = 1,N
         k = 1
         tmp = abs(X(k,i))

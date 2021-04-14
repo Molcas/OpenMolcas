@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       ! Copy-transpose matrix A to B using blocks to optimize cache
       ! usage or extended BLAS functionality if present.
       ! B := transpose(A)
@@ -56,7 +56,7 @@
           END DO
         END DO
       END IF
-* remainder of the blocks
+! remainder of the blocks
       IF (MAXROW.GT.0.AND.LCOLS.GT.0) THEN
         DO IB=1,MAXROW,NBLKSZ
           DO I=IB,IB+NBLKSZ-1
@@ -75,7 +75,7 @@
           END DO
         END DO
       END IF
-* remainder block
+! remainder block
       IF (LROWS.GT.0.AND.LCOLS.GT.0) THEN
         DO I=MAXROW+1,MAXROW+LROWS
           DO J=MAXCOL+1,MAXCOL+LCOLS

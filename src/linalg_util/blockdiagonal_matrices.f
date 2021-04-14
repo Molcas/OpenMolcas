@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICEnSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2019, Oskar Weser                                      *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICEnSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2019, Oskar Weser                                      *
+!***********************************************************************
 #include "intent.h"
       module blockdiagonal_matrices
         use stdalloc, only : mma_allocate, mma_deallocate
         implicit none
         private
-        public :: t_blockdiagonal, new, delete, from_raw,
+        public :: t_blockdiagonal, new, delete, from_raw,               &
      &    from_symm_raw, to_raw, blocksizes
         save
 
@@ -40,7 +40,7 @@
 
           if (allocated(blocks)) deallocate(blocks)
           allocate(blocks(size(blocksizes)), stat=err)
-          if (err /= 0) call abort_('Allocation failed in '//
+          if (err /= 0) call abort_('Allocation failed in '//           &
      &        'blockdiagonal_matrices::new')
           do i = 1, size(blocks)
             L = blocksizes(i)
@@ -69,7 +69,7 @@
             block_size = size(S(i_block)%block, 1)
             do col = 1, block_size
               offset = idx_block + (col - 1) * block_size
-              S(i_block)%block(:, col) =
+              S(i_block)%block(:, col) =                                &
      &          S_buffer(offset : offset - 1 + block_size)
             end do
             idx_block = idx_block + (block_size**2)
@@ -87,7 +87,7 @@
             block_size = size(S(i_block)%block, 1)
             do col = 1, block_size
               offset = idx_block + (col - 1) * block_size
-              S_buffer(offset : offset - 1 + block_size) =
+              S_buffer(offset : offset - 1 + block_size) =              &
      &            S(i_block)%block(:, col)
             end do
             idx_block = idx_block + (block_size**2)
@@ -104,7 +104,7 @@
           do i_block = 1, size(S)
             block_size = size(S(i_block)%block, 1)
             if (block_size > 0) then
-              call square(S_buffer(idx_block:), S(i_block)%block,1,
+              call square(S_buffer(idx_block:), S(i_block)%block,1,     &
      &                    block_size, block_size)
             end if
             idx_block = idx_block + (block_size**2 + block_size) / 2

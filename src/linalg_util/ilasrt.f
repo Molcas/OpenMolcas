@@ -1,50 +1,50 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-*
-*  Variant of LAPACK's [SD]LASRT for sorting an integer array
-*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!
+!  Variant of LAPACK's [SD]LASRT for sorting an integer array
+!
       SUBROUTINE ILASRT( ID, N, D, INFO )
-*
-*     .. Scalar Arguments ..
+!
+!     .. Scalar Arguments ..
       CHARACTER          ID
       INTEGER            INFO, N
-*     ..
-*     .. Array Arguments ..
+!     ..
+!     .. Array Arguments ..
       INTEGER            D( * )
-*     ..
-*
-*  =====================================================================
-*
-*     .. Parameters ..
+!     ..
+!
+!  =====================================================================
+!
+!     .. Parameters ..
       INTEGER            SELECT
       PARAMETER          ( SELECT = 20 )
-*     ..
-*     .. Local Scalars ..
+!     ..
+!     .. Local Scalars ..
       INTEGER            DIR, ENDD, I, J, START, STKPNT
       INTEGER            D1, D2, D3, DMNMX, TMP
-*     ..
-*     .. Local Arrays ..
+!     ..
+!     .. Local Arrays ..
       INTEGER            STACK( 2, 32 )
-*     ..
-*     .. External Functions ..
+!     ..
+!     .. External Functions ..
       LOGICAL            LSAME
       EXTERNAL           LSAME
-*     ..
-*     .. External Subroutines ..
+!     ..
+!     .. External Subroutines ..
       EXTERNAL           XERBLA
-*     ..
-*     .. Executable Statements ..
-*
-*     Test the input parameters.
-*
+!     ..
+!     .. Executable Statements ..
+!
+!     Test the input parameters.
+!
       INFO = 0
       DIR = -1
       IF( LSAME( ID, 'D' ) ) THEN
@@ -61,12 +61,12 @@
          CALL XERBLA( 'ILASRT', -INFO )
          RETURN
       END IF
-*
-*     Quick return if possible
-*
-      IF( N.LE.1 )
-     $   RETURN
-*
+!
+!     Quick return if possible
+!
+      IF( N.LE.1 )                                                      &
+     &   RETURN
+!
       STKPNT = 1
       STACK( 1, 1 ) = 1
       STACK( 2, 1 ) = N
@@ -75,13 +75,13 @@
       ENDD = STACK( 2, STKPNT )
       STKPNT = STKPNT - 1
       IF( ENDD-START.LE.SELECT .AND. ENDD-START.GT.0 ) THEN
-*
-*        Do Insertion sort on D( START:ENDD )
-*
+!
+!        Do Insertion sort on D( START:ENDD )
+!
          IF( DIR.EQ.0 ) THEN
-*
-*           Sort into decreasing order
-*
+!
+!           Sort into decreasing order
+!
             DO 30 I = START + 1, ENDD
                DO 20 J = I, START + 1, -1
                   IF( D( J ).GT.D( J-1 ) ) THEN
@@ -93,11 +93,11 @@
                   END IF
    20          CONTINUE
    30       CONTINUE
-*
+!
          ELSE
-*
-*           Sort into increasing order
-*
+!
+!           Sort into increasing order
+!
             DO 50 I = START + 1, ENDD
                DO 40 J = I, START + 1, -1
                   IF( D( J ).LT.D( J-1 ) ) THEN
@@ -109,15 +109,15 @@
                   END IF
    40          CONTINUE
    50       CONTINUE
-*
+!
          END IF
-*
+!
       ELSE IF( ENDD-START.GT.SELECT ) THEN
-*
-*        Partition D( START:ENDD ) and stack parts, largest one first
-*
-*        Choose partition entry as median of 3
-*
+!
+!        Partition D( START:ENDD ) and stack parts, largest one first
+!
+!        Choose partition entry as median of 3
+!
          D1 = D( START )
          D2 = D( ENDD )
          I = ( START+ENDD ) / 2
@@ -139,22 +139,22 @@
                DMNMX = D1
             END IF
          END IF
-*
+!
          IF( DIR.EQ.0 ) THEN
-*
-*           Sort into decreasing order
-*
+!
+!           Sort into decreasing order
+!
             I = START - 1
             J = ENDD + 1
    60       CONTINUE
    70       CONTINUE
             J = J - 1
-            IF( D( J ).LT.DMNMX )
-     $         GO TO 70
+            IF( D( J ).LT.DMNMX )                                       &
+     &         GO TO 70
    80       CONTINUE
             I = I + 1
-            IF( D( I ).GT.DMNMX )
-     $         GO TO 80
+            IF( D( I ).GT.DMNMX )                                       &
+     &         GO TO 80
             IF( I.LT.J ) THEN
                TMP = D( I )
                D( I ) = D( J )
@@ -177,20 +177,20 @@
                STACK( 2, STKPNT ) = J
             END IF
          ELSE
-*
-*           Sort into increasing order
-*
+!
+!           Sort into increasing order
+!
             I = START - 1
             J = ENDD + 1
    90       CONTINUE
   100       CONTINUE
             J = J - 1
-            IF( D( J ).GT.DMNMX )
-     $         GO TO 100
+            IF( D( J ).GT.DMNMX )                                       &
+     &         GO TO 100
   110       CONTINUE
             I = I + 1
-            IF( D( I ).LT.DMNMX )
-     $         GO TO 110
+            IF( D( I ).LT.DMNMX )                                       &
+     &         GO TO 110
             IF( I.LT.J ) THEN
                TMP = D( I )
                D( I ) = D( J )
@@ -214,10 +214,10 @@
             END IF
          END IF
       END IF
-      IF( STKPNT.GT.0 )
-     $   GO TO 10
+      IF( STKPNT.GT.0 )                                                 &
+     &   GO TO 10
       RETURN
-*
-*     End of ILASRT
-*
+!
+!     End of ILASRT
+!
       END

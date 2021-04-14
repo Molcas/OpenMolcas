@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE DZAXPY(N,DA,DX,INCX,DY,INCY,DZ,INCZ)
-C
-C     MULTIPLY A VECTOR, X, BY A SCALAR, ADD TO A VECTOR, Y, AND
-C     STORE THE RESULT IN THE VECTOR Z.
-C
+!
+!     MULTIPLY A VECTOR, X, BY A SCALAR, ADD TO A VECTOR, Y, AND
+!     STORE THE RESULT IN THE VECTOR Z.
+!
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION DX(*),DY(*),DZ(*)
       DATA ZERO /0.0D+00/
       IF(N.LE.0)RETURN
       IF(INCX.EQ.1.AND.INCY.EQ.1)GO TO 20
-C
-C        CODE FOR UNEQUAL INCREMENTS OR EQUAL INCREMENTS
-C          NOT EQUAL TO 1
-C
+!
+!        CODE FOR UNEQUAL INCREMENTS OR EQUAL INCREMENTS
+!          NOT EQUAL TO 1
+!
       IY = 1
       IZ = 1
       IF(INCY.LT.0)IY = (-N+1)*INCY + 1
@@ -43,12 +43,12 @@ C
          End Do
       END IF
       RETURN
-C
-C        CODE FOR BOTH INCREMENTS EQUAL TO 1
-C
-C
-C        CLEAN-UP LOOP
-C
+!
+!        CODE FOR BOTH INCREMENTS EQUAL TO 1
+!
+!
+!        CLEAN-UP LOOP
+!
    20 M = MOD(N,4)
       IF (DA .NE. ZERO ) THEN
          IF( M .NE. 0 ) THEN

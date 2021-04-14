@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine dgeSub(A,LDA,FORMA,B,LDB,FORMB,C,LDC,M,N)
-C
-C     MATRIX subtraction FOR GENERAL MATRICES
-C
+!
+!     MATRIX subtraction FOR GENERAL MATRICES
+!
       IMPLICIT REAL*8 (A-H,O-Z)
       CHARACTER*1 FORMA,FORMB
       REAL*8 A(*), B(*), C(*)
@@ -41,7 +41,7 @@ C
    41    Continue
    40    Continue
       ELSE
-         Write(6,*) 'Error when calling DGESUB, forma=',
+         Write(6,*) 'Error when calling DGESUB, forma=',                &
      &     FormA,'   formb=',FormB
          Call Abend()
       END IF

@@ -1,56 +1,56 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE DGETMO (A,ldA,M,N,B,ldB)
-C
-C     TRANSPOSE A REGULAR MATRIX (OUT-OF-PLACE)
-C
+!
+!     TRANSPOSE A REGULAR MATRIX (OUT-OF-PLACE)
+!
       REAL*8 A(ldA,*),B(ldB,*)
-C
+!
       If ( M.le.0 ) then
          Write (6,*)
-         Write (6,*)
+         Write (6,*)                                                    &
      &   '  *** Error in subroutine DGETMO ***'
-         Write (6,*)
+         Write (6,*)                                                    &
      &   '  Invalid dimension of matrix A :'
-         Write (6,*)
+         Write (6,*)                                                    &
      &   '  The number of columns, M, must be larger than zero'
          Write (6,*)
       End If
       If ( N.le.0 ) then
          Write (6,*)
-         Write (6,*)
+         Write (6,*)                                                    &
      &   '  *** Error in subroutine DGETMO ***'
-         Write (6,*)
+         Write (6,*)                                                    &
      &   '  Invalid leading dimension of matrix B :'
-         Write (6,*)
+         Write (6,*)                                                    &
      &   '  The number of rows, N, must be larger than zero'
          Write (6,*)
       End If
       If ( (ldA.le.0) .or. (ldA.lt.M) ) then
          Write (6,*)
-         Write (6,*)
+         Write (6,*)                                                    &
      &   '  *** Error in subroutine DGETMO ***'
-         Write (6,*)
+         Write (6,*)                                                    &
      &   '  Invalid leading dimension of matrix A :'
-         Write (6,*)
+         Write (6,*)                                                    &
      &   '  ldA must be larger than 0 and larger than M'
          Write (6,*)
       End If
       If ( (ldB.le.0) .or. (ldB.lt.N) ) then
          Write (6,*)
-         Write (6,*)
+         Write (6,*)                                                    &
      &   '  *** Error in subroutine DGETMO ***'
-         Write (6,*)
+         Write (6,*)                                                    &
      &   '  Invalid leading dimension of matrix B :'
-         Write (6,*)
+         Write (6,*)                                                    &
      &   '  ldB must be larger than 0 and larger than N'
          Write (6,*)
       End If
@@ -128,6 +128,6 @@ C
             End Do
  99      Continue
       End Do
-C
+!
       Return
       End

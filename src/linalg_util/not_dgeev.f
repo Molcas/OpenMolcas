@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine not_DGeEV(iOpt,a,lda,w,z,ldz,n,aux,naux)
       Use stdalloc, Only: mma_allocate, mma_deallocate
       Implicit Real*8 (a-h,o-z)
       Real*8 a(lda,n),w(2,n), z(2*ldz*n), aux(naux)
       Real*8, Allocatable :: w1(:)
-*
+!
       If (iOpt.eq.2) Then
          Write (6,*) 'not_DGeEV: iOpt=2 is not implemented yet!'
          Call Abend()
@@ -38,22 +38,22 @@
          Write (6,*) ' not_DGeEV: iErr=/= 0!'
          Call Abend()
       End If
-*     Call RecPrt('w',' ',w,n,1)
-*     Call RecPrt('w1',' ',w1,n,1)
-*     Call RecPrt('z',' ',z,n,n)
-*
-*-----Order eigenvalues to ESSL standard
-*
+!     Call RecPrt('w',' ',w,n,1)
+!     Call RecPrt('w1',' ',w1,n,1)
+!     Call RecPrt('z',' ',z,n,n)
+!
+!-----Order eigenvalues to ESSL standard
+!
       call dcopy_(n,w,1,aux,1)
       Do i = 1, n
          w(1,i)=aux(i)    ! Real
          w(2,i)=w1(i)     ! Imaginary
       End Do
       Call mma_deallocate(w1)
-*
-*-----Order eigenvector to ESSL standard
-*
-*
+!
+!-----Order eigenvector to ESSL standard
+!
+!
       i = N
       Do While (i.ge.1)
         If ( w(2,i).ne.0.0d0 ) then
@@ -76,6 +76,6 @@
         End If
         i=i-1
       End Do
-*
+!
       Return
       End
