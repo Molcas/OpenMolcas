@@ -16,7 +16,9 @@ subroutine DTRANS(NROWS,NCOLS,A,LDA,B,LDB)
 !
 ! double precision version
 
+#ifdef _MKL_
 use Constants, only: One
+#endif
 use Definitions, only: wp, iwp, u6
 
 implicit none

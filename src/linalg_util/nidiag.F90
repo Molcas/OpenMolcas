@@ -26,7 +26,7 @@ subroutine NIdiag(H,U,n,nv)
 !                                                                      *
 !***********************************************************************
 
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 !----------------------------------------------------------------------*

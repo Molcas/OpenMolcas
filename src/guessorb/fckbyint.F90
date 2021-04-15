@@ -33,7 +33,7 @@ use mh5, only: mh5_put_dset
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Half
-use Definitions, only: wp, iwp, r8, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 
