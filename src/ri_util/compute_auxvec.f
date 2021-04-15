@@ -231,9 +231,9 @@
 *
                    ChM(i)%SB(iSym+1)%A2(:,:)=Zero
                    call dcopy_(nbas(isym),[One],0,
-     %                         ChM(i)%SB(iSym+1)%A2,nBas(isym)+1)
+     &                         ChM(i)%SB(iSym+1)%A2,nBas(isym)+1)
                    Call NIdiag(TmpD(1+iOffDSQ),ChM(i)%SB(iSym+1)%A2,
-     &                  nBas(isym),nBas(isym),0)
+     &                  nBas(isym),nBas(isym))
 *
 **   First sort eigenvectors and eigenvalues
 *

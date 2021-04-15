@@ -114,7 +114,7 @@
 *
 *     Get the eigenvalues and eigenvectors
 *
-      Call NIDiag_new(Eval,Evec,nH,nH,0)
+      Call NIDiag_new(Eval,Evec,nH,nH)
 #ifdef _DEBUGPRINT_
       Call RecPrt('Evec matrix',' ',Evec,nH,nH)
 #endif

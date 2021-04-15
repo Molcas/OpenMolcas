@@ -54,7 +54,6 @@ integer(kind=iwp) :: inFck, inCMO, inOvl, inEps, inT1, inT2, inT3
 integer(kind=iwp) :: Lu, irc, iSymlb, ij, ijS, ijT, ijL, nB, nC, nS, nD, nActEl, nIsh(8), nAsh(8)
 integer(kind=iwp) :: i, i1, ik, iOff, ipCOk, ipEE, ipEE0, ipOk, ipOk0, ipOkk, ipT1, j1, jk, jOff, k, kOff, kSpin, nOkk
 real(kind=wp) :: dActEl, ei, ej, Enr_go, tmp, tmp1, tmp2, xocc
-real(kind=r8), external :: OrbPhase
 #ifdef _HDF5_
 integer(kind=iwp) :: IndTypeT(8,7)
 character(len=1), allocatable :: typestring(:)
@@ -202,12 +201,12 @@ do iSym=1,nSym
       !call TriPrt('Transformed Fock matrix','(12f12.6)',T3,nB)
       call NrmClc(T3,nB*(nB+1)/2,'FckbyInt','Transformed Fck')
     end if
-    call NIdiag(T3,CMO(ijS),nS,nB,0)
+    call NIdiag(T3,CMO(ijS),nS,nB)
     call goPickup(T3,Eps(ijL),nS)
     call goSort(Eps(ijL),CMO(ijS),nS,nB)
 
     do i=1,nS
-      tmp = OrbPhase(CMO(ijS+(i-1)*nB),nB)
+      call VecPhase(CMO(ijS+(i-1)*nB),nB)
     end do
   end if
   ijT = ijT+nB*(nB+1)/2
@@ -270,7 +269,7 @@ dummy: if (.true.) then
         if (Debug) then
           call TriPrt('Virtual space','(12f12.6)',T3,nS)
         end if
-        call NIdiag(T3,CMO(ijS+nB*nC),nS,nB,0)
+        call NIdiag(T3,CMO(ijS+nB*nC),nS,nB)
         call goPickup(T3,Eps(ijL+nC),nS)
         call goSort(Eps(ijL+nC),CMO(ijS+nB*nC),nS,nB)
         if (Debug) then
@@ -315,7 +314,7 @@ dummy: if (.true.) then
         ! Introduce "standard" phase.
 
         do iBas=1,nB
-          tmp = OrbPhase(CMO(ijS+(iBas-1)*nB),nB)
+          call VecPhase(CMO(ijS+(iBas-1)*nB),nB)
         end do
 
         if (Debug) then

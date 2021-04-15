@@ -11,7 +11,7 @@
 ! Copyright (C) 2005, Per-Olof Widmark                                 *
 !***********************************************************************
 
-subroutine NIdiag(H,U,n,nv,iOpt)
+subroutine NIdiag(H,U,n,nv)
 !***********************************************************************
 !                                                                      *
 ! This routine is a wrapper that calls appropriate routines to         *
@@ -35,16 +35,13 @@ implicit none
 ! nv   - Length of eigenvectors nv>=n                                  *
 ! H    - Matrix to be diagonalized                                     *
 ! U    - Eigenvectors                                                  *
-! iOpt - Option flag, for future improvements.                         *
 !----------------------------------------------------------------------*
-integer(kind=iwp), intent(in) :: n, nv, iOpt
+integer(kind=iwp), intent(in) :: n, nv
 real(kind=wp), intent(inout) :: H(*), U(nv,n)
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
 integer(kind=iwp) :: i, ierr
-real(kind=wp) :: Tmp
-real(kind=r8), external :: OrbPhase
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -56,17 +53,11 @@ if (ierr == 1) then
   call Jacob(H,U,n,nv)
 end if
 do i=1,n
-  Tmp = OrbPhase(U(1,i),nV)
+  call VecPhase(U(1,i),nV)
 end do
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
 return
-#ifdef _WARNING_WORKAROUND_
-if (.false.) then
-  call Unused_integer(iOpt)
-  call Unused_real(Tmp)
-end if
-#endif
 
 end subroutine NIdiag

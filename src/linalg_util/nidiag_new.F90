@@ -11,7 +11,7 @@
 ! Copyright (C) 2013, Victor P. Vysotskiy                              *
 !***********************************************************************
 
-subroutine NIdiag_New(H,U,n,nv,iOpt)
+subroutine NIdiag_New(H,U,n,nv)
 !***********************************************************************
 !                                                                      *
 ! This routine is a wrapper that calls appropriate LAPACK routines to  *
@@ -39,19 +39,18 @@ implicit none
 ! nv   - Length of eigenvectors nv>=n                                  *
 ! H    - Matrix to be diagonalized                                     *
 ! U    - Eigenvectors                                                  *
-! iOpt - Option flag, for future improvements.                         *
 !----------------------------------------------------------------------*
-integer(kind=iwp), intent(in) :: n, nv, iOpt
+integer(kind=iwp), intent(in) :: n, nv
 real(kind=wp), intent(inout) :: H(*)
 real(kind=wp), intent(out) :: U(nv,n)
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
 integer(kind=iwp) :: lrwrk, liwrk, lh, info, I, M, idum(1)
-real(kind=wp) :: abstol, dum(1), Tmp
+real(kind=wp) :: abstol, dum(1)
 integer(kind=iwp), allocatable :: IPSZ(:), IWRK(:)
 real(kind=wp), allocatable :: DIA(:), EVL(:), HDUP(:), OFF(:), RWRK(:), TAU(:)
-real(kind=r8), external :: dlamch_, OrbPhase
+real(kind=r8), external :: dlamch_
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -129,18 +128,15 @@ if (info /= 0) then
 # ifdef _DEBUGPRINT_
   write(u6,'(A)') 'Using the old Givens rot. based routine'
 # endif
-  call NIdiag(H,U,n,nv,iOpt)
+  call NIdiag(H,U,n,nv)
 end if
 
 do i=1,n
-  Tmp = OrbPhase(U(1,i),nv)
+  Call VecPhase(U(1,i),nv)
 end do
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
 return
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_real(Tmp)
-#endif
 
 end subroutine NIdiag_New

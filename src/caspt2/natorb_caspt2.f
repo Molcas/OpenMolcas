@@ -52,7 +52,7 @@ C Inactive, active, and secondary orbitals:
           CALL DCOPY_(NB*NO,CMO(ICMO+1),1,CNAT(ICMO+1),1)
 C For correct order, change sign.
           CALL DYAX(NTMP,-1.0D0,DMAT(IDMAT+1),1,WORK(LTMP),1)
-          CALL NIDiag(WORK(LTMP),CNAT(ICMO+1),NO,NB,0)
+          CALL NIDiag(WORK(LTMP),CNAT(ICMO+1),NO,NB)
           CALL JACORD(WORK(LTMP),CNAT(ICMO+1),NO,NB)
           CALL VEIG(NO,WORK(LTMP),OCC(IOCC+1))
 C Change back to positive sign.

@@ -41,7 +41,7 @@ real(kind=wp), intent(out) :: CMO(*)
 !----------------------------------------------------------------------*
 logical(kind=iwp) :: Debug, Trace
 integer(kind=iwp) :: nBig, nTot, nTri, nTriTot, iSym, iBas, jBas, kBas, iOrb, ipOvl(8), ipCMO, npSmat, irc, iSymlb
-real(kind=wp) :: Temp, OrbPhase
+real(kind=wp) :: Temp
 real(kind=wp), allocatable :: Ovl(:), SMat(:), Vec(:), Eig(:), Tmp(:,:)
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -92,10 +92,10 @@ do iSym=1,nSym
   end if
   call FZero(Vec,nBas(iSym)**2)
   call DCopy_(nBas(iSym),[One],0,Vec,nBas(iSym)+1)
-  call NIdiag_New(Ovl(ipOvl(iSym)),Vec,nBas(iSym),nbas(iSym),0)
+  call NIdiag_New(Ovl(ipOvl(iSym)),Vec,nBas(iSym),nbas(iSym))
 
   do iBas=1,nBas(iSym)
-    temp = OrbPhase(Vec((iBas-1)*nBas(iSym)+1),nBas(iSym))
+    call VecPhase(Vec((iBas-1)*nBas(iSym)+1),nBas(iSym))
   end do
 
   if (Debug) then

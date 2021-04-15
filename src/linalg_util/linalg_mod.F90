@@ -17,6 +17,7 @@ module linalg_mod
 #include "macros.fh"
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use constants, only: Zero, One
 use definitions, only: wp, iwp, r8
 use sorting, only: sort, argsort
 use sorting_funcs, only: leq_i, leq_r, geq_r
@@ -38,7 +39,7 @@ end type
 abstract interface
   subroutine get_projections_t(self,M,P)
     import :: wp, ParentCanonicalize_t
-    class(ParentCanonicalize_t),intent(in) :: self
+    class(ParentCanonicalize_t), intent(in) :: self
     real(kind=wp), intent(in) :: M(:,:)
     real(kind=wp), intent(out) :: P(:,:)
   end subroutine get_projections_t
@@ -155,7 +156,7 @@ subroutine mult_2D(A,B,C,transpA,transpB)
   K = K_1
 
   ASSERT(wp == r8)
-  call dgemm_(merge('T','N',transpA_),merge('T','N',transpB_),M,N,K,1._wp,A,size(A,1),B,size(B,1),0._wp,C,size(C,1))
+  call dgemm_(merge('T','N',transpA_),merge('T','N',transpB_),M,N,K,One,A,size(A,1),B,size(B,1),Zero,C,size(C,1))
 end subroutine mult_2D
 
 !>  @brief
@@ -190,7 +191,7 @@ subroutine mult_2D_1D(A,x,y,transpA)
   ASSERT(M == size(x,1))
 
   ASSERT(wp == r8)
-  call dgemm_(merge('T','N',transpA_),'N',M,N,K,1._wp,A,size(A,1),x,size(x,1),0._wp,y,size(y,1))
+  call dgemm_(merge('T','N',transpA_),'N',M,N,K,One,A,size(A,1),x,size(x,1),Zero,y,size(y,1))
 end subroutine mult_2D_1D
 
 !>  @brief
@@ -369,7 +370,7 @@ contains
 end subroutine determine_eigenspaces
 
 subroutine base_canonicalize(self,V,lambda)
-  class(ParentCanonicalize_t),intent(in) :: self
+  class(ParentCanonicalize_t), intent(in) :: self
   real(kind=wp), intent(inout) :: V(:,:), lambda(:)
   !> The norms of the projections
   real(kind=wp), allocatable :: norms_projections(:)
@@ -426,12 +427,13 @@ subroutine base_canonicalize(self,V,lambda)
 end subroutine base_canonicalize
 
 subroutine project_canonical_unit_vectors(self,M,P)
-  class(CanonicalBasisCanonicalize_t),intent(in) :: self
+  class(CanonicalBasisCanonicalize_t), intent(in) :: self
   real(kind=wp), intent(in) :: M(:,:)
   real(kind=wp), intent(out) :: P(:,:)
   integer(kind=iwp) :: i, j
+  unused_var(self)
 
-  P(:,:) = 0._wp
+  P(:,:) = Zero
   ! calculate projections of basis b_j into eigenvectors v_i:
   ! p_j = sum_i < b_j | v_i > v_i
   ! if b_j are canonical unit vectors, the dot product is the j-th
@@ -441,21 +443,10 @@ subroutine project_canonical_unit_vectors(self,M,P)
       P(:,j) = P(:,j)+M(j,i)*M(:,i)
     end do
   end do
-
-  return
-# ifdef _WARNING_WORKAROUND_
-  ! avoid unused dummy warning
-  if (.false.) then
-    select type (self)
-      class default
-    end select
-  end if
-# endif
 end subroutine project_canonical_unit_vectors
 
 subroutine project_general_unit_vectors(self,M,P)
-  use Constants, only: Zero
-  class(GeneralBasisCanonicalize_t),intent(in) :: self
+  class(GeneralBasisCanonicalize_t), intent(in) :: self
   real(kind=wp), intent(in) :: M(:,:)
   real(kind=wp), intent(out) :: P(:,:)
   integer(kind=iwp) :: i, j
@@ -782,7 +773,7 @@ subroutine Gram_Schmidt(basis,n_to_ON,ONB,n_new,S)
     improve_solution = .true.
     lin_dep_detected = .false.
     do while (improve_solution .and. (.not. lin_dep_detected))
-      correction = 0._wp
+      correction = Zero
       if (present(S)) then
         call mult(S,curr,v)
       else

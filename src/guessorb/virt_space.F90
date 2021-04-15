@@ -73,7 +73,7 @@ call mma_allocate(EVe,nBas,nBas,Label='EVe')
 call FZero(EVe,nBas**2)
 call DCopy_(nBas,[One],0,EVe,nBas+1)
 call DCopy_(nBas*(nBas+1)/2,Ovrlp,1,EVa,1)
-call NIdiag(EVa,EVe,nBas,nBas,0)
+call NIdiag(EVa,EVe,nBas,nBas)
 
 do iBas=2,nBas
   EVa(iBas) = EVa(iBas*(iBas+1)/2)
