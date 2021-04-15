@@ -875,8 +875,6 @@
       If (Allocated(CijK)) Call mma_deallocate(CijK)
       If (Allocated(CilK)) Call mma_deallocate(CilK)
       If (Allocated(BklK)) Call mma_deallocate(BklK)
-      If (ipijList.ne.ip_iDummy)
-     &   Call GetMem('ijList','Free','Inte',ipijList,lijList)
       If (Allocated(VJ)) Call mma_deallocate(VJ)
       Do i=1,nKDens
          If (ip_CMOi(i).ne.ip_Dummy)

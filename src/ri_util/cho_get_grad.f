@@ -318,32 +318,6 @@
 *                                                                      *
 ************************************************************************
       If(DoExchange) Then
-
-         lijList=0
-         Do jDen=nKvec,1,-1
-            iMOleft=jDen
-            iMOright=jDen
-            If (DoCAS.and.lSA) iMOright=jDen+2
-            iChOrbR(1,1,jDen) = 0
-            iChOrbT(1,jDen) = 0
-            Do k = 2, nSym
-               iChOrbR(k,1,jDen) = iChOrbR(k-1,1,jDen)+
-     &                     (nChOrb_(k-1,iMOright)+1)*nChOrb_(1,iMOleft)
-            End Do
-            Do i=2,nSym
-               iChOrbR(1,i,jDen) = iChOrbR(nSym,i-1,jDen)+
-     &              (nChOrb_(nSym,iMOright)+1)*nChOrb_(i-1,iMOleft)
-               Do k = 2,nSym
-                  iChOrbR(k,i,jDen) = iChOrbR(k-1,i,jDen)
-     &                 + (nChOrb_(k-1,iMOright)+1)*nChOrb_(i,iMOleft)
-               End Do
-               iChOrbT(i,jDen) = iChOrbT(i-1,jDen)
-     &                 + nChOrb_(i-1,iMOleft)*(nChOrb_(i-1,iMOright)+1)
-            End Do
-            lijList = max(lijList, iChOrbR(nSym,nSym,jDen)+
-     &                nChOrb_(nSym,iMOleft)*(nChOrb_(nSym,iMOright)+1))
-         End Do
-
 *
 ** Define the screening thresholds
 *
@@ -440,8 +414,6 @@
               ip_CMOi(i)=ip_Dummy
            End If
          End Do
-         Call GetMem('ijList','Allo','Inte',ipijList,lijList)
-         Call IZero(iWork(ipijList),lijList)
 
          nQoT = 0
 *

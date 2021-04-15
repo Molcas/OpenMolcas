@@ -92,8 +92,6 @@
       ipChM(:)   =ip_Dummy
       ip_CMOi(:) =ip_Dummy
       ipDMLT(:)  =ip_Dummy
-
-      ipijList   =ip_iDummy
 *                                                                      *
 ************************************************************************
 *                                                                      *

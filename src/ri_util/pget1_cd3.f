@@ -239,13 +239,13 @@ C     Fac = One / Four
                                  temp = temp + V_k(indij)*
      &                               (DSO_Var(indkl)-DSO(indkl))*CoulFac
                                  if(ijVec.ne.0) Then
-                                    tempJ = Compute_B_4(irc,kSOk,
+                                    tempJ = Compute_B(irc,kSOk,
      &                                   lSOl,0,nBas(0),2)
                                     temp = temp + tempJ*CoulFac*
      &                                   fac_ij
 
                                     tempK = tempK +
-     &                                   Compute_B_4(irc,kSOk,lSOl,
+     &                                   Compute_B(irc,kSOk,lSOl,
      &                                   0,nBas(0),1)
                                  End If
                                  temp = temp - tempK*ExFac*Half*fac_ij

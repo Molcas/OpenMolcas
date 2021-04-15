@@ -1033,14 +1033,14 @@
                            temp = CoulFac*(V_k(jSOj,1)*DSO(Indkl,1)
      &                       + U_k(jSOj)*DSO(Indkl,1)
      &                       + V_k(jSOj,1)*(DSO_Var(Indkl)-DSO(indkl,1))
-     &                       + Compute_B_4(irc,kSOk,lSOl,jAOj,iOff1,2))
+     &                       + Compute_B(irc,kSOk,lSOl,jAOj,iOff1,2))
 *
 *-----------------------Exchange contribution: B(K,m,n)
 *
                            temp = temp - ExFac*Half*(BklK(indexB)
-     &                        + Compute_B_4(irc,kSOk,lSOl,jAOj,iOff1,1))
+     &                        + Compute_B(irc,kSOk,lSOl,jAOj,iOff1,1))
 *                          temp = temp - ExFac*Half*(
-*    &                        + Compute_B_4(irc,kSOk,lSOl,jAOj,iOff1,1))
+*    &                        + Compute_B(irc,kSOk,lSOl,jAOj,iOff1,1))
 
                            PMax=Max(PMax,Abs(temp))
                            PAO(nijkl,iPAO) =  Fac * temp
