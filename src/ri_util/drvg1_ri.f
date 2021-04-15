@@ -94,7 +94,6 @@
       ipDMLT(:)  =ip_Dummy
 
       ipijList   =ip_iDummy
-      ipijListTri=ip_iDummy
 *                                                                      *
 ************************************************************************
 *                                                                      *

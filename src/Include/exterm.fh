@@ -15,14 +15,13 @@
       Integer iAdrCVec(8,8,2),LuCVector(8,2)
       Integer iChOrbT(8,2),iChOrbR(8,8,2)
       Integer NumAuxVec(8)
-      Integer MxChVInShl,lijlist,ipijList,ipijListTri,ljkvec,nScreen
+      Integer MxChVInShl,lijlist,ipijList,ljkvec,nScreen
 
       Common /ExTe1/ nChOrb, ipChM,nIJ1,nIJR,                           &
      &               ip_CMOi,lCMOi,iOff_CMOi,                           &
      &               LuCVector, MxChVInShl,                             &
      &               iAdrCVec, lijlist, ipijList,                       &
-     &               ipijListTri,iChOrbT,iChOrbR,ljkvec,                &
-     &               nScreen, NumAuxVec
+     &               iChOrbT,iChOrbR,ljkvec,nScreen, NumAuxVec
 
       Logical DoCholExch, Timings_default
       Common /ExTe2/ DoCholExch, Timings_default

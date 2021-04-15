@@ -441,9 +441,7 @@
            End If
          End Do
          Call GetMem('ijList','Allo','Inte',ipijList,lijList)
-         Call GetMem('ijListTri','Allo','Inte',ipijListTri,lijList)
          Call IZero(iWork(ipijList),lijList)
-         Call IZero(iWork(ipijListTri),lijList)
 
          nQoT = 0
 *
