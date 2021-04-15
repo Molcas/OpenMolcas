@@ -20,7 +20,7 @@
 *              Rectangularize.                                   *
 *                                                                *
 ******************************************************************
-      use ExTerm, only: CijK
+      use ExTerm, only: CijK, BMP2
       Implicit Real*8 (a-h,o-z)
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"
@@ -30,7 +30,7 @@
          lBVec = nBasFnc*nBasFnc*nVec
          Do i = 1, 2
             iAdr = 1 + nBasFnc*nBasFnc*(jVec1-1)
-            Call dDaFile(LuBVector(i),2,Work(ip_B_mp2(i)),lBVec,iAdr)
+            Call dDaFile(LuBVector(i),2,Bmp2(:,i),lBVec,iAdr)
          End Do
       End If
 
@@ -38,9 +38,8 @@
       iAdr = nIJR(kSym,lSym,1)*(jVec1-1) + iAdrCVec(jSym,kSym,jDen)
       Call dDaFile(LuCVector(jSym,jDen),2,CijK,lCVec,iAdr)
 *
+      irc=0
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(irc)
       End
 *
 ******************************************************************
@@ -149,18 +148,17 @@ c Avoid unused argument warnings
 *     Purpose: To do part of MP2 gradient.                       *
 *                                                                *
 ******************************************************************
+      use ExTerm, only: BMP2
       Implicit Real*8 (a-h,o-z)
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"
-#include "WrkSpc.fh"
 
 
       B_mp2 = 0.0d0
-      iOff1 = (jAOj)*nBasFnc*nBasFnc + (kSOk-1)*nBasFnc + lSOl-1
-      iOff2 = (jAOj)*nBasFnc*nBasFnc + (lSOl-1)*nBasFnc + kSOk-1
-      B_mp2 = B_mp2 + (Work(ip_B_mp2(iOpt)+iOff1)+
-     &                 Work(ip_B_mp2(iOpt)+iOff2))/2.0d0
+      iOff1 = (jAOj)*nBasFnc*nBasFnc + (kSOk-1)*nBasFnc + lSOl
+      iOff2 = (jAOj)*nBasFnc*nBasFnc + (lSOl-1)*nBasFnc + kSOk
+      B_mp2 = B_mp2 + (Bmp2(iOff1,iOpt)+Bmp2(iOff2,iOpt))/2.0d0
       Compute_B_4 = B_mp2
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(irc)
+      irc=0
+
       End

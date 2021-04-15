@@ -31,7 +31,7 @@
 ************************************************************************
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
-      use ExTerm, only: CijK, CilK, BklK
+      use ExTerm, only: CijK, CilK, BklK, BMP2
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -201,8 +201,8 @@ C     Fac = One / Four
                         lBVec = nBas(0)*nBas(0)
                         Do i = 1,2
                            iAdr = 1 + nBas(0)*nBas(0)*(ijVec-1)
-                           Call dDaFile(LuBVector(i),2,Work(ip_B_mp2(i))
-     &                                  , lBVec,iAdr)
+                           Call dDaFile(LuBVector(i),2,Bmp2(:,i),lBVec,
+     &                                  iAdr)
                         End Do
 
                      End If

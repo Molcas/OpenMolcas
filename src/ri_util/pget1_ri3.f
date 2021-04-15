@@ -31,7 +31,7 @@
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: lPSO, lsa, ipAorb, Thpkl
-      use ExTerm, only: CijK, CilK, BklK
+      use ExTerm, only: CijK, CilK, BklK, BMP2
       use ExTerm, only: Ymnij, ipYmnij, nYmnij
 #ifdef _DEBUGPRINT_
       use ExTerm, only: iOff_Ymnij
@@ -1002,8 +1002,7 @@
             lBVec = nBas(0)*nBas(0)*jBas
             Do i = 1,2
                iAdr = 1 + nBas(0)*nBas(0)*(jSO_off-1)
-               Call dDaFile(LuBVector(i),2,Work(ip_B_mp2(i)),
-     &                      lBVec,iAdr)
+               Call dDaFile(LuBVector(i),2,Bmp2(:,i),lBVec,iAdr)
             End Do
 *
             Do i3 = 1, iCmp(3)

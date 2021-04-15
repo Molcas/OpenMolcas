@@ -46,7 +46,7 @@
       use Symmetry_Info, only: nIrrep
       use ExTerm, only: CijK, CilK, BklK, VJ
       use ExTerm, only: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
-      use ExTerm, only: Yij
+      use ExTerm, only: Yij, BMP2
       Implicit Real*8 (A-H,O-Z)
       Logical, External :: Rsv_Tsk2
 #include "Molcas.fh"
@@ -364,9 +364,7 @@
 *
          If(iMp2prpt .eq. 2) Then
             lB_mp2 = mxChVInShl*nBas(0)*nBas(0)
-            Do i = 1, 2
-               Call GetMem('B_mp2','Allo','Real',ip_B_mp2(i),lB_mp2)
-            End Do
+            Call mma_allocate(BMP2,lB_mp2,2,Label='BMP2')
          End If
 *                                                                      *
 *----------------------------------------------------------------------*
@@ -889,12 +887,7 @@
       End Do
       Call mma_deallocate(MaxDens)
 *
-      If(iMp2prpt .eq. 2) Then
-         Do i = 1, 2
-            Call GetMem('B_mp2','Free','Real',ip_B_mp2(i),lB_mp2)
-         End Do
-      End If
-*
+      If (Allocated(BMP2)) Call mma_deallocate(BMP2)
       If (Allocated(Thpkl)) Call mma_deallocate(Thpkl)
 *
       Call mma_deallocate(Sew_Scr)

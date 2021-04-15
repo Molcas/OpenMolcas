@@ -12,7 +12,6 @@
 *  Common space for Cholesky Mp2-gradients
 *
         Integer iMP2prpt, nMp2Vec, LuAVector(2), LuBVector(2),
-     &          ip_B_mp2(2), ip_A_mp2(2)
+     &          ip_A_mp2(2)
         Common / MP2gAl_i / iMp2prpt, nMp2Vec, LuAVector,
-     &                      LuBVector, ip_B_mp2,nAuxVe,
-     &                      ip_A_mp2
+     &                      LuBVector, nAuxVe, ip_A_mp2
