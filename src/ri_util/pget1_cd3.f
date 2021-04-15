@@ -31,7 +31,7 @@
 ************************************************************************
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
-      use ExTerm, only: CijK, CilK, BklK, BMP2
+      use ExTerm, only: CijK, CilK, BklK, BMP2, iMP2prpt
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"

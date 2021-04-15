@@ -46,7 +46,7 @@
       use Symmetry_Info, only: nIrrep
       use ExTerm, only: CijK, CilK, BklK, VJ
       use ExTerm, only: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
-      use ExTerm, only: Yij, BMP2
+      use ExTerm, only: Yij, BMP2, iMP2prpt
       Implicit Real*8 (A-H,O-Z)
       Logical, External :: Rsv_Tsk2
 #include "Molcas.fh"

@@ -20,7 +20,7 @@
 *              Rectangularize.                                   *
 *                                                                *
 ******************************************************************
-      use ExTerm, only: CijK, BMP2
+      use ExTerm, only: CijK, BMP2, iMP2prpt
       Implicit Real*8 (a-h,o-z)
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"

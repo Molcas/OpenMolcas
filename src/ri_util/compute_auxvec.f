@@ -15,6 +15,7 @@
       use RICD_Info, only: Do_RI, Cholesky
       use Symmetry_Info, only: nIrrep
       use Data_Structures, only: Allocate_DSBA, Map_to_DSBA
+      use ExTerm, only: iMP2prpt
       Implicit Real*8 (a-h,o-z)
       Integer ipVk(nProc), ipZpk(nProc)
       Integer, Optional:: ipUk(nProc)

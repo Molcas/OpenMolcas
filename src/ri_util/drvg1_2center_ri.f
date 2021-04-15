@@ -41,7 +41,7 @@
       use RICD_Info, only: Do_RI
       use Symmetry_Info, only: nIrrep
       use Para_Info, only: nProcs, King
-      use ExTerm, only: CijK, AMP2
+      use ExTerm, only: CijK, AMP2, iMP2prpt
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
 #include "itmax.fh"

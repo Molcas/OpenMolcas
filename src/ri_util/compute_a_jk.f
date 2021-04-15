@@ -18,6 +18,7 @@
 *     Purpose: Loading A-matrix for mp2 from disk
 *
 **************************************************************************
+      use ExTerm, only: iMP2prpt
       Implicit Real*8 (a-h,o-z)
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"

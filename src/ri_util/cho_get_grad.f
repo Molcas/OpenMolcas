@@ -114,7 +114,7 @@
      &                           L_Full_Type
       use Data_Structures, only: Allocate_Lab, Deallocate_Lab,
      &                           Lab_Type
-      use ExTerm, only: VJ
+      use ExTerm, only: VJ, iMP2prpt
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: Is_Real_Par
 #endif

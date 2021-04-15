@@ -27,6 +27,7 @@
       use Symmetry_Info, only: nIrrep
       use Para_Info, only: myRank, nProcs
       use Data_Structures, only: Deallocate_DSBA
+      use ExTerm, only: iMP2prpt
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "disp.fh"

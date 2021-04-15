@@ -32,7 +32,7 @@
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: nnp, lPSO, lsa, DMdiag
       use Symmetry_Info, only: nIrrep
-      use ExTerm, only: CijK
+      use ExTerm, only: CijK, iMP2prpt
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"

@@ -14,6 +14,7 @@ Public :: CijK, VJ, CilK, BklK
 Public :: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
 Public :: Yij
 Public :: AMP2, BMP2
+Public :: iMP2prpt
 
 Real*8, Allocatable, Target:: CijK(:), VJ(:), CilK(:), BklK(:)
 Integer, Allocatable:: Ymnij(:)
@@ -22,4 +23,6 @@ Real*8, Allocatable:: Yij(:,:,:)
 Real*8, Allocatable:: AMP2(:,:)
 Real*8, Allocatable:: BMP2(:,:)
 
+!  Cholesky Mp2-gradients
+Integer :: iMP2prpt
 End Module exterm
