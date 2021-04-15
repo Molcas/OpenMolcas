@@ -36,7 +36,7 @@
 
 #    define unused_var(x) associate(tmp => x); end associate
 !    For external procedures, associate doesn't work with all compilers
-#    define unused_proc(x) if (.false.) call x()
+#    define unused_proc(x) if (.false.) call x
 
 #  else
 

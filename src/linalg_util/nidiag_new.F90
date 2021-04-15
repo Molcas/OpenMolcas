@@ -26,6 +26,7 @@ subroutine NIdiag_New(H,U,n,nv,iOpt)
 !                                                                      *
 !***********************************************************************
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, r8
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -46,9 +47,10 @@ real(kind=wp), intent(out) :: U(nv,n)
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-#include "WrkSpc.fh"
-integer(kind=iwp) :: ipDIA, ipOFF, ipTAU, ipIWRK, ipWork, ipEVL, ipIPSZ, ipHDUP, lrwrk, liwrk, lh, info, I, M
-real(kind=wp) :: abstol, Tmp
+integer(kind=iwp) :: lrwrk, liwrk, lh, info, I, M, idum(1)
+real(kind=wp) :: abstol, dum(1), Tmp
+integer(kind=iwp), allocatable :: IPSZ(:), IWRK(:)
+real(kind=wp), allocatable :: DIA(:), EVL(:), HDUP(:), OFF(:), RWRK(:), TAU(:)
 real(kind=r8), external :: dlamch_, OrbPhase
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -63,19 +65,19 @@ lh = n*(n+1)/2
 liwrk = 10*n
 lrwrk = 20*n
 
-call GetMem('DIA','ALLO','REAL',ipDIA,n)
-call GetMem('EVL','ALLO','REAL',ipEVL,n)
-call GetMem('OFF','ALLO','REAL',ipOFF,(n-1))
-call GetMem('TAU','ALLO','REAL',ipTAU,(n-1))
-call GetMem('IPSZ','ALLO','INTE',ipIPSZ,2*n)
-call GetMem('IWRK','ALLO','INTE',ipIWRK,liwrk)
-call GetMem('RWRK','ALLO','REAL',ipWORK,lrwrk)
-call GetMem('HDUP','ALLO','REAL',ipHDUP,lh)
+call mma_allocate(DIA,n,label='DIA')
+call mma_allocate(EVL,n,label='EVL')
+call mma_allocate(OFF,n-1,label='OFF')
+call mma_allocate(TAU,n-1,label='TAU')
+call mma_allocate(IPSZ,2*n,label='IPSZ')
+call mma_allocate(IWRK,liwrk,label='IWRK')
+call mma_allocate(RWRK,lrwrk,label='RWRK')
+call mma_allocate(HDUP,lh,label='HDUP')
 
-call dcopy_(lh,H,1,Work(ipHDUP),1)
+call dcopy_(lh,H,1,HDUP,1)
 
 info = 0
-call dsptrd_('U',n,Work(ipHDUP),Work(ipDIA),Work(ipOFF),Work(ipTAU),info)
+call dsptrd_('U',n,HDUP,DIA,OFF,TAU,info)
 
 if (info /= 0) then
 # ifdef _DEBUGPRINT_
@@ -89,8 +91,7 @@ call ILAENVSET(11,'X','X',0,0,0,0,1,INFO)
 #endif
 abstol = dlamch_('Safe minimum')
 info = 0
-call dstevr_('V','A',n,Work(ipDIA),Work(ipOFF),Work(ip_Dummy),Work(ip_Dummy),iWork(ip_iDummy),iWork(ip_iDummy),abstol,M, &
-             Work(ipEVL),U,nv,iWork(ipIPSZ),Work(ipWORK),lrwrk,iWork(ipIWRK),liwrk,info)
+call dstevr_('V','A',n,DIA,OFF,dum,dum,idum,idum,abstol,M,EVL,U,nv,IPSZ,RWRK,lrwrk,IWRK,liwrk,info)
 
 if (info /= 0) then
 # ifdef _DEBUGPRINT_
@@ -99,7 +100,7 @@ if (info /= 0) then
   Go To 10
 end if
 
-call dopmtr_('Left','U','N',N,N,Work(ipHDUP),Work(ipTAU),U,nv,Work(ipWork),info)
+call dopmtr_('Left','U','N',N,N,HDUP,TAU,U,nv,RWRK,info)
 
 if (info /= 0) then
 # ifdef _DEBUGPRINT_
@@ -108,21 +109,21 @@ if (info /= 0) then
   Go To 10
 end if
 
-call dcopy_(lh,Work(ipHDUP),1,H,1)
+call dcopy_(lh,HDUP,1,H,1)
 
 do I=1,N
-  H((I*(I+1))/2) = Work(ipEVL+I-1)
+  H((I*(I+1))/2) = EVL(I)
 end do
 
 10 continue
-call GetMem('DIA','FREE','REAL',ipDIA,n)
-call GetMem('EVL','FREE','REAL',ipEVL,n)
-call GetMem('OFF','FREE','REAL',ipOFF,(n-1))
-call GetMem('TAU','FREE','REAL',ipTAU,(n-1))
-call GetMem('IPSZ','FREE','INTE',ipIPSZ,2*n)
-call GetMem('RWRK','FREE','REAL',ipWORK,lrwrk)
-call GetMem('IWRK','FREE','INTE',ipIWRK,liwrk)
-call GetMem('HDUP','FREE','REAL',ipHDUP,n*(n+1)/2)
+call mma_deallocate(DIA)
+call mma_deallocate(EVL)
+call mma_deallocate(OFF)
+call mma_deallocate(TAU)
+call mma_deallocate(IPSZ)
+call mma_deallocate(IWRK)
+call mma_deallocate(RWRK)
+call mma_deallocate(HDUP)
 
 if (info /= 0) then
 # ifdef _DEBUGPRINT_

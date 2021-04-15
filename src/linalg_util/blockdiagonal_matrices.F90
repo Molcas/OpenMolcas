@@ -35,20 +35,46 @@ interface delete
   module procedure :: block_delete
 end interface
 
+! Private extensions to mma interfaces
+interface cptr2loff
+  module procedure :: block_cptr2loff
+end interface
+interface mma_allocate
+  module procedure :: block_mma_allo_1D, block_mma_allo_1D_lim
+end interface
+interface mma_deallocate
+  module procedure :: block_mma_free_1D
+end interface
+
 contains
 
 subroutine block_new(blocks,blocksizes)
   type(t_blockdiagonal), allocatable, intent(_OUT_) :: blocks(:)
   integer(kind=iwp), intent(in) :: blocksizes(:)
-  integer(kind=iwp) :: i, L, err
+  integer(kind=iwp) :: i, L
+# ifdef _GARBLE_
+  interface
+    subroutine c_null_alloc(A)
+      import :: wp
+      real(kind=wp), allocatable :: A(:,:)
+    end subroutine c_null_alloc
+  end interface
+# endif
 
-  if (allocated(blocks)) deallocate(blocks)
-  allocate(blocks(size(blocksizes)),stat=err)
-  if (err /= 0) call abort_('Allocation failed in blockdiagonal_matrices::new')
+  if (allocated(blocks)) call block_delete(blocks)
+  call mma_allocate(blocks,size(blocksizes),label='blocks')
   do i=1,size(blocks)
+#   ifdef _GARBLE_
+    ! Garbling corrupts the allocation status of allocatable components, use a hack to reset it
+    call c_null_alloc(blocks(i)%blck)
+#   endif
     L = blocksizes(i)
     call mma_allocate(blocks(i)%blck,L,L,label='Block')
   end do
+
+# include "macros.fh"
+  unused_proc(mma_allocate(blocks,[0,0]))
+
 end subroutine block_new
 
 subroutine block_delete(blocks)
@@ -58,7 +84,7 @@ subroutine block_delete(blocks)
   do i=1,size(blocks)
     call mma_deallocate(blocks(i)%blck)
   end do
-  deallocate(blocks)
+  call mma_deallocate(blocks)
 end subroutine block_delete
 
 subroutine from_raw(S_buffer,S)
@@ -116,11 +142,21 @@ pure function blocksizes(A) result(res)
   res(:) = [(size(A(i)%blck,1),i=1,size(A))]
 end function blocksizes
 
-subroutine abort_(message)
-  character(len=*), intent(in) :: message
+! Private extensions to mma_interfaces, using preprocessor templates
+! (see src/mma_util/stdalloc.f)
 
-  call WarningMessage(2,message)
-  call Abend()
-end subroutine abort_
+! Define block_cptr2loff, block_mma_allo_1D, block_mma_allo_1D_lim, block_mma_free_1D
+#define _TYPE_ type(t_blockdiagonal)
+#  define _FUNC_NAME_ block_cptr2loff
+#  include "cptr2loff_template.fh"
+#  undef _FUNC_NAME_
+#  define _SUBR_NAME_ block_mma
+#  define _DIMENSIONS_ 1
+#  define _DEF_LABEL_ 'blk_mma'
+#  include "mma_allo_template.fh"
+#  undef _SUBR_NAME_
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+#undef _TYPE_
 
 end module blockdiagonal_matrices

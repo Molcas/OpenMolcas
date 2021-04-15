@@ -11,7 +11,7 @@
 
 ! This is just an encapsulation of the interface in
 ! src/Include/stdalloc.fh
-! and data in src/Include/WrkSpc.fh
+! and data in src/Include/WrkSpc_min.fh
 ! into a module.
 
       module stdalloc
@@ -22,4 +22,5 @@
 #include "stdalloc.fh"
 #include "WrkSpc_min.fh"
       save
+
       end module stdalloc
