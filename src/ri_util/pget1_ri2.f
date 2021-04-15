@@ -35,7 +35,7 @@
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: nnP, lPSO, lsa, DMdiag, nPos
-      use ExTerm, only: CijK
+      use ExTerm, only: CijK, AMP2
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -548,11 +548,9 @@
 *
                   lTot = jBas
                   iAdrA = nAuxVe*(lSOl-1) + (jSO - iOffA)
-                  Call dDaFile(LuAVector(1),2,Work(ip_A_MP2(1)),
-     &                         lTot,iAdrA)
+                  Call dDaFile(LuAVector(1),2,AMP2(:,1),lTot,iAdrA)
                   iAdrA = nAuxVe*(lSOl-1) + (jSO - iOffA)
-                  Call dDaFile(LuAVector(2),2,Work(ip_A_MP2(2)),
-     &                         lTot,iAdrA)
+                  Call dDaFile(LuAVector(2),2,AMP2(:,2),lTot,iAdrA)
 *
                   Do jAOj = 0, jBas-1
                      jSOj = jSO + jAOj - iOffA
@@ -563,10 +561,10 @@
      &                    + CoulFac*U_K(jSOj)*V_K(lSOl,1)
      &                    - ExFac*Work(ip_A+nijkl-1)
 *
-                     tempJ_mp2=Work(ip_A_MP2(2)+jAOj)
+                     tempJ_mp2=AMP2(1+jAOj,2)
                      temp = temp + tempJ_mp2*CoulFac
 *
-                     tempK_mp2=Work(ip_A_MP2(1)+jAOj)
+                     tempK_mp2=AMP2(1+jAOj,1)
                      temp = temp - ExFac*half*tempK_mp2
 *
                      PMax = Max(PMax,Abs(temp))

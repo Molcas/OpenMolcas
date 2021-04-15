@@ -41,7 +41,7 @@
       use RICD_Info, only: Do_RI
       use Symmetry_Info, only: nIrrep
       use Para_Info, only: nProcs, King
-      use ExTerm, only: CijK
+      use ExTerm, only: CijK, AMP2
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
 #include "itmax.fh"
@@ -187,11 +187,7 @@
          Call GetMem('A','Allo','Real',ip_A,lA)
          If (iMP2Prpt.eq.2) Then
             lA_MP2=MxChVInShl
-            Call GetMem('A_MP2(1)','Allo','Real',ip_A_MP2(1),lA_MP2)
-            Call GetMem('A_MP2(2)','Allo','Real',ip_A_MP2(2),lA_MP2)
-         Else
-            ip_A_MP2(1) = ip_Dummy
-            ip_A_MP2(2) = ip_Dummy
+            Call mma_allocate(AMP2,lA_MP2,2,Label='AMP2')
          End If
 *
 *        Find the largest set of ij. The basis i and j is due to the
@@ -519,11 +515,8 @@ C        End If
       If(DoCholExch) Then
          Call mma_deallocate(CijK)
          Call GetMem('A','Free','Real',ip_A,lA)
-         If (iMP2Prpt.eq.2) Then
-            Call GetMem('A_MP2(2)','Free','Real',ip_A_MP2(2),lA_MP2)
-            Call GetMem('A_MP2(1)','Free','Real',ip_A_MP2(1),lA_MP2)
-         End If
       End If
+      If (Allocated(AMP2)) Call mma_deallocate(AMP2)
 *
       Call Free_iSD()
 *                                                                      *

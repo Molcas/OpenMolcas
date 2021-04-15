@@ -13,12 +13,13 @@ Private
 Public :: CijK, VJ, CilK, BklK
 Public :: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
 Public :: Yij
-Public :: BMP2
+Public :: AMP2, BMP2
 
 Real*8, Allocatable, Target:: CijK(:), VJ(:), CilK(:), BklK(:)
 Integer, Allocatable:: Ymnij(:)
 Integer ipYmnij(5), nYmnij(8,5), iOff_Ymnij(8,5)
 Real*8, Allocatable:: Yij(:,:,:)
+Real*8, Allocatable:: AMP2(:,:)
 Real*8, Allocatable:: BMP2(:,:)
 
 End Module exterm
