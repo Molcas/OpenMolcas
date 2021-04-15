@@ -16,6 +16,7 @@ Public :: Yij
 
 Public :: AMP2, BMP2
 Public :: iMP2prpt, nAuxVe
+Public :: LuAVector, LuBVector
 
 Real*8, Allocatable, Target:: CijK(:), VJ(:), CilK(:), BklK(:)
 Integer, Allocatable:: Ymnij(:)
@@ -26,4 +27,5 @@ Real*8, Allocatable:: Yij(:,:,:)
 Real*8, Allocatable:: AMP2(:,:)
 Real*8, Allocatable:: BMP2(:,:)
 Integer :: iMP2prpt, nAuxVe
+Integer :: LuAVector(2), LuBVector(2)
 End Module exterm

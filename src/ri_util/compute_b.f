@@ -20,11 +20,9 @@
 *              Rectangularize.                                   *
 *                                                                *
 ******************************************************************
-      use ExTerm, only: CijK, BMP2, iMP2prpt
+      use ExTerm, only: CijK, BMP2, iMP2prpt, LuBVector
       Implicit Real*8 (a-h,o-z)
 #include "exterm.fh"
-#include "chomp2g_alaska.fh"
-#include "WrkSpc.fh"
 
       If(imp2prpt .eq. 2) Then
          lBVec = nBasFnc*nBasFnc*nVec
@@ -151,7 +149,6 @@ c Avoid unused argument warnings
       use ExTerm, only: BMP2
       Implicit Real*8 (a-h,o-z)
 #include "exterm.fh"
-#include "chomp2g_alaska.fh"
 
 
       B_mp2 = 0.0d0

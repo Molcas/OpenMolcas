@@ -35,7 +35,6 @@
       use ExTerm, only: CijK, iMP2prpt, nAuxVe
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "chomp2g_alaska.fh"
 #include "exterm.fh"
       Real*8 PAO(ijkl,nPAO), V_k(mV_k), U_K(mV_K), Z_p_K(nnP1,mV_K),
      &       Fac_ij,Fac_kl

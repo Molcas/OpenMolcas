@@ -27,7 +27,7 @@
       use Symmetry_Info, only: nIrrep
       use Para_Info, only: myRank, nProcs
       use Data_Structures, only: Deallocate_DSBA
-      use ExTerm, only: iMP2prpt
+      use ExTerm, only: iMP2prpt, LuAVector, LuBVector
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "disp.fh"
@@ -37,7 +37,6 @@
 #include "stdalloc.fh"
 #include "real.fh"
 #include "exterm.fh"
-#include "chomp2g_alaska.fh"
 *#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"

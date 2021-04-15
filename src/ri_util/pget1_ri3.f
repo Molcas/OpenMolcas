@@ -31,7 +31,7 @@
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: lPSO, lsa, ipAorb, Thpkl
-      use ExTerm, only: CijK, CilK, BklK, BMP2, iMP2prpt
+      use ExTerm, only: CijK, CilK, BklK, BMP2, iMP2prpt, LuBVector
       use ExTerm, only: Ymnij, ipYmnij, nYmnij
 #ifdef _DEBUGPRINT_
       use ExTerm, only: iOff_Ymnij
@@ -40,7 +40,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-#include "chomp2g_alaska.fh"
 #include "exterm.fh"
 #include "WrkSpc.fh"
       Real*8 PAO(ijkl,nPAO), DSO(nDSO,nSA), DSSO(nDSO), V_k(mV_k,nSA),

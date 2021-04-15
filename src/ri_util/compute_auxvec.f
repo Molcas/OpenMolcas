@@ -25,7 +25,6 @@
 #include "cholesky.fh"
 #include "etwas.fh"
 #include "exterm.fh"
-#include "chomp2g_alaska.fh"
       Logical DoExchange, DoCAS, Estimate, Update
       Integer nIOrb(0:7),nV_l(0:7),nV_t(0:7)
       Integer nU_l(0:7), nU_t(0:7)

@@ -153,7 +153,6 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "exterm.fh"
-#include "chomp2g_alaska.fh"
 *#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"

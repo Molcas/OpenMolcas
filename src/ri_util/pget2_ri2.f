@@ -37,7 +37,6 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "exterm.fh"
-#include "chomp2g_alaska.fh"
       Real*8 PSO(nijkl,nPSO), V_K(mV_K,nSA),Z_p_K(nZ_p_k,*)
       Integer iCmp(4), iAO(4), iAOst(4)
       Logical Shijij, Found

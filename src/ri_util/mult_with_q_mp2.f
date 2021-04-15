@@ -22,7 +22,6 @@
 #include "cholesky.fh"
 #include "WrkSpc.fh"
 #include "exterm.fh"
-#include "chomp2g_alaska.fh"
 *
       Integer nBas_Aux(1:nIrrep), nBas(1:nIrrep)
       Integer nLRb(8)

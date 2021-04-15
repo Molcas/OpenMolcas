@@ -31,11 +31,10 @@
 ************************************************************************
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
-      use ExTerm, only: CijK, CilK, BklK, BMP2, iMP2prpt
+      use ExTerm, only: CijK, CilK, BklK, BMP2, iMP2prpt, LuBVector
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-#include "chomp2g_alaska.fh"
 #include "exterm.fh"
 #include "WrkSpc.fh"
       Real*8 PAO(ijkl,nPAO), DSO(nDSO), DSSO(nDSO), V_k(mV_k),

@@ -35,12 +35,11 @@
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: nnP, lPSO, lsa, DMdiag, nPos
-      use ExTerm, only: CijK, AMP2, iMP2prpt, nAuxVe
+      use ExTerm, only: CijK, AMP2, iMP2prpt, nAuxVe, LuAVector
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "exterm.fh"
-#include "chomp2g_alaska.fh"
       Real*8 PAO(ijkl,nPAO), V_K(mV_K,nSA), U_K(mV_K),
      &       Z_p_K(nnP(0),mV_K,*)
       Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
