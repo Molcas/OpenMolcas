@@ -32,7 +32,7 @@
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: nnp, lPSO, lsa, DMdiag
       use Symmetry_Info, only: nIrrep
-      use ExTerm, only: CijK, iMP2prpt
+      use ExTerm, only: CijK, iMP2prpt, A
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -198,7 +198,7 @@
 *
                   MemSO2 = MemSO2 + 1
 *
-                  Call FZero(Work(ip_A),jBas*lBas)
+                  A(1:jBas*lBas)=Zero
 *
                   Do iSym = 1, nIrrep
                      kSym = iEor(j2,iSym-1)+1
@@ -235,7 +235,7 @@
                      Call DGEMM_('T','N',jBas,lBas,nik,
      &                           Fact,CikJ,nik,
      &                                V2,nik,
-     &                          1.0D0,Work(ip_A),jBas)
+     &                          1.0D0,A,jBas)
 *
                   End Do
 
@@ -256,8 +256,7 @@
                         End If
 *
 *-----------------------Exchange contribution
-                        temp = temp
-     &                       - ExFac*Work(ip_A+mijkl-1)
+                        temp = temp - ExFac*A(mijkl)
 *
                         PMax=Max(PMax,Abs(Temp))
                         PSO(mijkl,MemSO2) =  Fac * temp
@@ -321,7 +320,7 @@
 *
                   MemSO2 = MemSO2 + 1
 *
-                  Call FZero(Work(ip_A),jBas*lBas)
+                  A(1:jBas*lBas)=Zero
 *
                   Do iSym = 1, nIrrep
                      kSym = iEor(j2,iSym-1)+1
@@ -357,7 +356,7 @@
                      Call DGEMM_('T','N',jBas,lBas,nik,
      &                           Fact,CikJ,nik,
      &                                V2,nik,
-     &                          1.0D0,Work(ip_A),jBas)
+     &                          1.0D0,A,jBas)
 *
                   End Do
 *
@@ -378,8 +377,7 @@
                         End If
 *
 *-----------------------Exchange contribution
-                        temp = temp
-     &                       - ExFac*Work(ip_A+mijkl-1)
+                        temp = temp - ExFac*A(mijkl)
 *
                         temp2=0.0d0
                         jpSOj=CumnnP2(j2)+(jSOj-1)*nnP(j2)
@@ -447,7 +445,7 @@
 *
                   MemSO2 = MemSO2 + 1
 *
-                  Call FZero(Work(ip_A),jBas*lBas)
+                  A(1:jBas*lBas) = Zero
 *
                   Do iSym = 1, nIrrep
                      kSym = iEor(j2,iSym-1)+1
@@ -483,7 +481,7 @@
                      Call DGEMM_('T','N',jBas,lBas,nik,
      &                           Fact,CiKJ,nik,
      &                                V2,nik,
-     &                          1.0D0,Work(ip_A),jBas)
+     &                          1.0D0,A,jBas)
 *
                   End Do
 
@@ -507,8 +505,7 @@
                         End If
 *
 *-----------------------Exchange contribution
-                        temp = temp
-     &                       - ExFac*Work(ip_A+mijkl-1)
+                        temp = temp - ExFac*A(mijkl)
 *
                         PMax=Max(PMax,Abs(Temp))
                         PSO(mijkl,MemSO2) =  Fac * temp
@@ -566,7 +563,7 @@
 *
                   MemSO2 = MemSO2 + 1
 *
-                  Call FZero(Work(ip_A),jBas*lBas)
+                  A(1:jBas*lBas) = Zero
 *
                   Do iSym = 1, nIrrep
                      kSym = iEor(j2,iSym-1)+1
@@ -602,7 +599,7 @@
                      Call DGEMM_('T','N',jBas,lBas,nik,
      &                           Fact,CiKj,nik,
      &                                V2,nik,
-     &                          1.0D0,Work(ip_A),jBas)
+     &                          1.0D0,A,jBas)
 *
                   End Do
 *
@@ -623,8 +620,7 @@
                         End If
 *
 *-----------------------Exchange contribution
-                        temp = temp
-     &                       - ExFac*Work(ip_A+mijkl-1)
+                        temp = temp - ExFac*A(mijkl)
 *
                         PMax=Max(PMax,Abs(Temp))
                         PSO(mijkl,MemSO2) =  Fac * temp

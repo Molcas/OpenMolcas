@@ -17,10 +17,11 @@
 *     Purpose: Multiply MP2 A~_sep and B~_sep with inverse cholesky factors.
 *
 **************************************************************************
-      use ExTerm, only: nAuxVe
+      use ExTerm, only: nAuxVe, A
       Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "exterm.fh"
 *
       Integer nBas_Aux(1:nIrrep), nBas(1:nIrrep)
@@ -101,7 +102,7 @@
       l_A    = NumAux*NumAux
       l_A_ht = NumAux*NumCV
       Call GetMem('A_Tilde_vec','Allo','Real',ip_A_t,l_A_t)
-      Call GetMem('A_vec','Allo','Real',ip_A,l_A)
+      Call mma_allocate(A,l_A,Label='A')
       Call GetMem('A_HalfT_vec','Allo','Real',ip_A_ht,l_A_ht)
 *
       Do iType = 1,2
@@ -132,18 +133,18 @@
          Call dGemm_('N','T', NumAux, NumAux, NumCV,
      &              1.0d0, Work(ip_A_ht), NumAux,
      &                     Work(ip_Q),NumAux,
-     &              0.0d0, Work(ip_A), NumAux)
+     &              0.0d0, A, NumAux)
 *
 *     Put transformed A-vectors back on disk
 *
          iOpt = 1
          iAdrA = iAdrA_out(iSym)
-         Call dDaFile(Lu_A(iType),iOpt,Work(ip_A),l_A,iAdrA)
+         Call dDaFile(Lu_A(iType),iOpt,A,l_A,iAdrA)
 *
       End Do
 *
       Call GetMem('A_Tilde_vec','Free','Real',ip_A_t,l_A_t)
-      Call GetMem('A_vec','Free','Real',ip_A,l_A)
+      Call mma_deallocate(A)
       Call GetMem('A_HalfT_vec','Free','Real',ip_A_ht,l_A_ht)
 *                                                                      *
 ************************************************************************

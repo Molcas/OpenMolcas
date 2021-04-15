@@ -35,7 +35,7 @@
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: nnP, lPSO, lsa, DMdiag, nPos
-      use ExTerm, only: CijK, AMP2, iMP2prpt, nAuxVe, LuAVector
+      use ExTerm, only: CijK, AMP2, iMP2prpt, nAuxVe, LuAVector, A
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -172,11 +172,11 @@
                   V2(1:)=>CiKj(1:,1)
                EndIf
 
-               Call FZero(Work(ip_A),jBas*lBas)
+               A(1:jBas*lBas)=Zero
                CALL DGEMM_('T','N',jBas,lBas,nik,
      &                    1.0d0,CiKj,nik,
      &                          V2,nik,
-     &                    0.0d0,Work(ip_A),jBas)
+     &                    0.0d0,A,jBas)
 
                Do lAOl = 0, lBas-1
                   lSOl = lSO + lAOl - iOffA
@@ -185,7 +185,7 @@
                      nijkl = nijkl + 1
 
                      temp = CoulFac*V_K(jSOj,1)*V_K(lSOl,1)
-                     temp = temp - ExFac*Work(ip_A+nijkl-1)
+                     temp = temp - ExFac*A(nijkl)
 *
                      PMax = Max(PMax,Abs(temp))
                      PAO(nijkl,iPAO) = Fac*temp
@@ -238,8 +238,8 @@
                iPAO = iPAO + 1
                nijkl = 0
 
-               Factor=0.0d0
-               Call FZero(Work(ip_A),jBas*lBas)
+               Factor=Zero
+               A(1:jBas*lBas)=Zero
                Do iSO=1,nKVec
                  nik = nIJ1(iSym,kSym,iSO)
 
@@ -260,7 +260,7 @@
                  CALL DGEMM_('T','N',jBas,lBas,nik,
      &                       1.0d0,CikJ(:,iSO),nik,
      &                             V2,nik,
-     &                       Factor,Work(ip_A),jBas)
+     &                       Factor,A,jBas)
                  Factor=1.0d0
                End Do
 
@@ -271,7 +271,7 @@
                      nijkl = nijkl + 1
 
                      temp = CoulFac*V_K(jSOj,1)*V_K(lSOl,1)
-                     temp = temp - 2.0d0*ExFac*Work(ip_A+nijkl-1)
+                     temp = temp - 2.0d0*ExFac*A(nijkl)
 *
                      PMax = Max(PMax,Abs(temp))
                      PAO(nijkl,iPAO) = Fac*temp
@@ -327,11 +327,11 @@
                   V2(1:) = CiKj(1:,1)
                EndIf
 
-               Call FZero(Work(ip_A),jBas*lBas)
+               A(1:jBas*lBas)=Zero
                CALL DGEMM_('T','N',jBas,lBas,nik,
      &                    1.0d0,CiKj(:,1),nik,
      &                          V2,nik,
-     &                    0.0d0,Work(ip_A),jBas)
+     &                    0.0d0,A,jBas)
 
                Do lAOl = 0, lBas-1
                   lSOl = lSO + lAOl - iOffA
@@ -340,7 +340,7 @@
                      nijkl = nijkl + 1
 
                      temp = CoulFac*V_K(jSOj,1)*V_K(lSOl,1)
-                     temp = temp - ExFac*Work(ip_A+nijkl-1)
+                     temp = temp - ExFac*A(nijkl)
 *
 *----- Active space contribution
                      temp2=0.0d0
@@ -403,8 +403,8 @@
                iPAO = iPAO + 1
                nijkl = 0
 
-               Factor=0.0d0
-               Call FZero(Work(ip_A),jBas*lBas)
+               Factor=Zero
+               A(1:jBas*lBas)=Zero
 
                Do iSO=1,nKVec
                  nik = nIJ1(iSym,kSym,iSO)
@@ -445,8 +445,8 @@
                         End Do
                      End Do
 
-                     kl = (ip_A-1)  + k + jBas*(l-1)
-                     Work(kl)= Factor*Work(kl)+tmp
+                     kl = k + jBas*(l-1)
+                     A(kl)= Factor*A(kl)+tmp
 
                    End Do
                  End Do
@@ -466,7 +466,7 @@
      &                             V_K(lSOl,4)*V_K(jSOj,3)+
      &                             V_K(lSOl,1)*V_K(jSOj,5)+
      &                             V_K(lSOl,5)*V_K(jSOj,1))
-                     temp = temp - ExFac*Work(ip_A+nijkl-1)
+                     temp = temp - ExFac*A(nijkl)
 *
 *----- Active space contribution
                      temp2=0.0d0
@@ -531,11 +531,11 @@
                   V2(1:) => CiKj(1:,1)
                EndIf
 
-               Call FZero(Work(ip_A),jBas*lBas)
+               A(1:jBas*lBas)=Zero
                CALL DGEMM_('T','N',jBas,lBas,nik,
      &                    1.0d0,CiKj(:,1),nik,
      &                          V2,nik,
-     &                    0.0d0,Work(ip_A),jBas)
+     &                    0.0d0,A,jBas)
 *
                Do lAOl = 0, lBas-1
                   lSOl = lSO + lAOl - iOffA
@@ -558,7 +558,7 @@
                      temp = CoulFac*V_K(jSOj,1)*V_K(lSOl,1)
      &                    + CoulFac*V_K(jSOj,1)*U_K(lSOl)
      &                    + CoulFac*U_K(jSOj)*V_K(lSOl,1)
-     &                    - ExFac*Work(ip_A+nijkl-1)
+     &                    - ExFac*A(nijkl)
 *
                      tempJ_mp2=AMP2(1+jAOj,2)
                      temp = temp + tempJ_mp2*CoulFac

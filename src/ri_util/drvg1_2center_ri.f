@@ -41,7 +41,7 @@
       use RICD_Info, only: Do_RI
       use Symmetry_Info, only: nIrrep
       use Para_Info, only: nProcs, King
-      use ExTerm, only: CijK, AMP2, iMP2prpt
+      use ExTerm, only: CijK, AMP2, iMP2prpt, A
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
 #include "itmax.fh"
@@ -183,7 +183,7 @@
 *        Scratch for A_IJ
 *
          lA = MxChVInShl*MxChVInShl
-         Call GetMem('A','Allo','Real',ip_A,lA)
+         Call mma_allocate(A,lA,Label='A')
          If (iMP2Prpt.eq.2) Then
             lA_MP2=MxChVInShl
             Call mma_allocate(AMP2,lA_MP2,2,Label='AMP2')
@@ -513,7 +513,7 @@ C        End If
 *                                                                      *
       If(DoCholExch) Then
          Call mma_deallocate(CijK)
-         Call GetMem('A','Free','Real',ip_A,lA)
+         Call mma_deallocate(A)
       End If
       If (Allocated(AMP2)) Call mma_deallocate(AMP2)
 *
