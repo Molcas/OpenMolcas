@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      subroutine cortab_molcas(binom,dfac,eps,flmtx,hpt,
-     &  hwt,lmf,lml,lmx,lmy,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      subroutine cortab_molcas(binom,dfac,eps,flmtx,hpt,                &
+     &  hwt,lmf,lml,lmx,lmy,                                            &
      &  lmz,lmax,lmn1u,lproju,mc,mr,ndfac,zlm)
-c     # tables for core potential and spin-orbit integrals.
+!     # tables for core potential and spin-orbit integrals.
       implicit real*8 (a-h,o-z)
       parameter (a0=0.0d0, a1=1.0d0, a3=3.0d0)
-      dimension binom(*),dfac(*),flmtx(3,*),hpt(*),hwt(*),lmf(*),
+      dimension binom(*),dfac(*),flmtx(3,*),hpt(*),hwt(*),lmf(*),       &
      &  lml(*),lmx(*),lmy(*),lmz(*),mc(3,*),mr(3,*),zlm(*)
-c
-c     # compute gauss-hermite points and weights for c, z integrals.
+!
+!     # compute gauss-hermite points and weights for c, z integrals.
       igh =1
       nn = 5
       do 120 i = 1, 3
@@ -25,7 +25,7 @@ c     # compute gauss-hermite points and weights for c, z integrals.
         igh = igh + nn
         nn = 2*nn
   120 continue
-c     # compute double factorials.
+!     # compute double factorials.
       dfac(1)=a1
       dfac(2)=a1
       fi=a0
@@ -33,7 +33,7 @@ c     # compute double factorials.
         fi=fi+a1
         dfac(i+2)=fi * dfac(i)
   130 continue
-c     # compute binomial coefficients.
+!     # compute binomial coefficients.
       inew=1
       binom(1)=a1
       do 150 j=1,lmn1u-1
@@ -46,30 +46,30 @@ c     # compute binomial coefficients.
         inew=inew+1
         binom(inew)=a1
   150 continue
-c     # compute tables by recursion for real spherical harmonics.  they
-c     # are indexed by l, m and sigma.  the sequence number of the
-c     # harmonic with quantum numbers l, m and sigma is given by
-c     #            l**2+2*m+1-sigma
-c     # lmf(index) and lml(index) hold the positions of the first and
-c     # last terms of the harmonic in the lmx, lmy, lmz, and zlm arrays.
-c     # the harmonics with angular momentum l are generated from those
-c     # with angular momenta l-1 and l-2.
-c     # for m = 0,1,2,...,l-1, the recursion relation
-c     z*Z(l-1,m,s) = sqrt(((l-m)*(l+m))/((2*l-1)*(2*l+1)))*Z(l,m,s)+
-c                  sqrt(((l+m-1)*(l-m-1))/((2*l-3)*(2*l-1)))*Z(l-2,m,s)
-c     # is used.
-c     # for m = l, the recursion relation
-c     x*Z(l-1,l-1,s)+(-1)**(1-s)*y*Z(l-1,l-1,1-s) =
-c                  sqrt((2*l))/((2*l+1)))*Z(l,l,s)
-c     # is used.
-c     # l=0
+!     # compute tables by recursion for real spherical harmonics.  they
+!     # are indexed by l, m and sigma.  the sequence number of the
+!     # harmonic with quantum numbers l, m and sigma is given by
+!     #            l**2+2*m+1-sigma
+!     # lmf(index) and lml(index) hold the positions of the first and
+!     # last terms of the harmonic in the lmx, lmy, lmz, and zlm arrays.
+!     # the harmonics with angular momentum l are generated from those
+!     # with angular momenta l-1 and l-2.
+!     # for m = 0,1,2,...,l-1, the recursion relation
+!     z*Z(l-1,m,s) = sqrt(((l-m)*(l+m))/((2*l-1)*(2*l+1)))*Z(l,m,s)+
+!                  sqrt(((l+m-1)*(l-m-1))/((2*l-3)*(2*l-1)))*Z(l-2,m,s)
+!     # is used.
+!     # for m = l, the recursion relation
+!     x*Z(l-1,l-1,s)+(-1)**(1-s)*y*Z(l-1,l-1,1-s) =
+!                  sqrt((2*l))/((2*l+1)))*Z(l,l,s)
+!     # is used.
+!     # l=0
       lmf(1) = 1
       lml(1) = 1
       lmx(1) = 0
       lmy(1) = 0
       lmz(1) = 0
       zlm(1) = a1
-c     # l=1
+!     # l=1
       lmf(2) = 2
       lml(2) = 2
       lmx(2) = 0
@@ -152,8 +152,8 @@ c     # l=1
         indexh=lang**2+2*mang+1-isigma
         lmf(indexh)=lml(indexh-1)+1
         lml(indexh)=lml(indexh-1)
-c       # isig:  index of the harmonic (l-1),(m-1),sigma
-c       # isigm: index of the harmonic (l-1),(m-1),(1-sigma)
+!       # isig:  index of the harmonic (l-1),(m-1),sigma
+!       # isigm: index of the harmonic (l-1),(m-1),(1-sigma)
         isig=(lang-1)**2+2*(mang-1)+1-isigma
         isigm=(lang-1)**2+2*(mang-1)+isigma
         k=lmf(isigm)
@@ -178,8 +178,8 @@ c       # isigm: index of the harmonic (l-1),(m-1),(1-sigma)
         endif
         isigma=0
         indexh=lang**2+2*mang+1-isigma
-c       # isig:  index of the harmonic (l-1),(m-1),sigma
-c       # isigm: index of the harmonuc (l-1),(m-1),(1-sigma)
+!       # isig:  index of the harmonic (l-1),(m-1),sigma
+!       # isigm: index of the harmonuc (l-1),(m-1),(1-sigma)
         isig=(lang-1)**2+2*(mang-1)+1-isigma
         isigm=(lang-1)**2+2*(mang-1)+isigma
         lmf(indexh)=lml(indexh-1)+1
@@ -236,7 +236,7 @@ c       # isigm: index of the harmonuc (l-1),(m-1),(1-sigma)
         iz=iz+1
         flmtx(3,iz) = -dble(lang)
   300 enddo
-c     # column and row indices for angular momentum matrix elements.
+!     # column and row indices for angular momentum matrix elements.
       iadd = 1
       do 310 i=1,2*lproju-1
         mc(1,i) = i

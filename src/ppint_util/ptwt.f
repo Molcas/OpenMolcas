@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      subroutine ptwt(abess,arc2,bbess,dfac,npi,l,lambu,ltot1,lmahi,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      subroutine ptwt(abess,arc2,bbess,dfac,npi,l,lambu,ltot1,lmahi,    &
      &  lmbhi,alpha,ptpow,q2,rc,rka,rkb,prd,hpt,hwt,qsum)
-c
-c  compute type 2 radial integrals, scaled by exp(-arc2)/sqrt(pi),
-c  using the points and weights method,
-c  for lama=l to lmahi, lamb=l to lmbhi, n=lama+lamb-l-l
-c
+!
+!  compute type 2 radial integrals, scaled by exp(-arc2)/sqrt(pi),
+!  using the points and weights method,
+!  for lama=l to lmahi, lamb=l to lmbhi, n=lama+lamb-l-l
+!
       implicit real*8 (a-h,o-z)
       parameter (a500=500.0d0, a50000=50000.0d0)
-      dimension abess(*),bbess(*),dfac(*),hpt(*),hwt(*),ptpow(*),
+      dimension abess(*),bbess(*),dfac(*),hpt(*),hwt(*),ptpow(*),       &
      &  q2(lambu,*),qsum(ltot1,lambu,*)
-c
+!
       call wzero(lambu*lmahi,q2,1)
       if(arc2.gt.a50000) then
         npt=5
@@ -48,8 +48,8 @@ c
         do 88 lama=l,lmahi
           do 86 lamb=l,lmbhi
             n=((1-l-l)+lama)+lamb
-            q2(lamb,lama)=q2(lamb,lama)+(hwt(i+idif)*abess(lama))*
-     1        bbess(lamb)*ptpow(n)
+            q2(lamb,lama)=q2(lamb,lama)+(hwt(i+idif)*abess(lama))*      &
+     &        bbess(lamb)*ptpow(n)
    86     continue
    88   continue
    90 continue
@@ -62,8 +62,8 @@ c
       do 96 lama=l,lmahi
         do 94 lamb=l,lmbhi
           n=((1-l-l)+lama)+lamb
-          qsum(n,lamb,lama)=qsum(n,lamb,lama)+(fctr/dfac(lama+lama+1))*
-     1      bbess(lamb)*q2(lamb,lama)
+          qsum(n,lamb,lama)=qsum(n,lamb,lama)+(fctr/dfac(lama+lama+1))* &
+     &      bbess(lamb)*q2(lamb,lama)
    94   continue
         fctr=rka*fctr
    96 continue

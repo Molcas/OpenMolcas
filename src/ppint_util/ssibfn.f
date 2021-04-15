@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine ssibfn(nmax,x,ssi)
-c
-c  scaled spherical i bessel functions
-c
+!
+!  scaled spherical i bessel functions
+!
       implicit real*8 (a-h,o-z)
-      parameter (a0=0.0d0, a1=1.0d0, a3s2=1.5d0, a2=2.0d0, a3=3.0d0,
-     1  a20=20.0d0)
+      parameter (a0=0.0d0, a1=1.0d0, a3s2=1.5d0, a2=2.0d0, a3=3.0d0,    &
+     &  a20=20.0d0)
       dimension ssi(*)
-c
+!
       x2=x*x
       xmin=(abs(3*nmax-1))
       if(x.gt.xmin) go to 5
@@ -51,7 +51,7 @@ c
         ssi(n+1)=ssi(n+1)*ssi(n)
     4 continue
       return
-c
+!
     5 if(x.ge.a20) then
         ex=a0
       else

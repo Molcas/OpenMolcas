@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      subroutine ang2_molcas(ang,binom,crda,dfac,it,l,lit,
-     &  lmlo,lmhi,lmf,lml,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      subroutine ang2_molcas(ang,binom,crda,dfac,it,l,lit,              &
+     &  lmlo,lmhi,lmf,lml,                                              &
      &  lmx,lmy,lmz,lmnv,mproju,xk,yk,zk,zlm)
-c
-c  compute type 2 angular integrals
-c
+!
+!  compute type 2 angular integrals
+!
       implicit real*8 (a-h,o-z)
       parameter (a0=0.0d0, a1=1.0d0)
-      dimension ang(lit,mproju,*), binom(*), crda(lit,3), dfac(*),
+      dimension ang(lit,mproju,*), binom(*), crda(lit,3), dfac(*),      &
      &  lmf(*), lml(*), lmx(*), lmy(*), lmz(*), lmnv(3,*), zlm(*)
-c
+!
       call wzero(lit*mproju*lmhi,ang,1)
       na1=lmnv(1,it)+1
       la1=lmnv(2,it)+1
@@ -50,9 +50,9 @@ c
       loc2=(lam-1)**2
       do 40 mu=1,l2
       istart=lmf(loc2+mu)
-      if(mod(ia+lmx(mstart)+lmx(istart),2).ne.1.or.
-     1   mod(ib+lmy(mstart)+lmy(istart),2).ne.1.or.
-     2   mod(ic+lmz(mstart)+lmz(istart),2).ne.1) go to 40
+      if(mod(ia+lmx(mstart)+lmx(istart),2).ne.1.or.                     &
+     &   mod(ib+lmy(mstart)+lmy(istart),2).ne.1.or.                     &
+     &   mod(ic+lmz(mstart)+lmz(istart),2).ne.1) go to 40
       pre=a0
       iend=lml(loc2+mu)
       aint=a0
@@ -80,10 +80,10 @@ c
           mndx=lmx(j)
           mndy=lmy(j)
           mndz=lmz(j)
-          aint=aint+zlm(i)*zlm(j)*
-     &              dfac(ia+indx+mndx)*
-     &              dfac(ib+indy+mndy)*
-     &              dfac(ic+indz+mndz)/
+          aint=aint+zlm(i)*zlm(j)*                                      &
+     &              dfac(ia+indx+mndx)*                                 &
+     &              dfac(ib+indy+mndy)*                                 &
+     &              dfac(ic+indz+mndz)/                                 &
      &              dfac(ia+indx+mndx+ib+indy+mndy+ic+indz+mndz)
    20   continue
    30 continue

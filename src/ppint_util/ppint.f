@@ -1,53 +1,53 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SubRoutine PPInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,nIC,nComp,la,lb,A,RB,nHer,
-     &                  Array,nArr,Ccoor,nOrdOp,lOper,iChO,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SubRoutine PPInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,     &
+     &                  Final,nZeta,nIC,nComp,la,lb,A,RB,nHer,          &
+     &                  Array,nArr,Ccoor,nOrdOp,lOper,iChO,             &
      &                  iStabM,nStabM)
-************************************************************************
-*                                                                      *
-* Object: to compute pseudo potential integrals.                       *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: to compute pseudo potential integrals.                       *
+!                                                                      *
+!***********************************************************************
       use Basis_Info
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "oneswi.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), C(3),
+      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),          &
+     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),      &
+     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), C(3),              &
      &       Array(nZeta*nArr), Ccoor(3), TC(3)
-      Integer lOper(nComp), iStabM(0:nStabM-1),
+      Integer lOper(nComp), iStabM(0:nStabM-1),                         &
      &          iDCRT(0:7), iChO(nComp)
-*
+!
       parameter(lproju=9)
       parameter (imax=100,kcrs=1)
       Real*8 ccr(imax),zcr(imax)
-      Integer nkcrl(lproju+1,kcrs),nkcru(lproju+1,kcrs),lcr(kcrs),
+      Integer nkcrl(lproju+1,kcrs),nkcru(lproju+1,kcrs),lcr(kcrs),      &
      &        ncr(imax)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement function for Cartesian index
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Statement function for Cartesian index
+!
       nElem(i) = (i+1)*(i+2)/2
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       nArray=0
       ipScr = 1
       intmax=Max(nElem(la),nElem(lb))
@@ -59,26 +59,26 @@
          Write (6,*) 'nArray.gt.nZeta*nArr'
          Call Abend()
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       kdc=0
       Do iCnttp = 1, nCnttp
          If (iCnttp>1) kdc = kdc + dbsc(iCnttp-1)%nCntr
 
          If (dbsc(iCnttp)%nPP.eq.0) Cycle
-cAOM< Get the "true" (non SO) shells
+!AOM< Get the "true" (non SO) shells
          nPP_S=0
-         do kSh = dbsc(iCnttp)%iPP,
+         do kSh = dbsc(iCnttp)%iPP,                                     &
      &            dbsc(iCnttp)%iPP + dbsc(iCnttp)%nPP-1
-*           Skip if a cardholder shell
+!           Skip if a cardholder shell
             If (Shells(kSh)%nExp.le.0) Cycle
             ncrr=Int(Shells(kSh)%Exp(1))
             if(ncrr.le.500) nPP_S=nPP_S+1
          enddo
          If (nPP_S.eq.0) Cycle
-cAOM>
-*
+!AOM>
+!
          npot = 0
          kShStr=dbsc(iCnttp)%iPP
          kShEnd = kShStr + nPP_S-1
@@ -118,64 +118,64 @@ cAOM>
          Write (6,*) 'nkcrl',(nkcrl(i,1),i=1,iSh)
          Write (6,*) 'nkcru',(nkcru(i,1),i=1,iSh)
 #endif
-*
+!
          Do iCntr = 1, dbsc(iCnttp)%nCntr
             C(1:3) = dbsc(iCnttp)%Coor(1:3,iCntr)
-*
-*
-*-----------Find the DCR for M and S
-*
-            Call DCR(LmbdT,iStabM,nStabM,
-     &               dc(kdc+iCntr)%iStab ,dc(kdc+iCntr)%nStab,
+!
+!
+!-----------Find the DCR for M and S
+!
+            Call DCR(LmbdT,iStabM,nStabM,                               &
+     &               dc(kdc+iCntr)%iStab ,dc(kdc+iCntr)%nStab,          &
      &               iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
-*
+!
             Do lDCRT = 0, nDCRT-1
                Call OA(iDCRT(lDCRT),C,TC)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
                iZeta = 0
                Do iBeta = 1, nBeta
                   Do iAlpha = 1, nAlpha
                      iZeta = iZeta + 1
                      Call FZero(Array(ipScr),intmax)
-                     Call Pseudo(Alpha(iAlpha),A(1),A(2),A(3),la+1,
-     &                           Beta(iBeta),RB(1),RB(2),RB(3),lb+1,
-     &                           Array(ipScr),intmax,Max(la+1,lb+1),
-     &                           ccr,zcr,nkcrl,nkcru,lcr,ncr,
+                     Call Pseudo(Alpha(iAlpha),A(1),A(2),A(3),la+1,     &
+     &                           Beta(iBeta),RB(1),RB(2),RB(3),lb+1,    &
+     &                           Array(ipScr),intmax,Max(la+1,lb+1),    &
+     &                           ccr,zcr,nkcrl,nkcru,lcr,ncr,           &
      &                           TC(1),TC(2),TC(3),npot)
-*
+!
                      Do iB = 1, nElem(lb)
                         Do iA = 1, nElem(la)
                            iAB = (iB-1)*nElem(la)+iA
-                           iOff2 = (iB-1)*nElem(la)*nZeta
+                           iOff2 = (iB-1)*nElem(la)*nZeta               &
      &                           + (iA-1)*nZeta + iZeta + ipA - 1
                            Array(iOff2) = Array(iAB+ipScr-1)
                         End Do  ! iA
                      End Do     ! iB
-*
+!
                   End Do        ! iAlpha
                End Do           ! iBeta
-*                                                                      *
-************************************************************************
-*                                                                      *
-*              Symmetry Adapt
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!              Symmetry Adapt
+!
                nOp = NrOpr(iDCRT(lDCRT))
-               Call SymAdO(Array(ipA),nZeta,la,lb,nComp,Final,nIC,
+               Call SymAdO(Array(ipA),nZeta,la,lb,nComp,Final,nIC,      &
      &                     nOp,lOper,iChO,Fact)
             End Do        ! lDCRT
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
          End Do           ! iCntr
       End Do              ! iCnttp
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Zeta)
          Call Unused_real_array(ZInv)

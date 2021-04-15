@@ -1,31 +1,31 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      subroutine qbess( alpha,      apwr,       aterm1,     aterm2,
-     &      binom,      bpref,      bpwr,       bterm1,     dfac,
-     &      l,          lambu,      lmahi,      lmbhi,      ltot1,
-     &      nu,         prd,        qsum,       rka,        rkb,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      subroutine qbess( alpha,      apwr,       aterm1,     aterm2,     &
+     &      binom,      bpref,      bpwr,       bterm1,     dfac,       &
+     &      l,          lambu,      lmahi,      lmbhi,      ltot1,      &
+     &      nu,         prd,        qsum,       rka,        rkb,        &
      &      ssi )
-c
-c  compute type 2 radial integrals, scaled by exp(-arc2)/sqrt(pi),
-c  using the bessel function formula for
-c  lama=max(l,nu) to lmahi, lamb=max(l,nu) to lmbhi, n=lama+lamb-l-l
-c
+!
+!  compute type 2 radial integrals, scaled by exp(-arc2)/sqrt(pi),
+!  using the bessel function formula for
+!  lama=max(l,nu) to lmahi, lamb=max(l,nu) to lmbhi, n=lama+lamb-l-l
+!
       implicit real*8 (a-h,o-z)
       parameter (a0=0.0d0, a1=1.0d0, a2=2.0d0, a4=4.0d0)
-      dimension apwr(*), aterm1(*), aterm2(*), binom(*), bpref(*),
+      dimension apwr(*), aterm1(*), aterm2(*), binom(*), bpref(*),      &
      &  bpwr(*), bterm1(*), dfac(*), qsum(ltot1,lambu,*), ssi(*)
-c
-c     nu=l+1-npi/2
-c     # bessel function formula applies to all npi=2 cases, no npi=1
-c     # cases, and some npi=0 cases.
+!
+!     nu=l+1-npi/2
+!     # bessel function formula applies to all npi=2 cases, no npi=1
+!     # cases, and some npi=0 cases.
       num1=nu-1
       lmlo=max(l,nu)
       lmaphi=lmahi-num1
@@ -54,8 +54,8 @@ c     # cases, and some npi=0 cases.
         ssi(lami)=ssi(lami)/dfac(lami+lami-1)
    36 continue
       lmplo=lmlo-num1
-      fctra=(alpha+alpha)**(nu-2)*fcta**(lmlo-1)*prd/sqrt(a4*alpha)*
-     &  ((dfac(2*(2*lmplo+num1)-1)/dfac(2*(lmplo+num1)+1))*
+      fctra=(alpha+alpha)**(nu-2)*fcta**(lmlo-1)*prd/sqrt(a4*alpha)*    &
+     &  ((dfac(2*(2*lmplo+num1)-1)/dfac(2*(lmplo+num1)+1))*             &
      &  dfac(2*num1+1))/dfac(2*(lmplo+num1)+1)
       fctran=(2*(2*lmplo+num1)-1)
       fctrad=(2*(lmplo+num1)+1)
@@ -86,14 +86,14 @@ c     # cases, and some npi=0 cases.
           fctrtd=(2*(lambp+num1)+1)
           do 56 it=1,lamap
             do 52 iu=1,lambp
-              sum=sum+aterm2(iu)*(fctrt*bterm1(it))*
+              sum=sum+aterm2(iu)*(fctrt*bterm1(it))*                    &
      &          ssi((it+(nu-2))+iu)
    52       continue
             fctrt=fctrt*fctrtn/fctrtd
             fctrtn=fctrtn+a2
             fctrtd=fctrtd+a2
    56     continue
-          qsum(n,lambp+num1,lamap+num1)=qsum(n,lambp+num1,lamap+num1)+
+          qsum(n,lambp+num1,lamap+num1)=qsum(n,lambp+num1,lamap+num1)+  &
      &      fctrb * bpref(lambp) * sum
           fctrb=fctrb*fctrbn/fctrbd
           fctrbn=fctrbn+a2

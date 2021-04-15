@@ -1,30 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      subroutine pseud1_molcas(a,ang,ccr,gout,ipt,lmnv,ltot1,ncr,
-     &  nkcrl,nkcru,qsum,xab,yab,zab,zcr,lit,ljt,ai,aj,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      subroutine pseud1_molcas(a,ang,ccr,gout,ipt,lmnv,ltot1,ncr,       &
+     &  nkcrl,nkcru,qsum,xab,yab,zab,zcr,lit,ljt,ai,aj,                 &
      &  xi,yi,zi,xj,yj,zj,xc,yc,zc,kcrs,lproju1,crda,crdb)
-c
-c  compute type 1 core potential integrals
-c
+!
+!  compute type 1 core potential integrals
+!
       implicit real*8 (a-h,o-z)
       dimension llt(7,2)
       parameter (a0=0.0d0,a4=4.0d0)
-      dimension a(*),ang(ltot1,*),ccr(*),crda(lit,3),crdb(ljt,3),
-     &  gout(*),ipt(*),lmnv(3,*),ncr(*),nkcrl(lproju1,*),
+      dimension a(*),ang(ltot1,*),ccr(*),crda(lit,3),crdb(ljt,3),       &
+     &  gout(*),ipt(*),lmnv(3,*),ncr(*),nkcrl(lproju1,*),               &
      &  nkcru(lproju1,*),qsum(ltot1,*),xab(*),yab(*),zab(*),zcr(*)
       data llt /1,2,5,11,21,36,57,1,4,10,20,35,56,84/
 
       call pseud1_molcas_internal(a)
-*
-*     This is to allow type punning without an explicit interface
+!
+!     This is to allow type punning without an explicit interface
       contains
       subroutine pseud1_molcas_internal(a)
       use iso_c_binding
@@ -83,7 +83,7 @@ c
       zk=zij+aaa*zijm-zc
       aarr1=(ai*aj/aa)*rr
       taa=aa+aa
-c*
+!*
       rp2=xk*xk+yk*yk+zk*zk
       if(rp2.eq.a0) then
         rp=a0
@@ -101,14 +101,14 @@ c*
         rk=taa*rp
         lamu=ltot1
       endif
-c
-c  compute radial integrals and sum over potential terms
-c
+!
+!  compute radial integrals and sum over potential terms
+!
       call wzero((ltot1*lamu),qsum,1)
       kcrl=nkcrl(1,kcrs)
       kcru=nkcru(1,kcrs)
-      call rad1(aa,aarr1,alpt,arp2,ccr,
-     &  a(ipt(11)),fctr2,kcrl,kcru,
+      call rad1(aa,aarr1,alpt,arp2,ccr,                                 &
+     &  a(ipt(11)),fctr2,kcrl,kcru,                                     &
      &  lamu,ltot1,ncr,qsum,rk,tol,zcr)
       ijt=0
       do 90 it=itl,itu
@@ -121,9 +121,9 @@ c
           nb1=lmnv(1,jt)+1
           lb1=lmnv(2,jt)+1
           mb1=lmnv(3,jt)+1
-c
-c  compute angular integrals
-c
+!
+!  compute angular integrals
+!
           call facab(a(ipt(12)),na1,nb1,crda(1,1),crdb(1,1),xab)
           call facab(a(ipt(12)),la1,lb1,crda(1,2),crdb(1,2),yab)
           call facab(a(ipt(12)),ma1,mb1,crda(1,3),crdb(1,3),zab)
@@ -132,13 +132,13 @@ c
           call c_f_pointer(c_loc(a(ipt(15))),ia15,[1])
           call c_f_pointer(c_loc(a(ipt(16))),ia16,[1])
           call c_f_pointer(c_loc(a(ipt(17))),ia17,[1])
-          call ang1(ang,a(ipt(11)),na1+nb1-1,la1+lb1-1,ma1+mb1-1,lamu,
-     &      ia13,ia14,ia15,ia16,ia17,
+          call ang1(ang,a(ipt(11)),na1+nb1-1,la1+lb1-1,ma1+mb1-1,lamu,  &
+     &      ia13,ia14,ia15,ia16,ia17,                                   &
      &      ltot1,xab,yab,zab,xk,yk,zk,a(ipt(18)))
           nullify(ia13,ia14,ia15,ia16,ia17)
-c
-c  combine angular and radial integrals
-c
+!
+!  combine angular and radial integrals
+!
           do 70 lam=1,lamu
             nhi=ltot1-mod(ltot1-lam,2)
             do 60 n=lam,nhi,2
@@ -150,5 +150,5 @@ c
    90 continue
       return
       end subroutine pseud1_molcas_internal
-*
+!
       end

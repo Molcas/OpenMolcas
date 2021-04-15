@@ -1,32 +1,32 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      subroutine pseud2_molcas( a, anga, angb, ccr, gout, ipt,
-     &  lambu, ltot1, mproju, ncr, nkcrl, nkcru, qsum,
-     &  zcr, lit, ljt, ai, aj, xi, yi, zi, xj, yj, zj, xc, yc, zc,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      subroutine pseud2_molcas( a, anga, angb, ccr, gout, ipt,          &
+     &  lambu, ltot1, mproju, ncr, nkcrl, nkcru, qsum,                  &
+     &  zcr, lit, ljt, ai, aj, xi, yi, zi, xj, yj, zj, xc, yc, zc,      &
      &  kcrs, lcru, lproju1,crda,crdb)
       implicit real*8 (a-h,o-z)
       dimension llt(7,2)
-c
-c  compute type 2 core potential integrals
-c
-      dimension a(*),anga(lit,mproju,*),angb(ljt,mproju,*),ccr(*),
-     &  crda(lit,3),crdb(ljt,3),gout(*),ipt(*),ncr(*),
+!
+!  compute type 2 core potential integrals
+!
+      dimension a(*),anga(lit,mproju,*),angb(ljt,mproju,*),ccr(*),      &
+     &  crda(lit,3),crdb(ljt,3),gout(*),ipt(*),ncr(*),                  &
      &  nkcrl(lproju1,*),nkcru(lproju1,*),qsum(ltot1,lambu,*),zcr(*)
       data llt /1,2,5,11,21,36,57,1,4,10,20,35,56,84/
       data      a0   ,a4     /        0.0d0,      4.0d0       /
-*     data eps1,a0,a1,a4,a50 /1.0d-15,0.0d0,1.0d0,4.0d0,50.0d0/
+!     data eps1,a0,a1,a4,a50 /1.0d-15,0.0d0,1.0d0,4.0d0,50.0d0/
 
       call pseud2_molcas_internal(a)
-*
-*     This is to allow type punning without an explicit interface
+!
+!     This is to allow type punning without an explicit interface
       contains
       subroutine pseud2_molcas_internal(a)
       use iso_c_binding
@@ -74,7 +74,7 @@ c
   230 continue
   240 continue
       aarr2=(ai*aj/aa)*(ca-cb)**2
-c*
+!*
       if(ca.eq.a0) then
         rka=a0
         lmau=1
@@ -121,21 +121,21 @@ c*
       lmahi=min(lmau,l+(lit-1))
       lmblo=max(l-(ljt-1),1)
       lmbhi=min(lmbu,l+(ljt-1))
-c
-c  compute radial integrals
-c
+!
+!  compute radial integrals
+!
       kcrl=nkcrl(l+1,kcrs)
       kcru=nkcru(l+1,kcrs)
-            call rad2_molcas( a,          ccr,        ipt,        kcrl,
-     &                 kcru,       l,          lambu,      lmahi,
-     &                 lmalo,      lmbhi,      lmblo,      ltot1,
-     &                 ncr,        qsum,       rka,        rkb,
-     &                 zcr,        lit,        ljt,        ca,
-     &                 cb,         tai,        taj,        aa,
+            call rad2_molcas( a,          ccr,        ipt,        kcrl, &
+     &                 kcru,       l,          lambu,      lmahi,       &
+     &                 lmalo,      lmbhi,      lmblo,      ltot1,       &
+     &                 ncr,        qsum,       rka,        rkb,         &
+     &                 zcr,        lit,        ljt,        ca,          &
+     &                 cb,         tai,        taj,        aa,          &
      &                 aarr2,      fctr2 )
-c
-c  compute angular integrals and combine with radial integrals
-c
+!
+!  compute angular integrals and combine with radial integrals
+!
       ijt=0
       do 84 it=itl,itu
       call c_f_pointer(c_loc(a(ipt(1))),ia1,[1])
@@ -145,9 +145,9 @@ c
       call c_f_pointer(c_loc(a(ipt(15))),ia15,[1])
       call c_f_pointer(c_loc(a(ipt(16))),ia16,[1])
       call c_f_pointer(c_loc(a(ipt(17))),ia17,[1])
-      call ang2_molcas(anga,a(ipt(12)),crda,a(ipt(11)),it,
-     &  l,lit,lmalo,lmahi,
-     &  ia13,ia14,ia15,ia16,ia17,
+      call ang2_molcas(anga,a(ipt(12)),crda,a(ipt(11)),it,              &
+     &  l,lit,lmalo,lmahi,                                              &
+     &  ia13,ia14,ia15,ia16,ia17,                                       &
      &  ia1,mproju,xka,yka,zka,a(ipt(18)))
       nullify(ia1,ia13,ia14,ia15,ia16,ia17)
       do 80 jt=jtl,jtu
@@ -160,9 +160,9 @@ c
       call c_f_pointer(c_loc(a(ipt(15))),ia15,[1])
       call c_f_pointer(c_loc(a(ipt(16))),ia16,[1])
       call c_f_pointer(c_loc(a(ipt(17))),ia17,[1])
-      call ang2_molcas(angb,a(ipt(12)),crdb,a(ipt(11)),jt,
-     &  l,ljt,lmblo,lmbhi,
-     &  ia13,ia14,ia15,ia16,ia17,
+      call ang2_molcas(angb,a(ipt(12)),crdb,a(ipt(11)),jt,              &
+     &  l,ljt,lmblo,lmbhi,                                              &
+     &  ia13,ia14,ia15,ia16,ia17,                                       &
      &  ia1,mproju,xkb,ykb,zkb,a(ipt(18)))
       nullify(ia1,ia13,ia14,ia15,ia16,ia17)
       do 76 lama=lmalo,lmahi
@@ -192,5 +192,5 @@ c
    88 continue
       return
       end subroutine pseud2_molcas_internal
-*
+!
       end
