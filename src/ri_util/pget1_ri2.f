@@ -35,7 +35,7 @@
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: nnP, lPSO, lsa, DMdiag, nPos
-      use ExTerm, only: CijK, AMP2, iMP2prpt
+      use ExTerm, only: CijK, AMP2, iMP2prpt, nAuxVe
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"

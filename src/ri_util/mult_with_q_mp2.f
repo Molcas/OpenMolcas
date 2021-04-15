@@ -17,6 +17,7 @@
 *     Purpose: Multiply MP2 A~_sep and B~_sep with inverse cholesky factors.
 *
 **************************************************************************
+      use ExTerm, only: nAuxVe
       Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "WrkSpc.fh"

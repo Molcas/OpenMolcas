@@ -32,7 +32,7 @@
 *             Modified for RI-HF/CAS, Dec 2009 (F. Aquilante)          *
 ************************************************************************
       use SOAO_Info, only: iAOtSO
-      use ExTerm, only: CijK, iMP2prpt
+      use ExTerm, only: CijK, iMP2prpt, nAuxVe
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "chomp2g_alaska.fh"
