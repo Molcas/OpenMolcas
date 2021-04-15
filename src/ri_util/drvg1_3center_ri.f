@@ -90,13 +90,13 @@
       Integer, Allocatable:: Shij(:,:), Shij2(:,:), LBList(:)
       Real*8, Allocatable:: CVec2(:,:,:), CVec(:,:)
       Real*8, Allocatable:: Xmi(:,:,:,:)
+      Real*8, Allocatable:: Tmp(:,:), TMax_Valence(:,:),
+     &                      TMax_Auxiliary(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Statement functions
 *
-      TMax_Valence(i,j)=Work(ipTMax-1+(j-1)*nSkal_Valence+i)
-      TMax_Auxiliary(i)=Work(ipTMax-1+nSkal_Valence**2+i)
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 *                                                                      *
 ************************************************************************
@@ -183,34 +183,31 @@
 *                                                                      *
 *---  Compute entities for prescreening at shell level
 *
-      nTMax=nSkal_Valence**2+nSkal_Auxiliary
-      If (Do_RI) nTMax = nTMax-1
-      Call GetMem('TMax','Allo','Real',ipTMax,nTMax)
+      Call mma_allocate(TMax_Valence,nSkal_Valence,nSkal_Valence,
+     &                  Label='TMax_Valence')
+      nTMax=nSkal_Auxiliary
+      If (Do_RI) nTMax = Max(1,nTMax-1)
+      Call mma_allocate(TMax_Auxiliary,nTMax,Label='TMax_Auxiliary')
 *
-      Call Allocate_Work(ip_Tmp,nSkal**2)
-      Call Shell_MxSchwz(nSkal,Work(ip_Tmp))
+      Call mma_allocate(Tmp,nSkal,nSkal,Label='Tmp')
+      Call Shell_MxSchwz(nSkal,Tmp)
       TMax_all=Zero
       Do iS = 1, nSkal_Valence
          Do jS = 1, iS
-            ip_Out=ip_Tmp + (jS-1)*nSkal + iS -1
-            ip_In =ipTMax + (jS-1)*nSkal_Valence + iS -1
-            Work(ip_In)=Work(ip_Out)
-            ip_In =ipTMax + (iS-1)*nSkal_Valence + jS -1
-            Work(ip_In)=Work(ip_Out)
-            TMax_all=Max(TMax_all,Work(ip_Out))
+            TMax_Valence(iS,jS)=Tmp(iS,jS)
+            TMax_Valence(jS,iS)=Tmp(iS,jS)
+            TMax_all=Max(TMax_all,Tmp(iS,jS))
          End Do
       End Do
       If (Do_RI) Then
          Do iS = 1, nSkal_Auxiliary-1
             iS_ = iS + nSkal_Valence
             jS_ = nSkal_Valence + nSkal_Auxiliary
-            ip_Out = ip_Tmp + (iS_-1)*nSkal + jS_ -1
-            ip_In  = ipTMax + nSkal_Valence**2 + iS -1
-            Work(ip_In)=Work(ip_Out)
+            TMax_Auxiliary(iS)=Tmp(iS_,jS_)
          End Do
       End If
 *
-      Call Free_Work(ip_Tmp)
+      Call mma_deallocate(Tmp)
 
 *                                                                      *
 ************************************************************************
@@ -904,7 +901,8 @@
       Call Free_Tsk2(id)
       Call mma_deallocate(Shij2)
       Call mma_deallocate(Shij)
-      Call GetMem('TMax','Free','Real',ipTMax,nSkal**2)
+      Call mma_deallocate(TMax_Auxiliary)
+      Call mma_deallocate(TMax_Valence)
 *                                                                      *
 ************************************************************************
 *                                                                      *
