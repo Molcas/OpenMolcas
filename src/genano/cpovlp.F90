@@ -21,12 +21,14 @@
 
 subroutine CpOvlp(from,to)
 
+#include "intent.fh"
+
 use Genano_globals, only: MxLqn, nSym, nBas, iSymBk, Center, BasName, symlab
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: from(*)
-real(kind=wp), intent(out) :: to(*)
+real(kind=wp), intent(_OUT_) :: to(*)
 integer(kind=iwp) :: iBas, iBasX, iBlk, ijBas, ind, indx, iSym, jBas, jBasX, jndx
 logical(kind=iwp) :: oki, okj
 

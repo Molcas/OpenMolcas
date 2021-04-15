@@ -16,6 +16,8 @@ subroutine DumpM2Msi(iRun,Luval,LID,nShowMOs,isDensity,nMOs,GRef,Occ,MO,DOut,mCo
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
+#include "intent.fh"
+
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6, RtoB
@@ -26,7 +28,7 @@ integer(kind=iwp), intent(in) :: iRun, LuVal, LID, nShowMOs, nMOs, GRef(*), mCoo
 logical(kind=iwp), intent(in) :: isDensity, isMOPack, isTheOne, isLine, isEner, isDebug, isCutOff, isSphere, isColor, isLuscus
 integer(kind=iwp), intent(inout) :: iPrintCount
 real(kind=wp), intent(in) :: Occ(*), MO(*), VbOcc, E(*), WCoor(3,mCoor), SphrDist(mCoor), SphrColor(mCoor)
-real(kind=wp), intent(out) :: DOut(*)
+real(kind=wp), intent(_OUT_) :: DOut(*)
 character, intent(in) :: cMoBlock(*)
 real(kind=wp), intent(inout) :: dNorm, WLine(nLine,mCoor)
 character(len=7), intent(in) :: Crypt

@@ -11,11 +11,13 @@
 
 subroutine SCATTER(N,A,IND,B)
 
+#include "intent.fh"
+
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: N, IND(N)
-real(kind=wp), intent(out) :: A(*)
+real(kind=wp), intent(_OUT_) :: A(*)
 real(kind=wp), intent(in) :: B(N)
 integer(kind=iwp) :: I
 

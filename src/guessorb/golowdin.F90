@@ -26,6 +26,8 @@
 
 subroutine goLowdin(CMO)
 
+#include "intent.fh"
+
 use GuessOrb_Global, only: nBas, nDel, nSym, SThr
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -35,7 +37,7 @@ implicit none
 !----------------------------------------------------------------------*
 ! Dummy variables.                                                     *
 !----------------------------------------------------------------------*
-real(kind=wp), intent(out) :: CMO(*)
+real(kind=wp), intent(_OUT_) :: CMO(*)
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*

@@ -13,13 +13,15 @@ subroutine DZAXPY(N,DA,DX,INCX,DY,INCY,DZ,INCZ)
 ! MULTIPLY A VECTOR, X, BY A SCALAR, ADD TO A VECTOR, Y, AND
 ! STORE THE RESULT IN THE VECTOR Z.
 
+#include "intent.fh"
+
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: N, INCX, INCY, INCZ
 real(kind=wp), intent(in) :: DA, DX(*), DY(*)
-real(kind=wp), intent(out) :: DZ(*)
+real(kind=wp), intent(_OUT_) :: DZ(*)
 integer(kind=iwp) :: I, IX, IY, IZ, M, MP1
 
 if (N <= 0) return

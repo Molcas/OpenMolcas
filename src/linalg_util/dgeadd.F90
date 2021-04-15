@@ -12,13 +12,15 @@
 subroutine dgeAdd(A,LDA,FORMA,B,LDB,FORMB,C,LDC,M,N)
 ! MATRIX Addition FOR GENERAL MATRICES
 
+#include "intent.fh"
+
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: A(*), B(*)
 integer(kind=iwp), intent(in) :: LDA, LDB, LDC, M, N
 character, intent(in) :: FORMA, FORMB
-real(kind=wp), intent(out) :: C(*)
+real(kind=wp), intent(_OUT_) :: C(*)
 integer(kind=iwp) :: iCol, iRow
 
 if ((FORMA == 'N') .and. (FORMB == 'N')) then

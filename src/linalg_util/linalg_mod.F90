@@ -15,6 +15,7 @@ module linalg_mod
 
 #include "compiler_features.h"
 #include "macros.fh"
+#include "intent.fh"
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use constants, only: Zero, One
@@ -222,7 +223,7 @@ subroutine mult_2D_raw(A,shapeA,B,shapeB,C,transpA,transpB)
   integer(kind=iwp), intent(in) :: shapeA(2)
   real(kind=wp), intent(in), target :: B(*)
   integer(kind=iwp), intent(in) :: shapeB(2)
-  real(kind=wp), intent(out), target :: C(*)
+  real(kind=wp), intent(_OUT_), target :: C(*)
   logical(kind=iwp), intent(in), optional :: transpA, transpB
   logical(kind=iwp) :: transpA_, transpB_
   integer(kind=iwp) :: shapeC(2)

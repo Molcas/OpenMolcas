@@ -40,7 +40,7 @@ use Definitions, only: wp, iwp, u6, ItoB, RtoB
 
 implicit none
 integer(kind=iwp), intent(in) :: iBin, lSrtA, lStk
-real(kind=wp), intent(out) :: SrtArr(lSrtA)
+real(kind=wp), intent(inout) :: SrtArr(lSrtA)
 integer(kind=iwp), intent(out) :: IOStk(lStk)
 integer(kind=iwp), intent(inout) :: nStk
 #include "print.fh"

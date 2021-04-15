@@ -9,16 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine not_DGeEV(iOpt,a,lda,w,z,ldz,n,aux,naux)
+subroutine not_DGeEV(iOpt,a,lda,w,z,ldz,n,aux)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iOpt, lda, ldz, n, naux
+integer(kind=iwp), intent(in) :: iOpt, lda, ldz, n
 real(kind=wp), intent(inout) :: a(lda,n)
-real(kind=wp), intent(out) :: w(2,n), z(2*ldz*n), aux(naux)
+real(kind=wp), intent(out) :: w(2,n), z(2*ldz*n), aux(n,2)
 integer(kind=iwp) :: i, iErr, iOff
 real(kind=wp), allocatable :: w1(:)
 
@@ -35,10 +35,6 @@ if (iOpt == 0) then
   call Abend()
 end if
 iOff = n+1
-if (nAux < 2*n) then
-  write(u6,*) 'not_DGeEV: nAux is too small (naux<2*n)!'
-  call Abend()
-end if
 call mma_allocate(w1,n,label='w1')
 iErr = 0
 call XEIGEN(iOpt,lda,n,a,w,w1,z,iErr)
@@ -52,9 +48,9 @@ end if
 
 !-----Order eigenvalues to ESSL standard
 
-call dcopy_(n,w,1,aux,1)
+call dcopy_(n,w,1,aux(:,1),1)
 do i=1,n
-  w(1,i) = aux(i)    ! Real
+  w(1,i) = aux(i,1)  ! Real
   w(2,i) = w1(i)     ! Imaginary
 end do
 call mma_deallocate(w1)
@@ -68,17 +64,17 @@ do while (i >= 1)
     iOff = (i-1)*n
     call dcopy_(2*N,Z(iOff+1),1,Aux,1)
     iOff = (i-1)*2*n
-    call dcopy_(N,Aux(1),1,Z(iOff+1),2)
-    call dcopy_(N,Aux(1+N),1,Z(iOff+2),2)
+    call dcopy_(N,Aux(:,1),1,Z(iOff+1),2)
+    call dcopy_(N,Aux(:,2),1,Z(iOff+2),2)
     iOff = i*2*n
-    call dcopy_(N,Aux(1),1,Z(iOff+1),2)
-    call dcopy_(N,Aux(1+N),1,Z(iOff+2),2)
+    call dcopy_(N,Aux(:,1),1,Z(iOff+1),2)
+    call dcopy_(N,Aux(:,2),1,Z(iOff+2),2)
     call DScal_(N,-One,Z(iOff+2),2)
   else
     iOff = (i-1)*n
     call dcopy_(N,Z(iOff+1),1,Aux,1)
     iOff = (i-1)*2*n
-    call dcopy_(N,Aux(1),1,Z(iOff+1),2)
+    call dcopy_(N,Aux(:,1),1,Z(iOff+1),2)
     call dcopy_(N,[Zero],0,Z(iOff+2),2)
   end if
   i = i-1

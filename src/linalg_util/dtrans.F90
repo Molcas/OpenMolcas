@@ -16,6 +16,8 @@ subroutine DTRANS(NROWS,NCOLS,A,LDA,B,LDB)
 !
 ! double precision version
 
+#include "intent.fh"
+
 #ifdef _MKL_
 use Constants, only: One
 #endif
@@ -25,7 +27,7 @@ implicit none
 ! arguments
 integer(kind=iwp), intent(in) :: NROWS, NCOLS, LDA, LDB
 real(kind=wp), intent(in) :: A(LDA,*)
-real(kind=wp), intent(out) :: B(LDB,*)
+real(kind=wp), intent(_OUT_) :: B(LDB,*)
 ! local variables
 #ifndef _MKL_
 integer(kind=iwp) :: I, IB, J, JB, LCOLS, LROWS, MAXCOL, MAXROW, NBLKSZ

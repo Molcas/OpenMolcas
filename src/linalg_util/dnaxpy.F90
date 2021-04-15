@@ -18,7 +18,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: N, M, INCA, INCXI, INCXO, INCYI, INCYO
 real(kind=wp), intent(in) :: A((N-1)*INCA+1), X(((M-1)*INCXI+1)*((N-1)*INCXO+1))
-real(kind=wp), intent(out) :: Y(((M-1)*INCYI+1)*((N-1)*INCYO+1))
+real(kind=wp), intent(inout) :: Y(((M-1)*INCYI+1)*((N-1)*INCYO+1))
 integer(kind=iwp) :: I
 
 do I=1,N

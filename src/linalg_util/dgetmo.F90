@@ -12,12 +12,14 @@
 subroutine DGETMO(A,ldA,M,N,B,ldB)
 ! TRANSPOSE A REGULAR MATRIX (OUT-OF-PLACE)
 
+#include "intent.fh"
+
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ldA, M, N, ldB
-real(kind=wp), intent(in) :: A(ldA,M)
-real(kind=wp), intent(out) :: B(ldB,N)
+real(kind=wp), intent(in) :: A(ldA,N)
+real(kind=wp), intent(_OUT_) :: B(ldB,M)
 integer(kind=iwp) :: i, INC, j, jj
 
 if (M <= 0) then
