@@ -279,7 +279,7 @@ c         If (iIrrep.eq.0) nB = nB - 1
 *                                                                      *
 *     Sort the Q-matrix back to the original order.
 *
-      Call GetMem('MemMax','Max','Real',iDummy,MaxMem2)
+      Call mma_maxDBLE(MaxMem2)
 *
       If (Force_Out_of_Core) MaxMem2=2*nBfnTot
       lScr=Min(MaxMem2,Max(nBfn2,2*nBfnTot))

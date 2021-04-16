@@ -31,6 +31,9 @@
 *
       Character*15 SECNAM
       Parameter (SECNAM = 'Mult_with_Q_MP2')
+
+      Real*8, Allocatable:: QVec(:), A_t(:), A_ht(:)
+      Real*8, Allocatable:: B_t(:)
 *
 #include "chotime.fh"
 *                                                                      *
@@ -84,7 +87,7 @@
 *     -----------------------
 *
       l_Q = NumCV*NumAux
-      Call GetMem('Q_Vector','Allo','Real',ip_Q,l_Q)
+      Call mma_allocate(QVec,l_Q,Label='QVec')
 *
       iSeed=7
       Lu_Q = IsFreeUnit(iSeed)
@@ -93,7 +96,7 @@
 *
       iOpt = 2
       iAdrQ=0
-      Call dDaFile(Lu_Q,iOpt,Work(ip_Q),l_Q,iAdrQ)
+      Call dDaFile(Lu_Q,iOpt,QVec,l_Q,iAdrQ)
 *
 *     Get MP2 A-tilde vectors from disk
 *     ---------------------------------
@@ -101,24 +104,24 @@
       l_A_t  = NumCV*NumCV
       l_A    = NumAux*NumAux
       l_A_ht = NumAux*NumCV
-      Call GetMem('A_Tilde_vec','Allo','Real',ip_A_t,l_A_t)
+      Call mma_allocate(A_t,l_A_t,Label='A_t')
       Call mma_allocate(A,l_A,Label='A')
-      Call GetMem('A_HalfT_vec','Allo','Real',ip_A_ht,l_A_ht)
+      Call mma_allocate(A_ht,l_A_ht,Label='A_ht')
 *
       Do iType = 1,2
 *
          iOpt = 2
          iAdrA = iAdrA_in(iSym)
-         Call dDaFile(Lu_A(iType),iOpt,Work(ip_A_t),l_A_t,iAdrA)
+         Call dDaFile(Lu_A(iType),iOpt,A_t,l_A_t,iAdrA)
 #ifdef _DEBUGPRINT_
          Write(6,*) 'Q-vectors'
          Do i = 1, l_Q
-            Write(6,*) Work(ip_Q+i-1)
+            Write(6,*) QVec(i)
          End Do
 
          Write(6,*) 'A-vectors'
          Do i = 1, l_A
-            Write(6,*) Work(ip_A_t+i-1)
+            Write(6,*) A_t(i)
          End Do
 #endif
 *
@@ -126,13 +129,13 @@
 *     ----------------------------------------------
 *
          Call dGemm_('N','N', NumAux, NumCV, NumCV,
-     &              1.0d0, Work(ip_Q),NumAux,
-     &                     Work(ip_A_t), NumCV,
-     &              0.0d0, Work(ip_A_ht), NumAux)
+     &              1.0d0, QVec,NumAux,
+     &                     A_t, NumCV,
+     &              0.0d0, A_ht, NumAux)
 *
          Call dGemm_('N','T', NumAux, NumAux, NumCV,
-     &              1.0d0, Work(ip_A_ht), NumAux,
-     &                     Work(ip_Q),NumAux,
+     &              1.0d0, A_ht, NumAux,
+     &                     QVec,NumAux,
      &              0.0d0, A, NumAux)
 *
 *     Put transformed A-vectors back on disk
@@ -143,15 +146,15 @@
 *
       End Do
 *
-      Call GetMem('A_Tilde_vec','Free','Real',ip_A_t,l_A_t)
+      Call mma_deallocate(A_t)
       Call mma_deallocate(A)
-      Call GetMem('A_HalfT_vec','Free','Real',ip_A_ht,l_A_ht)
+      Call mma_deallocate(A_ht)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call GetMem('MaxMem','Max','Real',iDum,MaxMem)
+         Call mma_maxDBLE(MaxMem)
          MaxMem=9*(MaxMem/10)
-         Call GetMem('MaxMem','Allo','Real',ip_B_t,MaxMem)
+         Call mma_allocate(B_t,MaxMem,Label='B_t')
 *
          nVec = MaxMem / ( 2*nLRb(iSym) )
          nVec = min(Max(NumCV,NumAux),nVec)
@@ -160,7 +163,7 @@
          End If
 *
          l_B_t = nLRb(iSym)*nVec
-         ip_B = ip_B_t + l_B_t
+         ip_B = 1 + l_B_t
 *
       Do iType = 1,2
 *
@@ -176,28 +179,28 @@
                iOpt = 2
                lTot = NumVecJ*nLRb(iSym)
                iAdr = 1 + nLRb(iSym)*(jVec-1)
-               Call dDaFile(Lu_B(iType),iOpt,Work(ip_B_t),lTot,iAdr)
+               Call dDaFile(Lu_B(iType),iOpt,B_t,lTot,iAdr)
 *
                Fac = 0.0D0
                If (jVec.ne.1) Fac = 1.0D0
-               iOffQ1 = kVec-1 + NumAux*(jVec-1)
+               iOffQ1 = kVec + NumAux*(jVec-1)
                Call dGemm_('N','T',nBas2, NumVecK, NumVecJ,
-     &                    1.0d0,Work(ip_B_t), nBas2,
-     &                          Work(ip_Q+iOffQ1),NumAux,
-     &                    Fac,  Work(ip_B),nBas2)
+     &                    1.0d0,B_t, nBas2,
+     &                          QVec(iOffQ1),NumAux,
+     &                    Fac,  B_t(ip_B),nBas2)
             End Do
 *
             iOpt = 1
             lTot = NumVecK*nBas2
             iAdr = 1 + nBas2*(kVec-1)
-            Call dDaFile(Lu_B(iType+2),iOpt,Work(ip_B),lTot,iAdr)
+            Call dDaFile(Lu_B(iType+2),iOpt,B_t(ip_B),lTot,iAdr)
 *
          End Do
 *
       End Do
 *
          Call GetMem('MaxMem','Free','Real',ip_B_t,MaxMem)
-         Call GetMem('Q_Vector','Free','Real',ip_Q,l_Q)
+         Call mma_deallocate(QVec)
 *
          Call DaClos(Lu_Q)
 *

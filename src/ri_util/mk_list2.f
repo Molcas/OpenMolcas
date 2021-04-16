@@ -11,11 +11,13 @@
       Subroutine Mk_List2(List2,nTheta_All,mData,nSO_Tot,iCnttp,nTest,
      &                    ijS_req)
       Use Basis_Info, only: dbsc, Shells
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Integer List2(2*mData,nTheta_All)
       Logical Only_DB
+
+      Integer, allocatable:: iList(:,:)
 *
-      Call GetMem('iList','Allo','Inte',ip_iList,nSO_Tot*mData)
+      Call mma_allocate(iList,mData,nSO_Tot,Label='iList')
 *
       Only_DB=ijS_req.ne.0
 *
@@ -34,10 +36,10 @@
             nCont = Shells(iShll)%nBasis
             Do iCont = 1, nCont
                 iSO_= iSO_+ 1
-                iWork(ip_iList+(iSO_-1)*mData  )=iAng
-                iWork(ip_iList+(iSO_-1)*mData+1)=iCmp
-                iWork(ip_iList+(iSO_-1)*mData+2)=iCont
-                iWork(ip_iList+(iSO_-1)*mData+3)=iShll
+                iList(1,iSO_)=iAng
+                iList(2,iSO_)=iCmp
+                iList(3,iSO_)=iCont
+                iList(4,iSO_)=iShll
             End Do
          End Do
 C        Write (6,*) 'iSO_=',iSO_
@@ -55,19 +57,19 @@ C           Write (6,*) 'iAng,jAng=',iAng,jAng
 *
             If (.NOT.Only_DB .or. ijS.eq.ijS_req) Then
                Do iSO = iiSO+1, iiSO+nSO
-                  iAng_ =iWork(ip_iList+(iSO-1)*mData  )
-                  iCmp_ =iWork(ip_iList+(iSO-1)*mData+1)
-                  iCont_=iWork(ip_iList+(iSO-1)*mData+2)
-                  iShll_=iWork(ip_iList+(iSO-1)*mData+3)
+                  iAng_ =iList(1,iSO)
+                  iCmp_ =iList(2,iSO)
+                  iCont_=iList(3,iSO)
+                  iShll_=iList(4,iSO)
 *
                   jSO_Max=jjSO+mSO
                   If (jAng.eq.iAng) jSO_Max=iSO
                   Do jSO = jjSO+1, jSO_Max
                      ijSO=ijSO+1
-                     jAng_ =iWork(ip_iList+(jSO-1)*mData  )
-                     jCmp_ =iWork(ip_iList+(jSO-1)*mData+1)
-                     jCont_=iWork(ip_iList+(jSO-1)*mData+2)
-                     jShll_=iWork(ip_iList+(jSO-1)*mData+3)
+                     jAng_ =iList(1,jSO)
+                     jCmp_ =iList(2,jSO)
+                     jCont_=iList(3,jSO)
+                     jShll_=iList(4,jSO)
 *
 C                    Write (*,*) 'iSO,jSO,ijSO=',iSO,jSO,ijSO
                      List2(1,ijSO)=iAng_
@@ -99,7 +101,7 @@ C                    Write (*,*) 'iSO,jSO,ijSO=',iSO,jSO,ijSO
          End Do
 #endif
 *
-      Call Free_iWork(ip_iList)
+      Call mma_deallocate(iList)
 *
       Return
       End

@@ -34,7 +34,6 @@
       use ExTerm, only: CijK, CilK, BklK, BMP2, iMP2prpt, LuBVector
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "print.fh"
 #include "exterm.fh"
 #include "WrkSpc.fh"
       Real*8 PAO(ijkl,nPAO), DSO(nDSO), DSSO(nDSO), V_k(mV_k),
@@ -314,7 +313,6 @@ C     Fac = One / Four
 *
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In PGet1_CD3:PAO ',' ',PAO,ijkl,nPAO)
-      Call GetMem(' Exit PGet1_CD3','CHECK','REAL',iDum,iDum)
 #endif
 
       Call CWTime(Cpu2,Wall2)

@@ -39,7 +39,6 @@
       use ExTerm, only: Yij
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "print.fh"
 #include "exterm.fh"
 #include "WrkSpc.fh"
       Real*8 PAO(ijkl,nPAO), DSO(nDSO,nSA), DSSO(nDSO), V_k(mV_k,nSA),
@@ -58,11 +57,8 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUGPRINT_
-      iPrint=99
-      If (iPrint.ge.99) Then
-         iComp = 1
-         Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
-      End If
+      iComp = 1
+      Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
       Write (6,*)
       Write (6,*) 'Distribution of Ymnij'
       iSym=1
@@ -1115,14 +1111,10 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In PGet1_RI3:PAO ',' ',PAO,ijkl,nPAO)
-         Do i = 1, ijkl
-            Write (6,*) DDot_(nPAO,PAO(i,1),ijkl,
-     &                            PAO(i,1),ijkl)
-         End Do
-      End If
-      Call GetMem(' Exit PGet1_RI3','CHECK','REAL',iDum,iDum)
+      Call RecPrt(' In PGet1_RI3:PAO ',' ',PAO,ijkl,nPAO)
+      Do i = 1, ijkl
+         Write (6,*) DDot_(nPAO,PAO(i,1),ijkl,PAO(i,1),ijkl)
+      End Do
 #endif
 *                                                                      *
 ************************************************************************
