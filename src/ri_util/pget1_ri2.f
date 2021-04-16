@@ -309,7 +309,7 @@
 *           Pick up the MO transformed fitting coefficients, C_ik^J
             jSOj = jSO - iOffA
             iAdrJ = nik*(jSOj-1) + iAdrCVec(jSym,iSym,1)
-            Call dDaFile(LuCVector(jSym,1),2,CikJ(:,1),nik*jBas,iAdrJ)
+            Call dDaFile(LuCVector(jSym,1),2,CiKj(:,1),nik*jBas,iAdrJ)
 
             Do i4 = 1, iCmp(4)
                lSO = iAOtSO(iAO(4)+i4,kOp(4))+iAOst(4)
@@ -322,9 +322,9 @@
                   iAdrL = nik*(lSOl-1) + iAdrCVec(jSym,iSym,1)
                   Call dDaFile(LuCVector(jSym,1),2,CiKl,nik*lBas,iAdrL)
 
-                  V2(1:) = CiKl(1:)
+                  V2(1:) => CiKl(1:)
                Else
-                  V2(1:) = CiKj(1:,1)
+                  V2(1:) => CiKj(1:,1)
                EndIf
 
                A(1:jBas*lBas)=Zero
