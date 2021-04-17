@@ -158,12 +158,6 @@ c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
       iDisk=iToc(12)
       DO IRT=1, MIN(MAXORBOUT, LROOTS, 999)
         energy=Work(ipEne+IRT-1)
-c
-c         if(doDMRG)then
-c #ifdef _DMRG_
-c           energy = dmrg_energy%dmrg_state_specific(irt)
-c #endif
-c         end if
         filename = 'RASORB.'//merge(str(IRT), 'x', irt < 999)
         Call dDaFile(JobIph,2,Work(lCMO),ntot2,iDisk)
         Call dDaFile(JobIph,2,Work(ipOcc),ntot,iDisk)
