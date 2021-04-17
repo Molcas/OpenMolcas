@@ -24,7 +24,7 @@ subroutine dqagie(f,bound,inf,epsabs,epsrel,limit,reslt,abserr,neval,ier,alist,b
 !            or i = integral of f over (-infinity,bound)
 !            or i = integral of f over (-infinity,+infinity),
 !            hopefully satisfying following claim for accuracy
-!            abs(i-reslt).le.max(epsabs,epsrel*abs(i))
+!            abs(i-reslt) <= max(epsabs,epsrel*abs(i))
 !***description
 !
 ! integration over infinite intervals
@@ -49,13 +49,13 @@ subroutine dqagie(f,bound,inf,epsabs,epsrel,limit,reslt,abserr,neval,ier,alist,b
 !                     absolute accuracy requested
 !            epsrel - real*8
 !                     relative accuracy requested
-!                     if  epsabs.le.0
-!                     and epsrel.lt.max(50*rel.mach.acc.,0.5d-28),
+!                     if  epsabs <= 0
+!                     and epsrel < max(50*rel.mach.acc.,0.5d-28),
 !                     the routine will end with ier = 6.
 !
 !            limit  - integer
 !                     gives an upper bound on the number of subintervals
-!                     in the partition of (a,b), limit.ge.1
+!                     in the partition of (a,b), limit >= 1
 !
 !         on return
 !            reslt  - real*8
@@ -72,7 +72,7 @@ subroutine dqagie(f,bound,inf,epsabs,epsrel,limit,reslt,abserr,neval,ier,alist,b
 !                     ier = 0 normal and reliable termination of the
 !                             routine. it is assumed that the requested
 !                             accuracy has been achieved.
-!                   - ier.gt.0 abnormal termination of the routine. the
+!                   - ier > 0 abnormal termination of the routine. the
 !                             estimates for result and error are less
 !                             reliable. it is assumed that the requested
 !                             accuracy has not been achieved.
@@ -112,8 +112,8 @@ subroutine dqagie(f,bound,inf,epsabs,epsrel,limit,reslt,abserr,neval,ier,alist,b
 !                             divergence can occur with any other value
 !                             of ier.
 !                         = 6 the input is invalid, because
-!                             (epsabs.le.0 and
-!                              epsrel.lt.max(50*rel.mach.acc.,0.5d-28),
+!                             (epsabs <= 0 and
+!                              epsrel < max(50*rel.mach.acc.,0.5d-28),
 !                             reslt, abserr, neval, last, rlist(1),
 !                             elist(1) and iord(1) are set to zero.
 !                             alist(1) and blist(1) are set to 0
@@ -147,7 +147,7 @@ subroutine dqagie(f,bound,inf,epsabs,epsrel,limit,reslt,abserr,neval,ier,alist,b
 !                     error estimates over the subintervals,
 !                     such that elist(iord(1)), ..., elist(iord(k))
 !                     form a decreasing sequence, with k = last
-!                     if last.le.(limit/2+2), and k = limit+1-last
+!                     if last <= (limit/2+2), and k = limit+1-last
 !                     otherwise
 !
 !            last   - integer

@@ -329,7 +329,7 @@ do iS=1,nSkal
       ipZI1 = ip
       ip = ip+nAlpha*iPrim
       if (ip-1 > nArr*nZeta) then
-        write(u6,*) '  ip-1.gt.nArr*nZeta(1) in FragPInt'
+        write(u6,*) '  ip-1 > nArr*nZeta(1) in FragPInt'
         call Abend()
       end if
       mArr = (nArr*nZeta-(ip-1))/nZeta
@@ -361,7 +361,7 @@ do iS=1,nSkal
       ipZI2 = ip
       ip = ip+jPrim*nBeta
       if (ip-1 > nArr*nZeta) then
-        write(u6,*) '  ip-1.gt.nArr*nZeta(2) in FragPInt'
+        write(u6,*) '  ip-1 > nArr*nZeta(2) in FragPInt'
         call Abend()
       end if
       mArr = (nArr*nZeta-(ip-1))/nZeta
@@ -376,7 +376,7 @@ do iS=1,nSkal
       ipTmp = ip
       ip = ip+max(nAlpha*nac*max(iPrim,jBas),nBeta*ncb*jBas)
       if (ip-1 > nArr*nZeta) then
-        write(u6,*) '  ip-1.gt.nArr*nZeta(3) in FragPInt'
+        write(u6,*) '  ip-1 > nArr*nZeta(3) in FragPInt'
         call Abend()
       end if
 #     ifdef _DEBUGPRINT_
@@ -527,7 +527,7 @@ do iS=1,nSkal
                          Final(:,:,:,iIC),Factor)
         end if
       end do
-      if (iIC /= nIC) stop 'iIC.ne.nIC'
+      if (iIC /= nIC) stop 'iIC /= nIC'
 
 #     ifdef _DEBUGPRINT_
       write(u6,*) ' After contraction:'

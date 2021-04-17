@@ -121,7 +121,6 @@
           if (ntot.gt.0) then
 #if _DIMENSIONS_==0
             loffset = cptr2loff(buffer)
-            write(6,*) 'IFG allo loffset',loffset
 #elif _DIMENSIONS_==1
             loffset = cptr2loff(buffer(1))
 #elif _DIMENSIONS_==2
@@ -292,7 +291,6 @@
           if (ntot.gt.0) then
 #if _DIMENSIONS_==0
             loffset = cptr2loff(buffer)
-            write(6,*) 'IFG loffset',loffset
 #elif _DIMENSIONS_==1
             loffset = cptr2loff(buffer(lbound(buffer,1)))
 #elif _DIMENSIONS_==2

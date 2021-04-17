@@ -265,11 +265,19 @@
 #undef _TYPE_
 
 #define _TYPE_ character(len=*)
+
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'cmma_1D'
 #  include "mma_allo_template.fh"
 #  undef _DIMENSIONS_
 #  undef _DEF_LABEL_
+
+#  define _DIMENSIONS_ 2
+#  define _DEF_LABEL_ 'cmma_2D'
+#  include "mma_allo_template.fh"
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+
 #undef _TYPE_
 
 #undef _SUBR_NAME_

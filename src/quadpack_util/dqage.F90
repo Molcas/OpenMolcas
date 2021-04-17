@@ -22,7 +22,7 @@ subroutine dqage(f,a,b,epsabs,epsrel,key,limit,reslt,abserr,neval,ier,alist,blis
 !***purpose  the routine calculates an approximation result to a given
 !            definite integral   i = integral of f over (a,b),
 !            hopefully satisfying following claim for accuracy
-!            abs(i-reslt).le.max(epsabs,epsrel*abs(i)).
+!            abs(i-reslt) <= max(epsabs,epsrel*abs(i)).
 !***description
 !
 !        computation of a definite integral
@@ -46,23 +46,23 @@ subroutine dqage(f,a,b,epsabs,epsrel,key,limit,reslt,abserr,neval,ier,alist,blis
 !                     absolute accuracy requested
 !            epsrel - real*8
 !                     relative accuracy requested
-!                     if  epsabs.le.0
-!                     and epsrel.lt.max(50*rel.mach.acc.,0.5d-28),
+!                     if  epsabs <= 0
+!                     and epsrel < max(50*rel.mach.acc.,0.5d-28),
 !                     the routine will end with ier = 6.
 !
 !            key    - integer
 !                     key for choice of local integration rule
 !                     a gauss-kronrod pair is used with
-!                          7 - 15 points if key.lt.2,
+!                          7 - 15 points if key < 2,
 !                         10 - 21 points if key = 2,
 !                         15 - 31 points if key = 3,
 !                         20 - 41 points if key = 4,
 !                         25 - 51 points if key = 5,
-!                         30 - 61 points if key.gt.5.
+!                         30 - 61 points if key > 5.
 !
 !            limit  - integer
 !                     gives an upperbound on the number of subintervals
-!                     in the partition of (a,b), limit.ge.1.
+!                     in the partition of (a,b), limit >= 1.
 !
 !         on return
 !            reslt  - real*8
@@ -79,7 +79,7 @@ subroutine dqage(f,a,b,epsabs,epsrel,key,limit,reslt,abserr,neval,ier,alist,blis
 !                     ier = 0 normal and reliable termination of the
 !                             routine. it is assumed that the requested
 !                             accuracy has been achieved.
-!                     ier.gt.0 abnormal termination of the routine
+!                     ier > 0 abnormal termination of the routine
 !                             the estimates for result and error are
 !                             less reliable. it is assumed that the
 !                             requested accuracy has not been achieved.
@@ -108,8 +108,8 @@ subroutine dqage(f,a,b,epsabs,epsrel,key,limit,reslt,abserr,neval,ier,alist,blis
 !                             at some points of the integration
 !                             interval.
 !                         = 6 the input is invalid, because
-!                             (epsabs.le.0 and
-!                              epsrel.lt.max(50*rel.mach.acc.,0.5d-28),
+!                             (epsabs <= 0 and
+!                              epsrel < max(50*rel.mach.acc.,0.5d-28),
 !                             reslt, abserr, neval, last, rlist(1) ,
 !                             elist(1) and iord(1) are set to zero.
 !                             alist(1) and blist(1) are set to a and b
@@ -143,7 +143,7 @@ subroutine dqage(f,a,b,epsabs,epsrel,key,limit,reslt,abserr,neval,ier,alist,blis
 !                      error estimates over the subintervals,
 !                      such that elist(iord(1)), ...,
 !                      elist(iord(k)) form a decreasing sequence,
-!                      with k = last if last.le.(limit/2+2), and
+!                      with k = last if last <= (limit/2+2), and
 !                      k = limit+1-last otherwise
 !
 !            last    - integer

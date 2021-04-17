@@ -516,8 +516,8 @@ else if (lRF .and. PCM) then
             if (TstFnc(dc(ndc+jCnt)%iCoSet,iIrrep,iComp,dc(ndc+jCnt)%nStab)) then
               nDisp = nDisp+1
               if (Direct(nDisp)) then
-                ps = real(iPrmt(nOp,iChBas(2+iCar)),kind=iwp)
-                Temp(nDisp) = Temp(nDisp)+ps*One/real(igv,kind=iwp)*PreFct*dr_dB*df_dr
+                ps = real(iPrmt(nOp,iChBas(2+iCar)),kind=wp)
+                Temp(nDisp) = Temp(nDisp)+ps*One/real(igv,kind=wp)*PreFct*dr_dB*df_dr
               end if
             end if
           end do   ! End loop over cartesian components, iCar

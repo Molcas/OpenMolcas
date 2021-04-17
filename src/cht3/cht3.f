@@ -188,37 +188,3 @@ c
         ireturn = 0
         return
         end
-c
-c --------------
-c
-cmp!        subroutine adapt_mem(W1st,Wfree,maxsize,kvir1,kvir2)
-cmp!c
-cmp!        implicit none
-cmp!        real*8 W1st(2)
-cmp!        real*8 Wfree(2)
-cmp!        integer locw
-cmp!        integer maxsize
-cmp!        integer kvir1,kvir2
-cmp!        integer loc_1st,loc_free
-cmp!#ifdef LOC
-cmp!        integer loc
-cmp!        external loc
-cmp!#endif
-cmp!        loc_1st=loc(W1st)
-cmp!        loc_free=loc(Wfree)
-cmp!        write(0,'(a,i21,2x,a)') 'FAKE ALLOC_VM,   W1st  =', loc_1st,
-cmp!     &                          'byte address'
-cmp!        write(0,'(a,i21,2x,a)') 'FAKE ALLOC_VM,   Wfree =', loc_free,
-cmp!     &                          'byte address'
-cmp!c
-cmp!        kvir1= ( (loc_free - loc_1st)/8 + 1 )
-cmp!        kvir2=kvir1+maxsize-1
-cmp!c
-cmp!      write(6,'(a,i21,2x,a)') 'FAKE ALLOC_VM, MAXSIZE =', maxsize,
-cmp!     $     'real*8 words'
-cmp!      write(6,'(a,i21,2x,a)') 'FAKE ALLOC_VM, KVIR1   =', KVIR1,
-cmp!     $     'real*8 words'
-cmp!      write(6,'(a,i21,2x,a)') 'FAKE ALLOC_VM, KVIR2   =', KVIR2,
-cmp!     $     'real*8 words'
-cmp!        return
-cmp!        end

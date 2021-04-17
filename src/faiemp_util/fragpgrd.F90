@@ -278,7 +278,7 @@ do iS=1,nSkal
       ipZI1 = ip
       ip = ip+nAlpha*iPrim
       if (ip-1 > nArr*nZeta) then
-        write(u6,*) '  ip-1.gt.nArr*nZeta(1) in FragPGrd'
+        write(u6,*) '  ip-1 > nArr*nZeta(1) in FragPGrd'
         call Abend()
       end if
 
@@ -301,7 +301,7 @@ do iS=1,nSkal
       ipA = ip
       ip = ip+nAlpha*iPrim
       if (ip-1 > nArr*nZeta) then
-        write(u6,*) '  ip-1.gt.nArr*nZeta(1b) in FragPGrd'
+        write(u6,*) '  ip-1 > nArr*nZeta(1b) in FragPGrd'
         call Abend()
       end if
       ABeq(1) = A(1) == TC(1)
@@ -352,7 +352,7 @@ do iS=1,nSkal
       ipZI2 = ip
       ip = ip+jPrim*nBeta
       if (ip-1 > nArr*nZeta) then
-        write(u6,*) '  ip-1.gt.nArr*nZeta(2) in FragPGrd'
+        write(u6,*) '  ip-1 > nArr*nZeta(2) in FragPGrd'
         call Abend()
       end if
 
@@ -375,7 +375,7 @@ do iS=1,nSkal
       ipB = ip
       ip = ip+nBeta*jPrim
       if (ip-1 > nArr*nZeta) then
-        write(u6,*) '  ip-1.gt.nArr*nZeta(2b) in FragPGrd'
+        write(u6,*) '  ip-1 > nArr*nZeta(2b) in FragPGrd'
         call Abend()
       end if
       ABeq(1) = TB(1) == RB(1)
@@ -412,7 +412,7 @@ do iS=1,nSkal
       ipTmp = ip
       ip = ip+max(nAlpha*max(iPrim,jBas)*nac,nBeta*ncb*jBas)
       if (ip-1 > nArr*nZeta) then
-        write(u6,*) '  ip-1.gt.nArr*nZeta(3) in FragPGrd'
+        write(u6,*) '  ip-1 > nArr*nZeta(3) in FragPGrd'
         call Abend()
       end if
       nac = nElem(la)*nElem(iAng)

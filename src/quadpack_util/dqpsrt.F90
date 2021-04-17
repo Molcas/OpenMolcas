@@ -55,7 +55,7 @@ subroutine dqpsrt(limit,last,maxerr,ermax,elist,iord,nrmax)
 !                       estimates, such that
 !                       elist(iord(1)),...,  elist(iord(k))
 !                       form a decreasing sequence, with
-!                       k = last if last.le.(limit/2+2), and
+!                       k = last if last <= (limit/2+2), and
 !                       k = limit+1-last otherwise
 !
 !              nrmax  - integer

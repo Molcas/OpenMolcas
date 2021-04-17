@@ -104,7 +104,7 @@ if (ret /= 0) then
 end if
 
 return
-end
+end subroutine fmsym_set_ele_orb
 
 !***********************************************************************
 

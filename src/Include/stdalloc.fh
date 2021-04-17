@@ -103,6 +103,16 @@
            integer, intent(in) :: l1(2), l2(2)
            character(len=*), optional, intent(in) :: label
          end subroutine
+         subroutine cmma_allo_2D(buffer,n1,n2,label)
+           character(*), allocatable, intent(inout) :: buffer(:,:)
+           integer, intent(in) :: n1, n2
+           character(len=*), optional, intent(in) :: label
+         end subroutine
+         subroutine cmma_allo_2D_lim(buffer,l1,l2,label)
+           character(*), allocatable, intent(inout) :: buffer(:,:)
+           integer, intent(in) :: l1(2), l2(2)
+           character(len=*), optional, intent(in) :: label
+         end subroutine
          subroutine lmma_allo_2D(buffer,n1,n2,label)
            logical, allocatable :: buffer(:,:)
            integer, intent(in) :: n1, n2
@@ -249,6 +259,9 @@
          end subroutine
          subroutine imma_free_2D(buffer)
            integer, allocatable, intent(inout) :: buffer(:,:)
+         end subroutine
+         subroutine cmma_free_2D(buffer)
+           character(*), allocatable, intent(inout) :: buffer(:,:)
          end subroutine
          subroutine lmma_free_2D(buffer)
            logical, allocatable, intent(inout) :: buffer(:,:)
