@@ -277,8 +277,7 @@
 
 * If the ORBONLY option was chosen, then Proc_Inp just generated
 *  orbitals from the JOBIPH file. Nothing more to do:
-      IF(KeyORBO) GOTO 9989
-      IF(MAXIT.eq.0) GOTO 2009
+      IF((KeyORBO).or.(MAXIT.eq.0)) GOTO 9989
 #ifdef _DMRG_
       ! delete old checkpoints, unless requested otherwise
       ! this flag is set in proc_inp
@@ -1895,7 +1894,7 @@ c  i_root>0 gives natural spin orbitals for that root
       End Do
 
 * Create output orbital files:
-2009      Call OrbFiles(JOBIPH,IPRLEV)
+      Call OrbFiles(JOBIPH,IPRLEV)
 
 ************************************************************************
 ******************           Closing up RASSCF       *******************
@@ -2025,6 +2024,7 @@ c      End If
 
 !Leon: The velociraptor comes! xkcd.com/292/
  9989 Continue
+      if (MAXIT.eq.0) call ClsFls_RASSCF()
 * DMRG: Save results for other use
 ! ==========================================================
       if(doDMRG)then
