@@ -1906,6 +1906,26 @@ c  i_root>0 gives natural spin orbitals for that root
          Call GetMem('Q-mat','Free','Real',ipQmat,NTav)
       EndIf
 
+*  Release  some memory allocations
+      Call GetMem('DIAF','Free','Real',LDIAF,NTOT)
+      Call GetMem('FOCC','FREE','REAL',ipFocc,idum)
+      Call GetMem('FI','Free','Real',LFI,NTOT1)
+      Call GetMem('FA','Free','Real',LFA,NTOT1)
+      Call GetMem('D1I','Free','Real',LD1I,NTOT2)
+      Call GetMem('D1A','Free','Real',LD1A,NTOT2)
+      Call GetMem('D1tot','Free','Real',lD1tot,NTOT1)
+      Call GetMem('OCCN','Free','Real',LOCCN,NTOT)
+      Call GetMem('LCMO','Free','Real',LCMO,NTOT2)
+#ifdef _DMRG_
+* Free RDMs for the reaction field reference root in QCMaquis calculations
+      if (doDMRG.and.PCM_On()) then
+        Call GetMem('D1RF','FREE','Real',LW_RF1,NACPAR)
+        if (twordm_qcm) then
+          Call GetMem('D2RF','FREE','Real',LW_RF2,NACPR2)
+        end if
+      end if
+#endif
+
 c deallocating TUVX memory...
       IF(NAC.GT.0) THEN
          Call GetMem('TUVX','Free','Real',LTUVX,NACPR2)
@@ -1916,6 +1936,8 @@ c deallocating TUVX memory...
             Call GetMem('DSPN','Free','Real',LDSPN,NACPAR)
          endif
       END IF
+!Leon: The velociraptor comes! xkcd.com/292/
+9989  Continue
 *
 * release SEWARD
       Call ClsSew
@@ -1937,26 +1959,6 @@ c deallocating TUVX memory...
 !      do i=1,NTOT2
 !        write(*,*) "A,I",work(LD1A+i-1),work(LD1I+i-1)
 !      end do
-
-*  Release  some memory allocations
-      Call GetMem('DIAF','Free','Real',LDIAF,NTOT)
-      Call GetMem('FOCC','FREE','REAL',ipFocc,idum)
-      Call GetMem('FI','Free','Real',LFI,NTOT1)
-      Call GetMem('FA','Free','Real',LFA,NTOT1)
-      Call GetMem('D1I','Free','Real',LD1I,NTOT2)
-      Call GetMem('D1A','Free','Real',LD1A,NTOT2)
-      Call GetMem('D1tot','Free','Real',lD1tot,NTOT1)
-      Call GetMem('OCCN','Free','Real',LOCCN,NTOT)
-      Call GetMem('LCMO','Free','Real',LCMO,NTOT2)
-#ifdef _DMRG_
-* Free RDMs for the reaction field reference root in QCMaquis calculations
-      if (doDMRG.and.PCM_On()) then
-        Call GetMem('D1RF','FREE','Real',LW_RF1,NACPAR)
-        if (twordm_qcm) then
-          Call GetMem('D2RF','FREE','Real',LW_RF2,NACPR2)
-        end if
-      end if
-#endif
       If (iClean.eq.1) Call Free_iWork(ipCleanMask)
 
 *
@@ -2022,9 +2024,6 @@ c      End If
           deallocate(CI_solver)
       end if
 
-!Leon: The velociraptor comes! xkcd.com/292/
- 9989 Continue
-      if (MAXIT.eq.0) call ClsFls_RASSCF()
 * DMRG: Save results for other use
 ! ==========================================================
       if(doDMRG)then
@@ -2038,6 +2037,10 @@ c      End If
         !with the new interface or read from QCMaquis HDF5 result
         !file.
         if (DoNEVPT2Prep) then
+          if (MAXIT.eq.0) then
+            write(6,*) " --- DMRG-SCF iterations are skipped, only "//
+     &        "QCMaquis input for higher-order RDMs will be generated."
+          endif
           if (NACTEL.gt.3) then ! Ignore 4-RDM if we have <4 electrons
           do i=1,NROOTS
               Write (6,'(a)') 'Writing 4-RDM QCMaquis template'//
