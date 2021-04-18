@@ -15,6 +15,10 @@
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
+
+      Real*8, Allocatable :: Scr(:)
+      Integer, Allocatable :: iF2RS(:)
 
       MulD2h(i,j)=iEor(i-1,j-1)+1
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
@@ -33,25 +37,25 @@ C     Set mapping from global address to reduced set.
 C     -----------------------------------------------
 
       liF2RS = nBasT*(nBasT+1)/2
-      Call GetMem('CR_RI_F2RS','Allo','Inte',ipiF2RS,liF2RS)
-      Call iCopy(liF2RS,[0],0,iWork(ipiF2RS),1)
+      Call mma_allocate(iF2RS,liF2RS,Label='iF2RS')
+      iF2RS(:)=0
       Do iRS = 1,nnBstR(iSym,1)
          iRS_tot = iiBstR(iSym,1) + iRS
          na = iRS2F(1,iRS_tot)
          nb = iRS2F(2,iRS_tot)
          nab = iTri(na,nb)
-         iWork(ipiF2RS-1+nab) = iRS
+         iF2RS(nab) = iRS
       End Do
 
 C     Reorder.
 C     --------
 
       lScr = lVec
-      Call GetMem('CR_RI_Scr','Allo','Real',ipScr,lScr)
+      Call mma_allocate(Scr,lScr,Label='Scr')
       Do iVec = 1,nVec
 
-         Call dCopy_(lVec,Vec(1,iVec),1,Work(ipScr),1)
-         kFrom = ipScr - 1
+         Scr(:)=Vec(:,iVec)
+         kFrom = 0
          Do iSymb = 1,nSym
 
             iSyma = MulD2h(iSymb,iSym)
@@ -62,7 +66,7 @@ C     --------
                   Do ia = 1,nBas(iSyma)
                      na = iBas(iSyma) + ia
                      nab = iTri(na,nb)
-                     iRS = iWork(ipiF2RS-1+nab)
+                     iRS = iF2RS(nab)
 #if defined (_DEBUGPRINT_)
                      If (iRS.lt.1 .or. iRS.gt.nnBstR(iSym,1)) Then
                         Call SysAbendMsg('Cho_Reorder_RI',
@@ -70,7 +74,7 @@ C     --------
                      End If
 #endif
                      kFrom = kFrom + 1
-                     Vec(iRS,iVec) = Work(kFrom)
+                     Vec(iRS,iVec) = Scr(kFrom)
                   End Do
                End Do
             Else If (iSyma .eq. iSymb) Then
@@ -79,7 +83,7 @@ C     --------
                   Do ib = 1,ia
                      nb = iBas(iSymb) + ib
                      nab = iTri(na,nb)
-                     iRS = iWork(ipiF2RS-1+nab)
+                     iRS = iF2RS(nab)
 #if defined (_DEBUGPRINT_)
                      If (iRS.lt.1 .or. iRS.gt.nnBstR(iSym,1)) Then
                         Call SysAbendMsg('Cho_Reorder_RI',
@@ -87,7 +91,7 @@ C     --------
                      End If
 #endif
                      kFrom = kFrom + 1
-                     Vec(iRS,iVec) = Work(kFrom)
+                     Vec(iRS,iVec) = Scr(kFrom)
                   End Do
                End Do
             End If
@@ -95,8 +99,7 @@ C     --------
          End Do
 
       End Do
-      Call GetMem('CR_RI_Scr','Free','Real',ipScr,lScr)
-
-      Call GetMem('CR_RI_F2RS','Free','Inte',ipiF2RS,liF2RS)
+      Call mma_deallocate(Scr)
+      Call mma_deallocate(iF2RS)
 
       End

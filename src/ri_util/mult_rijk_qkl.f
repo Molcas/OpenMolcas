@@ -29,11 +29,12 @@
       Implicit Real*8 (a-h,o-z)
       Integer nBas_Aux(1:nIrrep), nVec(1:nIrrep)
       Character  Fname*6, Fname2*6, Name_Q*6
-      Character*50 CFmt
-      Character*13 SECNAM
-      Parameter (SECNAM = 'MULT_RIJK_QKL')
+      Character(LEN=50) CFmt
+      Character(LEN=13), Parameter :: SECNAM = 'MULT_RIJK_QKL'
+#include "real.fh"
 #include "cholesky.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "exterm.fh"
 *#define _DEBUGPRINT_
 *#define _CD_TIMING_
@@ -42,6 +43,10 @@
 #endif
 *
 #include "chotime.fh"
+
+      Real*8, Allocatable:: QVector(:)
+      Real*8, Allocatable:: RVector(:)
+      Real*8, Allocatable:: CVector(:)
 *
 *************************
 *     Define some indeces
@@ -96,7 +101,7 @@
             MaxMOProdR = Max(MaxMOprodR,nIJR(iSym,kSym,iSO))
          End Do
 *
-         Call GetMem('MemChk','Max','Real',iDum,MemMax)
+         Call mma_maxDBLE(MemMax)
          nJvec1 = (MemMax-NumAux*MaxMOprod)/(MaxMOprod + NumAux)
          If(nJvec1.lt.1) Then
             Write(6,*) 'Too little memory in:',SECNAM
@@ -122,9 +127,9 @@
          l_RVector = MaxMOprod*nJVec1
          l_CVector = MaxMOprodR*NumAux
 *
-         Call GetMem('Q_Vector','Allo','Real',ip_QVector,l_QVector)
-         Call GetMem('R_Vector','Allo','Real',ip_RVector,l_RVector)
-         Call GetMem('C_Vector','Allo','Real',ip_CVector,l_CVector)
+         Call mma_allocate(QVector,l_QVector,Label='QVector')
+         Call mma_allocate(RVector,l_RVector,Label='RVector')
+         Call mma_allocate(CVector,l_CVector,Label='CVector')
 *
 
          iSeed2 = 8
@@ -143,7 +148,8 @@
          lSym = MulD2h(iSym,jSym)
 *
          If(nIJ1(iSym,lSym,iSO).lt.1) Go To 2000
-         Call FZero(Work(ip_CVector),l_CVector)
+         CVector(:)=Zero
+
          Do iJBat = 1, nJBat
             If(iJBat.eq.nJBat) Then
                njVec = nJVecLast
@@ -157,11 +163,10 @@
             Call DaName_MF_WA(Lu_Q,Name_Q)
             l_Q = nJvec*NumAux
             iAdrQ=(iFirstCho-1)*NumAux + (iJBat-1)*nJVec*NumAux
-            Call dDaFile(Lu_Q,2,Work(ip_Qvector),l_Q,iAdrQ)
+            Call dDaFile(Lu_Q,2,Qvector,l_Q,iAdrQ)
 
 #ifdef _DEBUGPRINT_
-            Call RecPrt('Q-vectors',' ',Work(ip_QVector),
-     &                  nJVec,NumAux)
+            Call RecPrt('Q-vectors',' ',QVector,nJVec,NumAux)
 #endif
 *
 *
@@ -183,23 +188,20 @@
 
             iAdrR = nIJ1(iSym,lSym,iSO)*nJVec1*(iJBat-1)
             l_RVec = nJvec * nIJ1(iSym,lSym,iSO)
-            Call dDaFile(LuRVec,2,Work(ip_RVector),
-     &                   l_RVec,iAdrR)
+            Call dDaFile(LuRVec,2,RVector,l_RVec,iAdrR)
 
-            Call dGemm_('N','T',nIJ1(iSym,lSym,iSO),NumAux,nJVec,1.0d0,
-     &                 Work(ip_RVector),nIJ1(iSym,lSym,iSO),
-     &                 Work(ip_QVector),NumAux,0.0d0,
-     &                 Work(ip_CVector),nIJ1(iSym,lSym,iSO))
+            Call dGemm_('N','T',nIJ1(iSym,lSym,iSO),NumAux,nJVec,
+     &                  1.0d0,RVector,nIJ1(iSym,lSym,iSO),
+     &                        QVector,NumAux,
+     &                  0.0d0,CVector,nIJ1(iSym,lSym,iSO))
          End Do
 
 
 
 #ifdef _DEBUGPRINT_
          Write (6,*) 'jSym=',jSym
-         Call RecPrt('R-Vectors',' ',Work(ip_RVector),
-     &               nIJ1(iSym,lSym,iSO),NumAux)
-         Call RecPrt('C-Vectors',' ',Work(ip_CVector),
-     &               nIJ1(iSym,lSym,iSO),NumAux)
+         Call RecPrt('R-Vectors',' ',RVector,nIJ1(iSym,lSym,iSO),NumAux)
+         Call RecPrt('C-Vectors',' ',CVector,nIJ1(iSym,lSym,iSO),NumAux)
 #endif
          If ((.not.lSA).and.(iSym.eq.lSym)) Then
             Do iAux = 1, NumAux
@@ -207,8 +209,7 @@
                Do i = 1, nChOrb(iSym-1,iSO)
                   index = index+i
                   index2 = index + (iAux-1)*nIJ1(iSym,lSym,iSO)
-                  Work(ip_Cvector+index2) =
-     &                 Work(ip_Cvector+index2)/sqrt(2.0d0)
+                  CVector(1+index2) = CVector(1+index2)/sqrt(2.0d0)
                End Do
             End Do
          End If
@@ -218,10 +219,9 @@
 *
  2000    Continue
 *
-         Call GADGOP(Work(ip_CVector),l_CVector,'+')
+         Call GADGOP(CVector,l_CVector,'+')
          iAdrCVec(jSym,iSym,iSO) = iAdrC
-         Call dDaFile(LuCVec,1,Work(ip_CVector),
-     &                nIJ1(iSym,lSym,iSO)*NumAux,iAdrC)
+         Call dDaFile(LuCVec,1,CVector,nIJ1(iSym,lSym,iSO)*NumAux,iAdrC)
          If(nIJ1(iSym,lSym,iSO) .lt. nIJR(iSym,lSym,iSO)) Then
             iAdrC = iAdrC +
      &          (nIJR(iSym,lSym,iSO)-nIJ1(iSym,lSym,iSO))*NumAux
@@ -229,9 +229,9 @@
 
          End Do !iSym
 *
-         Call GetMem('C_Vector','Free','Real',ip_CVector,l_CVector)
-         Call GetMem('R_Vector','Free','Real',ip_RVector,l_RVector)
-         Call GetMem('Q_Vector','Free','Real',ip_QVector,l_QVector)
+         Call mma_deallocate(CVector)
+         Call mma_deallocate(RVector)
+         Call mma_deallocate(QVector)
 *
          Call DACLOS(LuCVec)
  1000    Continue

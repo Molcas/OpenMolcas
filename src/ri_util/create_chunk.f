@@ -14,11 +14,14 @@
 #endif
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #ifdef _MOLCAS_MPP_
 #include "mafdecls.fh"
       External  ga_create_irreg
       Logical   ga_create_irreg, ok
       Integer myMap(2)
+
+
 *
       If (NumVec.le.0) Then
          Call WarningMessage(2,'Create_Chunk: Failure NumVec.le.0')
@@ -31,7 +34,7 @@
          Call IZero(iWork(ip_iMap),nProcs+1)
 *
          FullSize=DBLE(LenVec*NumVec)
-         Call GetMem('MemMax','Max','Real',iDummy,MaxMem)
+         Call mma_maxDBLE(MaxMem)
          iWork(ip_iMap+MyRank) = MaxMem
          Call GAIGOP(iWork(ip_iMap),nProcs,'+')
          TotalMemory=0.0D0
@@ -95,7 +98,7 @@ C        Call Put_iArray('DistVec',iWork(ip_iMap),nProcs+1)
          End If
       Else
          ip_iMap=ip_iDummy
-         Call GetMem('MemMax','Max','Real',iDummy,MaxMem)
+         Call mma_maxDBLE(MaxMem)
          IncVec=Min(NumVec,MaxMem/LenVec)
          Call GetMem('Chunk','Allo','Real',ip_Chunk,LenVec*IncVec)
       End If
@@ -108,7 +111,7 @@ C        Call Put_iArray('DistVec',iWork(ip_iMap),nProcs+1)
 ************************************************************************
 *                                                                      *
       ip_iMap=ip_iDummy
-      Call GetMem('MemMax','Max','Real',iDummy,MaxMem)
+      Call mma_maxDBLE(MaxMem)
       IncVec=Min(NumVec,MaxMem/LenVec)
       Call GetMem('Chunk','Allo','Real',ip_Chunk,LenVec*IncVec)
 *

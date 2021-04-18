@@ -12,6 +12,7 @@
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Integer nBas_Aux(0:nIrrep-1), Lu_Q(0:7), Lu_A(0:7)
       Logical Out_Of_Core
       Character*6 Name_Q
@@ -62,7 +63,7 @@
       Call Allocate_Work(ipX,mB)
       lScr=3*mB
       Call Allocate_Work(ip_Scr,lScr)
-      Call GetMem('MemX','Max','Real',iDum,Mem_Max)
+      Call mma_maxDBLE(Mem_Max)
       Call GetMem('MemX','Allo','Real',ip_Mem,Mem_Max)
 *
       Do iIrrep = 0, nIrrep-1
@@ -178,7 +179,7 @@
             ik = ik + 1
          End Do
       End Do
-      Call GetMem('MemMax','Max','Real',iDummy,MaxMem2)
+      Call mma_maxDBLE(MaxMem2)
       lScr=Min(MaxMem2,nBfn2)
       Call GetMem('Scr','Allo','Real',ip_Scr,lScr)
 *

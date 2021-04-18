@@ -20,7 +20,6 @@
       use ExTerm, only: nAuxVe, A
       Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "exterm.fh"
 *
@@ -199,7 +198,7 @@
 *
       End Do
 *
-         Call GetMem('MaxMem','Free','Real',ip_B_t,MaxMem)
+         Call mma_deallocate(B_t)
          Call mma_deallocate(QVec)
 *
          Call DaClos(Lu_Q)
