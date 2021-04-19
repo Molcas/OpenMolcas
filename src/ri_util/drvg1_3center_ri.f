@@ -46,7 +46,8 @@
       use Symmetry_Info, only: nIrrep
       use ExTerm, only: CijK, CilK, BklK, VJ
       use ExTerm, only: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
-      use ExTerm, only: Yij, BMP2, iMP2prpt
+      use ExTerm, only: Yij, BMP2, iMP2prpt, CMOi
+      use Data_Structures, only: Deallocate_DSBA
       Implicit Real*8 (A-H,O-Z)
       Logical, External :: Rsv_Tsk2
 #include "Molcas.fh"
@@ -877,8 +878,7 @@
       If (Allocated(BklK)) Call mma_deallocate(BklK)
       If (Allocated(VJ)) Call mma_deallocate(VJ)
       Do i=1,nKDens
-         If (ip_CMOi(i).ne.ip_Dummy)
-     &      Call GetMem('CMO_inv','FREE','Real',ip_CMOi(i), lCMOi(i))
+         If (Allocated(CMOi(i)%A0)) Call Deallocate_DSBA(CMOi(i))
       End Do
       Call mma_deallocate(MaxDens)
 *

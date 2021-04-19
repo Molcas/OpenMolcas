@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module exterm
+use Data_Structures, only: DSBA_type
 Private
 Public :: CijK, VJ, CilK, BklK
 Public :: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
@@ -17,6 +18,8 @@ Public :: Yij
 Public :: A, AMP2, BMP2
 Public :: iMP2prpt, nAuxVe
 Public :: LuAVector, LuBVector
+
+Public :: CMOi
 
 Real*8, Allocatable, Target:: CijK(:), VJ(:), CilK(:), BklK(:)
 Integer, Allocatable:: Ymnij(:)
@@ -29,4 +32,6 @@ Real*8, Allocatable:: AMP2(:,:)
 Real*8, Allocatable:: BMP2(:,:)
 Integer :: iMP2prpt, nAuxVe
 Integer :: LuAVector(2), LuBVector(2)
+
+Type (DSBA_Type) CMOi(5)
 End Module exterm

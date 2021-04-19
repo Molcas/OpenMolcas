@@ -31,7 +31,8 @@
 ************************************************************************
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
-      use ExTerm, only: CijK, CilK, BklK, BMP2, iMP2prpt, LuBVector
+      use ExTerm, only: CijK, CilK, BklK, BMP2, iMP2prpt, LuBVector,
+     &                  CMOi
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "exterm.fh"
@@ -73,9 +74,7 @@ C     Fac = One / Four
          nLBas = lBas*iCmp(4)
 
          kSO = iAOtSO(iAO(3)+1,kOp(3))+iAOst(3)
-         index2k= NumOrb*(kSO-1)
          lSO = iAOtSO(iAO(4)+1,kOp(4))+iAOst(4)
-         index2l= NumOrb*(lSO-1)
 
          Do i1 = 1, iCmp(1)
             iSO = iAOtSO(iAO(1)+i1,kOp(1))+iAOst(1)
@@ -103,12 +102,12 @@ C     Fac = One / Four
 
                         Call dGEMM_('T','N',NumOrb,nKBas,NumOrb,
      &                             1.0d0,CijK,NumOrb,
-     &                             Work(ip_CMOi(1)+index2k),NumOrb,
+     &                                   CMOi(1)%SB(1)%A2(:,kSO),NumOrb,
      &                             0.0d0,CilK,Max(1,NumOrb))
 
                         Call dGEMM_('T','N',nKBas,nLBas,NumOrb,
      &                             1.0d0,CilK,NumOrb,
-     &                             Work(ip_CMOi(1)+index2l),NumOrb,
+     &                                   CMOi(1)%SB(1)%A2(:,lSO),NumOrb,
      &                             0.0d0,BklK,Max(1,nKBas))
                      End If
 
@@ -160,9 +159,7 @@ C     Fac = One / Four
          nLBas = lBas*iCmp(4)
 
          kSO = iAOtSO(iAO(3)+1,kOp(3))+iAOst(3)
-         index2k= NumOrb*(kSO-1)
          lSO = iAOtSO(iAO(4)+1,kOp(4))+iAOst(4)
-         index2l= NumOrb*(lSO-1)
 
          Do i1 = 1, iCmp(1)
             iSO = iAOtSO(iAO(1)+i1,kOp(1))+iAOst(1)
@@ -189,12 +186,12 @@ C     Fac = One / Four
 
                         Call dGEMM_('T','N',NumOrb,nKBas,NumOrb,
      &                             1.0d0,CijK,NumOrb,
-     &                             Work(ip_CMOi(1)+index2k),NumOrb,
+     &                                   CMOi(1)%SB(1)%A2(:,kSO),NumOrb,
      &                             0.0d0,CilK,Max(1,NumOrb))
 
                         Call dGEMM_('T','N',nKBas,nLBas,NumOrb,
      &                             1.0d0,CilK,NumOrb,
-     &                             Work(ip_CMOi(1)+index2l),NumOrb,
+     &                                   CMOi(1)%SB(1)%A2(:,lSO),NumOrb,
      &                             0.0d0,BklK,Max(1,nKBas))
                         lBVec = nBas(0)*nBas(0)
                         Do i = 1,2

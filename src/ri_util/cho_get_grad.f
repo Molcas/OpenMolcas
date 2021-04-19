@@ -108,13 +108,14 @@
       use ChoSwp, only: nnBstRSh, InfVec, IndRed
       use Data_Structures, only: DSBA_Type, SBA_Type
       use Data_Structures, only: Allocate_SBA, Deallocate_SBA
+      use Data_Structures, only: Allocate_DSBA
       use Data_Structures, only: NDSBA_Type, Allocate_NDSBA,
      &                           Deallocate_NDSBA
       use Data_Structures, only: Allocate_L_Full, Deallocate_L_Full,
      &                           L_Full_Type
       use Data_Structures, only: Allocate_Lab, Deallocate_Lab,
      &                           Lab_Type
-      use ExTerm, only: VJ, iMP2prpt
+      use ExTerm, only: VJ, iMP2prpt, CMOi
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: Is_Real_Par
 #endif
@@ -408,11 +409,8 @@
 ** allocate memory for rearranged CMO-matrix
 *
          Do i=1,nDen
-           If (lCMOi(i).gt.0) Then
-              Call GetMem('CMO_inv','Allo','Real',ip_CMOi(i), lCMOi(i))
-           Else
-              ip_CMOi(i)=ip_Dummy
-           End If
+           Call Allocate_DSBA(CMOi(i),nChOrb_(:,i),nBas,nSym)
+           ip_CMOi(i)=ip_of_Work(CMOi(i)%A0(1))
          End Do
 
          nQoT = 0
@@ -471,18 +469,14 @@
                     Do jGam = 1, nBas(kSym)
                        ipMO = ipMSQ(jDen) + iSTSQ(kSym)
      &                      + nBas(kSym)*(jK-1) + jGam-1
-                       ipMO2 = ip_CMOi(jDen) + iOff_CMOi(kSym,jDen)
-     &                      + (jGam-1)*nChOrb_(kSym,jDen) + jK-1
-                       Work(ipMO2) = Work(ipMO)
+                       CMOi(jDen)%SB(kSym)%A2(jK,jGam) = Work(ipMO)
                     End Do
                  End Do
                  Do jK = npos2+1,nChOrb_(kSym,jDen)
                     Do jGam = 1, nBas(kSym)
                        ipMO = ipMSQ(jDen) + iSTSQ(kSym)
      &                      + nBas(kSym)*(jK-1) + jGam-1
-                       ipMO2 = ip_CMOi(jDen) + iOff_CMOi(kSym,jDen)
-     &                      + (jGam-1)*nChOrb_(kSym,jDen) + jK-1
-                       Work(ipMO2) = -Work(ipMO)
+                       CMOi(jDen)%SB(kSym)%A2(jK,jGam) = -Work(ipMO)
                     End Do
                  End Do
                Else
@@ -491,9 +485,7 @@
                     Do jGam = 1, nBas(kSym)
                        ipMO = ipMSQ(jDen) + iSTSQ(kSym)
      &                      + nBas(kSym)*(jK-1) + jGam-1
-                       ipMO2 = ip_CMOi(jDen) + iOff_CMOi(kSym,jDen)
-     &                      + (jGam-1)*nChOrb_(kSym,jDen) + jK-1
-                       Work(ipMO2) = Work(ipMO)
+                       CMOi(jDen)%SB(kSym)%A2(jK,jGam) = Work(ipMO)
                     End Do
                  End Do
                EndIf
