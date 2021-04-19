@@ -151,7 +151,7 @@
          Xli(1:,1:) => CMOi(1)%SB(1)%A2(1:,lSO:)
 *
 *        Collect the X_mu,i which survived the prescreening.
-*        Replace the pointers above, i.e. jp_Xki, jp_Xli.
+*        Replace the pointers above, i.e. Xki, Xli.
 *
          If (nj(1).le.NumOrb(1) .and. jSkip(1).eq.0) Then
 *
