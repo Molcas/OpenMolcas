@@ -36,7 +36,6 @@
       Logical   IfTest, Found
       Data      IfTest/.False./
       Real*8 CMO(nCMO)
-      Call Get_iScalar('System BitSwitch',iOption)
 #ifdef _DEBUGPRINT_
       IfTest=.True.
 #endif

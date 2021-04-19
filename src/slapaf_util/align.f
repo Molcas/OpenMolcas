@@ -27,20 +27,17 @@
 *> @param[in]     nAtom Number of symmetry-unique atoms
 ************************************************************************
       Subroutine Align(Coord,Ref,nAtom)
-      use Symmetry_Info, only: nIrrep, iOper
+      use Symmetry_Info, only: nIrrep, iOper, VarR, VarT
       use Slapaf_Info, only: Weights
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "sbs.fh"
 #include "stdalloc.fh"
       Real*8 Coord(3*nAtom), Ref(3*nAtom)
-      Logical Invar
       Real*8, Allocatable:: Coor_All(:,:), Ref_All(:,:)
       Integer, Allocatable:: iStab(:)
 
 *---- Do nothing if the energy is not rot. and trans. invariant
-      Invar=(iAnd(iSBS,2**7).eq.0).and.(iAnd(iSBS,2**8).eq.0)
-      If (.Not.Invar) Return
+      If (VarR.or.VarT) Return
 
       Call mma_allocate(Coor_All,3,nAtom*8,Label='Coor_All')
       Call Expand_Coor(Coord,nAtom,Coor_All,mAtom)

@@ -10,12 +10,12 @@
 ************************************************************************
       Subroutine TRMake(TRVec,Coor,nAtoms,nTR,uMtrx,nDim,CofM)
       use Slapaf_Info, only: dMass, Smmtrc
+      use Symmetry_Info, only: VarR, VarT
       Implicit Real*8 (a-h,o-z)
-#include "sbs.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 TRVec(6,3*nAtoms), Coor(3,nAtoms), uMtrx(3*nAtoms), CM(3)
-      Logical SymDsp, TransVar, RotVar, CofM
+      Logical SymDsp, CofM
 *
       iRout = 131
       iPrint=nPrint(iRout)
@@ -25,15 +25,13 @@
       End If
 *
       call dcopy_(6*3*nAtoms,[Zero],0,TRVec,1)
-      TransVar=iAnd(iSBS,2**7).eq. 2**7
-      RotVar  =iAnd(iSBS,2**8).eq. 2**8
       nTR = 0
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Translation
 *
-      If (TransVar) Go To 100
+      If (VarT) Go To 100
       Do i = 1, 3
          iCmp=2**(i-1)
          If (SymDsp(iCmp)) Then
@@ -49,7 +47,7 @@
 *
 *     Loop over axis
 *
-      If (RotVar) Go To 200
+      If (VarR) Go To 200
       Do i = 1, 3
          CM(i)=Zero
          rNorm=Zero
