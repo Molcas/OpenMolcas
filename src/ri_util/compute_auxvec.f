@@ -15,6 +15,7 @@
       use RICD_Info, only: Do_RI, Cholesky
       use Symmetry_Info, only: nIrrep
       use Data_Structures, only: Allocate_DSBA, Map_to_DSBA
+      use Data_Structures, only: Deallocate_DSBA
       use ExTerm, only: iMP2prpt
       Implicit Real*8 (a-h,o-z)
       Integer ipVk(nProc), ipZpk(nProc)
@@ -25,6 +26,9 @@
 #include "cholesky.fh"
 #include "etwas.fh"
 #include "exterm.fh"
+
+      Type (DSBA_Type) DSQ
+
       Logical DoExchange, DoCAS, Estimate, Update
       Integer nIOrb(0:7),nV_l(0:7),nV_t(0:7)
       Integer nU_l(0:7), nU_t(0:7)
@@ -32,6 +36,7 @@
 #include "chotime.fh"
       Character*8 Method
 
+      Real*8, Allocatable :: TmpD(:), Zv(:), Qv(:), Scr(:)
 *
 ************************************************************************
 *                                                                      *
@@ -71,16 +76,14 @@
 *
       NChVMx=0
       nQMax=0
-      nBSQ=0
       Do i=0,nIrrep-1
-         nBSQ=nBSQ+nBas(i)**2
          NChVMx= Max(NChVMx,nV_t(i))
          nQMax = Max(nQMax,nBas_Aux(i))
          nChOrb(i,1)=0
          nChOrb(i,2)=0
       End Do
       nQvMax=nQMax*NChVMx
-      Call Allocate_Work(ipScr,nQMax)
+      Call mma_allocate(Scr,nQMax)
 *
       DoCAS=lPSO
 *
@@ -174,36 +177,33 @@
               ipChM(i)=ipChM(i-1)+nCMO
             End Do
             If (lSA) Then
-              Call GetMem('TmpDens','Allo','Real',ipTmp,nDens)
+              Call mma_allocate(TmpD,nDens,Label='TmpD')
             EndIf
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *          PD matrices
 *
-            Call GetMem('DSQ','Allo','Real',ipDSQ,nBSQ)
+            Call Allocate_DSBA(DSQ,nBas,nBas,nSym)
             Do j=1,nKvec
                If (lSA) Then
                  If (j.eq.1) Then
-                    call dcopy_(nDens,Work(ipDMLT(1)),1,Work(ipTmp),1)
+                    call dcopy_(nDens,Work(ipDMLT(1)),1,TmpD,1)
                  Else If (j.eq.2) Then
-                    call dcopy_(nDens,Work(ipDMLT(3)),1,Work(ipTmp),1)
+                    call dcopy_(nDens,Work(ipDMLT(3)),1,TmpD,1)
                  EndIf
-                 Call UnFold(Work(ipTmp),nDens,Work(ipDSQ),nBSQ,
-     &                                      nIrrep,nBas)
+                 Call UnFold(TmpD,nDens,DSQ%A0,SIZE(DSQ%A0),nIrrep,nBas)
                Else
-                 Call UnFold(Work(ipDMLT(j)),nDens,Work(ipDSQ),nBSQ,
+                 Call UnFold(Work(ipDMLT(j)),nDens,DSQ%A0,SIZE(DSQ%A0),
      &                                      nIrrep,nBas)
                EndIf
 *
                ipChMM=ipChM(j)
-               iOffDSQ=0
                Do i=0,nIrrep-1
-                  Call CD_InCore(Work(ipDSQ+iOffDSQ),nBas(i),
+                  Call CD_InCore(DSQ%SB(i+1)%A2,nBas(i),
      &                           Work(ipChMM),
      &                           nBas(i),nChOrb(i,j),1.0d-12,irc)
                   ipChMM=ipChMM+nBas(i)**2
-                  iOffDSQ = iOffDSQ + nBas(i)**2
                End Do
                If (irc.ne.0) Then
                  Write (6,*)
@@ -223,9 +223,9 @@
 **    Get the appropriate density matrix
 *
                  If (i.eq.3) Then
-                   call dcopy_(nDens,Work(ipDMLT(2)),1,Work(ipTmp),1)
+                   call dcopy_(nDens,Work(ipDMLT(2)),1,TmpD,1)
                  Else If (i.eq.4) Then
-                   call dcopy_(nDens,Work(ipDMLT(4)),1,Work(ipTmp),1)
+                   call dcopy_(nDens,Work(ipDMLT(4)),1,TmpD,1)
                  EndIf
 *
 **    And eigenvalue-decompose it
@@ -237,19 +237,19 @@
                    Call dzero(Work(ipChMM),nBas(isym)**2)
                    call dcopy_(nbas(isym),[One],0,Work(ipChMM),
      &                  nBas(isym)+1)
-                   Call NIdiag(Work(ipTmp+iOffDSQ),Work(ipChMM),
+                   Call NIdiag(TmpD(1+iOffDSQ),Work(ipChMM),
      &                  nBas(isym),nBas(isym),0)
 *
 **   First sort eigenvectors and eigenvalues
 *
                    Do j=1,nBas(isym)
-                     irun=ipTmp+iOffDSQ+j*(j+1)/2-1
+                     irun=iOffDSQ+j*(j+1)/2
                      Do k=j,nBas(isym)
-                       jrun=ipTmp+iOffDSQ+k*(k+1)/2-1
-                       If (Work(irun).lt.Work(jrun)) Then
-                         tmp=Work(irun)
-                         Work(irun)=Work(jrun)
-                         Work(jrun)=tmp
+                       jrun=iOffDSQ+k*(k+1)/2
+                       If (TmpD(irun).lt.TmpD(jrun)) Then
+                         tmp=TmpD(irun)
+                         TmpD(irun)=TmpD(jrun)
+                         TmpD(jrun)=tmp
                          Do l=0,nBas(isym)-1
                            tmp=Work(ipChMM+(j-1)*nBas(isym)+l)
                            Work(ipChMM+(j-1)*nBas(isym)+l)=
@@ -264,12 +264,12 @@
 
                    nChOrb(isym,i)=0
                    Do j=1,nBas(isym)
-                     If (Work(ipTmp+iOffDSQ+j*(j+1)/2-1).gt.Cho_thrs)
+                     If (TmpD(iOffDSQ+j*(j+1)/2).gt.Cho_thrs)
      &                   Then
                        irun=nChOrb(isym,i)*nBas(isym)
                        jrun=(j-1)*nBas(isym)
                        nChOrb(isym,i)=nChOrb(isym,i)+1
-                       tmp=Sqrt(Work(ipTmp+iOffDSQ+j*(j+1)/2-1))
+                       tmp=Sqrt(TmpD(iOffDSQ+j*(j+1)/2))
                        Do k=1,nBas(isym)
                          Work(ipChMM+irun)=Work(ipChMM+jrun)*tmp
                          irun=irun+1
@@ -280,12 +280,12 @@
                    npos(isym,i-2)=nChOrb(isym,i)
 *
                    Do j=1,nBas(isym)
-                     If (-Work(ipTmp+iOffDSQ+j*(j+1)/2-1).gt.Cho_thrs)
+                     If (-TmpD(iOffDSQ+j*(j+1)/2).gt.Cho_thrs)
      &                  Then
                        irun=nChOrb(isym,i)*nBas(isym)
                        jrun=(j-1)*nBas(isym)
                        nChOrb(isym,i)=nChOrb(isym,i)+1
-                       tmp=Sqrt(-Work(ipTmp+iOffDSQ+j*(j+1)/2-1))
+                       tmp=Sqrt(-TmpD(iOffDSQ+j*(j+1)/2))
                        Do k=1,nBas(isym)
                          Work(ipChMM+irun)=Work(ipChMM+jrun)*tmp
                          irun=irun+1
@@ -314,8 +314,8 @@
                  EndDo
                EndDo
             EndIf
-            Call GetMem('DSQ','Free','Real',ipDSQ,nBSQ)
-            If (lSA) Call GetMem('TmpDens','Free','Real',ipTmp,nDens)
+            Call Deallocate_DSBA(DSQ)
+            If (lSA) Call mma_deallocate(TmpD)
          EndIf
 ************************************************************************
 *                                                                      *
@@ -434,51 +434,48 @@
          nBas_Aux(0)=nBas_Aux(0)+1
       End If
 *
-      Call GetMem('Qv','Max','Real',iDum,MemMax)
+      Call mma_maxDBLE(MemMax)
 *
       If (Force_out_of_Core) MemMax=4*(nQvMax)/10
       nQv = Min(MemMax,nQvMax)
-      Call GetMem('Qv','Allo','Real',ipQv,nQv)
+      Call mma_allocate(Qv,nQv,Label='Qv')
 *
 **    Coulomb
 *
       Do i=0,nJdens-1
-         Call Mult_Vk_Qv_s(V_k(ipVk(1),1+i),nV_t(0),
-     &               Work(ipQv),nQv,
-     &               Work(ipScr),nQMax,nBas_Aux,nV_t(0),nIrrep,'T')
-         call dcopy_(nV_k,Work(ipScr),1,V_k(ipVk(1),1+i),1)
+         Call Mult_Vk_Qv_s(V_k(ipVk(1),1+i),nV_t(0),Qv,nQv,
+     &                     Scr,nQMax,nBas_Aux,nV_t(0),nIrrep,'T')
+         call dcopy_(nV_k,Scr,1,V_k(ipVk(1),1+i),1)
       End Do
 *
 **    MP2
 *
       If(iMp2prpt.eq.2) Then
-         Call Mult_Vk_Qv_s(U_k(ipUk(1)),nU_t(0),Work(ipQv),nQv,
-     &                     Work(ipScr),nQMax,nBas_Aux,nU_t(0),nIrrep,
-     &                     'T')
-         call dcopy_(nV_k,Work(ipScr),1,U_k(ipUk(1)),1)
+         Call Mult_Vk_Qv_s(U_k(ipUk(1)),nU_t(0),Qv,nQv,
+     &                     Scr,nQMax,nBas_Aux,nU_t(0),nIrrep,'T')
+         call dcopy_(nV_k,Scr,1,U_k(ipUk(1)),1)
       End If
 *
 **    Active term
 *
       If (DoCAS) Then ! reorder Zp_k
 
-         Call GetMem('Zv','Allo','Real',ipZv,nZ_p_k)
+         Call mma_allocate(Zv,nZ_p_k,Label='Zv')
 *
          Do iAvec=1,nAvec
            If (nProc.gt.1) Call Reord_Vk(ipZpk(1),nProc,myProc,
      &                    nV_l,nV_t,nnP,nIrrep,Z_p_k(:,iAVec))
 *
-           Call Mult_Zp_Qv_s(Z_p_k(ipZpk(1),iAvec),nZ_p_k,
-     &                       Work(ipQv),nQv,Work(ipZv),nZ_p_k,nV_t,nnP,
-     &                       nBas_Aux,nIrrep,'T')
+           Call Mult_Zp_Qv_s(Z_p_k(ipZpk(1),iAvec),nZ_p_k,Qv,nQv,
+     &                       Zv,nZ_p_k,nV_t,nnP,nBas_Aux,nIrrep,'T')
 *
-          call dcopy_(nZ_p_k,Work(ipZv),1,Z_p_k(ipZpk(1),iAvec),1)
+          call dcopy_(nZ_p_k,Zv,1,Z_p_k(ipZpk(1),iAvec),1)
          End Do
-         Call GetMem('Zv','Free','Real',ipZv,nZ_p_k)
+         Call mma_deallocate(Zv)
       EndIf
 *
-      Call Free_Work(ipQv)
-      Call Free_Work(ipScr)
+      Call mma_deallocate(Qv)
+      Call mma_deallocate(Scr)
 *
 **    Exchange
 *
