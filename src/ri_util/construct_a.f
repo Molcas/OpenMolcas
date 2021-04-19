@@ -28,11 +28,14 @@
       Integer  nVec(8)
       Integer nFIorb(8)
       Character Fname*6
-      Character*13 SECNAM
-      Parameter (SECNAM = 'CONSTRUCT_A')
+      Character(LEN=13), Parameter :: SECNAM = 'CONSTRUCT_A'
 
+#include "real.fh"
 #include "cholesky.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
+
+      Real*8, Allocatable :: CVec1(:,:), CVec2(:,:), AMat(:)
 *
 *************************
 *     Define some indeces
@@ -56,8 +59,9 @@
                Nij=Nij + nFIorb(iSym)*nFIorb(jSym)
             End If
          End Do
-         If(Nij.eq.0) Go To 1000
-         Call GetMem('MemChk','Max','Real',iDum,MemMax)
+         If(Nij.eq.0) Cycle
+
+         Call mma_maxDBLE(MemMax)
          MemMax = 60
 *     Setup batches in a way so that we maximize the number of full rows in A_KL we
 *     can have in memory at one time and if zero row fits we maximize the number of
@@ -134,18 +138,16 @@
          Write(Fname,'(A4,I1)') 'AMAT',iChSym
          Call DaName_MF_WA(LuAMat,Fname)
 *
-         l_Cvec1 = nBatVecL*Nij
-         l_Cvec2 = nBatVecK*Nij
+         Call mma_allocate(Cvec1,Nij,nBatVecL,Label='CVec1')
+         Call mma_allocate(Cvec2,Nij,nBatVecK,Label='CVec2')
          If((nBatL.eq.1).and.(nBatK.eq.1)) Then
             l_Amat = nBatVecK*(nBatVecK+1)/2
          Else
             l_Amat = nBatVecK*nBatVecL
          End If
 *         Write(6,*) 'l_Amat', l_Amat
-         Call GetMem('C_vec1','Allo','Real',ip_Cvec1,l_Cvec1)
-         Call GetMem('C_vec2','Allo','Real',ip_Cvec2,l_Cvec2)
-         Call GetMem('A_matrix','Allo','Real',ip_Amat,l_Amat)
-         Call FZero(Work(ip_Amat),l_Amat)
+         Call mma_allocte(Amat,l_Amat)
+         Amat(:)=Zero
 *
          nVecK = nBatVecK
          Do iBatK = 1, nBatK
@@ -154,7 +156,7 @@
 
 *            iAdr = (iBatK-1)*Nij*nBatVecK
 *            Write(6,*) 'iAdr1', iAdr
-*            Call dDaFile(LuCVec,2,Work(ip_Cvec1),nVecK*Nij,iAdr)
+*            Call dDaFile(LuCVec,2,Cvec1,Nij*nVecK,iAdr)
             nVecL = nBatVecL
             iBatL_Max = iBatK/nBatVecL
             iRest = mod(iBatK,nBatVecL)
@@ -164,21 +166,25 @@
                If(iBatL.eq.nBatL) nVecL =nVec(iChSym)-(nBatL-1)*nBatVecL
                iAdr = (iBatL-1)*Nij*nVecL
 *               Write(6,*) 'iadr', iAdr
-               Call dDaFile(LuCVec,2,Work(ip_Cvec1),nVecL*Nij,iAdr)
+               Call dDaFile(LuCVec,2,Cvec1,Nij*nVecL,iAdr)
                If(nBatL.ne.1) Then
                   iAdr = (iBatK-1)*Nij*nVecK
-                  Call dDaFile(LuCVec,2,Work(ip_Cvec2),nVecK*Nij,iAdr)
+                  Call dDaFile(LuCVec,2,Cvec2,Nij*nVecK,iAdr)
                End If
 
 *------------------------------------------------
 *               Write(6,*) 'C-Vector1'
-*               Do i = 0, nVecL*Nij-1
-*                  Write(6,*) Work(ip_Cvec1+i)
+*               Do i = 1, nVecL
+*                  Do ij = 1, Nij
+*                     Write(6,*) Cvec1(ij,i)
+*                  End Do
 *               End Do
 *               If(iBatL.ne.0) Then
 *                  Write(6,*) 'C-Vector2'
-*                  Do i = 0, nVecK*Nij-1
-*                     Write(6,*) Work(ip_Cvec2+i)
+*                  Do i = 1, nVecK*Nij
+*                     Do ij = 1, Nij
+*                        Write(6,*) Cvec2(ij,i)
+*                     End Do
 *                  End Do
 *               End If
 *------------------------------------------------
@@ -195,35 +201,35 @@
 *                     Write(6,*) 'iL,iK', iL,iK
                      Do ij = 1, Nij
                         If(nBatL.eq.1) Then
-                           index_K = ij-1 + (iK_Real-1)*Nij
+                           index_K = ij + (iK_Real-1)*Nij
                         Else
-                           index_K = ij-1 + (iK-1)*Nij
+                           index_K = ij + (iK-1)*Nij
                         End If
-                        index_L = ij-1 + (iL-1)*Nij
+                        index_L = ij + (iL-1)*Nij
 *                        Write(6,*) 'index_K', index_K
 *                        Write(6,*) 'index_L', index_L
                         If(nBatL.eq.1) Then
-                           A_KL = A_KL + Work(ip_Cvec1+index_L)*
-     &                                   Work(ip_CVec1+index_K)
+                           A_KL = A_KL + Cvec1(ij,iL)*
+     &                                   CVec1(ij,iK)
                         Else
-                           A_KL = A_KL + Work(ip_CVec1+index_L)*
-     &                                   Work(ip_CVec2+index_K)
+                           A_KL = A_KL + CVec1(ij,iL)*
+     &                                   CVec2(ij,iK)
                         End If
                      End Do
                      iSkip = (iBatK-1)*nBatVecK
-                     index_A = iTri(iL,iK_Real) - 1 - iTri(iSkip,iSkip)
+                     index_A = iTri(iL,iK_Real) - iTri(iSkip,iSkip)
 *-----------------------------------------------------------
-*                     Write(6,*) 'iTri1', iTri(iL,iK_Real)
-*                     Write(6,*) 'iTri2', iTri(iSkip,iSkip)
-*                     Write(6,*) 'index_A', index_A
+*                    Write(6,*) 'iTri1', iTri(iL,iK_Real)
+*                    Write(6,*) 'iTri2', iTri(iSkip,iSkip)
+*                    Write(6,*) 'index_A', index_A
 *-----------------------------------------------------------
-                     Work(ip_Amat+index_A) = A_KL
+                     AMat(index_A) = A_KL
                   End Do
                End Do
 *----------------------------------------------
 *               Write(6,*) 'A-matrixpiece'
-*               Do i=0, l_Amat-1
-*                  Write(6,*) Work(ip_Amat+i)
+*               Do i=1, l_Amat
+*                  Write(6,*) Amat(i)
 *               End Do
 *----------------------------------------------
 
@@ -236,31 +242,30 @@
                l_Atemp = min(l_Atemp,l_Amat)
 *               Write(6,*) 'iAdrA', iAdr
 *               Write(6,*) 'l_Atemp', l_Atemp
-               Call dDaFile(LuAMat,1,Work(ip_Amat),l_Atemp,iAdr)
+               Call dDaFile(LuAMat,1,AMat,l_Atemp,iAdr)
             End Do
          End Do
 
 *
 
 
-         Call GetMem('C_vec1','Free','Real',ip_Cvec1,l_Cvec1)
-         Call GetMem('C_vec2','Free','Real',ip_Cvec2,l_Cvec2)
-         Call GetMem('A_matrix','Free','Real',ip_Amat,l_Amat)
+         Call mma_deallocate(CVec2)
+         Call mma_deallocate(CVec1)
+         Call mma_deallocate(AMat)
 #ifdef _DEBUG
-         Call GetMem('A_mat','Allo','Real',ip_A,
-     &               nVec(iChSym)*(nVec(iChSym)+1)/2)
+         Call mma_allocate(Amat,nVec(iChSym)*(nVec(iChSym)+1)/2,
+     &                     Label='AMat')
          iAdr=0
-         Call dDaFile(LuAMat,2,Work(ip_A),
+         Call dDaFile(LuAMat,2,AMat,
      &                nVec(iChSym)*(nVec(iChSym)+1)/2,iAdr)
 _
          Write(6,*) 'A-matrix in symm:',iChSym
-         Do i = 0, nVec(iChSym)*(nVec(iChSym)+1)/2-1
-            Write(6,*) Work(ip_A+i)
+         Do i = 1, nVec(iChSym)*(nVec(iChSym)+1)/2
+            Write(6,*) AMat(i)
          End Do
-         Call GetMem('A_mat','Free','Real',ip_A,
-     &               nVec(iChSym)*(nVec(iChSym)+1)/2)
+         Call mma_deallocate(Amat)
 #endif
- 1000    Continue
+
       End Do !iChSym
 
 
