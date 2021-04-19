@@ -3,7 +3,7 @@
 * Basis: cc-pVDZ
 * Symmetry: C2v
 * Features tested: SEWARD(RICD),SCF,ALASKA,SLAPAF
-* Responsible person: I. Fdez. Galvan
+* Responsible person: I. Fdez. Galván
 * Comments: RI-UHF Geometry optimization
 *-------------------------------------------------------------------------------
  &GATEWAY
