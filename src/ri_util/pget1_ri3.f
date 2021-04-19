@@ -32,7 +32,7 @@
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: lPSO, lsa, ipAorb, Thpkl
       use ExTerm, only: CijK, CilK, BklK, BMP2, iMP2prpt, LuBVector
-      use ExTerm, only: Ymnij, ipYmnij, nYmnij
+      use ExTerm, only: Ymnij, ipYmnij, nYmnij, CMOi
 #ifdef _DEBUGPRINT_
       use ExTerm, only: iOff_Ymnij
 #endif
@@ -47,6 +47,8 @@
       Integer nj(4),jSkip(4),jp_Xli2(2),jp_Xki2(2),jp_Xki3(2),
      &        jp_Xli3(2),NumOrb(4),nAct(0:7)
       Logical Shijij,Found
+
+      Real*8, Pointer :: Xli(:,:), Xki(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -145,8 +147,8 @@
 *
 *        Pointers to the full list of the X_mu,i elements.
 *
-         jp_Xki=ip_CMOi(1)+index2k
-         jp_Xli=ip_CMOi(1)+index2l
+         Xki(1:,1:) => CMOi(1)%SB(1)%A2(1:,kSO:)
+         Xli(1:,1:) => CMOi(1)%SB(1)%A2(1:,lSO:)
 *
 *        Collect the X_mu,i which survived the prescreening.
 *        Replace the pointers above, i.e. jp_Xki, jp_Xli.
@@ -155,30 +157,25 @@
 *
 *           Note that the X_mu,i are stored as X_i,mu!
 *
-            jp_Xki=ip_CMOi(1)+index2k-1
-            jp_Xli=ip_CMOi(1)+index2l-1
-*
             imo=1
             Do k=1,nj(1)
                kmo=kYmnij(k,1) ! CD-MO index
 *
 *              Pick up X_mu,i for all mu's that belong to shell k
 *
-               jCMOk=jp_Xki+kmo
-               call dcopy_(nKBas,Work(jCMOk),NumOrb(1),
+               call dcopy_(nKBas,Xki(kmo,1),NumOrb(1),
      &                           Yij(imo,1,1),nj(1))
 *
 *              Pick up X_mu,i for all mu's that belong to shell l
 *
-               jCMOl=jp_Xli+kmo
-               call dcopy_(nLBas,Work(jCMOl),NumOrb(1),
+               call dcopy_(nLBas,Xli(kmo,1),NumOrb(1),
      &                           Yij(imo,2,1),nj(1))
 *
                imo=imo+1
             End Do
 *           Reset pointers!
-            jp_Xki=ip_of_Work(Yij(1,1,1))
-            jp_Xli=ip_of_Work(Yij(1,2,1))
+            Xki(1:nj(1),1:nKBas) => Yij(1:nj(1)*nKBas,1,1)
+            Xli(1:nj(1),1:nLBas) => Yij(1:nj(1)*nLBas,2,1)
          ElseIf (nj(1).gt.NumOrb(1)) Then
             Call WarningMessage(2,'Pget1_RI3: nj > NumOrb.')
             Call Abend()
@@ -204,8 +201,8 @@
                  Do i=1,nj(1)
                    imo=kYmnij(i,1)
                    jC=imo+NumOrb(1)*(jmo-1)
-                   call dcopy_(jBas,CijK(jC),NumOrb(1)**2,CilK(ij),
-     &                        nj(1)**2)
+                   call dcopy_(jBas,CijK(jC),NumOrb(1)**2,
+     &                              CilK(ij),nj(1)**2)
                    ij=ij+1
                  End Do
                End Do
@@ -218,14 +215,14 @@
 *
             Call dGEMM_('T','N',nj(1)*jBas,nKBas,nj(1),
      &                   1.0d0,CijK,nj(1),
-     &                         Work(jp_Xki),nj(1),
+     &                         Xki,nj(1),
      &                   0.0d0,CilK,nj(1)*jBas)
 *
 *** ----    B(Km,n) = Sum_j E(j,Km)' * X(j,n)
 *
             Call dGEMM_('T','N',jBas*nKBas,nLBas,nj(1),
      &                   1.0d0,CilK,nj(1),
-     &                         Work(jp_Xli),nj(1),
+     &                         Xli,nj(1),
      &                   0.0d0,BklK,jBas*nKBas)
 *
             Do i3 = 1, iCmp(3)
@@ -268,6 +265,8 @@
                End Do
             End Do
          End Do
+         Xki=>Null()
+         Xli=>Null()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -362,7 +361,7 @@
                         imo=kYmnij(i,iSO)
                         jC=imo+NumOrb(iSO)*(jmo-1)
                         call dcopy_(jBas,CijK(jC),NumOrb(iSO)**2,
-     &                        Cilk(ij),nj(iSO)**2)
+     &                                   Cilk(ij),nj(iSO)**2)
                         ij=ij+1
                       End Do
                     End Do
