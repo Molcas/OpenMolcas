@@ -119,7 +119,6 @@ iDmp(i+1:i+8)=iSkip(0:7)
 i=i+8
 iDmp(i+1:i+2)=Merge([1,1],[0,0],[VarR,VarT])
 i=i+2
-write(6,*) 'IFG dmp',VarR,VarT
 
 #ifdef _DEBUGPRINT_
 Write (6,*) 'Symmetry_Info_Dmp'
@@ -217,7 +216,6 @@ VarR = iDmp(i+1) /= 0
 VarT = iDmp(i+2) /= 0
 i=i+2
 Call mma_deallocate(iDmp)
-write(6,*) 'IFG get',VarR,VarT
 
 lcDmp = 3*8 + 80*8 + 3
 Call mma_allocate(cDmp,lcDmp,Label='cDmp')
