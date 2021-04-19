@@ -27,8 +27,9 @@
 #include "etwas.fh"
 #include "exterm.fh"
 
-      Type (DSBA_Type) DSQ
+      Type (DSBA_Type) DSQ, ChM(5)
 
+      Integer :: ipChM(5)=[0,0,0,0,0]
       Logical DoExchange, DoCAS, Estimate, Update
       Integer nIOrb(0:7),nV_l(0:7),nV_t(0:7)
       Integer nU_l(0:7), nU_t(0:7)
@@ -172,9 +173,9 @@
          DoExchange=Exfac.ne.Zero
 
          If (DoExchange .or. DoCAS) Then
-            Call GetMem('ChMOs','Allo','Real',ipChM(1),nCMO*nKdens)
-            Do i=2,nKdens
-              ipChM(i)=ipChM(i-1)+nCMO
+            Do i=1,nKdens
+              Call Allocate_DSBA(ChM(i),nBas,nBas,nSym)
+              ipChM(i)=ip_of_Work(ChM(i)%A0(1))
             End Do
             If (lSA) Then
               Call mma_allocate(TmpD,nDens,Label='TmpD')
@@ -198,12 +199,10 @@
      &                                      nIrrep,nBas)
                EndIf
 *
-               ipChMM=ipChM(j)
                Do i=0,nIrrep-1
                   Call CD_InCore(DSQ%SB(i+1)%A2,nBas(i),
-     &                           Work(ipChMM),
+     &                            ChM(j)%SB(i+1)%A2,
      &                           nBas(i),nChOrb(i,j),1.0d-12,irc)
-                  ipChMM=ipChMM+nBas(i)**2
                End Do
                If (irc.ne.0) Then
                  Write (6,*)
@@ -230,14 +229,13 @@
 *
 **    And eigenvalue-decompose it
 *
-                 ipChMM=ipChM(i)
                  iOffDSQ=0
                  Do isym=0,nIrrep-1
 *
-                   Call dzero(Work(ipChMM),nBas(isym)**2)
-                   call dcopy_(nbas(isym),[One],0,Work(ipChMM),
-     &                  nBas(isym)+1)
-                   Call NIdiag(TmpD(1+iOffDSQ),Work(ipChMM),
+                   ChM(i)%SB(iSym+1)%A2(:,:)=Zero
+                   call dcopy_(nbas(isym),[One],0,
+     %                         ChM(i)%SB(iSym+1)%A2,nBas(isym)+1)
+                   Call NIdiag(TmpD(1+iOffDSQ),ChM(i)%SB(iSym+1)%A2,
      &                  nBas(isym),nBas(isym),0)
 *
 **   First sort eigenvectors and eigenvalues
@@ -250,11 +248,11 @@
                          tmp=TmpD(irun)
                          TmpD(irun)=TmpD(jrun)
                          TmpD(jrun)=tmp
-                         Do l=0,nBas(isym)-1
-                           tmp=Work(ipChMM+(j-1)*nBas(isym)+l)
-                           Work(ipChMM+(j-1)*nBas(isym)+l)=
-     &                         Work(ipChMM+(k-1)*nBas(isym)+l)
-                           Work(ipChMM+(k-1)*nBas(isym)+l)=tmp
+                         Do l=1,nBas(isym)
+                           tmp=ChM(i)%SB(iSym+1)%A2(l,j)
+                           ChM(i)%SB(iSym+1)%A2(l,j)
+     &                        = ChM(i)%SB(iSym+1)%A2(l,k)
+                           ChM(i)%SB(iSym+1)%A2(l,k)=tmp
                          End Do
                        End If
                      End Do
@@ -262,39 +260,33 @@
 *
                    Cho_thrs=1.0d-12
 
-                   nChOrb(isym,i)=0
+                   l = 0
                    Do j=1,nBas(isym)
-                     If (TmpD(iOffDSQ+j*(j+1)/2).gt.Cho_thrs)
-     &                   Then
-                       irun=nChOrb(isym,i)*nBas(isym)
-                       jrun=(j-1)*nBas(isym)
-                       nChOrb(isym,i)=nChOrb(isym,i)+1
+                     If (TmpD(iOffDSQ+j*(j+1)/2).gt.Cho_thrs) Then
+                       l=l+1
                        tmp=Sqrt(TmpD(iOffDSQ+j*(j+1)/2))
                        Do k=1,nBas(isym)
-                         Work(ipChMM+irun)=Work(ipChMM+jrun)*tmp
-                         irun=irun+1
-                         jrun=jrun+1
+                         ChM(i)%SB(iSym+1)%A2(k,l) =
+     &                      ChM(i)%SB(iSym+1)%A2(k,j)*tmp
                        End Do
                      EndIf
                    End Do
-                   npos(isym,i-2)=nChOrb(isym,i)
+                   npos(isym,i-2)=l
 *
                    Do j=1,nBas(isym)
-                     If (-TmpD(iOffDSQ+j*(j+1)/2).gt.Cho_thrs)
-     &                  Then
-                       irun=nChOrb(isym,i)*nBas(isym)
+                     If (-TmpD(iOffDSQ+j*(j+1)/2).gt.Cho_thrs) Then
+                       l=l+1
+                       irun=(l-1)*nBas(isym)
                        jrun=(j-1)*nBas(isym)
-                       nChOrb(isym,i)=nChOrb(isym,i)+1
                        tmp=Sqrt(-TmpD(iOffDSQ+j*(j+1)/2))
                        Do k=1,nBas(isym)
-                         Work(ipChMM+irun)=Work(ipChMM+jrun)*tmp
-                         irun=irun+1
-                         jrun=jrun+1
+                         ChM(i)%SB(iSym+1)%A2(k,l) =
+     &                      ChM(i)%SB(iSym+1)%A2(k,j)*tmp
                        End Do
                      EndIf
                    End Do
+                   nChOrb(isym,i)=l
 *
-                   ipChMM=ipChMM+nBas(isym)**2
                    iOffDSQ=iOffDSQ+nBas(isym)*(nBas(isym)+1)/2
                  End Do
 *
@@ -407,7 +399,9 @@
          End If
 
          If (DoCAS .or. DoExchange) Then
-            Call GetMem('ChMOs','Free','Real',ipChM(1),nCMO*nKdens)
+            Do i=1,nKdens
+              Call deallocate_DSBA(ChM(i))
+            End Do
          EndIf
          If(iMp2prpt.eq.2) Then
             Call Free_Work(ipDLT2)
