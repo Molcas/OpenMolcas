@@ -27,7 +27,7 @@
 #include "etwas.fh"
 #include "exterm.fh"
 
-      Type (DSBA_Type) DSQ, ChM(5)
+      Type (DSBA_Type) DSQ, ChM(5), DLT2
 
       Integer :: ipChM(5)=[0,0,0,0,0]
       Logical DoExchange, DoCAS, Estimate, Update
@@ -151,11 +151,11 @@
      &          'Compute_AuxVec: invalid nKdens!!')
             Call Abend()
          EndIf
-         ipDLT2 = 1
          If(iMp2prpt.eq.2) Then
-            Call GetMem('DLT2','Allo','Real',ipDLT2,nDens)
-            Call Get_D1AO_Var(Work(ipDLT2),nDens)
-            Call daxpy_(nDens,-One,Work(ipDMLT(1)),1,Work(ipDLT2),1)
+            Call Allocate_DSBA(DLT2,nBas,nBas,nSym,Case='TRI')
+            ipDLT2=ip_of_Work(DLT2%A0(1))
+            Call Get_D1AO_Var(DLT2%A0,nDens)
+            Call daxpy_(nDens,-One,Work(ipDMLT(1)),1,DLT2%A0,1)
          Else
             ipDLT2 = ip_Dummy
          End If
@@ -404,7 +404,7 @@
             End Do
          EndIf
          If(iMp2prpt.eq.2) Then
-            Call Free_Work(ipDLT2)
+            Call deallocate_DSBA(DLT2)
          End If
 *
       End If ! no vectors on this node
