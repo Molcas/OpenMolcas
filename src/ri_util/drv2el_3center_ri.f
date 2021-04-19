@@ -625,7 +625,7 @@ C      End Do    ! klS
 *        LenVec: # of valence Gaussian products in this irrep
 *
          LenVec = iMax_R(2,iIrrep)
-         Call Create_Chunk(ip_iMap,ip_ChoVec,LenVec,NumVec,IncVec)
+         Call Create_Chunk(LenVec,NumVec,IncVec)
 *
          Do iVec = 1, NumVec, IncVec
             NumVec_ = Min(NumVec-iVec+1,IncVec)
@@ -677,8 +677,7 @@ C      End Do    ! klS
                MuNu_e = NuMu(2,klS_)
                j_s=1
                j_e=NumVec_
-               Call Put_Chunk(ip_ChoVec,MuNu_s,MuNu_e,
-     &                        j_s,j_e,Rv,nMuNu,LenVec)
+               Call Put_Chunk(MuNu_s,MuNu_e,j_s,j_e,Rv,nMuNu,LenVec)
 *
  666           Continue
             End Do
@@ -688,13 +687,12 @@ C      End Do    ! klS
 *
 *           Now transfer the RI vectors to disk
 *
-            Call Get_Chunk(ip_ChoVec,LenVec,NumVec_,iChoVec,iSym,
-     &                     ip_iMap,iVec)
+            Call Get_Chunk(LenVec,NumVec_,iChoVec,iSym,iVec)
 *
          End Do   ! iVec = 1, NumVec, IncVec
 *
 
-         Call Destroy_Chunk(ip_ChoVec,ip_iMap)
+         Call Destroy_Chunk()
          Call mma_deallocate(Rv)
 *
  999     Continue
