@@ -24,7 +24,7 @@ Public :: CMOi
 Real*8, Allocatable, Target:: CijK(:), VJ(:), CilK(:), BklK(:)
 Integer, Allocatable:: Ymnij(:)
 Integer ipYmnij(5), nYmnij(8,5), iOff_Ymnij(8,5)
-Real*8, Allocatable:: Yij(:,:,:)
+Real*8, Allocatable, Target:: Yij(:,:,:)
 Real*8, Allocatable:: A(:)
 
 !  Cholesky Mp2-gradients
@@ -33,5 +33,5 @@ Real*8, Allocatable:: BMP2(:,:)
 Integer :: iMP2prpt, nAuxVe
 Integer :: LuAVector(2), LuBVector(2)
 
-Type (DSBA_Type) CMOi(5)
+Type (DSBA_Type), Target :: CMOi(5)
 End Module exterm

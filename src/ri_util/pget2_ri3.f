@@ -34,7 +34,7 @@
       use Symmetry_Info, only: nIrrep
       use ExTerm, only: CijK, CilK, BklK
       use ExTerm, only: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
-      use ExTerm, only: Yij
+      use ExTerm, only: Yij, CMOi
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 #include "real.fh"
@@ -46,6 +46,9 @@
 *     Local Array
       Integer jSym(0:7), kSym(0:7), lSym(0:7), nAct(0:7)
       Integer nCumnnP(0:7),nCumnnP2(0:7)
+
+      Real*8, Pointer :: Xki(:,:)=>Null()
+      Real*8, Pointer :: Xli(:,:)=>Null()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -124,10 +127,6 @@
                      nlSym = nlSym + 1
                   End If
  401           Continue
-*              Write (*,*)
-*              Write (*,*) 'i2,i3,i4=',i2,i3,i4
-*              Write (*,*) '=================='
-*              Write (*,*)
 *
 *------Loop over irreps which are spanned by the basis function.
 *
@@ -167,8 +166,7 @@
 *
 *                  Offset to where the block starts (jbas,kbas,i3)
 *
-                   jp_Xki=ip_CMOi(1) + iOff_CMOi(j3+1,1)
-     &                   + nChOrb(j3,iSO)*(kSO-1)-1
+                   Xki(1:,1:) => CMOi(1)%SB(j3+1)%A2(1:,kSO:)
 *
 *                  Loop over the auxiliary basis functions which has
 *                  significant contributions to the k shell.
@@ -177,77 +175,58 @@
                    Do k = 1, nk
                       kmo=kYmnij(k+iOff_Ymnij(j3+1,1))
 *
-                      jCMOk=jp_Xki+kmo
-                      call dcopy_(kBas,Work(jCMOk),nChOrb(j3,iSO),
+                      call dcopy_(kBas,Xki(kmo,1),nChOrb(j3,iSO),
      &                                 Yij(imo,1,1),  nk)
 *
                       imo = imo +1
                    End Do
 *                  Reset pointers
-                   jp_Xki=ip_of_Work(Yij(1,1,1))
-*                  Write (*,*) 'i3,j3=',i3,j3
-*                  Call RecPrt('X(i,mu)C',' ',Work(jp_Xki),nk,kBas)
+                   Xki(1:nk,1:kBas) => Yij(1:nk*kBas,1,1)
+*                  Call RecPrt('X(i,mu)C',' ',Xki,nk,kBas)
                 Else If (ExFac.ne.Zero.and.nk.gt.0) Then
-                   jp_Xki=ip_CMOi(1) + iOff_CMOi(j3+1,1)
-     &                   + nChOrb(j3,iSO)*(kSO-1)
-*                  Write (*,*) 'i3,j3=',i3,j3
-*                  Call RecPrt('X(i,mu)R',' ',Work(jp_Xki),nk,kBas)
+                   Xki(1:,1:) => CMOi(1)%SB(j3+1)%A2(1:,kSO:)
+*                  Call RecPrt('X(i,mu)R',' ',Xki,nk,kBas)
                 Else
-                   jp_Xki=ip_Dummy
+                   Xki=>Null()
                 End If
 *
                 Do 410 ls = 0, nlSym-1
                    j4 = lSym(ls)
-*                  Write (*,*)
-*                  Write (*,*) 'j2,j3,j4=',j2,j3,j4
-*                  Write (*,*)
                    If (j23.ne.j4) Go To 410
-*                  Write (*,*) 'Pass symmetry check'
-*                  Write (*,*) 'j2,j3,j4=',j2,j3,j4
                    nl = nYmnij(j4+1,1)
-*                  Write (*,*) 'j4,nl=',j4,nl
                    lSO = iAOtSO(iAO(4)+i4,j4)+iAOst(4)
 *
 *                  Pointers to the full list of the X_mu,i elements
 *
                    If (nl.lt.nChOrb(j4,iSO).and.ExFac.ne.Zero.and.
      &                 nl.gt.0) Then
-                      jp_Xli=ip_CMOi(1) + iOff_CMOi(j4+1,1)
-     &                      + nChOrb(j4,iSO)*(lSO-1)-1
+                      Xli(1:,1:) => CMOi(1)%SB(j4+1)%A2(1:,lSO:)
                       imo=1
                       Do l = 1, nl
                          lmo=kYmnij(l+iOff_Ymnij(j4+1,1))
 *
-                         jCMOl=jp_Xli+lmo
-                         call dcopy_(lBas,Work(jCMOl),nChOrb(j4,iSO),
+                         call dcopy_(lBas,Xli(lmo,1),nChOrb(j4,iSO),
      &                                    Yij(imo,2,1),   nl)
 *
                          imo = imo +1
                       End Do
 *                     Reset pointers
-                      jp_Xli=ip_of_Work(Yij(1,2,1))
-*                     Write (*,*) 'i4,j4=',i4,j4
-*                     Call RecPrt('X(j,nu)C',' ',Work(jp_Xli),nl,lBas)
+                      Xli(1:nl,1:lBas) => Yij(1:nl*lBas,2,1)
+*                     Call RecPrt('X(j,nu)C',' ',Xli,nl,lBas)
                    Else If (ExFac.ne.Zero.and.nl.gt.0) Then
-                      jp_Xli=ip_CMOi(1) + iOff_CMOi(j4+1,1)
-     &                      + nChOrb(j4,iSO)*(lSO-1)
-*                     Write (*,*) 'i4,j4=',i4,j4
-*                     Call RecPrt('X(j,nu)R',' ',Work(jp_Xli),nl,lBas)
+                      Xli(1:,1:) => CMOi(1)%SB(j4+1)%A2(1:,lSO:)
+*                     Call RecPrt('X(j,nu)R',' ',Xli,nl,lBas)
                    Else
-                      jp_Xli=ip_Dummy
+                      Xli=>Null()
                    End If
 *
                    MemSO2 = MemSO2 + 1
-*                  Write (6,*) 'MemSO2=',MemSO2
 *
                    jSO = iAOtSO(iAO(2)+i2,j2)+iAOst(2)
                    jSO_off = jSO - nBas(j2)
 *
                    ExFac_ = ExFac
                    If (nJ*nk*nl.eq.0) ExFac=Zero
-*                  Write (6,*) 'i2,i3,i4=',i2,i3,i4
-*                  Write (6,*) 'nJ,nk,nl=',nJ,nk,nl
-*                  Write (6,*) 'ExFac=',ExFac
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -300,30 +279,19 @@
 *
 *                  E(jK,m) = Sum_i C(i,jK)' * X(i,m)
 *
-*                  Call RecPrt('C(ij,K)',' ',CijK,
-*    &                         nk*nl,jBas)
-*                  Call RecPrt('X(i,mu)',' ',Work(jp_Xki),
-*    &                          nk,kBas)
                    Call dGEMM_('T','N',nl*jBas,kBas,nk,
      &                        1.0D0,CijK,nk,
-     &                              Work(jp_Xki),nk,
+     &                              Xki,nk,
      &                        0.0D0,CilK,nl*jBas)
 *
 *                  B(Km,n) = Sum_j E(j, Km)' * X(j,n)
 *
                    Call dGEMM_('T','N',jBas*kBas,lBas,nl,
      &                         1.0D0,CilK,nl,
-     &                               Work(jp_Xli),nl,
+     &                               Xli,nl,
      &                         0.0D0,BklK,jBas*kBas)
-*                  Write (*,*) 'i2,i3,i4=',i2,i3,i4
-*                  Write (*,*) 'MemSO2=',MemSO2
-*                  Call RecPrt('B_kl^K',' ',BklK,jBas,kBas*lBas)
 
                    End If
-*
-*                  Write (6,*)
-*                  Write (6,*) 'j2,j3,j4=',j2,j3,j4
-*                  Write (6,*)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -446,6 +414,8 @@
                    ExFac = ExFac_
 *
  410            Continue
+                Xki=>Null()
+                Xli=>Null()
  310         Continue
           End Do
 *
