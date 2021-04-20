@@ -37,7 +37,6 @@
 #include "setup.fh"
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "nsd.fh"
       Character Name_Q*6
