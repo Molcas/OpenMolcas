@@ -11,13 +11,11 @@
 
       Integer nChOrb(0:7,5)
       Integer nIJ1(8,8,2),nIJR(8,8,2)
-      Integer ip_CMOi(5),lCMOi(5),iOff_CMOi(8,5)
       Integer iAdrCVec(8,8,2),LuCVector(8,2)
       Integer NumAuxVec(8)
       Integer MxChVInShl,ljkvec,nScreen
 
       Common /ExTe1/ nChOrb,nIJ1,nIJR,                                  &
-     &               ip_CMOi,lCMOi,iOff_CMOi,                           &
      &               LuCVector, MxChVInShl,                             &
      &               iAdrCVec, ljkvec,nScreen, NumAuxVec
 

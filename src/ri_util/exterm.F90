@@ -19,7 +19,7 @@ Public :: A, AMP2, BMP2
 Public :: iMP2prpt, nAuxVe
 Public :: LuAVector, LuBVector
 
-Public :: CMOi
+Public :: CMOi, DMLT
 
 Real*8, Allocatable, Target:: CijK(:), VJ(:), CilK(:), BklK(:)
 Integer, Allocatable:: Ymnij(:)
@@ -33,5 +33,5 @@ Real*8, Allocatable:: BMP2(:,:)
 Integer :: iMP2prpt, nAuxVe
 Integer :: LuAVector(2), LuBVector(2)
 
-Type (DSBA_Type), Target :: CMOi(5)
+Type (DSBA_Type), Target :: CMOi(5), DMLT(5)
 End Module exterm

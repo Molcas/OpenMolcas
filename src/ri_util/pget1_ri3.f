@@ -209,7 +209,8 @@
                    ij=ij+1
                  End Do
                End Do
-              Call dCopy_(nj(1)**2*jBas,CilK,1,CijK,1)
+               n2j=nj(1)**2*jBas
+               CijK(1:n2j)=CilK(1:n2j)
             End If
 *
 *           Transform according to Eq. 16 (step 4) and generate B_kl^J
@@ -362,7 +363,8 @@
                         ij=ij+1
                       End Do
                     End Do
-                    Call dCopy_(nj(iSO)**2*jBas,CilK,1,CijK,1)
+                    n2j=nj(iSO)**2*jBas
+                    CijK(1:n2j)=CilK(1:n2j)
                  End If
 *
 *           Transform according to Eq. 16 (step 4) and generate B_kl^J
@@ -508,7 +510,8 @@
                      ij=ij+1
                    End Do
                  End Do
-                 Call dCopy_(nj(1)**2*jBas,CilK,1,CijK,1)
+                 n2j=nj(1)**2*jBas
+                 CijK(1:n2j)=CilK(1:n2j)
               End If
 *
 *             Transform according to Eq. 16 (step 4) and generate B_kl^J
@@ -744,8 +747,8 @@
                        ij=ij+1
                      End Do
                    End Do
-                   Call dCopy_(nj(iMOright)*nj(iMOleft)*jBas,CilK,1,
-     &                         CijK,1)
+                   n2j=nj(iMOright)*nj(iMOleft)*jBas
+                   CijK(1:n2j)=CilK(1:n2j)
                  End If
 *
 *           Transform according to Eq. 16 (step 4) and generate B_kl^J
@@ -961,7 +964,8 @@
                    ij=ij+1
                  End Do
                End Do
-              call dcopy_(nj(1)**2*jBas,CilK,1,CijK,1)
+               n2j=nj(1)**2*jBas
+               CijK(1:n2j)=CilK(1:n2j)
             EndIf
 *
 *** ---- C(jK,m) = sum_i C(i,jK)' * X(i,m)

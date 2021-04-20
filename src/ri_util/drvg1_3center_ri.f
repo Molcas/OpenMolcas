@@ -46,7 +46,7 @@
       use Symmetry_Info, only: nIrrep
       use ExTerm, only: CijK, CilK, BklK, VJ
       use ExTerm, only: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
-      use ExTerm, only: Yij, BMP2, iMP2prpt, CMOi
+      use ExTerm, only: Yij, BMP2, iMP2prpt, CMOi, DMLT
       use Data_Structures, only: Deallocate_DSBA
       Implicit Real*8 (A-H,O-Z)
       Logical, External :: Rsv_Tsk2
@@ -223,7 +223,6 @@
       Call mma_allocate(MaxDens,lMaxDens,Label='MaxDens')
       MaxDens(:)=Zero
 *
-      iOff=0
       Do iSym = 0, nSym-1
          kS=1+nSkal_Valence*iSym ! note diff wrt declaration of iBDsh
          Do j=1,nBas(iSym)
@@ -232,19 +231,18 @@
                ish=Cho_Irange(i,iBDsh(kS),nSkal_Valence,.true.)
                ijS=jsh*(jsh-1)/2+ish
                Do iSO=1,nJDens
-                 If (ipDMLT(iSO).eq.ip_Dummy) Cycle
-                 ij=ipDMLT(iSO)+iOff-1+j*(j-1)/2+i
-                 Dm_ij=abs(Work(ij))
+                 If (.NOT.Allocated(DMLT(iSO)%A0)) Cycle
+                 ij=j*(j-1)/2+i
+                 Dm_ij=abs(DMLT(iSO)%SB(iSym+1)%A1(ij))
                  MaxDens(ijS)=Max(MaxDens(ijS),Dm_ij)
                End Do
             End Do
          End Do
-         iOff=iOff+nBas(iSym)*(nBas(iSym)+1)/2
       End Do
 *
-      If (ipDMLT(1).ne.ip_Dummy) Call Free_Work(ipDMLT(1))
-      If (nKdens.eq.2 .and. ipDMLT(2).ne.ip_Dummy)
-     &   Call Free_Work(ipDMLT(2))
+      Do i = 1, 5
+         If (Allocated(DMLT(i)%A0)) Call deallocate_DSBA(DMLT(i))
+      End Do
 *
 *     Create list of non-vanishing pairs
 *

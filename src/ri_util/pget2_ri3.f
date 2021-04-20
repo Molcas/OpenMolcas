@@ -270,7 +270,8 @@
 *
 *                     Copy back to original memory position.
 *
-                      call dcopy_(nk*nl*jBas,CilK,1,CijK,1)
+                      n2j=nk*nl*jBas
+                      CijK(1:n2j)=CilK(1:n2j)
                    End If
 *
 *                  Transform according to Eq. 16 (step 4) and

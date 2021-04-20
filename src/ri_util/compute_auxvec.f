@@ -16,7 +16,7 @@
       use Symmetry_Info, only: nIrrep
       use Data_Structures, only: Allocate_DSBA, Map_to_DSBA
       use Data_Structures, only: Deallocate_DSBA
-      use ExTerm, only: iMP2prpt
+      use ExTerm, only: iMP2prpt, DMLT
       Implicit Real*8 (a-h,o-z)
       Integer ipVk(nProc), ipZpk(nProc)
       Integer, Optional:: ipUk(nProc)
@@ -110,42 +110,48 @@
          If(iMp2prpt .ne. 2) Then
             If (DoCAS.and.lSA) Then
                nSA=5
-               Call GetMem('Dens','Allo','Real',ipDMLT(1),nDens*nSA)
-               Do i=2,nSA
-                 ipDMLT(i)=ipDMLT(i-1)+nDens
+               Do i=1,nSA
+                 Call Allocate_DSBA(DMLT(i),nBas,nBas,nSym,Case='TRI')
+                 ipDMLT(i)=ip_of_Work(DMLT(i)%A0(1))
+                 DMLT(i)%A0(:) = D0(:,i)
                End Do
-               call dcopy_(nDens*nSA,D0,1,Work(ipDMLT(1)),1)
 *Refold some density matrices
-               ij = -1
                Do iIrrep = 0, nIrrep-1
+                 ij = 0
                  Do iBas = 1, nBas(iIrrep)
                    Do jBas = 1, iBas-1
                      ij = ij + 1
-                     Work(ipDMLT(1)+ij)=Two*Work(ipDMLT(1)+ij)
-                     Work(ipDMLT(3)+ij)=Two*Work(ipDMLT(3)+ij)
-                     Work(ipDMLT(5)+ij)=Two*Work(ipDMLT(5)+ij)
+                     DMLT(1)%SB(iIrrep+1)%A1(ij)=
+     &                    Two*DMLT(1)%SB(iIrrep+1)%A1(ij)
+                     DMLT(3)%SB(iIrrep+1)%A1(ij)=
+     &                    Two*DMLT(3)%SB(iIrrep+1)%A1(ij)
+                     DMLT(5)%SB(iIrrep+1)%A1(ij)=
+     &                    Two*DMLT(5)%SB(iIrrep+1)%A1(ij)
                    EndDo
                    ij = ij + 1
                  EndDo
                EndDo
             Else
-               Call GetMem('DMLT(1)','Allo','Real',ipDMLT(1),nDens)
-               Call Get_D1AO_Var(Work(ipDMLT(1)),nDens)
+               Call Allocate_DSBA(DMLT(1),nBas,nBas,nSym,Case='TRI')
+               ipDMLT(1)=ip_of_Work(DMLT(1)%A0(1))
+               Call Get_D1AO_Var(DMLT(1)%A0,nDens)
             EndIf
          Else
-            Call GetMem('DMLT(1)','Allo','Real',ipDMLT(1),nDens)
-            Call Get_D1AO(Work(ipDMLT(1)),nDens)
+            Call Allocate_DSBA(DMLT(1),nBas,nBas,nSym,Case='TRI')
+            ipDMLT(1)=ip_of_Work(DMLT(1)%A0(1))
+            Call Get_D1AO(DMLT(1)%A0,nDens)
          End If
 *
          If (nKdens.eq.2) Then
-            Call GetMem('DMLT(2)','Allo','Real',ipDMLT(2),nDens)
+            Call Allocate_DSBA(DMLT(2),nBas,nBas,nSym,Case='TRI')
+            ipDMLT(2)=ip_of_Work(DMLT(1)%A0(2))
 !           spin-density matrix
-            Call Get_D1SAO_Var(Work(ipDMLT(2)),nDens)
-            Call daxpy_(nDens,-One,Work(ipDMLT(1)),1,
-     &                              Work(ipDMLT(2)),1)
-            call dscal_(nDens,-Half,Work(ipDMLT(2)),1) ! beta DMAT
-            Call daxpy_(nDens,-One,Work(ipDMLT(2)),1,
-     &                             Work(ipDMLT(1)),1) ! alpha DMAT
+            Call Get_D1SAO_Var(DMLT(2)%A0,nDens)
+            Call daxpy_(nDens,-One,DMLT(1)%A0,1,
+     &                             DMLT(2)%A0,1)
+            call dscal_(nDens,-Half,DMLT(2)%A0,1) ! beta DMAT
+            Call daxpy_(nDens,-One,DMLT(2)%A0,1,
+     &                             DMLT(1)%A0,1) ! alpha DMAT
          ElseIf (nKdens.gt.4 .or. nKdens.lt.1) Then
             Call WarningMessage(2,
      &          'Compute_AuxVec: invalid nKdens!!')
@@ -155,7 +161,7 @@
             Call Allocate_DSBA(DLT2,nBas,nBas,nSym,Case='TRI')
             ipDLT2=ip_of_Work(DLT2%A0(1))
             Call Get_D1AO_Var(DLT2%A0,nDens)
-            Call daxpy_(nDens,-One,Work(ipDMLT(1)),1,DLT2%A0,1)
+            Call daxpy_(nDens,-One,DMLT(1)%A0,1,DLT2%A0,1)
          Else
             ipDLT2 = ip_Dummy
          End If
@@ -189,13 +195,13 @@
             Do j=1,nKvec
                If (lSA) Then
                  If (j.eq.1) Then
-                    call dcopy_(nDens,Work(ipDMLT(1)),1,TmpD,1)
+                    call dcopy_(nDens,DMLT(1)%A0,1,TmpD,1)
                  Else If (j.eq.2) Then
-                    call dcopy_(nDens,Work(ipDMLT(3)),1,TmpD,1)
+                    call dcopy_(nDens,DMLT(3)%A0,1,TmpD,1)
                  EndIf
                  Call UnFold(TmpD,nDens,DSQ%A0,SIZE(DSQ%A0),nIrrep,nBas)
                Else
-                 Call UnFold(Work(ipDMLT(j)),nDens,DSQ%A0,SIZE(DSQ%A0),
+                 Call UnFold(DMLT(j)%A0,nDens,DSQ%A0,SIZE(DSQ%A0),
      &                                      nIrrep,nBas)
                EndIf
 *
@@ -222,9 +228,9 @@
 **    Get the appropriate density matrix
 *
                  If (i.eq.3) Then
-                   call dcopy_(nDens,Work(ipDMLT(2)),1,TmpD,1)
+                   call dcopy_(nDens,DMLT(2)%A0,1,TmpD,1)
                  Else If (i.eq.4) Then
-                   call dcopy_(nDens,Work(ipDMLT(4)),1,TmpD,1)
+                   call dcopy_(nDens,DMLT(4)%A0,1,TmpD,1)
                  EndIf
 *
 **    And eigenvalue-decompose it
@@ -294,13 +300,15 @@
 *
 ** Refold the other DM
 *
-               ij = -1
                Do iIrrep = 0, nIrrep-1
+                 ij = 0
                  Do iBas = 1, nBas(iIrrep)
                    Do jBas = 1, iBas-1
                      ij = ij + 1
-                     Work(ipDMLT(2)+ij)=Two*Work(ipDMLT(2)+ij)
-                     Work(ipDMLT(4)+ij)=Two*Work(ipDMLT(4)+ij)
+                     DMLT(2)%SB(iIrrep+1)%A1(ij)=
+     &                    Two * DMLT(2)%SB(iIrrep+1)%A1(ij)
+                     DMLT(4)%SB(iIrrep+1)%A1(ij)=
+     &                    Two * DMLT(4)%SB(iIrrep+1)%A1(ij)
                    EndDo
                    ij = ij + 1
                  EndDo
@@ -371,13 +379,12 @@
          End Do ! iIrrep
 *
          If (nKdens.eq.2) Then ! for Coulomb term
-            Call daxpy_(nDens,One,Work(ipDMLT(2)),1,
-     &                            Work(ipDMLT(1)),1)
+            Call daxpy_(nDens,One,DMLT(2)%A0,1,DMLT(1)%A0,1)
          EndIf
 *
 *  Add the density of the environment in a OFE calculation (Coulomb)
 *
-         Call OFembed_dmat(Work(ipDMlt(1)),nDens)
+         Call OFembed_dmat(DMlt(1)%A0,nDens)
 *
 *        nScreen=10 ! Some default values for the screening parameters
 *        dmpK=One
