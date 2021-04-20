@@ -47,8 +47,8 @@
       Integer jSym(0:7), kSym(0:7), lSym(0:7), nAct(0:7)
       Integer nCumnnP(0:7),nCumnnP2(0:7)
 
-      Real*8, Pointer :: Xki(:,:)=>Null()
-      Real*8, Pointer :: Xli(:,:)=>Null()
+      Real*8, Pointer :: Xki(:)=>Null()
+      Real*8, Pointer :: Xli(:)=>Null()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -166,7 +166,9 @@
 *
 *                  Offset to where the block starts (jbas,kbas,i3)
 *
-                   Xki(1:,1:) => CMOi(1)%SB(j3+1)%A2(1:,kSO:)
+                   lda = SIZE(CMOi(1)%SB(j3+1)%A2,1)
+                   ik  = 1 + lda*(kSO-1)
+                   Xki(1:) => CMOi(1)%SB(j3+1)%A1(ik:)
 *
 *                  Loop over the auxiliary basis functions which has
 *                  significant contributions to the k shell.
@@ -175,16 +177,18 @@
                    Do k = 1, nk
                       kmo=kYmnij(k+iOff_Ymnij(j3+1,1))
 *
-                      call dcopy_(kBas,Xki(kmo,1),nChOrb(j3,iSO),
+                      call dcopy_(kBas,Xki(kmo),nChOrb(j3,iSO),
      &                                 Yij(imo,1,1),  nk)
 *
                       imo = imo +1
                    End Do
 *                  Reset pointers
-                   Xki(1:nk,1:kBas) => Yij(1:nk*kBas,1,1)
+                   Xki(1:nk*kBas) => Yij(1:nk*kBas,1,1)
 *                  Call RecPrt('X(i,mu)C',' ',Xki,nk,kBas)
                 Else If (ExFac.ne.Zero.and.nk.gt.0) Then
-                   Xki(1:,1:) => CMOi(1)%SB(j3+1)%A2(1:,kSO:)
+                   lda = SIZE(CMOi(1)%SB(j3+1)%A2,1)
+                   ik  = 1 + lda*(kSO-1)
+                   Xki(1:) => CMOi(1)%SB(j3+1)%A1(ik:)
 *                  Call RecPrt('X(i,mu)R',' ',Xki,nk,kBas)
                 Else
                    Xki=>Null()
@@ -200,21 +204,26 @@
 *
                    If (nl.lt.nChOrb(j4,iSO).and.ExFac.ne.Zero.and.
      &                 nl.gt.0) Then
-                      Xli(1:,1:) => CMOi(1)%SB(j4+1)%A2(1:,lSO:)
+
+                      lda = SIZE(CMOi(1)%SB(j4+1)%A2,1)
+                      il  = 1 + lda*(lSO-1)
+                      Xli(1:) => CMOi(1)%SB(j4+1)%A1(il:)
                       imo=1
                       Do l = 1, nl
                          lmo=kYmnij(l+iOff_Ymnij(j4+1,1))
 *
-                         call dcopy_(lBas,Xli(lmo,1),nChOrb(j4,iSO),
+                         call dcopy_(lBas,Xli(lmo),nChOrb(j4,iSO),
      &                                    Yij(imo,2,1),   nl)
 *
                          imo = imo +1
                       End Do
 *                     Reset pointers
-                      Xli(1:nl,1:lBas) => Yij(1:nl*lBas,2,1)
+                      Xli(1:nl*lBas) => Yij(1:nl*lBas,2,1)
 *                     Call RecPrt('X(j,nu)C',' ',Xli,nl,lBas)
                    Else If (ExFac.ne.Zero.and.nl.gt.0) Then
-                      Xli(1:,1:) => CMOi(1)%SB(j4+1)%A2(1:,lSO:)
+                      lda = SIZE(CMOi(1)%SB(j4+1)%A2,1)
+                      il  = 1 + lda*(lSO-1)
+                      Xli(1:) => CMOi(1)%SB(j4+1)%A1(il:)
 *                     Call RecPrt('X(j,nu)R',' ',Xli,nl,lBas)
                    Else
                       Xli=>Null()
