@@ -32,7 +32,7 @@ use DKH_Info, only: BSS, DKroll, iCtrLD, LDKroll, nCtrLD, radiLD
 use Sizes_of_Seward, only: S
 use Real_Info, only: ThrInt, CutInt, RPQMin, kVector
 use RICD_Info, only: iRI_Type, LDF, Do_RI, Cholesky, Do_acCD_Basis, Skip_High_AC, Cho_OneCenter, LocalDF, Do_nacCD_Basis, Thrshld_CD
-use Logical_Info, only: Vlct, lRel, lAMFI, DoFMM, EMFR, GIAO, FNMC, lPSOI
+use Logical_Info, only: Vlct, lRel, lAMFI, DoFMM, EMFR, GIAO, FNMC, lXTCI
 use Symmetry_Info, only: nIrrep
 use Gateway_global, only: Run_Mode, GS_Mode
 use Constants, only: Zero, One, Two, Ten, Pi, Angstrom
@@ -224,7 +224,7 @@ else
                              '   Products of Orbital angular momentum operators around (',(AMP_Center(i),i=1,3),')'
   if (nWel /= 0) write(LuWr,'(15X,A,I4,A)') '   Spherical well for',nWel,' exponent(s) added to the one-electron Hamiltonian'
   if (lAMFI) write(LuWr,'(15X,A)') '   Atomic mean-field integrals'
-  if (lPSOI) write(LuWr,'(15X,A)') '   (PSO) Paramagnetic Spin-Orbit integrals calculated from Gen1Int F90 library'
+  if (lXTCI) write(LuWr,'(15X,A)') '   Hyperfine Magnetic integrals(MAG) calculated from Gen1Int F90 library'
   if (DoFMM) then
     write(LuWr,'(15X,A)') '   Integral environment set up for FMM option'
     write(LuWr,'(15X,A,F10.5)') '    - RPQMin: ',RPQMin
