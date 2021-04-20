@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-cmp      SUBROUTINE create_klvab_t3(G,vblock)
       SUBROUTINE create_klvab_t3(vblock)
+cmp      SUBROUTINE create_klvab_t3(G,vblock)
 C
 C  creates K(alpha-beta,alpha-beta),K(beta-alpha,alpha-beta)
 C  DA files KMATBA and KMATAB, LMATBA and LMATAB

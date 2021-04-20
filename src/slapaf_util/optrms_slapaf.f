@@ -9,18 +9,16 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine OptRMS_Slapaf(x,y,nAt,RMS,RMSMax)
+      Use Symmetry_Info, only: VarR, VarT
       Implicit Real*8 (a-h,o-z)
 #include "print.fh"
 #include "real.fh"
-#include "sbs.fh"
       Real*8 x(3,nAt), y(3,nAt)
-      Logical Invar
 *
 *---- Only align if energy is rotational and translational invariant.
 *     (no weighting)
 *
-      Invar=(iAnd(iSBS,2**7).eq.0).and.(iAnd(iSBS,2**8).eq.0)
-      If (Invar) Then
+      If (.not.(VarR.or.VarT)) Then
          Call Superpose(x,y,nAt,RMS,RMSMax)
       Else
 *

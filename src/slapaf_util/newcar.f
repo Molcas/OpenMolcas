@@ -11,6 +11,7 @@
       Subroutine NewCar(Iter,nAtom,Coor,mTtAtm,Error)
       use Slapaf_Info, only: Cx, qInt, RefGeo, BMx, Shift, Degen,
      &                       AtomLbl, Lbl
+      use Symmetry_Info, only: VarR, VarT
       use Slapaf_Parameters, only: Curvilinear, User_Def, BSet, HSet,
      &                             lOld, WeightedConstraints
       Implicit Real*8 (a-h,o-z)
@@ -22,7 +23,6 @@
 ************************************************************************
 #include "real.fh"
 #include "stdalloc.fh"
-#include "sbs.fh"
 #include "print.fh"
 #include "Molcas.fh"
 #include "warnings.fh"
@@ -32,7 +32,6 @@
       Integer, Intent(In):: mTtAtm
       Logical, Intent(InOut):: Error
 *
-      Logical Invar
       Logical:: BSet_Save, HSet_Save, lOld_Save
       Real*8, Allocatable:: DFC(:), dss(:), rInt(:)
 *                                                                      *
@@ -247,8 +246,7 @@
 *     Finally, just to be safe align the new Cartesian structure with
 *     the reference structure (see init2.f)
 *
-      Invar=(iAnd(iSBS,2**7).eq.0).and.(iAnd(iSBS,2**8).eq.0)
-      If (WeightedConstraints.and.Invar)
+      If (WeightedConstraints.and.(.not.(VarR.or.VarT)))
      &   Call Align(Cx(:,:,iter+1),RefGeo,nAtom)
 *                                                                      *
 ************************************************************************

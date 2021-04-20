@@ -30,10 +30,10 @@ use MpmC, only: Coor_MPM
 use Basis_Info, only: dbsc, nBas, nCnttp, basis_info_dmp, basis_info_init, basis_info_get, basis_info_free
 use Center_Info, only: dc, center_info_dmp, center_info_init, center_info_get, center_info_free
 use external_centers, only: iXPolType, XF
-use Temporary_parameters, only: Primitive_Pass, Expert, VarR, VarT, DirInt
+use Temporary_parameters, only: Primitive_Pass, Expert, DirInt
 use Sizes_of_Seward, only: S
 use RICD_Info, only: Do_RI, Cholesky, Cho_OneCenter
-use Symmetry_Info, only: nIrrep
+use Symmetry_Info, only: nIrrep, VarR, VarT
 use Gateway_global, only: Run_Mode, G_Mode
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -156,6 +156,15 @@ call SOCtl_Seward(Mamn,nMamn)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+if (lRF .and. (.not. PCM)) VarT = .true.
+Pseudo = .false.
+do iCnttp=1,nCnttp
+  Pseudo = Pseudo .or. (dbsc(iCnttp)%pChrg .and. dbsc(iCnttp)%Fixed)
+end do
+if (allocated(XF) .or. Pseudo) then
+  VarR = .true.
+  VarT = .true.
+end if
 call DmpInf()
 !                                                                      *
 !***********************************************************************
@@ -223,17 +232,6 @@ if (PCM) then
   call Put_iScalar('PCM info length',nPCM_Info)
 end if
 iOption = ibset(iOption,5)
-if (lRF .and. (.not. PCM)) iOption = ibset(iOption,7)
-Pseudo = .false.
-do iCnttp=1,nCnttp
-  Pseudo = Pseudo .or. (dbsc(iCnttp)%pChrg .and. dbsc(iCnttp)%Fixed)
-end do
-if (allocated(XF) .or. Pseudo) then
-  iOption = ibset(iOption,7)
-  iOption = ibset(iOption,8)
-end if
-if (VarT) iOption = ibset(iOption,7)
-if (VarR) iOption = ibset(iOption,8)
 ! 2el-integrals from the Cholesky vectors
 if (Cholesky .or. Do_RI) iOption = ibset(iOption,9)
 ! RI-Option

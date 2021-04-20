@@ -8,16 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-
-      subroutine barf(a)
-      character*(*) a
-      write(6,*) a
-      call abend
-      end
-
-
-cmp      SUBROUTINE T3AMPL_BTI(W,OEH,OEP)
       SUBROUTINE T3AMPL_BTI(OEH,OEP)
+cmp      SUBROUTINE T3AMPL_BTI(W,OEH,OEP)
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C    *** PROGRAM TRIPLY-UHF/RHF - REDUCED DIMENSION and timing - DRIVER
@@ -904,4 +896,3 @@ cmp        call w_debug(.false.,.false.,'Triply done')
 c9997 FORMAT(/1X,'Total ST correction with ROHF reference '
 c    $     ,D18.10/)
       end
-c

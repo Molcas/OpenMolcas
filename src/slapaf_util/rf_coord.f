@@ -15,21 +15,19 @@
      &                 rMult,LuIC,Indq,
      &                 Proc_dB,mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB)
-      use Symmetry_Info, only: nIrrep, iOper
+      use Symmetry_Info, only: nIrrep, iOper, VarR, VarT
       use Slapaf_Info, only: nStab, iCoSet, dMass
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "stdalloc.fh"
 #include "real.fh"
-#include "sbs.fh"
 #include "print.fh"
       Real*8 Cx(3,nsAtom,nIter), fconst(nB), Value(nB,nIter), rMult(nB),
      &       Trans(3), RotVec(3), RotMat(3,3),
      &       BM(nB_Tot), dBM(ndB_Tot)
       Integer   nqB(nB),
      &          Indq(3,nB), iBM(nB_Tot), idBM(2,ndB_Tot)
-      Logical Process, PSPrint,
-     &        TransVar, RotVar, Proc_dB, Invariant
+      Logical Process, PSPrint, Proc_dB, Invariant
       Character*3 TR_type(6)
       Character*14 Label, qLbl(nB)
 #include "ddvdt_RF.fh"
@@ -43,9 +41,7 @@
       iRout=151
       iPrint=nPrint(iRout)
 *
-      TransVar=iAnd(iSBS,2**7).eq. 2**7
-      RotVar=iAnd(iSBS,2**8).eq. 2**8
-      If (.Not.RotVar.and..Not.TransVar) Go To 99
+      If (.Not.VarR.and..Not.VarT) Go To 99
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -89,7 +85,7 @@
       End Do
 *
 C     Fact=One
-C     If (.Not.RotVar) Fact=2.0D-2
+C     If (.Not.VarR) Fact=2.0D-2
 *
 *     Write (6,*) 'nCent=',nCent
 *     Write (6,*) (Ind(iCent),iCent=1,nCent)
@@ -121,7 +117,7 @@ C     If (.Not.RotVar) Fact=2.0D-2
          End Do
          COM_xyz=COM_xyz/TMass
 *
-         If (.Not.TransVar) Go To 199
+         If (.Not.VarT) Go To 199
 *
          iDeg=1
          Deg=Sqrt(DBLE(iDeg))
@@ -178,8 +174,8 @@ C           fconst(nq)=Sqrt(Fact*Trans_Const)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Write (6,*) 'RotVar=',RotVar
-      If (.Not.RotVar) Go To 98
+C     Write (6,*) 'VarR=',VarR
+      If (.Not.VarR) Go To 98
 *
 *     A la Malmqvist
 *

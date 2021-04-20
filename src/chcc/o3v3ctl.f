@@ -8,7 +8,6 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-c
         subroutine o3v3ctl (wrk,wrksize,NvGrp,LunAux)
 c
 c       docasny drajver o3v3 procesov
