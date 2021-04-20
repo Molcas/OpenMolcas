@@ -47,7 +47,7 @@
       Integer nj(4), jSkip(4), NumOrb(4), nAct(0:7)
       Logical Shijij,Found
 
-      Real*8, Pointer :: Xli(:,:)=>Null(), Xki(:,:)=>Null()
+      Real*8, Pointer :: Xli(:)=>Null(), Xki(:)=>Null()
       Type V2
         Real*8, Pointer:: A2(:,:)=>Null()
       End Type V2
@@ -149,8 +149,11 @@
 *
 *        Pointers to the full list of the X_mu,i elements.
 *
-         Xki(1:,1:) => CMOi(1)%SB(1)%A2(1:,kSO:)
-         Xli(1:,1:) => CMOi(1)%SB(1)%A2(1:,lSO:)
+         lda = SIZE(CMOi(1)%SB(1)%A2,1)
+         ik = 1 + lda*(kSO-1)
+         il = 1 + lda*(lSO-1)
+         Xki(1:) => CMOi(1)%SB(1)%A1(ik:)
+         Xli(1:) => CMOi(1)%SB(1)%A1(il:)
 *
 *        Collect the X_mu,i which survived the prescreening.
 *        Replace the pointers above, i.e. Xki, Xli.
@@ -165,19 +168,19 @@
 *
 *              Pick up X_mu,i for all mu's that belong to shell k
 *
-               call dcopy_(nKBas,Xki(kmo,1),NumOrb(1),
+               call dcopy_(nKBas,Xki(kmo),NumOrb(1),
      &                           Yij(imo,1,1),nj(1))
 *
 *              Pick up X_mu,i for all mu's that belong to shell l
 *
-               call dcopy_(nLBas,Xli(kmo,1),NumOrb(1),
+               call dcopy_(nLBas,Xli(kmo),NumOrb(1),
      &                           Yij(imo,2,1),nj(1))
 *
                imo=imo+1
             End Do
 *           Reset pointers!
-            Xki(1:nj(1),1:nKBas) => Yij(1:nj(1)*nKBas,1,1)
-            Xli(1:nj(1),1:nLBas) => Yij(1:nj(1)*nLBas,2,1)
+            Xki(1:nj(1)*nKBas) => Yij(1:nj(1)*nKBas,1,1)
+            Xli(1:nj(1)*nLBas) => Yij(1:nj(1)*nLBas,2,1)
          ElseIf (nj(1).gt.NumOrb(1)) Then
             Call WarningMessage(2,'Pget1_RI3: nj > NumOrb.')
             Call Abend()
@@ -449,8 +452,11 @@
 *
 *        Pointers to the full list of the X_mu,i elements.
 *
-         Xki(1:,1:) => CMOi(1)%SB(1)%A2(1:,kSO:)
-         Xli(1:,1:) => CMOi(1)%SB(1)%A2(1:,lSO:)
+         lda = SIZE(CMOi(1)%SB(1)%A2,1)
+         ik  = 1 + lda*(kSO-1)
+         il  = 1 + lda*(lSO-1)
+         Xki(1:) => CMOi(1)%SB(1)%A1(ik:)
+         Xli(1:) => CMOi(1)%SB(1)%A1(il:)
 *
 *        Collect the X_mu,i which survived the prescreening.
 *        Replace the pointers above, i.e. Xki, Xli.
@@ -465,19 +471,19 @@
 *
 *              Pick up X_mu,i for all mu's that belong to shell k
 *
-               call dcopy_(nKBas,Xki(kmo,1),NumOrb(1),
+               call dcopy_(nKBas,Xki(kmo),NumOrb(1),
      &                           Yij(imo,1,1),nj(1))
 *
 *              Pick up X_mu,i for all mu's that belong to shell l
 *
-               call dcopy_(nLBas,Xli(kmo,1),NumOrb(1),
+               call dcopy_(nLBas,Xli(kmo),NumOrb(1),
      &                           Yij(imo,2,1),nj(1))
 *
                imo=imo+1
             End Do
 *           Reset pointers!
-            Xki(1:nj(1),1:nKBas) => Yij(1:nj(1)*nKBas,1,1)
-            Xli(1:nj(1),1:nLBas) => Yij(1:nj(1)*nLBas,2,1)
+            Xki(1:nj(1)*nKBas) => Yij(1:nj(1)*nKBas,1,1)
+            Xli(1:nj(1)*nLBas) => Yij(1:nj(1)*nLBas,2,1)
          ElseIf (nj(1).gt.NumOrb(1)) Then
             Call WarningMessage(2,'Pget1_RI3: nj > NumOrb.')
             Call Abend()
@@ -923,21 +929,24 @@
          kSO = iAOtSO(iAO(3)+1,kOp(3))+iAOst(3)
          lSO = iAOtSO(iAO(4)+1,kOp(4))+iAOst(4)
 
-         Xki(1:,1:) => CMOi(1)%SB(1)%A2(1:,kSO:)
-         Xli(1:,1:) => CMOi(1)%SB(1)%A2(1:,lSO:)
+         lda = SIZE(CMOi(1)%SB(1)%A2,1)
+         ik  = 1 + lda*(kSO-1)
+         il  = 1 + lda*(lSO-1)
+         Xki(1:) => CMOi(1)%SB(1)%A1(ik:)
+         Xli(1:) => CMOi(1)%SB(1)%A1(il:)
 
          If (nj(1).le.NumOrb(1) .and. jSkip(1).eq.0) Then
             imo=1
             Do k=1,nj(1)
                kmo=kYmnij(k,1)
-               call dcopy_(nKBas,Xki(kmo,1),NumOrb(1),
+               call dcopy_(nKBas,Xki(kmo),NumOrb(1),
      &                           Yij(imo,1,1),nj(1))
-               call dcopy_(nLBas,Xli(kmo,1),NumOrb(1),
+               call dcopy_(nLBas,Xli(kmo),NumOrb(1),
      &                           Yij(imo,2,1),nj(1))
                imo=imo+1
             End Do
-            Xki(1:nj(1),1:nKBas) => Yij(1:nj(1)*nKBas,1,1)
-            Xli(1:nj(1),1:nLBas) => Yij(1:nj(1)*nLBas,2,1)
+            Xki(1:nj(1)*nKBas) => Yij(1:nj(1)*nKBas,1,1)
+            Xli(1:nj(1)*nLBas) => Yij(1:nj(1)*nLBas,2,1)
          ElseIf (nj(1).gt.NumOrb(1)) Then
             Call WarningMessage(2,'Pget1_RI3: nj > NumOrb.')
             Call Abend()
