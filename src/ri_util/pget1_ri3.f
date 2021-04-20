@@ -48,11 +48,11 @@
       Logical Shijij,Found
 
       Real*8, Pointer :: Xli(:)=>Null(), Xki(:)=>Null()
-      Type V2
-        Real*8, Pointer:: A2(:,:)=>Null()
-      End Type V2
-      Type (V2):: Xli2(2), Xki2(2)
-      Type (V2):: Xli3(2), Xki3(2)
+      Type V1
+        Real*8, Pointer:: A1(:)=>Null()
+      End Type V1
+      Type (V1):: Xli2(2), Xki2(2)
+      Type (V1):: Xli3(2), Xki3(2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -296,8 +296,11 @@
          Do iSO=1,2
            If (nIJR(kSym,lSym,iSO).ne.0) Then
 *
-             Xki2(iSO)%A2(1:,1:) => CMOi(iSO)%SB(1)%A2(1:,kSO:)
-             Xli2(iSO)%A2(1:,1:) => CMOi(iSO)%SB(1)%A2(1:,lSO:)
+             lda = SIZE(CMOi(iSO)%SB(1)%A2,1)
+             ik  = 1 + lda*(kSO-1)
+             il  = 1 + lda*(lSO-1)
+             Xki2(iSO)%A1(1:) => CMOi(iSO)%SB(1)%A1(ik:)
+             Xli2(iSO)%A1(1:) => CMOi(iSO)%SB(1)%A1(il:)
 *
 *        Collect the X_mu,i which survived the prescreening.
 *        Replace the pointers above, i.e. Xki, Xli.
@@ -312,20 +315,20 @@
 *
 *              Pick up X_mu,i for all mu's that belong to shell k
 *
-                 call dcopy_(nKBas,Xki2(iSO)%A2(kmo,1),NumOrb(iSO),
+                 call dcopy_(nKBas,Xki2(iSO)%A1(kmo),NumOrb(iSO),
      &                             Yij(imo,1,iSO),nj(iSO))
 *
 *              Pick up X_mu,i for all mu's that belong to shell l
 *
-                 call dcopy_(nLBas,Xli2(iSO)%A2(kmo,1),NumOrb(iSO),
+                 call dcopy_(nLBas,Xli2(iSO)%A1(kmo),NumOrb(iSO),
      &                             Yij(imo,2,iSO),nj(iSO))
 *
                  imo=imo+1
                End Do
 *           Reset pointers!
-               Xki2(iSO)%A2(1:nj(iSO),1:nKBas) =>
+               Xki2(iSO)%A1(1:nj(iSO)*nKBas) =>
      &                    Yij(1:nj(iSO)*nKBas,1,iSO)
-               Xli2(iSO)%A2(1:nj(iSO),1:nLBas) =>
+               Xli2(iSO)%A1(1:nj(iSO)*nLBas) =>
      &                    Yij(1:nj(iSO)*nLBas,2,iSO)
              ElseIf (nj(iSO).gt.NumOrb(iSO)) Then
                Call WarningMessage(2,'Pget1_RI3: nj > NumOrb.')
@@ -375,14 +378,14 @@
 *
                  Call dGEMM_('T','N',nj(iSO)*jBas,nKBas,nj(iSO),
      &                        1.0d0,CijK,nj(iSO),
-     &                              Xki2(iSO)%A2,nj(iSO),
+     &                              Xki2(iSO)%A1,nj(iSO),
      &                        0.0d0,CilK,nj(iSO)*jBas)
 *
 *** ----    B(Km,n) = Sum_j E(j,Km)' * X(j,n)
 *
                  Call dGEMM_('T','N',jBas*nKBas,nLBas,nj(iSO),
      &                        1.0d0,CilK,nj(iSO),
-     &                              Xli2(iSO)%A2,nj(iSO),
+     &                              Xli2(iSO)%A1,nj(iSO),
      &                        Factor,BklK,jBas*nKBas)
                  Factor=1.0d0
               EndIf
@@ -429,8 +432,8 @@
             End Do
          End Do
          Do iSO=1,2
-             Xki2(iSO)%A2 => Null()
-             Xli2(iSO)%A2 => Null()
+             Xki2(iSO)%A1 => Null()
+             Xli2(iSO)%A1 => Null()
          End Do
 *                                                                      *
 ************************************************************************
@@ -647,10 +650,17 @@
              iMOleft=iSO
              iMOright=iSO+2
 *
-             Xki2(iSO)%A2(1:,1:) => CMOi(iSO+2)%SB(1)%A2(1:,kSO:)
-             Xki3(iSO)%A2(1:,1:) => CMOi(iSO  )%SB(1)%A2(1:,kSO:)
-             Xli2(iSO)%A2(1:,1:) => CMOi(iSO  )%SB(1)%A2(1:,lSO:)
-             Xli3(iSO)%A2(1:,1:) => CMOi(iSO+2)%SB(1)%A2(1:,lSO:)
+             lda1 = SIZE(CMOi(iSO  )%SB(1)%A2,1)
+             lda2 = SIZE(CMOi(iSO+2)%SB(1)%A2,1)
+             ik1  = 1 + lda1*(kSO-1)
+             ik2  = 1 + lda2*(kSO-1)
+             il1  = 1 + lda1*(lSO-1)
+             il2  = 1 + lda2*(lSO-1)
+
+             Xki2(iSO)%A1(1:) => CMOi(iSO+2)%SB(1)%A1(ik2:)
+             Xki3(iSO)%A1(1:) => CMOi(iSO  )%SB(1)%A1(ik1:)
+             Xli2(iSO)%A1(1:) => CMOi(iSO  )%SB(1)%A1(il1:)
+             Xli3(iSO)%A1(1:) => CMOi(iSO+2)%SB(1)%A1(il2:)
 *
 *            Collect the X_mu,i which survived the prescreening.
 *            Replace the pointers above, i.e. Xki, Xli.
@@ -667,19 +677,19 @@
 *                  Pick up X_mu,i for all mu's that belong to shell k
 *
                    call dcopy_(nKBas,
-     &                         Xki2(iSO)%A2(kmo,1),NumOrb(iMOright),
+     &                         Xki2(iSO)%A1(kmo),NumOrb(iMOright),
      &                         Yij(imo,1,iMOright),nj(iMOright))
 
                    call dcopy_(nLBas,
-     &                         Xli3(iSO)%A2(kmo,1),NumOrb(iMOright),
+     &                         Xli3(iSO)%A1(kmo),NumOrb(iMOright),
      &                         Yij(imo,2,iMOright),nj(iMOright))
 
                    imo=imo+1
                 End Do
 *               Reset pointers!
                 nk = nj(iMOright)
-                Xki2(iSO)%A2(1:nk,1:nKBas) => Yij(1:nk*nKBas,1,iMOright)
-                Xli3(iSO)%A2(1:nk,1:nLBas) => Yij(1:nk*nLBas,2,iMOright)
+                Xki2(iSO)%A1(1:nk*nKBas) => Yij(1:nk*nKBas,1,iMOright)
+                Xli3(iSO)%A1(1:nk*nLBas) => Yij(1:nk*nLBas,2,iMOright)
              ElseIf (nj(iMOright).gt.NumOrb(iMOright)) Then
                 Call WarningMessage(2,'Pget1_RI3: nj > NumOrb.')
                 Call Abend()
@@ -695,17 +705,17 @@
 *                  Pick up X_mu,i for all mu's that belong to shell l
 *
                    call dcopy_(nLBas,
-     &                         Xli2(iSO)%A2(kmo,1),NumOrb(iMOleft),
+     &                         Xli2(iSO)%A1(kmo),NumOrb(iMOleft),
      &                         Yij(imo,2,iMOleft),nj(iMOleft))
 
                    call dcopy_(nKBas,
-     &                         Xki3(iSO)%A2(kmo,1),NumOrb(iMOleft),
+     &                         Xki3(iSO)%A1(kmo),NumOrb(iMOleft),
      &                         Yij(imo,1,iMOleft),nj(iMOleft))
                    imo=imo+1
                 End Do
                 nk = nj(iMOleft)
-                Xli2(iSO)%A2(1:nk,1:nLBas) => Yij(1:nk*nLBas,2,iMOleft)
-                Xki3(iSO)%A2(1:nk,1:nKBas) => Yij(1:nk*nKBas,1,iMOleft)
+                Xli2(iSO)%A1(1:nk*nLBas) => Yij(1:nk*nLBas,2,iMOleft)
+                Xki3(iSO)%A1(1:nk*nKBas) => Yij(1:nk*nKBas,1,iMOleft)
              ElseIf (nj(iMOleft).gt.NumOrb(iMOleft)) Then
                 Call WarningMessage(2,'Pget1_RI3: nj > NumOrb.')
                 Call Abend()
@@ -762,14 +772,14 @@
 *
                 Call dGEMM_('T','N',nj(iMOleft)*jBas,nKBas,nj(iMOright),
      &                     1.0d0,CijK,nj(iMOright),
-     &                           Xki2(iSO)%A2,nj(iMOright),
+     &                           Xki2(iSO)%A1,nj(iMOright),
      &                     0.0d0,CilK,nj(iMOleft)*jBas)
 *
 *** ----    B(Km,n) = Sum_j E(j,Km)' * X(j,n)
 *
                 Call dGEMM_('T','N',jBas*nKBas,nLBas,nj(iMOleft),
      &                     1.0d0,CilK,nj(iMOleft),
-     &                           Xli2(iSO)%A2,nj(iMOleft),
+     &                           Xli2(iSO)%A1,nj(iMOleft),
      &                     Factor,BklK,jBas*nKBas)
                 Factor=1.0d0
 *
@@ -797,14 +807,14 @@
 *
                 Call dGEMM_('T','N',nj(iMOright)*jBas,nKBas,nj(iMOleft),
      &                     1.0d0,CilK,nj(iMOleft),
-     &                           Xki3(iSO)%A2,nj(iMOleft),
+     &                           Xki3(iSO)%A1,nj(iMOleft),
      &                     0.0d0,CijK,nj(iMOright)*jBas)
 *
 *** ----    B(Km,n) = Sum_j E(i,Km)' * X(i,n)
 *
                 Call dGEMM_('T','N',jBas*nKBas,nLBas,nj(iMOright),
      &                     1.0d0,CijK,nj(iMOright),
-     &                           Xli3(iSO)%A2,nj(iMOright),
+     &                           Xli3(iSO)%A1,nj(iMOright),
      &                     Factor,BklK,jBas*nKBas)
               EndIf
             End Do
@@ -909,10 +919,10 @@
             End Do
          End Do
          Do iSO=1,2
-            Xki2(iSO)%A2 => Null()
-            Xki3(iSO)%A2 => Null()
-            Xli2(iSO)%A2 => Null()
-            Xli3(iSO)%A2 => Null()
+            Xki2(iSO)%A1 => Null()
+            Xki3(iSO)%A1 => Null()
+            Xli2(iSO)%A1 => Null()
+            Xli3(iSO)%A1 => Null()
          End Do
 *                                                                      *
 ************************************************************************
