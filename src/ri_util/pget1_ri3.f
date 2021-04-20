@@ -439,14 +439,12 @@
          nLBas = lBas*iCmp(4)
 *
          kSO = iAOtSO(iAO(3)+1,kOp(3))+iAOst(3)
-         index2k= NumOrb(1)*(kSO-1)
          lSO = iAOtSO(iAO(4)+1,kOp(4))+iAOst(4)
-         index2l= NumOrb(1)*(lSO-1)
 *
 *        Pointers to the full list of the X_mu,i elements.
 *
-         jp_Xki=ip_CMOi(1)+index2k
-         jp_Xli=ip_CMOi(1)+index2l
+         Xki(1:,1:) => CMOi(1)%SB(1)%A2(1:,kSO:)
+         Xli(1:,1:) => CMOi(1)%SB(1)%A2(1:,lSO:)
 *
 *        Collect the X_mu,i which survived the prescreening.
 *        Replace the pointers above, i.e. jp_Xki, jp_Xli.
@@ -455,30 +453,25 @@
 *
 *           Note that the X_mu,i are stored as X_i,mu!
 *
-            jp_Xki=ip_CMOi(1)+index2k-1
-            jp_Xli=ip_CMOi(1)+index2l-1
-*
             imo=1
             Do k=1,nj(1)
                kmo=kYmnij(k,1) ! CD-MO index
 *
 *              Pick up X_mu,i for all mu's that belong to shell k
 *
-               jCMOk=jp_Xki+kmo
-               call dcopy_(nKBas,Work(jCMOk),NumOrb(1),
+               call dcopy_(nKBas,Xki(kmo,1),NumOrb(1),
      &                           Yij(imo,1,1),nj(1))
 *
 *              Pick up X_mu,i for all mu's that belong to shell l
 *
-               jCMOl=jp_Xli+kmo
-               call dcopy_(nLBas,Work(jCMOl),NumOrb(1),
+               call dcopy_(nLBas,Xli(kmo,1),NumOrb(1),
      &                           Yij(imo,2,1),nj(1))
 *
                imo=imo+1
             End Do
 *           Reset pointers!
-            jp_Xki=ip_of_Work(Yij(1,1,1))
-            jp_Xli=ip_of_Work(Yij(1,2,1))
+            Xki(1:nj(1),1:nKBas) => Yij(1:nj(1)*nKBas,1,1)
+            Xli(1:nj(1),1:nLBas) => Yij(1:nj(1)*nLBas,2,1)
          ElseIf (nj(1).gt.NumOrb(1)) Then
             Call WarningMessage(2,'Pget1_RI3: nj > NumOrb.')
             Call Abend()
@@ -519,14 +512,14 @@
 *
               Call dGEMM_('T','N',nj(1)*jBas,nKBas,nj(1),
      &                     1.0d0,CijK,nj(1),
-     &                           Work(jp_Xki),nj(1),
+     &                           Xki,nj(1),
      &                     0.0d0,CilK,nj(1)*jBas)
 *
 *** ----      B(Km,n) = Sum_j E(j,Km)' * X(j,n)
 *
               Call dGEMM_('T','N',jBas*nKBas,nLBas,nj(1),
      &                     1.0d0,CilK,nj(1),
-     &                           Work(jp_Xli),nj(1),
+     &                           Xli,nj(1),
      &                     0.0d0,BklK,jBas*nKBas)
 *
             Else
