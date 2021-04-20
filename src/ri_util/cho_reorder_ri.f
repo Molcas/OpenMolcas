@@ -14,7 +14,6 @@
       Real*8 Vec(lVec,nVec)
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Real*8, Allocatable :: Scr(:)

@@ -32,7 +32,6 @@
 
 #include "real.fh"
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Real*8, Allocatable :: CVec1(:,:), CVec2(:,:), AMat(:)

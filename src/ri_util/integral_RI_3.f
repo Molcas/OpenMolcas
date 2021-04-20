@@ -21,8 +21,6 @@
       use j12
       Implicit Real*8 (A-H,O-Z)
 *
-#include "WrkSpc.fh"
-*
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
       Integer iCmp(4), iShell(4), iAO(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),

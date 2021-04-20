@@ -36,7 +36,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "exterm.fh"
-#include "WrkSpc.fh"
       Real*8 PAO(ijkl,nPAO), DSO(nDSO), DSSO(nDSO), V_k(mV_k),
      &       U_k(mV_k), DSO_Var(nDSO)
       Integer iAO(4), kOp(4), iAOst(4), iCmp(4)

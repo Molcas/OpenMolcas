@@ -35,7 +35,6 @@
       use ExTerm, only: CijK, iMP2prpt, A
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "exterm.fh"
       Real*8 PSO(nijkl,nPSO), V_K(mV_K,nSA),Z_p_K(nZ_p_k,*)
       Integer iCmp(4), iAO(4), iAOst(4)

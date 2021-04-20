@@ -38,7 +38,6 @@
       use ExTerm, only: CijK, AMP2, iMP2prpt, nAuxVe, LuAVector, A
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "exterm.fh"
       Real*8 PAO(ijkl,nPAO), V_K(mV_K,nSA), U_K(mV_K),
      &       Z_p_K(nnP(0),mV_K,*)

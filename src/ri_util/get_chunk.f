@@ -14,7 +14,6 @@
       Use Para_Info, Only: MyRank, Is_Real_Par
 #endif
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "mafdecls.fh"
 #endif
@@ -69,7 +68,6 @@ C
       Implicit None
       Integer iVec_Global, iVec_Local, J_s, J_e, iSym
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 
       Integer iOff, nVec, iVec
 

@@ -33,7 +33,6 @@
       Character(LEN=13), Parameter :: SECNAM = 'MULT_RIJK_QKL'
 #include "real.fh"
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "exterm.fh"
 *#define _DEBUGPRINT_

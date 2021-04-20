@@ -17,7 +17,6 @@
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "exterm.fh"
-#include "WrkSpc.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *

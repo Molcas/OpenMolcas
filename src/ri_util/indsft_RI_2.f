@@ -34,7 +34,6 @@
 #include "print.fh"
 #include "srt0.fh"
 #include "srt1.fh"
-#include "WrkSpc.fh"
 *
       Real*8 SOint(ijkl,nSOint), TInt(nTInt)
       Integer iCmp(4), iShell(4), iAO(4), iOffA(4,0:7),

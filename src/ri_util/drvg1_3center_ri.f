@@ -53,7 +53,6 @@
 #include "Molcas.fh"
 #include "itmax.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "disp.fh"
