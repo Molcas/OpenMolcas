@@ -24,7 +24,7 @@
 ************************************************************************
 *                                                                      *
 *---- Diagonalize the nuclear charge momentum tensor to get
-*     the principle axis system.
+*     the principal axis system.
 *
       Call FZero(O,9)
       call dcopy_(3,[One],0,O,4)
