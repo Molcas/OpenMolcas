@@ -112,10 +112,12 @@ C-------------------------------------------
 
 c If the user wants the ASD term, it is the same as
 c the EF2 term without the nuclear contribution
-        IF(LABEL(1:3).EQ.'ASD') THEN
-          LABEL(1:3) = 'EF2'
-          !write(6,*)"EF2---->ASD Here"
-        END IF
+c We dont need this anymore since 'spin-dependent' part
+c is directly calculated from magnetic integrals
+*        IF(LABEL(1:3).EQ.'ASD') THEN
+*          LABEL(1:3) = 'EF2'
+*          !write(6,*)"EF2---->ASD Here"
+*        END IF
         IF(LABEL(1:4).EQ.'TMOM') CYCLE
 
         IF(LABEL(1:4).EQ.'PSOP') THEN

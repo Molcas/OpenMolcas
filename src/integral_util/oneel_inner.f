@@ -136,7 +136,8 @@ C     Logical Addpot
          mFinal=nIC*iPrim*jPrim*nElem(iAng)*nElem(jAng)
          lFinal=Max(lFinal,mFinal)
 *
-         If (Label(1:4).eq.'PSOI') Cycle
+*         If (Label(1:4).eq.'PSOI') Cycle
+         If (Label(1:3).eq.'MAG') Cycle
          mScrt1=nIC*Max(iPrim,jBas)*Max(iBas,jPrim)
      &         *nElem(iAng)*nElem(jAng)
          lScrt1=Max(mScrt1,lScrt1)

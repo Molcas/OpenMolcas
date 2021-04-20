@@ -14,7 +14,7 @@
       Use Basis_Info
       use DKH_Info
       use Symmetry_Info, only: nIrrep
-*
+      use Logical_Info, only: lXTCI
 *     modified by D. Peng, ETH Zurich, October 2011
 *
 *     Interface/Driver routine for scalar relativistic
@@ -153,6 +153,13 @@ c                   write(stdout,'(a11,f20.8)') ' Exponents',rExpi
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*     HFC magnetic integrals
+*
+      If (lXTCI) Then
+        Call Get_nAtoms_All(nAtoms)
+        Call copy_mag_ints(nAtoms)
+      End if
+*
 *     Open ONEREL
 *
       iOpt = 0
@@ -414,6 +421,9 @@ CDP     &                    '  = Local ',(iWork(iLoc+i),i=0,nbl-1)
             Else If (iWork(ipOp).eq.3) Then
                jCent = iWork(ipjCent)
                Write (Label,'(a,i5)') 'Cnt',jCent
+            Else If (iWork(ipOp).eq.4) Then
+               jCent = iWork(ipjCent)
+               Write (Label,'(A,I3)') 'MAGXP',jCent
             Else
                Write (6,*) 'DKRelInt: illegal property!'
                Call Abend
@@ -453,6 +463,8 @@ C           Write (6,*) 'lOper=',lOper
                Write (pXpLbl,'(A,I1,I5)') 'PP',iMEF,jCent
             Else If (iWork(ipOp).eq.3) Then
                Write (pXpLbl,'(A,I2)') 'pCp   ',jCent
+            Else If (iWork(ipOp).eq.4) Then
+               Write (pXpLbl,'(A,I3)') 'MAGPX',jCent
             End If
             iOpt=1
             iRC = -1
@@ -493,7 +505,8 @@ C           Write (6,*) 'Mem_Available=',Mem_Available
                Call XDR_Prop(n,isize,n*n,relmethod,dkhparam,dkhorder,
      &                       xorder,Work(iSS+k),Work(iK+k),Work(iV+k),
      &                       Work(ipVp+k),Work(iX+k),Work(ipXp+k),
-     &                       Work(iU_L+ks),Work(iU_S+ks),clightau)
+     &                       Work(iU_L+ks),Work(iU_S+ks),clightau,
+     &                       Label,iComp,iSizec)
                ks=ks+n*n
                kz=kz+n
  91            k=k+isize
@@ -507,7 +520,7 @@ C           Write (6,*) 'Mem_Available=',Mem_Available
 *           First contract the result, store in Work(ip_Prop)
 *
             Call Allocate_Work(ip_Prop,iSizec+4)
-            Call repmat(idbg,Work(iX),Work(ip_Prop))
+            Call repmat(idbg,Work(iX),Work(ip_Prop),.TRUE.)
 *
 *                                                                      *
 ************************************************************************
@@ -519,7 +532,24 @@ C           Write (6,*) 'Mem_Available=',Mem_Available
             Lu_One=2
             Call OpnOne(iRC,iOpt,'ONEINT',Lu_One)
             If (iRC.ne.0) Go To 9999
-*
+
+            If (iWork(ipOp).eq.4) then
+              call Allocate_Work(ip_Pmag,iSizec+4)
+              call repmat(idbg,Work(iX),Work(ip_Pmag),.FALSE.)
+              lOper_save=lOper
+              lOper=255
+              Call WrOne(iRC,iOpt,Label,iComp,Work(ip_Pmag),lOper)
+              Call WrOne(iRC,iOpt,pXpLbl,iComp,Work(ip_Pmag),lOper)
+              iOpt=0
+              Call ClsOne(iRC,iOpt)
+              Call Free_Work(ip_Prop)
+              call Free_Work(ip_Pmag)
+              Call GetMem('pXp     ','FREE','REAL',ipXp,iSizep+4)
+              Call GetMem('X       ','FREE','REAL',iX,iSizep+4)
+              lOper=lOper_save
+              CYCLE
+            endif
+
             iOpt=1
             iRC = -1
             lOper=-1
@@ -671,7 +701,7 @@ C    &                                  1.0D0,0)
 c
 #ifdef MOLPRO
 c... store relativistic H
-      Call repmat(idbg,Work(ik),Work(iH_temp))
+      Call repmat(idbg,Work(ik),Work(iH_temp),.TRUE.)
       call fperm(Work(iH_temp),Work(ih))
       Call writem(Work(iH),isizec+2,1,1200,0,'H0')
       Call writem(Work(iH),isizec+2,1,1210,0,'H01')
@@ -730,7 +760,7 @@ c... reset contracted basis size
       End If
       call dcopy_(4,[Zero],0,Work(iH_Temp+iSizec),1)
 *     Contract and store in iH_temp
-      Call repmat(idbg,Work(iV),Work(iH_temp))
+      Call repmat(idbg,Work(iV),Work(iH_temp),.TRUE.)
 *
       CALL GetMem('V       ','FREE','REAL',iV,iSizep+4)
       CALL GetMem('SS      ','FREE','REAL',iSS,iSizep+4)
@@ -760,7 +790,7 @@ c... reset contracted basis size
          Call PrMtrx('iK (prim)',[lOper],nComp,[iK],Work)
          Call iSwap(8,nBas,1,nBas_Prim,1)
       End If
-      Call repmat(idbg,Work(iK),Work(iH))
+      Call repmat(idbg,Work(iK),Work(iH),.TRUE.)
       If (iPrint.ge.20) Then
          Call iSwap(8,nBas,1,nBas_Cont,1)
          Call PrMtrx('iH (cont)',[lOper],nComp,[iH],Work)
@@ -814,7 +844,7 @@ c... reset contracted basis size
 *
 *     Replace overlap on ONEINT
 *
-         Call repmat(idbg,Work(ipVp),Work(iH))
+         Call repmat(idbg,Work(ipVp),Work(iH),.TRUE.)
          iRC = -1
          Label='Mltpl  0'
          Call WrOne(iRC,iOpt,Label,1,Work(iH),lOper)

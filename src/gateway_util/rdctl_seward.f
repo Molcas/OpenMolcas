@@ -528,7 +528,8 @@ cperiod
       If (KWord(1:4).eq.'PAMF') Go To 8060
       If (KWord(1:4).eq.'PART') Go To 9763
       If (KWord(1:4).eq.'PKTH') Go To 9940
-      If (KWord(1:4).eq.'PSOI') Go To 9023
+c      If (KWord(1:4).eq.'PSOI') Go To 9023
+      If (KWord(1:4).eq.'XTCI') Go To 9023
       If (KWord(1:4).eq.'PRIN') Go To 930
 c     If (KWord(1:1).eq.'R' .and.
 c    &    (KWord(2:2).ge.'0' .and.
@@ -3428,8 +3429,9 @@ c
 ***** GEN1INT **********************************************************
 *                                                                      *
 *        GEN1INT integrals
- 9023 lPSOI=.true.
+* 9023 lPSOI=.true.
       !Write(6,*) 'lPSOI',lPSOI,nAtoms
+ 9023 lXTCI=.true.
       Go To 998
 *                                                                      *
 ***** FRGM *************************************************************

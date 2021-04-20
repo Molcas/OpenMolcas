@@ -29,7 +29,7 @@ Module Logical_Info
 Private
 Public :: Vlct, lRel, UnNorm, lSchw, lAMFI, NEMO, Do_GuessOrb, Do_FckInt, &
           Align_Only, DoFMM,  lRP, lRP_Post, EMFR, Do_Align, GIAO, lUPONLY, &
-          lDOWNONLY, FNMC, lPSOI, &
+          lDOWNONLY, FNMC, lXTCI, &
           Logical_Info_Dmp, Logical_Info_Get
 
 #include "stdalloc.fh"
@@ -52,7 +52,7 @@ Logical :: GIAO=.False.
 Logical :: lUPONLY=.False.
 Logical :: lDOWNONLY=.False.
 Logical :: FNMC=.False.
-Logical :: lPSOI=.False.
+Logical :: lXTCI=.False.
 
 Interface
    Subroutine Put_iArray(Label,Data,nData)
@@ -130,7 +130,7 @@ Subroutine Logical_Info_Dmp()
   If (FNMC) i = 1
   iDmp(18)= i
   i = 0
-  If (lPSOI) i = 1
+  If (lXTCI) i = 1
   iDmp(19)= i
 
   Call Put_iArray('Logical_Info',iDmp,Len)
@@ -162,7 +162,7 @@ Subroutine Logical_Info_Get()
   lUPONLY      = iDmp(16).eq.1
   lDOWNONLY    = iDmp(17).eq.1
   FNMC         = iDmp(18).eq.1
-  lPSOI        = iDmp(19).eq.1
+  lXTCI        = iDmp(19).eq.1
 
   Call mma_deallocate(iDmp)
 

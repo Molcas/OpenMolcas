@@ -49,7 +49,7 @@
       Character ChOper(0:7)*3, Label*8, dbas*(LENIN)
       Integer nOp(2), lOper(nComp), iChO(nComp),
      &        iDCRR(0:7), iDCRT(0:7), iStabM(0:7), iStabO(0:7)
-      Logical Do_PGamma
+      Logical Do_PGamma, Do_Tran
 #ifdef _GEN1INT_
       Logical NATEST
 #endif
@@ -74,8 +74,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Kamal Sharkas  01/29/2015
-      If (Label(1:4).eq.'PSOI') Then !  PSO Integrals
+*      If (Label(1:4).eq.'PSOI') Then !  PSO Integrals
+      If (Label(1:3).eq.'MAG') Then
       iCmp   = iSD( 2,iS)
       iBas   = iSD( 3,iS)
       iAO    = iSD( 7,iS)
@@ -166,15 +166,30 @@
         endif
 #ifdef _GEN1INT_
         NATEST=(nAtoms.eq.2)
-        call test_f90mod_sgto_pso(iShell,jShell,iCmp,jCmp,
-     &                                     iBas,jBas,iAng,jAng,
-     &                                     iPrim,jPrim,mdci,mdcj,
-     &                                     Shells(iShll)%Exp,
-     &                                     Shells(jShll)%Exp,
-     &                                     Shells(iShll)%Cff_c(1,1,2),
-     &                                     Shells(jShll)%Cff_c(1,1,2),
-     &                                     nAtoms,NATEST,
-     &                                     Coord,nPSOI,Final)
+        If (label(4:5).eq.'PX') Then
+            Do_Tran = .TRUE.
+        Else
+            Do_Tran = .FALSE.
+        End If
+        read(Label(6:),'(I3)') iatom
+        call test_f90mod_sgto_mag(iShell,jShell,iCmp,jCmp,
+     &                            iPrim,jPrim,iAng,jAng,
+     &                            iPrim,jPrim,mdci,mdcj,
+     &                            Shells(iShll)%Exp,Shells(jShll)%Exp,
+     &                            Shells(iShll)%Cff_p(1,1,2),
+     &                            Shells(jShll)%Cff_p(1,1,2),
+     &                            nAtoms,
+     &                            Coord,nComp,Final,.TRUE.,
+     &                            iatom,Do_Tran)
+**        call test_f90mod_sgto_pso(iShell,jShell,iCmp,jCmp,
+**     &                                     iBas,jBas,iAng,jAng,
+**     &                                     iPrim,jPrim,mdci,mdcj,
+**     &                                     Shells(iShll)%Exp,
+**     &                                     Shells(jShll)%Exp,
+**     &                                     Shells(iShll)%Cff_c(1,1,2),
+**     &                                     Shells(jShll)%Cff_c(1,1,2),
+**     &                                     nAtoms,NATEST,
+**     &                                     Coord,nPSOI,Final)
 #else
          Call WarningMessage(2,
      &   'OneEl_IJ: NO Gen1int interface available!')
@@ -203,8 +218,7 @@
          End Do
       End If
 
-         else  !  PSO Integrals
-*   Kamal Sharkas 01/29/2015
+         else  !  MAG Integrals
 
 *                                                                      *
 ************************************************************************
