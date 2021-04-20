@@ -48,7 +48,11 @@
      &        jp_Xli3(2),NumOrb(4),nAct(0:7)
       Logical Shijij,Found
 
-      Real*8, Pointer :: Xli(:,:), Xki(:,:)
+      Real*8, Pointer :: Xli(:,:)=>Null(), Xki(:,:)=>Null()
+      Type V2
+        Real*8, Pointer:: A2(:,:)=>Null()
+      End Type V2
+      Type (V2):: Xli2(2), Xki2(2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -141,9 +145,7 @@
          nLBas = lBas*iCmp(4)
 *
          kSO = iAOtSO(iAO(3)+1,kOp(3))+iAOst(3)
-         index2k= NumOrb(1)*(kSO-1)
          lSO = iAOtSO(iAO(4)+1,kOp(4))+iAOst(4)
-         index2l= NumOrb(1)*(lSO-1)
 *
 *        Pointers to the full list of the X_mu,i elements.
 *
@@ -289,12 +291,9 @@
 *
          Do iSO=1,2
            If (nIJR(kSym,lSym,iSO).ne.0) Then
-
-              index2k= NumOrb(iSO)*(kSO-1)
-              index2l= NumOrb(iSO)*(lSO-1)
 *
-             jp_Xki2(iSO)=ip_CMOi(iSO)+index2k
-             jp_Xli2(iSO)=ip_CMOi(iSO)+index2l
+             Xki2(iSO)%A2(1:,1:) => CMOi(iSO)%SB(1)%A2(1:,kSO:)
+             Xli2(iSO)%A2(1:,1:) => CMOi(iSO)%SB(1)%A2(1:,lSO:)
 *
 *        Collect the X_mu,i which survived the prescreening.
 *        Replace the pointers above, i.e. jp_Xki, jp_Xli.
@@ -303,30 +302,27 @@
 *
 *           Note that the X_mu,i are stored as X_i,mu!
 *
-               jp_Xki2(iSO)=ip_CMOi(iSO)+index2k-1
-               jp_Xli2(iSO)=ip_CMOi(iSO)+index2l-1
-*
                imo=1
                Do k=1,nj(iSO)
                  kmo=kYmnij(k,iSO) ! CD-MO index
 *
 *              Pick up X_mu,i for all mu's that belong to shell k
 *
-                 jCMOk=jp_Xki2(iSO)+kmo
-                 call dcopy_(nKBas,Work(jCMOk),NumOrb(iSO),
+                 call dcopy_(nKBas,Xki2(iSO)%A2(kmo,1),NumOrb(iSO),
      &                             Yij(imo,1,iSO),nj(iSO))
 *
 *              Pick up X_mu,i for all mu's that belong to shell l
 *
-                 jCMOl=jp_Xli2(iSO)+kmo
-                 call dcopy_(nLBas,Work(jCMOl),NumOrb(iSO),
+                 call dcopy_(nLBas,Xli2(iSO)%A2(kmo,1),NumOrb(iSO),
      &                             Yij(imo,2,iSO),nj(iSO))
 *
                  imo=imo+1
                End Do
 *           Reset pointers!
-               jp_Xki2(iSO)=ip_of_Work(Yij(1,1,iSO))
-               jp_Xli2(iSO)=ip_of_Work(Yij(1,2,iSO))
+               Xki2(iSO)%A2(1:nj(iSO),1:nKBas) =>
+     &                    Yij(1:nj(iSO)*nKBas,1,iSO)
+               Xli2(iSO)%A2(1:nj(iSO),1:nLBas) =>
+     &                    Yij(1:nj(iSO)*nLBas,2,iSO)
              ElseIf (nj(iSO).gt.NumOrb(iSO)) Then
                Call WarningMessage(2,'Pget1_RI3: nj > NumOrb.')
                Call Abend()
@@ -374,14 +370,14 @@
 *
                  Call dGEMM_('T','N',nj(iSO)*jBas,nKBas,nj(iSO),
      &                        1.0d0,CijK,nj(iSO),
-     &                              Work(jp_Xki2(iSO)),nj(iSO),
+     &                              Xki2(iSO)%A2,nj(iSO),
      &                        0.0d0,CilK,nj(iSO)*jBas)
 *
 *** ----    B(Km,n) = Sum_j E(j,Km)' * X(j,n)
 *
                  Call dGEMM_('T','N',jBas*nKBas,nLBas,nj(iSO),
      &                        1.0d0,CilK,nj(iSO),
-     &                              Work(jp_Xli2(iSO)),nj(iSO),
+     &                              Xli2(iSO)%A2,nj(iSO),
      &                        Factor,BklK,jBas*nKBas)
                  Factor=1.0d0
               EndIf
