@@ -165,12 +165,12 @@
 *
 *              Pick up X_mu,i for all mu's that belong to shell k
 *
-               call dcopy_(nKBas,Xki(kmo:,1:),NumOrb(1),
+               call dcopy_(nKBas,Xki(kmo,1),NumOrb(1),
      &                           Yij(imo,1,1),nj(1))
 *
 *              Pick up X_mu,i for all mu's that belong to shell l
 *
-               call dcopy_(nLBas,Xli(kmo:,1:),NumOrb(1),
+               call dcopy_(nLBas,Xli(kmo,1),NumOrb(1),
      &                           Yij(imo,2,1),nj(1))
 *
                imo=imo+1
@@ -309,12 +309,12 @@
 *
 *              Pick up X_mu,i for all mu's that belong to shell k
 *
-                 call dcopy_(nKBas,Xki2(iSO)%A2(kmo:,1:),NumOrb(iSO),
+                 call dcopy_(nKBas,Xki2(iSO)%A2(kmo,1),NumOrb(iSO),
      &                             Yij(imo,1,iSO),nj(iSO))
 *
 *              Pick up X_mu,i for all mu's that belong to shell l
 *
-                 call dcopy_(nLBas,Xli2(iSO)%A2(kmo:,1:),NumOrb(iSO),
+                 call dcopy_(nLBas,Xli2(iSO)%A2(kmo,1),NumOrb(iSO),
      &                             Yij(imo,2,iSO),nj(iSO))
 *
                  imo=imo+1
@@ -465,12 +465,12 @@
 *
 *              Pick up X_mu,i for all mu's that belong to shell k
 *
-               call dcopy_(nKBas,Xki(kmo:,1:),NumOrb(1),
+               call dcopy_(nKBas,Xki(kmo,1),NumOrb(1),
      &                           Yij(imo,1,1),nj(1))
 *
 *              Pick up X_mu,i for all mu's that belong to shell l
 *
-               call dcopy_(nLBas,Xli(kmo:,1:),NumOrb(1),
+               call dcopy_(nLBas,Xli(kmo,1),NumOrb(1),
      &                           Yij(imo,2,1),nj(1))
 *
                imo=imo+1
@@ -661,11 +661,11 @@
 *                  Pick up X_mu,i for all mu's that belong to shell k
 *
                    call dcopy_(nKBas,
-     &                         Xki2(iSO)%A2(kmo:,1:),NumOrb(iMOright),
+     &                         Xki2(iSO)%A2(kmo,1),NumOrb(iMOright),
      &                         Yij(imo,1,iMOright),nj(iMOright))
 
                    call dcopy_(nLBas,
-     &                         Xli3(iSO)%A2(kmo:,1:),NumOrb(iMOright),
+     &                         Xli3(iSO)%A2(kmo,1),NumOrb(iMOright),
      &                         Yij(imo,2,iMOright),nj(iMOright))
 
                    imo=imo+1
@@ -689,11 +689,11 @@
 *                  Pick up X_mu,i for all mu's that belong to shell l
 *
                    call dcopy_(nLBas,
-     &                         Xli2(iSO)%A2(kmo:,1:),NumOrb(iMOleft),
+     &                         Xli2(iSO)%A2(kmo,1),NumOrb(iMOleft),
      &                         Yij(imo,2,iMOleft),nj(iMOleft))
 
                    call dcopy_(nKBas,
-     &                         Xki3(iSO)%A2(kmo:,1:),NumOrb(iMOleft),
+     &                         Xki3(iSO)%A2(kmo,1),NumOrb(iMOleft),
      &                         Yij(imo,1,iMOleft),nj(iMOleft))
                    imo=imo+1
                 End Do
@@ -930,9 +930,9 @@
             imo=1
             Do k=1,nj(1)
                kmo=kYmnij(k,1)
-               call dcopy_(nKBas,Xki(kmo:,1:),NumOrb(1),
+               call dcopy_(nKBas,Xki(kmo,1),NumOrb(1),
      &                           Yij(imo,1,1),nj(1))
-               call dcopy_(nLBas,Xli(kmo:,1:),NumOrb(1),
+               call dcopy_(nLBas,Xli(kmo,1),NumOrb(1),
      &                           Yij(imo,2,1),nj(1))
                imo=imo+1
             End Do
