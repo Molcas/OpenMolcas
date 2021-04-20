@@ -53,6 +53,7 @@
         Real*8, Pointer:: A2(:,:)=>Null()
       End Type V2
       Type (V2):: Xli2(2), Xki2(2)
+      Type (V2):: Xli3(2), Xki3(2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -423,6 +424,10 @@
                End Do
             End Do
          End Do
+         Do iSO=1,2
+             Xki2(iSO)%A2 => Null()
+             Xli2(iSO)%A2 => Null()
+         End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -607,6 +612,8 @@
                End Do
             End Do
          End Do
+         Xki=>Null()
+         Xli=>Null()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -632,15 +639,10 @@
              iMOleft=iSO
              iMOright=iSO+2
 *
-             index2k= NumOrb(iMOright)*(kSO-1)
-             index2l= NumOrb(iMOleft)*(lSO-1)
-             index3l= NumOrb(iMOright)*(lSO-1)
-             index3k= NumOrb(iMOleft)*(kSO-1)
-*
-             jp_Xki2(iSO)=ip_CMOi(iMOright)+index2k
-             jp_Xli2(iSO)=ip_CMOi(iMOleft)+index2l
-             jp_Xli3(iSO)=ip_CMOi(iMOright)+index2l
-             jp_Xki3(iSO)=ip_CMOi(iMOleft)+index2k
+             Xki2(iSO)%A2(1:,1:) => CMOi(iSO+2)%SB(1)%A2(1:,kSO:)
+             Xki3(iSO)%A2(1:,1:) => CMOi(iSO  )%SB(1)%A2(1:,kSO:)
+             Xli2(iSO)%A2(1:,1:) => CMOi(iSO  )%SB(1)%A2(1:,lSO:)
+             Xli3(iSO)%A2(1:,1:) => CMOi(iSO+2)%SB(1)%A2(1:,lSO:)
 *
 *            Collect the X_mu,i which survived the prescreening.
 *            Replace the pointers above, i.e. jp_Xki, jp_Xli.
@@ -650,28 +652,26 @@
 
 *               Note that the X_mu,i are stored as X_i,mu!
 *
-                jp_Xki2(iSO)=ip_CMOi(iMOright)+index2k-1
-                jp_Xli3(iSO)=ip_CMOi(iMOright)+index3l-1
-*
                 imo=1
                 Do k=1,nj(iMOright)
                    kmo=kYmnij(k,iMOright) ! CD-MO index
 *
 *                  Pick up X_mu,i for all mu's that belong to shell k
 *
-                   jCMOk=jp_Xki2(iSO)+kmo
-                   call dcopy_(nKBas,Work(jCMOk),NumOrb(iMOright),
-     &                               Yij(imo,1,iMOright),nj(iMOright))
+                   call dcopy_(nKBas,
+     &                         Xki2(iSO)%A2(kmo,1),NumOrb(iMOright),
+     &                         Yij(imo,1,iMOright),nj(iMOright))
 
-                   jCMOl=jp_Xli3(iSO)+kmo
-                   call dcopy_(nLBas,Work(jCMOl),NumOrb(iMOright),
-     &                   Yij(imo,2,iMOright),nj(iMOright))
-*
+                   call dcopy_(nLBas,
+     &                         Xli3(iSO)%A2(kmo,1),NumOrb(iMOright),
+     &                         Yij(imo,2,iMOright),nj(iMOright))
+
                    imo=imo+1
                 End Do
 *               Reset pointers!
-                jp_Xki2(iSO)=ip_of_Work(Yij(1,1,iMOright))
-                jp_Xli3(iSO)=ip_of_Work(Yij(1,2,iMOright))
+                nk = nj(iMOright)
+                Xki2(iSO)%A2(1:nk,1:nKBas) => Yij(1:nk*nKBas,1,iMOright)
+                Xli3(iSO)%A2(1:nk,1:nLBas) => Yij(1:nk*nLBas,2,iMOright)
              ElseIf (nj(iMOright).gt.NumOrb(iMOright)) Then
                 Call WarningMessage(2,'Pget1_RI3: nj > NumOrb.')
                 Call Abend()
@@ -680,27 +680,24 @@
              If ((nj(iMOleft).le.NumOrb(iMOleft))
      &            .and.(jSkip(iMOleft).eq.0)) Then
 *
-                jp_Xli2(iSO)=ip_CMOi(iMOleft)+index2l-1
-                jp_Xki3(iSO)=ip_CMOi(iMOleft)+index3k-1
-*
                 imo=1
                 Do k=1,nj(iMOleft)
                    kmo=kYmnij(k,iMOleft) ! CD-MO index
 *
 *                  Pick up X_mu,i for all mu's that belong to shell l
 *
-                   jCMOl=jp_Xli2(iSO)+kmo
-                   call dcopy_(nLBas,Work(jCMOl),NumOrb(iMOleft),
-     &                               Yij(imo,2,iMOleft),nj(iMOleft))
-*
-                   jCMOk=jp_Xki3(iSO)+kmo
-                   call dcopy_(nKBas,Work(jCMOk),NumOrb(iMOleft),
-     &                               Yij(imo,1,iMOleft),nj(iMOleft))
+                   call dcopy_(nLBas,
+     &                         Xli2(iSO)%A2(kmo,1),NumOrb(iMOleft),
+     &                         Yij(imo,2,iMOleft),nj(iMOleft))
+
+                   call dcopy_(nKBas,
+     &                         Xki3(iSO)%A2(kmo,1),NumOrb(iMOleft),
+     &                         Yij(imo,1,iMOleft),nj(iMOleft))
                    imo=imo+1
                 End Do
-                jp_Xli2(iSO)=ip_of_Work(Yij(1,2,iMOleft))
-                jp_Xki3(iSO)=ip_of_Work(Yij(1,1,iMOleft))
-
+                nk = nj(iMOleft)
+                Xli2(iSO)%A2(1:nk,1:nLBas) => Yij(1:nk*nLBas,2,iMOleft)
+                Xki3(iSO)%A2(1:nk,1:nKBas) => Yij(1:nk*nKBas,1,iMOleft)
              ElseIf (nj(iMOleft).gt.NumOrb(iMOleft)) Then
                 Call WarningMessage(2,'Pget1_RI3: nj > NumOrb.')
                 Call Abend()
@@ -757,14 +754,14 @@
 *
                 Call dGEMM_('T','N',nj(iMOleft)*jBas,nKBas,nj(iMOright),
      &                     1.0d0,CijK,nj(iMOright),
-     &                           Work(jp_Xki2(iSO)),nj(iMOright),
+     &                           Xki2(iSO)%A2,nj(iMOright),
      &                     0.0d0,CilK,nj(iMOleft)*jBas)
 *
 *** ----    B(Km,n) = Sum_j E(j,Km)' * X(j,n)
 *
                 Call dGEMM_('T','N',jBas*nKBas,nLBas,nj(iMOleft),
      &                     1.0d0,CilK,nj(iMOleft),
-     &                           Work(jp_Xli2(iSO)),nj(iMOleft),
+     &                           Xli2(iSO)%A2,nj(iMOleft),
      &                     Factor,BklK,jBas*nKBas)
                 Factor=1.0d0
 *
@@ -792,14 +789,14 @@
 *
                 Call dGEMM_('T','N',nj(iMOright)*jBas,nKBas,nj(iMOleft),
      &                     1.0d0,CilK,nj(iMOleft),
-     &                           Work(jp_Xki3(iSO)),nj(iMOleft),
+     &                           Xki3(iSO)%A2,nj(iMOleft),
      &                     0.0d0,CijK,nj(iMOright)*jBas)
 *
 *** ----    B(Km,n) = Sum_j E(i,Km)' * X(i,n)
 *
                 Call dGEMM_('T','N',jBas*nKBas,nLBas,nj(iMOright),
      &                     1.0d0,CijK,nj(iMOright),
-     &                           Work(jp_Xli3(iSO)),nj(iMOright),
+     &                           Xli3(iSO)%A2,nj(iMOright),
      &                     Factor,BklK,jBas*nKBas)
               EndIf
             End Do
@@ -902,6 +899,12 @@
                   End Do
                End Do
             End Do
+         End Do
+         Do iSO=1,2
+            Xki2(iSO)%A2 => Null()
+            Xki3(iSO)%A2 => Null()
+            Xli2(iSO)%A2 => Null()
+            Xli3(iSO)%A2 => Null()
          End Do
 *                                                                      *
 ************************************************************************
