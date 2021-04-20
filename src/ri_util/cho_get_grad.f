@@ -134,7 +134,7 @@
       Integer   kOff(8,5), LuRVec(8,3)
       Integer   ipDLT(5),ipDLT2
       Integer   npos(8,3)
-      Integer   iSTSQ(8), iSTLT(8), nnA(8,8), nInd
+      Integer   iSTSQ(8), nnA(8,8), nInd
       Real*8    tread(2),tcoul(2),tmotr(2),tscrn(2),tcasg(2),tmotr2(2)
 
       Real*8    Txy(nTxy),V_k(nV_k,*),Z_p_k(nZ_p_k,*), U_k(*)
@@ -253,30 +253,13 @@
 **    Various offsets
 *
       MaxB=nBas(1)
-      ISTLT(1)=0
       ISTSQ(1)=0
       DO ISYM=2,NSYM
         MaxB=Max(MaxB,nBas(iSym))
         NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
         NBQ=NBAS(ISYM-1)**2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive D matrix
         ISTSQ(ISYM)=ISTSQ(ISYM-1)+NBQ ! Diagonal integrals in full
       END DO
-*
-**     Size for occupied CMO-matrix
-*
-      Do jDen = 1, nKdens
-         lCMOi(jDen) = 0
-         iOff_CMOi(1,jDen)=0
-         Do i = 1, nSym
-            lCMOi(jDen) = lCMOi(jDen) + nBas(i)*nChOrb_(i,jDen)
-         End Do
-         Do i = 2,nSym
-            iOff_CMOi(i,jDen)=iOff_CMOi(i-1,jDen) +
-     &                        nBas(i-1)*nChOrb_(i-1,jDen)
-         End Do
-      End Do
-
 *
 **
 *
@@ -410,7 +393,6 @@
 *
          Do i=1,nDen
            Call Allocate_DSBA(CMOi(i),nChOrb_(:,i),nBas,nSym)
-           ip_CMOi(i)=ip_of_Work(CMOi(i)%A0(1))
          End Do
 
          nQoT = 0
