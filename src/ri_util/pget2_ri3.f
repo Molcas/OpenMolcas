@@ -29,14 +29,13 @@
 *             Modified for 3-center RI gradients, March 2007           *
 ************************************************************************
       use SOAO_Info, only: iAOtSO
-      use pso_stuff, only: lPSO, nnp, Thpkl, ipAorb, AOrb
+      use pso_stuff, only: lPSO, nnp, Thpkl, AOrb
       use Basis_Info, only: nBas, nBas_Aux
       use Symmetry_Info, only: nIrrep
       use ExTerm, only: CijK, CilK, BklK
       use ExTerm, only: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
       use ExTerm, only: Yij, CMOi
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #include "real.fh"
 #include "exterm.fh"
       Real*8 PSO(nijkl,nPSO), DSO(nDSO,nSA), DSSO(nDSO), V_k(mV_k,nSA),
@@ -323,17 +322,14 @@
                          jp=nCumnnP(j2)+(jSOj-1)*nnP(j2)+nCumnnP2(j3)
                          Do lAOl = 0, lBas-1
                            lSOl = lSO + lAOl
-*                          lp=(lSOl-1)*nAct(j4)+ipAOrb(j4,iMO1)
 
                            If (j3.eq.j4) Then
                              Do kAct=1,nAct(j3)
 *Zpk(*,iVec)
                                tmp=ddot_(kAct,Zpk(jp+kAct*(kAct-1)/2+1),
-*    &                             1,Work(lp),1)
      &                             1,AOrb(iMO1)%SB(j4+1)%A2(:,lSOl),1)
                                Do lAct=kAct+1,nAct(j4)
                                  tmp=tmp+Zpk(jp+lAct*(lAct-1)/2+kAct)*
-*    &                               Work(lp+lAct-1)
      &                               AOrb(iMO1)%SB(j4+1)%A2(lAct,lSOl)
                                End Do
                                Cilk(kAct)=tmp
@@ -342,22 +338,18 @@
                              If (j3.lt.j4) Then
                                Call dGeMV_('N',nAct(j3),nAct(j4),1.0d0,
      &                                    Zpk(jp+1),nAct(j3),
-*    &                                    Work(lp),1,
      &                                 AOrb(iMO1)%SB(j4+1)%A2(:,lSOl),1,
      &                                    0.0d0,CilK,1)
                              Else
                                Call dGeMV_('T',nAct(j4),nAct(j3),1.0d0,
      &                                    Zpk(jp+1),nAct(j4),
-*    &                                    Work(lp),1,
      &                                 AOrb(iMO1)%SB(j4+1)%A2(:,lSOl),1,
      &                                    0.0d0,CilK,1)
                              EndIf
                            EndIf
 *
                            iThpkl= jAOj+ lAOl*kBas*jBas+1
-*                          kp=ipAOrb(j3,iMO2)+(kSO-1)*nAct(j3)
                            Call dGeMV_('T',nAct(j3),kBas,1.0d0,
-*    &                         Work(kp),
      &                         AOrb(iMO2)%SB(j3+1)%A2(1,kSO),
      &                         nAct(j3),Cilk,1,1.0d0,
      &                         Thpkl(iThpkl),jBas)

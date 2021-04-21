@@ -14,7 +14,7 @@
       use Temporary_Parameters, only: force_out_of_core
       use RICD_Info, only: Do_RI, Cholesky
       use Symmetry_Info, only: nIrrep
-      use Data_Structures, only: Allocate_DSBA, Map_to_DSBA
+      use Data_Structures, only: Allocate_DSBA
       use Data_Structures, only: Deallocate_DSBA
       use ExTerm, only: iMP2prpt, DMLT
       Implicit Real*8 (a-h,o-z)
@@ -343,7 +343,6 @@
          Allocate(AOrb(nADens))
          Do iADens = 1, nADens
             Call Allocate_DSBA(AOrb(iADens),nAsh,nBas,nIrrep)
-            Call Map_to_DSBA(AOrb(iADens),ipAOrb(:,iADens))
          End Do
 
 *
