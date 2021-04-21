@@ -56,10 +56,19 @@
 ************************************************************************
 *                                                                      *
       Interface
+
       SUBROUTINE DCOPY_(N, X, INCX, Y, INCY)
       INTEGER N, INCX, INCY
       REAL*8 X(*), Y(*)
       END SUBROUTINE DCOPY_
+
+      SUBROUTINE DGEMV(TRANSA,M,N,ALPHA,A,LDA,X,INCX,BETA,Y,INCY)
+      CHARACTER * 1 TRANSA
+      INTEGER M, N, LDA, INCX, INCY
+      REAL*8 ALPHA, BETA
+      REAL*8 A(LDA,*), X(*), Y(*)
+      END SUBROUTINE DGEMV
+
       End Interface
 *                                                                      *
 ************************************************************************
