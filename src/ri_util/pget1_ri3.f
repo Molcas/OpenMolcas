@@ -574,8 +574,10 @@
                     kSO = iAOtSO(iAO(3)+i3,kOp(3))+iAOst(3)
                     iThpkl= jAOj+ (i3-1)*kBas*jBas
      &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas+1
+                    lda=SIZE(AOrb(1)%SB(1)%A2,1)
+                    ik = 1 + lda*(kSO-1)
                     Call dGeMV_('T',nAct(kSym-1),kBas,1.0d0,
-     &                         AOrb(1)%SB(1)%A2(1,kSO),
+     &                         AOrb(1)%SB(1)%A1(ik),
      &                         nAct(kSym-1),Cilk,1,0.0d0,
      &                         Thpkl(iThpkl),jBas)
                   End Do
@@ -861,8 +863,10 @@
                       kSO = iAOtSO(iAO(3)+i3,kOp(3))+iAOst(3)
                       iThpkl= jAOj+ (i3-1)*kBas*jBas
      &                           + (lAOl + (i4-1)*lBas)*nKBas*jBas+1
+                      lda = SIZE(AOrb(iMO2)%SB(1)%A2,1)
+                      ik  = 1 + lda*(kSO-1)
                       Call dGeMV_('T',nAct(kSym-1),kBas,fact,
-     &                           AOrb(iMO2)%SB(1)%A2(1,kSO),
+     &                           AOrb(iMO2)%SB(1)%A1(ik),
      &                           nAct(kSym-1),Cilk,1,1.0d0,
      &                           Thpkl(iThpkl),jBas)
                     End Do
