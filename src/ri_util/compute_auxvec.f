@@ -20,7 +20,6 @@
       Implicit Real*8 (a-h,o-z)
       Integer ipVk(nProc), ipZpk(nProc)
       Integer, Optional:: ipUk(nProc)
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "real.fh"
 #include "cholesky.fh"
