@@ -29,11 +29,10 @@
 
       Type (DSBA_Type) DSQ, ChM(5), DLT2
 
-      Integer :: ipChM(5)=[0,0,0,0,0]
       Logical DoExchange, DoCAS, Estimate, Update
       Integer nIOrb(0:7),nV_l(0:7),nV_t(0:7)
       Integer nU_l(0:7), nU_t(0:7)
-      Integer ipTxy(0:7,0:7,2),ipDLT2,jp_V_k
+      Integer ipTxy(0:7,0:7,2),jp_V_k
 #include "chotime.fh"
       Character*8 Method
 
@@ -112,7 +111,6 @@
                nSA=5
                Do i=1,nSA
                  Call Allocate_DSBA(DMLT(i),nBas,nBas,nSym,Case='TRI')
-                 ipDMLT(i)=ip_of_Work(DMLT(i)%A0(1))
                  DMLT(i)%A0(:) = D0(:,i)
                End Do
 *Refold some density matrices
@@ -133,18 +131,15 @@
                EndDo
             Else
                Call Allocate_DSBA(DMLT(1),nBas,nBas,nSym,Case='TRI')
-               ipDMLT(1)=ip_of_Work(DMLT(1)%A0(1))
                Call Get_D1AO_Var(DMLT(1)%A0,nDens)
             EndIf
          Else
             Call Allocate_DSBA(DMLT(1),nBas,nBas,nSym,Case='TRI')
-            ipDMLT(1)=ip_of_Work(DMLT(1)%A0(1))
             Call Get_D1AO(DMLT(1)%A0,nDens)
          End If
 *
          If (nKdens.eq.2) Then
             Call Allocate_DSBA(DMLT(2),nBas,nBas,nSym,Case='TRI')
-            ipDMLT(2)=ip_of_Work(DMLT(1)%A0(2))
 !           spin-density matrix
             Call Get_D1SAO_Var(DMLT(2)%A0,nDens)
             Call daxpy_(nDens,-One,DMLT(1)%A0,1,
@@ -159,11 +154,9 @@
          EndIf
          If(iMp2prpt.eq.2) Then
             Call Allocate_DSBA(DLT2,nBas,nBas,nSym,Case='TRI')
-            ipDLT2=ip_of_Work(DLT2%A0(1))
             Call Get_D1AO_Var(DLT2%A0,nDens)
             Call daxpy_(nDens,-One,DMLT(1)%A0,1,DLT2%A0,1)
          Else
-            ipDLT2 = ip_Dummy
          End If
 ************************************************************************
 *                                                                      *
@@ -181,7 +174,6 @@
          If (DoExchange .or. DoCAS) Then
             Do i=1,nKdens
               Call Allocate_DSBA(ChM(i),nBas,nBas,nSym)
-              ipChM(i)=ip_of_Work(ChM(i)%A0(1))
             End Do
             If (lSA) Then
               Call mma_allocate(TmpD,nDens,Label='TmpD')
@@ -390,7 +382,7 @@
 *        dmpK=One
          Estimate=.False.
          Update=.True.
-         Call Cho_Get_Grad(irc,nKdens,ipDMlt,ipDLT2,ipChM,
+         Call Cho_Get_Grad(irc,nKdens,DMLT,DLT2,ChM,
      &                     Txy,n_Txy*nAdens,ipTxy,
      &                     DoExchange,lSA,nChOrb,AOrb,nAsh,
      &                     DoCAS,Estimate,Update,

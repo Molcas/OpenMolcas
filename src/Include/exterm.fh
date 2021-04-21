@@ -16,18 +16,14 @@
       Integer MxChVInShl,ljkvec,nScreen
 
       Common /ExTe1/ nChOrb,nIJ1,nIJR,                                  &
-     &               LuCVector, MxChVInShl,                             &
-     &               iAdrCVec, ljkvec,nScreen, NumAuxVec
+     &               iAdrCVec, LuCVector, NumAuxVec,                    &
+     &               MxChVInShl, ljkvec, nScreen
 
-      Logical DoCholExch, Timings_default
+      Logical        DoCholExch, Timings_default
       Common /ExTe2/ DoCholExch, Timings_default
 
-      Real*8 dmpK
-      Real*8 tbvec(2), tavec(2)
+      Real*8         dmpK, tbvec(2), tavec(2)
+      Common /ExTe3/ dmpK, tbvec,    tavec
 
-      Common /ExTe3/ dmpK, tbvec,tavec
-
-      Integer nDM, ipDMLT(5)
-      Integer nJdens, nKdens, nKvec, nAdens, nAvec
-      Common /DensMat/ nDM, ipDMLT,                                     &
-     &               nJdens, nKdens, nKvec, nAdens, nAvec
+      Integer          nDM, nJdens, nKdens, nKvec, nAdens, nAvec
+      Common /DensMat/ nDM, nJdens, nKdens, nKvec, nAdens, nAvec

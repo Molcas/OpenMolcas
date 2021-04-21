@@ -12,7 +12,7 @@
 *               2011, Thomas Bondo Pedersen                            *
 ************************************************************************
       SUBROUTINE CHO_GET_GRAD(irc,nDen,
-     &                        ipDLT,ipDLT2,ipMSQ,
+     &                        DLT,DLT2,MSQ,
      &                        Txy,nTxy,ipTxy,DoExchange,lSA,
      &                        nChOrb_,AOrb,nAorb,DoCAS,
      &                        Estimate,Update,
@@ -45,14 +45,13 @@
 *         nDen : is equal to 2 iff Spin Unrestricted                   *
 *                4 for SA-CASSCF, otherwise nDen=1                     *
 *                                                                      *
-*         ipDLT : pointer to the LT-packed and symm. blocked           *
-*                 one-body Dmat.                                       *
+*         DLT : the LT-packed and symm. blocked one-body Dmat.         *
 *                 For spin unrestricted, Dmat = Dalpha + Dbeta         *
 *                                                                      *
 *         ipDLT2: pointer to the LT-packed and symm. blocked           *
 *                 one body MP2 Dmat.                                   *
 *                                                                      *
-*         ipMSQ : Cholesky MOs stored as C(a,i) symm. blocked          *
+*         MSQ : Cholesky MOs stored as C(a,i) symm. blocked            *
 *                 with blocks of dim. (nBas,nBas). These are           *
 *                 obtained from CD of the 1-particle DMAT.             *
 *                 (Two pointers iff alpha and beta spinorbitals)       *
@@ -122,7 +121,7 @@
       Implicit Real*8 (a-h,o-z)
 
       Type (NDSBA_Type) DiaH
-      Type (DSBA_Type) AOrb(*)
+      Type (DSBA_Type) DLT(5), DLT2, MSQ(nDen), AOrb(*)
       Type (SBA_Type) Laq(1), Lxy
       Type (L_Full_Type) L_Full
       Type (Lab_Type) Lab
@@ -229,6 +228,14 @@
 *     General Initialization                                           *
 *                                                                      *
 ************************************************************************
+
+      Do i = 1, 5
+         If (Allocated(DLT(i)%A0)) ipDLT(i)=ip_of_Work(DLT(i)%A0(1))
+      End Do
+      If (Allocated(DLT2%A0)) ipDLT2=ip_of_Work(DLT2%A0)
+      Do i = 1, nDen
+         If (Allocated(MSQ(i)%A0)) ipMSQ(i)=ip_of_Work(MSQ(i)%A0(1))
+      End Do
 
       iRout = 9
       iPrint = nPrint(iRout)
