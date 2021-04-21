@@ -131,7 +131,7 @@
       Integer   nDen,nChOrb_(8,5),nAorb(8),nnP(8),nIt(5)
       Integer   ipTxy(8,8,2)
       Integer   kOff(8,5), LuRVec(8,3)
-      Integer   ipDLT(5),ipDLT2
+      Integer :: ipDLT(5)=[0,0,0,0,0],ipDLT2=0
       Integer   npos(8,3)
       Integer   iSTSQ(8), nnA(8,8), nInd
       Real*8    tread(2),tcoul(2),tmotr(2),tscrn(2),tcasg(2),tmotr2(2)
@@ -425,6 +425,7 @@
                      iS = kOffSh(iaSh,kSym) + 1
                      iE = kOffSh(iaSh,kSym) + nBasSh(kSym,iaSh)
 
+                     SKSh=Zero
                      Do ik=iS,iE
                         SKsh = SKsh
      &                       + MSQ(jDen)%SB(kSym)%A2(ik,jK)**2
