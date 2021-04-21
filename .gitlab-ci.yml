@@ -142,7 +142,7 @@ include:
       if [ -n "${pre_make_script}" ] ; then
         eval "${pre_make_script}"
       fi
-    - ${make} all
+    - ${make} all test
     - ${make} install
     - cd ${install_path}
     - ./pymolcas verify --keep 000
