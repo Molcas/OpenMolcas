@@ -200,19 +200,9 @@
 *                     Write(6,*) 'iL,iK', iL,iK
                      Do ij = 1, Nij
                         If(nBatL.eq.1) Then
-                           index_K = ij + (iK_Real-1)*Nij
+                           A_KL = A_KL + Cvec1(ij,iL)*CVec1(ij,iK)
                         Else
-                           index_K = ij + (iK-1)*Nij
-                        End If
-                        index_L = ij + (iL-1)*Nij
-*                        Write(6,*) 'index_K', index_K
-*                        Write(6,*) 'index_L', index_L
-                        If(nBatL.eq.1) Then
-                           A_KL = A_KL + Cvec1(ij,iL)*
-     &                                   CVec1(ij,iK)
-                        Else
-                           A_KL = A_KL + CVec1(ij,iL)*
-     &                                   CVec2(ij,iK)
+                           A_KL = A_KL + CVec1(ij,iL)*CVec2(ij,iK)
                         End If
                      End Do
                      iSkip = (iBatK-1)*nBatVecK
@@ -246,8 +236,6 @@
          End Do
 
 *
-
-
          Call mma_deallocate(CVec2)
          Call mma_deallocate(CVec1)
          Call mma_deallocate(AMat)
