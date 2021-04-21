@@ -1144,9 +1144,9 @@ C------------------------------------------------------------------
                                     n2 = nBasSh(kSym,ibSh)
 
                                    Call DGEMV_(Mode(1:1),n1,n2,
-     &                     One,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,n1,
-     &                         MSQ(iMOleft)%SB(kSym)%A2(iOffShb+1,jK),1,
-     &                                   ONE,Lab%SB(iaSh,lSym,1)%A,1)
+     &                    One,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,n1,
+     &                        MSQ(iMOleft)%SB(kSym)%A2(iOffShb+1:,jK),1,
+     &                    ONE,Lab%SB(iaSh,lSym,1)%A,1)
 
                                 Else   ! lSym < kSym
 
@@ -1162,9 +1162,9 @@ C------------------------------------------------------------------
                                     n2 = JNUM*nBasSh(lSym,iaSh)
 
                                     Call DGEMV_(Mode(1:1),n1,n2,
-     &                     One,L_Full%SPB(kSym,iShp_rs(iShp),l1)%A12,n1,
-     &                         MSQ(iMOleft)%SB(kSym)%A2(iOffShb+1,jK),1,
-     &                                   ONE,Lab%SB(iaSh,lSym,1)%A,1)
+     &                    One,L_Full%SPB(kSym,iShp_rs(iShp),l1)%A12,n1,
+     &                        MSQ(iMOleft)%SB(kSym)%A2(iOffShb+1:,jK),1,
+     &                    ONE,Lab%SB(iaSh,lSym,1)%A,1)
 
                                 EndIf
 
@@ -1224,7 +1224,7 @@ C------------------------------------------------------------------
 
                              CALL DGEMV_(Mode(1:1),n1,n2,
      &                          One,Lab%SB(iaSh,lSym,1)%A,n1,
-     &                              MSQ(iMOright)%SB(lSym)%A2(iS,it),1,
+     &                              MSQ(iMOright)%SB(lSym)%A2(iS:,it),1,
      &                          one,Lik(:,it),1)
 
                           End Do
