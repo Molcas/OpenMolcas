@@ -62,12 +62,12 @@
       REAL*8 X(*), Y(*)
       END SUBROUTINE DCOPY_
 
-      SUBROUTINE DGEMV(TRANSA,M,N,ALPHA,A,LDA,X,INCX,BETA,Y,INCY)
+      SUBROUTINE DGEMV_(TRANSA,M,N,ALPHA,A,LDA,X,INCX,BETA,Y,INCY)
       CHARACTER * 1 TRANSA
       INTEGER M, N, LDA, INCX, INCY
       REAL*8 ALPHA, BETA
       REAL*8 A(LDA,*), X(*), Y(*)
-      END SUBROUTINE DGEMV
+      END SUBROUTINE DGEMV_
 
       End Interface
 *                                                                      *
@@ -586,7 +586,7 @@
                     lda=SIZE(AOrb(1)%SB(1)%A2,1)
                     ik = 1 + lda*(kSO-1)
                     Call dGeMV_('T',nAct(kSym-1),kBas,1.0d0,
-     &                         AOrb(1)%SB(1)%A1(ik),
+     &                         AOrb(1)%SB(1)%A1(ik:),
      &                         nAct(kSym-1),Cilk,1,0.0d0,
      &                         Thpkl(iThpkl),jBas)
                   End Do
@@ -875,7 +875,7 @@
                       lda = SIZE(AOrb(iMO2)%SB(1)%A2,1)
                       ik  = 1 + lda*(kSO-1)
                       Call dGeMV_('T',nAct(kSym-1),kBas,fact,
-     &                           AOrb(iMO2)%SB(1)%A1(ik),
+     &                           AOrb(iMO2)%SB(1)%A1(ik:),
      &                           nAct(kSym-1),Cilk,1,1.0d0,
      &                           Thpkl(iThpkl),jBas)
                     End Do
