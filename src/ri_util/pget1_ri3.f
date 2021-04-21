@@ -30,7 +30,7 @@
 ************************************************************************
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
-      use pso_stuff, only: lPSO, lsa, ipAorb, Thpkl
+      use pso_stuff, only: lPSO, lsa, ipAorb, Thpkl, AOrb
       use ExTerm, only: CijK, CilK, BklK, BMP2, iMP2prpt, LuBVector
       use ExTerm, only: Ymnij, ipYmnij, nYmnij, CMOi
 #ifdef _DEBUGPRINT_
@@ -549,27 +549,31 @@
               Do i4 = 1, iCmp(4)
                 lSO = iAOtSO(iAO(4)+i4,kOp(4))+iAOst(4)
                 Do lAOl = 0, lBas-1
-                  lSOl = lSO + lAOl-1
-                  lp=ipAOrb(0,1)+lSOl*nAct(lSym-1)
+*                 lSOl = lSO + lAOl-1
+                  lSOl = lSO + lAOl
+*                 lp=ipAOrb(0,1)+lSOl*nAct(lSym-1)
                   Do kAct=1,nAct(kSym-1)
                     tmp=ddot_(kact,Zpk(kAct*(kAct-1)/2+1,jSOj,1),1,
-     &                       Work(lp),1)
+*    &                       Work(lp),1)
+     &                       AOrb(1)%SB(1)%A2(:,lSOl),1)
 *
 *
                     Do lAct=kAct+1,nAct(lSym-1)
                       tmp=tmp+Zpk(lAct*(lAct-1)/2+kAct,jSOj,1)*
-     &                        Work(lp+lAct-1)
+*    &                        Work(lp+lAct-1)
+     &                        AOrb(1)%SB(1)%A2(lAct,lSOl)
                     End Do
                     CilK(kAct)=tmp
                   End Do
 *
                   Do i3 = 1, iCmp(3)
                     kSO = iAOtSO(iAO(3)+i3,kOp(3))+iAOst(3)
-                    kp=ipAOrb(0,1)+(kSO-1)*nAct(kSym-1)
+*                   kp=ipAOrb(0,1)+(kSO-1)*nAct(kSym-1)
                     iThpkl= jAOj+ (i3-1)*kBas*jBas
      &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas+1
                     Call dGeMV_('T',nAct(kSym-1),kBas,1.0d0,
-     &                         Work(kp),
+*    &                         Work(kp),
+     &                         AOrb(1)%SB(1)%A2(1,kSO),
      &                         nAct(kSym-1),Cilk,1,0.0d0,
      &                         Thpkl(iThpkl),jBas)
                   End Do
@@ -839,25 +843,29 @@
                 Do i4 = 1, iCmp(4)
                   lSO = iAOtSO(iAO(4)+i4,kOp(4))+iAOst(4)
                   Do lAOl = 0, lBas-1
-                    lSOl = lSO + lAOl-1
-                    lp=ipAOrb(0,iMO1)+lSOl*nAct(lSym-1)
+*                   lSOl = lSO + lAOl-1
+                    lSOl = lSO + lAOl
+*                   lp=ipAOrb(0,iMO1)+lSOl*nAct(lSym-1)
                     Do kAct=1,nAct(kSym-1)
                      tmp=ddot_(kact,Zpk(kAct*(kAct-1)/2+1,jSOj,iVec_),1,
-     &                         Work(lp),1)
+*    &                         Work(lp),1)
+     &                         AOrb(iMO1)%SB(1)%A2(:,lSOl),1)
                       Do lAct=kAct+1,nAct(lSym-1)
                         tmp=tmp+Zpk(lAct*(lAct-1)/2+kAct,jSOj,iVec_)*
-     &                    Work(lp+lAct-1)
+*    &                    Work(lp+lAct-1)
+     &                    AOrb(iMO1)%SB(1)%A2(lAct,lSOl)
                       End Do
                       CilK(kAct)=tmp
                     End Do
 *
                     Do i3 = 1, iCmp(3)
                       kSO = iAOtSO(iAO(3)+i3,kOp(3))+iAOst(3)
-                      kp=ipAOrb(0,iMO2)+(kSO-1)*nAct(kSym-1)
+*                     kp=ipAOrb(0,iMO2)+(kSO-1)*nAct(kSym-1)
                       iThpkl= jAOj+ (i3-1)*kBas*jBas
      &                           + (lAOl + (i4-1)*lBas)*nKBas*jBas+1
                       Call dGeMV_('T',nAct(kSym-1),kBas,fact,
-     &                           Work(kp),
+*    &                           Work(kp),
+     &                           AOrb(iMO2)%SB(1)%A2(1,kSO),
      &                           nAct(kSym-1),Cilk,1,1.0d0,
      &                           Thpkl(iThpkl),jBas)
                     End Do
