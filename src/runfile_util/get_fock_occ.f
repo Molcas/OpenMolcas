@@ -20,7 +20,6 @@
 #endif
       Logical      Found
 
-      Call Get_iScalar('System bitSwitch',iOption)
 *
 *
 *...  Read the generalized Fock matrix

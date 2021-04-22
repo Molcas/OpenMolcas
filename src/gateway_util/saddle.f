@@ -27,7 +27,7 @@
       use Sizes_of_Seward, only: S
       use Real_Info, only: E1, E2, SadStep, Shake
       use Logical_Info, only: Align_Only, Do_Align, lRP, lRP_Post
-      use Symmetry_Info, only: nIrrep
+      use Symmetry_Info, only: nIrrep, VarR, VarT
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -81,8 +81,7 @@
 *
 **       Find out whether the energy is assumed invariant to trans. & rot.
 *
-         Call Get_iScalar('System BitSwitch',iSBS)
-         Invar=(iAnd(iSBS,2**7).eq.0).and.(iAnd(iSBS,2**8).eq.0)
+         Invar=.not.(VarR.or.VarT)
 *
          nAt = nRP / 3
          Call qpg_dArray('Saddle',Not_First_Iter,nData)

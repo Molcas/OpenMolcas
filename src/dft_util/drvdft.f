@@ -963,7 +963,7 @@ c         write(6,*) 'Func in drvdft :', Func
             Do i=1,nh1
               Write(6,'(i4,3f22.16)') i,F_DFT(i,1),
      &                                  F_DFT(i,2),
-     &        F_DFT(i,1)+F_DFT(i,2))/2.0d0
+     &        F_DFT(i,1)+F_DFT(i,2)/2.0d0
             End Do
          End If
 #endif

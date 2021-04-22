@@ -21,8 +21,6 @@ Module Temporary_Parameters
       Logical :: force_out_of_core = .False.
       Logical :: Primitive_Pass=.True.
       Logical :: Expert=.True.
-      Logical :: VarT=.False.
-      Logical :: VarR=.False.
       Integer :: IsChi=0
       Logical :: DirInt=.False.
       Logical :: Fake_ERIs=.False.

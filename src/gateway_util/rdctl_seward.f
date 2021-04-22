@@ -20,7 +20,8 @@
       use Real_Spherical, only: Sphere
       use fortran_strings, only : str
       use External_Centers
-      use Symmetry_Info, only: Symmetry_Info_Setup, iSkip, nIrrep
+      use Symmetry_Info, only: Symmetry_Info_Setup, iSkip, nIrrep,
+     &                         VarR, VarT
       use Temporary_Parameters
       use Integral_Parameters
       use Sizes_of_Seward, Only: S

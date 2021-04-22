@@ -22,7 +22,6 @@
 *     use Slapaf_Parameters, only: lRP
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "sbs.fh"
 #include "print.fh"
 #include "stdalloc.fh"
       Integer   iAdd(0:7)
@@ -38,10 +37,6 @@
 *
 ************************************************************************
 ************************** StartUp section   ***************************
-************************************************************************
-*                                                                      *
-      Call Get_iScalar('System BitSwitch',iSBS)
-*                                                                      *
 ************************************************************************
 *                                                                      *
 *     Set the default value of iterations from MOLCAS_MAXITER if it

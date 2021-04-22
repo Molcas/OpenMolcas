@@ -42,6 +42,8 @@
 *                                             2018/08/09
 
       SUBROUTINE   NTOCalc(JOB1,JOB2,ISTATE,JSTATE,TRAD,TRASD,ISpin)
+
+      use fortran_strings, only : str
 #include "rasdim.fh"
 #include "rasdef.fh"
 #include "symmul.fh"
@@ -78,9 +80,12 @@
       INTEGER, DIMENSION(NISHT+NASHT) :: OrbBas,OrbSym
       !OrbBas() is the number of basis function for IOrb
       !OrbSym() is the index of symmetry/irrep  for IOrb
+      ! The strings below should be converted to
+      ! character(len=:), allocatable format, but currently
+      ! gfortran has problems with this
       CHARACTER (len=128) FILENAME
       CHARACTER (len=8)  NTOType
-      CHARACTER (len=5)  STATENAME,StateNameTmp
+      CHARACTER (len=9)  STATENAME
       Character*3 lIrrep(8)
       Logical DOTEST
       INTEGER LU,ISFREEUNIT
@@ -212,10 +217,7 @@ C     &    NUsedBF(OrbUsedSym(IOrb)),I,J,WORK(LCMO1+J),WORK(LCMO2+J)
       End If
 C     end of building up the super-CMO matrix
 C     Start and initialize spaces
-      write(StateName,'(I3)') ISTATE
-      write(StateNameTmp,'(I3,a1,a)')
-     & JSTATE,'_',trim(adjustl(STATENAME))
-      write (STATENAME,'(a)') trim(adjustl(StateNameTmp))
+      statename = str(JSTATE)//'_'//str(ISTATE)
       NDge=NASHT**2
       CALL GETMEM ('Umat','Allo','Real',LNTOUmat,NDge)
       CALL GETMEM ('Vmat','Allo','Real',LNTOVmat,NDge)

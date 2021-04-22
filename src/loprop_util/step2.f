@@ -16,8 +16,8 @@
 *     Step 2. LO S0 ->S1
 *     occupied virtual on the same center
 *     and orthonormalization of the original AO basis
-*     The call to lowdin gives me a transforation A1, and a transformed
-*     S matrix
+*     The call to lowdin_lp gives me a transforation A1, and a
+*     transformed S matrix
 *
       Implicit ReaL*8 (A-H,O-Z)
       Real*8 SMatrix(nDim*nDim),TMatrix(nDim*nDim),
@@ -45,7 +45,7 @@ clg   Call RecPrt('SMatrix_Save before LW 2',' ',SMatrix_Save,nDim,nDim)
 
       call dcopy_(nDim**2,[Zero],0,TMatrix,1)
       call dcopy_(nDim,[One],0,TMatrix,nDim+1)
-      Call Lowdin(SMatrix,TMatrix,nDim)
+      Call Lowdin_LP(SMatrix,TMatrix,nDim)
 *     Pick up S2
 clg   Call RecPrt('SMatrix after LW 2',' ',SMatrix,nDim,nDim)
 clg   Call RecPrt('TMatrix after LW 2',' ',TMatrix,nDim,nDim)
