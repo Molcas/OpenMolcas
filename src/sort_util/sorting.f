@@ -326,13 +326,13 @@
           integer, intent(inout) :: work(:)
 
           integer :: half
-          half = (ubound(A, 1) - lbound(A, 1)) / 2 + 1
+          half = (size(A) - 1) / 2 + 1
           if (size(A) < 2) then
             continue
           else if (size(A) == 2) then
             call bubble_sort(A, compare)
           else
-            call mergesort_work(A( : half), compare, work)
+            call mergesort_work(A(1 : half), compare, work)
             call mergesort_work(A(half + 1 :), compare, work)
             if (.not. compare(A(half), A(half + 1))) then
               work(1 : half) = A(1 : half)

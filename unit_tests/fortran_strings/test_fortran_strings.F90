@@ -64,6 +64,7 @@ program test_fortran_strings
 
     call random_seed(put=seed)
     call init_fruit()
+    call init_linalg()
     call inimem()
 
     call test_fortran_strings_driver()
