@@ -60,7 +60,7 @@ contains
 
         contains
 
-        ! This could also use sorting_funcs::leq_i
+        ! This could also use sorting_funcs::leq_r
         logical pure function leq(i, j)
             real(kind=wp), intent(in) :: i, j
             leq = i <= j

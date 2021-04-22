@@ -325,19 +325,18 @@
           procedure(compare_int_t) :: compare
           integer, intent(inout) :: work(:)
 
-          integer :: half, half_
-          half = (ubound(A, 1) - lbound(A, 1)) / 2 + 1
-          half_ = half - lbound(A, 1) + 1
+          integer :: half
+          half = (size(A) - 1) / 2 + 1
           if (size(A) < 2) then
             continue
           else if (size(A) == 2) then
             call bubble_sort(A, compare)
           else
-            call mergesort_work(A( : half), compare, work)
+            call mergesort_work(A(1 : half), compare, work)
             call mergesort_work(A(half + 1 :), compare, work)
             if (.not. compare(A(half), A(half + 1))) then
-              work(1 : half_) = A( : half)
-              call merge_(work(1 : half_), A(half + 1:), A, compare)
+              work(1 : half) = A(1 : half)
+              call merge_(work(1 : half), A(half + 1:), A, compare)
             endif
           end if
         end subroutine mergesort_work
