@@ -27,14 +27,14 @@ integer(kind=iwp) :: efatom3, efatom4
 real(kind=wp) :: efmodul, efmodulAU, norm, posvect12(3)
 real(kind=wp), allocatable :: gradient(:,:), ExtGrad(:,:), modgrad(:,:), coord(:,:)
 real(kind=wp), parameter :: nnewt = auToN*1.0e9_wp
-logical(kind=iwp) :: linear
+logical(kind=iwp) :: linear, Found
 character(len=180) :: Key, Line
 character(len=180), external :: Get_Ln
 integer(kind=iwp) :: isfreeunit
 integer(kind=iwp) :: nCent
-real(kind=wp) :: Tau
+real(kind=wp) :: Tau, gau_sigma, gau_t0, mdtime, time_scaling
 real(kind=wp) :: Bt(3,4), dBt(3,4,3,4), fourAtoms(3,4)
-logical(kind=iwp) :: torsional, lWrite,lWarn, ldB
+logical(kind=iwp) :: torsional, lWrite, lWarn, ldB, gaussian_force
 character(len=180) :: Label
 
 ! get initial values
@@ -115,6 +115,15 @@ do
       write(u6,*) 'Opening force'
     end if
  end if
+
+ if (Line(1:4) == 'GAUS') then
+    gaussian_force = .true.
+    Line = Get_Ln(LuSpool)
+    call Get_F1(1,gau_sigma)
+    Line = Get_Ln(LuSpool)
+    call Get_F1(1,gau_t0)
+ end if
+!
 !>>>>>>>>>>>>>>>>>>>> torsional END <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 end do
 
@@ -164,8 +173,7 @@ if (linear) then
   end do
   write(u6,*)
 
-  ! Creating the final modified external gradient vector (modgrad)
-  modgrad(:,:) = gradient(:,:)+ExtGrad(:,:)
+
 
 end if
 !>>>>>>>>>>>>>>>>>>>>> end of linear code <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -220,9 +228,30 @@ if (torsional) then
   ExtGrad(:,efatom3) = Bt(:,3)*efmodulAU
   ExtGrad(:,efatom4) = Bt(:,4)*efmodulAU
 
-  modgrad(:,:) = gradient(:,:)+ExtGrad(:,:)
+end if
+
+if (gaussian_force) then
+
+  ! AV: This is called before dynamix, so at fist step it would not find
+  ! the time value in the runfile
+  call Qpg_dScalar('MD_Time',Found)
+  if (found) then
+    call Get_dScalar('MD_Time', mdtime)
+  else
+    mdtime = 0.0
+  end if
+
+  write(u6,*) 'Gaussian shaped force'
+  write(u6,*) 'sigma', gau_sigma, 't0', gau_t0
+  time_scaling = exp(-(mdtime-gau_t0)**2/(2*gau_sigma)**2)
+  write(u6,*) 'gaussian:', mdtime, time_scaling
+
+  ExtGrad = ExtGrad * time_scaling
 
 end if
+
+! Creating the final modified external gradient vector (modgrad)
+modgrad(:,:) = gradient(:,:)+ExtGrad(:,:)
 
 write(u6,*)
 write(u6,*) 'Gradient after force application:'
