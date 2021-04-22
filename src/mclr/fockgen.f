@@ -198,7 +198,7 @@ c                     iij =itri(iAsh+nA(is),jAsh+nA(jS))
           Do iB=1,nAsh(iS)
             ioff3=ioff2+nOrb(iS)*(iB-1)
             call dcopy_(nOrb(iS),CMO(1+ioff3:),1,
-     &                  CVa%SB(iS)%A1(iB),nAsh(iS))
+     &                  CVa%SB(iS)%A1(iB:),nAsh(iS))
           End Do
           ioff=ioff+(nIsh(iS)+nAsh(iS))*nOrb(iS)
         End Do
