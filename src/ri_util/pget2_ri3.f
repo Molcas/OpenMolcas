@@ -176,7 +176,7 @@
                    Do k = 1, nk
                       kmo=kYmnij(k+iOff_Ymnij(j3+1,1))
 *
-                      call dcopy_(kBas,Xki(kmo),nChOrb(j3,iSO),
+                      call dcopy_(kBas,Xki(kmo:),nChOrb(j3,iSO),
      &                                 Yij(imo,1,1),  nk)
 *
                       imo = imo +1
@@ -211,7 +211,7 @@
                       Do l = 1, nl
                          lmo=kYmnij(l+iOff_Ymnij(j4+1,1))
 *
-                         call dcopy_(lBas,Xli(lmo),nChOrb(j4,iSO),
+                         call dcopy_(lBas,Xli(lmo:),nChOrb(j4,iSO),
      &                                    Yij(imo,2,1),   nl)
 *
                          imo = imo +1
@@ -350,7 +350,7 @@
 *
                            iThpkl= jAOj+ lAOl*kBas*jBas+1
                            Call dGeMV_('T',nAct(j3),kBas,1.0d0,
-     &                         AOrb(iMO2)%SB(j3+1)%A2(1,kSO),
+     &                         AOrb(iMO2)%SB(j3+1)%A2(:,kSO),
      &                         nAct(j3),Cilk,1,1.0d0,
      &                         Thpkl(iThpkl),jBas)
 
