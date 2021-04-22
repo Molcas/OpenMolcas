@@ -9,35 +9,28 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
+*               2021, Roland Lindh                                     *
 ************************************************************************
 
-      SUBROUTINE CHO_GetShFull(scr,lscr,JNUM,JSYM,
-     &                         IREDC,ipChoV,SvShp,iShp_rs)
-************************************************************
-*   Author: F. Aquilante
-*
-*
-************************************************************
-      use ChoArr, only: iSOShl, iShlSO, iBasSh, nBasSh, iRS2F, nDimRS
-      use ChoSwp, only: iiBstRSh, IndRSh, IndRed
+      SUBROUTINE CHO_GetShFull(LabJ,lLabJ,JNUM,JSYM,IREDC,ChoV,
+     &                         SvShp,mmShl,iShp_rs,mmShl_tot)
+      use ChoArr, only: iSOShl, iShlSO, iBasSh, iRS2F, nDimRS
+      use ChoSwp, only: IndRSh, IndRed
+      use Data_Structures, only: L_Full_Type
       Implicit Real*8 (a-h,o-z)
-      Real*8  Scr(lscr),SvShp(*)
-      Integer iShp_rs(*)
-      Integer cho_isao
-      External cho_isao
+      Real*8  LabJ(lLabJ)
+      Real*8  SvShp(mmShl , 2)
+      Integer iShp_rs( mmShl_tot )
+      Integer, External :: cho_isao
 
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
+#include "real.fh"
 
-      Integer   ipChoV
-      Parameter (zero = 0.0d0)
+      Type (L_Full_Type) ChoV
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-****** this is a trick to save memory. Memory in "location 2" is used
-******      to store some offset arrays
-      iOffShp(i,j) = iiBstRSh(i,j,2)
 ************************************************************************
 
 **********************************************************
@@ -51,6 +44,8 @@ C
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
+      ChoV%A0(:)=Zero
+      SvShp(:,:)=Zero
 
       IF (JSYM.eq.1) THEN
 
@@ -58,7 +53,7 @@ C
 
          DO JVEC=1,JNUM
 
-            kscr = NREAD
+            kLabJ = NREAD
             NREAD= NREAD + nDimRS(jSym,IREDC)
 
             Do jRab=1,nnBstR(jSym,iLoc)
@@ -72,7 +67,7 @@ C
              ibg  = iRS2F(2,iRab)
 
              iaSh = iSOShl(iag) ! shell to which it belongs
-             ibSh = iSOShl(ibg) ! iaSh >= ibSh
+             ibSh = iSOShl(ibg) ! iaSh >= ibSh !!!!!!
 
              iaSg = iShlSO(iag) !index of SO within its shell
              ibSg = iShlSO(ibg)
@@ -82,33 +77,27 @@ C
              ias = iaSg - iBasSh(iSyma,iaSh) ! addr within its shell
              ibs = ibSg - iBasSh(isyma,ibSh)
 
-             kscr  = kscr + 1
+             kLabJ  = kLabJ + 1
 
-             kcho1 = nBasSh(iSyma,iaSh)*JNUM*(ibs-1)
-     &             + nBasSh(iSyma,iaSh)*(JVEC-1) + ias
+             ChoV%SPB(iSyma,iShp_rs(iShp),1)%A3(ias,JVEC,ibs)
+     &        = LabJ(kLabJ)
 
-             kcho2 = nBasSh(iSyma,ibSh)*JNUM*(ias-1)
-     &             + nBasSh(iSyma,ibSh)*(JVEC-1) + ibs
+             i1=1
+             If (ibSh/=iaSh) i1=2
 
-             ioffV = ipChoV + JNUM*iOffShp(iSyma,iShp_rs(iShp)) - 1
+             ChoV%SPB(iSyma,iShp_rs(iShp),i1)%A3(ibs,JVEC,ias)
+     &        = LabJ(kLabJ)
 
-             Work(kcho1+ioffV) = Scr(kscr)
-
-             ioffV = ioffV - nBasSh(iSyma,iaSh)*JNUM*nBasSh(iSyma,ibSh)
-     &             *Min(0,(ibSh-iaSh))/Max(1,(iaSh-ibSh))
-
-             Work(kcho2+ioffV) = Scr(kscr)
-
-             SvShp(nnShl+iShp_rs(iShp)) = SvShp(nnShl+iShp_rs(iShp))
-     &                                  + Scr(kscr)**2
+             SvShp(iShp_rs(iShp),2) = SvShp(iShp_rs(iShp),2)
+     &                                  + LabJ(kLabJ)**2
 
             End Do
 
             Do jShp=1,nnShl_tot ! Maximize over vectors
                If (iShp_rs(jShp).gt.0) Then
-                  SvShp(iShp_rs(jShp)) = Max( SvShp(iShp_rs(jShp)),
-     &                                   SvShp(nnShl+iShp_rs(jShp)) )
-                  SvShp(nnShl+iShp_rs(jShp)) = zero
+                  SvShp(iShp_rs(jShp),1) = Max( SvShp(iShp_rs(jShp),1),
+     &                                          SvShp(iShp_rs(jShp),2) )
+                  SvShp(iShp_rs(jShp),2) = zero
                End If
             End Do
 
@@ -117,12 +106,11 @@ C
 
       ELSE
 
-
          NREAD = 0
 
          DO JVEC=1,JNUM
 
-            kscr = NREAD
+            kLabJ = NREAD
             NREAD= NREAD + nDimRS(jSym,IREDC)
 
             Do jRab=1,nnBstR(jSym,iLoc)
@@ -136,7 +124,7 @@ C
               ibg  = iRS2F(2,iRab)
 
               iaSh = iSOShl(iag) ! shell to which it belongs
-              ibSh = iSOShl(ibg)
+              ibSh = iSOShl(ibg) ! ibsh<=>iaSh
 
               iaSg = iShlSO(iag) !index of SO within its shell
               ibSg = iShlSO(ibg)
@@ -144,36 +132,27 @@ C
               iSyma = cho_isao(iag)  !symmetry block
               iSymb = muld2h(jSym,iSyma) ! iSyma >= iSymb
 
-c               koff = iOffShp(iSyma,iShp_rs(iShp))
-
-c               If (iaSh.lt.ibSh)   koff = koff
-c     &                           + nBasSh(iSyma,ibSh)*nBasSh(iSymb,iaSh)
-
-              koff = iOffShp(iSyma,iShp_rs(iShp)) - nBasSh(iSyma,ibSh)*
-     &               nBasSh(iSymb,iaSh)*
-     &               Min(0,(iaSh-ibSh))/Max(1,(ibSh-iaSh))
+              i1=1
+              If (iaSh<ibSh) i1=2
 
               ias = iaSg - iBasSh(iSyma,iaSh) !addr within its shell
               ibs = ibSg - iBasSh(iSymb,ibSh)
 
-              kchov = nBasSh(iSyma,iaSh)*JNUM*(ibs-1)
-     &              + nBasSh(iSyma,iaSh)*(JVEC-1) + ias
-     &              + ipChoV + JNUM*kOff - 1
+              kLabJ  = kLabJ + 1
 
-              kscr  = kscr + 1
+              ChoV%SPB(iSyma,iShp_rs(iShp),i1)%A3(ias,JVEC,ibs)
+     &        = LabJ(kLabJ)
 
-              Work(kchov) = Scr(kscr)
-
-              SvShp(nnShl+iShp_rs(iShp)) = SvShp(nnShl+iShp_rs(iShp))
-     &                                   + Scr(kscr)**2
+              SvShp(iShp_rs(iShp),2) = SvShp(iShp_rs(iShp),2)
+     &                                   + LabJ(kLabJ)**2
 
             End Do
 
             Do jShp=1,nnShl_tot
                If (iShp_rs(jShp).gt.0) Then
-                  SvShp(iShp_rs(jShp)) = Max( SvShp(iShp_rs(jShp)),
-     &                                      SvShp(nnShl+iShp_rs(jShp)) )
-                  SvShp(nnShl+iShp_rs(jShp)) = zero
+                  SvShp(iShp_rs(jShp),1) = Max( SvShp(iShp_rs(jShp),1),
+     &                                          SvShp(iShp_rs(jShp),2) )
+                  SvShp(iShp_rs(jShp),2) = zero
                EndIf
             End Do
 

@@ -13,9 +13,13 @@
       Implicit Real*8 (a-h,o-z)
       Integer nSym, nBas(nSym), nFro(nSym), nOcc(nSym), nSsh(nSym)
       Real*8 CMO(*), T1amp(*)
-      Character*40 OrbTit
-      Dimension Dummy(1), iDummy(1)
-#include "WrkSpc.fh"
+      Character(LEN=40) OrbTit
+      Real*8 Dummy(1)
+      Integer iDummy(1)
+#include "stdalloc.fh"
+
+      Real*8, Allocatable:: S(:), X(:), Scr(:), U(:)
+      Real*8, Allocatable:: W(:), Y(:), Z(:), R(:)
 
 C
 C     Compute the T1 amplitudes according to Thouless formula
@@ -31,21 +35,21 @@ C     --------------------------------------------------------
       End Do
       l_O2=l_O**2
 
-      Call GetMem('Scr','Allo','Real',ip_Scr,2*lScr)
-      ip_U=ip_Scr+lScr
+      Call mma_allocate(Scr,lScr,Label='Scr')
+      Call mma_allocate(U,lScr,Label='U')
 
-      Call GetMem('WYZR','Allo','Real',ip_w,4*l_O2)
-      ip_y = ip_w + l_O2
-      ip_z = ip_y + l_O2
-      ip_r = ip_z + l_O2
+      Call mma_allocate(W,l_O2,Label='W')
+      Call mma_allocate(Y,l_O2,Label='Y')
+      Call mma_allocate(Z,l_O2,Label='Z')
+      Call mma_allocate(R,l_O2,Label='R')
 
-      Call GetMem('S','Allo','Real',ip_S,2*l_S)
-      ip_X=ip_S+l_S
+      Call mma_allocate(S,l_S,Label='S')
+      Call mma_allocate(X,l_S,Label='X')
 
-      Call GetOvlp_Localisation(Work(ip_S),'Sqr',nBas,nSym)
+      Call GetOvlp_Localisation(S,'Sqr',nBas,nSym)
 
       Lu=12
-      Call RdVec('INPORB',Lu,'C',nSym,nBas,nBas,Work(ip_X),Dummy,Dummy,
+      Call RdVec('INPORB',Lu,'C',nSym,nBas,nBas,X,Dummy,Dummy,
      &                    iDummy,OrbTit,1,iErr)
 
       write(6,*)
@@ -56,23 +60,23 @@ C     --------------------------------------------------------
       iOff=0
       kOff=0
       Do iSym=1,nSym
-         jp_S = ip_S + iOff
+         jp_S = 1 + iOff
          jp_C = 1 + iOff + nBas(iSym)*nFro(iSym)
-         jp_X = ip_X + iOff + nBas(iSym)*nFro(iSym)
+         jp_X = 1 + iOff + nBas(iSym)*nFro(iSym)
          nOrb=nOcc(iSym)+nSsh(iSym)
 
-         Call GetUmat_T1(Work(ip_U),CMO(jp_C),Work(jp_S),Work(jp_X),
-     &                   Work(ip_Scr),lScr,nBas(iSym),
+         Call GetUmat_T1(U,CMO(jp_C),S(jp_S),X(jp_X),
+     &                   Scr,lScr,nBas(iSym),
      &                   nOrb,nOcc(iSym))
 
-         iU=ip_U
+         iU=1
          Do j=1,nOcc(iSym)
-            ifr=ip_U+nOrb*(j-1)
-            ito=ip_Scr+nOcc(iSym)*(j-1)
-            call dcopy_(nOcc(iSym),Work(ifr),1,Work(ito),1)
+            ifr=1+nOrb*(j-1)
+            ito=1+nOcc(iSym)*(j-1)
+            call dcopy_(nOcc(iSym),U(ifr),1,Scr(ito),1)
             jU=ifr+nOcc(iSym)
             Do i=1,nSsh(iSym)
-               Work(iU)=Work(jU)
+               U(iU)=U(jU)
                iU=iU+1
                jU=jU+1
             End Do
@@ -80,52 +84,56 @@ C     --------------------------------------------------------
 
 c --- SVD of U in the oo space:   U = Y * w * Z'
 
-         Call SVD(nOcc(iSym),nOcc(iSym),nOcc(iSym),Work(ip_Scr),
-     &            Work(ip_w),.true.,Work(ip_y),.true.,Work(ip_z),
-     &            ierr,Work(ip_r))
+         Call SVD(nOcc(iSym),nOcc(iSym),nOcc(iSym),Scr,
+     &            W,.true.,Y,.true.,Z,ierr,R)
 
          If (ierr.ne.0) Then
             write(6,*)
             write(6,*) ' *** Warning: SVD failed to get singval: ',ierr
             write(6,*) ' *** Located in Thouless_T1 -- call to SVD .'
             write(6,*)
-            write(6,*) ' omega= ',(Work(ip_w+k),k=0,nOcc(iSym)-1)
+            write(6,*) ' omega= ',(W(k),k=1,nOcc(iSym))
          EndIf
 
-         Call FZero(Work(ip_r),nOcc(iSym)**2)
+         Call FZero(R,nOcc(iSym)**2)
          Do k=1,nOcc(iSym)
-            omega=Work(ip_w+k-1)
-            kk=nOcc(iSym)*(k-1)+k-1
+            omega=W(k)
+            kk=nOcc(iSym)*(k-1)+k
             If (omega.gt.1.0d-8) Then
-               Work(ip_r+kk)=1.0d0/omega
+               R(kk)=1.0d0/omega
             EndIf
          End Do
 
 c --- Compute U^-1 = Z * w^-1 * Y'
 
          Call DGEMM_('N','T',nOcc(iSym),nOcc(iSym),nOcc(iSym),
-     &                           1.0d0,Work(ip_r),nOcc(iSym),
-     &                                 Work(ip_y),nOcc(iSym),
-     &                           0.0d0,Work(ip_w),nOcc(iSym))
+     &                           1.0d0,R,nOcc(iSym),
+     &                                 Y,nOcc(iSym),
+     &                           0.0d0,W ,nOcc(iSym))
 
          Call DGEMM_('N','N',nOcc(iSym),nOcc(iSym),nOcc(iSym),
-     &                           1.0d0,Work(ip_z),nOcc(iSym),
-     &                                 Work(ip_w),nOcc(iSym),
-     &                           0.0d0,Work(ip_Scr),nOcc(iSym))
+     &                           1.0d0,Z,nOcc(iSym),
+     &                                 W,nOcc(iSym),
+     &                           0.0d0,Scr,nOcc(iSym))
 
          jp_T = 1 + kOff
          Call DGEMM_('T','T',nOcc(iSym),nSsh(iSym),nOcc(iSym),
-     &                           1.0d0,Work(ip_Scr),nOcc(iSym),
-     &                                 Work(ip_U),nSsh(iSym),
+     &                           1.0d0,Scr,nOcc(iSym),
+     &                                 U,nSsh(iSym),
      &                           0.0d0,T1amp(jp_T),nOcc(iSym))
 
          iOff = iOff + nBas(iSym)**2
          kOff = kOff + nOcc(iSym)*nSsh(iSym)
       End Do
 
-      Call GetMem('S','Free','Real',ip_S,2*l_S)
-      Call GetMem('WYZR','Free','Real',ip_w,4*l_O2)
-      Call GetMem('Scr','Free','Real',ip_Scr,2*lScr)
+      Call mma_deallocate(X)
+      Call mma_deallocate(S)
+      Call mma_deallocate(R)
+      Call mma_deallocate(Z)
+      Call mma_deallocate(Y)
+      Call mma_deallocate(W)
+      Call mma_deallocate(U)
+      Call mma_deallocate(Scr)
       Return
       End
 

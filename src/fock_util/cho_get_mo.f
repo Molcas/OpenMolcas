@@ -16,6 +16,11 @@
       Integer  ipCM(nDen), ipMSQ(nDen)
 
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
+
+      Real*8, Allocatable:: SMat(:), SXMat(:)
+      Real*8, Allocatable, Target:: Dmat0(:)
+      Real*8, Pointer:: Dmat(:,:)
 ************************************************************************
 
       irc=0
@@ -25,10 +30,12 @@
       Do iSym=2,nSym
          nBm=Max(nBm,nBas(iSym))
       End Do
-      Call GetMem('Dmat','Allo','Real',ipD,nBm**2)
+      Call mma_allocate(Dmat0,nBm**2,Label='Dmat')
 
       iSym=1
       Do while (iSym .le. nSym)
+
+        DMat(1:nBas(iSym),1:nBas(iSym)) => DMat0(1:nBas(iSym)**2)
 
         If (nBas(iSym).gt.0 .and. nIsh(iSym).gt.0) then
 
@@ -39,18 +46,17 @@ C --- Inactive D(a,b) = sum_i C(a,i)*C(b,i)
          Call DGEMM_('N','T',nBas(iSym),nBas(iSym),nIsh(iSym),
      &                      1.0d0,Work(iCM),nBas(iSym),
      &                            Work(iCM),nBas(iSym),
-     &                      0.0d0,Work(ipD),nBas(iSym))
+     &                      0.0d0,DMat,nBas(iSym))
 
          Ymax=0.0d0
          do ja=1,nBas(iSym)
-            jaa=ipD-1+nBas(iSym)*(ja-1)+ja
-            Ymax=Max(Ymax,Work(jaa))
+            Ymax=Max(Ymax,DMat(ja,ja))
          end do
          Thr=1.0d-13*Ymax
 
          iMSQ = ipMSQ(1) + ISK(iSym)
 
-         CALL CD_InCore(Work(ipD),nBas(iSym),Work(iMSQ),nBas(iSym),
+         CALL CD_InCore(DMat,nBas(iSym),Work(iMSQ),nBas(iSym),
      &                  NumV,Thr,irc)
 
          If (NumV.ne.nIsh(iSym)) ikc=1
@@ -61,6 +67,8 @@ C --- Inactive D(a,b) = sum_i C(a,i)*C(b,i)
 
         iSym=iSym+1
 
+        DMat=>Null()
+
       End Do
 
 
@@ -68,41 +76,43 @@ C --- Inactive D(a,b) = sum_i C(a,i)*C(b,i)
 
          nnB = ISLT(nSym) + nBas(nSym)*(nBas(nSym)+1)/2
 
-         Call GetMem('Smat','Allo','Real',ipS,nnB)
-         Call GetMem('SXmat','Allo','Real',ipSX,nBm**2)
+         Call mma_allocate(SMat,nnB,Label='SMat')
+         Call mma_allocate(SXMat,nBm**2,Label='SXMat')
 
 *        Read overlap integrals (LT-storage) and get Square-storage
          iRc=-1
          iOpt=2
          iComp=1
          iSyLbl=1
-*         Label='Mltpl  0'
-         Call RdOne(iRc,iOpt,'Mltpl  0',iComp,Work(ipS),iSyLbl)
+         Call RdOne(iRc,iOpt,'Mltpl  0',iComp,SMat,iSyLbl)
 
 *        Compute  X_b[a] = C_b U_a   where  U_a = C_a^T S X_a
 *        ----------------------------------------------------
          Do i=1,nSym
 
+           DMat(1:nBas(iSym),1:nBas(iSym)) => DMat0(1:nBas(iSym)**2)
+
            If (nBas(i).gt.0 .and. nIsh(i).gt.0) then
 
-              CALL SQUARE(Work(ipS+ISLT(i)),Work(ipD),
-     &                    1,NBas(i),NBas(i))
+              CALL SQUARE(SMat(1+ISLT(i)),DMat,1,NBas(i),NBas(i))
 
               iCM = ipCM(1) + ISK(i)
               iMSQ = ipMSQ(1) + ISK(i)
 
               call DGEMM_('N','N',nBas(i),nIsh(i),nBas(i),
-     &                     1.0d0,Work(ipD),nBas(i),
+     &                     1.0d0,DMat,nBas(i),
      &                           Work(iMSQ),nBas(i),
-     &                     0.0d0,Work(ipSX),nBas(i))
+     &                     0.0d0,SXMat,nBas(i))
+
+              DMat(1:nIsh(iSym),1:nIsh(iSym)) => DMat0(1:nIsh(iSym)**2)
 
               call DGEMM_('T','N',nIsh(i),nIsh(i),nBas(i),
      &                     1.0d0,Work(iCM),nBas(i),
-     &                           Work(ipSX),nBas(i),
-     &                     0.0d0,Work(ipD),nIsh(i))
+     &                           SXMat,nBas(i),
+     &                     0.0d0,DMat,nIsh(i))
 
 c           write(6,*) ' U_a = C_a^T S X_a   for symmetry block: ',i
-c           call cho_output(Work(ipD),1,nIsh(i),1,nIsh(i),
+c           call cho_output(DMat,1,nIsh(i),1,nIsh(i),
 c     &                               nIsh(i),nIsh(i),1,6)
 
               jCM = ipCM(2) + ISK(i)
@@ -110,19 +120,21 @@ c     &                               nIsh(i),nIsh(i),1,6)
 
               call DGEMM_('N','N',nBas(i),nIsh(i),nIsh(i),
      &                     1.0d0,Work(jCM),nBas(i),
-     &                           Work(ipD),nIsh(i),
+     &                           DMat,nIsh(i),
      &                     0.0d0,Work(jMSQ),nBas(i))
 
            EndIf
 
+           DMat=>Null()
+
          End Do
 
-         Call GetMem('SXmat','Free','Real',ipSX,nBm**2)
-         Call GetMem('Smat','Free','Real',ipS,nnB)
+         Call mma_deallocate(SXMat)
+         Call mma_deallocate(SMat)
 
       EndIf
 
-      Call GetMem('Dmat','Free','Real',ipD,nBm**2)
+      Call mma_deallocate(DMat0)
 
       iOK=0
       If (irc.ne.0 .or. ikc.ne.0) iOK=1

@@ -153,11 +153,14 @@ c Modify the Fock matrix if needed
 
 * In case of a XMS calculation, i.e. Ngrp > 1 and not DW, transform
 * the CI arrays of this group of states to make the Fock matrix
-* diagonal in the model space
+* diagonal in the model space.
+* Note that this is only done for XMS here. For XDW and RMS it is
+* done in the xdwinit subroutine. This code duplication is silly,
+* but we will get rid of it once we drop the groups of states
       if (Ngrp.gt.1.and.IFXMS.and.(.not.IFDW)) then
 
 * In case of XMS-CASPT2, printout H0 in original basis
-        if (IPRGLB.ge.VERBOSE) then
+        if (IPRGLB.ge.USUAL) then
           write(6,*)
           write(6,*)' H0 in the original model space basis:'
           call prettyprint(H0,Ngrp,Ngrp)
@@ -167,7 +170,7 @@ c Modify the Fock matrix if needed
 
 * Transform the Fock matrix in the new basis
         call transmat(H0,U0,Ngrp)
-        if (IPRGLB.ge.VERBOSE) then
+        if (IPRGLB.ge.USUAL) then
           write(6,*)' H0 eigenvectors:'
           call prettyprint(U0,Ngrp,Ngrp)
         end if
@@ -178,7 +181,7 @@ c Modify the Fock matrix if needed
 
 * As well as Heff
         call transmat(Heff,U0,Ngrp)
-        if (IPRGLB.ge.DEBUG) then
+        if (IPRGLB.ge.VERBOSE) then
           write(6,*)' Heff[1] in the rotated model space basis:'
           call prettyprint(Heff,Ngrp,Ngrp)
         end if

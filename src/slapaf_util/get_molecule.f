@@ -10,12 +10,12 @@
 ************************************************************************
       Subroutine Get_Molecule()
       use Slapaf_Info, only: Q_nuclear, Coor, Grd, Weights, AtomLbl
+      use Symmetry_Info, only: VarR, VarT
       Implicit Real*8 (a-h,o-z)
-#include "sbs.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "Molcas.fh"
-      Logical TransVar, RotVar, Found
+      Logical Found
       Integer Columbus
 *                                                                      *
 ************************************************************************
@@ -84,15 +84,12 @@
 *                                                                      *
 *     Check if method is translational or rotational variant.
 *
-      TransVar=iAnd(iSBS,2**7).eq.2**7
-      RotVar  =iAnd(iSBS,2**8).eq.2**8
-*
       iPL=iPrintLevel(-1)
-      If ((TransVar.or.RotVar).and.(iPL.gt.0)) Then
+      If ((VarT.or.VarR).and.(iPL.gt.0)) Then
          Write (6,*)
-         If (TransVar)
+         If (VarT)
      &      Write (6,*) '    Gradient is translational variant!'
-         If (RotVar)
+         If (VarR)
      &      Write (6,*) '    Gradient is rotational variant!'
       End If
 *                                                                      *

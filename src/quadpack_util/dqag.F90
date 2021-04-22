@@ -44,19 +44,19 @@ subroutine dqag(f,a,b,epsabs,epsrel,key,reslt,abserr,neval,ier,limit,lenw,last,i
 !                     absolute accoracy requested
 !            epsrel - real*8
 !                     relative accuracy requested
-!                     if  epsabs.le.0
-!                     and epsrel.lt.max(50*rel.mach.acc.,0.5d-28),
+!                     if  epsabs <= 0
+!                     and epsrel < max(50*rel.mach.acc.,0.5d-28),
 !                     the routine will end with ier = 6.
 !
 !            key    - integer
 !                     key for choice of local integration rule
 !                     a gauss-kronrod pair is used with
-!                       7 - 15 points if key.lt.2,
+!                       7 - 15 points if key < 2,
 !                      10 - 21 points if key = 2,
 !                      15 - 31 points if key = 3,
 !                      20 - 41 points if key = 4,
 !                      25 - 51 points if key = 5,
-!                      30 - 61 points if key.gt.5.
+!                      30 - 61 points if key > 5.
 !
 !         on return
 !            reslt  - real*8
@@ -73,7 +73,7 @@ subroutine dqag(f,a,b,epsabs,epsrel,key,reslt,abserr,neval,ier,limit,lenw,last,i
 !                     ier = 0 normal and reliable termination of the
 !                             routine. it is assumed that the requested
 !                             accuracy has been achieved.
-!                     ier.gt.0 abnormal termination of the routine
+!                     ier > 0 abnormal termination of the routine
 !                             the estimates for result and error are
 !                             less reliable. it is assumed that the
 !                             requested accuracy has not been achieved.
@@ -102,9 +102,9 @@ subroutine dqag(f,a,b,epsabs,epsrel,key,reslt,abserr,neval,ier,limit,lenw,last,i
 !                             at some points of the integration
 !                             interval.
 !                         = 6 the input is invalid, because
-!                             (epsabs.le.0 and
-!                              epsrel.lt.max(50*rel.mach.acc.,0.5d-28))
-!                             or limit.lt.1 or lenw.lt.limit*4.
+!                             (epsabs <= 0 and
+!                              epsrel < max(50*rel.mach.acc.,0.5d-28))
+!                             or limit < 1 or lenw < limit*4.
 !                             reslt, abserr, neval, last are set
 !                             to zero.
 !                             except when lenw is invalid, iwork(1),
@@ -117,13 +117,13 @@ subroutine dqag(f,a,b,epsabs,epsrel,key,reslt,abserr,neval,ier,limit,lenw,last,i
 !                    dimensioning parameter for iwork
 !                    limit determines the maximum number of subintervals
 !                    in the partition of the given integration interval
-!                    (a,b), limit.ge.1.
-!                    if limit.lt.1, the routine will end with ier = 6.
+!                    (a,b), limit >= 1.
+!                    if limit < 1, the routine will end with ier = 6.
 !
 !            lenw  - integer
 !                    dimensioning parameter for work
 !                    lenw must be at least limit*4.
-!                    if lenw.lt.limit*4, the routine will end with
+!                    if lenw < limit*4, the routine will end with
 !                    ier = 6.
 !
 !            last  - integer
@@ -139,7 +139,7 @@ subroutine dqag(f,a,b,epsabs,epsrel,key,reslt,abserr,neval,ier,limit,lenw,last,i
 !                    estimates over the subintervals, such that
 !                    work(limit*3+iwork(1)),... , work(limit*3+iwork(k))
 !                    form a decreasing sequence with k = last if
-!                    last.le.(limit/2+2), and k = limit+1-last otherwise
+!                    last <= (limit/2+2), and k = limit+1-last otherwise
 !
 !            work  - real*8
 !                    vector of dimension at least lenw

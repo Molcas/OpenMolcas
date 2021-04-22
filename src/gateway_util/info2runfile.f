@@ -23,12 +23,12 @@
       use Basis_Info
       use Center_Info
       use external_centers, only: iXPolType, XF
-      use Temporary_Parameters, only: Expert, VarR, VarT, DirInt
+      use Temporary_Parameters, only: Expert, DirInt
       use Sizes_of_Seward, only: S
       use RICD_Info, only: Do_RI, Cholesky, Cho_OneCenter, LocalDF
       use Real_Info, only: CoC, CoM
       use Logical_Info, only: DoFMM
-      use Symmetry_Info, only: nIrrep
+      use Symmetry_Info, only: nIrrep, VarR, VarT
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "cholesky.fh"
@@ -58,6 +58,21 @@
       End Do
       Call Put_iArray('nOrb',nDel,nIrrep) ! nDel is corrupted here!
 *
+*     VarR and VarT
+*
+      If (lRF.and..not.PCM) VarT=.True.
+      Pseudo=.False.
+      Do iCnttp = 1, nCnttp
+         Pseudo = Pseudo .or. (dbsc(iCnttp)%pChrg .and.
+     &                         dbsc(iCnttp)%Fixed)
+      End Do
+      If (.not.DoEMPC) Then
+         If (Allocated(XF).or.Pseudo) Then
+            VarR=.True.
+            VarT=.True.
+         End If
+      End If
+*
 *     Manipulate the option flag
 *
       iOption=0
@@ -71,20 +86,6 @@
          Call Put_iScalar('PCM info length',nPCM_Info)
       End If
       iOption=iOr(iOption,32)
-      If (lRF.and..not.PCM) iOption=iOr(iOption,2**7)
-      Pseudo=.False.
-      Do iCnttp = 1, nCnttp
-         Pseudo = Pseudo .or. (dbsc(iCnttp)%pChrg .and.
-     &                         dbsc(iCnttp)%Fixed)
-      End Do
-      If (.not.DoEMPC) Then
-         If (Allocated(XF).or.Pseudo) Then
-            iOption=iOr(iOption,2**7)
-            iOption=iOr(iOption,2**8)
-         End If
-      End If
-      If (VarT) iOption=iOr(iOption,2**7)
-      If (VarR) iOption=iOr(iOption,2**8)
 *  2el-integrals from the Cholesky vectors
       If (Cholesky.or.Do_RI) iOption=iOr(iOption,2**9)
 *  RI-Option

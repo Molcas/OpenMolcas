@@ -35,7 +35,6 @@
 
 #include "rasdim.fh"
 #include "general.fh"
-#include "WrkSpc.fh"
 *
       Dimension CMO(*), PUVX(*), TUVX(*)
       Dimension D1I(*), D1A(*), FI(*), FA(*)
@@ -52,7 +51,6 @@
         Write(6,*) ' Enter transformation section'
         Write(6,*) ' ============================'
         Write(6,*)
-        Call GetMem('TRA_CTL','List','Real',junk,junk)
       End If
 *
 *     generate offsets

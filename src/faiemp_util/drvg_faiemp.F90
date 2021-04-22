@@ -276,7 +276,7 @@ do
       do iCar=1,3
         do iSh=1,4
           JndGrd(iCar,iSh) = iSD4(15+iCar,iSh)
-          if (iand(iSD4(15,iSh),2**(iCar-1)) == 2**(iCar-1)) then
+          if (btest(iSD4(15,iSh),iCar-1)) then
             JfGrad(iCar,iSh) = .true.
           else
             JfGrad(iCar,iSh) = .false.

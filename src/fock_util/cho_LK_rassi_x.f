@@ -32,27 +32,38 @@ C      v,w,x,y:  MO-indeces belonging to (Active)
 C
 **********************************************************************
       use ChoArr, only: nBasSh, nDimRS
-      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
-      use Data_Structures, only: CMO_Type, SBA_Type
+      use ChoSwp, only: nnBstRSh, InfVec, IndRed
+      use Data_Structures, only: DSBA_Type, SBA_Type
       use Data_Structures, only: Allocate_SBA, Deallocate_SBA
+      use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA
       use Data_Structures, only: twxy_Type
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
+      use Data_Structures, only: NDSBA_Type, Allocate_NDSBA,
+     &                           Deallocate_NDSBA
+      use Data_Structures, only: Allocate_L_Full, Deallocate_L_Full,
+     &                           L_Full_Type
+      use Data_Structures, only: Allocate_Lab, Deallocate_Lab,
+     &                           Lab_Type
+
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
       Integer   kOff(8)
-      Integer   ISTLT(8),ISTSQ(8),ISTK(8),ISSQ(8,8)
+      Integer   ISTLT(8),ISTSQ(8),ISTK(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
 
-      Type (CMO_Type)   Ash(2)
+      Type (NDSBA_Type)  DiaH
+      Type (DSBA_Type)   Ash(2), CM(2)
       Type (SBA_Type)   Laq(2)
       Type (twxy_Type)  Scr
-      Integer   ipMO(2),ipYk(2),ipMLk(2),ipIndsh(2),ipSk(2)
-      Integer   ipMSQ(2),ipCM(2),ipY(2),ipML(2),ipIndx(2),ipSksh(2)
-      Logical   DoReord,DoScreen
+      Type (L_Full_Type) L_Full
+      Type (Lab_Type) Lab
+
+      Integer   ipMO(2), ipMSQ(2),ipCM(2)
+      Logical   DoReord,DoScreen, add
       Real*8    dmpk
       Character*50 CFmt
       Character(LEN=14), Parameter :: SECNAM = 'CHO_LK_RASSI_X'
@@ -73,29 +84,22 @@ C
       Real*8 LKThr
 
       Character*6 mode
-      Integer, External  :: Cho_F2SP
       Integer, External  :: Cho_LK_MaxVecPerBatch
       Real*8,  External  :: Cho_LK_ScreeningThreshold
 
-      Real*8, Allocatable:: Lrs(:,:)
+      Real*8, Allocatable:: Lrs(:,:), Drs(:), Frs(:), VJ(:)
 
+      Integer, Allocatable:: nnBfShp(:,:), kOffSh(:,:),
+     &                       iShp_rs(:), Indx(:,:,:)
+      Real*8, Allocatable :: SvShp(:,:),Diag(:),AbsC(:), SumAClk(:,:,:),
+     &                       Ylk(:,:,:), MLk(:,:,:), Faa(:), Fia(:)
+#if defined (_MOLCAS_MPP_)
+      Real*8, Allocatable :: DiagJ(:)
+#endif
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      nnBfShp(j,i) = iWork(ip_nnBfShp-1+nShell**2*(i-1)+j)
-******
-      ipLab(i,j) = iWork(ip_Lab+nShell*(j-1)+i-1)
-******
-      kOffSh(i,j) = iWork(ip_kOffSh+nShell*(j-1)+i-1)
-******
-      iShp_rs(i) = iWork(ip_iShp_rs+i-1)
-******
-      SvShp(i) = Work(ip_SvShp+i-1)
-****** next is a trick to save memory. Memory in "location 2" is used
-******      to store this offset array defined later on
-      iOffShp(i,j) = iiBstRSh(i,j,2)
 ************************************************************************
 
       DoReord = .false.
@@ -109,14 +113,13 @@ C
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
-      do i=1,2            ! 1 --> CPU   2 --> Wall
-         tread(i) = zero  !time read/transform vectors
-         tcoul(i) = zero  !time for computing Coulomb
-         texch(i) = zero  !time for computing Exchange
-         tintg(i) = zero  !time for computing (tw|xy) integrals
-         tmotr(i) = zero  !time for the half-transf of vectors
-         tscrn(i) = zero  !time for screening overhead
-      end do
+      ! 1 --> CPU   2 --> Wall
+      tread(:) = zero  !time read/transform vectors
+      tcoul(:) = zero  !time for computing Coulomb
+      texch(:) = zero  !time for computing Exchange
+      tintg(:) = zero  !time for computing (tw|xy) integrals
+      tmotr(:) = zero  !time for the half-transf of vectors
+      tscrn(:) = zero  !time for screening overhead
 
 C ==================================================================
 
@@ -142,20 +145,13 @@ c --------------------
       END DO
       nnO = nnO + nIsh(nSym)
 
-      nnBSQ=0
-      DO LSYM=1,NSYM
-         DO KSYM=LSYM,NSYM
-            ISSQ(KSYM,LSYM) = nnBSQ
-            ISSQ(LSYM,KSYM) = nnBSQ ! symmetrization
-            nnBSQ = nnBSQ + nBas(kSym)*nBas(lSym)
-         END DO
-      END DO
-
 **************************************************
       If (Deco) Then
 
-         Call GetMem('ChoMOs','Allo','Real',ipCM(1),nsBB*nDen)
-         ipCM(2)=ipCM(1)+(nDen-1)*nsBB
+         Call Allocate_DSBA(CM(1),nBas,nBas,nSym)
+         Call Allocate_DSBA(CM(2),nBas,nBas,nSym)
+         ipCM(1) = ip_of_Work(CM(1)%A0(1))
+         ipCM(2) = ip_of_Work(CM(2)%A0(1))
 
          If (PseudoChoMOs) Then
             Call cho_get_MO(iOK,nDen,nSym,nBas,nIsh,ipMSQ,
@@ -204,7 +200,7 @@ C --- Vector MO transformation screening thresholds
       Call GAIGOP_SCAL(NumVT,'+')
       thrv = (sqrt(LKThr/(Max(1,nnO)*NumVT)))*dmpk
 
-      CALL GETMEM('diagI','Allo','Real',ipDIAG,NNBSTRT(1))
+      CALL mma_allocate(DIAG,NNBSTRT(1),Label='DIAG')
 
 #if defined (_MOLCAS_MPP_)
       If (nProcs.gt.1 .and. Update .and. Is_Real_Par()) Then
@@ -212,50 +208,46 @@ C --- Vector MO transformation screening thresholds
          Do i=1,nSym
             NNBSTMX = Max(NNBSTMX,NNBSTR(i,1))
          End Do
-         CALL GETMEM('diagJ','Allo','Real',ipjDIAG,NNBSTMX)
-         Call FZero(Work(ipjDIAG),NNBSTMX)
+         CALL mma_allocate(diagJ,NNBSTMX,Label='DiagJ')
+         DiagJ(:)=Zero
       EndIf
 #endif
 C *************** Read the diagonal integrals (stored as 1st red set)
-      If (Update) CALL CHO_IODIAG(Work(ipDIAG),2) ! 2 means "read"
+      If (Update) CALL CHO_IODIAG(DIAG,2) ! 2 means "read"
 
 c --- allocate memory for sqrt(D(a,b)) stored in full (squared) dim
-      CALL GETMEM('diahI','Allo','Real',ipDIAH,NNBSQ)
-      CALL FZERO(Work(ipDIAH),NNBSQ)
+      Call Allocate_NDSBA(DiaH,nBas,nBas,nSym)
+      DiaH%A0(:)=Zero
 
 c --- allocate memory for the abs(C(l)[k])
-      Call GetMem('absc','Allo','Real',ipAbs,MaxB)
-      Call FZero(Work(ipAbs),MaxB)
+      Call mma_allocate(AbsC,MaxB,Label='AbsC')
 
-      Do jDen=1,nDen
 c --- allocate memory for the Y(l)[k] vectors
-         Call GetMem('yc','Allo','Real',ipY(jDen),MaxB*nnO)
+      Call mma_allocate(Ylk,MaxB,nno,nDen,Label='Ylk')
+
 c --- allocate memory for the ML[k] lists of largest elements
 c --- in significant shells
-         Call GetMem('MLk','Allo','Real',ipML(jDen),nShell*nnO)
+      Call mma_allocate(MLk,nShell,nnO,nDen,Label='MLk')
+
 c --- allocate memory for the lists of  S:= sum_l abs(C(l)[k])
 c --- for each shell
-         Call GetMem('SKsh','Allo','Real',ipSKsh(jDen),nShell*nnO)
-c --- allocate memory for the Index arrays
-         Call GetMem('Indx','Allo','Inte',ipIndx(jDen),(nShell+1)*nnO)
-      End Do
+      Call mma_allocate(SumAClk,nShell,nnO,nDen,Label='SumAClk')
 
-c --- allocate memory for ipLab
-      Call GetMem('ip_Lab','Allo','Inte',ip_Lab,nDen*nShell)
-      Call ICopy(nDen*nShell,[-1],0,iWork(ip_Lab),1)
+c --- allocate memory for the Index arrays
+      Call mma_allocate(Indx,[0,nShell],[1,nnO],[1,nDen],Label='Indx')
 
 c --- allocate memory for kOffSh
-      Call GetMem('ip_kOffSh','Allo','Inte',ip_kOffSh,nShell*nSym)
+      Call mma_allocate(kOffSh,nShell,nSym,Label='kOffSh')
 
 c --- allocate memory for nnBfShp
       nnShl_2=nShell**2
-      Call GetMem('ip_nnBfShp','Allo','Inte',ip_nnBfShp,nnShl_2*nSym)
+      Call mma_allocate(nnBfShp,nnShl_2,nSym,Label='nnBfShp')
 
 c --- allocate memory for iShp_rs
-      Call GetMem('ip_iShp_rs','Allo','Inte',ip_iShp_rs,nnShl_tot)
+      Call mma_allocate(iShp_rs,nnShl_tot,Label='iShp_rs')
 
 c --- allocate memory for the shell-pair Frobenius norm of the vectors
-      Call GetMem('ip_SvShp','Allo','Real',ip_SvShp,2*nnShl)
+      Call mma_allocate(SvShp,nnShl,2,Label='SvShp')
 
 
 C *** Compute Shell Offsets ( MOs and transformed vectors)
@@ -268,7 +260,7 @@ C *** Compute Shell Offsets ( MOs and transformed vectors)
 
          Do iaSh=1,nShell    ! kOffSh(iSh,iSym)
 
-            iWork(ip_kOffSh+nShell*(iSyma-1)+iaSh-1) = LKsh
+            kOffSh(iaSh,iSyma) = LKsh
 
             LKsh = LKsh + nBasSh(iSyma,iaSh)
 
@@ -280,18 +272,19 @@ C *** Compute Shell Offsets ( MOs and transformed vectors)
 
 
 C --- allocate memory for the diagonal elements of the Fock matrix
-      Call GetMem('F(k)ss','Allo','Real',ipFk,MxBasSh+nShell)
-      Call FZero(Work(ipFk),MxBasSh+nShell)
+      Call mma_allocate(Fia,MxBasSh,Label='Fia')
+      Call mma_allocate(Faa,nShell,Label='Faa')
+      Fia(:)=Zero
+      Faa(:)=Zero
 
 C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
       Do jDen=1,nDen
          Do kSym=1,nSym
 
             Do jK=1,nIsh(kSym)
+               jK_a = jK + kOff(kSym)
 
                ipMO(jDen) = ipMSQ(jDen) + ISTK(kSym) + nBas(kSym)*(jK-1)
-
-               ipSk(jDen) = ipSKsh(jDen) + nShell*(kOff(kSym) + jK - 1)
 
                Do iaSh=1,nShell
 
@@ -302,7 +295,7 @@ C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
                      SKsh = SKsh + Work(ipMsh+ik)**2
                   End Do
 
-                  Work(ipSk(jDen)+iaSh-1) = SKsh
+                  SumAClk(iaSh,jK_a,jDen) = SKsh
 
                End Do
 
@@ -322,8 +315,7 @@ C *** Compute Shell-pair Offsets in the K-matrix
 
             iShp = nShell*(iaSh-1) + ibSh
 
-            iWork(ip_nnBfShp - 1 + nnShl_2*(iSyma-1)
-     &     + iShp) = LKShp   ! nnBfShp(iShp,iSyma)
+            nnBfShp(iShp,iSyma) = LKShp
 
             LKShp = LKShp + nBasSh(iSyma,iaSh)*nBasSh(iSyma,ibSh)
 
@@ -335,58 +327,18 @@ C *** Compute Shell-pair Offsets in the K-matrix
 
 C *** Mapping shell pairs from the full to the reduced set
 
-      Do iaSh=1,nShell
-         Do ibSh=1,iaSh
-            iShp = iaSh*(iaSh-1)/2 + ibSh
-            iWork(ip_iShp_rs+iShp-1) = Cho_F2SP(iShp)
-         End Do
-      End Do
+      Call Mk_iShp_rs(iShp_rs,nShell)
 
 C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
       DO jSym=1,nSym
 
-
         NumCV=NumCho(jSym)
         Call GAIGOP_SCAL(NumCV,'max')
-        If (NumCV .lt. 1) GOTO 1000
+        If (NumCV .lt. 1) Cycle
 
-C *** Compute Shell pair Offsets   iOffShp(iSyma,iShp)
-
-        LFULL=0
-
-        Do iaSh=1,nShell
-
-         Do ibSh=1,iaSh
-
-          iShp = iaSh*(iaSh-1)/2 + ibSh
-
-          If (iShp_rs(iShp).gt.0) Then
-
-           If (nnBstRSh(Jsym,iShp_rs(iShp),1).gt.0) Then
-
-            Do iSymb=1,nSym
-
-             iSyma=MulD2h(iSymb,Jsym)
-
-             If (iSyma.ge.iSymb) Then
-
-              iiBstRsh(iSyma,iShp_rs(iShp),2) = LFULL
-
-                LFULL = LFULL + nBasSh(iSyma,iaSh)*nBasSh(iSymb,ibSh)
-     &       + Min(1,(iaSh-ibSh))*nBasSh(iSyma,ibSh)*nBasSh(iSymb,iaSh)
-
-             EndIf
-
-            End Do
-
-           EndIf
-
-          EndIf
-
-         End Do
-
-        End Do
-
+        JNUM=1
+        Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym,
+     &                       Memory=LFULL)
 
         iCase = 0
         Call Allocate_twxy(Scr,nAsh,nAsh,JSYM,nSym,iCase)
@@ -455,12 +407,10 @@ c           !set index arrays at iLoc
             nRS = nDimRS(JSYM,JRED)
 
             If(JSYM.eq.1)Then
-
-               Call GetMem('rsDtot','Allo','Real',ipDab,nRS)
-               Call GetMem('rsFC','Allo','Real',ipFab,nRS)
-               Call Fzero(Work(ipDab),nRS)
-               Call Fzero(Work(ipFab),nRS)
-
+               Call mma_allocate(Drs,nRS,Label='Drs')
+               Call mma_allocate(Frs,nRS,Label='Frs')
+               Drs(:)=Zero
+               Frs(:)=Zero
             EndIf
 
             Call mma_maxDBLE(LWORK)
@@ -487,8 +437,10 @@ c           !set index arrays at iLoc
             If(JSYM.eq.1)Then
 C --- Transform the density to reduced storage
                mode = 'toreds'
-               Call play_rassi_sto(irc,iLoc,JSYM,ISTLT,ISSQ,
-     &                                 ipDLT,ipDab,mode)
+               add = .False.
+               nMat = 1
+               Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
+     &                           [ipDLT],Drs,mode,add)
             EndIf
 
 C --- BATCH over the vectors ----------------------------
@@ -502,11 +454,6 @@ C --- BATCH over the vectors ----------------------------
                else
                   JNUM = nVec
                endif
-
-               Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
-               CALL GETMEM('FullV','Allo','Real',ipLF,LFMAX*nVec)
-               Call FZero(Work(ipChoT),mTvec*nVec)
-               Call FZero(Work(ipLF),LFMAX*nVec)
 
                JVEC = nVec*(iBatch-1) + iVrs
                IVEC2 = JVEC - 1 + JNUM
@@ -534,11 +481,11 @@ C==========================================================
 C
                   CALL CWTIME(TCC1,TWC1)
 
-                  ipVJ = ipChoT
+                  Call mma_allocate(VJ,JNUM,Label='VJ')
 
                   CALL DGEMV_('T',nRS,JNUM,
      &                 ONE,Lrs,nRS,
-     &                 Work(ipDab),1,ZERO,Work(ipVJ),1)
+     &                 Drs,1,ZERO,VJ,1)
 
 C --- FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
 C===============================================================
@@ -547,14 +494,16 @@ C===============================================================
 
                   CALL DGEMV_('N',nRS,JNUM,
      &                 FactCI,Lrs,nRS,
-     &                 Work(ipVJ),1,Fact,Work(ipFab),1)
+     &                 VJ,1,Fact,Frs,1)
 
+                  Call mma_deallocate(VJ)
 
                   CALL CWTIME(TCC2,TWC2)
                   tcoul(1) = tcoul(1) + (TCC2 - TCC1)
                   tcoul(2) = tcoul(2) + (TWC2 - TWC1)
 
                EndIf  ! Coulomb contribution
+
 
 
 C *************** EXCHANGE CONTRIBUTIONS  ***********************
@@ -565,7 +514,7 @@ C --- Estimate the diagonals :   D(a,b) = sum_J (Lab,J)^2
 C
                If (Estimate) Then
 
-                  Call Fzero(Work(ipDiag+iiBstR(jSym,1)),NNBSTR(jSym,1))
+                  Call Fzero(DIAG(1+iiBstR(jSym,1)),NNBSTR(jSym,1))
 
                   Do krs=1,nRS
 
@@ -574,8 +523,7 @@ C
 
                      Do jvc=1,JNUM
 
-                        Work(ipDiag+jrs-1) = Work(ipDiag+jrs-1)
-     &                                  + Lrs(krs,jvc)**2
+                        Diag(jrs) = Diag(jrs) + Lrs(krs,jvc)**2
 
                      End Do
 
@@ -586,6 +534,14 @@ C
                CALL CWTIME(TCS2,TWS2)
                tscrn(1) = tscrn(1) + (TCS2 - TCS1)
                tscrn(2) = tscrn(2) + (TWS2 - TWS1)
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
+               Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,
+     &                              nSym)
+               Call Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,nDen)
 
                CALL CWTIME(TCX1,TWX1)
 
@@ -597,12 +553,8 @@ C ***    Sym(a).ge.Sym(b)
 C ***
 C *** and blocked in shell pairs
 
-               CALL FZero(Work(ipLF),LFULL*JNUM)
-               CALL FZero(Work(ip_SvShp),2*nnShl)
-
-               CALL CHO_getShFull(Lrs,lread,JNUM,JSYM,
-     &                            IREDC,ipLF,Work(ip_SvShp),
-     &                            iWork(ip_iShp_rs))
+               CALL CHO_getShFull(Lrs,lread,JNUM,JSYM,IREDC,L_Full,
+     &                            SvShp,nnShl,iShp_rs,nnShl_tot)
 
 
                CALL CWTIME(TCX2,TWX2)
@@ -618,10 +570,9 @@ c --- Compute DH(a,b)=sqrt(D(a,b)) from the updated diagonals.
 c ---                              Only the symmetry blocks with
 c ---                              compound symmetry JSYM are computed
 c --------------------------------------------------------------------
-                   mode = 'tosqrt'
                    ired1 = 1 ! location of the 1st red set
-                   Call play_rassi_sto(irc,ired1,JSYM,ISTLT,ISSQ,
-     &                                     ipDIAH,ipDIAG,mode)
+                   Call swap_tosqrt(irc,ired1,NNBSTRT(1),JSYM,
+     &                               DIAH,DIAG)
 
                    CALL CWTIME(TCS2,TWS2)
                    tscrn(1) = tscrn(1) + (TCS2 - TCS1)
@@ -636,19 +587,14 @@ c --------------------------------------------------------------------
 
                   Do jK=1,nIsh(kSym)
 
-                   CALL FZero(Work(ipChoT),nDen*nBas(lSym)*JNUM)
+                     jK_a = jK + kOff(kSym)
+
+                     Lab%A0(1:nDen*nBas(lSym)*JNUM)=Zero
 
                    Do jDen=1,nDen
 
                     ipMO(jDen) = ipMSQ(jDen) + ISTK(kSym)
      &                         + nBas(kSym)*(jK-1)
-
-                    ipYk(jDen) = ipY(jDen) + MaxB*(kOff(kSym)+jK-1)
-
-                    ipMLk(jDen) = ipML(jDen) + nShell*(kOff(kSym)+jK-1)
-                    ipIndSh(jDen) = ipIndx(jDen)
-     &                            + (nShell+1)*(kOff(kSym) + jK - 1)
-                    ipSk(jDen) = ipSKsh(jDen) + nShell*(kOff(kSym)+jK-1)
 
                    End Do
 
@@ -658,44 +604,38 @@ c --------------------------------------------------------------------
 C------------------------------------------------------------------
 C --- Setup the screening
 C------------------------------------------------------------------
-                     ipDIH = ipDIAH + ISSQ(lSym,kSym)
 
                      Do jDen=1,nDen
 
                         Do ik=0,nBas(kSym)-1
-                           Work(ipAbs+ik) = abs(Work(ipMO(jDen)+ik))
+                           Absc(1+ik) = abs(Work(ipMO(jDen)+ik))
                         End Do
 
                         If (lSym.ge.kSym) Then
 c --------------------------------------------------------------
 C --- Y(l)[k] = sum_n  DH(l,n) * |C(n)[k]|
 C===============================================================
-                           nBs = Max(1,nBas(lSym))
-
-                           CALL DGEMV_('N',nBas(lSym),nBas(kSym),
-     &                                ONE,Work(ipDIH),nBs,
-     &                                    Work(ipAbs),1,
-     &                               ZERO,Work(ipYk(jDen)),1)
+                           Mode(1:1)='N'
+                           n1=nBas(lSym)
+                           n2=nBas(kSym)
 
                         Else
 c --------------------------------------------------------------
 C --- Y(l)[k] = sum_n  DH(n,l) * |C(n)[k]|
 C===============================================================
-                           nBs = Max(1,nBas(kSym))
-
-                           CALL DGEMV_('T',nBas(kSym),nBas(lSym),
-     &                                ONE,Work(ipDIH),nBs,
-     &                                    Work(ipAbs),1,
-     &                               ZERO,Work(ipYk(jDen)),1)
+                           Mode(1:1)='T'
+                           n1=nBas(kSym)
+                           n2=nBas(lSym)
 
                         EndIf
 
-c            write(6,*)'Y(k)= ',(Work(ipYk(jDen)+i-1),i=1,nBas(lSym))
-c            write(6,*)'|C(k)|= ',(Work(ipAbs+i-1),i=1,nBas(kSym))
+                        If (n1>0)
+     &                  CALL DGEMV_(Mode(1:1),n1,n2,
+     &                             ONE,DiaH%SB(lSym,kSym)%A2,n1,
+     &                                 AbsC,1,
+     &                            ZERO,Ylk(1,jK_a,jDen),1)
 
                      End Do
-
-c            Call recprt('DH','',Work(ipDIH),nBas(lSym),nBas(kSym))
 
 C --- List the shells present in Y(l)[k] by the largest element
                      Do jDen=1,nDen
@@ -703,9 +643,9 @@ C --- List the shells present in Y(l)[k] by the largest element
                            YshMax=zero
                            Do ibs=1,nBasSh(lSym,ish)
                               YshMax = Max(YshMax,
-     &                          Work(ipYk(jDen)+koffSh(ish,lSym)+ibs-1))
+     &                          Ylk(koffSh(ish,lSym)+ibs,jK_a,jDen))
                            End Do
-                           Work(ipMLk(jDen)+ish-1) = YshMax
+                           MLk(ish,jK_a,jDen) = YshMax
                         End Do
                      End Do
 
@@ -713,27 +653,27 @@ C --- List the shells present in Y(l)[k] by the largest element
 C --- Sort the lists ML[k]
                      Do jDen=1,nDen
                         Do ish=1,nShell
-                           iWork(ipIndSh(jDen)+ish) = ish
+                           Indx(iSh,jK_a,jDen) = ish
                         End Do
                      End Do
 
 C ****  The Max in the MO set 1 is used as reference
                      numSh1=0  ! # of significant shells in MO set 1
-                     YMax=Work(ipMLk(1))
+                     YMax=MLk(1,jK_a,1)
                      jmlmax=1
                      Do iml=2,nShell  ! get the max in the MO set 1
-                        If (Work(ipMLk(1)+iml-1).gt.YMax) then
-                           YMax = Work(ipMLk(1)+iml-1)
+                        If (MLk(iml,jK_a,1).gt.YMax) then
+                           YMax = MLk(iml,jK_a,1)
                            jmlmax = iml
                         Endif
                      End Do
                      If (jmlmax.ne.1) then  ! swap positions
-                        xTmp = Work(ipMLk(1))
-                        iTmp = iWork(ipIndSh(1)+1)
-                        Work(ipMLk(1)) = YMax
-                        iWork(ipIndSh(1)+1) = iWork(ipIndSh(1)+jmlmax)
-                        Work(ipMLk(1)+jmlmax-1) = xTmp
-                        iWork(ipIndSh(1)+jmlmax) = iTmp
+                        xTmp = MLk(1,jK_a,1)
+                        iTmp = Indx(1,jK_a,1)
+                        MLk(1,jK_a,1) = YMax
+                        Indx(1,jK_a,1) = Indx(jmlmax,jK_a,1)
+                        MLk(jmlmax,jK_a,1) = xTmp
+                        Indx(jmlmax,jK_a,1) = iTmp
                      Endif
 
 C **** Sort the list for the MO set 2   iff  MOs1.ne.MOs2
@@ -742,30 +682,30 @@ C **** Sort the list for the MO set 2   iff  MOs1.ne.MOs2
                        jml=1
                        Do while (jml.le.nShell)
 
-                         YMax=Work(ipMLk(2)+jml-1)
+                         YMax=MLk(jml,jK_a,2)
                          jmlmax=jml
 
                          Do iml=jml+1,nShell  ! get the max
-                           If (Work(ipMLk(2)+iml-1).gt.YMax) then
-                              YMax = Work(ipMLk(2)+iml-1)
+                           If (MLk(iml,jK_a,2).gt.YMax) then
+                              YMax = MLk(iml,jK_a,2)
                               jmlmax = iml
                            Endif
                          End Do
 
                          If(jmlmax.ne.jml) then  ! swap positions
-                          xTmp = Work(ipMLk(2)+jml-1)
-                          iTmp = iWork(ipIndSh(2)+jml)
-                          Work(ipMLk(2)+jml-1) = YMax
-                          iWork(ipIndSh(2)+jml)=iWork(ipIndSh(2)+jmlmax)
-                          Work(ipMLk(2)+jmlmax-1) = xTmp
-                          iWork(ipIndSh(2)+jmlmax) = iTmp
+                          xTmp = MLk(jml,jK_a,2)
+                          iTmp = Indx(jml,jK_a,2)
+                          MLk(jml,jK_a,2) = YMax
+                          Indx(jml,jK_a,2) = Indx(jmlmax,jK_a,2)
+                          MLk(jmlmax,jK_a,2) = xTmp
+                          Indx(jmlmax,jK_a,2) = iTmp
                          Endif
 
 c --- Exact bounds (quadratic scaling of the MO transformation)
 c --- Note that in true RASSI the exchange matrix is not
 c --- positive definite.
 c
-                         If(Work(ipMLk(2)+jml-1)*Work(ipMLk(1))
+                         If(MLk(jml,jK_a,2)*MLk(1,jK_a,1)
      &                                         .ge.tau)then
                            numSh2 = numSh2 + 1
                          else
@@ -776,14 +716,14 @@ c
 
                        End Do
 
-                       iWork(ipIndSh(2)) = numSh2
+                       Indx(0,jK_a,2) = numSh2
                        numSh1 = 1
 
                      Else ! fake biorthonormal basis
 
                        numSh2 = 6669666 ! dummy assignement
 
-                       If (Work(ipMLk(1)) .ge. xtau)  numSh1 = 1
+                       If (MLk(1,jK_a,1) .ge. xtau)  numSh1 = 1
 
                      EndIf
 
@@ -792,34 +732,33 @@ C **** Sort the list for the MO set 1 only if needed
                        jml=2 ! the 1st element has already been treated
                        Do while (jml.le.nShell)
 
-                          YMax=Work(ipMLk(1)+jml-1)
+                          YMax=MLk(jml,jK_a,1)
                           jmlmax=jml
                           Do iml=jml+1,nShell  ! get the max
-                             If (Work(ipMLk(1)+iml-1).gt.YMax) then
-                                YMax = Work(ipMLk(1)+iml-1)
+                             If (MLk(iml,jK_a,1).gt.YMax) then
+                                YMax = MLk(iml,jK_a,1)
                                 jmlmax = iml
                              Endif
                           End Do
 
                           If(jmlmax.ne.jml) then  ! swap positions
-                            xTmp = Work(ipMLk(1)+jml-1)
-                            iTmp = iWork(ipIndSh(1)+jml)
-                            Work(ipMLk(1)+jml-1) = YMax
-                            iWork(ipIndSh(1)+jml) =
-     &                                      iWork(ipIndSh(1)+jmlmax)
-                            Work(ipMLk(1)+jmlmax-1) = xTmp
-                            iWork(ipIndSh(1)+jmlmax) = iTmp
+                            xTmp = MLk(jml,jK_a,1)
+                            iTmp = Indx(jml,jK_a,1)
+                            MLk(jml,jK_a,1) = YMax
+                            Indx(jml,jK_a,1) = Indx(jmlmax,jK_a,1)
+                            MLk(jmlmax,jK_a,1) = xTmp
+                            Indx(jmlmax,jK_a,1) = iTmp
                           Endif
 
                           If( .not.Fake_CMO2  .and.
-     &                       Work(ipMLk(1)+jml-1)*Work(ipMLk(kDen))
+     &                       MLk(jml,jK_a,1)*MLk(1,jK_a,kDen)
      &                                             .ge.tau)then
                              numSh1 = numSh1 + 1
 
 c --- Here we use a non-exact bound for the exchange matrix because a
 c     fake rassi (MOs1=MOs2) has a positive definite exchange
                           ElseIf ( Fake_CMO2  .and.
-     &                             Work(ipMLk(1)+jml-1) .ge. xtau ) then
+     &                             MLk(jml,jK_a,1) .ge. xtau ) then
                              numSh1 = numSh1 + 1
                           Else
                              jml=nShell  ! exit the loop
@@ -832,14 +771,7 @@ c     fake rassi (MOs1=MOs2) has a positive definite exchange
                        numSh1 = 0
                      EndIf
 
-                     iWork(ipIndSh(1)) = numSh1
-
-c      Do jDen=1,nDen
-c         write(6,*)'ord-ML(k)= ',(Work(ipMLk(jDen)+i-1),i=1,nShell)
-c         write(6,*)'Ind-ML(k)= ',(iWork(ipIndSh(jDen)+i-1),i=1,nShell+1)
-c      End Do
-c         write(6,*)'lSym,kSym,jSym,jk,nShell,numSh1,numSh2= ',lSym,
-c     &              kSym,jSym,jk,nShell,numSh1,numSh2
+                     Indx(0,jK_a,1) = numSh1
 
                      CALL CWTIME(TCS2,TWS2)
                      tscrn(1) = tscrn(1) + (TCS2 - TCS1)
@@ -857,161 +789,77 @@ C ---  || La,J[k] ||  .le.  || Lab,J || * || Cb[k] ||
 
                       Do jDen=1,nDen
 
-                         IF (lSym.ge.kSym) Then
+                         Do iSh=1,Indx(0,jK_a,jDen)
 
+                            iaSh = Indx(ish,jK_a,jDen)
 
-                            Do iSh=1,iWork(ipIndSh(jDen))
+                            Lab%Keep(iaSh,jDen) = .True.
 
-                               iaSh = iWork(ipIndSh(jDen)+iSh)
+                            ibcount=0
 
-                               iOffSha = kOffSh(iaSh,lSym)
+                            Do ibSh=1,nShell
 
-                               iWork(ip_Lab+nShell*(jDen-1)+iaSh-1) =
-     &                                 ipChoT + iOffSha*JNUM
-     &                                        + (jDen-1)*nBas(lSym)*JNUM
-c                              Write (6,*)' lSym.ge.kSym'
-c                              Write (6,*) 'iaSh,jDen=',iaSh,jDen
-c                              mx = iWork(ip_Lab+nShell*(jDen-1)+iaSh-1)
-c                              Write (6,*) mx
+                               iOffShb = kOffSh(ibSh,kSym)
 
-                               ibcount=0
+                               iShp = iTri(iaSh,ibSh)
 
-                               Do ibSh=1,nShell
+                               If (iShp_rs(iShp)<=0) Cycle
 
-                                  iOffShb = kOffSh(ibSh,kSym)
+                               If(nnBstRSh(JSym,iShp_rs(iShp),iLoc)*
+     &                             nBasSh(lSym,iaSh)*
+     &                             nBasSh(kSym,ibSh) .gt. 0
+     &                        .and. sqrt(abs(SumAClk(ibSh,jk_a,jDen)*
+     &                        SvShp(iShp_rs(iShp),1) )) .ge. thrv )Then
 
-                                  iShp = iTri(iaSh,ibSh)
+                                 ibcount = ibcount + 1
 
-                                  If (iShp_rs(iShp) .gt. 0) Then
+                                 IF (lSym.ge.kSym) Then
 
-                                   If(nnBstRSh(JSym,iShp_rs(iShp),iLoc)*
-     &                                nBasSh(lSym,iaSh)*
-     &                                nBasSh(kSym,ibSh) .gt. 0
-     &                           .and. sqrt(abs(Work(ipSk(jDen)+ibSh-1)*
-     &                           SvShp(iShp_rs(iShp)) )) .ge. thrv )Then
-
-                                    ibcount = ibcount + 1
-
-c                                   jOff = iOffShp(lSym,iShp)
-
-c                                   if (iaSh.lt.ibSh) jOff = jOff +
-c     &                               nBasSh(lSym,ibSh)*nBasSh(kSym,iaSh)
-
-                                    jOff = iOffShp(lSym,iShp_rs(iShp)) -
-     &                                             nBasSh(lSym,ibSh)*
-     &                                             nBasSh(kSym,iaSh)*
-     &                             Min(0,(iaSh-ibSh))/Max(1,(ibSh-iaSh))
-
+                                    l1 = 1
+                                    If (iaSh<ibSh) l1 = 2
 
 C ---  LaJ,[k] = sum_b  L(aJ,b) * C(b)[k]
 C ---------------------------------------
+                                    Mode(1:1)='N'
+                                    n1 = nBasSh(lSym,iaSh)*JNUM
+                                    n2 = nBasSh(kSym,ibSh)
 
-                                 CALL DGEMV_('N',nBasSh(lSym,iaSh)*JNUM,
-     &                                        nBasSh(kSym,ibSh),
-     &                                    ONE,Work(ipLF+jOff*JNUM),
-     &                                        nBasSh(lSym,iaSh)*JNUM,
-     &                                     Work(ipMO(jDen)+ioffShb),1,
-     &                                    ONE,Work(ipLab(iaSh,jDen)),1)
+                                    CALL DGEMV_(Mode(1:1),n1,n2,
+     &                     One,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,n1,
+     &                                    Work(ipMO(jDen)+ioffShb),1,
+     &                                ONE,Lab%SB(iaSh,lSym,jDen)%A,1)
 
+                                 Else   ! lSym < kSym
 
-                                   EndIf
-
-                                  EndIf
-
-                               End Do
-
-c --- The following re-assignement is used later on to check if the
-c --- iaSh vector LaJ[k] can be neglected because identically zero
-
-                               iWork(ip_Lab+nShell*(jDen-1)+iaSh-1) =
-     &                               ipLab(iaSh,jDen)*Min(1,ibcount)
-     &                             + ipAbs*(1-Min(1,ibcount))
-c                              Write (6,*) 'Reassigned'
-c                              Write (6,*) 'iaSh,jDen=',iaSh,jDen
-c                              mx = iWork(ip_Lab+nShell*(jDen-1)+iaSh-1)
-c                              Write (6,*) mx
-c                              Write (6,*) 'ibcount=',ibcount
-
-
-                            End Do
-
-
-                         Else   ! lSym < kSym
-
-
-                            Do iSh=1,iWork(ipIndSh(jDen))
-
-                               iaSh = iWork(ipIndSh(jDen)+iSh)
-
-                               iOffSha = kOffSh(iaSh,lSym)
-
-                               iWork(ip_Lab+nShell*(jDen-1)+iaSh-1) =
-     &                              ipChoT + iOffSha*JNUM
-     &                                     + (jDen-1)*nBas(lSym)*JNUM
-c                              Write (6,*)' lSym.lt.kSym'
-c                              Write (6,*) 'iaSh,jDen=',iaSh,jDen
-c                              mx = iWork(ip_Lab+nShell*(jDen-1)+iaSh-1)
-c                              Write (6,*) mx
-
-                               ibcount=0
-
-                               Do ibSh=1,nShell
-
-                                  iOffShb = kOffSh(ibSh,kSym)
-
-                                  iShp = iTri(iaSh,ibSh)
-
-                                  If (iShp_rs(iShp) .gt. 0) Then
-
-                                   If(nnBstRSh(JSym,iShp_rs(iShp),iLoc)*
-     &                                nBasSh(lSym,iaSh)*
-     &                                nBasSh(kSym,ibSh) .gt. 0
-     &                           .and. sqrt(abs(Work(ipSk(jDen)+ibSh-1)*
-     &                           SvShp(iShp_rs(iShp)) )) .ge. thrv )Then
-
-                                   ibcount = ibcount + 1
-
-                                   jOff = iOffShp(kSym,iShp_rs(iShp)) -
-     &                                      nBasSh(kSym,iaSh)*
-     &                                      nBasSh(lSym,ibSh)*
-     &                             Min(0,(ibSh-iaSh))/Max(1,(iaSh-ibSh))
-
+                                   l1 = 1
+                                   If (ibSh<iaSh) l1 = 2
 
 C ---  LJa,[k] = sum_b  L(b,Ja) * C(b)[k]
 C ---------------------------------------
+                                    Mode(1:1)='T'
+                                    n1 = nBasSh(kSym,ibSh)
+                                    n2 = JNUM*nBasSh(lSym,iaSh)
 
-                                    CALL DGEMV_('T',nBasSh(kSym,ibSh),
-     &                                       JNUM*nBasSh(lSym,iaSh),
-     &                                    ONE,Work(ipLF+jOff*JNUM),
-     &                                        nBasSh(kSym,ibSh),
-     &                                     Work(ipMO(jDen)+ioffShb),1,
-     &                                    ONE,Work(ipLab(iaSh,jDen)),1)
+                                    CALL DGEMV_(Mode(1:1),n1,n2,
+     &                     One,L_Full%SPB(kSym,iShp_rs(iShp),l1)%A12,n1,
+     &                                    Work(ipMO(jDen)+ioffShb),1,
+     &                                ONE,Lab%SB(iaSh,lSym,jDen)%A,1)
 
+                                EndIf
 
-                                    EndIf
+                                EndIf
 
-                                  Endif
-
-                               End Do
+                            End Do ! ibsh
 
 c --- The following re-assignement is used later on to check if the
 c --- iaSh vector LaJ[k] can be neglected because identically zero
 
-                               iWork(ip_Lab+nShell*(jDen-1)+iaSh-1) =
-     &                               ipLab(iaSh,jDen)*Min(1,ibcount)
-     &                             + ipAbs*(1-Min(1,ibcount))
-c                              Write (6,*) 'Reassign '
-c                              Write (6,*) 'iaSh,jDen=',iaSh,jDen
-c                              mx = iWork(ip_Lab+nShell*(jDen-1)+iaSh-1)
-c                              Write (6,*) mx
+                            If (ibcount==0)
+     &                         Lab%Keep(iash,jDen) = .False.
 
+                         End Do ! iSh
 
-                            End Do
-
-                         EndIf
-
-
-                      End Do
+                      End Do ! jDen
 
                       CALL CWTIME(TCT2,TWT2)
                       tmotr(1) = tmotr(1) + (TCT2 - TCT1)
@@ -1021,104 +869,43 @@ C --- Prepare the J-screening
 
                       CALL CWTIME(TCS1,TWS1)
 
-                      IF (lSym.ge.kSym) Then
+                      Do iSh=1,Indx(0,jK_a,1)
 
+                         iaSh = Indx(iSh,jK_a,1)
 
-                         Do iSh=1,iWork(ipIndSh(1))
+                         iaSkip=Merge(1,0,Lab%Keep(iash,   1))
 
-                            iaSh = iWork(ipIndSh(1)+iSh)
+                         jaSkip=Merge(1,0,Lab%Keep(iash,kDen))
 
-                            ipFaa = ipFk + MxBasSh + iaSh - 1
+                         If (iaSkip*jaSkip==0) Cycle
 
-                            iaSkip=Min(1,Max(0,
-     &                             abs(ipLab(iaSh,1)-ipAbs))) ! = 1 or 0
+                         IF (lSym.ge.kSym) Then
 
-                            jaSkip=Min(1,Max(0,
-     &                             abs(ipLab(iaSh,kDen)-ipAbs)))
-
-                            Do i=1,iaSkip*jaSkip  ! 0 or 1
-
-C ---  Faa,[k] = sum_J  LaJ[k2]*LaJ[k1]
+C ---  Faa,[k] = sum_J  LaJ[k1]*LaJ[k2]
 C -------------------------------------
-                               Do jv=1,JNUM
+                            Inc=nBasSh(lSym,iaSh)
+                            n1 = 1
 
-                                  xfjv = dble(min(1,jv-1))
+                         Else   ! lSym < kSym
 
-                                  Do ia=1,nBasSh(lSym,iaSh)
+C ---  Faa,[k] = sum_J  LJa[k1]*LJa[k2]
+C -------------------------------------
+                            Inc=1
+                            n1 = JNUM
 
-                                     ipFia = ipFk + ia - 1
+                         End If
 
-                                     ipLai = ipLab(iaSh,kDen)
-     &                                     + nBasSh(lSym,iaSh)*(jv-1)
-     &                                     + ia - 1
-
-                                     ipLaj = ipLab(iaSh,1)
-     &                                     + nBasSh(lSym,iaSh)*(jv-1)
-     &                                     + ia - 1
-
-                                     Work(ipFia) = xfjv*Work(ipFia)
-     &                                        + Work(ipLai)*Work(ipLaj)
-                                  End Do
-                               End Do
-
-                               CALL FindMax(ipFk,'N',
-     &                                      nBasSh(lSym,iaSh),
-     &                                      1,ipFaa)
-
-                            End Do
-
+                         Tmp=Zero
+                         Do ia=1,nBasSh(lSym,iaSh)
+                            Fia(ia)=DDot_(JNUM,
+     &                       Lab%SB(iaSh,lSym,   1)%A(1+n1*(ia-1):),Inc,
+     &                       Lab%SB(iaSh,lSym,kDen)%A(1+n1*(ia-1):),Inc)
+                            Tmp=Max(Abs(Fia(ia)),Tmp)
                          End Do
 
-                      Else   ! lSym < kSym
+                         Faa(iaSh)=Tmp
 
-
-                         Do iSh=1,iWork(ipIndSh(1))
-
-                            iaSh = iWork(ipIndSh(1)+iSh)
-
-                            ipFaa = ipFk + MxBasSh + iaSh - 1
-
-                            iaSkip=Min(1,Max(0,
-     &                             abs(ipLab(iaSh,1)-ipAbs))) ! = 1 or 0
-
-                            jaSkip=Min(1,Max(0,
-     &                             abs(ipLab(iaSh,kDen)-ipAbs)))
-
-                            Do i=1,iaSkip*jaSkip
-
-C ---  Faa,[k] = sum_J  LJa[k2]*LJa[k1]
-C -------------------------------------
-                               Do ia=1,nBasSh(lSym,iaSh)
-
-                                  ipFia = ipFk + ia - 1
-
-                                  Do jv=1,JNUM
-
-                                     xfjv = dble(min(1,jv-1))
-
-                                     ipLai = ipLab(iaSh,kDen)
-     &                                     + JNUM*(ia-1)
-     &                                     + jv - 1
-
-                                     ipLaj = ipLab(iaSh,1)
-     &                                     + JNUM*(ia-1)
-     &                                     + jv - 1
-
-                                     Work(ipFia) = xfjv*Work(ipFia)
-     &                                        + Work(ipLai)*Work(ipLaj)
-                                  End Do
-                               End Do
-
-                               CALL FindMax(ipFk,'N',
-     &                                      nBasSh(lSym,iaSh),
-     &                                      1,ipFaa)
-
-                            End Do
-
-                         End Do
-
-
-                      EndIf
+                      End Do
 
                       CALL CWTIME(TCS2,TWS2)
                       tscrn(1) = tscrn(1) + (TCS2 - TCS1)
@@ -1131,143 +918,75 @@ C------------------------------------------------------------
 
                       CALL CWTIME(TCX1,TWX1)
 
-                      IF (lSym.ge.kSym) Then
 
-                         Do lSh=1,iWork(ipIndSh(1))
+                      Do lSh=1,Indx(0,jK_a,1)
 
-                            iaSh = iWork(ipIndSh(1)+lSh)
+                         iaSh = Indx(lSh,jK_a,1)
 
-                            ipFaa = ipFk + MxBasSh + iaSh - 1
+                         iaSkip=Merge(1,0,Lab%Keep(iash,kDen))
 
-                            iaSkip=Min(1,Max(0,
-     &                            abs(ipLab(iaSh,kDen)-ipAbs)))!= 1 or 0
+                         mSh = 1
 
-                            iOffSha = kOffSh(iaSh,lSym)
+                         Do while (mSh.le.Indx(0,jK_a,kDen))
 
-                            mSh = 1
+                            ibSh = Indx(mSh,jK_a,kDen)
 
-                            Do while (mSh.le.iWork(ipIndSh(kDen)))
+                            ibSkip=Merge(1,0,Lab%Keep(ibsh,   1))
 
-                               ibSh = iWork(ipIndSh(kDen)+mSh)
+                            iShp = nShell*(iaSh-1) + ibSh
 
-                               ipFbb = ipFk + MxBasSh + ibSh - 1
+                            iOffShb = kOffSh(ibSh,lSym)
 
-                               ibSkip = Min(1,Max(0,
-     &                                  abs(ipLab(ibSh,   1)-ipAbs)))
+                            iOffAB = nnBfShp(iShp,lSym)
 
-                               iShp = nShell*(iaSh-1) + ibSh
+                            ipKI = ipK + ISTSQ(lSym) + iOffAB
 
-                               iOffShb = kOffSh(ibSh,lSym)
+                            xFab = sqrt(abs(Faa(iaSh)*Faa(ibSh)))
 
-                               iOffAB = nnBfShp(iShp,lSym)
+                            If (MLk(lSh,jK_a,1)*
+     &                          MLk(mSh,jK_a,kDen).lt.tau) Then
 
-                               ipKI = ipK + ISTSQ(lSym) + iOffAB
+                                mSh = Indx(0,jK_a,kDen) !skip rest
 
-                               xFab = sqrt(abs(Work(ipFaa)*Work(ipFbb)))
+                            ElseIf ( xFab.ge.tau/MaxRedT
+     &                              .and. iaSkip*ibSkip.eq.1) Then
 
-                               If (Work(ipMLk(1)+lSh-1)*
-     &                             Work(ipMLk(kDen)+mSh-1).lt.tau) Then
-
-
-                                   mSh = iWork(ipIndSh(kDen)) !skip rest
-
-
-                               ElseIf ( xFab.ge.tau/MaxRedT
-     &                                 .and. iaSkip*ibSkip.eq.1) Then
+                               nBsa = nBasSh(lSym,iaSh)
+                               IF (lSym.ge.kSym) Then
 
 C ---  F(a,b)[k] = F(a,b)[k] + FactXI * sum_J  X2(a,J)[k] * X1(b,J)[k]
 C --------------------------------------------------------------------
-                                  nBsa = Max(1,nBasSh(lSym,iaSh))
-                                  nBsb = Max(1,nBasSh(lSym,ibSh))
 
-                                  CALL DGEMM_('N','T',nBasSh(lSym,iaSh),
-     &                                           nBasSh(lSym,ibSh),JNUM,
-     &                                    FactXI,Work(ipLab(iaSh,kDen)),
-     &                                           nBsa,
-     &                                           Work(ipLab(ibsh,1   )),
-     &                                           nBsb,
-     &                                       ONE,Work(ipKI),
-     &                                               nBsa)
-                               EndIf
+                                  n1 = nBasSh(lSym,iaSh)
+                                  n2 = nBasSh(lSym,ibSh)
+                                  Mode(1:1)='N'
+                                  Mode(2:2)='T'
 
-
-                               mSh = mSh + 1  ! update shell counter
-
-
-                            End Do
-
-                         End Do
-
-
-                      ELSE   ! lSym < kSym
-
-
-                         Do lSh=1,iWork(ipIndSh(1))
-
-                            iaSh = iWork(ipIndSh(1)+lSh)
-
-                            ipFaa = ipFk + MxBasSh + iaSh - 1
-
-                            iaSkip=Min(1,Max(0,
-     &                            abs(ipLab(iaSh,kDen)-ipAbs)))!= 1 or 0
-
-                            iOffSha = kOffSh(iaSh,lSym)
-
-                            mSh = 1
-
-                            Do while (mSh.le.iWork(ipIndSh(kDen)))
-
-                               ibSh = iWork(ipIndSh(kDen)+mSh)
-
-                               ipFbb = ipFk + MxBasSh + ibSh - 1
-
-                               ibSkip = Min(1,Max(0,
-     &                                  abs(ipLab(ibSh,   1)-ipAbs)))
-
-                               iShp = nShell*(iaSh-1) + ibSh
-
-                               iOffShb = kOffSh(ibSh,lSym)
-
-                               iOffAB = nnBfShp(iShp,lSym)
-
-                               ipKI = ipK + ISTSQ(lSym) + iOffAB
-
-                               xFab = sqrt(abs(Work(ipFaa)*Work(ipFbb)))
-
-                               If (Work(ipMLk(1)+lSh-1)*
-     &                             Work(ipMLk(kDen)+mSh-1).lt.tau) Then
-
-
-                                  mSh = iWork(ipIndSh(kDen)) ! skip rest
-
-                               ElseIf ( xFab.ge.tau/MaxRedT
-     &                                 .and. iaSkip*ibSkip.eq.1) Then
+                               ELSE   ! lSym < kSym
 
 C ---  F(a,b)[k] = F(a,b)[k] + FactXI * sum_J  X2(J,a)[k] * X1(J,b)[k]
 C --------------------------------------------------------------------
 
-                                  nBs = Max(1,nBasSh(lSym,iaSh))
+                                  n1 = JNUM
+                                  n2 = JNUM
+                                  Mode(1:1)='T'
+                                  Mode(2:2)='N'
 
-                                  CALL DGEMM_('T','N',nBasSh(lSym,iaSh),
-     &                                           nBasSh(lSym,ibSh),JNUM,
-     &                                    FactXI,Work(ipLab(iaSh,kDen)),
-     &                                           JNUM,
-     &                                           Work(ipLab(ibsh,1   )),
-     &                                           JNUM,
-     &                                       ONE,Work(ipKI),
-     &                                               nBs)
                                EndIf
 
+                               CALL DGEMM_(Mode(1:1),Mode(2:2),
+     &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
+     &                               FactXI,Lab%SB(iaSh,lSym,kDen)%A,n1,
+     &                                      Lab%SB(ibSh,lSym,   1)%A,n2,
+     &                               ONE,Work(ipKI),nBsa)
 
-                               mSh = mSh + 1  ! update shell counter
+                            EndIf
 
-
-                            End Do
+                            mSh = mSh + 1  ! update shell counter
 
                          End Do
 
-
-                      ENDIF
+                      End Do
 
                       CALL CWTIME(TCX2,TWX2)
                       texch(1) = texch(1) + (TCX2 - TCX1)
@@ -1279,7 +998,13 @@ C --------------------------------------------------------------------
 
                End Do   ! loop over MOs symmetry
 
-
+               Call Deallocate_Lab(Lab)
+               Call Deallocate_L_Full(L_Full)
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
                DoScreen=.false. ! avoid redo screening inside batch loop
 
 C --- Diagonals updating. It only makes sense if Nscreen > 0
@@ -1301,8 +1026,7 @@ C --- subtraction is done in the 1st reduced set
 
                      Do jvc=1,JNUM
 
-                        Work(ipjDiag+jrs-1) = Work(ipjDiag+jrs-1)
-     &                                      + Lrs(krs,jvc)**2
+                        DiagJ(jrs) = DiagJ(jrs) + Lrs(krs,jvc)**2
                      End Do
 
                    End Do
@@ -1316,8 +1040,7 @@ C --- subtraction is done in the 1st reduced set
 
                      Do jvc=1,JNUM
 
-                        Work(ipDiag+jrs-1) = Work(ipDiag+jrs-1)
-     &                                     - Lrs(krs,jvc)**2
+                        Diag(jrs) = Diag(jrs) - Lrs(krs,jvc)**2
                      End Do
 
                    End Do
@@ -1332,8 +1055,7 @@ C --- subtraction is done in the 1st reduced set
 
                      Do jvc=1,JNUM
 
-                        Work(ipDiag+jrs-1) = Work(ipDiag+jrs-1)
-     &                                     - Lrs(krs,jvc)**2
+                        Diag(jrs) = Diag(jrs) - Lrs(krs,jvc)**2
                      End Do
 
                   End Do
@@ -1347,8 +1069,6 @@ C --- subtraction is done in the 1st reduced set
 
 C ************  END EXCHANGE CONTRIBUTION  ****************
 
-               Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
-               CALL GETMEM('FullV','Free','Real',ipLF,LFMAX*nVec)
 
 C --------------------------------------------------------------------
 C --- First half Active transformation  Lvb,J = sum_a  C1(v,a) * Lab,J
@@ -1392,7 +1112,7 @@ C --------------------------------------------------------------------
 
                        CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),
      &                            One,Laq(1)%SB(iSymv)%A3(:,:,JVC),NAv,
-     &                                Ash(kDen)%SB(iSymb)%A,NAw,
+     &                                Ash(kDen)%SB(iSymb)%A2,NAw,
      &                           Zero,Laq(2)%SB(iSymv)%A3(:,:,JVC),NAv)
 
                       End Do
@@ -1429,16 +1149,18 @@ C ---------------- END (TW|XY) EVALUATION -----------------------
             If(JSYM.eq.1)Then
 c --- backtransform fock matrix to full storage
                mode = 'tofull'
-               Call play_rassi_sto(irc,iLoc,JSYM,ISTLT,ISSQ,
-     &                                 ipFLT,ipFab,mode)
+               add = .True.
+               nMat=1
+               Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
+     &                           [ipFLT],Frs,mode,add)
             EndIf
 
 C --- free memory
             Call mma_deallocate(Lrs)
 
             If(JSYM.eq.1)Then
-              Call GetMem('rsFC','Free','Real',ipFab,nRS)
-              Call GetMem('rsDtot','Free','Real',ipDab,nRS)
+              Call mma_deallocate(Frs)
+              Call mma_deallocate(Drs)
             EndIf
 
 
@@ -1456,10 +1178,10 @@ C --- Screening control section
 #if defined (_MOLCAS_MPP_)
             If (nProcs.gt.1 .and. Update .and. DoScreen
      &          .and. Is_Real_Par()) Then
-               Call GaDsum(Work(ipjDiag),nnBSTR(JSYM,1))
-               Call Daxpy_(nnBSTR(JSYM,1),xone,Work(ipjDiag),1,
-     &                    Work(ipDiag+iiBstR(JSYM,1)),1)
-               Call Fzero(Work(ipjDiag),nnBSTR(JSYM,1))
+               Call GaDsum(DiagJ,nnBSTR(JSYM,1))
+               Call Daxpy_(nnBSTR(JSYM,1),xone,DiagJ,1,
+     &                    Diag(1+iiBstR(JSYM,1)),1)
+               Call Fzero(DiagJ,nnBSTR(JSYM,1))
             EndIf
 C--- Need to activate the screening to setup the contributing shell
 C--- indeces the first time the loop is entered .OR. whenever other nodes
@@ -1475,8 +1197,6 @@ C--- have performed screening in the meanwhile
          END DO   ! loop over red sets
 
          Call Deallocate_twxy(Scr)
-
-1000  CONTINUE
 
       END DO  ! loop over JSYM
 
@@ -1527,27 +1247,28 @@ C--- have performed screening in the meanwhile
       End Do
 
 
-      Call GetMem('F(k)ss','Free','Real',ipFk,MxBasSh+nShell)
-      Call GetMem('ip_SvShp','Free','Real',ip_SvShp,2*nnShl)
-      Call GetMem('ip_iShp_rs','Free','Inte',ip_iShp_rs,nnShl_tot)
-      Call GetMem('ip_nnBfShp','Free','Inte',ip_nnBfShp,nnShl_2*nSym)
-      Call GetMem('ip_kOffSh','Free','Inte',ip_kOffSh,nShell*nSym)
-      Call GetMem('ip_Lab','Free','Inte',ip_Lab,nDen*nShell)
-      Do jDen=nDen,1,-1
-         Call GetMem('Indx','Free','Inte',ipIndx(jDen),(nShell+1)*nnO)
-         Call GetMem('SKsh','Free','Real',ipSKsh(jDen),nShell*nnO)
-         Call GetMem('MLk','Free','Real',ipML(jDen),nShell*nnO)
-         Call GetMem('yc','Free','Real',ipY(jDen),MaxB*nnO)
-      End Do
-      Call GetMem('absc','Free','Real',ipAbs,MaxB)
-      CALL GETMEM('diahI','Free','Real',ipDIAH,NNBSQ)
+      Call mma_deallocate(Fia)
+      Call mma_deallocate(Faa)
+      Call mma_deallocate(SvShp)
+      Call mma_deallocate(iShp_rs)
+      Call mma_deallocate(nnBfShp)
+      Call mma_deallocate(kOffSh)
+      Call mma_deallocate(Indx)
+      Call mma_deallocate(SumAClk)
+      Call mma_deallocate(MLk)
+      Call mma_deallocate(Ylk)
+      Call mma_deallocate(AbsC)
+      Call Deallocate_NDSBA(DiaH)
 #if defined (_MOLCAS_MPP_)
       If (nProcs.gt.1 .and. Update .and. Is_Real_Par())
-     &    CALL GETMEM('diagJ','Free','Real',ipjDIAG,NNBSTMX)
+     &    CALL mma_deallocate(DiagJ)
 #endif
-      CALL GETMEM('diagI','Free','Real',ipDIAG,NNBSTRT(1))
+      Call mma_deallocate(Diag)
 
-      If (Deco) Call GetMem('ChoMOs','Free','Real',ipCM(1),nsBB*nDen)
+      If (Deco) Then
+         Call Deallocate_DSBA(CM(2))
+         Call Deallocate_DSBA(CM(1))
+      End If
 
       CALL CWTIME(TOTCPU2,TOTWALL2)
       TOTCPU = TOTCPU2 - TOTCPU1

@@ -49,7 +49,6 @@
       call mh5_put_dset(wfn_energy,ener(1,1))
 #endif
       CALL GETMEM('Energy','FREE','REAL',LEnergy,mxRoot*mxIter)
-      Call daname(JOBIPH,"JOBIPH")
       idisk = 284
       Call iDafile(JOBIPH,2,dum,1,iDisk)
       ncon=dum(1)

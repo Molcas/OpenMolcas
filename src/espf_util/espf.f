@@ -11,6 +11,7 @@
       Subroutine espf (ireturn,StandAlone)
       use Real_Spherical
       use Basis_Info, only: nBas
+      use Symmetry_Info, only: VarR, VarT, Symmetry_Info_Dmp
       Implicit Real*8 (A-H,O-Z)
 *
 * ESPF Module
@@ -210,10 +211,9 @@
 *     and rotational invariant.
 *
       If (.not.Forces .and. natMM.gt.0) Then
-         Call Get_iScalar('System BitSwitch',iOption)
-         iOption=iOr(iOption,2**7)
-         iOption=iOr(iOption,2**8)
-         Call Put_iScalar('System BitSwitch',iOption)
+         VarR = .true.
+         VarT = .true.
+         Call Symmetry_Info_Dmp()
       End If
 *
       iReturn=0

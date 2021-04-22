@@ -15,7 +15,6 @@
       use Slapaf_Parameters, only: MaxItr, mTROld, lOld_Implicit,
      &                             TwoRunFiles, iter
       Implicit Real*8 (a-h,o-z)
-#include "sbs.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"

@@ -36,11 +36,13 @@ C********************************************************
 #include "chotime.fh"
 
       parameter (SECNAM = 'CHO_FOCK_DFT_RED')
-      parameter (zero = 0.0d0, one = 1.0d0)
 
+#include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
+
+      Real*8, Allocatable :: Lrs(:,:), Drs(:), Frs(:), VJ(:)
 
 #ifdef _DEBUGPRINT_
       Debug=.true.
@@ -86,12 +88,12 @@ C ---
 
       nRS = nDimRS(JSYM,JRED)
 
-      Call GetMem('rsD','Allo','Real',ipDab,nRS)
-      Call GetMem('rsF','Allo','Real',ipFab,nRS)
-      Call Fzero(Work(ipDab),nRS)
-      Call Fzero(Work(ipFab),nRS)
+      Call mma_allocate(Drs,nRS,Label='Drs')
+      Call mma_allocate(Frs,nRS,Label='Frs')
+      Drs(:)=Zero
+      Frs(:)=Zero
 
-      Call GetMem('MaxM','Max','Real',KDUM,LWORK)
+      Call mma_maxDBLE(LWork)
 
       nVec  = Min(LWORK/(nRS+1),nVrs)
 
@@ -106,13 +108,15 @@ C ---
 
       LREAD = nRS*nVec
 
-      Call GetMem('rsL','Allo','Real',ipLab,LREAD)
-      Call GetMem('VJ','Allo','Real',ipVJ,nVec)
+      Call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
+      Call mma_allocate(VJ,nVec,Label='VJ')
 
 C --- Transform the density to reduced storage
       mode = 'toreds'
       add  = .false.
-      Call switch_sto(irc,iLoc,DLT,Work(ipDab),mode,add)
+      ipDLT = ip_of_Work(DLT(1))
+      nDen=1
+      Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[ipDLT],Drs,mode,add)
 
 C --- BATCH over the vectors in JSYM=1 ----------------------------
 
@@ -131,8 +135,7 @@ C --- BATCH over the vectors in JSYM=1 ----------------------------
 
          CALL CWTIME(TCR1,TWR1)
 
-         CALL CHO_VECRD(Work(ipLab),LREAD,JVEC,IVEC2,JSYM,
-     &                  NUMV,JRED,MUSED)
+         CALL CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,NUMV,JRED,MUSED)
 
          If (NUMV.le.0 .or. NUMV.ne.JNUM) then
             irc=77
@@ -155,8 +158,8 @@ C
          CALL CWTIME(TCC1,TWC1)
 
          CALL DGEMV_('T',nRS,JNUM,
-     &              ONE,Work(ipLab),nRS,
-     &              Work(ipDab),1,ZERO,Work(ipVJ),1)
+     &              ONE,Lrs,nRS,
+     &              Drs,1,ZERO,VJ,1)
 
 C --- Frs{#J} <- Frs{#J} + sum_J L(rs,{#J})*V{#J}
 C==========================================================
@@ -164,8 +167,8 @@ C==========================================================
          xfac = dble(min(jVec-iVrs,1))
 
          CALL DGEMV_('N',nRS,JNUM,
-     &              FactC,Work(ipLab),nRS,
-     &              Work(ipVJ),1,xfac,Work(ipFab),1)
+     &              FactC,Lrs,nRS,
+     &              VJ,1,xfac,Frs,1)
 
 
          CALL CWTIME(TCC2,TWC2)
@@ -179,14 +182,15 @@ C==========================================================
 c --- backtransform fock matrix in full storage
          mode = 'tofull'
          add  = JRED.gt.JRED1
-         Call switch_sto(irc,iLoc,FLT,Work(ipFab),mode,add)
+         ipFLT = ip_of_Work(FLT(1))
+         Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[ipFLT],Frs,mode,add)
       endif
 
 C --- free memory
-      Call GetMem('VJ','Free','Real',ipVJ,nVec)
-      Call GetMem('rsL','Free','Real',ipLab,LREAD)
-      Call GetMem('rsF','Free','Real',ipFab,nRS)
-      Call GetMem('rsD','Free','Real',ipDab,nRS)
+      Call mma_deallocate(VJ)
+      Call mma_deallocate(Lrs)
+      Call mma_deallocate(Frs)
+      Call mma_deallocate(Drs)
 
 
 999   Continue
@@ -246,100 +250,6 @@ c Print the Fock-matrix
 
 
       irc=0
-
-      Return
-      End
-
-
-
-      SUBROUTINE switch_sto(irc,iLoc,XLT,Xab,mode,add)
-      use ChoArr, only: iRS2F
-      use ChoSwp, only: IndRed
-      Implicit Real*8 (a-h,o-z)
-      Integer irc, iLoc
-      Real*8 XLT(*), Xab(*)
-      Character(LEN=6) mode
-      Logical  add
-
-      Integer  ISLT(8)
-      Integer, External:: cho_isao
-
-#include "cholesky.fh"
-#include "choorb.fh"
-#include "WrkSpc.fh"
-
-************************************************************************
-      iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-************************************************************************
-
-
-c Offsets to symmetry block in the LT matrix
-      ISLT(1)=0
-      DO ISYM=2,NSYM
-         ISLT(ISYM) = ISLT(ISYM-1)
-     &              + NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-      END DO
-
-**************************************************
-
-      jSym = 1 ! only total symmetric density
-
-      xf=0.0d0
-      if (add) xf=1.0d0 !accumulate contributions
-
-      If (mode.eq.'toreds') then
-
-         Do jRab=1,nnBstR(jSym,iLoc)
-
-            kRab = iiBstr(jSym,iLoc) + jRab
-            iRab = IndRed(kRab,iLoc)
-
-            iag   = iRS2F(1,iRab)  !global address
-            ibg   = iRS2F(2,iRab)
-
-            iSyma = cho_isao(iag)  !symmetry block; Sym(b)=Sym(a)
-
-            ias   = iag - ibas(iSyma)  !address within that symm block
-            ibs   = ibg - ibas(iSyma)
-            iab   = iTri(ias,ibs)
-
-            kfrom = isLT(iSyma) + iab
-
-            Xab(jRab) = xf*Xab(jRab) + XLT(kfrom)
-
-         End Do  ! jRab loop
-
-      ElseIf (mode.eq.'tofull') then
-
-         Do jRab=1,nnBstR(jSym,iLoc)
-
-            kRab = iiBstr(jSym,iLoc) + jRab
-            iRab = IndRed(kRab,iLoc)
-
-            iag   = iRS2F(1,iRab)  !global address
-            ibg   = iRS2F(2,iRab)
-
-            iSyma = cho_isao(iag)  !symmetry block; Sym(b)=Sym(a)
-
-            ias   = iag - ibas(iSyma)  !address within that symm block
-            ibs   = ibg - ibas(iSyma)
-            iab   = iTri(ias,ibs)
-
-            kto = isLT(iSyma) + iab
-
-            XLT(kto) = xf*XLT(kto) + Xab(jRab)
-
-         End Do  ! jRab loop
-
-      Else
-
-         write(6,*)'Wrong input parameter. mode = ',mode
-         irc = 66
-         Call abend()
-
-      EndIf
-
-      irc = 0
 
       Return
       End

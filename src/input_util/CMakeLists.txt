@@ -9,4 +9,31 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
+set (sources
+     basisconsistency.F90
+     basisreader.F90
+     basistbl.F90
+     basistype.F90
+     basistype_mod.F90
+     crprod.F90
+     foundatomicnumber.F90
+     get_basistype.F90
+     get_dnumber.F90
+     get_inumber.F90
+     pick_words.F90
+     read_xbas.F90
+     stdsewinput.F90
+     transtbl.F90
+     vec.F90
+     xmatreader.F90
+     xmatrixconverter.F90
+     zmatconv.F90
+     zmatconv_mod.F90
+     zmatreader.F90
+     zmatrixconverter.F90
+     zmatrixconverter_gw.F90
+)
+
+set (modfile_list "")
+
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

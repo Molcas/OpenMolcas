@@ -47,17 +47,17 @@
 *> @param[in]  IREDC   reduced set in core
 *> @param[in]  nDen    total number of densities to which MOs refer
 *> @param[in]  kDen    first density for which the MO transformation has to be performed
-*> @param[in]  MOs     the MOs coefficients stored in the data type CMO_Type, i.e. symmetry blocked.
+*> @param[in]  MOs     the MOs coefficients stored in the data type DSBA_Type, i.e. symmetry blocked.
 *> @param[in]  ChoT    the half transformed vectors, symmetry blocked as type SBA_Type
 *> @param[in]  DoRead  flag for reading the reduced vectors
 ************************************************************************
       Subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
      &                         iSwap,IREDC,nDen,kDen,MOs,ChoT,
      &                         DoRead)
-      use Data_Structures, only: CMO_Type, SBA_Type
+      use Data_Structures, only: DSBA_Type, SBA_Type
       Implicit Real*8 (a-h,o-z)
 
-      Type (CMO_Type) MOs(nDen)
+      Type (DSBA_Type) MOs(nDen)
       Type (SBA_Type) Chot(nDen)
 
       Dimension RedVec(lRedVec)
