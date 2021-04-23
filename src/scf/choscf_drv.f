@@ -48,6 +48,7 @@ C
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "addr.fh"
       Integer nBas(nSym), MinMem(nSym),rc
       Parameter (MaxDs = 3)
@@ -68,6 +69,8 @@ C
 
       Integer, External:: ip_of_Work, ip_of_iWork
 
+      Integer, Allocatable:: nVec(:,:)
+      Real*8, Allocatable :: Vec(:,:), DDec(:,:)
       Type (DSBA_Type) Cka(2)
 *
 C  **************************************************
@@ -76,14 +79,17 @@ C  **************************************************
 
       rc=0
 
-      do i=1,8
-         Lunit(i)=-1
-      end do
-
-      call getmem('nVec_a+b','Allo','Inte',ipnVec,2*nSym)
-      ipnVec_ab = ipnVec + nSym
-
+      Lunit(:)=-1
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
       IF(iUHF.eq.0) THEN
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+         Call mma_allocate(nVec,nSym,1,Label='nVec')
          nDen = 1
          DoCoulomb(1)  = .true.
          DoExchange(1) = ExFac.ne.0.0d0 ! no SCF-exchange in pure DFT
@@ -117,33 +123,26 @@ C  **************************************************
           lVdim = lVdim + n2BSF(i,i)
        end do
 
-c       koff=0
-c       do i=1,nSym
-c          CALL CD_TESTER(rc,Work(ipDLT(1)+koff),nBas(i),.true.)
-c          CALL TRIPRT('DLT',' ',Work(ipDLT(1)+koff),nBas(i))
-c          koff = koff + nnBSF(i,i)
-c       end do
+       Call mma_allocate(Vec,lVdim,1,Label='Vec')
+       Call mma_allocate(DDec,lVdim,1,Label='DDec')
+       call dcopy_(lVdim,DSQ,1,ddec(:,1),1)
 
-       CALL GETMEM('choMOs','allo','real',ipVec,lVdim)
-       CALL GETMEM('ddec','allo','real',ipddec,lVdim)
-       call dcopy_(lVdim,Work(ipDSQ(1)),1,Work(ipddec),1)
-
-       ipd = ipddec
-       ipV = ipVec
+       ipd = 1
+       ipV = 1
        Do i=1,nSym
           if(nBas(i).gt.0)then
             Ymax=0.0d0
             jaa=ipd
             do ja=1,nBas(i)
-               Ymax=Max(Ymax,Work(jaa))
+               Ymax=Max(Ymax,DDec(jaa,1))
                jaa = jaa + nBas(i) + 1
             end do
             jaa = jaa - nBas(i) - 1
             Thr = 1.0d-8*Ymax
-            CALL CD_InCore(Work(ipd),nBas(i),Work(ipV),nBas(i),
+            CALL CD_InCore(DDec(ipd,1),nBas(i),Vec(ipV,1),nBas(i),
      &                     NumV,Thr,rc)
             If (rc.ne.0) GOTO 999
-            iWork(ipnVec+i-1) = NumV
+            nVec(i,1) = NumV
             if ( NumV .ne. nOcc(i) .and. .not.Do_SpinAV
      &                             .and. .not.Cho_Aufb ) then
             write(ww,'(a,i6,a,i6,a,i6,a,i6,a,f6.4)')
@@ -155,16 +154,16 @@ c       end do
             call WarningMessage(1,ww)
             endif
           else
-            iWork(ipnVec+i-1) = 0
+            nVec(i,1) = 0
           endif
           ipd = ipd + n2BSF(i,i)
           ipV = ipV + n2BSF(i,i)
        End Do
-       CALL GETMEM('ddec','free','real',ipddec,lVdim)
+       Call mma_deallocate(DDec)
 
-       ipNocc(1) = ipnVec ! occup. numbers
+       ipNocc(1) = ip_of_iWork(nVec(1,1)) ! occup. numbers
 
-       ipMSQ(1) = ipVec       ! "Cholesky" MOs
+       ipMSQ(1) = ip_of_Work(Vec(1,1))       ! "Cholesky" MOs
 
        FactX(1) = 0.5D0*ExFac ! ExFac used for hybrid functionals
 
@@ -296,21 +295,26 @@ c       end do
 *                                                                      *
       If (rc.ne.0) GOTO 999
 
-      IF (DECO) CALL GETMEM('choMOs','free','real',ipVec,lVdim)
+      IF (DECO) CALL mma_deallocate(Vec)
 
       If (ALGO.lt.3.and.ExFac.ne.0.0d0) Then
 
-         CALL CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,
-     &                  ipFLT,ipFSQ)
+         CALL CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,ipFLT,ipFSQ)
 
       EndIf
 C----------------------------------------------------
  997  Continue
       Call GADSum(Work(ipFLT(1)),nFLT)
-
-
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
       ELSE   !  UHF calculation
-
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+         Call mma_allocate(nVec,nSym,2,Label='nVec')
          nDen = 3
 C ========== Assign a truth table ==================
 
@@ -370,31 +374,29 @@ C Compute the total density Dalpha + Dbeta
           lVdim = lVdim + n2BSF(i,i)
        end do
 
-       CALL GETMEM('choMOs','allo','real',ipVec,lVdim)
-       CALL GETMEM('choMOs_ab','allo','real',ipVec_ab,lVdim)
-       CALL GETMEM('ddec','allo','real',ipddec,lVdim)
-       CALL GETMEM('ddec_ab','allo','real',ipddec_ab,lVdim)
+       Call mma_allocate(Vec,lVdim,2,Label='Vec')
+       Call mma_allocate(DDec,lVdim,2,Label='DDec')
 
-       call dcopy_(lVdim,Work(ipDSQ(2)),1,Work(ipddec),1)
-       call dcopy_(lVdim,Work(ipDSQ(3)),1,Work(ipddec_ab),1)
+       call dcopy_(lVdim,Work(ipDSQ(2)),1,ddec(:,1),1)
+       call dcopy_(lVdim,Work(ipDSQ(3)),1,ddec(:,2),1)
 
-       ipd1 = ipddec
-       ipd2 = ipddec_ab
-       ipV1 = ipVec
-       ipV2 = ipVec_ab
+       ipd1 = 1
+       ipd2 = 1
+       ipV1 = 1
+       ipV2 = 1
        Do i=1,nSym
           if(nBas(i).gt.0)then
               Ymax=0.0d0
-              jaa=ipd1-1-nBas(i)
+              jaa=ipd1
               do ja=1,nBas(i)
-                 jaa=jaa+nBas(i)+1
-                 Ymax=Max(Ymax,Work(jaa))
+                 Ymax=Max(Ymax,DDec(jaa,1))
+                 jaa=jaa+(nBas(i)+1)
               end do
               Thr = 1.0d-8*Ymax
-              CALL CD_InCore(Work(ipd1),nBas(i),Work(ipV1),nBas(i),
+              CALL CD_InCore(DDec(ipd1,1),nBas(i),Vec(ipV1,1),nBas(i),
      &                       NumV1,Thr,rc)
                    If (rc.ne.0) GOTO 999
-                   iWork(ipnVec+i-1) = NumV1
+                   nVec(i,1) = NumV1
                    if ( NumV1 .ne. nOcc(i) .and. .not.Do_SpinAV
      &                                     .and. .not.Cho_Aufb) then
                write(ww,'(a,i6,a,i6,a,i6,a,i6,a,f6.4)')
@@ -407,16 +409,16 @@ C Compute the total density Dalpha + Dbeta
               call WarningMessage(1,ww)
                    endif
               Ymax=0.0d0
-              jaa=ipd2-1-nBas(i)
+              jaa=ipd2
               do ja=1,nBas(i)
+                 Ymax=Max(Ymax,DDec(jaa,2))
                  jaa=jaa+nBas(i)+1
-                 Ymax=Max(Ymax,Work(jaa))
               end do
               Thr = 1.0d-8*Ymax
-              CALL CD_InCore(Work(ipd2),nBas(i),Work(ipV2),nBas(i),
+              CALL CD_InCore(DDec(ipd2,2),nBas(i),Vec(ipV2,2),nBas(i),
      &                       NumV2,Thr,rc)
                    If (rc.ne.0) GOTO 999
-                   iWork(ipnVec_ab+i-1) = NumV2
+                   nVec(i,2) = NumV2
                    if ( NumV2 .ne. nOcc_ab(i) .and. .not.Do_SpinAV
      &                                        .and. .not.Cho_Aufb) then
                write(ww,'(a,i6,a,i6,a,i6,a,i6,a,f6.4)')
@@ -429,8 +431,8 @@ C Compute the total density Dalpha + Dbeta
               call WarningMessage(1,ww)
                    endif
           else
-            iWork(ipnVec+i-1) = 0
-            iWork(ipnVec_ab+i-1) = 0
+            nVec(i,1) = 0
+            nVec(i,2) = 0
           endif
           ipd1 = ipd1 + n2BSF(i,i)
           ipd2 = ipd2 + n2BSF(i,i)
@@ -438,16 +440,15 @@ C Compute the total density Dalpha + Dbeta
           ipV2 = ipV2 + n2BSF(i,i)
        End Do
 
-       CALL GETMEM('ddec_ab','free','real',ipddec_ab,lVdim)
-       CALL GETMEM('ddec','free','real',ipddec,lVdim)
+       Call mma_deallocate(DDec)
 
-       ipNocc(1) = ipnVec ! dummy
-       ipNocc(2) = ipnVec ! alpha occup. numbers
-       ipNocc(3) = ipnVec_ab ! beta occup. numbers
+       ipNocc(1) = ip_of_iWork(nVec(1,1)) ! dummy
+       ipNocc(2) = ip_of_iWork(nVec(1,1)) ! alpha occup. numbers
+       ipNocc(3) = ip_of_iWork(nVec(1,2)) ! beta occup. numbers
 
-       ipMSQ(1) = ipVec          ! dummy
-       ipMSQ(2) = ipVec          ! "Cholesky" alpha MOs
-       ipMSQ(3) = ipVec_ab       ! "Cholesky" beta  MOs
+       ipMSQ(1) = ip_of_Work(Vec(1,1))    ! dummy
+       ipMSQ(2) = ip_of_Work(Vec(1,1))    ! "Cholesky" alpha MOs
+       ipMSQ(3) = ip_of_Work(Vec(1,2))    ! "Cholesky" beta  MOs
 
       ENDIF
 
@@ -471,9 +472,9 @@ C Compute the total density Dalpha + Dbeta
 
       elseif  (ALGO.eq.2 .and. DECO) then !use decomposed density
 
-       ipMSQ(1) = ipVec          ! dummy
-       ipMSQ(2) = ipVec          ! "Cholesky" alpha MOs
-       ipMSQ(3) = ipVec_ab       ! "Cholesky" beta  MOs
+       ipMSQ(1) = ip_of_Work(Vec(1,1))    ! dummy
+       ipMSQ(2) = ip_of_Work(Vec(1,1))    ! "Cholesky" alpha MOs
+       ipMSQ(3) = ip_of_Work(Vec(1,2))    ! "Cholesky" beta  MOs
 
        if (REORD)then
 
@@ -517,8 +518,8 @@ C Compute the total density Dalpha + Dbeta
       elseif (ALGO.eq.3) then
 
           If (DECO) Then
-             ipMSQ(1) = ipVec
-             ipMSQ(2) = ipVec_ab
+             ipMSQ(1) = ip_of_Work(Vec(1,1))
+             ipMSQ(2) = ip_of_Work(Vec(1,2))
           Else
              ipMSQ(1) = mAdCMO      ! alpha MOs coeff as in addr.fh
              ipMSQ(2) = mAdCMO_ab   ! beta MOs coeff as in addr.fh
@@ -593,8 +594,7 @@ C Compute the total density Dalpha + Dbeta
           CALL QUIT(rc)
       endif
 
-      IF(DECO) CALL GETMEM('choMOs_ab','free','real',ipVec_ab,lVdim)
-      IF(DECO) CALL GETMEM('choMOs','free','real',ipVec,lVdim)
+      IF(DECO) CALL mma_deallocate(Vec)
 
 998   Continue
 
@@ -621,6 +621,7 @@ C----------------------------------------------------
 C --- Restore the Beta-density matrix ----
 C --- Copy the lower triangular of Work(ipDSQ(3))
 C --- and pack the off-diagonal elements
+
         icount1 = 0
         icount2 = 0
         do isym=1,nsym
@@ -641,7 +642,15 @@ C --- and pack the off-diagonal elements
            icount2 = icount2 + nBas(isym)*(nBas(isym) + 1)/2
         end do
 
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
       ENDIF
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
 
 
 999   If (rc.ne.0) then
@@ -649,7 +658,7 @@ C --- and pack the off-diagonal elements
          CALL QUIT(rc)
       endif
 
-      call getmem('nVec_a+b','Free','Inte',ipnVec,2*nSym)
+      Call mma_deallocate(nVec)
 
 
       Return
