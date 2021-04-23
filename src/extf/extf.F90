@@ -243,7 +243,7 @@ if (gaussian_force) then
 
   write(u6,*) 'Gaussian shaped force'
   write(u6,*) 'sigma', gau_sigma, 't0', gau_t0
-  time_scaling = exp(-(mdtime-gau_t0)**2/(2*gau_sigma)**2)
+  time_scaling = exp(-(mdtime-gau_t0)**2/(2*(gau_sigma**2)))
   write(u6,*) 'gaussian:', mdtime, time_scaling
 
   ExtGrad(:,:) = ExtGrad(:,:) * time_scaling
