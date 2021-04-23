@@ -246,7 +246,7 @@ if (gaussian_force) then
   time_scaling = exp(-(mdtime-gau_t0)**2/(2*gau_sigma)**2)
   write(u6,*) 'gaussian:', mdtime, time_scaling
 
-  ExtGrad = ExtGrad * time_scaling
+  ExtGrad(:,:) = ExtGrad(:,:) * time_scaling
 
 end if
 
