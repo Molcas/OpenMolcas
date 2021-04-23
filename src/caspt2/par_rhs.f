@@ -1249,6 +1249,7 @@ CSVC: this routine computes product ALPHA * V1 and adds to V2
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use Caspt2_Globals, only: regularizer
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -1276,18 +1277,18 @@ C-SVC: get the local vertical stripes of the lg_W vector
           NCOL=jHi-jLo+1
           CALL GA_Access (lg_W,iLo,iHi,jLo,jHi,mW,LDW)
           CALL RESDIA(NROW,NCOL,DBL_MB(mW),LDW,DIN(iLo),
-     &                DIS(jLo),SHIFT,SHIFTI,DOVL)
+     &                DIS(jLo),SHIFT,SHIFTI,DOVL,regularizer)
           CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
         END IF
         CALL GA_Sync()
         CALL GAdSUM_SCAL(DOVL)
       ELSE
         CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,
-     &                   SHIFT,SHIFTI,DOVL)
+     &                   SHIFT,SHIFTI,DOVL,regularizer)
       END IF
 #else
       CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,
-     &                 SHIFT,SHIFTI,DOVL)
+     &                 SHIFT,SHIFTI,DOVL,regularizer)
 #endif
 
       END
@@ -1297,6 +1298,7 @@ C-SVC: get the local vertical stripes of the lg_W vector
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use Caspt2_Globals, only: regularizer
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -1323,49 +1325,70 @@ C-SVC: get the local vertical stripes of the lg_W vector
           NCOL=jHi-jLo+1
           CALL GA_Access (lg_W,iLo,iHi,jLo,jHi,mW,LDW)
           CALL SGMDIA(NROW,NCOL,DBL_MB(mW),LDW,
-     &                DIN(iLo),DIS(jLo),SHIFT,SHIFTI)
+     &                DIN(iLo),DIS(jLo),SHIFT,SHIFTI,regularizer)
           CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
         END IF
         CALL GA_Sync()
       ELSE
-        CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,SHIFTI)
+        CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,SHIFTI,
+     &              regularizer)
       END IF
 #else
-      CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,SHIFTI)
+      CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,SHIFTI,
+     &            regularizer)
 #endif
 
       END
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE RESDIA(NROW,NCOL,W,LDW,DIN,DIS,
-     &                  SHIFT,SHIFTI,DOVL)
+      SUBROUTINE RESDIA(NROW,NCOL,W,LDW,DIN,DIS,SHIFT,SHIFTI,DOVL,reg)
       IMPLICIT REAL*8 (A-H,O-Z)
 
       DIMENSION W(LDW,*),DIN(*),DIS(*)
 
+      ! write(6,*)
+      ! WRITE(6,*)' I     J     DELTA in RESDIA'
       DOVL=0.0D0
       DO J=1,NCOL
         DO I=1,NROW
+        ! real denominator shift
         DELTA=SHIFT+DIN(I)+DIS(J)
+        ! regularized CASPT2
+        if (reg.gt.0.0d0) then
+          DELTA = DELTA/(1.0 - exp(-reg * DELTA**2))
+        end if
+        ! write(6,'(1x,i3,2x,i3,2x,5f16.8)') I,J,DELTA
+        ! imaginary denominator shift
         DELINV=DELTA/(DELTA**2+SHIFTI**2)
         TMP=DELINV*W(I,J)
         DOVL=DOVL+TMP*W(I,J)
         W(I,J)=TMP
         END DO
       END DO
+      write(6,*)
       END
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE SGMDIA(NROW,NCOL,W,LDW,DIN,DIS,SHIFT,SHIFTI)
+      SUBROUTINE SGMDIA(NROW,NCOL,W,LDW,DIN,DIS,SHIFT,SHIFTI,reg)
       IMPLICIT REAL*8 (A-H,O-Z)
 
       DIMENSION W(LDW,*),DIN(*),DIS(*)
 
+      ! write(6,*)
+      ! WRITE(6,*)' I     J     DELTA in SGMDIA'
       DO J=1,NCOL
         DO I=1,NROW
+        ! real denominator shift
         DELTA=SHIFT+DIN(I)+DIS(J)
+        ! regularized CASPT2
+        if (reg.gt.0.0d0) then
+          DELTA = DELTA/(1.0 - exp(-reg * DELTA**2))
+        end if
+        ! write(6,'(1x,i3,2x,i3,2x,5f16.8)') I,J,DELTA
+        ! imaginary denominator shift
         DELINV=DELTA+SHIFTI**2/DELTA
         W(I,J)=DELINV*W(I,J)
         END DO
       END DO
+      write(6,*)
       END

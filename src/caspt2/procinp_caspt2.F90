@@ -12,8 +12,9 @@ subroutine ProcInp_Caspt2
   !SVC: process CASPT2 input based on the data in the input table, and
   ! initialize global common-block variables appropriately.
   use InputData, only: Input
-  use definitions, only:iwp
-  use output_caspt2, only:iPrGlb,terse,cmpThr,cntThr,dnmThr
+  use definitions, only: iwp
+  use output_caspt2, only: iPrGlb,terse,cmpThr,cntThr,dnmThr
+  use Caspt2_Globals, only: regularizer
 #ifdef _MOLCAS_MPP_
   use Para_Info, only:Is_Real_Par
 #endif
@@ -107,6 +108,7 @@ subroutine ProcInp_Caspt2
   ! real/imaginary shifts
   SHIFT = Input%Shift
   SHIFTI = Input%ShiftI
+  regularizer = Input%regularizer
 
 ! RHS algorithm selection
 #ifdef _MOLCAS_MPP_

@@ -66,6 +66,8 @@ module InputData
     Real(kind=wp)     :: ShiftI = Zero
     ! SHIF      size of extra denominator shift
     Real(kind=wp)     :: Shift = Zero
+    ! REGU      exponential factor in regularizer
+    Real(kind=wp)     :: regularizer = Zero
 
     ! several freeze-delete schemes, each of these should active
     ! the general flag below, to indicate additional conversion is
@@ -413,6 +415,11 @@ contains
       case ('IMAG')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         read (Line,*,IOStat=iError) Input%ShiftI
+        if (iError /= 0) call IOError(Line)
+
+      case ('REGU')
+        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+        read (Line,*,IOStat=iError) Input%regularizer
         if (iError /= 0) call IOError(Line)
 
         ! environment

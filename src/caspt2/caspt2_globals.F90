@@ -9,26 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-module output_caspt2
+module Caspt2_Globals
 
-  use definitions, only: wp,iwp
+  use definitions, only: wp
 
-  implicit none
+  Real(kind=wp) :: regularizer
 
-  ! amount of output written
-  Integer(kind=iwp),parameter :: silent  = 0
-  Integer(kind=iwp),parameter :: terse   = 1
-  Integer(kind=iwp),parameter :: usual   = 2
-  Integer(kind=iwp),parameter :: verbose = 3
-  Integer(kind=iwp),parameter :: debug   = 4
-  Integer(kind=iwp),parameter :: insane  = 5
-
-  Integer(kind=iwp) :: iPrGlb
-
-  ! thresholds for printing denominators
-  Real(kind=wp) :: dnmThr,cmpThr,cntThr
-
-  Real(kind=wp) :: EMP2
-  Real(kind=wp) :: STrA, STrF, STrX
-
-end module
+end module Caspt2_Globals
