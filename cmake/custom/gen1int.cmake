@@ -54,8 +54,9 @@ list(APPEND GEN1INTCMakeArgs
 #####################################
 # git references for GEN1INT module #
 #####################################
-set(reference_git_commit 996e972b)
-set(reference_git_repo git@gitlab.chab.ethz.ch:dmrg/gen1int-molcaslib.git)
+set(reference_git_commit 90951c565ea2df97e23f5068860da28870b57c26)
+#set(reference_git_repo git@gitlab.com:stknecht/gen1int-molcaslib.git)
+set(reference_git_repo /home/rulinfen/projects/OpenMolcas_official_repo/gen1int-molcaslib)
 set(EP_PROJECT gen1int)
 
 
@@ -64,9 +65,9 @@ set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
 
 ExternalProject_Add(${EP_PROJECT}
                     PREFIX ${CUSTOM_GEN1INT_LOCATION}
+                    CMAKE_ARGS "${GEN1INTCMakeArgs}"
                     GIT_REPOSITORY ${reference_git_repo}
                     GIT_TAG ${reference_git_commit}
-                    CMAKE_ARGS "${GEN1INTCMakeArgs}"
                     INSTALL_DIR "${PROJECT_BINARY_DIR}"
                     LOG_INSTALL 1
                     LOG_DOWNLOAD 1
