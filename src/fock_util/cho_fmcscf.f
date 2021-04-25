@@ -12,7 +12,7 @@
 ************************************************************************
 
       SUBROUTINE CHO_FMCSCF(rc,ipFA,ipFI,nForb,nIorb,nAorb,FactXI,
-     &                      ipDI,ipDA1,DoActive,POrb,nChM,ipInt,ExFac)
+     &                      DI,DA1,DoActive,POrb,nChM,ipInt,ExFac)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -47,7 +47,7 @@ C
       use Data_structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
-      Type (DSBA_Type) POrb(3)
+      Type (DSBA_Type) POrb(3), DI, DA1
       Type (SBA_Type), Target:: Laq(3), Lxy
       Type (twxy_type) Scr
 
@@ -55,7 +55,6 @@ C
       Integer   iSkip(8)
       Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2), ExFac
-      Integer   ipDA1,ipDI
       Integer   ipFA,ipFI
       Integer   ipDLT(2),ipFLT(2)
       Integer   nForb(8),nIorb(8),nAorb(8),nPorb(8),nnA(8,8),nChM(8)
@@ -101,8 +100,8 @@ C
       DoTraInt = .false.
       IREDC = -1  ! unknown reduced set in core
 
-      ipDLT(1) = ipDI    ! some definitions
-      ipDLT(2) = ipDA1
+      ipDLT(1) = ip_of_Work(DI%A0(1))    ! some definitions
+      ipDLT(2) = ip_of_Work(DA1%A0(1))
       ipFLT(1) = ipFI
       ipFLT(2) = ipFA
 

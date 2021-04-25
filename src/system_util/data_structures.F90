@@ -17,6 +17,7 @@
 Module Data_Structures
 Private
 Public:: DSBA_Type,   Allocate_DSBA,   Deallocate_DSBA, Map_to_DSBA
+Public:: Fake_DSBA_Type,   Allocate_Fake_DSBA,   Deallocate_Fake_DSBA
 Public:: SBA_Type,    Allocate_SBA,    Deallocate_SBA,  Map_to_SBA
 Public:: twxy_Type,   Allocate_twxy,   Deallocate_twxy, Map_to_twxy
 Public:: NDSBA_Type,  Allocate_NDSBA,  Deallocate_NDSBA
@@ -63,6 +64,13 @@ Type NDSBA_Type
   Real*8, Allocatable :: A0(:)
   Type (DSB_Type):: SB(8,8)
 End Type NDSBA_Type
+
+Type Fake_DSBA_Type
+  Integer:: iCase=0
+  Integer:: nSym=0
+  Real*8, Pointer :: A0(:)
+  Type (DSB_Type):: SB(8)
+End Type Fake_DSBA_Type
 
 Type DSBA_Type
   Integer:: iCase=0
@@ -241,7 +249,72 @@ Subroutine Allocate_DSBA(Adam,n,m,nSym,Case)
       Adam%SB(iSym)%A1(1:n(iSym)*(n(iSym)+1)/2)   => Adam%A0(iS:iE)
     End Do
   End If
-  End Subroutine Allocate_DSBA
+End Subroutine Allocate_DSBA
+
+Subroutine Allocate_Fake_DSBA(Adam,n,m,nSym,Target,Case)
+  Implicit None
+  Type (Fake_DSBA_Type),Target, Intent(Out) :: Adam
+  Integer, Intent(In) :: nSym
+  Integer, Intent(In) :: n(nSym), m(nSym)
+  Real*8, Target, Intent(In) :: Target(*)
+  Character(LEN=3), Intent(In), Optional :: Case
+
+  Integer iE, iS, iSym, MemTot
+  Integer :: iCase=0
+
+  If (Present(Case)) Then
+     Select Case (Case)
+      Case ('TRI')
+        iCase=2
+        Do iSym = 1, nSym
+           If (n(iSym)/=m(iSym)) Then
+             Write (6,*) 'Allocate_DSBA: n(iSym)/=m(iSym), illegal if CASE="TRI".'
+             Call Abend()
+           End If
+        End Do
+      Case ('REC')
+        iCase=1
+      Case Default
+        Write (6,*) 'Allocate_DSBA: Illegal Case parameter, Case=',Case
+        Write (6,*) 'Allowed value are "TRI" and "REC".'
+        Call Abend()
+     End Select
+  Else
+    iCase=1
+  End If
+  Adam%iCase=iCase
+  Adam%nSym=nSym
+
+  MemTot=0
+  If (iCase==1) Then
+    Do iSym = 1, nSym
+       MemTot = MemTot + n(iSym)*m(iSym)
+    End Do
+  Else
+    Do iSym = 1, nSym
+       MemTot = MemTot + n(iSym)*(n(iSym)+1)/2
+    End Do
+  End If
+  Adam%A0(1:MemTot) => Target(1:MemTot)
+
+  iE = 0
+  If (iCase==1) Then
+    Do iSym = 1, nSym
+      iS = iE + 1
+      iE = iE + n(iSym) * m(iSym)
+
+      Adam%SB(iSym)%A2(1:n(iSym),1:m(iSym)) => Adam%A0(iS:iE)
+      Adam%SB(iSym)%A1(1:n(iSym)*m(iSym))   => Adam%A0(iS:iE)
+    End Do
+  Else
+    Do iSym = 1, nSym
+      iS = iE + 1
+      iE = iE + n(iSym) * (n(iSym)+1)/2
+
+      Adam%SB(iSym)%A1(1:n(iSym)*(n(iSym)+1)/2)   => Adam%A0(iS:iE)
+    End Do
+  End If
+  End Subroutine Allocate_Fake_DSBA
 
 
   Subroutine Deallocate_DSBA(Adam)
@@ -265,6 +338,26 @@ Subroutine Allocate_DSBA(Adam,n,m,nSym,Case)
 
   End Subroutine Deallocate_DSBA
 
+  Subroutine Deallocate_Fake_DSBA(Adam)
+  Implicit None
+  Type (Fake_DSBA_Type) Adam
+  Integer iSym
+
+  If (Adam%iCase==1) Then
+    Do iSym = 1, Adam%nSym
+       Adam%SB(iSym)%A2=> Null()
+       Adam%SB(iSym)%A1=> Null()
+    End Do
+  Else
+    Do iSym = 1, Adam%nSym
+       Adam%SB(iSym)%A1=> Null()
+    End Do
+  End If
+  Adam%A0=>Null()
+  Adam%nSym=0
+  Adam%iCase=0
+
+  End Subroutine Deallocate_Fake_DSBA
 
   Subroutine Map_to_DSBA(Adam,ipAdam)
   Implicit None

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHO_LK_CASSCF(ipDI,ipDA1,ipFI,ipFA,ipKLT,ipMSQ,ipInt,
+      SUBROUTINE CHO_LK_CASSCF(DI,DA1,ipFI,ipFA,ipMSQ,ipInt,
      &             FactXI,nFIorb,nAorb,nChM,Ash,DoActive,
      &             nScreen,dmpk,dFmat,ExFac)
 
@@ -49,8 +49,10 @@ C
 #endif
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, InfVec, IndRed
-      use Data_Structures, only: DSBA_Type, SBA_Type
-      use Data_Structures, only: Allocate_SBA, Deallocate_SBA
+      use Data_Structures, only: SBA_Type, Allocate_SBA,
+     &                           Deallocate_SBA
+      use Data_Structures, only: DSBA_Type, Allocate_DSBA,
+     &                           Deallocate_DSBA
       use Data_Structures, only: twxy_Type
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
       use Data_Structures, only: NDSBA_Type, Allocate_NDSBA,
@@ -61,14 +63,14 @@ C
      &                           Lab_Type
       Implicit Real*8 (a-h,o-z)
 
-      Integer   ipDLT(2),ipFLT(2),ipKLT(2)
+      Integer   ipDLT(2),ipFLT(2), ipKLT(2)
       Integer   kOff(8,2),nnA(8,8)
       Integer   ISTLT(8),ISTSQ(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
       Integer   ipDD(2)
 
-      Type (DSBA_Type)   Ash(2)
+      Type (DSBA_Type)   Ash(2), DI, DA1
       Type (SBA_Type) Laq(1), Lxy
       Type (twxy_Type) Scr
       Type (NDSBA_Type) DIAH
@@ -97,6 +99,7 @@ C
 
       Real*8, parameter:: xone = -one
 
+      Type (DSBA_Type) :: KLT(2)
       Logical add
       Character(LEN=6) mode
       Real*8   LKThr
@@ -157,8 +160,8 @@ C
       DoTraInt = .false.
       IREDC = -1  ! unknown reduced set in core
 
-      ipDLT(1) = ipDI    ! some definitions
-      ipDLT(2) = ipDA1
+      ipDLT(1) = ip_of_Work(DI%A0(1))    ! some definitions
+      ipDLT(2) = ip_of_Work(DA1%A0(1))
       ipFLT(1) = ipFI
       ipFLT(2) = ipFA
 
@@ -180,13 +183,13 @@ C
       tscrn(:) = zero  !time for screening overhead
 
 C ==================================================================
-        Call set_nnA(nSym,nAorb,nnA)
+      Call set_nnA(nSym,nAorb,nnA)
 
 c --- Various offsets
 c --------------------
-        MaxB=nBas(1)
-        ISTLT(1)=0
-        ISTSQ(1)=0
+      MaxB=nBas(1)
+      ISTLT(1)=0
+      ISTSQ(1)=0
       DO ISYM=2,NSYM
         MaxB=Max(MaxB,nBas(iSym))
         NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
@@ -273,6 +276,11 @@ C --- Vector MO transformation screening thresholds
          diagJ(:)=Zero
       EndIf
 #endif
+      Do jDen = 1, nDen
+         Call Allocate_DSBA(KLT(jDen),nBas,nBas,nSym,Case='TRI')
+         KLT(jDen)%A0(:)=Zero
+         ipKLT(jDen) = ip_of_Work(KLT(jDen)%A0(1))
+      End Do
 
 C *************** Read the diagonal integrals (stored as 1st red set)
       If (Update) CALL CHO_IODIAG(DIAG,2) ! 2 means "read"
@@ -988,9 +996,10 @@ C -------------------------------------------------------------------
 
                                CALL DGEMM_Tri('N','T',
      &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
-     &                          FActX(jDen),Lab%SB(iaSh,lSym,1)%A,nBs,
-     &                                      Lab%SB(iaSh,lSym,1)%A,nBs,
-     &                                        ONE,Work(ipKI),nBs)
+     &                FActX(jDen),Lab%SB(iaSh,lSym,1)%A,nBs,
+     &                            Lab%SB(iaSh,lSym,1)%A,nBs,
+     &                        ONE,KLT(jDen)%SB(lSym)%A1(iOffAB+1:),nBs)
+*    &                                  ONE,Work(ipKI),nBs)
 
                                ELSE   ! lSym < kSym
 
@@ -1001,9 +1010,10 @@ C -------------------------------------------------------------------
 
                                CALL DGEMM_Tri('T','N',
      &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
-     &                           FActX(jDen),Lab%SB(iaSh,lSym,1)%A,JNUM,
-     &                                       Lab%SB(iaSh,lSym,1)%A,JNUM,
-     &                                       ONE,Work(ipKI),nBs)
+     &                FActX(jDen),Lab%SB(iaSh,lSym,1)%A,JNUM,
+     &                            Lab%SB(iaSh,lSym,1)%A,JNUM,
+     &                        ONE,KLT(jDen)%SB(lSym)%A1(iOffAB+1:),nBs)
+*    &                                       ONE,Work(ipKI),nBs)
 
                                End If
 
@@ -1020,9 +1030,10 @@ C -------------------------------------------------------------------
 
                                   CALL DGEMM_('N','T',
      &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
-     &                           FActX(jDen),Lab%SB(iaSh,lSym,1)%A,nBsa,
-     &                                       Lab%SB(ibSh,lSym,1)%A,nBsb,
-     &                                       ONE,Work(ipKI),nBsa)
+     &                FActX(jDen),Lab%SB(iaSh,lSym,1)%A,nBsa,
+     &                            Lab%SB(ibSh,lSym,1)%A,nBsb,
+     &                        ONE,KLT(jDen)%SB(lSym)%A1(iOffAB+1:),nBsa)
+*    &                                       ONE,Work(ipKI),nBsa)
 
                                ELSE   ! lSym < kSym
 
@@ -1033,9 +1044,10 @@ C -------------------------------------------------------------------
 
                                   CALL DGEMM_('T','N',
      &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
-     &                           FActX(jDen),Lab%SB(iaSh,lSym,1)%A,JNUM,
-     &                                       Lab%SB(ibSh,lSym,1)%A,JNUM,
-     &                                       ONE,Work(ipKI),nBs)
+     &                FActX(jDen),Lab%SB(iaSh,lSym,1)%A,JNUM,
+     &                            Lab%SB(ibSh,lSym,1)%A,JNUM,
+     &                        ONE,KLT(jDen)%SB(lSym)%A1(iOffAB+1:),nBs)
+*    &                                       ONE,Work(ipKI),nBs)
 
                                End If
 
@@ -1328,7 +1340,9 @@ c ---------------
 
                   jFX = ipFX - 1 + iTri(iag,ibg)
 
-                  Work(jFX) = Work(jFX) + Work(jKX)
+                  Work(jFX) = Work(jFX)
+     &                      + KLT(jDen)%SB(iSym)%A1(iOffAB+iab)
+*                 Work(jFX) = Work(jFX) + Work(jKX)
 
                 End Do
 
@@ -1355,7 +1369,9 @@ c ---------------
 
                jFX = ipFX - 1 + iag*(iag-1)/2 + ibg
 
-               Work(jFX) = Work(jFX) + Work(jKX)
+               Work(jFX) = Work(jFX)
+     &                      + KLT(jDen)%SB(iSym)%A1(iOffAB+iab)
+*              Work(jFX) = Work(jFX) + Work(jKX)
 
              End Do
 
@@ -1381,6 +1397,9 @@ c ---------------
       Call mma_deallocate(Ylk)
       Call mma_deallocate(AbsC)
       Call Deallocate_NDSBA(DIAH)
+      Do jDen = 1, nDen
+         Call Deallocate_DSBA(KLT(jDen))
+      End Do
 #if defined (_MOLCAS_MPP_)
       If (nProcs.gt.1 .and. Update .and. Is_Real_Par())
      &    Call mma_deallocate(DiagJ)

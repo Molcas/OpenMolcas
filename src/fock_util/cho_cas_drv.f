@@ -16,7 +16,7 @@
       Integer   rc
       Real*8    DA1(*),DI(*),DA2(*),FI(*),FA(*),CMO(*)
       Integer   nForb(8),nIorb(8),nAorb(8),nChM(8),nChI(8)
-      Integer   ipDSA2(8,8,8),nnA(8,8),ipKLT(2)
+      Integer   ipDSA2(8,8,8),nnA(8,8)
       Logical   TraOnly
 
 #include "real.fh"
@@ -34,12 +34,11 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
-      Type (DSBA_Type) CVa(2), POrb(3), Ddec, ChoIn
+      Type (DSBA_Type) CVa(2), POrb(3), Ddec, ChoIn,
+     &                 DILT, DALT
 
       Real*8, Allocatable:: Tmp1(:), Tmp2(:)
-      Real*8, Allocatable:: DILT(:), DALT(:)
       Real*8, Allocatable:: PMat(:), PL(:)
-      Real*8, Allocatable:: KLT(:,:)
 C ************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 C  **************************************************
@@ -121,11 +120,11 @@ c --- and v refers to the active orbitals only
 
 
 C --- Build the packed densities from the Squared ones
-      Call mma_allocate(DILT,NTot1,Label='DILT')
-      Call mma_allocate(DALT,NTot1,Label='DALT')
+      Call Allocate_DSBA(DILT,nBas,nBas,nSym,Case='TRI')
+      Call Allocate_DSBA(DALT,nBas,nBas,nSym,Case='TRI')
 
-      Call Fold(nSym,nBas,DI,DILT)
-      Call Fold(nSym,nBas,DA1,DALT)
+      Call Fold(nSym,nBas,DI,DILT%A0)
+      Call Fold(nSym,nBas,DA1,DALT%A0)
 
       FactXI = -1.0D0
 
@@ -357,39 +356,23 @@ C ----------------------------------------------------------------
       ipFI = ip_of_Work(FI(1))
       ipFA = ip_of_Work(FA(1))
 
-
       IF (ALGO.eq.1 .and. .not. DoLocK) THEN
 
          ipInt = lpwxy   ! (PU|VX) integrals are computed
          ipCM  = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
-         ipDILT= ip_of_Work(DILT(1))
-         ipDALT= ip_of_Work(DALT(1))
 
          CALL CHO_FMCSCF(rc,ipFA,ipFI,nForb,nIorb,nAorb,FactXI,
-     &                   ipDILT,ipDALT,DoActive,POrb,nChM,ipInt,ExFac)
+     &                   DILT,DALT,DoActive,POrb,nChM,ipInt,ExFac)
 
 
       ELSEIF (ALGO.eq.1 .and. DoLocK) THEN
 
          ipInt = lpwxy   ! (PU|VX) integrals are computed
          ipCM = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
-         ipDILT= ip_of_Work(DILT(1))
-         ipDALT= ip_of_Work(DALT(1))
 
-         If (DoActive) Then
-           Call mma_allocate(KLT,NTOT1,2,Label='KLT')
-           ipKLT(2) = ip_of_Work(KLT(1,2))
-         Else
-           Call mma_allocate(KLT,NTOT1,1,Label='KLT')
-         EndIf
-         ipKLT(1) = ip_of_Work(KLT(1,1))
-         KLT(:,:)=Zero
-
-         CALL CHO_LK_CASSCF(ipDILT,ipDALT,ipFI,ipFA,ipKLT,ipInc,ipInt,
+         CALL CHO_LK_CASSCF(DILT,DALT,ipFI,ipFA,ipInc,ipInt,
      &                      FactXI,nChI,nAorb,nChM,CVa,DoActive,
      &                      nScreen,dmpK,abs(CBLBM),ExFac)
-
-         Call mma_deallocate(KLT)
 
       ELSE
 
@@ -408,8 +391,8 @@ C ----------------------------------------------------------------
       If (DoQmat.and.ALGO.ne.1) Call mma_deallocate(PMat)
       If (Deco) Call Deallocate_DSBA(ChoIn)
 
-      Call mma_deallocate(DALT)
-      Call mma_deallocate(DILT)
+      Call Deallocate_DSBA(DALT)
+      Call Deallocate_DSBA(DILT)
 
       ENDIF
 
