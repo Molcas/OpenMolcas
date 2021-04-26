@@ -302,3 +302,37 @@
 
 #undef _SUBR_NAME_
 #undef _TYPE_
+
+* pointer variants
+
+#define _IS_POINTER_
+
+#  define _SUBR_NAME_ ipmma
+#  define _TYPE_ integer
+#  define _DATA_NAME_ 'INTE'
+
+#    define _DIMENSIONS_ 1
+#    define _DEF_LABEL_ 'ipmma_1D'
+#    include "mma_allo_template.fh"
+#    undef _DIMENSIONS_
+#    undef _DEF_LABEL_
+
+#  undef _SUBR_NAME_
+#  undef _TYPE_
+#  undef _DATA_NAME_
+
+#  define _SUBR_NAME_ dpmma
+#  define _TYPE_ real*8
+#  define _DATA_NAME_ 'REAL'
+
+#    define _DIMENSIONS_ 1
+#    define _DEF_LABEL_ 'dpmma_1D'
+#    include "mma_allo_template.fh"
+#    undef _DIMENSIONS_
+#    undef _DEF_LABEL_
+
+#  undef _SUBR_NAME_
+#  undef _TYPE_
+#  undef _DATA_NAME_
+
+#undef _IS_POINTER_

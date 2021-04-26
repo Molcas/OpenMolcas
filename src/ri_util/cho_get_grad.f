@@ -229,9 +229,9 @@
 ************************************************************************
 
       Do i = 1, 5
-         If (Allocated(DLT(i)%A0)) ipDLT(i)=ip_of_Work(DLT(i)%A0(1))
+         If (DLT(i)%Active) ipDLT(i)=ip_of_Work(DLT(i)%A0(1))
       End Do
-      If (Allocated(DLT2%A0)) ipDLT2=ip_of_Work(DLT2%A0(1))
+      If (DLT2%Active) ipDLT2=ip_of_Work(DLT2%A0(1))
 
       iRout = 9
       iPrint = nPrint(iRout)

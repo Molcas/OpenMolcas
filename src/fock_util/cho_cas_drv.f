@@ -378,11 +378,11 @@ C ----------------------------------------------------------------
 
       ENDIF
 
-      If (Allocated(POrb(3)%A0)) Call Deallocate_DSBA(POrb(3))
-      If (Allocated(POrb(2)%A0)) Call Deallocate_DSBA(POrb(2))
-      If (Allocated(POrb(1)%A0)) Call Deallocate_DSBA(POrb(1))
-      If (Allocated(CVa(1)%A0)) Call Deallocate_DSBA(CVa(1))
-      If (Allocated(CVa(2)%A0)) Call Deallocate_DSBA(CVa(2))
+      Call Deallocate_DSBA(POrb(3))
+      Call Deallocate_DSBA(POrb(2))
+      Call Deallocate_DSBA(POrb(1))
+      Call Deallocate_DSBA(CVa(1))
+      Call Deallocate_DSBA(CVa(2))
 
       If (DoQmat.and.ALGO.ne.1) Call mma_deallocate(PMat)
       If (Deco) Call Deallocate_DSBA(ChoIn)

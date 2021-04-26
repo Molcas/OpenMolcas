@@ -230,7 +230,7 @@
                ish=Cho_Irange(i,iBDsh(kS),nSkal_Valence,.true.)
                ijS=jsh*(jsh-1)/2+ish
                Do iSO=1,nJDens
-                 If (.NOT.Allocated(DMLT(iSO)%A0)) Cycle
+                 If (.NOT.DMLT(iSO)%Active) Cycle
                  ij=j*(j-1)/2+i
                  Dm_ij=abs(DMLT(iSO)%SB(iSym+1)%A1(ij))
                  MaxDens(ijS)=Max(MaxDens(ijS),Dm_ij)
@@ -240,7 +240,7 @@
       End Do
 *
       Do i = 1, 5
-         If (Allocated(DMLT(i)%A0)) Call deallocate_DSBA(DMLT(i))
+         If (DMLT(i)%Active) Call deallocate_DSBA(DMLT(i))
       End Do
 *
 *     Create list of non-vanishing pairs
@@ -875,7 +875,7 @@
       If (Allocated(BklK)) Call mma_deallocate(BklK)
       If (Allocated(VJ)) Call mma_deallocate(VJ)
       Do i=1,nKDens
-         If (Allocated(CMOi(i)%A0)) Call Deallocate_DSBA(CMOi(i))
+         Call Deallocate_DSBA(CMOi(i))
       End Do
       Call mma_deallocate(MaxDens)
 *
