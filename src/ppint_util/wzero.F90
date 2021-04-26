@@ -8,13 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine wzero(n,b,idum)
-      implicit real*8 (a-h,o-z)
-      dimension b(1)
-      do 10 i=1,n
-      b(i)=0
-10    continue
-      return
+
+subroutine wzero(n,b,idum)
+
+implicit real*8(a-h,o-z)
+dimension b(1)
+
+do i=1,n
+  b(i) = 0
+end do
+
+return
 ! Avoid unused argument warnings
-      if (.false.) call Unused_integer(idum)
-      end
+if (.false.) call Unused_integer(idum)
+
+end subroutine wzero

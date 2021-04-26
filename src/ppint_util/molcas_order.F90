@@ -8,25 +8,28 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Molcas_Order(GOut,na,nb)
-      Implicit Real*8 (a-h,o-z)
-      Real*8 GOut(na*nb,2)
+
+subroutine Molcas_Order(GOut,na,nb)
+
+implicit real*8(a-h,o-z)
+real*8 GOut(na*nb,2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Call RecPrt('Gout(Argos)',' ',Gout,nb,na)
-      call dcopy_(na*nb,GOut(1,1),1,GOut(1,2),1)
-!
-      Do ia = 1, na
-         Do ib = 1, nb
-            iba=(ia-1)*nb+ib
-            iab=(ib-1)*na+ia
-            GOut(iab,1)=GOut(iba,2)
-         End Do
-      End Do
-!     Call RecPrt('Gout(Molcas)',' ',Gout,na,nb)
+!call RecPrt('GOut(Argos)',' ',Gout,nb,na)
+call dcopy_(na*nb,GOut(1,1),1,GOut(1,2),1)
+
+do ia=1,na
+  do ib=1,nb
+    iba = (ia-1)*nb+ib
+    iab = (ib-1)*na+ia
+    GOut(iab,1) = GOut(iba,2)
+  end do
+end do
+!call RecPrt('GOut(Molcas)',' ',Gout,na,nb)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+return
+
+end subroutine Molcas_Order

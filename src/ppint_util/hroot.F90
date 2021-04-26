@@ -8,21 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine hroot(x,nn,dpn,pn1,eps)
-!                  improves the approximate root  x
-!                in addition we also obtain
-!                    dpn = derivative of h(n) at x
-!                    pn1 = value of h(n-1) at x
-!
-      implicit real*8 (a-h,o-z)
-!
-!     # iter = 5 sufficient for 8-byte accuracy up to nn = 7
-      do 14 iter=1,10
-        call hrecur(p,dp,pn1,x,nn)
-        d  = p/dp
-        x  = x - d
-        if( abs(d).le.eps ) go to 16
-   14 continue
-   16 dpn = dp
-      return
-      end
+
+subroutine hroot(x,nn,dpn,pn1,eps)
+! Improves the approximate root  x
+! In addition we also obtain
+! dpn = derivative of h(n) at x
+! pn1 = value of h(n-1) at x
+
+implicit real*8(a-h,o-z)
+
+! iter = 5 sufficient for 8-byte accuracy up to nn = 7
+do iter=1,10
+  call hrecur(p,dp,pn1,x,nn)
+  d = p/dp
+  x = x-d
+  if (abs(d) <= eps) go to 16
+end do
+16 continue
+dpn = dp
+
+return
+
+end subroutine hroot
