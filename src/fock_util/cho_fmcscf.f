@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
 
-      SUBROUTINE CHO_FMCSCF(rc,ipFA,ipFI,nForb,nIorb,nAorb,FactXI,
+      SUBROUTINE CHO_FMCSCF(rc,FA,FI,nForb,nIorb,nAorb,FactXI,
      &                      DI,DA1,DoActive,POrb,nChM,ipInt,ExFac)
 
 **********************************************************************
@@ -47,6 +47,7 @@ C
       use Data_structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
+      Real*8 FI(*), FA(*)
       Type (DSBA_Type) POrb(3), DI, DA1
       Type (SBA_Type), Target:: Laq(3), Lxy
       Type (twxy_type) Scr
@@ -55,7 +56,6 @@ C
       Integer   iSkip(8)
       Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2), ExFac
-      Integer   ipFA,ipFI
       Integer   ipDLT(2),ipFLT(2)
       Integer   nForb(8),nIorb(8),nAorb(8),nPorb(8),nnA(8,8),nChM(8)
 #ifdef _DEBUGPRINT_
@@ -102,8 +102,8 @@ C
 
       ipDLT(1) = ip_of_Work(DI%A0(1))    ! some definitions
       ipDLT(2) = ip_of_Work(DA1%A0(1))
-      ipFLT(1) = ipFI
-      ipFLT(2) = ipFA
+      ipFLT(1) = ip_of_Work(FI(1))
+      ipFLT(2) = ip_of_Work(FA(1))
 
       nDen = 1
       if (DoActive) nDen=2
@@ -374,7 +374,7 @@ C ---------------------------------------------------------------------
 
                   If (iSkip(iSymk)*NK.ne.0) Then
 
-                     ISFI = ipFI + ISTLT(iSyma)
+                     ISFI = ipFLT(1) + ISTLT(iSyma)
 
                      CALL DGEMM_TRI('T','N',nBas(iSyma),nBas(iSyma),
      &                         NK*JNUM,FactXI,Laq(1)%SB(iSymk)%A3,
@@ -440,7 +440,7 @@ C ---------------------------------------------------------------------
 
                      If (iSkip(iSymw)*NAch.ne.0) Then
 
-                        ISFA = ipFA + ISTLT(iSyma)
+                        ISFA = ipFLT(2) + ISTLT(iSyma)
 
                         CALL DGEMM_TRI('T','N',nBas(iSyma),nBas(iSyma),
      &                         NAch*JNUM,FactXA,Laq(2)%SB(iSymw)%A3,
@@ -649,7 +649,7 @@ c Print the Fock-matrix
       WRITE(6,'(6X,A)')
       WRITE(6,'(6X,A)')'***** INACTIVE FOCK MATRIX ***** '
       DO ISYM=1,NSYM
-        ISFI=ipFI+ISTLT(ISYM)
+        ISFI=ipFLT(1)+ISTLT(ISYM)
         IF( NBAS(ISYM).GT.0 ) THEN
           WRITE(6,'(6X,A)')
           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
@@ -661,7 +661,7 @@ c Print the Fock-matrix
         WRITE(6,'(6X,A)')'***** ACTIVE FOCK MATRIX ***** '
         DO ISYM=1,NSYM
          IF( NBAS(ISYM).GT.0 ) THEN
-           ISFA=ipFA+ISTLT(ISYM)
+           ISFA=ipFLT(2)+ISTLT(ISYM)
            WRITE(6,'(6X,A)')
            WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
            call TRIPRT('','',Work(ISFA),NBAS(ISYM))

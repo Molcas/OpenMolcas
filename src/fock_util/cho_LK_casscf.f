@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHO_LK_CASSCF(DI,DA1,ipFI,ipFA,ipMSQ,ipInt,
+      SUBROUTINE CHO_LK_CASSCF(DI,DA1,FI,FA,ipMSQ,ipInt,
      &             FactXI,nFIorb,nAorb,nChM,Ash,DoActive,
      &             nScreen,dmpk,dFmat,ExFac)
 
@@ -63,7 +63,8 @@ C
      &                           Lab_Type
       Implicit Real*8 (a-h,o-z)
 
-      Integer   ipDLT(2),ipFLT(2), ipKLT(2)
+      Real*8    FI(*), FA(*)
+      Integer   ipDLT(2),ipFLT(2)
       Integer   kOff(8,2),nnA(8,8)
       Integer   ISTLT(8),ISTSQ(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
@@ -162,8 +163,8 @@ C
 
       ipDLT(1) = ip_of_Work(DI%A0(1))    ! some definitions
       ipDLT(2) = ip_of_Work(DA1%A0(1))
-      ipFLT(1) = ipFI
-      ipFLT(2) = ipFA
+      ipFLT(1) = ip_of_Work(FI(1))
+      ipFLT(2) = ip_of_Work(FA(1))
 
       FactC(:) = [ one, one ]
       FactX(:) = [ FactXI*ExFac, -0.5D0*ExFac ]
@@ -279,7 +280,6 @@ C --- Vector MO transformation screening thresholds
       Do jDen = 1, nDen
          Call Allocate_DSBA(KLT(jDen),nBas,nBas,nSym,Case='TRI')
          KLT(jDen)%A0(:)=Zero
-         ipKLT(jDen) = ip_of_Work(KLT(jDen)%A0(1))
       End Do
 
 C *************** Read the diagonal integrals (stored as 1st red set)
@@ -975,8 +975,6 @@ C------------------------------------------------------------
 
                            iOffAB = nnBfShp(iShp,lSym)
 
-                           ipKI = ipKLT(jDen) + ISTLT(lSym) + iOffAB
-
                            xFab = sqrt(abs(Faa(iaSh)*Faa(ibSh)))
 
                            If (MLk(mSh,jK_a)*MLk(lSh,jK_a)
@@ -999,7 +997,6 @@ C -------------------------------------------------------------------
      &                FActX(jDen),Lab%SB(iaSh,lSym,1)%A,nBs,
      &                            Lab%SB(iaSh,lSym,1)%A,nBs,
      &                        ONE,KLT(jDen)%SB(lSym)%A1(iOffAB+1:),nBs)
-*    &                                  ONE,Work(ipKI),nBs)
 
                                ELSE   ! lSym < kSym
 
@@ -1013,7 +1010,6 @@ C -------------------------------------------------------------------
      &                FActX(jDen),Lab%SB(iaSh,lSym,1)%A,JNUM,
      &                            Lab%SB(iaSh,lSym,1)%A,JNUM,
      &                        ONE,KLT(jDen)%SB(lSym)%A1(iOffAB+1:),nBs)
-*    &                                       ONE,Work(ipKI),nBs)
 
                                End If
 
@@ -1033,7 +1029,6 @@ C -------------------------------------------------------------------
      &                FActX(jDen),Lab%SB(iaSh,lSym,1)%A,nBsa,
      &                            Lab%SB(ibSh,lSym,1)%A,nBsb,
      &                        ONE,KLT(jDen)%SB(lSym)%A1(iOffAB+1:),nBsa)
-*    &                                       ONE,Work(ipKI),nBsa)
 
                                ELSE   ! lSym < kSym
 
@@ -1047,7 +1042,6 @@ C -------------------------------------------------------------------
      &                FActX(jDen),Lab%SB(iaSh,lSym,1)%A,JNUM,
      &                            Lab%SB(ibSh,lSym,1)%A,JNUM,
      &                        ONE,KLT(jDen)%SB(lSym)%A1(iOffAB+1:),nBs)
-*    &                                       ONE,Work(ipKI),nBs)
 
                                End If
 
@@ -1311,7 +1305,6 @@ C--- have performed screening in the meanwhile
         Do iSym=1,nSym
 
          ipFX = ipFLT(jDen) + ISTLT(iSym)
-         ipKX = ipKLT(jDen) + ISTLT(iSym)
 
          Do iaSh=1,nShell
 
@@ -1333,8 +1326,6 @@ c ---------------
 
                   iab = nBasSh(iSym,iaSh)*(ib-1) + ia
 
-                  jKX = ipKX - 1 + iOffAB + iab
-
                   iag = ioffa + ia
                   ibg = ioffb + ib
 
@@ -1342,7 +1333,6 @@ c ---------------
 
                   Work(jFX) = Work(jFX)
      &                      + KLT(jDen)%SB(iSym)%A1(iOffAB+iab)
-*                 Work(jFX) = Work(jFX) + Work(jKX)
 
                 End Do
 
@@ -1362,16 +1352,13 @@ c ---------------
 
                iab = ia*(ia-1)/2 + ib
 
-               jKX = ipKX - 1 + iOffAB + iab
-
                iag = ioffa + ia
                ibg = ioffa + ib
 
                jFX = ipFX - 1 + iag*(iag-1)/2 + ibg
 
                Work(jFX) = Work(jFX)
-     &                      + KLT(jDen)%SB(iSym)%A1(iOffAB+iab)
-*              Work(jFX) = Work(jFX) + Work(jKX)
+     &                   + KLT(jDen)%SB(iSym)%A1(iOffAB+iab)
 
              End Do
 

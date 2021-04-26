@@ -353,24 +353,20 @@ C ----------------------------------------------------------------
       Call Fzero(FI(1),nTot1) ! LT-storage
       Call Fzero(FA(1),nTot1) ! LT-storage
 
-      ipFI = ip_of_Work(FI(1))
-      ipFA = ip_of_Work(FA(1))
-
       IF (ALGO.eq.1 .and. .not. DoLocK) THEN
 
          ipInt = lpwxy   ! (PU|VX) integrals are computed
          ipCM  = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
 
-         CALL CHO_FMCSCF(rc,ipFA,ipFI,nForb,nIorb,nAorb,FactXI,
+         CALL CHO_FMCSCF(rc,FA,FI,nForb,nIorb,nAorb,FactXI,
      &                   DILT,DALT,DoActive,POrb,nChM,ipInt,ExFac)
-
 
       ELSEIF (ALGO.eq.1 .and. DoLocK) THEN
 
          ipInt = lpwxy   ! (PU|VX) integrals are computed
          ipCM = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
 
-         CALL CHO_LK_CASSCF(DILT,DALT,ipFI,ipFA,ipInc,ipInt,
+         CALL CHO_LK_CASSCF(DILT,DALT,FI,FA,ipInc,ipInt,
      &                      FactXI,nChI,nAorb,nChM,CVa,DoActive,
      &                      nScreen,dmpK,abs(CBLBM),ExFac)
 
