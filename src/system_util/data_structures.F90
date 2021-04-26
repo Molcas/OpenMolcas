@@ -193,6 +193,11 @@ Subroutine Allocate_DSBA(Adam,n,m,nSym,Case,Ref)
   Integer iE, iS, iSym, MemTot
   Integer :: iCase=0
 
+  If (Adam%Active) Then
+    Write (6,*) 'DSBA-Type double allocate'
+    Call abend()
+  End If
+
   If (Present(Case)) Then
      Select Case (Case)
       Case ('TRI')

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHO_LK_CASSCF(DI,DA1,FI,FA,ipMSQ,ipInt,
+      SUBROUTINE CHO_LK_CASSCF(DI,DA1,W_FI,W_FA,ipMSQ,ipInt,
      &             FactXI,nFIorb,nAorb,nChM,Ash,DoActive,
      &             nScreen,dmpk,dFmat,ExFac)
 
@@ -63,7 +63,7 @@ C
      &                           Lab_Type
       Implicit Real*8 (a-h,o-z)
 
-      Real*8    FI(*), FA(*)
+      Real*8    W_FI(*), W_FA(*)
       Integer   ipDLT(2),ipFLT(2)
       Integer   kOff(8,2),nnA(8,8)
       Integer   ISTLT(8),ISTSQ(8)
@@ -71,6 +71,8 @@ C
       Real*8    tmotr(2),tscrn(2)
       Integer   ipDD(2)
 
+      Type (DSBA_Type)   MSQ
+      Type (DSBA_Type)   FLT(2)
       Type (DSBA_Type)   Ash(2), DI, DA1
       Type (SBA_Type) Laq(1), Lxy
       Type (twxy_Type) Scr
@@ -161,10 +163,15 @@ C
       DoTraInt = .false.
       IREDC = -1  ! unknown reduced set in core
 
+
+      Call Allocate_DSBA(MSQ,nBas,nBas,nSym,Ref=Work(ipMSQ))
+      Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=W_FI)
+      Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI',Ref=W_FA)
+
       ipDLT(1) = ip_of_Work(DI%A0(1))    ! some definitions
       ipDLT(2) = ip_of_Work(DA1%A0(1))
-      ipFLT(1) = ip_of_Work(FI(1))
-      ipFLT(2) = ip_of_Work(FA(1))
+      ipFLT(1) = ip_of_Work(FLT(1)%A0(1))
+      ipFLT(2) = ip_of_Work(FLT(2)%A0(1))
 
       FactC(:) = [ one, one ]
       FactX(:) = [ FactXI*ExFac, -0.5D0*ExFac ]
@@ -355,11 +362,15 @@ C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
 
                Do iaSh=1,nShell
 
-                  ipMsh =  kOffSh(iaSh,kSym)
+*                 ipMsh =  kOffSh(iaSh,kSym)
 
                   SKsh=zero
-                  Do ik=1,nBasSh(kSym,iaSh)
-                     SKsh = SKsh + Ash(2)%SB(kSym)%A2(ipMsh+ik,jK)**2
+                  iS = kOffSh(iaSh,kSym) + 1
+                  iE = kOffSh(iaSh,kSym) + nBasSh(kSym,iaSh)
+*                 Do ik=1,nBasSh(kSym,iaSh)
+*                    SKsh = SKsh + Ash(2)%SB(kSym)%A2(ipMsh+ik,jK)**2
+                  Do ik=iS, iE
+                     SKsh = SKsh + Ash(2)%SB(kSym)%A2(ik,jK)**2
                   End Do
 
                   SumAClk(iaSh,jk_a) = SKsh
@@ -371,15 +382,19 @@ C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
                Do jK=1,nFIorb(kSym)
                   jK_a = jK + kOff(kSym,jDen)
 
-               ipMO = ipMSQ + ISTSQ(kSym) + nBas(kSym)*(jK-1)
+*              ipMO = ipMSQ + ISTSQ(kSym) + nBas(kSym)*(jK-1)
 
                Do iaSh=1,nShell
 
-                  ipMsh = ipMO + kOffSh(iaSh,kSym)
+*                 ipMsh = ipMO + kOffSh(iaSh,kSym)
 
                   SKsh=zero
-                  Do ik=0,nBasSh(kSym,iaSh)-1
-                     SKsh = SKsh + Work(ipMsh+ik)**2
+*                 Do ik=0,nBasSh(kSym,iaSh)-1
+*                    SKsh = SKsh + Work(ipMsh+ik)**2
+                  iS = kOffSh(iaSh,kSym) + 1
+                  iE = kOffSh(iaSh,kSym) + nBasSh(kSym,iaSh)
+                  Do ik=iS, iE
+                     SKsh = SKsh + MSQ%SB(kSym)%A2(ik,jK)**2
                   End Do
 
                   SumAClk(iaSh,jk_a) = SKsh
@@ -706,13 +721,15 @@ C --- Setup the screening
 C------------------------------------------------------------------
 
                         If (jDen.eq.2) Then
-                        Do ik=1,nBas(kSym)
-                           AbsC(ik)=abs(Ash(2)%SB(kSym)%A2(ik,jK))
-                        End Do
+                           Do ik=1,nBas(kSym)
+                              AbsC(ik)=abs(Ash(2)%SB(kSym)%A2(ik,jK))
+                           End Do
                         Else
-                        Do ik=0,nBas(kSym)-1
-                           AbsC(1+ik) = abs(Work(ipMO+ik))
-                        End Do
+*                          Do ik=0,nBas(kSym)-1
+*                             AbsC(1+ik) = abs(Work(ipMO+ik))
+                           Do ik=1,nBas(kSym)
+                              AbsC(ik) = abs(MSQ%SB(kSym)%A2(ik,jK))
+                           End Do
                         Endif
 
                         If (lSym.ge.kSym) Then
@@ -1393,11 +1410,11 @@ c ---------------
 #endif
       Call mma_deallocate(Diag)
 
+      Call Deallocate_DSBA(MSQ)
 
       CALL CWTIME(TOTCPU2,TOTWALL2)
       TOTCPU = TOTCPU2 - TOTCPU1
       TOTWALL= TOTWALL2 - TOTWALL1
-
 
 *
 *---- Write out timing information
@@ -1440,11 +1457,10 @@ c Print the Fock-matrix
       WRITE(6,'(6X,A)')
       WRITE(6,'(6X,A)')'***** INACTIVE FOCK MATRIX ***** '
       DO ISYM=1,NSYM
-        ISFI=ipFI+ISTLT(ISYM)
         IF( NBAS(ISYM).GT.0 ) THEN
           WRITE(6,'(6X,A)')
           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          call TRIPRT('','',Work(ISFI),NBAS(ISYM))
+          call TRIPRT('','',FLT(1)%SB(ISYM)%A1,NBAS(ISYM))
         ENDIF
       END DO
       IF(DoActive)THEN
@@ -1452,10 +1468,9 @@ c Print the Fock-matrix
         WRITE(6,'(6X,A)')'***** ACTIVE FOCK MATRIX ***** '
         DO ISYM=1,NSYM
          IF( NBAS(ISYM).GT.0 ) THEN
-           ISFA=ipFA+ISTLT(ISYM)
            WRITE(6,'(6X,A)')
            WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-           call TRIPRT('','',Work(ISFA),NBAS(ISYM))
+           call TRIPRT('','',FLT(2)%SB(ISYM)%A2,NBAS(ISYM))
          ENDIF
         END DO
       END IF
@@ -1463,6 +1478,9 @@ c Print the Fock-matrix
       endif
 
 #endif
+
+      Call Deallocate_DSBA(FLT(2))
+      Call Deallocate_DSBA(FLT(1))
 
       Return
       END
