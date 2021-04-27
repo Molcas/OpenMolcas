@@ -43,12 +43,13 @@ C
       use ChoSwp, only: InfVec
       use Data_structures, only: DSBA_Type, SBA_Type
       use Data_structures, only: Allocate_SBA, Deallocate_SBA
+      use Data_structures, only: Allocate_DSBA, Deallocate_DSBA
       use Data_structures, only: twxy_Type
       use Data_structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
       Real*8 FI(*), FA(*)
-      Type (DSBA_Type) POrb(3), DLT(2)
+      Type (DSBA_Type) POrb(3), DLT(2), FLT(2)
       Type (SBA_Type), Target:: Laq(3), Lxy
       Type (twxy_type) Scr
 
@@ -100,10 +101,13 @@ C
       DoTraInt = .false.
       IREDC = -1  ! unknown reduced set in core
 
+      Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=FI)
+      Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI',Ref=FA)
+
       ipDLT(1) = ip_of_Work(DLT(1)%A0(1))    ! some definitions
       ipDLT(2) = ip_of_Work(DLT(2)%A0(1))
-      ipFLT(1) = ip_of_Work(FI(1))
-      ipFLT(2) = ip_of_Work(FA(1))
+      ipFLT(1) = ip_of_Work(FLT(1)%A0(1))
+      ipFLT(2) = ip_of_Work(FLT(2)%A0(1))
 
       nDen = 1
       if (DoActive) nDen=2
@@ -379,11 +383,12 @@ C ---------------------------------------------------------------------
                      CALL DGEMM_TRI('T','N',nBas(iSyma),nBas(iSyma),
      &                         NK*JNUM,FactXI,Laq(1)%SB(iSymk)%A3,
      &                         NK*JNUM,Laq(1)%SB(iSymk)%A3,NK*JNUM,
-     &                         One,Work(ISFI),nBas(iSyma))
+*    &                         One,Work(ISFI),nBas(iSyma))
+     &                         One,FLT(1)%SB(iSyma)%A1,nBas(iSyma))
 
 
 c          WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYMA
-c          CALL TRIPRT('FI: ',' ',Work(ISFI),nBas(iSyma))
+c          CALL TRIPRT('FI: ',' ',FLT(1)%SB(iSyma)%A1,nBas(iSyma))
 
                   EndIf
 
@@ -445,11 +450,12 @@ C ---------------------------------------------------------------------
                         CALL DGEMM_TRI('T','N',nBas(iSyma),nBas(iSyma),
      &                         NAch*JNUM,FactXA,Laq(2)%SB(iSymw)%A3,
      &                         NAch*JNUM,Laq(2)%SB(iSymw)%A3,NAch*JNUM,
-     &                         One,Work(ISFA),nBas(iSyma))
+*    &                         One,Work(ISFA),nBas(iSyma))
+     &                         One,FLT(2)%SB(iSyma)%A1,nBas(iSyma))
 
 
 c          WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYMA
-c          CALL TRIPRT('FA: ',' ',Work(ISFA),nBas(iSyma))
+c          CALL TRIPRT('FA: ',' ',FLT(2)%SB(iSyma)%A1,nBas(iSyma))
 
                      EndIf
 
@@ -649,11 +655,10 @@ c Print the Fock-matrix
       WRITE(6,'(6X,A)')
       WRITE(6,'(6X,A)')'***** INACTIVE FOCK MATRIX ***** '
       DO ISYM=1,NSYM
-        ISFI=ipFLT(1)+ISTLT(ISYM)
         IF( NBAS(ISYM).GT.0 ) THEN
           WRITE(6,'(6X,A)')
           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          call TRIPRT('','',Work(ISFI),NBAS(ISYM))
+          call TRIPRT('','',FLT(1)%SB(ISYM)%A1,NBAS(ISYM))
         ENDIF
       END DO
       IF(DoActive)THEN
@@ -661,10 +666,9 @@ c Print the Fock-matrix
         WRITE(6,'(6X,A)')'***** ACTIVE FOCK MATRIX ***** '
         DO ISYM=1,NSYM
          IF( NBAS(ISYM).GT.0 ) THEN
-           ISFA=ipFLT(2)+ISTLT(ISYM)
            WRITE(6,'(6X,A)')
            WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-           call TRIPRT('','',Work(ISFA),NBAS(ISYM))
+           call TRIPRT('','',FLT(2)%SB(ISYM)%A1,NBAS(ISYM))
          ENDIF
         END DO
       END IF
@@ -672,6 +676,8 @@ c Print the Fock-matrix
       endif
 
 #endif
+      Call DeAllocate_DSBA(FLT(1))
+      Call Deallocate_DSBA(FLT(2))
 
       rc  = 0
 
