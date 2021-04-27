@@ -16,7 +16,7 @@
       Integer   rc
       Real*8    DA1(*),DI(*),DA2(*),FI(*),FA(*),W_CMO(*)
       Integer   nForb(8),nIorb(8),nAorb(8),nChM(8),nChI(8)
-      Integer   nnA(8,8)
+*     Integer   nnA(8,8)
       Logical   TraOnly
 
 #include "real.fh"
@@ -38,7 +38,7 @@
      &                 DLT(2), FLT(2), MSQ, FLT_MO(2)
 
       Real*8, Allocatable:: Tmp1(:), Tmp2(:)
-      Real*8, Allocatable:: PMat(:), PL(:)
+*     Real*8, Allocatable:: PMat(:), PL(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -46,6 +46,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      tmp=DA2(1)
       rc=0
 
       Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=FI)
