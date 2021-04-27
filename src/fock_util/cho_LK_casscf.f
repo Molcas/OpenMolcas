@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHO_LK_CASSCF(DI,DA1,W_FI,W_FA,ipMSQ,ipInt,
+      SUBROUTINE CHO_LK_CASSCF(DI,DA1,W_FI,W_FA,W_MSQ,ipInt,
      &             FactXI,nFIorb,nAorb,nChM,Ash,DoActive,
      &             nScreen,dmpk,dFmat,ExFac)
 
@@ -63,7 +63,7 @@ C
      &                           Lab_Type
       Implicit Real*8 (a-h,o-z)
 
-      Real*8    W_FI(*), W_FA(*)
+      Real*8    W_FI(*), W_FA(*), W_MSQ(*)
       Integer   ipDLT(2),ipFLT(2)
       Integer   kOff(8,2),nnA(8,8)
       Integer   ISTLT(8),ISTSQ(8)
@@ -164,7 +164,8 @@ C
       IREDC = -1  ! unknown reduced set in core
 
 
-      Call Allocate_DSBA(MSQ,nBas,nBas,nSym,Ref=Work(ipMSQ))
+      Call Allocate_DSBA(MSQ,nBas,nBas,nSym,Ref=W_MSQ)
+      ipMSQ = ip_of_Work(W_MSQ(1))
       Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=W_FI)
       Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI',Ref=W_FA)
 
@@ -362,13 +363,10 @@ C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
 
                Do iaSh=1,nShell
 
-*                 ipMsh =  kOffSh(iaSh,kSym)
 
                   SKsh=zero
                   iS = kOffSh(iaSh,kSym) + 1
                   iE = kOffSh(iaSh,kSym) + nBasSh(kSym,iaSh)
-*                 Do ik=1,nBasSh(kSym,iaSh)
-*                    SKsh = SKsh + Ash(2)%SB(kSym)%A2(ipMsh+ik,jK)**2
                   Do ik=iS, iE
                      SKsh = SKsh + Ash(2)%SB(kSym)%A2(ik,jK)**2
                   End Do
@@ -382,15 +380,11 @@ C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
                Do jK=1,nFIorb(kSym)
                   jK_a = jK + kOff(kSym,jDen)
 
-*              ipMO = ipMSQ + ISTSQ(kSym) + nBas(kSym)*(jK-1)
 
                Do iaSh=1,nShell
 
-*                 ipMsh = ipMO + kOffSh(iaSh,kSym)
 
                   SKsh=zero
-*                 Do ik=0,nBasSh(kSym,iaSh)-1
-*                    SKsh = SKsh + Work(ipMsh+ik)**2
                   iS = kOffSh(iaSh,kSym) + 1
                   iE = kOffSh(iaSh,kSym) + nBasSh(kSym,iaSh)
                   Do ik=iS, iE
@@ -725,8 +719,6 @@ C------------------------------------------------------------------
                               AbsC(ik)=abs(Ash(2)%SB(kSym)%A2(ik,jK))
                            End Do
                         Else
-*                          Do ik=0,nBas(kSym)-1
-*                             AbsC(1+ik) = abs(Work(ipMO+ik))
                            Do ik=1,nBas(kSym)
                               AbsC(ik) = abs(MSQ%SB(kSym)%A2(ik,jK))
                            End Do

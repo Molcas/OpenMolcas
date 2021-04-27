@@ -366,7 +366,7 @@ C ----------------------------------------------------------------
          ipInt = lpwxy   ! (PU|VX) integrals are computed
          ipCM = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
 
-         CALL CHO_LK_CASSCF(DILT,DALT,FI,FA,ipInc,ipInt,
+         CALL CHO_LK_CASSCF(DILT,DALT,FI,FA,Work(ipInc),ipInt,
      &                      FactXI,nChI,nAorb,nChM,CVa,DoActive,
      &                      nScreen,dmpK,abs(CBLBM),ExFac)
 
