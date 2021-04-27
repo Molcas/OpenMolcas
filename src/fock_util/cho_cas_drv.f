@@ -110,11 +110,9 @@ c --- If specified in input, the routine also computes
 c --- the auxiliary Q-matrix stored as Q(av), where a is an AO index
 c --- and v refers to the active orbitals only
 
-      Do iSym=1,nSym
-         nForb(iSym) = nFro(iSym)
-         nIorb(iSym) = nIsh(iSym)
-         nAorb(iSym) = nAsh(iSym)
-      End Do
+      nForb(:) = nFro(:)
+      nIorb(:) = nIsh(:)
+      nAorb(:) = nAsh(:)
 
 
 C --- Build the packed densities from the Squared ones
@@ -134,12 +132,13 @@ C --- Build the packed densities from the Squared ones
          FactXI = -0.5D0
 
 !AMS - should this be set differently for ExFac.ne.1?
-!         FactXI = 0-(ExFac*.5d0)
+!        FactXI = 0-(ExFac*.5d0)
 
 c --- decompose the Inactive density on request
          Call Allocate_DSBA(ChoIn,nBas,nBas,nSym)
          Call Allocate_DSBA(DDec,nBas,nBas,nSym)
-         call dcopy_(NTot2,DI(1),1,DDec%A0,1)
+         DDec%A0(1:NTot2)=DI(1:NTot2)
+*        call dcopy_(NTot2,DI(1),1,DDec%A0,1)
 
          Call Allocate_DSBA(MSQ,nBas,nBas,nSym,Ref=ChoIn%A0)
 
@@ -182,11 +181,9 @@ c --- decompose the Inactive density on request
          Call Deallocate_DSBA(DDEc)
 
 c --- to get the right input arguments for CHO_FCAS_AO and CHO_FMCSCF
-         If(.not.DoLocK)Then
-           Do i=1,nSym
-              nForb(i) = 0
-              nIorb(i) = nChI(i)
-           End Do
+         If (.not.DoLocK) Then
+            nForb(:) = 0
+            nIorb(:) = nChI(:)
          EndIf
 
 
@@ -194,9 +191,7 @@ c --- to get the right input arguments for CHO_FCAS_AO and CHO_FMCSCF
 
          Call Allocate_DSBA(MSQ,nBas,nBas,nSym,Ref=W_CMO)
 
-        Do i=1,nSym
-           nChI(i) = nForb(i)+nIorb(i)
-        End Do
+         nChI(:) = nForb(:)+nIorb(:)
 
       EndIf
 
@@ -208,14 +203,15 @@ C --- Reordering of the MOs coefficients to fit cholesky needs
         Call Allocate_DSBA(POrb(1),nChI,nBas,nSym)
         Call Allocate_DSBA(POrb(3),nAOrb,nBas,nSym)
 
-        nOcs=0
+*       nOcs=0
         ioff1=0
         Do iSym=1,nSym
 
            do ikk=1,nChI(iSym)
               ioff2=ioff1+nBas(iSym)*(ikk-1)
               POrb(1)%SB(iSym)%A2(ikk,:) =
-     &           Work(ipInc+ioff2 : ipInc+ioff2 -1 + nBas(iSym))
+     &          MSQ%SB(iSym)%A2(:,ikk)
+*    &           Work(ipInc+ioff2 : ipInc+ioff2 -1 + nBas(iSym))
            end do
 
            ioff2=ioff1+nBas(iSym)*(nForb(iSym)+nIorb(iSym))
@@ -225,7 +221,7 @@ C --- Reordering of the MOs coefficients to fit cholesky needs
      &                  ioff2+nBas(iSym)*(ikk-1) + nBas(iSym))
            end do
            ioff1=ioff1+nBas(iSym)**2
-           nOcs = nOcs + nAorb(iSym)**2
+*          nOcs = nOcs + nAorb(iSym)**2
 
         End Do
 
@@ -262,7 +258,8 @@ C ---  Decompose the active density  -----------------------------
 
         Call Allocate_DSBA(CVa(2),nBas,nBas,nSym)
         Call Allocate_DSBA(DDec,nBas,nBas,nSym)
-        call dcopy_(NTot2,DA1(1),1,DDec%A0,1)
+        DDec%A0(1:NTot2)=DA1(1:NTot2)
+*       call dcopy_(NTot2,DA1(1),1,DDec%A0,1)
 
         Thr = 1.0d-12
         Do i=1,nSym
