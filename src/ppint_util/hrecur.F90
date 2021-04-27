@@ -11,15 +11,23 @@
 
 subroutine hrecur(pn,dpn,pn1,x,nn)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 
-p1 = 1.0d0
+implicit none
+real(kind=wp), intent(out) :: pn, dpn, pn1
+real(kind=wp), intent(in) :: x
+integer(kind=iwp), intent(in) :: nn
+integer(kind=iwp) :: j
+real(kind=wp) :: dp, dp1, dq, fj, fj2, p, p1, q
+
+p1 = One
 p = x
-dp1 = 0.0d0
-dp = 1.0d0
+dp1 = Zero
+dp = One
 do j=2,nn
   fj = (j)
-  fj2 = 0.5d0*(fj-1.0d0)
+  fj2 = Half*(fj-One)
   q = x*p-fj2*p1
   dq = x*dp+p-fj2*dp1
   p1 = p

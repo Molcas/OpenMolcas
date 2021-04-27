@@ -11,9 +11,15 @@
 
 subroutine facab(binom,na1,nb1,crda,crdb,xab)
 
-implicit real*8(a-h,o-z)
-!parameter (a1=1.0d0, a2=2.0d0, a3=3.0d0, a4=4.0d0, a6=6.0d0)
-dimension binom(*), crda(*), crdb(*), xab(*)
+#include "intent.fh"
+
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp), intent(in) :: binom(*), crda(*), crdb(*)
+integer(kind=iwp), intent(in) :: na1, nb1
+real(kind=wp), intent(_OUT_) :: xab(*)
+integer(kind=iwp) :: ia1, ib1, naind, nbind
 
 call wzero(na1+nb1-1,xab,1)
 naind = (na1*(na1-1))/2

@@ -14,15 +14,23 @@ subroutine ptwt(abess,arc2,bbess,dfac,npi,l,lambu,ltot1,lmahi,lmbhi,alpha,ptpow,
 ! using the points and weights method,
 ! for lama=l to lmahi, lamb=l to lmbhi, n=lama+lamb-l-l
 
-implicit real*8(a-h,o-z)
-parameter(a500=500.0d0,a50000=50000.0d0)
-dimension abess(*), bbess(*), dfac(*), hpt(*), hwt(*), ptpow(*), q2(lambu,*), qsum(ltot1,lambu,*)
+#include "intent.fh"
+
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: npi, l, lambu, ltot1, lmahi, lmbhi
+real(kind=wp), intent(_OUT_) :: abess(*), bbess(*), ptpow(*), q2(lambu,*)
+real(kind=wp), intent(in) :: arc2, dfac(*), alpha, rc, rka, rkb, hpt(*), hwt(*)
+real(kind=wp), intent(inout) :: prd, qsum(ltot1,lambu,*)
+integer(kind=iwp) :: i, idif, lama, lamb, n, npt
+real(kind=wp) :: fctr, pt, sqalp
 
 call wzero(lambu*lmahi,q2,1)
-if (arc2 > a50000) then
+if (arc2 > 50000.0_wp) then
   npt = 5
   idif = 0
-else if (arc2 > a500) then
+else if (arc2 > 500.0_wp) then
   npt = 10
   idif = 5
 else

@@ -9,40 +9,49 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine pseud2_molcas(a,anga,angb,ccr,gout,ipt,lambu,ltot1,mproju,ncr,nkcrl,nkcru,qsum,zcr,lit,ljt,ai,aj,xi,yi,zi,xj,yj,zj,xc, &
-                         yc,zc,kcrs,lcru,lproju1,crda,crdb)
+subroutine pseud2(a,anga,angb,ccr,gout,ipt,lambu,ltot1,mproju,ncr,nkcrl,nkcru,qsum,zcr,lit,ljt,ai,aj,xi,yi,zi,xj,yj,zj,xc,yc,zc, &
+                  kcrs,lcru,lproju1,crda,crdb)
 ! compute type 2 core potential integrals
 
-implicit real*8(a-h,o-z)
-dimension llt(7,2)
-dimension a(*), anga(lit,mproju,*), angb(ljt,mproju,*), ccr(*), crda(lit,3), crdb(ljt,3), gout(*), ipt(*), ncr(*), &
-          nkcrl(lproju1,*), nkcru(lproju1,*), qsum(ltot1,lambu,*), zcr(*)
-data llt/1,2,5,11,21,36,57,1,4,10,20,35,56,84/
-data a0,a4/0.0d0,4.0d0/
-!data eps1,a0,a1,a4,a50 /1.0d-15,0.0d0,1.0d0,4.0d0,50.0d0/
+#include "intent.fh"
 
-call pseud2_molcas_internal(a)
+use Constants, only: Zero, One, Four
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: ipt(*), lambu, ltot1, mproju, ncr(*), lit, ljt, kcrs, lcru, lproju1, nkcrl(lproju1,*), &
+                                 nkcru(lproju1,*)
+real(kind=wp), intent(inout) :: a(*), gout(*)
+real(kind=wp), intent(_OUT_) :: anga(lit,mproju,*), angb(ljt,mproju,*), qsum(ltot1,lambu,*)
+real(kind=wp), intent(in) :: ccr(*), zcr(*), ai, aj, xi, yi, zi, xj, yj, zj, xc, yc, zc
+real(kind=wp), intent(out) :: crda(lit,3), crdb(ljt,3)
+integer(kind=iwp) :: i, ijt, inc, it, itl, itu, j, jt, jtl, jtu, kcrl, kcru, l, lama, lamb, ldifa1, ldifb, lhi, llo, lmahi, lmalo, &
+                     lmau, lmbhi, lmblo, lmbu, m, mhi, n, nhi, nlma, nlmahi, nlmalo, nlmau, nlmbu, nlo
+real(kind=wp) :: aa, aarr2, angp, ca, cb, fctr2, rka, rkb, s, tai, taj, xka, xkb, yka, ykb, zka, zkb
+integer(kind=iwp), parameter :: llt_(7,2) = reshape([1,2,5,11,21,36,57,1,4,10,20,35,56,84],shape(llt_))
+
+call pseud2_internal(a)
 
 ! This is to allow type punning without an explicit interface
 contains
 
-subroutine pseud2_molcas_internal(a)
+subroutine pseud2_internal(a)
 
   use iso_c_binding
-  real*8, target :: a(*)
-  integer, pointer :: ia1(:), ia13(:), ia14(:), ia15(:), ia16(:), ia17(:)
+  real(kind=wp), intent(inout), target :: a(*)
+  integer(kind=iwp), pointer :: ia1(:), ia13(:), ia14(:), ia15(:), ia16(:), ia17(:)
 
-  fctr2 = a4
-  itl = llt(lit,1)
-  itu = llt(lit,2)
-  jtl = llt(ljt,1)
-  jtu = llt(ljt,2)
+  fctr2 = Four
+  itl = llt_(lit,1)
+  itu = llt_(lit,2)
+  jtl = llt_(ljt,1)
+  jtu = llt_(ljt,2)
   tai = ai+ai
   taj = aj+aj
   aa = ai+aj
   do i=1,3
-    crda(1,i) = 1.d0
-    crdb(1,i) = 1.d0
+    crda(1,i) = One
+    crdb(1,i) = One
   end do
   xka = xc-xi
   yka = yc-yi
@@ -76,8 +85,8 @@ subroutine pseud2_molcas_internal(a)
   240 continue
   aarr2 = (ai*aj/aa)*(ca-cb)**2
 
-  if (ca == a0) then
-    rka = a0
+  if (ca == Zero) then
+    rka = Zero
     lmau = 1
   else
     xka = -xka/ca
@@ -86,8 +95,8 @@ subroutine pseud2_molcas_internal(a)
     rka = tai*ca
     lmau = lcru+(lit-1)
   end if
-  if (cb == a0) then
-    rkb = a0
+  if (cb == Zero) then
+    rkb = Zero
     lmbu = 1
   else
     xkb = -xkb/cb
@@ -96,17 +105,17 @@ subroutine pseud2_molcas_internal(a)
     rkb = taj*cb
     lmbu = lcru+(ljt-1)
   end if
-  if ((ca == a0) .and. (cb == a0)) then
+  if ((ca == Zero) .and. (cb == Zero)) then
     lhi = min(lcru,lit,ljt)
     llo = mod((lit-1),2)+1
     if ((llo /= mod((ljt-1),2)+1) .or. (llo > lhi)) return
     inc = 2
-  elseif (ca == a0) then
+  elseif (ca == Zero) then
     lhi = min(lcru,lit)
     llo = mod((lit-1),2)+1
     if (llo > lhi) return
     inc = 2
-  elseif (cb == a0) then
+  elseif (cb == Zero) then
     lhi = min(lcru,ljt)
     llo = mod((ljt-1),2)+1
     if (llo > lhi) return
@@ -127,35 +136,30 @@ subroutine pseud2_molcas_internal(a)
 
     kcrl = nkcrl(l+1,kcrs)
     kcru = nkcru(l+1,kcrs)
-    call rad2_molcas(a,ccr,ipt,kcrl,kcru,l,lambu,lmahi,lmalo,lmbhi,lmblo,ltot1,ncr,qsum,rka,rkb,zcr,lit,ljt,ca,cb,tai,taj,aa, &
-                     aarr2,fctr2)
+    call rad2(a,ccr,ipt,kcrl,kcru,l,lambu,lmahi,lmalo,lmbhi,lmblo,ltot1,ncr,qsum,rka,rkb,zcr,lit,ljt,ca,cb,tai,taj,aa,aarr2,fctr2)
 
     ! compute angular integrals and combine with radial integrals
 
     ijt = 0
     do it=itl,itu
       call c_f_pointer(c_loc(a(ipt(1))),ia1,[1])
-      call c_f_pointer(c_loc(a(ipt(1))),ia1,[1])
       call c_f_pointer(c_loc(a(ipt(13))),ia13,[1])
       call c_f_pointer(c_loc(a(ipt(14))),ia14,[1])
       call c_f_pointer(c_loc(a(ipt(15))),ia15,[1])
       call c_f_pointer(c_loc(a(ipt(16))),ia16,[1])
       call c_f_pointer(c_loc(a(ipt(17))),ia17,[1])
-      call ang2_molcas(anga,a(ipt(12)),crda,a(ipt(11)),it,l,lit,lmalo,lmahi,ia13,ia14,ia15,ia16,ia17,ia1,mproju,xka,yka,zka, &
-                       a(ipt(18)))
+      call ang2(anga,a(ipt(12)),crda,a(ipt(11)),it,l,lit,lmalo,lmahi,ia13,ia14,ia15,ia16,ia17,ia1,mproju,xka,yka,zka,a(ipt(18)))
       nullify(ia1,ia13,ia14,ia15,ia16,ia17)
       do jt=jtl,jtu
         ijt = ijt+1
-        s = a0
-        call c_f_pointer(c_loc(a(ipt(1))),ia1,[1])
+        s = Zero
         call c_f_pointer(c_loc(a(ipt(1))),ia1,[1])
         call c_f_pointer(c_loc(a(ipt(13))),ia13,[1])
         call c_f_pointer(c_loc(a(ipt(14))),ia14,[1])
         call c_f_pointer(c_loc(a(ipt(15))),ia15,[1])
         call c_f_pointer(c_loc(a(ipt(16))),ia16,[1])
         call c_f_pointer(c_loc(a(ipt(17))),ia17,[1])
-        call ang2_molcas(angb,a(ipt(12)),crdb,a(ipt(11)),jt,l,ljt,lmblo,lmbhi,ia13,ia14,ia15,ia16,ia17,ia1,mproju,xkb,ykb,zkb, &
-                         a(ipt(18)))
+        call ang2(angb,a(ipt(12)),crdb,a(ipt(11)),jt,l,ljt,lmblo,lmbhi,ia13,ia14,ia15,ia16,ia17,ia1,mproju,xkb,ykb,zkb,a(ipt(18)))
         nullify(ia1,ia13,ia14,ia15,ia16,ia17)
         do lama=lmalo,lmahi
           ldifa1 = abs(l-lama)+1
@@ -168,7 +172,7 @@ subroutine pseud2_molcas_internal(a)
             do n=nlo,nhi,2
               nlmalo = max(ldifa1,n-nlmbu)
               nlmahi = min(nlmau,n-ldifb)
-              angp = a0
+              angp = Zero
               do m=1,mhi
                 do nlma=nlmalo,nlmahi,2
                   angp = angp+anga(nlma,m,lama)*angb((n+1)-nlma,m,lamb)
@@ -183,6 +187,6 @@ subroutine pseud2_molcas_internal(a)
     end do
   end do
   return
-end subroutine pseud2_molcas_internal
+end subroutine pseud2_internal
 
-end subroutine pseud2_molcas
+end subroutine pseud2

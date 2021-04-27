@@ -9,12 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ang2_molcas(ang,binom,crda,dfac,it,l,lit,lmlo,lmhi,lmf,lml,lmx,lmy,lmz,lmnv,mproju,xk,yk,zk,zlm)
+subroutine ang2(ang,binom,crda,dfac,it,l,lit,lmlo,lmhi,lmf,lml,lmx,lmy,lmz,lmnv,mproju,xk,yk,zk,zlm)
 ! compute type 2 angular integrals
 
-implicit real*8(a-h,o-z)
-parameter(a0=0.0d0,a1=1.0d0)
-dimension ang(lit,mproju,*), binom(*), crda(lit,3), dfac(*), lmf(*), lml(*), lmx(*), lmy(*), lmz(*), lmnv(3,*), zlm(*)
+#include "intent.fh"
+
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: it, l, lit, lmlo, lmhi, lmf(*), lml(*), lmx(*), lmy(*), lmz(*), lmnv(3,*), mproju
+real(kind=wp), intent(_OUT_) :: ang(lit,mproju,*)
+real(kind=wp), intent(in) :: binom(*), crda(lit,3), dfac(*), xk, yk, zk, zlm(*)
+integer(kind=iwp) :: i, ia, ib, ic, iend, indx, indy, indz, istart, j, l2, la1, laind, lam, lamhi, lamlo, loc1, loc2, m, ma1, &
+                     maind, mend, mhi, mndx, mndy, mndz, mstart, mu, n, na1, naind
+real (kind=wp) :: a_int, angt, pab1, pab2, pab3, pre, xkp, ykp, zkp
 
 call wzero(lit*mproju*lmhi,ang,1)
 na1 = lmnv(1,it)+1
@@ -27,13 +36,13 @@ loc1 = (l-1)**2
 mhi = l+l-1
 do ia=1,na1
   pab1 = binom(naind+ia)*crda((na1+1)-ia,1)
-  if (pab1 == a0) go to 80
+  if (pab1 == Zero) go to 80
   do ib=1,la1
     pab2 = pab1*binom(laind+ib)*crda((la1+1)-ib,2)
-    if (pab2 == a0) go to 70
+    if (pab2 == Zero) go to 70
     do ic=1,ma1
       pab3 = pab2*binom(maind+ic)*crda((ma1+1)-ic,3)
-      if (pab3 == a0) go to 60
+      if (pab3 == Zero) go to 60
       n = ((ia-3)+ib)+ic
       lamlo = max(l-n,lmlo+mod(l+n+lmlo,2))
       lamhi = min(l+n,lmhi-mod(l+n+lmhi,2))
@@ -43,31 +52,31 @@ do ia=1,na1
         mend = lml(loc1+m)
         do lam=lamlo,lamhi,2
           l2 = lam+lam-1
-          angt = a0
+          angt = Zero
           loc2 = (lam-1)**2
           do mu=1,l2
             istart = lmf(loc2+mu)
             if ((mod(ia+lmx(mstart)+lmx(istart),2) /= 1) .or. (mod(ib+lmy(mstart)+lmy(istart),2) /= 1) .or. &
                 (mod(ic+lmz(mstart)+lmz(istart),2) /= 1)) go to 40
-            pre = a0
+            pre = Zero
             iend = lml(loc2+mu)
-            aint = a0
+            a_int = Zero
             do i=istart,iend
               indx = lmx(i)
               indy = lmy(i)
               indz = lmz(i)
               if (indx == 0) then
-                xkp = a1
+                xkp = One
               else
                 xkp = xk**indx
               end if
               if (indy == 0) then
-                ykp = a1
+                ykp = One
               else
                 ykp = yk**indy
               end if
               if (indz == 0) then
-                zkp = a1
+                zkp = One
               else
                 zkp = zk**indz
               end if
@@ -76,11 +85,11 @@ do ia=1,na1
                 mndx = lmx(j)
                 mndy = lmy(j)
                 mndz = lmz(j)
-                aint = aint+zlm(i)*zlm(j)*dfac(ia+indx+mndx)*dfac(ib+indy+mndy)*dfac(ic+indz+mndz)/ &
-                       dfac(ia+indx+mndx+ib+indy+mndy+ic+indz+mndz)
+                a_int = a_int+zlm(i)*zlm(j)*dfac(ia+indx+mndx)*dfac(ib+indy+mndy)*dfac(ic+indz+mndz)/ &
+                        dfac(ia+indx+mndx+ib+indy+mndy+ic+indz+mndz)
               end do
             end do
-            angt = angt+pre*aint
+            angt = angt+pre*a_int
             40          continue
           end do
           ang(n+1,m,lam) = ang(n+1,m,lam)+angt*pab3
@@ -95,4 +104,4 @@ end do
 
 return
 
-end subroutine ang2_molcas
+end subroutine ang2

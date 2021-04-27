@@ -9,41 +9,51 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine cortab_molcas(binom,dfac,eps,flmtx,hpt,hwt,lmf,lml,lmx,lmy,lmz,lmax,lmn1u,lproju,mc,mr,ndfac,zlm)
+subroutine cortab(binom,dfac,eps,flmtx,hpt,hwt,lmf,lml,lmx,lmy,lmz,lmax,lmn1u,lproju,mc,mr,ndfac,zlm)
 ! Tables for core potential and spin-orbit integrals.
 
-implicit real*8(a-h,o-z)
-parameter(a0=0.0d0,a1=1.0d0,a3=3.0d0)
-dimension binom(*), dfac(*), flmtx(3,*), hpt(*), hwt(*), lmf(*), lml(*), lmx(*), lmy(*), lmz(*), mc(3,*), mr(3,*), zlm(*)
+#include "intent.fh"
+
+use Constants, only: Zero, One, Three
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp), intent(_OUT_) :: binom(*), dfac(*), flmtx(3,*), hpt(*), hwt(*), zlm(*)
+real(kind=wp), intent(in) :: eps
+integer(kind=iwp), intent(_OUT_) :: lmf(*), lml(*), lmx(*), lmy(*), lmz(*), mc(3,*), mr(3,*)
+integer(kind=iwp), intent(in) :: lmax, lmn1u, lproju, ndfac
+integer(kind=iwp) :: i, iadd, igh, il, indexh, inew, ione, isig, isigm, isigma, i_sign, itwo, iu, ixy, iz, j, k, lang, lone, ltwo, &
+                     mang, ndelta, nn, nsigma, nterm, nxy
+real(kind=wp) :: aden, anum, coef, coef1, coef2, fi
 
 ! Compute Gauss-Hermite points and weights for c, z integrals.
 igh = 1
 nn = 5
 do i=1,3
-  call hermit_molcas(nn,hpt(igh),hwt(igh),eps)
+  call hermit(nn,hpt(igh),hwt(igh),eps)
   igh = igh+nn
   nn = 2*nn
 end do
 ! Compute double factorials.
-dfac(1) = a1
-dfac(2) = a1
-fi = a0
+dfac(1) = One
+dfac(2) = One
+fi = Zero
 do i=1,ndfac-2
-  fi = fi+a1
+  fi = fi+One
   dfac(i+2) = fi*dfac(i)
 end do
 ! Compute binomial coefficients.
 inew = 1
-binom(1) = a1
+binom(1) = One
 do j=1,lmn1u-1
   inew = inew+1
-  binom(inew) = a1
+  binom(inew) = One
   do i=1,j-1
     inew = inew+1
-    binom(inew) = (dble(j-i+1)*binom(inew-1))/dble(i)
+    binom(inew) = (real(j-i+1,kind=wp)*binom(inew-1))/real(i,kind=wp)
   end do
   inew = inew+1
-  binom(inew) = a1
+  binom(inew) = One
 end do
 ! Compute tables by recursion for real spherical harmonics. They
 ! are indexed by l, m and sigma. The sequence number of the
@@ -67,14 +77,14 @@ lml(1) = 1
 lmx(1) = 0
 lmy(1) = 0
 lmz(1) = 0
-zlm(1) = a1
+zlm(1) = One
 ! l=1
 lmf(2) = 2
 lml(2) = 2
 lmx(2) = 0
 lmy(2) = 0
 lmz(2) = 1
-zlm(2) = sqrt(a3)
+zlm(2) = sqrt(Three)
 lmf(3) = 3
 lml(3) = 3
 lmx(3) = 0
@@ -90,11 +100,11 @@ zlm(4) = zlm(2)
 nterm = 4
 do lang=2,lmax
   do mang=0,lang-1
-    anum = dble((2*lang-1)*(2*lang+1))
-    aden = dble((lang-mang)*(lang+mang))
+    anum = real((2*lang-1)*(2*lang+1),kind=wp)
+    aden = real((lang-mang)*(lang+mang),kind=wp)
     coef1 = sqrt(anum/aden)
-    anum = dble((lang+mang-1)*(lang-mang-1)*(2*lang+1))
-    aden = dble(2*lang-3)*aden
+    anum = real((lang+mang-1)*(lang-mang-1)*(2*lang+1),kind=wp)
+    aden = real(2*lang-3,kind=wp)*aden
     coef2 = sqrt(anum/aden)
     nsigma = min(1,mang)
     do isigma=nsigma,0,-1
@@ -143,8 +153,8 @@ do lang=2,lmax
       end if
     end do
   end do
-  anum = dble(2*lang+1)
-  aden = dble(2*lang)
+  anum = real(2*lang+1,kind=wp)
+  aden = real(2*lang,kind=wp)
   coef = sqrt(anum/aden)
   mang = lang
   isigma = 1
@@ -218,22 +228,22 @@ do lang=1,lproju
   do mang=0,lang-1
     nsigma = min(1,mang)
     ndelta = max(0,1-mang)
-    anum = dble((lang-mang)*(lang+mang+1))
-    aden = dble(2*(2-ndelta))
+    anum = real((lang-mang)*(lang+mang+1),kind=wp)
+    aden = real(2*(2-ndelta),kind=wp)
     coef = sqrt(anum/aden)
     do isigma=nsigma,0,-1
-      isign = 2*isigma-1
+      i_sign = 2*isigma-1
       ixy = ixy+1
-      flmtx(1,ixy) = dble((isign))*coef
+      flmtx(1,ixy) = real(i_sign,kind=wp)*coef
       flmtx(2,ixy) = coef
       if (mang /= 0) then
         iz = iz+1
-        flmtx(3,iz) = -dble(mang*isigma)
+        flmtx(3,iz) = -real(mang*isigma,kind=wp)
       end if
     end do
   end do
   iz = iz+1
-  flmtx(3,iz) = -dble(lang)
+  flmtx(3,iz) = -real(lang,kind=wp)
 end do
 ! Column and row indices for angular momentum matrix elements.
 iadd = 1
@@ -249,4 +259,4 @@ end do
 
 return
 
-end subroutine cortab_molcas
+end subroutine cortab

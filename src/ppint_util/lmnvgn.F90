@@ -9,15 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine lmnvgn_molcas(lmn1u,lmnv)
+subroutine lmnvgn(lmn1u,lmnv)
 ! Generate Cartesian Gaussian exponent array.
 ! lmnv(*,*) = exponents of the cartesian gaussian basis functions.
 !             s   p   d   f   g   h   i
 !       lmn = 0   1   2   3   4   5   6
 !    numxyz = 1,  3,  6, 10, 15  21  28      = ((lmn+1)*(lmn+2))/2
-implicit logical(a-z)
-integer lmn, lmn1u, lmnv(3,*), ndx
-integer ix, iy, iz
+
+#include "intent.fh"
+
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: lmn1u
+integer(kind=iwp), intent(_OUT_) :: lmnv(3,*)
+integer(kind=iwp) :: ix, iy, iz, lmn, ndx
 
 ndx = 0
 do lmn=0,lmn1u-1
@@ -34,4 +40,4 @@ end do
 
 return
 
-end subroutine lmnvgn_molcas
+end subroutine lmnvgn

@@ -12,10 +12,10 @@
 !               2016, Liviu Ungur                                      *
 !***********************************************************************
 
-subroutine FragPInt(                                                    &
+subroutine FragPInt( &
 #                   define _CALLING_
 #                   include "int_interface.fh"
-&                  )
+                   )
 !***********************************************************************
 !                                                                      *
 ! Object: kernel routine for the computation of Fragment AIEMP         *

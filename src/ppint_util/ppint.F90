@@ -9,28 +9,36 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PPInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,nIC,nComp,la,lb,A,RB,nHer,Array,nArr,Ccoor,nOrdOp,lOper, &
-                 iChO,iStabM,nStabM)
+subroutine PPInt( &
+#                define _CALLING_
+#                include "int_interface.fh"
+                )
 !***********************************************************************
 !                                                                      *
 ! Object: to compute pseudo potential integrals.                       *
 !                                                                      *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "WrkSpc.fh"
-#include "oneswi.fh"
-real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC), Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta), rKappa(nZeta), &
-       P(nZeta,3), A(3), RB(3), C(3), Array(nZeta*nArr), Ccoor(3), TC(3)
-integer lOper(nComp), iStabM(0:nStabM-1), iDCRT(0:7), iChO(nComp)
+use Basis_Info, only: dbsc, nCnttp, Shells
+use Center_Info, only: dc
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-parameter(lproju=9)
-parameter(imax=100,kcrs=1)
-real*8 ccr(imax), zcr(imax)
-integer nkcrl(lproju+1,kcrs), nkcru(lproju+1,kcrs), lcr(kcrs), ncr(imax)
+implicit none
+#define _USE_WP_
+#include "int_interface.fh"
+integer(kind=iwp), parameter :: lproju = 9, imax = 100, kcrs = 1
+integer(kind=iwp) :: iA, iAB, iAlpha, iB, iBeta, iCntr, iCnttp, iDCRT(0:7), iExp, intmax, iOff, iOff2, ipA, ipScr, iSh, iStrt, &
+                     iZeta, kdc, kSh, kShEnd, kShStr, lcr(kcrs), lDCRT, LmbdT, nArray, ncr(imax), ncrr, nDCRT, &
+                     nkcrl(lproju+1,kcrs), nkcru(lproju+1,kcrs), nOp, npot, nPP_S
+real(kind=wp) :: C(3), ccr(imax), Fact, TC(3), zcr(imax)
+integer(kind=iwp), external :: NrOpr
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
+#endif
+
+integer(kind=iwp) :: i, nElem
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -40,7 +48,7 @@ nElem(i) = (i+1)*(i+2)/2
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -52,7 +60,7 @@ nArray = nArray+intmax
 ipA = ipScr+2*intmax
 nArray = nArray+nZeta*nElem(la)*nElem(lb)
 if (nArray > nZeta*nArr) then
-  write(6,*) 'nArray.gt.nZeta*nArr'
+  write(u6,*) 'nArray.gt.nZeta*nArr'
   call Abend()
 end if
 !                                                                      *
@@ -78,9 +86,9 @@ do iCnttp=1,nCnttp
   kShStr = dbsc(iCnttp)%iPP
   kShEnd = kShStr+nPP_S-1
   if (nPP_S-1 > lproju) then
-    write(6,*) 'dbsc(iCnttp)%nPP-1.gt.lproju'
-    write(6,*) 'dbsc(iCnttp)%nPP=',nPP_S
-    write(6,*) 'lproju            =',lproju
+    write(u6,*) 'dbsc(iCnttp)%nPP-1.gt.lproju'
+    write(u6,*) 'dbsc(iCnttp)%nPP=',nPP_S
+    write(u6,*) 'lproju            =',lproju
     call Abend()
   end if
   lcr(kcrs) = nPP_S-1
@@ -92,9 +100,9 @@ do iCnttp=1,nCnttp
     nkcru(iSh,kcrs) = iOff+Shells(kSh)%nExp/3-1
     iOff = iOff+Shells(kSh)%nExp/3
     if (nPot > imax) then
-      write(6,*) ' Pseudo: nPot.gt.imax'
-      write(6,*) '         nPot=',nPot
-      write(6,*) '         imax=',imax
+      write(u6,*) ' Pseudo: nPot.gt.imax'
+      write(u6,*) '         nPot=',nPot
+      write(u6,*) '         imax=',imax
       call Abend()
     end if
     iStrt = 1
@@ -107,11 +115,11 @@ do iCnttp=1,nCnttp
     end do
   end do
 # ifdef _DEBUGPRINT_
-  write(6,*) 'ncr',(ncr(i),i=1,npot)
-  write(6,*) 'zcr',(zcr(i),i=1,npot)
-  write(6,*) 'ccr',(ccr(i),i=1,npot)
-  write(6,*) 'nkcrl',(nkcrl(i,1),i=1,iSh)
-  write(6,*) 'nkcru',(nkcru(i,1),i=1,iSh)
+  write(u6,*) 'ncr',(ncr(i),i=1,npot)
+  write(u6,*) 'zcr',(zcr(i),i=1,npot)
+  write(u6,*) 'ccr',(ccr(i),i=1,npot)
+  write(u6,*) 'nkcrl',(nkcrl(i,1),i=1,iSh)
+  write(u6,*) 'nkcru',(nkcru(i,1),i=1,iSh)
 # endif
 
   do iCntr=1,dbsc(iCnttp)%nCntr
@@ -120,7 +128,7 @@ do iCnttp=1,nCnttp
     ! Find the DCR for M and S
 
     call DCR(LmbdT,iStabM,nStabM,dc(kdc+iCntr)%iStab,dc(kdc+iCntr)%nStab,iDCRT,nDCRT)
-    Fact = dble(nStabM)/dble(LmbdT)
+    Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
     do lDCRT=0,nDCRT-1
       call OA(iDCRT(lDCRT),C,TC)
@@ -151,7 +159,7 @@ do iCnttp=1,nCnttp
       ! Symmetry Adapt
 
       nOp = NrOpr(iDCRT(lDCRT))
-      call SymAdO(Array(ipA),nZeta,la,lb,nComp,final,nIC,nOp,lOper,iChO,Fact)
+      call SymAdO(Array(ipA),nZeta,la,lb,nComp,Final,nIC,nOp,lOper,iChO,Fact)
     end do ! lDCRT
     !                                                                  *
     !*******************************************************************
@@ -171,6 +179,9 @@ if (.false.) then
   call Unused_integer(nHer)
   call Unused_real_array(Ccoor)
   call Unused_integer(nOrdOp)
+  call Unused_real_array(PtChrg)
+  call Unused_integer(nGrid)
+  call Unused_integer(iAddPot)
 end if
 
 end subroutine PPInt

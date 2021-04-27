@@ -11,8 +11,13 @@
 
 subroutine Molcas_Order(GOut,na,nb)
 
-implicit real*8(a-h,o-z)
-real*8 GOut(na*nb,2)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: na, nb
+real(kind=wp), intent(inout) :: GOut(na*nb,2)
+integer(kind=iwp) :: ia, iab, ib, iba
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *

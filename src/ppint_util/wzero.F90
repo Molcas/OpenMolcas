@@ -11,8 +11,14 @@
 
 subroutine wzero(n,b,idum)
 
-implicit real*8(a-h,o-z)
-dimension b(1)
+#include "intent.fh"
+
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: n, idum
+real(kind=wp), intent(_OUT_) :: b(*)
+integer(kind=iwp) :: i
 
 do i=1,n
   b(i) = 0

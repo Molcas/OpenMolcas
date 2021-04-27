@@ -48,26 +48,28 @@ subroutine Pseudo(ai,xi,yi,zi,lit,aj,xj,yj,zj,ljt,gout,intmax,lmn1u,ccr,zcr,nkcr
 !
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), parameter :: lproju = 9, imax = 100, kcrs = 1
+integer(kind=iwp), intent(in) :: lit, ljt, intmax, lmn1u, nkcrl(lproju+1,kcrs), nkcru(lproju+1,kcrs), lcr(kcrs), ncr(imax), npot
+real(kind=wp), intent(in) :: ai, xi, yi, zi, aj, xj, yj, zj, ccr(npot), zcr(npot), xc, yc, zc
+real(kind=wp), intent(inout) :: gout(2*intmax)
 #include "WrkSpc.fh"
-parameter(lproju=9)
-parameter(imax=100,kcrs=1)
-!AOM parameter(iptmax=100000)
-parameter(facij=5.56832799683170784522d0)
-real*8 gout(2*intmax)
-real*8 ccr(npot), zcr(npot), crda(lproju,3), crdb(lproju,3)
-integer nkcrl(lproju+1,kcrs), nkcru(lproju+1,kcrs), lcr(kcrs), ncr(imax)
+integer(kind=iwp) :: i, ipt(55), ipt1, ipt13, ipt14, ipt15, ipt16, ipt17, ipt20, ipt21, l1max2, l2m1, lamau, lambu, lcru, litot, &
+                     ljtot, lmax, lmnpwr, lmnvmx, lproju1, ltot1, ltot12, lWork, mproju, mWrk, ncru, ndfac
+real(kind=wp) :: crda(lproju,3), crdb(lproju,3), eps
+real(kind=wp), parameter :: facij = 5.56832799683170784522_wp
+integer(kind=iwp), external :: ip_of_iWork_d
+!AOM integer(kind=iwp), parameter :: iptmax = 100000
+!AOM real(kind=wp) :: a(iptmax)
 
-!AOM dimension ipt(55), a(iptmax)
-dimension ipt(55)
-
-!write(6,*) 'ncr',(ncr(i),i=1,npot)
-!write(6,*) 'zcr',(zcr(i),i=1,npot)
-!write(6,*) 'ccr',(ccr(i),i=1,npot)
-!write(6,*) 'nkcrl',(nkcrl(i,1),i=1,lcr(1)+1)
-!write(6,*) 'nkcru',(nkcru(i,1),i=1,lcr(1)+1)
-!write(6,*)
+!write(u6,*) 'ncr',(ncr(i),i=1,npot)
+!write(u6,*) 'zcr',(zcr(i),i=1,npot)
+!write(u6,*) 'ccr',(ccr(i),i=1,npot)
+!write(u6,*) 'nkcrl',(nkcrl(i,1),i=1,lcr(1)+1)
+!write(u6,*) 'nkcru',(nkcru(i,1),i=1,lcr(1)+1)
+!write(u6,*)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -133,8 +135,8 @@ do I=1,50
   ipt(i) = ipt(i)+mWrk-1
 end do
 ipt1 = ip_of_iWork_d(Work(ipt(1)))
-call lmnvgn_molcas(lmn1u,iWork(ipt1))
-eps = 1.0d-12
+call lmnvgn(lmn1u,iWork(ipt1))
+eps = 1.0e-12_wp
 ipt1 = ip_of_iWork_d(Work(ipt(1)))
 ipt13 = ip_of_iWork_d(Work(ipt(13)))
 ipt14 = ip_of_iWork_d(Work(ipt(14)))
@@ -143,32 +145,32 @@ ipt16 = ip_of_iWork_d(Work(ipt(16)))
 ipt17 = ip_of_iWork_d(Work(ipt(17)))
 ipt20 = ip_of_iWork_d(Work(ipt(20)))
 ipt21 = ip_of_iWork_d(Work(ipt(21)))
-call cortab_molcas(Work(ipt(12)),Work(ipt(11)),eps,Work(ipt(19)),Work(ipt(9)),Work(ipt(10)),iWork(ipt13),iWork(ipt14), &
-                   iWork(ipt15),iWork(ipt16),iWork(ipt17),lmax,lmn1u,lproju,iWork(ipt20),iWork(ipt21),ndfac,Work(ipt(18)))
+call cortab(Work(ipt(12)),Work(ipt(11)),eps,Work(ipt(19)),Work(ipt(9)),Work(ipt(10)),iWork(ipt13),iWork(ipt14),iWork(ipt15), &
+            iWork(ipt16),iWork(ipt17),lmax,lmn1u,lproju,iWork(ipt20),iWork(ipt21),ndfac,Work(ipt(18)))
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! integrals for V_loc part of PP
 
 lproju1 = lproju+1
-call pseud1_molcas(Work,Work(ipt(31)),ccr,gout,ipt,iWork(ipt1),ltot1,ncr,nkcrl,nkcru,Work(ipt(33)),Work(ipt(34)),Work(ipt(35)), &
-                   Work(ipt(36)),zcr,lit,ljt,ai,aj,xi,yi,zi,xj,yj,zj,xc,yc,zc,kcrs,lproju1,crda,crdb)
+call pseud1(Work,Work(ipt(31)),ccr,gout,ipt,iWork(ipt1),ltot1,ncr,nkcrl,nkcru,Work(ipt(33)),Work(ipt(34)),Work(ipt(35)), &
+            Work(ipt(36)),zcr,lit,ljt,ai,aj,xi,yi,zi,xj,yj,zj,xc,yc,zc,kcrs,lproju1,crda,crdb)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! integrals for V_l P_l parts of PP
 
 lcru = lcr(kcrs)
-call pseud2_molcas(Work,Work(ipt(37)),Work(ipt(38)),ccr,gout,ipt,lambu,ltot1,mproju,ncr,nkcrl,nkcru,Work(ipt(39)),zcr,lit,ljt,ai, &
-                   aj,xi,yi,zi,xj,yj,zj,xc,yc,zc,kcrs,lcru,lproju1,crda,crdb)
+call pseud2(Work,Work(ipt(37)),Work(ipt(38)),ccr,gout,ipt,lambu,ltot1,mproju,ncr,nkcrl,nkcru,Work(ipt(39)),zcr,lit,ljt,ai,aj,xi, &
+            yi,zi,xj,yj,zj,xc,yc,zc,kcrs,lcru,lproju1,crda,crdb)
 call GetMem('Wrk','Free','Real',mWrk,lWork)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! final results with normalization factors
 
-!faci = sqrt((4.D0*ai)**lit/2.D0*sqrt(2.D0*ai))/((4.D0*ai)**((lit-1)/2.D0)*(Two*ai/Pi)**(Three/Four))
-!facj = sqrt((4.D0*aj)**ljt/2.D0*sqrt(2.D0*aj))/((4.D0*aj)**((ljt-1)/2.D0)*(Two*aj/Pi)**(Three/Four))
+!faci = sqrt((Four*ai)**lit/Two*sqrt(Two*ai))/((Four*ai)**(Half*(lit-1))*(Two*ai/Pi)**(Three/Four))
+!facj = sqrt((Four*aj)**ljt/Two*sqrt(Two*aj))/((Four*aj)**(Half*(ljt-1))*(Two*aj/Pi)**(Three/Four))
 !facij = faci*facj
 litot = lit*(lit+1)/2
 ljtot = ljt*(ljt+1)/2

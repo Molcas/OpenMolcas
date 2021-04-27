@@ -9,18 +9,27 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine rad2_molcas(a,ccr,ipt,kcrl,kcru,l,lambu,lmahi,lmalo,lmbhi,lmblo,ltot1,ncr,qsum,rka,rkb,zcr,lit,ljt,ca,cb,tai,taj,aa, &
-                       aarr2,fctr2)
+subroutine rad2(a,ccr,ipt,kcrl,kcru,l,lambu,lmahi,lmalo,lmbhi,lmblo,ltot1,ncr,qsum,rka,rkb,zcr,lit,ljt,ca,cb,tai,taj,aa,aarr2,fctr2)
 ! compute type 2 radial integrals.
 !
 ! 28-nov-90 new version replaced old version. -rmp
 ! 19-jan-97 put Bessel formula into a separate subroutine, qbess. -rmp
 
-implicit real*8(a-h,o-z)
-parameter(a0=0.0d0,eps1=1.0d-15,a1=1.0d0,a2=2.0d0,a4=4.0d0,a50=50.0d0)
-dimension a(*), ccr(*), ipt(*), ncr(*), qsum(ltot1,lambu,*),zcr(*)
+#include "intent.fh"
 
-tol = 20.*log(10.d0)
+use Constants, only: Zero, One, Two, Four, Ten
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: ipt(*), kcrl, kcru, l, lambu, lmahi, lmalo, lmbhi, lmblo, ltot1, ncr(*), lit, ljt
+real(kind=wp), intent(inout) :: a(*)
+real(kind=wp), intent(in) :: ccr(*), rka, rkb, zcr(*), ca, cb, tai, taj, aa, aarr2, fctr2
+real(kind=wp), intent(_OUT_) :: qsum(ltot1,lambu,*)
+integer(kind=iwp) :: kcr, lama, lamb, ldifa1, ldifb, n, nhi, nlim, nlo, npi, nu
+real(kind=wp) :: alpha, arc2, dum, f2lma3, f2lmb3, prd, qlim, rc, rk, t
+real(kind=wp), parameter :: eps1 = 1.0e-15_wp, tol = 20.0_wp*log(Ten)
+real(kind=wp), external :: qcomp
+
 call wzero(ltot1*lambu*lmahi,qsum,1)
 ! sum over potential terms
 do kcr=kcrl,kcru
@@ -32,19 +41,19 @@ do kcr=kcrl,kcru
   if (dum > tol) go to 68
   prd = fctr2*ccr(kcr)*exp(-dum)
 
-  if ((rka == a0) .and. (rkb == a0)) then
+  if ((rka == Zero) .and. (rkb == Zero)) then
     ! rka=0 and rkb=0
-    rk = a0
-    t = a0
+    rk = Zero
+    t = Zero
     qsum(ltot1,1,1) = qsum(ltot1,1,1)+prd*qcomp(alpha,a(ipt(11)),npi+ltot1-1,0,t,rk)
-  elseif (rka == a0) then
+  elseif (rka == Zero) then
     ! rka=0 and rkb>0
     rk = rkb
     t = arc2
     do lamb=l,lmbhi
       qsum(lamb-l+lit,lamb,1) = qsum(lamb-l+lit,lamb,1)+prd*qcomp(alpha,a(ipt(11)),npi+lamb-l+lit-1,lamb-1,t,rk)
     end do
-  elseif (rkb == a0) then
+  elseif (rkb == Zero) then
     ! rka>0 and rkb=0
     rk = rka
     t = arc2
@@ -60,10 +69,10 @@ do kcr=kcrl,kcru
     nu = l
     call qbess(alpha,a(ipt(40)),a(ipt(41)),a(ipt(42)),a(ipt(12)),a(ipt(43)),a(ipt(44)),a(ipt(45)),a(ipt(11)),l,lambu,lmahi,lmbhi, &
                ltot1,nu,prd,qsum,rka,rkb,a(ipt(46)))
-  elseif (arc2 >= a50) then
+  elseif (arc2 >= 50.0_wp) then
     ! rka>0 and rkb>0; use pts and wts method
     ! estimate radial integrals and compare to threshold
-    qlim = abs(prd)/(max(a1,(rc+rc)*rka)*max(a1,(rc+rc)*rkb))*sqrt(a4*(tai+tai)**lit*(taj+taj)**ljt*sqrt(tai*taj)/alpha)
+    qlim = abs(prd)/(max(One,(rc+rc)*rka)*max(One,(rc+rc)*rkb))*sqrt(Four*(tai+tai)**lit*(taj+taj)**ljt*sqrt(tai*taj)/alpha)
     if (rc < ca) then
       nlim = npi
       qlim = qlim*ca**(lit-1)
@@ -86,34 +95,34 @@ do kcr=kcrl,kcru
   68 continue
 end do
 
-if ((rka == a0) .and. (rkb /= a0)) then
+if ((rka == Zero) .and. (rkb /= Zero)) then
   ! rka=0 and rkb>0
-  f2lmb3 = dble(2*lmbhi-3)
+  f2lmb3 = real(2*lmbhi-3,kind=wp)
   do lamb=lmbhi-2,lmblo,-1
     nlo = abs(lamb-l+1)+lit+1
     nhi = ljt-mod((ljt-1)-abs(lamb-l),2)+lit-1
     do n=nlo,nhi,2
       qsum(n,lamb,1) = qsum(n,lamb+2,1)+(f2lmb3/rkb)*qsum(n-1,lamb+1,1)
     end do
-    f2lmb3 = f2lmb3-a2
+    f2lmb3 = f2lmb3-Two
   end do
-elseif ((rka /= a0) .and. (rkb == a0)) then
+elseif ((rka /= Zero) .and. (rkb == Zero)) then
   ! rka>0 and rkb=0
-  f2lma3 = dble(2*lmahi-3)
+  f2lma3 = real(2*lmahi-3,kind=wp)
   do lama=lmahi-2,lmalo,-1
     nlo = abs(lama-l+1)+ljt+1
     nhi = lit-mod((lit-1)-abs(lama-l),2)+ljt-1
     do n=nlo,nhi,2
       qsum(n,1,lama) = qsum(n,1,lama+2)+(f2lma3/rka)*qsum(n-1,1,lama+1)
     end do
-    f2lma3 = f2lma3-a2
+    f2lma3 = f2lma3-Two
   end do
-elseif ((rka /= a0) .and. (rkb /= a0)) then
+elseif ((rka /= Zero) .and. (rkb /= Zero)) then
   ! rka>0 and rkb>0
-  f2lma3 = dble(lmahi+lmahi+1)
+  f2lma3 = real(lmahi+lmahi+1,kind=wp)
   do lama=lmahi,lmalo,-1
     ldifa1 = abs(l-lama)+1
-    f2lmb3 = dble(2*lmbhi+1)
+    f2lmb3 = real(2*lmbhi+1,kind=wp)
     do lamb=lmbhi,lmblo,-1
       ldifb = abs(l-lamb)
       nlo = ldifa1+ldifb
@@ -129,12 +138,12 @@ elseif ((rka /= a0) .and. (rkb /= a0)) then
         end if
         88      continue
       end do
-      f2lmb3 = f2lmb3-a2
+      f2lmb3 = f2lmb3-Two
     end do
-    f2lma3 = f2lma3-a2
+    f2lma3 = f2lma3-Two
   end do
 end if
 
 return
 
-end subroutine rad2_molcas
+end subroutine rad2

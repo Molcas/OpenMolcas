@@ -8,12 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 subroutine rad1(aa,aarr1,alpt,arp2,ccr,dfac,fctr2,kcrl,kcru,lamu,ltot1,ncr,qsum,rk,tol,zcr)
 ! compute type 1 radial integrals
 
-implicit real*8(a-h,o-z)
-parameter(a0=0.0d0,a2=2.0d0)
-dimension ccr(*), dfac(*), ncr(*), qsum(ltot1,*), zcr(*)
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: kcrl, kcru, lamu, ltot1, ncr(*)
+real(kind=wp), intent(in) :: aa, aarr1, alpt, arp2, ccr(*), dfac(*), fctr2, rk, tol, zcr(*)
+real(kind=wp), intent(inout) :: qsum(ltot1,*)
+integer(kind=iwp) :: kcr, lam, n, npi
+real(kind=wp) :: alpha, dum, f2lam3, prd, t
+real(kind=wp), external :: qcomp
 
 do kcr=kcrl,kcru
   npi = ncr(kcr)
@@ -22,8 +30,8 @@ do kcr=kcrl,kcru
   dum = aarr1+zcr(kcr)*arp2/alpha
   if (dum > tol) go to 40
   prd = fctr2*ccr(kcr)*exp(-dum)
-  if (rk == a0) then
-    t = a0
+  if (rk == Zero) then
+    t = Zero
     do n=1,ltot1-mod(ltot1-1,2),2
       qsum(n,1) = qsum(n,1)+prd*qcomp(alpha,dfac,npi+n-1,0,t,rk)
     end do
@@ -36,13 +44,13 @@ do kcr=kcrl,kcru
   40 continue
 end do
 
-if (rk /= a0) then
+if (rk /= Zero) then
   f2lam3 = (lamu+lamu-3)
   do lam=lamu-2,1,-1
     do n=lam+2,lamu-mod(lamu-lam,2),2
       qsum(n,lam) = qsum(n,lam+2)+(f2lam3/rk)*qsum(n-1,lam+1)
     end do
-    f2lam3 = f2lam3-a2
+    f2lam3 = f2lam3-Two
   end do
 end if
 

@@ -15,7 +15,15 @@ subroutine hroot(x,nn,dpn,pn1,eps)
 ! dpn = derivative of h(n) at x
 ! pn1 = value of h(n-1) at x
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp), intent(inout) :: x
+integer(kind=iwp), intent(in) :: nn
+real(kind=wp), intent(out) :: dpn, pn1
+real(kind=wp), intent(in) :: eps
+integer(kind=iwp) :: iter
+real(kind=wp) :: d, dp, p
 
 ! iter = 5 sufficient for 8-byte accuracy up to nn = 7
 do iter=1,10

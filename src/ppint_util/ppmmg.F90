@@ -9,32 +9,45 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PPMmG(nHer,MmPPG,la,lb,lr)
+subroutine PPMmG( &
+#                define _CALLING_
+#                include "mem_interface.fh"
+                )
 
+use Definitions, only: iwp
+
+implicit none
+#define _USE_WP_
+#include "mem_interface.fh"
+integer(kind=iwp) :: lalbm, lalbp, lambl, lapbl
+
+integer(kind=iwp) :: i, nElem
+
+! statement function
 nElem(i) = (i+1)*(i+2)/2
 
 nHer = 0
-MmPPG = 0
+Mem = 0
 
-laplb = max(nElem(la+1),nElem(lb))**2
-MmPPG = MmPPG+2*laplb
+lapbl = max(nElem(la+1),nElem(lb))**2
+Mem = Mem+2*lapbl
 
 if (la > 0) then
-  lamlb = max(nElem(la-1),nElem(lb))**2
+  lambl = max(nElem(la-1),nElem(lb))**2
 else
-  lamlb = 0
+  lambl = 0
 end if
-MmPPG = MmPPG+2*lamlb
+Mem = Mem+2*lambl
 
 lalbp = max(nElem(la),nElem(lb+1))**2
-MmPPG = MmPPG+2*lalbp
+Mem = Mem+2*lalbp
 
 if (lb > 0) then
   lalbm = max(nElem(la),nElem(lb-1))**2
 else
   lalbm = 0
 end if
-MmPPG = MmPPG+2*lalbm
+Mem = Mem+2*lalbm
 
 return
 ! Avoid unused argument warnings

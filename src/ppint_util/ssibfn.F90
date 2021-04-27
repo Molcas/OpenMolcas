@@ -12,9 +12,17 @@
 subroutine ssibfn(nmax,x,ssi)
 ! scaled spherical i Bessel functions
 
-implicit real*8(a-h,o-z)
-parameter(a0=0.0d0,a1=1.0d0,a3s2=1.5d0,a2=2.0d0,a3=3.0d0,a20=20.0d0)
-dimension ssi(*)
+#include "intent.fh"
+
+use Constants, only: Zero, One, Two, Three, OneHalf
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nmax
+real(kind=wp), intent(in) :: x
+real(kind=wp), intent(_OUT_) :: ssi(*)
+integer(kind=iwp) :: n
+real(kind=wp) :: ak, akpkm2, akqkm2, aprod, ex, f2kp1, f2kp3, f2nm1, f2np1, f2np3, pk, pkm1, qk, qkm1, x2, xmin
 
 x2 = x*x
 xmin = (abs(3*nmax-1))
@@ -22,14 +30,14 @@ if (x > xmin) go to 5
 n = nmax
 f2np1 = (n+n+1)
 f2kp3 = f2np1
-pkm1 = a0
-pk = a1
-qkm1 = a1
-qk = a1
-aprod = a1
+pkm1 = Zero
+pk = One
+qkm1 = One
+qk = One
+aprod = One
 1 continue
 f2kp1 = f2kp3
-f2kp3 = f2kp3+a2
+f2kp3 = f2kp3+Two
 ak = x2/(f2kp1*f2kp3)
 akpkm2 = ak*pkm1
 pkm1 = pk
@@ -44,11 +52,11 @@ ssi(n+1) = pk/qk
 if (n == 0) go to 3
 n = n-1
 f2np3 = f2np1
-f2np1 = f2np1-a2
+f2np1 = f2np1-Two
 ssi(n+1) = (f2np1*f2np3)/((f2np1*f2np3)+x2*ssi(n+2))
 go to 2
 3 continue
-ssi(1) = ssi(1)/(a1+x*ssi(1))
+ssi(1) = ssi(1)/(One+x*ssi(1))
 do n=1,nmax
   ssi(n+1) = ssi(n+1)*ssi(n)
 end do
@@ -56,19 +64,19 @@ end do
 return
 
 5 continue
-if (x >= a20) then
-  ex = a0
+if (x >= 20.0_wp) then
+  ex = Zero
 else
   ex = exp(-(x+x))
 end if
-ssi(1) = (a1-ex)/(x+x)
+ssi(1) = (One-ex)/(x+x)
 if (nmax == 0) return
-ssi(2) = a3s2*(a1+ex+(ex-a1)/x)/x2
+ssi(2) = OneHalf*(One+ex+(ex-One)/x)/x2
 if (nmax == 1) return
-f2np1 = a3
+f2np1 = Three
 do n=2,nmax
   f2nm1 = f2np1
-  f2np1 = f2np1+a2
+  f2np1 = f2np1+Two
   ssi(n+1) = (ssi(n-1)-ssi(n))*(f2nm1*f2np1)/x2
 end do
 

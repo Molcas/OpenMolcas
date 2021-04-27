@@ -9,37 +9,39 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PPGrd(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,la,lb,A,RB,nHer,Array,nArr,Ccoor,nOrdOp,Grad,nGrad,IfGrad,&
-                 IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,iStabM,nStabM)
-
+subroutine PPGrd( &
+#                define _CALLING_
+#                include "grd_interface.fh"
+                )
 !***********************************************************************
 !                                                                      *
 ! Object: to compute pseudo potential gradient integrals               *
 !                                                                      *
 !***********************************************************************
-use Basis_Info
-use Center_Info
+
+use Basis_Info, only: dbsc, nCnttp, Shells
+use Center_Info, only: dc
 use Symmetry_Info, only: iOper
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+#define _USE_WP_
+#include "grd_interface.fh"
+integer(kind=iwp), parameter :: lproju = 9, imax = 100, kcrs = 1
+integer(kind=iwp) :: i, ia, iAlpha, ib, iBeta, iCar, iCmp, iCnttp, iDCRT(0:7), iExp, iIrrep, iOff, iplalbm, iplalbp, iplamlb, &
+                     iplaplb, ipRef, iPrint, iRout, iSh, iStrt, iuvwx(4), iVec, iZeta, j, JndGrd(3,4), kCnt, kdc, kSh, kShEnd, &
+                     kShStr, lcr(kcrs), lDCRT, LmbdT, lOp(4), mGrad, nArray, ncr(imax), ncrr, nDAO, nDCRT, nDisp, &
+                     nkcrl(lproju+1,kcrs), nkcru(lproju+1,kcrs), nlalbm, nlalbp, nlamlb, nlaplb, npot, nPP_S
+real(kind=wp) :: C(3), ccr(imax), Fact, TC(3), zcr(imax)
+character(len=80) :: Label
+logical(kind=iwp) EQ, JfGrad(3,4)
 #include "Molcas.fh"
-#include "real.fh"
-#include "oneswi.fh"
 #include "print.fh"
 #include "disp.fh"
-real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta), rKappa(nZeta), &
-       P(nZeta,3), A(3), RB(3), C(3), Array(nZeta*nArr), Ccoor(3), TC(3), Grad(nGrad), DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
-character*80 Label
-integer lOper(nComp), iStabM(0:nStabM-1), iDCRT(0:7), IndGrd(3,2), iuvwx(4), kOp(2), lOp(4), JndGrd(3,4)
-logical IfGrad(3,2), JfGrad(3,4)
+logical(kind=iwp), external :: TF
 
-parameter(lproju=9)
-parameter(imax=100,kcrs=1)
-real*8 ccr(imax), zcr(imax)
-integer nkcrl(lproju+1,kcrs), nkcru(lproju+1,kcrs), lcr(kcrs), ncr(imax)
-
-logical EQ
-logical, external :: TF
-
+integer(kind=iwp) :: nElem
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -99,7 +101,7 @@ iplalbm = ipRef+2*nArray
 nArray = nArray+nlalbm
 
 if (nArray > nZeta*nArr) then
-  write(6,*) 'nArray.gt.nZeta*nArr'
+  write(u6,*) 'nArray.gt.nZeta*nArr'
   call Abend()
 end if
 !                                                                      *
@@ -108,7 +110,7 @@ end if
 kdc = 0
 do iCnttp=1,nCnttp
   if (iCnttp > 1) kdc = kdc+dbsc(iCnttp-1)%nCntr
-  if (dbsc(iCnttp)%Charge == 0d0) cycle
+  if (dbsc(iCnttp)%Charge == Zero) cycle
   if (dbsc(iCnttp)%nPP == 0) cycle
   !AOM< Get the "true" (non SO) shells
   nPP_S = 0
@@ -125,10 +127,10 @@ do iCnttp=1,nCnttp
   !AOM kShEnd = kShStr+dbsc(iCnttp)%nPP-1
   kShEnd = kShStr+nPP_S-1
   if (dbsc(iCnttp)%nPP-1 > lproju) then
-    write(6,*) 'dbsc(iCnttp)%nPP-1.gt.lproju'
-    !AOM write(6,*) 'dbsc(iCnttp)%nPP=',dbsc(iCnttp)%nPP
-    write(6,*) 'dbsc(iCnttp)%nPP=',nPP_S
-    write(6,*) 'lproju          =',lproju
+    write(u6,*) 'dbsc(iCnttp)%nPP-1.gt.lproju'
+    !AOM write(u6,*) 'dbsc(iCnttp)%nPP=',dbsc(iCnttp)%nPP
+    write(u6,*) 'dbsc(iCnttp)%nPP=',nPP_S
+    write(u6,*) 'lproju          =',lproju
     call Abend()
   end if
   !AOM lcr(kcrs) = dbc(iCnttp)%nPP-1
@@ -141,9 +143,9 @@ do iCnttp=1,nCnttp
     nkcru(iSh,kcrs) = iOff+Shells(ksh)%nExp/3-1
     iOff = iOff+Shells(kSh)%nExp/3
     if (nPot > imax) then
-      write(6,*) ' Pseudo: nPot.gt.imax'
-      write(6,*) '         nPot=',nPot
-      write(6,*) '         imax=',imax
+      write(u6,*) ' Pseudo: nPot.gt.imax'
+      write(u6,*) '         nPot=',nPot
+      write(u6,*) '         imax=',imax
       call Abend()
     end if
     iStrt = 1
@@ -155,11 +157,11 @@ do iCnttp=1,nCnttp
       iStrt = iStrt+3
     end do
   end do
-  !write(6,*) 'ncr',(ncr(i),i=1,npot)
-  !write(6,*) 'zcr',(zcr(i),i=1,npot)
-  !write(6,*) 'ccr',(ccr(i),i=1,npot)
-  !write(6,*) 'nkcrl',(nkcrl(i,1),i=1,iSh)
-  !write(6,*) 'nkcru',(nkcru(i,1),i=1,iSh)
+  !write(u6,*) 'ncr',(ncr(i),i=1,npot)
+  !write(u6,*) 'zcr',(zcr(i),i=1,npot)
+  !write(u6,*) 'ccr',(ccr(i),i=1,npot)
+  !write(u6,*) 'nkcrl',(nkcrl(i,1),i=1,iSh)
+  !write(u6,*) 'nkcru',(nkcru(i,1),i=1,iSh)
 
   do kCnt=1,dbsc(iCnttp)%nCntr
     C(1:3) = dbsc(iCnttp)%Coor(1:3,kCnt)
@@ -167,7 +169,7 @@ do iCnttp=1,nCnttp
     ! Find the DCR for M and S
 
     call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-    Fact = dble(nStabM)/dble(LmbdT)
+    Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
     iuvwx(3) = dc(kdc+kCnt)%nStab
     iuvwx(4) = dc(kdc+kCnt)%nStab
@@ -182,7 +184,7 @@ do iCnttp=1,nCnttp
     do iCar=0,2
       JfGrad(iCar+1,3) = .false.
       iCmp = 2**iCar
-      if (TF(kdc+kCnt,iIrrep,iCmp) .and. .not. dbsc(iCnttp)%pChrg) then
+      if (TF(kdc+kCnt,iIrrep,iCmp) .and. (.not. dbsc(iCnttp)%pChrg)) then
         nDisp = nDisp+1
         if (Direct(nDisp)) then
           JndGrd(iCar+1,1) = abs(JndGrd(iCar+1,1))
@@ -252,23 +254,23 @@ do iCnttp=1,nCnttp
 
           ! Assemble gradient and store in Final.
 
-          call Assemble_PPGrd(final,nZeta,la,lb,iZeta,Alpha(iAlpha),Beta(iBeta),Array(iplaplb),Array(iplamlb),Array(iplalbp),&
+          call Assemble_PPGrd(Final,nZeta,la,lb,iZeta,Alpha(iAlpha),Beta(iBeta),Array(iplaplb),Array(iplamlb),Array(iplalbp),&
                               Array(iplalbm),JfGrad)
 
         end do ! iAlpha
       end do   ! iBeta
 
       !AOM<
-      if (abs(Fact-1d0) > 1d-7) call dscal_(nAlpha*nBeta*nElem(la)*nElem(lb)*mGrad,Fact,final,1)
+      if (abs(Fact-One) > 1.0e-7_wp) call dscal_(nAlpha*nBeta*nElem(la)*nElem(lb)*mGrad,Fact,Final,1)
       !AOM>
       if (iPrint >= 99) then
-        write(6,*) ' Result in PPGrd'
-        write(6,*) JfGrad
+        write(u6,*) ' Result in PPGrd'
+        write(u6,*) JfGrad
         do ia=1,nElem(la)
           do ib=1,nElem(lb)
             do iVec=1,mGrad
               write(Label,'(A,I2,A,I2,A)') ' Final(',ia,',',ib,')'
-              call RecPrt(Label,' ',final(1,ia,ib,iVec),nAlpha,nBeta)
+              call RecPrt(Label,' ',Final(1,ia,ib,iVec),nAlpha,nBeta)
             end do
           end do
         end do
@@ -278,7 +280,7 @@ do iCnttp=1,nCnttp
       !                                                                *
       ! Distribute contributions to the gradient
 
-      call Distg1X(final,DAO,nZeta,nDAO,mGrad,Grad,nGrad,JfGrad,JndGrd,iuvwx,lOp)
+      call Distg1X(Final,DAO,nZeta,nDAO,mGrad,Grad,nGrad,JfGrad,JndGrd,iuvwx,lOp)
 
     end do ! lDCRT
 !                                                                      *

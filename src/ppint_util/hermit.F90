@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine hermit_molcas(nn,x,a,eps)
+subroutine hermit(nn,x,a,eps)
 ! Calculates the zeros  x(i)  of the nn-th order
 ! Hermite polynomial. The largest zero will be
 ! stored in x(1). Also calculates the corresponding
@@ -19,42 +19,51 @@ subroutine hermit_molcas(nn,x,a,eps)
 ! A. H. Stroud & D. Secrest, Gaussian quadrature formulas,
 ! Prentice-Hall, 1966
 
-implicit real*8(a-h,o-z)
-parameter(sixth=1.0d0/6.0d0)
-dimension x(*), a(*)
+#include "intent.fh"
 
-fn = dble(nn)
+use Constants, only: Zero, One, Two, Six, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nn
+real(kind=wp), intent(_OUT_) :: x(*), a(*)
+real(kind=wp), intent(in) :: eps
+integer(kind=iwp) :: i, n1, n2, ni
+real(kind=wp) :: cc, dpn, fn, pn1, s, xt
+real(kind=wp), parameter :: sixth = One/Six
+
+fn = real(nn,kind=wp)
 n1 = nn-1
 n2 = (nn+1)/2
-cc = 1.0d0
-s = 0.0d0
+cc = One
+s = Zero
 do i=1,n1
-  s = s+0.5d0
+  s = s+Half
   cc = s*cc
 end do
-s = (2.0d0*fn+1.0d0)**sixth
+s = (Two*fn+One)**sixth
 do i=1,n2
   if (i == 1) then
     ! largest zero
-    xt = s**3-1.85575d0/s
+    xt = s**3-1.85575_wp/s
   elseif (i == 2) then
     ! second zero
-    xt = xt-1.14d0*fn**0.426d0/xt
+    xt = xt-1.14_wp*fn**0.426_wp/xt
   elseif (i == 3) then
     ! third zero
-    xt = 1.86d0*xt-0.86d0*x(1)
+    xt = 1.86_wp*xt-0.86_wp*x(1)
   elseif (i == 4) then
     ! fourth zero
-    xt = 1.91d0*xt-0.91d0*x(2)
+    xt = 1.91_wp*xt-0.91_wp*x(2)
   else
     ! all other zeros
-    xt = 2.0d0*xt-x(i-2)
+    xt = 2.0_wp*xt-x(i-2)
   end if
 
   call hroot(xt,nn,dpn,pn1,eps)
   x(i) = xt
   a(i) = cc/dpn/pn1
-  !write (6,'(2i4,2d25.17)') nn,i,xt,a(i)
+  !write (u6,'(2i4,2d25.17)') nn,i,xt,a(i)
   ni = nn-i+1
   x(ni) = -xt
   a(ni) = a(i)
@@ -62,4 +71,4 @@ end do
 
 return
 
-end subroutine hermit_molcas
+end subroutine hermit

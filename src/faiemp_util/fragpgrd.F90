@@ -11,8 +11,10 @@
 ! Copyright (C) Ben Swerts                                             *
 !***********************************************************************
 
-subroutine FragPGrd(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Fin,nZeta,la,lb,A,RB,nRys,Array,nArr,Ccoor,nOrdOp,Grad,nGrad, &
-                    IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,iStabM,nStabM)
+subroutine FragPGrd( &
+#                   define _CALLING_
+#                   include "grd_interface.fh"
+                   )
 !***********************************************************************
 !                                                                      *
 ! Object: kernel routine for the computation of FAIEMP Projection      *
@@ -28,7 +30,7 @@ subroutine FragPGrd(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Fin,nZeta,la,lb,A
 !              gaussians.                                              *
 !      P     : center of new gaussian from the products of bra and ket *
 !              gaussians.                                              *
-!      Fin   : array for computed integrals                            *
+!      Final : array for computed integrals                            *
 !      nZeta : nAlpha x nBeta                                          *
 !      nComp : number of components in the operator (e.g. dipole moment*
 !              operator has three components)                          *
@@ -36,7 +38,7 @@ subroutine FragPGrd(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Fin,nZeta,la,lb,A
 !      lb    : total angular momentum of ket gaussian                  *
 !      A     : center of bra gaussian                                  *
 !      B     : center of ket gaussian                                  *
-!      nRys  : order of Rys- or Hermite-Gauss polynomial               *
+!      nHer  : order of Rys- or Hermite-Gauss polynomial               *
 !      Array : Auxiliary memory as requested by FragMMG                *
 !      nArr  : length of Array                                         *
 !      Ccoor : coordinates of the operator, zero for symmetric oper.   *
@@ -57,20 +59,15 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-! TODO: unknown intents, probably all "in", except Fin, Grad
-integer(kind=iwp), intent(inout) :: nAlpha, nBeta, nZeta, la, lb, nRys, nArr, nOrdOp, nGrad, IndGrd(3,2), mdc, ndc, kOp(2), nComp, &
-                                    nStabM, lOper(nComp), iStabM(0:nStabM-1)
-real(kind=wp), intent(inout) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), &
-                                Fin(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), A(3), RB(3), Array(nZeta*nArr), Ccoor(3), &
-                                Grad(nGrad), DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-logical(kind=iwp), intent(in) :: IfGrad(3,2)
+#define _USE_WP_
+#include "grd_interface.fh"
 #include "print.fh"
 real(kind=wp) :: C(3), TC(3), B(3), TB(3), Fact
 integer(kind=iwp) :: iDCRT(0:7), iuvwx(4), lOp(4), JndGrd(3,4), i, j, ia, ib, iAng, iBas, iRout, iPrint, nSkal, iCar, iCent, &
                      iCnttp, iCurCenter, iCurCnttp, iCurMdc, iGamma, iLoc, ip, ipA, ipAxyz, ipB, ipBxyz, ipCxyz, ipF1, ipF2, &
                      ipF1a, ipF2a, ipIJ, ipK1, ipK2, ipP1, ipP2, ipQ1, iPrim, ipRxyz, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iS, &
                      iSbasis, iSEnd, iShll, iSize, iSlocal, iSstart, iStemp, iStrt, iVec, jAng, jBas, jCnttp, jPrim, jS, jSbasis, &
-                     jShll, jSize, jSlocal, ld, lDCRT, LmbdT, mdci, mGrad, mVec, mVecAC, mVecCB, nac, ncb, nDAO, nDCRT, nHer, &
+                     jShll, jSize, jSlocal, ld, lDCRT, LmbdT, mdci, mGrad, mVec, mVecAC, mVecCB, nac, ncb, nDAO, nDCRT, n_Her, &
                      maxDensSize, nVecAC, nVecCB, iCnt, jCnt
 logical(kind=iwp) :: JfGrad(3,4), ABeq(3), EQ, EnergyWeight
 character(len=80) :: Label
@@ -79,7 +76,7 @@ real(kind=r8), external :: DNrm2_
 unused_var(Zeta)
 unused_var(ZInv)
 unused_var(rKappa)
-unused_var(nRys)
+unused_var(nHer)
 unused_var(lOper)
 
 iRout = 202
@@ -289,13 +286,13 @@ do iS=1,nSkal
 
       !*** Overlap and derivative
 
-      nHer = ((la+1)+iAng+2)/2
+      n_Her = ((la+1)+iAng+2)/2
       ipAxyz = ip
-      ip = ip+nAlpha*iPrim*3*nHer*(la+2)
+      ip = ip+nAlpha*iPrim*3*n_Her*(la+2)
       ipCxyz = ip
-      ip = ip+nAlpha*iPrim*3*nHer*(iAng+1)
+      ip = ip+nAlpha*iPrim*3*n_Her*(iAng+1)
       ipRxyz = ip
-      ip = ip+nAlpha*iPrim*3*nHer*(nOrdOp+1)
+      ip = ip+nAlpha*iPrim*3*n_Her*(nOrdOp+1)
       ipQ1 = ip
       ip = ip+nAlpha*iPrim*3*(la+2)*(iAng+1)*(nOrdOp+1)
       ipA = ip
@@ -307,18 +304,18 @@ do iS=1,nSkal
       ABeq(1) = A(1) == TC(1)
       ABeq(2) = A(2) == TC(2)
       ABeq(3) = A(3) == TC(3)
-      call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*iPrim,A,Array(ipAxyz),la+1,HerR(iHerR(nHer)),nHer,ABeq)
-      call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*iPrim,TC,Array(ipCxyz),iAng,HerR(iHerR(nHer)),nHer,ABeq)
+      call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*iPrim,A,Array(ipAxyz),la+1,HerR(iHerR(n_Her)),n_Her,ABeq)
+      call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*iPrim,TC,Array(ipCxyz),iAng,HerR(iHerR(n_Her)),n_Her,ABeq)
       ABeq(1) = .false.
       ABeq(2) = .false.
       ABeq(3) = .false.
-      call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*iPrim,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
+      call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*iPrim,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(n_Her)),n_Her,ABeq)
       if (iPrint >= 49) then
-        write(u6,*) ' Array(ipAxyz)=',DNrm2_(nAlpha*iPrim*3*nHer*(la+2),Array(ipAxyz),1)
-        write(u6,*) ' Array(ipCxyz)=',DNrm2_(nAlpha*iPrim*3*nHer*(iAng+1),Array(ipCxyz),1)
-        write(u6,*) ' Array(ipRxyz)=',DNrm2_(nAlpha*iPrim*3*nHer*(nOrdOp+1),Array(ipRxyz),1)
+        write(u6,*) ' Array(ipAxyz)=',DNrm2_(nAlpha*iPrim*3*n_Her*(la+2),Array(ipAxyz),1)
+        write(u6,*) ' Array(ipCxyz)=',DNrm2_(nAlpha*iPrim*3*n_Her*(iAng+1),Array(ipCxyz),1)
+        write(u6,*) ' Array(ipRxyz)=',DNrm2_(nAlpha*iPrim*3*n_Her*(nOrdOp+1),Array(ipRxyz),1)
       end if
-      call Assmbl(Array(ipQ1),Array(ipAxyz),la+1,Array(ipRxyz),nOrdOp,Array(ipCxyz),iAng,nAlpha*iPrim,HerW(iHerW(nHer)),nHer)
+      call Assmbl(Array(ipQ1),Array(ipAxyz),la+1,Array(ipRxyz),nOrdOp,Array(ipCxyz),iAng,nAlpha*iPrim,HerW(iHerW(n_Her)),n_Her)
       iStrt = ipA
       do iGamma=1,iPrim
         call dcopy_(nAlpha,Alpha,1,Array(iStrt),1)
@@ -332,7 +329,7 @@ do iS=1,nSkal
         write(u6,*) ' Array(ipQ1)=',DNrm2_(nAlpha*iPrim*3*(la+2)*(iAng+1)*(nOrdOp+1),Array(ipQ1),1)
         write(u6,*) ' Array(ipA)=',DNrm2_(nAlpha*iPrim,Array(ipA),1)
       end if
-      ip = ip-nAlpha*iPrim*(6+3*nHer*(la+2)+3*nHer*(iAng+1)+3*nHer*(nOrdOp+1)+3*(la+2)*(iAng+1)*(nOrdOp+1)+1)
+      ip = ip-nAlpha*iPrim*(6+3*n_Her*(la+2)+3*n_Her*(iAng+1)+3*n_Her*(nOrdOp+1)+3*(la+2)*(iAng+1)*(nOrdOp+1)+1)
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -363,13 +360,13 @@ do iS=1,nSkal
 
       !*** Overlap and derivative
 
-      nHer = (jAng+(lb+1)+2)/2
+      n_Her = (jAng+(lb+1)+2)/2
       ipCxyz = ip
-      ip = ip+nBeta*jPrim*3*nHer*(jAng+1)
+      ip = ip+nBeta*jPrim*3*n_Her*(jAng+1)
       ipBxyz = ip
-      ip = ip+nBeta*jPrim*3*nHer*(lb+2)
+      ip = ip+nBeta*jPrim*3*n_Her*(lb+2)
       ipRxyz = ip
-      ip = ip+nBeta*jPrim*3*nHer*(nOrdOp+1)
+      ip = ip+nBeta*jPrim*3*n_Her*(nOrdOp+1)
       ipQ1 = ip
       ip = ip+nBeta*jPrim*3*(jAng+1)*(lb+2)*(nOrdOp+1)
       ipB = ip
@@ -381,18 +378,18 @@ do iS=1,nSkal
       ABeq(1) = TB(1) == RB(1)
       ABeq(2) = TB(2) == RB(2)
       ABeq(3) = TB(3) == RB(3)
-      call CrtCmp(Array(ipZ2),Array(ipP2),jPrim*nBeta,TB,Array(ipCxyz),jAng,HerR(iHerR(nHer)),nHer,ABeq)
-      call CrtCmp(Array(ipZ2),Array(ipP2),jPrim*nBeta,RB,Array(ipBxyz),lb+1,HerR(iHerR(nHer)),nHer,ABeq)
+      call CrtCmp(Array(ipZ2),Array(ipP2),jPrim*nBeta,TB,Array(ipCxyz),jAng,HerR(iHerR(n_Her)),n_Her,ABeq)
+      call CrtCmp(Array(ipZ2),Array(ipP2),jPrim*nBeta,RB,Array(ipBxyz),lb+1,HerR(iHerR(n_Her)),n_Her,ABeq)
       ABeq(1) = .false.
       ABeq(2) = .false.
       ABeq(3) = .false.
-      call CrtCmp(Array(ipZ2),Array(ipP2),jPrim*nBeta,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
+      call CrtCmp(Array(ipZ2),Array(ipP2),jPrim*nBeta,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(n_Her)),n_Her,ABeq)
       if (iPrint >= 49) then
-        write(u6,*) ' Array(ipCxyz)=',DNrm2_(nBeta*jPrim*3*nHer*(jAng+1),Array(ipCxyz),1)
-        write(u6,*) ' Array(ipBxyz)=',DNrm2_(nBeta*jPrim*3*nHer*(lb+2),Array(ipBxyz),1)
-        write(u6,*) ' Array(ipRxyz)=',DNrm2_(nBeta*jPrim*3*nHer*(nOrdOp+1),Array(ipRxyz),1)
+        write(u6,*) ' Array(ipCxyz)=',DNrm2_(nBeta*jPrim*3*n_Her*(jAng+1),Array(ipCxyz),1)
+        write(u6,*) ' Array(ipBxyz)=',DNrm2_(nBeta*jPrim*3*n_Her*(lb+2),Array(ipBxyz),1)
+        write(u6,*) ' Array(ipRxyz)=',DNrm2_(nBeta*jPrim*3*n_Her*(nOrdOp+1),Array(ipRxyz),1)
       end if
-      call Assmbl(Array(ipQ1),Array(ipCxyz),jAng,Array(ipRxyz),nOrdOp,Array(ipBxyz),lb+1,jPrim*nBeta,HerW(iHerW(nHer)),nHer)
+      call Assmbl(Array(ipQ1),Array(ipCxyz),jAng,Array(ipRxyz),nOrdOp,Array(ipBxyz),lb+1,jPrim*nBeta,HerW(iHerW(n_Her)),n_Her)
       iStrt = ipB
       do iGamma=1,jPrim
         call dcopy_(nBeta,Beta,1,Array(iStrt),jPrim)
@@ -406,7 +403,7 @@ do iS=1,nSkal
         write(u6,*) ' Array(ipQ1)=',DNrm2_(jPrim*nBeta*3*(la+2)*(jAng+1)*(nOrdOp+1),Array(ipQ1),1)
         write(u6,*) ' Array(ipB)=',DNrm2_(JPrim*nBeta,Array(ipB),1)
       end if
-      ip = ip-nBeta*jPrim*(6+3*nHer*(lb+2)+3*nHer*(jAng+1)+3*nHer*(nOrdOp+1)+3*(lb+2)*(jAng+1)*(nOrdOp+1)+1)
+      ip = ip-nBeta*jPrim*(6+3*n_Her*(lb+2)+3*n_Her*(jAng+1)+3*n_Her*(nOrdOp+1)+3*(lb+2)*(jAng+1)*(nOrdOp+1)+1)
       nac = nElem(la)*nElem(iAng)*nVecAC
       ncb = nElem(jAng)*nElem(lb)*nVecCB
       ipTmp = ip
@@ -488,7 +485,7 @@ do iS=1,nSkal
 
       !---Next Contract (iKaC)*W(KLCD)*(LjDb) producing ijab
 
-      Fin(:,:,:,:) = Zero
+      Final(:,:,:,:) = Zero
 
       if (iPrint >= 99) then
         call RecPrt('ipF1 (nVecAC x X)',' ',Array(ipF1),nVecAC,iBas*nAlpha*iSize)
@@ -519,14 +516,14 @@ do iS=1,nSkal
             end if
 
             call FragPCont(Array(ipF1a),nAlpha,iBas,nElem(la),iSize,Array(ipF2a),jBas,nBeta,jSize,nElem(lb),Array(ipIJ), &
-                           Fin(:,:,:,mVec),Fact*Half)
+                           Final(:,:,:,mVec),Fact*Half)
           end if
         end do !iCent
       end do !iCar
 
       if (iPrint >= 49) then
         do iVec=1,mVec
-          write(u6,*) iVec,sqrt(DNrm2_(nZeta*nElem(la)*nElem(lb),Fin(1,1,1,iVec),1))
+          write(u6,*) iVec,sqrt(DNrm2_(nZeta*nElem(la)*nElem(lb),Final(1,1,1,iVec),1))
         end do
       end if
       if (iPrint >= 99) then
@@ -534,8 +531,8 @@ do iS=1,nSkal
         do ia=1,nElem(la)
           do ib=1,nElem(lb)
             do iVec=1,mVec
-              write(Label,'(A,I2,A,I2,A,I2,A)') ' Fin(',ia,',',ib,',',iVec,')'
-              call RecPrt(Label,' ',Fin(1,ia,ib,iVec),nAlpha,nBeta)
+              write(Label,'(A,I2,A,I2,A,I2,A)') ' Final(',ia,',',ib,',',iVec,')'
+              call RecPrt(Label,' ',Final(1,ia,ib,iVec),nAlpha,nBeta)
             end do
           end do
         end do
@@ -543,7 +540,7 @@ do iS=1,nSkal
 
       !---Distribute contributions to the gradient
 
-      call Distg1X(Fin,DAO,nZeta,nDAO,mVec,Grad,nGrad,JfGrad,JndGrd,iuvwx,lOp)
+      call Distg1X(Final,DAO,nZeta,nDAO,mVec,Grad,nGrad,JfGrad,JndGrd,iuvwx,lOp)
 
     end do !lDCRT
     jSbasis = jSbasis+jBas*jSize

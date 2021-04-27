@@ -9,38 +9,47 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine pseud1_molcas(a,ang,ccr,gout,ipt,lmnv,ltot1,ncr,nkcrl,nkcru,qsum,xab,yab,zab,zcr,lit,ljt,ai,aj,xi,yi,zi,xj,yj,zj,xc,yc, &
-                         zc,kcrs,lproju1,crda,crdb)
+subroutine pseud1(a,ang,ccr,gout,ipt,lmnv,ltot1,ncr,nkcrl,nkcru,qsum,xab,yab,zab,zcr,lit,ljt,ai,aj,xi,yi,zi,xj,yj,zj,xc,yc,zc, &
+                  kcrs,lproju1,crda,crdb)
 ! compute type 1 core potential integrals
 
-implicit real*8(a-h,o-z)
-dimension llt(7,2)
-parameter(a0=0.0d0,a4=4.0d0)
-dimension a(*), ang(ltot1,*), ccr(*), crda(lit,3), crdb(ljt,3), gout(*), ipt(*), lmnv(3,*), ncr(*), nkcrl(lproju1,*), &
-          nkcru(lproju1,*), qsum(ltot1,*), xab(*), yab(*), zab(*), zcr(*)
-data llt/1,2,5,11,21,36,57,1,4,10,20,35,56,84/
+#include "intent.fh"
 
-call pseud1_molcas_internal(a)
+use Constants, only: Zero, One, Four, Ten, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: ipt(*), lmnv(3,*), ltot1, ncr(*), lit, ljt, kcrs, lproju1, nkcrl(lproju1,*), nkcru(lproju1,*)
+real(kind=wp), intent(in) :: a(*), ccr(*), zcr(*), ai, aj, xi, yi, zi, xj, yj, zj, xc, yc, zc
+real(kind=wp), intent(_OUT_) :: ang(ltot1,*), qsum(ltot1,*), xab(*), yab(*), zab(*)
+real(kind=wp), intent(inout) :: gout(*)
+real(kind=wp), intent(out) :: crda(lit,3), crdb(ljt,3)
+integer(kind=iwp) :: i, ijt, it, itl, itu, j, jt, jtl, jtu, kcrl, kcru, la1, lam, lamu, lb1, ma1, mb1, n, na1, nb1, nhi
+real(kind=wp) :: aa, aaa, aarr1, alpt, arp2, fctr2, rk, rp, rp2, rr, s, taa, xij, xijm, xk, xka, xkb, yij, yijm, yk, yka, ykb, &
+                 zij, zijm, zk, zka, zkb
+integer(kind=iwp), parameter :: llt_(7,2) = reshape([1,2,5,11,21,36,57,1,4,10,20,35,56,84],shape(llt_))
+real(kind=wp), parameter :: tol = 20.0_wp*log(Ten)
+
+call pseud1_internal(a)
 
 ! This is to allow type punning without an explicit interface
 contains
 
-subroutine pseud1_molcas_internal(a)
+subroutine pseud1_internal(a)
 
   use iso_c_binding
-  real*8, target :: a(*)
-  integer, pointer :: ia13(:), ia14(:), ia15(:), ia16(:), ia17(:)
+  real(kind=wp), intent(in), target :: a(*)
+  integer(kind=iwp), pointer :: ia13(:), ia14(:), ia15(:), ia16(:), ia17(:)
 
-  tol = 20.*log(10.d0)
-  fctr2 = a4
-  itl = llt(lit,1)
-  itu = llt(lit,2)
-  jtl = llt(ljt,1)
-  jtu = llt(ljt,2)
+  fctr2 = Four
+  itl = llt_(lit,1)
+  itu = llt_(lit,2)
+  jtl = llt_(ljt,1)
+  jtu = llt_(ljt,2)
   aa = ai+aj
   do i=1,3
-    crda(1,i) = 1.d0
-    crdb(1,i) = 1.d0
+    crda(1,i) = One
+    crdb(1,i) = One
   end do
   xka = xc-xi
   yka = yc-yi
@@ -72,12 +81,12 @@ subroutine pseud1_molcas_internal(a)
     end do
   end do
   240 continue
-  xij = 0.5d0*(xi+xj)
-  yij = 0.5d0*(yi+yj)
-  zij = 0.5d0*(zi+zj)
-  xijm = 0.5d0*(xi-xj)
-  yijm = 0.5d0*(yi-yj)
-  zijm = 0.5d0*(zi-zj)
+  xij = Half*(xi+xj)
+  yij = Half*(yi+yj)
+  zij = Half*(zi+zj)
+  xijm = Half*(xi-xj)
+  yijm = Half*(yi-yj)
+  zijm = Half*(zi-zj)
   rr = (xi-xj)**2+(yi-yj)**2+(zi-zj)**2
   aaa = (ai-aj)/aa
   xk = xij+aaa*xijm-xc
@@ -87,11 +96,11 @@ subroutine pseud1_molcas_internal(a)
   taa = aa+aa
 
   rp2 = xk*xk+yk*yk+zk*zk
-  if (rp2 == a0) then
-    rp = a0
-    arp2 = a0
-    alpt = a0
-    rk = a0
+  if (rp2 == Zero) then
+    rp = Zero
+    arp2 = Zero
+    alpt = Zero
+    rk = Zero
     lamu = 1
   else
     rp = sqrt(rp2)
@@ -117,7 +126,7 @@ subroutine pseud1_molcas_internal(a)
     ma1 = lmnv(3,it)+1
     do jt=jtl,jtu
       ijt = ijt+1
-      s = a0
+      s = Zero
       nb1 = lmnv(1,jt)+1
       lb1 = lmnv(2,jt)+1
       mb1 = lmnv(3,jt)+1
@@ -135,7 +144,7 @@ subroutine pseud1_molcas_internal(a)
       call ang1(ang,a(ipt(11)),na1+nb1-1,la1+lb1-1,ma1+mb1-1,lamu,ia13,ia14,ia15,ia16,ia17,ltot1,xab,yab,zab,xk,yk,zk,a(ipt(18)))
       nullify(ia13,ia14,ia15,ia16,ia17)
 
-     ! combine angular and radial integrals
+      ! combine angular and radial integrals
 
       do lam=1,lamu
         nhi = ltot1-mod(ltot1-lam,2)
@@ -149,6 +158,6 @@ subroutine pseud1_molcas_internal(a)
 
   return
 
-end subroutine pseud1_molcas_internal
+end subroutine pseud1_internal
 
-end subroutine pseud1_molcas
+end subroutine pseud1
