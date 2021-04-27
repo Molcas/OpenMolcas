@@ -149,7 +149,7 @@ c --- decompose the Inactive density on request
          Call Allocate_DSBA(DDec,nBas,nBas,nSym)
          call dcopy_(NTot2,DI(1),1,DDec%A0,1)
 
-         ipInc = ip_of_Work(ChoIn%A0(1))
+         Call Allocate_DSBA(MSQ,nBas,nBas,nSym,Ref=ChoIn%A0)
 
          Thr = 1.0d-12
          incs=0
@@ -200,13 +200,15 @@ c --- to get the right input arguments for CHO_FCAS_AO and CHO_FMCSCF
 
       Else
 
-        ipInc = ip_of_Work(W_CMO(1))
+         Call Allocate_DSBA(MSQ,nBas,nBas,nSym,Ref=W_CMO)
 
         Do i=1,nSym
            nChI(i) = nForb(i)+nIorb(i)
         End Do
 
       EndIf
+
+      ipInc = ip_of_Work(MSQ%A0(1))
 
 C --- Reordering of the MOs coefficients to fit cholesky needs
       If(.not.DoLocK)Then
@@ -368,13 +370,9 @@ C ----------------------------------------------------------------
 
       ELSEIF (ALGO.eq.1 .and. DoLocK) THEN
 
-         Call Allocate_DSBA(MSQ,nBas,nBas,nSym,Ref=Work(ipInc))
-
          CALL CHO_LK_CASSCF(DLT,FLT,MSQ,ipInt,
      &                      FactXI,nChI,nAorb,nChM,CVa,DoActive,
      &                      nScreen,dmpK,abs(CBLBM),ExFac)
-
-         Call deallocate_DSBA(MSQ)
 
       ELSE
 
@@ -395,6 +393,8 @@ C ----------------------------------------------------------------
 
       Call Deallocate_DSBA(DLT(2))
       Call Deallocate_DSBA(DLT(1))
+
+      Call deallocate_DSBA(MSQ)
 
       ENDIF
 
