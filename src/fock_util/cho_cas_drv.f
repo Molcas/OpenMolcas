@@ -16,7 +16,7 @@
       Integer   rc
       Real*8    DA1(*),DI(*),DA2(*),FI(*),FA(*),CMO(*)
       Integer   nForb(8),nIorb(8),nAorb(8),nChM(8),nChI(8)
-      Integer   ipDSA2(8,8,8),nnA(8,8)
+      Integer   nnA(8,8)
       Logical   TraOnly
 
 #include "real.fh"
@@ -35,7 +35,7 @@
 #include "stdalloc.fh"
 
       Type (DSBA_Type) CVa(2), POrb(3), Ddec, ChoIn,
-     &                 DILT, DALT, FLT(2), MSQ
+     &                 DLT(2), FLT(2), MSQ
 
       Real*8, Allocatable:: Tmp1(:), Tmp2(:)
       Real*8, Allocatable:: PMat(:), PL(:)
@@ -120,11 +120,11 @@ c --- and v refers to the active orbitals only
 
 
 C --- Build the packed densities from the Squared ones
-      Call Allocate_DSBA(DILT,nBas,nBas,nSym,Case='TRI')
-      Call Allocate_DSBA(DALT,nBas,nBas,nSym,Case='TRI')
+      Call Allocate_DSBA(DLT(1),nBas,nBas,nSym,Case='TRI')
+      Call Allocate_DSBA(DLT(2),nBas,nBas,nSym,Case='TRI')
 
-      Call Fold(nSym,nBas,DI,DILT%A0)
-      Call Fold(nSym,nBas,DA1,DALT%A0)
+      Call Fold(nSym,nBas,DI, DLT(1)%A0)
+      Call Fold(nSym,nBas,DA1,DLT(2)%A0)
 
       FactXI = -1.0D0
 
@@ -275,7 +275,7 @@ C --- Reorder the 2-el density matrix to fit cholesky needs
 
          PMat(:)=Zero
 
-         Call Reord_Pmat(ipPL,ipPmat,ipDSA2)
+         Call Reord_Pmat(ipPL,ipPmat)
 
          Call mma_deallocate(PL)
 
@@ -359,7 +359,7 @@ C ----------------------------------------------------------------
          ipCM  = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
 
          CALL CHO_FMCSCF(rc,FA,FI,nForb,nIorb,nAorb,FactXI,
-     &                   DILT,DALT,DoActive,POrb,nChM,ipInt,ExFac)
+     &                   DLT(1),DLT(2),DoActive,POrb,nChM,ipInt,ExFac)
 
       ELSEIF (ALGO.eq.1 .and. DoLocK) THEN
 
@@ -371,7 +371,7 @@ C ----------------------------------------------------------------
          Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=FI)
          Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI',Ref=FA)
 
-         CALL CHO_LK_CASSCF(DILT,DALT,FLT,MSQ,ipInt,
+         CALL CHO_LK_CASSCF(DLT(1),DLT(2),FLT,MSQ,ipInt,
      &                      FactXI,nChI,nAorb,nChM,CVa,DoActive,
      &                      nScreen,dmpK,abs(CBLBM),ExFac)
 
@@ -396,8 +396,8 @@ C ----------------------------------------------------------------
       If (DoQmat.and.ALGO.ne.1) Call mma_deallocate(PMat)
       If (Deco) Call Deallocate_DSBA(ChoIn)
 
-      Call Deallocate_DSBA(DALT)
-      Call Deallocate_DSBA(DILT)
+      Call Deallocate_DSBA(DLT(2))
+      Call Deallocate_DSBA(DLT(1))
 
       ENDIF
 

@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 
-      SUBROUTINE REORD_Pmat(ipDA2,ipPmat,ipDSA2)
+      SUBROUTINE REORD_Pmat(ipDA2,ipPmat)
 
       Implicit Real*8 (a-h,o-z)
 
