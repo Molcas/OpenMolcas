@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHO_LK_CASSCF(DI,DA1,W_FI,W_FA,W_MSQ,ipInt,
+      SUBROUTINE CHO_LK_CASSCF(DI,DA1,FLT,MSQ,ipInt,
      &             FactXI,nFIorb,nAorb,nChM,Ash,DoActive,
      &             nScreen,dmpk,dFmat,ExFac)
 
@@ -63,13 +63,11 @@ C
      &                           Lab_Type
       Implicit Real*8 (a-h,o-z)
 
-      Real*8    W_FI(*), W_FA(*), W_MSQ(*)
       Integer   ipDLT(2),ipFLT(2)
       Integer   kOff(8,2),nnA(8,8)
-      Integer   ISTLT(8),ISTSQ(8)
+      Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
-      Integer   ipDD(2)
 
       Type (DSBA_Type)   MSQ
       Type (DSBA_Type)   FLT(2)
@@ -97,7 +95,6 @@ C
 #include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Real*8, parameter:: xone = -one
@@ -159,15 +156,8 @@ C
       Debug=.false.! to avoid double printing in CASSCF-debug
 #endif
 
-      ipMO = 0 ! Dummy initiate
       DoTraInt = .false.
       IREDC = -1  ! unknown reduced set in core
-
-
-      Call Allocate_DSBA(MSQ,nBas,nBas,nSym,Ref=W_MSQ)
-      ipMSQ = ip_of_Work(W_MSQ(1))
-      Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=W_FI)
-      Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI',Ref=W_FA)
 
       ipDLT(1) = ip_of_Work(DI%A0(1))    ! some definitions
       ipDLT(2) = ip_of_Work(DA1%A0(1))
@@ -198,13 +188,10 @@ c --- Various offsets
 c --------------------
       MaxB=nBas(1)
       ISTLT(1)=0
-      ISTSQ(1)=0
       DO ISYM=2,NSYM
         MaxB=Max(MaxB,nBas(iSym))
         NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-        NBQ=NBAS(ISYM-1)**2
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive D and F matrices
-        ISTSQ(ISYM)=ISTSQ(ISYM-1)+NBQ ! Diagonal integrals in full
       END DO
 
 **************************************************
@@ -273,7 +260,6 @@ C --- Vector MO transformation screening thresholds
       thrv(2) = ( sqrt(LKThr/(Max(1,nAt)*NumVT)) )*fcorr
 
       CALL mma_allocate(DIAG,NNBSTRT(1),Label='DIAG')
-      ipDD(1)= ip_of_Work(DIAG(1))
 
 #if defined (_MOLCAS_MPP_)
       If (nProcs.gt.1 .and. Update .and. Is_Real_Par()) Then
@@ -675,7 +661,7 @@ c ---                              compound symmetry JSYM are computed
 c --------------------------------------------------------------------
                    ired1 = 1 ! location of the 1st red set
                    Call swap_tosqrt(irc,ired1,NNBSTRT(1),JSYM,
-     &                               DIAH,Work(ipDD(1)))
+     &                               DIAH,DIAG)
 
                   CALL CWTIME(TCS2,TWS2)
                   tscrn(1) = tscrn(1) + (TCS2 - TCS1)
@@ -700,12 +686,6 @@ c --------------------------------------------------------------------
                        jK_a = jK + kOff(kSym,jDen)
 
                        Lab%A0(1:nBas(lSym)*JNUM)=Zero
-
-                     If (jDen.eq.1) Then
-
-                     ipMO = ipMSQ + ISTSQ(kSym) + nBas(kSym)*(jK-1)
-
-                     End If
 
                      IF (DoScreen) THEN
 
@@ -870,7 +850,7 @@ C ---------------------------------------
                                 Else
                                   CALL DGEMV_(Mode(1:1),n1,n2,
      &                     One,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,n1,
-     &                                 Work(ipMO+ioffShb),1,
+     &                              MSQ%SB(kSym)%A2(1+ioffShb:,jK),1,
      &                     One,Lab%SB(iaSh,lSym,1)%A,1)
                                 End If
 
@@ -894,7 +874,7 @@ C ---------------------------------------
                                 Else
                                   CALL DGEMV_(Mode(1:1),n1,n2,
      &              One,L_Full%SPB(kSym,iShp_rs(iShp),l1)%A12,n1,
-     &                                 Work(ipMO+ioffShb),1,
+     &                              MSQ%SB(kSym)%A2(1+ioffShb:,jK),1,
      &                     One,Lab%SB(iaSh,lSym,1)%A,1)
                                 End If
                              EndIf
@@ -1313,8 +1293,6 @@ C--- have performed screening in the meanwhile
 
         Do iSym=1,nSym
 
-         ipFX = ipFLT(jDen) + ISTLT(iSym)
-
          Do iaSh=1,nShell
 
             ioffa = kOffSh(iaSh,iSym)
@@ -1338,10 +1316,9 @@ c ---------------
                   iag = ioffa + ia
                   ibg = ioffb + ib
 
-                  jFX = ipFX - 1 + iTri(iag,ibg)
-
-                  Work(jFX) = Work(jFX)
-     &                      + KLT(jDen)%SB(iSym)%A1(iOffAB+iab)
+                  FLT(jDen)%SB(iSym)%A1(iTri(iag,ibg)) =
+     &                FLT(jDen)%SB(iSym)%A1(iTri(iag,ibg))
+     &              + KLT(jDen)%SB(iSym)%A1(iOffAB+iab)
 
                 End Do
 
@@ -1364,10 +1341,9 @@ c ---------------
                iag = ioffa + ia
                ibg = ioffa + ib
 
-               jFX = ipFX - 1 + iag*(iag-1)/2 + ibg
-
-               Work(jFX) = Work(jFX)
-     &                   + KLT(jDen)%SB(iSym)%A1(iOffAB+iab)
+               FLT(jDen)%SB(iSym)%A1(iTri(iag,ibg)) =
+     &             FLT(jDen)%SB(iSym)%A1(iTri(iag,ibg))
+     &           + KLT(jDen)%SB(iSym)%A1(iOffAB+iab)
 
              End Do
 
@@ -1401,8 +1377,6 @@ c ---------------
      &    Call mma_deallocate(DiagJ)
 #endif
       Call mma_deallocate(Diag)
-
-      Call Deallocate_DSBA(MSQ)
 
       CALL CWTIME(TOTCPU2,TOTWALL2)
       TOTCPU = TOTCPU2 - TOTCPU1
@@ -1470,9 +1444,6 @@ c Print the Fock-matrix
       endif
 
 #endif
-
-      Call Deallocate_DSBA(FLT(2))
-      Call Deallocate_DSBA(FLT(1))
 
       Return
       END
