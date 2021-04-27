@@ -350,29 +350,27 @@ c --- reorder "Cholesky MOs" to Cva storage
       EndIf
 C ----------------------------------------------------------------
 
-      Call Fzero(FI(1),nTot1) ! LT-storage
-      Call Fzero(FA(1),nTot1) ! LT-storage
+      Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=FI)
+      Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI',Ref=FA)
+      FLT(1)%A0(:)=Zero
+      FLT(2)%A0(:)=Zero
 
       ipInt = lpwxy   ! (PU|VX) integrals are computed
       ipCM  = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
 
       IF (ALGO.eq.1 .and. .not. DoLocK) THEN
 
-         CALL CHO_FMCSCF(rc,FA,FI,nForb,nIorb,nAorb,FactXI,
+         CALL CHO_FMCSCF(rc,FLT,nForb,nIorb,nAorb,FactXI,
      &                   DLT,DoActive,POrb,nChM,ipInt,ExFac)
 
       ELSEIF (ALGO.eq.1 .and. DoLocK) THEN
 
          Call Allocate_DSBA(MSQ,nBas,nBas,nSym,Ref=Work(ipInc))
-         Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=FI)
-         Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI',Ref=FA)
 
          CALL CHO_LK_CASSCF(DLT,FLT,MSQ,ipInt,
      &                      FactXI,nChI,nAorb,nChM,CVa,DoActive,
      &                      nScreen,dmpK,abs(CBLBM),ExFac)
 
-         Call deallocate_DSBA(FLT(2))
-         Call deallocate_DSBA(FLT(1))
          Call deallocate_DSBA(MSQ)
 
       ELSE
@@ -382,6 +380,9 @@ C ----------------------------------------------------------------
          Return
 
       ENDIF
+
+      Call deallocate_DSBA(FLT(2))
+      Call deallocate_DSBA(FLT(1))
 
       Call Deallocate_DSBA(POrb(3))
       Call Deallocate_DSBA(POrb(2))

@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
 
-      SUBROUTINE CHO_FMCSCF(rc,FA,FI,nForb,nIorb,nAorb,FactXI,
+      SUBROUTINE CHO_FMCSCF(rc,FLT,nForb,nIorb,nAorb,FactXI,
      &                      DLT,DoActive,POrb,nChM,ipInt,ExFac)
 
 **********************************************************************
@@ -48,7 +48,6 @@ C
       use Data_structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
-      Real*8 FI(*), FA(*)
       Type (DSBA_Type) POrb(3), DLT(2), FLT(2)
       Type (SBA_Type), Target:: Laq(3), Lxy
       Type (twxy_type) Scr
@@ -70,7 +69,6 @@ C
 #include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Real*8, Parameter:: FactCI = One, FactCA = One, FactXA = -Half
@@ -100,9 +98,6 @@ C
       DoRead  = .false.
       DoTraInt = .false.
       IREDC = -1  ! unknown reduced set in core
-
-      Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=FI)
-      Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI',Ref=FA)
 
       ipDLT(1) = ip_of_Work(DLT(1)%A0(1))    ! some definitions
       ipDLT(2) = ip_of_Work(DLT(2)%A0(1))
@@ -378,12 +373,9 @@ C ---------------------------------------------------------------------
 
                   If (iSkip(iSymk)*NK.ne.0) Then
 
-                     ISFI = ipFLT(1) + ISTLT(iSyma)
-
                      CALL DGEMM_TRI('T','N',nBas(iSyma),nBas(iSyma),
      &                         NK*JNUM,FactXI,Laq(1)%SB(iSymk)%A3,
      &                         NK*JNUM,Laq(1)%SB(iSymk)%A3,NK*JNUM,
-*    &                         One,Work(ISFI),nBas(iSyma))
      &                         One,FLT(1)%SB(iSyma)%A1,nBas(iSyma))
 
 
@@ -445,12 +437,9 @@ C ---------------------------------------------------------------------
 
                      If (iSkip(iSymw)*NAch.ne.0) Then
 
-                        ISFA = ipFLT(2) + ISTLT(iSyma)
-
                         CALL DGEMM_TRI('T','N',nBas(iSyma),nBas(iSyma),
      &                         NAch*JNUM,FactXA,Laq(2)%SB(iSymw)%A3,
      &                         NAch*JNUM,Laq(2)%SB(iSymw)%A3,NAch*JNUM,
-*    &                         One,Work(ISFA),nBas(iSyma))
      &                         One,FLT(2)%SB(iSyma)%A1,nBas(iSyma))
 
 
@@ -477,7 +466,6 @@ C --------------------------------------------------------------------
                ! Lvw,J, LT-storage for the diagonal symmetry blocks
                iSwap = 4
                Call Allocate_SBA(Lxy,nAorb,nAorb,nVec,JSYM,nSym,iSwap)
-*              Call mma_allocate(Lxy%Lxy_full,mTvec4*nVec,Label='Lxy')
 
                iSwap = 0  ! Lvb,J are returned
                Call Allocate_SBA(Laq(3),nAorb,nBas,nVec,JSYM,nSym,iSwap)
@@ -676,9 +664,6 @@ c Print the Fock-matrix
       endif
 
 #endif
-      Call DeAllocate_DSBA(FLT(1))
-      Call Deallocate_DSBA(FLT(2))
-
       rc  = 0
 
 
