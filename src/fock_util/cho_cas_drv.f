@@ -35,7 +35,7 @@
 #include "stdalloc.fh"
 
       Type (DSBA_Type) CVa(2), POrb(3), Ddec, ChoIn,
-     &                 DLT(2), FLT(2), MSQ
+     &                 DLT(2), FLT(2), MSQ, FLT_MO(2)
 
       Real*8, Allocatable:: Tmp1(:), Tmp2(:)
       Real*8, Allocatable:: PMat(:), PL(:)
@@ -45,61 +45,67 @@ C  **************************************************
 
       rc=0
 
+
+      Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=FI)
+      Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI',Ref=FA)
+
       IF (TraOnly) THEN
+*
+*        Let us construct a second pointer structure based on norb
+
+         Call Allocate_DSBA(FLT_MO(1),nOrb,nOrb,nSym,Case='TRI',Ref=FI)
+         Call Allocate_DSBA(FLT_MO(2),nOrb,nOrb,nSym,Case='TRI',Ref=FA)
 c
-c --- It only performs the MO transformation of FI and FA
-c -------------------------------------------------------
+c ------ It only performs the MO transformation of FI and FA
+c ----------------------------------------------------------
 c
-*     transform FI from AO to MO basis  (LT-storage)
-      iOff1 = 1
+*        transform FI from AO to MO basis  (LT-storage)
       iOff2 = 1
-      iOff3 = 1
       Do iSym = 1,nSym
         iBas = nBas(iSym)
         iOrb = nOrb(iSym)
         iFro = nFro(iSym)
         Call mma_allocate(Tmp1,iBas*iBas,Label='Tmp1')
         Call mma_allocate(Tmp2,iOrb*iBas,Label='Tmp1')
-        Call Square(FI(iOff1),Tmp1,1,iBas,iBas)
-        Call DGEMM_('N','N',iBas,iOrb,iBas,1.0d0,Tmp1,
-     &               iBas,CMO(iOff2+(iFro*iBas)),max(iBas,iBas),
-     &               0.0d0,Tmp2,iBas)
+        Call Square(FLT(1)%SB(iSym)%A1,Tmp1,1,iBas,iBas)
+        Call DGEMM_('N','N',iBas,iOrb,iBas,
+     &              1.0d0,Tmp1,iBas,
+     &                    CMO(iOff2+(iFro*iBas)),max(iBas,iBas),
+     &              0.0d0,Tmp2,iBas)
         Call MXMT(Tmp2,iBas,1,
      &            CMO(iOff2+(iFro*iBas)),1,iBas,
-     &            FI(iOff3),
+     &            FLT_MO(1)%SB(iSym)%A1,
      &            iOrb,iBas)
         Call mma_deallocate(Tmp2)
         Call mma_deallocate(Tmp1)
-        iOff1 = iOff1 + (iBas*iBas+iBas)/2
         iOff2 = iOff2 + iBas*iBas
-        iOff3 = iOff3 + (iOrb*iOrb+iOrb)/2
       End Do
 
 *     transform FA from AO to MO basis  (LT-storage)
-      iOff1 = 1
       iOff2 = 1
-      iOff3 = 1
       Do iSym = 1,nSym
         iBas = nBas(iSym)
         iOrb = nOrb(iSym)
         iFro = nFro(iSym)
         Call mma_allocate(Tmp1,iBas*iBas,Label='Tmp1')
         Call mma_allocate(Tmp2,iOrb*iBas,Label='Tmp1')
-        Call Square(FA(iOff1),Tmp1,1,iBas,iBas)
-        Call DGEMM_('N','N',iBas,iOrb,iBas,1.0d0,Tmp1,
-     &               iBas,CMO(iOff2+(iFro*iBas)),max(iBas,iBas),
+        Call Square(FLT(2)%SB(iSym)%A1,Tmp1,1,iBas,iBas)
+        Call DGEMM_('N','N',iBas,iOrb,iBas,
+     &               1.0d0,Tmp1,iBas,
+     &                     CMO(iOff2+(iFro*iBas)),max(iBas,iBas),
      &               0.0d0,Tmp2,iBas)
 
         Call MXMT(Tmp2,iBas,1,
      &            CMO(iOff2+(iFro*iBas)),1,iBas,
-     &            FA(iOff3),
+     &            FLT_MO(2)%SB(iSym)%A1,
      &            iOrb,iBas)
         Call mma_deallocate(Tmp2)
         Call mma_deallocate(Tmp1)
-        iOff1 = iOff1 + (iBas*iBas+iBas)/2
         iOff2 = iOff2 + iBas*iBas
-        iOff3 = iOff3 + (iOrb*iOrb+iOrb)/2
       End Do
+
+         Call deallocate_DSBA(FLT_MO(1))
+         Call deallocate_DSBA(FLT_MO(2))
 
 c**************************************************************************
 
@@ -349,9 +355,6 @@ c --- reorder "Cholesky MOs" to Cva storage
 
       EndIf
 C ----------------------------------------------------------------
-
-      Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=FI)
-      Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI',Ref=FA)
       FLT(1)%A0(:)=Zero
       FLT(2)%A0(:)=Zero
 
@@ -381,9 +384,6 @@ C ----------------------------------------------------------------
 
       ENDIF
 
-      Call deallocate_DSBA(FLT(2))
-      Call deallocate_DSBA(FLT(1))
-
       Call Deallocate_DSBA(POrb(3))
       Call Deallocate_DSBA(POrb(2))
       Call Deallocate_DSBA(POrb(1))
@@ -397,6 +397,9 @@ C ----------------------------------------------------------------
       Call Deallocate_DSBA(DLT(1))
 
       ENDIF
+
+      Call deallocate_DSBA(FLT(2))
+      Call deallocate_DSBA(FLT(1))
 
       Return
       END
