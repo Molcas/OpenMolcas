@@ -8,13 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_CAS_DRV(rc,CMO,DI,FI,DA1,FA,DA2,TraOnly)
+      SUBROUTINE CHO_CAS_DRV(rc,W_CMO,DI,FI,DA1,FA,DA2,TraOnly)
       Use Data_Structures, only: DSBA_Type, Allocate_DSBA,
      &                           Deallocate_DSBA
       Implicit real*8 (a-h,o-z)
 
       Integer   rc
-      Real*8    DA1(*),DI(*),DA2(*),FI(*),FA(*),CMO(*)
+      Real*8    DA1(*),DI(*),DA2(*),FI(*),FA(*),W_CMO(*)
       Integer   nForb(8),nIorb(8),nAorb(8),nChM(8),nChI(8)
       Integer   nnA(8,8)
       Logical   TraOnly
@@ -70,10 +70,10 @@ c
         Call Square(FLT(1)%SB(iSym)%A1,Tmp1,1,iBas,iBas)
         Call DGEMM_('N','N',iBas,iOrb,iBas,
      &              1.0d0,Tmp1,iBas,
-     &                    CMO(iOff2+(iFro*iBas)),max(iBas,iBas),
+     &                    W_CMO(iOff2+(iFro*iBas)),max(iBas,iBas),
      &              0.0d0,Tmp2,iBas)
         Call MXMT(Tmp2,iBas,1,
-     &            CMO(iOff2+(iFro*iBas)),1,iBas,
+     &            W_CMO(iOff2+(iFro*iBas)),1,iBas,
      &            FLT_MO(1)%SB(iSym)%A1,
      &            iOrb,iBas)
         Call mma_deallocate(Tmp2)
@@ -92,11 +92,11 @@ c
         Call Square(FLT(2)%SB(iSym)%A1,Tmp1,1,iBas,iBas)
         Call DGEMM_('N','N',iBas,iOrb,iBas,
      &               1.0d0,Tmp1,iBas,
-     &                     CMO(iOff2+(iFro*iBas)),max(iBas,iBas),
+     &                     W_CMO(iOff2+(iFro*iBas)),max(iBas,iBas),
      &               0.0d0,Tmp2,iBas)
 
         Call MXMT(Tmp2,iBas,1,
-     &            CMO(iOff2+(iFro*iBas)),1,iBas,
+     &            W_CMO(iOff2+(iFro*iBas)),1,iBas,
      &            FLT_MO(2)%SB(iSym)%A1,
      &            iOrb,iBas)
         Call mma_deallocate(Tmp2)
@@ -200,7 +200,7 @@ c --- to get the right input arguments for CHO_FCAS_AO and CHO_FMCSCF
 
       Else
 
-        ipInc = ip_of_Work(CMO(1))
+        ipInc = ip_of_Work(W_CMO(1))
 
         Do i=1,nSym
            nChI(i) = nForb(i)+nIorb(i)
@@ -227,7 +227,7 @@ C --- Reordering of the MOs coefficients to fit cholesky needs
            ioff2=ioff1+nBas(iSym)*(nForb(iSym)+nIorb(iSym))
            do ikk=1,nAorb(iSym)
               POrb(3)%SB(iSym)%A2(ikk,:) =
-     &             CMO( ioff2+nBas(iSym)*(ikk-1) + 1 :
+     &             W_CMO( ioff2+nBas(iSym)*(ikk-1) + 1 :
      &                  ioff2+nBas(iSym)*(ikk-1) + nBas(iSym))
            end do
            ioff1=ioff1+nBas(iSym)**2
@@ -246,7 +246,7 @@ C *** Only the active orbitals MO coeff need reordering
             do ikk=1,nAorb(iSym)
                ioff = ioff2+nBas(iSym)*(ikk-1)
                CVa(1)%SB(iSym)%A2(ikk,:) =
-     &           CMO(ioff +  1 : ioff + nBas(iSym))
+     &           W_CMO(ioff +  1 : ioff + nBas(iSym))
             end do
             ioff1 = ioff1 + nBas(iSym)**2
            End Do
@@ -359,7 +359,7 @@ C ----------------------------------------------------------------
       FLT(2)%A0(:)=Zero
 
       ipInt = lpwxy   ! (PU|VX) integrals are computed
-      ipCM  = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
+      ipCM  = ip_of_work(W_CMO(1))  ! MOs coeff. in C(a,p) storage
 
       IF (ALGO.eq.1 .and. .not. DoLocK) THEN
 
