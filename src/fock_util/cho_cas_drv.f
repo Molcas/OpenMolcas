@@ -71,7 +71,6 @@ c ----------------------------------------------------------
 c
 *        transform FI/FA from AO to MO basis  (LT-storage)
          Do i = 1, 2
-*           iOff2 = 1
             Do iSym = 1,nSym
                iBas = nBas(iSym)
                iOrb = nOrb(iSym)
@@ -81,17 +80,14 @@ c
                Call Square(FLT(i)%SB(iSym)%A1,Tmp1,1,iBas,iBas)
                Call DGEMM_('N','N',iBas,iOrb,iBas,
      &                     1.0d0,Tmp1,iBas,
-*    &                           W_CMO(iOff2+(iFro*iBas)),iBas,
      &                           CMO%SB(iSym)%A1(1+iFro*iBas),iBas,
      &                     0.0d0,Tmp2,iBas)
                Call MXMT(Tmp2,iBas,1,
-*    &                   W_CMO(iOff2+(iFro*iBas)),1,iBas,
      &                   CMO%SB(iSym)%A1(1+iFro*iBas),iBas,
      &                   FLT_MO(i)%SB(iSym)%A1,
      &                   iOrb,iBas)
                Call mma_deallocate(Tmp2)
                Call mma_deallocate(Tmp1)
-*              iOff2 = iOff2 + iBas*iBas
             End Do
          End Do
 
@@ -250,43 +246,6 @@ C *** Only the active orbitals MO coeff need reordering
 
       EndIf
 
-C --- Optional Section for Q-matrix evaluation
-C --- Reorder the 2-el density matrix to fit cholesky needs
-*     If (DoQmat.and.ALGO.ne.1) Then
-
-*        Stop 111
-*        Call set_nnA(nSym,nAorb,nnA)
-
-*        nPmat=0   ! P[vw],xy
-*        Do iSymXY=1,nSym
-*           Do iSymy=1,nSym
-*              iSymx=MulD2h(iSymXY,iSymy)
-*              if (iSymx.le.iSymy) then
-*              Do iSymw=1,nSym
-*                 iSymv=MulD2h(iSymXY,iSymw)
-*                 nPmat = nPmat
-*    &                  + nAorb(iSymv)*nAorb(iSymw)*nnA(iSymx,iSymy)
-*              End Do
-*              endif
-*           End do
-*        End Do
-
-*        Call mma_allocate(PMat,nPMat,Label='PMat')
-*        ipPmat = ip_of_Work(PMat(1))
-*        Call mma_allocate(PL,NACPR2,Label='PL')
-*        ipPL = ip_of_Work(PL(1))
-*        Call CHO_Pmat(DA2,Pmat)
-
-*        PMat(:)=Zero
-
-*        Call Reord_Pmat(ipPL,ipPmat)
-
-*        Call mma_deallocate(PL)
-
-*     EndIf
-
-
-
       If (DoActive) Then
 C ---  Decompose the active density  -----------------------------
 
@@ -384,7 +343,6 @@ C ----------------------------------------------------------------
       Call Deallocate_DSBA(CVa(1))
       Call Deallocate_DSBA(CVa(2))
 
-*     If (DoQmat.and.ALGO.ne.1) Call mma_deallocate(PMat)
       If (Deco) Call Deallocate_DSBA(ChoIn)
 
       Call Deallocate_DSBA(DLT(2))
