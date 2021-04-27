@@ -30,7 +30,7 @@ real(kind=wp) :: alpha, arc2, dum, f2lma3, f2lmb3, prd, qlim, rc, rk, t
 real(kind=wp), parameter :: eps1 = 1.0e-15_wp, tol = 20.0_wp*log(Ten)
 real(kind=wp), external :: qcomp
 
-call wzero(ltot1*lambu*lmahi,qsum,1)
+call dcopy_(ltot1*lambu*lmahi,[Zero],0,qsum,1)
 ! sum over potential terms
 do kcr=kcrl,kcru
   npi = ncr(kcr)

@@ -25,7 +25,7 @@ integer(kind=iwp) :: i, ia, ib, ic, iend, indx, indy, indz, istart, j, l2, la1, 
                      maind, mend, mhi, mndx, mndy, mndz, mstart, mu, n, na1, naind
 real (kind=wp) :: a_int, angt, pab1, pab2, pab3, pre, xkp, ykp, zkp
 
-call wzero(lit*mproju*lmhi,ang,1)
+call dcopy_(lit*mproju*lmhi,[Zero],0,ang,1)
 na1 = lmnv(1,it)+1
 la1 = lmnv(2,it)+1
 ma1 = lmnv(3,it)+1

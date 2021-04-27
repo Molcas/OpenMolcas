@@ -13,6 +13,7 @@ subroutine facab(binom,na1,nb1,crda,crdb,xab)
 
 #include "intent.fh"
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -21,7 +22,7 @@ integer(kind=iwp), intent(in) :: na1, nb1
 real(kind=wp), intent(_OUT_) :: xab(*)
 integer(kind=iwp) :: ia1, ib1, naind, nbind
 
-call wzero(na1+nb1-1,xab,1)
+call dcopy_(na1+nb1-1,[Zero],0,xab,1)
 naind = (na1*(na1-1))/2
 nbind = (nb1*(nb1-1))/2
 do ia1=1,na1

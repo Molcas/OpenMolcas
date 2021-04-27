@@ -16,6 +16,7 @@ subroutine ptwt(abess,arc2,bbess,dfac,npi,l,lambu,ltot1,lmahi,lmbhi,alpha,ptpow,
 
 #include "intent.fh"
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -26,7 +27,7 @@ real(kind=wp), intent(inout) :: prd, qsum(ltot1,lambu,*)
 integer(kind=iwp) :: i, idif, lama, lamb, n, npt
 real(kind=wp) :: fctr, pt, sqalp
 
-call wzero(lambu*lmahi,q2,1)
+call dcopy_(lambu*lmahi,[Zero],0,q2,1)
 if (arc2 > 50000.0_wp) then
   npt = 5
   idif = 0

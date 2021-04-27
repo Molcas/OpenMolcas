@@ -24,7 +24,7 @@ real(kind=wp), intent(in) :: dfac(*), xab(*), yab(*), zab(*), xk, yk, zk, zlm(*)
 integer(kind=iwp) :: i, iend, indx, indy, indz, istart, l, l2, lam, lamhi, lamlo, loc, m, mu1, n, nlm
 real(kind=wp) :: a_int, angt, pre, xkp, ykp, zkp
 
-call wzero(ltot1*lamu,ang,1)
+call dcopy_(ltot1*lamu,[Zero],0,ang,1)
 do n=1,nanb
   if (xab(n) == Zero) cycle
   do l=1,lalb

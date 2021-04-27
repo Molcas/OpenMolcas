@@ -117,7 +117,7 @@ subroutine pseud1_internal(a)
 
   ! compute radial integrals and sum over potential terms
 
-  call wzero((ltot1*lamu),qsum,1)
+  call dcopy_(ltot1*lamu,[Zero],0,qsum,1)
   kcrl = nkcrl(1,kcrs)
   kcru = nkcru(1,kcrs)
   call rad1(aa,aarr1,alpt,arp2,ccr,a(ipt(11)),fctr2,kcrl,kcru,lamu,ltot1,ncr,qsum,rk,tol,zcr)
