@@ -36,17 +36,17 @@ loc1 = (l-1)**2
 mhi = l+l-1
 do ia=1,na1
   pab1 = binom(naind+ia)*crda((na1+1)-ia,1)
-  if (pab1 == Zero) go to 80
+  if (pab1 == Zero) cycle
   do ib=1,la1
     pab2 = pab1*binom(laind+ib)*crda((la1+1)-ib,2)
-    if (pab2 == Zero) go to 70
+    if (pab2 == Zero) cycle
     do ic=1,ma1
       pab3 = pab2*binom(maind+ic)*crda((ma1+1)-ic,3)
-      if (pab3 == Zero) go to 60
+      if (pab3 == Zero) cycle
       n = ((ia-3)+ib)+ic
       lamlo = max(l-n,lmlo+mod(l+n+lmlo,2))
       lamhi = min(l+n,lmhi-mod(l+n+lmhi,2))
-      if (lamlo > lamhi) go to 60
+      if (lamlo > lamhi) cycle
       do m=1,mhi
         mstart = lmf(loc1+m)
         mend = lml(loc1+m)
@@ -56,8 +56,9 @@ do ia=1,na1
           loc2 = (lam-1)**2
           do mu=1,l2
             istart = lmf(loc2+mu)
-            if ((mod(ia+lmx(mstart)+lmx(istart),2) /= 1) .or. (mod(ib+lmy(mstart)+lmy(istart),2) /= 1) .or. &
-                (mod(ic+lmz(mstart)+lmz(istart),2) /= 1)) go to 40
+            if ((mod(ia+lmx(mstart)+lmx(istart),2) /= 1) .or. &
+                (mod(ib+lmy(mstart)+lmy(istart),2) /= 1) .or. &
+                (mod(ic+lmz(mstart)+lmz(istart),2) /= 1)) cycle
             pre = Zero
             iend = lml(loc2+mu)
             a_int = Zero
@@ -90,16 +91,12 @@ do ia=1,na1
               end do
             end do
             angt = angt+pre*a_int
-            40          continue
           end do
           ang(n+1,m,lam) = ang(n+1,m,lam)+angt*pab3
         end do
       end do
-      60    continue
     end do
-    70  continue
   end do
-  80 continue
 end do
 
 return

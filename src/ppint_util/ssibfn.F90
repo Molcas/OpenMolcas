@@ -26,59 +26,62 @@ real(kind=wp) :: ak, akpkm2, akqkm2, aprod, ex, f2kp1, f2kp3, f2nm1, f2np1, f2np
 
 x2 = x*x
 xmin = (abs(3*nmax-1))
-if (x > xmin) go to 5
-n = nmax
-f2np1 = (n+n+1)
-f2kp3 = f2np1
-pkm1 = Zero
-pk = One
-qkm1 = One
-qk = One
-aprod = One
-1 continue
-f2kp1 = f2kp3
-f2kp3 = f2kp3+Two
-ak = x2/(f2kp1*f2kp3)
-akpkm2 = ak*pkm1
-pkm1 = pk
-pk = pkm1+akpkm2
-akqkm2 = ak*qkm1
-qkm1 = qk
-qk = qkm1+akqkm2
-aprod = ak*aprod
-if (((pk*qkm1)+aprod) /= (pk*qkm1)) go to 1
-ssi(n+1) = pk/qk
-2 continue
-if (n == 0) go to 3
-n = n-1
-f2np3 = f2np1
-f2np1 = f2np1-Two
-ssi(n+1) = (f2np1*f2np3)/((f2np1*f2np3)+x2*ssi(n+2))
-go to 2
-3 continue
-ssi(1) = ssi(1)/(One+x*ssi(1))
-do n=1,nmax
-  ssi(n+1) = ssi(n+1)*ssi(n)
-end do
 
-return
+if (x <= xmin) then
 
-5 continue
-if (x >= 20.0_wp) then
-  ex = Zero
+  n = nmax
+  f2np1 = (n+n+1)
+  f2kp3 = f2np1
+  pkm1 = Zero
+  pk = One
+  qkm1 = One
+  qk = One
+  aprod = One
+  do
+    f2kp1 = f2kp3
+    f2kp3 = f2kp3+Two
+    ak = x2/(f2kp1*f2kp3)
+    akpkm2 = ak*pkm1
+    pkm1 = pk
+    pk = pkm1+akpkm2
+    akqkm2 = ak*qkm1
+    qkm1 = qk
+    qk = qkm1+akqkm2
+    aprod = ak*aprod
+    if (((pk*qkm1)+aprod) == (pk*qkm1)) exit
+  end do
+  ssi(n+1) = pk/qk
+  do
+    if (n == 0) exit
+    n = n-1
+    f2np3 = f2np1
+    f2np1 = f2np1-Two
+    ssi(n+1) = (f2np1*f2np3)/((f2np1*f2np3)+x2*ssi(n+2))
+  end do
+  ssi(1) = ssi(1)/(One+x*ssi(1))
+  do n=1,nmax
+    ssi(n+1) = ssi(n+1)*ssi(n)
+  end do
+
 else
-  ex = exp(-(x+x))
+
+  if (x >= 20.0_wp) then
+    ex = Zero
+  else
+    ex = exp(-(x+x))
+  end if
+  ssi(1) = (One-ex)/(x+x)
+  if (nmax == 0) return
+  ssi(2) = OneHalf*(One+ex+(ex-One)/x)/x2
+  if (nmax == 1) return
+  f2np1 = Three
+  do n=2,nmax
+    f2nm1 = f2np1
+    f2np1 = f2np1+Two
+    ssi(n+1) = (ssi(n-1)-ssi(n))*(f2nm1*f2np1)/x2
+  end do
+
 end if
-ssi(1) = (One-ex)/(x+x)
-if (nmax == 0) return
-ssi(2) = OneHalf*(One+ex+(ex-One)/x)/x2
-if (nmax == 1) return
-f2np1 = Three
-do n=2,nmax
-  f2nm1 = f2np1
-  f2np1 = f2np1+Two
-  ssi(n+1) = (ssi(n-1)-ssi(n))*(f2nm1*f2np1)/x2
-end do
 
 return
 

@@ -28,7 +28,7 @@ do kcr=kcrl,kcru
   alpha = aa+zcr(kcr)
   ! exponential factor from q functions included in dum
   dum = aarr1+zcr(kcr)*arp2/alpha
-  if (dum > tol) go to 40
+  if (dum > tol) cycle
   prd = fctr2*ccr(kcr)*exp(-dum)
   if (rk == Zero) then
     t = Zero
@@ -41,7 +41,6 @@ do kcr=kcrl,kcru
       qsum(lam,lam) = qsum(lam,lam)+prd*qcomp(alpha,dfac,npi+lam-1,lam-1,t,rk)
     end do
   end if
-  40 continue
 end do
 
 if (rk /= Zero) then

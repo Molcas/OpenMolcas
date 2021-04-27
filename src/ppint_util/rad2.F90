@@ -38,7 +38,7 @@ do kcr=kcrl,kcru
   rc = (rka+rkb)/(alpha+alpha)
   arc2 = alpha*rc*rc
   dum = aarr2+zcr(kcr)*arc2/aa
-  if (dum > tol) go to 68
+  if (dum > tol) cycle
   prd = fctr2*ccr(kcr)*exp(-dum)
 
   if ((rka == Zero) .and. (rkb == Zero)) then
@@ -92,7 +92,6 @@ do kcr=kcrl,kcru
     ! rka>0 and rkb>0; use partially asymptotic method
     call qpasy(alpha,a(ipt(11)),npi,l,lambu,lmahi,lmbhi,ltot1,rka,rkb,fctr2*ccr(kcr),dum+arc2,qsum)
   end if
-  68 continue
 end do
 
 if ((rka == Zero) .and. (rkb /= Zero)) then
@@ -128,7 +127,7 @@ elseif ((rka /= Zero) .and. (rkb /= Zero)) then
       nlo = ldifa1+ldifb
       nhi = (ltot1-mod(lit-ldifa1,2))-mod((ljt-1)-ldifb,2)
       do n=nlo,nhi,2
-        if (n-(lama+lamb) == (1-l-l)) go to 88
+        if (n-(lama+lamb) == (1-l-l)) cycle
         if ((lama > lmahi-2) .or. (n <= abs(l-lama-2)+ldifb)) then
           ! lamb recursion
           qsum(n,lamb,lama) = qsum(n,lamb+2,lama)+(f2lmb3/rkb)*qsum(n-1,lamb+1,lama)
@@ -136,7 +135,6 @@ elseif ((rka /= Zero) .and. (rkb /= Zero)) then
           ! lama recursion
           qsum(n,lamb,lama) = qsum(n,lamb,lama+2)+(f2lma3/rka)*qsum(n-1,lamb,lama+1)
         end if
-        88      continue
       end do
       f2lmb3 = f2lmb3-Two
     end do

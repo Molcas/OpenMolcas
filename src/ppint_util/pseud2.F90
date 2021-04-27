@@ -57,32 +57,34 @@ subroutine pseud2_internal(a)
   yka = yc-yi
   zka = zc-zi
   ca = sqrt(xka*xka+yka*yka+zka*zka)
-  if (lit == 1) go to 220
-  crda(2,1) = xka
-  crda(2,2) = yka
-  crda(2,3) = zka
-  if (lit == 2) go to 220
-  do i=1,3
-    do j=3,lit
-      crda(j,i) = crda(2,i)*crda(j-1,i)
-    end do
-  end do
-  220 continue
+  if (lit /= 1) then
+    crda(2,1) = xka
+    crda(2,2) = yka
+    crda(2,3) = zka
+    if (lit /= 2) then
+      do i=1,3
+        do j=3,lit
+          crda(j,i) = crda(2,i)*crda(j-1,i)
+        end do
+      end do
+    end if
+  end if
   xkb = xc-xj
   ykb = yc-yj
   zkb = zc-zj
   cb = sqrt(xkb*xkb+ykb*ykb+zkb*zkb)
-  if (ljt == 1) go to 240
-  crdb(2,1) = xkb
-  crdb(2,2) = ykb
-  crdb(2,3) = zkb
-  if (ljt == 2) go to 240
-  do i=1,3
-    do j=3,ljt
-      crdb(j,i) = crdb(2,i)*crdb(j-1,i)
-    end do
-  end do
-  240 continue
+  if (ljt /= 1) then
+    crdb(2,1) = xkb
+    crdb(2,2) = ykb
+    crdb(2,3) = zkb
+    if (ljt /= 2) then
+      do i=1,3
+        do j=3,ljt
+          crdb(j,i) = crdb(2,i)*crdb(j-1,i)
+        end do
+      end do
+    end if
+  end if
   aarr2 = (ai*aj/aa)*(ca-cb)**2
 
   if (ca == Zero) then

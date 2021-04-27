@@ -26,22 +26,24 @@ real(kind=wp) :: a_int, angt, pre, xkp, ykp, zkp
 
 call wzero(ltot1*lamu,ang,1)
 do n=1,nanb
-  if (xab(n) == Zero) go to 96
+  if (xab(n) == Zero) cycle
   do l=1,lalb
-    if (yab(l) == Zero) go to 94
+    if (yab(l) == Zero) cycle
     do m=1,mamb
-      if (zab(m) == Zero) go to 92
+      if (zab(m) == Zero) cycle
       nlm = ((n-2)+l)+m
       lamlo = mod(nlm-1,2)+1
       lamhi = min(nlm,lamu)
-      if (lamlo > lamhi) go to 92
+      if (lamlo > lamhi) cycle
       do lam=lamlo,lamhi,2
         l2 = lam+lam-1
         angt = Zero
         loc = (lam-1)**2
         do mu1=1,l2
           istart = lmf(loc+mu1)
-          if ((mod(n,2) == mod(lmx(istart),2)) .or. (mod(l,2) == mod(lmy(istart),2)) .or. (mod(m,2) == mod(lmz(istart),2))) go to 80
+          if ((mod(n,2) == mod(lmx(istart),2)) .or. &
+              (mod(l,2) == mod(lmy(istart),2)) .or. &
+              (mod(m,2) == mod(lmz(istart),2))) cycle
           pre = Zero
           a_int = Zero
           iend = lml(loc+mu1)
@@ -68,15 +70,11 @@ do n=1,nanb
             a_int = a_int+zlm(i)*dfac(n+indx)*dfac(l+indy)*dfac(m+indz)/dfac((n+indx)+(l+indy)+(m+indz))
           end do
           angt = angt+pre*a_int
-          80        continue
         end do
         ang(nlm,lam) = ang(nlm,lam)+((xab(n)*yab(l))*zab(m))*angt
       end do
-      92    continue
     end do
-    94  continue
   end do
-  96 continue
 end do
 
 return

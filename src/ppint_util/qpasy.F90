@@ -28,103 +28,108 @@ real(kind=wp), external :: qcomp
 
 sqalpi = One/sqrt(alpha)
 alf1 = One
-if (xka > xkb) go to 42
 
-! xka is smaller: set up parameters for qcomp using xkb
+if (xka <= xkb) then
 
-xk = xkb*sqalpi
-t = Quart*xk*xk
-prde = prd*exp(t-dum)*sqalpi**(npi+l)
-if (l >= 2) prde = prde*xka**(l-1)
-tk = xka*xka/(alpha+alpha)
-do lama=l,lmahi
-  la = lama-1
-  prefac = prde
-  do lamb=l,lmbhi
-    lb = lamb-1
-    n = ((1-l-l)+lama)+lamb
-    ! run power series using xka, obtaining initial
-    ! q(n,l) values from qcomp, then recurring upwards
-    ! j=0 term in sum
-    nprime = npi+n+la-1
-    qold1 = qcomp(alf1,dfac,nprime,lb,t,xk)/dfac(la+la+3)
-    dsum = qold1
-    if (tk == Zero) go to 24
-    ! j=1 term in sum
-    nprime = nprime+2
-    qnew = qcomp(alf1,dfac,nprime,lb,t,xk)/dfac(la+la+3)
-    f1 = (la+la+3)
-    qold2 = (tk/f1)*qold1
-    qold1 = (tk/f1)*qnew
-    dsum = dsum+qold1
-    j = 1
-    ! increment j for next term
-    22  continue
-    j = j+1
-    nprime = nprime+2
-    f1 = (nprime+nprime-5)
-    f2 = ((lb-nprime+4)*(lb+nprime-3))
-    qnew = (t+Half*f1)*qold1+Quart*f2*qold2
-    f1 = (j*(la+la+j+j+1))
-    qold2 = (tk/f1)*qold1
-    qold1 = (tk/f1)*qnew
-    dsum = dsum+qold1
-    if (qold1 > accrcy*dsum) go to 22
-    24  continue
-    qsum(n,lamb,lama) = qsum(n,lamb,lama)+prefac*dsum
-    prefac = prefac*sqalpi
+  ! xka is smaller: set up parameters for qcomp using xkb
+
+  xk = xkb*sqalpi
+  t = Quart*xk*xk
+  prde = prd*exp(t-dum)*sqalpi**(npi+l)
+  if (l >= 2) prde = prde*xka**(l-1)
+  tk = xka*xka/(alpha+alpha)
+  do lama=l,lmahi
+    la = lama-1
+    prefac = prde
+    do lamb=l,lmbhi
+      lb = lamb-1
+      n = ((1-l-l)+lama)+lamb
+      ! run power series using xka, obtaining initial
+      ! q(n,l) values from qcomp, then recurring upwards
+      ! j=0 term in sum
+      nprime = npi+n+la-1
+      qold1 = qcomp(alf1,dfac,nprime,lb,t,xk)/dfac(la+la+3)
+      dsum = qold1
+      if (tk /= Zero) then
+        ! j=1 term in sum
+        nprime = nprime+2
+        qnew = qcomp(alf1,dfac,nprime,lb,t,xk)/dfac(la+la+3)
+        f1 = (la+la+3)
+        qold2 = (tk/f1)*qold1
+        qold1 = (tk/f1)*qnew
+        dsum = dsum+qold1
+        j = 1
+        do
+          ! increment j for next term
+          j = j+1
+          nprime = nprime+2
+          f1 = (nprime+nprime-5)
+          f2 = ((lb-nprime+4)*(lb+nprime-3))
+          qnew = (t+Half*f1)*qold1+Quart*f2*qold2
+          f1 = (j*(la+la+j+j+1))
+          qold2 = (tk/f1)*qold1
+          qold1 = (tk/f1)*qnew
+          dsum = dsum+qold1
+          if (qold1 <= accrcy*dsum) exit
+        end do
+      end if
+      qsum(n,lamb,lama) = qsum(n,lamb,lama)+prefac*dsum
+      prefac = prefac*sqalpi
+    end do
+    prde = prde*(xka/alpha)
   end do
-  prde = prde*(xka/alpha)
-end do
-return
 
-! xkb is smaller: set up parameters for qcomp using xka
+else
 
-42 continue
-xk = xka*sqalpi
-t = Quart*xk*xk
-prde = prd*exp(t-dum)*sqalpi**(npi+l)
-if (l >= 2) prde = prde*xkb**(l-1)
-tk = xkb*xkb/(alpha+alpha)
-do lama=l,lmahi
-  la = lama-1
-  prefac = prde
-  do lamb=l,lmbhi
-    lb = lamb-1
-    n = ((1-l-l)+lama)+lamb
-    ! run power series using xkb, obtaining initial
-    ! q(n,l) values from qcomp, then recurring upwards
-    ! j=0 term in sum
-    nprime = npi+n+lb-1
-    qold1 = qcomp(alf1,dfac,nprime,la,t,xk)/dfac(lb+lb+3)
-    dsum = qold1
-    if (tk == Zero) go to 54
-    ! j=1 term in sum
-    nprime = nprime+2
-    qnew = qcomp(alf1,dfac,nprime,la,t,xk)/dfac(lb+lb+3)
-    f1 = (lb+lb+3)
-    qold2 = (tk/f1)*qold1
-    qold1 = (tk/f1)*qnew
-    dsum = dsum+qold1
-    j = 1
-    ! increment j for next term
-    52  continue
-    j = j+1
-    nprime = nprime+2
-    f1 = (nprime+nprime-5)
-    f2 = ((la-nprime+4)*(la+nprime-3))
-    qnew = (t+Half*f1)*qold1+Quart*f2*qold2
-    f1 = (j*(lb+lb+j+j+1))
-    qold2 = (tk/f1)*qold1
-    qold1 = (tk/f1)*qnew
-    dsum = dsum+qold1
-    if (qold1 > accrcy*dsum) go to 52
-    54  continue
-    qsum(n,lamb,lama) = qsum(n,lamb,lama)+prefac*dsum
-    prefac = prefac*(xkb/alpha)
+  ! xkb is smaller: set up parameters for qcomp using xka
+
+  xk = xka*sqalpi
+  t = Quart*xk*xk
+  prde = prd*exp(t-dum)*sqalpi**(npi+l)
+  if (l >= 2) prde = prde*xkb**(l-1)
+  tk = xkb*xkb/(alpha+alpha)
+  do lama=l,lmahi
+    la = lama-1
+    prefac = prde
+    do lamb=l,lmbhi
+      lb = lamb-1
+      n = ((1-l-l)+lama)+lamb
+      ! run power series using xkb, obtaining initial
+      ! q(n,l) values from qcomp, then recurring upwards
+      ! j=0 term in sum
+      nprime = npi+n+lb-1
+      qold1 = qcomp(alf1,dfac,nprime,la,t,xk)/dfac(lb+lb+3)
+      dsum = qold1
+      if (tk /= Zero) then
+        ! j=1 term in sum
+        nprime = nprime+2
+        qnew = qcomp(alf1,dfac,nprime,la,t,xk)/dfac(lb+lb+3)
+        f1 = (lb+lb+3)
+        qold2 = (tk/f1)*qold1
+        qold1 = (tk/f1)*qnew
+        dsum = dsum+qold1
+        j = 1
+        do
+          ! increment j for next term
+          j = j+1
+          nprime = nprime+2
+          f1 = (nprime+nprime-5)
+          f2 = ((la-nprime+4)*(la+nprime-3))
+          qnew = (t+Half*f1)*qold1+Quart*f2*qold2
+          f1 = (j*(lb+lb+j+j+1))
+          qold2 = (tk/f1)*qold1
+          qold1 = (tk/f1)*qnew
+          dsum = dsum+qold1
+          if (qold1 <= accrcy*dsum) exit
+        end do
+      end if
+      qsum(n,lamb,lama) = qsum(n,lamb,lama)+prefac*dsum
+      prefac = prefac*(xkb/alpha)
+    end do
+    prde = prde*sqalpi
   end do
-  prde = prde*sqalpi
-end do
+
+end if
 
 return
 

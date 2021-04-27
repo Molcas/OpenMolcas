@@ -30,9 +30,8 @@ do iter=1,10
   call hrecur(p,dp,pn1,x,nn)
   d = p/dp
   x = x-d
-  if (abs(d) <= eps) go to 16
+  if (abs(d) <= eps) exit
 end do
-16 continue
 dpn = dp
 
 return
