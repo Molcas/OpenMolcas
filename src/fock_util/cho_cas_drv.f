@@ -371,7 +371,7 @@ C ----------------------------------------------------------------
          Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=FI)
          Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI',Ref=FA)
 
-         CALL CHO_LK_CASSCF(DLT(1),DLT(2),FLT,MSQ,ipInt,
+         CALL CHO_LK_CASSCF(DLT,FLT,MSQ,ipInt,
      &                      FactXI,nChI,nAorb,nChM,CVa,DoActive,
      &                      nScreen,dmpK,abs(CBLBM),ExFac)
 

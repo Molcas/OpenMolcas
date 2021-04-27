@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHO_LK_CASSCF(DI,DA1,FLT,MSQ,ipInt,
+      SUBROUTINE CHO_LK_CASSCF(DLT,FLT,MSQ,ipInt,
      &             FactXI,nFIorb,nAorb,nChM,Ash,DoActive,
      &             nScreen,dmpk,dFmat,ExFac)
 
@@ -35,8 +35,8 @@ C   (WA|XY) = sum_J  L(wa,J) * L(xy,J)
 C
 **********************************************************************
 C
-C      V(J) = sum_gd  Lgd,J * DI(gd)
-C      U(J) = sum_gd  Lgd,J * DA(gd)
+C      V(J) = sum_gd  Lgd,J * DI(gd)     DI=DLT(1)
+C      U(J) = sum_gd  Lgd,J * DA(gd)     DA=DLT(2)
 C
 C      a,b,g,d:  AO-index
 C      k:        MO-index   belonging to (Frozen+Inactive)
@@ -65,13 +65,11 @@ C
 
       Integer   ipDLT(2),ipFLT(2)
       Integer   kOff(8,2),nnA(8,8)
-      Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
 
       Type (DSBA_Type)   MSQ
-      Type (DSBA_Type)   FLT(2)
-      Type (DSBA_Type)   Ash(2), DI, DA1
+      Type (DSBA_Type)   FLT(2), DLT(2), Ash(2)
       Type (SBA_Type) Laq(1), Lxy
       Type (twxy_Type) Scr
       Type (NDSBA_Type) DIAH
@@ -159,8 +157,8 @@ C
       DoTraInt = .false.
       IREDC = -1  ! unknown reduced set in core
 
-      ipDLT(1) = ip_of_Work(DI%A0(1))    ! some definitions
-      ipDLT(2) = ip_of_Work(DA1%A0(1))
+      ipDLT(1) = ip_of_Work(DLT(1)%A0(1))    ! some definitions
+      ipDLT(2) = ip_of_Work(DLT(2)%A0(1))
       ipFLT(1) = ip_of_Work(FLT(1)%A0(1))
       ipFLT(2) = ip_of_Work(FLT(2)%A0(1))
 
@@ -187,11 +185,8 @@ C ==================================================================
 c --- Various offsets
 c --------------------
       MaxB=nBas(1)
-      ISTLT(1)=0
       DO ISYM=2,NSYM
         MaxB=Max(MaxB,nBas(iSym))
-        NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive D and F matrices
       END DO
 
 **************************************************
