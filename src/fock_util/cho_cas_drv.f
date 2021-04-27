@@ -103,7 +103,6 @@ c
 ************************************************************************
 ************************************************************************
 *                                                                      *
-
 c --- It only computes FI and FA  in AO-basis and returns
 c --- the active integrals (tw|xy)
 c --- If specified in input, the routine also computes
@@ -125,7 +124,7 @@ C --- Build the packed densities from the Squared ones
       FactXI = -1.0D0
 
 !AMS - should this be set differently for ExFac.ne.1?
-!      FactXI = 0-ExFac
+!     FactXI = 0-ExFac
 
       If (Deco) Then
 
@@ -198,95 +197,98 @@ c --- to get the right input arguments for CHO_FCAS_AO and CHO_FMCSCF
       ipInc = ip_of_Work(MSQ%A0(1))
 
 C --- Reordering of the MOs coefficients to fit cholesky needs
-      If(.not.DoLocK)Then
+      If (.not.DoLocK) Then
 
-        Call Allocate_DSBA(POrb(1),nChI,nBas,nSym)
-        Call Allocate_DSBA(POrb(3),nAOrb,nBas,nSym)
+         Call Allocate_DSBA(POrb(1),nChI,nBas,nSym)
+         Call Allocate_DSBA(POrb(3),nAOrb,nBas,nSym)
 
-*       nOcs=0
-        ioff1=0
-        Do iSym=1,nSym
+*        nOcs=0
+         ioff1=0
+         Do iSym=1,nSym
 
-           do ikk=1,nChI(iSym)
-              ioff2=ioff1+nBas(iSym)*(ikk-1)
-              POrb(1)%SB(iSym)%A2(ikk,:) =
-     &          MSQ%SB(iSym)%A2(:,ikk)
-*    &           Work(ipInc+ioff2 : ipInc+ioff2 -1 + nBas(iSym))
-           end do
+            do ikk=1,nChI(iSym)
+               ioff2=ioff1+nBas(iSym)*(ikk-1)
+               POrb(1)%SB(iSym)%A2(ikk,:) =
+     &           MSQ%SB(iSym)%A2(:,ikk)
+*    &            Work(ipInc+ioff2 : ipInc+ioff2 -1 + nBas(iSym))
+            end do
 
-           ioff2=ioff1+nBas(iSym)*(nForb(iSym)+nIorb(iSym))
-           do ikk=1,nAorb(iSym)
-              POrb(3)%SB(iSym)%A2(ikk,:) =
-     &             W_CMO( ioff2+nBas(iSym)*(ikk-1) + 1 :
-     &                  ioff2+nBas(iSym)*(ikk-1) + nBas(iSym))
-           end do
-           ioff1=ioff1+nBas(iSym)**2
-*          nOcs = nOcs + nAorb(iSym)**2
+            ioff2=ioff1+nBas(iSym)*(nForb(iSym)+nIorb(iSym))
+            do ikk=1,nAorb(iSym)
+               jkk = nForb(iSym) + nIorb(iSym) + ikk
+               POrb(3)%SB(iSym)%A2(ikk,:) =
+     &           CMO%SB(iSym)%A2(:,jkk)
+*    &              W_CMO( ioff2+nBas(iSym)*(ikk-1) + 1 :
+*    &                   ioff2+nBas(iSym)*(ikk-1) + nBas(iSym))
+            end do
+            ioff1=ioff1+nBas(iSym)**2
+*           nOcs = nOcs + nAorb(iSym)**2
 
-        End Do
+         End Do
 
       Else
 
 C *** Only the active orbitals MO coeff need reordering
-           Call Allocate_DSBA(CVa(1),nAorb,nBas,nSym)
+         Call Allocate_DSBA(CVa(1),nAorb,nBas,nSym)
 
-           ioff1 = 0
-           Do iSym=1,nSym
+         ioff1 = 0
+         Do iSym=1,nSym
             ioff2 = ioff1 + nBas(iSym)*(nForb(iSym)+nIorb(iSym))
             do ikk=1,nAorb(iSym)
+               jkk = nForb(iSym) + nIorb(iSym) + ikk
                ioff = ioff2+nBas(iSym)*(ikk-1)
                CVa(1)%SB(iSym)%A2(ikk,:) =
-     &           W_CMO(ioff +  1 : ioff + nBas(iSym))
+     &           CMO%SB(iSym)%A2(:,jkk)
+*    &           W_CMO(ioff +  1 : ioff + nBas(iSym))
             end do
             ioff1 = ioff1 + nBas(iSym)**2
-           End Do
+         End Do
 
       EndIf
 
       If (DoActive) Then
-C ---  Decompose the active density  -----------------------------
+C -----  Decompose the active density  -----------------------------
 
 #ifdef _DEBUGPRINT_
-       koff=0
-       do i=1,nSym
-          CALL CD_TESTER(rc,DALT(1+koff),nBas(i),.true.)
-          write(6,*) 'DALT for sym=', i
-          CALL TRIPRT('DALT',' ',DALT(1+koff),nBas(i))
-          koff = koff + nBas(i)*(nBas(i)+1)/2
-       end do
+         do i=1,nSym
+            CALL CD_TESTER(rc,DLT(2)%SB(i)%A1,nBas(i),.true.)
+            write(6,*) 'DALT for sym=', i
+            CALL TRIPRT('DALT',' ',DLT(2)%SB(i)%A1,nBas(i))
+         end do
 #endif
 
-        Call Allocate_DSBA(CVa(2),nBas,nBas,nSym)
-        Call Allocate_DSBA(DDec,nBas,nBas,nSym)
-        DDec%A0(1:NTot2)=DA1(1:NTot2)
-*       call dcopy_(NTot2,DA1(1),1,DDec%A0,1)
+         Call Allocate_DSBA(CVa(2),nBas,nBas,nSym)
+         Call Allocate_DSBA(DDec,nBas,nBas,nSym)
+         DDec%A0(1:NTot2)=DA1(1:NTot2)
+*        call dcopy_(NTot2,DA1(1),1,DDec%A0,1)
 
-        Thr = 1.0d-12
-        Do i=1,nSym
-           if(nAorb(i).gt.0)then
+         Thr = 1.0d-12
+         Do i=1,nSym
+            if (nAorb(i).gt.0)then
 ! NOTE(Giovanni): CD will proceed with approx. decompos for QMC
 !                 This will avoid warnings for negative-definit
-             call CD_InCore(DDec%SB(i)%A2,nBas(i),
-     &                      CVa(2)%SB(i)%A2,nBas(i),
-     &                      NumV,Thr,rc)
-             If (rc.ne.0) Then
-                write(6,*)SECNAM//': ill-defined dens decomp for active'
-                write(6,*) 'rc value produced = ', rc
-                Call abend()
-             EndIf
-             nChM(i) = NumV
-           else
-             nChM(i) = 0
-           endif
-        End Do
+               Call CD_InCore(DDec%SB(i)%A2,nBas(i),
+     &                        CVa(2)%SB(i)%A2,nBas(i),
+     &                        NumV,Thr,rc)
+               If (rc.ne.0) Then
+                  write(6,*)SECNAM
+     &                      //': ill-defined dens decomp for active'
+                  write(6,*) 'rc value produced = ', rc
+                  Call abend()
+               End If
+               nChM(i) = NumV
+            else
+               nChM(i) = 0
+            endif
+         End Do
 
-        Call Deallocate_DSBA(DDec)
+         Call Deallocate_DSBA(DDec)
 
       Else
 
-        ! Dummy allocation
-        Call Allocate_DSBA(CVa(2),[1],[1],1)
-        nChM(:) = 0
+         ! Dummy allocation
+         Call Allocate_DSBA(CVa(2),[1],[1],1)
+         nChM(:) = 0
 
       EndIf
 
