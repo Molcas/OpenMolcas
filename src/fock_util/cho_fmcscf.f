@@ -12,7 +12,7 @@
 ************************************************************************
 
       SUBROUTINE CHO_FMCSCF(rc,FA,FI,nForb,nIorb,nAorb,FactXI,
-     &                      DI,DA1,DoActive,POrb,nChM,ipInt,ExFac)
+     &                      DLT,DoActive,POrb,nChM,ipInt,ExFac)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -48,7 +48,7 @@ C
       Implicit Real*8 (a-h,o-z)
 
       Real*8 FI(*), FA(*)
-      Type (DSBA_Type) POrb(3), DI, DA1
+      Type (DSBA_Type) POrb(3), DLT(2)
       Type (SBA_Type), Target:: Laq(3), Lxy
       Type (twxy_type) Scr
 
@@ -100,8 +100,8 @@ C
       DoTraInt = .false.
       IREDC = -1  ! unknown reduced set in core
 
-      ipDLT(1) = ip_of_Work(DI%A0(1))    ! some definitions
-      ipDLT(2) = ip_of_Work(DA1%A0(1))
+      ipDLT(1) = ip_of_Work(DLT(1)%A0(1))    ! some definitions
+      ipDLT(2) = ip_of_Work(DLT(2)%A0(1))
       ipFLT(1) = ip_of_Work(FI(1))
       ipFLT(2) = ip_of_Work(FA(1))
 

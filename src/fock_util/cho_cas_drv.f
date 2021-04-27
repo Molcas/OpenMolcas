@@ -353,19 +353,15 @@ C ----------------------------------------------------------------
       Call Fzero(FI(1),nTot1) ! LT-storage
       Call Fzero(FA(1),nTot1) ! LT-storage
 
+      ipInt = lpwxy   ! (PU|VX) integrals are computed
+      ipCM  = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
+
       IF (ALGO.eq.1 .and. .not. DoLocK) THEN
 
-         ipInt = lpwxy   ! (PU|VX) integrals are computed
-         ipCM  = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
-
          CALL CHO_FMCSCF(rc,FA,FI,nForb,nIorb,nAorb,FactXI,
-     &                   DLT(1),DLT(2),DoActive,POrb,nChM,ipInt,ExFac)
+     &                   DLT,DoActive,POrb,nChM,ipInt,ExFac)
 
       ELSEIF (ALGO.eq.1 .and. DoLocK) THEN
-
-         ipInt = lpwxy   ! (PU|VX) integrals are computed
-         ipCM = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
-
 
          Call Allocate_DSBA(MSQ,nBas,nBas,nSym,Ref=Work(ipInc))
          Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=FI)
