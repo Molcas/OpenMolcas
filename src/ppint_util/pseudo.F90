@@ -61,7 +61,6 @@ real(kind=wp), intent(inout) :: gout(2*intmax)
 integer(kind=iwp) :: i, l1max2, lambu, lcru, litot, ljtot, lmax, lmnpwr, lmnvmx, lproju1, ltot1, mproju, ncru, ndfac
 real(kind=wp) :: crda(lproju,3), crdb(lproju,3), eps
 real(kind=wp), parameter :: facij = Pi**OneHalf
-integer(kind=iwp), external :: ip_of_iWork_d
 
 !write(u6,*) 'ncr',(ncr(i),i=1,npot)
 !write(u6,*) 'zcr',(zcr(i),i=1,npot)

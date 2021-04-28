@@ -13,7 +13,7 @@ subroutine cortab(binom,dfac,eps,lmf,lml,lmx,lmy,lmz,lmax,lmn1u,ndfac,zlm)
 ! Tables for core potential and spin-orbit integrals.
 
 use ppint_arrays, only: hpt, hwt
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate
 use Constants, only: Zero, One, Three
 use Definitions, only: wp, iwp
 
