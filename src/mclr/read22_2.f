@@ -35,20 +35,21 @@
      &       MO1(*), Scr(*)
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: G2x(:)
-      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI
+      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI,
+     &                 FkA
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
         SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
-     &                         JI,KI,JA,KA,FkI,ipFkA,
+     &                         JI,KI,JA,KA,FkI,FkA,
      &                         ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
         use Data_Structures, only: DSBA_Type
-        Integer ipFkA,
-     &          ipMO1,ipQ,ipCMO,ip_CMO_inv
-        Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI, Ash(2)
+        Integer ipMO1,ipQ,ipCMO,ip_CMO_inv
+        Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI, FkA,
+     &                   Ash(2)
         Real*8 G2(*)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical DoAct,Fake_CMO2
@@ -398,7 +399,6 @@
         Call Allocate_DSBA(KA,nBas,nBas,nSym)
         KA%A0(:)=Zero
 *
-        call dcopy_(nDens2,[0.0d0],0,FockA,1)
         call dcopy_(nDens2,[0.0d0],0,Q,1)
 *
         Call Allocate_DSBA(DI,nBas,nBas,nSym,Ref=Temp2)
@@ -408,15 +408,15 @@
         KI%A0(:)=Zero
         Call Allocate_DSBA(FkI,nBas,nBas,nSym,Ref=FockI)
         FkI%A0(:)=Zero
-        ipFkA     = ip_of_Work(FockA(1))
+        Call Allocate_DSBA(FkA,nBas,nBas,nSym,Ref=FockA)
+        FkA%A0(:)=Zero
         ipMO1     = ip_of_Work(MO1(1))
         ipQ       = ip_of_Work(Q(1))
         ipCMO     = ip_of_Work(CMO(1))
         ip_CMO_inv= ip_of_Work(CMO_Inv(1))
         istore=1 ! Ask to store the half-transformed vectors
 
-        CALL CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,
-     &                   JI,KI,JA,KA,FkI,ipFkA,
+        CALL CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,JI,KI,JA,KA,FkI,FkA,
      &                   ipMO1,ipQ,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh,nAsh,nIsh,doAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,istore)
@@ -424,8 +424,9 @@
         nAtri=nAct*(nAct+1)/2
         nAtri=nAtri*(nAtri+1)/2
         Call DScal_(nAtri,0.25D0,MO1,1)
-        Call DScal_(nDens2,-0.5d0,FockI,1)
+        FkI%A0(:) = -Half * FkI%A0(:)
 *
+        Call Deallocate_DSBA(FkA)
         Call Deallocate_DSBA(FkI)
         Call Deallocate_DSBA(KI)
         Call Deallocate_DSBA(JI)

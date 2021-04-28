@@ -11,7 +11,7 @@
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
       SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,JI,
-     &                      KI,JA,KA,FkI,ipFkA,
+     &                      KI,JA,KA,FkI,FkA,
      &                      ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                      LuAChoVec,LuIChoVec,iAChoVec)
@@ -64,7 +64,7 @@ C
       Real*8    tmotr(2),tscrn(2)
       Integer   nChMo(8)
 
-      Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI,
+      Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI, FkA,
      &                 Ash(2), Tmp(2), QTmp(2), CM(2)
       Type (DSBA_Type) JALT
       Type (SBA_Type) Lpq(3)
@@ -1626,8 +1626,6 @@ C--- have performed screening in the meanwhile
 * --- Accumulate Coulomb and Exchange contributions
       Do iSym=1,nSym
 
-         ipFA = ipFkA + ISTSQ(iSym)
-
          Do iaSh=1,nShell
 
             ioffa = kOffSh(iaSh,iSym)
@@ -1655,14 +1653,13 @@ C--- have performed screening in the meanwhile
 
                   iabg = iTri(iag,ibg)
 
-                  jSA= ipFA - 1 + nBas(iSym)*(ibg-1) + iag
-
                   FkI%SB(iSym)%A2(iag,ibg)
      &                     = JI%SB(iSym)%A1(iabg)
      &                     + KI%SB(iSym)%A1(iOffAB+iab)
      &                     + KI%SB(iSym)%A1(jOffAB+jab)
 
-                  Work(jSA)= JALT%SB(iSym)%A1(iabg)
+                  FkA%SB(iSym)%A2(iag,ibg)
+     &                     = JALT%SB(iSym)%A1(iabg)
      &                     + KA%SB(iSym)%A2(iag,ibg)
      &                     + KA%SB(iSym)%A2(ibg,iag)
 
@@ -1724,13 +1721,13 @@ C--- have performed screening in the meanwhile
         If (nBas(iS).ne.0) Then
           If (DoAct) Then
             Call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),
-     &                  1.0d0,Work(ipFkA+ISTSQ(iS)),nBas(iS),
+     &                  1.0d0,FkA%SB(iS)%A2,nBas(iS),
      &                        Work(ipCMO+ISTSQ(iS)),nBas(iS),
      &                  0.0D0,JA%SB(iS)%A2,nBas(jS))
             Call DGEMM_('T','N',nBas(jS),nBas(jS),nBas(iS),
      &                  1.0d0,JA%SB(iS)%A2,nBas(iS),
      &                        Work(ipCMO+ISTSQ(jS)),nBas(jS),
-     &                  0.0d0,Work(ipFkA+ISTSQ(iS)),nBas(jS))
+     &                  0.0d0,FkA%SB(iS)%A2,nBas(jS))
           EndIf
           Call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),
      &                1.0d0,FkI%SB(iS)%A2,nBas(iS),
