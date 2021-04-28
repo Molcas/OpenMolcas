@@ -57,7 +57,7 @@ C
 
       Real*8 G2(*), MO_Int(*)
       Integer   kOff(8),kaOff(8)
-      Integer   ISTLT(8),ISTSQ(8),ISTK(8),iASQ(8,8,8)
+      Integer   iASQ(8,8,8)
       Integer   LuAChoVec(8),LuIChoVec(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2),tact(2)
       Real*8    tint1(2),tint2(2),tint3(2),tQmat(2)
@@ -92,7 +92,6 @@ C
       Logical, Parameter ::  DoRead = .false.
       Real*8, Parameter :: FactCI = -Two, FactXI = Half, xone=-One
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Real*8 LKThr
@@ -158,21 +157,9 @@ c --------------------
       kAOff(1)=0
       MaxB=nBas(1)
       MaxAct=nAsh(1)
-      nsBB=nBas(1)**2
-      nsAB=nBas(1)*nAsh(1)
-      ISTLT(1)=0
-      ISTSQ(1)=0
-      ISTK(1)=0
       DO ISYM=2,NSYM
         MaxB=Max(MaxB,nBas(iSym))
         MaxAct=Max(MaxAct,nAsh(iSym))
-        ISTSQ(ISYM)=nsBB              ! K and F matrices
-        nsBB = nsBB + nBas(iSym)**2
-        nsAB = nsAB + nBas(iSym)*nAsh(iSym)
-        NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive D and Coul matrices
-        nK = nOrb(iSym-1)
-        ISTK(ISYM)=ISTK(ISYM-1)+nBas(iSym-1)*nK ! Inact. MO coeff.
         nnO = nnO + nOrb(iSym-1)
         nnA = nnA + nAsh(iSym-1)
         nA2 = nA2 + nAsh(iSym-1)**2
@@ -278,7 +265,7 @@ C --- Vector MO transformation screening thresholds
       xtau(2) = xtau(1) ! dummy init
 
       If (.not.Fake_CMO2) Then
-        norm=sqrt(ddot_(nsBB,Kappa%A0,1,Kappa%A0,1))
+        norm=sqrt(ddot_(SIZE(Kappa%A0),Kappa%A0,1,Kappa%A0,1))
         xtau(2)=Sqrt((LKThr/Max(1,nnO))*dmpk)*norm
         dmpk=min(norm,1.0d-2)
         thrv(2)=(LKThr/(Max(1,nnO)*NumVT))*dmpk**2
@@ -377,7 +364,6 @@ C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
 
             Do jK=1,nOrb(kSym)
                jK_a = jK + kOff(kSym)
-
 
                Do iaSh=1,nShell
 
