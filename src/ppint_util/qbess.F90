@@ -9,22 +9,30 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine qbess(alpha,apwr,aterm1,aterm2,binom,bpref,bpwr,bterm1,dfac,l,lambu,lmahi,lmbhi,ltot1,nu,prd,qsum,rka,rkb,ssi)
+subroutine qbess(alpha,binom,dfac,l,lambu,lmahi,lmbhi,ltot1,nu,prd,qsum,rka,rkb)
 ! Compute type 2 radial integrals, scaled by exp(-arc2)/sqrt(pi),
 ! using the Bessel function formula for
 ! lama=max(l,nu) to lmahi, lamb=max(l,nu) to lmbhi, n=lama+lamb-l-l
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: l, lambu, lmahi, lmbhi, ltot1, nu
 real(kind=wp), intent(in) :: alpha, binom(*), dfac(*), prd, rka, rkb
-real(kind=wp), intent(out) :: apwr(lmbhi-nu+1), aterm1(lmbhi-nu+1), aterm2(lmbhi-nu+1), bpref(lmbhi-nu+1), bpwr(lmahi-nu+1), &
-                              bterm1(lmahi-nu+1), ssi(lmahi+lmbhi-nu)
 real(kind=wp), intent(inout) :: qsum(ltot1,lambu,lmahi)
 integer(kind=iwp) :: it, iu, lamap, lambp, lami, lmaphi, lmbphi, lmihi, lmlo, lmplo, n, num1
 real(kind=wp) :: dsum, fct, fcta, fctb, fctra, fctrad, fctran, fctrb, fctrbd, fctrbn, fctrt, fctrtd, fctrtn, fctru, fctrud, fctrun
+real(kind=wp), allocatable :: apwr(:), aterm1(:), aterm2(:), bpref(:), bpwr(:), bterm1(:), ssi(:)
+
+call mma_allocate(apwr,lmbhi-nu+1,label='apwr')
+call mma_allocate(aterm1,lmbhi-nu+1,label='aterm1')
+call mma_allocate(aterm2,lmbhi-nu+1,label='aterm2')
+call mma_allocate(bpref,lmbhi-nu+1,label='bpwr')
+call mma_allocate(bpwr,lmahi-nu+1,label='bpwr')
+call mma_allocate(bterm1,lmahi-nu+1,label='bterm1')
+call mma_allocate(ssi,lmahi+lmbhi-nu,label='ssi')
 
 ! nu=l+1-npi/2
 ! Bessel function formula applies to all npi=2 cases, no npi=1
@@ -101,6 +109,14 @@ do lamap=lmplo,lmaphi
   fctran = fctran+Two
   fctrad = fctrad+Two
 end do
+
+call mma_deallocate(apwr)
+call mma_deallocate(aterm1)
+call mma_deallocate(aterm2)
+call mma_deallocate(bpref)
+call mma_deallocate(bpwr)
+call mma_deallocate(bterm1)
+call mma_deallocate(ssi)
 
 return
 

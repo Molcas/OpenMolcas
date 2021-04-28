@@ -9,30 +9,33 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine cortab(binom,dfac,eps,flmtx,hpt,hwt,lmf,lml,lmx,lmy,lmz,lmax,lmn1u,lproju,mc,mr,ndfac,zlm)
+subroutine cortab(binom,dfac,eps,lmf,lml,lmx,lmy,lmz,lmax,lmn1u,ndfac,zlm)
 ! Tables for core potential and spin-orbit integrals.
 
+use ppint_arrays, only: hpt, hwt
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: lmax, lmn1u, lproju, ndfac
+integer(kind=iwp), intent(in) :: lmax, lmn1u, ndfac
 #define _LSIZE_ ((lmax*(lmax+2)*(lmax+4)/3)*(lmax+3)+(lmax+2)**2*(lmax+4))/16
-real(kind=wp), intent(out) :: binom(lmn1u*(lmn1u+1)/2), dfac(ndfac), flmtx(3,lproju**2), hpt(5*(2**3-1)), hwt(5*(2**3-1)), &
+real(kind=wp), intent(out) :: binom(lmn1u*(lmn1u+1)/2), dfac(ndfac), &
                               zlm(_LSIZE_)
 real(kind=wp), intent(in) :: eps
 integer(kind=iwp), intent(out) :: lmf((lmax+1)**2), lml((lmax+1)**2), &
                                   lmx(_LSIZE_), &
                                   lmy(_LSIZE_), &
-                                  lmz(_LSIZE_), &
-                                  mc(3,2*lproju-1), mr(3,2*lproju-1)
-integer(kind=iwp) :: i, iadd, igh, il, indexh, inew, ione, isig, isigm, isigma, i_sign, itwo, iu, ixy, iz, j, k, lang, lone, ltwo, &
-                     mang, ndelta, nn, nsigma, nterm, nxy
+                                  lmz(_LSIZE_)
+integer(kind=iwp) :: i, igh, il, indexh, inew, ione, isig, isigm, isigma, itwo, iu, j, k, lang, lone, ltwo, mang, nn, nsigma, &
+                     nterm, nxy
 real(kind=wp) :: aden, anum, coef, coef1, coef2, fi
 
 ! Compute Gauss-Hermite points and weights for c, z integrals.
 igh = 1
 nn = 5
+call mma_allocate(hpt,nn*(2**3-1),label='hpt')
+call mma_allocate(hwt,nn*(2**3-1),label='hwt')
 do i=1,3
   call hermit(nn,hpt(igh),hwt(igh),eps)
   igh = igh+nn
@@ -192,7 +195,7 @@ do lang=2,lmax
   isigma = 0
   indexh = lang**2+2*mang+1-isigma
   ! isig:  index of the harmonic (l-1),(m-1),sigma
-  ! isigm: index of the harmonuc (l-1),(m-1),(1-sigma)
+  ! isigm: index of the harmonic (l-1),(m-1),(1-sigma)
   isig = (lang-1)**2+2*(mang-1)+1-isigma
   isigm = (lang-1)**2+2*(mang-1)+isigma
   lmf(indexh) = lml(indexh-1)+1
@@ -226,40 +229,40 @@ do lang=2,lmax
     nterm = nterm+1
   end if
 end do
-ixy = 0
-iz = 0
-do lang=1,lproju
-  do mang=0,lang-1
-    nsigma = min(1,mang)
-    ndelta = max(0,1-mang)
-    anum = real((lang-mang)*(lang+mang+1),kind=wp)
-    aden = real(2*(2-ndelta),kind=wp)
-    coef = sqrt(anum/aden)
-    do isigma=nsigma,0,-1
-      i_sign = 2*isigma-1
-      ixy = ixy+1
-      flmtx(1,ixy) = real(i_sign,kind=wp)*coef
-      flmtx(2,ixy) = coef
-      if (mang /= 0) then
-        iz = iz+1
-        flmtx(3,iz) = -real(mang*isigma,kind=wp)
-      end if
-    end do
-  end do
-  iz = iz+1
-  flmtx(3,iz) = -real(lang,kind=wp)
-end do
+!ixy = 0
+!iz = 0
+!do lang=1,lproju
+!  do mang=0,lang-1
+!    nsigma = min(1,mang)
+!    ndelta = max(0,1-mang)
+!    anum = real((lang-mang)*(lang+mang+1),kind=wp)
+!    aden = real(2*(2-ndelta),kind=wp)
+!    coef = sqrt(anum/aden)
+!    do isigma=nsigma,0,-1
+!      i_sign = 2*isigma-1
+!      ixy = ixy+1
+!      flmtx(1,ixy) = real(i_sign,kind=wp)*coef
+!      flmtx(2,ixy) = coef
+!      if (mang /= 0) then
+!        iz = iz+1
+!        flmtx(3,iz) = -real(mang*isigma,kind=wp)
+!      end if
+!    end do
+!  end do
+!  iz = iz+1
+!  flmtx(3,iz) = -real(lang,kind=wp)
+!end do
 ! Column and row indices for angular momentum matrix elements.
-iadd = 1
-do i=1,2*lproju-1
-  mc(1,i) = i
-  mc(2,i) = i
-  mc(3,i) = i+1
-  mr(1,i) = i+iadd
-  mr(2,i) = i+2
-  mr(3,i) = i+2
-  iadd = 4-iadd
-end do
+!iadd = 1
+!do i=1,2*lproju-1
+!  mc(1,i) = i
+!  mc(2,i) = i
+!  mc(3,i) = i+1
+!  mr(1,i) = i+iadd
+!  mr(2,i) = i+2
+!  mr(3,i) = i+2
+!  iadd = 4-iadd
+!end do
 
 return
 

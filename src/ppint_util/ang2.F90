@@ -9,14 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ang2(ang,binom,crda,dfac,it,l,lit,lmlo,lmhi,lmf,lml,lmx,lmy,lmz,lmnv,mproju,xk,yk,zk,zlm)
+subroutine ang2(ang,binom,crda,dfac,it,l,lit,lmlo,lmhi,lmf,lml,lmx,lmy,lmz,mproju,xk,yk,zk,zlm)
 ! compute type 2 angular integrals
 
+use ppint_arrays, only: lmnv
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: it, l, lit, lmlo, lmhi, lmf(*), lml(*), lmx(*), lmy(*), lmz(*), lmnv(3,*), mproju
+integer(kind=iwp), intent(in) :: it, l, lit, lmlo, lmhi, lmf(*), lml(*), lmx(*), lmy(*), lmz(*), mproju
 real(kind=wp), intent(out) :: ang(lit,mproju,lmhi)
 real(kind=wp), intent(in) :: binom(*), crda(lit,3), dfac(*), xk, yk, zk, zlm(*)
 integer(kind=iwp) :: i, ia, ib, ic, iend, indx, indy, indz, istart, j, l2, la1, laind, lam, lamhi, lamlo, loc1, loc2, m, ma1, &
