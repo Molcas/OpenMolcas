@@ -8,12 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_CAS_DRV(rc,W_CMO,DI,FI,DA1,FA,TraOnly)
+      SUBROUTINE CHO_CAS_DRV(rc,W_CMO,DI,FI,DA1,FA,W_PWXY,TraOnly)
       Use Data_Structures, only: DSBA_Type, Allocate_DSBA,
      &                           Deallocate_DSBA
       Implicit real*8 (a-h,o-z)
 
       Integer   rc
+      Real*8    W_PWXY(*)
       Real*8    DA1(*),DI(*),FI(*),FA(*),W_CMO(*)
       Integer   nForb(8),nIorb(8),nAorb(8),nChM(8),nChI(8)
       Logical   TraOnly
@@ -294,9 +295,6 @@ c --- reorder "Cholesky MOs" to Cva storage
 C ----------------------------------------------------------------
       FLT(1)%A0(:)=Zero
       FLT(2)%A0(:)=Zero
-
-      ! this will have to be fixedr.-
-      ipInt = lpwxy   ! (PU|VX) integrals are computed
 !
 !)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
 !
@@ -305,8 +303,8 @@ C ----------------------------------------------------------------
 !
 !)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
 !
-         CALL CHO_FMCSCF(rc,FLT,nForb,nIorb,nAorb,FactXI,
-     &                   DLT,DoActive,POrb,nChM,ipInt,CMO,ExFac)
+         CALL CHO_FMCSCF(rc,FLT,nForb,nIorb,nAorb,FactXI,DLT,DoActive,
+     &                   POrb,nChM,W_PWXY,CMO,ExFac)
 !
 !)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
 !
@@ -314,9 +312,9 @@ C ----------------------------------------------------------------
 !
 !)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
 !
-         CALL CHO_LK_CASSCF(DLT,FLT,MSQ,ipInt,
-     &                      FactXI,nChI,nAorb,nChM,CVa,DoActive,
-     &                      nScreen,dmpK,abs(CBLBM),CMO,ExFac)
+         CALL CHO_LK_CASSCF(DLT,FLT,MSQ,W_PWXY,FactXI,nChI,nAorb,nChM,
+     &                      CVa,DoActive,nScreen,dmpK,abs(CBLBM),CMO,
+     &                      ExFac)
 !
 !)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
 !

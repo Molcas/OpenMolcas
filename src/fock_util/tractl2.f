@@ -52,10 +52,8 @@
 !
 !)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
 !
-         lpwxy = ip_of_work(PUVX(1))
-
          TraOnly=.false.
-         Call CHO_CAS_DRV(irc,CMO,D1I,FI,D1A,FA,TraOnly)
+         Call CHO_CAS_DRV(irc,CMO,D1I,FI,D1A,FA,PUVX,TraOnly)
 
 #if defined (_MOLCAS_MPP_)
 c --------------------------------------------------
@@ -83,7 +81,7 @@ c --------------------------------------------------
 !)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
 !
          TraOnly=.false.
-         Call CHO_CAS_DRV(irc,CMO,D1I,FI,D1A,FA,TraOnly)
+         Call CHO_CAS_DRV(irc,CMO,D1I,FI,D1A,FA,PUVX,TraOnly)
 
          If (irc.ne.0) Then
             write(6,*)'TRACTL2: Cho_cas_drv non-Zero return code. rc= ',
