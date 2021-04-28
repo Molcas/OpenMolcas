@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
-      SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,ipJI,
-     &                      ipK,ipJA,ipKA,ipFkI,ipFkA,
+      SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,JI,
+     &                      KI,ipJA,ipKA,ipFkI,ipFkA,
      &                      ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                      LuAChoVec,LuIChoVec,iAChoVec)
@@ -64,8 +64,8 @@ C
       Real*8    tmotr(2),tscrn(2)
       Integer   nChMo(8)
 
-      Type (DSBA_Type) DLT, DI, DA, Kappa, JI, Ash(2), Tmp(2), QTmp(2),
-     &                 CM(2)
+      Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, Ash(2), Tmp(2),
+     &                 QTmp(2), CM(2)
       Type (SBA_Type) Lpq(3)
       Type (NDSBA_Type) DiaH
       Type (G2_Type) MOScr
@@ -119,9 +119,7 @@ C
 #ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in CASSCF-debug
 #endif
-      ipDLT = ip_of_Work(DLT%A0(1))
-      Call Allocate_DSBA(JI,nBas,nBas,nSym,Case='TRI',Ref=Work(ipJI))
-
+      ipK = ip_of_Work(KI%A0(1))
       timings=.false.
 *
 *
@@ -548,6 +546,7 @@ C --- Transform the density to reduced storage
                mode = 'toreds'
                add = .False.
                nMat=1
+               ipDLT = ip_of_Work(DLT%A0(1))
                Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
      &                           [ipDLT],Drs,mode,add)
             EndIf
@@ -1105,8 +1104,6 @@ C------------------------------------------------------------
 
                             iOffAB = nnBfShp(iShp,lSym)
 
-                            ipKI = ipK + ISTSQ(lSym) + iOffAB
-
                             xFab = sqrt(abs(Faa(iaSh)*Faa(ibSh)))
 
                             If (MLk(lSh,jK_a,1)*MLk(mSh,jK_a,kDen)
@@ -1140,9 +1137,9 @@ C --------------------------------------------------------------------
 
                                CALL DGEMM_(Mode(1:1),Mode(2:2),
      &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
-     &                              FactXI,Lab%SB(iaSh,lSym,kDen)%A,n1,
-     &                                     Lab%SB(ibSh,lSym,   1)%A,n2,
-     &                                    ONE,Work(ipKI),nBsa)
+     &                            FactXI,Lab%SB(iaSh,lSym,kDen)%A,n1,
+     &                                   Lab%SB(ibSh,lSym,   1)%A,n2,
+     &                               ONE,KI%SB(lSym)%A1(1+iOffAB:),nBsa)
 
                             EndIf
 
@@ -1627,7 +1624,7 @@ C--- have performed screening in the meanwhile
       Do iSym=1,nSym
 
          ipFAc= ipJA + ISTLT(iSym)
-         ipKI = ipK   + ISTSQ(iSym)
+*        ipKI = ipK   + ISTSQ(iSym)
          ipKAc= ipKA  + ISTSQ(iSym)
          ipFS = ipFkI + ISTSQ(iSym)
          ipFA = ipFkA + ISTSQ(iSym)
@@ -1642,7 +1639,7 @@ C--- have performed screening in the meanwhile
                iOffAB = nnBfShp(iShp,iSym)
 
                iShp = nShell*(ibSh-1) + iaSh
-               iOffAB2= nnBfShp(iShp,iSym)
+               jOffAB = nnBfShp(iShp,iSym)
 
                ioffb = kOffSh(ibSh,iSym)
 
@@ -1651,10 +1648,10 @@ C--- have performed screening in the meanwhile
                 Do ia=1,nBasSh(iSym,iaSh)
 
                   iab = nBasSh(iSym,iaSh)*(ib-1) + ia
-                  jK = ipKI - 1 + iOffAB + iab
+*                 jK = ipKI - 1 + iOffAB + iab
 *MGD warning with sym
-                  iab = nBasSh(iSym,ibSh)*(ia-1) + ib
-                  jK2 = ipKI - 1 + iOffAB2+ iab
+                  jab = nBasSh(iSym,ibSh)*(ia-1) + ib
+*                 jK2 = ipKI - 1 + jOffAB + jab
 
                   iag = ioffa + ia
                   ibg = ioffb + ib
@@ -1668,7 +1665,9 @@ C--- have performed screening in the meanwhile
                   jS = ipFS - 1 + nBas(iSym)*(ibg-1) + iag
                   jSA= ipFA - 1 + nBas(iSym)*(ibg-1) + iag
 
-                  Work(jS) = JI%SB(iSym)%A1(iabg) + Work(jK) + Work(jK2)
+                  Work(jS) = JI%SB(iSym)%A1(iabg)
+     &                     + KI%SB(iSym)%A1(iOffAB+iab)
+     &                     + KI%SB(iSym)%A1(jOffAB+jab)
                   Work(jSA)= Work(jFa)+ Work(jKa)+ Work(jKa2)
 
                 End Do
@@ -1875,7 +1874,6 @@ c Print the Fock-matrix
       endif
 
 #endif
-      Call deallocate_DSBA(JI)
 
       Return
 c Avoid unused argument warnings

@@ -32,20 +32,20 @@
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), QTemp(:),
      &                      Dens2(:),  G2x(:), CoulExch(:,:)
-      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI
+      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI, KI
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
         SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
-     &                         ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
+     &                         JI,KI,ipJA,ipKA,ipFkI,ipFkA,
      &                         ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
         use Data_Structures, only: DSBA_Type
-        Integer ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
+        Integer ipJA,ipKA,ipFkI,ipFkA,
      &          ipMO1,ipQ,ipCMO,ip_CMO_inv
-        Type (DSBA_Type) DLT, DI, DA, Kappa, Ash(2)
+        Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, Ash(2)
         Real*8 G2(*)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical doAct,Fake_CMO2
@@ -279,8 +279,8 @@
         Call Allocate_DSBA(Kappa,nBas,nBas,nSym,Ref=rKappa)
         Call Allocate_DSBA(JI,nBas,nBas,nSym,Case='TRI')
         JI%A0(:)=Zero
-        ipJI      = ip_of_Work(JI%A0(1))
-        ipK       = ip_of_Work(CoulExch(1,2))
+        Call Allocate_DSBA(KI,nBas,nBas,nSym)
+        KI%A0(:)=Zero
         ipJA      = ip_of_Work(CoulExch(1,3))
         ipKA      = ip_of_Work(CoulExch(1,4))
         ipFkI     = ip_of_Work(FockI(1))
@@ -292,11 +292,12 @@
         iread=2 ! Asks to read the half-transformed Cho vectors
                                                                                *
         Call CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,
-     &                   ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
+     &                   JI,KI,ipJA,ipKA,ipFkI,ipFkA,
      &                   ipMO1,ipQ,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,iread)
 
+        Call Deallocate_DSBA(KI)
         Call Deallocate_DSBA(JI)
         Call Deallocate_DSBA(Kappa)
         Call GADSum(FockI,nDens2)

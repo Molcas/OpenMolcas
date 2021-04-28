@@ -35,20 +35,20 @@
      &       MO1(*), Scr(*)
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: JA(:), KA(:), G2x(:)
-      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI
+      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI, KI
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
         SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
-     &                         ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
+     &                         JI,KI,ipJA,ipKA,ipFkI,ipFkA,
      &                         ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
         use Data_Structures, only: DSBA_Type
-        Integer ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
+        Integer pJA,ipKA,ipFkI,ipFkA,
      &          ipMO1,ipQ,ipCMO,ip_CMO_inv
-        Type (DSBA_Type) DLT, DI, DA, Ash(2), Kappa
+        Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, Ash(2)
         Real*8 G2(*)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical DoAct,Fake_CMO2
@@ -396,8 +396,6 @@
         Call mma_allocate(JA,nDens2,Label='JA')
         Call mma_allocate(KA,nDens2,Label='KA')
 *
-*       call dcopy_(nDens2,[0.0d0],0,Temp3,1)
-        call dcopy_(nDens2,[0.0d0],0,Scr,1)
         call dcopy_(nDens2,[0.0d0],0,FockI,1)
         call dcopy_(nDens2,[0.0d0],0,FockA,1)
         JA(:)=0.0D0
@@ -407,8 +405,8 @@
         Call Allocate_DSBA(DI,nBas,nBas,nSym,Ref=Temp2)
         Call Allocate_DSBA(JI,nBas,nBas,nSym,Case='TRI',Ref=Temp3)
         JI%A0(:)=Zero
-        ipJI      = ip_of_Work(JI%A0(1))
-        ipK       = ip_of_Work(Scr(1))
+        Call Allocate_DSBA(KI,nBas,nBas,nSym,Ref=Scr)
+        KI%A0(:)=Zero
         ipJA      = ip_of_Work(JA(1))
         ipKA      = ip_of_Work(KA(1))
         ipFkI     = ip_of_Work(FockI(1))
@@ -420,7 +418,7 @@
         istore=1 ! Ask to store the half-transformed vectors
 
         CALL CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,
-     &                   ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
+     &                   JI,KI,ipJA,ipKA,ipFkI,ipFkA,
      &                   ipMO1,ipQ,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh,nAsh,nIsh,doAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,istore)
@@ -430,6 +428,7 @@
         Call DScal_(nAtri,0.25D0,MO1,1)
         Call DScal_(nDens2,-0.5d0,FockI,1)
 *
+        Call Deallocate_DSBA(KI)
         Call Deallocate_DSBA(JI)
         Call Deallocate_DSBA(DI)
         Call mma_deallocate(JA)
