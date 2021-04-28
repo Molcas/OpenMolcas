@@ -30,24 +30,23 @@
       Real*8 Fock(nDens2),focka(nDens2),rkappa(nDens2),
      &       Focki(ndens2),Q(ndens2),rMOs(*),rmoa(*)
       Logical Fake_CMO2,DoAct
-      Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), QTemp(:), DI(:),
-     &                      Dens2(:), DA(:), G2x(:),
-     &                      CoulExch(:,:)
-      Type (DSBA_Type) CVa(2), DLT
+      Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), QTemp(:),
+     &                      Dens2(:), DA(:), G2x(:), CoulExch(:,:)
+      Type (DSBA_Type) CVa(2), DLT, DI
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
-        SUBROUTINE CHO_LK_MCLR(DLT,ipDI,ipDA,ipG2,ipkappa,
+        SUBROUTINE CHO_LK_MCLR(DLT,DI,ipDA,ipG2,ipkappa,
      &                         ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                         ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
         use Data_Structures, only: DSBA_Type
-        Integer ipDI,ipDA,ipG2,ipkappa,
+        Integer ipDA,ipG2,ipkappa,
      &          ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &          ipMO1,ipQ,ipCMO,ip_CMO_inv
-        Type (DSBA_Type) DLT, Ash(2)
+        Type (DSBA_Type) DLT, DI, Ash(2)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical doAct,Fake_CMO2
         Integer LuAChoVec(8),LuIChoVec(8)
@@ -126,13 +125,12 @@
 *
 **      Form inactive density
 *
-        Call mma_Allocate(DI,nDens2,Label='DI')
-        DI(:)=Zero
+        Call Allocate_DSBA(DI,nOrb,nOrb,nSym)
+        DI%A0(:)=Zero
 
         Do iS=1,nsym
          Do iB=1,nIsh(iS)
-          ip=ipCM(iS)+(ib-1)*nOrb(is)+ib-1
-          DI(ip)=Two
+          DI%SB(iS)%A2(ib,ib)=Two
          End Do
         End Do
 *
@@ -155,7 +153,7 @@
                    Call DGEMM_('N','N',
      &                         nOrb(iS),nOrb(jS),nOrb(jS),
      &                         One,rkappa(ipMat(is,js)),nOrb(iS),
-     &                             DI(ipCM(js)),nOrb(jS),
+     &                             DI%SB(js)%A2,nOrb(jS),
      &                         Zero,Dens2(ipMat(iS,jS)),nOrb(iS))
                    Call DGEMM_('T','T',nOrb(jS),nOrb(iS),nOrb(iS),
      &                         One,Dens2(ipMat(iS,jS)),nOrb(iS),
@@ -167,13 +165,13 @@
      &                         Zero,Dens2(ipMat(iS,jS)),nOrb(jS))
 
                    Call DGEMM_('T','T',nOrb(jS),nOrb(iS),nOrb(iS),
-     &                         One,DI(ipCM(js)),nOrb(iS),
+     &                         One,DI%SB(js)%A2,nOrb(iS),
      &                             CMO(ipCM(is)),nOrb(iS),
      &                         Zero,DLT%SB(iS)%A2,nOrb(jS))
                    Call DGEMM_('T','T',nOrb(jS),nOrb(jS),nOrb(iS),
      &                         One, DLT%SB(iS)%A2,nOrb(iS),
      &                              CMO(ipCM(js)),nOrb(jS),
-     &                         Zero,DI(ipCM(js)),nOrb(jS))
+     &                         Zero,DI%SB(js)%A2,nOrb(jS))
               EndIf
             End Do
           EndIf
@@ -273,7 +271,7 @@
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
         Call RecPrt('DLT',' ',DLT%A0,1,SIZE(DLT))
-        Call RecPrt('DI ',' ',DI ,1,SIZE(DI ))
+        Call RecPrt('DI ',' ',DI%A0 ,1,SIZE(DI ))
         Call RecPrt('DA ',' ',DA ,1,SIZE(DA ))
         Call RecPrt('G2x',' ',G2x,1,SIZE(G2x))
         Call RecPrt('rKappa ',' ',rKappa ,1,SIZE(rKappa))
@@ -281,7 +279,6 @@
 *
 **      Compute the whole thing
 *
-        ipDI      = ip_of_Work(DI(1))
         ipDA      = ip_of_Work(DA(1))
         ipG2      = ip_of_Work(G2x(1))
         ipkappa   = ip_of_Work(rkappa(1))
@@ -297,7 +294,7 @@
         ip_CMO_inv= ip_of_Work(CMO_inv(1))
         iread=2 ! Asks to read the half-transformed Cho vectors
                                                                                *
-        Call CHO_LK_MCLR(DLT,ipDI,ipDA,ipG2,ipkappa,
+        Call CHO_LK_MCLR(DLT,DI,ipDA,ipG2,ipkappa,
      &                   ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                   ipMO1,ipQ,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
@@ -362,7 +359,7 @@
         EndIf
 
         Call deallocate_DSBA(DLT)
-        Call mma_deallocate(DI)
+        Call deallocate_DSBA(DI)
 
         Call GADSum(    Q,nDens2)
         Call GADSum( rMOs,nAtri)

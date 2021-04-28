@@ -36,21 +36,21 @@
       Real*8 rDum(1)
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: JA(:), KA(:), DA(:), G2x(:)
-      Type (DSBA_Type) CVa(2), DLT
+      Type (DSBA_Type) CVa(2), DLT, DI
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
-        SUBROUTINE CHO_LK_MCLR(DLT,ipDI,ipDA,ipG2,ipkappa,
+        SUBROUTINE CHO_LK_MCLR(DLT,DI,ipDA,ipG2,ipkappa,
      &                         ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                         ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
         use Data_Structures, only: DSBA_Type
-        Integer ipDI,ipDA,ipG2,ipkappa,
+        Integer ipDA,ipG2,ipkappa,
      &          ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &          ipMO1,ipQ,ipCMO,ip_CMO_inv
-        Type (DSBA_Type) DLT, Ash(2)
+        Type (DSBA_Type) DLT, DI, Ash(2)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical DoAct,Fake_CMO2
         Integer LuAChoVec(8),LuIChoVec(8)
@@ -407,7 +407,7 @@
         KA(:)=0.0D0
         call dcopy_(nDens2,[0.0d0],0,Q,1)
 *
-        ipDI      = ip_of_Work(Temp2(1))
+        Call Allocate_DSBA(DI,nBas,nBas,nSym,Ref=Temp2)
         ipDA      = ip_of_Work(DA(1))
         ipG2      = ip_of_Work(G2x(1))
         ipkappa   = ip_of_Work(rdum(1))
@@ -423,7 +423,7 @@
         ip_CMO_inv= ip_of_Work(CMO_Inv(1))
         istore=1 ! Ask to store the half-transformed vectors
 
-        CALL CHO_LK_MCLR(DLT,ipDI,ipDA,ipG2,ipkappa,
+        CALL CHO_LK_MCLR(DLT,DI,ipDA,ipG2,ipkappa,
      &                   ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                   ipMO1,ipQ,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh,nAsh,nIsh,doAct,Fake_CMO2,
@@ -434,6 +434,7 @@
         Call DScal_(nAtri,0.25D0,MO1,1)
         Call DScal_(nDens2,-0.5d0,FockI,1)
 *
+        Call Deallocate_DSBA(DI)
         Call mma_deallocate(JA)
         Call mma_deallocate(KA)
         Call deallocate_DSBA(DLT)

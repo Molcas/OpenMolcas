@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
-      SUBROUTINE CHO_LK_MCLR(DLT,ipDI,ipDA,ipG2,ipkappa,
+      SUBROUTINE CHO_LK_MCLR(DLT,DI,ipDA,ipG2,ipkappa,
      &                      ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                      ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
@@ -62,7 +62,7 @@ C
       Real*8    tmotr(2),tscrn(2)
       Integer   nChMo(8)
 
-      Type (DSBA_Type) DLT, Ash(2), Tmp(2), QTmp(2), CM(2)
+      Type (DSBA_Type) DLT, DI, Ash(2), Tmp(2), QTmp(2), CM(2)
       Type (SBA_Type) Lpq(3)
       Type (NDSBA_Type) DiaH
       Type (G2_Type) MOScr
@@ -215,11 +215,11 @@ C *** memory for the Q matrices --- temporary array
 
          Do iS=1,nSym
 *
-**       Create Cholesky orbitals from ipDI
+**       Create Cholesky orbitals from DI
 *
-           Call CD_InCore(Work(ipDI+ISTSQ(iS)),nBas(iS),
-     &                           CM(1)%SB(iS)%A2,
-     &                           nBas(iS),nChMO(iS),1.0d-12,irc)
+*          Call CD_InCore(Work(ipDI+ISTSQ(iS)),nBas(iS),
+           Call CD_InCore(DI%SB(iS)%A2,nBas(iS),CM(1)%SB(iS)%A2,
+     &                    nBas(iS),nChMO(iS),1.0d-12,irc)
            If (.not.Fake_CMO2) Then
 *
 **         MO transform
