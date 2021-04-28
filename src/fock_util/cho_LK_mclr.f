@@ -717,9 +717,6 @@ C------------------------------------------------------------------
 
                      Do jDen=1,nDen
 
-*                       Do ik=0,nBas(kSym)-1
-*                          AbsC(1+ik) = abs(Work(ipMO(jDen)+ik))
-*                       End Do
                         Do ik=1,nBas(kSym)
                            AbsC(ik) = abs(CM(jDen)%SB(kSym)%A2(ik,jK))
                         End Do
@@ -954,7 +951,8 @@ C ---------------------------------------
      &                                        nBasSh(kSym,ibSh),
      &                        ONE,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,
      &                                        nBasSh(lSym,iaSh)*JNUM,
-     &                                     Work(ipMO(jDen)+ioffShb),1,
+*    &                                     Work(ipMO(jDen)+ioffShb),1,
+     &                        CM(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1,
      &                                  ONE,Lab%SB(iaSh,lSym,jDen)%A,1)
 
                               End If
