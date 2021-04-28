@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
-      SUBROUTINE CHO_LK_MCLR(DLT,DI,ipDA,ipG2,ipkappa,
+      SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,ipG2,ipkappa,
      &                      ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                      ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
@@ -62,7 +62,7 @@ C
       Real*8    tmotr(2),tscrn(2)
       Integer   nChMo(8)
 
-      Type (DSBA_Type) DLT, DI, Ash(2), Tmp(2), QTmp(2), CM(2)
+      Type (DSBA_Type) DLT, DI, DA, Ash(2), Tmp(2), QTmp(2), CM(2)
       Type (SBA_Type) Lpq(3)
       Type (NDSBA_Type) DiaH
       Type (G2_Type) MOScr
@@ -1387,7 +1387,6 @@ C
 C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
 *Coulomb term
                If (JSYM.eq.1) Then
-                 ipDA2=ipDA
 
                  Call mma_allocate(VJ,JNUM,Label='VJ')
                  VJ(:)=Zero
@@ -1404,9 +1403,8 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
 
                      CALL DGEMV_('T',Nav*Naw,JNUM,
      &                          ONE,Lpq(i)%SB(iSymv)%A3,Nav*Naw,
-     &                          Work(ipDA2),1,ONE,VJ,1)
+     &                         DA%SB(iSymB)%A2,1,ONE,VJ,1)
                     EndIf
-                    ipDA2=ipDA+NAv*Naw
                  EndDo
 *
                  CALL DGEMV_('N',nRS,JNUM,
@@ -1481,7 +1479,7 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
                    Do JVC=1,JNUM
                      Call DGEMM_('T','N',NBAS(iSymb),Nav,Nav,
      &                           ONE,Lpq(1)%SB(iSymv)%A3(:,:,JVC),Nav,
-     &                               Work(ipDA),Nav,
+     &                               DA%SB(iSymb)%A2,Nav,
      &                    ZERO,Lpq(2)%SB(iSymv)%A3(:,:,JVC),NBAS(iSymb))
                    End Do
                    CALL CWTIME(TCINT2,TWINT2)

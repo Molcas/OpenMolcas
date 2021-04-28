@@ -31,22 +31,22 @@
      &       Focki(ndens2),Q(ndens2),rMOs(*),rmoa(*)
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), QTemp(:),
-     &                      Dens2(:), DA(:), G2x(:), CoulExch(:,:)
-      Type (DSBA_Type) CVa(2), DLT, DI
+     &                      Dens2(:),  G2x(:), CoulExch(:,:)
+      Type (DSBA_Type) CVa(2), DLT, DI, DA
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
-        SUBROUTINE CHO_LK_MCLR(DLT,DI,ipDA,ipG2,ipkappa,
+        SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,ipG2,ipkappa,
      &                         ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                         ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
         use Data_Structures, only: DSBA_Type
-        Integer ipDA,ipG2,ipkappa,
+        Integer ipG2,ipkappa,
      &          ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &          ipMO1,ipQ,ipCMO,ip_CMO_inv
-        Type (DSBA_Type) DLT, DI, Ash(2)
+        Type (DSBA_Type) DLT, DI, DA, Ash(2)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical doAct,Fake_CMO2
         Integer LuAChoVec(8),LuIChoVec(8)
@@ -204,11 +204,10 @@
 
           Call Allocate_DSBA(CVa(1),nAsh,nOrb,nSym)
           Call Allocate_DSBA(CVa(2),nAsh,nOrb,nSym)
-          Call mma_allocate(DA,na2,Label='DA')
+          Call Allocate_DSBA(DA,nAsh,nAsh,nSym)
 *
           ioff=0
           ioff4=1
-          ioffD=0
           Do iS=1,nSym
             ioff2 = ioff + nOrb(iS)*nIsh(iS)
             ioff5 = ioff4+ nOrb(iS)*nIsh(iS)
@@ -217,11 +216,10 @@
               CVa(1)%SB(iS)%A2(iB,:) =
      &           CMO(ioff3+1:ioff3+nOrb(iS))
              Do jB=1,nAsh(iS)
-              ip=ioffD+ib+(jB-1)*nAsh(is)
               iA=nA(is)+ib
               jA=nA(is)+jb
               ip2=itri(iA,jA)
-              DA(ip)=G1t(ip2)
+              DA%SB(iS)%A2(iB,jB)=G1t(ip2)
              End Do
             End Do
 *MGD to check
@@ -230,7 +228,6 @@
      &                        CMO(1+ioff),nOrb(iS),
      &                  0.0d0,CVa(2)%SB(iS)%A2,nAsh(iS))
             ioff=ioff+(nIsh(iS)+nAsh(iS))*nOrb(iS)
-            ioffD=ioffD+nAsh(iS)**2
             ioff4=ioff4+nOrb(iS)**2
           End Do
 *
@@ -270,16 +267,15 @@
         call dcopy_(nATri,[0.0d0],0,rMOs,1)
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-        Call RecPrt('DLT',' ',DLT%A0,1,SIZE(DLT))
-        Call RecPrt('DI ',' ',DI%A0 ,1,SIZE(DI ))
-        Call RecPrt('DA ',' ',DA ,1,SIZE(DA ))
+        Call RecPrt('DLT',' ',DLT%A0,1,SIZE(DLT%A0))
+        Call RecPrt('DI ',' ',DI%A0 ,1,SIZE(DI%A0 ))
+        Call RecPrt('DA ',' ',DA%A0 ,1,SIZE(DA%A0 ))
         Call RecPrt('G2x',' ',G2x,1,SIZE(G2x))
         Call RecPrt('rKappa ',' ',rKappa ,1,SIZE(rKappa))
 #endif
 *
 **      Compute the whole thing
 *
-        ipDA      = ip_of_Work(DA(1))
         ipG2      = ip_of_Work(G2x(1))
         ipkappa   = ip_of_Work(rkappa(1))
         ipJI      = ip_of_Work(CoulExch(1,1))
@@ -294,7 +290,7 @@
         ip_CMO_inv= ip_of_Work(CMO_inv(1))
         iread=2 ! Asks to read the half-transformed Cho vectors
                                                                                *
-        Call CHO_LK_MCLR(DLT,DI,ipDA,ipG2,ipkappa,
+        Call CHO_LK_MCLR(DLT,DI,DA,ipG2,ipkappa,
      &                   ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                   ipMO1,ipQ,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
@@ -355,7 +351,7 @@
           Call mma_deallocate(G2x)
           Call Deallocate_DSBA(CVa(2))
           Call Deallocate_DSBA(CVa(1))
-          Call mma_deallocate(DA)
+          Call deallocate_DSBA(DA)
         EndIf
 
         Call deallocate_DSBA(DLT)
