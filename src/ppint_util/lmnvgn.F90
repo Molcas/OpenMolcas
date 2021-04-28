@@ -16,13 +16,11 @@ subroutine lmnvgn(lmn1u,lmnv)
 !       lmn = 0   1   2   3   4   5   6
 !    numxyz = 1,  3,  6, 10, 15  21  28      = ((lmn+1)*(lmn+2))/2
 
-#include "intent.fh"
-
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: lmn1u
-integer(kind=iwp), intent(_OUT_) :: lmnv(3,*)
+integer(kind=iwp), intent(out) :: lmnv(3,lmn1u*(lmn1u+1)*(lmn1u+2)/6)
 integer(kind=iwp) :: ix, iy, iz, lmn, ndx
 
 ndx = 0

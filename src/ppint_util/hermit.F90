@@ -19,14 +19,12 @@ subroutine hermit(nn,x,a,eps)
 ! A. H. Stroud & D. Secrest, Gaussian quadrature formulas,
 ! Prentice-Hall, 1966
 
-#include "intent.fh"
-
 use Constants, only: Zero, One, Two, Six, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nn
-real(kind=wp), intent(_OUT_) :: x(*), a(*)
+real(kind=wp), intent(out) :: x(nn), a(nn)
 real(kind=wp), intent(in) :: eps
 integer(kind=iwp) :: i, n1, n2, ni
 real(kind=wp) :: cc, dpn, fn, pn1, s, xt

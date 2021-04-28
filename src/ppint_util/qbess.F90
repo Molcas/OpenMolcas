@@ -14,16 +14,15 @@ subroutine qbess(alpha,apwr,aterm1,aterm2,binom,bpref,bpwr,bterm1,dfac,l,lambu,l
 ! using the Bessel function formula for
 ! lama=max(l,nu) to lmahi, lamb=max(l,nu) to lmbhi, n=lama+lamb-l-l
 
-#include "intent.fh"
-
 use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: l, lambu, lmahi, lmbhi, ltot1, nu
 real(kind=wp), intent(in) :: alpha, binom(*), dfac(*), prd, rka, rkb
-real(kind=wp), intent(_OUT_) :: apwr(*), aterm1(*), aterm2(*), bpref(*), bpwr(*), bterm1(*), ssi(*)
-real(kind=wp), intent(inout) :: qsum(ltot1,lambu,*)
+real(kind=wp), intent(out) :: apwr(lmbhi-nu+1), aterm1(lmbhi-nu+1), aterm2(lmbhi-nu+1), bpref(lmbhi-nu+1), bpwr(lmahi-nu+1), &
+                              bterm1(lmahi-nu+1), ssi(lmahi+lmbhi-nu)
+real(kind=wp), intent(inout) :: qsum(ltot1,lambu,lmahi)
 integer(kind=iwp) :: it, iu, lamap, lambp, lami, lmaphi, lmbphi, lmihi, lmlo, lmplo, n, num1
 real(kind=wp) :: dsum, fct, fcta, fctb, fctra, fctrad, fctran, fctrb, fctrbd, fctrbn, fctrt, fctrtd, fctrtn, fctru, fctrud, fctrun
 
@@ -42,14 +41,12 @@ do lambp=2,lmbphi
   bpref(lambp) = fctb*bpref(lambp-1)
 end do
 apwr(1) = One
-apwr(2) = fct
-do lambp=3,lmbphi
+do lambp=2,lmbphi
   apwr(lambp) = fct*apwr(lambp-1)
 end do
 fct = rkb*fctb
 bpwr(1) = One
-bpwr(2) = fct
-do lamap=3,lmaphi
+do lamap=2,lmaphi
   bpwr(lamap) = fct*bpwr(lamap-1)
 end do
 lmihi = lmaphi+lmbphi+(nu-2)

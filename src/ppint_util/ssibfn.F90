@@ -12,15 +12,13 @@
 subroutine ssibfn(nmax,x,ssi)
 ! scaled spherical i Bessel functions
 
-#include "intent.fh"
-
 use Constants, only: Zero, One, Two, Three, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nmax
 real(kind=wp), intent(in) :: x
-real(kind=wp), intent(_OUT_) :: ssi(*)
+real(kind=wp), intent(out) :: ssi(nmax+1)
 integer(kind=iwp) :: n
 real(kind=wp) :: ak, akpkm2, akqkm2, aprod, ex, f2kp1, f2kp3, f2nm1, f2np1, f2np3, pk, pkm1, qk, qkm1, x2, xmin
 

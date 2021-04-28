@@ -153,16 +153,16 @@ call cortab(Work(ipt(12)),Work(ipt(11)),eps,Work(ipt(19)),Work(ipt(9)),Work(ipt(
 ! integrals for V_loc part of PP
 
 lproju1 = lproju+1
-call pseud1(Work,Work(ipt(31)),ccr,gout,ipt,iWork(ipt1),ltot1,ncr,nkcrl,nkcru,Work(ipt(33)),Work(ipt(34)),Work(ipt(35)), &
-            Work(ipt(36)),zcr,lit,ljt,ai,aj,xi,yi,zi,xj,yj,zj,xc,yc,zc,kcrs,lproju1,crda,crdb)
+call pseud1(Work(ipt(31)),ccr,gout,ipt,iWork(ipt1),ltot1,ncr,nkcrl,nkcru,Work(ipt(33)),Work(ipt(34)),Work(ipt(35)),Work(ipt(36)), &
+            zcr,lit,ljt,ai,aj,xi,yi,zi,xj,yj,zj,xc,yc,zc,kcrs,lproju1,crda,crdb)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! integrals for V_l P_l parts of PP
 
 lcru = lcr(kcrs)
-call pseud2(Work,Work(ipt(37)),Work(ipt(38)),ccr,gout,ipt,lambu,ltot1,mproju,ncr,nkcrl,nkcru,Work(ipt(39)),zcr,lit,ljt,ai,aj,xi, &
-            yi,zi,xj,yj,zj,xc,yc,zc,kcrs,lcru,lproju1,crda,crdb)
+call pseud2(Work(ipt(37)),Work(ipt(38)),ccr,gout,ipt,lambu,ltot1,mproju,ncr,nkcrl,nkcru,Work(ipt(39)),zcr,lit,ljt,ai,aj,xi,yi,zi, &
+            xj,yj,zj,xc,yc,zc,kcrs,lcru,lproju1,crda,crdb)
 call GetMem('Wrk','Free','Real',mWrk,lWork)
 !                                                                      *
 !***********************************************************************

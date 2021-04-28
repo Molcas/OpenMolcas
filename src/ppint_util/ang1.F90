@@ -12,19 +12,17 @@
 subroutine ang1(ang,dfac,nanb,lalb,mamb,lamu,lmf,lml,lmx,lmy,lmz,ltot1,xab,yab,zab,xk,yk,zk,zlm)
 ! compute type 1 angular integrals
 
-#include "intent.fh"
-
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: ltot1, nanb, lalb, mamb, lamu, lmf(*), lml(*), lmx(*), lmy(*), lmz(*)
-real(kind=wp), intent(_OUT_) :: ang(ltot1,*)
+real(kind=wp), intent(out) :: ang(ltot1,lamu)
 real(kind=wp), intent(in) :: dfac(*), xab(*), yab(*), zab(*), xk, yk, zk, zlm(*)
 integer(kind=iwp) :: i, iend, indx, indy, indz, istart, l, l2, lam, lamhi, lamlo, loc, m, mu1, n, nlm
 real(kind=wp) :: a_int, angt, pre, xkp, ykp, zkp
 
-call dcopy_(ltot1*lamu,[Zero],0,ang,1)
+ang(:,:) = Zero
 do n=1,nanb
   if (xab(n) == Zero) cycle
   do l=1,lalb

@@ -12,16 +12,20 @@
 subroutine cortab(binom,dfac,eps,flmtx,hpt,hwt,lmf,lml,lmx,lmy,lmz,lmax,lmn1u,lproju,mc,mr,ndfac,zlm)
 ! Tables for core potential and spin-orbit integrals.
 
-#include "intent.fh"
-
 use Constants, only: Zero, One, Three
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp), intent(_OUT_) :: binom(*), dfac(*), flmtx(3,*), hpt(*), hwt(*), zlm(*)
-real(kind=wp), intent(in) :: eps
-integer(kind=iwp), intent(_OUT_) :: lmf(*), lml(*), lmx(*), lmy(*), lmz(*), mc(3,*), mr(3,*)
 integer(kind=iwp), intent(in) :: lmax, lmn1u, lproju, ndfac
+#define _LSIZE_ ((lmax*(lmax+2)*(lmax+4)/3)*(lmax+3)+(lmax+2)**2*(lmax+4))/16
+real(kind=wp), intent(out) :: binom(lmn1u*(lmn1u+1)/2), dfac(ndfac), flmtx(3,lproju**2), hpt(5*(2**3-1)), hwt(5*(2**3-1)), &
+                              zlm(_LSIZE_)
+real(kind=wp), intent(in) :: eps
+integer(kind=iwp), intent(out) :: lmf((lmax+1)**2), lml((lmax+1)**2), &
+                                  lmx(_LSIZE_), &
+                                  lmy(_LSIZE_), &
+                                  lmz(_LSIZE_), &
+                                  mc(3,2*lproju-1), mr(3,2*lproju-1)
 integer(kind=iwp) :: i, iadd, igh, il, indexh, inew, ione, isig, isigm, isigma, i_sign, itwo, iu, ixy, iz, j, k, lang, lone, ltwo, &
                      mang, ndelta, nn, nsigma, nterm, nxy
 real(kind=wp) :: aden, anum, coef, coef1, coef2, fi
@@ -50,7 +54,7 @@ do j=1,lmn1u-1
   binom(inew) = One
   do i=1,j-1
     inew = inew+1
-    binom(inew) = (real(j-i+1,kind=wp)*binom(inew-1))/real(i,kind=wp)
+    binom(inew) = real(j-i+1,kind=wp)*binom(inew-1)/real(i,kind=wp)
   end do
   inew = inew+1
   binom(inew) = One

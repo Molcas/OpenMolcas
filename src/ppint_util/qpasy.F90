@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: npi, l, lambu, lmahi, lmbhi, ltot1
 real(kind=wp), intent(in) :: alpha, dfac(*), xka, xkb, prd, dum
-real(kind=wp), intent(inout) :: qsum(ltot1,lambu,*)
+real(kind=wp), intent(inout) :: qsum(ltot1,lambu,lmahi)
 integer(kind=iwp) :: j, la, lama, lamb, lb, n, nprime
 real(kind=wp) :: alf1, f1, f2, prde, prefac, qnew, qold1, qold2, sqalpi, dsum, t, tk, xk
 real(kind=wp), parameter :: accrcy = 1.0e-13_wp

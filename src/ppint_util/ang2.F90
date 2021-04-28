@@ -12,20 +12,18 @@
 subroutine ang2(ang,binom,crda,dfac,it,l,lit,lmlo,lmhi,lmf,lml,lmx,lmy,lmz,lmnv,mproju,xk,yk,zk,zlm)
 ! compute type 2 angular integrals
 
-#include "intent.fh"
-
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: it, l, lit, lmlo, lmhi, lmf(*), lml(*), lmx(*), lmy(*), lmz(*), lmnv(3,*), mproju
-real(kind=wp), intent(_OUT_) :: ang(lit,mproju,*)
+real(kind=wp), intent(out) :: ang(lit,mproju,lmhi)
 real(kind=wp), intent(in) :: binom(*), crda(lit,3), dfac(*), xk, yk, zk, zlm(*)
 integer(kind=iwp) :: i, ia, ib, ic, iend, indx, indy, indz, istart, j, l2, la1, laind, lam, lamhi, lamlo, loc1, loc2, m, ma1, &
                      maind, mend, mhi, mndx, mndy, mndz, mstart, mu, n, na1, naind
 real (kind=wp) :: a_int, angt, pab1, pab2, pab3, pre, xkp, ykp, zkp
 
-call dcopy_(lit*mproju*lmhi,[Zero],0,ang,1)
+ang(:,:,:) = Zero
 na1 = lmnv(1,it)+1
 la1 = lmnv(2,it)+1
 ma1 = lmnv(3,it)+1

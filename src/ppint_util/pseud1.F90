@@ -9,28 +9,27 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine pseud1(a,ang,ccr,gout,ipt,lmnv,ltot1,ncr,nkcrl,nkcru,qsum,xab,yab,zab,zcr,lit,ljt,ai,aj,xi,yi,zi,xj,yj,zj,xc,yc,zc, &
-                  kcrs,lproju1,crda,crdb)
+subroutine pseud1(ang,ccr,gout,ipt,lmnv,ltot1,ncr,nkcrl,nkcru,qsum,xab,yab,zab,zcr,lit,ljt,ai,aj,xi,yi,zi,xj,yj,zj,xc,yc,zc,kcrs, &
+                  lproju1,crda,crdb)
 ! compute type 1 core potential integrals
-
-#include "intent.fh"
 
 use Constants, only: Zero, One, Four, Ten, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: ipt(*), lmnv(3,*), ltot1, ncr(*), lit, ljt, kcrs, lproju1, nkcrl(lproju1,*), nkcru(lproju1,*)
-real(kind=wp), intent(in) :: a(*), ccr(*), zcr(*), ai, aj, xi, yi, zi, xj, yj, zj, xc, yc, zc
-real(kind=wp), intent(_OUT_) :: ang(ltot1,*), qsum(ltot1,*), xab(*), yab(*), zab(*)
+real(kind=wp), intent(in) :: ccr(*), zcr(*), ai, aj, xi, yi, zi, xj, yj, zj, xc, yc, zc
+real(kind=wp), intent(out) :: ang(ltot1,ltot1), qsum(ltot1,ltot1), xab(ltot1), yab(ltot1), zab(ltot1)
 real(kind=wp), intent(inout) :: gout(*)
 real(kind=wp), intent(out) :: crda(lit,3), crdb(ljt,3)
+#include "WrkSpc.fh"
 integer(kind=iwp) :: i, ijt, it, itl, itu, j, jt, jtl, jtu, kcrl, kcru, la1, lam, lamu, lb1, ma1, mb1, n, na1, nb1, nhi
 real(kind=wp) :: aa, aaa, aarr1, alpt, arp2, fctr2, rk, rp, rp2, rr, s, taa, xij, xijm, xk, xka, xkb, yij, yijm, yk, yka, ykb, &
                  zij, zijm, zk, zka, zkb
 integer(kind=iwp), parameter :: llt_(7,2) = reshape([1,2,5,11,21,36,57,1,4,10,20,35,56,84],shape(llt_))
 real(kind=wp), parameter :: tol = 20.0_wp*log(Ten)
 
-call pseud1_internal(a)
+call pseud1_internal(Work)
 
 ! This is to allow type punning without an explicit interface
 contains
@@ -117,7 +116,7 @@ subroutine pseud1_internal(a)
 
   ! compute radial integrals and sum over potential terms
 
-  call dcopy_(ltot1*lamu,[Zero],0,qsum,1)
+  qsum(:,:) = Zero
   kcrl = nkcrl(1,kcrs)
   kcru = nkcru(1,kcrs)
   call rad1(aa,aarr1,alpt,arp2,ccr,a(ipt(11)),fctr2,kcrl,kcru,lamu,ltot1,ncr,qsum,rk,tol,zcr)

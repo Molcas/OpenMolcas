@@ -22,7 +22,7 @@ integer(kind=iwp) :: ia, iab, ib, iba
 !***********************************************************************
 !                                                                      *
 !call RecPrt('GOut(Argos)',' ',Gout,nb,na)
-call dcopy_(na*nb,GOut(1,1),1,GOut(1,2),1)
+GOut(:,2) = GOut(:,1)
 
 do ia=1,na
   do ib=1,nb

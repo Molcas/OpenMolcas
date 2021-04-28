@@ -14,20 +14,18 @@ subroutine ptwt(abess,arc2,bbess,dfac,npi,l,lambu,ltot1,lmahi,lmbhi,alpha,ptpow,
 ! using the points and weights method,
 ! for lama=l to lmahi, lamb=l to lmbhi, n=lama+lamb-l-l
 
-#include "intent.fh"
-
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: npi, l, lambu, ltot1, lmahi, lmbhi
-real(kind=wp), intent(_OUT_) :: abess(*), bbess(*), ptpow(*), q2(lambu,*)
+real(kind=wp), intent(out) :: abess(lmahi), bbess(lmbhi), ptpow(ltot1), q2(lambu,lmahi)
 real(kind=wp), intent(in) :: arc2, dfac(*), alpha, rc, rka, rkb, hpt(*), hwt(*)
-real(kind=wp), intent(inout) :: prd, qsum(ltot1,lambu,*)
+real(kind=wp), intent(inout) :: prd, qsum(ltot1,lambu,lmahi)
 integer(kind=iwp) :: i, idif, lama, lamb, n, npt
 real(kind=wp) :: fctr, pt, sqalp
 
-call dcopy_(lambu*lmahi,[Zero],0,q2,1)
+q2(:,:) = Zero
 if (arc2 > 50000.0_wp) then
   npt = 5
   idif = 0

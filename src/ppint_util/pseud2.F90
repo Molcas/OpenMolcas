@@ -9,11 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine pseud2(a,anga,angb,ccr,gout,ipt,lambu,ltot1,mproju,ncr,nkcrl,nkcru,qsum,zcr,lit,ljt,ai,aj,xi,yi,zi,xj,yj,zj,xc,yc,zc, &
+subroutine pseud2(anga,angb,ccr,gout,ipt,lambu,ltot1,mproju,ncr,nkcrl,nkcru,qsum,zcr,lit,ljt,ai,aj,xi,yi,zi,xj,yj,zj,xc,yc,zc, &
                   kcrs,lcru,lproju1,crda,crdb)
 ! compute type 2 core potential integrals
-
-#include "intent.fh"
 
 use Constants, only: Zero, One, Four
 use Definitions, only: wp, iwp
@@ -21,16 +19,17 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: ipt(*), lambu, ltot1, mproju, ncr(*), lit, ljt, kcrs, lcru, lproju1, nkcrl(lproju1,*), &
                                  nkcru(lproju1,*)
-real(kind=wp), intent(inout) :: a(*), gout(*)
-real(kind=wp), intent(_OUT_) :: anga(lit,mproju,*), angb(ljt,mproju,*), qsum(ltot1,lambu,*)
+real(kind=wp), intent(inout) :: gout(*)
+real(kind=wp), intent(out) :: anga(lit,mproju,lcru+lit-1), angb(ljt,mproju,lcru+ljt-1), qsum(ltot1,lambu,lcru+lit-1)
 real(kind=wp), intent(in) :: ccr(*), zcr(*), ai, aj, xi, yi, zi, xj, yj, zj, xc, yc, zc
 real(kind=wp), intent(out) :: crda(lit,3), crdb(ljt,3)
+#include "WrkSpc.fh"
 integer(kind=iwp) :: i, ijt, inc, it, itl, itu, j, jt, jtl, jtu, kcrl, kcru, l, lama, lamb, ldifa1, ldifb, lhi, llo, lmahi, lmalo, &
                      lmau, lmbhi, lmblo, lmbu, m, mhi, n, nhi, nlma, nlmahi, nlmalo, nlmau, nlmbu, nlo
 real(kind=wp) :: aa, aarr2, angp, ca, cb, fctr2, rka, rkb, s, tai, taj, xka, xkb, yka, ykb, zka, zkb
 integer(kind=iwp), parameter :: llt_(7,2) = reshape([1,2,5,11,21,36,57,1,4,10,20,35,56,84],shape(llt_))
 
-call pseud2_internal(a)
+call pseud2_internal(Work)
 
 ! This is to allow type punning without an explicit interface
 contains
@@ -138,7 +137,7 @@ subroutine pseud2_internal(a)
 
     kcrl = nkcrl(l+1,kcrs)
     kcru = nkcru(l+1,kcrs)
-    call rad2(a,ccr,ipt,kcrl,kcru,l,lambu,lmahi,lmalo,lmbhi,lmblo,ltot1,ncr,qsum,rka,rkb,zcr,lit,ljt,ca,cb,tai,taj,aa,aarr2,fctr2)
+    call rad2(ccr,ipt,kcrl,kcru,l,lambu,lmahi,lmalo,lmbhi,lmblo,ltot1,ncr,qsum,rka,rkb,zcr,lit,ljt,ca,cb,tai,taj,aa,aarr2,fctr2)
 
     ! compute angular integrals and combine with radial integrals
 

@@ -18,7 +18,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: kcrl, kcru, lamu, ltot1, ncr(*)
 real(kind=wp), intent(in) :: aa, aarr1, alpt, arp2, ccr(*), dfac(*), fctr2, rk, tol, zcr(*)
-real(kind=wp), intent(inout) :: qsum(ltot1,*)
+real(kind=wp), intent(inout) :: qsum(ltot1,lamu)
 integer(kind=iwp) :: kcr, lam, n, npi
 real(kind=wp) :: alpha, dum, f2lam3, prd, t
 real(kind=wp), external :: qcomp

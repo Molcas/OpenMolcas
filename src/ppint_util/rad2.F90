@@ -9,28 +9,26 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine rad2(a,ccr,ipt,kcrl,kcru,l,lambu,lmahi,lmalo,lmbhi,lmblo,ltot1,ncr,qsum,rka,rkb,zcr,lit,ljt,ca,cb,tai,taj,aa,aarr2,fctr2)
+subroutine rad2(ccr,ipt,kcrl,kcru,l,lambu,lmahi,lmalo,lmbhi,lmblo,ltot1,ncr,qsum,rka,rkb,zcr,lit,ljt,ca,cb,tai,taj,aa,aarr2,fctr2)
 ! compute type 2 radial integrals.
 !
 ! 28-nov-90 new version replaced old version. -rmp
 ! 19-jan-97 put Bessel formula into a separate subroutine, qbess. -rmp
-
-#include "intent.fh"
 
 use Constants, only: Zero, One, Two, Four, Ten
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: ipt(*), kcrl, kcru, l, lambu, lmahi, lmalo, lmbhi, lmblo, ltot1, ncr(*), lit, ljt
-real(kind=wp), intent(inout) :: a(*)
 real(kind=wp), intent(in) :: ccr(*), rka, rkb, zcr(*), ca, cb, tai, taj, aa, aarr2, fctr2
-real(kind=wp), intent(_OUT_) :: qsum(ltot1,lambu,*)
+real(kind=wp), intent(out) :: qsum(ltot1,lambu,lmahi)
+#include "WrkSpc.fh"
 integer(kind=iwp) :: kcr, lama, lamb, ldifa1, ldifb, n, nhi, nlim, nlo, npi, nu
 real(kind=wp) :: alpha, arc2, dum, f2lma3, f2lmb3, prd, qlim, rc, rk, t
 real(kind=wp), parameter :: eps1 = 1.0e-15_wp, tol = 20.0_wp*log(Ten)
 real(kind=wp), external :: qcomp
 
-call dcopy_(ltot1*lambu*lmahi,[Zero],0,qsum,1)
+qsum(:,:,:) = Zero
 ! sum over potential terms
 do kcr=kcrl,kcru
   npi = ncr(kcr)
@@ -45,20 +43,20 @@ do kcr=kcrl,kcru
     ! rka=0 and rkb=0
     rk = Zero
     t = Zero
-    qsum(ltot1,1,1) = qsum(ltot1,1,1)+prd*qcomp(alpha,a(ipt(11)),npi+ltot1-1,0,t,rk)
+    qsum(ltot1,1,1) = qsum(ltot1,1,1)+prd*qcomp(alpha,Work(ipt(11)),npi+ltot1-1,0,t,rk)
   elseif (rka == Zero) then
     ! rka=0 and rkb>0
     rk = rkb
     t = arc2
     do lamb=l,lmbhi
-      qsum(lamb-l+lit,lamb,1) = qsum(lamb-l+lit,lamb,1)+prd*qcomp(alpha,a(ipt(11)),npi+lamb-l+lit-1,lamb-1,t,rk)
+      qsum(lamb-l+lit,lamb,1) = qsum(lamb-l+lit,lamb,1)+prd*qcomp(alpha,Work(ipt(11)),npi+lamb-l+lit-1,lamb-1,t,rk)
     end do
   elseif (rkb == Zero) then
     ! rka>0 and rkb=0
     rk = rka
     t = arc2
     do lama=l,lmahi
-      qsum(lama-l+ljt,1,lama) = qsum(lama-l+ljt,1,lama)+prd*qcomp(alpha,a(ipt(11)),npi+lama-l+ljt-1,lama-1,t,rk)
+      qsum(lama-l+ljt,1,lama) = qsum(lama-l+ljt,1,lama)+prd*qcomp(alpha,Work(ipt(11)),npi+lama-l+ljt-1,lama-1,t,rk)
     end do
   elseif (npi == 2) then
     ! rka>0 and rkb>0; use bessel function formula.
@@ -67,8 +65,8 @@ do kcr=kcrl,kcru
     ! for the npi=2 case. It can't be used at all for npi=(odd) and
     ! only for partial sets for npi=0
     nu = l
-    call qbess(alpha,a(ipt(40)),a(ipt(41)),a(ipt(42)),a(ipt(12)),a(ipt(43)),a(ipt(44)),a(ipt(45)),a(ipt(11)),l,lambu,lmahi,lmbhi, &
-               ltot1,nu,prd,qsum,rka,rkb,a(ipt(46)))
+    call qbess(alpha,Work(ipt(40)),Work(ipt(41)),Work(ipt(42)),Work(ipt(12)),Work(ipt(43)),Work(ipt(44)),Work(ipt(45)), &
+               Work(ipt(11)),l,lambu,lmahi,lmbhi,ltot1,nu,prd,qsum,rka,rkb,Work(ipt(46)))
   elseif (arc2 >= 50.0_wp) then
     ! rka>0 and rkb>0; use pts and wts method
     ! estimate radial integrals and compare to threshold
@@ -85,12 +83,12 @@ do kcr=kcrl,kcru
       nlim = nlim+(ljt-1)
     end if
     if (qlim*rc**nlim >= eps1) then
-      call ptwt(a(ipt(47)),arc2,a(ipt(48)),a(ipt(11)),npi,l,lambu,ltot1,lmahi,lmbhi,alpha,a(ipt(49)),a(ipt(50)),rc,rka,rkb,prd, &
-                a(ipt(9)),a(ipt(10)),qsum)
+      call ptwt(Work(ipt(47)),arc2,Work(ipt(48)),Work(ipt(11)),npi,l,lambu,ltot1,lmahi,lmbhi,alpha,Work(ipt(49)),Work(ipt(50)),rc, &
+                rka,rkb,prd,Work(ipt(9)),Work(ipt(10)),qsum)
     end if
   else
     ! rka>0 and rkb>0; use partially asymptotic method
-    call qpasy(alpha,a(ipt(11)),npi,l,lambu,lmahi,lmbhi,ltot1,rka,rkb,fctr2*ccr(kcr),dum+arc2,qsum)
+    call qpasy(alpha,Work(ipt(11)),npi,l,lambu,lmahi,lmbhi,ltot1,rka,rkb,fctr2*ccr(kcr),dum+arc2,qsum)
   end if
 end do
 
