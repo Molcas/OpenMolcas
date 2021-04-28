@@ -20,7 +20,7 @@
 *          MOtilde:MO (one index transformed integrals)            *
 *                                                                  *
 ********************************************************************
-      use Arrays, only: W_CMO=>CMO, CMO_Inv, Int1, G1t, G2t
+      use Arrays, only: W_CMO=>CMO, W_CMO_Inv=>CMO_Inv, Int1, G1t, G2t
       use Data_Structures, only: DSBA_Type
       use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA
       Implicit Real*8(a-h,o-z)
@@ -36,20 +36,19 @@
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: G2x(:)
       Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI,
-     &                 FkA, QVec, CMO
+     &                 FkA, QVec, CMO, CMO_Inv
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
         SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
      &                         JI,KI,JA,KA,FkI,FkA,
-     &                         MO_Int,QVec,Ash,CMO,ip_CMO_inv,
+     &                         MO_Int,QVec,Ash,CMO,CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
         use Data_Structures, only: DSBA_Type
-        Integer ip_CMO_inv
         Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI, FkA,
-     &                   QVec, Ash(2), CMO
+     &                   QVec, Ash(2), CMO, CMO_Inv
         Real*8 G2(*), MO_Int(*)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical DoAct,Fake_CMO2
@@ -412,11 +411,11 @@
         FkA%A0(:)=Zero
         Call Allocate_DSBA(QVec,nBas,nAsh,nSym,Ref=Q)
         Call Allocate_DSBA(CMO,nBas,nBas,nSym,Ref=W_CMO)
-        ip_CMO_inv= ip_of_Work(CMO_Inv(1))
+        Call Allocate_DSBA(CMO_Inv,nBas,nBas,nSym,Ref=W_CMO_Inv)
         istore=1 ! Ask to store the half-transformed vectors
 
         CALL CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,JI,KI,JA,KA,FkI,FkA,
-     &                   MO1,QVec,CVa,CMO,ip_CMO_inv,
+     &                   MO1,QVec,CVa,CMO,CMO_inv,
      &                   nIsh,nAsh,nIsh,doAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,istore)
 
@@ -425,6 +424,7 @@
         Call DScal_(nAtri,0.25D0,MO1,1)
         FkI%A0(:) = -Half * FkI%A0(:)
 *
+        Call Deallocate_DSBA(CMO_Inv)
         Call Deallocate_DSBA(CMO)
         Call Deallocate_DSBA(QVec)
         Call Deallocate_DSBA(FkA)

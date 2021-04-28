@@ -12,7 +12,7 @@
 ************************************************************************
       SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,JI,
      &                      KI,JA,KA,FkI,FkA,
-     &                      MO_Int,QVec,Ash,CMO,ip_CMO_inv,
+     &                      MO_Int,QVec,Ash,CMO,CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                      LuAChoVec,LuIChoVec,iAChoVec)
 
@@ -65,7 +65,8 @@ C
       Integer   nChMo(8)
 
       Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI, FkA,
-     &                 QVec, Ash(2), CMO, Tmp(2), QTmp(2), CM(2)
+     &                 QVec, Ash(2), CMO, CMO_Inv, Tmp(2), QTmp(2),
+     &                 CM(2)
       Type (DSBA_Type) JALT
       Type (SBA_Type) Lpq(3)
       Type (NDSBA_Type) DiaH
@@ -229,7 +230,7 @@ C *** memory for the Q matrices --- temporary array
 
              Call DGEMM_('T','T',nChMO(iS),nBas(iS),nBas(iS),
      &                  1.0D0,CM(1)%SB(iS)%A2,nBas(iS),
-     &                        Work(ip_CMO_inv+ISTSQ(iS)),nBas(iS),
+     &                        CMO_inv%SB(iS)%A2,nBas(iS),
      &                  0.0d0,Tmp(2)%SB(iS)%A2,nChMO(iS))
 *
 **       Create one-index transformed Cholesky orbitals

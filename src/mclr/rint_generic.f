@@ -12,7 +12,8 @@
 ************************************************************************
       SubRoutine RInt_Generic(rkappa,rmos,rmoa,Fock,Q,Focki,Focka,
      &                        idsym,reco,jspin)
-      use Arrays, only: CMO_Inv, W_CMO=>CMO, G1t, G2t, FAMO, FIMO
+      use Arrays, only: W_CMO_Inv=>CMO_Inv, W_CMO=>CMO, G1t, G2t, FAMO,
+     &                  FIMO
 *
 *                              ~
 *     Constructs  F  = <0|[E  ,H]|0> ( + <0|[[E  , Kappa],H]|0> )
@@ -33,20 +34,19 @@
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), QTemp(:),
      &                      Dens2(:),  G2x(:)
       Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI,
-     &                 FkA, QVec, CMO
+     &                 FkA, QVec, CMO, CMO_Inv
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
         SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
      &                         JI,KI,JA,KA,FkI,FkA,
-     &                         MO_Int,QVec,Ash,CMO,ip_CMO_inv,
+     &                         MO_Int,QVec,Ash,CMO,CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
         use Data_Structures, only: DSBA_Type
-        Integer ip_CMO_inv
         Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI, FkA,
-     &                   QVec, Ash(2), CMO
+     &                   QVec, Ash(2), CMO, CMO_Inv
         Real*8 G2(*), MO_Int(*)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical doAct,Fake_CMO2
@@ -285,14 +285,15 @@
         FkA%A0(:)=Zero
         Call Allocate_DSBA(QVec,nBas,nAsh,nSym,Ref=Q)
         Call Allocate_DSBA(CMO,nBas,nAsh,nSym,Ref=W_CMO)
-        ip_CMO_inv= ip_of_Work(CMO_inv(1))
+        Call Allocate_DSBA(CMO_Inv,nBas,nAsh,nSym,Ref=W_CMO_Inv)
         iread=2 ! Asks to read the half-transformed Cho vectors
                                                                                *
         Call CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,JI,KI,JA,KA,FkI,FkA,
-     &                   rMOs,QVec,CVa,CMO,ip_CMO_inv,
+     &                   rMOs,QVec,CVa,CMO,CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,iread)
 
+        Call Deallocate_DSBA(CMO_Inv)
         Call Deallocate_DSBA(CMO)
         Call Deallocate_DSBA(QVec)
         Call Deallocate_DSBA(FkA)
