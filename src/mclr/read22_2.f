@@ -36,20 +36,20 @@
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: G2x(:)
       Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI,
-     &                 FkA
+     &                 FkA, QVec
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
         SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
      &                         JI,KI,JA,KA,FkI,FkA,
-     &                         MO_Int,ipQ,Ash,ipCMO,ip_CMO_inv,
+     &                         MO_Int,QVec,Ash,ipCMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
         use Data_Structures, only: DSBA_Type
-        Integer ipQ,ipCMO,ip_CMO_inv
+        Integer ipCMO,ip_CMO_inv
         Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI, FkA,
-     &                   Ash(2)
+     &                   QVec, Ash(2)
         Real*8 G2(*), MO_Int(*)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical DoAct,Fake_CMO2
@@ -410,13 +410,13 @@
         FkI%A0(:)=Zero
         Call Allocate_DSBA(FkA,nBas,nBas,nSym,Ref=FockA)
         FkA%A0(:)=Zero
-        ipQ       = ip_of_Work(Q(1))
+        Call Allocate_DSBA(QVec,nBas,nAsh,nSym,Ref=Q)
         ipCMO     = ip_of_Work(CMO(1))
         ip_CMO_inv= ip_of_Work(CMO_Inv(1))
         istore=1 ! Ask to store the half-transformed vectors
 
         CALL CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,JI,KI,JA,KA,FkI,FkA,
-     &                   MO1,ipQ,CVa,ipCMO,ip_CMO_inv,
+     &                   MO1,QVec,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh,nAsh,nIsh,doAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,istore)
 
@@ -425,6 +425,7 @@
         Call DScal_(nAtri,0.25D0,MO1,1)
         FkI%A0(:) = -Half * FkI%A0(:)
 *
+        Call Deallocate_DSBA(QVec)
         Call Deallocate_DSBA(FkA)
         Call Deallocate_DSBA(FkI)
         Call Deallocate_DSBA(KI)

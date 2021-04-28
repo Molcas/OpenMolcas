@@ -12,7 +12,7 @@
 ************************************************************************
       SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,JI,
      &                      KI,JA,KA,FkI,FkA,
-     &                      MO_Int,ipQ,Ash,ipCMO,ip_CMO_inv,
+     &                      MO_Int,QVec,Ash,ipCMO,ip_CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                      LuAChoVec,LuIChoVec,iAChoVec)
 
@@ -65,7 +65,7 @@ C
       Integer   nChMo(8)
 
       Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI, FkA,
-     &                 Ash(2), Tmp(2), QTmp(2), CM(2)
+     &                 QVec, Ash(2), Tmp(2), QTmp(2), CM(2)
       Type (DSBA_Type) JALT
       Type (SBA_Type) Lpq(3)
       Type (NDSBA_Type) DiaH
@@ -120,6 +120,7 @@ C
 #ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in CASSCF-debug
 #endif
+      ipQ = ip_of_Work(QVec%A0(1))
 
       ! Allow LT-format access to JA although it is in SQ-format
       Call Allocate_DSBA(JALT,nBas,nBas,nSym,Case='TRI',Ref=JA%A0)
