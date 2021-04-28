@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
-      SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,
-     &                      ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
+      SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,ipJI,
+     &                      ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                      ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                      LuAChoVec,LuIChoVec,iAChoVec)
@@ -64,7 +64,7 @@ C
       Real*8    tmotr(2),tscrn(2)
       Integer   nChMo(8)
 
-      Type (DSBA_Type) DLT, DI, DA, Kappa, Ash(2), Tmp(2), QTmp(2),
+      Type (DSBA_Type) DLT, DI, DA, Kappa, JI, Ash(2), Tmp(2), QTmp(2),
      &                 CM(2)
       Type (SBA_Type) Lpq(3)
       Type (NDSBA_Type) DiaH
@@ -120,6 +120,7 @@ C
       Debug=.false.! to avoid double printing in CASSCF-debug
 #endif
       ipDLT = ip_of_Work(DLT%A0(1))
+      Call Allocate_DSBA(JI,nBas,nBas,nSym,Case='TRI',Ref=Work(ipJI))
 
       timings=.false.
 *
@@ -1570,6 +1571,7 @@ c --- backtransform fock matrix to full storage
                mode = 'tofull'
                add = .True.
                nMat = 1
+               ipJI = ip_of_Work(JI%A0(1))
                Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
      &                           [ipJI],Frs(:,1),mode,add)
                If (DoAct) Then
@@ -1624,7 +1626,6 @@ C--- have performed screening in the meanwhile
 * --- Accumulate Coulomb and Exchange contributions
       Do iSym=1,nSym
 
-         ipFI = ipJI + ISTLT(iSym)
          ipFAc= ipJA + ISTLT(iSym)
          ipKI = ipK   + ISTSQ(iSym)
          ipKAc= ipKA  + ISTSQ(iSym)
@@ -1658,7 +1659,7 @@ C--- have performed screening in the meanwhile
                   iag = ioffa + ia
                   ibg = ioffb + ib
 
-                  jF = ipFI - 1 + iTri(iag,ibg)
+                  iabg = iTri(iag,ibg)
                   jFA= ipFac- 1 + iTri(iag,ibg)
 
                   jKa = ipKac- 1 + nBas(iSym)*(ibg-1) + iag
@@ -1667,7 +1668,7 @@ C--- have performed screening in the meanwhile
                   jS = ipFS - 1 + nBas(iSym)*(ibg-1) + iag
                   jSA= ipFA - 1 + nBas(iSym)*(ibg-1) + iag
 
-                  Work(jS) = Work(jF) + Work(jK) + Work(jK2)
+                  Work(jS) = JI%SB(iSym)%A1(iabg) + Work(jK) + Work(jK2)
                   Work(jSA)= Work(jFa)+ Work(jKa)+ Work(jKa2)
 
                 End Do
@@ -1874,6 +1875,7 @@ c Print the Fock-matrix
       endif
 
 #endif
+      Call deallocate_DSBA(JI)
 
       Return
 c Avoid unused argument warnings
