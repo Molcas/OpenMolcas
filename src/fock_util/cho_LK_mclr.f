@@ -1628,7 +1628,6 @@ C--- have performed screening in the meanwhile
 * --- Accumulate Coulomb and Exchange contributions
       Do iSym=1,nSym
 
-         ipFAc= ipJA + ISTLT(iSym)
          ipKAc= ipKA  + ISTSQ(iSym)
          ipFS = ipFkI + ISTSQ(iSym)
          ipFA = ipFkA + ISTSQ(iSym)
@@ -1659,7 +1658,6 @@ C--- have performed screening in the meanwhile
                   ibg = ioffb + ib
 
                   iabg = iTri(iag,ibg)
-                  jFA= ipFac- 1 + iTri(iag,ibg)
 
                   jKa = ipKac- 1 + nBas(iSym)*(ibg-1) + iag
                   jKa2= ipKac- 1 + nBas(iSym)*(iag-1) + ibg
@@ -1670,7 +1668,9 @@ C--- have performed screening in the meanwhile
                   Work(jS) = JI%SB(iSym)%A1(iabg)
      &                     + KI%SB(iSym)%A1(iOffAB+iab)
      &                     + KI%SB(iSym)%A1(jOffAB+jab)
-                  Work(jSA)= Work(jFa)+ Work(jKa)+ Work(jKa2)
+                  Work(jSA)= JALT%SB(iSym)%A1(iabg)
+     &                     + Work(jKa)
+     &                     + Work(jKa2)
 
                 End Do
 
