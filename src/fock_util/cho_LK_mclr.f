@@ -73,7 +73,6 @@ C
       Type (L_Full_Type) L_Full
       Type (Lab_Type) Lab
 
-      Integer   ipMO(2),ipMSQ(2)
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
@@ -213,8 +212,7 @@ C *** memory for the Q matrices --- temporary array
       If (Deco) Then
          Call Allocate_DSBA(CM(1),nBas,nBas,nSym)
          Call Allocate_DSBA(CM(2),nBas,nBas,nSym)
-         ipMSQ(1) = ip_of_Work(CM(1)%A0(1))
-         ipMSQ(2) = ip_of_Work(CM(2)%A0(1))
+
          Call Allocate_DSBA(Tmp(1),nBas,nBas,nSym)
          Call Allocate_DSBA(Tmp(2),nBas,nBas,nSym)
 
@@ -701,13 +699,6 @@ c --------------------------------------------------------------------
 
                     Lab%A0(1:nDen*nBas(lSym)*JNUM)=Zero
 
-                   Do jDen=1,nDen
-
-                    ipMO(jDen) = ipMSQ(jDen) + ISTK(kSym)
-     &                         + nBas(kSym)*(jK-1)
-
-                   End Do
-
                    IF (DoScreen) THEN
 
                      CALL CWTIME(TCS1,TWS1)
@@ -951,8 +942,7 @@ C ---------------------------------------
      &                                        nBasSh(kSym,ibSh),
      &                        ONE,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,
      &                                        nBasSh(lSym,iaSh)*JNUM,
-*    &                                     Work(ipMO(jDen)+ioffShb),1,
-     &                        CM(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1,
+     &                            CM(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1,
      &                                  ONE,Lab%SB(iaSh,lSym,jDen)%A,1)
 
                               End If
@@ -980,7 +970,7 @@ C ---------------------------------------
      &                                     JNUM*nBasSh(lSym,iaSh),
      &                      One,L_Full%SPB(kSym,iShp_rs(iShp),l1)%A12,
      &                                      nBasSh(kSym,ibSh),
-     &                                   Work(ipMO(jDen)+ioffShb),1,
+     &                            CM(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1,
      &                                  ONE,Lab%SB(iaSh,lSym,jDen)%A,1)
 
 
