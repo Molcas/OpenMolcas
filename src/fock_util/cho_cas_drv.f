@@ -190,9 +190,8 @@ c --- to get the right input arguments for CHO_FCAS_AO and CHO_FMCSCF
 
       EndIf
 
-      ipInc = ip_of_Work(MSQ%A0(1))
-
 C --- Reordering of the MOs coefficients to fit cholesky needs
+
       If (.not.DoLocK) Then
 
          Call Allocate_DSBA(POrb(1),nChI,nBas,nSym)
@@ -296,28 +295,46 @@ C ----------------------------------------------------------------
       FLT(1)%A0(:)=Zero
       FLT(2)%A0(:)=Zero
 
+      ! this will have to be fixedr.-
       ipInt = lpwxy   ! (PU|VX) integrals are computed
       ipCM  = ip_of_work(W_CMO(1))  ! MOs coeff. in C(a,p) storage
+!
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+!
 
       IF (ALGO.eq.1 .and. .not. DoLocK) THEN
-
+!
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+!
          CALL CHO_FMCSCF(rc,FLT,nForb,nIorb,nAorb,FactXI,
      &                   DLT,DoActive,POrb,nChM,ipInt,ExFac)
-
+!
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+!
       ELSEIF (ALGO.eq.1 .and. DoLocK) THEN
-
+!
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+!
          CALL CHO_LK_CASSCF(DLT,FLT,MSQ,ipInt,
      &                      FactXI,nChI,nAorb,nChM,CVa,DoActive,
      &                      nScreen,dmpK,abs(CBLBM),ExFac)
-
+!
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+!
       ELSE
-
+!
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+!
          write(6,*)SECNAM//': wrong input parameter. ALGO= ',ALGO
          rc=55
          Return
-
+!
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+!
       ENDIF
-
+!
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+!
       Call Deallocate_DSBA(POrb(3))
       Call Deallocate_DSBA(POrb(2))
       Call Deallocate_DSBA(POrb(1))
