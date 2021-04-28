@@ -32,20 +32,20 @@
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), QTemp(:),
      &                      Dens2(:),  G2x(:)
-      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI, KI, JA, KA
+      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
         SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
-     &                         JI,KI,JA,KA,ipFkI,ipFkA,
+     &                         JI,KI,JA,KA,FkI,ipFkA,
      &                         ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
         use Data_Structures, only: DSBA_Type
-        Integer ipFkI,ipFkA,
+        Integer ipFkA,
      &          ipMO1,ipQ,ipCMO,ip_CMO_inv
-        Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, Ash(2)
+        Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI, Ash(2)
         Real*8 G2(*)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical doAct,Fake_CMO2
@@ -257,7 +257,6 @@
 *
 **      Allocate temp arrays and zero Fock matrices
 *
-        call dcopy_(ndens2,[0.0d0],0,FockA,1)
         call dcopy_(ndens2,[0.0d0],0,FockI,1)
         call dcopy_(nATri,[0.0d0],0,rMOs,1)
 *#define _DEBUGPRINT_
@@ -280,7 +279,8 @@
         JA%A0(:)=Zero
         Call Allocate_DSBA(KA,nBas,nBas,nSym)
         KA%A0(:)=Zero
-        ipFkI     = ip_of_Work(FockI(1))
+        Call Allocate_DSBA(FkI,nBas,nBas,nSym,Ref=FockI)
+        FkI%A0(:)=Zero
         ipFkA     = ip_of_Work(FockA(1))
         ipMO1     = ip_of_Work(rMOs(1))
         ipQ       = ip_of_Work(Q(1))
@@ -289,11 +289,12 @@
         iread=2 ! Asks to read the half-transformed Cho vectors
                                                                                *
         Call CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,
-     &                   JI,KI,JA,KA,ipFkI,ipFkA,
+     &                   JI,KI,JA,KA,FkI,ipFkA,
      &                   ipMO1,ipQ,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,iread)
 
+        Call Deallocate_DSBA(FkI)
         Call Deallocate_DSBA(KA)
         Call Deallocate_DSBA(JA)
         Call Deallocate_DSBA(KI)

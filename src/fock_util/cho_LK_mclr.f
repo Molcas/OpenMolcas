@@ -11,7 +11,7 @@
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
       SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,JI,
-     &                      KI,JA,KA,ipFkI,ipFkA,
+     &                      KI,JA,KA,FkI,ipFkA,
      &                      ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                      LuAChoVec,LuIChoVec,iAChoVec)
@@ -64,8 +64,8 @@ C
       Real*8    tmotr(2),tscrn(2)
       Integer   nChMo(8)
 
-      Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, Ash(2),
-     &                 Tmp(2), QTmp(2), CM(2)
+      Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI,
+     &                 Ash(2), Tmp(2), QTmp(2), CM(2)
       Type (DSBA_Type) JALT
       Type (SBA_Type) Lpq(3)
       Type (NDSBA_Type) DiaH
@@ -1626,7 +1626,6 @@ C--- have performed screening in the meanwhile
 * --- Accumulate Coulomb and Exchange contributions
       Do iSym=1,nSym
 
-         ipFS = ipFkI + ISTSQ(iSym)
          ipFA = ipFkA + ISTSQ(iSym)
 
          Do iaSh=1,nShell
@@ -1656,12 +1655,13 @@ C--- have performed screening in the meanwhile
 
                   iabg = iTri(iag,ibg)
 
-                  jS = ipFS - 1 + nBas(iSym)*(ibg-1) + iag
                   jSA= ipFA - 1 + nBas(iSym)*(ibg-1) + iag
 
-                  Work(jS) = JI%SB(iSym)%A1(iabg)
+                  FkI%SB(iSym)%A2(iag,ibg)
+     &                     = JI%SB(iSym)%A1(iabg)
      &                     + KI%SB(iSym)%A1(iOffAB+iab)
      &                     + KI%SB(iSym)%A1(jOffAB+jab)
+
                   Work(jSA)= JALT%SB(iSym)%A1(iabg)
      &                     + KA%SB(iSym)%A2(iag,ibg)
      &                     + KA%SB(iSym)%A2(ibg,iag)
@@ -1733,13 +1733,13 @@ C--- have performed screening in the meanwhile
      &                  0.0d0,Work(ipFkA+ISTSQ(iS)),nBas(jS))
           EndIf
           Call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),
-     &                1.0d0,Work(ipFkI+ISTSQ(iS)),nBas(iS),
+     &                1.0d0,FkI%SB(iS)%A2,nBas(iS),
      &                      Work(ipCMO+ISTSQ(iS)),nBas(iS),
      &                0.0d0,JA%SB(iS)%A2,nBas(jS))
           Call DGEMM_('T','N',nBas(jS),nBas(jS),nBas(iS),
      &                1.0d0,JA%SB(iS)%A2,nBas(iS),
      &                      Work(ipCMO+ISTSQ(jS)),nBas(jS),
-     &                0.0d0,Work(ipFkI+ISTSQ(iS)),nBas(jS))
+     &                0.0d0,FkI%SB(iS)%A2,nBas(jS))
           If (DoAct) Then
             If (Fake_CMO2) Then
               Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
@@ -1861,11 +1861,10 @@ c Print the Fock-matrix
       WRITE(6,'(6X,A)')
       WRITE(6,'(6X,A)')'***** INACTIVE FOCK MATRIX ***** '
       DO ISYM=1,NSYM
-        ISFI=ipFkI+ISTSQ(ISYM)
         IF( NBAS(ISYM).GT.0 ) THEN
           WRITE(6,'(6X,A)')
           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          call CHO_OUTPUT(Work(ISFI),1,NBAS(ISYM),1,NBAS(ISYM),
+          call CHO_OUTPUT(FkI%SB(ISYM)%A2,1,NBAS(ISYM),1,NBAS(ISYM),
      &                    NBAS(ISYM),NBAS(ISYM),1,6)
         ENDIF
       END DO
