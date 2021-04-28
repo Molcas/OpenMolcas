@@ -12,7 +12,7 @@
 ************************************************************************
       SubRoutine RInt_Generic(rkappa,rmos,rmoa,Fock,Q,Focki,Focka,
      &                        idsym,reco,jspin)
-      use Arrays, only: CMO_Inv, CMO, G1t, G2t, FAMO, FIMO
+      use Arrays, only: CMO_Inv, W_CMO=>CMO, G1t, G2t, FAMO, FIMO
 *
 *                              ~
 *     Constructs  F  = <0|[E  ,H]|0> ( + <0|[[E  , Kappa],H]|0> )
@@ -33,20 +33,20 @@
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), QTemp(:),
      &                      Dens2(:),  G2x(:)
       Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI,
-     &                 FkA, QVec
+     &                 FkA, QVec, CMO
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
         SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
      &                         JI,KI,JA,KA,FkI,FkA,
-     &                         MO_Int,QVec,Ash,ipCMO,ip_CMO_inv,
+     &                         MO_Int,QVec,Ash,CMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
         use Data_Structures, only: DSBA_Type
-        Integer ipCMO,ip_CMO_inv
+        Integer ip_CMO_inv
         Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI, FkA,
-     &                   QVec, Ash(2)
+     &                   QVec, Ash(2), CMO
         Real*8 G2(*), MO_Int(*)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical doAct,Fake_CMO2
@@ -158,20 +158,20 @@
      &                         Zero,Dens2(ipMat(iS,jS)),nOrb(iS))
                    Call DGEMM_('T','T',nOrb(jS),nOrb(iS),nOrb(iS),
      &                         One,Dens2(ipMat(iS,jS)),nOrb(iS),
-     &                             CMO(ipCM(is)),nOrb(iS),
+     &                             W_CMO(ipCM(is)),nOrb(iS),
      &                         Zero,DLT%SB(iS)%A2,nOrb(jS))
                    Call DGEMM_('T','T',nOrb(jS),nOrb(jS),nOrb(iS),
      &                         One,DLT%SB(iS)%A2,nOrb(iS),
-     &                             CMO(ipCM(js)),nOrb(jS),
+     &                             W_CMO(ipCM(js)),nOrb(jS),
      &                         Zero,Dens2(ipMat(iS,jS)),nOrb(jS))
 
                    Call DGEMM_('T','T',nOrb(jS),nOrb(iS),nOrb(iS),
      &                         One,DI%SB(js)%A2,nOrb(iS),
-     &                             CMO(ipCM(is)),nOrb(iS),
+     &                             W_CMO(ipCM(is)),nOrb(iS),
      &                         Zero,DLT%SB(iS)%A2,nOrb(jS))
                    Call DGEMM_('T','T',nOrb(jS),nOrb(jS),nOrb(iS),
      &                         One, DLT%SB(iS)%A2,nOrb(iS),
-     &                              CMO(ipCM(js)),nOrb(jS),
+     &                              W_CMO(ipCM(js)),nOrb(jS),
      &                         Zero,DI%SB(js)%A2,nOrb(jS))
               EndIf
             End Do
@@ -215,7 +215,7 @@
             Do iB=1,nAsh(iS)
               ioff3=ioff2+nOrb(iS)*(iB-1)
               CVa(1)%SB(iS)%A2(iB,:) =
-     &           CMO(ioff3+1:ioff3+nOrb(iS))
+     &           W_CMO(ioff3+1:ioff3+nOrb(iS))
              Do jB=1,nAsh(iS)
               ip2=itri(nA(is)+ib,nA(is)+jb)
               DA%SB(iS)%A2(iB,jB)=G1t(ip2)
@@ -224,7 +224,7 @@
 *MGD to check
             Call DGEMM_('T','T',nAsh(iS),nOrb(iS),nOrb(iS),
      &                  1.0d0,rkappa(ioff5),nOrb(iS),
-     &                        CMO(1+ioff),nOrb(iS),
+     &                        W_CMO(1+ioff),nOrb(iS),
      &                  0.0d0,CVa(2)%SB(iS)%A2,nAsh(iS))
             ioff=ioff+(nIsh(iS)+nAsh(iS))*nOrb(iS)
             ioff4=ioff4+nOrb(iS)**2
@@ -284,15 +284,16 @@
         Call Allocate_DSBA(FkA,nBas,nBas,nSym,Ref=FockA)
         FkA%A0(:)=Zero
         Call Allocate_DSBA(QVec,nBas,nAsh,nSym,Ref=Q)
-        ipCMO     = ip_of_Work(CMO(1))
+        Call Allocate_DSBA(CMO,nBas,nAsh,nSym,Ref=W_CMO)
         ip_CMO_inv= ip_of_Work(CMO_inv(1))
         iread=2 ! Asks to read the half-transformed Cho vectors
                                                                                *
         Call CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,JI,KI,JA,KA,FkI,FkA,
-     &                   rMOs,QVec,CVa,ipCMO,ip_CMO_inv,
+     &                   rMOs,QVec,CVa,CMO,ip_CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,iread)
 
+        Call Deallocate_DSBA(CMO)
         Call Deallocate_DSBA(QVec)
         Call Deallocate_DSBA(FkA)
         Call Deallocate_DSBA(FkI)

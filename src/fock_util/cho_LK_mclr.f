@@ -12,7 +12,7 @@
 ************************************************************************
       SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,JI,
      &                      KI,JA,KA,FkI,FkA,
-     &                      MO_Int,QVec,Ash,ipCMO,ip_CMO_inv,
+     &                      MO_Int,QVec,Ash,CMO,ip_CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                      LuAChoVec,LuIChoVec,iAChoVec)
 
@@ -65,7 +65,7 @@ C
       Integer   nChMo(8)
 
       Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI, FkA,
-     &                 QVec, Ash(2), Tmp(2), QTmp(2), CM(2)
+     &                 QVec, Ash(2), CMO, Tmp(2), QTmp(2), CM(2)
       Type (DSBA_Type) JALT
       Type (SBA_Type) Lpq(3)
       Type (NDSBA_Type) DiaH
@@ -246,7 +246,7 @@ C *** memory for the Q matrices --- temporary array
 **         AO transform
 *
              Call DGEMM_('N','T',nBas(iS),nChMO(iS),nBas(iS),
-     &                    1.0D0,Work(ipCMO+ISTSQ(iS)),nBas(iS),
+     &                    1.0D0,CMO%SB(iS)%A2,nBas(iS),
      &                          Tmp(1)%SB(iS)%A2,nChMO(iS),
      &                    0.0d0,CM(2)%SB(iS)%A2,nBas(iS))
            EndIf
@@ -1723,34 +1723,34 @@ C--- have performed screening in the meanwhile
           If (DoAct) Then
             Call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),
      &                  1.0d0,FkA%SB(iS)%A2,nBas(iS),
-     &                        Work(ipCMO+ISTSQ(iS)),nBas(iS),
+     &                        CMO%SB(iS)%A2,nBas(iS),
      &                  0.0D0,JA%SB(iS)%A2,nBas(jS))
             Call DGEMM_('T','N',nBas(jS),nBas(jS),nBas(iS),
      &                  1.0d0,JA%SB(iS)%A2,nBas(iS),
-     &                        Work(ipCMO+ISTSQ(jS)),nBas(jS),
+     &                        CMO%SB(jS)%A2,nBas(jS),
      &                  0.0d0,FkA%SB(iS)%A2,nBas(jS))
           EndIf
           Call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),
      &                1.0d0,FkI%SB(iS)%A2,nBas(iS),
-     &                      Work(ipCMO+ISTSQ(iS)),nBas(iS),
+     &                      CMO%SB(iS)%A2,nBas(iS),
      &                0.0d0,JA%SB(iS)%A2,nBas(jS))
           Call DGEMM_('T','N',nBas(jS),nBas(jS),nBas(iS),
      &                1.0d0,JA%SB(iS)%A2,nBas(iS),
-     &                      Work(ipCMO+ISTSQ(jS)),nBas(jS),
+     &                      CMO%SB(jS)%A2,nBas(jS),
      &                0.0d0,FkI%SB(iS)%A2,nBas(jS))
           If (DoAct) Then
             If (Fake_CMO2) Then
               Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
-     &                     1.0d0,Work(ipCMO+ISTSQ(iS)),nBas(jS),
+     &                     1.0d0,CMO%SB(iS)%A2,nBas(jS),
      &                           QTmp(1)%SB(js)%A2,nBas(jS),
      &                     0.0d0,Work(ipQ+ioff),nBas(jS))
             Else
               Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
-     &                     1.0d0,Work(ipCMO+ISTSQ(iS)),nBas(jS),
+     &                     1.0d0,CMO%SB(iS)%A2,nBas(jS),
      &                           QTmp(2)%SB(jS)%A2,nBas(jS),
      &                     0.0d0,Work(ipQ+ioff),nBas(jS))
               Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
-     &                     1.0d0,Work(ipCMO+ISTSQ(iS)),nBas(jS),
+     &                     1.0d0,CMO%SB(iS)%A2,nBas(jS),
      &                           QTmp(1)%SB(jS)%A2,nBas(jS),
      &                     0.0d0,QTmp(2)%SB(jS)%A2,nBas(jS))
               Call DGEMM_('N','N',nBas(jS),nAsh(iS),nBas(jS),

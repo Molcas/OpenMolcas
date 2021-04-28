@@ -20,7 +20,7 @@
 *          MOtilde:MO (one index transformed integrals)            *
 *                                                                  *
 ********************************************************************
-      use Arrays, only: CMO, CMO_Inv, Int1, G1t, G2t
+      use Arrays, only: W_CMO=>CMO, CMO_Inv, Int1, G1t, G2t
       use Data_Structures, only: DSBA_Type
       use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA
       Implicit Real*8(a-h,o-z)
@@ -36,20 +36,20 @@
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: G2x(:)
       Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI,
-     &                 FkA, QVec
+     &                 FkA, QVec, CMO
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
         SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
      &                         JI,KI,JA,KA,FkI,FkA,
-     &                         MO_Int,QVec,Ash,ipCMO,ip_CMO_inv,
+     &                         MO_Int,QVec,Ash,CMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
         use Data_Structures, only: DSBA_Type
-        Integer ipCMO,ip_CMO_inv
+        Integer ip_CMO_inv
         Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI, FkA,
-     &                   QVec, Ash(2)
+     &                   QVec, Ash(2), CMO
         Real*8 G2(*), MO_Int(*)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical DoAct,Fake_CMO2
@@ -304,11 +304,11 @@
               jS=iS
               Call DGEMM_('T','T',nIsh(jS),nOrb(iS),nIsh(iS),
      &                    1.0d0,Temp2(ipCM(iS)),nOrb(iS),
-     &                    CMO(ipCM(is)),nOrb(iS),
+     &                    W_CMO(ipCM(is)),nOrb(iS),
      &                    0.0d0,Temp3(ipMat(jS,iS)),nOrb(jS))
               Call DGEMM_('T','T',nOrb(jS),nOrb(jS),nIsh(iS),
      &                    1.0d0,Temp3(ipMat(jS,iS)),nOrb(iS),
-     &                    CMO(ipCM(js)),nOrb(jS),
+     &                    W_CMO(ipCM(js)),nOrb(jS),
      &                    0.0d0,Temp2(ipCM(iS)),nOrb(jS))
            EndIf
         End Do
@@ -344,7 +344,7 @@
             do ikk=1,nAsh(iSym)
                ioff3=ioff2+nOrb(iSym)*(ikk-1)
                CVa(1)%SB(iSym)%A2(ikk,:) =
-     &            CMO(ioff3+1:ioff3+nOrb(iSym))
+     &            W_CMO(ioff3+1:ioff3+nOrb(iSym))
                ik=ikk+nA(iSym)
                Do ill=1,ikk-1
                  il=ill+nA(iSym)
@@ -411,12 +411,12 @@
         Call Allocate_DSBA(FkA,nBas,nBas,nSym,Ref=FockA)
         FkA%A0(:)=Zero
         Call Allocate_DSBA(QVec,nBas,nAsh,nSym,Ref=Q)
-        ipCMO     = ip_of_Work(CMO(1))
+        Call Allocate_DSBA(CMO,nBas,nBas,nSym,Ref=W_CMO)
         ip_CMO_inv= ip_of_Work(CMO_Inv(1))
         istore=1 ! Ask to store the half-transformed vectors
 
         CALL CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,JI,KI,JA,KA,FkI,FkA,
-     &                   MO1,QVec,CVa,ipCMO,ip_CMO_inv,
+     &                   MO1,QVec,CVa,CMO,ip_CMO_inv,
      &                   nIsh,nAsh,nIsh,doAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,istore)
 
@@ -425,6 +425,7 @@
         Call DScal_(nAtri,0.25D0,MO1,1)
         FkI%A0(:) = -Half * FkI%A0(:)
 *
+        Call Deallocate_DSBA(CMO)
         Call Deallocate_DSBA(QVec)
         Call Deallocate_DSBA(FkA)
         Call Deallocate_DSBA(FkI)
