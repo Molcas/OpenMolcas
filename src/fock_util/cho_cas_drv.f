@@ -8,13 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_CAS_DRV(rc,W_CMO,DI,FI,DA1,FA,DA2,TraOnly)
+      SUBROUTINE CHO_CAS_DRV(rc,W_CMO,DI,FI,DA1,FA,TraOnly)
       Use Data_Structures, only: DSBA_Type, Allocate_DSBA,
      &                           Deallocate_DSBA
       Implicit real*8 (a-h,o-z)
 
       Integer   rc
-      Real*8    DA1(*),DI(*),DA2(*),FI(*),FA(*),W_CMO(*)
+      Real*8    DA1(*),DI(*),FI(*),FA(*),W_CMO(*)
       Integer   nForb(8),nIorb(8),nAorb(8),nChM(8),nChI(8)
       Logical   TraOnly
 
@@ -44,7 +44,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      tmp=DA2(1)
       rc=0
 
       Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=FI)
@@ -199,24 +198,18 @@ C --- Reordering of the MOs coefficients to fit cholesky needs
          Call Allocate_DSBA(POrb(1),nChI,nBas,nSym)
          Call Allocate_DSBA(POrb(3),nAOrb,nBas,nSym)
 
-*        nOcs=0
-         ioff1=0
          Do iSym=1,nSym
 
             do ikk=1,nChI(iSym)
-               ioff2=ioff1+nBas(iSym)*(ikk-1)
                POrb(1)%SB(iSym)%A2(ikk,:) =
      &           MSQ%SB(iSym)%A2(:,ikk)
             end do
 
-            ioff2=ioff1+nBas(iSym)*(nForb(iSym)+nIorb(iSym))
             do ikk=1,nAorb(iSym)
                jkk = nForb(iSym) + nIorb(iSym) + ikk
                POrb(3)%SB(iSym)%A2(ikk,:) =
      &           CMO%SB(iSym)%A2(:,jkk)
             end do
-            ioff1=ioff1+nBas(iSym)**2
-*           nOcs = nOcs + nAorb(iSym)**2
 
          End Do
 
@@ -225,16 +218,12 @@ C --- Reordering of the MOs coefficients to fit cholesky needs
 C *** Only the active orbitals MO coeff need reordering
          Call Allocate_DSBA(CVa(1),nAorb,nBas,nSym)
 
-         ioff1 = 0
          Do iSym=1,nSym
-            ioff2 = ioff1 + nBas(iSym)*(nForb(iSym)+nIorb(iSym))
             do ikk=1,nAorb(iSym)
                jkk = nForb(iSym) + nIorb(iSym) + ikk
-               ioff = ioff2+nBas(iSym)*(ikk-1)
                CVa(1)%SB(iSym)%A2(ikk,:) =
      &           CMO%SB(iSym)%A2(:,jkk)
             end do
-            ioff1 = ioff1 + nBas(iSym)**2
          End Do
 
       EndIf
@@ -355,4 +344,4 @@ C ----------------------------------------------------------------
       Call deallocate_DSBA(FLT(1))
 
       Return
-      END
+      End
