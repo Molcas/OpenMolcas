@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
-      SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,ipkappa,
+      SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,
      &                      ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                      ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
@@ -64,7 +64,8 @@ C
       Real*8    tmotr(2),tscrn(2)
       Integer   nChMo(8)
 
-      Type (DSBA_Type) DLT, DI, DA, Ash(2), Tmp(2), QTmp(2), CM(2)
+      Type (DSBA_Type) DLT, DI, DA, Kappa, Ash(2), Tmp(2), QTmp(2),
+     &                 CM(2)
       Type (SBA_Type) Lpq(3)
       Type (NDSBA_Type) DiaH
       Type (G2_Type) MOScr
@@ -236,7 +237,7 @@ C *** memory for the Q matrices --- temporary array
 *
              Call DGEMM_('N','N',nChMO(iS),nBas(iS),nBas(iS),
      &                  1.0D0,Tmp(2)%SB(iS)%A2,nChMO(iS),
-     &                        Work(ipkappa+ISTSQ(iS)),nBas(iS),
+     &                        Kappa%SB(is)%A2,nBas(iS),
      &                  0.0d0,Tmp(1)%SB(iS)%A2,nChMO(iS))
 *
 **         AO transform
@@ -277,7 +278,7 @@ C --- Vector MO transformation screening thresholds
       xtau(2) = xtau(1) ! dummy init
 
       If (.not.Fake_CMO2) Then
-        norm=sqrt(ddot_(nsBB,Work(ipkappa),1,Work(ipkappa),1))
+        norm=sqrt(ddot_(nsBB,Kappa%A0,1,Kappa%A0,1))
         xtau(2)=Sqrt((LKThr/Max(1,nnO))*dmpk)*norm
         dmpk=min(norm,1.0d-2)
         thrv(2)=(LKThr/(Max(1,nnO)*NumVT))*dmpk**2
@@ -1756,7 +1757,7 @@ C--- have performed screening in the meanwhile
      &                           QTmp(1)%SB(jS)%A2,nBas(jS),
      &                     0.0d0,QTmp(2)%SB(jS)%A2,nBas(jS))
               Call DGEMM_('N','N',nBas(jS),nAsh(iS),nBas(jS),
-     &                    -1.0d0,Work(ipkappa+ISTSQ(iS)),nBas(jS),
+     &                    -1.0d0,Kappa%SB(iS)%A2,nBas(jS),
      &                           QTmp(2)%SB(jS)%A2,nBas(jS),
      &                     1.0d0,Work(ipQ+ioff),nBas(jS))
             EndIf

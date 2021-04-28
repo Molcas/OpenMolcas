@@ -33,24 +33,22 @@
       Real*8 Fock(nDens2),FockI(nDens2),FockA(nDens2),
      &       Temp2(nDens2),Temp3(ndens2),Q(nDens2),
      &       MO1(*), Scr(*)
-      Real*8 rDum(1)
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: JA(:), KA(:), G2x(:)
-      Type (DSBA_Type) CVa(2), DLT, DI, DA
+      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
-        SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,ipkappa,
+        SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
      &                         ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                         ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
         use Data_Structures, only: DSBA_Type
-        Integer ipkappa,
-     &          ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
+        Integer ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &          ipMO1,ipQ,ipCMO,ip_CMO_inv
-        Type (DSBA_Type) DLT, DI, DA, Ash(2)
+        Type (DSBA_Type) DLT, DI, DA, Ash(2), Kappa
         Real*8 G2(*)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical DoAct,Fake_CMO2
@@ -407,7 +405,6 @@
         call dcopy_(nDens2,[0.0d0],0,Q,1)
 *
         Call Allocate_DSBA(DI,nBas,nBas,nSym,Ref=Temp2)
-        ipkappa   = ip_of_Work(rdum(1))
         ipJI      = ip_of_Work(Temp3(1))
         ipK       = ip_of_Work(Scr(1))
         ipJA      = ip_of_Work(JA(1))
@@ -420,7 +417,7 @@
         ip_CMO_inv= ip_of_Work(CMO_Inv(1))
         istore=1 ! Ask to store the half-transformed vectors
 
-        CALL CHO_LK_MCLR(DLT,DI,DA,G2x,ipkappa,
+        CALL CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,
      &                   ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                   ipMO1,ipQ,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh,nAsh,nIsh,doAct,Fake_CMO2,

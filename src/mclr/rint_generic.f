@@ -32,21 +32,20 @@
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), QTemp(:),
      &                      Dens2(:),  G2x(:), CoulExch(:,:)
-      Type (DSBA_Type) CVa(2), DLT, DI, DA
+      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
-        SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,ipkappa,
+        SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
      &                         ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                         ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
         use Data_Structures, only: DSBA_Type
-        Integer ipkappa,
-     &          ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
+        Integer ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &          ipMO1,ipQ,ipCMO,ip_CMO_inv
-        Type (DSBA_Type) DLT, DI, DA, Ash(2)
+        Type (DSBA_Type) DLT, DI, DA, Kappa, Ash(2)
         Real*8 G2(*)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical doAct,Fake_CMO2
@@ -277,7 +276,7 @@
 *
 **      Compute the whole thing
 *
-        ipkappa   = ip_of_Work(rkappa(1))
+        Call Allocate_DSBA(Kappa,nBas,nBas,nSym,Ref=rKappa)
         ipJI      = ip_of_Work(CoulExch(1,1))
         ipK       = ip_of_Work(CoulExch(1,2))
         ipJA      = ip_of_Work(CoulExch(1,3))
@@ -290,12 +289,13 @@
         ip_CMO_inv= ip_of_Work(CMO_inv(1))
         iread=2 ! Asks to read the half-transformed Cho vectors
                                                                                *
-        Call CHO_LK_MCLR(DLT,DI,DA,G2x,ipkappa,
+        Call CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,
      &                   ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                   ipMO1,ipQ,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,iread)
 
+        Call Deallocate_DSBA(Kappa)
         Call GADSum(FockI,nDens2)
         Call GADSum(FockA,nDens2)
 *#define _DEBUGPRINT_
