@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
-      SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,ipG2,ipkappa,
+      SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,ipkappa,
      &                      ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                      ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
@@ -54,6 +54,8 @@ C
 #endif
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
+
+      Real*8 G2(*)
       Integer   kOff(8),kaOff(8)
       Integer   ISTLT(8),ISTSQ(8),ISTK(8),iASQ(8,8,8)
       Integer   LuAChoVec(8),LuIChoVec(8)
@@ -1325,9 +1327,8 @@ C --- Formation of the Q matrix Qpx = Lpy Lv~w Gxyvw
 C --------------------------------------------------------------------
 *~Lxy=Lv~w Gxyvw
 *MGD probably additional nSym loop
-                     ipG    = ipG2
                      CALL DGEMV_('N',NAv*Naw,NAv*Naw,
-     &                  ONE,Work(ipG),NAv*Naw,
+     &                  ONE,G2,NAv*Naw,
      &                      Lpq(3)%SB(iSymv)%A3(:,:,JVC),1,
      &                  ZERO,Lpq(2)%SB(iSymv)%A3(:,:,JVC),1)
 *Qpx=Lpy ~Lxy
@@ -1435,11 +1436,11 @@ C --------------------------------------------------------------------
                       Nax=nAsh(iSymx)
                       Nay=nAsh(iSymy)
 
-                      ipG    = ipG2 +iASQ(isymb,iSymv,iSymx)
+                      ipG    = 1 +iASQ(isymb,iSymv,iSymx)
 
                       If(NAx*Nay.ne.0)Then
                        Call DGEMM_('N','N',Nav*Naw,JNUM,NAx*Nay,
-     &                              One,Work(ipG),NAv*Naw,
+     &                              One,G2(ipG),NAv*Naw,
      &                                  Lpq(2)%SB(iSymy)%A3,NAx*Nay,
      &                              ONE,Lpq(3)%SB(iSymv)%A3,Nav*Naw)
                       EndIf

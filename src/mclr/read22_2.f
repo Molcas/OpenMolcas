@@ -41,16 +41,17 @@
 ************************************************************************
 *                                                                      *
       Interface
-        SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,ipG2,ipkappa,
+        SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,ipkappa,
      &                         ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                         ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
         use Data_Structures, only: DSBA_Type
-        Integer ipG2,ipkappa,
+        Integer ipkappa,
      &          ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &          ipMO1,ipQ,ipCMO,ip_CMO_inv
         Type (DSBA_Type) DLT, DI, DA, Ash(2)
+        Real*8 G2(*)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical DoAct,Fake_CMO2
         Integer LuAChoVec(8),LuIChoVec(8)
@@ -406,7 +407,6 @@
         call dcopy_(nDens2,[0.0d0],0,Q,1)
 *
         Call Allocate_DSBA(DI,nBas,nBas,nSym,Ref=Temp2)
-        ipG2      = ip_of_Work(G2x(1))
         ipkappa   = ip_of_Work(rdum(1))
         ipJI      = ip_of_Work(Temp3(1))
         ipK       = ip_of_Work(Scr(1))
@@ -420,7 +420,7 @@
         ip_CMO_inv= ip_of_Work(CMO_Inv(1))
         istore=1 ! Ask to store the half-transformed vectors
 
-        CALL CHO_LK_MCLR(DLT,DI,DA,ipG2,ipkappa,
+        CALL CHO_LK_MCLR(DLT,DI,DA,G2x,ipkappa,
      &                   ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                   ipMO1,ipQ,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh,nAsh,nIsh,doAct,Fake_CMO2,
