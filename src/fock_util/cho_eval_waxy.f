@@ -23,14 +23,12 @@
 
 #include "real.fh"
 #include "Molcas.fh"
-#include "WrkSpc.fh"
 #include "general.fh"
 #include "wadr.fh"
 
 C ************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 C ************************************************
-
 
       If (NumV .lt. 1) Return
 
@@ -109,8 +107,6 @@ C ------------------------------------------------------------
 *
 *        Reordering and MO-transformation
 *
-         ipInt = ip_of_Work(W_PWXY(1))
-
          Do iSymy=1,nSym
 
             iSymx=MulD2h(iSymy,JSYM)
@@ -132,8 +128,8 @@ C ------------------------------------------------------------
 
                   Do ixy = 1,Nxy
 
-                        ipMpw = ipInt + off_PWXY(iSyma,iSymw,iSymx)
-     &                        + Npw*(ixy-1)
+                        ipMpw = off_PWXY(iSyma,iSymw,iSymx)
+     &                        +  1 + Npw*(ixy-1)
 
 C --------------------------------------------------------
 C ---       M(p,w)[xy]  =  sum_a  C(a,p) * M(w,a)[xy]
@@ -146,7 +142,7 @@ C --------------------------------------------------------
      &                             nOrb(iSyma),nAorb(iSymw),nBas(iSyma),
      &                             ONE,CMO%SB(iSyma)%A1(iS:),nBas_a,
      &                              Scr%SB(iSymw,iSymx)%A(:,ixy),nAob_w,
-     &                            ZERO,Work(ipMpw),nOrb_a)
+     &                            ZERO,W_PWXY(ipMpw),nOrb_a)
 
 
                   End Do
