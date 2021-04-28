@@ -20,16 +20,8 @@ real(kind=wp), intent(inout) :: Fin(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6)
 real(kind=wp), intent(in) :: Alpha, Beta, A_laplb((la+2)*(la+3)/2,(lb+1)*(lb+2)/2), A_lamlb((la+0)*(la+1)/2,(lb+1)*(lb+2)/2), &
                              A_lalbp((la+1)*(la+2)/2,(lb+2)*(lb+3)/2), A_lalbm((la+1)*(la+2)/2,(lb+0)*(lb+1)/2)
 logical(kind=iwp), intent(in) :: JfGrad(3,2)
-integer(kind=iwp) :: i6, ix, jx, jy, jz
+integer(kind=iwp) :: i6, ix, iy, iz, jx, jy, jz
 
-integer(kind=iwp) :: Ind, iy, iz
-
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Statement function for cartesian index
-
-Ind(iy,iz) = (iy+iz)*(iy+iz+1)/2+iz+1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -137,10 +129,19 @@ do ix=la,0,-1
     end do
   end do
 end do
-!call RecPrt('Fin',' ',Fin,nZeta*nElem(la)*nElem(lb),6)
+!call RecPrt('Fin',' ',Fin,nZeta*nTri0Elem(la)*nTri0Elem(lb),6)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 return
+
+contains
+
+pure function Ind(ly,lz)
+  use Index_util, only: iTri0
+  integer(kind=iwp) :: Ind
+  integer(kind=iwp), intent(in) :: ly, lz
+  Ind = iTri0(ly+lz,lz)
+end function Ind
 
 end subroutine Assemble_PPGrd

@@ -14,6 +14,7 @@ subroutine PPMem( &
 #                include "mem_interface.fh"
                 )
 
+use Index_util, only: nTri0Elem
 use Definitions, only: iwp
 
 implicit none
@@ -21,14 +22,9 @@ implicit none
 #include "mem_interface.fh"
 integer(kind=iwp) :: intmax
 
-integer(kind=iwp) :: nElem, i
-
-! statement function
-nElem(i) = (i+1)*(i+2)/2
-
 nHer = 0
 Mem = 0
-intmax = max(nElem(la),nElem(lb))
+intmax = max(nTri0Elem(la),nTri0Elem(lb))
 intmax = intmax**2
 Mem = Mem+3*intmax
 

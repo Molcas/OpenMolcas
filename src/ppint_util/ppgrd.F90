@@ -22,6 +22,7 @@ subroutine PPGrd( &
 use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc
 use Symmetry_Info, only: iOper
+use Index_util, only: nTri0Elem
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -41,20 +42,13 @@ logical(kind=iwp) EQ, JfGrad(3,4)
 #include "disp.fh"
 logical(kind=iwp), external :: TF
 
-integer(kind=iwp) :: nElem
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Statement function for Cartesian index
-!
-nElem(i) = (i+1)*(i+2)/2
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 iRout = 122
 iPrint = nPrint(iRout)
 
-nDAO = nElem(la)*nElem(lb)
+nDAO = nTri0Elem(la)*nTri0Elem(lb)
 iIrrep = 0
 iuvwx(1) = dc(mdc)%nStab
 iuvwx(2) = dc(ndc)%nStab
@@ -70,14 +64,14 @@ ipRef = 1
 
 ! la+1, lb
 
-nlaplb = max(nElem(la+1),nElem(lb))**2
+nlaplb = max(nTri0Elem(la+1),nTri0Elem(lb))**2
 iplaplb = ipRef+2*nArray
 nArray = nArray+nlaplb
 
 ! la-1, lb
 
 if (la > 0) then
-  nlamlb = max(nElem(la-1),nElem(lb))**2
+  nlamlb = max(nTri0Elem(la-1),nTri0Elem(lb))**2
 else
   nlamlb = 0
 end if
@@ -86,14 +80,14 @@ nArray = nArray+nlamlb
 
 ! la, lb+1
 
-nlalbp = max(nElem(la),nElem(lb+1))**2
+nlalbp = max(nTri0Elem(la),nTri0Elem(lb+1))**2
 iplalbp = ipRef+2*nArray
 nArray = nArray+nlalbp
 
 ! la, lb-1
 
 if (lb > 0) then
-  nlalbm = max(nElem(la),nElem(lb-1))**2
+  nlalbm = max(nTri0Elem(la),nTri0Elem(lb-1))**2
 else
   nlalbm = 0
 end if
@@ -261,13 +255,13 @@ do iCnttp=1,nCnttp
       end do   ! iBeta
 
       !AOM<
-      if (abs(Fact-One) > 1.0e-7_wp) call dscal_(nAlpha*nBeta*nElem(la)*nElem(lb)*mGrad,Fact,Final,1)
+      if (abs(Fact-One) > 1.0e-7_wp) call dscal_(nAlpha*nBeta*nTri0Elem(la)*nTri0Elem(lb)*mGrad,Fact,Final,1)
       !AOM>
       if (iPrint >= 99) then
         write(u6,*) ' Result in PPGrd'
         write(u6,*) JfGrad
-        do ia=1,nElem(la)
-          do ib=1,nElem(lb)
+        do ia=1,nTri0Elem(la)
+          do ib=1,nTri0Elem(lb)
             do iVec=1,mGrad
               write(Label,'(A,I2,A,I2,A)') ' Final(',ia,',',ib,')'
               call RecPrt(Label,' ',Final(1,ia,ib,iVec),nAlpha,nBeta)

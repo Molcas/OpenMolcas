@@ -11,13 +11,13 @@
 ! Copyright (C) 2017, Roland Lindh                                     *
 !***********************************************************************
 
+subroutine Virt_Space(C_Occ,C_Virt,Ovrlp,nBas,nOcc,nVirt)
 !***********************************************************************
 !     The generation of starting orbitals suffers from the fact that   *
 !     the virtual orbitals are not well defined. This routine is       *
 !     supposed to generate a set of well-defined virtual orbitals from *
 !     a set of well-defined occupied orbitals.                         *
 !***********************************************************************
-subroutine Virt_Space(C_Occ,C_Virt,Ovrlp,nBas,nOcc,nVirt)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One

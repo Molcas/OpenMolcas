@@ -14,6 +14,7 @@ subroutine PPMmG( &
 #                include "mem_interface.fh"
                 )
 
+use Index_util, only: nTri0Elem
 use Definitions, only: iwp
 
 implicit none
@@ -21,29 +22,24 @@ implicit none
 #include "mem_interface.fh"
 integer(kind=iwp) :: lalbm, lalbp, lambl, lapbl
 
-integer(kind=iwp) :: i, nElem
-
-! statement function
-nElem(i) = (i+1)*(i+2)/2
-
 nHer = 0
 Mem = 0
 
-lapbl = max(nElem(la+1),nElem(lb))**2
+lapbl = max(nTri0Elem(la+1),nTri0Elem(lb))**2
 Mem = Mem+2*lapbl
 
 if (la > 0) then
-  lambl = max(nElem(la-1),nElem(lb))**2
+  lambl = max(nTri0Elem(la-1),nTri0Elem(lb))**2
 else
   lambl = 0
 end if
 Mem = Mem+2*lambl
 
-lalbp = max(nElem(la),nElem(lb+1))**2
+lalbp = max(nTri0Elem(la),nTri0Elem(lb+1))**2
 Mem = Mem+2*lalbp
 
 if (lb > 0) then
-  lalbm = max(nElem(la),nElem(lb-1))**2
+  lalbm = max(nTri0Elem(la),nTri0Elem(lb-1))**2
 else
   lalbm = 0
 end if
