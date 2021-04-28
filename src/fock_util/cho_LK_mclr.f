@@ -11,7 +11,7 @@
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
       SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,JI,
-     &                      KI,ipJA,ipKA,ipFkI,ipFkA,
+     &                      KI,JA,ipKA,ipFkI,ipFkA,
      &                      ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                      LuAChoVec,LuIChoVec,iAChoVec)
@@ -64,8 +64,9 @@ C
       Real*8    tmotr(2),tscrn(2)
       Integer   nChMo(8)
 
-      Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, Ash(2), Tmp(2),
+      Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, Ash(2), Tmp(2),
      &                 QTmp(2), CM(2)
+      Type (DSBA_Type) JALT
       Type (SBA_Type) Lpq(3)
       Type (NDSBA_Type) DiaH
       Type (G2_Type) MOScr
@@ -119,7 +120,10 @@ C
 #ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in CASSCF-debug
 #endif
-      ipK = ip_of_Work(KI%A0(1))
+      ipJA = ip_of_Work(JA%A0(1))
+
+      ! Allow LT-format access to JA although it is in SQ-format
+      Call Allocate_DSBA(JALT,nBas,nBas,nSym,Case='TRI',Ref=JA%A0)
       timings=.false.
 *
 *
@@ -1572,6 +1576,7 @@ c --- backtransform fock matrix to full storage
                Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
      &                           [ipJI],Frs(:,1),mode,add)
                If (DoAct) Then
+                  ipJA = ip_of_Work(JALT%A0(1))
                   Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
      &                              [ipJA],Frs(:,2),mode,add)
                End If
@@ -1624,7 +1629,6 @@ C--- have performed screening in the meanwhile
       Do iSym=1,nSym
 
          ipFAc= ipJA + ISTLT(iSym)
-*        ipKI = ipK   + ISTSQ(iSym)
          ipKAc= ipKA  + ISTSQ(iSym)
          ipFS = ipFkI + ISTSQ(iSym)
          ipFA = ipFkA + ISTSQ(iSym)
@@ -1648,10 +1652,8 @@ C--- have performed screening in the meanwhile
                 Do ia=1,nBasSh(iSym,iaSh)
 
                   iab = nBasSh(iSym,iaSh)*(ib-1) + ia
-*                 jK = ipKI - 1 + iOffAB + iab
 *MGD warning with sym
                   jab = nBasSh(iSym,ibSh)*(ia-1) + ib
-*                 jK2 = ipKI - 1 + jOffAB + jab
 
                   iag = ioffa + ia
                   ibg = ioffb + ib
@@ -1680,6 +1682,9 @@ C--- have performed screening in the meanwhile
 
       End Do
       CALL CWTIME(TCINT1,TWINT1)
+
+      Call Deallocate_DSBA(JALT)
+
       If (DoAct) Then
 *
 **Compute MO integrals
@@ -1727,18 +1732,18 @@ C--- have performed screening in the meanwhile
             Call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),
      &                  1.0d0,Work(ipFkA+ISTSQ(iS)),nBas(iS),
      &                        Work(ipCMO+ISTSQ(iS)),nBas(iS),
-     &                  0.0D0,Work(ipJA+ISTSQ(iS)),nBas(jS))
+     &                  0.0D0,JA%SB(iS)%A2,nBas(jS))
             Call DGEMM_('T','N',nBas(jS),nBas(jS),nBas(iS),
-     &                  1.0d0,Work(ipJA+ISTSQ(iS)),nBas(iS),
+     &                  1.0d0,JA%SB(iS)%A2,nBas(iS),
      &                        Work(ipCMO+ISTSQ(jS)),nBas(jS),
      &                  0.0d0,Work(ipFkA+ISTSQ(iS)),nBas(jS))
           EndIf
           Call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),
      &                1.0d0,Work(ipFkI+ISTSQ(iS)),nBas(iS),
      &                      Work(ipCMO+ISTSQ(iS)),nBas(iS),
-     &                0.0d0,Work(ipJA+ISTSQ(iS)),nBas(jS))
+     &                0.0d0,JA%SB(iS)%A2,nBas(jS))
           Call DGEMM_('T','N',nBas(jS),nBas(jS),nBas(iS),
-     &                1.0d0,Work(ipJA+ISTSQ(iS)),nBas(iS),
+     &                1.0d0,JA%SB(iS)%A2,nBas(iS),
      &                      Work(ipCMO+ISTSQ(jS)),nBas(jS),
      &                0.0d0,Work(ipFkI+ISTSQ(iS)),nBas(jS))
           If (DoAct) Then

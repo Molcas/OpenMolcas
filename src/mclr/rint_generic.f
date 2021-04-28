@@ -32,20 +32,20 @@
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), QTemp(:),
      &                      Dens2(:),  G2x(:), CoulExch(:,:)
-      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI, KI
+      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI, KI, JA
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
         SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
-     &                         JI,KI,ipJA,ipKA,ipFkI,ipFkA,
+     &                         JI,KI,JA,ipKA,ipFkI,ipFkA,
      &                         ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
         use Data_Structures, only: DSBA_Type
-        Integer ipJA,ipKA,ipFkI,ipFkA,
+        Integer ipKA,ipFkI,ipFkA,
      &          ipMO1,ipQ,ipCMO,ip_CMO_inv
-        Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, Ash(2)
+        Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, Ash(2)
         Real*8 G2(*)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical doAct,Fake_CMO2
@@ -216,9 +216,7 @@
               CVa(1)%SB(iS)%A2(iB,:) =
      &           CMO(ioff3+1:ioff3+nOrb(iS))
              Do jB=1,nAsh(iS)
-              iA=nA(is)+ib
-              jA=nA(is)+jb
-              ip2=itri(iA,jA)
+              ip2=itri(nA(is)+ib,nA(is)+jb)
               DA%SB(iS)%A2(iB,jB)=G1t(ip2)
              End Do
             End Do
@@ -281,7 +279,8 @@
         JI%A0(:)=Zero
         Call Allocate_DSBA(KI,nBas,nBas,nSym)
         KI%A0(:)=Zero
-        ipJA      = ip_of_Work(CoulExch(1,3))
+        Call Allocate_DSBA(JA,nBas,nBas,nSym)
+        JA%A0(:)=Zero
         ipKA      = ip_of_Work(CoulExch(1,4))
         ipFkI     = ip_of_Work(FockI(1))
         ipFkA     = ip_of_Work(FockA(1))
@@ -292,11 +291,12 @@
         iread=2 ! Asks to read the half-transformed Cho vectors
                                                                                *
         Call CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,
-     &                   JI,KI,ipJA,ipKA,ipFkI,ipFkA,
+     &                   JI,KI,JA,ipKA,ipFkI,ipFkA,
      &                   ipMO1,ipQ,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,iread)
 
+        Call Deallocate_DSBA(JA)
         Call Deallocate_DSBA(KI)
         Call Deallocate_DSBA(JI)
         Call Deallocate_DSBA(Kappa)
