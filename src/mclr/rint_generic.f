@@ -32,7 +32,7 @@
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), QTemp(:),
      &                      Dens2(:),  G2x(:), CoulExch(:,:)
-      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa
+      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -277,7 +277,9 @@
 **      Compute the whole thing
 *
         Call Allocate_DSBA(Kappa,nBas,nBas,nSym,Ref=rKappa)
-        ipJI      = ip_of_Work(CoulExch(1,1))
+        Call Allocate_DSBA(JI,nBas,nBas,nSym,Case='TRI')
+        JI%A0(:)=Zero
+        ipJI      = ip_of_Work(JI%A0(1))
         ipK       = ip_of_Work(CoulExch(1,2))
         ipJA      = ip_of_Work(CoulExch(1,3))
         ipKA      = ip_of_Work(CoulExch(1,4))
@@ -295,6 +297,7 @@
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,iread)
 
+        Call Deallocate_DSBA(JI)
         Call Deallocate_DSBA(Kappa)
         Call GADSum(FockI,nDens2)
         Call GADSum(FockA,nDens2)

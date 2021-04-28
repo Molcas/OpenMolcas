@@ -35,7 +35,7 @@
      &       MO1(*), Scr(*)
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: JA(:), KA(:), G2x(:)
-      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa
+      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -396,7 +396,7 @@
         Call mma_allocate(JA,nDens2,Label='JA')
         Call mma_allocate(KA,nDens2,Label='KA')
 *
-        call dcopy_(nDens2,[0.0d0],0,Temp3,1)
+*       call dcopy_(nDens2,[0.0d0],0,Temp3,1)
         call dcopy_(nDens2,[0.0d0],0,Scr,1)
         call dcopy_(nDens2,[0.0d0],0,FockI,1)
         call dcopy_(nDens2,[0.0d0],0,FockA,1)
@@ -405,7 +405,9 @@
         call dcopy_(nDens2,[0.0d0],0,Q,1)
 *
         Call Allocate_DSBA(DI,nBas,nBas,nSym,Ref=Temp2)
-        ipJI      = ip_of_Work(Temp3(1))
+        Call Allocate_DSBA(JI,nBas,nBas,nSym,Case='TRI',Ref=Temp3)
+        JI%A0(:)=Zero
+        ipJI      = ip_of_Work(JI%A0(1))
         ipK       = ip_of_Work(Scr(1))
         ipJA      = ip_of_Work(JA(1))
         ipKA      = ip_of_Work(KA(1))
@@ -428,6 +430,7 @@
         Call DScal_(nAtri,0.25D0,MO1,1)
         Call DScal_(nDens2,-0.5d0,FockI,1)
 *
+        Call Deallocate_DSBA(JI)
         Call Deallocate_DSBA(DI)
         Call mma_deallocate(JA)
         Call mma_deallocate(KA)
