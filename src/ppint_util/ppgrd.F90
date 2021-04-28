@@ -42,6 +42,16 @@ logical(kind=iwp) EQ, JfGrad(3,4)
 #include "disp.fh"
 logical(kind=iwp), external :: TF
 
+#include "macros.fh"
+unused_var(Zeta)
+unused_var(ZInv)
+unused_var(rKappa)
+unused_var(P)
+unused_var(nHer)
+unused_var(Ccoor)
+unused_var(nOrdOp)
+unused_var(lOper)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -95,7 +105,7 @@ iplalbm = ipRef+2*nArray
 nArray = nArray+nlalbm
 
 if (nArray > nZeta*nArr) then
-  write(u6,*) 'nArray.gt.nZeta*nArr'
+  write(u6,*) 'nArray > nZeta*nArr'
   call Abend()
 end if
 !                                                                      *
@@ -121,10 +131,10 @@ do iCnttp=1,nCnttp
   !AOM kShEnd = kShStr+dbsc(iCnttp)%nPP-1
   kShEnd = kShStr+nPP_S-1
   if (dbsc(iCnttp)%nPP-1 > lproju) then
-    write(u6,*) 'dbsc(iCnttp)%nPP-1.gt.lproju'
-    !AOM write(u6,*) 'dbsc(iCnttp)%nPP=',dbsc(iCnttp)%nPP
-    write(u6,*) 'dbsc(iCnttp)%nPP=',nPP_S
-    write(u6,*) 'lproju          =',lproju
+    write(u6,*) 'dbsc(iCnttp)%nPP-1 > lproju'
+    !AOM write(u6,*) 'dbsc(iCnttp)%nPP   =',dbsc(iCnttp)%nPP
+    write(u6,*) 'dbsc(iCnttp)%nPP   =',nPP_S
+    write(u6,*) 'lproju             =',lproju
     call Abend()
   end if
   !AOM lcr(kcrs) = dbc(iCnttp)%nPP-1
@@ -137,7 +147,7 @@ do iCnttp=1,nCnttp
     nkcru(iSh,kcrs) = iOff+Shells(ksh)%nExp/3-1
     iOff = iOff+Shells(kSh)%nExp/3
     if (nPot > imax) then
-      write(u6,*) ' Pseudo: nPot.gt.imax'
+      write(u6,*) ' Pseudo: nPot > imax'
       write(u6,*) '         nPot=',nPot
       write(u6,*) '         imax=',imax
       call Abend()
@@ -221,34 +231,34 @@ do iCnttp=1,nCnttp
           ! la+1, lb
 
           call FZero(Array(iplaplb),nlaplb)
-          call Pseudo(Alpha(iAlpha),A(1),A(2),A(3),la+2,Beta(iBeta),RB(1),RB(2),RB(3),lb+1,Array(iplaplb),nlaplb,max(la+2,lb+1),&
+          call Pseudo(Alpha(iAlpha),A(1),A(2),A(3),la+2,Beta(iBeta),RB(1),RB(2),RB(3),lb+1,Array(iplaplb),nlaplb,max(la+2,lb+1), &
                       ccr,zcr,nkcrl,nkcru,lcr,ncr,TC(1),TC(2),TC(3),npot)
 
           ! la-1, lb
 
           if (la > 0) then
             call FZero(Array(iplamlb),nlamlb)
-            call Pseudo(Alpha(iAlpha),A(1),A(2),A(3),la,Beta(iBeta),RB(1),RB(2),RB(3),lb+1,Array(iplamlb),nlamlb,max(la,lb+1),ccr,&
+            call Pseudo(Alpha(iAlpha),A(1),A(2),A(3),la,Beta(iBeta),RB(1),RB(2),RB(3),lb+1,Array(iplamlb),nlamlb,max(la,lb+1),ccr, &
                         zcr,nkcrl,nkcru,lcr,ncr,TC(1),TC(2),TC(3),npot)
           end if
 
           ! la, lb+1
 
           call FZero(Array(iplalbp),nlalbp)
-          call Pseudo(Alpha(iAlpha),A(1),A(2),A(3),la+1,Beta(iBeta),RB(1),RB(2),RB(3),lb+2,Array(iplalbp),nlalbp,max(la+1,lb+2),&
+          call Pseudo(Alpha(iAlpha),A(1),A(2),A(3),la+1,Beta(iBeta),RB(1),RB(2),RB(3),lb+2,Array(iplalbp),nlalbp,max(la+1,lb+2), &
                       ccr,zcr,nkcrl,nkcru,lcr,ncr,TC(1),TC(2),TC(3),npot)
 
           ! la, lb-1
 
           if (lb > 0) then
             call FZero(Array(iplalbm),nlalbm)
-            call Pseudo(Alpha(iAlpha),A(1),A(2),A(3),la+1,Beta(iBeta),RB(1),RB(2),RB(3),lb,Array(iplalbm),nlalbm,max(la+1,lb),ccr,&
+            call Pseudo(Alpha(iAlpha),A(1),A(2),A(3),la+1,Beta(iBeta),RB(1),RB(2),RB(3),lb,Array(iplalbm),nlalbm,max(la+1,lb),ccr, &
                         zcr,nkcrl,nkcru,lcr,ncr,TC(1),TC(2),TC(3),npot)
           end if
 
           ! Assemble gradient and store in Final.
 
-          call Assemble_PPGrd(Final,nZeta,la,lb,iZeta,Alpha(iAlpha),Beta(iBeta),Array(iplaplb),Array(iplamlb),Array(iplalbp),&
+          call Assemble_PPGrd(Final,nZeta,la,lb,iZeta,Alpha(iAlpha),Beta(iBeta),Array(iplaplb),Array(iplamlb),Array(iplalbp), &
                               Array(iplalbm),JfGrad)
 
         end do ! iAlpha
@@ -286,16 +296,5 @@ end do     ! iCnttp
 !***********************************************************************
 !                                                                      *
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Zeta)
-  call Unused_real_array(ZInv)
-  call Unused_real_array(rKappa)
-  call Unused_real_array(P)
-  call Unused_integer(nHer)
-  call Unused_real_array(Ccoor)
-  call Unused_integer(nOrdOp)
-  call Unused_integer_array(lOper)
-end if
 
 end subroutine PPGrd

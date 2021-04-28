@@ -22,6 +22,9 @@ implicit none
 #include "mem_interface.fh"
 integer(kind=iwp) :: intmax
 
+#include "macros.fh"
+unused_var(lr)
+
 nHer = 0
 Mem = 0
 intmax = max(nTri0Elem(la),nTri0Elem(lb))
@@ -29,7 +32,5 @@ intmax = intmax**2
 Mem = Mem+3*intmax
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lr)
 
 end subroutine PPMem

@@ -22,6 +22,9 @@ implicit none
 #include "mem_interface.fh"
 integer(kind=iwp) :: lalbm, lalbp, lambl, lapbl
 
+#include "macros.fh"
+unused_var(lr)
+
 nHer = 0
 Mem = 0
 
@@ -46,7 +49,5 @@ end if
 Mem = Mem+2*lalbm
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lr)
 
 end subroutine PPMmG

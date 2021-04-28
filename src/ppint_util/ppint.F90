@@ -38,6 +38,18 @@ integer(kind=iwp), external :: NrOpr
 integer(kind=iwp) :: i
 #endif
 
+#include "macros.fh"
+unused_var(Zeta)
+unused_var(ZInv)
+unused_var(rKappa)
+unused_var(P)
+unused_var(nHer)
+unused_var(Ccoor)
+unused_var(nOrdOp)
+unused_var(PtChrg)
+unused_var(nGrid)
+unused_var(iAddPot)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -53,7 +65,7 @@ nArray = nArray+intmax
 ipA = ipScr+2*intmax
 nArray = nArray+nZeta*nTri0Elem(la)*nTri0Elem(lb)
 if (nArray > nZeta*nArr) then
-  write(u6,*) 'nArray.gt.nZeta*nArr'
+  write(u6,*) 'nArray > nZeta*nArr'
   call Abend()
 end if
 !                                                                      *
@@ -79,9 +91,9 @@ do iCnttp=1,nCnttp
   kShStr = dbsc(iCnttp)%iPP
   kShEnd = kShStr+nPP_S-1
   if (nPP_S-1 > lproju) then
-    write(u6,*) 'dbsc(iCnttp)%nPP-1.gt.lproju'
-    write(u6,*) 'dbsc(iCnttp)%nPP=',nPP_S
-    write(u6,*) 'lproju            =',lproju
+    write(u6,*) 'dbsc(iCnttp)%nPP-1 > lproju'
+    write(u6,*) 'dbsc(iCnttp)%nPP   =',nPP_S
+    write(u6,*) 'lproju             =',lproju
     call Abend()
   end if
   lcr(kcrs) = nPP_S-1
@@ -93,7 +105,7 @@ do iCnttp=1,nCnttp
     nkcru(iSh,kcrs) = iOff+Shells(kSh)%nExp/3-1
     iOff = iOff+Shells(kSh)%nExp/3
     if (nPot > imax) then
-      write(u6,*) ' Pseudo: nPot.gt.imax'
+      write(u6,*) ' Pseudo: nPot > imax'
       write(u6,*) '         nPot=',nPot
       write(u6,*) '         imax=',imax
       call Abend()
@@ -163,18 +175,5 @@ end do     ! iCnttp
 !***********************************************************************
 !                                                                      *
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Zeta)
-  call Unused_real_array(ZInv)
-  call Unused_real_array(rKappa)
-  call Unused_real_array(P)
-  call Unused_integer(nHer)
-  call Unused_real_array(Ccoor)
-  call Unused_integer(nOrdOp)
-  call Unused_real_array(PtChrg)
-  call Unused_integer(nGrid)
-  call Unused_integer(iAddPot)
-end if
 
 end subroutine PPInt

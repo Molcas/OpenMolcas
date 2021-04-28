@@ -63,8 +63,8 @@ do lami=1,lmihi
   ssi(lami) = ssi(lami)/dfac(lami+lami-1)
 end do
 lmplo = lmlo-num1
-fctra = (alpha+alpha)**(nu-2)*fcta**(lmlo-1)*prd/sqrt(Four*alpha)*((dfac(2*(2*lmplo+num1)-1)/dfac(2*(lmplo+num1)+1))* &
-        dfac(2*num1+1))/dfac(2*(lmplo+num1)+1)
+fctra = (alpha+alpha)**(nu-2)*fcta**(lmlo-1)*prd/sqrt(Four*alpha)* &
+        ((dfac(2*(2*lmplo+num1)-1)/dfac(2*(lmplo+num1)+1))*dfac(2*num1+1))/dfac(2*(lmplo+num1)+1)
 fctran = (2*(2*lmplo+num1)-1)
 fctrad = (2*(lmplo+num1)+1)
 do lamap=lmplo,lmaphi

@@ -22,7 +22,7 @@ real(kind=wp), intent(out) :: ang(lit,mproju,lmhi)
 real(kind=wp), intent(in) :: binom(*), crda(lit,3), dfac(*), xk, yk, zk, zlm(*)
 integer(kind=iwp) :: i, ia, ib, ic, iend, indx, indy, indz, istart, j, l2, la1, laind, lam, lamhi, lamlo, loc1, loc2, m, ma1, &
                      maind, mend, mhi, mndx, mndy, mndz, mstart, mu, n, na1, naind
-real (kind=wp) :: a_int, angt, pab1, pab2, pab3, pre, xkp, ykp, zkp
+real(kind=wp) :: a_int, angt, pab1, pab2, pab3, pre, xkp, ykp, zkp
 
 ang(:,:,:) = Zero
 na1 = lmnv(1,it)+1
