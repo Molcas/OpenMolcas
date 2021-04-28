@@ -31,21 +31,21 @@
      &       Focki(ndens2),Q(ndens2),rMOs(*),rmoa(*)
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), QTemp(:),
-     &                      Dens2(:),  G2x(:), CoulExch(:,:)
-      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI, KI, JA
+     &                      Dens2(:),  G2x(:)
+      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI, KI, JA, KA
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
         SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
-     &                         JI,KI,JA,ipKA,ipFkI,ipFkA,
+     &                         JI,KI,JA,KA,ipFkI,ipFkA,
      &                         ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
         use Data_Structures, only: DSBA_Type
-        Integer ipKA,ipFkI,ipFkA,
+        Integer ipFkI,ipFkA,
      &          ipMO1,ipQ,ipCMO,ip_CMO_inv
-        Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, Ash(2)
+        Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, Ash(2)
         Real*8 G2(*)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical doAct,Fake_CMO2
@@ -257,9 +257,6 @@
 *
 **      Allocate temp arrays and zero Fock matrices
 *
-        Call mma_allocate(CoulExch,nDens2,4,Label='CoulExch')
-        CoulExch(:,:)=Zero
-
         call dcopy_(ndens2,[0.0d0],0,FockA,1)
         call dcopy_(ndens2,[0.0d0],0,FockI,1)
         call dcopy_(nATri,[0.0d0],0,rMOs,1)
@@ -281,7 +278,8 @@
         KI%A0(:)=Zero
         Call Allocate_DSBA(JA,nBas,nBas,nSym)
         JA%A0(:)=Zero
-        ipKA      = ip_of_Work(CoulExch(1,4))
+        Call Allocate_DSBA(KA,nBas,nBas,nSym)
+        KA%A0(:)=Zero
         ipFkI     = ip_of_Work(FockI(1))
         ipFkA     = ip_of_Work(FockA(1))
         ipMO1     = ip_of_Work(rMOs(1))
@@ -291,11 +289,12 @@
         iread=2 ! Asks to read the half-transformed Cho vectors
                                                                                *
         Call CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,
-     &                   JI,KI,JA,ipKA,ipFkI,ipFkA,
+     &                   JI,KI,JA,KA,ipFkI,ipFkA,
      &                   ipMO1,ipQ,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,iread)
 
+        Call Deallocate_DSBA(KA)
         Call Deallocate_DSBA(JA)
         Call Deallocate_DSBA(KI)
         Call Deallocate_DSBA(JI)
@@ -349,7 +348,6 @@
 **      Deallocate
 *
         Call mma_deallocate(Dens2)
-        Call mma_deallocate(CoulExch)
 
         If (iMethod.eq.2) Then
           Call mma_deallocate(G2x)

@@ -34,21 +34,21 @@
      &       Temp2(nDens2),Temp3(ndens2),Q(nDens2),
      &       MO1(*), Scr(*)
       Logical Fake_CMO2,DoAct
-      Real*8, Allocatable:: KA(:), G2x(:)
-      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI, KI, JA
+      Real*8, Allocatable:: G2x(:)
+      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI, KI, JA, KA
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
         SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
-     &                         JI,KI,JA,ipKA,ipFkI,ipFkA,
+     &                         JI,KI,JA,KA,ipFkI,ipFkA,
      &                         ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
         use Data_Structures, only: DSBA_Type
-        Integer ipKA,ipFkI,ipFkA,
+        Integer pFkI,ipFkA,
      &          ipMO1,ipQ,ipCMO,ip_CMO_inv
-        Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, Ash(2)
+        Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, Ash(2)
         Real*8 G2(*)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical DoAct,Fake_CMO2
@@ -395,8 +395,8 @@
 *
         Call Allocate_DSBA(JA,nBas,nBas,nSym)
         JA%A0(:)=0.0D0
-        Call mma_allocate(KA,nDens2,Label='KA')
-        KA(:)=0.0D0
+        Call Allocate_DSBA(KA,nBas,nBas,nSym)
+        KA%A0(:)=0.0D0
 *
         call dcopy_(nDens2,[0.0d0],0,FockI,1)
         call dcopy_(nDens2,[0.0d0],0,FockA,1)
@@ -407,7 +407,6 @@
         JI%A0(:)=Zero
         Call Allocate_DSBA(KI,nBas,nBas,nSym,Ref=Scr)
         KI%A0(:)=Zero
-        ipKA      = ip_of_Work(KA(1))
         ipFkI     = ip_of_Work(FockI(1))
         ipFkA     = ip_of_Work(FockA(1))
         ipMO1     = ip_of_Work(MO1(1))
@@ -417,7 +416,7 @@
         istore=1 ! Ask to store the half-transformed vectors
 
         CALL CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,
-     &                   JI,KI,JA,ipKA,ipFkI,ipFkA,
+     &                   JI,KI,JA,KA,ipFkI,ipFkA,
      &                   ipMO1,ipQ,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh,nAsh,nIsh,doAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,istore)
@@ -431,7 +430,7 @@
         Call Deallocate_DSBA(JI)
         Call Deallocate_DSBA(DI)
         Call Deallocate_DSBA(JA)
-        Call mma_deallocate(KA)
+        Call Deallocate_DSBA(KA)
         Call deallocate_DSBA(DLT)
         Call mma_deallocate(G2x)
         Call Deallocate_DSBA(CVa(2))

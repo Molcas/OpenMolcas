@@ -11,7 +11,7 @@
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
       SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,JI,
-     &                      KI,JA,ipKA,ipFkI,ipFkA,
+     &                      KI,JA,KA,ipFkI,ipFkA,
      &                      ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                      LuAChoVec,LuIChoVec,iAChoVec)
@@ -64,8 +64,8 @@ C
       Real*8    tmotr(2),tscrn(2)
       Integer   nChMo(8)
 
-      Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, Ash(2), Tmp(2),
-     &                 QTmp(2), CM(2)
+      Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, Ash(2),
+     &                 Tmp(2), QTmp(2), CM(2)
       Type (DSBA_Type) JALT
       Type (SBA_Type) Lpq(3)
       Type (NDSBA_Type) DiaH
@@ -120,7 +120,6 @@ C
 #ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in CASSCF-debug
 #endif
-      ipJA = ip_of_Work(JA%A0(1))
 
       ! Allow LT-format access to JA although it is in SQ-format
       Call Allocate_DSBA(JALT,nBas,nBas,nSym,Case='TRI',Ref=JA%A0)
@@ -1532,11 +1531,10 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
 
                    Do JVC=1,JNUM
                      Do is=1,NBAS(iSymb)
-                      ipFock=ipKA+nBas(iSymb)*(is-1)+ISTSQ(iSymb)
                       CALL DGEMV_('N',NBAS(iSymb),Nav,
      &                 -FactXI,Lpq(2)%SB(iSymb)%A3(:,:,JVC),NBAS(iSymb),
      &                         Lpq(1)%SB(iSymv)%A3(:,is,JVC),1,
-     &                     ONE,Work(ipFock),1)
+     &                     ONE,KA%SB(iSymB)%A2(:,is),1)
 
                     EndDo
                    End Do
@@ -1628,7 +1626,6 @@ C--- have performed screening in the meanwhile
 * --- Accumulate Coulomb and Exchange contributions
       Do iSym=1,nSym
 
-         ipKAc= ipKA  + ISTSQ(iSym)
          ipFS = ipFkI + ISTSQ(iSym)
          ipFA = ipFkA + ISTSQ(iSym)
 
@@ -1659,9 +1656,6 @@ C--- have performed screening in the meanwhile
 
                   iabg = iTri(iag,ibg)
 
-                  jKa = ipKac- 1 + nBas(iSym)*(ibg-1) + iag
-                  jKa2= ipKac- 1 + nBas(iSym)*(iag-1) + ibg
-
                   jS = ipFS - 1 + nBas(iSym)*(ibg-1) + iag
                   jSA= ipFA - 1 + nBas(iSym)*(ibg-1) + iag
 
@@ -1669,8 +1663,8 @@ C--- have performed screening in the meanwhile
      &                     + KI%SB(iSym)%A1(iOffAB+iab)
      &                     + KI%SB(iSym)%A1(jOffAB+jab)
                   Work(jSA)= JALT%SB(iSym)%A1(iabg)
-     &                     + Work(jKa)
-     &                     + Work(jKa2)
+     &                     + KA%SB(iSym)%A2(iag,ibg)
+     &                     + KA%SB(iSym)%A2(ibg,iag)
 
                 End Do
 
