@@ -16,7 +16,6 @@
       Integer   rc
       Real*8    DA1(*),DI(*),DA2(*),FI(*),FA(*),W_CMO(*)
       Integer   nForb(8),nIorb(8),nAorb(8),nChM(8),nChI(8)
-*     Integer   nnA(8,8)
       Logical   TraOnly
 
 #include "real.fh"
@@ -38,7 +37,6 @@
      &                 DLT(2), FLT(2), MSQ, FLT_MO(2)
 
       Real*8, Allocatable:: Tmp1(:), Tmp2(:)
-*     Real*8, Allocatable:: PMat(:), PL(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -137,7 +135,6 @@ c --- decompose the Inactive density on request
          Call Allocate_DSBA(ChoIn,nBas,nBas,nSym)
          Call Allocate_DSBA(DDec,nBas,nBas,nSym)
          DDec%A0(1:NTot2)=DI(1:NTot2)
-*        call dcopy_(NTot2,DI(1),1,DDec%A0,1)
 
          Call Allocate_DSBA(MSQ,nBas,nBas,nSym,Ref=ChoIn%A0)
 
@@ -210,7 +207,6 @@ C --- Reordering of the MOs coefficients to fit cholesky needs
                ioff2=ioff1+nBas(iSym)*(ikk-1)
                POrb(1)%SB(iSym)%A2(ikk,:) =
      &           MSQ%SB(iSym)%A2(:,ikk)
-*    &            Work(ipInc+ioff2 : ipInc+ioff2 -1 + nBas(iSym))
             end do
 
             ioff2=ioff1+nBas(iSym)*(nForb(iSym)+nIorb(iSym))
@@ -218,8 +214,6 @@ C --- Reordering of the MOs coefficients to fit cholesky needs
                jkk = nForb(iSym) + nIorb(iSym) + ikk
                POrb(3)%SB(iSym)%A2(ikk,:) =
      &           CMO%SB(iSym)%A2(:,jkk)
-*    &              W_CMO( ioff2+nBas(iSym)*(ikk-1) + 1 :
-*    &                   ioff2+nBas(iSym)*(ikk-1) + nBas(iSym))
             end do
             ioff1=ioff1+nBas(iSym)**2
 *           nOcs = nOcs + nAorb(iSym)**2
@@ -239,7 +233,6 @@ C *** Only the active orbitals MO coeff need reordering
                ioff = ioff2+nBas(iSym)*(ikk-1)
                CVa(1)%SB(iSym)%A2(ikk,:) =
      &           CMO%SB(iSym)%A2(:,jkk)
-*    &           W_CMO(ioff +  1 : ioff + nBas(iSym))
             end do
             ioff1 = ioff1 + nBas(iSym)**2
          End Do
@@ -260,7 +253,6 @@ C -----  Decompose the active density  -----------------------------
          Call Allocate_DSBA(CVa(2),nBas,nBas,nSym)
          Call Allocate_DSBA(DDec,nBas,nBas,nSym)
          DDec%A0(1:NTot2)=DA1(1:NTot2)
-*        call dcopy_(NTot2,DA1(1),1,DDec%A0,1)
 
          Thr = 1.0d-12
          Do i=1,nSym

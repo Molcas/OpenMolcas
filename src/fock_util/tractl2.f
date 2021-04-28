@@ -82,6 +82,5 @@ C  Synchronization for parallel runs is done in cho_cas_drv
 
       EndIf
 
-
       Return
       End
