@@ -120,7 +120,6 @@ C
 #ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in CASSCF-debug
 #endif
-      ipQ = ip_of_Work(QVec%A0(1))
 
       ! Allow LT-format access to JA although it is in SQ-format
       Call Allocate_DSBA(JALT,nBas,nBas,nSym,Case='TRI',Ref=JA%A0)
@@ -223,7 +222,6 @@ C *** memory for the Q matrices --- temporary array
 *
 **       Create Cholesky orbitals from DI
 *
-*          Call CD_InCore(Work(ipDI+ISTSQ(iS)),nBas(iS),
            Call CD_InCore(DI%SB(iS)%A2,nBas(iS),CM(1)%SB(iS)%A2,
      &                    nBas(iS),nChMO(iS),1.0d-12,irc)
            If (.not.Fake_CMO2) Then
@@ -271,7 +269,7 @@ C --- Define the screening threshold
 
       LKThr=Cho_LK_ScreeningThreshold(-1.0d0)
       dmpk=1.0d-2
-*      dmpk=0.0d0
+*     dmpk=0.0d0
 
 C --- Vector MO transformation screening thresholds
       NumVT=NumChT
@@ -381,15 +379,15 @@ C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
             Do jK=1,nOrb(kSym)
                jK_a = jK + kOff(kSym)
 
-               ipMO(jDen) = ipMSQ(jDen) + ISTK(kSym) + nBas(kSym)*(jK-1)
 
                Do iaSh=1,nShell
 
-                  ipMsh = ipMO(jDen) + kOffSh(iaSh,kSym)
-
                   SKsh=zero
-                  Do ik=0,nBasSh(kSym,iaSh)-1
-                     SKsh = SKsh + Work(ipMsh+ik)**2
+                  iS = kOffSh(iaSh,kSym) + 1
+                  iE = kOffSh(iaSh,kSym) + nBasSh(kSym,iaSh)
+                  Do ik=iS,iE
+                     SKsh = SKsh
+     &                    + CM(jDen)%SB(kSym)%A2(ik,jK)**2
                   End Do
 
                   SumAClk(iaSh,jk_a,jDen) = Sksh
@@ -719,8 +717,11 @@ C------------------------------------------------------------------
 
                      Do jDen=1,nDen
 
-                        Do ik=0,nBas(kSym)-1
-                           AbsC(1+ik) = abs(Work(ipMO(jDen)+ik))
+*                       Do ik=0,nBas(kSym)-1
+*                          AbsC(1+ik) = abs(Work(ipMO(jDen)+ik))
+*                       End Do
+                        Do ik=1,nBas(kSym)
+                           AbsC(ik) = abs(CM(jDen)%SB(kSym)%A2(ik,jK))
                         End Do
 
                         If (lSym.ge.kSym) Then
@@ -1716,7 +1717,6 @@ C--- have performed screening in the meanwhile
 *
 **Transform Fock and Q matrix to MO basis
 *
-      ioff=0
       Do iS=1,nSym
         jS=iS
         If (nBas(iS).ne.0) Then
@@ -1743,12 +1743,12 @@ C--- have performed screening in the meanwhile
               Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
      &                     1.0d0,CMO%SB(iS)%A2,nBas(jS),
      &                           QTmp(1)%SB(js)%A2,nBas(jS),
-     &                     0.0d0,Work(ipQ+ioff),nBas(jS))
+     &                     0.0d0,QVec%SB(js)%A2,nBas(jS))
             Else
               Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
      &                     1.0d0,CMO%SB(iS)%A2,nBas(jS),
      &                           QTmp(2)%SB(jS)%A2,nBas(jS),
-     &                     0.0d0,Work(ipQ+ioff),nBas(jS))
+     &                     0.0d0,QVec%SB(jS)%A2,nBas(jS))
               Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
      &                     1.0d0,CMO%SB(iS)%A2,nBas(jS),
      &                           QTmp(1)%SB(jS)%A2,nBas(jS),
@@ -1756,9 +1756,8 @@ C--- have performed screening in the meanwhile
               Call DGEMM_('N','N',nBas(jS),nAsh(iS),nBas(jS),
      &                    -1.0d0,Kappa%SB(iS)%A2,nBas(jS),
      &                           QTmp(2)%SB(jS)%A2,nBas(jS),
-     &                     1.0d0,Work(ipQ+ioff),nBas(jS))
+     &                     1.0d0,QVec%SB(jS)%A2,nBas(jS))
             EndIf
-            ioff=ioff+nBas(iS)*nAsh(iS)
           EndIf
         EndIf
       End Do
