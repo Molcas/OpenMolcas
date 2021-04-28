@@ -10,9 +10,9 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHO_LK_CASSCF(DLT,FLT,MSQ,ipInt,
-     &             FactXI,nFIorb,nAorb,nChM,Ash,DoActive,
-     &             nScreen,dmpk,dFmat,ExFac)
+      SUBROUTINE CHO_LK_CASSCF(DLT,FLT,MSQ,ipInt,FactXI,nFIorb,nAorb,
+     &                         nChM,Ash,DoActive,nScreen,dmpk,dFmat,
+     &                         CMO,ExFac)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -68,7 +68,7 @@ C
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
 
-      Type (DSBA_Type)   MSQ
+      Type (DSBA_Type)   MSQ, CMO
       Type (DSBA_Type)   FLT(2), DLT(2), Ash(2)
       Type (SBA_Type) Laq(1), Lxy
       Type (twxy_Type) Scr
@@ -1212,7 +1212,7 @@ C *************** EVALUATION OF THE (WA|XY) INTEGRALS ***********
                DoTraInt = JRED.eq.myJRED2.and.iBatch.eq.nBatch
 
                CALL CHO_eval_waxy(irc,Scr,Laq(1),Lxy,ipInt,nAorb,
-     &                            JSYM,JNUM,DoTraInt)
+     &                            JSYM,JNUM,DoTraInt,CMO)
 
                CALL CWTIME(TCINT2,TWINT2)
                tintg(1) = tintg(1) + (TCINT2 - TCINT1)

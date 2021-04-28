@@ -297,7 +297,6 @@ C ----------------------------------------------------------------
 
       ! this will have to be fixedr.-
       ipInt = lpwxy   ! (PU|VX) integrals are computed
-      ipCM  = ip_of_work(W_CMO(1))  ! MOs coeff. in C(a,p) storage
 !
 !)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
 !
@@ -307,7 +306,7 @@ C ----------------------------------------------------------------
 !)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
 !
          CALL CHO_FMCSCF(rc,FLT,nForb,nIorb,nAorb,FactXI,
-     &                   DLT,DoActive,POrb,nChM,ipInt,ExFac)
+     &                   DLT,DoActive,POrb,nChM,ipInt,CMO,ExFac)
 !
 !)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
 !
@@ -317,7 +316,7 @@ C ----------------------------------------------------------------
 !
          CALL CHO_LK_CASSCF(DLT,FLT,MSQ,ipInt,
      &                      FactXI,nChI,nAorb,nChM,CVa,DoActive,
-     &                      nScreen,dmpK,abs(CBLBM),ExFac)
+     &                      nScreen,dmpK,abs(CBLBM),CMO,ExFac)
 !
 !)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
 !

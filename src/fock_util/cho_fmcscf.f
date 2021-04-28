@@ -12,7 +12,7 @@
 ************************************************************************
 
       SUBROUTINE CHO_FMCSCF(rc,FLT,nForb,nIorb,nAorb,FactXI,
-     &                      DLT,DoActive,POrb,nChM,ipInt,ExFac)
+     &                      DLT,DoActive,POrb,nChM,ipInt,CMO,ExFac)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -48,7 +48,7 @@ C
       use Data_structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
-      Type (DSBA_Type) POrb(3), DLT(2), FLT(2)
+      Type (DSBA_Type) POrb(3), DLT(2), FLT(2), CMO
       Type (SBA_Type), Target:: Laq(3), Lxy
       Type (twxy_type) Scr
 
@@ -551,7 +551,7 @@ C *************** EVALUATION OF THE (WA|XY) INTEGRALS ***********
                DoTraInt = JRED.eq.JRED2.and.iBatch.eq.nBatch
 
                CALL CHO_eval_waxy(irc,Scr,Laq(3),Lxy,ipInt,
-     &                            nAorb,JSYM,JNUM,DoTraInt)
+     &                            nAorb,JSYM,JNUM,DoTraInt,CMO)
 
                CALL CWTIME(TCINT2,TWINT2)
                tintg(1) = tintg(1) + (TCINT2 - TCINT1)

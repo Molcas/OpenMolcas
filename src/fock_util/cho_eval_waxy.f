@@ -9,18 +9,18 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_eval_waxy(irc,Scr,ChoV1,ChoV2,ipInt,nAorb,
-     &                         JSYM,NUMV,DoTraInt)
+     &                         JSYM,NUMV,DoTraInt,CMO)
 
-      Use Data_structures, only: SBA_Type, twxy_Type
+      Use Data_structures, only: SBA_Type, twxy_Type, DSBA_Type
       Implicit Real*8 (a-h,o-z)
       Integer ipInt,nAorb(*)
+      Type (DSBA_Type) CMO
       Type (SBA_Type) ChoV1, ChoV2
       Type (twxy_type) Scr
       Integer off_PWXY(8,8,8),ISTSQ(8)
       Logical DoTraInt
 
-      parameter (zero = 0.0D0, one = 1.0D0)
-
+#include "real.fh"
 #include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "general.fh"
@@ -117,6 +117,7 @@ C ------------------------------------------------------------
 *   Reordering and MO-transformation
 *
 *
+         ipCM1 = ip_of_Work(CMO%A0(1))
          Do iSymy=1,nSym
 
             iSymx=MulD2h(iSymy,JSYM)
@@ -134,7 +135,7 @@ C ------------------------------------------------------------
                   Nwa = nAorb(iSymw)*nBas(iSyma)
                   Npw = nOrb(iSyma)*nAorb(iSymw)
 
-                  ipMS = ipCM + ISTSQ(iSyma) + nBas(iSyma)*nFro(iSyma)
+                  ipMS = ipCM1+ ISTSQ(iSyma) + nBas(iSyma)*nFro(iSyma)
 
                   Do ixy = 1,Nxy
 
