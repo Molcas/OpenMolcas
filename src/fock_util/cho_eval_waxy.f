@@ -17,7 +17,8 @@
       Type (DSBA_Type) CMO
       Type (SBA_Type) ChoV1, ChoV2
       Type (twxy_type) Scr
-      Integer off_PWXY(8,8,8),ISTSQ(8)
+      Integer off_PWXY(8,8,8)
+*     Integer ISTSQ(8)
       Logical DoTraInt
 
 #include "real.fh"
@@ -109,15 +110,15 @@ C ------------------------------------------------------------
 *
 *   Offsets to the MOs coefficients
 *
-         ISTSQ(1)=0
-         Do iSym=2,nSym
-            ISTSQ(iSym) = ISTSQ(iSym-1) + nBas(iSym-1)**2
-         End Do
+*        ISTSQ(1)=0
+*        Do iSym=2,nSym
+*           ISTSQ(iSym) = ISTSQ(iSym-1) + nBas(iSym-1)**2
+*        End Do
 *
 *   Reordering and MO-transformation
 *
 *
-         ipCM1 = ip_of_Work(CMO%A0(1))
+*        ipCM1 = ip_of_Work(CMO%A0(1))
          Do iSymy=1,nSym
 
             iSymx=MulD2h(iSymy,JSYM)
@@ -135,7 +136,8 @@ C ------------------------------------------------------------
                   Nwa = nAorb(iSymw)*nBas(iSyma)
                   Npw = nOrb(iSyma)*nAorb(iSymw)
 
-                  ipMS = ipCM1+ ISTSQ(iSyma) + nBas(iSyma)*nFro(iSyma)
+*                 ipMS = ipCM1+ ISTSQ(iSyma) + nBas(iSyma)*nFro(iSyma)
+                  iS = 1 + nBas(iSyma)*nFro(iSyma)
 
                   Do ixy = 1,Nxy
 
@@ -151,7 +153,8 @@ C --------------------------------------------------------
 
                         CALL DGEMM_('T','T',
      &                             nOrb(iSyma),nAorb(iSymw),nBas(iSyma),
-     &                             ONE,Work(ipMS),nBas_a,
+     &                             ONE,CMO%SB(iSyma)%A1(iS:),nBas_a,
+*    &                             ONE,Work(ipMS),nBas_a,
      &                              Scr%SB(iSymw,iSymx)%A(:,ixy),nAob_w,
      &                            ZERO,Work(ipMpw),nOrb_a)
 
