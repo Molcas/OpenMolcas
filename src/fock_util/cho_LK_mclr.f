@@ -12,7 +12,7 @@
 ************************************************************************
       SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,JI,
      &                      KI,JA,KA,FkI,FkA,
-     &                      ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
+     &                      MO_Int,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                      LuAChoVec,LuIChoVec,iAChoVec)
 
@@ -55,7 +55,7 @@ C
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
 
-      Real*8 G2(*)
+      Real*8 G2(*), MO_Int(*)
       Integer   kOff(8),kaOff(8)
       Integer   ISTLT(8),ISTSQ(8),ISTK(8),iASQ(8,8,8)
       Integer   LuAChoVec(8),LuIChoVec(8)
@@ -1699,9 +1699,9 @@ C--- have performed screening in the meanwhile
                       If (lAsh+kAOff(lS).eq.kAsh+kAOff(kS)) Fac2=2.0d0
                       If (iij.ne.ikl) Fac2=Fac2*0.5d0
 
-                      ipG=ipMO1+itri(iij,ikl)-1
+                      ipG=itri(iij,ikl)
 
-                      Work(ipG)=Work(ipG)+Fac1*Fac2
+                      MO_Int(ipG)=MO_Int(ipG)+Fac1*Fac2
      &                       *MOScr%SB(iS,jS,kS)%A4(iAsh,jAsh,kAsh,lAsh)
                     End Do
                   End Do

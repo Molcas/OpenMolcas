@@ -40,14 +40,14 @@
       Interface
         SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
      &                         JI,KI,JA,KA,FkI,FkA,
-     &                         ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
+     &                         MO_Int,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
         use Data_Structures, only: DSBA_Type
-        Integer ipMO1,ipQ,ipCMO,ip_CMO_inv
+        Integer ipQ,ipCMO,ip_CMO_inv
         Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI, FkA,
      &                   Ash(2)
-        Real*8 G2(*)
+        Real*8 G2(*), MO_Int(*)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical doAct,Fake_CMO2
         Integer LuAChoVec(8),LuIChoVec(8)
@@ -283,14 +283,13 @@
         FkI%A0(:)=Zero
         Call Allocate_DSBA(FkA,nBas,nBas,nSym,Ref=FockA)
         FkA%A0(:)=Zero
-        ipMO1     = ip_of_Work(rMOs(1))
         ipQ       = ip_of_Work(Q(1))
         ipCMO     = ip_of_Work(CMO(1))
         ip_CMO_inv= ip_of_Work(CMO_inv(1))
         iread=2 ! Asks to read the half-transformed Cho vectors
                                                                                *
         Call CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,JI,KI,JA,KA,FkI,FkA,
-     &                   ipMO1,ipQ,CVa,ipCMO,ip_CMO_inv,
+     &                   rMOs,ipQ,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,iread)
 
