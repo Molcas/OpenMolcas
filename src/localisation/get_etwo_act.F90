@@ -23,13 +23,13 @@ real(kind=wp), intent(out) :: Etwo
 #include "choscf.fh"
 #include "choscreen.fh"
 #include "chotime.fh"
-integer(kind=iwp) :: i, iOff, ipPLT(2), irc, nBB, nForb(8,2), nIorb(8,2)
+integer(kind=iwp) :: i, iOff, irc, nBB, nForb(8,2), nIorb(8,2)
 real(kind=wp) :: ChFracMem, dFmat, FactXI
 !character(len=16) :: KSDFT
-real(kind=wp), allocatable :: Dm1(:), Dm2(:), PLT(:)
+real(kind=wp), allocatable :: Dm1(:), Dm2(:)
 integer(kind=iwp), external :: ip_of_Work
 real(kind=r8), external :: ddot_ !, Get_ExFac
-type (DSBA_type) :: FLT(2), KLT(2), POrb(2)
+type (DSBA_type) :: FLT(2), KLT(2), POrb(2), PLT(2)
 
 timings = .false.
 Estimate = .false.
@@ -51,8 +51,8 @@ end do
 !ExFac = Get_ExFac(KSDFT)
 !FactXI = ExFac
 FactXI = One  ! always HF energy
-call mma_allocate(PLT,nBDT,label='PLTc')
-PLT(:) = Dma(:)+Dmb(:)
+Call Allocate_DSBA(PLT(1),nBas,nBas,nSym,Case='TRI')
+PLT(1)%A0(:) = Dma(:)+Dmb(:)
 
 Call Allocate_DSBA(POrb(1),nBas,nBas,nSym)
 Call Allocate_DSBA(POrb(2),nBas,nBas,nSym)
@@ -92,9 +92,7 @@ if (irc /= 0) then
 end if
 
 
-ipPLT(1) = ip_of_Work(PLT(1))
-ipPLT(2) = 0 ! dummy, should be unused
-call CHO_LK_SCF(irc,2,FLT,KLT,nForb,nIorb,Porb,ipPLT,FactXI,nSCReen,dmpk,dFmat)
+call CHO_LK_SCF(irc,2,FLT,KLT,nForb,nIorb,Porb,PLT,FactXI,nSCReen,dmpk,dFmat)
 
 if (irc /= 0) then
   call WarningMessage(2,'Get_CNOs. Non-zero rc in Cho_LK_scf.')
@@ -109,7 +107,7 @@ end if
 
 Etwo = Half*(ddot_(nBDT,Dma,1,FLT(1)%A0,1)+ddot_(nBDT,Dmb,1,FLT(2)%A0,1))
 
-call mma_deallocate(PLT)
+call deallocate_DSBA(PLT(1))
 call deallocate_DSBA(Porb(2))
 call deallocate_DSBA(Porb(1))
 call mma_deallocate(Dm1)

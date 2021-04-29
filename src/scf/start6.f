@@ -485,14 +485,12 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       Logical DFTX
 #include "choscf.fh"
       Integer nForb(8,2), nIorb(8,2)
-      Integer ipPLT(2)
-      Real*8, Dimension(:), Allocatable:: PLT
       Real*8, Dimension(:,:), Allocatable:: Dm
       Real*8 E2act(1)
 *
       Real*8   Get_ExFac
       External Get_ExFac
-      Type (DSBA_Type) FLT(2), KLT(2), POrb(2)
+      Type (DSBA_Type) FLT(2), KLT(2), POrb(2), PLT(2)
 *
 #include "dcscf.fh"
 #include "spave.fh"
@@ -504,19 +502,17 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          nForb(i,2)=0
       End Do
       If (DFTX) Then
-         FactXI=Get_ExFac(KSDFT)-1.0d0 ! note this trick
+         FactXI=Get_ExFac(KSDFT)-One ! note this trick
       Else
-         FactXI=1.0d0
+         FactXI=One
       EndIf
 *
-      Call mma_allocate(PLT,nBDT,Label='PLT')
-      ipPLT(1)=ip_of_Work(PLT(1))
-      ipPLT(2)=ipPLT(1)
+      Call Allocate_DSBA(PLT(1),nBas,nBas,nSym,Case='TRI')
+      Call Allocate_DSBA(PLT(2),nBas,nBas,nSym,Case='TRI',Ref=PLT(1)%A0)
       If (DFTX) Then
-         Call FZero(PLT,nBDT) ! to exclude Coulomb contrib
+         PLT(1)%A0(:)=Zero
       Else
-         call dcopy_(nBDT,Dma,1,PLT,1)
-         Call daxpy_(nBDT,1.0d0,Dmb,1,PLT,1)
+         PLT(1)%A0(:)= Dma(:) + Dmb(:)
       EndIf
 *
       Call Allocate_DSBA(POrb(1),nBas,nBas,nSym)
@@ -567,7 +563,7 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
 *
       dFmat=0.0d0
       Call CHO_LK_SCF(irc,nDMat,FLT,KLT,nForb,nIorb,
-     &                Porb,ipPLT,FactXI,nSCReen,dmpk,dFmat)
+     &                Porb,PLT,FactXI,nSCReen,dmpk,dFmat)
       if (irc.ne.0) then
          Call WarningMessage(2,'Start6. Non-zero rc in Cho_LK_scf.')
          CALL Abend
@@ -599,7 +595,8 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       Call mma_deallocate(Dm)
       Call deallocate_DSBA(POrb(2))
       Call deallocate_DSBA(POrb(1))
-      Call mma_deallocate(PLT)
+      Call deallocate_DSBA(PLT(2))
+      Call deallocate_DSBA(PLT(1))
 *
       Return
       End

@@ -42,8 +42,8 @@ C
       End If
 
       End
-      SUBROUTINE CHOSCF_DRV_Internal(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,
-     &                               DLT_ab,W_FLT,W_FLT_ab,nFLT,ExFac,
+      SUBROUTINE CHOSCF_DRV_Internal(iUHF,nSym,nBas,DSQ,W_DLT,DSQ_ab,
+     &                               W_DLT_ab,W_FLT,W_FLT_ab,nFLT,ExFac,
      &                               W_FSQ,W_FSQ_ab,nOcc,nOcc_ab)
 
       use Data_Structures, only: DSBA_Type
@@ -63,7 +63,8 @@ C
       Integer nForb(8,2),nIorb(8,2)
       Real*8 W_FLT(*),W_FLT_ab(*)
       Real*8 W_FSQ(*),W_FSQ_ab(*)
-      Real*8 DSQ(*),DSQ_ab(*),DLT(*),DLT_ab(*)
+      Real*8 DSQ(*),DSQ_ab(*)
+      Real*8 W_DLT(*),W_DLT_ab(*)
       character ww*512
 
 #include "chounit.fh"
@@ -75,7 +76,7 @@ C
 
       Integer, Allocatable:: nVec(:,:)
       Real*8, Allocatable :: Vec(:,:), DDec(:,:)
-      Type (DSBA_Type) Cka(2), FLT(2), KLT(2), MSQ(3)
+      Type (DSBA_Type) Cka(2), FLT(2), KLT(2), MSQ(3), DLT
 *
 C  **************************************************
         iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
@@ -102,7 +103,8 @@ C  **************************************************
 
          xFac = ExFac
 
-         ipDLT(1) = ip_of_Work(DLT(1))
+         ipDLT(1) = ip_of_Work(W_DLT(1))
+         Call Allocate_DSBA(DLT,nBas,nBas,nSym,Case='TRI',Ref=W_DLT)
          ipDSQ(1) = ip_of_Work(DSQ(1))
          ipFLT(1) = ip_of_Work(W_FLT(1))
          Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=W_FLT)
@@ -111,7 +113,7 @@ C  **************************************************
          ipFSQ(1) = ip_of_Work(W_FSQ)
 
          If (ExFac.eq.0.0d0) Then
-            CALL CHO_FOCK_DFT_RED(rc,DLT,W_FLT)
+            CALL CHO_FOCK_DFT_RED(rc,W_DLT,W_FLT)
             If (rc.ne.0) Go To 999
             goto 997
          EndIf
@@ -282,7 +284,7 @@ C  **************************************************
              End Do
 
              CALL CHO_LK_SCF(rc,nDen,FLT,KLT,nForb,nIorb,
-     &                         MSQ,ipDLT,FactX(1),nSCReen,dmpk,dFKmat)
+     &                         MSQ,DLT,FactX(1),nSCReen,dmpk,dFKmat)
 
 *                                                                      *
 ************************************************************************
@@ -313,9 +315,11 @@ C  **************************************************
 C----------------------------------------------------
  997  Continue
       Call GADSum(Work(ipFLT(1)),nFLT)
+
       Call Deallocate_DSBA(MSQ(1))
       Call Deallocate_DSBA(KLT(1))
       Call Deallocate_DSBA(FLT(1))
+      Call Deallocate_DSBA(DLT)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -348,9 +352,10 @@ c      call get_iarray('nIsh beta',nOcc_ab,nSym)
 
 
 C Compute the total density Dalpha + Dbeta
-      CALL DAXPY_(nFLT,1.0D0,DLT(1),1,DLT_ab(1),1)
+      CALL DAXPY_(nFLT,1.0D0,W_DLT(1),1,W_DLT_ab(1),1)
 
-      ipDLT(1) = ip_of_Work(DLT_ab(1)) ! total density alpha+beta LT
+      ipDLT(1) = ip_of_Work(W_DLT_ab(1)) ! total density alpha+beta LT
+      Call Allocate_DSBA(DLT,nBas,nBas,nSym,Case='TRI',Ref=W_DLT_ab)
       ipDSQ(1) = ip_of_Work(DSQ(1))    ! dummy
       ipDSQ(2) = ip_of_Work(DSQ(1))    ! alpha density SQ
       ipDSQ(3) = ip_of_Work(DSQ_ab(1)) ! beta  density SQ
@@ -369,7 +374,7 @@ C Compute the total density Dalpha + Dbeta
       FactX(3) = 1.0D0*ExFac
 
       If (ExFac.eq.0.0d0) Then
-         CALL CHO_FOCK_DFT_RED(rc,DLT_ab,W_FLT)
+         CALL CHO_FOCK_DFT_RED(rc,W_DLT_ab,W_FLT)
          If (rc.ne.0) Go To 999
          goto 998
       EndIf
@@ -603,7 +608,7 @@ C ---  MO coefficients
              End Do
 
              CALL CHO_LK_SCF(rc,nMat,FLT,KLT,nForb,nIorb,MSQ(2:3),
-     &                       ipDLT,FactX(2),nSCReen,dmpk,dFKmat)
+     &                       DLT,FactX(2),nSCReen,dmpk,dFKmat)
 
 
           If (rc.ne.0) GOTO 999
@@ -643,23 +648,20 @@ C --- Copy the lower triangular of Work(ipDSQ(3))
 C --- and pack the off-diagonal elements
 
         icount1 = 0
-        icount2 = 0
         do isym=1,nsym
            koff1=ipDSQ(3) - 1 + icount1
-           koff2=ipDLT(1) - 1 + icount2
            do j=1,nBas(isym)
               do k=j,nBas(isym)
                koff3 = koff1 + nBas(isym)*(j-1) + k
-               koff4 = koff2 + iTri(k,j)
+               kj =  iTri(k,j)
                if (j.eq.k) then
-                Work(koff4) = Work(koff3)
+                DLT%SB(iSym)%A1(kj) =     Work(koff3)
                else ! packing of the matrix
-                Work(koff4) = 2.0d0*Work(koff3)
+                DLT%SB(iSym)%A1(kj) = Two*Work(koff3)
                endif
               end do
            end do
            icount1 = icount1 + nBas(isym)**2
-           icount2 = icount2 + nBas(isym)*(nBas(isym) + 1)/2
         end do
 
          Call Deallocate_DSBA(MSQ(3))
@@ -669,6 +671,7 @@ C --- and pack the off-diagonal elements
          Call Deallocate_DSBA(KLT(1))
          Call Deallocate_DSBA(FLT(2))
          Call Deallocate_DSBA(FLT(1))
+         Call Deallocate_DSBA(DLT)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -678,7 +681,6 @@ C --- and pack the off-diagonal elements
 ************************************************************************
 ************************************************************************
 *                                                                      *
-
 
 999   If (rc.ne.0) then
          write(6,*)'CHOSCF_DRV. Non-zero return code.'
