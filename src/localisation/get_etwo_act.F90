@@ -23,13 +23,13 @@ real(kind=wp), intent(out) :: Etwo
 #include "choscf.fh"
 #include "choscreen.fh"
 #include "chotime.fh"
-integer(kind=iwp) :: i, iOff, ipPorb(2), ipPLT(2), irc, nBB, nForb(8,2), nIorb(8,2)
+integer(kind=iwp) :: i, iOff, ipPLT(2), irc, nBB, nForb(8,2), nIorb(8,2)
 real(kind=wp) :: ChFracMem, dFmat, FactXI
 !character(len=16) :: KSDFT
-real(kind=wp), allocatable :: Dm1(:), Dm2(:), PLT(:), Porb(:,:)
+real(kind=wp), allocatable :: Dm1(:), Dm2(:), PLT(:)
 integer(kind=iwp), external :: ip_of_Work
 real(kind=r8), external :: ddot_ !, Get_ExFac
-type (DSBA_type) :: FLT(2), KLT(2)
+type (DSBA_type) :: FLT(2), KLT(2), POrb(2)
 
 timings = .false.
 Estimate = .false.
@@ -54,19 +54,20 @@ FactXI = One  ! always HF energy
 call mma_allocate(PLT,nBDT,label='PLTc')
 PLT(:) = Dma(:)+Dmb(:)
 
-call mma_allocate(Porb,nBB,2,label='ChMc')
+Call Allocate_DSBA(POrb(1),nBas,nBas,nSym)
+Call Allocate_DSBA(POrb(2),nBas,nBas,nSym)
 call mma_allocate(Dm1,nBB,label='Dm1')
 call mma_allocate(Dm2,nBB,label='Dm2')
 call UnFold(Dma,nBDT,Dm1,nBB,nSym,nBas)
 call UnFold(Dmb,nBDT,Dm2,nBB,nSym,nBas)
 iOff = 1
 do i=1,nSym
-  call CD_InCore(Dm1(iOff),nBas(i),Porb(iOff,1),nBas(i),nIorb(i,1),1.0e-12_wp,irc)
+  call CD_InCore(Dm1(iOff),nBas(i),Porb(1)%SB(i)%A2,nBas(i),nIorb(i,1),1.0e-12_wp,irc)
   if (irc /= 0) then
     write(u6,*) ' Alpha density. Sym= ',i,'   rc= ',irc
     call Abend()
   end if
-  call CD_InCore(Dm2(iOff),nBas(i),Porb(iOff,2),nBas(i),nIorb(i,2),1.0e-12_wp,irc)
+  call CD_InCore(Dm2(iOff),nBas(i),Porb(2)%SB(i)%A2,nBas(i),nIorb(i,2),1.0e-12_wp,irc)
   if (irc /= 0) then
     write(u6,*) ' Beta density. Sym= ',i,'   rc= ',irc
     call Abend()
@@ -91,11 +92,9 @@ if (irc /= 0) then
 end if
 
 
-ipPorb(1) = ip_of_Work(Porb(1,1))
-ipPorb(2) = ip_of_Work(Porb(1,2))
 ipPLT(1) = ip_of_Work(PLT(1))
 ipPLT(2) = 0 ! dummy, should be unused
-call CHO_LK_SCF(irc,2,FLT,KLT,nForb,nIorb,ipPorb,ipPLT,FactXI,nSCReen,dmpk,dFmat)
+call CHO_LK_SCF(irc,2,FLT,KLT,nForb,nIorb,Porb,ipPLT,FactXI,nSCReen,dmpk,dFmat)
 
 if (irc /= 0) then
   call WarningMessage(2,'Get_CNOs. Non-zero rc in Cho_LK_scf.')
@@ -111,7 +110,8 @@ end if
 Etwo = Half*(ddot_(nBDT,Dma,1,FLT(1)%A0,1)+ddot_(nBDT,Dmb,1,FLT(2)%A0,1))
 
 call mma_deallocate(PLT)
-call mma_deallocate(Porb)
+call deallocate_DSBA(Porb(2))
+call deallocate_DSBA(Porb(1))
 call mma_deallocate(Dm1)
 call mma_deallocate(Dm2)
 call deallocate_DSBA(FLT(2))

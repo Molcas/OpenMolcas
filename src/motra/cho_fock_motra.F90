@@ -21,11 +21,10 @@ integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nFLT
 ! TODO: fix intent of these arrays after removing "ip_of_Work"
 real(kind=wp), intent(inout) :: DLT(*), DSQ(*), W_FLT(nFLT), W_FSQ(*)
 real(kind=wp), intent(in) :: ExFac
-integer(kind=iwp) :: i, ipd, ipDLT(1), ipMOs(1), irc, ja, jaa, MOdim, nDen, NScreen, NumV, nXorb(8)
+integer(kind=iwp) :: i, ipd, ipDLT(1), irc, ja, jaa, nDen, NScreen, NumV, nXorb(8)
 real(kind=wp) :: ChFracMem, dFKmat, dmpk, Thr, Ymax
-real(kind=wp), allocatable :: MOs(:)
 integer(kind=iwp), external :: ip_of_Work
-type (DSBA_Type) FLT, KLT
+type (DSBA_Type) FLT, KLT, MOs
 
 !****************************************************************
 ! CALCULATE AND RETURN FMAT DUE TO FROZEN ORBITALS ONLY
@@ -45,11 +44,7 @@ if (irc /= 0) then
   call AbEnd()
 end if
 
-MOdim = 0
-do i=1,nSym
-  MOdim = MOdim+nBas(i)**2
-end do
-call mma_allocate(MOs,MOdim,label='chMOs')
+Call Allocate_DSBA(MOs,nBas,nBas,nSym)
 
 ipd = 1
 do i=1,nSym
@@ -60,7 +55,7 @@ do i=1,nSym
       Ymax = max(Ymax,DSQ(jaa))
     end do
     Thr = 1.0e-8_wp*Ymax
-    call CD_InCore(DSQ(ipd),nBas(i),MOs(ipd),nBas(i),NumV,Thr,irc)
+    call CD_InCore(DSQ(ipd),nBas(i),MOs%SB(i)%A2,nBas(i),NumV,Thr,irc)
     if (irc /= 0) then
       write(u6,*) 'Cho_Fock_Motra: CD_incore returns rc ',irc
       call AbEnd()
@@ -80,9 +75,8 @@ end do
 nDen = 1
 Call Allocate_DSBA(FLT,nBas,nBas,nSym,Case='TRI',Ref=W_FLT)
 Call Allocate_DSBA(KLT,nBas,nBas,nSym,Case='TRI',Ref=w_FSQ) ! not needed on exit
-ipMOs(1) = ip_of_Work(MOs(1))
 ipDLT(1) = ip_of_Work(DLT(1))
-call CHO_LK_SCF(irc,nDen,FLT,KLT,nXorb,nFro,ipMOs,ipDLT,Half*ExFac,NScreen,dmpk,dFKmat)
+call CHO_LK_SCF(irc,nDen,FLT,KLT,nXorb,nFro,MOs,ipDLT,Half*ExFac,NScreen,dmpk,dFKmat)
 if (irc /= 0) then
   write(u6,*) 'Cho_Fock_Motra: Cho_LK_scf returns error code ',irc
   call AbEnd()
@@ -93,7 +87,7 @@ call Deallocate_DSBA(FLT)
 
 call GADSUM(W_FLT,nFLT)
 
-call mma_deallocate(MOs)
+call deallocate_DSBA(MOs)
 
 ! Finalize Cholesky information
 

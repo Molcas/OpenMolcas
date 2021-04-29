@@ -484,15 +484,15 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       Real*8  Dma(nBDT), Dmb(nBDT)
       Logical DFTX
 #include "choscf.fh"
-      Integer nForb(8,2), nIorb(8,2), ipPorb(2)
+      Integer nForb(8,2), nIorb(8,2)
       Integer ipPLT(2)
       Real*8, Dimension(:), Allocatable:: PLT
-      Real*8, Dimension(:,:), Allocatable:: Porb, Dm
+      Real*8, Dimension(:,:), Allocatable:: Dm
       Real*8 E2act(1)
 *
       Real*8   Get_ExFac
       External Get_ExFac
-      Type (DSBA_Type) FLT(2), KLT(2)
+      Type (DSBA_Type) FLT(2), KLT(2), POrb(2)
 *
 #include "dcscf.fh"
 #include "spave.fh"
@@ -519,9 +519,9 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          Call daxpy_(nBDT,1.0d0,Dmb,1,PLT,1)
       EndIf
 *
-      Call mma_allocate(Porb,nBB,2,Label='Porb')
-      ipPorb(1) = ip_of_Work(Porb(1,1))
-      ipPorb(2) = ipPorb(1)+nBB
+      Call Allocate_DSBA(POrb(1),nBas,nBas,nSym)
+      Call Allocate_DSBA(POrb(2),nBas,nBas,nSym)
+
       Call mma_allocate(Dm,nBB,2,Label='Dm')
       Call UnFold(Dma,nBDT,Dm(1,1),nBB,nSym,nBas)
       Call UnFold(Dmb,nBDT,Dm(1,2),nBB,nSym,nBas)
@@ -538,17 +538,15 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
 *
       iOff=0
       Do i=1,nSym
-         ipV=1+iOff
          ipDai=1+iOff
-         Call CD_InCore(Dm(ipDai,1),nBas(i),Porb(ipV,1),nBas(i),
+         Call CD_InCore(Dm(ipDai,1),nBas(i),Porb(1)%SB(i)%A2,nBas(i),
      &                  nIorb(i,1),1.0d-12,irc)
          If (irc.ne.0) Then
             write(6,*) ' Alpha density. Sym= ',i,'   rc= ',irc
             Call Abend()
          EndIf
-         ipV=1+iOff
          ipDbi=1+iOff
-         Call CD_InCore(Dm(ipDbi,2),nBas(i),Porb(ipV,2),nBas(i),
+         Call CD_InCore(Dm(ipDbi,2),nBas(i),Porb(2)%SB(i)%A2,nBas(i),
      &                  nIorb(i,2),1.0d-12,irc)
          If (irc.ne.0) Then
             write(6,*) ' Beta density. Sym= ',i,'   rc= ',irc
@@ -569,7 +567,7 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
 *
       dFmat=0.0d0
       Call CHO_LK_SCF(irc,nDMat,FLT,KLT,nForb,nIorb,
-     &                    ipPorb,ipPLT,FactXI,nSCReen,dmpk,dFmat)
+     &                Porb,ipPLT,FactXI,nSCReen,dmpk,dFmat)
       if (irc.ne.0) then
          Call WarningMessage(2,'Start6. Non-zero rc in Cho_LK_scf.')
          CALL Abend
@@ -579,7 +577,7 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          Call UnFold(Dma,nBDT,Dm(1,1),nBB,nSym,nBas)
          Call UnFold(Dmb,nBDT,Dm(1,2),nBB,nSym,nBas)
          Call daxpy_(NBB,-1.0d0,Work(ip_DSc),1,Dm(1,1),1)
-         Call daxpy_(NBB,1.0d0,Work(ip_DSc),1,Dm(1,2),1)
+         Call daxpy_(NBB, 1.0d0,Work(ip_DSc),1,Dm(1,2),1)
          Call Fold(nSym,nBas,Dm(1,1),Dma)
          Call Fold(nSym,nBas,Dm(1,2),Dmb)
       EndIf
@@ -599,7 +597,8 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       Call deallocate_DSBA(FLT(2))
       Call deallocate_DSBA(FLT(1))
       Call mma_deallocate(Dm)
-      Call mma_deallocate(Porb)
+      Call deallocate_DSBA(POrb(2))
+      Call deallocate_DSBA(POrb(1))
       Call mma_deallocate(PLT)
 *
       Return
