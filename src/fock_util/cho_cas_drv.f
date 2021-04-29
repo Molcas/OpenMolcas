@@ -21,7 +21,6 @@
 
 #include "real.fh"
 #include "chotodo.fh"
-#include "chopmat.fh"
 #include "chlcas.fh"
 #include "cholk.fh"
 
@@ -31,7 +30,6 @@
 #include "wadr.fh"
 #include "general.fh"
 #include "rasscf.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Type (DSBA_Type) CVa(2), POrb(3), Ddec, ChoIn, CMO,
