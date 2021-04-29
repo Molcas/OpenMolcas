@@ -51,14 +51,12 @@ C
       Type (DSBA_Type) FLT(nDen), KLT(nDen), POrb(nDen), PLT(nDen)
 
       Integer   rc,nDen
-      Integer   ipOrb(8,2),nOrb(8,2)
-      Integer   ISTLT(8),ISTSQ(8),kOff(8,2)
+      Integer   nOrb(8,2)
+      Integer   kOff(8,2)
       Real*8    tread(2),tcoul(2),texch(2)
       Real*8    tscrn(2),tmotr(2)
       Real*8    FactXI,dmpk,dFmat,tau(2),thrv(2)
       Integer   nForb(8,nDen),nIorb(8,nDen)
-
-      Integer   ipPOrb(3), ipPLT(3)
 
 #ifdef _DEBUGPRINT_
       Logical   Debug
@@ -103,11 +101,6 @@ C
       Debug=.false.! to avoid double printing in SCF-debug
 #endif
 
-      Do iDen = 1, nDen
-*        ipPOrb(iDen) = ip_of_Work(POrb(iDen)%A0(1))
-         ipPLT(iDen) = ip_of_Work(PLT(iDen)%A0(1))
-      End Do
-
       IREDC= -1  ! unknwn reduced set
 
       iLoc = 3 ! use scratch location in reduced index arrays
@@ -131,15 +124,9 @@ C ==================================================================
 
 c --- Various offsets
 c --------------------
-        MaxB=nBas(1)
-        ISTLT(1)=0
-        ISTSQ(1)=0
+      MaxB=nBas(1)
       DO ISYM=2,NSYM
         MaxB=Max(MaxB,nBas(iSym))
-        NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-        NBQ=NBAS(ISYM-1)**2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive D and F matrices
-        ISTSQ(ISYM)=ISTSQ(ISYM-1)+NBQ ! Diagonal integrals in full
       END DO
 
 **************************************************
@@ -148,8 +135,6 @@ c --------------------
       DO jDen=1,nDen
 
          DO ISYM=1,NSYM
-
-            ipOrb(iSym,jDen) = ipPorb(jDen) + ISTSQ(iSym)
 
             nOrb(iSym,jDen)  = nForb(iSym,jDen)+nIorb(iSym,jDen)
 
@@ -285,18 +270,9 @@ C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
             Do jK=1,nOrb(kSym,jDen)
                jK_a = jK + kOff(kSym,jDen)
 
-               ipMO = ipOrb(kSym,jDen)
-     &              + nBas(kSym)*(jK-1)
-
                Do iaSh=1,nShell
 
-                  ipMsh = ipMO + kOffSh(iaSh,kSym)
-
                   SKsh=zero
-*                 Do ik=0,nBasSh(kSym,iaSh)-1
-*                    SKsh = SKsh + Work(ipMsh+ik)**2
-*                 End Do
-
                   iS = kOffSh(iaSh,kSym) + 1
                   iE = kOffSh(iaSh,kSym) + nBasSh(kSym,iaSh)
                   Do ik=iS,iE
@@ -444,6 +420,7 @@ C --- Transform the density to reduced storage
                mode = 'toreds'
                add  = .false.
                nMat=1
+               ipPLT=ip_of_Work(PLT(1)%A0(1))
                Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
      &                           [ipPLT],Drs,mode,add)
             EndIf
@@ -600,18 +577,12 @@ c --------------------------------------------------------------------
 
                         Lab%A0(1:nBas(lSym)*JNUM)=Zero
 
-                      ipMO = ipOrb(kSym,jDen)
-     &                     + nBas(kSym)*(jK-1)
-
                       IF (DoScreen) THEN
 
                         CALL CWTIME(TCS1,TWS1)
 C------------------------------------------------------------------
 C --- Setup the screening
 C------------------------------------------------------------------
-*                       Do ik=0,nBas(kSym)-1
-*                          AbsC(1+ik) = abs(Work(ipMO+ik))
-*                       End Do
                         Do ik=1,nBas(kSym)
                            AbsC(ik) =
      &                         abs(POrb(jDen)%SB(kSym)%A2(ik,jK))
@@ -755,7 +726,6 @@ C ---------------------------------------
 
                                   CALL DGEMV_(Mode(1:1),n1,n2,
      &                     ONE,L_Full%SPB(lSym,iShp_rs(iShp),i1)%A21,n1,
-*    &                         Work(ipMO+ioffShb),1,
      &                         POrb(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1,
      &                     ONE,Lab%SB(iaSh,lSym,1)%A,1)
 
@@ -772,7 +742,6 @@ C ---------------------------------------
 
                                   CALL DGEMV_(Mode(1:1),n1,n2,
      &                     ONE,L_Full%SPB(kSym,iShp_rs(iShp),i1)%A12,n1,
-*    &                         Work(ipMO+ioffShb),1,
      &                         POrb(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1,
      &                     ONE,Lab%SB(iaSh,lSym,1)%A,1)
 
@@ -1229,11 +1198,10 @@ c Print the Fock-matrix
           if(jden.eq.2) WRITE(6,'(6X,A)')'******** BETA SPIN ********* '
         endif
         DO ISYM=1,NSYM
-           ISFI=ipFLT(jDen)+ISTLT(ISYM)
            IF( NBAS(ISYM).GT.0 ) THEN
              WRITE(6,'(6X,A)')
              WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES: ',ISYM
-             call TRIPRT('','',Work(ISFI),NBAS(ISYM))
+             call TRIPRT('','',FLT(jDen)%SB(iSym)%A1,NBAS(ISYM))
            ENDIF
         END DO
       END DO
