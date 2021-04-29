@@ -58,7 +58,7 @@ C
       Real*8    FactXI,dmpk,dFmat,tau(2),thrv(2)
       Integer   nForb(8,nDen),nIorb(8,nDen)
 
-      Integer   ipKLT(3), ipPOrb(3), ipPLT(3)
+      Integer   ipPOrb(3), ipPLT(3)
 
 #ifdef _DEBUGPRINT_
       Logical   Debug
@@ -104,8 +104,7 @@ C
 #endif
 
       Do iDen = 1, nDen
-         ipKLT(iDen)  = ip_of_Work(KLT(iDen)%A0(1))
-         ipPOrb(iDen) = ip_of_Work(POrb(iDen)%A0(1))
+*        ipPOrb(iDen) = ip_of_Work(POrb(iDen)%A0(1))
          ipPLT(iDen) = ip_of_Work(PLT(iDen)%A0(1))
       End Do
 
@@ -294,8 +293,15 @@ C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
                   ipMsh = ipMO + kOffSh(iaSh,kSym)
 
                   SKsh=zero
-                  Do ik=0,nBasSh(kSym,iaSh)-1
-                     SKsh = SKsh + Work(ipMsh+ik)**2
+*                 Do ik=0,nBasSh(kSym,iaSh)-1
+*                    SKsh = SKsh + Work(ipMsh+ik)**2
+*                 End Do
+
+                  iS = kOffSh(iaSh,kSym) + 1
+                  iE = kOffSh(iaSh,kSym) + nBasSh(kSym,iaSh)
+                  Do ik=iS,iE
+                     SKsh = SKsh
+     &                    + POrb(jDen)%SB(kSym)%A2(ik,jK)**2
                   End Do
 
                   SumAClk(iaSh,jK_a) = SKsh
@@ -603,8 +609,12 @@ c --------------------------------------------------------------------
 C------------------------------------------------------------------
 C --- Setup the screening
 C------------------------------------------------------------------
-                        Do ik=0,nBas(kSym)-1
-                           AbsC(1+ik) = abs(Work(ipMO+ik))
+*                       Do ik=0,nBas(kSym)-1
+*                          AbsC(1+ik) = abs(Work(ipMO+ik))
+*                       End Do
+                        Do ik=1,nBas(kSym)
+                           AbsC(ik) =
+     &                         abs(POrb(jDen)%SB(kSym)%A2(ik,jK))
                         End Do
 
                         If (lSym.ge.kSym) Then
@@ -745,7 +755,8 @@ C ---------------------------------------
 
                                   CALL DGEMV_(Mode(1:1),n1,n2,
      &                     ONE,L_Full%SPB(lSym,iShp_rs(iShp),i1)%A21,n1,
-     &                         Work(ipMO+ioffShb),1,
+*    &                         Work(ipMO+ioffShb),1,
+     &                         POrb(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1,
      &                     ONE,Lab%SB(iaSh,lSym,1)%A,1)
 
                                Else   ! lSym < kSym
@@ -761,7 +772,8 @@ C ---------------------------------------
 
                                   CALL DGEMV_(Mode(1:1),n1,n2,
      &                     ONE,L_Full%SPB(kSym,iShp_rs(iShp),i1)%A12,n1,
-     &                         Work(ipMO+ioffShb),1,
+*    &                         Work(ipMO+ioffShb),1,
+     &                         POrb(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1,
      &                     ONE,Lab%SB(iaSh,lSym,1)%A,1)
 
                                Endif
@@ -851,8 +863,6 @@ C------------------------------------------------------------
 
                             iOffAB = nnBfShp(iShp,lSym)
 
-                            ipKI = ipKLT(jDen) + ISTLT(lSym) + iOffAB
-
                             xFab = sqrt(abs(Faa(iaSh)*Faa(ibSh)))
 
                             If ( MLk(lSh,jK_a)*MLk(mSh,jK_a)
@@ -892,7 +902,6 @@ C -------------------------------------------------------------------
      &                              -FActXI,Lab%SB(iaSh,lSym,1)%A,n1,
      &                                      Lab%SB(ibSh,lSym,1)%A,n1,
      &                         ONE,KLT(jDen)%SB(lSym)%A1(iOffAB+1:),nBs)
-*    &                                  ONE,Work(ipKI),nBs)
 
                             ElseIf (iaSh.gt.ibSh
      &                                .and.xFab.ge.tau(jDen)/MaxRedT
@@ -926,7 +935,6 @@ C -------------------------------------------------------------------
      &                               -FactXI,Lab%SB(iaSh,lSym,1)%A,n1,
      &                                       Lab%SB(ibSh,lSym,1)%A,n2,
      &                         ONE,KLT(jDen)%SB(lSym)%A1(iOffAB+1:),nBs)
-*    &                                   ONE,Work(ipKI),nBs)
 
                             EndIf
 
@@ -1084,8 +1092,6 @@ C--- have performed screening in the meanwhile
 
          Do iSym=1,nSym
 
-            ipKI = ipKLT(jDen) + ISTLT(iSym)
-
             Do iaSh=1,nShell
 
                ioffa = kOffSh(iaSh,iSym)
@@ -1106,8 +1112,6 @@ c ---------------
 
                      iab = nBasSh(iSym,iaSh)*(ib-1) + ia
 
-                     jK = ipKI - 1 + iOffAB + iab
-
                      iag = ioffa + ia
                      ibg = ioffb + ib
 
@@ -1115,7 +1119,6 @@ c ---------------
 
                      FLT(jDen)%sb(iSym)%A1(iabg)
      &                  = FLT(jDen)%sb(iSym)%A1(iabg)
-*    &                  + Work(jK)
      &                  + KLT(jDen)%SB(iSym)%A1(iOffAB+iab)
 
                    End Do
@@ -1136,8 +1139,6 @@ c ---------------
 
                   iab = ia*(ia-1)/2 + ib
 
-                  jK = ipKI - 1 + iOffAB + iab
-
                   iag = ioffa + ia
                   ibg = ioffa + ib
 
@@ -1145,7 +1146,6 @@ c ---------------
 
                   FLT(jDen)%sb(iSym)%A1(iabg)
      &               = FLT(jDen)%sb(iSym)%A1(iabg)
-*    &               + Work(jK)
      &               + KLT(jDen)%SB(iSym)%A1(iOffAB+iab)
 
                 End Do
