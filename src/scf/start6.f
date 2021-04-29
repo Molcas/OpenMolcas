@@ -484,15 +484,15 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       Real*8  Dma(nBDT), Dmb(nBDT)
       Logical DFTX
 #include "choscf.fh"
-      Integer ipKLT(2), nForb(8,2), nIorb(8,2), ipPorb(2)
+      Integer nForb(8,2), nIorb(8,2), ipPorb(2)
       Integer ipPLT(2)
       Real*8, Dimension(:), Allocatable:: PLT
-      Real*8, Dimension(:,:), Allocatable:: Porb, Dm, KLT
+      Real*8, Dimension(:,:), Allocatable:: Porb, Dm
       Real*8 E2act(1)
 *
       Real*8   Get_ExFac
       External Get_ExFac
-      Type (DSBA_Type) FLT(2)
+      Type (DSBA_Type) FLT(2), KLT(2)
 *
 #include "dcscf.fh"
 #include "spave.fh"
@@ -562,13 +562,13 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       FLT(1)%A0(:)=Zero
       FLT(2)%A0(:)=Zero
 
-      Call mma_allocate(KLT,nBDT,2,Label='KLT')
-      Call FZero(KLT,2*nBDT)
-      ipKLT(1)=ip_of_Work(KLT(1,1))
-      ipKLT(2)=ipKLT(1)+nBDT
+      Call Allocate_DSBA(KLT(1),nBas,nBas,nSym,Case='TRI')
+      Call Allocate_DSBA(KLT(2),nBas,nBas,nSym,Case='TRI')
+      KLT(1)%A0(:)=Zero
+      KLT(2)%A0(:)=Zero
 *
       dFmat=0.0d0
-      Call CHO_LK_SCF(irc,nDMat,FLT,ipKLT,nForb,nIorb,
+      Call CHO_LK_SCF(irc,nDMat,FLT,KLT,nForb,nIorb,
      &                    ipPorb,ipPLT,FactXI,nSCReen,dmpk,dFmat)
       if (irc.ne.0) then
          Call WarningMessage(2,'Start6. Non-zero rc in Cho_LK_scf.')
@@ -594,7 +594,8 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          E_nondyn=E_nondyn-E2act(1)
       EndIf
 *
-      Call mma_deallocate(KLT)
+      Call deallocate_DSBA(KLT(2))
+      Call deallocate_DSBA(KLT(1))
       Call deallocate_DSBA(FLT(2))
       Call deallocate_DSBA(FLT(1))
       Call mma_deallocate(Dm)
