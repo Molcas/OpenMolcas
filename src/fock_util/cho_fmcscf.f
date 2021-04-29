@@ -43,7 +43,6 @@ C
       use ChoSwp, only: InfVec
       use Data_structures, only: DSBA_Type, SBA_Type
       use Data_structures, only: Allocate_SBA, Deallocate_SBA
-      use Data_structures, only: Allocate_DSBA, Deallocate_DSBA
       use Data_structures, only: twxy_Type
       use Data_structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)

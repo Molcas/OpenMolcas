@@ -58,7 +58,8 @@ C
       Real*8    FactXI,dmpk,dFmat,tau(2),thrv(2)
       Integer   nForb(8,nDen),nIorb(8,nDen)
 
-      Integer   ipFLT(3), ipKLT(3), ipPOrb(3), ipPLT(3)
+*     Integer   ipFLT(3), ipKLT(3), ipPOrb(3), ipPLT(3)
+      Integer   ipKLT(3), ipPOrb(3), ipPLT(3)
 
 #ifdef _DEBUGPRINT_
       Logical   Debug
@@ -104,7 +105,7 @@ C
 #endif
 
       Do iDen = 1, nDen
-         ipFLT(iDen)  = ip_of_Work(FLT(iDen)%A0(1))
+*        ipFLT(iDen)  = ip_of_Work(FLT(iDen)%A0(1))
          ipKLT(iDen)  = ip_of_Work(KLT(iDen)%A0(1))
          ipPOrb(iDen) = ip_of_Work(POrb(iDen)%A0(1))
          ipPLT(iDen) = ip_of_Work(PLT(iDen)%A0(1))
@@ -1030,8 +1031,10 @@ c --- backtransform fock matrix to full storage
                add  = .true.
                nMat = 1
                Do jDen = 1, nDen
+                  ipFLT = ip_of_Work(FLT(jDen)%A0(1))
                   Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                           [ipFLT(jDen)],Frs,mode,add)
+     &                           [ipFLT],Frs,mode,add)
+*    &                           [ipFLT(jDen)],Frs,mode,add)
                End Do
             EndIf
 
@@ -1082,7 +1085,7 @@ C--- have performed screening in the meanwhile
 
          Do iSym=1,nSym
 
-            ipFI = ipFLT(jDen) + ISTLT(iSym)
+*           ipFI = ipFLT(jDen) + ISTLT(iSym)
             ipKI = ipKLT(jDen) + ISTLT(iSym)
 
             Do iaSh=1,nShell
@@ -1110,9 +1113,13 @@ c ---------------
                      iag = ioffa + ia
                      ibg = ioffb + ib
 
-                     jF = ipFI - 1 + iTri(iag,ibg)
+*                    jF = ipFI - 1 + iTri(iag,ibg)
+                     iabg = iTri(iag,ibg)
 
-                     Work(jF) = Work(jF) + Work(jK)
+                     FLT(jDen)%sb(iSym)%A1(iabg)
+     &                  = FLT(jDen)%sb(iSym)%A1(iabg)
+     &                  + Work(jK)
+*                    Work(jF) = Work(jF) + Work(jK)
 
                    End Do
 
@@ -1137,9 +1144,13 @@ c ---------------
                   iag = ioffa + ia
                   ibg = ioffa + ib
 
-                  jF = ipFI - 1 + iag*(iag-1)/2 + ibg
+*                 jF = ipFI - 1 + iag*(iag-1)/2 + ibg
+                  iabg =  iag*(iag-1)/2 + ibg
 
-                  Work(jF) = Work(jF) + Work(jK)
+                  FLT(jDen)%sb(iSym)%A1(iabg)
+     &               = FLT(jDen)%sb(iSym)%A1(iabg)
+     &               + Work(jK)
+*                 Work(jF) = Work(jF) + Work(jK)
 
                 End Do
 
