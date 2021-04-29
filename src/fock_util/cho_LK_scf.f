@@ -58,7 +58,6 @@ C
       Real*8    FactXI,dmpk,dFmat,tau(2),thrv(2)
       Integer   nForb(8,nDen),nIorb(8,nDen)
 
-*     Integer   ipFLT(3), ipKLT(3), ipPOrb(3), ipPLT(3)
       Integer   ipKLT(3), ipPOrb(3), ipPLT(3)
 
 #ifdef _DEBUGPRINT_
@@ -105,7 +104,6 @@ C
 #endif
 
       Do iDen = 1, nDen
-*        ipFLT(iDen)  = ip_of_Work(FLT(iDen)%A0(1))
          ipKLT(iDen)  = ip_of_Work(KLT(iDen)%A0(1))
          ipPOrb(iDen) = ip_of_Work(POrb(iDen)%A0(1))
          ipPLT(iDen) = ip_of_Work(PLT(iDen)%A0(1))
@@ -893,7 +891,8 @@ C -------------------------------------------------------------------
      &                        nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
      &                              -FActXI,Lab%SB(iaSh,lSym,1)%A,n1,
      &                                      Lab%SB(ibSh,lSym,1)%A,n1,
-     &                                  ONE,Work(ipKI),nBs)
+     &                         ONE,KLT(jDen)%SB(lSym)%A1(iOffAB+1:),nBs)
+*    &                                  ONE,Work(ipKI),nBs)
 
                             ElseIf (iaSh.gt.ibSh
      &                                .and.xFab.ge.tau(jDen)/MaxRedT
@@ -926,7 +925,8 @@ C -------------------------------------------------------------------
      &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
      &                               -FactXI,Lab%SB(iaSh,lSym,1)%A,n1,
      &                                       Lab%SB(ibSh,lSym,1)%A,n2,
-     &                                   ONE,Work(ipKI),nBs)
+     &                         ONE,KLT(jDen)%SB(lSym)%A1(iOffAB+1:),nBs)
+*    &                                   ONE,Work(ipKI),nBs)
 
                             EndIf
 
@@ -1034,7 +1034,6 @@ c --- backtransform fock matrix to full storage
                   ipFLT = ip_of_Work(FLT(jDen)%A0(1))
                   Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
      &                           [ipFLT],Frs,mode,add)
-*    &                           [ipFLT(jDen)],Frs,mode,add)
                End Do
             EndIf
 
@@ -1085,7 +1084,6 @@ C--- have performed screening in the meanwhile
 
          Do iSym=1,nSym
 
-*           ipFI = ipFLT(jDen) + ISTLT(iSym)
             ipKI = ipKLT(jDen) + ISTLT(iSym)
 
             Do iaSh=1,nShell
@@ -1113,13 +1111,12 @@ c ---------------
                      iag = ioffa + ia
                      ibg = ioffb + ib
 
-*                    jF = ipFI - 1 + iTri(iag,ibg)
                      iabg = iTri(iag,ibg)
 
                      FLT(jDen)%sb(iSym)%A1(iabg)
      &                  = FLT(jDen)%sb(iSym)%A1(iabg)
-     &                  + Work(jK)
-*                    Work(jF) = Work(jF) + Work(jK)
+*    &                  + Work(jK)
+     &                  + KLT(jDen)%SB(iSym)%A1(iOffAB+iab)
 
                    End Do
 
@@ -1144,13 +1141,12 @@ c ---------------
                   iag = ioffa + ia
                   ibg = ioffa + ib
 
-*                 jF = ipFI - 1 + iag*(iag-1)/2 + ibg
                   iabg =  iag*(iag-1)/2 + ibg
 
                   FLT(jDen)%sb(iSym)%A1(iabg)
      &               = FLT(jDen)%sb(iSym)%A1(iabg)
-     &               + Work(jK)
-*                 Work(jF) = Work(jF) + Work(jK)
+*    &               + Work(jK)
+     &               + KLT(jDen)%SB(iSym)%A1(iOffAB+iab)
 
                 End Do
 
