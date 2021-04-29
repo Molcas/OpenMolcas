@@ -471,7 +471,10 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
 *                                                                      *
 ************************************************************************
       Subroutine Get_Fmat_nondyn(Dma,Dmb,nBDT,DFTX)
+      use Data_Structures, only: DSBA_type, Allocate_DSBA,
+     &                           Deallocate_DSBA
       Implicit Real*8 (a-h,o-z)
+#include "real.fh"
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "WrkSpc.fh"
@@ -481,14 +484,15 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       Real*8  Dma(nBDT), Dmb(nBDT)
       Logical DFTX
 #include "choscf.fh"
-      Integer ipFLT(2), ipKLT(2), nForb(8,2), nIorb(8,2), ipPorb(2)
+      Integer ipKLT(2), nForb(8,2), nIorb(8,2), ipPorb(2)
       Integer ipPLT(2)
       Real*8, Dimension(:), Allocatable:: PLT
-      Real*8, Dimension(:,:), Allocatable:: Porb, Dm, FCNO, KLT
+      Real*8, Dimension(:,:), Allocatable:: Porb, Dm, KLT
       Real*8 E2act(1)
 *
       Real*8   Get_ExFac
       External Get_ExFac
+      Type (DSBA_Type) FLT(2)
 *
 #include "dcscf.fh"
 #include "spave.fh"
@@ -553,17 +557,18 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          iOff=iOff+nBas(i)**2
       End Do
 *
-      Call mma_allocate(FCNO,nBDT,2,Label='FCNO')
-      Call FZero(FCNO,2*nBDT)
-      ipFLT(1)=ip_of_Work(FCNO(1,1))
-      ipFLT(2)=ipFLT(1)+nBDT
+      Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI')
+      Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI')
+      FLT(1)%A0(:)=Zero
+      FLT(2)%A0(:)=Zero
+
       Call mma_allocate(KLT,nBDT,2,Label='KLT')
       Call FZero(KLT,2*nBDT)
       ipKLT(1)=ip_of_Work(KLT(1,1))
       ipKLT(2)=ipKLT(1)+nBDT
 *
       dFmat=0.0d0
-      Call CHO_LK_SCF(irc,nDMat,ipFLT,ipKLT,nForb,nIorb,
+      Call CHO_LK_SCF(irc,nDMat,FLT,ipKLT,nForb,nIorb,
      &                    ipPorb,ipPLT,FactXI,nSCReen,dmpk,dFmat)
       if (irc.ne.0) then
          Call WarningMessage(2,'Start6. Non-zero rc in Cho_LK_scf.')
@@ -579,8 +584,8 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          Call Fold(nSym,nBas,Dm(1,2),Dmb)
       EndIf
 *
-      E2act(1) = 0.5d0*(ddot_(nBDT,Dma,1,FCNO(1,1),1)
-     &         +        ddot_(nBDT,Dmb,1,FCNO(1,2),1))
+      E2act(1) = 0.5d0*(ddot_(nBDT,Dma,1,FLT(1)%A0,1)
+     &         +        ddot_(nBDT,Dmb,1,FLT(2)%A0,1))
       Call GADSum(E2act(1),1)
 *
       If (DFTX) Then
@@ -590,7 +595,8 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       EndIf
 *
       Call mma_deallocate(KLT)
-      Call mma_deallocate(FCNO)
+      Call deallocate_DSBA(FLT(2))
+      Call deallocate_DSBA(FLT(1))
       Call mma_deallocate(Dm)
       Call mma_deallocate(Porb)
       Call mma_deallocate(PLT)

@@ -40,7 +40,7 @@ C
 
       End
       SUBROUTINE CHOSCF_DRV_Internal(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,
-     &                               DLT_ab,FLT,FLT_ab,nFLT,ExFac,
+     &                               DLT_ab,W_FLT,W_FLT_ab,nFLT,ExFac,
      &                               LWFSQ,LWFSQ_ab,nOcc,nOcc_ab)
 
       use Data_Structures, only: DSBA_Type
@@ -58,7 +58,7 @@ C
       Integer ipMSQ(MaxDs),ipNocc(MaxDs),nOcc(nSym),nOcc_ab(nSym)
       Integer nnBSF(8,8),n2BSF(8,8)
       Integer nForb(8,2),nIorb(8,2),ipMOs(2),ipKLT(2)
-      Real*8 FLT(*),FLT_ab(*)
+      Real*8 W_FLT(*),W_FLT_ab(*)
       Real*8 DSQ(*),DSQ_ab(*),DLT(*),DLT_ab(*)
       character ww*512
 
@@ -71,7 +71,7 @@ C
 
       Integer, Allocatable:: nVec(:,:)
       Real*8, Allocatable :: Vec(:,:), DDec(:,:)
-      Type (DSBA_Type) Cka(2)
+      Type (DSBA_Type) Cka(2), FLT(2)
 *
 C  **************************************************
         iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
@@ -100,11 +100,12 @@ C  **************************************************
 
          ipDLT(1) = ip_of_Work(DLT(1))
          ipDSQ(1) = ip_of_Work(DSQ(1))
-         ipFLT(1) = ip_of_Work(FLT(1))
+         ipFLT(1) = ip_of_Work(W_FLT(1))
+         Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=W_FLT)
          ipFSQ(1) = LWFSQ
 
          If (ExFac.eq.0.0d0) Then
-            CALL CHO_FOCK_DFT_RED(rc,DLT,FLT)
+            CALL CHO_FOCK_DFT_RED(rc,DLT,W_FLT)
             If (rc.ne.0) Go To 999
             goto 997
          EndIf
@@ -274,8 +275,9 @@ C  **************************************************
 
              ipKLT(1) = ipFSQ(1) ! trick to use already allocated memory
 
-             CALL CHO_LK_SCF(rc,nDen,ipFLT,ipKLT,nForb,nIorb,
+             CALL CHO_LK_SCF(rc,nDen,FLT,ipKLT,nForb,nIorb,
      &                         ipMOs,ipDLT,FactX(1),nSCReen,dmpk,dFKmat)
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -305,6 +307,7 @@ C  **************************************************
 C----------------------------------------------------
  997  Continue
       Call GADSum(Work(ipFLT(1)),nFLT)
+      Call Deallocate_DSBA(FLT(1))
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -347,24 +350,26 @@ C --- MO coefficients
 C Compute the total density Dalpha + Dbeta
       CALL DAXPY_(nFLT,1.0D0,DLT(1),1,DLT_ab(1),1)
 
-         ipDLT(1) = ip_of_Work(DLT_ab(1)) ! total density alpha+beta LT
-         ipDSQ(1) = ip_of_Work(DSQ(1))    ! dummy
-         ipDSQ(2) = ip_of_Work(DSQ(1))    ! alpha density SQ
-         ipDSQ(3) = ip_of_Work(DSQ_ab(1)) ! beta  density SQ
+      ipDLT(1) = ip_of_Work(DLT_ab(1)) ! total density alpha+beta LT
+      ipDSQ(1) = ip_of_Work(DSQ(1))    ! dummy
+      ipDSQ(2) = ip_of_Work(DSQ(1))    ! alpha density SQ
+      ipDSQ(3) = ip_of_Work(DSQ_ab(1)) ! beta  density SQ
 
-         ipFLT(1) = ip_of_Work(FLT(1))    ! Coulomb (... Falpha LT)
-         ipFLT(2) = ip_of_Work(FLT_ab(1))    ! (... Fbeta LT)
-         ipFSQ(2) = LWFSQ     ! alpha exchange (... Falpha SQ)
-         ipFSQ(3) = LWFSQ_ab  ! beta exchange (... Fbeta SQ)
+      ipFLT(1) = ip_of_Work(W_FLT(1))    ! Coulomb (... Falpha LT)
+      ipFLT(2) = ip_of_Work(W_FLT_ab(1))    ! (... Fbeta LT)
+      Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=W_FLT)
+      Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI',Ref=W_FLT_ab)
+      ipFSQ(2) = LWFSQ     ! alpha exchange (... Falpha SQ)
+      ipFSQ(3) = LWFSQ_ab  ! beta exchange (... Fbeta SQ)
 
-        FactX(2) = 1.0D0*ExFac ! UHF SQ-density is not scaled
-        FactX(3) = 1.0D0*ExFac
+      FactX(2) = 1.0D0*ExFac ! UHF SQ-density is not scaled
+      FactX(3) = 1.0D0*ExFac
 
-         If (ExFac.eq.0.0d0) Then
-            CALL CHO_FOCK_DFT_RED(rc,DLT_ab,FLT)
-            If (rc.ne.0) Go To 999
-            goto 998
-         EndIf
+      If (ExFac.eq.0.0d0) Then
+         CALL CHO_FOCK_DFT_RED(rc,DLT_ab,W_FLT)
+         If (rc.ne.0) Go To 999
+         goto 998
+      EndIf
 
       IF (DECO) THEN !use decomposed density
 
@@ -583,8 +588,12 @@ C Compute the total density Dalpha + Dbeta
              ipKLT(1) = ipFSQ(2) ! trick to use already allocated memory
              ipKLT(2) = ipFSQ(3)
 
-             CALL CHO_LK_SCF(rc,nMat,ipFLT,ipKLT,nForb,nIorb,
+
+             CALL CHO_LK_SCF(rc,nMat,FLT,ipKLT,nForb,nIorb,
      &                         ipMOs,ipDLT,FactX(2),nSCReen,dmpk,dFKmat)
+
+             Call Deallocate_DSBA(FLT(2))
+             Call Deallocate_DSBA(FLT(1))
 
           If (rc.ne.0) GOTO 999
 
@@ -642,6 +651,8 @@ C --- and pack the off-diagonal elements
            icount2 = icount2 + nBas(isym)*(nBas(isym) + 1)/2
         end do
 
+      Call Deallocate_DSBA(FLT(2))
+      Call Deallocate_DSBA(FLT(1))
 *                                                                      *
 ************************************************************************
 ************************************************************************

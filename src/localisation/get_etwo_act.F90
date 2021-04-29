@@ -14,6 +14,7 @@ subroutine Get_Etwo_act(Dma,Dmb,nBDT,nBas,nSym,Etwo)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6, r8
+use Data_structures, only: DSBA_type, Allocate_DSBA, Deallocate_DSBA
 
 implicit none
 integer(kind=iwp), intent(in) :: nBDT, nBas(8), nSym
@@ -22,12 +23,13 @@ real(kind=wp), intent(out) :: Etwo
 #include "choscf.fh"
 #include "choscreen.fh"
 #include "chotime.fh"
-integer(kind=iwp) :: i, iOff, ipFLT(2), ipKLT(2), ipPorb(2), ipPLT(2), irc, nBB, nForb(8,2), nIorb(8,2)
+integer(kind=iwp) :: i, iOff, ipKLT(2), ipPorb(2), ipPLT(2), irc, nBB, nForb(8,2), nIorb(8,2)
 real(kind=wp) :: ChFracMem, dFmat, FactXI
 !character(len=16) :: KSDFT
-real(kind=wp), allocatable :: Dm1(:), Dm2(:), FCNO(:,:), KCNO(:,:), PLT(:), Porb(:,:)
+real(kind=wp), allocatable :: Dm1(:), Dm2(:), KCNO(:,:), PLT(:), Porb(:,:)
 integer(kind=iwp), external :: ip_of_Work
 real(kind=r8), external :: ddot_ !, Get_ExFac
+type (DSBA_type) :: FLT(2)
 
 timings = .false.
 Estimate = .false.
@@ -72,8 +74,11 @@ do i=1,nSym
   iOff = iOff+nBas(i)**2
 end do
 
-call mma_allocate(FCNO,nBDT,2,label='FCNO')
-FCNO(:,:) = Zero
+Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI')
+Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI')
+FLT(1)%A0(:)=Zero
+FLT(2)%A0(:)=Zero
+
 call mma_allocate(KCNO,nBDT,2,label='KCNO')
 KCNO(:,:) = Zero
 
@@ -83,15 +88,15 @@ if (irc /= 0) then
   call Abend()
 end if
 
-ipFLT(1) = ip_of_Work(FCNO(1,1))
-ipFLT(2) = ip_of_Work(FCNO(1,2))
+
 ipKLT(1) = ip_of_Work(KCNO(1,1))
 ipKLT(2) = ip_of_Work(KCNO(1,2))
 ipPorb(1) = ip_of_Work(Porb(1,1))
 ipPorb(2) = ip_of_Work(Porb(1,2))
 ipPLT(1) = ip_of_Work(PLT(1))
 ipPLT(2) = 0 ! dummy, should be unused
-call CHO_LK_SCF(irc,2,ipFLT,ipKLT,nForb,nIorb,ipPorb,ipPLT,FactXI,nSCReen,dmpk,dFmat)
+call CHO_LK_SCF(irc,2,FLT,ipKLT,nForb,nIorb,ipPorb,ipPLT,FactXI,nSCReen,dmpk,dFmat)
+
 if (irc /= 0) then
   call WarningMessage(2,'Get_CNOs. Non-zero rc in Cho_LK_scf.')
   call Abend()
@@ -103,13 +108,14 @@ if (irc /= 0) then
   call Abend()
 end if
 
-Etwo = Half*(ddot_(nBDT,Dma,1,FCNO(:,1),1)+ddot_(nBDT,Dmb,1,FCNO(:,2),1))
+Etwo = Half*(ddot_(nBDT,Dma,1,FLT(1)%A0,1)+ddot_(nBDT,Dmb,1,FLT(2)%A0,1))
 
 call mma_deallocate(PLT)
 call mma_deallocate(Porb)
 call mma_deallocate(Dm1)
 call mma_deallocate(Dm2)
-call mma_deallocate(FCNO)
+call deallocate_DSBA(FLT(2))
+call deallocate_DSBA(FLT(1))
 call mma_deallocate(KCNO)
 
 return

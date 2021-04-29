@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHO_LK_SCF(rc,nDen,ipFLT,ipKLT,nForb,nIorb,
+      SUBROUTINE CHO_LK_SCF(rc,nDen,FLT,ipKLT,nForb,nIorb,
      &                         ipPorb,ipPLT,FactXI,nSCReen,dmpk,dFmat)
 
 **********************************************************************
@@ -32,6 +32,7 @@ C
 **********************************************************************
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, InfVec, IndRed
+      use Data_Structures, only: DSBA_Type
       use Data_Structures, only: NDSBA_Type, Allocate_NDSBA,
      &                           Deallocate_NDSBA
       use Data_Structures, only: Allocate_L_Full, Deallocate_L_Full,
@@ -47,6 +48,7 @@ C
       Type (NDSBA_type) DiaH
       Type (L_Full_Type) L_Full
       Type (Lab_Type) Lab
+      Type (DSBA_Type) FLT(nDen)
 
       Integer   rc,nDen
       Integer   ipOrb(8,2),nOrb(8,2)
@@ -54,9 +56,12 @@ C
       Real*8    tread(2),tcoul(2),texch(2)
       Real*8    tscrn(2),tmotr(2)
       Real*8    FactXI,dmpk,dFmat,tau(2),thrv(2)
-      Integer   ipPLT(nDen),ipFLT(nDen),ipKLT(nDen)
+      Integer   ipPLT(nDen),ipKLT(nDen)
       Integer   ipPorb(nDen)
       Integer   nForb(8,nDen),nIorb(8,nDen)
+
+      Integer   ipFLT(3)
+
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
@@ -99,6 +104,10 @@ C
 #ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in SCF-debug
 #endif
+
+      Do iDen = 1, nDen
+         ipFLT(iDen) = ip_of_Work(FLT(iDen)%A0(1))
+      End Do
 
       IREDC= -1  ! unknwn reduced set
 
