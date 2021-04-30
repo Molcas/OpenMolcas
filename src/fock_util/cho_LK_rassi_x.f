@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHO_LK_RASSI_X(DLT,ipMSQ1,ipMSQ2,ipFLT,ipK,ipFSQ,
+      SUBROUTINE CHO_LK_RASSI_X(DLT,ipMSQ1,ipMSQ2,FLT,ipK,ipFSQ,
      &                          ipInt,Ash,nScreen,dmpk)
 
 **********************************************************************
@@ -56,7 +56,7 @@ C
       Real*8    tmotr(2),tscrn(2)
 
       Type (NDSBA_Type)  DiaH
-      Type (DSBA_Type)   Ash(2), CM(2), DLT
+      Type (DSBA_Type)   Ash(2), CM(2), DLT, FLT
       Type (SBA_Type)   Laq(2)
       Type (twxy_Type)  Scr
       Type (L_Full_Type) L_Full
@@ -107,6 +107,7 @@ C
       ipMSQ(1)=ipMSQ1
       ipMSQ(2)=ipMSQ2
       ipDLT = ip_of_Work(DLT%A0(1))
+      ipFLT = ip_of_Work(FLT%A0(1))
 
       nDen = 2  ! the two bi-orthonormal sets of orbitals
       If (Fake_CMO2) nDen = 1  ! MO1 = MO2

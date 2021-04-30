@@ -18,7 +18,7 @@
       DIMENSION CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),TUVX(NGAM2)
       DIMENSION KEEP(8),NBSX(8)
       LOGICAL   ISQARX
-      Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT
+      Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT, FLT
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Molcas.fh"
@@ -180,7 +180,8 @@ c --- FAO already contains the one-electron part
 
 #endif
 
-         CALL GETMEM('FLT','ALLO','REAL',ipFLT,nBTri)
+         Call Allocate_DSBA(FLT,nBasF,nBasF,nSym,Case='TRI')
+         ipFLT=ip_of_Work(FLT%A0(1))
 
 C GET THE ONE-ELECTRON HAMILTONIAN MATRIX FROM ONE-EL FILE AND
 C PUT IT INTO A FOCK MATRIX IN AO BASIS:
@@ -190,7 +191,7 @@ C which is the RF contribution to the nuclear repulsion
 
          CALL CHO_GETH1(nBtri,Work(ipFLT),RFpert,ERFNuc)
 
-         ECORE1=DDOT_(nBtri,WORK(ipFLT),1,DLT%A0,1)
+         ECORE1=DDOT_(nBtri,FLT%A0,1,DLT%A0,1)
          If ( IfTest ) Write (6,*) '      ECore1=',ECORE1,ALGO
          If ( IfTest ) Write (6,*) '      FAKE_CMO2=',FAKE_CMO2
 
@@ -198,7 +199,7 @@ C which is the RF contribution to the nuclear repulsion
          If (nProcs.gt.1) Then
              scx=1.0/dble(nProcs)
 C --- to avoid double counting when using gadsum
-             call dscal_(nBtri,scx,WORK(ipFLT),1)
+             FLT%A0(:) = scx * FLT%A0(:)
          EndIf
 #endif
 
@@ -294,14 +295,14 @@ c ---     and compute the (tu|vx) integrals
 
            If (Fake_CMO2) Then
 
-             CALL CHO_LK_RASSI(DLT,ipMO1,ipMO2,ipFLT,LFAO,LTUVX,
+             CALL CHO_LK_RASSI(DLT,ipMO1,ipMO2,FLT,LFAO,LTUVX,
      &                         Ash,nScreen,dmpk)
            Else
 
              CALL GetMem('K-mat','Allo','Real',ipK,NBSQ)
              Call FZero(Work(ipK),NFAO)
 
-             CALL CHO_LK_RASSI_X(DLT,ipMO1,ipMO2,ipFLT,ipK,LFAO,LTUVX,
+             CALL CHO_LK_RASSI_X(DLT,ipMO1,ipMO2,FLT,ipK,LFAO,LTUVX,
      &                         Ash,nScreen,dmpk)
 
              CALL GetMem('K-mat','Free','Real',ipK,NBSQ)
@@ -313,17 +314,15 @@ c ---     and compute the (tu|vx) integrals
          EndIf
 
          If (Fake_CMO2) Then
-            ioff1=0
             ioff2=1
             Do i=1,nSym
-               CALL SQUARE(Work(ipFLT+ioff1),FAO(ioff2),
+               CALL SQUARE(FLT%SB(i)%A1,FAO(ioff2),
      &                     1,nBasF(i),nBasF(i))
-               ioff1=ioff1+nBasF(i)*(nBasF(i)+1)/2
                ioff2=ioff2+nBasF(i)**2
             End Do
          EndIf
 
-         CALL GETMEM('FLT','Free','REAL',ipFLT,nBTri)
+         Call Deallocate_DSBA(FLT)
          Call Deallocate_DSBA(DLT)
 
          Call GADSUM(FAO,NBSQ)

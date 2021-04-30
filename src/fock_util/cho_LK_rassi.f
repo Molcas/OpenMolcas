@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHO_LK_RASSI(DLT,ipMSQ1,ipMSQ2,ipFLT,ipK,ipInt,
+      SUBROUTINE CHO_LK_RASSI(DLT,ipMSQ1,ipMSQ2,FLT,ipK,ipInt,
      &                              Ash,nScreen,dmpk)
 
 **********************************************************************
@@ -60,7 +60,7 @@ C
       Real*8    tmotr(2),tscrn(2)
 
       Type (NDSBA_Type) DiaH
-      Type (DSBA_Type) Ash(2), CM(2), DLT
+      Type (DSBA_Type) Ash(2), CM(2), DLT, FLT
       Type (SBA_Type) Laq(2)
       Type (twxy_Type) Scr
       Type (L_Full_Type) L_Full
@@ -114,6 +114,7 @@ C
       DoReord = .false.
       IREDC = -1  ! unknown reduced set in core
       ipDLT = ip_of_Work(DLT%A0(1))
+      ipFLT = ip_of_Work(FLT%A0(1))
       ipMSQ(1)=ipMSQ1
       ipMSQ(2)=ipMSQ2
 
