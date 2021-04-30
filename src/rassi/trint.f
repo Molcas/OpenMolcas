@@ -18,7 +18,7 @@
       DIMENSION CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),TUVX(NGAM2)
       DIMENSION KEEP(8),NBSX(8)
       LOGICAL   ISQARX
-      Type (DSBA_Type) Ash(2), MO1(2), MO2(2)
+      Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Molcas.fh"
@@ -163,20 +163,18 @@ c --- FAO already contains the one-electron part
             Call AbEnd()
          endif
 
-         CALL GETMEM('DLT','ALLO','REAL',ipDLT,nBTri)
-         CALL Fold_Mat(nSym,nBasF,DINAO,Work(ipDLT))
+         Call Allocate_DSBA(DLT,nBasF,nBasF,nSym,Case='TRI')
+         ipDLT=ip_of_Work(DLT%A0(1))
+         CALL Fold_Mat(nSym,nBasF,DINAO,DLT%A0)
 
 #ifdef _DEBUGPRINT_
 
-         ioff1=0
          ioff2=0
          do i=1,nSym
-            ipDL = ipDLT + ioff1
             ipDS = 1 + ioff2
             call cho_output(DInAO(ipDS),1,nBasF(i),1,nBasF(i),
      &                      nBasF(i),nBasF(i),1,6)
-            call triprt('DLT','',Work(ipDL),nBasF(i))
-            ioff1=ioff1+nBasF(i)*(nBasF(i)+1)/2
+            call triprt('DLT','',DLT%SB(i)%A1,nBasF(i))
             ioff2=ioff2+nBasF(i)**2
          end do
 
@@ -192,7 +190,7 @@ C which is the RF contribution to the nuclear repulsion
 
          CALL CHO_GETH1(nBtri,Work(ipFLT),RFpert,ERFNuc)
 
-         ECORE1=DDOT_(nBtri,WORK(ipFLT),1,WORK(ipDLT),1)
+         ECORE1=DDOT_(nBtri,WORK(ipFLT),1,DLT%A0,1)
          If ( IfTest ) Write (6,*) '      ECore1=',ECORE1,ALGO
          If ( IfTest ) Write (6,*) '      FAKE_CMO2=',FAKE_CMO2
 
@@ -296,14 +294,14 @@ c ---     and compute the (tu|vx) integrals
 
            If (Fake_CMO2) Then
 
-             CALL CHO_LK_RASSI(ipDLT,ipMO1,ipMO2,ipFLT,LFAO,LTUVX,
+             CALL CHO_LK_RASSI(DLT,ipMO1,ipMO2,ipFLT,LFAO,LTUVX,
      &                         Ash,nScreen,dmpk)
            Else
 
              CALL GetMem('K-mat','Allo','Real',ipK,NBSQ)
              Call FZero(Work(ipK),NFAO)
 
-             CALL CHO_LK_RASSI_X(ipDLT,ipMO1,ipMO2,ipFLT,ipK,LFAO,LTUVX,
+             CALL CHO_LK_RASSI_X(DLT,ipMO1,ipMO2,ipFLT,ipK,LFAO,LTUVX,
      &                         Ash,nScreen,dmpk)
 
              CALL GetMem('K-mat','Free','Real',ipK,NBSQ)
@@ -326,7 +324,7 @@ c ---     and compute the (tu|vx) integrals
          EndIf
 
          CALL GETMEM('FLT','Free','REAL',ipFLT,nBTri)
-         CALL GETMEM('DLT','Free','REAL',ipDLT,nBTri)
+         Call Deallocate_DSBA(DLT)
 
          Call GADSUM(FAO,NBSQ)
          Call GADSUM(TUVX,NGAM2)
