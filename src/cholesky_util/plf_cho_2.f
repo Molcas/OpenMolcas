@@ -33,7 +33,6 @@
 #include "cholesky.fh"
 #include "real.fh"
 #include "print.fh"
-#include "srt0.fh"
 *
       Real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp), TInt(lInt)
       Integer iShell(4), iAO(4), kOp(4),

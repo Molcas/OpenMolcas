@@ -101,7 +101,7 @@
 #ifdef _GARBLE_
       Interface
         Subroutine c_null_alloc(A)
-          Import Iso_t
+          Import :: Iso_t
           Type(Iso_t), Allocatable :: A(:)
         End Subroutine c_null_alloc
       End Interface
@@ -116,6 +116,10 @@
         Call c_null_alloc(ElementList(i)%Isotopes)
       End Do
 #endif
+
+#include "macros.fh"
+      unused_proc(mma_allocate(ElementList,[0,0]))
+      unused_proc(mma_allocate(ElementList(0)%Isotopes,[0,0]))
 
       ElementList(1)%Symbol = AdjustL(PTab(1)) ! H
       ElementList(1)%Natural = 3
@@ -4071,13 +4075,6 @@
         Call mma_Deallocate(ElementList(i)%Isotopes)
       End Do
       Call mma_Deallocate(ElementList)
-#ifdef _WARNING_WORKAROUND_
-      If (.False.) Then
-*       Since this should never be executed, don't deallocate
-        Call mma_Allocate(ElementList(1)%Isotopes,[0,0])
-        Call mma_Allocate(ElementList,[0,0])
-      End If
-#endif
       End Subroutine Free_Isotopes
 
 *

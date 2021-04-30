@@ -1522,6 +1522,7 @@ c       Call Get_iScalar('nSym',nSym)
 #include "WrkSpc.fh"
 
 #include "Molcas.fh"
+      EXTERNAL DNRM2_
 *
 
 *define _DEBUGPRINT_
@@ -1723,7 +1724,7 @@ c       Call Get_iScalar('nSym',nSym)
      &                  nBasAtoms, 1)
 #endif
 
-          EigenNorm = DNORM2(nBasAtoms, Work(ipScrV), 1)
+          EigenNorm = DNRM2_(nBasAtoms, Work(ipScrV), 1)
 
 #ifdef _DEBUGPRINT_
           Write(6,*)

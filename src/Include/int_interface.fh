@@ -49,7 +49,6 @@ integer(kind=iwp) :: nAlpha, nBeta, nZeta, la, lb, nIC, nHer, nArr, nComp, nOrdO
                      iStabM(0:nStabM-1), nGrid, iAddPot
 real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), &
                  Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC), A(3), RB(3), Array(nZeta*nArr), Ccoor(3,nComp), PtChrg(nGrid)
-#undef _USE_WP_
 #else
       Integer nAlpha, nBeta
       Real*8 Alpha(nAlpha), Beta(nBeta)
@@ -70,4 +69,5 @@ real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZ
       Real*8 PtChrg(nGrid)
       Integer iAddPot
 #endif
-#undef  _CALLING_
+#undef _USE_WP_
+#undef _CALLING_

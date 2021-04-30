@@ -337,7 +337,7 @@ C A unit matrix at LEV1, to become eigenvectors:
             CALL DCOPY_(NA2,[0.0D0],0,WORK(LEV1),1)
             CALL DCOPY_(NA, [1.0D0],0,WORK(LEV1),NA+1)
 C A call to NIDiag diagonalizes the triangular matrix:
-            CALL NIDiag(WORK(LSC),WORK(LEV1),NA,NA,0)
+            CALL NIDiag(WORK(LSC),WORK(LEV1),NA,NA)
             CALL JACORD(WORK(LSC),WORK(LEV1),NA,NA)
 C Make a copy of the eigenvector matrix:
             LEV2=LEV1+NA2

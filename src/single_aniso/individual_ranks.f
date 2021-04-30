@@ -364,7 +364,7 @@
          ip=projKQ(ik)
          iq=abs(projKQ(ik))
          ir=rankKQ(ik)
-         wt=100_wp*ListKQ(ik)/TnrmKQ
+         wt=100.0_wp*ListKQ(ik)/TnrmKQ
 
          If(projKQ(ik)>=0) Then
             Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),(E22.14,1x,A),'//

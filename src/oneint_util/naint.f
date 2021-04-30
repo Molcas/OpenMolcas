@@ -100,7 +100,8 @@
 *     Loop over nuclear centers.
 *
       kdc = 0
-      Do 100 kCnttp = 1, nCnttp
+      Do kCnttp = 1, nCnttp
+         If (kCnttp/=1) kdc = kdc + dbsc(kCnttp-1)%nCntr
 *
 *        Change nuclear charge if this is a relativistic ECP-case. This
 *        is used for the DKH transformation (see dkh_util/dkrelint.f)!
@@ -111,7 +112,8 @@
             Q_Nuc=dbsc(kCnttp)%Charge
          End If
 
-         If (Q_Nuc.eq.Zero) Go To 111
+         If (kCnttp==iCnttp_Dummy) Cycle
+         If (Q_Nuc.eq.Zero) Cycle
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
             C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
             If (iPrint.ge.99) Call RecPrt('C',' ',C,1,3)
@@ -266,8 +268,7 @@
 *
  102        Continue
  101     Continue
- 111     kdc = kdc + dbsc(kCnttp)%nCntr
- 100  Continue
+      End Do
 *
       If (Nuclear_Model.eq.Gaussian_Type .or.
      &    Nuclear_Model.eq.mGaussian_Type) Then

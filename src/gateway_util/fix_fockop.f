@@ -293,7 +293,7 @@
                   End Do
                End Do
                Call mma_deallocate(Ovr)
-               Call NIDiag_new(EVal,EVec,nBF,nBF,0)
+               Call NIDiag_new(EVal,EVec,nBF,nBF)
 *
 *              2) Construct S^(1/2) and S^(-1/2)
 *
@@ -338,7 +338,7 @@
                End Do
                Call mma_deallocate(Temp)
                Call mma_deallocate(FPrim)
-               Call NIDiag_new(EVal,EVec,nBF,nBF,0)
+               Call NIDiag_new(EVal,EVec,nBF,nBF)
 *
 *              5) Form C = S^(-1/2) C'
 *

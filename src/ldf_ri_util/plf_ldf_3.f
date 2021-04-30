@@ -35,8 +35,6 @@
 #include "lRI.fh"
 #include "real.fh"
 #include "print.fh"
-#include "srt0.fh"
-#include "srt1.fh"
 #include "WrkSpc.fh"
 *
       Real*8 AOint(ijkl,jCmp,kCmp,lCmp), TInt(nTInt)

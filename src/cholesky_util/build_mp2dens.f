@@ -139,7 +139,7 @@
                End Do
 *
                Call NIDiag(MOTriBlock,EigenVecBlock,
-     &                     nOrbAll(iSym),nOrbAll(iSym),0)
+     &                     nOrbAll(iSym),nOrbAll(iSym))
 
 
 

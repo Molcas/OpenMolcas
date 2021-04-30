@@ -29,11 +29,11 @@
       use lw_Info
       use Real_Info, only: ThrInt
       use Symmetry_Info, only: nIrrep
+      use sort_data, only: DimSyB, iStBin, lSll, mxSyP, nSkip, Square,
+     &                     TriSyB
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-#include "srt0.fh"
-#include "srt1.fh"
 *
       Real*8 SOint(ijkl,nSOint)
       Integer iCmp(4), iShell(4), iAO(4), iAOst(4), iSOSym(2,nSOs)

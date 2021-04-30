@@ -13,12 +13,14 @@
 
 subroutine ChoRPA_MOTra_ReorderCMO(nSym,nBas,nOrb,CMOinp,CMOout)
 
+#include "intent.fh"
+
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym)
 real(kind=wp), intent(in) :: CMOinp(*)
-real(kind=wp), intent(out) :: CMOout(*)
+real(kind=wp), intent(_OUT_) :: CMOout(*)
 integer(kind=iwp) :: iSym, ip1, ip2, l
 
 ip1 = 1

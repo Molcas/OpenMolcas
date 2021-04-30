@@ -236,7 +236,7 @@ do iSym=1,nSym
       call TriPrt(Line,'(10f12.6)',Fmo(ipTmp3),nBas(iSym))
     end if
     !call Jacob(Fmo(ipTmp3),CMOs(ipTmp2),nBas(iSym),nBas(iSym))
-    call NIdiag(Fmo(ipTmp3),CMOs(ipTmp2),nBas(iSym),nBas(iSym),0)
+    call NIdiag(Fmo(ipTmp3),CMOs(ipTmp2),nBas(iSym),nBas(iSym))
     if (Debug) then
       write(Line,'(a,i2)') 'Diagonal Fock matrix, symmetry ',iSym
       call TriPrt(Line,'(10f12.6)',Fmo(ipTmp3),nBas(iSym))

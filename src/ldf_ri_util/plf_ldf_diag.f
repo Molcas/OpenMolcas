@@ -33,7 +33,6 @@
 #include "localdf_int.fh"
 #include "real.fh"
 #include "print.fh"
-#include "srt0.fh"
 #include "WrkSpc.fh"
 *
       Real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp), TInt(nTInt)

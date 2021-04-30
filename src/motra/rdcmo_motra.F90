@@ -20,17 +20,19 @@ subroutine RdCmo_motra(CMO,Ovlp)
 !                                                                      *
 !***********************************************************************
 
+#include "intent.fh"
+
 use motra_global, only: FnInpOrb, FnJobIph, iVecTyp, LuInpOrb, LuJobIph, nBas, nDel, nSym, nTot2, VecTit
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), intent(out) :: CMO(*)
+real(kind=wp), intent(_OUT_) :: CMO(*)
 real(kind=wp), intent(in) :: Ovlp(*)
 #include "mxdm.fh"
 integer(kind=iwp) :: iDisk, iDummy(1), iErr, iPt2, TcJobIph(10)
 real(kind=wp) :: Dummy(1)
-integer(kind=wp), allocatable :: itemp2(:)
+integer(kind=iwp), allocatable :: itemp2(:)
 real(kind=wp), allocatable :: temp2(:)
 character, allocatable :: ctemp2(:)
 logical(kind=iwp) :: okay

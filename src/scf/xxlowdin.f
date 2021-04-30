@@ -77,7 +77,7 @@
          Call dCopy_(nTri,S(1+iTriOff),1,Smat,1)
          Call FZero(Vect,nSqr)
          Call dCopy_(nBas(iSym),[1.0D0],0,Vect,nBas(iSym)+1)
-         Call NIdiag(Smat,Vect,nBas(iSym),nBas(iSym),0)
+         Call NIdiag(Smat,Vect,nBas(iSym),nBas(iSym))
          Do i=1,nBas(iSym)
 *           Eige(i)=Smat(+i*(i+1)/2)
             Eige(i)=1.0d0/Sqrt(Smat(+i*(i+1)/2))

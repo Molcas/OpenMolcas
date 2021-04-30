@@ -11,6 +11,8 @@
 
 subroutine FCIN(FLT,nFLT,DLT,FSQ,DSQ,EMY,CMO)
 
+#include "intent.fh"
+
 use motra_global, only: Debug, iPrint, nBas, nFro, nSym, nTot1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -20,7 +22,8 @@ implicit none
 integer(kind=iwp), intent(in) :: nFLT
 real(kind=wp), intent(inout) :: FLT(nFLT)
 real(kind=wp), intent(in) :: CMO(*)
-real(kind=wp), intent(out) :: DLT(*), FSQ(*), DSQ(*), EMY
+real(kind=wp), intent(_OUT_) :: DLT(*), FSQ(*), DSQ(*)
+real(kind=wp), intent(out) :: EMY
 integer(kind=iwp) :: ISTLTT, ISYM, LBUF, n_Bas, NB, NPQ, NTFRO
 real(kind=wp) :: EONE, ETWO
 real(kind=wp), allocatable :: Temp(:), W1(:), W2(:)

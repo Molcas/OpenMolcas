@@ -56,7 +56,7 @@ if ((Method == 'RHF-SCF') .or. (Method == 'UHF-SCF') .or. (Method == 'KS-DFT')) 
   call xml_open('module',' ',' ',0,'scf')
   call SCF(ireturn)
   call xml_close('module')
-  if (iReturn /= 0) call error()
+  if (iReturn /= 0) call Error()
 
 else if (Method(1:5) == 'MBPT2') then
 
@@ -65,29 +65,29 @@ else if (Method(1:5) == 'MBPT2') then
   call xml_open('module',' ',' ',0,'scf')
   call SCF(ireturn)
   call xml_close('module')
-  if (iReturn /= 0) call error()
+  if (iReturn /= 0) call Error()
   call StartLight('mbpt2')
   call Disable_Spool()
   call mp2_driver(ireturn)
-  if (iReturn /= 0) call error()
+  if (iReturn /= 0) call Error()
 
 else if ((Method == 'RASSCF') .or. (Method == 'CASSCF')) then
 
   call StartLight('rasscf')
   call Disable_Spool()
   call RASSCF(ireturn)
-  if (iReturn /= 0) call error()
+  if (iReturn /= 0) call Error()
 
 else if (Method == 'CASPT2') then
 
   call StartLight('rasscf')
   call Disable_Spool()
   call RASSCF(ireturn)
-  if (iReturn /= 0) call error()
+  if (iReturn /= 0) call Error()
   call StartLight('caspt2')
   call Disable_Spool()
   call CASPT2(ireturn)
-  if (iReturn /= 0) call error()
+  if (iReturn /= 0) call Error()
 
 else
   write(u6,*) 'Method=',Method
@@ -107,7 +107,7 @@ return
 
 contains
 
-subroutine error()
+subroutine Error()
 
   write(u6,*)
   write(u6,*) 'Comp_f: Wave function calculation failed!'
