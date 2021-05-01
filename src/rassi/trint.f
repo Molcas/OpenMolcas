@@ -16,7 +16,7 @@
      &                           Deallocate_DSBA
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),TUVX(NGAM2)
-      DIMENSION KEEP(8),NBSX(8)
+      Integer KEEP(8),NBSX(8), nAux(8)
       LOGICAL   ISQARX
       Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT, FLT
 #include "rassi.fh"
@@ -261,32 +261,28 @@ c ---     and compute the (tu|vx) integrals
 
          Else  ! algo=2 (local exchange algorithm)
 
-           ipMO1 = ip_of_Work(CMO1(1))  ! Cak storage
-           ipMO2 = ip_of_Work(CMO2(1))
+           nAux(:) = nIsh(:) + nAsh(:)
+           Call Allocate_DSBA(MO1(1),nBasF,nAux,nSym,Ref=CMO1)
+           Call Allocate_DSBA(MO1(2),nBasF,nAux,nSym,Ref=CMO2)
+           ipMO1 = ip_of_Work(MO1(1)%A0(1))  ! Cak storage
+           ipMO2 = ip_of_Work(MO1(2)%A0(1))
 
 C *** Only the active orbitals MO coeff need reordering
            Call Allocate_DSBA(Ash(1),nAsh,nBasF,nSym)
            Call Allocate_DSBA(Ash(2),nAsh,nBasF,nSym)
 
-           ioff=0
            Do iSym=1,nSym
 
-            ioff2 = ioff + nBasF(iSym)*nIsh(iSym)
-
             do ikk=1,nAsh(iSym)
-
-               ioff3=ioff2+nBasF(iSym)*(ikk-1)
+               jkk = nIsh(iSym) + ikk
 
                Ash(1)%SB(iSym)%A2(ikk,:) =
-     &             CMO1(ioff3+1:ioff3+nBasF(iSym))
+     &             MO1(1)%SB(iSym)%A2(:,jkk)
 
                Ash(2)%SB(iSym)%A2(ikk,:) =
-     &             CMO2(ioff3+1:ioff3+nBasF(iSym))
+     &             MO1(2)%SB(iSym)%A2(:,jkk)
 
             end do
-
-            ioff=ioff+(nIsh(iSym)+nAsh(iSym))*nBasF(iSym)
-*           ioff1=ioff1+nAsh(iSym)*nBasF(iSym)
 
            End Do
 
@@ -295,14 +291,14 @@ c ---     and compute the (tu|vx) integrals
 
            If (Fake_CMO2) Then
 
-             CALL CHO_LK_RASSI(DLT,ipMO1,ipMO2,FLT,LFAO,LTUVX,
+             CALL CHO_LK_RASSI(DLT,MO1,FLT,LFAO,LTUVX,
      &                         Ash,nScreen,dmpk)
            Else
 
              CALL GetMem('K-mat','Allo','Real',ipK,NBSQ)
              Call FZero(Work(ipK),NFAO)
 
-             CALL CHO_LK_RASSI_X(DLT,ipMO1,ipMO2,FLT,ipK,LFAO,LTUVX,
+             CALL CHO_LK_RASSI_X(DLT,MO1,FLT,ipK,LFAO,LTUVX,
      &                         Ash,nScreen,dmpk)
 
              CALL GetMem('K-mat','Free','Real',ipK,NBSQ)
@@ -310,6 +306,8 @@ c ---     and compute the (tu|vx) integrals
 
            Call Deallocate_DSBA(Ash(2))
            Call Deallocate_DSBA(Ash(1))
+           Call Deallocate_DSBA(MO1(2))
+           Call Deallocate_DSBA(MO1(1))
 
          EndIf
 
