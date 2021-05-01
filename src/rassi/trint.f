@@ -8,17 +8,18 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE TRINT(CMO1,CMO2,ECORE,NGAM1,FOCKMO,NGAM2,TUVX)
+      SUBROUTINE TRINT(CMO1,CMO2,ECORE,NGAM1,FOCKMO,NGAM2,W_TUVX)
 #if defined (_MOLCAS_MPP_)
       USE Para_Info, ONLY: nProcs
 #endif
       use Data_structures, only: DSBA_Type, Allocate_DSBA,
      &                           Deallocate_DSBA
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),TUVX(NGAM2)
+      DIMENSION CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),W_TUVX(NGAM2)
       Integer KEEP(8),NBSX(8), nAux(8)
       LOGICAL   ISQARX
-      Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT, FLT
+      Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT, FLT, TUVX
+#include "real.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Molcas.fh"
@@ -34,15 +35,15 @@
 #include "chorassi.fh"
 
 *****************************************************************
-*  CALCULATE AND RETURN ECORE, FOCKMO, AND TUVX. ECORE IS THE
+*  CALCULATE AND RETURN ECORE, FOCKMO, AND W_TUVX. ECORE IS THE
 *  INACTIVE-INACTIVE ENERGY CONTRIBUTION, WHICH IS TO BE MULTI-
 *  PLIED WITH AN OVERLAP TO GIVE A CONTRIBUTION TO THE HAMILTONIAN
 *  MATRIX ELEMENT. SIMILARLY, THE INACTIVE-ACTIVE CONTRIBUTION IS
 *  GIVEN BY THE FOCKMO ARRAY CONTRACTED WITH AN ACTIVE TRANSITION
 *  DENSITY MATRIX, AND THE ACTIVE-ACTIVE IS THE TRANSFORMED
-*  INTEGRALS IN ARRAY TUVX CONTRACTED WITH THE TRANSITION DENSITY
+*  INTEGRALS IN ARRAY W_TUVX CONTRACTED WITH THE TRANSITION DENSITY
 *  TWO-ELECTRON MATRIX. THEREFORE, THE STORAGE OF THE FOCKMO AND
-*  THE TUVX MATRICES ARE IN THE SAME FORMAT AS THE DENSITY MATRICES.
+*  THE W_TUVX MATRICES ARE IN THE SAME FORMAT AS THE DENSITY MATRICES.
 *****************************************************************
 
       IfTest=.False.
@@ -50,7 +51,7 @@
       IfTest=.True.
 #endif
 C THE FOLLOWING PROGRAMS USE THE ORDERED INTEGRAL FILE FOR BOTH
-C THE FOCKMO MATRIX AND THE TUVX ARRAY. THEREFORE, IT IS IMPERATIVE
+C THE FOCKMO MATRIX AND THE W_TUVX ARRAY. THEREFORE, IT IS IMPERATIVE
 C THAT SYMMETRY BLOCKS HAVE NOT BEEN EXCLUDED IN THE GENERATION OF
 C THIS ORDERED INTEGRAL FILE, UNLESS BOTH ACTIVE AND INACTIVE ORBITALS
 C ARE MISSING FOR THAT SYMMETRY LABEL. THIS IS CHECKED FIRST:
@@ -60,7 +61,9 @@ C OPEN THE ELECTRON REPULSION INTEGRAL FILE
 c      Call DecideOnDirect(.False.,FoundTwoEls,DoDirect,DoCholesky)
       Call DecideOnCholesky(DoCholesky)
 
-      LTUVX=ip_of_work(TUVX(1))
+      LTUVX=ip_of_work(W_TUVX(1))
+      Call Allocate_DSBA(TUVX,nBasF,nBasF,nSym,Case='TRI',Ref=W_TUVX)
+
       If (.not.DoCholesky) then
 
          IOPT=0
@@ -115,8 +118,13 @@ C CALCULATE AN INACTIVE TRANSITION DENSITY MATRIX IN AO BASIS:
       NFAO=NBSQ
       Call mma_allocate(FAO,nFAO,Label='FAO')
       LFAO=ip_of_Work(FAO(1))
-
-      IF (.not.DoCholesky) THEN
+*                                                                     *
+***********************************************************************
+*                                                                     *
+      IF (.not.DoCholesky) THEN     ! Conventional integrals
+*                                                                     *
+***********************************************************************
+*                                                                     *
 
          If ( IfTest ) Call dVcPrt('Done',' ',DINAO,NDINAO)
 C GET THE ONE-ELECTRON HAMILTONIAN MATRIX FROM ONE-EL FILE AND
@@ -152,10 +160,14 @@ c --- FAO already contains the one-electron part
 #endif
 
          ECORE2=DDOT_(NBSQ,FAO,1,DINAO,1)
-
-      Else
-
-* --- Initialize Cholesky information
+*                                                                     *
+***********************************************************************
+*                                                                     *
+      Else       ! RI/CD integrals
+*                                                                     *
+***********************************************************************
+*                                                                     *
+* ------ Initialize Cholesky information
 
          CALL CHO_X_INIT(irc,ChFracMem)
          if (irc.ne.0) then
@@ -204,9 +216,14 @@ C --- to avoid double counting when using gadsum
 #endif
 
          call Fzero(FAO,nFAO) ! Used as Exchange F matrix
-
+!                                                                      !
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()(!
+!                                                                      !
          If (ALGO.eq.1) Then
-c --- reorder the MOs to fit Cholesky needs
+!                                                                      !
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()(!
+!                                                                      !
+c -------- reorder the MOs to fit Cholesky needs
 
            Call Allocate_DSBA(MO1(1),nIsh,nBasF,nSym)
            Call Allocate_DSBA(MO1(2),nIsh,nBasF,nSym)
@@ -258,14 +275,17 @@ c ---     and compute the (tu|vx) integrals
            Call Deallocate_DSBA(MO2(1))
            Call Deallocate_DSBA(MO1(2))
            Call Deallocate_DSBA(MO1(1))
-
+!                                                                      !
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()(!
+!                                                                      !
          Else  ! algo=2 (local exchange algorithm)
+!                                                                      !
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()(!
+!                                                                      !
 
            nAux(:) = nIsh(:) + nAsh(:)
            Call Allocate_DSBA(MO1(1),nBasF,nAux,nSym,Ref=CMO1)
            Call Allocate_DSBA(MO1(2),nBasF,nAux,nSym,Ref=CMO2)
-           ipMO1 = ip_of_Work(MO1(1)%A0(1))  ! Cak storage
-           ipMO2 = ip_of_Work(MO1(2)%A0(1))
 
 C *** Only the active orbitals MO coeff need reordering
            Call Allocate_DSBA(Ash(1),nAsh,nBasF,nSym)
@@ -309,7 +329,13 @@ c ---     and compute the (tu|vx) integrals
            Call Deallocate_DSBA(MO1(2))
            Call Deallocate_DSBA(MO1(1))
 
+!                                                                      !
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()(!
+!                                                                      !
          EndIf
+!                                                                      !
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()(!
+!                                                                      !
 
          If (Fake_CMO2) Then
             ioff2=1
@@ -324,7 +350,7 @@ c ---     and compute the (tu|vx) integrals
          Call Deallocate_DSBA(DLT)
 
          Call GADSUM(FAO,NBSQ)
-         Call GADSUM(TUVX,NGAM2)
+         Call GADSUM(TUVX%A0,NGAM2)
 
          ECORE2=DDOT_(NBSQ,FAO,1,DINAO,1)
 
@@ -335,10 +361,13 @@ c ---     and compute the (tu|vx) integrals
             write(6,*)'TrInt: Cho_X_Final returns error code ',irc
             write(6,*)'Try recovery -- continue.'
          endif
-
+*                                                                     *
+***********************************************************************
+*                                                                     *
       EndIf
-
-
+*                                                                     *
+***********************************************************************
+*                                                                     *
       If ( IfTest ) Write (6,*) '      Etwo  =',ECORE2
       ECORE=0.5D0*(ECORE1+ECORE2)
       If ( IfTest ) Write (6,*) '      Ecore =',ECORE
@@ -392,12 +421,12 @@ C -- MATRIX MULT. F(ACT MO,ACT MO)=CMO1(AO,ACT MO)(TRP)*PROD(AO,ACT MO)
 
       If (.not.DoCholesky) then
 C TRANSFORM TWO-ELECTRON INTEGRALS:
-         CALL TRAINT(CMO1,CMO2,NGAM2,TUVX)
+         CALL TRAINT(CMO1,CMO2,NGAM2,TUVX%A0)
 
          CALL CLSORD(IRC,IOPT)
 
       End If
-      Call Chk4NaN(nasht*(nasht+1)/2,TUVX,iErr)
+      Call Chk4NaN(nasht*(nasht+1)/2,TUVX%A0,iErr)
       If (iErr.ne.0) Then
          Write (6,*) 'TrInt: TUVX corrupted'
          Call Abend()
@@ -407,8 +436,9 @@ C TRANSFORM TWO-ELECTRON INTEGRALS:
          Write (6,*) 'TrInt: FOCKMO corrupted'
          Call Abend()
       End If
-c     Call triprt('tuvx',' ',TUVX,nasht)
+c     Call triprt('tuvx',' ',TUVX%A0,nasht)
 
+      Call Deallocate_DSBA(TUVX)
 
       RETURN
 901   CONTINUE
