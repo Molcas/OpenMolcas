@@ -18,7 +18,7 @@
       DIMENSION CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),W_TUVX(NGAM2)
       Integer KEEP(8),NBSX(8), nAux(8)
       LOGICAL   ISQARX
-      Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT, FLT, TUVX
+      Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT, FLT, TUVX, KSQ
 #include "real.fh"
 #include "rassi.fh"
 #include "symmul.fh"
@@ -315,13 +315,14 @@ c ---     and compute the (tu|vx) integrals
      &                         Ash,nScreen,dmpk)
            Else
 
-             CALL GetMem('K-mat','Allo','Real',ipK,NBSQ)
-             Call FZero(Work(ipK),NFAO)
+             Call Allocate_DSBA(KSQ,nBasF,nBasF,nSym)
+             KSQ%A0(:)=Zero
+             ipK = ip_of_Work(KSQ%A0(1))
 
              CALL CHO_LK_RASSI_X(DLT,MO1,FLT,ipK,LFAO,LTUVX,
      &                         Ash,nScreen,dmpk)
 
-             CALL GetMem('K-mat','Free','Real',ipK,NBSQ)
+             Call Deallocate_DSBA(KSQ)
            EndIf
 
            Call Deallocate_DSBA(Ash(2))
