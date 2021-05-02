@@ -19,14 +19,13 @@
       Integer KEEP(8),NBSX(8), nAux(8)
       LOGICAL   ISQARX
       Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT, FLT, TUVX, KSQ,
-     &                 FAO
+     &                 FAO, Temp_SQ
 #include "real.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "Files.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Logical IfTest,FoundTwoEls,DoCholesky
 
@@ -143,13 +142,13 @@ C ONE-EL HAMILTONIAN:
 
 C ADD IN THE TWO-ELECTRON CONTRIBUTIONS TO THE FOCKAO MATRIX:
 *
-         Call Allocate_Work(ipTemp,nFAO)
-         Call FZero(Work(ipTemp),nFAO)
-         CALL FOCK_RASSI(DINAO,WORK(ipTemp))
+         Call Allocate_DSBA(Temp_SQ,nBasF,nBasF,nSym)
+         Temp_SQ%A0(:)=Zero
+         CALL FOCK_RASSI(DINAO,Temp_SQ%A0)
 
 c --- FAO already contains the one-electron part
-         Call DaXpY_(nFAO,1.0D+0,Work(ipTemp),1,FAO%A0,1)
-         Call Free_Work(ipTemp)
+         FAO%A0(:) = FAO%A0(:) + Temp_SQ%A0(:)
+         Call Deallocate_DSBA(Temp_SQ)
 
 #ifdef _DEBUGPRINT_
          Do i=1,nSym
@@ -200,7 +199,7 @@ C Note: CHO_GETH1 also adds the reaction field contribution to the
 C 1-electron hamiltonian, and the variable ERFNuc in common /general/,
 C which is the RF contribution to the nuclear repulsion
 
-         CALL CHO_GETH1(nBtri,Work(ipFLT),RFpert,ERFNuc)
+         CALL CHO_GETH1(nBtri,FLT%A0,RFpert,ERFNuc)
 
          ECORE1=DDOT_(nBtri,FLT%A0,1,DLT%A0,1)
          If ( IfTest ) Write (6,*) '      ECore1=',ECORE1,ALGO
@@ -310,15 +309,14 @@ c ---     and compute the (tu|vx) integrals
 
            If (Fake_CMO2) Then
 
-             CALL CHO_LK_RASSI(DLT,MO1,FLT,FAO,LTUVX,
-     &                         Ash,nScreen,dmpk)
+             CALL CHO_LK_RASSI(DLT,MO1,FLT,FAO,TUVX,Ash,nScreen,dmpk)
            Else
 
              Call Allocate_DSBA(KSQ,nBasF,nBasF,nSym)
              KSQ%A0(:)=Zero
 
-             CALL CHO_LK_RASSI_X(DLT,MO1,FLT,KSQ,FAO,LTUVX,
-     &                         Ash,nScreen,dmpk)
+             CALL CHO_LK_RASSI_X(DLT,MO1,FLT,KSQ,FAO,TUVX,Ash,nScreen,
+     6                           dmpk)
 
              Call Deallocate_DSBA(KSQ)
            EndIf
