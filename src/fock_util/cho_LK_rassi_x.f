@@ -107,8 +107,6 @@ C
       IREDC = -1  ! unknown reduced set in core
       ipMSQ(1)= ip_of_Work(MSQ(1)%A0(1))
       ipMSQ(2)= ip_of_Work(MSQ(2)%A0(1))
-      ipDLT   = ip_of_Work(DLT%A0(1))
-      ipFLT   = ip_of_Work(FLT%A0(1))
       ipK     = ip_of_Work(KSQ%A0(1))
       ipFSQ   = ip_of_Work(FSQ%A0(1))
       ipInt   = ip_of_Work(TUVX%A0(1))
@@ -445,6 +443,7 @@ C --- Transform the density to reduced storage
                mode = 'toreds'
                add = .False.
                nMat = 1
+               ipDLT   = ip_of_Work(DLT%A0(1))
                Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
      &                           [ipDLT],Drs,mode,add)
             EndIf
@@ -1157,6 +1156,7 @@ c --- backtransform fock matrix to full storage
                mode = 'tofull'
                add = .True.
                nMat=1
+               ipFLT   = ip_of_Work(FLT%A0(1))
                Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
      &                           [ipFLT],Frs,mode,add)
             EndIf
@@ -1209,7 +1209,6 @@ C--- have performed screening in the meanwhile
 * --- Accumulate Coulomb and Exchange contributions
       Do iSym=1,nSym
 
-         ipFI = ipFLT + ISTLT(iSym)
          ipKI = ipK   + ISTSQ(iSym)
          ipFS = ipFSQ + ISTSQ(iSym)
 
@@ -1236,11 +1235,12 @@ C--- have performed screening in the meanwhile
                   iag = ioffa + ia
                   ibg = ioffb + ib
 
-                  jF = ipFI - 1 + iTri(iag,ibg)
+                  iabg = iTri(iag,ibg)
 
                   jS = ipFS - 1 + nBas(iSym)*(ibg-1) + iag
 
-                  Work(jS) = Work(jF) + Work(jK)
+                  Work(jS) = FLT%SB(iSym)%A1(iabg)
+     &                     + Work(jK)
 
                 End Do
 
@@ -1279,11 +1279,9 @@ C--- have performed screening in the meanwhile
       CALL CWTIME(TOTCPU2,TOTWALL2)
       TOTCPU = TOTCPU2 - TOTCPU1
       TOTWALL= TOTWALL2 - TOTWALL1
-
-
 *
 *---- Write out timing information
-      if(timings)then
+      if (timings)then
 
       CFmt='(2x,A)'
       Write(6,*)
@@ -1309,7 +1307,6 @@ C--- have performed screening in the meanwhile
       Write(6,*)
 
       endif
-
 
 c Print the Fock-matrix
 *define _DEBUGPRINT_

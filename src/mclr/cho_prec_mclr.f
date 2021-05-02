@@ -36,7 +36,7 @@
 #include "warnings.fh"
       Character(LEN=13), Parameter:: SECNAM = 'CHO_PREC_MCLR'
 
-      Integer   ISTLT(8),ISTSQ(8)
+      Integer   ISTSQ(8)
       Integer   LuAChoVec(8),LuChoInt(2)
       Integer   nAsh(8),nIsh(8),nIshb(8),nIshe(8),nAshb(8),nAshe(8)
       Real*8    tread(2),ttran(2),tform(2) ,tform2(2) ,
@@ -81,11 +81,8 @@
       MaxVecPerBatch=Cho_LK_MaxVecPerBatch()
       iLoc = 3
 *
-      ISTLT(1)=0
       ISTSQ(1)=0
       DO ISYM=2,NSYM
-        NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NBB
         ISTSQ(iSYM)=ISTSQ(iSYM-1)+NBAS(ISYM-1)**2
       END DO
 *
