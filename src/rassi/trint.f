@@ -317,9 +317,8 @@ c ---     and compute the (tu|vx) integrals
 
              Call Allocate_DSBA(KSQ,nBasF,nBasF,nSym)
              KSQ%A0(:)=Zero
-             ipK = ip_of_Work(KSQ%A0(1))
 
-             CALL CHO_LK_RASSI_X(DLT,MO1,FLT,ipK,LFAO,LTUVX,
+             CALL CHO_LK_RASSI_X(DLT,MO1,FLT,KSQ,LFAO,LTUVX,
      &                         Ash,nScreen,dmpk)
 
              Call Deallocate_DSBA(KSQ)
