@@ -18,7 +18,8 @@
       DIMENSION CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),W_TUVX(NGAM2)
       Integer KEEP(8),NBSX(8), nAux(8)
       LOGICAL   ISQARX
-      Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT, FLT, TUVX, KSQ
+      Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT, FLT, TUVX, KSQ,
+     &                 FAO
 #include "real.fh"
 #include "rassi.fh"
 #include "symmul.fh"
@@ -29,7 +30,7 @@
 #include "stdalloc.fh"
       Logical IfTest,FoundTwoEls,DoCholesky
 
-      Real*8, Dimension(:), Allocatable:: Prod, FAO, DInAO
+      Real*8, Dimension(:), Allocatable:: Prod, DInAO
 
 #include "cho_jobs.fh"
 #include "chorassi.fh"
@@ -116,8 +117,8 @@ C CALCULATE AN INACTIVE TRANSITION DENSITY MATRIX IN AO BASIS:
       CALL DIMAT(CMO1,CMO2,DINAO)
 
       NFAO=NBSQ
-      Call mma_allocate(FAO,nFAO,Label='FAO')
-      LFAO=ip_of_Work(FAO(1))
+      Call Allocate_DSBA(FAO,nBasF,nBasF,nSym)
+      LFAO=ip_of_Work(FAO%A0(1))
 *                                                                     *
 ***********************************************************************
 *                                                                     *
@@ -132,11 +133,11 @@ C PUT IT INTO A FOCK MATRIX IN AO BASIS:
 C Note: GETH1 also adds the reaction field contribution to the
 C 1-electron hamiltonian, and the variable ERFNuc in common /general/,
 C which is the RF contribution to the nuclear repulsion
-         CALL GETH1_RASSI(FAO)
-         If ( IfTest ) Call dVcPrt('h0',' ',FAO,NFAO)
+         CALL GETH1_RASSI(FAO%A0)
+         If ( IfTest ) Call dVcPrt('h0',' ',FAO%A0,NFAO)
 C ONE CONTRIBUTION TO ECORE MUST BE CALCULATED FROM THE NAKED
 C ONE-EL HAMILTONIAN:
-         ECORE1=DDOT_(NBSQ,FAO,1,DINAO,1)
+         ECORE1=DDOT_(NBSQ,FAO%A0,1,DINAO,1)
          If ( IfTest ) Write (6,*) '      ECore1=',ECORE1
 
 
@@ -147,19 +148,17 @@ C ADD IN THE TWO-ELECTRON CONTRIBUTIONS TO THE FOCKAO MATRIX:
          CALL FOCK_RASSI(DINAO,WORK(ipTemp))
 
 c --- FAO already contains the one-electron part
-         Call DaXpY_(nFAO,1.0D+0,Work(ipTemp),1,FAO,1)
+         Call DaXpY_(nFAO,1.0D+0,Work(ipTemp),1,FAO%A0,1)
          Call Free_Work(ipTemp)
 
 #ifdef _DEBUGPRINT_
-         ioff=1
          Do i=1,nSym
-         call CHO_OUTPUT(fao(ioff),1,nBasF(i),1,nBasF(i),
-     &                   nBasF(i),nBasF(i),1,6)
-         ioff=ioff+nBasF(i)**2
+         call CHO_OUTPUT(FAO%SB(i)%A2,1,nBasF(i),1,nBasF(i),
+     &                                  nBasF(i),nBasF(i),1,6)
          End Do
 #endif
 
-         ECORE2=DDOT_(NBSQ,FAO,1,DINAO,1)
+         ECORE2=DDOT_(NBSQ,FAO%A0,1,DINAO,1)
 *                                                                     *
 ***********************************************************************
 *                                                                     *
@@ -215,7 +214,7 @@ C --- to avoid double counting when using gadsum
          EndIf
 #endif
 
-         call Fzero(FAO,nFAO) ! Used as Exchange F matrix
+         FAO%A0(:)=Zero ! Used as Exchange F matrix
 !                                                                      !
 !)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()(!
 !                                                                      !
@@ -338,21 +337,19 @@ c ---     and compute the (tu|vx) integrals
 !                                                                      !
 
          If (Fake_CMO2) Then
-            ioff2=1
             Do i=1,nSym
-               CALL SQUARE(FLT%SB(i)%A1,FAO(ioff2),
+               CALL SQUARE(FLT%SB(i)%A1,FAO%SB(i)%A2,
      &                     1,nBasF(i),nBasF(i))
-               ioff2=ioff2+nBasF(i)**2
             End Do
          EndIf
 
          Call Deallocate_DSBA(FLT)
          Call Deallocate_DSBA(DLT)
 
-         Call GADSUM(FAO,NBSQ)
+         Call GADSUM(FAO%A0,NBSQ)
          Call GADSUM(TUVX%A0,NGAM2)
 
-         ECORE2=DDOT_(NBSQ,FAO,1,DINAO,1)
+         ECORE2=DDOT_(NBSQ,FAO%A0,1,DINAO,1)
 
 * --- Finalize Cholesky information
 
@@ -384,7 +381,6 @@ C TRANSFORM THE FOCK MATRIX TO MO BASIS:
       Call mma_allocate(Prod,nProd,Label='Prod')
       Call FZero(PROD,NPROD)
       ISTFMO=1
-      ISTFAO=1
       ISTC=1
       CALL FZERO(FOCKMO,NGAM1)
       DO 30 ISYM=1,NSYM
@@ -394,13 +390,12 @@ C TRANSFORM THE FOCK MATRIX TO MO BASIS:
          NB=NBASF(ISYM)
          IF (NA.NE.0) THEN
             ISTA=ISTC+NI*NB
-C ISTFAO: BEGINNING OF F(AO,AO) BLOCK OF SYMMETRY ISYM.
 C ISTFMO: BEGINNING OF F(MO,MO) BLOCK OF SYMMETRY ISYM.
 C ISTC: BEGINNING OF MO-S OF SYMMETRY ISYM.
 C ISTA: BEGINNING OF ACTIVE MO-S OF SYMMETRY ISYM.
 C MATRIX MULT. PROD(AO,ACTIVE MO)=F(AO,AO)*CMO2(AO,ACTIVE MO)
             CALL DGEMM_('N','N',NB,NA,NB,
-     &                  1.0D0,FAO(ISTFAO),NB,
+     &                  1.0D0,FAO%SB(ISYM)%A2,NB,
      &                        CMO2(ISTA),NB,
      &                  0.0D0,PROD,NB)
 C -- MATRIX MULT. F(ACT MO,ACT MO)=CMO1(AO,ACT MO)(TRP)*PROD(AO,ACT MO)
@@ -409,12 +404,11 @@ C -- MATRIX MULT. F(ACT MO,ACT MO)=CMO1(AO,ACT MO)(TRP)*PROD(AO,ACT MO)
      &                        PROD,NB,
      &                  0.0D0,FOCKMO(ISTFMO),NASHT)
          END IF
-         ISTFAO=ISTFAO+NB**2
          ISTFMO=ISTFMO+NA*(NASHT+1)
          ISTC=ISTC+NO*NB
 30    CONTINUE
       Call mma_deallocate(Prod)
-      Call mma_deallocate(FAO)
+      Call Deallocate_DSBA(FAO)
 
       IOPT=0
       IRC=0
