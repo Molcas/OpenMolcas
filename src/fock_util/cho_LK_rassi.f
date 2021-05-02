@@ -59,7 +59,8 @@ C
       Real*8    tmotr(2),tscrn(2)
 
       Type (NDSBA_Type) DiaH
-      Type (DSBA_Type) Ash(2), CM(2), DLT, FLT, MSQ(2), FSQ, TUVX
+      Type (DSBA_Type) Ash(2), CM(2), DLT, FLT, MSQ(2), FSQ, TUVX,
+     &                 KLT
       Type (SBA_Type) Laq(2)
       Type (twxy_Type) Scr
       Type (L_Full_Type) L_Full
@@ -114,8 +115,9 @@ C
       IREDC = -1  ! unknown reduced set in core
       ipMSQ(1)= ip_of_Work(MSQ(1)%A0(1))
       ipMSQ(2)= ip_of_Work(MSQ(2)%A0(1))
-      ipK     = ip_of_Work(FSQ%A0(1))
       ipInt   = ip_of_Work(TUVX%A0(1))
+      ! Temporary use of FSQ
+      Call Allocate_DSBA(KLT,nBas,nBas,nSym,Case='TRI',Ref=FSQ%A0)
 
       nDen = 2  ! the two bi-orthonormal sets of orbitals
       If (Fake_CMO2) nDen = 1  ! MO1 = MO2
@@ -946,8 +948,6 @@ C------------------------------------------------------------
 
                             iOffAB = nnBfShp(iShp,lSym)
 
-                            ipKI = ipK + ISTLT(lSym) + iOffAB
-
                             xFab = sqrt(abs(Faa(iaSh)*Faa(ibSh)))
 
                             If (MLk(lSh,jK_a,1)*
@@ -983,9 +983,9 @@ C --------------------------------------------------------------------
 
                                CALL DGEMM_Tri(Mode(1:1),Mode(2:2),
      &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
-     &                               FActXI,Lab%SB(iaSh,lsym,   1)%A,n2,
-     &                                      Lab%SB(ibSh,lsym,kDen)%A,n2,
-     &                                  ONE,Work(ipKI),nBs)
+     &                            FActXI,Lab%SB(iaSh,lsym,   1)%A,n2,
+     &                                   Lab%SB(ibSh,lsym,kDen)%A,n2,
+     &                               One,KLT%SB(lSym)%A1(iOffAB+1:),nBs)
 
                             ElseIf (iaSh.gt.ibSh
      &                                 .and. xFab.ge.tau/MaxRedT
@@ -1016,9 +1016,9 @@ C --------------------------------------------------------------------
 
                                CALL DGEMM_(Mode(1:1),Mode(2:2),
      &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
-     &                               FActXI,Lab%SB(iaSh,lsym,   1)%A,n1,
-     &                                      Lab%SB(ibSh,lsym,kDen)%A,n2,
-     &                                  ONE,Work(ipKI),nBsa)
+     &                           FActXI,Lab%SB(iaSh,lsym,   1)%A,n1,
+     &                                  Lab%SB(ibSh,lsym,kDen)%A,n2,
+     &                              ONE,KLT%SB(lSym)%A1(iOffAB+1:),nBsa)
 
 
                             EndIf
@@ -1241,8 +1241,6 @@ C--- have performed screening in the meanwhile
 * --- Accumulate Coulomb and Exchange contributions
       Do iSym=1,nSym
 
-         ipKI = ipK   + ISTLT(iSym)
-
          Do iaSh=1,nShell
 
             ioffa = kOffSh(iaSh,iSym)
@@ -1263,15 +1261,13 @@ c ---------------
 
                   iab = nBasSh(iSym,iaSh)*(ib-1) + ia
 
-                  jK = ipKI - 1 + iOffAB + iab
-
                   iag = ioffa + ia
                   ibg = ioffb + ib
 
                   iabg = iTri(iag,ibg)
 
                   FLT%SB(iSym)%A1(iabg) = FLT%SB(iSym)%A1(iabg)
-     &                                  + Work(jK)
+     &                                  + KLT%SB(iSym)%A1(iOffAB+iab)
 
                 End Do
 
@@ -1291,15 +1287,13 @@ c ---------------
 
                  iab = ia*(ia-1)/2 + ib
 
-                 jK = ipKI - 1 + iOffAB + iab
-
                  iag = ioffa + ia
                  ibg = ioffa + ib
 
                  iabg = iag*(iag-1)/2 + ibg
 
                  FLT%SB(iSym)%A1(iabg) = FLT%SB(iSym)%A1(iabg)
-     &                                 + Work(jK)
+     &                                 + KLT%SB(iSym)%A1(iOffAB+iab)
 
               End Do
 
@@ -1385,6 +1379,7 @@ c Print the Fock-matrix
       endif
 
 #endif
+      Call Deallocate_DSBA(KLT)
 
       Return
       END

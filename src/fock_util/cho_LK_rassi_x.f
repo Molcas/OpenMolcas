@@ -108,7 +108,6 @@ C
       ipMSQ(1)= ip_of_Work(MSQ(1)%A0(1))
       ipMSQ(2)= ip_of_Work(MSQ(2)%A0(1))
       ipK     = ip_of_Work(KSQ%A0(1))
-      ipFSQ   = ip_of_Work(FSQ%A0(1))
       ipInt   = ip_of_Work(TUVX%A0(1))
 
       nDen = 2  ! the two bi-orthonormal sets of orbitals
@@ -1210,7 +1209,6 @@ C--- have performed screening in the meanwhile
       Do iSym=1,nSym
 
          ipKI = ipK   + ISTSQ(iSym)
-         ipFS = ipFSQ + ISTSQ(iSym)
 
          Do iaSh=1,nShell
 
@@ -1237,10 +1235,9 @@ C--- have performed screening in the meanwhile
 
                   iabg = iTri(iag,ibg)
 
-                  jS = ipFS - 1 + nBas(iSym)*(ibg-1) + iag
 
-                  Work(jS) = FLT%SB(iSym)%A1(iabg)
-     &                     + Work(jK)
+                  FSQ%SB(iSym)%A2(iag,ibg) = FLT%SB(iSym)%A1(iabg)
+     &                                     + Work(jK)
 
                 End Do
 
@@ -1318,15 +1315,14 @@ c Print the Fock-matrix
       WRITE(6,'(6X,A)')
       WRITE(6,'(6X,A)')'***** INACTIVE FOCK MATRIX ***** '
       DO ISYM=1,NSYM
-        ISFI=ipFSQ+ISTSQ(ISYM)
         IF( NBAS(ISYM).GT.0 ) THEN
           WRITE(6,'(6X,A)')
           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-*         call CHO_OUTPUT(Work(ISFI),1,NBAS(ISYM),1,NBAS(ISYM),
+*         call CHO_OUTPUT(FSQ%SB(ISYM)%A2,1,NBAS(ISYM),1,NBAS(ISYM),
 *    &                    NBAS(ISYM),NBAS(ISYM),1,6)
-          Call Chk4Nan(nBas(iSym)**2,Work(ISFI),iErr)
+          Call Chk4Nan(nBas(iSym)**2,FSQ%SB(ISYM)%A2,iErr)
           If (iErr.ne.0) Then
-             Write (6,*) 'CHO_LK_RASSI_X WORK(ISFI) corrupted!'
+             Write (6,*) 'CHO_LK_RASSI_X FSQ corrupted!'
              Call Abend()
           End If
         ENDIF
