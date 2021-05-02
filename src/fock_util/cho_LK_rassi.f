@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHO_LK_RASSI(DLT,MSQ,FLT,FSQ,TUVX,
-     &                              Ash,nScreen,dmpk)
+      SUBROUTINE CHO_LK_RASSI(DLT,MSQ,FLT,FSQ,TUVX,Ash,nScreen,dmpk)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -113,8 +112,6 @@ C
 #endif
       DoReord = .false.
       IREDC = -1  ! unknown reduced set in core
-      ipDLT   = ip_of_Work(DLT%A0(1))
-      ipFLT   = ip_of_Work(FLT%A0(1))
       ipMSQ(1)= ip_of_Work(MSQ(1)%A0(1))
       ipMSQ(2)= ip_of_Work(MSQ(2)%A0(1))
       ipK     = ip_of_Work(FSQ%A0(1))
@@ -449,6 +446,7 @@ C --- Transform the density to reduced storage
                mode = 'toreds'
                add = .False.
                nMat=1
+               ipDLT   = ip_of_Work(DLT%A0(1))
                Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
      &                           [ipDLT],Drs,mode,add)
             EndIf
@@ -1191,6 +1189,7 @@ c --- backtransform fock matrix to full storage
                mode = 'tofull'
                add =.True.
                nMat = 1
+               ipFLT   = ip_of_Work(FLT%A0(1))
                Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
      &                           [ipFLT],Frs,mode,add)
             EndIf
@@ -1242,7 +1241,6 @@ C--- have performed screening in the meanwhile
 * --- Accumulate Coulomb and Exchange contributions
       Do iSym=1,nSym
 
-         ipFI = ipFLT + ISTLT(iSym)
          ipKI = ipK   + ISTLT(iSym)
 
          Do iaSh=1,nShell
@@ -1270,9 +1268,10 @@ c ---------------
                   iag = ioffa + ia
                   ibg = ioffb + ib
 
-                  jF = ipFI - 1 + iTri(iag,ibg)
+                  iabg = iTri(iag,ibg)
 
-                  Work(jF) = Work(jF) + Work(jK)
+                  FLT%SB(iSym)%A1(iabg) = FLT%SB(iSym)%A1(iabg)
+     &                                  + Work(jK)
 
                 End Do
 
@@ -1297,9 +1296,10 @@ c ---------------
                  iag = ioffa + ia
                  ibg = ioffa + ib
 
-                 jF = ipFI - 1 + iag*(iag-1)/2 + ibg
+                 iabg = iag*(iag-1)/2 + ibg
 
-                 Work(jF) = Work(jF) + Work(jK)
+                 FLT%SB(iSym)%A1(iabg) = FLT%SB(iSym)%A1(iabg)
+     &                                 + Work(jK)
 
               End Do
 
@@ -1375,11 +1375,10 @@ c Print the Fock-matrix
       WRITE(6,'(6X,A)')
       WRITE(6,'(6X,A)')'***** INACTIVE FOCK MATRIX ***** '
       DO ISYM=1,NSYM
-        ISFI=ipFLT+ISTLT(ISYM)
         IF( NBAS(ISYM).GT.0 ) THEN
           WRITE(6,'(6X,A)')
           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          call TRIPRT('','',Work(ISFI),NBAS(ISYM))
+          call TRIPRT('','',FLT%SB(ISYM)%A1,NBAS(ISYM))
         ENDIF
       END DO
 
