@@ -310,14 +310,14 @@ c ---     and compute the (tu|vx) integrals
 
            If (Fake_CMO2) Then
 
-             CALL CHO_LK_RASSI(DLT,MO1,FLT,LFAO,LTUVX,
+             CALL CHO_LK_RASSI(DLT,MO1,FLT,FAO,LTUVX,
      &                         Ash,nScreen,dmpk)
            Else
 
              Call Allocate_DSBA(KSQ,nBasF,nBasF,nSym)
              KSQ%A0(:)=Zero
 
-             CALL CHO_LK_RASSI_X(DLT,MO1,FLT,KSQ,LFAO,LTUVX,
+             CALL CHO_LK_RASSI_X(DLT,MO1,FLT,KSQ,FAO,LTUVX,
      &                         Ash,nScreen,dmpk)
 
              Call Deallocate_DSBA(KSQ)
