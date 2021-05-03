@@ -59,14 +59,13 @@ C
       Real*8    tmotr(2),tscrn(2)
 
       Type (NDSBA_Type) DiaH
-      Type (DSBA_Type) Ash(2), CM(2), DLT, FLT, MSQ(2), FSQ, KLT
+      Type (DSBA_Type) Ash(2), CM(2), DLT, FLT, MSQ(2), FSQ, KLT, MO(2)
       Real*8 TUVX(*)
       Type (SBA_Type) Laq(2)
       Type (twxy_Type) Scr
       Type (L_Full_Type) L_Full
       Type (Lab_Type) Lab
 
-      Integer   ipMO(2),ipMSQ(2)
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
@@ -151,11 +150,11 @@ c --------------------
         kOff(iSym)=nnO
       END DO
       nnO = nnO + nIsh(nSym)
+      nAux(:)=nIsh(:)+nAsh(:)
 
 **************************************************
       If (Deco) Then
 
-         nAux(:)=nIsh(:)+nAsh(:)
          Call Allocate_DSBA(CM(1),nBas,nAux,nSym)
          Call Allocate_DSBA(CM(2),nBas,nAux,nSym)
 
@@ -167,7 +166,8 @@ c --------------------
 
          If (iOK.eq.0) Then ! point to the "generalized" Cholesky MOs
            do jden=1,nDen
-              ipMSQ(jden)= ip_of_Work(CM(jDen)%A0(1))
+              Call Allocate_DSBA(MO(jDen),nBas,nAux,nSym,
+     &                           Ref=CM(jDen)%A0)
            end do
 c          write(6,*)'Cholesky MOs used for state A'
 c          If(nDen.eq.2)write(6,*)'Pseudo Cholesky MOs used for state B'
@@ -176,15 +176,18 @@ c          If(nDen.eq.2)write(6,*)'Pseudo Cholesky MOs used for state B'
            write(6,*)'*** Resort to Canonical MOs ***'
            write(6,*)'*******************************'
 
-           ipMSQ(1)= ip_of_Work(MSQ(1)%A0(1))
-          ipMSQ(2)= ip_of_Work(MSQ(2)%A0(1))
+           do jden=1,nDen
+              Call Allocate_DSBA(MO(jDen),nBas,nAux,nSym,
+     &                           Ref=MSQ(jDen)%A0)
+           end do
 
          EndIf
 
       Else
 
-         ipMSQ(1)= ip_of_Work(MSQ(1)%A0(1))
-         ipMSQ(2)= ip_of_Work(MSQ(2)%A0(1))
+         do jden=1,nDen
+            Call Allocate_DSBA(MO(jDen),nBas,nAux,nSym,Ref=MSQ(jDen)%A0)
+         end do
 
       End If
 **************************************************
@@ -295,15 +298,13 @@ C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
             Do jK=1,nIsh(kSym)
                jK_a = jK + kOff(kSym)
 
-               ipMO(jDen) = ipMSQ(jDen) + ISTK(kSym) + nBas(kSym)*(jK-1)
-
                Do iaSh=1,nShell
 
-                  ipMsh = ipMO(jDen) + kOffSh(iaSh,kSym)
-
                   SKsh=zero
-                  Do ik=0,nBasSh(kSym,iaSh)-1
-                     SKsh = SKsh + Work(ipMsh+ik)**2
+                  iS = kOffSh(iaSh,kSym) + 1
+                  iE = kOffSh(iaSh,kSym) + nBasSh(kSym,iaSh)
+                  Do ik=iS,iE
+                     SKsh = SKsh + MO(jDen)%SB(kSym)%A2(ik,jK)**2
                   End Do
 
                   SumAClk(iaSh,jk_a,jDen) = SkSh
@@ -326,7 +327,7 @@ C *** Compute Shell-pair Offsets in the K-matrix
 
                iShp = iaSh*(iaSh-1)/2 + ibSh
 
-              nnBfShp(iShp,iSyma) = LKShp
+               nnBfShp(iShp,iSyma) = LKShp
 
                LKShp = LKShp + nBasSh(iSyma,iaSh)*nBasSh(iSyma,ibSh)
      &                       - (1-Min((iaSh-ibSh),1))*nBasSh(iSyma,iaSh)
@@ -602,13 +603,6 @@ c --------------------------------------------------------------------
 
                     Lab%A0(1:nDen*nBas(lSym)*JNUM)=Zero
 
-                   Do jDen=1,nDen
-
-                    ipMO(jDen) = ipMSQ(jDen) + ISTK(kSym)
-     &                         + nBas(kSym)*(jK-1)
-
-                   End Do
-
                    IF (DoScreen) THEN
 
                      CALL CWTIME(TCS1,TWS1)
@@ -618,8 +612,8 @@ C------------------------------------------------------------------
 
                      Do jDen=1,nDen
 
-                        Do ik=0,nBas(kSym)-1
-                           AbsC(1+ik) = abs(Work(ipMO(jDen)+ik))
+                        Do ik=1,nBas(kSym)
+                           AbsC(ik) = abs(MO(jDen)%SB(kSym)%A2(ik,jK))
                         End Do
 
                         If (lSym.ge.kSym) Then
@@ -840,7 +834,7 @@ C ---------------------------------------
 
                                     CALL DGEMV_(Mode(1:1),n1,n2,
      &                     One,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,n1,
-     &                                    Work(ipMO(jDen)+ioffShb),1,
+     &                            MO(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1,
      &                                ONE,Lab%SB(iaSh,lSym,jDen)%A,1)
 
                                  Else   ! lSym < kSym
@@ -857,7 +851,7 @@ C ---------------------------------------
 
                                     CALL DGEMV_(Mode(1:1),n1,n2,
      &                     One,L_Full%SPB(kSym,iShp_rs(iShp),l1)%A12,n1,
-     &                                    Work(ipMO(jDen)+ioffShb),1,
+     &                            MO(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1,
      &                                ONE,Lab%SB(iaSh,lSym,jDen)%A,1)
 
                                 EndIf
@@ -1328,6 +1322,9 @@ c ---------------
          Call Deallocate_DSBA(CM(2))
          Call Deallocate_DSBA(CM(1))
       End If
+      do jden=1,nDen
+         Call Deallocate_DSBA(MO(jDen))
+      end do
 
       CALL CWTIME(TOTCPU2,TOTWALL2)
       TOTCPU = TOTCPU2 - TOTCPU1
