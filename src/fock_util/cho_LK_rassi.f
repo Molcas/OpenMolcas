@@ -164,11 +164,9 @@ c --------------------
          ipCM(2) = ip_of_Work(CM(2)%A0(1))
 
          If (PseudoChoMOs) Then
-            Call cho_get_MO(iOK,nDen,nSym,nBas,nIsh,ipMSQ,
-     &                          ISTLT,ISTK,ipCM)
+            Call cho_get_MO(iOK,nDen,nSym,nBas,nIsh,MSQ,ISTLT,ISTK,CM)
          Else
-            Call cho_lr_MOs(iOK,nDen,nSym,nBas,nIsh,ipMSQ,
-     &                          ISTLT,ISTK,ipCM)
+            Call cho_lr_MOs(iOK,nDen,nSym,nBas,nIsh,MSQ,ISTLT,ISTK,CM)
          EndIf
 
          If (iOK.eq.0) Then ! point to the "generalized" Cholesky MOs

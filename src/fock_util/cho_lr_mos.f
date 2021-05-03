@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2008, Francesco Aquilante                              *
 ************************************************************************
-      SUBROUTINE CHO_LR_MOs(iOK,nDen,nSym,nBas,nIsh,ipCM,ISLT,ISK,ipMSQ)
+      SUBROUTINE CHO_LR_MOs(iOK,nDen,nSym,nBas,nIsh,CM,ISLT,ISK,MSQ)
 
 ************************************************************************
 *
@@ -22,7 +22,7 @@
 *   The code is generalized to treat density matrices with any number
 *            (nDen) of distinct blocks. The corresponding Cholesky
 *            vectors are returned in the arrays defined by the
-*            pointers ipMSQ
+*            DSBA_typed array MSQ
 *
 *   A non-zero value for the return code iOK indicates that something
 *            went wrong and therefore the returned arrays may contain
@@ -31,11 +31,11 @@
 *   Author: F. Aquilante    (October 2008)
 *
 ************************************************************************
-
+      use Data_Structures, only: DSBA_Type
       Implicit Real*8 (a-h,o-z)
       Integer  iOK, nDen, nSym
       Integer  nBas(nSym), nIsh(nSym), ISLT(nSym), ISK(nSym)
-      Integer  ipCM(nDen), ipMSQ(nDen)
+      Type (DSBA_Type)  CM(nDen), MSQ(nDen)
 
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
@@ -58,7 +58,7 @@
          Call mma_allocate(PMat0,2*(nDen*nBm)**2,Label='PMat0')
          ipV = ip_of_Work(PMat0(1+(nDen*nBm)**2))
       Else
-         ipV = ipMSQ(1)
+         ipV = ip_of_Work(MSQ(1)%A0(1))
       EndIf
 
       iSym=1
@@ -81,15 +81,11 @@ C --- Inactive P[kl](a,b) = sum_i C[k](a,i)*C[l](b,i)
 
          Do k=1,nDen
 
-            kCM = ipCM(k) + ISK(iSym)
-
             Do l=1,nDen
 
-               lCM = ipCM(l) + ISK(iSym)
-
                Call DGEMM_('N','T',nBas(iSym),nBas(iSym),nIsh(iSym),
-     &                      1.0d0,Work(kCM),nBas(iSym),
-     &                            Work(lCM),nBas(iSym),
+     &                      1.0d0,CM(k)%SB(iSym)%A2,nBas(iSym),
+     &                            CM(l)%SB(iSym)%A2,nBas(iSym),
      &                      0.0d0,DMat,nBas(iSym))
 
                Do ib=1,nBas(iSym)
@@ -108,7 +104,7 @@ C --- Inactive P[kl](a,b) = sum_i C[k](a,i)*C[l](b,i)
          end do
          Thr=1.0d-13*Ymax
 
-         If (nDen.eq.1) ipV = ipMSQ(1) + ISK(iSym)
+         If (nDen.eq.1) ipV = ip_of_Work(MSQ(1)%A0(1)) + ISK(iSym)
 
          CALL CD_InCore(PMat,n2b,Work(ipV),n2b,NumV,Thr,irc)
 
@@ -116,7 +112,7 @@ C --- Inactive P[kl](a,b) = sum_i C[k](a,i)*C[l](b,i)
 
          If (nDen.gt.1) Then
             Do jden=1,nDen
-               iMSQ = ipMSQ(jden) + ISK(iSym)
+               iMSQ = ip_of_Work(MSQ(jden)%A0(1)) + ISK(iSym)
                Do jv=1,NumV
                   ifr=ipV+n2b*(jv-1)+nBas(iSym)*(jden-1)
                   ito=iMSQ+nBas(iSym)*(jv-1)

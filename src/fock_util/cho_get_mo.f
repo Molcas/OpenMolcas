@@ -8,14 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_get_MO(iOK,nDen,nSym,nBas,nIsh,ipCM,ISLT,ISK,ipMSQ)
-
+      SUBROUTINE CHO_get_MO(iOK,nDen,nSym,nBas,nIsh,CM,ISLT,ISK,MSQ)
+      use Data_Structures, only: DSBA_Type
       Implicit Real*8 (a-h,o-z)
       Integer  iOK, nDen, nSym
       Integer  nBas(nSym), nIsh(nSym), ISLT(nSym), ISK(nSym)
-      Integer  ipCM(nDen), ipMSQ(nDen)
+      Type (DSBA_Type)  CM(nDen), MSQ(nDen)
 
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Real*8, Allocatable:: SMat(:), SXMat(:)
@@ -26,6 +25,7 @@
       irc=0
       ikc=0
 
+      i = isk(1)
       nBm=nBas(1)
       Do iSym=2,nSym
          nBm=Max(nBm,nBas(iSym))
@@ -41,11 +41,9 @@
 
 C --- Inactive D(a,b) = sum_i C(a,i)*C(b,i)
 
-         iCM = ipCM(1) + ISK(iSym)
-
          Call DGEMM_('N','T',nBas(iSym),nBas(iSym),nIsh(iSym),
-     &                      1.0d0,Work(iCM),nBas(iSym),
-     &                            Work(iCM),nBas(iSym),
+     &                      1.0d0,CM(1)%SB(iSYm)%A2,nBas(iSym),
+     &                            CM(1)%SB(iSYm)%A2,nBas(iSym),
      &                      0.0d0,DMat,nBas(iSym))
 
          Ymax=0.0d0
@@ -54,9 +52,7 @@ C --- Inactive D(a,b) = sum_i C(a,i)*C(b,i)
          end do
          Thr=1.0d-13*Ymax
 
-         iMSQ = ipMSQ(1) + ISK(iSym)
-
-         CALL CD_InCore(DMat,nBas(iSym),Work(iMSQ),nBas(iSym),
+         CALL CD_InCore(DMat,nBas(iSym),MSQ(1)%SB(iSym)%A2,nBas(iSym),
      &                  NumV,Thr,irc)
 
          If (NumV.ne.nIsh(iSym)) ikc=1
@@ -96,18 +92,15 @@ C --- Inactive D(a,b) = sum_i C(a,i)*C(b,i)
 
               CALL SQUARE(SMat(1+ISLT(i)),DMat,1,NBas(i),NBas(i))
 
-              iCM = ipCM(1) + ISK(i)
-              iMSQ = ipMSQ(1) + ISK(i)
-
               call DGEMM_('N','N',nBas(i),nIsh(i),nBas(i),
      &                     1.0d0,DMat,nBas(i),
-     &                           Work(iMSQ),nBas(i),
+     &                           MSQ(1)%SB(i)%A2,nBas(i),
      &                     0.0d0,SXMat,nBas(i))
 
               DMat(1:nIsh(iSym),1:nIsh(iSym)) => DMat0(1:nIsh(iSym)**2)
 
               call DGEMM_('T','N',nIsh(i),nIsh(i),nBas(i),
-     &                     1.0d0,Work(iCM),nBas(i),
+     &                     1.0d0,CM(1)%SB(i)%A2,nBas(i),
      &                           SXMat,nBas(i),
      &                     0.0d0,DMat,nIsh(i))
 
@@ -115,13 +108,10 @@ c           write(6,*) ' U_a = C_a^T S X_a   for symmetry block: ',i
 c           call cho_output(DMat,1,nIsh(i),1,nIsh(i),
 c     &                               nIsh(i),nIsh(i),1,6)
 
-              jCM = ipCM(2) + ISK(i)
-              jMSQ = ipMSQ(2) + ISK(i)
-
               call DGEMM_('N','N',nBas(i),nIsh(i),nIsh(i),
-     &                     1.0d0,Work(jCM),nBas(i),
+     &                     1.0d0,CM(2)%SB(i)%A2,nBas(i),
      &                           DMat,nIsh(i),
-     &                     0.0d0,Work(jMSQ),nBas(i))
+     &                     0.0d0,MSQ(2)%SB(i)%A2,nBas(i))
 
            EndIf
 
