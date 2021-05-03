@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
 
-      SUBROUTINE CHO_FSCF(rc,nDen,ipFLT,nForb,nIorb,Porb,DLT,ExFac)
+      SUBROUTINE CHO_FSCF(rc,nDen,FLT,nForb,nIorb,Porb,DLT,ExFac)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -40,7 +40,7 @@ C
       Real*8    tread(2),tcoul(2),texch(2)
       Real*8    FactCI,FactXI,ExFac
       Integer   ipDLT(nDen),ipFLT(nDen)
-      Type (DSBA_Type)   Porb(nDen), DLT
+      Type (DSBA_Type)   Porb(nDen), DLT(nDen), FLT(nDen)
       Integer   nForb(8,nDen),nIorb(8,nDen)
 #ifdef _DEBUGPRINT_
       Logical   Debug
@@ -80,7 +80,10 @@ C
 
       DoRead  = .false.
       IREDC= -1  ! unknwn reduced set
-      ipDLT=ip_of_Work(DLT%A0(1))
+      Do iDen = 1, nDen
+         ipDLT(iDen)=ip_of_Work(DLT(iDen)%A0(1))
+         ipFLT(iDen)=ip_of_Work(FLT(iDen)%A0(1))
+      End Do
 
       If (nDen.ne.1 .and. nDen.ne.2) then
          write(6,*)SECNAM//'Invalid parameter nDen= ',nDen

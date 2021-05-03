@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
-     &                       lOff1,FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,
+     &                       lOff1,FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,
      &                       MinMem,ipMSQ,ipNocc)
 
 ************************************************************************
@@ -70,7 +70,7 @@
       Integer   ipDLT(nDen),ipDSQ(nDen),ipFLT(nDen),ipFSQ(nDen)
       Integer   ipMSQ(nDen),ipNocc(nDen),MinMem(nSym),iSkip(nSym)
 
-      Type (DSBA_Type) DLT
+      Type (DSBA_Type) DLT(nDen), FLT(nDen)
 
       Real*8    tread(2),tcoul(2),texch(2)
 #include "chounit.fh"
@@ -127,7 +127,10 @@
 #ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in SCF-debug
 #endif
-      ipDLT = ip_of_Work(DLT%A0(1))
+      Do iDen = 1, nDen
+         ipDLT(iDen) = ip_of_Work(DLT(iDen)%A0(1))
+         ipFLT(iDen) = ip_of_Work(FLT(iDen)%A0(1))
+      End Do
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 

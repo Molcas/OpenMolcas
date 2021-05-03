@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
-     &           FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
+     &           FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,ipNocc,MinMem)
 
 ************************************************************************
 *  Author : F. Aquilante
@@ -71,7 +71,7 @@
       Integer   ipDLT(nDen),ipDSQ(nDen),ipNocc(nDen)
       Integer   ipFLT(nDen),ipFSQ(nDen)
 
-      Type (DSBA_Type) DLT
+      Type (DSBA_Type) DLT, FLT
 
 #include "chounit.fh"
 #include "real.fh"
@@ -107,6 +107,7 @@
       Debug=.false.! to avoid double printing in SCF-debug
 #endif
       ipDLT(1) = ip_of_Work(DLT%A0(1))
+      ipFLT(1) = ip_of_Work(FLT%A0(1))
 
         CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 

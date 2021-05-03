@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                       lOff1,FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,
+     &                       lOff1,FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,
      &                       MinMem,ipMSQ,ipNocc)
 
 ************************************************************************
@@ -77,7 +77,7 @@
       Integer   ipDLT(nDen),ipDSQ(nDen),ipFLT(nDen),ipFSQ(nDen)
       Integer   ipMSQ(nDen),ipNocc(nDen),MinMem(*)
 
-      Type (DSBA_Type) DLT
+      Type (DSBA_Type) DLT(nDen), FLT(nDen)
       Logical DoExchange(nDen),DoCoulomb(nDen),DoSomeX,DoSomeC
 #ifdef _DEBUGPRINT_
       Logical Debug
@@ -132,7 +132,10 @@
       DensityCheck=.true.
 #endif
       IREDC = -1  ! unknown reduced set in core
-      ipDLT=ip_of_Work(DLT%A0(1))
+      Do iDen = 1, nDen
+         ipDLT(iDen)=ip_of_Work(DLT(iDen)%A0(1))
+         ipFLT(iDen)=ip_of_Work(FLT(iDen)%A0(1))
+      End Do
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 

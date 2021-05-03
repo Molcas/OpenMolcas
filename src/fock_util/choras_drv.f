@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHORAS_DRV(nSym,nBas,nOcc,DSQ,DLT,FLT,ExFac,WFSQ,CMO)
+      SUBROUTINE CHORAS_DRV(nSym,nBas,nOcc,DSQ,W_DLT,W_FLT,ExFac,WFSQ,
+     &                      CMO)
 
       use Data_Structures, only: DSBA_Type, Allocate_DSBA,
      &                           Deallocate_DSBA
@@ -19,23 +20,22 @@
 
       Type (DSBA_Type) WFSQ
       Integer nBas(8), MinMem(8),rc
-      Real*8 FLT(*),CMO(*)
-      Real*8 DSQ(*),DLT(*)
+      Real*8 W_FLT(*),CMO(*)
+      Real*8 DSQ(*),W_DLT(*)
       Parameter (MaxDs = 1)
       Logical DoCoulomb(MaxDs),DoExchange(MaxDs)
       Real*8 FactC(MaxDs),FactX(MaxDs),ExFac
-      Integer ipDSQ(MaxDs),ipFLT(MaxDs),ipFSQ(MaxDs)
+      Integer ipDSQ(MaxDs),ipFSQ(MaxDs)
       Integer ipMSQ(MaxDs),ipNocc(MaxDs),nOcc(nSym)
 
       Integer, Allocatable:: nVec(:)
-      Type (DSBA_Type) Vec, DDec
+      Type (DSBA_Type) Vec, DDec, DLT, FLT
 
 #include "chounit.fh"
 #include "choras.fh"
 *
 *
 C  **************************************************
-
       rc=0
 
       Lunit(:)=-1
@@ -47,8 +47,10 @@ C  **************************************************
       FactX(1)      = Half*ExFac ! ExFac used for hybrid functionals
 
 
+      Call Allocate_DSBA(DLT,nBas,nBas,nSym,Case='TRI',Ref=W_DLT)
+      Call Allocate_DSBA(FLT,nBas,nBas,nSym,Case='TRI',Ref=W_FLT)
+
       ipDSQ(1) = ip_of_Work(DSQ(1))
-      ipFLT(1) = ip_of_Work(FLT(1))
       ipFSQ(1) = ip_of_Work(WFSQ%A0(1))
       ipNocc(1) = ip_of_iwork(nOcc(1)) ! occup. numbers
 
@@ -112,13 +114,13 @@ C  **************************************************
         if (REORD) then
 * ALGO.eq.1.and.REORD:
       Call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,
-     &                FactX,DLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
+     &                FactX,DLT,ipDSQ,FLT,ipFSQ,ipNocc,MinMem)
            If (rc.ne.0) GOTO 999
 
         else
 * ALGO.eq.1.and. .not.REORD:
         CALL CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
-     &           FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
+     &           FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,ipNocc,MinMem)
            If (rc.ne.0) GOTO 999
         end if
 
@@ -129,14 +131,14 @@ C  **************************************************
           if (REORD)then
 * ALGO.eq.2.and.DECO.and.REORD:
             Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
-     &                  lOff1,FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,
+     &                  lOff1,FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,
      &                  MinMem,ipMSQ,ipNocc)
             If (rc.ne.0) GOTO 999
 
           else
 * ALGO.eq.2.and.DECO.and. .not.REORD:
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                  lOff1,FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,
+     &                  lOff1,FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,
      &                  MinMem,ipMSQ,ipNocc)
             If (rc.ne.0) GOTO 999
           endif
@@ -148,7 +150,7 @@ C  **************************************************
             ipMSQ(1) = ip_of_work(CMO(1))
             FactX(1) = 1.0D0*ExFac ! because MOs coeff. are not scaled
             Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
-     &                lOff1,FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,
+     &                lOff1,FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,
      &                MinMem,ipMSQ,ipNocc)
             if (rc.ne.0) GOTO 999
           else
@@ -156,7 +158,7 @@ C  **************************************************
             ipMSQ(1) = ip_of_work(CMO(1))
             FactX(1) = 1.0D0*ExFac ! because MOs coeff. are not scaled
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                lOff1,FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,
+     &                lOff1,FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,
      &                MinMem,ipMSQ,ipNocc)
             if (rc.ne.0) GOTO 999
           end if
@@ -168,7 +170,7 @@ C  **************************************************
         CALL QUIT(rc)
       endif
 
-      CALL CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,ipFLT,ipFSQ)
+      CALL CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,ipFSQ)
 
  999    continue
       if (rc.ne.0) then
@@ -180,6 +182,8 @@ C  **************************************************
        Call Deallocate_DSBA(Vec)
        Call mma_deallocate(nVec)
       End If
+      Call Deallocate_DSBA(DLT)
+      Call Deallocate_DSBA(FLT)
 
       Return
       End

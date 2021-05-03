@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
-     &           FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
+     &           FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,ipNocc,MinMem)
 
 ************************************************************************
 *  Author : F. Aquilante
@@ -74,7 +74,7 @@
       Integer  ipDLT(nDen),ipDSQ(nDen),ipNocc(nDen)
       Integer  ipFLT(nDen),ipFSQ(nDen)
 
-      Type (DSBA_Type) DLT
+      Type (DSBA_Type) DLT(nDen), FLT(nDen)
 #ifdef _DEBUGPRINT_
       Logical  Debug
 #endif
@@ -110,7 +110,10 @@
       Debug=.false.! to avoid double printing in SCF-debug
 #endif
       IREDC = -1  ! unknown reduced set in core
-      ipDLT(1) = ip_of_Work(DLT%A0(1))
+      Do iDen = 1, nDen
+         ipDLT(iDen) = ip_of_Work(DLT(iDen)%A0(1))
+         ipFLT(iDen) = ip_of_Work(FLT(iDen)%A0(1))
+      End Do
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 

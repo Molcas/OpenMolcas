@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,
-     &                  ipFLT,ipFSQ)
+      SUBROUTINE CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,ipFSQ)
 
 *****************************************************************
 *  Author : F. Aquilante
@@ -21,11 +20,13 @@
 *           to the frozen AO-Fock matrices for alpha and beta
 *           spin as defined in the calling routine
 ******************************************************************
-
+      use Data_Structures, only: DSBA_Type
       Implicit Real*8 (a-h,o-z)
       Integer   rc,nBas(8),nSym,iUHF
       Integer   ISTSQ(8),ISTLT(8)
-      Integer   ipFLT(*),ipFSQ(*)
+      Integer   ipFLT(2),ipFSQ(*)
+
+      Type (DSBA_Type) FLT(*)
       Logical DoExchange(*)
 
 
@@ -35,11 +36,13 @@
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 **************************************************
 
-       if(iUHF.eq.1)then
-               nDen=3
-       else
-               nDen=1
-       endif
+      ipFLT(1) = ip_of_Work(FLT(1)%A0(1))
+      if (iUHF.eq.1)then
+         nDen=3
+         ipFLT(2) = ip_of_Work(FLT(2)%A0(1))
+      else
+         nDen=1
+      endif
 
 
 c ISTSQ: Offsets to full symmetry block in DSQ,FSQ
