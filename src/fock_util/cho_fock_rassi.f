@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHO_FOCK_RASSI(DLT,MO1,MO2,FLT,ipInt)
+      SUBROUTINE CHO_FOCK_RASSI(DLT,MO1,MO2,FLT,TUVX)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -44,7 +44,7 @@ C
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
-      Type (DSBA_Type) DLT, MO1(2), MO2(2), FLT
+      Type (DSBA_Type) DLT, MO1(2), MO2(2), FLT, TUVX
       Type (SBA_Type), Target:: Laq(2)
       Type (twxy_type) Scr
 
@@ -407,6 +407,7 @@ C *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
 
                DoReord = JRED.eq.JRED2.and.iBatch.eq.nBatch
 
+               ipInt = ip_of_Work(TUVX%A0(1))
                CALL CHO_rassi_twxy(irc,Scr,Laq(2),ipInt,nAsh,
      &                                 JSYM,JNUM,DoReord)
 

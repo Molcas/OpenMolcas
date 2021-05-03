@@ -61,7 +61,6 @@ C OPEN THE ELECTRON REPULSION INTEGRAL FILE
 c      Call DecideOnDirect(.False.,FoundTwoEls,DoDirect,DoCholesky)
       Call DecideOnCholesky(DoCholesky)
 
-      LTUVX=ip_of_work(W_TUVX(1))
       Call Allocate_DSBA(TUVX,nBasF,nBasF,nSym,Case='TRI',Ref=W_TUVX)
 
       If (.not.DoCholesky) then
@@ -261,9 +260,9 @@ c --- Add the two-electron contribution to the Fock matrix
 c ---     and compute the (tu|vx) integrals
 
            If (Fake_CMO2) Then
-              CALL CHO_FOCK_RASSI(DLT,MO1,MO2,FLT,LTUVX)
+              CALL CHO_FOCK_RASSI(DLT,MO1,MO2,FLT,TUVX)
            Else
-              CALL CHO_FOCK_RASSI_X(DLT,MO1,MO2,FLT,FAO,LTUVX)
+              CALL CHO_FOCK_RASSI_X(DLT,MO1,MO2,FLT,FAO,TUVX)
            EndIf
 
            Call Deallocate_DSBA(MO2(2))
