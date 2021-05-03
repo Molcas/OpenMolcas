@@ -51,7 +51,6 @@ C
 
       Integer   rc
       Integer   iSkip(8)
-      Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
 #ifdef _DEBUGPRINT_
       Logical   Debug
@@ -70,7 +69,6 @@ C
 #include "rassi.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Real*8, Allocatable:: Lrs(:,:), Drs(:), Frs(:)
@@ -92,7 +90,6 @@ C
       nDen=2
       If (Fake_CMO2) nDen = 1  ! MO1 = MO2
       kDen=nDen
-      ipFLT = ip_of_Work(FLT%A0(1))
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
@@ -101,16 +98,6 @@ C
       tcoul(:) = zero  !time for computing Coulomb
       texch(:) = zero  !time for computing Exchange
       tintg(:) = zero  !time for computing (tw|xy) integrals
-
-C ==================================================================
-
-c --- Various offsets
-c --------------------
-      ISTLT(1)=0
-      DO ISYM=2,NSYM
-        NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive F matrix
-      END DO
 
 C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
       DO jSym=1,nSym
@@ -322,12 +309,10 @@ C ---------------------------------------------------------------------
 
                   If (iSkip(iSymk).ne.0) Then
 
-                     ISFI = ipFLT + ISTLT(iSyma)
-
                      CALL DGEMM_Tri('T','N',NBAS(iSyma),NBAS(iSyma),
      &                         NK*JNUM,FactXI,Laq(kDen)%SB(iSymk)%A3,
      &                         NK*JNUM,Laq(kDen)%SB(iSymk)%A3,NK*JNUM,
-     &                             One,Work(ISFI),NBAS(iSyma))
+     &                             One,FLT%SB(iSyma)%A1,NBAS(iSyma))
 
                   EndIf
 
@@ -433,6 +418,7 @@ c --- backtransform fock matrix to full storage
                mode = 'tofull'
                add = .True.
                mDen=1
+               ipFLT = ip_of_Work(FLT%A0(1))
                Call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,[ipFLT],Frs,
      &                           mode,add)
             EndIf
@@ -500,12 +486,11 @@ c Print the Fock-matrix
       WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM
       WRITE(6,'(6X,A)')
       DO ISYM=1,NSYM
-        ISLFI=ipFLT+ISTLT(ISYM)
         IF( NBAS(ISYM).GT.0 ) THEN
           WRITE(6,'(6X,A)')'***** INACTIVE FOCK MATRIX ***** '
           WRITE(6,'(6X,A)')
           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          call TRIPRT('','',Work(ISLFI),NBAS(ISYM))
+          call TRIPRT('','',FLT%SB(ISYM)%A1,NBAS(ISYM))
         ENDIF
       END DO
 

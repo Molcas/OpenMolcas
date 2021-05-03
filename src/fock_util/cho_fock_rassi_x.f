@@ -46,7 +46,7 @@ C
 
       Integer   rc
       Integer   iSkip(8)
-      Integer   ISTLT(8), ISTSQ(8)
+      Integer   ISTSQ(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
 #ifdef _DEBUGPRINT_
       Logical   Debug
@@ -85,7 +85,6 @@ C
       nDen=2
       If (Fake_CMO2) nDen = 1  ! MO1 = MO2
       kDen=nDen
-      ipFLT = ip_of_Work(FLT%A0(1))
       ipK   = ip_of_Work(FSQ%A0(1))
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
@@ -100,12 +99,9 @@ C ==================================================================
 
 c --- Various offsets
 c --------------------
-      ISTLT(1)=0
       ISTSQ(1)=0
       DO ISYM=2,NSYM
         NB=NBAS(ISYM-1)
-        NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive Coul matrix
         ISTSQ(ISYM)=ISTSQ(ISYM-1)+NB**2 ! Inactive Exch matrix
       END DO
 
@@ -430,6 +426,7 @@ c --- backtransform fock matrix to full storage
                mode = 'tofull'
                add = .True.
                mDen=1
+               ipFLT = ip_of_Work(FLT%A0(1))
                Call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,[ipFLT],Frs,
      &                           mode,add)
             EndIf
@@ -457,20 +454,22 @@ C --- free memory
 * --- Accumulate Coulomb and Exchange contributions
       Do iSym=1,nSym
 
-         ipFI = ipFLT - 1 + ISTLT(iSym)
          ipKI = ipK -1 + ISTSQ(iSym)
 
          Do ia=1,nBas(iSym)
             Do ib=1,ia-1
-               iabt = ipFI + ia*(ia-1)/2 + ib
+               iabt = ia*(ia-1)/2 + ib
                iabq = ipKI + nBas(iSym)*(ia-1) + ib
-               Work(iabq)=Work(iabq)+Work(iabt)
+               Work(iabq)=Work(iabq)
+     &                   +FLT%SB(iSym)%A1(iabt)
                iabq = ipKI + nBas(iSym)*(ib-1) + ia
-               Work(iabq)=Work(iabq)+Work(iabt)
+               Work(iabq)=Work(iabq)
+     &                   +FLT%SB(iSym)%A1(iabt)
             End Do
-            iabt = ipFI + ia*(ia+1)/2
+            iabt = ia*(ia+1)/2
             iabq = ipKI + nBas(iSym)*(ia-1) + ia
             Work(iabq)=Work(iabq)+Work(iabt)
+     &                +FLT%SB(iSym)%A1(iabt)
          End Do
 
       End Do
