@@ -63,7 +63,7 @@ C
       Type (L_Full_Type) L_Full
       Type (Lab_Type) Lab
 
-      Integer   ipMO(2), ipMSQ(2),ipCM(2)
+      Integer   ipMO(2), ipMSQ(2)
       Logical   DoReord,DoScreen, add
       Real*8    dmpk
       Character*50 CFmt
@@ -105,8 +105,6 @@ C
 
       DoReord = .false.
       IREDC = -1  ! unknown reduced set in core
-      ipMSQ(1)= ip_of_Work(MSQ(1)%A0(1))
-      ipMSQ(2)= ip_of_Work(MSQ(2)%A0(1))
       ipK     = ip_of_Work(KSQ%A0(1))
       ipInt   = ip_of_Work(TUVX%A0(1))
 
@@ -153,8 +151,6 @@ c --------------------
 
          Call Allocate_DSBA(CM(1),nBas,nBas,nSym)
          Call Allocate_DSBA(CM(2),nBas,nBas,nSym)
-         ipCM(1) = ip_of_Work(CM(1)%A0(1))
-         ipCM(2) = ip_of_Work(CM(2)%A0(1))
 
          If (PseudoChoMOs) Then
             Call cho_get_MO(iOK,nDen,nSym,nBas,nIsh,MSQ,ISTLT,ISTK,CM)
@@ -164,7 +160,7 @@ c --------------------
 
          If (iOK.eq.0) Then ! point to the "generalized" Cholesky MOs
            do jden=1,nDen
-              ipMSQ(jden)=ipCM(jden)
+              ipMSQ(jden)=ip_of_Work(CM(jDen)%A0(1))
            end do
 c           write(6,*)'Cholesky MOs used for state A'
 c           If(nDen.eq.2)write(6,*)'Pseudo Cholesky MOs used for state B'
@@ -172,9 +168,18 @@ c           If(nDen.eq.2)write(6,*)'Pseudo Cholesky MOs used for state B'
            write(6,*)'*******************************'
            write(6,*)'*** Resort to Canonical MOs ***'
            write(6,*)'*******************************'
-         EndIf
 
-      EndIf
+           ipMSQ(1)= ip_of_Work(MSQ(1)%A0(1))
+           ipMSQ(2)= ip_of_Work(MSQ(2)%A0(1))
+
+         End If
+
+      Else
+
+         ipMSQ(1)= ip_of_Work(MSQ(1)%A0(1))
+         ipMSQ(2)= ip_of_Work(MSQ(2)%A0(1))
+
+      End If
 **************************************************
 
 C --- Define the max number of vectors to be treated in core at once
