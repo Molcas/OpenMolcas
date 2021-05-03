@@ -9,15 +9,16 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_get_MO(iOK,nDen,nSym,nBas,nIsh,CM,ISLT,ISK,MSQ)
-      use Data_Structures, only: DSBA_Type
+      use Data_Structures, only: DSBA_Type, Allocate_DSBA,
+     &                           Deallocate_DSBA
       Implicit Real*8 (a-h,o-z)
       Integer  iOK, nDen, nSym
       Integer  nBas(nSym), nIsh(nSym), ISLT(nSym), ISK(nSym)
-      Type (DSBA_Type)  CM(nDen), MSQ(nDen)
+      Type (DSBA_Type)  CM(nDen), MSQ(nDen), SMat
 
 #include "stdalloc.fh"
 
-      Real*8, Allocatable:: SMat(:), SXMat(:)
+      Real*8, Allocatable:: SXMat(:)
       Real*8, Allocatable, Target:: Dmat0(:)
       Real*8, Pointer:: Dmat(:,:)
 ************************************************************************
@@ -26,6 +27,7 @@
       ikc=0
 
       i = isk(1)
+      i = islt(1)
       nBm=nBas(1)
       Do iSym=2,nSym
          nBm=Max(nBm,nBas(iSym))
@@ -70,9 +72,7 @@ C --- Inactive D(a,b) = sum_i C(a,i)*C(b,i)
 
       If (nDen.eq.2 .and. irc.eq.0 .and. ikc.eq.0) Then
 
-         nnB = ISLT(nSym) + nBas(nSym)*(nBas(nSym)+1)/2
-
-         Call mma_allocate(SMat,nnB,Label='SMat')
+         Call Allocate_DSBA(SMat,nBas,nBas,nSym,Case='TRI')
          Call mma_allocate(SXMat,nBm**2,Label='SXMat')
 
 *        Read overlap integrals (LT-storage) and get Square-storage
@@ -80,7 +80,7 @@ C --- Inactive D(a,b) = sum_i C(a,i)*C(b,i)
          iOpt=2
          iComp=1
          iSyLbl=1
-         Call RdOne(iRc,iOpt,'Mltpl  0',iComp,SMat,iSyLbl)
+         Call RdOne(iRc,iOpt,'Mltpl  0',iComp,SMat%A0,iSyLbl)
 
 *        Compute  X_b[a] = C_b U_a   where  U_a = C_a^T S X_a
 *        ----------------------------------------------------
@@ -90,7 +90,7 @@ C --- Inactive D(a,b) = sum_i C(a,i)*C(b,i)
 
            If (nBas(i).gt.0 .and. nIsh(i).gt.0) then
 
-              CALL SQUARE(SMat(1+ISLT(i)),DMat,1,NBas(i),NBas(i))
+              CALL SQUARE(SMat%SB(i)%A1,DMat,1,NBas(i),NBas(i))
 
               call DGEMM_('N','N',nBas(i),nIsh(i),nBas(i),
      &                     1.0d0,DMat,nBas(i),
@@ -120,7 +120,7 @@ c     &                               nIsh(i),nIsh(i),1,6)
          End Do
 
          Call mma_deallocate(SXMat)
-         Call mma_deallocate(SMat)
+         Call Deallocate_DSBA(SMat)
 
       EndIf
 
