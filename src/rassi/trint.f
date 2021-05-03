@@ -117,7 +117,6 @@ C CALCULATE AN INACTIVE TRANSITION DENSITY MATRIX IN AO BASIS:
 
       NFAO=NBSQ
       Call Allocate_DSBA(FAO,nBasF,nBasF,nSym)
-      LFAO=ip_of_Work(FAO%A0(1))
 *                                                                     *
 ***********************************************************************
 *                                                                     *
@@ -264,7 +263,7 @@ c ---     and compute the (tu|vx) integrals
            If (Fake_CMO2) Then
               CALL CHO_FOCK_RASSI(DLT,MO1,MO2,FLT,LTUVX)
            Else
-              CALL CHO_FOCK_RASSI_X(DLT,MO1,MO2,FLT,LFAO,LTUVX)
+              CALL CHO_FOCK_RASSI_X(DLT,MO1,MO2,FLT,FAO,LTUVX)
            EndIf
 
            Call Deallocate_DSBA(MO2(2))
