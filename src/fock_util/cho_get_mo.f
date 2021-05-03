@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_get_MO(iOK,nDen,nSym,nBas,nIsh,CM,ISLT,ISK,MSQ)
+      SUBROUTINE CHO_get_MO(iOK,nDen,nSym,nBas,nIsh,CM,MSQ)
       use Data_Structures, only: DSBA_Type, Allocate_DSBA,
      &                           Deallocate_DSBA
       Implicit Real*8 (a-h,o-z)
       Integer  iOK, nDen, nSym
-      Integer  nBas(nSym), nIsh(nSym), ISLT(nSym), ISK(nSym)
+      Integer  nBas(nSym), nIsh(nSym)
       Type (DSBA_Type)  CM(nDen), MSQ(nDen), SMat
 
 #include "stdalloc.fh"
@@ -26,8 +26,6 @@
       irc=0
       ikc=0
 
-      i = isk(1)
-      i = islt(1)
       nBm=nBas(1)
       Do iSym=2,nSym
          nBm=Max(nBm,nBas(iSym))

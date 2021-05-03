@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2008, Francesco Aquilante                              *
 ************************************************************************
-      SUBROUTINE CHO_LR_MOs(iOK,nDen,nSym,nBas,nIsh,CM,ISLT,ISK,MSQ)
+      SUBROUTINE CHO_LR_MOs(iOK,nDen,nSym,nBas,nIsh,CM,MSQ)
 
 ************************************************************************
 *
@@ -34,7 +34,7 @@
       use Data_Structures, only: DSBA_Type
       Implicit Real*8 (a-h,o-z)
       Integer  iOK, nDen, nSym
-      Integer  nBas(nSym), nIsh(nSym), ISLT(nSym), ISK(nSym)
+      Integer  nBas(nSym), nIsh(nSym)
       Type (DSBA_Type)  CM(nDen)
       Type (DSBA_Type), Target::  MSQ(nDen)
 
@@ -49,7 +49,6 @@
 
       irc=0
       ikc=0
-      i = isk(1)
 
       nBm=nBas(1)
       Do iSym=2,nSym
@@ -143,6 +142,4 @@ C --- Inactive P[kl](a,b) = sum_i C[k](a,i)*C[l](b,i)
       If (irc.ne.0 .or. ikc.ne.0) iOK=1
 
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer_array(ISLT)
       End

@@ -54,7 +54,6 @@ C
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
       Integer   kOff(8), nAux(8)
-      Integer   ISTLT(8),ISTK(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
 
@@ -135,16 +134,8 @@ c --------------------
       nnO=0
       kOff(1)=0
       MaxB=nBas(1)
-      nsBB=nBas(1)**2
-      ISTLT(1)=0
-      ISTK(1)=0
       DO ISYM=2,NSYM
         MaxB=Max(MaxB,nBas(iSym))
-        nsBB = nsBB + nBas(iSym)**2
-        NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive D and F matrices
-        nK = nIsh(iSym-1) + nAsh(iSym-1)
-        ISTK(ISYM)=ISTK(ISYM-1)+nBas(iSym-1)*nK ! Inact. MO coeff.
         nnO = nnO + nIsh(iSym-1)
         kOff(iSym)=nnO
       END DO
@@ -158,9 +149,9 @@ c --------------------
          Call Allocate_DSBA(CM(2),nBas,nAux,nSym)
 
          If (PseudoChoMOs) Then
-            Call cho_get_MO(iOK,nDen,nSym,nBas,nIsh,MSQ,ISTLT,ISTK,CM)
+            Call cho_get_MO(iOK,nDen,nSym,nBas,nIsh,MSQ,CM)
          Else
-            Call cho_lr_MOs(iOK,nDen,nSym,nBas,nIsh,MSQ,ISTLT,ISTK,CM)
+            Call cho_lr_MOs(iOK,nDen,nSym,nBas,nIsh,MSQ,CM)
          EndIf
 
          If (iOK.eq.0) Then ! point to the "generalized" Cholesky MOs
