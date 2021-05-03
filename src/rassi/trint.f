@@ -264,9 +264,9 @@ c --- Add the two-electron contribution to the Fock matrix
 c ---     and compute the (tu|vx) integrals
 
            If (Fake_CMO2) Then
-              CALL CHO_FOCK_RASSI(ipDLT,MO1,MO2,ipFLT,LTUVX)
+              CALL CHO_FOCK_RASSI(DLT,MO1,MO2,ipFLT,LTUVX)
            Else
-              CALL CHO_FOCK_RASSI_X(ipDLT,MO1,MO2,ipFLT,LFAO,LTUVX)
+              CALL CHO_FOCK_RASSI_X(DLT,MO1,MO2,ipFLT,LFAO,LTUVX)
            EndIf
 
            Call Deallocate_DSBA(MO2(2))

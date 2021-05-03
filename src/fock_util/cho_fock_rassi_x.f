@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHO_FOCK_RASSI_X(ipDLT,MO1,MO2,ipFLT,ipK,ipInt)
+      SUBROUTINE CHO_FOCK_RASSI_X(DLT,MO1,MO2,ipFLT,ipK,ipInt)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -39,7 +39,7 @@ C
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
-      Type (DSBA_Type) MO1(2), MO2(2)
+      Type (DSBA_Type) DLT, MO1(2), MO2(2)
       Type (SBA_Type), Target:: Laq(2)
       Type (Twxy_Type) Scr
 
@@ -189,6 +189,7 @@ C --- Transform the density to reduced storage
                mode = 'toreds'
                add = .False.
                mDen=1
+               ipDLT = ip_of_Work(DLT%A0(1))
                Call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,[ipDLT],Drs,
      &                           mode,add)
             EndIf
