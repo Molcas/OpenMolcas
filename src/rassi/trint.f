@@ -1,5 +1,4 @@
 ************************************************************************
-* This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
 * it under the terms of the GNU Lesser General Public License, v. 2.1. *
@@ -8,17 +7,17 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE TRINT(CMO1,CMO2,ECORE,NGAM1,FOCKMO,NGAM2,W_TUVX)
+      SUBROUTINE TRINT(CMO1,CMO2,ECORE,NGAM1,FOCKMO,NGAM2,TUVX)
 #if defined (_MOLCAS_MPP_)
       USE Para_Info, ONLY: nProcs
 #endif
       use Data_structures, only: DSBA_Type, Allocate_DSBA,
      &                           Deallocate_DSBA
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),W_TUVX(NGAM2)
+      REAL*8 CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),TUVX(NGAM2)
       Integer KEEP(8),NBSX(8), nAux(8)
       LOGICAL   ISQARX
-      Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT, FLT, TUVX, KSQ,
+      Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT, FLT, KSQ,
      &                 FAO, Temp_SQ
 #include "real.fh"
 #include "rassi.fh"
@@ -35,15 +34,15 @@
 #include "chorassi.fh"
 
 *****************************************************************
-*  CALCULATE AND RETURN ECORE, FOCKMO, AND W_TUVX. ECORE IS THE
+*  CALCULATE AND RETURN ECORE, FOCKMO, AND TUVX. ECORE IS THE
 *  INACTIVE-INACTIVE ENERGY CONTRIBUTION, WHICH IS TO BE MULTI-
 *  PLIED WITH AN OVERLAP TO GIVE A CONTRIBUTION TO THE HAMILTONIAN
 *  MATRIX ELEMENT. SIMILARLY, THE INACTIVE-ACTIVE CONTRIBUTION IS
 *  GIVEN BY THE FOCKMO ARRAY CONTRACTED WITH AN ACTIVE TRANSITION
 *  DENSITY MATRIX, AND THE ACTIVE-ACTIVE IS THE TRANSFORMED
-*  INTEGRALS IN ARRAY W_TUVX CONTRACTED WITH THE TRANSITION DENSITY
+*  INTEGRALS IN ARRAY TUVX CONTRACTED WITH THE TRANSITION DENSITY
 *  TWO-ELECTRON MATRIX. THEREFORE, THE STORAGE OF THE FOCKMO AND
-*  THE W_TUVX MATRICES ARE IN THE SAME FORMAT AS THE DENSITY MATRICES.
+*  THE TUVX MATRICES ARE IN THE SAME FORMAT AS THE DENSITY MATRICES.
 *****************************************************************
 
       IfTest=.False.
@@ -51,7 +50,7 @@
       IfTest=.True.
 #endif
 C THE FOLLOWING PROGRAMS USE THE ORDERED INTEGRAL FILE FOR BOTH
-C THE FOCKMO MATRIX AND THE W_TUVX ARRAY. THEREFORE, IT IS IMPERATIVE
+C THE FOCKMO MATRIX AND THE TUVX ARRAY. THEREFORE, IT IS IMPERATIVE
 C THAT SYMMETRY BLOCKS HAVE NOT BEEN EXCLUDED IN THE GENERATION OF
 C THIS ORDERED INTEGRAL FILE, UNLESS BOTH ACTIVE AND INACTIVE ORBITALS
 C ARE MISSING FOR THAT SYMMETRY LABEL. THIS IS CHECKED FIRST:
@@ -60,8 +59,6 @@ C OPEN THE ELECTRON REPULSION INTEGRAL FILE
       Call f_Inquire('ORDINT',FoundTwoEls)
 c      Call DecideOnDirect(.False.,FoundTwoEls,DoDirect,DoCholesky)
       Call DecideOnCholesky(DoCholesky)
-
-      Call Allocate_DSBA(TUVX,nBasF,nBasF,nSym,Case='TRI',Ref=W_TUVX)
 
       If (.not.DoCholesky) then
 
@@ -341,7 +338,7 @@ c ---     and compute the (tu|vx) integrals
          Call Deallocate_DSBA(DLT)
 
          Call GADSUM(FAO%A0,NBSQ)
-         Call GADSUM(TUVX%A0,NGAM2)
+         Call GADSUM(TUVX,NGAM2)
 
          ECORE2=DDOT_(NBSQ,FAO%A0,1,DINAO,1)
 
@@ -409,12 +406,12 @@ C -- MATRIX MULT. F(ACT MO,ACT MO)=CMO1(AO,ACT MO)(TRP)*PROD(AO,ACT MO)
 
       If (.not.DoCholesky) then
 C TRANSFORM TWO-ELECTRON INTEGRALS:
-         CALL TRAINT(CMO1,CMO2,NGAM2,TUVX%A0)
+         CALL TRAINT(CMO1,CMO2,NGAM2,TUVX)
 
          CALL CLSORD(IRC,IOPT)
 
       End If
-      Call Chk4NaN(nasht*(nasht+1)/2,TUVX%A0,iErr)
+      Call Chk4NaN(nasht*(nasht+1)/2,TUVX,iErr)
       If (iErr.ne.0) Then
          Write (6,*) 'TrInt: TUVX corrupted'
          Call Abend()
@@ -424,9 +421,7 @@ C TRANSFORM TWO-ELECTRON INTEGRALS:
          Write (6,*) 'TrInt: FOCKMO corrupted'
          Call Abend()
       End If
-c     Call triprt('tuvx',' ',TUVX%A0,nasht)
-
-      Call Deallocate_DSBA(TUVX)
+c     Call triprt('tuvx',' ',TUVX,nasht)
 
       RETURN
 901   CONTINUE

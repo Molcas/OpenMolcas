@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHO_LK_RASSI_X(DLT,MSQ,FLT,KSQ,FSQ,
-     &                          TUVX,Ash,nScreen,dmpk)
+      SUBROUTINE CHO_LK_RASSI_X(DLT,MSQ,FLT,KSQ,FSQ,TUVX,Ash,nScreen,
+     &                          dmpk)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -56,8 +56,8 @@ C
       Real*8    tmotr(2),tscrn(2)
 
       Type (NDSBA_Type)  DiaH
-      Type (DSBA_Type)   Ash(2), CM(2), DLT, FLT, MSQ(2), KSQ, FSQ,
-     &                   TUVX
+      Type (DSBA_Type)   Ash(2), CM(2), DLT, FLT, MSQ(2), KSQ, FSQ
+      Real*8 TUVX(*)
       Type (SBA_Type)   Laq(2)
       Type (twxy_Type)  Scr
       Type (L_Full_Type) L_Full
@@ -106,7 +106,6 @@ C
       DoReord = .false.
       IREDC = -1  ! unknown reduced set in core
       ipK     = ip_of_Work(KSQ%A0(1))
-      ipInt   = ip_of_Work(TUVX%A0(1))
 
       nDen = 2  ! the two bi-orthonormal sets of orbitals
       If (Fake_CMO2) nDen = 1  ! MO1 = MO2
@@ -1134,8 +1133,8 @@ C *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
 
                DoReord = JRED.eq.myJRED2.and.iBatch.eq.nBatch
 
-               CALL CHO_rassi_twxy(irc,Scr,Laq(2),ipInt,nAsh,
-     &                                 JSYM,JNUM,DoReord)
+               CALL CHO_rassi_twxy(irc,Scr,Laq(2),TUVX,nAsh,JSYM,JNUM,
+     &                             DoReord)
 
                CALL CWTIME(TCINT2,TWINT2)
                tintg(1) = tintg(1) + (TCINT2 - TCINT1)

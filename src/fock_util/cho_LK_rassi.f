@@ -59,8 +59,8 @@ C
       Real*8    tmotr(2),tscrn(2)
 
       Type (NDSBA_Type) DiaH
-      Type (DSBA_Type) Ash(2), CM(2), DLT, FLT, MSQ(2), FSQ, TUVX,
-     &                 KLT
+      Type (DSBA_Type) Ash(2), CM(2), DLT, FLT, MSQ(2), FSQ, KLT
+      Real*8 TUVX(*)
       Type (SBA_Type) Laq(2)
       Type (twxy_Type) Scr
       Type (L_Full_Type) L_Full
@@ -113,7 +113,6 @@ C
 #endif
       DoReord = .false.
       IREDC = -1  ! unknown reduced set in core
-      ipInt   = ip_of_Work(TUVX%A0(1))
       ! Temporary use of FSQ
       Call Allocate_DSBA(KLT,nBas,nBas,nSym,Case='TRI',Ref=FSQ%A0)
 
@@ -1168,8 +1167,8 @@ C *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
 
                DoReord = JRED.eq.myJRED2.and.iBatch.eq.nBatch
 
-               CALL CHO_rassi_twxy(irc,Scr,Laq(2),ipInt,nAsh,
-     &                                 JSYM,JNUM,DoReord)
+               CALL CHO_rassi_twxy(irc,Scr,Laq(2),TUVX,nAsh,JSYM,JNUM,
+     &                             DoReord)
 
                CALL CWTIME(TCINT2,TWINT2)
                tintg(1) = tintg(1) + (TCINT2 - TCINT1)

@@ -39,7 +39,8 @@ C
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
-      Type (DSBA_Type) DLT, MO1(2), MO2(2), FLT, FSQ, TUVX
+      Type (DSBA_Type) DLT, MO1(2), MO2(2), FLT, FSQ
+      Real*8 TUVX(*)
       Type (SBA_Type), Target:: Laq(2)
       Type (Twxy_Type) Scr
 
@@ -404,9 +405,8 @@ C *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
 
                DoReord = JRED.eq.JRED2.and.iBatch.eq.nBatch
 
-               ipInt = ip_of_Work(TUVX%A0(1))
-               CALL CHO_rassi_twxy(irc,Scr,Laq(2),ipInt,nAsh,
-     &                                 JSYM,JNUM,DoReord)
+               CALL CHO_rassi_twxy(irc,Scr,Laq(2),TUVX,nAsh,JSYM,JNUM,
+     &                             DoReord)
 
                CALL CWTIME(TCINT2,TWINT2)
                tintg(1) = tintg(1) + (TCINT2 - TCINT1)
