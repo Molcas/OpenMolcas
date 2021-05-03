@@ -84,7 +84,6 @@ C
 #include "rassi.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Character(LEN=6) mode

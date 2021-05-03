@@ -78,7 +78,6 @@ C
 #include "rassi.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Real*8 LKThr
@@ -104,7 +103,6 @@ C
 
       DoReord = .false.
       IREDC = -1  ! unknown reduced set in core
-      ipK     = ip_of_Work(KSQ%A0(1))
 
       nDen = 2  ! the two bi-orthonormal sets of orbitals
       If (Fake_CMO2) nDen = 1  ! MO1 = MO2
@@ -940,8 +938,6 @@ C------------------------------------------------------------
 
                             iOffAB = nnBfShp(iShp,lSym)
 
-                            ipKI = ipK + ISTSQ(lSym) + iOffAB
-
                             xFab = sqrt(abs(Faa(iaSh)*Faa(ibSh)))
 
                             If (MLk(lSh,jK_a,1)*
@@ -977,9 +973,9 @@ C --------------------------------------------------------------------
 
                                CALL DGEMM_(Mode(1:1),Mode(2:2),
      &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
-     &                               FactXI,Lab%SB(iaSh,lSym,kDen)%A,n1,
-     &                                      Lab%SB(ibSh,lSym,   1)%A,n2,
-     &                               ONE,Work(ipKI),nBsa)
+     &                           FactXI,Lab%SB(iaSh,lSym,kDen)%A,n1,
+     &                                  Lab%SB(ibSh,lSym,   1)%A,n2,
+     &                              ONE,KSQ%SB(lSym)%A1(iOffAB+1:),nBsa)
 
                             EndIf
 
@@ -1205,8 +1201,6 @@ C--- have performed screening in the meanwhile
 * --- Accumulate Coulomb and Exchange contributions
       Do iSym=1,nSym
 
-         ipKI = ipK   + ISTSQ(iSym)
-
          Do iaSh=1,nShell
 
             ioffa = kOffSh(iaSh,iSym)
@@ -1225,15 +1219,13 @@ C--- have performed screening in the meanwhile
 
                   iab = nBasSh(iSym,iaSh)*(ib-1) + ia
 
-                  jK = ipKI - 1 + iOffAB + iab
-
                   iag = ioffa + ia
                   ibg = ioffb + ib
 
                   iabg = iTri(iag,ibg)
 
                   FSQ%SB(iSym)%A2(iag,ibg) = FLT%SB(iSym)%A1(iabg)
-     &                                     + Work(jK)
+     &                                     + KSQ%SB(iSym)%A1(iOffAB+iab)
 
                 End Do
 
