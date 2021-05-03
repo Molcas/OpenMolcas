@@ -46,7 +46,6 @@ C
 
       Integer   rc
       Integer   iSkip(8)
-      Integer   ISTSQ(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
 #ifdef _DEBUGPRINT_
       Logical   Debug
@@ -66,7 +65,6 @@ C
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
 
       Real*8, Allocatable:: Lrs(:,:), Drs(:), Frs(:)
 
@@ -85,7 +83,6 @@ C
       nDen=2
       If (Fake_CMO2) nDen = 1  ! MO1 = MO2
       kDen=nDen
-      ipK   = ip_of_Work(FSQ%A0(1))
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
@@ -94,16 +91,6 @@ C
       tcoul(:) = zero  !time for computing Coulomb
       texch(:) = zero  !time for computing Exchange
       tintg(:) = zero  !time for computing (tw|xy) integrals
-
-C ==================================================================
-
-c --- Various offsets
-c --------------------
-      ISTSQ(1)=0
-      DO ISYM=2,NSYM
-        NB=NBAS(ISYM-1)
-        ISTSQ(ISYM)=ISTSQ(ISYM-1)+NB**2 ! Inactive Exch matrix
-      END DO
 
 C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
       DO jSym=1,nSym
@@ -314,12 +301,10 @@ C ---------------------------------------------------------------------
 
                   If (iSkip(iSymk).ne.0) Then
 
-                     ISFI = ipK + ISTSQ(iSyma)
-
                      CALL DGEMM_('T','N',NBAS(iSyma),NBAS(iSyma),
      &                         NK*JNUM,FactXI,Laq(kDen)%SB(iSymk)%A3,
      &                         NK*JNUM,Laq(1)%SB(iSymk)%A3,NK*JNUM,
-     &                             One,Work(ISFI),NBAS(iSyma))
+     &                             One,FSQ%SB(iSyma)%A2,NBAS(iSyma))
 
                   EndIf
 
@@ -454,22 +439,17 @@ C --- free memory
 * --- Accumulate Coulomb and Exchange contributions
       Do iSym=1,nSym
 
-         ipKI = ipK -1 + ISTSQ(iSym)
-
          Do ia=1,nBas(iSym)
             Do ib=1,ia-1
                iabt = ia*(ia-1)/2 + ib
-               iabq = ipKI + nBas(iSym)*(ia-1) + ib
-               Work(iabq)=Work(iabq)
-     &                   +FLT%SB(iSym)%A1(iabt)
-               iabq = ipKI + nBas(iSym)*(ib-1) + ia
-               Work(iabq)=Work(iabq)
-     &                   +FLT%SB(iSym)%A1(iabt)
+               FSQ%SB(iSym)%A2(ib,ia) = FSQ%SB(iSym)%A2(ib,ia)
+     &                                +FLT%SB(iSym)%A1(iabt)
+               FSQ%SB(iSym)%A2(ia,ib) = FSQ%SB(iSym)%A2(ia,ib)
+     &                                +FLT%SB(iSym)%A1(iabt)
             End Do
             iabt = ia*(ia+1)/2
-            iabq = ipKI + nBas(iSym)*(ia-1) + ia
-            Work(iabq)=Work(iabq)+Work(iabt)
-     &                +FLT%SB(iSym)%A1(iabt)
+            FSQ%SB(iSym)%A2(ia,ia) = FSQ%SB(iSym)%A2(ia,ia)
+     &                             +FLT%SB(iSym)%A1(iabt)
          End Do
 
       End Do
@@ -518,12 +498,11 @@ c Print the Fock-matrix
       WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM
       WRITE(6,'(6X,A)')
       DO ISYM=1,NSYM
-        ISFI=ipK+ISTSQ(ISYM)
         IF( NBAS(ISYM).GT.0 ) THEN
           WRITE(6,'(6X,A)')'***** INACTIVE FOCK MATRIX ***** '
           WRITE(6,'(6X,A)')
           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          call CHO_OUTPUT(Work(ISFI),1,NBAS(ISYM),1,NBAS(ISYM),
+          call CHO_OUTPUT(FSQ%SB(ISYM)%A2,1,NBAS(ISYM),1,NBAS(ISYM),
      &                    NBAS(ISYM),NBAS(ISYM),1,6)
         ENDIF
       END DO
