@@ -42,8 +42,9 @@ C
       End If
 
       End
-      SUBROUTINE CHOSCF_DRV_Internal(iUHF,nSym,nBas,DSQ,W_DLT,DSQ_ab,
-     &                               W_DLT_ab,W_FLT,W_FLT_ab,nFLT,ExFac,
+      SUBROUTINE CHOSCF_DRV_Internal(iUHF,nSym,nBas,W_DSQ,W_DLT,
+     &                               W_DSQ_ab,W_DLT_ab,W_FLT,
+     &                               W_FLT_ab,nFLT,ExFac,
      &                               W_FSQ,W_FSQ_ab,nOcc,nOcc_ab)
 
       use Data_Structures, only: DSBA_Type
@@ -57,13 +58,12 @@ C
       Parameter (MaxDs = 3)
       Logical DoCoulomb(MaxDs),DoExchange(MaxDs)
       Real*8 FactC(MaxDs),FactX(MaxDs),ExFac
-      Integer ipDSQ(MaxDs),ipFSQ(MaxDs)
       Integer ipMSQ(MaxDs),ipNocc(MaxDs),nOcc(nSym),nOcc_ab(nSym)
       Integer nnBSF(8,8),n2BSF(8,8)
       Integer nForb(8,2),nIorb(8,2)
       Real*8 W_FLT(*),W_FLT_ab(*)
       Real*8 W_FSQ(*),W_FSQ_ab(*)
-      Real*8 DSQ(*),DSQ_ab(*)
+      Real*8 W_DSQ(*),W_DSQ_ab(*)
       Real*8 W_DLT(*),W_DLT_ab(*)
       character ww*512
 
@@ -77,7 +77,8 @@ C
       Integer, Allocatable:: nVec(:,:)
       Real*8, Allocatable :: Vec(:,:), DDec(:,:)
 
-      Type (DSBA_Type) Cka(2), FLT(2), KLT(2), MSQ(3), DLT
+      Type (DSBA_Type) Cka(2), FLT(2), KLT(2), MSQ(3), DLT, FSQ(3),
+     &                 DSQ(3)
 *
 C  **************************************************
         iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
@@ -105,11 +106,11 @@ C  **************************************************
          xFac = ExFac
 
          Call Allocate_DSBA(DLT,nBas,nBas,nSym,Case='TRI',Ref=W_DLT)
-         ipDSQ(1) = ip_of_Work(DSQ(1))
+         Call Allocate_DSBA(DSQ(1),nBas,nBas,nSym,Ref=W_DSQ)
          Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=W_FLT)
          ! trick to use already allocated memory
          Call Allocate_DSBA(KLT(1),nBas,nBas,nSym,Case='TRI',Ref=W_FSQ)
-         ipFSQ(1) = ip_of_Work(W_FSQ)
+         Call Allocate_DSBA(FSQ(1),nBas,nBas,nSym,Case='TRI',Ref=W_FSQ)
 
          If (ExFac.eq.0.0d0) Then
             CALL CHO_FOCK_DFT_RED(rc,DLT,FLT(1))
@@ -129,7 +130,7 @@ C  **************************************************
 
        Call mma_allocate(Vec,lVdim,1,Label='Vec')
        Call mma_allocate(DDec,lVdim,1,Label='DDec')
-       call dcopy_(lVdim,DSQ,1,ddec(:,1),1)
+       call dcopy_(lVdim,DSQ(1)%A0,1,ddec(:,1),1)
 
        ipd = 1
        ipV = 1
@@ -193,7 +194,7 @@ C  **************************************************
         FactX(1)=0.5d0*ExFac
 
       Call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,
-     &                FactX,DLT,ipDSQ,FLT,ipFSQ,ipNocc,MinMem)
+     &                FactX,DLT,DSQ,FLT,FSQ,ipNocc,MinMem)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -204,7 +205,7 @@ C  **************************************************
         FactX(1)=0.5d0*ExFac
 
         CALL CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
-     &           FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,ipNocc,MinMem)
+     &           FactC,FactX,DLT,DSQ,FLT,FSQ,ipNocc,MinMem)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -216,10 +217,10 @@ C  **************************************************
 
        if (REORD)then
           Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &     FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,MinMem,ipMSQ,ipNocc)
+     &     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,ipMSQ,ipNocc)
        else
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                       lOff1,FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,
+     &                       lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
      &                       MinMem,ipMSQ,ipNocc)
        endif
 *                                                                      *
@@ -233,7 +234,7 @@ C  **************************************************
       FactX(1) = 1.0D0*ExFac ! MOs coeff. are not scaled
 
       Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &     FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,MinMem,ipMSQ,ipNocc)
+     &     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,ipMSQ,ipNocc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -243,7 +244,7 @@ C  **************************************************
       FactX(1) = 1.0D0*ExFac ! MOs coeff. are not scaled
 
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                       lOff1,FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,
+     &                       lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
      &                       MinMem,ipMSQ,ipNocc)
 *                                                                      *
 ************************************************************************
@@ -308,7 +309,7 @@ C  **************************************************
 
       If (ALGO.lt.3.and.ExFac.ne.0.0d0) Then
 
-         CALL CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,ipFSQ)
+         CALL CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,FSQ)
 
       EndIf
 C----------------------------------------------------
@@ -316,6 +317,8 @@ C----------------------------------------------------
       Call GADSum(FLT(1)%A0,nFLT)
 
       Call Deallocate_DSBA(MSQ(1))
+      Call Deallocate_DSBA(FSQ(1))
+      Call Deallocate_DSBA(DSQ(1))
       Call Deallocate_DSBA(KLT(1))
       Call Deallocate_DSBA(FLT(1))
       Call Deallocate_DSBA(DLT)
@@ -354,16 +357,21 @@ C Compute the total density Dalpha + Dbeta
       CALL DAXPY_(nFLT,1.0D0,W_DLT(1),1,W_DLT_ab(1),1)
 
       Call Allocate_DSBA(DLT,nBas,nBas,nSym,Case='TRI',Ref=W_DLT_ab)
-      ipDSQ(1) = ip_of_Work(DSQ(1))    ! dummy
-      ipDSQ(2) = ip_of_Work(DSQ(1))    ! alpha density SQ
-      ipDSQ(3) = ip_of_Work(DSQ_ab(1)) ! beta  density SQ
+      ! alpha density SQ
+      Call Allocate_DSBA(DSQ(2),nBas,nBas,nSym,Ref=W_DSQ)
+      ! beta  density SQ
+      Call Allocate_DSBA(DSQ(3),nBas,nBas,nSym,Ref=W_DSQ_ab)
 
       ! Coulomb (... Falpha LT)
       Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=W_FLT)
       ! (... Fbeta LT)
       Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI',Ref=W_FLT_ab)
-      ipFSQ(2) = ip_of_Work(W_FSQ(1))   ! alpha exchange (... Falpha SQ)
-      ipFSQ(3) = ip_of_Work(W_FSQ_ab(1))! beta exchange (... Fbeta SQ)
+
+      ! alpha exchange (... Falpha SQ)
+      Call Allocate_DSBA(FSQ(2),nBas,nBas,nSym,Ref=W_FSQ)
+      ! beta exchange (... Fbeta SQ)
+      Call Allocate_DSBA(FSQ(3),nBas,nBas,nSym,Ref=W_FSQ_ab)
+
       ! trick to use already allocated work
       Call Allocate_DSBA(KLT(1),nBas,nBas,nSym,Case='TRI',Ref=W_FSQ)
       Call Allocate_DSBA(KLT(2),nBas,nBas,nSym,Case='TRI',Ref=W_FSQ_ab)
@@ -388,8 +396,8 @@ C Compute the total density Dalpha + Dbeta
        Call mma_allocate(Vec,lVdim,2,Label='Vec')
        Call mma_allocate(DDec,lVdim,2,Label='DDec')
 
-       call dcopy_(lVdim,Work(ipDSQ(2)),1,ddec(:,1),1)
-       call dcopy_(lVdim,Work(ipDSQ(3)),1,ddec(:,2),1)
+       call dcopy_(lVdim,DSQ(2)%A0,1,ddec(:,1),1)
+       call dcopy_(lVdim,DSQ(3)%A0,1,ddec(:,2),1)
 
        ipd1 = 1
        ipd2 = 1
@@ -487,14 +495,14 @@ C ---  MO coefficients
       if (ALGO.eq.1.and.REORD) then
 
       Call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,
-     &                FactX,DLT,ipDSQ,FLT,ipFSQ,ipNocc,MinMem)
+     &                FactX,DLT,DSQ,FLT,FSQ,ipNocc,MinMem)
 
             If (rc.ne.0) GOTO 999
 
       elseif (ALGO.eq.1 .and. .not.REORD) then
 
         CALL CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
-     &           FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,ipNocc,MinMem)
+     &           FactC,FactX,DLT,DSQ,FLT,FSQ,ipNocc,MinMem)
 
             If (rc.ne.0) GOTO 999
 
@@ -507,13 +515,13 @@ C ---  MO coefficients
        if (REORD)then
 
           Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &     FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,MinMem,ipMSQ,ipNocc)
+     &     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,ipMSQ,ipNocc)
 
             If (rc.ne.0) GOTO 999
        else
 
           CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                       lOff1,FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,
+     &                       lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
      &                       MinMem,ipMSQ,ipNocc)
 
             If (rc.ne.0) GOTO 999
@@ -527,7 +535,7 @@ C ---  MO coefficients
 
 
       Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &     FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,MinMem,ipMSQ,ipNocc)
+     &     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,ipMSQ,ipNocc)
 
            If (rc.ne.0) GOTO 999
 
@@ -538,7 +546,7 @@ C ---  MO coefficients
       ipMSQ(3)  = mAdCMO_ab   !  beta  MOs coeff
 
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                       lOff1,FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,
+     &                       lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
      &                       MinMem,ipMSQ,ipNocc)
 
            If (rc.ne.0) GOTO 999
@@ -632,7 +640,7 @@ C --- To get the Fbeta in LT storage ----
 
 C --- Accumulates Coulomb and Exchange contributions
       If (ALGO.lt.3.and.ExFac.ne.0.0d0) then
-         CALL CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,ipFSQ)
+         CALL CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,FSQ)
       Endif
 
 C----------------------------------------------------
@@ -641,29 +649,29 @@ C----------------------------------------------------
 
 
 C --- Restore the Beta-density matrix ----
-C --- Copy the lower triangular of Work(ipDSQ(3))
+C --- Copy the lower triangular of DSQ(3))
 C --- and pack the off-diagonal elements
 
-        icount1 = 0
         do isym=1,nsym
-           koff1=ipDSQ(3) - 1 + icount1
            do j=1,nBas(isym)
               do k=j,nBas(isym)
-               koff3 = koff1 + nBas(isym)*(j-1) + k
                kj =  iTri(k,j)
                if (j.eq.k) then
-                DLT%SB(iSym)%A1(kj) =     Work(koff3)
+                DLT%SB(iSym)%A1(kj) =     DSQ(3)%SB(iSym)%A2(k,j)
                else ! packing of the matrix
-                DLT%SB(iSym)%A1(kj) = Two*Work(koff3)
+                DLT%SB(iSym)%A1(kj) = Two*DSQ(3)%SB(iSym)%A2(k,j)
                endif
               end do
            end do
-           icount1 = icount1 + nBas(isym)**2
         end do
 
          Call Deallocate_DSBA(MSQ(3))
          Call Deallocate_DSBA(MSQ(2))
          Call Deallocate_DSBA(MSQ(1))
+         Call Deallocate_DSBA(DSQ(3))
+         Call Deallocate_DSBA(DSQ(2))
+         Call Deallocate_DSBA(FSQ(3))
+         Call Deallocate_DSBA(FSQ(2))
          Call Deallocate_DSBA(KLT(2))
          Call Deallocate_DSBA(KLT(1))
          Call Deallocate_DSBA(FLT(2))

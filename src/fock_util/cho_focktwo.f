@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
-     &           FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,ipNocc,MinMem)
+     &           FactC,FactX,DLT,DSQ,FLT,FSQ,ipNocc,MinMem)
 
 ************************************************************************
 *  Author : F. Aquilante
@@ -68,10 +68,10 @@
       Integer   rc,nDen,nSym,nBas(nSym),NumCho(nSym),iSkip(nSym)
       Real*8    FactC(nDen),FactX(nDen)
       Integer   ISTSQ(nSym),ISTLT(nSym),MinMem(nSym)
-      Integer   ipDLT(nDen),ipDSQ(nDen),ipNocc(nDen)
-      Integer   ipFLT(nDen),ipFSQ(nDen)
+      Integer   ipNocc(nDen)
+      Integer   ipDLT(2),ipFLT(2),ipFSQ(3), ipDSQ(3)
 
-      Type (DSBA_Type) DLT, FLT
+      Type (DSBA_Type) DLT(nDen), FLT(nDen), FSQ(nDen), DSQ(nDen)
 
 #include "chounit.fh"
 #include "real.fh"
@@ -106,46 +106,50 @@
 #ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in SCF-debug
 #endif
-      ipDLT(1) = ip_of_Work(DLT%A0(1))
-      ipFLT(1) = ip_of_Work(FLT%A0(1))
+      Do iDen = 1, nDen
+         ipDLT(iDen) = ip_of_Work(DLT(iDen)%A0(1))
+         ipFLT(iDen) = ip_of_Work(FLT(iDen)%A0(1))
+         ipFSQ(iDen) = ip_of_Work(FSQ(iDen)%A0(1))
+         ipDSQ(iDen) = ip_of_Work(DSQ(iDen)%A0(1))
+      End Do
 
-        CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
+      CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
-        ! 1 --> CPU   2 --> Wall
-        tread(:) = zero  !time read/rreorder vectors
-        tcoul(:) = zero  !time for computing Coulomb
-        texch(:) = zero  !time for computing Exchange
+      ! 1 --> CPU   2 --> Wall
+      tread(:) = zero  !time read/rreorder vectors
+      tcoul(:) = zero  !time for computing Coulomb
+      texch(:) = zero  !time for computing Exchange
 
 C --- Tests on the type of calculation
-        DoSomeC=.false.
-        DoSomeX=.false.
-        MaxSym=0
+      DoSomeC=.false.
+      DoSomeX=.false.
+      MaxSym=0
 c
-        jD=0
-        do while (jD.lt.nDen .and. .not.DoSomeX)
+      jD=0
+      do while (jD.lt.nDen .and. .not.DoSomeX)
          jD=jD+1
          DoSomeX=DoExchange(jD)
-        end do
-        jD=0
-        do while (jD.lt.nDen .and. .not.DoSomeC)
+      end do
+      jD=0
+      do while (jD.lt.nDen .and. .not.DoSomeC)
          jD=jD+1
          DoSomeC=DoCoulomb(jD)
-        end do
+      end do
 
-        if (DoSomeX) Then
-           MaxSym=nSym !we want to do some exchange
-        Else
-           If (DoSomeC) Then
-                   MaxSym = 1 !we want to do only Coulomb
-           Else
-                   Return  !we are lazy and won''t do anything
-           End If
-        End If
+      if (DoSomeX) Then
+         MaxSym=nSym !we want to do some exchange
+      Else
+         If (DoSomeC) Then
+            MaxSym = 1 !we want to do only Coulomb
+         Else
+            Return  !we are lazy and won''t do anything
+         End If
+      End If
 
 c ISTSQ: Offsets to full symmetry block in DSQ,FSQ
 c ISTLT: Offsets to packed LT symmetry blocks in DLT,FLT
-        ISTSQ(1)=0
-        ISTLT(1)=0
+      ISTSQ(1)=0
+      ISTLT(1)=0
       DO ISYM=2,NSYM
         NB=NBAS(ISYM-1)
         NB2=NB*NB

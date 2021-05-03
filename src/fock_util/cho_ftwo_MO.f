@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
-     &                       lOff1,FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,
+     &                       lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
      &                       MinMem,ipMSQ,ipNocc)
 
 ************************************************************************
@@ -67,10 +67,10 @@
       Integer   rc,nDen,nSym,nBas(nSym),NumCho(nSym),kOcc(nSym)
       Real*8    FactC(nDen),FactX(nDen)
       Integer   Lunit,ISTSQ(nSym),ISTLT(nSym),lOff1
-      Integer   ipDLT(nDen),ipDSQ(nDen),ipFLT(nDen),ipFSQ(nDen)
       Integer   ipMSQ(nDen),ipNocc(nDen),MinMem(nSym),iSkip(nSym)
+      Integer   ipDLT(2),ipDSQ(3),ipFLT(2),ipFSQ(3)
 
-      Type (DSBA_Type) DLT(nDen), FLT(nDen)
+      Type (DSBA_Type) DLT(nDen), FLT(nDen), FSQ(nDen), DSQ(nDen)
 
       Real*8    tread(2),tcoul(2),texch(2)
 #include "chounit.fh"
@@ -130,6 +130,8 @@
       Do iDen = 1, nDen
          ipDLT(iDen) = ip_of_Work(DLT(iDen)%A0(1))
          ipFLT(iDen) = ip_of_Work(FLT(iDen)%A0(1))
+         ipFSQ(iDen) = ip_of_Work(FSQ(iDen)%A0(1))
+         ipDSQ(iDen) = ip_of_Work(DSQ(iDen)%A0(1))
       End Do
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time

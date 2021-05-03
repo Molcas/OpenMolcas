@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,ipFSQ)
+      SUBROUTINE CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,FSQ)
 
 *****************************************************************
 *  Author : F. Aquilante
@@ -24,9 +24,9 @@
       Implicit Real*8 (a-h,o-z)
       Integer   rc,nBas(8),nSym,iUHF
       Integer   ISTSQ(8),ISTLT(8)
-      Integer   ipFLT(2),ipFSQ(*)
+      Integer   ipFLT(2),ipFSQ(3)
 
-      Type (DSBA_Type) FLT(*)
+      Type (DSBA_Type) FLT(*), FSQ(*)
       Logical DoExchange(*)
 
 
@@ -40,8 +40,11 @@
       if (iUHF.eq.1)then
          nDen=3
          ipFLT(2) = ip_of_Work(FLT(2)%A0(1))
+         ipFSQ(2) = ip_of_Work(FSQ(2)%A0(1))
+         ipFSQ(3) = ip_of_Work(FSQ(3)%A0(1))
       else
          nDen=1
+         ipFSQ(1) = ip_of_Work(FSQ(1)%A0(1))
       endif
 
 

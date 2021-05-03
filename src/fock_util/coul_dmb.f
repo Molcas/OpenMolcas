@@ -16,8 +16,9 @@
       Integer nDM, lFDM
       Real*8  FM(lFDM), DMA(lFDM), DMB(lFDM)
 
-      Type (DSBA_Type) DLT
+      Type (DSBA_Type) DLT, FLT
 
+#include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
       Character(LEN=16) NamRfil
@@ -29,20 +30,23 @@
 *
       If (.not.GetFM) Go To 99
 *
+       Call Allocate_DSBA(FLT,nBas,nBas,nSym,Case='TRI',Ref=FM)
+
       Call Get_NameRun(NamRfil) ! save the old RUNFILE name
       Call NameRun('AUXRFIL')   ! switch RUNFILE name
 *
        Call Allocate_DSBA(DLT,nBas,nBas,nSym,Case='TRI')
       Call get_dArray('D1ao',DLT%A0,lFDM)
 *
-      Call FZero(FM,lFDM)
-      Call CHO_FOCK_DFT_RED(irc,DLT,FM)
-      Call GADSum(FM,lFDM)
+      FLT%A0(:)=Zero
+      Call CHO_FOCK_DFT_RED(irc,DLT,FLT)
       If (irc.ne.0) Then
          Call SysAbendMsg('Coul_DMB ',' non-zero rc ',' ')
       EndIf
+      Call GADSum(FM,lFDM)
 *
       Call deallocate_DSBA(DLT)
+      Call deallocate_DSBA(FLT)
 *
       Call NameRun(NamRfil)   ! switch back RUNFILE name
 *

@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
-     &           FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,ipNocc,MinMem)
+     &           FactC,FactX,DLT,DSQ,FLT,FSQ,ipNocc,MinMem)
 
 ************************************************************************
 *  Author : F. Aquilante
@@ -71,10 +71,10 @@
       Integer  rc,nDen,nBas(*)
       Real*8   FactC(nDen),FactX(nDen)
       Integer  KSQ1(8),ISTSQ(8),ISTLT(8),iSkip(8),MinMem(*)
-      Integer  ipDLT(nDen),ipDSQ(nDen),ipNocc(nDen)
-      Integer  ipFLT(nDen),ipFSQ(nDen)
+      Integer  ipNocc(nDen)
+      Integer  ipDLT(2), ipFLT(2), ipFSQ(3), ipDSQ(3)
 
-      Type (DSBA_Type) DLT(nDen), FLT(nDen)
+      Type (DSBA_Type) DLT(nDen), FLT(nDen), FSQ(nDen), DSQ(nDen)
 #ifdef _DEBUGPRINT_
       Logical  Debug
 #endif
@@ -113,6 +113,8 @@
       Do iDen = 1, nDen
          ipDLT(iDen) = ip_of_Work(DLT(iDen)%A0(1))
          ipFLT(iDen) = ip_of_Work(FLT(iDen)%A0(1))
+         ipFSQ(iDen) = ip_of_Work(FSQ(iDen)%A0(1))
+         ipDSQ(iDen) = ip_of_Work(DSQ(iDen)%A0(1))
       End Do
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time

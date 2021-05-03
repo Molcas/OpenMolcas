@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                       lOff1,FactC,FactX,DLT,ipDSQ,FLT,ipFSQ,
+     &                       lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
      &                       MinMem,ipMSQ,ipNocc)
 
 ************************************************************************
@@ -74,10 +74,10 @@
       Real*8    FactC(nDen),FactX(nDen)
       Integer   ISTSQ(8),ISTLT(8),iSkip(8),lOff1
       Real*8    tread(2),tcoul(2),texch(2)
-      Integer   ipDLT(nDen),ipDSQ(nDen),ipFLT(nDen),ipFSQ(nDen)
       Integer   ipMSQ(nDen),ipNocc(nDen),MinMem(*)
+      Integer   ipDLT(2),ipFLT(2),ipFSQ(3),ipDSQ(3)
 
-      Type (DSBA_Type) DLT(nDen), FLT(nDen)
+      Type (DSBA_Type) DLT(nDen), FLT(nDen), FSQ(nDen), DSQ(nDen)
       Logical DoExchange(nDen),DoCoulomb(nDen),DoSomeX,DoSomeC
 #ifdef _DEBUGPRINT_
       Logical Debug
@@ -135,6 +135,8 @@
       Do iDen = 1, nDen
          ipDLT(iDen)=ip_of_Work(DLT(iDen)%A0(1))
          ipFLT(iDen)=ip_of_Work(FLT(iDen)%A0(1))
+         ipFSQ(iDen)=ip_of_Work(FSQ(iDen)%A0(1))
+         ipDSQ(iDen)=ip_of_Work(DSQ(iDen)%A0(1))
       End Do
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
@@ -185,30 +187,30 @@ c ISTLT: Offsets to packed LT symmetry blocks in DLT,FLT
 
 
 C --- Tests on the type of calculation
-        DoSomeC=.false.
-        DoSomeX=.false.
-        MaxSym=0
+      DoSomeC=.false.
+      DoSomeX=.false.
+      MaxSym=0
 c
-        jD=0
-        do while (jD.lt.nDen .and. .not.DoSomeX)
+      jD=0
+      do while (jD.lt.nDen .and. .not.DoSomeX)
          jD=jD+1
          DoSomeX=DoExchange(jD)
-        end do
-        jD=0
-        do while (jD.lt.nDen .and. .not.DoSomeC)
+      end do
+      jD=0
+      do while (jD.lt.nDen .and. .not.DoSomeC)
          jD=jD+1
          DoSomeC=DoCoulomb(jD)
-        end do
+      end do
 
-        if (DoSomeX) Then
-           MaxSym=nSym !we want to do some exchange
-        Else
-           If (DoSomeC) Then
-                   MaxSym = 1 !we want to do only Coulomb
-           Else
-                   Return  !we are lazy and won''t do anything
-           End If
-        End If
+      if (DoSomeX) Then
+         MaxSym=nSym !we want to do some exchange
+      Else
+         If (DoSomeC) Then
+            MaxSym = 1 !we want to do only Coulomb
+         Else
+            Return  !we are lazy and won''t do anything
+         End If
+      End If
 
 C *************** BIG LOOP OVER VECTORS SYMMETRY *****************
       DO jSym=1,MaxSym
