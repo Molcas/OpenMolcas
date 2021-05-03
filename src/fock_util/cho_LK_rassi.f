@@ -53,7 +53,7 @@ C
 #endif
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
-      Integer   kOff(8)
+      Integer   kOff(8), nAux(8)
       Integer   ISTLT(8),ISTK(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
@@ -155,8 +155,9 @@ c --------------------
 **************************************************
       If (Deco) Then
 
-         Call Allocate_DSBA(CM(1),nBas,nBas,nSym)
-         Call Allocate_DSBA(CM(2),nBas,nBas,nSym)
+         nAux(:)=nIsh(:)+nAsh(:)
+         Call Allocate_DSBA(CM(1),nBas,nAux,nSym)
+         Call Allocate_DSBA(CM(2),nBas,nAux,nSym)
 
          If (PseudoChoMOs) Then
             Call cho_get_MO(iOK,nDen,nSym,nBas,nIsh,MSQ,ISTLT,ISTK,CM)
