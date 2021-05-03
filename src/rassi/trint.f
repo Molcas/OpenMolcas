@@ -174,7 +174,6 @@ c --- FAO already contains the one-electron part
          endif
 
          Call Allocate_DSBA(DLT,nBasF,nBasF,nSym,Case='TRI')
-         ipDLT=ip_of_Work(DLT%A0(1))
          CALL Fold_Mat(nSym,nBasF,DINAO,DLT%A0)
 
 #ifdef _DEBUGPRINT_
@@ -191,7 +190,6 @@ c --- FAO already contains the one-electron part
 #endif
 
          Call Allocate_DSBA(FLT,nBasF,nBasF,nSym,Case='TRI')
-         ipFLT=ip_of_Work(FLT%A0(1))
 
 C GET THE ONE-ELECTRON HAMILTONIAN MATRIX FROM ONE-EL FILE AND
 C PUT IT INTO A FOCK MATRIX IN AO BASIS:
@@ -264,9 +262,9 @@ c --- Add the two-electron contribution to the Fock matrix
 c ---     and compute the (tu|vx) integrals
 
            If (Fake_CMO2) Then
-              CALL CHO_FOCK_RASSI(DLT,MO1,MO2,ipFLT,LTUVX)
+              CALL CHO_FOCK_RASSI(DLT,MO1,MO2,FLT,LTUVX)
            Else
-              CALL CHO_FOCK_RASSI_X(DLT,MO1,MO2,ipFLT,LFAO,LTUVX)
+              CALL CHO_FOCK_RASSI_X(DLT,MO1,MO2,FLT,LFAO,LTUVX)
            EndIf
 
            Call Deallocate_DSBA(MO2(2))

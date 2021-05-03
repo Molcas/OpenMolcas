@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHO_FOCK_RASSI_X(DLT,MO1,MO2,ipFLT,ipK,ipInt)
+      SUBROUTINE CHO_FOCK_RASSI_X(DLT,MO1,MO2,FLT,ipK,ipInt)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -39,7 +39,7 @@ C
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
-      Type (DSBA_Type) DLT, MO1(2), MO2(2)
+      Type (DSBA_Type) DLT, MO1(2), MO2(2), FLT
       Type (SBA_Type), Target:: Laq(2)
       Type (Twxy_Type) Scr
 
@@ -84,6 +84,7 @@ C
       nDen=2
       If (Fake_CMO2) nDen = 1  ! MO1 = MO2
       kDen=nDen
+      ipFLT = ip_of_Work(FLT%A0(1))
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
