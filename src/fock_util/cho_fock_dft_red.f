@@ -23,12 +23,14 @@ C
 C********************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
+      use Data_Structures, only: DSBA_Type
       Implicit Real*8 (a-h,o-z)
 #ifdef _DEBUGPRINT_
       Logical Debug
 #endif
       Logical add
-      Real*8  DLT(*),FLT(*)
+      Real*8  FLT(*)
+      Type (DSBA_Type) DLT(*)
       Real*8  tread(2),tcoul(2)
       Character*16  SECNAM
       Character*6   mode
@@ -114,7 +116,7 @@ C ---
 C --- Transform the density to reduced storage
       mode = 'toreds'
       add  = .false.
-      ipDLT = ip_of_Work(DLT(1))
+      ipDLT = ip_of_Work(DLT(1)%A0(1))
       nDen=1
       Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[ipDLT],Drs,mode,add)
 

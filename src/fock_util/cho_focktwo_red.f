@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
-     &           FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
+     &           FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
 
 ************************************************************************
 *  Author : F. Aquilante
@@ -65,6 +65,7 @@
 *
 ************************************************************************
       use Data_Structures, only: SBA_type, Deallocate_SBA, Map_to_SBA
+      use Data_Structures, only: DSBA_type
       Implicit Real*8 (a-h,o-z)
 
       Integer  rc,nDen,nBas(*)
@@ -72,6 +73,8 @@
       Integer  KSQ1(8),ISTSQ(8),ISTLT(8),iSkip(8),MinMem(*)
       Integer  ipDLT(nDen),ipDSQ(nDen),ipNocc(nDen)
       Integer  ipFLT(nDen),ipFSQ(nDen)
+
+      Type (DSBA_Type) DLT
 #ifdef _DEBUGPRINT_
       Logical  Debug
 #endif
@@ -107,18 +110,19 @@
       Debug=.false.! to avoid double printing in SCF-debug
 #endif
       IREDC = -1  ! unknown reduced set in core
+      ipDLT(1) = ip_of_Work(DLT%A0(1))
 
-        CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
+      CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
-        ! 1 --> CPU   2 --> Wall
-        tread(:) = zero  !time read/rreorder vectors
-        tcoul(:) = zero  !time for computing Coulomb
-        texch(:) = zero  !time for computing Exchange
+      ! 1 --> CPU   2 --> Wall
+      tread(:) = zero  !time read/rreorder vectors
+      tcoul(:) = zero  !time for computing Coulomb
+      texch(:) = zero  !time for computing Exchange
 
 C --- Tests on the type of calculation
-        DoSomeC=.false.
-        DoSomeX=.false.
-        MaxSym=0
+      DoSomeC=.false.
+      DoSomeX=.false.
+      MaxSym=0
 c
         jD=0
         do while (jD.lt.nDen .and. .not.DoSomeX)

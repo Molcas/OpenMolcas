@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
-     &                       lOff1,FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,
+     &                       lOff1,FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,
      &                       MinMem,ipMSQ,ipNocc)
 
 ************************************************************************
@@ -61,6 +61,7 @@
 *
 ************************************************************************
       use Data_Structures, only: SBA_Type, Deallocate_SBA
+      use Data_Structures, only: DSBA_Type
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nDen,nSym,nBas(nSym),NumCho(nSym),kOcc(nSym)
@@ -68,6 +69,9 @@
       Integer   Lunit,ISTSQ(nSym),ISTLT(nSym),lOff1
       Integer   ipDLT(nDen),ipDSQ(nDen),ipFLT(nDen),ipFSQ(nDen)
       Integer   ipMSQ(nDen),ipNocc(nDen),MinMem(nSym),iSkip(nSym)
+
+      Type (DSBA_Type) DLT
+
       Real*8    tread(2),tcoul(2),texch(2)
 #include "chounit.fh"
       Logical DoExchange(nDen),DoCoulomb(nDen),DoSomeX,DoSomeC
@@ -123,18 +127,19 @@
 #ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in SCF-debug
 #endif
+      ipDLT = ip_of_Work(DLT%A0(1))
 
-        CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
+      CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
-        ! 1 --> CPU   2 --> Wall
-        tread(:) = zero  !time read/rreorder vectors
-        tcoul(:) = zero  !time for computing Coulomb
-        texch(:) = zero  !time for computing Exchange
+      ! 1 --> CPU   2 --> Wall
+      tread(:) = zero  !time read/rreorder vectors
+      tcoul(:) = zero  !time for computing Coulomb
+      texch(:) = zero  !time for computing Exchange
 
 c ISTSQ: Offsets to full symmetry block in DSQ,FSQ
 c ISTLT: Offsets to packed LT symmetry blocks in DLT,FLT
-        ISTSQ(1)=0
-        ISTLT(1)=0
+      ISTSQ(1)=0
+      ISTLT(1)=0
       DO ISYM=2,NSYM
         NB=NBAS(ISYM-1)
         NB2=NB*NB

@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
-     &           FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
+     &           FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
 
 ************************************************************************
 *  Author : F. Aquilante
@@ -62,6 +62,7 @@
 *
 ************************************************************************
       use Data_Structures, only: SBA_Type, Deallocate_SBA
+      use Data_Structures, only: DSBA_Type
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nDen,nSym,nBas(nSym),NumCho(nSym),iSkip(nSym)
@@ -69,6 +70,9 @@
       Integer   ISTSQ(nSym),ISTLT(nSym),MinMem(nSym)
       Integer   ipDLT(nDen),ipDSQ(nDen),ipNocc(nDen)
       Integer   ipFLT(nDen),ipFSQ(nDen)
+
+      Type (DSBA_Type) DLT
+
 #include "chounit.fh"
 #include "real.fh"
 #ifdef _DEBUGPRINT_
@@ -102,6 +106,7 @@
 #ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in SCF-debug
 #endif
+      ipDLT(1) = ip_of_Work(DLT%A0(1))
 
         CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 

@@ -57,7 +57,7 @@ C
       Parameter (MaxDs = 3)
       Logical DoCoulomb(MaxDs),DoExchange(MaxDs)
       Real*8 FactC(MaxDs),FactX(MaxDs),ExFac
-      Integer ipDLT(MaxDs),ipDSQ(MaxDs),ipFLT(MaxDs),ipFSQ(MaxDs)
+      Integer ipDSQ(MaxDs),ipFLT(MaxDs),ipFSQ(MaxDs)
       Integer ipMSQ(MaxDs),ipNocc(MaxDs),nOcc(nSym),nOcc_ab(nSym)
       Integer nnBSF(8,8),n2BSF(8,8)
       Integer nForb(8,2),nIorb(8,2)
@@ -103,7 +103,6 @@ C  **************************************************
 
          xFac = ExFac
 
-         ipDLT(1) = ip_of_Work(W_DLT(1))
          Call Allocate_DSBA(DLT,nBas,nBas,nSym,Case='TRI',Ref=W_DLT)
          ipDSQ(1) = ip_of_Work(DSQ(1))
          ipFLT(1) = ip_of_Work(W_FLT(1))
@@ -113,7 +112,7 @@ C  **************************************************
          ipFSQ(1) = ip_of_Work(W_FSQ)
 
          If (ExFac.eq.0.0d0) Then
-            CALL CHO_FOCK_DFT_RED(rc,W_DLT,W_FLT)
+            CALL CHO_FOCK_DFT_RED(rc,DLT,W_FLT)
             If (rc.ne.0) Go To 999
             goto 997
          EndIf
@@ -194,7 +193,7 @@ C  **************************************************
         FactX(1)=0.5d0*ExFac
 
       Call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,
-     &                FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
+     &                FactX,DLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -205,7 +204,7 @@ C  **************************************************
         FactX(1)=0.5d0*ExFac
 
         CALL CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
-     &           FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
+     &           FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -217,10 +216,10 @@ C  **************************************************
 
        if (REORD)then
           Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &     FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,MinMem,ipMSQ,ipNocc)
+     &     FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,MinMem,ipMSQ,ipNocc)
        else
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                       lOff1,FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,
+     &                       lOff1,FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,
      &                       MinMem,ipMSQ,ipNocc)
        endif
 *                                                                      *
@@ -234,7 +233,7 @@ C  **************************************************
       FactX(1) = 1.0D0*ExFac ! MOs coeff. are not scaled
 
       Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &     FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,MinMem,ipMSQ,ipNocc)
+     &     FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,MinMem,ipMSQ,ipNocc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -244,7 +243,7 @@ C  **************************************************
       FactX(1) = 1.0D0*ExFac ! MOs coeff. are not scaled
 
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                       lOff1,FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,
+     &                       lOff1,FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,
      &                       MinMem,ipMSQ,ipNocc)
 *                                                                      *
 ************************************************************************
@@ -270,7 +269,7 @@ C  **************************************************
            nForb(iSym,1) = 0
           End Do
 
-          CALL CHO_FSCF(rc,nDen,ipFLT,nForb,nIorb,Cka(1),ipDLT,xFac)
+          CALL CHO_FSCF(rc,nDen,ipFLT,nForb,nIorb,Cka(1),DLT,xFac)
 
           Call Deallocate_DSBA(Cka(1))
 *                                                                      *
@@ -354,7 +353,6 @@ c      call get_iarray('nIsh beta',nOcc_ab,nSym)
 C Compute the total density Dalpha + Dbeta
       CALL DAXPY_(nFLT,1.0D0,W_DLT(1),1,W_DLT_ab(1),1)
 
-      ipDLT(1) = ip_of_Work(W_DLT_ab(1)) ! total density alpha+beta LT
       Call Allocate_DSBA(DLT,nBas,nBas,nSym,Case='TRI',Ref=W_DLT_ab)
       ipDSQ(1) = ip_of_Work(DSQ(1))    ! dummy
       ipDSQ(2) = ip_of_Work(DSQ(1))    ! alpha density SQ
@@ -374,7 +372,7 @@ C Compute the total density Dalpha + Dbeta
       FactX(3) = 1.0D0*ExFac
 
       If (ExFac.eq.0.0d0) Then
-         CALL CHO_FOCK_DFT_RED(rc,W_DLT_ab,W_FLT)
+         CALL CHO_FOCK_DFT_RED(rc,DLT,W_FLT)
          If (rc.ne.0) Go To 999
          goto 998
       EndIf
@@ -489,14 +487,14 @@ C ---  MO coefficients
       if (ALGO.eq.1.and.REORD) then
 
       Call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,
-     &                FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
+     &                FactX,DLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
 
             If (rc.ne.0) GOTO 999
 
       elseif (ALGO.eq.1 .and. .not.REORD) then
 
         CALL CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
-     &           FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
+     &           FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
 
             If (rc.ne.0) GOTO 999
 
@@ -509,13 +507,13 @@ C ---  MO coefficients
        if (REORD)then
 
           Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &     FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,MinMem,ipMSQ,ipNocc)
+     &     FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,MinMem,ipMSQ,ipNocc)
 
             If (rc.ne.0) GOTO 999
        else
 
           CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                       lOff1,FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,
+     &                       lOff1,FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,
      &                       MinMem,ipMSQ,ipNocc)
 
             If (rc.ne.0) GOTO 999
@@ -529,7 +527,7 @@ C ---  MO coefficients
 
 
       Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &     FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,MinMem,ipMSQ,ipNocc)
+     &     FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,MinMem,ipMSQ,ipNocc)
 
            If (rc.ne.0) GOTO 999
 
@@ -540,7 +538,7 @@ C ---  MO coefficients
       ipMSQ(3)  = mAdCMO_ab   !  beta  MOs coeff
 
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                       lOff1,FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,
+     &                       lOff1,FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,
      &                       MinMem,ipMSQ,ipNocc)
 
            If (rc.ne.0) GOTO 999
@@ -587,7 +585,7 @@ C ---  MO coefficients
 
           nMat=2  ! alpha and beta Fock matrices
 
-          CALL CHO_FSCF(rc,nMat,ipFLT,nForb,nIorb,Cka,ipDLT,ExFac)
+          CALL CHO_FSCF(rc,nMat,ipFLT,nForb,nIorb,Cka,DLT,ExFac)
 
 
           Call Deallocate_DSBA(Cka(2))

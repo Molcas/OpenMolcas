@@ -24,7 +24,7 @@
       Parameter (MaxDs = 1)
       Logical DoCoulomb(MaxDs),DoExchange(MaxDs)
       Real*8 FactC(MaxDs),FactX(MaxDs),ExFac
-      Integer ipDLT(MaxDs),ipDSQ(MaxDs),ipFLT(MaxDs),ipFSQ(MaxDs)
+      Integer ipDSQ(MaxDs),ipFLT(MaxDs),ipFSQ(MaxDs)
       Integer ipMSQ(MaxDs),ipNocc(MaxDs),nOcc(nSym)
 
       Integer, Allocatable:: nVec(:)
@@ -47,7 +47,6 @@ C  **************************************************
       FactX(1)      = Half*ExFac ! ExFac used for hybrid functionals
 
 
-      ipDLT(1) = ip_of_Work(DLT(1))
       ipDSQ(1) = ip_of_Work(DSQ(1))
       ipFLT(1) = ip_of_Work(FLT(1))
       ipFSQ(1) = ip_of_Work(WFSQ%A0(1))
@@ -113,13 +112,13 @@ C  **************************************************
         if (REORD) then
 * ALGO.eq.1.and.REORD:
       Call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,
-     &                FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
+     &                FactX,DLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
            If (rc.ne.0) GOTO 999
 
         else
 * ALGO.eq.1.and. .not.REORD:
         CALL CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
-     &           FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
+     &           FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
            If (rc.ne.0) GOTO 999
         end if
 
@@ -130,14 +129,14 @@ C  **************************************************
           if (REORD)then
 * ALGO.eq.2.and.DECO.and.REORD:
             Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
-     &                  lOff1,FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,
+     &                  lOff1,FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,
      &                  MinMem,ipMSQ,ipNocc)
             If (rc.ne.0) GOTO 999
 
           else
 * ALGO.eq.2.and.DECO.and. .not.REORD:
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                  lOff1,FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,
+     &                  lOff1,FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,
      &                  MinMem,ipMSQ,ipNocc)
             If (rc.ne.0) GOTO 999
           endif
@@ -149,7 +148,7 @@ C  **************************************************
             ipMSQ(1) = ip_of_work(CMO(1))
             FactX(1) = 1.0D0*ExFac ! because MOs coeff. are not scaled
             Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
-     &                lOff1,FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,
+     &                lOff1,FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,
      &                MinMem,ipMSQ,ipNocc)
             if (rc.ne.0) GOTO 999
           else
@@ -157,7 +156,7 @@ C  **************************************************
             ipMSQ(1) = ip_of_work(CMO(1))
             FactX(1) = 1.0D0*ExFac ! because MOs coeff. are not scaled
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                lOff1,FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,
+     &                lOff1,FactC,FactX,DLT,ipDSQ,ipFLT,ipFSQ,
      &                MinMem,ipMSQ,ipNocc)
             if (rc.ne.0) GOTO 999
           end if
