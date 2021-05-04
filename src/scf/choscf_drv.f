@@ -75,10 +75,9 @@ C
       Integer, External:: ip_of_Work, ip_of_iWork
 
       Integer, Allocatable:: nVec(:,:)
-      Real*8, Allocatable :: Vec(:,:)
 
       Type (DSBA_Type) Cka(2), FLT(2), KLT(2), MSQ(3), DLT, FSQ(3),
-     &                 DSQ(3), DDec(2)
+     &                 DSQ(3), DDec(2), Vec(2)
 *
 C  **************************************************
         iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
@@ -123,12 +122,8 @@ C  **************************************************
        xFac = ExFac*0.5d0
 
        CALL set_nnBSF(nSym,nBas,nnBSF,n2BSF)
-       lVdim=0
-       do i=1,nSym
-          lVdim = lVdim + n2BSF(i,i)
-       end do
 
-       Call mma_allocate(Vec,lVdim,1,Label='Vec')
+       Call Allocate_DSBA(Vec(1),nBas,nBas,nSym)
        Call Allocate_DSBA(DDec(1),nBas,nBas,nSym)
        DDec(1)%A0(:) = DSQ(1)%A0(:)
 
@@ -142,8 +137,8 @@ C  **************************************************
                jaa = jaa + nBas(i) + 1
             end do
             Thr = 1.0d-8*Ymax
-            CALL CD_InCore(DDec(1)%SB(i)%A2,nBas(i),Vec(ipV,1),nBas(i),
-     &                     NumV,Thr,rc)
+            CALL CD_InCore(DDec(1)%SB(i)%A2,nBas(i),Vec(1)%SB(i)%A2,
+     &                     nBas(i),NumV,Thr,rc)
             If (rc.ne.0) GOTO 999
             nVec(i,1) = NumV
             if ( NumV .ne. nOcc(i) .and. .not.Do_SpinAV
@@ -159,14 +154,13 @@ C  **************************************************
           else
             nVec(i,1) = 0
           endif
-          ipV = ipV + n2BSF(i,i)
        End Do
        Call Deallocate_DSBA(DDec(1))
 
        ipNocc(1) = ip_of_iWork(nVec(1,1)) ! occup. numbers
 
-       ipMSQ(1) = ip_of_Work(Vec(1,1))       ! "Cholesky" MOs
-       Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=Vec(1,1))
+       ipMSQ(1) = ip_of_Work(Vec(1)%A0(1))       ! "Cholesky" MOs
+       Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=Vec(1)%A0)
 
        FactX(1) = 0.5D0*ExFac ! ExFac used for hybrid functionals
 
@@ -302,7 +296,7 @@ C  **************************************************
 *                                                                      *
       If (rc.ne.0) GOTO 999
 
-      IF (DECO) CALL mma_deallocate(Vec)
+      IF (DECO) CALL deallocate_DSBA(Vec(1))
 
       If (ALGO.lt.3.and.ExFac.ne.0.0d0) Then
 
@@ -385,20 +379,15 @@ C Compute the total density Dalpha + Dbeta
       IF (DECO) THEN !use decomposed density
 
        CALL set_nnBSF(nSym,nBas,nnBSF,n2BSF)
-       lVdim=0
-       do i=1,nSym
-          lVdim = lVdim + n2BSF(i,i)
-       end do
 
-       Call mma_allocate(Vec,lVdim,2,Label='Vec')
+       Call Allocate_DSBA(Vec(1),nBas,nBas,nSym)
+       Call Allocate_DSBA(Vec(2),nBas,nBas,nSym)
 
        Call Allocate_DSBA(DDec(1),nBas,nBas,nSym)
        Call Allocate_DSBA(DDec(2),nBas,nBas,nSym)
        DDec(1)%A0(:)=DSQ(2)%A0(:)
        DDec(2)%A0(:)=DSQ(3)%A0(:)
 
-       ipV1 = 1
-       ipV2 = 1
        Do i=1,nSym
           if(nBas(i).gt.0)then
               Ymax=0.0d0
@@ -406,7 +395,7 @@ C Compute the total density Dalpha + Dbeta
                  Ymax=Max(Ymax,DDec(1)%SB(i)%A2(ja,ja))
               end do
               Thr = 1.0d-8*Ymax
-              CALL CD_InCore(DDec(1)%SB(i)%A2,nBas(i),Vec(ipV1,1),
+              CALL CD_InCore(DDec(1)%SB(i)%A2,nBas(i),Vec(1)%SB(i)%A2,
      &                       nBas(i),NumV1,Thr,rc)
                    If (rc.ne.0) GOTO 999
                    nVec(i,1) = NumV1
@@ -426,7 +415,7 @@ C Compute the total density Dalpha + Dbeta
                  Ymax=Max(Ymax,DDec(2)%SB(i)%A2(ja,ja))
               end do
               Thr = 1.0d-8*Ymax
-              CALL CD_InCore(DDec(2)%SB(i)%A2,nBas(i),Vec(ipV2,2),
+              CALL CD_InCore(DDec(2)%SB(i)%A2,nBas(i),Vec(2)%SB(i)%A2,
      %                       nBas(i),NumV2,Thr,rc)
                    If (rc.ne.0) GOTO 999
                    nVec(i,2) = NumV2
@@ -445,8 +434,6 @@ C Compute the total density Dalpha + Dbeta
             nVec(i,1) = 0
             nVec(i,2) = 0
           endif
-          ipV1 = ipV1 + n2BSF(i,i)
-          ipV2 = ipV2 + n2BSF(i,i)
        End Do
 
        Call deallocate_DSBA(DDec(2))
@@ -456,13 +443,13 @@ C Compute the total density Dalpha + Dbeta
        ipNocc(2) = ip_of_iWork(nVec(1,1)) ! alpha occup. numbers
        ipNocc(3) = ip_of_iWork(nVec(1,2)) ! beta occup. numbers
 
-       ipMSQ(1) = ip_of_Work(Vec(1,1))    ! dummy
-       ipMSQ(2) = ip_of_Work(Vec(1,1))    ! "Cholesky" alpha MOs
-       ipMSQ(3) = ip_of_Work(Vec(1,2))    ! "Cholesky" beta  MOs
+       ipMSQ(1) = ip_of_Work(Vec(1)%A0(1))    ! dummy
+       ipMSQ(2) = ip_of_Work(Vec(1)%A0(1))    ! "Cholesky" alpha MOs
+       ipMSQ(3) = ip_of_Work(Vec(2)%A0(1))    ! "Cholesky" beta  MOs
 
-       Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=Vec(1,1))
-       Call Allocate_DSBA(MSQ(2),nBas,nBas,nSym,Ref=Vec(1,1))
-       Call Allocate_DSBA(MSQ(3),nBas,nBas,nSym,Ref=Vec(1,2))
+       Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=Vec(1)%A0)
+       Call Allocate_DSBA(MSQ(2),nBas,nBas,nSym,Ref=Vec(1)%A0)
+       Call Allocate_DSBA(MSQ(3),nBas,nBas,nSym,Ref=Vec(2)%A0)
       ELSE
        ipNocc(1) = ip_of_iwork(nOcc(1)) ! dummy assignement
        ipNocc(2) = ip_of_iwork(nOcc(1)) ! occup. numbers alpha MOs
@@ -499,10 +486,6 @@ C ---  MO coefficients
 
       elseif  (ALGO.eq.2 .and. DECO) then !use decomposed density
 
-       ipMSQ(1) = ip_of_Work(Vec(1,1))    ! dummy
-       ipMSQ(2) = ip_of_Work(Vec(1,1))    ! "Cholesky" alpha MOs
-       ipMSQ(3) = ip_of_Work(Vec(1,2))    ! "Cholesky" beta  MOs
-
        if (REORD)then
 
           Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
@@ -520,21 +503,12 @@ C ---  MO coefficients
 
       elseif  (ALGO.eq.2 .and. REORD) then
 
-      ipMSQ(1)  = mAdCMO      !  dummy
-      ipMSQ(2)  = mAdCMO      !  alpha MOs coeff
-      ipMSQ(3)  = mAdCMO_ab   !  beta  MOs coeff
-
-
       Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
      &     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,ipMSQ,ipNocc)
 
            If (rc.ne.0) GOTO 999
 
       elseif  (ALGO.eq.2 .and. .not. REORD) then
-
-      ipMSQ(1)  = mAdCMO      !  dummy
-      ipMSQ(2)  = mAdCMO      !  alpha MOs coeff
-      ipMSQ(3)  = mAdCMO_ab   !  beta  MOs coeff
 
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
      &                       lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
@@ -545,8 +519,8 @@ C ---  MO coefficients
       elseif (ALGO.eq.3) then
 
           If (DECO) Then
-             ipMSQ(1) = ip_of_Work(Vec(1,1))
-             ipMSQ(2) = ip_of_Work(Vec(1,2))
+             ipMSQ(1) = ip_of_Work(Vec(1)%A0)
+             ipMSQ(2) = ip_of_Work(Vec(1)%A0)
           Else
              ipMSQ(1) = mAdCMO      ! alpha MOs coeff as in addr.fh
              ipMSQ(2) = mAdCMO_ab   ! beta MOs coeff as in addr.fh
@@ -616,7 +590,8 @@ C ---  MO coefficients
           CALL QUIT(rc)
       endif
 
-      IF(DECO) CALL mma_deallocate(Vec)
+      IF(DECO) CALL deallocate_DSBA(Vec(2))
+      IF(DECO) CALL deallocate_DSBA(Vec(1))
 
 998   Continue
 

@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHORAS_DRV(nSym,nBas,nOcc,W_DSQ,W_DLT,W_FLT,ExFac,FSQ,
-     &                      CMO)
+     &                      W_CMO)
 
       use Data_Structures, only: DSBA_Type, Allocate_DSBA,
      &                           Deallocate_DSBA
@@ -21,15 +21,14 @@
       Type (DSBA_Type) FSQ
 
       Integer nBas(8), MinMem(8),rc
-      Real*8 W_FLT(*),CMO(*)
-      Real*8 W_DSQ(*),W_DLT(*)
+      Real*8 W_FLT(*),W_CMO(*), W_DSQ(*),W_DLT(*)
       Parameter (MaxDs = 1)
       Logical DoCoulomb(MaxDs),DoExchange(MaxDs)
       Real*8 FactC(MaxDs),FactX(MaxDs),ExFac
       Integer ipMSQ(MaxDs),ipNocc(MaxDs),nOcc(nSym)
 
       Integer, Allocatable:: nVec(:)
-      Type (DSBA_Type) Vec, DDec, DLT, FLT, DSQ
+      Type (DSBA_Type) Vec, DDec, DLT, FLT, DSQ, CMO
 
 #include "chounit.fh"
 #include "choras.fh"
@@ -46,6 +45,7 @@ C  **************************************************
       FactC(1)      = One
       FactX(1)      = Half*ExFac ! ExFac used for hybrid functionals
 
+      Call Allocate_DSBA(CMO,nBas,nBas,nSym,Ref=W_CMO)
 
       Call Allocate_DSBA(DLT,nBas,nBas,nSym,Case='TRI',Ref=W_DLT)
       Call Allocate_DSBA(FLT,nBas,nBas,nSym,Case='TRI',Ref=W_FLT)
@@ -104,7 +104,7 @@ C  **************************************************
 
        ipNocc(1) = ip_of_iwork(nOcc(1)) ! occup. numbers
 
-       ipMSQ(1) = ip_of_work(CMO(1))
+       ipMSQ(1) = ip_of_work(CMO%A0(1))
 
       ENDIF
 
@@ -187,6 +187,7 @@ C  **************************************************
       Call Deallocate_DSBA(DSQ)
       Call Deallocate_DSBA(DLT)
       Call Deallocate_DSBA(FLT)
+      Call Deallocate_DSBA(CMO)
 
       Return
       End
