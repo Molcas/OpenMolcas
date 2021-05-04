@@ -137,7 +137,7 @@ C  **************************************************
          Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=W_FLT)
          ! trick to use already allocated memory
          Call Allocate_DSBA(KLT(1),nBas,nBas,nSym,Case='TRI',Ref=W_FSQ)
-         Call Allocate_DSBA(FSQ(1),nBas,nBas,nSym,Case='TRI',Ref=W_FSQ)
+         Call Allocate_DSBA(FSQ(1),nBas,nBas,nSym,           Ref=W_FSQ)
 
          If (ExFac.eq.0.0d0) Then
             CALL CHO_FOCK_DFT_RED(rc,DLT,FLT(1))
