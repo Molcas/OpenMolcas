@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
-     &           FactC,FactX,DLT,DSQ,FLT,FSQ,ipNocc,MinMem)
+     &           FactC,FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
 
 ************************************************************************
 *  Author : F. Aquilante
@@ -54,7 +54,7 @@
 *  ip{X}FS(nDen) : pointer to the array containing {X} in SQ storage
 *    {X=D,F --- Density, Fock matrix}
 *
-*  ipNocc(nDen) : pointer to the array of the Occupation numbers
+*  pNocc(nDen) : pointer to the array of the Occupation numbers
 *                 for the corresponding density
 *
 *  MinMem(nSym) : minimum amount of memory required to read
@@ -68,10 +68,15 @@
       Integer   rc,nDen,nSym,nBas(nSym),NumCho(nSym),iSkip(nSym)
       Real*8    FactC(nDen),FactX(nDen)
       Integer   ISTSQ(nSym),ISTLT(nSym),MinMem(nSym)
-      Integer   ipNocc(nDen)
       Integer   ipDLT(2),ipFLT(2),ipFSQ(3), ipDSQ(3)
 
       Type (DSBA_Type) DLT(nDen), FLT(nDen), FSQ(nDen), DSQ(nDen)
+
+      Type Integer_Pointer
+          Integer, Pointer :: I1(:)=>Null()
+      End Type Integer_Pointer
+      Type (Integer_Pointer) :: pNocc(nDen)
+
 
 #include "chounit.fh"
 #include "real.fh"
@@ -100,7 +105,7 @@
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 ******
-      nOcc(k,jDen)= iWork(ipNocc(jDen)+k-1)
+      nOcc(k,jDen)= pNocc(jDen)%I1(k)
 **************************************************
 
 #ifdef _DEBUGPRINT_

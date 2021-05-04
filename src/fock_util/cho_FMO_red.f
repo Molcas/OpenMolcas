@@ -12,7 +12,7 @@
 ************************************************************************
       SUBROUTINE CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
      &                       lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
-     &                       MinMem,MSQ,ipNocc)
+     &                       MinMem,MSQ,pNocc)
 
 ************************************************************************
 *  Author : F. Aquilante
@@ -59,7 +59,7 @@
 *  ip{X}SQ(nDen) : pointer to the array containing {X} in SQ storage
 *    {X=D,F,M --- Density, Fock matrix, MOs coeff.}
 *
-*  ipNocc(nDen) : pointer to the array of the Occupation numbers
+*  pNocc(nDen) : pointer to the array of the Occupation numbers
 *                 for the corresponding density
 *
 *  MinMem(nSym) : minimum amount of memory required to read
@@ -74,7 +74,7 @@
       Real*8    FactC(nDen),FactX(nDen)
       Integer   ISTSQ(8),ISTLT(8),iSkip(8),lOff1
       Real*8    tread(2),tcoul(2),texch(2)
-      Integer   ipNocc(nDen),MinMem(*)
+      Integer   MinMem(*)
       Integer   ipDLT(2),ipFLT(2),ipFSQ(3),ipDSQ(3), ipMSQ(3)
 
       Type (DSBA_Type) DLT(nDen), FLT(nDen), FSQ(nDen), DSQ(nDen),
@@ -98,6 +98,11 @@
 #include "choorb.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
+
+      Type Integer_Pointer
+          Integer, Pointer :: I1(:)=>Null()
+      End Type Integer_Pointer
+      Type (Integer_Pointer) :: pNocc(nDen)
 
       Real*8, Allocatable:: DChk(:)
 
@@ -125,7 +130,7 @@
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 ******
-      nOcc(jSym,jDen) = iWork(ipNocc(jDen)-1+jSym)
+      nOcc(jSym,jDen) = pNocc(jDen)%I1(jSym)
 **************************************************
 
 #ifdef _DEBUGPRINT_

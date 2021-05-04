@@ -29,14 +29,38 @@ C
       Real*8  ExFac
 
       Logical DoLDF
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      SUBROUTINE CHOSCF_DRV_Internal(iUHF,nSym,nBas,W_DSQ,W_DLT,
+     &                               W_DSQ_ab,W_DLT_ab,W_FLT,
+     &                               W_FLT_ab,nFLT,ExFac,
+     &                               W_FSQ,W_FSQ_ab,
+     &                               nOcc,nOcc_ab)
+      Integer iUHF, nSym
+      Integer nBas(nSym)
+      Real*8 W_FLT(*),W_FLT_ab(*)
+      Real*8 W_FSQ(*),W_FSQ_ab(*)
+      Real*8 W_DSQ(*),W_DSQ_ab(*)
+      Real*8 W_DLT(*),W_DLT_ab(*)
+      Real*8 ExFac
+      Integer, Target :: nOcc(nSym),nOcc_ab(nSym)
+      End SUBROUTINE CHOSCF_DRV_Internal
+
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 
       Call DecideOnLocalDF(DoLDF)
       If (DoLDF) Then
          Call LDFSCF_Drv(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
      &                FLT,FLT_ab,nFLT,ExFac,FSQ,FSQ_ab,nOcc,nOcc_ab)
       Else
-         Call ChoSCF_Drv_Internal(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
-     &                            FLT,FLT_ab,nFLT,ExFac,
+         Call ChoSCF_Drv_Internal(iUHF,nSym,nBas,DSQ,DLT,
+     &                            DSQ_ab,DLT_ab,FLT,
+     &                            FLT_ab,nFLT,ExFac,
      &                            FSQ,FSQ_ab,
      &                            nOcc,nOcc_ab)
       End If
@@ -45,7 +69,8 @@ C
       SUBROUTINE CHOSCF_DRV_Internal(iUHF,nSym,nBas,W_DSQ,W_DLT,
      &                               W_DSQ_ab,W_DLT_ab,W_FLT,
      &                               W_FLT_ab,nFLT,ExFac,
-     &                               W_FSQ,W_FSQ_ab,nOcc,nOcc_ab)
+     &                               W_FSQ,W_FSQ_ab,
+     &                               nOcc,nOcc_ab)
 
       use Data_Structures, only: DSBA_Type
       use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA
@@ -54,11 +79,12 @@ C
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "addr.fh"
+      Integer iUHF, nSym
       Integer nBas(nSym), MinMem(nSym),rc
       Parameter (MaxDs = 3)
       Logical DoCoulomb(MaxDs),DoExchange(MaxDs)
       Real*8 FactC(MaxDs),FactX(MaxDs),ExFac
-      Integer ipNocc(MaxDs),nOcc(nSym),nOcc_ab(nSym)
+      Integer, Target :: nOcc(nSym),nOcc_ab(nSym)
       Integer nnBSF(8,8),n2BSF(8,8)
       Integer nForb(8,2),nIorb(8,2)
       Real*8 W_FLT(*),W_FLT_ab(*)
@@ -74,7 +100,12 @@ C
 
       Integer, External:: ip_of_Work, ip_of_iWork
 
-      Integer, Allocatable:: nVec(:,:)
+      Type Integer_Pointer
+          Integer, Pointer :: I1(:)=>Null()
+      End Type Integer_Pointer
+      Type (Integer_Pointer) :: pNocc(3)
+
+      Integer, Allocatable, Target:: nVec(:,:)
 
       Type (DSBA_Type) Cka(2), FLT(2), KLT(2), MSQ(3), DLT, FSQ(3),
      &                 DSQ(3), DDec(2), Vec(2)
@@ -127,7 +158,6 @@ C  **************************************************
        Call Allocate_DSBA(DDec(1),nBas,nBas,nSym)
        DDec(1)%A0(:) = DSQ(1)%A0(:)
 
-       ipV = 1
        Do i=1,nSym
           if(nBas(i).gt.0)then
             Ymax=0.0d0
@@ -157,7 +187,7 @@ C  **************************************************
        End Do
        Call Deallocate_DSBA(DDec(1))
 
-       ipNocc(1) = ip_of_iWork(nVec(1,1)) ! occup. numbers
+       pNocc(1)%I1(1:) => nVec(1:,1) ! occup. numbers
 
        Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=Vec(1)%A0)
 
@@ -165,14 +195,14 @@ C  **************************************************
 
       ELSE
 
-         ipNocc(1) = ip_of_iwork(nOcc(1)) ! occup. numbers
+         pNocc(1)%I1(1:) => nOcc(1:) ! occup. numbers
 
          Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=Work(mAdCMO))
 
       ENDIF
 
-      Call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,ipNocc,
-     &                ALGO,REORD,MinMem,loff1)
+      Call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,pNocc,ALGO,REORD,
+     &                MinMem,loff1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -183,7 +213,7 @@ C  **************************************************
         FactX(1)=0.5d0*ExFac
 
       Call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,
-     &                FactX,DLT,DSQ,FLT,FSQ,ipNocc,MinMem)
+     &                 FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -194,7 +224,7 @@ C  **************************************************
         FactX(1)=0.5d0*ExFac
 
         CALL CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
-     &           FactC,FactX,DLT,DSQ,FLT,FSQ,ipNocc,MinMem)
+     &                       FactC,FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -206,11 +236,11 @@ C  **************************************************
 
        if (REORD)then
           Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,ipNocc)
+     &                     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
        else
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
      &                       lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
-     &                       MinMem,MSQ,ipNocc)
+     &                       MinMem,MSQ,pNocc)
        endif
 *                                                                      *
 ************************************************************************
@@ -222,7 +252,7 @@ C  **************************************************
       FactX(1) = 1.0D0*ExFac ! MOs coeff. are not scaled
 
       Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,ipNocc)
+     &                 FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -232,14 +262,14 @@ C  **************************************************
 
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
      &                       lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
-     &                       MinMem,MSQ,ipNocc)
+     &                       MinMem,MSQ,pNocc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       elseif (ALGO.eq.3) then
 
           Do iSym=1,nSym
-             nIorb(iSym,1) = iWork(ipNocc(1)+iSym-1)
+             nIorb(iSym,1) = pNocc(1)%I1(iSym)
           End Do
           Call Allocate_DSBA(Cka(1),nIorb(:,1),nBas,nSym)
 
@@ -264,11 +294,11 @@ C  **************************************************
 
              Do iSym=1,nSym
                 nForb(iSym,1) = 0
-                nIorb(iSym,1) = iWork(ipNocc(1)+iSym-1)
+                nIorb(iSym,1) = pNocc(1)%I1(iSym)
              End Do
 
              CALL CHO_LK_SCF(rc,nDen,FLT,KLT,nForb,nIorb,
-     &                         MSQ,DLT,FactX(1),nSCReen,dmpk,dFKmat)
+     &                       MSQ,DLT,FactX(1),nSCReen,dmpk,dFKmat)
 
 *                                                                      *
 ************************************************************************
@@ -300,6 +330,7 @@ C----------------------------------------------------
  997  Continue
       Call GADSum(FLT(1)%A0,nFLT)
 
+      pNocc(1)%I1=>Null()
       Call Deallocate_DSBA(MSQ(1))
       Call Deallocate_DSBA(FSQ(1))
       Call Deallocate_DSBA(DSQ(1))
@@ -432,17 +463,17 @@ C Compute the total density Dalpha + Dbeta
        Call deallocate_DSBA(DDec(2))
        Call deallocate_DSBA(DDec(1))
 
-       ipNocc(1) = ip_of_iWork(nVec(1,1)) ! dummy
-       ipNocc(2) = ip_of_iWork(nVec(1,1)) ! alpha occup. numbers
-       ipNocc(3) = ip_of_iWork(nVec(1,2)) ! beta occup. numbers
+       pNocc(1)%I1(1:) => nVec(1:,1) ! dummy
+       pNocc(2)%I1(1:) => nVec(1:,1) ! alpha occup. numbers
+       pNocc(3)%I1(1:) => nVec(1:,2) ! beta occup. numbers
 
        Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=Vec(1)%A0)
        Call Allocate_DSBA(MSQ(2),nBas,nBas,nSym,Ref=Vec(1)%A0)
        Call Allocate_DSBA(MSQ(3),nBas,nBas,nSym,Ref=Vec(2)%A0)
       ELSE
-       ipNocc(1) = ip_of_iwork(nOcc(1)) ! dummy assignement
-       ipNocc(2) = ip_of_iwork(nOcc(1)) ! occup. numbers alpha MOs
-       ipNocc(3) = ip_of_iwork(nOcc_ab(1)) ! occup. numbers beta MOs
+       pNocc(1)%I1(1:) => nOcc(1:) ! dummy assignement
+       pNocc(2)%I1(1:) => nOcc(1:) ! occup. numbers alpha MOs
+       pNocc(3)%I1(1:) => nOcc_ab(1:) ! occup. numbers beta MOs
 
        Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=Work(mAdCMO   ))
        Call Allocate_DSBA(MSQ(2),nBas,nBas,nSym,Ref=Work(mAdCMO   ))
@@ -450,21 +481,21 @@ C Compute the total density Dalpha + Dbeta
 
       ENDIF
 
-      Call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,ipNocc,
+      Call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,pNocc,
      &                ALGO,REORD,MinMem,loff1)
 
 
       if (ALGO.eq.1.and.REORD) then
 
       Call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,
-     &                FactX,DLT,DSQ,FLT,FSQ,ipNocc,MinMem)
+     &                FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
 
             If (rc.ne.0) GOTO 999
 
       elseif (ALGO.eq.1 .and. .not.REORD) then
 
         CALL CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
-     &           FactC,FactX,DLT,DSQ,FLT,FSQ,ipNocc,MinMem)
+     &           FactC,FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
 
             If (rc.ne.0) GOTO 999
 
@@ -473,14 +504,14 @@ C Compute the total density Dalpha + Dbeta
        if (REORD)then
 
           Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,ipNocc)
+     &     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
 
             If (rc.ne.0) GOTO 999
        else
 
           CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
      &                       lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
-     &                       MinMem,MSQ,ipNocc)
+     &                       MinMem,MSQ,pNocc)
 
             If (rc.ne.0) GOTO 999
        endif
@@ -488,7 +519,7 @@ C Compute the total density Dalpha + Dbeta
       elseif  (ALGO.eq.2 .and. REORD) then
 
       Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,ipNocc)
+     &     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
 
            If (rc.ne.0) GOTO 999
 
@@ -496,15 +527,15 @@ C Compute the total density Dalpha + Dbeta
 
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
      &                       lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
-     &                       MinMem,MSQ,ipNocc)
+     &                       MinMem,MSQ,pNocc)
 
            If (rc.ne.0) GOTO 999
 
       elseif (ALGO.eq.3) then
 
           Do iSym=1,nSym
-             nIorb(iSym,1) = iWork(ipNocc(2)+iSym-1)
-             nIorb(iSym,2) = iWork(ipNocc(3)+iSym-1)
+             nIorb(iSym,1) = pNocc(2)%I1(iSym)
+             nIorb(iSym,2) = pNocc(3)%I1(iSym)
           End Do
           Call Allocate_DSBA(Cka(1),nIorb(:,1),nBas,nSym)
           Call Allocate_DSBA(Cka(2),nIorb(:,2),nBas,nSym)
@@ -544,8 +575,8 @@ C Compute the total density Dalpha + Dbeta
              Do iSym=1,nSym
                 nForb(iSym,1) = 0
                 nForb(iSym,2) = 0
-                nIorb(iSym,1) = iWork(ipNocc(2)+iSym-1)
-                nIorb(iSym,2) = iWork(ipNocc(3)+iSym-1)
+                nIorb(iSym,1) = pNocc(2)%I1(iSym)
+                nIorb(iSym,2) = pNocc(3)%I1(iSym)
              End Do
 
              CALL CHO_LK_SCF(rc,nMat,FLT,KLT,nForb,nIorb,MSQ(2:3),
@@ -601,6 +632,9 @@ C --- and pack the off-diagonal elements
            end do
         end do
 
+         pNocc(1)%I1 => Null()
+         pNocc(2)%I1 => Null()
+         pNocc(3)%I1 => Null()
          Call Deallocate_DSBA(MSQ(3))
          Call Deallocate_DSBA(MSQ(2))
          Call Deallocate_DSBA(MSQ(1))

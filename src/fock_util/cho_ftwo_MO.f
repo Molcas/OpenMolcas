@@ -12,7 +12,7 @@
 ************************************************************************
       SUBROUTINE CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
      &                       lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
-     &                       MinMem,MSQ,ipNocc)
+     &                       MinMem,MSQ,pNocc)
 
 ************************************************************************
 *  Author : F. Aquilante
@@ -67,11 +67,16 @@
       Integer   rc,nDen,nSym,nBas(nSym),NumCho(nSym),kOcc(nSym)
       Real*8    FactC(nDen),FactX(nDen)
       Integer   Lunit,ISTSQ(nSym),ISTLT(nSym),lOff1
-      Integer   ipNocc(nDen),MinMem(nSym),iSkip(nSym)
+      Integer   MinMem(nSym),iSkip(nSym)
       Integer   ipDLT(2),ipDSQ(3),ipFLT(2),ipFSQ(3), ipMSQ(3)
 
       Type (DSBA_Type) DLT(nDen), FLT(nDen), FSQ(nDen), DSQ(nDen),
      &                 MSQ(nDen)
+      Type Integer_Pointer
+          Integer, Pointer :: I1(:)=>Null()
+      End Type Integer_Pointer
+      Type (Integer_Pointer) :: pNocc(nDen)
+
 
       Real*8    tread(2),tcoul(2),texch(2)
 #include "chounit.fh"
@@ -122,7 +127,7 @@
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 ******
-      nOcc(jSym,jDen) = iWork(ipNocc(jDen)-1+jSym)
+      nOcc(jSym,jDen) = pNocc(jDen)%I1(jSym)
 **************************************************
 
 #ifdef _DEBUGPRINT_
