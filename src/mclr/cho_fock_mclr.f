@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
-      SUBROUTINE CHO_Fock_MCLR(DA,G2,W_JA,KA,FkA,CVa,CMO,nIsh,nAsh,
+      SUBROUTINE CHO_Fock_MCLR(DA,G2,W_JA,W_KA,FkA,CVa,CMO,nIsh,nAsh,
      &                         LuAChoVec)
 ************************************************************************
 *                                                                      *
@@ -31,8 +31,8 @@
 #include "choorb.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Type (DSBA_type) CVa, JA
-      Real*8 DA(*), G2(*), W_JA(*), KA(*), FkA(*), CMO(*)
+      Type (DSBA_type) CVa, JA, KA
+      Real*8 DA(*), G2(*), W_JA(*), W_KA(*), FkA(*), CMO(*)
       Real*8, parameter:: xone=-One, FactCI = -Two, FactXI = Half
       Character*6 mode
       Integer , External :: Cho_LK_MaxVecPerBatch
@@ -47,6 +47,7 @@
 *
       nDen=1
       Call Allocate_DSBA(JA,nBas,nBas,nSym,Case='TRI',Ref=W_JA)
+      Call Allocate_DSBA(KA,nBas,nBas,nSym,           Ref=W_KA)
 *
 **    Compute offsets
 *
@@ -287,10 +288,9 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
                    Do is=1,NBAS(iSymb)
                     ipLtvb = ipLpq(iSymv,1)+ NAv*NBAS(iSymb)*(JVC-1)
      &                      + Nav*(is-1)
-                    ipFock=1+nBas(iSymb)*(is-1)
                     CALL DGEMV_('N',NBAS(iSymb),Nav,
      &                   -FactXI,LF(ipLwb),NBAS(iSymb),
-     &                   LF(ipLtvb),1,ONE,KA(ipFock),1)
+     &                   LF(ipLtvb),1,ONE,KA%SB(iSymb)%A2(:,is),1)
 
                   EndDo
                  End Do
@@ -330,7 +330,6 @@ c --- backtransform fock matrix to full storage
 **    Accumulate Coulomb and Exchange contributions
 *
       Do iSym=1,nSym
-         ipKAc= 1  + ISTSQ(iSym)
          ipFA = 1 + ISTSQ(iSym)
 
          Do iaSh=1,nShell
@@ -348,12 +347,10 @@ c --- backtransform fock matrix to full storage
                   ibg = ioffb + ib
                   iabg= iTri(iag,ibg)
 
-                  jKa = ipKac- 1 + nBas(iSym)*(ibg-1) + iag
-                  jKa2= ipKac- 1 + nBas(iSym)*(iag-1) + ibg
-
                   jSA= ipFA - 1 + nBas(iSym)*(ibg-1) + iag
                   FkA(jSA)= JA%SB(iSym)%A1(iabg)
-     &                    + KA(jKa)+ KA(jKa2)
+     &                    + KA%SB(iSym)%A2(iag,ibg)
+     &                    + KA%SB(iSym)%A2(ibg,iag)
                 End Do
                End Do
             End Do
@@ -390,6 +387,7 @@ c --- backtransform fock matrix to full storage
 **********************************************************************
       Call mma_deallocate(Scr)
       Call mma_deallocate(kOffSh)
+      Call Deallocate_DSBA(KA)
       Call Deallocate_DSBA(JA)
 
       Return

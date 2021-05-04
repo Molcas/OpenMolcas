@@ -53,10 +53,10 @@
       Logical taskleft, add
       Logical, Parameter :: DoRead = .false.
       Integer, External::  Cho_LK_MaxVecPerBatch
-      Real*8, Allocatable:: iiab(:), tupq(:), turs(:),
-     &                      Lrs(:,:), Integral(:)
-      Real*8, Allocatable, Target:: iirs(:)
-      Real*8, Pointer :: piirs(:,:)=>Null()
+      Real*8, Allocatable:: iiab(:), tupq(:), Lrs(:,:), Integral(:)
+      Real*8, Allocatable, Target:: iirs(:), turs(:)
+      Real*8, Pointer :: piirs(:,:)=>Null(), pturs(:,:)=>Null()
+
       Type (DSBA_Type) CMOt
       Type (SBA_Type) Lpq(1)
 
@@ -340,7 +340,10 @@ c         !set index arrays at iLoc
                piirs(1:nRS,1:ntotie) => iirs(1:nRS*ntotie)
                piirs(:,:)=Zero
             End If
-            If (ntue.gt.0) turs(:)=0.0d0
+            If (ntue.gt.0) Then
+               pturs(1:nRS,1:ntue) => turs(1:nRS*ntue)
+               pturs(:,:)=Zero
+            End If
           EndIf
 
           Call mma_MaxDBLE(LWORKe)
@@ -564,7 +567,6 @@ c         !set index arrays at iLoc
 **           Formation of the (tu|rs) integral
 *
              ipInt=1
-             ipLtu=1
              iE = 0
              Do i=1,nsym
                na2 = nAshe(i)*nAshb(i) + nAshe(i)*(nAshe(i)+1)/2
@@ -576,10 +578,10 @@ c         !set index arrays at iLoc
 
                Call DGEMM_('N','T',nRS,na2,JNUM,
      &                     1.0d0,Lrs,nRS,
-*    &                           Lij(ipLtu),na2,
      &                           pLij,na2,
-     &                     1.0d0,turs(ipInt),nRS)
-               ipLtu=ipLtu+na2*JNUM
+*    &                     1.0d0,turs(ipInt),nRS)
+     &                     1.0d0,pturs(1,ipInt),nRS)
+*              ipInt=ipInt+na2
                ipInt=ipInt+nRS*na2
              End Do
             CALL CWTIME(TCR1,TWR1)
@@ -610,9 +612,8 @@ c         !set index arrays at iLoc
             End Do
             Do i=1,ntue
               ip1=ip_of_Work(tupq(1))+npq*(i-1)
-              ipRS1=ip_of_Work(turs(1))+nRS*(i-1)
               Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                          [ip1],Work(ipRS1),mode,add)
+     &                          [ip1],pturs(:,i),mode,add)
             End Do
           EndIf
 *
@@ -625,7 +626,10 @@ c         !set index arrays at iLoc
              Call mma_deallocate(iirs)
              piirs=>Null()
           End If
-          If (ntue.gt.0) Call mma_deallocate(turs)
+          If (ntue.gt.0) Then
+             Call mma_deallocate(turs)
+             pturs=>Null()
+          End If
         EndIf
 *
 ** MGD  Gather integrals from parallel runs
