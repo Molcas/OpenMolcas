@@ -57,7 +57,7 @@
       Real*8, Allocatable, Target:: iirs(:), turs(:)
       Real*8, Pointer :: piirs(:,:)=>Null(), pturs(:,:)=>Null()
 
-      Type (DSBA_Type) CMOt
+      Type (DSBA_Type) CMOt, Tmp
       Type (SBA_Type) Lpq(1)
 
       Real*8, Allocatable, Target :: Lii(:), Lij(:)
@@ -238,7 +238,7 @@
           Call mma_allocate(iirs,ntotie*maxRS,Label='iirs')
         EndIf
         ipiaib=1+nab*ntotie
-        iiab(:)=0.0d0
+        iiab(:)=Zero
 *
         If (taskleft) Then
            ntotae=0
@@ -429,7 +429,7 @@ c         !set index arrays at iLoc
                  Call DGEMM_('N','T',nBas(kSym),nBas(kSym),JNUM,
      &          1.0D0,Lpq(1)%SB(kSym)%A3(:,ii,1),nBas(kSym)*nIshe(iSym),
      &                Lpq(1)%SB(kSym)%A3(:,ii,1),nBas(kSym)*nIshe(iSym),
-     &                        1.0d0,iiab(ip1:)  ,nBas(kSym))
+     &          1.0d0,iiab(ip1:)  ,nBas(kSym))
                  ip1=ip1+nBas(kSym)**2
               End Do
             End Do
@@ -606,9 +606,12 @@ c         !set index arrays at iLoc
             mode = 'tofull'
             nMat = 1
             Do i=1,ntotie
-              ip1=ip_of_Work(iiab(1))+nab*(i-1)
+              Call Allocate_DSBA(Tmp,nBas,nBas,nSym,Case='TRI',
+     &                           Ref=iiab(1+nab*(i-1):))
+              ip1 = ip_of_Work(Tmp%A0(1))
               Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
      &                          [ip1],piirs(:,i),mode,add)
+              Call Deallocate_DSBA(Tmp)
             End Do
             Do i=1,ntue
               ip1=ip_of_Work(tupq(1))+npq*(i-1)
