@@ -25,7 +25,7 @@
       Parameter (MaxDs = 1)
       Logical DoCoulomb(MaxDs),DoExchange(MaxDs)
       Real*8 FactC(MaxDs),FactX(MaxDs),ExFac
-      Integer ipMSQ(MaxDs),ipNocc(MaxDs),nOcc(nSym)
+      Integer ipNocc(MaxDs),nOcc(nSym)
 
       Integer, Allocatable:: nVec(:)
       Type (DSBA_Type) Vec, DDec, DLT, FLT, DSQ, CMO, MSQ(MaxDs)
@@ -108,8 +108,6 @@ C  **************************************************
 
       ENDIF
 
-      ipMSQ(1) = ip_of_work(MSQ(1)%A0(1))
-
       Call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,ipNocc,
      &                ALGO,REORD,MinMem,loff1)
 
@@ -138,14 +136,14 @@ C  **************************************************
 * ALGO.eq.2.and.DECO.and.REORD:
             Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
      &                  lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
-     &                  MinMem,ipMSQ,ipNocc)
+     &                  MinMem,MSQ,ipNocc)
             If (rc.ne.0) GOTO 999
 
           else
 * ALGO.eq.2.and.DECO.and. .not.REORD:
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
      &                  lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
-     &                  MinMem,ipMSQ,ipNocc)
+     &                  MinMem,MSQ,ipNocc)
             If (rc.ne.0) GOTO 999
           endif
 
@@ -156,14 +154,14 @@ C  **************************************************
             FactX(1) = 1.0D0*ExFac ! because MOs coeff. are not scaled
             Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
      &                lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
-     &                MinMem,ipMSQ,ipNocc)
+     &                MinMem,MSQ,ipNocc)
             if (rc.ne.0) GOTO 999
           else
 * ALGO.eq.2.and. ..not.DECO.and.REORD:
             FactX(1) = 1.0D0*ExFac ! because MOs coeff. are not scaled
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
      &                lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
-     &                MinMem,ipMSQ,ipNocc)
+     &                MinMem,MSQ,ipNocc)
             if (rc.ne.0) GOTO 999
           end if
         end if

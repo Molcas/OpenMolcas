@@ -11,7 +11,7 @@
 * Copyright (C) 2010, Thomas Bondo Pedersen                            *
 ************************************************************************
       Subroutine ChoSCF_Drv(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
-     &                FLT,FLT_ab,nFLT,ExFac,LWFSQ,LWFSQ_ab,nOcc,nOcc_ab)
+     &                FLT,FLT_ab,nFLT,ExFac,FSQ,FSQ_ab,nOcc,nOcc_ab)
 C
 C     Thomas Bondo Pedersen, September 2010.
 C
@@ -20,12 +20,12 @@ C     ChoSCF_Drv_) in case of Cholesky or full DF. A new driver routine
 C     is called in case of local DF (LDF).
 C
       Implicit None
-#include "WrkSpc.fh"
-      Integer iUHF, nSym, nFLT, LWFSQ, LWFSQ_ab
+      Integer iUHF, nSym, nFLT
       Integer nBas(nSym), nOcc(nSym), nOcc_ab(nSym)
       Real*8  DSQ(*), DLT(*)
       Real*8  DSQ_ab(*), DLT_ab(*)
       Real*8  FLT(*), FLT_ab(*)
+      Real*8  FSQ(*), FSQ_ab(*)
       Real*8  ExFac
 
       Logical DoLDF
@@ -33,11 +33,11 @@ C
       Call DecideOnLocalDF(DoLDF)
       If (DoLDF) Then
          Call LDFSCF_Drv(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
-     &                FLT,FLT_ab,nFLT,ExFac,LWFSQ,LWFSQ_ab,nOcc,nOcc_ab)
+     &                FLT,FLT_ab,nFLT,ExFac,FSQ,FSQ_ab,nOcc,nOcc_ab)
       Else
          Call ChoSCF_Drv_Internal(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
      &                            FLT,FLT_ab,nFLT,ExFac,
-     &                            Work(LWFSQ),Work(LWFSQ_ab),
+     &                            FSQ,FSQ_ab,
      &                            nOcc,nOcc_ab)
       End If
 
@@ -58,7 +58,7 @@ C
       Parameter (MaxDs = 3)
       Logical DoCoulomb(MaxDs),DoExchange(MaxDs)
       Real*8 FactC(MaxDs),FactX(MaxDs),ExFac
-      Integer ipMSQ(MaxDs),ipNocc(MaxDs),nOcc(nSym),nOcc_ab(nSym)
+      Integer ipNocc(MaxDs),nOcc(nSym),nOcc_ab(nSym)
       Integer nnBSF(8,8),n2BSF(8,8)
       Integer nForb(8,2),nIorb(8,2)
       Real*8 W_FLT(*),W_FLT_ab(*)
@@ -171,8 +171,6 @@ C  **************************************************
 
       ENDIF
 
-      ipMSQ(1) = ip_of_Work(MSQ(1)%A0(1))       ! "Cholesky" MOs
-
       Call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,ipNocc,
      &                ALGO,REORD,MinMem,loff1)
 *                                                                      *
@@ -208,11 +206,11 @@ C  **************************************************
 
        if (REORD)then
           Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,ipMSQ,ipNocc)
+     &     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,ipNocc)
        else
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
      &                       lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
-     &                       MinMem,ipMSQ,ipNocc)
+     &                       MinMem,MSQ,ipNocc)
        endif
 *                                                                      *
 ************************************************************************
@@ -224,7 +222,7 @@ C  **************************************************
       FactX(1) = 1.0D0*ExFac ! MOs coeff. are not scaled
 
       Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,ipMSQ,ipNocc)
+     &     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,ipNocc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -234,7 +232,7 @@ C  **************************************************
 
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
      &                       lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
-     &                       MinMem,ipMSQ,ipNocc)
+     &                       MinMem,MSQ,ipNocc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -452,11 +450,6 @@ C Compute the total density Dalpha + Dbeta
 
       ENDIF
 
-C --- MO coefficients
-      ipMSQ(1)  = ip_of_Work(MSQ(1)%A0(1))      !  dummy
-      ipMSQ(2)  = ip_of_Work(MSQ(2)%A0(1))      !  alpha MOs coeff
-      ipMSQ(3)  = ip_of_Work(MSQ(3)%A0(1))      !  beta  MOs coeff
-
       Call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,ipNocc,
      &                ALGO,REORD,MinMem,loff1)
 
@@ -480,14 +473,14 @@ C --- MO coefficients
        if (REORD)then
 
           Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,ipMSQ,ipNocc)
+     &     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,ipNocc)
 
             If (rc.ne.0) GOTO 999
        else
 
           CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
      &                       lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
-     &                       MinMem,ipMSQ,ipNocc)
+     &                       MinMem,MSQ,ipNocc)
 
             If (rc.ne.0) GOTO 999
        endif
@@ -495,7 +488,7 @@ C --- MO coefficients
       elseif  (ALGO.eq.2 .and. REORD) then
 
       Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,ipMSQ,ipNocc)
+     &     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,ipNocc)
 
            If (rc.ne.0) GOTO 999
 
@@ -503,7 +496,7 @@ C --- MO coefficients
 
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
      &                       lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
-     &                       MinMem,ipMSQ,ipNocc)
+     &                       MinMem,MSQ,ipNocc)
 
            If (rc.ne.0) GOTO 999
 
