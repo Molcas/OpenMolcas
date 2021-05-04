@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
-      SUBROUTINE CHO_Fock_MCLR(DA,G2,W_JA,W_KA,W_FkA,CVa,CMO,nIsh,nAsh,
-     &                         LuAChoVec)
+      SUBROUTINE CHO_Fock_MCLR(DA,G2,W_JA,W_KA,W_FkA,CVa,W_CMO,nIsh,
+     &                         nAsh,LuAChoVec)
 ************************************************************************
 *                                                                      *
 *  Author : M. G. Delcey                                               *
@@ -24,20 +24,20 @@
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
       Character(LEN=13), Parameter :: SECNAM = 'CHO_FOCK_MCLR'
-      Integer   ISTSQ(8),ipLpq(8,3)
+      Integer   ipLpq(8,3)
       Integer   LuAChoVec(8)
       Integer   nAsh(8),nIsh(8)
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Type (DSBA_type) CVa, JA, KA, Fka
-      Real*8 DA(*), G2(*), W_JA(*), W_KA(*), W_FkA(*), CMO(*)
+      Type (DSBA_type) CVa, JA, KA, Fka, CMO, Scr
+      Real*8 DA(*), G2(*), W_JA(*), W_KA(*), W_FkA(*), W_CMO(*)
       Real*8, parameter:: xone=-One, FactCI = -Two, FactXI = Half
       Character*6 mode
       Integer , External :: Cho_LK_MaxVecPerBatch
       Integer, Allocatable:: kOffSh(:,:)
-      Real*8, Allocatable:: Scr(:), Fab(:), Lrs(:), LF(:)
+      Real*8, Allocatable::  Fab(:), Lrs(:), LF(:)
       Logical add
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -49,15 +49,12 @@
       Call Allocate_DSBA(JA ,nBas,nBas,nSym,Case='TRI',Ref=W_JA )
       Call Allocate_DSBA(KA ,nBas,nBas,nSym,           Ref=W_KA )
       Call Allocate_DSBA(FkA,nBas,nBas,nSym,           Ref=W_FkA)
+      Call Allocate_DSBA(CMO,nBas,nBas,nSym,           Ref=W_CMO)
 *
 **    Compute offsets
 *
-      ISTSQ(1)=0
       nnA=0
-      nsBB=nBas(1)**2
       DO ISYM=2,NSYM
-        ISTSQ(ISYM)=nsBB
-        nsBB = nsBB + nBas(iSym)**2
         nnA = nnA + nAsh(iSym-1)
       End Do
       nnA = nnA + nAsh(nSym)
@@ -74,8 +71,8 @@
       End Do
 *
 *     memory for the Q matrices --- temporary array
-      Call mma_allocate(Scr,nsBB*nDen,Label='Scr')
-      Scr(:)=Zero
+      Call Allocate_DSBA(Scr,nBas,nBas,nSym)
+      Scr%A0(:)=Zero
 *
       MaxVecPerBatch=Cho_LK_MaxVecPerBatch()
 *
@@ -264,7 +261,7 @@ C --------------------------------------------------------------------
                   Call DGEMM_('T','N',NBAS(iSymb),NAw,Nav,
      &                       One,LF(ipLvb),NAv,
      &                       LF(ipLxy),Naw,
-     &                      ONE,Scr,NBAS(iSymb))
+     &                      ONE,Scr%SB(iSymb)%A2,NBAS(iSymb))
                  End Do
 *                 CALL CWTIME(TCINT3,TWINT3)
 *                 tQmat(1) = tQmat(1) + (TCINT3 - TCINT2)
@@ -365,17 +362,17 @@ c --- backtransform fock matrix to full storage
         If (nBas(iS).ne.0) Then
           Call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),
      &                1.0d0,FkA%SB(iS)%A2,nBas(iS),
-     &                      CMO(1+ISTSQ(iS)),nBas(iS),
+     &                      CMO%SB(iS)%A2,nBas(iS),
      &                0.0d0,JA%SB(iS)%A1,nBas(jS))
           FkA%SB(is)%A2(:,:)=Zero
           Call DGEMM_('T','N',nBas(jS),nIsh(jS),nBas(iS),
      &                1.0d0,JA%SB(iS)%A1,nBas(iS),
-     &                      CMO(1+ISTSQ(jS)),nBas(jS),
+     &                      CMO%SB(jS)%A2,nBas(jS),
      &                0.0d0,FkA%SB(iS)%A2,nBas(jS))
           ioff=nIsh(iS)+1
           Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
-     &                 1.0d0,CMO(1+ISTSQ(iS)),nBas(jS),
-     &                       Scr(1+ISTSQ(iS)),nBas(jS),
+     &                 1.0d0,CMO%SB(iS)%A2,nBas(jS),
+     &                       Scr%SB(iS)%A2,nBas(jS),
      &                 0.0d0,FkA%SB(iS)%A2(1,ioff),nBas(jS))
         EndIf
       End Do
@@ -384,8 +381,9 @@ c --- backtransform fock matrix to full storage
 *     TERMINATING                                                    *
 *                                                                    *
 **********************************************************************
-      Call mma_deallocate(Scr)
+      Call deallocate_DSBA(Scr)
       Call mma_deallocate(kOffSh)
+      Call Deallocate_DSBA(CMO)
       Call Deallocate_DSBA(FkA)
       Call Deallocate_DSBA(KA)
       Call Deallocate_DSBA(JA)
