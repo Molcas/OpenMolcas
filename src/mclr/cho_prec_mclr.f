@@ -53,13 +53,15 @@
       Logical taskleft, add
       Logical, Parameter :: DoRead = .false.
       Integer, External::  Cho_LK_MaxVecPerBatch
-      Real*8, Allocatable:: iiab(:), iirs(:), tupq(:), turs(:),
+      Real*8, Allocatable:: iiab(:), tupq(:), turs(:),
      &                      Lrs(:,:), Integral(:)
+      Real*8, Allocatable, Target:: iirs(:)
+      Real*8, Pointer :: piirs(:,:)=>Null()
       Type (DSBA_Type) CMOt
       Type (SBA_Type) Lpq(1)
 
       Real*8, Allocatable, Target :: Lii(:), Lij(:)
-      Real*8, Pointer :: pLii(:,:), pLij(:,:)
+      Real*8, Pointer :: pLii(:,:)=>Null(), pLij(:,:)=>Null()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -334,7 +336,10 @@ c         !set index arrays at iLoc
           nRS = nDimRS(JSYM,JRED)
 
           If (jSym.eq.1) Then
-            If (ntotie.gt.0) iirs(:)=0.0D0
+            If (ntotie.gt.0) Then
+               piirs(1:nRS,1:ntotie) => iirs(1:nRS*ntotie)
+               piirs(:,:)=Zero
+            End If
             If (ntue.gt.0) turs(:)=0.0d0
           EndIf
 
@@ -466,7 +471,7 @@ c         !set index arrays at iLoc
               Call DGEMM_('N','N',nRS,ntotie,JNUM,
      &                    1.0d0,Lrs,nRS,
      &                          pLii,JNUM,
-     &                    1.0d0,iirs,nRS)
+     &                    1.0d0,piirs,nRS)
               pLii => Null()
 
               CALL CWTIME(TCR2,TWR2)
@@ -600,9 +605,8 @@ c         !set index arrays at iLoc
             nMat = 1
             Do i=1,ntotie
               ip1=ip_of_Work(iiab(1))+nab*(i-1)
-              ipRS1=ip_of_Work(iirs(1))+nRS*(i-1)
               Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                          [ip1],Work(ipRS1),mode,add)
+     &                          [ip1],piirs(:,i),mode,add)
             End Do
             Do i=1,ntue
               ip1=ip_of_Work(tupq(1))+npq*(i-1)
@@ -617,7 +621,10 @@ c         !set index arrays at iLoc
         End Do ! reduced set JRED
 *
         If (jsym.eq.1) Then
-          If (ntotie.gt.0) Call mma_deallocate(iirs)
+          If (ntotie.gt.0) Then
+             Call mma_deallocate(iirs)
+             piirs=>Null()
+          End If
           If (ntue.gt.0) Call mma_deallocate(turs)
         EndIf
 *

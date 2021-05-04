@@ -40,7 +40,7 @@ C
       Real*8    tread(2),tcoul(2),texch(2)
       Real*8    FactCI,FactXI,ExFac
       Integer   ipDLT(nDen),ipFLT(nDen)
-      Type (DSBA_Type)   Porb(nDen), DLT(nDen), FLT(nDen), TLT
+      Type (DSBA_Type)   Porb(nDen), DLT(nDen), FLT(nDen)
       Integer   nForb(8,nDen),nIorb(8,nDen)
 #ifdef _DEBUGPRINT_
       Logical   Debug

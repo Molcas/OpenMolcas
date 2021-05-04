@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
-      SUBROUTINE CHO_Fock_MCLR(DA,G2,JA,KA,FkA,CVa,CMO,nIsh,nAsh,
+      SUBROUTINE CHO_Fock_MCLR(DA,G2,W_JA,KA,FkA,CVa,CMO,nIsh,nAsh,
      &                         LuAChoVec)
 ************************************************************************
 *                                                                      *
@@ -20,18 +20,19 @@
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: InfVec
       use Data_Structures, only: DSBA_Type
+      use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
       Character(LEN=13), Parameter :: SECNAM = 'CHO_FOCK_MCLR'
-      Integer   ISTLT(8),ISTSQ(8),ipLpq(8,3)
+      Integer   ISTSQ(8),ipLpq(8,3)
       Integer   LuAChoVec(8)
       Integer   nAsh(8),nIsh(8)
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Type (DSBA_type) CVa
-      Real*8 DA(*), G2(*), JA(*), KA(*), FkA(*), CMO(*)
+      Type (DSBA_type) CVa, JA
+      Real*8 DA(*), G2(*), W_JA(*), KA(*), FkA(*), CMO(*)
       Real*8, parameter:: xone=-One, FactCI = -Two, FactXI = Half
       Character*6 mode
       Integer , External :: Cho_LK_MaxVecPerBatch
@@ -45,18 +46,16 @@
 ************************************************************************
 *
       nDen=1
+      Call Allocate_DSBA(JA,nBas,nBas,nSym,Case='TRI',Ref=W_JA)
 *
 **    Compute offsets
 *
-      ISTLT(1)=0
       ISTSQ(1)=0
       nnA=0
       nsBB=nBas(1)**2
       DO ISYM=2,NSYM
         ISTSQ(ISYM)=nsBB
         nsBB = nsBB + nBas(iSym)**2
-        NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NBB
         nnA = nnA + nAsh(iSym-1)
       End Do
       nnA = nnA + nAsh(nSym)
@@ -308,7 +307,7 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
 c --- backtransform fock matrix to full storage
           If(JSYM.eq.1)Then
              mode = 'tofull'
-             ipJA = ip_of_Work(JA(1))
+             ipJA = ip_of_Work(JA%A0(1))
              nDen = 1
              add = .True.
              nMat = 1
@@ -331,7 +330,6 @@ c --- backtransform fock matrix to full storage
 **    Accumulate Coulomb and Exchange contributions
 *
       Do iSym=1,nSym
-         ipFAc= 1 + ISTLT(iSym)
          ipKAc= 1  + ISTSQ(iSym)
          ipFA = 1 + ISTSQ(iSym)
 
@@ -348,13 +346,14 @@ c --- backtransform fock matrix to full storage
 
                   iag = ioffa + ia
                   ibg = ioffb + ib
+                  iabg= iTri(iag,ibg)
 
-                  jFA = ipFAc- 1 + iTri(iag,ibg)
                   jKa = ipKac- 1 + nBas(iSym)*(ibg-1) + iag
                   jKa2= ipKac- 1 + nBas(iSym)*(iag-1) + ibg
 
                   jSA= ipFA - 1 + nBas(iSym)*(ibg-1) + iag
-                  FkA(jSA)= JA(jFA)+ KA(jKa)+ KA(jKa2)
+                  FkA(jSA)= JA%SB(iSym)%A1(iabg)
+     &                    + KA(jKa)+ KA(jKa2)
                 End Do
                End Do
             End Do
@@ -370,11 +369,11 @@ c --- backtransform fock matrix to full storage
           Call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),
      &                1.0d0,FkA(1+ISTSQ(iS)),nBas(iS),
      &                CMO(1+ISTSQ(iS)),nBas(iS),0.0d0,
-     &                JA(1+ISTSQ(iS)),nBas(jS))
+     &                JA%SB(iS)%A1,nBas(jS))
           call dcopy_(nBas(jS)*nBas(iS),[0.0d0],0,
      &                FkA(1+ISTSQ(iS)),1)
           Call DGEMM_('T','N',nBas(jS),nIsh(jS),nBas(iS),
-     &                1.0d0,JA(1+ISTSQ(iS)),
+     &                1.0d0,JA%SB(iS)%A1,
      &                nBas(iS),CMO(1+ISTSQ(jS)),nBas(jS),
      &                0.0d0,FkA(1+ISTSQ(iS)),nBas(jS))
           ioff=nIsh(iS)*nBas(jS)+ISTSQ(iS)
@@ -391,6 +390,7 @@ c --- backtransform fock matrix to full storage
 **********************************************************************
       Call mma_deallocate(Scr)
       Call mma_deallocate(kOffSh)
+      Call Deallocate_DSBA(JA)
 
       Return
       END
