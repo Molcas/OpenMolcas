@@ -39,7 +39,7 @@ C
       Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2)
       Real*8    FactCI,FactXI,ExFac
-      Integer   ipDLT(nDen),ipFLT(nDen)
+      Integer   ipFLT(nDen)
       Type (DSBA_Type)   Porb(nDen), DLT(nDen), FLT(nDen)
       Integer   nForb(8,nDen),nIorb(8,nDen)
 #ifdef _DEBUGPRINT_
@@ -81,7 +81,6 @@ C
       DoRead  = .false.
       IREDC= -1  ! unknwn reduced set
       Do iDen = 1, nDen
-         ipDLT(iDen)=ip_of_Work(DLT(iDen)%A0(1))
          ipFLT(iDen)=ip_of_Work(FLT(iDen)%A0(1))
       End Do
 
@@ -193,7 +192,7 @@ C --- Transform the density to reduced storage
                add  = .false.
                nMat=1
                Call Swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                           ipDLT,Drs,mode,add)
+     &                           DLT,Drs,mode,add)
             EndIf
 
 C --- BATCH over the vectors ----------------------------
@@ -352,7 +351,7 @@ c --- backtransform fock matrix to full storage
                nMat = 1
                Do iDen = 1, nDen
                   Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                              ipFLT(iDen),Frs,mode,add)
+     &                              FLT(iDen),Frs,mode,add)
                End Do
             EndIf
 

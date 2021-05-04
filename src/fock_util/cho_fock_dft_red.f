@@ -49,7 +49,6 @@ C********************************************************
       Debug=.true.
 #endif
 
-
       FactC = one
 
 C --- For Coulomb only, the vectors symmetry is restricted to 1
@@ -115,9 +114,8 @@ C ---
 C --- Transform the density to reduced storage
       mode = 'toreds'
       add  = .false.
-      ipDLT = ip_of_Work(DLT%A0(1))
       nDen=1
-      Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[ipDLT],Drs,mode,add)
+      Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,DLT,Drs,mode,add)
 
 C --- BATCH over the vectors in JSYM=1 ----------------------------
 
@@ -183,8 +181,7 @@ C==========================================================
 c --- backtransform fock matrix in full storage
          mode = 'tofull'
          add  = JRED.gt.JRED1
-         ipFLT = ip_of_Work(FLT%A0(1))
-         Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[ipFLT],Frs,mode,add)
+         Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,FLT,Frs,mode,add)
       endif
 
 C --- free memory

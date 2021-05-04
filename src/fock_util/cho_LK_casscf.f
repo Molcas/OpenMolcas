@@ -64,7 +64,6 @@ C
       Implicit Real*8 (a-h,o-z)
 
       Real*8 W_PWXY(*)
-      Integer   ipDLT(2),ipFLT(2)
       Integer   kOff(8,2),nnA(8,8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
@@ -157,11 +156,6 @@ C
 
       DoTraInt = .false.
       IREDC = -1  ! unknown reduced set in core
-
-      ipDLT(1) = ip_of_Work(DLT(1)%A0(1))    ! some definitions
-      ipDLT(2) = ip_of_Work(DLT(2)%A0(1))
-      ipFLT(1) = ip_of_Work(FLT(1)%A0(1))
-      ipFLT(2) = ip_of_Work(FLT(2)%A0(1))
 
       FactC(:) = [ one, one ]
       FactX(:) = [ FactXI*ExFac, -0.5D0*ExFac ]
@@ -519,7 +513,7 @@ C --- Transform the densities to reduced set storage
                mode = 'toreds'
                add  = .false.
                Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,
-     &                           [ipDLT],Drs,mode,add)
+     &                           DLT,Drs,mode,add)
             EndIf
 
 C --- BATCH over the vectors ----------------------------
@@ -1237,7 +1231,7 @@ c --- backtransform fock matrix to full storage
                mode = 'tofull'
                add  = .true.
                Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,
-     &                           [ipFLT],Frs,mode,add)
+     &                           FLT,Frs,mode,add)
             EndIf
 
 C --- free memory

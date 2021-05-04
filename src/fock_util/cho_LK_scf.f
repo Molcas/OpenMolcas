@@ -420,9 +420,8 @@ C --- Transform the density to reduced storage
                mode = 'toreds'
                add  = .false.
                nMat=1
-               ipPLT=ip_of_Work(PLT(1)%A0(1))
                Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                           [ipPLT],Drs,mode,add)
+     &                           PLT,Drs,mode,add)
             EndIf
 
 C --- BATCH over the vectors ----------------------------
@@ -1008,9 +1007,8 @@ c --- backtransform fock matrix to full storage
                add  = .true.
                nMat = 1
                Do jDen = 1, nDen
-                  ipFLT = ip_of_Work(FLT(jDen)%A0(1))
                   Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                           [ipFLT],Frs,mode,add)
+     &                              FLT(jDen),Frs,mode,add)
                End Do
             EndIf
 

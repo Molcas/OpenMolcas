@@ -579,9 +579,7 @@ c         !set index arrays at iLoc
                Call DGEMM_('N','T',nRS,na2,JNUM,
      &                     1.0d0,Lrs,nRS,
      &                           pLij,na2,
-*    &                     1.0d0,turs(ipInt),nRS)
-     &                     1.0d0,pturs(1,ipInt),nRS)
-*              ipInt=ipInt+na2
+     &                     1.0d0,turs(ipInt),nRS)
                ipInt=ipInt+nRS*na2
              End Do
             CALL CWTIME(TCR1,TWR1)
@@ -608,17 +606,15 @@ c         !set index arrays at iLoc
             Do i=1,ntotie
               Call Allocate_DSBA(Tmp,nBas,nBas,nSym,Case='TRI',
      &                           Ref=iiab(1+nab*(i-1):))
-              ip1 = ip_of_Work(Tmp%A0(1))
               Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                          [ip1],piirs(:,i),mode,add)
+     &                          Tmp,piirs(:,i),mode,add)
               Call Deallocate_DSBA(Tmp)
             End Do
             Do i=1,ntue
               Call Allocate_DSBA(Tmp,nBas,nBas,nSym,Case='TRI',
      &                           Ref=tupq(1+npq*(i-1):))
-              ip1 = ip_of_Work(Tmp%A0(1))
               Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                          [ip1],pturs(:,i),mode,add)
+     &                          Tmp,pturs(:,i),mode,add)
               Call Deallocate_DSBA(Tmp)
             End Do
           EndIf

@@ -54,9 +54,7 @@ C
 
       Integer   rc
       Integer   iSkip(8)
-      Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2), ExFac
-      Integer   ipDLT(2),ipFLT(2)
       Integer   nForb(8),nIorb(8),nAorb(8),nPorb(8),nnA(8,8),nChM(8)
 #ifdef _DEBUGPRINT_
       Logical   Debug
@@ -99,11 +97,6 @@ C
       DoTraInt = .false.
       IREDC = -1  ! unknown reduced set in core
 
-      ipDLT(1) = ip_of_Work(DLT(1)%A0(1))    ! some definitions
-      ipDLT(2) = ip_of_Work(DLT(2)%A0(1))
-      ipFLT(1) = ip_of_Work(FLT(1)%A0(1))
-      ipFLT(2) = ip_of_Work(FLT(2)%A0(1))
-
       nDen = 1
       if (DoActive) nDen=2
 
@@ -126,14 +119,6 @@ c -----------------------------------
       Call set_nnA(nSym,nAorb,nnA)
 
 C ==================================================================
-
-c --- Various offsets
-c --------------------
-      ISTLT(1)=0
-      DO ISYM=2,NSYM
-        NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NBB
-      END DO
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -240,7 +225,7 @@ C ------------------------------------------------------------------
 C --- Transform the density to reduced storage
                mode = 'toreds'
                add  = .false.
-               Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[ipDLT],Drs,
+               Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,DLT,Drs,
      &                           mode,add)
             EndIf
 
@@ -574,7 +559,7 @@ C --------------------------------------------------------------------
 c --- backtransform fock matrix in full storage
                mode = 'tofull'
                add  = .true.
-               Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[ipFLT],Frs,
+               Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,FLT,Frs,
      &                           mode,add)
             endif
 

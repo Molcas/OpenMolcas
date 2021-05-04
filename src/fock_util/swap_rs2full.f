@@ -11,22 +11,22 @@
 * Copyright (C) Francesco Aquilante                                    *
 *               2021, Roland Lindh                                     *
 ************************************************************************
-      SUBROUTINE swap_rs2full(irc,iLoc,nRS,nDen,JSYM,ipXLT,Xab,mode,add)
+      SUBROUTINE swap_rs2full(irc,iLoc,nRS,nDen,JSYM,XLT,Xab,mode,add)
       use ChoArr, only: iRS2F
       use ChoSwp, only: IndRed
+      use Data_Structures, only: DSBA_Type
       Implicit Real*8 (a-h,o-z)
       Integer  irc, iLoc, nDen, JSYM
-      Integer ipXLT(nDen)
+      Type (DSBA_Type) XLT(nDen)
       Real*8 Xab(nRS,nDen)
       Logical add
       Character*6 mode
 
-      Integer  ISLT(8)
       Integer, External:: cho_isao
 
+#include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 
       Integer i, j, iTri
 *                                                                      *
@@ -36,13 +36,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-
-      ISLT(1)=0
-      DO ISYM=2,NSYM
-         ISLT(ISYM) = ISLT(ISYM-1)
-     &              + NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-      END DO
-
       If (mode.eq.'toreds'.and.JSYM.eq.1) then ! TOTAL SYMMETRIC
 
          Do jRab=1,nnBstR(jSym,iLoc)
@@ -62,9 +55,7 @@ c           !address within that symm block
 
             Do jDen=1,nDen
 
-               kfrom = ipXLT(jDen) + isLT(iSyma) + iab - 1
-
-               Xab(jRab,jDen) =  Work(kfrom)
+               Xab(jRab,jDen) =  XLT(jDen)%SB(iSyma)%A1(iab)
 
             End Do
 
@@ -75,9 +66,8 @@ c           !address within that symm block
 c      ! TOTAL SYMMETRIC
 
          If (.NOT.add) Then
-            nTot = ISLT(NSYM) + NBAS(NSYM)*(NBAS(NSYM)+1)/2
             Do jDen = 1, nDen
-               Call FZero(Work(ipXLT(jDen)),nTot)
+               XLT(jDen)%A0(:)=Zero
             End Do
          End If
 
@@ -97,9 +87,8 @@ c      ! TOTAL SYMMETRIC
 
             Do jDen=1,nDen
 
-               kto = ipXLT(jDen) + isLT(iSyma) + iab - 1
-
-               Work(kto) = Work(kto) + Xab(jRab,jDen)
+               XLT(jDen)%SB(iSyma)%A1(iab) = XLT(jDen)%SB(iSyma)%A1(iab)
+     &                                     + Xab(jRab,jDen)
 
             End Do
 
