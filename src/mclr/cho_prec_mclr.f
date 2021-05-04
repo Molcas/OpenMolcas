@@ -614,9 +614,12 @@ c         !set index arrays at iLoc
               Call Deallocate_DSBA(Tmp)
             End Do
             Do i=1,ntue
-              ip1=ip_of_Work(tupq(1))+npq*(i-1)
+              Call Allocate_DSBA(Tmp,nBas,nBas,nSym,Case='TRI',
+     &                           Ref=tupq(1+npq*(i-1):))
+              ip1 = ip_of_Work(Tmp%A0(1))
               Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
      &                          [ip1],pturs(:,i),mode,add)
+              Call Deallocate_DSBA(Tmp)
             End Do
           EndIf
 *
