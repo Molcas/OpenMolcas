@@ -75,10 +75,10 @@ C
       Integer, External:: ip_of_Work, ip_of_iWork
 
       Integer, Allocatable:: nVec(:,:)
-      Real*8, Allocatable :: Vec(:,:), DDec(:,:)
+      Real*8, Allocatable :: Vec(:,:)
 
       Type (DSBA_Type) Cka(2), FLT(2), KLT(2), MSQ(3), DLT, FSQ(3),
-     &                 DSQ(3)
+     &                 DSQ(3), DDec(2)
 *
 C  **************************************************
         iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
@@ -129,22 +129,20 @@ C  **************************************************
        end do
 
        Call mma_allocate(Vec,lVdim,1,Label='Vec')
-       Call mma_allocate(DDec,lVdim,1,Label='DDec')
-       call dcopy_(lVdim,DSQ(1)%A0,1,ddec(:,1),1)
+       Call Allocate_DSBA(DDec(1),nBas,nBas,nSym)
+       DDec(1)%A0(:) = DSQ(1)%A0(:)
 
-       ipd = 1
        ipV = 1
        Do i=1,nSym
           if(nBas(i).gt.0)then
             Ymax=0.0d0
             jaa=ipd
             do ja=1,nBas(i)
-               Ymax=Max(Ymax,DDec(jaa,1))
+               Ymax=Max(Ymax,DDec(1)%SB(i)%A2(ja,ja))
                jaa = jaa + nBas(i) + 1
             end do
-            jaa = jaa - nBas(i) - 1
             Thr = 1.0d-8*Ymax
-            CALL CD_InCore(DDec(ipd,1),nBas(i),Vec(ipV,1),nBas(i),
+            CALL CD_InCore(DDec(1)%SB(i)%A2,nBas(i),Vec(ipV,1),nBas(i),
      &                     NumV,Thr,rc)
             If (rc.ne.0) GOTO 999
             nVec(i,1) = NumV
@@ -161,10 +159,9 @@ C  **************************************************
           else
             nVec(i,1) = 0
           endif
-          ipd = ipd + n2BSF(i,i)
           ipV = ipV + n2BSF(i,i)
        End Do
-       Call mma_deallocate(DDec)
+       Call Deallocate_DSBA(DDec(1))
 
        ipNocc(1) = ip_of_iWork(nVec(1,1)) ! occup. numbers
 
@@ -394,26 +391,23 @@ C Compute the total density Dalpha + Dbeta
        end do
 
        Call mma_allocate(Vec,lVdim,2,Label='Vec')
-       Call mma_allocate(DDec,lVdim,2,Label='DDec')
 
-       call dcopy_(lVdim,DSQ(2)%A0,1,ddec(:,1),1)
-       call dcopy_(lVdim,DSQ(3)%A0,1,ddec(:,2),1)
+       Call Allocate_DSBA(DDec(1),nBas,nBas,nSym)
+       Call Allocate_DSBA(DDec(2),nBas,nBas,nSym)
+       DDec(1)%A0(:)=DSQ(2)%A0(:)
+       DDec(2)%A0(:)=DSQ(3)%A0(:)
 
-       ipd1 = 1
-       ipd2 = 1
        ipV1 = 1
        ipV2 = 1
        Do i=1,nSym
           if(nBas(i).gt.0)then
               Ymax=0.0d0
-              jaa=ipd1
               do ja=1,nBas(i)
-                 Ymax=Max(Ymax,DDec(jaa,1))
-                 jaa=jaa+(nBas(i)+1)
+                 Ymax=Max(Ymax,DDec(1)%SB(i)%A2(ja,ja))
               end do
               Thr = 1.0d-8*Ymax
-              CALL CD_InCore(DDec(ipd1,1),nBas(i),Vec(ipV1,1),nBas(i),
-     &                       NumV1,Thr,rc)
+              CALL CD_InCore(DDec(1)%SB(i)%A2,nBas(i),Vec(ipV1,1),
+     &                       nBas(i),NumV1,Thr,rc)
                    If (rc.ne.0) GOTO 999
                    nVec(i,1) = NumV1
                    if ( NumV1 .ne. nOcc(i) .and. .not.Do_SpinAV
@@ -428,14 +422,12 @@ C Compute the total density Dalpha + Dbeta
               call WarningMessage(1,ww)
                    endif
               Ymax=0.0d0
-              jaa=ipd2
               do ja=1,nBas(i)
-                 Ymax=Max(Ymax,DDec(jaa,2))
-                 jaa=jaa+nBas(i)+1
+                 Ymax=Max(Ymax,DDec(2)%SB(i)%A2(ja,ja))
               end do
               Thr = 1.0d-8*Ymax
-              CALL CD_InCore(DDec(ipd2,2),nBas(i),Vec(ipV2,2),nBas(i),
-     &                       NumV2,Thr,rc)
+              CALL CD_InCore(DDec(2)%SB(i)%A2,nBas(i),Vec(ipV2,2),
+     %                       nBas(i),NumV2,Thr,rc)
                    If (rc.ne.0) GOTO 999
                    nVec(i,2) = NumV2
                    if ( NumV2 .ne. nOcc_ab(i) .and. .not.Do_SpinAV
@@ -453,13 +445,12 @@ C Compute the total density Dalpha + Dbeta
             nVec(i,1) = 0
             nVec(i,2) = 0
           endif
-          ipd1 = ipd1 + n2BSF(i,i)
-          ipd2 = ipd2 + n2BSF(i,i)
           ipV1 = ipV1 + n2BSF(i,i)
           ipV2 = ipV2 + n2BSF(i,i)
        End Do
 
-       Call mma_deallocate(DDec)
+       Call deallocate_DSBA(DDec(2))
+       Call deallocate_DSBA(DDec(1))
 
        ipNocc(1) = ip_of_iWork(nVec(1,1)) ! dummy
        ipNocc(2) = ip_of_iWork(nVec(1,1)) ! alpha occup. numbers

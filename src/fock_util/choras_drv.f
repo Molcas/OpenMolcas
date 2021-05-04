@@ -51,7 +51,6 @@ C  **************************************************
       Call Allocate_DSBA(FLT,nBas,nBas,nSym,Case='TRI',Ref=W_FLT)
 
       Call Allocate_DSBA(DSQ,nBas,nBas,nSym,Ref=W_DSQ)
-      ipNocc(1) = ip_of_iwork(nOcc(1)) ! occup. numbers
 
       iUHF=0
 
@@ -101,6 +100,12 @@ C  **************************************************
        ipMSQ(1) = ip_of_Work(Vec%A0(1)) ! "Cholesky" MOs
 
 * ========End of  Alternative A: Use decomposed density matrix =====
+      ELSE
+
+       ipNocc(1) = ip_of_iwork(nOcc(1)) ! occup. numbers
+
+       ipMSQ(1) = ip_of_work(CMO(1))
+
       ENDIF
 
       Call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,ipNocc,
@@ -146,7 +151,6 @@ C  **************************************************
         else
           if (REORD) then
 * ALGO.eq.2.and. ..not.DECO.and.REORD:
-            ipMSQ(1) = ip_of_work(CMO(1))
             FactX(1) = 1.0D0*ExFac ! because MOs coeff. are not scaled
             Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
      &                lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
@@ -154,7 +158,6 @@ C  **************************************************
             if (rc.ne.0) GOTO 999
           else
 * ALGO.eq.2.and. ..not.DECO.and.REORD:
-            ipMSQ(1) = ip_of_work(CMO(1))
             FactX(1) = 1.0D0*ExFac ! because MOs coeff. are not scaled
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
      &                lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,

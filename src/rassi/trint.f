@@ -18,7 +18,7 @@
       Integer KEEP(8),NBSX(8), nAux(8)
       LOGICAL   ISQARX
       Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT, FLT, KSQ,
-     &                 FAO, Temp_SQ
+     &                 FAO, Temp_SQ, DInAO
 #include "real.fh"
 #include "rassi.fh"
 #include "symmul.fh"
@@ -28,7 +28,7 @@
 #include "stdalloc.fh"
       Logical IfTest,FoundTwoEls,DoCholesky
 
-      Real*8, Dimension(:), Allocatable:: Prod, DInAO
+      Real*8, Dimension(:), Allocatable:: Prod
 
 #include "cho_jobs.fh"
 #include "chorassi.fh"
@@ -108,8 +108,8 @@ c      Call DecideOnDirect(.False.,FoundTwoEls,DoDirect,DoCholesky)
 
 C CALCULATE AN INACTIVE TRANSITION DENSITY MATRIX IN AO BASIS:
       NDINAO=NBSQ
-      Call mma_allocate(DInAO,nDInAO,Label='DInAO')
-      CALL DIMAT(CMO1,CMO2,DINAO)
+      Call Allocate_DSBA(DInAO,nBasF,nBasF,nSym)
+      CALL DIMAT(CMO1,CMO2,DINAO%A0)
 
       NFAO=NBSQ
       Call Allocate_DSBA(FAO,nBasF,nBasF,nSym)
@@ -121,7 +121,7 @@ C CALCULATE AN INACTIVE TRANSITION DENSITY MATRIX IN AO BASIS:
 ***********************************************************************
 *                                                                     *
 
-         If ( IfTest ) Call dVcPrt('Done',' ',DINAO,NDINAO)
+         If ( IfTest ) Call dVcPrt('Done',' ',DINAO%A0,NDINAO)
 C GET THE ONE-ELECTRON HAMILTONIAN MATRIX FROM ONE-EL FILE AND
 C PUT IT INTO A FOCK MATRIX IN AO BASIS:
 C Note: GETH1 also adds the reaction field contribution to the
@@ -131,7 +131,7 @@ C which is the RF contribution to the nuclear repulsion
          If ( IfTest ) Call dVcPrt('h0',' ',FAO%A0,NFAO)
 C ONE CONTRIBUTION TO ECORE MUST BE CALCULATED FROM THE NAKED
 C ONE-EL HAMILTONIAN:
-         ECORE1=DDOT_(NBSQ,FAO%A0,1,DINAO,1)
+         ECORE1=DDOT_(NBSQ,FAO%A0,1,DINAO%A0,1)
          If ( IfTest ) Write (6,*) '      ECore1=',ECORE1
 
 
@@ -139,7 +139,7 @@ C ADD IN THE TWO-ELECTRON CONTRIBUTIONS TO THE FOCKAO MATRIX:
 *
          Call Allocate_DSBA(Temp_SQ,nBasF,nBasF,nSym)
          Temp_SQ%A0(:)=Zero
-         CALL FOCK_RASSI(DINAO,Temp_SQ%A0)
+         CALL FOCK_RASSI(DINAO%A0,Temp_SQ%A0)
 
 c --- FAO already contains the one-electron part
          FAO%A0(:) = FAO%A0(:) + Temp_SQ%A0(:)
@@ -152,7 +152,7 @@ c --- FAO already contains the one-electron part
          End Do
 #endif
 
-         ECORE2=DDOT_(NBSQ,FAO%A0,1,DINAO,1)
+         ECORE2=DDOT_(NBSQ,FAO%A0,1,DINAO%A0,1)
 *                                                                     *
 ***********************************************************************
 *                                                                     *
@@ -169,17 +169,14 @@ c --- FAO already contains the one-electron part
          endif
 
          Call Allocate_DSBA(DLT,nBasF,nBasF,nSym,Case='TRI')
-         CALL Fold_Mat(nSym,nBasF,DINAO,DLT%A0)
+         CALL Fold_Mat(nSym,nBasF,DINAO%A0,DLT%A0)
 
 #ifdef _DEBUGPRINT_
 
-         ioff2=0
          do i=1,nSym
-            ipDS = 1 + ioff2
-            call cho_output(DInAO(ipDS),1,nBasF(i),1,nBasF(i),
+            call cho_output(DInAO%SB(i)%A2,1,nBasF(i),1,nBasF(i),
      &                      nBasF(i),nBasF(i),1,6)
             call triprt('DLT','',DLT%SB(i)%A1,nBasF(i))
-            ioff2=ioff2+nBasF(i)**2
          end do
 
 #endif
@@ -340,7 +337,7 @@ c ---     and compute the (tu|vx) integrals
          Call GADSUM(FAO%A0,NBSQ)
          Call GADSUM(TUVX,NGAM2)
 
-         ECORE2=DDOT_(NBSQ,FAO%A0,1,DINAO,1)
+         ECORE2=DDOT_(NBSQ,FAO%A0,1,DINAO%A0,1)
 
 * --- Finalize Cholesky information
 
@@ -360,7 +357,7 @@ c ---     and compute the (tu|vx) integrals
       ECORE=0.5D0*(ECORE1+ECORE2)
       If ( IfTest ) Write (6,*) '      Ecore =',ECORE
 C (NOTE COMPENSATION FOR DOUBLE-COUNTING OF TWO-ELECTRON CONTRIBUTION.)
-      Call mma_deallocate(DInAO)
+      Call Deallocate_DSBA(DInAO)
 
 
 C TRANSFORM THE FOCK MATRIX TO MO BASIS:
