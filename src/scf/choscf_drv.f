@@ -72,13 +72,12 @@ C
      &                               W_FSQ,W_FSQ_ab,
      &                               nOcc,nOcc_ab)
 
+      use Scf_Arrays, only: CMO
       use Data_Structures, only: DSBA_Type
       use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "addr.fh"
       Integer iUHF, nSym
       Integer nBas(nSym), MinMem(nSym),rc
       Parameter (MaxDs = 3)
@@ -97,8 +96,6 @@ C
 #include "choscf.fh"
 #include "choauf.fh"
 #include "spave.fh"
-
-      Integer, External:: ip_of_Work, ip_of_iWork
 
       Type Integer_Pointer
           Integer, Pointer :: I1(:)=>Null()
@@ -197,7 +194,7 @@ C  **************************************************
 
          pNocc(1)%I1(1:) => nOcc(1:) ! occup. numbers
 
-         Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=Work(mAdCMO))
+         Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=CMO(:,1))
 
       ENDIF
 
@@ -475,9 +472,9 @@ C Compute the total density Dalpha + Dbeta
        pNocc(2)%I1(1:) => nOcc(1:) ! occup. numbers alpha MOs
        pNocc(3)%I1(1:) => nOcc_ab(1:) ! occup. numbers beta MOs
 
-       Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=Work(mAdCMO   ))
-       Call Allocate_DSBA(MSQ(2),nBas,nBas,nSym,Ref=Work(mAdCMO   ))
-       Call Allocate_DSBA(MSQ(3),nBas,nBas,nSym,Ref=Work(mAdCMO_ab))
+       Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=CMO(:,1))
+       Call Allocate_DSBA(MSQ(2),nBas,nBas,nSym,Ref=CMO(:,1))
+       Call Allocate_DSBA(MSQ(3),nBas,nBas,nSym,Ref=CMO(:,2))
 
       ENDIF
 
