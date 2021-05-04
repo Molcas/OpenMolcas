@@ -159,7 +159,6 @@ C  **************************************************
 
        ipNocc(1) = ip_of_iWork(nVec(1,1)) ! occup. numbers
 
-       ipMSQ(1) = ip_of_Work(Vec(1)%A0(1))       ! "Cholesky" MOs
        Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=Vec(1)%A0)
 
        FactX(1) = 0.5D0*ExFac ! ExFac used for hybrid functionals
@@ -168,10 +167,11 @@ C  **************************************************
 
          ipNocc(1) = ip_of_iwork(nOcc(1)) ! occup. numbers
 
-         ipMSQ(1) = mAdCMO      ! MOs coeff as specified in addr.fh
          Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=Work(mAdCMO))
 
       ENDIF
+
+      ipMSQ(1) = ip_of_Work(MSQ(1)%A0(1))       ! "Cholesky" MOs
 
       Call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,ipNocc,
      &                ALGO,REORD,MinMem,loff1)
@@ -221,7 +221,6 @@ C  **************************************************
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      ipMSQ(1) = mAdCMO      ! MOs coeff as specified in addr.fh
       FactX(1) = 1.0D0*ExFac ! MOs coeff. are not scaled
 
       Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
@@ -231,7 +230,6 @@ C  **************************************************
 *                                                                      *
       elseif  (ALGO.eq.2 .and. .not. REORD) then
 
-      ipMSQ(1) = mAdCMO      ! MOs coeff as specified in addr.fh
       FactX(1) = 1.0D0*ExFac ! MOs coeff. are not scaled
 
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
@@ -247,17 +245,14 @@ C  **************************************************
           End Do
           Call Allocate_DSBA(Cka(1),nIorb(:,1),nBas,nSym)
 
-          ioff1=0
           Do iSym=1,nSym
            If (nBas(iSym)*nIorb(iSym,1).ne.0) Then
              do ikk=1,nIorb(iSym,1)
                 ioff3=ioff1+nBas(iSym)*(ikk-1)
                 Cka(1)%SB(iSym)%A2(ikk,:) =
-     &            Work(ipMSQ(1)+ioff3 :
-     &                 ipMSQ(1)+ioff3-1+nBas(iSym))
+     &             MSQ(1)%SB(iSym)%A2(:,ikk)
              end do
            EndIf
-           ioff1=ioff1+nBas(iSym)**2
            nForb(iSym,1) = 0
           End Do
 
@@ -443,10 +438,6 @@ C Compute the total density Dalpha + Dbeta
        ipNocc(2) = ip_of_iWork(nVec(1,1)) ! alpha occup. numbers
        ipNocc(3) = ip_of_iWork(nVec(1,2)) ! beta occup. numbers
 
-       ipMSQ(1) = ip_of_Work(Vec(1)%A0(1))    ! dummy
-       ipMSQ(2) = ip_of_Work(Vec(1)%A0(1))    ! "Cholesky" alpha MOs
-       ipMSQ(3) = ip_of_Work(Vec(2)%A0(1))    ! "Cholesky" beta  MOs
-
        Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=Vec(1)%A0)
        Call Allocate_DSBA(MSQ(2),nBas,nBas,nSym,Ref=Vec(1)%A0)
        Call Allocate_DSBA(MSQ(3),nBas,nBas,nSym,Ref=Vec(2)%A0)
@@ -455,16 +446,16 @@ C Compute the total density Dalpha + Dbeta
        ipNocc(2) = ip_of_iwork(nOcc(1)) ! occup. numbers alpha MOs
        ipNocc(3) = ip_of_iwork(nOcc_ab(1)) ! occup. numbers beta MOs
 
-C ---  MO coefficients
-       ipMSQ(1)  = mAdCMO      !  dummy
-       ipMSQ(2)  = mAdCMO      !  alpha MOs coeff
-       ipMSQ(3)  = mAdCMO_ab   !  beta  MOs coeff
-
        Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=Work(mAdCMO   ))
        Call Allocate_DSBA(MSQ(2),nBas,nBas,nSym,Ref=Work(mAdCMO   ))
        Call Allocate_DSBA(MSQ(3),nBas,nBas,nSym,Ref=Work(mAdCMO_ab))
 
       ENDIF
+
+C --- MO coefficients
+      ipMSQ(1)  = ip_of_Work(MSQ(1)%A0(1))      !  dummy
+      ipMSQ(2)  = ip_of_Work(MSQ(2)%A0(1))      !  alpha MOs coeff
+      ipMSQ(3)  = ip_of_Work(MSQ(3)%A0(1))      !  beta  MOs coeff
 
       Call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,ipNocc,
      &                ALGO,REORD,MinMem,loff1)
@@ -518,14 +509,6 @@ C ---  MO coefficients
 
       elseif (ALGO.eq.3) then
 
-          If (DECO) Then
-             ipMSQ(1) = ip_of_Work(Vec(1)%A0)
-             ipMSQ(2) = ip_of_Work(Vec(1)%A0)
-          Else
-             ipMSQ(1) = mAdCMO      ! alpha MOs coeff as in addr.fh
-             ipMSQ(2) = mAdCMO_ab   ! beta MOs coeff as in addr.fh
-          EndIf
-
           Do iSym=1,nSym
              nIorb(iSym,1) = iWork(ipNocc(2)+iSym-1)
              nIorb(iSym,2) = iWork(ipNocc(3)+iSym-1)
@@ -533,25 +516,19 @@ C ---  MO coefficients
           Call Allocate_DSBA(Cka(1),nIorb(:,1),nBas,nSym)
           Call Allocate_DSBA(Cka(2),nIorb(:,2),nBas,nSym)
 
-          ioff1=0
           Do iSym=1,nSym
            If (nBas(iSym)*nIorb(iSym,1).ne.0) Then
              do ikk=1,nIorb(iSym,1)
-                ioff3=ioff1+nBas(iSym)*(ikk-1)
                 Cka(1)%SB(iSym)%A2(ikk,:) =
-     &            Work(ipMSQ(1)+ioff3 :
-     &                 ipMSQ(1)+ioff3 - 1 + nBas(iSym))
+     &           MSQ(2)%SB(iSym)%A2(:,ikk)
              end do
            EndIf
            If (nBas(iSym)*nIorb(iSym,2).ne.0) Then
              do ikk=1,nIorb(iSym,2)
-                ioff3=ioff1+nBas(iSym)*(ikk-1)
                 Cka(2)%SB(iSym)%A2(ikk,:) =
-     &            Work(ipMSQ(2)+ioff3 :
-     &                 ipMSQ(2)+ioff3 - 1 + nBas(iSym))
+     &           MSQ(3)%SB(iSym)%A2(:,ikk)
              end do
            EndIf
-           ioff1=ioff1+nBas(iSym)**2
            nForb(iSym,1) = 0
            nForb(iSym,2) = 0
           End Do

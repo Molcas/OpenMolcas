@@ -28,7 +28,7 @@
       Integer ipMSQ(MaxDs),ipNocc(MaxDs),nOcc(nSym)
 
       Integer, Allocatable:: nVec(:)
-      Type (DSBA_Type) Vec, DDec, DLT, FLT, DSQ, CMO
+      Type (DSBA_Type) Vec, DDec, DLT, FLT, DSQ, CMO, MSQ(MaxDs)
 
 #include "chounit.fh"
 #include "choras.fh"
@@ -97,16 +97,18 @@ C  **************************************************
 
        ipNocc(1) = ip_of_iWork(nVec(1)) ! occup. numbers
 
-       ipMSQ(1) = ip_of_Work(Vec%A0(1)) ! "Cholesky" MOs
+       Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=Vec%A0)
 
 * ========End of  Alternative A: Use decomposed density matrix =====
       ELSE
 
        ipNocc(1) = ip_of_iwork(nOcc(1)) ! occup. numbers
 
-       ipMSQ(1) = ip_of_work(CMO%A0(1))
+       Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=CMO%A0)
 
       ENDIF
+
+      ipMSQ(1) = ip_of_work(MSQ(1)%A0(1))
 
       Call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,ipNocc,
      &                ALGO,REORD,MinMem,loff1)
@@ -180,6 +182,7 @@ C  **************************************************
          CALL QUIT(rc)
       end if
 
+      Call Deallocate_DSBA(MSQ(1))
       IF (DECO) Then
        Call Deallocate_DSBA(Vec)
        Call mma_deallocate(nVec)
