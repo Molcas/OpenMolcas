@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
-      SUBROUTINE CHO_Fock_MCLR(DA,G2,W_JA,W_KA,FkA,CVa,CMO,nIsh,nAsh,
+      SUBROUTINE CHO_Fock_MCLR(DA,G2,W_JA,W_KA,W_FkA,CVa,CMO,nIsh,nAsh,
      &                         LuAChoVec)
 ************************************************************************
 *                                                                      *
@@ -31,8 +31,8 @@
 #include "choorb.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Type (DSBA_type) CVa, JA, KA
-      Real*8 DA(*), G2(*), W_JA(*), W_KA(*), FkA(*), CMO(*)
+      Type (DSBA_type) CVa, JA, KA, Fka
+      Real*8 DA(*), G2(*), W_JA(*), W_KA(*), W_FkA(*), CMO(*)
       Real*8, parameter:: xone=-One, FactCI = -Two, FactXI = Half
       Character*6 mode
       Integer , External :: Cho_LK_MaxVecPerBatch
@@ -46,8 +46,9 @@
 ************************************************************************
 *
       nDen=1
-      Call Allocate_DSBA(JA,nBas,nBas,nSym,Case='TRI',Ref=W_JA)
-      Call Allocate_DSBA(KA,nBas,nBas,nSym,           Ref=W_KA)
+      Call Allocate_DSBA(JA ,nBas,nBas,nSym,Case='TRI',Ref=W_JA )
+      Call Allocate_DSBA(KA ,nBas,nBas,nSym,           Ref=W_KA )
+      Call Allocate_DSBA(FkA,nBas,nBas,nSym,           Ref=W_FkA)
 *
 **    Compute offsets
 *
@@ -330,7 +331,6 @@ c --- backtransform fock matrix to full storage
 **    Accumulate Coulomb and Exchange contributions
 *
       Do iSym=1,nSym
-         ipFA = 1 + ISTSQ(iSym)
 
          Do iaSh=1,nShell
             ioffa = kOffSh(iaSh,iSym)
@@ -347,8 +347,8 @@ c --- backtransform fock matrix to full storage
                   ibg = ioffb + ib
                   iabg= iTri(iag,ibg)
 
-                  jSA= ipFA - 1 + nBas(iSym)*(ibg-1) + iag
-                  FkA(jSA)= JA%SB(iSym)%A1(iabg)
+                  FkA%SB(iSym)%A2(iag,ibg)
+     &                    = JA%SB(iSym)%A1(iabg)
      &                    + KA%SB(iSym)%A2(iag,ibg)
      &                    + KA%SB(iSym)%A2(ibg,iag)
                 End Do
@@ -364,20 +364,19 @@ c --- backtransform fock matrix to full storage
         jS=iS
         If (nBas(iS).ne.0) Then
           Call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),
-     &                1.0d0,FkA(1+ISTSQ(iS)),nBas(iS),
-     &                CMO(1+ISTSQ(iS)),nBas(iS),0.0d0,
-     &                JA%SB(iS)%A1,nBas(jS))
-          call dcopy_(nBas(jS)*nBas(iS),[0.0d0],0,
-     &                FkA(1+ISTSQ(iS)),1)
+     &                1.0d0,FkA%SB(iS)%A2,nBas(iS),
+     &                      CMO(1+ISTSQ(iS)),nBas(iS),
+     &                0.0d0,JA%SB(iS)%A1,nBas(jS))
+          FkA%SB(is)%A2(:,:)=Zero
           Call DGEMM_('T','N',nBas(jS),nIsh(jS),nBas(iS),
-     &                1.0d0,JA%SB(iS)%A1,
-     &                nBas(iS),CMO(1+ISTSQ(jS)),nBas(jS),
-     &                0.0d0,FkA(1+ISTSQ(iS)),nBas(jS))
-          ioff=nIsh(iS)*nBas(jS)+ISTSQ(iS)
+     &                1.0d0,JA%SB(iS)%A1,nBas(iS),
+     &                      CMO(1+ISTSQ(jS)),nBas(jS),
+     &                0.0d0,FkA%SB(iS)%A2,nBas(jS))
+          ioff=nIsh(iS)+1
           Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
      &                 1.0d0,CMO(1+ISTSQ(iS)),nBas(jS),
-     &                 Scr(1+ISTSQ(iS)),nBas(jS),0.0d0,
-     &                 FkA(1+ioff),nBas(jS))
+     &                       Scr(1+ISTSQ(iS)),nBas(jS),
+     &                 0.0d0,FkA%SB(iS)%A2(1,ioff),nBas(jS))
         EndIf
       End Do
 **********************************************************************
@@ -387,6 +386,7 @@ c --- backtransform fock matrix to full storage
 **********************************************************************
       Call mma_deallocate(Scr)
       Call mma_deallocate(kOffSh)
+      Call Deallocate_DSBA(FkA)
       Call Deallocate_DSBA(KA)
       Call Deallocate_DSBA(JA)
 
