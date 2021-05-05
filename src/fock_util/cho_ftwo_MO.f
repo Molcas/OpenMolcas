@@ -65,9 +65,8 @@
 
       Integer   rc,nDen,nSym,nBas(nSym),NumCho(nSym),kOcc(nSym)
       Real*8    FactC(nDen),FactX(nDen)
-      Integer   Lunit,ISTSQ(nSym),lOff1
+      Integer   Lunit,lOff1
       Integer   MinMem(nSym),iSkip(nSym)
-      Integer   ipFSQ(3), ipMSQ(3)
 
       Type (DSBA_Type) DLT(nDen), FLT(nDen), FSQ(nDen), DSQ(nDen),
      &                 MSQ(nDen)
@@ -96,7 +95,6 @@
 
       Real*8, Parameter :: xone = -One
 
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Type (SBA_Type) , Target:: Wab, LqJs
@@ -132,10 +130,6 @@
 #ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in SCF-debug
 #endif
-      Do iDen = 1, nDen
-         ipFSQ(iDen) = ip_of_Work(FSQ(iDen)%A0(1))
-         ipMSQ(iDen) = ip_of_Work(MSQ(iDen)%A0(1))
-      End Do
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
@@ -143,14 +137,6 @@
       tread(:) = zero  !time read/rreorder vectors
       tcoul(:) = zero  !time for computing Coulomb
       texch(:) = zero  !time for computing Exchange
-
-c ISTSQ: Offsets to full symmetry block in DSQ,FSQ
-      ISTSQ(1)=0
-      DO ISYM=2,NSYM
-        NB=NBAS(ISYM-1)
-        NB2=NB*NB
-        ISTSQ(ISYM)=ISTSQ(ISYM-1)+NB2
-      END DO
 
       if(DensityCheck)then
         Thr=1.0d-12
@@ -162,7 +148,7 @@ c ISTSQ: Offsets to full symmetry block in DSQ,FSQ
            if (nBas(jSym).ne.0.and.nOcc(jSym,jDen).ne.0) then
              Call mma_allocate(Dchk,nBas(jSym)**2,Label='Dchk')
              Call Cho_X_Test(DSQ(jDen)%SB(jSym)%A2,nBas(jSym),
-     &                       Square,Work(ipMSQ(jDen)+ISTSQ(jSym)),
+     &                       Square,MSQ(jDen)%SB(jSym)%A2,
      &                       nOcc(jSym,jDen),xf,Dchk,
      &                       nBas(jSym)**2,Thr,irc)
              Call mma_deallocate(Dchk)
@@ -426,8 +412,6 @@ C
 C     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
 
        IF (jSym.eq.1.and.DoSomeX) THEN
-         ISFSQ=0
-         ISMSQ=0
          DO iSymr=1,nSym
 
           iSymr_Occ=0
@@ -474,14 +458,13 @@ C              Calculate intermediate:
 C              X(k,Js) = Sum(r) C(r,k) * L(r,Js).
 C              -----------------------------------
                iSyms=iSymr
-               ISMSQ = ISTSQ(ISYMR) + ipMSQ(jDen)
                NK = kOcc(iSymr)
 
                XkJs(1:NK*NumV*nr) => Wab%A0(1:NK*NumV*nr)
 
                CALL DGEMM_('T','N',
      &               NK,NUMV*NBAS(ISYMR),NBAS(iSYMR),
-     &               ONE,WORK(ISMSQ),NBAS(ISYMR),
+     &               ONE,MSQ(jDen)%SB(ISYMR)%A2,NBAS(ISYMR),
      &                   LrJs, NBAS(ISYMR),
      &              ZERO,XkJs,NK)
 
@@ -611,17 +594,13 @@ C -------------------------------
 
                if(NK.ne.0)then
 
-               ISFSQ = ISTSQ(ISYMB) + ipFSQ(jDen)
-               ISMSQ = ISTSQ(ISYMG) + ipMSQ(jDen)
-
-
 C              Calculate intermediate:
 C              X(k,Jb) = Sum(g) C(g,k) * L(g,Jb).
 C              ----------------------------------
 
                CALL DGEMM_('T','N',
      &                    NK,NUMV*NBAS(ISYMB),NBAS(ISYMG),
-     &                    ONE,Work(ISMSQ),NBAS(ISYMG),
+     &                    ONE,MSQ(jDen)%SB(ISYMG)%A2,NBAS(ISYMG),
      &                        LqJs%SB(ISYMG)%A3,NBAS(ISYMG),
      &                    ZERO,XdJb,NK)
 
@@ -636,17 +615,15 @@ c     &                           XdJb,NK*NUMV,
 c     &                       ONE,FSQ(jDen)%SB(iSYMB)%A2,NBAS(ISYMA))
 
 c *** Compute only the LT part of the exchange matrix ***************
-               ipF=0
                LKV=NK*NUMV
                DO jB=1,NBAS(iSymB)
                      NBL = NBAS(iSymA) - (jB-1)
-                     ipF = ISFSQ + NBAS(iSymA)*(jB-1) + (jB-1)
                      jjB = 1 + LKV*(jB-1)
 
                      CALL DGEMV_('T',LKV,NBL,
      &                    -FactX(jDen),XdJb(jjB:),LKV,
      &                                 XdJb(jjB:),1,
-     &                             ONE,Work(ipF),1)
+     &                             ONE,FSQ(jDEN)%SB(ISYMB)%A2(jB:,jB),1)
 
                END DO
                XdJb=>Null()
@@ -661,9 +638,6 @@ C -------------------------------
 
                if(NK.ne.0)then
 
-               ISFSQ = ISTSQ(ISYMG) + ipFSQ(jDen)
-               ISMSQ = ISTSQ(ISYMB) + ipMSQ(jDen)
-
                XgJk(1:ng*NumV*NK) => Wab%A0(1:ng*NumV*NK)
 
 C              Calculate intermediate:
@@ -673,7 +647,7 @@ C              ----------------------------------
                CALL DGEMM_('N','N',
      &                  NBAS(ISYMG)*NUMV,NK,NBAS(ISYMA),
      &                  ONE,LqJs%SB(ISYMG)%A3,NBAS(ISYMG)*NUMV,
-     &                      WORK(ISMSQ),NBAS(ISYMA),
+     &                      MSQ(jDen)%SB(ISYMB)%A2,NBAS(ISYMA),
      &                  ZERO,XgJk,NBAS(ISYMG)*NUMV)
 
 
@@ -687,16 +661,14 @@ c     &                           XgJk,NBAS(ISYMD),
 c     &                       ONE,FSQ(jDen)%SB(ISYMG)%A2,NBAS(ISYMG))
 
 c *** Compute only the LT part of the exchange matrix ***************
-               ipF=0
                LVK=NUMV*NK
                DO jD=1,NBAS(iSymD)
                      NBL = NBAS(iSymG) - (jD-1)
-                     ipF = ISFSQ + NBAS(iSymG)*(jD-1) + (jD-1)
 
                      CALL DGEMV_('N',NBL,LVK,
      &                    -FactX(jDen),XgJk(jD:),NBAS(iSymG),
      &                                 XgJk(jD:),NBAS(iSymD),
-     &                             ONE,Work(ipF),1)
+     &                             ONE,FSQ(jDen)%SB(ISYMG)%A2(jD:,jD),1)
                END DO
 
                XgJk=>Null()
