@@ -137,7 +137,7 @@ C  **************************************************
          Call Allocate_DSBA(FSQ(1),nBas,nBas,nSym,           Ref=W_FSQ)
 
          If (ExFac.eq.0.0d0) Then
-            CALL CHO_FOCK_DFT_RED(rc,[DLT],FLT(1))
+            CALL CHO_FOCK_DFT_RED(rc,DLT,FLT(1))
             If (rc.ne.0) Go To 999
             goto 997
          EndIf
@@ -387,7 +387,7 @@ C Compute the total density Dalpha + Dbeta
       FactX(3) = 1.0D0*ExFac
 
       If (ExFac.eq.0.0d0) Then
-         CALL CHO_FOCK_DFT_RED(rc,[DLT],FLT(1))
+         CALL CHO_FOCK_DFT_RED(rc,DLT,FLT(1))
          If (rc.ne.0) Go To 999
          goto 998
       EndIf
