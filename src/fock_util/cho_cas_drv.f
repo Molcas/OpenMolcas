@@ -39,6 +39,26 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Interface
+
+      SUBROUTINE DGEMM_(TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
+     &                 BETA, C, LDC)
+
+      CHARACTER * 1 TRANSA, TRANSB
+      INTEGER M, N, K, LDA, LDB, LDC
+      REAL*8 ALPHA, BETA
+      REAL*8 A(LDA,*), B(LDB,*), C(LDC,*)
+      END SUBROUTINE DGEMM_
+
+      SUBROUTINE MXMT(A,ICA,IRA, B,ICB,IRB, C, NROW,NSUM)
+      INTEGER ICA, IRA, ICB, IRB, NROW, NSUM
+      REAL*8 A(*),B(*),C(*)
+      END SUBROUTINE MXMT
+
+      END Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
       rc=0
 
       Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=FI)
@@ -73,10 +93,10 @@ c
                Call Square(FLT(i)%SB(iSym)%A1,Tmp1,1,iBas,iBas)
                Call DGEMM_('N','N',iBas,iOrb,iBas,
      &                     1.0d0,Tmp1,iBas,
-     &                           CMO%SB(iSym)%A1(1+iFro*iBas),iBas,
+     &                           CMO%SB(iSym)%A1(1+iFro*iBas:),iBas,
      &                     0.0d0,Tmp2,iBas)
                Call MXMT(Tmp2,iBas,1,
-     &                   CMO%SB(iSym)%A1(1+iFro*iBas),iBas,
+     &                   CMO%SB(iSym)%A1(1+iFro*iBas:),1,iBas,
      &                   FLT_MO(i)%SB(iSym)%A1,
      &                   iOrb,iBas)
                Call mma_deallocate(Tmp2)
