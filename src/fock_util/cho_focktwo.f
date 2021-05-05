@@ -67,8 +67,7 @@
 
       Integer   rc,nDen,nSym,nBas(nSym),NumCho(nSym),iSkip(nSym)
       Real*8    FactC(nDen),FactX(nDen)
-      Integer   ISTSQ(nSym),ISTLT(nSym),MinMem(nSym)
-      Integer   ipDLT(2),ipFLT(2),ipFSQ(3), ipDSQ(3)
+      Integer   MinMem(nSym)
 
       Type (DSBA_Type) DLT(nDen), FLT(nDen), FSQ(nDen), DSQ(nDen)
 
@@ -93,7 +92,6 @@
       Character*6 Fname
       Character(LEN=4), Parameter :: BaseNm = 'CHFV'
 
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Type (SBA_Type), Target:: Wab, LqJs
@@ -111,12 +109,6 @@
 #ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in SCF-debug
 #endif
-      Do iDen = 1, nDen
-         ipDLT(iDen) = ip_of_Work(DLT(iDen)%A0(1))
-         ipFLT(iDen) = ip_of_Work(FLT(iDen)%A0(1))
-         ipFSQ(iDen) = ip_of_Work(FSQ(iDen)%A0(1))
-         ipDSQ(iDen) = ip_of_Work(DSQ(iDen)%A0(1))
-      End Do
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
@@ -150,18 +142,6 @@ c
             Return  !we are lazy and won''t do anything
          End If
       End If
-
-c ISTSQ: Offsets to full symmetry block in DSQ,FSQ
-c ISTLT: Offsets to packed LT symmetry blocks in DLT,FLT
-      ISTSQ(1)=0
-      ISTLT(1)=0
-      DO ISYM=2,NSYM
-        NB=NBAS(ISYM-1)
-        NB2=NB*NB
-        NB3=(NB2+NB)/2
-        ISTSQ(ISYM)=ISTSQ(ISYM-1)+NB2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NB3
-      END DO
 
       Call get_iarray('NumCho',NumCho,nSym)
 
@@ -341,12 +321,12 @@ C
          DO iSymr=1,nSym
          IF(nBas(iSymr).ne.0.and.nOcc(iSymr,jDen).ne.0)THEN
 
-         ISDLT = ipDLT(jDen) + ISTLT(ISYMR)
          Naa = nBas(iSymr)*(nBas(iSymr)+1)/2
 
          CALL DGEMV_('T',Naa,NumV,
      &              ONE,Wab%SB(iSymr)%A2,Naa,
-     &              Work(ISDLT),1,ONE,VJ,1)
+     &                  DLT(jDen)%SB(ISYMR)%A1,1,
+     &              ONE,VJ,1)
 
          ENDIF
          End DO
@@ -359,15 +339,13 @@ C
           DO iSyms=1,nSym
           IF(nBas(iSyms).ne.0)THEN
 
-           ISFLT = ipFLT(jDen) + ISTLT(ISYMS)
            Naa = nBas(iSyms)*(nBas(iSyms)+1)/2
 
            CALL DGEMV_('N',Naa,NumV,
      &              FactC(jDen),Wab%SB(iSyms)%A2,Naa,
-     &              VJ,1,ONE,Work(ISFLT),1)
+     &                          VJ,1,
+     &                      ONE,FLT(jDen)%SB(ISYMS)%A1,1)
 
-c           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYMS
-c           CALL TRIPRT('Coulomb FLT',' ',Work(ISFLT),nBas(iSyms))
 
           ENDIF
           End DO
@@ -392,7 +370,6 @@ C     Reorder: L(rs,J) -> L(r,J,s).
 C     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
 
          ISFSQ=0
-         ISDSQ=0
          DO iSymr=1,nSym
 
           iSymr_Occ=0
@@ -439,13 +416,11 @@ C     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
 C              Calculate intermediate:
 C              X(p,Js) = Sum(q) D(p,q) * L(q,Js).
 C              -----------------------------------
-               ISDSQ = ISTSQ(ISYMR) + ipDSQ(jDen)
-               ISFSQ = ISTSQ(ISYMR) + ipFSQ(jDen)
 
 
                CALL DGEMM_('N','N',
      &               NBAS(ISYMR),NUMV*NBAS(ISYMR),NBAS(ISYMR),
-     &               ONE,WORK(ISDSQ),NBAS(ISYMR),
+     &               ONE,DSQ(jDen)%SB(ISYMR)%A2,NBAS(ISYMR),
      &                   LrJs, NBAS(ISYMR),
      &               ZERO,XpJs,NBAS(ISYMR))
 
@@ -457,7 +432,7 @@ C              --------------------------------------------------
      &                NBAS(ISYMR),NBAS(ISYMR),NBAS(ISYMR)*NUMV,
      &             -FactX(jDen),LrJs,NBAS(ISYMR)*NUMV,
      &                          XpJs,NBAS(ISYMR)*NUMV,
-     &                      One,Work(ISFSQ),NBAS(ISYMR))
+     &                      One,FSQ(jDen)%SB(ISYMR)%A2,NBAS(ISYMR))
 
 
              CALL CWTIME(TC1X2,TW1X2)
@@ -471,9 +446,6 @@ C              --------------------------------------------------
           ENDIF  ! DoExchange(jDen)
 
          END DO  ! loop over the densities
-
-c         write(6,*)'Symmetry block of FSQ= ',isymr
-c         call recprt('FSQ','',Work(ISFSQ),NBAS(ISYMR),NBAS(ISYMR))
 
         ENDIF  ! nbas.ne.0 & nOcc.ne.0
 
@@ -562,18 +534,15 @@ C --- F(a,b) = - D(g,d) * (ad|gb)
 C -------------------------------
                if (nOcc(iSymg,jDen).ne.0) then
 
-               ISFSQ = ISTSQ(ISYMB) + ipFSQ(jDen)
-               ISDSQ = ISTSQ(ISYMG) + ipDSQ(jDen)
-
 C              Calculate intermediate:
 C              X(d,Jb) = Sum(g) D(d,g) * L(g,Jb).
 C              ----------------------------------
 
                CALL DGEMM_('N','N',
      &                    NBAS(ISYMD),NUMV*NBAS(ISYMB),NBAS(ISYMG),
-     &                    ONE,Work(ISDSQ),NBAS(ISYMD),
+     &                    ONE,DSQ(jDen)%SB(ISYMG)%A2,NBAS(ISYMD),
      &                        LqJs%SB(ISYMG)%A3,NBAS(ISYMG),
-     &                    ZERO,XdJb,NBAS(ISYMD))
+     &                   ZERO,XdJb,NBAS(ISYMD))
 
 
 C              F(a,b) = F(a,b) - Sum(dJ) L(dJ,a) * X(dJ,b).
@@ -583,18 +552,13 @@ C              -------------------------------------------
      &              NBAS(ISYMA),NBAS(ISYMB),NBAS(ISYMD)*NUMV,
      &              -FactX(jDen),LqJs%SB(ISYMG)%A3,NBAS(ISYMD)*NUMV,
      &                          XdJb,NBAS(ISYMD)*NUMV,
-     &                      ONE,Work(ISFSQ),NBAS(ISYMA))
+     &                      ONE,FSQ(jDen)%SB(ISYMB)%A2,NBAS(ISYMA))
 
-c         write(6,*)'Symmetry block of FSQ= ',isyma
-c         write(6,*)'Symmetry block of DSQ= ',isymg
-c         call recprt('FSQ','',Work(ISFSQ),NBAS(ISYMA),NBAS(ISYMA))
               endif
 C -------------------------------
 C --- F(g,d) = - D(a,b) * (ad|gb)
 C -------------------------------
                if (nOcc(iSyma,jDen).ne.0) then
-               ISFSQ = ISTSQ(ISYMG) + ipFSQ(jDen)
-               ISDSQ = ISTSQ(ISYMB) + ipDSQ(jDen)
 
 C              Calculate intermediate:
 C              X(gJ,b) = Sum(a) L(gJ,a)* D(a,b).
@@ -603,8 +567,8 @@ C              ----------------------------------
                CALL DGEMM_('N','N',
      &                  NBAS(ISYMG)*NUMV,NBAS(ISYMB),NBAS(ISYMA),
      &                  ONE,LqJs%SB(ISYMG)%A3,NBAS(ISYMG)*NUMV,
-     &                      WORK(ISDSQ),NBAS(ISYMA),
-     &                  ZERO,XdJb,NBAS(ISYMG)*NUMV)
+     &                      DSQ(jDen)%SB(ISYMB)%A2,NBAS(ISYMA),
+     &                 ZERO,XdJb,NBAS(ISYMG)*NUMV)
 
 
 C              F(g,d) = F(g,d) - Sum(Jb) X(g,Jb) * L(d,Jb).
@@ -612,13 +576,10 @@ C              -------------------------------------------
 
               CALL DGEMM_('N','T',
      &              NBAS(ISYMG),NBAS(ISYMD),NUMV*NBAS(ISYMB),
-     &              -FactX(jDen),XdJb,NBAS(ISYMG),
+     &             -FactX(jDen),XdJb,NBAS(ISYMG),
      &                      LqJs%SB(ISYMG)%A3,NBAS(ISYMD),
-     &               ONE,Work(ISFSQ),NBAS(ISYMG))
+     &               ONE,FSQ(jDen)%SB(ISYMG)%A2,NBAS(ISYMG))
 
-c         write(6,*)'Symmetry block of FSQ= ',isymg
-c         write(6,*)'Symmetry block of FSQ= ',isyma
-c         call recprt('FSQ','',Work(ISFSQ),NBAS(ISYMG),NBAS(ISYMG))
               endif
 
              ENDIF
@@ -703,14 +664,11 @@ c Print the Fock-matrix
           WRITE(6,'(6X,A,I2)')'DoExchange: ',DoExchange(jDen)
           WRITE(6,*)
       if(DoExchange(jDen))then
-      icount=0
       DO ISYM=1,NSYM
-      ISQ=ipFSQ(jDen)+icount
         NB=NBAS(ISYM)
         IF ( NB.GT.0 ) THEN
           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          call cho_output(Work(ISQ),1,NB,1,NB,NB,NB,1,6)
-          icount=icount+NB**2
+          call cho_output(FSQ(jDen)%SB(ISYM)%A2,1,NB,1,NB,NB,NB,1,6)
         END IF
       END DO
       endif
