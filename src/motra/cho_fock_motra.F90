@@ -11,7 +11,6 @@
 
 subroutine Cho_Fock_MoTra(nSym,nBas,nFro,W_DLT,W_DSQ,W_FLT,nFLT,W_FSQ,ExFac)
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 use Data_Structures, only: DSBA_type, Allocate_DSBA, Deallocate_DSBA
@@ -32,7 +31,7 @@ type (DSBA_Type) FLT, KLT, MOs, DLT, DSQ
 NScreen = 10
 dmpK = 0.1_wp
 dFKmat = Zero
-call IZero(nXorb,nSym)
+nXorb(:)=0
 
 ! Initialize Cholesky information
 

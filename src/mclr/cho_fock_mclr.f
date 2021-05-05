@@ -45,19 +45,10 @@
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 ************************************************************************
 *
-      nDen=1
       Call Allocate_DSBA(JA ,nBas,nBas,nSym,Case='TRI',Ref=W_JA )
       Call Allocate_DSBA(KA ,nBas,nBas,nSym,           Ref=W_KA )
       Call Allocate_DSBA(FkA,nBas,nBas,nSym,           Ref=W_FkA)
       Call Allocate_DSBA(CMO,nBas,nBas,nSym,           Ref=W_CMO)
-*
-**    Compute offsets
-*
-      nnA=0
-      DO ISYM=2,NSYM
-        nnA = nnA + nAsh(iSym-1)
-      End Do
-      nnA = nnA + nAsh(nSym)
 *
 **    Compute Shell Offsets ( MOs and transformed vectors)
 *
@@ -371,7 +362,7 @@ c --- backtransform fock matrix to full storage
           Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
      &                 1.0d0,CMO%SB(iS)%A2,nBas(jS),
      &                       Scr%SB(iS)%A2,nBas(jS),
-     &                 0.0d0,FkA%SB(iS)%A2(1,ioff),nBas(jS))
+     &                 0.0d0,FkA%SB(iS)%A2(1:,ioff),nBas(jS))
         EndIf
       End Do
 **********************************************************************

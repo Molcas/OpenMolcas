@@ -369,7 +369,6 @@ C ********** REORDER AND SQUARE ONE VECTOR AT THE TIME *****
 C     Reorder: L(rs,J) -> L(r,J,s).
 C     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
 
-         ISFSQ=0
          DO iSymr=1,nSym
 
           iSymr_Occ=0

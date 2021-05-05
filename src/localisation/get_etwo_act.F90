@@ -27,7 +27,6 @@ integer(kind=iwp) :: i, iOff, irc, nBB, nForb(8,2), nIorb(8,2)
 real(kind=wp) :: ChFracMem, dFmat, FactXI
 !character(len=16) :: KSDFT
 real(kind=wp), allocatable :: Dm1(:), Dm2(:)
-integer(kind=iwp), external :: ip_of_Work
 real(kind=r8), external :: ddot_ !, Get_ExFac
 type (DSBA_type) :: FLT(2), KLT(2), POrb(2), PLT(2)
 
