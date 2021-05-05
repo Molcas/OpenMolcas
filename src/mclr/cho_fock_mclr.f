@@ -299,7 +299,7 @@ c --- backtransform fock matrix to full storage
              add = .True.
              nMat = 1
              Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                           JA,Fab,mode,add)
+     &                           [JA],Fab,mode,add)
              Call mma_deallocate(Fab)
           EndIf
           Call mma_deallocate(Lrs)

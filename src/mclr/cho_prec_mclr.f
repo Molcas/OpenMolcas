@@ -607,14 +607,14 @@ c         !set index arrays at iLoc
               Call Allocate_DSBA(Tmp,nBas,nBas,nSym,Case='TRI',
      &                           Ref=iiab(1+nab*(i-1):))
               Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                          Tmp,piirs(:,i),mode,add)
+     &                          [Tmp],piirs(:,i),mode,add)
               Call Deallocate_DSBA(Tmp)
             End Do
             Do i=1,ntue
               Call Allocate_DSBA(Tmp,nBas,nBas,nSym,Case='TRI',
      &                           Ref=tupq(1+npq*(i-1):))
               Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                          Tmp,pturs(:,i),mode,add)
+     &                          [Tmp],pturs(:,i),mode,add)
               Call Deallocate_DSBA(Tmp)
             End Do
           EndIf
