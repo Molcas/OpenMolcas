@@ -132,7 +132,7 @@
       Integer   ipTxy(8,8,2)
       Integer   kOff(8,5), LuRVec(8,3)
       Integer   npos(8,3)
-      Integer   iSTSQ(8), nnA(8,8), nInd
+      Integer   nnA(8,8), nInd
       Real*8    tread(2),tcoul(2),tmotr(2),tscrn(2),tcasg(2),tmotr2(2)
 
       Real*8    Txy(nTxy),V_k(nV_k,*),Z_p_k(nZ_p_k,*), U_k(*)
@@ -250,11 +250,8 @@
 **    Various offsets
 *
       MaxB=nBas(1)
-      ISTSQ(1)=0
       DO ISYM=2,NSYM
         MaxB=Max(MaxB,nBas(iSym))
-        NBQ=NBAS(ISYM-1)**2
-        ISTSQ(ISYM)=ISTSQ(ISYM-1)+NBQ ! Diagonal integrals in full
       END DO
 *
 **
