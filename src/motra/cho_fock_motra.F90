@@ -73,7 +73,7 @@ nDen = 1
 Call Allocate_DSBA(FLT,nBas,nBas,nSym,Case='TRI',Ref=W_FLT)
 Call Allocate_DSBA(KLT,nBas,nBas,nSym,Case='TRI',Ref=W_FSQ) ! not needed on exit
 
-call CHO_LK_SCF(irc,nDen,FLT,KLT,nXorb,nFro,MOs,DLT,Half*ExFac,NScreen,dmpk,dFKmat)
+call CHO_LK_SCF(irc,nDen,[FLT],[KLT],nXorb,nFro,[MOs],[DLT],Half*ExFac,NScreen,dmpk,dFKmat)
 
 if (irc /= 0) then
   write(u6,*) 'Cho_Fock_Motra: Cho_LK_scf returns error code ',irc
