@@ -387,7 +387,7 @@ C Compute the total density Dalpha + Dbeta
       FactX(3) = 1.0D0*ExFac
 
       If (ExFac.eq.0.0d0) Then
-         CALL CHO_FOCK_DFT_RED(rc,DLT,FLT(1))
+         CALL CHO_FOCK_DFT_RED(rc,[DLT],FLT(1))
          If (rc.ne.0) Go To 999
          goto 998
       EndIf
@@ -480,14 +480,14 @@ C Compute the total density Dalpha + Dbeta
       if (ALGO.eq.1.and.REORD) then
 
       Call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,
-     &                FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
+     &                FactX,[DLT],DSQ,FLT,FSQ,pNocc,MinMem)
 
             If (rc.ne.0) GOTO 999
 
       elseif (ALGO.eq.1 .and. .not.REORD) then
 
         CALL CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
-     &           FactC,FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
+     &           FactC,FactX,[DLT],DSQ,FLT,FSQ,pNocc,MinMem)
 
             If (rc.ne.0) GOTO 999
 
@@ -496,13 +496,13 @@ C Compute the total density Dalpha + Dbeta
        if (REORD)then
 
           Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
+     &     FactC,FactX,[DLT],DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
 
             If (rc.ne.0) GOTO 999
        else
 
           CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                       lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
+     &                       lOff1,FactC,FactX,[DLT],DSQ,FLT,FSQ,
      &                       MinMem,MSQ,pNocc)
 
             If (rc.ne.0) GOTO 999
@@ -511,14 +511,14 @@ C Compute the total density Dalpha + Dbeta
       elseif  (ALGO.eq.2 .and. REORD) then
 
       Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
+     &     FactC,FactX,[DLT],DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
 
            If (rc.ne.0) GOTO 999
 
       elseif  (ALGO.eq.2 .and. .not. REORD) then
 
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                       lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
+     &                       lOff1,FactC,FactX,[DLT],DSQ,FLT,FSQ,
      &                       MinMem,MSQ,pNocc)
 
            If (rc.ne.0) GOTO 999
@@ -551,7 +551,7 @@ C Compute the total density Dalpha + Dbeta
 
           nMat=2  ! alpha and beta Fock matrices
 
-          CALL CHO_FSCF(rc,nMat,FLT,nForb,nIorb,Cka,DLT,ExFac)
+          CALL CHO_FSCF(rc,nMat,FLT,nForb,nIorb,Cka,[DLT],ExFac)
 
 
           Call Deallocate_DSBA(Cka(2))
@@ -572,7 +572,7 @@ C Compute the total density Dalpha + Dbeta
              End Do
 
              CALL CHO_LK_SCF(rc,nMat,FLT,KLT,nForb,nIorb,MSQ(2:3),
-     &                       DLT,FactX(2),nSCReen,dmpk,dFKmat)
+     &                       [DLT],FactX(2),nSCReen,dmpk,dFKmat)
 
 
           If (rc.ne.0) GOTO 999
