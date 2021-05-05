@@ -137,7 +137,7 @@ C  **************************************************
          Call Allocate_DSBA(FSQ(1),nBas,nBas,nSym,           Ref=W_FSQ)
 
          If (ExFac.eq.0.0d0) Then
-            CALL CHO_FOCK_DFT_RED(rc,DLT,FLT(1))
+            CALL CHO_FOCK_DFT_RED(rc,[DLT],FLT(1))
             If (rc.ne.0) Go To 999
             goto 997
          EndIf
@@ -205,7 +205,7 @@ C  **************************************************
         FactX(1)=0.5d0*ExFac
 
       Call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,
-     &                 FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
+     &                 FactX,[DLT],DSQ,FLT,FSQ,pNocc,MinMem)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -216,7 +216,7 @@ C  **************************************************
         FactX(1)=0.5d0*ExFac
 
         CALL CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
-     &                       FactC,FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
+     &                       FactC,FactX,[DLT],DSQ,FLT,FSQ,pNocc,MinMem)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -228,10 +228,11 @@ C  **************************************************
 
        if (REORD)then
           Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &                     FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
+     &                     FactC,FactX,[DLT],DSQ,FLT,FSQ,
+     &                     MinMem,MSQ,pNocc)
        else
-            CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                       lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
+            CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,lOff1,
+     &                       FactC,FactX,[DLT],DSQ,FLT,FSQ,
      &                       MinMem,MSQ,pNocc)
        endif
 *                                                                      *
@@ -244,7 +245,7 @@ C  **************************************************
       FactX(1) = 1.0D0*ExFac ! MOs coeff. are not scaled
 
       Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &                 FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
+     &                 FactC,FactX,[DLT],DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -253,7 +254,7 @@ C  **************************************************
       FactX(1) = 1.0D0*ExFac ! MOs coeff. are not scaled
 
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                       lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
+     &                       lOff1,FactC,FactX,[DLT],DSQ,FLT,FSQ,
      &                       MinMem,MSQ,pNocc)
 *                                                                      *
 ************************************************************************
@@ -275,7 +276,7 @@ C  **************************************************
            nForb(iSym,1) = 0
           End Do
 
-          CALL CHO_FSCF(rc,nDen,FLT,nForb,nIorb,Cka(1),DLT,xFac)
+          CALL CHO_FSCF(rc,nDen,FLT,nForb,nIorb,Cka(1),[DLT],xFac)
 
           Call Deallocate_DSBA(Cka(1))
 *                                                                      *
@@ -289,7 +290,7 @@ C  **************************************************
              End Do
 
              CALL CHO_LK_SCF(rc,nDen,FLT,KLT,nForb,nIorb,
-     &                       MSQ,DLT,FactX(1),nSCReen,dmpk,dFKmat)
+     &                       MSQ,[DLT],FactX(1),nSCReen,dmpk,dFKmat)
 
 *                                                                      *
 ************************************************************************
