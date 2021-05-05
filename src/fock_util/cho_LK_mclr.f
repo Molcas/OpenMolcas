@@ -534,7 +534,7 @@ C --- Transform the density to reduced storage
                add = .False.
                nMat=1
                Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                           DLT,Drs,mode,add)
+     &                           [DLT],Drs,mode,add)
             EndIf
 
 C --- BATCH over the vectors ----------------------------
@@ -1547,10 +1547,10 @@ c --- backtransform fock matrix to full storage
                add = .True.
                nMat = 1
                Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                           JI,Frs(:,1),mode,add)
+     &                           [JI],Frs(:,1),mode,add)
                If (DoAct) Then
                   Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                              JALT,Frs(:,2),mode,add)
+     &                              [JALT],Frs(:,2),mode,add)
                End If
             EndIf
 
