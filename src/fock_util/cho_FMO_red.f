@@ -72,11 +72,9 @@
 
       Integer   rc,nDen,kOcc(8),KSQ1(8)
       Real*8    FactC(nDen),FactX(nDen)
-      Integer   ISTSQ(8),ISTLT(8),iSkip(8),lOff1
+      Integer   iSkip(8),lOff1
       Real*8    tread(2),tcoul(2),texch(2)
       Integer   MinMem(*)
-      Integer   ipFSQ(3),ipDSQ(3), ipMSQ(3)
-
       Type (DSBA_Type) DLT(nDen), FLT(nDen), FSQ(nDen), DSQ(nDen),
      &                 MSQ(nDen)
       Logical DoExchange(nDen),DoCoulomb(nDen),DoSomeX,DoSomeC
@@ -96,7 +94,6 @@
 
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Type Integer_Pointer
@@ -138,11 +135,6 @@
       DensityCheck=.true.
 #endif
       IREDC = -1  ! unknown reduced set in core
-      Do iDen = 1, nDen
-         ipFSQ(iDen)=ip_of_Work(FSQ(iDen)%A0(1))
-         ipDSQ(iDen)=ip_of_Work(DSQ(iDen)%A0(1))
-         ipMSQ(iDen)=ip_of_Work(MSQ(iDen)%A0(1))
-      End Do
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
@@ -150,18 +142,6 @@
       tread(:) = zero  !time read/rreorder vectors
       tcoul(:) = zero  !time for computing Coulomb
       texch(:) = zero  !time for computing Exchange
-
-c ISTSQ: Offsets to full symmetry block in DSQ,FSQ
-c ISTLT: Offsets to packed LT symmetry blocks in DLT,FLT
-      ISTSQ(1)=0
-      ISTLT(1)=0
-      DO ISYM=2,NSYM
-        NB=NBAS(ISYM-1)
-        NB2=NB*NB
-        NB3=(NB2+NB)/2
-        ISTSQ(ISYM)=ISTSQ(ISYM-1)+NB2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NB3
-      END DO
 
       if(DensityCheck)then
         Thr=1.0d-12
@@ -172,8 +152,8 @@ c ISTLT: Offsets to packed LT symmetry blocks in DLT,FLT
           Do jSym=1,nSym
            if (nBas(jSym).ne.0.and.nOcc(jSym,jDen).ne.0) then
              Call mma_allocate(Dchk,nBas(jSym)**2,Label='Dchk')
-             Call Cho_X_Test(Work(ipDSQ(jDen)+ISTSQ(jSym)),nBas(jSym),
-     &                       Square,Work(ipMSQ(jDen)+ISTSQ(jSym)),
+             Call Cho_X_Test(DSQ(jDen)%SB(jSym)%A2,nBas(jSym),
+     &                       Square,MSQ(jDen)%SB(jSym)%A2,
      &                       nOcc(jSym,jDen),xf,Dchk,
      &                       nBas(jSym)**2,Thr,irc)
              if(irc.eq.0)then
@@ -404,9 +384,6 @@ C
      &                             VJ,1,
      &                         ONE,FLT(jDen)%SB(ISYMS)%A1,1)
 
-c              WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYMS
-c              CALL TRIPRT('Coulomb FLT',' ',Work(ISFLT),nBas(iSyms))
-
              ENDIF
           End DO
 
@@ -431,8 +408,6 @@ C     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
 
       IF (jSym.eq.1 .and. DoSomeX) THEN
 
-        ISFSQ=0
-        ISMSQ=0
         DO iSymr=1,nSym
 
           iSymr_Occ=0
@@ -479,8 +454,6 @@ C              Calculate intermediate:
 C              X(k,Js) = Sum(r) C(r,k) * L(r,Js).
 C              -----------------------------------
                iSyms=iSymr
-               ISFSQ = ISTSQ(ISYMR) + ipFSQ(jDen)
-               ISMSQ = ISTSQ(ISYMR) + ipMSQ(jDen)
                NK = kOcc(iSymr)
 
                XkJs(1:NK*NUMV*NBAS(ISYMR)) =>
@@ -488,7 +461,7 @@ C              -----------------------------------
 
                CALL DGEMM_('T','N',
      &               NK,NUMV*NBAS(ISYMR),NBAS(iSYMR),
-     &               ONE,WORK(ISMSQ),NBAS(ISYMR),
+     &               ONE,MSQ(jDen)%SB(ISYMR)%A2,NBAS(ISYMR),
      &                   LrJs, NBAS(ISYMR),
      &               ZERO,XkJs,NK)
 
@@ -498,21 +471,19 @@ c               CALL DGEMM_('T','N',
 c     &               NBAS(ISYMR),NBAS(iSYMR),NK*NUMV,
 c     &               -FactX(jDen),XkJs,NK*NUMV,
 c     &                            XkJs,NK*NUMV,
-c     &                   One,Work(ISFSQ),NBAS(ISYMR))
+c     &                   One,FSQ(jDen)%SB(ISYMR)%A2,NBAS(ISYMR))
 
 c *** Compute only the LT part of the exchange matrix ***************
 C
-               ipF=0
                LKV=NK*NUMV
                DO jS=1,NBAS(iSymS)
                      NBL = NBAS(iSymR) - (jS-1)
-                     ipF = ISFSQ + NBAS(iSymR)*(jS-1) + (jS-1)
                      jjS = 1 + (jS-1)*LKV
 
                      CALL DGEMV_('T',LKV,NBL,
      &                    -FactX(jDen),XkJs(jjS:),LKV,
      &                                 XkJs(jjS:),1,
-     &                        ONE,Work(ipF),1)
+     &                        ONE,FSQ(jDen)%SB(ISYMR)%A2(jS:,jS),1)
 
                END DO
 
@@ -521,8 +492,6 @@ C
              texch(1) = texch(1) + (TC1X2 - TC1X1)
              texch(2) = texch(2) + (TW1X2 - TW1X1)
 
-c         write(6,*)'Symmetry block of FSQ= ',isymr
-c         CALL RECPRT('FSQ',' ',Work(ISFSQ),NBAS(iSYMR),NBAS(iSYMR))
              XkJs=>Null()
 
            ENDIF   ! if kocc.ne.0
@@ -574,9 +543,6 @@ C -------------------------------
 
                if(NK.ne.0)then
 
-               ISFSQ = ISTSQ(ISYMB) + ipFSQ(jDen)
-               ISMSQ = ISTSQ(ISYMG) + ipMSQ(jDen)
-
                XkJb(1:NK*NUMV*NBAS(ISYMB)) =>
      &             Wab%A0(iE+1:iE+NK*NUMV*NBAS(ISYMB))
 
@@ -586,7 +552,7 @@ C              ----------------------------------
 
                CALL DGEMM_('T','N',
      &                    NK,NUMV*NBAS(ISYMB),NBAS(ISYMG),
-     &                    ONE,Work(ISMSQ),NBAS(ISYMG),
+     &                    ONE,MSQ(jDen)%SB(ISYMG)%A2,NBAS(ISYMG),
      &                        Wab%SB(ISYMG)%A2,NBAS(ISYMG),
      &                   ZERO,XkJb,NK)
 
@@ -598,27 +564,21 @@ c               CALL DGEMM_('T','N',
 c     &               NBAS(ISYMA),NBAS(iSYMB),NK*NUMV,
 c     &               -FactX(jDen),Wab%SB(ISYMG)%A2,NK*NUMV,
 c     &                            Wab%SB(ISYMG)%A2,NK*NUMV,
-c     &                   One,Work(ISFSQ),NBAS(ISYMA))
+c     &                   One,FSQ(jDen)%SB(ISYMB)%A2,NBAS(ISYMA))
 
 c *** Compute only the LT part of the exchange matrix ***************
-               ipF=0
                LKV=NK*NUMV
                DO jB=1,NBAS(iSymB)
                      NBL = NBAS(iSymA) - (jB-1)
-                     ipF = ISFSQ + NBAS(iSymA)*(jB-1) + (jB-1)
                      jjB = 1 + (jB-1)*LKV
 
                      CALL DGEMV_('T',LKV,NBL,
      &                    -FactX(jDen),XkJb(jjB:),LKV,
      &                                 XkJb(jjB:),1,
-     &                             ONE,Work(ipF),1)
+     &                             ONE,FSQ(JDen)%SB(ISYMB)%A2(jB:,jB),1)
 
                END DO
 c ******************************************************************
-
-c         write(6,*)'Symmetry block of FSQ= ',isyma
-c         write(6,*)'Symmetry block of DSQ= ',isymg
-c         CALL RECPRT('FSQ',' ',Work(ISFSQ),NBAS(iSYMA),NBAS(iSYMA))
 
                XkJb=>Null()
 
@@ -631,9 +591,6 @@ C -------------------------------
 
                if(NK.ne.0)then
 
-               ISFSQ = ISTSQ(ISYMG) + ipFSQ(jDen)
-               ISMSQ = ISTSQ(ISYMB) + ipMSQ(jDen)
-
                XgJk(1:NBAS(ISYMG)*NUMV*NK) =>
      &            Wab%A0(iE+1:iE+NBAS(ISYMG)*NUMV*NK)
 
@@ -644,7 +601,7 @@ C              ----------------------------------
                CALL DGEMM_('N','N',
      &                  NBAS(ISYMG)*NUMV,NK,NBAS(ISYMA),
      &                  ONE,Wab%SB(ISYMG)%A2,NBAS(ISYMG)*NUMV,
-     &                      WORK(ISMSQ),NBAS(ISYMA),
+     &                      MSQ(jDen)%SB(ISYMB)%A2,NBAS(ISYMA),
      &                 ZERO,XgJk,NBAS(ISYMG)*NUMV)
 
 
@@ -655,26 +612,20 @@ c               CALL DGEMM_('N','T',
 c     &               NBAS(ISYMG),NBAS(ISYMD),NK*NUMV,
 c     &               -FactX(jDen),XgJk,NBAS(ISYMG),
 c     &                            XgJk,NBAS(ISYMD),
-c     &                   One,Work(ISFSQ),NBAS(ISYMG))
+c     &                   One,FSQ(jDen)%SB(ISYMG)%A2,NBAS(ISYMG))
 
 c *** Compute only the LT part of the exchange matrix ***************
-               ipF=0
                LVK=NUMV*NK
                DO jD=1,NBAS(iSymD)
                      NBL = NBAS(iSymG) - (jD-1)
-                     ipF = ISFSQ + NBAS(iSymG)*(jD-1) + (jD-1)
 
                      CALL DGEMV_('N',NBL,LVK,
      &                    -FactX(jDen),XgJk(jD:),NBAS(iSymG),
      &                                 XgJk(jD:),NBAS(iSymD),
-     &                             ONE,Work(ipF),1)
+     &                             ONE,FSQ(jDen)%SB(ISYMG)%A2(jD:,jD),1)
 
                END DO
 c ******************************************************************
-
-c         write(6,*)'Symmetry block of FSQ= ',isymg
-c         write(6,*)'Symmetry block of DSQ= ',isyma
-c         call recprt('FSQ','',Work(ISFSQ),NBAS(ISYMG),NBAS(ISYMG))
 
                XgJk=>Null()
 
@@ -752,14 +703,11 @@ c Print the Fock-matrix
           WRITE(6,'(6X,A,I2)')'DoExchange: ',DoExchange(jDen)
           WRITE(6,*)
       if(DoExchange(jDen))then
-      icount=0
       DO ISYM=1,NSYM
-      ISQ=ipFSQ(jDen)+icount
         NB=NBAS(ISYM)
         IF ( NB.GT.0 ) THEN
           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          call cho_output(Work(ISQ),1,NB,1,NB,NB,NB,1,6)
-          icount=icount+NB**2
+          call cho_output(FSQ(jDen)%SB(ISYM)%A2,1,NB,1,NB,NB,NB,1,6)
         END IF
       END DO
       Endif
