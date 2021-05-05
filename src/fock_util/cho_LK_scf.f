@@ -72,7 +72,6 @@ C
 
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "warnings.fh"
       Logical add

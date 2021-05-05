@@ -36,10 +36,8 @@ C
 
       Integer   rc,nDen
       Integer   iSkip(8)
-      Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2)
       Real*8    FactCI,FactXI,ExFac
-      Integer   ipFLT(nDen)
       Type (DSBA_Type)   Porb(nDen), DLT(nDen), FLT(nDen)
       Integer   nForb(8,nDen),nIorb(8,nDen)
 #ifdef _DEBUGPRINT_
@@ -53,7 +51,6 @@ C
 #include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Real*8, Parameter:: xone = -one
@@ -80,9 +77,6 @@ C
 
       DoRead  = .false.
       IREDC= -1  ! unknwn reduced set
-      Do iDen = 1, nDen
-         ipFLT(iDen)=ip_of_Work(FLT(iDen)%A0(1))
-      End Do
 
       If (nDen.ne.1 .and. nDen.ne.2) then
          write(6,*)SECNAM//'Invalid parameter nDen= ',nDen
@@ -98,14 +92,6 @@ C
         texch(:) = zero  !time for computing Exchange
 
 C ==================================================================
-
-c --- Various offsets
-c --------------------
-        ISTLT(1)=0
-      DO ISYM=2,NSYM
-        NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive D and F matrices
-      END DO
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -317,12 +303,10 @@ C ---------------------------------------------------------------------
 
                      If (iSkip(iSymk).ne.0) Then
 
-                        ISFI = ipFLT(jDen) + ISTLT(iSyma)
-
                         CALL DGEMM_TRI('T','N',nBas(iSyma),nBas(iSyma),
      &                         NK*JNUM,FactXI,Laq(jDen)%SB(iSymk)%A3,
      &                         NK*JNUM,Laq(jDen)%SB(iSymk)%A3,NK*JNUM,
-     &                         One,Work(ISFI),nBas(iSyma))
+     &                         One,FLT(jDen)%SB(iSyma)%A1,nBas(iSyma))
 
 
                      EndIf
@@ -418,11 +402,10 @@ c Print the Fock-matrix
           if(jden.eq.2) WRITE(6,'(6X,A)')'******** BETA SPIN ********* '
         endif
         DO ISYM=1,NSYM
-           ISFI=ipFLT(jDen)+ISTLT(ISYM)
            IF( NBAS(ISYM).GT.0 ) THEN
              WRITE(6,'(6X,A)')
              WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-             call TRIPRT('','',Work(ISFI),NBAS(ISYM))
+             call TRIPRT('','',FLT(jDen)%SB(ISYM)%A1,NBAS(ISYM))
            ENDIF
         END DO
       END DO

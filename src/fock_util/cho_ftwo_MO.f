@@ -66,9 +66,9 @@
 
       Integer   rc,nDen,nSym,nBas(nSym),NumCho(nSym),kOcc(nSym)
       Real*8    FactC(nDen),FactX(nDen)
-      Integer   Lunit,ISTSQ(nSym),ISTLT(nSym),lOff1
+      Integer   Lunit,ISTSQ(nSym),lOff1
       Integer   MinMem(nSym),iSkip(nSym)
-      Integer   ipDLT(2),ipDSQ(3),ipFLT(2),ipFSQ(3), ipMSQ(3)
+      Integer   ipDSQ(3),ipFSQ(3), ipMSQ(3)
 
       Type (DSBA_Type) DLT(nDen), FLT(nDen), FSQ(nDen), DSQ(nDen),
      &                 MSQ(nDen)
@@ -134,8 +134,6 @@
       Debug=.false.! to avoid double printing in SCF-debug
 #endif
       Do iDen = 1, nDen
-         ipDLT(iDen) = ip_of_Work(DLT(iDen)%A0(1))
-         ipFLT(iDen) = ip_of_Work(FLT(iDen)%A0(1))
          ipFSQ(iDen) = ip_of_Work(FSQ(iDen)%A0(1))
          ipDSQ(iDen) = ip_of_Work(DSQ(iDen)%A0(1))
          ipMSQ(iDen) = ip_of_Work(MSQ(iDen)%A0(1))
@@ -149,15 +147,11 @@
       texch(:) = zero  !time for computing Exchange
 
 c ISTSQ: Offsets to full symmetry block in DSQ,FSQ
-c ISTLT: Offsets to packed LT symmetry blocks in DLT,FLT
       ISTSQ(1)=0
-      ISTLT(1)=0
       DO ISYM=2,NSYM
         NB=NBAS(ISYM-1)
         NB2=NB*NB
-        NB3=(NB2+NB)/2
         ISTSQ(ISYM)=ISTSQ(ISYM-1)+NB2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NB3
       END DO
 
       if(DensityCheck)then
@@ -385,16 +379,16 @@ C
          VJ(:) = Zero
 
          DO iSymr=1,nSym
-         IF(nBas(iSymr).ne.0.and.nOcc(iSymr,jDen).ne.0)THEN
+            IF(nBas(iSymr).ne.0.and.nOcc(iSymr,jDen).ne.0)THEN
 
-         ISDLT = ipDLT(jDen) + ISTLT(ISYMR)
-         Naa = nBas(iSymr)*(nBas(iSymr)+1)/2
+               Naa = nBas(iSymr)*(nBas(iSymr)+1)/2
 
-         CALL DGEMV_('T',Naa,NumV,
-     &              ONE,Wab%SB(iSymr)%A2,Naa,
-     &              Work(ISDLT),1,ONE,VJ,1)
+                CALL DGEMV_('T',Naa,NumV,
+     &                     ONE,Wab%SB(iSymr)%A2,Naa,
+     &                         DLT(jDen)%SB(iSYMR)%A1,1,
+     &                     ONE,VJ,1)
 
-         ENDIF
+            ENDIF
          End DO
 
 C --- Contraction with the 2nd vector
@@ -403,18 +397,16 @@ C --- Fss{#J} <- Fss{#J} + FactC * sum_J L(ss,{#J})*V{#J}
 C==========================================================
 C
           DO iSyms=1,nSym
-          IF(nBas(iSyms).ne.0)THEN
+             IF(nBas(iSyms).ne.0)THEN
 
-           ISFLT = ipFLT(jDen) + ISTLT(ISYMS)
-           Naa = nBas(iSyms)*(nBas(iSyms)+1)/2
+                Naa = nBas(iSyms)*(nBas(iSyms)+1)/2
 
-           CALL DGEMV_('N',Naa,NumV,
-     &              FactC(jDen),Wab%SB(iSyms)%A2,Naa,
-     &              VJ,1,ONE,Work(ISFLT),1)
+                 CALL DGEMV_('N',Naa,NumV,
+     &                FactC(jDen),Wab%SB(iSyms)%A2,Naa,
+     &                            VJ,1,
+     &                        ONE,FLT(jDen)%SB(ISYMS)%A1,1)
 
-c           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYMS
-c           CALL TRIPRT('Coulomb FLT',' ',Work(ISFLT),nBas(iSyms))
-          ENDIF
+             ENDIF
           End DO
 
           VJ => Null()
