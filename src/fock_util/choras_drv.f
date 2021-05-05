@@ -12,7 +12,7 @@
      &                      W_CMO)
 
       use Data_Structures, only: DSBA_Type, Allocate_DSBA,
-     &                           Deallocate_DSBA
+     &                           Deallocate_DSBA, Integer_Pointer
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -28,18 +28,15 @@
 
       Integer, Allocatable, Target :: nVec(:)
 
-      Type Integer_Pointer
-          Integer, Pointer :: I1(:)=>Null()
-      End Type Integer_Pointer
       Type (Integer_Pointer) :: pNocc(1)
 
       Type (DSBA_Type) Vec, DDec, DLT, FLT, DSQ, CMO, MSQ(MaxDs)
 
 #include "chounit.fh"
 #include "choras.fh"
-*
-*
-C  **************************************************
+*                                                                      *
+************************************************************************
+*                                                                      *
       rc=0
 
       Lunit(:)=-1
@@ -123,13 +120,13 @@ C  **************************************************
         if (REORD) then
 * ALGO.eq.1.and.REORD:
       Call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,
-     &                FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
+     &                FactX,[DLT],[DSQ],[FLT],[FSQ],pNocc,MinMem)
            If (rc.ne.0) GOTO 999
 
         else
 * ALGO.eq.1.and. .not.REORD:
         CALL CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
-     &           FactC,FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
+     &           FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],pNocc,MinMem)
            If (rc.ne.0) GOTO 999
         end if
 
@@ -140,14 +137,14 @@ C  **************************************************
           if (REORD)then
 * ALGO.eq.2.and.DECO.and.REORD:
             Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
-     &                  lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
+     &                  lOff1,FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],
      &                  MinMem,MSQ,pNocc)
             If (rc.ne.0) GOTO 999
 
           else
 * ALGO.eq.2.and.DECO.and. .not.REORD:
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                  lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
+     &                  lOff1,FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],
      &                  MinMem,MSQ,pNocc)
             If (rc.ne.0) GOTO 999
           endif
@@ -158,14 +155,14 @@ C  **************************************************
 * ALGO.eq.2.and. ..not.DECO.and.REORD:
             FactX(1) = 1.0D0*ExFac ! because MOs coeff. are not scaled
             Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
-     &                lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
+     &                lOff1,FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],
      &                MinMem,MSQ,pNocc)
             if (rc.ne.0) GOTO 999
           else
 * ALGO.eq.2.and. ..not.DECO.and.REORD:
             FactX(1) = 1.0D0*ExFac ! because MOs coeff. are not scaled
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,
+     &                lOff1,FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],
      &                MinMem,MSQ,pNocc)
             if (rc.ne.0) GOTO 999
           end if
@@ -177,7 +174,7 @@ C  **************************************************
         CALL QUIT(rc)
       endif
 
-      CALL CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,FSQ)
+      CALL CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,[FLT],[FSQ])
 
  999    continue
       if (rc.ne.0) then

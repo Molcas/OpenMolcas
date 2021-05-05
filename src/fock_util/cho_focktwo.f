@@ -62,7 +62,7 @@
 *
 ************************************************************************
       use Data_Structures, only: SBA_Type, Deallocate_SBA
-      use Data_Structures, only: DSBA_Type
+      use Data_Structures, only: DSBA_Type, Integer_Pointer
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nDen,nSym,nBas(nSym),NumCho(nSym),iSkip(nSym)
@@ -71,9 +71,6 @@
 
       Type (DSBA_Type) DLT(nDen), FLT(nDen), FSQ(nDen), DSQ(nDen)
 
-      Type Integer_Pointer
-          Integer, Pointer :: I1(:)=>Null()
-      End Type Integer_Pointer
       Type (Integer_Pointer) :: pNocc(nDen)
 
 

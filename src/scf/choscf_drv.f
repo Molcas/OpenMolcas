@@ -73,7 +73,7 @@ C
      &                               nOcc,nOcc_ab)
 
       use Scf_Arrays, only: CMO
-      use Data_Structures, only: DSBA_Type
+      use Data_Structures, only: DSBA_Type, Integer_Pointer
       use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -97,9 +97,6 @@ C
 #include "choauf.fh"
 #include "spave.fh"
 
-      Type Integer_Pointer
-          Integer, Pointer :: I1(:)=>Null()
-      End Type Integer_Pointer
       Type (Integer_Pointer) :: pNocc(3)
 
       Integer, Allocatable, Target:: nVec(:,:)

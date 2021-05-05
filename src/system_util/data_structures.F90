@@ -23,8 +23,13 @@ Public:: NDSBA_Type,  Allocate_NDSBA,  Deallocate_NDSBA
 Public:: G2_Type,     Allocate_G2,     Deallocate_G2
 Public:: L_Full_Type, Allocate_L_Full, Deallocate_L_Full
 Public:: Lab_Type, Allocate_Lab, Deallocate_Lab
+Public:: Integer_Pointer
 #include "stdalloc.fh"
 #include "real.fh"
+
+Type Integer_Pointer
+     Integer, Pointer :: I1(:)=>Null()
+End Type Integer_Pointer
 
 Type SB_Type
   Real*8, Pointer:: A3(:,:,:)=>Null()

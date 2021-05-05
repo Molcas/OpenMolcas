@@ -32,13 +32,11 @@
 *                 in the calling routine
 ******************************************************************
       use ChoArr, only: nDimRS
+      use Data_Structures, only: Integer_Pointer
       Implicit Real*8 (a-h,o-z)
       Integer nSym,nBas(nSym),MinMem(nSym),iUHF,ALGO
       Integer Moccmx(nSym),Mabmx(nSym),MxBas(nSym)
       Logical REORD,xToDo,DoExchange(*)
-      Type Integer_Pointer
-          Integer, Pointer :: I1(:)=>Null()
-      End Type Integer_Pointer
       Type (Integer_Pointer) :: pNocc(*)
 
       Integer Nocc, i, j

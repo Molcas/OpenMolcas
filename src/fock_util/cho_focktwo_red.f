@@ -65,7 +65,7 @@
 *
 ************************************************************************
       use Data_Structures, only: SBA_type, Deallocate_SBA, Map_to_SBA
-      use Data_Structures, only: DSBA_type
+      use Data_Structures, only: DSBA_type, Integer_Pointer
       Implicit Real*8 (a-h,o-z)
 
       Integer  rc,nDen,nBas(*)
@@ -74,9 +74,6 @@
 
       Type (DSBA_Type) DLT(nDen), FLT(nDen), FSQ(nDen), DSQ(nDen)
 
-      Type Integer_Pointer
-          Integer, Pointer :: I1(:)=>Null()
-      End Type Integer_Pointer
       Type (Integer_Pointer) :: pNocc(nDen)
 
 #ifdef _DEBUGPRINT_

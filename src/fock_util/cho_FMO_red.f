@@ -67,7 +67,7 @@
 *
 ************************************************************************
       use Data_structures, only: SBA_Type, Deallocate_SBA, Map_to_SBA
-      use Data_structures, only: DSBA_Type
+      use Data_structures, only: DSBA_Type, Integer_Pointer
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nDen,kOcc(8),KSQ1(8)
@@ -96,9 +96,6 @@
 #include "choorb.fh"
 #include "stdalloc.fh"
 
-      Type Integer_Pointer
-          Integer, Pointer :: I1(:)=>Null()
-      End Type Integer_Pointer
       Type (Integer_Pointer) :: pNocc(nDen)
 
       Real*8, Allocatable:: DChk(:)
