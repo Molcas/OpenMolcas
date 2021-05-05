@@ -1,4 +1,5 @@
 ************************************************************************
+* This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
 * it under the terms of the GNU Lesser General Public License, v. 2.1. *
@@ -7,6 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+
       SUBROUTINE TRINT(CMO1,CMO2,ECORE,NGAM1,FOCKMO,NGAM2,TUVX)
 #if defined (_MOLCAS_MPP_)
       USE Para_Info, ONLY: nProcs
