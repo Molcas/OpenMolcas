@@ -99,6 +99,21 @@ C
 #if defined (_MOLCAS_MPP_)
       Real*8, Allocatable:: DiagJ(:)
 #endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      SUBROUTINE CHO_LR_MOs(iOK,nDen,nSym,nBas,nIsh,CM,MSQ)
+      Import DSBA_Type
+      Integer  iOK, nDen, nSym
+      Integer  nBas(nSym), nIsh(nSym)
+      Type (DSBA_Type)  CM(nDen)
+      Type (DSBA_Type), Target::  MSQ(nDen)
+      END SUBROUTINE CHO_LR_MOs
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
