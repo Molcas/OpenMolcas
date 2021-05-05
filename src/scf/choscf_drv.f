@@ -158,10 +158,8 @@ C  **************************************************
        Do i=1,nSym
           if(nBas(i).gt.0)then
             Ymax=0.0d0
-            jaa=ipd
             do ja=1,nBas(i)
                Ymax=Max(Ymax,DDec(1)%SB(i)%A2(ja,ja))
-               jaa = jaa + nBas(i) + 1
             end do
             Thr = 1.0d-8*Ymax
             CALL CD_InCore(DDec(1)%SB(i)%A2,nBas(i),Vec(1)%SB(i)%A2,
@@ -273,7 +271,6 @@ C  **************************************************
           Do iSym=1,nSym
            If (nBas(iSym)*nIorb(iSym,1).ne.0) Then
              do ikk=1,nIorb(iSym,1)
-                ioff3=ioff1+nBas(iSym)*(ikk-1)
                 Cka(1)%SB(iSym)%A2(ikk,:) =
      &             MSQ(1)%SB(iSym)%A2(:,ikk)
              end do

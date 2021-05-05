@@ -14,7 +14,6 @@
      &                           Deallocate_DSBA
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 DLT(*),DSQ(*),FLT(nFLT)
       Integer nBas(8), nAux(8), Keep(8)

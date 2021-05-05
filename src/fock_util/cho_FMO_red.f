@@ -75,7 +75,7 @@
       Integer   ISTSQ(8),ISTLT(8),iSkip(8),lOff1
       Real*8    tread(2),tcoul(2),texch(2)
       Integer   MinMem(*)
-      Integer   ipDLT(2),ipFLT(2),ipFSQ(3),ipDSQ(3), ipMSQ(3)
+      Integer   ipFSQ(3),ipDSQ(3), ipMSQ(3)
 
       Type (DSBA_Type) DLT(nDen), FLT(nDen), FSQ(nDen), DSQ(nDen),
      &                 MSQ(nDen)
@@ -139,8 +139,6 @@
 #endif
       IREDC = -1  ! unknown reduced set in core
       Do iDen = 1, nDen
-         ipDLT(iDen)=ip_of_Work(DLT(iDen)%A0(1))
-         ipFLT(iDen)=ip_of_Work(FLT(iDen)%A0(1))
          ipFSQ(iDen)=ip_of_Work(FSQ(iDen)%A0(1))
          ipDSQ(iDen)=ip_of_Work(DSQ(iDen)%A0(1))
          ipMSQ(iDen)=ip_of_Work(MSQ(iDen)%A0(1))
@@ -381,12 +379,12 @@ C
          DO iSymr=1,nSym
             IF(nBas(iSymr).ne.0.and.nOcc(isymr,jDen).ne.0)THEN
 
-            ISDLT = ipDLT(jDen) + ISTLT(ISYMR)
             Naa = nBas(iSymr)*(nBas(iSymr)+1)/2
 
             CALL DGEMV_('T',Naa,NumV,
      &                 ONE,Wab%SB(iSymr)%A2,Naa,
-     &                 Work(ISDLT),1,ONE,VJ,1)
+     &                     DLT(jDen)%SB(ISYMR)%A1,1,
+     &                 ONE,VJ,1)
 
             ENDIF
          End DO
@@ -399,12 +397,12 @@ C
           DO iSyms=1,nSym
              IF(nBas(iSyms).ne.0)THEN
 
-              ISFLT = ipFLT(jDen) + ISTLT(ISYMS)
               Naa = nBas(iSyms)*(nBas(iSyms)+1)/2
 
               CALL DGEMV_('N',Naa,NumV,
      &                 FactC(jDen),Wab%SB(iSyms)%A2,Naa,
-     &                 VJ,1,ONE,Work(ISFLT),1)
+     &                             VJ,1,
+     &                         ONE,FLT(jDen)%SB(ISYMS)%A1,1)
 
 c              WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYMS
 c              CALL TRIPRT('Coulomb FLT',' ',Work(ISFLT),nBas(iSyms))
