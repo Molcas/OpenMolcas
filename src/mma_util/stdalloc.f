@@ -303,6 +303,7 @@
 #undef _SUBR_NAME_
 #undef _TYPE_
 
+#ifdef _NOT_USED_
 * pointer variants
 
 #define _IS_POINTER_
@@ -336,3 +337,4 @@
 #  undef _DATA_NAME_
 
 #undef _IS_POINTER_
+#endif
