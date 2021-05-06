@@ -420,7 +420,7 @@ C --- Transform the density to reduced storage
                add  = .false.
                nMat=1
                Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                           [PLT(1)],Drs,mode,add)
+     &                           PLT,Drs,mode,add)
             EndIf
 
 C --- BATCH over the vectors ----------------------------
