@@ -108,7 +108,7 @@
      &                      '-------------------'
         write(6,'(A)') ''
       enddo
-
+      Call Add_Info('AMAT',AMAT,9,5)
 
       call free_work(itd)
       call free_work(isd)
