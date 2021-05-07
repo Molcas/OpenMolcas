@@ -128,9 +128,12 @@ c EF2(6) = (MAG(1)+MAG(5)+MAG(9))*2
         WRITE(6,*)
         WRITE(6,'(6X,A)')'*** ERROR IN SUBROUTINE HFCSD ***'
         WRITE(6,'(6X,A)')'  FAILED IN READING FROM  ONEINT'
+        WRITE(6,'(6X,A)')' PLEASE MAKE SURE THE MAGNETIC'
+        WRITE(6,'(6X,A)')' HYPERFINE INTEGRALS ARE AVAILABLE'
         WRITE(6,'(6X,A,A)')'  LABEL     = ',LABEL
         WRITE(6,'(6X,A,I2)')'  COMPONENT = ',ICM
         WRITE(6,*)
+        CALL ABEND
        ENDIF
 
       END

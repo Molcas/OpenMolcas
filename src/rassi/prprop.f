@@ -3721,15 +3721,11 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
       WRITE(6,'(3x,A46)')
      &'----------------------------------------------'
 
-      !IF (KDGN.NE.2) THEN
-      !    WRITE(6,*) 'no twofold degeneracy'
-      !    GOTO 780
-      !ENDIF
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-       IF(.NOT.IFGTCALSA) GOTO 450
-       if(ISS.EQ.1) IFUNCT=0
+      IF(.NOT.IFGTCALSA) GOTO 450
+      IF(ISS.EQ.1) IFUNCT=0
       call SINANI(KDGN,IFUNCT,NSS,DIPSOn,SPNSFS,DIPSOm_SA)
-       IFUNCT=IFUNCT+KDGN
+      IFUNCT=IFUNCT+KDGN
   450 CONTINUE
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -4312,7 +4308,7 @@ C backtransformation in two steps, -phi and -theta
 
        endif ! if(IPGLOB.GE.4)
 
-          CALL ATENS_RASSI(DIPSOmSA, KDGN, gtens, maxes, 2)
+          CALL ATENS_RASSI(DIPSOmSA, KDGN, gtens, maxes, 3)
 
            if(.False.) then
 

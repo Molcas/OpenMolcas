@@ -36,7 +36,7 @@ use PAM2, only: iPAMcount, iPAMPrim, kCnttpPAM
 use DKH_Info, only: BSS, DKroll
 use Sizes_of_Seward, only: S
 use Real_Info, only: PotNuc, kVector
-use Logical_Info, only: Vlct, lRel, lAMFI, NEMO, Do_FckInt, DoFMM, EMFR, GIAO, lXTCI
+use Logical_Info, only: Vlct, lRel, lAMFI, NEMO, Do_FckInt, DoFMM, EMFR, GIAO, lMXTC
 #ifdef _FDE_
 use Embedding_Global, only: embInt, embPot, embPotInBasis, embPotPath
 #endif
@@ -1564,8 +1564,8 @@ end if
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-!!!XTCI
-if (lXTCI.and.DKroll.and.Primitive_Pass) then
+!!!MXTC
+if (lMXTC.and.DKroll.and.Primitive_Pass) then
 #ifdef _GEN1INT_
   nOrdOp = 0
 ! Assume symmetric
@@ -1600,7 +1600,7 @@ if (lXTCI.and.DKroll.and.Primitive_Pass) then
   Call WarningMessage(2,'Drv1El: NO Gen1int interface available!')
   Call Abend()
 #endif
-end if ! lXTCI
+end if ! lMXTC
 !***********************************************************************
 !***********************************************************************
 !20)                                                                   *

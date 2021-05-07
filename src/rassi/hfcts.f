@@ -901,10 +901,10 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
       WRITE(6,'(3x,A46)')
      &'----------------------------------------------'
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-       IF(.NOT.IFATCALSA) GOTO 451
-       if(ISS.EQ.1) IFUNCT=0
+      IF(.NOT.IFATCALSA) GOTO 451
+      IF(ISS.EQ.1) IFUNCT=0
       call SINANI(KDGN,IFUNCT,NSS,DIPSOf,SPNSFS,DIPSOm_SA)
-       IFUNCT=IFUNCT+KDGN
+      IFUNCT=IFUNCT+KDGN
   451 CONTINUE
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1430,10 +1430,10 @@ c
       WRITE(6,'(3x,A46)')
      &'----------------------------------------------'
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-       IF(.NOT.IFATCALSA) GOTO 452
-       if(ISS.EQ.1) IFUNCT=0
+      IF(.NOT.IFATCALSA) GOTO 452
+      IF(ISS.EQ.1) IFUNCT=0
       call SINANI(KDGN,IFUNCT,NSS,DIPSOfc,SPNSFS,DIPSOm_SA)
-       IFUNCT=IFUNCT+KDGN
+      IFUNCT=IFUNCT+KDGN
   452 CONTINUE
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1900,10 +1900,10 @@ c
      &'----------------------------------------------'
 
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-       IF(.NOT.IFATCALSA) GOTO 453
-       if(ISS.EQ.1) IFUNCT=0
+      IF(.NOT.IFATCALSA) GOTO 453
+      IF(ISS.EQ.1) IFUNCT=0
       call SINANI(KDGN,IFUNCT,NSS,DIPSOfsd,SPNSFS,DIPSOm_SA)
-       IFUNCT=IFUNCT+KDGN
+      IFUNCT=IFUNCT+KDGN
   453 CONTINUE
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -2389,10 +2389,10 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
       WRITE(6,'(3x,A46)')
      &'----------------------------------------------'
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-       IF(.NOT.IFATCALSA) GOTO 454
-       if(ISS.EQ.1) IFUNCT=0
+      IF(.NOT.IFATCALSA) GOTO 454
+      IF(ISS.EQ.1) IFUNCT=0
       call SINANI(KDGN,IFUNCT,NSS,DIPSOfcsd,SPNSFS,DIPSOm_SA)
-       IFUNCT=IFUNCT+KDGN
+      IFUNCT=IFUNCT+KDGN
   454 CONTINUE
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -2793,10 +2793,10 @@ c
       WRITE(6,'(3x,A46)')
      &'----------------------------------------------'
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-       IF(.NOT.IFATCALSA) GOTO 455
-       if(ISS.EQ.1) IFUNCT=0
-       call SINANI(KDGN,IFUNCT,NSS,DIPSOfpso,SPNSFS,DIPSOm_SA)
-       IFUNCT=IFUNCT+KDGN
+      IF(.NOT.IFATCALSA) GOTO 455
+      IF(ISS.EQ.1) IFUNCT=0
+      call SINANI(KDGN,IFUNCT,NSS,DIPSOfpso,SPNSFS,DIPSOm_SA)
+      IFUNCT=IFUNCT+KDGN
   455 CONTINUE
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -2846,7 +2846,7 @@ c
        END DO
       END DO
 
-      IF(IPGLOB.GT.VERBOSE) THEN
+!      IF(IPGLOB.GT.VERBOSE) THEN
        WRITE(6,*) 'G tensor = gg+'
        WRITE(6,*)
        WRITE(6,'(6x,3(6x,a2,4x))')
@@ -2855,7 +2855,7 @@ c
        WRITE(6,'(2x,a2,2x,3(1x,f18.8,1x))')
      &  xyzchr(IXYZ), (GTENS(IXYZ,JXYZ),JXYZ=1,3)
        ENDDO
-      END IF
+!      END IF
 
       DO I=1,3
       EVR(I)=0.0D0
@@ -2918,6 +2918,10 @@ C square root of the G eigenvalues
      & 'a_',IXYZ,':',SQRT(EVR(IXYZ)),
      & xyzchr(IXYZ), (TMPVEC(IXYZ,JXYZ),JXYZ=1,3)
       ENDDO
+
+      CALL ADD_INFO('ATENS_PSO',GTENS,9,5)
+      CALL ADD_INFO('ATENS_PSOEVR',EVR,3,5)
+
        WRITE(6,*)
  5780  CONTINUE
 

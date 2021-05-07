@@ -96,7 +96,7 @@
         enddo
 
         write(6,*) ''
-        write(6,'(A,I3)') 'X2C Hyperfine coupling tensor matrix for atom
+        write(6,'(A,I3)') 'Hyperfine coupling tensor matrix for atom
      &                    :', iat
         write(6,*) ''
         write(6,'(A,A)')    '   --------------------------------------',

@@ -14,7 +14,7 @@
       Use Basis_Info
       use DKH_Info
       use Symmetry_Info, only: nIrrep
-      use Logical_Info, only: lXTCI
+      use Logical_Info, only: lMXTC
 *     modified by D. Peng, ETH Zurich, October 2011
 *
 *     Interface/Driver routine for scalar relativistic
@@ -155,7 +155,7 @@ c                   write(stdout,'(a11,f20.8)') ' Exponents',rExpi
 *                                                                      *
 *     HFC magnetic integrals
 *
-      If (lXTCI) Then
+      If (lMXTC) Then
         Call Get_nAtoms_All(nAtoms)
         Call copy_mag_ints(nAtoms)
       End if
