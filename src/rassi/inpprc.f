@@ -165,7 +165,17 @@ C (IPUSED will be set later, set it to zero now.)
         IPUSED(IPRP)=0
 
 c Copy the EF2 integral label for hyperfine calculations
-c We dont need this since now the ASD are calculated from X2C
+        IF(LABEL(1:3).EQ.'EF2') THEN
+          IF(IPRP.GE.MXPROP) GOTO 110
+          IPRP=IPRP+1
+          LABEL2=LABEL
+          LABEL2(1:4)='ASDO'
+          PRPLST(IPRP)=LABEL2
+          ICMPLST(IPRP)=ICMP
+          IPUSED(IPRP)=0
+        END IF
+
+c Now the ASD are calculated from X2C
 c magnetic integrals
         IF(LABEL(1:5).EQ.'MAGXP'.AND.ICMP.LE.6) THEN
           IF(IPRP.GE.MXPROP) GOTO 110
@@ -175,7 +185,6 @@ c magnetic integrals
           PRPLST(IPRP)=LABEL2
           ICMPLST(IPRP)=ICMP
           IPUSED(IPRP)=0
-
         END IF
 
         IF(LABEL(1:4).EQ.'PSOI') THEN

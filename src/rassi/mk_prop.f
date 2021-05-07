@@ -32,7 +32,7 @@
       ISTATE=Max(ISTATE_,JSTATE_)
       JSTATE=Min(ISTATE_,JSTATE_)
 *
-      IF (LABEL(1:3).eq.'ASD') LABEL(1:5)='MAGXP'
+      IF (LABEL(1:4).eq.'ASD ') LABEL(1:5)='MAGXP'
       IC=ICOMP(IPROP)
 !     Write (*,*) 'Mk_Prop: Label=',Label
 !     Write (*,*) 'Mk_Prop:    IC=',IC

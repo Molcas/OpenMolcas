@@ -3431,7 +3431,12 @@ c
 *        GEN1INT integrals
 * 9023 lPSOI=.true.
       !Write(6,*) 'lPSOI',lPSOI,nAtoms
- 9023 lMXTC=.true.
+ 9023 IF(IRELAE.EQ.101) Then
+        lMXTC=.true.
+      ELSE
+       Write(6,*) 'Keyword MXTC must be preceded by keyword RX2C!'
+       Call Quit_OnUserError()
+      ENDIF
       Go To 998
 *                                                                      *
 ***** FRGM *************************************************************

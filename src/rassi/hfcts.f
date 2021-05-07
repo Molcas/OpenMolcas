@@ -119,7 +119,8 @@ C Identify which properties are Orbital Paramagnetic (PSOP) matrix elements:
       WRITE(PSOPROP,'(a4,i4)') 'PSOP',ICEN
       WRITE(6,*) "Looking for ",PSOPROP
       DO KPROP=1,NPROP
-       IF(PNAME(KPROP).EQ.SDPROP) THEN
+       IF(PNAME(KPROP)(1:3).EQ.SDPROP(1:3)
+     &   .AND.PNAME(KPROP)(5:8).EQ.SDPROP(5:8)) THEN
          IF(ICOMP(KPROP).EQ.1) IAMFI1=KPROP
          IF(ICOMP(KPROP).EQ.2) IAMFI2=KPROP
          IF(ICOMP(KPROP).EQ.3) IAMFI3=KPROP
@@ -1035,7 +1036,8 @@ C square root of the G eigenvalues
       WRITE(SDPROP,'(a4,i4)') 'ASD ',ICEN
       WRITE(6,*) "Looking for ",SDPROP
       DO KPROP=1,NPROP
-       IF(PNAME(KPROP).EQ.SDPROP) THEN
+       IF(PNAME(KPROP)(1:3).EQ.SDPROP(1:3)
+     &   .AND.PNAME(KPROP)(5:8).EQ.SDPROP(5:8)) THEN
          IF(ICOMP(KPROP).EQ.1) IAMFI1=KPROP
          IF(ICOMP(KPROP).EQ.2) IAMFI2=KPROP
          IF(ICOMP(KPROP).EQ.3) IAMFI3=KPROP
@@ -1562,7 +1564,8 @@ c
       WRITE(SDPROP,'(a4,i4)') 'ASD ',ICEN
       WRITE(6,*) "Looking for ",SDPROP
       DO KPROP=1,NPROP
-       IF(PNAME(KPROP).EQ.SDPROP) THEN
+       IF(PNAME(KPROP)(1:3).EQ.SDPROP(1:3)
+     &   .AND.PNAME(KPROP)(5:8).EQ.SDPROP(5:8)) THEN
          IF(ICOMP(KPROP).EQ.1) IAMFI1=KPROP
          IF(ICOMP(KPROP).EQ.2) IAMFI2=KPROP
          IF(ICOMP(KPROP).EQ.3) IAMFI3=KPROP
@@ -2059,7 +2062,8 @@ c
       WRITE(SDPROP,'(a4,i4)') 'ASD ',ICEN
       WRITE(6,*) "Looking for ",SDPROP
       DO KPROP=1,NPROP
-       IF(PNAME(KPROP).EQ.SDPROP) THEN
+       IF(PNAME(KPROP)(1:3).EQ.SDPROP(1:3)
+     &   .AND.PNAME(KPROP)(5:8).EQ.SDPROP(5:8)) THEN
          IF(ICOMP(KPROP).EQ.1) IAMFI1=KPROP
          IF(ICOMP(KPROP).EQ.2) IAMFI2=KPROP
          IF(ICOMP(KPROP).EQ.3) IAMFI3=KPROP
