@@ -343,6 +343,8 @@ c --- backtransform fock matrix to full storage
          End Do
       End Do
 
+      Call Deallocate_DSBA(JA)
+      Call Allocate_DSBA(JA ,nBas,nBas,nSym,           Ref=W_JA )
 *
 **Transform Fock and Q matrix to MO basis
 *
@@ -352,17 +354,19 @@ c --- backtransform fock matrix to full storage
           Call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),
      &                1.0d0,FkA%SB(iS)%A2,nBas(iS),
      &                      CMO%SB(iS)%A2,nBas(iS),
-     &                0.0d0,JA%SB(iS)%A1,nBas(jS))
+     &                0.0d0,JA%SB(iS)%A2,nBas(jS))
           FkA%SB(is)%A2(:,:)=Zero
           Call DGEMM_('T','N',nBas(jS),nIsh(jS),nBas(iS),
-     &                1.0d0,JA%SB(iS)%A1,nBas(iS),
+     &                1.0d0,JA%SB(iS)%A2,nBas(iS),
      &                      CMO%SB(jS)%A2,nBas(jS),
      &                0.0d0,FkA%SB(iS)%A2,nBas(jS))
-          ioff=nIsh(iS)+1
+*         ioff=nIsh(iS)+1
+          iOff = 1 + nIsh(iS) * nBas(iS)
           Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
      &                 1.0d0,CMO%SB(iS)%A2,nBas(jS),
      &                       Scr%SB(iS)%A2,nBas(jS),
-     &                 0.0d0,FkA%SB(iS)%A2(1:,ioff),nBas(jS))
+*    &                 0.0d0,FkA%SB(iS)%A2(1:,ioff),nBas(jS))
+     &                 0.0d0,FkA%SB(iS)%A1(iOff:),nBas(jS))
         EndIf
       End Do
 **********************************************************************
