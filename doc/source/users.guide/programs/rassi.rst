@@ -1446,10 +1446,12 @@ An illustrative hyperfine calculation input for a diatomic molecule: ::
   'PSOP   2' 2
   'PSOP   2' 3
   End of input
-  * Note that the string following PROP has to be of size of 8, followed by an integer number for the component.
+  * Note that the strings following PROP have to be of sizes of 8, each followed by
+  * an integer number for the property component.
   * Note that there are 6 ASD and 3 PSOP components for each atom, respectively.
-  * One has to include all 6 of ASD components to obtain meaningful spin-dependent hyperfine contributions,
-  * and one has to include all 3 of PSOP components to obtain meaningful paramagnetic spin orbital contributions.
+  * One has to include all 6 of ASD components to obtain principle
+  * spin-dependent hyperfine contributions, and one has to include all 3 of PSOP
+  * components to obtain principle paramagnetic spin orbital contributions.
 
 It is also possible to calculate only the non-relativistic part of the spin--dependent hyperfine contributions: ::
 
@@ -1481,7 +1483,7 @@ It is also possible to calculate only the non-relativistic part of the spin--dep
   'ASDO   2' 5
   'ASDO   2' 6
   End Oof input
-  * Note that 'ASD' is now 'ASDO' for the non-relativistic integrals, respectively.
+  * Note that 'ASD' is now 'ASDO' for the non-relativistic integrals.
 
 
 .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SONORB" KIND="INTS_COMPUTED" SIZE="1" LEVEL="UNDOCUMENTED" />
