@@ -678,7 +678,7 @@ C --- Transform the densities to reduced set storage
                End Do
                If(iMp2prpt .eq. 2) Then
                   Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                              DLT2,Drs2(:,1),mode,add)
+     &                              [DLT2],Drs2(:,1),mode,add)
                End If
             EndIf
 *
