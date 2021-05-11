@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 ************************************************************************
-      SUBROUTINE HFCSD(IPROP,LABEL,IC,BUFF,NBUFF,NSIZ,ISCHK)
+      SUBROUTINE HFCSD(LABEL,IC,BUFF,NBUFF,NSIZ,ISCHK)
       IMPLICIT REAL*8 (A-H,O-Z)
 ************************************************************************
 *     Objective: to compute the 'spin-dependent' part of the hyperfine *
@@ -18,7 +18,7 @@
 ************************************************************************
 #include "WrkSpc.fh"
       CHARACTER*8 LABEL
-      INTEGER IPROP,IC,NBUFF,NSIZ,ISCHK
+      INTEGER IC,NBUFF,NSIZ,ISCHK
       REAL*8 BUFF(NBUFF)
       INTEGER ICM,INBUFF
       REAL*8 DA

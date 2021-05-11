@@ -44,7 +44,7 @@
       IOPT=0
 C Rulin: The 'spin-dependent' part of hyperfine contribution
       IF (LABEL(1:5).eq.'MAGXP') THEN
-        CALL HFCSD(IPROP,LABEL,IC,BUFF,NBUFF,NSIZ,ISCHK)
+        CALL HFCSD(LABEL,IC,BUFF,NBUFF,NSIZ,ISCHK)
         LABEL(1:5) = 'ASD  '
       ELSE
         CALL RDONE(IRC,IOPT,LABEL,IC,BUFF,ISCHK)

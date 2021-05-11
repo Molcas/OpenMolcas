@@ -20,13 +20,12 @@
       integer mcaddr(MxAO)
       real*8 bint(*),sint(*)
       logical New_Center,New_l,New_m, Old_Center, Old_l
-      integer jpc, npc, ipc, kpc, istart, istop, jstart
-      integer nprim, ts, t, np, nc, jrc, jsc, jst, ip, jp, kp
+      integer npc, istart
+      integer np, nc, ip, jp, kp
       logical donorm
       real*8, allocatable :: mag(:,:), u2c(:,:), scr(:,:)
-      real*8, allocatable :: u2ct(:,:), fin(:,:), pa(:), ca(:)
-      real*8 kpp, start, finish
-      character*(15) afmt
+      real*8, allocatable :: u2ct(:,:), fin(:,:), pa(:)
+      real*8 kpp, finish
 *     contracted basis, atomic basis functions
 *
 *     symmetry info
@@ -202,9 +201,9 @@ c         If (idbg.gt.0) Write(idbg,*) ipbasL,jpbasL,kp
         allocate(u2c(np, nc), stat=ierr)
         if (.not. ierr.eq.0) write(6,*) 'error allocating u2c'
         ierr = 0
-        allocate(u2ct(nc, np), stat=ierr)
-        if (.not. ierr.eq.0) write(6,*) 'error allocating u2ct'
-        ierr = 0
+!        allocate(u2ct(nc, np), stat=ierr)
+!        if (.not. ierr.eq.0) write(6,*) 'error allocating u2ct'
+!        ierr = 0
         allocate(scr(np, nc), stat=ierr)
         if (.not. ierr.eq.0) write(6,*) 'error allocating scr'
         ierr = 0
@@ -214,10 +213,10 @@ c         If (idbg.gt.0) Write(idbg,*) ipbasL,jpbasL,kp
         allocate(pa(np), stat=ierr)
         if (.not. ierr.eq.0) write(6,*) 'error allocating pa'
 !
-        mag(:,:) = 0
-        u2c(:,:) = 0
-        scr(:,:) = 0
-        fin(:,:) = 0
+!        mag(:,:) = 0
+!        u2c(:,:) = 0
+!        scr(:,:) = 0
+!        fin(:,:) = 0
 !
         ! Square the uncontracted ints
         mp = 0

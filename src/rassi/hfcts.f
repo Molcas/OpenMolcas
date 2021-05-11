@@ -22,6 +22,7 @@
 #include "cntrl.fh"
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
+#include "constants.fh"
       DIMENSION PROP(NSTATE,NSTATE,NPROP),ENERGY(NSTATE),
      &          JBNUM(NSTATE)
       Character*1 xyzchr(3)
@@ -41,13 +42,32 @@
       Dimension TMPf(NTP)
       Dimension HFC_1(3,3),HFC_2(3,3),HFC_3(3,3)
       Dimension CurieT(3,3),DiamT(3,3),PNMRCPS(NTP,NSS,3,3)
-      Dimension chiT_tens(NTS,3,3),PNMRT(NTP,3,3),PNMR(NTP,3,3)
+      Dimension PNMRT(NTP,3,3),PNMR(NTP,3,3)
       Dimension PNMRC(NTP,3,3),PNMRD(NTP,3,3)
       REAL*8 DLTTA,Zstat,p_Boltz,Boltz_k
       LOGICAL ISGS(NSS)
-      Dimension IMR(3),IMI(3)
+!      Dimension IMR(3),IMI(3)
       INTEGER IFUNCT
       REAL*8, Allocatable:: SOPRR(:,:), SOPRI(:,:)
+
+      AVOGADRO=CONST_AVOGADRO_
+      AU2EV=CONV_AU_TO_EV_
+      AU2CM=CONV_AU_TO_CM1_
+      AU2T=CONV_AU_TO_T_
+      AU2J=CONV_AU_TO_KJ_*1.0D3
+      J2CM=AU2CM/AU2J
+      AU2JTM=(AU2J/AU2T)*AVOGADRO
+      ALPHA=CONST_AU_VELOCITY_IN_SI_/CONST_C_IN_SI_
+      ALPHA2= ALPHA*ALPHA
+      DEBYE=CONV_AU_TO_DEBYE_
+      AU2REDR=2.0D2*DEBYE
+      HALF=0.5D0
+
+      coeff_chi=0.1D0*AVOGADRO/CONST_BOLTZMANN_*
+     &          CONST_BOHR_MAGNETON_IN_SI_**2
+      FEGVAL=-(CONST_ELECTRON_G_FACTOR_)
+      BOLTZ=CONST_BOLTZMANN_/AU2J
+      Rmu0=4.0D-7*CONST_PI_
 
       IF(IFSONCINI) THEN
       WRITE(6,*)
@@ -1065,12 +1085,12 @@ C square root of the G eigenvalues
       CALL GETMEM('MZR','ALLO','REAL',LMZR,NSS**2)
       CALL GETMEM('MZI','ALLO','REAL',LMZI,NSS**2)
 
-      IMR(1)=LMXR
-      IMI(1)=LMXI
-      IMR(2)=LMYR
-      IMI(2)=LMYI
-      IMR(3)=LMZR
-      IMI(3)=LMZI
+!      IMR(1)=LMXR
+!      IMI(1)=LMXI
+!      IMR(2)=LMYR
+!      IMI(2)=LMYI
+!      IMR(3)=LMZR
+!      IMI(3)=LMZI
 
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMXR),1)
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMXI),1)

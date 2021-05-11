@@ -31,7 +31,6 @@
       Integer ita, isa, isr, idir, jdir, iat
       Real*8 hfc(3,3), trace, amat(3,3)
       character*8 label
-      character*16 nome
 
 * Sizes of the matrices
       nb2 = nb * nb

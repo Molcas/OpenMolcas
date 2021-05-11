@@ -32,10 +32,9 @@ C Input variables
 C Input/Output variables
       Real*8 inX(isize)
 C Local variables
-      integer nn,i,j,k,l
+      integer nn,i,j,k
       integer jS,jK,jV,jpVp,jX,jpXp,itmp
       character*8 Label
-      character*16 tlabel
       integer iSizec
       integer idbg
       integer nSym ! equals one
@@ -221,7 +220,7 @@ c *         PSO n = MAG a - MAG b
             call getmem('PSO ','FREE','REAL',iPSO,nn)
             call Allocate_Work(ip_Ppso,iSizec+4)
             idbg = -1
-            call repmat(idbg,Work(iPSOt),Work(ip_Ppso),.false.)
+            call repmat(idbg,Work(iPSOt),Work(ip_Ppso),.FALSE.)
             call getmem('PSOt','FREE','REAL',iPSOt,nInt+4)
             iOpt = 0
             iRC = -1
