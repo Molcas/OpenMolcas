@@ -85,7 +85,7 @@
       AU2J=CONV_AU_TO_KJ_*1.0D3
       J2CM=AU2CM/AU2J
       AU2JTM=(AU2J/AU2T)*AVOGADRO
-      ALPHA=CONST_AU_VELOCITY_IN_SI_/CONST_C_IN_SI_
+!      ALPHA=CONST_AU_VELOCITY_IN_SI_/CONST_C_IN_SI_
 !      ALPHA2= ALPHA*ALPHA
       DEBYE=CONV_AU_TO_DEBYE_
       AU2REDR=2.0D2*DEBYE
@@ -3851,7 +3851,7 @@ C square root of the G eigenvalues
 * Skip if not a hyperfine calculation
       IF(.NOT.IFACAL) GOTO 1801
         CALL HFCTS(PROP,USOR,USOI,ENSOR,NSS,ENERGY,JBNUM,
-     &             DIPSOM,XYZCHR,BOLTZ_K)
+     &             DIPSOM,ESO,XYZCHR,BOLTZ_K)
 
 1801  CONTINUE
 ******************************************************
