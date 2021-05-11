@@ -55,9 +55,9 @@ integer(kind=iwp) :: i, i2, i3, iAddr, iAtom_Number, iB, iC, iChO, iChO1, iChO2,
                      iMltpl, iOpt, iPAMBas, iPAMf, iPAMltpl, iPrint, iRC, iRout, iSym, iSymBx, iSymBy, iSymBz, iSymC, iSymCX, &
                      iSymCXY, iSymCy, iSymCz, iSymD, iSymLx, iSymLy, iSymLz, iSymR(0:3), iSymRx, iSymRy, iSymRz, iSymX, iSymxLx, &
                      iSymxLy, iSymxLz, iSymXY, iSymXZ, iSymY, iSymyLx, iSymyLy, iSymyLz, iSymYZ, iSymZ, iSymzLx, iSymzLy, iSymzLz, &
-                     iSyXYZ, iTemp, iTol, iWel, ix, ixyz, iy, iz, jx, jxyz, jy, jz, jCnt, kCnttpPAM_, lOper, LuTmp, mCnt, mComp, &
-                     mDMS, mMltpl, mOrdOp, nB, nComp, nOrdOp, nPAMltpl,nAtoms
-real(kind=wp) :: Ccoor(3), dum(1), Fact, rHrmt, XTCInt, XTCMem !XTCInt and XTCMem are dummies
+                     iSyXYZ, iTemp, iTol, iWel, ix, ixyz, iy, iz, jx, jxyz, jy, jz,  kCnttpPAM_, lOper, LuTmp, mCnt, mComp, &
+                     mDMS, mMltpl, mOrdOp, nB, nComp, nOrdOp, nPAMltpl
+real(kind=wp) :: Ccoor(3), dum(1), Fact, rHrmt
 logical(kind=iwp) :: lECPnp, lECP, lPAM2np, lPAM2, lPP, lFAIEMP
 character(len=8) :: Label
 character(len=512) :: FName
@@ -83,6 +83,10 @@ integer(kind=iwp) :: iEMb, iunit
 real(kind=wp), allocatable :: Emb_Int(:)
 integer(kind=iwp), external :: isFreeUnit
 external :: embPotKernel, embPotMem
+#endif
+#ifdef _GEN1INT_
+integer(kind=iwp) :: nAtoms, jCnt
+real(kind=wp) :: XTCInt, XTCMem !XTCInt and XTCMem are dummy names
 #endif
 
 iRout = 131
