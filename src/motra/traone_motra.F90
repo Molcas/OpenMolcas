@@ -10,11 +10,12 @@
 !***********************************************************************
 
 subroutine TRAONE_MOTRA(PAO,PMO,TEMP,CMO)
-
 ! Transformation program: one-electron section
 !
-! Objective: transformes a one-electron matrix PAO in AO-basis
+! Objective: transforms a one-electron matrix PAO in AO-basis
 !            to a molecular orbital matrix PMO.
+
+#include "intent.fh"
 
 use motra_global, only: nBas, nDel, nFro, nOrb, nSym
 use Constants, only: Zero, One
@@ -22,7 +23,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: PAO(*), CMO(*)
-real(kind=wp), intent(out) :: PMO(*), TEMP(*)
+real(kind=wp), intent(_OUT_) :: PMO(*), TEMP(*)
 integer(kind=iwp) :: IAO, ICMO, IMO, IOFF, ISYM
 
 ICMO = 1

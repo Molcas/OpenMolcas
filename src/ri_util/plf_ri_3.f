@@ -33,9 +33,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-#include "srt0.fh"
-#include "srt1.fh"
-#include "WrkSpc.fh"
 *
       Real*8 AOint(ijkl,jCmp,kCmp,lCmp), TInt(nTInt)
       Integer iSOShl(nSO), iShlSO(nSO), nBasSh(0:nSym-1,nShell)

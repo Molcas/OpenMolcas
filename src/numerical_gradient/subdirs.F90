@@ -25,7 +25,7 @@ public :: f_setsubdir, Sub, OldWorkDir, NewWorkDir
 contains
 
 subroutine f_setsubdir(sub)
-#ifdef _HAVE_EXTRA_
+# ifdef _HAVE_EXTRA_
   use, intrinsic :: iso_c_binding, only: c_null_char
   implicit none
   character(len=*), intent(in) :: sub
@@ -40,7 +40,7 @@ subroutine f_setsubdir(sub)
   else
     call c_setsubdir('/'//trim(sub)//c_null_char)
   end if
-#else
+# else
   use Prgm, only: SetSubDir
   implicit none
   character(len=*), intent(in) :: sub
@@ -49,7 +49,7 @@ subroutine f_setsubdir(sub)
   else
     call SetSubDir('/'//trim(sub))
   end if
-#endif
+# endif
 end subroutine f_setsubdir
 
 end module subdirs

@@ -19,10 +19,14 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE FOCKTWO(NSYM,NBAS,NFRO,KEEP,
-     &                   DLT,DSQ,FLT,nFlt,FSQ,LBUF,X1,X2,ExFac)
+     &                   W_DLT,W_DSQ,W_FLT,nFlt,W_FSQ,LBUF,X1,X2,ExFac)
+      use Data_Structures, Only: DSBA_Type, Allocate_DSBA,
+     &                           Deallocate_DSBA
       IMPLICIT REAL*8 (A-H,O-Z)
-      Real*8 FSQ(*),FLT(nFlt),DSQ(*),DLT(*),X1(*),X2(*)
-      Integer ISTLT(8),ISTSQ(8),KEEP(8),NBAS(8),NFRO(8)
+      Real*8 W_FSQ(*),W_FLT(nFlt),W_DSQ(*),W_DLT(*),X1(*),X2(*)
+      Integer KEEP(8),NBAS(8),NFRO(8)
+
+      Type (DSBA_Type) DLT, FLT, DSQ, FSQ
 c
 c This routine has been nicked from the MOTRA package. It was
 c originally written by Marcus Fuelscher, and has been slightly
@@ -37,23 +41,16 @@ c contains the same matrix, as symmetry-blocked square matrices.
 c DSQ and DLT are computed in the calling routine.
 c It is assumed that the SEWARD integral file was opened before
 c call to this routine.
-c ISTSQ, ISTLT: Offsets to symmetry blocks of FSQ, FLT etc.
 c
 ************************************************************************
 *                                                                      *
       MUL(I,J)=IEOR(I-1,J-1)+1
 *                                                                      *
 ************************************************************************
-      ISTSQ(1)=0
-      ISTLT(1)=0
-      DO 20 ISYM=2,NSYM
-        NB=NBAS(ISYM-1)
-        NB2=NB*NB
-        NB3=(NB2+NB)/2
-        ISTSQ(ISYM)=ISTSQ(ISYM-1)+NB2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NB3
-20    CONTINUE
-
+      Call Allocate_DSBA(DLT,nBas,nBas,nSym,Case='TRI',Ref=W_DLT)
+      Call Allocate_DSBA(FLT,nBas,nBas,nSym,Case='TRI',Ref=W_FLT)
+      Call Allocate_DSBA(DSQ,nBas,nBas,nSym,Ref=W_DSQ)
+      Call Allocate_DSBA(FSQ,nBas,nBas,nSym,Ref=W_FSQ)
 
       DO 110 IS=1,NSYM
         IB=NBAS(IS)
@@ -107,24 +104,18 @@ c Option code 2: Continue reading at next integral.
                       IPQ=1
                     ENDIF
                     ISX=(IPQ-1)*KLB+1
-                    ISF=ISTLT(IS)+LPQ
-                    ISD=ISTLT(IS)+1
-                    TEMP=DDOT_(KLB,X1(ISX),1,DLT(ISD),1)
-                    FLT(ISF)=FLT(ISF)+TEMP
+                    TEMP=DDOT_(KLB,X1(ISX),1,DLT%SB(IS)%A1,1)
+                    FLT%SB(IS)%A1(LPQ)=FLT%SB(IS)%A1(LPQ)+TEMP
                     CALL SQUARE (X1(ISX),X2(1),1,KB,LB)
-                    ISF=ISTSQ(IS)+(JQ-1)*JB+1
-                    ISD=ISTSQ(IS)+(IP-1)*IB+1
-*                    CALL DGEMX  (KB,LB,-0.5D0*ExFac,X2(1),KB,
-*     &                           DSQ(ISD),1,FSQ(ISF),1)
-                    CALL DGEMV_('N',KB,LB,(-0.5D0*ExFac),X2(1),KB,
-     &                           DSQ(ISD),1,1.0D0,FSQ(ISF),1)
+                    CALL DGEMV_('N',KB,LB,
+     &                        (-0.5D0*ExFac),X2(1),KB,
+     &                                       DSQ%SB(IS)%A2(1:,IP),1,
+     &                                 1.0D0,FSQ%SB(IS)%A2(1:,JQ),1)
                     IF ( IP.NE.JQ ) THEN
-                      ISF=ISTSQ(IS)+(IP-1)*IB+1
-                      ISD=ISTSQ(IS)+(JQ-1)*JB+1
-*                      CALL DGEMX  (KB,LB,-0.5D0*ExFac,X2(1),KB,
-*     &                             DSQ(ISD),1,FSQ(ISF),1)
-                      CALL DGEMV_('N',KB,LB,(-0.5D0*ExFac),X2(1),KB,
-     &                             DSQ(ISD),1,1.0D0,FSQ(ISF),1)
+                      CALL DGEMV_('N',KB,LB,
+     &                          (-0.5D0*ExFac),X2(1),KB,
+     &                                         DSQ%SB(IS)%A2(1:,JQ),1,
+     &                                   1.0D0,FSQ%SB(IS)%A2(1:,IP),1)
                     ENDIF
 201               CONTINUE
 200             CONTINUE
@@ -147,16 +138,12 @@ c Coulomb terms need to be accumulated only
                     ENDIF
                     ISX=(IPQ-1)*KLB+1
                     IF ( NFI.NE.0 ) THEN
-                      ISF=ISTLT(KS)+1
-                      ISD=ISTLT(IS)+LPQ
-                      TEMP=DLT(ISD)
-                      CALL DAXPY_(KLB,TEMP,X1(ISX),1,FLT(ISF),1)
+                      TEMP=DLT%SB(IS)%A1(LPQ)
+                      CALL DAXPY_(KLB,TEMP,X1(ISX),1,FLT%SB(KS)%A1,1)
                     ENDIF
                     IF ( NFK.NE.0 ) THEN
-                      ISF=ISTLT(IS)+LPQ
-                      ISD=ISTLT(KS)+1
-                      TEMP=DDOT_(KLB,X1(ISX),1,DLT(ISD),1)
-                      FLT(ISF)=FLT(ISF)+TEMP
+                      TEMP=DDOT_(KLB,X1(ISX),1,DLT%SB(KS)%A1,1)
+                      FLT%SB(IS)%A1(LPQ)=FLT%SB(IS)%A1(LPQ)+TEMP
                     ENDIF
 211               CONTINUE
 210             CONTINUE
@@ -179,20 +166,16 @@ c Exchange terms need to be accumulated only
                     ENDIF
                     ISX=(IPQ-1)*KLB+1
                     IF ( NFI.NE.0 ) THEN
-                      ISD=ISTSQ(IS)+(IP-1)*IB+1
-                      ISF=ISTSQ(JS)+(JQ-1)*JB+1
-*                      CALL DGEMX  (LB,KB,-0.5D0*ExFac,X1(ISX),LB,
-*     &                             DSQ(ISD),1,FSQ(ISF),1)
-                      CALL DGEMV_('N',LB,KB,(-0.5D0*ExFac),X1(ISX),LB,
-     &                             DSQ(ISD),1,1.0D0,FSQ(ISF),1)
+                      CALL DGEMV_('N',LB,KB,
+     &                          (-0.5D0*ExFac),X1(ISX),LB,
+     &                                         DSQ%SB(IS)%A2(1:,IP),1,
+     &                                   1.0D0,FSQ%SB(JS)%A2(1:,JQ),1)
                     ENDIF
                     IF ( NFJ.NE.0 ) THEN
-                      ISD=ISTSQ(JS)+(JQ-1)*JB+1
-                      ISF=ISTSQ(IS)+(IP-1)*IB+1
-*                      CALL DGEMTX (LB,KB,-0.5D0*ExFac,X1(ISX),LB,
-*     &                             DSQ(ISD),1,FSQ(ISF),1)
-                      CALL DGEMV_('T',LB,KB,(-0.5D0*ExFac),X1(ISX),LB,
-     &                             DSQ(ISD),1,1.0D0,FSQ(ISF),1)
+                      CALL DGEMV_('T',LB,KB,
+     &                          (-0.5D0*ExFac),X1(ISX),LB,
+     &                                         DSQ%SB(JS)%A2(1:,JQ),1,
+     &                                   1.0D0,FSQ%SB(IS)%A2(1:,IP),1)
                     ENDIF
 221               CONTINUE
 220             CONTINUE
@@ -204,31 +187,31 @@ c Exchange terms need to be accumulated only
 c Accumulate the contributions
       DO 300 ISYM=1,NSYM
         NB=NBAS(ISYM)
-        K1=ISTLT(ISYM)
-        K2=ISTSQ(ISYM)
         DO 310 IB=1,NB
           DO 315 JB=1,IB
-            FLT(K1+JB)=FLT(K1+JB)+FSQ(K2+JB)
+            IJ = IB*(IB-1)/2 + JB
+            FLT%SB(ISYM)%A1(IJ)=FLT%SB(ISYM)%A1(IJ)
+     &                         +FSQ%SB(ISYM)%A2(IB,JB)
 315       CONTINUE
-          K1=K1+IB
-          K2=K2+NB
 310     CONTINUE
 300   CONTINUE
 *
-      Call GADSum(Flt,nFlt)
+      Call GADSum(W_FLT,nFlt)
 *
 #ifdef _DEBUGPRINT_
       WRITE(6,'(6X,A)')'FROZEN FOCK MATRIX IN AO BASIS:'
-      ISTLTT=1
       DO ISYM=1,NSYM
         NB=NBAS(ISYM)
         IF ( NB.GT.0 ) THEN
           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          CALL TRIPRT(' ',' ',FLT(ISTLTT),NB)
-          ISTLTT=ISTLTT+NB*(NB+1)/2
+          CALL TRIPRT(' ',' ',FLT%SB(ISYM)%A1,NB)
         END IF
       END DO
 #endif
+      Call deallocate_DSBA(FSQ)
+      Call deallocate_DSBA(DSQ)
+      Call deallocate_DSBA(FLT)
+      Call deallocate_DSBA(DLT)
 
       RETURN
  999  CONTINUE

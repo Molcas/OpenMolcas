@@ -27,7 +27,7 @@
 *
 *---- Compute eigenvalues and eigenvectors
 *
-      Call NIDiag_new(Hess,EVec,nQ,nQ,0)
+      Call NIDiag_new(Hess,EVec,nQ,nQ)
       Call JacOrd(Hess,EVec,nQ,nQ)
 *
       ThrD=1.0D-10

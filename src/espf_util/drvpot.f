@@ -93,7 +93,7 @@ c
          Call mma_deallocate(Dens)
 
          If (.not.Do_ESPF) Then
-            Call AddVec(ptchrg,ptchrg,work(ipnuc),ngrid)
+            Call daxpy_(ngrid,1.0d0,work(ipnuc),1,ptchrg,1)
             Call dCopy_(ngrid,work(ipnuc),1,opnuc,1)
          End If
       Else

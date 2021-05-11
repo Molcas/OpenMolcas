@@ -25,7 +25,7 @@
 
 c  First applicable configuration with first possible spin in
 c  each fragment is set to perfect-pairing:
-      call dfill(nvb,1d-2,cvb,1)
+      call dcopy_(nvb,[1d-2],0,cvb,1)
       ioffs_cvb=0
       icoffs_nconf=0
       do 100 ifrag=1,nfrag

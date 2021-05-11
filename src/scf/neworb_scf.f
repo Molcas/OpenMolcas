@@ -155,7 +155,7 @@
 *    &                    '(20F10.4)',TraF,nOccmF)
 #endif
               nOccmF=nOccmF-nConstr(iSym)
-              Call NIdiag(TraF,CMO(iCMO,iD),nOccmF,nBas(iSym),0)
+              Call NIdiag(TraF,CMO(iCMO,iD),nOccmF,nBas(iSym))
               nOccmF=nOccmF+nConstr(iSym)
 #ifdef _DEBUGPRINT_
 *             Call Triprt('Occupied Fock matrix in MO basis',
@@ -188,7 +188,7 @@
 *             Call Triprt('Virtual Fock matrix in MO basis',
 *    &                    '(20F10.4)',TraF,nVrt)
 #endif
-              Call NIdiag(TraF,CMO(iCMO,iD),nVrt,nBas(iSym),0)
+              Call NIdiag(TraF,CMO(iCMO,iD),nVrt,nBas(iSym))
 #ifdef _DEBUGPRINT_
 *             Call Triprt('Virtual Fock matrix in MO basis',
 *    &                    '(20F10.4)',TraF,nVrt)
@@ -416,7 +416,7 @@ c    &                 '(20F10.4)',TraF,nOrbmF)
 *           Fix standard phase of the orbitals
 *
             Do i = 1, nBas(iSym)
-               tmp = OrbPhase(CMO(iCMO+(i-1)*nBas(iSym),iD),nBas(iSym))
+               call VecPhase(CMO(iCMO+(i-1)*nBas(iSym),iD),nBas(iSym))
             End Do
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_

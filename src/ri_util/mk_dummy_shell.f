@@ -43,6 +43,7 @@
       dbsc(nCnttp)%Bsl='.....RI_Dummy'
       dbsc(nCnttp)%AtmNr=1
       dbsc(nCnttp)%Aux=.True.
+      dbsc(nCnttp)%Charge=Zero
 *
       nPrim=1
       nCntrc=1

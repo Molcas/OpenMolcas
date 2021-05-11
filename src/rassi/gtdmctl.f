@@ -85,11 +85,13 @@ CC    NTO section
 #ifdef _TIME_GTDM_
       Call CWTime(TCpu1,TWall1)
 #endif
+#ifdef _WARNING_WORKAROUND_
 * Avoid compiler warnings about possibly unitialised mstate_1pdens
 * The below can be removed if the file is compiled with
 * -Wno-error=maybe-uninitialized
       allocate(mstate_1pdens(0,0))
       deallocate(mstate_1pdens)
+#endif
 C WF parameters for ISTATE and JSTATE
       NACTE1=NACTE(JOB1)
       MPLET1=MLTPLT(JOB1)
@@ -215,7 +217,12 @@ C WDMAB, WDMZZ similar, but WE-reduced 'triplet' densities.
         Call mma_allocate(TRASD,nTRAD+1,Label='TRASD')
         Call mma_allocate(WERD,nTRAD+1,Label='WERD')
       END IF
-      IF (IF22) Call mma_allocate(TDM2,nTDM2,Label='TDM2')
+      IF (IF22) THEN
+        Call mma_allocate(TDM2,nTDM2,Label='TDM2')
+      ELSE
+        ! To avoid passing an unallocated argument
+        Call mma_allocate(TDM2,0,Label='TDM2')
+      END IF
 
       IF(JOB1.NE.JOB2) THEN
 C Transform to biorthonormal orbital system
@@ -1207,7 +1214,7 @@ C             Write density 1-matrices in AO basis to disk.
           Call mma_deallocate(WDMZZ)
         END IF
       END IF
-      IF (IF22) Call mma_deallocate(TDM2)
+      Call mma_deallocate(TDM2)
 
       IF(IFTWO.AND.(MPLET1.EQ.MPLET2)) THEN
         Call mma_deallocate(FMO)

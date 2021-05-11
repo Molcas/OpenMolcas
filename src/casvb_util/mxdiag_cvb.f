@@ -17,8 +17,7 @@
       dimension a(n,n),eigval(n)
 
       itmp = mstackr_cvb(n*3)
-cvv MKL blas dsyev doesn't work properly. use this simple workaround!!
-      call dsyev_vv('V','L',n,a,n,eigval,w(itmp),n*3,ierr)
+      call dsyev_('V','L',n,a,n,eigval,w(itmp),n*3,ierr)
       call mfreer_cvb(itmp)
       if(ierr.ne.0)then
         write(6,*)' Fatal error in mxdiag, ierr :',ierr

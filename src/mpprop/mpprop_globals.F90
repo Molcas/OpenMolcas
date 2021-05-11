@@ -21,6 +21,7 @@ private
 
 ! A type for multipole array data, where each element
 ! is an array of different size (number of components)
+! (Different from blockdiagonal_matrices, because here each "block" is not square)
 type MltPlArr
   real(kind=wp), allocatable :: M(:,:)
 end type MltPlArr
@@ -77,7 +78,7 @@ subroutine Alloc_MltPlArr(Array,N,Label)
 # ifdef _GARBLE_
   interface
     subroutine c_null_alloc(A)
-      import wp
+      import :: wp
       real(kind=wp), allocatable :: A(:,:)
     end subroutine c_null_alloc
   end interface
@@ -90,7 +91,11 @@ subroutine Alloc_MltPlArr(Array,N,Label)
     call c_null_alloc(Array(i)%M)
   end do
 # endif
-end subroutine
+
+# include "macros.fh"
+  unused_proc(mma_allocate(Array,0))
+
+end subroutine Alloc_MltPlArr
 
 subroutine Free_MltPlArr(Array)
   type(MltPlArr), allocatable, intent(inout) :: Array(:)
@@ -99,12 +104,6 @@ subroutine Free_MltPlArr(Array)
     if (allocated(Array(i)%M)) call mma_deallocate(Array(i)%M)
   end do
   call mma_deallocate(Array)
-# ifdef _WARNING_WORKAROUND_
-  ! unused subroutine
-  if (.false.) then
-    call mma_allocate(Array,0)
-  end if
-# endif
 end subroutine Free_MltPlArr
 
 end module MPProp_globals

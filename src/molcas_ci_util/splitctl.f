@@ -277,7 +277,7 @@ C         CALL SPLITCSF(Work(ipAABlock),EnInSplit,Work(ipDHAM),
             Work(ipSplitV+ii-1)=1.0D00
           end do
           Call NIdiag(Work(ipDHAM),Work(ipSplitV),
-     &                iDimBlockA,iDimBlockA,0)
+     &                iDimBlockA,iDimBlockA)
           Call JACORD(Work(ipDHAM),Work(ipSplitV),
      &                iDimBlockA,iDimBlockA)
           do idx = 1, iDimBlockA
@@ -473,7 +473,7 @@ C        CALL GETMEM('IPCNF','FREE','INTE',LG1,NCNASM(STSYM))
           ii=i+iDimBlockA*(i-1)
           Work(ipSplitV+ii-1)=1.0D00
         end do
-        Call NIdiag(Work(ipDHAM),Work(ipSplitV),iDimBlockA,iDimBlockA,0)
+        Call NIdiag(Work(ipDHAM),Work(ipSplitV),iDimBlockA,iDimBlockA)
         Call JACORD(Work(ipDHAM),Work(ipSplitV),iDimBlockA,iDimBlockA)
         do idx = 1, iDimBlockA
           Work(ipSplitE+idx-1) = Work(ipDHAM-1+idx*(idx+1)/2)

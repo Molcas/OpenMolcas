@@ -42,7 +42,7 @@
          End Do
       End Do
 *     Call TriPrt('HTri(raw)',' ',HTri,nInter)
-      Call NIDiag_new(HTri,layer_U,nInter,nInter,0)
+      Call NIDiag_new(HTri,layer_U,nInter,nInter)
 *     layer_U(:,:)=Zero
 *     Do i=1,nInter
 *        layer_U(i,i)=One

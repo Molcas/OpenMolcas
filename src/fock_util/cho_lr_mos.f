@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2008, Francesco Aquilante                              *
 ************************************************************************
-      SUBROUTINE CHO_LR_MOs(iOK,nDen,nSym,nBas,nIsh,ipCM,ISLT,ISK,ipMSQ)
+      SUBROUTINE CHO_LR_MOs(iOK,nDen,nSym,nBas,nIsh,CM,MSQ)
 
 ************************************************************************
 *
@@ -22,7 +22,7 @@
 *   The code is generalized to treat density matrices with any number
 *            (nDen) of distinct blocks. The corresponding Cholesky
 *            vectors are returned in the arrays defined by the
-*            pointers ipMSQ
+*            DSBA_typed array MSQ
 *
 *   A non-zero value for the return code iOK indicates that something
 *            went wrong and therefore the returned arrays may contain
@@ -31,18 +31,19 @@
 *   Author: F. Aquilante    (October 2008)
 *
 ************************************************************************
-
+      use Data_Structures, only: DSBA_Type
       Implicit Real*8 (a-h,o-z)
       Integer  iOK, nDen, nSym
-      Integer  nBas(nSym), nIsh(nSym), ISLT(nSym), ISK(nSym)
-      Integer  ipCM(nDen), ipMSQ(nDen)
+      Integer  nBas(nSym), nIsh(nSym)
+      Type (DSBA_Type)  CM(nDen)
+      Type (DSBA_Type), Target::  MSQ(nDen)
 
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Real*8, Allocatable, Target:: DMat0(:), PMat0(:)
-      Real*8, Pointer:: DMat(:,:)=>Null()
+      Real*8, Pointer:: DMat(:,:)    =>Null()
       Real*8, Pointer:: PMat(:,:,:,:)=>Null()
+      Real*8, Pointer:: V(:,:)       =>Null()
 
 ************************************************************************
 
@@ -56,9 +57,6 @@
       Call mma_allocate(DMat0,nBm**2,Label='DMat0')
       If (nDen.gt.1) Then
          Call mma_allocate(PMat0,2*(nDen*nBm)**2,Label='PMat0')
-         ipV = ip_of_Work(PMat0(1+(nDen*nBm)**2))
-      Else
-         ipV = ipMSQ(1)
       EndIf
 
       iSym=1
@@ -81,15 +79,11 @@ C --- Inactive P[kl](a,b) = sum_i C[k](a,i)*C[l](b,i)
 
          Do k=1,nDen
 
-            kCM = ipCM(k) + ISK(iSym)
-
             Do l=1,nDen
 
-               lCM = ipCM(l) + ISK(iSym)
-
                Call DGEMM_('N','T',nBas(iSym),nBas(iSym),nIsh(iSym),
-     &                      1.0d0,Work(kCM),nBas(iSym),
-     &                            Work(lCM),nBas(iSym),
+     &                      1.0d0,CM(k)%SB(iSym)%A2,nBas(iSym),
+     &                            CM(l)%SB(iSym)%A2,nBas(iSym),
      &                      0.0d0,DMat,nBas(iSym))
 
                Do ib=1,nBas(iSym)
@@ -108,23 +102,26 @@ C --- Inactive P[kl](a,b) = sum_i C[k](a,i)*C[l](b,i)
          end do
          Thr=1.0d-13*Ymax
 
-         If (nDen.eq.1) ipV = ipMSQ(1) + ISK(iSym)
+         If (nDen.eq.1) Then
+            V(1:,1:) => MSQ(1)%SB(iSym)%A2(:,:)
+         Else
+            V(1:n2b,1:n2b) => PMat0((nDen*nBm)**2+1 :
+     &                              (nDen*nBm)**2+n2b**2)
+         End If
 
-         CALL CD_InCore(PMat,n2b,Work(ipV),n2b,NumV,Thr,irc)
+         CALL CD_InCore(PMat,n2b,V,n2b,NumV,Thr,irc)
 
          If (NumV.ne.nIsh(iSym)) ikc=1
 
          If (nDen.gt.1) Then
             Do jden=1,nDen
-               iMSQ = ipMSQ(jden) + ISK(iSym)
                Do jv=1,NumV
-                  ifr=ipV+n2b*(jv-1)+nBas(iSym)*(jden-1)
-                  ito=iMSQ+nBas(iSym)*(jv-1)
-                  call dcopy_(nBas(iSym),Work(ifr),1,Work(ito),1)
+                  iv = 1 + nBas(iSym)*(jden-1)
+                  call dcopy_(nBas(iSym),V(iv:,jv),1,
+     &                                   MSQ(jDen)%SB(iSym)%A2(:,jv),1)
                End Do
             End Do
          End If
-
 
         EndIf
 
@@ -132,11 +129,11 @@ C --- Inactive P[kl](a,b) = sum_i C[k](a,i)*C[l](b,i)
 
         iSym=iSym+1
 
+        V    => Null()
         DMat => Null()
         PMat => Null()
 
       End Do
-
 
       If (nDen.gt.1) Call mma_deallocate(PMat0)
       Call mma_deallocate(DMat0)
@@ -145,6 +142,4 @@ C --- Inactive P[kl](a,b) = sum_i C[k](a,i)*C[l](b,i)
       If (irc.ne.0 .or. ikc.ne.0) iOK=1
 
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer_array(ISLT)
       End

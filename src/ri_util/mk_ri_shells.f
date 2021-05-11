@@ -30,7 +30,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
 #include "real.fh"
 #include "print.fh"
       Logical Hit, IfTest

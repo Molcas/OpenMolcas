@@ -15,7 +15,7 @@
       USE SUPERINDEX
       USE INPUTDATA, ONLY: INPUT
       USE PT2WFN
-      use output_caspt2, only:iPrGlb,terse,usual,verbose,debug
+      use output_caspt2, only:iPrGlb,terse,usual,verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King, Set_Do_Parallel
 #endif
@@ -144,7 +144,7 @@ C
         DO I=1,NSTATE
           HEFF(I,I) = REFENE(I)
         END DO
-        IF (IPRGLB.GE.DEBUG) THEN
+        IF (IPRGLB.GE.VERBOSE) THEN
           write(6,*)' Heff[1] in the original model space basis:'
           call prettyprint(Heff,Nstate,Nstate)
         END IF
@@ -376,35 +376,37 @@ C End of long loop over groups
       IF (IRETURN.NE.0) GOTO 9000
       IF(IPRGLB.GE.TERSE) THEN
        WRITE(6,*)' Total CASPT2 energies:'
-       DO I=1,NSTATE
-        IF ((NLYROOT.NE.0).AND.(I.NE.NLYROOT)) CYCLE
-        CALL PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
+       IF (IFXMS.or.IFRMS) THEN
+        WRITE(6,*)
+        WRITE(6,*)' State-specific CASPT2 energies obtained using'
+        WRITE(6,*)' rotated states do not have a well-defined physical'
+        WRITE(6,*)' meaning, however they can be extracted from the'
+        WRITE(6,*)' diagonal of the effective Hamiltonian.'
+       ELSE
+        DO I=1,NSTATE
+         IF ((NLYROOT.NE.0).AND.(I.NE.NLYROOT)) CYCLE
+         CALL PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
      &    'CASPT2 Root',MSTATE(I),'Total energy:',ENERGY(I),1)
-       END DO
-       WRITE(6,*)
-       IF (IFXMS) THEN
-        WRITE(6,*)' Note that these CASPT2 energies are obtained using'
-        WRITE(6,*)' the XMS Fock operator and thus do not correspond'
-        WRITE(6,*)' to the true single-state CASPT2 ones.'
+        END DO
+        IF(IPRGLB.GE.VERBOSE.AND.(NLYROOT.EQ.0)) THEN
+         WRITE(6,*)
+         WRITE(6,*)' Relative CASPT2 energies:'
+         WRITE(6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)')
+     &     'Root', '(a.u.)', '(eV)', '(cm^-1)', '(kJ/mol)'
+         ISTATE=1
+         DO I=2,NSTATE
+           IF (ENERGY(I).LT.ENERGY(ISTATE)) ISTATE=I
+         END DO
+         DO I=1,NSTATE
+          RELAU = ENERGY(I)-ENERGY(ISTATE)
+          RELEV = RELAU * CONV_AU_TO_EV_
+          RELCM = RELAU * CONV_AU_TO_CM1_
+          RELKJ = RELAU * CONV_AU_TO_KJ_PER_MOLE_
+          WRITE(6,'(1X,I4,4X,F12.8,1X,F10.2,1X,F10.1,1X,F10.2)')
+     &     MSTATE(I), RELAU, RELEV, RELCM, RELKJ
+         END DO
+        END IF
        END IF
-       WRITE(6,*)
-      END IF
-      IF(IPRGLB.GE.VERBOSE.AND.(NLYROOT.EQ.0)) THEN
-       WRITE(6,*)' Relative CASPT2 energies:'
-       WRITE(6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)')
-     &   'Root', '(a.u.)', '(eV)', '(cm^-1)', '(kJ/mol)'
-       ISTATE=1
-       DO I=2,NSTATE
-         IF (ENERGY(I).LT.ENERGY(ISTATE)) ISTATE=I
-       END DO
-       DO I=1,NSTATE
-        RELAU = ENERGY(I)-ENERGY(ISTATE)
-        RELEV = RELAU * CONV_AU_TO_EV_
-        RELCM = RELAU * CONV_AU_TO_CM1_
-        RELKJ = RELAU * CONV_AU_TO_KJ_PER_MOLE_
-        WRITE(6,'(1X,I4,4X,F12.8,1X,F10.2,1X,F10.1,1X,F10.2)')
-     &   MSTATE(I), RELAU, RELEV, RELCM, RELKJ
-       END DO
        WRITE(6,*)
       END IF
 

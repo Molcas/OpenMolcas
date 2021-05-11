@@ -1423,7 +1423,7 @@ endif ()
 # Internal LAPACK+BLAS libraries from source code
 if (LINALG STREQUAL "Internal")
   message ("-- Using internal LAPACK+BLAS libraries (SLOW!)")
-  set (LINALG_LIBRARIES "lapack" "blas")
+  set (LINALG_LIBRARIES "blas" "lapack")
 endif ()
 
 # Runtime loading of LAPACK+BLAS libraries (experimental)
@@ -2702,7 +2702,7 @@ if (LINALG STREQUAL "Internal")
   if (NOT DEFINED ${util}_src)
     message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
-  foreach (lib "lapack" "blas")
+  foreach (lib ${LINALG_LIBRARIES})
     set (source ${${util}_src}/${lib}.f)
     add_library (${lib} ${source})
     list (APPEND ALL_SOURCES ${source})
@@ -3159,13 +3159,18 @@ install (DIRECTORY
   DESTINATION ${CMAKE_INSTALL_PREFIX}
 )
 
+if (BUILD_SHARED_LIBS AND BUILD_STATIC_LIBS)
+  set (subdir "/static")
+else ()
+  set (subdir "")
+endif ()
 install (TARGETS
   ${PROGRAM_EXECUTABLES}
   ${MOLCAS_LIBRARIES}
   OPTIONAL
   RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
   LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib${subdir}
 )
 
 install (PROGRAMS
@@ -3247,6 +3252,7 @@ if (EXTRA_INSTALL_TARGETS)
   install (TARGETS
     ${EXTRA_INSTALL_TARGETS}
     LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_PREFIX}/include
     OPTIONAL
   )
 endif ()

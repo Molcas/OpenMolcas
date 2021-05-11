@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,ipNocc,
+      SUBROUTINE CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,pNocc,
      &                      ALGO,REORD,MinMem,lOff1)
 
 *****************************************************************
@@ -32,16 +32,18 @@
 *                 in the calling routine
 ******************************************************************
       use ChoArr, only: nDimRS
+      use Data_Structures, only: Integer_Pointer
       Implicit Real*8 (a-h,o-z)
       Integer nSym,nBas(nSym),MinMem(nSym),iUHF,ALGO
       Integer Moccmx(nSym),Mabmx(nSym),MxBas(nSym)
       Logical REORD,xToDo,DoExchange(*)
-      Integer ipNocc(*)
+      Type (Integer_Pointer) :: pNocc(*)
 
-#include "WrkSpc.fh"
+      Integer Nocc, i, j
 
 **************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
+      Nocc(i,j) = pNocc(j)%I1(i)
 **************************************************
 
 
@@ -58,14 +60,14 @@ C============================
       lOff1=0
       Do i=1,nDen
          Do j=1,nSym
-            lOff1=Max(lOff1,iWork(ipNocc(i)+j-1))
+            lOff1=Max(lOff1,Nocc(j,i))
          End Do
       End Do
 
       do j=1,nSym
          Moccmx(j)=0
          do i=1,nDen
-            Moccmx(j)=Max(Moccmx(j),iWork(ipNocc(i)+j-1))
+            Moccmx(j)=Max(Moccmx(j),Nocc(j,i))
          end do
       end do
 

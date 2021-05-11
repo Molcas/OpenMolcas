@@ -44,7 +44,6 @@
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
 #define _no_nShs_
 #include "iTOffs.fh"
       Real*8, Allocatable :: TInt(:), ADiag(:)

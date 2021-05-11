@@ -256,7 +256,7 @@ contains
 
         ASSERT(size(PSMAT) == triangular_number(size(DMAT)))
 
-        DMAT(:) = 0._wp
+        DMAT(:) = 0.0_wp
         do pq = lbound(DMAT, 1), ubound(DMAT, 1)
             call one_el_idx(pq, p, q)
             do r = 1, inv_triang_number(size(DMAT))

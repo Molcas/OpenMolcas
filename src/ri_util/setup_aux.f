@@ -8,15 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Setup_Aux(ip_SOShl,ip_ShlSO,ip_nBasSh,nIrrep,nBas,
-     &                     nShell,nShell_Aux,nSO,ip_iSSOff,
-     &                     TMax,CutOff,ip_iShij,nij_Shell,
+      Subroutine Setup_Aux(nIrrep,nBas,nShell,nShell_Aux,nSO,
+     &                     TMax,CutOff,nij_Shell,
      &                     nBas_Aux,nChV,iTOffs)
       use iSD_data
       use SOAO_Info, only: iSOInf
+      use j12, only: ShlSO, SOShl, nBasSh, iSSOff, iShij
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "setup.fh"
 #include "nsd.fh"
       Integer nBas(0:nIrrep-1), nBas_Aux(0:nIrrep-1),
@@ -45,10 +45,10 @@
          nSO_Aux = nSO_Aux + nBas_Aux(iIrrep)
       End Do
 *
-      Call GetMem('SOShl','Allo','Integer',ip_SOShl,nSO+nSO_Aux)
-      Call GetMem('ShlSO','Allo','Integer',ip_ShlSO,nSO+nSO_Aux)
-      Call GetMem('nBasSh','Allo','Integer',ip_nBasSh,
-     &            (nShell+nShell_Aux)*nIrrep)
+      Call mma_allocate(SOShl,nSO+nSO_Aux,Label='SOShl')
+      Call mma_allocate(ShlSO,nSO+nSO_Aux,Label='ShlSO')
+      Call mma_allocate(nBasSh,[0,nIrrep-1],
+     &                         [1,nShell+nShell_Aux],Label='nBasSh')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -67,14 +67,14 @@ C        Write (*,*) 'iCnttp,iCnt,iAng=',iCnttp,iCnt,iAng
             If (jCnttp.eq.iCnttp .and.
      &          jCnt  .eq.iCnt   .and.
      &          jAng  .eq.iAng         ) Then
-               iWork(ip_SOShl-1+iSO)=iSkal
+               SOShl(iSO)=iSkal
 C              Write (*,*) 'Found in shell=',iSkal
                Go To 99
             End If
          End Do
  99      Continue
       End Do
-C     Call iVcPrt('SOShl',' ',iWork(ip_SOShl),nSO+nSO_Aux)
+C     Call iVcPrt('SOShl',' ',SOShl,nSO+nSO_Aux)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -95,15 +95,15 @@ C     Call iVcPrt('SOShl',' ',iWork(ip_SOShl),nSO+nSO_Aux)
             End If
          End Do
       End Do
-      Call GetMem('Shij','Allo','Inte',ip_iShij,2*nij_Shell)
+      Call mma_allocate(iShij,2,nij_Shell,Label='iShij')
 *
       ij_Shell = 0
       Do iSkal = 1, nShell
          Do jSkal = 1, iSkal
             If (TMax(iSkal,jSkal)*TMax_ij.ge.CutOff) Then
                ij_Shell = ij_Shell + 1
-               iWork(ip_iShij+(ij_Shell-1)*2  )=iSkal
-               iWork(ip_iShij+(ij_Shell-1)*2+1)=jSkal
+               iShij(1,ij_Shell)=iSkal
+               iShij(2,ij_Shell)=jSkal
 #ifdef _DEBUGPRINT_
                Write (6,*) 'ij_Shell,iSkal,jSkal=',
      &                      ij_Shell,iSkal,jSkal
@@ -114,26 +114,24 @@ C     Call iVcPrt('SOShl',' ',iWork(ip_SOShl),nSO+nSO_Aux)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nSSOff = nIrrep**2 * nij_Shell
-      Call GetMem('iSSOff','Allo','Integer',ip_iSSOff,nSSOff)
+      Call mma_allocate(iSSOff,[0,nIrrep-1],[0,nIrrep-1],
+     &                  [1,nij_Shell],Label='iSSOff')
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *
-      Call Setup_Aux_(iWork(ip_SOShl),nSO+nSO_Aux,iWork(ip_ShlSO),
-     &                iWork(ip_nBasSh),nShell+nShell_Aux,nIrrep,nBas,
-     &                iWork(ip_iSSOff),nij_Shell,iWork(ip_iShij),
-     &                nBas_Aux,nChV,iTOffs)
+      Call Setup_Aux_Internal(SOShl,nSO+nSO_Aux,ShlSO,
+     &                        nBasSh,nShell+nShell_Aux,nIrrep,nBas,
+     &                        iSSOff,nij_Shell,iShij,
+     &                        nBas_Aux,nChV,iTOffs)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUGPRINT_
-      Write (6,*) 'ip_iShij=',ip_iShij
       Write (6,*) 'nij_Shell=',nij_Shell
       Write (6,*)
       Do ij_Shell = 1, nij_Shell
-         Write (6,*) iWork(ip_iShij+(ij_Shell-1)*2  ),
-     &               iWork(ip_iShij+(ij_Shell-1)*2+1)
+         Write (6,*) iShij(1,ij_Shell),iShij(2,ij_Shell)
       End Do
 #endif
 *                                                                      *
@@ -141,8 +139,13 @@ C     Call iVcPrt('SOShl',' ',iWork(ip_SOShl),nSO+nSO_Aux)
 *                                                                      *
       Return
       End
-      Subroutine Setup_Aux_(iSOShl,nSO,iShlSO,nBasSh,nShell,nIrrep,nBas,
-     &                      iSSOff,nij_Shell,iShij,nBas_Aux,nChV,iTOffs)
+
+
+
+
+      Subroutine Setup_Aux_Internal(iSOShl,nSO,iShlSO,nBasSh,nShell,
+     &                              nIrrep,nBas,iSSOff,nij_Shell,iShij,
+     &                              nBas_Aux,nChV,iTOffs)
       Implicit Real*8 (a-h,o-z)
       Integer iSOShl(nSO), iShlSO(nSO), nBasSh(0:nIrrep-1,nShell),
      &        nBas(0:nIrrep-1), nBas_Aux(0:nIrrep-1), nChV(0:nIrrep-1),

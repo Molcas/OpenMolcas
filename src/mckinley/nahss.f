@@ -121,6 +121,7 @@
 *
       kdc = 0
       Do kCnttp = 1, nCnttp
+         If (kCnttp==iCnttp_Dummy) Go To 111
          If (dbsc(kCnttp)%Charge.eq.Zero) Go To 111
          Do kCnt = 1, dbsc(kCnttp)%nCntr
             C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
