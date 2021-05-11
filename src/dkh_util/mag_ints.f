@@ -19,6 +19,7 @@ C
       subroutine copy_mag_ints(natoms)
       implicit none
 #include "WrkSpc.fh"
+      dimension IDUM(1)
       integer nmag, irc, iopt, icomp, toper, iat, jtri
       integer iscrt, ncomp, natoms, lu_one
       character*8 Label
@@ -37,8 +38,9 @@ C
       iComp=1
       tOper=255
       ! Integral dimensions
-      call iRdOne(irc,iOpt,Label,iComp,nmag,tOper)
+      call iRdOne(irc,iOpt,Label,iComp,idum,tOper)
       if (irc.ne.0) goto 9999
+      nmag=idum(1)
       ! Some scratch space
       call GetMem('scratch ','ALLO','REAL',iscrt,nmag+4)
       iOpt=0

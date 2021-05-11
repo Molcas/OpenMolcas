@@ -20,7 +20,7 @@
       integer mcaddr(MxAO)
       real*8 bint(*),sint(*)
       logical New_Center,New_l,New_m, Old_Center, Old_l
-      integer npc, istart
+      integer istart
       integer np, nc, ip, jp, kp
       logical donorm
       real*8, allocatable :: mag(:,:), u2c(:,:), scr(:,:)
@@ -192,7 +192,6 @@ c         If (idbg.gt.0) Write(idbg,*) ipbasL,jpbasL,kp
 
         np = nBas(0)
         nc = nrBas(1)
-        npc = np * nc
         ! Scratch to square the mag ints and contract
         ierr = 0
         allocate(mag(np, np), stat=ierr)
@@ -201,9 +200,9 @@ c         If (idbg.gt.0) Write(idbg,*) ipbasL,jpbasL,kp
         allocate(u2c(np, nc), stat=ierr)
         if (.not. ierr.eq.0) write(6,*) 'error allocating u2c'
         ierr = 0
-!        allocate(u2ct(nc, np), stat=ierr)
-!        if (.not. ierr.eq.0) write(6,*) 'error allocating u2ct'
-!        ierr = 0
+        allocate(u2ct(nc, np), stat=ierr)
+        if (.not. ierr.eq.0) write(6,*) 'error allocating u2ct'
+        ierr = 0
         allocate(scr(np, nc), stat=ierr)
         if (.not. ierr.eq.0) write(6,*) 'error allocating scr'
         ierr = 0
@@ -212,12 +211,14 @@ c         If (idbg.gt.0) Write(idbg,*) ipbasL,jpbasL,kp
         ierr = 0
         allocate(pa(np), stat=ierr)
         if (.not. ierr.eq.0) write(6,*) 'error allocating pa'
-!
-!        mag(:,:) = 0
-!        u2c(:,:) = 0
-!        scr(:,:) = 0
-!        fin(:,:) = 0
-!
+
+        mag(:,:) = 0
+        u2c(:,:) = 0
+        u2ct(:,:) = 0
+        scr(:,:) = 0
+        fin(:,:) = 0
+        pa(:) = 0
+
         ! Square the uncontracted ints
         mp = 0
         do ip = 1, np
@@ -240,7 +241,7 @@ c         If (idbg.gt.0) Write(idbg,*) ipbasL,jpbasL,kp
         enddo
 
         ! U2C.T * UNCON * U2C => CON
-        u2ct = transpose(u2c)
+        u2ct(:,:) = transpose(u2c)
 
         ! Since dgemm_ is causing trouble and this is trivial
         do iprim = 1, np
