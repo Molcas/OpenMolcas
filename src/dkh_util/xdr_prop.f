@@ -44,6 +44,7 @@ C Local variables
       integer iPSO, iPSOt
       integer jComp, iPSOComp
       integer ip_Ppso
+      integer, dimension(1) :: IDUM
       character*8 magLabel
       character*8 PSOLabel
 C
@@ -113,7 +114,8 @@ c *         PSO n = MAG a - MAG b
             iOpt = 1
             iRC = -1
             lOper = -1
-            call iRdOne(iRC,iOpt,magLabel,iComp,nInt,lOper)
+            call iRdOne(iRC,iOpt,magLabel,iComp,idum,lOper)
+            nInt = IDUM(1)
             If (iRC.ne.0) Go To 9999
             call getmem('MAGaXP','ALLOC','REAL',imagaXP,nInt+4)
             iOpt = 0
@@ -166,7 +168,9 @@ c *         PSO n = MAG a - MAG b
             iOpt = 1
             iRC = -1
             lOper = -1
-            call iRdOne(iRC,iOpt,magLabel,jComp,nInt,lOper)
+            call iRdOne(iRC,iOpt,magLabel,jComp,idum,lOper)
+            nInt = IDUM(1)
+            If (iRC.ne.0) Go To 9999
             call getmem('MAGbXP','ALLOC','REAL',imagbXP,nInt+4)
             iOpt = 0
             iRC = -1
@@ -207,7 +211,8 @@ c *         PSO n = MAG a - MAG b
             call getmem('MAGbXPs','FREE','REAL',imagbXPs,nn)
             write(PSOLabel,'(A,A3)') 'PSOI ',Label(6:8)
             !test for off-diagonal elements
-            call CmpInt(Work(iPSO),nInt,nbas,nSym,lOper)
+            IDUM(1) = nbas
+            call CmpInt(Work(iPSO),nInt,idum(1),nSym,lOper)
             ! store PSO integrals to ONEINT
             call getmem('PSOt','ALLOC','REAL',iPSOt,nInt+4)
             k = 0
