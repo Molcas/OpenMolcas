@@ -19,7 +19,7 @@ C
       subroutine copy_mag_ints(natoms)
       implicit none
 #include "WrkSpc.fh"
-      dimension IDUM(1)
+      integer, dimension(1) :: IDUM
       integer nmag, irc, iopt, icomp, toper, iat, jtri
       integer iscrt, ncomp, natoms, lu_one
       character*8 Label

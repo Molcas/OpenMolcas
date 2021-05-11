@@ -15,6 +15,7 @@
 #include "itmax.fh"
 #include "Molcas.fh"
 #include "rinfo.fh"
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
       integer icaddr(MxAO),numc(MxAO),ihelp(MxAtom,iTabMx),numb(MxAO)
       integer mcaddr(MxAO)
@@ -193,26 +194,14 @@ c         If (idbg.gt.0) Write(idbg,*) ipbasL,jpbasL,kp
         np = nBas(0)
         nc = nrBas(1)
         ! Scratch to square the mag ints and contract
-        ierr = 0
-        allocate(mag(np, np), stat=ierr)
-        if (.not. ierr.eq.0) write(6,*) 'error allocating mag'
-        ierr = 0
-        allocate(u2c(np, nc), stat=ierr)
-        if (.not. ierr.eq.0) write(6,*) 'error allocating u2c'
-        ierr = 0
-        allocate(u2ct(nc, np), stat=ierr)
-        if (.not. ierr.eq.0) write(6,*) 'error allocating u2ct'
-        ierr = 0
-        allocate(scr(np, nc), stat=ierr)
-        if (.not. ierr.eq.0) write(6,*) 'error allocating scr'
-        ierr = 0
-        allocate(fin(nc, nc), stat=ierr)
-        if (.not. ierr.eq.0) write(6,*) 'error allocating fin'
-        ierr = 0
-        allocate(pa(np), stat=ierr)
-        if (.not. ierr.eq.0) write(6,*) 'error allocating pa'
+        call mma_allocate(mag,np,np)
+        call mma_allocate(u2c,np,nc)
+        call mma_allocate(u2ct,nc,np)
+        call mma_allocate(scr,np,nc)
+        call mma_allocate(fin,nc,nc)
+        call mma_allocate(pa,np)
 
-        mag(:,:) = 0
+        mag(:,:)=0
         u2c(:,:) = 0
         u2ct(:,:) = 0
         scr(:,:) = 0
@@ -275,12 +264,12 @@ c         If (idbg.gt.0) Write(idbg,*) ipbasL,jpbasL,kp
           enddo
         enddo
 
-        deallocate(mag)
-        deallocate(u2c)
-        deallocate(u2ct)
-        deallocate(scr)
-        deallocate(fin)
-        deallocate(pa)
+        call mma_deallocate(mag)
+        call mma_deallocate(u2c)
+        call mma_deallocate(u2ct)
+        call mma_deallocate(scr)
+        call mma_deallocate(fin)
+        call mma_deallocate(pa)
 
         call cpu_time(finish)
 
