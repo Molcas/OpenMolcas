@@ -222,7 +222,7 @@ C positioning.
             END IF
 
             ! if a denominator has changed significantly
-            if (abs(DNOMR - DNOM).gt.0.2d0) then
+            if (abs(DNOMR - DNOM).gt.0.5d0) then
               ! compute unregularized contribution
               ECNTD = -RHS**2/DNOM
               ! if the energy contribution has changed a lot
@@ -239,7 +239,7 @@ C positioning.
             WRITE(6,'(A,4F16.8)') LINE(1:46),DNOMR,RHS,COEF,ECNT
 
             ! if a denominator has changed significantly
-            if (abs(DNOMR - DNOM).gt.0.2d0) then
+            if (abs(DNOMR - DNOM).gt.0.5d0) then
               if (abs(ECNTD - ECNT).gt.1.0e-4) then
                 COEFD = -RHS/DNOM
                 write(6,'(A)')'------------------------------'//
