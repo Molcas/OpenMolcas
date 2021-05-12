@@ -11,6 +11,7 @@
       SUBROUTINE H0SPCT
       use output_caspt2, only:iPrGlb,verbose
       use output_caspt2, only:dnmThr,cntThr,cmpThr
+      use Caspt2_Globals, only: regularizer
 #ifdef _MOLCAS_MPP_
       use allgather_wrapper, only : allgather
       USE Para_Info, ONLY: Is_Real_Par
@@ -196,6 +197,10 @@ C positioning.
             IAS  = IWORK(LIDX+0+2*(IBUF-1))
             IIS  = IWORK(LIDX+1+2*(IBUF-1))
             DNOM = WORK(LVAL+0+4*(IBUF-1))
+            ! Print out regularized denominator
+            if (regularizer.gt.0.0d0) then
+              DNOM = DNOM/(1.0 - exp(-regularizer * DNOM**2))
+            end if
             RHS  = WORK(LVAL+1+4*(IBUF-1))
             COEF = WORK(LVAL+2+4*(IBUF-1))
             ECNT = WORK(LVAL+3+4*(IBUF-1))
