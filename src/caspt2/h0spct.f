@@ -197,9 +197,9 @@ C positioning.
             IAS  = IWORK(LIDX+0+2*(IBUF-1))
             IIS  = IWORK(LIDX+1+2*(IBUF-1))
             DNOM = WORK(LVAL+0+4*(IBUF-1))
-            ! Print out regularized denominator
+            ! compute regularized denominator
             if (regularizer.gt.0.0d0) then
-              DNOM = DNOM/(1.0 - exp(-regularizer * DNOM**2))
+              DNOMR = DNOM/(1.0 - exp(-regularizer * DNOM**2))
             end if
             RHS  = WORK(LVAL+1+4*(IBUF-1))
             COEF = WORK(LVAL+2+4*(IBUF-1))
@@ -220,7 +220,35 @@ C positioning.
               IF(IQ.GT.0) LINE(31:38)=ORBNAM(IQ)
               IF(IR.GT.0) LINE(39:46)=ORBNAM(IR)
             END IF
-            WRITE(6,'(A,4F16.8)') LINE(1:46),DNOM,RHS,COEF,ECNT
+
+            ! if a denominator has changed significantly
+            if (abs(DNOMR - DNOM).gt.0.5d0) then
+              ! compute unregularized contribution
+              ECNTD = -RHS**2/DNOM
+              ! if the energy contribution has changed a lot
+              ! between regularized and unregularized denominators
+              if (abs(ECNTD - ECNT).gt.1.0e-4) then
+                write(6,'(A)')'------------------------------'//
+     &          ' large regularized ---------------------'//
+     &          '----------------------------------------'
+              end if
+            end if
+
+            ! print out the regularized denominator in any case
+            ! satisfying the official thresholds
+            WRITE(6,'(A,4F16.8)') LINE(1:46),DNOMR,RHS,COEF,ECNT
+
+            ! if a denominator has changed significantly
+            if (abs(DNOMR - DNOM).gt.0.5d0) then
+              if (abs(ECNTD - ECNT).gt.1.0e-4) then
+                write(6,'(A)')'------------------------------'//
+     &          ' original unregularized ----------------'//
+     &          '----------------------------------------'
+                WRITE(6,'(A,4F16.8)') LINE(1:46),DNOM,RHS,COEF,ECNTD
+                WRITE(6,'(10A11)')('-----------',i=1,10)
+              end if
+            end if
+
           END DO
 
 #ifdef _MOLCAS_MPP_
