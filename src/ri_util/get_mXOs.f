@@ -10,13 +10,13 @@
 ************************************************************************
       Subroutine Get_mXOs(kOrb,XO,locc,nSkal,nIrrep,nOcc)
       use ChoArr, only: nBasSh
+      use ExTerm, only: CMOi
       Implicit Real*8 (a-h,o-z)
       Integer kOrb, nOcc(nIrrep), nSkal
       Real*8 XO(locc,nSkal,nIrrep)
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "exterm.fh"
-#include "WrkSpc.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -27,10 +27,10 @@
 *
       Do ir=1,nIrrep
 *
-*        Pointer to the next block of X_i,mu
+*        The next block of X_i,mu
 *
-         jpCMO = ip_CMOi(kOrb) - 1 + iOff_CMOi(ir,kOrb)
-*        Call RecPrt('X_i,mu',' ',Work(jpCMO+1),nOcc(ir),nBas(ir))
+*        Call RecPrt('X_i,mu',' ',CMOi(kOrb)%SB(ir)%A2,nOcc(ir),
+*    &               nBas(ir))
 *
 *        Loop over all valence shells
 *
@@ -44,17 +44,17 @@
 *
             Do ib=1,nBasSh(ir,isk)
                kb=iOff+ib ! relative SO index in this irrepp
-               js=nOcc(ir)*(kb-1) ! pointer to block
-*              Write (*,*) 'js=',js
 *
 *              Loop over all the occupied MOs and pick up the largest
 *              coefficient for shell isk
 *
                Do iok=1,nOcc(ir)
-                  jok=jpCMO+js+iok
-*                 Write (*,*) 'jok=',js+iok
-*                 Write (*,*) 'Work(jok)=',Work(jok)
-                  XO(iok,isk,ir)=Max(XO(iok,isk,ir),abs(Work(jok)))
+*                 Write (*,*) 'iok,kb=',iok,kb
+*                 Write (*,*) 'CMOi(kOrb)%SB(ir)%A2(iok,kb)',
+*                              CMOi(kOrb)%SB(ir)%A2(iok,kb)
+                  XO(iok,isk,ir)=Max(XO(iok,isk,ir),
+     &              abs( CMOi(kOrb)%SB(ir)%A2(iok,kb) )
+     &                              )
                End Do
             End Do
             iOff=iOff+nBasSh(ir,isk)

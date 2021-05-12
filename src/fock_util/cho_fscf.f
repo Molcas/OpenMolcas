@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
 
-      SUBROUTINE CHO_FSCF(rc,nDen,ipFLT,nForb,nIorb,Porb,ipDLT,ExFac)
+      SUBROUTINE CHO_FSCF(rc,nDen,FLT,nForb,nIorb,Porb,DLT,ExFac)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -36,11 +36,9 @@ C
 
       Integer   rc,nDen
       Integer   iSkip(8)
-      Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2)
       Real*8    FactCI,FactXI,ExFac
-      Integer   ipDLT(nDen),ipFLT(nDen)
-      Type (DSBA_Type)   Porb(nDen)
+      Type (DSBA_Type)   Porb(nDen), DLT(nDen), FLT(nDen)
       Integer   nForb(8,nDen),nIorb(8,nDen)
 #ifdef _DEBUGPRINT_
       Logical   Debug
@@ -53,7 +51,6 @@ C
 #include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Real*8, Parameter:: xone = -one
@@ -95,14 +92,6 @@ C
         texch(:) = zero  !time for computing Exchange
 
 C ==================================================================
-
-c --- Various offsets
-c --------------------
-        ISTLT(1)=0
-      DO ISYM=2,NSYM
-        NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive D and F matrices
-      END DO
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -188,8 +177,8 @@ C --- Transform the density to reduced storage
                mode = 'toreds'
                add  = .false.
                nMat=1
-               ipDab = ip_of_Work(Drs(1))
-               Call move_sto(irc,iLoc,nMat,ipDLT,ipDab,mode,add)
+               Call Swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
+     &                           DLT,Drs,mode,add)
             EndIf
 
 C --- BATCH over the vectors ----------------------------
@@ -314,12 +303,10 @@ C ---------------------------------------------------------------------
 
                      If (iSkip(iSymk).ne.0) Then
 
-                        ISFI = ipFLT(jDen) + ISTLT(iSyma)
-
                         CALL DGEMM_TRI('T','N',nBas(iSyma),nBas(iSyma),
      &                         NK*JNUM,FactXI,Laq(jDen)%SB(iSymk)%A3,
      &                         NK*JNUM,Laq(jDen)%SB(iSymk)%A3,NK*JNUM,
-     &                         One,Work(ISFI),nBas(iSyma))
+     &                         One,FLT(jDen)%SB(iSyma)%A1,nBas(iSyma))
 
 
                      EndIf
@@ -345,9 +332,11 @@ C --------------------------------------------------------------------
 c --- backtransform fock matrix to full storage
                mode = 'tofull'
                add  = .true.
-               nMat = nDen
-               ipFab = ip_of_Work(Frs(1))
-               Call move_sto(irc,iLoc,nMat,ipFLT,ipFab,mode,add)
+               nMat = 1
+               Do iDen = 1, nDen
+                  Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
+     &                              FLT(iDen),Frs,mode,add)
+               End Do
             EndIf
 
 C --- free memory
@@ -413,11 +402,10 @@ c Print the Fock-matrix
           if(jden.eq.2) WRITE(6,'(6X,A)')'******** BETA SPIN ********* '
         endif
         DO ISYM=1,NSYM
-           ISFI=ipFLT(jDen)+ISTLT(ISYM)
            IF( NBAS(ISYM).GT.0 ) THEN
              WRITE(6,'(6X,A)')
              WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-             call TRIPRT('','',Work(ISFI),NBAS(ISYM))
+             call TRIPRT('','',FLT(jDen)%SB(ISYM)%A1,NBAS(ISYM))
            ENDIF
         END DO
       END DO
@@ -431,109 +419,3 @@ c Print the Fock-matrix
 
       Return
       END
-
-**************************************************************
-**************************************************************
-
-
-
-      SUBROUTINE move_sto(irc,iLoc,nDen,ipXLT,ipXab,mode,add)
-      use ChoArr, only: iRS2F
-      use ChoSwp, only: IndRed
-      Implicit Real*8 (a-h,o-z)
-      Integer  ISLT(8),cho_isao,nDen
-      External cho_isao
-      Integer ipXLT(nDen),ipXab
-      Logical add
-      Character*6 mode
-
-#include "cholesky.fh"
-#include "choorb.fh"
-#include "WrkSpc.fh"
-
-************************************************************************
-      iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-************************************************************************
-
-
-c Offsets to symmetry block in the LT matrix
-      ISLT(1)=0
-      DO ISYM=2,NSYM
-         ISLT(ISYM) = ISLT(ISYM-1)
-     &              + NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-      END DO
-
-**************************************************
-
-      jSym = 1 ! only total symmetric density
-
-      xf=0.0d0
-      if (add) xf=1.0d0 !accumulate contributions
-
-      If (mode.eq.'toreds') then
-
-         Do jRab=1,nnBstR(jSym,iLoc)
-
-            kRab = iiBstr(jSym,iLoc) + jRab
-            iRab = IndRed(kRab,iLoc)
-
-            iag   = iRS2F(1,iRab)  !global address
-            ibg   = iRS2F(2,iRab)
-
-            iSyma = cho_isao(iag)  !symmetry block; Sym(b)=Sym(a)
-
-            ias   = iag - ibas(iSyma)  !address within that symm block
-            ibs   = ibg - ibas(iSyma)
-            iab   = iTri(ias,ibs)
-
-            Do jDen=1,nDen
-
-               kfrom = ipXLT(jDen) + isLT(iSyma) + iab - 1
-
-               Work(ipXab+jRab-1) = xf*Work(ipXab+jRab-1)
-     &                            +    Work(kfrom)
-
-            End Do
-
-         End Do  ! jRab loop
-
-      ElseIf (mode.eq.'tofull') then
-
-         Do jRab=1,nnBstR(jSym,iLoc)
-
-            kRab = iiBstr(jSym,iLoc) + jRab
-            iRab = IndRed(kRab,iLoc)
-
-            iag   = iRS2F(1,iRab)  !global address
-            ibg   = iRS2F(2,iRab)
-
-            iSyma = cho_isao(iag)  !symmetry block; Sym(b)=Sym(a)
-
-            ias   = iag - ibas(iSyma)  !address within that symm block
-            ibs   = ibg - ibas(iSyma)
-            iab   = iTri(ias,ibs)
-
-            Do jDen=1,nDen
-
-               kto = ipXLT(jDen) + isLT(iSyma) + iab - 1
-
-               Work(kto) = xf*Work(kto)
-     &                   +    Work(ipXab+jRab-1)
-
-            End Do
-
-
-         End Do  ! jRab loop
-
-      Else
-
-         write(6,*)'Wrong input parameter. mode = ',mode
-         irc = 66
-         Call abend()
-
-      EndIf
-
-      irc = 0
-
-      Return
-      End

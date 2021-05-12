@@ -33,7 +33,6 @@
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "print.fh"
       Real*8 PSO(nijkl,nPSO), V_K(mV_K)
       Integer iCmp(4), iAO(4), iAOst(4)
       Logical Shijij
@@ -43,9 +42,6 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUGPRINT_
-      iRout = 39
-      iPrint = nPrint(iRout)
-      iPrint=99
       Call RecPrt('V_K',' ',V_K,1,mV_K)
 #endif
 *                                                                      *
@@ -189,10 +185,7 @@ C                           End If
       End If
 *
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In PGet2_CD2:PSO ',' ',PSO,nijkl,nPSO)
-      End If
-      Call GetMem(' Exit PGet2_CD2','CHECK','REAL',iDum,iDum)
+      Call RecPrt(' In PGet2_CD2:PSO ',' ',PSO,nijkl,nPSO)
 #endif
       Return
 c Avoid unused argument warnings

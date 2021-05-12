@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
-     &           FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
+     &           FactC,FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
 
 ************************************************************************
 *  Author : F. Aquilante
@@ -57,7 +57,7 @@
 *  ip{X}FS(nDen) : pointer to the array containing {X} in SQ storage
 *    {X=D,F --- Density, Fock matrix}
 *
-*  ipNocc(nDen) : pointer to the array of the Occupation numbers
+*  pNocc(nDen) : pointer to the array of the Occupation numbers
 *                 for the corresponding density
 *
 *  MinMem(nSym) : minimum amount of memory required to read
@@ -65,13 +65,17 @@
 *
 ************************************************************************
       use Data_Structures, only: SBA_type, Deallocate_SBA, Map_to_SBA
+      use Data_Structures, only: DSBA_type, Integer_Pointer
       Implicit Real*8 (a-h,o-z)
 
       Integer  rc,nDen,nBas(*)
       Real*8   FactC(nDen),FactX(nDen)
-      Integer  KSQ1(8),ISTSQ(8),ISTLT(8),iSkip(8),MinMem(*)
-      Integer  ipDLT(nDen),ipDSQ(nDen),ipNocc(nDen)
-      Integer  ipFLT(nDen),ipFSQ(nDen)
+      Integer  KSQ1(8),iSkip(8),MinMem(*)
+
+      Type (DSBA_Type) DLT(nDen), FLT(nDen), FSQ(nDen), DSQ(nDen)
+
+      Type (Integer_Pointer) :: pNocc(nDen)
+
 #ifdef _DEBUGPRINT_
       Logical  Debug
 #endif
@@ -86,7 +90,6 @@
       Logical, Parameter :: DoRead = .true.
 
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Type (SBA_Type), Target:: Wab
@@ -100,7 +103,7 @@
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 ******
-      nOcc(jSym,jDen) = iWork(ipNocc(jDen)-1+jSym)
+      nOcc(jSym,jDen) = pNocc(jDen)%I1(jSym)
 **************************************************
 
 #ifdef _DEBUGPRINT_
@@ -108,17 +111,17 @@
 #endif
       IREDC = -1  ! unknown reduced set in core
 
-        CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
+      CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
-        ! 1 --> CPU   2 --> Wall
-        tread(:) = zero  !time read/rreorder vectors
-        tcoul(:) = zero  !time for computing Coulomb
-        texch(:) = zero  !time for computing Exchange
+      ! 1 --> CPU   2 --> Wall
+      tread(:) = zero  !time read/rreorder vectors
+      tcoul(:) = zero  !time for computing Coulomb
+      texch(:) = zero  !time for computing Exchange
 
 C --- Tests on the type of calculation
-        DoSomeC=.false.
-        DoSomeX=.false.
-        MaxSym=0
+      DoSomeC=.false.
+      DoSomeX=.false.
+      MaxSym=0
 c
         jD=0
         do while (jD.lt.nDen .and. .not.DoSomeX)
@@ -140,18 +143,6 @@ c
                    Return  !we are lazy and won''t do anything
            End If
         End If
-
-c ISTSQ: Offsets to full symmetry block in DSQ,FSQ
-c ISTLT: Offsets to packed LT symmetry blocks in DLT,FLT
-        ISTSQ(1)=0
-        ISTLT(1)=0
-      DO ISYM=2,NSYM
-        NB=NBAS(ISYM-1)
-        NB2=NB*NB
-        NB3=(NB2+NB)/2
-        ISTSQ(ISYM)=ISTSQ(ISYM-1)+NB2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NB3
-      END DO
 
 C *************** BIG LOOP OVER VECTORS SYMMETRY *****************
       DO jSym=1,MaxSym
@@ -325,12 +316,12 @@ C
          DO iSymr=1,nSym
          IF(nBas(iSymr).ne.0.and.nOcc(iSymr,jDen).ne.0)THEN
 
-         ISDLT = ipDLT(jDen) + ISTLT(ISYMR)
          Naa = nBas(iSymr)*(nBas(iSymr)+1)/2
 
          CALL DGEMV_('T',Naa,NumV,
      &              ONE,Wab%SB(iSymr)%A2,Naa,
-     &              Work(ISDLT),1,ONE,VJ,1)
+     &                  DLT(jDen)%SB(ISYMR)%A1,1,
+     &              ONE,VJ,1)
 
          ENDIF
          End DO
@@ -343,12 +334,12 @@ C
           DO iSyms=1,nSym
           IF(nBas(iSyms).ne.0)THEN
 
-           ISFLT = ipFLT(jDen) + ISTLT(ISYMS)
            Naa = nBas(iSyms)*(nBas(iSyms)+1)/2
 
            CALL DGEMV_('N',Naa,NumV,
      &              FactC(jDen),Wab%SB(iSyms)%A2,Naa,
-     &              VJ,1,ONE,Work(ISFLT),1)
+     &                          VJ,1,
+     &                      ONE,FLT(jDen)%SB(ISYMS)%A1,1)
 
           ENDIF
           End DO
@@ -372,8 +363,6 @@ C ********** REORDER AND SQUARE ONE VECTOR AT THE TIME *****
 C     Reorder: L(rs,J) -> L(r,J,s).
 C     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
 
-         ISFSQ=0
-         ISDSQ=0
          DO iSymr=1,nSym
 
           iSymr_Occ=0
@@ -417,8 +406,6 @@ C     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
 C              Calculate intermediate:
 C              X(p,Js) = Sum(q) D(p,q) * L(q,Js).
 C              -----------------------------------
-               ISDSQ = ISTSQ(ISYMR) + ipDSQ(jDen)
-               ISFSQ = ISTSQ(ISYMR) + ipFSQ(jDen)
 
                NR=NBAS(ISYMR)
                XpJs(1:NR,1:NUMV,1:NR) => Wab%A0(1:NR*NUMV*NR)
@@ -426,7 +413,7 @@ C              -----------------------------------
 
                CALL DGEMM_('N','N',
      &               NBAS(ISYMR),NUMV*NBAS(ISYMR),NBAS(ISYMR),
-     &               ONE,WORK(ISDSQ),NBAS(ISYMR),
+     &               ONE,DSQ(jDen)%SB(ISYMR)%A2,NBAS(ISYMR),
      &                   LrJs, NBAS(ISYMR),
      &               ZERO,XpJs,NBAS(ISYMR))
 
@@ -438,7 +425,7 @@ C              --------------------------------------------------
      &                NBAS(ISYMR),NBAS(ISYMR),NBAS(ISYMR)*NUMV,
      &             -FactX(jDen),LrJs,NBAS(ISYMR)*NUMV,
      &                          XpJs,NBAS(ISYMR)*NUMV,
-     &                      One,Work(ISFSQ),NBAS(ISYMR))
+     &                      One,FSQ(jDen)%SB(ISYMR)%A2,NBAS(ISYMR))
 
 
                CALL CWTIME(TC1X2,TW1X2)
@@ -453,9 +440,6 @@ C              --------------------------------------------------
 
          END DO  ! loop over the densities
          LrJs=>Null()
-
-c         write(6,*)'Symmetry block of FSQ= ',isymr
-c         call recprt('FSQ','',Work(ISFSQ),NBAS(ISYMR),NBAS(ISYMR))
 
         ENDIF  ! nbas.ne.0 & nOcc.ne.0
 
@@ -492,9 +476,6 @@ C --- F(a,b) = - D(g,d) * (ad|gb)
 C -------------------------------
                if (nOcc(iSymg,jDen).ne.0) then
 
-               ISFSQ = ISTSQ(ISYMB) + ipFSQ(jDen)
-               ISDSQ = ISTSQ(ISYMG) + ipDSQ(jDen)
-
                nD=NBAS(ISYMD)
                nB=NBAS(ISYMB)
                XdJb(1:nD,1:NumV,1:nB)=> Wab%A0(iE+1:iE+nD*NumV*nB)
@@ -505,9 +486,9 @@ C              ----------------------------------
 
                CALL DGEMM_('N','N',
      &                    NBAS(ISYMD),NUMV*NBAS(ISYMB),NBAS(ISYMG),
-     &                    ONE,Work(ISDSQ),NBAS(ISYMD),
+     &                    ONE,DSQ(jDen)%SB(ISYMG)%A2,NBAS(ISYMD),
      &                        Wab%SB(ISYMG)%A2,NBAS(ISYMG),
-     &                    ZERO,XdJb,NBAS(ISYMD))
+     &                   ZERO,XdJb,NBAS(ISYMD))
 
 
 C              F(a,b) = F(a,b) - Sum(dJ) L(dJ,a) * X(dJ,b).
@@ -517,11 +498,7 @@ C              -------------------------------------------
      &              NBAS(ISYMA),NBAS(ISYMB),NBAS(ISYMD)*NUMV,
      &              -FactX(jDen),Wab%SB(ISYMG)%A2,NBAS(ISYMD)*NUMV,
      &                           XdJb,NBAS(ISYMD)*NUMV,
-     &                       ONE,Work(ISFSQ),NBAS(ISYMA))
-
-c         write(6,*)'Symmetry block of FSQ= ',isyma
-c         write(6,*)'Symmetry of the density= ',isymg
-c         call recprt('FSQ','',Work(ISFSQ),NBAS(ISYMA),NBAS(ISYMA))
+     &                       ONE,FSQ(jDen)%SB(ISYMB)%A2,NBAS(ISYMA))
 
                   XdJb=>Null()
 
@@ -530,9 +507,6 @@ C -------------------------------
 C --- F(g,d) = - D(a,b) * (ad|gb)
 C -------------------------------
                if (nOcc(iSyma,jDen).ne.0) then
-
-               ISFSQ = ISTSQ(ISYMG) + ipFSQ(jDen)
-               ISDSQ = ISTSQ(ISYMB) + ipDSQ(jDen)
 
                nG=NBAS(ISYMG)
                nB=NBAS(ISYMB)
@@ -545,8 +519,8 @@ C              ----------------------------------
                CALL DGEMM_('N','N',
      &                  NBAS(ISYMG)*NUMV,NBAS(ISYMB),NBAS(ISYMA),
      &                  ONE,Wab%SB(ISYMG)%A2,NBAS(ISYMG)*NUMV,
-     &                      WORK(ISDSQ),NBAS(ISYMA),
-     &                  ZERO,XgJb,NBAS(ISYMG)*NUMV)
+     &                      DSQ(jDen)%SB(ISYMB)%A2,NBAS(ISYMA),
+     &                 ZERO,XgJb,NBAS(ISYMG)*NUMV)
 
 
 C              F(g,d) = F(g,d) - Sum(Jb) X(g,Jb) * L(d,Jb).
@@ -556,11 +530,8 @@ C              -------------------------------------------
      &              NBAS(ISYMG),NBAS(ISYMD),NUMV*NBAS(ISYMB),
      &              -FactX(jDen),XgJb,NBAS(ISYMG),
      &                           Wab%SB(ISYMG)%A2,NBAS(ISYMD),
-     &                       ONE,Work(ISFSQ),NBAS(ISYMG))
+     &                       ONE,FSQ(jDen)%SB(ISYMG)%A2,NBAS(ISYMG))
 
-c         write(6,*)'Symmetry block of FSQ= ',isymg
-c         write(6,*)'Symmetry of the density= ',isyma
-c         call recprt('FSQ','',Work(ISFSQ),NBAS(ISYMG),NBAS(ISYMG))
 
               XgJb=>Null()
 
@@ -636,14 +607,11 @@ c Print the Fock-matrix
           WRITE(6,'(6X,A,I2)')'DoExchange: ',DoExchange(jDen)
           WRITE(6,*)
       if(DoExchange(jDen))then
-      icount=0
       DO ISYM=1,NSYM
-      ISQ=ipFSQ(jDen)+icount
         NB=NBAS(ISYM)
         IF ( NB.GT.0 ) THEN
           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          call cho_output(Work(ISQ),1,NB,1,NB,NB,NB,1,6)
-          icount=icount+NB**2
+          call cho_output(FSQ(jDen)%SB(ISYM)%A2,1,NB,1,NB,NB,NB,1,6)
         END IF
       END DO
       endif

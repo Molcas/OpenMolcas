@@ -40,4 +40,3 @@
       Integer iStabM(0:nStabM-1)
 #endif
 #undef _CALLING_
-

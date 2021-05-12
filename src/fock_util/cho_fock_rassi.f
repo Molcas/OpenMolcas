@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHO_FOCK_RASSI(ipDLT,MO1,MO2,ipFLT,ipInt)
+      SUBROUTINE CHO_FOCK_RASSI(DLT,MO1,MO2,FLT,TUVX)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -44,13 +44,13 @@ C
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
-      Type (DSBA_Type) MO1(2), MO2(2)
+      Type (DSBA_Type) DLT, MO1(2), MO2(2), FLT
+      Real*8 TUVX(*)
       Type (SBA_Type), Target:: Laq(2)
       Type (twxy_type) Scr
 
       Integer   rc
       Integer   iSkip(8)
-      Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
 #ifdef _DEBUGPRINT_
       Logical   Debug
@@ -69,7 +69,6 @@ C
 #include "rassi.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Real*8, Allocatable:: Lrs(:,:), Drs(:), Frs(:)
@@ -99,16 +98,6 @@ C
       tcoul(:) = zero  !time for computing Coulomb
       texch(:) = zero  !time for computing Exchange
       tintg(:) = zero  !time for computing (tw|xy) integrals
-
-C ==================================================================
-
-c --- Various offsets
-c --------------------
-      ISTLT(1)=0
-      DO ISYM=2,NSYM
-        NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive F matrix
-      END DO
 
 C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
       DO jSym=1,nSym
@@ -194,7 +183,7 @@ C --- Transform the density to reduced storage
                mode = 'toreds'
                add =.False.
                mDen=1
-               Call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,[ipDLT],Drs,
+               Call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,[DLT],Drs,
      &                           mode,add)
             EndIf
 
@@ -319,12 +308,10 @@ C ---------------------------------------------------------------------
 
                   If (iSkip(iSymk).ne.0) Then
 
-                     ISFI = ipFLT + ISTLT(iSyma)
-
                      CALL DGEMM_Tri('T','N',NBAS(iSyma),NBAS(iSyma),
      &                         NK*JNUM,FactXI,Laq(kDen)%SB(iSymk)%A3,
      &                         NK*JNUM,Laq(kDen)%SB(iSymk)%A3,NK*JNUM,
-     &                             One,Work(ISFI),NBAS(iSyma))
+     &                             One,FLT%SB(iSyma)%A1,NBAS(iSyma))
 
                   EndIf
 
@@ -405,8 +392,8 @@ C *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
 
                DoReord = JRED.eq.JRED2.and.iBatch.eq.nBatch
 
-               CALL CHO_rassi_twxy(irc,Scr,Laq(2),ipInt,nAsh,
-     &                                 JSYM,JNUM,DoReord)
+               CALL CHO_rassi_twxy(irc,Scr,Laq(2),TUVX,nAsh,JSYM,JNUM,
+     &                             DoReord)
 
                CALL CWTIME(TCINT2,TWINT2)
                tintg(1) = tintg(1) + (TCINT2 - TCINT1)
@@ -430,7 +417,7 @@ c --- backtransform fock matrix to full storage
                mode = 'tofull'
                add = .True.
                mDen=1
-               Call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,[ipFLT],Frs,
+               Call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,[FLT],Frs,
      &                           mode,add)
             EndIf
 
@@ -497,12 +484,11 @@ c Print the Fock-matrix
       WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM
       WRITE(6,'(6X,A)')
       DO ISYM=1,NSYM
-        ISLFI=ipFLT+ISTLT(ISYM)
         IF( NBAS(ISYM).GT.0 ) THEN
           WRITE(6,'(6X,A)')'***** INACTIVE FOCK MATRIX ***** '
           WRITE(6,'(6X,A)')
           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          call TRIPRT('','',Work(ISLFI),NBAS(ISYM))
+          call TRIPRT('','',FLT%SB(ISYM)%A1,NBAS(ISYM))
         ENDIF
       END DO
 

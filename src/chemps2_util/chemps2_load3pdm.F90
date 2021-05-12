@@ -16,6 +16,8 @@
 
 subroutine chemps2_load3pdm(NAC,idxG3,NG3,storage,doG3,EPSA,F2,chemroot)
 
+#include "intent.fh"
+
 #ifdef _MOLCAS_MPP_
 use MPI
 #endif
@@ -27,7 +29,8 @@ use Definitions, only: wp, iwp, i1, u6
 implicit none
 integer(kind=iwp), intent(in) :: NAC, NG3, chemroot
 integer(kind=i1), intent(in) :: idxG3(6,NG3)
-real(kind=wp), intent(out) :: storage(*), F2(NAC,NAC,NAC,NAC)
+real(kind=wp), intent(_OUT_) :: storage(*)
+real(kind=wp), intent(out) :: F2(NAC,NAC,NAC,NAC)
 logical(kind=iwp), intent(in) :: doG3
 real(kind=wp), intent(in) :: EPSA(NAC)
 character(len=30) :: file_3rdm, file_f4rdm

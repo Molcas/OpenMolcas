@@ -17,7 +17,6 @@
 *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
       Real*8 A_3C(nMuNu,*), Qv(nI,nK), Rv(nMuNu,*)
       Character*1 QMode
 *

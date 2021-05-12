@@ -26,7 +26,24 @@
 
       Real*8, Allocatable:: Temp(:)
 #include "choras.fh"
-
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      SUBROUTINE CHORAS_DRV(nSym,nBas,nOcc,W_DSQ,W_DLT,W_FLT,ExFac,FSQ,
+     &                      W_CMO)
+      use Data_Structures, only: DSBA_Type
+      Integer nSym, nBas(8)
+      Integer, Target :: nOcc(nSym)
+      Real*8 W_FLT(*), W_DSQ(*),W_DLT(*)
+      Real*8 ExFac
+      Type (DSBA_Type) FSQ
+      Real*8 W_CMO(*)
+      END SUBROUTINE CHORAS_DRV
+      END Interface
+*                                                                      *
+************************************************************************
+*
 
       Call DecideOncholesky(DoCholesky)
 

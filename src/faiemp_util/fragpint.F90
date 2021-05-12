@@ -12,10 +12,10 @@
 !               2016, Liviu Ungur                                      *
 !***********************************************************************
 
-subroutine FragPInt(                                                    &
+subroutine FragPInt( &
 #                   define _CALLING_
 #                   include "int_interface.fh"
-&                  )
+                   )
 !***********************************************************************
 !                                                                      *
 ! Object: kernel routine for the computation of Fragment AIEMP         *
@@ -67,6 +67,7 @@ use iSD_data, only: iSD
 use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iChTbl
+use Index_util, only: iTri, nTri0Elem
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
@@ -116,8 +117,8 @@ write(u6,*) ' In FragPInt: nZeta=',' ',nZeta
 write(u6,*) ' In FragPInt:  nArr=',' ',nArr
 write(u6,*) ' In FragPInt:   nIC=',' ',nIC
 write(u6,*) ' In FragPInt: la,lb=',' ',la,lb
-write(u6,*) ' In FragPInt: nElem(la)=',' ',nElem(la)
-write(u6,*) ' In FragPInt: nElem(lb)=',' ',nElem(lb)
+write(u6,*) ' In FragPInt: nTri0Elem(la)=',' ',nTri0Elem(la)
+write(u6,*) ' In FragPInt: nTri0Elem(lb)=',' ',nTri0Elem(lb)
 call RecPrt(' In FragPInt: A     ',' ',A,1,3)
 call RecPrt(' In FragPInt: RB    ',' ',RB,1,3)
 call RecPrt(' In FragPInt: Ccoor ',' ',Ccoor,1,3)
@@ -174,7 +175,7 @@ do iS=1,nSkal
   mdci = iSD(10,iS)
   iCnttp = iSD(13,iS)
   iCnt = iSD(14,iS)
-  iSize = nElem(iAng)
+  iSize = nTri0Elem(iAng)
   C(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
   ! some printouts:
 # ifdef _DEBUGPRINT_
@@ -252,7 +253,7 @@ do iS=1,nSkal
     jPrim = iSD(5,jS)
     jCnttp = iSD(13,jS)
     jCnt = iSD(14,jS)
-    jSize = nElem(jAng)
+    jSize = nTri0Elem(jAng)
     B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
 #   ifdef _DEBUGPRINT_
     write(u6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jShll =',jShll
@@ -271,10 +272,10 @@ do iS=1,nSkal
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    ! Create a rectangular matrix sized (iBas*nElem(iAng),jBas*nElem(jAng))
+    ! Create a rectangular matrix sized (iBas*nTri0Elem(iAng),jBas*nTri0Elem(jAng))
     ! from the energy weighted density matrix (desymmetrized)
-    ! contains values from iSbasis to iSbasis + iBas*nElem(iAng) - 1
-    !             and from jSbasis to jSbasis + jBas*nElem(jAng) - 1
+    ! contains values from iSbasis to iSbasis + iBas*nTri0Elem(iAng) - 1
+    !             and from jSbasis to jSbasis + jBas*nTri0Elem(jAng) - 1
     ipIJ = 1+maxDensSize
 #   ifdef _DEBUGPRINT_
     write(u6,*) '    ipIJ=',ipIJ
@@ -318,7 +319,7 @@ do iS=1,nSkal
 
       ip = ipIJ+maxDensSize
       ipF1 = ip
-      nac = nElem(la)*nElem(iAng)
+      nac = nTri0Elem(la)*nTri0Elem(iAng)
       ip = ip+nAlpha*nac*iPrim
       ipP1 = ip
       ip = ip+3*nAlpha*iPrim
@@ -350,7 +351,7 @@ do iS=1,nSkal
 
       ip = ip-6*nAlpha*iPrim
       ipF2 = ip
-      ncb = nElem(jAng)*nElem(lb)
+      ncb = nTri0Elem(jAng)*nTri0Elem(lb)
       ip = ip+jPrim*nBeta*ncb
       ipP2 = ip
       ip = ip+3*jPrim*nBeta
@@ -397,10 +398,10 @@ do iS=1,nSkal
       ! to the spherical harmonics has to be for normalized
       ! spherical harmonics.
       !
-      ! nAlpha = i               nElem(la) = a
-      ! nBeta  = j               nElem(lb) = b
-      ! iPrim = k (iBas = K)     nElem(iAng) = c (iSize = C)
-      ! jPrim = l (jBas = l)     nElem(jAng) = d (jSize = D)
+      ! nAlpha = i               nTri0Elem(la) = a
+      ! nBeta  = j               nTri0Elem(lb) = b
+      ! iPrim = k (iBas = K)     nTri0Elem(iAng) = c (iSize = C)
+      ! jPrim = l (jBas = L)     nTri0Elem(jAng) = d (jSize = D)
       !
       !---From the lefthandside overlap, form iKaC from ikac by
       !   1) i,kac -> k,aci
@@ -423,28 +424,29 @@ do iS=1,nSkal
 
       !---4) a,ciK -> ciKa
 
-      call DgeTMo(Array(ipF1),nElem(la),nElem(la),nElem(iAng)*nAlpha*iBas,Array(ipTmp),nElem(iAng)*nAlpha*iBas)
+      call DgeTMo(Array(ipF1),nTri0Elem(la),nTri0Elem(la),nTri0Elem(iAng)*nAlpha*iBas,Array(ipTmp),nTri0Elem(iAng)*nAlpha*iBas)
 #     ifdef _DEBUGPRINT_
-      call RecPrt('result (regrouped, nElem(la) x X)',' ',Array(ipF1),nElem(la),nElem(iAng)*nAlpha*iBas)
-      call RecPrt('transpose of result (X x nElem(la))',' ',Array(ipTmp),nElem(iAng)*nAlpha*iBas,nElem(la))
+      call RecPrt('result (regrouped, nTri0Elem(la) x X)',' ',Array(ipF1),nTri0Elem(la),nTri0Elem(iAng)*nAlpha*iBas)
+      call RecPrt('transpose of result (X x nTri0Elem(la))',' ',Array(ipTmp),nTri0Elem(iAng)*nAlpha*iBas,nTri0Elem(la))
 #     endif
-      if ((ip-ipTmp) < nAlpha*iBas*nElem(iAng)*nElem(la)) stop 'sizetest 6'
+      if ((ip-ipTmp) < nAlpha*iBas*nTri0Elem(iAng)*nTri0Elem(la)) stop 'sizetest 6'
 
       !---5) iKa,C = c,iKa * c,C
 
       if (Shells(iShll)%Transf .and. Shells(iShll)%Prjct) then
-        call DGEMM_('T','N',iBas*nElem(la)*nAlpha,iSize,nElem(iAng),One,Array(ipTmp),nElem(iAng),RSph(ipSph(iAng)),nElem(iAng), &
-                    Zero,Array(ipF1),nAlpha*iBas*nElem(la))
+        call DGEMM_('T','N',iBas*nTri0Elem(la)*nAlpha,iSize,nTri0Elem(iAng),One,Array(ipTmp),nTri0Elem(iAng),RSph(ipSph(iAng)), &
+                    nTri0Elem(iAng),Zero,Array(ipF1),nAlpha*iBas*nTri0Elem(la))
 #       ifdef _DEBUGPRINT_
-        call RecPrt('result (regrouped, X x nElem(iAng))',' ',Array(ipTmp),nElem(la)*nAlpha*iBas,nElem(iAng))
-        call RecPrt('Spher of iS (nElem(iAng) x (2*iAng+1))',' ',RSph(ipSph(iAng)),nElem(iAng),(2*iAng+1))
-        call RecPrt('result in spherical gaussians (X x iSize',' ',Array(ipF1),nAlpha*iBas*nElem(la),iSize)
+        call RecPrt('result (regrouped, X x nTri0Elem(iAng))',' ',Array(ipTmp),nTri0Elem(la)*nAlpha*iBas,nTri0Elem(iAng))
+        call RecPrt('Spher of iS (nTri0Elem(iAng) x (2*iAng+1))',' ',RSph(ipSph(iAng)),nTri0Elem(iAng),(2*iAng+1))
+        call RecPrt('result in spherical gaussians (X x iSize',' ',Array(ipF1),nAlpha*iBas*nTri0Elem(la),iSize)
 #       endif
       else
-        ! in this case nElem(iAng) = iSize
-        call DgeTMo(Array(ipTmp),nElem(iAng),nElem(iAng),iBas*nElem(la)*nAlpha,Array(ipF1),iBas*nElem(la)*nAlpha)
+        ! in this case nTri0Elem(iAng) = iSize
+        call DgeTMo(Array(ipTmp),nTri0Elem(iAng),nTri0Elem(iAng),iBas*nTri0Elem(la)*nAlpha,Array(ipF1), &
+                    iBas*nTri0Elem(la)*nAlpha)
       end if
-      if ((ipF2-ipF1) < nAlpha*iBas*nElem(la)*iSize) stop 'sizetest 7'
+      if ((ipF2-ipF1) < nAlpha*iBas*nTri0Elem(la)*iSize) stop 'sizetest 7'
 
       !---And (almost) the same thing for the righthand side, form
       !   LjDb from ljdb
@@ -468,25 +470,25 @@ do iS=1,nSkal
       !---3) bLj,D = d,bLj * d,D
 
       if (Shells(jShll)%Transf .and. Shells(jShll)%Prjct) then
-        call DGEMM_('T','N',nElem(lb)*jBas*nBeta,jSize,nElem(jAng),One,Array(ipF2),nElem(jAng),RSph(ipSph(jAng)),nElem(jAng), &
-                    Zero,Array(ipTmp),nElem(lb)*jBas*nBeta)
+        call DGEMM_('T','N',nTri0Elem(lb)*jBas*nBeta,jSize,nTri0Elem(jAng),One,Array(ipF2),nTri0Elem(jAng),RSph(ipSph(jAng)), &
+                    nTri0Elem(jAng),Zero,Array(ipTmp),nTri0Elem(lb)*jBas*nBeta)
 #       ifdef _DEBUGPRINT_
-        call RecPrt('multiply right 2 (Y x jSize)',' ',Array(ipTmp),nBeta*jBas*nElem(lb),jSize)
+        call RecPrt('multiply right 2 (Y x jSize)',' ',Array(ipTmp),nBeta*jBas*nTri0Elem(lb),jSize)
 #       endif
       else
-        ! in this case nElem(jAng) = jSize
-        call DgeTMo(Array(ipF2),nElem(jAng),nElem(jAng),jBas*nElem(lb)*nBeta,Array(ipTmp),jBas*nElem(lb)*nBeta)
+        ! in this case nTri0Elem(jAng) = jSize
+        call DgeTMo(Array(ipF2),nTri0Elem(jAng),nTri0Elem(jAng),jBas*nTri0Elem(lb)*nBeta,Array(ipTmp),jBas*nTri0Elem(lb)*nBeta)
       end if
-      if ((ip-ipTmp) < nBeta*jBas*nElem(lb)*jSize) stop 'sizetest 10'
+      if ((ip-ipTmp) < nBeta*jBas*nTri0Elem(lb)*jSize) stop 'sizetest 10'
 
       !---4) b,LjD -> LjD,b
 
-      call DgeTMo(Array(ipTmp),nElem(lb),nElem(lb),jBas*nBeta*jSize,Array(ipF2),jBas*nBeta*jSize)
+      call DgeTMo(Array(ipTmp),nTri0Elem(lb),nTri0Elem(lb),jBas*nBeta*jSize,Array(ipF2),jBas*nBeta*jSize)
 #     ifdef _DEBUGPRINT_
-      call RecPrt('transposed right 2 (Y x nElem(lb)',' ',Array(ipF2),jBas*nBeta*jSize,nElem(lb))
+      call RecPrt('transposed right 2 (Y x nTri0Elem(lb)',' ',Array(ipF2),jBas*nBeta*jSize,nTri0Elem(lb))
 #     endif
 
-      if ((ipTmp-ipF2) < nBeta*jBas*nElem(lb)*jSize) stop 'sizetest 11'
+      if ((ipTmp-ipF2) < nBeta*jBas*nTri0Elem(lb)*jSize) stop 'sizetest 11'
 
       !---Next Contract (iKaC)*W(KLCD)*(LjDb) producing ijab,
       !   by the following procedure:
@@ -497,14 +499,14 @@ do iS=1,nSkal
       !     End loop C
       !   End Loop b and a
       !
-      ! Total size of ipF1 = nAlpha*nElem(la) * iBas*iSize  -> ordered as (nAlpha, iBas,  nElem(la), iSize)
-      !               ipF2 = nBeta*nElem(lb)  * jBas*jSize                (jBas,   nBeta, jSize,     nElem(lb))
-      !                  W = iBas*iSize * jBas*jSize                      (iBas,   iSize, jBas,      jSize)
-      !
+      ! Total size of ipF1 = nAlpha*nTri0Elem(la) * iBas*iSize  -> ordered as (nAlpha, iBas,  nTri0Elem(la), iSize)
+      !               ipF2 = nBeta*nTri0Elem(lb)  * jBas*jSize                (jBas,   nBeta, jSize,         nTri0Elem(lb))
+      !                  W = iBas*iSize * jBas*jSize                          (iBas,   iSize, jBas,          jSize)
+
 #     ifdef _DEBUGPRINT_
       write(u6,*) ' Current contents of Final():'
-      do ia=1,nElem(la)
-        do ib=1,nElem(lb)
+      do ia=1,nTri0Elem(la)
+        do ib=1,nTri0Elem(lb)
           write(Label,'(A,I2,A,I2,A)') ' Final(',ia,',',ib,')'
           call RecPrt(Label,' ',Final(:,ia,ib,:),nAlpha,nBeta)
         end do
@@ -523,7 +525,7 @@ do iS=1,nSkal
           !print(u6,*) 'CALL FragPCont'
           call xFlush(u6)
 
-          call FragPCont(Array(ipF1),nAlpha,iBas,nElem(la),iSize,Array(ipF2),jBas,nBeta,jSize,nElem(lb),Array(ipIJ), &
+          call FragPCont(Array(ipF1),nAlpha,iBas,nTri0Elem(la),iSize,Array(ipF2),jBas,nBeta,jSize,nTri0Elem(lb),Array(ipIJ), &
                          Final(:,:,:,iIC),Factor)
         end if
       end do
@@ -531,8 +533,8 @@ do iS=1,nSkal
 
 #     ifdef _DEBUGPRINT_
       write(u6,*) ' After contraction:'
-      do ia=1,nElem(la)
-        do ib=1,nElem(lb)
+      do ia=1,nTri0Elem(la)
+        do ib=1,nTri0Elem(lb)
           write(Label,'(A,I2,A,I2,A)') ' Final(',ia,',',ib,')'
           call RecPrt(Label,' ',Final(:,ia,ib,:),nAlpha,nBeta)
         end do
@@ -551,8 +553,8 @@ call xFlush(u6)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' Result in FragPInt'
-do ia=1,nElem(la)
-  do ib=1,nElem(lb)
+do ia=1,nTri0Elem(la)
+  do ib=1,nTri0Elem(lb)
     write(Label,'(A,I2,A,I2,A)') ' Final(',ia,',',ib,')'
     call RecPrt(Label,' ',Final(:,ia,ib,:),nAlpha,nBeta)
   end do
@@ -566,8 +568,8 @@ end do
 ! Normally, the Add_Info must be called after the parallelization is finalized,
 ! i.e. in the OneEl function.
 !if (MyRank == 0) then
-!  do ia=1,nElem(la)
-!    do ib=1,nElem(lb)
+!  do ia=1,nTri0Elem(la)
+!    do ib=1,nTri0Elem(lb)
 !      dA = Zero
 !      dA = dnrm2_(nAlpha*nBeta,Final(1,ia,ib,1),1)
 !      if (dA > 1.0e-6_wp) then
@@ -584,19 +586,5 @@ call SetUp_iSD()
 call Nr_Shells(nSkal)
 
 return
-
-contains
-
-function nElem(i)
-  integer(kind=iwp) :: nElem
-  integer(kind=iwp), intent(in) :: i
-  nElem = (i+1)*(i+2)/2
-end function nElem
-
-function iTri(i,j)
-  integer(kind=iwp) :: iTri
-  integer(kind=iwp), intent(in) :: i, j
-  iTri = max(i,j)*(max(i,j)-1)/2+min(i,j)
-end function iTri
 
 end subroutine FragPInt

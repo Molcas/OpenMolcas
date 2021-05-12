@@ -48,10 +48,16 @@
 #include "real.fh"
 #include "print.fh"
 #include "status.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
-      Real*8, Allocatable :: TInt_c(:), ADiag(:)
+      Real*8, Allocatable :: TInt_c(:), TInt_d(:), Tmp(:), QVec(:)
+      Real*8, Allocatable :: Not_Used(:)
       Logical In_Core
+
+      Real*8, Allocatable  ::  ADiag(:)
+      Integer, Allocatable :: iADiag(:)
+*                                                                      *
+************************************************************************
+*                                                                      *
       Interface
             Subroutine Drv2El_Atomic_NoSym(Integral_RI_2,
      &                                     ThrAO,iCnttp,jCnttp,
@@ -91,9 +97,9 @@
 *
 *     Do iCnttp = 1, nCnttp
 *        Skip the dummy shell
-         If (iCnttp.eq.iCnttp_dummy) Go To 2222
+         If (iCnttp==iCnttp_dummy) Return
 *        skip non-auxiliary basis sets
-         If (.Not.dbsc(iCnttp)%Aux) Go To 2222
+         If (.Not.dbsc(iCnttp)%Aux) Return
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -133,7 +139,7 @@
             iShll = dbsc(iCnttp)%iVal + iAng
             nExpi = Shells(iShll)%nExp
             nBasisi=Shells(iShll)%nBasis
-            If (nExpi*nBasisi.eq.0) Go To 2221
+            If (nExpi*nBasisi.eq.0) Cycle
 *
             nCmp = (iAng+1)*(iAng+2)/2
             If (Shells(iShll)%Prjct) nCmp = 2*iAng+1
@@ -143,7 +149,7 @@
             Call Drv2El_Atomic_NoSym(Integral_RI_2,
      &                               ThrAO,iCnttp,iCnttp,
      &                               TInt_c,nTInt_c,
-     &                               In_Core,ADiag,Lu_A,ijS_req,
+     &                               In_Core,Not_Used,Lu_A,ijS_req,
      &                               Keep_Shell)
 #ifdef _DEBUGPRINT_
             Call TriPrt('TInt_c',' ',TInt_c,nTInt_c)
@@ -157,21 +163,20 @@
 *
 *           Produce the reduced set, in-place reduction.
 *
-            Call Allocate_Work(ipA,nTInt_c**2)
+            Call mma_allocate(TInt_d,nTInt_c**2,Label='TInt_d')
             ijT=0
             Do iBas = 1, nTInt_c
                Do jBas = 1, iBas
                   ijT=ijT+1
                   ijS=(jBas-1)*nTInt_c+iBas
                   jiS=(iBas-1)*nTInt_c+jBas
-                  Work(ipA+ijS-1)=TInt_c(ijT)
-                  Work(ipA+jiS-1)=TInt_c(ijT)
+                  TInt_d(ijS)=TInt_c(ijT)
+                  TInt_d(jiS)=TInt_c(ijT)
                End Do
             End Do
             Call mma_deallocate(TInt_c)
-            ip_TInt_c=ipA
 #ifdef _DEBUGPRINT_
-            Call RecPrt('TInt_c',' ',Work(ip_TInt_c),nTInt_c,nTInt_c)
+            Call RecPrt('TInt_d',' ',TInt_d,nTInt_c,nTInt_c)
 #endif
 *
             ij=0
@@ -184,57 +189,53 @@
                   ijF=(j-1)*nBasisi*nCmp+i
                   ij=ij+1
 *
-                  Work(ij+ip_TInt_c-1)=Work(ijF+ip_TInt_c-1)
+                  TInt_d(ij)=TInt_d(ijF)
 *
                End Do
             End Do
 #ifdef _DEBUGPRINT_
-            Call RecPrt('TInt_c(r)','(5G20.10)',
-     &                  Work(ip_TInt_c),nBasisi,nBasisi)
+            Call RecPrt('TInt_d(r)','(5G20.10)',TInt_d,nBasisi,nBasisi)
 #endif
 *
-            Call GetMem('ADiag','Allo','Real',ipADiag,nBasisi)
-            Call GetMem('iADiag','Allo','Inte',ipiADiag,nBasisi)
+            Call mma_allocate( ADiag,nBasisi,Label=' ADiag')
+            Call mma_allocate(iADiag,nBasisi,Label='iADiag')
 *
             iSeed=77
             Lu_A=IsFreeUnit(iSeed)
             Call DaName_MF_WA(Lu_A,'AMat09')
 *
             iDisk=0
-            Call dDaFile(Lu_A,1,Work(ip_TInt_c),nBasisi**2,iDisk)
+            Call dDaFile(Lu_A,1,TInt_d,nBasisi**2,iDisk)
 *
             iSeed=iSeed+1
             Lu_Q=IsFreeUnit(iSeed)
             Call DaName_MF_WA(Lu_Q,'QMat09')
 *
-            call dcopy_(nBasisi,Work(ip_TInt_c),nBasisi+1,
-     &                 Work(ipADiag),1)
+            call dcopy_(nBasisi,TInt_d,nBasisi+1,ADiag,1)
 *
-            Call CD_AInv_(nBasisi,m,Work(ipADiag),iWork(ipiADiag),
-     &                    Lu_A,Lu_Q,Thr_CB)
+            Call CD_AInv_(nBasisi,m,ADiag,iADiag,Lu_A,Lu_Q,Thr_CB)
 *
-            Call GetMem('iADiag','Free','Inte',ipiADiag,n)
-            Call GetMem('ADiag','Free','Real',ipADiag,n)
-            Call Free_Work(ip_TInt_c)
+            Call mma_deallocate(iADiag)
+            Call mma_deallocate( ADiag)
+            Call mma_deallocate(TInt_d)
 *
 *           Transform the contraction coefficients according to the
 *           Cholesky vectors.
 *
-            Call Allocate_Work(ipTmp,nBasisi*nExpi)
-            Call Allocate_Work(ipQVec,nBasisi**2)
-            Call FZero(Work(ipQVec),nBasisi**2)
+            Call mma_allocate(Tmp,nBasisi*nExpi,Label='Tmp')
+            Call mma_allocate(QVec,nBasisi**2,Label='QVec')
+            QVec(:)=Zero
 *
             iDisk=0
-            Call dDaFile(Lu_Q,2,Work(ipQVec),nBasisi*m,iDisk)
+            Call dDaFile(Lu_Q,2,QVec,nBasisi*m,iDisk)
             Call DaEras(Lu_Q)
 #ifdef _DEBUGPRINT_
-            Call RecPrt('QVec',' ',Work(ipQVec),nBasisi,m)
+            Call RecPrt('QVec',' ',QVec,nBasisi,m)
 #endif
 *
             Do iCase = 1, 2
                call dcopy_(nExpi*nBasisi,
-     &                     Shells(iShll)%Cff_c(1,1,iCase),1,
-     &                     Work(ipTmp),1)
+     &                     Shells(iShll)%Cff_c(1,1,iCase),1,Tmp,1)
 #ifdef _DEBUGPRINT_
                Call RecPrt('Coeff(old)',' ',
      &                     Shells(iShll)%Cff_c(1,1,iCase),
@@ -242,8 +243,8 @@
 #endif
                Call DGEMM_('N','N',
      &                    nExpi,nBasisi,nBasisi,
-     &                    1.0D0,Work(ipTmp),nExpi,
-     &                          Work(ipQVec),nBasisi,
+     &                    1.0D0,Tmp,nExpi,
+     &                          QVec,nBasisi,
      &                    0.0D0,Shells(iShll)%Cff_c(1,1,iCase),
      &                          nExpi)
 #ifdef _DEBUGPRINT_
@@ -253,13 +254,11 @@
 #endif
             End Do
 *
-            Call Free_Work(ipQVec)
-            Call Free_Work(ipTmp)
+            Call mma_deallocate(QVec)
+            Call mma_deallocate(Tmp)
 *
- 2221       Continue
          End Do
 *
- 2222    Continue
 *     End Do
 *                                                                      *
 ************************************************************************

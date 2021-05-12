@@ -217,8 +217,7 @@ c         Call TriPrt(' ',' ',FckS,nOrbmF)
 *             Fix standard phase pf the orbitals
 *
               Do i = 1, nOccmF
-                 tmp = OrbPhase(CMO(iCMO+(i-1)*nBas(iSym),iD),
-     &                                         nBas(iSym))
+                 call VecPhase(CMO(iCMO+(i-1)*nBas(iSym),iD),nBas(iSym))
               End Do
 *
 *             Order the occupied orbitals by maximum overlap with

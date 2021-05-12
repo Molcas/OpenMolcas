@@ -11,8 +11,8 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
 
-      SUBROUTINE CHO_FMCSCF(rc,ipFA,ipFI,nForb,nIorb,nAorb,FactXI,
-     &                      ipDI,ipDA1,DoActive,POrb,nChM,ipInt,ExFac)
+      SUBROUTINE CHO_FMCSCF(rc,FLT,nForb,nIorb,nAorb,FactXI,
+     &                      DLT,DoActive,POrb,nChM,W_PWXY,CMO,ExFac)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -47,17 +47,14 @@ C
       use Data_structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
-      Type (DSBA_Type) POrb(3)
+      Type (DSBA_Type) POrb(3), DLT(2), FLT(2), CMO
       Type (SBA_Type), Target:: Laq(3), Lxy
       Type (twxy_type) Scr
+      Real*8 W_PWXY(*)
 
       Integer   rc
       Integer   iSkip(8)
-      Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2), ExFac
-      Integer   ipDA1,ipDI
-      Integer   ipFA,ipFI
-      Integer   ipDLT(2),ipFLT(2)
       Integer   nForb(8),nIorb(8),nAorb(8),nPorb(8),nnA(8,8),nChM(8)
 #ifdef _DEBUGPRINT_
       Logical   Debug
@@ -70,7 +67,6 @@ C
 #include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Real*8, Parameter:: FactCI = One, FactCA = One, FactXA = -Half
@@ -101,11 +97,6 @@ C
       DoTraInt = .false.
       IREDC = -1  ! unknown reduced set in core
 
-      ipDLT(1) = ipDI    ! some definitions
-      ipDLT(2) = ipDA1
-      ipFLT(1) = ipFI
-      ipFLT(2) = ipFA
-
       nDen = 1
       if (DoActive) nDen=2
 
@@ -128,14 +119,6 @@ c -----------------------------------
       Call set_nnA(nSym,nAorb,nnA)
 
 C ==================================================================
-
-c --- Various offsets
-c --------------------
-      ISTLT(1)=0
-      DO ISYM=2,NSYM
-        NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NBB
-      END DO
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -242,7 +225,7 @@ C ------------------------------------------------------------------
 C --- Transform the density to reduced storage
                mode = 'toreds'
                add  = .false.
-               Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[ipDLT],Drs,
+               Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[DLT],Drs,
      &                           mode,add)
             EndIf
 
@@ -375,16 +358,14 @@ C ---------------------------------------------------------------------
 
                   If (iSkip(iSymk)*NK.ne.0) Then
 
-                     ISFI = ipFI + ISTLT(iSyma)
-
                      CALL DGEMM_TRI('T','N',nBas(iSyma),nBas(iSyma),
      &                         NK*JNUM,FactXI,Laq(1)%SB(iSymk)%A3,
      &                         NK*JNUM,Laq(1)%SB(iSymk)%A3,NK*JNUM,
-     &                         One,Work(ISFI),nBas(iSyma))
+     &                         One,FLT(1)%SB(iSyma)%A1,nBas(iSyma))
 
 
 c          WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYMA
-c          CALL TRIPRT('FI: ',' ',Work(ISFI),nBas(iSyma))
+c          CALL TRIPRT('FI: ',' ',FLT(1)%SB(iSyma)%A1,nBas(iSyma))
 
                   EndIf
 
@@ -441,16 +422,14 @@ C ---------------------------------------------------------------------
 
                      If (iSkip(iSymw)*NAch.ne.0) Then
 
-                        ISFA = ipFA + ISTLT(iSyma)
-
                         CALL DGEMM_TRI('T','N',nBas(iSyma),nBas(iSyma),
      &                         NAch*JNUM,FactXA,Laq(2)%SB(iSymw)%A3,
      &                         NAch*JNUM,Laq(2)%SB(iSymw)%A3,NAch*JNUM,
-     &                         One,Work(ISFA),nBas(iSyma))
+     &                         One,FLT(2)%SB(iSyma)%A1,nBas(iSyma))
 
 
 c          WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYMA
-c          CALL TRIPRT('FA: ',' ',Work(ISFA),nBas(iSyma))
+c          CALL TRIPRT('FA: ',' ',FLT(2)%SB(iSyma)%A1,nBas(iSyma))
 
                      EndIf
 
@@ -472,7 +451,6 @@ C --------------------------------------------------------------------
                ! Lvw,J, LT-storage for the diagonal symmetry blocks
                iSwap = 4
                Call Allocate_SBA(Lxy,nAorb,nAorb,nVec,JSYM,nSym,iSwap)
-*              Call mma_allocate(Lxy%Lxy_full,mTvec4*nVec,Label='Lxy')
 
                iSwap = 0  ! Lvb,J are returned
                Call Allocate_SBA(Laq(3),nAorb,nBas,nVec,JSYM,nSym,iSwap)
@@ -557,8 +535,8 @@ C *************** EVALUATION OF THE (WA|XY) INTEGRALS ***********
 
                DoTraInt = JRED.eq.JRED2.and.iBatch.eq.nBatch
 
-               CALL CHO_eval_waxy(irc,Scr,Laq(3),Lxy,ipInt,
-     &                            nAorb,JSYM,JNUM,DoTraInt)
+               CALL CHO_eval_waxy(irc,Scr,Laq(3),Lxy,W_PWXY,
+     &                            nAorb,JSYM,JNUM,DoTraInt,CMO)
 
                CALL CWTIME(TCINT2,TWINT2)
                tintg(1) = tintg(1) + (TCINT2 - TCINT1)
@@ -581,7 +559,7 @@ C --------------------------------------------------------------------
 c --- backtransform fock matrix in full storage
                mode = 'tofull'
                add  = .true.
-               Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[ipFLT],Frs,
+               Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[FLT],Frs,
      &                           mode,add)
             endif
 
@@ -650,11 +628,10 @@ c Print the Fock-matrix
       WRITE(6,'(6X,A)')
       WRITE(6,'(6X,A)')'***** INACTIVE FOCK MATRIX ***** '
       DO ISYM=1,NSYM
-        ISFI=ipFI+ISTLT(ISYM)
         IF( NBAS(ISYM).GT.0 ) THEN
           WRITE(6,'(6X,A)')
           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          call TRIPRT('','',Work(ISFI),NBAS(ISYM))
+          call TRIPRT('','',FLT(1)%SB(ISYM)%A1,NBAS(ISYM))
         ENDIF
       END DO
       IF(DoActive)THEN
@@ -662,10 +639,9 @@ c Print the Fock-matrix
         WRITE(6,'(6X,A)')'***** ACTIVE FOCK MATRIX ***** '
         DO ISYM=1,NSYM
          IF( NBAS(ISYM).GT.0 ) THEN
-           ISFA=ipFA+ISTLT(ISYM)
            WRITE(6,'(6X,A)')
            WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-           call TRIPRT('','',Work(ISFA),NBAS(ISYM))
+           call TRIPRT('','',FLT(2)%SB(ISYM)%A1,NBAS(ISYM))
          ENDIF
         END DO
       END IF
@@ -673,7 +649,6 @@ c Print the Fock-matrix
       endif
 
 #endif
-
       rc  = 0
 
 

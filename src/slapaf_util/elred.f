@@ -119,7 +119,7 @@
       Call JacOrd(EVal,EVec,nQ,nQ)
 *     Fix standard direction.
       Do iQ = 1, nQ
-         tmp=OrbPhase(EVec(1,iQ),nQ)
+         call VecPhase(EVec(1,iQ),nQ)
       End Do
       Call DScal_(nQ*(nQ+1)/2,-1.0D0,EVal,1)
 #ifdef _DEBUGPRINT_
@@ -150,9 +150,6 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
 *
  99   Continue
       Return
-#ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_real(tmp)
-#endif
       End
 *                                                                      *
 ************************************************************************
@@ -277,7 +274,7 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
       Call JacOrd(EVal,EVec,nQ,nQ)
 *     Fix standard direction.
       Do iQ = 1, nQ
-         tmp=OrbPhase(EVec(1,iQ),nQ)
+         call VecPhase(EVec(1,iQ),nQ)
       End Do
       Call DScal_(nQ*(nQ+1)/2,-1.0D0,EVal,1)
 #ifdef _DEBUGPRINT_
@@ -308,8 +305,5 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
 *
  99   Continue
       Return
-#ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_real(tmp)
-#endif
       End
 

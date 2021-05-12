@@ -48,12 +48,11 @@
 *
 *-----Compute eigenvectors and eigenfunctions
 *
-      nAux = 2 * nX
       iOpt=1
       If ( nX.gt.0 ) then
         Call Not_DGeEv(iOpt,Tmp3,nX,
      &             EVal,EVec,nX,
-     &             nX,TmpAux,nAux)
+     &             nX,TmpAux)
       End If
 *
 *-----Compute the harmonic frequencies

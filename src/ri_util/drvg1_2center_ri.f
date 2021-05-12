@@ -11,7 +11,7 @@
 * Copyright (C) 1990,1991,1992,2000,2007, Roland Lindh                 *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine Drvg1_2Center_RI(Grad,Temp,nGrad,ip_ij2,nij_Eff)
+      SubRoutine Drvg1_2Center_RI(Grad,Temp,nGrad,ij2,nij_Eff)
 ************************************************************************
 *                                                                      *
 *  Object: driver for 2-center two-electron integrals in the RI scheme.*
@@ -41,25 +41,28 @@
       use RICD_Info, only: Do_RI
       use Symmetry_Info, only: nIrrep
       use Para_Info, only: nProcs, King
+      use ExTerm, only: CijK, AMP2, iMP2prpt, A
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
 #include "itmax.fh"
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "disp.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "exterm.fh"
-#include "chomp2g_alaska.fh"
 *#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
+      Integer nGrad, nij_Eff
+      Real*8  Grad(nGrad), Temp(nGrad)
+      Integer, Allocatable :: ij2(:,:)
+
 *     Local arrays
-      Real*8  Coor(3,4), Grad(nGrad), Temp(nGrad)
+      Real*8  Coor(3,4)
       Integer iAnga(4), iCmpa(4), iShela(4),iShlla(4),
      &        iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4)
       Logical EQ, Shijij, AeqB, CeqD,
@@ -69,13 +72,9 @@
 *
       Integer iSD4(0:nSD,4)
       Save MemPrm
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement functions
-*
-      TMax1(i)=Work(ipTMax-1+i)
-      TMax2(i,j)=Work(ipTMax-1+(j-1)*nSkal+i)
+
+      Real*8, Allocatable:: TMax2(:,:), TMax1(:), Tmp(:,:)
+      Integer, Allocatable:: Shij(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -93,7 +92,7 @@
       iFnc(3)=0
       iFnc(4)=0
       PMax=Zero
-      call dcopy_(nGrad,[Zero],0,Temp,1)
+      Temp(:)=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -136,23 +135,23 @@
 *
       If (Do_RI) Then
          nTMax=nSkal
-         Call GetMem('TMax','Allo','Real',ipTMax,nTMax)
-         Call Allocate_Work(ip_Tmp,nSkal**2)
-         Call Shell_MxSchwz(nSkal,Work(ip_Tmp))
-        call dcopy_(nSkal,Work(ip_Tmp+(nSkal-1)*nSkal),1,Work(ipTMax),1)
-         Call Free_Work(ip_Tmp)
+         Call mma_allocate(TMax1,nTMax,Label='TMax1')
+         Call mma_allocate(Tmp,nSkal,nSkal,Label='Tmp')
+         Call Shell_MxSchwz(nSkal,Tmp)
+         TMax1(1:nSkal)=Tmp(1:nSkal,nSkal)
+         Call mma_deallocate(Tmp)
+
          TMax_all=Zero
          Do iS = 1, nSkal-1
             TMax_all=Max(TMax_all,TMax1(iS))
          End Do
       Else
-         nTMax=nSkal**2
-         Call GetMem('TMax','Allo','Real',ipTMax,nTMax)
-         Call Shell_MxSchwz(nSkal,Work(ipTMax))
+         Call mma_allocate(TMax2,nSkal,nSkal,Label='TMax2')
+         Call Shell_MxSchwz(nSkal,TMax2)
          TMax_all=Zero
          Do ij = 1, nij_Eff
-            iS = iWork(ip_ij2-1 +(ij-1)*2 + 1)
-            jS = iWork(ip_ij2-1 +(ij-1)*2 + 2)
+            iS = ij2(1,ij)
+            jS = ij2(2,ij)
             TMax_all=Max(TMax_all,TMax2(iS,jS))
          End Do
       End If
@@ -183,14 +182,10 @@
 *        Scratch for A_IJ
 *
          lA = MxChVInShl*MxChVInShl
-         Call GetMem('A','Allo','Real',ip_A,lA)
+         Call mma_allocate(A,lA,Label='A')
          If (iMP2Prpt.eq.2) Then
             lA_MP2=MxChVInShl
-            Call GetMem('A_MP2(1)','Allo','Real',ip_A_MP2(1),lA_MP2)
-            Call GetMem('A_MP2(2)','Allo','Real',ip_A_MP2(2),lA_MP2)
-         Else
-            ip_A_MP2(1) = ip_Dummy
-            ip_A_MP2(2) = ip_Dummy
+            Call mma_allocate(AMP2,lA_MP2,2,Label='AMP2')
          End If
 *
 *        Find the largest set of ij. The basis i and j is due to the
@@ -209,12 +204,8 @@
 *        Note that we need nDen arrays for C_kl^I and one for C_kl^J
 *        A_IJ = Sum(kl) C_kl^I x C_kl^J
 *
-         lCijK = nIJRMax*MxChVInShl
-         Call GetMem('CijK','Allo','Real',ip_CijK,(nKvec+1)*lCijK)
-*
-      Else
-*
-         lCijK = 0
+         Call mma_allocate(CijK,nIJRMax*MxChVInShl*(nKvec+1),
+     &                     Label='CijK')
 *
       End If
 *                                                                      *
@@ -223,27 +214,27 @@
 *     Create list of non-vanishing pairs
 *
       If (Do_RI) Then
-         mij=(nSkal-1)*2
-         Call GetMem('ip_ij','Allo','Inte',ip_ij,mij)
+         mij=(nSkal-1)
+         Call mma_allocate(Shij,2,mij,Label='Shij')
          nij=0
          Do iS = 1, nSkal-1
             If (TMax_All*TMax1(iS).ge.CutInt) Then
                nij = nij + 1
-               iWork(ip_ij + 2*(nij-1)  )=nSkal
-               iWork(ip_ij + 2*(nij-1)+1)=iS
+               Shij(1,nij)=nSkal
+               Shij(2,nij)=iS
             End If
          End Do
       Else
-         mij=2*nij_Eff
-         Call GetMem('ip_ij','Allo','Inte',ip_ij,mij)
+         mij=nij_Eff
+         Call mma_allocate(Shij,2,mij,Label='Shij')
          nij=0
          Do ij = 1, nij_Eff
-            iS = iWork(ip_ij2-1 +(ij-1)*2 + 1)
-            jS = iWork(ip_ij2-1 +(ij-1)*2 + 2)
+            iS = ij2(1,ij)
+            jS = ij2(2,ij)
             If (TMax_All*TMax2(iS,jS).ge.CutInt) Then
                nij = nij + 1
-               iWork((nij-1)*2+ip_ij  )=iS
-               iWork((nij-1)*2+ip_ij+1)=jS
+               Shij(1,nij)=iS
+               Shij(2,nij)=jS
             End If
          End Do
       End If
@@ -308,11 +299,11 @@ C     If (MyRank.ne.0) Go To 11
 *     Now do a quadruple loop over shells
 *
       jS_= Int((One+sqrt(Eight*DBLE(jlS)-Three))/Two)
-      iS = iWork((jS_-1)*2  +ip_ij)
-      jS = iWork((jS_-1)*2+1+ip_ij)
+      iS = Shij(1,jS_)
+      jS = Shij(2,jS_)
       lS_= Int(DBLE(jlS)-DBLE(jS_)*(DBLE(jS_)-One)/Two)
-      kS = iWork((lS_-1)*2  +ip_ij)
-      lS = iWork((lS_-1)*2+1+ip_ij)
+      kS = Shij(1,lS_)
+      lS = Shij(2,lS_)
       Call CWTime(TCpu1,TWall1)
 *
          If (Do_RI) Then
@@ -493,8 +484,9 @@ C        End If
 *                                                                      *
       Call mma_deallocate(Sew_Scr)
       Call Free_Tsk(id)
-      Call GetMem('ip_ij','Free','Inte',ip_ij,mij)
-      Call GetMem('TMax','Free','Real',ipTMax,nTMax)
+      Call mma_deallocate(Shij)
+      If (Allocated(TMax1)) Call mma_deallocate(TMax1)
+      If (Allocated(TMax2)) Call mma_deallocate(TMax2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -519,13 +511,10 @@ C        End If
 ************************************************************************
 *                                                                      *
       If(DoCholExch) Then
-         Call GetMem('CijK','Free','Real',ip_CijK,2*lCijK)
-         Call GetMem('A','Free','Real',ip_A,lA)
-         If (iMP2Prpt.eq.2) Then
-            Call GetMem('A_MP2(2)','Free','Real',ip_A_MP2(2),lA_MP2)
-            Call GetMem('A_MP2(1)','Free','Real',ip_A_MP2(1),lA_MP2)
-         End If
+         Call mma_deallocate(CijK)
+         Call mma_deallocate(A)
       End If
+      If (Allocated(AMP2)) Call mma_deallocate(AMP2)
 *
       Call Free_iSD()
 *                                                                      *

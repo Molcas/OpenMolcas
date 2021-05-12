@@ -89,8 +89,7 @@ subroutine fmm_skip_W_buffer(W_contractor,W_pair)
   type(T_pair_single), intent(in) :: W_pair
   external                        :: W_contractor
 
-  unused_proc(W_contractor)
-  unused_var(W_pair)
+  unused_proc(W_contractor(W_pair))
 
   return
 

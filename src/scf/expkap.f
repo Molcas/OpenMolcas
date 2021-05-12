@@ -363,6 +363,7 @@ c        End Do
      &                                    HTra, TSum
 *     declarations of functions
       real*8 ddot_
+      external ddot, dnrm2_
 *
       Parameter (THLDEP = 1.0D-18)
 *
@@ -412,7 +413,7 @@ c        End Do
             iptr2=iptr2+nOrbmF
           End Do
 *         normalize, or delete in case of linear dependence
-          vprod=DNORM2(nVrt,rMat(iptr),1)
+          vprod=DNRM2_(nVrt,rMat(iptr),1)
           iptr3=(ii-1)*lrkap+nOccmF+ii
           iptr4=lrkap*nOccmF+(ii-1)*lrkap+ii
           if (vprod.gt.THLDEP) Then

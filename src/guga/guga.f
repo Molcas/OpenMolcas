@@ -44,9 +44,9 @@
       Call GETMEM('SOArr','Allo','Inte',LSOArr,NCOR)
 *     Call SetQue('Trace=On')
       CALL SETTIM
-      CALL XUFLOW
-      CALL ERRSET(208,256,-1,1,1,208)
-      CALL ERRSET(151,256,-1,1,1,151)
+      !CALL XUFLOW
+      !CALL ERRSET(208,256,-1,1,1,208)
+      !CALL ERRSET(151,256,-1,1,1,151)
       CALL JTIME(IST)
 *
 *     Print program header

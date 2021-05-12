@@ -40,7 +40,6 @@
       Integer iShij(2,nShij)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #if defined (_MOLCAS_MPP_)
 #include "choglob.fh"
@@ -182,7 +181,6 @@ C     --------------------------------------------------------------
       Integer nIrrep, nShij
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Logical DoDummy
@@ -268,7 +266,6 @@ C     -----------------------------------------------
       Integer iRS2F(I_2,I_mmBstRT), iShij(2,nShij)
 #include "choorb.fh"
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 
       Integer  Cho_iSAOSh
       External Cho_iSAOSh

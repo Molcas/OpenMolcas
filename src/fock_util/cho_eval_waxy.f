@@ -8,28 +8,27 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_eval_waxy(irc,Scr,ChoV1,ChoV2,ipInt,nAorb,
-     &                         JSYM,NUMV,DoTraInt)
+      SUBROUTINE CHO_eval_waxy(irc,Scr,ChoV1,ChoV2,W_PWXY,nAorb,
+     &                         JSYM,NUMV,DoTraInt,CMO)
 
-      Use Data_structures, only: SBA_Type, twxy_Type
+      Use Data_structures, only: SBA_Type, twxy_Type, DSBA_Type
       Implicit Real*8 (a-h,o-z)
-      Integer ipInt,nAorb(*)
+      Real*8 W_PWXY(*)
+      Integer nAorb(*)
+      Type (DSBA_Type) CMO
       Type (SBA_Type) ChoV1, ChoV2
       Type (twxy_type) Scr
-      Integer off_PWXY(8,8,8),ISTSQ(8)
+      Integer off_PWXY(8,8,8)
       Logical DoTraInt
 
-      parameter (zero = 0.0D0, one = 1.0D0)
-
+#include "real.fh"
 #include "Molcas.fh"
-#include "WrkSpc.fh"
 #include "general.fh"
 #include "wadr.fh"
 
 C ************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 C ************************************************
-
 
       If (NumV .lt. 1) Return
 
@@ -106,16 +105,7 @@ C ------------------------------------------------------------
          End Do
          nPWXY=iStack
 *
-*
-*   Offsets to the MOs coefficients
-*
-         ISTSQ(1)=0
-         Do iSym=2,nSym
-            ISTSQ(iSym) = ISTSQ(iSym-1) + nBas(iSym-1)**2
-         End Do
-*
-*   Reordering and MO-transformation
-*
+*        Reordering and MO-transformation
 *
          Do iSymy=1,nSym
 
@@ -134,12 +124,12 @@ C ------------------------------------------------------------
                   Nwa = nAorb(iSymw)*nBas(iSyma)
                   Npw = nOrb(iSyma)*nAorb(iSymw)
 
-                  ipMS = ipCM + ISTSQ(iSyma) + nBas(iSyma)*nFro(iSyma)
+                  iS = 1 + nBas(iSyma)*nFro(iSyma)
 
                   Do ixy = 1,Nxy
 
-                        ipMpw = ipInt + off_PWXY(iSyma,iSymw,iSymx)
-     &                        + Npw*(ixy-1)
+                        ipMpw = off_PWXY(iSyma,iSymw,iSymx)
+     &                        +  1 + Npw*(ixy-1)
 
 C --------------------------------------------------------
 C ---       M(p,w)[xy]  =  sum_a  C(a,p) * M(w,a)[xy]
@@ -150,9 +140,9 @@ C --------------------------------------------------------
 
                         CALL DGEMM_('T','T',
      &                             nOrb(iSyma),nAorb(iSymw),nBas(iSyma),
-     &                             ONE,Work(ipMS),nBas_a,
+     &                             ONE,CMO%SB(iSyma)%A1(iS:),nBas_a,
      &                              Scr%SB(iSymw,iSymx)%A(:,ixy),nAob_w,
-     &                            ZERO,Work(ipMpw),nOrb_a)
+     &                            ZERO,W_PWXY(ipMpw),nOrb_a)
 
 
                   End Do
@@ -165,7 +155,6 @@ C --------------------------------------------------------
 
 
       ENDIF
-
 
 
       irc=0

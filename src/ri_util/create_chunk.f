@@ -8,17 +8,20 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Create_Chunk(ip_iMap,ip_Chunk,LenVec,NumVec,IncVec)
+      Subroutine Create_Chunk(LenVec,NumVec,IncVec)
+      use Chunk_mod
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: MyRank, nProcs, Is_Real_Par
 #endif
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #ifdef _MOLCAS_MPP_
 #include "mafdecls.fh"
       External  ga_create_irreg
       Logical   ga_create_irreg, ok
       Integer myMap(2)
+
+
 *
       If (NumVec.le.0) Then
          Call WarningMessage(2,'Create_Chunk: Failure NumVec.le.0')
@@ -27,20 +30,20 @@
       End If
 
       If (Is_Real_Par()) Then
-         Call GetMem('iMap','Allo','Inte',ip_iMap,nProcs+1)
-         Call IZero(iWork(ip_iMap),nProcs+1)
+         Call mma_allocate(iMap,nProcs+1,Label='iMap')
+         iMap(:)=0
 *
          FullSize=DBLE(LenVec*NumVec)
-         Call GetMem('MemMax','Max','Real',iDummy,MaxMem)
-         iWork(ip_iMap+MyRank) = MaxMem
-         Call GAIGOP(iWork(ip_iMap),nProcs,'+')
+         Call mma_maxDBLE(MaxMem)
+         iMap(1+MyRank) = MaxMem
+         Call GAIGOP(iMap,nProcs,'+')
          TotalMemory=0.0D0
-         itmp=iWork(ip_iMap)
+         itmp=iMap(1)
 *
 *        Find the smallest possible memory allocation!
 *
          Do i = 1, nProcs-1
-            itmp = Min(itmp,iWork(ip_iMap+i))
+            itmp = Min(itmp,iMap(1+i))
          End Do
          TotalMemory=DBLE(itmp)*DBLE(nProcs)
 *
@@ -63,7 +66,7 @@
             Write (6,*) 'LenVec=',LenVec
             Write (6,*) 'TotalMemory=',TotalMemory
             Write (6,*) 'Local size of memory'
-            Write (6,*) (iWork(ip_iMap+i),i=0,nProcs-1)
+            Write (6,*) (iMap(i),i=1,nProcs)
             Write (6,*) 'iTmp=',iTmp
             Call Abend()
          End If
@@ -75,29 +78,27 @@
          iStart = 1
          Do iNode = 0, nProcs-1
             If (iStart.eq.1) iNode0=iNode
-            iWork(ip_iMap+iNode) = iStart
+            iMap(1+iNode) = iStart
             iStart = iStart + Max((IncVec+iNode)/nProcs,1)
          End Do
-         iWork(ip_iMap+nProcs)=iStart
+         iMap(1+nProcs)=iStart
          IncVec0=iStart
 *
-C        Call Put_iArray('DistVec',iWork(ip_iMap),nProcs+1)
+C        Call Put_iArray('DistVec',iMap,nProcs+1)
 *
          nBlocks=nProcs-iNode0
          myMap(1)=1
          Ok = GA_Create_Irreg(mt_dbl,LenVec,IncVec0,'Chunk',
      &                        myMap,1,
-     &                        iWork(ip_iMap+iNode0),nBlocks,
-     &                        ip_Chunk)
+     &                        iMap(1+iNode0),nBlocks,ip_Chunk)
          If (.Not. Ok) Then
             Call WarningMessage(2,'Error in GA_Create_Irreg')
             Call Abend()
          End If
       Else
-         ip_iMap=ip_iDummy
-         Call GetMem('MemMax','Max','Real',iDummy,MaxMem)
+         Call mma_maxDBLE(MaxMem)
          IncVec=Min(NumVec,MaxMem/LenVec)
-         Call GetMem('Chunk','Allo','Real',ip_Chunk,LenVec*IncVec)
+         Call mma_allocate(Chunk,LenVec*IncVec,Label='Chunk')
       End If
 *
 *                                                                      *
@@ -107,10 +108,9 @@ C        Call Put_iArray('DistVec',iWork(ip_iMap),nProcs+1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      ip_iMap=ip_iDummy
-      Call GetMem('MemMax','Max','Real',iDummy,MaxMem)
+      Call mma_maxDBLE(MaxMem)
       IncVec=Min(NumVec,MaxMem/LenVec)
-      Call GetMem('Chunk','Allo','Real',ip_Chunk,LenVec*IncVec)
+      Call mma_allocate(Chunk,LenVec*IncVec,Label='Chunk')
 *
 #endif
       Return
