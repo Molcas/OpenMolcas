@@ -1365,7 +1365,7 @@ C-SVC: get the local vertical stripes of the lg_W vector
         W(I,J)=TMP
         END DO
       END DO
-      write(6,*)
+      ! write(6,*)
       END
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
@@ -1390,5 +1390,5 @@ C-SVC: get the local vertical stripes of the lg_W vector
         W(I,J)=DELINV*W(I,J)
         END DO
       END DO
-      write(6,*)
+      ! write(6,*)
       END
