@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2011, Daoling Peng                                     *
+*               2021, Rulin Feng                                       *
 ************************************************************************
       Subroutine DKRelint_DP
       Use Basis_Info
