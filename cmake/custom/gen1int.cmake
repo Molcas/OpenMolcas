@@ -65,7 +65,7 @@ ExternalProject_Add(${EP_PROJECT}
                     PREFIX ${CUSTOM_GEN1INT_LOCATION}
                     CMAKE_ARGS "${GEN1INTCMakeArgs}"
                     GIT_REPOSITORY ${reference_git_repo}
-                    GIT_TAG ${reference_git_commit}
+#                    GIT_TAG ${reference_git_commit}
                     INSTALL_DIR "${PROJECT_BINARY_DIR}"
                     LOG_INSTALL 1
                     LOG_DOWNLOAD 1

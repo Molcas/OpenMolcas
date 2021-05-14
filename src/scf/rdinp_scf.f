@@ -1602,7 +1602,7 @@ c         Write (6,*)
 *
       If(iUHF.eq.0 .and. UHF_HFC) Then
       call sysAbendMsg('rdinp','incorrect input',
-     &                 'HFC keyword should be used wth UHF')
+     &                 'HFC keyword should be used with UHF')
       End If
 *
 *---- Print out warning informations (if any)
