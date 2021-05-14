@@ -694,7 +694,7 @@ C              Write (6,*) 'dkhmemmax=',dkhmemmax
 *           First contract the result, store in Work(ip_Prop)
 *
             Call Allocate_Work(ip_Prop,iSizec+4)
-            Call repmat(idbg,Work(iX),Work(ip_Prop),.FALSE.)
+            Call repmat(idbg,Work(iX),Work(ip_Prop),.True.)
 *
 *                                                                      *
 ************************************************************************
@@ -857,7 +857,7 @@ C    &                                  1.0D0,0)
 c
 #ifdef MOLPRO
 c... store relativistic H
-      Call repmat(idbg,Work(ik),Work(iH_temp),.FALSE.)
+      Call repmat(idbg,Work(ik),Work(iH_temp),.True.)
       call fperm(Work(iH_temp),Work(ih))
       Call writem(Work(iH),isizec+2,1,1200,0,'H0')
       Call writem(Work(iH),isizec+2,1,1210,0,'H01')
@@ -925,7 +925,7 @@ c... reset contracted basis size
       End If
       call dcopy_(4,[Zero],0,Work(iH_Temp+iSizec),1)
 *     Contract and store in iH_temp
-      Call repmat(idbg,Work(iV),Work(iH_temp),.FALSE.)
+      Call repmat(idbg,Work(iV),Work(iH_temp),.True.)
 *
       CALL GetMem('V       ','FREE','REAL',iV,iSizep+4)
       CALL GetMem('SS      ','FREE','REAL',iSS,iSizep+4)
@@ -955,7 +955,7 @@ c... reset contracted basis size
          Call PrMtrx('iK (prim)',[lOper],nComp,[iK],Work)
          Call iSwap(8,nBas,1,nBas_Prim,1)
       End If
-      Call repmat(idbg,Work(iK),Work(iH),.FALSE.)
+      Call repmat(idbg,Work(iK),Work(iH),.True.)
       If (iPrint.ge.20) Then
          Call iSwap(8,nBas,1,nBas_Cont,1)
          Call PrMtrx('iH (cont)',[lOper],nComp,[iH],Work)
@@ -1009,7 +1009,7 @@ c... reset contracted basis size
 *
 *     Replace overlap on ONEINT
 *
-         Call repmat(idbg,Work(ipVp),Work(iH),.FALSE.)
+         Call repmat(idbg,Work(ipVp),Work(iH),.True.)
          iRC = -1
          Label='Mltpl  0'
          Call WrOne(iRC,iOpt,Label,1,Work(iH),lOper)

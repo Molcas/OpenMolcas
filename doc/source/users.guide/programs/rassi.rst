@@ -1295,78 +1295,79 @@ Keywords
               </KEYWORD>
 
 :kword:`EPRA`
-  This computes the hyperfine tensor matrix and the principle magnetic axes values for the ground
+  This computes the hyperfine tensor matrix and the principal magnetic axes values for the ground
   spin--orbit state. The hyperfine and spin--orbit coupling matrix elements are required upon calculation
-  (use keywords :kword:`SPIN` and :kword:`PROP`). For the hyperfine matrix elements, either the spin--dependent(ASD)
-  or the paramagnetic spin orbital(PSOP) part is needed, while in most cases both are recommended for the same atom.
+  (use keywords :kword:`SPIN` and :kword:`PROP`). For the hyperfine matrix elements, either the spin-dependent (ASD)
+  or the paramagnetic spin orbital (PSOP) part is needed, while in most cases both are recommended for the same atom.
   See reference for details :cite:`Feng_JChemTheoryComput_Electron_2021`.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EPRA" APPEAR="EPR hyperfine Matrix" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="SPIN">
               %%Keyword: EPRa <advanced>
               <HELP>
-              This computes the hyperfine tensor matrix and the principle magnetic axes values for the ground
-              spin--orbit state. The hyperfine and spin--orbit coupling matrix elements are required upon calculation
-              (use keywords SPIN and PROP). For the hyperfine matrix elements, either the spin-dependent(ASD)
-              or the paramagnetic spin orbital(PSOP) part is needed, while in most cases both are recommended 
+              This computes the hyperfine tensor matrix and the principal magnetic axes values for the ground
+              spin-orbit state. The hyperfine and spin-orbit coupling matrix elements are required upon calculation
+              (use keywords SPIN and PROP). For the hyperfine matrix elements, either the spin-dependent (ASD)
+              or the paramagnetic spin orbital (PSOP) part is needed, while in most cases both are recommended 
               for the same atom.
               </HELP>
               </KEYWORD>
 
 :kword:`AFCC`
   This computes the Fermi contact contribution of the total hyperfine coupling matrix.
-  The keyword :kword:`EPRA` is needed. The spin--dependent(ASD) part of the hyperfine matrix elements is needed.
+  The keyword :kword:`EPRA` is needed. The spin-dependent (ASD) part of the hyperfine matrix elements is needed.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="AFCC" APPEAR="Hyperfine Fermi contact" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="EPRA">
               %%Keyword: AFCC <advanced>
               <HELP>
               This computes the Fermi contact contribution of the total hyperfine coupling matrix.
-              The keyword EPRA is needed. The spin--dependent(ASD) part of the hyperfine matrix
+              The keyword EPRA is needed. The spin-dependent (ASD) part of the hyperfine matrix
               elements is needed.
               </HELP>
               </KEYWORD>
 
 :kword:`ASDC`
-  This computes the spin--dipolar contribution of the total hyperfine coupling matrix.
-  The keyword :kword:`EPRA` is needed. The spin--dependent(ASD) part of the hyperfine matrix elements is needed.
+  This computes the spin-dipolar contribution of the total hyperfine coupling matrix.
+  The keyword :kword:`EPRA` is needed. The spin-dependent (ASD) part of the hyperfine matrix elements is needed.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="ASDC" APPEAR="Hyperfine spin dipole" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="EPRA">
               %%Keyword: ASDC <advanced>
               <HELP>
-              This computes the spin--dipolar contribution of the total hyperfine coupling matrix.
-              The keyword EPRA is needed. The spin--dependent(ASD) part of the hyperfine matrix
+              This computes the spin-dipolar contribution of the total hyperfine coupling matrix.
+              The keyword EPRA is needed. The spin-dependent (ASD) part of the hyperfine matrix
               elements is needed.
               </HELP>
               </KEYWORD>
 
 :kword:`FCSD`
-  This computes the spin--dependent contribution of the total hyperfine coupling matrix.
-  The keyword :kword:`EPRA` is needed. The spin--dependent(ASD) part of the hyperfine matrix elements is needed.
+  This computes the spin-dependent contribution of the total hyperfine coupling matrix.
+  The keyword :kword:`EPRA` is needed. The spin-dependent (ASD) part of the hyperfine matrix elements is needed.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="FCSD" APPEAR="Hyperfine spin dependent" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="EPRA">
               %%Keyword: FCSD <advanced>
               <HELP>
-              This computes the spin--dependent contribution of the total hyperfine coupling matrix.
-              The keyword EPRA is needed. The spin--dependent(ASD) part of the hyperfine matrix
+              This computes the spin-dependent contribution of the total hyperfine coupling matrix.
+              The keyword EPRA is needed. The spin-dependent (ASD) part of the hyperfine matrix
               elements is needed.
               </HELP>
               </KEYWORD>
 
 :kword:`APSO`
-  This computes the spin--dependent contribution of the total hyperfine coupling matrix.
-  The keyword :kword:`EPRA` is needed. The spin--dependent(ASD) part of the hyperfine matrix elements is needed.
+  This computes the paramagnetic spin orbital contribution of the total hyperfine coupling matrix.
+  The keyword :`EPRA` is needed. The paramagnetic spin orbital (PSOP) part of the hyperfine matrix
+  elements is needed.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="APSO" APPEAR="Hyperfine paramagnetic" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="EPRA">
               %%Keyword: APSO <advanced>
               <HELP>
               This computes the paramagnetic spin orbital contribution of the total hyperfine coupling matrix.
-              The keyword EPRA is needed. The paramagnetic spin orbital(PSOP) part of the hyperfine matrix
+              The keyword EPRA is needed. The paramagnetic spin orbital (PSOP) part of the hyperfine matrix
               elements is needed.
               </HELP>
               </KEYWORD>
 
 :kword:`ATSA`
   This keyword activates the pseudospin approach to compute the same hyperfine constants as :kword:`EPRA`.
-  For Kramers pair ground states this keyword is optional, otherwise(non-Kramers pair ground state) it is needed.
+  For Kramers pair ground states this keyword is optional, otherwise (non-Kramers pair ground state) it is needed.
   See reference for details :cite:`Feng_JChemTheoryComput_Electron_2021`.
   The keyword :kword:`EPRA` is needed.
 
@@ -1374,7 +1375,7 @@ Keywords
               %%Keyword: ATSA <advanced>
               <HELP>
               This keyword activates the pseudospin approach to compute the same hyperfine constants as EPRA.
-              For Kramers pair ground states this keyword is optional, otherwise(non-Kramers pair ground state) it is needed.
+              For Kramers pair ground states this keyword is optional, otherwise (non-Kramers pair ground state) it is needed.
               The keyword EPRA is needed.
               </HELP>
               </KEYWORD>
@@ -1445,17 +1446,15 @@ An illustrative hyperfine calculation input for a diatomic molecule: ::
   'PSOP   2' 1
   'PSOP   2' 2
   'PSOP   2' 3
-  End of input
-  * Note that the strings following PROP have to be of sizes of 8, each followed by
-  * an integer number for the property component.
+  * Note that the strings following PROP have to be of sizes of 8, each 
+  * followed by an integer number for the property component. 
+  * The last digit of the string is the atom number.
   * Note that there are 6 ASD and 3 PSOP components for each atom, respectively.
   * One has to include all 6 of ASD components to obtain principle
   * spin-dependent hyperfine contributions, and one has to include all 3 of PSOP
   * components to obtain principle paramagnetic spin orbital contributions.
 
 It is also possible to calculate only the non-relativistic part of the spin--dependent hyperfine contributions: ::
-
-  >>COPY "Jobiph file 1" JOB001
 
   &RASSI
   Nr of JobIphs
@@ -1482,7 +1481,6 @@ It is also possible to calculate only the non-relativistic part of the spin--dep
   'ASDO   2' 4
   'ASDO   2' 5
   'ASDO   2' 6
-  End Oof input
   * Note that 'ASD' is now 'ASDO' for the non-relativistic integrals.
 
 

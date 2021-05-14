@@ -800,10 +800,6 @@ c      End If
 *
 *>>>>>>>>>>>>> HFC  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  2701 Continue
-      if(iUHF.eq.0) then
-      call sysAbendMsg('rdinp','incorrect input',
-     &                 'HFC keyword should be placed after UHF')
-      endif
       UHF_HFC     = .True.
       GoTo 1000
 *
@@ -1602,6 +1598,11 @@ c         Write (6,*)
          call WarningMessage(2, 'Input error!;'//
      &   'inappropriate value for Invec')
          Call Abend
+      End If
+*
+      If(iUHF.eq.0 .and. UHF_HFC) Then
+      call sysAbendMsg('rdinp','incorrect input',
+     &                 'HFC keyword should be used wth UHF')
       End If
 *
 *---- Print out warning informations (if any)

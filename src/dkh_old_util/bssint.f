@@ -734,7 +734,7 @@ C
 C
 C
       call dcopy_(4,[Zero],0,Work(iH_temp+iSizec),1)
-      Call repmat(idbg,Work(iV),Work(iH_temp),.FALSE.)
+      Call repmat(idbg,Work(iV),Work(iH_temp),.True.)
 *
 C
 C
@@ -762,7 +762,7 @@ C
 
 
 C
-      Call repmat(idbg,Work(iK),Work(iH),.FALSE.)
+      Call repmat(idbg,Work(iK),Work(iH),.True.)
 *
       CALL GetMem('Kin     ','FREE','REAL',iK,iSizep+4)
 *

@@ -74,7 +74,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      If (Label(1:4).eq.'PSOI') Then !  PSO Integrals
       If (Label(1:3).eq.'MAG') Then
       iCmp   = iSD( 2,iS)
       iBas   = iSD( 3,iS)

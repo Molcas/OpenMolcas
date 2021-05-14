@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-*Copyright (C) 2019, Thomas J. Duignan                                 *
-*              2021, Rulin Feng                                        *
+* Copyright (C) 2019, Thomas J. Duignan                                *
+*               2021, Rulin Feng                                       *
 ************************************************************************
       subroutine repmat(idbg,bInt,sInt,donorm)
       Use Basis_Info
@@ -204,12 +204,12 @@ c         If (idbg.gt.0) Write(idbg,*) ipbasL,jpbasL,kp
         call mma_allocate(fin,nc,nc)
         call mma_allocate(pa,np)
 
-        mag(:,:)=0
-        u2c(:,:) = 0
-        u2ct(:,:) = 0
-        scr(:,:) = 0
-        fin(:,:) = 0
-        pa(:) = 0
+        mag(:,:)= 0.0D0
+        u2c(:,:) = 0.0D0
+        u2ct(:,:) = 0.0D0
+        scr(:,:) = 0.0D0
+        fin(:,:) = 0.0D0
+        pa(:) = 0.0D0
 
         ! Square the uncontracted ints
         mp = 0

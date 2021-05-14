@@ -39,6 +39,7 @@
       set (TOOLS "ON" CACHE STRING "compile Tools")
       set (MSYM "ON" CACHE STRING "enable libmsym (needs submodule)")
       set (WFA "ON" CACHE STRING "enable libwfa (needs submodule)")
+      set (GEN1INT "ON" CACHE STRING "enable Gen1Int")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"

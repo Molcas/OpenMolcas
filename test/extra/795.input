@@ -3,6 +3,15 @@
 * Author: Rulin Feng <rulinfen@gmail.com>
 * Date: 2021-04-20
 **************************************************
+* Test if Gen1Int is available and skip the test if not
+>> RM -FORCE TEST_GEN1INT
+>> IF ( $MOLCAS_DRIVER = UNKNOWN_VARIABLE )
+>>   EXPORT MOLCAS_DRIVER=molcas
+>> ENDIF
+>> SHELL $MOLCAS_DRIVER have_feature gen1int || touch TEST_GEN1INT
+>> IF ( -FILE TEST_GEN1INT )
+>>   EXIT 36
+>> ENDIF
 
 &SEWARD  &END
 FINIte
