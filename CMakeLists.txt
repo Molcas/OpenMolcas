@@ -2369,10 +2369,6 @@ if (LINALG STREQUAL "Runtime")
   list (APPEND ${util}_incs ${internal_linalg})
 endif ()
 
-if (GEN1INT)
-  list (APPEND integral_util_defs "_GEN1INT_")
-endif ()
-
 # activate HDF5 wrappers for I/O
 if (HDF5 AND HDF5_FOUND)
   set (util hdf5_util)
@@ -2488,6 +2484,8 @@ endif ()
 
 if (GEN1INT)
   list (APPEND seward_defs "_GEN1INT_")
+  list (APPEND integral_util_defs "_GEN1INT_")
+  list (APPEND property_util_defs "_GEN1INT_")
 endif ()
 
 # programs doing HDF5 calls

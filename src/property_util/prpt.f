@@ -496,10 +496,12 @@ C     Write (*,*) ' Starting scan of ONEINT for various elec. field integrals'
 *          (assuming error scales with sqrt(ncen))
            iTol=5
            iTol=iTol-NInt(Half*Log10(Dble(nCen)))
+#ifndef _GEN1INT_
            Write (label,'(a,i1,a)') 'EF',iEF,'   el'
            Call Add_Info(label,Work(iadElSum),nComp,iTol)
            Write (label,'(a,i1,a)') 'EF',iEF,'  nuc'
            Call Add_Info(label,Work(iadNucSum),nComp,iTol)
+#endif
          End If
          Call GetMem('ElSum','Free','Real',iadElSum,nComp)
          Call GetMem('NucSum','Free','Real',iadNucSum,nComp)
@@ -595,10 +597,12 @@ C     Write (*,*) ' Starting scan of ONEINT for various contact term integrals'
 *          (assuming error scales with sqrt(ncen))
            iTol=5
            iTol=iTol-NInt(Half*Log10(Dble(nCen)))
+#ifndef _GEN1INT_
            Write (label,'(a,a)') 'CNT','   el'
            Call Add_Info(label,Work(iadElSum),nComp,iTol)
            Write (label,'(a,a)') 'CNT','  nuc'
            Call Add_Info(label,Work(iadNucSum),nComp,iTol)
+#endif
          End If
          Call GetMem('ElSum','Free','Real',iadElSum,nComp)
          Call GetMem('NucSum','Free','Real',iadNucSum,nComp)
