@@ -13220,6 +13220,7 @@ S. Diaz-Megias, L. Seijo. Chem. Phys. Lett. 299 (1999) 613-622. doi:10.1016/s000
 CERIUM (14s,10p,9d,8f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Kr,4d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -13434,6 +13435,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 PRASEODYMIUM (14s,10p,9d,8f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Kr,4d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -13648,6 +13650,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 NEODYMIUM (14s,10p,9d,8f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Kr,4d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -13862,6 +13865,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 PROMETHIUM (14s,10p,9d,8f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Kr,4d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -14076,6 +14080,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 SAMARIUM (14s,10p,9d,8f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Kr,4d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -14290,6 +14295,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 EUROPIUM (14s,10p,9d,8f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Kr,4d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -14504,6 +14510,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 GADOLINIUM (14s,10p,9d,8f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Kr,4d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -14718,6 +14725,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 TERBIUM (14s,10p,9d,8f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Kr,4d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -14932,6 +14940,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 DYSPROSIUM (14s,10p,9d,8f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Kr,4d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -15146,6 +15155,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 HOLMIUM (14s,10p,9d,8f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Kr,4d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -15360,6 +15370,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 ERBIUM (14s,10p,9d,8f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Kr,4d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -15574,6 +15585,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 THULIUM (14s,10p,9d,8f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Kr,4d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -15788,6 +15800,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 YTTERBIUM (14s,10p,9d,8f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Kr,4d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -16002,6 +16015,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 LUTETIUM (14s,10p,9d,8f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Kr,4d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -22430,6 +22444,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 THORIUM (14s,10p,11d,9f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Xe,4f,5d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -22674,6 +22689,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 PROTACTINIUM (14s,10p,11d,9f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Xe,4f,5d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -22918,6 +22934,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 URANIUM (14s,10p,11d,9f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Xe,4f,5d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -23162,6 +23179,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 NEPTUNIUM (14s,10p,11d,9f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Xe,4f,5d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -23406,6 +23424,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 PLUTONIUM (14s,10p,11d,9f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Xe,4f,5d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -23650,6 +23669,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 AMERICIUM (14s,10p,11d,9f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Xe,4f,5d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -23894,6 +23914,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 CURIUM (14s,10p,11d,9f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Xe,4f,5d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -24138,6 +24159,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 BERKELIUM (14s,10p,11d,9f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Xe,4f,5d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -24382,6 +24404,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 CALIFORNIUM (14s,10p,11d,9f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Xe,4f,5d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -24626,6 +24649,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 EINSTEINIUM (14s,10p,11d,9f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Xe,4f,5d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -24870,6 +24894,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 FERMIUM (14s,10p,11d,9f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Xe,4f,5d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -25114,6 +25139,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 MENDELEVIUM (14s,10p,11d,9f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Xe,4f,5d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -25358,6 +25384,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 NOBELIUM (14s,10p,11d,9f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Xe,4f,5d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *
@@ -25602,6 +25629,7 @@ L. Seijo, Z. Barandiaran, E. Harguindey. J. Chem. Phys 114 (2001) 118-129. doi:1
 LAWRENCIUM (14s,10p,11d,9f,3g) -> [2s,1p,1d,1f,1g]
 ********************************************************************************
 *relativistic core=[Xe,4f,5d]  6s5p5d4f1g recommended
+*
 * - spin-orbit basis set correction from
 *   L. Seijo. J. Chem. Phys. 102 (1995) 8078-8088. doi:10.1063/1.469007
 *

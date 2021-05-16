@@ -1,6 +1,6 @@
 *-------------------------------------------------------------------------------
 * Molecule:
-* Basis: DEF-SV(P)
+* Basis: def-SV(P)
 * Symmetry: ..
 * Features tested: RI options
 * Responsible person: R. Lindh, 070125
@@ -10,18 +10,18 @@
 
  &SEWARD &END
 Title
-ch4, DEF-SV(P)
+ch4, def-SV(P)
 
 Symmetry
 x y
 Basis set
 
-c.DEF-SV(P)....
+c.def-SV(P)....
 C   0.000000     0.000000     0.000000
 End of basis
 
 Basis set
-H.DEF-SV(P)....
+H.def-SV(P)....
 H1             1.68072218274132975342       0.0000000000 -1.18845005270705
 H2             0.0000000000      1.68072218274132975342   1.18845005270705
 End of basis
@@ -46,18 +46,18 @@ End of input
 
  &SEWARD &END
 Title
-ch4, DEF-SV(P)
+ch4, def-SV(P)
 
 Symmetry
 x y
 Basis set
 
-c.DEF-SV(P)....
+c.def-SV(P)....
 C   0.000000     0.000000     0.000000
 End of basis
 
 Basis set
-H.DEF-SV(P)....
+H.def-SV(P)....
 H1             1.68072218274132975342       0.0000000000 -1.18845005270705
 H2             0.0000000000      1.68072218274132975342   1.18845005270705
 End of basis

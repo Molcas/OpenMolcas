@@ -31,7 +31,7 @@ ThrCom
 EndChoInput
 
 Basis set
-H.aug-cc-pVDZ.Dunning.5s2p.3s2p..
+H.aug-cc-pVDZ.Kendall.5s2p.3s2p..
 H1       0.0000000000000     0.0000000000000    -4.6808516337229 bohr
 H2       0.0000000000000     4.0537364258210    -2.3404258168615 bohr
 End of Basis set
@@ -66,7 +66,7 @@ ThrCom
 EndChoInput
 
 Basis set
-H.aug-cc-pVDZ.Dunning.5s2p.3s2p..
+H.aug-cc-pVDZ.Kendall.5s2p.3s2p..
 H1       0.0000000000000     0.0000000000000    -4.6808516337229 bohr
 H2       0.0000000000000     4.0537364258210    -2.3404258168615 bohr
 End of Basis set
