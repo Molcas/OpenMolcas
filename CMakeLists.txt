@@ -2485,7 +2485,6 @@ endif ()
 if (GEN1INT)
   list (APPEND seward_defs "_GEN1INT_")
   list (APPEND integral_util_defs "_GEN1INT_")
-  list (APPEND property_util_defs "_GEN1INT_")
 endif ()
 
 # programs doing HDF5 calls
