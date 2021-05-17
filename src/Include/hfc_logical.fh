@@ -14,13 +14,7 @@
 !      directory.
 !
 !      MAG_X2C: true when x2c-transformed hyperfine magnetic integrals
-!      are calculated. It is set initially to solve problems of failed
-!      tests when electric field properties (EF0, EF1, EF2) are
-!      calculated with picture-change-uncorrected integrals, causing
-!      the calculated numbers to be unreasonably large. The large
-!      numbers suffer from significant numerical instability, further
-!      causing certain tests to always fail. Therefore set this
-!      logical control to circumvent certain add_info function calls.
+!      are calculated.
 
       Logical UHF_HFC, MAG_X2C
       COMMON /HFCKEY/ UHF_HFC, MAG_X2C
