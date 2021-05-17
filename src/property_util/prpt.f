@@ -219,6 +219,8 @@ c
       Real*8  occ(1:ndim), scr(1:maxscr), Vec(n2Tot)
       Dimension idum(1)
 c
+      Integer tNUC, nbast
+c
       Call Prpt_Internal(Scr)
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(n2Dim)
@@ -429,8 +431,10 @@ c
       If (iUHF.eq.1) Then
         If (UHF_HFC) Then
           If (nIrrep.eq.1) Then
+            tNUC = 0
+            nbast = nbas(0)
             Call Get_iScalar('LP_nCenter', tNUC)
-            Call cmp_hfc(nbas(0:0),tNUC)
+            Call cmp_hfc(nbast,tNUC)
           Else
             write(6,'(/,/,6X,A)')
      &      'Skipping Hyperfine tensor matrix for UHF with symmetry'
