@@ -164,7 +164,7 @@ C (IPUSED will be set later, set it to zero now.)
         ICMPLST(IPRP)=ICMP
         IPUSED(IPRP)=0
 
-c Copy the EF2 integral label for hyperfine calculations
+c Copy the EF2 integral label for non-rel hyperfine calculations
         IF(LABEL(1:3).EQ.'EF2') THEN
           IF(IPRP.GE.MXPROP) GOTO 110
           IPRP=IPRP+1

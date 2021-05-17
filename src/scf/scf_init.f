@@ -24,7 +24,7 @@
 #include "infso.fh"
 #include "llists.fh"
 #include "twoswi.fh"
-#include "scf_logical.fh"
+#include "hfc_logical.fh"
 *
       Logical  Found, Reduce_Prt
       External Reduce_Prt

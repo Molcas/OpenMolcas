@@ -98,6 +98,7 @@
         enddo
 
         write(6,*) ''
+        write(6,*) ''
         write(6,'(A,I3)') 'Hyperfine coupling tensor matrix for atom
      &                    :', iat
         write(6,*) ''
@@ -108,7 +109,6 @@
         enddo
         write(6,'(A,A)')    '   --------------------------------------',
      &                      '-------------------'
-        write(6,'(A)') ''
       enddo
       Call Add_Info('AMAT',AMAT,9,5)
 

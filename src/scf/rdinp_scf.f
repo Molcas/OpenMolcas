@@ -54,7 +54,7 @@
 #include "file.fh"
 #include "iprlv.fh"
 #include "ksdft.fh"
-#include "scf_logical.fh"
+#include "hfc_logical.fh"
 *
 *---- Define local variables
       Character*180  Key, Line

@@ -94,7 +94,6 @@ c a temporary clone for CHARGE util
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "scf_logical.fh"
 *
       CHARACTER*(LENIN8) NAME(*)
       DIMENSION NBAS(NSYM),CMO(*),OCCN(*),SMAT(*)
@@ -851,10 +850,6 @@ c        first call for UHF, so just dump numbers to swap
       If (iCase.eq.1.and.iPL.ge.2) Then
 c second call, make a real print out
          If (FullMlk) Then
-c insert a HFC calculation here
-           If (UHF_HFC) Then
-             Call cmp_hfc(nbast,tNUC)
-           End if
             Write(6,'(6X,A)')
      &      'Mulliken charges per centre and basis function type'
             Write(6,'(6X,A)')
