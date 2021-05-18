@@ -2483,8 +2483,12 @@ if (WFA AND WFA_FOUND)
 endif ()
 
 if (GEN1INT)
-  list (APPEND seward_defs "_GEN1INT_")
-  list (APPEND integral_util_defs "_GEN1INT_")
+  foreach (prog
+    seward
+    integral_util
+  )
+    list (APPEND ${prog}_defs "_GEN1INT_")
+  endforeach ()
 endif ()
 
 # programs doing HDF5 calls

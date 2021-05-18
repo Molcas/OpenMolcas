@@ -1572,30 +1572,30 @@ end if
 if (lMXTC.and.DKroll.and.Primitive_Pass) then
 #ifdef _GEN1INT_
   nOrdOp = 0
-! Assume symmetric
+  ! Assume symmetric
   rHrmt = One
   nComp = 9
   Call Get_nAtoms_All(nAtoms)
   Do iCnt = 1, nAtoms
     Do jCnt = 1, 2
       if (jCnt.eq.1) then
-!     Label for lower triangular portion
+        !     Label for lower triangular portion
         Write (Label,'(A,I3)') 'MAGXP', iCnt
         Write (PLabel,'(A6)') 'MagInt'
       else
-!     Label for upper triangular portion
+        !     Label for upper triangular portion
         Write (Label,'(A,I3)') 'MAGPX', iCnt
         Write (PLabel,'(A6)') 'MagInt'
       endif
       Call Allocate_Auxiliary()
-!     Dummy symmetry indices
+      !     Dummy symmetry indices
       do i=1,nComp
         OperI(i) = 255
         OperC(i) = 0
       enddo
-!     Zero nuclear contribution
+      !     Zero nuclear contribution
       Call dcopy_(nComp,[Zero],0,Nuc,1)
-!     Compute one electron integrals
+      !     Compute one electron integrals
       Call OneEl(XTCInt,XTCMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
       Call Deallocate_Auxiliary()
     enddo
