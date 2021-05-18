@@ -18,12 +18,15 @@
 *     Output: BUFF                                                     *
 ************************************************************************
 #include "WrkSpc.fh"
+#include "hfc_logical.fh"
       CHARACTER*8 LABEL
       INTEGER IC,NBUFF,NSIZ,ISCHK
       REAL*8 BUFF(NBUFF)
       INTEGER ICM,INBUFF
       REAL*8 DA
 
+c Set MAG_X2C to avoid add_info in hfcts
+      MAG_X2C=.True.
       IOPT=0
       CALL GETMEM('MAG','Allo','Real',ITA,NBUFF)
 c BUFF needs to be initialized

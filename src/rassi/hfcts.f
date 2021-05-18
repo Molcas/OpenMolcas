@@ -27,6 +27,7 @@
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "constants.fh"
+#include "hfc_logical.fh"
       DIMENSION PROP(NSTATE,NSTATE,NPROP),ENERGY(NSTATE),
      &          JBNUM(NSTATE)
       Character*1 xyzchr(3)
@@ -288,12 +289,14 @@ cccccccccccccccccccccccccccccccccccccccc
           AMFI4=AMFI4+ACNT
           AMFI6=AMFI6+ACNT
 
-          CALL ADD_INFO("ASDFC1",[AMFI1],1,5)
-          CALL ADD_INFO("ASDFC2",[AMFI2],1,5)
-          CALL ADD_INFO("ASDFC3",[AMFI3],1,5)
-          CALL ADD_INFO("ASDFC4",[AMFI4],1,5)
-          CALL ADD_INFO("ASDFC5",[AMFI5],1,5)
-          CALL ADD_INFO("ASDFC6",[AMFI6],1,5)
+          If (.not.MAG_X2C) Then
+            CALL ADD_INFO("ASDFC1",[AMFI1],1,5)
+            CALL ADD_INFO("ASDFC2",[AMFI2],1,5)
+            CALL ADD_INFO("ASDFC3",[AMFI3],1,5)
+            CALL ADD_INFO("ASDFC4",[AMFI4],1,5)
+            CALL ADD_INFO("ASDFC5",[AMFI5],1,5)
+            CALL ADD_INFO("ASDFC6",[AMFI6],1,5)
+          End If
 
 cccccccccccccccccccccccccccccccccccccccc
 c Testing - use overlap matrix
