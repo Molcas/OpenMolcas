@@ -1570,7 +1570,7 @@ end if
 !***********************************************************************
 !!!MXTC
 if (lMXTC.and.DKroll.and.Primitive_Pass) then
-#ifdef _GEN1INT_
+# ifdef _GEN1INT_
   nOrdOp = 0
   ! Assume symmetric
   rHrmt = One
@@ -1600,10 +1600,10 @@ if (lMXTC.and.DKroll.and.Primitive_Pass) then
       Call Deallocate_Auxiliary()
     enddo
   enddo
-#else
+# else
   Call WarningMessage(2,'Drv1El: NO Gen1int interface available!')
   Call Abend()
-#endif
+# endif
 end if ! lMXTC
 !***********************************************************************
 !***********************************************************************
