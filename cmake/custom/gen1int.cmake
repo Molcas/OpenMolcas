@@ -55,6 +55,7 @@ list(APPEND GEN1INTCMakeArgs
 # git references for GEN1INT module #
 #####################################
 set(reference_git_repo https://gitlab.com/Molcas/Mirrors/gen1int-molcaslib.git)
+set(reference_git_tag 4a4e4cc6fd44f48a0061f5089c0d652d559893d2) # uncomment before merging into master, since before merging we expect more patches into upstream
 set(EP_PROJECT gen1int)
 
 
@@ -65,7 +66,7 @@ ExternalProject_Add(${EP_PROJECT}
                     PREFIX ${CUSTOM_GEN1INT_LOCATION}
                     CMAKE_ARGS "${GEN1INTCMakeArgs}"
                     GIT_REPOSITORY ${reference_git_repo}
-#                    GIT_TAG ${reference_git_commit}
+                    GIT_TAG ${reference_git_commit}
                     INSTALL_DIR "${PROJECT_BINARY_DIR}"
                     LOG_INSTALL 1
                     LOG_DOWNLOAD 1
