@@ -200,6 +200,8 @@ C positioning.
             ! compute regularized denominator
             if (regularizer.gt.0.0d0) then
               DNOMR = DNOM/(1.0 - exp(-regularizer * DNOM**2))
+            else
+              DNOMR = DNOM
             end if
             RHS  = WORK(LVAL+1+4*(IBUF-1))
             COEF = WORK(LVAL+2+4*(IBUF-1))
