@@ -18,20 +18,14 @@
 *     if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 *                      else  integral order within symblk: ijkl
       Use RICD_Info, only: LDF
+      use j12
       Implicit Real*8 (A-H,O-Z)
-*
-#include "j12.fh"
-#include "WrkSpc.fh"
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
       Integer iCmp(4), iShell(4), iAO(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),
      &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
       Logical Shijij,IJeqKL
-*                                                                      *
-************************************************************************
-*                                                                      *
-      nIrrep2=nSym**2
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -44,9 +38,9 @@
      &                   iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &                   iBas,jBas,kBas,lBas,kOp,
      &                   TInt,nTInt,iTOffs,
-     &                   iWork(ip_ShlSO),iWork(ip_nBasSh),
-     &                   iWork(ip_SOShl),nSO,nSkal_Valence,nSym,
-     &                   iWork(ip_iSSOff+(klS-1)*nIrrep2))
+     &                   ShlSO,nBasSh,
+     &                   SOShl,nSO,nSkal_Valence,nSym,
+     &                   iSSOff(0,0,klS))
          Else
            Call WarningMessage(2,'Not implemented yet!')
            Call Abend()
@@ -54,9 +48,9 @@ C          Call IndSft_RI_3(iCmp,iShell,
 C    &                      iBas,jBas,kBas,lBas,Shijij,
 C    &                      iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs,
 C    &                      TInt,nTInt,iTOffs,
-C    &                      iWork(ip_ShlSO),iWork(ip_nBasSh),
-C    &                      iWork(ip_SOShl),nSO,nSkal_Valence,nSym,
-C    &                      iWork(ip_iSSOff+(klS-1)*nIrrep2))
+C    &                      ShlSO,nBasSh,
+C    &                      SOShl,nSO,nSkal_Valence,nSym,
+C    &                      iSSOff(:,:,klS))
          End If
 *                                                                      *
 ************************************************************************
@@ -70,17 +64,17 @@ C    &                      iWork(ip_iSSOff+(klS-1)*nIrrep2))
      &                   iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &                   iBas,jBas,kBas,lBas,kOp,
      &                   TInt,nTInt,iTOffs,
-     &                   iWork(ip_ShlSO),iWork(ip_nBasSh),
-     &                   iWork(ip_SOShl),nSO,nSkal_Valence,nSym,
-     &                   iWork(ip_iSSOff+(klS-1)*nIrrep2))
+     &                   ShlSO,nBasSh,
+     &                   SOShl,nSO,nSkal_Valence,nSym,
+     &                   iSSOff(0,0,klS))
       Else
            Call IndSft_RI_3(iCmp,iShell,
      &                      iBas,jBas,kBas,lBas,Shijij,
      &                      iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs,
      &                      TInt,nTInt,iTOffs,
-     &                      iWork(ip_ShlSO),iWork(ip_nBasSh),
-     &                      iWork(ip_SOShl),nSO,nSkal_Valence,nSym,
-     &                      iWork(ip_iSSOff+(klS-1)*nIrrep2))
+     &                      ShlSO,nBasSh,
+     &                      SOShl,nSO,nSkal_Valence,nSym,
+     &                      iSSOff(:,:,klS))
          End If
 *                                                                      *
 ************************************************************************

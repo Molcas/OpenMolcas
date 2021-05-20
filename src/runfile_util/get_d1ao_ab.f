@@ -16,7 +16,6 @@
       Character*24 Label
       Logical      Found
 
-      Call Get_iScalar('System BitSwitch',iOption)
 *
 *...  Read the variational 1st order density matrix
 *...  density matrix in AO/SO basis

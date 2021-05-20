@@ -362,10 +362,8 @@ return
 contains
 
 subroutine finish()
-
   if (keyf /= 1) neval = (10*keyf+1)*(2*neval+1)
   if (keyf == 1) neval = 30*neval+15
-
 end subroutine finish
 
 end subroutine dqage

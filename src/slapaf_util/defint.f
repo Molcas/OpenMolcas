@@ -145,18 +145,20 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
          If (Index(Temp,'CART').Ne.0) Then
             nCntr=1
             nGo = Index(Temp,'CART')
-            nGo = nGo-1+Index(Temp(nGo:nTemp),' ')
-            If (Index(Temp(nGo:nTemp),'X').Ne.0) Then
-               nGo = nGo-1+Index(Temp(nGo:nTemp),'X')
-               nGo = nGo-1+Index(Temp(nGo:nTemp),' ')
+            Call NxtWrd(Temp,nGo,nGo2)
+            nGo = nGo2+1
+            Call NxtWrd(Temp,nGo,nGo2)
+            If (Temp(nGo:nGo2).Eq.'X') Then
+               nGo = nGo2+1
+               Call NxtWrd(Temp,nGo,nGo2)
                Type='X     '
-            Else If (Index(Temp(nGo:nTemp),'Y').Ne.0) Then
-               nGo = nGo-1+Index(Temp(nGo:nTemp),'Y')
-               nGo = nGo-1+Index(Temp(nGo:nTemp),' ')
+            Else If (Temp(nGo:nGo2).Eq.'Y') Then
+               nGo = nGo2+1
+               Call NxtWrd(Temp,nGo,nGo2)
                Type='Y     '
-            Else If (Index(Temp(nGo:nTemp),'Z').Ne.0) Then
-               nGo = nGo-1+Index(Temp(nGo:nTemp),'Z')
-               nGo = nGo-1+Index(Temp(nGo:nTemp),' ')
+            Else If (Temp(nGo:nGo2).Eq.'Z') Then
+               nGo = nGo2+1
+               Call NxtWrd(Temp,nGo,nGo2)
                Type='Z     '
             Else
                nGo=-1

@@ -22,7 +22,7 @@
 *
       Call FZero(Tmp1,nDoF**2)
       call dcopy_(nX,[One],0,Tmp1,nDoF+1)
-      Call NIDiag_new(Tmp2,Tmp1,nDoF,nDoF,0)
+      Call NIDiag_new(Tmp2,Tmp1,nDoF,nDoF)
 *
       Call FZero(EVal,2*nDoF)
       Call FZero(EVec,2*nDoF**2)

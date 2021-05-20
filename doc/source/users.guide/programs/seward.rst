@@ -1097,7 +1097,7 @@ The basis set label and the all electron basis set library
   structure (notice that the last
   character is a period): ::
 
-    atom.type.author.primitive.contracted.aux.
+    atom.type.author.primitive.contracted.aux1.aux2.
 
   where the different identifiers have the following meaning:
 
@@ -1127,8 +1127,13 @@ The basis set label and the all electron basis set library
   diffuse functions are performed in case the number of contracted functions specified in this field
   exceeds what formally is specified in the library file.
 
-``aux``
+``aux1``
+  Extra field that can be used to identify further variants.
+  For an ECP, if the type is not ``ECP``, this field must be ``ECP``.
+
+``aux2``
   Specification of the type of AIMP, for instance, to choose between
+  different embedding AIMP's.
   non-relativistic and relativistic core AIMP's.
 
 Only the identifiers ``atom``, ``type``,

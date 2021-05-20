@@ -1,55 +1,56 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-*----------------------------------------------------------------------*
-*                                                                      *
-* Switches for OpnOrd:                                                 *
-*   sNew   - create a new file                                         *
-*                                                                      *
-*----------------------------------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!----------------------------------------------------------------------*
+!                                                                      *
+! Switches for OpnOrd:                                                 *
+!   sNew   - create a new file                                         *
+!                                                                      *
+!----------------------------------------------------------------------*
+      Integer sNew
       Parameter (sNew   = 1)
-*----------------------------------------------------------------------*
-*                                                                      *
-* Return codes:                                                        *
-*   rc0000 - No error                                                  *
-*   rcOP01 - file is already opened                                    *
-*   rcOP02 - file specified as old is not existent                     *
-*   rcOP03 - invalid file identifier                                   *
-*   rcOP04 - unknown option has been specified                         *
-*   rcCL01 - file has not been opened                                  *
-*   rcTC01 - file has not been opened                                  *
-*   rcTC02 - unknown ordering parameter                                *
-*   rcTC03 - ilegal number of symmetry operations                      *
-*   rcTC04 - ilegal number of basis functions                          *
-*   rcTC05 - ilegal highest disk adress                                *
-*   rcTC06 - ilegal disk access table entry                            *
-*   rcTC07 - ilegal packing accuracy                                   *
-*   rcTC08 - ilegal scaling constant for packing                       *
-*   rcTC09 - unknown packing flag                                      *
-*   rcTC10 - ilegal entry in packing table                             *
-*   rcTC11 - the table of skip parameters is spoiled                   *
-*   rcTC12 - unknown assembler flag                                    *
-*   rcRD01 - ilegal combination of symmetry labels                     *
-*   rcRD02 - ilegal ordering of symmetry labels                        *
-*   rcRD03 - inconsistent symmetry batch                               *
-*   rcRD04 - ilegal buffer size                                        *
-*   rcRD05 - buffer size is to small                                   *
-*   rcRD06 - unknown option                                            *
-*   rcRD07 - symmetry block is not available                           *
-*   rcRD08 - file has not been opened                                  *
-*   rcRD09 - packing table has not been loaded                         *
-*                                                                      *
-*----------------------------------------------------------------------*
-      Integer rc0000,rcOP01,rcOP02,rcOP03,rcOP04,rcCL01,rcTC01,rcTC02,
-     &        rcTC03,rcTC04,rcTC05,rcTC06,rcTC07,rcTC08,rcTC09,rcTC10,
-     &        rcTC11,rcTC12,rcRD01,rcRD02,rcRD03,rcRD04,rcRD05,rcRD06,
+!----------------------------------------------------------------------*
+!                                                                      *
+! Return codes:                                                        *
+!   rc0000 - No error                                                  *
+!   rcOP01 - file is already opened                                    *
+!   rcOP02 - file specified as old is not existent                     *
+!   rcOP03 - invalid file identifier                                   *
+!   rcOP04 - unknown option has been specified                         *
+!   rcCL01 - file has not been opened                                  *
+!   rcTC01 - file has not been opened                                  *
+!   rcTC02 - unknown ordering parameter                                *
+!   rcTC03 - ilegal number of symmetry operations                      *
+!   rcTC04 - ilegal number of basis functions                          *
+!   rcTC05 - ilegal highest disk adress                                *
+!   rcTC06 - ilegal disk access table entry                            *
+!   rcTC07 - ilegal packing accuracy                                   *
+!   rcTC08 - ilegal scaling constant for packing                       *
+!   rcTC09 - unknown packing flag                                      *
+!   rcTC10 - ilegal entry in packing table                             *
+!   rcTC11 - the table of skip parameters is spoiled                   *
+!   rcTC12 - unknown assembler flag                                    *
+!   rcRD01 - ilegal combination of symmetry labels                     *
+!   rcRD02 - ilegal ordering of symmetry labels                        *
+!   rcRD03 - inconsistent symmetry batch                               *
+!   rcRD04 - ilegal buffer size                                        *
+!   rcRD05 - buffer size is to small                                   *
+!   rcRD06 - unknown option                                            *
+!   rcRD07 - symmetry block is not available                           *
+!   rcRD08 - file has not been opened                                  *
+!   rcRD09 - packing table has not been loaded                         *
+!                                                                      *
+!----------------------------------------------------------------------*
+      Integer rc0000,rcOP01,rcOP02,rcOP03,rcOP04,rcCL01,rcTC01,rcTC02,  &
+     &        rcTC03,rcTC04,rcTC05,rcTC06,rcTC07,rcTC08,rcTC09,rcTC10,  &
+     &        rcTC11,rcTC12,rcRD01,rcRD02,rcRD03,rcRD04,rcRD05,rcRD06,  &
      &        rcRD07,rcRD08,rcRD09
       Parameter (rc0000 = 0)
       Parameter (rcOP01 = rc0000+1)
@@ -78,51 +79,52 @@
       Parameter (rcRD07 = rcRD06+1)
       Parameter (rcRD08 = rcRD07+1)
       Parameter (rcRD09 = rcRD08+1)
-*---------------------------------------------------------------------*
-*                                                                     *
-*     Entry points to auxiliary information on 2el. file:             *
-*                                                                     *
-*     lAuxTwo : no. of auxiliray informations used on 2el file        *
-*     isUnit  : logical unit number of 2el. integral file             *
-*     isStat  : Status identifier ( =0:closed, =1,opened)             *
-*     isDada  : Disks adress of last access                           *
-*     isUpk8  : pointer to next integral to unpack                    *
-*     islBf1  : number of left integrals in TWOBUF                    *
-*     isNpq   : Number of pq pairs per symmetry batch which has       *
-*               not been read currently                               *
-*     isNext  : first free location for supplementary information     *
-*                                                                     *
-*     Entry points to table of contents for ordered 2el. integrals:   *
-*                                                                     *
-*     lTocTwo : length of table of content                            *
-*     isId    : location of file identifier                           *
-*     isVer   : location of version number                            *
-*     isOrd   : location of ordering key                              *
-*     isForm  : format of data on disk                                *
-*     isSym   : location of number of irred. representations          *
-*     isBas   : first location of basis function counters             *
-*     isSkip  : first location of the skip flags                      *
-*     isDAdr  : first location of disk adresses for each sym. batch   *
-*     isMxDa  : highest disk adress written                           *
-*     isPkTh  : location of threshold for packing                     *
-*     isPkCt  : location of cutof for packing                         *
-*     isPkSc  : location of scaling constant for packing              *
-*     isPkPa  : location of packing key                               *
-*     isPkAs  : location of assmbler key                              *
-*     isPkTb  : first location of packing table                       *
-*     isFree  : first free location for suplementary information      *
-*                                                                     *
-*     Parameters for the symmetry block number to batch number        *
-*     translation table                                               *
-*                                                                     *
-*     lBatch  : length of the translation table                       *
-*                                                                     *
-*     Dummy number used to initialize AuxTwo and TocTwo               *
-*                                                                     *
-*     iNoNum  : dummy constant = -1                                   *
-*                                                                     *
-*---------------------------------------------------------------------*
-*
+!----------------------------------------------------------------------*
+!                                                                      *
+!     Entry points to auxiliary information on 2el. file:              *
+!                                                                      *
+!     lAuxTwo : no. of auxiliray informations used on 2el file         *
+!     isUnit  : logical unit number of 2el. integral file              *
+!     isStat  : Status identifier ( =0:closed, =1,opened)              *
+!     isDada  : Disks adress of last access                            *
+!     isUpk8  : pointer to next integral to unpack                     *
+!     islBf1  : number of left integrals in TWOBUF                     *
+!     isNpq   : Number of pq pairs per symmetry batch which has        *
+!               not been read currently                                *
+!     isNext  : first free location for supplementary information      *
+!                                                                      *
+!     Entry points to table of contents for ordered 2el. integrals:    *
+!                                                                      *
+!     lTocTwo : length of table of content                             *
+!     isId    : location of file identifier                            *
+!     isVer   : location of version number                             *
+!     isOrd   : location of ordering key                               *
+!     isForm  : format of data on disk                                 *
+!     isSym   : location of number of irred. representations           *
+!     isBas   : first location of basis function counters              *
+!     isSkip  : first location of the skip flags                       *
+!     isDAdr  : first location of disk adresses for each sym. batch    *
+!     isMxDa  : highest disk adress written                            *
+!     isPkTh  : location of threshold for packing                      *
+!     isPkCt  : location of cutof for packing                          *
+!     isPkSc  : location of scaling constant for packing               *
+!     isPkPa  : location of packing key                                *
+!     isPkAs  : location of assmbler key                               *
+!     isPkTb  : first location of packing table                        *
+!     isFree  : first free location for suplementary information       *
+!                                                                      *
+!     Parameters for the symmetry block number to batch number         *
+!     translation table                                                *
+!                                                                      *
+!     lBatch  : length of the translation table                        *
+!                                                                      *
+!     Dummy number used to initialize AuxTwo and TocTwo                *
+!                                                                      *
+!     iNoNum  : dummy constant = -1                                    *
+!                                                                      *
+!----------------------------------------------------------------------*
+!
+      Integer isUnit,isStat,isDaDa,isUpk8,islBf1,isNpq,isNext,lAuxTwo
       Parameter ( isUnit  = 1            )
       Parameter ( isStat  = isUnit+1     )
       Parameter ( isDaDa  = isStat+1     )
@@ -131,7 +133,9 @@
       Parameter ( isNpq   = islBf1+1     )
       Parameter ( isNext  = isNpq+1      )
       Parameter ( lAuxTwo = isNext+10    )
-*
+!
+      Integer isId,isVer,isORd,isForm,isSym,isBas,isSkip,isDAdr,isMxDa, &
+     &        isPkTh,isPkCt,isPkSc,isPkPa,isPkAs,isPkTb,isFree,lTocTwo
       Parameter ( isId    = 1            )
       Parameter ( isVer   = isId+1       )
       Parameter ( isOrd   = isVer+1      )
@@ -149,30 +153,31 @@
       Parameter ( isPkTb  = isPkAs+1     )
       Parameter ( isFree  = isPkTb+4096  )
       Parameter ( lTocTwo = isFree+10    )
-*
+!
+      Integer lBatch
       Parameter ( lBatch  = 1296         )
-*
+!
+      Integer iNoNum
       Parameter ( iNoNum  = -1           )
-*
+!
       Integer AuxTwo(lAuxTwo)
       Integer TocTwo(lTocTwo)
       Integer nBatch(lBatch)
       Common /TwoDat/ AuxTwo,TocTwo,nBatch
-*
-*---------------------------------------------------------------------*
-*                                                                     *
-*     save control structures needed if the two-electron integrals    *
-*     if random access memory (RAM) is used as disk to keep them.     *
-*                                                                     *
-*---------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!                                                                      *
+!     save control structures needed if the two-electron integrals     *
+!     if random access memory (RAM) is used as disk to keep them.      *
+!                                                                      *
+!----------------------------------------------------------------------*
+!
       Logical RAMD
-      Integer RAMD_anchor, ip_RAMD
+      Integer RAMD_anchor
       Integer RAMD_size
       Integer RAMD_adr(176)
       Real*8  RAMD_ints(8)
       Integer RAMD_next
       Common/rRAMdisk/RAMD_ints
       Common/lRAMdisk/RAMD
-      Common/iRAMdisk/RAMD_adr,RAMD_size,RAMD_anchor,
-     &               RAMD_next,ip_RAMD
+      Common/iRAMdisk/RAMD_adr,RAMD_size,RAMD_anchor,RAMD_next

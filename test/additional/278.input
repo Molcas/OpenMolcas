@@ -1,6 +1,6 @@
 *-------------------------------------------------------------------------------
 * Molecule:
-* Basis: DEF-SV(P)
+* Basis: def-SV(P)
 * Symmetry: ..
 * Features tested: RI options
 * Responsible person: R. Lindh, 070125
@@ -10,19 +10,19 @@
 
  &SEWARD &END
 Title
-ch4, DEF-SV(P)
+al2s3, def-SV(P)
 
 Symmetry
 x
 
 Basis set
-S.DEF-SV(P)....
+S.def-SV(P)....
 S1     .00000000000000       .00000000000000      2.90206812723741
 S2   -6.26242038875924       .00000000000000     -1.82579165599395
 End of basis
 
 Basis set
-AL.DEF-SV(P)....
+AL.def-SV(P)....
 Al1   -3.27847252275393       .00000000000000       .44535060845097
 End of basis
 RIJ
@@ -30,7 +30,7 @@ End of input
 *----------------------------------------------------------------------------
  &SCF &END
 Title
- ch4
+ al2s3
 ITERATIONS
  50
 Occupation
@@ -46,19 +46,19 @@ End of input
 >>> RM $Project.RunFile
  &SEWARD &END
 Title
-ch4, DEF-SV(P)
+al2s3, def-SV(P)
 
 Symmetry
 x
 
 Basis set
-S.DEF-SV(P)....
+S.def-SV(P)....
 S1     .00000000000000       .00000000000000      2.90206812723741
 S2   -6.26242038875924       .00000000000000     -1.82579165599395
 End of basis
 
 Basis set
-AL.DEF-SV(P)....
+AL.def-SV(P)....
 Al1   -3.27847252275393       .00000000000000       .44535060845097
 End of basis
 RIJ
@@ -67,7 +67,7 @@ End of input
 *----------------------------------------------------------------------------
  &SCF &END
 Title
- ch4
+ al2s3
 ITERATIONS
  50
 Occupation

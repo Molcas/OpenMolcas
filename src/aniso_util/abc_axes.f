@@ -52,9 +52,9 @@
       a   = cryst(1)
       b   = cryst(2)
       c   = cryst(3)
-      al  = cryst(4)*pi/180._wp
-      bt  = cryst(5)*pi/180._wp
-      gm  = cryst(6)*pi/180._wp
+      al  = cryst(4)*pi/180.0_wp
+      bt  = cryst(5)*pi/180.0_wp
+      gm  = cryst(6)*pi/180.0_wp
       cal = cos(al)
       cbt = cos(bt)
       cgm = cos(gm)

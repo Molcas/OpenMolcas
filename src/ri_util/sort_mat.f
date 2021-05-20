@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE SORT_mat(irc,Diag,nDim,nVec,iD_A,nSym,lu_A0,mode,
-     &                        lScr,Scr)
+      SUBROUTINE SORT_mat(irc,nDim,nVec,iD_A,nSym,lu_A0,mode,
+     &                        lScr,Scr,Diag)
 ************************************************************************
 *
 *     Author:  F. Aquilante
@@ -20,21 +20,22 @@
       Implicit Real*8 (a-h,o-z)
       Integer irc, nSym, lScr
       Integer iD_A(*), nDim(nSym), nVec(nSym), lu_A0(nSym)
-      Real*8  Scr(lScr), Diag(*)
+      Real*8  Scr(lScr)
       Character*7 mode
-#include "WrkSpc.fh"
       Character Name_A*6
+      Real*8, Optional ::  Diag(*)
 *
 C     Write (6,*) 'Mode=',Mode
       irc=0
       If (mode.eq.'GePivot') Then  ! returns iD_A
+         If (.NOT.Present(Diag)) Call Abend()
          is=1
 *19112013VVP: The threshold changed from 1.d-14 to 1.d-12
         Thr=1.0D-12
 *The original threshold:
 *        Thr=1.0D-14
          Do iSym=1,nSym
-            If (nDim(iSym).eq.0) Go To 81
+            If (nDim(iSym)==0) Cycle
             lu_A=7
             Write(Name_A,'(A4,I2.2)') 'ZMAT',iSym-1
             Call DaName_MF_WA(lu_A,Name_A)
@@ -45,7 +46,6 @@ C           Call RecPrt('Diag',' ',Diag(iS),1,nDim(iSym))
             Call DaEras(lu_A) ! we do not need it
 C           Call RecPrt('Diag',' ',Diag(iS),1,nDim(iSym))
             is=is+nDim(iSym)
- 81         Continue
          End Do
       ElseIf (mode.eq.'DoPivot') Then ! store full-pivoted UT A-matrix
          is=1

@@ -30,9 +30,7 @@
 #endif
 *
 #ifdef _EXCHANGE_
-               jp_BklK=ip_BklK + mijkl - 1
-               tempK=Work(jp_BklK)
-               temp = temp - tempK*ExFac*Half
+               temp = temp - ExFac*Half*BklK(mijkl)
 #endif
 *
 #ifdef _ACTIVE_

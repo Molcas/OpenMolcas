@@ -29,12 +29,9 @@
       use SOAO_Info, only: iOffSO
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
+      use j12, only: nSkal_Valence
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut
-#include "j12.fh"
-#include "print.fh"
-#include "real.fh"
-#include "WrkSpc.fh"
       Real*8  TInt(nTInt)
       Logical Verbose, Indexation, FreeK2, DoFock, DoGrad
 *                                                                      *

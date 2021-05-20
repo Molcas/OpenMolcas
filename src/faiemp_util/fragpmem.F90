@@ -11,7 +11,10 @@
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine FragPMem(nHer,MemFrag,la,lb,lr)
+subroutine FragPMem( &
+#                   define _CALLING_
+#                   include "mem_interface.fh"
+                   )
 !***********************************************************************
 !  Object: to compute the number of real*8 the kernel routine will     *
 !          need for the computation of a matrix element between two    *
@@ -29,12 +32,12 @@ use Basis_Info, only: dbsc, nCnttp, Shells
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(inout) :: nHer
-integer(kind=iwp), intent(out) :: MemFrag
-integer(kind=iwp), intent(in) :: la, lb, lr
+#define _USE_WP_
+#include "mem_interface.fh"
 integer(kind=iwp) :: nExpi, nExpj, maxDensSize, iCnttp, jCnttp, iAng, jAng, iShll, jShll, ip, nac, ncb, MemMlt, nH, nBasisi, nBasisj
 
-MemFrag = 0
+nHer = 0
+Mem = 0
 maxDensSize = 0
 ! largest possible fragment energy weighted density matrix
 do iCnttp=1,nCnttp
@@ -71,7 +74,7 @@ do iCnttp=1,nCnttp
 
         call MltMmP(nH,MemMlt,la,iAng,lr)
         nHer = max(nH,nHer)
-        MemFrag = max(MemFrag,ip+nExpi*MemMlt)
+        Mem = max(Mem,ip+nExpi*MemMlt)
         ip = ip-6*nExpi
 
         ncb = (jAng+1)*(jAng+2)/2*(lb+1)*(lb+2)/2
@@ -83,11 +86,11 @@ do iCnttp=1,nCnttp
 
         call MltMmP(nH,MemMlt,jAng,lb,lr)
         nHer = max(nH,nHer)
-        MemFrag = max(MemFrag,ip+nExpj*MemMlt)
+        Mem = max(Mem,ip+nExpj*MemMlt)
         ip = ip-6*nExpj
 
         ip = ip+max(nac*max(nExpi,nBasisj),ncb*nBasisj)
-        MemFrag = max(MemFrag,ip)
+        Mem = max(Mem,ip)
       end do
     end do
   end do

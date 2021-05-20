@@ -11,11 +11,13 @@
 
 subroutine Get_Density_Matrix_mpprop(D,nBas,nSym)
 
+#include "intent.fh"
+
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym)
-real(kind=wp), intent(out) :: D(*)
+real(kind=wp), intent(_OUT_) :: D(*)
 integer(kind=iwp) :: nDens
 
 if (nSym == 1) then

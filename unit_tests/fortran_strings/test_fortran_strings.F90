@@ -58,12 +58,12 @@ program test_fortran_strings
     use test_fortran_strings_mod
 
     implicit none
-    integer :: failed_count, i
-    integer, parameter :: seed_size = 50
-    integer, parameter :: seed(seed_size) = [(i, i = 1, seed_size)]
+    integer :: failed_count, i, seed_size
 
-    call random_seed(put=seed)
+    call random_seed(size=seed_size)
+    call random_seed(put=[(i, i = 1, seed_size)])
     call init_fruit()
+    call init_linalg()
     call inimem()
 
     call test_fortran_strings_driver()

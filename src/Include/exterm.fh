@@ -9,31 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-      Integer nChOrb(0:7,5), ipChM(5)
+      Integer nChOrb(0:7,5)
       Integer nIJ1(8,8,2),nIJR(8,8,2)
-      Integer ip_CMOi(5),lCMOi(5),iOff_CMOi(8,5)
       Integer iAdrCVec(8,8,2),LuCVector(8,2)
-      Logical DoCholExch, Timings_default
-      Integer iChOrbT(8,2),iChOrbR(8,8,2)
-      Real*8 tbvec(2), tavec(2)
       Integer NumAuxVec(8)
-      Integer MxChVInShl,ip_CijK,lijlist,ipijList,ipijListTri,ljkvec,   &
-     &        ljVec,ip_VJ,nScreen,ip_CilK,ip_BklK,ip_A
-      Common /ExTe1/ nChOrb, ipChM,                                     &
-     &               nIJ1,nIJR,                                         &
-     &               ip_CMOi,lCMOi,iOff_CMOi,                           &
-     &               LuCVector, MxChVInShl,                             &
-     &               ip_CijK, iAdrCVec, lijlist, ipijList,              &
-     &               ipijListTri,iChOrbT,iChOrbR,ljkvec,                &
-     &               ljVec,ip_VJ, nScreen, ip_CilK, ip_BklK,            &
-     &               NumAuxVec, ip_A
+      Integer MxChVInShl,ljkvec,nScreen
 
+      Common /ExTe1/ nChOrb,nIJ1,nIJR,                                  &
+     &               iAdrCVec, LuCVector, NumAuxVec,                    &
+     &               MxChVInShl, ljkvec, nScreen
+
+      Logical        DoCholExch, Timings_default
       Common /ExTe2/ DoCholExch, Timings_default
 
-      Real*8 dmpK
-      Common /ExTe3/ dmpK, tbvec,tavec
+      Real*8         dmpK, tbvec(2), tavec(2)
+      Common /ExTe3/ dmpK, tbvec,    tavec
 
-      Integer nDM, ipDMLT(5)
-      Integer nJdens, nKdens, nKvec, nAdens, nAvec
-      Common /DensMat/ nDM, ipDMLT,                                     &
-     &               nJdens, nKdens, nKvec, nAdens, nAvec
+      Integer          nDM, nJdens, nKdens, nKvec, nAdens, nAvec
+      Common /DensMat/ nDM, nJdens, nKdens, nKvec, nAdens, nAvec

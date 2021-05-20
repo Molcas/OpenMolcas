@@ -36,7 +36,7 @@ clg   Call RecPrt('S before LW 4',' ',SMatrix,nDim,nDim)
 
       call dcopy_(nDim**2,[Zero],0,TMatrix,1)
       call dcopy_(nDim,[One],0,TMatrix,nDim+1)
-      Call Lowdin(SMatrix,TMatrix,nDim)
+      Call Lowdin_LP(SMatrix,TMatrix,nDim)
 *
       Return
       End

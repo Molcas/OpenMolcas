@@ -72,6 +72,7 @@
      &         iDummy,VTitle,1,iErr,iWFtype)
          End If
       Else
+         isUHF=0
          If (isHDF5) Then
 #ifdef _HDF5_
             If (mh5_exists_dset(fileorb_id,'MO_ALPHA_VECTORS')) isUHF=1

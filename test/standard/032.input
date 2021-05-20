@@ -1,6 +1,6 @@
 *-------------------------------------------------------------------------------
 * Molecule: TiCl
-* Basis: ECP/AIMP
+* Basis: AIMP
 * Symmetry: C2
 * Features tested: SEWARD(AIMP), RASSCF
 * Responsible person: P.-O. Widmark 041227
@@ -17,7 +17,7 @@ Symmetry
 XY
 expert
 Basis set
-Cl.ECP.Barandiaran.7s7p1d.3s4p1d.7e-CG-AIMP-SO. / inline
+Cl.CG-AIMP.Barandiaran.7s7p1d.3s4p1d.ECP.7el-SO. / inline
 *--
 *--
 *-- CG-AIMP core[Ne] & valence basis set (7/5) from
@@ -141,7 +141,7 @@ Cl    0.0000 0.0000 0.0000
 End Of Basis
 
 Basis set
-Ti.ECP.Barandiaran.9s6p6d3f.3s4p4d1f.10e-CG-AIMP-SO. / inline
+Ti.CG-AIMP.Barandiaran.9s6p6d3f.3s4p4d1f.ECP.10el-SO. / inline
 *--
 *--
 *-- CG-AIMP core[Mg] & valence basis set (9/5/5) from

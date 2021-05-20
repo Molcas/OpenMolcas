@@ -27,13 +27,15 @@ subroutine RdVec_Localisation(nSym,nBas,nOrb,IndT,CMO,Occ,EOrb,FName)
 ! EOrb: dim: nBas
 ! FName: filename with input orbitals
 
+#include "intent.fh"
+
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym)
-integer(kind=iwp), intent(out) :: IndT(*)
-real(kind=wp), intent(out) :: CMO(*), Occ(*), EOrb(*)
+integer(kind=iwp), intent(_OUT_) :: IndT(*)
+real(kind=wp), intent(_OUT_) :: CMO(*), Occ(*), EOrb(*)
 character(len=*), intent(in) :: FName
 #include "warnings.fh"
 integer(kind=iwp) :: i, iErr, iSym, iUHF, iWarn, iWFType, k1, k2, l_CMO, Lu, nBasT, nOrbT

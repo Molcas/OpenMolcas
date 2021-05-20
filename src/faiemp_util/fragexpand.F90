@@ -44,7 +44,7 @@ integer(kind=iwp) :: BasisTypes(4), LenLbl, iAtom, ib, iBas, iCnttp, iCntr, ii, 
 logical(kind=iwp) :: UnNorm
 character(len=4) :: label
 character(len=13) :: DefNm = 'basis_library'
-character(len=80) :: Ref(2)
+character(len=180) :: Ref(2)
 character(len=storageSize) :: sBasis
 character(len=256) :: Basis_lib, Fname
 character(len=180), allocatable :: STDINP(:)

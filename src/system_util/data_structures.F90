@@ -23,37 +23,42 @@ Public:: NDSBA_Type,  Allocate_NDSBA,  Deallocate_NDSBA
 Public:: G2_Type,     Allocate_G2,     Deallocate_G2
 Public:: L_Full_Type, Allocate_L_Full, Deallocate_L_Full
 Public:: Lab_Type, Allocate_Lab, Deallocate_Lab
+Public:: Integer_Pointer
 #include "stdalloc.fh"
 #include "real.fh"
 
+Type Integer_Pointer
+     Integer, Contiguous, Pointer :: I1(:)=>Null()
+End Type Integer_Pointer
+
 Type SB_Type
-  Real*8, Pointer:: A3(:,:,:)=>Null()
-  Real*8, Pointer:: A2(:,:)=>Null()
-  Real*8, Pointer:: A1(:)=>Null()
+  Real*8, Contiguous, Pointer:: A3(:,:,:)=>Null()
+  Real*8, Contiguous, Pointer:: A2(:,:)=>Null()
+  Real*8, Contiguous, Pointer:: A1(:)=>Null()
 End Type  SB_Type
 
 Type DSB_Type
-  Real*8, Pointer:: A2(:,:)=>Null()
-  Real*8, Pointer:: A1(:)=>Null()
+  Real*8, Contiguous, Pointer:: A2(:,:)=>Null()
+  Real*8, Contiguous, Pointer:: A1(:)=>Null()
 End Type  DSB_Type
 
 Type V1
-  Real*8, Pointer:: A(:)=>Null()
+  Real*8, Contiguous, Pointer:: A(:)=>Null()
 End Type V1
 
 Type V2
-  Real*8, Pointer:: A(:,:)=>Null()
+  Real*8, Contiguous, Pointer:: A(:,:)=>Null()
 End Type V2
 
 Type G2_pointers
-  Real*8, Pointer:: A4(:,:,:,:)=>Null()
-  Real*8, Pointer:: A2(:,:)=>Null()
+  Real*8, Contiguous, Pointer:: A4(:,:,:,:)=>Null()
+  Real*8, Contiguous, Pointer:: A2(:,:)=>Null()
 End Type G2_pointers
 
 Type L_Full_Pointers
-  Real*8, Pointer :: A3(:,:,:)=>Null()
-  Real*8, Pointer :: A21(:,:)=>Null()
-  Real*8, Pointer :: A12(:,:)=>Null()
+  Real*8, Contiguous, Pointer :: A3(:,:,:)=>Null()
+  Real*8, Contiguous, Pointer :: A21(:,:)=>Null()
+  Real*8, Contiguous, Pointer :: A12(:,:)=>Null()
 End Type L_Full_Pointers
 
 
@@ -64,10 +69,14 @@ Type NDSBA_Type
   Type (DSB_Type):: SB(8,8)
 End Type NDSBA_Type
 
+
 Type DSBA_Type
   Integer:: iCase=0
   Integer:: nSym=0
-  Real*8, Allocatable :: A0(:)
+  Logical:: Fake=.False.
+  Logical:: Active=.False.
+  Real*8, Allocatable:: A00(:)
+  Real*8, Contiguous, Pointer :: A0(:)
   Type (DSB_Type):: SB(8)
 End Type DSBA_Type
 
@@ -179,15 +188,21 @@ Subroutine Allocate_NDSBA(Adam,n,m,nSym)
 !                                                                     !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-Subroutine Allocate_DSBA(Adam,n,m,nSym,Case)
+Subroutine Allocate_DSBA(Adam,n,m,nSym,Case,Ref)
   Implicit None
   Type (DSBA_Type),Target, Intent(Out) :: Adam
   Integer, Intent(In) :: nSym
   Integer, Intent(In) :: n(nSym), m(nSym)
   Character(LEN=3), Intent(In), Optional :: Case
+  Real*8, Target, Optional :: Ref(*)
 
   Integer iE, iS, iSym, MemTot
   Integer :: iCase=0
+
+  If (Adam%Active) Then
+    Write (6,*) 'DSBA-Type double allocate'
+    Call abend()
+  End If
 
   If (Present(Case)) Then
      Select Case (Case)
@@ -222,8 +237,16 @@ Subroutine Allocate_DSBA(Adam,n,m,nSym,Case)
        MemTot = MemTot + n(iSym)*(n(iSym)+1)/2
     End Do
   End If
-  Call mma_allocate(Adam%A0,MemTot,Label='%A0')
+  If (Present(Ref)) Then
+    Adam%Fake=.True.
+    Adam%A0(1:MemTot) => Ref(1:MemTot)
+  Else
+    Adam%A0=>Null()
+    Call mma_allocate(Adam%A00,MemTot,Label='%A00')
+    Adam%A0(1:MemTot) => Adam%A00(1:MemTot)
+  End If
 
+  Adam%Active=.True.
   iE = 0
   If (iCase==1) Then
     Do iSym = 1, nSym
@@ -241,7 +264,8 @@ Subroutine Allocate_DSBA(Adam,n,m,nSym,Case)
       Adam%SB(iSym)%A1(1:n(iSym)*(n(iSym)+1)/2)   => Adam%A0(iS:iE)
     End Do
   End If
-  End Subroutine Allocate_DSBA
+End Subroutine Allocate_DSBA
+
 
 
   Subroutine Deallocate_DSBA(Adam)
@@ -249,6 +273,9 @@ Subroutine Allocate_DSBA(Adam,n,m,nSym,Case)
   Type (DSBA_Type) Adam
   Integer iSym
 
+  If (.NOT.Adam%Active) Return
+
+  Adam%Active=.False.
   If (Adam%iCase==1) Then
     Do iSym = 1, Adam%nSym
        Adam%SB(iSym)%A2=> Null()
@@ -259,12 +286,17 @@ Subroutine Allocate_DSBA(Adam,n,m,nSym,Case)
        Adam%SB(iSym)%A1=> Null()
     End Do
   End If
-  Call mma_deallocate(Adam%A0)
+  If (Adam%Fake) Then
+    Adam%A0=>Null()
+    Adam%Fake=.False.
+  Else
+    Adam%A0=>Null()
+    Call mma_deallocate(Adam%A00)
+  End If
   Adam%nSym=0
   Adam%iCase=0
 
   End Subroutine Deallocate_DSBA
-
 
   Subroutine Map_to_DSBA(Adam,ipAdam)
   Implicit None

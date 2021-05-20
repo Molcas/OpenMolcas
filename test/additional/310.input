@@ -3,7 +3,7 @@
 * Basis: STO-3G
 * Symmetry: C1
 * Features tested: RASSI (ALL, NATO, BINA)
-* Responsible person: I. Fdez. Galvan
+* Responsible person: I. Fdez. Galván
 * Comments: "Fake" optimization that converges in one step, but changes
 *           geometry, and angular momentum center (unfortunately the effect
 *           in the properties is not significant enough).

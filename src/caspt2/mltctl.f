@@ -27,6 +27,7 @@
       INTEGER  Cho_X_GetTol
       EXTERNAL Cho_X_GetTol
       CHARACTER(LEN=8) INLAB
+      character(len=3) variant
       DIMENSION HEFF(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE)
       real(8) U0(Nstate,Nstate)
       real(8),allocatable :: Utmp(:,:)
@@ -102,7 +103,7 @@ C Use a symmetrized matrix, in triangular storage:
       END IF
       CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LUMAT),1)
       CALL DCOPY_(NSTATE,[1.0D0],0,WORK(LUMAT),NSTATE+1)
-      CALL NIDiag(WORK(LHTRI),WORK(LUMAT),NSTATE,NSTATE,0)
+      CALL NIDiag(WORK(LHTRI),WORK(LUMAT),NSTATE,NSTATE)
       CALL JACORD(WORK(LHTRI),WORK(LUMAT),NSTATE,NSTATE)
       DO I=1,NSTATE
         ENERGY(I)=DSHIFT+WORK(LHTRI-1+(I*(I+1))/2)
@@ -114,21 +115,24 @@ C Use a symmetrized matrix, in triangular storage:
       CALL GETMEM('HTRI','FREE','REAL',LHTRI,NHTRI)
 
       IF(IPRGLB.GE.TERSE) THEN
-        If (IFXMS.or.IFRMS) Then
-          WRITE(6,*)
-          WRITE(6,'(6X,A)')' Total XMS-CASPT2 energies:'
-          DO I=1,NSTATE
-            Call PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
-     &      'XMS-CASPT2 Root',I,'Total energy:',ENERGY(I),1)
-          END DO
+        If (IFRMS) Then
+          variant = 'RMS'
+        Else if (IFXMS.and.IFDW) then
+          variant = 'XDW'
+        Else if (IFXMS) then
+          variant = 'XMS'
+        Else if (IFDW) then
+          variant = 'DW '
         Else
-          WRITE(6,*)
-          WRITE(6,'(6X,A)')' Total MS-CASPT2 energies:'
-          DO I=1,NSTATE
-            Call PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
-     &      'MS-CASPT2 Root',I,'Total energy:',ENERGY(I),1)
-          END DO
+          variant = 'MS '
         End If
+          WRITE(6,*)
+          WRITE(6,'(6X,A,A)')' Total ',trim(variant)//
+     &      '-CASPT2 energies:'
+          DO I=1,NSTATE
+            Call PrintResult(6,'(6x,A,I3,5X,A,F16.8)',trim(variant)//
+     &      '-CASPT2 Root',I,'Total energy:',ENERGY(I),1)
+          END DO
       END IF
 
       IF(IPRGLB.GE.USUAL) THEN

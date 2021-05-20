@@ -19,8 +19,10 @@
       Implicit Real*8 (a-h,o-z)
       Integer n, m, lu_A0, lu_A, iD_A(n), lScr
       Real*8  Diag(*), Scr(lScr)
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "warnings.fh"
+
+      Integer, Allocatable :: list(:)
 #ifdef _DEBUGPRINT_
 C-tbp: check diagonal for negative entries
       n_NegInpDiag=0
@@ -44,9 +46,9 @@ C-tbp: check diagonal for negative entries
 *
 *
       Acc=Min(1.0D-12,thr*1.0D-2)
-      Call GetMem('List','Allo','Inte',list,n)
-      Do i=0,n-1
-         iWork(list+i)=i+1
+      Call mma_Allocate(List,n,Label='List')
+      Do i=1,n
+         list(i)=i
       End Do
 *
       lmax=lScr-2*n
@@ -95,7 +97,7 @@ C-tbp: check diagonal for negative entries
 *
          If (lindep.ne.0) Goto 100
 *
-         iWork(list+iD_Col-1)=0
+         list(iD_Col)=0
          m=m+1
 *
          iAddr=n*(kCol-1)
@@ -111,7 +113,7 @@ C-tbp: check diagonal for negative entries
          istart=1
          Do k=m+1,n
             Do i=istart,n
-               if (iWork(list+i-1).ne.0) Then
+               if (list(i).ne.0) Then
                   iD_A(k)=i
                   istart=i+1
                   goto 200
@@ -123,7 +125,7 @@ C-tbp: check diagonal for negative entries
          Write(6,*) 'Get_Pivot_id: m > n is not possible!'
          Call Abend()
       EndIf
-      Call GetMem('List','Free','Inte',list,n)
+      Call mma_deallocate(List)
 *
       Return
       End

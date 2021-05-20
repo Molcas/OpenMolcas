@@ -52,17 +52,17 @@
 ************************************************************************
 *                                                                      *
 *
-!      write(*,*)"Print out in integral_util/pget0 starting"
-!      Call RecPrt('DSO in PGet0',' ',D0,ndens,5)  ! ====== yma ======
+!     write(*,*)"Print out in integral_util/pget0 starting"
+!     Call RecPrt('DSO in PGet0',' ',D0,ndens,5)  ! ====== yma ======
 
       PMax=One
       nSA=1
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*       RASSCF wavefunction
+*     RASSCF wavefunction
 *
-        If (lPSO) Then
+      If (lPSO) Then
 *                                                                      *
 ************************************************************************
 *                                                                      *

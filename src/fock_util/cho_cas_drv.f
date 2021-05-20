@@ -8,20 +8,19 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_CAS_DRV(rc,CMO,DI,FI,DA1,FA,DA2,TraOnly)
+      SUBROUTINE CHO_CAS_DRV(rc,W_CMO,DI,FI,DA1,FA,W_PWXY,TraOnly)
       Use Data_Structures, only: DSBA_Type, Allocate_DSBA,
      &                           Deallocate_DSBA
       Implicit real*8 (a-h,o-z)
 
       Integer   rc
-      Real*8    DA1(*),DI(*),DA2(*),FI(*),FA(*),CMO(*)
+      Real*8    W_PWXY(*)
+      Real*8    DA1(*),DI(*),FI(*),FA(*),W_CMO(*)
       Integer   nForb(8),nIorb(8),nAorb(8),nChM(8),nChI(8)
-      Integer   ipDSA2(8,8,8),nnA(8,8),ipKLT(2)
       Logical   TraOnly
 
 #include "real.fh"
 #include "chotodo.fh"
-#include "chopmat.fh"
 #include "chlcas.fh"
 #include "cholk.fh"
 
@@ -31,120 +30,127 @@
 #include "wadr.fh"
 #include "general.fh"
 #include "rasscf.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
-      Type (DSBA_Type) CVa(2), POrb(3), Ddec, ChoIn
+      Type (DSBA_Type) CVa(2), POrb(3), Ddec, ChoIn, CMO,
+     &                 DLT(2), FLT(2), MSQ, FLT_MO(2)
 
       Real*8, Allocatable:: Tmp1(:), Tmp2(:)
-      Real*8, Allocatable:: DILT(:), DALT(:)
-      Real*8, Allocatable:: PMat(:), PL(:)
-      Real*8, Allocatable:: KLT(:,:)
-C ************************************************
-      MulD2h(i,j) = iEOR(i-1,j-1) + 1
-C  **************************************************
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
 
+      SUBROUTINE DGEMM_(TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
+     &                 BETA, C, LDC)
+
+      CHARACTER * 1 TRANSA, TRANSB
+      INTEGER M, N, K, LDA, LDB, LDC
+      REAL*8 ALPHA, BETA
+      REAL*8 A(LDA,*), B(LDB,*), C(LDC,*)
+      END SUBROUTINE DGEMM_
+
+      SUBROUTINE MXMT(A,ICA,IRA, B,ICB,IRB, C, NROW,NSUM)
+      INTEGER ICA, IRA, ICB, IRB, NROW, NSUM
+      REAL*8 A(*),B(*),C(*)
+      END SUBROUTINE MXMT
+
+      END Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
       rc=0
 
+      Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=FI)
+      Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI',Ref=FA)
+      Call Allocate_DSBA(CMO,nBas,nBas,nSym,Ref=W_CMO)
+
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
       IF (TraOnly) THEN
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+*        Let us construct a second pointer structure based on nOrb
+
+         Call Allocate_DSBA(FLT_MO(1),nOrb,nOrb,nSym,Case='TRI',Ref=FI)
+         Call Allocate_DSBA(FLT_MO(2),nOrb,nOrb,nSym,Case='TRI',Ref=FA)
 c
-c --- It only performs the MO transformation of FI and FA
-c -------------------------------------------------------
+c ------ It only performs the MO transformation of FI and FA
+c ----------------------------------------------------------
 c
-*     transform FI from AO to MO basis  (LT-storage)
-      iOff1 = 1
-      iOff2 = 1
-      iOff3 = 1
-      Do iSym = 1,nSym
-        iBas = nBas(iSym)
-        iOrb = nOrb(iSym)
-        iFro = nFro(iSym)
-        Call mma_allocate(Tmp1,iBas*iBas,Label='Tmp1')
-        Call mma_allocate(Tmp2,iOrb*iBas,Label='Tmp1')
-        Call Square(FI(iOff1),Tmp1,1,iBas,iBas)
-        Call DGEMM_('N','N',iBas,iOrb,iBas,1.0d0,Tmp1,
-     &               iBas,CMO(iOff2+(iFro*iBas)),max(iBas,iBas),
-     &               0.0d0,Tmp2,iBas)
-        Call MXMT(Tmp2,iBas,1,
-     &            CMO(iOff2+(iFro*iBas)),1,iBas,
-     &            FI(iOff3),
-     &            iOrb,iBas)
-        Call mma_deallocate(Tmp2)
-        Call mma_deallocate(Tmp1)
-        iOff1 = iOff1 + (iBas*iBas+iBas)/2
-        iOff2 = iOff2 + iBas*iBas
-        iOff3 = iOff3 + (iOrb*iOrb+iOrb)/2
-      End Do
+*        transform FI/FA from AO to MO basis  (LT-storage)
+         Do i = 1, 2
+            Do iSym = 1,nSym
+               iBas = nBas(iSym)
+               iOrb = nOrb(iSym)
+               iFro = nFro(iSym)
+               Call mma_allocate(Tmp1,iBas*iBas,Label='Tmp1')
+               Call mma_allocate(Tmp2,iOrb*iBas,Label='Tmp1')
+               Call Square(FLT(i)%SB(iSym)%A1,Tmp1,1,iBas,iBas)
+               Call DGEMM_('N','N',iBas,iOrb,iBas,
+     &                     1.0d0,Tmp1,iBas,
+     &                           CMO%SB(iSym)%A1(1+iFro*iBas:),iBas,
+     &                     0.0d0,Tmp2,iBas)
+               Call MXMT(Tmp2,iBas,1,
+     &                   CMO%SB(iSym)%A1(1+iFro*iBas:),1,iBas,
+     &                   FLT_MO(i)%SB(iSym)%A1,
+     &                   iOrb,iBas)
+               Call mma_deallocate(Tmp2)
+               Call mma_deallocate(Tmp1)
+            End Do
+         End Do
 
-*     transform FA from AO to MO basis  (LT-storage)
-      iOff1 = 1
-      iOff2 = 1
-      iOff3 = 1
-      Do iSym = 1,nSym
-        iBas = nBas(iSym)
-        iOrb = nOrb(iSym)
-        iFro = nFro(iSym)
-        Call mma_allocate(Tmp1,iBas*iBas,Label='Tmp1')
-        Call mma_allocate(Tmp2,iOrb*iBas,Label='Tmp1')
-        Call Square(FA(iOff1),Tmp1,1,iBas,iBas)
-        Call DGEMM_('N','N',iBas,iOrb,iBas,1.0d0,Tmp1,
-     &               iBas,CMO(iOff2+(iFro*iBas)),max(iBas,iBas),
-     &               0.0d0,Tmp2,iBas)
-
-        Call MXMT(Tmp2,iBas,1,
-     &            CMO(iOff2+(iFro*iBas)),1,iBas,
-     &            FA(iOff3),
-     &            iOrb,iBas)
-        Call mma_deallocate(Tmp2)
-        Call mma_deallocate(Tmp1)
-        iOff1 = iOff1 + (iBas*iBas+iBas)/2
-        iOff2 = iOff2 + iBas*iBas
-        iOff3 = iOff3 + (iOrb*iOrb+iOrb)/2
-      End Do
-
-c**************************************************************************
-
-
+         Call deallocate_DSBA(FLT_MO(1))
+         Call deallocate_DSBA(FLT_MO(2))
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
       ELSE
-
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
 c --- It only computes FI and FA  in AO-basis and returns
 c --- the active integrals (tw|xy)
 c --- If specified in input, the routine also computes
 c --- the auxiliary Q-matrix stored as Q(av), where a is an AO index
 c --- and v refers to the active orbitals only
 
-      Do iSym=1,nSym
-         nForb(iSym) = nFro(iSym)
-         nIorb(iSym) = nIsh(iSym)
-         nAorb(iSym) = nAsh(iSym)
-      End Do
+      nForb(:) = nFro(:)
+      nIorb(:) = nIsh(:)
+      nAorb(:) = nAsh(:)
 
 
 C --- Build the packed densities from the Squared ones
-      Call mma_allocate(DILT,NTot1,Label='DILT')
-      Call mma_allocate(DALT,NTot1,Label='DALT')
+      Call Allocate_DSBA(DLT(1),nBas,nBas,nSym,Case='TRI')
+      Call Allocate_DSBA(DLT(2),nBas,nBas,nSym,Case='TRI')
 
-      Call Fold(nSym,nBas,DI,DILT)
-      Call Fold(nSym,nBas,DA1,DALT)
+      Call Fold(nSym,nBas,DI, DLT(1)%A0)
+      Call Fold(nSym,nBas,DA1,DLT(2)%A0)
 
       FactXI = -1.0D0
 
 !AMS - should this be set differently for ExFac.ne.1?
-!      FactXI = 0-ExFac
+!     FactXI = 0-ExFac
 
       If (Deco) Then
 
          FactXI = -0.5D0
 
 !AMS - should this be set differently for ExFac.ne.1?
-!         FactXI = 0-(ExFac*.5d0)
+!        FactXI = 0-(ExFac*.5d0)
 
 c --- decompose the Inactive density on request
          Call Allocate_DSBA(ChoIn,nBas,nBas,nSym)
          Call Allocate_DSBA(DDec,nBas,nBas,nSym)
-         call dcopy_(NTot2,DI(1),1,DDec%A0,1)
+         DDec%A0(1:NTot2)=DI(1:NTot2)
 
-         ipInc = ip_of_Work(ChoIn%A0(1))
+         Call Allocate_DSBA(MSQ,nBas,nBas,nSym,Ref=ChoIn%A0)
 
          Thr = 1.0d-12
          incs=0
@@ -185,148 +191,99 @@ c --- decompose the Inactive density on request
          Call Deallocate_DSBA(DDEc)
 
 c --- to get the right input arguments for CHO_FCAS_AO and CHO_FMCSCF
-         If(.not.DoLocK)Then
-           Do i=1,nSym
-              nForb(i) = 0
-              nIorb(i) = nChI(i)
-           End Do
+         If (.not.DoLocK) Then
+            nForb(:) = 0
+            nIorb(:) = nChI(:)
          EndIf
 
 
       Else
 
-        ipInc = ip_of_Work(CMO(1))
+         Call Allocate_DSBA(MSQ,nBas,nBas,nSym,Ref=W_CMO)
 
-        Do i=1,nSym
-           nChI(i) = nForb(i)+nIorb(i)
-        End Do
+         nChI(:) = nForb(:)+nIorb(:)
 
       EndIf
 
 C --- Reordering of the MOs coefficients to fit cholesky needs
-      If(.not.DoLocK)Then
 
-        Call Allocate_DSBA(POrb(1),nChI,nBas,nSym)
-        Call Allocate_DSBA(POrb(3),nAOrb,nBas,nSym)
+      If (.not.DoLocK) Then
 
-        nOcs=0
-        ioff1=0
-        Do iSym=1,nSym
+         Call Allocate_DSBA(POrb(1),nChI,nBas,nSym)
+         Call Allocate_DSBA(POrb(3),nAOrb,nBas,nSym)
 
-           do ikk=1,nChI(iSym)
-              ioff2=ioff1+nBas(iSym)*(ikk-1)
-              POrb(1)%SB(iSym)%A2(ikk,:) =
-     &           Work(ipInc+ioff2 : ipInc+ioff2 -1 + nBas(iSym))
-           end do
+         Do iSym=1,nSym
 
-           ioff2=ioff1+nBas(iSym)*(nForb(iSym)+nIorb(iSym))
-           do ikk=1,nAorb(iSym)
-              POrb(3)%SB(iSym)%A2(ikk,:) =
-     &             CMO( ioff2+nBas(iSym)*(ikk-1) + 1 :
-     &                  ioff2+nBas(iSym)*(ikk-1) + nBas(iSym))
-           end do
-           ioff1=ioff1+nBas(iSym)**2
-           nOcs = nOcs + nAorb(iSym)**2
+            do ikk=1,nChI(iSym)
+               POrb(1)%SB(iSym)%A2(ikk,:) =
+     &           MSQ%SB(iSym)%A2(:,ikk)
+            end do
 
-        End Do
+            do ikk=1,nAorb(iSym)
+               jkk = nForb(iSym) + nIorb(iSym) + ikk
+               POrb(3)%SB(iSym)%A2(ikk,:) =
+     &           CMO%SB(iSym)%A2(:,jkk)
+            end do
+
+         End Do
 
       Else
 
 C *** Only the active orbitals MO coeff need reordering
-           Call Allocate_DSBA(CVa(1),nAorb,nBas,nSym)
+         Call Allocate_DSBA(CVa(1),nAorb,nBas,nSym)
 
-           ioff1 = 0
-           Do iSym=1,nSym
-            ioff2 = ioff1 + nBas(iSym)*(nForb(iSym)+nIorb(iSym))
+         Do iSym=1,nSym
             do ikk=1,nAorb(iSym)
-               ioff = ioff2+nBas(iSym)*(ikk-1)
+               jkk = nForb(iSym) + nIorb(iSym) + ikk
                CVa(1)%SB(iSym)%A2(ikk,:) =
-     &           CMO(ioff +  1 : ioff + nBas(iSym))
+     &           CMO%SB(iSym)%A2(:,jkk)
             end do
-            ioff1 = ioff1 + nBas(iSym)**2
-           End Do
-
-      EndIf
-
-C --- Optional Section for Q-matrix evaluation
-C --- Reorder the 2-el density matrix to fit cholesky needs
-      If (DoQmat.and.ALGO.ne.1) Then
-
-         Call set_nnA(nSym,nAorb,nnA)
-
-         nPmat=0   ! P[vw],xy
-         Do iSymXY=1,nSym
-            Do iSymy=1,nSym
-               iSymx=MulD2h(iSymXY,iSymy)
-               if (iSymx.le.iSymy) then
-               Do iSymw=1,nSym
-                  iSymv=MulD2h(iSymXY,iSymw)
-                  nPmat = nPmat
-     &                  + nAorb(iSymv)*nAorb(iSymw)*nnA(iSymx,iSymy)
-               End Do
-               endif
-            End do
          End Do
 
-         Call mma_allocate(PMat,nPMat,Label='PMat')
-         ipPmat = ip_of_Work(PMat(1))
-         Call mma_allocate(PL,NACPR2,Label='PL')
-         ipPL = ip_of_Work(PL(1))
-         Call CHO_Pmat(DA2,Pmat)
-
-         PMat(:)=Zero
-
-         Call Reord_Pmat(ipPL,ipPmat,ipDSA2)
-
-         Call mma_deallocate(PL)
-
       EndIf
 
-
-
       If (DoActive) Then
-C ---  Decompose the active density  -----------------------------
+C -----  Decompose the active density  -----------------------------
 
 #ifdef _DEBUGPRINT_
-       koff=0
-       do i=1,nSym
-          CALL CD_TESTER(rc,DALT(1+koff),nBas(i),.true.)
-          write(6,*) 'DALT for sym=', i
-          CALL TRIPRT('DALT',' ',DALT(1+koff),nBas(i))
-          koff = koff + nBas(i)*(nBas(i)+1)/2
-       end do
+         do i=1,nSym
+            CALL CD_TESTER(rc,DLT(2)%SB(i)%A1,nBas(i),.true.)
+            write(6,*) 'DALT for sym=', i
+            CALL TRIPRT('DALT',' ',DLT(2)%SB(i)%A1,nBas(i))
+         end do
 #endif
 
-        Call Allocate_DSBA(CVa(2),nBas,nBas,nSym)
-        Call Allocate_DSBA(DDec,nBas,nBas,nSym)
-        call dcopy_(NTot2,DA1(1),1,DDec%A0,1)
+         Call Allocate_DSBA(CVa(2),nBas,nBas,nSym)
+         Call Allocate_DSBA(DDec,nBas,nBas,nSym)
+         DDec%A0(1:NTot2)=DA1(1:NTot2)
 
-        Thr = 1.0d-12
-        Do i=1,nSym
-           if(nAorb(i).gt.0)then
+         Thr = 1.0d-12
+         Do i=1,nSym
+            if (nAorb(i).gt.0)then
 ! NOTE(Giovanni): CD will proceed with approx. decompos for QMC
 !                 This will avoid warnings for negative-definit
-             call CD_InCore(DDec%SB(i)%A2,nBas(i),
-     &                      CVa(2)%SB(i)%A2,nBas(i),
-     &                      NumV,Thr,rc)
-             If (rc.ne.0) Then
-                write(6,*)SECNAM//': ill-defined dens decomp for active'
-                write(6,*) 'rc value produced = ', rc
-                Call abend()
-             EndIf
-             nChM(i) = NumV
-           else
-             nChM(i) = 0
-           endif
-        End Do
+               Call CD_InCore(DDec%SB(i)%A2,nBas(i),
+     &                        CVa(2)%SB(i)%A2,nBas(i),
+     &                        NumV,Thr,rc)
+               If (rc.ne.0) Then
+                  write(6,*)SECNAM
+     &                      //': ill-defined dens decomp for active'
+                  write(6,*) 'rc value produced = ', rc
+                  Call abend()
+               End If
+               nChM(i) = NumV
+            else
+               nChM(i) = 0
+            endif
+         End Do
 
-        Call Deallocate_DSBA(DDec)
+         Call Deallocate_DSBA(DDec)
 
       Else
 
-        ! Dummy allocation
-        Call Allocate_DSBA(CVa(2),[1],[1],1)
-        nChM(:) = 0
+         ! Dummy allocation
+         Call Allocate_DSBA(CVa(2),[1],[1],1)
+         nChM(:) = 0
 
       EndIf
 
@@ -350,68 +307,69 @@ c --- reorder "Cholesky MOs" to Cva storage
 
       EndIf
 C ----------------------------------------------------------------
-
-      Call Fzero(FI(1),nTot1) ! LT-storage
-      Call Fzero(FA(1),nTot1) ! LT-storage
-
-      ipFI = ip_of_Work(FI(1))
-      ipFA = ip_of_Work(FA(1))
-
+      FLT(1)%A0(:)=Zero
+      FLT(2)%A0(:)=Zero
+!
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+!
 
       IF (ALGO.eq.1 .and. .not. DoLocK) THEN
-
-         ipInt = lpwxy   ! (PU|VX) integrals are computed
-         ipCM  = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
-         ipDILT= ip_of_Work(DILT(1))
-         ipDALT= ip_of_Work(DALT(1))
-
-         CALL CHO_FMCSCF(rc,ipFA,ipFI,nForb,nIorb,nAorb,FactXI,
-     &                   ipDILT,ipDALT,DoActive,POrb,nChM,ipInt,ExFac)
-
-
+!
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+!
+         CALL CHO_FMCSCF(rc,FLT,nForb,nIorb,nAorb,FactXI,DLT,DoActive,
+     &                   POrb,nChM,W_PWXY,CMO,ExFac)
+!
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+!
       ELSEIF (ALGO.eq.1 .and. DoLocK) THEN
-
-         ipInt = lpwxy   ! (PU|VX) integrals are computed
-         ipCM = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
-         ipDILT= ip_of_Work(DILT(1))
-         ipDALT= ip_of_Work(DALT(1))
-
-         If (DoActive) Then
-           Call mma_allocate(KLT,NTOT1,2,Label='KLT')
-           ipKLT(2) = ip_of_Work(KLT(1,2))
-         Else
-           Call mma_allocate(KLT,NTOT1,1,Label='KLT')
-         EndIf
-         ipKLT(1) = ip_of_Work(KLT(1,1))
-         KLT(:,:)=Zero
-
-         CALL CHO_LK_CASSCF(ipDILT,ipDALT,ipFI,ipFA,ipKLT,ipInc,ipInt,
-     &                      FactXI,nChI,nAorb,nChM,CVa,DoActive,
-     &                      nScreen,dmpK,abs(CBLBM),ExFac)
-
-         Call mma_deallocate(KLT)
-
+!
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+!
+         CALL CHO_LK_CASSCF(DLT,FLT,MSQ,W_PWXY,FactXI,nChI,nAorb,nChM,
+     &                      CVa,DoActive,nScreen,dmpK,abs(CBLBM),CMO,
+     &                      ExFac)
+!
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+!
       ELSE
-
+!
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+!
          write(6,*)SECNAM//': wrong input parameter. ALGO= ',ALGO
          rc=55
          Return
-
+!
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+!
       ENDIF
+!
+!)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+!
+      Call Deallocate_DSBA(POrb(3))
+      Call Deallocate_DSBA(POrb(2))
+      Call Deallocate_DSBA(POrb(1))
+      Call Deallocate_DSBA(CVa(1))
+      Call Deallocate_DSBA(CVa(2))
 
-      If (Allocated(POrb(3)%A0)) Call Deallocate_DSBA(POrb(3))
-      If (Allocated(POrb(2)%A0)) Call Deallocate_DSBA(POrb(2))
-      If (Allocated(POrb(1)%A0)) Call Deallocate_DSBA(POrb(1))
-      If (Allocated(CVa(1)%A0)) Call Deallocate_DSBA(CVa(1))
-      If (Allocated(CVa(2)%A0)) Call Deallocate_DSBA(CVa(2))
-
-      If (DoQmat.and.ALGO.ne.1) Call mma_deallocate(PMat)
       If (Deco) Call Deallocate_DSBA(ChoIn)
 
-      Call mma_deallocate(DALT)
-      Call mma_deallocate(DILT)
+      Call Deallocate_DSBA(DLT(2))
+      Call Deallocate_DSBA(DLT(1))
 
+      Call deallocate_DSBA(MSQ)
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
       ENDIF
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+      Call deallocate_DSBA(CMO)
+      Call deallocate_DSBA(FLT(2))
+      Call deallocate_DSBA(FLT(1))
 
       Return
-      END
+      End

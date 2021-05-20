@@ -43,7 +43,7 @@ helptext = '''
 
 Use with a command-line argument that is a basis label in Molcas format:
 
-       {2}[element].[name].[author].[primitives].[contraction].[aux. label]
+       {2}[element].[name].[author].[primitives].[contraction].[aux. labels]*
           (1)     (2)     (3)        (4)           (5)          (6){0}
 
 trailing dots can be omitted.
@@ -55,17 +55,19 @@ for that element:
   {3}Fe{0}               lists all basis sets for iron
   
 Additional fields can be included to restrict the search:
-  {3}Fe..dunning{0}      lists all basis sets for iron, with "dunning" in the author
+  {3}Fe..jensen{0}       lists all basis sets for iron, with "jensen" in the author
                    field (case insensitive)
+  {3}Fe.....ECP{0}       lists all basis sets for silver that use ECP
                    
 Wildcards are supported:
-  {3}Fe.*cc-pv?z*{0}     lists all basis sets for iron belonging to the "cc" families
+  {3}Fe.*cc-p*v?z*{0}    lists all basis sets for iron belonging to the "cc" families
                    
 A single space matches empty fields (needs quotes):
-  {3}"Fe.. ."{0}         lists all basis sets for iron with an empty author field
+  {3}"Fe..... ."{0}      lists all basis sets for silver with an empty 6th field
+                   (probably all-electron)
                    
-Minimum number of primitives for ANO-type basis sets can be specified:
-  {3}Fe....8s6p3d{0}     lists all basis sets for iron with a [8s6p3d] contraction or
+Minimum number of functions for ANO-type basis sets can be specified:
+  {3}Fe....8s7p7d4f{0}   lists all basis sets for iron with a [8s7p7d4f] contraction or
                    larger if the basis set supports using fewer functions
 
 Exact matches are printed in green, "fuzzy" matches in red
@@ -90,7 +92,7 @@ else:
 
 atom_basis = re.compile(r'^/(\S*)\s*$')
 alias = re.compile(r'^\s*([^#]\S*)\s+(\S*)\s*$')
-props = ['atom', 'name', 'auth', 'prim', 'func', 'aux']
+props = ['atom', 'name', 'auth', 'prim', 'func', 'aux1', 'aux2']
 angs = ['s', 'p', 'd', 'f', 'g', 'h', 'i', 'k', 'l', 'm', 'n', 'o', 'q', 'r', 't', 'u']
 
 # Parse a basis set label into a dict:

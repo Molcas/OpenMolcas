@@ -50,7 +50,3 @@
      &          Bk_Header(144)*1
 *
       Logical Bk_isFalcon
-
-#include "sbs.fh"
-*
-      Integer Bk_iSBS

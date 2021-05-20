@@ -52,7 +52,8 @@
       Real*8, Allocatable :: KnE(:), NAE(:), Ovrlp(:)
       Real*8, Allocatable :: SAA(:), SAR(:)
       Character*13 DefNm
-      Character*80 Ref(2), Bsl_, BSLbl
+      Character*180 Ref(2)
+      Character*80 Bsl_, BSLbl
       Character *256 Basis_lib, Fname
       Character*180, Allocatable :: STDINP(:) ! CGGn
       Integer BasisTypes(4)
@@ -293,7 +294,7 @@
                   End Do
                End Do
                Call mma_deallocate(Ovr)
-               Call NIDiag_new(EVal,EVec,nBF,nBF,0)
+               Call NIDiag_new(EVal,EVec,nBF,nBF)
 *
 *              2) Construct S^(1/2) and S^(-1/2)
 *
@@ -338,7 +339,7 @@
                End Do
                Call mma_deallocate(Temp)
                Call mma_deallocate(FPrim)
-               Call NIDiag_new(EVal,EVec,nBF,nBF,0)
+               Call NIDiag_new(EVal,EVec,nBF,nBF)
 *
 *              5) Form C = S^(-1/2) C'
 *

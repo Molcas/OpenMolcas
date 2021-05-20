@@ -31,6 +31,4 @@ set (sources
      transnow.F90
 )
 
-set (modfile_list "")
-
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)

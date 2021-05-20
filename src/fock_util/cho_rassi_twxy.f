@@ -9,18 +9,18 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 
-      SUBROUTINE CHO_rassi_twxy(irc,Scr,ChoV,ipInt,nAorb,JSYM,NUMV,
+      SUBROUTINE CHO_rassi_twxy(irc,Scr,ChoV,TUVX,nAorb,JSYM,NUMV,
      &                          DoReord)
 
       use Data_Structures, only: SBA_Type, twxy_type
       Implicit Real*8 (a-h,o-z)
-      Integer irc,ipInt,nAorb(*),JSYM,NUMV,iAorb(8)
+      Integer irc,nAorb(*),JSYM,NUMV,iAorb(8)
+      Real*8 TUVX(*)
       Type (SBA_Type) ChoV
       Type (twxy_type) Scr
       Logical DoReord
 
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 
@@ -124,9 +124,9 @@ C ------------------------------------------------------------
 
                         itwG = nTA*(iwG-1) + itG ! global index
 
-                        iRes = ipInt + iTri(itwG,ixyG) - 1
+                        iRes = iTri(itwG,ixyG)
 
-                        Work(iRes) = Scr%SB(iSymw,iSymy)%A(itw,ixy)
+                        TUVX(iRes) = Scr%SB(iSymw,iSymy)%A(itw,ixy)
 
                      End Do
 

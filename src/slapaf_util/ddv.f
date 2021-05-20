@@ -10,13 +10,14 @@
 ************************************************************************
       subroutine ddV(Cart,mTtAtm,Hess,iANr,
      &               iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
+      Use Symmetry_Info, only: VarR, VarT
       Implicit Real*8 (a-h,o-z)
 #include "stdalloc.fh"
-#include "sbs.fh"
       Real*8 Cart(3,mTtAtm+nHidden),Hess((3*mTtAtm)*(3*mTtAtm+1)/2)
       Integer   iANr(mTtAtm+nHidden), iTabBonds(3,nBonds),
      &          iTabAtoms(2,0:nMax,mTtAtm+nHidden)
       Real*8, Allocatable:: HBig(:)
+      Logical VRSave, VTSave
 *
 *  Temporary big hessian
 *
@@ -31,12 +32,14 @@
 *
 * Temporary turn on the translational/rotational invariance
 *
-         iSBS = iEOr(iSBS,2**7)
-         iSBS = iEOr(iSBS,2**8)
+         VRSave = VarR
+         VTSave = VarT
+         VarR = .False.
+         VarT = .False.
          Call ddV_(Cart,nTot,HBig,iANr,iTabBonds,
      &             iTabAtoms,nBonds,nMax,nHidden)
-         iSBS = iOr(iSBS,2**7)
-         iSBS = iOr(iSBS,2**8)
+         VarR = VRSave
+         VarT = VTSave
          Call dCopy_((3*mTtAtm)*(3*mTtAtm+1)/2,HBig,1,Hess,1)
 #ifdef _DEBUGPRINT_
          write(6,*) 'DDV: Improved Hessian'
@@ -53,12 +56,11 @@
 *
       Subroutine ddV_(Cart,mTtAtm,Hess,iANr,iTabBonds,
      &               iTabAtoms,nBonds,nMax,nHidden)
-      use Symmetry_Info, only: nIrrep, iOper
+      use Symmetry_Info, only: nIrrep, iOper, VarR, VarT
       use Slapaf_Parameters, only: ddV_Schlegel, iOptC
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
-#include "sbs.fh"
 #include "stdalloc.fh"
       Real*8 Cart(3,mTtAtm),rij(3),rjk(3),rkl(3),
      &       Hess((3*mTtAtm)*(3*mTtAtm+1)/2),si(3),sj(3),sk(3),
@@ -67,8 +69,7 @@
      &       ril(3), rik(3)
       Integer   iANr(mTtAtm), iTabBonds(3,nBonds),
      &          iTabAtoms(2,0:nMax,mTtAtm)
-      Logical MinBas, Help, TransVar, RotVar, Torsion_Check,
-     &        Invariant(3)
+      Logical MinBas, Help, Torsion_Check, Invariant(3)
 *
       Real*8 Trans(3), RotVec(3), RotMat(3,3)
       Real*8, Allocatable:: xMass(:), Grad(:,:,:), CurrXYZ(:,:)
@@ -125,9 +126,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      TransVar=iAnd(iSBS,2**7).eq. 2**7
-      RotVar  =iAnd(iSBS,2**8).eq. 2**8
-*
       Call mma_allocate(xMass,mTtAtm,Label='xMass')
       Call Get_Mass_All(xMass,mTtAtm-nHidden)
       Do iAtom=mTtAtm-nHidden+1,mTtAtm
@@ -138,7 +136,7 @@
 *                                                                      *
 *---- Hessian for translational coordinates in case of a RF calculation.
 *
-      If (.Not.TransVar) Go To 777
+      If (.Not.VarT) Go To 777
 *
       Do ixyz = 1, 3
          Invariant(ixyz)=.False.
@@ -150,7 +148,7 @@
       If (Invariant(1).and.Invariant(2).and.Invariant(3)) Go To 777
 *
       Fact=One
-      If (.Not.RotVar) Fact=2.0D-2
+      If (.Not.VarR) Fact=2.0D-2
 *
       TMass=Zero
       Do iAtom = 1, mTtAtm
@@ -195,7 +193,7 @@
 *---- Hessian for rotational coordinates
 *
  777  Continue
-      If (.Not.RotVar) Go To 778
+      If (.Not.VarR) Go To 778
 *
       Do ixyz = 1, 3
          Invariant(ixyz)=.False.
@@ -1181,7 +1179,7 @@ C                 tij=Max(tij,f_const_Min_)
 *
 *---- Compute eigenvalues and eigenvectors
 *
-      Call NIDiag_new(EVal,EVec,nH,nH,0)
+      Call NIDiag_new(EVal,EVec,nH,nH)
       Call Jacord(EVal,EVec,nH,nH)
 *
 *---- Print out the result

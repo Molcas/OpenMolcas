@@ -300,7 +300,7 @@
 *
       Else    ! out-of-core part
 *
-         Call GetMem('Scr','Max','Real',iDum,lScr)
+         Call mma_maxDBLE(lScr)
          lScr=Min(lScr-2*nTInt_c,nTInt_c**2+3*nTInt_c)
          Call mma_Allocate(Scr,lScr,label='Scr')
 *

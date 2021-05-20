@@ -139,9 +139,20 @@ characternfn2 = re.compile(r'\bcharacter\s*\((\s*(kind|len)\s*=\s*[^,]*,?)*\)', 
 def test_characternfn(line, filename):
   if (not filename.endswith(('.f', '.F', '.f90', '.F90'))):
     return False
-  if (not characternfn1.search(line.decode('ascii', 'ignore').strip('\n'))):
+  l = line.decode('ascii', 'ignore').strip('\n')
+  if (not characternfn1.search(l)):
     return False
-  return (not characternfn2.search(line.decode('ascii', 'ignore').strip('\n')))
+  return (not characternfn2.search(l))
+
+# Wrong KIND
+kindfn1 = re.compile(r'\breal\s*\(([^()]|\(.*\))*kind\s*=\s*iwp', re.IGNORECASE)
+kindfn2 = re.compile(r'\b(int(eger)?|logical)\s*\(([^()]|\(.*\))*kind\s*=\s*wp', re.IGNORECASE)
+kindfn3 = re.compile(r'[^0-9ed.+-][0-9+-]*_wp', re.IGNORECASE)
+def test_kindfn(line, filename):
+  if (not filename.endswith(('.f', '.F', '.f90', '.F90'))):
+    return False
+  l = line.decode('ascii', 'ignore').strip('\n')
+  return (kindfn1.search(l) or kindfn2.search(l) or kindfn3.search(l))
 
 #====================================================
 
@@ -167,6 +178,7 @@ tests.append({'func': test_matmulfn, 'print': '[{0}] "MATMUL" function in {1}, l
 tests.append({'func': test_forallfn, 'print': '[{0}] "FORALL" statement in {1}, line {2} (obsolescent in Fortran 2018)', 'error': True})
 tests.append({'func': test_debug_flag, 'print': '[{0}] "_DEBUG_ compile flag in {1}, line {2} (use _DEBUGPRINT_ or _ADDITIONAL_RUNTIME_CHECK_)', 'error': True})
 tests.append({'func': test_characternfn, 'print': '[{0}] "CHARACTER(n)" declaration in {1}, line {2} (use CHARACTER(LEN=n))', 'error': True})
+tests.append({'func': test_kindfn, 'print': '[{0}] Wrong "KIND" value in {1}, line {2} (switched IWP/WP or integer constant as real)', 'error': True})
 
 def run_tests(line, fname, ln):
   j = 0

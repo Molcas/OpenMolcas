@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHO_LK_RASSI(ipDLT,ipMSQ1,ipMSQ2,ipFLT,ipK,ipInt,
-     &                              Ash,nScreen,dmpk)
+      SUBROUTINE CHO_LK_RASSI(DLT,MSQ,FLT,FSQ,TUVX,Ash,nScreen,dmpk)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -54,19 +53,18 @@ C
 #endif
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
-      Integer   kOff(8)
-      Integer   ISTLT(8),ISTK(8)
+      Integer   kOff(8), nAux(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
 
       Type (NDSBA_Type) DiaH
-      Type (DSBA_Type) Ash(2), CM(2)
+      Type (DSBA_Type) Ash(2), CM(2), DLT, FLT, MSQ(2), FSQ, KLT, MO(2)
+      Real*8 TUVX(*)
       Type (SBA_Type) Laq(2)
       Type (twxy_Type) Scr
       Type (L_Full_Type) L_Full
       Type (Lab_Type) Lab
 
-      Integer   ipMO(2),ipMSQ(2), ipCM(2)
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
@@ -85,7 +83,6 @@ C
 #include "rassi.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Character(LEN=6) mode
@@ -102,6 +99,21 @@ C
 #if defined (_MOLCAS_MPP_)
       Real*8, Allocatable:: DiagJ(:)
 #endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      SUBROUTINE CHO_LR_MOs(iOK,nDen,nSym,nBas,nIsh,CM,MSQ)
+      Import DSBA_Type
+      Integer  iOK, nDen, nSym
+      Integer  nBas(nSym), nIsh(nSym)
+      Type (DSBA_Type)  CM(nDen)
+      Type (DSBA_Type), Target::  MSQ(nDen)
+      END SUBROUTINE CHO_LR_MOs
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
@@ -113,8 +125,8 @@ C
 #endif
       DoReord = .false.
       IREDC = -1  ! unknown reduced set in core
-      ipMSQ(1)=ipMSQ1
-      ipMSQ(2)=ipMSQ2
+      ! Temporary use of FSQ
+      Call Allocate_DSBA(KLT,nBas,nBas,nSym,Case='TRI',Ref=FSQ%A0)
 
       nDen = 2  ! the two bi-orthonormal sets of orbitals
       If (Fake_CMO2) nDen = 1  ! MO1 = MO2
@@ -137,50 +149,52 @@ c --------------------
       nnO=0
       kOff(1)=0
       MaxB=nBas(1)
-      nsBB=nBas(1)**2
-      ISTLT(1)=0
-      ISTK(1)=0
       DO ISYM=2,NSYM
         MaxB=Max(MaxB,nBas(iSym))
-        nsBB = nsBB + nBas(iSym)**2
-        NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive D and F matrices
-        nK = nIsh(iSym-1) + nAsh(iSym-1)
-        ISTK(ISYM)=ISTK(ISYM-1)+nBas(iSym-1)*nK ! Inact. MO coeff.
         nnO = nnO + nIsh(iSym-1)
         kOff(iSym)=nnO
       END DO
       nnO = nnO + nIsh(nSym)
+      nAux(:)=nIsh(:)+nAsh(:)
 
 **************************************************
       If (Deco) Then
 
-         Call Allocate_DSBA(CM(1),nBas,nBas,nSym)
-         Call Allocate_DSBA(CM(2),nBas,nBas,nSym)
-         ipCM(1) = ip_of_Work(CM(1)%A0(1))
-         ipCM(2) = ip_of_Work(CM(2)%A0(1))
+         Call Allocate_DSBA(CM(1),nBas,nAux,nSym)
+         Call Allocate_DSBA(CM(2),nBas,nAux,nSym)
 
          If (PseudoChoMOs) Then
-            Call cho_get_MO(iOK,nDen,nSym,nBas,nIsh,ipMSQ,
-     &                          ISTLT,ISTK,ipCM)
+            Call cho_get_MO(iOK,nDen,nSym,nBas,nIsh,MSQ,CM)
          Else
-            Call cho_lr_MOs(iOK,nDen,nSym,nBas,nIsh,ipMSQ,
-     &                          ISTLT,ISTK,ipCM)
+            Call cho_lr_MOs(iOK,nDen,nSym,nBas,nIsh,MSQ,CM)
          EndIf
 
          If (iOK.eq.0) Then ! point to the "generalized" Cholesky MOs
            do jden=1,nDen
-              ipMSQ(jden)=ipCM(jden)
+              Call Allocate_DSBA(MO(jDen),nBas,nAux,nSym,
+     &                           Ref=CM(jDen)%A0)
            end do
-c           write(6,*)'Cholesky MOs used for state A'
-c           If(nDen.eq.2)write(6,*)'Pseudo Cholesky MOs used for state B'
+c          write(6,*)'Cholesky MOs used for state A'
+c          If(nDen.eq.2)write(6,*)'Pseudo Cholesky MOs used for state B'
          Else
            write(6,*)'*******************************'
            write(6,*)'*** Resort to Canonical MOs ***'
            write(6,*)'*******************************'
+
+           do jden=1,nDen
+              Call Allocate_DSBA(MO(jDen),nBas,nAux,nSym,
+     &                           Ref=MSQ(jDen)%A0)
+           end do
+
          EndIf
 
-      EndIf
+      Else
+
+         do jden=1,nDen
+            Call Allocate_DSBA(MO(jDen),nBas,nAux,nSym,Ref=MSQ(jDen)%A0)
+         end do
+
+      End If
 **************************************************
 
 C --- Define the max number of vectors to be treated in core at once
@@ -289,15 +303,13 @@ C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
             Do jK=1,nIsh(kSym)
                jK_a = jK + kOff(kSym)
 
-               ipMO(jDen) = ipMSQ(jDen) + ISTK(kSym) + nBas(kSym)*(jK-1)
-
                Do iaSh=1,nShell
 
-                  ipMsh = ipMO(jDen) + kOffSh(iaSh,kSym)
-
                   SKsh=zero
-                  Do ik=0,nBasSh(kSym,iaSh)-1
-                     SKsh = SKsh + Work(ipMsh+ik)**2
+                  iS = kOffSh(iaSh,kSym) + 1
+                  iE = kOffSh(iaSh,kSym) + nBasSh(kSym,iaSh)
+                  Do ik=iS,iE
+                     SKsh = SKsh + MO(jDen)%SB(kSym)%A2(ik,jK)**2
                   End Do
 
                   SumAClk(iaSh,jk_a,jDen) = SkSh
@@ -320,7 +332,7 @@ C *** Compute Shell-pair Offsets in the K-matrix
 
                iShp = iaSh*(iaSh-1)/2 + ibSh
 
-              nnBfShp(iShp,iSyma) = LKShp
+               nnBfShp(iShp,iSyma) = LKShp
 
                LKShp = LKShp + nBasSh(iSyma,iaSh)*nBasSh(iSyma,ibSh)
      &                       - (1-Min((iaSh-ibSh),1))*nBasSh(iSyma,iaSh)
@@ -446,7 +458,7 @@ C --- Transform the density to reduced storage
                add = .False.
                nMat=1
                Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                           [ipDLT],Drs,mode,add)
+     &                           [DLT],Drs,mode,add)
             EndIf
 
 C --- BATCH over the vectors ----------------------------
@@ -595,13 +607,6 @@ c --------------------------------------------------------------------
 
                     Lab%A0(1:nDen*nBas(lSym)*JNUM)=Zero
 
-                   Do jDen=1,nDen
-
-                    ipMO(jDen) = ipMSQ(jDen) + ISTK(kSym)
-     &                         + nBas(kSym)*(jK-1)
-
-                   End Do
-
                    IF (DoScreen) THEN
 
                      CALL CWTIME(TCS1,TWS1)
@@ -611,8 +616,8 @@ C------------------------------------------------------------------
 
                      Do jDen=1,nDen
 
-                        Do ik=0,nBas(kSym)-1
-                           AbsC(1+ik) = abs(Work(ipMO(jDen)+ik))
+                        Do ik=1,nBas(kSym)
+                           AbsC(ik) = abs(MO(jDen)%SB(kSym)%A2(ik,jK))
                         End Do
 
                         If (lSym.ge.kSym) Then
@@ -833,7 +838,7 @@ C ---------------------------------------
 
                                     CALL DGEMV_(Mode(1:1),n1,n2,
      &                     One,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,n1,
-     &                                    Work(ipMO(jDen)+ioffShb),1,
+     &                            MO(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1,
      &                                ONE,Lab%SB(iaSh,lSym,jDen)%A,1)
 
                                  Else   ! lSym < kSym
@@ -850,7 +855,7 @@ C ---------------------------------------
 
                                     CALL DGEMV_(Mode(1:1),n1,n2,
      &                     One,L_Full%SPB(kSym,iShp_rs(iShp),l1)%A12,n1,
-     &                                    Work(ipMO(jDen)+ioffShb),1,
+     &                            MO(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1,
      &                                ONE,Lab%SB(iaSh,lSym,jDen)%A,1)
 
                                 EndIf
@@ -944,8 +949,6 @@ C------------------------------------------------------------
 
                             iOffAB = nnBfShp(iShp,lSym)
 
-                            ipKI = ipK + ISTLT(lSym) + iOffAB
-
                             xFab = sqrt(abs(Faa(iaSh)*Faa(ibSh)))
 
                             If (MLk(lSh,jK_a,1)*
@@ -981,9 +984,9 @@ C --------------------------------------------------------------------
 
                                CALL DGEMM_Tri(Mode(1:1),Mode(2:2),
      &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
-     &                               FActXI,Lab%SB(iaSh,lsym,   1)%A,n2,
-     &                                      Lab%SB(ibSh,lsym,kDen)%A,n2,
-     &                                  ONE,Work(ipKI),nBs)
+     &                            FActXI,Lab%SB(iaSh,lsym,   1)%A,n2,
+     &                                   Lab%SB(ibSh,lsym,kDen)%A,n2,
+     &                               One,KLT%SB(lSym)%A1(iOffAB+1:),nBs)
 
                             ElseIf (iaSh.gt.ibSh
      &                                 .and. xFab.ge.tau/MaxRedT
@@ -1014,9 +1017,9 @@ C --------------------------------------------------------------------
 
                                CALL DGEMM_(Mode(1:1),Mode(2:2),
      &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
-     &                               FActXI,Lab%SB(iaSh,lsym,   1)%A,n1,
-     &                                      Lab%SB(ibSh,lsym,kDen)%A,n2,
-     &                                  ONE,Work(ipKI),nBsa)
+     &                           FActXI,Lab%SB(iaSh,lsym,   1)%A,n1,
+     &                                  Lab%SB(ibSh,lsym,kDen)%A,n2,
+     &                              ONE,KLT%SB(lSym)%A1(iOffAB+1:),nBsa)
 
 
                             EndIf
@@ -1163,8 +1166,8 @@ C *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
 
                DoReord = JRED.eq.myJRED2.and.iBatch.eq.nBatch
 
-               CALL CHO_rassi_twxy(irc,Scr,Laq(2),ipInt,nAsh,
-     &                                 JSYM,JNUM,DoReord)
+               CALL CHO_rassi_twxy(irc,Scr,Laq(2),TUVX,nAsh,JSYM,JNUM,
+     &                             DoReord)
 
                CALL CWTIME(TCINT2,TWINT2)
                tintg(1) = tintg(1) + (TCINT2 - TCINT1)
@@ -1188,7 +1191,7 @@ c --- backtransform fock matrix to full storage
                add =.True.
                nMat = 1
                Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                           [ipFLT],Frs,mode,add)
+     &                           [FLT],Frs,mode,add)
             EndIf
 
 C --- free memory
@@ -1238,9 +1241,6 @@ C--- have performed screening in the meanwhile
 * --- Accumulate Coulomb and Exchange contributions
       Do iSym=1,nSym
 
-         ipFI = ipFLT + ISTLT(iSym)
-         ipKI = ipK   + ISTLT(iSym)
-
          Do iaSh=1,nShell
 
             ioffa = kOffSh(iaSh,iSym)
@@ -1261,14 +1261,13 @@ c ---------------
 
                   iab = nBasSh(iSym,iaSh)*(ib-1) + ia
 
-                  jK = ipKI - 1 + iOffAB + iab
-
                   iag = ioffa + ia
                   ibg = ioffb + ib
 
-                  jF = ipFI - 1 + iTri(iag,ibg)
+                  iabg = iTri(iag,ibg)
 
-                  Work(jF) = Work(jF) + Work(jK)
+                  FLT%SB(iSym)%A1(iabg) = FLT%SB(iSym)%A1(iabg)
+     &                                  + KLT%SB(iSym)%A1(iOffAB+iab)
 
                 End Do
 
@@ -1288,14 +1287,13 @@ c ---------------
 
                  iab = ia*(ia-1)/2 + ib
 
-                 jK = ipKI - 1 + iOffAB + iab
-
                  iag = ioffa + ia
                  ibg = ioffa + ib
 
-                 jF = ipFI - 1 + iag*(iag-1)/2 + ibg
+                 iabg = iag*(iag-1)/2 + ibg
 
-                 Work(jF) = Work(jF) + Work(jK)
+                 FLT%SB(iSym)%A1(iabg) = FLT%SB(iSym)%A1(iabg)
+     &                                 + KLT%SB(iSym)%A1(iOffAB+iab)
 
               End Do
 
@@ -1327,6 +1325,9 @@ c ---------------
          Call Deallocate_DSBA(CM(2))
          Call Deallocate_DSBA(CM(1))
       End If
+      do jden=1,nDen
+         Call Deallocate_DSBA(MO(jDen))
+      end do
 
       CALL CWTIME(TOTCPU2,TOTWALL2)
       TOTCPU = TOTCPU2 - TOTCPU1
@@ -1371,17 +1372,17 @@ c Print the Fock-matrix
       WRITE(6,'(6X,A)')
       WRITE(6,'(6X,A)')'***** INACTIVE FOCK MATRIX ***** '
       DO ISYM=1,NSYM
-        ISFI=ipFLT+ISTLT(ISYM)
         IF( NBAS(ISYM).GT.0 ) THEN
           WRITE(6,'(6X,A)')
           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          call TRIPRT('','',Work(ISFI),NBAS(ISYM))
+          call TRIPRT('','',FLT%SB(ISYM)%A1,NBAS(ISYM))
         ENDIF
       END DO
 
       endif
 
 #endif
+      Call Deallocate_DSBA(KLT)
 
       Return
       END
