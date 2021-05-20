@@ -209,6 +209,8 @@
       lb_dpotrf2=>int_dpotrf2
       lb_dpotrs=>int_dpotrs
       lb_dpptrf=>int_dpptrf
+      lb_dpstf2=>int_dpstf2
+      lb_dpstrf=>int_dpstrf
       lb_drscl=>int_drscl
       lb_dspev=>int_dspev
       lb_dspgst=>int_dspgst

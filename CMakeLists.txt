@@ -73,6 +73,7 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif ()
 set (EXTRA_INSTALL_TARGETS "")
 set (EXTRA_INSTALL_DIRS "")
+set (EXTRA_INSTALL_IMPORTED_LIBS "")
 
 option (INSTALL_TESTS "Install the test files and verify script." OFF)
 
@@ -139,7 +140,7 @@ endif ()
 option (DMRG       "Activate QCMaquis DMRG driver and library."                                                 OFF)
 option (DMRG_DEBUG "Enable DEBUG print in QCMaquis driver."                                                     OFF)
 option (EFPLIB     "Enable EFPLib library for effective fragment potentials (requires External/efp submodule)." OFF)
-option (GA_BUILD   "Build Global Arrays (requires External/ga submodule)."                                      OFF)
+option (GA_BUILD   "Build Global Arrays."                                                                       OFF)
 option (GEN1INT    "Enable Gen1Int library for 1-electron integrals."                                           OFF)
 option (MolGUI     "Enable the Molcas Graphical User Interface."                                                OFF)
 option (MSYM       "Activate MSYM support (requires External/libmsym submodule)."                               OFF)
@@ -1072,7 +1073,7 @@ if (MPI)
   if (MPI_IMPLEMENTATION STREQUAL "mpich" AND
       CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
       CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER "10.0")
-    add_compile_definitions(_NEED_EXPLICIT_MPI_INTERFACE_)
+    add_compile_definitions (_NEED_EXPLICIT_MPI_INTERFACE_)
   endif ()
 
   list (APPEND EXTERNAL_LIBRARIES ${MPI_Fortran_LIBRARIES})
@@ -1436,13 +1437,13 @@ endif ()
 find_source (LinAlg_internal ${source_roots})
 if (LINALG STREQUAL "Internal")
   message ("-- Using internal LAPACK+BLAS libraries (SLOW!)")
-  set (LINALG_LIBRARIES "blas" "lapack")
+  set (LINALG_LIBRARIES "lapack" "blas")
   # create the BLAS+LAPACK targets
   set (util "LinAlg_internal")
   if (NOT DEFINED ${util}_src)
     message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
-  foreach (lib "lapack" "blas")
+  foreach (lib ${LINALG_LIBRARIES})
     set (source ${${util}_src}/${lib}.f)
     add_library (${lib} ${source})
     list (APPEND ALL_SOURCES ${source})
@@ -1556,60 +1557,99 @@ if (GA AND MPI)
   if (GA_BUILD)
     message ("Configuring built-in Global Arrays library:")
 
-    set (projname ga)
-    set (proj ${extprojsdir}/${projname})
-    set (proj_bin ${PROJECT_BINARY_DIR}/External/${projname})
-
-    if (EXISTS ${proj}/CMakeLists.txt)
-
-      if (";Internal;Runtime;" MATCHES ";${LINALG};")
-        message (FATAL_ERROR "GA_BUILD requires an external LINALG library.")
-      endif ()
-
-      # set default GA options when built from OpenMolcas
-      # and hide them from the OpenMolcas CMake GUI
-      make_internal (ENABLE_FORTRAN               ON)
-      make_internal (ENABLE_CXX                   OFF)
-      make_internal (ENABLE_TESTS                 OFF)
-      if (ADDRMODE EQUAL 64)
-        make_internal (ENABLE_I8                  ON)
-        make_internal (LINALG_REQUIRED_COMPONENTS ilp64)
-      else ()
-        make_internal (ENABLE_I8                  OFF)
-        make_internal (LINALG_REQUIRED_COMPONENTS lp64)
-      endif ()
-      make_internal (ENABLE_BLAS                  ON)
-      make_internal (LINALG_PREFIX                "${proj}")
-      make_internal (BLAS_LIBRARIES               "${LINALG_LIBRARIES}")
-
-      get_cmake_property(_in_vars VARIABLES)
-      add_subdirectory (${proj} ${proj_bin} EXCLUDE_FROM_ALL)
-      get_cmake_property(_out_vars VARIABLES)
-      foreach (var ${_out_vars})
-        get_property (in_cache CACHE ${var} PROPERTY TYPE)
-        if (in_cache AND NOT var IN_LIST _in_vars)
-          make_internal (${var})
-        endif ()
-      endforeach ()
-
-      set (GA_INCLUDE_PATH ${proj_bin}/inc)
-      set (GA_LIBRARIES ga armci)
-      list (APPEND EXTRA_INSTALL_TARGETS ${GA_LIBRARIES})
-
-      # Since we are not "installing" the target, we have to find the include files
-      file (COPY ${proj}/global/src/ga.h          DESTINATION ${GA_INCLUDE_PATH})
-      file (COPY ${proj}/global/src/gacommon.h    DESTINATION ${GA_INCLUDE_PATH})
-      file (COPY ${proj}/ma/macommon.h            DESTINATION ${GA_INCLUDE_PATH})
-      file (COPY ${proj}/pario/eaf/eaf.h          DESTINATION ${GA_INCLUDE_PATH})
-      file (COPY ${proj}/pario/eaf/eaf.fh         DESTINATION ${GA_INCLUDE_PATH})
-      file (COPY ${proj_bin}/global/src/global.fh DESTINATION ${GA_INCLUDE_PATH})
-      file (COPY ${proj_bin}/ma/mafdecls.fh       DESTINATION ${GA_INCLUDE_PATH})
-      file (COPY ${proj_bin}/gaf2c/typesf2c.h     DESTINATION ${GA_INCLUDE_PATH})
-
-    else ()
-      # Note: initial space causes line not to break in output
-      message (FATAL_ERROR " Global Arrays sources not available, run \"${GIT} submodule update --init ${proj}\"")
+    if (LINALG STREQUAL "Runtime")
+      message (FATAL_ERROR "GA_BUILD does not support LINALG=Runtime.")
     endif ()
+
+    include (ExternalProject)
+    set (EP_PROJECT GlobalArrays)
+    set (EP_PATH ${PROJECT_BINARY_DIR}/External/${EP_PROJECT})
+    set (EP_INSTALL ${PROJECT_BINARY_DIR}/External/${EP_PROJECT}_install)
+
+    set (GA_REPO https://github.com/GlobalArrays/ga.git)
+    set (GA_HASH da7a53ff)
+
+    target_files (LINALG_LIBRARIES_FILES ${LINALG_LIBRARIES})
+    string (REPLACE ";" "|" LINALG_LIBRARIES_FILES "${LINALG_LIBRARIES_FILES}")
+    list (APPEND GACMakeArgs
+          -D CMAKE_INSTALL_PREFIX=${EP_INSTALL}
+          -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+          -D ENABLE_FORTRAN=ON
+          -D ENABLE_CXX=OFF
+          -D ENABLE_TESTS=OFF
+          -D ENABLE_BLAS=ON
+          -D LINALG_PREFIX=${PROJECT_BINARY_DIR}
+          -D BLAS_LIBRARIES=${LINALG_LIBRARIES_FILES}
+    )
+    if (ADDRMODE EQUAL 64)
+      list (APPEND GACMakeArgs
+            -D ENABLE_I8=ON
+            -D LINALG_REQUIRED_COMPONENTS=ilp64
+      )
+    else ()
+      list (APPEND GACMakeArgs
+            -D ENABLE_I8=OFF
+            -D LINALG_REQUIRED_COMPONENTS=lp64
+      )
+    endif ()
+
+    # Workaround for ExternalProject's shortcoming
+    # (see https://gitlab.kitware.com/cmake/cmake/-/issues/16419)
+    # UPDATE_DISCONNECTED is ON if the current GA commit has already
+    # been built, and OFF when the commit changes, but it requires
+    # to run cmake for detection
+    set (last_hash "None")
+    set (hash_file ${EP_PATH}/${EP_PROJECT}.hash)
+    if (EXISTS ${hash_file})
+      file (READ ${hash_file} last_hash)
+      string (REGEX REPLACE "\n$" "" last_hash "${last_hash}")
+    endif ()
+    if (last_hash STREQUAL ${GA_HASH})
+      set (GASkipUpdate ON)
+    else ()
+      set (GASkipUpdate OFF)
+    endif ()
+    message ("GASkipUpdate ${GASkipUpdate}")
+
+    ExternalProject_Add (${EP_PROJECT}
+                         PREFIX ${EP_PATH}
+                         GIT_REPOSITORY ${GA_REPO}
+                         GIT_TAG ${GA_HASH}
+                         CMAKE_ARGS ${GACMakeArgs}
+                         UPDATE_DISCONNECTED ${GASkipUpdate}
+                         LIST_SEPARATOR "|"
+    )
+
+    if (NOT GASkipUpdate)
+      ExternalProject_add_patches (${EP_PROJECT} "cmake/custom/ga.patch")
+    endif ()
+
+    ExternalProject_Add_Step (${EP_PROJECT} update_hash
+                              COMMAND echo ${GA_HASH} > ${hash_file}
+                              COMMENT "Updating saved hash"
+                              DEPENDEES build
+    )
+
+    if (LINALG STREQUAL "Internal")
+      add_dependencies (${EP_PROJECT} ${LINALG_LIBRARIES})
+    endif ()
+
+    set (GA_INCLUDE_PATH ${EP_INSTALL}/include/ga)
+    set (GA_LIBRARIES ga armci)
+    # This is not a very portable way of finding and installing
+    # the library files, but I can't find anything better
+    if (BUILD_SHARED_LIBS)
+      set (lib_ext ".so")
+    else ()
+      set (lib_ext ".a")
+    endif ()
+    set (ga_file ${EP_INSTALL}/lib/libga${lib_ext})
+    set (armci_file ${EP_INSTALL}/lib/libarmci${lib_ext})
+    foreach (lib ${GA_LIBRARIES})
+      add_library (${lib} UNKNOWN IMPORTED)
+      set_target_properties (${lib} PROPERTIES IMPORTED_LOCATION ${${lib}_file})
+    endforeach ()
+    list (APPEND EXTRA_INSTALL_IMPORTED_LIBS ${GA_LIBRARIES})
 
   # External precompiled GA library
   else ()
@@ -1670,11 +1710,10 @@ if (GA AND MPI)
   # Final common settings
 
   foreach (lib ${GA_LIBRARIES})
-    target_link_libraries (${lib} INTERFACE ${MPI_LIBRARIES})
+    target_link_libraries (${lib} INTERFACE ${MPI_LIBRARIES} ${LINALG_LIBRARIES})
   endforeach ()
 
   add_compile_definitions (_GA_)
-  include_directories (${GA_INCLUDE_PATH})
 
   message ("-- GA_INCLUDE_PATH: ${GA_INCLUDE_PATH}")
   message ("-- GA_LIBRARIES: ${GA_LIBRARIES}")
@@ -1881,9 +1920,9 @@ if (MSYM)
     # set and hide from the OpenMolcas CMake GUI
     make_internal (MSYM_BUILD_EXAMPLES OFF)
     make_internal (MSYM_BUILD_PYTHON   OFF)
-    get_cmake_property(_in_vars VARIABLES)
+    get_cmake_property (_in_vars VARIABLES)
     add_subdirectory (${proj} ${proj_bin} EXCLUDE_FROM_ALL)
-    get_cmake_property(_out_vars VARIABLES)
+    get_cmake_property (_out_vars VARIABLES)
     foreach (var ${_out_vars})
       get_property (in_cache CACHE ${var} PROPERTY TYPE)
       if (in_cache AND NOT var IN_LIST _in_vars)
@@ -1971,9 +2010,9 @@ if (NECI)
     make_internal (ENABLE_SHARED        ON)
     # make_internal (ENABLE_BUILD_HDF5    OFF)
 
-    get_cmake_property(_in_vars VARIABLES)
+    get_cmake_property (_in_vars VARIABLES)
     add_subdirectory (${proj} ${proj_bin} EXCLUDE_FROM_ALL)
-    get_cmake_property(_out_vars VARIABLES)
+    get_cmake_property (_out_vars VARIABLES)
     foreach (var ${_out_vars})
       get_property (in_cache CACHE ${var} PROPERTY TYPE)
       if (in_cache AND NOT var IN_LIST _in_vars)
@@ -2088,9 +2127,9 @@ if (WFA)
     set (ARMADILLO_INC ${ARMADILLO_INC} CACHE PATH "Directory with armadillo header files")
     make_internal (MOLCAS_LIB ON)
 
-    get_cmake_property(_in_vars VARIABLES)
+    get_cmake_property (_in_vars VARIABLES)
     add_subdirectory (${proj}/libwfa)
-    get_cmake_property(_out_vars VARIABLES)
+    get_cmake_property (_out_vars VARIABLES)
     foreach (var ${_out_vars})
       get_property (in_cache CACHE ${var} PROPERTY TYPE)
       if (in_cache AND NOT var IN_LIST _in_vars)
@@ -2132,9 +2171,9 @@ if (NEVPT2)
   set (proj_bin ${PROJECT_BINARY_DIR}/External/nevpt2_ext)
   configure_file (${custom_dir}/nevpt2.cmake ${proj_bin}/CMakeLists.txt COPYONLY)
 
-  get_cmake_property(_in_vars VARIABLES)
+  get_cmake_property (_in_vars VARIABLES)
   add_subdirectory (${proj_bin} ${proj_bin})
-  get_cmake_property(_out_vars VARIABLES)
+  get_cmake_property (_out_vars VARIABLES)
   foreach (var ${_out_vars})
     get_property (in_cache CACHE ${var} PROPERTY TYPE)
     if (in_cache AND NOT var IN_LIST _in_vars)
@@ -2375,7 +2414,7 @@ endif ()
 
 # If an external GA library is not present, we use the internal
 # DGA code which resides in dga_util:
-if (MPI AND NOT GA AND NOT GA_BUILD)
+if (MPI AND NOT GA)
   set (util dga_util)
   find_source (${util} ${source_roots})
   if (DEFINED ${util}_src)
@@ -2579,6 +2618,20 @@ if (DMRG)
   endforeach ()
 endif ()
 
+if (GA)
+  foreach (prog
+           caspt2
+           cholesky_util
+           cht3
+           ga_util
+           mclr
+           rasscf
+           ri_util
+  )
+    list (APPEND ${prog}_incs ${GA_INCLUDE_PATH})
+  endforeach ()
+endif ()
+
 # finally, sort the list
 list (SORT progs)
 
@@ -2693,6 +2746,9 @@ endif ()
 # dependency using the "mods_obj" target.
 # note that mods_obj is empty at the beginning, source files will be added later
 add_library (mods_obj OBJECT)
+if (GA)
+  add_dependencies (mods_obj GlobalArrays)
+endif ()
 if (GEN1INT)
   add_dependencies (mods_obj gen1int)
 endif ()
@@ -3278,6 +3334,15 @@ foreach (dir ${EXTRA_INSTALL_DIRS})
     ${dir}
     USE_SOURCE_PERMISSIONS
     DESTINATION ${CMAKE_INSTALL_PREFIX}
+    OPTIONAL
+  )
+endforeach ()
+
+foreach (lib ${EXTRA_INSTALL_IMPORTED_LIBS})
+  get_target_property (fname ${lib} IMPORTED_LOCATION)
+  install (FILES
+    ${fname}
+    TYPE LIB
     OPTIONAL
   )
 endforeach ()
