@@ -30,7 +30,7 @@
 #include "getlnqoe.fh"
       Dimension nCGTO(0:lCGTO),mCGTO(0:lCGTO)
       Character*80 BSLBl,BSLB*180,string,atom,type,author,basis,blank,
-     &            CGTO,CGTOm,atomb, aux,
+     &            CGTO,CGTOm,atomb, aux, aux2,
      &            Get_Ln_Quit*180
       Character *(*) BasDir, ExtBasDir
 * In case anyone would wonder: basis set path fixed to 100 char max,
@@ -113,6 +113,11 @@
       Call Decode(BSLBl(1:80),Aux,6,Hit)
       If (.Not.Hit) Aux = ' '
       If (IfTest) write(6,'(1x,a,a)') 'Aux=',Aux
+*
+      Hit=.False.
+      Call Decode(BSLBl(1:80),Aux2,7,Hit)
+      If (.Not.Hit) Aux2 = ' '
+      If (IfTest) write(6,'(1x,a,a)') 'Aux2=',Aux2
 *
       blank=' '
       If(CGTO.eq.blank .and.
@@ -236,16 +241,31 @@ c     &        Form='FORMATTED',IOSTAT=IOStat)
 *
       If (CGTO.ne.blank .and.
      &    type(1:3).ne.'ANO'.and.type.ne.'ECP'.and.type.ne.'PSD'.and.
-     &    type.ne.'RYDBERG' ) Then
+     &    type.ne.'RYDBERG'.and.Aux.ne.'ECP' ) Then
          Hit=.True.
          Call Decode(BSLB(2:80),string,5,Hit)
          If (string.ne.CGTO) Go To 10
       End If
 *
+      Hit=.True.
+      Call Decode(BSLB(2:80),string,6,Hit)
       If (Aux.ne.blank) Then
-         Hit=.True.
-         Call Decode(BSLB(2:80),string,6,Hit)
          If (string.ne.aux) Go To 10
+      Else If (string.eq.'ECP') Then
+*        If the library basis (BSLB) has ECP, add it to the BsLbl
+         j=0
+         Do i=1,5
+            j=j+Index(BsLbl(j+1:80),'.')
+         End Do
+         BsLbl=BsLbl(1:j)//'ECP'//BsLbl(j+1:)
+         Aux='ECP'
+*
+      End If
+*
+      If (Aux2.ne.blank) Then
+         Hit=.True.
+         Call Decode(BSLB(2:80),string,7,Hit)
+         If (string.ne.aux2) Go To 10
       End If
 *
       If (IfTest) Write (6,*) ' Process library label'

@@ -1,0 +1,41 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+
+#Hamiltonian NRH
+#Nucleus UNK
+#Contraction SEG
+#AllElectron AE_
+
+************************************************************************
+* This file has been generated from TURBOMOLE basis set data:          *
+*   https://cosmologic-services.de/basis-sets/basissets.php            *
+************************************************************************
+
+/H.def-SV(P).Eichkorn.4s2p.2s1p.
+K. Eichkorn, O. Treutler, H. Ohm, M. Haser, R. Ahlrichs. Chem. Phys. Lett. 240 (1995) 283-290. doi:10.1016/0009-2614(95)00621-a
+HYDROGEN (4s,2p) -> [2s,1p]
+     1.0   1
+* s-type functions
+    4    2
+9.308130000000000000
+2.306718000000000000
+0.752012000000000000
+0.273978000000000000
+  0.034466183000  0.000000000000
+  0.122533796000  0.000000000000
+  0.182500211000  0.000000000000
+  0.000000000000  0.022150547900
+* p-type functions
+    2    1
+2.032704000000000000
+0.790252000000000000
+  0.029513659100
+  0.032755872800

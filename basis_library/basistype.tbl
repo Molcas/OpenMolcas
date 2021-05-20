@@ -8,76 +8,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
-#                 1     2     3     4
-# ------------   ---   ---   ---   ---
-3-21G            SEC   AE_   NRH
-4-31G            SEC   AE_   NRH
-6-31G            SEC   AE_   NRH
-6-31Gp           SEC   AE_   NRH
-6-31Gpp          SEC   AE_   NRH
-6-311Gpp         SEC   AE_   NRH
-60-MWB-OPT       SEG   AE_   UNK
-ANO-DK3          RAF   AE_   RH_
-ANO-L            ANO   AE_   NRH
-ANO-MB           ANO   AE_   RH_
-ANO-ORCA         ANO   AE_   NRH
-ANO-RCC          ANO   AE_   RH_   PN_
-ANO-R            ANO   AE_   X2C   GN_
-ANO-S            ANO   AE_   NRH
-ANO-XS           ANO   AE_   RH_   PN_
-AUG-CC-PVDZ      CCC   AE_   NRH
-AUG-CC-PVTZ      CCC   AE_   NRH
-AUG-CC-PVQZ      CCC   AE_   NRH
-AUG-CC-PV5Z      CCC   AE_   NRH
-AUG-CC-PV6Z      CCC   AE_   NRH
-AUG-PC-0         SEG   AE_   NRH
-AUG-PC-1         SEG   AE_   NRH
-AUG-PC-2         SEG   AE_   NRH
-AUG-PC-3         SEG   AE_   NRH
-AUG-PC-4         SEG   AE_   NRH
-CC-PVDZ          CCC   AE_   NRH
-CC-PVTZ          CCC   AE_   NRH
-CC-PVQZ          CCC   AE_   NRH
-CC-PV5Z          CCC   AE_   NRH
-CC-PVDZ-DK       CCC   AE_   DK2
-CC-PVTZ-DK       CCC   AE_   DK2
-CC-PVQZ-DK       CCC   AE_   DK2
-CC-PV5Z-DK       CCC   AE_   DK2
-CC-PWCVTZ-DK     CCC   AE_   DK2
-CC-PWCVQZ-DK     CCC   AE_   DK2
-CC-PWCV5Z-DK     CCC   AE_   DK2
-DEF-SVP          SEG   AE_   NRH
-DEF2-SVP         SEG   AE_   NRH
-DEF2-TZVP        SEG   AE_   NRH
-DEF2-TZVPP       SEG   AE_   NRH
-DZ               SEG   AE_   NRH
-DZP              SEG   AE_   NRH
-ECP              RAF   NAE   RCP
-ECP.DOLG         SEG   NAE   RCP
-ECP.EFT          UNK   UNK   UNK
-ECP.HAY-WADT     SEG   NAE   RCP
-ECP.HW           SEG   NAE   RCP
-ECP.PETERSON     RAF   NAE   RCP
-ECP.STOLL        RAF   NAE   RCP
-MG3S             SEG   AE_   NRH
-MUONIC           UNC   AE_   NRH   GN_
-NB               UNK   UNK   UNK
-PC-0             SEG   AE_   NRH
-PC-1             SEG   AE_   NRH
-PC-2             SEG   AE_   NRH
-PC-3             SEG   AE_   NRH
-PC-4             SEG   AE_   NRH
-POL              SEG   AE_   NRH
-RAF-R            RAF   AE_   RH_
-RYDBERG          ANO   AE_   RYD
-SARC2-QZVP-DKH   SEG   AE_   RH_
-STO-3G           SEG   AE_   NRH
-SVP              SEG   AE_   NRH
-TZP              SEG   AE_   NRH
-TZVP             SEG   AE_   NRH
-UNC              UNC   AE_   NRH
-UNCREL           UNC   AE_   RH_
-# *************************************
+#  - UNK: unknown
 # 1: Contraction type
 #  - SEG: segmented
 #  - SEC: segmented Cartesian
@@ -94,10 +25,101 @@ UNCREL           UNC   AE_   RH_
 #  - RH_: relativistic Hamiltonian
 #  - NRH: non relativistic Hamiltonian
 #  - RCP: relativistic core potential
-#  - DKH: DKH
+#  - DKH: Douglas-Kroll-Hess
 #  - X2C: exact 2-component
 #  - RYD: Rydberg
 # 4: Nucleus
 #  - PN_: point nucleus
 #  - GN_: Gaussian nucleus
 #  - MGN: modified Gaussian
+# *************************************
+#                 1     2     3     4
+# ------------   ---   ---   ---   ---
+
+STO-3G           SEG   AE_   NRH   UNK
+
+3-21G            SEC   AE_   NRH   UNK
+4-31G            SEC   AE_   NRH   UNK
+5-21G            SEC   AE_   NRH   UNK
+6-31G            SEC   AE_   NRH   UNK
+6-31Gpp          SEC   AE_   NRH   UNK
+6-311Gpp         SEC   AE_   NRH   UNK
+
+ANO-DK3          RAF   AE_   RH_   UNK
+ANO-ORCA         ANO   AE_   NRH   UNK
+
+ANO-S            ANO   AE_   NRH   UNK
+ANO-L            ANO   AE_   NRH   UNK
+ANO-RCC          ANO   AE_   RH_   PN_
+ANO-XS           ANO   AE_   DKH   GN_
+ANO-R            ANO   AE_   X2C   GN_
+
+CC-PVDZ          CCC   AE_   NRH   UNK
+CC-PVTZ          CCC   AE_   NRH   UNK
+CC-PVQZ          CCC   AE_   NRH   UNK
+CC-PV5Z          CCC   AE_   NRH   UNK
+AUG-CC-PVDZ      CCC   AE_   NRH   UNK
+AUG-CC-PVTZ      CCC   AE_   NRH   UNK
+AUG-CC-PVQZ      CCC   AE_   NRH   UNK
+AUG-CC-PV5Z      CCC   AE_   NRH   UNK
+AUG-CC-PV6Z      CCC   AE_   NRH   UNK
+CC-PVDZ-DK       CCC   AE_   DKH   UNK
+CC-PVTZ-DK       CCC   AE_   DKH   UNK
+CC-PVQZ-DK       CCC   AE_   DKH   UNK
+CC-PV5Z-DK       CCC   AE_   DKH   UNK
+CC-PWCVTZ-DK     CCC   AE_   DKH   UNK
+CC-PWCVQZ-DK     CCC   AE_   DKH   UNK
+CC-PWCV5Z-DK     CCC   AE_   DKH   UNK
+
+AHLRICHS_VDZ     SEG   AE_   NRH   UNK
+AHLRICHS_VTZ     SEG   AE_   NRH   UNK
+DEF-SV(P)        SEG   AE_   NRH   UNK
+DEF-SVP          SEG   AE_   NRH   UNK
+DEF-TZVP         SEG   AE_   NRH   UNK
+DEF2-SVP         SEG   NAE   NRH   UNK
+DEF2-TZVP        SEG   NAE   NRH   UNK
+DEF2-TZVPP       SEG   NAE   NRH   UNK
+
+PC-0             SEG   AE_   NRH   UNK
+PC-1             SEG   AE_   NRH   UNK
+PC-2             SEG   AE_   NRH   UNK
+PC-3             SEG   AE_   NRH   UNK
+PC-4             SEG   AE_   NRH   UNK
+AUG-PC-0         SEG   AE_   NRH   UNK
+AUG-PC-1         SEG   AE_   NRH   UNK
+AUG-PC-2         SEG   AE_   NRH   UNK
+AUG-PC-3         SEG   AE_   NRH   UNK
+AUG-PC-4         SEG   AE_   NRH   UNK
+
+JGAUSS-DZP       SEG   AE_   NRH   UNK
+
+SADLEJ_PVTZ      SEG   AE_   NRH   UNK
+
+SARC2-QZVP-DKH   SEG   AE_   DKH   UNK
+
+RAF-R            RAF   AE_   RH_   UNK
+
+LANL2DZ          SEG   NAE   RCP   UNK
+LANL2DZ_NL       SEG   NAE   RCP   UNK
+
+STUTTGART        RAF   NAE   RCP   UNK
+STUTTGART_NL     RAF   NAE   RCP   UNK
+
+MCP-DZP          SEG   NAE   UNK   UNK
+MCP-TZP          SEG   NAE   UNK   UNK
+MCP-QZP          SEG   NAE   UNK   UNK
+MCP-ATZP         SEG   NAE   UNK   UNK
+MCP-AQZP         SEG   NAE   UNK   UNK
+
+CG-AIMP          RAF   NAE   RCP   UNK
+NR-AIMP          RAF   NAE   RCP   UNK
+NP-AIMP          RAF   NAE   RCP   UNK
+EMB-AIMP         RAF   NAE   RCP   UNK
+
+RYDBERG          UNC   AE_   RYD   UNK
+
+MUONIC           UNC   AE_   NRH   GN_
+
+# placeholders for uncontracted basis sets
+UNC              UNC   AE_   NRH   UNK
+UNCREL           UNC   AE_   RH_   UNK

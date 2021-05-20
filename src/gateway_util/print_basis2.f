@@ -266,7 +266,7 @@ Cend
             lSh= 0
             Do kSh = kShStr, kShEnd
                nExpk=Shells(kSh)%nExp
-               If (nExpk.ne.0.and.iCnttp.le.21) Then
+               If (nExpk.ne.0) Then
                   If (lSh.eq.0) Then
                      Write (LuWr,'(4X,A)') '  H Potential'
                   Else
@@ -276,13 +276,11 @@ Cend
                End If
                lSh = lSh + 1
                Write (LuWr,'(A)') '  n     Exponent      Coefficient'
-               iOff = 1
-               Do iExp = 1, nExpk
-                  ncr=Int(Shells(kSh)%Exp(iOff  ))
-                  zcr=    Shells(kSh)%Exp(iOff+1)
-                  ccr=    Shells(kSh)%Exp(iOff+2)
+               Do iExp = 1, nExpk, 3
+                  ncr=Int(Shells(kSh)%Exp(iExp  ))
+                  zcr=    Shells(kSh)%Exp(iExp+1)
+                  ccr=    Shells(kSh)%Exp(iExp+2)
                   Write (LuWr,'(2x,I1,3X,2F15.10)') ncr,zcr,ccr
-                  iOff = iOff + 3
                End Do
                Write (LuWr,*)
 *

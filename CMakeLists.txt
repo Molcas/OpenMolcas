@@ -2071,7 +2071,7 @@ if (WFA)
     add_subdirectory (${proj}/libwfa)
     target_include_directories (wfa_molcas PRIVATE ${proj} ${ARMADILLO_INC} ${HDF5_INCLUDE_DIRS})
     target_compile_definitions (wfa_molcas PRIVATE "ARMA_DONT_USE_WRAPPER")
-    target_link_libraries (wfa_molcas INTERFACE ${HDF5_CXX_LIBRARIES})
+    target_link_libraries (wfa_molcas INTERFACE ${HDF5_CXX_LIBRARIES} ${LINALG_LIBRARIES})
     list (APPEND wfa_libs wfa_molcas)
 
     message ("-- wfa_libs: ${wfa_libs}")

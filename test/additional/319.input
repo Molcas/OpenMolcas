@@ -1,6 +1,6 @@
 *-------------------------------------------------------------------------------
 * Molecule:CH2
-* Basis: Cl ECP...2s4p1d.7e-NR-AIMP, O ANO-s
+* Basis: Cl NR-AIMP, O ANO-s
 * Symmetry: C2v
 * Responsible person: B Suo, 090724
 * Features tested: SEWARD, SCF, RASSCF,MOTRA,GUGADRT,GUGACI
@@ -13,7 +13,7 @@ Title
 Symmetry
 X Y
 Basis set
-Cl.ECP...2s4p1d.7e-NR-AIMP.
+Cl.NR-AIMP...2s4p1d.ECP.7el.
 Cl  0.00000000  0.00000000  0.000  Angstrom
 End of basis
 Basis set

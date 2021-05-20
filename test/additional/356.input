@@ -1,6 +1,6 @@
 *-------------------------------------------------------------------------------
 * Molecule: H2O
-* Basis: SVP
+* Basis: def-SVP
 * Symmetry: C2v
 * Features tested: Seward (acCD), SCF (unrestricted B3LYP), RPA
 * Responsible person: T.B. Pedersen 130716
@@ -8,18 +8,18 @@
 *-------------------------------------------------------------------------------
  &Gateway
 Title
- H2O using SVP and acCD
+ H2O using def-SVP and acCD
 
 Symmetry
 x z
 
 Basis set
-O.SVP.....
+O.def-SVP.....
 O              0.000000      -0.060568       0.000000
 End of basis
 
 Basis set
-H.SVP.....
+H.def-SVP.....
 H              1.432371       1.141126       0.000000
 End of basis
 

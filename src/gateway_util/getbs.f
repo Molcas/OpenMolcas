@@ -42,7 +42,7 @@
       Character*(*) DDname
       Character(LEN=80)  BSLbl
       Integer       iShll
-      Character(LEN=80)  Ref(2)
+      Character(LEN=180)  Ref(2)
       Logical       UnNorm
       Integer       LuRd, BasisTypes(4)
       Character(LEN=180) STDINP(MxAtom*2)
@@ -159,9 +159,9 @@
          Call Rdbsl(DirName,BSLbl,Type,nCGTO,mCGTO,lAng,Itabmx,lUnit,
      &              dbsc(nCnttp)%AtmNr,BasisTypes,ExtBasDir)
          Line=Get_Ln(lUnit)
-         Ref(1)=Line(1:80)
+         Ref(1)=Line
          Line=Get_Ln(lUnit)
-         Ref(2)=Line(1:80)
+         Ref(2)=Line
       Else
          Hit=.True.
          Call Decode(BSLbl,atom,1,Hit)
@@ -182,8 +182,8 @@
       Call UpCase(Line(1:3))
       If (Line(1:3).eq.'AUX') dbsc(nCnttp)%Aux=.True.
       If (IfTest) Then
-         Write (6,'(A,A)') 'Ref(1):',Ref(1)
-         Write (6,'(A,A)') 'Ref(2):',Ref(2)
+         Write (6,'(A,A)') 'Ref(1):',Trim(Ref(1))
+         Write (6,'(A,A)') 'Ref(2):',Trim(Ref(2))
       End If
       Uncontracted = BasisTypes(1).eq.6
       If (dbsc(nCnttp)%IsMM .eq. 1) Then

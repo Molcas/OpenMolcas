@@ -1,6 +1,6 @@
 *-------------------------------------------------------------------------------
 * Molecule:
-* Basis: DEF-SV(P)
+* Basis: def-SV(P)
 * Symmetry: ..
 * Features tested: RI options
 * Responsible person: R. Lindh, 070125
@@ -10,13 +10,13 @@
 
  &SEWARD &END
 Title
-ch4, DEF-SV(P)
+f, def-SV(P)
 
 Symmetry
 z
 Basis set
 
-F.DEF-SV(P)....
+F.def-SV(P)....
 F     .00000000000000       .00000000000000     -1.26050860214317
 End of basis
 RIJ
@@ -24,7 +24,7 @@ End of input
 *----------------------------------------------------------------------------
  &SCF &END
 Title
- ch4
+ f
 ITERATIONS
  20
 Occupation
@@ -40,13 +40,13 @@ End of input
 
  &SEWARD &END
 Title
-ch4, DEF-SV(P)
+f, def-SV(P)
 
 Symmetry
 z
 Basis set
 
-F.DEF-SV(P)....
+F.def-SV(P)....
 F     .00000000000000       .00000000000000     -1.26050860214317
 End of basis
 RIJ
@@ -55,7 +55,7 @@ End of input
 *----------------------------------------------------------------------------
  &SCF &END
 Title
- ch4
+ f
 ITERATIONS
  20
 Occupation

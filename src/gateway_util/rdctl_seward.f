@@ -69,7 +69,7 @@
 *
       Real*8 Lambda
       Character Key*180, KWord*180, Oper(3)*3, BSLbl*80, Fname*256,
-     &          DefNm*13, Ref(2)*80, ChSkip*80, AngTyp(0:iTabMx)*1,
+     &          DefNm*13, Ref(2)*180, ChSkip*80, AngTyp(0:iTabMx)*1,
      &          dbas*(LENIN),filename*180, KeepBasis*256, KeepGroup*180,
      &          Previous_Command*12, CtrLDK(10)*(LENIN),
      &          Directory*256, BasLib*256,ExtBasDir*256
@@ -1231,8 +1231,8 @@ c Simplistic validity check for value
       If (Show.and.nPrint(2).ge.6 .and.
      &   Ref(1).ne.'' .and. Ref(2).ne.'') Then
          Write (LuWr,'(1x,a)')  'Basis Set Reference(s):'
-         If (Ref(1).ne.'') Write (LuWr,'(5x,a)') Ref(1)
-         If (Ref(2).ne.'') Write (LuWr,'(5x,a)') Ref(2)
+         If (Ref(1).ne.'') Write (LuWr,'(5x,a)') Trim(Ref(1))
+         If (Ref(2).ne.'') Write (LuWr,'(5x,a)') Trim(Ref(2))
          Write (LuWr,*)
          Write (LuWr,*)
       End If

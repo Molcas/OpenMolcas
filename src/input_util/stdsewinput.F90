@@ -35,7 +35,8 @@ character(len=180), intent(in) :: STDINP(mxAtom*2)
 integer(kind=iwp) :: i, ib, iend, Indx, iOff, iSh, iSTDINP, itype, jShll, lAng, Last, LenBSL, LuWr, n, nCnt
 character(len=256) :: Basis_lib, Fname
 character(len=180) :: Key, KWord, Line
-character(len=80) :: BsLbl, Ref(2)
+character(len=80) :: BsLbl
+character(len=180) :: Ref(2)
 character(len=4) :: dbas
 character(len=13), parameter :: DefNm = 'basis_library' !CGGd
 integer(kind=iwp), parameter :: nBuff = 10000
@@ -129,8 +130,8 @@ do
 
   if (Show .and. (nPrint(2) >= 6) .and. (Ref(1) /= '') .and. (Ref(2) /= '')) then
     write(LuWr,'(1x,a)') 'Basis Set Reference(s):'
-    if (Ref(1) /= '') write(LuWr,'(5x,a)') Ref(1)
-    if (Ref(2) /= '') write(LuWr,'(5x,a)') Ref(2)
+    if (Ref(1) /= '') write(LuWr,'(5x,a)') Trim(Ref(1))
+    if (Ref(2) /= '') write(LuWr,'(5x,a)') Trim(Ref(2))
     write(LuWr,*)
     write(LuWr,*)
   end if

@@ -1,0 +1,35 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+
+#Hamiltonian NRH
+#Nucleus UNK
+#Contraction SEG
+#AllElectron AE_
+
+************************************************************************
+* This file has been generated from TURBOMOLE basis set data:          *
+*   https://cosmologic-services.de/basis-sets/basissets.php            *
+************************************************************************
+
+/H.DEF-SV(P)..4s.2s.
+Unpublished
+HYDROGEN (4s) -> [2s]
+     1.0   0
+* s-type functions
+    4    2
+       13.0107010000
+        1.9622572000
+        0.4445379600
+        0.1219496200
+   0.01968215800000   0.00000000000000
+   0.13796524000000   0.00000000000000
+   0.47831935000000   0.00000000000000
+   0.00000000000000   1.00000000000000
