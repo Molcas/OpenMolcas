@@ -22,6 +22,7 @@
      &    pretty_print_util
       use qcmaquis_info
       use qcmaquis_interface_mpssi
+      use rassi_global_arrays, only : LROOT
 #endif
 
       IMPLICIT NONE
@@ -123,18 +124,18 @@ C General 1-particle transition density matrix:
           if (MPLET1.lt.MPLET2) then
             call qcmaquis_mpssi_get_onetdm_spin(
      &             qcm_prefixes(job2),
-     &             jstate,
+     &             LROOT(JSTATE),
      &             qcm_prefixes(job1),
-     &             istate,
+     &             LROOT(ISTATE),
      &             TDMAA,
      &             TDMBB,
      &             NSPD1)
           else
             call qcmaquis_mpssi_get_onetdm_spin(
      &             qcm_prefixes(job1),
-     &             istate,
+     &             LROOT(ISTATE),
      &             qcm_prefixes(job2),
-     &             jstate,
+     &             LROOT(JSTATE),
      &             TDMAA,
      &             TDMBB,
      &             NSPD1)
