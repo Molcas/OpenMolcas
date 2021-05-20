@@ -137,16 +137,15 @@ if (";Debug;Garble;RelWithDebInfo;" MATCHES ";${CMAKE_BUILD_TYPE};" OR
 endif ()
 
 # External projects
-option (DMRG       "Activate QCMaquis DMRG driver and library."                                                 OFF)
-option (DMRG_DEBUG "Enable DEBUG print in QCMaquis driver."                                                     OFF)
-option (EFPLIB     "Enable EFPLib library for effective fragment potentials (requires External/efp submodule)." OFF)
-option (GA_BUILD   "Build Global Arrays."                                                                       OFF)
-option (GEN1INT    "Enable Gen1Int library for 1-electron integrals."                                           OFF)
-option (MolGUI     "Enable the Molcas Graphical User Interface."                                                OFF)
-option (MSYM       "Activate MSYM support (requires External/libmsym submodule)."                               OFF)
-option (NECI       "Activate NECI support (requires External/NECI submodule)."                                  OFF)
-option (NEVPT2     "Activate (DMRG)-NEVPT2 support."                                                            OFF)
-option (WFA        "Activate extended wavefunction analysis (requires External/libwfa submodule)."              OFF)
+option (DMRG     "Activate QCMaquis DMRG driver and library."                                                 OFF)
+option (EFPLIB   "Enable EFPLib library for effective fragment potentials (requires External/efp submodule)." OFF)
+option (GA_BUILD "Build Global Arrays."                                                                       OFF)
+option (GEN1INT  "Enable Gen1Int library for 1-electron integrals."                                           OFF)
+option (MolGUI   "Enable the Molcas Graphical User Interface."                                                OFF)
+option (MSYM     "Activate MSYM support (requires External/libmsym submodule)."                               OFF)
+option (NECI     "Activate NECI support (requires External/NECI submodule)."                                  OFF)
+option (NEVPT2   "Activate (DMRG)-NEVPT2 support."                                                            OFF)
+option (WFA      "Activate extended wavefunction analysis (requires External/libwfa submodule)."              OFF)
 
 ################################################################################
 #                                                                              #
@@ -166,7 +165,7 @@ if (WFA OR MolGUI OR DMRG)
 endif ()
 
 #avoid using CXX compiler for linking
-set (CMAKE_CXX_LINKER_PREFERENCE_PROPAGATES FALSE)
+set (CMAKE_CXX_LINKER_PREFERENCE_PROPAGATES "FALSE")
 
 add_compile_definitions (_MOLCAS_)
 
@@ -1243,7 +1242,7 @@ if (LINALG STREQUAL "MKL")
   endif ()
 
   # generate actual library list with paths
-  if (MPI)
+  if (MPI AND LIBMKL_SCALAPACK)
     add_compile_definitions (_SCALAPACK_)
     list (APPEND MKL_LIBRARIES ${LIBMKL_SCALAPACK})
   endif ()
@@ -1259,7 +1258,7 @@ if (LINALG STREQUAL "MKL")
   else ()
     list (APPEND MKL_LIBRARIES ${LIBMKL_SEQUENTIAL})
   endif ()
-  if (MPI)
+  if (MPI AND LIBMKL_BLACS)
     list (APPEND MKL_LIBRARIES ${LIBMKL_BLACS})
   endif ()
 
@@ -1573,6 +1572,7 @@ if (GA AND MPI)
     string (REPLACE ";" "|" LINALG_LIBRARIES_FILES "${LINALG_LIBRARIES_FILES}")
     list (APPEND GACMakeArgs
           -D CMAKE_INSTALL_PREFIX=${EP_INSTALL}
+          -D CMAKE_INSTALL_RPATH_USE_LINK_PATH=TRUE
           -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
           -D ENABLE_FORTRAN=ON
           -D ENABLE_CXX=OFF
@@ -1609,7 +1609,6 @@ if (GA AND MPI)
     else ()
       set (GASkipUpdate OFF)
     endif ()
-    message ("GASkipUpdate ${GASkipUpdate}")
 
     ExternalProject_Add (${EP_PROJECT}
                          PREFIX ${EP_PATH}
@@ -1626,7 +1625,6 @@ if (GA AND MPI)
 
     ExternalProject_Add_Step (${EP_PROJECT} update_hash
                               COMMAND echo ${GA_HASH} > ${hash_file}
-                              COMMENT "Updating saved hash"
                               DEPENDEES build
     )
 
@@ -1704,7 +1702,7 @@ if (GA AND MPI)
         target_link_libraries (armci INTERFACE ${LIBIBVERBS})
       endif ()
     endif ()
-    set (GA_FOUND TRUE)
+    set (GA_FOUND "TRUE")
   endif ()
 
   # Final common settings
@@ -1959,14 +1957,25 @@ if (DMRG)
     find_package (MAQUIS_DMRG PATHS ${QCMaquis_ROOT} NO_DEFAULT_PATH)
   endif ()
 
-  add_compile_definitions (_DMRG_)
+  foreach (prog
+    dmrgscf
+    last_energy
+    mclr
+    mpssi
+    nevpt2
+    rasscf
+    rassi
+    wfn_util
+  )
+    list (APPEND ${prog}_defs "_DMRG_")
+  endforeach ()
 
   set (custom_dir ${PROJECT_SOURCE_DIR}/cmake/custom)
   set (proj_bin ${PROJECT_BINARY_DIR}/External/qcmaquis)
 
   configure_file (${custom_dir}/qcmaquis.cmake ${proj_bin}/CMakeLists.txt COPYONLY)
 
-  ## Builds with build subdirectory outside the source tree require the second argument of add_subdirectory
+  # Builds with build subdirectory outside the source tree require the second argument of add_subdirectory
   add_subdirectory (${proj_bin} ${proj_bin})
 
   foreach (lib ${HDF5_QCM_LIBRARIES})
@@ -2618,7 +2627,7 @@ if (DMRG)
   endforeach ()
 endif ()
 
-if (GA)
+if (GA AND MPI)
   foreach (prog
            caspt2
            cholesky_util
@@ -2746,7 +2755,7 @@ endif ()
 # dependency using the "mods_obj" target.
 # note that mods_obj is empty at the beginning, source files will be added later
 add_library (mods_obj OBJECT)
-if (GA)
+if (GA_BUILD AND MPI)
   add_dependencies (mods_obj GlobalArrays)
 endif ()
 if (GEN1INT)
@@ -2838,9 +2847,7 @@ if (DMRG)
   foreach (prog ${dmrg_progs})
     if (NOT MAQUIS_DMRG_FOUND AND TARGET ${prog}.exe)
       set_target_properties (${prog}.exe PROPERTIES
-        BUILD_WITH_INSTALL_RPATH TRUE
-        INSTALL_RPATH_USE_LINK_PATH TRUE
-        INSTALL_RPATH "\$ORIGIN/../qcmaquis/lib:${INSTALL_RPATH}"
+        INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/qcmaquis/lib:${CMAKE_INSTALL_RPATH}"
       )
     endif ()
   endforeach ()

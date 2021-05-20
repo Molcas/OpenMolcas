@@ -58,6 +58,10 @@ set (deplibs ${${prog}_deplibs} libmolcas ${EXTERNAL_LIBRARIES})
 if (sources)
   # first an object-only library, for use with only_objs
   add_Molcas_library (${prog}_obj OBJECT ${sources})
+  # dependencies
+  if (DEFINED ${prog}_deps)
+    add_dependencies(${prog}_obj ${${prog}_deps})
+  endif()
   # program-specific compile definitions
   if (DEFINED ${prog}_defs)
     target_compile_definitions (${prog}_obj PRIVATE "${${prog}_defs}")

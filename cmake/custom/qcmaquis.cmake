@@ -78,7 +78,6 @@ list(APPEND QCMaquisCMakeArgs
   -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
   -DCMAKE_CXX_FLAGS=${QCM_CMake_CXX_FLAGS}
   -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-  -DCMAKE_INSTALL_LIBDIR=lib
   )
 if(HDF5_ROOT)
   list(APPEND QCMaquisCMakeArgs
@@ -263,12 +262,25 @@ set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
     ###############################
 
     set(reference_git_repo https://github.com/qcscine/qcmaquis.git)
-    # set(reference_git_tag release-3.0) # uncomment before merging into master, since before merging we expect more patches into upstream
+    set(reference_git_commit release-3.0.4)
+
+    set (last_hash "None")
+    set (hash_file ${extprojpath}/${EP_PROJECT}.hash)
+    if (EXISTS ${hash_file})
+      file (READ ${hash_file} last_hash)
+      string (REGEX REPLACE "\n$" "" last_hash "${last_hash}")
+    endif ()
+    if (last_hash STREQUAL ${reference_git_commit})
+      set (EP_SkipUpdate ON)
+    else ()
+      set (EP_SkipUpdate OFF)
+    endif ()
 
     ExternalProject_Add(${EP_PROJECT}
         PREFIX ${extprojpath}
         GIT_REPOSITORY ${reference_git_repo}
-      #  GIT_TAG ${reference_git_commit}
+        GIT_TAG ${reference_git_commit}
+        UPDATE_DISCONNECTED ${EP_SkipUpdate}
 
         SOURCE_SUBDIR dmrg
         CMAKE_ARGS ${EP_CMAKE_ARGS}
@@ -276,6 +288,11 @@ set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
         LIST_SEPARATOR '\'
         INSTALL_DIR ${LOCAL_QCM_INSTALL_PATH}
         )
+
+    ExternalProject_Add_Step (${EP_PROJECT} update_hash
+                              COMMAND echo ${reference_git_commit} > ${hash_file}
+                              DEPENDEES build
+                             )
 
     # Retrieve information about linking to the shared library
     # Unfortunately with external project we need to hard-code the library paths and all the rpath
