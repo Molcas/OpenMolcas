@@ -70,9 +70,9 @@ C Overlap:
         else
             sij = qcmaquis_mpssi_overlap(
      &         qcm_prefixes(job1),
-     &         ist,
+     &         istate,
      &         qcm_prefixes(job2),
-     &         jst,
+     &         jstate,
      &         .true.)
 
         end if ! DMRG or not
@@ -123,18 +123,18 @@ C General 1-particle transition density matrix:
           if (MPLET1.lt.MPLET2) then
             call qcmaquis_mpssi_get_onetdm_spin(
      &             qcm_prefixes(job2),
-     &             jst,
+     &             jstate,
      &             qcm_prefixes(job1),
-     &             ist,
+     &             istate,
      &             TDMAA,
      &             TDMBB,
      &             NSPD1)
           else
             call qcmaquis_mpssi_get_onetdm_spin(
      &             qcm_prefixes(job1),
-     &             ist,
+     &             istate,
      &             qcm_prefixes(job2),
-     &             jst,
+     &             jstate,
      &             TDMAA,
      &             TDMBB,
      &             NSPD1)
