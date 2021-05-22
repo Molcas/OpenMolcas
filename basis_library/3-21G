@@ -11,7 +11,7 @@
 
 #Hamiltonian NRH
 #Nucleus UNK
-#Contraction SEC
+#Contraction SEG
 #AllElectron AE_
 
 ************************************************************************
@@ -679,6 +679,9 @@ CALCIUM (12s,9p) -> [5s,4p]
 /Sc.3-21G.Dobbs.12s9p3d.5s4p2d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 861-879. doi:10.1002/jcc.540080614
 SCANDIUM (12s,9p,3d) -> [5s,4p,2d]
+Options
+Cartesian d
+EndOptions
     21.0   2
 * s-type functions
    12    5
@@ -738,6 +741,9 @@ SCANDIUM (12s,9p,3d) -> [5s,4p,2d]
 /Ti.3-21G.Dobbs.12s9p3d.5s4p2d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 861-879. doi:10.1002/jcc.540080614
 TITANIUM (12s,9p,3d) -> [5s,4p,2d]
+Options
+Cartesian d
+EndOptions
     22.0   2
 * s-type functions
    12    5
@@ -797,6 +803,9 @@ TITANIUM (12s,9p,3d) -> [5s,4p,2d]
 /V.3-21G.Dobbs.12s9p3d.5s4p2d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 861-879. doi:10.1002/jcc.540080614
 VANADIUM (12s,9p,3d) -> [5s,4p,2d]
+Options
+Cartesian d
+EndOptions
     23.0   2
 * s-type functions
    12    5
@@ -856,6 +865,9 @@ VANADIUM (12s,9p,3d) -> [5s,4p,2d]
 /Cr.3-21G.Dobbs.12s9p3d.5s4p2d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 861-879. doi:10.1002/jcc.540080614
 CHROMIUM (12s,9p,3d) -> [5s,4p,2d]
+Options
+Cartesian d
+EndOptions
     24.0   2
 * s-type functions
    12    5
@@ -915,6 +927,9 @@ CHROMIUM (12s,9p,3d) -> [5s,4p,2d]
 /Mn.3-21G.Dobbs.12s9p3d.5s4p2d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 861-879. doi:10.1002/jcc.540080614
 MANGANESE (12s,9p,3d) -> [5s,4p,2d]
+Options
+Cartesian d
+EndOptions
     25.0   2
 * s-type functions
    12    5
@@ -974,6 +989,9 @@ MANGANESE (12s,9p,3d) -> [5s,4p,2d]
 /Fe.3-21G.Dobbs.12s9p3d.5s4p2d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 861-879. doi:10.1002/jcc.540080614
 IRON (12s,9p,3d) -> [5s,4p,2d]
+Options
+Cartesian d
+EndOptions
     26.0   2
 * s-type functions
    12    5
@@ -1033,6 +1051,9 @@ IRON (12s,9p,3d) -> [5s,4p,2d]
 /Co.3-21G.Dobbs.12s9p3d.5s4p2d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 861-879. doi:10.1002/jcc.540080614
 COBALT (12s,9p,3d) -> [5s,4p,2d]
+Options
+Cartesian d
+EndOptions
     27.0   2
 * s-type functions
    12    5
@@ -1092,6 +1113,9 @@ COBALT (12s,9p,3d) -> [5s,4p,2d]
 /Ni.3-21G.Dobbs.12s9p3d.5s4p2d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 861-879. doi:10.1002/jcc.540080614
 NICKEL (12s,9p,3d) -> [5s,4p,2d]
+Options
+Cartesian d
+EndOptions
     28.0   2
 * s-type functions
    12    5
@@ -1151,6 +1175,9 @@ NICKEL (12s,9p,3d) -> [5s,4p,2d]
 /Cu.3-21G.Dobbs.12s9p3d.5s4p2d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 861-879. doi:10.1002/jcc.540080614
 COPPER (12s,9p,3d) -> [5s,4p,2d]
+Options
+Cartesian d
+EndOptions
     29.0   2
 * s-type functions
    12    5
@@ -1210,6 +1237,9 @@ COPPER (12s,9p,3d) -> [5s,4p,2d]
 /Zn.3-21G.Dobbs.12s9p3d.5s4p2d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 861-879. doi:10.1002/jcc.540080614
 ZINC (12s,9p,3d) -> [5s,4p,2d]
+Options
+Cartesian d
+EndOptions
     30.0   2
 * s-type functions
    12    5
@@ -1269,6 +1299,9 @@ ZINC (12s,9p,3d) -> [5s,4p,2d]
 /Ga.3-21G.Dobbs.12s9p3d.5s4p1d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 7 (1986) 359-378. doi:10.1002/jcc.540070313
 GALLIUM (12s,9p,3d) -> [5s,4p,1d]
+Options
+Cartesian d
+EndOptions
     31.0   2
 * s-type functions
    12    5
@@ -1328,6 +1361,9 @@ GALLIUM (12s,9p,3d) -> [5s,4p,1d]
 /Ge.3-21G.Dobbs.12s9p3d.5s4p1d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 7 (1986) 359-378. doi:10.1002/jcc.540070313
 GERMANIUM (12s,9p,3d) -> [5s,4p,1d]
+Options
+Cartesian d
+EndOptions
     32.0   2
 * s-type functions
    12    5
@@ -1387,6 +1423,9 @@ GERMANIUM (12s,9p,3d) -> [5s,4p,1d]
 /As.3-21G.Dobbs.12s9p3d.5s4p1d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 7 (1986) 359-378. doi:10.1002/jcc.540070313
 ARSENIC (12s,9p,3d) -> [5s,4p,1d]
+Options
+Cartesian d
+EndOptions
     33.0   2
 * s-type functions
    12    5
@@ -1446,6 +1485,9 @@ ARSENIC (12s,9p,3d) -> [5s,4p,1d]
 /Se.3-21G.Dobbs.12s9p3d.5s4p1d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 7 (1986) 359-378. doi:10.1002/jcc.540070313
 SELENIUM (12s,9p,3d) -> [5s,4p,1d]
+Options
+Cartesian d
+EndOptions
     34.0   2
 * s-type functions
    12    5
@@ -1505,6 +1547,9 @@ SELENIUM (12s,9p,3d) -> [5s,4p,1d]
 /Br.3-21G.Dobbs.12s9p3d.5s4p1d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 7 (1986) 359-378. doi:10.1002/jcc.540070313
 BROMINE (12s,9p,3d) -> [5s,4p,1d]
+Options
+Cartesian d
+EndOptions
     35.0   2
 * s-type functions
    12    5
@@ -1564,6 +1609,9 @@ BROMINE (12s,9p,3d) -> [5s,4p,1d]
 /Kr.3-21G.Dobbs.12s9p3d.5s4p1d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 7 (1986) 359-378. doi:10.1002/jcc.540070313
 KRYPTON (12s,9p,3d) -> [5s,4p,1d]
+Options
+Cartesian d
+EndOptions
     36.0   2
 * s-type functions
    12    5
@@ -1623,6 +1671,9 @@ KRYPTON (12s,9p,3d) -> [5s,4p,1d]
 /Rb.3-21G.Dobbs.15s12p3d.6s5p1d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 7 (1986) 359-378. doi:10.1002/jcc.540070313
 RUBIDIUM (15s,12p,3d) -> [6s,5p,1d]
+Options
+Cartesian d
+EndOptions
     37.0   2
 * s-type functions
    15    6
@@ -1694,6 +1745,9 @@ RUBIDIUM (15s,12p,3d) -> [6s,5p,1d]
 /Sr.3-21G.Dobbs.15s12p3d.6s5p1d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 7 (1986) 359-378. doi:10.1002/jcc.540070313
 STRONTIUM (15s,12p,3d) -> [6s,5p,1d]
+Options
+Cartesian d
+EndOptions
     38.0   2
 * s-type functions
    15    6
@@ -1765,6 +1819,9 @@ STRONTIUM (15s,12p,3d) -> [6s,5p,1d]
 /Y.3-21G.Dobbs.15s12p6d.6s5p3d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 880-893. doi:10.1002/jcc.540080615
 YTTRIUM (15s,12p,6d) -> [6s,5p,3d]
+Options
+Cartesian d
+EndOptions
     39.0   2
 * s-type functions
    15    6
@@ -1842,6 +1899,9 @@ YTTRIUM (15s,12p,6d) -> [6s,5p,3d]
 /Zr.3-21G.Dobbs.15s12p6d.6s5p3d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 880-893. doi:10.1002/jcc.540080615
 ZIRCONIUM (15s,12p,6d) -> [6s,5p,3d]
+Options
+Cartesian d
+EndOptions
     40.0   2
 * s-type functions
    15    6
@@ -1919,6 +1979,9 @@ ZIRCONIUM (15s,12p,6d) -> [6s,5p,3d]
 /Nb.3-21G.Dobbs.15s12p6d.6s5p3d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 880-893. doi:10.1002/jcc.540080615
 NIOBIUM (15s,12p,6d) -> [6s,5p,3d]
+Options
+Cartesian d
+EndOptions
     41.0   2
 * s-type functions
    15    6
@@ -1996,6 +2059,9 @@ NIOBIUM (15s,12p,6d) -> [6s,5p,3d]
 /Mo.3-21G.Dobbs.15s12p6d.6s5p3d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 880-893. doi:10.1002/jcc.540080615
 MOLYBDENUM (15s,12p,6d) -> [6s,5p,3d]
+Options
+Cartesian d
+EndOptions
     42.0   2
 * s-type functions
    15    6
@@ -2073,6 +2139,9 @@ MOLYBDENUM (15s,12p,6d) -> [6s,5p,3d]
 /Tc.3-21G.Dobbs.15s12p6d.6s5p3d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 880-893. doi:10.1002/jcc.540080615
 TECHNETIUM (15s,12p,6d) -> [6s,5p,3d]
+Options
+Cartesian d
+EndOptions
     43.0   2
 * s-type functions
    15    6
@@ -2150,6 +2219,9 @@ TECHNETIUM (15s,12p,6d) -> [6s,5p,3d]
 /Ru.3-21G.Dobbs.15s12p6d.6s5p3d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 880-893. doi:10.1002/jcc.540080615
 RUTHENIUM (15s,12p,6d) -> [6s,5p,3d]
+Options
+Cartesian d
+EndOptions
     44.0   2
 * s-type functions
    15    6
@@ -2227,6 +2299,9 @@ RUTHENIUM (15s,12p,6d) -> [6s,5p,3d]
 /Rh.3-21G.Dobbs.15s12p6d.6s5p3d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 880-893. doi:10.1002/jcc.540080615
 RHODIUM (15s,12p,6d) -> [6s,5p,3d]
+Options
+Cartesian d
+EndOptions
     45.0   2
 * s-type functions
    15    6
@@ -2304,6 +2379,9 @@ RHODIUM (15s,12p,6d) -> [6s,5p,3d]
 /Pd.3-21G.Dobbs.15s12p6d.6s5p3d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 880-893. doi:10.1002/jcc.540080615
 PALLADIUM (15s,12p,6d) -> [6s,5p,3d]
+Options
+Cartesian d
+EndOptions
     46.0   2
 * s-type functions
    15    6
@@ -2381,6 +2459,9 @@ PALLADIUM (15s,12p,6d) -> [6s,5p,3d]
 /Ag.3-21G.Dobbs.15s12p6d.6s5p3d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 880-893. doi:10.1002/jcc.540080615
 SILVER (15s,12p,6d) -> [6s,5p,3d]
+Options
+Cartesian d
+EndOptions
     47.0   2
 * s-type functions
    15    6
@@ -2458,6 +2539,9 @@ SILVER (15s,12p,6d) -> [6s,5p,3d]
 /Cd.3-21G.Dobbs.15s12p6d.6s5p3d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 880-893. doi:10.1002/jcc.540080615
 CADMIUM (15s,12p,6d) -> [6s,5p,3d]
+Options
+Cartesian d
+EndOptions
     48.0   2
 * s-type functions
    15    6
@@ -2535,6 +2619,9 @@ CADMIUM (15s,12p,6d) -> [6s,5p,3d]
 /In.3-21G.Dobbs.15s12p6d.6s5p2d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 7 (1986) 359-378. doi:10.1002/jcc.540070313
 INDIUM (15s,12p,6d) -> [6s,5p,2d]
+Options
+Cartesian d
+EndOptions
     49.0   2
 * s-type functions
    15    6
@@ -2612,6 +2699,9 @@ INDIUM (15s,12p,6d) -> [6s,5p,2d]
 /Sn.3-21G.Dobbs.15s12p6d.6s5p2d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 7 (1986) 359-378. doi:10.1002/jcc.540070313
 TIN (15s,12p,6d) -> [6s,5p,2d]
+Options
+Cartesian d
+EndOptions
     50.0   2
 * s-type functions
    15    6
@@ -2689,6 +2779,9 @@ TIN (15s,12p,6d) -> [6s,5p,2d]
 /Sb.3-21G.Dobbs.15s12p6d.6s5p2d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 7 (1986) 359-378. doi:10.1002/jcc.540070313
 ANTIMONY (15s,12p,6d) -> [6s,5p,2d]
+Options
+Cartesian d
+EndOptions
     51.0   2
 * s-type functions
    15    6
@@ -2766,6 +2859,9 @@ ANTIMONY (15s,12p,6d) -> [6s,5p,2d]
 /Te.3-21G.Dobbs.15s12p6d.6s5p2d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 7 (1986) 359-378. doi:10.1002/jcc.540070313
 TELLURIUM (15s,12p,6d) -> [6s,5p,2d]
+Options
+Cartesian d
+EndOptions
     52.0   2
 * s-type functions
    15    6
@@ -2843,6 +2939,9 @@ TELLURIUM (15s,12p,6d) -> [6s,5p,2d]
 /I.3-21G.Dobbs.15s12p6d.6s5p2d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 7 (1986) 359-378. doi:10.1002/jcc.540070313
 IODINE (15s,12p,6d) -> [6s,5p,2d]
+Options
+Cartesian d
+EndOptions
     53.0   2
 * s-type functions
    15    6
@@ -2920,6 +3019,9 @@ IODINE (15s,12p,6d) -> [6s,5p,2d]
 /Xe.3-21G.Dobbs.15s12p6d.6s5p2d.
 K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 7 (1986) 359-378. doi:10.1002/jcc.540070313
 XENON (15s,12p,6d) -> [6s,5p,2d]
+Options
+Cartesian d
+EndOptions
     54.0   2
 * s-type functions
    15    6
@@ -2997,6 +3099,9 @@ XENON (15s,12p,6d) -> [6s,5p,2d]
 /Cs.3-21G.Glendening.18s12p6d.7s6p2d.
 E.D. Glendening, D. Feller. J. Phys. Chem. 99 (1995) 3060-3067. doi:10.1021/j100010a015
 CAESIUM (18s,12p,6d) -> [7s,6p,2d]
+Options
+Cartesian d
+EndOptions
     55.0   2
 * s-type functions
    18    7

@@ -1267,7 +1267,6 @@ c Simplistic validity check for value
 ************************************************************************
 *                                                                      *
 *     Set Cartesian functions if specified by the basis type
-*     (6-31G family).
 *
       If (BasisTypes(1).eq.9) Then
          Do iSh = jShll+3, iShll

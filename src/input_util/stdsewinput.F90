@@ -161,10 +161,11 @@ do
   KWord(1:Indx-1) = BSLbl(1:Indx-1)
   call UpCase(KWord)
   if (index(KWord,'6-31G') /= 0) then
-    do iSh=jShll+3,iShll
+    iSh=jShll+3
+    if (iSh.le.iShll) then
       Shells(iSh)%Transf = .false.
       Shells(iSh)%Prjct = .false.
-    end do
+    end if
   end if
   !                                                                    *
   !*********************************************************************

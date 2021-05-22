@@ -11,7 +11,7 @@
 
 #Hamiltonian NRH
 #Nucleus UNK
-#Contraction SEC
+#Contraction SEG
 #AllElectron AE_
 
 ************************************************************************
@@ -61,6 +61,9 @@ HELIUM (4s,1p) -> [2s,1p]
 /Li.6-31G**.Gaussian.10s4p1d.3s2p1d.
 Gaussian 09 Revision E.01. M.J. Frisch et al. 2009
 LITHIUM (10s,4p,1d) -> [3s,2p,1d]
+Options
+Cartesian d
+EndOptions
      3.0   2
 * s-type functions
    10    3
@@ -102,6 +105,9 @@ LITHIUM (10s,4p,1d) -> [3s,2p,1d]
 /Be.6-31G**.Gaussian.10s4p1d.3s2p1d.
 Gaussian 09 Revision E.01. M.J. Frisch et al. 2009
 BERYLLIUM (10s,4p,1d) -> [3s,2p,1d]
+Options
+Cartesian d
+EndOptions
      4.0   2
 * s-type functions
    10    3
@@ -143,6 +149,9 @@ BERYLLIUM (10s,4p,1d) -> [3s,2p,1d]
 /B.6-31G**.Gaussian.10s4p1d.3s2p1d.
 Gaussian 09 Revision E.01. M.J. Frisch et al. 2009
 BORON (10s,4p,1d) -> [3s,2p,1d]
+Options
+Cartesian d
+EndOptions
      5.0   2
 * s-type functions
    10    3
@@ -184,6 +193,9 @@ BORON (10s,4p,1d) -> [3s,2p,1d]
 /C.6-31G**.Hariharan.10s4p1d.3s2p1d.
 P.C. Hariharan, J.A. Pople. Theor. Chim. Acta 28 (1973) 213-222. doi:10.1007/bf00533485
 CARBON (10s,4p,1d) -> [3s,2p,1d]
+Options
+Cartesian d
+EndOptions
      6.0   2
 * s-type functions
    10    3
@@ -225,6 +237,9 @@ CARBON (10s,4p,1d) -> [3s,2p,1d]
 /N.6-31G**.Hariharan.10s4p1d.3s2p1d.
 P.C. Hariharan, J.A. Pople. Theor. Chim. Acta 28 (1973) 213-222. doi:10.1007/bf00533485
 NITROGEN (10s,4p,1d) -> [3s,2p,1d]
+Options
+Cartesian d
+EndOptions
      7.0   2
 * s-type functions
    10    3
@@ -266,6 +281,9 @@ NITROGEN (10s,4p,1d) -> [3s,2p,1d]
 /O.6-31G**.Hariharan.10s4p1d.3s2p1d.
 P.C. Hariharan, J.A. Pople. Theor. Chim. Acta 28 (1973) 213-222. doi:10.1007/bf00533485
 OXYGEN (10s,4p,1d) -> [3s,2p,1d]
+Options
+Cartesian d
+EndOptions
      8.0   2
 * s-type functions
    10    3
@@ -307,6 +325,9 @@ OXYGEN (10s,4p,1d) -> [3s,2p,1d]
 /F.6-31G**.Hariharan.10s4p1d.3s2p1d.
 P.C. Hariharan, J.A. Pople. Theor. Chim. Acta 28 (1973) 213-222. doi:10.1007/bf00533485
 FLUORINE (10s,4p,1d) -> [3s,2p,1d]
+Options
+Cartesian d
+EndOptions
      9.0   2
 * s-type functions
    10    3
@@ -348,6 +369,9 @@ FLUORINE (10s,4p,1d) -> [3s,2p,1d]
 /Ne.6-31G**.Gaussian.10s4p1d.3s2p1d.
 Gaussian 09 Revision E.01. M.J. Frisch et al. 2009
 NEON (10s,4p,1d) -> [3s,2p,1d]
+Options
+Cartesian d
+EndOptions
     10.0   2
 * s-type functions
    10    3
@@ -389,6 +413,9 @@ NEON (10s,4p,1d) -> [3s,2p,1d]
 /Na.6-31G**.Francl.16s10p1d.4s3p1d.
 M.M. Francl, W.J. Pietro, W.J. Hehre, J.S. Binkley, M.S. Gordon, D.J. DeFrees, J.A. Pople. J. Chem. Phys. 77 (1982) 3654-3665. doi:10.1063/1.444267
 SODIUM (16s,10p,1d) -> [4s,3p,1d]
+Options
+Cartesian d
+EndOptions
     11.0   2
 * s-type functions
    16    4
@@ -454,6 +481,9 @@ SODIUM (16s,10p,1d) -> [4s,3p,1d]
 /Mg.6-31G**.Francl.16s10p1d.4s3p1d.
 M.M. Francl, W.J. Pietro, W.J. Hehre, J.S. Binkley, M.S. Gordon, D.J. DeFrees, J.A. Pople. J. Chem. Phys. 77 (1982) 3654-3665. doi:10.1063/1.444267
 MAGNESIUM (16s,10p,1d) -> [4s,3p,1d]
+Options
+Cartesian d
+EndOptions
     12.0   2
 * s-type functions
    16    4
@@ -519,6 +549,9 @@ MAGNESIUM (16s,10p,1d) -> [4s,3p,1d]
 /Al.6-31G**.Francl.16s10p1d.4s3p1d.
 M.M. Francl, W.J. Pietro, W.J. Hehre, J.S. Binkley, M.S. Gordon, D.J. DeFrees, J.A. Pople. J. Chem. Phys. 77 (1982) 3654-3665. doi:10.1063/1.444267
 ALUMINIUM (16s,10p,1d) -> [4s,3p,1d]
+Options
+Cartesian d
+EndOptions
     13.0   2
 * s-type functions
    16    4
@@ -584,6 +617,9 @@ ALUMINIUM (16s,10p,1d) -> [4s,3p,1d]
 /Si.6-31G**.Francl.16s10p1d.4s3p1d.
 M.M. Francl, W.J. Pietro, W.J. Hehre, J.S. Binkley, M.S. Gordon, D.J. DeFrees, J.A. Pople. J. Chem. Phys. 77 (1982) 3654-3665. doi:10.1063/1.444267
 SILICON (16s,10p,1d) -> [4s,3p,1d]
+Options
+Cartesian d
+EndOptions
     14.0   2
 * s-type functions
    16    4
@@ -649,6 +685,9 @@ SILICON (16s,10p,1d) -> [4s,3p,1d]
 /P.6-31G**.Francl.16s10p1d.4s3p1d.
 M.M. Francl, W.J. Pietro, W.J. Hehre, J.S. Binkley, M.S. Gordon, D.J. DeFrees, J.A. Pople. J. Chem. Phys. 77 (1982) 3654-3665. doi:10.1063/1.444267
 PHOSPHORUS (16s,10p,1d) -> [4s,3p,1d]
+Options
+Cartesian d
+EndOptions
     15.0   2
 * s-type functions
    16    4
@@ -714,6 +753,9 @@ PHOSPHORUS (16s,10p,1d) -> [4s,3p,1d]
 /S.6-31G**.Francl.16s10p1d.4s3p1d.
 M.M. Francl, W.J. Pietro, W.J. Hehre, J.S. Binkley, M.S. Gordon, D.J. DeFrees, J.A. Pople. J. Chem. Phys. 77 (1982) 3654-3665. doi:10.1063/1.444267
 SULFUR (16s,10p,1d) -> [4s,3p,1d]
+Options
+Cartesian d
+EndOptions
     16.0   2
 * s-type functions
    16    4
@@ -779,6 +821,9 @@ SULFUR (16s,10p,1d) -> [4s,3p,1d]
 /Cl.6-31G**.Francl.16s10p1d.4s3p1d.
 M.M. Francl, W.J. Pietro, W.J. Hehre, J.S. Binkley, M.S. Gordon, D.J. DeFrees, J.A. Pople. J. Chem. Phys. 77 (1982) 3654-3665. doi:10.1063/1.444267
 CHLORINE (16s,10p,1d) -> [4s,3p,1d]
+Options
+Cartesian d
+EndOptions
     17.0   2
 * s-type functions
    16    4
@@ -844,6 +889,9 @@ CHLORINE (16s,10p,1d) -> [4s,3p,1d]
 /Ar.6-31G**.Francl.16s10p1d.4s3p1d.
 M.M. Francl, W.J. Pietro, W.J. Hehre, J.S. Binkley, M.S. Gordon, D.J. DeFrees, J.A. Pople. J. Chem. Phys. 77 (1982) 3654-3665. doi:10.1063/1.444267
 ARGON (16s,10p,1d) -> [4s,3p,1d]
+Options
+Cartesian d
+EndOptions
     18.0   2
 * s-type functions
    16    4
@@ -909,6 +957,9 @@ ARGON (16s,10p,1d) -> [4s,3p,1d]
 /K.6-31G**.Rassolov.22s16p5d.5s4p3d.
 V.A. Rassolov, M.A. Ratner, J.A. Pople, P.C. Redfern, L.A. Curtiss. J. Comput. Chem. 22 (2001) 976-984. doi:10.1002/jcc.1058.abs
 POTASSIUM (22s,16p,5d) -> [5s,4p,3d]
+Options
+Cartesian d
+EndOptions
     19.0   2
 * s-type functions
    22    5
@@ -1006,6 +1057,9 @@ POTASSIUM (22s,16p,5d) -> [5s,4p,3d]
 /Ca.6-31G**.Rassolov.22s16p5d.5s4p3d.
 V.A. Rassolov, M.A. Ratner, J.A. Pople, P.C. Redfern, L.A. Curtiss. J. Comput. Chem. 22 (2001) 976-984. doi:10.1002/jcc.1058.abs
 CALCIUM (22s,16p,5d) -> [5s,4p,3d]
+Options
+Cartesian d
+EndOptions
     20.0   2
 * s-type functions
    22    5
@@ -1103,6 +1157,9 @@ CALCIUM (22s,16p,5d) -> [5s,4p,3d]
 /Sc.6-31G**.Rassolov.22s16p4d1f.5s4p2d1f.
 V.A. Rassolov, J.A. Pople, M.A. Ratner, T.L. Windus. J. Chem. Phys. 109 (1998) 1223-1229. doi:10.1063/1.476673
 SCANDIUM (22s,16p,4d,1f) -> [5s,4p,2d,1f]
+Options
+Cartesian d
+EndOptions
     21.0   3
 * s-type functions
    22    5
@@ -1202,6 +1259,9 @@ SCANDIUM (22s,16p,4d,1f) -> [5s,4p,2d,1f]
 /Ti.6-31G**.Rassolov.22s16p4d1f.5s4p2d1f.
 V.A. Rassolov, J.A. Pople, M.A. Ratner, T.L. Windus. J. Chem. Phys. 109 (1998) 1223-1229. doi:10.1063/1.476673
 TITANIUM (22s,16p,4d,1f) -> [5s,4p,2d,1f]
+Options
+Cartesian d
+EndOptions
     22.0   3
 * s-type functions
    22    5
@@ -1301,6 +1361,9 @@ TITANIUM (22s,16p,4d,1f) -> [5s,4p,2d,1f]
 /V.6-31G**.Rassolov.22s16p4d1f.5s4p2d1f.
 V.A. Rassolov, J.A. Pople, M.A. Ratner, T.L. Windus. J. Chem. Phys. 109 (1998) 1223-1229. doi:10.1063/1.476673
 VANADIUM (22s,16p,4d,1f) -> [5s,4p,2d,1f]
+Options
+Cartesian d
+EndOptions
     23.0   3
 * s-type functions
    22    5
@@ -1400,6 +1463,9 @@ VANADIUM (22s,16p,4d,1f) -> [5s,4p,2d,1f]
 /Cr.6-31G**.Rassolov.22s16p4d1f.5s4p2d1f.
 V.A. Rassolov, J.A. Pople, M.A. Ratner, T.L. Windus. J. Chem. Phys. 109 (1998) 1223-1229. doi:10.1063/1.476673
 CHROMIUM (22s,16p,4d,1f) -> [5s,4p,2d,1f]
+Options
+Cartesian d
+EndOptions
     24.0   3
 * s-type functions
    22    5
@@ -1499,6 +1565,9 @@ CHROMIUM (22s,16p,4d,1f) -> [5s,4p,2d,1f]
 /Mn.6-31G**.Rassolov.22s16p4d1f.5s4p2d1f.
 V.A. Rassolov, J.A. Pople, M.A. Ratner, T.L. Windus. J. Chem. Phys. 109 (1998) 1223-1229. doi:10.1063/1.476673
 MANGANESE (22s,16p,4d,1f) -> [5s,4p,2d,1f]
+Options
+Cartesian d
+EndOptions
     25.0   3
 * s-type functions
    22    5
@@ -1598,6 +1667,9 @@ MANGANESE (22s,16p,4d,1f) -> [5s,4p,2d,1f]
 /Fe.6-31G**.Rassolov.22s16p4d1f.5s4p2d1f.
 V.A. Rassolov, J.A. Pople, M.A. Ratner, T.L. Windus. J. Chem. Phys. 109 (1998) 1223-1229. doi:10.1063/1.476673
 IRON (22s,16p,4d,1f) -> [5s,4p,2d,1f]
+Options
+Cartesian d
+EndOptions
     26.0   3
 * s-type functions
    22    5
@@ -1697,6 +1769,9 @@ IRON (22s,16p,4d,1f) -> [5s,4p,2d,1f]
 /Co.6-31G**.Rassolov.22s16p4d1f.5s4p2d1f.
 V.A. Rassolov, J.A. Pople, M.A. Ratner, T.L. Windus. J. Chem. Phys. 109 (1998) 1223-1229. doi:10.1063/1.476673
 COBALT (22s,16p,4d,1f) -> [5s,4p,2d,1f]
+Options
+Cartesian d
+EndOptions
     27.0   3
 * s-type functions
    22    5
@@ -1796,6 +1871,9 @@ COBALT (22s,16p,4d,1f) -> [5s,4p,2d,1f]
 /Ni.6-31G**.Rassolov.22s16p4d1f.5s4p2d1f.
 V.A. Rassolov, J.A. Pople, M.A. Ratner, T.L. Windus. J. Chem. Phys. 109 (1998) 1223-1229. doi:10.1063/1.476673
 NICKEL (22s,16p,4d,1f) -> [5s,4p,2d,1f]
+Options
+Cartesian d
+EndOptions
     28.0   3
 * s-type functions
    22    5
@@ -1895,6 +1973,9 @@ NICKEL (22s,16p,4d,1f) -> [5s,4p,2d,1f]
 /Cu.6-31G**.Rassolov.22s16p4d1f.5s4p2d1f.
 V.A. Rassolov, J.A. Pople, M.A. Ratner, T.L. Windus. J. Chem. Phys. 109 (1998) 1223-1229. doi:10.1063/1.476673
 COPPER (22s,16p,4d,1f) -> [5s,4p,2d,1f]
+Options
+Cartesian d
+EndOptions
     29.0   3
 * s-type functions
    22    5
@@ -1994,6 +2075,9 @@ COPPER (22s,16p,4d,1f) -> [5s,4p,2d,1f]
 /Zn.6-31G**.Rassolov.22s16p4d1f.5s4p2d1f.
 V.A. Rassolov, J.A. Pople, M.A. Ratner, T.L. Windus. J. Chem. Phys. 109 (1998) 1223-1229. doi:10.1063/1.476673
 ZINC (22s,16p,4d,1f) -> [5s,4p,2d,1f]
+Options
+Cartesian d
+EndOptions
     30.0   3
 * s-type functions
    22    5
@@ -2093,6 +2177,9 @@ ZINC (22s,16p,4d,1f) -> [5s,4p,2d,1f]
 /Ga.6-31G**.Rassolov.22s16p5d.5s4p3d.
 V.A. Rassolov, M.A. Ratner, J.A. Pople, P.C. Redfern, L.A. Curtiss. J. Comput. Chem. 22 (2001) 976-984. doi:10.1002/jcc.1058.abs
 GALLIUM (22s,16p,5d) -> [5s,4p,3d]
+Options
+Cartesian d
+EndOptions
     31.0   2
 * s-type functions
    22    5
@@ -2190,6 +2277,9 @@ GALLIUM (22s,16p,5d) -> [5s,4p,3d]
 /Ge.6-31G**.Rassolov.22s16p5d.5s4p3d.
 V.A. Rassolov, M.A. Ratner, J.A. Pople, P.C. Redfern, L.A. Curtiss. J. Comput. Chem. 22 (2001) 976-984. doi:10.1002/jcc.1058.abs
 GERMANIUM (22s,16p,5d) -> [5s,4p,3d]
+Options
+Cartesian d
+EndOptions
     32.0   2
 * s-type functions
    22    5
@@ -2287,6 +2377,9 @@ GERMANIUM (22s,16p,5d) -> [5s,4p,3d]
 /As.6-31G**.Rassolov.22s16p5d.5s4p3d.
 V.A. Rassolov, M.A. Ratner, J.A. Pople, P.C. Redfern, L.A. Curtiss. J. Comput. Chem. 22 (2001) 976-984. doi:10.1002/jcc.1058.abs
 ARSENIC (22s,16p,5d) -> [5s,4p,3d]
+Options
+Cartesian d
+EndOptions
     33.0   2
 * s-type functions
    22    5
@@ -2384,6 +2477,9 @@ ARSENIC (22s,16p,5d) -> [5s,4p,3d]
 /Se.6-31G**.Rassolov.22s16p5d.5s4p3d.
 V.A. Rassolov, M.A. Ratner, J.A. Pople, P.C. Redfern, L.A. Curtiss. J. Comput. Chem. 22 (2001) 976-984. doi:10.1002/jcc.1058.abs
 SELENIUM (22s,16p,5d) -> [5s,4p,3d]
+Options
+Cartesian d
+EndOptions
     34.0   2
 * s-type functions
    22    5
@@ -2481,6 +2577,9 @@ SELENIUM (22s,16p,5d) -> [5s,4p,3d]
 /Br.6-31G**.Rassolov.22s16p5d.5s4p3d.
 V.A. Rassolov, M.A. Ratner, J.A. Pople, P.C. Redfern, L.A. Curtiss. J. Comput. Chem. 22 (2001) 976-984. doi:10.1002/jcc.1058.abs
 BROMINE (22s,16p,5d) -> [5s,4p,3d]
+Options
+Cartesian d
+EndOptions
     35.0   2
 * s-type functions
    22    5
@@ -2578,6 +2677,9 @@ BROMINE (22s,16p,5d) -> [5s,4p,3d]
 /Kr.6-31G**.Rassolov.22s16p5d.5s4p3d.
 V.A. Rassolov, M.A. Ratner, J.A. Pople, P.C. Redfern, L.A. Curtiss. J. Comput. Chem. 22 (2001) 976-984. doi:10.1002/jcc.1058.abs
 KRYPTON (22s,16p,5d) -> [5s,4p,3d]
+Options
+Cartesian d
+EndOptions
     36.0   2
 * s-type functions
    22    5
