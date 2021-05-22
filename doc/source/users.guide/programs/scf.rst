@@ -279,6 +279,18 @@ Below is a list of keywords that should cover the needs of most users.
               </HELP>
               </KEYWORD>
 
+:kword:`HFC`
+  Requests the computation of hyperfine coupling tensor matrix on each atom using spin polarization in
+  the calculated spin unrestricted wavefunctions, has to be used with the keyword :kword:`UHF`.
+
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="HFC" KIND="SINGLE" REQUIRE="UHF" LEVEL="BASIC">
+              %%Keyword: HFC <basic>
+              <HELP>
+              Requests the computation of hyperfine coupling tensor matrix using spin polarization in
+              the calculated spin unrestricted wavefunctions, has to be used with the keyword UHF.
+              </HELP>
+              </KEYWORD>
+
 :kword:`ZSPIN`
   Use this keyword to specify the difference in the number of :math:`\alpha` and :math:`\beta`
   electrons in the system. The default is 0 or 1 depending on if there is an even

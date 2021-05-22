@@ -32,93 +32,13 @@
 #  - PN_: point nucleus
 #  - GN_: Gaussian nucleus
 #  - MGN: modified Gaussian
+
+# Data is included in each basis set file's header,
+# so this file is mostly unnecessary
+
 # *************************************
 #                 1     2     3     4
 # ------------   ---   ---   ---   ---
-
-STO-3G           SEG   AE_   NRH   UNK
-
-3-21G            SEC   AE_   NRH   UNK
-4-31G            SEC   AE_   NRH   UNK
-5-21G            SEC   AE_   NRH   UNK
-6-31G            SEC   AE_   NRH   UNK
-6-31Gpp          SEC   AE_   NRH   UNK
-6-311Gpp         SEC   AE_   NRH   UNK
-
-ANO-DK3          RAF   AE_   RH_   UNK
-ANO-ORCA         ANO   AE_   NRH   UNK
-
-ANO-S            ANO   AE_   NRH   UNK
-ANO-L            ANO   AE_   NRH   UNK
-ANO-RCC          ANO   AE_   RH_   PN_
-ANO-XS           ANO   AE_   DKH   GN_
-ANO-R            ANO   AE_   X2C   GN_
-
-CC-PVDZ          CCC   AE_   NRH   UNK
-CC-PVTZ          CCC   AE_   NRH   UNK
-CC-PVQZ          CCC   AE_   NRH   UNK
-CC-PV5Z          CCC   AE_   NRH   UNK
-AUG-CC-PVDZ      CCC   AE_   NRH   UNK
-AUG-CC-PVTZ      CCC   AE_   NRH   UNK
-AUG-CC-PVQZ      CCC   AE_   NRH   UNK
-AUG-CC-PV5Z      CCC   AE_   NRH   UNK
-AUG-CC-PV6Z      CCC   AE_   NRH   UNK
-CC-PVDZ-DK       CCC   AE_   DKH   UNK
-CC-PVTZ-DK       CCC   AE_   DKH   UNK
-CC-PVQZ-DK       CCC   AE_   DKH   UNK
-CC-PV5Z-DK       CCC   AE_   DKH   UNK
-CC-PWCVTZ-DK     CCC   AE_   DKH   UNK
-CC-PWCVQZ-DK     CCC   AE_   DKH   UNK
-CC-PWCV5Z-DK     CCC   AE_   DKH   UNK
-
-AHLRICHS_VDZ     SEG   AE_   NRH   UNK
-AHLRICHS_VTZ     SEG   AE_   NRH   UNK
-DEF-SV(P)        SEG   AE_   NRH   UNK
-DEF-SVP          SEG   AE_   NRH   UNK
-DEF-TZVP         SEG   AE_   NRH   UNK
-DEF2-SVP         SEG   NAE   NRH   UNK
-DEF2-TZVP        SEG   NAE   NRH   UNK
-DEF2-TZVPP       SEG   NAE   NRH   UNK
-
-PC-0             SEG   AE_   NRH   UNK
-PC-1             SEG   AE_   NRH   UNK
-PC-2             SEG   AE_   NRH   UNK
-PC-3             SEG   AE_   NRH   UNK
-PC-4             SEG   AE_   NRH   UNK
-AUG-PC-0         SEG   AE_   NRH   UNK
-AUG-PC-1         SEG   AE_   NRH   UNK
-AUG-PC-2         SEG   AE_   NRH   UNK
-AUG-PC-3         SEG   AE_   NRH   UNK
-AUG-PC-4         SEG   AE_   NRH   UNK
-
-JGAUSS-DZP       SEG   AE_   NRH   UNK
-
-SADLEJ_PVTZ      SEG   AE_   NRH   UNK
-
-SARC2-QZVP-DKH   SEG   AE_   DKH   UNK
-
-RAF-R            RAF   AE_   RH_   UNK
-
-LANL2DZ          SEG   NAE   RCP   UNK
-LANL2DZ_NL       SEG   NAE   RCP   UNK
-
-STUTTGART        RAF   NAE   RCP   UNK
-STUTTGART_NL     RAF   NAE   RCP   UNK
-
-MCP-DZP          SEG   NAE   UNK   UNK
-MCP-TZP          SEG   NAE   UNK   UNK
-MCP-QZP          SEG   NAE   UNK   UNK
-MCP-ATZP         SEG   NAE   UNK   UNK
-MCP-AQZP         SEG   NAE   UNK   UNK
-
-CG-AIMP          RAF   NAE   RCP   UNK
-NR-AIMP          RAF   NAE   RCP   UNK
-NP-AIMP          RAF   NAE   RCP   UNK
-EMB-AIMP         RAF   NAE   RCP   UNK
-
-RYDBERG          UNC   AE_   RYD   UNK
-
-MUONIC           UNC   AE_   NRH   GN_
 
 # placeholders for uncontracted basis sets
 UNC              UNC   AE_   NRH   UNK

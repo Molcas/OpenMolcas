@@ -165,10 +165,11 @@ do iCnttp=1,mCnttp
         Shells(iSh)%Frag = .true.
       end do
       if (index(sBasis(1:Indx-1),'6-31G') /= 0) then
-        do iSh=jShll+3,iShll
+        iSh = jShll+3
+        if (iSh <= iShll) then
           Shells(iSh)%Prjct = .false.
           Shells(iSh)%Transf = .false.
-        end do
+        end if
       end if
       dbsc(nCnttp)%Frag = .true.
 

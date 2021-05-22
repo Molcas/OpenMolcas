@@ -636,14 +636,14 @@ The complete list of |molcas|-related environment variables:
               </KEYWORD>
 
 :variable:`MOLCAS_TIMELIM`
-  Set up a timelimit for each module (in minutes). By default, the maximum
+  Set up a timelimit for each module (in seconds). By default, the maximum
   execution time is set to unlimited. *Note that this setting is available only
   in MOLCAS compiled without Global Arrays.*
 
   .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_TIMELIM" APPEAR="Time Limit" KIND="INT" LEVEL="ADVANCED">
               %%Keyword: MOLCAS_TIMELIM <advanced>
               <HELP>
-              Set up a timelimit for each module (in minutes). By default, the maximum
+              Set up a timelimit for each module (in seconds). By default, the maximum
               execution time is set to unlimited. Note that this setting is available only
               in MOLCAS compiled without Global Arrays.
               </HELP>
