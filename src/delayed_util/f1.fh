@@ -207,6 +207,8 @@
       int_dpotrf2=>dpotrf2, &
       int_dpotrs=>dpotrs, &
       int_dpptrf=>dpptrf, &
+      int_dpstf2=>dpstf2, &
+      int_dpstrf=>dpstrf, &
       int_drscl=>drscl, &
       int_dspev=>dspev, &
       int_dspgst=>dspgst, &

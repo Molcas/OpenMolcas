@@ -1,12 +1,12 @@
  &SEWARD &END
 
 Basis set
-Li.ECP...1s1p.
+Li.CG-AIMP...1s1p.
 Li 0.0 0.0 0.0
 End of Basis
 
 Basis set
-Na.ECP...1s2p.
+Na.CG-AIMP...1s2p.
 Na 2.00 0.0 0.0
 End of Basis
 NoCD
@@ -24,12 +24,12 @@ End of Input
  &SEWARD &END
 
 Basis set
-Na.ECP...1s2p.
+Na.CG-AIMP...1s2p.
 Na 2.0 0.0 0.0
 End of Basis
 
 Basis set
-Li.ECP...1s1p.
+Li.CG-AIMP...1s1p.
 Li 0.0 0.0 0.0
 End of Basis
 NoCD

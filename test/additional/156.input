@@ -6,12 +6,12 @@ symmetry
 y z
 
 Basis set
-Cl.ECP.Dolg..2s3p.
+Cl.Stuttgart_NL...2s3p.
 Cl 0.0 0.0 0.0
 End of Basis
 
 Basis set
-Na.ECP.Dolg..2s2p.
+Na.Stuttgart_NL...2s2p.
 Na 2.50 0.0 0.0 Angstrom
 End of Basis
 NoCD

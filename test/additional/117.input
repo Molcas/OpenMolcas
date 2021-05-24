@@ -15,7 +15,7 @@
     H      0.67350    -0.00190     0.59353
     X      0.25568    -0.00287    -0.18075
   Group = NoSym
-  Basis = ANO-RCC-MB,X.RYDBERG
+  Basis = ANO-rcc-MB,X.Rydberg...8s8p8d.
   RICD
 
 &SEWARD

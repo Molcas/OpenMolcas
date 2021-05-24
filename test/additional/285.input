@@ -1,6 +1,6 @@
 *-------------------------------------------------------------------------------
 * Molecule:
-* Basis: DEF-SV(P)
+* Basis: def-SV(P)
 * Symmetry: ..
 * Features tested: RI options
 * Responsible person: R. Lindh, 070125
@@ -10,18 +10,18 @@
 
  &SEWARD &END
 Title
-nh3, DEF-SV(P)
+nh3, def-SV(P)
 
 Symmetry
 y
 Basis set
 
-N.DEF-SV(P)....
+N.def-SV(P)....
 N   0.000000     0.000000     0.12917062194577
 End of basis
 
 Basis set
-h.DEF-SV(P)....
+h.def-SV(P)....
 h1    1.75612466223131       .00000000000000      -.59831613718919
 h2    -.87806233111566      1.52084856970468      -.59831613718919
 End of basis
@@ -46,18 +46,18 @@ End of input
 
  &SEWARD &END
 Title
-nh3, DEF-SV(P)
+nh3, def-SV(P)
 
 Symmetry
 y
 Basis set
 
-N.DEF-SV(P)....
+N.def-SV(P)....
 N   0.000000     0.000000     0.12917062194577
 End of basis
 
 Basis set
-h.DEF-SV(P)....
+h.def-SV(P)....
 h1    1.75612466223131       .00000000000000      -.59831613718919
 h2    -.87806233111566      1.52084856970468      -.59831613718919
 End of basis

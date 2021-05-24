@@ -6,12 +6,12 @@ symmetry
 y z
 
 Basis set
-Cl.ECP.Stoll.4s5p.2s3p.7e-MWB.
+Cl.Stuttgart.Bergner.4s5p.2s3p.ECP.7el.
 Cl 0.0 0.0 0.0
 End of Basis
 
 Basis set
-Na.ECP.Stoll.4s4p.2s2p.1e-SDF.
+Na.Stuttgart.Fuentealba.4s4p.2s2p.ECP.1el.
 Na 2.50 0.0 0.0 Angstrom
 End of Basis
 NoCD

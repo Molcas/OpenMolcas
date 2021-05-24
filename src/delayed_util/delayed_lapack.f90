@@ -1319,6 +1319,28 @@ subroutine dpptrf( uplo, n, ap, info )
   call lb_dpptrf( uplo, n, ap, info )
 end subroutine dpptrf
 
+subroutine dpstf2( uplo, n, a, lda, piv, rank, tol, work, info )
+  use link_blas
+  implicit none
+  real*8 :: tol
+  integer :: info, lda, n, rank
+  character :: uplo
+  real*8 :: a( lda, * ), work( 2*n )
+  integer :: piv( n )
+  call lb_dpstf2( uplo, n, a, lda, piv, rank, tol, work, info )
+end subroutine dpstf2
+
+subroutine dpstrf( uplo, n, a, lda, piv, rank, tol, work, info )
+  use link_blas
+  implicit none
+  real*8 :: tol
+  integer :: info, lda, n, rank
+  character :: uplo
+  real*8 :: a( lda, * ), work( 2*n )
+  integer :: piv( n )
+  call lb_dpstrf( uplo, n, a, lda, piv, rank, tol, work, info )
+end subroutine dpstrf
+
 subroutine drscl( n, sa, sx, incx )
   use link_blas
   implicit none

@@ -22,8 +22,6 @@ subroutine EmbPotKernel( &
 !                                                                      *
 ! Called from: OneEl                                                   *
 !                                                                      *
-! Calling    : GetMem                                                  *
-!                                                                      *
 !     Author: Thomas Dresselhaus                                       *
 !                                                                      *
 !***********************************************************************

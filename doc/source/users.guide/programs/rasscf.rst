@@ -603,7 +603,7 @@ The :program:`RASSCF` program produces a binary output file called
 was usually a link, pointing to whichever file the user wanted, or by default
 to the file :file:`$Project.JobIph` if no such links had been made. This default
 can be changed, see keyword :kword:`NewIph` and :kword:`IphName`.
-For simplicity, we refer to this as :file:`JOBIPH` in the manual.The job interface,
+For simplicity, we refer to this as :file:`JOBIPH` in the manual. The job interface,
 :file:`JOBIPH`, contains four different sets of MO's and
 it is important to know the difference between the sets:
 

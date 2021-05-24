@@ -1,6 +1,6 @@
 *-------------------------------------------------------------------------------
 * Molecule: water (H2O)
-* Basis: DEF-SVP
+* Basis: def-SVP
 * Symmetry: Cs
 * Features tested: SEWARD (Option: RI), SCF, DFT
 * Responsible person: R. Lindh
@@ -14,13 +14,13 @@ Symmetry
 z
 
 Basis set
-H.DEF-SVP...
+H.def-SVP...
 H1     1.43445000    1.11084200    0.00000000
 H2    -1.43445000    1.11084200    0.00000000
 End of Basis
 
 Basis set
-O.DEF-SVP...
+O.def-SVP...
 O 0.0 0.0 0.0
 End of Basis
 

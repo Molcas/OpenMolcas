@@ -32,7 +32,7 @@ Symmetry
 Spin
  2
 
->> COPY $WorkDir/$Project.rasscf.h5 $CurrDir/ref.h5
+>> COPY $WorkDir/$Project.rasscf.h5 ref.h5
 
 >>foreach DFT in (TPBE, TBLYP, TLSDA)
 
@@ -48,7 +48,7 @@ DMRGSettings
  nsweeps             = 20
 EndDMRGSettings
 OOptimizationSettings
-FILEORB=$CurrDir/ref.h5
+FILEORB=ref.h5
 LINEAR
 LUMORB
 CIONLY

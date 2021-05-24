@@ -1,6 +1,6 @@
 *-------------------------------------------------------------------------------
 * Molecule: Various molecules
-* Basis: DEF-SV(P), DEF-SVP
+* Basis: def-SV(P), def-SVP
 * Symmetry: C1, Cs, C2v
 * Features tested: SEWARD (Option: RI,out-of-core), SCF, DFT
 * Responsible person: R. Lindh
@@ -11,13 +11,13 @@ Title
 Comparison to Turbomole
 
 Basis set
-H.DEF-SV(P)...
+H.def-SV(P)...
 H1     1.43445000    1.11084200    0.00000000
 H2    -1.43445000    1.11084200    0.00000000
 End of Basis
 
 Basis set
-O.DEF-SV(P)...
+O.def-SV(P)...
 O 0.0 0.0 0.0
 End of Basis
 
@@ -43,13 +43,13 @@ Title
 Comparison to Turbomole
 
 Basis set
-H.DEF-SVP...
+H.def-SVP...
 H1     1.43445000    1.11084200    0.00000000
 H2    -1.43445000    1.11084200    0.00000000
 End of Basis
 
 Basis set
-O.DEF-SVP...
+O.def-SVP...
 O 0.0 0.0 0.0
 End of Basis
 
@@ -78,13 +78,13 @@ Symmetry
 z
 
 Basis set
-H.DEF-SVP...
+H.def-SVP...
 H1     1.43445000    1.11084200    0.00000000
 H2    -1.43445000    1.11084200    0.00000000
 End of Basis
 
 Basis set
-O.DEF-SVP...
+O.def-SVP...
 O 0.0 0.0 0.0
 End of Basis
 
@@ -113,12 +113,12 @@ Symmetry
 x z
 
 Basis set
-H.DEF-SVP...
+H.def-SVP...
 H1     1.43445000    1.11084200    0.00000000
 End of Basis
 
 Basis set
-O.DEF-SVP...
+O.def-SVP...
 O 0.0 0.0 0.0
 End of Basis
 

@@ -32,6 +32,7 @@
       ISTATE=Max(ISTATE_,JSTATE_)
       JSTATE=Min(ISTATE_,JSTATE_)
 *
+      IF (LABEL(1:4).eq.'ASD ') LABEL(1:5)='MAGXP'
       IC=ICOMP(IPROP)
 !     Write (*,*) 'Mk_Prop: Label=',Label
 !     Write (*,*) 'Mk_Prop:    IC=',IC
@@ -41,7 +42,13 @@
       IF(IRC.eq.0) NSIZ=IDUM(1)
       IF(MOD(ISCHK/MASK,2).EQ.0) GOTO 300
       IOPT=0
-      CALL RDONE(IRC,IOPT,LABEL,IC,BUFF,ISCHK)
+C Rulin: The 'spin-dependent' part of hyperfine contribution
+      IF (LABEL(1:5).eq.'MAGXP') THEN
+        CALL HFCSD(LABEL,IC,BUFF,NBUFF,NSIZ,ISCHK)
+        LABEL(1:5) = 'ASD  '
+      ELSE
+        CALL RDONE(IRC,IOPT,LABEL,IC,BUFF,ISCHK)
+      END IF
 !     Write (*,*) 'NBUFF,NSIZ=',NBUFF,NSIZ
       IF ( IRC.NE.0.AND.LABEL(1:4).NE.'TMOM' ) THEN
          WRITE(6,*)
@@ -62,10 +69,11 @@ C PICK UP THE ORIGIN COORDINATES:
       PORIG(2,IPROP)=BUFF(NSIZ+2)
       PORIG(3,IPROP)=BUFF(NSIZ+3)
 C PICK UP THE NUCLEAR CONTRIBUTION FROM INTEGRAL BUFFER
-      IF (PNAME(IPROP)(1:3).NE.'ASD') THEN
+      IF (PNAME(IPROP)(1:3).NE.'ASD'.AND.
+     &    PNAME(IPROP)(1:3).NE.'PSO') THEN
          PNUC(IPROP)=BUFF(NSIZ+4)
       ELSE
-         Write(6,*) "Removing nuclear contrib from ASD: "
+         Write(6,*) "Removing nuclear contrib from ASD and PSO: "
       END IF
       IINT=1
       PSUM=0.0D00
