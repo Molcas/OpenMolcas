@@ -24,37 +24,21 @@ subroutine LDF_Fock_CoulombErrorAnalysis(ComputeF,Mode,PackedD,PackedF,nD,FactC,
 ! Else: on input, ip_F should point to the Fock matrix computed from
 ! LDF integrals (replaced with the error on exit)!
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
+
 implicit none
-logical ComputeF
-integer Mode
-logical PackedD
-logical PackedF
-integer nD
-real*8 FactC(nD)
-integer ip_D(nD)
-integer ip_F(nD)
+logical(kind=iwp), intent(in) :: ComputeF, PackedD, PackedF
+integer(kind=iwp), intent(in) :: Mode, nD, ip_D(nD), ip_F(nD)
+real(kind=wp), intent(in) :: FactC(nD)
+real(kind=wp) :: Stat(7,3), RMS1, RMS2, RMS3
+logical(kind=iwp) :: Add, Packed_myF
+integer(kind=iwp) :: ip_myF, l_myF, ipF, lF, iD, i
+character(len=29), parameter :: SecNam = 'LDF_Fock_CoulombErrorAnalysis'
+logical(kind=iwp), parameter :: PrintNorm = .false.
+real(kind=r8), external :: ddot_
 #include "WrkSpc.fh"
 #include "localdf_bas.fh"
-
-character*29 SecNam
-parameter(SecNam='LDF_Fock_CoulombErrorAnalysis')
-
-real*8 ddot_
-external ddot_
-
-logical PrintNorm
-parameter(PrintNorm=.false.)
-
-real*8 Stat(7,3)
-real*8 RMS1, RMS2, RMS3
-
-logical Add
-logical Packed_myF
-
-integer ip_myF, l_myF
-integer ipF, lF
-integer iD
-integer i
 
 if (nD < 1) return
 
@@ -78,7 +62,7 @@ end do
 call LDF_Fock_CoulombUpperBound_Full(PrintNorm,Add,PackedD,Packed_myF,nD,FactC,ip_D,iWork(ip_myF))
 
 ! Analysis
-call Cho_Head('Coulomb Error','-',80,6)
+call Cho_Head('Coulomb Error','-',80,u6)
 do iD=1,nD
   call Statistics(Work(iWork(ip_myF-1+iD)),lF,Stat(1,1),1,2,3,4,5,6,7)
   RMS1 = dDot_(lF,Work(iWork(ip_myF-1+iD)),1,Work(iWork(ip_myF-1+iD)),1)
@@ -89,27 +73,27 @@ do iD=1,nD
   end do
   call Statistics(Work(iWork(ip_myF-1+iD)),lF,Stat(1,3),1,2,3,4,5,6,7)
   RMS3 = dDot_(lF,Work(iWork(ip_myF-1+iD)),1,Work(iWork(ip_myF-1+iD)),1)
-  write(6,'(/,2X,A,I10,A)') 'Coulomb error for density',iD,' (Upper bound,Actual,Diff):'
-  write(6,'(2X,A,1P,3D20.10)') 'Average error......',Stat(1,1),Stat(1,2),Stat(1,3)
-  write(6,'(2X,A,1P,3D20.10)') 'Abs average error..',Stat(2,1),Stat(2,2),Stat(2,3)
-  write(6,'(2X,A,1P,3D20.10)') 'Min error..........',Stat(3,1),Stat(3,2),Stat(3,3)
-  write(6,'(2X,A,1P,3D20.10)') 'Max error..........',Stat(4,1),Stat(4,2),Stat(4,3)
-  write(6,'(2X,A,1P,3D20.10)') 'Max abs error......',Stat(5,1),Stat(5,2),Stat(5,3)
-  write(6,'(2X,A,1P,3D20.10)') 'Variance...........',Stat(6,1),Stat(6,2),Stat(6,3)
-  write(6,'(2X,A,1P,3D20.10)') 'Norm...............',sqrt(RMS1),sqrt(RMS2),sqrt(RMS3)
+  write(u6,'(/,2X,A,I10,A)') 'Coulomb error for density',iD,' (Upper bound,Actual,Diff):'
+  write(u6,'(2X,A,1P,3D20.10)') 'Average error......',Stat(1,1),Stat(1,2),Stat(1,3)
+  write(u6,'(2X,A,1P,3D20.10)') 'Abs average error..',Stat(2,1),Stat(2,2),Stat(2,3)
+  write(u6,'(2X,A,1P,3D20.10)') 'Min error..........',Stat(3,1),Stat(3,2),Stat(3,3)
+  write(u6,'(2X,A,1P,3D20.10)') 'Max error..........',Stat(4,1),Stat(4,2),Stat(4,3)
+  write(u6,'(2X,A,1P,3D20.10)') 'Max abs error......',Stat(5,1),Stat(5,2),Stat(5,3)
+  write(u6,'(2X,A,1P,3D20.10)') 'Variance...........',Stat(6,1),Stat(6,2),Stat(6,3)
+  write(u6,'(2X,A,1P,3D20.10)') 'Norm...............',sqrt(RMS1),sqrt(RMS2),sqrt(RMS3)
   if (lF > 0) then
-    RMS1 = sqrt(RMS1/dble(lF))
-    RMS2 = sqrt(RMS2/dble(lF))
-    RMS3 = sqrt(RMS3/dble(lF))
+    RMS1 = sqrt(RMS1/real(lF,kind=wp))
+    RMS2 = sqrt(RMS2/real(lF,kind=wp))
+    RMS3 = sqrt(RMS3/real(lF,kind=wp))
   else
-    RMS1 = 0.0d0
-    RMS2 = 0.0d0
-    RMS3 = 0.0d0
+    RMS1 = Zero
+    RMS2 = Zero
+    RMS3 = Zero
   end if
-  write(6,'(2X,A,1P,3D20.10)') 'RMS error..........',RMS1,RMS2,RMS3
-  call xFlush(6)
-  if ((Stat(5,1)-Stat(5,2)) < 0.0d0) then
-    if (abs(Stat(5,1)-Stat(5,2)) > 1.0d-6) then
+  write(u6,'(2X,A,1P,3D20.10)') 'RMS error..........',RMS1,RMS2,RMS3
+  call xFlush(u6)
+  if ((Stat(5,1)-Stat(5,2)) < Zero) then
+    if (abs(Stat(5,1)-Stat(5,2)) > 1.0e-6_wp) then
       call WarningMessage(2,SecNam//': max abs error is greater than upper bound!')
       call LDF_Quit(1)
     end if

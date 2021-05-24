@@ -20,24 +20,17 @@ subroutine LDF_Fock_CoulombOnly0_2(nD,ip_DBlocks,ip_WBlocks,AB,CD)
 !
 !      W(J_AB) = W(J_AB) + sum_[k_C l_D] (k_C l_D|J_AB)*D(k_C l_D)
 
+use Constants, only: One
+use Definitions, only: iwp
+
 implicit none
-integer nD
-integer ip_DBlocks(nD)
-integer ip_WBlocks(nD)
-integer AB, CD
+integer(kind=iwp), intent(in) :: nD, ip_DBlocks(nD), ip_WBlocks(nD), AB, CD
+integer(kind=iwp) :: nkl, M, ip_Int, l_Int, iD, ipD, ipW
+integer(kind=iwp), external :: LDF_nBas_Atom, LDF_nBasAux_Pair
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
-
-integer LDF_nBas_Atom, LDF_nBasAux_Pair
-external LDF_nBas_Atom, LDF_nBasAux_Pair
-
-integer nkl, M
-integer ip_Int, l_Int
-integer iD
-integer ipD, ipW
-
-integer i, j
-integer AP_Atoms
+! statement function
+integer(kind=iwp) :: i, j, AP_Atoms
 AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
 ! Get row and column dimensions of integrals
@@ -58,7 +51,7 @@ call LDF_ComputeIntegrals_uvJ_2P(CD,AB,l_Int,Work(ip_Int))
 do iD=1,nD
   ipD = iWork(ip_DBlocks(iD)-1+CD)
   ipW = iWork(ip_WBlocks(iD)-1+AB)
-  call dGeMV_('T',nkl,M,1.0d0,Work(ip_Int),nkl,Work(ipD),1,1.0d0,Work(ipW),1)
+  call dGeMV_('T',nkl,M,One,Work(ip_Int),nkl,Work(ipD),1,One,Work(ipW),1)
 end do
 
 ! Deallocate integrals

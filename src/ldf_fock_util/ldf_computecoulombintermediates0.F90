@@ -22,29 +22,18 @@ subroutine LDF_ComputeCoulombIntermediates0(nD,ip_DBlocks,ip_VBlocks)
 !
 ! BLOCKED VERSION
 
+use Constants, only: Zero, One
+use Definitions, only: iwp
+
 implicit none
-integer nD
-integer ip_DBlocks(nD)
-integer ip_VBlocks(nD)
+integer(kind=iwp), intent(in) :: nD, ip_DBlocks(nD), ip_VBlocks(nD)
+integer(kind=iwp) :: TaskListID, iAtomPair, iAtom, jAtom, ip_C, l_C, iD, ipV, ipD, nuv, M
+integer(kind=iwp), external :: LDF_nBas_Atom, LDF_nBasAux_Pair
+logical(kind=iwp), external :: Rsv_Tsk
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
-
-integer LDF_nBas_Atom, LDF_nBasAux_Pair
-external LDF_nBas_Atom, LDF_nBasAux_Pair
-
-logical Rsv_Tsk
-external Rsv_Tsk
-
-integer TaskListID
-integer iAtomPair
-integer iAtom, jAtom
-integer ip_C, l_C
-integer iD
-integer ipV, ipD
-integer nuv, M
-
-integer i, j
-integer AP_Atoms
+! statement function
+integer(kind=iwp) :: i, j, AP_Atoms
 AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
 #ifdef _MOLCAS_MPP_
@@ -79,7 +68,7 @@ do while (Rsv_Tsk(TaskListID,iAtomPair))
   do iD=1,nD
     ipD = iWork(ip_DBlocks(iD)-1+iAtomPair)
     ipV = iWork(ip_VBlocks(iD)-1+iAtomPair)
-    call dGeMV_('T',nuv,M,1.0d0,Work(ip_C),nuv,Work(ipD),1,0.0d0,Work(ipV),1)
+    call dGeMV_('T',nuv,M,One,Work(ip_C),nuv,Work(ipD),1,Zero,Work(ipV),1)
   end do
 end do
 call Free_Tsk(TaskListID)

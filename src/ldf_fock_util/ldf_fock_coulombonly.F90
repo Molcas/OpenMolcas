@@ -227,67 +227,41 @@ subroutine LDF_Fock_CoulombOnly(IntegralOption,Timing,Mode,ThrPS,Add,PackedD,Pac
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: nProcs, Is_Real_Par
 #endif
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
+
 implicit none
-integer IntegralOption
-logical Timing
-integer Mode
-real*8 ThrPS(2)
-logical Add
-logical PackedD
-logical PackedF
-integer nD
-real*8 FactC(nD)
-integer ip_D(nD)
-integer ip_F(nD)
+integer(kind=iwp), intent(in) :: IntegralOption, Mode, nD, ip_D(nD), ip_F(nD)
+logical(kind=iwp), intent(in) :: Timing, Add, PackedD, PackedF
+real(kind=wp), intent(in) :: ThrPS(2)
+real(kind=wp), intent(inout) :: FactC(nD)
+logical(kind=iwp) :: UseOldCode, IPI_set_here
+real(kind=wp) :: tau(2)
+integer(kind=iwp) :: i, nBas, iD, ip0, l, ip_DBlocks, l_DBlocks, ip_FBlocks, l_FBlocks, ip_VP, l_VP, ip_DNorm, l_DNorm, ip_CNorm, &
+                     l_CNorm, ip_VNorm, l_VNorm, ip_FactC, l_FactC
+real(kind=wp) :: tTotC1, tTotC2, tTotW1, tTotW2
+character(len=20), parameter :: SecNam = 'LDF_Fock_CoulombOnly'
+logical(kind=iwp), external :: LDF_IntegralPrescreeningInfoIsSet
+integer(kind=iwp), external :: LDF_nAtom
+#ifdef _DEBUGPRINT_
+logical(kind=iwp) :: DoTest
+real(kind=wp) :: x, y
+logical(kind=iwp), external :: LDF_X_IsSet, LDF_TestBlockMatrix
+#endif
 #include "WrkSpc.fh"
 #include "localdf_bas.fh"
 #include "ldf_atom_pair_info.fh"
 
-character*20 SecNam
-parameter(SecNam='LDF_Fock_CoulombOnly')
-
-logical LDF_IntegralPrescreeningInfoIsSet
-external LDF_IntegralPrescreeningInfoIsSet
-
-integer LDF_nAtom
-external LDF_nAtom
-
-#ifdef _DEBUGPRINT_
-logical LDF_X_IsSet, LDF_TestBlockMatrix
-external LDF_X_IsSet, LDF_TestBlockMatrix
-logical DoTest
-real*8 x, y
-#endif
-
-logical UseOldCode
-logical IPI_set_here
-
-real*8 tau(2)
-
-integer i
-integer nBas
-integer iD, ip0, l
-integer ip_DBlocks, l_DBlocks
-integer ip_FBlocks, l_FBlocks
-integer ip_VP, l_VP
-integer ip_DNorm, l_DNorm
-integer ip_CNorm, l_CNorm
-integer ip_VNorm, l_VNorm
-integer ip_FactC, l_FactC
-
-real*8 tTotC1, tTotC2
-real*8 tTotW1, tTotW2
-
 ! Start total timing.
 if (Timing) then
-  write(6,'(/,84A1)') ('-',i=1,84)
+  write(u6,'(/,84A1)') ('-',i=1,84)
   call CWTime(tTotC1,tTotW1)
 end if
 
 UseOldCode = (IntegralOption == 111) .or. (IntegralOption == 222) .or. (IntegralOption == 333)
 if (UseOldCode) then
   call WarningMessage(0,SecNam//': Using atom pair-driven (old) code!')
-  call xFlush(6)
+  call xFlush(u6)
   call LDF_Fock_CoulombOnly0(IntegralOption,ThrPS(1),Mode,Add,PackedD,PackedF,nD,FactC,ip_D,ip_F)
   Go To 1 ! Return
 end if
@@ -299,8 +273,8 @@ if (nD < 1) Go To 1
 nBas = nBas_Valence
 if (nBas < 1) then
   call WarningMessage(1,SecNam//': nBas<1 -- Fock matrix NOT computed!')
-  write(6,'(A,I9)') 'nBas=',nBas
-  call xFlush(6)
+  write(u6,'(A,I9)') 'nBas=',nBas
+  call xFlush(u6)
   Go To 1  ! return
 end if
 
@@ -314,7 +288,7 @@ end if
 #ifdef _MOLCAS_MPP_
 if (Add) then
   if ((nProcs > 1) .and. Is_Real_Par()) then
-    write(6,'(A,A)') SecNam,': >>Add<< feature not implemented in parallel execution!'
+    write(u6,'(A,A)') SecNam,': >>Add<< feature not implemented in parallel execution!'
     call LDF_NotImplemented()
   end if
 end if
@@ -326,7 +300,7 @@ if (Mode == 3) then
   l_FactC = nD
   call GetMem('FactCBak','Allo','Real',ip_FactC,l_FactC)
   call dCopy_(nD,FactC,1,Work(ip_FactC),1)
-  call dScal_(nD,0.5d0,FactC,1)
+  call dScal_(nD,Half,FactC,1)
 else
   l_FactC = 0
   ip_FactC = 0
@@ -339,8 +313,8 @@ if (.not. LDF_IntegralPrescreeningInfoIsSet()) then
 else
   IPI_set_here = .false.
 end if
-tau(1) = max(ThrPS(1),0.0d0) ! integral prescreening threshold
-tau(2) = max(ThrPS(2),0.0d0) ! contribution prescreening threshold
+tau(1) = max(ThrPS(1),Zero) ! integral prescreening threshold
+tau(2) = max(ThrPS(2),Zero) ! contribution prescreening threshold
 
 ! Initialize Fock matrices (if not Add)
 if (.not. Add) then
@@ -359,8 +333,8 @@ l_DBlocks = nD
 call GetMem('DBlk_P','Allo','Inte',ip_DBlocks,l_DBlocks)
 ip0 = ip_DBlocks-1
 #ifdef _DEBUGPRINT_
-x = dble(NumberOfAtomPairs)
-y = dble(LDF_nAtom())*(dble(LDF_nAtom())+1.0d0)/2.0d0
+x = real(NumberOfAtomPairs,kind=wp)
+y = real(LDF_nAtom(),kind=wp)*(real(LDF_nAtom(),kind=wp)+One)*Half
 DoTest = int(x-y) == 0
 #endif
 do iD=1,nD
@@ -370,12 +344,12 @@ do iD=1,nD
   if (DoTest) then
     if (.not. LDF_TestBlockMatrix(iWork(ip0+iD),PackedD,Work(ip_D(iD)))) then
       call WarningMessage(2,SecNam//': block matrix test failure')
-      write(6,'(A,I4,A,I9,3X,A,L1)') 'Density matrix',iD,' at location',ip_D(iD),'Packed: ',PackedD
+      write(u6,'(A,I4,A,I9,3X,A,L1)') 'Density matrix',iD,' at location',ip_D(iD),'Packed: ',PackedD
       call LDF_Quit(1)
     end if
   end if
 #endif
-  call LDF_ScaleOffdiagonalMatrixBlocks(iWork(ip0+iD),2.0d0)
+  call LDF_ScaleOffdiagonalMatrixBlocks(iWork(ip0+iD),Two)
 end do
 
 ! Allocate and set blocked Fock matrices (atom pair blocks)
@@ -464,9 +438,9 @@ end if
 1 continue
 if (Timing) then
   call CWTime(tTotC2,tTotW2)
-  write(6,'(A,A,A,2(1X,F12.2),A)') 'Total time spent in ',SecNam,':         ',tTotC2-tTotC1,tTotW2-tTotW1,' seconds'
-  write(6,'(84A1)') ('-',i=1,84)
-  call xFlush(6)
+  write(u6,'(A,A,A,2(1X,F12.2),A)') 'Total time spent in ',SecNam,':         ',tTotC2-tTotC1,tTotW2-tTotW1,' seconds'
+  write(u6,'(84A1)') ('-',i=1,84)
+  call xFlush(u6)
 end if
 
 end subroutine LDF_Fock_CoulombOnly

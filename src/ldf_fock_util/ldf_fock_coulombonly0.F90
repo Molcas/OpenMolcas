@@ -134,42 +134,26 @@ subroutine LDF_Fock_CoulombOnly0(IntegralOption,tau,Mode,Add,PackedD,PackedF,nD,
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: nProcs, Is_Real_Par
 #endif
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer IntegralOption
-real*8 tau
-integer Mode
-logical Add
-logical PackedD
-logical PackedF
-integer nD
-real*8 FactC(nD)
-integer ip_D(nD)
-integer ip_F(nD)
+integer(kind=iwp), intent(in) :: IntegralOption, Mode, nD, ip_D(nD), ip_F(nD)
+real(kind=wp), intent(in) :: tau
+logical(kind=iwp), intent(in) :: Add, PackedD, PackedF
+real(kind=wp), intent(inout) :: FactC(nD)
+logical(kind=iwp) :: UsePartPermSym
+integer(kind=iwp) :: nBas, iD, ip0, l, ip_DBlocks, l_DBlocks, ip_FBlocks, l_FBlocks, ip_VBlocks, l_VBlocks, ip_FactC, l_FactC
+character(len=21), parameter :: SecNam = 'LDF_Fock_CoulombOnly0'
+#ifdef _DEBUGPRINT_
+logical(kind=iwp) :: DoTest
+real(kind=wp) :: x, y
+logical(kind=iwp), external :: LDF_X_IsSet, LDF_TestBlockMatrix
+integer(kind=iwp), external :: LDF_nAtom
+#endif
 #include "WrkSpc.fh"
 #include "localdf_bas.fh"
 #include "ldf_atom_pair_info.fh"
-
-character*21 SecNam
-parameter(SecNam='LDF_Fock_CoulombOnly0')
-
-#ifdef _DEBUGPRINT_
-logical LDF_X_IsSet, LDF_TestBlockMatrix
-external LDF_X_IsSet, LDF_TestBlockMatrix
-integer LDF_nAtom
-external LDF_nAtom
-logical DoTest
-real*8 x, y
-#endif
-
-logical UsePartPermSym
-
-integer nBas
-integer iD, ip0, l
-integer ip_DBlocks, l_DBlocks
-integer ip_FBlocks, l_FBlocks
-integer ip_VBlocks, l_VBlocks
-integer ip_FactC, l_FactC
 
 ! Return if nothing to do
 if (nD < 1) return
@@ -178,8 +162,8 @@ if (nD < 1) return
 nBas = nBas_Valence
 if (nBas < 1) then
   call WarningMessage(1,SecNam//': nBas<1 -- Fock matrix NOT computed!')
-  write(6,'(A,I9)') 'nBas=',nBas
-  call xFlush(6)
+  write(u6,'(A,I9)') 'nBas=',nBas
+  call xFlush(u6)
   return
 end if
 
@@ -193,7 +177,7 @@ end if
 #ifdef _MOLCAS_MPP_
 if (Add) then
   if ((nProcs > 1) .and. Is_Real_Par()) then
-    write(6,'(A,A)') SecNam,': >>Add<< feature not implemented in parallel execution!'
+    write(u6,'(A,A)') SecNam,': >>Add<< feature not implemented in parallel execution!'
     call LDF_NotImplemented()
   end if
 end if
@@ -205,7 +189,7 @@ if (Mode == 3) then
   l_FactC = nD
   call GetMem('FactCBak','Allo','Real',ip_FactC,l_FactC)
   call dCopy_(nD,FactC,1,Work(ip_FactC),1)
-  call dScal_(nD,0.5d0,FactC,1)
+  call dScal_(nD,Half,FactC,1)
 else
   l_FactC = 0
   ip_FactC = 0
@@ -228,8 +212,8 @@ l_DBlocks = nD
 call GetMem('DBlk_P','Allo','Inte',ip_DBlocks,l_DBlocks)
 ip0 = ip_DBlocks-1
 #ifdef _DEBUGPRINT_
-x = dble(NumberOfAtomPairs)
-y = dble(LDF_nAtom())*(dble(LDF_nAtom())+1.0d0)/2.0d0
+x = real(NumberOfAtomPairs,kind=wp)
+y = real(LDF_nAtom(),kind=wp)*(real(LDF_nAtom(),kind=wp)+One)*Half
 DoTest = int(x-y) == 0
 #endif
 do iD=1,nD
@@ -239,12 +223,12 @@ do iD=1,nD
   if (DoTest) then
     if (.not. LDF_TestBlockMatrix(iWork(ip0+iD),PackedD,Work(ip_D(iD)))) then
       call WarningMessage(2,SecNam//': block matrix test failure')
-      write(6,'(A,I4,A,I9,3X,A,L1)') 'Density matrix',iD,' at location',ip_D(iD),'Packed: ',PackedD
+      write(u6,'(A,I4,A,I9,3X,A,L1)') 'Density matrix',iD,' at location',ip_D(iD),'Packed: ',PackedD
       call LDF_Quit(1)
     end if
   end if
 # endif
-  call LDF_ScaleOffdiagonalMatrixBlocks(iWork(ip0+iD),2.0d0)
+  call LDF_ScaleOffdiagonalMatrixBlocks(iWork(ip0+iD),Two)
 end do
 
 ! Allocate and set blocked Fock matrices (atom pair blocks)
@@ -259,29 +243,29 @@ end do
 if (IntegralOption == 111) then
   ! Compute Fock matrix using LDF integrals (debug)
   call WarningMessage(0,SecNam//': Using integrals from LDF coefficients!')
-  call xFlush(6)
+  call xFlush(u6)
   UsePartPermSym = .true.
   if (Mode == 3) then
-    call LDF_FVIFC(UsePartPermSym,Mode,max(tau,0.0d0),nD,Work(ip_FactC),iWork(ip_DBlocks),iWork(ip_FBlocks))
+    call LDF_FVIFC(UsePartPermSym,Mode,max(tau,Zero),nD,Work(ip_FactC),iWork(ip_DBlocks),iWork(ip_FBlocks))
   else
-    call LDF_FVIFC(UsePartPermSym,Mode,max(tau,0.0d0),nD,FactC,iWork(ip_DBlocks),iWork(ip_FBlocks))
+    call LDF_FVIFC(UsePartPermSym,Mode,max(tau,Zero),nD,FactC,iWork(ip_DBlocks),iWork(ip_FBlocks))
   end if
 else if (IntegralOption == 222) then
   ! Compute Fock matrix using conventional integrals (debug)
   call WarningMessage(0,SecNam//': Using conventional integrals!')
-  call xFlush(6)
+  call xFlush(u6)
   UsePartPermSym = .true.
   call LDF_FCI(UsePartPermSym,nD,FactC,iWork(ip_DBlocks),iWork(ip_FBlocks))
 else if (IntegralOption == 333) then
   ! Compute Fock matrix using conventional or LDF integrals
   ! depending on positivity of the latter (debug)
   call WarningMessage(0,SecNam//': Using PSD (LDF or conv.) integrals!')
-  call xFlush(6)
+  call xFlush(u6)
   UsePartPermSym = .true.
   if (Mode == 3) then
-    call LDF_FTst(UsePartPermSym,Mode,max(tau,0.0d0),nD,Work(ip_FactC),iWork(ip_DBlocks),iWork(ip_FBlocks))
+    call LDF_FTst(UsePartPermSym,Mode,max(tau,Zero),nD,Work(ip_FactC),iWork(ip_DBlocks),iWork(ip_FBlocks))
   else
-    call LDF_FTst(UsePartPermSym,Mode,max(tau,0.0d0),nD,FactC,iWork(ip_DBlocks),iWork(ip_FBlocks))
+    call LDF_FTst(UsePartPermSym,Mode,max(tau,Zero),nD,FactC,iWork(ip_DBlocks),iWork(ip_FBlocks))
   end if
 else
   ! Allocate Coulomb intermediates

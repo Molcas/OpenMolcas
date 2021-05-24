@@ -23,69 +23,28 @@ subroutine LDF_Fock_CoulombOnly_(UseExactIntegralDiagonal,Timing,Mode,tau,nD,Fac
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: nProcs, Is_Real_Par
 #endif
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-logical UseExactIntegralDiagonal
-logical Timing
-integer Mode
-real*8 tau(2)
-integer nD
-real*8 FactC(nD)
-integer ip_DBlocks(nD)
-integer ip_V(nD)
-integer ip_FBlocks(nD)
-integer ip_CNorm
-integer ip_DNorm
-integer ip_VNorm
+logical(kind=iwp), intent(in) :: UseExactIntegralDiagonal, Timing
+integer(kind=iwp), intent(in) :: Mode, nD, ip_DBlocks(nD), ip_V(nD), ip_FBlocks(nD), ip_CNorm, ip_DNorm, ip_VNorm
+real(kind=wp), intent(in) :: tau(2)
+real(kind=wp), intent(in) :: FactC(nD)
+integer(kind=iwp) :: ip_WBlkP, l_WBlkP, iD, nAtom, TaskListID, jAB, AB, A, B, CD, C, nuv, M, MA, MB, MAB, MCD, ip_Int, l_Int, ipD, &
+                     ipV, ipF, ipW, ip_C, l_C, ipC, ip_tauW, l_tauW, ip_tauWA, ip, l, ip_VNrm, l_VNrm, ip_DNrm, l_DNrm
+real(kind=wp) :: Const, tC1, tC2, tIC1, tIC2, tW1, tW2, tIW1, tIW2, tIC, tIW, tauW, GABCD, GCDAB
+character(len=21), parameter :: SecNam = 'LDF_Fock_CoulombOnly_'
+logical(kind=iwp), external :: Rsv_Tsk
+integer(kind=iwp), external :: LDF_nAtom, LDF_nBas_Atom, LDF_nBasAux_Atom, LDF_nBasAux_Pair_wLD
 #include "WrkSpc.fh"
 #include "localdf.fh"
 #include "ldf_atom_pair_info.fh"
 #include "ldf_integral_prescreening_info.fh"
 #include "ldf_a2ap.fh"
-
-character*21 SecNam
-parameter(SecNam='LDF_Fock_CoulombOnly_')
-
-logical Rsv_Tsk
-external Rsv_Tsk
-
-integer LDF_nAtom, LDF_nBas_Atom, LDF_nBasAux_Atom
-integer LDF_nBasAux_Pair_wLD
-external LDF_nAtom, LDF_nBas_Atom, LDF_nBasAux_Atom
-external LDF_nBasAux_Pair_wLD
-
-integer ip_WBlkP, l_WBlkP
-integer iD
-integer nAtom
-integer TaskListID
-integer jAB, AB, A, B
-integer CD, C
-integer nuv, M, MA, MB, MAB, MCD
-integer ip_Int, l_Int
-integer ipD, ipV, ipF, ipW
-integer ip_C, l_C, ipC
-integer ip_tauW, l_tauW, ip_tauWA
-integer ip, l
-integer ip_VNrm, l_VNrm
-integer ip_DNrm, l_DNrm
-
-real*8 Const
-real*8 tC1, tC2, tIC1, tIC2
-real*8 tW1, tW2, tIW1, tIW2
-real*8 tIC, tIW
-real*8 tauW
-real*8 GABCD, GCDAB
-
-integer i, j
-integer ip_W
-integer AP_Atoms
-integer AP_2CFunctions
-integer A2AP
-real*8 IAB
-real*8 GA, GAB
-real*8 VA, VAB
-real*8 DAB
-real*8 CAB_A, CAB_B, CAB_AB
+!statement functions
+integer(kind=iwp) :: i, j, ip_W, AP_Atoms, AP_2CFunctions, A2AP
+real(kind=wp) :: IAB, GA, GAB, VA, VAB, DAB, CAB_A, CAB_B, CAB_AB
 ip_W(i) = iWork(ip_WBlkP-1+i)
 AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
 AP_2CFunctions(i,j) = iWork(ip_AP_2CFunctions-1+2*(j-1)+i)
@@ -131,13 +90,13 @@ else
 end if
 l_tauW = nAtom+NumberOfAtomPairs
 call GetMem('tauW','Allo','Real',ip_tauW,l_tauW)
-if (tau(2) > 0.0d0) then
+if (tau(2) > Zero) then
   call LDF_SetA2AP()
   do A=1,nAtom
     l = A2AP(1,A)
     ip = A2AP(2,A)-1
     ip_tauWA = ip_tauW-1+A
-    Work(ip_tauWA) = 0.0d0
+    Work(ip_tauWA) = Zero
     do jAB=1,l
       AB = iWork(ip+jAB)
       if (AP_Atoms(1,AB) == A) then
@@ -149,23 +108,23 @@ if (tau(2) > 0.0d0) then
         call LDF_Quit(1)
       end if
     end do
-    if (Work(ip_tauWA) > 1.0d-16) then
+    if (Work(ip_tauWA) > 1.0e-16_wp) then
       tauW = tau(2)/Work(ip_tauWA)
     else
-      tauW = 1.0d99
+      tauW = 1.0e99_wp
     end if
     Work(ip_tauWA) = tauW
   end do
   call LDF_UnsetA2AP()
   do AB=1,NumberOfAtomPairs
     if (AP_2CFunctions(1,AB) > 0) then
-      if (CAB_AB(AB) > 1.0d-16) then
+      if (CAB_AB(AB) > 1.0e-16_wp) then
         Work(ip_tauW-1+nAtom+AB) = tau(2)/CAB_AB(AB)
       else
-        Work(ip_tauW-1+nAtom+AB) = 1.0d99
+        Work(ip_tauW-1+nAtom+AB) = 1.0e99_wp
       end if
     else
-      Work(ip_tauW-1+nAtom+AB) = 1.0d99
+      Work(ip_tauW-1+nAtom+AB) = 1.0e99_wp
     end if
   end do
 else
@@ -186,8 +145,8 @@ end do
 
 if ((Mode == 1) .or. (Mode == 3)) then
   if (Timing) then
-    tIC = 0.0d0
-    tIW = 0.0d0
+    tIC = Zero
+    tIW = Zero
     call CWTime(tC1,tW1)
   end if
   call Init_Tsk(TaskListID,NumberOfAtomPairs)
@@ -214,14 +173,14 @@ if ((Mode == 1) .or. (Mode == 3)) then
         do iD=1,nD
           ipV = iWork(ip_V(iD)-1+C)
           ipF = iWork(ip_FBlocks(iD)-1+AB)
-          call dGeMV_('N',nuv,M,FactC(iD),Work(ip_Int),nuv,Work(ipV),1,1.0d0,Work(ipF),1)
+          call dGeMV_('N',nuv,M,FactC(iD),Work(ip_Int),nuv,Work(ipV),1,One,Work(ipF),1)
         end do
         ! Compute W contribution
         ! W(J_C)+=sum_u_Av_B (u_A v_B|J_C)*D(u_A v_B)
         do iD=1,nD
           ipD = iWork(ip_DBlocks(iD)-1+AB)
           ipW = iWork(ip_W(iD)-1+C)
-          call dGeMV_('T',nuv,M,1.0d0,Work(ip_Int),nuv,Work(ipD),1,1.0d0,Work(ipW),1)
+          call dGeMV_('T',nuv,M,One,Work(ip_Int),nuv,Work(ipD),1,One,Work(ipW),1)
         end do
         call GetMem('Fck3Int1','Free','Real',ip_Int,l_Int)
       end if
@@ -249,14 +208,14 @@ if ((Mode == 1) .or. (Mode == 3)) then
             do iD=1,nD
               ipV = iWork(ip_V(iD)-1+nAtom+CD)
               ipF = iWork(ip_FBlocks(iD)-1+AB)
-              call dGeMV_('N',nuv,MCD,FactC(iD),Work(ip_Int),nuv,Work(ipV),1,1.0d0,Work(ipF),1)
+              call dGeMV_('N',nuv,MCD,FactC(iD),Work(ip_Int),nuv,Work(ipV),1,One,Work(ipF),1)
             end do
             ! Compute W contribution
             ! W(J_CD)+=sum_u_Av_B (u_A v_B|J_CD)*D(u_A v_B)
             do iD=1,nD
               ipD = iWork(ip_DBlocks(iD)-1+AB)
               ipW = iWork(ip_W(iD)-1+nAtom+CD)
-              call dGeMV_('T',nuv,MCD,1.0d0,Work(ip_Int),nuv,Work(ipD),1,1.0d0,Work(ipW),1)
+              call dGeMV_('T',nuv,MCD,One,Work(ip_Int),nuv,Work(ipD),1,One,Work(ipW),1)
             end do
             call GetMem('Fck3Int2','Free','Real',ip_Int,l_Int)
           end if
@@ -267,8 +226,8 @@ if ((Mode == 1) .or. (Mode == 3)) then
   call Free_Tsk(TaskListID)
   if (Timing) then
     call CWTime(tC2,tW2)
-    write(6,'(A,2(1X,F12.2),A)') 'Time spent on 3-index contributions:              ',tC2-tC1,tW2-tW1,' seconds'
-    write(6,'(A,2(1X,F12.2),A)') '      - of which integrals required:              ',tIC,tIW,' seconds'
+    write(u6,'(A,2(1X,F12.2),A)') 'Time spent on 3-index contributions:              ',tC2-tC1,tW2-tW1,' seconds'
+    write(u6,'(A,2(1X,F12.2),A)') '      - of which integrals required:              ',tIC,tIW,' seconds'
   end if
 end if
 
@@ -278,14 +237,14 @@ end if
 
 if ((Mode == 1) .or. (Mode == 2)) then
   if (Timing) then
-    tIC = 0.0d0
-    tIW = 0.0d0
+    tIC = Zero
+    tIW = Zero
     call CWTime(tC1,tW1)
   end if
   if (Mode == 1) then
-    Const = -1.0d0
+    Const = -One
   else
-    Const = 1.0d0
+    Const = One
   end if
   call Init_Tsk(TaskListID,nAtom)
   do while (Rsv_Tsk(TaskListID,A))
@@ -310,14 +269,14 @@ if ((Mode == 1) .or. (Mode == 2)) then
             do iD=1,nD
               ipV = iWork(ip_V(iD)-1+B)
               ipW = iWork(ip_W(iD)-1+A)
-              call dGeMV_('N',MA,MB,Const,Work(ip_Int),MA,Work(ipV),1,1.0d0,Work(ipW),1)
+              call dGeMV_('N',MA,MB,Const,Work(ip_Int),MA,Work(ipV),1,One,Work(ipW),1)
             end do
             ! Compute W contribution
             ! W(K_B)+=Const*sum_J_A (J_A|K_B)*V(J_A)
             do iD=1,nD
               ipV = iWork(ip_V(iD)-1+A)
               ipW = iWork(ip_W(iD)-1+B)
-              call dGeMV_('T',MA,MB,Const,Work(ip_Int),MA,Work(ipV),1,1.0d0,Work(ipW),1)
+              call dGeMV_('T',MA,MB,Const,Work(ip_Int),MA,Work(ipV),1,One,Work(ipW),1)
             end do
             call GetMem('Fck2Int11','Free','Real',ip_Int,l_Int)
           end if
@@ -339,7 +298,7 @@ if ((Mode == 1) .or. (Mode == 2)) then
         do iD=1,nD
           ipV = iWork(ip_V(iD)-1+A)
           ipW = iWork(ip_W(iD)-1+A)
-          call dGeMV_('N',MA,MA,Const,Work(ip_Int),MA,Work(ipV),1,1.0d0,Work(ipW),1)
+          call dGeMV_('N',MA,MA,Const,Work(ip_Int),MA,Work(ipV),1,One,Work(ipW),1)
         end do
         call GetMem('Fck2Int11','Free','Real',ip_Int,l_Int)
       end if
@@ -364,14 +323,14 @@ if ((Mode == 1) .or. (Mode == 2)) then
               do iD=1,nD
                 ipV = iWork(ip_V(iD)-1+nAtom+CD)
                 ipW = iWork(ip_W(iD)-1+A)
-                call dGeMV_('N',MA,MCD,Const,Work(ip_Int),MA,Work(ipV),1,1.0d0,Work(ipW),1)
+                call dGeMV_('N',MA,MCD,Const,Work(ip_Int),MA,Work(ipV),1,One,Work(ipW),1)
               end do
               ! Compute W contribution
               ! W(K_CD)+=Const*sum_J_A (J_A|K_CD)*V(J_A)
               do iD=1,nD
                 ipV = iWork(ip_V(iD)-1+A)
                 ipW = iWork(ip_W(iD)-1+nAtom+CD)
-                call dGeMV_('T',MA,MCD,Const,Work(ip_Int),MA,Work(ipV),1,1.0d0,Work(ipW),1)
+                call dGeMV_('T',MA,MCD,Const,Work(ip_Int),MA,Work(ipV),1,One,Work(ipW),1)
               end do
               call GetMem('Fck2Int12','Free','Real',ip_Int,l_Int)
             end if
@@ -407,14 +366,14 @@ if ((Mode == 1) .or. (Mode == 2)) then
               do iD=1,nD
                 ipV = iWork(ip_V(iD)-1+nAtom+CD)
                 ipW = iWork(ip_W(iD)-1+nAtom+AB)
-                call dGeMV_('N',MAB,MCD,Const,Work(ip_Int),MAB,Work(ipV),1,1.0d0,Work(ipW),1)
+                call dGeMV_('N',MAB,MCD,Const,Work(ip_Int),MAB,Work(ipV),1,One,Work(ipW),1)
               end do
               ! Compute W contribution
               ! W(K_CD)+=Const*sum_J_AB (J_AB|K_CD)*V(J_AB)
               do iD=1,nD
                 ipV = iWork(ip_V(iD)-1+nAtom+AB)
                 ipW = iWork(ip_W(iD)-1+nAtom+CD)
-                call dGeMV_('T',MAB,MCD,Const,Work(ip_Int),MAB,Work(ipV),1,1.0d0,Work(ipW),1)
+                call dGeMV_('T',MAB,MCD,Const,Work(ip_Int),MAB,Work(ipV),1,One,Work(ipW),1)
               end do
               call GetMem('Fck2Int22','Free','Real',ip_Int,l_Int)
             end if
@@ -436,7 +395,7 @@ if ((Mode == 1) .or. (Mode == 2)) then
           do iD=1,nD
             ipV = iWork(ip_V(iD)-1+nAtom+AB)
             ipW = iWork(ip_W(iD)-1+nAtom+AB)
-            call dGeMV_('N',MAB,MAB,Const,Work(ip_Int),MAB,Work(ipV),1,1.0d0,Work(ipW),1)
+            call dGeMV_('N',MAB,MAB,Const,Work(ip_Int),MAB,Work(ipV),1,One,Work(ipW),1)
           end do
           call GetMem('Fck2Int22','Free','Real',ip_Int,l_Int)
         end if
@@ -446,8 +405,8 @@ if ((Mode == 1) .or. (Mode == 2)) then
   end if
   if (Timing) then
     call CWTime(tC2,tW2)
-    write(6,'(A,2(1X,F12.2),A)') 'Time spent on 2-index contributions:              ',tC2-tC1,tW2-tW1,' seconds'
-    write(6,'(A,2(1X,F12.2),A)') '      - of which integrals required:              ',tIC,tIW,' seconds'
+    write(u6,'(A,2(1X,F12.2),A)') 'Time spent on 2-index contributions:              ',tC2-tC1,tW2-tW1,' seconds'
+    write(u6,'(A,2(1X,F12.2),A)') '      - of which integrals required:              ',tIC,tIW,' seconds'
   end if
 end if
 
@@ -469,7 +428,7 @@ if ((nProcs > 1) .and. Is_Real_Par()) then
   end do
   if (Timing) then
     call CWTime(tC2,tW2)
-    write(6,'(A,2(1X,F12.2),A)') 'Parallel overhead for W intermediates:            ',tC2-tC1,tW2-tW1,' seconds'
+    write(u6,'(A,2(1X,F12.2),A)') 'Parallel overhead for W intermediates:            ',tC2-tC1,tW2-tW1,' seconds'
   end if
 end if
 #endif
@@ -495,7 +454,7 @@ do while (Rsv_Tsk(TaskListID,AB))
     do iD=1,nD
       ipF = iWork(ip_FBlocks(iD)-1+AB)
       ipW = iWork(ip_W(iD)-1+A)
-      call dGeMV_('N',nuv,MA,FactC(iD),Work(ipC),nuv,Work(ipW),1,1.0d0,Work(ipF),1)
+      call dGeMV_('N',nuv,MA,FactC(iD),Work(ipC),nuv,Work(ipW),1,One,Work(ipF),1)
     end do
     ipC = ipC+nuv*MA
   end if
@@ -505,7 +464,7 @@ do while (Rsv_Tsk(TaskListID,AB))
       do iD=1,nD
         ipF = iWork(ip_FBlocks(iD)-1+AB)
         ipW = iWork(ip_W(iD)-1+B)
-        call dGeMV_('N',nuv,MB,FactC(iD),Work(ipC),nuv,Work(ipW),1,1.0d0,Work(ipF),1)
+        call dGeMV_('N',nuv,MB,FactC(iD),Work(ipC),nuv,Work(ipW),1,One,Work(ipF),1)
       end do
       ipC = ipC+nuv*MB
     end if
@@ -515,7 +474,7 @@ do while (Rsv_Tsk(TaskListID,AB))
     do iD=1,nD
       ipF = iWork(ip_FBlocks(iD)-1+AB)
       ipW = iWork(ip_W(iD)-1+nAtom+AB)
-      call dGeMV_('N',nuv,MAB,FactC(iD),Work(ipC),nuv,Work(ipW),1,1.0d0,Work(ipF),1)
+      call dGeMV_('N',nuv,MAB,FactC(iD),Work(ipC),nuv,Work(ipW),1,One,Work(ipF),1)
     end do
   end if
   call GetMem('FckCoef','Free','Real',ip_C,l_C)
@@ -523,7 +482,7 @@ end do
 call Free_Tsk(TaskListID)
 if (Timing) then
   call CWTime(tC2,tW2)
-  write(6,'(A,2(1X,F12.2),A)') 'Time spent computing C*W contribution:            ',tC2-tC1,tW2-tW1,' seconds'
+  write(u6,'(A,2(1X,F12.2),A)') 'Time spent computing C*W contribution:            ',tC2-tC1,tW2-tW1,' seconds'
 end if
 
 ! Deallocate W intermediates
@@ -542,7 +501,7 @@ if (UseExactIntegralDiagonal) then
   call LDF_Fock_CoulombOnly_XIDI(Mode,tau(1),nD,FactC,ip_DBlocks,ip_FBlocks)
   if (Timing) then
     call CWTime(tC2,tW2)
-    write(6,'(A,2(1X,F12.2),A)') 'Time spent computing XIDI corrections:            ',tC2-tC1,tW2-tW1,' seconds'
+    write(u6,'(A,2(1X,F12.2),A)') 'Time spent computing XIDI corrections:            ',tC2-tC1,tW2-tW1,' seconds'
   end if
 end if
 
@@ -554,11 +513,11 @@ if ((nProcs > 1) .and. Is_Real_Par()) then
   end do
   if (Timing) then
     call CWTime(tC2,tW2)
-    write(6,'(A,2(1X,F12.2),A)') 'Parallel overhead for F blocks:                   ',tC2-tC1,tW2-tW1,' seconds'
+    write(u6,'(A,2(1X,F12.2),A)') 'Parallel overhead for F blocks:                   ',tC2-tC1,tW2-tW1,' seconds'
   end if
 end if
 #endif
 
-if (Timing) call xFlush(6)
+if (Timing) call xFlush(u6)
 
 end subroutine LDF_Fock_CoulombOnly_

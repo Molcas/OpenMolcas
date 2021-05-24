@@ -17,28 +17,20 @@ subroutine LDF_Fock_CoulombUpperBoundNorm(PrintNorm,nD,FactC,ip_DBlocks,UBFNorm)
 ! Purpose: compute norm of the upper bound to the Coulomb Fock
 !          matrix error in LDF.
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
 implicit none
-logical PrintNorm
-integer nD
-real*8 FactC(nD)
-integer ip_DBlocks(nD)
-real*8 UBFNorm(nD)
+logical(kind=iwp), intent(in) :: PrintNorm
+integer(kind=iwp), intent(in) :: nD, ip_DBlocks(nD)
+real(kind=wp), intent(in) :: FactC(nD)
+real(kind=wp), intent(out) :: UBFNorm(nD)
+integer(kind=iwp) :: ip, ip_U, l_U, iD, AB, nAB, ipDel, uv
+integer(kind=iwp), external :: LDF_nBas_Atom
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
-
-integer LDF_nBas_Atom
-external LDF_nBas_Atom
-
-integer ip
-integer ip_U, l_U
-integer iD
-integer AB
-integer nAB
-integer ipDel
-integer uv
-
-integer i, j
-integer AP_Atoms
+! statement function
+integer(kind=iwp) :: i, j, AP_Atoms
 AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
 if (nD < 1) return
@@ -50,7 +42,7 @@ l_U = nD
 call GetMem('CUBNrmU','Allo','Real',ip_U,l_U)
 call LDF_ComputeU(ip,nD,ip_DBlocks,Work(ip_U))
 do iD=1,nD
-  UBFNorm(iD) = 0.0d0
+  UBFNorm(iD) = Zero
   do AB=1,NumberOfAtomPairs
     nAB = LDF_nBas_Atom(AP_Atoms(1,AB))*LDF_nBas_Atom(AP_Atoms(2,AB))
     ipDel = iWork(ip-1+AB)-1
@@ -65,10 +57,10 @@ call GetMem('CUBNrmU','Free','Real',ip_U,l_U)
 
 if (PrintNorm) then
   do iD=1,nD
-    write(6,'(A,I10,A,1P,D20.10,1X,A,D20.10,A)') 'Norm of upper bound Coulomb error for density',iD,':',UBFNorm(iD),'(BlockRMS=', &
-                                                 sqrt(UBFNorm(iD)**2/dble(NumberOfAtomPairs)),')'
+    write(u6,'(A,I10,A,1P,D20.10,1X,A,D20.10,A)') 'Norm of upper bound Coulomb error for density',iD,':',UBFNorm(iD),'(BlockRMS=', &
+                                                  sqrt(UBFNorm(iD)**2/real(NumberOfAtomPairs,kind=wp)),')'
   end do
-  call xFlush(6)
+  call xFlush(u6)
 end if
 
 end subroutine LDF_Fock_CoulombUpperBoundNorm

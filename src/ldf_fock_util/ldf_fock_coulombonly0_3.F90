@@ -20,21 +20,15 @@ subroutine LDF_Fock_CoulombOnly0_3(Const,nD,ip_VBlocks,ip_WBlocks,AB,CD)
 !
 !      W(J_AB) = W(J_AB) + Const * sum_[K_CD] (J_AB | K_CD)*V(K_CD)
 
+use Constants, only: One
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 Const
-integer nD
-integer ip_VBlocks(nD)
-integer ip_WBlocks(nD)
-integer AB, CD
+real(kind=wp), intent(in) :: Const
+integer(kind=iwp), intent(in) :: nD, ip_VBlocks(nD), ip_WBlocks(nD), AB, CD
+integer(kind=iwp) :: MAB, MCD, ip_Int, l_Int, iD, ipV, ipW
+integer(kind=iwp), external :: LDF_nBasAux_Pair
 #include "WrkSpc.fh"
-
-integer LDF_nBasAux_Pair
-external LDF_nBasAux_Pair
-
-integer MAB, MCD
-integer ip_Int, l_Int
-integer iD
-integer ipV, ipW
 
 ! Get row and column dimension of integrals
 MAB = LDF_nBasAux_Pair(AB)
@@ -54,7 +48,7 @@ call LDF_ComputeIntegrals_JK_2P(AB,CD,l_Int,Work(ip_Int))
 do iD=1,nD
   ipV = iWork(ip_VBlocks(iD)-1+CD)
   ipW = iWork(ip_WBlocks(iD)-1+AB)
-  call dGeMV_('N',MAB,MCD,Const,Work(ip_Int),MAB,Work(ipV),1,1.0d0,Work(ipW),1)
+  call dGeMV_('N',MAB,MCD,Const,Work(ip_Int),MAB,Work(ipV),1,One,Work(ipW),1)
 end do
 
 ! Deallocate integrals

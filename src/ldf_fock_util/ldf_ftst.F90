@@ -20,45 +20,27 @@ subroutine LDF_FTst(UsePartPermSym,Mode,tau,nD,FactC,ip_DBlocks,ip_FBlocks)
 !          positivity of the LDF integrals.
 !          (Debug code.)
 
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
+
 implicit none
-logical UsePartPermSym
-integer Mode
-real*8 tau
-integer nD
-real*8 FactC(nD)
-integer ip_DBlocks(nD)
-integer ip_FBlocks(nD)
+logical(kind=iwp), intent(in) :: UsePartPermSym
+integer(kind=iwp), intent(in) :: Mode, nD, ip_DBlocks(nD), ip_FBlocks(nD)
+real(kind=wp), intent(in) :: tau, FactC(nD)
+character(len=5) :: IntegralID
+integer(kind=iwp) :: AB, CD, A, B, C, D, nAB, nCD, ip_Int, l_Int, iD, ipD, ipF
+real(kind=wp) :: r, t
+character(len=8), parameter :: SecNam = 'LDF_FTst'
+integer(kind=iwp), parameter :: PrintLevel = 2
+real(kind=wp), parameter :: TolNeg = -1.0e-8_wp
+integer(kind=iwp), external :: LDF_nBas_Atom
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
-
-character*8 SecNam
-parameter(SecNam='LDF_FTst')
-
-integer PrintLevel
-parameter(PrintLevel=2)
-
-real*8 TolNeg
-parameter(TolNeg=-1.0d-8)
-
-integer LDF_nBas_Atom
-external LDF_nBas_Atom
-
-character*5 IntegralID
-
-integer AB, CD
-integer A, B, C, D
-integer nAB, nCD
-integer ip_Int, l_Int
-integer iD
-integer ipD, ipF
-
-real*8 r, t
-
-integer i, j
-integer AP_Atoms
+! statement function
+integer(kind=iwp) :: i, j, AP_Atoms
 AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
-r = 0.0d0
+r = Zero
 if (UsePartPermSym) then ! use particle permutation symmetry
   do AB=1,NumberOfAtomPairs
     A = AP_Atoms(1,AB)
@@ -72,17 +54,17 @@ if (UsePartPermSym) then ! use particle permutation symmetry
       call GetMem('FTstInt','Allo','Real',ip_Int,l_Int)
       call LDF_getIntegralsSelectedByPSD(PrintLevel,Mode,tau,TolNeg,AB,CD,l_Int,Work(ip_Int),IntegralID)
       if (IntegralID == 'exact') then
-        r = r+1.0d0
+        r = r+One
       end if
       do iD=1,nD
         ipD = iWork(ip_DBlocks(iD)-1+CD)
         ipF = iWork(ip_FBlocks(iD)-1+AB)
-        call dGeMV_('N',nAB,nCD,FactC(iD),Work(ip_Int),max(nAB,1),Work(ipD),1,1.0d0,Work(ipF),1)
+        call dGeMV_('N',nAB,nCD,FactC(iD),Work(ip_Int),max(nAB,1),Work(ipD),1,One,Work(ipF),1)
       end do
       do iD=1,nD
         ipD = iWork(ip_DBlocks(iD)-1+AB)
         ipF = iWork(ip_FBlocks(iD)-1+CD)
-        call dGeMV_('T',nAB,nCD,FactC(iD),Work(ip_Int),max(nAB,1),Work(ipD),1,1.0d0,Work(ipF),1)
+        call dGeMV_('T',nAB,nCD,FactC(iD),Work(ip_Int),max(nAB,1),Work(ipD),1,One,Work(ipF),1)
       end do
       call GetMem('FTstInt','Free','Real',ip_Int,l_Int)
     end do
@@ -90,12 +72,12 @@ if (UsePartPermSym) then ! use particle permutation symmetry
     call GetMem('FTstInt','Allo','Real',ip_Int,l_Int)
     call LDF_getIntegralsSelectedByPSD(PrintLevel,Mode,tau,TolNeg,AB,CD,l_Int,Work(ip_Int),IntegralID)
     if (IntegralID == 'exact') then
-      r = r+1.0d0
+      r = r+One
     end if
     do iD=1,nD
       ipD = iWork(ip_DBlocks(iD)-1+AB)
       ipF = iWork(ip_FBlocks(iD)-1+AB)
-      call dGeMV_('N',nAB,nAB,FactC(iD),Work(ip_Int),max(nAB,1),Work(ipD),1,1.0d0,Work(ipF),1)
+      call dGeMV_('N',nAB,nAB,FactC(iD),Work(ip_Int),max(nAB,1),Work(ipD),1,One,Work(ipF),1)
     end do
     call GetMem('FTstInt','Free','Real',ip_Int,l_Int)
   end do
@@ -112,31 +94,31 @@ else
       call GetMem('FTstInt','Allo','Real',ip_Int,l_Int)
       call LDF_getIntegralsSelectedByPSD(PrintLevel,Mode,tau,TolNeg,AB,CD,l_Int,Work(ip_Int),IntegralID)
       if (IntegralID == 'exact') then
-        r = r+1.0d0
+        r = r+One
       end if
       do iD=1,nD
         ipD = iWork(ip_DBlocks(iD)-1+CD)
         ipF = iWork(ip_FBlocks(iD)-1+AB)
-        call dGeMV_('N',nAB,nCD,FactC(iD),Work(ip_Int),nAB,Work(ipD),1,1.0d0,Work(ipF),1)
+        call dGeMV_('N',nAB,nCD,FactC(iD),Work(ip_Int),nAB,Work(ipD),1,One,Work(ipF),1)
       end do
       call GetMem('FTstInt','Free','Real',ip_Int,l_Int)
     end do
   end do
 end if
 
-write(6,'(A,/,80A)') SecNam,('=',iD=1,len(SecNam))
-write(6,'(3X,A,I10)') 'LDF integral mode......................',Mode
-write(6,'(3X,A,L2)') 'Particle permutation symmetry used.....',UsePartPermSym
+write(u6,'(A,/,80A)') SecNam,('=',iD=1,len(SecNam))
+write(u6,'(3X,A,I10)') 'LDF integral mode......................',Mode
+write(u6,'(3X,A,L2)') 'Particle permutation symmetry used.....',UsePartPermSym
 if (NumberOfAtomPairs > 0) then
-  t = dble(NumberOfAtomPairs)
+  t = real(NumberOfAtomPairs,kind=wp)
   if (UsePartPermSym) then
-    t = t*(t+1.0d0)/2.0d0
+    t = t*(t+One)*Half
   else
     t = t*t
   end if
-  t = 1.0d2*r/t
-  write(6,'(3X,A,I10,1X,A,F7.2,A)') 'Number of exact integral blocks used...',int(r),'(',t,'%)'
+  t = 1.0e2_wp*r/t
+  write(u6,'(3X,A,I10,1X,A,F7.2,A)') 'Number of exact integral blocks used...',int(r),'(',t,'%)'
 end if
-call xFlush(6)
+call xFlush(u6)
 
 end subroutine LDF_FTst

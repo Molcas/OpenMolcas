@@ -17,27 +17,19 @@ subroutine LDF_FCI(UsePartPermSym,nD,FactC,ip_DBlocks,ip_FBlocks)
 ! Purpose: Compute Coulomb contribution to Fock matrix using
 !          conventional integrals (debug code).
 
+use Constants, only: One
+use Definitions, only: wp, iwp
+
 implicit none
-logical UsePartPermSym
-integer nD
-real*8 FactC(nD)
-integer ip_DBlocks(nD)
-integer ip_FBlocks(nD)
+logical(kind=iwp), intent(in) :: UsePartPermSym
+integer(kind=iwp), intent(in) :: nD, ip_DBlocks(nD), ip_FBlocks(nD)
+real(kind=wp), intent(in) :: FactC(nD)
+integer(kind=iwp) :: AB, CD, A, B, C, D, nAB, nCD, ip_Int, l_Int, iD, ipD, ipF
+integer(kind=iwp), external :: LDF_nBas_Atom
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
-
-integer LDF_nBas_Atom
-external LDF_nBas_Atom
-
-integer AB, CD
-integer A, B, C, D
-integer nAB, nCD
-integer ip_Int, l_Int
-integer iD
-integer ipD, ipF
-
-integer i, j
-integer AP_Atoms
+!statement function
+integer(kind=iwp) :: i, j, AP_Atoms
 AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
 if (UsePartPermSym) then ! use particle permutation symmetry
@@ -55,12 +47,12 @@ if (UsePartPermSym) then ! use particle permutation symmetry
       do iD=1,nD
         ipD = iWork(ip_DBlocks(iD)-1+CD)
         ipF = iWork(ip_FBlocks(iD)-1+AB)
-        call dGeMV_('N',nAB,nCD,FactC(iD),Work(ip_Int),max(nAB,1),Work(ipD),1,1.0d0,Work(ipF),1)
+        call dGeMV_('N',nAB,nCD,FactC(iD),Work(ip_Int),max(nAB,1),Work(ipD),1,One,Work(ipF),1)
       end do
       do iD=1,nD
         ipD = iWork(ip_DBlocks(iD)-1+AB)
         ipF = iWork(ip_FBlocks(iD)-1+CD)
-        call dGeMV_('T',nAB,nCD,FactC(iD),Work(ip_Int),max(nAB,1),Work(ipD),1,1.0d0,Work(ipF),1)
+        call dGeMV_('T',nAB,nCD,FactC(iD),Work(ip_Int),max(nAB,1),Work(ipD),1,One,Work(ipF),1)
       end do
       call GetMem('FCIInt','Free','Real',ip_Int,l_Int)
     end do
@@ -70,7 +62,7 @@ if (UsePartPermSym) then ! use particle permutation symmetry
     do iD=1,nD
       ipD = iWork(ip_DBlocks(iD)-1+AB)
       ipF = iWork(ip_FBlocks(iD)-1+AB)
-      call dGeMV_('N',nAB,nAB,FactC(iD),Work(ip_Int),max(nAB,1),Work(ipD),1,1.0d0,Work(ipF),1)
+      call dGeMV_('N',nAB,nAB,FactC(iD),Work(ip_Int),max(nAB,1),Work(ipD),1,One,Work(ipF),1)
     end do
     call GetMem('FCIInt','Free','Real',ip_Int,l_Int)
   end do
@@ -89,7 +81,7 @@ else
       do iD=1,nD
         ipD = iWork(ip_DBlocks(iD)-1+CD)
         ipF = iWork(ip_FBlocks(iD)-1+AB)
-        call dGeMV_('N',nAB,nCD,FactC(iD),Work(ip_Int),nAB,Work(ipD),1,1.0d0,Work(ipF),1)
+        call dGeMV_('N',nAB,nCD,FactC(iD),Work(ip_Int),nAB,Work(ipD),1,One,Work(ipF),1)
       end do
       call GetMem('FCIInt','Free','Real',ip_Int,l_Int)
     end do

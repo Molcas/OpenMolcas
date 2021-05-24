@@ -22,30 +22,18 @@ subroutine LDF_Fock_CUB(ip_AP_QD,nD,FactC,U,ip_FBlocks)
 !
 ! Note: diagonal integrals for A=B must be stored quadratically.
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer ip_AP_QD
-integer nD
-real*8 FactC(nD)
-real*8 U(nD)
-integer ip_FBlocks(nD)
+integer(kind=iwp), intent(in) :: ip_AP_QD, nD, ip_FBlocks(nD)
+real(kind=wp), intent(in) :: FactC(nD), U(nD)
+integer(kind=iwp) :: iD, AB, A, B, nA, nB, uv, ipDel, ipFB
+real(kind=wp) :: UU
+integer(kind=iwp), external :: LDF_nBas_Atom
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
-
-integer LDF_nBas_Atom
-external LDF_nBas_Atom
-
-integer iD
-integer AB
-integer A, B
-integer nA, nB
-integer uv
-integer ipDel, ipFB
-
-real*8 UU
-
-integer i, j
-integer ip_Delta
-integer AP_Atoms
+! statement functions
+integer(kind=iwp) :: i, j, ip_Delta, AP_Atoms
 ip_Delta(i) = iWork(ip_AP_QD-1+i)
 AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
 

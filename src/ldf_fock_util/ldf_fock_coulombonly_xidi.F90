@@ -17,35 +17,20 @@ subroutine LDF_Fock_CoulombOnly_XIDI(Mode,tau,nD,FactC,ip_DBlocks,ip_FBlocks)
 ! Compute correction from errors in the integral diagonal blocks,
 ! adding them to the blocked Fock matrix.
 
+use Constants, only: One
+use Definitions, only: wp, iwp
+
 implicit none
-integer Mode
-real*8 tau
-integer nD
-real*8 FactC(nD)
-integer ip_DBlocks(nD)
-integer ip_FBlocks(nD)
+integer(kind=iwp), intent(in) :: Mode, nD, ip_DBlocks(nD), ip_FBlocks(nD)
+real(kind=wp), intent(in) :: tau, FactC(nD)
+logical(kind=iwp) :: IPI_set_here
+integer(kind=iwp) :: TaskListID, AB, A, B, nAB, ip_Int, l_Int, n_Int, iD, ipD, ipF
+logical(kind=iwp), external :: Rsv_Tsk, LDF_IntegralPrescreeningInfoIsSet
+integer(kind=iwp), external :: LDF_nBas_Atom
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
-
-logical Rsv_Tsk
-external Rsv_Tsk
-logical LDF_IntegralPrescreeningInfoIsSet
-external LDF_IntegralPrescreeningInfoIsSet
-integer LDF_nBas_Atom
-external LDF_nBas_Atom
-
-logical IPI_set_here
-
-integer TaskListID
-integer AB
-integer A, B
-integer nAB
-integer ip_Int, l_Int, n_Int
-integer iD
-integer ipD, ipF
-
-integer i, j
-integer AP_Atoms
+! statement function
+integer(kind=iwp) :: i, j, AP_Atoms
 AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
 if (.not. LDF_IntegralPrescreeningInfoIsSet()) then
@@ -66,11 +51,11 @@ do while (Rsv_Tsk(TaskListID,AB))
     call GetMem('FCIInt','Allo','Real',ip_Int,l_Int)
     call LDF_ComputeValenceIntegrals(AB,AB,n_Int,Work(ip_Int))
     call LDF_ComputeValenceIntegralsFromC(Mode,tau,AB,AB,n_Int,Work(ip_Int+n_Int))
-    call dAXPY_(n_Int,-1.0d0,Work(ip_Int+n_Int),1,Work(ip_Int),1)
+    call dAXPY_(n_Int,-One,Work(ip_Int+n_Int),1,Work(ip_Int),1)
     do iD=1,nD
       ipD = iWork(ip_DBlocks(iD)-1+AB)
       ipF = iWork(ip_FBlocks(iD)-1+AB)
-      call dGeMV_('N',nAB,nAB,FactC(iD),Work(ip_Int),max(nAB,1),Work(ipD),1,1.0d0,Work(ipF),1)
+      call dGeMV_('N',nAB,nAB,FactC(iD),Work(ip_Int),max(nAB,1),Work(ipD),1,One,Work(ipF),1)
     end do
     call GetMem('FCIInt','Free','Real',ip_Int,l_Int)
   end if

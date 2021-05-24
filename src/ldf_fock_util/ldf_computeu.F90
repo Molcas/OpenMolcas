@@ -20,32 +20,23 @@ subroutine LDF_ComputeU(ip_AP_QD,nD,ip_DBlocks,U)
 !
 ! Note: diagonal integrals for A=B must be stored quadratically.
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
-integer ip_AP_QD
-integer nD
-integer ip_DBlocks(nD)
-real*8 U(nD)
+integer(kind=iwp), intent(in) :: ip_AP_QD, nD, ip_DBlocks(nD)
+real(kind=wp), intent(out) :: U(nD)
+integer(kind=iwp) :: iD, AB, A, B, nA, nB, uv, ipDel, ipDB
+integer(kind=iwp), external :: LDF_nBas_Atom
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
-
-integer LDF_nBas_Atom
-external LDF_nBas_Atom
-
-integer iD
-integer AB
-integer A, B
-integer nA, nB
-integer uv
-integer ipDel, ipDB
-
-integer i, j
-integer ip_Delta
-integer AP_Atoms
+!statement functions
+integer(kind=iwp) :: i, j, ip_Delta, AP_Atoms
 ip_Delta(i) = iWork(ip_AP_QD-1+i)
 AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
 do iD=1,nD
-  U(iD) = 0.0d0
+  U(iD) = Zero
   do AB=1,NumberOfAtomPairs
     A = AP_Atoms(1,AB)
     B = AP_Atoms(2,AB)

@@ -21,23 +21,17 @@ subroutine LDF_Fock_CoulombUpperBound_Full(PrintNorm,Add,PackedD,PackedF,nD,Fact
 !
 !      U = sum_uv sqrt[(Delta(uv)|Delta(uv))]*|D(uv)|
 
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
 implicit none
-logical PrintNorm
-logical Add
-logical PackedD
-logical PackedF
-integer nD
-real*8 FactC(nD)
-integer ip_D(nD)
-integer ip_F(nD)
+logical(kind=iwp), intent(in) :: PrintNorm, Add, PackedD, PackedF
+integer(kind=iwp), intent(in) :: nD, ip_D(nD), ip_F(nD)
+real(kind=wp), intent(in) :: FactC(nD)
+integer(kind=iwp) :: l, iD, ip_DBlkP, l_DBlkP, ip_FBlkP, l_FBlkP
 #include "WrkSpc.fh"
 #include "localdf_bas.fh"
 #include "ldf_atom_pair_info.fh"
-
-integer l
-integer iD
-integer ip_DBlkP, l_DBlkP
-integer ip_FBlkP, l_FBlkP
 
 ! Return if nothing to do
 if (nD < 1) return
@@ -49,7 +43,7 @@ call GetMem('CUBFDBP','Allo','Inte',ip_DBlkP,l_DBlkP)
 do iD=1,nD
   call LDF_AllocateBlockMatrix('UBD',iWork(ip_DBlkP-1+iD))
   call LDF_Full2Blocked(Work(ip_D(iD)),PackedD,iWork(ip_DBlkP-1+iD))
-  call LDF_ScaleOffdiagonalMatrixBlocks(iWork(ip_DBlkP-1+iD),2.0d0)
+  call LDF_ScaleOffdiagonalMatrixBlocks(iWork(ip_DBlkP-1+iD),Two)
 end do
 
 ! If not Add, initialize Fock matrices
