@@ -1,234 +1,234 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Thomas Bondo Pedersen                            *
-************************************************************************
-      Subroutine LDF_Fock_CoulombOnly(IntegralOption,
-     &                                Timing,Mode,ThrPS,
-     &                                Add,PackedD,PackedF,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Thomas Bondo Pedersen                            *
+!***********************************************************************
+      Subroutine LDF_Fock_CoulombOnly(IntegralOption,                   &
+     &                                Timing,Mode,ThrPS,                &
+     &                                Add,PackedD,PackedF,              &
      &                                nD,FactC,ip_D,ip_F)
-C
-C     Thomas Bondo Pedersen, October 2010.
-C
-C     Purpose: Compute Coulomb contribution to Fock matrix using local
-C              Density Fitting coefficients.
-C
-C     Args:    - IntegralOption (integer)
-C                  111  => use two-electron integrals computed from
-C                          LDF coefficients (for debugging)
-C                  222  => use conventional two-electron integrals
-C                          (for debugging)
-C                  333  => use conventional or LDF two-electron
-C                          integrals depending on positivity of the
-C                          latter (for debugging)
-C                  444  => use exact integral diagonal (blocks), all
-C                          other blocks are LDF
-C                  all other values => use production-level LDF code
-C                  (INPUT)
-C              - Timing (boolean) .True. if detailed timing (incl total)
-C                should be printed from this routine (INPUT)
-C              - Mode (integer) 1:robust, 2:nonrobust, 3:half-and-half
-C                to be used (INPUT)
-C              - ThrPS(2): prescreening thresholds (INPUT)
-C                          ThrPS(1): integral prescreening threshold
-C                          ThrPS(2): prescreening threshold on
-C                                    contributions
-C              - Add (boolean): .True. if Coulomb contribution should be
-C                added to the Fock matrix (INPUT). Not available in
-C                parallel execution!!
-C              - PackedD (boolean): .True. if density matrices
-C                are stored in lower triangular format; else quadratic
-C                storage (INPUT)
-C              - PackedF (boolean): .True. if Fock matrices
-C                are stored in lower triangular format; else quadratic
-C                storage (INPUT)
-C              - nD: Number of densities/Fock matrices (INPUT)
-C              - FactC(nD): scaling factor for each density (INPUT)
-C              - ip_D(nD): pointers to nD density matrices (if PackedD:
-C                lower triangular storage) (INPUT)
-C              - ip_F(nD): pointers to nD Fock matrices (if PackedF:
-C                lower triangular storage) (INPUT)
-C
-C              If (Add):  [NOT IMPLEMENTED IN PARALLEL]
-C       (1)       F(uv) = F(uv) + FactC * sum_kl (uv|kl)*D(kl)
-C              Else:
-C       (2)       F(uv) = FactC * sum_kl (uv|kl)*D(kl)
-C
-C              where the integrals are given by the robust LDF
-C              representation (Mode=1)
-C
-C              (uv|kl) = ([uv]|kl) + (uv|[kl]) - ([uv]|[kl])
-C
-C              or the non-robust representation (Mode=2)
-C
-C              (uv|kl) = ([uv]|[kl])
-C
-C              or the half-and-half representation (Mode=3)
-C
-C              (uv|kl) = 0.5*([uv]|kl) + 0.5*(uv|[kl])
-C
-C              The fitted products are given by
-C
-C              |[uv]) = sum_J C(uv,J) |J)
-C
-C              where the fitting functions |J) are centered on the atom
-C              pair to which the product |uv) belongs.
-C
-C              In more detail (assuming robust fitting representation):
-C
-C              F(uv) = FactC * {sum_J C(uv,J)*W(J) + sum_K (uv|K)*V(K)}
-C
-C              W(J) = sum_kl (J|kl)*D(kl) - sum_K (J|K)*V(K)
-C
-C              V(K) = sum_kl C(kl,K)*D(kl)
-C
-C     NOTES:
-C       - The density matrices are assumed to be symmetric.
-C       - It is the complete sum over kl in Eqs(1,2)! This means that
-C         the input density matrices should NOT be scaled by 2 on the
-C         off-diagonal (scaling factors are handled internally).
-C       - LDF information must be properly set up before calling this
-C         routine (use subroutine LDF_X_Init).
-C       - Two-center functions may or mat not be included in the fitting
-C         basis for a given atom pair.
-C       - The algorithm is integral driven: the integrals are computed
-C         once.
-C       - The fitting coefficients are read from disk twice (for Coulomb
-C         [V] intermediates and for the final contractions to give the
-C         Fock matrix). This is not a problem if they are fully
-C         buffered, but could impose an I/O bottleneck. Since the number
-C         of coefficients scales linearly with system size, this should
-C         be less of a problem than the quadratic scaling of full
-C         Cholesky vectors.
-C       - The max number of processes for which the algorithm can
-C         possibly scale well equals the number of LDF atom pairs.
-C       - Integral prescreening info will be set up here if not done
-C         prior to calling this routine.
-C       - Add is not implemented in parallel !!!
-C
-C     ALGORITHM:
-C=======================================================================
-C
-C
-C     If (Mode=3): FactC := 0.5*FactC
-C     Scale off-diagonal density blocks:
-C                  D[u_A v_B] <-- 2*D[u_A v_B] iff A != B
-C
-C     Initialize V(J)=0 for all J
-C     *Parallel loop over atom pairs AB (A>=B):
-C        - V(J) += sum_[u_A v_B] C(u_A v_B,J)*D(u_A v_B)
-C          where J belongs to AB [1C and 2C funcs].
-C     *End parallel loop AB
-C     Add V over nodes.
-C
-C     Initialize F(uv) for all significant uv.
-C     Initialize W(J) for all J.
-C
-C     If (Mode=1 or Mode=3):
-C        Compute 3-index contributions:
-C        *Parallel loop over atom pairs AB (A>=B):
-C           *Loop over atoms C
-C              - Compute (u_A v_B|K) for K belonging to C [1C func]
-C              - F(u_A v_B) += sum_K (u_A v_B|K)*V(K)
-C              - W(K) += sum_[u_A v_B] (u_A v_B|K)*D(u_A v_B)
-C           *End loop C
-C           If (LDF2):
-C              *loop over atom pairs CD
-C                 - Compute (u_A v_B|K) for K belonging to CD [2C func]
-C                 - F(u_A v_B) += sum_[K] (u_A v_B|K)*V(K)
-C                 - W(K) += sum_[u_A v_B] (u_A v_B|K)*D(u_A v_B)
-C              *End loop over CD
-C           End If
-C        *End parallel loop AB
-C     End If
-C
-C     Compute 2-index contributions:
-C     If (Mode=1 or Mode=2):
-C        If (Mode=1):
-C           - const=-1.0d0
-C        Else:
-C           - const=1.0d0
-C        End If
-C        *Parallel loop over atoms A:
-C           *Loop over atoms B=1,A-1:
-C              - Compute (J|K) for J in A and K in B [1C func]
-C              - W(J) += const * sum_K (J|K)*V(K)
-C              - W(K) += const * sum_J V(J)*(J|K)
-C           *End loop B
-C           - Compute (J|K) for J,K in A [1C func]
-C           - W(J) += const* sum_K (J|K)*V(K)
-C           If (LDF2):
-C              *Loop over atom pairs CD (C>=D):
-C                 - Compute (J|K) for J in A [1C func], K in CD [2Cfunc]
-C                 - W(J) += const * sum_K (J | K)*V(K)
-C                 - W(K) += const * sum_J V(J)*(J|K)
-C              *End loop CD
-C           End If
-C        *End parallel loop A
-C        If (LDF2):
-C           *Parallel loop over atom pairs AB (A>=B):
-C              *Loop over atom pairs CD=1,AB-1:
-C                 - Compute (J|K) for J in AB and K in CD [2C func]
-C                 - W(J) += const * sum_K (J|K)*V(K)
-C                 - W(K) += const * sum_J V(J)*(J|K)
-C              *End loop B
-C              - Compute (J|K) for J,K in AB [2C func]
-C              - W(J) += const* sum_K (J|K)*V(K)
-C           *End loop AB
-C        End If
-C     End If
-C     Add W over nodes
-C
-C     *Parallel loop over atom pairs AB (A>=B):
-C        - Read coefficient C(u_A v_B,J) for J in AB [1C,2C func]
-C        - F(u_A v_B) += sum_J C(u_a v_B,J)*W(J)
-C     *End parallel loop AB
-C     Add F over nodes
-C
-C     ALGORITHM DONE: Return F
-C=======================================================================
-C
-C     Note that arrays V, W, and F are stored locally as O(N) arrays,
-C     which should keep the communication bottleneck reasonable as the
-C     system size grows.
-C
-C     Integral prescreening is based on the Cauchy-Schwarz inequality
-C     and involves estimation of the max integral in a given block.
-C     Integral prescreening is done at atom/atom pair block level as
-C     well as on shell level.
-C
-C     Contribution prescreening is based on the submultiplicative
-C     property of the Frobenius norm in combination with the Cauchy-
-C     Schwarz inequality for positive (semi-) definite matrices.
-C     Specifically, an upper bound to the norm of the matrix-vector
-C     product
-C
-C     y = A*x
-C
-C     where A is a subblock of a positive (semi-) definite matrix,
-C     is given by
-C
-C     ||y|| <= ||A||*||x||                  {submultiplicative property}
-C            = sqrt[sum_ij A(i,j)**2]*sqrt[sum_j x(j)**2]
-C           <= sqrt[sum_ij A(i,i)*A(j,j)]*sqrt[sum_j x(j)**2]
-C                                                       {Cauchy-Schwarz}
-C            = sqrt[sum_i A(i,i)]*sqrt[sum_j A(j,j)]*sqrt[sum_j x(j)**2]
-C
-C     This upper bound is used to avoid calculation of contributions
-C     below a given threshold. Contribution prescreening is done at
-C     atom/atom pair block level only, f.ex. for K on atom C
-C
-C     ||sum_K (AB|K)*V(K)|| <= sqrt[sum_[u_A v_B] (u_A v_B | u_A v_B)]
-C                             *sqrt[sum_K (K|K)]
-C                             *sqrt[sum_K V(K)**2]
-C
+!
+!     Thomas Bondo Pedersen, October 2010.
+!
+!     Purpose: Compute Coulomb contribution to Fock matrix using local
+!              Density Fitting coefficients.
+!
+!     Args:    - IntegralOption (integer)
+!                  111  => use two-electron integrals computed from
+!                          LDF coefficients (for debugging)
+!                  222  => use conventional two-electron integrals
+!                          (for debugging)
+!                  333  => use conventional or LDF two-electron
+!                          integrals depending on positivity of the
+!                          latter (for debugging)
+!                  444  => use exact integral diagonal (blocks), all
+!                          other blocks are LDF
+!                  all other values => use production-level LDF code
+!                  (INPUT)
+!              - Timing (boolean) .True. if detailed timing (incl total)
+!                should be printed from this routine (INPUT)
+!              - Mode (integer) 1:robust, 2:nonrobust, 3:half-and-half
+!                to be used (INPUT)
+!              - ThrPS(2): prescreening thresholds (INPUT)
+!                          ThrPS(1): integral prescreening threshold
+!                          ThrPS(2): prescreening threshold on
+!                                    contributions
+!              - Add (boolean): .True. if Coulomb contribution should be
+!                added to the Fock matrix (INPUT). Not available in
+!                parallel execution!!
+!              - PackedD (boolean): .True. if density matrices
+!                are stored in lower triangular format; else quadratic
+!                storage (INPUT)
+!              - PackedF (boolean): .True. if Fock matrices
+!                are stored in lower triangular format; else quadratic
+!                storage (INPUT)
+!              - nD: Number of densities/Fock matrices (INPUT)
+!              - FactC(nD): scaling factor for each density (INPUT)
+!              - ip_D(nD): pointers to nD density matrices (if PackedD:
+!                lower triangular storage) (INPUT)
+!              - ip_F(nD): pointers to nD Fock matrices (if PackedF:
+!                lower triangular storage) (INPUT)
+!
+!              If (Add):  [NOT IMPLEMENTED IN PARALLEL]
+!       (1)       F(uv) = F(uv) + FactC * sum_kl (uv|kl)*D(kl)
+!              Else:
+!       (2)       F(uv) = FactC * sum_kl (uv|kl)*D(kl)
+!
+!              where the integrals are given by the robust LDF
+!              representation (Mode=1)
+!
+!              (uv|kl) = ([uv]|kl) + (uv|[kl]) - ([uv]|[kl])
+!
+!              or the non-robust representation (Mode=2)
+!
+!              (uv|kl) = ([uv]|[kl])
+!
+!              or the half-and-half representation (Mode=3)
+!
+!              (uv|kl) = 0.5*([uv]|kl) + 0.5*(uv|[kl])
+!
+!              The fitted products are given by
+!
+!              |[uv]) = sum_J C(uv,J) |J)
+!
+!              where the fitting functions |J) are centered on the atom
+!              pair to which the product |uv) belongs.
+!
+!              In more detail (assuming robust fitting representation):
+!
+!              F(uv) = FactC * {sum_J C(uv,J)*W(J) + sum_K (uv|K)*V(K)}
+!
+!              W(J) = sum_kl (J|kl)*D(kl) - sum_K (J|K)*V(K)
+!
+!              V(K) = sum_kl C(kl,K)*D(kl)
+!
+!     NOTES:
+!       - The density matrices are assumed to be symmetric.
+!       - It is the complete sum over kl in Eqs(1,2)! This means that
+!         the input density matrices should NOT be scaled by 2 on the
+!         off-diagonal (scaling factors are handled internally).
+!       - LDF information must be properly set up before calling this
+!         routine (use subroutine LDF_X_Init).
+!       - Two-center functions may or mat not be included in the fitting
+!         basis for a given atom pair.
+!       - The algorithm is integral driven: the integrals are computed
+!         once.
+!       - The fitting coefficients are read from disk twice (for Coulomb
+!         [V] intermediates and for the final contractions to give the
+!         Fock matrix). This is not a problem if they are fully
+!         buffered, but could impose an I/O bottleneck. Since the number
+!         of coefficients scales linearly with system size, this should
+!         be less of a problem than the quadratic scaling of full
+!         Cholesky vectors.
+!       - The max number of processes for which the algorithm can
+!         possibly scale well equals the number of LDF atom pairs.
+!       - Integral prescreening info will be set up here if not done
+!         prior to calling this routine.
+!       - Add is not implemented in parallel !!!
+!
+!     ALGORITHM:
+!=======================================================================
+!
+!
+!     If (Mode=3): FactC := 0.5*FactC
+!     Scale off-diagonal density blocks:
+!                  D[u_A v_B] <-- 2*D[u_A v_B] iff A != B
+!
+!     Initialize V(J)=0 for all J
+!     *Parallel loop over atom pairs AB (A>=B):
+!        - V(J) += sum_[u_A v_B] C(u_A v_B,J)*D(u_A v_B)
+!          where J belongs to AB [1C and 2C funcs].
+!     *End parallel loop AB
+!     Add V over nodes.
+!
+!     Initialize F(uv) for all significant uv.
+!     Initialize W(J) for all J.
+!
+!     If (Mode=1 or Mode=3):
+!        Compute 3-index contributions:
+!        *Parallel loop over atom pairs AB (A>=B):
+!           *Loop over atoms C
+!              - Compute (u_A v_B|K) for K belonging to C [1C func]
+!              - F(u_A v_B) += sum_K (u_A v_B|K)*V(K)
+!              - W(K) += sum_[u_A v_B] (u_A v_B|K)*D(u_A v_B)
+!           *End loop C
+!           If (LDF2):
+!              *loop over atom pairs CD
+!                 - Compute (u_A v_B|K) for K belonging to CD [2C func]
+!                 - F(u_A v_B) += sum_[K] (u_A v_B|K)*V(K)
+!                 - W(K) += sum_[u_A v_B] (u_A v_B|K)*D(u_A v_B)
+!              *End loop over CD
+!           End If
+!        *End parallel loop AB
+!     End If
+!
+!     Compute 2-index contributions:
+!     If (Mode=1 or Mode=2):
+!        If (Mode=1):
+!           - const=-1.0d0
+!        Else:
+!           - const=1.0d0
+!        End If
+!        *Parallel loop over atoms A:
+!           *Loop over atoms B=1,A-1:
+!              - Compute (J|K) for J in A and K in B [1C func]
+!              - W(J) += const * sum_K (J|K)*V(K)
+!              - W(K) += const * sum_J V(J)*(J|K)
+!           *End loop B
+!           - Compute (J|K) for J,K in A [1C func]
+!           - W(J) += const* sum_K (J|K)*V(K)
+!           If (LDF2):
+!              *Loop over atom pairs CD (C>=D):
+!                 - Compute (J|K) for J in A [1C func], K in CD [2Cfunc]
+!                 - W(J) += const * sum_K (J | K)*V(K)
+!                 - W(K) += const * sum_J V(J)*(J|K)
+!              *End loop CD
+!           End If
+!        *End parallel loop A
+!        If (LDF2):
+!           *Parallel loop over atom pairs AB (A>=B):
+!              *Loop over atom pairs CD=1,AB-1:
+!                 - Compute (J|K) for J in AB and K in CD [2C func]
+!                 - W(J) += const * sum_K (J|K)*V(K)
+!                 - W(K) += const * sum_J V(J)*(J|K)
+!              *End loop B
+!              - Compute (J|K) for J,K in AB [2C func]
+!              - W(J) += const* sum_K (J|K)*V(K)
+!           *End loop AB
+!        End If
+!     End If
+!     Add W over nodes
+!
+!     *Parallel loop over atom pairs AB (A>=B):
+!        - Read coefficient C(u_A v_B,J) for J in AB [1C,2C func]
+!        - F(u_A v_B) += sum_J C(u_a v_B,J)*W(J)
+!     *End parallel loop AB
+!     Add F over nodes
+!
+!     ALGORITHM DONE: Return F
+!=======================================================================
+!
+!     Note that arrays V, W, and F are stored locally as O(N) arrays,
+!     which should keep the communication bottleneck reasonable as the
+!     system size grows.
+!
+!     Integral prescreening is based on the Cauchy-Schwarz inequality
+!     and involves estimation of the max integral in a given block.
+!     Integral prescreening is done at atom/atom pair block level as
+!     well as on shell level.
+!
+!     Contribution prescreening is based on the submultiplicative
+!     property of the Frobenius norm in combination with the Cauchy-
+!     Schwarz inequality for positive (semi-) definite matrices.
+!     Specifically, an upper bound to the norm of the matrix-vector
+!     product
+!
+!     y = A*x
+!
+!     where A is a subblock of a positive (semi-) definite matrix,
+!     is given by
+!
+!     ||y|| <= ||A||*||x||                  {submultiplicative property}
+!            = sqrt[sum_ij A(i,j)**2]*sqrt[sum_j x(j)**2]
+!           <= sqrt[sum_ij A(i,i)*A(j,j)]*sqrt[sum_j x(j)**2]
+!                                                       {Cauchy-Schwarz}
+!            = sqrt[sum_i A(i,i)]*sqrt[sum_j A(j,j)]*sqrt[sum_j x(j)**2]
+!
+!     This upper bound is used to avoid calculation of contributions
+!     below a given threshold. Contribution prescreening is done at
+!     atom/atom pair block level only, f.ex. for K on atom C
+!
+!     ||sum_K (AB|K)*V(K)|| <= sqrt[sum_[u_A v_B] (u_A v_B | u_A v_B)]
+!                             *sqrt[sum_K (K|K)]
+!                             *sqrt[sum_K V(K)**2]
+!
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
@@ -289,14 +289,14 @@ C
          Call CWTime(tTotC1,tTotW1)
       End If
 
-      UseOldCode=IntegralOption.eq.111 .or. IntegralOption.eq.222 .or.
+      UseOldCode=IntegralOption.eq.111 .or. IntegralOption.eq.222 .or.  &
      &           IntegralOption.eq.333
       If (UseOldCode) Then
-         Call WarningMessage(0,
+         Call WarningMessage(0,                                         &
      &                   SecNam//': Using atom pair-driven (old) code!')
          Call xFlush(6)
-         Call LDF_Fock_CoulombOnly0(IntegralOption,ThrPS(1),
-     &                              Mode,Add,PackedD,PackedF,
+         Call LDF_Fock_CoulombOnly0(IntegralOption,ThrPS(1),            &
+     &                              Mode,Add,PackedD,PackedF,           &
      &                              nD,FactC,ip_D,ip_F)
          Go To 1 ! Return
       End If
@@ -307,7 +307,7 @@ C
       ! Get number of basis functions (from localdf_bas.fh)
       nBas=nBas_Valence
       If (nBas.lt.1) Then
-         Call WarningMessage(1,
+         Call WarningMessage(1,                                         &
      &                  SecNam//': nBas<1 -- Fock matrix NOT computed!')
          Write(6,'(A,I9)') 'nBas=',nBas
          Call xFlush(6)
@@ -324,7 +324,7 @@ C
 #if defined (_MOLCAS_MPP_)
       If (Add) Then
          If (nProcs.gt.1 .and. Is_Real_Par()) Then
-            Write(6,'(A,A)') SecNam,
+            Write(6,'(A,A)') SecNam,                                    &
      &        ': >>Add<< feature not implemented in parallel execution!'
             Call LDF_NotImplemented()
          End If
@@ -379,12 +379,12 @@ C
          Call LDF_Full2Blocked(Work(ip_D(iD)),PackedD,iWork(ip0+iD))
 #if defined (_DEBUGPRINT_)
          If (DoTest) Then
-            If (.not.LDF_TestBlockMatrix(iWork(ip0+iD),PackedD,
+            If (.not.LDF_TestBlockMatrix(iWork(ip0+iD),PackedD,         &
      &                                   Work(ip_D(iD)))) Then
-               Call WarningMessage(2,
+               Call WarningMessage(2,                                   &
      &                            SecNam//': block matrix test failure')
-               Write(6,'(A,I4,A,I9,3X,A,L1)')
-     &         'Density matrix',iD,' at location',ip_D(iD),
+               Write(6,'(A,I4,A,I9,3X,A,L1)')                           &
+     &         'Density matrix',iD,' at location',ip_D(iD),             &
      &         'Packed: ',PackedD
                Call LDF_Quit(1)
             End If
@@ -426,7 +426,7 @@ C
       ! V(J) = sum_uv C(uv,J)*D(uv)
       ! for each density matrix
       ! Compute Frobenius norm of fitting coefficients.
-      Call LDF_ComputeCoulombIntermediates(Timing,nD,iWork(ip_DBlocks),
+      Call LDF_ComputeCoulombIntermediates(Timing,nD,iWork(ip_DBlocks), &
      &                                            iWork(ip_VP),ip_CNorm)
 
       ! Allocate and compute Frobenius norm of Coulomb intermediates
@@ -439,9 +439,9 @@ C
       End Do
 
       ! Compute Coulomb contributions
-      Call LDF_Fock_CoulombOnly_(IntegralOption.eq.444,Timing,Mode,tau,
-     &                           nD,FactC,iWork(ip_DBlocks),
-     &                           iWork(ip_VP),iWork(ip_FBlocks),
+      Call LDF_Fock_CoulombOnly_(IntegralOption.eq.444,Timing,Mode,tau, &
+     &                           nD,FactC,iWork(ip_DBlocks),            &
+     &                           iWork(ip_VP),iWork(ip_FBlocks),        &
      &                           ip_CNorm,ip_DNorm,ip_VNorm)
 
       ! Get full storage (triangular or quadratic) Fock matrices from
@@ -482,30 +482,30 @@ C
     1 Continue
       If (Timing) Then
          Call CWTime(tTotC2,tTotW2)
-         Write(6,'(A,A,A,2(1X,F12.2),A)')
-     &   'Total time spent in ',SecNam,':         ',
+         Write(6,'(A,A,A,2(1X,F12.2),A)')                               &
+     &   'Total time spent in ',SecNam,':         ',                    &
      &   tTotC2-tTotC1,tTotW2-tTotW1,' seconds'
          Write(6,'(84A1)') ('-',i=1,84)
          Call xFlush(6)
       End If
 
       End
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      Subroutine LDF_Fock_CoulombOnly_(UseExactIntegralDiagonal,
-     &                                 Timing,Mode,tau,
-     &                                 nD,FactC,ip_DBlocks,ip_V,
-     &                                 ip_FBlocks,
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      Subroutine LDF_Fock_CoulombOnly_(UseExactIntegralDiagonal,        &
+     &                                 Timing,Mode,tau,                 &
+     &                                 nD,FactC,ip_DBlocks,ip_V,        &
+     &                                 ip_FBlocks,                      &
      &                                 ip_CNorm,ip_DNorm,ip_VNorm)
-C
-C     Thomas Bondo Pedersen, October 2010.
-C
-C     Purpose: Compute Coulomb contributions to the Fock matrix using
-C              Coulomb intermediates V. Integral-driven algorithm.
-C
-C     See LDF_Fock_CoulombOnly for more details.
-C
+!
+!     Thomas Bondo Pedersen, October 2010.
+!
+!     Purpose: Compute Coulomb contributions to the Fock matrix using
+!              Coulomb intermediates V. Integral-driven algorithm.
+!
+!     See LDF_Fock_CoulombOnly for more details.
+!
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
@@ -630,7 +630,7 @@ C
                Else If (AP_Atoms(2,AB).eq.A) Then
                   Work(ip_tauWA)=max(Work(ip_tauWA),CAB_B(AB))
                Else
-                  Call WarningMessage(2,
+                  Call WarningMessage(2,                                &
      &                                 SecNam//': logical error [A2AP]')
                   Call LDF_Quit(1)
                End If
@@ -666,9 +666,9 @@ C
          Call LDF_ZeroAuxBasVector(ip_W(iD))
       End Do
 
-C==========================
-C     3-index contributions
-C==========================
+!==========================
+!     3-index contributions
+!==========================
 
       If (Mode.eq.1 .or. Mode.eq.3) Then
          If (Timing) Then
@@ -683,14 +683,14 @@ C==========================
             nuv=LDF_nBas_Atom(A)*LDF_nBas_Atom(B)
             Do C=1,nAtom
                tauW=Work(ip_tauW-1+C)
-               If (IAB(AB)*GA(C)*VA(C).ge.tau(2) .or.
+               If (IAB(AB)*GA(C)*VA(C).ge.tau(2) .or.                   &
      &             IAB(AB)*GA(C)*DAB(AB).ge.tauW) Then
                   ! Compute integrals (u_A v_B|J_C)
                   M=LDF_nBasAux_Atom(C)
                   l_Int=nuv*M
                   Call GetMem('Fck3Int1','Allo','Real',ip_Int,l_Int)
                   If (Timing) Call CWTime(tIC1,tIW1)
-                  Call LDF_Compute3IndexIntegrals_1(AB,C,tau(1),l_Int,
+                  Call LDF_Compute3IndexIntegrals_1(AB,C,tau(1),l_Int,  &
      &                                              Work(ip_Int))
                   If (Timing) Then
                      Call CWTime(tIC2,tIW2)
@@ -702,8 +702,8 @@ C==========================
                   Do iD=1,nD
                      ipV=iWork(ip_V(iD)-1+C)
                      ipF=iWork(ip_FBlocks(iD)-1+AB)
-                     Call dGeMV_('N',nuv,M,
-     &                          FactC(iD),Work(ip_Int),nuv,
+                     Call dGeMV_('N',nuv,M,                             &
+     &                          FactC(iD),Work(ip_Int),nuv,             &
      &                          Work(ipV),1,1.0d0,Work(ipF),1)
                   End Do
                   ! Compute W contribution
@@ -711,8 +711,8 @@ C==========================
                   Do iD=1,nD
                      ipD=iWork(ip_DBlocks(iD)-1+AB)
                      ipW=iWork(ip_W(iD)-1+C)
-                     Call dGeMV_('T',nuv,M,
-     &                          1.0d0,Work(ip_Int),nuv,
+                     Call dGeMV_('T',nuv,M,                             &
+     &                          1.0d0,Work(ip_Int),nuv,                 &
      &                          Work(ipD),1,1.0d0,Work(ipW),1)
                   End Do
                   Call GetMem('Fck3Int1','Free','Real',ip_Int,l_Int)
@@ -724,15 +724,15 @@ C==========================
                   MCD=AP_2CFunctions(1,CD)
                   If (MCD.gt.0) Then
                      tauW=Work(ip_tauW-1+nAtom+CD)
-                     If (IAB(AB)*GAB(CD)*VAB(CD).ge.tau(2) .or.
+                     If (IAB(AB)*GAB(CD)*VAB(CD).ge.tau(2) .or.         &
      &                   IAB(AB)*GAB(CD)*DAB(AB).ge.tauW) Then
                         ! Compute integrals (u_A v_B|J_CD)
                         l_Int=nuv*MCD
-                        Call GetMem('Fck3Int2','Allo','Real',ip_Int,
+                        Call GetMem('Fck3Int2','Allo','Real',ip_Int,    &
      &                                                        l_Int)
                         If (Timing) Call CWTime(tIC1,tIW1)
-                        Call LDF_Compute3IndexIntegrals_2(AB,CD,tau(1),
-     &                                                    l_Int,
+                        Call LDF_Compute3IndexIntegrals_2(AB,CD,tau(1), &
+     &                                                    l_Int,        &
      &                                                    Work(ip_Int))
                         If (Timing) Then
                            Call CWTime(tIC2,tIW2)
@@ -745,8 +745,8 @@ C==========================
                         Do iD=1,nD
                            ipV=iWork(ip_V(iD)-1+nAtom+CD)
                            ipF=iWork(ip_FBlocks(iD)-1+AB)
-                           Call dGeMV_('N',nuv,MCD,
-     &                                FactC(iD),Work(ip_Int),nuv,
+                           Call dGeMV_('N',nuv,MCD,                     &
+     &                                FactC(iD),Work(ip_Int),nuv,       &
      &                                Work(ipV),1,1.0d0,Work(ipF),1)
                         End Do
                         ! Compute W contribution
@@ -754,11 +754,11 @@ C==========================
                         Do iD=1,nD
                            ipD=iWork(ip_DBlocks(iD)-1+AB)
                            ipW=iWork(ip_W(iD)-1+nAtom+CD)
-                           Call dGeMV_('T',nuv,MCD,
-     &                                1.0d0,Work(ip_Int),nuv,
+                           Call dGeMV_('T',nuv,MCD,                     &
+     &                                1.0d0,Work(ip_Int),nuv,           &
      &                                Work(ipD),1,1.0d0,Work(ipW),1)
                         End Do
-                        Call GetMem('Fck3Int2','Free','Real',ip_Int,
+                        Call GetMem('Fck3Int2','Free','Real',ip_Int,    &
      &                                                        l_Int)
                      End If
                   End If
@@ -768,18 +768,18 @@ C==========================
          Call Free_Tsk(TaskListID)
          If (Timing) Then
             Call CWTime(tC2,tW2)
-            Write(6,'(A,2(1X,F12.2),A)')
-     &      'Time spent on 3-index contributions:              ',
+            Write(6,'(A,2(1X,F12.2),A)')                                &
+     &      'Time spent on 3-index contributions:              ',       &
      &      tC2-tC1,tW2-tW1,' seconds'
-            Write(6,'(A,2(1X,F12.2),A)')
-     &      '      - of which integrals required:              ',
+            Write(6,'(A,2(1X,F12.2),A)')                                &
+     &      '      - of which integrals required:              ',       &
      &      tIC,tIW,' seconds'
          End If
       End If
 
-C==========================
-C     2-index contributions
-C==========================
+!==========================
+!     2-index contributions
+!==========================
 
       If (Mode.eq.1 .or. Mode.eq.2) Then
          If (Timing) Then
@@ -799,15 +799,15 @@ C==========================
                Do B=1,A-1
                   MB=LDF_nBasAux_Atom(B)
                   If (MB.gt.0) Then
-                     If (GA(A)*GA(B)*VA(B).ge.Work(ip_tauW-1+A) .or.
+                     If (GA(A)*GA(B)*VA(B).ge.Work(ip_tauW-1+A) .or.    &
      &                   GA(A)*GA(B)*VA(A).ge.Work(ip_tauW-1+B)) Then
                         ! Compute integrals (J_A|K_B)
                         l_Int=MA*MB
-                        Call GetMem('Fck2Int11','Allo','Real',ip_Int,
+                        Call GetMem('Fck2Int11','Allo','Real',ip_Int,   &
      &                                                         l_Int)
                         If (Timing) Call CWTime(tIC1,tIW1)
-                        Call LDF_Compute2IndexIntegrals_11(A,B,tau(1),
-     &                                                     l_Int,
+                        Call LDF_Compute2IndexIntegrals_11(A,B,tau(1),  &
+     &                                                     l_Int,       &
      &                                                     Work(ip_Int))
                         If (Timing) Then
                            Call CWTime(tIC2,tIW2)
@@ -819,8 +819,8 @@ C==========================
                         Do iD=1,nD
                            ipV=iWork(ip_V(iD)-1+B)
                            ipW=iWork(ip_W(iD)-1+A)
-                           Call dGeMV_('N',MA,MB,
-     &                                Const,Work(ip_Int),MA,
+                           Call dGeMV_('N',MA,MB,                       &
+     &                                Const,Work(ip_Int),MA,            &
      &                                Work(ipV),1,1.0d0,Work(ipW),1)
                         End Do
                         ! Compute W contribution
@@ -828,11 +828,11 @@ C==========================
                         Do iD=1,nD
                            ipV=iWork(ip_V(iD)-1+A)
                            ipW=iWork(ip_W(iD)-1+B)
-                           Call dGeMV_('T',MA,MB,
-     &                                Const,Work(ip_Int),MA,
+                           Call dGeMV_('T',MA,MB,                       &
+     &                                Const,Work(ip_Int),MA,            &
      &                                Work(ipV),1,1.0d0,Work(ipW),1)
                         End Do
-                        Call GetMem('Fck2Int11','Free','Real',ip_Int,
+                        Call GetMem('Fck2Int11','Free','Real',ip_Int,   &
      &                                                         l_Int)
                      End If
                   End If
@@ -842,7 +842,7 @@ C==========================
                   l_Int=MA**2
                   Call GetMem('Fck2Int11','Allo','Real',ip_Int,l_Int)
                   If (Timing) Call CWTime(tIC1,tIW1)
-                  Call LDF_Compute2IndexIntegrals_11(A,A,tau(1),l_Int,
+                  Call LDF_Compute2IndexIntegrals_11(A,A,tau(1),l_Int,  &
      &                                               Work(ip_Int))
                   If (Timing) Then
                      Call CWTime(tIC2,tIW2)
@@ -854,8 +854,8 @@ C==========================
                   Do iD=1,nD
                      ipV=iWork(ip_V(iD)-1+A)
                      ipW=iWork(ip_W(iD)-1+A)
-                     Call dGeMV_('N',MA,MA,
-     &                          Const,Work(ip_Int),MA,
+                     Call dGeMV_('N',MA,MA,                             &
+     &                          Const,Work(ip_Int),MA,                  &
      &                          Work(ipV),1,1.0d0,Work(ipW),1)
                   End Do
                   Call GetMem('Fck2Int11','Free','Real',ip_Int,l_Int)
@@ -865,19 +865,19 @@ C==========================
                   Do CD=1,NumberOfAtomPairs
                      MCD=AP_2CFunctions(1,CD)
                      If (MCD.gt.0) Then
-                        If (GA(A)*GAB(CD)*VAB(CD).ge.Work(ip_tauW-1+A)
-     &                      .or.
-     &                      GA(A)*GAB(CD)*VA(A).ge.
-     &                                         Work(ip_tauW-1+nAtom+CD))
+                        If (GA(A)*GAB(CD)*VAB(CD).ge.Work(ip_tauW-1+A)  &
+     &                      .or.                                        &
+     &                      GA(A)*GAB(CD)*VA(A).ge.                     &
+     &                                         Work(ip_tauW-1+nAtom+CD))&
      &                  Then
                            ! Compute integrals (J_A|K_CD)
                            l_Int=MA*MCD
-                           Call GetMem('Fck2Int12','Allo','Real',ip_Int,
+                           Call GetMem('Fck2Int12','Allo','Real',ip_Int,&
      &                                                            l_Int)
                            If (Timing) Call CWTime(tIC1,tIW1)
-                           Call LDF_Compute2IndexIntegrals_12(A,CD,
-     &                                                        tau(1),
-     &                                                        l_Int,
+                           Call LDF_Compute2IndexIntegrals_12(A,CD,     &
+     &                                                        tau(1),   &
+     &                                                        l_Int,    &
      &                                                     Work(ip_Int))
                            If (Timing) Then
                               Call CWTime(tIC2,tIW2)
@@ -889,8 +889,8 @@ C==========================
                            Do iD=1,nD
                               ipV=iWork(ip_V(iD)-1+nAtom+CD)
                               ipW=iWork(ip_W(iD)-1+A)
-                              Call dGeMV_('N',MA,MCD,
-     &                                   Const,Work(ip_Int),MA,
+                              Call dGeMV_('N',MA,MCD,                   &
+     &                                   Const,Work(ip_Int),MA,         &
      &                                   Work(ipV),1,1.0d0,Work(ipW),1)
                            End Do
                            ! Compute W contribution
@@ -898,11 +898,11 @@ C==========================
                            Do iD=1,nD
                               ipV=iWork(ip_V(iD)-1+A)
                               ipW=iWork(ip_W(iD)-1+nAtom+CD)
-                              Call dGeMV_('T',MA,MCD,
-     &                                   Const,Work(ip_Int),MA,
+                              Call dGeMV_('T',MA,MCD,                   &
+     &                                   Const,Work(ip_Int),MA,         &
      &                                   Work(ipV),1,1.0d0,Work(ipW),1)
                            End Do
-                           Call GetMem('Fck2Int12','Free','Real',ip_Int,
+                           Call GetMem('Fck2Int12','Free','Real',ip_Int,&
      &                                                            l_Int)
                         End If
                      End If
@@ -921,16 +921,16 @@ C==========================
                      If (MCD.gt.0) Then
                         GABCD=GAB(AB)*GAB(CD)*VAB(CD)
                         GCDAB=GAB(AB)*GAB(CD)*VAB(AB)
-                        If (GABCD.ge.Work(ip_tauW-1+nAtom+AB) .or.
+                        If (GABCD.ge.Work(ip_tauW-1+nAtom+AB) .or.      &
      &                      GCDAB.ge.Work(ip_tauW-1+nAtom+CD)) Then
                            ! Compute integrals (J_AB|K_CD)
                            l_Int=MAB*MCD
-                           Call GetMem('Fck2Int22','Allo','Real',ip_Int,
+                           Call GetMem('Fck2Int22','Allo','Real',ip_Int,&
      &                                                            l_Int)
                            If (Timing) Call CWTime(tIC1,tIW1)
-                           Call LDF_Compute2IndexIntegrals_22(AB,CD,
-     &                                                        tau(1),
-     &                                                        l_Int,
+                           Call LDF_Compute2IndexIntegrals_22(AB,CD,    &
+     &                                                        tau(1),   &
+     &                                                        l_Int,    &
      &                                                     Work(ip_Int))
                            If (Timing) Then
                               Call CWTime(tIC2,tIW2)
@@ -942,8 +942,8 @@ C==========================
                            Do iD=1,nD
                               ipV=iWork(ip_V(iD)-1+nAtom+CD)
                               ipW=iWork(ip_W(iD)-1+nAtom+AB)
-                              Call dGeMV_('N',MAB,MCD,
-     &                                   Const,Work(ip_Int),MAB,
+                              Call dGeMV_('N',MAB,MCD,                  &
+     &                                   Const,Work(ip_Int),MAB,        &
      &                                   Work(ipV),1,1.0d0,Work(ipW),1)
                            End Do
                            ! Compute W contribution
@@ -951,24 +951,24 @@ C==========================
                            Do iD=1,nD
                               ipV=iWork(ip_V(iD)-1+nAtom+AB)
                               ipW=iWork(ip_W(iD)-1+nAtom+CD)
-                              Call dGeMV_('T',MAB,MCD,
-     &                                   Const,Work(ip_Int),MAB,
+                              Call dGeMV_('T',MAB,MCD,                  &
+     &                                   Const,Work(ip_Int),MAB,        &
      &                                   Work(ipV),1,1.0d0,Work(ipW),1)
                            End Do
-                           Call GetMem('Fck2Int22','Free','Real',ip_Int,
+                           Call GetMem('Fck2Int22','Free','Real',ip_Int,&
      &                                                            l_Int)
                         End If
                      End If
                   End Do
                   ! Compute integrals (J_AB|K_AB)
-                  If (GAB(AB)*GAB(AB)*VAB(AB).ge.
-     &                                         Work(ip_tauW-1+nAtom+AB))
+                  If (GAB(AB)*GAB(AB)*VAB(AB).ge.                       &
+     &                                         Work(ip_tauW-1+nAtom+AB))&
      &            Then
                      l_Int=MAB**2
                      Call GetMem('Fck2Int22','Allo','Real',ip_Int,l_Int)
                      If (Timing) Call CWTime(tIC1,tIW1)
-                     Call LDF_Compute2IndexIntegrals_22(AB,AB,tau(1),
-     &                                                  l_Int,
+                     Call LDF_Compute2IndexIntegrals_22(AB,AB,tau(1),   &
+     &                                                  l_Int,          &
      &                                                  Work(ip_Int))
                      If (Timing) Then
                         Call CWTime(tIC2,tIW2)
@@ -980,8 +980,8 @@ C==========================
                      Do iD=1,nD
                         ipV=iWork(ip_V(iD)-1+nAtom+AB)
                         ipW=iWork(ip_W(iD)-1+nAtom+AB)
-                        Call dGeMV_('N',MAB,MAB,
-     &                             Const,Work(ip_Int),MAB,
+                        Call dGeMV_('N',MAB,MAB,                        &
+     &                             Const,Work(ip_Int),MAB,              &
      &                             Work(ipV),1,1.0d0,Work(ipW),1)
                      End Do
                      Call GetMem('Fck2Int22','Free','Real',ip_Int,l_Int)
@@ -992,11 +992,11 @@ C==========================
          End If
          If (Timing) Then
             Call CWTime(tC2,tW2)
-            Write(6,'(A,2(1X,F12.2),A)')
-     &      'Time spent on 2-index contributions:              ',
+            Write(6,'(A,2(1X,F12.2),A)')                                &
+     &      'Time spent on 2-index contributions:              ',       &
      &      tC2-tC1,tW2-tW1,' seconds'
-            Write(6,'(A,2(1X,F12.2),A)')
-     &      '      - of which integrals required:              ',
+            Write(6,'(A,2(1X,F12.2),A)')                                &
+     &      '      - of which integrals required:              ',       &
      &      tIC,tIW,' seconds'
          End If
       End If
@@ -1019,16 +1019,16 @@ C==========================
          End Do
          If (Timing) Then
             Call CWTime(tC2,tW2)
-            Write(6,'(A,2(1X,F12.2),A)')
-     &      'Parallel overhead for W intermediates:            ',
+            Write(6,'(A,2(1X,F12.2),A)')                                &
+     &      'Parallel overhead for W intermediates:            ',       &
      &      tC2-tC1,tW2-tW1,' seconds'
          End If
       End If
 #endif
 
-C===================
-C     Compute F+=C*W
-C===================
+!===================
+!     Compute F+=C*W
+!===================
 
       If (Timing) Call CWTime(tC1,tW1)
       Call Init_Tsk(TaskListID,NumberOfAtomPairs)
@@ -1047,8 +1047,8 @@ C===================
             Do iD=1,nD
                ipF=iWork(ip_FBlocks(iD)-1+AB)
                ipW=iWork(ip_W(iD)-1+A)
-               Call dGeMV_('N',nuv,MA,
-     &                    FactC(iD),Work(ipC),nuv,
+               Call dGeMV_('N',nuv,MA,                                  &
+     &                    FactC(iD),Work(ipC),nuv,                      &
      &                    Work(ipW),1,1.0d0,Work(ipF),1)
             End Do
             ipC=ipC+nuv*MA
@@ -1059,8 +1059,8 @@ C===================
                Do iD=1,nD
                   ipF=iWork(ip_FBlocks(iD)-1+AB)
                   ipW=iWork(ip_W(iD)-1+B)
-                  Call dGeMV_('N',nuv,MB,
-     &                       FactC(iD),Work(ipC),nuv,
+                  Call dGeMV_('N',nuv,MB,                               &
+     &                       FactC(iD),Work(ipC),nuv,                   &
      &                       Work(ipW),1,1.0d0,Work(ipF),1)
                End Do
                ipC=ipC+nuv*MB
@@ -1071,8 +1071,8 @@ C===================
             Do iD=1,nD
                ipF=iWork(ip_FBlocks(iD)-1+AB)
                ipW=iWork(ip_W(iD)-1+nAtom+AB)
-               Call dGeMV_('N',nuv,MAB,
-     &                    FactC(iD),Work(ipC),nuv,
+               Call dGeMV_('N',nuv,MAB,                                 &
+     &                    FactC(iD),Work(ipC),nuv,                      &
      &                    Work(ipW),1,1.0d0,Work(ipF),1)
             End Do
          End If
@@ -1081,8 +1081,8 @@ C===================
       Call Free_Tsk(TaskListID)
       If (Timing) Then
          Call CWTime(tC2,tW2)
-         Write(6,'(A,2(1X,F12.2),A)')
-     &   'Time spent computing C*W contribution:            ',
+         Write(6,'(A,2(1X,F12.2),A)')                                   &
+     &   'Time spent computing C*W contribution:            ',          &
      &   tC2-tC1,tW2-tW1,' seconds'
       End If
 
@@ -1099,12 +1099,12 @@ C===================
       ! and [uv|kl] is an LDF integral approximation.
       If (UseExactIntegralDiagonal) Then
          If (Timing) Call CWTime(tC1,tW1)
-         Call LDF_Fock_CoulombOnly_XIDI(Mode,tau(1),nD,FactC,
+         Call LDF_Fock_CoulombOnly_XIDI(Mode,tau(1),nD,FactC,           &
      &                                  ip_DBlocks,ip_FBlocks)
          If (Timing) Then
             Call CWTime(tC2,tW2)
-            Write(6,'(A,2(1X,F12.2),A)')
-     &      'Time spent computing XIDI corrections:            ',
+            Write(6,'(A,2(1X,F12.2),A)')                                &
+     &      'Time spent computing XIDI corrections:            ',       &
      &      tC2-tC1,tW2-tW1,' seconds'
          End If
       End If
@@ -1117,8 +1117,8 @@ C===================
          End Do
          If (Timing) Then
             Call CWTime(tC2,tW2)
-            Write(6,'(A,2(1X,F12.2),A)')
-     &      'Parallel overhead for F blocks:                   ',
+            Write(6,'(A,2(1X,F12.2),A)')                                &
+     &      'Parallel overhead for F blocks:                   ',       &
      &      tC2-tC1,tW2-tW1,' seconds'
          End If
       End If
@@ -1127,136 +1127,136 @@ C===================
       If (Timing) Call xFlush(6)
 
       End
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCC                                                          CCCCCCC
-CCCCCCC                      OLD CODE                            CCCCCCC
-CCCCCCC                                                          CCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      Subroutine LDF_Fock_CoulombOnly0(IntegralOption,tau,
-     &                                 Mode,Add,PackedD,PackedF,
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCC                                                          CCCCCCC
+!CCCCCC                      OLD CODE                            CCCCCCC
+!CCCCCC                                                          CCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      Subroutine LDF_Fock_CoulombOnly0(IntegralOption,tau,              &
+     &                                 Mode,Add,PackedD,PackedF,        &
      &                                 nD,FactC,ip_D,ip_F)
-C
-C     Thomas Bondo Pedersen, September 2010.
-C
-C     Purpose: Compute Coulomb contribution to Fock matrix using local
-C              Density Fitting coefficients. Use only for debugging!
-C              Poor performance!
-C
-C     Args:    - IntegralOption (integer)
-C                  111  => use two-electron integrals computed from
-C                          LDF coefficients (for debugging)
-C                  222  => use conventional two-electron integrals
-C                          (for debugging)
-C                  333  => use conventional or LDF two-electron
-C                          integrals depending on positivity of the
-C                          latter (for debugging)
-C                  all other values => use production-level LDF code
-C                  (INPUT)
-C              - tau (real*8) integral prescreening threshold (INPUT).
-C                Only used with IntegralOption=111.
-C              - Mode (integer) 1:robust,2:nonrobust,3:half-and-half
-C              - Add (boolean): .True. if Coulomb contribution should be
-C                added to the Fock matrix (INPUT). Not available in
-C                parallel execution!!
-C              - PackedD (boolean): .True. if density matrices
-C                are stored in lower triangular format; else quadratic
-C                storage (INPUT)
-C              - PackedF (boolean): .True. if Fock matrices
-C                are stored in lower triangular format; else quadratic
-C                storage (INPUT)
-C              - nD: Number of densities/Fock matrices (INPUT)
-C              - FactC(nD): scaling factor for each density (INPUT)
-C              - ip_D(nD): pointers to nD density matrices (if PackedD:
-C                lower triangular storage) (INPUT)
-C              - ip_F(nD): pointers to nD Fock matrices (if PackedF:
-C                lower triangular storage) (INPUT)
-C
-C              If (Add):  [NOT IMPLEMENTED IN PARALLEL]
-C       (1)       F(uv) = F(uv) + FactC * sum_kl (uv|kl)*D(kl)
-C              Else:
-C       (2)       F(uv) = FactC * sum_kl (uv|kl)*D(kl)
-C
-C              where the integrals are given by the robust LDF
-C              representation
-C
-C              (uv|kl) = ([uv]|kl) + (uv|[kl]) - ([uv]|[kl])
-C
-C              or the non-robust representation
-C
-C              (uv|kl) = ([uv]|[kl])
-C
-C              or the half-and-half representation
-C
-C              (uv|kl) = 0.5*([uv]|kl) + 0.5*(uv|[kl])
-C
-C              and the fitted products are given by
-C
-C              |[uv]) = sum_J C(uv,J) |J)
-C
-C              where the fitting functions |J) are centered on the atom
-C              pair to which the product |uv) belongs.
-C
-C              In more detail (assuming robust fitting representation):
-C
-C              F(uv) = FactC * {sum_J C(uv,J)*W(J) + sum_K (uv|K)*V(K)}
-C
-C              W(J) = sum_kl (J|kl)*D(kl) - sum_K (J|K)*V(K)
-C
-C              V(K) = sum_kl C(kl,K)*D(kl)
-C
-C     NOTES:
-C       - The density matrices are assumed to be symmetric.
-C       - It is the complete sum over kl in Eqs(1,2)! This means that
-C         the input density matrices should NOT be scaled by 2 on the
-C         off-diagonal (scaling factors are handled internally).
-C       - LDF information must be properly set up before calling this
-C         routine (use subroutine LDF_X_Init).
-C       - Two-center functions may or mat not be included in the fitting
-C         basis for a given atom pair.
-C       - The algorithm is NOT integral driven. This means that 3-center
-C         integrals (4-center integrals if 2-center fitting functions
-C         are included) are computed several times, causing quite poor
-C         performance.
-C       - The max number of processes for which the algorithm can
-C         possibly scale well equals the number of LDF atom pairs.
-C       - No screening has been implemented.
-C       - Add is not implemented in parallel !!!
-C
-C     Outline of the algorithm (robust representation):
-C     =================================================
-C
-C     *If (Mode=3): FactC := 0.5*FactC
-C
-C     *Scale off-diagonal density blocks:
-C      D[u_A v_B] <-- 2*D[u_A v_B] iff A != B
-C
-C     *Parallel loop over atom pairs AB (A>=B):
-C        - V(J_AB) = sum_[u_A v_B] C(u_A v_B,J_AB)*D(u_A v_B)
-C     *End loop AB
-C     Add V over nodes.
-C
-C     *Parallel loop over atom pairs AB (A>=B):
-C        *Loop over atom pairs CD (C>=D):
-C           - F(u_A v_B) = F(u_A v_B)
-C                        + sum_[K_CD] (u_A v_B | K_CD)*V(K_CD)
-C           - W(J_AB) = W(J_AB)
-C                     + sum_[k_C l_D] (J_AB | k_C l_D)*D(k_C l_D)
-C           - W(J_AB) = W(J_AB)
-C                     - sum_[K_CD] (J_AB | K_CD)*V(K_CD)
-C        *End loop CD
-C        - F(u_A v_B) = F(u_A v_B)
-C                     + sum_[J_AB] C(u_A v_B,J_AB)*W(J_AB)
-C     *End loope AB
-C     Add F over nodes
-C
-C     Note that both arrays V and F are stored locally as O(N) arrays,
-C     which should keep the communication bottleneck at a minimum as the
-C     system size grows.
-C
+!
+!     Thomas Bondo Pedersen, September 2010.
+!
+!     Purpose: Compute Coulomb contribution to Fock matrix using local
+!              Density Fitting coefficients. Use only for debugging!
+!              Poor performance!
+!
+!     Args:    - IntegralOption (integer)
+!                  111  => use two-electron integrals computed from
+!                          LDF coefficients (for debugging)
+!                  222  => use conventional two-electron integrals
+!                          (for debugging)
+!                  333  => use conventional or LDF two-electron
+!                          integrals depending on positivity of the
+!                          latter (for debugging)
+!                  all other values => use production-level LDF code
+!                  (INPUT)
+!              - tau (real*8) integral prescreening threshold (INPUT).
+!                Only used with IntegralOption=111.
+!              - Mode (integer) 1:robust,2:nonrobust,3:half-and-half
+!              - Add (boolean): .True. if Coulomb contribution should be
+!                added to the Fock matrix (INPUT). Not available in
+!                parallel execution!!
+!              - PackedD (boolean): .True. if density matrices
+!                are stored in lower triangular format; else quadratic
+!                storage (INPUT)
+!              - PackedF (boolean): .True. if Fock matrices
+!                are stored in lower triangular format; else quadratic
+!                storage (INPUT)
+!              - nD: Number of densities/Fock matrices (INPUT)
+!              - FactC(nD): scaling factor for each density (INPUT)
+!              - ip_D(nD): pointers to nD density matrices (if PackedD:
+!                lower triangular storage) (INPUT)
+!              - ip_F(nD): pointers to nD Fock matrices (if PackedF:
+!                lower triangular storage) (INPUT)
+!
+!              If (Add):  [NOT IMPLEMENTED IN PARALLEL]
+!       (1)       F(uv) = F(uv) + FactC * sum_kl (uv|kl)*D(kl)
+!              Else:
+!       (2)       F(uv) = FactC * sum_kl (uv|kl)*D(kl)
+!
+!              where the integrals are given by the robust LDF
+!              representation
+!
+!              (uv|kl) = ([uv]|kl) + (uv|[kl]) - ([uv]|[kl])
+!
+!              or the non-robust representation
+!
+!              (uv|kl) = ([uv]|[kl])
+!
+!              or the half-and-half representation
+!
+!              (uv|kl) = 0.5*([uv]|kl) + 0.5*(uv|[kl])
+!
+!              and the fitted products are given by
+!
+!              |[uv]) = sum_J C(uv,J) |J)
+!
+!              where the fitting functions |J) are centered on the atom
+!              pair to which the product |uv) belongs.
+!
+!              In more detail (assuming robust fitting representation):
+!
+!              F(uv) = FactC * {sum_J C(uv,J)*W(J) + sum_K (uv|K)*V(K)}
+!
+!              W(J) = sum_kl (J|kl)*D(kl) - sum_K (J|K)*V(K)
+!
+!              V(K) = sum_kl C(kl,K)*D(kl)
+!
+!     NOTES:
+!       - The density matrices are assumed to be symmetric.
+!       - It is the complete sum over kl in Eqs(1,2)! This means that
+!         the input density matrices should NOT be scaled by 2 on the
+!         off-diagonal (scaling factors are handled internally).
+!       - LDF information must be properly set up before calling this
+!         routine (use subroutine LDF_X_Init).
+!       - Two-center functions may or mat not be included in the fitting
+!         basis for a given atom pair.
+!       - The algorithm is NOT integral driven. This means that 3-center
+!         integrals (4-center integrals if 2-center fitting functions
+!         are included) are computed several times, causing quite poor
+!         performance.
+!       - The max number of processes for which the algorithm can
+!         possibly scale well equals the number of LDF atom pairs.
+!       - No screening has been implemented.
+!       - Add is not implemented in parallel !!!
+!
+!     Outline of the algorithm (robust representation):
+!     =================================================
+!
+!     *If (Mode=3): FactC := 0.5*FactC
+!
+!     *Scale off-diagonal density blocks:
+!      D[u_A v_B] <-- 2*D[u_A v_B] iff A != B
+!
+!     *Parallel loop over atom pairs AB (A>=B):
+!        - V(J_AB) = sum_[u_A v_B] C(u_A v_B,J_AB)*D(u_A v_B)
+!     *End loop AB
+!     Add V over nodes.
+!
+!     *Parallel loop over atom pairs AB (A>=B):
+!        *Loop over atom pairs CD (C>=D):
+!           - F(u_A v_B) = F(u_A v_B)
+!                        + sum_[K_CD] (u_A v_B | K_CD)*V(K_CD)
+!           - W(J_AB) = W(J_AB)
+!                     + sum_[k_C l_D] (J_AB | k_C l_D)*D(k_C l_D)
+!           - W(J_AB) = W(J_AB)
+!                     - sum_[K_CD] (J_AB | K_CD)*V(K_CD)
+!        *End loop CD
+!        - F(u_A v_B) = F(u_A v_B)
+!                     + sum_[J_AB] C(u_A v_B,J_AB)*W(J_AB)
+!     *End loope AB
+!     Add F over nodes
+!
+!     Note that both arrays V and F are stored locally as O(N) arrays,
+!     which should keep the communication bottleneck at a minimum as the
+!     system size grows.
+!
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
@@ -1302,7 +1302,7 @@ C
       ! Get number of basis functions (from localdf_bas.fh)
       nBas=nBas_Valence
       If (nBas.lt.1) Then
-         Call WarningMessage(1,
+         Call WarningMessage(1,                                         &
      &                  SecNam//': nBas<1 -- Fock matrix NOT computed!')
          Write(6,'(A,I9)') 'nBas=',nBas
          Call xFlush(6)
@@ -1319,7 +1319,7 @@ C
 #if defined (_MOLCAS_MPP_)
       If (Add) Then
          If (nProcs.gt.1 .and. Is_Real_Par()) Then
-            Write(6,'(A,A)') SecNam,
+            Write(6,'(A,A)') SecNam,                                    &
      &        ': >>Add<< feature not implemented in parallel execution!'
             Call LDF_NotImplemented()
          End If
@@ -1364,12 +1364,12 @@ C
          Call LDF_Full2Blocked(Work(ip_D(iD)),PackedD,iWork(ip0+iD))
 #if defined (_DEBUGPRINT_)
          If (DoTest) Then
-            If (.not.LDF_TestBlockMatrix(iWork(ip0+iD),PackedD,
+            If (.not.LDF_TestBlockMatrix(iWork(ip0+iD),PackedD,         &
      &                                   Work(ip_D(iD)))) Then
-               Call WarningMessage(2,
+               Call WarningMessage(2,                                   &
      &                            SecNam//': block matrix test failure')
-               Write(6,'(A,I4,A,I9,3X,A,L1)')
-     &         'Density matrix',iD,' at location',ip_D(iD),
+               Write(6,'(A,I4,A,I9,3X,A,L1)')                           &
+     &         'Density matrix',iD,' at location',ip_D(iD),             &
      &         'Packed: ',PackedD
                Call LDF_Quit(1)
             End If
@@ -1389,41 +1389,41 @@ C
 
       If (IntegralOption.eq.111) Then
          ! Compute Fock matrix using LDF integrals (debug)
-         Call WarningMessage(0,
+         Call WarningMessage(0,                                         &
      &               SecNam//': Using integrals from LDF coefficients!')
          Call xFlush(6)
          UsePartPermSym=.True.
          If (Mode.eq.3) Then
-            Call LDF_FVIFC(UsePartPermSym,Mode,max(tau,0.0d0),
-     &                     nD,Work(ip_FactC),iWork(ip_DBlocks),
+            Call LDF_FVIFC(UsePartPermSym,Mode,max(tau,0.0d0),          &
+     &                     nD,Work(ip_FactC),iWork(ip_DBlocks),         &
      &                     iWork(ip_FBlocks))
          Else
-            Call LDF_FVIFC(UsePartPermSym,Mode,max(tau,0.0d0),
-     &                     nD,FactC,iWork(ip_DBlocks),
+            Call LDF_FVIFC(UsePartPermSym,Mode,max(tau,0.0d0),          &
+     &                     nD,FactC,iWork(ip_DBlocks),                  &
      &                     iWork(ip_FBlocks))
          End If
       Else If (IntegralOption.eq.222) Then
          ! Compute Fock matrix using conventional integrals (debug)
-         Call WarningMessage(0,
+         Call WarningMessage(0,                                         &
      &                        SecNam//': Using conventional integrals!')
          Call xFlush(6)
          UsePartPermSym=.True.
-         Call LDF_FCI(UsePartPermSym,nD,FactC,iWork(ip_DBlocks),
+         Call LDF_FCI(UsePartPermSym,nD,FactC,iWork(ip_DBlocks),        &
      &                                        iWork(ip_FBlocks))
       Else If (IntegralOption.eq.333) Then
          ! Compute Fock matrix using conventional or LDF integrals
          ! depending on positivity of the latter (debug)
-         Call WarningMessage(0,
+         Call WarningMessage(0,                                         &
      &                  SecNam//': Using PSD (LDF or conv.) integrals!')
          Call xFlush(6)
          UsePartPermSym=.True.
          If (Mode.eq.3) Then
-            Call LDF_FTst(UsePartPermSym,Mode,max(tau,0.0d0),
-     &                    nD,Work(ip_FactC),iWork(ip_DBlocks),
+            Call LDF_FTst(UsePartPermSym,Mode,max(tau,0.0d0),           &
+     &                    nD,Work(ip_FactC),iWork(ip_DBlocks),          &
      &                    iWork(ip_FBlocks))
          Else
-            Call LDF_FTst(UsePartPermSym,Mode,max(tau,0.0d0),
-     &                    nD,FactC,iWork(ip_DBlocks),
+            Call LDF_FTst(UsePartPermSym,Mode,max(tau,0.0d0),           &
+     &                    nD,FactC,iWork(ip_DBlocks),                   &
      &                    iWork(ip_FBlocks))
          End If
       Else
@@ -1436,11 +1436,11 @@ C
          ! Compute Coulomb intermediates,
          ! V(J) = sum_uv C(uv,J)*D(uv)
          ! for each density matrix
-         Call LDF_ComputeCoulombIntermediates0(nD,iWork(ip_DBlocks),
+         Call LDF_ComputeCoulombIntermediates0(nD,iWork(ip_DBlocks),    &
      &                                            iWork(ip_VBlocks))
          ! Compute Coulomb contributions
-         Call LDF_Fock_CoulombOnly0_(Mode,nD,FactC,
-     &                              iWork(ip_DBlocks),iWork(ip_VBlocks),
+         Call LDF_Fock_CoulombOnly0_(Mode,nD,FactC,                     &
+     &                              iWork(ip_DBlocks),iWork(ip_VBlocks),&
      &                              iWork(ip_FBlocks))
          ! Deallocate Coulomb intermediates
          Do iD=0,nD-1
@@ -1473,19 +1473,19 @@ C
       Call GetMem('DBlk_P','Free','Inte',ip_DBlocks,l_DBlocks)
 
       End
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      Subroutine LDF_Fock_CoulombOnly0_(Mode,nD,FactC,
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      Subroutine LDF_Fock_CoulombOnly0_(Mode,nD,FactC,                  &
      &                                 ip_DBlocks,ip_VBlocks,ip_FBlocks)
-C
-C     Thomas Bondo Pedersen, September 2010.
-C
-C     Purpose: Compute Coulomb contributions to the Fock matrix using
-C              Coulomb intermediates V.
-C
-C     See LDF_Fock_CoulombOnly for an outline of the algorithm.
-C
+!
+!     Thomas Bondo Pedersen, September 2010.
+!
+!     Purpose: Compute Coulomb contributions to the Fock matrix using
+!              Coulomb intermediates V.
+!
+!     See LDF_Fock_CoulombOnly for an outline of the algorithm.
+!
       Implicit None
       Integer Mode
       Integer nD
@@ -1536,22 +1536,22 @@ C
             Do CD=1,NumberOfAtomPairs
                ! F(u_A v_B) = F(u_A v_B)
                !            + sum_[K_CD] (u_A v_B | K_CD)*V(K_CD)
-               Call LDF_Fock_CoulombOnly0_1(nD,FactC,ip_VBlocks,
+               Call LDF_Fock_CoulombOnly0_1(nD,FactC,ip_VBlocks,        &
      &                                      ip_FBlocks,AB,CD)
                ! W(J_AB) = W(J_AB)
                !         + sum_[k_C l_D] (J_AB | k_C l_D)*D(k_C l_D)
-               Call LDF_Fock_CoulombOnly0_2(nD,ip_DBlocks,
+               Call LDF_Fock_CoulombOnly0_2(nD,ip_DBlocks,              &
      &                                      iWork(ip_WBlkP),AB,CD)
                If (Mode.eq.1) Then
                   ! W(J_AB) = W(J_AB)
                   !         - sum_[K_CD] (J_AB | K_CD)*V(K_CD)
-                  Call LDF_Fock_CoulombOnly0_3(-1.0d0,nD,ip_VBlocks,
+                  Call LDF_Fock_CoulombOnly0_3(-1.0d0,nD,ip_VBlocks,    &
      &                                         iWork(ip_WBlkP),AB,CD)
                End If
             End Do ! end serial loop over atom pairs CD
             ! F(u_A v_B) = F(u_A v_B)
             !            + sum_[J_AB] C(u_A v_B,J_AB)*W(J_AB)
-            nuv=LDF_nBas_Atom(AP_Atoms(1,AB))
+            nuv=LDF_nBas_Atom(AP_Atoms(1,AB))                           &
      &         *LDF_nBas_Atom(AP_Atoms(2,AB))
             M=LDF_nBasAux_Pair(AB)
             l=nuv*M
@@ -1560,8 +1560,8 @@ C
             Do iD=1,nD
                ipF=iWork(ip_FBlocks(iD)-1+AB)
                ipW=iWork(ip_WBlocks(iD)-1+AB)
-               Call dGeMV_('N',nuv,M,
-     &                    FactC(iD),Work(ip),nuv,
+               Call dGeMV_('N',nuv,M,                                   &
+     &                    FactC(iD),Work(ip),nuv,                       &
      &                    Work(ipW),1,1.0d0,Work(ipF),1)
             End Do
             Call GetMem('C_AB','Free','Real',ip,l)
@@ -1575,12 +1575,12 @@ C
             Do CD=1,NumberOfAtomPairs
                ! W(J_AB) = W(J_AB)
                !         + sum_[K_CD] (J_AB | K_CD)*V(K_CD)
-               Call LDF_Fock_CoulombOnly0_3(1.0d0,nD,ip_VBlocks,
+               Call LDF_Fock_CoulombOnly0_3(1.0d0,nD,ip_VBlocks,        &
      &                                      iWork(ip_WBlkP),AB,CD)
             End Do ! end serial loop over atom pairs CD
             ! F(u_A v_B) = F(u_A v_B)
             !            + sum_[J_AB] C(u_A v_B,J_AB)*W(J_AB)
-            nuv=LDF_nBas_Atom(AP_Atoms(1,AB))
+            nuv=LDF_nBas_Atom(AP_Atoms(1,AB))                           &
      &         *LDF_nBas_Atom(AP_Atoms(2,AB))
             M=LDF_nBasAux_Pair(AB)
             l=nuv*M
@@ -1589,8 +1589,8 @@ C
             Do iD=1,nD
                ipF=iWork(ip_FBlocks(iD)-1+AB)
                ipW=iWork(ip_WBlocks(iD)-1+AB)
-               Call dGeMV_('N',nuv,M,
-     &                    FactC(iD),Work(ip),nuv,
+               Call dGeMV_('N',nuv,M,                                   &
+     &                    FactC(iD),Work(ip),nuv,                       &
      &                    Work(ipW),1,1.0d0,Work(ipF),1)
             End Do
             Call GetMem('C_AB','Free','Real',ip,l)
@@ -1615,19 +1615,19 @@ C
       Call GetMem('WBlk_P','Free','Inte',ip_WBlkP,l_WBlkP)
 
       End
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      Subroutine LDF_Fock_CoulombOnly0_1(nD,FactC,ip_VBlocks,ip_FBlocks,
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      Subroutine LDF_Fock_CoulombOnly0_1(nD,FactC,ip_VBlocks,ip_FBlocks,&
      &                                   AB,CD)
-C
-C     Thomas Bondo Pedersen, September 2010.
-C
-C     Purpose: Compute
-C
-C              F(u_A v_B) = F(u_A v_B)
-C                         + FactC*sum_[K_CD] (u_A v_B | K_CD)*V(K_CD)
-C
+!
+!     Thomas Bondo Pedersen, September 2010.
+!
+!     Purpose: Compute
+!
+!              F(u_A v_B) = F(u_A v_B)
+!                         + FactC*sum_[K_CD] (u_A v_B | K_CD)*V(K_CD)
+!
       Implicit None
       Integer nD
       Real*8  FactC(nD)
@@ -1650,7 +1650,7 @@ C
       AP_Atoms(i,j)=iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
       ! Get row and column dimensions of integrals
-      nuv=LDF_nBas_Atom(AP_Atoms(1,AB))
+      nuv=LDF_nBas_Atom(AP_Atoms(1,AB))                                 &
      &   *LDF_nBas_Atom(AP_Atoms(2,AB))
       M=LDF_nBasAux_Pair(CD)
 
@@ -1668,8 +1668,8 @@ C
       Do iD=1,nD
          ipV=iWork(ip_VBlocks(iD)-1+CD)
          ipF=iWork(ip_FBlocks(iD)-1+AB)
-         Call dGeMV_('N',nuv,M,
-     &              FactC(iD),Work(ip_Int),nuv,
+         Call dGeMV_('N',nuv,M,                                         &
+     &              FactC(iD),Work(ip_Int),nuv,                         &
      &              Work(ipV),1,1.0d0,Work(ipF),1)
       End Do
 
@@ -1677,18 +1677,18 @@ C
       Call GetMem('LDFFuvJ1','Free','Real',ip_Int,l_Int)
 
       End
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Subroutine LDF_Fock_CoulombOnly0_2(nD,ip_DBlocks,ip_WBlocks,AB,CD)
-C
-C     Thomas Bondo Pedersen, September 2010.
-C
-C     Purpose: Compute
-C
-C              W(J_AB) = W(J_AB)
-C                      + sum_[k_C l_D] (k_C l_D|J_AB)*D(k_C l_D)
-C
+!
+!     Thomas Bondo Pedersen, September 2010.
+!
+!     Purpose: Compute
+!
+!              W(J_AB) = W(J_AB)
+!                      + sum_[k_C l_D] (k_C l_D|J_AB)*D(k_C l_D)
+!
       Implicit None
       Integer nD
       Integer ip_DBlocks(nD)
@@ -1710,7 +1710,7 @@ C
       AP_Atoms(i,j)=iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
       ! Get row and column dimensions of integrals
-      nkl=LDF_nBas_Atom(AP_Atoms(1,CD))
+      nkl=LDF_nBas_Atom(AP_Atoms(1,CD))                                 &
      &   *LDF_nBas_Atom(AP_Atoms(2,CD))
       M=LDF_nBasAux_Pair(AB)
 
@@ -1728,8 +1728,8 @@ C
       Do iD=1,nD
          ipD=iWork(ip_DBlocks(iD)-1+CD)
          ipW=iWork(ip_WBlocks(iD)-1+AB)
-         Call dGeMV_('T',nkl,M,
-     &              1.0d0,Work(ip_Int),nkl,
+         Call dGeMV_('T',nkl,M,                                         &
+     &              1.0d0,Work(ip_Int),nkl,                             &
      &              Work(ipD),1,1.0d0,Work(ipW),1)
       End Do
 
@@ -1737,19 +1737,19 @@ C
       Call GetMem('LDFFuvJ2','Free','Real',ip_Int,l_Int)
 
       End
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      Subroutine LDF_Fock_CoulombOnly0_3(Const,nD,ip_VBlocks,ip_WBlocks,
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      Subroutine LDF_Fock_CoulombOnly0_3(Const,nD,ip_VBlocks,ip_WBlocks,&
      &                                  AB,CD)
-C
-C     Thomas Bondo Pedersen, September 2010.
-C
-C     Purpose: Compute
-C
-C              W(J_AB) = W(J_AB)
-C                      + Const * sum_[K_CD] (J_AB | K_CD)*V(K_CD)
-C
+!
+!     Thomas Bondo Pedersen, September 2010.
+!
+!     Purpose: Compute
+!
+!              W(J_AB) = W(J_AB)
+!                      + Const * sum_[K_CD] (J_AB | K_CD)*V(K_CD)
+!
       Implicit None
       Real*8  Const
       Integer nD
@@ -1784,8 +1784,8 @@ C
       Do iD=1,nD
          ipV=iWork(ip_VBlocks(iD)-1+CD)
          ipW=iWork(ip_WBlocks(iD)-1+AB)
-         Call dGeMV_('N',MAB,MCD,
-     &              Const,Work(ip_Int),MAB,
+         Call dGeMV_('N',MAB,MCD,                                       &
+     &              Const,Work(ip_Int),MAB,                             &
      &              Work(ipV),1,1.0d0,Work(ipW),1)
       End Do
 
