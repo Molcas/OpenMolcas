@@ -11,60 +11,64 @@
 ! Copyright (C) 2011, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine LDF_Fock_CoulombUpperBound(PrintNorm,nD,FactC,ip_DBlocks,ip_FBlocks)
-!  Thomas Bondo Pedersen, January 2011.
+subroutine LDF_Fock_CoulombUpperBoundNorm(PrintNorm,nD,FactC,ip_DBlocks,UBFNorm)
+! Thomas Bondo Pedersen, January 2011.
 !
-!  Purpose: add the upper bound correction to the LDF Fock
-!           matrix (Coulomb only):
-!
-!        |Fexact(uv)-F(uv)| <= sqrt[(Delta(uv)|Delta(uv))]*U
-!
-!        U = sum_uv sqrt[(Delta(uv)|Delta(uv))]*|D(uv)|
+! Purpose: compute norm of the upper bound to the Coulomb Fock
+!          matrix error in LDF.
 
 implicit none
 logical PrintNorm
 integer nD
 real*8 FactC(nD)
 integer ip_DBlocks(nD)
-integer ip_FBlocks(nD)
+real*8 UBFNorm(nD)
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
 
-integer ip_U, l_U, ip
-integer ip_Norm, l_Norm
+integer LDF_nBas_Atom
+external LDF_nBas_Atom
+
+integer ip
+integer ip_U, l_U
 integer iD
 integer AB
+integer nAB
+integer ipDel
+integer uv
 
-real*8 UBFNorm
+integer i, j
+integer AP_Atoms
+AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
 if (nD < 1) return
 if (NumberOfAtomPairs < 1) return
 
-l_U = nD
-call GetMem('LDFCU','Allo','Real',ip_U,l_U)
 !-tbp Call LDF_GetQuadraticDiagonal(ip)
 ip = ip_AP_Diag
+l_U = nD
+call GetMem('CUBNrmU','Allo','Real',ip_U,l_U)
 call LDF_ComputeU(ip,nD,ip_DBlocks,Work(ip_U))
-call LDF_Fock_CUB(ip,nD,FactC,Work(ip_U),ip_FBlocks)
+do iD=1,nD
+  UBFNorm(iD) = 0.0d0
+  do AB=1,NumberOfAtomPairs
+    nAB = LDF_nBas_Atom(AP_Atoms(1,AB))*LDF_nBas_Atom(AP_Atoms(2,AB))
+    ipDel = iWork(ip-1+AB)-1
+    do uv=1,nAB
+      UBFNorm(iD) = UBFNorm(iD)+Work(ipDel+uv)
+    end do
+  end do
+  UBFNorm(iD) = FactC(iD)*Work(ip_U-1+iD)*sqrt(UBFNorm(iD))
+end do
+call GetMem('CUBNrmU','Free','Real',ip_U,l_U)
 !-tbp Call LDF_FreeQuadraticDiagonal(ip)
-call GetMem('LDFCU','Free','Real',ip_U,l_U)
 
 if (PrintNorm) then
-  if (NumberOfAtomPairs > 0) then
-    l_Norm = NumberOfAtomPairs
-    call GetMem('UBFNrm','Allo','Real',ip_Norm,l_Norm)
-    do iD=1,nD
-      call LDF_BlockMatrixNorm(ip_FBlocks(iD),ip_Norm)
-      UBFNorm = 0.0d0
-      do AB=1,NumberOfAtomPairs
-        UBFNorm = UBFNorm+Work(ip_Norm-1+AB)**2
-      end do
-      write(6,'(A,I10,A,1P,D20.10,1X,A,D20.10,A)') 'Norm of Fock matrix after adding Coulomb upper bound for density',iD,':', &
-                                                   sqrt(UBFNorm),'(BlockRMS=',sqrt(UBFNorm/dble(NumberOfAtomPairs)),')'
-    end do
-    call xFlush(6)
-    call GetMem('UBFNrm','Free','Real',ip_Norm,l_Norm)
-  end if
+  do iD=1,nD
+    write(6,'(A,I10,A,1P,D20.10,1X,A,D20.10,A)') 'Norm of upper bound Coulomb error for density',iD,':',UBFNorm(iD),'(BlockRMS=', &
+                                                 sqrt(UBFNorm(iD)**2/dble(NumberOfAtomPairs)),')'
+  end do
+  call xFlush(6)
 end if
 
-end subroutine LDF_Fock_CoulombUpperBound
+end subroutine LDF_Fock_CoulombUpperBoundNorm

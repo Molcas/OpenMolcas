@@ -1,0 +1,135 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Thomas Bondo Pedersen                            *
+!***********************************************************************
+
+subroutine LDF_Fock_CoulombOnly0_(Mode,nD,FactC,ip_DBlocks,ip_VBlocks,ip_FBlocks)
+! Thomas Bondo Pedersen, September 2010.
+!
+!          OLD CODE
+!
+! Purpose: Compute Coulomb contributions to the Fock matrix using
+!          Coulomb intermediates V.
+!
+! See LDF_Fock_CoulombOnly for an outline of the algorithm.
+
+implicit none
+integer Mode
+integer nD
+real*8 FactC(nD)
+integer ip_DBlocks(nD)
+integer ip_VBlocks(nD)
+integer ip_FBlocks(nD)
+#include "WrkSpc.fh"
+#include "ldf_atom_pair_info.fh"
+
+character*22 SecNam
+parameter(SecNam='LDF_Fock_CoulombOnly0_')
+
+logical Rsv_Tsk
+external Rsv_Tsk
+
+integer LDF_nBas_Atom, LDF_nBasAux_Pair
+external LDF_nBas_Atom, LDF_nBasAux_Pair
+
+integer ip_WBlkP, l_WBlkP
+integer iD
+integer TaskListID
+integer AB, CD
+integer ip, l
+integer nuv, M
+integer ipW, ipF
+
+integer i, j
+integer ip_WBlocks
+integer AP_Atoms
+ip_WBlocks(i) = iWork(ip_WBlkP-1+i)
+AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
+
+! Allocate and initialize W intermediates
+l_WBlkP = nD
+call GetMem('WBlk_P','Allo','Inte',ip_WBlkP,l_WBlkP)
+do iD=1,nD
+  call LDF_AllocateBlockVector('Win',iWork(ip_WBlkP-1+iD))
+  call LDF_ZeroBlockVector(ip_WBlocks(iD))
+end do
+
+if ((Mode == 1) .or. (Mode == 3)) then
+  ! Parallel loop over atom pairs AB (A>=B)
+  call Init_Tsk(TaskListID,NumberOfAtomPairs)
+  do while (Rsv_Tsk(TaskListID,AB))
+    ! Serial loop over atom pairs CD (C>=D)
+    do CD=1,NumberOfAtomPairs
+      ! F(u_A v_B) = F(u_A v_B) + sum_[K_CD] (u_A v_B | K_CD)*V(K_CD)
+      call LDF_Fock_CoulombOnly0_1(nD,FactC,ip_VBlocks,ip_FBlocks,AB,CD)
+      ! W(J_AB) = W(J_AB) + sum_[k_C l_D] (J_AB | k_C l_D)*D(k_C l_D)
+      call LDF_Fock_CoulombOnly0_2(nD,ip_DBlocks,iWork(ip_WBlkP),AB,CD)
+      if (Mode == 1) then
+        ! W(J_AB) = W(J_AB) - sum_[K_CD] (J_AB | K_CD)*V(K_CD)
+        call LDF_Fock_CoulombOnly0_3(-1.0d0,nD,ip_VBlocks,iWork(ip_WBlkP),AB,CD)
+      end if
+    end do ! end serial loop over atom pairs CD
+    ! F(u_A v_B) = F(u_A v_B) + sum_[J_AB] C(u_A v_B,J_AB)*W(J_AB)
+    nuv = LDF_nBas_Atom(AP_Atoms(1,AB))*LDF_nBas_Atom(AP_Atoms(2,AB))
+    M = LDF_nBasAux_Pair(AB)
+    l = nuv*M
+    call GetMem('C_AB','Allo','Real',ip,l)
+    call LDF_CIO_ReadC(AB,Work(ip),l)
+    do iD=1,nD
+      ipF = iWork(ip_FBlocks(iD)-1+AB)
+      ipW = iWork(ip_WBlocks(iD)-1+AB)
+      call dGeMV_('N',nuv,M,FactC(iD),Work(ip),nuv,Work(ipW),1,1.0d0,Work(ipF),1)
+    end do
+    call GetMem('C_AB','Free','Real',ip,l)
+  end do ! end parallel loop over atom pairs AB
+  call Free_Tsk(TaskListID)
+else if (Mode == 2) then ! non-robust fitting
+  ! Parallel loop over atom pairs AB (A>=B)
+  call Init_Tsk(TaskListID,NumberOfAtomPairs)
+  do while (Rsv_Tsk(TaskListID,AB))
+    ! Serial loop over atom pairs CD (C>=D)
+    do CD=1,NumberOfAtomPairs
+      ! W(J_AB) = W(J_AB) + sum_[K_CD] (J_AB | K_CD)*V(K_CD)
+      call LDF_Fock_CoulombOnly0_3(1.0d0,nD,ip_VBlocks,iWork(ip_WBlkP),AB,CD)
+    end do ! end serial loop over atom pairs CD
+    ! F(u_A v_B) = F(u_A v_B) + sum_[J_AB] C(u_A v_B,J_AB)*W(J_AB)
+    nuv = LDF_nBas_Atom(AP_Atoms(1,AB))*LDF_nBas_Atom(AP_Atoms(2,AB))
+    M = LDF_nBasAux_Pair(AB)
+    l = nuv*M
+    call GetMem('C_AB','Allo','Real',ip,l)
+    call LDF_CIO_ReadC(AB,Work(ip),l)
+    do iD=1,nD
+      ipF = iWork(ip_FBlocks(iD)-1+AB)
+      ipW = iWork(ip_WBlocks(iD)-1+AB)
+      call dGeMV_('N',nuv,M,FactC(iD),Work(ip),nuv,Work(ipW),1,1.0d0,Work(ipF),1)
+    end do
+    call GetMem('C_AB','Free','Real',ip,l)
+  end do ! end parallel loop over atom pairs AB
+  call Free_Tsk(TaskListID)
+else
+  write(6,'(A,A,I6)') SecNam,': unknown Mode:',Mode
+  call LDF_NotImplemented()
+end if
+
+#ifdef _MOLCAS_MPP_
+! Add F over nodes
+do iD=1,nD
+  call LDF_P_AddBlockMatrix(ip_FBlocks(iD))
+end do
+#endif
+
+! Deallocate W intermediates
+do iD=0,nD-1
+  call LDF_DeallocateBlockVector('Win',iWork(ip_WBlkP+iD))
+end do
+call GetMem('WBlk_P','Free','Inte',ip_WBlkP,l_WBlkP)
+
+end subroutine LDF_Fock_CoulombOnly0_
