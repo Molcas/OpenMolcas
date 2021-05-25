@@ -11,7 +11,7 @@
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine LDF_ComputeCoulombIntermediates(Timing,nD,ip_DBlocks,ip_V,ip_CNorm)
+subroutine LDF_ComputeCoulombIntermediates(Timing,nD,ip_DBlocks,ip_V,CNorm)
 ! Thomas Bondo Pedersen, October 2010.
 !
 ! Purpose: Compute Coulomb intermediates
@@ -19,15 +19,15 @@ subroutine LDF_ComputeCoulombIntermediates(Timing,nD,ip_DBlocks,ip_V,ip_CNorm)
 !      V(J) = sum_uv C(uv,J)*D(uv)
 !
 !      using LDF fitting coefficients.
-!      If ip_CNorm>0 on entry, Frobenius norms of the fitting
+!      Frobenius norms of the fitting
 !      coefficients are computed as a byproduct, stored as:
-!      Work(ip_CNorm-1+4*(AB-1)+1)
+!      CNorm(4*(AB-1)+1)
 !          =sum_uAvBJ sqrt[C(uAvB,J)**2]       {all J}
-!      Work(ip_CNorm-1+4*(AB-1)+2)
+!      CNorm(4*(AB-1)+2)
 !          =sum_uAvBJA sqrt[C(uAvB,JA)**2]     {J on A}
-!      Work(ip_CNorm-1+4*(AB-1)+3)
+!      CNorm(4*(AB-1)+3)
 !          =sum_uAvBJB sqrt[C(uAvB,JB)**2]     {J on B}
-!      Work(ip_CNorm-1+4*(AB-1)+4)
+!      CNorm(4*(AB-1)+4)
 !          =sum_uAvBJAB sqrt[C(uAvB,JAB)**2]   {J on AB (2CF)}
 !
 ! FOR BLOCKED VERSION: Call LDF_ComputeCoulombIntermediates0
@@ -35,20 +35,23 @@ subroutine LDF_ComputeCoulombIntermediates(Timing,nD,ip_DBlocks,ip_V,ip_CNorm)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: nProcs, Is_Real_Par
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
+#include "ldf_atom_pair_info.fh"
 logical(kind=iwp), intent(in) :: Timing
-integer(kind=iwp), intent(in) :: nD, ip_DBlocks(nD), ip_V(nD), ip_CNorm
+integer(kind=iwp), intent(in) :: nD, ip_DBlocks(nD), ip_V(nD)
+real(kind=wp), intent(out) :: CNorm(4*NumberOfAtomPairs)
 logical(kind=iwp) :: doNorm
 real(kind=wp) :: tC1, tC2, tW1, tW2
-integer(kind=iwp) :: TaskListID, iD, ip_C, l_C, iAtomPair, iAtom, jAtom, nAtom, nuv, M, ipD, ipV, ipC
+integer(kind=iwp) :: TaskListID, iD, l_C, iAtomPair, iAtom, jAtom, nAtom, nuv, M, ipD, ipV, ipC
+real(kind=wp), allocatable :: LDFCBlk(:)
 logical(kind=iwp), external :: Rsv_Tsk
 integer(kind=iwp), external :: LDF_nBas_Atom, LDF_nBasAux_Atom, LDF_nBasAux_Pair_wLD, LDF_nAtom
 real(kind=r8), external :: ddot_
 #include "WrkSpc.fh"
-#include "ldf_atom_pair_info.fh"
 ! statement functions
 integer(kind=iwp) :: i, j, AP_Atoms, AP_2CFunctions
 AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
@@ -70,15 +73,15 @@ do iAtomPair=1,NumberOfAtomPairs
   M = LDF_nBasAux_Pair_wLD(iAtomPair)
   l_C = max(l_C,nuv*M)
 end do
-call GetMem('LDFCBlk','Allo','Real',ip_C,l_C)
+call mma_allocate(LDFCBlk,l_C,label='LDFCBlk')
 
 ! compute norm?
-doNorm = ip_CNorm > 0
+doNorm = .true.
 #ifdef _MOLCAS_MPP_
 ! Init norm array
 if ((nProcs > 1) .and. Is_Real_Par()) then
   if (doNorm) then
-    call Cho_dZero(Work(ip_CNorm),4*NumberOfAtomPairs)
+    call Cho_dZero(CNorm,4*NumberOfAtomPairs)
   end if
 end if
 #endif
@@ -87,51 +90,51 @@ end if
 nAtom = LDF_nAtom()
 call Init_Tsk(TaskListID,NumberOfAtomPairs)
 do while (Rsv_Tsk(TaskListID,iAtomPair))
-  call LDF_CIO_ReadC_wLD(iAtomPair,Work(ip_C),l_C)
+  call LDF_CIO_ReadC_wLD(iAtomPair,LDFCBlk,l_C)
   iAtom = AP_Atoms(1,iAtomPair)
   jAtom = AP_Atoms(2,iAtomPair)
   nuv = LDF_nBas_Atom(iAtom)*LDF_nBas_Atom(jAtom)
-  ipC = ip_C
+  ipC = 1
   M = LDF_nBasAux_Atom(iAtom)
   if (doNorm) then
-    Work(ip_CNorm+4*(iAtomPair-1)) = sqrt(dDot_(nuv*LDF_nBasAux_Pair_wLD(iAtomPair),Work(ip_C),1,Work(ip_C),1))
-    Work(ip_CNorm+4*(iAtomPair-1)+1) = sqrt(dDot_(nuv*M,Work(ipC),1,Work(ipC),1))
+    CNorm(4*(iAtomPair-1)+1) = sqrt(dDot_(nuv*LDF_nBasAux_Pair_wLD(iAtomPair),LDFCBlk,1,LDFCBlk,1))
+    CNorm(4*(iAtomPair-1)+2) = sqrt(dDot_(nuv*M,LDFCBlk(ipC),1,LDFCBlk(ipC),1))
   end if
   do iD=1,nD
     ipD = iWork(ip_DBlocks(iD)-1+iAtomPair)
     ipV = iWork(ip_V(iD)-1+iAtom)
-    call dGeMV_('T',nuv,M,One,Work(ipC),nuv,Work(ipD),1,One,Work(ipV),1)
+    call dGeMV_('T',nuv,M,One,LDFCBlk(ipC),nuv,Work(ipD),1,One,Work(ipV),1)
   end do
   if (jAtom /= iAtom) then
     ipC = ipC+nuv*M
     M = LDF_nBasAux_Atom(jAtom)
     if (doNorm) then
-      Work(ip_CNorm+4*(iAtomPair-1)+2) = sqrt(dDot_(nuv*M,Work(ipC),1,Work(ipC),1))
+      CNorm(4*(iAtomPair-1)+3) = sqrt(dDot_(nuv*M,LDFCBlk(ipC),1,LDFCBlk(ipC),1))
     end if
     do iD=1,nD
       ipD = iWork(ip_DBlocks(iD)-1+iAtomPair)
       ipV = iWork(ip_V(iD)-1+jAtom)
-      call dGeMV_('T',nuv,M,One,Work(ipC),nuv,Work(ipD),1,One,Work(ipV),1)
+      call dGeMV_('T',nuv,M,One,LDFCBlk(ipC),nuv,Work(ipD),1,One,Work(ipV),1)
     end do
   else
     if (doNorm) then
-      Work(ip_CNorm+4*(iAtomPair-1)+2) = Work(ip_CNorm+4*(iAtomPair-1)+1)
+      CNorm(4*(iAtomPair-1)+3) = CNorm(4*(iAtomPair-1)+2)
     end if
   end if
   if (AP_2CFunctions(1,iAtomPair) > 0) then
     ipC = ipC+nuv*M
     M = AP_2CFunctions(1,iAtomPair)
     if (doNorm) then
-      Work(ip_CNorm+4*(iAtomPair-1)+3) = sqrt(dDot_(nuv*M,Work(ipC),1,Work(ipC),1))
+      CNorm(4*(iAtomPair-1)+4) = sqrt(dDot_(nuv*M,LDFCBlk(ipC),1,LDFCBlk(ipC),1))
     end if
     do iD=1,nD
       ipD = iWork(ip_DBlocks(iD)-1+iAtomPair)
       ipV = iWork(ip_V(iD)-1+nAtom+iAtomPair)
-      call dGeMV_('T',nuv,M,One,Work(ipC),nuv,Work(ipD),1,One,Work(ipV),1)
+      call dGeMV_('T',nuv,M,One,LDFCBlk(ipC),nuv,Work(ipD),1,One,Work(ipV),1)
     end do
   else
     if (doNorm) then
-      Work(ip_CNorm+4*(iAtomPair-1)+3) = Zero
+      CNorm(4*(iAtomPair-1)+4) = Zero
     end if
   end if
 end do
@@ -142,7 +145,7 @@ if (Timing) then
 end if
 
 ! Deallocation
-call GetMem('LDFCBlk','Free','Real',ip_C,l_C)
+call mma_deallocate(LDFCBlk)
 
 #ifdef _MOLCAS_MPP_
 ! Get complete V and norm on all nodes
@@ -152,7 +155,7 @@ if ((nProcs > 1) .and. Is_Real_Par()) then
     call LDF_P_AddAuxBasVector(ip_V(iD))
   end do
   if (doNorm) then
-    call GAdGOp(Work(ip_CNorm),4*NumberOfAtomPairs,'+')
+    call GAdGOp(CNorm,4*NumberOfAtomPairs,'+')
   end if
   if (Timing) then
     call CWTime(tC2,tW2)

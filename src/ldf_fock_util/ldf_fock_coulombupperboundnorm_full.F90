@@ -17,6 +17,7 @@ subroutine LDF_Fock_CoulombUpperBoundNorm_Full(PrintNorm,PackedD,nD,FactC,ip_D,U
 ! Purpose: compute norm of the upper bound to the Coulomb Fock
 !          matrix error in LDF.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
@@ -25,7 +26,8 @@ logical(kind=iwp), intent(in) :: PrintNorm, PackedD
 integer(kind=iwp), intent(in) :: nD, ip_D(nD)
 real(kind=wp), intent(in) :: FactC(nD)
 real(kind=wp), intent(out) :: UBFNorm(nD)
-integer(kind=iwp) :: ip_DBlkP, l_DBlkP, iD
+integer(kind=iwp) :: l_DBlkP, iD
+integer(kind=iwp), allocatable :: DBlkP(:)
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
 
@@ -33,16 +35,16 @@ if (nD < 1) return
 if (NumberOfAtomPairs < 1) return
 
 l_DBlkP = nD
-call GetMem('CUBDBP','Allo','Inte',ip_DBlkP,l_DBlkP)
+call mma_allocate(DBlkP,l_DBlkP,label='CUBDBP')
 do iD=1,nD
-  call LDF_AllocateBlockMatrix('UBD',iWork(ip_DBlkP-1+iD))
-  call LDF_Full2Blocked(Work(ip_D(iD)),PackedD,iWork(ip_DBlkP-1+iD))
-  call LDF_ScaleOffDiagonalMatrixBlocks(iWork(ip_DBlkP-1+iD),Two)
+  call LDF_AllocateBlockMatrix('UBD',DBlkP(iD))
+  call LDF_Full2Blocked(Work(ip_D(iD)),PackedD,DBlkP(iD))
+  call LDF_ScaleOffDiagonalMatrixBlocks(DBlkP(iD),Two)
 end do
-call LDF_Fock_CoulombUpperBoundNorm(PrintNorm,nD,FactC,iWork(ip_DBlkP),UBFNorm)
+call LDF_Fock_CoulombUpperBoundNorm(PrintNorm,nD,FactC,DBlkP,UBFNorm)
 do iD=1,nD
-  call LDF_DeallocateBlockMatrix('UBD',iWork(ip_DBlkP-1+iD))
+  call LDF_DeallocateBlockMatrix('UBD',DBlkP(iD))
 end do
-call GetMem('CUBDBP','Free','Inte',ip_DBlkP,l_DBlkP)
+call mma_deallocate(DBlkP)
 
 end subroutine LDF_Fock_CoulombUpperBoundNorm_Full

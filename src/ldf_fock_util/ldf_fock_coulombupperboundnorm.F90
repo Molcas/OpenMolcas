@@ -17,6 +17,7 @@ subroutine LDF_Fock_CoulombUpperBoundNorm(PrintNorm,nD,FactC,ip_DBlocks,UBFNorm)
 ! Purpose: compute norm of the upper bound to the Coulomb Fock
 !          matrix error in LDF.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -25,7 +26,8 @@ logical(kind=iwp), intent(in) :: PrintNorm
 integer(kind=iwp), intent(in) :: nD, ip_DBlocks(nD)
 real(kind=wp), intent(in) :: FactC(nD)
 real(kind=wp), intent(out) :: UBFNorm(nD)
-integer(kind=iwp) :: ip, ip_U, l_U, iD, AB, nAB, ipDel, uv
+integer(kind=iwp) :: ip, l_U, iD, AB, nAB, ipDel, uv
+real(kind=wp), allocatable :: U(:)
 integer(kind=iwp), external :: LDF_nBas_Atom
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
@@ -39,8 +41,8 @@ if (NumberOfAtomPairs < 1) return
 !-tbp Call LDF_GetQuadraticDiagonal(ip)
 ip = ip_AP_Diag
 l_U = nD
-call GetMem('CUBNrmU','Allo','Real',ip_U,l_U)
-call LDF_ComputeU(ip,nD,ip_DBlocks,Work(ip_U))
+call mma_allocate(U,l_U,label='CUBNrmU')
+call LDF_ComputeU(ip,nD,ip_DBlocks,U)
 do iD=1,nD
   UBFNorm(iD) = Zero
   do AB=1,NumberOfAtomPairs
@@ -50,9 +52,9 @@ do iD=1,nD
       UBFNorm(iD) = UBFNorm(iD)+Work(ipDel+uv)
     end do
   end do
-  UBFNorm(iD) = FactC(iD)*Work(ip_U-1+iD)*sqrt(UBFNorm(iD))
+  UBFNorm(iD) = FactC(iD)*U(iD)*sqrt(UBFNorm(iD))
 end do
-call GetMem('CUBNrmU','Free','Real',ip_U,l_U)
+call mma_deallocate(U)
 !-tbp Call LDF_FreeQuadraticDiagonal(ip)
 
 if (PrintNorm) then

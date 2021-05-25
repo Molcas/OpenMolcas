@@ -16,18 +16,20 @@ subroutine LDF_ComputeCoulombIntermediates0(nD,ip_DBlocks,ip_VBlocks)
 !
 ! Purpose: Compute Coulomb intermediates
 !
-!          V(J) = sum_uv C(uv,J)*D(uv)
+!      V(J) = sum_uv C(uv,J)*D(uv)
 !
-!          using LDF fitting coefficients.
+!      using LDF fitting coefficients.
 !
 ! BLOCKED VERSION
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: iwp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nD, ip_DBlocks(nD), ip_VBlocks(nD)
-integer(kind=iwp) :: TaskListID, iAtomPair, iAtom, jAtom, ip_C, l_C, iD, ipV, ipD, nuv, M
+integer(kind=iwp) :: TaskListID, iAtomPair, iAtom, jAtom, l_C, iD, ipV, ipD, nuv, M
+real(kind=wp), allocatable :: LDFCBlk(:)
 integer(kind=iwp), external :: LDF_nBas_Atom, LDF_nBasAux_Pair
 logical(kind=iwp), external :: Rsv_Tsk
 #include "WrkSpc.fh"
@@ -52,7 +54,7 @@ do iAtomPair=1,NumberOfAtomPairs
   M = LDF_nBasAux_Pair(iAtomPair)
   l_C = max(l_C,nuv*M)
 end do
-call GetMem('LDFCBlk','Allo','Real',ip_C,l_C)
+call mma_allocate(LDFCBlk,l_C,label='LDFCBlk')
 
 ! Compute atom pair blocks of V
 call Init_Tsk(TaskListID,NumberOfAtomPairs)
@@ -63,18 +65,18 @@ do while (Rsv_Tsk(TaskListID,iAtomPair))
   nuv = LDF_nBas_Atom(iAtom)*LDF_nBas_Atom(jAtom)
   M = LDF_nBasAux_Pair(iAtomPair)
   ! Read coefficients for this atom pair
-  call LDF_CIO_ReadC(iAtomPair,Work(ip_C),l_C)
+  call LDF_CIO_ReadC(iAtomPair,LDFCBlk,l_C)
   ! Compute V for this atom pair and for each density
   do iD=1,nD
     ipD = iWork(ip_DBlocks(iD)-1+iAtomPair)
     ipV = iWork(ip_VBlocks(iD)-1+iAtomPair)
-    call dGeMV_('T',nuv,M,One,Work(ip_C),nuv,Work(ipD),1,Zero,Work(ipV),1)
+    call dGeMV_('T',nuv,M,One,LDFCBlk,nuv,Work(ipD),1,Zero,Work(ipV),1)
   end do
 end do
 call Free_Tsk(TaskListID)
 
 ! Deallocation
-call GetMem('LDFCBlk','Free','Real',ip_C,l_C)
+call mma_deallocate(LDFCBlk)
 
 #ifdef _MOLCAS_MPP_
 ! Get complete V on all nodes

@@ -1,0 +1,41 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Thomas Bondo Pedersen                            *
+!***********************************************************************
+
+subroutine LDF_BlockMatrixNorm(ip_Blocks,Norm)
+! Thomas Bondo Pedersen, December 2010.
+!
+! Purpose: compute Frobenius norm of block matrix.
+
+use Definitions, only: wp, iwp, r8
+
+implicit none
+#include "ldf_atom_pair_info.fh"
+integer(kind=iwp), intent(in) :: ip_Blocks
+real(kind=wp), intent(out) :: Norm(NumberOfAtomPairs)
+integer(kind=iwp) :: iAtomPair, iAtom, jAtom, ip, l
+integer(kind=iwp), external :: LDF_nBas_Atom
+real(kind=r8), external :: ddot_
+#include "WrkSpc.fh"
+! statement function
+integer(kind=iwp) :: i, j, AP_Atoms
+AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
+
+do iAtomPair=1,NumberOfAtomPairs
+  iAtom = AP_Atoms(1,iAtomPair)
+  jAtom = AP_Atoms(2,iAtomPair)
+  l = LDF_nBas_Atom(iAtom)*LDF_nBas_Atom(jAtom)
+  ip = iWork(ip_Blocks-1+iAtomPair)
+  Norm(iAtomPair) = sqrt(dDot_(l,Work(ip),1,Work(ip),1))
+end do
+
+end subroutine LDF_BlockMatrixNorm

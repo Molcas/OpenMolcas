@@ -21,29 +21,31 @@ subroutine LDF_Fock_CoulombOnly0_(Mode,nD,FactC,ip_DBlocks,ip_VBlocks,ip_FBlocks
 !
 ! See LDF_Fock_CoulombOnly for an outline of the algorithm.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: Mode, nD, ip_DBlocks(nD), ip_VBlocks(nD), ip_FBlocks(nD)
 real(kind=wp), intent(in) :: FactC(nD)
-integer(kind=iwp) :: ip_WBlkP, l_WBlkP, iD, TaskListID, AB, CD, ip, l, nuv, M, ipW, ipF
+integer(kind=iwp) :: l_WBlkP, iD, TaskListID, AB, CD, l, nuv, M, ipW, ipF
+integer(kind=iwp), allocatable :: WBlkP(:)
+real(kind=wp), allocatable :: C_AB(:)
 character(len=22), parameter :: SecNam = 'LDF_Fock_CoulombOnly0_'
 logical(kind=iwp), external :: Rsv_Tsk
 integer(kind=iwp), external :: LDF_nBas_Atom, LDF_nBasAux_Pair
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
-! statement functions
-integer(kind=iwp) :: i, j, ip_WBlocks, AP_Atoms
-ip_WBlocks(i) = iWork(ip_WBlkP-1+i)
+! statement function
+integer(kind=iwp) :: i, j, AP_Atoms
 AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
 ! Allocate and initialize W intermediates
 l_WBlkP = nD
-call GetMem('WBlk_P','Allo','Inte',ip_WBlkP,l_WBlkP)
+call mma_allocate(WBlkP,l_WBlkP,label='WBlk_P')
 do iD=1,nD
-  call LDF_AllocateBlockVector('Win',iWork(ip_WBlkP-1+iD))
-  call LDF_ZeroBlockVector(ip_WBlocks(iD))
+  call LDF_AllocateBlockVector('Win',WBlkP(iD))
+  call LDF_ZeroBlockVector(WBlkP(iD))
 end do
 
 if ((Mode == 1) .or. (Mode == 3)) then
@@ -55,24 +57,24 @@ if ((Mode == 1) .or. (Mode == 3)) then
       ! F(u_A v_B) = F(u_A v_B) + sum_[K_CD] (u_A v_B | K_CD)*V(K_CD)
       call LDF_Fock_CoulombOnly0_1(nD,FactC,ip_VBlocks,ip_FBlocks,AB,CD)
       ! W(J_AB) = W(J_AB) + sum_[k_C l_D] (J_AB | k_C l_D)*D(k_C l_D)
-      call LDF_Fock_CoulombOnly0_2(nD,ip_DBlocks,iWork(ip_WBlkP),AB,CD)
+      call LDF_Fock_CoulombOnly0_2(nD,ip_DBlocks,WBlkP,AB,CD)
       if (Mode == 1) then
         ! W(J_AB) = W(J_AB) - sum_[K_CD] (J_AB | K_CD)*V(K_CD)
-        call LDF_Fock_CoulombOnly0_3(-One,nD,ip_VBlocks,iWork(ip_WBlkP),AB,CD)
+        call LDF_Fock_CoulombOnly0_3(-One,nD,ip_VBlocks,WBlkP,AB,CD)
       end if
     end do ! end serial loop over atom pairs CD
     ! F(u_A v_B) = F(u_A v_B) + sum_[J_AB] C(u_A v_B,J_AB)*W(J_AB)
     nuv = LDF_nBas_Atom(AP_Atoms(1,AB))*LDF_nBas_Atom(AP_Atoms(2,AB))
     M = LDF_nBasAux_Pair(AB)
     l = nuv*M
-    call GetMem('C_AB','Allo','Real',ip,l)
-    call LDF_CIO_ReadC(AB,Work(ip),l)
+    call mma_allocate(C_AB,l,label='C_AB')
+    call LDF_CIO_ReadC(AB,C_AB,l)
     do iD=1,nD
       ipF = iWork(ip_FBlocks(iD)-1+AB)
-      ipW = iWork(ip_WBlocks(iD)-1+AB)
-      call dGeMV_('N',nuv,M,FactC(iD),Work(ip),nuv,Work(ipW),1,One,Work(ipF),1)
+      ipW = iWork(WBlkP(iD)-1+AB)
+      call dGeMV_('N',nuv,M,FactC(iD),C_AB,nuv,Work(ipW),1,One,Work(ipF),1)
     end do
-    call GetMem('C_AB','Free','Real',ip,l)
+    call mma_deallocate(C_AB)
   end do ! end parallel loop over atom pairs AB
   call Free_Tsk(TaskListID)
 else if (Mode == 2) then ! non-robust fitting
@@ -82,20 +84,20 @@ else if (Mode == 2) then ! non-robust fitting
     ! Serial loop over atom pairs CD (C>=D)
     do CD=1,NumberOfAtomPairs
       ! W(J_AB) = W(J_AB) + sum_[K_CD] (J_AB | K_CD)*V(K_CD)
-      call LDF_Fock_CoulombOnly0_3(One,nD,ip_VBlocks,iWork(ip_WBlkP),AB,CD)
+      call LDF_Fock_CoulombOnly0_3(One,nD,ip_VBlocks,WBlkP,AB,CD)
     end do ! end serial loop over atom pairs CD
     ! F(u_A v_B) = F(u_A v_B) + sum_[J_AB] C(u_A v_B,J_AB)*W(J_AB)
     nuv = LDF_nBas_Atom(AP_Atoms(1,AB))*LDF_nBas_Atom(AP_Atoms(2,AB))
     M = LDF_nBasAux_Pair(AB)
     l = nuv*M
-    call GetMem('C_AB','Allo','Real',ip,l)
-    call LDF_CIO_ReadC(AB,Work(ip),l)
+    call mma_allocate(C_AB,l,label='C_AB')
+    call LDF_CIO_ReadC(AB,C_AB,l)
     do iD=1,nD
       ipF = iWork(ip_FBlocks(iD)-1+AB)
-      ipW = iWork(ip_WBlocks(iD)-1+AB)
-      call dGeMV_('N',nuv,M,FactC(iD),Work(ip),nuv,Work(ipW),1,One,Work(ipF),1)
+      ipW = iWork(WBlkP(iD)-1+AB)
+      call dGeMV_('N',nuv,M,FactC(iD),C_AB,nuv,Work(ipW),1,One,Work(ipF),1)
     end do
-    call GetMem('C_AB','Free','Real',ip,l)
+    call mma_deallocate(C_AB)
   end do ! end parallel loop over atom pairs AB
   call Free_Tsk(TaskListID)
 else
@@ -111,9 +113,9 @@ end do
 #endif
 
 ! Deallocate W intermediates
-do iD=0,nD-1
-  call LDF_DeallocateBlockVector('Win',iWork(ip_WBlkP+iD))
+do iD=1,nD
+  call LDF_DeallocateBlockVector('Win',WBlkP(iD))
 end do
-call GetMem('WBlk_P','Free','Inte',ip_WBlkP,l_WBlkP)
+call mma_deallocate(WBlkP)
 
 end subroutine LDF_Fock_CoulombOnly0_

@@ -18,6 +18,7 @@ set (sources
      irreps.F90
 )
 
+# Source files defining modules that should be available to other *_util directories
 set (modfile_list "")
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

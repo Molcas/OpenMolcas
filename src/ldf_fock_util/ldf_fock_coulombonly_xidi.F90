@@ -17,6 +17,7 @@ subroutine LDF_Fock_CoulombOnly_XIDI(Mode,tau,nD,FactC,ip_DBlocks,ip_FBlocks)
 ! Compute correction from errors in the integral diagonal blocks,
 ! adding them to the blocked Fock matrix.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
 
@@ -24,7 +25,8 @@ implicit none
 integer(kind=iwp), intent(in) :: Mode, nD, ip_DBlocks(nD), ip_FBlocks(nD)
 real(kind=wp), intent(in) :: tau, FactC(nD)
 logical(kind=iwp) :: IPI_set_here
-integer(kind=iwp) :: TaskListID, AB, A, B, nAB, ip_Int, l_Int, n_Int, iD, ipD, ipF
+integer(kind=iwp) :: TaskListID, AB, A, B, nAB, l_Int, n_Int, iD, ipD, ipF
+real(kind=wp), allocatable :: FCIInt(:)
 logical(kind=iwp), external :: Rsv_Tsk, LDF_IntegralPrescreeningInfoIsSet
 integer(kind=iwp), external :: LDF_nBas_Atom
 #include "WrkSpc.fh"
@@ -48,16 +50,16 @@ do while (Rsv_Tsk(TaskListID,AB))
   if (nAB > 0) then
     n_Int = nAB**2
     l_Int = 2*n_Int
-    call GetMem('FCIInt','Allo','Real',ip_Int,l_Int)
-    call LDF_ComputeValenceIntegrals(AB,AB,n_Int,Work(ip_Int))
-    call LDF_ComputeValenceIntegralsFromC(Mode,tau,AB,AB,n_Int,Work(ip_Int+n_Int))
-    call dAXPY_(n_Int,-One,Work(ip_Int+n_Int),1,Work(ip_Int),1)
+    call mma_allocate(FCIInt,l_Int,label='FCIInt')
+    call LDF_ComputeValenceIntegrals(AB,AB,n_Int,FCIInt)
+    call LDF_ComputeValenceIntegralsFromC(Mode,tau,AB,AB,n_Int,FCIInt(n_Int+1))
+    call dAXPY_(n_Int,-One,FCIInt(n_Int+1),1,FCIInt,1)
     do iD=1,nD
       ipD = iWork(ip_DBlocks(iD)-1+AB)
       ipF = iWork(ip_FBlocks(iD)-1+AB)
-      call dGeMV_('N',nAB,nAB,FactC(iD),Work(ip_Int),max(nAB,1),Work(ipD),1,One,Work(ipF),1)
+      call dGeMV_('N',nAB,nAB,FactC(iD),FCIInt,max(nAB,1),Work(ipD),1,One,Work(ipF),1)
     end do
-    call GetMem('FCIInt','Free','Real',ip_Int,l_Int)
+    call mma_deallocate(FCIInt)
   end if
 end do
 call Free_Tsk(TaskListID)

@@ -20,6 +20,7 @@ subroutine LDF_FTst(UsePartPermSym,Mode,tau,nD,FactC,ip_DBlocks,ip_FBlocks)
 !          positivity of the LDF integrals.
 !          (Debug code.)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
@@ -28,8 +29,9 @@ logical(kind=iwp), intent(in) :: UsePartPermSym
 integer(kind=iwp), intent(in) :: Mode, nD, ip_DBlocks(nD), ip_FBlocks(nD)
 real(kind=wp), intent(in) :: tau, FactC(nD)
 character(len=5) :: IntegralID
-integer(kind=iwp) :: AB, CD, A, B, C, D, nAB, nCD, ip_Int, l_Int, iD, ipD, ipF
+integer(kind=iwp) :: AB, CD, A, B, C, D, nAB, nCD, l_Int, iD, ipD, ipF
 real(kind=wp) :: r, t
+real(kind=wp), allocatable :: FTstInt(:)
 character(len=8), parameter :: SecNam = 'LDF_FTst'
 integer(kind=iwp), parameter :: PrintLevel = 2
 real(kind=wp), parameter :: TolNeg = -1.0e-8_wp
@@ -51,35 +53,35 @@ if (UsePartPermSym) then ! use particle permutation symmetry
       D = AP_Atoms(2,CD)
       nCD = LDF_nBas_Atom(C)*LDF_nBas_Atom(D)
       l_Int = nAB*nCD
-      call GetMem('FTstInt','Allo','Real',ip_Int,l_Int)
-      call LDF_getIntegralsSelectedByPSD(PrintLevel,Mode,tau,TolNeg,AB,CD,l_Int,Work(ip_Int),IntegralID)
+      call mma_allocate(FTstInt,l_Int,label='FTstInt')
+      call LDF_getIntegralsSelectedByPSD(PrintLevel,Mode,tau,TolNeg,AB,CD,l_Int,FTstInt,IntegralID)
       if (IntegralID == 'exact') then
         r = r+One
       end if
       do iD=1,nD
         ipD = iWork(ip_DBlocks(iD)-1+CD)
         ipF = iWork(ip_FBlocks(iD)-1+AB)
-        call dGeMV_('N',nAB,nCD,FactC(iD),Work(ip_Int),max(nAB,1),Work(ipD),1,One,Work(ipF),1)
+        call dGeMV_('N',nAB,nCD,FactC(iD),FTstInt,max(nAB,1),Work(ipD),1,One,Work(ipF),1)
       end do
       do iD=1,nD
         ipD = iWork(ip_DBlocks(iD)-1+AB)
         ipF = iWork(ip_FBlocks(iD)-1+CD)
-        call dGeMV_('T',nAB,nCD,FactC(iD),Work(ip_Int),max(nAB,1),Work(ipD),1,One,Work(ipF),1)
+        call dGeMV_('T',nAB,nCD,FactC(iD),FTstInt,max(nAB,1),Work(ipD),1,One,Work(ipF),1)
       end do
-      call GetMem('FTstInt','Free','Real',ip_Int,l_Int)
+      call mma_deallocate(FTstInt)
     end do
     l_Int = nAB**2
-    call GetMem('FTstInt','Allo','Real',ip_Int,l_Int)
-    call LDF_getIntegralsSelectedByPSD(PrintLevel,Mode,tau,TolNeg,AB,CD,l_Int,Work(ip_Int),IntegralID)
+    call mma_allocate(FTstInt,l_Int,label='FTstInt')
+    call LDF_getIntegralsSelectedByPSD(PrintLevel,Mode,tau,TolNeg,AB,CD,l_Int,FTstInt,IntegralID)
     if (IntegralID == 'exact') then
       r = r+One
     end if
     do iD=1,nD
       ipD = iWork(ip_DBlocks(iD)-1+AB)
       ipF = iWork(ip_FBlocks(iD)-1+AB)
-      call dGeMV_('N',nAB,nAB,FactC(iD),Work(ip_Int),max(nAB,1),Work(ipD),1,One,Work(ipF),1)
+      call dGeMV_('N',nAB,nAB,FactC(iD),FTstInt,max(nAB,1),Work(ipD),1,One,Work(ipF),1)
     end do
-    call GetMem('FTstInt','Free','Real',ip_Int,l_Int)
+    call mma_deallocate(FTstInt)
   end do
 else
   do AB=1,NumberOfAtomPairs
@@ -91,17 +93,17 @@ else
       D = AP_Atoms(2,CD)
       nCD = LDF_nBas_Atom(C)*LDF_nBas_Atom(D)
       l_Int = nAB*nCD
-      call GetMem('FTstInt','Allo','Real',ip_Int,l_Int)
-      call LDF_getIntegralsSelectedByPSD(PrintLevel,Mode,tau,TolNeg,AB,CD,l_Int,Work(ip_Int),IntegralID)
+      call mma_allocate(FTstInt,l_Int,label='FTstInt')
+      call LDF_getIntegralsSelectedByPSD(PrintLevel,Mode,tau,TolNeg,AB,CD,l_Int,FTstInt,IntegralID)
       if (IntegralID == 'exact') then
         r = r+One
       end if
       do iD=1,nD
         ipD = iWork(ip_DBlocks(iD)-1+CD)
         ipF = iWork(ip_FBlocks(iD)-1+AB)
-        call dGeMV_('N',nAB,nCD,FactC(iD),Work(ip_Int),nAB,Work(ipD),1,One,Work(ipF),1)
+        call dGeMV_('N',nAB,nCD,FactC(iD),FTstInt,nAB,Work(ipD),1,One,Work(ipF),1)
       end do
-      call GetMem('FTstInt','Free','Real',ip_Int,l_Int)
+      call mma_deallocate(FTstInt)
     end do
   end do
 end if

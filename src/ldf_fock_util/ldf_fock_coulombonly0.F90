@@ -11,7 +11,7 @@
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine LDF_Fock_CoulombOnly0(IntegralOption,tau,Mode,Add,PackedD,PackedF,nD,FactC,ip_D,ip_F)
+subroutine LDF_Fock_CoulombOnly0(IntegralOption,tau,Mode,Add,PackedD,PackedF,nD,FactC,ip_D,F)
 ! Thomas Bondo Pedersen, September 2010.
 !
 !          OLD CODE
@@ -46,7 +46,7 @@ subroutine LDF_Fock_CoulombOnly0(IntegralOption,tau,Mode,Add,PackedD,PackedF,nD,
 !          - FactC(nD): scaling factor for each density (INPUT)
 !          - ip_D(nD): pointers to nD density matrices (if PackedD:
 !            lower triangular storage) (INPUT)
-!          - ip_F(nD): pointers to nD Fock matrices (if PackedF:
+!          - F(*,nD): nD Fock matrices (if PackedF:
 !            lower triangular storage) (INPUT)
 !
 !          If (Add):  [NOT IMPLEMENTED IN PARALLEL]
@@ -134,16 +134,19 @@ subroutine LDF_Fock_CoulombOnly0(IntegralOption,tau,Mode,Add,PackedD,PackedF,nD,
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: nProcs, Is_Real_Par
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: IntegralOption, Mode, nD, ip_D(nD), ip_F(nD)
+integer(kind=iwp), intent(in) :: IntegralOption, Mode, nD, ip_D(nD)
 real(kind=wp), intent(in) :: tau
 logical(kind=iwp), intent(in) :: Add, PackedD, PackedF
-real(kind=wp), intent(inout) :: FactC(nD)
+real(kind=wp), intent(inout) :: FactC(nD), F(*)
 logical(kind=iwp) :: UsePartPermSym
-integer(kind=iwp) :: nBas, iD, ip0, l, ip_DBlocks, l_DBlocks, ip_FBlocks, l_FBlocks, ip_VBlocks, l_VBlocks, ip_FactC, l_FactC
+integer(kind=iwp) :: nBas, iD, l, l_DBlocks, l_FBlocks, l_VBlocks, l_FactC
+integer(kind=iwp), allocatable :: DBlocks(:), FBlocks(:), VBlocks(:)
+real(kind=wp), allocatable :: FactCBak(:)
 character(len=21), parameter :: SecNam = 'LDF_Fock_CoulombOnly0'
 #ifdef _DEBUGPRINT_
 logical(kind=iwp) :: DoTest
@@ -187,57 +190,54 @@ end if
 ! Save a copy of FactC (restored at the end)
 if (Mode == 3) then
   l_FactC = nD
-  call GetMem('FactCBak','Allo','Real',ip_FactC,l_FactC)
-  call dCopy_(nD,FactC,1,Work(ip_FactC),1)
+  call mma_allocate(FactCBak,l_FactC,label='FactCBak')
+  call dCopy_(nD,FactC,1,FactCBak,1)
   call dScal_(nD,Half,FactC,1)
 else
   l_FactC = 0
-  ip_FactC = 0
 end if
 
 ! Initialize Fock matrices (if not Add)
+if (PackedF) then
+  l = nBas*(nBas+1)/2
+else
+  l = nBas**2
+end if
 if (.not. Add) then
-  if (PackedF) then
-    l = nBas*(nBas+1)/2
-  else
-    l = nBas**2
-  end if
   do iD=1,nD
-    call Cho_dZero(Work(ip_F(iD)),l)
+    call Cho_dZero(F((iD-1)*l+1),l)
   end do
 end if
 
 ! Allocate and set blocked density matrices (atom pair blocks)
 l_DBlocks = nD
-call GetMem('DBlk_P','Allo','Inte',ip_DBlocks,l_DBlocks)
-ip0 = ip_DBlocks-1
+call mma_allocate(DBlocks,l_DBlocks,label='DBlk_P')
 #ifdef _DEBUGPRINT_
 x = real(NumberOfAtomPairs,kind=wp)
 y = real(LDF_nAtom(),kind=wp)*(real(LDF_nAtom(),kind=wp)+One)*Half
 DoTest = int(x-y) == 0
 #endif
 do iD=1,nD
-  call LDF_AllocateBlockMatrix('Den',iWork(ip0+iD))
-  call LDF_Full2Blocked(Work(ip_D(iD)),PackedD,iWork(ip0+iD))
+  call LDF_AllocateBlockMatrix('Den',DBlocks(iD))
+  call LDF_Full2Blocked(Work(ip_D(iD)),PackedD,DBlocks(iD))
 # ifdef _DEBUGPRINT_
   if (DoTest) then
-    if (.not. LDF_TestBlockMatrix(iWork(ip0+iD),PackedD,Work(ip_D(iD)))) then
+    if (.not. LDF_TestBlockMatrix(DBlocks(iD),PackedD,Work(ip_D(iD)))) then
       call WarningMessage(2,SecNam//': block matrix test failure')
       write(u6,'(A,I4,A,I9,3X,A,L1)') 'Density matrix',iD,' at location',ip_D(iD),'Packed: ',PackedD
       call LDF_Quit(1)
     end if
   end if
 # endif
-  call LDF_ScaleOffdiagonalMatrixBlocks(iWork(ip0+iD),Two)
+  call LDF_ScaleOffdiagonalMatrixBlocks(DBlocks(iD),Two)
 end do
 
 ! Allocate and set blocked Fock matrices (atom pair blocks)
 l_FBlocks = nD
-call GetMem('FBlk_P','Allo','Inte',ip_FBlocks,l_FBlocks)
-ip0 = ip_FBlocks-1
+call mma_allocate(FBlocks,l_FBlocks,label='FBlk_P')
 do iD=1,nD
-  call LDF_AllocateBlockMatrix('Fck',iWork(ip0+iD))
-  call LDF_Full2Blocked(Work(ip_F(iD)),PackedF,iWork(ip0+iD))
+  call LDF_AllocateBlockMatrix('Fck',FBlocks(iD))
+  call LDF_Full2Blocked(F((iD-1)*l+1),PackedF,FBlocks(iD))
 end do
 
 if (IntegralOption == 111) then
@@ -246,16 +246,16 @@ if (IntegralOption == 111) then
   call xFlush(u6)
   UsePartPermSym = .true.
   if (Mode == 3) then
-    call LDF_FVIFC(UsePartPermSym,Mode,max(tau,Zero),nD,Work(ip_FactC),iWork(ip_DBlocks),iWork(ip_FBlocks))
+    call LDF_FVIFC(UsePartPermSym,Mode,max(tau,Zero),nD,FactCBak,DBlocks,FBlocks)
   else
-    call LDF_FVIFC(UsePartPermSym,Mode,max(tau,Zero),nD,FactC,iWork(ip_DBlocks),iWork(ip_FBlocks))
+    call LDF_FVIFC(UsePartPermSym,Mode,max(tau,Zero),nD,FactC,DBlocks,FBlocks)
   end if
 else if (IntegralOption == 222) then
   ! Compute Fock matrix using conventional integrals (debug)
   call WarningMessage(0,SecNam//': Using conventional integrals!')
   call xFlush(u6)
   UsePartPermSym = .true.
-  call LDF_FCI(UsePartPermSym,nD,FactC,iWork(ip_DBlocks),iWork(ip_FBlocks))
+  call LDF_FCI(UsePartPermSym,nD,FactC,DBlocks,FBlocks)
 else if (IntegralOption == 333) then
   ! Compute Fock matrix using conventional or LDF integrals
   ! depending on positivity of the latter (debug)
@@ -263,51 +263,50 @@ else if (IntegralOption == 333) then
   call xFlush(u6)
   UsePartPermSym = .true.
   if (Mode == 3) then
-    call LDF_FTst(UsePartPermSym,Mode,max(tau,Zero),nD,Work(ip_FactC),iWork(ip_DBlocks),iWork(ip_FBlocks))
+    call LDF_FTst(UsePartPermSym,Mode,max(tau,Zero),nD,FactCBak,DBlocks,FBlocks)
   else
-    call LDF_FTst(UsePartPermSym,Mode,max(tau,Zero),nD,FactC,iWork(ip_DBlocks),iWork(ip_FBlocks))
+    call LDF_FTst(UsePartPermSym,Mode,max(tau,Zero),nD,FactC,DBlocks,FBlocks)
   end if
 else
   ! Allocate Coulomb intermediates
   l_VBlocks = nD
-  call GetMem('VBlk_P','Allo','Inte',ip_VBlocks,l_VBlocks)
-  do iD=0,nD-1
-    call LDF_AllocateBlockVector('CIn',iWork(ip_VBlocks+iD))
+  call mma_allocate(VBlocks,l_VBlocks,label='VBlk_P')
+  do iD=1,nD
+    call LDF_AllocateBlockVector('CIn',VBlocks(iD))
   end do
   ! Compute Coulomb intermediates,
   ! V(J) = sum_uv C(uv,J)*D(uv)
   ! for each density matrix
-  call LDF_ComputeCoulombIntermediates0(nD,iWork(ip_DBlocks),iWork(ip_VBlocks))
+  call LDF_ComputeCoulombIntermediates0(nD,DBlocks,VBlocks)
   ! Compute Coulomb contributions
-  call LDF_Fock_CoulombOnly0_(Mode,nD,FactC,iWork(ip_DBlocks),iWork(ip_VBlocks),iWork(ip_FBlocks))
+  call LDF_Fock_CoulombOnly0_(Mode,nD,FactC,DBlocks,VBlocks,FBlocks)
   ! Deallocate Coulomb intermediates
-  do iD=0,nD-1
-    call LDF_DeallocateBlockVector('CIn',iWork(ip_VBlocks+iD))
+  do iD=1,nD
+    call LDF_DeallocateBlockVector('CIn',VBlocks(iD))
   end do
-  call GetMem('VBlk_P','Free','Inte',ip_VBlocks,l_VBlocks)
+  call mma_deallocate(VBlocks)
 end if
 
 ! Get full storage (triangular or quadratic) Fock matrices from
 ! blocked ones.
-ip0 = ip_FBlocks-1
 do iD=1,nD
-  call LDF_Blocked2Full(iWork(ip0+iD),PackedF,Work(ip_F(iD)))
+  call LDF_Blocked2Full(FBlocks(iD),PackedF,F((iD-1)*l+1))
 end do
 
 ! Restore FactC
 if (l_FactC > 0) then
-  call dCopy_(nD,Work(ip_FactC),1,FactC,1)
-  call GetMem('FactCBak','Free','Real',ip_FactC,l_FactC)
+  call dCopy_(nD,FactCBak,1,FactC,1)
+  call mma_deallocate(FactCBak)
 end if
 
 ! Deallocation
-do iD=0,nD-1
-  call LDF_DeallocateBlockMatrix('Fck',iWork(ip_FBlocks+iD))
+do iD=1,nD
+  call LDF_DeallocateBlockMatrix('Fck',FBlocks(iD))
 end do
-call GetMem('FBlk_P','Free','Inte',ip_FBlocks,l_FBlocks)
-do iD=0,nD-1
-  call LDF_DeallocateBlockMatrix('Den',iWork(ip_DBlocks+iD))
+call mma_deallocate(FBlocks)
+do iD=1,nD
+  call LDF_DeallocateBlockMatrix('Den',DBlocks(iD))
 end do
-call GetMem('DBlk_P','Free','Inte',ip_DBlocks,l_DBlocks)
+call mma_deallocate(DBlocks)
 
 end subroutine LDF_Fock_Coulombonly0

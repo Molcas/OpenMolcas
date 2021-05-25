@@ -20,14 +20,16 @@ subroutine LDF_Fock_CoulombOnly0_1(nD,FactC,ip_VBlocks,ip_FBlocks,AB,CD)
 !
 !      F(u_A v_B) = F(u_A v_B) + FactC*sum_[K_CD] (u_A v_B | K_CD)*V(K_CD)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nD, ip_VBlocks(nD), ip_FBlocks(nD), AB, CD
 real(kind=wp), intent(in) :: FactC(nD)
+integer(kind=iwp) :: nuv, M, l_Int, iD, ipV, ipF
+real(kind=wp), allocatable :: FuvJ1(:)
 integer(kind=iwp), external :: LDF_nBas_Atom, LDF_nBasAux_Pair
-integer(kind=iwp) :: nuv, M, ip_Int, l_Int, iD, ipV, ipF
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
 ! statement function
@@ -43,19 +45,19 @@ if ((nuv < 1) .or. (M < 1)) return
 
 ! Allocate integrals (u_A v_B | K_CD)
 l_Int = nuv*M
-call GetMem('LDFFuvJ1','Allo','Real',ip_Int,l_Int)
+call mma_allocate(FuvJ1,l_Int,label='LDFFuvJ1')
 
 ! Compute integrals (u_A v_B | K_CD)
-call LDF_ComputeIntegrals_uvJ_2P(AB,CD,l_Int,Work(ip_Int))
+call LDF_ComputeIntegrals_uvJ_2P(AB,CD,l_Int,FuvJ1)
 
 ! Compute contributions
 do iD=1,nD
   ipV = iWork(ip_VBlocks(iD)-1+CD)
   ipF = iWork(ip_FBlocks(iD)-1+AB)
-  call dGeMV_('N',nuv,M,FactC(iD),Work(ip_Int),nuv,Work(ipV),1,One,Work(ipF),1)
+  call dGeMV_('N',nuv,M,FactC(iD),FuvJ1,nuv,Work(ipV),1,One,Work(ipF),1)
 end do
 
 ! Deallocate integrals
-call GetMem('LDFFuvJ1','Free','Real',ip_Int,l_Int)
+call mma_deallocate(FuvJ1)
 
 end subroutine LDF_Fock_CoulombOnly0_1

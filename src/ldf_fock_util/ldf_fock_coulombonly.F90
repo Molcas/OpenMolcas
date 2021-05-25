@@ -11,7 +11,7 @@
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine LDF_Fock_CoulombOnly(IntegralOption,Timing,Mode,ThrPS,Add,PackedD,PackedF,nD,FactC,ip_D,ip_F)
+subroutine LDF_Fock_CoulombOnly(IntegralOption,Timing,Mode,ThrPS,Add,PackedD,PackedF,nD,FactC,ip_D,F)
 ! Thomas Bondo Pedersen, October 2010.
 !
 ! Purpose: Compute Coulomb contribution to Fock matrix using local
@@ -50,7 +50,7 @@ subroutine LDF_Fock_CoulombOnly(IntegralOption,Timing,Mode,ThrPS,Add,PackedD,Pac
 !          - FactC(nD): scaling factor for each density (INPUT)
 !          - ip_D(nD): pointers to nD density matrices (if PackedD:
 !            lower triangular storage) (INPUT)
-!          - ip_F(nD): pointers to nD Fock matrices (if PackedF:
+!          - F(*,nD): nD Fock matrices (if PackedF:
 !            lower triangular storage) (INPUT)
 !
 !          If (Add):  [NOT IMPLEMENTED IN PARALLEL]
@@ -227,19 +227,21 @@ subroutine LDF_Fock_CoulombOnly(IntegralOption,Timing,Mode,ThrPS,Add,PackedD,Pac
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: nProcs, Is_Real_Par
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: IntegralOption, Mode, nD, ip_D(nD), ip_F(nD)
+integer(kind=iwp), intent(in) :: IntegralOption, Mode, nD, ip_D(nD)
 logical(kind=iwp), intent(in) :: Timing, Add, PackedD, PackedF
 real(kind=wp), intent(in) :: ThrPS(2)
-real(kind=wp), intent(inout) :: FactC(nD)
+real(kind=wp), intent(inout) :: FactC(nD), F(*)
 logical(kind=iwp) :: UseOldCode, IPI_set_here
 real(kind=wp) :: tau(2)
-integer(kind=iwp) :: i, nBas, iD, ip0, l, ip_DBlocks, l_DBlocks, ip_FBlocks, l_FBlocks, ip_VP, l_VP, ip_DNorm, l_DNorm, ip_CNorm, &
-                     l_CNorm, ip_VNorm, l_VNorm, ip_FactC, l_FactC
+integer(kind=iwp) :: i, nBas, iD, ip0, l, l_DBlocks, l_FBlocks, l_VP, l_DNorm, l_CNorm, l_VNorm, l_FactC
 real(kind=wp) :: tTotC1, tTotC2, tTotW1, tTotW2
+integer(kind=iwp), allocatable :: DBlocks(:), FBlocks(:), VP(:)
+real(kind=wp), allocatable :: DNorm(:), CNorm(:), VNorm(:), FactCBak(:)
 character(len=20), parameter :: SecNam = 'LDF_Fock_CoulombOnly'
 logical(kind=iwp), external :: LDF_IntegralPrescreeningInfoIsSet
 integer(kind=iwp), external :: LDF_nAtom
@@ -262,12 +264,16 @@ UseOldCode = (IntegralOption == 111) .or. (IntegralOption == 222) .or. (Integral
 if (UseOldCode) then
   call WarningMessage(0,SecNam//': Using atom pair-driven (old) code!')
   call xFlush(u6)
-  call LDF_Fock_CoulombOnly0(IntegralOption,ThrPS(1),Mode,Add,PackedD,PackedF,nD,FactC,ip_D,ip_F)
-  Go To 1 ! Return
+  call LDF_Fock_CoulombOnly0(IntegralOption,ThrPS(1),Mode,Add,PackedD,PackedF,nD,FactC,ip_D,F)
+  call Final_Timing()
+  return
 end if
 
 ! Return if nothing to do
-if (nD < 1) Go To 1
+if (nD < 1) then
+  call Final_Timing()
+  return
+end if
 
 ! Get number of basis functions (from localdf_bas.fh)
 nBas = nBas_Valence
@@ -275,7 +281,8 @@ if (nBas < 1) then
   call WarningMessage(1,SecNam//': nBas<1 -- Fock matrix NOT computed!')
   write(u6,'(A,I9)') 'nBas=',nBas
   call xFlush(u6)
-  Go To 1  ! return
+  call Final_Timing()
+  return
 end if
 
 #ifdef _DEBUGPRINT_
@@ -298,12 +305,11 @@ end if
 ! Save a copy of FactC (restored at the end)
 if (Mode == 3) then
   l_FactC = nD
-  call GetMem('FactCBak','Allo','Real',ip_FactC,l_FactC)
-  call dCopy_(nD,FactC,1,Work(ip_FactC),1)
+  call mma_allocate(FactCBak,l_FactC,label='FactCBak')
+  call dCopy_(nD,FactC,1,FactCBak,1)
   call dScal_(nD,Half,FactC,1)
 else
   l_FactC = 0
-  ip_FactC = 0
 end if
 
 ! Set prescreening info (if not already done)
@@ -317,112 +323,108 @@ tau(1) = max(ThrPS(1),Zero) ! integral prescreening threshold
 tau(2) = max(ThrPS(2),Zero) ! contribution prescreening threshold
 
 ! Initialize Fock matrices (if not Add)
+if (PackedF) then
+  l = nBas*(nBas+1)/2
+else
+  l = nBas**2
+end if
 if (.not. Add) then
-  if (PackedF) then
-    l = nBas*(nBas+1)/2
-  else
-    l = nBas**2
-  end if
   do iD=1,nD
-    call Cho_dZero(Work(ip_F(iD)),l)
+    call Cho_dZero(F((iD-1)*l+1),l)
   end do
 end if
 
 ! Allocate and set blocked density matrices (atom pair blocks)
 l_DBlocks = nD
-call GetMem('DBlk_P','Allo','Inte',ip_DBlocks,l_DBlocks)
-ip0 = ip_DBlocks-1
+call mma_allocate(DBlocks,l_DBlocks,label='DBlk_P')
 #ifdef _DEBUGPRINT_
 x = real(NumberOfAtomPairs,kind=wp)
 y = real(LDF_nAtom(),kind=wp)*(real(LDF_nAtom(),kind=wp)+One)*Half
 DoTest = int(x-y) == 0
 #endif
 do iD=1,nD
-  call LDF_AllocateBlockMatrix('Den',iWork(ip0+iD))
-  call LDF_Full2Blocked(Work(ip_D(iD)),PackedD,iWork(ip0+iD))
+  call LDF_AllocateBlockMatrix('Den',DBlocks(iD))
+  call LDF_Full2Blocked(Work(ip_D(iD)),PackedD,DBlocks(iD))
 #ifdef _DEBUGPRINT_
   if (DoTest) then
-    if (.not. LDF_TestBlockMatrix(iWork(ip0+iD),PackedD,Work(ip_D(iD)))) then
+    if (.not. LDF_TestBlockMatrix(DBlocks(iD),PackedD,Work(ip_D(iD)))) then
       call WarningMessage(2,SecNam//': block matrix test failure')
       write(u6,'(A,I4,A,I9,3X,A,L1)') 'Density matrix',iD,' at location',ip_D(iD),'Packed: ',PackedD
       call LDF_Quit(1)
     end if
   end if
 #endif
-  call LDF_ScaleOffdiagonalMatrixBlocks(iWork(ip0+iD),Two)
+  call LDF_ScaleOffdiagonalMatrixBlocks(DBlocks(iD),Two)
 end do
 
 ! Allocate and set blocked Fock matrices (atom pair blocks)
 l_FBlocks = nD
-call GetMem('FBlk_P','Allo','Inte',ip_FBlocks,l_FBlocks)
-ip0 = ip_FBlocks-1
+call mma_allocate(FBlocks,l_FBlocks,label='FBlk_P')
 do iD=1,nD
-  call LDF_AllocateBlockMatrix('Fck',iWork(ip0+iD))
-  call LDF_Full2Blocked(Work(ip_F(iD)),PackedF,iWork(ip0+iD))
+  call LDF_AllocateBlockMatrix('Fck',FBlocks(iD))
+  call LDF_Full2Blocked(F((iD-1)*l+1),PackedF,FBlocks(iD))
 end do
 
 ! Allocate and compute Frobenius norm of blocked density matrices
 l_DNorm = NumberOfAtomPairs*nD
-call GetMem('DNorm','Allo','Real',ip_DNorm,l_DNorm)
-ip0 = ip_DNorm
-do iD=0,nD-1
-  call LDF_BlockMatrixNorm(iWork(ip_DBlocks+iD),ip0)
+call mma_allocate(DNorm,l_DNorm,label='DNorm')
+ip0 = 1
+do iD=1,nD
+  call LDF_BlockMatrixNorm(DBlocks(iD),DNorm(ip0))
   ip0 = ip0+NumberOfAtomPairs
 end do
 
 ! Allocate Coulomb intermediates
 l_VP = nD
-call GetMem('VP','Allo','Inte',ip_VP,l_VP)
-do iD=0,nD-1
-  call LDF_AllocateAuxBasVector('CIn',iWork(ip_VP+iD))
+call mma_allocate(VP,l_VP,label='VP')
+do iD=1,nD
+  call LDF_AllocateAuxBasVector('CIn',VP(iD))
 end do
 
 ! Allocate array for norm of fitting coefficients
 l_CNorm = 4*NumberOfAtomPairs
-call GetMem('CNorm','Allo','Real',ip_CNorm,l_CNorm)
+call mma_allocate(CNorm,l_CNorm,label='CNorm')
 
 ! Compute Coulomb intermediates
 ! V(J) = sum_uv C(uv,J)*D(uv)
 ! for each density matrix
 ! Compute Frobenius norm of fitting coefficients.
-call LDF_ComputeCoulombIntermediates(Timing,nD,iWork(ip_DBlocks),iWork(ip_VP),ip_CNorm)
+call LDF_ComputeCoulombIntermediates(Timing,nD,DBlocks,VP,CNorm)
 
 ! Allocate and compute Frobenius norm of Coulomb intermediates
 l_VNorm = (LDF_nAtom()+NumberOfAtomPairs)*nD
-call GetMem('VNorm','Allo','Real',ip_VNorm,l_VNorm)
-ip0 = ip_VNorm
-do iD=0,nD-1
-  call LDF_AuxBasVectorNorm(iWork(ip_VP+iD),ip0)
+call mma_allocate(VNorm,l_VNorm,label='VNorm')
+ip0 = 1
+do iD=1,nD
+  call LDF_AuxBasVectorNorm(VP(iD),VNorm(ip0))
   ip0 = ip0+LDF_nAtom()+NumberOfAtomPairs
 end do
 
 ! Compute Coulomb contributions
-call LDF_Fock_CoulombOnly_(IntegralOption == 444,Timing,Mode,tau,nD,FactC,iWork(ip_DBlocks),iWork(ip_VP),iWork(ip_FBlocks), &
-                           ip_CNorm,ip_DNorm,ip_VNorm)
+call LDF_Fock_CoulombOnly_(IntegralOption == 444,Timing,Mode,tau,nD,FactC,DBlocks,VP,FBlocks,CNorm,DNorm,VNorm)
 
 ! Get full storage (triangular or quadratic) Fock matrices from
 ! blocked ones.
-ip0 = ip_FBlocks-1
 do iD=1,nD
-  call LDF_Blocked2Full(iWork(ip0+iD),PackedF,Work(ip_F(iD)))
+  call LDF_Blocked2Full(FBlocks(iD),PackedF,F((iD-1)*l+1))
 end do
 
 ! Deallocation
-call GetMem('VNorm','Free','Real',ip_VNorm,l_VNorm)
-call GetMem('CNorm','Free','Real',ip_CNorm,l_CNorm)
-do iD=0,nD-1
-  call LDF_DeallocateAuxBasVector('CIn',iWork(ip_VP+iD))
+call mma_deallocate(VNorm)
+call mma_deallocate(CNorm)
+do iD=1,nD
+  call LDF_DeallocateAuxBasVector('CIn',VP(iD))
 end do
-call GetMem('VP','Free','Inte',ip_VP,l_VP)
-call GetMem('DNorm','Free','Real',ip_DNorm,l_DNorm)
-do iD=0,nD-1
-  call LDF_DeallocateBlockMatrix('Fck',iWork(ip_FBlocks+iD))
+call mma_deallocate(VP)
+call mma_deallocate(DNorm)
+do iD=1,nD
+  call LDF_DeallocateBlockMatrix('Fck',FBlocks(iD))
 end do
-call GetMem('FBlk_P','Free','Inte',ip_FBlocks,l_FBlocks)
-do iD=0,nD-1
-  call LDF_DeallocateBlockMatrix('Den',iWork(ip_DBlocks+iD))
+call mma_deallocate(FBlocks)
+do iD=1,nD
+  call LDF_DeallocateBlockMatrix('Den',DBlocks(iD))
 end do
-call GetMem('DBlk_P','Free','Inte',ip_DBlocks,l_DBlocks)
+call mma_deallocate(DBlocks)
 
 ! Unset prescreening info (if set in this routine)
 if (IPI_set_here) then
@@ -431,16 +433,19 @@ end if
 
 ! Restore FactC
 if (l_FactC > 0) then
-  call dCopy_(nD,Work(ip_FactC),1,FactC,1)
-  call GetMem('FactCBak','Free','Real',ip_FactC,l_FactC)
+  call dCopy_(nD,FactCBak,1,FactC,1)
+  call mma_deallocate(FactCBak)
 end if
 
-1 continue
-if (Timing) then
-  call CWTime(tTotC2,tTotW2)
-  write(u6,'(A,A,A,2(1X,F12.2),A)') 'Total time spent in ',SecNam,':         ',tTotC2-tTotC1,tTotW2-tTotW1,' seconds'
-  write(u6,'(84A1)') ('-',i=1,84)
-  call xFlush(u6)
-end if
+contains
+
+subroutine Final_Timing()
+  if (Timing) then
+    call CWTime(tTotC2,tTotW2)
+    write(u6,'(A,A,A,2(1X,F12.2),A)') 'Total time spent in ',SecNam,':         ',tTotC2-tTotC1,tTotW2-tTotW1,' seconds'
+    write(u6,'(84A1)') ('-',i=1,84)
+    call xFlush(u6)
+  end if
+end subroutine Final_Timing
 
 end subroutine LDF_Fock_CoulombOnly

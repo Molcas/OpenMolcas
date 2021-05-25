@@ -11,7 +11,7 @@
 ! Copyright (C) 2011, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine LDF_Fock_CoulombUpperBound_Full(PrintNorm,Add,PackedD,PackedF,nD,FactC,ip_D,ip_F)
+subroutine LDF_Fock_CoulombUpperBound_Full(PrintNorm,Add,PackedD,PackedF,nD,FactC,ip_D,F)
 ! Thomas Bondo Pedersen, January 2011.
 !
 ! Purpose: compute the upper bound correction to the LDF Fock
@@ -21,14 +21,17 @@ subroutine LDF_Fock_CoulombUpperBound_Full(PrintNorm,Add,PackedD,PackedF,nD,Fact
 !
 !      U = sum_uv sqrt[(Delta(uv)|Delta(uv))]*|D(uv)|
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp), intent(in) :: PrintNorm, Add, PackedD, PackedF
-integer(kind=iwp), intent(in) :: nD, ip_D(nD), ip_F(nD)
+integer(kind=iwp), intent(in) :: nD, ip_D(nD)
 real(kind=wp), intent(in) :: FactC(nD)
-integer(kind=iwp) :: l, iD, ip_DBlkP, l_DBlkP, ip_FBlkP, l_FBlkP
+real(kind=wp), intent(inout) :: F(*)
+integer(kind=iwp) :: l, iD, l_DBlkP, l_FBlkP
+integer(kind=iwp), allocatable :: DBlkP(:), FBlkP(:)
 #include "WrkSpc.fh"
 #include "localdf_bas.fh"
 #include "ldf_atom_pair_info.fh"
@@ -39,49 +42,49 @@ if (NumberOfAtomPairs < 1) return
 
 ! Allocate and extract density matrix blocks
 l_DBlkP = nD
-call GetMem('CUBFDBP','Allo','Inte',ip_DBlkP,l_DBlkP)
+call mma_allocate(DBlkP,l_DBlkP,label='CUBFDBP')
 do iD=1,nD
-  call LDF_AllocateBlockMatrix('UBD',iWork(ip_DBlkP-1+iD))
-  call LDF_Full2Blocked(Work(ip_D(iD)),PackedD,iWork(ip_DBlkP-1+iD))
-  call LDF_ScaleOffdiagonalMatrixBlocks(iWork(ip_DBlkP-1+iD),Two)
+  call LDF_AllocateBlockMatrix('UBD',DBlkP(iD))
+  call LDF_Full2Blocked(Work(ip_D(iD)),PackedD,DBlkP(iD))
+  call LDF_ScaleOffdiagonalMatrixBlocks(DBlkP(iD),Two)
 end do
 
 ! If not Add, initialize Fock matrices
+if (PackedF) then
+  l = nBas_Valence*(nBas_Valence+1)/2
+else
+  l = nBas_Valence**2
+end if
 if (.not. Add) then
-  if (PackedF) then
-    l = nBas_Valence*(nBas_Valence+1)/2
-  else
-    l = nBas_Valence**2
-  end if
   do iD=1,nD
-    call Cho_dZero(Work(ip_F(iD)),l)
+    call Cho_dZero(F((iD-1)*l+1),l)
   end do
 end if
 
 ! Allocate and extract Fock matrix blocks
 l_FBlkP = nD
-call GetMem('CUBFFBP','Allo','Inte',ip_FBlkP,l_FBlkP)
+call mma_allocate(FBlkP,l_FBlkP,label='CUBFFBP')
 do iD=1,nD
-  call LDF_AllocateBlockMatrix('Fck',iWork(ip_FBlkP-1+iD))
-  call LDF_Full2Blocked(Work(ip_F(iD)),PackedF,iWork(ip_FBlkP-1+iD))
+  call LDF_AllocateBlockMatrix('Fck',FBlkP(iD))
+  call LDF_Full2Blocked(F((iD-1)*l+1),PackedF,FBlkP(iD))
 end do
 
 ! Compute upper bound and add to blocked Fock matrices
-call LDF_Fock_CoulombUpperBound(PrintNorm,nD,FactC,iWork(ip_DBlkP),iWork(ip_FBlkP))
+call LDF_Fock_CoulombUpperBound(PrintNorm,nD,FactC,DBlkP,FBlkP)
 
 ! Get full storage Fock matrices from blocked ones
 do iD=1,nD
-  call LDF_Blocked2Full(iWork(ip_FBlkP-1+iD),PackedF,Work(ip_F(iD)))
+  call LDF_Blocked2Full(FBlkP(iD),PackedF,F((iD-1)*l+1))
 end do
 
 ! Deallocations
 do iD=1,nD
-  call LDF_DeallocateBlockMatrix('Fck',iWork(ip_FBlkP-1+iD))
+  call LDF_DeallocateBlockMatrix('Fck',FBlkP(iD))
 end do
-call GetMem('CUBFFBP','Allo','Inte',ip_FBlkP,l_FBlkP)
+call mma_deallocate(FBlkP)
 do iD=1,nD
-  call LDF_DeallocateBlockMatrix('UBD',iWork(ip_DBlkP-1+iD))
+  call LDF_DeallocateBlockMatrix('UBD',DBlkP(iD))
 end do
-call GetMem('CUBFDBP','Free','Inte',ip_DBlkP,l_DBlkP)
+call mma_deallocate(DBlkP)
 
 end subroutine LDF_Fock_CoulombUpperBound_Full

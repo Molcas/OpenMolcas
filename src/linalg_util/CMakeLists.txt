@@ -36,6 +36,7 @@ set (sources
      xeigen.F90
 )
 
+# Source files defining modules that should be available to other *_util directories
 set (modfile_list
      blockdiagonal_matrices.F90
      index_util.F90

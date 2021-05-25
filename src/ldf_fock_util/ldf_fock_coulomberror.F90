@@ -11,7 +11,7 @@
 ! Copyright (C) 2011, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine LDF_Fock_CoulombError(PrintNorm,ComputeF,Mode,PackedD,PackedF,nD,FactC,ip_D,ip_F)
+subroutine LDF_Fock_CoulombError(PrintNorm,ComputeF,Mode,PackedD,PackedF,nD,FactC,ip_D,F)
 ! Thomas Bondo Pedersen, January 2011.
 !
 ! Purpose: compute Coulomb error
@@ -21,21 +21,23 @@ subroutine LDF_Fock_CoulombError(PrintNorm,ComputeF,Mode,PackedD,PackedF,nD,Fact
 !      where [uv|kl] are the LDF integrals.
 !
 ! If ComputF: the LDF Fock matrix is computed here
-! Else: on input, ip_F should point to the Fock matrix computed from
+! Else: on input, F should be the Fock matrix computed from
 ! LDF integrals (replaced with the error on exit)!
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 logical(kind=iwp), intent(in) :: PrintNorm, ComputeF, PackedD, PackedF
-integer(kind=iwp), intent(in) :: Mode, nD, ip_D(nD), ip_F(nD)
+integer(kind=iwp), intent(in) :: Mode, nD, ip_D(nD)
 real(kind=wp), intent(in) :: FactC(nD)
+real(kind=wp), intent(inout) :: F(*)
 logical(kind=iwp) :: Timing, Add
-integer(kind=iwp) :: IntegralOption, ip_myF, l_myF, ipF, lF, iD
+integer(kind=iwp) :: IntegralOption, ipF, lF, iD
+real(kind=wp), allocatable :: myF(:)
 real(kind=wp) :: ThrPS(2)
 real(kind=r8), external :: ddot_
-#include "WrkSpc.fh"
 #include "localdf_bas.fh"
 
 if (ComputeF) then
@@ -44,7 +46,7 @@ if (ComputeF) then
   ThrPS(1) = Zero
   ThrPS(2) = Zero
   Add = .false.
-  call LDF_Fock_CoulombOnly(IntegralOption,Timing,Mode,ThrPS,Add,PackedD,PackedF,nD,FactC,ip_D,ip_F)
+  call LDF_Fock_CoulombOnly(IntegralOption,Timing,Mode,ThrPS,Add,PackedD,PackedF,nD,FactC,ip_D,F)
 end if
 
 if (PackedF) then
@@ -52,32 +54,24 @@ if (PackedF) then
 else
   lF = nBas_Valence**2
 end if
-l_myF = nD
-call GetMem('myFPtr','Allo','Inte',ip_myF,l_myF)
-do iD=1,nD
-  call GetMem('myF','Allo','Real',ipF,lF)
-  iWork(ip_myF-1+iD) = ipF
-end do
+call mma_allocate(myF,nD*lF,label='myF')
 IntegralOption = 222 ! use conventional integrals
 Timing = .false.
 ThrPS(1) = Zero
 ThrPS(2) = Zero
 Add = .false.
-call LDF_Fock_CoulombOnly(IntegralOption,Timing,Mode,ThrPS,Add,PackedD,PackedF,nD,FactC,ip_D,iWork(ip_myF))
+call LDF_Fock_CoulombOnly(IntegralOption,Timing,Mode,ThrPS,Add,PackedD,PackedF,nD,FactC,ip_D,myF)
 do iD=1,nD
-  ipF = iWork(ip_myF-1+iD)
-  call dAXPY_(lF,-One,Work(ipF),1,Work(ip_F(iD)),1)
-  call dScal_(lF,-One,Work(ip_F(iD)),1)
+  ipF = (iD-1)*lF+1
+  call dAXPY_(lF,-One,myF(ipF),1,F(ipF),1)
+  call dScal_(lF,-One,F(ipF),1)
 end do
-do iD=1,nD
-  ipF = iWork(ip_myF-1+iD)
-  call GetMem('myF','Free','Real',ipF,lF)
-end do
-call GetMem('myFPtr','Free','Inte',ip_myF,l_myF)
+call mma_deallocate(myF)
 
 if (PrintNorm) then
   do iD=1,nD
-    write(u6,'(A,I10,A,1P,D20.10)') 'Norm of Coulomb error for density',iD,':',sqrt(dDot_(lF,Work(ip_F(iD)),1,Work(ip_F(iD)),1))
+    ipF = (iD-1)*lF+1
+    write(u6,'(A,I10,A,1P,D20.10)') 'Norm of Coulomb error for density',iD,':',sqrt(dDot_(lF,F(ipF),1,F(ipF),1))
   end do
   call xFlush(u6)
 end if
