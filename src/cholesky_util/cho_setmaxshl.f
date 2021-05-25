@@ -17,7 +17,6 @@ C
 #include "implicit.fh"
       REAL*8 DIAG(*), DIASH(*)
       INTEGER   ISYSH(*)
-      REAL*8 DIAG_T, DIASH_T
 #include "real.fh"
 #include "cholesky.fh"
 
@@ -34,7 +33,6 @@ C     Find largest diagonal in each shell pair. Loop only
 C     over those that are included in the reduced set at hand.
 C     --------------------------------------------------------
 
-*     Write (6,*) 'IRED=',IRED
       IF (IRED .EQ. 1) THEN
          DO ISYMAB = 1,NSYM
             DO ISHLAB = 1,NNSHL
