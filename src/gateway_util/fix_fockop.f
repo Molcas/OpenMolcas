@@ -52,7 +52,8 @@
       Real*8, Allocatable :: KnE(:), NAE(:), Ovrlp(:)
       Real*8, Allocatable :: SAA(:), SAR(:)
       Character*13 DefNm
-      Character*80 Ref(2), Bsl_, BSLbl
+      Character*180 Ref(2)
+      Character*80 Bsl_, BSLbl
       Character *256 Basis_lib, Fname
       Character*180, Allocatable :: STDINP(:) ! CGGn
       Integer BasisTypes(4)

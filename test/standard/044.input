@@ -1,6 +1,6 @@
 *-------------------------------------------------------------------------------
 * Molecule: Water
-* Basis: SVP
+* Basis: def-SVP
 * Symmetry: C2v
 * Features tested: SEWARD (Option: RI), SCF, DFT, ALASKA, SLAPAF
 * Responsible person: R. Lindh
@@ -11,19 +11,19 @@
 >>> DO WHILE <<<
  &SEWARD &END
 Title
- H2O geom optim, using the SVP
+ H2O geom optim, using the def-SVP
 
 Symmetry
 x z
 
 Basis set
-H.SVP.....
+H.def-SVP.....
 H1            1.432371       1.141126       0.000000
 *H2           -1.432371       1.141126       0.000000
 End of basis
 
 Basis set
-O.SVP
+O.def-SVP
 O              0.000000      -0.060568       0.000000
 End of basis
 

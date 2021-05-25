@@ -207,6 +207,8 @@
   procedure(int_dpotrf2), pointer :: lb_dpotrf2
   procedure(int_dpotrs), pointer :: lb_dpotrs
   procedure(int_dpptrf), pointer :: lb_dpptrf
+  procedure(int_dpstf2), pointer :: lb_dpstf2
+  procedure(int_dpstrf), pointer :: lb_dpstrf
   procedure(int_drscl), pointer :: lb_drscl
   procedure(int_dspev), pointer :: lb_dspev
   procedure(int_dspgst), pointer :: lb_dspgst

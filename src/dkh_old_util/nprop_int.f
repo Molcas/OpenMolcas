@@ -111,6 +111,34 @@ c
 301   Continue
 *                                                                      *
 ************************************************************************
+*
+*     Scan 'ONEINT' for magnetic integrals (copied from ONEREL)
+*
+      nComp = 9
+      iSmLbl_ = 255
+      maxCen = 9999
+      Do iCent = 1, maxCen
+        write(Label,'(A,I3)') 'MAGXP', iCent
+        irc = -1
+        iopt = 1
+        iComp = 1
+        Call iRdOne(irc,iopt,Label,iComp,nInt,iSmLbl_)
+        If (irc.ne.0) Go To 401
+        If (Do_Index) Then
+          Do iComp = 1, nComp
+            nProp_Int = nProp_Int + 1
+            Index(1,nProp_Int) = 4
+            Index(2,nProp_Int) = 0
+            Index(3,nProp_Int) = iComp
+            Index(4,nProp_Int) = iCent
+          End Do
+        Else
+          nProp_Int = nProp_Int + nComp
+        End If
+      End do
+401   Continue
+*                                                                      *
+************************************************************************
 *                                                                      *
 C     If (Do_Index) Call iVcPrt('Index',' ',Index,4*nProp_Int)
       Return

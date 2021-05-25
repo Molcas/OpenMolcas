@@ -94,6 +94,7 @@
 
       LU=233
 
+      statename=''
       DoTest=.false.
       Zero=0.0D0
       Two=2.0D0

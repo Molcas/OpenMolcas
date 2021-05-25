@@ -59,6 +59,7 @@
 #include "constants2.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "hfc_logical.fh"
       parameter (lmax=16)
       Character*3 lab3
       Character*4 lab4
@@ -359,6 +360,10 @@ c            End If
 *----------------------------------------------------------------------*
       End If ! iPL
 *----------------------------------------------------------------------*
+! Prop is also called in other programs where MAG_X2C could
+! be uninitialized, if a test is required in such case
+! please initialize MAG_X2C to false in related programs
+      If (MAG_X2C) StoreInfo=.False.
       Go To 999
 *                                                                      *
 ************************************************************************

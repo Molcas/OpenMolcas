@@ -990,6 +990,16 @@
         call c_f_procpointer(funptr, lb_dpptrf)
       end if
 !
+      funptr=link_func('dpstf2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dpstf2)
+      end if
+!
+      funptr=link_func('dpstrf')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dpstrf)
+      end if
+!
       funptr=link_func('drscl')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_drscl)

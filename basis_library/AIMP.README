@@ -1,0 +1,204 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+
+********************************************************************************
+*                                                                              *
+*                  ********************                                        *
+*                  * The AIMP Library *                                        *
+*                  ********************                                        *
+*                                                                              *
+*    This library contains:                                                    *
+*                                                                              *
+*    (C)  Core Ab Initio Model Potentials (relativistic and nonrelativistic)   *
+*                      and                                                     *
+*    (E)  Embedding Ab Initio Model Potentials                                 *
+*                                                                              *
+********************************************************************************
+*                  Please, report any bug, deficiency, or suggestion regarding *
+*                  this library to Luis Seijo (luis.seijo@uam.es). Thank you.  *
+********************************************************************************
+
+********************************************************************************
+* For detailed contents, refer to the listed files                             *
+********************************************************************************
+
+********************************************************************************
+* CORE AIMP CONTENTS (files: CG-AIMP, NR-AIMP, NP-AIMP)                        *
+********************************************************************************
+* C. Core AIMPs                                                                *
+*    C.1. Cowan-Griffin-relativistic core AIMPs: CG-AIMP                       *
+*           MGE, TME, La, {Ln}, {An}             [missing Fr,Ra,Ac]            *
+*    C.2. Non-relativistic core AIMPs: NR-AIMP                                 *
+*           MGE, TME, La                         [missing Fr,Ra,{Ln},Ac,{An}]  *
+*    C.3. Douglas-Kroll (No-Pair) relativistic core AIMPs: NP-AIMP, DK3-AIMP   *
+*           TME, {Ln}, {An}                      [missing MGE,La,{Ln},Ac,{An}] *
+********************************************************************************
+
+********************************************************************************
+* EMBEDDING AIMP CONTENTS (file: EMB-AIMP)                                     *
+********************************************************************************
+* E. Embedding AIMPs:                                                          *
+*    E.1. Elpasolites                                                          *
+*         E.1.1. K2NaGaF6                                                      *
+*           E.1.1.a. K2NaGaF6 (a=8.246 A)                                      *
+*           E.1.1.b. K2NaGaF6 (a=8.000 A; 60 Kbar)                             *
+*         E.1.2. Cs2NaYCl6                                                     *
+*           E.1.2.a. Cs2NaYCl6 (a=10.7396 A, x=0.2439)                         *
+*           E.1.2.b Cs2NaYCl6 Delta-a/a=-0.6% (a=10.6752 A, x=0.2439)          *
+*           E.1.2.c Cs2NaYCl6 Delta-a/a=-1.8% (a=10.5463 A, x=0.2439)          *
+*           E.1.2.d Cs2NaYCl6 Delta-a/a=-3.1% (a=10.4067 A, x=0.2439)          *
+*           E.1.2.e Cs2NaYCl6 Delta-a/a=-3.6% (a=10.3530 A, x=0.2439)          *
+*         E.1.3. Cs2NaYBr6                                                     *
+*           E.1.3.a. Cs2NaYBr6 (a=11.3047 A, x=0.2446)                         *
+*         E.1.4. Cs2NaYF6                                                      *
+*           E.1.4.a. Cs2NaYF6 (a=9.075 A, x=0.24)                              *
+*    E.2. Perovskites                                                          *
+*         E.2.1. KMgF3                                                         *
+*           E.2.1.a. KMgF3 (a=3.973 A)                                         *
+*         E.2.2. KZnF3                                                         *
+*           E.2.2.a. KZnF3 (a=4.054 A)                                         *
+*         E.2.3. KCdF3                                                         *
+*           E.2.3.a. KCdF3 (a=4.302 A)                                         *
+*         E.2.4. CsCaF3                                                        *
+*           E.2.4.a. CsCaF3 (a=4.526 A)                                        *
+*         E.2.5. CsCaBr3                                                       *
+*           E.2.5.a. CsCaBr3 (a=5.690 A)                                       *
+*         E.2.6. CaFeO3                                                        *
+*           E.2.6.a. CaFeO3                                                    *
+*         E.2.7. LaMnO3                                                        *
+*           E.2.7.a. LaMnO3                                                    *
+*         E.2.8. CaMnO3                                                        *
+*           E.2.8.a. CaMnO3                                                    *
+*    E.3. Rocksalt structure oxides and halides                                *
+*         E.3.1. MgO                                                           *
+*           E.3.1.a. MgO (a=4.2112 A)                                          *
+*         E.3.2. CaO                                                           *
+*           E.3.2.a. CaO (a=4.8105 A)                                          *
+*         E.3.3. SrO                                                           *
+*           E.3.3.a. SrO (a=5.1602 A)                                          *
+*         E.3.4. NiO                                                           *
+*           E.3.4.a. NiO (a=4.164 A)                                           *
+*         E.3.5. LiF                                                           *
+*           E.3.5.a. LiF (a=4.028 A)                                           *
+*         E.3.6. NaF                                                           *
+*           E.3.6.a. NaF (a=4.634 A)                                           *
+*         E.3.7. KF                                                            *
+*           E.3.7.a. KF (a=5.348 A)                                            *
+*         E.3.8. NaCl                                                          *
+*           E.3.8.a. NaCl (a=5.64056 A)                                        *
+*         E.3.9. KCl                                                           *
+*           E.3.9.a. KCl (a=6.2933 A)                                          *
+*         E.3.10. MnO                                                          *
+*           E.3.10.a. MnO (a=4.267 A)                                          *
+*         E.3.11. CoO                                                          *
+*           E.3.11.a. CoO (a=4.4.03145 A)                                      *
+*    E.4. Fluorites                                                            *
+*         E.4.1. CaF2                                                          *
+*           E.4.1.a. CaF2 (a=5.46294 A)                                        *
+*         E.4.2. SrF2                                                          *
+*           E.4.2.a. SrF2 (a=5.796 A)                                          *
+*           E.4.2.b. SrF2 (a=5.7647 A; Da/a=-.0054; P=0.4 GPa; K=24.65 GPa)    *
+*           E.4.2.c. SrF2 (a=5.7334 A; Da/a=-.0108; P=0.8 GPa; K=24.65 GPa)    *
+*           E.4.2.d. SrF2 (a=5.7021 A; Da/a=-.0162; P=1.2 GPa; K=24.65 GPa)    *
+*           E.4.2.e. SrF2 (a=5.6708 A; Da/a=-.0216; P=1.6 GPa; K=24.65 GPa)    *
+*           E.4.2.f. SrF2 (a=5.4825 A; Da/a=-.0541; P=4.0 GPa; K=24.65 GPa)    *
+*           E.4.2.g. SrF2 (a=5.1690 A; Da/a=-.1082; P=8.0 GPa; K=24.65 GPa)    *
+*           E.4.2.h. SrF2 (a=4.8555 A; Da/a=-.1623; P=12.0 GPa; K=24.65 GPa)   *
+*         E.4.3. BaF2                                                          *
+*           E.4.3.a. BaF2 (a=6.2001 A)                                         *
+*         E.4.4. CdF2                                                          *
+*           E.4.4.a. CdF2                                                      *
+*    E.5. Miscellany                                                           *
+*         E.5.1. Cs2GeF6                                                       *
+*           E.5.1.a. Cs2GeF6 (a=9.021 A, x=0.20)                               *
+*         E.5.2. Cs2ZrCl6                                                      *
+*           E.5.2.a. Cs2ZrCl6 (a=10.407 A, x=0.235)                            *
+*         E.5.3. YVO4                                                          *
+*           E.5.3.a. YVO4 (a=7.123 A, c=6.292 A, yO=0.4346, zO=0.2023)         *
+*         E.5.4. Al2O3  D63d(R3c)                                              *
+*           E.5.4.a. Al2O3 (D63d(R3c) a=4.76 A c=12.995 A z=0.35219 x=0.69367) *
+*         E.5.5. SrB4O7 (SrB4O7)                                               *
+*           E.5.5.a. SrB4O7                                                    *
+*         E.5.6. Lu2O3                                                         *
+*           E.5.6.a. Lu2O3                                                     *
+*    E.6. Zeolite related data                                                 *
+*         E.6.1. Quartz                                                        *
+*           E.6.1.a. Quartz                                                    *
+*         E.6.2. Dehydrated Na-A zeolite                                       *
+*           E.6.2.a. Dehydrated Na-A zeolite [1 aimp for 3 different oxygens]  *
+*           E.6.2.b. Dehydrated Na-A zeolite [3 aimp's for 3 different oxygens]*
+*    E.7. Zincblende                                                           *
+*         E.7.1. CuF                                                           *
+*           E.7.1.a. CuF (a=4.255 A)                                           *
+*         E.7.2. CuCl                                                          *
+*           E.7.2.a. CuCl (a=5.40 A)                                           *
+*         E.7.3. CuBr                                                          *
+*           E.7.3.a. CuBr (a=5.69 A)                                           *
+*    E.8. Garnets                                                              *
+*         E.8.01. Y3Al5O12 (YAG)                                               *
+*           E.8.01.a. Y3Al5O12                                                 *
+*         E.8.02. Gd3Al5O12 (GdAG)                                             *
+*           E.8.02.a. Gd3Al5O12                                                *
+*         E.8.03. Er3Al5O12 (ErAG)                                             *
+*           E.8.03.a. Er3Al5O12                                                *
+*         E.8.04. Yb3Al5O12 (YbAG)                                             *
+*           E.8.04.a. Yb3Al5O12                                                *
+*         E.8.05. Lu3Al5O12 (LuAG)                                             *
+*           E.8.05.a. Lu3Al5O12                                                *
+*         E.8.06. Y3Ga5O12 (YGG)                                               *
+*           E.8.06.a. Y3Ga5O12                                                 *
+*         E.8.07. Nd3Ga5O12 (NdGG)                                             *
+*           E.8.07.a. Nd3Ga5O12                                                *
+*         E.8.08. Sm3Ga5O12 (SmGG)                                             *
+*           E.8.08.a. Sm3Ga5O12                                                *
+*         E.8.09. Gd3Ga5O12 (GdGG)                                             *
+*           E.8.09.a. Gd3Ga5O12                                                *
+*         E.8.10. Tb3Ga5O12 (TbGG)                                             *
+*           E.8.10.a. Tb3Ga5O12                                                *
+*         E.8.11. Dy3Ga5O12 (DyGG)                                             *
+*           E.8.11.a. Dy3Ga5O12                                                *
+*         E.8.12. Ho3Ga5O12 (HoGG)                                             *
+*           E.8.12.a. Ho3Ga5O12                                                *
+*         E.8.13. Yb3Ga5O12 (YbGG)                                             *
+*           E.8.13.a. Yb3Ga5O12                                                *
+*         E.8.14. Lu3Ga5O12 (LuGG)                                             *
+*           E.8.14.a. Lu3Ga5O12                                                *
+*         E.8.15. Mg3Al2Si3O12 (Pyrope)                                        *
+*           E.8.15.a. Mg3Al2Si3O12                                             *
+*         E.8.16. Ca3Al2Si3O12 (Grossular)                                     *
+*           E.8.16.a. Ca3Al2Si3O12                                             *
+*         E.8.17. Mn3Al2Si3O12 (Spessartine)                                   *
+*           E.8.17.a. Mn3Al2Si3O12                                             *
+*         E.8.18. Fe3Al2Si3O12 (Almandine)                                     *
+*           E.8.18.a. Fe3Al2Si3O12                                             *
+*         E.8.19. Ca3Fe2Si3O12 (Andradite)                                     *
+*           E.8.19.a. Ca3Fe2Si3O12                                             *
+*         E.8.20. Ca3Sc2Si3O12                                                 *
+*           E.8.20.a. Ca3Sc2Si3O12                                             *
+*         E.8.21. Lu2CaMg2Si3O12                                               *
+*           E.8.21.a. Lu2CaMg2Si3O12                                           *
+********************************************************************************
+
+********************************************************************************
+*  Except when indicated, the Embedding AIMPs have been produced in            *
+*  self-consistent-embedded-ion (SCEI) calculations,                           *
+*  which are performed with the following loop:                                *
+*      Guess embedding-AIMP's for all the ions of an ionic crystal.            *
+*      Do until convergence                                                    *
+*        Do i = ions of an ionic crystal                                       *
+*          Perform a calculation (i.e. HF) on the ion i, embedded in           *
+*            an ionic lattice made of AIMP's.                                  *
+*          Produce the AIMP corresponding to the wavefunction of ion i         *
+*            just calculated.                                                  *
+*        End Do                                                                *
+*        Check convergence of the embedded-ion energies and wavefuncitons.     *
+*      End Do                                                                  *
+********************************************************************************
