@@ -8,12 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine xdr_indx(N,indx)
-!
-!     read atomic/block information for local transformation
-!
-      Integer N
-      Integer indx(n)
-!
-      call get_iarray('Ctr Index Prim',indx,N)
-      End
+
+subroutine xdr_indx(N,indx)
+! read atomic/block information for local transformation
+
+integer N
+integer indx(n)
+
+call get_iarray('Ctr Index Prim',indx,N)
+
+end subroutine xdr_indx

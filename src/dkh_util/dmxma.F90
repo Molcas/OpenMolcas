@@ -8,17 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
-!----------------------------------------------------------------------|
-!
-      subroutine dmxma(n,transa,transb,a,b,c,alpha)
-!
+
+subroutine dmxma(n,transa,transb,a,b,c,alpha)
 ! Square real matrices multiplication
-!
-      implicit none
-      integer n
-      Real*8 a(*),b(*),c(*),alpha
-      character*1 transa,transb
-      call dgemm_(transa,transb,n,n,n,alpha,a(1),n,b(1),n,0.d0,c(1),n)
-      return
-      end
+
+implicit none
+integer n
+real*8 a(*), b(*), c(*), alpha
+character*1 transa, transb
+
+call dgemm_(transa,transb,n,n,n,alpha,a(1),n,b(1),n,0.d0,c(1),n)
+
+return
+
+end subroutine dmxma

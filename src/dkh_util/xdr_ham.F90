@@ -10,42 +10,38 @@
 !                                                                      *
 ! Copyright (C) 2011, Daoling Peng                                     *
 !***********************************************************************
-!----------------------------------------------------------------------|
-      subroutine XDR_Ham(nbas,isize,jsize,imethod,paratyp,dkhorder,     &
-     &                   xorder,inS,inK,inV,inpVp,inUL,inUS,clight)
+
+subroutine XDR_Ham(nbas,isize,jsize,imethod,paratyp,dkhorder,xorder,inS,inK,inV,inpVp,inUL,inUS,clight)
+! Implementation of the scalar-relativistic
+!    Arbitrary Order  DKH (Douglas-Kroll-Hess)
+!    eXact Decoupling X2C (eXact-2-Component)
+!    eXact Decoupling BSS (Barysz-Sadlej-Snijders)
+! transformations for Hamiltonian and property integrals
 !
-!  ------------------------------------------------------------------------------------------
-!
-!  Implementation of the scalar-relativistic
-!     Arbitrary Order  DKH (Douglas-Kroll-Hess)
-!     eXact Decoupling X2C (eXact-2-Component)
-!     eXact Decoupling BSS (Barysz-Sadlej-Snijders)
-!  transformations for Hamiltonian and property integrals
-!
-!  Written by Daoling Peng, ETH Zurich, 2011
+! Written by Daoling Peng, ETH Zurich, 2011
 !
 !
-!  Reference to the generalized arbitrary/infinite-order DKH method:
+! Reference to the generalized arbitrary/infinite-order DKH method:
 !
-!     A. Wolf, M. Reiher, B.A. Hess, J. Chem. Phys. 117 (2002) 9215-9226
-!     M. Reiher, A. Wolf, J.Chem.Phys. 121 (2004) 2037-2047   partI   [Theory]
-!     M. Reiher, A. Wolf, J.Chem.Phys. 121 (2004) 10945-10956 partII  [Algorithm]
-!     A. Wolf, M. Reiher, J.Chem.Phys. 124 (2006) 064102      partIII [Properties-Theory]
-!     A. Wolf, M. Reiher, J.Chem.Phys. 124 (2006) 064103      partIV  [Properties-Implementation]
-!     D. Peng, K. Hirao,  J.Chem.Pyhs. 130 (2009) 044102      [Polynomial cost algorithm]
+!    A. Wolf, M. Reiher, B.A. Hess, J. Chem. Phys. 117 (2002) 9215-9226
+!    M. Reiher, A. Wolf, J.Chem.Phys. 121 (2004) 2037-2047   partI   [Theory]
+!    M. Reiher, A. Wolf, J.Chem.Phys. 121 (2004) 10945-10956 partII  [Algorithm]
+!    A. Wolf, M. Reiher, J.Chem.Phys. 124 (2006) 064102      partIII [Properties-Theory]
+!    A. Wolf, M. Reiher, J.Chem.Phys. 124 (2006) 064103      partIV  [Properties-Implementation]
+!    D. Peng, K. Hirao,  J.Chem.Pyhs. 130 (2009) 044102      [Polynomial cost algorithm]
 !
-!  Reference to the exact decoupling X2C method:
+! Reference to the exact decoupling X2C method:
 !
-!     W. Kutzelnigg, W. Liu, J.Chem.Phys. 123 (2005) 241102   [Theory]
-!     W. Liu, D. Peng, J.Chem.Phys. 125 (2006) 044102         [Implementation]
-!     D. Peng, W. Liu, Y. Xiao, L. Cheng, J.Chem.Phys. 127 (2007) 104106   [Implementation]
+!    W. Kutzelnigg, W. Liu, J.Chem.Phys. 123 (2005) 241102   [Theory]
+!    W. Liu, D. Peng, J.Chem.Phys. 125 (2006) 044102         [Implementation]
+!    D. Peng, W. Liu, Y. Xiao, L. Cheng, J.Chem.Phys. 127 (2007) 104106   [Implementation]
 !
-!  Reference to the exact decoupling BSS method:
+! Reference to the exact decoupling BSS method:
 !
-!     M. Barysz, A. J. Sadlej, J. G. Snijders, Int.J.QuantumChem. 65 (1997) 225-239   [Theory]
-!     D. Kedziera, M. Barysz, Chem.Phys.Lett. 446 (2007) 176-181   [Non-iterative scheme]
+!    M. Barysz, A. J. Sadlej, J. G. Snijders, Int.J.QuantumChem. 65 (1997) 225-239   [Theory]
+!    D. Kedziera, M. Barysz, Chem.Phys.Lett. 446 (2007) 176-181   [Non-iterative scheme]
 !
-!  ----------------------------------------------------------------------------------------------
+!  ---------------------------------------------------------------------
 !
 !  Input:
 !
@@ -68,85 +64,81 @@
 !     inK(isize)   relativistic transformed one-electron Hamiltonian matrix
 !     inUL(jsize)  store the relativistic transformation matrix ( Large component part )
 !     inUS(jsize)  store the relativistic transformation matrix ( Small component part )
-!
-!  -----------------------------------------------------------------------------------------
-!
-      implicit none
+
+implicit none
 #include "WrkSpc.fh"
 ! Input variables
-      integer nbas,isize,jsize,imethod,paratyp,dkhorder,xorder
-      Real*8 clight
-      Real*8 inS(isize),inV(isize),inpVp(isize)
+integer nbas, isize, jsize, imethod, paratyp, dkhorder, xorder
+real*8 clight
+real*8 inS(isize), inV(isize), inpVp(isize)
 ! Input/Output variables
-      Real*8 inK(isize)
+real*8 inK(isize)
 ! Output variables
-      Real*8 inUL(jsize),inUS(jsize)
+real*8 inUL(jsize), inUS(jsize)
 ! Local variables
-      integer nn,i,j,k
-      integer jS,jK,jV,jpVp
-!
+integer nn, i, j, k
+integer jS, jK, jV, jpVp
+
 ! Convert triangle matrices to square matrices
-!
-      nn = nbas*nbas+4
-      call getmem('skin ','ALLOC','REAL',jK   ,nn)
-      call getmem('sSS  ','ALLOC','REAL',jS   ,nn)
-      call getmem('sV   ','ALLOC','REAL',jV   ,nn)
-      call getmem('spVp ','ALLOC','REAL',jpVp ,nn)
-      k = 0
-      do i=1,nbas
-        do j=1,i
-          k = k + 1
-          Work(jK + j-1 + (i-1)*nbas ) = inK(k)
-          Work(jS + j-1 + (i-1)*nbas ) = inS(k)
-          Work(jV + j-1 + (i-1)*nbas ) = inV(k)
-          Work(jpVp + j-1 + (i-1)*nbas ) = inpVp(k)
-          if(i.ne.j)then
-            Work(jK + i-1 + (j-1)*nbas ) = inK(k)
-            Work(jS + i-1 + (j-1)*nbas ) = inS(k)
-            Work(jV + i-1 + (j-1)*nbas ) = inV(k)
-            Work(jpVp + i-1 + (j-1)*nbas ) = inpVp(k)
-          end if
-        end do
-      end do
-!
+
+nn = nbas*nbas+4
+call getmem('skin ','ALLOC','REAL',jK,nn)
+call getmem('sSS  ','ALLOC','REAL',jS,nn)
+call getmem('sV   ','ALLOC','REAL',jV,nn)
+call getmem('spVp ','ALLOC','REAL',jpVp,nn)
+k = 0
+do i=1,nbas
+  do j=1,i
+    k = k+1
+    Work(jK+j-1+(i-1)*nbas) = inK(k)
+    Work(jS+j-1+(i-1)*nbas) = inS(k)
+    Work(jV+j-1+(i-1)*nbas) = inV(k)
+    Work(jpVp+j-1+(i-1)*nbas) = inpVp(k)
+    if (i /= j) then
+      Work(jK+i-1+(j-1)*nbas) = inK(k)
+      Work(jS+i-1+(j-1)*nbas) = inS(k)
+      Work(jV+i-1+(j-1)*nbas) = inV(k)
+      Work(jpVp+i-1+(j-1)*nbas) = inpVp(k)
+    end if
+  end do
+end do
+
 ! Calculate relativistic one-electron Hamiltonian
-!
-      if(imethod.eq.2)then
-!
-! Call X2C driver
-!
-        call x2c_ts1e(nbas,Work(jS),Work(jK),Work(jV),Work(jpVp),       &
-     &                inUL,inUS,clight )
-      else if(imethod.eq.3)then
-!
-! Call BSS driver
-!
-        call bss_ts1e(nbas,Work(jS),Work(jK),Work(jV),Work(jpVp),       &
-     &                inUL,inUS,clight )
-      else if(imethod.eq.1)then
-!
-! Call arbitrary order DKH driver
-!
-        call dkh_ts1e(nbas,Work(jS),Work(jK),Work(jV),Work(jpVp),       &
-     &                inUL,inUS,clight,dkhorder,xorder,paratyp )
-      end if
-!
+
+if (imethod == 2) then
+
+  ! Call X2C driver
+
+  call x2c_ts1e(nbas,Work(jS),Work(jK),Work(jV),Work(jpVp),inUL,inUS,clight)
+else if (imethod == 3) then
+
+  ! Call BSS driver
+
+  call bss_ts1e(nbas,Work(jS),Work(jK),Work(jV),Work(jpVp),inUL,inUS,clight)
+else if (imethod == 1) then
+
+  ! Call arbitrary order DKH driver
+
+  call dkh_ts1e(nbas,Work(jS),Work(jK),Work(jV),Work(jpVp),inUL,inUS,clight,dkhorder,xorder,paratyp)
+end if
+
 ! Copy relativistic one-electron Hamiltonian back to inK
-!
-      k=0
-      do i=1,nbas
-        do j=1,i
-          k=k+1
-          inK(k)=Work(jV+j-1+(i-1)*nbas)
-        end do
-      end do
-!
+
+k = 0
+do i=1,nbas
+  do j=1,i
+    k = k+1
+    inK(k) = Work(jV+j-1+(i-1)*nbas)
+  end do
+end do
+
 ! Free temp memories
-!
-      call getmem('skin ','FREE','REAL',jK   ,nn)
-      call getmem('sSS  ','FREE','REAL',jS   ,nn)
-      call getmem('sV   ','FREE','REAL',jV   ,nn)
-      call getmem('spVp ','FREE','REAL',jpVp ,nn)
-!
-      return
-      end
+
+call getmem('skin ','FREE','REAL',jK,nn)
+call getmem('sSS  ','FREE','REAL',jS,nn)
+call getmem('sV   ','FREE','REAL',jV,nn)
+call getmem('spVp ','FREE','REAL',jpVp,nn)
+
+return
+
+end subroutine XDR_Ham
