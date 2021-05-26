@@ -135,7 +135,10 @@ subroutine LDF_Fock_CoulombOnly0(IntegralOption,tau,Mode,Add,PackedD,PackedF,nD,
 use Para_Info, only: nProcs, Is_Real_Par
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Half
+use Constants, only: Zero, Two, Half
+#ifdef _DEBUGPRINT_
+use Constants, only: One
+#endif
 use Definitions, only: wp, iwp, u6
 
 implicit none

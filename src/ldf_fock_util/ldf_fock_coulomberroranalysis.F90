@@ -25,14 +25,13 @@ subroutine LDF_Fock_CoulombErrorAnalysis(ComputeF,Mode,PackedD,PackedF,nD,FactC,
 ! LDF integrals (replaced with the error on exit)!
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 logical(kind=iwp), intent(in) :: ComputeF, PackedD, PackedF
 integer(kind=iwp), intent(in) :: Mode, nD, ip_D(nD)
-real(kind=wp), intent(in) :: FactC(nD)
-real(kind=wp), intent(inout) :: F(*)
+real(kind=wp), intent(inout) :: FactC(nD), F(*)
 real(kind=wp) :: Stat(7,3), RMS1, RMS2, RMS3
 logical(kind=iwp) :: Add, Packed_myF
 integer(kind=iwp) :: ipF, lF, iD, i

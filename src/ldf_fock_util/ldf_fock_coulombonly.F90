@@ -228,7 +228,10 @@ subroutine LDF_Fock_CoulombOnly(IntegralOption,Timing,Mode,ThrPS,Add,PackedD,Pac
 use Para_Info, only: nProcs, Is_Real_Par
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Half
+use Constants, only: Zero, Two, Half
+#ifdef _DEBUGPRINT_
+use Constants, only: One
+#endif
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -440,6 +443,7 @@ end if
 contains
 
 subroutine Final_Timing()
+  integer(kind=iwp) :: i
   if (Timing) then
     call CWTime(tTotC2,tTotW2)
     write(u6,'(A,A,A,2(1X,F12.2),A)') 'Total time spent in ',SecNam,':         ',tTotC2-tTotC1,tTotW2-tTotW1,' seconds'

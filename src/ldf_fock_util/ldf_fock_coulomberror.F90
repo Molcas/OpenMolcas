@@ -31,8 +31,7 @@ use Definitions, only: wp, iwp, u6, r8
 implicit none
 logical(kind=iwp), intent(in) :: PrintNorm, ComputeF, PackedD, PackedF
 integer(kind=iwp), intent(in) :: Mode, nD, ip_D(nD)
-real(kind=wp), intent(in) :: FactC(nD)
-real(kind=wp), intent(inout) :: F(*)
+real(kind=wp), intent(inout) :: FactC(nD), F(*)
 logical(kind=iwp) :: Timing, Add
 integer(kind=iwp) :: IntegralOption, ipF, lF, iD
 real(kind=wp), allocatable :: myF(:)
