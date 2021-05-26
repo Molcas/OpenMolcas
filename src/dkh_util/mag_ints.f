@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2019, Thomas J. Duignan                                *
-*               2021, Rulin Feng                                       *
-************************************************************************
-C
-C----------------------------------------------------------------------|
-C
-***************************************************************
-*
-*     An interface for handling magnetic integrals from Gen1Int
-*
-***************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2019, Thomas J. Duignan                                *
+!               2021, Rulin Feng                                       *
+!***********************************************************************
+!
+!----------------------------------------------------------------------|
+!
+!**************************************************************
+!
+!     An interface for handling magnetic integrals from Gen1Int
+!
+!**************************************************************
       subroutine copy_mag_ints(natoms)
       implicit none
 #include "WrkSpc.fh"
@@ -26,9 +26,9 @@ C
       integer nmag, irc, iopt, icomp, toper, iat, jtri
       integer iscrt, ncomp, natoms, lu_one
       character*8 Label
-*
-* Copy magnetic integrals from ONEREL to ONEINT
-*
+!
+! Copy magnetic integrals from ONEREL to ONEINT
+!
       lu_one=2
       iopt = 0
       irc = -1
@@ -83,19 +83,19 @@ C
       End
 
 
-*
-***************************************************************
-*
+!
+!**************************************************************
+!
 
 
       subroutine merge_mag_ints(nb, jz, lt, ut, dotran)
-*
-*     Splice together square matrices stored artificially as
-*     lower triangular matrices.  Result is that upper triangular
-*     portion of lt is set to ut and ut is then transposed so
-*     the "upper triangular" portion is in the "lower triangular"
-*     elements to circumvent Molcas' internal integral handling.
-*
+!
+!     Splice together square matrices stored artificially as
+!     lower triangular matrices.  Result is that upper triangular
+!     portion of lt is set to ut and ut is then transposed so
+!     the "upper triangular" portion is in the "lower triangular"
+!     elements to circumvent Molcas' internal integral handling.
+!
       implicit none
       integer nb, jz, im, jm, km, lm
       logical dotran

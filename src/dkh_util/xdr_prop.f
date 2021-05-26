@@ -1,39 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2021, Rulin Feng                                       *
-************************************************************************
-C
-C----------------------------------------------------------------------|
-C
-      subroutine XDR_Prop(nbas,isize,jsize,imethod,paratyp,dkhorder,
-     &                    xorder,inS,inK,inV,inpVp,inX,inpXp,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Rulin Feng                                       *
+!***********************************************************************
+!
+!----------------------------------------------------------------------|
+!
+      subroutine XDR_Prop(nbas,isize,jsize,imethod,paratyp,dkhorder,    &
+     &                    xorder,inS,inK,inV,inpVp,inX,inpXp,           &
      &                    inUL,inUS,clight,Label,iComp,iSizec)
-C
-C Driver for relativistic transformation of property integrals
-C
-C   also called the "picture change correction" since the physical operator
-C   X is defined in four-component picture, one need to transform them
-C   to two/one- component picture as well as the Hamiltonian in the two/one-
-C   component relativistic calculations
-C
+!
+! Driver for relativistic transformation of property integrals
+!
+!   also called the "picture change correction" since the physical operator
+!   X is defined in four-component picture, one need to transform them
+!   to two/one- component picture as well as the Hamiltonian in the two/one-
+!   component relativistic calculations
+!
       implicit none
 #include "WrkSpc.fh"
-C Input variables
+! Input variables
       integer nbas,isize,jsize,imethod,paratyp,dkhorder,xorder,iComp
       Real*8 clight
       Real*8 inS(isize),inK(isize),inpVp(isize),inpXp(isize)
       Real*8 inV(isize),inUL(jsize),inUS(jsize)
-C Input/Output variables
+! Input/Output variables
       Real*8 inX(isize)
-C Local variables
+! Local variables
       integer nn,i,j,k
       integer jS,jK,jV,jpVp,jX,jpXp,itmp
       character*8 Label
@@ -49,9 +49,9 @@ C Local variables
       integer, dimension(1) :: IDUM
       character*8 magLabel
       character*8 PSOLabel
-C
-C Convert to square matrices
-C
+!
+! Convert to square matrices
+!
       nn = nbas*nbas+4
       call getmem('skin ','ALLOC','REAL',jK   ,nn)
       call getmem('sSS  ','ALLOC','REAL',jS   ,nn)
@@ -74,33 +74,33 @@ C
       call square(inX  ,Work(jX),nbas,1,nbas)
       call square(inpXp,Work(jpXp),nbas,1,nbas)
 #endif
-C
-C Calculate the relativistic transformed property integrals
-C
-      if(imethod.eq.2.or.imethod.eq.3.or.
+!
+! Calculate the relativistic transformed property integrals
+!
+      if(imethod.eq.2.or.imethod.eq.3.or.                               &
      &   (imethod.eq.1.and.xorder.ge.15) )then
-C
-C Handle magnetic integrals if provided by Gen1Int
-C
-*********************************************************************
-c
-c          PSO integrals with i, pre-existing PSO integrals in ONEREL
-c          required. The h_UL{\dag} should have a minus sign, for
-c          which a tranpose is not enough, thus add this manually.
-c *         MAG:
-c *          1: x_k*d/dx  4: x_k*d/dy  7: x_k*d/dz
-c *          2: y_k*d/dx  5: y_k*d/dy  8: y_k*d/dz
-c *          3: z_k*d/dx  6: z_k*d/dy  9: z_k*d/dz
-c *         PSO1: operator (y_k*d/dz - z_k*d/dy)/r_k^3
-c *          = MAG 8 - MAG 6
-c *         PSO2: operator (z_k*d/dx - x_k*d/dz)/r_k^3
-c *          = MAG 3 - MAG 7
-c *         PSO3: operator (x_k*d/dy - y_k*d/dx)/r_k^3
-c *          = MAG 4 - MAG 2
-c *         PSO n = MAG a - MAG b
+!
+! Handle magnetic integrals if provided by Gen1Int
+!
+!********************************************************************
+!
+!          PSO integrals with i, pre-existing PSO integrals in ONEREL
+!          required. The h_UL{\dag} should have a minus sign, for
+!          which a tranpose is not enough, thus add this manually.
+! *         MAG:
+! *          1: x_k*d/dx  4: x_k*d/dy  7: x_k*d/dz
+! *          2: y_k*d/dx  5: y_k*d/dy  8: y_k*d/dz
+! *          3: z_k*d/dx  6: z_k*d/dy  9: z_k*d/dz
+! *         PSO1: operator (y_k*d/dz - z_k*d/dy)/r_k^3
+! *          = MAG 8 - MAG 6
+! *         PSO2: operator (z_k*d/dx - x_k*d/dz)/r_k^3
+! *          = MAG 3 - MAG 7
+! *         PSO3: operator (x_k*d/dy - y_k*d/dx)/r_k^3
+! *          = MAG 4 - MAG 2
+! *         PSO n = MAG a - MAG b
 
-        If ((Label(1:3).eq.'MAG').and.
-     &           ((iComp.eq.3).or.(iComp.eq.4).or.
+        If ((Label(1:3).eq.'MAG').and.                                  &
+     &           ((iComp.eq.3).or.(iComp.eq.4).or.                      &
      &            (iComp.eq.8))) then
             nSym = 1 !always C1 symmetry
             inUS = inUS * clight
@@ -135,7 +135,7 @@ c *         PSO n = MAG a - MAG b
             call square(Work(imagaXP),Work(imagaXPs),nbas,1,nbas)
             call getmem('MAGaXP','FREE','REAL',imagaXP,nInt+4)
             call getmem('MAGaPX','FREE','REAL',imagaPX,nInt+4)
-            call merge_mag_ints(nbas, jsize, Work(imagaXPs),
+            call merge_mag_ints(nbas, jsize, Work(imagaXPs),            &
      &                          Work(imagaPXs),.true.)
             ! put Work(imagaPXs) into -Work(imagaPXs)
             ! or put Work(imagaXPs) into -Work(imagaXPs)
@@ -187,7 +187,7 @@ c *         PSO n = MAG a - MAG b
             call square(Work(imagbXP),Work(imagbXPs),nbas,1,nbas)
             call getmem('MAGbXP','FREE','REAL',imagbXP,nInt+4)
             call getmem('MAGbPX','FREE','REAL',imagbPX,nInt+4)
-            call merge_mag_ints(nbas, jsize, Work(imagbXPs),
+            call merge_mag_ints(nbas, jsize, Work(imagbXPs),            &
      &                          Work(imagbPXs),.true.)
             ! put Work(imagbPXs) into -Work(imagbPXs)
             ! or put Work(imagbXP) into -Work(imagbXP)
@@ -243,7 +243,7 @@ c *         PSO n = MAG a - MAG b
             call Free_Work(ip_Ppso)
             inUS = inUS / clight
         End if
-*********************************************************************
+!********************************************************************
         if (Label(1:3).eq.'MAG') then
           inUS = inUS * clight
           ! Put together lower and upper triangular matrices
@@ -266,40 +266,40 @@ c *         PSO n = MAG a - MAG b
           call getmem('TMP ','FREE','REAL',itmp ,nn)
           inUS = inUS / clight
         else
-C
-C X2C/BSS transformation
-C
-C   because the transformation matrix in non-orthogonal basis picture has
-C   obtained via the Hamiltonian drivers, here we just need to simply apply
-C   it to property integrals ( X, pXp in four-component picture )
-C
-C   high order DKH can also employ this formulation, only negligible
-C   contribution from higher orders is included
-C
+!
+! X2C/BSS transformation
+!
+!   because the transformation matrix in non-orthogonal basis picture has
+!   obtained via the Hamiltonian drivers, here we just need to simply apply
+!   it to property integrals ( X, pXp in four-component picture )
+!
+!   high order DKH can also employ this formulation, only negligible
+!   contribution from higher orders is included
+!
           call getmem('TMP ','ALLOC','REAL',itmp ,nn)
-C         ! eval U_L^{\dag} X U_L
+!         ! eval U_L^{\dag} X U_L
           call dmxma(nbas,'C','N',inUL,Work(jX),Work(itmp),1.d0)
           call dmxma(nbas,'N','N',Work(itmp),inUL,Work(jX),1.d0)
-C         ! eval U_S^{\dag}pXp U_S
+!         ! eval U_S^{\dag}pXp U_S
           call dmxma(nbas,'C','N',inUS,Work(jpXp),Work(itmp),1.d0)
           call dmxma(nbas,'N','N',Work(itmp),inUS,Work(jpXp),1.d0)
-C         ! sum
+!         ! sum
           do k=0,nbas*nbas-1
             Work(jX+k) = Work(jX+k) + Work(jpXp+k)
           end do
           call getmem('TMP ','FREE','REAL',itmp ,nn)
         End if !MAG
-C
+!
       else if(imethod.eq.1)then
-C
-C Arbitrary order DKH transformation
-C
-        call dkh_prop(nbas,Work(jS),Work(jK),Work(jV),Work(jpVp),
+!
+! Arbitrary order DKH transformation
+!
+        call dkh_prop(nbas,Work(jS),Work(jK),Work(jV),Work(jpVp),       &
      &              Work(jX),Work(jpXp),clight,dkhorder,xorder,paratyp)
       endif
-C
-C Copy transformed property integral back to inX
-C
+!
+! Copy transformed property integral back to inX
+!
       k=0
       do i=1,nbas
         do j=1,i
@@ -307,16 +307,16 @@ C
           inX(k)=Work(jX+j-1+(i-1)*nbas)
         enddo
       enddo
-C
-C Free temp memories
-C
+!
+! Free temp memories
+!
       call getmem('skin ','FREE','REAL',jK   ,nn)
       call getmem('sSS  ','FREE','REAL',jS   ,nn)
       call getmem('sV   ','FREE','REAL',jV   ,nn)
       call getmem('spVp ','FREE','REAL',jpVp ,nn)
       call getmem('sX   ','FREE','REAL',jX   ,nn)
       call getmem('spXp ','FREE','REAL',jpXp ,nn)
-C
+!
       return
  9999 Continue
       Write (6,*) ' *** Error in subroutine XDR_Prop ***'

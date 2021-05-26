@@ -1,38 +1,38 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-C----------------------------------------------------------------------|
-      subroutine XDR_Local_Ham(nbas,isize,jsize,imethod,paratyp,
-     & dkhorder,xorder,inS,inK,inV,inpVp,inUL,inUS,inDX,nbl,ibl,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!----------------------------------------------------------------------|
+      subroutine XDR_Local_Ham(nbas,isize,jsize,imethod,paratyp,        &
+     & dkhorder,xorder,inS,inK,inV,inpVp,inUL,inUS,inDX,nbl,ibl,        &
      & Lmap,DoFullLT,clight)
-C
-C Local (Atom/Block) relativistic transformation of Hamiltonian
-C
+!
+! Local (Atom/Block) relativistic transformation of Hamiltonian
+!
       implicit none
 #include "WrkSpc.fh"
-C Input variables
+! Input variables
       integer nbas,isize,jsize,imethod,paratyp,dkhorder,xorder,nbl
       integer inDX(nbas),ibl(nbl),Lmap(nbas)
       Real*8 clight
       Real*8 inS(isize),inV(isize),inpVp(isize)
       logical doFullLT
-C Input/Output variables
+! Input/Output variables
       Real*8 inK(isize)
-C Output variables
+! Output variables
       Real*8 inUL(jsize),inUS(jsize)
-C Local variables
+! Local variables
       integer nn,i,j,k,iblock,mbl,ks,kL
       integer jS,jK,jV,jpVp,jSL,jKL,jVL,jpVpL,jULL,jUSL,jH,jtmp,jB
-C
-C Convert triangle matrices to square matrices
-C
+!
+! Convert triangle matrices to square matrices
+!
       nn = nbas*nbas+4
       call getmem('skin ','ALLOC','REAL',jK   ,nn)
       call getmem('sSS  ','ALLOC','REAL',jS   ,nn)
@@ -65,9 +65,9 @@ C
           Work(jH+i) = Work(jK+i) + Work(jV+i)
         end do
       end if
-C
-C Cycle for each local blocks
-C
+!
+! Cycle for each local blocks
+!
       ks = 0
       do iblock = 1,nbl
         mbl = ibl(iblock)
@@ -77,9 +77,9 @@ C
         call getmem('spVpL','ALLOC','REAL',jpVpL,mbl*mbl+4)
         call getmem('ULlco','ALLOC','REAL',jULL ,mbl*mbl+4)
         call getmem('USlco','ALLOC','REAL',jUSL ,mbl*mbl+4)
-C
-C Copy block matrices
-C
+!
+! Copy block matrices
+!
         do i=1,mbl
           do j=1,mbl
             k = (j-1)+(i-1)*mbl
@@ -90,32 +90,32 @@ C
             Work(jpVpL + k ) = Work(jpVp + kL )
           end do
         end do
-C
-C Calculate relativistic one-electron Hamiltonian for each blocks
-C
+!
+! Calculate relativistic one-electron Hamiltonian for each blocks
+!
         if(imethod.eq.2)then
-C
-C Call X2C driver
-C
-          call x2c_ts1e(mbl,Work(jSL),Work(jKL),Work(jVL),Work(jpVpL),
+!
+! Call X2C driver
+!
+          call x2c_ts1e(mbl,Work(jSL),Work(jKL),Work(jVL),Work(jpVpL),  &
      &                  Work(jULL),Work(jUSL),clight )
         else if(imethod.eq.3)then
-C
-C Call BSS driver
-C
-          call bss_ts1e(mbl,Work(jSL),Work(jKL),Work(jVL),Work(jpVpL),
+!
+! Call BSS driver
+!
+          call bss_ts1e(mbl,Work(jSL),Work(jKL),Work(jVL),Work(jpVpL),  &
      &                  Work(jULL),Work(jUSL),clight )
         else if(imethod.eq.1)then
-C
-C Call arbitrary order DKH driver
-C
-          call dkh_ts1e(mbl,Work(jSL),Work(jKL),Work(jVL),Work(jpVpL),
-     &                  Work(jULL),Work(jUSL),clight,
+!
+! Call arbitrary order DKH driver
+!
+          call dkh_ts1e(mbl,Work(jSL),Work(jKL),Work(jVL),Work(jpVpL),  &
+     &                  Work(jULL),Work(jUSL),clight,                   &
      &                  dkhorder,xorder,paratyp )
         end if
-C
-C Copy back to full matrix
-C
+!
+! Copy back to full matrix
+!
         do i=1,mbl
           do j=1,mbl
             k = (j-1)+(i-1)*mbl
@@ -129,9 +129,9 @@ C
             end if
           end do
         end do
-C
-C End cycle for blocks
-C
+!
+! End cycle for blocks
+!
         call getmem('skinL','FREE','REAL',jKL  ,mbl*mbl+4)
         call getmem('sSSL ','FREE','REAL',jSL  ,mbl*mbl+4)
         call getmem('sVL  ','FREE','REAL',jVL  ,mbl*mbl+4)
@@ -140,9 +140,9 @@ C
         call getmem('USlco','FREE','REAL',jUSL ,mbl*mbl+4)
         ks = ks + mbl
       end do
-C
-C Apply transformation construct from each blocks
-C
+!
+! Apply transformation construct from each blocks
+!
       if(DoFullLT)then
         call getmem('Tempm ','ALLOC','REAL',jtmp,nn)
         call dmxma(nbas,'C','N',inUS,Work(jK),Work(jS),2.d0*clight)
@@ -152,7 +152,7 @@ C
         call dmxma(nbas,'C','N',inUL,Work(jK),Work(jS),1.d0)
         call dmxma(nbas,'N','N',Work(jS),inUS,Work(jtmp),2.d0*clight)
         call daxpy_(nbas*nbas,1.d0,Work(jtmp),1,Work(jH),1)
-C
+!
         call dmxma(nbas,'C','N',inUL,Work(jV),Work(jS),1.d0)
         call dmxma(nbas,'N','N',Work(jS),inUL,Work(jtmp),1.d0)
         call daxpy_(nbas*nbas,1.d0,Work(jtmp),1,Work(jH),1)
@@ -175,9 +175,9 @@ C
       do i=0,nbas*nbas-1
         Work(jV+i) = Work(jH+i)
       end do
-C
-C Copy relativistic one-electron Hamiltonian back to inK
-C
+!
+! Copy relativistic one-electron Hamiltonian back to inK
+!
       k=0
       do i=1,nbas
         do j=1,i
@@ -185,17 +185,17 @@ C
           inK(k)=Work(jV+j-1+(i-1)*nbas)
         end do
       end do
-C
-C Free temp memories
-C
+!
+! Free temp memories
+!
       call getmem('skin ','FREE','REAL',jK   ,nn)
       call getmem('sSS  ','FREE','REAL',jS   ,nn)
       call getmem('sV   ','FREE','REAL',jV   ,nn)
       call getmem('spVp ','FREE','REAL',jpVp ,nn)
       call getmem('sHam ','FREE','REAL',jH   ,nn)
       call getmem('sSav ','FREE','REAL',jB   ,nn)
-C
+!
       return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) call Unused_integer_array(inDX)
       end

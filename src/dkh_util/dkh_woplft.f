@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-C
-C----------------------------------------------------------------------|
-C
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!
+!----------------------------------------------------------------------|
+!
       subroutine dkh_woplft(n,ifodd,nw,np,wr,rw,p1,p2,q1,q2,t1,t2)
-C
-C Product of W(nw)P(np)=Q(np+nw)
-C
+!
+! Product of W(nw)P(np)=Q(np+nw)
+!
       implicit none
       integer n,nw,np,i,j
       logical ifodd
@@ -29,7 +29,7 @@ C
         end do
       end do
       return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) then
         call Unused_logical(ifodd)
         call Unused_integer(nw)

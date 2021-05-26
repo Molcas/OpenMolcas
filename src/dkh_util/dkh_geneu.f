@@ -1,42 +1,42 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-C
-C----------------------------------------------------------------------|
-C
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!
+!----------------------------------------------------------------------|
+!
       subroutine dkh_geneu(n,m,xord,c,w,xl,xs,t1,t2,t3)
-C
-C Calculate the DKH unitary transformation truncated at [xord] order
-C   U_{DKH}=U_{0}U_{1}U_{2}...U_{xord}
-C   U_{k}=\sum_{i=0}^{xord/k}c_{i}W_{k}^{i}
-C
+!
+! Calculate the DKH unitary transformation truncated at [xord] order
+!   U_{DKH}=U_{0}U_{1}U_{2}...U_{xord}
+!   U_{k}=\sum_{i=0}^{xord/k}c_{i}W_{k}^{i}
+!
       implicit none
-C
-C Input
-C   n    dimension of matrix
-C   m    =2*n
-C   c    expansion coefficients of unitary transformation in terms of W
-C   w    stored W matrices
-C
+!
+! Input
+!   n    dimension of matrix
+!   m    =2*n
+!   c    expansion coefficients of unitary transformation in terms of W
+!   w    stored W matrices
+!
       integer n,m,xord
       Real*8 c(*),w(n,n,2,xord)
-C Output
-C   xl   upper part
-C   xs   lower part
+! Output
+!   xl   upper part
+!   xs   lower part
       Real*8 xl(n,n),xs(n,n)
-C Temp
+! Temp
       Real*8 t1(m,m),t2(m,m),t3(m,m)
       integer i,j,k,iord
-C
+!
       do iord=1,xord
-C       ! initial unit matrix
+!       ! initial unit matrix
         do i=1,m
           do j=1,m
             if(j.eq.i)then
@@ -51,7 +51,7 @@ C       ! initial unit matrix
             if(k.eq.1)then
               do i=1,n
                 do j=1,n
-C                 ! unitary transformation in right side, had {\dag} to original definition of U
+!                 ! unitary transformation in right side, had {\dag} to original definition of U
                   xs(j,i) = -w(j,i,1,iord)
                 end do
               end do
@@ -86,7 +86,7 @@ C                 ! unitary transformation in right side, had {\dag} to original
             end do
           end do
         else
-C         ! multiply U_{iord} in right side
+!         ! multiply U_{iord} in right side
           call dmxma(m,'N','N',t1,t2,t3,1.d0)
           do i=1,m
             do j=1,m
@@ -101,6 +101,6 @@ C         ! multiply U_{iord} in right side
           xs(j,i) = t1(j+n,i)
         end do
       end do
-C
+!
       return
       end

@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-C
-C----------------------------------------------------------------------|
-C
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!
+!----------------------------------------------------------------------|
+!
       subroutine XDR_dmatsqrt(a,n)
-C
-C Compute the inverse square root of a real symmetric matrix : A**(-1/2)
-C
+!
+! Compute the inverse square root of a real symmetric matrix : A**(-1/2)
+!
       implicit none
 #include "WrkSpc.fh"
       Real*8 a(*),dia
