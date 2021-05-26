@@ -52,10 +52,6 @@ logical(kind=iwp), external :: Rsv_Tsk
 integer(kind=iwp), external :: LDF_nBas_Atom, LDF_nBasAux_Atom, LDF_nBasAux_Pair_wLD, LDF_nAtom
 real(kind=r8), external :: ddot_
 #include "WrkSpc.fh"
-! statement functions
-integer(kind=iwp) :: i, j, AP_Atoms, AP_2CFunctions
-AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
-AP_2CFunctions(i,j) = iWork(ip_AP_2CFunctions-1+2*(j-1)+i)
 
 if (Timing) call CWTIme(tC1,tW1)
 
@@ -67,8 +63,8 @@ end do
 ! Allocate array for storing coefficients
 l_C = 0
 do iAtomPair=1,NumberOfAtomPairs
-  iAtom = AP_Atoms(1,iAtomPair)
-  jAtom = AP_Atoms(2,iAtomPair)
+  iAtom = iWork(ip_AP_Atoms-1+2*(iAtomPair-1)+1)
+  jAtom = iWork(ip_AP_Atoms-1+2*(iAtomPair-1)+2)
   nuv = LDF_nBas_Atom(iAtom)*LDF_nBas_Atom(jAtom)
   M = LDF_nBasAux_Pair_wLD(iAtomPair)
   l_C = max(l_C,nuv*M)
@@ -91,8 +87,8 @@ nAtom = LDF_nAtom()
 call Init_Tsk(TaskListID,NumberOfAtomPairs)
 do while (Rsv_Tsk(TaskListID,iAtomPair))
   call LDF_CIO_ReadC_wLD(iAtomPair,LDFCBlk,l_C)
-  iAtom = AP_Atoms(1,iAtomPair)
-  jAtom = AP_Atoms(2,iAtomPair)
+  iAtom = iWork(ip_AP_Atoms-1+2*(iAtomPair-1)+1)
+  jAtom = iWork(ip_AP_Atoms-1+2*(iAtomPair-1)+2)
   nuv = LDF_nBas_Atom(iAtom)*LDF_nBas_Atom(jAtom)
   ipC = 1
   M = LDF_nBasAux_Atom(iAtom)
@@ -121,9 +117,9 @@ do while (Rsv_Tsk(TaskListID,iAtomPair))
       CNorm(4*(iAtomPair-1)+3) = CNorm(4*(iAtomPair-1)+2)
     end if
   end if
-  if (AP_2CFunctions(1,iAtomPair) > 0) then
+  if (iWork(ip_AP_2CFunctions-1+2*(iAtomPair-1)+1) > 0) then
     ipC = ipC+nuv*M
-    M = AP_2CFunctions(1,iAtomPair)
+    M = iWork(ip_AP_2CFunctions-1+2*(iAtomPair-1)+1)
     if (doNorm) then
       CNorm(4*(iAtomPair-1)+4) = sqrt(dDot_(nuv*M,LDFCBlk(ipC),1,LDFCBlk(ipC),1))
     end if

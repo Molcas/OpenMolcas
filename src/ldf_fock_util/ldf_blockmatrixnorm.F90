@@ -26,13 +26,10 @@ integer(kind=iwp) :: iAtomPair, iAtom, jAtom, ip, l
 integer(kind=iwp), external :: LDF_nBas_Atom
 real(kind=r8), external :: ddot_
 #include "WrkSpc.fh"
-! statement function
-integer(kind=iwp) :: i, j, AP_Atoms
-AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
 do iAtomPair=1,NumberOfAtomPairs
-  iAtom = AP_Atoms(1,iAtomPair)
-  jAtom = AP_Atoms(2,iAtomPair)
+  iAtom = iWork(ip_AP_Atoms-1+2*(iAtomPair-1)+1)
+  jAtom = iWork(ip_AP_Atoms-1+2*(iAtomPair-1)+2)
   l = LDF_nBas_Atom(iAtom)*LDF_nBas_Atom(jAtom)
   ip = Blocks(iAtomPair)
   Norm(iAtomPair) = sqrt(dDot_(l,Work(ip),1,Work(ip),1))

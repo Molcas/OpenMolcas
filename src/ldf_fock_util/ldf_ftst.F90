@@ -38,19 +38,16 @@ real(kind=wp), parameter :: TolNeg = -1.0e-8_wp
 integer(kind=iwp), external :: LDF_nBas_Atom
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
-! statement function
-integer(kind=iwp) :: i, j, AP_Atoms
-AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
 r = Zero
 if (UsePartPermSym) then ! use particle permutation symmetry
   do AB=1,NumberOfAtomPairs
-    A = AP_Atoms(1,AB)
-    B = AP_Atoms(2,AB)
+    A = iWork(ip_AP_Atoms-1+2*(AB-1)+1)
+    B = iWork(ip_AP_Atoms-1+2*(AB-1)+2)
     nAB = LDF_nBas_Atom(A)*LDF_nBas_Atom(B)
     do CD=1,AB-1
-      C = AP_Atoms(1,CD)
-      D = AP_Atoms(2,CD)
+      C = iWork(ip_AP_Atoms-1+2*(CD-1)+1)
+      D = iWork(ip_AP_Atoms-1+2*(CD-1)+2)
       nCD = LDF_nBas_Atom(C)*LDF_nBas_Atom(D)
       l_Int = nAB*nCD
       call mma_allocate(FTstInt,l_Int,label='FTstInt')
@@ -85,12 +82,12 @@ if (UsePartPermSym) then ! use particle permutation symmetry
   end do
 else
   do AB=1,NumberOfAtomPairs
-    A = AP_Atoms(1,AB)
-    B = AP_Atoms(2,AB)
+    A = iWork(ip_AP_Atoms-1+2*(AB-1)+1)
+    B = iWork(ip_AP_Atoms-1+2*(AB-1)+2)
     nAB = LDF_nBas_Atom(A)*LDF_nBas_Atom(B)
     do CD=1,NumberOfAtomPairs
-      C = AP_Atoms(1,CD)
-      D = AP_Atoms(2,CD)
+      C = iWork(ip_AP_Atoms-1+2*(CD-1)+1)
+      D = iWork(ip_AP_Atoms-1+2*(CD-1)+2)
       nCD = LDF_nBas_Atom(C)*LDF_nBas_Atom(D)
       l_Int = nAB*nCD
       call mma_allocate(FTstInt,l_Int,label='FTstInt')

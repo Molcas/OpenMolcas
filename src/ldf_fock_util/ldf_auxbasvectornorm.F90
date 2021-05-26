@@ -26,9 +26,6 @@ integer(kind=iwp), external :: LDF_nAtom, LDF_nBasAux_Atom
 real(kind=wp), external :: ddot_
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
-! statement function
-integer i, j, AP_2CFunctions
-AP_2CFunctions(i,j) = iWork(ip_AP_2CFunctions-1+2*(j-1)+i)
 
 nAtom = LDF_nAtom()
 do iAtom=1,nAtom
@@ -37,7 +34,7 @@ do iAtom=1,nAtom
   Norm(iAtom) = sqrt(dDot_(l,Work(ip),1,Work(ip),1))
 end do
 do iAtomPair=1,NumberOfAtomPairs
-  l = AP_2CFunctions(1,iAtomPair)
+  l = iWork(ip_AP_2CFunctions-1+2*(iAtomPair-1)+1)
   ip = V(nAtom+iAtomPair)
   Norm(nAtom+iAtomPair) = sqrt(dDot_(l,Work(ip),1,Work(ip),1))
 end do

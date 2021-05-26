@@ -31,9 +31,6 @@ logical(kind=iwp), external :: Rsv_Tsk, LDF_IntegralPrescreeningInfoIsSet
 integer(kind=iwp), external :: LDF_nBas_Atom
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
-! statement function
-integer(kind=iwp) :: i, j, AP_Atoms
-AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
 if (.not. LDF_IntegralPrescreeningInfoIsSet()) then
   call LDF_SetIntegralPrescreeningInfo()
@@ -44,8 +41,8 @@ end if
 
 call Init_Tsk(TaskListID,NumberOfAtomPairs)
 do while (Rsv_Tsk(TaskListID,AB))
-  A = AP_Atoms(1,AB)
-  B = AP_Atoms(2,AB)
+  A = iWork(ip_AP_Atoms-1+2*(AB-1)+1)
+  B = iWork(ip_AP_Atoms-1+2*(AB-1)+2)
   nAB = LDF_nBas_Atom(A)*LDF_nBas_Atom(B)
   if (nAB > 0) then
     n_Int = nAB**2

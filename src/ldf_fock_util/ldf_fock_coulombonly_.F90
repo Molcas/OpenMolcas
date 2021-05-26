@@ -43,15 +43,6 @@ integer(kind=iwp), external :: LDF_nAtom, LDF_nBas_Atom, LDF_nBasAux_Atom, LDF_n
 #include "ldf_atom_pair_info.fh"
 #include "ldf_integral_prescreening_info.fh"
 #include "ldf_a2ap.fh"
-!statement functions
-integer(kind=iwp) :: i, j, AP_Atoms, AP_2CFunctions, A2AP
-real(kind=wp) :: IAB, GA, GAB
-AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
-AP_2CFunctions(i,j) = iWork(ip_AP_2CFunctions-1+2*(j-1)+i)
-A2AP(i,j) = iWork(ip_A2AP-1+2*(j-1)+i)
-IAB(i) = Work(ip_IDiag_Sm-1+i)
-GA(i) = Work(ip_GDiag_1C_Sm-1+i)
-GAB(i) = Work(ip_GDiag_2C_Sm-1+i)
 
 ! Get number of atoms
 nAtom = LDF_nAtom()
@@ -80,14 +71,14 @@ call mma_allocate(tauW,l_tauW,label='tauW')
 if (tau(2) > Zero) then
   call LDF_SetA2AP()
   do A=1,nAtom
-    l = A2AP(1,A)
-    ip = A2AP(2,A)-1
+    l = iWork(ip_A2AP-1+2*(A-1)+1)
+    ip = iWork(ip_A2AP-1+2*(A-1)+2)-1
     tauW(A) = Zero
     do jAB=1,l
       AB = iWork(ip+jAB)
-      if (AP_Atoms(1,AB) == A) then
+      if (iWork(ip_AP_Atoms-1+2*(AB-1)+1) == A) then
         tauW(A) = max(tauW(A),CNorm(2,AB))
-      else if (AP_Atoms(2,AB) == A) then
+      else if (iWork(ip_AP_Atoms-1+2*(AB-1)+2) == A) then
         tauW(A) = max(tauW(A),CNorm(3,AB))
       else
         call WarningMessage(2,SecNam//': logical error [A2AP]')
@@ -103,7 +94,7 @@ if (tau(2) > Zero) then
   end do
   call LDF_UnsetA2AP()
   do AB=1,NumberOfAtomPairs
-    if (AP_2CFunctions(1,AB) > 0) then
+    if (iWork(ip_AP_2CFunctions-1+2*(AB-1)+1) > 0) then
       if (CNorm(4,AB) > 1.0e-16_wp) then
         tauW(nAtom+AB) = tau(2)/CNorm(4,AB)
       else
@@ -137,12 +128,13 @@ if ((Mode == 1) .or. (Mode == 3)) then
   end if
   call Init_Tsk(TaskListID,NumberOfAtomPairs)
   do while (Rsv_Tsk(TaskListID,AB))
-    A = AP_Atoms(1,AB)
-    B = AP_Atoms(2,AB)
+    A = iWork(ip_AP_Atoms-1+2*(AB-1)+1)
+    B = iWork(ip_AP_Atoms-1+2*(AB-1)+2)
     nuv = LDF_nBas_Atom(A)*LDF_nBas_Atom(B)
     do C=1,nAtom
       tauWr = tauW(C)
-      if ((IAB(AB)*GA(C)*VNorm(C) >= tau(2)) .or. (IAB(AB)*GA(C)*DNorm(AB) >= tauWr)) then
+      if ((Work(ip_IDiag_Sm-1+AB)*Work(ip_GDiag_1C_Sm-1+C)*VNorm(C) >= tau(2)) .or. &
+          (Work(ip_IDiag_Sm-1+AB)*Work(ip_GDiag_1C_Sm-1+C)*DNorm(AB) >= tauWr)) then
         ! Compute integrals (u_A v_B|J_C)
         M = LDF_nBasAux_Atom(C)
         l_Int = nuv*M
@@ -174,10 +166,11 @@ if ((Mode == 1) .or. (Mode == 3)) then
     if (LDF2) then
       ! Contributions from two-center aux functions
       do CD=1,NumberOfAtomPairs
-        MCD = AP_2CFunctions(1,CD)
+        MCD = iWork(ip_AP_2CFunctions-1+2*(CD-1)+1)
         if (MCD > 0) then
           tauWr = tauW(nAtom+CD)
-          if ((IAB(AB)*GAB(CD)*VNorm(nAtom+CD) >= tau(2)) .or. (IAB(AB)*GAB(CD)*DNorm(AB) >= tauWr)) then
+          if ((Work(ip_IDiag_Sm-1+AB)*Work(ip_GDiag_2C_Sm-1+CD)*VNorm(nAtom+CD) >= tau(2)) .or. &
+              (Work(ip_IDiag_Sm-1+AB)*Work(ip_GDiag_2C_Sm-1+CD)*DNorm(AB) >= tauWr)) then
             ! Compute integrals (u_A v_B|J_CD)
             l_Int = nuv*MCD
             call mma_allocate(FckInt,l_Int,label='Fck3Int2')
@@ -239,7 +232,8 @@ if ((Mode == 1) .or. (Mode == 2)) then
       do B=1,A-1
         MB = LDF_nBasAux_Atom(B)
         if (MB > 0) then
-          if ((GA(A)*GA(B)*VNorm(B) >= tauW(A)) .or. (GA(A)*GA(B)*VNorm(A) >= tauW(B))) then
+          if ((Work(ip_GDiag_1C_Sm-1+A)*Work(ip_GDiag_1C_Sm-1+B)*VNorm(B) >= tauW(A)) .or. &
+              (Work(ip_GDiag_1C_Sm-1+A)*Work(ip_GDiag_1C_Sm-1+B)*VNorm(A) >= tauW(B))) then
             ! Compute integrals (J_A|K_B)
             l_Int = MA*MB
             call mma_allocate(FckInt,l_Int,label='Fck2Int11')
@@ -268,7 +262,7 @@ if ((Mode == 1) .or. (Mode == 2)) then
           end if
         end if
       end do
-      if (GA(A)*GA(A)*VNorm(A) >= tauW(A)) then
+      if (Work(ip_GDiag_1C_Sm-1+A)*Work(ip_GDiag_1C_Sm-1+A)*VNorm(A) >= tauW(A)) then
         ! Compute integrals (J_A|K_A)
         l_Int = MA**2
         call mma_allocate(FckInt,l_Int,label='Fck2Int11')
@@ -291,9 +285,10 @@ if ((Mode == 1) .or. (Mode == 2)) then
       if (LDF2) then
         ! Two-center contributions
         do CD=1,NumberOfAtomPairs
-          MCD = AP_2CFunctions(1,CD)
+          MCD = iWork(ip_AP_2CFunctions-1+2*(CD-1)+1)
           if (MCD > 0) then
-            if ((GA(A)*GAB(CD)*VNorm(nAtom+CD) >= tauW(A)) .or. (GA(A)*GAB(CD)*VNorm(A) >= tauW(nAtom+CD))) then
+            if ((Work(ip_GDiag_1C_Sm-1+A)*Work(ip_GDiag_2C_Sm-1+CD)*VNorm(nAtom+CD) >= tauW(A)) .or. &
+                (Work(ip_GDiag_1C_Sm-1+A)*Work(ip_GDiag_2C_Sm-1+CD)*VNorm(A) >= tauW(nAtom+CD))) then
               ! Compute integrals (J_A|K_CD)
               l_Int = MA*MCD
               call mma_allocate(FckInt,l_Int,label='Fck2Int12')
@@ -329,13 +324,13 @@ if ((Mode == 1) .or. (Mode == 2)) then
   if (LDF2) then
     call Init_Tsk(TaskListID,NumberOfAtomPairs)
     do while (Rsv_Tsk(TaskListID,AB))
-      MAB = AP_2CFunctions(1,AB)
+      MAB = iWork(ip_AP_2CFunctions-1+2*(AB-1)+1)
       if (MAB > 0) then
         do CD=1,AB-1
-          MCD = AP_2CFunctions(1,CD)
+          MCD = iWork(ip_AP_2CFunctions-1+2*(CD-1)+1)
           if (MCD > 0) then
-            GABCD = GAB(AB)*GAB(CD)*VNorm(nAtom+CD)
-            GCDAB = GAB(AB)*GAB(CD)*VNorm(nAtom+AB)
+            GABCD = Work(ip_GDiag_2C_Sm-1+AB)*Work(ip_GDiag_2C_Sm-1+CD)*VNorm(nAtom+CD)
+            GCDAB = Work(ip_GDiag_2C_Sm-1+AB)*Work(ip_GDiag_2C_Sm-1+CD)*VNorm(nAtom+AB)
             if ((GABCD >= tauW(nAtom+AB)) .or. (GCDAB >= tauW(nAtom+CD))) then
               ! Compute integrals (J_AB|K_CD)
               l_Int = MAB*MCD
@@ -366,7 +361,7 @@ if ((Mode == 1) .or. (Mode == 2)) then
           end if
         end do
         ! Compute integrals (J_AB|K_AB)
-        if (GAB(AB)*GAB(AB)*VNorm(nAtom+AB) >= tauW(nAtom+AB)) then
+        if (Work(ip_GDiag_2C_Sm-1+AB)*Work(ip_GDiag_2C_Sm-1+AB)*VNorm(nAtom+AB) >= tauW(nAtom+AB)) then
           l_Int = MAB**2
           call mma_allocate(FckInt,l_Int,label='Fck2Int22')
           if (Timing) call CWTime(tIC1,tIW1)
@@ -427,8 +422,8 @@ if (Timing) call CWTime(tC1,tW1)
 call Init_Tsk(TaskListID,NumberOfAtomPairs)
 do while (Rsv_Tsk(TaskListID,AB))
   ! Read coefficients
-  A = AP_Atoms(1,AB)
-  B = AP_Atoms(2,AB)
+  A = iWork(ip_AP_Atoms-1+2*(AB-1)+1)
+  B = iWork(ip_AP_Atoms-1+2*(AB-1)+2)
   nuv = LDF_nBas_Atom(A)*LDF_nBas_Atom(B)
   l_C = nuv*LDF_nBasAux_Pair_wLD(AB)
   call mma_allocate(FckCoef,l_C,label='FckCoef')
@@ -455,7 +450,7 @@ do while (Rsv_Tsk(TaskListID,AB))
       ipC = ipC+nuv*MB
     end if
   end if
-  MAB = AP_2CFunctions(1,AB)
+  MAB = iWork(ip_AP_2CFunctions-1+2*(AB-1)+1)
   if (MAB > 0) then
     do iD=1,nD
       ipF = iWork(ip_FBlocks(iD)-1+AB)

@@ -28,7 +28,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: Mode, nD, ip_DBlocks(nD), ip_VBlocks(nD), ip_FBlocks(nD)
 real(kind=wp), intent(in) :: FactC(nD)
-integer(kind=iwp) :: l_WBlkP, iD, TaskListID, AB, CD, l, nuv, M, ipW, ipF
+integer(kind=iwp) :: l_WBlkP, iD, TaskListID, AB, CD, l, A, B, nuv, M, ipW, ipF
 integer(kind=iwp), allocatable :: WBlkP(:)
 real(kind=wp), allocatable :: C_AB(:)
 character(len=22), parameter :: SecNam = 'LDF_Fock_CoulombOnly0_'
@@ -36,9 +36,6 @@ logical(kind=iwp), external :: Rsv_Tsk
 integer(kind=iwp), external :: LDF_nBas_Atom, LDF_nBasAux_Pair
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
-! statement function
-integer(kind=iwp) :: i, j, AP_Atoms
-AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
 ! Allocate and initialize W intermediates
 l_WBlkP = nD
@@ -64,7 +61,9 @@ if ((Mode == 1) .or. (Mode == 3)) then
       end if
     end do ! end serial loop over atom pairs CD
     ! F(u_A v_B) = F(u_A v_B) + sum_[J_AB] C(u_A v_B,J_AB)*W(J_AB)
-    nuv = LDF_nBas_Atom(AP_Atoms(1,AB))*LDF_nBas_Atom(AP_Atoms(2,AB))
+    A = iWork(ip_AP_Atoms-1+2*(AB-1)+1)
+    B = iWork(ip_AP_Atoms-1+2*(AB-1)+2)
+    nuv = LDF_nBas_Atom(A)*LDF_nBas_Atom(B)
     M = LDF_nBasAux_Pair(AB)
     l = nuv*M
     call mma_allocate(C_AB,l,label='C_AB')
@@ -87,7 +86,9 @@ else if (Mode == 2) then ! non-robust fitting
       call LDF_Fock_CoulombOnly0_3(One,nD,ip_VBlocks,WBlkP,AB,CD)
     end do ! end serial loop over atom pairs CD
     ! F(u_A v_B) = F(u_A v_B) + sum_[J_AB] C(u_A v_B,J_AB)*W(J_AB)
-    nuv = LDF_nBas_Atom(AP_Atoms(1,AB))*LDF_nBas_Atom(AP_Atoms(2,AB))
+    A = iWork(ip_AP_Atoms-1+2*(AB-1)+1)
+    B = iWork(ip_AP_Atoms-1+2*(AB-1)+2)
+    nuv = LDF_nBas_Atom(A)*LDF_nBas_Atom(B)
     M = LDF_nBasAux_Pair(AB)
     l = nuv*M
     call mma_allocate(C_AB,l,label='C_AB')

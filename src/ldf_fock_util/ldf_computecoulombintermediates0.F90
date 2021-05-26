@@ -34,9 +34,6 @@ integer(kind=iwp), external :: LDF_nBas_Atom, LDF_nBasAux_Pair
 logical(kind=iwp), external :: Rsv_Tsk
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
-! statement function
-integer(kind=iwp) :: i, j, AP_Atoms
-AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
 #ifdef _MOLCAS_MPP_
 ! Initialize V arrays
@@ -48,8 +45,8 @@ end do
 ! Allocate array for storing coefficients
 l_C = 0
 do iAtomPair=1,NumberOfAtomPairs
-  iAtom = AP_Atoms(1,iAtomPair)
-  jAtom = AP_Atoms(2,iAtomPair)
+  iAtom = iWork(ip_AP_Atoms-1+2*(iAtomPair-1)+1)
+  jAtom = iWork(ip_AP_Atoms-1+2*(iAtomPair-1)+2)
   nuv = LDF_nBas_Atom(iAtom)*LDF_nBas_Atom(jAtom)
   M = LDF_nBasAux_Pair(iAtomPair)
   l_C = max(l_C,nuv*M)
@@ -60,8 +57,8 @@ call mma_allocate(LDFCBlk,l_C,label='LDFCBlk')
 call Init_Tsk(TaskListID,NumberOfAtomPairs)
 do while (Rsv_Tsk(TaskListID,iAtomPair))
   ! Get dimensions
-  iAtom = AP_Atoms(1,iAtomPair)
-  jAtom = AP_Atoms(2,iAtomPair)
+  iAtom = iWork(ip_AP_Atoms-1+2*(iAtomPair-1)+1)
+  jAtom = iWork(ip_AP_Atoms-1+2*(iAtomPair-1)+2)
   nuv = LDF_nBas_Atom(iAtom)*LDF_nBas_Atom(jAtom)
   M = LDF_nBasAux_Pair(iAtomPair)
   ! Read coefficients for this atom pair

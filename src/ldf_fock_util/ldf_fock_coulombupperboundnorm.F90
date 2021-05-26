@@ -26,14 +26,11 @@ logical(kind=iwp), intent(in) :: PrintNorm
 integer(kind=iwp), intent(in) :: nD, ip_DBlocks(nD)
 real(kind=wp), intent(in) :: FactC(nD)
 real(kind=wp), intent(out) :: UBFNorm(nD)
-integer(kind=iwp) :: ip, l_U, iD, AB, nAB, ipDel, uv
+integer(kind=iwp) :: ip, l_U, iD, AB, A, B, nAB, ipDel, uv
 real(kind=wp), allocatable :: U(:)
 integer(kind=iwp), external :: LDF_nBas_Atom
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
-! statement function
-integer(kind=iwp) :: i, j, AP_Atoms
-AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
 if (nD < 1) return
 if (NumberOfAtomPairs < 1) return
@@ -46,7 +43,9 @@ call LDF_ComputeU(iWork(ip),nD,ip_DBlocks,U)
 do iD=1,nD
   UBFNorm(iD) = Zero
   do AB=1,NumberOfAtomPairs
-    nAB = LDF_nBas_Atom(AP_Atoms(1,AB))*LDF_nBas_Atom(AP_Atoms(2,AB))
+    A = iWork(ip_AP_Atoms-1+2*(AB-1)+1)
+    B = iWork(ip_AP_Atoms-1+2*(AB-1)+2)
+    nAB = LDF_nBas_Atom(A)*LDF_nBas_Atom(B)
     ipDel = iWork(ip-1+AB)-1
     do uv=1,nAB
       UBFNorm(iD) = UBFNorm(iD)+Work(ipDel+uv)

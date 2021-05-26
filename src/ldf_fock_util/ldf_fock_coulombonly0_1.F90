@@ -27,17 +27,16 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: nD, ip_VBlocks(nD), ip_FBlocks(nD), AB, CD
 real(kind=wp), intent(in) :: FactC(nD)
-integer(kind=iwp) :: nuv, M, l_Int, iD, ipV, ipF
+integer(kind=iwp) :: A, B, nuv, M, l_Int, iD, ipV, ipF
 real(kind=wp), allocatable :: FuvJ1(:)
 integer(kind=iwp), external :: LDF_nBas_Atom, LDF_nBasAux_Pair
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
-! statement function
-integer(kind=iwp) :: i, j, AP_Atoms
-AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
 ! Get row and column dimensions of integrals
-nuv = LDF_nBas_Atom(AP_Atoms(1,AB))*LDF_nBas_Atom(AP_Atoms(2,AB))
+A = iWork(ip_AP_Atoms-1+2*(AB-1)+1)
+B = iWork(ip_AP_Atoms-1+2*(AB-1)+2)
+nuv = LDF_nBas_Atom(A)*LDF_nBas_Atom(B)
 M = LDF_nBasAux_Pair(CD)
 
 ! Return if nothing to do
