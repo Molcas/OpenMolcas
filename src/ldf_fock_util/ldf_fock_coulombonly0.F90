@@ -47,7 +47,7 @@ subroutine LDF_Fock_CoulombOnly0(IntegralOption,tau,Mode,Add,PackedD,PackedF,nD,
 !          - ip_D(nD): pointers to nD density matrices (if PackedD:
 !            lower triangular storage) (INPUT)
 !          - F(*,nD): nD Fock matrices (if PackedF:
-!            lower triangular storage) (INPUT)
+!            lower triangular storage) (INPUT/OUTPUT)
 !
 !          If (Add):  [NOT IMPLEMENTED IN PARALLEL]
 !   (1)       F(uv) = F(uv) + FactC * sum_kl (uv|kl)*D(kl)

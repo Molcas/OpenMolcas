@@ -11,7 +11,7 @@
 ! Copyright (C) 2011, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine LDF_Fock_CUB(ip_AP_QD,nD,FactC,U,ip_FBlocks)
+subroutine LDF_Fock_CUB(AP_QD,nD,FactC,U,ip_FBlocks)
 ! Thomas Bondo Pedersen, January 2011.
 !
 ! Purpose: compute
@@ -25,7 +25,7 @@ subroutine LDF_Fock_CUB(ip_AP_QD,nD,FactC,U,ip_FBlocks)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: ip_AP_QD, nD, ip_FBlocks(nD)
+integer(kind=iwp), intent(in) :: AP_QD(*), nD, ip_FBlocks(nD)
 real(kind=wp), intent(in) :: FactC(nD), U(nD)
 integer(kind=iwp) :: iD, AB, A, B, nA, nB, uv, ipDel, ipFB
 real(kind=wp) :: UU
@@ -33,8 +33,7 @@ integer(kind=iwp), external :: LDF_nBas_Atom
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
 ! statement functions
-integer(kind=iwp) :: i, j, ip_Delta, AP_Atoms
-ip_Delta(i) = iWork(ip_AP_QD-1+i)
+integer(kind=iwp) :: i, j, AP_Atoms
 AP_Atoms(i,j) = iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
 do iD=1,nD
@@ -44,7 +43,7 @@ do iD=1,nD
     B = AP_Atoms(2,AB)
     nA = LDF_nBas_Atom(A)
     nB = LDF_nBas_Atom(B)
-    ipDel = ip_Delta(AB)-1
+    ipDel = AP_QD(AB)-1
     ipFB = iWork(ip_FBlocks(iD)-1+AB)-1
     do uv=1,nA*nB
       Work(ipFB+uv) = Work(ipFB+uv)+sqrt(Work(ipDel+uv))*UU

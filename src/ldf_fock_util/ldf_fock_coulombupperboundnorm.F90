@@ -42,7 +42,7 @@ if (NumberOfAtomPairs < 1) return
 ip = ip_AP_Diag
 l_U = nD
 call mma_allocate(U,l_U,label='CUBNrmU')
-call LDF_ComputeU(ip,nD,ip_DBlocks,U)
+call LDF_ComputeU(iWork(ip),nD,ip_DBlocks,U)
 do iD=1,nD
   UBFNorm(iD) = Zero
   do AB=1,NumberOfAtomPairs

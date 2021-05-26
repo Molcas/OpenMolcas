@@ -32,6 +32,7 @@ real(kind=wp), intent(in) :: FactC(nD)
 integer(kind=iwp) :: l_U, ip, l_Norm, iD, AB
 real(kind=wp) :: UBFNorm
 real(kind=wp), allocatable :: U(:), Norm(:)
+#include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
 
 if (nD < 1) return
@@ -41,8 +42,8 @@ l_U = nD
 call mma_allocate(U,l_U,label='LDFCU')
 !-tbp Call LDF_GetQuadraticDiagonal(ip)
 ip = ip_AP_Diag
-call LDF_ComputeU(ip,nD,ip_DBlocks,U)
-call LDF_Fock_CUB(ip,nD,FactC,U,ip_FBlocks)
+call LDF_ComputeU(iWork(ip),nD,ip_DBlocks,U)
+call LDF_Fock_CUB(iWork(ip),nD,FactC,U,ip_FBlocks)
 !-tbp Call LDF_FreeQuadraticDiagonal(ip)
 call mma_deallocate(U)
 
@@ -51,7 +52,7 @@ if (PrintNorm) then
     l_Norm = NumberOfAtomPairs
     call mma_allocate(Norm,l_Norm,label='UBFNrm')
     do iD=1,nD
-      call LDF_BlockMatrixNorm(ip_FBlocks(iD),Norm)
+      call LDF_BlockMatrixNorm(iWork(ip_FBlocks(iD)),Norm)
       UBFNorm = Zero
       do AB=1,NumberOfAtomPairs
         UBFNorm = UBFNorm+Norm(AB)**2

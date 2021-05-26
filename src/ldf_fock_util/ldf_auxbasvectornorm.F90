@@ -11,7 +11,7 @@
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine LDF_AuxBasVectorNorm(ip_V,Norm)
+subroutine LDF_AuxBasVectorNorm(V,Norm)
 ! Thomas Bondo Pedersen, December 2010.
 !
 ! Purpose: compute Frobenius norm of aux bas vector.
@@ -19,9 +19,9 @@ subroutine LDF_AuxBasVectorNorm(ip_V,Norm)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: ip_V
+integer(kind=iwp), intent(in) :: V(*)
 real(kind=wp), intent(out) :: Norm(*)
-integer iAtom, nAtom, iAtomPair, ip0, ip, l
+integer iAtom, nAtom, iAtomPair, ip, l
 integer(kind=iwp), external :: LDF_nAtom, LDF_nBasAux_Atom
 real(kind=wp), external :: ddot_
 #include "WrkSpc.fh"
@@ -31,16 +31,14 @@ integer i, j, AP_2CFunctions
 AP_2CFunctions(i,j) = iWork(ip_AP_2CFunctions-1+2*(j-1)+i)
 
 nAtom = LDF_nAtom()
-ip0 = ip_V-1
 do iAtom=1,nAtom
   l = LDF_nBasAux_Atom(iAtom)
-  ip = iWork(ip0+iAtom)
+  ip = V(iAtom)
   Norm(iAtom) = sqrt(dDot_(l,Work(ip),1,Work(ip),1))
 end do
-ip0 = ip0+nAtom
 do iAtomPair=1,NumberOfAtomPairs
   l = AP_2CFunctions(1,iAtomPair)
-  ip = iWork(ip0+iAtomPair)
+  ip = V(nAtom+iAtomPair)
   Norm(nAtom+iAtomPair) = sqrt(dDot_(l,Work(ip),1,Work(ip),1))
 end do
 

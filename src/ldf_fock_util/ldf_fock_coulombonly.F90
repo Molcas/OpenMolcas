@@ -51,7 +51,7 @@ subroutine LDF_Fock_CoulombOnly(IntegralOption,Timing,Mode,ThrPS,Add,PackedD,Pac
 !          - ip_D(nD): pointers to nD density matrices (if PackedD:
 !            lower triangular storage) (INPUT)
 !          - F(*,nD): nD Fock matrices (if PackedF:
-!            lower triangular storage) (INPUT)
+!            lower triangular storage) (INPUT/OUTPUT)
 !
 !          If (Add):  [NOT IMPLEMENTED IN PARALLEL]
 !   (1)       F(uv) = F(uv) + FactC * sum_kl (uv|kl)*D(kl)
@@ -370,7 +370,7 @@ l_DNorm = NumberOfAtomPairs*nD
 call mma_allocate(DNorm,l_DNorm,label='DNorm')
 ip0 = 1
 do iD=1,nD
-  call LDF_BlockMatrixNorm(DBlocks(iD),DNorm(ip0))
+  call LDF_BlockMatrixNorm(iWork(DBlocks(iD)),DNorm(ip0))
   ip0 = ip0+NumberOfAtomPairs
 end do
 
@@ -396,7 +396,7 @@ l_VNorm = (LDF_nAtom()+NumberOfAtomPairs)*nD
 call mma_allocate(VNorm,l_VNorm,label='VNorm')
 ip0 = 1
 do iD=1,nD
-  call LDF_AuxBasVectorNorm(VP(iD),VNorm(ip0))
+  call LDF_AuxBasVectorNorm(iWork(VP(iD)),VNorm(ip0))
   ip0 = ip0+LDF_nAtom()+NumberOfAtomPairs
 end do
 

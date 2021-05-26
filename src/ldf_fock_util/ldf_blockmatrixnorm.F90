@@ -11,7 +11,7 @@
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine LDF_BlockMatrixNorm(ip_Blocks,Norm)
+subroutine LDF_BlockMatrixNorm(Blocks,Norm)
 ! Thomas Bondo Pedersen, December 2010.
 !
 ! Purpose: compute Frobenius norm of block matrix.
@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp, r8
 
 implicit none
 #include "ldf_atom_pair_info.fh"
-integer(kind=iwp), intent(in) :: ip_Blocks
+integer(kind=iwp), intent(in) :: Blocks(*)
 real(kind=wp), intent(out) :: Norm(NumberOfAtomPairs)
 integer(kind=iwp) :: iAtomPair, iAtom, jAtom, ip, l
 integer(kind=iwp), external :: LDF_nBas_Atom
@@ -34,7 +34,7 @@ do iAtomPair=1,NumberOfAtomPairs
   iAtom = AP_Atoms(1,iAtomPair)
   jAtom = AP_Atoms(2,iAtomPair)
   l = LDF_nBas_Atom(iAtom)*LDF_nBas_Atom(jAtom)
-  ip = iWork(ip_Blocks-1+iAtomPair)
+  ip = Blocks(iAtomPair)
   Norm(iAtomPair) = sqrt(dDot_(l,Work(ip),1,Work(ip),1))
 end do
 
