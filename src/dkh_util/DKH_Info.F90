@@ -11,17 +11,37 @@
 
 module DKH_Info
 
-use Constants, only: Zero, One
+use Constants, only: Zero, One, c_in_au
 use Definitions, only: wp, iwp
 
 implicit none
 private
 
-integer(kind=iwp) :: nCtrLD = 0, iCtrLD(10) = [0,0,0,0,0,0,0,0,0,0], iRelae_Info = 0
-real(kind=wp) :: radiLD = Zero
+! IRELAE = 0  .... DKH
+!        = 1  .... DK1
+!        = 2  .... DK2
+!        = 3  .... DK3
+!        = 4  .... DK3full
+!        = 11 .... RESC
+!        = 21 .... ZORA
+!        = 22 .... ZORA(FP)
+!        = 23 .... IORA
+!        = 101.... X2C
+!        = 102.... BSS
+!
+! NB: The IRELAE flag has been extended to account for
+!     arbitrary-order DKH with different parametrizations!
+!     IMPORTANT: new arbitrary-order DKH routines are only
+!                called for IRELAE values LARGER than 1000.
+!     IRFLAG1 = 0 Using the new polynomial cost arbitrary
+!                 order DKH routine (default)
+!     IRFLAG1 = 1 Using the old exponential cost routine
+
+integer(kind=iwp) :: nCtrLD = 0, iCtrLD(10) = [0,0,0,0,0,0,0,0,0,0], iRelae = -1, iRFlag1 = 0
+real(kind=wp) :: radiLD = Zero, cLightAU = c_in_au
 logical(kind=iwp) :: DKroll = .false., LDKroll = .false., BSS = .false.
 
-public :: nCtrLD, iCtrLD, radiLD, DKroll, LDKroll, BSS, DKH_Info_Get, DKH_Info_Dmp
+public :: nCtrLD, iCtrLD, radiLD, DKroll, LDKroll, BSS, iRelae, iRFlag1, cLightAU, DKH_Info_Get, DKH_Info_Dmp
 
 contains
 
@@ -30,9 +50,6 @@ subroutine DKH_Info_Dmp()
   real(kind=wp), allocatable :: rDmp(:)
   integer(kind=iwp) :: i
   integer(kind=iwp), parameter :: Length = 1+10+5
-# include "relae.fh"
-
-  iRelae_Info = iRelae
 
   call mma_allocate(rDmp,Length,Label='rDmp:DKH')
   rDmp(1) = real(nCtrLD,kind=wp)
@@ -43,7 +60,7 @@ subroutine DKH_Info_Dmp()
   rDmp(13) = merge(One,Zero,DKroll)
   rDmp(14) = merge(One,Zero,LDKroll)
   rDmp(15) = merge(One,Zero,BSS)
-  rDmp(16) = real(iRelae_Info,kind=wp)
+  rDmp(16) = real(iRelae,kind=wp)
   call Put_dArray('DKH_Info',rDmp,Length)
   call mma_deallocate(rDmp)
 end subroutine DKH_Info_Dmp
@@ -53,7 +70,6 @@ subroutine DKH_Info_Get()
   real(kind=wp), allocatable :: rDmp(:)
   integer(kind=iwp) :: i
   integer(kind=iwp), parameter :: Length = 1+10+5
-# include "relae.fh"
 
   call mma_allocate(rDmp,Length,Label='rDmp:DKH')
   call Get_dArray('DKH_Info',rDmp,Length)
@@ -66,9 +82,7 @@ subroutine DKH_Info_Get()
   DKroll = nint(rDmp(13)) == 1
   LDKroll = nint(rDmp(14)) == 1
   BSS = nint(rDmp(15)) == 1
-  iRelae_Info = nint(rDmp(16))
-
-  iRelae = iRelae_Info
+  iRelae = nint(rDmp(16))
 
   call mma_deallocate(rDmp)
 end subroutine DKH_Info_Get

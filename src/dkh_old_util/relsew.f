@@ -20,12 +20,12 @@ C
       SUBROUTINE SCFCLI(idbg,epsilon,S,H,V,PVP,N,ISIZE,VELIT,
      *                  TMP1,TMP2,TMP3,TMPA,TMPB,TMPC,EW,E,AA,RR,TT,
      *                  TMP4,TMPD,TMPE,TMPF,TWRK4,IDIM)
+      USE DKH_Info, ONLY: IRELAE
       IMPLICIT REAL*8(A-H,O-Z)
       DIMENSION S(ISIZE),H(ISIZE),V(ISIZE),PVP(ISIZE)
       DIMENSION TMP1(IDIM*(IDIM+1)/2),TMP2(ISIZE),TMP3(ISIZE),
      *          TMPA(N,N),TMPB(N,N),TMPC(N,N),
      *          EW(N),E(N),AA(N),RR(N),TT(N)
-#include "relae.fh"
       DIMENSION TMP4(IDIM*(IDIM+1)/2)
       DIMENSION TMPD(IDIM,IDIM)
       DIMENSION TMPE(N,N)

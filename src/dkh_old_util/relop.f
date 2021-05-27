@@ -11,13 +11,13 @@
 * Copyright (C) 1986, Bernd Artur Hess                                 *
 ************************************************************************
       SUBROUTINE RELOP
+      USE DKH_Info, ONLY: CLightAU
       IMPLICIT REAL*8(A-H,O-Z)
 C
 C     SUBROUTINE RELOP INITIALIZES THE COMMON BLOCK USED BY
 C     THE RELOP PACKAGE
 C     V 1.0 - 12.3.86 - BERND HESS
 C
-#include "RelLight.fh"
 #include "crelop.fh"
       SAVE /CRELOP/
 c      WRITE (6,100)

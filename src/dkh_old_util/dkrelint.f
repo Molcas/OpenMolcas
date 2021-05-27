@@ -31,10 +31,8 @@ c
 #include "WrkSpc.fh"
 #include "wldata.fh"
 #include "oneswi.fh"
-#include "RelLight.fh"
 #include "dkhparameters.fh"
       Integer DKHMemMax, DKHMemCheck, xOrder_save
-#include "relae.fh"
       integer ipaddr(3)
       Character*8 Label, pXpLbl
 #ifdef MOLPRO

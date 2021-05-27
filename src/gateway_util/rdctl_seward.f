@@ -61,8 +61,6 @@
 #include "rmat.fh"
 #include "real.fh"
 #include "print.fh"
-#include "RelLight.fh"
-#include "relae.fh"
 #ifdef _HAVE_EXTRA_
 #include "hyper.fh"
 #endif
@@ -302,7 +300,6 @@
             Oper(i)=' '
          End Do
          nOper=0
-         CLightAU = CONST_C_IN_AU_
       End If
 *
       iDNG=0

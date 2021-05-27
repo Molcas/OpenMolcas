@@ -34,7 +34,6 @@ Real*8 ::E1      =0.0D0
 Real*8 ::E2      =0.0D0
 Real*8 ::RPQMin  = 0.4d0
 Real*8 ::SadStep =0.1d0
-Real*8 ::CLight_Info=0.0D0
 Real*8 ::Shake   =-1.0D0
 Real*8 ::ChiI2   =0.0D0
 Real*8 :: CoM(3)=[(0.0D0,i=1,3)]
@@ -47,11 +46,9 @@ Real*8 :: kVector(3)=[(0.0D0,i=1,3)]
 Contains
 
 Subroutine Real_Info_Dmp()
-#include "RelLight.fh"
   Real*8, Allocatable:: rDmp(:)
-  Integer:: Len=46
+  Integer:: Len=45
 
-  CLight_Info=CLightAU
   Call mma_allocate(rDmp,Len,Label='rDmp:Real')
 
   rDmp(01)=AccMch
@@ -70,24 +67,22 @@ Subroutine Real_Info_Dmp()
   rDmp(14)=E2
   rDmp(15)=RPQMin
   rDmp(16)=SadStep
-  rDmp(17)=CLight_Info
-  rDmp(18)=Shake
-  rDmp(19)=ChiI2
-  rDmp(20:22)= CoM(1:3)
-  rDmp(23:28)= rMI(1:6)
-  rDmp(29:31)= Prin(1:3)
-  rDmp(32:40)= PAX(1:9)
-  rDmp(41:43)= CoC(1:3)
-  rDmp(44:46)= kVector(1:3)
+  rDmp(17)=Shake
+  rDmp(18)=ChiI2
+  rDmp(19:21)= CoM(1:3)
+  rDmp(22:27)= rMI(1:6)
+  rDmp(28:30)= Prin(1:3)
+  rDmp(31:39)= PAX(1:9)
+  rDmp(40:42)= CoC(1:3)
+  rDmp(43:45)= kVector(1:3)
 
   Call Put_dArray('Real_Info',rDmp,Len)
   Call mma_deallocate(rDmp)
 End Subroutine Real_Info_Dmp
 
 Subroutine Real_Info_Get()
-#include "RelLight.fh"
   Real*8, Allocatable:: rDmp(:)
-  Integer:: Len=46
+  Integer:: Len=45
 
   Call mma_allocate(rDmp,Len,Label='rDmp:Real')
   Call Get_dArray('Real_Info',rDmp,Len)
@@ -108,19 +103,16 @@ Subroutine Real_Info_Get()
   E2         = rDmp(14)
   RPQMin     = rDmp(15)
   SadStep    = rDmp(16)
-  CLight_Info= rDmp(17)
-  Shake      = rDmp(18)
-  ChiI2      = rDmp(19)
-  CoM(1:3)   = rDmp(20:22)
-  rMI(1:6)   = rDmp(23:28)
-  Prin(1:3)  = rDmp(29:31)
-  PAX(1:9)   = rDmp(32:40)
-  CoC(1:3)   = rDmp(41:43)
-  kVector(1:3)=rDmp(44:46)
+  Shake      = rDmp(17)
+  ChiI2      = rDmp(18)
+  CoM(1:3)   = rDmp(19:21)
+  rMI(1:6)   = rDmp(22:27)
+  Prin(1:3)  = rDmp(28:30)
+  PAX(1:9)   = rDmp(31:39)
+  CoC(1:3)   = rDmp(40:42)
+  kVector(1:3)=rDmp(43:45)
 
   Call mma_deallocate(rDmp)
-
-  CLightAU = CLight_Info
 
 End Subroutine Real_Info_Get
 

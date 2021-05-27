@@ -28,7 +28,7 @@ use MpmC, only: Coor_MPM
 use EFP_Module, only: lEFP
 use External_centers, only: AMP_Center, DMS_Centers, nDMS, nEF, nOrdEF, nWel, nXF, OAM_Center, OMQ_Center, XF
 use Temporary_Parameters, only: Onenly, Prprt, Test
-use DKH_Info, only: BSS, DKroll, iCtrLD, LDKroll, nCtrLD, radiLD
+use DKH_Info, only: BSS, DKroll, iCtrLD, iRELAE, LDKroll, nCtrLD, radiLD
 use Sizes_of_Seward, only: S
 use Real_Info, only: ThrInt, CutInt, RPQMin, kVector
 use RICD_Info, only: iRI_Type, LDF, Do_RI, Cholesky, Do_acCD_Basis, Skip_High_AC, Cho_OneCenter, LocalDF, Do_nacCD_Basis, Thrshld_CD
@@ -45,7 +45,6 @@ logical(kind=iwp), intent(in) :: lOPTO
 #include "rmat.fh"
 #include "rctfld.fh"
 #include "relmp.fh"
-#include "relae.fh"
 #include "print.fh"
 #include "localdf.fh"
 integer(kind=iwp) :: i, iCnttp, iDKH_H_Order, iDKH_X_Order, iParam, iPrint, iRout, iTtl, LuWr, nrSym, nTtl
