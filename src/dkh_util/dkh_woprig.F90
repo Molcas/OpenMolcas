@@ -12,18 +12,22 @@
 subroutine dkh_woprig(n,ifodd,nw,np,wr,rw,p1,p2,q1,q2,t1,t2)
 ! Product of P(np)W(nw)=Q(np+nw)
 
+use Constants, only: One
+use Definitions, only: wp, iwp
+
 implicit none
-integer n, nw, np, i, j
-logical ifodd
-real*8 wr(n,n), rw(n,n), p1(n,n), p2(n,n), q1(n,n), q2(n,n)
-real*8 t1(n,n), t2(n,n)
+integer(kind=iwp), intent(in) :: n, nw, np
+logical(kind=iwp), intent(in) :: ifodd
+real(kind=wp), intent(in) :: wr(n,n), rw(n,n), p1(n,n), p2(n,n)
+real(kind=wp), intent(out) :: q1(n,n), q2(n,n), t1(n,n), t2(n,n)
+integer(kind=iwp) :: i, j
 
 if (ifodd) then
-  call dmxma(n,'N','N',p1,rw,t1,1.d0)
-  call dmxma(n,'N','N',p2,wr,t2,1.d0)
+  call dmxma(n,'N','N',p1,rw,t1,One)
+  call dmxma(n,'N','N',p2,wr,t2,One)
 else
-  call dmxma(n,'N','N',p1,wr,t1,1.d0)
-  call dmxma(n,'N','N',p2,rw,t2,1.d0)
+  call dmxma(n,'N','N',p1,wr,t1,One)
+  call dmxma(n,'N','N',p2,rw,t2,One)
 end if
 do i=1,n
   do j=1,n

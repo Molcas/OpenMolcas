@@ -12,25 +12,25 @@
 subroutine x2c_ts1e(n,s,t,v,w,ul,us,clight)
 ! Evaluate the X2C Hamiltonian matrix and store the transform matrices
 
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
+
 implicit none
-#include "WrkSpc.fh"
-! Input
 ! w   aka pVp
-integer n
-real*8 s(n,n), t(n,n), v(n,n), w(n,n), clight
-! Output
-real*8 ul(n,n), us(n,n)
-! Temp
-integer m, i, j, k
-real*8 c_2c2, c_4c2, c_2c
-integer itF, itS, itX, itA, itB, itC, itSS
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(inout) :: s(n,n), t(n,n), v(n,n), w(n,n)
+real(kind=wp), intent(out) :: ul(n,n), us(n,n)
+real(kind=wp), intent(in) :: clight
+integer(kind=iwp) :: m, i, j, k, itF, itS, itX, itA, itB, itC, itSS
+real(kind=wp) :: c_2c2, c_4c2, c_2c
+#include "WrkSpc.fh"
 
 ! Construct the full dimensional (2*n) Fock matrix and overlap matrix
 
 m = n+n
-c_2c = clight*2.d0
-c_2c2 = clight*clight*2.d0
-c_4c2 = c_2c2*2.d0
+c_2c = clight*Two
+c_2c2 = clight*clight*Two
+c_4c2 = c_2c2*Two
 ! rescale, in order to make X matrix close to unit matrix
 do i=1,n
   do j=1,n
@@ -40,7 +40,7 @@ end do
 call getmem('TmpF ','ALLOC','REAL',itF,m*m+4)
 call getmem('TmpS ','ALLOC','REAL',itS,m*m+4)
 do k=0,m*m-1
-  Work(itS+k) = 0.d0
+  Work(itS+k) = Zero
 end do
 do i=1,n
   do j=1,n
@@ -64,9 +64,9 @@ call getmem('TmpA ','ALLOC','REAL',itA,n*n+4)
 call getmem('TmpB ','ALLOC','REAL',itB,n*n+4)
 call getmem('TmpC ','ALLOC','REAL',itC,n*n+4)
 call getmem('TmpSS','ALLOC','REAL',itSS,n*n+4)
-call dmxma(n,'C','N',Work(itX),t,Work(itA),1.d0)
-call dmxma(n,'N','N',t,Work(itX),Work(itB),1.d0)
-call dmxma(n,'N','N',Work(itA),Work(itX),Work(itC),1.d0)
+call dmxma(n,'C','N',Work(itX),t,Work(itA),One)
+call dmxma(n,'N','N',t,Work(itX),Work(itB),One)
+call dmxma(n,'N','N',Work(itA),Work(itX),Work(itC),One)
 k = 0
 do i=1,n
   do j=1,n
@@ -78,24 +78,24 @@ do i=1,n
   end do
 end do
 call XDR_dmatsqrt(s,n)
-call dmxma(n,'C','N',s,Work(itSS),Work(itA),1.d0)
-call dmxma(n,'N','N',Work(itA),s,Work(itB),1.d0)
+call dmxma(n,'C','N',s,Work(itSS),Work(itA),One)
+call dmxma(n,'N','N',Work(itA),s,Work(itB),One)
 call XDR_dmatsqrt(Work(itB),n)
-call dmxma(n,'N','N',s,Work(itB),Work(itC),1.d0)
+call dmxma(n,'N','N',s,Work(itB),Work(itC),One)
 call XDR_dmatinv(s,n)
 ! renormalization matrix, also the upper part of transformation matrix
-call dmxma(n,'N','N',Work(itC),s,ul,1.d0)
+call dmxma(n,'N','N',Work(itC),s,ul,One)
 ! lower part of the transformation matrix
-call dmxma(n,'N','N',work(itX),ul,us,1.d0)
+call dmxma(n,'N','N',work(itX),ul,us,One)
 
 ! Apply transformation to kinetic and potential matrices
 
-call dmxma(n,'C','N',ul,t,work(itA),1.d0)
-call dmxma(n,'N','N',work(itA),ul,t,1.d0)
-call dmxma(n,'C','N',ul,v,work(itA),1.d0)
-call dmxma(n,'N','N',work(itA),ul,v,1.d0)
-call dmxma(n,'C','N',us,w,work(itA),1.d0)
-call dmxma(n,'N','N',work(itA),us,w,1.d0)
+call dmxma(n,'C','N',ul,t,work(itA),One)
+call dmxma(n,'N','N',work(itA),ul,t,One)
+call dmxma(n,'C','N',ul,v,work(itA),One)
+call dmxma(n,'N','N',work(itA),ul,v,One)
+call dmxma(n,'C','N',us,w,work(itA),One)
+call dmxma(n,'N','N',work(itA),us,w,One)
 do i=1,n
   do j=1,n
     v(j,i) = t(j,i)+v(j,i)+w(j,i)

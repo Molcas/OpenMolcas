@@ -12,8 +12,9 @@
 subroutine xdr_indx(N,indx)
 ! read atomic/block information for local transformation
 
-integer N
-integer indx(n)
+use Definitions, only: iwp
+
+integer(kind=iwp), intent(in) :: N, indx(n)
 
 call get_iarray('Ctr Index Prim',indx,N)
 

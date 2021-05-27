@@ -12,18 +12,18 @@
 subroutine dkh_xpx(n,dkord,xord,vord,EL,ES,OL,OS,Ep,E0,dkcof,cc,wr,rw,t1,t2,t3,t4,or,ro,e,rer,or_,ro_,e_,rer_,s1,s2,wsav)
 ! Evaluate DKH transformation in moment space for property operator
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
-! Input
-integer n, dkord, xord, vord
-real*8 EL(n,n), ES(n,n), OL(n,n), OS(n,n), Ep(n), E0(n)
-real*8 dkcof(*), cc(*)
-real*8 wsav(n,n,*)
 ! Output : EL overwritten by the transformed property matrix
-! Temp
-real*8 wr(n,n), rw(n,n), t1(n,n), t2(n,n), t3(n,n), t4(n,n), or(n,n,*), ro(n,n,*), e(n,n,*), rer(n,n,*), or_(n,n,*), ro_(n,n,*), &
-       e_(n,n,*), rer_(n,n,*), s1(n,n,*), s2(n,n,*)
-integer i, j, k, ord, cou, ks, ioe
-logical ifodd
+integer(kind=iwp), intent(in) :: n, dkord, xord, vord
+real(kind=wp), intent(inout) :: EL(n,n)
+real(kind=wp), intent(in) :: ES(n,n), OL(n,n), OS(n,n), Ep(n), E0(n), dkcof(*), cc(*), wsav(n,n,*)
+real(kind=wp), intent(out) :: wr(n,n), rw(n,n), t1(n,n), t2(n,n), t3(n,n), t4(n,n), or(n,n,*), ro(n,n,*), e(n,n,*), rer(n,n,*), &
+                              or_(n,n,*), ro_(n,n,*), e_(n,n,*), rer_(n,n,*), s1(n,n,*), s2(n,n,*)
+integer(kind=iwp) :: i, j, k, ord, cou, ks, ioe
+logical(kind=iwp) :: ifodd
 
 ! Copy initial matrices
 
@@ -41,10 +41,10 @@ do ord=1,xord
   do k=1,vord
     do i=1,n
       do j=1,n
-        or_(j,i,k) = 0.d0
-        ro_(j,i,k) = 0.d0
-        e_(j,i,k) = 0.d0
-        rer_(j,i,k) = 0.d0
+        or_(j,i,k) = Zero
+        ro_(j,i,k) = Zero
+        e_(j,i,k) = Zero
+        rer_(j,i,k) = Zero
       end do
     end do
   end do
@@ -122,7 +122,7 @@ do k=2,xord+1
     end do
   end do
 end do
-!write(6,*) 'DKHX',xord,' Total matmul',cou
+!write(u6,*) 'DKHX',xord,' Total matmul',cou
 
 return
 ! Avoid unused argument warnings

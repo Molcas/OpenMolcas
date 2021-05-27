@@ -12,15 +12,14 @@
 subroutine XDR_mkutls(n,TL,TS,Tr,Bk,A,B,R,UL,US,M1,M2,M3,M4)
 ! Evaluate transform matrices in non-orthogonal basis space
 
+use Constants, only: One
+use Definitions, only: wp, iwp
+
 implicit none
-! Input
-integer n
-real*8 TL(n,n), TS(n,n), Tr(n,n), Bk(n,n), A(n), B(n), R(n)
-! Output
-real*8 UL(n,n), US(n,n)
-! Temp
-integer i, j
-real*8 M1(n,n), M2(n,n), M3(n,n), M4(n,n)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: TL(n,n), TS(n,n), Tr(n,n), Bk(n,n), A(n), B(n), R(n)
+real(kind=wp), intent(out) :: UL(n,n), US(n,n), M1(n,n), M2(n,n), M3(n,n), M4(n,n)
+integer(kind=iwp) :: i, j
 
 do i=1,n
   do j=1,n
@@ -28,14 +27,14 @@ do i=1,n
     M2(j,i) = Tr(j,i)*A(i)*R(i)
   end do
 end do
-call dmxma(n,'N','N',M1,TL,M3,1.d0)
-call dmxma(n,'N','N',M2,TS,M4,1.d0)
+call dmxma(n,'N','N',M1,TL,M3,One)
+call dmxma(n,'N','N',M2,TS,M4,One)
 do i=1,n
   do j=1,n
     M3(j,i) = M3(j,i)-M4(j,i)
   end do
 end do
-call dmxma(n,'N','N',M3,Bk,UL,1.d0)
+call dmxma(n,'N','N',M3,Bk,UL,One)
 
 do i=1,n
   do j=1,n
@@ -43,14 +42,14 @@ do i=1,n
     M2(j,i) = Tr(j,i)*B(i)/R(i)
   end do
 end do
-call dmxma(n,'N','N',M1,TL,M3,1.d0)
-call dmxma(n,'N','N',M2,TS,M4,1.d0)
+call dmxma(n,'N','N',M1,TL,M3,One)
+call dmxma(n,'N','N',M2,TS,M4,One)
 do i=1,n
   do j=1,n
     M3(j,i) = M3(j,i)+M4(j,i)
   end do
 end do
-call dmxma(n,'N','N',M3,Bk,US,1.d0)
+call dmxma(n,'N','N',M3,Bk,US,One)
 
 return
 

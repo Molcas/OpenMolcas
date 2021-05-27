@@ -12,11 +12,17 @@
 subroutine dkh_wspec(n,ord,ndk,ifodd,cdk,wr,rw,t1,t2,e,rer,or,ro,info,s1,s2,t3,t4,c)
 ! Calculate U(Word)O_{ord}U^{\dag}(Word) + U(Word)E_{0}U^{\dag}(Word)
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
-integer n, ord, ndk, info, m, i, j, k, L1, L2
-logical ifodd
-real*8 cdk(ndk), t1(n,n), t2(n,n), e(n,n,ndk), rer(n,n,ndk), or(n,n,ndk), ro(n,n,ndk), wr(n,n), rw(n,n)
-real*8 s1(n,n,*), s2(n,n,*), t3(n,n), t4(n,n), c(*)
+integer(kind=iwp), intent(in) :: n, ord, ndk
+logical(kind=iwp), intent(inout) :: ifodd
+real(kind=wp), intent(in) :: cdk(ndk), wr(n,n), rw(n,n)
+real(kind=wp), intent(inout) :: t1(n,n), t2(n,n), e(n,n,ndk), rer(n,n,ndk), or(n,n,ndk), ro(n,n,ndk)
+integer(kind=iwp), intent(inout) :: info
+real(kind=wp), intent(out) :: s1(n,n,*), s2(n,n,*), t3(n,n), t4(n,n), c(*)
+integer(kind=iwp) :: m, i, j, k, L1, L2
 
 m = ndk/ord
 do L1=1,n
@@ -28,8 +34,8 @@ end do
 do i=1,m-1
   do L1=1,n
     do L2=1,n
-      t1(L2,L1) = 0.d0
-      t2(L2,L1) = 0.d0
+      t1(L2,L1) = Zero
+      t2(L2,L1) = Zero
     end do
   end do
   call dkh_cofu_spec(ndk,cdk,i+1,c)

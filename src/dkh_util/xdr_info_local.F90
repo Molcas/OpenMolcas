@@ -12,13 +12,12 @@
 subroutine XDR_Info_Local(n,indx,nb,ib,map)
 ! calculate information of Local blocks
 
+use Definitions, only: iwp
+
 implicit none
-! Input variables
-integer n, indx(n)
-! Output variables
-integer nb, ib(n), map(n)
-! Local variables
-integer i, j, k, m
+integer(kind=iwp), intent(in) :: n, indx(n)
+integer(kind=iwp), intent(out) :: nb, ib(n), map(n)
+integer(kind=iwp) :: i, j, k, m
 
 do i=1,n
   ib(i) = 0
@@ -41,9 +40,9 @@ do i=1,n
     ib(nb) = k-m
   end if
 end do
-!DP write(6,'(a,9i4)') ' nb,k,n : ',nb,k,n
-!DP write(6,'(a,9i5)') ' blocks : ',(ib(i),i=1,nb)
-!DP write(6,'(a,999i4)') ' map ; ',(map(i),i=1,n)
+!DP write(u6,'(a,9i4)') ' nb,k,n : ',nb,k,n
+!DP write(u6,'(a,9i5)') ' blocks : ',(ib(i),i=1,nb)
+!DP write(u6,'(a,999i4)') ' map ; ',(map(i),i=1,n)
 return
 
 end subroutine XDR_Info_Local

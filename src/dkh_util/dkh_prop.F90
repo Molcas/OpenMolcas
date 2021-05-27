@@ -12,20 +12,21 @@
 subroutine dkh_prop(n,s,t,v,w,X,pXp,clight,dkord,xord,dkparam)
 ! Apply the arbitrary order DKH transformation to property integral
 
+use Constants, only: One
+use Definitions, only: wp, iwp
+
 implicit none
+! Input :
+!   X     matrix of property operator
+!   pXp   matrix representation of <pxXpx>+<pyXpy>+<pzXpz>
+!   w     aka pVp
+! Output :
+!   X     store the transformed property integral
+integer(kind=iwp), intent(in) :: n, dkord, xord, dkparam
+real(kind=wp), intent(in) :: s(n,n), t(n,n), v(n,n), w(n,n), clight
+real(kind=wp), intent(inout) :: X(n,n), pXp(n,n)
+integer(kind=iwp) :: nn, vord, nz, m, iTr, iBk, iEL, iES, iOL, iOS, iEp, iE0, iKC, iCo, iSco, iM, iZ, iW
 #include "WrkSpc.fh"
-! Input
-! X     matrix of property operator
-! pXp   matrix representation of <pxXpx>+<pyXpy>+<pzXpz>
-! w     aka pVp
-integer n, dkord, xord, dkparam
-real*8 s(n,n), t(n,n), v(n,n), w(n,n), clight
-real*8 X(n,n), pXp(n,n)
-! Output : X store the transformed property integral
-! Temp
-integer nn, vord, nz, m
-integer iTr, iBk, iEL, iES, iOL, iOS, iEp, iE0, iKC, iCo, iSco
-integer iM, iZ, iW
 
 ! Transform to free-particle FW picture
 
@@ -71,8 +72,8 @@ call getmem('Mat2','FREE','REAL',iZ,nz*10+4)
 
 ! Back transform to original non-orthogonal basis picture
 
-call dmxma(n,'C','N',Work(iBk),Work(iEL),Work(iES),1.d0)
-call dmxma(n,'N','N',Work(iES),Work(iBk),X,1.d0)
+call dmxma(n,'C','N',Work(iBk),Work(iEL),Work(iES),One)
+call dmxma(n,'N','N',Work(iES),Work(iBk),X,One)
 
 ! Free temp memories
 

@@ -65,19 +65,16 @@ subroutine XDR_Ham(nbas,isize,jsize,imethod,paratyp,dkhorder,xorder,inS,inK,inV,
 !     inUL(jsize)  store the relativistic transformation matrix ( Large component part )
 !     inUS(jsize)  store the relativistic transformation matrix ( Small component part )
 
+use Definitions, only: wp, iwp
+
+!subroutine XDR_Ham(nbas,isize,jsize,imethod,paratyp,dkhorder,xorder,inS,inK,inV,inpVp,inUL,inUS,clight)
 implicit none
+integer(kind=iwp), intent(in) :: nbas, isize, jsize, imethod, paratyp, dkhorder, xorder
+real(kind=wp), intent(in) :: inS(isize), inV(isize), inpVp(isize), clight
+real(kind=wp), intent(inout) :: inK(isize)
+real(kind=wp), intent(out) :: inUL(jsize), inUS(jsize)
+integer(kind=iwp) :: nn, i, j, k, jS, jK, jV, jpVp
 #include "WrkSpc.fh"
-! Input variables
-integer nbas, isize, jsize, imethod, paratyp, dkhorder, xorder
-real*8 clight
-real*8 inS(isize), inV(isize), inpVp(isize)
-! Input/Output variables
-real*8 inK(isize)
-! Output variables
-real*8 inUL(jsize), inUS(jsize)
-! Local variables
-integer nn, i, j, k
-integer jS, jK, jV, jpVp
 
 ! Convert triangle matrices to square matrices
 

@@ -14,32 +14,31 @@ subroutine dkh_geneu(n,m,xord,c,w,xl,xs,t1,t2,t3)
 !   U_{DKH}=U_{0}U_{1}U_{2}...U_{xord}
 !   U_{k}=\sum_{i=0}^{xord/k}c_{i}W_{k}^{i}
 
-implicit none
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
+implicit none
 ! Input
 !   n    dimension of matrix
 !   m    =2*n
 !   c    expansion coefficients of unitary transformation in terms of W
 !   w    stored W matrices
-
-integer n, m, xord
-real*8 c(*), w(n,n,2,xord)
 ! Output
 !   xl   upper part
 !   xs   lower part
-real*8 xl(n,n), xs(n,n)
-! Temp
-real*8 t1(m,m), t2(m,m), t3(m,m)
-integer i, j, k, iord
+integer(kind=iwp), intent(in) :: n, m, xord
+real(kind=wp), intent(in) :: c(*), w(n,n,2,xord)
+real(kind=wp), intent(out) :: xl(n,n), xs(n,n), t1(m,m), t2(m,m), t3(m,m)
+integer(kind=iwp) :: i, j, k, iord
 
 do iord=1,xord
   ! initial unit matrix
   do i=1,m
     do j=1,m
       if (j == i) then
-        t2(j,i) = 1.d0
+        t2(j,i) = One
       else
-        t2(j,i) = 0.d0
+        t2(j,i) = Zero
       end if
     end do
   end do
@@ -53,7 +52,7 @@ do iord=1,xord
           end do
         end do
       else
-        call dmxma(n,'N','N',xl,w(1,1,1,iord),xs,-1.d0)
+        call dmxma(n,'N','N',xl,w(1,1,1,iord),xs,-One)
       end if
       do i=1,n
         do j=1,n
@@ -62,13 +61,13 @@ do iord=1,xord
         end do
       end do
     else
-      call dmxma(n,'C','N',w(1,1,1,iord),xs,xl,1.d0)
+      call dmxma(n,'C','N',w(1,1,1,iord),xs,xl,One)
       do i=1,n
         do j=1,n
           t2(j+n,i+n) = t2(j+n,i+n)+xl(j,i)*c(k)
         end do
       end do
-      call dmxma(n,'N','C',xs,w(1,1,1,iord),xl,1.d0)
+      call dmxma(n,'N','C',xs,w(1,1,1,iord),xl,One)
       do i=1,n
         do j=1,n
           t2(j,i) = t2(j,i)+xl(j,i)*c(k)
@@ -84,7 +83,7 @@ do iord=1,xord
     end do
   else
     ! multiply U_{iord} in right side
-    call dmxma(m,'N','N',t1,t2,t3,1.d0)
+    call dmxma(m,'N','N',t1,t2,t3,One)
     do i=1,m
       do j=1,m
         t1(j,i) = t3(j,i)

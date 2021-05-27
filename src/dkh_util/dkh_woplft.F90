@@ -12,14 +12,19 @@
 subroutine dkh_woplft(n,ifodd,nw,np,wr,rw,p1,p2,q1,q2,t1,t2)
 ! Product of W(nw)P(np)=Q(np+nw)
 
-implicit none
-integer n, nw, np, i, j
-logical ifodd
-real*8 wr(n,n), rw(n,n), p1(n,n), p2(n,n), q1(n,n), q2(n,n)
-real*8 t1(n,n), t2(n,n)
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-call dmxma(n,'N','N',wr,p2,t1,1.d0)
-call dmxma(n,'N','N',rw,p1,t2,1.d0)
+implicit none
+integer(kind=iwp), intent(in) :: n, nw, np
+logical(kind=iwp), intent(in) :: ifodd
+real(kind=wp), intent(in) :: wr(n,n), rw(n,n), p1(n,n), p2(n,n)
+real(kind=wp), intent(inout) :: q1(n,n), q2(n,n)
+real(kind=wp), intent(out) :: t1(n,n), t2(n,n)
+integer(kind=iwp) :: i, j
+
+call dmxma(n,'N','N',wr,q2,t1,One)
+call dmxma(n,'N','N',rw,q1,t2,One)
 do i=1,n
   do j=1,n
     q1(j,i) = t1(j,i)
@@ -33,6 +38,8 @@ if (.false.) then
   call Unused_logical(ifodd)
   call Unused_integer(nw)
   call Unused_integer(np)
+  call Unused_real_array(p1)
+  call Unused_real_array(p2)
 end if
 
 end subroutine dkh_woplft

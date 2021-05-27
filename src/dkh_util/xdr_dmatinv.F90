@@ -12,13 +12,18 @@
 subroutine XDR_dmatinv(a,n)
 ! Invert a real square matrix
 
-implicit none
-#include "WrkSpc.fh"
-real*8 a(*)
-integer n, ipiv, iTMp, info1, info2
-#ifdef _MOLCAS_MPP_
-logical :: isCloneQ
+use Definitions, only: wp, iwp
 
+implicit none
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(inout) :: a(n*n)
+integer(kind=iwp) :: ipiv, iTMp, info1, info2
+#ifdef _MOLCAS_MPP_
+logical(kind=iwp) :: isCloneQ
+#endif
+#include "WrkSpc.fh"
+
+#ifdef _MOLCAS_MPP_
 call check_parallel_data(a,n*n,isCloneQ,'C')
 #endif
 call getmem('ipiv','ALLOC','INTE',ipiv,n+4)

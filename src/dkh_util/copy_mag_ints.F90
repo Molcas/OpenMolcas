@@ -19,12 +19,13 @@ subroutine copy_mag_ints(natoms)
 !
 !**************************************************************
 
+use Definitions, only: iwp, u6
+
 implicit none
+integer(kind=iwp), intent(in) :: natoms
+integer(kind=iwp) :: IDUM(1), nmag, irc, iopt, icomp, toper, iat, jtri, iscrt, ncomp, lu_one
+character(len=8) :: Label
 #include "WrkSpc.fh"
-integer, dimension(1) :: IDUM
-integer nmag, irc, iopt, icomp, toper, iat, jtri
-integer iscrt, ncomp, natoms, lu_one
-character*8 Label
 
 ! Copy magnetic integrals from ONEREL to ONEINT
 
@@ -77,43 +78,8 @@ call ClsOne(iRC,iOpt)
 return
 
 9999 continue
-write(6,*) ' *** Error in subroutine Copy_Mag_ints ***'
-write(6,'(A,A)') '     Label = ',Label
+write(u6,*) ' *** Error in subroutine Copy_Mag_ints ***'
+write(u6,'(A,A)') '     Label = ',Label
 call Abend()
 
 end subroutine copy_mag_ints
-
-subroutine merge_mag_ints(nb,jz,lt,ut,dotran)
-! Splice together square matrices stored artificially as
-! lower triangular matrices.  Result is that upper triangular
-! portion of lt is set to ut and ut is then transposed so
-! the "upper triangular" portion is in the "lower triangular"
-! elements to circumvent Molcas' internal integral handling.
-
-implicit none
-integer nb, jz, im, jm, km, lm
-logical dotran
-real*8 lt(jz), ut(jz)
-
-do im=1,nb
-  do jm=1,nb
-    km = (im-1)*nb+jm
-    if (im <= jm) lt(km) = ut(km)
-  end do
-end do
-
-if (dotran) then
-  do im=1,nb
-    do jm=1,nb
-      km = (im-1)*nb+jm
-      lm = (jm-1)*nb+im
-      ut(km) = lt(lm)
-    end do
-  end do
-else
-  do im=1,jz
-    ut(im) = lt(im)
-  end do
-end if
-
-end subroutine merge_mag_ints

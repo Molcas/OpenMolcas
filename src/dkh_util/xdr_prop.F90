@@ -20,31 +20,18 @@ subroutine XDR_Prop(nbas,isize,jsize,imethod,paratyp,dkhorder,xorder,inS,inK,inV
 ! to two-/one-component picture as well as the Hamiltonian in the two-/one-
 ! component relativistic calculations
 
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
 implicit none
+integer(kind=iwp), intent(in) :: nbas, isize, jsize, imethod, paratyp, dkhorder, xorder, iComp
+real(kind=wp), intent(in) :: inS(isize), inK(isize), inV(isize), inpVp(isize), inpXp(isize), clight
+real(kind=wp), intent(inout) :: inX(isize), inUL(jsize), inUS(jsize)
+integer(kind=iwp) :: nn, i, j, k, jS, jK, jV, jpVp, jX, jpXp, itmp, iSizec, idbg, nSym, iOpt, iRC, Lu_One, lOper, n_Int, imagaPX, &
+                     imagaPXs, imagaXP, imagaXPs, imagbPX, imagbPXs, imagbXP, imagbXPs, iPSO, iPSOt, jComp, iPSOComp, ip_Ppso, &
+                     IDUM(1)
+character(len=8) :: Label, magLabel, PSOLabel
 #include "WrkSpc.fh"
-! Input variables
-integer nbas, isize, jsize, imethod, paratyp, dkhorder, xorder, iComp
-real*8 clight
-real*8 inS(isize), inK(isize), inpVp(isize), inpXp(isize)
-real*8 inV(isize), inUL(jsize), inUS(jsize)
-! Input/Output variables
-real*8 inX(isize)
-! Local variables
-integer nn, i, j, k
-integer jS, jK, jV, jpVp, jX, jpXp, itmp
-character*8 Label
-integer iSizec
-integer idbg
-integer nSym ! equals one
-integer iOpt, iRC, Lu_One, lOper, nInt
-integer imagaPX, imagaPXs, imagaXP, imagaXPs
-integer imagbPX, imagbPXs, imagbXP, imagbXPs
-integer iPSO, iPSOt
-integer jComp, iPSOComp
-integer ip_Ppso
-integer, dimension(1) :: IDUM
-character*8 magLabel
-character*8 PSOLabel
 
 ! Convert to square matrices
 
@@ -96,7 +83,7 @@ if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
 
   if ((Label(1:3) == 'MAG') .and. ((iComp == 3) .or. (iComp == 4) .or. (iComp == 8))) then
     nSym = 1 ! always C1 symmetry
-    inUS = inUS*clight
+    inUS(:) = inUS(:)*clight
     iOpt = 0
     iRC = -1
     Lu_One = 2
@@ -110,15 +97,15 @@ if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
     iRC = -1
     lOper = -1
     call iRdOne(iRC,iOpt,magLabel,iComp,idum,lOper)
-    nInt = IDUM(1)
+    n_Int = IDUM(1)
     if (iRC /= 0) Go To 9999
-    call getmem('MAGaXP','ALLOC','REAL',imagaXP,nInt+4)
+    call getmem('MAGaXP','ALLOC','REAL',imagaXP,n_Int+4)
     iOpt = 0
     iRC = -1
     call RdOne(iRC,iOpt,magLabel,iComp,Work(imagaXP),lOper)
     if (iRC /= 0) Go To 9999
-    !call CmpInt(Work(imagaXP),nInt,nbas,nSym,lOper)
-    call getmem('MAGaPX','ALLOC','REAL',imagaPX,nInt+4)
+    !call CmpInt(Work(imagaXP),n_Int,nbas,nSym,lOper)
+    call getmem('MAGaPX','ALLOC','REAL',imagaPX,n_Int+4)
     magLabel(1:5) = 'MAGPX'
     call RdOne(iRC,iOpt,magLabel,iComp,Work(imagaPX),lOper)
     !if (iRC /= 0) Go To 9999
@@ -126,8 +113,8 @@ if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
     call getmem('MAGaXPs','ALLOC','REAL',imagaXPs,nn)
     call square(Work(imagaPX),Work(imagaPXs),nbas,1,nbas)
     call square(Work(imagaXP),Work(imagaXPs),nbas,1,nbas)
-    call getmem('MAGaXP','FREE','REAL',imagaXP,nInt+4)
-    call getmem('MAGaPX','FREE','REAL',imagaPX,nInt+4)
+    call getmem('MAGaXP','FREE','REAL',imagaXP,n_Int+4)
+    call getmem('MAGaPX','FREE','REAL',imagaPX,n_Int+4)
     call merge_mag_ints(nbas,jsize,Work(imagaXPs),Work(imagaPXs),.true.)
     ! put Work(imagaPXs) into -Work(imagaPXs)
     ! or put Work(imagaXPs) into -Work(imagaXPs)
@@ -138,10 +125,10 @@ if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
     call getmem('TMP ','ALLOC','REAL',itmp,nn)
     ! rulin- disable or reenable dmxma for mag integral X2C
     ! transformations
-    call dmxma(nbas,'N','N',Work(imagaPXs),inUS,Work(itmp),1.d0)
-    call dmxma(nbas,'T','N',inUL,Work(itmp),Work(imagaPXs),1.d0)
-    call dmxma(nbas,'N','N',Work(imagaXPs),inUL,Work(itmp),1.d0)
-    call dmxma(nbas,'T','N',inUS,Work(itmp),Work(imagaXPs),1.d0)
+    call dmxma(nbas,'N','N',Work(imagaPXs),inUS,Work(itmp),One)
+    call dmxma(nbas,'T','N',inUL,Work(itmp),Work(imagaPXs),One)
+    call dmxma(nbas,'N','N',Work(imagaXPs),inUL,Work(itmp),One)
+    call dmxma(nbas,'T','N',inUS,Work(itmp),Work(imagaXPs),One)
     do k=0,nn-5
       Work(imagaXPs+k) = Work(imagaXPs+k)+Work(imagaPXs+k)
     end do
@@ -163,13 +150,13 @@ if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
     iRC = -1
     lOper = -1
     call iRdOne(iRC,iOpt,magLabel,jComp,idum,lOper)
-    nInt = IDUM(1)
+    n_Int = IDUM(1)
     if (iRC /= 0) Go To 9999
-    call getmem('MAGbXP','ALLOC','REAL',imagbXP,nInt+4)
+    call getmem('MAGbXP','ALLOC','REAL',imagbXP,n_Int+4)
     iOpt = 0
     iRC = -1
     call RdOne(iRC,iOpt,magLabel,jComp,Work(imagbXP),lOper)
-    call getmem('MAGbPX','ALLOC','REAL',imagbPX,nInt+4)
+    call getmem('MAGbPX','ALLOC','REAL',imagbPX,n_Int+4)
     magLabel(1:5) = 'MAGPX'
     call RdOne(iRC,iOpt,magLabel,jComp,Work(imagbPX),lOper)
     call ClsOne(iRC,iOpt)
@@ -177,8 +164,8 @@ if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
     call getmem('MAGbXPs','ALLOC','REAL',imagbXPs,nn)
     call square(Work(imagbPX),Work(imagbPXs),nbas,1,nbas)
     call square(Work(imagbXP),Work(imagbXPs),nbas,1,nbas)
-    call getmem('MAGbXP','FREE','REAL',imagbXP,nInt+4)
-    call getmem('MAGbPX','FREE','REAL',imagbPX,nInt+4)
+    call getmem('MAGbXP','FREE','REAL',imagbXP,n_Int+4)
+    call getmem('MAGbPX','FREE','REAL',imagbPX,n_Int+4)
     call merge_mag_ints(nbas,jsize,Work(imagbXPs),Work(imagbPXs),.true.)
     ! put Work(imagbPXs) into -Work(imagbPXs)
     ! or put Work(imagbXP) into -Work(imagbXP)
@@ -186,10 +173,10 @@ if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
     do k=0,nn-5
       Work(imagbPXs+k) = -Work(imagbPXs+k)
     end do
-    call dmxma(nbas,'N','N',Work(imagbPXs),inUS,Work(itmp),1.d0)
-    call dmxma(nbas,'T','N',inUL,Work(itmp),Work(imagbPXs),1.d0)
-    call dmxma(nbas,'N','N',Work(imagbXPs),inUL,Work(itmp),1.d0)
-    call dmxma(nbas,'T','N',inUS,Work(itmp),Work(imagbXPs),1.d0)
+    call dmxma(nbas,'N','N',Work(imagbPXs),inUS,Work(itmp),One)
+    call dmxma(nbas,'T','N',inUL,Work(itmp),Work(imagbPXs),One)
+    call dmxma(nbas,'N','N',Work(imagbXPs),inUL,Work(itmp),One)
+    call dmxma(nbas,'T','N',inUS,Work(itmp),Work(imagbXPs),One)
     do k=0,nn-5
       Work(imagbXPs+k) = Work(imagbXPs+k)+Work(imagbPXs+k)
     end do
@@ -205,9 +192,9 @@ if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
     write(PSOLabel,'(A,A3)') 'PSOI ',Label(6:8)
     ! test for off-diagonal elements
     IDUM(1) = nbas
-    call CmpInt(Work(iPSO),nInt,idum(1),nSym,lOper)
+    call CmpInt(Work(iPSO),n_Int,idum(1),nSym,lOper)
     ! store PSO integrals to ONEINT
-    call getmem('PSOt','ALLOC','REAL',iPSOt,nInt+4)
+    call getmem('PSOt','ALLOC','REAL',iPSOt,n_Int+4)
     k = 0
     do i=1,nbas
       do j=1,i
@@ -219,7 +206,7 @@ if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
     call Allocate_Work(ip_Ppso,iSizec+4)
     idbg = -1
     call repmat(idbg,Work(iPSOt),Work(ip_Ppso),.false.)
-    call getmem('PSOt','FREE','REAL',iPSOt,nInt+4)
+    call getmem('PSOt','FREE','REAL',iPSOt,n_Int+4)
     iOpt = 0
     iRC = -1
     Lu_one = 2
@@ -232,20 +219,20 @@ if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
     iOpt = 0
     call ClsOne(iRC,iOpt)
     call Free_Work(ip_Ppso)
-    inUS = inUS/clight
+    inUS(:) = inUS(:)/clight
   end if
 
   if (Label(1:3) == 'MAG') then
-    inUS = inUS*clight
+    inUS(:) = inUS(:)*clight
     ! Put together lower and upper triangular matrices
     call merge_mag_ints(nbas,jsize,Work(jX),Work(jpXp),.true.)
     call getmem('TMP ','ALLOC','REAL',itmp,nn)
     ! Eval U_L^{\dag} X U_S
     ! Eval U_S^{\dag} X U_L
-    call dmxma(nbas,'N','N',Work(jpXp),inUS,Work(itmp),1.d0)
-    call dmxma(nbas,'T','N',inUL,Work(itmp),Work(jpXp),1.d0)
-    call dmxma(nbas,'N','N',Work(jX),inUL,Work(itmp),1.d0)
-    call dmxma(nbas,'T','N',inUS,Work(itmp),Work(jX),1.d0)
+    call dmxma(nbas,'N','N',Work(jpXp),inUS,Work(itmp),One)
+    call dmxma(nbas,'T','N',inUL,Work(itmp),Work(jpXp),One)
+    call dmxma(nbas,'N','N',Work(jX),inUL,Work(itmp),One)
+    call dmxma(nbas,'T','N',inUS,Work(itmp),Work(jX),One)
     ! Sum
     do k=0,nbas*nbas-1
       Work(jX+k) = Work(jX+k)+Work(jpXp+k)
@@ -255,7 +242,7 @@ if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
       Work(jpXp+k) = Work(jX+k)
     end do
     call getmem('TMP ','FREE','REAL',itmp,nn)
-    inUS = inUS/clight
+    inUS(:) = inUS(:)/clight
   else
 
     ! X2C/BSS transformation
@@ -269,11 +256,11 @@ if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
 
     call getmem('TMP ','ALLOC','REAL',itmp,nn)
     ! eval U_L^{\dag} X U_L
-    call dmxma(nbas,'C','N',inUL,Work(jX),Work(itmp),1.d0)
-    call dmxma(nbas,'N','N',Work(itmp),inUL,Work(jX),1.d0)
+    call dmxma(nbas,'C','N',inUL,Work(jX),Work(itmp),One)
+    call dmxma(nbas,'N','N',Work(itmp),inUL,Work(jX),One)
     ! eval U_S^{\dag}pXp U_S
-    call dmxma(nbas,'C','N',inUS,Work(jpXp),Work(itmp),1.d0)
-    call dmxma(nbas,'N','N',Work(itmp),inUS,Work(jpXp),1.d0)
+    call dmxma(nbas,'C','N',inUS,Work(jpXp),Work(itmp),One)
+    call dmxma(nbas,'N','N',Work(itmp),inUS,Work(jpXp),One)
     ! sum
     do k=0,nbas*nbas-1
       Work(jX+k) = Work(jX+k)+Work(jpXp+k)
@@ -309,8 +296,8 @@ call getmem('spXp ','FREE','REAL',jpXp,nn)
 
 return
 9999 continue
-write(6,*) ' *** Error in subroutine XDR_Prop ***'
-write(6,*) '     Abend in subroutine OpnOne'
+write(u6,*) ' *** Error in subroutine XDR_Prop ***'
+write(u6,*) '     Abend in subroutine OpnOne'
 call Abend()
 
 end subroutine XDR_Prop

@@ -12,43 +12,43 @@
 subroutine dkh_cofu(DKH_order,DKH_para,dkcof)
 ! Calculate coefficients of different parameterization of DKH unitary transformation
 
+use Constants, only: Zero, One, Two, Half, Quart
+use Definitions, only: wp, iwp
+
 implicit none
-! Input
-integer DKH_order, DKH_para
-! Output
-real*8 dkcof(*)
-! Temp
-integer i, k, n
-real*8 c, d
+integer(kind=iwp), intent(in) :: DKH_order, DKH_para
+real(kind=wp), intent(out) :: dkcof(max(4,DKH_order))
+integer(kind=iwp) :: i, k, n
+real(kind=wp) :: c, d
 
 N = max(4,DKH_order)
 if (DKH_para == 2) then
   ! Exponential
-  dkcof(1) = 1.0d0
+  dkcof(1) = One
   do i=2,N
     dkcof(i) = dkcof(i-1)/i
   end do
 else if (DKH_para == 3) then
   ! Square root
   do i=1,N
-    dkcof(i) = 0.d0
+    dkcof(i) = Zero
   end do
-  dkcof(1) = 1.0d0
-  dkcof(2) = 0.5d0
+  dkcof(1) = One
+  dkcof(2) = Half
   do i=4,N,2
     dkcof(i) = -dkcof(i-2)*(i-3)/i
   end do
 else if (DKH_para == 5) then
   ! Cayley
-  dkcof(1) = 1.0d0
+  dkcof(1) = One
   do i=2,N
-    dkcof(i) = dkcof(i-1)*0.5d0
+    dkcof(i) = dkcof(i-1)*Half
   end do
 else if (DKH_para == 4) then
   ! McWeeny
-  dkcof(1) = 1.0d0
-  dkcof(2) = 0.5d0
-  dkcof(3) = 0.5d0
+  dkcof(1) = One
+  dkcof(2) = Half
+  dkcof(3) = Half
   do i=4,N,2
     dkcof(i) = dkcof(i-2)*(i-1)/i
     if (i < n) then
@@ -57,20 +57,20 @@ else if (DKH_para == 4) then
   end do
 else if (DKH_para == 1) then
   ! opt ( M. Reiher )
-  dkcof(1) = 1.0d0
-  dkcof(2) = 0.5d0
-  dkcof(3) = (2.d0-sqrt(2.d0))/4.d0
-  dkcof(4) = dkcof(3)-0.125d0
-  do i=5,n,2
+  dkcof(1) = One
+  dkcof(2) = Half
+  dkcof(3) = (Two-sqrt(Two))*Quart
+  dkcof(4) = dkcof(3)-0.125_wp
+  do i=5,N,2
     ! W(i+3) in terms of a(k),k<i
-    d = 0.d0
+    d = Zero
     do k=(i+3)/2,i-1
       c = dkcof(k)*dkcof(i+3-k)
-      if (k /= (i+3)/2) c = c*2.d0
+      if (k /= (i+3)/2) c = c*Two
       if (mod(k,2) == 1) c = -c
       d = d-c
     end do
-    dkcof(i) = d*sqrt(2.d0)
+    dkcof(i) = d*sqrt(Two)
     if (i < n) then
       dkcof(i+1) = dkcof(i)
     end if

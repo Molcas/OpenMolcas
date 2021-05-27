@@ -20,32 +20,33 @@ subroutine DKRelint_DP()
 !       exact decoupling X2C method &
 !       exact decoupling BSS method.
 
-use Basis_Info
-use DKH_Info
+use Basis_Info, only: dbsc, nBas, ncnttp
+use DKH_Info, only: LDKroll, radiLD
 use Symmetry_Info, only: nIrrep
 use Logical_Info, only: lMXTC
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: dkhorder, dkhparam, i, i_Dim, iAa, iAngr, iAuxi, iBas, iBu, icnt, iCnttp, iComp, idbg, idum(1), iE, iEig, &
+                     iEv2, iEven1, iEw, iExp, iG, iH, iH_nr, iH_temp, iibas, iK, iK_Done, iK_Save, iLoc, iMap, iMEF, indx, iOpt, &
+                     iP, ip_MEF, ip_Pmag, ip_Prop, ipaddr(3), ipiComp, ipInd, ipjCent, ipOp, iPrint, iProps, ipVp, iPvpt, ipXp, &
+                     iRC, iRe1r, iRout, iRr, iSinv, iSize, iSizec, iSizep, iSizes, iSS, iTemp, iTt, iTwrk4, iU_L, iU_S, iV, iX, &
+                     iY, jCent, jExp, k, kAng, kC, kCof, kCofi, kCofj, kExp, kExpi, kExpj, ks, kz, L, Length, Length2, lOper, &
+                     lOper_save, Lu_One, Mem_Available, n, n_Int, nAtoms, nBas_cont(8), nBas_prim(8), nbl, nComp, nrSym, nSym, &
+                     numb_props, relmethod, xorder
+real(kind=wp) :: rCofi, rCofj, rEpsilon, rExpi, rExpj, rI, rNorm, rSum, VELIT
+logical(kind=iwp) :: DoFullLT
+!character(len=3) :: paramtype
+character(len=8) :: Label, pXpLbl
+logical(kind=iwp), parameter :: Debug = .false.
+integer(kind=iwp), external :: nProp_Int
 #include "Molcas.fh"
-#include "warnings.fh"
 #include "rinfo.fh"
 #include "print.fh"
-#include "real.fh"
 #include "WrkSpc.fh"
-#include "wldata.fh"
-#include "oneswi.fh"
 #include "RelLight.fh"
 #include "relae.fh"
-integer ipaddr(3)
-character*8 Label, pXpLbl
-integer nBas_prim(8), nBas_cont(8)
-logical Debug
-data Debug/.false./
-!character*(3) paramtype
-integer relmethod, dkhorder, xorder, dkhparam
-logical DoFullLT
-integer stdout
-dimension idum(1)
 
 if (IRFLAG1 == 1) then
   call DKRelint()
@@ -63,13 +64,12 @@ else
   idbg = -1
 end if
 
-stdout = 6
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Save basis set info from contracted run
 
-if (iprint >= 10) write(stdout,*) ' In DKRelInt',ncnttp
+if (iprint >= 10) write(u6,*) ' In DKRelInt',ncnttp
 kCof = 0
 kAng = 0
 kExp = 0
@@ -87,17 +87,17 @@ do iCnttp=1,nCnttp
   do icnt=1,dbsc(iCnttp)%nCntr
     kC = kC+1
     do iAngr=0,nAngr(kC)
-      rI = dble(iAngr)+One+Half
+      rI = real(iAngr,kind=wp)+One+Half
       kAng = kAng+1
       do iBas=1,nBasisr(kAng)
-        Sum = Zero
+        rSum = Zero
         kExpi = kExp
         kCofi = kCof
         do iExp=1,nPrimr(kAng)
           kExpi = kExpi+1
           kCofi = kCofi+1
           rExpi = rExp(kExpi)
-          !write(stdout,'(a11,f20.8)') ' Exponents',rExpi
+          !write(u6,'(a11,f20.8)') ' Exponents',rExpi
           rCofi = rCof(kCofi)
           kExpj = kExp
           kCofj = kCof
@@ -106,15 +106,15 @@ do iCnttp=1,nCnttp
             kCofj = kCofj+1
             rExpj = rExp(kExpj)
             rCofj = rCof(kCofj)
-            Sum = Sum+rCofi*rCofj*(Two*sqrt(rExpi*rExpj)/(rExpi+rExpj))**rI
+            rSum = rSum+rCofi*rCofj*(Two*sqrt(rExpi*rExpj)/(rExpi+rExpj))**rI
           end do
         end do
-        rNorm = One/sqrt(Sum)
-        if (iprint >= 10) write(stdout,*) ' rNorm',kAng,rNorm
+        rNorm = One/sqrt(rSum)
+        if (iprint >= 10) write(u6,*) ' rNorm',kAng,rNorm
         do iExp=1,nPrimr(kAng)
           rCof(kCof+iExp) = rCof(kCof+iExp)*rNorm
           if (iprint >= 10) then
-            write(stdout,'(a24,f20.6)') ' normalized coefficients',rCof(kCof+iExp)
+            write(u6,'(a24,f20.6)') ' normalized coefficients',rCof(kCof+iExp)
           end if
         end do
         kCof = kCof+nPrimr(kAng)
@@ -130,10 +130,10 @@ end do
 if (iPrint >= 10) then
   i = 0
   do L=1,nrSym
-    write(stdout,*) ' Irreducible representation',L
+    write(u6,*) ' Irreducible representation',L
     do ibas=1,nrBas(L)
       i = i+1
-      write(stdout,'(20i4)') i,icent(i),lnang(i),lmag(i)
+      write(u6,'(20i4)') i,icent(i),lnang(i),lmag(i)
     end do
   end do
 end if
@@ -172,8 +172,8 @@ call OneBas('PRIM')
 call Get_iArray('nBas_Prim',nBas,nSym)
 call iCopy(8,nBas,1,nBas_prim,1)
 if (iPrint >= 10) then
-  write(stdout,'(a,8i5)') ' Symmetries          ',nSym
-  write(stdout,'(a,8i5)') ' Primitive basis fcns',(nBas(i),i=0,nSym-1)
+  write(u6,'(a,8i5)') ' Symmetries          ',nSym
+  write(u6,'(a,8i5)') ' Primitive basis fcns',(nBas(i),i=0,nSym-1)
 end if
 
 ! Allocate memory for relativistic part
@@ -189,22 +189,22 @@ do L=0,nSym-1
   iSizec = iSizec+nrBas(L+1)*(nrBas(L+1)+1)/2
   iibas = iibas+nbas(L)
 end do
-if (iPrint >= 10) write(stdout,*) ' iSizep',iSizep
+if (iPrint >= 10) write(u6,*) ' iSizep',iSizep
 
 call GetMem('Kin     ','ALLO','REAL',iK,iSizep+4)
 call GetMem('SS      ','ALLO','REAL',iSS,iSizep+4)
 call GetMem('V       ','ALLO','REAL',iV,iSizep+4)
 call GetMem('pVp     ','ALLO','REAL',ipVp,iSizep+4)
 
-if (iprint >= 20) write(stdout,*) '  indices',iss,ik,iv,ipvp
+if (iprint >= 20) write(u6,*) '  indices',iss,ik,iv,ipvp
 Label = 'Mltpl  0'
 iComp = 1
 iOpt = 0
 iRC = -1
 call RdOne(iRC,iOpt,Label,1,Work(iSS),lOper)
 if (iRC /= 0) then
-  write(stdout,*) 'DKRelInt: Error reading from ONEINT'
-  write(stdout,'(A,A)') 'Label=',Label
+  write(u6,*) 'DKRelInt: Error reading from ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 nComp = 1
@@ -214,8 +214,8 @@ Label = 'Attract '
 iRC = -1
 call RdOne(iRC,iOpt,Label,1,Work(iV),lOper)
 if (iRC /= 0) then
-  write(stdout,*) 'DKRelInt: Error reading from ONEINT'
-  write(stdout,'(A,A)') 'Label=',Label
+  write(u6,*) 'DKRelInt: Error reading from ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 ipaddr(1) = iV
@@ -224,8 +224,8 @@ Label = 'Kinetic '
 iRC = -1
 call RdOne(iRC,iOpt,Label,1,Work(iK),lOper)
 if (iRC /= 0) then
-  write(stdout,*) 'DKRelInt: Error reading from ONEINT'
-  write(stdout,'(A,A)') 'Label=',Label
+  write(u6,*) 'DKRelInt: Error reading from ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 ipaddr(1) = iK
@@ -234,8 +234,8 @@ Label = 'pVp     '
 iRC = -1
 call RdOne(iRC,iOpt,Label,1,Work(ipVp),lOper)
 if (iRC /= 0) then
-  write(stdout,*) 'DKRelInt: Error reading from ONEINT'
-  write(stdout,'(A,A)') 'Label=',Label
+  write(u6,*) 'DKRelInt: Error reading from ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 ipaddr(1) = ipVp
@@ -265,7 +265,7 @@ if (IRELAE >= 100) then
     iTemp = iTemp-dkhorder*10
     dkhparam = iTemp
     if (xorder > dkhorder) then
-      write(stdout,'(a,i3,a,i3)') ' xorder was reduced from ',xorder,' to ',dkhorder
+      write(u6,'(a,i3,a,i3)') ' xorder was reduced from ',xorder,' to ',dkhorder
       xorder = dkhorder
     end if
     !if (iTemp == 1) then
@@ -280,20 +280,20 @@ if (IRELAE >= 100) then
     !   paramtype='CAY'
     !else
     if ((iTemp < 1) .or. (iTemp > 5)) then
-      write(stdout,*) 'dkrelint: Illegal parametrization!'
+      write(u6,*) 'dkrelint: Illegal parametrization!'
       call Abend()
     end if
-    !write(stdout,'(A)') ' Computing the arbitrary order DKH Hamiltonian'
+    !write(u6,'(A)') ' Computing the arbitrary order DKH Hamiltonian'
   else if (IRELAE == 101) then
     relmethod = 2
     xorder = 1
-    !write(stdout,'(A)') ' Computing the exact decoupling X2C Hamiltonian'
+    !write(u6,'(A)') ' Computing the exact decoupling X2C Hamiltonian'
   else if (IRELAE == 102) then
     relmethod = 3
     xorder = 1
-    !write(stdout,'(A)') ' Computing the exact decoupling BSS Hamiltonian'
+    !write(u6,'(A)') ' Computing the exact decoupling BSS Hamiltonian'
   else
-    write(stdout,*) 'dkrelint: Unknown method !'
+    write(u6,*) 'dkrelint: Unknown method !'
     call Abend()
   end if
   !                                                                    *
@@ -312,14 +312,14 @@ if (IRELAE >= 100) then
     call GetMem('Index  ','ALLO','INTE',indx,iibas+4)
     call xdr_indx(iibas,iWork(indx))
     DoFullLT = .true.
-    if (radiLD == 0.d0) DoFullLT = .false.
+    if (radiLD == Zero) DoFullLT = .false.
     if (DoFullLT) then
       if (relmethod == 1 .and. xorder == 0) then
         xorder = dkhorder
       end if
-      write(6,'(A)') '   DLU Local Transformation'
+      write(u6,'(A)') '   DLU Local Transformation'
     else
-      write(6,'(A)') '   DLH Local Transformation'
+      write(u6,'(A)') '   DLH Local Transformation'
     end if
   end if
 
@@ -340,7 +340,7 @@ if (IRELAE >= 100) then
       call GetMem('InfoLoc','ALLO','INTE',iLoc,n+4)
       call GetMem('MapLoc ','ALLO','INTE',iMap,n+4)
       call xdr_info_local(n,iWork(indx+kz),nbl,iWork(iLoc),iWork(iMap))
-      !DP write(6,'(a,i1,i5,a,99i4)') '   Sym: ',L+1,n,'  = Local ',(iWork(iLoc+i),i=0,nbl-1)
+      !DP write(u6,'(a,i1,i5,a,99i4)') '   Sym: ',L+1,n,'  = Local ',(iWork(iLoc+i),i=0,nbl-1)
       call XDR_Local_Ham(n,isize,n*n,relmethod,dkhparam,dkhorder,xorder,Work(iSS+k),Work(iK+k),Work(iV+k),Work(ipVp+k), &
                          Work(iU_L+ks),Work(iU_S+ks),iWork(indx+kz),nbl,iWork(iLoc),iWork(iMap),DoFullLT,clightau)
       call GetMem('InfoLoc','FREE','INTE',iLoc,n+4)
@@ -409,33 +409,33 @@ if (IRELAE >= 100) then
       jCent = iWork(ipjCent)
       write(Label,'(A,I3)') 'MAGXP',jCent
     else
-      write(6,*) 'DKRelInt: illegal property!'
+      write(u6,*) 'DKRelInt: illegal property!'
       call Abend()
     end if
     iComp = iWork(ipiComp)
-    !write(6,*)
-    !write(6,*) 'Label=',Label
-    !write(6,*) 'iComp=',iComp
-    !write(6,*)
+    !write(u6,*)
+    !write(u6,*) 'Label=',Label
+    !write(u6,*) 'iComp=',iComp
+    !write(u6,*)
 
     iOpt = 1
     iRC = -1
     lOper = -1
     call iRdOne(iRC,iOpt,Label,iComp,idum,lOper)
-    if (iRC == 0) nInt = idum(1)
-    !write(6,*) 'lOper=',lOper
-    call GetMem('X       ','ALLO','REAL',iX,nInt+4)
+    if (iRC == 0) n_Int = idum(1)
+    !write(u6,*) 'lOper=',lOper
+    call GetMem('X       ','ALLO','REAL',iX,n_Int+4)
     iRC = -1
     iOpt = 0
     call RdOne(iRC,iOpt,Label,iComp,Work(iX),lOper)
     if (iRC /= 0) then
-      write(stdout,*) 'DKRelInt: Error reading from ONEREL'
-      write(stdout,'(A,A)') 'Label=',Label
-      write(stdout,'(A,A)') 'iRC=',iRC
+      write(u6,*) 'DKRelInt: Error reading from ONEREL'
+      write(u6,'(A,A)') 'Label=',Label
+      write(u6,'(A,A)') 'iRC=',iRC
       call Abend()
     end if
-    call CmpInt(Work(iX),nInt,nBas_Prim,nSym,lOper)
-    if (nInt == 0) then
+    call CmpInt(Work(iX),n_Int,nBas_Prim,nSym,lOper)
+    if (n_Int == 0) then
       iOpt = 0
       call ClsOne(iRC,iOpt)
       Go To 666
@@ -453,24 +453,24 @@ if (IRELAE >= 100) then
     iOpt = 1
     iRC = -1
     call iRdOne(iRC,iOpt,pXpLbl,iComp,idum,lOper)
-    if (iRC == 0) nInt = idum(1)
-    call GetMem('pXp     ','ALLO','REAL',ipXp,nInt+4)
+    if (iRC == 0) n_Int = idum(1)
+    call GetMem('pXp     ','ALLO','REAL',ipXp,n_Int+4)
     iOpt = 0
     iRC = -1
     call RdOne(iRC,iOpt,pXpLbl,iComp,Work(ipXp),lOper)
     if (iRC /= 0) then
-      write(stdout,*) 'DKRelInt: Error reading from ONEREL'
-      write(stdout,'(A,A)') 'pXpLbl=',pXpLbl
-      write(stdout,'(A,A)') 'iRC=',iRC
+      write(u6,*) 'DKRelInt: Error reading from ONEREL'
+      write(u6,'(A,A)') 'pXpLbl=',pXpLbl
+      write(u6,'(A,A)') 'iRC=',iRC
       call Abend()
     end if
-    call CmpInt(Work(ipXp),nInt,nBas_Prim,nSym,lOper)
+    call CmpInt(Work(ipXp),n_Int,nBas_Prim,nSym,lOper)
 
     iOpt = 0
     call ClsOne(iRC,iOpt)
 
     call GetMem('Core','Max','Real',iDum(1),Mem_Available)
-    !write(6,*) 'Mem_Available=',Mem_Available
+    !write(u6,*) 'Mem_Available=',Mem_Available
     k = 0
     ks = 0
     kz = 0
@@ -535,22 +535,22 @@ if (IRELAE >= 100) then
     iRC = -1
     lOper = -1
     call iRdOne(iRC,iOpt,Label,iComp,idum,lOper)
-    if (iRC == 0) nInt = idum(1)
-    call GetMem('Y       ','ALLO','REAL',iY,nInt+4)
+    if (iRC == 0) n_Int = idum(1)
+    call GetMem('Y       ','ALLO','REAL',iY,n_Int+4)
     iRC = -1
     iOpt = 0
     call RdOne(iRC,iOpt,Label,iComp,Work(iY),lOper)
-    !write(6,*) 'Y1=',DDot_(nInt,Work(iY),1,1.0D0,0)
+    !write(u6,*) 'Y1=',DDot_(n_Int,Work(iY),1,One,0)
     if (iRC /= 0) then
-      write(stdout,*) 'DKRelInt: Error reading from ONEINT'
-      write(stdout,'(A,A)') 'Label=',Label
+      write(u6,*) 'DKRelInt: Error reading from ONEINT'
+      write(u6,'(A,A)') 'Label=',Label
       call Abend()
     end if
 
     ! Put the picture change corrected blocks in. Note that this
     ! is just the diagonal symmetry blocks.
 
-    call Cp_Prop_Int(Work(iY),nInt,Work(ip_Prop),iSizec,nrBas,nIrrep,lOper)
+    call Cp_Prop_Int(Work(iY),n_Int,Work(ip_Prop),iSizec,nrBas,nIrrep,lOper)
 
     ! Now write it back to disc
 
@@ -600,7 +600,7 @@ else
   !                                                                    *
   !      Loop over the symmetry blocks
   !
-  epsilon = 1.d-10
+  rEpsilon = 1.0e-10_wp
   k = 0
   do L=0,nSym-1
     n = nBas(L)
@@ -623,11 +623,11 @@ else
     call GetMem('Twrk4   ','ALLO','REAL',iTwrk4,n*200+4)
     Length = N*N+4
     Length2 = iSize+4
-    iDim = N
+    i_Dim = N
     if (IRELAE == 0) then
       Length = 1
       Length2 = 1
-      iDim = 1
+      i_Dim = 1
     end if
     call GetMem('Even1   ','ALLO','REAL',iEven1,Length)
     call GetMem('Pvpt    ','ALLO','REAL',iPvpt,Length2)
@@ -635,9 +635,9 @@ else
 
     ! call to package relsew
 
-    call SCFCLI(idbg,epsilon,Work(iSS+k),Work(iK+k),Work(iV+k),Work(ipVp+k),n,iSize,VELIT,Work(iBu),Work(iP),Work(iG),Work(iEv2), &
+    call SCFCLI(idbg,rEpsilon,Work(iSS+k),Work(iK+k),Work(iV+k),Work(ipVp+k),n,iSize,VELIT,Work(iBu),Work(iP),Work(iG),Work(iEv2), &
                 Work(iEig),Work(iSinv),Work(iEw),Work(iE),Work(iAa),Work(iRr),Work(iTt),Work(iPvpt),Work(iEven1),Work(iRe1r), &
-                Work(iAuxi),Work(iTwrk4),iDim)
+                Work(iAuxi),Work(iTwrk4),i_Dim)
 
     call GetMem('Bu      ','FREE','REAL',iBu,Length2)
     call GetMem('P       ','FREE','REAL',iP,isize+4)
@@ -712,15 +712,15 @@ call OneBas('PRIM')
 Label = 'Kinetic '
 call RdOne(iRC,iOpt,Label,1,Work(iSS),lOper)
 if (iRC /= 0) then
-  write(stdout,*) 'DKRelInt: Error reading from ONEINT'
-  write(stdout,'(A,A)') 'Label=',Label
+  write(u6,*) 'DKRelInt: Error reading from ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 Label = 'Attract '
 call RdOne(iRC,iOpt,Label,1,Work(iV),lOper)
 if (iRC /= 0) then
-  write(stdout,*) 'DKRelInt: Error reading from ONEINT'
-  write(stdout,'(A,A)') 'Label=',Label
+  write(u6,*) 'DKRelInt: Error reading from ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 ! Add Kinetic and Attraction term
@@ -777,8 +777,8 @@ iRC = -1
 Label = 'OneHam 0'
 call RdOne(iRC,iOpt,Label,1,Work(iH_nr),lOper)
 if (iRC /= 0) then
-  write(stdout,*) 'DKRelInt: Error reading from ONEINT'
-  write(stdout,'(A,A)') 'Label=',Label
+  write(u6,*) 'DKRelInt: Error reading from ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 iOpt = 0
@@ -792,8 +792,8 @@ call DaXpY_(iSizec+4,One,Work(iH_nr),1,Work(iH),1)
 
 call Get_iArray('nBas',nBas,nSym)
 if (iPrint >= 10) then
-  write(stdout,'(a11,10i5)') ' Symmetries',nSym
-  write(stdout,'(a11,10i5)') ' Contracted',(nBas(i),i=0,nSym-1)
+  write(u6,'(a11,10i5)') ' Symmetries',nSym
+  write(u6,'(a11,10i5)') ' Contracted',(nBas(i),i=0,nSym-1)
 end if
 Label = 'OneHam 0'
 lOper = 1
@@ -808,8 +808,8 @@ call WrOne(iRC,iOpt,Label,1,Work(iH),lOper)
 Label = 'OneHam  '
 call WrOne(iRC,iOpt,Label,1,Work(iH),lOper)
 if (iRC /= 0) then
-  write(stdout,*) 'DKRelInt: Error reading from ONEINT'
-  write(stdout,'(A,A)') 'Label=',Label
+  write(u6,*) 'DKRelInt: Error reading from ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 
@@ -822,8 +822,8 @@ if (IRELAE == 23) then   ! IORA
   Label = 'Mltpl  0'
   call WrOne(iRC,iOpt,Label,1,Work(iH),lOper)
   if (iRC /= 0) then
-    write(stdout,*) 'DKInt: Error reading from ONEINT'
-    write(stdout,'(A,A)') 'Label=',Label
+    write(u6,*) 'DKInt: Error reading from ONEINT'
+    write(u6,'(A,A)') 'Label=',Label
     call Abend()
   end if
 end if
@@ -837,8 +837,8 @@ call GetMem('pVp     ','FREE','REAL',ipVp,iSizep+4)
 return
 
 9999 continue
-write(stdout,*) ' *** Error in subroutine DKRelInt ***'
-write(stdout,*) '     Abend in subroutine OpnOne'
+write(u6,*) ' *** Error in subroutine DKRelInt ***'
+write(u6,*) '     Abend in subroutine OpnOne'
 call Abend()
 
 end subroutine DKRelint_DP

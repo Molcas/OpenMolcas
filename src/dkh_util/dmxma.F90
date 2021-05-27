@@ -12,12 +12,16 @@
 subroutine dmxma(n,transa,transb,a,b,c,alpha)
 ! Square real matrices multiplication
 
-implicit none
-integer n
-real*8 a(*), b(*), c(*), alpha
-character*1 transa, transb
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-call dgemm_(transa,transb,n,n,n,alpha,a(1),n,b(1),n,0.d0,c(1),n)
+implicit none
+integer(kind=iwp), intent(in) :: n
+character, intent(in) :: transa, transb
+real(kind=wp), intent(in) :: a(n,n), b(n,n), alpha
+real(kind=wp), intent(out) :: c(n,n)
+
+call dgemm_(transa,transb,n,n,n,alpha,a,n,b,n,Zero,c,n)
 
 return
 

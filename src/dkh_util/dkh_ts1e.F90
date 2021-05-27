@@ -10,21 +10,19 @@
 !***********************************************************************
 
 subroutine dkh_ts1e(n,s,t,v,w,ul,us,clight,dkord,xord,dkparam)
-
 ! Evaluate the arbitrary order DKH Hamiltonian ( and transform matrices ul & us )
+
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
 #include "WrkSpc.fh"
-! Input
-integer n, dkord, xord, dkparam
-real*8 s(n,n), t(n,n), v(n,n), w(n,n), clight
-! Ouput
 ! v : store the transformed relativistic one-electron Hamiltonian
-real*8 ul(n,n), us(n,n)
-! Temp
-integer i, nn, word, vord, nz, m, n2
-integer iTr, iBk, iEL, iES, iOL, iOS, iEp, iE0, iKC, iCo, iSco
-integer iM, iZ, iW, iXL, iXS
+integer(kind=iwp), intent(in) :: n, dkord, xord, dkparam
+real(kind=wp), intent(in) :: s(n,n), t(n,n), w(n,n), clight
+real(kind=wp), intent(inout) :: v(n,n)
+real(kind=wp), intent(out) :: ul(n,n), us(n,n)
+integer(kind=iwp) :: i, nn, word, vord, nz, m, n2, iTr, iBk, iEL, iES, iOL, iOS, iEp, iE0, iKC, iCo, iSco, iM, iZ, iW, iXL, iXS
 
 ! Transform Hamiltonian matrix to the free-particle Foldy-Wouthuysen picture
 
@@ -59,10 +57,10 @@ if (dkparam == 2) then
   call GetMem('NWork ','ALLOC','REAL',iM,m*5+4)
   call GetMem('NNWork','ALLOC','REAL',iZ,nz*3+4)
   do i=0,m*5
-    Work(iM+i) = 0.d0
+    Work(iM+i) = Zero
   end do
   do i=0,nz*3
-    Work(iZ+i) = 0.d0
+    Work(iZ+i) = Zero
   end do
   call AODKHEXP(n,vord,xord,dkord,Work(iEp),Work(iE0),Work(iEL),Work(iES),Work(iOL),Work(iM),Work(iM+m),Work(iM+m*2),Work(iM+m*3), &
                 Work(iM+m*4),Work(iZ),Work(iZ+nz),Work(iZ+nz*2),Work(iW))
@@ -103,8 +101,8 @@ end if
 
 ! Back transform Hamiltonian matrix to original non-orthogonal basis picture
 
-call dmxma(n,'C','N',Work(iBk),Work(iEL),Work(iES),1.d0)
-call dmxma(n,'N','N',Work(iES),Work(iBk),v,1.d0)
+call dmxma(n,'C','N',Work(iBk),Work(iEL),Work(iES),One)
+call dmxma(n,'N','N',Work(iES),Work(iBk),v,One)
 
 ! Free temp memories
 

@@ -15,16 +15,15 @@ subroutine x2c_makx(m,n,f,s,x)
 ! X is the relation(transfer) matrix of Large--Small component coefficients
 ! of electron solutions (positive energy solutions)
 
+use Constants, only: One
+use Definitions, only: wp, iwp
+
 implicit none
+integer(kind=iwp), intent(in) :: m, n
+real(kind=wp), intent(in) :: f(m,m), s(m,m)
+real(kind=wp), intent(out) :: x(n,n)
+integer(kind=iwp) :: i, j, k, lwork, info, itmp, iw, itF, itS
 #include "WrkSpc.fh"
-! Input
-integer m, n
-real*8 f(m,m), s(m,m)
-! Output
-real*8 x(n,n)
-! Temp
-integer i, j, k
-integer lwork, info, itmp, iw, itF, itS
 
 lwork = 8*m
 call getmem('TmpF ','ALLOC','REAL',itF,m*m+4)
@@ -61,7 +60,7 @@ do i=1,n
 end do
 ! compute X=BA^{-1}
 call XDR_dmatinv(Work(itF),n)
-call dmxma(n,'N','N',Work(itS),Work(itF),x,1.d0)
+call dmxma(n,'N','N',Work(itS),Work(itF),x,One)
 
 ! Free temp memories
 

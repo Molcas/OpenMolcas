@@ -12,18 +12,17 @@
 subroutine bss_ts1e(n,s,t,v,w,ul,us,clight)
 ! Evaluate the BSS Hamiltonian matrix and store the transform matrices
 
+use Constants, only: One
+use Definitions, only: wp, iwp
+
 implicit none
-#include "WrkSpc.fh"
-! Input
 ! w   aka pVp
-integer n
-real*8 s(n,n), t(n,n), v(n,n), w(n,n), clight
-! Output
-real*8 ul(n,n), us(n,n)
-! Temp
-integer m, i, j, k, nn, lwork, iW, info
-integer iTr, iBk, iEL, iES, iOL, iOS, iEp, iE0, iKC, itF, itmp
-integer iA, iB, iX, iM
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: s(n,n), t(n,n), w(n,n), clight
+real(kind=wp), intent(inout) :: v(n,n)
+real(kind=wp), intent(out) :: ul(n,n), us(n,n)
+integer(kind=iwp) :: m, i, j, k, nn, lwork, iW, info, iTr, iBk, iEL, iES, iOL, iOS, iEp, iE0, iKC, itF, itmp, iA, iB, iX, iM
+#include "WrkSpc.fh"
 
 ! Transform to the free-particle Foldy-Wothuysen picture
 
@@ -75,36 +74,36 @@ do i=1,n
   end do
 end do
 call XDR_dmatinv(Work(iA),n)
-call dmxma(n,'N','N',Work(iB),Work(iA),Work(iX),1.d0)
+call dmxma(n,'N','N',Work(iB),Work(iA),Work(iX),One)
 
 ! Apply decoupling transformation to the Fock matrix
 
-call dmxma(n,'C','N',Work(iX),Work(iOS),Work(iA),1.d0)
-call dmxma(n,'C','N',Work(iX),Work(iES),Work(iB),1.d0)
-call dmxma(n,'N','N',Work(iB),Work(iX),Work(iES),1.d0)
-call dmxma(n,'N','N',Work(iOL),Work(iX),Work(iB),1.d0)
+call dmxma(n,'C','N',Work(iX),Work(iOS),Work(iA),One)
+call dmxma(n,'C','N',Work(iX),Work(iES),Work(iB),One)
+call dmxma(n,'N','N',Work(iB),Work(iX),Work(iES),One)
+call dmxma(n,'N','N',Work(iOL),Work(iX),Work(iB),One)
 do i=0,n*n-1
   ! X-projected Fock matrix
   Work(iEL+i) = Work(iEL+i)+Work(iA+i)+Work(iB+i)+Work(iES+i)
 end do
-call dmxma(n,'C','N',Work(iX),Work(iX),Work(iA),1.d0)
+call dmxma(n,'C','N',Work(iX),Work(iX),Work(iA),One)
 do i=1,n
-  Work(iA+(i-1)*(n+1)) = Work(iA+(i-1)*(n+1))+1.d0
+  Work(iA+(i-1)*(n+1)) = Work(iA+(i-1)*(n+1))+One
 end do
 ! renormalization matrix
 call XDR_dmatsqrt(Work(iA),n)
 ! decoupled electron Fock matrix in moment space (eigenfunction of T matrix)
-call dmxma(n,'C','N',Work(iA),Work(iEL),Work(iB),1.d0)
-call dmxma(n,'N','N',Work(iB),Work(iA),v,1.d0)
+call dmxma(n,'C','N',Work(iA),Work(iEL),Work(iB),One)
+call dmxma(n,'N','N',Work(iB),Work(iA),v,One)
 
 ! Back transform to non-orthogonal basis picture
 
-call dmxma(n,'C','N',Work(iBk),v,Work(iB),1.d0)
-call dmxma(n,'N','N',Work(iB),Work(iBk),v,1.d0)
+call dmxma(n,'C','N',Work(iBk),v,Work(iB),One)
+call dmxma(n,'N','N',Work(iB),Work(iBk),v,One)
 
 ! Calculate transform matrices in non-orthogonal basis space
 
-call dmxma(n,'N','N',Work(iX),Work(iA),Work(iB),1.d0)
+call dmxma(n,'N','N',Work(iX),Work(iA),Work(iB),One)
 ! iA/iB is the upper/lower part of transformation matrix in fpFW picture
 call getmem('TmpM','ALLOC','REAL',iM,nn*4+4)
 call XDR_mkutls(n,Work(iA),Work(iB),Work(iTr),Work(iBk),Work(iKC),Work(iKC+n),Work(iKC+2*n),ul,us,Work(iM),Work(iM+nn), &

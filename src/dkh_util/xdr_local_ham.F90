@@ -13,21 +13,17 @@ subroutine XDR_Local_Ham(nbas,isize,jsize,imethod,paratyp,dkhorder,xorder,inS,in
                          clight)
 ! Local (Atom/Block) relativistic transformation of Hamiltonian
 
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
+
 implicit none
+integer(kind=iwp), intent(in) :: nbas, isize, jsize, imethod, paratyp, dkhorder, xorder, inDX(nbas), nbl, ibl(nbl), Lmap(nbas)
+real(kind=wp), intent(in) :: inS(isize), inV(isize), inpVp(isize), clight
+real(kind=wp), intent(inout) :: inK(isize)
+real(kind=wp), intent(out) :: inUL(jsize), inUS(jsize)
+logical(kind=iwp), intent(in) :: doFullLT
 #include "WrkSpc.fh"
-! Input variables
-integer nbas, isize, jsize, imethod, paratyp, dkhorder, xorder, nbl
-integer inDX(nbas), ibl(nbl), Lmap(nbas)
-real*8 clight
-real*8 inS(isize), inV(isize), inpVp(isize)
-logical doFullLT
-! Input/Output variables
-real*8 inK(isize)
-! Output variables
-real*8 inUL(jsize), inUS(jsize)
-! Local variables
-integer nn, i, j, k, iblock, mbl, ks, kL
-integer jS, jK, jV, jpVp, jSL, jKL, jVL, jpVpL, jULL, jUSL, jH, jtmp, jB
+integer(kind=iwp) :: nn, i, j, k, iblock, mbl, ks, kL, jS, jK, jV, jpVp, jSL, jKL, jVL, jpVpL, jULL, jUSL, jH, jtmp, jB
 
 ! Convert triangle matrices to square matrices
 
@@ -55,8 +51,8 @@ do i=1,nbas
   end do
 end do
 do i=1,jsize
-  inUL(i) = 0.d0
-  inUS(i) = 0.d0
+  inUL(i) = Zero
+  inUS(i) = Zero
 end do
 if (.not. DoFullLT) then
   do i=0,nbas*nbas-1
@@ -139,20 +135,20 @@ end do
 
 if (DoFullLT) then
   call getmem('Tempm ','ALLOC','REAL',jtmp,nn)
-  call dmxma(nbas,'C','N',inUS,Work(jK),Work(jS),2.d0*clight)
-  call dmxma(nbas,'N','N',Work(jS),inUS,Work(jH),-2.d0*clight)
-  call dmxma(nbas,'N','N',Work(jS),inUL,Work(jtmp),1.d0)
-  call daxpy_(nbas*nbas,1.d0,Work(jtmp),1,Work(jH),1)
-  call dmxma(nbas,'C','N',inUL,Work(jK),Work(jS),1.d0)
-  call dmxma(nbas,'N','N',Work(jS),inUS,Work(jtmp),2.d0*clight)
-  call daxpy_(nbas*nbas,1.d0,Work(jtmp),1,Work(jH),1)
+  call dmxma(nbas,'C','N',inUS,Work(jK),Work(jS),Two*clight)
+  call dmxma(nbas,'N','N',Work(jS),inUS,Work(jH),-Two*clight)
+  call dmxma(nbas,'N','N',Work(jS),inUL,Work(jtmp),One)
+  call daxpy_(nbas*nbas,One,Work(jtmp),1,Work(jH),1)
+  call dmxma(nbas,'C','N',inUL,Work(jK),Work(jS),One)
+  call dmxma(nbas,'N','N',Work(jS),inUS,Work(jtmp),Two*clight)
+  call daxpy_(nbas*nbas,One,Work(jtmp),1,Work(jH),1)
 
-  call dmxma(nbas,'C','N',inUL,Work(jV),Work(jS),1.d0)
-  call dmxma(nbas,'N','N',Work(jS),inUL,Work(jtmp),1.d0)
-  call daxpy_(nbas*nbas,1.d0,Work(jtmp),1,Work(jH),1)
-  call dmxma(nbas,'C','N',inUS,Work(jpVp),Work(jS),1.d0)
-  call dmxma(nbas,'N','N',Work(jS),inUS,Work(jtmp),1.d0)
-  call daxpy_(nbas*nbas,1.d0,Work(jtmp),1,Work(jH),1)
+  call dmxma(nbas,'C','N',inUL,Work(jV),Work(jS),One)
+  call dmxma(nbas,'N','N',Work(jS),inUL,Work(jtmp),One)
+  call daxpy_(nbas*nbas,One,Work(jtmp),1,Work(jH),1)
+  call dmxma(nbas,'C','N',inUS,Work(jpVp),Work(jS),One)
+  call dmxma(nbas,'N','N',Work(jS),inUS,Work(jtmp),One)
+  call daxpy_(nbas*nbas,One,Work(jtmp),1,Work(jH),1)
   call getmem('Tempm ','FREE','REAL',jtmp,nn)
   ks = 0
   do iblock=1,nbl

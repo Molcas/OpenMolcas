@@ -12,20 +12,21 @@
 subroutine XDR_fpFWprop(n,Tr,X,pXp,A,B,R,EL,ES,OL,OS,tmp)
 !  Transform property operator (X,pXp) to fpFW picture
 
-implicit none
-! Input
-integer n
-real*8 Tr(n,n), X(n,n), pXp(n,n), A(n), B(n), R(n)
-! Output
-real*8 EL(n,n), ES(n,n), OL(n,n), OS(n,n)
-! Temp
-integer i, j
-real*8 tmp(n,n), av, aw
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-call dmxma(n,'C','N',Tr,X,tmp,1.d0)
-call dmxma(n,'N','N',tmp,Tr,X,1.d0)
-call dmxma(n,'C','N',Tr,pXp,tmp,1.d0)
-call dmxma(n,'N','N',tmp,Tr,pXp,1.d0)
+implicit none
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: Tr(n,n), A(n), B(n), R(n)
+real(kind=wp), intent(inout) :: X(n,n), pXp(n,n)
+real(kind=wp), intent(out) :: EL(n,n), ES(n,n), OL(n,n), OS(n,n), tmp(n,n)
+integer(kind=iwp) :: i, j
+real(kind=wp) :: av, aw
+
+call dmxma(n,'C','N',Tr,X,tmp,One)
+call dmxma(n,'N','N',tmp,Tr,X,One)
+call dmxma(n,'C','N',Tr,pXp,tmp,One)
+call dmxma(n,'N','N',tmp,Tr,pXp,One)
 
 do i=1,n
   do j=1,n

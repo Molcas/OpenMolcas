@@ -12,15 +12,23 @@
 subroutine dkh_cofu_spec(n,a,m,c)
 ! Special combination coefficients
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
+
 implicit none
-integer n, m, i
-real*8 a(n), c(m), b(200)
+integer(kind=iwp), intent(in) :: n, m
+real(kind=wp), intent(in) :: a(n)
+real(kind=wp), intent(out) :: c(m)
+integer(kind=iwp) :: i
+real(kind=wp), allocatable :: b(:)
 
 c(1) = a(m-1)
 do i=2,m-1
   c(i) = a(i-1)*a(m-i)*(-1)**(i-1)
 end do
 c(m) = a(m-1)*(-1)**(m-1)
+
+call mma_allocate(b,m+1,label='b')
 
 b(1) = a(m)
 do i=2,m
@@ -32,9 +40,11 @@ do i=1,m
   c(i) = c(i)-b(i)
   b(i+1) = b(i+1)+b(i)
 end do
-if (abs(b(m+1)) > 1.d-12) then
-  write(6,*) 'Error in dkh_dkcof_sp',b(m+1)
+if (abs(b(m+1)) > 1.0e-12_wp) then
+  write(u6,*) 'Error in dkh_dkcof_sp ',b(m+1)
   call Abend()
 end if
+
+call mma_deallocate(b)
 
 end subroutine dkh_cofu_spec

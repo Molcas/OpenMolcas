@@ -18,12 +18,18 @@ subroutine AODKHEXP(NBasis,M,MX,M0,Ep,E0,EL,ES,OL,W,TA,TB,A1,A2,O2,E2,F2,WS)
 ! W,TA,TB,A1,A2 - NBasis*NBasis
 ! O2,E2,F2 - Nbasis*Nbasis*M (M=order of DKH)
 
-implicit real*8(A-H,O-Z)
-dimension Ep(*), E0(*), EL(NBasis,*), ES(NBasis,*), OL(NBasis,*), W(NBasis,*), A1(NBasis,*), A2(NBasis,*), TA(NBasis,*), &
-          TB(NBasis,*), O2(NBasis,NBasis,*), E2(NBasis,NBasis,*), F2(NBasis,NBasis,*), WS(Nbasis,NBasis,*)
-logical Ifodd
-save Zero, One, Half
-data Zero/0.d0/,One/1.d0/,Half/0.5d0/
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: NBasis, M, MX, M0
+real(kind=wp), intent(in) :: Ep(NBasis), E0(NBasis), ES(NBasis,NBasis), OL(NBasis,NBasis)
+real(kind=wp), intent(inout) :: EL(NBasis,NBasis), TA(NBasis,NBasis), TB(NBasis,NBasis), A1(NBasis,NBasis), A2(NBasis,NBasis), &
+                                O2(NBasis,NBasis,M), E2(NBasis,NBasis,M), F2(NBasis,NBasis,M), WS(NBasis,NBasis,M)
+real(kind=wp), intent(out) :: W(NBasis,NBasis)
+integer(kind=iwp) :: I, Ioe, Iut, J, K, KK, Ks
+real(kind=wp) :: Cof
+logical(kind=iwp) :: Ifodd
 
 ! Copy 1st order DKH effective potential
 ! E2(upper-left) O2(upper-right) F2(lower-right)
@@ -73,7 +79,7 @@ do Iut=1,M/2
           if (KK == 1) then
             Cof = Half
           else
-            Cof = dble(KK)/(KK*KK-One)
+            Cof = real(KK,kind=wp)/(KK*KK-One)
           end if
         else
           ! see Eq.(71) of JCP130(2009)044102
