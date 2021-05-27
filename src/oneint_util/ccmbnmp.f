@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       SubRoutine CCmbnMP(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,Final,nComp,
-     &                   kVector)
+     &                   kVector,P)
 ************************************************************************
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
@@ -19,14 +19,16 @@
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-      Complex*16 Rnxyz(nZeta,3,0:la,0:lb,0:lr), Temp
+      Complex*16 Rnxyz(nZeta,3,0:la,0:lb,0:lr), Temp, i
       Real*8  Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
-     &        Zeta(nZeta), rKappa(nZeta), kVector(3)
+     &        Zeta(nZeta), rKappa(nZeta), kVector(3), P(nZeta,3),
+     &        k_Dot_P, Fact
 *
 *     Statement function for Cartesian index
 *
       Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
 *
+      i = (0.0D0,1.0D0)
       Do 10 ixa = 0, la
          iyaMax=la-ixa
       Do 11 ixb = 0, lb
@@ -49,7 +51,10 @@
                      rTemp=rTemp/(Four*Zeta(iZeta))
                      Fact = rKappa(iZeta) * (1.0D0/Sqrt(Zeta(iZeta)**3))
      &                    * Exp(-rTemp)
-                     Temp = Fact *
+                     k_Dot_P = kVector(1)*P(iZeta,1)
+     &                       + kVector(2)*P(iZeta,2)
+     &                       + kVector(3)*P(iZeta,3)
+                     Temp = Exp(i * k_Dot_P) * Fact *
      &                       Rnxyz(iZeta,1,ixa,ixb,ix)*
      &                       Rnxyz(iZeta,2,iya,iyb,iy)*
      &                       Rnxyz(iZeta,3,iza,izb,iz)

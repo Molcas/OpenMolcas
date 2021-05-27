@@ -172,13 +172,13 @@ c Avoid unused argument warnings
          Call C_F_Pointer(C_Loc(Array(ipVxyz)),zVxyz,
      &                     [nZeta*3*(la+1)*(lb+1)*2])
          Call CCmbnVe(zQxyz,nZeta,la,lb,Zeta,rKappa,
-     &                Array(ipRes),nComp,zVxyz,CCoor)
+     &                Array(ipRes),nComp,zVxyz,CCoor,P)
          Nullify(zQxyz,zVxyz)
       Else
          Call C_F_Pointer(C_Loc(Array(ipQxyz)),zQxyz,
      &                     [nZeta*3*(la+1)*(lb+1)*(nOrdOp+1)])
          Call CCmbnMP(zQxyz,nZeta,la,lb,nOrdOp,Zeta,
-     &                rKappa,Array(ipRes),nComp,CCoor)
+     &                rKappa,Array(ipRes),nComp,CCoor,P)
          Nullify(zQxyz)
       End If
 *
