@@ -79,10 +79,10 @@ kC = 0
 
 do iCnttp=1,nCnttp
 
-  ! The none valence type shells comes at the end. When this block
-  ! is encountered stop the procedure.
+  ! The none valence type shells comes at the end.
+  ! When this block is encountered stop the procedure.
 
-  if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag .or. dbsc(iCnttp)%nFragType > 0) Go To 999
+  if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag .or. dbsc(iCnttp)%nFragType > 0) exit
 
   do icnt=1,dbsc(iCnttp)%nCntr
     kC = kC+1
@@ -123,7 +123,6 @@ do iCnttp=1,nCnttp
     end do
   end do
 end do
-999 continue
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -163,7 +162,7 @@ iOpt = 0
 iRC = -1
 Lu_One = 2
 call OpnOne(iRC,iOpt,'ONEREL',Lu_One)
-if (iRC /= 0) Go To 9999
+if (iRC /= 0) call Error()
 
 call OneBas('PRIM')
 !                                                                      *
@@ -332,7 +331,7 @@ if (IRELAE >= 100) then
   do L=0,nSym-1
     n = nBas(L)
     iSize = n*(n+1)/2
-    if (iSize == 0) Go To 911
+    if (iSize == 0) cycle
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -354,7 +353,6 @@ if (IRELAE >= 100) then
     !                                                                  *
     ks = ks+n*n
     kz = kz+n
-911 continue
     k = k+isize
   end do
   !                                                                    *
@@ -364,216 +362,215 @@ if (IRELAE >= 100) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  if (xOrder <= 0) Go To 912
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  ! Pick up the number of property integrals to process.
-
-# ifndef MOLPRO
-  numb_props = nProp_Int(.false.,iWork(ip_iDummy),0)
-  call Allocate_iWork(ipInd,4*numb_props)
-  numb_props = nProp_Int(.true.,iWork(ipInd),numb_props)
-  do iProps=1,numb_props
-    ipOp = ipInd+(iProps-1)*4
-    ip_MEF = ipInd+(iProps-1)*4+1
-    ipiComp = ipInd+(iProps-1)*4+2
-    ipjCent = ipInd+(iProps-1)*4+3
-
-    call dcopy_(iSizep+4,Work(iK_Save),1,Work(iK),1)
+  if (xOrder > 0) then
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    ! Read the property integrals
-    !
-    ! Open ONEREL
+    ! Pick up the number of property integrals to process.
 
-    iOpt = 0
-    iRC = -1
-    Lu_One = 2
-    call OpnOne(iRC,iOpt,'ONEREL',Lu_One)
-    if (iRC /= 0) Go To 9999
+#   ifndef MOLPRO
+    numb_props = nProp_Int(.false.,iWork(ip_iDummy),0)
+    call Allocate_iWork(ipInd,4*numb_props)
+    numb_props = nProp_Int(.true.,iWork(ipInd),numb_props)
+    do iProps=1,numb_props
+      ipOp = ipInd+(iProps-1)*4
+      ip_MEF = ipInd+(iProps-1)*4+1
+      ipiComp = ipInd+(iProps-1)*4+2
+      ipjCent = ipInd+(iProps-1)*4+3
 
-    call OneBas('PRIM')
-
-    iMEF = iWork(ip_MEF)
-    if (iWork(ipOp) == 1) then
-      write(Label,'(a,i2)') 'MLTPL ',iMEF
-    else if (iWork(ipOp) == 2) then
-      jCent = iWork(ipjCent)
-      write(Label,'(a,i1,i5)') 'EF',iMEF,jCent
-    else if (iWork(ipOp) == 3) then
-      jCent = iWork(ipjCent)
-      write(Label,'(a,i5)') 'Cnt',jCent
-    else if (iWork(ipOp) == 4) then
-      jCent = iWork(ipjCent)
-      write(Label,'(A,I3)') 'MAGXP',jCent
-    else
-      write(u6,*) 'DKRelInt: illegal property!'
-      call Abend()
-    end if
-    iComp = iWork(ipiComp)
-    !write(u6,*)
-    !write(u6,*) 'Label=',Label
-    !write(u6,*) 'iComp=',iComp
-    !write(u6,*)
-
-    iOpt = 1
-    iRC = -1
-    lOper = -1
-    call iRdOne(iRC,iOpt,Label,iComp,idum,lOper)
-    if (iRC == 0) n_Int = idum(1)
-    !write(u6,*) 'lOper=',lOper
-    call GetMem('X       ','ALLO','REAL',iX,n_Int+4)
-    iRC = -1
-    iOpt = 0
-    call RdOne(iRC,iOpt,Label,iComp,Work(iX),lOper)
-    if (iRC /= 0) then
-      write(u6,*) 'DKRelInt: Error reading from ONEREL'
-      write(u6,'(A,A)') 'Label=',Label
-      write(u6,'(A,A)') 'iRC=',iRC
-      call Abend()
-    end if
-    call CmpInt(Work(iX),n_Int,nBas_Prim,nSym,lOper)
-    if (n_Int == 0) then
-      iOpt = 0
-      call ClsOne(iRC,iOpt)
-      Go To 666
-    end if
-
-    if (iWork(ipOp) == 1) then
-      write(pXpLbl,'(A,I2)') 'pMp   ',iMEF
-    else if (iWork(ipOp) == 2) then
-      write(pXpLbl,'(A,I1,I5)') 'PP',iMEF,jCent
-    else if (iWork(ipOp) == 3) then
-      write(pXpLbl,'(A,I2)') 'pCp   ',jCent
-    else if (iWork(ipOp) == 4) then
-      write(pXpLbl,'(A,I3)') 'MAGPX',jCent
-    end if
-    iOpt = 1
-    iRC = -1
-    call iRdOne(iRC,iOpt,pXpLbl,iComp,idum,lOper)
-    if (iRC == 0) n_Int = idum(1)
-    call GetMem('pXp     ','ALLO','REAL',ipXp,n_Int+4)
-    iOpt = 0
-    iRC = -1
-    call RdOne(iRC,iOpt,pXpLbl,iComp,Work(ipXp),lOper)
-    if (iRC /= 0) then
-      write(u6,*) 'DKRelInt: Error reading from ONEREL'
-      write(u6,'(A,A)') 'pXpLbl=',pXpLbl
-      write(u6,'(A,A)') 'iRC=',iRC
-      call Abend()
-    end if
-    call CmpInt(Work(ipXp),n_Int,nBas_Prim,nSym,lOper)
-
-    iOpt = 0
-    call ClsOne(iRC,iOpt)
-
-    call GetMem('Core','Max','Real',iDum(1),Mem_Available)
-    !write(u6,*) 'Mem_Available=',Mem_Available
-    k = 0
-    ks = 0
-    kz = 0
-    do L=0,nSym-1
-      n = nBas(L)
-      iSize = n*(n+1)/2
-      if (iSize == 0) Go To 91
-
-      ! Skip if the propetry operator does not have a total
-      ! symmetric component!
-
-      if (iand(1,lOper) == 0) Go To 91
+      call dcopy_(iSizep+4,Work(iK_Save),1,Work(iK),1)
       !                                                                *
       !*****************************************************************
       !                                                                *
-      call XDR_Prop(n,isize,n*n,relmethod,dkhparam,dkhorder,xorder,Work(iSS+k),Work(iK+k),Work(iV+k),Work(ipVp+k),Work(iX+k), &
-                    Work(ipXp+k),Work(iU_L+ks),Work(iU_S+ks),clightau,Label,iComp,iSizec)
-      ks = ks+n*n
-      kz = kz+n
-91    continue
-      k = k+isize
-    end do
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-    ! Put the picture change corrected integral back to the
-    ! ONEINT file. Primitives in Work(iX).
-    !
-    ! First contract the result, store in Work(ip_Prop)
+      ! Read the property integrals
+      !
+      ! Open ONEREL
 
-    call Allocate_Work(ip_Prop,iSizec+4)
-    call repmat(idbg,Work(iX),Work(ip_Prop),.true.)
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-    ! Read the contracted property integrals from OneInt
-
-    iOpt = 0
-    iRC = -1
-    Lu_One = 2
-    call OpnOne(iRC,iOpt,'ONEINT',Lu_One)
-    if (iRC /= 0) Go To 9999
-
-    if (iWork(ipOp) == 4) then
-      call Allocate_Work(ip_Pmag,iSizec+4)
-      call repmat(idbg,Work(iX),Work(ip_Pmag),.false.)
-      lOper_save = lOper
-      lOper = 255
-      call WrOne(iRC,iOpt,Label,iComp,Work(ip_Pmag),lOper)
-      call WrOne(iRC,iOpt,pXpLbl,iComp,Work(ip_Pmag),lOper)
       iOpt = 0
-      call ClsOne(iRC,iOpt)
-      call Free_Work(ip_Prop)
-      call Free_Work(ip_Pmag)
-      call GetMem('pXp     ','FREE','REAL',ipXp,iSizep+4)
+      iRC = -1
+      Lu_One = 2
+      call OpnOne(iRC,iOpt,'ONEREL',Lu_One)
+      if (iRC /= 0) call Error()
+
+      call OneBas('PRIM')
+
+      iMEF = iWork(ip_MEF)
+      if (iWork(ipOp) == 1) then
+        write(Label,'(a,i2)') 'MLTPL ',iMEF
+      else if (iWork(ipOp) == 2) then
+        jCent = iWork(ipjCent)
+        write(Label,'(a,i1,i5)') 'EF',iMEF,jCent
+      else if (iWork(ipOp) == 3) then
+        jCent = iWork(ipjCent)
+        write(Label,'(a,i5)') 'Cnt',jCent
+      else if (iWork(ipOp) == 4) then
+        jCent = iWork(ipjCent)
+        write(Label,'(A,I3)') 'MAGXP',jCent
+      else
+        write(u6,*) 'DKRelInt: illegal property!'
+        call Abend()
+      end if
+      iComp = iWork(ipiComp)
+      !write(u6,*)
+      !write(u6,*) 'Label=',Label
+      !write(u6,*) 'iComp=',iComp
+      !write(u6,*)
+
+      iOpt = 1
+      iRC = -1
+      lOper = -1
+      call iRdOne(iRC,iOpt,Label,iComp,idum,lOper)
+      if (iRC == 0) n_Int = idum(1)
+      !write(u6,*) 'lOper=',lOper
+      call GetMem('X       ','ALLO','REAL',iX,n_Int+4)
+      iRC = -1
+      iOpt = 0
+      call RdOne(iRC,iOpt,Label,iComp,Work(iX),lOper)
+      if (iRC /= 0) then
+        write(u6,*) 'DKRelInt: Error reading from ONEREL'
+        write(u6,'(A,A)') 'Label=',Label
+        write(u6,'(A,A)') 'iRC=',iRC
+        call Abend()
+      end if
+      call CmpInt(Work(iX),n_Int,nBas_Prim,nSym,lOper)
+      if (n_Int == 0) then
+        iOpt = 0
+        call ClsOne(iRC,iOpt)
+      else
+
+        if (iWork(ipOp) == 1) then
+          write(pXpLbl,'(A,I2)') 'pMp   ',iMEF
+        else if (iWork(ipOp) == 2) then
+          write(pXpLbl,'(A,I1,I5)') 'PP',iMEF,jCent
+        else if (iWork(ipOp) == 3) then
+          write(pXpLbl,'(A,I2)') 'pCp   ',jCent
+        else if (iWork(ipOp) == 4) then
+          write(pXpLbl,'(A,I3)') 'MAGPX',jCent
+        end if
+        iOpt = 1
+        iRC = -1
+        call iRdOne(iRC,iOpt,pXpLbl,iComp,idum,lOper)
+        if (iRC == 0) n_Int = idum(1)
+        call GetMem('pXp     ','ALLO','REAL',ipXp,n_Int+4)
+        iOpt = 0
+        iRC = -1
+        call RdOne(iRC,iOpt,pXpLbl,iComp,Work(ipXp),lOper)
+        if (iRC /= 0) then
+          write(u6,*) 'DKRelInt: Error reading from ONEREL'
+          write(u6,'(A,A)') 'pXpLbl=',pXpLbl
+          write(u6,'(A,A)') 'iRC=',iRC
+          call Abend()
+        end if
+        call CmpInt(Work(ipXp),n_Int,nBas_Prim,nSym,lOper)
+
+        iOpt = 0
+        call ClsOne(iRC,iOpt)
+
+        call GetMem('Core','Max','Real',iDum(1),Mem_Available)
+        !write(u6,*) 'Mem_Available=',Mem_Available
+        k = 0
+        ks = 0
+        kz = 0
+        do L=0,nSym-1
+          n = nBas(L)
+          iSize = n*(n+1)/2
+          if (iSize == 0) cycle
+
+          ! Skip if the propetry operator does not have a total
+          ! symmetric component!
+
+          if (iand(1,lOper) /= 0) then
+            !                                                          *
+            !***********************************************************
+            !                                                          *
+            call XDR_Prop(n,isize,n*n,relmethod,dkhparam,dkhorder,xorder,Work(iSS+k),Work(iK+k),Work(iV+k),Work(ipVp+k), &
+                          Work(iX+k),Work(ipXp+k),Work(iU_L+ks),Work(iU_S+ks),clightau,Label,iComp,iSizec)
+            ks = ks+n*n
+            kz = kz+n
+          end if
+          k = k+isize
+        end do
+        !                                                              *
+        !***************************************************************
+        !                                                              *
+        ! Put the picture change corrected integral back to the
+        ! ONEINT file. Primitives in Work(iX).
+        !
+        ! First contract the result, store in Work(ip_Prop)
+
+        call Allocate_Work(ip_Prop,iSizec+4)
+        call repmat(idbg,Work(iX),Work(ip_Prop),.true.)
+        !                                                              *
+        !***************************************************************
+        !                                                              *
+        ! Read the contracted property integrals from OneInt
+
+        iOpt = 0
+        iRC = -1
+        Lu_One = 2
+        call OpnOne(iRC,iOpt,'ONEINT',Lu_One)
+        if (iRC /= 0) call Error()
+
+        if (iWork(ipOp) == 4) then
+          call Allocate_Work(ip_Pmag,iSizec+4)
+          call repmat(idbg,Work(iX),Work(ip_Pmag),.false.)
+          lOper_save = lOper
+          lOper = 255
+          call WrOne(iRC,iOpt,Label,iComp,Work(ip_Pmag),lOper)
+          call WrOne(iRC,iOpt,pXpLbl,iComp,Work(ip_Pmag),lOper)
+          iOpt = 0
+          call ClsOne(iRC,iOpt)
+          call Free_Work(ip_Prop)
+          call Free_Work(ip_Pmag)
+          call GetMem('pXp     ','FREE','REAL',ipXp,iSizep+4)
+          call GetMem('X       ','FREE','REAL',iX,iSizep+4)
+          lOper = lOper_save
+          cycle
+        end if
+
+        iOpt = 1
+        iRC = -1
+        lOper = -1
+        call iRdOne(iRC,iOpt,Label,iComp,idum,lOper)
+        if (iRC == 0) n_Int = idum(1)
+        call GetMem('Y       ','ALLO','REAL',iY,n_Int+4)
+        iRC = -1
+        iOpt = 0
+        call RdOne(iRC,iOpt,Label,iComp,Work(iY),lOper)
+        !write(u6,*) 'Y1=',DDot_(n_Int,Work(iY),1,One,0)
+        if (iRC /= 0) then
+          write(u6,*) 'DKRelInt: Error reading from ONEINT'
+          write(u6,'(A,A)') 'Label=',Label
+          call Abend()
+        end if
+
+        ! Put the picture change corrected blocks in. Note that this
+        ! is just the diagonal symmetry blocks.
+
+        call Cp_Prop_Int(Work(iY),n_Int,Work(ip_Prop),iSizec,nrBas,nIrrep,lOper)
+
+        ! Now write it back to disc
+
+        iOpt = 0
+        call WrOne(iRC,iOpt,Label,iComp,Work(iY),lOper)
+
+        iOpt = 0
+        call ClsOne(iRC,iOpt)
+
+        call Free_Work(iY)
+        call Free_Work(ip_Prop)
+
+        call GetMem('pXp     ','FREE','REAL',ipXp,iSizep+4)
+      end if
       call GetMem('X       ','FREE','REAL',iX,iSizep+4)
-      lOper = lOper_save
-      cycle
-    end if
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
+    end do ! iProps
 
-    iOpt = 1
-    iRC = -1
-    lOper = -1
-    call iRdOne(iRC,iOpt,Label,iComp,idum,lOper)
-    if (iRC == 0) n_Int = idum(1)
-    call GetMem('Y       ','ALLO','REAL',iY,n_Int+4)
-    iRC = -1
-    iOpt = 0
-    call RdOne(iRC,iOpt,Label,iComp,Work(iY),lOper)
-    !write(u6,*) 'Y1=',DDot_(n_Int,Work(iY),1,One,0)
-    if (iRC /= 0) then
-      write(u6,*) 'DKRelInt: Error reading from ONEINT'
-      write(u6,'(A,A)') 'Label=',Label
-      call Abend()
-    end if
-
-    ! Put the picture change corrected blocks in. Note that this
-    ! is just the diagonal symmetry blocks.
-
-    call Cp_Prop_Int(Work(iY),n_Int,Work(ip_Prop),iSizec,nrBas,nIrrep,lOper)
-
-    ! Now write it back to disc
-
-    iOpt = 0
-    call WrOne(iRC,iOpt,Label,iComp,Work(iY),lOper)
-
-    iOpt = 0
-    call ClsOne(iRC,iOpt)
-
-    call Free_Work(iY)
-    call Free_Work(ip_Prop)
-
-    call GetMem('pXp     ','FREE','REAL',ipXp,iSizep+4)
-666 continue
-    call GetMem('X       ','FREE','REAL',iX,iSizep+4)
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-  end do ! iProps
-
-  call Free_iWork(ipInd)
-# endif
-912 continue
+    call Free_iWork(ipInd)
+#   endif
+  end if
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -605,7 +602,7 @@ else
   do L=0,nSym-1
     n = nBas(L)
     iSize = n*(n+1)/2
-    if (iSize == 0) goto 9
+    if (iSize == 0) cycle
     ! Allocate
 
     call GetMem('P       ','ALLO','REAL',iP,isize+4)
@@ -655,7 +652,6 @@ else
     call GetMem('Re1r    ','FREE','REAL',iRe1r,n*n+4)
     call GetMem('Auxi    ','FREE','REAL',iAuxi,n*n+4)
     call GetMem('Twrk4   ','FREE','REAL',iTwrk4,n*200+4)
-9   continue
     k = k+isize
   end do
 
@@ -705,7 +701,7 @@ iOpt = 0
 iRC = -1
 Lu_One = 2
 call OpnOne(iRC,iOpt,'ONEREL',Lu_One)
-if (iRC /= 0) Go To 9999
+if (iRC /= 0) call Error()
 
 call OneBas('PRIM')
 
@@ -743,12 +739,12 @@ call GetMem('SS      ','FREE','REAL',iSS,iSizep+4)
 iOpt = 0
 iRC = -1
 call ClsOne(iRC,iOpt)
-if (iRC /= 0) Go To 9999
+if (iRC /= 0) call Error()
 iOpt = 0
 iRC = -1
 Lu_One = 2
 call OpnOne(iRC,iOpt,'ONEINT',Lu_One)
-if (iRC /= 0) Go To 9999
+if (iRC /= 0) call Error()
 
 if (iPrint >= 20) then
   call iSwap(8,nBas,1,nBas_Cont,1)
@@ -836,9 +832,12 @@ call GetMem('pVp     ','FREE','REAL',ipVp,iSizep+4)
 
 return
 
-9999 continue
-write(u6,*) ' *** Error in subroutine DKRelInt ***'
-write(u6,*) '     Abend in subroutine OpnOne'
-call Abend()
+contains
+
+subroutine Error()
+  write(u6,*) ' *** Error in subroutine DKRelInt ***'
+  write(u6,*) '     Abend in subroutine OpnOne'
+  call Abend()
+end subroutine Error
 
 end subroutine DKRelint_DP

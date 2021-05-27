@@ -54,10 +54,10 @@ do Iut=1,M/2
   ! Apply W_{Iut} to O/E_{Ks}
   do Ks=M-Iut,1,-1
     ! W_{1} only apply to O/E_{1}
-    if (Iut == 1 .and. Ks >= 2) goto 40
+    if (Iut == 1 .and. Ks >= 2) cycle
     do Ioe=1,2
       ! O_{k,k<Iut} was eliminated
-      if (Ioe == 1 .and. Ks < Iut) goto 50
+      if (Ioe == 1 .and. Ks < Iut) cycle
       Ifodd = Ioe == 1
       do I=1,NBasis
         do J=1,NBasis
@@ -72,7 +72,7 @@ do Iut=1,M/2
       end do
       do K=Ks,M,Iut
         ! skip terms do not contribute to final DKH Hamiltonian (even,upper-left)
-        if (K+Iut+Iut > M .and. (K+Iut > M .or. .not. Ifodd)) goto 60
+        if (K+Iut+Iut > M .and. (K+Iut > M .or. .not. Ifodd)) cycle
         KK = (K-Ks)/Iut+1
         if (Ioe == 1 .and. Ks == Iut) then
           ! see Eq.(74) of JCP130(2009)044102
@@ -118,11 +118,8 @@ do Iut=1,M/2
           end do
         end if
         Ifodd = .not. Ifodd
-60      continue
       end do
-50    continue
     end do
-40  continue
   end do
 end do
 

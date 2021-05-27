@@ -19,7 +19,7 @@ subroutine copy_mag_ints(natoms)
 !
 !**************************************************************
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: natoms
@@ -33,7 +33,7 @@ lu_one = 2
 iopt = 0
 irc = -1
 call OpnOne(irc,iopt,'ONEREL',lu_one)
-if (irc /= 0) goto 9999
+if (irc /= 0) call Error()
 
 ! Primitive integrals stored on ONEREL
 Label = 'MAGXP  1'
@@ -42,7 +42,7 @@ iComp = 1
 tOper = 255
 ! Integral dimensions
 call iRdOne(irc,iOpt,Label,iComp,idum,tOper)
-if (irc /= 0) goto 9999
+if (irc /= 0) call Error()
 nmag = idum(1)
 ! Some scratch space
 call GetMem('scratch ','ALLO','REAL',iscrt,nmag+4)
@@ -58,17 +58,17 @@ do iat=1,nAtoms
     do iComp=1,nComp
       ! Read the primitives from ONEREL
       call RdOne(iRC,iOpt,Label,iComp,Work(iscrt),tOper)
-      if (iRC /= 0) goto 9999
+      if (iRC /= 0) call Error()
       ! Close ONEREL
       call ClsOne(iRC,iOpt)
       ! Open ONEINT
       call OpnOne(iRC,iOpt,'ONEINT',Lu_One)
-      if (iRC /= 0) goto 9999
+      if (iRC /= 0) call Error()
       ! Write the primitives to ONEINT ?
       call WrOne(iRC,iOpt,Label,iComp,Work(iscrt),tOper)
       call ClsOne(iRC,iOpt)
       call OpnOne(iRC,iOpt,'ONEREL',Lu_One)
-      if (iRC /= 0) goto 9999
+      if (iRC /= 0) call Error()
     end do
   end do
 end do
@@ -77,9 +77,13 @@ call ClsOne(iRC,iOpt)
 
 return
 
-9999 continue
-write(u6,*) ' *** Error in subroutine Copy_Mag_ints ***'
-write(u6,'(A,A)') '     Label = ',Label
-call Abend()
+contains
+
+subroutine Error()
+  use Definitions, only: u6
+  write(u6,*) ' *** Error in subroutine Copy_Mag_ints ***'
+  write(u6,'(A,A)') '     Label = ',Label
+  call Abend()
+end subroutine Error
 
 end subroutine copy_mag_ints

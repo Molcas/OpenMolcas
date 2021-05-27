@@ -21,7 +21,7 @@ subroutine XDR_Prop(nbas,isize,jsize,imethod,paratyp,dkhorder,xorder,inS,inK,inV
 ! component relativistic calculations
 
 use Constants, only: One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nbas, isize, jsize, imethod, paratyp, dkhorder, xorder, iComp
@@ -88,7 +88,7 @@ if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
     iRC = -1
     Lu_One = 2
     call OpnOne(iRC,iOpt,'ONEREL',Lu_One)
-    if (iRC /= 0) Go To 9999
+    if (iRC /= 0) call Error()
     ! switch basis to primitive functions
     call OneBas('PRIM')
     ! do MAG a
@@ -98,17 +98,17 @@ if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
     lOper = -1
     call iRdOne(iRC,iOpt,magLabel,iComp,idum,lOper)
     n_Int = IDUM(1)
-    if (iRC /= 0) Go To 9999
+    if (iRC /= 0) call Error()
     call getmem('MAGaXP','ALLOC','REAL',imagaXP,n_Int+4)
     iOpt = 0
     iRC = -1
     call RdOne(iRC,iOpt,magLabel,iComp,Work(imagaXP),lOper)
-    if (iRC /= 0) Go To 9999
+    if (iRC /= 0) call Error()
     !call CmpInt(Work(imagaXP),n_Int,nbas,nSym,lOper)
     call getmem('MAGaPX','ALLOC','REAL',imagaPX,n_Int+4)
     magLabel(1:5) = 'MAGPX'
     call RdOne(iRC,iOpt,magLabel,iComp,Work(imagaPX),lOper)
-    !if (iRC /= 0) Go To 9999
+    !if (iRC /= 0) call Error()
     call getmem('MAGaPXs','ALLOC','REAL',imagaPXs,nn)
     call getmem('MAGaXPs','ALLOC','REAL',imagaXPs,nn)
     call square(Work(imagaPX),Work(imagaPXs),nbas,1,nbas)
@@ -151,7 +151,7 @@ if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
     lOper = -1
     call iRdOne(iRC,iOpt,magLabel,jComp,idum,lOper)
     n_Int = IDUM(1)
-    if (iRC /= 0) Go To 9999
+    if (iRC /= 0) call Error()
     call getmem('MAGbXP','ALLOC','REAL',imagbXP,n_Int+4)
     iOpt = 0
     iRC = -1
@@ -211,11 +211,11 @@ if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
     iRC = -1
     Lu_one = 2
     call OpnOne(iRC,iOpt,'ONEINT',Lu_one)
-    if (iRC /= 0) Go to 9999
+    if (iRC /= 0) call Error()
     iRC = -1
     lOper = 255
     call WrOne(iRC,iOpt,PSOLabel,iPSOComp,Work(ip_Ppso),lOper)
-    if (iRC /= 0) Go to 9999
+    if (iRC /= 0) call Error()
     iOpt = 0
     call ClsOne(iRC,iOpt)
     call Free_Work(ip_Ppso)
@@ -295,9 +295,14 @@ call getmem('sX   ','FREE','REAL',jX,nn)
 call getmem('spXp ','FREE','REAL',jpXp,nn)
 
 return
-9999 continue
-write(u6,*) ' *** Error in subroutine XDR_Prop ***'
-write(u6,*) '     Abend in subroutine OpnOne'
-call Abend()
+
+contains
+
+subroutine Error()
+  use Definitions, only: u6
+  write(u6,*) ' *** Error in subroutine XDR_Prop ***'
+  write(u6,*) '     Abend in subroutine OpnOne'
+  call Abend()
+end subroutine Error
 
 end subroutine XDR_Prop
