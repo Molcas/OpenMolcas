@@ -12,32 +12,32 @@
 subroutine dkh_ts1e(n,s,t,v,w,ul,us,clight,dkord,xord,dkparam)
 ! Evaluate the arbitrary order DKH Hamiltonian ( and transform matrices ul & us )
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-#include "WrkSpc.fh"
 ! v : store the transformed relativistic one-electron Hamiltonian
 integer(kind=iwp), intent(in) :: n, dkord, xord, dkparam
 real(kind=wp), intent(in) :: s(n,n), t(n,n), w(n,n), clight
 real(kind=wp), intent(inout) :: v(n,n)
 real(kind=wp), intent(out) :: ul(n,n), us(n,n)
-integer(kind=iwp) :: i, nn, word, vord, nz, m, n2, iTr, iBk, iEL, iES, iOL, iOS, iEp, iE0, iKC, iCo, iSco, iM, iZ, iW, iXL, iXS
+integer(kind=iwp) :: word, vord, n2
+real(kind=wp), allocatable :: Tr(:,:), Bk(:,:), El(:,:), ES(:,:), OL(:,:), OS(:,:), Ep(:), E0(:), KC(:,:), Ws(:,:,:), Co(:), &
+                              MW(:,:,:), ZW(:,:,:,:), SCo(:), XL(:,:), XS(:,:)
 
 ! Transform Hamiltonian matrix to the free-particle Foldy-Wouthuysen picture
 
-nn = n*n+4
-call getmem('Tr  ','ALLOC','REAL',iTr,nn)
-call getmem('Back','ALLOC','REAL',iBk,nn)
-call getmem('mEL ','ALLOC','REAL',iEL,nn)
-call getmem('mES ','ALLOC','REAL',iES,nn)
-call getmem('mOL ','ALLOC','REAL',iOL,nn)
-call getmem('mOS ','ALLOC','REAL',iOS,nn)
-call getmem('Ep  ','ALLOC','REAL',iEp,n+4)
-call getmem('E0  ','ALLOC','REAL',iE0,n+4)
-call getmem('KC  ','ALLOC','REAL',iKC,n*3+4)
-call XDR_fpFW(n,s,t,v,w,Work(iTr),Work(iBk),Work(iEL),Work(iES),Work(iOL),Work(iOS),Work(iEp),work(iE0),Work(iKC),Work(iKC+n), &
-              Work(iKC+2*n),clight)
+call mma_allocate(Tr,n,n,label='Tr')
+call mma_allocate(Bk,n,n,label='Back')
+call mma_allocate(EL,n,n,label='mEL')
+call mma_allocate(ES,n,n,label='mES')
+call mma_allocate(OL,n,n,label='mOL')
+call mma_allocate(OS,n,n,label='mOS')
+call mma_allocate(Ep,n,label='Ep')
+call mma_allocate(E0,n,label='E0')
+call mma_allocate(KC,n,3,label='KC')
+call XDR_fpFW(n,s,t,v,w,Tr,Bk,EL,ES,OL,OS,Ep,E0,KC(:,1),KC(:,2),KC(:,3),clight)
 
 ! Call DKH transformation routines
 
@@ -45,78 +45,70 @@ call XDR_fpFW(n,s,t,v,w,Work(iTr),Work(iBk),Work(iEL),Work(iES),Work(iOL),Work(i
 word = max(dkord/2,xord)
 ! order of DKH needed, since high Xorder may need more transformation than DKHorder (for Hamiltonian)
 vord = max(dkord,word*2)
-m = n*n
-nz = m*vord
-call getmem('Wsav','ALLOC','REAL',iW,m*xord*2+4)
-call getmem('Cof ','ALLOC','REAL',iCo,vord+8)
+call mma_allocate(Ws,n,n,xord*2,label='Wsav')
+call mma_allocate(Co,max(4,vord),label='Cof')
 ! calculate expansion coefficient of general unitary transformation ( in terms of anti-Hermitian W )
-call dkh_cofu(vord,dkparam,Work(iCo))
+call dkh_cofu(vord,dkparam,Co)
 
 if (dkparam == 2) then
   ! special routine for EXP parameterization ( with fewer matrix multiplication than general routine )
-  call GetMem('NWork ','ALLOC','REAL',iM,m*5+4)
-  call GetMem('NNWork','ALLOC','REAL',iZ,nz*3+4)
-  do i=0,m*5
-    Work(iM+i) = Zero
-  end do
-  do i=0,nz*3
-    Work(iZ+i) = Zero
-  end do
-  call AODKHEXP(n,vord,xord,dkord,Work(iEp),Work(iE0),Work(iEL),Work(iES),Work(iOL),Work(iM),Work(iM+m),Work(iM+m*2),Work(iM+m*3), &
-                Work(iM+m*4),Work(iZ),Work(iZ+nz),Work(iZ+nz*2),Work(iW))
-  call GetMem('NWork ','FREE','REAL',iM,m*5+4)
-  call GetMem('NNWork','FREE','REAL',iZ,nz*3+4)
+  call mma_allocate(MW,n,n,5,label='NWork')
+  call mma_allocate(ZW,n,n,vord,3,label='NNWork')
+  MW(:,:,:) = Zero
+  ZW(:,:,:,:) = Zero
+  call AODKHEXP(n,vord,xord,dkord,Ep,E0,EL,ES,OL,MW(:,:,1),MW(:,:,2),MW(:,:,3),MW(:,:,4),MW(:,:,5),ZW(:,:,:,1),ZW(:,:,:,2), &
+                ZW(:,:,:,3),Ws)
+  call mma_deallocate(MW)
+  call mma_deallocate(ZW)
 else
   ! general parameterization routine
-  call getmem('Cof2','ALLOC','REAL',iSCo,vord+8)
-  call getmem('Mat ','ALLOC','REAL',iM,m*6+4)
-  call getmem('Mat2','ALLOC','REAL',iZ,nz*10+4)
-  call dkh_ham(n,dkord,xord,vord,Work(iEL),Work(iES),Work(iOL),Work(iOS),Work(iEp),Work(iE0),Work(iCo),Work(iSco),Work(iM), &
-               Work(iM+m),Work(iM+m*2),Work(iM+m*3),Work(iM+m*4),Work(iM+m*5),Work(iZ),Work(iZ+nz),Work(iZ+nz*2),Work(iZ+nz*3), &
-               Work(iZ+nz*4),Work(iZ+nz*5),Work(iZ+nz*6),Work(iZ+nz*7),Work(iZ+nz*8),Work(iZ+nz*9),Work(iW))
-  call getmem('Cof2','FREE','REAL',iSCo,vord+8)
-  call getmem('Mat ','FREE','REAL',iM,m*6+4)
-  call getmem('Mat2','FREE','REAL',iZ,nz*10+4)
+  call mma_allocate(SCo,vord,label='Cof2')
+  call mma_allocate(MW,n,n,6,label='Mat')
+  call mma_allocate(ZW,n,n,vord,10,label='Mat2')
+  call dkh_ham(n,dkord,xord,vord,EL,ES,OL,OS,Ep,E0,Co,Sco,MW(:,:,1),MW(:,:,2),MW(:,:,3),MW(:,:,4),MW(:,:,5),MW(:,:,6),ZW(:,:,:,1), &
+               ZW(:,:,:,2),ZW(:,:,:,3),ZW(:,:,:,4),ZW(:,:,:,5),ZW(:,:,:,6),ZW(:,:,:,7),ZW(:,:,:,8),ZW(:,:,:,9),ZW(:,:,:,10),Ws)
+  call mma_deallocate(SCo)
+  call mma_deallocate(MW)
+  call mma_deallocate(ZW)
 end if
 
 ! Calculate the transform matrices
 
 if (xord > 0) then
-  call getmem('fpUL','ALLOC','REAL',iXL,nn)
-  call getmem('fpUS','ALLOC','REAL',iXS,nn)
+  call mma_allocate(XL,n,n,label='fpUL')
+  call mma_allocate(XS,n,n,label='fpUS')
   n2 = n+n
-  call getmem('TmpZ','ALLOC','REAL',iZ,n2*n2*3+4)
+  call mma_allocate(MW,n2,n2,3,label='TmpZ')
   ! obtain transform matrices ( XL and XS )in fpFW picture
-  call dkh_geneu(n,n2,xord,Work(iCo),Work(iW),Work(iXL),Work(iXS),Work(iZ),Work(iZ+n2*n2),Work(iZ+n2*n2*2))
-  call getmem('TmpZ','FREE','REAL',iZ,n2*n2*3+4)
+  call dkh_geneu(n,n2,xord,Co,Ws,XL,XS,MW(:,:,1),MW(:,:,2),MW(:,:,3))
+  call mma_deallocate(MW)
 
-  call getmem('TmpM','ALLOC','REAL',iM,m*4+4)
+  call mma_allocate(MW,n,n,4,label='TmpM')
   ! convert to original basis picture
-  call XDR_mkutls(n,Work(iXL),Work(iXS),Work(iTr),Work(iBk),Work(iKC),Work(iKC+n),Work(iKC+2*n),ul,us,Work(iM),Work(iM+m), &
-                  Work(iM+m*2),Work(iM+m*3))
-  call getmem('TmpM','FREE','REAL',iM,m*4+4)
-  call getmem('fpUL','FREE','REAL',iXL,nn)
-  call getmem('fpUS','FREE','REAL',iXS,nn)
+  call XDR_mkutls(n,XL,XS,Tr,Bk,KC(:,1),KC(:,2),KC(:,3),ul,us,MW(:,:,1),MW(:,:,2),MW(:,:,3),MW(:,:,4))
+  call mma_deallocate(MW)
+  call mma_deallocate(XL)
+  call mma_deallocate(XS)
 end if
 
 ! Back transform Hamiltonian matrix to original non-orthogonal basis picture
 
-call dmxma(n,'C','N',Work(iBk),Work(iEL),Work(iES),One)
-call dmxma(n,'N','N',Work(iES),Work(iBk),v,One)
+call dmxma(n,'C','N',Bk,EL,ES,One)
+call dmxma(n,'N','N',ES,Bk,v,One)
 
 ! Free temp memories
 
-call getmem('Cof ','FREE','REAL',iCo,vord+8)
-call getmem('Wsav','FREE','REAL',iW,m*xord*2+4)
-call getmem('Tr  ','FREE','REAL',iTr,nn)
-call getmem('Back','FREE','REAL',iBk,nn)
-call getmem('mEL ','FREE','REAL',iEL,nn)
-call getmem('mES ','FREE','REAL',iES,nn)
-call getmem('mOL ','FREE','REAL',iOL,nn)
-call getmem('mOS ','FREE','REAL',iOS,nn)
-call getmem('Ep  ','FREE','REAL',iEP,n+4)
-call getmem('E0  ','FREE','REAL',iE0,n+4)
-call getmem('KC  ','FREE','REAL',iKC,n*3+4)
+call mma_deallocate(Co)
+call mma_deallocate(Ws)
+call mma_deallocate(Tr)
+call mma_deallocate(Bk)
+call mma_deallocate(EL)
+call mma_deallocate(ES)
+call mma_deallocate(OL)
+call mma_deallocate(OS)
+call mma_deallocate(Ep)
+call mma_deallocate(E0)
+call mma_deallocate(KC)
 
 return
 

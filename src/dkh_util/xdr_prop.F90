@@ -20,6 +20,7 @@ subroutine XDR_Prop(nbas,isize,jsize,imethod,paratyp,dkhorder,xorder,inS,inK,inV
 ! to two-/one-component picture as well as the Hamiltonian in the two-/one-
 ! component relativistic calculations
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
 
@@ -27,35 +28,34 @@ implicit none
 integer(kind=iwp), intent(in) :: nbas, isize, jsize, imethod, paratyp, dkhorder, xorder, iComp
 real(kind=wp), intent(in) :: inS(isize), inK(isize), inV(isize), inpVp(isize), inpXp(isize), clight
 real(kind=wp), intent(inout) :: inX(isize), inUL(jsize), inUS(jsize)
-integer(kind=iwp) :: nn, i, j, k, jS, jK, jV, jpVp, jX, jpXp, itmp, iSizec, idbg, nSym, iOpt, iRC, Lu_One, lOper, n_Int, imagaPX, &
-                     imagaPXs, imagaXP, imagaXPs, imagbPX, imagbPXs, imagbXP, imagbXPs, iPSO, iPSOt, jComp, iPSOComp, ip_Ppso, &
-                     IDUM(1)
+integer(kind=iwp) :: nn, i, j, k, iSizec, idbg, nSym, iOpt, iRC, Lu_One, lOper, n_Int, jComp, iPSOComp, IDUM(1)
 character(len=8) :: Label, magLabel, PSOLabel
-#include "WrkSpc.fh"
+real(kind=wp), allocatable :: sK(:,:), sS(:,:), sV(:,:), spVp(:,:), sX(:,:), spXp(:,:), tmp(:,:), magaPX(:), magaPXs(:,:), &
+                              magaXP(:), magaXPs(:,:), magbPX(:), magbPXs(:,:), magbXP(:), magbXPs(:,:), PSO(:,:), PSOt(:), Ppso(:)
 
 ! Convert to square matrices
 
 nn = nbas*nbas+4
-call getmem('skin ','ALLOC','REAL',jK,nn)
-call getmem('sSS  ','ALLOC','REAL',jS,nn)
-call getmem('sV   ','ALLOC','REAL',jV,nn)
-call getmem('spVp ','ALLOC','REAL',jpVp,nn)
-call getmem('sX   ','ALLOC','REAL',jX,nn)
-call getmem('spXp ','ALLOC','REAL',jpXp,nn)
+call mma_allocate(sK,nbas,nbas,label='skin')
+call mma_allocate(sS,nbas,nbas,label='sSS')
+call mma_allocate(sV,nbas,nbas,label='sV')
+call mma_allocate(spVp,nbas,nbas,label='spVp')
+call mma_allocate(sX,nbas,nbas,label='sX')
+call mma_allocate(spXp,nbas,nbas,label='spXp')
 #ifdef MOLPRO
-call square(inK,Work(jK),nbas,nbas)
-call square(inS,Work(jS),nbas,nbas)
-call square(inV,Work(jV),nbas,nbas)
-call square(inpVp,Work(jpVp),nbas,nbas)
-call square(inX,Work(jX),nbas,nbas)
-call square(inpXp,Work(jpXp),nbas,nbas)
+call square(inK,sK,nbas,nbas)
+call square(inS,sS,nbas,nbas)
+call square(inV,sV,nbas,nbas)
+call square(inpVp,spVp,nbas,nbas)
+call square(inX,sX,nbas,nbas)
+call square(inpXp,spXp,nbas,nbas)
 #else
-call square(inK,Work(jK),nbas,1,nbas)
-call square(inS,Work(jS),nbas,1,nbas)
-call square(inV,Work(jV),nbas,1,nbas)
-call square(inpVp,Work(jpVp),nbas,1,nbas)
-call square(inX,Work(jX),nbas,1,nbas)
-call square(inpXp,Work(jpXp),nbas,1,nbas)
+call square(inK,sK,nbas,1,nbas)
+call square(inS,sS,nbas,1,nbas)
+call square(inV,sV,nbas,1,nbas)
+call square(inpVp,spVp,nbas,1,nbas)
+call square(inX,sX,nbas,1,nbas)
+call square(inpXp,spXp,nbas,1,nbas)
 #endif
 
 ! Calculate the relativistic transformed property integrals
@@ -99,40 +99,36 @@ if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
     call iRdOne(iRC,iOpt,magLabel,iComp,idum,lOper)
     n_Int = IDUM(1)
     if (iRC /= 0) call Error()
-    call getmem('MAGaXP','ALLOC','REAL',imagaXP,n_Int+4)
+    call mma_allocate(magaXP,n_Int+4,label='MAGaXP')
     iOpt = 0
     iRC = -1
-    call RdOne(iRC,iOpt,magLabel,iComp,Work(imagaXP),lOper)
+    call RdOne(iRC,iOpt,magLabel,iComp,magaXP,lOper)
     if (iRC /= 0) call Error()
-    !call CmpInt(Work(imagaXP),n_Int,nbas,nSym,lOper)
-    call getmem('MAGaPX','ALLOC','REAL',imagaPX,n_Int+4)
+    !call CmpInt(magaXP,n_Int,nbas,nSym,lOper)
+    call mma_allocate(magaPX,n_Int+4,label='MAGaPX')
     magLabel(1:5) = 'MAGPX'
-    call RdOne(iRC,iOpt,magLabel,iComp,Work(imagaPX),lOper)
+    call RdOne(iRC,iOpt,magLabel,iComp,magaPX,lOper)
     !if (iRC /= 0) call Error()
-    call getmem('MAGaPXs','ALLOC','REAL',imagaPXs,nn)
-    call getmem('MAGaXPs','ALLOC','REAL',imagaXPs,nn)
-    call square(Work(imagaPX),Work(imagaPXs),nbas,1,nbas)
-    call square(Work(imagaXP),Work(imagaXPs),nbas,1,nbas)
-    call getmem('MAGaXP','FREE','REAL',imagaXP,n_Int+4)
-    call getmem('MAGaPX','FREE','REAL',imagaPX,n_Int+4)
-    call merge_mag_ints(nbas,jsize,Work(imagaXPs),Work(imagaPXs),.true.)
-    ! put Work(imagaPXs) into -Work(imagaPXs)
-    ! or put Work(imagaXPs) into -Work(imagaXPs)
+    call mma_allocate(magaXPs,nbas,nbas,label='MAGaXPs')
+    call mma_allocate(magaPXs,nbas,nbas,label='MAGaPXs')
+    call square(magaXP,magaXPs,nbas,1,nbas)
+    call square(magaPX,magaPXs,nbas,1,nbas)
+    call mma_deallocate(magaXP)
+    call mma_deallocate(magaPX)
+    call merge_mag_ints(nbas,jsize,magaXPs,magaPXs,.true.)
+    ! put magaPXs into -magaPXs
+    ! or put magaXPs into -magaXPs
     ! test which
-    do k=0,nn-5
-      Work(imagaPXs+k) = -Work(imagaPXs+k)
-    end do
-    call getmem('TMP ','ALLOC','REAL',itmp,nn)
+    magaPXs(:,:) = -magaPXs(:,:)
+    call mma_allocate(tmp,nbas,nbas,label='TMP')
     ! rulin- disable or reenable dmxma for mag integral X2C
     ! transformations
-    call dmxma(nbas,'N','N',Work(imagaPXs),inUS,Work(itmp),One)
-    call dmxma(nbas,'T','N',inUL,Work(itmp),Work(imagaPXs),One)
-    call dmxma(nbas,'N','N',Work(imagaXPs),inUL,Work(itmp),One)
-    call dmxma(nbas,'T','N',inUS,Work(itmp),Work(imagaXPs),One)
-    do k=0,nn-5
-      Work(imagaXPs+k) = Work(imagaXPs+k)+Work(imagaPXs+k)
-    end do
-    call getmem('MAGaPXs','FREE','REAL',imagaPXs,nn)
+    call dmxma(nbas,'N','N',magaPXs,inUS,tmp,One)
+    call dmxma(nbas,'T','N',inUL,tmp,magaPXs,One)
+    call dmxma(nbas,'N','N',magaXPs,inUL,tmp,One)
+    call dmxma(nbas,'T','N',inUS,tmp,magaXPs,One)
+    magaXPs(:,:) = magaXPs(:,:)+magaPXs(:,:)
+    call mma_deallocate(magaPXs)
     ! define MAG b
     if (iComp == 3) then
       jComp = 7
@@ -152,61 +148,55 @@ if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
     call iRdOne(iRC,iOpt,magLabel,jComp,idum,lOper)
     n_Int = IDUM(1)
     if (iRC /= 0) call Error()
-    call getmem('MAGbXP','ALLOC','REAL',imagbXP,n_Int+4)
+    call mma_allocate(magbXP,n_Int+4,label='MAGbXP')
     iOpt = 0
     iRC = -1
-    call RdOne(iRC,iOpt,magLabel,jComp,Work(imagbXP),lOper)
-    call getmem('MAGbPX','ALLOC','REAL',imagbPX,n_Int+4)
+    call RdOne(iRC,iOpt,magLabel,jComp,magbXP,lOper)
+    call mma_allocate(magbPX,n_Int+4,label='MAGbPX')
     magLabel(1:5) = 'MAGPX'
-    call RdOne(iRC,iOpt,magLabel,jComp,Work(imagbPX),lOper)
+    call RdOne(iRC,iOpt,magLabel,jComp,magbPX,lOper)
     call ClsOne(iRC,iOpt)
-    call getmem('MAGbPXs','ALLOC','REAL',imagbPXs,nn)
-    call getmem('MAGbXPs','ALLOC','REAL',imagbXPs,nn)
-    call square(Work(imagbPX),Work(imagbPXs),nbas,1,nbas)
-    call square(Work(imagbXP),Work(imagbXPs),nbas,1,nbas)
-    call getmem('MAGbXP','FREE','REAL',imagbXP,n_Int+4)
-    call getmem('MAGbPX','FREE','REAL',imagbPX,n_Int+4)
-    call merge_mag_ints(nbas,jsize,Work(imagbXPs),Work(imagbPXs),.true.)
-    ! put Work(imagbPXs) into -Work(imagbPXs)
-    ! or put Work(imagbXP) into -Work(imagbXP)
+    call mma_allocate(magbXPs,nbas,nbas,label='MAGbXPs')
+    call mma_allocate(magbPXs,nbas,nbas,label='MAGbPXs')
+    call square(magbXP,magbXPs,nbas,1,nbas)
+    call square(magbPX,magbPXs,nbas,1,nbas)
+    call mma_deallocate(magbXP)
+    call mma_deallocate(magbPX)
+    call merge_mag_ints(nbas,jsize,magbXPs,magbPXs,.true.)
+    ! put magbPXs into -magbPXs
+    ! or put magbXP into -magbXP
     ! test which
-    do k=0,nn-5
-      Work(imagbPXs+k) = -Work(imagbPXs+k)
-    end do
-    call dmxma(nbas,'N','N',Work(imagbPXs),inUS,Work(itmp),One)
-    call dmxma(nbas,'T','N',inUL,Work(itmp),Work(imagbPXs),One)
-    call dmxma(nbas,'N','N',Work(imagbXPs),inUL,Work(itmp),One)
-    call dmxma(nbas,'T','N',inUS,Work(itmp),Work(imagbXPs),One)
-    do k=0,nn-5
-      Work(imagbXPs+k) = Work(imagbXPs+k)+Work(imagbPXs+k)
-    end do
-    call getmem('MAGbPXs','FREE','REAL',imagbPXs,nn)
-    call getmem('TMP ','FREE','REAL',itmp,nn)
+    magbPXs(:,:) = -magbPXs(:,:)
+    call dmxma(nbas,'N','N',magbPXs,inUS,tmp,One)
+    call dmxma(nbas,'T','N',inUL,tmp,magbPXs,One)
+    call dmxma(nbas,'N','N',magbXPs,inUL,tmp,One)
+    call dmxma(nbas,'T','N',inUS,tmp,magbXPs,One)
+    magbXPs(:,:) = magbXPs(:,:)+magbPXs(:,:)
+    call mma_deallocate(magbPXs)
+    call mma_deallocate(tmp)
     ! do PSO combinations
-    call getmem('PSO ','ALLOC','REAL',iPSO,nn)
-    do k=0,nn-5
-      Work(iPSO+k) = Work(imagaXPs+k)-Work(imagbXPs+k)
-    end do
-    call getmem('MAGaXPs','FREE','REAL',imagaXPs,nn)
-    call getmem('MAGbXPs','FREE','REAL',imagbXPs,nn)
+    call mma_allocate(PSO,nbas,nbas,label='PSO')
+    PSO(:,:) = magaXPs(:,:)+magbXPs(:,:)
+    call mma_deallocate(magaXPs)
+    call mma_deallocate(magbXPs)
     write(PSOLabel,'(A,A3)') 'PSOI ',Label(6:8)
     ! test for off-diagonal elements
     IDUM(1) = nbas
-    call CmpInt(Work(iPSO),n_Int,idum(1),nSym,lOper)
+    call CmpInt(PSO,n_Int,idum(1),nSym,lOper)
     ! store PSO integrals to ONEINT
-    call getmem('PSOt','ALLOC','REAL',iPSOt,n_Int+4)
+    call mma_allocate(PSOt,n_Int+4,label='PSOt')
     k = 0
     do i=1,nbas
       do j=1,i
         k = k+1
-        Work(iPSOt+k-1) = Work(iPSO+j-1+(i-1)*nbas)
+        PSOt(k) = PSO(j,i)
       end do
     end do
-    call getmem('PSO ','FREE','REAL',iPSO,nn)
-    call Allocate_Work(ip_Ppso,iSizec+4)
+    call mma_deallocate(PSO)
+    call mma_allocate(Ppso,iSizec+4,label='PPSO')
     idbg = -1
-    call repmat(idbg,Work(iPSOt),Work(ip_Ppso),.false.)
-    call getmem('PSOt','FREE','REAL',iPSOt,n_Int+4)
+    call repmat(idbg,PSOt,Ppso,.false.)
+    call mma_deallocate(PSOt)
     iOpt = 0
     iRC = -1
     Lu_one = 2
@@ -214,34 +204,30 @@ if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
     if (iRC /= 0) call Error()
     iRC = -1
     lOper = 255
-    call WrOne(iRC,iOpt,PSOLabel,iPSOComp,Work(ip_Ppso),lOper)
+    call WrOne(iRC,iOpt,PSOLabel,iPSOComp,Ppso,lOper)
     if (iRC /= 0) call Error()
     iOpt = 0
     call ClsOne(iRC,iOpt)
-    call Free_Work(ip_Ppso)
+    call mma_deallocate(Ppso)
     inUS(:) = inUS(:)/clight
   end if
 
   if (Label(1:3) == 'MAG') then
     inUS(:) = inUS(:)*clight
     ! Put together lower and upper triangular matrices
-    call merge_mag_ints(nbas,jsize,Work(jX),Work(jpXp),.true.)
-    call getmem('TMP ','ALLOC','REAL',itmp,nn)
+    call merge_mag_ints(nbas,jsize,sX,spXp,.true.)
+    call mma_allocate(tmp,nbas,nbas,label='TMP')
     ! Eval U_L^{\dag} X U_S
     ! Eval U_S^{\dag} X U_L
-    call dmxma(nbas,'N','N',Work(jpXp),inUS,Work(itmp),One)
-    call dmxma(nbas,'T','N',inUL,Work(itmp),Work(jpXp),One)
-    call dmxma(nbas,'N','N',Work(jX),inUL,Work(itmp),One)
-    call dmxma(nbas,'T','N',inUS,Work(itmp),Work(jX),One)
+    call dmxma(nbas,'N','N',spXp,inUS,tmp,One)
+    call dmxma(nbas,'T','N',inUL,tmp,spXp,One)
+    call dmxma(nbas,'N','N',sX,inUL,tmp,One)
+    call dmxma(nbas,'T','N',inUS,tmp,sX,One)
     ! Sum
-    do k=0,nbas*nbas-1
-      Work(jX+k) = Work(jX+k)+Work(jpXp+k)
-    end do
-    ! copy jpXp back so its not a half computed matrix
-    do k=0,nbas*nbas-1
-      Work(jpXp+k) = Work(jX+k)
-    end do
-    call getmem('TMP ','FREE','REAL',itmp,nn)
+    sX(:,:) = sX(:,:)+spXp(:,:)
+    ! copy spXp back so its not a half computed matrix
+    spXp(:,:) = sX(:,:)
+    call mma_deallocate(tmp)
     inUS(:) = inUS(:)/clight
   else
 
@@ -254,25 +240,23 @@ if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
     ! high order DKH can also employ this formulation, only negligible
     ! contribution from higher orders is included
 
-    call getmem('TMP ','ALLOC','REAL',itmp,nn)
+    call mma_allocate(tmp,nbas,nbas,label='TMP')
     ! eval U_L^{\dag} X U_L
-    call dmxma(nbas,'C','N',inUL,Work(jX),Work(itmp),One)
-    call dmxma(nbas,'N','N',Work(itmp),inUL,Work(jX),One)
+    call dmxma(nbas,'C','N',inUL,sX,tmp,One)
+    call dmxma(nbas,'N','N',tmp,inUL,sX,One)
     ! eval U_S^{\dag}pXp U_S
-    call dmxma(nbas,'C','N',inUS,Work(jpXp),Work(itmp),One)
-    call dmxma(nbas,'N','N',Work(itmp),inUS,Work(jpXp),One)
+    call dmxma(nbas,'C','N',inUS,spXp,tmp,One)
+    call dmxma(nbas,'N','N',tmp,inUS,spXp,One)
     ! sum
-    do k=0,nbas*nbas-1
-      Work(jX+k) = Work(jX+k)+Work(jpXp+k)
-    end do
-    call getmem('TMP ','FREE','REAL',itmp,nn)
+    sX(:,:) = sX(:,:)+spXp(:,:)
+    call mma_deallocate(tmp)
   end if !MAG
 
 else if (imethod == 1) then
 
   ! Arbitrary order DKH transformation
 
-  call dkh_prop(nbas,Work(jS),Work(jK),Work(jV),Work(jpVp),Work(jX),Work(jpXp),clight,dkhorder,xorder,paratyp)
+  call dkh_prop(nbas,sS,sK,sV,spVp,sX,spXp,clight,dkhorder,xorder,paratyp)
 end if
 
 ! Copy transformed property integral back to inX
@@ -281,18 +265,18 @@ k = 0
 do i=1,nbas
   do j=1,i
     k = k+1
-    inX(k) = Work(jX+j-1+(i-1)*nbas)
+    inX(k) = sX(j,i)
   end do
 end do
 
 ! Free temp memories
 
-call getmem('skin ','FREE','REAL',jK,nn)
-call getmem('sSS  ','FREE','REAL',jS,nn)
-call getmem('sV   ','FREE','REAL',jV,nn)
-call getmem('spVp ','FREE','REAL',jpVp,nn)
-call getmem('sX   ','FREE','REAL',jX,nn)
-call getmem('spXp ','FREE','REAL',jpXp,nn)
+call mma_deallocate(sK)
+call mma_deallocate(sS)
+call mma_deallocate(sV)
+call mma_deallocate(spVp)
+call mma_deallocate(sX)
+call mma_deallocate(spXp)
 
 return
 

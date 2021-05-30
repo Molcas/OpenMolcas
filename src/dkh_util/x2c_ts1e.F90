@@ -12,6 +12,7 @@
 subroutine x2c_ts1e(n,s,t,v,w,ul,us,clight)
 ! Evaluate the X2C Hamiltonian matrix and store the transform matrices
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
@@ -21,9 +22,9 @@ integer(kind=iwp), intent(in) :: n
 real(kind=wp), intent(inout) :: s(n,n), t(n,n), v(n,n), w(n,n)
 real(kind=wp), intent(out) :: ul(n,n), us(n,n)
 real(kind=wp), intent(in) :: clight
-integer(kind=iwp) :: m, i, j, k, itF, itS, itX, itA, itB, itC, itSS
+integer(kind=iwp) :: m, i, j
 real(kind=wp) :: c_2c2, c_4c2, c_2c
-#include "WrkSpc.fh"
+real(kind=wp), allocatable :: F(:,:), St(:,:), X(:,:), A(:,:), B(:,:), C(:,:), SS(:,:)
 
 ! Construct the full dimensional (2*n) Fock matrix and overlap matrix
 
@@ -37,65 +38,61 @@ do i=1,n
     w(j,i) = w(j,i)/c_4c2
   end do
 end do
-call getmem('TmpF ','ALLOC','REAL',itF,m*m+4)
-call getmem('TmpS ','ALLOC','REAL',itS,m*m+4)
-do k=0,m*m-1
-  Work(itS+k) = Zero
-end do
+call mma_allocate(F,m,m,label='TmpF')
+call mma_allocate(St,m,m,label='TmpS')
+St(:,:) = Zero
 do i=1,n
   do j=1,n
-    Work(itS+(j-1)+(i-1)*m) = s(j,i)
-    Work(itS+(j+n-1)+(i+n-1)*m) = t(j,i)/c_2c2
-    Work(itF+(j-1)+(i-1)*m) = v(j,i)
-    Work(itF+(j-1)+(i+n-1)*m) = t(j,i)
-    Work(itF+(j+n-1)+(i-1)*m) = t(j,i)
-    Work(itF+(j+n-1)+(i+n-1)*m) = w(j,i)-t(j,i)
+    St(j,i) = s(j,i)
+    St(n+j,n+i) = t(j,i)/c_2c2
+    F(i,j) = v(j,i)
+    F(n+i,j) = t(j,i)
+    F(i,n+j) = t(j,i)
+    F(n+i,n+j) = w(j,i)-t(j,i)
   end do
 end do
 
 ! Call diagonalization routine to obtain the X matrix
 
-call getmem('TmpX ','ALLOC','REAL',itX,n*n+4)
-call x2c_makx(m,n,Work(itF),Work(itS),Work(itX))
+call mma_allocate(X,n,n,label='TmpX')
+call x2c_makx(m,n,F,St,X)
 
 ! Calculate transformed Hamiltonian matrix
 
-call getmem('TmpA ','ALLOC','REAL',itA,n*n+4)
-call getmem('TmpB ','ALLOC','REAL',itB,n*n+4)
-call getmem('TmpC ','ALLOC','REAL',itC,n*n+4)
-call getmem('TmpSS','ALLOC','REAL',itSS,n*n+4)
-call dmxma(n,'C','N',Work(itX),t,Work(itA),One)
-call dmxma(n,'N','N',t,Work(itX),Work(itB),One)
-call dmxma(n,'N','N',Work(itA),Work(itX),Work(itC),One)
-k = 0
+call mma_allocate(A,n,n,label='TmpA')
+call mma_allocate(B,n,n,label='TmpB')
+call mma_allocate(C,n,n,label='TmpC')
+call mma_allocate(SS,n,n,label='TmpC')
+call dmxma(n,'C','N',X,t,A,One)
+call dmxma(n,'N','N',t,X,B,One)
+call dmxma(n,'N','N',A,X,C,One)
 do i=1,n
   do j=1,n
     ! X-projected overlap matrix
-    Work(itSS+k) = s(j,i)+Work(itC+k)/c_2c2
+    SS(j,i) = s(j,i)+C(j,i)/c_2c2
     ! X-projected kinetic matrix
-    t(j,i) = Work(itA+k)+Work(itB+k)-Work(itC+k)
-    k = k+1
+    t(j,i) = A(j,i)+B(j,i)-C(j,i)
   end do
 end do
 call XDR_dmatsqrt(s,n)
-call dmxma(n,'C','N',s,Work(itSS),Work(itA),One)
-call dmxma(n,'N','N',Work(itA),s,Work(itB),One)
-call XDR_dmatsqrt(Work(itB),n)
-call dmxma(n,'N','N',s,Work(itB),Work(itC),One)
+call dmxma(n,'C','N',s,SS,A,One)
+call dmxma(n,'N','N',A,s,B,One)
+call XDR_dmatsqrt(B,n)
+call dmxma(n,'N','N',s,B,C,One)
 call XDR_dmatinv(s,n)
 ! renormalization matrix, also the upper part of transformation matrix
-call dmxma(n,'N','N',Work(itC),s,ul,One)
+call dmxma(n,'N','N',C,s,ul,One)
 ! lower part of the transformation matrix
-call dmxma(n,'N','N',work(itX),ul,us,One)
+call dmxma(n,'N','N',X,ul,us,One)
 
 ! Apply transformation to kinetic and potential matrices
 
-call dmxma(n,'C','N',ul,t,work(itA),One)
-call dmxma(n,'N','N',work(itA),ul,t,One)
-call dmxma(n,'C','N',ul,v,work(itA),One)
-call dmxma(n,'N','N',work(itA),ul,v,One)
-call dmxma(n,'C','N',us,w,work(itA),One)
-call dmxma(n,'N','N',work(itA),us,w,One)
+call dmxma(n,'C','N',ul,t,A,One)
+call dmxma(n,'N','N',A,ul,t,One)
+call dmxma(n,'C','N',ul,v,A,One)
+call dmxma(n,'N','N',A,ul,v,One)
+call dmxma(n,'C','N',us,w,A,One)
+call dmxma(n,'N','N',A,us,w,One)
 do i=1,n
   do j=1,n
     v(j,i) = t(j,i)+v(j,i)+w(j,i)
@@ -106,13 +103,13 @@ end do
 
 ! Free temp memories
 
-call getmem('TmpF ','FREE','REAL',itF,m*m+4)
-call getmem('TmpS ','FREE','REAL',itS,m*m+4)
-call getmem('TmpX ','FREE','REAL',itX,n*n+4)
-call getmem('TmpA ','FREE','REAL',itA,n*n+4)
-call getmem('TmpB ','FREE','REAL',itB,n*n+4)
-call getmem('TmpC ','FREE','REAL',itC,n*n+4)
-call getmem('TmpSS','FREE','REAL',itSS,n*n+4)
+call mma_deallocate(F)
+call mma_deallocate(St)
+call mma_deallocate(X)
+call mma_deallocate(A)
+call mma_deallocate(B)
+call mma_deallocate(C)
+call mma_deallocate(SS)
 
 return
 

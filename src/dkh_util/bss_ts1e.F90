@@ -12,6 +12,7 @@
 subroutine bss_ts1e(n,s,t,v,w,ul,us,clight)
 ! Evaluate the BSS Hamiltonian matrix and store the transform matrices
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
 
@@ -21,112 +22,108 @@ integer(kind=iwp), intent(in) :: n
 real(kind=wp), intent(in) :: s(n,n), t(n,n), w(n,n), clight
 real(kind=wp), intent(inout) :: v(n,n)
 real(kind=wp), intent(out) :: ul(n,n), us(n,n)
-integer(kind=iwp) :: m, i, j, k, nn, lwork, iW, info, iTr, iBk, iEL, iES, iOL, iOS, iEp, iE0, iKC, itF, itmp, iA, iB, iX, iM
-#include "WrkSpc.fh"
+integer(kind=iwp) :: m, i, j, lwork, info
+real(kind=wp), allocatable :: Tr(:,:), Bk(:,:), EL(:,:), ES(:,:), OL(:,:), OS(:,:), Ep(:), E0(:), KC(:,:), tF(:,:), W1(:), tmp(:), &
+                              A(:,:), B(:,:), X(:,:), M1(:,:,:)
 
 ! Transform to the free-particle Foldy-Wothuysen picture
 
-nn = n*n+4
-call getmem('Tr  ','ALLOC','REAL',iTr,nn)
-call getmem('Back','ALLOC','REAL',iBk,nn)
-call getmem('mEL ','ALLOC','REAL',iEL,nn)
-call getmem('mES ','ALLOC','REAL',iES,nn)
-call getmem('mOL ','ALLOC','REAL',iOL,nn)
-call getmem('mOS ','ALLOC','REAL',iOS,nn)
-call getmem('Ep  ','ALLOC','REAL',iEp,n+4)
-call getmem('E0  ','ALLOC','REAL',iE0,n+4)
-call getmem('KC  ','ALLOC','REAL',iKC,n*3+4)
-call XDR_fpFW(n,s,t,v,w,Work(iTr),Work(iBk),Work(iEL),Work(iES),Work(iOL),Work(iOS),Work(iEp),work(iE0),Work(iKC),Work(iKC+n), &
-              Work(iKC+2*n),clight)
+call mma_allocate(Tr,n,n,label='Tr')
+call mma_allocate(Bk,n,n,label='Back')
+call mma_allocate(EL,n,n,label='mEL')
+call mma_allocate(ES,n,n,label='mES')
+call mma_allocate(OL,n,n,label='mOL')
+call mma_allocate(OS,n,n,label='mOS')
+call mma_allocate(Ep,n,label='Ep')
+call mma_allocate(E0,n,label='E0')
+call mma_allocate(KC,n,3,label='KC')
+
+call XDR_fpFW(n,s,t,v,w,Tr,Bk,EL,ES,OL,OS,Ep,E0,KC(:,1),KC(:,2),KC(:,3),clight)
 
 ! Diagonalize to get the X matrix
 
 do i=1,n
   ! add (diagonal) kinetic matrix in fpFW picture
-  Work(iEL+(i-1)*(n+1)) = Work(iEL+(i-1)*(n+1))+Work(iE0+i-1)
-  Work(iES+(i-1)*(n+1)) = Work(iES+(i-1)*(n+1))-Work(iEp+i-1)-clight*clight
+  EL(i,i) = EL(i,i)+E0(i)
+  ES(i,i) = ES(i,i)-Ep(i)-clight*clight
 end do
 m = n+n
 lwork = 8*m
-call getmem('Fock ','ALLOC','REAL',itF,m*m+4)
-call getmem('Eig  ','ALLOC','REAL',iW,m+4)
-call getmem('Tmp  ','ALLOC','REAL',itmp,lwork)
-k = 0
+call mma_allocate(tF,m,m,label='Fock')
+call mma_allocate(W1,m,label='Eig')
+call mma_allocate(tmp,lwork,label='Tmp')
 do i=1,n
   do j=1,n
-    Work(itF+(j-1)+(i-1)*m) = Work(iEL+k)
-    Work(itF+(j-1)+(i+n-1)*m) = Work(iOL+k)
-    Work(itF+(j-1+n)+(i-1)*m) = Work(iOS+k)
-    Work(itF+(j-1+n)+(i+n-1)*m) = Work(iES+k)
-    k = k+1
+    tF(j,i) = EL(j,i)
+    tF(j,i+n) = OL(j,i)
+    tF(j+n,i) = OS(j,i)
+    tF(j+n,i+n) = ES(j,i)
   end do
 end do
-call dsyev_('V','L',m,Work(itF),m,Work(iW),Work(itmp),lwork,info)
-call getmem('tmpA','ALLOC','REAL',iA,nn)
-call getmem('tmpB','ALLOC','REAL',iB,nn)
-call getmem('matX','ALLOC','REAL',iX,nn)
-k = 0
+call dsyev_('V','L',m,tF,m,W1,tmp,lwork,info)
+call mma_deallocate(W1)
+call mma_deallocate(tmp)
+call mma_allocate(A,n,n,label='tmpA')
+call mma_allocate(B,n,n,label='tmpB')
+call mma_allocate(X,n,n,label='tmpX')
 do i=1,n
   do j=1,n
-    Work(iA+k) = Work(itF+j-1+(i+n-1)*m)
-    Work(iB+k) = Work(itF+j+n-1+(i+n-1)*m)
-    k = k+1
+    A(j,i) = tF(j,i+n)
+    B(j,i) = tF(j+n,i+n)
   end do
 end do
-call XDR_dmatinv(Work(iA),n)
-call dmxma(n,'N','N',Work(iB),Work(iA),Work(iX),One)
+call XDR_dmatinv(A,n)
+call dmxma(n,'N','N',B,A,X,One)
 
 ! Apply decoupling transformation to the Fock matrix
 
-call dmxma(n,'C','N',Work(iX),Work(iOS),Work(iA),One)
-call dmxma(n,'C','N',Work(iX),Work(iES),Work(iB),One)
-call dmxma(n,'N','N',Work(iB),Work(iX),Work(iES),One)
-call dmxma(n,'N','N',Work(iOL),Work(iX),Work(iB),One)
-do i=0,n*n-1
-  ! X-projected Fock matrix
-  Work(iEL+i) = Work(iEL+i)+Work(iA+i)+Work(iB+i)+Work(iES+i)
-end do
-call dmxma(n,'C','N',Work(iX),Work(iX),Work(iA),One)
+call dmxma(n,'C','N',X,OS,A,One)
+call dmxma(n,'C','N',X,ES,B,One)
+call dmxma(n,'N','N',B,X,ES,One)
+call dmxma(n,'N','N',OL,X,B,One)
 do i=1,n
-  Work(iA+(i-1)*(n+1)) = Work(iA+(i-1)*(n+1))+One
+  do j=1,n
+    EL(j,i) = EL(j,i)+A(j,i)+B(j,i)+ES(j,i)
+  end do
+end do
+call dmxma(n,'C','N',X,X,A,One)
+do i=1,n
+  A(i,i) = A(i,i)+One
 end do
 ! renormalization matrix
-call XDR_dmatsqrt(Work(iA),n)
+call XDR_dmatsqrt(A,n)
 ! decoupled electron Fock matrix in moment space (eigenfunction of T matrix)
-call dmxma(n,'C','N',Work(iA),Work(iEL),Work(iB),One)
-call dmxma(n,'N','N',Work(iB),Work(iA),v,One)
+call dmxma(n,'C','N',A,EL,B,One)
+call dmxma(n,'N','N',B,A,v,One)
 
 ! Back transform to non-orthogonal basis picture
 
-call dmxma(n,'C','N',Work(iBk),v,Work(iB),One)
-call dmxma(n,'N','N',Work(iB),Work(iBk),v,One)
+call dmxma(n,'C','N',Bk,v,B,One)
+call dmxma(n,'N','N',B,Bk,v,One)
 
 ! Calculate transform matrices in non-orthogonal basis space
 
-call dmxma(n,'N','N',Work(iX),Work(iA),Work(iB),One)
-! iA/iB is the upper/lower part of transformation matrix in fpFW picture
-call getmem('TmpM','ALLOC','REAL',iM,nn*4+4)
-call XDR_mkutls(n,Work(iA),Work(iB),Work(iTr),Work(iBk),Work(iKC),Work(iKC+n),Work(iKC+2*n),ul,us,Work(iM),Work(iM+nn), &
-                Work(iM+nn*2),Work(iM+nn*3))
-call getmem('TmpM','FREE','REAL',iM,nn*4+4)
+call dmxma(n,'N','N',X,A,B,One)
+! A/B is the upper/lower part of transformation matrix in fpFW picture
+call mma_allocate(M1,n,n,4,label='TmpM')
+call XDR_mkutls(n,A,B,Tr,Bk,KC(:,1),KC(:,2),KC(:,3),ul,us,M1(:,:,1),M1(:,:,2),M1(:,:,3),M1(:,:,4))
+call mma_deallocate(M1)
 
 ! Free temp memories
 
-call getmem('Tr  ','FREE','REAL',iTr,nn)
-call getmem('Back','FREE','REAL',iBk,nn)
-call getmem('mEL ','FREE','REAL',iEL,nn)
-call getmem('mES ','FREE','REAL',iES,nn)
-call getmem('mOL ','FREE','REAL',iOL,nn)
-call getmem('mOS ','FREE','REAL',iOS,nn)
-call getmem('Ep  ','FREE','REAL',iEP,n+4)
-call getmem('E0  ','FREE','REAL',iE0,n+4)
-call getmem('KC  ','FREE','REAL',iKC,n*3+4)
-call getmem('Fock ','FREE','REAL',itF,m*m+4)
-call getmem('Eig  ','FREE','REAL',iW,m+4)
-call getmem('Tmp  ','FREE','REAL',itmp,lwork)
-call getmem('tmpA','FREE','REAL',iA,nn)
-call getmem('tmpB','FREE','REAL',iB,nn)
-call getmem('matX','FREE','REAL',iX,nn)
+call mma_deallocate(Tr)
+call mma_deallocate(Bk)
+call mma_deallocate(EL)
+call mma_deallocate(ES)
+call mma_deallocate(OL)
+call mma_deallocate(OS)
+call mma_deallocate(Ep)
+call mma_deallocate(E0)
+call mma_deallocate(KC)
+call mma_deallocate(tF)
+call mma_deallocate(A)
+call mma_deallocate(B)
+call mma_deallocate(X)
 
 return
 

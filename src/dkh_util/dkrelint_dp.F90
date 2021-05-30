@@ -24,23 +24,25 @@ use Basis_Info, only: dbsc, nBas, ncnttp
 use DKH_Info, only: CLightAU, iRelae, iRFlag1, LDKroll, radiLD
 use Symmetry_Info, only: nIrrep
 use Logical_Info, only: lMXTC
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: dkhorder, dkhparam, i, i_Dim, iAa, iAngr, iAuxi, iBas, iBu, icnt, iCnttp, iComp, idbg, idum(1), iE, iEig, &
-                     iEv2, iEven1, iEw, iExp, iG, iH, iH_nr, iH_temp, iibas, iK, iK_Done, iK_Save, iLoc, iMap, iMEF, indx, iOpt, &
-                     iP, ip_MEF, ip_Pmag, ip_Prop, ipaddr(3), ipiComp, ipInd, ipjCent, ipOp, iPrint, iProps, ipVp, iPvpt, ipXp, &
-                     iRC, iRe1r, iRout, iRr, iSinv, iSize, iSizec, iSizep, iSizes, iSS, iTemp, iTt, iTwrk4, iU_L, iU_S, iV, iX, &
-                     iY, jCent, jExp, k, kAng, kC, kCof, kCofi, kCofj, kExp, kExpi, kExpj, ks, kz, L, Length, Length2, lOper, &
-                     lOper_save, Lu_One, Mem_Available, n, n_Int, nAtoms, nBas_cont(8), nBas_prim(8), nbl, nComp, nrSym, nSym, &
-                     numb_props, relmethod, xorder
+integer(kind=iwp) :: dkhorder, dkhparam, i, i_Dim, iAngr, iBas, icnt, iCnttp, iComp, idbg, idum(1), iExp, iibas, iMEF, iOpt, &
+                     ipaddr(3), iPrint, iProps, iRC, iRout, iSize, iSizec, iSizep, iSizes, iTemp, jCent, jExp, k, kAng, kC, kCof, &
+                     kCofi, kCofj, kExp, kExpi, kExpj, ks, kz, L, lOper, lOper_save, Lu_One, n, n_Int, nAtoms, nBas_cont(8), &
+                     nBas_prim(8), nbl, nComp, nrSym, nSym, numb_props, Op, relmethod, xorder
 real(kind=wp) :: rCofi, rCofj, rEpsilon, rExpi, rExpj, rI, rNorm, rSum, VELIT
 logical(kind=iwp) :: DoFullLT
 !character(len=3) :: paramtype
 character(len=8) :: Label, pXpLbl
+integer(kind=iwp), allocatable :: indx(:), Loc(:), Map(:), Ind(:,:)
+real(kind=wp), allocatable :: iK(:), SS(:), V(:), pVp(:), K_Save(:), K_Done(:), U_L(:), U_S(:), X(:), pXp(:), Prop(:), Pmag(:), &
+                              Y(:), P(:), G(:), Ev2(:,:), Eig(:,:), Sinv(:,:), Ew(:), E(:), Aa(:), Rr(:), Tt(:), Re1r(:,:), &
+                              Auxi(:,:), Twrk4(:), Even1(:,:), Pvpt(:), Bu(:), H(:), H_nr(:), H_temp(:)
 logical(kind=iwp), parameter :: Debug = .false.
-integer(kind=iwp), external :: nProp_Int
+integer(kind=iwp), external :: nProp_Int, ip_of_Work
 #include "Molcas.fh"
 #include "rinfo.fh"
 #include "print.fh"
@@ -188,54 +190,53 @@ do L=0,nSym-1
 end do
 if (iPrint >= 10) write(u6,*) ' iSizep',iSizep
 
-call GetMem('Kin     ','ALLO','REAL',iK,iSizep+4)
-call GetMem('SS      ','ALLO','REAL',iSS,iSizep+4)
-call GetMem('V       ','ALLO','REAL',iV,iSizep+4)
-call GetMem('pVp     ','ALLO','REAL',ipVp,iSizep+4)
+call mma_allocate(iK,iSizep+4,label='Kin')
+call mma_allocate(SS,iSizep+4,label='SS')
+call mma_allocate(V,iSizep+4,label='V')
+call mma_allocate(pVp,iSizep+4,label='pVp')
 
-if (iprint >= 20) write(u6,*) '  indices',iss,ik,iv,ipvp
 Label = 'Mltpl  0'
 iComp = 1
 iOpt = 0
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,Work(iSS),lOper)
+call RdOne(iRC,iOpt,Label,1,SS,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 nComp = 1
-ipaddr(1) = iSS
+ipaddr(1) = ip_of_Work(SS)
 if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
 Label = 'Attract '
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,Work(iV),lOper)
+call RdOne(iRC,iOpt,Label,1,V,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
-ipaddr(1) = iV
+ipaddr(1) = ip_of_Work(V)
 if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
 Label = 'Kinetic '
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,Work(iK),lOper)
+call RdOne(iRC,iOpt,Label,1,iK,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
-ipaddr(1) = iK
+ipaddr(1) = ip_of_Work(iK)
 if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
 Label = 'pVp     '
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,Work(ipVp),lOper)
+call RdOne(iRC,iOpt,Label,1,pVp,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
-ipaddr(1) = ipVp
+ipaddr(1) = ip_of_Work(pVp)
 if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
 
 iOpt = 0
@@ -296,18 +297,18 @@ if (IRELAE >= 100) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  call Allocate_Work(iK_Save,iSizep+4)
-  call Allocate_Work(iK_Done,iSizep+4)
-  call dcopy_(iSizep+4,Work(iK),1,Work(iK_Save),1)
+  call mma_allocate(K_Save,iSizep+4,label='K_Save')
+  call mma_allocate(K_Done,iSizep+4,label='K_Done')
+  call dcopy_(iSizep+4,iK,1,K_Save,1)
 
-  call Allocate_Work(iU_L,iSizes+4)
-  call Allocate_Work(iU_S,iSizes+4)
+  call mma_allocate(U_L,iSizes+4,label='U_L')
+  call mma_allocate(U_S,iSizes+4,label='U_S')
 
   ! Read block information if do local transformation
 
   if (LDKroll) then
-    call GetMem('Index  ','ALLO','INTE',indx,iibas+4)
-    call xdr_indx(iibas,iWork(indx))
+    call mma_allocate(indx,iibas,label='Index')
+    call xdr_indx(iibas,indx)
     DoFullLT = .true.
     if (radiLD == Zero) DoFullLT = .false.
     if (DoFullLT) then
@@ -322,9 +323,9 @@ if (IRELAE >= 100) then
 
   ! Do the Hamiltonian separately
 
-  k = 0
-  ks = 0
-  kz = 0
+  k = 1
+  ks = 1
+  kz = 1
 
   do L=0,nSym-1
     n = nBas(L)
@@ -334,17 +335,16 @@ if (IRELAE >= 100) then
     !*******************************************************************
     !                                                                  *
     if (LDKroll) then
-      call GetMem('InfoLoc','ALLO','INTE',iLoc,n+4)
-      call GetMem('MapLoc ','ALLO','INTE',iMap,n+4)
-      call xdr_info_local(n,iWork(indx+kz),nbl,iWork(iLoc),iWork(iMap))
-      !DP write(u6,'(a,i1,i5,a,99i4)') '   Sym: ',L+1,n,'  = Local ',(iWork(iLoc+i),i=0,nbl-1)
-      call XDR_Local_Ham(n,isize,n*n,relmethod,dkhparam,dkhorder,xorder,Work(iSS+k),Work(iK+k),Work(iV+k),Work(ipVp+k), &
-                         Work(iU_L+ks),Work(iU_S+ks),iWork(indx+kz),nbl,iWork(iLoc),iWork(iMap),DoFullLT,clightau)
-      call GetMem('InfoLoc','FREE','INTE',iLoc,n+4)
-      call GetMem('MapLoc ','FREE','INTE',iMap,n+4)
+      call mma_allocate(Loc,n,label='InfoLoc')
+      call mma_allocate(Map,n,label='InfoMap')
+      call xdr_info_local(n,indx(kz),nbl,Loc,Map)
+      !DP write(u6,'(a,i1,i5,a,99i4)') '   Sym: ',L+1,n,'  = Local ',(Loc(i),i=1,nbl)
+      call XDR_Local_Ham(n,isize,n*n,relmethod,dkhparam,dkhorder,xorder,SS(k),iK(k),V(k),pVp(k),U_L(ks),U_S(ks),indx(kz),nbl,Loc, &
+                         Map,DoFullLT,clightau)
+      call mma_deallocate(Loc)
+      call mma_deallocate(Map)
     else
-      call XDR_Ham(n,isize,n*n,relmethod,dkhparam,dkhorder,xorder,Work(iSS+k),Work(iK+k),Work(iV+k),Work(ipVp+k),Work(iU_L+ks), &
-                   Work(iU_S+ks),clightau)
+      call XDR_Ham(n,isize,n*n,relmethod,dkhparam,dkhorder,xorder,SS(k),iK(k),V(k),pVp(k),U_L(ks),U_S(ks),clightau)
     end if
     !                                                                  *
     !*******************************************************************
@@ -356,7 +356,7 @@ if (IRELAE >= 100) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  call dcopy_(iSizep+4,Work(iK),1,Work(iK_Done),1)
+  call dcopy_(iSizep+4,iK,1,K_Done,1)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -367,16 +367,16 @@ if (IRELAE >= 100) then
     ! Pick up the number of property integrals to process.
 
 #   ifndef MOLPRO
-    numb_props = nProp_Int(.false.,iWork(ip_iDummy),0)
-    call Allocate_iWork(ipInd,4*numb_props)
-    numb_props = nProp_Int(.true.,iWork(ipInd),numb_props)
+    numb_props = nProp_Int(.false.,idum,0)
+    call mma_allocate(Ind,4,numb_props,label='Ind')
+    numb_props = nProp_Int(.true.,Ind,numb_props)
     do iProps=1,numb_props
-      ipOp = ipInd+(iProps-1)*4
-      ip_MEF = ipInd+(iProps-1)*4+1
-      ipiComp = ipInd+(iProps-1)*4+2
-      ipjCent = ipInd+(iProps-1)*4+3
+      Op = Ind(1,iProps)
+      iMEF = Ind(2,iProps)
+      iComp = Ind(3,iProps)
+      jCent = Ind(4,iProps)
 
-      call dcopy_(iSizep+4,Work(iK_Save),1,Work(iK),1)
+      call dcopy_(iSizep+4,K_Save,1,iK,1)
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -392,23 +392,18 @@ if (IRELAE >= 100) then
 
       call OneBas('PRIM')
 
-      iMEF = iWork(ip_MEF)
-      if (iWork(ipOp) == 1) then
+      if (Op == 1) then
         write(Label,'(a,i2)') 'MLTPL ',iMEF
-      else if (iWork(ipOp) == 2) then
-        jCent = iWork(ipjCent)
+      else if (Op == 2) then
         write(Label,'(a,i1,i5)') 'EF',iMEF,jCent
-      else if (iWork(ipOp) == 3) then
-        jCent = iWork(ipjCent)
+      else if (Op == 3) then
         write(Label,'(a,i5)') 'Cnt',jCent
-      else if (iWork(ipOp) == 4) then
-        jCent = iWork(ipjCent)
+      else if (Op == 4) then
         write(Label,'(A,I3)') 'MAGXP',jCent
       else
         write(u6,*) 'DKRelInt: illegal property!'
         call Abend()
       end if
-      iComp = iWork(ipiComp)
       !write(u6,*)
       !write(u6,*) 'Label=',Label
       !write(u6,*) 'iComp=',iComp
@@ -420,55 +415,54 @@ if (IRELAE >= 100) then
       call iRdOne(iRC,iOpt,Label,iComp,idum,lOper)
       if (iRC == 0) n_Int = idum(1)
       !write(u6,*) 'lOper=',lOper
-      call GetMem('X       ','ALLO','REAL',iX,n_Int+4)
+      call mma_allocate(X,n_Int+4,label='X')
       iRC = -1
       iOpt = 0
-      call RdOne(iRC,iOpt,Label,iComp,Work(iX),lOper)
+      call RdOne(iRC,iOpt,Label,iComp,X,lOper)
       if (iRC /= 0) then
         write(u6,*) 'DKRelInt: Error reading from ONEREL'
         write(u6,'(A,A)') 'Label=',Label
         write(u6,'(A,A)') 'iRC=',iRC
         call Abend()
       end if
-      call CmpInt(Work(iX),n_Int,nBas_Prim,nSym,lOper)
+      call CmpInt(X,n_Int,nBas_Prim,nSym,lOper)
       if (n_Int == 0) then
         iOpt = 0
         call ClsOne(iRC,iOpt)
       else
 
-        if (iWork(ipOp) == 1) then
+        if (Op == 1) then
           write(pXpLbl,'(A,I2)') 'pMp   ',iMEF
-        else if (iWork(ipOp) == 2) then
+        else if (Op == 2) then
           write(pXpLbl,'(A,I1,I5)') 'PP',iMEF,jCent
-        else if (iWork(ipOp) == 3) then
+        else if (Op == 3) then
           write(pXpLbl,'(A,I2)') 'pCp   ',jCent
-        else if (iWork(ipOp) == 4) then
+        else if (Op == 4) then
           write(pXpLbl,'(A,I3)') 'MAGPX',jCent
         end if
         iOpt = 1
         iRC = -1
         call iRdOne(iRC,iOpt,pXpLbl,iComp,idum,lOper)
         if (iRC == 0) n_Int = idum(1)
-        call GetMem('pXp     ','ALLO','REAL',ipXp,n_Int+4)
+        call mma_allocate(pXp,n_Int+4,label='pXp')
         iOpt = 0
         iRC = -1
-        call RdOne(iRC,iOpt,pXpLbl,iComp,Work(ipXp),lOper)
+        call RdOne(iRC,iOpt,pXpLbl,iComp,pXp,lOper)
         if (iRC /= 0) then
           write(u6,*) 'DKRelInt: Error reading from ONEREL'
           write(u6,'(A,A)') 'pXpLbl=',pXpLbl
           write(u6,'(A,A)') 'iRC=',iRC
           call Abend()
         end if
-        call CmpInt(Work(ipXp),n_Int,nBas_Prim,nSym,lOper)
+        call CmpInt(pXp,n_Int,nBas_Prim,nSym,lOper)
 
         iOpt = 0
         call ClsOne(iRC,iOpt)
 
-        call GetMem('Core','Max','Real',iDum(1),Mem_Available)
+        !call mma_maxDBLE(Mem_Available)
         !write(u6,*) 'Mem_Available=',Mem_Available
-        k = 0
-        ks = 0
-        kz = 0
+        k = 1
+        ks = 1
         do L=0,nSym-1
           n = nBas(L)
           iSize = n*(n+1)/2
@@ -481,10 +475,9 @@ if (IRELAE >= 100) then
             !                                                          *
             !***********************************************************
             !                                                          *
-            call XDR_Prop(n,isize,n*n,relmethod,dkhparam,dkhorder,xorder,Work(iSS+k),Work(iK+k),Work(iV+k),Work(ipVp+k), &
-                          Work(iX+k),Work(ipXp+k),Work(iU_L+ks),Work(iU_S+ks),clightau,Label,iComp,iSizec)
+            call XDR_Prop(n,isize,n*n,relmethod,dkhparam,dkhorder,xorder,SS(k),iK(k),V(k),pVp(k),X(k),pXp(k),U_L(ks),U_S(ks), &
+                          clightau,Label,iComp,iSizec)
             ks = ks+n*n
-            kz = kz+n
           end if
           k = k+isize
         end do
@@ -492,12 +485,12 @@ if (IRELAE >= 100) then
         !***************************************************************
         !                                                              *
         ! Put the picture change corrected integral back to the
-        ! ONEINT file. Primitives in Work(iX).
+        ! ONEINT file. Primitives in X.
         !
-        ! First contract the result, store in Work(ip_Prop)
+        ! First contract the result, store in Prop
 
-        call Allocate_Work(ip_Prop,iSizec+4)
-        call repmat(idbg,Work(iX),Work(ip_Prop),.true.)
+        call mma_allocate(Prop,iSizec+4,label='Prop')
+        call repmat(idbg,X,Prop,.true.)
         !                                                              *
         !***************************************************************
         !                                                              *
@@ -509,19 +502,19 @@ if (IRELAE >= 100) then
         call OpnOne(iRC,iOpt,'ONEINT',Lu_One)
         if (iRC /= 0) call Error()
 
-        if (iWork(ipOp) == 4) then
-          call Allocate_Work(ip_Pmag,iSizec+4)
-          call repmat(idbg,Work(iX),Work(ip_Pmag),.false.)
+        if (Op == 4) then
+          call mma_allocate(Pmag,iSizec+4,label='Pmag')
+          call repmat(idbg,X,Pmag,.false.)
           lOper_save = lOper
           lOper = 255
-          call WrOne(iRC,iOpt,Label,iComp,Work(ip_Pmag),lOper)
-          call WrOne(iRC,iOpt,pXpLbl,iComp,Work(ip_Pmag),lOper)
+          call WrOne(iRC,iOpt,Label,iComp,Pmag,lOper)
+          call WrOne(iRC,iOpt,pXpLbl,iComp,Pmag,lOper)
           iOpt = 0
           call ClsOne(iRC,iOpt)
-          call Free_Work(ip_Prop)
-          call Free_Work(ip_Pmag)
-          call GetMem('pXp     ','FREE','REAL',ipXp,iSizep+4)
-          call GetMem('X       ','FREE','REAL',iX,iSizep+4)
+          call mma_deallocate(X)
+          call mma_deallocate(pXp)
+          call mma_deallocate(Prop)
+          call mma_deallocate(Pmag)
           lOper = lOper_save
           cycle
         end if
@@ -531,11 +524,11 @@ if (IRELAE >= 100) then
         lOper = -1
         call iRdOne(iRC,iOpt,Label,iComp,idum,lOper)
         if (iRC == 0) n_Int = idum(1)
-        call GetMem('Y       ','ALLO','REAL',iY,n_Int+4)
+        call mma_allocate(Y,n_Int+4,label='Y')
         iRC = -1
         iOpt = 0
-        call RdOne(iRC,iOpt,Label,iComp,Work(iY),lOper)
-        !write(u6,*) 'Y1=',DDot_(n_Int,Work(iY),1,One,0)
+        call RdOne(iRC,iOpt,Label,iComp,Y,lOper)
+        !write(u6,*) 'Y1=',DDot_(n_Int,Y,1,One,0)
         if (iRC /= 0) then
           write(u6,*) 'DKRelInt: Error reading from ONEINT'
           write(u6,'(A,A)') 'Label=',Label
@@ -545,40 +538,40 @@ if (IRELAE >= 100) then
         ! Put the picture change corrected blocks in. Note that this
         ! is just the diagonal symmetry blocks.
 
-        call Cp_Prop_Int(Work(iY),n_Int,Work(ip_Prop),iSizec,nrBas,nIrrep,lOper)
+        call Cp_Prop_Int(Y,n_Int,Prop,iSizec,nrBas,nIrrep,lOper)
 
         ! Now write it back to disc
 
         iOpt = 0
-        call WrOne(iRC,iOpt,Label,iComp,Work(iY),lOper)
+        call WrOne(iRC,iOpt,Label,iComp,Y,lOper)
 
         iOpt = 0
         call ClsOne(iRC,iOpt)
 
-        call Free_Work(iY)
-        call Free_Work(ip_Prop)
+        call mma_deallocate(Prop)
+        call mma_deallocate(Y)
 
-        call GetMem('pXp     ','FREE','REAL',ipXp,iSizep+4)
+        call mma_deallocate(pXp)
       end if
-      call GetMem('X       ','FREE','REAL',iX,iSizep+4)
+      call mma_deallocate(X)
       !                                                                *
       !*****************************************************************
       !                                                                *
     end do ! iProps
 
-    call Free_iWork(ipInd)
+    call mma_deallocate(Ind)
 #   endif
   end if
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  call dcopy_(iSizep+4,Work(iK_Done),1,Work(iK),1)
-  call Free_Work(iK_Done)
-  call Free_Work(iK_Save)
-  call Free_Work(iU_L)
-  call Free_Work(iU_S)
+  call dcopy_(iSizep+4,K_Done,1,iK,1)
+  call mma_deallocate(K_Save)
+  call mma_deallocate(K_Done)
+  call mma_deallocate(U_L)
+  call mma_deallocate(U_S)
   if (LDKroll) then
-    call GetMem('Index  ','FREE','INTE',indx,iibas+4)
+    call mma_deallocate(indx)
   end if
   !                                                                    *
   !*********************************************************************
@@ -596,60 +589,59 @@ else
   !      Loop over the symmetry blocks
   !
   rEpsilon = 1.0e-10_wp
-  k = 0
+  k = 1
   do L=0,nSym-1
     n = nBas(L)
     iSize = n*(n+1)/2
     if (iSize == 0) cycle
     ! Allocate
 
-    call GetMem('P       ','ALLO','REAL',iP,isize+4)
-    call GetMem('G       ','ALLO','REAL',iG,isize+4)
-    call GetMem('Ev2     ','ALLO','REAL',iEv2,n*n+4)
-    call GetMem('Eig     ','ALLO','REAL',iEig,n*n+4)
-    call GetMem('Sinv    ','ALLO','REAL',iSinv,n*n+4)
-    call GetMem('Ew      ','ALLO','REAL',iEw,n+4)
-    call GetMem('E       ','ALLO','REAL',iE,n+4)
-    call GetMem('Aa      ','ALLO','REAL',iAa,n+4)
-    call GetMem('Rr      ','ALLO','REAL',iRr,n+4)
-    call GetMem('Tt      ','ALLO','REAL',iTt,n+4)
-    call GetMem('Re1r    ','ALLO','REAL',iRe1r,n*n+4)
-    call GetMem('Auxi    ','ALLO','REAL',iAuxi,n*n+4)
-    call GetMem('Twrk4   ','ALLO','REAL',iTwrk4,n*200+4)
-    Length = N*N+4
-    Length2 = iSize+4
-    i_Dim = N
+    call mma_allocate(P,iSize+4,label='P')
+    call mma_allocate(G,iSize+4,label='G')
+    call mma_allocate(Ev2,n,n,label='Ev2')
+    call mma_allocate(Eig,n,n,label='Eig')
+    call mma_allocate(Sinv,n,n,label='Sinv')
+    call mma_allocate(Ew,n,label='Ew')
+    call mma_allocate(E,n,label='E')
+    call mma_allocate(Aa,n,label='Aa')
+    call mma_allocate(Rr,n,label='Rr')
+    call mma_allocate(Tt,n,label='Tt')
+    call mma_allocate(Re1r,n,n,label='Re1r')
+    call mma_allocate(Auxi,n,n,label='Auxi')
+    call mma_allocate(Twrk4,n*200,label='Twrk4')
     if (IRELAE == 0) then
-      Length = 1
-      Length2 = 1
+      call mma_allocate(Even1,1,1,label='Even1')
+      call mma_allocate(Pvpt,1,label='Pvpt')
+      call mma_allocate(Bu,1,label='Bu')
       i_Dim = 1
+    else
+      call mma_allocate(Even1,n,n,label='Even1')
+      call mma_allocate(Pvpt,iSize,label='Pvpt')
+      call mma_allocate(Bu,iSize,label='Bu')
+      i_Dim = n
     end if
-    call GetMem('Even1   ','ALLO','REAL',iEven1,Length)
-    call GetMem('Pvpt    ','ALLO','REAL',iPvpt,Length2)
-    call GetMem('Bu      ','ALLO','REAL',iBu,Length2)
 
     ! call to package relsew
 
-    call SCFCLI(idbg,rEpsilon,Work(iSS+k),Work(iK+k),Work(iV+k),Work(ipVp+k),n,iSize,VELIT,Work(iBu),Work(iP),Work(iG),Work(iEv2), &
-                Work(iEig),Work(iSinv),Work(iEw),Work(iE),Work(iAa),Work(iRr),Work(iTt),Work(iPvpt),Work(iEven1),Work(iRe1r), &
-                Work(iAuxi),Work(iTwrk4),i_Dim)
+    call SCFCLI(idbg,rEpsilon,SS(k),iK(k),V(k),pVp(k),n,iSize,VELIT,Bu,P,G,Ev2,Eig,Sinv,Ew,E,Aa,Rr,Tt,Pvpt,Even1,Re1r,Auxi,Twrk4, &
+                i_Dim)
 
-    call GetMem('Bu      ','FREE','REAL',iBu,Length2)
-    call GetMem('P       ','FREE','REAL',iP,isize+4)
-    call GetMem('G       ','FREE','REAL',iG,isize+4)
-    call GetMem('Ev2     ','FREE','REAL',iEv2,n*n+4)
-    call GetMem('Eig     ','FREE','REAL',iEig,n*n+4)
-    call GetMem('Sinv    ','FREE','REAL',iSinv,n*n+4)
-    call GetMem('Ew      ','FREE','REAL',iEw,n+4)
-    call GetMem('E       ','FREE','REAL',iE,n+4)
-    call GetMem('Aa      ','FREE','REAL',iAa,n+4)
-    call GetMem('Rr      ','FREE','REAL',iRr,n+4)
-    call GetMem('Tt      ','FREE','REAL',iTt,n+4)
-    call GetMem('Pvpt    ','FREE','REAL',iPvpt,Length2)
-    call GetMem('Even1   ','FREE','REAL',iEven1,Length)
-    call GetMem('Re1r    ','FREE','REAL',iRe1r,n*n+4)
-    call GetMem('Auxi    ','FREE','REAL',iAuxi,n*n+4)
-    call GetMem('Twrk4   ','FREE','REAL',iTwrk4,n*200+4)
+    call mma_deallocate(P)
+    call mma_deallocate(G)
+    call mma_deallocate(Ev2)
+    call mma_deallocate(Eig)
+    call mma_deallocate(Sinv)
+    call mma_deallocate(Ew)
+    call mma_deallocate(E)
+    call mma_deallocate(Aa)
+    call mma_deallocate(Rr)
+    call mma_deallocate(Tt)
+    call mma_deallocate(Re1r)
+    call mma_deallocate(Auxi)
+    call mma_deallocate(Twrk4)
+    call mma_deallocate(Even1)
+    call mma_deallocate(Pvpt)
+    call mma_deallocate(Bu)
     k = k+isize
   end do
 
@@ -659,28 +651,28 @@ end if
 !                                                                      *
 ! Allocate arrays in contracted basis
 
-call GetMem('H       ','ALLO','REAL',iH,iSizec+4)
-call FZero(Work(iH),iSizec+4)
-call GetMem('H_o     ','ALLO','REAL',iH_nr,iSizec+4)
-call FZero(Work(iH_nr),iSizec+4)
-call GetMem('H_temp  ','ALLO','REAL',iH_temp,iSizec+4)
-call FZero(Work(iH_temp),iSizec+4)
+call mma_allocate(H,iSizec+4,label='H')
+call mma_allocate(H_nr,iSizec+4,label='H_o')
+call mma_allocate(H_temp,iSizec+4,label='H_temp')
+H(:) = Zero
+H_nr(:) = Zero
+H_temp(:) = Zero
 
 #ifdef MOLPRO
 ! store relativistic H
-call repmat(idbg,Work(ik),Work(iH_temp),.true.)
-call fperm(Work(iH_temp),Work(ih))
-call writem(Work(iH),isizec+2,1,1200,0,'H0')
-call writem(Work(iH),isizec+2,1,1210,0,'H01')
+call repmat(idbg,ik,H_temp,.true.)
+call fperm(H_temp,H)
+call writem(H,iSizec+2,1,1200,0,'H0')
+call writem(H,iSizec+2,1,1210,0,'H01')
 ! store V=H-T
-call lesw(Work(iss),iSizec,1,1400,0)
-call daxpy_(iSizec,-one,Work(iss),1,Work(iH),1)
-call writem(Work(iH),isizec+2,1,1410,0,'POT')
+call lesw(SS,iSizec,1,1400,0)
+call daxpy_(iSizec,-One,SS,1,H,1)
+call writem(H,iSizec+2,1,1410,0,'POT')
 ! reset contracted basis size
 call iCopy(8,nBas_Cont,1,nBas,1)
-call GetMem('V       ','FREE','REAL',iV,iSizep+4)
-call GetMem('SS      ','FREE','REAL',iSS,iSizep+4)
-call GetMem('Kin     ','FREE','REAL',iK,iSizep+4)
+call mma_deallocate(iK)
+call mma_deallocate(SS)
+call mma_deallocate(V)
 #else
 
 ! Note: in combination with ECPs V is only based on the effective
@@ -689,7 +681,7 @@ call GetMem('Kin     ','FREE','REAL',iK,iSizep+4)
 !       have to fix this now. Hence the somewhat strange way in
 !       which the DKH corrected Hamiltonian is computed.
 !
-! Compute stripped non-relativistic H (iH_Temp)
+! Compute stripped non-relativistic H H_temp
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -704,33 +696,33 @@ if (iRC /= 0) call Error()
 call OneBas('PRIM')
 
 Label = 'Kinetic '
-call RdOne(iRC,iOpt,Label,1,Work(iSS),lOper)
+call RdOne(iRC,iOpt,Label,1,SS,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 Label = 'Attract '
-call RdOne(iRC,iOpt,Label,1,Work(iV),lOper)
+call RdOne(iRC,iOpt,Label,1,V,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 ! Add Kinetic and Attraction term
-call DaXpY_(iSizep+4,One,Work(iSS),1,Work(iV),1)
+call DaXpY_(iSizep+4,One,SS,1,V,1)
 if (iPrint >= 20) then
   call iSwap(8,nBas,1,nBas_Prim,1)
-  call PrMtrx('Attract+Kinetic (prim)',[lOper],nComp,[iV],Work)
-  call PrMtrx('Kinetic (prim)',[lOper],nComp,[iSS],Work)
+  call PrMtrx('Attract+Kinetic (prim)',[lOper],nComp,[ip_of_Work(V)],Work)
+  call PrMtrx('Kinetic (prim)',[lOper],nComp,[ip_of_Work(SS)],Work)
   call iSwap(8,nBas,1,nBas_Prim,1)
 end if
-call dcopy_(4,[Zero],0,Work(iH_Temp+iSizec),1)
-! Contract and store in iH_temp
-call repmat(idbg,Work(iV),Work(iH_temp),.true.)
+H_temp(iSizec+1:) = Zero
+! Contract and store in H_temp
+call repmat(idbg,V,H_temp,.true.)
 
-call GetMem('V       ','FREE','REAL',iV,iSizep+4)
-call GetMem('SS      ','FREE','REAL',iSS,iSizep+4)
+call mma_deallocate(SS)
+call mma_deallocate(V)
 
 ! Close ONEREL and re-open ONEINT
 
@@ -746,30 +738,30 @@ if (iRC /= 0) call Error()
 
 if (iPrint >= 20) then
   call iSwap(8,nBas,1,nBas_Cont,1)
-  call PrMtrx('iH_temp (cont)',[lOper],nComp,[iH_temp],Work)
+  call PrMtrx('H_temp (cont)',[lOper],nComp,[ip_of_Work(H_temp)],Work)
   call iSwap(8,nBas,1,nBas_Cont,1)
 end if
 
-! Transform DKH Hamiltonian to contracted basis (iH)
+! Transform DKH Hamiltonian to contracted basis (H)
 
 if (iPrint >= 20) then
   call iSwap(8,nBas,1,nBas_Prim,1)
-  call PrMtrx('iK (prim)',[lOper],nComp,[iK],Work)
+  call PrMtrx('iK (prim)',[lOper],nComp,[ip_of_Work(iK)],Work)
   call iSwap(8,nBas,1,nBas_Prim,1)
 end if
-call repmat(idbg,Work(iK),Work(iH),.true.)
+call repmat(idbg,iK,H,.true.)
 if (iPrint >= 20) then
   call iSwap(8,nBas,1,nBas_Cont,1)
-  call PrMtrx('iH (cont)',[lOper],nComp,[iH],Work)
+  call PrMtrx('H (cont)',[lOper],nComp,[ip_of_Work(H)],Work)
   call iSwap(8,nBas,1,nBas_Cont,1)
 end if
 
-call GetMem('Kin     ','FREE','REAL',iK,iSizep+4)
+call mma_deallocate(iK)
 
 iOpt = 0
 iRC = -1
 Label = 'OneHam 0'
-call RdOne(iRC,iOpt,Label,1,Work(iH_nr),lOper)
+call RdOne(iRC,iOpt,Label,1,H_nr,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -781,8 +773,8 @@ iRC = -1
 ! final Hamiltonian computed as H(nrel) + ( Hrel(s) - Hnrel(s))
 ! where (s) is stripped and with full charge
 
-call DaXpY_(iSizec+4,-One,Work(iH_temp),1,Work(iH),1)
-call DaXpY_(iSizec+4,One,Work(iH_nr),1,Work(iH),1)
+call DaXpY_(iSizec+4,-One,H_temp,1,H,1)
+call DaXpY_(iSizec+4,One,H_nr,1,H,1)
 
 call Get_iArray('nBas',nBas,nSym)
 if (iPrint >= 10) then
@@ -792,15 +784,15 @@ end if
 Label = 'OneHam 0'
 lOper = 1
 nComp = 1
-ipaddr(1) = iH
+ipaddr(1) = ip_of_Work(H)
 if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
 
 ! Replace 1-el Hamiltonian on ONEINT
 
 iRC = -1
-call WrOne(iRC,iOpt,Label,1,Work(iH),lOper)
+call WrOne(iRC,iOpt,Label,1,H,lOper)
 Label = 'OneHam  '
-call WrOne(iRC,iOpt,Label,1,Work(iH),lOper)
+call WrOne(iRC,iOpt,Label,1,H,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -811,10 +803,10 @@ if (IRELAE == 23) then   ! IORA
 
   ! Replace overlap on ONEINT
 
-  call repmat(idbg,Work(ipVp),Work(iH),.true.)
+  call repmat(idbg,pVp,H,.true.)
   iRC = -1
   Label = 'Mltpl  0'
-  call WrOne(iRC,iOpt,Label,1,Work(iH),lOper)
+  call WrOne(iRC,iOpt,Label,1,H,lOper)
   if (iRC /= 0) then
     write(u6,*) 'DKInt: Error reading from ONEINT'
     write(u6,'(A,A)') 'Label=',Label
@@ -823,10 +815,10 @@ if (IRELAE == 23) then   ! IORA
 end if
 #endif
 
-call GetMem('OneHam  ','FREE','REAL',iH,iSizec+4)
-call GetMem('H_o     ','FREE','REAL',iH_nr,iSizec+4)
-call GetMem('H_temp  ','FREE','REAL',iH_temp,iSizec+4)
-call GetMem('pVp     ','FREE','REAL',ipVp,iSizep+4)
+call mma_deallocate(pVp)
+call mma_deallocate(H)
+call mma_deallocate(H_nr)
+call mma_deallocate(H_temp)
 
 return
 

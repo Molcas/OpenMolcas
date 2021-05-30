@@ -49,7 +49,7 @@ subroutine DKH_Info_Dmp()
   use stdalloc, only: mma_allocate, mma_deallocate
   real(kind=wp), allocatable :: rDmp(:)
   integer(kind=iwp) :: i
-  integer(kind=iwp), parameter :: Length = 1+10+5
+  integer(kind=iwp), parameter :: Length = 17
 
   call mma_allocate(rDmp,Length,Label='rDmp:DKH')
   rDmp(1) = real(nCtrLD,kind=wp)
@@ -60,7 +60,8 @@ subroutine DKH_Info_Dmp()
   rDmp(13) = merge(One,Zero,DKroll)
   rDmp(14) = merge(One,Zero,LDKroll)
   rDmp(15) = merge(One,Zero,BSS)
-  rDmp(16) = real(iRelae,kind=wp)
+  rDmp(16) = cLightAU
+  rDmp(17) = real(iRelae,kind=wp)
   call Put_dArray('DKH_Info',rDmp,Length)
   call mma_deallocate(rDmp)
 end subroutine DKH_Info_Dmp
@@ -69,7 +70,7 @@ subroutine DKH_Info_Get()
   use stdalloc, only: mma_allocate, mma_deallocate
   real(kind=wp), allocatable :: rDmp(:)
   integer(kind=iwp) :: i
-  integer(kind=iwp), parameter :: Length = 1+10+5
+  integer(kind=iwp), parameter :: Length = 17
 
   call mma_allocate(rDmp,Length,Label='rDmp:DKH')
   call Get_dArray('DKH_Info',rDmp,Length)
@@ -82,7 +83,8 @@ subroutine DKH_Info_Get()
   DKroll = nint(rDmp(13)) == 1
   LDKroll = nint(rDmp(14)) == 1
   BSS = nint(rDmp(15)) == 1
-  iRelae = nint(rDmp(16))
+  cLightAU = rDmp(16)
+  iRelae = nint(rDmp(17))
 
   call mma_deallocate(rDmp)
 end subroutine DKH_Info_Get

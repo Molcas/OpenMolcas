@@ -19,13 +19,14 @@ subroutine copy_mag_ints(natoms)
 !
 !**************************************************************
 
-use Definitions, only: iwp
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: natoms
-integer(kind=iwp) :: IDUM(1), nmag, irc, iopt, icomp, toper, iat, jtri, iscrt, ncomp, lu_one
+integer(kind=iwp) :: IDUM(1), nmag, irc, iopt, icomp, toper, iat, jtri, ncomp, lu_one
 character(len=8) :: Label
-#include "WrkSpc.fh"
+real(kind=wp), allocatable :: scrt(:)
 
 ! Copy magnetic integrals from ONEREL to ONEINT
 
@@ -45,7 +46,7 @@ call iRdOne(irc,iOpt,Label,iComp,idum,tOper)
 if (irc /= 0) call Error()
 nmag = idum(1)
 ! Some scratch space
-call GetMem('scratch ','ALLO','REAL',iscrt,nmag+4)
+call mma_allocate(scrt,nmag+4,label='scratch')
 iOpt = 0
 nComp = 9
 do iat=1,nAtoms
@@ -57,7 +58,7 @@ do iat=1,nAtoms
     end if
     do iComp=1,nComp
       ! Read the primitives from ONEREL
-      call RdOne(iRC,iOpt,Label,iComp,Work(iscrt),tOper)
+      call RdOne(iRC,iOpt,Label,iComp,scrt,tOper)
       if (iRC /= 0) call Error()
       ! Close ONEREL
       call ClsOne(iRC,iOpt)
@@ -65,14 +66,14 @@ do iat=1,nAtoms
       call OpnOne(iRC,iOpt,'ONEINT',Lu_One)
       if (iRC /= 0) call Error()
       ! Write the primitives to ONEINT ?
-      call WrOne(iRC,iOpt,Label,iComp,Work(iscrt),tOper)
+      call WrOne(iRC,iOpt,Label,iComp,scrt,tOper)
       call ClsOne(iRC,iOpt)
       call OpnOne(iRC,iOpt,'ONEREL',Lu_One)
       if (iRC /= 0) call Error()
     end do
   end do
 end do
-call GetMem('scratch ','FREE','REAL',iscrt,nmag+4)
+call mma_deallocate(scrt)
 call ClsOne(iRC,iOpt)
 
 return

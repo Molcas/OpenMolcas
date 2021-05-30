@@ -12,26 +12,28 @@
 subroutine XDR_dmatinv(a,n)
 ! Invert a real square matrix
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: n
 real(kind=wp), intent(inout) :: a(n*n)
-integer(kind=iwp) :: ipiv, iTMp, info1, info2
+integer(kind=iwp) :: info1, info2
 #ifdef _MOLCAS_MPP_
 logical(kind=iwp) :: isCloneQ
 #endif
-#include "WrkSpc.fh"
+integer(kind=iwp), allocatable :: piv(:)
+real(kind=wp), allocatable :: Tmp(:)
 
 #ifdef _MOLCAS_MPP_
 call check_parallel_data(a,n*n,isCloneQ,'C')
 #endif
-call getmem('ipiv','ALLOC','INTE',ipiv,n+4)
-call getmem('tmp ','ALLOC','REAL',iTmp,n+4)
-call dgetrf_(n,n,a(1),n,iWork(ipiv),info1)
-call dgetri_(n,a(1),n,iWork(ipiv),Work(iTmp),n,info2)
-call getmem('ipiv','FREE','INTE',ipiv,n+4)
-call getmem('tmp ','FREE','REAL',iTmp,n+4)
+call mma_allocate(piv,n,label='piv')
+call mma_allocate(Tmp,n,label='tmp')
+call dgetrf_(n,n,a(1),n,piv,info1)
+call dgetri_(n,a(1),n,piv,Tmp,n,info2)
+call mma_deallocate(piv)
+call mma_deallocate(Tmp)
 #ifdef _MOLCAS_MPP_
 if (isCloneQ) then
   call check_parallel_data(a,n*n,isCloneQ,'S')

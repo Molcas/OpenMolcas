@@ -12,34 +12,36 @@
 subroutine XDR_dmatsqrt(a,n)
 ! Compute the inverse square root of a real symmetric matrix : A**(-1/2)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: n
 real(kind=wp), intent(inout) :: a(n*n)
-integer(kind=iwp) :: iCr, iW, iTmp, i, j, k, info
+integer(kind=iwp) :: i, j, info
 real(kind=wp) :: dia
-#include "WrkSpc.fh"
+real(kind=wp), allocatable :: Tmp(:), Cr(:,:), W(:)
 
-call getmem('tmp ','ALLOC','REAL',iTmp,8*n)
-call getmem('Cr  ','ALLOC','REAL',iCr,n*n+4)
-call getmem('Eig ','ALLOC','REAL',iW,n+4)
-do i=0,n*n-1
-  Work(iCr+i) = a(i+1)
-end do
-call dsyev_('V','L',n,Work(iCr),n,Work(iW),Work(iTmp),8*n,info)
-do i=0,n-1
-  dia = One/sqrt(sqrt(Work(iW+i)))
-  do j=0,n-1
-    k = i*n+j
-    Work(iCr+k) = Work(iCr+k)*dia
+call mma_allocate(Tmp,8*n,label='tmp')
+call mma_allocate(Cr,n,n,label='Cr')
+call mma_allocate(W,n,label='Eig')
+do i=1,n
+  do j=1,n
+    Cr(j,i) = a((i-1)*n+j)
   end do
 end do
-call dmxma(n,'N','T',Work(iCr),Work(iCr),a,One)
-call getmem('tmp ','FREE','REAL',iTmp,8*n)
-call getmem('Cr  ','FREE','REAL',iCr,n*n+4)
-call getmem('Eig ','FREE','REAL',iW,n+4)
+call dsyev_('V','L',n,Cr,n,W,Tmp,8*n,info)
+do i=1,n
+  dia = One/sqrt(sqrt(W(i)))
+  do j=1,n
+    Cr(j,i) = Cr(j,i)*dia
+  end do
+end do
+call dmxma(n,'N','T',Cr,Cr,a,One)
+call mma_deallocate(Tmp)
+call mma_deallocate(Cr)
+call mma_deallocate(W)
 
 return
 

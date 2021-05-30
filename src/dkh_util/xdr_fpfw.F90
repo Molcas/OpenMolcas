@@ -13,6 +13,7 @@ subroutine XDR_fpFW(n,s,t,v,w,Tr,Bk,EL,ES,OL,OS,P,E0,A,B,R,clight)
 ! Transform to moment space ( eigenfunction space of non-relativistic kinetic matrix T )
 !   and apply the free-particle Foldy-Wothuysen transformation to the Fock matrices
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Two
 use Definitions, only: wp, iwp
 
@@ -30,15 +31,15 @@ implicit none
 integer(kind=iwp), intent(in) :: n
 real(kind=wp), intent(in) :: s(n,n), t(n,n), v(n,n), w(n,n), clight
 real(kind=wp), intent(out) :: Tr(n,n), Bk(n,n), EL(n,n), ES(n,n), OL(n,n), OS(n,n), P(n), E0(n), A(n), B(n), R(n)
-integer(kind=iwp) :: i, j, k, itmp, lwork, iW, iA, iB, info
+integer(kind=iwp) :: i, j, k, lwork, info
 real(kind=wp) :: av, aw
-#include "WrkSpc.fh"
+real(kind=wp), allocatable :: tmp(:), sW(:), sA(:,:), sB(:,:)
 
 ! Diagonalization
 
 lwork = 8*n
-call getmem('Tmp  ','ALLOC','REAL',itmp,lwork)
-call getmem('Eig  ','ALLOC','REAL',iW,n+4)
+call mma_allocate(tmp,lwork,label='Tmp')
+call mma_allocate(sW,n,label='Eig')
 k = 0
 do i=1,n
   do j=1,n
@@ -47,42 +48,40 @@ do i=1,n
     k = k+1
   end do
 end do
-call dsygv_(1,'V','L',n,Tr,n,Bk,n,Work(iW),Work(itmp),lwork,info)
+call dsygv_(1,'V','L',n,Tr,n,Bk,n,sW,tmp,lwork,info)
 
 ! Transform potential matrices to moment space
 
-call getmem('TmpA ','ALLOC','REAL',iA,n*n+4)
-call getmem('TmpB ','ALLOC','REAL',iB,n*n+4)
+call mma_allocate(sA,n,n,label='TmpA')
+call mma_allocate(sB,n,n,label='TmpB')
 call dmxma(n,'C','N',Tr,v,Bk,One)
-call dmxma(n,'N','N',Bk,Tr,Work(iA),One)
+call dmxma(n,'N','N',Bk,Tr,sA,One)
 call dmxma(n,'C','N',Tr,w,Bk,One)
-call dmxma(n,'N','N',Bk,Tr,Work(iB),One)
+call dmxma(n,'N','N',Bk,Tr,sB,One)
 
 ! Calculate kinetic moment factors
 
 do i=1,n
-  P(i) = sqrt(clight*clight+Work(iW+i-1)*Two)*clight
+  P(i) = sqrt(clight*clight+sW(i)*Two)*clight
   A(i) = sqrt((P(i)+clight*clight)/(P(i)+P(i)))
   B(i) = clight/sqrt(Two*P(i)*(P(i)+clight*clight))
-  R(i) = sqrt(Work(iW+i-1)*Two)*clight/(P(i)+clight*clight)
+  R(i) = sqrt(sW(i)*Two)*clight/(P(i)+clight*clight)
   ! E0 equal to Ep-c^{2}, but this formula is more stable, especially E0 close to zero
-  E0(i) = Two*Work(iW+i-1)*clight*clight/(P(i)+clight*clight)
+  E0(i) = Two*sW(i)*clight*clight/(P(i)+clight*clight)
 end do
 
 ! Multiply potential matrices with moment factors
 !   aka the fpFW transformation in moment space
 
-k = 0
 do i=1,n
   do j=1,n
-    av = Work(iA+k)*A(i)*A(j)
-    aw = Work(iB+k)*B(i)*B(j)
+    av = sA(j,i)*A(i)*A(j)
+    aw = sB(j,i)*B(i)*B(j)
     EL(j,i) = av+aw
     ES(j,i) = aw/R(i)/R(j)+av*R(i)*R(j)
     OL(j,i) = aw/R(i)-av*R(i)
     OS(j,i) = aw/R(j)-av*R(j)
     Bk(j,i) = Tr(j,i)
-    k = k+1
   end do
 end do
 
@@ -92,10 +91,10 @@ call XDR_dmatinv(Bk,n)
 
 ! Free temp memories
 
-call getmem('Tmp  ','FREE','REAL',itmp,lwork)
-call getmem('Eig  ','FREE','REAL',iW,n+4)
-call getmem('TmpA ','FREE','REAL',iA,n*n+4)
-call getmem('TmpB ','FREE','REAL',iB,n*n+4)
+call mma_deallocate(tmp)
+call mma_deallocate(sW)
+call mma_deallocate(sA)
+call mma_deallocate(sB)
 
 return
 

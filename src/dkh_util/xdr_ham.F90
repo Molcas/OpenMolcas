@@ -65,37 +65,37 @@ subroutine XDR_Ham(nbas,isize,jsize,imethod,paratyp,dkhorder,xorder,inS,inK,inV,
 !     inUL(jsize)  store the relativistic transformation matrix ( Large component part )
 !     inUS(jsize)  store the relativistic transformation matrix ( Small component part )
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
-!subroutine XDR_Ham(nbas,isize,jsize,imethod,paratyp,dkhorder,xorder,inS,inK,inV,inpVp,inUL,inUS,clight)
 implicit none
 integer(kind=iwp), intent(in) :: nbas, isize, jsize, imethod, paratyp, dkhorder, xorder
 real(kind=wp), intent(in) :: inS(isize), inV(isize), inpVp(isize), clight
 real(kind=wp), intent(inout) :: inK(isize)
 real(kind=wp), intent(out) :: inUL(jsize), inUS(jsize)
-integer(kind=iwp) :: nn, i, j, k, jS, jK, jV, jpVp
-#include "WrkSpc.fh"
+integer(kind=iwp) :: nn, i, j, k
+real(kind=wp), allocatable :: sK(:,:), sS(:,:), sV(:,:), pVp(:,:)
 
 ! Convert triangle matrices to square matrices
 
 nn = nbas*nbas+4
-call getmem('skin ','ALLOC','REAL',jK,nn)
-call getmem('sSS  ','ALLOC','REAL',jS,nn)
-call getmem('sV   ','ALLOC','REAL',jV,nn)
-call getmem('spVp ','ALLOC','REAL',jpVp,nn)
+call mma_allocate(sK,nbas,nbas,label='skin')
+call mma_allocate(sS,nbas,nbas,label='sSS')
+call mma_allocate(sV,nbas,nbas,label='sV')
+call mma_allocate(pVp,nbas,nbas,label='spVp')
 k = 0
 do i=1,nbas
   do j=1,i
     k = k+1
-    Work(jK+j-1+(i-1)*nbas) = inK(k)
-    Work(jS+j-1+(i-1)*nbas) = inS(k)
-    Work(jV+j-1+(i-1)*nbas) = inV(k)
-    Work(jpVp+j-1+(i-1)*nbas) = inpVp(k)
+    sK(j,i) = inK(k)
+    sS(j,i) = inS(k)
+    sV(j,i) = inV(k)
+    pVp(j,i) = inpVp(k)
     if (i /= j) then
-      Work(jK+i-1+(j-1)*nbas) = inK(k)
-      Work(jS+i-1+(j-1)*nbas) = inS(k)
-      Work(jV+i-1+(j-1)*nbas) = inV(k)
-      Work(jpVp+i-1+(j-1)*nbas) = inpVp(k)
+      sK(i,j) = inK(k)
+      sS(i,j) = inS(k)
+      sV(i,j) = inV(k)
+      pVp(i,j) = inpVp(k)
     end if
   end do
 end do
@@ -106,17 +106,17 @@ if (imethod == 2) then
 
   ! Call X2C driver
 
-  call x2c_ts1e(nbas,Work(jS),Work(jK),Work(jV),Work(jpVp),inUL,inUS,clight)
+  call x2c_ts1e(nbas,sS,sK,sV,pVp,inUL,inUS,clight)
 else if (imethod == 3) then
 
   ! Call BSS driver
 
-  call bss_ts1e(nbas,Work(jS),Work(jK),Work(jV),Work(jpVp),inUL,inUS,clight)
+  call bss_ts1e(nbas,sS,sK,sV,pVp,inUL,inUS,clight)
 else if (imethod == 1) then
 
   ! Call arbitrary order DKH driver
 
-  call dkh_ts1e(nbas,Work(jS),Work(jK),Work(jV),Work(jpVp),inUL,inUS,clight,dkhorder,xorder,paratyp)
+  call dkh_ts1e(nbas,sS,sK,sV,pVp,inUL,inUS,clight,dkhorder,xorder,paratyp)
 end if
 
 ! Copy relativistic one-electron Hamiltonian back to inK
@@ -125,16 +125,16 @@ k = 0
 do i=1,nbas
   do j=1,i
     k = k+1
-    inK(k) = Work(jV+j-1+(i-1)*nbas)
+    inK(k) = sV(j,i)
   end do
 end do
 
 ! Free temp memories
 
-call getmem('skin ','FREE','REAL',jK,nn)
-call getmem('sSS  ','FREE','REAL',jS,nn)
-call getmem('sV   ','FREE','REAL',jV,nn)
-call getmem('spVp ','FREE','REAL',jpVp,nn)
+call mma_deallocate(sK)
+call mma_deallocate(sS)
+call mma_deallocate(sV)
+call mma_deallocate(pVp)
 
 return
 

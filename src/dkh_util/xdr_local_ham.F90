@@ -13,6 +13,7 @@ subroutine XDR_Local_Ham(nbas,isize,jsize,imethod,paratyp,dkhorder,xorder,inS,in
                          clight)
 ! Local (Atom/Block) relativistic transformation of Hamiltonian
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
@@ -22,31 +23,31 @@ real(kind=wp), intent(in) :: inS(isize), inV(isize), inpVp(isize), clight
 real(kind=wp), intent(inout) :: inK(isize)
 real(kind=wp), intent(out) :: inUL(jsize), inUS(jsize)
 logical(kind=iwp), intent(in) :: doFullLT
-#include "WrkSpc.fh"
-integer(kind=iwp) :: nn, i, j, k, iblock, mbl, ks, kL, jS, jK, jV, jpVp, jSL, jKL, jVL, jpVpL, jULL, jUSL, jH, jtmp, jB
+integer(kind=iwp) :: i, j, k, iblock, mbl, ks, kL
+real(kind=wp), allocatable :: sK(:,:), sS(:,:), sV(:,:), spVp(:,:), sH(:,:), sB(:,:), sKL(:,:), sSL(:,:),sVL(:,:), spVpL(:,:), &
+                              sULL(:,:), sUSL(:,:), tmp(:,:)
 
 ! Convert triangle matrices to square matrices
 
-nn = nbas*nbas+4
-call getmem('skin ','ALLOC','REAL',jK,nn)
-call getmem('sSS  ','ALLOC','REAL',jS,nn)
-call getmem('sV   ','ALLOC','REAL',jV,nn)
-call getmem('spVp ','ALLOC','REAL',jpVp,nn)
-call getmem('sHam ','ALLOC','REAL',jH,nn)
-call getmem('sSav ','ALLOC','REAL',jB,nn)
+call mma_allocate(sK,nbas,nbas,label='skin')
+call mma_allocate(sS,nbas,nbas,label='sSS')
+call mma_allocate(sV,nbas,nbas,label='sV')
+call mma_allocate(spVp,nbas,nbas,label='spVp')
+call mma_allocate(sH,nbas,nbas,label='sHam')
+call mma_allocate(sB,nbas,nbas,label='sSav')
 k = 0
 do i=1,nbas
   do j=1,i
     k = k+1
-    Work(jK+j-1+(i-1)*nbas) = inK(k)
-    Work(jS+j-1+(i-1)*nbas) = inS(k)
-    Work(jV+j-1+(i-1)*nbas) = inV(k)
-    Work(jpVp+j-1+(i-1)*nbas) = inpVp(k)
+    sK(j,i) = inK(k)
+    sS(j,i) = inS(k)
+    sV(j,i) = inV(k)
+    spVp(j,i) = inpVp(k)
     if (i /= j) then
-      Work(jK+i-1+(j-1)*nbas) = inK(k)
-      Work(jS+i-1+(j-1)*nbas) = inS(k)
-      Work(jV+i-1+(j-1)*nbas) = inV(k)
-      Work(jpVp+i-1+(j-1)*nbas) = inpVp(k)
+      sK(j,i) = inK(k)
+      sS(j,i) = inS(k)
+      sV(j,i) = inV(k)
+      spVp(j,i) = inpVp(k)
     end if
   end do
 end do
@@ -55,9 +56,7 @@ do i=1,jsize
   inUS(i) = Zero
 end do
 if (.not. DoFullLT) then
-  do i=0,nbas*nbas-1
-    Work(jH+i) = Work(jK+i)+Work(jV+i)
-  end do
+  sH(:,:) = sK(:,:)+sV(:,:)
 end if
 
 ! Cycle for each local blocks
@@ -65,23 +64,21 @@ end if
 ks = 0
 do iblock=1,nbl
   mbl = ibl(iblock)
-  call getmem('skinL','ALLOC','REAL',jKL,mbl*mbl+4)
-  call getmem('sSSL ','ALLOC','REAL',jSL,mbl*mbl+4)
-  call getmem('sVL  ','ALLOC','REAL',jVL,mbl*mbl+4)
-  call getmem('spVpL','ALLOC','REAL',jpVpL,mbl*mbl+4)
-  call getmem('ULlco','ALLOC','REAL',jULL,mbl*mbl+4)
-  call getmem('USlco','ALLOC','REAL',jUSL,mbl*mbl+4)
+  call mma_allocate(sKL,mbl,mbl,label='skinL')
+  call mma_allocate(sSL,mbl,mbl,label='sSSL')
+  call mma_allocate(sVL,mbl,mbl,label='sVL')
+  call mma_allocate(spVpL,mbl,mbl,label='spVpL')
+  call mma_allocate(sULL,mbl,mbl,label='ULlco')
+  call mma_allocate(sUSL,mbl,mbl,label='USlco')
 
   ! Copy block matrices
 
   do i=1,mbl
     do j=1,mbl
-      k = (j-1)+(i-1)*mbl
-      kL = Lmap(j+ks)-1+(Lmap(i+ks)-1)*nbas
-      Work(jKL+k) = Work(jK+kL)
-      Work(jSL+k) = Work(jS+kL)
-      Work(jVL+k) = Work(jV+kL)
-      Work(jpVpL+k) = Work(jpVp+kL)
+      sKL(j,i) = sK(Lmap(j+ks),Lmap(i+ks))
+      sSL(j,i) = sS(Lmap(j+ks),Lmap(i+ks))
+      sVL(j,i) = sV(Lmap(j+ks),Lmap(i+ks))
+      spVpL(j,i) = spVp(Lmap(j+ks),Lmap(i+ks))
     end do
   end do
 
@@ -89,82 +86,79 @@ do iblock=1,nbl
 
   if (imethod == 2) then
 
-  ! Call X2C driver
+    ! Call X2C driver
 
-    call x2c_ts1e(mbl,Work(jSL),Work(jKL),Work(jVL),Work(jpVpL),Work(jULL),Work(jUSL),clight)
+    call x2c_ts1e(mbl,sSL,sKL,sVL,spVpL,sULL,sUSL,clight)
   else if (imethod == 3) then
 
-  ! Call BSS driver
+    ! Call BSS driver
 
-    call bss_ts1e(mbl,Work(jSL),Work(jKL),Work(jVL),Work(jpVpL),Work(jULL),Work(jUSL),clight)
+    call bss_ts1e(mbl,sSL,sKL,sVL,spVpL,sULL,sUSL,clight)
   else if (imethod == 1) then
 
-  ! Call arbitrary order DKH driver
+    ! Call arbitrary order DKH driver
 
-    call dkh_ts1e(mbl,Work(jSL),Work(jKL),Work(jVL),Work(jpVpL),Work(jULL),Work(jUSL),clight,dkhorder,xorder,paratyp)
+    call dkh_ts1e(mbl,sSL,sKL,sVL,spVpL,sULL,sUSL,clight,dkhorder,xorder,paratyp)
   end if
 
   ! Copy back to full matrix
 
   do i=1,mbl
     do j=1,mbl
-      k = (j-1)+(i-1)*mbl
       kL = Lmap(j+ks)-1+(Lmap(i+ks)-1)*nbas
-      inUL(kL+1) = Work(jULL+k)
-      inUS(kL+1) = Work(jUSL+k)
+      inUL(kL+1) = sULL(j,i)
+      inUS(kL+1) = sUSL(j,i)
       if (.not. DoFullLT) then
-        Work(jH+kL) = Work(jVL+k)
+        sH(Lmap(j+ks),Lmap(i+ks)) = sVL(j,i)
       else
-        Work(jB+kL) = Work(jVL+k)
+        sB(Lmap(j+ks),Lmap(i+ks)) = sVL(j,i)
       end if
     end do
   end do
 
   ! End cycle for blocks
 
-  call getmem('skinL','FREE','REAL',jKL,mbl*mbl+4)
-  call getmem('sSSL ','FREE','REAL',jSL,mbl*mbl+4)
-  call getmem('sVL  ','FREE','REAL',jVL,mbl*mbl+4)
-  call getmem('spVpL','FREE','REAL',jpVpL,mbl*mbl+4)
-  call getmem('ULlco','FREE','REAL',jULL,mbl*mbl+4)
-  call getmem('USlco','FREE','REAL',jUSL,mbl*mbl+4)
+  call mma_deallocate(sKL)
+  call mma_deallocate(sSL)
+  call mma_deallocate(sVL)
+  call mma_deallocate(spVpL)
+  call mma_deallocate(sULL)
+  call mma_deallocate(sUSL)
   ks = ks+mbl
 end do
 
 ! Apply transformation construct from each blocks
 
 if (DoFullLT) then
-  call getmem('Tempm ','ALLOC','REAL',jtmp,nn)
-  call dmxma(nbas,'C','N',inUS,Work(jK),Work(jS),Two*clight)
-  call dmxma(nbas,'N','N',Work(jS),inUS,Work(jH),-Two*clight)
-  call dmxma(nbas,'N','N',Work(jS),inUL,Work(jtmp),One)
-  call daxpy_(nbas*nbas,One,Work(jtmp),1,Work(jH),1)
-  call dmxma(nbas,'C','N',inUL,Work(jK),Work(jS),One)
-  call dmxma(nbas,'N','N',Work(jS),inUS,Work(jtmp),Two*clight)
-  call daxpy_(nbas*nbas,One,Work(jtmp),1,Work(jH),1)
+  call mma_allocate(tmp,nbas,nbas,label='Tempm')
+  call dmxma(nbas,'C','N',inUS,sK,sS,Two*clight)
+  call dmxma(nbas,'N','N',sS,inUS,sH,-Two*clight)
+  call dmxma(nbas,'N','N',sS,inUL,tmp,One)
+  call daxpy_(nbas*nbas,One,tmp,1,sH,1)
+  call dmxma(nbas,'C','N',inUL,sK,sS,One)
+  call dmxma(nbas,'N','N',sS,inUS,tmp,Two*clight)
+  call daxpy_(nbas*nbas,One,tmp,1,sH,1)
 
-  call dmxma(nbas,'C','N',inUL,Work(jV),Work(jS),One)
-  call dmxma(nbas,'N','N',Work(jS),inUL,Work(jtmp),One)
-  call daxpy_(nbas*nbas,One,Work(jtmp),1,Work(jH),1)
-  call dmxma(nbas,'C','N',inUS,Work(jpVp),Work(jS),One)
-  call dmxma(nbas,'N','N',Work(jS),inUS,Work(jtmp),One)
-  call daxpy_(nbas*nbas,One,Work(jtmp),1,Work(jH),1)
-  call getmem('Tempm ','FREE','REAL',jtmp,nn)
+  call dmxma(nbas,'C','N',inUL,sV,sS,One)
+  call dmxma(nbas,'N','N',sS,inUL,tmp,One)
+  call daxpy_(nbas*nbas,One,tmp,1,sH,1)
+  call dmxma(nbas,'C','N',inUS,spVp,sS,One)
+  call dmxma(nbas,'N','N',sS,inUS,tmp,One)
+  call daxpy_(nbas*nbas,One,tmp,1,sH,1)
+  call mma_deallocate(tmp)
   ks = 0
   do iblock=1,nbl
     mbl = ibl(iblock)
     do i=1,mbl
       do j=1,mbl
         kL = Lmap(j+ks)-1+(Lmap(i+ks)-1)*nbas
-        Work(jH+kL) = Work(jB+kL)
+        sH(Lmap(j+ks),Lmap(i+ks)) = sB(Lmap(j+ks),Lmap(i+ks))
       end do
     end do
     ks = ks+mbl
   end do
 end if
-do i=0,nbas*nbas-1
-  Work(jV+i) = Work(jH+i)
-end do
+sV(:,:) = sH(:,:)
 
 ! Copy relativistic one-electron Hamiltonian back to inK
 
@@ -172,18 +166,18 @@ k = 0
 do i=1,nbas
   do j=1,i
     k = k+1
-    inK(k) = Work(jV+j-1+(i-1)*nbas)
+    inK(k) = sV(j,i)
   end do
 end do
 
 ! Free temp memories
 
-call getmem('skin ','FREE','REAL',jK,nn)
-call getmem('sSS  ','FREE','REAL',jS,nn)
-call getmem('sV   ','FREE','REAL',jV,nn)
-call getmem('spVp ','FREE','REAL',jpVp,nn)
-call getmem('sHam ','FREE','REAL',jH,nn)
-call getmem('sSav ','FREE','REAL',jB,nn)
+call mma_deallocate(sK)
+call mma_deallocate(sS)
+call mma_deallocate(sV)
+call mma_deallocate(spVp)
+call mma_deallocate(sH)
+call mma_deallocate(sB)
 
 return
 ! Avoid unused argument warnings

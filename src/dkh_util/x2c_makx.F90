@@ -10,11 +10,12 @@
 !***********************************************************************
 
 subroutine x2c_makx(m,n,f,s,x)
-! Make X matrix from m-dimensional (m=2n) Fork(f) and Overlap(s) matrix
+! Make X matrix from m-dimensional (m=2n) Fock(f) and Overlap(s) matrix
 !
 ! X is the relation(transfer) matrix of Large--Small component coefficients
 ! of electron solutions (positive energy solutions)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
 
@@ -22,52 +23,54 @@ implicit none
 integer(kind=iwp), intent(in) :: m, n
 real(kind=wp), intent(in) :: f(m,m), s(m,m)
 real(kind=wp), intent(out) :: x(n,n)
-integer(kind=iwp) :: i, j, k, lwork, info, itmp, iw, itF, itS
-#include "WrkSpc.fh"
+integer(kind=iwp) :: i, j, k, lwork, info
+real(kind=wp), allocatable, target :: tmp(:), w(:), tF(:,:), tS(:,:)
+real(kind=wp), pointer :: pF(:), pS(:)
 
 lwork = 8*m
-call getmem('TmpF ','ALLOC','REAL',itF,m*m+4)
-call getmem('TmpS ','ALLOC','REAL',itS,m*m+4)
-call getmem('Eig  ','ALLOC','REAL',iw,m+4)
-call getmem('Work ','ALLOC','REAL',itmp,lwork+4)
+call mma_allocate(tF,m,m,label='TmpF')
+call mma_allocate(tS,m,m,label='TmpS')
+call mma_allocate(w,m,label='Eig')
+call mma_allocate(tmp,lwork,label='Work')
 
 ! Copy Fock and Overlap matrix to temp arrays
 
-k = 0
 do i=1,m
   do j=1,m
-    Work(itF+k) = f(j,i)
-    Work(itS+k) = s(j,i)
-    k = k+1
+    tF(j,i) = f(j,i)
+    tS(j,i) = s(j,i)
   end do
 end do
 
 ! Diagonalization of Fock matrix with given overlap matrix
 
-call dsygv_(1,'V','L',m,Work(itF),m,Work(itS),m,Work(iw),Work(itmp),lwork,info)
+call dsygv_(1,'V','L',m,tF,m,tS,m,w,tmp,lwork,info)
 
 ! Calculate the X matrix from electron solutions
 
-k = 0
-do i=1,n
+pF(1:m*m) => tF
+pS(1:m*m) => tS
+k = 1
+do i=n+1,2*n
   do j=1,n
     ! store large component coefficients of electron solutions (matrix A)
-    Work(itF+k) = Work(itF-1+j+(i+n-1)*m)
+    pF(k) = tF(j,i)
     ! store small component coefficients of electron solutions (matrix B)
-    Work(itS+k) = Work(itF-1+j+n+(i+n-1)*m)
+    pS(k) = tF(n+j,i)
     k = k+1
   end do
 end do
+nullify(pF,pS)
 ! compute X=BA^{-1}
-call XDR_dmatinv(Work(itF),n)
-call dmxma(n,'N','N',Work(itS),Work(itF),x,One)
+call XDR_dmatinv(tF,n)
+call dmxma(n,'N','N',tS,tF,x,One)
 
 ! Free temp memories
 
-call getmem('TmpF ','FREE','REAL',itF,m*m+4)
-call getmem('TmpS ','FREE','REAL',itS,m*m+4)
-call getmem('Eig  ','FREE','REAL',iw,m+4)
-call getmem('Work ','FREE','REAL',itmp,lwork+4)
+call mma_deallocate(tF)
+call mma_deallocate(tS)
+call mma_deallocate(w)
+call mma_deallocate(tmp)
 
 return
 
