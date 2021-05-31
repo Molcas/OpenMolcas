@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE BJAI(IAD,EPSI,EPSE,E2BJAI,VECL2)
 
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -19,7 +19,7 @@
       DIMENSION EPSI(*),EPSE(*),IAD(3888)
       Logical DoCholesky, Debug
       Data Debug/.False./
-c      Data Debug/.True./   ! CGG
+!      Data Debug/.True./   ! CGG
       Dimension dVectorA(255) ! CGG
       Dimension dVectorB(255) ! CGG
 
@@ -69,7 +69,7 @@ c      Data Debug/.True./   ! CGG
       Write(6,*)
       Write(6,*)' [BJAI] Integrals <A,B|I,J> : ',iSymA,iSymB,iSymI,iSymJ
       EndIf
-*    ---   iSymI.NE.iSymJ   ---
+!    ---   iSymI.NE.iSymJ   ---
            IF (iSymI.NE.iSymJ) THEN
             LAB = nOrbA * nOrbB
             If (DoCholesky) LAB=nExtA * nExtB
@@ -149,7 +149,7 @@ c      Data Debug/.True./   ! CGG
             Call GetMem('AJBI','FREE','REAL',LAJBI,LAB1)
            ENDIF
 
-*    ---   iSymI.EQ.iSymJ   ---
+!    ---   iSymI.EQ.iSymJ   ---
            IF (iSymI.EQ.iSymJ) THEN
             LA  = nExtA
             LAB = nOrbA**2
@@ -167,9 +167,9 @@ c      Data Debug/.True./   ! CGG
       Write(6,*) ' *  i,j = ',iI,iJ
       EndIf
               Call dDAFile(LUINTM,2,Work(LINT),LAB,IAD1)
-      If (Debug .and. DoCholesky )
+      If (Debug .and. DoCholesky )                                      &
      &Call RecPrt('Int:','(8F10.6)',Work(lInt),nExtA,nExtA)
-      If (Debug .and. .NOT.DoCholesky )
+      If (Debug .and. .NOT.DoCholesky )                                 &
      &Call RecPrt('Int:','(8F10.6)',Work(lInt),nOrbA,nOrbA)
               EDIFIJ=EPSI(NRI+iI)+EPSI(NRJ+iJ)
               I=0

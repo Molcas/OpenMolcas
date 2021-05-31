@@ -1,35 +1,35 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2007, Francesco Aquilante                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2007, Francesco Aquilante                              *
+!***********************************************************************
       SubRoutine Cho_SOSmp2_Setup(irc)
-C
-C     Francesco Aquilante   May 2007.
-C
-C     Purpose: setup of SOS-MP2 program.
-C
+!
+!     Francesco Aquilante   May 2007.
+!
+!     Purpose: setup of SOS-MP2 program.
+!
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "WrkSpc.fh"
-************************************************************************
+!***********************************************************************
       MulD2h(i,j)=iEor(i-1,j-1) + 1
-************************************************************************
+!***********************************************************************
 
       irc = 0
 
-C     Setup index arrays and counters.
-C     --------------------------------
+!     Setup index arrays and counters.
+!     --------------------------------
 
       If (DecoMP2 .and. ThrMP2.le.0.0D0) Then
          Call Get_dScalar('Cholesky Threshold',ThrMP2)
@@ -52,7 +52,7 @@ C     --------------------------------
          Do iSymi = 1,nSym
             iSyma = MulD2h(iSymi,iSym)
             iT1am(iSyma,iSymi) = nT1am(iSym)
-            nT1am(iSym) = nT1am(iSym)
+            nT1am(iSym) = nT1am(iSym)                                   &
      &                  + nVir(iSyma)*nOcc(iSymi)
          End Do
       End Do
@@ -62,7 +62,7 @@ C     --------------------------------
          Do iSymAl = 1,nSym
             iSymi = MulD2h(iSymAl,iSym)
             iT1AOT(iSymi,iSymAl) = nT1AOT(iSym)
-            nT1AOT(iSym) = nT1AOT(iSym)
+            nT1AOT(iSym) = nT1AOT(iSym)                                 &
      &                   + nOcc(iSymi)*nBas(iSymAl)
          End Do
       End Do
@@ -72,7 +72,7 @@ C     --------------------------------
          Do iSyma = 1,nSym
             iSymAl = MulD2h(iSyma,iSym)
             iAOVir(iSymAl,iSyma) = nAOVir(iSym)
-            nAOVir(iSym) = nAOVir(iSym)
+            nAOVir(iSym) = nAOVir(iSym)                                 &
      &                   + nBas(iSymAl)*nVir(iSyma)
          End Do
       End Do
@@ -91,16 +91,16 @@ C     --------------------------------
          Call Cho_iZero(iMatab,64)
       End If
 
-C     If batching over occuped orbitals is forced by user, then
-C        turn it Off !
-C     -----------------------------------------------------------------
+!     If batching over occuped orbitals is forced by user, then
+!        turn it Off !
+!     -----------------------------------------------------------------
 
       ForceBatch = .false.
 
       nBatch = 1
 
-C     Initialize file units.
-C     ----------------------
+!     Initialize file units.
+!     ----------------------
 
       Do iSym = 1,nSym
          Do iTyp = 1,nTypF
@@ -110,13 +110,13 @@ C     ----------------------
 
       End
 
-************************************************************************
+!***********************************************************************
       SubRoutine Cho_SOSmp2_Setup_Prt(irc)
-C
-C     Francesco Aquilante  May 2007
-C
-C     Purpose: print setup for SOS-MP2.
-C
+!
+!     Francesco Aquilante  May 2007
+!
+!     Purpose: print setup for SOS-MP2.
+!
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
@@ -130,30 +130,30 @@ C
       Write(6,*)
 
       If (nBatch .gt. 1) Then
-         Write(6,'(A,I6,A,I6,A)')
-     &   'The list of',nOccT,' occupied orbitals has been split in',
+         Write(6,'(A,I6,A,I6,A)')                                       &
+     &   'The list of',nOccT,' occupied orbitals has been split in',    &
      &   nBatch,' batches:'
          Write(6,*)'Batching is not allowed in SOS-MP2 : I stop here! '
          Call Abend()
       Else If (nBatch .eq. 1) Then
-         Write(6,'(A,I6,A)')
+         Write(6,'(A,I6,A)')                                            &
      &   'The list of',nOccT,' occupied orbitals is not split:'
       Else
-         Write(6,*) 'Oops, #batches over occupied orbitals ',
+         Write(6,*) 'Oops, #batches over occupied orbitals ',           &
      &              'is non-positive: ',nBatch
          irc = -101
          Return
       End If
 
-      Write(6,'(//,A)')
+      Write(6,'(//,A)')                                                 &
      & 'The following tasks will be performed:'
-      Write(6,'(A)')
+      Write(6,'(A)')                                                    &
      & ' * AO-to-MO transformation of original Cholesky vectors.'
       If (DecoMP2) Then
-         Write(6,'(A)')
+         Write(6,'(A)')                                                 &
      &   ' * Cholesky decomposition of M=(ai|bj)^2 matrix.'
       End If
-      Write(6,*)
+      Write(6,*)                                                        &
      & ' * Calculation of SOS-MP2 correlation energy.'
 
       Call xFlush(6)

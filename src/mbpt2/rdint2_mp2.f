@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE RDINT2_MP2(IPRX)
-C
-C     SECOND ORDER TWO-ELECTRON TRANFORMATION PROGRAM. TEST SECTION
-C
-C     THIS SUBROUTINE READS AND CHECKS THE RESULT OF THE SECOND ORDER
-C     TWO-ELECTRON TRANSFORMATION PROGRAM TRA2. IT CAN BE CALLED BY
-C     TR2CTL IMMEDIATELY AFTER THE CALL TO TRA2
-C
+!
+!     SECOND ORDER TWO-ELECTRON TRANFORMATION PROGRAM. TEST SECTION
+!
+!     THIS SUBROUTINE READS AND CHECKS THE RESULT OF THE SECOND ORDER
+!     TWO-ELECTRON TRANSFORMATION PROGRAM TRA2. IT CAN BE CALLED BY
+!     TR2CTL IMMEDIATELY AFTER THE CALL TO TRA2
+!
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "mxdim.fh"
@@ -27,16 +27,16 @@ C
 
 #include "SysDef.fh"
 
-C
-C
-C     READ ADDRESS RECORD ON UNIT LUINTM
-C
+!
+!
+!     READ ADDRESS RECORD ON UNIT LUINTM
+!
       IAD13=0
       LIADUT=3888
       CALL iDAFILE(LUINTM,2,IADOUT,LIADUT,IAD13)
-C
-C     LOOP OVER QUADRUPLES OF SYMMETRIES (NSP,NSP,NSR,NSS)
-C
+!
+!     LOOP OVER QUADRUPLES OF SYMMETRIES (NSP,NSP,NSR,NSS)
+!
       ISPQRS=0
       DO 104 NSP=1,NSYM
        NBP=NBAS(NSP)
@@ -60,9 +60,9 @@ C
           NOS=NORB(NSS)
           NOCS=NOCC(NSS)
           IF(NOCP*NOCQ*NOCR*NOCS.EQ.0) GO TO 101
-C
-C         FIND ADDRESSES FOR THIS SYMMETRY BLOCK
-C
+!
+!         FIND ADDRESSES FOR THIS SYMMETRY BLOCK
+!
           IADC=IADOUT(3*ISPQRS-2)
           IADX1=IADOUT(3*ISPQRS-1)
           IADX2=IADOUT(3*ISPQRS)
@@ -105,55 +105,55 @@ C
             IF(IPRX.NE.0) LEN=LREC
             IF(IPRX.EQ.0) LEN=MIN(LREC,10)
             WRITE(6,1300) NT,NU,(WORK(I),I=iTmp,iTmp+LEN-1)
-1300        FORMAT(/1X,'COULOMB INTEGRALS FOR TU PAIR',2I3
-     *             /(1X,10F10.6))
+1300        FORMAT(/1X,'COULOMB INTEGRALS FOR TU PAIR',2I3              &
+     &             /(1X,10F10.6))
             Call GetMem('Tmp','FREE','REAL',iTmp,LREC)
            ENDIF
-C
-C     THE LOOP ABOVE OVER T AND U RECOVERS ONE BLOCK OF INTEGRALS (AB|TU
-C     FOR EACH PAIR T,U. TO PROCESS ONE BLOCK FOR ALL A AND B THE
-C     FOLLOWING LOOP STRUCTURE IS USED:
-C     IAB=0
-C     DO 10 NA=1,NOR
-C      NBM=NOS
-C      IF(NSR.EQ.NSS) NBM=NA
-C     DO 10 NB=1,NBM
-C      IAB=IAB+1
-C      WORK(IAB) NOW CONTAINS THE INTEGRAL (AB|TU)
+!
+!     THE LOOP ABOVE OVER T AND U RECOVERS ONE BLOCK OF INTEGRALS (AB|TU
+!     FOR EACH PAIR T,U. TO PROCESS ONE BLOCK FOR ALL A AND B THE
+!     FOLLOWING LOOP STRUCTURE IS USED:
+!     IAB=0
+!     DO 10 NA=1,NOR
+!      NBM=NOS
+!      IF(NSR.EQ.NSS) NBM=NA
+!     DO 10 NB=1,NBM
+!      IAB=IAB+1
+!      WORK(IAB) NOW CONTAINS THE INTEGRAL (AB|TU)
            IF(IADX1.NE.0) THEN
             Call GetMem('Tmp','ALLO','REAL',iTmp,LRECX)
             CALL dDAFILE(LUINTM,2,WORK(iTmp),LRECX,IAD131)
             IF(IPRX.NE.0) LEN=LRECX
             IF(IPRX.EQ.0) LEN=MIN(LRECX,10)
             WRITE(6,1310) NT,NU,(WORK(I),I=iTmp,iTmp+LEN-1)
-1310        FORMAT(/1X,'EXCHAN1 INTEGRALS FOR TU PAIR',2I3
-     *             /(1X,10F10.6))
+1310        FORMAT(/1X,'EXCHAN1 INTEGRALS FOR TU PAIR',2I3              &
+     &             /(1X,10F10.6))
             Call GetMem('Tmp','FREE','REAL',iTmp,LRECX)
            ENDIF
-C      THE EXCHANGE INTEGRALS OF TYPE 1 ,(AT|BU) ARE PROCESSED AS THE
-C      COULOMB INTEGRALS. IF NST.NE.NSU THERE ARE ALSO EXCHANGE
-C      INTEGRALS OF TYPE 2, (AU|BT). THE ORDERING IS STILL T,U AND A,B
-C      BUT T IS NOW THE FOURTH INDEX AND U THE SECOND
-C      EXCHANGE INTEGRALS ARE ALWAYS QUADRATIC IN A,B
+!      THE EXCHANGE INTEGRALS OF TYPE 1 ,(AT|BU) ARE PROCESSED AS THE
+!      COULOMB INTEGRALS. IF NST.NE.NSU THERE ARE ALSO EXCHANGE
+!      INTEGRALS OF TYPE 2, (AU|BT). THE ORDERING IS STILL T,U AND A,B
+!      BUT T IS NOW THE FOURTH INDEX AND U THE SECOND
+!      EXCHANGE INTEGRALS ARE ALWAYS QUADRATIC IN A,B
            IF(IADX2.NE.0) THEN
             Call GetMem('Tmp','ALLO','REAL',iTmp,LRECX)
             CALL dDAFILE(LUINTM,2,WORK(iTmp),LRECX,IAD132)
             IF(IPRX.NE.0) LEN=LRECX
             IF(IPRX.EQ.0) LEN=MIN(LRECX,10)
             WRITE(6,1320) NT,NU,(WORK(I),I=iTmp,iTmp+LEN-1)
-1320        FORMAT(/1X,'EXCHAN2 INTEGRALS FOR TU PAIR',2I3
-     *             /(1X,10F10.6))
+1320        FORMAT(/1X,'EXCHAN2 INTEGRALS FOR TU PAIR',2I3              &
+     &             /(1X,10F10.6))
             Call GetMem('Tmp','FREE','REAL',iTmp,LRECX)
            ENDIF
 11        CONTINUE
 10        CONTINUE
-C
-C         ALL INTEGRALS FOR SYMMETRY BLOCK NSP,NSQ,NSR,NSS ARE READ
-C
+!
+!         ALL INTEGRALS FOR SYMMETRY BLOCK NSP,NSQ,NSR,NSS ARE READ
+!
 101      CONTINUE
 102     CONTINUE
 103    CONTINUE
 104   CONTINUE
-C
+!
       RETURN
       END

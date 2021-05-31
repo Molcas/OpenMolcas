@@ -1,36 +1,36 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1995,1999,2003, Michael A. Saunders                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1995,1999,2003, Michael A. Saunders                    *
+!***********************************************************************
 
-************************************************************************
-* This file from MINRES:                                               *
-*   http://web.stanford.edu/group/SOL/software/minres/                 *
-*                                                                      *
-* The software for MINRES (f77 version) is provided by SOL, Stanford   *
-* University under the terms of the OSI Common Public License (CPL):   *
-* http://www.opensource.org/licenses/cpl1.0.php                        *
-************************************************************************
-      subroutine MINRES( n, b, r1, r2, v, w, w1, w2, x, y,
-     $                   Aprod, Msolve, checkA, precon, shift,
-     $                   nout , itnlim, rtol,
-     $                   istop, itn, Anorm, Acond, rnorm, ynorm )
+!***********************************************************************
+! This file from MINRES:                                               *
+!   http://web.stanford.edu/group/SOL/software/minres/                 *
+!                                                                      *
+! The software for MINRES (f77 version) is provided by SOL, Stanford   *
+! University under the terms of the OSI Common Public License (CPL):   *
+! http://www.opensource.org/licenses/cpl1.0.php                        *
+!***********************************************************************
+      subroutine MINRES( n, b, r1, r2, v, w, w1, w2, x, y,              &
+     &                   Aprod, Msolve, checkA, precon, shift,          &
+     &                   nout , itnlim, rtol,                           &
+     &                   istop, itn, Anorm, Acond, rnorm, ynorm )
 
       implicit           none
       external           Aprod, Msolve
       integer            n, nout, itnlim, istop, itn
       logical            checkA, precon
-      REAL*8   shift, rtol, Anorm, Acond, rnorm, ynorm,
-     $                   b(n), r1(n), r2(n),
-     $                   v(n), w(n), w1(n), w2(n), x(n), y(n)
+      REAL*8   shift, rtol, Anorm, Acond, rnorm, ynorm,                 &
+     &                   b(n), r1(n), r2(n),                            &
+     &                   v(n), w(n), w1(n), w2(n), x(n), y(n)
 !     ------------------------------------------------------------------
 !
 !     MINRES  is designed to solve the system of linear equations
@@ -313,37 +313,37 @@
 
 !     Local variables
 
-      REAL*8   alfa  , beta  , beta1 , cs    ,
-     $                   dbar  , delta , denom , diag  ,
-     $                   eps   , epsa  , epsln , epsr  , epsx  ,
-     $                   gamma , gbar  , gmax  , gmin  ,
-     $                   oldb  , oldeps, qrnorm, phi   , phibar,
-     $                   rhs1  , rhs2  , s     , sn    , t     ,
-     $                   tnorm2, ynorm2, z
+      REAL*8   alfa  , beta  , beta1 , cs    ,                          &
+     &                   dbar  , delta , denom , diag  ,                &
+     &                   eps   , epsa  , epsln , epsr  , epsx  ,        &
+     &                   gamma , gbar  , gmax  , gmin  ,                &
+     &                   oldb  , oldeps, qrnorm, phi   , phibar,        &
+     &                   rhs1  , rhs2  , s     , sn    , t     ,        &
+     &                   tnorm2, ynorm2, z
       integer            i
       logical            debug, prnt
 
       REAL*8   zero, one, two, ten
-      parameter        ( zero = 0.0d+0,  one =  1.0d+0,
-     $                   two  = 2.0d+0,  ten = 10.0d+0 )
+      parameter        ( zero = 0.0d+0,  one =  1.0d+0,                 &
+     &                   two  = 2.0d+0,  ten = 10.0d+0 )
 
       character*16       enter, exit
       character*52       msg(-1:8)
 
-      data               enter /' Enter MINRES.  '/,
-     $                   exit  /' Exit  MINRES.  '/
+      data               enter /' Enter MINRES.  '/,                    &
+     &                   exit  /' Exit  MINRES.  '/
 
-      data               msg
-     $ / 'beta2 = 0.  If M = I, b and x are eigenvectors of A',
-     $   'beta1 = 0.  The exact solution is  x = 0',
-     $   'Requested accuracy achieved, as determined by rtol',
-     $   'Reasonable accuracy achieved, given eps',
-     $   'x has converged to an eigenvector',
-     $   'Acond has exceeded 0.1/eps',
-     $   'The iteration limit was reached',
-     $   'Aprod  does not define a symmetric matrix',
-     $   'Msolve does not define a symmetric matrix',
-     $   'Msolve does not define a pos-def preconditioner' /
+      data               msg                                            &
+     & / 'beta2 = 0.  If M = I, b and x are eigenvectors of A',         &
+     &   'beta1 = 0.  The exact solution is  x = 0',                    &
+     &   'Requested accuracy achieved, as determined by rtol',          &
+     &   'Reasonable accuracy achieved, given eps',                     &
+     &   'x has converged to an eigenvector',                           &
+     &   'Acond has exceeded 0.1/eps',                                  &
+     &   'The iteration limit was reached',                             &
+     &   'Aprod  does not define a symmetric matrix',                   &
+     &   'Msolve does not define a symmetric matrix',                   &
+     &   'Msolve does not define a pos-def preconditioner' /
 !     ------------------------------------------------------------------
 
       debug = .false.
@@ -371,8 +371,8 @@
 !     Print heading and initialize.
 !     ------------------------------------------------------------------
       if (nout .gt. 0) then
-         write(nout, 1000) enter, n, checkA, precon,
-     $                     itnlim, rtol, shift
+         write(nout, 1000) enter, n, checkA, precon,                    &
+     &                     itnlim, rtol, shift
       end if
       istop  = 0
       itn    = 0
@@ -629,32 +629,32 @@
       ! Display final status.
 
   900 if (nout  .gt. 0) then
-         write(nout, 2000) exit, istop, itn,
-     $                     exit, Anorm, Acond,
-     $                     exit, rnorm, ynorm
+         write(nout, 2000) exit, istop, itn,                            &
+     &                     exit, Anorm, Acond,                          &
+     &                     exit, rnorm, ynorm
          write(nout, 3000) exit, msg(istop)
       end if
 
       return
 
 
- 1000 format(// 1p,    a, 5x, 'Solution of symmetric   Ax = b'
-     $       / ' n      =', i7, 5x, 'checkA =', l4, 12x,
-     $          'precon =', l4
-     $       / ' itnlim =', i7, 5x, 'rtol   =', e11.2, 5x,
-     $          'shift  =', e23.14)
- 1200 format(// 5x, 'itn', 8x, 'x(1)', 10x,
-     $         'norm(r)', 3x, 'norm(A)', 3X, 'cond(A)')
+ 1000 format(// 1p,    a, 5x, 'Solution of symmetric   Ax = b'          &
+     &       / ' n      =', i7, 5x, 'checkA =', l4, 12x,                &
+     &          'precon =', l4                                          &
+     &       / ' itnlim =', i7, 5x, 'rtol   =', e11.2, 5x,              &
+     &          'shift  =', e23.14)
+ 1200 format(// 5x, 'itn', 8x, 'x(1)', 10x,                             &
+     &         'norm(r)', 3x, 'norm(A)', 3X, 'cond(A)')
  1300 format(1p, i8, e19.10, 3e10.2)
  1500 format(1x)
- 2000 format(/ 1p, a, 5x, 'istop =', i3,   14x, 'itn   =', i8
-     $       /     a, 5x, 'Anorm =', e12.4, 5x, 'Acond =', e12.4
-     $       /     a, 5x, 'rnorm =', e12.4, 5x, 'ynorm =', e12.4)
+ 2000 format(/ 1p, a, 5x, 'istop =', i3,   14x, 'itn   =', i8           &
+     &       /     a, 5x, 'Anorm =', e12.4, 5x, 'Acond =', e12.4        &
+     &       /     a, 5x, 'rnorm =', e12.4, 5x, 'ynorm =', e12.4)
  3000 format(      a, 5x, a )
 
       end ! subroutine MINRES
 
-*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
       subroutine dload2( n, const, x )
 
@@ -662,9 +662,9 @@
       integer            n
       REAL*8   const, x(n)
 
-*     ------------------------------------------------------------------
-*     dload2 loads all elements of x with const.
-*     ------------------------------------------------------------------
+!     ------------------------------------------------------------------
+!     dload2 loads all elements of x with const.
+!     ------------------------------------------------------------------
 
       integer            i
 
@@ -674,7 +674,7 @@
 
       end ! subroutine dload2
 
-*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
       subroutine dscal2( n, a, x, y )
 
@@ -682,9 +682,9 @@
       integer            n
       REAL*8   a, x(n), y(n)
 
-*     ------------------------------------------------------------------
-*     dscal2 sets y = a*x.
-*     ------------------------------------------------------------------
+!     ------------------------------------------------------------------
+!     dscal2 sets y = a*x.
+!     ------------------------------------------------------------------
 
       integer            i
 

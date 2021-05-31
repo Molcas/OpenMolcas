@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2007, Francesco Aquilante                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2007, Francesco Aquilante                              *
+!***********************************************************************
       SubRoutine Cho_SOSmp2_Col(Col,nDim,iCol,nCol,Buf,l_Buf)
-C
-C     Francesco Aquilante, May 2007.
-C
-C     Purpose: compute specified M(ai,bj)=(ai|bj)^2 columns.
-C
+!
+!     Francesco Aquilante, May 2007.
+!
+!     Purpose: compute specified M(ai,bj)=(ai|bj)^2 columns.
+!
       use ChoMP2, only: OldVec
 #include "implicit.fh"
       Real*8  Col(nDim,nCol), Buf(l_Buf)
@@ -35,7 +35,7 @@ C
 
       iSym = NowSym
       If (nDim .ne. nT1am(iSym)) Then
-         Write(6,*) SecNam,': inconsistent dimension. Expected: ',
+         Write(6,*) SecNam,': inconsistent dimension. Expected: ',      &
      &              nT1am(iSym),'   Received: ',nDim
          Write(6,*) SecNam,': symmetry from chomp2_dec.fh: ',iSym
          Call ChoMP2_Quit(SecNam,'inconsistent dimension',' ')
@@ -51,8 +51,8 @@ C
       If (InCore(iSym)) Then  ! old vectors available in core
 
          Fac = 0.0D0
-         Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,
-     &                        OldVec,NumCho(iSym),
+         Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,                       &
+     &                        OldVec,NumCho(iSym),                      &
      &                        Buf,l_Buf,Fac,irc)
          If (irc .ne. 0) Then
             Write(6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
@@ -104,14 +104,14 @@ C
                If (lWrk .gt. lScr) Then
                   lWsav = lWrk
                   Call GetMem('ColScr','Allo','Real',ipWrk,lWrk)
-                  Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,
-     &                                 Buf(1),NumV,
+                  Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,              &
+     &                                 Buf(1),NumV,                     &
      &                                 Work(ipWrk),lWrk,Fac,irc)
                   Call GetMem('ColScr','Free','Real',ipWrk,lWrk)
                   lWrk = lWsav
                Else
-                  Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,
-     &                                 Buf(1),NumV,
+                  Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,              &
+     &                                 Buf(1),NumV,                     &
      &                                 Buf(1+lTot),lScr,Fac,irc)
                End If
                If (irc .ne. 0) Then
@@ -156,12 +156,12 @@ C
 
                lScr = lWrk - lTot
                If (l_Buf .gt. lScr) Then
-                  Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,
-     &                                 Work(ipWrk),NumV,
+                  Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,              &
+     &                                 Work(ipWrk),NumV,                &
      &                                 Buf(1),l_Buf,Fac,irc)
                Else
-                  Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,
-     &                                 Work(ipWrk),NumV,
+                  Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,              &
+     &                                 Work(ipWrk),NumV,                &
      &                                 Work(ipWrk+lTot),lScr,Fac,irc)
                End If
                If (irc .ne. 0) Then
@@ -182,8 +182,8 @@ C
 
       End If
 
-C     Squaring each element of the integral columns
-C     ---------------------------------------------
+!     Squaring each element of the integral columns
+!     ---------------------------------------------
       Do jCol=1,nCol
          Do ia=1,nDim
             Col(ia,jCol)=Col(ia,jCol)**2

@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Freezer(EAll,nFre,nFro,nFro1,nOcc,nBas,nSym,LocPrt)
 
       Implicit Real*8 (a-h,o-z)
@@ -24,9 +24,9 @@
 
       Integer iOcc(8)
 
-C     For nSym=1, simply transfer nFre to nFro1.
-C     Else initialize nFro1 array.
-C     ------------------------------------------
+!     For nSym=1, simply transfer nFre to nFro1.
+!     Else initialize nFro1 array.
+!     ------------------------------------------
 
       If (nSym.lt.1 .or. nSym.gt.8) Then
          Write(6,*) SecNam,': illegal nSym = ',nSym
@@ -38,8 +38,8 @@ C     ------------------------------------------
          Call Cho_iZero(nFro1,nSym)
       End If
 
-C     Set up array of active occupied orbital energies.
-C     -------------------------------------------------
+!     Set up array of active occupied orbital energies.
+!     -------------------------------------------------
 
       lPoint = nFre
 
@@ -62,13 +62,13 @@ C     -------------------------------------------------
          iCount = iCount + nBas(iSym)
       End Do
 
-C     Find pointers to lowest nFre occupied orbital energies.
-C     -------------------------------------------------------
+!     Find pointers to lowest nFre occupied orbital energies.
+!     -------------------------------------------------------
 
       xMin   = -1.0D15
       NumFre = nFre
       Call dScal_(lEOcc,-1.0D0,Work(ipEOcc),1) ! DiaMax finds MAX values
-      Call CD_DiaMax(Work(ipEOcc),lEOcc,iWork(ipPivot),iWork(ipPoint),
+      Call CD_DiaMax(Work(ipEOcc),lEOcc,iWork(ipPivot),iWork(ipPoint),  &
      &               NumFre,xMin)
       If (NumFre .ne. nFre) Then
          Write(6,*) SecNam,': an error occurred in CD_DiaMax!'
@@ -76,34 +76,34 @@ C     -------------------------------------------------------
          Call SysAbendMsg(SecNam,'CD_DiaMax failure',' ')
       End If
 
-C     Set up nFro1 array.
-C     -------------------
+!     Set up nFro1 array.
+!     -------------------
 
       Do iFre = 1,nFre
          iSym = Cho_iRange(iWork(ipPoint-1+iFre),iOcc,nSym,.false.)
          nFro1(iSym) = nFro1(iSym) + 1
       End Do
 
-C     If requested, print.
-C     --------------------
+!     If requested, print.
+!     --------------------
 
       If (LocPrt) Then
          Write(6,'(/,3X,A,A,A)') 'Output from ',SecNam,':'
-         Write(6,'(1X,A,I5,A)')
+         Write(6,'(1X,A,I5,A)')                                         &
      &   'The',nFre,' lowest occupied orbitals have been frozen.'
          Write(6,'(1X,A)') 'List of frozen occupied orbitals:'
          Do iFre = 1,nFre
             kOcc = iWork(ipPoint-1+iFre)
             jSym = Cho_iRange(kOcc,iOcc,nSym,.false.)
             jOcc = kOcc - iOcc(jSym)
-            Write(6,'(1X,A,I5,A,I1,A,F15.8)')
-     &      'Occupied orbital',jOcc,' of symmetry ',jSym,
+            Write(6,'(1X,A,I5,A,I1,A,F15.8)')                           &
+     &      'Occupied orbital',jOcc,' of symmetry ',jSym,               &
      &      ' and energy ',-Work(ipEOcc-1+kOcc)
          End Do
       End If
 
-C     Free memory.
-C     ------------
+!     Free memory.
+!     ------------
 
       Call GetMem('Point','Free','Inte',ipPoint,lPoint)
       Call GetMem('Pivot','Free','Inte',ipPivot,lEOcc)

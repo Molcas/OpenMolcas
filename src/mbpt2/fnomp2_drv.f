@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2008, Francesco Aquilante                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2008, Francesco Aquilante                              *
+!***********************************************************************
       SUBROUTINE FNOMP2_Drv(irc,EMP2,CMOI,EOcc,EVir)
 
 #include "implicit.fh"
       Real*8 EMP2, CMOI(*), EOcc(*), EVir(*)
-C
+!
       Logical DoDens_
       Integer ChoAlg_
 #include "orbinf2.fh"
@@ -26,12 +26,12 @@ C
       ChoAlg_= ChoAlg
       ChoAlg = 2
 
-      CALL FNO_MP2(irc,nSym,nBas,nFro,nOcc,nExt,nDel,
+      CALL FNO_MP2(irc,nSym,nBas,nFro,nOcc,nExt,nDel,                   &
      &                      CMOI,EOcc,EVir,vkept,DoMP2,XEMP2)
       If (irc .ne. 0) Then
          Write(6,*) 'FNO_MP2 returned ',irc
-         Call SysAbendMsg('FNO_MP2',
-     &                    'Non-zero return code from FNO_MP2',
+         Call SysAbendMsg('FNO_MP2',                                    &
+     &                    'Non-zero return code from FNO_MP2',          &
      &                    ' ')
       EndIf
 
@@ -43,43 +43,43 @@ C
 
       Return
       End
-*****************************************************************************
-*                                                                           *
-*****************************************************************************
+!****************************************************************************
+!                                                                           *
+!****************************************************************************
 
-      SUBROUTINE FNO_MP2(irc,nSym,nBas,nFro,nIsh,nSsh,nDel,
+      SUBROUTINE FNO_MP2(irc,nSym,nBas,nFro,nIsh,nSsh,nDel,             &
      &                       CMOI,EOcc,EVir,vfrac,DoMP2,EMP2)
-*****************************************************************************
-*                                                                           *
-*     Purpose:  setup of Frozen Natural Orbitals MP2 (FNO-MP2).             *
-*                                                                           *
-*     Author:   F. Aquilante  (Geneva, Nov  2008)                           *
-*                                                                           *
-*****************************************************************************
+!****************************************************************************
+!                                                                           *
+!     Purpose:  setup of Frozen Natural Orbitals MP2 (FNO-MP2).             *
+!                                                                           *
+!     Author:   F. Aquilante  (Geneva, Nov  2008)                           *
+!                                                                           *
+!****************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-*
-      Integer nBas(nSym),nFro(nSym),nIsh(nSym),nSsh(nSym),
+!
+      Integer nBas(nSym),nFro(nSym),nIsh(nSym),nSsh(nSym),              &
      &        nDel(nSym),nAuxO(8)
       Real*8  CMOI(*), EOcc(*), EVir(*), EMP2, vfrac
       Logical DoMP2
 #include "chfnopt.fh"
-*
+!
       Integer ns_V(8)
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
       Real*8  TrDF(8), TrDP(8)
-*
-*
+!
+!
       irc=0
       MP2_small=.false.
-*
-*----------------------------------------------------------------------*
-*     GET THE TOTAL NUMBER OF BASIS FUNCTIONS, etc. AND CHECK LIMITS   *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     GET THE TOTAL NUMBER OF BASIS FUNCTIONS, etc. AND CHECK LIMITS   *
+!----------------------------------------------------------------------*
+!
       nBasT=0
       ntri=0
       nSQ=0
@@ -96,16 +96,16 @@ C
         nBmx=Max(nBmx,nBas(i))
       End Do
       IF(nBasT.GT.mxBas) then
-       Write(6,'(/6X,A)')
+       Write(6,'(/6X,A)')                                               &
      & 'The number of basis functions exceeds the present limit'
        Call Abend
       Endif
-*
+!
       NCMO=nSQ
       CALL GETMEM('LCMO','ALLO','REAL',LCMO,2*NCMO)
       iCMO=LCMO+NCMO
       CALL DCOPY_(NCMO,CMOI,1,WORK(LCMO),1)
-*
+!
       nOA=0
       Do iSym=1,nSym  ! setup info
          lnFro(iSym)=nFro(iSym)
@@ -115,7 +115,7 @@ C
          lnOrb(iSym)=lnOcc(iSym)+lnVir(iSym)
          lnDel(iSym)=nDel(iSym)
       End Do
-*
+!
       Call GetMem('Eorb','Allo','Real',ipOrbE,4*nOrb)
       jOff=0
       kOff=0
@@ -153,7 +153,7 @@ C
       Call GetMem('Dmat','Allo','Real',ip_X,nVV+nOA)
       ip_Y=ip_X+nVV
       Call FZero(Work(ip_X),nVV+nOA)
-*
+!
       Call FnoMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y)
       Call FZero(Work(iCMO),NCMO)
       iOff=0
@@ -180,17 +180,17 @@ C
          write(6,*)'Check your input and rerun the calculation! Bye!!'
          Call Abend
       Endif
-*
-*     Diagonalize the pseudodensity to get natural virtual orbitals
-*     -------------------------------------------------------------
+!
+!     Diagonalize the pseudodensity to get natural virtual orbitals
+!     -------------------------------------------------------------
       iOff=0
       jOff=0
       Do iSym=1,nSym
          if (nSsh(iSym).gt.0) then
            jD=ip_X+iOff
-*     Eigenvectors will be in increasing order of eigenvalues
+!     Eigenvectors will be in increasing order of eigenvalues
            Call Eigen_Molcas(nSsh(iSym),Work(jD),Work(ip_Z),Work(ip_ZZ))
-*     Reorder to get relevant eigenpairs first
+!     Reorder to get relevant eigenpairs first
            Do j=1,nSsh(iSym)/2
               Do i=1,nSsh(iSym)
                  lij=jD-1+nSsh(iSym)*(j-1)+i
@@ -203,13 +203,13 @@ C
               Work(ip_Z-1+j)=Work(ip_Z+nSsh(iSym)-j)
               Work(ip_Z+nSsh(iSym)-j)=tmp
            End Do
-*
-*     Compute new MO coeff. : X=C*U
+!
+!     Compute new MO coeff. : X=C*U
            kfr=iCMO+jOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
            kto=LCMO+jOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
-           Call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),
-     &                        1.0d0,Work(kfr),nBas(iSym),
-     &                              Work(jD),nSsh(iSym),
+           Call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),        &
+     &                        1.0d0,Work(kfr),nBas(iSym),               &
+     &                              Work(jD),nSsh(iSym),                &
      &                        0.0d0,Work(kto),nBas(iSym))
            iOff=iOff+nSsh(iSym)**2
            TrDF(iSym)=ddot_(nSsh(iSym),Work(ip_Z),1,[1.0d0],0)
@@ -231,8 +231,8 @@ C
       write(6,*)'------------------------------------------------------'
       write(6,'(A,G13.6,5X,G13.6)')'   Sum :              ',STrDF,STrDP
       write(6,*)'------------------------------------------------------'
-*
-*     Update the nSsh, nDel for FNO-MP2
+!
+!     Update the nSsh, nDel for FNO-MP2
       nSsh_t=0
       Do iSym=1,nSym
          lnOrb(iSym)=lnOrb(iSym)-nSsh(iSym)+ns_V(iSym)
@@ -243,14 +243,14 @@ C
       End Do
       Call Put_iArray('nDelPT',nDel,nSym)
       Call Put_iArray('nOrb',nAuxO,nSym)
-*
-*     Reset MP2_small for this new call to ChoMP2_Drv
+!
+!     Reset MP2_small for this new call to ChoMP2_Drv
       Call Check_Amp2(nSym,lnOcc,nSsh,iSkip)
       MP2_small = iSkip .gt. 0
       If (MP2_small) Then
-*
+!
          Call FnoMP2_putInf(nSym,lnOrb,lnOcc,lnFro,nDel,nSsh,ip_X,ip_Y)
-*
+!
          Call GetMem('iD_orb','Allo','Inte',ip_iD,nOrb)
          Do k=1,nOrb
             iWork(ip_iD-1+k) = k
@@ -261,17 +261,17 @@ C
          iOff=0
          Do iSym=1,nSym  ! canonical orb. in the reduced virtual space
             jD=ip_X+iOff
-            Call Get_Can_Lorb(Work(kEVir+lOff),Work(ipOrbE+jOff),
-     &                        nSsh(iSym),lnVir(iSym),
+            Call Get_Can_Lorb(Work(kEVir+lOff),Work(ipOrbE+jOff),       &
+     &                        nSsh(iSym),lnVir(iSym),                   &
      &                        iWork(ip_iD),Work(jD),iSym)
 
             kfr=LCMO+kOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
             kto=1+kOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
             nBx=Max(1,nBas(iSym))
             nSx=Max(1,nSsh(iSym))
-            Call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),
-     &                         1.0d0,Work(kfr),nBx,
-     &                               Work(jD),nSx,
+            Call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),       &
+     &                         1.0d0,Work(kfr),nBx,                     &
+     &                               Work(jD),nSx,                      &
      &                         0.0d0,CMOI(kto),nBx)
 
             lOff=lOff+lnVir(iSym)
@@ -281,14 +281,14 @@ C
          End Do
          Call GetMem('iD_orb','Free','Inte',ip_iD,nOrb)
          kEVir=ipOrbE
-*
-*   Copy the new Evir to output array
+!
+!   Copy the new Evir to output array
          call dcopy_(nSsh_t,Work(kEVir),1,EVir,1)
-*
+!
          Write(6,*)
-         Write(6,'(A,8I4)')
+         Write(6,'(A,8I4)')                                             &
      & ' Secondary orbitals after selection:',(nSsh(i),i=1,nSym)
-         Write(6,'(A,8I4)')
+         Write(6,'(A,8I4)')                                             &
      & ' Deleted orbitals after selection:  ',(nDel(i),i=1,nSym)
          Write(6,*)
          Write(6,*) 'Energies of the active virtual orbitals '
@@ -296,16 +296,16 @@ C
          Do iSym=1,nSym
             If ( nSsh(iSym).ne.0 ) then
                Write(6,*)
-               Write(6,'(A,I2,(T40,5F14.6))')
+               Write(6,'(A,I2,(T40,5F14.6))')                           &
      &            ' symmetry species',iSym,(EVir(ii+k),k=1,nSsh(iSym))
                ii=ii+nSsh(iSym)
             End If
          End Do
          Write(6,*)
-*
+!
          EMP2=DeMP2
          DeMP2=0.0d0
-         If (DoMP2) Call ChoMP2_Drv(irc,Dummy,CMOI,Work(kEOcc),
+         If (DoMP2) Call ChoMP2_Drv(irc,Dummy,CMOI,Work(kEOcc),         &
      &                                  Work(kEVir))
          If(irc.ne.0) then
            write(6,*) 'MP2 in truncated virtual space failed !'
@@ -314,10 +314,10 @@ C
          EMP2 = -1.0d0*(EMP2-DeMP2)
          If (DoMP2) Then
             DeMP2=EMP2
-c            write(6,*)
-c            write(6,'(1x,a,f18.10,a)')'FNO correction:       ',EMP2,
-c     &                                '   (estimate)   '
-c            write(6,*)
+!            write(6,*)
+!            write(6,'(1x,a,f18.10,a)')'FNO correction:       ',EMP2,
+!     &                                '   (estimate)   '
+!            write(6,*)
          Else
             EMP2=0.0d0
          EndIf
@@ -328,8 +328,8 @@ c            write(6,*)
          write(6,*)'Check your input and rerun the calculation! Bye!!'
          Call Abend
       EndIf
-*
-*     Update runfile for subsequent calcs (e.g., CHCC)
+!
+!     Update runfile for subsequent calcs (e.g., CHCC)
       ioff=0
       joff=0
       koff=0
@@ -346,32 +346,32 @@ c            write(6,*)
       End Do
       Call Put_dArray('OrbE',Work(ipOrbE),nOrb)
       Call Put_dArray('Last orbitals',CMOI,NCMO)
-*
+!
       Call GetMem('Dmat','Free','Real',ip_X,nVV+nOA)
       Call GetMem('Eorb','Free','Real',ipOrbE,4*nOrb)
-*
+!
       CALL GETMEM('LCMO','FREE','REAL',LCMO,2*NCMO)
-*
+!
       Return
       End
-************************************************************************
-*                                                                      *
-************************************************************************
-      SubRoutine FnoMP2_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,
+!***********************************************************************
+!                                                                      *
+!***********************************************************************
+      SubRoutine FnoMP2_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,      &
      &                         ip_X,ip_Y)
-C
-C     Purpose: put info in MP2 common blocks.
-C
+!
+!     Purpose: put info in MP2 common blocks.
+!
 #include "implicit.fh"
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
       Integer ip_X, ip_Y
-C
+!
 #include "corbinf.fh"
 #include "chomp2_cfg.fh"
-C
-C
+!
+!
       nSym = mSym
-C
+!
       Do iSym = 1,nSym
          nOrb(iSym) = lnOrb(iSym)
          nOcc(iSym) = lnOcc(iSym)
@@ -379,7 +379,7 @@ C
          nDel(iSym) = lnDel(iSym)
          nExt(iSym) = lnVir(iSym)
       End Do
-C
+!
       DoFNO=.true.
       ip_Dab=ip_X
       ip_Dii=ip_Y
@@ -389,6 +389,6 @@ C
          l_Dab=l_Dab+nExt(iSym)**2
          l_Dii=l_Dii+nOcc(iSym)
       End Do
-C
+!
       Return
       End

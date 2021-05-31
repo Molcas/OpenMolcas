@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2007, Francesco Aquilante                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2007, Francesco Aquilante                              *
+!***********************************************************************
       SubRoutine Cho_SOSmp2_DecDrv(irc,DelOrig,Diag)
-C
-C     Francesco Aquilante, May 2007.
-C
-C     Purpose: decompose M(ai,bj) = (ai|bj)^2 for use in
-C              SOS-MP2 approach.
-C
-C     DelOrig: flag for deleting files with original vectors after
-C              decomposition completes.
-C
+!
+!     Francesco Aquilante, May 2007.
+!
+!     Purpose: decompose M(ai,bj) = (ai|bj)^2 for use in
+!              SOS-MP2 approach.
+!
+!     DelOrig: flag for deleting files with original vectors after
+!              decomposition completes.
+!
       use ChoMP2, only: OldVec
 #include "implicit.fh"
       External Cho_SOSmp2_Col, ChoMP2_Vec
@@ -42,8 +42,8 @@ C
 
       Integer iClos(2)
 
-C     Initializations.
-C     ----------------
+!     Initializations.
+!     ----------------
 
       irc = 0
 
@@ -71,12 +71,12 @@ C     ----------------
       iClos(2) = 2     ! signals close and keep result vectors
 
 
-C     Print.
-C     ------
+!     Print.
+!     ------
 
       If (Verbose) Then
          Write(6,*)
-         Call Cho_Head('Cholesky Decomposition of  M(ai,bj) = (ai|bj)^2'
+         Call Cho_Head('Cholesky Decomposition of  M(ai,bj) = (ai|bj)^2'&
      &                 //' for SOS-MP2','=',80,6)
          Write(6,'(/,1X,A)') 'Configuration of decomposition:'
          Write(6,'(1X,A,1P,D15.6)') 'Threshold: ',ThrMP2
@@ -86,8 +86,8 @@ C     ------
          End If
       End If
 
-C     Start symmetry loop.
-C     --------------------
+!     Start symmetry loop.
+!     --------------------
 
       kOffD = 1
       Do iSym = 1,nSym
@@ -100,22 +100,22 @@ C     --------------------
                Do iBin = ipBin+1,ipBin+nBin-1
                   Work(iBin) = Work(iBin-1)*1.0D-1
                End Do
-               Write(6,'(//,1X,A,I2,A,I9)')
-     &         '>>> Cholesky decomposing symmetry block ',iSym,
+               Write(6,'(//,1X,A,I2,A,I9)')                             &
+     &         '>>> Cholesky decomposing symmetry block ',iSym,         &
      &         ', dimension: ',nDim
                Write(6,'(/,1X,A)') 'Analysis of initial diagonal:'
                Call Cho_AnaSize(Diag(kOffD),nDim,Work(ipBin),nBin,6)
             End If
 
-C           Open files.
-C           -----------
+!           Open files.
+!           -----------
 
             Do iTyp = 1,2
                Call ChoMP2_OpenF(1,iTyp,iSym)
             End Do
 
-C           Setup decomposition.
-C           --------------------
+!           Setup decomposition.
+!           --------------------
 
             NowSym = iSym
 
@@ -169,17 +169,17 @@ C           --------------------
             Call GetMem('GetMx2','Max ','Real',ipB,lBuf)
             Call GetMem('DecBuf','Allo','Real',ipBuf,lBuf)
 
-C           Decompose this symmetry block.
-C           ------------------------------
+!           Decompose this symmetry block.
+!           ------------------------------
 
             Thr  = ThrMP2
             Span = SpanMP2
-            Call ChoDec(Cho_SOSmp2_Col,ChoMP2_Vec,Restart,Thr,Span,
-     &                  MxQual,Diag(kOffD),Work(ipQual),Work(ipBuf),
-     &                  iWork(ipiPivot),iWork(ipiQual),nDim,lBuf,
+            Call ChoDec(Cho_SOSmp2_Col,ChoMP2_Vec,Restart,Thr,Span,     &
+     &                  MxQual,Diag(kOffD),Work(ipQual),Work(ipBuf),    &
+     &                  iWork(ipiPivot),iWork(ipiQual),nDim,lBuf,       &
      &                  Work(ipErrStat),nMP2Vec(iSym),irc)
             If (irc .ne. 0) Then
-               Write(6,*) SecNam,': ChoDec returned ',irc,
+               Write(6,*) SecNam,': ChoDec returned ',irc,              &
      &                           '   Symmetry block: ',iSym
                Go To 1 ! exit...
             End If
@@ -187,20 +187,20 @@ C           ------------------------------
             XMx = Work(ipErrStat+1)
             RMS = Work(ipErrStat+2)
             If (Verbose) Then
-               Write(6,'(/,1X,A)')
+               Write(6,'(/,1X,A)')                                      &
      &         '- decomposition completed!'
-               Write(6,'(1X,A,I9,A,I9,A)')
-     &         'Number of vectors needed: ',nMP2Vec(iSym),
+               Write(6,'(1X,A,I9,A,I9,A)')                              &
+     &         'Number of vectors needed: ',nMP2Vec(iSym),              &
      &         ' (number of AO vectors: ',NumCho(iSym),')'
-               Write(6,'(1X,A)')
+               Write(6,'(1X,A)')                                        &
      &         'Error statistics for (ai|ai)^2 [min,max,rms]:'
                Write(6,'(1X,1P,3(D15.6,1X))') XMn,XMx,RMS
             End If
-            Failed = abs(Xmn).gt.Thr .or. abs(XMx).gt.thr .or.
+            Failed = abs(Xmn).gt.Thr .or. abs(XMx).gt.thr .or.          &
      &               RMS.gt.Thr
             If (Failed) Then
                If (.not. Verbose) Then
-                  Write(6,'(1X,A)')
+                  Write(6,'(1X,A)')                                     &
      &            'Error statistics for (ai|ai)^2 [min,max,rms]:'
                   Write(6,'(1X,1P,3(D15.6,1X))') XMn,XMx,RMS
                End If
@@ -209,8 +209,8 @@ C           ------------------------------
                Go To 1 ! exit
             End If
 
-C           If requested, check decomposition.
-C           ----------------------------------
+!           If requested, check decomposition.
+!           ----------------------------------
 
             If (ChkDecoMP2) Then
                Write(6,*)
@@ -219,20 +219,20 @@ C           ----------------------------------
                Write(6,*)'Threshold, Span, MxQual: ',Thr,Span,MxQual
                Write(6,*)'Error statistics for (ai|ai)^2 [min,max,rms]:'
                Write(6,*) (Work(ipErrStat+i),i=0,2)
-               Call Cho_SOSmp2_DecChk(irc,iSym,Work(ipQual),nDim,MxQual,
+               Call Cho_SOSmp2_DecChk(irc,iSym,Work(ipQual),nDim,MxQual,&
      &                            Work(ipBuf),lBuf,Work(ipErrStat))
                If (irc .ne. 0) Then
-                Write(6,*) SecNam,': ChoMP2_DecChk returned ',irc,
+                Write(6,*) SecNam,': ChoMP2_DecChk returned ',irc,      &
      &                            '   Symmetry block: ',iSym
-                Call ChoMP2_Quit(SecNam,'SOS-MP2 decomposition failed!',
+                Call ChoMP2_Quit(SecNam,'SOS-MP2 decomposition failed!',&
      &                             ' ')
                Else
                   XMn = Work(ipErrStat)
                   XMx = Work(ipErrStat+1)
                   RMS = Work(ipErrStat+2)
-                  Failed = Failed .or. abs(Xmn).gt.Thr .or.
+                  Failed = Failed .or. abs(Xmn).gt.Thr .or.             &
      &                     abs(XMx).gt.Thr .or. RMS.gt.Thr
-                  Write(6,*)
+                  Write(6,*)                                            &
      &            'Error statistics for (ai|bj)^2 [min,max,rms]:'
                   Write(6,*) XMn,XMx,RMS
                   If (Failed) Then
@@ -246,8 +246,8 @@ C           ----------------------------------
                End If
             End If
 
-C           Free memory.
-C           ------------
+!           Free memory.
+!           ------------
 
             Call GetMem('DecBuf','Free','Real',ipBuf,lBuf)
             If (InCore(iSym)) Call mma_deallocate(OldVec)
@@ -255,22 +255,22 @@ C           ------------
             Call GetMem('iQual','Free','Inte',ipiQual,liQual)
             Call GetMem('Qual','Free','Real',ipQual,lQual)
 
-C           Close (possibly deleting original) files.
-C           -----------------------------------------
+!           Close (possibly deleting original) files.
+!           -----------------------------------------
 
             Do iTyp = 1,2
                Call ChoMP2_OpenF(iClos(iTyp),iTyp,iSym)
             End Do
 
-C           Update pointer to diagonal block.
-C           ---------------------------------
+!           Update pointer to diagonal block.
+!           ---------------------------------
 
             kOffD = kOffD + nT1am(iSym)
 
          Else
 
             If (Verbose) Then
-               Write(6,'(//,1X,A,I2,A)')
+               Write(6,'(//,1X,A,I2,A)')                                &
      &         '>>> Symmetry block',iSym,' is empty!'
             End If
 
