@@ -27,14 +27,13 @@ implicit none
 integer(kind=iwp), intent(in) :: nbas, isize, jsize, imethod, paratyp, xorder, iComp
 real(kind=wp), intent(in) :: inS(isize), inK(isize), inV(isize), inpVp(isize), inpXp(isize), clight
 real(kind=wp), intent(inout) :: inX(isize), inUL(jsize), inUS(jsize)
-integer(kind=iwp) :: nn, i, j, k, iSizec, idbg, nSym, iOpt, iRC, Lu_One, lOper, n_Int, jComp, iPSOComp, IDUM(1)
+integer(kind=iwp) :: i, j, k, iSizec, idbg, nSym, iOpt, iRC, Lu_One, lOper, n_Int, jComp, iPSOComp, IDUM(1)
 character(len=8) :: Label, magLabel, PSOLabel
 real(kind=wp), allocatable :: sK(:,:), sS(:,:), sV(:,:), spVp(:,:), sX(:,:), spXp(:,:), tmp(:,:), magaPX(:), magaPXs(:,:), &
                               magaXP(:), magaXPs(:,:), magbPX(:), magbPXs(:,:), magbXP(:), magbXPs(:,:), PSO(:,:), PSOt(:), Ppso(:)
 
 ! Convert to square matrices
 
-nn = nbas*nbas+4
 call mma_allocate(sK,nbas,nbas,label='skin')
 call mma_allocate(sS,nbas,nbas,label='sSS')
 call mma_allocate(sV,nbas,nbas,label='sV')
@@ -175,7 +174,7 @@ if ((imethod == 2) .or. (imethod == 3) .or. ((imethod == 1) .and. (xorder >= 15)
     call mma_deallocate(tmp)
     ! do PSO combinations
     call mma_allocate(PSO,nbas,nbas,label='PSO')
-    PSO(:,:) = magaXPs(:,:)+magbXPs(:,:)
+    PSO(:,:) = magaXPs(:,:)-magbXPs(:,:)
     call mma_deallocate(magaXPs)
     call mma_deallocate(magbXPs)
     write(PSOLabel,'(A,A3)') 'PSOI ',Label(6:8)

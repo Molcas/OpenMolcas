@@ -23,7 +23,7 @@ real(kind=wp), intent(inout) :: inK(isize)
 real(kind=wp), intent(out) :: inUL(jsize), inUS(jsize)
 logical(kind=iwp), intent(in) :: doFullLT
 integer(kind=iwp) :: i, j, k, iblock, mbl, ks, kL
-real(kind=wp), allocatable :: sK(:,:), sS(:,:), sV(:,:), spVp(:,:), sH(:,:), sB(:,:), sKL(:,:), sSL(:,:),sVL(:,:), spVpL(:,:), &
+real(kind=wp), allocatable :: sK(:,:), sS(:,:), sV(:,:), spVp(:,:), sH(:,:), sB(:,:), sKL(:,:), sSL(:,:), sVL(:,:), spVpL(:,:), &
                               sULL(:,:), sUSL(:,:), tmp(:,:)
 
 ! Convert triangle matrices to square matrices

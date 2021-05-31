@@ -26,13 +26,12 @@ implicit none
 integer(kind=iwp), intent(in) :: n, xord, dkparam
 real(kind=wp), intent(in) :: s(n,n), t(n,n), v(n,n), w(n,n), clight
 real(kind=wp), intent(inout) :: X(n,n), pXp(n,n)
-integer(kind=iwp) :: nn, vord, nz, m
+integer(kind=iwp) :: vord
 real(kind=wp), allocatable :: Tr(:,:), Bk(:,:), EL(:,:), ES(:,:), OL(:,:), OS(:,:), Ep(:), E0(:), KC(:,:), Ws(:,:,:), Co(:), &
                               SCo(:), MW(:,:,:), ZW(:,:,:,:)
 
 ! Transform to free-particle FW picture
 
-nn = n*n+4
 call mma_allocate(Tr,n,n,label='Tr')
 call mma_allocate(Bk,n,n,label='Back')
 call mma_allocate(EL,n,n,label='mEL')
@@ -47,8 +46,6 @@ call XDR_fpFW(n,s,t,v,w,Tr,Bk,EL,ES,OL,OS,Ep,E0,KC(:,1),KC(:,2),KC(:,3),clight)
 ! Calculate the DKH unitary transformation ( in terms of a series of W matrices 1..xord )
 
 vord = xord*2
-m = n*n
-nz = m*vord
 call mma_allocate(Ws,n,n,xord*2,label='Wsav')
 call mma_allocate(Co,max(4,vord),label='Cof')
 call dkh_cofu(vord,dkparam,Co)

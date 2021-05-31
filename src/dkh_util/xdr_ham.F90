@@ -73,12 +73,11 @@ integer(kind=iwp), intent(in) :: nbas, isize, jsize, imethod, paratyp, dkhorder,
 real(kind=wp), intent(in) :: inS(isize), inV(isize), inpVp(isize), clight
 real(kind=wp), intent(inout) :: inK(isize)
 real(kind=wp), intent(out) :: inUL(jsize), inUS(jsize)
-integer(kind=iwp) :: nn, i, j, k
+integer(kind=iwp) :: i, j, k
 real(kind=wp), allocatable :: sK(:,:), sS(:,:), sV(:,:), pVp(:,:)
 
 ! Convert triangle matrices to square matrices
 
-nn = nbas*nbas+4
 call mma_allocate(sK,nbas,nbas,label='skin')
 call mma_allocate(sS,nbas,nbas,label='sSS')
 call mma_allocate(sV,nbas,nbas,label='sV')

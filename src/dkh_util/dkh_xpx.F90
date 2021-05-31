@@ -19,7 +19,7 @@ implicit none
 ! Output : EL overwritten by the transformed property matrix
 integer(kind=iwp), intent(in) :: n, dkord, xord, vord
 real(kind=wp), intent(inout) :: EL(n,n)
-real(kind=wp), intent(in) :: ES(n,n), OL(n,n), OS(n,n), Ep(n), E0(n), dkcof(*), cc(*), wsav(n,n,*)
+real(kind=wp), intent(in) :: ES(n,n), OL(n,n), OS(n,n), Ep(n), E0(n), dkcof(*), cc(*), wsav(n,n,xord*2)
 real(kind=wp), intent(out) :: wr(n,n), rw(n,n), t1(n,n), t2(n,n), t3(n,n), t4(n,n), or(n,n,*), ro(n,n,*), e(n,n,*), rer(n,n,*), &
                               or_(n,n,*), ro_(n,n,*), e_(n,n,*), rer_(n,n,*), s1(n,n,*), s2(n,n,*)
 integer(kind=iwp) :: k, ord, cou, ks, ioe
