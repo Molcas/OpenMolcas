@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine dkh_prop(n,s,t,v,w,X,pXp,clight,dkord,xord,dkparam)
+subroutine dkh_prop(n,s,t,v,w,X,pXp,clight,xord,dkparam)
 ! Apply the arbitrary order DKH transformation to property integral
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -23,7 +23,7 @@ implicit none
 !   w     aka pVp
 ! Output :
 !   X     store the transformed property integral
-integer(kind=iwp), intent(in) :: n, dkord, xord, dkparam
+integer(kind=iwp), intent(in) :: n, xord, dkparam
 real(kind=wp), intent(in) :: s(n,n), t(n,n), v(n,n), w(n,n), clight
 real(kind=wp), intent(inout) :: X(n,n), pXp(n,n)
 integer(kind=iwp) :: nn, vord, nz, m
@@ -89,7 +89,5 @@ call mma_deallocate(E0)
 call mma_deallocate(KC)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(dkord)
 
 end subroutine dkh_prop

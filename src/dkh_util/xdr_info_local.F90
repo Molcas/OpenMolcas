@@ -19,9 +19,7 @@ integer(kind=iwp), intent(in) :: n, indx(n)
 integer(kind=iwp), intent(out) :: nb, ib(n), map(n)
 integer(kind=iwp) :: i, j, k, m
 
-do i=1,n
-  ib(i) = 0
-end do
+ib(:) = 0
 nb = 0
 k = 0
 do i=1,n
@@ -31,7 +29,7 @@ do i=1,n
     k = k+1
     map(k) = i
     do j=i+1,n
-      if (ib(j) == 0 .and. indx(j) == indx(i)) then
+      if ((ib(j) == 0) .and. (indx(j) == indx(i))) then
         k = k+1
         map(k) = j
         ib(j) = -1

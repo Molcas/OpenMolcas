@@ -26,17 +26,15 @@ if (DKH_para == 2) then
   ! Exponential
   dkcof(1) = One
   do i=2,N
-    dkcof(i) = dkcof(i-1)/i
+    dkcof(i) = dkcof(i-1)/real(i,kind=wp)
   end do
 else if (DKH_para == 3) then
   ! Square root
-  do i=1,N
-    dkcof(i) = Zero
-  end do
+  dkcof(:) = Zero
   dkcof(1) = One
   dkcof(2) = Half
   do i=4,N,2
-    dkcof(i) = -dkcof(i-2)*(i-3)/i
+    dkcof(i) = -dkcof(i-2)*(i-3)/real(i,kind=wp)
   end do
 else if (DKH_para == 5) then
   ! Cayley
@@ -50,8 +48,8 @@ else if (DKH_para == 4) then
   dkcof(2) = Half
   dkcof(3) = Half
   do i=4,N,2
-    dkcof(i) = dkcof(i-2)*(i-1)/i
-    if (i < n) then
+    dkcof(i) = dkcof(i-2)*(i-1)/real(i,kind=wp)
+    if (i < N) then
       dkcof(i+1) = dkcof(i)
     end if
   end do

@@ -22,41 +22,33 @@ real(kind=wp), intent(inout) :: EL(n,n)
 real(kind=wp), intent(in) :: ES(n,n), OL(n,n), OS(n,n), Ep(n), E0(n), dkcof(*), cc(*), wsav(n,n,*)
 real(kind=wp), intent(out) :: wr(n,n), rw(n,n), t1(n,n), t2(n,n), t3(n,n), t4(n,n), or(n,n,*), ro(n,n,*), e(n,n,*), rer(n,n,*), &
                               or_(n,n,*), ro_(n,n,*), e_(n,n,*), rer_(n,n,*), s1(n,n,*), s2(n,n,*)
-integer(kind=iwp) :: i, j, k, ord, cou, ks, ioe
+integer(kind=iwp) :: k, ord, cou, ks, ioe
 logical(kind=iwp) :: ifodd
+
+#include "macros.fh"
+unused_var(dkord)
+unused_var(Ep)
+unused_var(E0)
+unused_var(cc(1))
 
 ! Copy initial matrices
 
-do i=1,n
-  do j=1,n
-    e(j,i,1) = EL(j,i)
-    rer(j,i,1) = ES(j,i)
-    or(j,i,1) = OL(j,i)
-    ro(j,i,1) = OS(j,i)
-  end do
-end do
+e(:,:,1) = EL(:,:)
+rer(:,:,1) = ES(:,:)
+or(:,:,1) = OL(:,:)
+ro(:,:,1) = OS(:,:)
 
 cou = 0
 do ord=1,xord
-  do k=1,vord
-    do i=1,n
-      do j=1,n
-        or_(j,i,k) = Zero
-        ro_(j,i,k) = Zero
-        e_(j,i,k) = Zero
-        rer_(j,i,k) = Zero
-      end do
-    end do
-  end do
+  or_(:,:,1:vord) = Zero
+  ro_(:,:,1:vord) = Zero
+  e_(:,:,1:vord) = Zero
+  rer_(:,:,1:vord) = Zero
 
   ! Set up W(ord) matrix, copy from saved set generated from dkh_ham
 
-  do i=1,n
-    do j=1,n
-      wr(j,i) = wsav(j,i,ord*2-1)
-      rw(j,i) = wsav(j,i,ord*2)
-    end do
-  end do
+  wr(:,:) = wsav(:,:,ord*2-1)
+  rw(:,:) = wsav(:,:,ord*2)
 
   ! Calculate [W(ord)->E(1-...)/O(1-...)]
   !   note that no odd term will be eliminated
@@ -64,7 +56,7 @@ do ord=1,xord
   do ks=1,xord+1
     ! W1 only apply to E1/O1
     !DP if ((ord == 1) .and. (ks >= 2)) cycle
-    if (ord > 1 .or. ks < 2) then
+    if ((ord > 1) .or. (ks < 2)) then
       do ioe=1,2
         k = ks
         if (ioe == 1) then
@@ -74,23 +66,15 @@ do ord=1,xord
         end if
         ! copy initial matrix
         if (ifodd) then
-          do i=1,n
-            do j=1,n
-              t1(j,i) = or(j,i,k)
-              t2(j,i) = ro(j,i,k)
-              or_(j,i,k) = or_(j,i,k)+t1(j,i)
-              ro_(j,i,k) = ro_(j,i,k)+t2(j,i)
-            end do
-          end do
+          t1(:,:) = or(:,:,k)
+          t2(:,:) = ro(:,:,k)
+          or_(:,:,k) = or_(:,:,k)+t1(:,:)
+          ro_(:,:,k) = ro_(:,:,k)+t2(:,:)
         else
-          do i=1,n
-            do j=1,n
-              t1(j,i) = e(j,i,k)
-              t2(j,i) = rer(j,i,k)
-              e_(j,i,k) = e_(j,i,k)+t1(j,i)
-              rer_(j,i,k) = rer_(j,i,k)+t2(j,i)
-            end do
-          end do
+          t1(:,:) = e(:,:,k)
+          t2(:,:) = rer(:,:,k)
+          e_(:,:,k) = e_(:,:,k)+t1(:,:)
+          rer_(:,:,k) = rer_(:,:,k)+t2(:,:)
         end if
         call dkh_wgene(n,ord,k,xord+1,ifodd,dkcof,wr,rw,t1,t2,e_,rer_,or_,ro_,cou,s1,s2,t3,t4)
         ! cycle for odd/even operator
@@ -99,16 +83,10 @@ do ord=1,xord
     ! cycle for ks
   end do
   ! copy
-  do k=1,xord+1
-    do i=1,n
-      do j=1,n
-        or(j,i,k) = or_(j,i,k)
-        ro(j,i,k) = ro_(j,i,k)
-        e(j,i,k) = e_(j,i,k)
-        rer(j,i,k) = rer_(j,i,k)
-      end do
-    end do
-  end do
+  or(:,:,1:xord+1) = or_(:,:,1:xord+1)
+  ro(:,:,1:xord+1) = ro_(:,:,1:xord+1)
+  e(:,:,1:xord+1) = e_(:,:,1:xord+1)
+  rer(:,:,1:xord+1) = rer_(:,:,1:xord+1)
 ! cycle for ord
 end do
 
@@ -116,21 +94,10 @@ end do
 !   +1 appears because X itself is not counted as an order
 
 do k=2,xord+1
-  do i=1,n
-    do j=1,n
-      EL(j,i) = EL(j,i)+e(j,i,k)
-    end do
-  end do
+  EL(:,:) = EL(:,:)+e(:,:,k)
 end do
 !write(u6,*) 'DKHX',xord,' Total matmul',cou
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(dkord)
-  call Unused_real_array(Ep)
-  call Unused_real_array(E0)
-  call Unused_real_array(cc)
-end if
 
 end subroutine dkh_xpx

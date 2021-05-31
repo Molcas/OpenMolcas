@@ -30,8 +30,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: dkhorder, dkhparam, i, i_Dim, iAngr, iBas, icnt, iCnttp, iComp, idbg, idum(1), iExp, iibas, iMEF, iOpt, &
-                     ipaddr(3), iPrint, iProps, iRC, iRout, iSize, iSizec, iSizep, iSizes, iTemp, jCent, jExp, k, kAng, kC, kCof, &
-                     kCofi, kCofj, kExp, kExpi, kExpj, ks, kz, L, lOper, lOper_save, Lu_One, n, n_Int, nAtoms, nBas_cont(8), &
+                     iPrint, iProps, iRC, iRout, iSize, iSizec, iSizep, iSizes, iTemp, jCent, jExp, k, kAng, kC, kCof, kCofi, &
+                     kCofj, kExp, kExpi, kExpj, ks, kz, L, lOper, lOper_save, Lu_One, n, n_Int, nAtoms, nBas_cont(8), &
                      nBas_prim(8), nbl, nComp, nrSym, nSym, numb_props, Op, relmethod, xorder
 real(kind=wp) :: rCofi, rCofj, rEpsilon, rExpi, rExpj, rI, rNorm, rSum, VELIT
 logical(kind=iwp) :: DoFullLT
@@ -42,11 +42,10 @@ real(kind=wp), allocatable :: iK(:), SS(:), V(:), pVp(:), K_Save(:), K_Done(:), 
                               Y(:), P(:), G(:), Ev2(:,:), Eig(:,:), Sinv(:,:), Ew(:), E(:), Aa(:), Rr(:), Tt(:), Re1r(:,:), &
                               Auxi(:,:), Twrk4(:), Even1(:,:), Pvpt(:), Bu(:), H(:), H_nr(:), H_temp(:)
 logical(kind=iwp), parameter :: Debug = .false.
-integer(kind=iwp), external :: nProp_Int, ip_of_Work
+integer(kind=iwp), external :: nProp_Int
 #include "Molcas.fh"
 #include "rinfo.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
 
 if (iRFlag1 == 1) then
   call DKRelint()
@@ -79,10 +78,10 @@ kC = 0
 
 do iCnttp=1,nCnttp
 
-  ! The none valence type shells comes at the end.
+  ! The non-valence type shells come at the end.
   ! When this block is encountered stop the procedure.
 
-  if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag .or. dbsc(iCnttp)%nFragType > 0) exit
+  if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag .or. (dbsc(iCnttp)%nFragType > 0)) exit
 
   do icnt=1,dbsc(iCnttp)%nCntr
     kC = kC+1
@@ -206,8 +205,7 @@ if (iRC /= 0) then
   call Abend()
 end if
 nComp = 1
-ipaddr(1) = ip_of_Work(SS)
-if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
+if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,[1],SS)
 Label = 'Attract '
 iRC = -1
 call RdOne(iRC,iOpt,Label,1,V,lOper)
@@ -216,8 +214,7 @@ if (iRC /= 0) then
   write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
-ipaddr(1) = ip_of_Work(V)
-if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
+if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,[1],V)
 Label = 'Kinetic '
 iRC = -1
 call RdOne(iRC,iOpt,Label,1,iK,lOper)
@@ -226,8 +223,7 @@ if (iRC /= 0) then
   write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
-ipaddr(1) = ip_of_Work(iK)
-if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
+if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,[1],iK)
 Label = 'pVp     '
 iRC = -1
 call RdOne(iRC,iOpt,Label,1,pVp,lOper)
@@ -236,8 +232,7 @@ if (iRC /= 0) then
   write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
-ipaddr(1) = ip_of_Work(pVp)
-if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
+if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,[1],pVp)
 
 iOpt = 0
 call ClsOne(iRC,iOpt)
@@ -267,15 +262,15 @@ if (IRELAE >= 100) then
       xorder = dkhorder
     end if
     !if (iTemp == 1) then
-    !   paramtype='OPT'
+    !  paramtype = 'OPT'
     !else if (iTemp == 2) then
-    !   paramtype='EXP'
+    !  paramtype = 'EXP'
     !else if (iTemp == 3) then
-    !   paramtype='SQR'
+    !  paramtype = 'SQR'
     !else if (iTemp == 4) then
-    !   paramtype='MCW'
+    !  paramtype = 'MCW'
     !else if (iTemp == 5) then
-    !   paramtype='CAY'
+    !  paramtype = 'CAY'
     !else
     if ((iTemp < 1) .or. (iTemp > 5)) then
       write(u6,*) 'dkrelint: Illegal parametrization!'
@@ -312,7 +307,7 @@ if (IRELAE >= 100) then
     DoFullLT = .true.
     if (radiLD == Zero) DoFullLT = .false.
     if (DoFullLT) then
-      if (relmethod == 1 .and. xorder == 0) then
+      if ((relmethod == 1) .and. (xorder == 0)) then
         xorder = dkhorder
       end if
       write(u6,'(A)') '   DLU Local Transformation'
@@ -339,8 +334,8 @@ if (IRELAE >= 100) then
       call mma_allocate(Map,n,label='InfoMap')
       call xdr_info_local(n,indx(kz),nbl,Loc,Map)
       !DP write(u6,'(a,i1,i5,a,99i4)') '   Sym: ',L+1,n,'  = Local ',(Loc(i),i=1,nbl)
-      call XDR_Local_Ham(n,isize,n*n,relmethod,dkhparam,dkhorder,xorder,SS(k),iK(k),V(k),pVp(k),U_L(ks),U_S(ks),indx(kz),nbl,Loc, &
-                         Map,DoFullLT,clightau)
+      call XDR_Local_Ham(n,isize,n*n,relmethod,dkhparam,dkhorder,xorder,SS(k),iK(k),V(k),pVp(k),U_L(ks),U_S(ks),nbl,Loc,Map, &
+                         DoFullLT,clightau)
       call mma_deallocate(Loc)
       call mma_deallocate(Map)
     else
@@ -471,12 +466,12 @@ if (IRELAE >= 100) then
           ! Skip if the propetry operator does not have a total
           ! symmetric component!
 
-          if (iand(1,lOper) /= 0) then
+          if (btest(lOper,0)) then
             !                                                          *
             !***********************************************************
             !                                                          *
-            call XDR_Prop(n,isize,n*n,relmethod,dkhparam,dkhorder,xorder,SS(k),iK(k),V(k),pVp(k),X(k),pXp(k),U_L(ks),U_S(ks), &
-                          clightau,Label,iComp,iSizec)
+            call XDR_Prop(n,isize,n*n,relmethod,dkhparam,xorder,SS(k),iK(k),V(k),pVp(k),X(k),pXp(k),U_L(ks),U_S(ks),clightau, &
+                          Label,iComp,iSizec)
             ks = ks+n*n
           end if
           k = k+isize
@@ -713,8 +708,8 @@ end if
 call DaXpY_(iSizep+4,One,SS,1,V,1)
 if (iPrint >= 20) then
   call iSwap(8,nBas,1,nBas_Prim,1)
-  call PrMtrx('Attract+Kinetic (prim)',[lOper],nComp,[ip_of_Work(V)],Work)
-  call PrMtrx('Kinetic (prim)',[lOper],nComp,[ip_of_Work(SS)],Work)
+  call PrMtrx('Attract+Kinetic (prim)',[lOper],nComp,[1],V)
+  call PrMtrx('Kinetic (prim)',[lOper],nComp,[1],SS)
   call iSwap(8,nBas,1,nBas_Prim,1)
 end if
 H_temp(iSizec+1:) = Zero
@@ -738,7 +733,7 @@ if (iRC /= 0) call Error()
 
 if (iPrint >= 20) then
   call iSwap(8,nBas,1,nBas_Cont,1)
-  call PrMtrx('H_temp (cont)',[lOper],nComp,[ip_of_Work(H_temp)],Work)
+  call PrMtrx('H_temp (cont)',[lOper],nComp,[1],H_temp)
   call iSwap(8,nBas,1,nBas_Cont,1)
 end if
 
@@ -746,13 +741,13 @@ end if
 
 if (iPrint >= 20) then
   call iSwap(8,nBas,1,nBas_Prim,1)
-  call PrMtrx('iK (prim)',[lOper],nComp,[ip_of_Work(iK)],Work)
+  call PrMtrx('iK (prim)',[lOper],nComp,[1],iK)
   call iSwap(8,nBas,1,nBas_Prim,1)
 end if
 call repmat(idbg,iK,H,.true.)
 if (iPrint >= 20) then
   call iSwap(8,nBas,1,nBas_Cont,1)
-  call PrMtrx('H (cont)',[lOper],nComp,[ip_of_Work(H)],Work)
+  call PrMtrx('H (cont)',[lOper],nComp,[1],H)
   call iSwap(8,nBas,1,nBas_Cont,1)
 end if
 
@@ -784,8 +779,7 @@ end if
 Label = 'OneHam 0'
 lOper = 1
 nComp = 1
-ipaddr(1) = ip_of_Work(H)
-if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
+if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,[1],H)
 
 ! Replace 1-el Hamiltonian on ONEINT
 

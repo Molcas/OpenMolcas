@@ -11,8 +11,7 @@
 ! Copyright (C) 2021, Rulin Feng                                       *
 !***********************************************************************
 
-subroutine XDR_Prop(nbas,isize,jsize,imethod,paratyp,dkhorder,xorder,inS,inK,inV,inpVp,inX,inpXp,inUL,inUS,clight,Label,iComp, &
-                    iSizec)
+subroutine XDR_Prop(nbas,isize,jsize,imethod,paratyp,xorder,inS,inK,inV,inpVp,inX,inpXp,inUL,inUS,clight,Label,iComp,iSizec)
 ! Driver for relativistic transformation of property integrals
 !
 ! also called the "picture change correction" since the physical operator
@@ -25,7 +24,7 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nbas, isize, jsize, imethod, paratyp, dkhorder, xorder, iComp
+integer(kind=iwp), intent(in) :: nbas, isize, jsize, imethod, paratyp, xorder, iComp
 real(kind=wp), intent(in) :: inS(isize), inK(isize), inV(isize), inpVp(isize), inpXp(isize), clight
 real(kind=wp), intent(inout) :: inX(isize), inUL(jsize), inUS(jsize)
 integer(kind=iwp) :: nn, i, j, k, iSizec, idbg, nSym, iOpt, iRC, Lu_One, lOper, n_Int, jComp, iPSOComp, IDUM(1)
@@ -60,26 +59,26 @@ call square(inpXp,spXp,nbas,1,nbas)
 
 ! Calculate the relativistic transformed property integrals
 
-if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
+if ((imethod == 2) .or. (imethod == 3) .or. ((imethod == 1) .and. (xorder >= 15))) then
 
   ! Handle magnetic integrals if provided by Gen1Int
   !
   !********************************************************************
   !
-  !          PSO integrals with i, pre-existing PSO integrals in ONEREL
-  !          required. The h_UL{\dag} should have a minus sign, for
-  !          which a tranpose is not enough, thus add this manually.
-  ! *         MAG:
-  ! *          1: x_k*d/dx  4: x_k*d/dy  7: x_k*d/dz
-  ! *          2: y_k*d/dx  5: y_k*d/dy  8: y_k*d/dz
-  ! *          3: z_k*d/dx  6: z_k*d/dy  9: z_k*d/dz
-  ! *         PSO1: operator (y_k*d/dz - z_k*d/dy)/r_k^3
-  ! *          = MAG 8 - MAG 6
-  ! *         PSO2: operator (z_k*d/dx - x_k*d/dz)/r_k^3
-  ! *          = MAG 3 - MAG 7
-  ! *         PSO3: operator (x_k*d/dy - y_k*d/dx)/r_k^3
-  ! *          = MAG 4 - MAG 2
-  ! *         PSO n = MAG a - MAG b
+  ! PSO integrals with i, pre-existing PSO integrals in ONEREL
+  ! required. The h_UL{\dag} should have a minus sign, for
+  ! which a tranpose is not enough, thus add this manually.
+  ! * MAG:
+  ! *  1: x_k*d/dx  4: x_k*d/dy  7: x_k*d/dz
+  ! *  2: y_k*d/dx  5: y_k*d/dy  8: y_k*d/dz
+  ! *  3: z_k*d/dx  6: z_k*d/dy  9: z_k*d/dz
+  ! * PSO1: operator (y_k*d/dz - z_k*d/dy)/r_k^3
+  ! *  = MAG 8 - MAG 6
+  ! * PSO2: operator (z_k*d/dx - x_k*d/dz)/r_k^3
+  ! *  = MAG 3 - MAG 7
+  ! * PSO3: operator (x_k*d/dy - y_k*d/dx)/r_k^3
+  ! *  = MAG 4 - MAG 2
+  ! * PSO n = MAG a - MAG b
 
   if ((Label(1:3) == 'MAG') .and. ((iComp == 3) .or. (iComp == 4) .or. (iComp == 8))) then
     nSym = 1 ! always C1 symmetry
@@ -185,11 +184,11 @@ if (imethod == 2 .or. imethod == 3 .or. (imethod == 1 .and. xorder >= 15)) then
     call CmpInt(PSO,n_Int,idum(1),nSym,lOper)
     ! store PSO integrals to ONEINT
     call mma_allocate(PSOt,n_Int+4,label='PSOt')
-    k = 0
+    k = 1
     do i=1,nbas
       do j=1,i
-        k = k+1
         PSOt(k) = PSO(j,i)
+        k = k+1
       end do
     end do
     call mma_deallocate(PSO)
@@ -256,16 +255,16 @@ else if (imethod == 1) then
 
   ! Arbitrary order DKH transformation
 
-  call dkh_prop(nbas,sS,sK,sV,spVp,sX,spXp,clight,dkhorder,xorder,paratyp)
+  call dkh_prop(nbas,sS,sK,sV,spVp,sX,spXp,clight,xorder,paratyp)
 end if
 
 ! Copy transformed property integral back to inX
 
-k = 0
+k = 1
 do i=1,nbas
   do j=1,i
-    k = k+1
     inX(k) = sX(j,i)
+    k = k+1
   end do
 end do
 

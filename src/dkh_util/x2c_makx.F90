@@ -35,12 +35,8 @@ call mma_allocate(tmp,lwork,label='Work')
 
 ! Copy Fock and Overlap matrix to temp arrays
 
-do i=1,m
-  do j=1,m
-    tF(j,i) = f(j,i)
-    tS(j,i) = s(j,i)
-  end do
-end do
+tF(:,:) = f(:,:)
+tS(:,:) = s(:,:)
 
 ! Diagonalization of Fock matrix with given overlap matrix
 

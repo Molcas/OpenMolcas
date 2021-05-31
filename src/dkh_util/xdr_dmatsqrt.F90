@@ -18,25 +18,19 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: n
-real(kind=wp), intent(inout) :: a(n*n)
-integer(kind=iwp) :: i, j, info
+real(kind=wp), intent(inout) :: a(n,n)
+integer(kind=iwp) :: i, info
 real(kind=wp) :: dia
 real(kind=wp), allocatable :: Tmp(:), Cr(:,:), W(:)
 
 call mma_allocate(Tmp,8*n,label='tmp')
 call mma_allocate(Cr,n,n,label='Cr')
 call mma_allocate(W,n,label='Eig')
-do i=1,n
-  do j=1,n
-    Cr(j,i) = a((i-1)*n+j)
-  end do
-end do
+Cr(:,:) = a(:,:)
 call dsyev_('V','L',n,Cr,n,W,Tmp,8*n,info)
 do i=1,n
   dia = One/sqrt(sqrt(W(i)))
-  do j=1,n
-    Cr(j,i) = Cr(j,i)*dia
-  end do
+  Cr(:,i) = Cr(:,i)*dia
 end do
 call dmxma(n,'N','T',Cr,Cr,a,One)
 call mma_deallocate(Tmp)

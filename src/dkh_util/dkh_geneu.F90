@@ -33,24 +33,15 @@ integer(kind=iwp) :: i, j, k, iord
 
 do iord=1,xord
   ! initial unit matrix
+  t2(:,:) = Zero
   do i=1,m
-    do j=1,m
-      if (j == i) then
-        t2(j,i) = One
-      else
-        t2(j,i) = Zero
-      end if
-    end do
+    t2(i,i) = One
   end do
   do k=1,xord/iord
     if (mod(k,2) == 1) then
       if (k == 1) then
-        do i=1,n
-          do j=1,n
-            ! unitary transformation in right side, had {\dag} to original definition of U
-            xs(j,i) = -w(j,i,1,iord)
-          end do
-        end do
+        ! unitary transformation in right side, had {\dag} to original definition of U
+        xs(:,:) = -w(:,:,1,iord)
       else
         call dmxma(n,'N','N',xl,w(1,1,1,iord),xs,-One)
       end if
@@ -76,19 +67,11 @@ do iord=1,xord
     end if
   end do
   if (iord == 1) then
-    do i=1,m
-      do j=1,m
-        t1(j,i) = t2(j,i)
-      end do
-    end do
+    t1(:,:) = t2(:,:)
   else
     ! multiply U_{iord} in right side
     call dmxma(m,'N','N',t1,t2,t3,One)
-    do i=1,m
-      do j=1,m
-        t1(j,i) = t3(j,i)
-      end do
-    end do
+    t1(:,:) = t3(:,:)
   end if
 end do
 do i=1,n

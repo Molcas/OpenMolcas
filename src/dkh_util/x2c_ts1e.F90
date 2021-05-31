@@ -33,11 +33,7 @@ c_2c = clight*Two
 c_2c2 = clight*clight*Two
 c_4c2 = c_2c2*Two
 ! rescale, in order to make X matrix close to unit matrix
-do i=1,n
-  do j=1,n
-    w(j,i) = w(j,i)/c_4c2
-  end do
-end do
+w(:,:) = w(:,:)/c_4c2
 call mma_allocate(F,m,m,label='TmpF')
 call mma_allocate(St,m,m,label='TmpS')
 St(:,:) = Zero
@@ -66,14 +62,10 @@ call mma_allocate(SS,n,n,label='TmpC')
 call dmxma(n,'C','N',X,t,A,One)
 call dmxma(n,'N','N',t,X,B,One)
 call dmxma(n,'N','N',A,X,C,One)
-do i=1,n
-  do j=1,n
-    ! X-projected overlap matrix
-    SS(j,i) = s(j,i)+C(j,i)/c_2c2
-    ! X-projected kinetic matrix
-    t(j,i) = A(j,i)+B(j,i)-C(j,i)
-  end do
-end do
+! X-projected overlap matrix
+SS(:,:) = s(:,:)+C(:,:)/c_2c2
+! X-projected kinetic matrix
+t(:,:) = A(:,:)+B(:,:)-C(:,:)
 call XDR_dmatsqrt(s,n)
 call dmxma(n,'C','N',s,SS,A,One)
 call dmxma(n,'N','N',A,s,B,One)
@@ -93,13 +85,9 @@ call dmxma(n,'C','N',ul,v,A,One)
 call dmxma(n,'N','N',A,ul,v,One)
 call dmxma(n,'C','N',us,w,A,One)
 call dmxma(n,'N','N',A,us,w,One)
-do i=1,n
-  do j=1,n
-    v(j,i) = t(j,i)+v(j,i)+w(j,i)
-    ! since pVp was rescaled, the lower part of transformation matrix also need to be rescaled
-    us(j,i) = us(j,i)/c_2c
-  end do
-end do
+v(:,:) = v(:,:)+t(:,:)+w(:,:)
+! since pVp was rescaled, the lower part of transformation matrix also need to be rescaled
+us(:,:) = us(:,:)/c_2c
 
 ! Free temp memories
 

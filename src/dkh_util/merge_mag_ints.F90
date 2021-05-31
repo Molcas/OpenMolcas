@@ -43,9 +43,7 @@ if (dotran) then
     end do
   end do
 else
-  do im=1,jz
-    ut(im) = lt(im)
-  end do
+  ut(:) = lt(:)
 end if
 
 end subroutine merge_mag_ints

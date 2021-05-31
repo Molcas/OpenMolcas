@@ -28,7 +28,7 @@ real(kind=wp), allocatable :: Tr(:,:), Bk(:,:), EL(:,:), ES(:,:), OL(:,:), OS(:,
 
 ! Transform to the free-particle Foldy-Wothuysen picture
 
-call mma_allocate(Tr,n,n,label='Tr')
+call mma_allocate(Tr,n,n,label='Tr') !IFG
 call mma_allocate(Bk,n,n,label='Back')
 call mma_allocate(EL,n,n,label='mEL')
 call mma_allocate(ES,n,n,label='mES')
@@ -36,7 +36,7 @@ call mma_allocate(OL,n,n,label='mOL')
 call mma_allocate(OS,n,n,label='mOS')
 call mma_allocate(Ep,n,label='Ep')
 call mma_allocate(E0,n,label='E0')
-call mma_allocate(KC,n,3,label='KC')
+call mma_allocate(KC,n,3,label='KC') !IFG
 
 call XDR_fpFW(n,s,t,v,w,Tr,Bk,EL,ES,OL,OS,Ep,E0,KC(:,1),KC(:,2),KC(:,3),clight)
 
@@ -81,11 +81,7 @@ call dmxma(n,'C','N',X,OS,A,One)
 call dmxma(n,'C','N',X,ES,B,One)
 call dmxma(n,'N','N',B,X,ES,One)
 call dmxma(n,'N','N',OL,X,B,One)
-do i=1,n
-  do j=1,n
-    EL(j,i) = EL(j,i)+A(j,i)+B(j,i)+ES(j,i)
-  end do
-end do
+EL(:,:) = EL(:,:)+A(:,:)+B(:,:)+ES(:,:)
 call dmxma(n,'C','N',X,X,A,One)
 do i=1,n
   A(i,i) = A(i,i)+One
@@ -105,7 +101,7 @@ call dmxma(n,'N','N',B,Bk,v,One)
 
 call dmxma(n,'N','N',X,A,B,One)
 ! A/B is the upper/lower part of transformation matrix in fpFW picture
-call mma_allocate(M1,n,n,4,label='TmpM')
+call mma_allocate(M1,n,n,4,label='TmpM') !IFG
 call XDR_mkutls(n,A,B,Tr,Bk,KC(:,1),KC(:,2),KC(:,3),ul,us,M1(:,:,1),M1(:,:,2),M1(:,:,3),M1(:,:,4))
 call mma_deallocate(M1)
 

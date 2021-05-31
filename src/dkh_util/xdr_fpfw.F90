@@ -31,7 +31,7 @@ implicit none
 integer(kind=iwp), intent(in) :: n
 real(kind=wp), intent(in) :: s(n,n), t(n,n), v(n,n), w(n,n), clight
 real(kind=wp), intent(out) :: Tr(n,n), Bk(n,n), EL(n,n), ES(n,n), OL(n,n), OS(n,n), P(n), E0(n), A(n), B(n), R(n)
-integer(kind=iwp) :: i, j, k, lwork, info
+integer(kind=iwp) :: i, j, lwork, info
 real(kind=wp) :: av, aw
 real(kind=wp), allocatable :: tmp(:), sW(:), sA(:,:), sB(:,:)
 
@@ -40,14 +40,8 @@ real(kind=wp), allocatable :: tmp(:), sW(:), sA(:,:), sB(:,:)
 lwork = 8*n
 call mma_allocate(tmp,lwork,label='Tmp')
 call mma_allocate(sW,n,label='Eig')
-k = 0
-do i=1,n
-  do j=1,n
-    Tr(j,i) = t(j,i)
-    Bk(j,i) = s(j,i)
-    k = k+1
-  end do
-end do
+Tr(:,:) = t(:,:)
+Bk(:,:) = s(:,:)
 call dsygv_(1,'V','L',n,Tr,n,Bk,n,sW,tmp,lwork,info)
 
 ! Transform potential matrices to moment space
@@ -81,9 +75,9 @@ do i=1,n
     ES(j,i) = aw/R(i)/R(j)+av*R(i)*R(j)
     OL(j,i) = aw/R(i)-av*R(i)
     OS(j,i) = aw/R(j)-av*R(j)
-    Bk(j,i) = Tr(j,i)
   end do
 end do
+Bk(:,:) = Tr(:,:)
 
 ! Make back transform matrix
 

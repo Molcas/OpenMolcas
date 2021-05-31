@@ -19,36 +19,24 @@ implicit none
 integer(kind=iwp), intent(in) :: n
 real(kind=wp), intent(in) :: TL(n,n), TS(n,n), Tr(n,n), Bk(n,n), A(n), B(n), R(n)
 real(kind=wp), intent(out) :: UL(n,n), US(n,n), M1(n,n), M2(n,n), M3(n,n), M4(n,n)
-integer(kind=iwp) :: i, j
+integer(kind=iwp) :: i
 
 do i=1,n
-  do j=1,n
-    M1(j,i) = Tr(j,i)*A(i)
-    M2(j,i) = Tr(j,i)*A(i)*R(i)
-  end do
+  M1(:,i) = Tr(:,i)*A(i)
+  M2(:,i) = Tr(:,i)*A(i)*R(i)
 end do
 call dmxma(n,'N','N',M1,TL,M3,One)
 call dmxma(n,'N','N',M2,TS,M4,One)
-do i=1,n
-  do j=1,n
-    M3(j,i) = M3(j,i)-M4(j,i)
-  end do
-end do
+M3(:,:) = M3(:,:)-M4(:,:)
 call dmxma(n,'N','N',M3,Bk,UL,One)
 
 do i=1,n
-  do j=1,n
-    M1(j,i) = Tr(j,i)*B(i)
-    M2(j,i) = Tr(j,i)*B(i)/R(i)
-  end do
+  M1(:,i) = Tr(:,i)*B(i)
+  M2(:,i) = Tr(:,i)*B(i)/R(i)
 end do
 call dmxma(n,'N','N',M1,TL,M3,One)
 call dmxma(n,'N','N',M2,TS,M4,One)
-do i=1,n
-  do j=1,n
-    M3(j,i) = M3(j,i)+M4(j,i)
-  end do
-end do
+M3(:,:) = M3(:,:)+M4(:,:)
 call dmxma(n,'N','N',M3,Bk,US,One)
 
 return

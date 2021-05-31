@@ -9,8 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine XDR_Local_Ham(nbas,isize,jsize,imethod,paratyp,dkhorder,xorder,inS,inK,inV,inpVp,inUL,inUS,inDX,nbl,ibl,Lmap,DoFullLT, &
-                         clight)
+subroutine XDR_Local_Ham(nbas,isize,jsize,imethod,paratyp,dkhorder,xorder,inS,inK,inV,inpVp,inUL,inUS,nbl,ibl,Lmap,DoFullLT,clight)
 ! Local (Atom/Block) relativistic transformation of Hamiltonian
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -18,7 +17,7 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nbas, isize, jsize, imethod, paratyp, dkhorder, xorder, inDX(nbas), nbl, ibl(nbl), Lmap(nbas)
+integer(kind=iwp), intent(in) :: nbas, isize, jsize, imethod, paratyp, dkhorder, xorder, nbl, ibl(nbl), Lmap(nbas)
 real(kind=wp), intent(in) :: inS(isize), inV(isize), inpVp(isize), clight
 real(kind=wp), intent(inout) :: inK(isize)
 real(kind=wp), intent(out) :: inUL(jsize), inUS(jsize)
@@ -51,10 +50,8 @@ do i=1,nbas
     end if
   end do
 end do
-do i=1,jsize
-  inUL(i) = Zero
-  inUS(i) = Zero
-end do
+inUL(:) = Zero
+inUS(:) = Zero
 if (.not. DoFullLT) then
   sH(:,:) = sK(:,:)+sV(:,:)
 end if
@@ -162,11 +159,11 @@ sV(:,:) = sH(:,:)
 
 ! Copy relativistic one-electron Hamiltonian back to inK
 
-k = 0
+k = 1
 do i=1,nbas
   do j=1,i
-    k = k+1
     inK(k) = sV(j,i)
+    k = k+1
   end do
 end do
 
@@ -180,7 +177,5 @@ call mma_deallocate(sH)
 call mma_deallocate(sB)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(inDX)
 
 end subroutine XDR_Local_Ham

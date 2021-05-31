@@ -34,13 +34,9 @@ logical(kind=iwp) :: Ifodd
 ! Copy 1st order DKH effective potential
 ! E2(upper-left) O2(upper-right) F2(lower-right)
 
-do J=1,NBasis
-  do I=1,NBasis
-    E2(I,J,1) = EL(I,J)
-    F2(I,J,1) = ES(I,J)
-    O2(I,J,1) = OL(I,J)
-  end do
-end do
+E2(:,:,1) = EL(:,:)
+F2(:,:,1) = ES(:,:)
+O2(:,:,1) = OL(:,:)
 
 ! Apply [M/2] times Douglas-Kroll-Hess Unitary transformations
 
@@ -54,27 +50,23 @@ do Iut=1,M/2
   ! Apply W_{Iut} to O/E_{Ks}
   do Ks=M-Iut,1,-1
     ! W_{1} only apply to O/E_{1}
-    if (Iut == 1 .and. Ks >= 2) cycle
+    if ((Iut == 1) .and. (Ks >= 2)) cycle
     do Ioe=1,2
       ! O_{k,k<Iut} was eliminated
-      if (Ioe == 1 .and. Ks < Iut) cycle
+      if ((Ioe == 1) .and. (Ks < Iut)) cycle
       Ifodd = Ioe == 1
-      do I=1,NBasis
-        do J=1,NBasis
-          ! Copy O/E_{Ks} terms to temp arrays
-          if (Ifodd) then
-            TA(J,I) = O2(J,I,Ks)
-          else
-            TA(J,I) = E2(J,I,Ks)
-            TB(J,I) = F2(J,I,Ks)
-          end if
-        end do
-      end do
+      ! Copy O/E_{Ks} terms to temp arrays
+      if (Ifodd) then
+        TA(:,:) = O2(:,:,Ks)
+      else
+        TA(:,:) = E2(:,:,Ks)
+        TB(:,:) = F2(:,:,Ks)
+      end if
       do K=Ks,M,Iut
         ! skip terms do not contribute to final DKH Hamiltonian (even,upper-left)
-        if (K+Iut+Iut > M .and. (K+Iut > M .or. .not. Ifodd)) cycle
+        if ((K+Iut+Iut > M) .and. ((K+Iut > M) .or. (.not. Ifodd))) cycle
         KK = (K-Ks)/Iut+1
-        if (Ioe == 1 .and. Ks == Iut) then
+        if ((Ioe == 1) .and. (Ks == Iut)) then
           ! see Eq.(74) of JCP130(2009)044102
           if (KK == 1) then
             Cof = Half
@@ -98,12 +90,14 @@ do Iut=1,M/2
             do J=1,NBasis
               if (K+Iut+Iut+Iut <= M) then
                 TB(J,I) = -A2(J,I)-A2(I,J)
-                F2(J,I,K+Iut) = F2(J,I,K+Iut)+TB(J,I)
               end if
               TA(J,I) = A1(J,I)+A1(I,J)
-              E2(J,I,K+Iut) = E2(J,I,K+Iut)+TA(J,I)
             end do
           end do
+          if (K+Iut+Iut+Iut <= M) then
+            F2(:,:,K+Iut) = F2(:,:,K+Iut)+TB(:,:)
+          end if
+          E2(:,:,K+Iut) = E2(:,:,K+Iut)+TA(:,:)
         else
           call DGEMM_('N','N',NBasis,NBasis,NBasis,Cof,W,NBasis,TB,NBasis,Zero,A1,NBasis)
           call DGEMM_('N','N',NBasis,NBasis,NBasis,Cof,TA,NBasis,W,NBasis,Zero,A2,NBasis)
@@ -113,9 +107,9 @@ do Iut=1,M/2
           do I=1,NBasis
             do J=1,NBasis
               TA(J,I) = A1(J,I)-A2(J,I)
-              O2(J,I,K+Iut) = O2(J,I,K+Iut)+TA(J,I)
             end do
           end do
+          O2(:,:,K+Iut) = O2(:,:,K+Iut)+TA(:,:)
         end if
         Ifodd = .not. Ifodd
       end do
@@ -129,11 +123,7 @@ do I=1,NBasis
   EL(I,I) = EL(I,I)+E0(I)
 end do
 do I=2,M0
-  do J=1,NBasis
-    do K=1,Nbasis
-      EL(K,J) = EL(K,J)+E2(K,J,I)
-    end do
-  end do
+  EL(:,:) = EL(:,:)+E2(:,:,I)
 end do
 
 return

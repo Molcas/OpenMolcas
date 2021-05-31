@@ -38,27 +38,17 @@ logical(kind=iwp) :: ifodd
 
 ! Copy initial matrices
 
-do i=1,n
-  do j=1,n
-    e(j,i,1) = EL(j,i)
-    rer(j,i,1) = ES(j,i)
-    or(j,i,1) = OL(j,i)
-    ro(j,i,1) = OS(j,i)
-  end do
-end do
+e(:,:,1) = EL(:,:)
+rer(:,:,1) = ES(:,:)
+or(:,:,1) = OL(:,:)
+ro(:,:,1) = OS(:,:)
 ! counter of total number of matrix multiplications
 cou = 0
 do ord=1,vord/2
-  do k=1,vord
-    do i=1,n
-      do j=1,n
-        or_(j,i,k) = Zero
-        ro_(j,i,k) = Zero
-        e_(j,i,k) = Zero
-        rer_(j,i,k) = Zero
-      end do
-    end do
-  end do
+  or_(:,:,1:vord) = Zero
+  ro_(:,:,1:vord) = Zero
+  e_(:,:,1:vord) = Zero
+  rer_(:,:,1:vord) = Zero
 
   ! Set up W(ord) matrix
 
@@ -66,25 +56,21 @@ do ord=1,vord/2
     do j=1,n
       wr(j,i) = or(j,i,ord)/(Ep(j)+Ep(i))
       rw(j,i) = -ro(j,i,ord)/(Ep(j)+Ep(i))
-      if (ord <= xord) then
-        ! Save W matrix
-        wsav(j,i,ord*2-1) = wr(j,i)
-        wsav(j,i,ord*2) = rw(j,i)
-      end if
     end do
   end do
+  if (ord <= xord) then
+    ! Save W matrix
+    wsav(:,:,ord*2-1) = wr(:,:)
+    wsav(:,:,ord*2) = rw(:,:)
+  end if
 
   ! Calculate [W(ord)->O(ord)], the terms of W(ord) apply on O(ord)
   !   also include the contributions from [W(ord)->E(0)] via recalculated coefficients
 
   k = ord
   ifodd = .true.
-  do i=1,n
-    do j=1,n
-      t1(j,i) = or(j,i,k)
-      t2(j,i) = ro(j,i,k)
-    end do
-  end do
+  t1(:,:) = or(:,:,k)
+  t2(:,:) = ro(:,:,k)
   call dkh_wspec(n,ord,vord,ifodd,dkcof,wr,rw,t1,t2,e_,rer_,or_,ro_,cou,s1,s2,t3,t4,cc)
 
   ! Calculate [W(ord)->E(1-...)/O(ord+1-...)]
@@ -92,11 +78,11 @@ do ord=1,vord/2
   do ks=1,vord
     ! W1 only apply to E1
     !DP if ((ord == 1) .and. (ks >= 2)) cycle
-    if (ord > 1 .or. ks < 2) then
+    if ((ord > 1) .or. (ks < 2)) then
       do ioe=1,2
         ! only even operator for k<=ord survived, odd terms were eliminated
         !DP if ((ioe == 1) .and. (ks <= ord)) cycle
-        if (ioe == 2 .or. ks > ord) then
+        if ((ioe == 2) .or. (ks > ord)) then
           k = ks
           if (ioe == 1) then
             ifodd = .true.
@@ -105,23 +91,15 @@ do ord=1,vord/2
           end if
           ! copy initial matrix
           if (ifodd) then
-            do i=1,n
-              do j=1,n
-                t1(j,i) = or(j,i,k)
-                t2(j,i) = ro(j,i,k)
-                or_(j,i,k) = or_(j,i,k)+t1(j,i)
-                ro_(j,i,k) = ro_(j,i,k)+t2(j,i)
-              end do
-            end do
+            t1(:,:) = or(:,:,k)
+            t2(:,:) = ro(:,:,k)
+            or_(:,:,k) = or_(:,:,k)+t1(:,:)
+            ro_(:,:,k) = ro_(:,:,k)+t2(:,:)
           else
-            do i=1,n
-              do j=1,n
-                t1(j,i) = e(j,i,k)
-                t2(j,i) = rer(j,i,k)
-                e_(j,i,k) = e_(j,i,k)+t1(j,i)
-                rer_(j,i,k) = rer_(j,i,k)+t2(j,i)
-              end do
-            end do
+            t1(:,:) = e(:,:,k)
+            t2(:,:) = rer(:,:,k)
+            e_(:,:,k) = e_(:,:,k)+t1(:,:)
+            rer_(:,:,k) = rer_(:,:,k)+t2(:,:)
           end if
           call dkh_wgene(n,ord,k,vord,ifodd,dkcof,wr,rw,t1,t2,e_,rer_,or_,ro_,cou,s1,s2,t3,t4)
         end if
@@ -131,36 +109,21 @@ do ord=1,vord/2
     ! cycle for ks
   end do
   ! copy
-  do k=1,vord
-    do i=1,n
-      do j=1,n
-        or(j,i,k) = or_(j,i,k)
-        ro(j,i,k) = ro_(j,i,k)
-        e(j,i,k) = e_(j,i,k)
-        rer(j,i,k) = rer_(j,i,k)
-      end do
-    end do
-  end do
+  or(:,:,1:vord) = or_(:,:,1:vord)
+  ro(:,:,1:vord) = ro_(:,:,1:vord)
+  e(:,:,1:vord) = e_(:,:,1:vord)
+  rer(:,:,1:vord) = rer_(:,:,1:vord)
 ! cycle for ord
 end do
 
 ! Sum over all k<=dkord terms
 
+EL(:,:) = zERO
 do i=1,n
-  do j=1,n
-    if (j == i) then
-      EL(j,i) = E0(i)
-    else
-      EL(j,i) = Zero
-    end if
-  end do
+  EL(i,i) = E0(i)
 end do
 do k=1,dkord
-  do i=1,n
-    do j=1,n
-      EL(j,i) = EL(j,i)+e(j,i,k)
-    end do
-  end do
+  EL(:,:) = EL(:,:)+e(:,:,k)
 end do
 !write(u6,*) 'DKH',vord,' Total matmul',cou
 

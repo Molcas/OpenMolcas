@@ -22,64 +22,40 @@ integer(kind=iwp), intent(inout) :: info
 real(kind=wp), intent(in) :: cdk(ndk), wr(n,n), rw(n,n)
 real(kind=wp), intent(inout) :: t1(n,n), t2(n,n), e(n,n,ndk), rer(n,n,ndk), or(n,n,ndk), ro(n,n,ndk)
 real(kind=wp), intent(out) :: s1(n,n,*), s2(n,n,*), t3(n,n), t4(n,n)
-integer(kind=iwp) :: m, i, j, k, L1, L2
+integer(kind=iwp) :: m, i, j, k
 real(kind=wp) :: c
 
 m = (ndk-nst)/ord+1
 if (m <= 1) return
-do L1=1,n
-  do L2=1,n
-    s1(L2,L1,1) = t1(L2,L1)
-    s2(L2,L1,1) = t2(L2,L1)
-  end do
-end do
+s1(:,:,1) = t1(:,:)
+s2(:,:,1) = t2(:,:)
 do i=1,m-1
-  do L1=1,n
-    do L2=1,n
-      t1(L2,L1) = Zero
-      t2(L2,L1) = Zero
-    end do
-  end do
+  t1(:,:) = Zero
+  t2(:,:) = Zero
   k = nst+ord*i
-  call dkh_woprig(n,ifodd,ord,k-ord,wr,rw,s1(1,1,i),s2(1,1,i),s1(1,1,i+1),s2(1,1,i+1),t3,t4)
+  call dkh_woprig(n,ifodd,wr,rw,s1(:,:,i),s2(:,:,i),s1(:,:,i+1),s2(:,:,i+1),t3,t4)
   info = info+2
   c = cdk(i)*(-1)**(i)
-  do L1=1,n
-    do L2=1,n
-      t1(L2,L1) = t1(L2,L1)+s1(L2,L1,i+1)*c
-      t2(L2,L1) = t2(L2,L1)+s2(L2,L1,i+1)*c
-    end do
-  end do
+  t1(:,:) = t1(:,:)+s1(:,:,i+1)*c
+  t2(:,:) = t2(:,:)+s2(:,:,i+1)*c
   do j=1,i
-    call dkh_woplft(n,ifodd,ord,k-ord,wr,rw,s1(1,1,j),s2(1,1,j),s1(1,1,j),s2(1,1,j),t3,t4)
+    call dkh_woplft(n,ifodd,wr,rw,s1(:,:,j),s2(:,:,j),s1(:,:,j),s2(:,:,j),t3,t4)
     info = info+2
     if (j == 1) then
       c = cdk(i)
     else
       c = cdk(i-j+1)*cdk(j-1)*(-1)**(j-1)
     end if
-    do L1=1,n
-      do L2=1,n
-        t1(L2,L1) = t1(L2,L1)+s1(L2,L1,j)*c
-        t2(L2,L1) = t2(L2,L1)+s2(L2,L1,j)*c
-      end do
-    end do
+    t1(:,:) = t1(:,:)+s1(:,:,j)*c
+    t2(:,:) = t2(:,:)+s2(:,:,j)*c
   end do
   ifodd = .not. ifodd
   if (ifodd) then
-    do L1=1,n
-      do L2=1,n
-        or(L2,L1,k) = or(L2,L1,k)+t1(L2,L1)
-        ro(L2,L1,k) = ro(L2,L1,k)+t2(L2,L1)
-      end do
-    end do
+    or(:,:,k) = or(:,:,k)+t1(:,:)
+    ro(:,:,k) = ro(:,:,k)+t2(:,:)
   else
-    do L1=1,n
-      do L2=1,n
-        e(L2,L1,k) = e(L2,L1,k)+t1(L2,L1)
-        rer(L2,L1,k) = rer(L2,L1,k)+t2(L2,L1)
-      end do
-    end do
+    e(:,:,k) = e(:,:,k)+t1(:,:)
+    rer(:,:,k) = rer(:,:,k)+t2(:,:)
   end if
 end do
 
