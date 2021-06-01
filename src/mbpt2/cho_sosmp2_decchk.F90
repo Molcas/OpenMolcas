@@ -32,17 +32,21 @@ subroutine Cho_SOSmp2_DecChk(irc,iSym,Col,nDim,nCol,Wrk,lWrk,ErrStat)
 !          ErrStat(3) = rms error
 
 use ChoMP2, only: OldVec
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
 
-#include "implicit.fh"
-real*8 Col(nDim,nCol), Wrk(lWrk), ErrStat(3)
-external ddot_
-character*6 ThisNm
-character*17 SecNam
-parameter(SecNam='Cho_SOSmp2_DecChk',ThisNm='DecChk')
+implicit none
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: iSym, nDim, nCol, lWrk
+real(kind=wp), intent(inout) :: Col(nDim,nCol)
+real(kind=wp), intent(out) :: Wrk(lWrk), ErrStat(3)
+integer(kind=iwp) :: iBatCol, ibj1, kai, kbj, lU, Nai, nBatCol, Nbj, NumCol, NumVec
+real(kind=wp) :: Fac, xdim
+character(len=17), parameter :: SecNam = 'Cho_SOSmp2_DecChk'
+real(kind=r8), external :: ddot_
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2_dec.fh"
-#include "WrkSpc.fh"
 
 irc = 0
 
@@ -58,9 +62,9 @@ end if
 ! Initialize.
 ! -----------
 
-ErrStat(1) = 9.9d15
-ErrStat(2) = -9.9d15
-ErrStat(3) = 0.0d0
+ErrStat(1) = huge(ErrStat)
+ErrStat(2) = -huge(ErrStat)
+ErrStat(3) = Zero
 
 ! Set up batching over columns of the (ai|bj) matrix.
 ! ---------------------------------------------------
@@ -89,10 +93,10 @@ do iBatCol=1,nBatCol
 
   lU = lUnit_F(iSym,2)
   NumVec = nMP2Vec(iSym)
-  Fac = 0.0d0
+  Fac = Zero
   call ChoMP2_DecChk_Int(irc,lU,Col,Nai,Nbj,ibj1,NumVec,Wrk,lWrk,Fac)
   if (irc /= 0) then
-    write(6,*) SecNam,': Cho_SOSmp2_DecChk_Int  rc= ',irc,' [1]'
+    write(u6,*) SecNam,': Cho_SOSmp2_DecChk_Int  rc= ',irc,' [1]'
     irc = 1
     return
   end if
@@ -110,14 +114,14 @@ do iBatCol=1,nBatCol
   ! ---------------------------------
 
   if (InCore(iSym)) then
-    call DGEMM_('N','T',Nai,Nbj,NumCho(iSym),1.0d0,OldVec,Nai,OldVec(ibj1),Nai,-1.0d0,Col,Nai)
+    call DGEMM_('N','T',Nai,Nbj,NumCho(iSym),One,OldVec,Nai,OldVec(ibj1),Nai,-One,Col,Nai)
   else
     lU = lUnit_F(iSym,1)
     NumVec = NumCho(iSym)
-    Fac = -1.0d0
+    Fac = -One
     call ChoMP2_DecChk_Int(irc,lU,Col,Nai,Nbj,ibj1,NumVec,Wrk,lWrk,Fac)
     if (irc /= 0) then
-      write(6,*) SecNam,': Cho_SOSmp2_DecChk_Int returned ',irc,' [2]'
+      write(u6,*) SecNam,': Cho_SOSmp2_DecChk_Int returned ',irc,' [2]'
       irc = 2
       return
     end if
@@ -139,7 +143,7 @@ end do
 ! Compute rms error.
 ! ------------------
 
-xdim = dble(Nai)*dble(Nai)
+xdim = real(Nai*Nai,kind=wp)
 ErrStat(3) = sqrt(ErrStat(3)/xdim)
 
 1 continue

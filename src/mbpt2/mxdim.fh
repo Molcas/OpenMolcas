@@ -12,6 +12,7 @@
 !     Define global parameters.                                        *
 !----------------------------------------------------------------------*
 !      Parameter (MxSym = 8)
+      Integer MxFro,MxDel,MxTit
       Parameter (MxFro = 50)
       Parameter (MxDel = 50)
       Parameter (MxTit = 10)

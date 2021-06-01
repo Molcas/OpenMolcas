@@ -11,38 +11,41 @@
 
 subroutine BJAI(IAD,EPSI,EPSE,E2BJAI,VECL2)
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, One, Two, Three, Half
+use Definitions, only: wp, iwp, u6, r8
 
-dimension EPSI(*), EPSE(*), IAD(3888)
-logical DoCholesky, Debug
-data Debug/.false./
-dimension dVectorA(255) ! CGG
-dimension dVectorB(255) ! CGG
-!data Debug /.true./    ! CGG
-#include "mxdim.fh"
+implicit none
+integer(kind=iwp), intent(out) :: IAD(3888)
+real(kind=wp), intent(in) :: EPSI(*), EPSE(*)
+real(kind=wp), intent(out) :: E2BJAI, VECL2
+integer(kind=iwp) :: iA, IAD1, IAD13, IAD2, IADA, IADAB, IADB, iB, iI, iJ, ISPQRS, iSymA, iSymB, iSymI, iSymJ, LA, LAA, LAB, LAB1, &
+                     LAIBJ, LAJBI, LINT, LINT1, LINT2, nExtA, nExtB, nOccI, nOccJ, nOrbA, nOrbB, NRA, NRB, NRI, NRJ
+real(kind=wp) :: A, B, CKAL1, CKAL2, dVectorA(255), dVectorB(255), EDIF, EDIFIJ, SKAL1, SKAL2
+logical(kind=iwp) :: DoCholesky
+logical(kind=iwp), parameter :: Debug = .false.
+real(kind=r8), external :: ddot_
 #include "corbinf.fh"
 #include "files_mbpt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
-
+! statement function
+integer(kind=iwp) :: I, J, MUL
 MUL(I,J) = 1+ieor(I-1,J-1)
 
-SKAL2 = -9999999.9
+SKAL2 = -huge(SKAL2)
 IAD13 = 0
-LIADUT = 3888
 
 call DecideOnCholesky(DoCholesky)
 if (Debug) then
-  write(6,*)
-  write(6,'(A,8I3)') '      nOcc:',(nOcc(i),i=1,nSym)
-  write(6,'(A,8I3)') '      nExt:',(nExt(i),i=1,nSym)
-  write(6,'(A,8I3)') '      nOrb:',(nOrb(i),i=1,nSym)
+  write(u6,*)
+  write(u6,'(A,8I3)') '      nOcc:',(nOcc(i),i=1,nSym)
+  write(u6,'(A,8I3)') '      nExt:',(nExt(i),i=1,nSym)
+  write(u6,'(A,8I3)') '      nOrb:',(nOrb(i),i=1,nSym)
 end if
 
-call iDAFILE(LUINTM,2,IAD,LIADUT,IAD13)
+call iDAFILE(LUINTM,2,IAD,3888,IAD13)
 
-VECL2 = 1.0D+00
-E2BJAI = 0.0D+00
+VECL2 = One
+E2BJAI = Zero
 ISPQRS = 0
 NRI = 0
 do iSymI=1,nSym
@@ -65,8 +68,8 @@ do iSymI=1,nSym
           IAD2 = IAD(3*ISPQRS)
 
           if (Debug) then
-            write(6,*)
-            write(6,*) ' [BJAI] Integrals <A,B|I,J> : ',iSymA,iSymB,iSymI,iSymJ
+            write(u6,*)
+            write(u6,*) ' [BJAI] Integrals <A,B|I,J> : ',iSymA,iSymB,iSymI,iSymJ
           end if
           ! --- iSymI /= iSymJ ---
           if (iSymI /= iSymJ) then
@@ -80,8 +83,8 @@ do iSymI=1,nSym
             do iI=1,nOccI
               do iJ=1,nOccJ
                 if (Debug) then
-                  write(6,*)
-                  write(6,*) ' *  i,j = ',iI,iJ
+                  write(u6,*)
+                  write(u6,*) ' *  i,j = ',iI,iJ
                 end if
                 call dDAFile(LUINTM,2,Work(LINT1),LAB,IAD1)
                 call dDAFile(LUINTM,2,Work(LINT2),LAB,IAD2)
@@ -101,7 +104,7 @@ do iSymI=1,nSym
                 IADA = LINT1+IADA
                 I = 0
                 if (Debug) then
-                  write(6,*)
+                  write(u6,*)
                 end if
                 do iA=0,nExtA-1
                   do iB=0,nExtB-1
@@ -114,9 +117,9 @@ do iSymI=1,nSym
                     I = I+1
                   end do
                   if (Debug) then
-                    write(6,'(A,I3,6F10.6)') 'A:',iA+1,(dVectorA(j),j=1,nExtB)
-                    write(6,'(A,I3,6F10.6)') 'B:',iA+1,(dVectorB(j),j=1,nExtB)
-                    write(6,*) ' -------'
+                    write(u6,'(A,I3,6F10.6)') 'A:',iA+1,(dVectorA(j),j=1,nExtB)
+                    write(u6,'(A,I3,6F10.6)') 'B:',iA+1,(dVectorB(j),j=1,nExtB)
+                    write(u6,*) ' -------'
                   end if
                   if (DoCholesky) then
                     IADA = IADA+nExtB
@@ -137,10 +140,10 @@ do iSymI=1,nSym
                 end do
                 SKAL1 = DDOT_(LAB1,Work(LINT1),1,Work(LAIBJ),1)
                 SKAL2 = DDOT_(LAB1,Work(LINT2),1,Work(LAJBI),1)
-                E2BJAI = E2BJAI-SKAL1-3.0D+00*SKAL2
+                E2BJAI = E2BJAI-SKAL1-Three*SKAL2
                 CKAL1 = DDOT_(LAB1,Work(LINT1),1,Work(LINT1),1)
                 CKAL2 = DDOT_(LAB1,Work(LINT2),1,Work(LINT2),1)
-                VECL2 = VECL2+CKAL1+3.0D+00*CKAL2
+                VECL2 = VECL2+CKAL1+Three*CKAL2
               end do
             end do
             call GetMem('INT1','FREE','REAL',LINT1,LAB)
@@ -163,8 +166,8 @@ do iSymI=1,nSym
             do iI=1,nOccI
               do iJ=1,iI
                 if (Debug) then
-                  write(6,*)
-                  write(6,*) ' *  i,j = ',iI,iJ
+                  write(u6,*)
+                  write(u6,*) ' *  i,j = ',iI,iJ
                 end if
                 call dDAFile(LUINTM,2,Work(LINT),LAB,IAD1)
                 if (Debug) then
@@ -180,8 +183,8 @@ do iSymI=1,nSym
                 do iA=0,nExtA-1
                   IADB = IADAB
                   if (Debug) then
-                    write(6,*) ' iA=',iA+1,'  IADA:'
-                    write(6,'(8F10.6)') (WORK(IADA+j),j=0,iA)
+                    write(u6,*) ' iA=',iA+1,'  IADA:'
+                    write(u6,'(8F10.6)') (WORK(IADA+j),j=0,iA)
                   end if
                   do iB=0,iA
                     A = Work(IADA+iB)
@@ -205,13 +208,13 @@ do iSymI=1,nSym
                 do iA=0,LA-1
                   do iB=0,iA
                     EDIF = EPSE(NRA+iA+1)+EPSE(NRA+iB+1)-EDIFIJ
-                    if (iA == iB) EDIF = 2.0D+00*EDIF
+                    if (iA == iB) EDIF = Two*EDIF
                     Work(LINT+I) = Work(LAIBJ+I)/EDIF
                     Work(LINT+LAA+I) = Work(LAJBI+I)/EDIF
                     if ((iA == iB) .and. (iI /= iJ)) then
-                      VECL2 = VECL2+2.0D+00*Work(LINT+I)**2
+                      VECL2 = VECL2+Two*Work(LINT+I)**2
                     else if ((iA /= iB) .and. (iI == iJ)) then
-                      VECL2 = VECL2+0.5D+00*Work(LINT+I)**2
+                      VECL2 = VECL2+Half*Work(LINT+I)**2
                     else
                       VECL2 = VECL2+Work(LINT+I)**2
                     end if
@@ -220,13 +223,13 @@ do iSymI=1,nSym
                 end do
                 SKAL1 = DDOT_(LAA,Work(LINT),1,Work(LAIBJ),1)
                 if (iI /= iJ) then
-                  SKAL2 = 3.0D+00*DDOT_(LAA,Work(LINT+LAA),1,Work(LAJBI),1)
+                  SKAL2 = Three*DDOT_(LAA,Work(LINT+LAA),1,Work(LAJBI),1)
                 end if
-                if (iI == iJ) E2BJAI = E2BJAI-0.5*SKAL1
+                if (iI == iJ) E2BJAI = E2BJAI-Half*SKAL1
                 if (iI /= iJ) E2BJAI = E2BJAI-SKAL1-SKAL2
                 if (iI /= iJ) then
                   CKAL2 = DDOT_(LAA,Work(LINT+LAA),1,Work(LINT+LAA),1)
-                  VECL2 = VECL2+3.0D+00*CKAL2
+                  VECL2 = VECL2+Three*CKAL2
                 end if
               end do
             end do
@@ -235,7 +238,8 @@ do iSymI=1,nSym
             call GetMem('AJBI','FREE','REAL',LAJBI,LAA)
           end if
         end if
-41      NRB = NRB+nExtB
+41      continue
+        NRB = NRB+nExtB
       end do
       NRA = NRA+nExtA
     end do
@@ -243,7 +247,7 @@ do iSymI=1,nSym
   end do
   NRI = NRI+nOccI
 end do
-VECL2 = sqrt(1.0D+00/VECL2)
+VECL2 = sqrt(One/VECL2)
 
 return
 

@@ -16,16 +16,23 @@ subroutine FNO_MP2(irc,nSym,nBas,nFro,nIsh,nSsh,nDel,CMOI,EOcc,EVir,vfrac,DoMP2,
 !
 ! Author:   F. Aquilante  (Geneva, Nov  2008)
 
-implicit real*8(A-H,O-Z)
-integer nBas(nSym), nFro(nSym), nIsh(nSym), nSsh(nSym),nDel(nSym), nAuxO(8)
-real*8 CMOI(*), EOcc(*), EVir(*), EMP2, vfrac
-logical DoMP2
-integer ns_V(8)
-integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-real*8 TrDF(8), TrDP(8)
-#include "itmax.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nIsh(nSym)
+integer(kind=iwp), intent(inout) :: nSsh(nSym), nDel(nSym)
+real(kind=wp), intent(inout) :: CMOI(*), EVir(*)
+real(kind=wp), intent(in) :: EOcc(*), vfrac
+logical(kind=iwp), intent(in) :: DoMP2
+real(kind=wp), intent(out) :: EMP2
+integer(kind=iwp) :: i, iCMO, ifr, ii, ioff, ip_iD, ip_X, ip_Y, ip_Z, ip_ZZ, ipEorb, ipOrbE, iSkip, iSym, ito, j, jD, jOcc, jOff, &
+                     jp, jVir, k, kEOcc, kEVir, kfr, kij, kOff, kto, LCMO, lij, lnDel(8), lnFro(8), lnOcc(8), lnOrb(8), lnVir(8), &
+                     lOff, nAuxO(8), nBasT, nBmx, nBx, NCMO, nOA, nOrb, ns_V(8), nSQ, nSsh_t, nSx, ntri, nVV
+real(kind=wp) :: Dummy, STrDF, STrDP, tmp, TrDF(8), TrDP(8)
+real(kind=wp), external :: ddot_
 #include "Molcas.fh"
-#include "real.fh"
 #include "WrkSpc.fh"
 #include "chfnopt.fh"
 
@@ -52,7 +59,7 @@ do i=1,nSym
   nBmx = max(nBmx,nBas(i))
 end do
 if (nBasT > mxBas) then
-  write(6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
+  write(u6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
   call Abend()
 end if
 
@@ -125,14 +132,14 @@ call Check_Amp2(nSym,lnOcc,lnVir,iSkip)
 if (iSkip > 0) then
   call ChoMP2_Drv(irc,Dummy,Work(iCMO),Work(kEOcc),Work(kEVir))
   if (irc /= 0) then
-    write(6,*) 'MP2 pseudodensity calculation failed !'
+    write(u6,*) 'MP2 pseudodensity calculation failed !'
     call Abend()
   end if
 else
-  write(6,*)
-  write(6,*) 'There are ZERO amplitudes T(ai,bj) with the given '
-  write(6,*) 'combinations of inactive and virtual orbitals !! '
-  write(6,*) 'Check your input and rerun the calculation! Bye!!'
+  write(u6,*)
+  write(u6,*) 'There are ZERO amplitudes T(ai,bj) with the given '
+  write(u6,*) 'combinations of inactive and virtual orbitals !! '
+  write(u6,*) 'Check your input and rerun the calculation! Bye!!'
   call Abend()
 end if
 
@@ -162,27 +169,27 @@ do iSym=1,nSym
     ! Compute new MO coeff. : X=C*U
     kfr = iCMO+jOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
     kto = LCMO+jOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
-    call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),1.0d0,Work(kfr),nBas(iSym),Work(jD),nSsh(iSym),0.0d0,Work(kto),nBas(iSym))
+    call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),One,Work(kfr),nBas(iSym),Work(jD),nSsh(iSym),Zero,Work(kto),nBas(iSym))
     iOff = iOff+nSsh(iSym)**2
-    TrDF(iSym) = ddot_(nSsh(iSym),Work(ip_Z),1,[1.0d0],0)
+    TrDF(iSym) = ddot_(nSsh(iSym),Work(ip_Z),1,[One],0)
     ns_V(iSym) = int(vfrac*nSsh(iSym))
-    TrDP(iSym) = ddot_(ns_V(iSym),Work(ip_Z),1,[1.0d0],0)
+    TrDP(iSym) = ddot_(ns_V(iSym),Work(ip_Z),1,[One],0)
   end if
   jOff = jOff+nBas(iSym)**2
 end do
-write(6,*) '------------------------------------------------------'
-write(6,*) '   Symm.     Trace     (Full Dmat)     (Partial Dmat) '
-write(6,*) '------------------------------------------------------'
-STrDF = 0.0d0
-STrDP = 0.0d0
+write(u6,*) '------------------------------------------------------'
+write(u6,*) '   Symm.     Trace     (Full Dmat)     (Partial Dmat) '
+write(u6,*) '------------------------------------------------------'
+STrDF = Zero
+STrDP = Zero
 do iSym=1,nSym
-  write(6,'(4X,I4,14X,G13.6,5X,G13.6)') iSym,TrDF(iSym),TrDP(iSym)
+  write(u6,'(4X,I4,14X,G13.6,5X,G13.6)') iSym,TrDF(iSym),TrDP(iSym)
   STrDF = STrDF+TrDF(iSym)
   STrDP = STrDP+TrDP(iSym)
 end do
-write(6,*) '------------------------------------------------------'
-write(6,'(A,G13.6,5X,G13.6)') '   Sum :              ',STrDF,STrDP
-write(6,*) '------------------------------------------------------'
+write(u6,*) '------------------------------------------------------'
+write(u6,'(A,G13.6,5X,G13.6)') '   Sum :              ',STrDF,STrDP
+write(u6,*) '------------------------------------------------------'
 
 ! Update the nSsh, nDel for FNO-MP2
 nSsh_t = 0
@@ -219,7 +226,7 @@ if (MP2_small) then
     kto = 1+kOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
     nBx = max(1,nBas(iSym))
     nSx = max(1,nSsh(iSym))
-    call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),1.0d0,Work(kfr),nBx,Work(jD),nSx,0.0d0,CMOI(kto),nBx)
+    call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),One,Work(kfr),nBx,Work(jD),nSx,Zero,CMOI(kto),nBx)
 
     lOff = lOff+lnVir(iSym)
     kOff = kOff+nBas(iSym)**2
@@ -232,42 +239,42 @@ if (MP2_small) then
   ! Copy the new Evir to output array
   call dcopy_(nSsh_t,Work(kEVir),1,EVir,1)
 
-  write(6,*)
-  write(6,'(A,8I4)') ' Secondary orbitals after selection:',(nSsh(i),i=1,nSym)
-  write(6,'(A,8I4)') ' Deleted orbitals after selection:  ',(nDel(i),i=1,nSym)
-  write(6,*)
-  write(6,*) 'Energies of the active virtual orbitals '
+  write(u6,*)
+  write(u6,'(A,8I4)') ' Secondary orbitals after selection:',(nSsh(i),i=1,nSym)
+  write(u6,'(A,8I4)') ' Deleted orbitals after selection:  ',(nDel(i),i=1,nSym)
+  write(u6,*)
+  write(u6,*) 'Energies of the active virtual orbitals '
   ii = 0
   do iSym=1,nSym
     if (nSsh(iSym) /= 0) then
-      write(6,*)
-      write(6,'(A,I2,(T40,5F14.6))') ' symmetry species',iSym,(EVir(ii+k),k=1,nSsh(iSym))
+      write(u6,*)
+      write(u6,'(A,I2,(T40,5F14.6))') ' symmetry species',iSym,(EVir(ii+k),k=1,nSsh(iSym))
       ii = ii+nSsh(iSym)
     end if
   end do
-  write(6,*)
+  write(u6,*)
 
   EMP2 = DeMP2
-  DeMP2 = 0.0d0
+  DeMP2 = Zero
   if (DoMP2) call ChoMP2_Drv(irc,Dummy,CMOI,Work(kEOcc),Work(kEVir))
   if (irc /= 0) then
-    write(6,*) 'MP2 in truncated virtual space failed !'
+    write(u6,*) 'MP2 in truncated virtual space failed !'
     call Abend()
   end if
-  EMP2 = -1.0d0*(EMP2-DeMP2)
+  EMP2 = -One*(EMP2-DeMP2)
   if (DoMP2) then
     DeMP2 = EMP2
-    !write(6,*)
-    !write(6,'(1x,a,f18.10,a)')'FNO correction:       ',EMP2,'   (estimate)   '
-    !write(6,*)
+    !write(u6,*)
+    !write(u6,'(1x,a,f18.10,a)')'FNO correction:       ',EMP2,'   (estimate)   '
+    !write(u6,*)
   else
-    EMP2 = 0.0d0
+    EMP2 = Zero
   end if
 else
-  write(6,*)
-  write(6,*) 'We found  ZERO amplitudes T(ai,bj) with the final '
-  write(6,*) 'combinations of inactive and virtual orbitals !! '
-  write(6,*) 'Check your input and rerun the calculation! Bye!!'
+  write(u6,*)
+  write(u6,*) 'We found ZERO amplitudes T(ai,bj) with the final '
+  write(u6,*) 'combinations of inactive and virtual orbitals !! '
+  write(u6,*) 'Check your input and rerun the calculation! Bye!!'
   call Abend()
 end if
 

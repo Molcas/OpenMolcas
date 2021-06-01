@@ -16,22 +16,26 @@ subroutine Cho_SOSmp2_Setup(irc)
 !
 ! Purpose: setup of SOS-MP2 program.
 
-#include "implicit.fh"
+use Constants, only: Zero
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp) :: iSym, iSyma, iSymAl, iSymb, iSymi, iTyp
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
-!***********************************************************************
+! statement function
+integer(kind=iwp) :: i, j, MulD2h
 MulD2h(i,j) = ieor(i-1,j-1)+1
-!***********************************************************************
 
 irc = 0
 
 ! Setup index arrays and counters.
 ! --------------------------------
 
-if (DecoMP2 .and. (ThrMP2 <= 0.0d0)) then
+if (DecoMP2 .and. (ThrMP2 <= Zero)) then
   call Get_dScalar('Cholesky Threshold',ThrMP2)
 end if
 

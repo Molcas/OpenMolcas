@@ -12,12 +12,17 @@
 subroutine RHS_MP2()
 ! The RHS for the MP2-gradients
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
+implicit none
+integer(kind=iwp) :: i, iSym, iSym1, iSym2, iSymA, iSymB, iSymI, iSymJ, j, LIADOUT, lInt, nDelTot, nMaxOrb, nVirTot
 #include "files_mbpt2.fh"
 #include "trafo.fh"
 #include "corbinf.fh"
-!defining One etc.
-#include "real.fh"
 #include "WrkSpc.fh"
 #include "mp2grad.fh"
 #include "chomp2_cfg.fh"
@@ -53,41 +58,40 @@ do iSym=2,nSym
   mAdVir(iSym) = mAdVir(iSym-1)+nExt(iSym-1)
 end do
 
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 ! Print occupied and virtual energies
 do iSym=1,nSym
   if (nOcc(iSym) > 0) then
-    write(6,*)
-    write(6,*) 'Occupied energies, Sym',iSym
-    write(6,*)
+    write(u6,*)
+    write(u6,*) 'Occupied energies, Sym',iSym
+    write(u6,*)
     do iOcc=0,nOcc(iSym)-1
-      write(6,*) Work(mAdOcc(iSym)+iOcc)
+      write(u6,*) Work(mAdOcc(iSym)+iOcc)
     end do
   end if
   if (nExt(iSym) > 0) then
-    write(6,*)
-    write(6,*) 'Virtual energies, Sym',iSym
-    write(6,*)
+    write(u6,*)
+    write(u6,*) 'Virtual energies, Sym',iSym
+    write(u6,*)
     do iExt=0,nExt(iSym)-1
-      write(6,*) Work(mAdVir(iSym)+iExt)
+      write(u6,*) Work(mAdVir(iSym)+iExt)
     end do
   end if
   if (nFro(iSym) > 0) then
-    write(6,*)
-    write(6,*) 'Frozen energies, Sym',iSym
-    write(6,*)
+    write(u6,*)
+    write(u6,*) 'Frozen energies, Sym',iSym
+    write(u6,*)
     do iFro=0,nFro(iSym)-1
-      write(6,*) Work(mAdFro(iSym)+iFro)
+      write(u6,*) Work(mAdFro(iSym)+iFro)
     end do
   end if
   if (nDel(iSym) > 0) then
-    write(6,*)
-    write(6,*) 'Deleted energies, Sym',iSym
-    write(6,*)
+    write(u6,*)
+    write(u6,*) 'Deleted energies, Sym',iSym
+    write(u6,*)
     do iDel=0,nDel(iSym)-1
-      write(6,*) Work(mAdDel(iSym)+iDel)
-      write(6,*)
+      write(u6,*) Work(mAdDel(iSym)+iDel)
+      write(u6,*)
     end do
   end if
 end do
@@ -122,7 +126,7 @@ call GetMem('Scr1','Allo','Real',ipScr1,lInt)
 ! by this routine
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'Before RHS_Mp2_help1'
+write(u6,*) 'Before RHS_Mp2_help1'
 do iSym=1,nSym
   nI = nOcc(iSym)+nFro(iSym)
   nA = nExt(iSym)+nDel(iSym)
@@ -146,7 +150,7 @@ do iSymI=1,nSym
   end do       !JSym
 end do         !ISym
 #ifdef _DEBUGPRINT_
-write(6,*) 'After RHS_Mp2_help1'
+write(u6,*) 'After RHS_Mp2_help1'
 do iSym=1,nSym
   nI = nOcc(iSym)+nFro(iSym)
   nA = nExt(iSym)+nDel(iSym)
@@ -172,7 +176,7 @@ do iSym=1,nSym
   end do
 end do
 #ifdef _DEBUGPRINT_
-write(6,*) 'After RHS_Mp2_help1 xx'
+write(u6,*) 'After RHS_Mp2_help1 xx'
 do iSym=1,nSym
   nI = nOcc(iSym)+nFro(iSym)
   nA = nExt(iSym)+nDel(iSym)
@@ -201,7 +205,7 @@ do iSymI=1,nSym
   end do       !JSym
 end do         !ISym
 #ifdef _DEBUGPRINT_
-write(6,*) 'After RHS_Mp2_help1 yy'
+write(u6,*) 'After RHS_Mp2_help1 yy'
 do iSym=1,nSym
   nI = nOcc(iSym)+nFro(iSym)
   nA = nExt(iSym)+nDel(iSym)
@@ -230,18 +234,18 @@ call GetMem('Int2','Free','Real',ipInt2,lInt)
 call GetMem('Scr1','Free','Real',ipScr1,lInt)
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'EMP2 is ',EMP2
-write(6,*) ' '
+write(u6,*) 'EMP2 is ',EMP2
+write(u6,*) ' '
 do iSym=1,nSym
-  write(6,*) 'Density matrix for Symm:',iSym
+  write(u6,*) 'Density matrix for Symm:',iSym
   call RecPrt('MP2Density','',Work(ip_Density(iSym)),nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
 end do
 do iSym=1,nSym
-  write(6,*) 'WDensity matrix for Symm:',iSym
+  write(u6,*) 'WDensity matrix for Symm:',iSym
   call RecPrt('MP2WDensity','',Work(ip_WDensity(iSym)),nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
 end do
 do iSym=1,nSym
-  write(6,*) 'Lagrangian matrix for symm',iSym
+  write(u6,*) 'Lagrangian matrix for symm',iSym
   call RecPrt('Lagr2','',Work(ip_Mp2Lagr(iSym)),nFro(iSym)+nOcc(iSym),nExt(iSym)+nDel(iSym))
 end do
 #endif

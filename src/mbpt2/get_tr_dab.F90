@@ -13,11 +13,18 @@
 
 subroutine Get_Tr_Dab(nSym,nBas,nFro,nIsh,nSsh,nDel,CMO,EOcc,EVir,TrD)
 
-implicit real*8(a-h,o-z)
-integer nSym, nBas(nSym), nFro(nSym), nIsh(nSym)
-integer nSsh(nSym), nDel(nSym)
-real*8 CMO(*), EOcc(*), EVir(*), TrD(nSym)
-integer lnOrb(8), lnFro(8), lnOcc(8), lnVir(8), lnDel(8)
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nSsh(nSym), nDel(nSym)
+real(kind=wp), intent(in) :: CMO(*)
+real(kind=wp), intent(inout) :: Eocc(*), EVir(*)
+real(kind=wp), intent(out) :: TrD(nSym)
+integer(kind=iwp) :: iCMO, iOff, ip_X, ip_Y, irc, iSkip, iSym, iV, kfr, kto, lnDel(8), lnFro(8), lnOcc(8), lnOrb(8), lnVir(8), &
+                     nBB, nOA, nVV
+real(kind=wp) :: Dummy
+real(kind=wp), external :: ddot_
 #include "WrkSpc.fh"
 
 nVV = 0
@@ -56,21 +63,21 @@ call Check_Amp2(nSym,lnOcc,lnVir,iSkip)
 if (iSkip > 0) then
   call ChoMP2_Drv(irc,Dummy,Work(iCMO),EOcc,EVir)
   if (irc /= 0) then
-    write(6,*) 'MP2 pseudodensity calculation failed !'
+    write(u6,*) 'MP2 pseudodensity calculation failed !'
     call Abend()
   end if
 else
-  write(6,*)
-  write(6,*) 'There are ZERO amplitudes T(ai,bj) with the given '
-  write(6,*) 'combinations of occupied and virtual orbitals !! '
-  write(6,*) 'Check your input and rerun the calculation! Bye!!'
+  write(u6,*)
+  write(u6,*) 'There are ZERO amplitudes T(ai,bj) with the given '
+  write(u6,*) 'combinations of occupied and virtual orbitals !! '
+  write(u6,*) 'Check your input and rerun the calculation! Bye!!'
   call Abend()
 end if
 call GetMem('CMON','Free','Real',iCMO,nBB)
 
 iV = ip_X
 do iSym=1,nSym
-  TrD(iSym) = ddot_(lnVir(iSym),Work(iV),1+lnVir(iSym),[1.0d0],0)
+  TrD(iSym) = ddot_(lnVir(iSym),Work(iV),1+lnVir(iSym),[One],0)
   iV = iV+lnVir(iSym)**2
 end do
 call GetMem('Dmat','Free','Real',ip_X,nVV+nOA)

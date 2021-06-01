@@ -16,36 +16,37 @@ subroutine Cho_SOSmp2_Setup_Prt(irc)
 !
 ! Purpose: print setup for SOS-MP2.
 
-#include "implicit.fh"
-#include "cholesky.fh"
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp), intent(out) :: irc
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
 
 irc = 0
 
-call Cho_Head('Cholesky SOS-MP2 Setup','=',80,6)
-write(6,*)
+call Cho_Head('Cholesky SOS-MP2 Setup','=',80,u6)
+write(u6,*)
 
 if (nBatch > 1) then
-  write(6,'(A,I6,A,I6,A)') 'The list of',nOccT,' occupied orbitals has been split in',nBatch,' batches:'
-  write(6,*) 'Batching is not allowed in SOS-MP2 : I stop here! '
+  write(u6,'(A,I6,A,I6,A)') 'The list of',nOccT,' occupied orbitals has been split in',nBatch,' batches:'
+  write(u6,*) 'Batching is not allowed in SOS-MP2 : I stop here! '
   call Abend()
 else if (nBatch == 1) then
-  write(6,'(A,I6,A)') 'The list of',nOccT,' occupied orbitals is not split:'
+  write(u6,'(A,I6,A)') 'The list of',nOccT,' occupied orbitals is not split:'
 else
-  write(6,*) 'Oops, #batches over occupied orbitals is non-positive: ',nBatch
+  write(u6,*) 'Oops, #batches over occupied orbitals is non-positive: ',nBatch
   irc = -101
   return
 end if
 
-write(6,'(//,A)') 'The following tasks will be performed:'
-write(6,'(A)') ' * AO-to-MO transformation of original Cholesky vectors.'
+write(u6,'(//,A)') 'The following tasks will be performed:'
+write(u6,'(A)') ' * AO-to-MO transformation of original Cholesky vectors.'
 if (DecoMP2) then
-  write(6,'(A)') ' * Cholesky decomposition of M=(ai|bj)^2 matrix.'
+  write(u6,'(A)') ' * Cholesky decomposition of M=(ai|bj)^2 matrix.'
 end if
-write(6,*) ' * Calculation of SOS-MP2 correlation energy.'
+write(u6,*) ' * Calculation of SOS-MP2 correlation energy.'
 
-call xFlush(6)
+call xFlush(u6)
 
 end subroutine Cho_SOSmp2_Setup_Prt

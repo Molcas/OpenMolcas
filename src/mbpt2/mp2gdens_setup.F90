@@ -11,10 +11,14 @@
 
 subroutine MP2gDens_setup()
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: i, iSym, nExtT, nOccT
 #include "WrkSpc.fh"
 #include "mp2grad.fh"
 #include "corbinf.fh"
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *

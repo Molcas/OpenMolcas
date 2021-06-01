@@ -12,13 +12,15 @@
 subroutine MP2Ap(iSymIA,iSymJB,ip_AP,ip_P)
 ! A subroutine that calculates A*p_k in the PCG-algorithm
 
-implicit real*8(a-h,o-z)
-!defining One etc.
-#include "real.fh"
+use Constants, only: One, Four, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: iSymIA, iSymJB, ip_AP, ip_P
+integer(kind=iwp) :: iA, iB, iI, iJ, index1, index2, ipIntC, iSym1, iSym2, lint, nB, nJ, nMaxOrb
+real(kind=wp) :: E_a, E_i, Ediff, Fac, xiajb, xibja, xijab
 #include "WrkSpc.fh"
 #include "mp2grad.fh"
-#include "trafo.fh"
-#include "files_mbpt2.fh"
 #include "corbinf.fh"
 
 nMaxOrb = 0
@@ -42,10 +44,10 @@ do iA=1,nExt(iSymIA)+nDel(iSymIA)
       call Exch(iSymJB,iSymIA,iSymIA,iSymJB,iA+nFro(iSymIA)+nOcc(iSymIA),iB+nFro(iSymJB)+nOcc(iSymJB),Work(ipInt2),Work(ipScr1))
     end if
     call Coul(iSymIA,iSymJB,iSymIA,iSymJB,iA+nFro(iSymIA)+nOcc(iSymIA),iB+nFro(iSymJB)+nOcc(iSymJB),Work(ipIntC),Work(ipScr1))
-    !write(6,*)
-    !write(6,*) ' *  A,B = ',iA,iB
+    !write(u6,*)
+    !write(u6,*) ' *  A,B = ',iA,iB
     !call RecPrt('Int1:','(8F10.6)',Work(ipInt1),nOrb(iSymIA)+nDel(iSymIA),nOrb(iSymJB)+nDel(iSymJB))
-    !if (iSymIA.Ne.iSymJB) Then
+    !if (iSymIA /= iSymJB) then
     !  call RecPrt('Int2:','(8F10.6)',Work(ipInt2),nOrb(iSymJB)+nDel(iSymJB),nOrb(iSymIA)+nDel(iSymIA))
     !end if
     !call RecPrt('IntC:','(8F10.6)',Work(ipIntC),nOrb(iSymIA)+nDel(iSymIA),nOrb(iSymJB)+nDel(iSymJB))
@@ -74,19 +76,19 @@ do iA=1,nExt(iSymIA)+nDel(iSymIA)
 
         Work(index1) = Work(index1)+Fac*(Four*xiajb-xibja-xijab)*Work(ip_P+iPoVec(iSymIA)+iI-1+(nFro(iSymIA)+nOcc(iSymIA))*(iA-1))
         !---- Debug comments -------------------------------------------
-        !write(6,*) 'Symm A B',iSymIA,iSymJB
-        !write(6,*) 'IAJB',iI,iA,iJ,iB
-        !write(6,*) 'jiba',xijab
-        !write(6,*) 'adress AP',iPoVec(iSymJB)+iJ-1+(nFro(iSymJB)+nOcc(iSymJB))*(iB-1)
-        !write(6,*) 'Contr coul',Fac*(xijab)*Work(ip_P+iPoVec(iSymIA)+iI-1+(nFro(iSymIA)+nOcc(iSymIA))*(iA-1))
+        !write(u6,*) 'Symm A B',iSymIA,iSymJB
+        !write(u6,*) 'IAJB',iI,iA,iJ,iB
+        !write(u6,*) 'jiba',xijab
+        !write(u6,*) 'adress AP',iPoVec(iSymJB)+iJ-1+(nFro(iSymJB)+nOcc(iSymJB))*(iB-1)
+        !write(u6,*) 'Contr coul',Fac*(xijab)*Work(ip_P+iPoVec(iSymIA)+iI-1+(nFro(iSymIA)+nOcc(iSymIA))*(iA-1))
         !---------------------------------------------------------------
-        !write(6,*) 'IA JB',iOrbI,iVirA,iOrbJ,iVirB
-        !write(6,*) 'Index1:',index1-iAp
-        !write(6,*) 'A-elementet',Fac*(Four*xijab-xijba-xibja)
-        !write(6,*) 'P-vector',Work(iP+iPoVec(JB)+iOrbJ-1+nOcc(JB)*(iVirB-1))
-        !write(6,*) 'Index2:',index2-iAp
-        !write(6,*) 'A-elementet',Fac*(Four*xijab-xijba-xibja)
-        !write(6,*) 'P-vector',Work(iP+iPoVec(IA)+iOrbI-1+nOcc(IA)*(iVirA-1))
+        !write(u6,*) 'IA JB',iOrbI,iVirA,iOrbJ,iVirB
+        !write(u6,*) 'Index1:',index1-iAp
+        !write(u6,*) 'A-elementet',Fac*(Four*xijab-xijba-xibja)
+        !write(u6,*) 'P-vector',Work(iP+iPoVec(JB)+iOrbJ-1+nOcc(JB)*(iVirB-1))
+        !write(u6,*) 'Index2:',index2-iAp
+        !write(u6,*) 'A-elementet',Fac*(Four*xijab-xijba-xibja)
+        !write(u6,*) 'P-vector',Work(iP+iPoVec(IA)+iOrbI-1+nOcc(IA)*(iVirA-1))
 
         Work(index2) = Work(index2)+Fac*(Four*xiajb-xibja-xijab)*Work(ip_P+iPoVec(iSymJB)+iJ-1+(nFro(iSymJB)+nOcc(iSymJB))*(iB-1))
         if ((iA == iB) .and. (iI == iJ) .and. (iSymIA == iSymJB)) then

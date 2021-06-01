@@ -32,35 +32,32 @@ subroutine RdInp(CMO,Eall,Eocc,Eext,iTst,ESCF)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-dimension CMO(*), Eall(*), Eocc(*), Eext(*)
-parameter(nCom=43)
-character*4 Command, ComTab(nCom)
-character*180 Get_Ln
-external Get_Ln
-character*100 ProgName, Get_SuperName
-external Get_SuperName
-integer iPrintLevel
-external iPrintLevel
-logical ChoMP2_ChkPar
-external ChoMP2_ChkPar
-logical Reduce_Prt
-external Reduce_Prt
-data ComTab /'TITL','FROZ','DELE','SFRO','SDEL','EXTR','PRIN','TEST','TSTP','PRPT','LUMO','EREF','VIRA','T1AM','GRDT','LAPL', &
-             'GRID','BLOC','CHOA','$$$$','$$$$','$$$$','DECO','NODE','THRC','SPAN','MXQU','PRES','CHKI','FORC','VERB','NOVE', &
-             'FREE','PREC','SOSM','OEDT','OSFA','LOVM','DOMP','FNOM','GHOS','NOGR','END '/
-character*180 Line
-character*8 emiloop
-character*8 inGeo
-character*72 Blank
-logical FrePrt, ERef_UsrDef, DecoMP2_UsrDef, DNG, NoGrdt
-logical lTit, lFro, lFre, lDel, lSFro, lSDel, lExt, lPrt, LumOrb
-character*80 VecTitle
-real*8 ESCF
-dimension iDummy(1)
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp), intent(out) :: CMO(*), Eall(*), Eocc(*), Eext(*), ESCF
+integer(kind=iwp), intent(out) :: iTst
+integer(kind=iwp) :: i, IADC, IADEE, IADEO, IADSQ, iCom, iCount, iDNG, iDummy(1), iErr, iExt, iLow, iOrb, ip, ip_Occup, iPrt, &
+                     iSym, iUpp, j, jCom, jDel, jFro, jOcc, l_Occup, LC, LEE, LEO, LSQ, Lu_orb, LuSpool, nExtT, nFre, nOccT
+logical(kind=iwp) :: FrePrt, ERef_UsrDef, DecoMP2_UsrDef, DNG, NoGrdt, lTit, lFro, lFre, lDel, lSFro, lSDel, lExt, lPrt, LumOrb
+character(len=4) :: Command
+character(len=8) :: emiloop, inGeo
+character(len=80) :: VecTitle
+character(len=100) :: ProgName
+character(len=180) :: Line
+integer(kind=iwp), parameter :: nCom = 43
+character(len=4), parameter :: ComTab(nCom) = ['TITL','FROZ','DELE','SFRO','SDEL','EXTR','PRIN','TEST','TSTP','PRPT', &
+                                               'LUMO','EREF','VIRA','T1AM','GRDT','LAPL','GRID','BLOC','CHOA','$$$$', &
+                                               '$$$$','$$$$','DECO','NODE','THRC','SPAN','MXQU','PRES','CHKI','FORC', &
+                                               'VERB','NOVE','FREE','PREC','SOSM','OEDT','OSFA','LOVM','DOMP','FNOM', &
+                                               'GHOS','NOGR','END ']
+integer(kind=iwp), external :: iPrintLevel
+logical(kind=iwp), external :: ChoMP2_ChkPar, Reduce_Prt
+character(len=100), external :: Get_SuperName
+character(len=180), external :: Get_Ln
 #include "cddos.fh"
 #include "chomp2_cfg.fh"
-#include "real.fh"
 #include "mxdim.fh"
 #include "corbinf.fh"
 #include "orbinf2.fh"
@@ -88,8 +85,8 @@ FNOMP2 = .false.
 LumOrb = .false.
 all_vir = .false.
 DoT1amp = .false.
-ESCF = 0.0d0
-Thr_ghs = 5.0d-1
+ESCF = Zero
+Thr_ghs = Half
 DelGHost = .false.
 ERef_UsrDef = .false.
 DecoMP2_UsrDef = .false.
@@ -101,7 +98,6 @@ LuSpool = 17
 call SpoolInp(LuSpool)
 rewind(LuSpool)
 call RdNLst(LuSpool,'MBPT2')
-Blank = ' '
 !----------------------------------------------------------------------*
 !     Define default values                                            *
 !----------------------------------------------------------------------*
@@ -114,7 +110,7 @@ else
   ChoAlg = -999999
 end if
 DecoMP2 = Decom_Def
-ThrMP2 = -9.9d9
+ThrMP2 = -huge(ThrMP2)
 SpanMP2 = Span_Def
 MxQualMP2 = MxQual_Def
 ChkDecoMP2 = .false.
@@ -127,9 +123,9 @@ end if
 ! Scaled Opposite-Spin MP2
 SOS_mp2 = .false.
 set_cd_thr = .true.
-OED_Thr = 1.0d-8
-C_os = 1.3d0
-EOSMP2 = 0.0d0
+OED_Thr = 1.0e-8_wp
+C_os = 1.3_wp
+EOSMP2 = Zero
 ! Frozen natural orbitals
 DoFNO = .false.
 ! MP2-gradient/1pdm
@@ -175,8 +171,8 @@ do iCom=1,nCom
   if (Command == ComTab(iCom)) jCom = iCom
 end do
 if (jCom == 0) then
-  write(6,*) 'RdInp: Illegal keyword!'
-  write(6,'(A,A)') 'Command=',Command
+  write(u6,*) 'RdInp: Illegal keyword!'
+  write(u6,'(A,A)') 'Command=',Command
   call Abend()
 end if
 !----------------------------------------------------------------------*
@@ -274,9 +270,9 @@ end select
 !---- Process the "TITL" input card -----------------------------------*
 501 continue
 if (lTit) then
-  write(6,*) 'RdInp: Error while reading input!'
-  write(6,*) 'Title option already processed!'
-  write(6,'(A,A)') 'Last read line:',Line
+  write(u6,*) 'RdInp: Error while reading input!'
+  write(u6,*) 'Title option already processed!'
+  write(u6,'(A,A)') 'Last read line:',Line
   call Abend()
 end if
 lTit = .true.
@@ -296,29 +292,29 @@ goto 100
 !---- Process the "FROZ" input card -----------------------------------*
 502 continue
 if (lFre .or. lFro) then
-  write(6,*) 'RdInp: Error while reading input!'
-  if (lFro) write(6,*) 'Frozen option already processed!'
-  if (lFre) write(6,*) 'Freeze option and Frozen option are incompatible!'
-  write(6,'(A,A)') 'Last read line:',Line
+  write(u6,*) 'RdInp: Error while reading input!'
+  if (lFro) write(u6,*) 'Frozen option already processed!'
+  if (lFre) write(u6,*) 'Freeze option and Frozen option are incompatible!'
+  write(u6,'(A,A)') 'Last read line:',Line
   call Abend()
 end if
 lFro = .true.
 Line = Get_Ln(LuSpool)
 
-write(6,*)
-write(6,'(A)') 'WARNING!'
-write(6,'(A)') 'Default frozen orbitals as non valence orbitals is overwritten by user input.'
-write(6,'(A,8I4)') 'Default values:',(nFro1(iSym),iSym=1,nSym)
-write(6,*)
+write(u6,*)
+write(u6,'(A)') 'WARNING!'
+write(u6,'(A)') 'Default frozen orbitals as non valence orbitals is overwritten by user input.'
+write(u6,'(A,8I4)') 'Default values:',(nFro1(iSym),iSym=1,nSym)
+write(u6,*)
 
 read(Line,*,err=995) (nFro1(iSym),iSym=1,nSym)
 goto 100
 !---- Process the "DELE" input card -----------------------------------*
 503 continue
 if (lDel) then
-  write(6,*) 'RdInp: Error while reading input!'
-  write(6,*) 'Delete option already processed!'
-  write(6,'(A,A)') 'Last read line:',Line
+  write(u6,*) 'RdInp: Error while reading input!'
+  write(u6,*) 'Delete option already processed!'
+  write(u6,'(A,A)') 'Last read line:',Line
   call Abend()
 end if
 lDel = .true.
@@ -328,9 +324,9 @@ goto 100
 !---- Process the "SFRO" input card -----------------------------------*
 504 continue
 if (lSFro) then
-  write(6,*) 'RdInp: Error while reading input!'
-  write(6,*) 'SFrozen option already processed!'
-  write(6,'(A,A)') 'Last read line:',Line
+  write(u6,*) 'RdInp: Error while reading input!'
+  write(u6,*) 'SFrozen option already processed!'
+  write(u6,'(A,A)') 'Last read line:',Line
   call Abend()
 end if
 lSFro = .true.
@@ -344,9 +340,9 @@ goto 100
 !---- Process the "SDEL" input card -----------------------------------*
 505 continue
 if (lSDel) then
-  write(6,*) 'RdInp: Error while reading input!'
-  write(6,*) 'SDelete option already processed!'
-  write(6,'(A,A)') 'Last read line:',Line
+  write(u6,*) 'RdInp: Error while reading input!'
+  write(u6,*) 'SDelete option already processed!'
+  write(u6,'(A,A)') 'Last read line:',Line
   call Abend()
 end if
 lSDel = .true.
@@ -360,19 +356,19 @@ goto 100
 !---- Process the "Extract" input card --------------------------------*
 506 continue
 if (lExt) then
-  write(6,*) 'RdInp: Error while reading input!'
-  write(6,*) 'Extract option already processed!'
-  write(6,'(A,A)') 'Last read line:',Line
+  write(u6,*) 'RdInp: Error while reading input!'
+  write(u6,*) 'Extract option already processed!'
+  write(u6,'(A,A)') 'Last read line:',Line
   call Abend()
 end if
-write(6,*) 'RdInp: EXTRACT option is redundant and is ignored!'
+write(u6,*) 'RdInp: EXTRACT option is redundant and is ignored!'
 goto 100
 !---- Process the "Print" input card ----------------------------------*
 507 continue
 if (lPrt) then
-  write(6,*) 'RdInp: Error while reading input!'
-  write(6,*) 'Print option already processed!'
-  write(6,'(A,A)') 'Last read line:',Line
+  write(u6,*) 'RdInp: Error while reading input!'
+  write(u6,*) 'Print option already processed!'
+  write(u6,'(A,A)') 'Last read line:',Line
   call Abend()
 end if
 lPrt = .true.
@@ -402,9 +398,9 @@ goto 100
 !---- Process the "EREF" input card -----------------------------------*
 512 continue
 if (.not. LumOrb) then
-  write(6,*) 'RdInp: Error while reading input!'
-  write(6,*) 'EREF can be used only with LumOrb.'
-  write(6,*) '(Note: LumOrb keyword must precede EREF)'
+  write(u6,*) 'RdInp: Error while reading input!'
+  write(u6,*) 'EREF can be used only with LumOrb.'
+  write(u6,*) '(Note: LumOrb keyword must precede EREF)'
   call Abend()
 end if
 Line = Get_Ln(LuSpool)
@@ -419,7 +415,7 @@ goto 100
 514 continue
 DoT1amp = .true.
 if (.not. DoCholesky) then
-  write(6,*) 'RdInp: T1AM is available only with Cholesky/RI .'
+  write(u6,*) 'RdInp: T1AM is available only with Cholesky/RI .'
   call Abend()
 end if
 goto 100
@@ -443,8 +439,8 @@ read(Line,*,Err=995) Laplace_nGridPoints
 Laplace_nGridPoints = max(0,Laplace_nGridPoints)
 if (Laplace_nGridPoints > Laplace_mGridPoints) then
   call WarningMessage(2,'Input Error')
-  write(6,'(A,I6)') 'Number of Laplace grid points specified:',Laplace_nGridPoints
-  write(6,'(A,I6)') 'Max allowed:                            ',Laplace_mGridPoints
+  write(u6,'(A,I6)') 'Number of Laplace grid points specified:',Laplace_nGridPoints
+  write(u6,'(A,I6)') 'Max allowed:                            ',Laplace_mGridPoints
   call Quit(_RC_INPUT_ERROR_)
 end if
 goto 100
@@ -531,18 +527,18 @@ goto 100
 !---- Process the "FREEze" input card  --------------------------------*
 533 continue
 if (lFre .or. lFro) then
-  write(6,*) 'RdInp: Error while reading input!'
-  if (lFre) write(6,*) 'Freeze option already processed!'
-  if (lFro) write(6,*) 'Frozen option and Freeze option are incompatible!'
-  write(6,'(A,A)') 'Last read line:',Line
+  write(u6,*) 'RdInp: Error while reading input!'
+  if (lFre) write(u6,*) 'Freeze option already processed!'
+  if (lFro) write(u6,*) 'Frozen option and Freeze option are incompatible!'
+  write(u6,'(A,A)') 'Last read line:',Line
   call Abend()
 end if
 !
-write(6,*)
-write(6,'(A)') 'WARNING!'
-write(6,'(A)') 'Default frozen orbitals as non valence orbitals is overwritten by user input.'
-write(6,'(A,8I4)') 'Default values:',(nFro1(iSym),iSym=1,nSym)
-write(6,*)
+write(u6,*)
+write(u6,'(A)') 'WARNING!'
+write(u6,'(A)') 'Default frozen orbitals as non valence orbitals is overwritten by user input.'
+write(u6,'(A,8I4)') 'Default values:',(nFro1(iSym),iSym=1,nSym)
+write(u6,*)
 call ICopy(nSym,[0],0,nFro1,1)
 !
 lFre = .true.
@@ -576,11 +572,11 @@ goto 100
 !---- Process the "LovMP2" input card ---------------------------------*
 538 continue
 if (.not. DoCholesky) then
-  write(6,*)
-  write(6,*) '********************* ERROR ***********************'
-  write(6,*) ' LovMP2 not implemented with conventional ERIs.'
-  write(6,*) ' Please, use Cholesky or RI options.'
-  write(6,*) '***************************************************'
+  write(u6,*)
+  write(u6,*) '********************* ERROR ***********************'
+  write(u6,*) ' LovMP2 not implemented with conventional ERIs.'
+  write(u6,*) ' Please, use Cholesky or RI options.'
+  write(u6,*) '***************************************************'
   call Abend()
 else
   LovMP2 = .true.
@@ -589,21 +585,21 @@ read(LuSpool,*) nActa,ThrLov
 ! nActa = number of active atoms
 ! ThrLov = threshold for orbital selection
 
-if ((ThrLov < 0.0d0) .or. (ThrLov >= 1.0d0)) then
-  write(6,*) ' Threshold out of range! Must be in [0,1[ '
+if ((ThrLov < Zero) .or. (ThrLov >= One)) then
+  write(u6,*) ' Threshold out of range! Must be in [0,1[ '
   call Abend()
 end if
 ! namAct = names of active atoms (symm. indep. centers)
 1538 read(LuSpool,'(A)',end=995) Line
 if (Line(1:1) == '*') goto 1538
-if (Line == Blank) goto 1538
+if (Line == '') goto 1538
 call UpCase(Line)
 do i=1,nActa
   call LeftAd(Line)
-  if (Line == Blank) goto 995
+  if (Line == '') goto 995
   j = index(Line,' ')
   namAct(i) = Line(1:j-1)
-  Line(1:j-1) = Blank(1:j-1)
+  Line(1:j-1) = ''
 end do
 goto 100
 !---- Process the "DoMP2" input card ----------------------------------*
@@ -613,20 +609,20 @@ goto 100
 !---- process the "FNOM" input card -----------------------------------*
 540 continue
 if (.not. DoCholesky) then
-  write(6,*)
-  write(6,*) '********************* ERROR ***********************'
-  write(6,*) ' FNO-MP2 not implemented with conventional ERIs.   '
-  write(6,*) ' Please, use Cholesky or RI options.'
-  write(6,*) '***************************************************'
+  write(u6,*)
+  write(u6,*) '********************* ERROR ***********************'
+  write(u6,*) ' FNO-MP2 not implemented with conventional ERIs.   '
+  write(u6,*) ' Please, use Cholesky or RI options.'
+  write(u6,*) '***************************************************'
   call Abend()
 else
   FnoMP2 = .true.
 end if
 read(LuSpool,*) vkept
 !
-if ((vkept <= 0.0d0) .or. (vkept > 1.0d0)) then
-  write(6,*) ' Requested fraction of virtual space out of range! '
-  write(6,*) ' Must be in ]0,1] '
+if ((vkept <= Zero) .or. (vkept > One)) then
+  write(u6,*) ' Requested fraction of virtual space out of range! '
+  write(u6,*) ' Must be in ]0,1] '
   call Abend()
 end if
 goto 100
@@ -635,10 +631,10 @@ goto 100
 541 continue
 read(LuSpool,'(A)',end=995) Line
 if (Line(1:1) == '*') goto 541
-if (Line == Blank) goto 541
+if (Line == '') goto 541
 read(Line,*,Err=995) Thr_ghs
-if ((thr_ghs < 0.0d0) .or. (thr_ghs >= 1.0d0)) then
-  write(6,*) ' GHOST threshold out of range! Must be in [0,1[ '
+if ((thr_ghs < Zero) .or. (thr_ghs >= One)) then
+  write(u6,*) ' GHOST threshold out of range! Must be in [0,1[ '
   call Abend()
 end if
 DelGHost = .true.
@@ -728,35 +724,35 @@ if (LumOrb) then
   call GetMem('Occup','Allo','Real',ip_Occup,l_Occup)
   call RDVEC('INPORB',Lu_orb,'COE',nSym,nBas,nOrb,CMO,Work(ip_Occup),Eall,iDummy,VecTitle,0,iErr)
   if (iErr /= 0) then
-    write(6,'(A,I4)') 'ERROR: RdVec returned code',iErr
+    write(u6,'(A,I4)') 'ERROR: RdVec returned code',iErr
     call Abend()
   end if
   call DaClos(Lu_orb)
-  write(6,*)
-  write(6,*) ' Input Orbitals read from INPORB: ',VecTitle
+  write(u6,*)
+  write(u6,*) ' Input Orbitals read from INPORB: ',VecTitle
   if (.not. ERef_UsrDef) then
-    write(6,*) ' WARNING: reference energy read from RunFile'
-    write(6,*) '          (may not correspond to orbitals)'
+    write(u6,*) ' WARNING: reference energy read from RunFile'
+    write(u6,*) '          (may not correspond to orbitals)'
     call Get_dScalar('SCF energy',Escf)
   end if
-  write(6,*)
+  write(u6,*)
   iErr = 0
   ip = ip_Occup-1
   do iSym=1,nSym
     iCount = 0
     do i=1,nOrb(iSym)
       ip = ip+1
-      if (abs(Work(ip)) > 1.0d-14) iCount = iCount+1
+      if (abs(Work(ip)) > 1.0e-14_wp) iCount = iCount+1
     end do
     if (iCount /= nOcc(iSym)) then
       iErr = iErr+1
-      write(6,'(A,I2,A,I6,A,I6)') 'WARNING: number of occupied orbitals in symmetry',iSym,' is',iCount, &
-                                  ' according to INPORB; from RunFile:',nOcc(iSym)
+      write(u6,'(A,I2,A,I6,A,I6)') 'WARNING: number of occupied orbitals in symmetry',iSym,' is',iCount, &
+                                   ' according to INPORB; from RunFile:',nOcc(iSym)
     end if
   end do
   if (iErr /= 0) then
-    write(6,'(A,A)') 'WARNING: occupation mismatch between RunFile and INPORB. ','RunFile occupation will be used:'
-    write(6,'(8I6)') (nOcc(iSym),iSym=1,nSym)
+    write(u6,'(A,A)') 'WARNING: occupation mismatch between RunFile and INPORB. ','RunFile occupation will be used:'
+    write(u6,'(8I6)') (nOcc(iSym),iSym=1,nSym)
     iErr = 0
   end if
   call GetMem('Occup','Free','Real',ip_Occup,l_Occup)
@@ -857,35 +853,35 @@ end if
 call Close_LuSpool(LuSpool)
 
 if (LumOrb .and. DoT1amp) then
-  write(6,'(/,A)') 'ERROR!  Keywords incompatibility.'
-  write(6,'(/,A)') 'Both LUMOrb and T1AM were selected.'
-  write(6,'(/,A)') '***  I must shut down MBPT2 ! ***'
+  write(u6,'(/,A)') 'ERROR!  Keywords incompatibility.'
+  write(u6,'(/,A)') 'Both LUMOrb and T1AM were selected.'
+  write(u6,'(/,A)') '***  I must shut down MBPT2 ! ***'
   call Abend()
 end if
 
 if (all_Vir .and. DoMP2) then
-  write(6,'(/,A)') 'WARNING!'
-  write(6,'(/,A)') 'Both VirAll and DoMP2 were selected.'
-  write(6,'(/,A)') '***  I turn off DoMP2 ! ***'
+  write(u6,'(/,A)') 'WARNING!'
+  write(u6,'(/,A)') 'Both VirAll and DoMP2 were selected.'
+  write(u6,'(/,A)') '***  I turn off DoMP2 ! ***'
   DoMP2 = .false.
 end if
 
 ! turn off decomposition for parallel runs.
 
 if (DecoMP2 .and. ChoMP2_ChkPar()) then
-  write(6,'(/,A)') 'WARNING!'
-  write(6,'(A)') 'Decomposition of MP2 integrals is not possible. Turning off decomposition.'
+  write(u6,'(/,A)') 'WARNING!'
+  write(u6,'(A)') 'Decomposition of MP2 integrals is not possible. Turning off decomposition.'
   DecoMP2 = .false.
 end if
 
-call xFlush(6)
+call xFlush(u6)
 
 return
 !----------------------------------------------------------------------*
 !     Error Exit                                                       *
 !----------------------------------------------------------------------*
-995 write(6,*) 'RdInp: Error while reading input!'
-write(6,'(A,A)') 'Last read line:',Line
+995 write(u6,*) 'RdInp: Error while reading input!'
+write(u6,'(A,A)') 'Last read line:',Line
 call Abend()
 
 end subroutine RdInp

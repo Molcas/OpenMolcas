@@ -17,16 +17,28 @@ subroutine Finish_WDensity()
 ! Purpose: Add the terms labeled [II] and [III] to the energy-weighted
 !          MP2 Density
 
-implicit real*8(a-h,o-z)
+use Constants, only: One, Two, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: iA, iB, iI, iJ, iP, ipIntC, iQ, iSym, iSym1, iSym2, iSymIJ, iSymPQ, lint, nMaxOrb
+real(kind=wp) :: Eps_a, Eps_b, Eps_i, Eps_j, Fac, xijpq, xipjq
 #include "WrkSpc.fh"
-#include "files_mbpt2.fh"
-#include "trafo.fh"
 #include "mp2grad.fh"
 #include "corbinf.fh"
+! statement functions
+integer(kind=iwp) :: i, j, k, iOccAOcc, iOccOcc, iVirVir, iVirOcc
 iOccAOcc(i,j,k) = j-1+(nOrb(k)+nDel(k))*(nFro(k)+i-1)
 iOccOcc(i,j,k) = j-1+(nOrb(k)+nDel(k))*(i-1)
 iVirVir(i,j,k) = j-1+nFro(k)+nOcc(k)+(nOrb(k)+nDel(k))*(i-1+nFro(k)+nOcc(k))
 iVirOcc(i,j,k) = j-1+nFro(k)+nOcc(k)+(nOrb(k)+nDel(k))*(i-1)
+
+#ifdef _WARNING_WORKAROUND_
+#include "compiler_features.h"
+#if (( __GNUC__) && (GCC_VERSION < 70000))
+iJ = 0
+#endif
+#endif
 
 ! Start with the II-terms
 do iSym=1,nSym
@@ -35,16 +47,16 @@ do iSym=1,nSym
     do iJ=1,nFro(iSym)+nOcc(iSym)
       if (iJ <= nFro(iSym)) then
         Eps_j = Work(mAdFro(iSym)+iJ-1)
-        Fac = 2.0d0
+        Fac = Two
       else
         Eps_j = Work(mAdOcc(iSym)+iJ-nFro(iSym)-1)
-        Fac = 1.0d0
+        Fac = One
       end if
       ! Fac is because both core-occ and occ-core contributions should be
       ! added, they can both be added to IJ since we symmetrize W later and
       ! the term is symmetric
       Work(ip_WDensity(iSym)+iOccAOcc(iI,iJ,iSym)) = Work(ip_WDensity(iSym)+iOccAOcc(iI,iJ,iSym))-Fac*Work(ip_Density(iSym)+ &
-                                                     iOccAOcc(iI,iJ,iSym))*0.5d0*(Eps_i+Eps_j)
+                                                     iOccAOcc(iI,iJ,iSym))*Half*(Eps_i+Eps_j)
     end do
   end do
   do iA=1,nExt(iSym)
@@ -56,7 +68,7 @@ do iSym=1,nSym
         Eps_b = Work(mAdVir(iSym)+iB-1)
       end if
       Work(ip_WDensity(iSym)+iVirVir(iB,iA,iSym)) = Work(ip_WDensity(iSym)+iVirVir(iB,iA,iSym))-Work(ip_Density(iSym)+ &
-                                                    iVirVir(iB,iA,iSym))*0.5d0*(Eps_a+Eps_b)
+                                                    iVirVir(iB,iA,iSym))*Half*(Eps_a+Eps_b)
     end do
   end do
 
@@ -68,7 +80,7 @@ do iSym=1,nSym
     end if
     do iA=1,nExt(iSym)+nDel(iSym)
       Work(ip_WDensity(iSym)+iVirOcc(iI,iA,iSym)) = Work(ip_WDensity(iSym)+iVirOcc(iI,iA,iSym))-Work(ip_Density(iSym)+ &
-                                                    iVirOcc(iI,iA,iSym))*2.0d0*(Eps_i)
+                                                    iVirOcc(iI,iA,iSym))*Two*(Eps_i)
     end do
   end do
 end do
@@ -91,8 +103,8 @@ do iSymIJ=1,nSym
         call Exch(iSymPQ,iSymIJ,iSymPQ,iSymIJ,iJ,iI,Work(ipInt1),Work(ipScr1))
         call Coul(iSymPQ,iSymPQ,iSymIJ,iSymIJ,iJ,iI,Work(ipIntC),Work(ipScr1))
 
-        !write(6,*) 'Finish'
-        !write(6,*) ' *  i,j = ',iI,iJ
+        !write(u6,*) 'Finish'
+        !write(u6,*) ' *  i,j = ',iI,iJ
         !call RecPrt('Int1:','(8F10.6)',Work(ipInt1),nOrb(iSymPQ)+nDel(iSymPQ),nOrb(iSymPQ)+nDel(iSymPQ))
         !call RecPrt('IntC:','(8F10.6)',Work(ipIntC),nOrb(iSymPQ)+nDel(iSymPQ),nOrb(iSymPQ)+nDel(iSymPQ))
         do iP=1,nOrb(iSymPQ)+nDel(iSymPQ)
@@ -100,10 +112,10 @@ do iSymIJ=1,nSym
             xipjq = Work(ipInt1+(iP-1)+(iQ-1)*(nOrb(iSymPQ)+nDel(iSymPQ)))
             xijpq = Work(ipIntC+(iP-1)+(iQ-1)*(nOrb(iSymPQ)+nDel(iSymPQ)))
             Work(ip_WDensity(iSymIJ)+iOccOcc(iI,iJ,iSymIJ)) = Work(ip_WDensity(iSymIJ)+iOccOcc(iI,iJ,iSymIJ))- &
-                                                              Work(ip_Density(iSymPQ)+iOccOcc(iP,iQ,iSymPQ))*(2.0d0*xijpq-xipjq)
+                                                              Work(ip_Density(iSymPQ)+iOccOcc(iP,iQ,iSymPQ))*(Two*xijpq-xipjq)
             if (iJ /= iI) then
               Work(ip_WDensity(iSymIJ)+iOccOcc(iJ,iI,iSymIJ)) = Work(ip_WDensity(iSymIJ)+iOccOcc(iJ,iI,iSymIJ))- &
-                                                                Work(ip_Density(iSymPQ)+iOccOcc(iP,iQ,iSymPQ))*(2.0d0*xijpq-xipjq)
+                                                                Work(ip_Density(iSymPQ)+iOccOcc(iP,iQ,iSymPQ))*(Two*xijpq-xipjq)
             end if
           end do
         end do
@@ -118,14 +130,14 @@ do iSym=1,nSym
   do iP=1,nOrb(iSym)+nDel(iSym)
     do iQ=1,iP
       if (iQ /= iP) then
-        Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym)) = -(Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym))+ &
-                                                        Work(ip_WDensity(iSym)+iOccOcc(iQ,iP,iSym)))/2.0d0
+        Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym)) = -Half*(Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym))+ &
+                                                      Work(ip_WDensity(iSym)+iOccOcc(iQ,iP,iSym)))
         Work(ip_WDensity(iSym)+iOccOcc(iQ,iP,iSym)) = Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym))
       else if (iQ <= nFro(iSym)) then
-        Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym)) = -Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym))+2.0d0*Work(mAdFro(iSym)+iQ-1)
+        Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym)) = -Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym))+Two*Work(mAdFro(iSym)+iQ-1)
       else if (iQ <= nFro(iSym)+nOcc(iSym)) then
         Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym)) = -Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym))+ &
-                                                      2.0d0*Work(mAdOcc(iSym)+iQ-nFro(iSym)-1)
+                                                      Two*Work(mAdOcc(iSym)+iQ-nFro(iSym)-1)
       else
         Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym)) = -Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym))
       end if

@@ -17,24 +17,26 @@ subroutine Cho_SOSmp2_Energy(irc,EMP2,EOcc,EVir,Delete)
 ! Purpose: compute "Scaled Opposite-Spin" MP2 energy correction from
 !          MO Cholesky vectors of the matrix M(ai,bj)=(ai|bj)^2.
 
-implicit real*8(a-h,o-z)
-real*8 EMP2
-real*8 EOcc(*), EVir(*)
-integer irc
-logical Delete
-character*6 ThisNm
-character*17 SecNam
-parameter(SecNam='Cho_SOSmp2_Energy',ThisNm='Energy')
-parameter(zero=0.0d0,one=1.0d0,two=2.0d0)
-integer ipWrk, lWrk, iiSoff(8), iaSoff(8)
-integer nEnrVec(8)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(out) :: EMP2
+real(kind=wp), intent(in) :: EOcc(*), EVir(*)
+logical(kind=iwp), intent(in) :: Delete
+integer(kind=iwp) :: ia, iAdr, iaiS, iaS, iaSoff(8), iaSym, iaT, iBat, ID_bj, ii, iiSoff(8), iiSym, iiT, ip_W, ip_Y, ipWrk, iSym, &
+                     iTyp, jSym, jVec, kRead, lTot, lWrk, MaxNVec, Nai, nAt, nBat, nEnrVec(8), nIt, NKVec, nOV, NumVec, nVec
+real(kind=wp) :: Dmax
+character(len=17), parameter :: SecNam = 'Cho_SOSmp2_Energy'
+real(kind=r8), external :: ddot_
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
 #include "WrkSpc.fh"
-!****************************************************************
+! statement function
+integer(kind=iwp) :: i, j, MulD2h
 MulD2h(i,j) = ieor(i-1,j-1)+1
-!****************************************************************
 
 irc = 0
 
@@ -44,7 +46,7 @@ call iCopy(nSym,nMP2Vec,1,nEnrVec,1)
 ! Initialize SOS-MP2 energy correction.
 ! -------------------------------------
 
-EMP2 = 0.0d0
+EMP2 = Zero
 
 ! Some offsets
 ! ------------
@@ -92,18 +94,18 @@ do jSym=1,nSym
     call CHO_GET_ORD_bj(nOV,MaxNVec,OED_Thr,Work(ip_W),iWork(ID_bj),NKVec,Dmax)
 
     if (Verbose .or. (NKVec < 1)) then
-      write(6,'(A)') '---------------------------------------'
-      write(6,'(A,I2,A)') 'Orbital energy denominators CD (sym=',jSym,')'
-      write(6,'(A)') '---------------------------------------'
-      write(6,'(1X,A,I3,A,I9,A,1P,D25.16)') 'Number of vectors needed: ',NKVec,'   ( nAocc x nAvir : ',nOV,' ), max residual:',Dmax
-      call xFlush(6)
+      write(u6,'(A)') '---------------------------------------'
+      write(u6,'(A,I2,A)') 'Orbital energy denominators CD (sym=',jSym,')'
+      write(u6,'(A)') '---------------------------------------'
+      write(u6,'(1X,A,I3,A,I9,A,1P,D25.16)') 'Number of vectors needed: ',NKVec,'   ( nAocc x nAvir : ',nOV,' ), max residual:',Dmax
+      call xFlush(u6)
     end if
 
     if (NKVec > 0) then
 
       call GetMem('Yai_k','Allo','Real',ip_Y,nOV*NKVec)
       ! init to one the 1st col
-      call dcopy_(nOV,[one],0,Work(ip_Y),1)
+      call dcopy_(nOV,[One],0,Work(ip_Y),1)
 
       call CHO_GET_OED_cd(.true.,nOV,Work(ip_W),NKVec,iWork(ID_bj),1,Work(ip_Y),Work(ip_Y))
 
@@ -146,7 +148,7 @@ do jSym=1,nSym
 
         ! Compute   E(k,J) = sum_ai Y(ai,k) * R(ai,J)
         ! --------------------------------------------
-        call DGEMM_('T','N',NKVec,NumVec,Nai,one,Work(ip_Y),Nai,Work(kRead),Nai,zero,Work(ipWrk),NKVec)
+        call DGEMM_('T','N',NKVec,NumVec,Nai,One,Work(ip_Y),Nai,Work(kRead),Nai,Zero,Work(ipWrk),NKVec)
 
         ! Compute (unscaled) SOS-MP2 energy
         ! -----------------------------------
@@ -186,7 +188,7 @@ end if
 
 !-tbp, December 2012: removed factor 2
 !-tbp  (wrong result for two-electron systems with factor 2)
-!-tbp EMP2 = -two*EMP2
+!-tbp EMP2 = -Two*EMP2
 EMP2 = -EMP2
 
 return

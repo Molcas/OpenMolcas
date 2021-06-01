@@ -11,15 +11,18 @@
 
 subroutine Freezer(EAll,nFre,nFro,nFro1,nOcc,nBas,nSym,LocPrt)
 
-implicit real*8(a-h,o-z)
-real*8 EAll(*)
-integer nFro(nSym), nFro1(nSym), nOcc(nSym), nBas(nSym)
-logical LocPrt
-character*7 SecNam
-parameter(SecNam='Freezer')
-integer Cho_iRange
-external Cho_iRange
-integer iOcc(8)
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp), intent(in) :: EAll(*)
+integer(kind=iwp), intent(in) :: nFre, nSym, nFro(nSym), nOcc(nSym), nBas(nSym)
+integer(kind=iwp), intent(out) :: nFro1(nSym)
+logical(kind=iwp), intent(in) :: LocPrt
+integer(kind=iwp) :: iCount, iFre, ipEOcc, iOcc(8), ipPivot, ipPoint, iSym, jOcc, jSym, kAll, kOcc, lEOcc, lPoint, NumFre
+real(kind=wp) :: xMin
+integer(kind=iwp), external :: Cho_iRange
+character(len=7), parameter :: SecNam = 'Freezer'
 #include "WrkSpc.fh"
 
 ! For nSym=1, simply transfer nFre to nFro1.
@@ -27,7 +30,7 @@ integer iOcc(8)
 ! ------------------------------------------
 
 if ((nSym < 1) .or. (nSym > 8)) then
-  write(6,*) SecNam,': illegal nSym = ',nSym
+  write(u6,*) SecNam,': illegal nSym = ',nSym
   call SysAbendMsg(SecNam,'illegal nSym',' ')
 else if (nSym == 1) then
   nFro1(1) = nFre
@@ -63,13 +66,13 @@ end do
 ! Find pointers to lowest nFre occupied orbital energies.
 ! -------------------------------------------------------
 
-xMin = -1.0d15
+xMin = -1.0e15_wp
 NumFre = nFre
-call dScal_(lEOcc,-1.0d0,Work(ipEOcc),1) ! DiaMax finds MAX values
+call dScal_(lEOcc,-One,Work(ipEOcc),1) ! DiaMax finds MAX values
 call CD_DiaMax(Work(ipEOcc),lEOcc,iWork(ipPivot),iWork(ipPoint),NumFre,xMin)
 if (NumFre /= nFre) then
-  write(6,*) SecNam,': an error occurred in CD_DiaMax!'
-  write(6,*) 'NumFre = ',NumFre,' != ',nFre,' = nFre'
+  write(u6,*) SecNam,': an error occurred in CD_DiaMax!'
+  write(u6,*) 'NumFre = ',NumFre,' != ',nFre,' = nFre'
   call SysAbendMsg(SecNam,'CD_DiaMax failure',' ')
 end if
 
@@ -85,14 +88,14 @@ end do
 ! --------------------
 
 if (LocPrt) then
-  write(6,'(/,3X,A,A,A)') 'Output from ',SecNam,':'
-  write(6,'(1X,A,I5,A)') 'The',nFre,' lowest occupied orbitals have been frozen.'
-  write(6,'(1X,A)') 'List of frozen occupied orbitals:'
+  write(u6,'(/,3X,A,A,A)') 'Output from ',SecNam,':'
+  write(u6,'(1X,A,I5,A)') 'The',nFre,' lowest occupied orbitals have been frozen.'
+  write(u6,'(1X,A)') 'List of frozen occupied orbitals:'
   do iFre=1,nFre
     kOcc = iWork(ipPoint-1+iFre)
     jSym = Cho_iRange(kOcc,iOcc,nSym,.false.)
     jOcc = kOcc-iOcc(jSym)
-    write(6,'(1X,A,I5,A,I1,A,F15.8)') 'Occupied orbital',jOcc,' of symmetry ',jSym,' and energy ',-Work(ipEOcc-1+kOcc)
+    write(u6,'(1X,A,I5,A,I1,A,F15.8)') 'Occupied orbital',jOcc,' of symmetry ',jSym,' and energy ',-Work(ipEOcc-1+kOcc)
   end do
 end if
 

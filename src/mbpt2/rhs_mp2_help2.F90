@@ -11,23 +11,27 @@
 
 subroutine rhs_mp2_help2(iSymA,iSymB,iSymI,iSymJ)
 
-implicit real*8(a-h,o-z)
-!defining One etc.
-#include "real.fh"
-#include "trafo.fh"
+use Constants, only: One, Two, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: iSymA, iSymB, iSymI, iSymJ
+integer(kind=iwp) :: iA, iAK, iB, iC, iCI, iI, iIC, iJ, iK, iKA, nB, nJ
+real(kind=wp) :: Fac, xacbi, xaibc, xiajk, xikja
 #include "WrkSpc.fh"
-#include "files_mbpt2.fh"
 #include "mp2grad.fh"
 #include "corbinf.fh"
+! statement functions
+integer(kind=iwp) :: i, j, k, iVirVir, iOccOcc, iMp2Lagr
 iVirVir(i,j,k) = nFro(k)+nOcc(k)+j-1+(nOrb(k)+nDel(k))*(i+nFro(k)+nOcc(k)-1)
 iOccOcc(i,j,k) = j-1+(nOrb(k)+nDel(k))*(i-1)
 iMp2Lagr(i,j,k) = ip_Mp2Lagr(k)+j-1+(nOcc(k)+nFro(k))*(i-1)
 
 !-----------------------------------------------------------------------
-!write(6,*) 'Starting subroutine with symmetries: '
-!write(6,*) 'I,J,A,B',I,J,iA,iB
-!write(6,*) 'NewSym',NewSym
-!write(6,*) 'IpoDens',IpoDens
+!write(u6,*) 'Starting subroutine with symmetries: '
+!write(u6,*) 'I,J,A,B',I,J,iA,iB
+!write(u6,*) 'NewSym',NewSym
+!write(u6,*) 'IpoDens',IpoDens
 !-----------------------------------------------------------------------
 
 ! Reads the <..|AB> - integrals for the L3-term
@@ -43,7 +47,7 @@ do iA=1,nExt(iSymA)+nDel(iSymA)
     if (iSymA /= iSymB) then
       call Exch(iSymJ,iSymA,iSymI,iSymB,iA+nOcc(iSymA)+nFro(iSymA),iB+nOcc(iSymB)+nFro(iSymB),Work(ipInt2),Work(ipScr1))
     end if
-    !write(6,*) 'iOrbA',iA,'iOrbB',iB
+    !write(u6,*) 'iOrbA',iA,'iOrbB',iB
     !call RecPrt('Int1:','(8F10.6)',Work(ipInt1),nOrb(iSymA)+nDel(iSymA),nOrb(iSymB)+nDel(iSymA))
     !if (iSymA /= iSymB) then
     !  call RecPrt('Int2:','(8F10.6)',Work(ipInt2),nOrb(iSymB)+nDel(iSymB),nOrb(iSymA)+nDel(iSymA))
@@ -77,16 +81,16 @@ do iA=1,nExt(iSymA)+nDel(iSymA)
             Work(iMp2Lagr(iB,iI,iSymA)) = Work(iMp2Lagr(iB,iI,iSymA))- &
                                           Fac*Work(ip_Density(iSymB)+iVirVir(iA,iC,iSymB))*(Two*xacbi-xaibc)
           end if
-          !write(6,*) 'AIBC',iA,iI,iB,iC
-          !write(6,*) 'AIBC2',iB,iI,iA,iC
-          !write(6,*) 'icab',xaibc
-          !write(6,*) 'ibac',xacbi
-          !write(6,*) 'Dens',Work(ip_Density(iSymB)+iVirVir(iB,iC,iSymB))
-          !write(6,*) 'Dens2',Work(ip_Density(iSymB)+iVirVir(iA,iC,iSymB))
-          !write(6,*) 'A',(Two*xaibc-xacbi)
-          !write(6,*) 'A2',(Two*xacbi-xaibc)
-          !write(6,*) 'Bidrag',Work(ip_Density(iSymB)+iVirVir(iB,iC,iSymB))*(Two*xaibc-xacbi)
-          !write(6,*) 'Bidrag2',Work(ip_Density(iSymB)+iVirVir(iA,iC,iSymB))*(Two*xacbi-xaibc)
+          !write(u6,*) 'AIBC',iA,iI,iB,iC
+          !write(u6,*) 'AIBC2',iB,iI,iA,iC
+          !write(u6,*) 'icab',xaibc
+          !write(u6,*) 'ibac',xacbi
+          !write(u6,*) 'Dens',Work(ip_Density(iSymB)+iVirVir(iB,iC,iSymB))
+          !write(u6,*) 'Dens2',Work(ip_Density(iSymB)+iVirVir(iA,iC,iSymB))
+          !write(u6,*) 'A',(Two*xaibc-xacbi)
+          !write(u6,*) 'A2',(Two*xacbi-xaibc)
+          !write(u6,*) 'Bidrag',Work(ip_Density(iSymB)+iVirVir(iB,iC,iSymB))*(Two*xaibc-xacbi)
+          !write(u6,*) 'Bidrag2',Work(ip_Density(iSymB)+iVirVir(iA,iC,iSymB))*(Two*xacbi-xaibc)
 
         end do
       end do
@@ -127,8 +131,8 @@ do iI=1,nFro(iSymI)+nOcc(iSymI)
     if (iSymI /= iSymJ) then
       call Exch(iSymB,iSymI,iSymA,iSymJ,iI,iJ,Work(ipInt2),Work(ipScr1))
     end if
-    !write(6,*)
-    !write(6,*) ' *  i,j = ',iI,iJ
+    !write(u6,*)
+    !write(u6,*) ' *  i,j = ',iI,iJ
     !call RecPrt('Int1:','(8F10.6)',Work(ipInt1),nOrb(iSymA),nOrb(iSymB))
     !if (iSymI /= iSymJ) then
     !  call RecPrt('Int2:','(8F10.6)',Work(ipInt2),nOrb(iSymB),nOrb(iSymA))
@@ -163,8 +167,8 @@ do iI=1,nFro(iSymI)+nOcc(iSymI)
             Work(iMp2Lagr(iA,iI,iSymJ)) = Work(iMp2Lagr(iA,iI,iSymJ))- &
                                           Fac*Work(ip_Density(iSymI)+iOccOcc(iJ,iK,iSymI))*(Two*xiajk-xikja)
           end if
-          !write(6,*) 'xikja',xikja
-          !write(6,*) 'xiajk',xiajk
+          !write(u6,*) 'xikja',xikja
+          !write(u6,*) 'xiajk',xiajk
         end do
       end do
 

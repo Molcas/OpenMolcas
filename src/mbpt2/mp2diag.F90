@@ -16,19 +16,22 @@ subroutine Mp2Diag()
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
+use Constants, only: One, Four
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
+implicit none
+integer(kind=iwp) :: iA, iB, iI, iJ, ipIntC, iSym, iSym1, iSym2, lint, nMaxOrb
+real(kind=wp) :: E_a, E_i, Ediff, xibja, xijab, xijba
 #include "WrkSpc.fh"
-#include "real.fh"
 #include "mp2grad.fh"
-#include "trafo.fh"
-#include "files_mbpt2.fh"
 #include "corbinf.fh"
-!#define _DEBUGPRINT_
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Statement function
+! statement function
+integer(kind=iwp) :: i, j, k, iDiaA
 iDiaA(i,j,k) = ip_DiaA(k)+j-1+(nOcc(k)+nFro(k))*(i-1)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -51,8 +54,8 @@ do iSym=1,nSym
     call Exch(iSym,iSym,iSym,iSym,iA+nOcc(iSym)+nFro(iSym),iB+nOcc(iSym)+nFro(iSym),Work(ipInt1),Work(ipScr1))
     call Coul(iSym,iSym,iSym,iSym,iA+nOcc(iSym)+nFro(iSym),iB+nOcc(iSym)+nFro(iSym),Work(ipIntC),Work(ipScr1))
 #   ifdef _DEBUGPRINT_
-    write(6,*)
-    write(6,*) ' *  A,B = ',iA,iB
+    write(u6,*)
+    write(u6,*) ' *  A,B = ',iA,iB
     call RecPrt('Int1:','(8F10.6)',Work(ipInt1),nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
     call RecPrt('IntC:','(8F10.6)',Work(ipIntC),nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
 #   endif
@@ -82,11 +85,11 @@ do iSym=1,nSym
       end if
       Ediff = E_a-E_i
       !-----------------------------------------------------------------
-      !write(6,*) 'xijab',xijab
-      !write(6,*) 'xijba',xijba
-      !write(6,*) 'xibja',xibja
+      !write(u6,*) 'xijab',xijab
+      !write(u6,*) 'xijba',xijba
+      !write(u6,*) 'xibja',xibja
       !-----------------------------------------------------------------
-      Work(iDiaA(iA,iI,iSym)) = Work(iDiaA(iA,iI,iSym))+1.0d0/(Ediff+Four*xijab-xijba-xibja)
+      Work(iDiaA(iA,iI,iSym)) = Work(iDiaA(iA,iI,iSym))+One/(Ediff+Four*xijab-xijba-xibja)
 
     end do
   end do
@@ -97,7 +100,7 @@ call GetMem('IntC','Free','Real',ipIntC,lInt)
 call GetMem('Scr1','Free','Real',ipScr1,lInt)
 #ifdef _DEBUGPRINT_
 do iSym=1,nSym
-  write(6,*) 'Symmetry nr',iSym
+  write(u6,*) 'Symmetry nr',iSym
   call RecPrt('Diag(ia|ia)','',work(iDiaA(1,1,iSym)),nOcc(iSym),nExt(iSym))
 end do
 #endif

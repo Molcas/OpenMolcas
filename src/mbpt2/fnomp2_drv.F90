@@ -13,10 +13,14 @@
 
 subroutine FNOMP2_Drv(irc,EMP2,CMOI,EOcc,EVir)
 
-#include "implicit.fh"
-real*8 EMP2, CMOI(*), EOcc(*), EVir(*)
-logical DoDens_
-integer ChoAlg_
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(out) :: EMP2
+real(kind=wp), intent(inout) :: CMOI(*), EOcc(*), EVir(*)
+logical(kind=iwp) :: DoDens_
+integer(kind=iwp) :: ChoAlg_
 #include "orbinf2.fh"
 #include "corbinf.fh"
 #include "chomp2_cfg.fh"
@@ -28,7 +32,7 @@ ChoAlg = 2
 
 call FNO_MP2(irc,nSym,nBas,nFro,nOcc,nExt,nDel,CMOI,EOcc,EVir,vkept,DoMP2,XEMP2)
 if (irc /= 0) then
-  write(6,*) 'FNO_MP2 returned ',irc
+  write(u6,*) 'FNO_MP2 returned ',irc
   call SysAbendMsg('FNO_MP2','Non-zero return code from FNO_MP2',' ')
 end if
 

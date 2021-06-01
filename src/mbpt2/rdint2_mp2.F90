@@ -16,20 +16,22 @@ subroutine RDINT2_MP2(IPRX)
 ! TWO-ELECTRON TRANSFORMATION PROGRAM TRA2. IT CAN BE CALLED BY
 ! TR2CTL IMMEDIATELY AFTER THE CALL TO TRA2
 
-implicit real*8(A-H,O-Z)
-#include "mxdim.fh"
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: IPRX
+integer(kind=iwp) :: I, IAD131, IAD132, IAD13C, IADC, IADX1, IADX2, ISPQRS, iTmp, LENGTH, LREC, LRECX, NSP, NSPQ, NSPQR, NSQ, NSR, &
+                     NSS, NT, NU, NUM
 #include "corbinf.fh"
 #include "orbinf2.fh"
 #include "files_mbpt2.fh"
 #include "trafo.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
 ! READ ADDRESS RECORD ON UNIT LUINTM
 
 IAD13 = 0
-LIADUT = 3888
-call iDAFILE(LUINTM,2,IADOUT,LIADUT,IAD13)
+call iDAFILE(LUINTM,2,IADOUT,3888,IAD13)
 
 ! LOOP OVER QUADRUPLES OF SYMMETRIES (NSP,NSP,NSR,NSS)
 
@@ -62,29 +64,29 @@ do NSP=1,NSYM
         IADC = IADOUT(3*ISPQRS-2)
         IADX1 = IADOUT(3*ISPQRS-1)
         IADX2 = IADOUT(3*ISPQRS)
-        write(6,1000) NSP,NSQ,NSR,NSS
+        write(u6,1000) NSP,NSQ,NSR,NSS
 1000    format(/1X,'SYMMETRY BLOCK',4I4)
         if (IADC == 0) then
-          write(6,1100)
+          write(u6,1100)
 1100      format(1X,'NO COULOMB INTEGRALS FOR THIS SYMMETRY BLOCK?')
         else
-          write(6,1200) IADC
+          write(u6,1200) IADC
 1200      format(1X,'ADDRESS FOR COULOMB INTEGRALS',I8)
           IAD13C = IADC
         end if
         if (IADX1 == 0) then
-          write(6,1110)
+          write(u6,1110)
 1110      format(1X,'NO EXCHAN1 INTEGRALS FOR THIS SYMMETRY BLOCK?')
         else
-          write(6,1210) IADX1
+          write(u6,1210) IADX1
 1210      format(1X,'ADDRESS FOR EXCHAN1 INTEGRALS',I8)
           IAD131 = IADX1
         end if
         if (IADX2 == 0) then
-          write(6,1120)
+          write(u6,1120)
 1120      format(1X,'NO EXCHAN2 INTEGRALS FOR THIS SYMMETRY BLOCK?')
         else
-          write(6,1220) IADX2
+          write(u6,1220) IADX2
 1220      format(1X,'ADDRESS FOR EXCHAN2 INTEGRALS',I8)
           IAD132 = IADX2
         end if
@@ -98,9 +100,9 @@ do NSP=1,NSYM
             if (IADC /= 0) then
               call GetMem('Tmp','ALLO','REAL',iTmp,LREC)
               call dDAFILE(LUINTM,2,WORK(iTmp),LREC,IAD13C)
-              if (IPRX /= 0) LEN = LREC
-              if (IPRX == 0) LEN = min(LREC,10)
-              write(6,1300) NT,NU,(WORK(I),I=iTmp,iTmp+LEN-1)
+              if (IPRX /= 0) LENGTH = LREC
+              if (IPRX == 0) LENGTH = min(LREC,10)
+              write(u6,1300) NT,NU,(WORK(I),I=iTmp,iTmp+LENGTH-1)
 1300          format(/1X,'COULOMB INTEGRALS FOR TU PAIR',2I3/(1X,10F10.6))
               call GetMem('Tmp','FREE','REAL',iTmp,LREC)
             end if
@@ -120,9 +122,9 @@ do NSP=1,NSYM
             if (IADX1 /= 0) then
               call GetMem('Tmp','ALLO','REAL',iTmp,LRECX)
               call dDAFILE(LUINTM,2,WORK(iTmp),LRECX,IAD131)
-              if (IPRX /= 0) LEN = LRECX
-              if (IPRX == 0) LEN = min(LRECX,10)
-              write(6,1310) NT,NU,(WORK(I),I=iTmp,iTmp+LEN-1)
+              if (IPRX /= 0) LENGTH = LRECX
+              if (IPRX == 0) LENGTH = min(LRECX,10)
+              write(u6,1310) NT,NU,(WORK(I),I=iTmp,iTmp+LENGTH-1)
 1310          format(/1X,'EXCHAN1 INTEGRALS FOR TU PAIR',2I3/(1X,10F10.6))
               call GetMem('Tmp','FREE','REAL',iTmp,LRECX)
             end if
@@ -134,9 +136,9 @@ do NSP=1,NSYM
             if (IADX2 /= 0) then
               call GetMem('Tmp','ALLO','REAL',iTmp,LRECX)
               call dDAFILE(LUINTM,2,WORK(iTmp),LRECX,IAD132)
-              if (IPRX /= 0) LEN = LRECX
-              if (IPRX == 0) LEN = min(LRECX,10)
-              write(6,1320) NT,NU,(WORK(I),I=iTmp,iTmp+LEN-1)
+              if (IPRX /= 0) LENGTH = LRECX
+              if (IPRX == 0) LENGTH = min(LRECX,10)
+              write(u6,1320) NT,NU,(WORK(I),I=iTmp,iTmp+LENGTH-1)
 1320          format(/1X,'EXCHAN2 INTEGRALS FOR TU PAIR',2I3/(1X,10F10.6))
               call GetMem('Tmp','FREE','REAL',iTmp,LRECX)
             end if

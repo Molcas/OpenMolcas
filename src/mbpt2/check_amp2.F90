@@ -13,10 +13,14 @@
 
 subroutine Check_Amp2(nSym,nOcc,nVir,iSkip)
 
-implicit real*8(a-h,o-z)
-integer nSym, nOcc(nSym), nVir(nSym), iSkip
-integer nT1amTot, nT1am(8)
+use Definitions, only: iwp
 
+implicit none
+integer(kind=iwp), intent(in) :: nSym, nOcc(nSym), nVir(nSym)
+integer(kind=iwp), intent(out) :: iSkip
+integer(kind=iwp) :: iSym, iSyma, iSymi, nT1amTot, nT1am(8)
+! statement function
+integer(kind=iwp) :: i, j, MulD2h
 MulD2h(i,j) = ieor(i-1,j-1)+1
 
 iSkip = 0

@@ -11,18 +11,21 @@
 
 subroutine rhs_mp2_help1(iSymA,iSymB,iSymI,iSymJ)
 
-implicit real*8(a-h,o-z)
-!defining One etc.
-#include "real.fh"
-#include "trafo.fh"
+use Constants, only: One, Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: iSymA, iSymB, iSymI, iSymJ
+integer(kind=iwp) :: iA, iAB, iAC, iB, iBA, iBC, iBDel, iBK, iC, iCA, iCB, iCJ, iI, iIJ, iIK, iJ, iJC, iJFroz, iJI, iJK, iK, iKB, &
+                     iKI, iKJ, nB, nJ
+real(kind=wp) :: EDenom, EDiff, EDiffac, EDiffbc, EDiffik, EDiffjk, fac_ab, fac_ij, T_ab, T_ba, T_ij, T_ji, Tij, Tji, xacbj, &
+                 xaibj, xajbc, xajbi, xbcaj, xbiaj, xiajb, xiajc, xiakb, xibja, xibjc, xibjk, xicja, xicjb, xikjb, xjakb, xkaib, &
+                 xkajb
 #include "WrkSpc.fh"
-#include "files_mbpt2.fh"
 #include "mp2grad.fh"
 #include "corbinf.fh"
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Statement function
+! statement functions
+integer(kind=iwp) :: i, j, k, iVirVir, iOccOcc, iVirDel, iOccFro, iVirOcc, iMp2Lagr
 iVirVir(i,j,k) = nFro(k)+nOcc(k)+j-1+(nOrb(k)+nDel(k))*(i+nFro(k)+nOcc(k)-1)
 iOccOcc(i,j,k) = nFro(k)+j-1+(nOrb(k)+nDel(k))*(i+nFro(k)-1)
 iVirDel(i,j,k) = nFro(k)+nOcc(k)+j-1+(nOrb(k)+nDel(k))*(i+nFro(k)+nOcc(k)+nExt(k)-1)
@@ -41,8 +44,8 @@ do iI=1,nOcc(iSymI)
   ! Check if we need to consider all combinations of orbitals
   if (iSymI == iSymJ) nJ = iI
   do iJ=1,nJ
-    !write(6,*) 'iSymI, iSymJ',iSymI,iSymJ
-    !write(6,*) 'iI, iJ',iI,iJ
+    !write(u6,*) 'iSymI, iSymJ',iSymI,iSymJ
+    !write(u6,*) 'iI, iJ',iI,iJ
     ! If only blocks with OrbJ < OrbI is used we need
     ! to multiply the result with two for offdiag terms.
     fac_ij = One
@@ -57,13 +60,13 @@ do iI=1,nOcc(iSymI)
     if (iSymI /= iSymJ) then
       call Exch(iSymB,iSymI,iSymA,iSymJ,iI+nFro(iSymI),iJ+nFro(iSymJ),Work(ipInt2),Work(ipScr1))
     end if
-    !write(6,*) 'Rhs_mp2_help1'
-    !write(6,*) ' *  i,j = ',iI,iJ
+    !write(u6,*) 'Rhs_mp2_help1'
+    !write(u6,*) ' *  i,j = ',iI,iJ
     !call RecPrt('Int1:','(8F10.6)',Work(ipInt1),nOrb(iSymA)+nDel(iSymA),nOrb(iSymB)+nDel(iSymB))
     !if (iSymI /= iSymJ) then
     !  call RecPrt('Int2:','(8F10.6)',Work(ipInt2),nOrb(iSymB)+nDel(iSymB),nOrb(iSymA)+nDel(iSymA))
     !end if
-    !write(6,*) ''
+    !write(u6,*) ''
 
     ! Calculates the EMP2-energy as a test
     iAB = nFro(iSymA)+nOcc(iSymA)+(nFro(iSymB)+nOcc(iSymB))*(nOrb(iSymA)+nDel(iSymA))
@@ -132,14 +135,14 @@ do iI=1,nOcc(iSymI)
           Work(ip_WDensity(iSymA)+iVirVir(iB,iA,iSymA)) = Work(ip_WDensity(iSymA)+iVirVir(iB,iA,iSymA))- &
                                                           Fac_ij*((xibjc*T_ij)+(xicjb*T_ji))
         end do
-        !write(6,*) 'IJABC',iI,iJ,iA,iB,iC
-        !write(6,*) 'Symm',iSymI,iSymJ,iSymA,iSymB,iSymC
-        !write(6,*) 'EDiffBC',EDiffbc
-        !write(6,*) 'EDiffAC',EDiffac
-        !write(6,*) 'xicja',xicja
-        !write(6,*) 'xicjb',xicjb
-        !write(6,*) 'xiajc',xiajc
-        !write(6,*) 'xibjc',xibjc
+        !write(u6,*) 'IJABC',iI,iJ,iA,iB,iC
+        !write(u6,*) 'Symm',iSymI,iSymJ,iSymA,iSymB,iSymC
+        !write(u6,*) 'EDiffBC',EDiffbc
+        !write(u6,*) 'EDiffAC',EDiffac
+        !write(u6,*) 'xicja',xicja
+        !write(u6,*) 'xicjb',xicjb
+        !write(u6,*) 'xiajc',xiajc
+        !write(u6,*) 'xibjc',xibjc
         do iBDel=1,nDel(iSymA)
           xibjc = work(ipInt1+iBC+iBDel-1+nExt(iSymA)+(iC-1)*(nOrb(iSymA)+nDel(iSymA)))
           if (ISymI == iSymJ) then
@@ -154,26 +157,26 @@ do iI=1,nOcc(iSymI)
           Work(ip_WDensity(iSymA)+iVirDel(iBDel,iA,iSymA)) = Work(ip_WDensity(iSymA)+iVirDel(iBDel,iA,iSymA))- &
                                                              Fac_ij*((xibjc*T_ij)+(xicjb*T_ji))
           !-------------------------------------------------------------
-          !write(6,*) 'index Dens',iVirDel(iBDel,iA,iSymA)
-          !write(6,*) 'xicjb',xicjb
-          !write(6,*) 'xibjc',xibjc
-          !write(6,*) 'EDiffbc',EDiffbc
-          !write(6,*) 'E_a',Work(madVir(iSymA)+iA-1)
-          !write(6,*) 'E_B',Work(mAdDel(iSymA)+iBDel-1)
-          !write(6,*) 'Tij',T_ij
-          !write(6,*) 'Tji',T_ji
-          !write(6,*) 'iB, iC',iBDel+nExt(iSymA),iC
-          !write(6,*) 'iI, iJ',iI,iJ
+          !write(u6,*) 'index Dens',iVirDel(iBDel,iA,iSymA)
+          !write(u6,*) 'xicjb',xicjb
+          !write(u6,*) 'xibjc',xibjc
+          !write(u6,*) 'EDiffbc',EDiffbc
+          !write(u6,*) 'E_a',Work(madVir(iSymA)+iA-1)
+          !write(u6,*) 'E_B',Work(mAdDel(iSymA)+iBDel-1)
+          !write(u6,*) 'Tij',T_ij
+          !write(u6,*) 'Tji',T_ji
+          !write(u6,*) 'iB, iC',iBDel+nExt(iSymA),iC
+          !write(u6,*) 'iI, iJ',iI,iJ
           !-------------------------------------------------------------
         end do
         !Work(indexW) = Work(indexW)-Fac_ij*EDiffbc*(Two*(xijac*xijbc+xijca*xijcb)-xijac*xijcb-xijca*xijbc)
         !---------------------------------------------------------------
-        !write(6,*) 'The Denom is',EDenom
-        !write(6,*) 'xicja',xicja
-        !write(6,*) 'xicjb',xicjb
-        !write(6,*) 'xiajc',xiajc
-        !write(6,*) 'xibjc',xibjc
-        !write(6,*) 'this is with the unmirrored'
+        !write(u6,*) 'The Denom is',EDenom
+        !write(u6,*) 'xicja',xicja
+        !write(u6,*) 'xicjb',xicjb
+        !write(u6,*) 'xiajc',xiajc
+        !write(u6,*) 'xibjc',xibjc
+        !write(u6,*) 'this is with the unmirrored'
         !---------------------------------------------------------------
 
       end do !iOrbB
@@ -212,12 +215,12 @@ do iI=1,nOcc(iSymI)
                                                                Fac_ij*((xibjc*T_ij)+(xicjb*T_ji))
           end do
           !-------------------------------------------------------------
-          !write(6,*) 'The Denom is',EDenom
-          !write(6,*) 'xicja',xicja
-          !write(6,*) 'xicjb',xicjb
-          !write(6,*) 'xiajc',xiajc
-          !write(6,*) 'xibjc',xibjc
-          !write(6,*) 'this is with the mirrored symmetry'
+          !write(u6,*) 'The Denom is',EDenom
+          !write(u6,*) 'xicja',xicja
+          !write(u6,*) 'xicjb',xicjb
+          !write(u6,*) 'xiajc',xiajc
+          !write(u6,*) 'xibjc',xibjc
+          !write(u6,*) 'this is with the mirrored symmetry'
           !-------------------------------------------------------------
 
         end do !iOrbB
@@ -254,16 +257,16 @@ do iI=1,nOcc(iSymI)
           end if
           Work(iMp2Lagr(iA,iK,iSymA)) = Work(iMp2Lagr(iA,iK,iSymA))+Fac_ij*(Tij*Xikjb+Tji*Xibjk)
           Work(ip_WDensity(iSymA)+iVirOcc(iK,iA,iSymA)) = Work(ip_WDensity(iSymA)+iVirOcc(iK,iA,iSymA))- &
-                                                          2.0d0*Fac_ij*(Tij*Xikjb+Tji*Xibjk)
+                                                          Two*Fac_ij*(Tij*Xikjb+Tji*Xibjk)
           !-------------------------------------------------------------
-          !write(6,*) 'The Denom is',EDenom
-          !write(6,*) 'Tij  ',Tij
-          !write(6,*) 'Tji  ',Tji
-          !write(6,*) 'xiajb',xiajb
-          !write(6,*) 'xiajb',xiajb
-          !write(6,*) 'xibja',xibja
-          !write(6,*) 'xikjb',xikjb
-          !write(6,*) 'xibjk',xibjk
+          !write(u6,*) 'The Denom is',EDenom
+          !write(u6,*) 'Tij  ',Tij
+          !write(u6,*) 'Tji  ',Tji
+          !write(u6,*) 'xiajb',xiajb
+          !write(u6,*) 'xiajb',xiajb
+          !write(u6,*) 'xibja',xibja
+          !write(u6,*) 'xikjb',xikjb
+          !write(u6,*) 'xibjk',xibjk
           !-------------------------------------------------------------
         end do !OrbK
       end do   !OrbA
@@ -292,16 +295,16 @@ do iI=1,nOcc(iSymI)
 
             Work(iMp2Lagr(iA,iK,iSymB)) = Work(iMp2Lagr(iA,iK,iSymB))+Fac_ij*(Tij*Xikjb+Tji*Xibjk)
             Work(ip_WDensity(iSymB)+iVirOcc(iK,iA,iSymB)) = Work(ip_WDensity(iSymB)+iVirOcc(iK,iA,iSymB))- &
-                                                            2.0d0*Fac_ij*(Tij*Xikjb+Tji*Xibjk)
+                                                            Two*Fac_ij*(Tij*Xikjb+Tji*Xibjk)
             !-----------------------------------------------------------
-            !write(6,*) 'The Denom is',EDenom
-            !write(6,*) 'Tij  ',Tij
-            !write(6,*) 'Tji  ',Tji
-            !write(6,*) 'xijab',xijab
-            !write(6,*) 'xijba',xijba
-            !write(6,*) 'xijkb',xijkb
-            !write(6,*) 'xijbk',xijbk
-            !write(6,*) 'this is with the mirrored symmetry'
+            !write(u6,*) 'The Denom is',EDenom
+            !write(u6,*) 'Tij  ',Tij
+            !write(u6,*) 'Tji  ',Tji
+            !write(u6,*) 'xijab',xijab
+            !write(u6,*) 'xijba',xijba
+            !write(u6,*) 'xijkb',xijkb
+            !write(u6,*) 'xijbk',xijbk
+            !write(u6,*) 'this is with the mirrored symmetry'
             !------------------------------------------------------------
           end do !OrbK
         end do   !OrbA
@@ -326,8 +329,8 @@ do iA=1,nExt(iSymA)
   if (iSymA == iSymB) nB = iA
 
   do iB=1,nB
-    !write(6,*) 'iSymA, iSymB',iSymA,iSymB
-    !write(6,*) 'iA, iB',iA,iB
+    !write(u6,*) 'iSymA, iSymB',iSymA,iSymB
+    !write(u6,*) 'iA, iB',iA,iB
     fac_ab = One
     if ((iA /= iB) .and. (iSymA == iSymB)) fac_ab = Two
     ! If I is not equal J there is a symmetry J I B A
@@ -338,13 +341,13 @@ do iA=1,nExt(iSymA)
     if (iSymA /= iSymB) then
       call Exch(iSymJ,iSymA,iSymI,iSymB,iA+nOcc(iSymA)+nFro(iSymA),iB+nOcc(iSymB)+nFro(iSymB),Work(ipInt2),Work(ipScr1))
     end if
-    !write(6,*)
-    !write(6,*) ' *  A,B = ',iA,iB
+    !write(u6,*)
+    !write(u6,*) ' *  A,B = ',iA,iB
     !call RecPrt('Int1:','(8F10.6)',Work(ipInt1),nOrb(iSymI)+nDel(iSymI),nOrb(iSymJ)+nDel(iSymJ))
     !if (iSymA /= iSymB) then
     !   call RecPrt('Int2:','(8F10.6)',Work(ipInt2),nOrb(iSymJ) + nDel(iSymJ),nOrb(iSymI) + nDel(iSymI))
     !end if
-    !write(6,*)
+    !write(u6,*)
 
     !                                                                  *
     !*******************************************************************
@@ -381,11 +384,11 @@ do iA=1,nExt(iSymA)
             xkajb = Work(ipInt2+iKJ+iK-1+(iJ-1)*(nOrb(iSymJ)+nDel(iSymJ)))
           end if
           !-------------------------------------------------------------
-          !write(6,*) 'The Denom is',EDenom
-          !write(6,*) 'xikab',xikab
-          !write(6,*) 'xjkab',xjkab
-          !write(6,*) 'xkiab',xkiab
-          !write(6,*) 'xkjab',xkjab
+          !write(u6,*) 'The Denom is',EDenom
+          !write(u6,*) 'xikab',xikab
+          !write(u6,*) 'xjkab',xjkab
+          !write(u6,*) 'xkiab',xkiab
+          !write(u6,*) 'xkjab',xkjab
           !-------------------------------------------------------------
           Work(ip_Density(iSymI)+iOccOcc(iI,iJ,iSymI)) = Work(ip_Density(iSymI)+iOccOcc(iI,iJ,iSymI))- &
                                                          Fac_ab*(xjakb*T_ab+xkajb*T_ba)/EDiffjk
@@ -435,11 +438,11 @@ do iA=1,nExt(iSymA)
                                                             Fac_ab*(xjakb*T_ab+xkajb*T_ba)
 
             !-----------------------------------------------------------
-            !write(6,*) 'The Denom is',EDenom
-            !write(6,*) 'xikab',xikab
-            !write(6,*) 'xjkab',xjkab
-            !write(6,*) 'xkiab',xkiab
-            !write(6,*) 'xkjab',xkjab
+            !write(u6,*) 'The Denom is',EDenom
+            !write(u6,*) 'xikab',xikab
+            !write(u6,*) 'xjkab',xjkab
+            !write(u6,*) 'xkiab',xkiab
+            !write(u6,*) 'xkjab',xkjab
             !-----------------------------------------------------------
           end do
           do iJFroz=1,nFro(iSymJ)
@@ -482,12 +485,12 @@ do iA=1,nExt(iSymA)
                                                     EDenom*Fac_ab*(-Two*(xaibj*xacbj+xbiaj*xbcaj)+xaibj*xbcaj+xbiaj*xacbj)
 
           !-------------------------------------------------------------
-          !write(6,*) 'EDenom',EDenom
-          !write(6,*) 'Fac_ab',Fac_ab
-          !write(6,*) 'xaibj',xaibj
-          !write(6,*) 'xacbj',xacbj
-          !write(6,*) 'xbiaj',xbiaj
-          !write(6,*) 'xbcaj',xbcaj
+          !write(u6,*) 'EDenom',EDenom
+          !write(u6,*) 'Fac_ab',Fac_ab
+          !write(u6,*) 'xaibj',xaibj
+          !write(u6,*) 'xacbj',xacbj
+          !write(u6,*) 'xbiaj',xbiaj
+          !write(u6,*) 'xbcaj',xbcaj
           !-------------------------------------------------------------
         end do
       end do
@@ -510,12 +513,12 @@ do iA=1,nExt(iSymA)
                                                       EDenom*Fac_ab*(-Two*(xaibj*xacbj+xajbi*xajbc)+xaibj*xajbc+xajbi*xacbj)
 
             !-----------------------------------------------------------
-            !write(6,*) 'EDenom',EDenom
-            !write(6,*) 'Fac_ab',Fac_ab
-            !write(6,*) 'xijab',xijab
-            !write(6,*) 'xcjab',xcjab
-            !write(6,*) 'xjiab',xjiab
-            !write(6,*) 'xjcab',xjcab
+            !write(u6,*) 'EDenom',EDenom
+            !write(u6,*) 'Fac_ab',Fac_ab
+            !write(u6,*) 'xijab',xijab
+            !write(u6,*) 'xcjab',xcjab
+            !write(u6,*) 'xjiab',xjiab
+            !write(u6,*) 'xjcab',xjcab
             !-----------------------------------------------------------
           end do
         end do

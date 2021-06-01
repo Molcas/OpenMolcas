@@ -18,14 +18,16 @@ subroutine FrzDel(NREMO,IREMO,EOCC,E1,NREME,IREME,EEXT,E2,CMO,CMO1,ISEQ)
 ! RESPECTIVELY, OF THE EIGENVECTOR LIST. THE ORBITAL ENERGIES='PRIN'
 ! ARE REARRANGED ACCORDINGLY
 
-implicit real*8(A-H,O-Z)
-dimension NREMO(*), IREMO(8,*), EOCC(*), E1(*)
-dimension NREME(*), IREME(8,*), EEXT(*), E2(*)
-dimension CMO(*), CMO1(*), ISEQ(*)
-#include "mxdim.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: NREMO(*), IREMO(8,*), NREME(*), IREME(8,*)
+real(kind=wp), intent(out) :: EOCC(*), EEXT(*), CMO(*)
+real(kind=wp), intent(in) :: E1(*), E2(*), CMO1(*)
+integer(kind=iwp), intent(out) :: ISEQ(*)
+integer(kind=iwp) :: I, IAD, IAD0, IADD, IADE, IADF, IADO, IADR, IEE, IENE, IENO, IEO, ISYM, J
 #include "corbinf.fh"
 #include "orbinf2.fh"
-#include "files_mbpt2.fh"
 
 IAD0 = 1
 IADR = 1

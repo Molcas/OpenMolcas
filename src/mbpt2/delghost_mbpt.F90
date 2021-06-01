@@ -11,35 +11,31 @@
 
 subroutine DelGHOST_MBPT(ipCMO,ipCMO_t,lthCMO,ipEOrb,ipEOrb_t,lthEOr)
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero
+use Definitions, only: iwp, u6
 
-! declaration of calling arguments
-integer ipCMO, ipCMO_t, ipEOrb, ipEOrb_t, lthCMO, lthEOr
-! declaration of local variables...
-integer nZero(8)
+implicit none
+integer(kind=iwp), intent(in) :: ipCMO, lthCMO, ipEOrb, lthEOr
+integer(kind=iwp), intent(inout) :: ipCMO_t, ipEOrb_t
 #include "Molcas.fh"
-character*(LENIN8) Name(mxBas)
-logical Debug
-data Debug/.false./
-#include "real.fh"
+integer(kind=iwp) :: i, irc, iStart, iStart_t, iSym, nUniqAt, nZero(8)
+character(len=LenIn8) :: UBName(mxBas)
+logical(kind=iwp), parameter :: Debug = .false.
 #include "mxdim.fh"
 #include "namact.fh"
 #include "corbinf.fh"
 #include "orbinf2.fh"
 #include "mbpt2aux.fh"
 #include "WrkSpc.fh"
-#include "files_mbpt2.fh"
-#include "print_mbpt2.fh"
-#include "SysDef.fh"
 
 if (.not. DelGHOST) return
 
 if (Debug) then
-  write(6,'(A,8I5)') 'nSym:',nSym
-  write(6,'(A,8I5)') 'nBas:',(nBas(i),i=1,nSym)
-  write(6,'(A,8I5)') 'nOrb:',(nOrb(i),i=1,nSym)
-  write(6,'(A,8I5)') 'nOcc:',(nOcc(i),i=1,nSym)
-  write(6,'(A,8I5)') 'nFro:',(nFro(i),i=1,nSym)
+  write(u6,'(A,8I5)') 'nSym:',nSym
+  write(u6,'(A,8I5)') 'nBas:',(nBas(i),i=1,nSym)
+  write(u6,'(A,8I5)') 'nOrb:',(nOrb(i),i=1,nSym)
+  write(u6,'(A,8I5)') 'nOcc:',(nOcc(i),i=1,nSym)
+  write(u6,'(A,8I5)') 'nFro:',(nFro(i),i=1,nSym)
 end if
 do iSym=1,nSym
   nDel(iSym) = nBas(iSym)-nOrb(iSym)
@@ -52,25 +48,25 @@ call GetMem('CMO   ','Allo','Real',ipCMO,lthCMO)
 
 call GetMem('EOrb  ','Allo','Real',ipEOrb,lthEOr)
 
-write(6,'(A)') '-------------------------------------------------------'
-write(6,'(A)') ' GHOST virtual space removal'
-write(6,'(A)') '-------------------------------------------------------'
-write(6,'(A,8I4)')
-write(6,'(A,8I4)') ' Secondary orbitals before selection:',(nExt(i),i=1,nSym)
-write(6,'(A,8I4)') ' Deleted orbitals before selection:  ',(nDel(i),i=1,nSym)
+write(u6,'(A)') '-------------------------------------------------------'
+write(u6,'(A)') ' GHOST virtual space removal'
+write(u6,'(A)') '-------------------------------------------------------'
+write(u6,'(A,8I4)')
+write(u6,'(A,8I4)') ' Secondary orbitals before selection:',(nExt(i),i=1,nSym)
+write(u6,'(A,8I4)') ' Deleted orbitals before selection:  ',(nDel(i),i=1,nSym)
 
 call Get_iScalar('Unique atoms',nUniqAt)
-call Get_cArray('Unique Basis Names',Name,(LENIN8)*nnB)
-call Delete_GHOSTS(irc,nSym,nBas,nFro,nOcc,nZero,nExt,nDel,NAME,nUniqAt,thr_ghs,.false.,Work(ipCMO_t),Work(ipEOrb_t))
+call Get_cArray('Unique Basis Names',UBName,LenIn8*nnB)
+call Delete_GHOSTS(irc,nSym,nBas,nFro,nOcc,nZero,nExt,nDel,UBName,nUniqAt,thr_ghs,.false.,Work(ipCMO_t),Work(ipEOrb_t))
 
 if (irc /= 0) then
-  write(6,*) 'Delete_GHOSTS returned rc= ',irc
+  write(u6,*) 'Delete_GHOSTS returned rc= ',irc
   call abend()
 end if
-write(6,'(A,8I4)')
-write(6,'(A)') '-------------------------------------------------------'
-write(6,'(A,8I4)')
-write(6,'(A,8I4)')
+write(u6,'(A,8I4)')
+write(u6,'(A)') '-------------------------------------------------------'
+write(u6,'(A,8I4)')
+write(u6,'(A,8I4)')
 
 ! set MO coefficients of the deleted orbitals to zero
 ! Observe that these are not included at all in the basis

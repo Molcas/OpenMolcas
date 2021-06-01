@@ -11,8 +11,9 @@
 
 subroutine Set_Data()
 
-implicit real*8(a-h,o-z)
-#include "mxdim.fh"
+use Definitions, only: wp
+
+implicit none
 #include "cdtfaux.fh"
 #include "files_mbpt2.fh"
 
@@ -20,9 +21,9 @@ implicit real*8(a-h,o-z)
 !
 ! Aux
 
-Thize = 1.0d-6
-SIntTh = 1.0d-14
-TfThre = 1.0d-14
+Thize = 1.0e-6_wp
+SIntTh = 1.0e-14_wp
+TfThre = 1.0e-14_wp
 nDisc = 0
 ! End
 !                                                                      *

@@ -41,15 +41,19 @@ subroutine MP2_Driver(ireturn)
 !         University of Oslo, Norway                                   *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-external Cho_X_GetTol, Seconds
-real*8 E2BJAI, ESCF, REFC, Seconds
-integer nIsh(8), nAsh(8), nFro_tra(8), nDel_tra(8)
-logical Ready, Direct, Debug, Exist
-logical Conventional
-data Debug/.false./
-character*8 Method, Method1
-integer Cho_X_GetTol
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+integer(kind=iwp), intent(out) :: ireturn
+integer(kind=iwp) :: i, iOpt, iPrc, irc, iSym, itmp, iTol, iTst, iType, lthCMO, mAdCMO, mAdCMO_t, mAdEEx, mAdEOc, mAdEOr, &
+                     mAdEOr_t, nAsh(8), nDel_tra(8), nFro_tra(8), nIsh(8), nOccT
+real(kind=wp) :: E0, E2BJAI, ESCF, ESSMP2, Etot, REFC, Shanks1_E, t1dg, t1nrm, TCPT, TIOT
+logical(kind=iwp) :: Conventional, Direct, Exist, Ready
+character(len=8) Method, Method1
+logical(kind=iwp), parameter :: Debug = .false.
+integer(kind=iwp), external :: Cho_X_GetTol
+real(kind=r8), external :: ddot_, Seconds
 #include "Molcas.fh"
 #include "cddos.fh"
 #include "trafo.fh"
@@ -58,8 +62,6 @@ integer Cho_X_GetTol
 #include "orbinf2.fh"
 #include "mbpt2aux.fh"
 #include "files_mbpt2.fh"
-#include "timtra.fh"
-#include "real.fh"
 #include "WrkSpc.fh"
 #include "print_mbpt2.fh"
 #include "chomp2_cfg.fh"
@@ -68,10 +70,7 @@ integer Cho_X_GetTol
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Note seconds() is impure
-#include "macros.fh"
-cpubas = seconds()
-unused_var(cpubas)
+TCPT = seconds()
 call Set_Data()
 
 !***********************************************************************
@@ -79,12 +78,12 @@ call Set_Data()
 ! TBP, November 2012: do not quit, just issue a warning!
 call Get_cArray('Relax Method',Method1,8)
 if ((Method1(1:7) /= 'RHF-SCF') .and. (Method1(1:5) /= 'MBPT2')) then
-  write(6,*)
+  write(u6,*)
   call WarningMessage(1,'MP2 implementation intended for RHF references only')
-  write(6,'(A,A)') 'MBPT2 WARNING: Reference function according to RunFile:',Method1
-  write(6,'(A)') 'I''ll assume you know what you''re doing and continue'
-  write(6,*)
-  call xFlush(6)
+  write(u6,'(A,A)') 'MBPT2 WARNING: Reference function according to RunFile:',Method1
+  write(u6,'(A)') 'I''ll assume you know what you''re doing and continue'
+  write(u6,*)
+  call xFlush(u6)
 end if
 !                                                                      *
 !***********************************************************************
@@ -163,8 +162,8 @@ if (DoT1amp) then
   call Thouless_T1(Work(mAdCMO),nSym,nBas,nFro,nOcc,nExt,Work(jT1amp))
   t1nrm = ddot_(l_T1,Work(jT1amp),1,Work(jT1amp),1)
   t1dg = sqrt(t1nrm/nOccT)
-  write(6,'(A,F8.4)') '       T1 diagnostic : ',t1dg
-  write(6,*)
+  write(u6,'(A,F8.4)') '       T1 diagnostic : ',t1dg
+  write(u6,*)
   call Set_iOff(nSym,nOcc,nExt,jT1amp-1,iOffT1)
 end if
 !                                                                      *
@@ -186,7 +185,7 @@ else if (DoCholesky .and. (ChoAlg > 0) .and. (.not. SOS_mp2) .and. (.not. FNOMP2
   Ready = .false.
   call ChoMP2_Drv(irc,E2BJAI,Work(mAdCMO),Work(mAdEOc),Work(mAdEEx))
   if (irc /= 0) then
-    write(6,*) 'MP2_Driver: ChoMP2_Drv returned ',irc
+    write(u6,*) 'MP2_Driver: ChoMP2_Drv returned ',irc
     call SysAbendMsg('MP2_Driver','Non-zero return code from ChoMP2_Drv',' ')
   else
     Ready = .true.
@@ -197,7 +196,7 @@ else if (DoCholesky .and. SOS_mp2) then ! CD/DF SOS-MP2
   if (Laplace) then
     call ChoMP2_Drv(irc,E2BJAI,Work(mAdCMO),Work(mAdEOc),Work(mAdEEx))
     if (irc /= 0) then
-      write(6,*) 'MP2_Driver: ChoMP2_Drv returned ',irc
+      write(u6,*) 'MP2_Driver: ChoMP2_Drv returned ',irc
       call SysAbendMsg('MP2_Driver','Non-zero return code from ChoMP2_Drv',' ')
     else
       Ready = .true.
@@ -205,7 +204,7 @@ else if (DoCholesky .and. SOS_mp2) then ! CD/DF SOS-MP2
   else
     call Cho_SOSmp2_Drv(irc,E2BJAI,Work(mAdCMO),Work(mAdEOc),Work(mAdEEx))
     if (irc /= 0) then
-      write(6,*) 'SOS-MP2_Driver: Cho_SOSmp2_Drv returned ',irc
+      write(u6,*) 'SOS-MP2_Driver: Cho_SOSmp2_Drv returned ',irc
       call SysAbendMsg('SOS-MP2_Driver','Non-zero return code from Cho_SOSmp2_Drv',' ')
     else
       Ready = .true.
@@ -215,54 +214,54 @@ else if (DoCholesky .and. SOS_mp2) then ! CD/DF SOS-MP2
 else if (DoCholesky .and. FNOMP2) then
   Conventional = .false.
   Ready = .false.
-  write(6,'(A)') '-------------------------------------------------------'
-  write(6,'(A)') ' Start FNO-MP2 section '
-  write(6,'(A)') '-------------------------------------------------------'
-  write(6,'(A,8I4)')
-  write(6,'(A,I3,A)') ' NOs specified: ',int(vkept*100),'% of the total virtual space'
+  write(u6,'(A)') '-------------------------------------------------------'
+  write(u6,'(A)') ' Start FNO-MP2 section '
+  write(u6,'(A)') '-------------------------------------------------------'
+  write(u6,'(A,8I4)')
+  write(u6,'(A,I3,A)') ' NOs specified: ',int(vkept*100),'% of the total virtual space'
   call FNOMP2_Drv(irc,E2BJAI,Work(mAdCMO),Work(mAdEOc),Work(mAdEEx))
   if (irc /= 0) then
-    write(6,*) 'MP2 driver: FNOMP2_Drv returned ',irc
+    write(u6,*) 'MP2 driver: FNOMP2_Drv returned ',irc
     call SysAbendMsg('MP2 driver','Non-zero return code from FNOMP2_Drv',' ')
   else
     Ready = .true.
   end if
-  write(6,'(A)') '-------------------------------------------------------'
-  write(6,'(A)') ' End FNO-MP2 section '
-  write(6,'(A)') '-------------------------------------------------------'
-  write(6,'(A,8I4)')
-  write(6,'(A,8I4)')
+  write(u6,'(A)') '-------------------------------------------------------'
+  write(u6,'(A)') ' End FNO-MP2 section '
+  write(u6,'(A)') '-------------------------------------------------------'
+  write(u6,'(A,8I4)')
+  write(u6,'(A,8I4)')
 else if (DoCholesky .and. LovMP2) then ! CD/DF Localized O-V MP2
   Conventional = .false.
   Ready = .false.
-  write(6,'(A)') '-------------------------------------------------------'
-  write(6,'(A)') ' Start LovMP2 section '
-  write(6,'(A)') '-------------------------------------------------------'
-  write(6,'(A,8I4)')
+  write(u6,'(A)') '-------------------------------------------------------'
+  write(u6,'(A)') ' Start LovMP2 section '
+  write(u6,'(A)') '-------------------------------------------------------'
+  write(u6,'(A,8I4)')
   call LovMP2_Drv(irc,E2BJAI,Work(mAdCMO),Work(mAdEOc),Work(mAdEEx),NamAct,nActa,ThrLov,DoMP2,all_Vir)
   if (irc /= 0) then
-    write(6,*) 'MP2 driver: LovMP2_Drv returned ',irc
+    write(u6,*) 'MP2 driver: LovMP2_Drv returned ',irc
     call SysAbendMsg('MP2 driver','Non-zero return code from LovMP2_Drv',' ')
   else
     Ready = .true.
   end if
-  write(6,'(A)') '-------------------------------------------------------'
-  write(6,'(A)') ' End LovMP2 section '
-  write(6,'(A)') '-------------------------------------------------------'
-  write(6,'(A,8I4)')
-  write(6,'(A,8I4)')
+  write(u6,'(A)') '-------------------------------------------------------'
+  write(u6,'(A)') ' End LovMP2 section '
+  write(u6,'(A)') '-------------------------------------------------------'
+  write(u6,'(A,8I4)')
+  write(u6,'(A,8I4)')
 else ! conventional (possibly with Cholesky)
   Conventional = .true.
   if (DoCholesky) then
     if ((ChoAlg == 0) .and. (iPL >= 2)) then
-      write(6,*) 'Conventional algorithm used.'
-      write(6,*)
-      write(6,*) 'Integrals generated from Cholesky vectors (Algorithm 0):'
+      write(u6,*) 'Conventional algorithm used.'
+      write(u6,*)
+      write(u6,*) 'Integrals generated from Cholesky vectors (Algorithm 0):'
     else
       call SysHalt('mp2_driver')
     end if
   else
-    if (iPL >= 2) write(6,*) 'Conventional algorithm used...'
+    if (iPL >= 2) write(u6,*) 'Conventional algorithm used...'
   end if
   if (iTst /= 0) Go To 100
 
@@ -301,7 +300,7 @@ else ! conventional (possibly with Cholesky)
     iOpt = 0
     call OpnOrd(iRC,iOpt,FnIntA,LuIntA)
     if (iRC /= 0) then
-      write(6,*) 'mp2_driver: error opening MOLINT'
+      write(u6,*) 'mp2_driver: error opening MOLINT'
       call Abend()
     end if
   end if
@@ -346,7 +345,7 @@ else ! conventional (possibly with Cholesky)
     iOpt = 0
     call ClsOrd(iRc,iOpt)
     if (iRc /= 0) then
-      write(6,*) 'MP2_Driver: Error closing ORDINT'
+      write(u6,*) 'MP2_Driver: Error closing ORDINT'
       call Abend()
     end if
   end if
@@ -368,7 +367,7 @@ if (Ready) then
     call WarningMessage(2,'LDF should not be implemented....')
     call SysHalt('mp2_driver')
   else if (DoCholesky .and. (ChoAlg > 0) .and. (.not. SOS_mp2) .and. (.not. LovMP2) .and. (.not. FNOMP2)) then
-    if (iPL >= 2) write(6,'(3(/6X,A,F20.10,A)//6X,A,F20.10,A//6X,A,F15.5)') &
+    if (iPL >= 2) write(u6,'(3(/6X,A,F20.10,A)//6X,A,F20.10,A//6X,A,F15.5)') &
                     ' SCF energy                           =',ESCF,' a.u.', &
                     ' Second-order correlation energy      =',E2BJAI,' a.u.', &
                     ' ( Opposite-Spin contribution         =',-EOSMP2,' )', &
@@ -376,7 +375,7 @@ if (Ready) then
                     ' Reference weight ( Cref**2 )         =',Wref
   else if (DoCholesky .and. LovMP2) then
     ESSMP2 = E2BJAI+EOSMP2
-    if (iPL >= 2) write(6,'(4(/6X,A,F20.10,A)//6X,A,F20.10,A//6X,A,F15.5)') &
+    if (iPL >= 2) write(u6,'(4(/6X,A,F20.10,A)//6X,A,F20.10,A//6X,A,F15.5)') &
                     ' SCF energy                           =',ESCF,' a.u.', &
                     ' Second-order correlation energy      =',E2BJAI,' a.u.', &
                     ' ( Opposite-Spin contribution         =',-EOSMP2,' )', &
@@ -385,7 +384,7 @@ if (Ready) then
                     ' Reference weight ( Cref**2 )         =',Wref
   else if (DoCholesky .and. FNOMP2) then
     ESSMP2 = E2BJAI+EOSMP2-XEMP2
-    if (iPL >= 2) write(6,'(5(/6X,A,F20.10,A)//6X,A,F20.10,A//6X,A,F15.5)') &
+    if (iPL >= 2) write(u6,'(5(/6X,A,F20.10,A)//6X,A,F20.10,A//6X,A,F15.5)') &
                     ' SCF energy                           =',ESCF,' a.u.', &
                     ' Second-order correlation energy      =',E2BJAI,' a.u.', &
                     ' ( Opposite-Spin contribution         =',-EOSMP2,' )', &
@@ -397,21 +396,21 @@ if (Ready) then
     E2BJAI = C_os*E2BJAI
     if (iPL >= 2) then
       if (Laplace) then
-        write(6,'(/,6X,A,I4)') ' Number of Laplace grid points:',Laplace_nGridPoints
-        write(6,'(3(/6X,A,F20.10,A)//6X,A,F20.10,A)') ' Opposite-Spin (OS) scaling factor    =',C_os,'     ', &
-                                                      ' SCF energy                           =',ESCF,' a.u.', &
-                                                      ' L-SOS 2nd-order correlation energy   =',E2BJAI,' a.u.', &
-                                                      ' Total L-SOS-MP2 energy               =',E2BJAI+ESCF,' a.u.'
+        write(u6,'(/,6X,A,I4)') ' Number of Laplace grid points:',Laplace_nGridPoints
+        write(u6,'(3(/6X,A,F20.10,A)//6X,A,F20.10,A)') ' Opposite-Spin (OS) scaling factor    =',C_os,'     ', &
+                                                       ' SCF energy                           =',ESCF,' a.u.', &
+                                                       ' L-SOS 2nd-order correlation energy   =',E2BJAI,' a.u.', &
+                                                       ' Total L-SOS-MP2 energy               =',E2BJAI+ESCF,' a.u.'
       else
-        write(6,'(3(/6X,A,F20.10,A)//6X,A,F20.10,A)') ' Opposite-Spin (OS) scaling factor    =',C_os,'     ', &
-                                                      ' SCF energy                           =',ESCF,' a.u.', &
-                                                      ' SOS 2nd-order correlation energy     =',E2BJAI,' a.u.', &
-                                                      ' Total SOS-MP2 energy                 =',E2BJAI+ESCF,' a.u.'
+        write(u6,'(3(/6X,A,F20.10,A)//6X,A,F20.10,A)') ' Opposite-Spin (OS) scaling factor    =',C_os,'     ', &
+                                                       ' SCF energy                           =',ESCF,' a.u.', &
+                                                       ' SOS 2nd-order correlation energy     =',E2BJAI,' a.u.', &
+                                                       ' Total SOS-MP2 energy                 =',E2BJAI+ESCF,' a.u.'
       end if
     end if
   else
     WRef = REFC**2
-    if (iPL >= 2) write(6,'(2(/6X,A,F20.10,A)//6X,A,F20.10,A/6X,A,F15.5)') &
+    if (iPL >= 2) write(u6,'(2(/6X,A,F20.10,A)//6X,A,F20.10,A/6X,A,F15.5)') &
                     ' SCF energy                           =',ESCF,' a.u.', &
                     ' Second-order correlation energy      =',E2BJAI,' a.u.', &
                     ' Total energy                         =',E2BJAI+ESCF,' a.u.', &
@@ -419,18 +418,18 @@ if (Ready) then
   end if
   if (iPL >= 2) then
     ETot = E2BJAI+ESCF
-    write(6,*)
-    call PrintResult(6,'(6X,A,T50,F19.10)','Total MBPT2 energy',0,'',[ETot],1)
+    write(u6,*)
+    call PrintResult(u6,'(6X,A,T50,F19.10)','Total MBPT2 energy',0,'',[ETot],1)
   end if
-  call xFlush(6)
-  if (iPL >= 2) write(6,*)
+  call xFlush(u6)
+  if (iPL >= 2) write(u6,*)
   call Store_Energies(1,E2BJAI+ESCF,1)
   Method = 'MBPT2   '
   call Put_cArray('Relax Method',Method,8)
   if (DoDens) call Prpt()
-  if (iPL >= 2) write(6,*)
+  if (iPL >= 2) write(u6,*)
 else
-  write(6,*) ' Energy evaluation not completed.'
+  write(u6,*) ' Energy evaluation not completed.'
 end if
 
 ! Shanks-type series convergence acceleration
@@ -438,26 +437,26 @@ end if
 call Compute_Shanks(ESCF,E2BJAI+ESCF,Work(mAdEOr),lthEOr,nBas,nFro,nOcc,nSym,E0,Shanks1_E)
 
 if (iPL >= 2) then
-  write(6,'(6X,A,A,(F20.10),A)') ' Zeroth-order energy (E0)   ','          =',E0,' a.u.'
-  write(6,*)
+  write(u6,'(6X,A,A,(F20.10),A)') ' Zeroth-order energy (E0)   ','          =',E0,' a.u.'
+  write(u6,*)
 
-  write(6,'(6X,A,A,(F20.10),A)') ' Shanks-type energy S1(E)   ','          =',Shanks1_E,' a.u.'
-  write(6,*)
-  write(6,*)
+  write(u6,'(6X,A,A,(F20.10),A)') ' Shanks-type energy S1(E)   ','          =',Shanks1_E,' a.u.'
+  write(u6,*)
+  write(u6,*)
 end if
 
 ! PRINT PROCESSING AND TIMING INFORMATION
 
 if (Conventional .and. (iPL >= 2)) then
-  write(6,'(//6X,A//6X,A/6X,A/)') ' Data processing and timing information:', &
+  write(u6,'(//6X,A//6X,A/6X,A/)') ' Data processing and timing information:', &
                                   ' Section                                              time(sec)', &
                                   '                                                    CPU  Elapsed'
-  write(6,'(6X,A,2(2X,F8.2))') 'Input data processing                        ',TCPE(2)-TCPE(1),TIOE(2)-TIOE(1)
-  write(6,'(6X,A,2(2X,F8.2))') 'Transformation of integrals                  ',TCPE(3)-TCPE(2),TIOE(3)-TIOE(2)
-  write(6,'(6X,A,2(2X,F8.2))') 'MBPT2 calculations (BJAI)                    ',TCPE(4)-TCPE(3),TIOE(4)-TIOE(3)
-  write(6,'(6X,A,2(2X,F8.2))') 'Total MBPT2 calculations                     ',TCPE(4)-TCPE(1),TIOE(4)-TIOE(1)
-  write(6,*)
-  write(6,*)
+  write(u6,'(6X,A,2(2X,F8.2))') 'Input data processing                        ',TCPE(2)-TCPE(1),TIOE(2)-TIOE(1)
+  write(u6,'(6X,A,2(2X,F8.2))') 'Transformation of integrals                  ',TCPE(3)-TCPE(2),TIOE(3)-TIOE(2)
+  write(u6,'(6X,A,2(2X,F8.2))') 'MBPT2 calculations (BJAI)                    ',TCPE(4)-TCPE(3),TIOE(4)-TIOE(3)
+  write(u6,'(6X,A,2(2X,F8.2))') 'Total MBPT2 calculations                     ',TCPE(4)-TCPE(1),TIOE(4)-TIOE(1)
+  write(u6,*)
+  write(u6,*)
 end if
 !                                                                      *
 !***********************************************************************

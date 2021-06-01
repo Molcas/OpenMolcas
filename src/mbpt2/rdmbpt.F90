@@ -31,23 +31,20 @@ subroutine RdMBPT(ipCMO,lthCMO,ipEOrb,lthEOr)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-! declaration of calling arguments
-integer ipCMO, ipEOrb, lthCMO, lthEOr
-! declaration of local variables...
-real*8, allocatable :: CMO_t(:)
-logical Debug
-data Debug/.false./
-#include "real.fh"
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(out) :: ipCMO, lthCMO, ipEOrb, lthEOr
+integer(kind=iwp) :: i, ipEOrb_t, iStart, iStart_t, iSym
+real(kind=wp), allocatable :: CMO_t(:)
+logical(kind=iwp), parameter :: Debug = .false.
 #include "mxdim.fh"
 #include "corbinf.fh"
 #include "orbinf2.fh"
 #include "mbpt2aux.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
-#include "files_mbpt2.fh"
-#include "SysDef.fh"
-
 
 ! Read nSym, nBas, nOrb, nOcc, nFro, CMO and orbital energies from COMFILE
 
@@ -57,16 +54,16 @@ call Get_iArray('nOrb',nOrb,nSym)
 call Get_iArray('nIsh',nOcc,nSym)
 call Get_iArray('nFro',nFro,nSym)
 if (Debug) then
-  write(6,'(A,8I5)') 'nSym:',nSym
-  write(6,'(A,8I5)') 'nBas:',(nBas(i),i=1,nSym)
-  write(6,'(A,8I5)') 'nOrb:',(nOrb(i),i=1,nSym)
-  write(6,'(A,8I5)') 'nOcc:',(nOcc(i),i=1,nSym)
-  write(6,'(A,8I5)') 'nFro:',(nFro(i),i=1,nSym)
+  write(u6,'(A,8I5)') 'nSym:',nSym
+  write(u6,'(A,8I5)') 'nBas:',(nBas(i),i=1,nSym)
+  write(u6,'(A,8I5)') 'nOrb:',(nOrb(i),i=1,nSym)
+  write(u6,'(A,8I5)') 'nOcc:',(nOcc(i),i=1,nSym)
+  write(u6,'(A,8I5)') 'nFro:',(nFro(i),i=1,nSym)
 end if
 lthCMO = 0
 do iSym=1,nSym
   if (nFro(iSym) /= 0) then
-    write(6,*) 'Some orbitals where frozen in the SCF!'
+    write(u6,*) 'Some orbitals where frozen in the SCF!'
     call Abend()
   end if
   nDel(iSym) = nBas(iSym)-nOrb(iSym)

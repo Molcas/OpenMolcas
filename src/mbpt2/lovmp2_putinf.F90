@@ -14,10 +14,13 @@
 subroutine LovMP2_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y,isFNO)
 ! Purpose: put info in MP2 common blocks.
 
-#include "implicit.fh"
-integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-integer ip_X, ip_Y
-logical isFNO
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: mSym, lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8), ip_X, ip_Y
+logical(kind=iwp), intent(in) :: isFNO
+integer(kind=iwp) :: iSym
 #include "corbinf.fh"
 #include "chomp2_cfg.fh"
 
@@ -33,7 +36,7 @@ end do
 
 ChoAlg = 2
 DecoMP2 = Decom_Def
-ThrMP2 = -9.9d9
+ThrMP2 = -huge(ThrMP2)
 SpanMP2 = Span_Def
 MxQualMP2 = MxQual_Def
 ChkDecoMP2 = .false.
@@ -41,9 +44,9 @@ ForceBatch = .false.
 Verbose = .false.
 SOS_mp2 = .false.
 set_cd_thr = .true.
-OED_Thr = 1.0d-8
-C_os = 1.3d0
-EOSMP2 = 0.0d0
+OED_Thr = 1.0e-8_wp
+C_os = 1.3_wp
+EOSMP2 = Zero
 
 DoFNO = isFNO
 ip_Dab = ip_X

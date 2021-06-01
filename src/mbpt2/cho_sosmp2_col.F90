@@ -17,14 +17,17 @@ subroutine Cho_SOSmp2_Col(Col,nDim,iCol,nCol,Buf,l_Buf)
 ! Purpose: compute specified M(ai,bj)=(ai|bj)^2 columns.
 
 use ChoMP2, only: OldVec
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-#include "implicit.fh"
-real*8 Col(nDim,nCol), Buf(l_Buf)
-integer iCol(nCol)
-character*3 ThisNm
-character*14 SecNam
-parameter(SecNam='Cho_SOSmp2_Col',ThisNm='Col')
-logical DoClose
+implicit none
+integer(kind=iwp), intent(in) :: nDim, nCol, iCol(nCol), l_Buf
+real(kind=wp), intent(inout) :: Col(nDim,nCol)
+real(kind=wp), intent(out) :: Buf(l_Buf)
+integer(kind=iwp) :: ia, iAdr, iBat, iOpt, ipWrk, irc, iSym, iVec1, jCol, lScr, lTot, lWrk, lWsav, nBat, NumV, nVec
+real(kind=wp) :: Fac
+logical(kind=iwp) :: DoClose
+character(len=14), parameter :: SecNam = 'Cho_SOSmp2_Col'
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2_dec.fh"
@@ -34,8 +37,8 @@ if ((nCol < 1) .or. (nDim < 1)) return
 
 iSym = NowSym
 if (nDim /= nT1am(iSym)) then
-  write(6,*) SecNam,': inconsistent dimension. Expected: ',nT1am(iSym),'   Received: ',nDim
-  write(6,*) SecNam,': symmetry from chomp2_dec.fh: ',iSym
+  write(u6,*) SecNam,': inconsistent dimension. Expected: ',nT1am(iSym),'   Received: ',nDim
+  write(u6,*) SecNam,': symmetry from chomp2_dec.fh: ',iSym
   call ChoMP2_Quit(SecNam,'inconsistent dimension',' ')
 end if
 
@@ -48,10 +51,10 @@ irc = 0
 
 if (InCore(iSym)) then  ! old vectors available in core
 
-  Fac = 0.0d0
+  Fac = Zero
   call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,OldVec,NumCho(iSym),Buf,l_Buf,Fac,irc)
   if (irc /= 0) then
-    write(6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
+    write(u6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
     call ChoMP2_Quit(SecNam,'ChoMP2_Col_Comp error','[1]')
   end if
 
@@ -69,7 +72,7 @@ else ! old vectors must be read on disk
 
     nVec = min(l_Buf/(nDim+1),NumCho(iSym))
     if (nVec < 1) then
-      write(6,*) SecNam,': insufficient memory for batch!'
+      write(u6,*) SecNam,': insufficient memory for batch!'
       call ChoMP2_Quit(SecNam,'insufficient memory','[1]')
       nBat = 0
     else
@@ -88,26 +91,26 @@ else ! old vectors must be read on disk
       iOpt = 2
       lTot = nDim*NumV
       iAdr = nDim*(iVec1-1)+1
-      call ddaFile(lUnit_F(iSym,1),iOpt,Buf(1),lTot,iAdr)
+      call ddaFile(lUnit_F(iSym,1),iOpt,Buf,lTot,iAdr)
 
       if (iBat == 1) then
-        Fac = 0.0d0
+        Fac = Zero
       else
-        Fac = 1.0d0
+        Fac = One
       end if
 
       lScr = l_Buf-lTot
       if (lWrk > lScr) then
         lWsav = lWrk
         call GetMem('ColScr','Allo','Real',ipWrk,lWrk)
-        call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Buf(1),NumV,Work(ipWrk),lWrk,Fac,irc)
+        call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Buf,NumV,Work(ipWrk),lWrk,Fac,irc)
         call GetMem('ColScr','Free','Real',ipWrk,lWrk)
         lWrk = lWsav
       else
-        call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Buf(1),NumV,Buf(1+lTot),lScr,Fac,irc)
+        call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Buf,NumV,Buf(1+lTot),lScr,Fac,irc)
       end if
       if (irc /= 0) then
-        write(6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
+        write(u6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
         call ChoMP2_Quit(SecNam,'ChoMP2_Col_Comp error','[2]')
       end if
 
@@ -119,7 +122,7 @@ else ! old vectors must be read on disk
 
     nVec = min(lWrk/nDim,NumCho(iSym))
     if (nVec < 1) then
-      write(6,*) SecNam,': insufficient memory for batch!'
+      write(u6,*) SecNam,': insufficient memory for batch!'
       call ChoMP2_Quit(SecNam,'insufficient memory','[2]')
       nBat = 0
     else
@@ -141,19 +144,19 @@ else ! old vectors must be read on disk
       call ddaFile(lUnit_F(iSym,1),iOpt,Work(ipWrk),lTot,iAdr)
 
       if (iBat == 1) then
-        Fac = 0.0d0
+        Fac = Zero
       else
-        Fac = 1.0d0
+        Fac = One
       end if
 
       lScr = lWrk-lTot
       if (l_Buf > lScr) then
-        call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Work(ipWrk),NumV,Buf(1),l_Buf,Fac,irc)
+        call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Work(ipWrk),NumV,Buf,l_Buf,Fac,irc)
       else
         call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Work(ipWrk),NumV,Work(ipWrk+lTot),lScr,Fac,irc)
       end if
       if (irc /= 0) then
-        write(6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
+        write(u6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
         call ChoMP2_Quit(SecNam,'ChoMP2_Col_Comp error','[3]')
       end if
 

@@ -11,17 +11,25 @@
 
 subroutine Build_Mp2Dens_Old(ip_TriDens,ip_Density,CMO,mSym,nOrbAll,nOccAll,Diagonalize)
 
-implicit real*8(a-h,o-z)
-integer ip_AOTriBlock
-real*8 CMO(*)
-integer ipSymRec(8)
-integer ipSymTri(8)
-integer ipSymLin(8)
-integer nOrbAll(8), nOccAll(8), ip_Density(8)
-logical Diagonalize
-character*30 Note
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
+implicit none
+integer(kind=iwp), intent(in) :: ip_TriDens, ip_Density(8), mSym, nOrbAll(8), nOccAll(8)
+real(kind=wp), intent(in) :: CMO(*)
+logical(kind=iwp), intent(in) :: Diagonalize
+integer(kind=iwp) :: idx, iOff, ip_AORecBlock, ip_AOTriBlock, ip_EigenValBlock, ip_EigenValTot, ip_EigenVecBlock, ip_EigenVecTot, &
+                     ip_Energies, ip_IndT, ip_MOTriBlock, ip_TmpRecBlock, ipSymLin(8), ipSymRec(8), ipSymTri(8), iSym, iUHF, &
+                     lRecTot, LuMP2, nOrbAllMax, nOrbAllTot
+character(len=30) :: Note
+integer(kind=iwp), external :: IsFreeUnit
 #include "WrkSpc.fh"
 #include "corbinf.fh"
+! statement function
+integer(kind=iwp) :: i, j, iTri
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 nOrbAllTot = nOrbAll(1)
@@ -78,10 +86,10 @@ do iSym=1,mSym
       end do
     end if
     ! Transform the symmetryblock to AO-density
-    call DGEMM_('N','N',nOrbAll(iSym),nOrbAll(iSym),nOrbAll(iSym),1.0d0,CMO(ipSymRec(iSym)+1),nOrbAll(iSym), &
-                Work(ip_Density(iSym)),nOrbAll(iSym),0.0d0,Work(ip_TmpRecBlock),nOrbAll(iSym))
-    call DGEMM_('N','T',nOrbAll(iSym),nOrbAll(iSym),nOrbAll(iSym),1.0d0,Work(ip_TmpRecBlock),nOrbAll(iSym),CMO(ipSymRec(iSym)+1), &
-                nOrbAll(iSym),0.0d0,Work(ip_AORecBlock),nOrbAll(iSym))
+    call DGEMM_('N','N',nOrbAll(iSym),nOrbAll(iSym),nOrbAll(iSym),One,CMO(ipSymRec(iSym)+1),nOrbAll(iSym), &
+                Work(ip_Density(iSym)),nOrbAll(iSym),Zero,Work(ip_TmpRecBlock),nOrbAll(iSym))
+    call DGEMM_('N','T',nOrbAll(iSym),nOrbAll(iSym),nOrbAll(iSym),One,Work(ip_TmpRecBlock),nOrbAll(iSym),CMO(ipSymRec(iSym)+1), &
+                nOrbAll(iSym),Zero,Work(ip_AORecBlock),nOrbAll(iSym))
     !call RecPrt('AODens:','(20F8.5)',Work(ip_AORecBlock),nOrb(iSym),nOrb(iSym))
     !call RecPrt('MODens:','(20F8.5)',Work(ip_MORecBlock),nOrb(iSym), nOrb(iSym))
     call Fold_Mat(1,nOrbAll(iSym),Work(ip_AORecBlock),Work(ip_AOTriBlock))
@@ -90,11 +98,11 @@ do iSym=1,mSym
     if (Diagonalize) then
       ! Make a normal folded matrix
 
-      index = 0
+      idx = 0
       do i=1,nOrbAll(iSym)
         do j=1,i
-          Work(ip_MOTriBlock+index) = Work(ip_Density(iSym)+j-1+(i-1)*(nOrbAll(iSym)))
-          index = index+1
+          Work(ip_MOTriBlock+idx) = Work(ip_Density(iSym)+j-1+(i-1)*(nOrbAll(iSym)))
+          idx = idx+1
         end do
       end do
 
@@ -107,13 +115,13 @@ do iSym=1,mSym
       call JacOrd3(Work(ip_EigenValBlock),Work(ip_EigenVecBlock),nOrbAll(iSym),nOrbAll(iSym))
 
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'The sorted eigenvalues are'
+      write(u6,*) 'The sorted eigenvalues are'
       do i=1,nOrbAll(iSym)
-        write(6,*) Work(ip_EigenValBlock+i-1)
+        write(u6,*) Work(ip_EigenValBlock+i-1)
       end do
-      write(6,*) 'Eigenvectors sorted'
+      write(u6,*) 'Eigenvectors sorted'
       do i=1,nOrbAll(iSym)**2
-        write(6,*) Work(ip_EigenVecBlock+i-1)
+        write(u6,*) Work(ip_EigenVecBlock+i-1)
       end do
 #     endif
 

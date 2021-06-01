@@ -20,32 +20,35 @@ subroutine LovMP2_Drv(irc,EMP2,CMO,EOcc,EVir,NamAct,n_Acta,Thrs,Do_MP2,allVir)
 !
 ! Author:  F. Aquilante  (Geneva, Jun. 2008)
 
-#include "implicit.fh"
-dimension CMO(*), EOcc(*), EVir(*)
-real*8 Thrs
-logical Do_MP2, allVir
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "Molcas.fh"
-character*(LENIN8) Name(mxBas)
-character*(LENIN) NamAct(*)
-logical ortho
-real*8 TrA(8), TrF(8), TrX(8)
-integer ns_O(8), ns_V(8), nZero(8)
-integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-integer lnOcc2(8), lnFro2(8), lnDel2(8), lnVir2(8), nAuxO(8)
-character*3 ThisNm
-character*10 SecNam
-parameter(SecNam='LovMP2_Drv',ThisNm='Dry')
-#include "itmax.fh"
-#include "real.fh"
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(out) :: EMP2
+real(kind=wp), intent(inout) :: CMO(*), EOcc(*), EVir(*)
+integer(kind=iwp), intent(in) :: n_Acta
+character(len=LenIn), intent(in) :: NamAct(n_Acta)
+real(kind=wp), intent(in) :: Thrs
+logical(kind=iwp), intent(in) :: Do_MP2, allVir
+integer(kind=iwp) :: i, ia, iCMO, iD_vir, iDo, ie, ifr, ii, ik, iloc, iOff, ip_X, ip_Y, ipS, ipSaa, ipSQ, ipXMO, iSkip, iSym, &
+                     isymlbl, ito, iV, iXMO, ja, jDo, jk, jloc, jOff, k, ka, kEOcc, kEVir, kfr, kk, kOff, kto, lnDel(8), &
+                     lnDel2(8), lnFro(8), lnFro2(8), lnOrb(8), lnOcc(8), lnOcc2(8), lnVir(8), lnVir2(8), lOff, lsq, ltri, &
+                     nAuxO(8), nBmx, nOA, ns_O(8), ns_V(8), nSQ, ntri, nVV, nxBasT, nxOrb, nZero(8)
+real(kind=wp) :: Dummy, EFRO, EOSF, StrA, STrF, STrX, Thrd, TrA(8), TrF(8), TrX(8)
+logical(kind=iwp) :: ortho
+character(len=LenIn8) :: UBName(mxBas)
+real(kind=wp), external :: ddot_
 #include "corbinf.fh"
 #include "orbinf2.fh"
 #include "WrkSpc.fh"
 #include "chomp2_cfg.fh"
 
 irc = 0
-EMP2 = 0.0d0
-EFRO = 0.0d0
-EOSF = 0.0d0
+EMP2 = Zero
+EFRO = Zero
+EOSF = Zero
 iDo = 0
 jDo = 0
 
@@ -59,9 +62,9 @@ nSQ = 0
 nBmx = 0
 nxOrb = 0
 do i=1,nSym
-  TrA(i) = 0.0d0
-  TrF(i) = 0.0d0
-  TrX(i) = 0.0d0
+  TrA(i) = Zero
+  TrF(i) = Zero
+  TrX(i) = Zero
   nZero(i) = 0
   nxBasT = nxBasT+nBas(i)
   nxOrb = nxOrb+nFro(i)+nOcc(i)+nExt(i)+nDel(i)
@@ -70,11 +73,11 @@ do i=1,nSym
   nBmx = max(nBmx,nBas(i))
 end do
 if (nxBasT > mxBas) then
-  write(6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
+  write(u6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
   call Abend()
 end if
 
-call Get_cArray('Unique Basis Names',Name,(LENIN8)*nxBasT)
+call Get_cArray('Unique Basis Names',UBName,(LENIN8)*nxBasT)
 
 !----------------------------------------------------------------------*
 !     Read the overlap matrix                                          *
@@ -95,18 +98,18 @@ do iSym=1,nSym
 end do
 call GetMem('SLT','FREE','REAL',ipS,nTri)
 
-write(6,'(A,F15.6)') ' Threshold for atom selection: ',Thrs
-write(6,*)
+write(u6,'(A,F15.6)') ' Threshold for atom selection: ',Thrs
+write(u6,*)
 if (n_Acta /= 0) then
-  write(6,'(A,I3,A)') ' Selected ',n_Acta,' atoms: '
-  write(6,*)
-  write(6,*) (NamAct(i),i=1,n_Acta)
-  write(6,*)
+  write(u6,'(A,I3,A)') ' Selected ',n_Acta,' atoms: '
+  write(u6,*)
+  write(u6,*) (NamAct(i),i=1,n_Acta)
+  write(u6,*)
 else if (.not. Do_MP2) then
-  write(6,'(A,18A4)') ' Selected atoms: *** None *** '
+  write(u6,'(A,18A4)') ' Selected atoms: *** None *** '
   Go To 2000
 else
-  write(6,'(A,18A4)') ' Selected atoms: *** None *** '
+  write(u6,'(A,18A4)') ' Selected atoms: *** None *** '
 end if
 
 !----------------------------------------------------------------------*
@@ -122,12 +125,12 @@ call GetMem('LCMO','ALLO','REAL',iCMO,3*nSQ)
 ipXMO = iCMO+nSQ
 iXMO = ipXMO+nSQ
 call dcopy_(nSQ,CMO,1,Work(ipXMO),1)
-Thrd = 1.0d-06
+Thrd = 1.0e-6_wp
 call GetMem('ID_vir','Allo','Inte',iD_vir,nxBasT)
 call Cho_ov_Loc(irc,Thrd,nSym,nBas,nFro,nOcc,nZero,nExt,Work(ipXMO),Work(ipSQ),iWork(iD_vir))
 
 if (irc /= 0) then
-  write(6,*) 'Localization failed in LovMP2'
+  write(u6,*) 'Localization failed in LovMP2'
   call Abend()
 end if
 
@@ -137,7 +140,7 @@ call dcopy_(nxOrb,EOcc,1,Work(kEOcc),1)
 call dcopy_(nxOrb,EVir,1,Work(kEVir),1)
 
 call GetMem('Saa','Allo','Real',ipSaa,nxOrb)
-call dcopy_(nxOrb,[1.0d0],0,Work(ipSaa),1)
+call dcopy_(nxOrb,[One],0,Work(ipSaa),1)
 
 !----------------------------------------------------------------------*
 !     Occupied orbital selection                                       *
@@ -153,7 +156,8 @@ do iSym=1,nSym
 end do
 ortho = .true.
 
-call get_Orb_select(irc,Work(iCMO),Work(iXMO),Work(kEOcc),Work(ipSQ),Work(ipSaa),Name,NamAct,nSym,n_Acta,nOcc,nBas,ortho,Thrs,ns_O)
+call get_Orb_select(irc,Work(iCMO),Work(iXMO),Work(kEOcc),Work(ipSQ),Work(ipSaa),UBName,NamAct,nSym,n_Acta,nOcc,nBas,ortho,Thrs, &
+                    ns_O)
 if (irc /= 0) then
   return
 end if
@@ -200,7 +204,7 @@ do iSym=1,nSym
 end do
 ortho = .false.
 !
-call get_Vir_select(irc,Work(iCMO),Work(iXMO),Work(kEVir),Work(ipSQ),Name,NamAct,iWork(iD_vir),nSym,n_Acta,nExt,nBas,ortho,ns_V)
+call get_Vir_select(irc,Work(iCMO),Work(iXMO),Work(kEVir),Work(ipSQ),UBName,NamAct,iWork(iD_vir),nSym,n_Acta,nExt,nBas,ortho,ns_V)
 if (irc /= 0) then
   return
 end if
@@ -289,17 +293,17 @@ if (Do_MP2) then
     call LovMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y,.false.) ! compute energy and not Dab
     call ChoMP2_Drv(irc,EFRO,Work(iCMO),Work(kEOcc),Work(kEVir))
     if (irc /= 0) then
-      write(6,*) 'Frozen region MP2 failed'
+      write(u6,*) 'Frozen region MP2 failed'
       call Abend()
     else
-      write(6,'(A,F20.10,A)') ' Frozen region E2 contrib. = ',EFRO,' a.u.'
+      write(u6,'(A,F20.10,A)') ' Frozen region E2 contrib. = ',EFRO,' a.u.'
       EOSF = EOSMP2
-      write(6,'(A,F20.10,A)') ' (Opposite-Spin contrib.   = ',-EOSF,' )'
-      write(6,*)
+      write(u6,'(A,F20.10,A)') ' (Opposite-Spin contrib.   = ',-EOSF,' )'
+      write(u6,*)
     end if
     iV = ip_X
     do iSym=1,nSym
-      TrF(iSym) = ddot_(lnVir(iSym),Work(iV),1+lnVir(iSym),[1.0d0],0)
+      TrF(iSym) = ddot_(lnVir(iSym),Work(iV),1+lnVir(iSym),[One],0)
       iV = iV+lnVir(iSym)**2
     end do
     call GetMem('Dmat','Free','Real',ip_X,nVV+nOA)
@@ -353,35 +357,35 @@ if (iSkip > 0) then
     nOA = nOA+nOcc(iSym)
   end do
 
-  write(6,*)
-  write(6,'(A,8I4)') ' Frozen orbitals after selection :  ',(nFro(i),i=1,nSym)
-  write(6,'(A,8I4)') ' Occupied orbitals after selection: ',(nOcc(i),i=1,nSym)
-  write(6,*)
-  write(6,*) 'Energies of the active occupied orbitals '
+  write(u6,*)
+  write(u6,'(A,8I4)') ' Frozen orbitals after selection :  ',(nFro(i),i=1,nSym)
+  write(u6,'(A,8I4)') ' Occupied orbitals after selection: ',(nOcc(i),i=1,nSym)
+  write(u6,*)
+  write(u6,*) 'Energies of the active occupied orbitals '
   ii = 0
   do iSym=1,nSym
     if (nOcc(iSym) /= 0) then
-      write(6,*)
-      write(6,'(A,I2,(T40,5F14.6))') ' symmetry species',iSym,(EOcc(ii+k),k=1,nOcc(iSym))
+      write(u6,*)
+      write(u6,'(A,I2,(T40,5F14.6))') ' symmetry species',iSym,(EOcc(ii+k),k=1,nOcc(iSym))
       ii = ii+nOcc(iSym)
     end if
   end do
-  write(6,*)
+  write(u6,*)
 
-  write(6,*)
-  write(6,'(A,8I4)') ' Secondary orbitals after selection:',(nExt(i),i=1,nSym)
-  write(6,'(A,8I4)') ' Deleted orbitals after selection:  ',(nDel(i),i=1,nSym)
-  write(6,*)
-  write(6,*) 'Energies of the active virtual orbitals '
+  write(u6,*)
+  write(u6,'(A,8I4)') ' Secondary orbitals after selection:',(nExt(i),i=1,nSym)
+  write(u6,'(A,8I4)') ' Deleted orbitals after selection:  ',(nDel(i),i=1,nSym)
+  write(u6,*)
+  write(u6,*) 'Energies of the active virtual orbitals '
   ii = 0
   do iSym=1,nSym
     if (nExt(iSym) /= 0) then
-      write(6,*)
-      write(6,'(A,I2,(T40,5F14.6))') ' symmetry species',iSym,(EVir(ii+k),k=1,nExt(iSym))
+      write(u6,*)
+      write(u6,'(A,I2,(T40,5F14.6))') ' symmetry species',iSym,(EVir(ii+k),k=1,nExt(iSym))
       ii = ii+nExt(iSym)
     end if
   end do
-  write(6,*)
+  write(u6,*)
 
   call GetMem('Dmat','Allo','Real',ip_X,nVV+nOA)
   ip_Y = ip_X+nVV
@@ -389,39 +393,39 @@ if (iSkip > 0) then
   call LovMP2_putInf(nSym,lnOrb,nOcc,nFro,nDel,nExt,ip_X,ip_Y,.true.)
   call ChoMP2_Drv(irc,Dummy,CMO,EOcc,EVir)
   call LovMP2_putInf(nSym,lnOrb,nOcc,nFro,nDel,nExt,ip_X,ip_Y,.false.)
-  Wref = 0.0d0
+  Wref = Zero
   call ChoMP2_Drv(irc,EMP2,CMO,EOcc,EVir)
   if (irc /= 0) then
-    write(6,*) 'LovMP2 failed'
+    write(u6,*) 'LovMP2 failed'
     call Abend()
   end if
   iV = ip_X
   do iSym=1,nSym
-    TrA(iSym) = ddot_(nExt(iSym),Work(iV),1+nExt(iSym),[1.0d0],0)
+    TrA(iSym) = ddot_(nExt(iSym),Work(iV),1+nExt(iSym),[One],0)
     iV = iV+nExt(iSym)**2
   end do
   call GetMem('Dmat','Free','Real',ip_X,nVV+nOA)
 end if
-write(6,*) '------------------------------------------------------'
-write(6,*) ' Symm.   Tr(D):  Active        Frozen         Full    '
-write(6,*) '------------------------------------------------------'
-STrA = 0.0d0
-STrF = 0.0d0
-STrX = 0.0d0
+write(u6,*) '------------------------------------------------------'
+write(u6,*) ' Symm.   Tr(D):  Active        Frozen         Full    '
+write(u6,*) '------------------------------------------------------'
+STrA = Zero
+STrF = Zero
+STrX = Zero
 do iSym=1,nSym
-  write(6,'(2X,I4,9X,G11.4,3X,G11.4,3X,G11.4)') iSym,TrA(iSym),TrF(iSym),TrX(iSym)
+  write(u6,'(2X,I4,9X,G11.4,3X,G11.4,3X,G11.4)') iSym,TrA(iSym),TrF(iSym),TrX(iSym)
   STrA = STrA+TrA(iSym)
   STrF = STrF+TrF(iSym)
   STrX = STrX+TrX(iSym)
 end do
-write(6,*) '------------------------------------------------------'
-write(6,'(A,G11.4,3X,G11.4,3X,G11.4)') '          Sum: ',STrA,STrF,STrX
-write(6,*) '------------------------------------------------------'
-write(6,*)
+write(u6,*) '------------------------------------------------------'
+write(u6,'(A,G11.4,3X,G11.4,3X,G11.4)') '          Sum: ',STrA,STrF,STrX
+write(u6,*) '------------------------------------------------------'
+write(u6,*)
 
-write(6,'(A,F20.10,A)') ' Active region E2 contrib. = ',EMP2,' a.u.'
-write(6,'(A,F20.10,A)') ' (Opposite-Spin contrib.   = ',-EOSMP2,' )'
-write(6,*)
+write(u6,'(A,F20.10,A)') ' Active region E2 contrib. = ',EMP2,' a.u.'
+write(u6,'(A,F20.10,A)') ' (Opposite-Spin contrib.   = ',-EOSMP2,' )'
+write(u6,*)
 
 XEMP2 = EFRO
 EMP2 = EMP2+EFRO
@@ -451,12 +455,12 @@ call GetMem('Eorb','Free','Real',kEOcc,2*nxOrb)
 
 2000 continue
 if (min(iDo,jDo) == 0) then
-  write(6,*)
-  write(6,*) ' None of the occupied or virtual orbitals has been '
-  write(6,*) ' assigned to the Active region of the molecule.    '
-  write(6,*) ' This is presumably NOT what you want !!!          '
-  write(6,*) ' MP2 will Stop here. Bye Bye !! '
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' None of the occupied or virtual orbitals has been '
+  write(u6,*) ' assigned to the Active region of the molecule.    '
+  write(u6,*) ' This is presumably NOT what you want !!!          '
+  write(u6,*) ' MP2 will Stop here. Bye Bye !! '
+  write(u6,*)
   call Abend()
 end if
 

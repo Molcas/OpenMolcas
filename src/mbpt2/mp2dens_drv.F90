@@ -16,24 +16,29 @@ subroutine MP2Dens_drv(E2BJAI,REFC)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-logical Done
-integer iVecOff(8), nOccAll(8), nOrbAll(8)
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp), intent(out) :: E2BJAI, REFC
+integer(kind=iwp) :: iA, iAdr, iI, ip_AOTriDens, ip_AP, ip_mult, ip_MultN, ip_P, ip_PN, ip_R, ip_RN, ip_WAOTriDens, ip_Z, ip_ZN, &
+                     iSym, iSymIA, iSymJB, Iter, iVecOff(8), l_TriDens, lVec, nA, nI, nIter, nOccAll(8), nOrbAll(8)
+real(kind=wp) :: Eps, res, TotLagr
+logical(kind=iwp) :: Done
 #include "WrkSpc.fh"
 #include "mp2grad.fh"
 #include "corbinf.fh"
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 ! Statement functions
+integer(kind=iwp) :: i, j, k, iMult, iDensVirOcc
 iMult(i,j,k) = ip_mult+iVecOff(k)+j-1+(nFro(k)+nOcc(k))*(i-1)
 iDensVirOcc(i,j,k) = ip_Density(k)+j-1+(nOrb(k)+nDel(k))*(i+nFro(k)+nOcc(k)-1)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Start
 
-Eps = 1.0D-8
+Eps = 1.0e-8_wp
 Done = .false.
 nIter = 100
 !                                                                      *
@@ -48,7 +53,7 @@ call Mp2Diag()
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 do iSym=1,nSym
-  write(6,*) 'Symmetry nr',iSym
+  write(u6,*) 'Symmetry nr',iSym
   call RecPrt('InvDia','',Work(ip_DiaA(iSym)),nFro(iSym)+nOcc(iSym),nExt(iSym)+nDel(iSym))
 end do
 #endif
@@ -128,13 +133,13 @@ end do
 ! is trivial and P_ia = 0 for all i and a, in either case
 ! MP2Lagr should be deallocated.
 
-TotLagr = 0.0d0
+TotLagr = Zero
 do iSym=1,nSym
   do i=1,(nFro(iSym)+nOcc(iSym))*(nExt(iSym)+nDel(iSym))
     TotLagr = TotLagr+Work(ip_Mp2Lagr(iSym)+i-1)
   end do
 end do
-if (abs(TotLagr) < 1.0d-12) then
+if (abs(TotLagr) < 1.0e-12_wp) then
   call GetMem('MP2Lagr','Free','Real',ip_First_Mp2Lagr,l_Mp2Lagr)
   Go To 100
 else
@@ -149,9 +154,9 @@ end if
 do Iter=1,nIter
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'P ITER:',Iter
+  write(u6,*) 'P ITER:',Iter
   do i=0,lVec-1
-    write(6,*) Work(ip_P+i)
+    write(u6,*) Work(ip_P+i)
   end do
 # endif
 
@@ -169,9 +174,9 @@ do Iter=1,nIter
     end do
   end do
 # ifdef _DEBUGPRINT_
-  !write(6,*) 'MP2Ap'
+  !write(u6,*) 'MP2Ap'
   !do i=0,lVec-1
-  !  write(6,*) Work(ip_Ap+i)
+  !  write(u6,*) Work(ip_Ap+i)
   !end do
 # endif
   ! Makes a call to a routine that makes one CG-update and checks convergence.
@@ -180,11 +185,11 @@ do Iter=1,nIter
   if (Done) goto 100
 end do
 
-write(6,*) '***************WARNING************************'
-write(6,*) ''
-write(6,*) 'Too many iterations, this is what you get after 50'
-write(6,*) 'The residual is',res,'and not',Eps
-write(6,*) '**********************************************'
+write(u6,*) '***************WARNING************************'
+write(u6,*) ''
+write(u6,*) 'Too many iterations, this is what you get after 50'
+write(u6,*) 'The residual is',res,'and not',Eps
+write(u6,*) '**********************************************'
 
 ! The PCG is done and we now have the Lagrange multipliers we sought.
 ! This is a good time to release all the memory related to PCG.
@@ -211,7 +216,7 @@ end do
 
 #ifdef _DEBUGPRINT_
 do iSym=1,nSym
-  write(6,*) 'Density matrix for Symm:',iSym
+  write(u6,*) 'Density matrix for Symm:',iSym
   call RecPrt('MP2Density','',Work(ip_Density(iSym)),nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
   call RecPrt('MP2WDensity','',Work(ip_WDensity(iSym)),nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
 end do
@@ -248,7 +253,7 @@ call Finish_WDensity()
 
 do iSym=1,nSym
   do i=1,nOccAll(iSym)
-    Work(ip_density(iSym)+i-1+(nOrbAll(iSym))*(i-1)) = Work(ip_density(iSym)+i-1+(nOrbAll(iSym))*(i-1))+2.0d0
+    Work(ip_density(iSym)+i-1+(nOrbAll(iSym))*(i-1)) = Work(ip_density(iSym)+i-1+(nOrbAll(iSym))*(i-1))+Two
   end do
 end do
 
@@ -258,13 +263,13 @@ call Build_Mp2Dens_Old(ip_AOTriDens,ip_Density,Work(ipCMO),nSym,nOrbAll,nOccAll,
 call Build_Mp2Dens_Old(ip_WAOTriDens,ip_WDensity,Work(ipCMO),nSym,nOrbAll,nOccAll,.false.)
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'Normal Dens'
+write(u6,*) 'Normal Dens'
 do i=0,l_TriDens-1
-  write(6,*) Work(ip_AOTriDens+i)
+  write(u6,*) Work(ip_AOTriDens+i)
 end do
-write(6,*) 'WDens'
+write(u6,*) 'WDens'
 do i=0,l_TriDens-1
-  write(6,*) Work(ip_WAOTriDens+i)
+  write(u6,*) Work(ip_WAOTriDens+i)
 end do
 #endif
 
@@ -281,14 +286,14 @@ call GetMem('AOWTriDens','Free','Real',ip_WAOTriDens,l_TriDens)
 ! Overwrite nonvariational density to fool LoProp. (should not be done
 ! this way)
 #ifdef _DEBUGPRINT_
-write(6,*) 'EMP2 is ',EMP2
-write(6,*) ' '
+write(u6,*) 'EMP2 is ',EMP2
+write(u6,*) ' '
 do iSym=1,nSym
-  write(6,*) 'Density matrix for Symm:',iSym
+  write(u6,*) 'Density matrix for Symm:',iSym
   call RecPrt('MP2Density','',Work(ip_Density(iSym)),nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
 end do
 do iSym=1,nSym
-  write(6,*) 'WDensity matrix for Symm:',iSym
+  write(u6,*) 'WDensity matrix for Symm:',iSym
   call RecPrt('MP2WDensity','',Work(ip_WDensity(iSym)),nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
 end do
 #endif

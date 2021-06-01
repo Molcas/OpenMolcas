@@ -27,15 +27,22 @@ subroutine Cho_SOSmp2_Drv(irc,EMP2,CMO,EOcc,EVir)
 !     exit, except for error terminations (i.e. no cleanup actions
 !     are taken!)
 
-#include "implicit.fh"
-dimension CMO(*), EOcc(*), EVir(*)
-character*3 ThisNm
-character*14 SecNam
-parameter(SecNam='Cho_SOSmp2_Drv',ThisNm='Drv')
-parameter(Chk_Mem_ChoMP2=0.123456789d0,Tol=1.0D-15)
-parameter(iFmt=0)
-logical Delete, Delete_def
-parameter(Delete_def=.true.)
+use Constants, only: Zero, One, Five
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(out) :: EMP2
+real(kind=wp), intent(in) :: CMO(*), EOcc(*), EVir(*)
+integer(kind=iwp) :: ia, ip_Dum, ipDiag, iSym, l_Dum, lDiag, nSym_Sav
+real(kind=wp) :: CPUDec1, CPUDec2, CPUEnr1, CPUEnr2, CPUIni1, CPUIni2, CPUTot1, CPUTot2, CPUTra1, CPUTra2, Diff, FracMem, &
+                 WallDec1, WallDec2, WallEnr1, WallEnr2, WallIni1, WallIni2, WallTot1, WallTot2, WallTra1, WallTra2
+logical(kind=iwp) :: Delete
+integer(kind=iwp), parameter :: iFmt = 0
+real(kind=wp), parameter :: Chk_Mem_ChoMP2 = 0.123456789_wp, Tol = 1.0e-15_wp
+logical(kind=iwp), parameter :: Delete_def = .true.
+character(len=14), parameter :: SecNam = 'Cho_SOSmp2_Drv'
+real(kind=r8), external :: ddot_
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
@@ -53,7 +60,7 @@ end if
 
 irc = 0
 
-EMP2 = 0.0d0
+EMP2 = Zero
 
 if (Verbose) then
   call CWTime(CPUIni1,WallIni1)
@@ -63,23 +70,23 @@ l_Dum = 1
 call GetMem('Dummy','Allo','Real',ip_Dum,l_Dum)
 Work(ip_Dum) = Chk_Mem_ChoMP2
 
-FracMem = 0.0d0 ! no buffer allocated
+FracMem = Zero ! no buffer allocated
 call Cho_X_Init(irc,FracMem)
 if (irc /= 0) then
-  write(6,*) SecNam,': Cho_X_Init returned ',irc
+  write(u6,*) SecNam,': Cho_X_Init returned ',irc
   call ChoMP2_Quit(SecNam,'Cholesky initialization error',' ')
 end if
 
 call Cho_SOSmp2_Setup(irc)
 if (irc /= 0) then
-  write(6,*) SecNam,': Cho_SOSmp2_Setup returned ',irc
+  write(u6,*) SecNam,': Cho_SOSmp2_Setup returned ',irc
   Go To 1  ! exit
 end if
 
 if (Verbose) then
   call Cho_SOSmp2_Setup_Prt(irc)
   if (irc /= 0) then
-    write(6,*) SecNam,': Cho_SOSmp2_Setup_Prt returned ',irc
+    write(u6,*) SecNam,': Cho_SOSmp2_Setup_Prt returned ',irc
     Go To 1  ! exit
   end if
   call CWTime(CPUIni2,WallIni2)
@@ -102,7 +109,7 @@ call GetMem('Diag','Allo','Real',ipDiag,lDiag)
 
 call ChoMP2_TraDrv(irc,CMO,Work(ipDiag),.true.)
 if (irc /= 0) then
-  write(6,*) SecNam,': ChoMP2_TraDrv returned ',irc
+  write(u6,*) SecNam,': ChoMP2_TraDrv returned ',irc
   Go To 1  ! exit
 end if
 
@@ -111,7 +118,7 @@ end if
 do ia=0,lDiag-1
   Work(ipDiag+ia) = Work(ipDiag+ia)**2
 end do
-if (set_cd_thr) ThrMP2 = ddot_(lDiag,[1.0d0],0,Work(ipDiag),1)/(5.0d0*lDiag)
+if (set_cd_thr) ThrMP2 = ddot_(lDiag,[One],0,Work(ipDiag),1)/(Five*lDiag)
 
 if (Verbose) then
   call CWTime(CPUTra2,WallTra2)
@@ -127,11 +134,11 @@ call iCopy(nSym,NumCho,1,nMP2Vec,1)
 
 call Cho_X_Final(irc)
 if (irc /= 0) then
-  write(6,*) SecNam,': Cho_X_Final returned ',irc
+  write(u6,*) SecNam,': Cho_X_Final returned ',irc
   Go To 1 ! exit
 end if
 
-LuPri = 6
+LuPri = u6
 nSym = nSym_Sav
 call iCopy(nSym,nMP2Vec,1,NumCho,1)
 
@@ -145,7 +152,7 @@ end if
 Delete = Delete_def ! delete transf. vector files after dec.
 call Cho_SOSmp2_DecDrv(irc,Delete,Work(ipDiag))
 if (irc /= 0) then
-  write(6,*) SecNam,': Cho_SOSmp2_DecDrv returned ',irc
+  write(u6,*) SecNam,': Cho_SOSmp2_DecDrv returned ',irc
   call ChoMP2_Quit(SecNam,'SOS-MP2 decomposition failed!',' ')
 end if
 if (Verbose) then
@@ -163,7 +170,7 @@ end if
 Delete = Delete_def
 call Cho_SOSmp2_Energy(irc,EMP2,EOcc,EVir,Delete)
 if (irc /= 0) then
-  write(6,*) SecNam,': Cho_SOSmp2_Energy returned ',irc
+  write(u6,*) SecNam,': Cho_SOSmp2_Energy returned ',irc
   Go To 1 ! exit
 end if
 if (Verbose) then
@@ -177,7 +184,7 @@ end if
 1 continue
 Diff = abs(Work(ip_Dum)-Chk_Mem_ChoMP2)
 if (Diff > Tol) then
-  write(6,*) SecNam,': Memory Boundary Error!'
+  write(u6,*) SecNam,': Memory Boundary Error!'
   if (irc == 0) irc = -9999
 end if
 if (Verbose) then

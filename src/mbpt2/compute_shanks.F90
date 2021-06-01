@@ -11,11 +11,17 @@
 
 subroutine Compute_Shanks(E1,E2,EOrb,lthEOrb,nBas,nFro,nOcc,nSym,E0,Shanks1_E)
 
-implicit real*8(a-h,o-z)
-real*8 E1, E2, EOrb(lthEOrb), E0, Shanks1_E
-integer nSym, nBas(nSym), nFro(nSym), nOcc(nSym)
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
 
-E0 = 0.0d0
+implicit none
+integer(kind=iwp), intent(in) :: lthEOrb, nSym, nBas(nSym), nFro(nSym), nOcc(nSym)
+real(kind=wp), intent(in) :: E1, E2, EOrb(lthEOrb)
+real(kind=wp), intent(out) :: E0, Shanks1_E
+integer(kind=iwp) :: ioff, iorb, iSym, jorb, nOrb
+real(kind=wp) :: PotNuc
+
+E0 = Zero
 ioff = 0
 do iSym=1,nSym
   nOrb = nFro(iSym)+nOcc(iSym)
@@ -25,14 +31,14 @@ do iSym=1,nSym
   end do
   ioff = ioff+nBas(iSym)
 end do
-E0 = 2.0d0*E0
+E0 = Two*E0
 
 call Peek_dScalar('PotNuc',PotNuc)
 E0 = E0+PotNuc
 
 ! Shanks formula
 
-Shanks1_E = (E2*E0-E1**2)/(E2-2.0d0*E1+E0)
+Shanks1_E = (E2*E0-E1**2)/(E2-Two*E1+E0)
 
 return
 

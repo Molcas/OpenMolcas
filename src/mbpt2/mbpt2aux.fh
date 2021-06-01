@@ -12,6 +12,8 @@
 !     Auxiliary Variables describing chemical system                   *
 !----------------------------------------------------------------------*
       CHARACTER*80 TITLE
+      REAL*8 TCPE,TIOE
+      INTEGER NTIT,NFRO1,NFRO2,IFRO,NDEL1,NDEL2,IDEL,NDSTO
       COMMON /AUX   / TITLE(MXTIT),TCPE(10),TIOE(10),NTIT,              &
      &                NFRO1(8),NFRO2(8),IFRO(8,MXFRO),                  &
      &                NDEL1(8),NDEL2(8),IDEL(8,MXDEL),                  &
