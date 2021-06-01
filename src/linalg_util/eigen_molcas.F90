@@ -143,12 +143,15 @@ end do
 B = Zero
 F = Zero
 E(N) = Zero
-do l=1,N
+outer: do l=1,N
   H = eps*(abs(D(l))+abs(E(l)))
   if (H > B) B = H
   do j=l,N
     if (abs(E(j)) <= B) then
-      if (j == l) goto 100
+      if (j == l) then
+        D(l) = D(l)+F
+        cycle outer
+      end if
     end if
   end do
   j = N
@@ -196,9 +199,8 @@ do l=1,N
     E(l) = S*P
     D(l) = C*P
   end do
-100 continue
   D(l) = D(l)+F
-end do
+end do outer
 
 ! ORDERING OF EIGENVALUES
 

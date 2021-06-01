@@ -163,7 +163,6 @@ do i=1,nAtoms+nXAtoms
 end do
 
 ! Writing
-!2000  Continue
 if (NAT(1) == -1) then
   NATprev = -1
 else
