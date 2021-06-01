@@ -7,33 +7,31 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2008, Francesco Aquilante                              *
 !***********************************************************************
 
-subroutine Compute_Shanks(E1,E2,EOrb,lthEOrb,nBas,nFro,nOcc,nSym,E0,Shanks1_E)
+subroutine Check_Amp2(nSym,nOcc,nVir,iSkip)
 
 implicit real*8(a-h,o-z)
-real*8 E1, E2, EOrb(lthEOrb), E0, Shanks1_E
-integer nSym, nBas(nSym), nFro(nSym), nOcc(nSym)
+integer nSym, nOcc(nSym), nVir(nSym), iSkip
+integer nT1amTot, nT1am(8)
 
-E0 = 0.0d0
-ioff = 0
+MulD2h(i,j) = ieor(i-1,j-1)+1
+
+iSkip = 0
+nT1amTot = 0
 do iSym=1,nSym
-  nOrb = nFro(iSym)+nOcc(iSym)
-  do iorb=1,nOrb
-    jorb = ioff+iorb
-    E0 = E0+EOrb(jorb)
+  nT1am(iSym) = 0
+  do iSymi=1,nSym
+    iSyma = MulD2h(iSymi,iSym)
+    nT1am(iSym) = nT1am(iSym)+nVir(iSyma)*nOcc(iSymi)
   end do
-  ioff = ioff+nBas(iSym)
+  nT1amTot = nT1amTot+nT1am(iSym)
 end do
-E0 = 2.0d0*E0
 
-call Peek_dScalar('PotNuc',PotNuc)
-E0 = E0+PotNuc
-
-! Shanks formula
-
-Shanks1_E = (E2*E0-E1**2)/(E2-2.0d0*E1+E0)
+if (nT1amTot > 0) iSkip = 1
 
 return
 
-end subroutine Compute_Shanks
+end subroutine Check_Amp2

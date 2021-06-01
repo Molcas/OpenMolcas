@@ -10,191 +10,183 @@
 !                                                                      *
 ! Copyright (C) 2007, Francesco Aquilante                              *
 !***********************************************************************
-      SubRoutine Cho_SOSmp2_Drv(irc,EMP2,CMO,EOcc,EVir)
+
+subroutine Cho_SOSmp2_Drv(irc,EMP2,CMO,EOcc,EVir)
+! Francesco Aquilante, May 2007.
 !
-!     Francesco Aquilante, May 2007.
+! Purpose: driver for computing the Scaled Opposite-Spin (SOS)
+!          MP2 energy correction EMP2
+!          using Cholesky (or RI) representation for the
+!          two-electron integrals.
+!          Input must have been processed and MO coefficients
+!          and orbital energies must be passed as arguments.
 !
-!     Purpose: driver for computing the Scaled Opposite-Spin (SOS)
-!              MP2 energy correction EMP2
-!              using Cholesky (or RI) representation for the
-!              two-electron integrals.
-!              Input must have been processed and MO coefficients
-!              and orbital energies must be passed as arguments.
+! Notes:
 !
-!     Notes:
-!
-!       - all MO Cholesky vector files generated here are deleted before
-!         exit, except for error terminations (i.e. no cleanup actions
-!         are taken!)
-!
+!   - all MO Cholesky vector files generated here are deleted before
+!     exit, except for error terminations (i.e. no cleanup actions
+!     are taken!)
+
 #include "implicit.fh"
-      Dimension CMO(*), EOcc(*), EVir(*)
+dimension CMO(*), EOcc(*), EVir(*)
+character*3 ThisNm
+character*14 SecNam
+parameter(SecNam='Cho_SOSmp2_Drv',ThisNm='Drv')
+parameter(Chk_Mem_ChoMP2=0.123456789d0,Tol=1.0D-15)
+parameter(iFmt=0)
+logical Delete, Delete_def
+parameter(Delete_def=.true.)
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
 #include "WrkSpc.fh"
 
-      Character*3  ThisNm
-      Character*14 SecNam
-      Parameter (SecNam = 'Cho_SOSmp2_Drv', ThisNm = 'Drv')
-
-      Parameter (Chk_Mem_ChoMP2 = 0.123456789D0, Tol = 1.0D-15)
-      Parameter (iFmt = 0)
-
-      Logical Delete, Delete_def
-      Parameter (Delete_def = .true.)
-
 #if defined (_DEBUGPRINT_)
-      Verbose = .true.
+Verbose = .true.
 #endif
-      If (Verbose) Then
-         Call CWTime(CPUTot1,WallTot1)
-      End If
+if (Verbose) then
+  call CWTime(CPUTot1,WallTot1)
+end if
 
-!     Initializations.
-!     ----------------
+! Initializations.
+! ----------------
 
-      irc = 0
+irc = 0
 
-      EMP2 = 0.0d0
+EMP2 = 0.0d0
 
-      If (Verbose) Then
-         Call CWTime(CPUIni1,WallIni1)
-      End If
+if (Verbose) then
+  call CWTime(CPUIni1,WallIni1)
+end if
 
-      l_Dum = 1
-      Call GetMem('Dummy','Allo','Real',ip_Dum,l_Dum)
-      Work(ip_Dum) = Chk_Mem_ChoMP2
+l_Dum = 1
+call GetMem('Dummy','Allo','Real',ip_Dum,l_Dum)
+Work(ip_Dum) = Chk_Mem_ChoMP2
 
-      FracMem = 0.0d0 ! no buffer allocated
-      Call Cho_X_Init(irc,FracMem)
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': Cho_X_Init returned ',irc
-         Call ChoMP2_Quit(SecNam,'Cholesky initialization error',' ')
-      End If
+FracMem = 0.0d0 ! no buffer allocated
+call Cho_X_Init(irc,FracMem)
+if (irc /= 0) then
+  write(6,*) SecNam,': Cho_X_Init returned ',irc
+  call ChoMP2_Quit(SecNam,'Cholesky initialization error',' ')
+end if
 
-      Call Cho_SOSmp2_Setup(irc)
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': Cho_SOSmp2_Setup returned ',irc
-         Go To 1  ! exit
-      End If
+call Cho_SOSmp2_Setup(irc)
+if (irc /= 0) then
+  write(6,*) SecNam,': Cho_SOSmp2_Setup returned ',irc
+  Go To 1  ! exit
+end if
 
-      If (Verbose) Then
-         Call Cho_SOSmp2_Setup_Prt(irc)
-         If (irc .ne. 0) Then
-            Write(6,*) SecNam,': Cho_SOSmp2_Setup_Prt returned ',irc
-            Go To 1  ! exit
-         End If
-         Call CWTime(CPUIni2,WallIni2)
-         Call Cho_PrtTim('Cholesky SOS-MP2 initialization',CPUIni2,     &
-     &                   CPUIni1,WallIni2,WallIni1,iFmt)
-      End If
+if (Verbose) then
+  call Cho_SOSmp2_Setup_Prt(irc)
+  if (irc /= 0) then
+    write(6,*) SecNam,': Cho_SOSmp2_Setup_Prt returned ',irc
+    Go To 1  ! exit
+  end if
+  call CWTime(CPUIni2,WallIni2)
+  call Cho_PrtTim('Cholesky SOS-MP2 initialization',CPUIni2,CPUIni1,WallIni2,WallIni1,iFmt)
+end if
 
-!     Transform Cholesky vectors directly from reduced set to MO
-!     representation. Result vectors are stored on disk.
-!     Compute also the (ai|ai)^2 diagonal here.
-!     ----------------------------------------------------------
+! Transform Cholesky vectors directly from reduced set to MO
+! representation. Result vectors are stored on disk.
+! Compute also the (ai|ai)^2 diagonal here.
+! ----------------------------------------------------------
 
-      If (Verbose) Then
-         Call CWTime(CPUTra1,WallTra1)
-      End If
-      lDiag = nT1am(1)
-      Do iSym = 2,nSym
-         lDiag = lDiag + nT1am(iSym)
-      End Do
-      Call GetMem('Diag','Allo','Real',ipDiag,lDiag)
+if (Verbose) then
+  call CWTime(CPUTra1,WallTra1)
+end if
+lDiag = nT1am(1)
+do iSym=2,nSym
+  lDiag = lDiag+nT1am(iSym)
+end do
+call GetMem('Diag','Allo','Real',ipDiag,lDiag)
 
-      Call ChoMP2_TraDrv(irc,CMO,Work(ipDiag),.true.)
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': ChoMP2_TraDrv returned ',irc
-         Go To 1  ! exit
-      End If
-!
-!     Squaring each diagonal element
-!     ------------------------------
-      Do ia=0,lDiag-1
-         Work(ipDiag+ia)=Work(ipDiag+ia)**2
-      End Do
-      If (set_cd_thr) ThrMP2=ddot_(lDiag,[1.0d0],0,                     &
-     &                                  Work(ipDiag),1)/(5.0d0*lDiag)
+call ChoMP2_TraDrv(irc,CMO,Work(ipDiag),.true.)
+if (irc /= 0) then
+  write(6,*) SecNam,': ChoMP2_TraDrv returned ',irc
+  Go To 1  ! exit
+end if
 
-      If (Verbose) Then
-         Call CWTime(CPUTra2,WallTra2)
-         Call Cho_PrtTim('Cholesky MP2 transformation',CPUTra2,CPUTra1, &
-     &                   WallTra2,WallTra1,iFmt)
-      End If
+! Squaring each diagonal element
+! ------------------------------
+do ia=0,lDiag-1
+  Work(ipDiag+ia) = Work(ipDiag+ia)**2
+end do
+if (set_cd_thr) ThrMP2 = ddot_(lDiag,[1.0d0],0,Work(ipDiag),1)/(5.0d0*lDiag)
 
-!     Finalize Cholesky info (to release memory).
-!     Retain essential info: LuPri, nSym, and NumCho(*).
-!     --------------------------------------------------
+if (Verbose) then
+  call CWTime(CPUTra2,WallTra2)
+  call Cho_PrtTim('Cholesky MP2 transformation',CPUTra2,CPUTra1,WallTra2,WallTra1,iFmt)
+end if
 
-      nSym_Sav = nSym
-      Call iCopy(nSym,NumCho,1,nMP2Vec,1)
+! Finalize Cholesky info (to release memory).
+! Retain essential info: LuPri, nSym, and NumCho(*).
+! --------------------------------------------------
 
-      Call Cho_X_Final(irc)
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': Cho_X_Final returned ',irc
-         Go To 1 ! exit
-      End If
+nSym_Sav = nSym
+call iCopy(nSym,NumCho,1,nMP2Vec,1)
 
-      LuPri = 6
-      nSym  = nSym_Sav
-      Call iCopy(nSym,nMP2Vec,1,NumCho,1)
+call Cho_X_Final(irc)
+if (irc /= 0) then
+  write(6,*) SecNam,': Cho_X_Final returned ',irc
+  Go To 1 ! exit
+end if
 
-!     Decompose M(ai,bj) = (ai|bj)^2 .
-!     Set number of vectors to be used in energy calculation.
-!     -------------------------------------------------------
+LuPri = 6
+nSym = nSym_Sav
+call iCopy(nSym,nMP2Vec,1,NumCho,1)
 
-      If (Verbose) Then
-         Call CWTime(CPUDec1,WallDec1)
-      End If
-      Delete = Delete_def ! delete transf. vector files after dec.
-      Call Cho_SOSmp2_DecDrv(irc,Delete,Work(ipDiag))
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': Cho_SOSmp2_DecDrv returned ',irc
-         Call ChoMP2_Quit(SecNam,'SOS-MP2 decomposition failed!',' ')
-      End If
-      If (Verbose) Then
-         Call CWTime(CPUDec2,WallDec2)
-         Call Cho_PrtTim('Cholesky SOS-MP2 decomposition',              &
-     &                   CPUDec2,CPUDec1,                               &
-     &                   WallDec2,WallDec1,iFmt)
-      End If
-      Call GetMem('Diag','Free','Real',ipDiag,lDiag)
+! Decompose M(ai,bj) = (ai|bj)^2 .
+! Set number of vectors to be used in energy calculation.
+! -------------------------------------------------------
 
-!     Compute SOS-MP2 energy correction.
-!     ----------------------------------
+if (Verbose) then
+  call CWTime(CPUDec1,WallDec1)
+end if
+Delete = Delete_def ! delete transf. vector files after dec.
+call Cho_SOSmp2_DecDrv(irc,Delete,Work(ipDiag))
+if (irc /= 0) then
+  write(6,*) SecNam,': Cho_SOSmp2_DecDrv returned ',irc
+  call ChoMP2_Quit(SecNam,'SOS-MP2 decomposition failed!',' ')
+end if
+if (Verbose) then
+  call CWTime(CPUDec2,WallDec2)
+  call Cho_PrtTim('Cholesky SOS-MP2 decomposition',CPUDec2,CPUDec1,WallDec2,WallDec1,iFmt)
+end if
+call GetMem('Diag','Free','Real',ipDiag,lDiag)
 
-      If (Verbose) Then
-         Call CWTime(CPUEnr1,WallEnr1)
-      End If
-      Delete = Delete_def
-      Call Cho_SOSmp2_Energy(irc,EMP2,EOcc,EVir,Delete)
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': Cho_SOSmp2_Energy returned ',irc
-         Go To 1 ! exit
-      End If
-      If (Verbose) Then
-         Call CWTime(CPUEnr2,WallEnr2)
-         Call Cho_PrtTim('Cholesky SOS-MP2 energy',                     &
-     &                   CPUEnr2,CPUEnr1,                               &
-     &                   WallEnr2,WallEnr1,iFmt)
-      End If
+! Compute SOS-MP2 energy correction.
+! ----------------------------------
 
-!     Exit.
-!     -----
+if (Verbose) then
+  call CWTime(CPUEnr1,WallEnr1)
+end if
+Delete = Delete_def
+call Cho_SOSmp2_Energy(irc,EMP2,EOcc,EVir,Delete)
+if (irc /= 0) then
+  write(6,*) SecNam,': Cho_SOSmp2_Energy returned ',irc
+  Go To 1 ! exit
+end if
+if (Verbose) then
+  call CWTime(CPUEnr2,WallEnr2)
+  call Cho_PrtTim('Cholesky SOS-MP2 energy',CPUEnr2,CPUEnr1,WallEnr2,WallEnr1,iFmt)
+end if
 
-    1 Diff = abs(Work(ip_Dum)-Chk_Mem_ChoMP2)
-      If (Diff .gt. Tol) Then
-         Write(6,*) SecNam,': Memory Boundary Error!'
-         If (irc .eq. 0) irc = -9999
-      End If
-      If (Verbose) Then
-         Call CWTime(CPUTot2,WallTot2)
-         Call Cho_PrtTim('Cholesky SOS-MP2',CPUTot2,CPUTot1,            &
-     &                   WallTot2,WallTot1,iFmt)
-      End If
-      Call GetMem('Flush','Flush','Real',ip_Dum,l_Dum)
-      Call GetMem('Dummy','Free','Real',ip_Dum,l_Dum)
-      Return
-      End
+! Exit.
+! -----
+
+1 continue
+Diff = abs(Work(ip_Dum)-Chk_Mem_ChoMP2)
+if (Diff > Tol) then
+  write(6,*) SecNam,': Memory Boundary Error!'
+  if (irc == 0) irc = -9999
+end if
+if (Verbose) then
+  call CWTime(CPUTot2,WallTot2)
+  call Cho_PrtTim('Cholesky SOS-MP2',CPUTot2,CPUTot1,WallTot2,WallTot1,iFmt)
+end if
+call GetMem('Flush','Flush','Real',ip_Dum,l_Dum)
+call GetMem('Dummy','Free','Real',ip_Dum,l_Dum)
+
+return
+
+end subroutine Cho_SOSmp2_Drv

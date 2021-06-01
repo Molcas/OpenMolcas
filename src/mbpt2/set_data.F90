@@ -8,37 +8,39 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Set_Data
-      Implicit Real*8 (a-h,o-z)
-!
+
+subroutine Set_Data()
+
+implicit real*8(a-h,o-z)
 #include "mxdim.fh"
 #include "cdtfaux.fh"
 #include "files_mbpt2.fh"
-!
+
 !Start Molcas
 !
-!     Aux
-!
-      Thize=1.0d-6
-      SIntTh=1.0d-14
-      TfThre=1.0d-14
-      nDisc =0
-!End
+! Aux
+
+Thize = 1.0d-6
+SIntTh = 1.0d-14
+TfThre = 1.0d-14
+nDisc = 0
+! End
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Set up some file names
-!
-      LUINTA=40
-      FNINTA='ORDINT'
-      LUHLF1=50
-      FNHLF1='LUHLF1'
-      LUHLF2=60
-      FNHLF2='LUHLF2'
-      LUHLF3=70
-      FNHLF3='LUHLF3'
-      LUINTM=80
-      FNINTM='MOLINT'
-!
-      Return
-      End
+! Set up some file names
+
+LUINTA = 40
+FNINTA = 'ORDINT'
+LUHLF1 = 50
+FNHLF1 = 'LUHLF1'
+LUHLF2 = 60
+FNHLF2 = 'LUHLF2'
+LUHLF3 = 70
+FNHLF3 = 'LUHLF3'
+LUINTM = 80
+FNINTM = 'MOLINT'
+
+return
+
+end subroutine Set_Data

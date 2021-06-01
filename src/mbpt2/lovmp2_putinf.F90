@@ -11,33 +11,50 @@
 ! Copyright (C) 2008, Francesco Aquilante                              *
 !***********************************************************************
 
-subroutine FNOMP2_Drv(irc,EMP2,CMOI,EOcc,EVir)
+subroutine LovMP2_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y,isFNO)
+! Purpose: put info in MP2 common blocks.
 
 #include "implicit.fh"
-real*8 EMP2, CMOI(*), EOcc(*), EVir(*)
-logical DoDens_
-integer ChoAlg_
-#include "orbinf2.fh"
+integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
+integer ip_X, ip_Y
+logical isFNO
 #include "corbinf.fh"
 #include "chomp2_cfg.fh"
 
-DoDens_ = DoDens
-DoDens = .false.
-ChoAlg_ = ChoAlg
+nSym = mSym
+
+do iSym=1,nSym
+  nOrb(iSym) = lnOrb(iSym)
+  nOcc(iSym) = lnOcc(iSym)
+  nFro(iSym) = lnFro(iSym)
+  nDel(iSym) = lnDel(iSym)
+  nExt(iSym) = lnVir(iSym)
+end do
+
 ChoAlg = 2
+DecoMP2 = Decom_Def
+ThrMP2 = -9.9d9
+SpanMP2 = Span_Def
+MxQualMP2 = MxQual_Def
+ChkDecoMP2 = .false.
+ForceBatch = .false.
+Verbose = .false.
+SOS_mp2 = .false.
+set_cd_thr = .true.
+OED_Thr = 1.0d-8
+C_os = 1.3d0
+EOSMP2 = 0.0d0
 
-call FNO_MP2(irc,nSym,nBas,nFro,nOcc,nExt,nDel,CMOI,EOcc,EVir,vkept,DoMP2,XEMP2)
-if (irc /= 0) then
-  write(6,*) 'FNO_MP2 returned ',irc
-  call SysAbendMsg('FNO_MP2','Non-zero return code from FNO_MP2',' ')
-end if
-
-ChoAlg = ChoAlg_
-DoDens = DoDens_
-DoFNO = .false.
-call ChoMP2_Drv(irc,EMP2,CMOI,EOcc,EVir)
-EMP2 = EMP2+XEMP2
+DoFNO = isFNO
+ip_Dab = ip_X
+ip_Dii = ip_Y
+l_Dab = nExt(1)
+l_Dii = nOcc(1)
+do iSym=2,nSym
+  l_Dab = l_Dab+nExt(iSym)**2
+  l_Dii = l_Dii+nOcc(iSym)
+end do
 
 return
 
-end subroutine FNOMP2_Drv
+end subroutine LovMP2_putInf

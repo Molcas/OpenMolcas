@@ -333,7 +333,7 @@ Keywords
   has to be explicitly specified; reasonable values associated to :kword:`DWTYpe`
   equal to 1, 2 and 3 are 50, 1e-8 and 1, respectively (see
   :cite:`Battaglia2020,Battaglia2021` for more details).
-  It is also possible to use this option with :kword:`MULTistate` instaed of
+  It is also possible to use this option with :kword:`MULTistate` instead of
   :kword:`XMULtistate`, in which case the original CASSCF states are used
   instead of the rotated ones.
 

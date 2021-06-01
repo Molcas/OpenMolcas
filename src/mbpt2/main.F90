@@ -8,18 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      program main
+
+program main
+
 #ifdef _FPE_TRAP_
-      Use, Intrinsic :: IEEE_Exceptions
-#endif
-      implicit real*8 (a-h,o-z)
-      Character*20 Module_Name
-      Parameter (Module_Name = 'mbpt2')
-#ifdef _FPE_TRAP_
-      Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
+use, intrinsic :: ieee_exceptions
 #endif
 
-      Call Start(Module_Name)
-      Call mp2_driver(ireturn)
-      Call Finish(ireturn)
-      end
+implicit real*8(a-h,o-z)
+character*20 Module_Name
+parameter(Module_Name='mbpt2')
+
+#ifdef _FPE_TRAP_
+call IEEE_Set_Halting_Mode(IEEE_Usual,.true._4)
+#endif
+
+call Start(Module_Name)
+call mp2_driver(ireturn)
+call Finish(ireturn)
+
+end program main

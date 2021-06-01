@@ -8,105 +8,99 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Freezer(EAll,nFre,nFro,nFro1,nOcc,nBas,nSym,LocPrt)
 
-      Implicit Real*8 (a-h,o-z)
-      Real*8  EAll(*)
-      Integer nFro(nSym), nFro1(nSym), nOcc(nSym), nBas(nSym)
-      Logical LocPrt
+subroutine Freezer(EAll,nFre,nFro,nFro1,nOcc,nBas,nSym,LocPrt)
+
+implicit real*8(a-h,o-z)
+real*8 EAll(*)
+integer nFro(nSym), nFro1(nSym), nOcc(nSym), nBas(nSym)
+logical LocPrt
+character*7 SecNam
+parameter(SecNam='Freezer')
+integer Cho_iRange
+external Cho_iRange
+integer iOcc(8)
 #include "WrkSpc.fh"
 
-      Character*7 SecNam
-      Parameter (SecNam = 'Freezer')
+! For nSym=1, simply transfer nFre to nFro1.
+! Else initialize nFro1 array.
+! ------------------------------------------
 
-      Integer  Cho_iRange
-      External Cho_iRange
+if ((nSym < 1) .or. (nSym > 8)) then
+  write(6,*) SecNam,': illegal nSym = ',nSym
+  call SysAbendMsg(SecNam,'illegal nSym',' ')
+else if (nSym == 1) then
+  nFro1(1) = nFre
+  return
+else
+  call Cho_iZero(nFro1,nSym)
+end if
 
-      Integer iOcc(8)
+! Set up array of active occupied orbital energies.
+! -------------------------------------------------
 
-!     For nSym=1, simply transfer nFre to nFro1.
-!     Else initialize nFro1 array.
-!     ------------------------------------------
+lPoint = nFre
 
-      If (nSym.lt.1 .or. nSym.gt.8) Then
-         Write(6,*) SecNam,': illegal nSym = ',nSym
-         Call SysAbendMsg(SecNam,'illegal nSym',' ')
-      Else If (nSym .eq. 1) Then
-         nFro1(1) = nFre
-         Return
-      Else
-         Call Cho_iZero(nFro1,nSym)
-      End If
+iOcc(1) = 0
+lEOcc = nOcc(1)
+do iSym=2,nSym
+  iOcc(iSym) = lEOcc
+  lEOcc = lEOcc+nOcc(iSym)
+end do
 
-!     Set up array of active occupied orbital energies.
-!     -------------------------------------------------
+call GetMem('ScrOcc','Allo','Real',ipEOcc,lEOcc)
+call GetMem('Pivot','Allo','Inte',ipPivot,lEOcc)
+call GetMem('Point','Allo','Inte',ipPoint,lPoint)
 
-      lPoint = nFre
+iCount = 1
+do iSym=1,nSym
+  kAll = iCount+nFro(iSym)
+  kOcc = ipEOcc+iOcc(iSym)
+  call dCopy_(nOcc(iSym),EAll(kAll),1,Work(kOcc),1)
+  iCount = iCount+nBas(iSym)
+end do
 
-      iOcc(1) = 0
-      lEOcc   = nOcc(1)
-      Do iSym = 2,nSym
-         iOcc(iSym) = lEOcc
-         lEOcc = lEOcc + nOcc(iSym)
-      End Do
+! Find pointers to lowest nFre occupied orbital energies.
+! -------------------------------------------------------
 
-      Call GetMem('ScrOcc','Allo','Real',ipEOcc,lEOcc)
-      Call GetMem('Pivot','Allo','Inte',ipPivot,lEOcc)
-      Call GetMem('Point','Allo','Inte',ipPoint,lPoint)
+xMin = -1.0d15
+NumFre = nFre
+call dScal_(lEOcc,-1.0d0,Work(ipEOcc),1) ! DiaMax finds MAX values
+call CD_DiaMax(Work(ipEOcc),lEOcc,iWork(ipPivot),iWork(ipPoint),NumFre,xMin)
+if (NumFre /= nFre) then
+  write(6,*) SecNam,': an error occurred in CD_DiaMax!'
+  write(6,*) 'NumFre = ',NumFre,' != ',nFre,' = nFre'
+  call SysAbendMsg(SecNam,'CD_DiaMax failure',' ')
+end if
 
-      iCount = 1
-      Do iSym = 1,nSym
-         kAll = iCount + nFro(iSym)
-         kOcc = ipEOcc + iOcc(iSym)
-         Call dCopy_(nOcc(iSym),EAll(kAll),1,Work(kOcc),1)
-         iCount = iCount + nBas(iSym)
-      End Do
+! Set up nFro1 array.
+! -------------------
 
-!     Find pointers to lowest nFre occupied orbital energies.
-!     -------------------------------------------------------
+do iFre=1,nFre
+  iSym = Cho_iRange(iWork(ipPoint-1+iFre),iOcc,nSym,.false.)
+  nFro1(iSym) = nFro1(iSym)+1
+end do
 
-      xMin   = -1.0D15
-      NumFre = nFre
-      Call dScal_(lEOcc,-1.0D0,Work(ipEOcc),1) ! DiaMax finds MAX values
-      Call CD_DiaMax(Work(ipEOcc),lEOcc,iWork(ipPivot),iWork(ipPoint),  &
-     &               NumFre,xMin)
-      If (NumFre .ne. nFre) Then
-         Write(6,*) SecNam,': an error occurred in CD_DiaMax!'
-         Write(6,*) 'NumFre = ',NumFre,' != ',nFre,' = nFre'
-         Call SysAbendMsg(SecNam,'CD_DiaMax failure',' ')
-      End If
+! If requested, print.
+! --------------------
 
-!     Set up nFro1 array.
-!     -------------------
+if (LocPrt) then
+  write(6,'(/,3X,A,A,A)') 'Output from ',SecNam,':'
+  write(6,'(1X,A,I5,A)') 'The',nFre,' lowest occupied orbitals have been frozen.'
+  write(6,'(1X,A)') 'List of frozen occupied orbitals:'
+  do iFre=1,nFre
+    kOcc = iWork(ipPoint-1+iFre)
+    jSym = Cho_iRange(kOcc,iOcc,nSym,.false.)
+    jOcc = kOcc-iOcc(jSym)
+    write(6,'(1X,A,I5,A,I1,A,F15.8)') 'Occupied orbital',jOcc,' of symmetry ',jSym,' and energy ',-Work(ipEOcc-1+kOcc)
+  end do
+end if
 
-      Do iFre = 1,nFre
-         iSym = Cho_iRange(iWork(ipPoint-1+iFre),iOcc,nSym,.false.)
-         nFro1(iSym) = nFro1(iSym) + 1
-      End Do
+! Free memory.
+! ------------
 
-!     If requested, print.
-!     --------------------
+call GetMem('Point','Free','Inte',ipPoint,lPoint)
+call GetMem('Pivot','Free','Inte',ipPivot,lEOcc)
+call GetMem('ScrOcc','Free','Real',ipEOcc,lEOcc)
 
-      If (LocPrt) Then
-         Write(6,'(/,3X,A,A,A)') 'Output from ',SecNam,':'
-         Write(6,'(1X,A,I5,A)')                                         &
-     &   'The',nFre,' lowest occupied orbitals have been frozen.'
-         Write(6,'(1X,A)') 'List of frozen occupied orbitals:'
-         Do iFre = 1,nFre
-            kOcc = iWork(ipPoint-1+iFre)
-            jSym = Cho_iRange(kOcc,iOcc,nSym,.false.)
-            jOcc = kOcc - iOcc(jSym)
-            Write(6,'(1X,A,I5,A,I1,A,F15.8)')                           &
-     &      'Occupied orbital',jOcc,' of symmetry ',jSym,               &
-     &      ' and energy ',-Work(ipEOcc-1+kOcc)
-         End Do
-      End If
-
-!     Free memory.
-!     ------------
-
-      Call GetMem('Point','Free','Inte',ipPoint,lPoint)
-      Call GetMem('Pivot','Free','Inte',ipPivot,lEOcc)
-      Call GetMem('ScrOcc','Free','Real',ipEOcc,lEOcc)
-
-      End
+end subroutine Freezer

@@ -210,13 +210,13 @@ do
           if (Line(1:4) == 'LIMI') then
             Key = Get_Ln(LuSpool)
             call Get_F(1,dLimmo,2)
-          elseif (Line(1:4) == 'THRE') then
+          else if (Line(1:4) == 'THRE') then
             Key = Get_Ln(LuSpool)
             call Get_F1(1,Thrs1)
             call Get_F1(2,Thrs2)
             call Get_I1(3,nThrs)
             call Get_F1(4,ThrsMul)
-          elseif (Line(1:4) == 'END ') then
+          else if (Line(1:4) == 'END ') then
             exit
           else
             write(u6,*) 'Undefined option for "DIFFuse":',Key
@@ -224,7 +224,7 @@ do
             call Quit_OnUserError()
           end if
         end do
-      elseif (Line(1:4) == 'REXT') then
+      else if (Line(1:4) == 'REXT') then
         Diffuse(1) = .true.
         Diffuse(3) = .true.
       else
@@ -300,7 +300,7 @@ if (Diffuse(1)) then
   write(u6,*) ' Computation of exponents to non-zero width Slater functions.'
   if (Diffuse(2)) then
     write(u6,*) ' --- Numerical determination.'
-  elseif (Diffuse(3)) then
+  else if (Diffuse(3)) then
     write(u6,*) ' --- Analytical determination.'
   end if
   write(u6,*)

@@ -10,172 +10,134 @@
 !                                                                      *
 ! Copyright (C) Jonas Bostrom                                          *
 !***********************************************************************
-      subroutine Finish_WDensity()
-!********************************************
+
+subroutine Finish_WDensity()
+! Author: Jonas Bostrom
 !
-!     Author: Jonas Bostrom
-!
-!     Purpose: Add the terms labeled [II] and [III] to the energy-weighted
-!              MP2 Density
-!
-      Implicit Real*8 (a-h,o-z)
+! Purpose: Add the terms labeled [II] and [III] to the energy-weighted
+!          MP2 Density
+
+implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
 #include "files_mbpt2.fh"
 #include "trafo.fh"
 #include "mp2grad.fh"
 #include "corbinf.fh"
-      iOccAOcc(i,j,k) =   j-1 + (nOrb(k)+nDel(k)) *                     &
-     &                              (nFro(k) + i-1)
-      iOccOcc(i,j,k) = j-1 + (nOrb(k) + nDel(k)) * (i-1)
-      iVirVir(i,j,k) = j-1 + nFro(k) + nOcc(k) +                        &
-     &                      (nOrb(k) + nDel(k))*(i-1+nFro(k) + nOcc(k))
-      iVirOcc(i,j,k) = j-1 + nFro(k) + nOcc(k) + (nOrb(k) + nDel(k))    &
-     &                                *(i-1)
-!
-!     Get rid of silly compiler warning.
-      iJ = 0
-!     Start with the II-terms
-      Do iSym = 1, nSym
-         Do iI = 1, nOcc(iSym)
-            Eps_i = Work(mAdOcc(iSym)+iI-1)
-            Do iJ = 1, nFro(iSym) + nOcc(iSym)
-               If(iJ.le.nFro(iSym)) Then
-                  Eps_j = Work(mAdFro(iSym)+iJ-1)
-                  Fac = 2.0d0
-               Else
-                  Eps_j = Work(mAdOcc(iSym)+iJ-nFro(iSym)-1)
-                  Fac = 1.0d0
-               End If
-!     Fac is because both core-occ and occ-core contributions should be
-!     added, they can both be added to IJ since we symmetrize W later and
-!     the term is symmetric
-               Work(ip_WDensity(iSym) + iOccAOcc(iI,iJ,iSym)) =         &
-     &              Work(ip_WDensity(iSym) + iOccAOcc(iI,iJ,iSym)) -    &
-     &              Fac*Work(ip_Density(iSym) + iOccAOcc(iI,iJ,iSym))*  &
-     &                  0.5d0*(Eps_i + Eps_j)
-             End Do
-         End Do
-         Do iA = 1, nExt(iSym)
-            Eps_a = Work(mAdVir(iSym) + iA-1)
-            Do iB = 1, nExt(iSym) + nDel(iSym)
-               If(iB.gt.nExt(iSym)) Then
-                  Eps_b = Work(mAdDel(iSym) + iB-1-nExt(iSym))
-               Else
-                  Eps_b = Work(mAdVir(iSym) + iB-1)
-               End If
-               Work(ip_WDensity(iSym) + iVirVir(iB,iA,iSym)) =          &
-     &              Work(ip_WDensity(iSym) + iVirVir(iB,iA,iSym)) -     &
-     &              Work(ip_Density(iSym) + iVirVir(iB,iA,iSym))*       &
-     &              0.5d0*(Eps_a + Eps_b)
-            End Do
-         End Do
+iOccAOcc(i,j,k) = j-1+(nOrb(k)+nDel(k))*(nFro(k)+i-1)
+iOccOcc(i,j,k) = j-1+(nOrb(k)+nDel(k))*(i-1)
+iVirVir(i,j,k) = j-1+nFro(k)+nOcc(k)+(nOrb(k)+nDel(k))*(i-1+nFro(k)+nOcc(k))
+iVirOcc(i,j,k) = j-1+nFro(k)+nOcc(k)+(nOrb(k)+nDel(k))*(i-1)
 
-         Do iI = 1, nFro(iSym) + nOcc(iSym)
-            If(iI.le.nFro(iSym)) Then
-               Eps_i = Work(mAdFro(iSym)+iI-1)
-            Else
-               Eps_i = Work(mAdOcc(iSym)+iI-nFro(iSym)-1)
-            End If
-            Do iA = 1, nExt(iSym) + nDel(iSym)
-               Work(ip_WDensity(iSym) + iVirOcc(iI,iA,iSym)) =          &
-     &              Work(ip_WDensity(iSym) + iVirOcc(iI,iA,iSym)) -     &
-     &              Work(ip_Density(iSym) + iVirOcc(iI,iA,iSym))*       &
-     &              2.0d0*(Eps_i)
-            End Do
-         End Do
-      End Do
-!     And now the [III]-terms
-      nMaxOrb=0
-      Do iSym1 = 1,nSym
-         Do iSym2 = 1,nSym
-            nMaxOrb = Max(nMaxOrb,(nOrb(iSym1)+nDel(iSym1))             &
-     &              *(nOrb(iSym2)+nDel(iSym2)))
-         End Do
-      End Do
-      lint = nMaxOrb
-      Call GetMem('Int1','Allo','Real',ipInt1,lInt)
-      Call GetMem('Int2','Allo','Real',ipInt2,lInt)
-      Call GetMem('IntC','Allo','Real',ipIntC,lInt)
-      Call GetMem('Scr1','Allo','Real',ipScr1,lInt)
-      Do iSymIJ = 1, nSym
-         Do iSymPQ = 1, nSym
-            Do iI = 1, nFro(iSymIJ) + nOcc(iSymIJ)
-               Do iJ = 1, iI
-                  Call Exch(iSymPQ,iSymIJ,iSymPQ,iSymIJ,                &
-     &                 iJ,                                              &
-     &                 iI,                                              &
-     &                 Work(ipInt1), Work(ipScr1))
-                  Call Coul(iSymPQ,iSymPQ,iSymIJ,iSymIJ,                &
-     &                 iJ,                                              &
-     &                 iI,                                              &
-     &                 Work(ipIntC), Work(ipScr1))
+! Start with the II-terms
+do iSym=1,nSym
+  do iI=1,nOcc(iSym)
+    Eps_i = Work(mAdOcc(iSym)+iI-1)
+    do iJ=1,nFro(iSym)+nOcc(iSym)
+      if (iJ <= nFro(iSym)) then
+        Eps_j = Work(mAdFro(iSym)+iJ-1)
+        Fac = 2.0d0
+      else
+        Eps_j = Work(mAdOcc(iSym)+iJ-nFro(iSym)-1)
+        Fac = 1.0d0
+      end if
+      ! Fac is because both core-occ and occ-core contributions should be
+      ! added, they can both be added to IJ since we symmetrize W later and
+      ! the term is symmetric
+      Work(ip_WDensity(iSym)+iOccAOcc(iI,iJ,iSym)) = Work(ip_WDensity(iSym)+iOccAOcc(iI,iJ,iSym))-Fac*Work(ip_Density(iSym)+ &
+                                                     iOccAOcc(iI,iJ,iSym))*0.5d0*(Eps_i+Eps_j)
+    end do
+  end do
+  do iA=1,nExt(iSym)
+    Eps_a = Work(mAdVir(iSym)+iA-1)
+    do iB=1,nExt(iSym)+nDel(iSym)
+      if (iB > nExt(iSym)) then
+        Eps_b = Work(mAdDel(iSym)+iB-1-nExt(iSym))
+      else
+        Eps_b = Work(mAdVir(iSym)+iB-1)
+      end if
+      Work(ip_WDensity(iSym)+iVirVir(iB,iA,iSym)) = Work(ip_WDensity(iSym)+iVirVir(iB,iA,iSym))-Work(ip_Density(iSym)+ &
+                                                    iVirVir(iB,iA,iSym))*0.5d0*(Eps_a+Eps_b)
+    end do
+  end do
 
-!                  Write(6,*) 'Finish'
-!                  Write(6,*) ' *  i,j = ',iI, iJ
-!               Call RecPrt('Int1:','(8F10.6)',Work(ipInt1),
-!     &              nOrb(iSymPQ)+nDel(iSymPQ),
-!     &              nOrb(iSymPQ)+nDel(iSymPQ))
-!               Call RecPrt('IntC:','(8F10.6)',Work(ipIntC),
-!     &              nOrb(iSymPQ)+nDel(iSymPQ),
-!     &              nOrb(iSymPQ)+nDel(iSymPQ))
-                  Do iP = 1, nOrb(iSymPQ) + nDel(iSymPQ)
-                     Do iQ = 1, nOrb(iSymPQ)+nDel(iSymPQ)
-                        xipjq = Work(ipInt1 + (iP-1) +                  &
-     &                         (iQ-1)*(nOrb(iSymPQ) + nDel(iSymPQ)))
-                        xijpq = Work(ipIntC + (iP-1) +                  &
-     &                         (iQ-1)*(nOrb(iSymPQ) + nDel(iSymPQ)))
-                        Work(ip_WDensity(iSymIJ)+iOccOcc(iI,iJ,iSymIJ))=&
-     &                  Work(ip_WDensity(iSymIJ)+iOccOcc(iI,iJ,iSymIJ))-&
-     &                  Work(ip_Density(iSymPQ)+iOccOcc(iP,iQ,iSymPQ))* &
-     &                   (2.0d0*xijpq - xipjq)
-                        If(iJ.ne.iI) Then
-                           Work(ip_WDensity(iSymIJ)                     &
-     &                         +iOccOcc(iJ,iI,iSymIJ))=                 &
-     &                          Work(ip_WDensity(iSymIJ)                &
-     &                          +iOccOcc(iJ,iI,iSymIJ))-                &
-     &                          Work(ip_Density(iSymPQ)                 &
-     &                          +iOccOcc(iP,iQ,iSymPQ))*                &
-     &                          (2.0d0*xijpq - xipjq)
-                        End If
-                     End Do
-                  End Do
-               End Do
-            End Do
-         End Do
-      End Do
-!     Do the symmetrization of the energy weighted density and add the
-!     SCF-energyweighted density. Also changes sign on W since the formulas
-!     in the used article yields -W
-      Do iSym = 1, nSym
-         Do iP=1, nOrb(iSym) + nDel(iSym)
-            Do iQ =1,iP
-               If(iQ.ne.iP) Then
-                  Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym)) = -       &
-     &             (Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym)) +       &
-     &              Work(ip_WDensity(iSym)+iOccOcc(iQ,iP,iSym)))/2.0d0
-                  Work(ip_WDensity(iSym)+iOccOcc(iQ,iP,iSym)) =         &
-     &                Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym))
-               Else If(iQ.le.nFro(iSym)) Then
-                  Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym)) = -       &
-     &              Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym)) +       &
-     &              2.0d0*Work(mAdFro(iSym)+iQ-1)
-               Else If(iQ.le.nFro(iSym)+nOcc(iSym)) Then
-                  Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym)) = -       &
-     &              Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym)) +       &
-     &              2.0d0*Work(mAdOcc(iSym)+iQ-nFro(iSym)-1)
-               Else
-                  Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym)) = -       &
-     &              Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym))
-               End If
-            End Do
-         End Do
-      End Do
+  do iI=1,nFro(iSym)+nOcc(iSym)
+    if (iI <= nFro(iSym)) then
+      Eps_i = Work(mAdFro(iSym)+iI-1)
+    else
+      Eps_i = Work(mAdOcc(iSym)+iI-nFro(iSym)-1)
+    end if
+    do iA=1,nExt(iSym)+nDel(iSym)
+      Work(ip_WDensity(iSym)+iVirOcc(iI,iA,iSym)) = Work(ip_WDensity(iSym)+iVirOcc(iI,iA,iSym))-Work(ip_Density(iSym)+ &
+                                                    iVirOcc(iI,iA,iSym))*2.0d0*(Eps_i)
+    end do
+  end do
+end do
+! And now the [III]-terms
+nMaxOrb = 0
+do iSym1=1,nSym
+  do iSym2=1,nSym
+    nMaxOrb = max(nMaxOrb,(nOrb(iSym1)+nDel(iSym1))*(nOrb(iSym2)+nDel(iSym2)))
+  end do
+end do
+lint = nMaxOrb
+call GetMem('Int1','Allo','Real',ipInt1,lInt)
+call GetMem('Int2','Allo','Real',ipInt2,lInt)
+call GetMem('IntC','Allo','Real',ipIntC,lInt)
+call GetMem('Scr1','Allo','Real',ipScr1,lInt)
+do iSymIJ=1,nSym
+  do iSymPQ=1,nSym
+    do iI=1,nFro(iSymIJ)+nOcc(iSymIJ)
+      do iJ=1,iI
+        call Exch(iSymPQ,iSymIJ,iSymPQ,iSymIJ,iJ,iI,Work(ipInt1),Work(ipScr1))
+        call Coul(iSymPQ,iSymPQ,iSymIJ,iSymIJ,iJ,iI,Work(ipIntC),Work(ipScr1))
 
-!
-      Call GetMem('Int1','Free','Real',ipInt1,lInt)
-      Call GetMem('Int2','Free','Real',ipInt2,lInt)
-      Call GetMem('IntC','Free','Real',ipIntC,lInt)
-      Call GetMem('Scr1','Free','Real',ipScr1,lInt)
+        !write(6,*) 'Finish'
+        !write(6,*) ' *  i,j = ',iI,iJ
+        !call RecPrt('Int1:','(8F10.6)',Work(ipInt1),nOrb(iSymPQ)+nDel(iSymPQ),nOrb(iSymPQ)+nDel(iSymPQ))
+        !call RecPrt('IntC:','(8F10.6)',Work(ipIntC),nOrb(iSymPQ)+nDel(iSymPQ),nOrb(iSymPQ)+nDel(iSymPQ))
+        do iP=1,nOrb(iSymPQ)+nDel(iSymPQ)
+          do iQ=1,nOrb(iSymPQ)+nDel(iSymPQ)
+            xipjq = Work(ipInt1+(iP-1)+(iQ-1)*(nOrb(iSymPQ)+nDel(iSymPQ)))
+            xijpq = Work(ipIntC+(iP-1)+(iQ-1)*(nOrb(iSymPQ)+nDel(iSymPQ)))
+            Work(ip_WDensity(iSymIJ)+iOccOcc(iI,iJ,iSymIJ)) = Work(ip_WDensity(iSymIJ)+iOccOcc(iI,iJ,iSymIJ))- &
+                                                              Work(ip_Density(iSymPQ)+iOccOcc(iP,iQ,iSymPQ))*(2.0d0*xijpq-xipjq)
+            if (iJ /= iI) then
+              Work(ip_WDensity(iSymIJ)+iOccOcc(iJ,iI,iSymIJ)) = Work(ip_WDensity(iSymIJ)+iOccOcc(iJ,iI,iSymIJ))- &
+                                                                Work(ip_Density(iSymPQ)+iOccOcc(iP,iQ,iSymPQ))*(2.0d0*xijpq-xipjq)
+            end if
+          end do
+        end do
+      end do
+    end do
+  end do
+end do
+! Do the symmetrization of the energy weighted density and add the
+! SCF-energyweighted density. Also changes sign on W since the formulas
+! in the used article yields -W
+do iSym=1,nSym
+  do iP=1,nOrb(iSym)+nDel(iSym)
+    do iQ=1,iP
+      if (iQ /= iP) then
+        Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym)) = -(Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym))+ &
+                                                        Work(ip_WDensity(iSym)+iOccOcc(iQ,iP,iSym)))/2.0d0
+        Work(ip_WDensity(iSym)+iOccOcc(iQ,iP,iSym)) = Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym))
+      else if (iQ <= nFro(iSym)) then
+        Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym)) = -Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym))+2.0d0*Work(mAdFro(iSym)+iQ-1)
+      else if (iQ <= nFro(iSym)+nOcc(iSym)) then
+        Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym)) = -Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym))+ &
+                                                      2.0d0*Work(mAdOcc(iSym)+iQ-nFro(iSym)-1)
+      else
+        Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym)) = -Work(ip_WDensity(iSym)+iOccOcc(iP,iQ,iSym))
+      end if
+    end do
+  end do
+end do
 
-      Return
-      End
+call GetMem('Int1','Free','Real',ipInt1,lInt)
+call GetMem('Int2','Free','Real',ipInt2,lInt)
+call GetMem('IntC','Free','Real',ipIntC,lInt)
+call GetMem('Scr1','Free','Real',ipScr1,lInt)
+
+return
+
+end subroutine Finish_WDensity

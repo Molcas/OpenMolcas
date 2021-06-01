@@ -10,12 +10,12 @@
 !                                                                      *
 ! Copyright (C) 2007, Francesco Aquilante                              *
 !***********************************************************************
-      SubRoutine Cho_SOSmp2_Setup(irc)
+
+subroutine Cho_SOSmp2_Setup(irc)
+! Francesco Aquilante   May 2007.
 !
-!     Francesco Aquilante   May 2007.
-!
-!     Purpose: setup of SOS-MP2 program.
-!
+! Purpose: setup of SOS-MP2 program.
+
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -23,139 +23,85 @@
 #include "chomp2.fh"
 #include "WrkSpc.fh"
 !***********************************************************************
-      MulD2h(i,j)=iEor(i-1,j-1) + 1
+MulD2h(i,j) = ieor(i-1,j-1)+1
 !***********************************************************************
 
-      irc = 0
+irc = 0
 
-!     Setup index arrays and counters.
-!     --------------------------------
+! Setup index arrays and counters.
+! --------------------------------
 
-      If (DecoMP2 .and. ThrMP2.le.0.0D0) Then
-         Call Get_dScalar('Cholesky Threshold',ThrMP2)
-      End If
+if (DecoMP2 .and. (ThrMP2 <= 0.0d0)) then
+  call Get_dScalar('Cholesky Threshold',ThrMP2)
+end if
 
-      Call ChoMP2_GetInf(nOrb,nOcc,nFro,nDel,nVir)
-      iOcc(1) = 0
-      iVir(1) = 0
-      nOccT = nOcc(1)
-      nVirT = nVir(1)
-      Do iSym = 2,nSym
-         iOcc(iSym) = nOccT
-         iVir(iSym) = nVirT
-         nOccT = nOccT + nOcc(iSym)
-         nVirT = nVirT + nVir(iSym)
-      End Do
+call ChoMP2_GetInf(nOrb,nOcc,nFro,nDel,nVir)
+iOcc(1) = 0
+iVir(1) = 0
+nOccT = nOcc(1)
+nVirT = nVir(1)
+do iSym=2,nSym
+  iOcc(iSym) = nOccT
+  iVir(iSym) = nVirT
+  nOccT = nOccT+nOcc(iSym)
+  nVirT = nVirT+nVir(iSym)
+end do
 
-      Do iSym = 1,nSym
-         nT1am(iSym) = 0
-         Do iSymi = 1,nSym
-            iSyma = MulD2h(iSymi,iSym)
-            iT1am(iSyma,iSymi) = nT1am(iSym)
-            nT1am(iSym) = nT1am(iSym)                                   &
-     &                  + nVir(iSyma)*nOcc(iSymi)
-         End Do
-      End Do
+do iSym=1,nSym
+  nT1am(iSym) = 0
+  do iSymi=1,nSym
+    iSyma = MulD2h(iSymi,iSym)
+    iT1am(iSyma,iSymi) = nT1am(iSym)
+    nT1am(iSym) = nT1am(iSym)+nVir(iSyma)*nOcc(iSymi)
+  end do
+end do
 
-      Do iSym = 1,nSym
-         nT1AOT(iSym) = 0
-         Do iSymAl = 1,nSym
-            iSymi = MulD2h(iSymAl,iSym)
-            iT1AOT(iSymi,iSymAl) = nT1AOT(iSym)
-            nT1AOT(iSym) = nT1AOT(iSym)                                 &
-     &                   + nOcc(iSymi)*nBas(iSymAl)
-         End Do
-      End Do
+do iSym=1,nSym
+  nT1AOT(iSym) = 0
+  do iSymAl=1,nSym
+    iSymi = MulD2h(iSymAl,iSym)
+    iT1AOT(iSymi,iSymAl) = nT1AOT(iSym)
+    nT1AOT(iSym) = nT1AOT(iSym)+nOcc(iSymi)*nBas(iSymAl)
+  end do
+end do
 
-      Do iSym = 1,nSym
-         nAOVir(iSym) = 0
-         Do iSyma = 1,nSym
-            iSymAl = MulD2h(iSyma,iSym)
-            iAOVir(iSymAl,iSyma) = nAOVir(iSym)
-            nAOVir(iSym) = nAOVir(iSym)                                 &
-     &                   + nBas(iSymAl)*nVir(iSyma)
-         End Do
-      End Do
+do iSym=1,nSym
+  nAOVir(iSym) = 0
+  do iSyma=1,nSym
+    iSymAl = MulD2h(iSyma,iSym)
+    iAOVir(iSymAl,iSyma) = nAOVir(iSym)
+    nAOVir(iSym) = nAOVir(iSym)+nBas(iSymAl)*nVir(iSyma)
+  end do
+end do
 
-      If (ChoAlg .eq. 2) Then
-         Do iSym = 1,nSym
-            nMatab(iSym) = 0
-            Do iSymb = 1,nSym
-               iSyma = MulD2h(iSymb,iSym)
-               iMatab(iSyma,iSymb) = nMatab(iSym)
-               nMatab(iSym) = nMatab(iSym) + nVir(iSyma)*nVir(iSymb)
-            End Do
-         End Do
-      Else
-         Call Cho_iZero(nMatab,8)
-         Call Cho_iZero(iMatab,64)
-      End If
+if (ChoAlg == 2) then
+  do iSym=1,nSym
+    nMatab(iSym) = 0
+    do iSymb=1,nSym
+      iSyma = MulD2h(iSymb,iSym)
+      iMatab(iSyma,iSymb) = nMatab(iSym)
+      nMatab(iSym) = nMatab(iSym)+nVir(iSyma)*nVir(iSymb)
+    end do
+  end do
+else
+  call Cho_iZero(nMatab,8)
+  call Cho_iZero(iMatab,64)
+end if
 
-!     If batching over occuped orbitals is forced by user, then
-!        turn it Off !
-!     -----------------------------------------------------------------
+! If batching over occuped orbitals is forced by user, then turn it Off!
+! ----------------------------------------------------------------------
 
-      ForceBatch = .false.
+ForceBatch = .false.
 
-      nBatch = 1
+nBatch = 1
 
-!     Initialize file units.
-!     ----------------------
+! Initialize file units.
+! ----------------------
 
-      Do iSym = 1,nSym
-         Do iTyp = 1,nTypF
-            Call ChoMP2_OpenF(0,iTyp,iSym)
-         End Do
-      End Do
+do iSym=1,nSym
+  do iTyp=1,nTypF
+    call ChoMP2_OpenF(0,iTyp,iSym)
+  end do
+end do
 
-      End
-
-!***********************************************************************
-      SubRoutine Cho_SOSmp2_Setup_Prt(irc)
-!
-!     Francesco Aquilante  May 2007
-!
-!     Purpose: print setup for SOS-MP2.
-!
-#include "implicit.fh"
-#include "cholesky.fh"
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
-#include "WrkSpc.fh"
-
-
-      irc = 0
-
-      Call Cho_Head('Cholesky SOS-MP2 Setup','=',80,6)
-      Write(6,*)
-
-      If (nBatch .gt. 1) Then
-         Write(6,'(A,I6,A,I6,A)')                                       &
-     &   'The list of',nOccT,' occupied orbitals has been split in',    &
-     &   nBatch,' batches:'
-         Write(6,*)'Batching is not allowed in SOS-MP2 : I stop here! '
-         Call Abend()
-      Else If (nBatch .eq. 1) Then
-         Write(6,'(A,I6,A)')                                            &
-     &   'The list of',nOccT,' occupied orbitals is not split:'
-      Else
-         Write(6,*) 'Oops, #batches over occupied orbitals ',           &
-     &              'is non-positive: ',nBatch
-         irc = -101
-         Return
-      End If
-
-      Write(6,'(//,A)')                                                 &
-     & 'The following tasks will be performed:'
-      Write(6,'(A)')                                                    &
-     & ' * AO-to-MO transformation of original Cholesky vectors.'
-      If (DecoMP2) Then
-         Write(6,'(A)')                                                 &
-     &   ' * Cholesky decomposition of M=(ai|bj)^2 matrix.'
-      End If
-      Write(6,*)                                                        &
-     & ' * Calculation of SOS-MP2 correlation energy.'
-
-      Call xFlush(6)
-
-      End
+end subroutine Cho_SOSmp2_Setup

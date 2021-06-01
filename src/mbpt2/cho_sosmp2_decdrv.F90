@@ -10,22 +10,29 @@
 !                                                                      *
 ! Copyright (C) 2007, Francesco Aquilante                              *
 !***********************************************************************
-      SubRoutine Cho_SOSmp2_DecDrv(irc,DelOrig,Diag)
+
+subroutine Cho_SOSmp2_DecDrv(irc,DelOrig,Diag)
+! Francesco Aquilante, May 2007.
 !
-!     Francesco Aquilante, May 2007.
+! Purpose: decompose M(ai,bj) = (ai|bj)^2 for use in
+!          SOS-MP2 approach.
 !
-!     Purpose: decompose M(ai,bj) = (ai|bj)^2 for use in
-!              SOS-MP2 approach.
-!
-!     DelOrig: flag for deleting files with original vectors after
-!              decomposition completes.
-!
-      use ChoMP2, only: OldVec
+! DelOrig: flag for deleting files with original vectors after
+!          decomposition completes.
+
+use ChoMP2, only: OldVec
+
 #include "implicit.fh"
-      External Cho_SOSmp2_Col, ChoMP2_Vec
-      Integer  irc
-      Logical  DelOrig
-      Real*8   Diag(*)
+external Cho_SOSmp2_Col, ChoMP2_Vec
+integer irc
+logical DelOrig
+real*8 Diag(*)
+character*6 ThisNm
+character*17 SecNam
+parameter(SecNam='Cho_SOSmp2_DecDrv',ThisNm='DecDrv')
+logical Restart, Failed
+parameter(Restart=.false.)
+integer iClos(2)
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
@@ -33,258 +40,232 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
-      Character*6  ThisNm
-      Character*17 SecNam
-      Parameter (SecNam = 'Cho_SOSmp2_DecDrv', ThisNm = 'DecDrv')
+! Initializations.
+! ----------------
 
-      Logical Restart, Failed
-      Parameter (Restart = .false.)
+irc = 0
 
-      Integer iClos(2)
+lErrStat = 3
+call GetMem('ErrStat','Allo','Real',ipErrStat,lErrStat)
+if (Verbose) then
+  nBin = 18
+  call GetMem('Bin','Allo','Real',ipBin,nBin)
+else
+  ipBin = -999999
+  nBin = 0
+end if
 
-!     Initializations.
-!     ----------------
+do iSym=1,nSym
+  nMP2Vec(iSym) = 0
+  InCore(iSym) = .false.
+end do
+NowSym = -999999
 
-      irc = 0
+if (DelOrig) then
+  iClos(1) = 3  ! signals close and delete original vectors
+else
+  iClos(1) = 2  ! signals close and keep original vectors
+end if
+iClos(2) = 2    ! signals close and keep result vectors
 
-      lErrStat = 3
-      Call GetMem('ErrStat','Allo','Real',ipErrStat,lErrStat)
-      If (Verbose) Then
-         nBin = 18
-         Call GetMem('Bin','Allo','Real',ipBin,nBin)
-      Else
-         ipBin = -999999
-         nBin  = 0
-      End If
+! Print.
+! ------
 
-      Do iSym = 1,nSym
-         nMP2Vec(iSym) = 0
-         InCore(iSym)  = .false.
-      End Do
-      NowSym    = -999999
+if (Verbose) then
+  write(6,*)
+  call Cho_Head('Cholesky Decomposition of  M(ai,bj) = (ai|bj)^2 for SOS-MP2','=',80,6)
+  write(6,'(/,1X,A)') 'Configuration of decomposition:'
+  write(6,'(1X,A,1P,D15.6)') 'Threshold: ',ThrMP2
+  write(6,'(1X,A,1P,D15.6)') 'Span     : ',SpanMP2
+  if (ChkDecoMP2) then
+    write(6,'(1X,A)') 'Full decomposition check activated.'
+  end if
+end if
 
-      If (DelOrig) Then
-         iClos(1) = 3  ! signals close and delete original vectors
-      Else
-         iClos(1) = 2  ! signals close and keep original vectors
-      End If
-      iClos(2) = 2     ! signals close and keep result vectors
+! Start symmetry loop.
+! --------------------
 
+kOffD = 1
+do iSym=1,nSym
 
-!     Print.
-!     ------
+  nDim = nT1am(iSym)
+  if ((nDim > 0) .and. (NumCho(iSym) > 0)) then
 
-      If (Verbose) Then
-         Write(6,*)
-         Call Cho_Head('Cholesky Decomposition of  M(ai,bj) = (ai|bj)^2'&
-     &                 //' for SOS-MP2','=',80,6)
-         Write(6,'(/,1X,A)') 'Configuration of decomposition:'
-         Write(6,'(1X,A,1P,D15.6)') 'Threshold: ',ThrMP2
-         Write(6,'(1X,A,1P,D15.6)') 'Span     : ',SpanMP2
-         If (ChkDecoMP2) Then
-            Write(6,'(1X,A)') 'Full decomposition check activated.'
-         End If
-      End If
+    if (Verbose .and. (nBin > 0)) then
+      Work(ipBin) = 1.0d2
+      do iBin=ipBin+1,ipBin+nBin-1
+        Work(iBin) = Work(iBin-1)*1.0D-1
+      end do
+      write(6,'(//,1X,A,I2,A,I9)') '>>> Cholesky decomposing symmetry block ',iSym,', dimension: ',nDim
+      write(6,'(/,1X,A)') 'Analysis of initial diagonal:'
+      call Cho_AnaSize(Diag(kOffD),nDim,Work(ipBin),nBin,6)
+    end if
 
-!     Start symmetry loop.
-!     --------------------
+    ! Open files.
+    ! -----------
 
-      kOffD = 1
-      Do iSym = 1,nSym
+    do iTyp=1,2
+      call ChoMP2_OpenF(1,iTyp,iSym)
+    end do
 
-         nDim = nT1am(iSym)
-         If (nDim.gt.0 .and. NumCho(iSym).gt.0) Then
+    ! Setup decomposition.
+    ! --------------------
 
-            If (Verbose .and. nBin.gt.0) Then
-               Work(ipBin) = 1.0D2
-               Do iBin = ipBin+1,ipBin+nBin-1
-                  Work(iBin) = Work(iBin-1)*1.0D-1
-               End Do
-               Write(6,'(//,1X,A,I2,A,I9)')                             &
-     &         '>>> Cholesky decomposing symmetry block ',iSym,         &
-     &         ', dimension: ',nDim
-               Write(6,'(/,1X,A)') 'Analysis of initial diagonal:'
-               Call Cho_AnaSize(Diag(kOffD),nDim,Work(ipBin),nBin,6)
-            End If
+    NowSym = iSym
 
-!           Open files.
-!           -----------
+    if (MxQualMP2 /= MxQual_Def) then ! user-defined
+      MxQual = min(max(MxQualMP2,1),nDim)
+    else ! default
+      if (nDim > 10) then
+        MxQual = max(min(nDim/10,MxQualMP2),1)
+      else
+        MxQual = max(min(nDim,MxQualMP2),1)
+      end if
+    end if
+#   if !defined (_I8_)
+    lTstBuf = (nDim+MxQual)*MxQual
+    lTstQua = nDim*(MxQual+1)
+    do while (((lTstBuf < 0) .or. (lTstQua < 0)) .and. (MxQual > 0))
+      MxQual = MxQual-1
+      lTstBuf = (nDim+MxQual)*MxQual
+      lTstQua = nDim*(MxQual+1)
+    end do
+    if (MxQual < 1) then
+      write(6,*) SecNam,': MxQual causes integer overflow!'
+      write(6,*) SecNam,': parameters:'
+      write(6,*) 'Symmetry block: ',iSym
+      write(6,*) 'Dimension     : ',nDim
+      write(6,*) 'MxQual        : ',MxQual
+      irc = -99
+      Go To 1 ! exit
+    end if
+#   endif
 
-            Do iTyp = 1,2
-               Call ChoMP2_OpenF(1,iTyp,iSym)
-            End Do
+    lQual = nDim*(MxQual+1)
+    liQual = MxQual
+    liPivot = nDim
+    call GetMem('Qual','Allo','Real',ipQual,lQual)
+    call GetMem('iQual','Allo','Inte',ipiQual,liQual)
+    call GetMem('iPivot','Allo','Inte',ipiPivot,liPivot)
 
-!           Setup decomposition.
-!           --------------------
+    call GetMem('GetMax','Max ','Real',ipB,lB)
+    lBuf = min((nDim+MxQual)*MxQual,lB)
+    Left = lB-lBuf
+    nInC = Left/nDim
+    if (nInC >= NumCho(iSym)) then
+      InCore(iSym) = .true.
+      lTot = nDim*NumCho(iSym)
+      call mma_allocate(OldVec,lTot,Label='OldVec')
+      iOpt = 2
+      iAdr = 1
+      call ddaFile(lUnit_F(iSym,1),iOpt,OldVec,lTot,iAdr)
+    end if
+    call GetMem('GetMx2','Max ','Real',ipB,lBuf)
+    call GetMem('DecBuf','Allo','Real',ipBuf,lBuf)
 
-            NowSym = iSym
+    ! Decompose this symmetry block.
+    ! ------------------------------
 
-            If (MxQualMP2 .ne. MxQual_Def) Then ! user-defined
-               MxQual = min(max(MxQualMP2,1),nDim)
-            Else ! default
-               If (nDim .gt. 10) Then
-                  MxQual = max(min(nDim/10,MxQualMP2),1)
-               Else
-                  MxQual = max(min(nDim,MxQualMP2),1)
-               End If
-            End If
-#if !defined (_I8_)
-            lTstBuf = (nDim+MxQual)*MxQual
-            lTstQua = nDim*(MxQual+1)
-            Do While ((lTstBuf.lt.0.or.lTstQua.lt.0) .and. MxQual.gt.0)
-               MxQual  = MxQual - 1
-               lTstBuf = (nDim+MxQual)*MxQual
-               lTstQua = nDim*(MxQual+1)
-            End Do
-            If (MxQual .lt. 1) Then
-               Write(6,*) SecNam,': MxQual causes integer overflow!'
-               Write(6,*) SecNam,': parameters:'
-               Write(6,*) 'Symmetry block: ',iSym
-               Write(6,*) 'Dimension     : ',nDim
-               Write(6,*) 'MxQual        : ',MxQual
-               irc = -99
-               Go To 1 ! exit
-            End If
-#endif
+    Thr = ThrMP2
+    Span = SpanMP2
+    call ChoDec(Cho_SOSmp2_Col,ChoMP2_Vec,Restart,Thr,Span,MxQual,Diag(kOffD),Work(ipQual),Work(ipBuf),iWork(ipiPivot), &
+                iWork(ipiQual),nDim,lBuf,Work(ipErrStat),nMP2Vec(iSym),irc)
+    if (irc /= 0) then
+      write(6,*) SecNam,': ChoDec returned ',irc,'   Symmetry block: ',iSym
+      Go To 1 ! exit...
+    end if
+    XMn = Work(ipErrStat)
+    XMx = Work(ipErrStat+1)
+    RMS = Work(ipErrStat+2)
+    if (Verbose) then
+      write(6,'(/,1X,A)') '- decomposition completed!'
+      write(6,'(1X,A,I9,A,I9,A)') 'Number of vectors needed: ',nMP2Vec(iSym),' (number of AO vectors: ',NumCho(iSym),')'
+      write(6,'(1X,A)') 'Error statistics for (ai|ai)^2 [min,max,rms]:'
+      write(6,'(1X,1P,3(D15.6,1X))') XMn,XMx,RMS
+    end if
+    Failed = (abs(Xmn) > Thr) .or. (abs(XMx) > thr) .or. (RMS > Thr)
+    if (Failed) then
+      if (.not. Verbose) then
+        write(6,'(1X,A)') 'Error statistics for (ai|ai)^2 [min,max,rms]:'
+        write(6,'(1X,1P,3(D15.6,1X))') XMn,XMx,RMS
+      end if
+      write(6,*) SecNam,': (ai|bj)^2 decomposition failed!'
+      irc = -9999
+      Go To 1 ! exit
+    end if
 
-            lQual   = nDim*(MxQual + 1)
-            liQual  = MxQual
-            liPivot = nDim
-            Call GetMem('Qual','Allo','Real',ipQual,lQual)
-            Call GetMem('iQual','Allo','Inte',ipiQual,liQual)
-            Call GetMem('iPivot','Allo','Inte',ipiPivot,liPivot)
+    ! If requested, check decomposition.
+    ! ----------------------------------
 
-            Call GetMem('GetMax','Max ','Real',ipB,lB)
-            lBuf = min((nDim+MxQual)*MxQual,lB)
-            Left = lB - lBuf
-            nInC = Left/nDim
-            If (nInC .ge. NumCho(iSym)) Then
-               InCore(iSym) = .true.
-               lTot = nDim*NumCho(iSym)
-               Call mma_allocate(OldVec,lTot,Label='OldVec')
-               iOpt = 2
-               iAdr = 1
-               Call ddaFile(lUnit_F(iSym,1),iOpt,OldVec,lTot,iAdr)
-            End If
-            Call GetMem('GetMx2','Max ','Real',ipB,lBuf)
-            Call GetMem('DecBuf','Allo','Real',ipBuf,lBuf)
+    if (ChkDecoMP2) then
+      write(6,*)
+      write(6,*) SecNam,': Checking M(ai,bj)=(ai|bj)^2 CD.'
+      write(6,*) 'Symmetry block: ',iSym
+      write(6,*) 'Threshold, Span, MxQual: ',Thr,Span,MxQual
+      write(6,*) 'Error statistics for (ai|ai)^2 [min,max,rms]:'
+      write(6,*) (Work(ipErrStat+i),i=0,2)
+      call Cho_SOSmp2_DecChk(irc,iSym,Work(ipQual),nDim,MxQual,Work(ipBuf),lBuf,Work(ipErrStat))
+      if (irc /= 0) then
+        write(6,*) SecNam,': ChoMP2_DecChk returned ',irc,'   Symmetry block: ',iSym
+        call ChoMP2_Quit(SecNam,'SOS-MP2 decomposition failed!',' ')
+      else
+        XMn = Work(ipErrStat)
+        XMx = Work(ipErrStat+1)
+        RMS = Work(ipErrStat+2)
+        Failed = Failed .or. (abs(Xmn) > Thr) .or. (abs(XMx) > Thr) .or. (RMS > Thr)
+        write(6,*) 'Error statistics for (ai|bj)^2 [min,max,rms]:'
+        write(6,*) XMn,XMx,RMS
+        if (Failed) then
+          write(6,*) '==> DECOMPOSITION FAILURE <=='
+          irc = -9999
+          Go To 1 ! exit
+        else
+          write(6,*) '==> DECOMPOSITION SUCCESS <=='
+        end if
+        call xFlush(6)
+      end if
+    end if
 
-!           Decompose this symmetry block.
-!           ------------------------------
+    ! Free memory.
+    ! ------------
 
-            Thr  = ThrMP2
-            Span = SpanMP2
-            Call ChoDec(Cho_SOSmp2_Col,ChoMP2_Vec,Restart,Thr,Span,     &
-     &                  MxQual,Diag(kOffD),Work(ipQual),Work(ipBuf),    &
-     &                  iWork(ipiPivot),iWork(ipiQual),nDim,lBuf,       &
-     &                  Work(ipErrStat),nMP2Vec(iSym),irc)
-            If (irc .ne. 0) Then
-               Write(6,*) SecNam,': ChoDec returned ',irc,              &
-     &                           '   Symmetry block: ',iSym
-               Go To 1 ! exit...
-            End If
-            XMn = Work(ipErrStat)
-            XMx = Work(ipErrStat+1)
-            RMS = Work(ipErrStat+2)
-            If (Verbose) Then
-               Write(6,'(/,1X,A)')                                      &
-     &         '- decomposition completed!'
-               Write(6,'(1X,A,I9,A,I9,A)')                              &
-     &         'Number of vectors needed: ',nMP2Vec(iSym),              &
-     &         ' (number of AO vectors: ',NumCho(iSym),')'
-               Write(6,'(1X,A)')                                        &
-     &         'Error statistics for (ai|ai)^2 [min,max,rms]:'
-               Write(6,'(1X,1P,3(D15.6,1X))') XMn,XMx,RMS
-            End If
-            Failed = abs(Xmn).gt.Thr .or. abs(XMx).gt.thr .or.          &
-     &               RMS.gt.Thr
-            If (Failed) Then
-               If (.not. Verbose) Then
-                  Write(6,'(1X,A)')                                     &
-     &            'Error statistics for (ai|ai)^2 [min,max,rms]:'
-                  Write(6,'(1X,1P,3(D15.6,1X))') XMn,XMx,RMS
-               End If
-               Write(6,*) SecNam,': (ai|bj)^2 decomposition failed!'
-               irc = -9999
-               Go To 1 ! exit
-            End If
+    call GetMem('DecBuf','Free','Real',ipBuf,lBuf)
+    if (InCore(iSym)) call mma_deallocate(OldVec)
+    call GetMem('iPivot','Free','Inte',ipiPivot,liPivot)
+    call GetMem('iQual','Free','Inte',ipiQual,liQual)
+    call GetMem('Qual','Free','Real',ipQual,lQual)
 
-!           If requested, check decomposition.
-!           ----------------------------------
+    ! Close (possibly deleting original) files.
+    ! -----------------------------------------
 
-            If (ChkDecoMP2) Then
-               Write(6,*)
-               Write(6,*)SecNam,': Checking M(ai,bj)=(ai|bj)^2 CD.'
-               Write(6,*)'Symmetry block: ',iSym
-               Write(6,*)'Threshold, Span, MxQual: ',Thr,Span,MxQual
-               Write(6,*)'Error statistics for (ai|ai)^2 [min,max,rms]:'
-               Write(6,*) (Work(ipErrStat+i),i=0,2)
-               Call Cho_SOSmp2_DecChk(irc,iSym,Work(ipQual),nDim,MxQual,&
-     &                            Work(ipBuf),lBuf,Work(ipErrStat))
-               If (irc .ne. 0) Then
-                Write(6,*) SecNam,': ChoMP2_DecChk returned ',irc,      &
-     &                            '   Symmetry block: ',iSym
-                Call ChoMP2_Quit(SecNam,'SOS-MP2 decomposition failed!',&
-     &                             ' ')
-               Else
-                  XMn = Work(ipErrStat)
-                  XMx = Work(ipErrStat+1)
-                  RMS = Work(ipErrStat+2)
-                  Failed = Failed .or. abs(Xmn).gt.Thr .or.             &
-     &                     abs(XMx).gt.Thr .or. RMS.gt.Thr
-                  Write(6,*)                                            &
-     &            'Error statistics for (ai|bj)^2 [min,max,rms]:'
-                  Write(6,*) XMn,XMx,RMS
-                  If (Failed) Then
-                     Write(6,*) '==> DECOMPOSITION FAILURE <=='
-                     irc = -9999
-                     Go To 1 ! exit
-                  Else
-                     Write(6,*) '==> DECOMPOSITION SUCCESS <=='
-                  End If
-                  Call xFlush(6)
-               End If
-            End If
+    do iTyp=1,2
+      call ChoMP2_OpenF(iClos(iTyp),iTyp,iSym)
+    end do
 
-!           Free memory.
-!           ------------
+    ! Update pointer to diagonal block.
+    ! ---------------------------------
 
-            Call GetMem('DecBuf','Free','Real',ipBuf,lBuf)
-            If (InCore(iSym)) Call mma_deallocate(OldVec)
-            Call GetMem('iPivot','Free','Inte',ipiPivot,liPivot)
-            Call GetMem('iQual','Free','Inte',ipiQual,liQual)
-            Call GetMem('Qual','Free','Real',ipQual,lQual)
+    kOffD = kOffD+nT1am(iSym)
 
-!           Close (possibly deleting original) files.
-!           -----------------------------------------
+  else
 
-            Do iTyp = 1,2
-               Call ChoMP2_OpenF(iClos(iTyp),iTyp,iSym)
-            End Do
+    if (Verbose) then
+      write(6,'(//,1X,A,I2,A)') '>>> Symmetry block',iSym,' is empty!'
+    end if
 
-!           Update pointer to diagonal block.
-!           ---------------------------------
+  end if
 
-            kOffD = kOffD + nT1am(iSym)
+end do
 
-         Else
+1 continue
+if (irc /= 0) then ! make sure files are closed before exit
+  do iSym=1,nSym
+    do iTyp=1,2
+      call ChoMP2_OpenF(2,iTyp,iSym)
+    end do
+  end do
+end if
+call GetMem('Flush','Flush','Real',ipErrStat,lErrStat)
+call GetMem('ErrStat','Free','Real',ipErrStat,lErrStat)
 
-            If (Verbose) Then
-               Write(6,'(//,1X,A,I2,A)')                                &
-     &         '>>> Symmetry block',iSym,' is empty!'
-            End If
-
-         End If
-
-      End Do
-
-    1 If (irc .ne. 0) Then ! make sure files are closed before exit
-         Do iSym = 1,nSym
-            Do iTyp = 1,2
-               Call ChoMP2_OpenF(2,iTyp,iSym)
-            End Do
-         End Do
-      End If
-      Call GetMem('Flush','Flush','Real',ipErrStat,lErrStat)
-      Call GetMem('ErrStat','Free','Real',ipErrStat,lErrStat)
-      End
+end subroutine Cho_SOSmp2_DecDrv

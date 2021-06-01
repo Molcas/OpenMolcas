@@ -569,7 +569,7 @@ if (iPol > 0) then
       write(u6,*)
       iPol = 0
     end if
-  elseif (iPol == 2) then
+  else if (iPol == 2) then
     call LauraPol()
   end if
 end if

@@ -8,7 +8,11 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Flush6
-      Call XFlush(6)
-      Return
-      End
+
+subroutine Flush6
+
+call XFlush(6)
+
+return
+
+end subroutine Flush6

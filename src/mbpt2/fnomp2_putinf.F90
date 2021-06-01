@@ -7,33 +7,39 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2008, Francesco Aquilante                              *
 !***********************************************************************
 
-subroutine Compute_Shanks(E1,E2,EOrb,lthEOrb,nBas,nFro,nOcc,nSym,E0,Shanks1_E)
+subroutine FnoMP2_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y)
+! Purpose: put info in MP2 common blocks.
 
-implicit real*8(a-h,o-z)
-real*8 E1, E2, EOrb(lthEOrb), E0, Shanks1_E
-integer nSym, nBas(nSym), nFro(nSym), nOcc(nSym)
+#include "implicit.fh"
+integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
+integer ip_X, ip_Y
+#include "corbinf.fh"
+#include "chomp2_cfg.fh"
 
-E0 = 0.0d0
-ioff = 0
+nSym = mSym
+
 do iSym=1,nSym
-  nOrb = nFro(iSym)+nOcc(iSym)
-  do iorb=1,nOrb
-    jorb = ioff+iorb
-    E0 = E0+EOrb(jorb)
-  end do
-  ioff = ioff+nBas(iSym)
+  nOrb(iSym) = lnOrb(iSym)
+  nOcc(iSym) = lnOcc(iSym)
+  nFro(iSym) = lnFro(iSym)
+  nDel(iSym) = lnDel(iSym)
+  nExt(iSym) = lnVir(iSym)
 end do
-E0 = 2.0d0*E0
 
-call Peek_dScalar('PotNuc',PotNuc)
-E0 = E0+PotNuc
-
-! Shanks formula
-
-Shanks1_E = (E2*E0-E1**2)/(E2-2.0d0*E1+E0)
+DoFNO = .true.
+ip_Dab = ip_X
+ip_Dii = ip_Y
+l_Dab = nExt(1)
+l_Dii = nOcc(1)
+do iSym=2,nSym
+  l_Dab = l_Dab+nExt(iSym)**2
+  l_Dii = l_Dii+nOcc(iSym)
+end do
 
 return
 
-end subroutine Compute_Shanks
+end subroutine FnoMP2_putInf

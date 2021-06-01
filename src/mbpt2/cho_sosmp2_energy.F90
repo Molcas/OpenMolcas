@@ -10,202 +10,185 @@
 !                                                                      *
 ! Copyright (C) 2007, Francesco Aquilante                              *
 !***********************************************************************
-      SubRoutine Cho_SOSmp2_Energy(irc,EMP2,EOcc,EVir,Delete)
+
+subroutine Cho_SOSmp2_Energy(irc,EMP2,EOcc,EVir,Delete)
+! Francesco Aquilante, May 2007.
 !
-!     Francesco Aquilante, May 2007.
-!
-!     Purpose: compute "Scaled Opposite-Spin" MP2 energy correction from
-!              MO Cholesky vectors of the matrix M(ai,bj)=(ai|bj)^2.
-!
-      Implicit Real*8 (a-h,o-z)
-      Real*8  EMP2
-      Real*8  EOcc(*), EVir(*)
-      Integer irc
-      Logical Delete
+! Purpose: compute "Scaled Opposite-Spin" MP2 energy correction from
+!          MO Cholesky vectors of the matrix M(ai,bj)=(ai|bj)^2.
+
+implicit real*8(a-h,o-z)
+real*8 EMP2
+real*8 EOcc(*), EVir(*)
+integer irc
+logical Delete
+character*6 ThisNm
+character*17 SecNam
+parameter(SecNam='Cho_SOSmp2_Energy',ThisNm='Energy')
+parameter(zero=0.0d0,one=1.0d0,two=2.0d0)
+integer ipWrk, lWrk, iiSoff(8), iaSoff(8)
+integer nEnrVec(8)
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
 #include "WrkSpc.fh"
-
-      Character*6  ThisNm
-      Character*17 SecNam
-      Parameter (SecNam = 'Cho_SOSmp2_Energy', ThisNm = 'Energy')
-      Parameter (zero = 0.0d0,  one = 1.0d0, two = 2.0d0)
-
-      Integer ipWrk, lWrk, iiSoff(8), iaSoff(8)
-      Integer nEnrVec(8)
 !****************************************************************
-      MulD2h(i,j)=iEor(i-1,j-1)+1
+MulD2h(i,j) = ieor(i-1,j-1)+1
 !****************************************************************
 
-      irc = 0
+irc = 0
 
-      iTyp = 2
-      Call iCopy(nSym,nMP2Vec,1,nEnrVec,1)
+iTyp = 2
+call iCopy(nSym,nMP2Vec,1,nEnrVec,1)
 
-!     Initialize SOS-MP2 energy correction.
-!     -------------------------------------
+! Initialize SOS-MP2 energy correction.
+! -------------------------------------
 
-      EMP2 = 0.0D0
+EMP2 = 0.0d0
 
-!     Some offsets
-!     ------------
-      nIt=nOcc(1)
-      nAt=nVir(1)
-      iiSoff(1)=0
-      iaSoff(1)=0
-      Do iSym=2,nSym
-         iiSoff(iSym)=nIt
-         iaSoff(iSym)=nAt
-         nIt = nIt + nOcc(iSym)
-         nAt = nAt + nVir(iSym)
-      End Do
-      MaxNVec = nIt*nAt
+! Some offsets
+! ------------
+nIt = nOcc(1)
+nAt = nVir(1)
+iiSoff(1) = 0
+iaSoff(1) = 0
+do iSym=2,nSym
+  iiSoff(iSym) = nIt
+  iaSoff(iSym) = nAt
+  nIt = nIt+nOcc(iSym)
+  nAt = nAt+nVir(iSym)
+end do
+MaxNVec = nIt*nAt
 
-      Call GetMem('Ea-Ei','Allo','Real',ip_W,MaxNVec)
-      Call GetMem('iD_bj','Allo','Inte',ID_bj,MaxNVec)
+call GetMem('Ea-Ei','Allo','Real',ip_W,MaxNVec)
+call GetMem('iD_bj','Allo','Inte',ID_bj,MaxNVec)
 
-!     Loop over Cholesky vector symmetries.
-!     -------------------------------------
+! Loop over Cholesky vector symmetries.
+! -------------------------------------
 
-      Do jSym = 1,nSym
+do jSym=1,nSym
 
-         Nai = nT1am(jSym)
-         If (Nai.gt.0 .and. nEnrVec(jSym).gt.0) Then
+  Nai = nT1am(jSym)
+  if ((Nai > 0) .and. (nEnrVec(jSym) > 0)) then
 
-            nOV=0
-            Do iiSym=1,nSym
-               iaSym=MulD2h(iiSym,jSym)
-               Do ii=1,nOcc(iiSym)
-                  iiT=iiSoff(iiSym)+ii
-                  iaS=nOV+nVir(iaSym)*(ii-1)
-                  Do ia=1,nVir(iaSym)
-                     iaT=iaSoff(iaSym)+ia
-                     iaiS=iaS+ia-1
-                     Work(ip_W+iaiS)=EVir(iaT)-EOcc(iiT)
-                  End Do
-               End Do
-               nOV=nOV+nVir(iaSym)*nOcc(iiSym) ! ... = Nai
-            End Do
+    nOV = 0
+    do iiSym=1,nSym
+      iaSym = MulD2h(iiSym,jSym)
+      do ii=1,nOcc(iiSym)
+        iiT = iiSoff(iiSym)+ii
+        iaS = nOV+nVir(iaSym)*(ii-1)
+        do ia=1,nVir(iaSym)
+          iaT = iaSoff(iaSym)+ia
+          iaiS = iaS+ia-1
+          Work(ip_W+iaiS) = EVir(iaT)-EOcc(iiT)
+        end do
+      end do
+      nOV = nOV+nVir(iaSym)*nOcc(iiSym) ! ... = Nai
+    end do
 
-!           Cholesky decompsition of the Orbital Energy
-!           Denominators (OED)
-!           -------------------------------------------
-            Call CHO_GET_ORD_bj(nOV,MaxNVec,OED_Thr,Work(ip_W),         &
-     &                          iWork(ID_bj),NKVec,Dmax)
+    ! Cholesky decompsition of the Orbital Energy
+    ! Denominators (OED)
+    ! -------------------------------------------
+    call CHO_GET_ORD_bj(nOV,MaxNVec,OED_Thr,Work(ip_W),iWork(ID_bj),NKVec,Dmax)
 
-            If (Verbose .or. NKVec.lt.1) Then
-               Write(6,'(A)')                                           &
-     &         '---------------------------------------'
-               Write(6,'(A,I2,A)')                                      &
-     &         'Orbital energy denominators CD (sym=',jSym,')'
-               Write(6,'(A)')                                           &
-     &         '---------------------------------------'
-               Write(6,'(1X,A,I3,A,I9,A,1P,D25.16)')                    &
-     &         'Number of vectors needed: ',NKVec,                      &
-     &         '   ( nAocc x nAvir : ',nOV,' ), max residual:',         &
-     &         Dmax
-               Call xFlush(6)
-            EndIf
+    if (Verbose .or. (NKVec < 1)) then
+      write(6,'(A)') '---------------------------------------'
+      write(6,'(A,I2,A)') 'Orbital energy denominators CD (sym=',jSym,')'
+      write(6,'(A)') '---------------------------------------'
+      write(6,'(1X,A,I3,A,I9,A,1P,D25.16)') 'Number of vectors needed: ',NKVec,'   ( nAocc x nAvir : ',nOV,' ), max residual:',Dmax
+      call xFlush(6)
+    end if
 
-            If (NKVec.gt.0) Then
+    if (NKVec > 0) then
 
-               Call GetMem('Yai_k','Allo','Real',ip_Y,nOV*NKVec)
-!              init to one the 1st col
-               call dcopy_(nOV,[one],0,Work(ip_Y),1)
+      call GetMem('Yai_k','Allo','Real',ip_Y,nOV*NKVec)
+      ! init to one the 1st col
+      call dcopy_(nOV,[one],0,Work(ip_Y),1)
 
-               Call CHO_GET_OED_cd(.true.,nOV,Work(ip_W),NKVec,         &
-     &                             iWork(ID_bj),1,Work(ip_Y),Work(ip_Y))
+      call CHO_GET_OED_cd(.true.,nOV,Work(ip_W),NKVec,iWork(ID_bj),1,Work(ip_Y),Work(ip_Y))
 
-               Call GetMem('GetMax','Max ','Real',ipWrk,lWrk)
-               Call GetMem('GetMax','Allo','Real',ipWrk,lWrk)
+      call GetMem('GetMax','Max ','Real',ipWrk,lWrk)
+      call GetMem('GetMax','Allo','Real',ipWrk,lWrk)
 
-!              Set up batch over Cholesky vectors.
-!              -----------------------------------
+      ! Set up batch over Cholesky vectors.
+      ! -----------------------------------
 
-               nVec = min(lWrk/(Nai+NKVec),nEnrVec(jSym))
-               If (nVec .lt. 1) Then
-                  Call ChoMP2_Quit(SecNam,'Insufficient memory',        &
-     &                             'Batch setup')
-               End If
-               nBat = (nEnrVec(jSym)-1)/nVec + 1
+      nVec = min(lWrk/(Nai+NKVec),nEnrVec(jSym))
+      if (nVec < 1) then
+        call ChoMP2_Quit(SecNam,'Insufficient memory','Batch setup')
+      end if
+      nBat = (nEnrVec(jSym)-1)/nVec+1
 
-               kRead = ipWrk + NKVec*nVec
+      kRead = ipWrk+NKVec*nVec
 
-!              Open Cholesky vector files.
-!              ---------------------------
+      ! Open Cholesky vector files.
+      ! ---------------------------
 
-               Call ChoMP2_OpenF(1,iTyp,jSym)
+      call ChoMP2_OpenF(1,iTyp,jSym)
 
-!              Start vector batch loop.
-!              ------------------------
+      ! Start vector batch loop.
+      ! ------------------------
 
-               Do iBat = 1,nBat
+      do iBat=1,nBat
 
-                  If (iBat .eq. nBat) Then
-                     NumVec = nEnrVec(jSym) - nVec*(nBat-1)
-                  Else
-                     NumVec = nVec
-                  End If
-                  jVec = nVec*(iBat-1) + 1
+        if (iBat == nBat) then
+          NumVec = nEnrVec(jSym)-nVec*(nBat-1)
+        else
+          NumVec = nVec
+        end if
+        jVec = nVec*(iBat-1)+1
 
-!                 Read vectors
-!                 ------------
-                  lTot = nT1am(jSym)*NumVec
-                  iAdr = nT1am(jSym)*(jVec-1) + 1
-                  Call ddaFile(lUnit_F(jSym,iTyp),2,                    &
-     &                         Work(kRead),lTot,iAdr)
+        ! Read vectors
+        ! ------------
+        lTot = nT1am(jSym)*NumVec
+        iAdr = nT1am(jSym)*(jVec-1)+1
+        call ddaFile(lUnit_F(jSym,iTyp),2,Work(kRead),lTot,iAdr)
 
-!                 Compute   E(k,J) = sum_ai Y(ai,k) * R(ai,J)
-!                 --------------------------------------------
-                  Call DGEMM_('T','N',NKVec,NumVec,Nai,                 &
-     &                       one,Work(ip_Y),Nai,Work(kRead),Nai,        &
-     &                       zero,Work(ipWrk),NKVec)
+        ! Compute   E(k,J) = sum_ai Y(ai,k) * R(ai,J)
+        ! --------------------------------------------
+        call DGEMM_('T','N',NKVec,NumVec,Nai,one,Work(ip_Y),Nai,Work(kRead),Nai,zero,Work(ipWrk),NKVec)
 
-!                 Compute (unscaled) SOS-MP2 energy
-!                 -----------------------------------
+        ! Compute (unscaled) SOS-MP2 energy
+        ! -----------------------------------
 
-                  EMP2 = EMP2 + ddot_(NKVec*NumVec,Work(ipWrk),1,       &
-     &                                            Work(ipWrk),1)
+        EMP2 = EMP2+ddot_(NKVec*NumVec,Work(ipWrk),1,Work(ipWrk),1)
 
-               End Do ! Cholesky vector batch
+      end do ! Cholesky vector batch
 
-!              Close Cholesky vector files.
-!              ----------------------------
-               Call ChoMP2_OpenF(2,iTyp,jSym)
+      ! Close Cholesky vector files.
+      ! ----------------------------
+      call ChoMP2_OpenF(2,iTyp,jSym)
 
-               Call GetMem('GetMax','Free','Real',ipWrk,lWrk)
-               Call GetMem('Yai_k','Free','Real',ip_Y,nOV*NKVec)
+      call GetMem('GetMax','Free','Real',ipWrk,lWrk)
+      call GetMem('Yai_k','Free','Real',ip_Y,nOV*NKVec)
 
-            End If
+    end if
 
-         End If
+  end if
 
-      End Do
+end do
 
+call GetMem('iD_bj','Free','Inte',ID_bj,MaxNVec)
+call GetMem('Ea-Ei','Free','Real',ip_W,MaxNVec)
 
-      Call GetMem('iD_bj','Free','Inte',ID_bj,MaxNVec)
-      Call GetMem('Ea-Ei','Free','Real',ip_W,MaxNVec)
+! If requested, delete vector files.
+! ----------------------------------
 
-!     If requested, delete vector files.
-!     ----------------------------------
+if (Delete) then
+  do jSym=1,nSym
+    call ChoMP2_OpenF(1,iTyp,jSym)
+    call ChoMP2_OpenF(3,iTyp,jSym)
+  end do
+end if
 
-      If (Delete) Then
-         Do jSym = 1,nSym
-            Call ChoMP2_OpenF(1,iTyp,jSym)
-            Call ChoMP2_OpenF(3,iTyp,jSym)
-         End Do
-      End If
-
-!     Change sign and use proper factor on energy.
-!     --------------------------------------------
+! Change sign and use proper factor on energy.
+! --------------------------------------------
 
 !-tbp, December 2012: removed factor 2
 !-tbp  (wrong result for two-electron systems with factor 2)
 !-tbp EMP2 = -two*EMP2
-      EMP2 = -EMP2
+EMP2 = -EMP2
 
+return
 
-
-      Return
-      End
+end subroutine Cho_SOSmp2_Energy
