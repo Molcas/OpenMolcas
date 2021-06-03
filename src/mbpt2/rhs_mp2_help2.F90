@@ -11,6 +11,7 @@
 
 subroutine rhs_mp2_help2(iSymA,iSymB,iSymI,iSymJ)
 
+use MBPT2_Global, only: ip_Density, ip_Mp2Lagr, ipInt1, ipInt2, ipScr1
 use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp
 
@@ -19,7 +20,6 @@ integer(kind=iwp), intent(in) :: iSymA, iSymB, iSymI, iSymJ
 integer(kind=iwp) :: iA, iAK, iB, iC, iCI, iI, iIC, iJ, iK, iKA, nB, nJ
 real(kind=wp) :: Fac, xacbi, xaibc, xiajk, xikja
 #include "WrkSpc.fh"
-#include "mp2grad.fh"
 #include "corbinf.fh"
 ! statement functions
 integer(kind=iwp) :: i, j, k, iVirVir, iOccOcc, iMp2Lagr

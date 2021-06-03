@@ -12,6 +12,7 @@
 subroutine MP2Ap(iSymIA,iSymJB,ip_AP,ip_P)
 ! A subroutine that calculates A*p_k in the PCG-algorithm
 
+use MBPT2_Global, only: ipInt1, ipInt2, iPoVec, ipScr1, mAdDel, mAdFro, mAdOcc, mAdVir
 use Constants, only: One, Four, Half
 use Definitions, only: wp, iwp
 
@@ -20,7 +21,6 @@ integer(kind=iwp), intent(in) :: iSymIA, iSymJB, ip_AP, ip_P
 integer(kind=iwp) :: iA, iB, iI, iJ, index1, index2, ipIntC, iSym1, iSym2, lint, nB, nJ, nMaxOrb
 real(kind=wp) :: E_a, E_i, Ediff, Fac, xiajb, xibja, xijab
 #include "WrkSpc.fh"
-#include "mp2grad.fh"
 #include "corbinf.fh"
 
 nMaxOrb = 0

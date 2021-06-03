@@ -11,6 +11,7 @@
 
 subroutine Gamma_new()
 
+use MBPT2_Global, only: ipCMO, ipInt1, ipInt1_2, ipInt2, ipInt2_2, ipScr1, mAdOcc, mAdVir, nBas
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -22,16 +23,13 @@ implicit none
 integer(kind=iwp) :: iA, iAdrBin, iAdrGam, iAdrRdBin, iB, iBinLength, iBinSize, iBlock, iI, iIA, iJ, iKap, iLam, iLamKap1, &
                      iLamKap2, iLastAdr, iLen, iMaxBas, iMaxBasProd, iMaxOccVir, iMemAvail, iMemNeeded, iMu, iMuNu1, iMuNu2, &
                      iNextAdr, iNextX, iNu, iOff, iOffCMO(nSym), iOffCMO_o(nSym), iOffCMO_v(nSym), ipBin, ipBin2, ipCMO_o, &
-                     ipCMO_v, ipiTab, ipMax, ipTemp1, ipTemp1_2, ipTemp2, ipTemp2_2, iRec, iSeed, iSize, iSym, iSym1, iSym2, &
-                     iSym_A, iSym_B, iSym_C, iSym_D, iTriMuNu, iType, lAllBins, lCMO_o, lCMO_v, lMax, lTemp, nA, nA2, nABCD, nB, &
-                     nB2, nBins, nBlocks, nI, nI2, nJ, nJ2, nLam, nNO, nNu, nNV, nTOrb(nSym)
+                     ipCMO_v, ipiTab, ipMax, ipTemp1, ipTemp1_2, ipTemp2, ipTemp2_2, iRec, iSize, iSym, iSym1, iSym2, iSym_A, &
+                     iSym_B, iSym_C, iSym_D, iTriMuNu, iType, lAllBins, lCMO_o, lCMO_v, lMax, lTemp, LuBin, LuGam, nA, nA2, nABCD, &
+                     nB, nB2, nBins, nBlocks, nI, nI2, nJ, nJ2, nLam, nNO, nNu, nNV, nTOrb(nSym)
 real(kind=wp) :: EDenom, Tiajb, xiajb, xibja
 logical(kind=iwp) :: Done, LoadZeros, NonZeroSym(4), Triangular
 integer(kind=iwp), external :: IsFreeUnit
-#include "orbinf2.fh"
 #include "WrkSpc.fh"
-#include "mp2grad.fh"
-#include "files_mbpt2.fh"
 ! Some statement functions
 integer(kind=iwp) :: i, j, iSyI, iSyJ, iX, iY, iBin, iTri, iTable, iInt1, iBinOff
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
@@ -121,17 +119,13 @@ call Gamma_Blocks(iWork(ipiTab),nBlocks,nSym)
 
 ! Open a file for writing gammas.
 
-iSeed = 10
-LuGam = IsFreeUnit(iSeed)
-FnGam = 'LuGam   '
-call DaName_MF_WA(LuGam,FnGam)
+LuGam = IsFreeUnit(10)
+call DaName_MF_WA(LuGam,'LuGam')
 
 ! Open a file to store bins of half-transformed gammas.
 
-iSeed = 11
-LuBin = IsFreeUnit(iSeed)
-FnBin = 'TmpBin  '
-call DaName_MF_WA(LuBin,FnBin)
+LuBin = IsFreeUnit(11)
+call DaName_MF_WA(LuBin,'TmpBin')
 
 ! SETUP OF AMPLITUDE BATCHES
 ! (The handling is somewhat simple when nBlocks=1 since we only have

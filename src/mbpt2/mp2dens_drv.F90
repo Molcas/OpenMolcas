@@ -16,6 +16,8 @@ subroutine MP2Dens_drv(E2BJAI,REFC)
 !                                                                      *
 !***********************************************************************
 
+use MBPT2_Global, only: EMP2, ip_Density, ip_DiaA, ip_Mp2Lagr, ip_First_Density, ip_First_DiaA, ip_First_MP2Lagr, &
+                        ip_First_WDensity, ip_WDensity, ipCMO, iPoVec, l_Density, l_DiaA, l_Mp2Lagr, VECL2
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
@@ -26,7 +28,6 @@ integer(kind=iwp) :: iA, iAdr, iI, ip_AOTriDens, ip_AP, ip_mult, ip_MultN, ip_P,
 real(kind=wp) :: Eps, res, TotLagr
 logical(kind=iwp) :: Done
 #include "WrkSpc.fh"
-#include "mp2grad.fh"
 #include "corbinf.fh"
 ! Statement functions
 integer(kind=iwp) :: i, j, k, iMult, iDensVirOcc

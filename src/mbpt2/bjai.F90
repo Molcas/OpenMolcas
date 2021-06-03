@@ -11,6 +11,7 @@
 
 subroutine BJAI(IAD,EPSI,EPSE,E2BJAI,VECL2)
 
+use MBPT2_Global, only: LuIntM
 use Constants, only: Zero, One, Two, Three, Half
 use Definitions, only: wp, iwp, u6, r8
 
@@ -25,7 +26,6 @@ logical(kind=iwp) :: DoCholesky
 logical(kind=iwp), parameter :: Debug = .false.
 real(kind=r8), external :: ddot_
 #include "corbinf.fh"
-#include "files_mbpt2.fh"
 #include "WrkSpc.fh"
 ! statement function
 integer(kind=iwp) :: I, J, MUL

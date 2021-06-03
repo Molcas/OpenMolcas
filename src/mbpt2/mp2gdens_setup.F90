@@ -11,12 +11,13 @@
 
 subroutine MP2gDens_setup()
 
+use MBPT2_Global, only: ip_Density, ip_DiaA, ip_Mp2Lagr, ip_WDensity, ip_First_Density, ip_First_DiaA, ip_First_Mp2Lagr, &
+                        ip_First_WDensity, ipEocc, ipEVir, l_Density, l_DiaA, l_Mp2Lagr, mAdDel, mAdFro, mAdOcc, mAdVir
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: i, iSym, nExtT, nOccT
 #include "WrkSpc.fh"
-#include "mp2grad.fh"
 #include "corbinf.fh"
 
 !                                                                      *

@@ -31,6 +31,7 @@ subroutine RdMBPT(ipCMO,lthCMO,ipEOrb,lthEOr)
 !                                                                      *
 !***********************************************************************
 
+use MBPT2_Global, only: nBas, nDsto, nnB
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -40,10 +41,7 @@ integer(kind=iwp), intent(out) :: ipCMO, lthCMO, ipEOrb, lthEOr
 integer(kind=iwp) :: i, ipEOrb_t, iStart, iStart_t, iSym
 real(kind=wp), allocatable :: CMO_t(:)
 logical(kind=iwp), parameter :: Debug = .false.
-#include "mxdim.fh"
 #include "corbinf.fh"
-#include "orbinf2.fh"
-#include "mbpt2aux.fh"
 #include "WrkSpc.fh"
 
 ! Read nSym, nBas, nOrb, nOcc, nFro, CMO and orbital energies from COMFILE

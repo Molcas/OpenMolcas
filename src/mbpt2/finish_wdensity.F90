@@ -17,6 +17,7 @@ subroutine Finish_WDensity()
 ! Purpose: Add the terms labeled [II] and [III] to the energy-weighted
 !          MP2 Density
 
+use MBPT2_Global, only: ip_Density, ip_WDensity, ipInt1, ipInt2, ipScr1, mAdDel, mAdFro, mAdOcc, mAdVir
 use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp
 
@@ -24,7 +25,6 @@ implicit none
 integer(kind=iwp) :: iA, iB, iI, iJ, iP, ipIntC, iQ, iSym, iSym1, iSym2, iSymIJ, iSymPQ, lint, nMaxOrb
 real(kind=wp) :: Eps_a, Eps_b, Eps_i, Eps_j, Fac, xijpq, xipjq
 #include "WrkSpc.fh"
-#include "mp2grad.fh"
 #include "corbinf.fh"
 ! statement functions
 integer(kind=iwp) :: i, j, k, iOccAOcc, iOccOcc, iVirVir, iVirOcc

@@ -11,6 +11,7 @@
 
 subroutine DelGHOST_MBPT(ipCMO,ipCMO_t,lthCMO,ipEOrb,ipEOrb_t,lthEOr)
 
+use MBPT2_Global, only: DelGhost, nBas, nDsto, nnB, Thr_ghs
 use Constants, only: Zero
 use Definitions, only: iwp, u6
 
@@ -21,11 +22,7 @@ integer(kind=iwp), intent(inout) :: ipCMO_t, ipEOrb_t
 integer(kind=iwp) :: i, irc, iStart, iStart_t, iSym, nUniqAt, nZero(8)
 character(len=LenIn8) :: UBName(mxBas)
 logical(kind=iwp), parameter :: Debug = .false.
-#include "mxdim.fh"
-#include "namact.fh"
 #include "corbinf.fh"
-#include "orbinf2.fh"
-#include "mbpt2aux.fh"
 #include "WrkSpc.fh"
 
 if (.not. DelGHOST) return

@@ -20,6 +20,7 @@ subroutine LovMP2_Drv(irc,EMP2,CMO,EOcc,EVir,NamAct,n_Acta,Thrs,Do_MP2,allVir)
 !
 ! Author:  F. Aquilante  (Geneva, Jun. 2008)
 
+use MBPT2_Global, only: nBas
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -41,7 +42,6 @@ logical(kind=iwp) :: ortho
 character(len=LenIn8) :: UBName(mxBas)
 real(kind=wp), external :: ddot_
 #include "corbinf.fh"
-#include "orbinf2.fh"
 #include "WrkSpc.fh"
 #include "chomp2_cfg.fh"
 
@@ -183,7 +183,7 @@ do iSym=1,nSym
   end do
   loff = loff+nOcc(iSym)
 end do
-!
+
 if (allVir) then
   do iSym=1,nSym
     ns_V(iSym) = nExt(iSym)
@@ -203,7 +203,7 @@ do iSym=1,nSym
   kOff = kOff+nBas(iSym)*nExt(iSym)
 end do
 ortho = .false.
-!
+
 call get_Vir_select(irc,Work(iCMO),Work(iXMO),Work(kEVir),Work(ipSQ),UBName,NamAct,iWork(iD_vir),nSym,n_Acta,nExt,nBas,ortho,ns_V)
 if (irc /= 0) then
   return

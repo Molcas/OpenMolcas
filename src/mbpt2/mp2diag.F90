@@ -16,6 +16,7 @@ subroutine Mp2Diag()
 !                                                                      *
 !***********************************************************************
 
+use MBPT2_Global, only: ip_DiaA, ipInt1, ipScr1, mAdDel, mAdFro, mAdOcc, mAdVir
 use Constants, only: One, Four
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -26,7 +27,6 @@ implicit none
 integer(kind=iwp) :: iA, iB, iI, iJ, ipIntC, iSym, iSym1, iSym2, lint, nMaxOrb
 real(kind=wp) :: E_a, E_i, Ediff, xibja, xijab, xijba
 #include "WrkSpc.fh"
-#include "mp2grad.fh"
 #include "corbinf.fh"
 ! statement function
 integer(kind=iwp) :: i, j, k, iDiaA

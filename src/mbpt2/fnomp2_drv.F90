@@ -13,6 +13,7 @@
 
 subroutine FNOMP2_Drv(irc,EMP2,CMOI,EOcc,EVir)
 
+use MBPT2_Global, only: nBas
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -21,7 +22,6 @@ real(kind=wp), intent(out) :: EMP2
 real(kind=wp), intent(inout) :: CMOI(*), EOcc(*), EVir(*)
 logical(kind=iwp) :: DoDens_
 integer(kind=iwp) :: ChoAlg_
-#include "orbinf2.fh"
 #include "corbinf.fh"
 #include "chomp2_cfg.fh"
 

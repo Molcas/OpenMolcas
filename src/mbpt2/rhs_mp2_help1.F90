@@ -11,6 +11,7 @@
 
 subroutine rhs_mp2_help1(iSymA,iSymB,iSymI,iSymJ)
 
+use MBPT2_Global, only: EMP2, ip_Density, ip_Mp2Lagr, ip_WDensity, ipInt1, ipInt2, ipScr1, VECL2, mAdDel, mAdFro, mAdOcc, mAdVir
 use Constants, only: One, Two
 use Definitions, only: wp, iwp
 
@@ -22,7 +23,6 @@ real(kind=wp) :: EDenom, EDiff, EDiffac, EDiffbc, EDiffik, EDiffjk, fac_ab, fac_
                  xaibj, xajbc, xajbi, xbcaj, xbiaj, xiajb, xiajc, xiakb, xibja, xibjc, xibjk, xicja, xicjb, xikjb, xjakb, xkaib, &
                  xkajb
 #include "WrkSpc.fh"
-#include "mp2grad.fh"
 #include "corbinf.fh"
 ! statement functions
 integer(kind=iwp) :: i, j, k, iVirVir, iOccOcc, iVirDel, iOccFro, iVirOcc, iMp2Lagr

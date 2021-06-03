@@ -11,7 +11,7 @@
 ! Copyright (C) 1992, Markus P. Fuelscher                              *
 !***********************************************************************
 
-subroutine PrInp_MBPT2(Eocc,Eext)
+subroutine PrInp_MBPT2(Eocc,Eext,iTst)
 !***********************************************************************
 !                                                                      *
 !     Print the program banner, date and time of execution             *
@@ -28,22 +28,19 @@ subroutine PrInp_MBPT2(Eocc,Eext)
 !                                                                      *
 !***********************************************************************
 
+use MBPT2_Global, only: iDel, iFro, iPL, nBas, nDel1, nDel2, nDsto, nFro1, nFro2, nTit, Title
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: Eocc(*), Eext(*)
+integer(kind=iwp), intent(in) :: iTst
 integer(kind=iwp) :: i, ii, iOrb, iSym, k, left, lLine, lPaper, nLine
 logical(kind=iwp) :: lFro, lDel
 character(len=3) :: lIrrep(8)
 character(len=8) :: Fmt1, Fmt2
 character(len=120) :: Line, StLine
 character(len=102) :: XLine
-#include "mxdim.fh"
 #include "corbinf.fh"
-#include "orbinf2.fh"
-#include "mbpt2aux.fh"
-#include "cdtfaux.fh"
-#include "print_mbpt2.fh"
 
 !----------------------------------------------------------------------*
 !     Start and define the paper width                                 *
@@ -170,16 +167,6 @@ if (iPL >= 2) then
       ii = ii+nExt(iSym)
     end if
   end do
-end if
-!----------------------------------------------------------------------*
-!     # of orbitals in 1st index to be skipped (restart)               *
-!----------------------------------------------------------------------*
-if ((iRest /= 0) .and. (iPL >= 2)) then
-  write(u6,*)
-  write(u6,Fmt2//'A)') 'restart information...'
-  write(u6,Fmt2//'A,T47,I8)') 'max # integral passes',nPass
-  write(u6,Fmt2//'A,T47,8I4)') 'symmetry species',(iSym,iSym=1,nSym)
-  write(u6,Fmt2//'A,T47,8I4)') '# of orbitals in 1st index skipped',(MOSkip(iSym-1),iSym=1,nSym)
 end if
 !----------------------------------------------------------------------*
 !     print header for final results                                   *

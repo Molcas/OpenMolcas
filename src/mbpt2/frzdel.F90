@@ -18,6 +18,7 @@ subroutine FrzDel(NREMO,IREMO,EOCC,E1,NREME,IREME,EEXT,E2,CMO,CMO1,ISEQ)
 ! RESPECTIVELY, OF THE EIGENVECTOR LIST. THE ORBITAL ENERGIES='PRIN'
 ! ARE REARRANGED ACCORDINGLY
 
+use MBPT2_Global, only: nBas
 use Definitions, only: wp, iwp
 
 implicit none
@@ -27,7 +28,6 @@ real(kind=wp), intent(in) :: E1(*), E2(*), CMO1(*)
 integer(kind=iwp), intent(out) :: ISEQ(*)
 integer(kind=iwp) :: I, IAD, IAD0, IADD, IADE, IADF, IADO, IADR, IEE, IENE, IENO, IEO, ISYM, J
 #include "corbinf.fh"
-#include "orbinf2.fh"
 
 IAD0 = 1
 IADR = 1

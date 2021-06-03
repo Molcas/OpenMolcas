@@ -41,37 +41,31 @@ subroutine MP2_Driver(ireturn)
 !         University of Oslo, Norway                                   *
 !***********************************************************************
 
+use MBPT2_Global, only: DoCholesky, DoDF, DoLDF, FnIntA, FnIntM, ipCMO, ipEOcc, ipEVir, iPL, LuHLF1, LuHLF2, LuHLF3, LuIntA, &
+                        LuIntM, MBPT2_Clean, NamAct, nBas
+use stdalloc, only: mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-integer(kind=iwp) :: i, iOpt, iPrc, irc, iSym, itmp, iTol, iTst, iType, lthCMO, mAdCMO, mAdCMO_t, mAdEEx, mAdEOc, mAdEOr, &
+integer(kind=iwp) :: i, iOpt, iPrc, irc, iSym, itmp, iTol, iTst, iType, lthCMO, lthEOr, mAdCMO, mAdCMO_t, mAdEEx, mAdEOc, mAdEOr, &
                      mAdEOr_t, nAsh(8), nDel_tra(8), nFro_tra(8), nIsh(8), nOccT
-real(kind=wp) :: E0, E2BJAI, ESCF, ESSMP2, Etot, REFC, Shanks1_E, t1dg, t1nrm, TCPT, TIOT
-logical(kind=iwp) :: Conventional, Direct, Exist, Ready
-character(len=8) Method, Method1
+real(kind=wp) :: E0, E2BJAI, ESCF, ESSMP2, Etot, REFC, Shanks1_E, t1dg, t1nrm, TCPE(4), TCPT, TIOE(4), TIOT
+logical(kind=iwp) :: Conventional, IsDirect, Exists, Ready
+character(len=8) :: Method, Method1
 logical(kind=iwp), parameter :: Debug = .false.
 integer(kind=iwp), external :: Cho_X_GetTol
 real(kind=r8), external :: ddot_, Seconds
 #include "Molcas.fh"
-#include "cddos.fh"
 #include "trafo.fh"
-#include "mxdim.fh"
 #include "corbinf.fh"
-#include "orbinf2.fh"
-#include "mbpt2aux.fh"
-#include "files_mbpt2.fh"
 #include "WrkSpc.fh"
-#include "print_mbpt2.fh"
 #include "chomp2_cfg.fh"
-#include "mp2grad.fh"
-#include "namact.fh"
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 TCPT = seconds()
-call Set_Data()
 
 !***********************************************************************
 ! Check so it is a RHF-SCF reference that is being used.
@@ -102,7 +96,7 @@ call DecideOnLocalDF(DoLDF)
 
 call TIMING(TCPE(1),TCPT,TIOE(1),TIOT)
 call RdMBPT(mAdCMO,lthCMO,mAdEOr,lthEOr)
-!
+
 call GetMem('EOcc  ','Allo','Real',mAdEOc,lthEOr)
 call GetMem('EExt  ','Allo','Real',mAdEEx,lthEOr)
 call FZero(Work(mAdEOc),lthEOr)
@@ -131,7 +125,7 @@ Wref = Zero
 !                                                                      *
 ! Write out input parameters
 
-call PrInp_MBPT2(Work(mAdEOc),Work(mAdEEx))
+call PrInp_MBPT2(Work(mAdEOc),Work(mAdEEx),iTst)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -146,8 +140,8 @@ end if
 !                                                                      *
 ! Check, if there is an ORDINT file...
 
-call f_Inquire(FNINTA,Exist)
-call DecideOnDirect(.true.,Exist,Direct,DoCholesky)
+call f_Inquire(FNINTA,Exists)
+call DecideOnDirect(.true.,Exists,IsDirect,DoCholesky)
 call TIMING(TCPE(2),TCPT,TIOE(2),TIOT)
 call TIMING(TCPE(3),TCPT,TIOE(3),TIOT)
 
@@ -471,6 +465,7 @@ call Add_Info('HF ref weight',[WREF],1,iTol)
 
 ! Close up calculation
 
+call MBPT2_Clean()
 if (DoT1amp) call GetMem('T1amp','Free','Real',jT1amp,l_T1)
 call GetMem('EExt  ','Free','Real',mAdEEx,lthEOr)
 call GetMem('EOcc  ','Free','Real',mAdEOc,lthEOr)

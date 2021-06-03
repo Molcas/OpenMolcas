@@ -32,6 +32,9 @@ subroutine RdInp(CMO,Eall,Eocc,Eext,iTst,ESCF)
 !                                                                      *
 !***********************************************************************
 
+use MBPT2_Global, only: DelGhost, DoCholesky, DoDF, DoLDF, iDel, iFro, iPL, NamAct, nBas, nDel1, nDel2, nFro1, nFro2, nTit, &
+                        Thr_ghs, Title
+use stdalloc, only: mma_allocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
@@ -56,17 +59,11 @@ integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: ChoMP2_ChkPar, Reduce_Prt
 character(len=100), external :: Get_SuperName
 character(len=180), external :: Get_Ln
-#include "cddos.fh"
 #include "chomp2_cfg.fh"
-#include "mxdim.fh"
 #include "corbinf.fh"
-#include "orbinf2.fh"
-#include "mbpt2aux.fh"
 #include "WrkSpc.fh"
-#include "print_mbpt2.fh"
 #include "warnings.fh"
 #include "Molcas.fh"
-#include "namact.fh"
 
 !----------------------------------------------------------------------*
 !     Locate "start of input"                                          *
@@ -90,6 +87,7 @@ Thr_ghs = Half
 DelGHost = .false.
 ERef_UsrDef = .false.
 DecoMP2_UsrDef = .false.
+nActa = 0
 call Put_iScalar('mp2prpt',0)
 
 ! copy input from standard input to a local scratch file
@@ -147,19 +145,11 @@ nTit = 0
 iTst = 0
 !nTstP = -1
 iPrt = 0
+nFro1(:) = 0
+nFro2(:) = 0
+nDel1(:) = 0
+nDel2(:) = 0
 call Get_iArray('Non valence orbitals',nFro1,nSym)
-do iSym=1,nSym
-  !nFro1(iSym) = 0
-  nFro2(iSym) = 0
-  do iOrb=1,mxFro
-    iFro(iSym,iOrb) = 0
-  end do
-  nDel1(iSym) = 0
-  nDel2(iSym) = 0
-  do iOrb=1,mxFro
-    iDel(iSym,iOrb) = 0
-  end do
-end do
 nFre = 0
 !----------------------------------------------------------------------*
 !     Read the input stream line by line and identify key command      *
@@ -284,8 +274,8 @@ do iCom=1,nCom
 end do
 if (jCom /= 0) goto 110
 nTit = nTit+1
-if (nTit <= mxTit) then
-  Title(nTit) = Line(1:80)
+if (nTit <= size(Title)) then
+  Title(nTit) = Line(1:len(Title))
   goto 15
 end if
 goto 100
@@ -332,6 +322,8 @@ end if
 lSFro = .true.
 Line = Get_Ln(LuSpool)
 read(Line,*,err=995) (nFro2(iSym),iSym=1,nSym)
+call mma_allocate(iFro,8,maxval(nFro2),label='iFro')
+iFro(:,:) = 0
 do iSym=1,nSym
   Line = Get_Ln(LuSpool)
   read(Line,*,err=995) (iFro(iSym,iOrb),iOrb=1,nFro2(iSym))
@@ -348,6 +340,8 @@ end if
 lSDel = .true.
 Line = Get_Ln(LuSpool)
 read(Line,*,err=995) (nDel2(iSym),iSym=1,nSym)
+call mma_allocate(iDel,8,maxval(nDel2),label='iDel')
+iDel(:,:) = 0
 do iSym=1,nSym
   Line = Get_Ln(LuSpool)
   read(Line,*,err=995) (iDel(iSym,iOrb),iOrb=1,nDel2(iSym))
@@ -533,14 +527,14 @@ if (lFre .or. lFro) then
   write(u6,'(A,A)') 'Last read line:',Line
   call Abend()
 end if
-!
+
 write(u6,*)
 write(u6,'(A)') 'WARNING!'
 write(u6,'(A)') 'Default frozen orbitals as non valence orbitals is overwritten by user input.'
 write(u6,'(A,8I4)') 'Default values:',(nFro1(iSym),iSym=1,nSym)
 write(u6,*)
-call ICopy(nSym,[0],0,nFro1,1)
-!
+nFro1(:) = 0
+
 lFre = .true.
 Line = Get_Ln(LuSpool)
 read(Line,*,err=995) nFre
@@ -590,6 +584,7 @@ if ((ThrLov < Zero) .or. (ThrLov >= One)) then
   call Abend()
 end if
 ! namAct = names of active atoms (symm. indep. centers)
+call mma_allocate(NamAct,nActa,label='NamAct')
 1538 read(LuSpool,'(A)',end=995) Line
 if (Line(1:1) == '*') goto 1538
 if (Line == '') goto 1538
@@ -619,7 +614,7 @@ else
   FnoMP2 = .true.
 end if
 read(LuSpool,*) vkept
-!
+
 if ((vkept <= Zero) .or. (vkept > One)) then
   write(u6,*) ' Requested fraction of virtual space out of range! '
   write(u6,*) ' Must be in ]0,1] '
@@ -650,6 +645,10 @@ goto 100
 !     "End of input"                                                   *
 !----------------------------------------------------------------------*
 1000 continue
+
+if (.not. allocated(NamAct)) call mma_allocate(NamAct,nActa,label='NamAct')
+if (.not. allocated(iFro)) call mma_allocate(iFro,8,0,label='iFro')
+if (.not. allocated(iDel)) call mma_allocate(iDel,8,0,label='iDel')
 
 ! Postprocessing for SOS-MP2 and Laplace
 if (SOS_MP2) then
@@ -782,7 +781,7 @@ do i=1,nSym
   nOccT = nOccT+nOcc(i)
   nExtT = nExtT+nExt(i)
 end do
-!
+
 do iSym=1,nSym
   iLow = iCount+nFro(iSym)+1
   iUpp = iLow+nOcc(iSym)-1

@@ -16,6 +16,7 @@ subroutine RDINT2_MP2(IPRX)
 ! TWO-ELECTRON TRANSFORMATION PROGRAM TRA2. IT CAN BE CALLED BY
 ! TR2CTL IMMEDIATELY AFTER THE CALL TO TRA2
 
+use MBPT2_Global, only: LuIntM, nBas
 use Definitions, only: iwp, u6
 
 implicit none
@@ -23,8 +24,6 @@ integer(kind=iwp), intent(in) :: IPRX
 integer(kind=iwp) :: I, IAD131, IAD132, IAD13C, IADC, IADX1, IADX2, ISPQRS, iTmp, LENGTH, LREC, LRECX, NSP, NSPQ, NSPQR, NSQ, NSR, &
                      NSS, NT, NU, NUM
 #include "corbinf.fh"
-#include "orbinf2.fh"
-#include "files_mbpt2.fh"
 #include "trafo.fh"
 #include "WrkSpc.fh"
 

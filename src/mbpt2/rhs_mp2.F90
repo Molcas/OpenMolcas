@@ -12,6 +12,7 @@
 subroutine RHS_MP2()
 ! The RHS for the MP2-gradients
 
+use MBPT2_Global, only: EMP2, ip_Density, ipEocc, ipEVir, ipInt1, ipInt1_2, ipInt2, ipInt2_2, ipScr1, LuIntM, mAdOcc, mAdVir, VECL2
 use Constants, only: Zero, One
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
@@ -20,11 +21,9 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp) :: i, iSym, iSym1, iSym2, iSymA, iSymB, iSymI, iSymJ, j, LIADOUT, lInt, nDelTot, nMaxOrb, nVirTot
-#include "files_mbpt2.fh"
 #include "trafo.fh"
 #include "corbinf.fh"
 #include "WrkSpc.fh"
-#include "mp2grad.fh"
 #include "chomp2_cfg.fh"
 
 IAD13 = 0
