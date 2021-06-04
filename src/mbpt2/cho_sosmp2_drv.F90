@@ -79,14 +79,16 @@ end if
 call Cho_SOSmp2_Setup(irc)
 if (irc /= 0) then
   write(u6,*) SecNam,': Cho_SOSmp2_Setup returned ',irc
-  Go To 1  ! exit
+  call finalize()
+  return
 end if
 
 if (Verbose) then
   call Cho_SOSmp2_Setup_Prt(irc)
   if (irc /= 0) then
     write(u6,*) SecNam,': Cho_SOSmp2_Setup_Prt returned ',irc
-    Go To 1  ! exit
+    call finalize()
+    return
   end if
   call CWTime(CPUIni2,WallIni2)
   call Cho_PrtTim('Cholesky SOS-MP2 initialization',CPUIni2,CPUIni1,WallIni2,WallIni1,iFmt)
@@ -109,7 +111,8 @@ call mma_allocate(Diag,lDiag,label='Diag')
 call ChoMP2_TraDrv(irc,CMO,Diag,.true.)
 if (irc /= 0) then
   write(u6,*) SecNam,': ChoMP2_TraDrv returned ',irc
-  Go To 1  ! exit
+  call finalize()
+  return
 end if
 
 ! Squaring each diagonal element
@@ -132,7 +135,8 @@ call iCopy(nSym,NumCho,1,nMP2Vec,1)
 call Cho_X_Final(irc)
 if (irc /= 0) then
   write(u6,*) SecNam,': Cho_X_Final returned ',irc
-  Go To 1 ! exit
+  call finalize()
+  return
 end if
 
 LuPri = u6
@@ -168,7 +172,8 @@ Delete = Delete_def
 call Cho_SOSmp2_Energy(irc,EMP2,EOcc,EVir,Delete)
 if (irc /= 0) then
   write(u6,*) SecNam,': Cho_SOSmp2_Energy returned ',irc
-  Go To 1 ! exit
+  call finalize
+  return
 end if
 if (Verbose) then
   call CWTime(CPUEnr2,WallEnr2)
@@ -178,17 +183,22 @@ end if
 ! Exit.
 ! -----
 
-1 continue
-Diff = abs(Dum-Chk_Mem_ChoMP2)
-if (Diff > Tol) then
-  write(u6,*) SecNam,': Memory Boundary Error!'
-  if (irc == 0) irc = -9999
-end if
-if (Verbose) then
-  call CWTime(CPUTot2,WallTot2)
-  call Cho_PrtTim('Cholesky SOS-MP2',CPUTot2,CPUTot1,WallTot2,WallTot1,iFmt)
-end if
+call finalize()
 
 return
+
+contains
+
+subroutine finalize()
+  Diff = abs(Dum-Chk_Mem_ChoMP2)
+  if (Diff > Tol) then
+    write(u6,*) SecNam,': Memory Boundary Error!'
+    if (irc == 0) irc = -9999
+  end if
+  if (Verbose) then
+    call CWTime(CPUTot2,WallTot2)
+    call Cho_PrtTim('Cholesky SOS-MP2',CPUTot2,CPUTot1,WallTot2,WallTot1,iFmt)
+  end if
+end subroutine finalize
 
 end subroutine Cho_SOSmp2_Drv

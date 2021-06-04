@@ -258,7 +258,10 @@ else ! conventional (possibly with Cholesky)
   else
     if (iPL >= 2) write(u6,*) 'Conventional algorithm used...'
   end if
-  if (iTst /= 0) Go To 100
+  if (iTst /= 0) then
+    call finalize()
+    return
+  end if
 
   ! Use the driver from the CASPT2 code.
 
@@ -462,21 +465,22 @@ call Add_Info('HF ref weight',[WREF],1,iTol)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-100 continue
 
 ! Close up calculation
+call finalize()
 
-call MBPT2_Clean()
-if (DoT1amp) call GetMem('T1amp','Free','Real',jT1amp,l_T1)
-call mma_deallocate(EOc)
-call mma_deallocate(EEx)
-call GetMem('EOrb  ','Free','Real',mAdEOr,lthEOr)
-call GetMem('CMO   ','Free','Real',mAdCMO,lthCMO)
-
-ireturn = 0
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 return
+
+contains
+
+subroutine finalize()
+  call MBPT2_Clean()
+  if (DoT1amp) call GetMem('T1amp','Free','Real',jT1amp,l_T1)
+  call mma_deallocate(EOc)
+  call mma_deallocate(EEx)
+  call GetMem('EOrb  ','Free','Real',mAdEOr,lthEOr)
+  call GetMem('CMO   ','Free','Real',mAdCMO,lthCMO)
+  ireturn = 0
+end subroutine finalize
 
 end subroutine MP2_Driver

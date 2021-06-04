@@ -54,10 +54,10 @@ do NSP=1,NSYM
       do NSS=1,NSR
         NBS = NBAS(NSS)
         ISPQRS = ISPQRS+1
-        if (NSPQR /= NSS) GO TO 101
+        if (NSPQR /= NSS) cycle
         NOS = NORB(NSS)
         NOCS = NOCC(NSS)
-        if (NOCP*NOCQ*NOCR*NOCS == 0) GO TO 101
+        if (NOCP*NOCQ*NOCR*NOCS == 0) cycle
 
         ! FIND ADDRESSES FOR THIS SYMMETRY BLOCK
 
@@ -65,29 +65,22 @@ do NSP=1,NSYM
         IADX1 = IADOUT(3*ISPQRS-1)
         IADX2 = IADOUT(3*ISPQRS)
         write(u6,1000) NSP,NSQ,NSR,NSS
-1000    format(/1X,'SYMMETRY BLOCK',4I4)
         if (IADC == 0) then
           write(u6,1100)
-1100      format(1X,'NO COULOMB INTEGRALS FOR THIS SYMMETRY BLOCK?')
         else
           write(u6,1200) IADC
-1200      format(1X,'ADDRESS FOR COULOMB INTEGRALS',I8)
           IAD13C = IADC
         end if
         if (IADX1 == 0) then
           write(u6,1110)
-1110      format(1X,'NO EXCHAN1 INTEGRALS FOR THIS SYMMETRY BLOCK?')
         else
           write(u6,1210) IADX1
-1210      format(1X,'ADDRESS FOR EXCHAN1 INTEGRALS',I8)
           IAD131 = IADX1
         end if
         if (IADX2 == 0) then
           write(u6,1120)
-1120      format(1X,'NO EXCHAN2 INTEGRALS FOR THIS SYMMETRY BLOCK?')
         else
           write(u6,1220) IADX2
-1220      format(1X,'ADDRESS FOR EXCHAN2 INTEGRALS',I8)
           IAD132 = IADX2
         end if
         LREC = NOR*NOS
@@ -103,7 +96,6 @@ do NSP=1,NSYM
               if (IPRX /= 0) LENGTH = LREC
               if (IPRX == 0) LENGTH = min(LREC,10)
               write(u6,1300) NT,NU,Tmp(1:LENGTH)
-1300          format(/1X,'COULOMB INTEGRALS FOR TU PAIR',2I3/(1X,10F10.6))
               call mma_deallocate(Tmp)
             end if
 
@@ -125,7 +117,6 @@ do NSP=1,NSYM
               if (IPRX /= 0) LENGTH = LRECX
               if (IPRX == 0) LENGTH = min(LRECX,10)
               write(u6,1310) NT,NU,Tmp(1:LENGTH)
-1310          format(/1X,'EXCHAN1 INTEGRALS FOR TU PAIR',2I3/(1X,10F10.6))
               call mma_deallocate(Tmp)
             end if
             ! THE EXCHANGE INTEGRALS OF TYPE 1 ,(AT|BU) ARE PROCESSED AS THE
@@ -139,7 +130,6 @@ do NSP=1,NSYM
               if (IPRX /= 0) LENGTH = LRECX
               if (IPRX == 0) LENGTH = min(LRECX,10)
               write(u6,1320) NT,NU,Tmp(1:LENGTH)
-1320          format(/1X,'EXCHAN2 INTEGRALS FOR TU PAIR',2I3/(1X,10F10.6))
               call mma_deallocate(Tmp)
             end if
           end do
@@ -147,12 +137,22 @@ do NSP=1,NSYM
 
         ! ALL INTEGRALS FOR SYMMETRY BLOCK NSP,NSQ,NSR,NSS ARE READ
 
-101     continue
       end do
     end do
   end do
 end do
 
 return
+
+1000 format(/1x,'SYMMETRY BLOCK',4i4)
+1100 format(1x,'NO COULOMB INTEGRALS FOR THIS SYMMETRY BLOCK?')
+1110 format(1x,'NO EXCHAN1 INTEGRALS FOR THIS SYMMETRY BLOCK?')
+1120 format(1x,'NO EXCHAN2 INTEGRALS FOR THIS SYMMETRY BLOCK?')
+1200 format(1x,'ADDRESS FOR COULOMB INTEGRALS',i8)
+1210 format(1x,'ADDRESS FOR EXCHAN1 INTEGRALS',i8)
+1220 format(1x,'ADDRESS FOR EXCHAN2 INTEGRALS',i8)
+1300 format(/1x,'COULOMB INTEGRALS FOR TU PAIR',2i3/(1x,10f10.6))
+1310 format(/1x,'EXCHAN1 INTEGRALS FOR TU PAIR',2i3/(1x,10f10.6))
+1320 format(/1x,'EXCHAN2 INTEGRALS FOR TU PAIR',2i3/(1x,10f10.6))
 
 end subroutine RDINT2_MP2

@@ -136,7 +136,8 @@ do iSym=1,nSym
       write(u6,*) 'Dimension     : ',nDim
       write(u6,*) 'MxQual        : ',MxQual
       irc = -99
-      goto1 ! exit
+      call finalize()
+      return
     end if
 #   endif
 
@@ -168,7 +169,8 @@ do iSym=1,nSym
                 nMP2Vec(iSym),irc)
     if (irc /= 0) then
       write(u6,*) SecNam,': ChoDec returned ',irc,'   Symmetry block: ',iSym
-      goto 1 ! exit...
+      call finalize()
+      return
     end if
     XMn = ErrStat(1)
     XMx = ErrStat(2)
@@ -187,7 +189,8 @@ do iSym=1,nSym
       end if
       write(u6,*) SecNam,': (ai|bj)^2 decomposition failed!'
       irc = -9999
-      goto 1 ! exit
+      call finalize()
+      return
     end if
 
     ! If requested, check decomposition.
@@ -214,7 +217,8 @@ do iSym=1,nSym
         if (Failed) then
           write(u6,*) '==> DECOMPOSITION FAILURE <=='
           irc = -9999
-          goto 1 ! exit
+          call finalize()
+          return
         else
           write(u6,*) '==> DECOMPOSITION SUCCESS <=='
         end if
@@ -253,15 +257,22 @@ do iSym=1,nSym
 
 end do
 
-1 continue
-if (irc /= 0) then ! make sure files are closed before exit
-  do iSym=1,nSym
-    do iTyp=1,2
-      call ChoMP2_OpenF(2,iTyp,iSym)
-    end do
-  end do
-end if
+call finalize()
 
-if (allocated(Bin)) call mma_deallocate(Bin)
+return
+
+contains
+
+subroutine finalize()
+  integer(kind=iwp) :: iSym, iTyp
+  if (irc /= 0) then ! make sure files are closed before exit
+    do iSym=1,nSym
+      do iTyp=1,2
+        call ChoMP2_OpenF(2,iTyp,iSym)
+      end do
+    end do
+  end if
+  if (allocated(Bin)) call mma_deallocate(Bin)
+end subroutine
 
 end subroutine Cho_SOSmp2_DecDrv

@@ -41,21 +41,20 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp), intent(out) :: CMO(*), Eall(*), Eocc(*), Eext(*), ESCF
 integer(kind=iwp), intent(out) :: iTst
-integer(kind=iwp) :: i, iCom, iCount, iDNG, iDummy(1), iErr, iExt, iLow, iOrb, ip, iPrt, iSym, iUpp, j, jCom, jDel, jFro, jOcc, &
-                     l_Occup, LC, LEE, LEO, LSQ, Lu_orb, LuSpool, nExtT, nFre, nOccT
-logical(kind=iwp) :: FrePrt, ERef_UsrDef, DecoMP2_UsrDef, DNG, NoGrdt, lTit, lFro, lFre, lDel, lSFro, lSDel, lExt, lPrt, LumOrb
+integer(kind=iwp) :: i, iCom, iCount, iDNG, iDummy(1), iErr, iExt, iLow, iOrb, ip, iostatus, iPrt, iSym, iUpp, j, jCom, jDel, &
+                     jFro, jOcc, l_Occup, LC, LEE, LEO, LSQ, Lu_orb, LuSpool, nExtT, nFre, nOccT
+logical(kind=iwp) :: FrePrt, ERef_UsrDef, DecoMP2_UsrDef, DNG, NoGrdt, lTit, lFro, lFre, lDel, lSFro, lSDel, lExt, lPrt, LumOrb, &
+                     Skip
 character(len=4) :: Command
 character(len=8) :: emiloop, inGeo
 character(len=80) :: VecTitle
 character(len=100) :: ProgName
 character(len=180) :: Line
 real(kind=wp), allocatable :: C(:), EE(:), EO(:), Occup(:), SQ(:)
-integer(kind=iwp), parameter :: nCom = 43
-character(len=4), parameter :: ComTab(nCom) = ['TITL','FROZ','DELE','SFRO','SDEL','EXTR','PRIN','TEST','TSTP','PRPT', &
-                                               'LUMO','EREF','VIRA','T1AM','GRDT','LAPL','GRID','BLOC','CHOA','$$$$', &
-                                               '$$$$','$$$$','DECO','NODE','THRC','SPAN','MXQU','PRES','CHKI','FORC', &
-                                               'VERB','NOVE','FREE','PREC','SOSM','OEDT','OSFA','LOVM','DOMP','FNOM', &
-                                               'GHOS','NOGR','END ']
+character(len=4), parameter :: ComTab(39) = ['TITL','FROZ','DELE','SFRO','SDEL','EXTR','PRIN','TEST','PRPT','LUMO', &
+                                             'EREF','VIRA','T1AM','GRDT','LAPL','GRID','BLOC','CHOA','DECO','NODE', &
+                                             'THRC','SPAN','MXQU','PRES','CHKI','FORC','VERB','NOVE','FREE','PREC', &
+                                             'SOSM','OEDT','OSFA','LOVM','DOMP','FNOM','GHOS','NOGR','END ']
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: ChoMP2_ChkPar, Reduce_Prt
 character(len=100), external :: Get_SuperName
@@ -154,497 +153,428 @@ nFre = 0
 !----------------------------------------------------------------------*
 !     Read the input stream line by line and identify key command      *
 !----------------------------------------------------------------------*
-100 Line = Get_Ln(LuSpool)
-call StdFmt(Line,Command)
-jCom = 0
-do iCom=1,nCom
-  if (Command == ComTab(iCom)) jCom = iCom
-end do
-if (jCom == 0) then
-  write(u6,*) 'RdInp: Illegal keyword!'
-  write(u6,'(A,A)') 'Command=',Command
-  call Abend()
-end if
-!----------------------------------------------------------------------*
-!     Branch to the processing of the command sections                 *
-!----------------------------------------------------------------------*
-110 continue
-select case (jCom)
-  case (1)
-    goto 501
-  case (2)
-    goto 502
-  case (3)
-    goto 503
-  case (4)
-    goto 504
-  case (5)
-    goto 505
-  case (6)
-    goto 506
-  case (7)
-    goto 507
-  case (8)
-    goto 508
-  !case(9)
-  ! goto 509
-  case (10)
-    goto 510
-  case (11)
-    goto 511
-  case (12)
-    goto 512
-  case (13)
-    goto 513
-  case (14)
-    goto 514
-  case (15)
-    goto 515
-  case (16)
-    goto 516
-  case (17)
-    goto 517
-  case (18)
-    goto 518
-  case (19)
-    goto 519
-  case (20)
-    goto 520
-  case (21)
-    goto 521
-  case (22)
-    goto 522
-  case (23)
-    goto 523
-  case (24)
-    goto 524
-  case (25)
-    goto 525
-  case (26)
-    goto 526
-  case (27)
-    goto 527
-  case (28)
-    goto 528
-  case (29)
-    goto 529
-  case (30)
-    goto 530
-  case (31)
-    goto 531
-  case (32)
-    goto 532
-  case (33)
-    goto 533
-  case (34)
-    goto 534
-  case (35)
-    goto 535
-  case (36)
-    goto 536
-  case (37)
-    goto 537
-  case (38)
-    goto 538
-  case (39)
-    goto 539
-  case (40)
-    goto 540
-  case (41)
-    goto 541
-  case (42)
-    goto 542
-  case Default
-    goto 1000
-end select
-!---- Process the "TITL" input card -----------------------------------*
-501 continue
-if (lTit) then
-  write(u6,*) 'RdInp: Error while reading input!'
-  write(u6,*) 'Title option already processed!'
-  write(u6,'(A,A)') 'Last read line:',Line
-  call Abend()
-end if
-lTit = .true.
-15 Line = Get_Ln(LuSpool)
-call StdFmt(Line,Command)
-jCom = 0
-do iCom=1,nCom
-  if (Command == ComTab(iCom)) jCom = iCom
-end do
-if (jCom /= 0) goto 110
-nTit = nTit+1
-if (nTit <= size(Title)) then
-  Title(nTit) = Line(1:len(Title))
-  goto 15
-end if
-goto 100
-!---- Process the "FROZ" input card -----------------------------------*
-502 continue
-if (lFre .or. lFro) then
-  write(u6,*) 'RdInp: Error while reading input!'
-  if (lFro) write(u6,*) 'Frozen option already processed!'
-  if (lFre) write(u6,*) 'Freeze option and Frozen option are incompatible!'
-  write(u6,'(A,A)') 'Last read line:',Line
-  call Abend()
-end if
-lFro = .true.
-Line = Get_Ln(LuSpool)
-
-write(u6,*)
-write(u6,'(A)') 'WARNING!'
-write(u6,'(A)') 'Default frozen orbitals as non valence orbitals is overwritten by user input.'
-write(u6,'(A,8I4)') 'Default values:',(nFro1(iSym),iSym=1,nSym)
-write(u6,*)
-
-read(Line,*,err=995) (nFro1(iSym),iSym=1,nSym)
-goto 100
-!---- Process the "DELE" input card -----------------------------------*
-503 continue
-if (lDel) then
-  write(u6,*) 'RdInp: Error while reading input!'
-  write(u6,*) 'Delete option already processed!'
-  write(u6,'(A,A)') 'Last read line:',Line
-  call Abend()
-end if
-lDel = .true.
-Line = Get_Ln(LuSpool)
-read(Line,*,err=995) (nDel1(iSym),iSym=1,nSym)
-goto 100
-!---- Process the "SFRO" input card -----------------------------------*
-504 continue
-if (lSFro) then
-  write(u6,*) 'RdInp: Error while reading input!'
-  write(u6,*) 'SFrozen option already processed!'
-  write(u6,'(A,A)') 'Last read line:',Line
-  call Abend()
-end if
-lSFro = .true.
-Line = Get_Ln(LuSpool)
-read(Line,*,err=995) (nFro2(iSym),iSym=1,nSym)
-call mma_allocate(iFro,8,maxval(nFro2),label='iFro')
-iFro(:,:) = 0
-do iSym=1,nSym
-  Line = Get_Ln(LuSpool)
-  read(Line,*,err=995) (iFro(iSym,iOrb),iOrb=1,nFro2(iSym))
-end do
-goto 100
-!---- Process the "SDEL" input card -----------------------------------*
-505 continue
-if (lSDel) then
-  write(u6,*) 'RdInp: Error while reading input!'
-  write(u6,*) 'SDelete option already processed!'
-  write(u6,'(A,A)') 'Last read line:',Line
-  call Abend()
-end if
-lSDel = .true.
-Line = Get_Ln(LuSpool)
-read(Line,*,err=995) (nDel2(iSym),iSym=1,nSym)
-call mma_allocate(iDel,8,maxval(nDel2),label='iDel')
-iDel(:,:) = 0
-do iSym=1,nSym
-  Line = Get_Ln(LuSpool)
-  read(Line,*,err=995) (iDel(iSym,iOrb),iOrb=1,nDel2(iSym))
-end do
-goto 100
-!---- Process the "Extract" input card --------------------------------*
-506 continue
-if (lExt) then
-  write(u6,*) 'RdInp: Error while reading input!'
-  write(u6,*) 'Extract option already processed!'
-  write(u6,'(A,A)') 'Last read line:',Line
-  call Abend()
-end if
-write(u6,*) 'RdInp: EXTRACT option is redundant and is ignored!'
-goto 100
-!---- Process the "Print" input card ----------------------------------*
-507 continue
-if (lPrt) then
-  write(u6,*) 'RdInp: Error while reading input!'
-  write(u6,*) 'Print option already processed!'
-  write(u6,'(A,A)') 'Last read line:',Line
-  call Abend()
-end if
-lPrt = .true.
-Line = Get_Ln(LuSpool)
-read(Line,*,err=995) iPrt
-goto 100
-!---- Process the "Test" input card -----------------------------------*
-508 continue
-iTst = 1
-goto 100
-!---- Process the "TSTP" input card -----------------------------------*
-!509 continue
-!iTst = 1
-!Line = Get_Ln(LuSpool)
-!read(Line,*,err=995) nTstP
-!goto 100
-!---- Process the "PRPT" input card -----------------------------------*
-510 continue
-call Put_iScalar('mp2prpt',1)
-DoDens = .true.
-NoGamma = .true.
-goto 100
-!---- Process the "LUMO" input card -----------------------------------*
-511 continue
-LumOrb = .true.
-goto 100
-!---- Process the "EREF" input card -----------------------------------*
-512 continue
-if (.not. LumOrb) then
-  write(u6,*) 'RdInp: Error while reading input!'
-  write(u6,*) 'EREF can be used only with LumOrb.'
-  write(u6,*) '(Note: LumOrb keyword must precede EREF)'
-  call Abend()
-end if
-Line = Get_Ln(LuSpool)
-read(Line,*,err=995) ESCF
-ERef_UsrDef = .true.
-goto 100
-!---- Process the "VIRA" input card -----------------------------------*
-513 continue
-all_Vir = .true.
-goto 100
-!---- Process the "T1AM" input card -----------------------------------*
-514 continue
-DoT1amp = .true.
-if (.not. DoCholesky) then
-  write(u6,*) 'RdInp: T1AM is available only with Cholesky/RI .'
-  call Abend()
-end if
-goto 100
-!---- Process the "GRDT" input card -----------------------------------*
-515 continue
-call Put_iScalar('mp2prpt',2)
-DoDens = .true.
-DoGrdt = .true.
-goto 100
-!---- Process the "LAPLace" input card --------------------------------*
-! Laplace transform with default or previously specified grid.
-516 continue
-Laplace = .true.
-goto 100
-!---- Process the "GRID" input card -----------------------------------*
-! Read number of Laplace grid points (activates Laplace as well)
-517 continue
-Laplace = .true.
-Line = Get_Ln(LuSpool)
-read(Line,*,Err=995) Laplace_nGridPoints
-Laplace_nGridPoints = max(0,Laplace_nGridPoints)
-if (Laplace_nGridPoints > Laplace_mGridPoints) then
-  call WarningMessage(2,'Input Error')
-  write(u6,'(A,I6)') 'Number of Laplace grid points specified:',Laplace_nGridPoints
-  write(u6,'(A,I6)') 'Max allowed:                            ',Laplace_mGridPoints
-  call Quit(_RC_INPUT_ERROR_)
-end if
-goto 100
-!---- Process the "BLOC" input card -----------------------------------*
-! Read vector block size for CD/DF-Laplace-SOS-MP2
-! (Activates Laplace as well)
-518 continue
-Laplace = .true.
-Line = Get_Ln(LuSpool)
-read(Line,*,Err=995) Laplace_BlockSize
-Laplace_BlockSize = max(0,Laplace_BlockSize)
-if (Laplace_BlockSize == 0) then
-  Laplace_BlockSize = Laplace_BlockSize_Def
-end if
-goto 100
-!---- Process the "CHOAlgorithm" input card ---------------------------*
-519 continue
-Line = Get_Ln(LuSpool)
-read(Line,*,Err=995) ChoAlg
-if (ChoAlg < 0) then
-  ChoAlg = 0
-else if (ChoAlg > 2) then
-  ChoAlg = 2
-end if
-goto 100
-!---- Process the "$$$$" input card -----------------------------------*
-520 continue
-! not used
-goto 100
-!---- Process the "$$$$" input card -----------------------------------*
-521 continue
-! not used
-goto 100
-!---- Process the "$$$$" input card -----------------------------------*
-522 continue
-! not used
-goto 100
-!---- Process the "DECOmpose MP2 integrals" input card ----------------*
-523 continue
-DecoMP2 = .true.
-DecoMP2_UsrDef = .true.
-goto 100
-!---- Process the "NODEcomposition of MP2 integrals" input card -------*
-524 continue
-DecoMP2 = .false.
-DecoMP2_UsrDef = .true.
-goto 100
-!---- Process the "THRCholesky" input card ----------------------------*
-525 continue
-Line = Get_Ln(LuSpool)
-read(Line,*,err=995) ThrMP2
-set_cd_thr = .false.
-goto 100
-!---- Process the "SPAN" input card -----------------------------------*
-526 continue
-Line = Get_Ln(LuSpool)
-read(Line,*,err=995) SpanMP2
-goto 100
-!---- Process the "MXQUal" input card ---------------------------------*
-527 continue
-Line = Get_Ln(LuSpool)
-read(Line,*,err=995) MxQualMP2
-if (MxQualMP2 < 1) MxQualMP2 = MxQual_Def
-goto 100
-!---- Process the "PRESort input card (OBSOLETE) ----------------------*
-528 continue
-goto 100
-!---- Process the "CHKI" input card -----------------------------------*
-529 continue
-ChkDecoMP2 = .true.
-goto 100
-!---- Process the "FORCebatching" input card --------------------------*
-530 continue
-ForceBatch = .true.
-goto 100
-!---- Process the "VERBose" input card --------------------------------*
-531 continue
-Verbose = .true.
-goto 100
-!---- Process the "NOVErbose" input card ------------------------------*
-532 continue
-Verbose = .false.
-goto 100
-!---- Process the "FREEze" input card  --------------------------------*
-533 continue
-if (lFre .or. lFro) then
-  write(u6,*) 'RdInp: Error while reading input!'
-  if (lFre) write(u6,*) 'Freeze option already processed!'
-  if (lFro) write(u6,*) 'Frozen option and Freeze option are incompatible!'
-  write(u6,'(A,A)') 'Last read line:',Line
-  call Abend()
-end if
-
-write(u6,*)
-write(u6,'(A)') 'WARNING!'
-write(u6,'(A)') 'Default frozen orbitals as non valence orbitals is overwritten by user input.'
-write(u6,'(A,8I4)') 'Default values:',(nFro1(iSym),iSym=1,nSym)
-write(u6,*)
-nFro1(:) = 0
-
-lFre = .true.
-Line = Get_Ln(LuSpool)
-read(Line,*,err=995) nFre
-goto 100
-!---- Process the "PRECision" input card (= "THRCholesky" card) -------*
-534 continue
-goto 525
-!---- Process the "SOSMp2" input card ---------------------------------*
-535 continue
-SOS_MP2 = .true.
-if (.not. DoLDF) then
-  DecoMP2 = .true.
-  if (ChoMP2_ChkPar()) then
-    call WarningMessage(2,'SOS-MP2 is not implemented for parallel runs. !! SORRY !!')
-    call Quit(_RC_NOT_AVAILABLE_)
+Skip = .false.
+outer: do
+  if (.not. Skip) then
+    Line = Get_Ln(LuSpool)
+    call StdFmt(Line,Command)
+    jCom = 0
+    do iCom=1,size(ComTab)
+      if (Command == ComTab(iCom)) jCom = iCom
+    end do
+    if (jCom == 0) then
+      write(u6,*) 'RdInp: Illegal keyword!'
+      write(u6,'(A,A)') 'Command=',Command
+      call Abend()
+    end if
   end if
-end if
-goto 100
-!---- Process the "OEDThreshold" input card ---------------------------*
-536 continue
-Line = Get_Ln(LuSpool)
-read(Line,*,err=995) OED_Thr
-goto 100
-!---- Process the "OSFActor" input card -------------------------------*
-537 continue
-Line = Get_Ln(LuSpool)
-read(Line,*,err=995) C_os
-goto 100
-!---- Process the "LovMP2" input card ---------------------------------*
-538 continue
-if (.not. DoCholesky) then
-  write(u6,*)
-  write(u6,*) '********************* ERROR ***********************'
-  write(u6,*) ' LovMP2 not implemented with conventional ERIs.'
-  write(u6,*) ' Please, use Cholesky or RI options.'
-  write(u6,*) '***************************************************'
-  call Abend()
-else
-  LovMP2 = .true.
-end if
-read(LuSpool,*) nActa,ThrLov
-! nActa = number of active atoms
-! ThrLov = threshold for orbital selection
+  Skip = .false.
+  !--------------------------------------------------------------------*
+  !     Branch to the processing of the command sections               *
+  !--------------------------------------------------------------------*
+  select case (ComTab(jCom))
 
-if ((ThrLov < Zero) .or. (ThrLov >= One)) then
-  write(u6,*) ' Threshold out of range! Must be in [0,1[ '
-  call Abend()
-end if
-! namAct = names of active atoms (symm. indep. centers)
-call mma_allocate(NamAct,nActa,label='NamAct')
-1538 read(LuSpool,'(A)',end=995) Line
-if (Line(1:1) == '*') goto 1538
-if (Line == '') goto 1538
-call UpCase(Line)
-do i=1,nActa
-  call LeftAd(Line)
-  if (Line == '') goto 995
-  j = index(Line,' ')
-  namAct(i) = Line(1:j-1)
-  Line(1:j-1) = ''
-end do
-goto 100
-!---- Process the "DoMP2" input card ----------------------------------*
-539 continue
-DoMP2 = .true.
-goto 100
-!---- process the "FNOM" input card -----------------------------------*
-540 continue
-if (.not. DoCholesky) then
-  write(u6,*)
-  write(u6,*) '********************* ERROR ***********************'
-  write(u6,*) ' FNO-MP2 not implemented with conventional ERIs.   '
-  write(u6,*) ' Please, use Cholesky or RI options.'
-  write(u6,*) '***************************************************'
-  call Abend()
-else
-  FnoMP2 = .true.
-end if
-read(LuSpool,*) vkept
+    case ('TITL')
+      !---- Process the "TITL" input card -----------------------------*
+      if (lTit) then
+        write(u6,*) 'RdInp: Error while reading input!'
+        write(u6,*) 'Title option already processed!'
+        write(u6,'(A,A)') 'Last read line:',Line
+        call Abend()
+      end if
+      lTit = .true.
+      do
+        Line = Get_Ln(LuSpool)
+        call StdFmt(Line,Command)
+        jCom = 0
+        do iCom=1,size(ComTab)
+          if (Command == ComTab(iCom)) jCom = iCom
+        end do
+        if (jCom /= 0) then
+          Skip = .true.
+          cycle outer
+        end if
+        nTit = nTit+1
+        if (nTit > size(Title)) exit
+        Title(nTit) = Line(1:len(Title))
+      end do
 
-if ((vkept <= Zero) .or. (vkept > One)) then
-  write(u6,*) ' Requested fraction of virtual space out of range! '
-  write(u6,*) ' Must be in ]0,1] '
-  call Abend()
-end if
-goto 100
-!---- process the "GHOSt" input card ----------------------------------*
-! Removal of GHOST virtual space
-541 continue
-read(LuSpool,'(A)',end=995) Line
-if (Line(1:1) == '*') goto 541
-if (Line == '') goto 541
-read(Line,*,Err=995) Thr_ghs
-if ((thr_ghs < Zero) .or. (thr_ghs >= One)) then
-  write(u6,*) ' GHOST threshold out of range! Must be in [0,1[ '
-  call Abend()
-end if
-DelGHost = .true.
-goto 100
-!---  Process the "NOGR" input card -----------------------------------*
-542 continue
-NoGrdt = .true.
-goto 100
-!---  Unused ----------------------------------------------------------*
-!543 continue
-!goto 100
+    case ('FROZ')
+      !---- Process the "FROZ" input card -----------------------------*
+      if (lFre .or. lFro) then
+        write(u6,*) 'RdInp: Error while reading input!'
+        if (lFro) write(u6,*) 'Frozen option already processed!'
+        if (lFre) write(u6,*) 'Freeze option and Frozen option are incompatible!'
+        write(u6,'(A,A)') 'Last read line:',Line
+        call Abend()
+      end if
+      lFro = .true.
+      Line = Get_Ln(LuSpool)
+
+      write(u6,*)
+      write(u6,'(A)') 'WARNING!'
+      write(u6,'(A)') 'Default frozen orbitals as non valence orbitals is overwritten by user input.'
+      write(u6,'(A,8I4)') 'Default values:',(nFro1(iSym),iSym=1,nSym)
+      write(u6,*)
+
+      read(Line,*,iostat=iostatus) (nFro1(iSym),iSym=1,nSym)
+      if (iostatus > 0) call error()
+
+    case ('DELE')
+      !---- Process the "DELE" input card -----------------------------*
+      if (lDel) then
+        write(u6,*) 'RdInp: Error while reading input!'
+        write(u6,*) 'Delete option already processed!'
+        write(u6,'(A,A)') 'Last read line:',Line
+        call Abend()
+      end if
+      lDel = .true.
+      Line = Get_Ln(LuSpool)
+      read(Line,*,iostat=iostatus) (nDel1(iSym),iSym=1,nSym)
+      if (iostatus > 0) call error()
+
+    case ('SFRO')
+      !---- Process the "SFRO" input card -----------------------------*
+      if (lSFro) then
+        write(u6,*) 'RdInp: Error while reading input!'
+        write(u6,*) 'SFrozen option already processed!'
+        write(u6,'(A,A)') 'Last read line:',Line
+        call Abend()
+      end if
+      lSFro = .true.
+      Line = Get_Ln(LuSpool)
+      read(Line,*,iostat=iostatus) (nFro2(iSym),iSym=1,nSym)
+      if (iostatus > 0) call error()
+      call mma_allocate(iFro,8,maxval(nFro2),label='iFro')
+      iFro(:,:) = 0
+      do iSym=1,nSym
+        Line = Get_Ln(LuSpool)
+        read(Line,*,iostat=iostatus) (iFro(iSym,iOrb),iOrb=1,nFro2(iSym))
+        if (iostatus > 0) call error()
+      end do
+
+    case ('SDEL')
+      !---- Process the "SDEL" input card -----------------------------*
+      if (lSDel) then
+        write(u6,*) 'RdInp: Error while reading input!'
+        write(u6,*) 'SDelete option already processed!'
+        write(u6,'(A,A)') 'Last read line:',Line
+        call Abend()
+      end if
+      lSDel = .true.
+      Line = Get_Ln(LuSpool)
+      read(Line,*,iostat=iostatus) (nDel2(iSym),iSym=1,nSym)
+      if (iostatus > 0) call error()
+      call mma_allocate(iDel,8,maxval(nDel2),label='iDel')
+      iDel(:,:) = 0
+      do iSym=1,nSym
+        Line = Get_Ln(LuSpool)
+        read(Line,*,iostat=iostatus) (iDel(iSym,iOrb),iOrb=1,nDel2(iSym))
+        if (iostatus > 0) call error()
+      end do
+
+    case ('EXTR')
+      !---- Process the "Extract" input card --------------------------*
+      if (lExt) then
+        write(u6,*) 'RdInp: Error while reading input!'
+        write(u6,*) 'Extract option already processed!'
+        write(u6,'(A,A)') 'Last read line:',Line
+        call Abend()
+      end if
+      write(u6,*) 'RdInp: EXTRACT option is redundant and is ignored!'
+
+    case ('PRIN')
+      !---- Process the "Print" input card ----------------------------*
+      if (lPrt) then
+        write(u6,*) 'RdInp: Error while reading input!'
+        write(u6,*) 'Print option already processed!'
+        write(u6,'(A,A)') 'Last read line:',Line
+        call Abend()
+      end if
+      lPrt = .true.
+      Line = Get_Ln(LuSpool)
+      read(Line,*,iostat=iostatus) iPrt
+      if (iostatus > 0) call error()
+
+    case ('TEST')
+      !---- Process the "Test" input card -----------------------------*
+      iTst = 1
+
+    !case ('TSTP')
+    !  !---- Process the "TSTP" input card -----------------------------*
+    !  iTst = 1
+    !  Line = Get_Ln(LuSpool)
+    !  read(Line,*,iostat=iostatus) nTstP
+    !  if (iostatus > 0) call error()
+
+    case ('PRPT')
+      !---- Process the "PRPT" input card -----------------------------*
+      call Put_iScalar('mp2prpt',1)
+      DoDens = .true.
+      NoGamma = .true.
+
+    case ('LUMO')
+      !---- Process the "LUMO" input card -----------------------------*
+      LumOrb = .true.
+
+    case ('EREF')
+      !---- Process the "EREF" input card -----------------------------*
+      if (.not. LumOrb) then
+        write(u6,*) 'RdInp: Error while reading input!'
+        write(u6,*) 'EREF can be used only with LumOrb.'
+        write(u6,*) '(Note: LumOrb keyword must precede EREF)'
+        call Abend()
+      end if
+      Line = Get_Ln(LuSpool)
+      read(Line,*,iostat=iostatus) ESCF
+      if (iostatus > 0) call error()
+      ERef_UsrDef = .true.
+
+    case ('VIRA')
+      !---- Process the "VIRA" input card -----------------------------*
+      all_Vir = .true.
+
+    case ('T1AM')
+      !---- Process the "T1AM" input card -----------------------------*
+      DoT1amp = .true.
+      if (.not. DoCholesky) then
+        write(u6,*) 'RdInp: T1AM is available only with Cholesky/RI .'
+        call Abend()
+      end if
+
+    case ('GRDT')
+      !---- Process the "GRDT" input card -----------------------------*
+      call Put_iScalar('mp2prpt',2)
+      DoDens = .true.
+      DoGrdt = .true.
+
+    case ('LAPL')
+      !---- Process the "LAPLace" input card --------------------------*
+      ! Laplace transform with default or previously specified grid.
+      Laplace = .true.
+
+    case ('GRID')
+      !---- Process the "GRID" input card -----------------------------*
+      ! Read number of Laplace grid points (activates Laplace as well)
+      Laplace = .true.
+      Line = Get_Ln(LuSpool)
+      read(Line,*,iostat=iostatus) Laplace_nGridPoints
+      if (iostatus > 0) call error()
+      Laplace_nGridPoints = max(0,Laplace_nGridPoints)
+      if (Laplace_nGridPoints > Laplace_mGridPoints) then
+        call WarningMessage(2,'Input Error')
+        write(u6,'(A,I6)') 'Number of Laplace grid points specified:',Laplace_nGridPoints
+        write(u6,'(A,I6)') 'Max allowed:                            ',Laplace_mGridPoints
+        call Quit(_RC_INPUT_ERROR_)
+      end if
+
+    case ('BLOC')
+      !---- Process the "BLOC" input card -----------------------------*
+      ! Read vector block size for CD/DF-Laplace-SOS-MP2
+      ! (Activates Laplace as well)
+      Laplace = .true.
+      Line = Get_Ln(LuSpool)
+      read(Line,*,iostat=iostatus) Laplace_BlockSize
+      if (iostatus > 0) call error()
+      Laplace_BlockSize = max(0,Laplace_BlockSize)
+      if (Laplace_BlockSize == 0) then
+        Laplace_BlockSize = Laplace_BlockSize_Def
+      end if
+
+    case ('CHOA')
+      !---- Process the "CHOAlgorithm" input card ---------------------*
+      Line = Get_Ln(LuSpool)
+      read(Line,*,iostat=iostatus) ChoAlg
+      if (iostatus > 0) call error()
+      if (ChoAlg < 0) then
+        ChoAlg = 0
+      else if (ChoAlg > 2) then
+        ChoAlg = 2
+      end if
+
+    case ('DECO')
+      !---- Process the "DECOmpose MP2 integrals" input card ----------*
+      DecoMP2 = .true.
+      DecoMP2_UsrDef = .true.
+
+    case ('NODE')
+      !---- Process the "NODEcomposition of MP2 integrals" input card -*
+      DecoMP2 = .false.
+      DecoMP2_UsrDef = .true.
+
+    case ('THRC','PREC')
+      !---- Process the "THRCholesky" input card ----------------------*
+      !---- Process the "PRECision" input card (= "THRCholesky" card) -*
+      Line = Get_Ln(LuSpool)
+      read(Line,*,iostat=iostatus) ThrMP2
+      if (iostatus > 0) call error()
+      set_cd_thr = .false.
+
+    case ('SPAN')
+      !---- Process the "SPAN" input card -----------------------------*
+      Line = Get_Ln(LuSpool)
+      read(Line,*,iostat=iostatus) SpanMP2
+      if (iostatus > 0) call error()
+
+    case ('MXQU')
+      !---- Process the "MXQUal" input card ---------------------------*
+      Line = Get_Ln(LuSpool)
+      read(Line,*,iostat=iostatus) MxQualMP2
+      if (iostatus > 0) call error()
+      if (MxQualMP2 < 1) MxQualMP2 = MxQual_Def
+
+    case ('PRES')
+      !---- Process the "PRESort input card (OBSOLETE) ----------------*
+
+    case ('CHKI')
+      !---- Process the "CHKI" input card -----------------------------*
+      ChkDecoMP2 = .true.
+
+    case ('FORC')
+      !---- Process the "FORCebatching" input card --------------------*
+      ForceBatch = .true.
+
+    case ('VERB')
+      !---- Process the "VERBose" input card --------------------------*
+      Verbose = .true.
+
+    case ('NOVE')
+      !---- Process the "NOVErbose" input card ------------------------*
+      Verbose = .false.
+
+    case ('FREE')
+      !---- Process the "FREEze" input card  --------------------------*
+      if (lFre .or. lFro) then
+        write(u6,*) 'RdInp: Error while reading input!'
+        if (lFre) write(u6,*) 'Freeze option already processed!'
+        if (lFro) write(u6,*) 'Frozen option and Freeze option are incompatible!'
+        write(u6,'(A,A)') 'Last read line:',Line
+        call Abend()
+      end if
+
+      write(u6,*)
+      write(u6,'(A)') 'WARNING!'
+      write(u6,'(A)') 'Default frozen orbitals as non valence orbitals is overwritten by user input.'
+      write(u6,'(A,8I4)') 'Default values:',(nFro1(iSym),iSym=1,nSym)
+      write(u6,*)
+      nFro1(:) = 0
+
+      lFre = .true.
+      Line = Get_Ln(LuSpool)
+      read(Line,*,iostat=iostatus) nFre
+      if (iostatus > 0) call error()
+
+    case ('SOSM')
+      !---- Process the "SOSMp2" input card ---------------------------*
+      SOS_MP2 = .true.
+      if (.not. DoLDF) then
+        DecoMP2 = .true.
+        if (ChoMP2_ChkPar()) then
+          call WarningMessage(2,'SOS-MP2 is not implemented for parallel runs. !! SORRY !!')
+          call Quit(_RC_NOT_AVAILABLE_)
+        end if
+      end if
+
+    case ('OEDT')
+      !---- Process the "OEDThreshold" input card ---------------------*
+      Line = Get_Ln(LuSpool)
+      read(Line,*,iostat=iostatus) OED_Thr
+      if (iostatus > 0) call error()
+
+    case ('OSFA')
+      !---- Process the "OSFActor" input card -------------------------*
+      Line = Get_Ln(LuSpool)
+      read(Line,*,iostat=iostatus) C_os
+      if (iostatus > 0) call error()
+
+    case ('LOVM')
+      !---- Process the "LovMP2" input card ---------------------------*
+      if (.not. DoCholesky) then
+        write(u6,*)
+        write(u6,*) '********************* ERROR ***********************'
+        write(u6,*) ' LovMP2 not implemented with conventional ERIs.'
+        write(u6,*) ' Please, use Cholesky or RI options.'
+        write(u6,*) '***************************************************'
+        call Abend()
+      else
+        LovMP2 = .true.
+      end if
+      read(LuSpool,*) nActa,ThrLov
+      ! nActa = number of active atoms
+      ! ThrLov = threshold for orbital selection
+
+      if ((ThrLov < Zero) .or. (ThrLov >= One)) then
+        write(u6,*) ' Threshold out of range! Must be in [0,1[ '
+        call Abend()
+      end if
+      ! namAct = names of active atoms (symm. indep. centers)
+      call mma_allocate(NamAct,nActa,label='NamAct')
+      do
+        read(LuSpool,'(A)',iostat=iostatus) Line
+        if (iostatus < 0) call error()
+        if ((Line(1:1) /= '*') .and. (Line /= '')) exit
+      end do
+      call UpCase(Line)
+      do i=1,nActa
+        call LeftAd(Line)
+        if (Line == '') call error()
+        j = index(Line,' ')
+        namAct(i) = Line(1:j-1)
+        Line(1:j-1) = ''
+      end do
+
+    case ('DOMP')
+      !---- Process the "DoMP2" input card ----------------------------*
+      DoMP2 = .true.
+
+    case ('FNOM')
+      !---- process the "FNOM" input card -----------------------------*
+      if (.not. DoCholesky) then
+        write(u6,*)
+        write(u6,*) '********************* ERROR ***********************'
+        write(u6,*) ' FNO-MP2 not implemented with conventional ERIs.   '
+        write(u6,*) ' Please, use Cholesky or RI options.'
+        write(u6,*) '***************************************************'
+        call Abend()
+      else
+        FnoMP2 = .true.
+      end if
+      read(LuSpool,*) vkept
+
+      if ((vkept <= Zero) .or. (vkept > One)) then
+        write(u6,*) ' Requested fraction of virtual space out of range! '
+        write(u6,*) ' Must be in ]0,1] '
+        call Abend()
+      end if
+
+    case ('GHOS')
+      !---- process the "GHOSt" input card ----------------------------*
+      ! Removal of GHOST virtual space
+      do
+        read(LuSpool,'(A)',iostat=iostatus) Line
+        if (iostatus < 0) call error()
+        if ((Line(1:1) /= '*') .and. (Line /= '')) exit
+      end do
+      read(Line,*,iostat=iostatus) Thr_ghs
+      if (iostatus > 0) call error()
+      if ((thr_ghs < Zero) .or. (thr_ghs >= One)) then
+        write(u6,*) ' GHOST threshold out of range! Must be in [0,1[ '
+        call Abend()
+      end if
+      DelGHost = .true.
+
+    case ('NOGR')
+      !---  Process the "NOGR" input card -----------------------------*
+      NoGrdt = .true.
+
+    case default
+      exit
+
+  end select
+end do outer
 !----------------------------------------------------------------------*
 !     "End of input"                                                   *
 !----------------------------------------------------------------------*
-1000 continue
 
 if (.not. allocated(NamAct)) call mma_allocate(NamAct,nActa,label='NamAct')
 if (.not. allocated(iFro)) call mma_allocate(iFro,8,0,label='iFro')
@@ -876,11 +806,16 @@ end if
 call xFlush(u6)
 
 return
-!----------------------------------------------------------------------*
-!     Error Exit                                                       *
-!----------------------------------------------------------------------*
-995 write(u6,*) 'RdInp: Error while reading input!'
-write(u6,'(A,A)') 'Last read line:',Line
-call Abend()
+
+contains
+
+subroutine error()
+  !--------------------------------------------------------------------*
+  !     Error Exit                                                     *
+  !--------------------------------------------------------------------*
+  write(u6,*) 'RdInp: Error while reading input!'
+  write(u6,'(A,A)') 'Last read line:',Line
+  call Abend()
+end subroutine error
 
 end subroutine RdInp

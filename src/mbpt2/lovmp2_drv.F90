@@ -109,7 +109,8 @@ if (n_Acta /= 0) then
   write(u6,*)
 else if (.not. Do_MP2) then
   write(u6,'(A,18A4)') ' Selected atoms: *** None *** '
-  Go To 2000
+  call finalize()
+  return
 else
   write(u6,'(A,18A4)') ' Selected atoms: *** None *** '
 end if
@@ -186,47 +187,46 @@ if (allVir) then
   do iSym=1,nSym
     ns_V(iSym) = nExt(iSym)
   end do
-  goto 999
-end if
-!----------------------------------------------------------------------*
-!     Virtual orbital selection                                        *
-!----------------------------------------------------------------------*
-iOff = 1
-kOff = 1
-do iSym=1,nSym
-  jOff = iOff+nBas(iSym)*(nFro(iSym)+nOcc(iSym))
-  call dcopy_(nBas(iSym)*nExt(iSym),LCMO(jOff,2),1,LCMO(kOff,3),1)
-  call dcopy_(nBas(iSym)*nExt(iSym),CMO(jOff),1,LCMO(kOff,1),1)
-  iOff = iOff+nBas(iSym)**2
-  kOff = kOff+nBas(iSym)*nExt(iSym)
-end do
-ortho = .false.
-
-call get_Vir_select(irc,LCMO(:,1),LCMO(:,3),EOrb(:,2),SQ,UBName,NamAct,iD_vir,nSym,n_Acta,nExt,nBas,ortho,ns_V)
-if (irc /= 0) then
-  return
-end if
-call mma_deallocate(iD_vir)
-iOff = 1
-kOff = 1
-do iSym=1,nSym
-  jOff = iOff+nBas(iSym)*(nFro(iSym)+nOcc(iSym))
-  call dcopy_(nBas(iSym)*nExt(iSym),LCMO(kOff,1),1,CMO(jOff),1)
-  iOff = iOff+nBas(iSym)**2
-  kOff = kOff+nBas(iSym)*nExt(iSym)
-end do
-iloc = 0
-loff = 0
-do iSym=1,nSym
-  do ik=1,nExt(iSym)
-    ie = loff+ik
-    iloc = iloc+1
-    EVir(iloc) = EOrb(ie,2)
+else
+  !--------------------------------------------------------------------*
+  !     Virtual orbital selection                                      *
+  !--------------------------------------------------------------------*
+  iOff = 1
+  kOff = 1
+  do iSym=1,nSym
+    jOff = iOff+nBas(iSym)*(nFro(iSym)+nOcc(iSym))
+    call dcopy_(nBas(iSym)*nExt(iSym),LCMO(jOff,2),1,LCMO(kOff,3),1)
+    call dcopy_(nBas(iSym)*nExt(iSym),CMO(jOff),1,LCMO(kOff,1),1)
+    iOff = iOff+nBas(iSym)**2
+    kOff = kOff+nBas(iSym)*nExt(iSym)
   end do
-  loff = loff+nExt(iSym)
-end do
+  ortho = .false.
 
-999 continue
+  call get_Vir_select(irc,LCMO(:,1),LCMO(:,3),EOrb(:,2),SQ,UBName,NamAct,iD_vir,nSym,n_Acta,nExt,nBas,ortho,ns_V)
+  if (irc /= 0) then
+    return
+  end if
+  call mma_deallocate(iD_vir)
+  iOff = 1
+  kOff = 1
+  do iSym=1,nSym
+    jOff = iOff+nBas(iSym)*(nFro(iSym)+nOcc(iSym))
+    call dcopy_(nBas(iSym)*nExt(iSym),LCMO(kOff,1),1,CMO(jOff),1)
+    iOff = iOff+nBas(iSym)**2
+    kOff = kOff+nBas(iSym)*nExt(iSym)
+  end do
+  iloc = 0
+  loff = 0
+  do iSym=1,nSym
+    do ik=1,nExt(iSym)
+      ie = loff+ik
+      iloc = iloc+1
+      EVir(iloc) = EOrb(ie,2)
+    end do
+    loff = loff+nExt(iSym)
+  end do
+end if
+
 iDo = 0
 jDo = 0
 do iSym=1,nSym  ! setup info
@@ -242,80 +242,79 @@ do iSym=1,nSym  ! setup info
   iDo = max(iDo,lnOcc(iSym))
   jDo = max(jDo,lnVir(iSym))
 end do
-if (min(iDo,jDo) == 0) goto 1000
+if (min(iDo,jDo) /= 0) then
+  !--------------------------------------------------------------------*
+  !     MP2 calculation on the Frozen region                           *
+  !--------------------------------------------------------------------*
+  if (Do_MP2) then
 
-!----------------------------------------------------------------------*
-!     MP2 calculation on the Frozen region                             *
-!----------------------------------------------------------------------*
-if (Do_MP2) then
-
-  iloc = 1
-  jloc = 1
-  loff = 0
-  joff = 0
-  do iSym=1,nSym
-    do ik=ns_V(iSym)+1,nExt(iSym)
-      ie = loff+ik
-      EOrb(iloc,2) = EVir(ie)
-      iloc = iloc+1
+    iloc = 1
+    jloc = 1
+    loff = 0
+    joff = 0
+    do iSym=1,nSym
+      do ik=ns_V(iSym)+1,nExt(iSym)
+        ie = loff+ik
+        EOrb(iloc,2) = EVir(ie)
+        iloc = iloc+1
+      end do
+      loff = loff+nExt(iSym)
+      do ik=1,lnOcc(iSym)
+        ie = joff+ik
+        EOrb(jloc,1) = EOcc(ie)
+        jloc = jloc+1
+      end do
+      joff = joff+nOcc(iSym)
     end do
-    loff = loff+nExt(iSym)
-    do ik=1,lnOcc(iSym)
-      ie = joff+ik
-      EOrb(jloc,1) = EOcc(ie)
-      jloc = jloc+1
+    iOff = 1
+    nVV = 0
+    nOA = 0
+    do iSym=1,nSym
+      kfr = iOff+nBas(iSym)*nFro(iSym)
+      kto = iOff+nBas(iSym)*lnFro(iSym)
+      call dcopy_(nBas(iSym)*lnOcc(iSym),CMO(kfr),1,LCMO(kto,1),1)
+      kfr = iOff+nBas(iSym)*(nFro(iSym)+nOcc(iSym)+ns_V(iSym))
+      kto = kto+nBas(iSym)*lnOcc(iSym)
+      call dcopy_(nBas(iSym)*lnVir(iSym),CMO(kfr),1,LCMO(kto,1),1)
+      iOff = iOff+nBas(iSym)**2
+      nVV = nVV+lnVir(iSym)**2
+      nOA = nOA+lnOcc(iSym)
     end do
-    joff = joff+nOcc(iSym)
-  end do
-  iOff = 1
-  nVV = 0
-  nOA = 0
-  do iSym=1,nSym
-    kfr = iOff+nBas(iSym)*nFro(iSym)
-    kto = iOff+nBas(iSym)*lnFro(iSym)
-    call dcopy_(nBas(iSym)*lnOcc(iSym),CMO(kfr),1,LCMO(kto,1),1)
-    kfr = iOff+nBas(iSym)*(nFro(iSym)+nOcc(iSym)+ns_V(iSym))
-    kto = kto+nBas(iSym)*lnOcc(iSym)
-    call dcopy_(nBas(iSym)*lnVir(iSym),CMO(kfr),1,LCMO(kto,1),1)
-    iOff = iOff+nBas(iSym)**2
-    nVV = nVV+lnVir(iSym)**2
-    nOA = nOA+lnOcc(iSym)
-  end do
-  call Check_Amp2(nSym,lnOcc,lnVir,iSkip)
-  if (iSkip > 0) then
-    call mma_allocate(X,nVV+nOA,label='Dmat')
-    X(:) = Zero
-    ip_X = ip_of_Work(X(1))
-    ip_Y = ip_X+nVV
-    call LovMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y,.true.)
-    call ChoMP2_Drv(irc,Dummy,LCMO(:,1),EOrb(:,1),EOrb(:,2))
-    call LovMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y,.false.) ! compute energy and not Dab
-    call ChoMP2_Drv(irc,EFRO,LCMO(:,1),EOrb(:,1),EOrb(:,2))
-    if (irc /= 0) then
-      write(u6,*) 'Frozen region MP2 failed'
-      call Abend()
-    else
-      write(u6,'(A,F20.10,A)') ' Frozen region E2 contrib. = ',EFRO,' a.u.'
-      EOSF = EOSMP2
-      write(u6,'(A,F20.10,A)') ' (Opposite-Spin contrib.   = ',-EOSF,' )'
-      write(u6,*)
+    call Check_Amp2(nSym,lnOcc,lnVir,iSkip)
+    if (iSkip > 0) then
+      call mma_allocate(X,nVV+nOA,label='Dmat')
+      X(:) = Zero
+      ip_X = ip_of_Work(X(1))
+      ip_Y = ip_X+nVV
+      call LovMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y,.true.)
+      call ChoMP2_Drv(irc,Dummy,LCMO(:,1),EOrb(:,1),EOrb(:,2))
+      call LovMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y,.false.) ! compute energy and not Dab
+      call ChoMP2_Drv(irc,EFRO,LCMO(:,1),EOrb(:,1),EOrb(:,2))
+      if (irc /= 0) then
+        write(u6,*) 'Frozen region MP2 failed'
+        call Abend()
+      else
+        write(u6,'(A,F20.10,A)') ' Frozen region E2 contrib. = ',EFRO,' a.u.'
+        EOSF = EOSMP2
+        write(u6,'(A,F20.10,A)') ' (Opposite-Spin contrib.   = ',-EOSF,' )'
+        write(u6,*)
+      end if
+      iV = 1
+      do iSym=1,nSym
+        TrF(iSym) = ddot_(lnVir(iSym),X(iV),1+lnVir(iSym),[One],0)
+        iV = iV+lnVir(iSym)**2
+      end do
+      call mma_deallocate(X)
+      do iSym=1,nSym
+        nOcc(iSym) = lnOcc2(iSym)
+        nFro(iSym) = lnFro2(iSym)
+        nDel(iSym) = lnDel2(iSym)
+        nExt(iSym) = lnVir2(iSym)
+      end do
     end if
-    iV = 1
-    do iSym=1,nSym
-      TrF(iSym) = ddot_(lnVir(iSym),X(iV),1+lnVir(iSym),[One],0)
-      iV = iV+lnVir(iSym)**2
-    end do
-    call mma_deallocate(X)
-    do iSym=1,nSym
-      nOcc(iSym) = lnOcc2(iSym)
-      nFro(iSym) = lnFro2(iSym)
-      nDel(iSym) = lnDel2(iSym)
-      nExt(iSym) = lnVir2(iSym)
-    end do
-  end if
 
+  end if
 end if
-1000 continue
 
 ! Update the nFro, nOcc, nExt, nDel for the Active site MP2
 do iSym=1,nSym
@@ -453,19 +452,23 @@ call mma_deallocate(LCMO)
 call mma_deallocate(Saa)
 call mma_deallocate(EOrb)
 
-2000 continue
-if (min(iDo,jDo) == 0) then
-  write(u6,*)
-  write(u6,*) ' None of the occupied or virtual orbitals has been '
-  write(u6,*) ' assigned to the Active region of the molecule.    '
-  write(u6,*) ' This is presumably NOT what you want !!!          '
-  write(u6,*) ' MP2 will Stop here. Bye Bye !! '
-  write(u6,*)
-  call Abend()
-end if
-
-call mma_deallocate(SQ)
+call finalize()
 
 return
+
+contains
+
+subroutine finalize()
+  if (min(iDo,jDo) == 0) then
+    write(u6,*)
+    write(u6,*) ' None of the occupied or virtual orbitals has been '
+    write(u6,*) ' assigned to the Active region of the molecule.    '
+    write(u6,*) ' This is presumably NOT what you want !!!          '
+    write(u6,*) ' MP2 will Stop here. Bye Bye !! '
+    write(u6,*)
+    call Abend()
+  end if
+  call mma_deallocate(SQ)
+end subroutine
 
 end subroutine LovMP2_Drv

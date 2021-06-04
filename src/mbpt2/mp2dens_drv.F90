@@ -141,61 +141,61 @@ do iSym=1,nSym
     TotLagr = TotLagr+Work(ip_Mp2Lagr(iSym)+i-1)
   end do
 end do
+call GetMem('MP2Lagr','Free','Real',ip_First_Mp2Lagr,l_Mp2Lagr)
 if (abs(TotLagr) < 1.0e-12_wp) then
-  call GetMem('MP2Lagr','Free','Real',ip_First_Mp2Lagr,l_Mp2Lagr)
-  Go To 100
+  Done = .true.
 else
-  call GetMem('MP2Lagr','Free','Real',ip_First_Mp2Lagr,l_Mp2Lagr)
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Now we have all the initial stuff and should make the PCG-loop.
-! The maximum number of iterations are the one defined globally
-! in MCLR and not MP2-specific.
-do Iter=1,nIter
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Now we have all the initial stuff and should make the PCG-loop.
+  ! The maximum number of iterations are the one defined globally
+  ! in MCLR and not MP2-specific.
+  do Iter=1,nIter
 
-# ifdef _DEBUGPRINT_
-  write(u6,*) 'P ITER:',Iter
-  do i=1,lVec
-    write(u6,*) P(i)
-  end do
-# endif
-
-  ! The reason for not doing the whole CG to a black box routine
-  ! is that the quantity A*p is method dependent since A is too
-  ! big to store on disk so we calculate this outside for each
-  ! iteration.
-
-  AP(:) = Zero
-  do iSymIA=1,nSym
-    do iSymJB=1,iSymIA
-      if ((nOrb(iSymIA)+nDel(iSymIA))*(nOrb(iSymJB)+nDel(iSymJB)) /= 0) then
-        call MP2Ap(iSymIA,iSymJB,ip_of_Work(AP),ip_of_Work(P(1)))
-      end if
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'P ITER:',Iter
+    do i=1,lVec
+      write(u6,*) P(i)
     end do
-  end do
-# ifdef _DEBUGPRINT_
-  !write(u6,*) 'MP2Ap'
-  !do i=1,lVec
-  !  write(u6,*) Ap(i)
-  !end do
-# endif
-  ! Makes a call to a routine that makes one CG-update and checks convergence.
-  call Conj_Grad(Done,lVec,Work(ip_DiaA(1)),Mult,MultN,R,RN,P,PN,Z,ZN,AP,Eps,res)
-  if (Done) goto 100
-end do
+#   endif
 
-write(u6,*) '***************WARNING************************'
-write(u6,*) ''
-write(u6,*) 'Too many iterations, this is what you get after 50'
-write(u6,*) 'The residual is',res,'and not',Eps
-write(u6,*) '**********************************************'
+    ! The reason for not doing the whole CG to a black box routine
+    ! is that the quantity A*p is method dependent since A is too
+    ! big to store on disk so we calculate this outside for each
+    ! iteration.
+
+    AP(:) = Zero
+    do iSymIA=1,nSym
+      do iSymJB=1,iSymIA
+        if ((nOrb(iSymIA)+nDel(iSymIA))*(nOrb(iSymJB)+nDel(iSymJB)) /= 0) then
+          call MP2Ap(iSymIA,iSymJB,ip_of_Work(AP),ip_of_Work(P(1)))
+        end if
+      end do
+    end do
+#   ifdef _DEBUGPRINT_
+    !write(u6,*) 'MP2Ap'
+    !do i=1,lVec
+    !  write(u6,*) Ap(i)
+    !end do
+#   endif
+    ! Makes a call to a routine that makes one CG-update and checks convergence.
+    call Conj_Grad(Done,lVec,Work(ip_DiaA(1)),Mult,MultN,R,RN,P,PN,Z,ZN,AP,Eps,res)
+    if (Done) exit
+  end do
+end if
+
+if (.not. Done) then
+  write(u6,*) '***************WARNING************************'
+  write(u6,*) ''
+  write(u6,*) 'Too many iterations, this is what you get after 50'
+  write(u6,*) 'The residual is',res,'and not',Eps
+  write(u6,*) '**********************************************'
+end if
 
 ! The PCG is done and we now have the Lagrange multipliers we sought.
 ! This is a good time to release all the memory related to PCG.
 
-100 continue
 do iSym=1,nSym
   do iI=1,nFro(iSym)+nOcc(iSym)
     do iA=1,nExt(iSym)+nDel(iSym)

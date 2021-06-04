@@ -56,7 +56,7 @@ irc = 0
 if ((nDim < 1) .or. (nCol < 1)) return
 if (nDim /= nT1am(iSym)) then
   irc = -1
-  Go To 1 ! exit
+  return
 end if
 
 ! Initialize.
@@ -145,7 +145,5 @@ end do
 
 xdim = real(Nai*Nai,kind=wp)
 ErrStat(3) = sqrt(ErrStat(3)/xdim)
-
-1 continue
 
 end subroutine Cho_SOSmp2_DecChk
