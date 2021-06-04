@@ -12,6 +12,7 @@
 subroutine Gamma_new()
 
 use MBPT2_Global, only: ipCMO, ipInt1, ipInt1_2, ipInt2, ipInt2_2, ipScr1, mAdOcc, mAdVir, nBas
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -22,20 +23,20 @@ implicit none
 #include "corbinf.fh"
 integer(kind=iwp) :: iA, iAdrBin, iAdrGam, iAdrRdBin, iB, iBinLength, iBinSize, iBlock, iI, iIA, iJ, iKap, iLam, iLamKap1, &
                      iLamKap2, iLastAdr, iLen, iMaxBas, iMaxBasProd, iMaxOccVir, iMemAvail, iMemNeeded, iMu, iMuNu1, iMuNu2, &
-                     iNextAdr, iNextX, iNu, iOff, iOffCMO(nSym), iOffCMO_o(nSym), iOffCMO_v(nSym), ipBin, ipBin2, ipCMO_o, &
-                     ipCMO_v, ipiTab, ipMax, ipTemp1, ipTemp1_2, ipTemp2, ipTemp2_2, iRec, iSize, iSym, iSym1, iSym2, iSym_A, &
-                     iSym_B, iSym_C, iSym_D, iTriMuNu, iType, lAllBins, lCMO_o, lCMO_v, lMax, lTemp, LuBin, LuGam, nA, nA2, nABCD, &
-                     nB, nB2, nBins, nBlocks, nI, nI2, nJ, nJ2, nLam, nNO, nNu, nNV, nTOrb(nSym)
+                     iNextAdr, iNextX, iNu, iOff, iOffCMO(nSym), iOffCMO_o(nSym), iOffCMO_v(nSym), iRec, iSize, iSym, iSym1, &
+                     iSym2, iSym_A, iSym_B, iSym_C, iSym_D, iTriMuNu, iType, lAllBins, lCMO_o, lCMO_v, lMax, LuBin, LuGam, nA, &
+                     nA2, nABCD, nB, nB2, nBins, nBlocks, nI, nI2, nJ, nJ2, nLam, nNO, nNu, nNV, nTOrb(nSym)
 real(kind=wp) :: EDenom, Tiajb, xiajb, xibja
 logical(kind=iwp) :: Done, LoadZeros, NonZeroSym(4), Triangular
+integer(kind=iwp), allocatable :: iTable(:,:)
+real(kind=wp), allocatable :: Bin(:), Bin2(:), CMO_o(:), CMO_v(:), Temp1(:), Temp1_2(:), Temp2(:), Temp2_2(:)
 integer(kind=iwp), external :: IsFreeUnit
 #include "WrkSpc.fh"
 ! Some statement functions
-integer(kind=iwp) :: i, j, iSyI, iSyJ, iX, iY, iBin, iTri, iTable, iInt1, iBinOff
+integer(kind=iwp) :: i, j, iSyI, iSyJ, iX, iY, iBin, iTri, iInt1, iBinOff
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
-iTable(i,j) = iWork(ipiTab-1+(j-1)*6+i)
 iInt1(i,j,iSyI,iSyJ) = (nFro(iSyJ)+j-1)*nTOrb(iSyI)+nFro(iSyI)+nOcc(iSyI)+i-1
-iBinOff(iX,iY,iBin) = iY-1+(iX)*2+(iBin-1)*iBinLength
+iBinOff(iX,iY,iBin) = iY+(iX)*2+(iBin-1)*iBinLength
 
 !                                                                      *
 !***********************************************************************
@@ -73,8 +74,8 @@ end do
 
 ! Allocate memory for a virtual and an occupied CMO-matrix
 
-call GetMem('CMO_o','Allo','Real',ipCMO_o,lCMO_o)
-call GetMem('CMO_v','Allo','Real',ipCMO_v,lCMO_v)
+call mma_allocate(CMO_o,lCMO_o,label='CMO_o')
+call mma_allocate(CMO_v,lCMO_v,label='CMO_v')
 
 ! Copy CMO to CMO_o and CMO_v
 
@@ -84,11 +85,11 @@ do iSym=1,nSym
   nNO = nBas(iSym)*nOcc(iSym)
   nNV = nBas(iSym)*nExt(iSym)
 
-  call dCopy_(nNO,Work(ipCMO+iOffCMO(iSym)+iOff),1,Work(ipCMO_o+iOffCMO_o(iSym)),1)
+  call dCopy_(nNO,Work(ipCMO+iOffCMO(iSym)+iOff),1,CMO_o(iOffCMO_o(iSym)+1),1)
 
   iOff = iOff+nNO
 
-  call dCopy_(nNV,Work(ipCMO+iOffCMO(iSym)+iOff),1,Work(ipCMO_v+iOffCMO_v(iSym)),1)
+  call dCopy_(nNV,Work(ipCMO+iOffCMO(iSym)+iOff),1,CMO_v(iOffCMO_v(iSym)+1),1)
 end do
 
 #ifdef _DEBUGPRINT_
@@ -97,10 +98,10 @@ do iSym=1,nSym
   call RecPrt('Full CMO',' ',Work(ipCMO+iOffCMO(iSym)),nBas(iSym),nTOrb(iSym))
 end do
 do iSym=1,nSym
-  call RecPrt('Occupied CMO',' ',Work(ipCMO_o+iOffCMO_o(iSym)),nBas(iSym),nOcc(iSym))
+  call RecPrt('Occupied CMO',' ',CMO_o(iOffCMO_o(iSym)+1),nBas(iSym),nOcc(iSym))
 end do
 do iSym=1,nSym
-  call RecPrt('Virtual CMO',' ',Work(ipCMO_v+iOffCMO_v(iSym)),nBas(iSym),nExt(iSym))
+  call RecPrt('Virtual CMO',' ',CMO_v(iOffCMO_v(iSym)+1),nBas(iSym),nExt(iSym))
 end do
 #endif
 
@@ -114,8 +115,8 @@ if (nSym == 1) nBlocks = 1
 
 ! Construct a table for block information.
 
-call GetMem('iTable','Allo','Inte',ipiTab,6*nBlocks)
-call Gamma_Blocks(iWork(ipiTab),nBlocks,nSym)
+call mma_allocate(iTable,6,nBlocks,label='iTable')
+call Gamma_Blocks(iTable,nBlocks,nSym)
 
 ! Open a file for writing gammas.
 
@@ -146,17 +147,16 @@ end do
 ! Setup two pairs of temporary vectors to use for transformation
 ! and symmetrization
 
-lTemp = iMaxBasProd
-call GetMem('Temp1','Allo','Real',ipTemp1,lTemp)
-call GetMem('Temp2','Allo','Real',ipTemp2,lTemp)
+call mma_allocate(Temp1,iMaxBasProd,label='Temp1')
+call mma_allocate(Temp2,iMaxBasProd,label='Temp2')
 if (nBlocks /= 1) then
-  call GetMem('Temp1_1','Allo','Real',ipTemp1_2,lTemp)
-  call GetMem('Temp2_2','Allo','Real',ipTemp2_2,lTemp)
+  call mma_allocate(Temp1_2,iMaxBasProd,label='Temp1_2')
+  call mma_allocate(Temp2_2,iMaxBasProd,label='Temp2_2')
 end if
 
 ! Check max available memory
 
-call GetMem('Max','Max','Real',ipMax,lMax)
+call mma_maxDBLE(lMax)
 
 ! Calculate how much space is needed to store all full bins
 ! on disk.
@@ -183,9 +183,9 @@ lAllBins = min(iMemAvail,iMemNeeded)
 
 ! Allocate two bins
 
-call GetMem('Bins1','Allo','Real',ipBin,lAllBins)
+call mma_allocate(Bin,lAllBins,label='Bins1')
 if (nBlocks /= 1) then
-  call GetMem('Bins2','Allo','Real',ipBin2,lAllBins)
+  call mma_allocate(Bin2,lAllBins,label='Bins2')
 end if
 
 iBinLength = lAllBins/iMaxBasProd
@@ -239,11 +239,11 @@ do iBlock=1,nBlocks
   ! Initialize the bins to have length 0 and adress -1 to
   ! next element
   do i=1,nBins
-    Work(ipBin+iBinOff(0,1,i)) = Zero
-    Work(ipBin+iBinOff(0,2,i)) = -One
+    Bin(iBinOff(0,1,i)) = Zero
+    Bin(iBinOff(0,2,i)) = -One
     if (nBlocks /= 1) then
-      Work(ipBin2+iBinOff(0,1,i)) = Zero
-      Work(ipBin2+iBinOff(0,2,i)) = -One
+      Bin2(iBinOff(0,1,i)) = Zero
+      Bin2(iBinOff(0,2,i)) = -One
     end if
   end do
 
@@ -309,11 +309,11 @@ do iBlock=1,nBlocks
             xibja = Work(ipInt1+iInt1(iB,iJ,iSym_D,iSym_C))
             EDenom = (work(mAdOcc(iSym_A)+iI-1)+work(mAdOcc(iSym_C)+iJ-1)-work(mAdVir(iSym_B)+iA-1)-work(mAdVir(iSym_D)+iB-1))
             Tiajb = (Two*xiajb-xibja)/EDenom
-            Work(ipTemp1+(iJ-1)*nB+iB-1) = Tiajb
+            Temp1((iJ-1)*nB+iB) = Tiajb
           end do !iSymB
         end do   !iSymJ
 #       ifdef _DEBUGPRINT_
-        call RecPrt('Tiajb',' ',Work(ipTemp1),nExt(iSym_D),nOcc(iSym_C))
+        call RecPrt('Tiajb',' ',Temp1,nExt(iSym_D),nOcc(iSym_C))
 #       endif
       end if
 
@@ -324,49 +324,49 @@ do iBlock=1,nBlocks
             xibja = Work(ipInt1_2+iInt1(iB,iJ,iSym_C,iSym_D))
             EDenom = (work(mAdOcc(iSym_A)+iI-1)+work(mAdOcc(iSym_D)+iJ-1)-work(mAdVir(iSym_B)+iA-1)-work(mAdVir(iSym_C)+iB-1))
             Tiajb = (Two*xiajb-xibja)/EDenom
-            Work(ipTemp1_2+(iJ-1)*nB2+iB-1) = Tiajb
+            Temp1_2((iJ-1)*nB2+iB) = Tiajb
           end do !iSymB
         end do   !iSymJ
 #       ifdef _DEBUGPRINT_
-        call RecPrt('Tiajb',' ',Work(ipTemp1),nExt(iSym_D),nOcc(iSym_C))
+        call RecPrt('Tiajb',' ',Temp1,nExt(iSym_D),nOcc(iSym_C))
 #       endif
       end if
 
       ! Do first halftransformation.
       if (NonZeroSym(1)) then
-        call dGemm_('N','N',nBas(iSym_D),nOcc(iSym_C),nExt(iSym_D),One,Work(ipCMO_v+iOffCMO_v(iSym_D)),nBas(iSym_D), &
-                    Work(ipTemp1),nExt(iSym_D),Zero,Work(ipTemp2),nBas(iSym_D))
-        call dGemm_('N','T',nBas(iSym_D),nBas(iSym_C),nOcc(iSym_C),One,Work(ipTemp2),nBas(iSym_D), &
-                    Work(ipCMO_o+iOffCMO_o(iSym_C)),nBas(iSym_C),Zero,Work(ipTemp1),nBas(iSym_D))
+        call dGemm_('N','N',nBas(iSym_D),nOcc(iSym_C),nExt(iSym_D),One,CMO_v(iOffCMO_v(iSym_D)+1),nBas(iSym_D),Temp1,nExt(iSym_D), &
+                    Zero,Temp2,nBas(iSym_D))
+        call dGemm_('N','T',nBas(iSym_D),nBas(iSym_C),nOcc(iSym_C),One,Temp2,nBas(iSym_D),CMO_o(iOffCMO_o(iSym_C)+1),nBas(iSym_C), &
+                    Zero,Temp1,nBas(iSym_D))
       end if
 
       if (NonZeroSym(2) .and. (.not. Triangular)) then
-        call dGemm_('N','N',nBas(iSym_C),nOcc(iSym_D),nExt(iSym_C),One,Work(ipCMO_v+iOffCMO_v(iSym_C)),nBas(iSym_C), &
-                    Work(ipTemp1_2),nExt(iSym_C),Zero,Work(ipTemp2_2),nBas(iSym_C))
-        call dGemm_('N','T',nBas(iSym_C),nBas(iSym_D),nOcc(iSym_D),One,Work(ipTemp2_2),nBas(iSym_C), &
-                    Work(ipCMO_o+iOffCMO_o(iSym_D)),nBas(iSym_D),Zero,Work(ipTemp1_2),nBas(iSym_C))
+        call dGemm_('N','N',nBas(iSym_C),nOcc(iSym_D),nExt(iSym_C),One,CMO_v(iOffCMO_v(iSym_C)+1),nBas(iSym_C),Temp1_2, &
+                    nExt(iSym_C),Zero,Temp2_2,nBas(iSym_C))
+        call dGemm_('N','T',nBas(iSym_C),nBas(iSym_D),nOcc(iSym_D),One,Temp2_2,nBas(iSym_C),CMO_o(iOffCMO_o(iSym_D)+1), &
+                    nBas(iSym_D),Zero,Temp1_2,nBas(iSym_C))
       end if
       ! Do a halfsymmetrization with respect to the two AO-indices if they are the same symmetry.
       if (Triangular) then
         do iKap=1,nBas(iSym_D)
           do iLam=1,nBas(iSym_D)
-            iLamKap1 = iLam-1+(iKap-1)*nBas(iSym_D)
-            iLamKap2 = iKap-1+(iLam-1)*nBas(iSym_C)
-            Work(ipTemp2+iLamKap1) = (Work(ipTemp1+iLamKap1)+Work(ipTemp1+iLamKap2))/2
+            iLamKap1 = iLam+(iKap-1)*nBas(iSym_D)
+            iLamKap2 = iKap+(iLam-1)*nBas(iSym_C)
+            Temp2(iLamKap1) = (Temp1(iLamKap1)+Temp1(iLamKap2))/2
           end do
         end do
       ! Do a halfsymmetrization with respect to the two AO-indices if they are different symmetries.
       else
         do iKap=1,nBas(iSym_C)
           do iLam=1,nBas(iSym_D)
-            iLamKap1 = iLam-1+(iKap-1)*nBas(iSym_D)
-            iLamKap2 = iKap-1+(iLam-1)*nBas(iSym_C)
+            iLamKap1 = iLam+(iKap-1)*nBas(iSym_D)
+            iLamKap2 = iKap+(iLam-1)*nBas(iSym_C)
             if (NonZeroSym(1) .and. NonZeroSym(2)) then
-              Work(ipTemp2+iLamKap1) = (Work(ipTemp1+iLamKap1)+Work(ipTemp1_2+iLamKap2))/2
+              Temp2(iLamKap1) = (Temp1(iLamKap1)+Temp1_2(iLamKap2))/2
             else if (NonZeroSym(1)) then
-              Work(ipTemp2+iLamKap1) = Work(ipTemp1+iLamKap1)/2
+              Temp2(iLamKap1) = Temp1(iLamKap1)/2
             else if (NonZeroSym(2)) then
-              Work(ipTemp2+iLamKap1) = Work(ipTemp1_2+iLamKap2)/2
+              Temp2(iLamKap1) = Temp1_2(iLamKap2)/2
             end if
           end do
         end do
@@ -379,27 +379,27 @@ do iBlock=1,nBlocks
         nLam = nBas(iSym_D)
         if (Triangular) nLam = iKap
         do iLam=1,nLam
-          iRec = iLam-1+(iKap-1)*nBas(iSym_D)
+          iRec = iLam+(iKap-1)*nBas(iSym_D)
           if (Triangular) then
             iBin = iTri(iKap,iLam)
           else
-            iBin = iRec+1
+            iBin = iRec
           end if
           !write(u6,*) 'iKap,iLam,iBin=',iKap,iLam,iBin
-          iNextX = nint(Work(ipBin+iBinOff(0,1,iBin)))
+          iNextX = nint(Bin(iBinOff(0,1,iBin)))
           iNextX = iNextX+1
           iBinSize = iNextX*2+2
           if (iBinSize > iBinLength) then
             iLastAdr = iAdrBin
-            call dDaFile(LuBin,1,Work(ipBin+iBinOff(0,1,iBin)),iBinLength,iAdrBin)
+            call dDaFile(LuBin,1,Bin(iBinOff(0,1,iBin)),iBinLength,iAdrBin)
             iNextX = 1
-            Work(ipBin+iBinOff(0,1,iBin)) = Zero
-            Work(ipBin+iBinOff(0,2,iBin)) = real(iLastAdr,kind=wp)
+            Bin(iBinOff(0,1,iBin)) = Zero
+            Bin(iBinOff(0,2,iBin)) = real(iLastAdr,kind=wp)
           end if
-          !write(u6,*) Work(ipTemp2+iRec),real(iIA,kind=wp),iBin
-          Work(ipBin+iBinOff(iNextX,2,iBin)) = Work(ipTemp2+iRec)
-          Work(ipBin+iBinOff(iNextX,1,iBin)) = real(iIA,kind=wp)
-          Work(ipBin+iBinOff(0,1,iBin)) = real(iNextX,kind=wp)
+          !write(u6,*) Temp2(iRec),real(iIA,kind=wp),iBin
+          Bin(iBinOff(iNextX,2,iBin)) = Temp2(iRec)
+          Bin(iBinOff(iNextX,1,iBin)) = real(iIA,kind=wp)
+          Bin(iBinOff(0,1,iBin)) = real(iNextX,kind=wp)
         end do
       end do
     end do !iA
@@ -439,7 +439,7 @@ do iBlock=1,nBlocks
             xibja = Work(ipInt1+iInt1(iB,iJ,iSym_D,iSym_C))
             EDenom = (work(mAdOcc(iSym_B)+iI-1)+work(mAdOcc(iSym_C)+iJ-1)-work(mAdVir(iSym_A)+iA-1)-work(mAdVir(iSym_D)+iB-1))
             Tiajb = (Two*xiajb-xibja)/EDenom
-            Work(ipTemp1+(iJ-1)*nB+iB-1) = Tiajb
+            Temp1((iJ-1)*nB+iB) = Tiajb
           end do !iSymB
         end do   !iSymJ
       end if
@@ -452,35 +452,35 @@ do iBlock=1,nBlocks
             EDenom = (work(mAdOcc(iSym_B)+iI-1)+work(mAdOcc(iSym_D)+iJ-1)-work(mAdVir(iSym_A)+iA-1)-work(mAdVir(iSym_C)+iB-1))
             Tiajb = (Two*xiajb-xibja)/EDenom
 
-            Work(ipTemp1_2+(iJ-1)*nB2+iB-1) = Tiajb
+            Temp1_2((iJ-1)*nB2+iB) = Tiajb
           end do !iSymB
         end do   !iSymJ
       end if
       ! Do first halftransformation.
       if (NonZeroSym(3)) then
-        call dGemm_('N','N',nBas(iSym_D),nOcc(iSym_C),nExt(iSym_D),One,Work(ipCMO_v+iOffCMO_v(iSym_D)),nBas(iSym_D), &
-                    Work(ipTemp1),nExt(iSym_D),Zero,Work(ipTemp2),nBas(iSym_D))
-        call dGemm_('N','T',nBas(iSym_D),nBas(iSym_C),nOcc(iSym_C),One,Work(ipTemp2),nBas(iSym_D), &
-                    Work(ipCMO_o+iOffCMO_o(iSym_C)),nBas(iSym_C),Zero,Work(ipTemp1),nBas(iSym_D))
+        call dGemm_('N','N',nBas(iSym_D),nOcc(iSym_C),nExt(iSym_D),One,CMO_v(iOffCMO_v(iSym_D)+1),nBas(iSym_D),Temp1,nExt(iSym_D), &
+                    Zero,Temp2,nBas(iSym_D))
+        call dGemm_('N','T',nBas(iSym_D),nBas(iSym_C),nOcc(iSym_C),One,Temp2,nBas(iSym_D),CMO_o(iOffCMO_o(iSym_C)+1),nBas(iSym_C), &
+                    Zero,Temp1,nBas(iSym_D))
       end if
 
       if (NonZeroSym(4)) then
-        call dGemm_('N','N',nBas(iSym_C),nOcc(iSym_D),nExt(iSym_C),One,Work(ipCMO_v+iOffCMO_v(iSym_C)),nBas(iSym_C), &
-                    Work(ipTemp1_2),nExt(iSym_C),Zero,Work(ipTemp2_2),nBas(iSym_C))
-        call dGemm_('N','T',nBas(iSym_C),nBas(iSym_D),nOcc(iSym_D),One,Work(ipTemp2_2),nBas(iSym_C), &
-                    Work(ipCMO_o+iOffCMO_o(iSym_D)),nBas(iSym_D),Zero,Work(ipTemp1_2),nBas(iSym_C))
+        call dGemm_('N','N',nBas(iSym_C),nOcc(iSym_D),nExt(iSym_C),One,CMO_v(iOffCMO_v(iSym_C)+1),nBas(iSym_C),Temp1_2, &
+                    nExt(iSym_C),Zero,Temp2_2,nBas(iSym_C))
+        call dGemm_('N','T',nBas(iSym_C),nBas(iSym_D),nOcc(iSym_D),One,Temp2_2,nBas(iSym_C),CMO_o(iOffCMO_o(iSym_D)+1), &
+                    nBas(iSym_D),Zero,Temp1_2,nBas(iSym_C))
       end if
       ! Do a halfsymmetrization with respect to the two AO-indices if they are the same symmetry.
       do iKap=1,nBas(iSym_C)
         do iLam=1,nBas(iSym_D)
-          iLamKap1 = iLam-1+(iKap-1)*nBas(iSym_D)
-          iLamKap2 = iKap-1+(iLam-1)*nBas(iSym_C)
+          iLamKap1 = iLam+(iKap-1)*nBas(iSym_D)
+          iLamKap2 = iKap+(iLam-1)*nBas(iSym_C)
           if (NonZeroSym(3) .and. NonZeroSym(4)) then
-            Work(ipTemp2+iLamKap1) = (Work(ipTemp1+iLamKap1)+Work(ipTemp1_2+iLamKap2))/2
+            Temp2(iLamKap1) = (Temp1(iLamKap1)+Temp1_2(iLamKap2))/2
           else if (NonZeroSym(3)) then
-            Work(ipTemp2+iLamKap1) = Work(ipTemp1+iLamKap1)/2
+            Temp2(iLamKap1) = Temp1(iLamKap1)/2
           else if (NonZeroSym(4)) then
-            Work(ipTemp2+iLamKap1) = Work(ipTemp1_2+iLamKap2)/2
+            Temp2(iLamKap1) = Temp1_2(iLamKap2)/2
           end if
         end do
       end do
@@ -488,24 +488,24 @@ do iBlock=1,nBlocks
       iIA = iA-1+(iI-1)*nA2
       do iKap=1,nBas(iSym_C)
         do iLam=1,nBas(iSym_D)
-          iRec = iLam-1+(iKap-1)*nBas(iSym_D)
-          iBin = iRec+1
+          iRec = iLam+(iKap-1)*nBas(iSym_D)
+          iBin = iRec
           !write(u6,*) 'iKap,iLam,iBin=',iKap,iLam,iBin
-          iNextX = nint(Work(ipBin2+iBinOff(0,1,iBin)))
+          iNextX = nint(Bin2(iBinOff(0,1,iBin)))
           iNextX = iNextX+1
 
           iBinSize = iNextX*2+2
           if (iBinSize > iBinLength) then
-            call dDaFile(LuBin,1,Work(ipBin2+iBinOff(0,1,iBin)),iBinLength,iAdrBin)
+            call dDaFile(LuBin,1,Bin2(iBinOff(0,1,iBin)),iBinLength,iAdrBin)
             iNextX = 1
-            Work(ipBin2+iBinOff(0,1,i)) = Zero
-            Work(ipBin2+iBinOff(0,2,i)) = real(iAdrBin,kind=wp)
+            Bin2(iBinOff(0,1,i)) = Zero
+            Bin2(iBinOff(0,2,i)) = real(iAdrBin,kind=wp)
           end if
 
-          !write(u6,*) Work(ipTemp2+iRec),real(iIA,kind=wp),iBin
-          Work(ipBin2+iBinOff(iNextX,2,iBin)) = Work(ipTemp2+iRec)
-          Work(ipBin2+iBinOff(iNextX,1,iBin)) = real(iIA,kind=wp)
-          Work(ipBin2+iBinOff(0,1,iBin)) = real(iNextX,kind=wp)
+          !write(u6,*) Temp2(iRec),real(iIA,kind=wp),iBin
+          Bin2(iBinOff(iNextX,2,iBin)) = Temp2(iRec)
+          Bin2(iBinOff(iNextX,1,iBin)) = real(iIA,kind=wp)
+          Bin2(iBinOff(0,1,iBin)) = real(iNextX,kind=wp)
         end do
       end do
     end do !iA
@@ -523,52 +523,52 @@ do iBlock=1,nBlocks
       Done = .false.
 200   continue
       if (.not. Done) then
-        iLen = nint(Work(ipBin+iBinOff(0,1,iBin)))
+        iLen = nint(Bin(iBinOff(0,1,iBin)))
         do i=1,iLen
-          iIA = nint(Work(ipBin+iBinOff(i,1,iBin)))
-          Work(ipTemp1+iIA) = Work(ipBin+iBinOff(i,2,iBin))
+          iIA = nint(Bin(iBinOff(i,1,iBin)))+1
+          Temp1(iIA) = Bin(iBinOff(i,2,iBin))
         end do
 
-        iNextAdr = nint(Work(ipBin+iBinOff(0,2,iBin)))
+        iNextAdr = nint(Bin(iBinOff(0,2,iBin)))
         if (iNextAdr == -1) then
           Done = .true.
         else
           iAdrRdBin = iNextAdr
-          call dDaFile(LuBin,2,Work(ipBin+iBinOff(0,1,iBin)),iBinLength,iAdrRdBin)
+          call dDaFile(LuBin,2,Bin(iBinOff(0,1,iBin)),iBinLength,iAdrRdBin)
         end if
         Go To 200
       end if
       ! Do second halftransformation
-      call dGemm_('N','N',nBas(iSym_B),nOcc(iSym_A),nExt(iSym_B),One,Work(ipCMO_v+iOffCMO_v(iSym_B)),nBas(iSym_B),Work(ipTemp1), &
-                  nExt(iSym_B),Zero,Work(ipTemp2),nBas(iSym_B))
-      call dGemm_('N','T',nBas(iSym_B),nBas(iSym_A),nOcc(iSym_A),One,Work(ipTemp2),nBas(iSym_B),Work(ipCMO_o+iOffCMO_o(iSym_A)), &
-                  nBas(iSym_A),Zero,Work(ipTemp1),nBas(iSym_B))
-      !call RecPrt('(m,n,i,k)',' ',Work(ipTemp1),nBas(iSym_B),nBas(iSym_A))
+      call dGemm_('N','N',nBas(iSym_B),nOcc(iSym_A),nExt(iSym_B),One,CMO_v(iOffCMO_v(iSym_B)+1),nBas(iSym_B),Temp1,nExt(iSym_B), &
+                  Zero,Temp2,nBas(iSym_B))
+      call dGemm_('N','T',nBas(iSym_B),nBas(iSym_A),nOcc(iSym_A),One,Temp2,nBas(iSym_B),CMO_o(iOffCMO_o(iSym_A)+1),nBas(iSym_A), &
+                  Zero,Temp1,nBas(iSym_B))
+      !call RecPrt('(m,n,i,k)',' ',Temp1,nBas(iSym_B),nBas(iSym_A))
     end if
 
     if ((NonZeroSym(3) .or. NonZeroSym(4)) .and. (.not. Triangular)) then
       Done = .false.
 400   continue
       if (.not. Done) then
-        iLen = nint(Work(ipBin2+iBinOff(0,1,iBin)))
+        iLen = nint(Bin2(iBinOff(0,1,iBin)))
         do i=1,iLen
-          iIA = nint(Work(ipBin2+iBinOff(i,1,iBin)))
-          Work(ipTemp1_2+iIA) = Work(ipBin2+iBinOff(i,2,iBin))
+          iIA = nint(Bin2(iBinOff(i,1,iBin)))+1
+          Temp1_2(iIA) = Bin2(iBinOff(i,2,iBin))
         end do
 
-        iNextAdr = nint(Work(ipBin2+iBinOff(0,2,iBin)))
+        iNextAdr = nint(Bin2(iBinOff(0,2,iBin)))
         if (iNextAdr == -1) then
           Done = .true.
         else
           iAdrRdBin = iNextAdr
-          call dDaFile(LuBin,2,Work(ipBin2+iBinOff(0,1,iBin)),iBinLength,iAdrRdBin)
+          call dDaFile(LuBin,2,Bin2(iBinOff(0,1,iBin)),iBinLength,iAdrRdBin)
         end if
         Go To 400
       end if
-      call dGemm_('N','N',nBas(iSym_A),nOcc(iSym_B),nExt(iSym_A),One,Work(ipCMO_v+iOffCMO_v(iSym_A)),nBas(iSym_A), &
-                  Work(ipTemp1_2),nExt(iSym_A),Zero,Work(ipTemp2_2),nBas(iSym_A))
-      call dGemm_('N','T',nBas(iSym_A),nBas(iSym_B),nOcc(iSym_B),One,Work(ipTemp2_2),nBas(iSym_A), &
-                  Work(ipCMO_o+iOffCMO_o(iSym_B)),nBas(iSym_B),Zero,Work(ipTemp1_2),nBas(iSym_A))
+      call dGemm_('N','N',nBas(iSym_A),nOcc(iSym_B),nExt(iSym_A),One,CMO_v(iOffCMO_v(iSym_A)+1),nBas(iSym_A),Temp1_2,nExt(iSym_A), &
+                  Zero,Temp2_2,nBas(iSym_A))
+      call dGemm_('N','T',nBas(iSym_A),nBas(iSym_B),nOcc(iSym_B),One,Temp2_2,nBas(iSym_A),CMO_o(iOffCMO_o(iSym_B)+1),nBas(iSym_B), &
+                  Zero,Temp1_2,nBas(iSym_A))
     end if
     ! Do the second symmetrization. (of the mu and nu-index)
     if (Triangular) then
@@ -576,45 +576,45 @@ do iBlock=1,nBlocks
         nNu = nBas(iSym_B)
         if (Triangular) nNu = iMu
         do iNu=1,nNu
-          iTriMuNu = iTri(iNu,iMu)-1
-          iMuNu1 = iNu-1+(iMu-1)*nBas(iSym_B)
-          iMuNu2 = iMu-1+(iNu-1)*nBas(iSym_A)
-          Work(ipTemp2+iTriMuNu) = (Work(ipTemp1+iMuNu1)+Work(ipTemp1+iMuNu2))/2
+          iTriMuNu = iTri(iNu,iMu)
+          iMuNu1 = iNu+(iMu-1)*nBas(iSym_B)
+          iMuNu2 = iMu+(iNu-1)*nBas(iSym_A)
+          Temp2(iTriMuNu) = (Temp1(iMuNu1)+Temp1(iMuNu2))/2
         end do
       end do
     else
       do iMu=1,nBas(iSym_A)
         do iNu=1,nBas(iSym_B)
-          iMuNu1 = iNu-1+(iMu-1)*nBas(iSym_B)
-          iMuNu2 = iMu-1+(iNu-1)*nBas(iSym_A)
+          iMuNu1 = iNu+(iMu-1)*nBas(iSym_B)
+          iMuNu2 = iMu+(iNu-1)*nBas(iSym_A)
           if ((NonZeroSym(1) .or. NonZeroSym(2)) .and. (NonZeroSym(3) .or. NonZeroSym(4))) then
-            Work(ipTemp2+iMuNu1) = (Work(ipTemp1+iMuNu1)+Work(ipTemp1_2+iMuNu2))/2
+            Temp2(iMuNu1) = (Temp1(iMuNu1)+Temp1_2(iMuNu2))/2
           else if (NonZeroSym(1) .or. NonZeroSym(2)) then
-            Work(ipTemp2+iMuNu1) = Work(ipTemp1+iMuNu1)/2
+            Temp2(iMuNu1) = Temp1(iMuNu1)/2
           else if (NonZeroSym(3) .or. NonZeroSym(4)) then
-            Work(ipTemp2+iMuNu1) = Work(ipTemp1_2+iMuNu2)/2
+            Temp2(iMuNu1) = Temp1_2(iMuNu2)/2
           end if
         end do
       end do
     end if
     ! Fix the special case with empty iajb:s but "nonempty" (mu nu|kap lam)
     if (LoadZeros) then
-      call FZero(Work(ipTemp2),ltemp)
+      Temp2(:) = Zero
     end if
 
     ! Store the result on disk.
     if (Triangular) then
       iSize = nBas(iSym_A)*(nBas(iSym_A)+1)/2
 #     ifdef _DEBUGPRINT_
-      call TriPrt('(Gamma)',' ',Work(ipTemp2),nBas(iSym_A))
+      call TriPrt('(Gamma)',' ',Temp2,nBas(iSym_A))
 #     endif
     else
       iSize = nBas(iSym_A)*nBas(iSym_B)
 #     ifdef _DEBUGPRINT_
-      call RecPrt('(Gamma)',' ',Work(ipTemp2),nBas(iSym_A),nBas(iSym_B))
+      call RecPrt('(Gamma)',' ',Temp2,nBas(iSym_A),nBas(iSym_B))
 #     endif
     end if
-    call dDaFile(LuGam,1,Work(ipTemp2),iSize,iAdrGam)
+    call dDaFile(LuGam,1,Temp2,iSize,iAdrGam)
   end do
   LoadZeros = .false.
 100 continue
@@ -625,18 +625,18 @@ call DaClos(LuBin)
 
 ! Deallocate memory
 
-call GetMem('iTable','Free','Inte',ipiTab,6*nBlocks)
-call GetMem('CMO_occ','Free','Real',ipCMO_o,lCMO_o)
-call GetMem('CMO_vir','Free','Real',ipCMO_v,lCMO_v)
+call mma_deallocate(iTable)
+call mma_deallocate(CMO_o)
+call mma_deallocate(CMO_v)
 
-call GetMem('Temp1','Free','Real',ipTemp1,lTemp)
-call GetMem('Temp2','Free','Real',ipTemp2,lTemp)
-call GetMem('Bins','Free','Real',ipBin,lAllBins)
+call mma_deallocate(Temp1)
+call mma_deallocate(Temp2)
+call mma_deallocate(Bin)
 
 if (nBlocks /= 1) then
-  call GetMem('Temp1_1','Free','Real',ipTemp1_2,lTemp)
-  call GetMem('Temp2_2','Free','Real',ipTemp2_2,lTemp)
-  call GetMem('Bins2','Free','Real',ipBin2,lAllBins)
+  call mma_deallocate(Temp1_2)
+  call mma_deallocate(Temp2_2)
+  call mma_deallocate(Bin2)
 end if
 
 return

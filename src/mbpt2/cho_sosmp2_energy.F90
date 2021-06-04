@@ -17,6 +17,7 @@ subroutine Cho_SOSmp2_Energy(irc,EMP2,EOcc,EVir,Delete)
 ! Purpose: compute "Scaled Opposite-Spin" MP2 energy correction from
 !          MO Cholesky vectors of the matrix M(ai,bj)=(ai|bj)^2.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
@@ -25,15 +26,16 @@ integer(kind=iwp), intent(out) :: irc
 real(kind=wp), intent(out) :: EMP2
 real(kind=wp), intent(in) :: EOcc(*), EVir(*)
 logical(kind=iwp), intent(in) :: Delete
-integer(kind=iwp) :: ia, iAdr, iaiS, iaS, iaSoff(8), iaSym, iaT, iBat, ID_bj, ii, iiSoff(8), iiSym, iiT, ip_W, ip_Y, ipWrk, iSym, &
-                     iTyp, jSym, jVec, kRead, lTot, lWrk, MaxNVec, Nai, nAt, nBat, nEnrVec(8), nIt, NKVec, nOV, NumVec, nVec
+integer(kind=iwp) :: ia, iAdr, iaiS, iaS, iaSoff(8), iaSym, iaT, iBat, ii, iiSoff(8), iiSym, iiT, iSym, iTyp, jSym, jVec, kRead, &
+                     lTot, lWrk, MaxNVec, Nai, nAt, nBat, nEnrVec(8), nIt, NKVec, nOV, NumVec, nVec
 real(kind=wp) :: Dmax
+integer(kind=iwp), allocatable :: iD_bj(:)
+real(kind=wp), allocatable :: W(:), Wrk(:), Y(:,:)
 character(len=17), parameter :: SecNam = 'Cho_SOSmp2_Energy'
 real(kind=r8), external :: ddot_
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
-#include "WrkSpc.fh"
 ! statement function
 integer(kind=iwp) :: i, j, MulD2h
 MulD2h(i,j) = ieor(i-1,j-1)+1
@@ -62,8 +64,8 @@ do iSym=2,nSym
 end do
 MaxNVec = nIt*nAt
 
-call GetMem('Ea-Ei','Allo','Real',ip_W,MaxNVec)
-call GetMem('iD_bj','Allo','Inte',ID_bj,MaxNVec)
+call mma_allocate(W,MaxNVec,label='Ea-Ei')
+call mma_allocate(iD_bj,MaxNVec,label='iD_bj')
 
 ! Loop over Cholesky vector symmetries.
 ! -------------------------------------
@@ -81,8 +83,8 @@ do jSym=1,nSym
         iaS = nOV+nVir(iaSym)*(ii-1)
         do ia=1,nVir(iaSym)
           iaT = iaSoff(iaSym)+ia
-          iaiS = iaS+ia-1
-          Work(ip_W+iaiS) = EVir(iaT)-EOcc(iiT)
+          iaiS = iaS+ia
+          W(iaiS) = EVir(iaT)-EOcc(iiT)
         end do
       end do
       nOV = nOV+nVir(iaSym)*nOcc(iiSym) ! ... = Nai
@@ -91,7 +93,7 @@ do jSym=1,nSym
     ! Cholesky decompsition of the Orbital Energy
     ! Denominators (OED)
     ! -------------------------------------------
-    call CHO_GET_ORD_bj(nOV,MaxNVec,OED_Thr,Work(ip_W),iWork(ID_bj),NKVec,Dmax)
+    call CHO_GET_ORD_bj(nOV,MaxNVec,OED_Thr,W,iD_bj,NKVec,Dmax)
 
     if (Verbose .or. (NKVec < 1)) then
       write(u6,'(A)') '---------------------------------------'
@@ -103,14 +105,14 @@ do jSym=1,nSym
 
     if (NKVec > 0) then
 
-      call GetMem('Yai_k','Allo','Real',ip_Y,nOV*NKVec)
+      call mma_allocate(Y,nOV,NKVec,label='Yai_k')
       ! init to one the 1st col
-      call dcopy_(nOV,[One],0,Work(ip_Y),1)
+      Y(:,1) = One
 
-      call CHO_GET_OED_cd(.true.,nOV,Work(ip_W),NKVec,iWork(ID_bj),1,Work(ip_Y),Work(ip_Y))
+      call CHO_GET_OED_cd(.true.,nOV,W,NKVec,iD_bj,1,Y,Y)
 
-      call GetMem('GetMax','Max ','Real',ipWrk,lWrk)
-      call GetMem('GetMax','Allo','Real',ipWrk,lWrk)
+      call mma_maxDBLE(lWrk)
+      call mma_allocate(Wrk,lWrk,label='GetMax')
 
       ! Set up batch over Cholesky vectors.
       ! -----------------------------------
@@ -121,7 +123,7 @@ do jSym=1,nSym
       end if
       nBat = (nEnrVec(jSym)-1)/nVec+1
 
-      kRead = ipWrk+NKVec*nVec
+      kRead = NKVec*nVec+1
 
       ! Open Cholesky vector files.
       ! ---------------------------
@@ -144,16 +146,16 @@ do jSym=1,nSym
         ! ------------
         lTot = nT1am(jSym)*NumVec
         iAdr = nT1am(jSym)*(jVec-1)+1
-        call ddaFile(lUnit_F(jSym,iTyp),2,Work(kRead),lTot,iAdr)
+        call ddaFile(lUnit_F(jSym,iTyp),2,Wrk(kRead),lTot,iAdr)
 
         ! Compute   E(k,J) = sum_ai Y(ai,k) * R(ai,J)
         ! --------------------------------------------
-        call DGEMM_('T','N',NKVec,NumVec,Nai,One,Work(ip_Y),Nai,Work(kRead),Nai,Zero,Work(ipWrk),NKVec)
+        call DGEMM_('T','N',NKVec,NumVec,Nai,One,Y,Nai,Wrk(kRead),Nai,Zero,Wrk,NKVec)
 
         ! Compute (unscaled) SOS-MP2 energy
         ! -----------------------------------
 
-        EMP2 = EMP2+ddot_(NKVec*NumVec,Work(ipWrk),1,Work(ipWrk),1)
+        EMP2 = EMP2+ddot_(NKVec*NumVec,Wrk,1,Wrk,1)
 
       end do ! Cholesky vector batch
 
@@ -161,8 +163,8 @@ do jSym=1,nSym
       ! ----------------------------
       call ChoMP2_OpenF(2,iTyp,jSym)
 
-      call GetMem('GetMax','Free','Real',ipWrk,lWrk)
-      call GetMem('Yai_k','Free','Real',ip_Y,nOV*NKVec)
+      call mma_deallocate(Wrk)
+      call mma_deallocate(Y)
 
     end if
 
@@ -170,8 +172,8 @@ do jSym=1,nSym
 
 end do
 
-call GetMem('iD_bj','Free','Inte',ID_bj,MaxNVec)
-call GetMem('Ea-Ei','Free','Real',ip_W,MaxNVec)
+call mma_deallocate(W)
+call mma_deallocate(iD_bj)
 
 ! If requested, delete vector files.
 ! ----------------------------------

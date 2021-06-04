@@ -21,6 +21,7 @@ subroutine LovMP2_Drv(irc,EMP2,CMO,EOcc,EVir,NamAct,n_Acta,Thrs,Do_MP2,allVir)
 ! Author:  F. Aquilante  (Geneva, Jun. 2008)
 
 use MBPT2_Global, only: nBas
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -33,16 +34,17 @@ integer(kind=iwp), intent(in) :: n_Acta
 character(len=LenIn), intent(in) :: NamAct(n_Acta)
 real(kind=wp), intent(in) :: Thrs
 logical(kind=iwp), intent(in) :: Do_MP2, allVir
-integer(kind=iwp) :: i, ia, iCMO, iD_vir, iDo, ie, ifr, ii, ik, iloc, iOff, ip_X, ip_Y, ipS, ipSaa, ipSQ, ipXMO, iSkip, iSym, &
-                     isymlbl, ito, iV, iXMO, ja, jDo, jk, jloc, jOff, k, ka, kEOcc, kEVir, kfr, kk, kOff, kto, lnDel(8), &
-                     lnDel2(8), lnFro(8), lnFro2(8), lnOrb(8), lnOcc(8), lnOcc2(8), lnVir(8), lnVir2(8), lOff, lsq, ltri, &
-                     nAuxO(8), nBmx, nOA, ns_O(8), ns_V(8), nSQ, ntri, nVV, nxBasT, nxOrb, nZero(8)
+integer(kind=iwp) :: i, ia, iDo, ie, ifr, ii, ik, iloc, iOff, ip_X, ip_Y, iSkip, iSym, isymlbl, ito, iV, ja, jDo, jk, jloc, jOff, &
+                     k, ka, kfr, kk, kOff, kto, lnDel(8), lnDel2(8), lnFro(8), lnFro2(8), lnOrb(8), lnOcc(8), lnOcc2(8), lnVir(8), &
+                     lnVir2(8), lOff, lsq, ltri, nAuxO(8), nBmx, nOA, ns_O(8), ns_V(8), nSQ, ntri, nVV, nxBasT, nxOrb, nZero(8)
 real(kind=wp) :: Dummy, EFRO, EOSF, StrA, STrF, STrX, Thrd, TrA(8), TrF(8), TrX(8)
 logical(kind=iwp) :: ortho
 character(len=LenIn8) :: UBName(mxBas)
+integer(kind=iwp), allocatable :: iD_vir(:)
+real(kind=wp), allocatable :: EOrb(:,:), LCMO(:,:), S(:), Saa(:), SQ(:), X(:)
+integer(kind=iwp), external :: ip_of_Work
 real(kind=wp), external :: ddot_
 #include "corbinf.fh"
-#include "WrkSpc.fh"
 #include "chomp2_cfg.fh"
 
 irc = 0
@@ -82,21 +84,21 @@ call Get_cArray('Unique Basis Names',UBName,(LENIN8)*nxBasT)
 !----------------------------------------------------------------------*
 !     Read the overlap matrix                                          *
 !----------------------------------------------------------------------*
-call GetMem('SMAT','ALLO','REAL',ipSQ,nSQ)
-call GetMem('SLT','ALLO','REAL',ipS,nTri)
+call mma_allocate(SQ,nSQ,label='SMAT')
+call mma_allocate(S,nTri,label='SLT')
 isymlbl = 1
-call RdOne(irc,6,'Mltpl  0',1,Work(ipS),isymlbl)
+call RdOne(irc,6,'Mltpl  0',1,S,isymlbl)
 if (irc /= 0) then
   return
 end if
-ltri = 0
-lsq = 0
+ltri = 1
+lsq = 1
 do iSym=1,nSym
-  call Square(Work(ipS+ltri),Work(ipSQ+lsq),1,nBas(iSym),nBas(iSym))
+  call Square(S(ltri),SQ(lsq),1,nBas(iSym),nBas(iSym))
   ltri = ltri+nBas(iSym)*(nBas(iSym)+1)/2
   lsq = lsq+nBas(iSym)**2
 end do
-call GetMem('SLT','FREE','REAL',ipS,nTri)
+call mma_deallocate(S)
 
 write(u6,'(A,F15.6)') ' Threshold for atom selection: ',Thrs
 write(u6,*)
@@ -121,53 +123,49 @@ call Get_Tr_Dab(nSym,nBas,nFro,nOcc,nExt,nDel,CMO,EOcc,EVir,TrX)
 !        1) inactive orbitals ---> cholesky orbitals (orthonormal)     *
 !        2) virtual orbitals ---> lin. indep. PAOs (non-orthonormal)   *
 !----------------------------------------------------------------------*
-call GetMem('LCMO','ALLO','REAL',iCMO,3*nSQ)
-ipXMO = iCMO+nSQ
-iXMO = ipXMO+nSQ
-call dcopy_(nSQ,CMO,1,Work(ipXMO),1)
+call mma_allocate(LCMO,nSQ,3,label='LCMO')
+LCMO(:,2) = CMO(1:nSQ)
 Thrd = 1.0e-6_wp
-call GetMem('ID_vir','Allo','Inte',iD_vir,nxBasT)
-call Cho_ov_Loc(irc,Thrd,nSym,nBas,nFro,nOcc,nZero,nExt,Work(ipXMO),Work(ipSQ),iWork(iD_vir))
+call mma_allocate(iD_vir,nxBasT,label='ID_vir')
+call Cho_ov_Loc(irc,Thrd,nSym,nBas,nFro,nOcc,nZero,nExt,LCMO(:,2),SQ,iD_vir)
 
 if (irc /= 0) then
   write(u6,*) 'Localization failed in LovMP2'
   call Abend()
 end if
 
-call GetMem('Eorb','Allo','Real',kEOcc,2*nxOrb)
-kEVir = kEOcc+nxOrb
-call dcopy_(nxOrb,EOcc,1,Work(kEOcc),1)
-call dcopy_(nxOrb,EVir,1,Work(kEVir),1)
+call mma_allocate(EOrb,nxOrb,2,label='Eorb')
+EOrb(:,1) = EOcc(1:nxOrb)
+EOrb(:,2) = EVir(1:nxOrb)
 
-call GetMem('Saa','Allo','Real',ipSaa,nxOrb)
-call dcopy_(nxOrb,[One],0,Work(ipSaa),1)
+call mma_allocate(Saa,nxOrb,label='Saa')
+Saa(:) = One
 
 !----------------------------------------------------------------------*
 !     Occupied orbital selection                                       *
 !----------------------------------------------------------------------*
-iOff = 0
-kOff = 0
+iOff = 1
+kOff = 1
 do iSym=1,nSym
   jOff = iOff+nBas(iSym)*nFro(iSym)
-  call dcopy_(nBas(iSym)*nOcc(iSym),Work(ipXMO+jOff),1,Work(iXMO+kOff),1)
-  call dcopy_(nBas(iSym)*nOcc(iSym),CMO(1+jOff),1,Work(iCMO+kOff),1)
+  call dcopy_(nBas(iSym)*nOcc(iSym),LCMO(jOff,2),1,LCMO(kOff,3),1)
+  call dcopy_(nBas(iSym)*nOcc(iSym),CMO(jOff),1,LCMO(kOff,1),1)
   iOff = iOff+nBas(iSym)**2
   kOff = kOff+nBas(iSym)*nOcc(iSym)
 end do
 ortho = .true.
 
-call get_Orb_select(irc,Work(iCMO),Work(iXMO),Work(kEOcc),Work(ipSQ),Work(ipSaa),UBName,NamAct,nSym,n_Acta,nOcc,nBas,ortho,Thrs, &
-                    ns_O)
+call get_Orb_select(irc,LCMO(:,1),LCMO(:,3),EOrb(:,1),SQ,Saa,UBName,NamAct,nSym,n_Acta,nOcc,nBas,ortho,Thrs,ns_O)
 if (irc /= 0) then
   return
 end if
-iOff = 0
-kOff = 0
+iOff = 1
+kOff = 1
 do iSym=1,nSym
   lOff = iOff+nBas(iSym)*nFro(iSym)
   do ik=nOcc(iSym),1,-1
     jOff = kOff+nBas(iSym)*(ik-1)
-    call dcopy_(nBas(iSym),Work(iCMO+jOff),1,CMO(1+lOff),1)
+    call dcopy_(nBas(iSym),LCMO(jOff,1),1,CMO(lOff),1)
     lOff = lOff+nBas(iSym)
   end do
   iOff = iOff+nBas(iSym)**2
@@ -177,9 +175,9 @@ iloc = 0
 loff = 0
 do iSym=1,nSym
   do ik=nOcc(iSym),1,-1
-    ie = kEOcc+loff+ik-1
+    ie = loff+ik
     iloc = iloc+1
-    EOcc(iloc) = Work(ie)
+    EOcc(iloc) = EOrb(ie,1)
   end do
   loff = loff+nOcc(iSym)
 end do
@@ -193,27 +191,27 @@ end if
 !----------------------------------------------------------------------*
 !     Virtual orbital selection                                        *
 !----------------------------------------------------------------------*
-iOff = 0
-kOff = 0
+iOff = 1
+kOff = 1
 do iSym=1,nSym
   jOff = iOff+nBas(iSym)*(nFro(iSym)+nOcc(iSym))
-  call dcopy_(nBas(iSym)*nExt(iSym),Work(ipXMO+jOff),1,Work(iXMO+kOff),1)
-  call dcopy_(nBas(iSym)*nExt(iSym),CMO(1+jOff),1,Work(iCMO+kOff),1)
+  call dcopy_(nBas(iSym)*nExt(iSym),LCMO(jOff,2),1,LCMO(kOff,3),1)
+  call dcopy_(nBas(iSym)*nExt(iSym),CMO(jOff),1,LCMO(kOff,1),1)
   iOff = iOff+nBas(iSym)**2
   kOff = kOff+nBas(iSym)*nExt(iSym)
 end do
 ortho = .false.
 
-call get_Vir_select(irc,Work(iCMO),Work(iXMO),Work(kEVir),Work(ipSQ),UBName,NamAct,iWork(iD_vir),nSym,n_Acta,nExt,nBas,ortho,ns_V)
+call get_Vir_select(irc,LCMO(:,1),LCMO(:,3),EOrb(:,2),SQ,UBName,NamAct,iD_vir,nSym,n_Acta,nExt,nBas,ortho,ns_V)
 if (irc /= 0) then
   return
 end if
-call GetMem('ID_vir','Free','Inte',iD_vir,nxBasT)
-iOff = 0
-kOff = 0
+call mma_deallocate(iD_vir)
+iOff = 1
+kOff = 1
 do iSym=1,nSym
   jOff = iOff+nBas(iSym)*(nFro(iSym)+nOcc(iSym))
-  call dcopy_(nBas(iSym)*nExt(iSym),Work(iCMO+kOff),1,CMO(1+jOff),1)
+  call dcopy_(nBas(iSym)*nExt(iSym),LCMO(kOff,1),1,CMO(jOff),1)
   iOff = iOff+nBas(iSym)**2
   kOff = kOff+nBas(iSym)*nExt(iSym)
 end do
@@ -221,9 +219,9 @@ iloc = 0
 loff = 0
 do iSym=1,nSym
   do ik=1,nExt(iSym)
-    ie = kEVir+loff+ik-1
+    ie = loff+ik
     iloc = iloc+1
-    EVir(iloc) = Work(ie)
+    EVir(iloc) = EOrb(ie,2)
   end do
   loff = loff+nExt(iSym)
 end do
@@ -251,47 +249,48 @@ if (min(iDo,jDo) == 0) goto 1000
 !----------------------------------------------------------------------*
 if (Do_MP2) then
 
-  iloc = 0
-  jloc = 0
+  iloc = 1
+  jloc = 1
   loff = 0
   joff = 0
   do iSym=1,nSym
     do ik=ns_V(iSym)+1,nExt(iSym)
       ie = loff+ik
-      Work(kEVir+iloc) = EVir(ie)
+      EOrb(iloc,2) = EVir(ie)
       iloc = iloc+1
     end do
     loff = loff+nExt(iSym)
     do ik=1,lnOcc(iSym)
       ie = joff+ik
-      Work(kEOcc+jloc) = EOcc(ie)
+      EOrb(jloc,1) = EOcc(ie)
       jloc = jloc+1
     end do
     joff = joff+nOcc(iSym)
   end do
-  iOff = 0
+  iOff = 1
   nVV = 0
   nOA = 0
   do iSym=1,nSym
-    kfr = 1+iOff+nBas(iSym)*nFro(iSym)
-    kto = iCMO+iOff+nBas(iSym)*lnFro(iSym)
-    call dcopy_(nBas(iSym)*lnOcc(iSym),CMO(kfr),1,Work(kto),1)
-    kfr = 1+iOff+nBas(iSym)*(nFro(iSym)+nOcc(iSym)+ns_V(iSym))
+    kfr = iOff+nBas(iSym)*nFro(iSym)
+    kto = iOff+nBas(iSym)*lnFro(iSym)
+    call dcopy_(nBas(iSym)*lnOcc(iSym),CMO(kfr),1,LCMO(kto,1),1)
+    kfr = iOff+nBas(iSym)*(nFro(iSym)+nOcc(iSym)+ns_V(iSym))
     kto = kto+nBas(iSym)*lnOcc(iSym)
-    call dcopy_(nBas(iSym)*lnVir(iSym),CMO(kfr),1,Work(kto),1)
+    call dcopy_(nBas(iSym)*lnVir(iSym),CMO(kfr),1,LCMO(kto,1),1)
     iOff = iOff+nBas(iSym)**2
     nVV = nVV+lnVir(iSym)**2
     nOA = nOA+lnOcc(iSym)
   end do
   call Check_Amp2(nSym,lnOcc,lnVir,iSkip)
   if (iSkip > 0) then
-    call GetMem('Dmat','Allo','Real',ip_X,nVV+nOA)
+    call mma_allocate(X,nVV+nOA,label='Dmat')
+    X(:) = Zero
+    ip_X = ip_of_Work(X(1))
     ip_Y = ip_X+nVV
-    call FZero(Work(ip_X),nVV+nOA)
     call LovMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y,.true.)
-    call ChoMP2_Drv(irc,Dummy,Work(iCMO),Work(kEOcc),Work(kEVir))
+    call ChoMP2_Drv(irc,Dummy,LCMO(:,1),EOrb(:,1),EOrb(:,2))
     call LovMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y,.false.) ! compute energy and not Dab
-    call ChoMP2_Drv(irc,EFRO,Work(iCMO),Work(kEOcc),Work(kEVir))
+    call ChoMP2_Drv(irc,EFRO,LCMO(:,1),EOrb(:,1),EOrb(:,2))
     if (irc /= 0) then
       write(u6,*) 'Frozen region MP2 failed'
       call Abend()
@@ -301,12 +300,12 @@ if (Do_MP2) then
       write(u6,'(A,F20.10,A)') ' (Opposite-Spin contrib.   = ',-EOSF,' )'
       write(u6,*)
     end if
-    iV = ip_X
+    iV = 1
     do iSym=1,nSym
-      TrF(iSym) = ddot_(lnVir(iSym),Work(iV),1+lnVir(iSym),[One],0)
+      TrF(iSym) = ddot_(lnVir(iSym),X(iV),1+lnVir(iSym),[One],0)
       iV = iV+lnVir(iSym)**2
     end do
-    call GetMem('Dmat','Free','Real',ip_X,nVV+nOA)
+    call mma_deallocate(X)
     do iSym=1,nSym
       nOcc(iSym) = lnOcc2(iSym)
       nFro(iSym) = lnFro2(iSym)
@@ -387,9 +386,10 @@ if (iSkip > 0) then
   end do
   write(u6,*)
 
-  call GetMem('Dmat','Allo','Real',ip_X,nVV+nOA)
+  call mma_allocate(X,nVV+nOA,label='Dmat')
+  X(:) = Zero
+  ip_X = ip_of_Work(X(1))
   ip_Y = ip_X+nVV
-  call FZero(Work(ip_X),nVV+nOA)
   call LovMP2_putInf(nSym,lnOrb,nOcc,nFro,nDel,nExt,ip_X,ip_Y,.true.)
   call ChoMP2_Drv(irc,Dummy,CMO,EOcc,EVir)
   call LovMP2_putInf(nSym,lnOrb,nOcc,nFro,nDel,nExt,ip_X,ip_Y,.false.)
@@ -399,12 +399,12 @@ if (iSkip > 0) then
     write(u6,*) 'LovMP2 failed'
     call Abend()
   end if
-  iV = ip_X
+  iV = 1
   do iSym=1,nSym
-    TrA(iSym) = ddot_(nExt(iSym),Work(iV),1+nExt(iSym),[One],0)
+    TrA(iSym) = ddot_(nExt(iSym),X(iV),1+nExt(iSym),[One],0)
     iV = iV+nExt(iSym)**2
   end do
-  call GetMem('Dmat','Free','Real',ip_X,nVV+nOA)
+  call mma_deallocate(X)
 end if
 write(u6,*) '------------------------------------------------------'
 write(u6,*) ' Symm.   Tr(D):  Active        Frozen         Full    '
@@ -432,26 +432,26 @@ EMP2 = EMP2+EFRO
 EOSMP2 = EOSMP2+EOSF
 
 ! Update runfile for subsequent calcs (e.g., CHCC)
-ioff = 0
-joff = 0
-koff = 0
+iOff = 1
+jOff = 1
+kOff = 1
 do iSym=1,nSym
-  ifr = 1+ioff
-  ito = kEOcc+koff+nFro(iSym)
-  call dcopy_(nOcc(iSym),EOcc(ifr),1,Work(ito),1)
-  ifr = 1+joff
+  ifr = iOff
+  ito = kOff+nFro(iSym)
+  call dcopy_(nOcc(iSym),EOcc(ifr),1,EOrb(ito,1),1)
+  ifr = jOff
   ito = ito+nOcc(iSym)
-  call dcopy_(nExt(iSym),EVir(ifr),1,Work(ito),1)
-  ioff = ioff+nOcc(iSym)
-  joff = joff+nExt(iSym)
-  koff = koff+nBas(iSym)
+  call dcopy_(nExt(iSym),EVir(ifr),1,EOrb(ito,1),1)
+  iOff = iOff+nOcc(iSym)
+  jOff = jOff+nExt(iSym)
+  kOff = kOff+nBas(iSym)
 end do
-call Put_dArray('OrbE',Work(kEOcc),nxOrb)
+call Put_dArray('OrbE',EOrb(:,1),nxOrb)
 call Put_dArray('Last orbitals',CMO,nSQ)
 
-call GetMem('LCMO','Free','Real',iCMO,3*nSQ)
-call GetMem('Saa','Free','Real',ipSaa,nxOrb)
-call GetMem('Eorb','Free','Real',kEOcc,2*nxOrb)
+call mma_deallocate(LCMO)
+call mma_deallocate(Saa)
+call mma_deallocate(EOrb)
 
 2000 continue
 if (min(iDo,jDo) == 0) then
@@ -464,7 +464,7 @@ if (min(iDo,jDo) == 0) then
   call Abend()
 end if
 
-call GetMem('SMAT','FREE','REAL',ipSQ,nSQ)
+call mma_deallocate(SQ)
 
 return
 

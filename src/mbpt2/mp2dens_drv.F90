@@ -18,20 +18,21 @@ subroutine MP2Dens_drv(E2BJAI,REFC)
 
 use MBPT2_Global, only: EMP2, ip_Density, ip_DiaA, ip_Mp2Lagr, ip_First_Density, ip_First_DiaA, ip_First_MP2Lagr, &
                         ip_First_WDensity, ip_WDensity, ipCMO, iPoVec, l_Density, l_DiaA, l_Mp2Lagr, VECL2
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(out) :: E2BJAI, REFC
-integer(kind=iwp) :: iA, iAdr, iI, ip_AOTriDens, ip_AP, ip_mult, ip_MultN, ip_P, ip_PN, ip_R, ip_RN, ip_WAOTriDens, ip_Z, ip_ZN, &
-                     iSym, iSymIA, iSymJB, Iter, iVecOff(8), l_TriDens, lVec, nA, nI, nIter, nOccAll(8), nOrbAll(8)
+integer(kind=iwp) :: iA, iAdr, iI, iSym, iSymIA, iSymJB, Iter, iVecOff(8), l_TriDens, lVec, nA, nI, nIter, nOccAll(8), nOrbAll(8)
 real(kind=wp) :: Eps, res, TotLagr
 logical(kind=iwp) :: Done
+real(kind=wp), allocatable :: AP(:), AOTriDens(:), Mult(:), MultN(:), P(:), PN(:), R(:), RN(:), WAOTriDens(:), Z(:), ZN(:)
+integer(kind=iwp), external :: ip_of_Work
 #include "WrkSpc.fh"
 #include "corbinf.fh"
 ! Statement functions
-integer(kind=iwp) :: i, j, k, iMult, iDensVirOcc
-iMult(i,j,k) = ip_mult+iVecOff(k)+j-1+(nFro(k)+nOcc(k))*(i-1)
+integer(kind=iwp) :: i, j, k, iDensVirOcc
 iDensVirOcc(i,j,k) = ip_Density(k)+j-1+(nOrb(k)+nDel(k))*(i+nFro(k)+nOcc(k)-1)
 
 !                                                                      *
@@ -88,26 +89,26 @@ end do
 
 ! Allocate the vectors needed for the PCG
 
-call GetMem('z_vector','Allo','Real',ip_Z,lVec)
-call GetMem('z-next','Allo','Real',ip_ZN,lVec)
-call GetMem('r_vector','Allo','Real',ip_R,lVec)
-call GetMem('r_next','Allo','Real',ip_RN,lVec)
-call GetMem('p_vector','Allo','Real',ip_P,lVec)
-call GetMem('p_next','Allo','Real',ip_PN,lVec)
-call GetMem('Ap_vector','Allo','Real',ip_AP,lVec)
-call GetMem('LagrMult','Allo','Real',ip_Mult,lVec)
-call GetMem('LagrMult_next','Allo','Real',ip_MultN,lVec)
+call mma_allocate(Z,lVec,label='z_vector')
+call mma_allocate(ZN,lVec,label='z_next')
+call mma_allocate(R,lVec,label='r_vector')
+call mma_allocate(RN,lVec,label='r_next')
+call mma_allocate(P,lVec,label='p_vector')
+call mma_allocate(PN,lVec,label='p_next')
+call mma_allocate(AP,lVec,label='Ap_vector')
+call mma_allocate(Mult,lVec,label='LagrMult')
+call mma_allocate(MultN,lVec,label='LagrMult_next')
 
-! Initiate all vectors to zero.
+! Initialize all vectors to zero.
 
-call FZero(Work(ip_Z),lVec)
-call FZero(Work(ip_ZN),lVec)
-call FZero(Work(ip_P),lVec)
-call FZero(Work(ip_PN),lVec)
-call FZero(Work(ip_R),lVec)
-call FZero(Work(ip_RN),lVec)
-call FZero(Work(ip_Mult),lVec)
-call FZero(Work(ip_MultN),lVec)
+Z(:) = Zero
+ZN(:) = Zero
+R(:) = Zero
+RN(:) = Zero
+P(:) = Zero
+PN(:) = Zero
+Mult(:) = Zero
+MultN(:) = Zero
 
 iVecOff(1) = 0
 do iSym=2,nSym
@@ -124,9 +125,9 @@ do iSym=1,nSym
   call RecPrt('MP2Lagr',' ',Work(ip_Mp2Lagr(iSym)),nI,nA)
 # endif
   do i=1,nI*nA
-    Work(ip_Z+iVecOff(iSym)+i-1) = Work(ip_Mp2Lagr(iSym)+i-1)*Work(ip_DiaA(iSym)+i-1)
-    Work(ip_P+iVecOff(iSym)+i-1) = Work(ip_Z+iVecOff(iSym)+i-1)
-    Work(ip_R+iVecOff(iSym)+i-1) = Work(ip_Mp2Lagr(iSym)+i-1)
+    Z(iVecOff(iSym)+i) = Work(ip_Mp2Lagr(iSym)+i-1)*Work(ip_DiaA(iSym)+i-1)
+    P(iVecOff(iSym)+i) = Z(iVecOff(iSym)+i)
+    R(iVecOff(iSym)+i) = Work(ip_Mp2Lagr(iSym)+i-1)
   end do
 end do
 
@@ -156,8 +157,8 @@ do Iter=1,nIter
 
 # ifdef _DEBUGPRINT_
   write(u6,*) 'P ITER:',Iter
-  do i=0,lVec-1
-    write(u6,*) Work(ip_P+i)
+  do i=1,lVec
+    write(u6,*) P(i)
   end do
 # endif
 
@@ -166,23 +167,22 @@ do Iter=1,nIter
   ! big to store on disk so we calculate this outside for each
   ! iteration.
 
-  call FZero(Work(ip_AP),lVec)
+  AP(:) = Zero
   do iSymIA=1,nSym
     do iSymJB=1,iSymIA
       if ((nOrb(iSymIA)+nDel(iSymIA))*(nOrb(iSymJB)+nDel(iSymJB)) /= 0) then
-        call MP2Ap(iSymIA,iSymJB,ip_AP,ip_P)
+        call MP2Ap(iSymIA,iSymJB,ip_of_Work(AP),ip_of_Work(P(1)))
       end if
     end do
   end do
 # ifdef _DEBUGPRINT_
   !write(u6,*) 'MP2Ap'
-  !do i=0,lVec-1
-  !  write(u6,*) Work(ip_Ap+i)
+  !do i=1,lVec
+  !  write(u6,*) Ap(i)
   !end do
 # endif
   ! Makes a call to a routine that makes one CG-update and checks convergence.
-  call Conj_Grad(Done,lVec,Work(ip_DiaA(1)),Work(ip_Mult),Work(ip_MultN),Work(ip_R),Work(ip_RN),Work(ip_P),Work(ip_PN),Work(ip_Z), &
-                 Work(ip_ZN),Work(ip_AP),Eps,res)
+  call Conj_Grad(Done,lVec,Work(ip_DiaA(1)),Mult,MultN,R,RN,P,PN,Z,ZN,AP,Eps,res)
   if (Done) goto 100
 end do
 
@@ -199,7 +199,7 @@ write(u6,*) '**********************************************'
 do iSym=1,nSym
   do iI=1,nFro(iSym)+nOcc(iSym)
     do iA=1,nExt(iSym)+nDel(iSym)
-      Work(iDensVirOcc(iA,iI,iSym)) = Work(iMult(iA,iI,iSym))
+      Work(iDensVirOcc(iA,iI,iSym)) = Mult(iVecOff(iSym)+iI+(nFro(iSym)+nOcc(iSym))*(iA-1))
     end do
   end do
 end do
@@ -225,15 +225,15 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call GetMem('z_vector','Free','Real',ip_Z,lVec)
-call GetMem('z-next','Free','Real',ip_ZN,lVec)
-call GetMem('r_vector','Free','Real',ip_R,lVec)
-call GetMem('r_next','Free','Real',ip_RN,lVec)
-call GetMem('p_vector','Free','Real',ip_P,lVec)
-call GetMem('p_next','Free','Real',ip_PN,lVec)
-call GetMem('Ap_vector','Free','Real',ip_AP,lVec)
-call GetMem('LagrMult_next','Free','Real',ip_MultN,lVec)
-call GetMem('LagrMult','Free','Real',ip_Mult,lVec)
+call mma_deallocate(Z)
+call mma_deallocate(ZN)
+call mma_deallocate(R)
+call mma_deallocate(RN)
+call mma_deallocate(P)
+call mma_deallocate(PN)
+call mma_deallocate(AP)
+call mma_deallocate(Mult)
+call mma_deallocate(MultN)
 
 ! Set up Density matrices for MO and AO and one for triangular
 ! stored AO.
@@ -243,8 +243,8 @@ do iSym=1,nSym
   l_TriDens = l_TriDens+(nOrb(iSym)+nDel(iSym))*(nOrb(iSym)+nDel(iSym)+1)/2
 end do
 
-call GetMem('AOTriDens','Allo','Real',ip_AOTriDens,l_TriDens)
-call GetMem('AOWTriDens','Allo','Real',ip_WAOTriDens,l_TriDens)
+call mma_allocate(AOTriDens,l_TriDens,label='AOTriDens')
+call mma_allocate(WAOTriDens,l_TriDens,label='WAOTriDens')
 do iSym=1,8
   nOrbAll(iSym) = nOrb(iSym)+nDel(iSym)
   nOccAll(iSym) = nFro(iSym)+nOcc(iSym)
@@ -260,26 +260,26 @@ end do
 
 ! use the old interface for now ... (RL)
 
-call Build_Mp2Dens_Old(ip_AOTriDens,ip_Density,Work(ipCMO),nSym,nOrbAll,nOccAll,.true.)
-call Build_Mp2Dens_Old(ip_WAOTriDens,ip_WDensity,Work(ipCMO),nSym,nOrbAll,nOccAll,.false.)
+call Build_Mp2Dens_Old(ip_of_Work(AOTriDens),ip_Density,Work(ipCMO),nSym,nOrbAll,nOccAll,.true.)
+call Build_Mp2Dens_Old(ip_of_Work(WAOTriDens),ip_WDensity,Work(ipCMO),nSym,nOrbAll,nOccAll,.false.)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Normal Dens'
-do i=0,l_TriDens-1
-  write(u6,*) Work(ip_AOTriDens+i)
+do i=1,l_TriDens
+  write(u6,*) AOTriDens(i)
 end do
 write(u6,*) 'WDens'
-do i=0,l_TriDens-1
-  write(u6,*) Work(ip_WAOTriDens+i)
+do i=1,l_TriDens
+  write(u6,*) WAOTriDens(i)
 end do
 #endif
 
-call Put_D1ao_Var(Work(ip_AOTriDens),l_TriDens)
-!call Put_D1ao(Work(ip_AOTriDens),l_TriDens)
-call Put_Fock_Occ(Work(ip_WAOTriDens),l_TriDens)
+call Put_D1ao_Var(AOTriDens,l_TriDens)
+!call Put_D1ao(AOTriDens,l_TriDens)
+call Put_Fock_Occ(WAOTriDens,l_TriDens)
 
-call GetMem('AOTriDens','Free','Real',ip_AOTriDens,l_TriDens)
-call GetMem('AOWTriDens','Free','Real',ip_WAOTriDens,l_TriDens)
+call mma_deallocate(AOTriDens)
+call mma_deallocate(WAOTriDens)
 ! We now have the density matrix for both the MO-basis and the AO-basis in the
 ! compact form it is supposed to have on the runfile so what is left is to write
 ! it to the runfile.

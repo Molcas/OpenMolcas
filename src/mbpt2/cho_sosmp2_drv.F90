@@ -27,6 +27,7 @@ subroutine Cho_SOSmp2_Drv(irc,EMP2,CMO,EOcc,EVir)
 !     exit, except for error terminations (i.e. no cleanup actions
 !     are taken!)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Five
 use Definitions, only: wp, iwp, u6, r8
 
@@ -34,10 +35,11 @@ implicit none
 integer(kind=iwp), intent(out) :: irc
 real(kind=wp), intent(out) :: EMP2
 real(kind=wp), intent(in) :: CMO(*), EOcc(*), EVir(*)
-integer(kind=iwp) :: ia, ip_Dum, ipDiag, iSym, l_Dum, lDiag, nSym_Sav
-real(kind=wp) :: CPUDec1, CPUDec2, CPUEnr1, CPUEnr2, CPUIni1, CPUIni2, CPUTot1, CPUTot2, CPUTra1, CPUTra2, Diff, FracMem, &
+integer(kind=iwp) :: iSym, lDiag, nSym_Sav
+real(kind=wp) :: CPUDec1, CPUDec2, CPUEnr1, CPUEnr2, CPUIni1, CPUIni2, CPUTot1, CPUTot2, CPUTra1, CPUTra2, Diff, Dum, FracMem, &
                  WallDec1, WallDec2, WallEnr1, WallEnr2, WallIni1, WallIni2, WallTot1, WallTot2, WallTra1, WallTra2
 logical(kind=iwp) :: Delete
+real(kind=wp), allocatable :: Diag(:)
 integer(kind=iwp), parameter :: iFmt = 0
 real(kind=wp), parameter :: Chk_Mem_ChoMP2 = 0.123456789_wp, Tol = 1.0e-15_wp
 logical(kind=iwp), parameter :: Delete_def = .true.
@@ -46,7 +48,6 @@ real(kind=r8), external :: ddot_
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
-#include "WrkSpc.fh"
 
 #if defined (_DEBUGPRINT_)
 Verbose = .true.
@@ -66,9 +67,7 @@ if (Verbose) then
   call CWTime(CPUIni1,WallIni1)
 end if
 
-l_Dum = 1
-call GetMem('Dummy','Allo','Real',ip_Dum,l_Dum)
-Work(ip_Dum) = Chk_Mem_ChoMP2
+Dum = Chk_Mem_ChoMP2
 
 FracMem = Zero ! no buffer allocated
 call Cho_X_Init(irc,FracMem)
@@ -105,9 +104,9 @@ lDiag = nT1am(1)
 do iSym=2,nSym
   lDiag = lDiag+nT1am(iSym)
 end do
-call GetMem('Diag','Allo','Real',ipDiag,lDiag)
+call mma_allocate(Diag,lDiag,label='Diag')
 
-call ChoMP2_TraDrv(irc,CMO,Work(ipDiag),.true.)
+call ChoMP2_TraDrv(irc,CMO,Diag,.true.)
 if (irc /= 0) then
   write(u6,*) SecNam,': ChoMP2_TraDrv returned ',irc
   Go To 1  ! exit
@@ -115,10 +114,8 @@ end if
 
 ! Squaring each diagonal element
 ! ------------------------------
-do ia=0,lDiag-1
-  Work(ipDiag+ia) = Work(ipDiag+ia)**2
-end do
-if (set_cd_thr) ThrMP2 = ddot_(lDiag,[One],0,Work(ipDiag),1)/(Five*lDiag)
+Diag(:) = Diag(:)**2
+if (set_cd_thr) ThrMP2 = ddot_(lDiag,[One],0,Diag,1)/(Five*lDiag)
 
 if (Verbose) then
   call CWTime(CPUTra2,WallTra2)
@@ -150,7 +147,7 @@ if (Verbose) then
   call CWTime(CPUDec1,WallDec1)
 end if
 Delete = Delete_def ! delete transf. vector files after dec.
-call Cho_SOSmp2_DecDrv(irc,Delete,Work(ipDiag))
+call Cho_SOSmp2_DecDrv(irc,Delete,Diag)
 if (irc /= 0) then
   write(u6,*) SecNam,': Cho_SOSmp2_DecDrv returned ',irc
   call ChoMP2_Quit(SecNam,'SOS-MP2 decomposition failed!',' ')
@@ -159,7 +156,7 @@ if (Verbose) then
   call CWTime(CPUDec2,WallDec2)
   call Cho_PrtTim('Cholesky SOS-MP2 decomposition',CPUDec2,CPUDec1,WallDec2,WallDec1,iFmt)
 end if
-call GetMem('Diag','Free','Real',ipDiag,lDiag)
+call mma_deallocate(Diag)
 
 ! Compute SOS-MP2 energy correction.
 ! ----------------------------------
@@ -182,7 +179,7 @@ end if
 ! -----
 
 1 continue
-Diff = abs(Work(ip_Dum)-Chk_Mem_ChoMP2)
+Diff = abs(Dum-Chk_Mem_ChoMP2)
 if (Diff > Tol) then
   write(u6,*) SecNam,': Memory Boundary Error!'
   if (irc == 0) irc = -9999
@@ -191,8 +188,6 @@ if (Verbose) then
   call CWTime(CPUTot2,WallTot2)
   call Cho_PrtTim('Cholesky SOS-MP2',CPUTot2,CPUTot1,WallTot2,WallTot1,iFmt)
 end if
-call GetMem('Flush','Flush','Real',ip_Dum,l_Dum)
-call GetMem('Dummy','Free','Real',ip_Dum,l_Dum)
 
 return
 

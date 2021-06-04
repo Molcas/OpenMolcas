@@ -17,6 +17,7 @@ subroutine Cho_SOSmp2_Col(Col,nDim,iCol,nCol,Buf,l_Buf)
 ! Purpose: compute specified M(ai,bj)=(ai|bj)^2 columns.
 
 use ChoMP2, only: OldVec
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -24,14 +25,14 @@ implicit none
 integer(kind=iwp), intent(in) :: nDim, nCol, iCol(nCol), l_Buf
 real(kind=wp), intent(inout) :: Col(nDim,nCol)
 real(kind=wp), intent(out) :: Buf(l_Buf)
-integer(kind=iwp) :: ia, iAdr, iBat, iOpt, ipWrk, irc, iSym, iVec1, jCol, lScr, lTot, lWrk, lWsav, nBat, NumV, nVec
+integer(kind=iwp) :: ia, iAdr, iBat, iOpt, irc, iSym, iVec1, jCol, lScr, lTot, lWrk, lWsav, nBat, NumV, nVec
 real(kind=wp) :: Fac
 logical(kind=iwp) :: DoClose
+real(kind=wp), allocatable :: Wrk(:)
 character(len=14), parameter :: SecNam = 'Cho_SOSmp2_Col'
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2_dec.fh"
-#include "WrkSpc.fh"
 
 if ((nCol < 1) .or. (nDim < 1)) return
 
@@ -66,7 +67,7 @@ else ! old vectors must be read on disk
     DoClose = .true.
   end if
 
-  call GetMem('MaxCol','Max ','Real',ipWrk,lWrk)
+  call mma_maxDBLE(lWrk)
 
   if (l_Buf > lWrk) then ! use Buf as work space
 
@@ -102,9 +103,9 @@ else ! old vectors must be read on disk
       lScr = l_Buf-lTot
       if (lWrk > lScr) then
         lWsav = lWrk
-        call GetMem('ColScr','Allo','Real',ipWrk,lWrk)
-        call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Buf,NumV,Work(ipWrk),lWrk,Fac,irc)
-        call GetMem('ColScr','Free','Real',ipWrk,lWrk)
+        call mma_allocate(Wrk,lWrk,label='ColScr')
+        call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Buf,NumV,Wrk,lWrk,Fac,irc)
+        call mma_deallocate(Wrk)
         lWrk = lWsav
       else
         call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Buf,NumV,Buf(1+lTot),lScr,Fac,irc)
@@ -116,9 +117,9 @@ else ! old vectors must be read on disk
 
     end do
 
-  else ! use Work as work space
+  else ! use temp as work space
 
-    call GetMem('ColWrk','Allo','Real',ipWrk,lWrk)
+    call mma_allocate(Wrk,lWrk,label='ColWrk')
 
     nVec = min(lWrk/nDim,NumCho(iSym))
     if (nVec < 1) then
@@ -141,7 +142,7 @@ else ! old vectors must be read on disk
       iOpt = 2
       lTot = nDim*NumV
       iAdr = nDim*(iVec1-1)+1
-      call ddaFile(lUnit_F(iSym,1),iOpt,Work(ipWrk),lTot,iAdr)
+      call ddaFile(lUnit_F(iSym,1),iOpt,Wrk,lTot,iAdr)
 
       if (iBat == 1) then
         Fac = Zero
@@ -151,9 +152,9 @@ else ! old vectors must be read on disk
 
       lScr = lWrk-lTot
       if (l_Buf > lScr) then
-        call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Work(ipWrk),NumV,Buf,l_Buf,Fac,irc)
+        call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Wrk,NumV,Buf,l_Buf,Fac,irc)
       else
-        call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Work(ipWrk),NumV,Work(ipWrk+lTot),lScr,Fac,irc)
+        call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,Wrk(1:lTot),NumV,Wrk(lTot+1:lWrk),lScr,Fac,irc)
       end if
       if (irc /= 0) then
         write(u6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
@@ -162,7 +163,7 @@ else ! old vectors must be read on disk
 
     end do
 
-    call GetMem('ColWrk','Free','Real',ipWrk,lWrk)
+    call mma_deallocate(Wrk)
 
   end if
 

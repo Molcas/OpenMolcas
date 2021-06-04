@@ -12,14 +12,16 @@
 subroutine MP2Ap(iSymIA,iSymJB,ip_AP,ip_P)
 ! A subroutine that calculates A*p_k in the PCG-algorithm
 
-use MBPT2_Global, only: ipInt1, ipInt2, iPoVec, ipScr1, mAdDel, mAdFro, mAdOcc, mAdVir
+use MBPT2_Global, only: iPoVec, mAdDel, mAdFro, mAdOcc, mAdVir
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Four, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iSymIA, iSymJB, ip_AP, ip_P
-integer(kind=iwp) :: iA, iB, iI, iJ, index1, index2, ipIntC, iSym1, iSym2, lint, nB, nJ, nMaxOrb
+integer(kind=iwp) :: iA, iB, iI, iJ, index1, index2, iSym1, iSym2, nB, nJ, nMaxOrb
 real(kind=wp) :: E_a, E_i, Ediff, Fac, xiajb, xibja, xijab
+real(kind=wp), allocatable :: Int1(:), Int2(:), IntC(:), Scr1(:)
 #include "WrkSpc.fh"
 #include "corbinf.fh"
 
@@ -29,28 +31,27 @@ do iSym1=1,nSym
     nMaxOrb = max(nMaxOrb,(nOrb(iSym1)+nDel(iSym1))*(nOrb(iSym2)+nDel(iSym2)))
   end do
 end do
-lint = nMaxOrb
-call GetMem('Int1','Allo','Real',ipInt1,lInt)
-call GetMem('Int2','Allo','Real',ipInt2,lInt)
-call GetMem('IntC','Allo','Real',ipIntC,lInt)
-call GetMem('Scr1','Allo','Real',ipScr1,lInt)
+call mma_allocate(Int1,nMaxOrb,label='Int1')
+call mma_allocate(Int2,nMaxOrb,label='Int2')
+call mma_allocate(IntC,nMaxOrb,label='IntC')
+call mma_allocate(Scr1,nMaxOrb,label='Scr1')
 
 nB = nExt(iSymJB)+nDel(iSymJB)
 do iA=1,nExt(iSymIA)+nDel(iSymIA)
   if (iSymIA == iSymJB) nB = iA
   do iB=1,nB
-    call Exch(iSymIA,iSymIA,iSymJB,iSymJB,iA+nFro(iSymIA)+nOcc(iSymIA),iB+nFro(iSymJB)+nOcc(iSymJB),Work(ipInt1),Work(ipScr1))
+    call Exch(iSymIA,iSymIA,iSymJB,iSymJB,iA+nFro(iSymIA)+nOcc(iSymIA),iB+nFro(iSymJB)+nOcc(iSymJB),Int1,Scr1)
     if (iSymIA /= iSymJB) then
-      call Exch(iSymJB,iSymIA,iSymIA,iSymJB,iA+nFro(iSymIA)+nOcc(iSymIA),iB+nFro(iSymJB)+nOcc(iSymJB),Work(ipInt2),Work(ipScr1))
+      call Exch(iSymJB,iSymIA,iSymIA,iSymJB,iA+nFro(iSymIA)+nOcc(iSymIA),iB+nFro(iSymJB)+nOcc(iSymJB),Int2,Scr1)
     end if
-    call Coul(iSymIA,iSymJB,iSymIA,iSymJB,iA+nFro(iSymIA)+nOcc(iSymIA),iB+nFro(iSymJB)+nOcc(iSymJB),Work(ipIntC),Work(ipScr1))
+    call Coul(iSymIA,iSymJB,iSymIA,iSymJB,iA+nFro(iSymIA)+nOcc(iSymIA),iB+nFro(iSymJB)+nOcc(iSymJB),IntC,Scr1)
     !write(u6,*)
     !write(u6,*) ' *  A,B = ',iA,iB
-    !call RecPrt('Int1:','(8F10.6)',Work(ipInt1),nOrb(iSymIA)+nDel(iSymIA),nOrb(iSymJB)+nDel(iSymJB))
+    !call RecPrt('Int1:','(8F10.6)',Int1,nOrb(iSymIA)+nDel(iSymIA),nOrb(iSymJB)+nDel(iSymJB))
     !if (iSymIA /= iSymJB) then
-    !  call RecPrt('Int2:','(8F10.6)',Work(ipInt2),nOrb(iSymJB)+nDel(iSymJB),nOrb(iSymIA)+nDel(iSymIA))
+    !  call RecPrt('Int2:','(8F10.6)',Int2,nOrb(iSymJB)+nDel(iSymJB),nOrb(iSymIA)+nDel(iSymIA))
     !end if
-    !call RecPrt('IntC:','(8F10.6)',Work(ipIntC),nOrb(iSymIA)+nDel(iSymIA),nOrb(iSymJB)+nDel(iSymJB))
+    !call RecPrt('IntC:','(8F10.6)',IntC,nOrb(iSymIA)+nDel(iSymIA),nOrb(iSymJB)+nDel(iSymJB))
 
     ! This loop will traverse an triangular AIxBJ-matrix
     do iI=1,nFro(iSymIA)+nOcc(iSymIA)
@@ -65,13 +66,13 @@ do iA=1,nExt(iSymIA)+nDel(iSymIA)
         ! For multiplication with the BJ element of P
         index1 = ip_Ap+iPoVec(iSymJB)+iJ-1+(nFro(iSymJB)+nOcc(iSymJB))*(iB-1)
         index2 = ip_Ap+iPoVec(iSymIA)+iI-1+(nFro(iSymIA)+nOcc(iSymIA))*(iA-1)
-        xiajb = Work(ipInt1+iI-1+(iJ-1)*(nOrb(iSymIA)+nDel(iSymIA)))
-        xijab = Work(ipIntC+iI-1+(iJ-1)*(nOrb(iSymIA)+nDel(iSymIA)))
+        xiajb = Int1(iI+(iJ-1)*(nOrb(iSymIA)+nDel(iSymIA)))
+        xijab = IntC(iI+(iJ-1)*(nOrb(iSymIA)+nDel(iSymIA)))
         if (iSymIA == iSymJB) then
-          xibja = Work(ipInt1+iJ-1+(iI-1)*(nOrb(iSymJB)+nDel(iSymJB)))
+          xibja = Int1(iJ+(iI-1)*(nOrb(iSymJB)+nDel(iSymJB)))
 
         else
-          xibja = Work(ipInt2+iJ-1+(iI-1)*(nOrb(iSymJB)+nDel(iSymJB)))
+          xibja = Int2(iJ+(iI-1)*(nOrb(iSymJB)+nDel(iSymJB)))
         end if
 
         Work(index1) = Work(index1)+Fac*(Four*xiajb-xibja-xijab)*Work(ip_P+iPoVec(iSymIA)+iI-1+(nFro(iSymIA)+nOcc(iSymIA))*(iA-1))
@@ -112,10 +113,10 @@ do iA=1,nExt(iSymIA)+nDel(iSymIA)
   end do     !iOrbB
 end do       !iOrbA
 
-call GetMem('Int1','Free','Real',ipInt1,lInt)
-call GetMem('Int2','Free','Real',ipInt2,lInt)
-call GetMem('IntC','Free','Real',ipIntC,lInt)
-call GetMem('Scr1','Free','Real',ipScr1,lInt)
+call mma_deallocate(Int1)
+call mma_deallocate(Int2)
+call mma_deallocate(IntC)
+call mma_deallocate(Scr1)
 
 return
 

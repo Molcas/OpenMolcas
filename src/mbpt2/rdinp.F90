@@ -34,21 +34,22 @@ subroutine RdInp(CMO,Eall,Eocc,Eext,iTst,ESCF)
 
 use MBPT2_Global, only: DelGhost, DoCholesky, DoDF, DoLDF, iDel, iFro, iPL, NamAct, nBas, nDel1, nDel2, nFro1, nFro2, nTit, &
                         Thr_ghs, Title
-use stdalloc, only: mma_allocate
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(out) :: CMO(*), Eall(*), Eocc(*), Eext(*), ESCF
 integer(kind=iwp), intent(out) :: iTst
-integer(kind=iwp) :: i, IADC, IADEE, IADEO, IADSQ, iCom, iCount, iDNG, iDummy(1), iErr, iExt, iLow, iOrb, ip, ip_Occup, iPrt, &
-                     iSym, iUpp, j, jCom, jDel, jFro, jOcc, l_Occup, LC, LEE, LEO, LSQ, Lu_orb, LuSpool, nExtT, nFre, nOccT
+integer(kind=iwp) :: i, iCom, iCount, iDNG, iDummy(1), iErr, iExt, iLow, iOrb, ip, iPrt, iSym, iUpp, j, jCom, jDel, jFro, jOcc, &
+                     l_Occup, LC, LEE, LEO, LSQ, Lu_orb, LuSpool, nExtT, nFre, nOccT
 logical(kind=iwp) :: FrePrt, ERef_UsrDef, DecoMP2_UsrDef, DNG, NoGrdt, lTit, lFro, lFre, lDel, lSFro, lSDel, lExt, lPrt, LumOrb
 character(len=4) :: Command
 character(len=8) :: emiloop, inGeo
 character(len=80) :: VecTitle
 character(len=100) :: ProgName
 character(len=180) :: Line
+real(kind=wp), allocatable :: C(:), EE(:), EO(:), Occup(:), SQ(:)
 integer(kind=iwp), parameter :: nCom = 43
 character(len=4), parameter :: ComTab(nCom) = ['TITL','FROZ','DELE','SFRO','SDEL','EXTR','PRIN','TEST','TSTP','PRPT', &
                                                'LUMO','EREF','VIRA','T1AM','GRDT','LAPL','GRID','BLOC','CHOA','$$$$', &
@@ -61,7 +62,6 @@ character(len=100), external :: Get_SuperName
 character(len=180), external :: Get_Ln
 #include "chomp2_cfg.fh"
 #include "corbinf.fh"
-#include "WrkSpc.fh"
 #include "warnings.fh"
 #include "Molcas.fh"
 
@@ -720,8 +720,8 @@ if (LumOrb) then
   do iSym=2,nSym
     l_Occup = l_Occup+nOrb(iSym)
   end do
-  call GetMem('Occup','Allo','Real',ip_Occup,l_Occup)
-  call RDVEC('INPORB',Lu_orb,'COE',nSym,nBas,nOrb,CMO,Work(ip_Occup),Eall,iDummy,VecTitle,0,iErr)
+  call mma_allocate(Occup,l_Occup,label='Occup')
+  call RDVEC('INPORB',Lu_orb,'COE',nSym,nBas,nOrb,CMO,Occup,Eall,iDummy,VecTitle,0,iErr)
   if (iErr /= 0) then
     write(u6,'(A,I4)') 'ERROR: RdVec returned code',iErr
     call Abend()
@@ -736,12 +736,12 @@ if (LumOrb) then
   end if
   write(u6,*)
   iErr = 0
-  ip = ip_Occup-1
+  ip = 0
   do iSym=1,nSym
     iCount = 0
     do i=1,nOrb(iSym)
       ip = ip+1
-      if (abs(Work(ip)) > 1.0e-14_wp) iCount = iCount+1
+      if (abs(Occup(ip)) > 1.0e-14_wp) iCount = iCount+1
     end do
     if (iCount /= nOcc(iSym)) then
       iErr = iErr+1
@@ -754,7 +754,7 @@ if (LumOrb) then
     write(u6,'(8I6)') (nOcc(iSym),iSym=1,nSym)
     iErr = 0
   end if
-  call GetMem('Occup','Free','Real',ip_Occup,l_Occup)
+  call mma_deallocate(Occup)
 else
   call Get_dScalar('SCF energy',Escf)
 end if
@@ -830,18 +830,18 @@ if (lSFro .or. lSDel) then
     LEO = LEO+nOcc(iSym)
     LEE = LEE+nExt(iSym)
   end do
-  call GetMem('C','ALLO','REAL',IADC,LC)
-  call GetMem('EO','ALLO','REAL',IADEO,LEO)
-  call GetMem('EE','ALLO','REAL',IADEE,LEE)
-  call GetMem('SQ','ALLO','INTE',IADSQ,LSQ)
-  call dcopy_(LC,CMO,1,WORK(IADC),1)
-  call dcopy_(LEO,Eocc,1,WORK(IADEO),1)
-  call dcopy_(LEE,Eext,1,WORK(IADEE),1)
-  call FrzDel(nFro2,iFro,Eocc,WORK(IADEO),nDel2,iDel,Eext,WORK(IADEE),CMO,WORK(IADC),IWORK(IADSQ))
-  call GetMem('SQ','FREE','INTE',IADSQ,LSQ)
-  call GetMem('EE','FREE','REAL',IADEE,LEE)
-  call GetMem('EO','FREE','REAL',IADEO,LEO)
-  call GetMem('LC','FREE','REAL',IADC,LC)
+  call mma_allocate(C,LC,label='C')
+  call mma_allocate(EO,LEO,label='EO')
+  call mma_allocate(EE,LEE,label='EE')
+  call mma_allocate(SQ,LSQ,label='SQ')
+  C(:) = CMO(1:LC)
+  EO(:) = Eocc(1:LEO)
+  EE(:) = Eext(1:LEE)
+  call FrzDel(nFro2,iFro,Eocc,EO,nDel2,iDel,Eext,EE,CMO,C,SQ)
+  call mma_deallocate(C)
+  call mma_deallocate(EO)
+  call mma_deallocate(EE)
+  call mma_deallocate(SQ)
 end if
 !----------------------------------------------------------------------*
 !     Normal termination                                               *

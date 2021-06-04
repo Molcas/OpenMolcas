@@ -17,15 +17,16 @@ subroutine RDINT2_MP2(IPRX)
 ! TR2CTL IMMEDIATELY AFTER THE CALL TO TRA2
 
 use MBPT2_Global, only: LuIntM, nBas
-use Definitions, only: iwp, u6
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IPRX
-integer(kind=iwp) :: I, IAD131, IAD132, IAD13C, IADC, IADX1, IADX2, ISPQRS, iTmp, LENGTH, LREC, LRECX, NSP, NSPQ, NSPQR, NSQ, NSR, &
-                     NSS, NT, NU, NUM
+integer(kind=iwp) :: IAD131, IAD132, IAD13C, IADC, IADX1, IADX2, ISPQRS, LENGTH, LREC, LRECX, NSP, NSPQ, NSPQR, NSQ, NSR, NSS, NT, &
+                     NU, NUM
+real(kind=wp), allocatable :: Tmp(:)
 #include "corbinf.fh"
 #include "trafo.fh"
-#include "WrkSpc.fh"
 
 ! READ ADDRESS RECORD ON UNIT LUINTM
 
@@ -97,13 +98,13 @@ do NSP=1,NSYM
           if (NSP == NSQ) NUM = NT
           do NU=1,NUM
             if (IADC /= 0) then
-              call GetMem('Tmp','ALLO','REAL',iTmp,LREC)
-              call dDAFILE(LUINTM,2,WORK(iTmp),LREC,IAD13C)
+              call mma_allocate(Tmp,LREC,label='Tmp')
+              call dDAFILE(LUINTM,2,Tmp,LREC,IAD13C)
               if (IPRX /= 0) LENGTH = LREC
               if (IPRX == 0) LENGTH = min(LREC,10)
-              write(u6,1300) NT,NU,(WORK(I),I=iTmp,iTmp+LENGTH-1)
+              write(u6,1300) NT,NU,Tmp(1:LENGTH)
 1300          format(/1X,'COULOMB INTEGRALS FOR TU PAIR',2I3/(1X,10F10.6))
-              call GetMem('Tmp','FREE','REAL',iTmp,LREC)
+              call mma_deallocate(Tmp)
             end if
 
             ! THE LOOP ABOVE OVER T AND U RECOVERS ONE BLOCK OF INTEGRALS (AB|TU
@@ -119,13 +120,13 @@ do NSP=1,NSYM
             !   end do
             ! WORK(IAB) NOW CONTAINS THE INTEGRAL (AB|TU)
             if (IADX1 /= 0) then
-              call GetMem('Tmp','ALLO','REAL',iTmp,LRECX)
-              call dDAFILE(LUINTM,2,WORK(iTmp),LRECX,IAD131)
+              call mma_allocate(Tmp,LRECX,label='Tmp')
+              call dDAFILE(LUINTM,2,Tmp,LRECX,IAD131)
               if (IPRX /= 0) LENGTH = LRECX
               if (IPRX == 0) LENGTH = min(LRECX,10)
-              write(u6,1310) NT,NU,(WORK(I),I=iTmp,iTmp+LENGTH-1)
+              write(u6,1310) NT,NU,Tmp(1:LENGTH)
 1310          format(/1X,'EXCHAN1 INTEGRALS FOR TU PAIR',2I3/(1X,10F10.6))
-              call GetMem('Tmp','FREE','REAL',iTmp,LRECX)
+              call mma_deallocate(Tmp)
             end if
             ! THE EXCHANGE INTEGRALS OF TYPE 1 ,(AT|BU) ARE PROCESSED AS THE
             ! COULOMB INTEGRALS. IF NST.NE.NSU THERE ARE ALSO EXCHANGE
@@ -133,13 +134,13 @@ do NSP=1,NSYM
             ! BUT T IS NOW THE FOURTH INDEX AND U THE SECOND
             ! EXCHANGE INTEGRALS ARE ALWAYS QUADRATIC IN A,B
             if (IADX2 /= 0) then
-              call GetMem('Tmp','ALLO','REAL',iTmp,LRECX)
-              call dDAFILE(LUINTM,2,WORK(iTmp),LRECX,IAD132)
+              call mma_allocate(Tmp,LRECX,label='Tmp')
+              call dDAFILE(LUINTM,2,Tmp,LRECX,IAD132)
               if (IPRX /= 0) LENGTH = LRECX
               if (IPRX == 0) LENGTH = min(LRECX,10)
-              write(u6,1320) NT,NU,(WORK(I),I=iTmp,iTmp+LENGTH-1)
+              write(u6,1320) NT,NU,Tmp(1:LENGTH)
 1320          format(/1X,'EXCHAN2 INTEGRALS FOR TU PAIR',2I3/(1X,10F10.6))
-              call GetMem('Tmp','FREE','REAL',iTmp,LRECX)
+              call mma_deallocate(Tmp)
             end if
           end do
         end do

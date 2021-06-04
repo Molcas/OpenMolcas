@@ -16,7 +16,8 @@ subroutine Mp2Diag()
 !                                                                      *
 !***********************************************************************
 
-use MBPT2_Global, only: ip_DiaA, ipInt1, ipScr1, mAdDel, mAdFro, mAdOcc, mAdVir
+use MBPT2_Global, only: ip_DiaA, mAdDel, mAdFro, mAdOcc, mAdVir
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Four
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -24,8 +25,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: iA, iB, iI, iJ, ipIntC, iSym, iSym1, iSym2, lint, nMaxOrb
+integer(kind=iwp) :: iA, iB, iI, iJ, iSym, iSym1, iSym2, nMaxOrb
 real(kind=wp) :: E_a, E_i, Ediff, xibja, xijab, xijba
+real(kind=wp), allocatable :: Int1(:), IntC(:), Scr1(:)
 #include "WrkSpc.fh"
 #include "corbinf.fh"
 ! statement function
@@ -42,22 +44,21 @@ do iSym1=1,nSym
   end do
 end do
 
-lint = nMaxOrb
-call GetMem('Int1','Allo','Real',ipInt1,lInt)
-call GetMem('IntC','Allo','Real',ipIntC,lInt)
-call GetMem('Scr1','Allo','Real',ipScr1,lInt)
+call mma_allocate(Int1,nMaxOrb,label='Int1')
+call mma_allocate(IntC,nMaxOrb,label='IntC')
+call mma_allocate(Scr1,nMaxOrb,label='Scr1')
 
 do iSym=1,nSym
 
   do iA=1,nExt(iSym)+nDel(iSym)
     iB = iA
-    call Exch(iSym,iSym,iSym,iSym,iA+nOcc(iSym)+nFro(iSym),iB+nOcc(iSym)+nFro(iSym),Work(ipInt1),Work(ipScr1))
-    call Coul(iSym,iSym,iSym,iSym,iA+nOcc(iSym)+nFro(iSym),iB+nOcc(iSym)+nFro(iSym),Work(ipIntC),Work(ipScr1))
+    call Exch(iSym,iSym,iSym,iSym,iA+nOcc(iSym)+nFro(iSym),iB+nOcc(iSym)+nFro(iSym),Int1,Scr1)
+    call Coul(iSym,iSym,iSym,iSym,iA+nOcc(iSym)+nFro(iSym),iB+nOcc(iSym)+nFro(iSym),IntC,Scr1)
 #   ifdef _DEBUGPRINT_
     write(u6,*)
     write(u6,*) ' *  A,B = ',iA,iB
-    call RecPrt('Int1:','(8F10.6)',Work(ipInt1),nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
-    call RecPrt('IntC:','(8F10.6)',Work(ipIntC),nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
+    call RecPrt('Int1:','(8F10.6)',Int1,nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
+    call RecPrt('IntC:','(8F10.6)',IntC,nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
 #   endif
 
     ! A temporary storage for the coulomb integrals
@@ -70,9 +71,9 @@ do iSym=1,nSym
 
     do iI=1,nFro(iSym)+nOcc(iSym)
       iJ = iI
-      xijab = Work(ipInt1+iJ-1+(iI-1)*(nOrb(iSym)+nDel(iSym)))
+      xijab = Int1(iJ+(iI-1)*(nOrb(iSym)+nDel(iSym)))
       xijba = xijab
-      xibja = Work(ipIntC+iI-1+(iJ-1)*(nOrb(iSym)+nDel(iSym)))
+      xibja = IntC(iI+(iJ-1)*(nOrb(iSym)+nDel(iSym)))
       if (iA <= nExt(iSym)) then
         E_a = Work(mAdVir(iSym)+iA-1)
       else
@@ -95,9 +96,9 @@ do iSym=1,nSym
   end do
 end do
 
-call GetMem('Int1','Free','Real',ipInt1,lInt)
-call GetMem('IntC','Free','Real',ipIntC,lInt)
-call GetMem('Scr1','Free','Real',ipScr1,lInt)
+call mma_deallocate(Int1)
+call mma_deallocate(IntC)
+call mma_deallocate(Scr1)
 #ifdef _DEBUGPRINT_
 do iSym=1,nSym
   write(u6,*) 'Symmetry nr',iSym

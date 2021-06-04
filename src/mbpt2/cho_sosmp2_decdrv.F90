@@ -21,16 +21,18 @@ subroutine Cho_SOSmp2_DecDrv(irc,DelOrig,Diag)
 !          decomposition completes.
 
 use ChoMP2, only: OldVec
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
 logical(kind=iwp), intent(in) :: DelOrig
 real(kind=wp), intent(in) :: Diag(*)
-integer(kind=iwp) :: i, iAdr, iBin, iClos(2), iOpt, ipB, ipBin, ipBuf, ipErrStat, ipiPivot, ipiQual, ipQual, iSym, iTyp, kOffD, &
-                     lB, Left, lErrStat, liPivot, liQual, lQual, lTot, MxQual, nBin, nDim, nInC
-real(kind=wp) :: RMS, Thr, XMn, XMx
+integer(kind=iwp) :: iAdr, iBin, iClos(2), iOpt, iSym, iTyp, kOffD, lB, Left, lTot, MxQual, nBin, nDim, nInC
+real(kind=wp) :: ErrStat(3), RMS, Thr, XMn, XMx
 logical(kind=iwp) :: Failed
+integer(kind=iwp), allocatable :: iPivot(:), iQual(:)
+real(kind=wp), allocatable :: Bin(:), Buf(:), Qual(:)
 logical(kind=iwp), parameter :: Restart = .false.
 character(len=17), parameter :: SecNam = 'Cho_SOSmp2_DecDrv'
 external :: Cho_SOSmp2_Col, ChoMP2_Vec
@@ -39,20 +41,16 @@ external :: Cho_SOSmp2_Col, ChoMP2_Vec
 #include "chomp2.fh"
 #include "chomp2_dec.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
 
 ! Initializations.
 ! ----------------
 
 irc = 0
 
-lErrStat = 3
-call GetMem('ErrStat','Allo','Real',ipErrStat,lErrStat)
 if (Verbose) then
   nBin = 18
-  call GetMem('Bin','Allo','Real',ipBin,nBin)
+  call mma_allocate(Bin,nBin,label='Bin')
 else
-  ipBin = -999999
   nBin = 0
 end if
 
@@ -93,13 +91,13 @@ do iSym=1,nSym
   if ((nDim > 0) .and. (NumCho(iSym) > 0)) then
 
     if (Verbose .and. (nBin > 0)) then
-      Work(ipBin) = 1.0e2_wp
-      do iBin=ipBin+1,ipBin+nBin-1
-        Work(iBin) = Work(iBin-1)*1.0e-1_wp
+      Bin(1) = 1.0e2_wp
+      do iBin=2,nBin
+        Bin(iBin) = Bin(iBin-1)*0.1_wp
       end do
       write(u6,'(//,1X,A,I2,A,I9)') '>>> Cholesky decomposing symmetry block ',iSym,', dimension: ',nDim
       write(u6,'(/,1X,A)') 'Analysis of initial diagonal:'
-      call Cho_AnaSize(Diag(kOffD),nDim,Work(ipBin),nBin,u6)
+      call Cho_AnaSize(Diag(kOffD),nDim,Bin,nBin,u6)
     end if
 
     ! Open files.
@@ -138,18 +136,15 @@ do iSym=1,nSym
       write(u6,*) 'Dimension     : ',nDim
       write(u6,*) 'MxQual        : ',MxQual
       irc = -99
-      Go To 1 ! exit
+      goto1 ! exit
     end if
 #   endif
 
-    lQual = nDim*(MxQual+1)
-    liQual = MxQual
-    liPivot = nDim
-    call GetMem('Qual','Allo','Real',ipQual,lQual)
-    call GetMem('iQual','Allo','Inte',ipiQual,liQual)
-    call GetMem('iPivot','Allo','Inte',ipiPivot,liPivot)
+    call mma_allocate(Qual,nDim*(MxQual+1),label='Qual')
+    call mma_allocate(iQual,MxQual,label='iQual')
+    call mma_allocate(iPivot,nDim,label='iPivot')
 
-    call GetMem('GetMax','Max ','Real',ipB,lB)
+    call mma_maxDBLE(lB)
     lBuf = min((nDim+MxQual)*MxQual,lB)
     Left = lB-lBuf
     nInC = Left/nDim
@@ -161,23 +156,23 @@ do iSym=1,nSym
       iAdr = 1
       call ddaFile(lUnit_F(iSym,1),iOpt,OldVec,lTot,iAdr)
     end if
-    call GetMem('GetMx2','Max ','Real',ipB,lBuf)
-    call GetMem('DecBuf','Allo','Real',ipBuf,lBuf)
+    call mma_maxDBLE(lBuf)
+    call mma_allocate(Buf,lBuf,label='DecBuf')
 
     ! Decompose this symmetry block.
     ! ------------------------------
 
     Thr = ThrMP2
     Span = SpanMP2
-    call ChoDec(Cho_SOSmp2_Col,ChoMP2_Vec,Restart,Thr,Span,MxQual,Diag(kOffD),Work(ipQual),Work(ipBuf),iWork(ipiPivot), &
-                iWork(ipiQual),nDim,lBuf,Work(ipErrStat),nMP2Vec(iSym),irc)
+    call ChoDec(Cho_SOSmp2_Col,ChoMP2_Vec,Restart,Thr,Span,MxQual,Diag(kOffD),Qual,Buf,iPivot,iQual,nDim,lBuf,ErrStat, &
+                nMP2Vec(iSym),irc)
     if (irc /= 0) then
       write(u6,*) SecNam,': ChoDec returned ',irc,'   Symmetry block: ',iSym
-      Go To 1 ! exit...
+      goto 1 ! exit...
     end if
-    XMn = Work(ipErrStat)
-    XMx = Work(ipErrStat+1)
-    RMS = Work(ipErrStat+2)
+    XMn = ErrStat(1)
+    XMx = ErrStat(2)
+    RMS = ErrStat(3)
     if (Verbose) then
       write(u6,'(/,1X,A)') '- decomposition completed!'
       write(u6,'(1X,A,I9,A,I9,A)') 'Number of vectors needed: ',nMP2Vec(iSym),' (number of AO vectors: ',NumCho(iSym),')'
@@ -192,7 +187,7 @@ do iSym=1,nSym
       end if
       write(u6,*) SecNam,': (ai|bj)^2 decomposition failed!'
       irc = -9999
-      Go To 1 ! exit
+      goto 1 ! exit
     end if
 
     ! If requested, check decomposition.
@@ -204,22 +199,22 @@ do iSym=1,nSym
       write(u6,*) 'Symmetry block: ',iSym
       write(u6,*) 'Threshold, Span, MxQual: ',Thr,Span,MxQual
       write(u6,*) 'Error statistics for (ai|ai)^2 [min,max,rms]:'
-      write(u6,*) (Work(ipErrStat+i),i=0,2)
-      call Cho_SOSmp2_DecChk(irc,iSym,Work(ipQual),nDim,MxQual,Work(ipBuf),lBuf,Work(ipErrStat))
+      write(u6,*) ErrStat(:)
+      call Cho_SOSmp2_DecChk(irc,iSym,Qual,nDim,MxQual,Buf,lBuf,ErrStat)
       if (irc /= 0) then
         write(u6,*) SecNam,': ChoMP2_DecChk returned ',irc,'   Symmetry block: ',iSym
         call ChoMP2_Quit(SecNam,'SOS-MP2 decomposition failed!',' ')
       else
-        XMn = Work(ipErrStat)
-        XMx = Work(ipErrStat+1)
-        RMS = Work(ipErrStat+2)
+        XMn = ErrStat(1)
+        XMx = ErrStat(2)
+        RMS = ErrStat(3)
         Failed = Failed .or. (abs(Xmn) > Thr) .or. (abs(XMx) > Thr) .or. (RMS > Thr)
         write(u6,*) 'Error statistics for (ai|bj)^2 [min,max,rms]:'
         write(u6,*) XMn,XMx,RMS
         if (Failed) then
           write(u6,*) '==> DECOMPOSITION FAILURE <=='
           irc = -9999
-          Go To 1 ! exit
+          goto 1 ! exit
         else
           write(u6,*) '==> DECOMPOSITION SUCCESS <=='
         end if
@@ -230,11 +225,11 @@ do iSym=1,nSym
     ! Free memory.
     ! ------------
 
-    call GetMem('DecBuf','Free','Real',ipBuf,lBuf)
+    call mma_deallocate(Buf)
     if (InCore(iSym)) call mma_deallocate(OldVec)
-    call GetMem('iPivot','Free','Inte',ipiPivot,liPivot)
-    call GetMem('iQual','Free','Inte',ipiQual,liQual)
-    call GetMem('Qual','Free','Real',ipQual,lQual)
+    call mma_deallocate(Qual)
+    call mma_deallocate(iQual)
+    call mma_deallocate(iPivot)
 
     ! Close (possibly deleting original) files.
     ! -----------------------------------------
@@ -266,7 +261,7 @@ if (irc /= 0) then ! make sure files are closed before exit
     end do
   end do
 end if
-call GetMem('Flush','Flush','Real',ipErrStat,lErrStat)
-call GetMem('ErrStat','Free','Real',ipErrStat,lErrStat)
+
+if (allocated(Bin)) call mma_deallocate(Bin)
 
 end subroutine Cho_SOSmp2_DecDrv

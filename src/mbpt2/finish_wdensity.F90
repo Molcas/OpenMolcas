@@ -17,13 +17,15 @@ subroutine Finish_WDensity()
 ! Purpose: Add the terms labeled [II] and [III] to the energy-weighted
 !          MP2 Density
 
-use MBPT2_Global, only: ip_Density, ip_WDensity, ipInt1, ipInt2, ipScr1, mAdDel, mAdFro, mAdOcc, mAdVir
+use MBPT2_Global, only: ip_Density, ip_WDensity, mAdDel, mAdFro, mAdOcc, mAdVir
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iA, iB, iI, iJ, iP, ipIntC, iQ, iSym, iSym1, iSym2, iSymIJ, iSymPQ, lint, nMaxOrb
+integer(kind=iwp) :: iA, iB, iI, iJ, iP, iQ, iSym, iSym1, iSym2, iSymIJ, iSymPQ, nMaxOrb
 real(kind=wp) :: Eps_a, Eps_b, Eps_i, Eps_j, Fac, xijpq, xipjq
+real(kind=wp), allocatable :: Int1(:), IntC(:), Scr1(:)
 #include "WrkSpc.fh"
 #include "corbinf.fh"
 ! statement functions
@@ -91,26 +93,24 @@ do iSym1=1,nSym
     nMaxOrb = max(nMaxOrb,(nOrb(iSym1)+nDel(iSym1))*(nOrb(iSym2)+nDel(iSym2)))
   end do
 end do
-lint = nMaxOrb
-call GetMem('Int1','Allo','Real',ipInt1,lInt)
-call GetMem('Int2','Allo','Real',ipInt2,lInt)
-call GetMem('IntC','Allo','Real',ipIntC,lInt)
-call GetMem('Scr1','Allo','Real',ipScr1,lInt)
+call mma_allocate(Int1,nMaxOrb,label='Int1')
+call mma_allocate(IntC,nMaxOrb,label='IntC')
+call mma_allocate(Scr1,nMaxOrb,label='Scr1')
 do iSymIJ=1,nSym
   do iSymPQ=1,nSym
     do iI=1,nFro(iSymIJ)+nOcc(iSymIJ)
       do iJ=1,iI
-        call Exch(iSymPQ,iSymIJ,iSymPQ,iSymIJ,iJ,iI,Work(ipInt1),Work(ipScr1))
-        call Coul(iSymPQ,iSymPQ,iSymIJ,iSymIJ,iJ,iI,Work(ipIntC),Work(ipScr1))
+        call Exch(iSymPQ,iSymIJ,iSymPQ,iSymIJ,iJ,iI,Int1,Scr1)
+        call Coul(iSymPQ,iSymPQ,iSymIJ,iSymIJ,iJ,iI,IntC,Scr1)
 
         !write(u6,*) 'Finish'
         !write(u6,*) ' *  i,j = ',iI,iJ
-        !call RecPrt('Int1:','(8F10.6)',Work(ipInt1),nOrb(iSymPQ)+nDel(iSymPQ),nOrb(iSymPQ)+nDel(iSymPQ))
-        !call RecPrt('IntC:','(8F10.6)',Work(ipIntC),nOrb(iSymPQ)+nDel(iSymPQ),nOrb(iSymPQ)+nDel(iSymPQ))
+        !call RecPrt('Int1:','(8F10.6)',Int1,nOrb(iSymPQ)+nDel(iSymPQ),nOrb(iSymPQ)+nDel(iSymPQ))
+        !call RecPrt('IntC:','(8F10.6)',IntC,nOrb(iSymPQ)+nDel(iSymPQ),nOrb(iSymPQ)+nDel(iSymPQ))
         do iP=1,nOrb(iSymPQ)+nDel(iSymPQ)
           do iQ=1,nOrb(iSymPQ)+nDel(iSymPQ)
-            xipjq = Work(ipInt1+(iP-1)+(iQ-1)*(nOrb(iSymPQ)+nDel(iSymPQ)))
-            xijpq = Work(ipIntC+(iP-1)+(iQ-1)*(nOrb(iSymPQ)+nDel(iSymPQ)))
+            xipjq = Int1(iP+(iQ-1)*(nOrb(iSymPQ)+nDel(iSymPQ)))
+            xijpq = IntC(iP+(iQ-1)*(nOrb(iSymPQ)+nDel(iSymPQ)))
             Work(ip_WDensity(iSymIJ)+iOccOcc(iI,iJ,iSymIJ)) = Work(ip_WDensity(iSymIJ)+iOccOcc(iI,iJ,iSymIJ))- &
                                                               Work(ip_Density(iSymPQ)+iOccOcc(iP,iQ,iSymPQ))*(Two*xijpq-xipjq)
             if (iJ /= iI) then
@@ -145,10 +145,9 @@ do iSym=1,nSym
   end do
 end do
 
-call GetMem('Int1','Free','Real',ipInt1,lInt)
-call GetMem('Int2','Free','Real',ipInt2,lInt)
-call GetMem('IntC','Free','Real',ipIntC,lInt)
-call GetMem('Scr1','Free','Real',ipScr1,lInt)
+call mma_deallocate(Int1)
+call mma_deallocate(IntC)
+call mma_deallocate(Scr1)
 
 return
 

@@ -43,19 +43,20 @@ subroutine MP2_Driver(ireturn)
 
 use MBPT2_Global, only: DoCholesky, DoDF, DoLDF, FnIntA, FnIntM, ipCMO, ipEOcc, ipEVir, iPL, LuHLF1, LuHLF2, LuHLF3, LuIntA, &
                         LuIntM, MBPT2_Clean, NamAct, nBas
-use stdalloc, only: mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-integer(kind=iwp) :: i, iOpt, iPrc, irc, iSym, itmp, iTol, iTst, iType, lthCMO, lthEOr, mAdCMO, mAdCMO_t, mAdEEx, mAdEOc, mAdEOr, &
-                     mAdEOr_t, nAsh(8), nDel_tra(8), nFro_tra(8), nIsh(8), nOccT
+integer(kind=iwp) :: i, iOpt, iPrc, irc, iSym, itmp, iTol, iTst, iType, lthCMO, lthEOr, mAdCMO, mAdCMO_t, mAdEOr, mAdEOr_t, &
+                     nAsh(8), nDel_tra(8), nFro_tra(8), nIsh(8), nOccT
 real(kind=wp) :: E0, E2BJAI, ESCF, ESSMP2, Etot, REFC, Shanks1_E, t1dg, t1nrm, TCPE(4), TCPT, TIOE(4), TIOT
 logical(kind=iwp) :: Conventional, IsDirect, Exists, Ready
 character(len=8) :: Method, Method1
+real(kind=wp), allocatable :: EEx(:), EOc(:)
 logical(kind=iwp), parameter :: Debug = .false.
-integer(kind=iwp), external :: Cho_X_GetTol
+integer(kind=iwp), external :: Cho_X_GetTol, ip_of_Work
 real(kind=r8), external :: ddot_, Seconds
 #include "Molcas.fh"
 #include "trafo.fh"
@@ -97,16 +98,16 @@ call DecideOnLocalDF(DoLDF)
 call TIMING(TCPE(1),TCPT,TIOE(1),TIOT)
 call RdMBPT(mAdCMO,lthCMO,mAdEOr,lthEOr)
 
-call GetMem('EOcc  ','Allo','Real',mAdEOc,lthEOr)
-call GetMem('EExt  ','Allo','Real',mAdEEx,lthEOr)
-call FZero(Work(mAdEOc),lthEOr)
-call FZero(Work(mAdEEx),lthEOr)
+call mma_allocate(EOc,lthEOr,label='EOcc')
+call mma_allocate(EEx,lthEOr,label='EExt')
+EOc(:) = Zero
+EEx(:) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! read Program Input Cards...
 
-call RdInp(Work(mAdCMO),Work(mAdEOr),Work(mAdEOc),Work(mAdEEx),iTst,ESCF)
+call RdInp(Work(mAdCMO),Work(mAdEOr),EOc,EEx,iTst,ESCF)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -125,7 +126,7 @@ Wref = Zero
 !                                                                      *
 ! Write out input parameters
 
-call PrInp_MBPT2(Work(mAdEOc),Work(mAdEEx),iTst)
+call PrInp_MBPT2(EOc,EEx,iTst)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -133,7 +134,7 @@ call PrInp_MBPT2(Work(mAdEOc),Work(mAdEEx),iTst)
 ! Needed for amplitude Cholesky decomposition.
 
 if (DoCholesky) then
-  call ChoMP2_SetPtsOen(mAdEOc,mAdEEx)
+  call ChoMP2_SetPtsOen(ip_of_Work(EOc(1)),ip_of_Work(EEx(1)))
 end if
 !                                                                      *
 !***********************************************************************
@@ -177,7 +178,7 @@ if (DoLDF) then ! LDF
 else if (DoCholesky .and. (ChoAlg > 0) .and. (.not. SOS_mp2) .and. (.not. FNOMP2) .and. (.not. LovMP2)) then
   Conventional = .false.
   Ready = .false.
-  call ChoMP2_Drv(irc,E2BJAI,Work(mAdCMO),Work(mAdEOc),Work(mAdEEx))
+  call ChoMP2_Drv(irc,E2BJAI,Work(mAdCMO),EOc,EEx)
   if (irc /= 0) then
     write(u6,*) 'MP2_Driver: ChoMP2_Drv returned ',irc
     call SysAbendMsg('MP2_Driver','Non-zero return code from ChoMP2_Drv',' ')
@@ -188,7 +189,7 @@ else if (DoCholesky .and. SOS_mp2) then ! CD/DF SOS-MP2
   Conventional = .false.
   Ready = .false.
   if (Laplace) then
-    call ChoMP2_Drv(irc,E2BJAI,Work(mAdCMO),Work(mAdEOc),Work(mAdEEx))
+    call ChoMP2_Drv(irc,E2BJAI,Work(mAdCMO),EOc,EEx)
     if (irc /= 0) then
       write(u6,*) 'MP2_Driver: ChoMP2_Drv returned ',irc
       call SysAbendMsg('MP2_Driver','Non-zero return code from ChoMP2_Drv',' ')
@@ -196,7 +197,7 @@ else if (DoCholesky .and. SOS_mp2) then ! CD/DF SOS-MP2
       Ready = .true.
     end if
   else
-    call Cho_SOSmp2_Drv(irc,E2BJAI,Work(mAdCMO),Work(mAdEOc),Work(mAdEEx))
+    call Cho_SOSmp2_Drv(irc,E2BJAI,Work(mAdCMO),EOc,EEx)
     if (irc /= 0) then
       write(u6,*) 'SOS-MP2_Driver: Cho_SOSmp2_Drv returned ',irc
       call SysAbendMsg('SOS-MP2_Driver','Non-zero return code from Cho_SOSmp2_Drv',' ')
@@ -213,7 +214,7 @@ else if (DoCholesky .and. FNOMP2) then
   write(u6,'(A)') '-------------------------------------------------------'
   write(u6,'(A,8I4)')
   write(u6,'(A,I3,A)') ' NOs specified: ',int(vkept*100),'% of the total virtual space'
-  call FNOMP2_Drv(irc,E2BJAI,Work(mAdCMO),Work(mAdEOc),Work(mAdEEx))
+  call FNOMP2_Drv(irc,E2BJAI,Work(mAdCMO),EOc,EEx)
   if (irc /= 0) then
     write(u6,*) 'MP2 driver: FNOMP2_Drv returned ',irc
     call SysAbendMsg('MP2 driver','Non-zero return code from FNOMP2_Drv',' ')
@@ -232,7 +233,7 @@ else if (DoCholesky .and. LovMP2) then ! CD/DF Localized O-V MP2
   write(u6,'(A)') ' Start LovMP2 section '
   write(u6,'(A)') '-------------------------------------------------------'
   write(u6,'(A,8I4)')
-  call LovMP2_Drv(irc,E2BJAI,Work(mAdCMO),Work(mAdEOc),Work(mAdEEx),NamAct,nActa,ThrLov,DoMP2,all_Vir)
+  call LovMP2_Drv(irc,E2BJAI,Work(mAdCMO),EOc,EEx,NamAct,nActa,ThrLov,DoMP2,all_Vir)
   if (irc /= 0) then
     write(u6,*) 'MP2 driver: LovMP2_Drv returned ',irc
     call SysAbendMsg('MP2 driver','Non-zero return code from LovMP2_Drv',' ')
@@ -319,15 +320,15 @@ else ! conventional (possibly with Cholesky)
 
     ! Obtain variational density if requested by user
 
-    ipEOcc = mAdEOc
-    ipEVir = mAdEEx
+    ipEOcc = ip_of_Work(EOc)
+    ipEVir = ip_of_Work(EEx)
     ipCMO = mAdCMO
     call Mp2Dens_drv(E2BJAI,REFC)
   else
 
     ! COMPUTE CORRELATION ENERGY CONTRIBUTION
 
-    call BJAI(IADOUT,Work(mAdEOc),Work(mAdEEx),E2BJAI,REFC)
+    call BJAI(IADOUT,EOc,EEx,E2BJAI,REFC)
   end if
   call TIMING(TCPE(4),TCPT,TIOE(4),TIOT)
 
@@ -467,8 +468,8 @@ call Add_Info('HF ref weight',[WREF],1,iTol)
 
 call MBPT2_Clean()
 if (DoT1amp) call GetMem('T1amp','Free','Real',jT1amp,l_T1)
-call GetMem('EExt  ','Free','Real',mAdEEx,lthEOr)
-call GetMem('EOcc  ','Free','Real',mAdEOc,lthEOr)
+call mma_deallocate(EOc)
+call mma_deallocate(EEx)
 call GetMem('EOrb  ','Free','Real',mAdEOr,lthEOr)
 call GetMem('CMO   ','Free','Real',mAdCMO,lthCMO)
 

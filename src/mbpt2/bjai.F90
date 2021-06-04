@@ -12,6 +12,7 @@
 subroutine BJAI(IAD,EPSI,EPSE,E2BJAI,VECL2)
 
 use MBPT2_Global, only: LuIntM
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Half
 use Definitions, only: wp, iwp, u6, r8
 
@@ -20,13 +21,13 @@ integer(kind=iwp), intent(out) :: IAD(3888)
 real(kind=wp), intent(in) :: EPSI(*), EPSE(*)
 real(kind=wp), intent(out) :: E2BJAI, VECL2
 integer(kind=iwp) :: iA, IAD1, IAD13, IAD2, IADA, IADAB, IADB, iB, iI, iJ, ISPQRS, iSymA, iSymB, iSymI, iSymJ, LA, LAA, LAB, LAB1, &
-                     LAIBJ, LAJBI, LINT, LINT1, LINT2, nExtA, nExtB, nOccI, nOccJ, nOrbA, nOrbB, NRA, NRB, NRI, NRJ
+                     nExtA, nExtB, nOccI, nOccJ, nOrbA, nOrbB, NRA, NRB, NRI, NRJ
 real(kind=wp) :: A, B, CKAL1, CKAL2, dVectorA(255), dVectorB(255), EDIF, EDIFIJ, SKAL1, SKAL2
 logical(kind=iwp) :: DoCholesky
+real(kind=wp), allocatable :: INT1(:), INT2(:), AIBJ(:), AJBI(:)
 logical(kind=iwp), parameter :: Debug = .false.
 real(kind=r8), external :: ddot_
 #include "corbinf.fh"
-#include "WrkSpc.fh"
 ! statement function
 integer(kind=iwp) :: I, J, MUL
 MUL(I,J) = 1+ieor(I-1,J-1)
@@ -76,80 +77,76 @@ do iSymI=1,nSym
             LAB = nOrbA*nOrbB
             if (DoCholesky) LAB = nExtA*nExtB
             LAB1 = nExtA*nExtB
-            call GetMem('INT1','ALLO','REAL',LINT1,LAB)
-            call GetMem('INT2','ALLO','REAL',LINT2,LAB)
-            call GetMem('AIBJ','ALLO','REAL',LAIBJ,LAB1) ! AB|IJ
-            call GetMem('AJBI','ALLO','REAL',LAJBI,LAB1) ! AB|JI
+            call mma_allocate(INT1,LAB,label='INT1')
+            call mma_allocate(INT2,LAB,label='INT2')
+            call mma_allocate(AIBJ,LAB1,label='AIBJ') ! AB|IJ
+            call mma_allocate(AJBI,LAB1,label='AJBI') ! AB|JI
             do iI=1,nOccI
               do iJ=1,nOccJ
                 if (Debug) then
                   write(u6,*)
                   write(u6,*) ' *  i,j = ',iI,iJ
                 end if
-                call dDAFile(LUINTM,2,Work(LINT1),LAB,IAD1)
-                call dDAFile(LUINTM,2,Work(LINT2),LAB,IAD2)
+                call dDAFile(LUINTM,2,INT1,LAB,IAD1)
+                call dDAFile(LUINTM,2,INT2,LAB,IAD2)
                 if (Debug) then
                   if (DoCholesky) then
-                    call RecPrt('Int1:','(8F10.6)',Work(lInt1),nExtB,nExtA)
-                    call RecPrt('Int2:','(8F10.6)',Work(lInt2),nExtB,nExtA)
+                    call RecPrt('Int1:','(8F10.6)',Int1,nExtB,nExtA)
+                    call RecPrt('Int2:','(8F10.6)',Int2,nExtB,nExtA)
                   else
-                    call RecPrt('Int1:','(8F10.6)',Work(lInt1),nOrbB,nOrbA)
-                    call RecPrt('Int2:','(8F10.6)',Work(lInt2),nOrbB,nOrbA)
+                    call RecPrt('Int1:','(8F10.6)',Int1,nOrbB,nOrbA)
+                    call RecPrt('Int2:','(8F10.6)',Int2,nOrbB,nOrbA)
                   end if
                 end if
                 EDIFIJ = EPSI(NRI+iI)+EPSI(NRJ+iJ)
                 IADA = nOcc(iSymA)*nOrbB+nOcc(iSymB)
                 if (DoCholesky) IADA = 0  ! CGG
-                IADB = LINT2+IADA
-                IADA = LINT1+IADA
-                I = 0
+                I = 1
                 if (Debug) then
                   write(u6,*)
                 end if
-                do iA=0,nExtA-1
-                  do iB=0,nExtB-1
-                    A = Work(IADA+iB)
-                    B = Work(IADB+iB)
-                    if (Debug) dVectorA(iB+1) = A
-                    if (Debug) dVectorB(iB+1) = B
-                    Work(LAIBJ+I) = A+B
-                    Work(LAJBI+I) = A-B
+                do iA=1,nExtA
+                  do iB=1,nExtB
+                    A = INT1(IADA+iB)
+                    B = INT2(IADA+iB)
+                    if (Debug) dVectorA(iB) = A
+                    if (Debug) dVectorB(iB) = B
+                    AIBJ(I) = A+B
+                    AJBI(I) = A-B
                     I = I+1
                   end do
                   if (Debug) then
-                    write(u6,'(A,I3,6F10.6)') 'A:',iA+1,(dVectorA(j),j=1,nExtB)
-                    write(u6,'(A,I3,6F10.6)') 'B:',iA+1,(dVectorB(j),j=1,nExtB)
+                    write(u6,'(A,I3,6F10.6)') 'A:',iA,(dVectorA(j),j=1,nExtB)
+                    write(u6,'(A,I3,6F10.6)') 'B:',iA,(dVectorB(j),j=1,nExtB)
                     write(u6,*) ' -------'
                   end if
                   if (DoCholesky) then
                     IADA = IADA+nExtB
-                    IADB = IADB+nExtB
                   else
                     IADA = IADA+nOrbB
-                    IADB = IADB+nOrbB
                   end if
                 end do
-                I = 0
+                I = 1
                 do iA=1,nExtA
                   do iB=1,nExtB
                     EDIF = EPSE(NRA+iA)+EPSE(NRB+iB)-EDIFIJ
-                    Work(LINT1+I) = Work(LAIBJ+I)/EDIF
-                    Work(LINT2+I) = Work(LAJBI+I)/EDIF
+                    INT1(I) = AIBJ(I)/EDIF
+                    INT2(I) = AJBI(I)/EDIF
                     I = I+1
                   end do
                 end do
-                SKAL1 = DDOT_(LAB1,Work(LINT1),1,Work(LAIBJ),1)
-                SKAL2 = DDOT_(LAB1,Work(LINT2),1,Work(LAJBI),1)
+                SKAL1 = DDOT_(LAB1,INT1,1,AIBJ,1)
+                SKAL2 = DDOT_(LAB1,INT2,1,AJBI,1)
                 E2BJAI = E2BJAI-SKAL1-Three*SKAL2
-                CKAL1 = DDOT_(LAB1,Work(LINT1),1,Work(LINT1),1)
-                CKAL2 = DDOT_(LAB1,Work(LINT2),1,Work(LINT2),1)
+                CKAL1 = DDOT_(LAB1,INT1,1,INT1,1)
+                CKAL2 = DDOT_(LAB1,INT2,1,INT2,1)
                 VECL2 = VECL2+CKAL1+Three*CKAL2
               end do
             end do
-            call GetMem('INT1','FREE','REAL',LINT1,LAB)
-            call GetMem('INT2','FREE','REAL',LINT2,LAB)
-            call GetMem('AIBJ','FREE','REAL',LAIBJ,LAB1)
-            call GetMem('AJBI','FREE','REAL',LAJBI,LAB1)
+            call mma_deallocate(INT1)
+            call mma_deallocate(INT2)
+            call mma_deallocate(AIBJ)
+            call mma_deallocate(AJBI)
           end if
 
           ! --- iSymI == iSymJ ---
@@ -158,39 +155,39 @@ do iSymI=1,nSym
             LAB = nOrbA**2
             if (DoCholesky) LAB = nExtA**2
             LAA = (LA*(LA+1))/2
-            call GetMem('INT','ALLO','REAL',LINT,2*LAB)
-            call GetMem('AIBJ','ALLO','REAL',LAIBJ,2*LAA)
-            call GetMem('AJBI','ALLO','REAL',LAJBI,2*LAA)
-            IADAB = LINT+nOcc(iSymA)*(nOrbA+1)
-            if (DoCholesky) IADAB = LINT
+            call mma_allocate(INT1,2*LAB,label='INT1')
+            call mma_allocate(AIBJ,2*LAA,label='AIBJ')
+            call mma_allocate(AJBI,2*LAA,label='AJBI')
+            IADAB = nOcc(iSymA)*(nOrbA+1)
+            if (DoCholesky) IADAB = 0
             do iI=1,nOccI
               do iJ=1,iI
                 if (Debug) then
                   write(u6,*)
                   write(u6,*) ' *  i,j = ',iI,iJ
                 end if
-                call dDAFile(LUINTM,2,Work(LINT),LAB,IAD1)
+                call dDAFile(LUINTM,2,INT1,LAB,IAD1)
                 if (Debug) then
                   if (DoCholesky) then
-                    call RecPrt('Int:','(8F10.6)',Work(lInt),nExtA,nExtA)
+                    call RecPrt('Int:','(8F10.6)',Int1,nExtA,nExtA)
                   else
-                    call RecPrt('Int:','(8F10.6)',Work(lInt),nOrbA,nOrbA)
+                    call RecPrt('Int:','(8F10.6)',Int1,nOrbA,nOrbA)
                   end if
                 end if
                 EDIFIJ = EPSI(NRI+iI)+EPSI(NRJ+iJ)
-                I = 0
+                I = 1
                 IADA = IADAB
-                do iA=0,nExtA-1
+                do iA=1,nExtA
                   IADB = IADAB
                   if (Debug) then
-                    write(u6,*) ' iA=',iA+1,'  IADA:'
-                    write(u6,'(8F10.6)') (WORK(IADA+j),j=0,iA)
+                    write(u6,*) ' iA=',iA,'  IADA:'
+                    write(u6,'(8F10.6)') (INT1(IADA+j),j=1,iA)
                   end if
-                  do iB=0,iA
-                    A = Work(IADA+iB)
-                    B = Work(IADB+iA)
-                    Work(LAIBJ+I) = A+B
-                    Work(LAJBI+I) = A-B
+                  do iB=1,iA
+                    A = INT1(IADA+iB)
+                    B = INT1(IADB+iA)
+                    AIBJ(I) = A+B
+                    AJBI(I) = A-B
                     I = I+1
                     if (DoCholesky) then
                       IADB = IADB+nExtA
@@ -204,38 +201,38 @@ do iSymI=1,nSym
                     IADA = IADA+nOrbA
                   end if
                 end do
-                I = 0
+                I = 1
                 do iA=0,LA-1
                   do iB=0,iA
                     EDIF = EPSE(NRA+iA+1)+EPSE(NRA+iB+1)-EDIFIJ
                     if (iA == iB) EDIF = Two*EDIF
-                    Work(LINT+I) = Work(LAIBJ+I)/EDIF
-                    Work(LINT+LAA+I) = Work(LAJBI+I)/EDIF
+                    INT1(I) = AIBJ(I)/EDIF
+                    INT1(LAA+I) = AJBI(I)/EDIF
                     if ((iA == iB) .and. (iI /= iJ)) then
-                      VECL2 = VECL2+Two*Work(LINT+I)**2
+                      VECL2 = VECL2+Two*INT1(I)**2
                     else if ((iA /= iB) .and. (iI == iJ)) then
-                      VECL2 = VECL2+Half*Work(LINT+I)**2
+                      VECL2 = VECL2+Half*INT1(I)**2
                     else
-                      VECL2 = VECL2+Work(LINT+I)**2
+                      VECL2 = VECL2+INT1(I)**2
                     end if
                     I = I+1
                   end do
                 end do
-                SKAL1 = DDOT_(LAA,Work(LINT),1,Work(LAIBJ),1)
+                SKAL1 = DDOT_(LAA,INT1,1,AIBJ,1)
                 if (iI /= iJ) then
-                  SKAL2 = Three*DDOT_(LAA,Work(LINT+LAA),1,Work(LAJBI),1)
+                  SKAL2 = Three*DDOT_(LAA,INT1(LAA+1),1,AJBI,1)
                 end if
                 if (iI == iJ) E2BJAI = E2BJAI-Half*SKAL1
                 if (iI /= iJ) E2BJAI = E2BJAI-SKAL1-SKAL2
                 if (iI /= iJ) then
-                  CKAL2 = DDOT_(LAA,Work(LINT+LAA),1,Work(LINT+LAA),1)
+                  CKAL2 = DDOT_(LAA,INT1(LAA+1),1,INT1(LAA+1),1)
                   VECL2 = VECL2+Three*CKAL2
                 end if
               end do
             end do
-            call GetMem('INT','FREE','REAL',LINT,LAB+LA)
-            call GetMem('AIBJ','FREE','REAL',LAIBJ,LAA)
-            call GetMem('AJBI','FREE','REAL',LAJBI,LAA)
+            call mma_deallocate(INT1)
+            call mma_deallocate(AIBJ)
+            call mma_deallocate(AJBI)
           end if
         end if
 41      continue

@@ -13,7 +13,8 @@
 
 subroutine Get_Tr_Dab(nSym,nBas,nFro,nIsh,nSsh,nDel,CMO,EOcc,EVir,TrD)
 
-use Constants, only: One
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -21,11 +22,12 @@ integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nSsh(
 real(kind=wp), intent(in) :: CMO(*)
 real(kind=wp), intent(inout) :: Eocc(*), EVir(*)
 real(kind=wp), intent(out) :: TrD(nSym)
-integer(kind=iwp) :: iCMO, iOff, ip_X, ip_Y, irc, iSkip, iSym, iV, kfr, kto, lnDel(8), lnFro(8), lnOcc(8), lnOrb(8), lnVir(8), &
-                     nBB, nOA, nVV
+integer(kind=iwp) :: iOff, ip_X, ip_Y, irc, iSkip, iSym, iV, kfr, kto, lnDel(8), lnFro(8), lnOcc(8), lnOrb(8), lnVir(8), nBB, nOA, &
+                     nVV
 real(kind=wp) :: Dummy
+real(kind=wp), allocatable :: CMON(:), X(:)
+integer(kind=iwp), external :: ip_of_Work
 real(kind=wp), external :: ddot_
-#include "WrkSpc.fh"
 
 nVV = 0
 nBB = 0
@@ -41,27 +43,28 @@ do iSym=1,nSym  ! setup info
   nOA = nOA+lnOcc(iSym)
 end do
 
-call GetMem('Dmat','Allo','Real',ip_X,nVV+nOA)
+call mma_allocate(X,nVV+nOA,label='Dmat')
+X(:) = Zero
+ip_X = ip_of_Work(X(1))
 ip_Y = ip_X+nVV
-call FZero(Work(ip_X),nVV+nOA)
 
 call LovMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y,.true.)
-call GetMem('CMON','Allo','Real',iCMO,nBB)
-call FZero(Work(iCMO),nBB)
-iOff = 0
+call mma_allocate(CMON,nBB,label='CMON')
+CMON(:) = Zero
+iOff = 1
 do iSym=1,nSym
-  kfr = 1+iOff+nBas(iSym)*nFro(iSym)
-  kto = iCMO+iOff+nBas(iSym)*lnFro(iSym)
-  call dcopy_(nBas(iSym)*lnOcc(iSym),CMO(kfr),1,Work(kto),1)
-  kfr = 1+iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
+  kfr = iOff+nBas(iSym)*nFro(iSym)
+  kto = iOff+nBas(iSym)*lnFro(iSym)
+  call dcopy_(nBas(iSym)*lnOcc(iSym),CMO(kfr),1,CMON(kto),1)
+  kfr = iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
   kto = kto+nBas(iSym)*lnOcc(iSym)
-  call dcopy_(nBas(iSym)*lnVir(iSym),CMO(kfr),1,Work(kto),1)
+  call dcopy_(nBas(iSym)*lnVir(iSym),CMO(kfr),1,CMON(kto),1)
   iOff = iOff+nBas(iSym)**2
 end do
 
 call Check_Amp2(nSym,lnOcc,lnVir,iSkip)
 if (iSkip > 0) then
-  call ChoMP2_Drv(irc,Dummy,Work(iCMO),EOcc,EVir)
+  call ChoMP2_Drv(irc,Dummy,CMON,EOcc,EVir)
   if (irc /= 0) then
     write(u6,*) 'MP2 pseudodensity calculation failed !'
     call Abend()
@@ -73,14 +76,14 @@ else
   write(u6,*) 'Check your input and rerun the calculation! Bye!!'
   call Abend()
 end if
-call GetMem('CMON','Free','Real',iCMO,nBB)
+call mma_deallocate(CMON)
 
-iV = ip_X
+iV = 1
 do iSym=1,nSym
-  TrD(iSym) = ddot_(lnVir(iSym),Work(iV),1+lnVir(iSym),[One],0)
+  TrD(iSym) = ddot_(lnVir(iSym),X(iV),1+lnVir(iSym),[One],0)
   iV = iV+lnVir(iSym)**2
 end do
-call GetMem('Dmat','Free','Real',ip_X,nVV+nOA)
+call mma_deallocate(X)
 
 return
 
