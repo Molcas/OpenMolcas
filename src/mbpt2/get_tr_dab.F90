@@ -22,11 +22,9 @@ integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nSsh(
 real(kind=wp), intent(in) :: CMO(*)
 real(kind=wp), intent(inout) :: Eocc(*), EVir(*)
 real(kind=wp), intent(out) :: TrD(nSym)
-integer(kind=iwp) :: iOff, ip_X, ip_Y, irc, iSkip, iSym, iV, kfr, kto, lnDel(8), lnFro(8), lnOcc(8), lnOrb(8), lnVir(8), nBB, nOA, &
-                     nVV
+integer(kind=iwp) :: iOff, irc, iSkip, iSym, iV, kfr, kto, lnDel(8), lnFro(8), lnOcc(8), lnOrb(8), lnVir(8), nBB, nOA, nVV
 real(kind=wp) :: Dummy
 real(kind=wp), allocatable :: CMON(:), X(:)
-integer(kind=iwp), external :: ip_of_Work
 real(kind=wp), external :: ddot_
 
 nVV = 0
@@ -45,10 +43,8 @@ end do
 
 call mma_allocate(X,nVV+nOA,label='Dmat')
 X(:) = Zero
-ip_X = ip_of_Work(X(1))
-ip_Y = ip_X+nVV
 
-call LovMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y,.true.)
+call LovMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,X(1:nVV),X(nVV+1:),.true.)
 call mma_allocate(CMON,nBB,label='CMON')
 CMON(:) = Zero
 iOff = 1

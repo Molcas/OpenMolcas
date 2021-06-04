@@ -28,7 +28,6 @@ integer(kind=iwp) :: iA, iAdr, iI, iSym, iSymIA, iSymJB, Iter, iVecOff(8), l_Tri
 real(kind=wp) :: Eps, res, TotLagr
 logical(kind=iwp) :: Done
 real(kind=wp), allocatable :: AP(:), AOTriDens(:), Mult(:), MultN(:), P(:), PN(:), R(:), RN(:), WAOTriDens(:), Z(:), ZN(:)
-integer(kind=iwp), external :: ip_of_Work
 #include "WrkSpc.fh"
 #include "corbinf.fh"
 ! Statement functions
@@ -169,7 +168,7 @@ else
     do iSymIA=1,nSym
       do iSymJB=1,iSymIA
         if ((nOrb(iSymIA)+nDel(iSymIA))*(nOrb(iSymJB)+nDel(iSymJB)) /= 0) then
-          call MP2Ap(iSymIA,iSymJB,ip_of_Work(AP),ip_of_Work(P(1)))
+          call MP2Ap(iSymIA,iSymJB,AP,P)
         end if
       end do
     end do
@@ -260,8 +259,8 @@ end do
 
 ! use the old interface for now ... (RL)
 
-call Build_Mp2Dens_Old(ip_of_Work(AOTriDens),ip_Density,Work(ipCMO),nSym,nOrbAll,nOccAll,.true.)
-call Build_Mp2Dens_Old(ip_of_Work(WAOTriDens),ip_WDensity,Work(ipCMO),nSym,nOrbAll,nOccAll,.false.)
+call Build_Mp2Dens_Old(AOTriDens,ip_Density,Work(ipCMO),nSym,nOrbAll,nOccAll,.true.)
+call Build_Mp2Dens_Old(WAOTriDens,ip_WDensity,Work(ipCMO),nSym,nOrbAll,nOccAll,.false.)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Normal Dens'

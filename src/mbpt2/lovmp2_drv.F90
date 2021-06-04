@@ -34,15 +34,14 @@ integer(kind=iwp), intent(in) :: n_Acta
 character(len=LenIn), intent(in) :: NamAct(n_Acta)
 real(kind=wp), intent(in) :: Thrs
 logical(kind=iwp), intent(in) :: Do_MP2, allVir
-integer(kind=iwp) :: i, ia, iDo, ie, ifr, ii, ik, iloc, iOff, ip_X, ip_Y, iSkip, iSym, isymlbl, ito, iV, ja, jDo, jk, jloc, jOff, &
-                     k, ka, kfr, kk, kOff, kto, lnDel(8), lnDel2(8), lnFro(8), lnFro2(8), lnOrb(8), lnOcc(8), lnOcc2(8), lnVir(8), &
-                     lnVir2(8), lOff, lsq, ltri, nAuxO(8), nBmx, nOA, ns_O(8), ns_V(8), nSQ, ntri, nVV, nxBasT, nxOrb, nZero(8)
+integer(kind=iwp) :: i, ia, iDo, ie, ifr, ii, ik, iloc, iOff, iSkip, iSym, isymlbl, ito, iV, ja, jDo, jk, jloc, jOff, k, ka, kfr, &
+                     kk, kOff, kto, lnDel(8), lnDel2(8), lnFro(8), lnFro2(8), lnOrb(8), lnOcc(8), lnOcc2(8), lnVir(8), lnVir2(8), &
+                     lOff, lsq, ltri, nAuxO(8), nBmx, nOA, ns_O(8), ns_V(8), nSQ, ntri, nVV, nxBasT, nxOrb, nZero(8)
 real(kind=wp) :: Dummy, EFRO, EOSF, StrA, STrF, STrX, Thrd, TrA(8), TrF(8), TrX(8)
 logical(kind=iwp) :: ortho
 character(len=LenIn8) :: UBName(mxBas)
 integer(kind=iwp), allocatable :: iD_vir(:)
 real(kind=wp), allocatable :: EOrb(:,:), LCMO(:,:), S(:), Saa(:), SQ(:), X(:)
-integer(kind=iwp), external :: ip_of_Work
 real(kind=wp), external :: ddot_
 #include "corbinf.fh"
 #include "chomp2_cfg.fh"
@@ -284,11 +283,9 @@ if (min(iDo,jDo) /= 0) then
     if (iSkip > 0) then
       call mma_allocate(X,nVV+nOA,label='Dmat')
       X(:) = Zero
-      ip_X = ip_of_Work(X(1))
-      ip_Y = ip_X+nVV
-      call LovMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y,.true.)
+      call LovMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,X(1:nVV),X(nVV+1:),.true.)
       call ChoMP2_Drv(irc,Dummy,LCMO(:,1),EOrb(:,1),EOrb(:,2))
-      call LovMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y,.false.) ! compute energy and not Dab
+      call LovMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,X(1:nVV),X(nVV+1:),.false.) ! compute energy and not Dab
       call ChoMP2_Drv(irc,EFRO,LCMO(:,1),EOrb(:,1),EOrb(:,2))
       if (irc /= 0) then
         write(u6,*) 'Frozen region MP2 failed'
@@ -387,11 +384,9 @@ if (iSkip > 0) then
 
   call mma_allocate(X,nVV+nOA,label='Dmat')
   X(:) = Zero
-  ip_X = ip_of_Work(X(1))
-  ip_Y = ip_X+nVV
-  call LovMP2_putInf(nSym,lnOrb,nOcc,nFro,nDel,nExt,ip_X,ip_Y,.true.)
+  call LovMP2_putInf(nSym,lnOrb,nOcc,nFro,nDel,nExt,X(1:nVV),X(nVV+1:),.true.)
   call ChoMP2_Drv(irc,Dummy,CMO,EOcc,EVir)
-  call LovMP2_putInf(nSym,lnOrb,nOcc,nFro,nDel,nExt,ip_X,ip_Y,.false.)
+  call LovMP2_putInf(nSym,lnOrb,nOcc,nFro,nDel,nExt,X(1:nVV),X(nVV+1:),.false.)
   Wref = Zero
   call ChoMP2_Drv(irc,EMP2,CMO,EOcc,EVir)
   if (irc /= 0) then

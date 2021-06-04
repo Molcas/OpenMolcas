@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Build_Mp2Dens_Old(ip_TriDens,ip_Density,CMO,mSym,nOrbAll,nOccAll,Diagonalize)
+subroutine Build_Mp2Dens_Old(TriDens,ip_Density,CMO,mSym,nOrbAll,nOccAll,Diagonalize)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -19,7 +19,8 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: ip_TriDens, ip_Density(8), mSym, nOrbAll(8), nOccAll(8)
+real(kind=wp), intent(out) :: TriDens(*)
+integer(kind=iwp), intent(in) :: ip_Density(8), mSym, nOrbAll(8), nOccAll(8)
 real(kind=wp), intent(in) :: CMO(*)
 logical(kind=iwp), intent(in) :: Diagonalize
 integer(kind=iwp) :: idx, ipSymLin(8), ipSymRec(8), ipSymTri(8), iSym, iUHF, lRecTot, LuMP2, nOrbAllMax, nOrbAllTot
@@ -64,7 +65,7 @@ AOTriBlock(:) = Zero
 
 ! Setup a pointer to a symmetryblock in rect or tri representation.
 ipSymRec(1) = 0
-ipSymTri(1) = 0
+ipSymTri(1) = 1
 ipSymLin(1) = 0
 do iSym=2,8
   ipSymTri(iSym) = ipSymTri(iSym-1)+(nOrbAll(iSym-1))*(nOrbAll(iSym-1)+1)/2
@@ -94,7 +95,7 @@ do iSym=1,mSym
     !call RecPrt('AODens:','(20F8.5)',AORecBlock,nOrb(iSym),nOrb(iSym))
     !call RecPrt('MODens:','(20F8.5)',Work(ip_MORecBlock),nOrb(iSym), nOrb(iSym))
     call Fold_Mat(1,nOrbAll(iSym),AORecBlock,AOTriBlock)
-    call dcopy_(nOrbAll(iSym)*(nOrbAll(iSym)+1)/2,AOTriBlock,1,Work(ip_TriDens+ipSymTri(iSym)),1)
+    call dcopy_(nOrbAll(iSym)*(nOrbAll(iSym)+1)/2,AOTriBlock,1,TriDens(ipSymTri(iSym)),1)
 
     if (Diagonalize) then
       ! Make a normal folded matrix

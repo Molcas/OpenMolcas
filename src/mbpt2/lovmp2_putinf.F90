@@ -11,16 +11,18 @@
 ! Copyright (C) 2008, Francesco Aquilante                              *
 !***********************************************************************
 
-subroutine LovMP2_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y,isFNO)
+subroutine LovMP2_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,X,Y,isFNO)
 ! Purpose: put info in MP2 common blocks.
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: mSym, lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8), ip_X, ip_Y
+integer(kind=iwp), intent(in) :: mSym, lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
+real(kind=wp), intent(in) :: X(*), Y(*)
 logical(kind=iwp), intent(in) :: isFNO
 integer(kind=iwp) :: iSym
+integer(kind=iwp), external :: ip_of_Work
 #include "corbinf.fh"
 #include "chomp2_cfg.fh"
 
@@ -49,8 +51,8 @@ C_os = 1.3_wp
 EOSMP2 = Zero
 
 DoFNO = isFNO
-ip_Dab = ip_X
-ip_Dii = ip_Y
+ip_Dab = ip_of_Work(X(1))
+ip_Dii = ip_of_Work(Y(1))
 l_Dab = nExt(1)
 l_Dii = nOcc(1)
 do iSym=2,nSym

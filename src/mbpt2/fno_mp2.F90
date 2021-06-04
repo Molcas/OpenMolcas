@@ -28,13 +28,12 @@ real(kind=wp), intent(inout) :: CMOI(*), EVir(*)
 real(kind=wp), intent(in) :: EOcc(*), vfrac
 logical(kind=iwp), intent(in) :: DoMP2
 real(kind=wp), intent(out) :: EMP2
-integer(kind=iwp) :: i, ifr, ii, ioff, ip_X, ip_Y, iSkip, iSym, ito, j, jD, jOcc, jOff, jp, jVir, k, kfr, kij, kOff, kto, lij, &
-                     lnDel(8), lnFro(8), lnOcc(8), lnOrb(8), lnVir(8), lOff, nAuxO(8), nBasT, nBmx, nBx, NCMO, nOA, nOrb, ns_V(8), &
-                     nSQ, nSsh_t, nSx, ntri, nVV
+integer(kind=iwp) :: i, ifr, ii, ioff, iSkip, iSym, ito, j, jD, jOcc, jOff, jp, jVir, k, kfr, kij, kOff, kto, lij, lnDel(8), &
+                     lnFro(8), lnOcc(8), lnOrb(8), lnVir(8), lOff, nAuxO(8), nBasT, nBmx, nBx, NCMO, nOA, nOrb, ns_V(8), nSQ, &
+                     nSsh_t, nSx, ntri, nVV
 real(kind=wp) :: Dummy, STrDF, STrDP, tmp, TrDF(8), TrDP(8)
 integer(kind=iwp), allocatable :: iD(:)
 real(kind=wp), allocatable :: CMO(:,:), OrbE(:,:), X(:)
-integer(kind=iwp), external :: ip_of_Work
 real(kind=wp), external :: ddot_
 #include "Molcas.fh"
 #include "chfnopt.fh"
@@ -111,10 +110,8 @@ do iSym=1,nSym
 end do
 call mma_allocate(X,nVV+nOA,label='Dmat')
 X(:) = Zero
-ip_X = ip_of_Work(X(1))
-ip_Y = ip_X+nVV
 
-call FnoMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y)
+call FnoMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,X(1:nVV),X(nVV+1:))
 CMO(:,2) = Zero
 iOff = 1
 do iSym=1,nSym
@@ -206,7 +203,7 @@ call Check_Amp2(nSym,lnOcc,nSsh,iSkip)
 MP2_small = iSkip > 0
 if (MP2_small) then
 
-  call FnoMP2_putInf(nSym,lnOrb,lnOcc,lnFro,nDel,nSsh,ip_X,ip_Y)
+  call FnoMP2_putInf(nSym,lnOrb,lnOcc,lnFro,nDel,nSsh,X(1:nVV),X(nVV+1:))
 
   call mma_allocate(iD,nOrb,label='iD_orb')
   do k=1,nOrb

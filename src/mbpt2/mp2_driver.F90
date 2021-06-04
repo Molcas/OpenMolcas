@@ -134,7 +134,7 @@ call PrInp_MBPT2(EOc,EEx,iTst)
 ! Needed for amplitude Cholesky decomposition.
 
 if (DoCholesky) then
-  call ChoMP2_SetPtsOen(ip_of_Work(EOc(1)),ip_of_Work(EEx(1)))
+  call ChoMP2_SetPtsOen(EOc,EEx)
 end if
 !                                                                      *
 !***********************************************************************
