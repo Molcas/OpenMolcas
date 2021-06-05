@@ -9,17 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine rhs_mp2_help2(iSymA,iSymB,iSymI,iSymJ)
+subroutine rhs_mp2_help2(iSymA,iSymB,iSymI,iSymJ,Int1,Int2,Scr1)
 
-use MBPT2_Global, only: ip_Density, ip_Mp2Lagr, ipInt1, ipInt2, ipScr1
+use MBPT2_Global, only: Density, ip_Density, ip_Mp2Lagr, Mp2Lagr
 use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iSymA, iSymB, iSymI, iSymJ
+real(kind=wp), intent(out) :: Int1(*), Int2(*), Scr1(*)
 integer(kind=iwp) :: iA, iAK, iB, iC, iCI, iI, iIC, iJ, iK, iKA, nB, nJ
 real(kind=wp) :: Fac, xacbi, xaibc, xiajk, xikja
-#include "WrkSpc.fh"
 #include "corbinf.fh"
 ! statement functions
 integer(kind=iwp) :: i, j, k, iVirVir, iOccOcc, iMp2Lagr
@@ -43,14 +43,14 @@ do iA=1,nExt(iSymA)+nDel(iSymA)
   if (iSymA == iSymB) nB = iA
   do iB=1,nB
 
-    call Exch(iSymI,iSymA,iSymJ,iSymB,iA+nOcc(iSymA)+nFro(iSymA),iB+nOcc(iSymB)+nFro(iSymB),Work(ipInt1),Work(ipScr1))
+    call Exch(iSymI,iSymA,iSymJ,iSymB,iA+nOcc(iSymA)+nFro(iSymA),iB+nOcc(iSymB)+nFro(iSymB),Int1,Scr1)
     if (iSymA /= iSymB) then
-      call Exch(iSymJ,iSymA,iSymI,iSymB,iA+nOcc(iSymA)+nFro(iSymA),iB+nOcc(iSymB)+nFro(iSymB),Work(ipInt2),Work(ipScr1))
+      call Exch(iSymJ,iSymA,iSymI,iSymB,iA+nOcc(iSymA)+nFro(iSymA),iB+nOcc(iSymB)+nFro(iSymB),Int2,Scr1)
     end if
     !write(u6,*) 'iOrbA',iA,'iOrbB',iB
-    !call RecPrt('Int1:','(8F10.6)',Work(ipInt1),nOrb(iSymA)+nDel(iSymA),nOrb(iSymB)+nDel(iSymA))
+    !call RecPrt('Int1:','(8F10.6)',Int1,nOrb(iSymA)+nDel(iSymA),nOrb(iSymB)+nDel(iSymA))
     !if (iSymA /= iSymB) then
-    !  call RecPrt('Int2:','(8F10.6)',Work(ipInt2),nOrb(iSymB)+nDel(iSymB),nOrb(iSymA)+nDel(iSymA))
+    !  call RecPrt('Int2:','(8F10.6)',Int2,nOrb(iSymB)+nDel(iSymB),nOrb(iSymA)+nDel(iSymA))
     !end if
     !                                                                  *
     !*******************************************************************
@@ -69,28 +69,28 @@ do iA=1,nExt(iSymA)+nDel(iSymA)
       iCI = nFro(iSymB)+nOcc(iSymB)
       do iC=1,nExt(iSymB)+nDel(iSymB)
         do iI=1,nOcc(iSymA)+nFro(iSymA)
-          xaibc = Work(ipInt1+iIC+iI-1+(iC-1)*(nOrb(iSymA)+nDel(iSymA)))
+          xaibc = Int1(iIC+iI+(iC-1)*(nOrb(iSymA)+nDel(iSymA)))
           if (iSymA == iSymB) then
-            xacbi = Work(ipInt1+iCI+iC-1+(iI-1)*(nOrb(iSymB)+nDel(iSymB)))
+            xacbi = Int1(iCI+iC+(iI-1)*(nOrb(iSymB)+nDel(iSymB)))
           else
-            xacbi = Work(ipInt2+iCI+iC-1+(iI-1)*(nOrb(iSymB)+nDel(iSymB)))
+            xacbi = Int2(iCI+iC+(iI-1)*(nOrb(iSymB)+nDel(iSymB)))
           end if
-          Work(iMp2Lagr(iA,iI,iSymA)) = Work(iMp2Lagr(iA,iI,iSymA))- &
-                                        Fac*Work(ip_Density(iSymB)+iVirVir(iB,iC,iSymB))*(Two*xaibc-xacbi)
+          Mp2Lagr(iMp2Lagr(iA,iI,iSymA)) = Mp2Lagr(iMp2Lagr(iA,iI,iSymA))- &
+                                           Fac*Density(ip_Density(iSymB)+iVirVir(iB,iC,iSymB))*(Two*xaibc-xacbi)
           if (iSymA == iSymB) then
-            Work(iMp2Lagr(iB,iI,iSymA)) = Work(iMp2Lagr(iB,iI,iSymA))- &
-                                          Fac*Work(ip_Density(iSymB)+iVirVir(iA,iC,iSymB))*(Two*xacbi-xaibc)
+            Mp2Lagr(iMp2Lagr(iB,iI,iSymA)) = Mp2Lagr(iMp2Lagr(iB,iI,iSymA))- &
+                                             Fac*Density(ip_Density(iSymB)+iVirVir(iA,iC,iSymB))*(Two*xacbi-xaibc)
           end if
           !write(u6,*) 'AIBC',iA,iI,iB,iC
           !write(u6,*) 'AIBC2',iB,iI,iA,iC
           !write(u6,*) 'icab',xaibc
           !write(u6,*) 'ibac',xacbi
-          !write(u6,*) 'Dens',Work(ip_Density(iSymB)+iVirVir(iB,iC,iSymB))
-          !write(u6,*) 'Dens2',Work(ip_Density(iSymB)+iVirVir(iA,iC,iSymB))
+          !write(u6,*) 'Dens',Density(ip_Density(iSymB)+iVirVir(iB,iC,iSymB))
+          !write(u6,*) 'Dens2',Density(ip_Density(iSymB)+iVirVir(iA,iC,iSymB))
           !write(u6,*) 'A',(Two*xaibc-xacbi)
           !write(u6,*) 'A2',(Two*xacbi-xaibc)
-          !write(u6,*) 'Bidrag',Work(ip_Density(iSymB)+iVirVir(iB,iC,iSymB))*(Two*xaibc-xacbi)
-          !write(u6,*) 'Bidrag2',Work(ip_Density(iSymB)+iVirVir(iA,iC,iSymB))*(Two*xacbi-xaibc)
+          !write(u6,*) 'Bidrag',Density(ip_Density(iSymB)+iVirVir(iB,iC,iSymB))*(Two*xaibc-xacbi)
+          !write(u6,*) 'Bidrag2',Density(ip_Density(iSymB)+iVirVir(iA,iC,iSymB))*(Two*xacbi-xaibc)
 
         end do
       end do
@@ -103,10 +103,10 @@ do iA=1,nExt(iSymA)+nDel(iSymA)
         iCI = nFro(iSymA)+nOcc(iSymA)
         do iC=1,nExt(iSymA)+nDel(iSymA)
           do iI=1,nFro(iSymB)+nOcc(iSymB)
-            xaibc = Work(ipInt1+iCI+iC-1+(iI-1)*(nOrb(iSymA)+nDel(iSymA)))
-            xacbi = Work(ipInt2+iIC+iI-1+(iC-1)*(nOrb(iSymB)+nDel(iSymB)))
-            Work(iMp2Lagr(iB,iI,iSymB)) = Work(iMp2Lagr(iB,iI,iSymB))- &
-                                          Fac*Work(ip_Density(iSymA)+iVirVir(iA,iC,iSymA))*(Two*xaibc-xacbi)
+            xaibc = Int1(iCI+iC+(iI-1)*(nOrb(iSymA)+nDel(iSymA)))
+            xacbi = Int2(iIC+iI+(iC-1)*(nOrb(iSymB)+nDel(iSymB)))
+            Mp2Lagr(iMp2Lagr(iB,iI,iSymB)) = Mp2Lagr(iMp2Lagr(iB,iI,iSymB))- &
+                                             Fac*Density(ip_Density(iSymA)+iVirVir(iA,iC,iSymA))*(Two*xaibc-xacbi)
           end do
         end do
       end if
@@ -127,15 +127,15 @@ do iI=1,nFro(iSymI)+nOcc(iSymI)
     ! If we are only looping over a triangular matrix
     ! we need to count each offdiagonal element twice.
     ! Copy one AB-block of integrals to the workspace
-    call Exch(iSymA,iSymI,iSymB,iSymJ,iI,iJ,Work(ipInt1),Work(ipScr1))
+    call Exch(iSymA,iSymI,iSymB,iSymJ,iI,iJ,Int1,Scr1)
     if (iSymI /= iSymJ) then
-      call Exch(iSymB,iSymI,iSymA,iSymJ,iI,iJ,Work(ipInt2),Work(ipScr1))
+      call Exch(iSymB,iSymI,iSymA,iSymJ,iI,iJ,Int2,Scr1)
     end if
     !write(u6,*)
     !write(u6,*) ' *  i,j = ',iI,iJ
-    !call RecPrt('Int1:','(8F10.6)',Work(ipInt1),nOrb(iSymA),nOrb(iSymB))
+    !call RecPrt('Int1:','(8F10.6)',Int1,nOrb(iSymA),nOrb(iSymB))
     !if (iSymI /= iSymJ) then
-    !  call RecPrt('Int2:','(8F10.6)',Work(ipInt2),nOrb(iSymB),nOrb(iSymA))
+    !  call RecPrt('Int2:','(8F10.6)',Int2,nOrb(iSymB),nOrb(iSymA))
     !end if
     !                                                                  *
     !*******************************************************************
@@ -155,17 +155,17 @@ do iI=1,nFro(iSymI)+nOcc(iSymI)
       iAK = nFro(iSymJ)+nOcc(iSymJ)
       do iK=1,nFro(iSymI)+nOcc(iSymI)
         do iA=1,nExt(iSymJ)+nDel(iSymJ)
-          xikja = Work(ipInt1+iKA+iK-1+(iA-1)*(nOrb(iSymI)+nDel(iSymI)))
+          xikja = Int1(iKA+iK+(iA-1)*(nOrb(iSymI)+nDel(iSymI)))
           if (iSymI == iSymJ) then
-            xiajk = Work(ipInt1+iAK+iA-1+(iK-1)*(nOrb(iSymJ)+nDel(iSymJ)))
+            xiajk = Int1(iAK+iA+(iK-1)*(nOrb(iSymJ)+nDel(iSymJ)))
           else
-            xiajk = Work(ipInt2+iAK+iA-1+(iK-1)*(nOrb(iSymJ)+nDel(iSymJ)))
+            xiajk = Int2(iAK+iA+(iK-1)*(nOrb(iSymJ)+nDel(iSymJ)))
           end if
-          Work(iMp2Lagr(iA,iJ,iSymJ)) = Work(iMp2Lagr(iA,iJ,iSymJ))- &
-                                        Fac*Work(ip_Density(iSymI)+iOccOcc(iI,iK,iSymI))*(Two*xikja-xiajk)
+          Mp2Lagr(iMp2Lagr(iA,iJ,iSymJ)) = Mp2Lagr(iMp2Lagr(iA,iJ,iSymJ))- &
+                                           Fac*Density(ip_Density(iSymI)+iOccOcc(iI,iK,iSymI))*(Two*xikja-xiajk)
           if (iSymI == iSymJ) then
-            Work(iMp2Lagr(iA,iI,iSymJ)) = Work(iMp2Lagr(iA,iI,iSymJ))- &
-                                          Fac*Work(ip_Density(iSymI)+iOccOcc(iJ,iK,iSymI))*(Two*xiajk-xikja)
+            Mp2Lagr(iMp2Lagr(iA,iI,iSymJ)) = Mp2Lagr(iMp2Lagr(iA,iI,iSymJ))- &
+                                             Fac*Density(ip_Density(iSymI)+iOccOcc(iJ,iK,iSymI))*(Two*xiajk-xikja)
           end if
           !write(u6,*) 'xikja',xikja
           !write(u6,*) 'xiajk',xiajk
@@ -177,10 +177,10 @@ do iI=1,nFro(iSymI)+nOcc(iSymI)
         iAK = nFro(iSymI)+nOcc(iSymI)
         do iK=1,nFro(iSymJ)+nOcc(iSymJ)
           do iA=1,nExt(iSymI)+nDel(iSymI)
-            xikja = Work(ipInt1+iAK+iA-1+(iK-1)*(nOrb(iSymI)+nDel(iSymI)))
-            xiajk = Work(ipInt2+iKA+iK-1+(iA-1)*(nOrb(iSymJ)+nDel(iSymJ)))
-            Work(iMp2Lagr(iA,iI,iSymI)) = Work(iMp2Lagr(iA,iI,iSymI))- &
-                                          Fac*Work(ip_Density(iSymJ)+iOccOcc(iJ,iK,iSymJ))*(Two*xikja-xiajk)
+            xikja = Int1(iAK+iA+(iK-1)*(nOrb(iSymI)+nDel(iSymI)))
+            xiajk = Int2(iKA+iK+(iA-1)*(nOrb(iSymJ)+nDel(iSymJ)))
+            Mp2Lagr(iMp2Lagr(iA,iI,iSymI)) = Mp2Lagr(iMp2Lagr(iA,iI,iSymI))- &
+                                             Fac*Density(ip_Density(iSymJ)+iOccOcc(iJ,iK,iSymJ))*(Two*xikja-xiajk)
           end do
         end do
       end if

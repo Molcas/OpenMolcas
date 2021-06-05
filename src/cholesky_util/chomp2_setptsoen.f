@@ -8,12 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine ChoMP2_SetPtsOen(ip_EOc_,ip_EVir_)
+      SubRoutine ChoMP2_SetPtsOen(EOc_,EVir_)
       Implicit None
-      Integer ip_EOc_, ip_EVir_
+      Real*8 EOc_(*), EVir_(*)
+      Integer ip_of_Work
+      External ip_of_Work
 #include "chomp2_dec.fh"
 
-      ip_EOc  = ip_EOc_
-      ip_EVir = ip_EVir_
+      ip_EOc  = ip_of_Work(EOc_)
+      ip_EVir = ip_of_Work(EVir_)
 
       End

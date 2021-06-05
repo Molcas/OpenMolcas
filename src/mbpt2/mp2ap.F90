@@ -12,7 +12,7 @@
 subroutine MP2Ap(iSymIA,iSymJB,AP,P)
 ! A subroutine that calculates A*p_k in the PCG-algorithm
 
-use MBPT2_Global, only: iPoVec, mAdDel, mAdFro, mAdOcc, mAdVir
+use MBPT2_Global, only: EOcc, EVir, iPoVec, mAdDel, mAdFro, mAdOcc, mAdVir
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Four, Half
 use Definitions, only: wp, iwp
@@ -24,7 +24,6 @@ real(kind=wp), intent(in) :: P(*)
 integer(kind=iwp) :: iA, iB, iI, iJ, index1, index2, iSym1, iSym2, nB, nJ, nMaxOrb
 real(kind=wp) :: E_a, E_i, Ediff, Fac, xiajb, xibja, xijab
 real(kind=wp), allocatable :: Int1(:), Int2(:), IntC(:), Scr1(:)
-#include "WrkSpc.fh"
 #include "corbinf.fh"
 
 nMaxOrb = 0
@@ -96,14 +95,14 @@ do iA=1,nExt(iSymIA)+nDel(iSymIA)
         AP(index2) = AP(index2)+Fac*(Four*xiajb-xibja-xijab)*P(iPoVec(iSymJB)+iJ+(nFro(iSymJB)+nOcc(iSymJB))*(iB-1))
         if ((iA == iB) .and. (iI == iJ) .and. (iSymIA == iSymJB)) then
           if (iA <= nExt(iSymIA)) then
-            E_a = Work(mAdVir(iSymIA)+iA-1)
+            E_a = EVir(mAdVir(iSymIA)+iA-1)
           else
-            E_a = Work(mAdDel(iSymIA)+iA-nExt(iSymIA)-1)
+            E_a = EVir(mAdDel(iSymIA)+iA-nExt(iSymIA)-1)
           end if
           if (iI > nFro(iSymIA)) then
-            E_i = Work(mAdOcc(iSymIA)+iI-nFro(iSymIA)-1)
+            E_i = EOcc(mAdOcc(iSymIA)+iI-nFro(iSymIA)-1)
           else
-            E_i = Work(mAdFro(iSymIA)+iI-1)
+            E_i = EOcc(mAdFro(iSymIA)+iI-1)
           end if
           Ediff = E_a-E_i
           AP(index1) = AP(index1)+EDiff*P(iPoVec(iSymJB)+iJ+(nFro(iSymJB)+nOcc(iSymJB))*(iB-1))

@@ -16,23 +16,19 @@ subroutine MP2Dens_drv(E2BJAI,REFC)
 !                                                                      *
 !***********************************************************************
 
-use MBPT2_Global, only: EMP2, ip_Density, ip_DiaA, ip_Mp2Lagr, ip_First_Density, ip_First_DiaA, ip_First_MP2Lagr, &
-                        ip_First_WDensity, ip_WDensity, ipCMO, iPoVec, l_Density, l_DiaA, l_Mp2Lagr, VECL2
+use MBPT2_Global, only: CMO, Density, DiaA, EMP2, ip_Density, ip_DiaA, ip_Mp2Lagr, ip_WDensity, iPoVec, MP2Lagr, VECL2, WDensity
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(out) :: E2BJAI, REFC
-integer(kind=iwp) :: iA, iAdr, iI, iSym, iSymIA, iSymJB, Iter, iVecOff(8), l_TriDens, lVec, nA, nI, nIter, nOccAll(8), nOrbAll(8)
+integer(kind=iwp) :: i, iA, iAdr, iI, iSym, iSymIA, iSymJB, Iter, iVecOff(8), j, l_TriDens, lVec, nA, nI, nIter, nOccAll(8), &
+                     nOrbAll(8)
 real(kind=wp) :: Eps, res, TotLagr
 logical(kind=iwp) :: Done
 real(kind=wp), allocatable :: AP(:), AOTriDens(:), Mult(:), MultN(:), P(:), PN(:), R(:), RN(:), WAOTriDens(:), Z(:), ZN(:)
-#include "WrkSpc.fh"
 #include "corbinf.fh"
-! Statement functions
-integer(kind=iwp) :: i, j, k, iDensVirOcc
-iDensVirOcc(i,j,k) = ip_Density(k)+j-1+(nOrb(k)+nDel(k))*(i+nFro(k)+nOcc(k)-1)
 
 !                                                                      *
 !***********************************************************************
@@ -55,7 +51,7 @@ call Mp2Diag()
 #ifdef _DEBUGPRINT_
 do iSym=1,nSym
   write(u6,*) 'Symmetry nr',iSym
-  call RecPrt('InvDia','',Work(ip_DiaA(iSym)),nFro(iSym)+nOcc(iSym),nExt(iSym)+nDel(iSym))
+  call RecPrt('InvDia','',DiaA(ip_DiaA(iSym)),nFro(iSym)+nOcc(iSym),nExt(iSym)+nDel(iSym))
 end do
 #endif
 !                                                                      *
@@ -80,7 +76,7 @@ end do
 
 iAdr = 1
 iPoVec(1) = 0
-lVec = l_Mp2Lagr
+lVec = size(Mp2Lagr)
 do iSym=1,nSym
   iPoVec(iAdr+1) = iPoVec(iAdr)+(nFro(iSym)+nOcc(iSym))*(nExt(iSym)+nDel(iSym))
   iAdr = iAdr+1
@@ -120,13 +116,13 @@ do iSym=1,nSym
   nI = nFro(iSym)+nOcc(iSym)
   nA = nExt(iSym)+nDel(iSym)
 # ifdef _DEBUGPRINT_
-  call RecPrt('(ia|ia)',' ',Work(ip_DiaA(iSym)),nI,nA)
-  call RecPrt('MP2Lagr',' ',Work(ip_Mp2Lagr(iSym)),nI,nA)
+  call RecPrt('(ia|ia)',' ',DiaA(ip_DiaA(iSym)),nI,nA)
+  call RecPrt('MP2Lagr',' ',Mp2Lagr(ip_Mp2Lagr(iSym)),nI,nA)
 # endif
   do i=1,nI*nA
-    Z(iVecOff(iSym)+i) = Work(ip_Mp2Lagr(iSym)+i-1)*Work(ip_DiaA(iSym)+i-1)
+    Z(iVecOff(iSym)+i) = Mp2Lagr(ip_Mp2Lagr(iSym)+i-1)*DiaA(ip_DiaA(iSym)+i-1)
     P(iVecOff(iSym)+i) = Z(iVecOff(iSym)+i)
-    R(iVecOff(iSym)+i) = Work(ip_Mp2Lagr(iSym)+i-1)
+    R(iVecOff(iSym)+i) = MP2Lagr(ip_Mp2Lagr(iSym)+i-1)
   end do
 end do
 
@@ -137,10 +133,10 @@ end do
 TotLagr = Zero
 do iSym=1,nSym
   do i=1,(nFro(iSym)+nOcc(iSym))*(nExt(iSym)+nDel(iSym))
-    TotLagr = TotLagr+Work(ip_Mp2Lagr(iSym)+i-1)
+    TotLagr = TotLagr+Mp2Lagr(ip_Mp2Lagr(iSym)+i-1)
   end do
 end do
-call GetMem('MP2Lagr','Free','Real',ip_First_Mp2Lagr,l_Mp2Lagr)
+call mma_deallocate(Mp2Lagr)
 if (abs(TotLagr) < 1.0e-12_wp) then
   Done = .true.
 else
@@ -179,7 +175,7 @@ else
     !end do
 #   endif
     ! Makes a call to a routine that makes one CG-update and checks convergence.
-    call Conj_Grad(Done,lVec,Work(ip_DiaA(1)),Mult,MultN,R,RN,P,PN,Z,ZN,AP,Eps,res)
+    call Conj_Grad(Done,lVec,DiaA,Mult,MultN,R,RN,P,PN,Z,ZN,AP,Eps,res)
     if (Done) exit
   end do
 end if
@@ -198,7 +194,8 @@ end if
 do iSym=1,nSym
   do iI=1,nFro(iSym)+nOcc(iSym)
     do iA=1,nExt(iSym)+nDel(iSym)
-      Work(iDensVirOcc(iA,iI,iSym)) = Mult(iVecOff(iSym)+iI+(nFro(iSym)+nOcc(iSym))*(iA-1))
+      Density(ip_Density(iSym)+iI-1+(iA+nFro(iSym)+nOcc(iSym)-1)*(nOrb(iSym)+nDel(iSym))) = &
+        Mult(iVecOff(iSym)+iI+(nFro(iSym)+nOcc(iSym))*(iA-1))
     end do
   end do
 end do
@@ -209,7 +206,7 @@ end do
 do iSym=1,nSym
   do i=1,nOrb(iSym)+nDel(iSym)
     do j=1,i-1
-      Work(ip_Density(iSym)+i-1+(j-1)*(nOrb(iSym)+nDel(iSym))) = Work(ip_Density(iSym)+j-1+(i-1)*(nOrb(iSym)+nDel(iSym)))
+      Density(ip_Density(iSym)+i-1+(j-1)*(nOrb(iSym)+nDel(iSym))) = Density(ip_Density(iSym)+j-1+(i-1)*(nOrb(iSym)+nDel(iSym)))
     end do
   end do
 end do
@@ -217,8 +214,8 @@ end do
 #ifdef _DEBUGPRINT_
 do iSym=1,nSym
   write(u6,*) 'Density matrix for Symm:',iSym
-  call RecPrt('MP2Density','',Work(ip_Density(iSym)),nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
-  call RecPrt('MP2WDensity','',Work(ip_WDensity(iSym)),nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
+  call RecPrt('MP2Density','',Density(ip_Density(iSym)),nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
+  call RecPrt('MP2WDensity','',WDensity(ip_WDensity(iSym)),nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
 end do
 #endif
 !                                                                      *
@@ -253,14 +250,14 @@ call Finish_WDensity()
 
 do iSym=1,nSym
   do i=1,nOccAll(iSym)
-    Work(ip_density(iSym)+i-1+(nOrbAll(iSym))*(i-1)) = Work(ip_density(iSym)+i-1+(nOrbAll(iSym))*(i-1))+Two
+    Density(ip_density(iSym)+i-1+(nOrbAll(iSym))*(i-1)) = Density(ip_density(iSym)+i-1+(nOrbAll(iSym))*(i-1))+Two
   end do
 end do
 
 ! use the old interface for now ... (RL)
 
-call Build_Mp2Dens_Old(AOTriDens,ip_Density,Work(ipCMO),nSym,nOrbAll,nOccAll,.true.)
-call Build_Mp2Dens_Old(WAOTriDens,ip_WDensity,Work(ipCMO),nSym,nOrbAll,nOccAll,.false.)
+call Build_Mp2Dens_Old(AOTriDens,Density,ip_Density,CMO,nSym,nOrbAll,nOccAll,.true.)
+call Build_Mp2Dens_Old(WAOTriDens,WDensity,ip_WDensity,CMO,nSym,nOrbAll,nOccAll,.false.)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Normal Dens'
@@ -290,16 +287,16 @@ write(u6,*) 'EMP2 is ',EMP2
 write(u6,*) ' '
 do iSym=1,nSym
   write(u6,*) 'Density matrix for Symm:',iSym
-  call RecPrt('MP2Density','',Work(ip_Density(iSym)),nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
+  call RecPrt('MP2Density','',Density(ip_Density(iSym)),nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
 end do
 do iSym=1,nSym
   write(u6,*) 'WDensity matrix for Symm:',iSym
-  call RecPrt('MP2WDensity','',Work(ip_WDensity(iSym)),nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
+  call RecPrt('MP2WDensity','',WDensity(ip_WDensity(iSym)),nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
 end do
 #endif
-call GetMem('MP2Density','Free','Real',ip_First_Density,l_Density)
-call GetMem('MP2WDensity','Free','Real',ip_First_WDensity,l_Density)
-call GetMem('MP2DiaA','Free','Real',ip_First_DiaA,l_DiaA)
+call mma_deallocate(Density)
+call mma_deallocate(WDensity)
+call mma_deallocate(DiaA)
 
 E2BJAI = EMP2
 REFC = VECL2

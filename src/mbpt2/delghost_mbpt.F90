@@ -9,21 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DelGHOST_MBPT(ipCMO,ipCMO_t,lthCMO,ipEOrb,ipEOrb_t,lthEOr)
+subroutine DelGHOST_MBPT()
 
-use MBPT2_Global, only: DelGhost, nBas, nDsto, nnB, Thr_ghs
+use MBPT2_Global, only: CMO, DelGhost, EOrb, nBas, nDsto, nnB, Thr_ghs
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: iwp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: ipCMO, lthCMO, ipEOrb, lthEOr
-integer(kind=iwp), intent(inout) :: ipCMO_t, ipEOrb_t
 #include "Molcas.fh"
 integer(kind=iwp) :: i, irc, iStart, iStart_t, iSym, nUniqAt, nZero(8)
 character(len=LenIn8) :: UBName(mxBas)
+real(kind=wp), allocatable :: CMO_t(:), EOrb_t(:)
 logical(kind=iwp), parameter :: Debug = .false.
 #include "corbinf.fh"
-#include "WrkSpc.fh"
 
 if (.not. DelGHOST) return
 
@@ -41,9 +40,11 @@ do iSym=1,nSym
   nZero(iSym) = 0
 end do
 
-call GetMem('CMO   ','Allo','Real',ipCMO,lthCMO)
+call move_alloc(CMO,CMO_t)
+call move_alloc(EOrb,EOrb_t)
 
-call GetMem('EOrb  ','Allo','Real',ipEOrb,lthEOr)
+call mma_allocate(CMO,size(CMO_t),label='CMO')
+call mma_allocate(EOrb,size(EOrb_t),label='EOrb')
 
 write(u6,'(A)') '-------------------------------------------------------'
 write(u6,'(A)') ' GHOST virtual space removal'
@@ -54,7 +55,7 @@ write(u6,'(A,8I4)') ' Deleted orbitals before selection:  ',(nDel(i),i=1,nSym)
 
 call Get_iScalar('Unique atoms',nUniqAt)
 call Get_cArray('Unique Basis Names',UBName,LenIn8*nnB)
-call Delete_GHOSTS(irc,nSym,nBas,nFro,nOcc,nZero,nExt,nDel,UBName,nUniqAt,thr_ghs,.false.,Work(ipCMO_t),Work(ipEOrb_t))
+call Delete_GHOSTS(irc,nSym,nBas,nFro,nOcc,nZero,nExt,nDel,UBName,nUniqAt,thr_ghs,.false.,CMO_t,EOrb_t)
 
 if (irc /= 0) then
   write(u6,*) 'Delete_GHOSTS returned rc= ',irc
@@ -67,30 +68,31 @@ write(u6,'(A,8I4)')
 
 ! set MO coefficients of the deleted orbitals to zero
 ! Observe that these are not included at all in the basis
-iStart = ipCMO
-iStart_t = ipCMO_t
+iStart = 1
+iStart_t = 1
 do iSym=1,nSym
-  call dcopy_(nOrb(iSym)*nBas(iSym),Work(iStart_t),1,Work(iStart),1)
+  call dcopy_(nOrb(iSym)*nBas(iSym),CMO_t(iStart_t),1,CMO(iStart),1)
   iStart = iStart+nOrb(iSym)*nBas(iSym)
   iStart_t = iStart_t+nOrb(iSym)*nBas(iSym)
-  call dcopy_((nBas(iSym)-nOrb(iSym))*nBas(iSym),[Zero],0,Work(iStart),1)
+
+  call dcopy_((nBas(iSym)-nOrb(iSym))*nBas(iSym),[Zero],0,CMO(iStart),1)
   iStart = iStart+(nBas(iSym)-nOrb(iSym))*nBas(iSym)
 end do
-call GetMem('CMO_t ','Free','Real',ipCMO_t,lthCMO)
+call mma_deallocate(CMO_t)
 
 ! set energies of the deleted orbitals to zero
 
-iStart = ipEOrb
-iStart_t = ipEOrb_t
+iStart = 1
+iStart_t = 1
 do iSym=1,nSym
-  call dcopy_(nOrb(iSym),Work(iStart_t),1,Work(iStart),1)
+  call dcopy_(nOrb(iSym),EOrb_t(iStart_t),1,EOrb(iStart),1)
   iStart = iStart+nOrb(iSym)
   iStart_t = iStart_t+nOrb(iSym)
 
-  call dcopy_(nBas(iSym)-nOrb(iSym),[Zero],0,Work(iStart),1)
+  call dcopy_(nBas(iSym)-nOrb(iSym),[Zero],0,EOrb(iStart),1)
   iStart = iStart+nBas(iSym)-nOrb(iSym)
 end do
-call GetMem('EOrb_t','Free','Real',ipEOrb_t,lthEOr)
+call mma_deallocate(EOrb_t)
 
 return
 

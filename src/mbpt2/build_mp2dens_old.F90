@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Build_Mp2Dens_Old(TriDens,ip_Density,CMO,mSym,nOrbAll,nOccAll,Diagonalize)
+subroutine Build_Mp2Dens_Old(TriDens,Density,ip_Density,CMO,mSym,nOrbAll,nOccAll,Diagonalize)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -20,6 +20,7 @@ use Definitions, only: u6
 
 implicit none
 real(kind=wp), intent(out) :: TriDens(*)
+real(kind=wp), intent(in) :: Density(*)
 integer(kind=iwp), intent(in) :: ip_Density(8), mSym, nOrbAll(8), nOccAll(8)
 real(kind=wp), intent(in) :: CMO(*)
 logical(kind=iwp), intent(in) :: Diagonalize
@@ -29,7 +30,6 @@ integer(kind=iwp), allocatable :: IndT(:,:)
 real(kind=wp), allocatable :: AORecBlock(:), AOTriBlock(:), EigenValBlock(:), EigenValTot(:), EigenVecBlock(:), EigenVecTot(:), &
                               Energies(:), MOTriBlock(:), TmpRecBlock(:)
 integer(kind=iwp), external :: IsFreeUnit
-#include "WrkSpc.fh"
 #include "corbinf.fh"
 ! statement function
 integer(kind=iwp) :: i, j, iTri
@@ -88,8 +88,8 @@ do iSym=1,mSym
       end do
     end if
     ! Transform the symmetryblock to AO-density
-    call DGEMM_('N','N',nOrbAll(iSym),nOrbAll(iSym),nOrbAll(iSym),One,CMO(ipSymRec(iSym)+1),nOrbAll(iSym),Work(ip_Density(iSym)), &
-                nOrbAll(iSym),Zero,TmpRecBlock,nOrbAll(iSym))
+    call DGEMM_('N','N',nOrbAll(iSym),nOrbAll(iSym),nOrbAll(iSym),One,CMO(ipSymRec(iSym)+1),nOrbAll(iSym), &
+                Density(ip_Density(iSym)),nOrbAll(iSym),Zero,TmpRecBlock,nOrbAll(iSym))
     call DGEMM_('N','T',nOrbAll(iSym),nOrbAll(iSym),nOrbAll(iSym),One,TmpRecBlock,nOrbAll(iSym),CMO(ipSymRec(iSym)+1), &
                 nOrbAll(iSym),Zero,AORecBlock,nOrbAll(iSym))
     !call RecPrt('AODens:','(20F8.5)',AORecBlock,nOrb(iSym),nOrb(iSym))
@@ -103,7 +103,7 @@ do iSym=1,mSym
       idx = 1
       do i=1,nOrbAll(iSym)
         do j=1,i
-          MOTriBlock(idx) = Work(ip_Density(iSym)+j-1+(i-1)*(nOrbAll(iSym)))
+          MOTriBlock(idx) = Density(ip_Density(iSym)+j-1+(i-1)*(nOrbAll(iSym)))
           idx = idx+1
         end do
       end do

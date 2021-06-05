@@ -12,7 +12,7 @@
 !               1995, Martin Schuetz                                   *
 !***********************************************************************
 
-subroutine RdMBPT(ipCMO,lthCMO,ipEOrb,lthEOr)
+subroutine RdMBPT()
 !***********************************************************************
 !                                                                      *
 !     Read the MBPTOUT file genereated by the SCF program              *
@@ -31,18 +31,18 @@ subroutine RdMBPT(ipCMO,lthCMO,ipEOrb,lthEOr)
 !                                                                      *
 !***********************************************************************
 
-use MBPT2_Global, only: nBas, nDsto, nnB
+use MBPT2_Global, only: CMO, EOrb, nBas, nDsto, nnB
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(out) :: ipCMO, lthCMO, ipEOrb, lthEOr
-integer(kind=iwp) :: i, ipEOrb_t, iStart, iStart_t, iSym
-real(kind=wp), allocatable :: CMO_t(:)
+integer(kind=iwp) :: i, iStart, iStart_t, iSym, lthCMO, lthEOr
+logical(kind=iwp) :: Found
+character(len=24) :: Label
+real(kind=wp), allocatable :: CMO_t(:), EOrb_t(:)
 logical(kind=iwp), parameter :: Debug = .false.
 #include "corbinf.fh"
-#include "WrkSpc.fh"
 
 ! Read nSym, nBas, nOrb, nOcc, nFro, CMO and orbital energies from COMFILE
 
@@ -72,38 +72,49 @@ end do
 
 call mma_allocate(CMO_t,lthCMO,Label='CMO_t')
 call Get_CMO_(CMO_t,lthCMO)
-call GetMem('CMO   ','Allo','Real',ipCMO,lthCMO)
+call mma_allocate(CMO,lthCMO,label='CMO')
 
 ! set MO coefficients of the deleted orbitals to zero
 ! Observe that these are not included at all in the basis
-iStart = ipCMO
+iStart = 1
 iStart_t = 1
 do iSym=1,nSym
-  call dcopy_(nOrb(iSym)*nBas(iSym),CMO_t(iStart_t),1,Work(iStart),1)
+  call dcopy_(nOrb(iSym)*nBas(iSym),CMO_t(iStart_t),1,CMO(iStart),1)
   iStart = iStart+nOrb(iSym)*nBas(iSym)
   iStart_t = iStart_t+nOrb(iSym)*nBas(iSym)
-  call dcopy_((nBas(iSym)-nOrb(iSym))*nBas(iSym),[Zero],0,Work(iStart),1)
+
+  call dcopy_((nBas(iSym)-nOrb(iSym))*nBas(iSym),[Zero],0,CMO(iStart),1)
   iStart = iStart+(nBas(iSym)-nOrb(iSym))*nBas(iSym)
 end do
 call mma_deallocate(CMO_t)
 
-call Get_OrbE_(ipEOrb_t,lthEOr)
+Label = 'OrbE'
+Call qpg_dArray(Label,Found,lthEOr)
+if ((.not. Found) .or. (lthEOr == 0)) then
+  Label = 'Guessorb energies'
+  call qpg_dArray(Label,Found,lthEOr)
+  if ((.not. Found) .or. (lthEOr == 0)) then
+    call SysAbendMsg('RdMBPT','Did not find:',trim(Label))
+  end if
+end if
+call mma_allocate(EOrb_t,lthEOr,label='OrbE')
+call Get_dArray(Label,EOrb_t,lthEOr)
 nnB = lthEOr
-call GetMem('EOrb  ','Allo','Real',ipEOrb,lthEOr)
+call mma_allocate(EOrb,lthEOr,label='EOrb')
 
 ! set energies of the deleted orbitals to zero
 
-iStart = ipEOrb
-iStart_t = ipEOrb_t
+iStart = 1
+iStart_t = 1
 do iSym=1,nSym
-  call dcopy_(nOrb(iSym),Work(iStart_t),1,Work(iStart),1)
+  call dcopy_(nOrb(iSym),EOrb_t(iStart_t),1,EOrb(iStart),1)
   iStart = iStart+nOrb(iSym)
   iStart_t = iStart_t+nOrb(iSym)
 
-  call dcopy_(nBas(iSym)-nOrb(iSym),[Zero],0,Work(iStart),1)
+  call dcopy_(nBas(iSym)-nOrb(iSym),[Zero],0,EOrb(iStart),1)
   iStart = iStart+nBas(iSym)-nOrb(iSym)
 end do
-call GetMem('EOrb_t','Free','Real',ipEOrb_t,lthEOr)
+call mma_deallocate(EOrb_t)
 
 return
 

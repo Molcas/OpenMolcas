@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Get_OrbE_MpProp(OrbE,nOrbE)
+subroutine Get_OrbE(OrbE,nOrbE)
 
 use Definitions, only: wp, iwp
 
@@ -28,4 +28,4 @@ call Get_dArray(Label,OrbE,nOrbE)
 
 return
 
-end subroutine Get_OrbE_MpProp
+end subroutine Get_OrbE

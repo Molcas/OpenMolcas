@@ -434,7 +434,7 @@ else
   call mma_allocate(Ene,nOcc,2,label='OrbE')
   nsum = nSum+2*nOcc
   if (Method == 'RHF-SCF') then
-    call Get_OrbE_mpprop(Ene,nOcc)
+    call Get_OrbE(Ene,nOcc)
   else
     Ene(:,:) = Zero
   end if

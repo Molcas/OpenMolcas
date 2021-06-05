@@ -18,32 +18,38 @@ private
 
 #include "LenIn.fh"
 
-integer(kind=iwp) :: ip_Density(8), ip_DiaA(8), ip_First_Density, ip_First_DiaA, ip_First_Mp2Lagr, ip_First_WDensity, &
-                     ip_Mp2Lagr(8), ip_WDensity(8), ipCMO, ipEOcc, ipEVir, ipInt1, ipInt1_2, ipInt2, ipInt2_2, iPL, iPoVec(9), &
-                     ipScr1, l_Density, l_DiaA, l_Mp2Lagr, mAdDel(8), mAdFro(8), mAdOcc(8), mAdVir(8), nBas(8), nDel1(8), &
-                     nDel2(8), nDsto(8), nFro1(8), nFro2(8), nnB, nTit
+integer(kind=iwp) :: ip_Density(8), ip_DiaA(8), ip_Mp2Lagr(8), ip_WDensity(8), iPL, iPoVec(9), mAdDel(8), mAdFro(8), mAdOcc(8), &
+                     mAdVir(8), nBas(8), nDel1(8), nDel2(8), nDsto(8), nFro1(8), nFro2(8), nnB, nTit
 real(kind=wp) :: EMP2, Thr_ghs, VECL2
 logical(kind=iwp) :: DelGhost, DoCholesky, DoDF, DoLDF
 character(len=80) :: Title(10)
 integer(kind=iwp), allocatable :: iDel(:,:), iFro(:,:)
+real(kind=wp), allocatable :: CMO(:), Density(:), DiaA(:), EOcc(:), EOrb(:), EVir(:), Mp2Lagr(:), WDensity(:)
 character(len=LenIn), allocatable :: NamAct(:)
 ! Unit Numbers & File Names
 integer(kind=iwp) :: LuHLF1 = 40, LuHLF2 = 41, LuHLF3 = 42, LuIntA = 43, LuIntM = 44
 character(len=8) :: FnHLF1 = 'LUHLF1', FnHLF2 = 'LUHLF2', FnHLF3 = 'LUHLF3', FnIntA = 'ORDINT', FnIntM = 'MOLINT'
 
-public :: EMP2, DelGhost, DoCholesky, DoDF, DoLDF, FnHLF1, FnHLF2, FnHLF3, FnIntA, FnIntM, iDel, iFro, ip_Density, ip_DiaA, &
-          ip_First_Density, ip_First_DiaA, ip_First_Mp2Lagr, ip_First_WDensity, ip_Mp2Lagr, ip_WDensity, ipCMO, ipEOcc, ipEVir, &
-          ipInt1, ipInt1_2, ipInt2, ipInt2_2, iPL, iPoVec, ipScr1, l_Density, l_DiaA, l_Mp2Lagr, LuHLF1, LuHLF2, LuHLF3, LuIntA, &
-          LuIntM, mAdDel, mAdFro, mAdOcc, mAdVir, MBPT2_Clean, NamAct, nBas, nDel1, nDel2, nDsto, nFro1, nFro2, nnB, nTit, Title, &
-          Thr_ghs, VECL2
+public :: CMO, DelGhost, Density, DiaA, DoCholesky, DoDF, DoLDF, EMP2, EOcc, EOrb, EVir, FnHLF1, FnHLF2, FnHLF3, FnIntA, FnIntM, &
+          iDel, iFro, ip_Density, ip_DiaA, ip_Mp2Lagr, ip_WDensity, iPL, iPoVec, LuHLF1, LuHLF2, LuHLF3, LuIntA, LuIntM, mAdDel, &
+          mAdFro, mAdOcc, mAdVir, MBPT2_Clean, MP2Lagr, NamAct, nBas, nDel1, nDel2, nDsto, nFro1, nFro2, nnB, nTit, Title, &
+          Thr_ghs, VECL2, WDensity
 
 contains
 
 subroutine MBPT2_Clean()
   use stdalloc, only: mma_deallocate
+  if (allocated(CMO)) call mma_deallocate(CMO)
+  if (allocated(Density)) call mma_deallocate(Density)
+  if (allocated(DiaA)) call mma_deallocate(DiaA)
+  if (allocated(EOcc)) call mma_deallocate(EOcc)
+  if (allocated(EOrb)) call mma_deallocate(EOrb)
+  if (allocated(EVir)) call mma_deallocate(EVir)
   if (allocated(iDel)) call mma_deallocate(iDel)
   if (allocated(iFro)) call mma_deallocate(iFro)
+  if (allocated(Mp2Lagr)) call mma_deallocate(Mp2Lagr)
   if (allocated(NamAct)) call mma_deallocate(NamAct)
+  if (allocated(WDensity)) call mma_deallocate(WDensity)
 end subroutine MBPT2_Clean
 
 end module MBPT2_Global

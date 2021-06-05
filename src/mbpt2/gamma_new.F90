@@ -9,9 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Gamma_new()
+subroutine Gamma_new(Int1,Int2,Int1_2,Int2_2,Scr1)
 
-use MBPT2_Global, only: ipCMO, ipInt1, ipInt1_2, ipInt2, ipInt2_2, ipScr1, mAdOcc, mAdVir, nBas
+use MBPT2_Global, only: CMO, EOcc, EVir, mAdOcc, mAdVir, nBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
@@ -21,6 +21,7 @@ use Definitions, only: u6
 
 implicit none
 #include "corbinf.fh"
+real(kind=wp), intent(out) :: Int1(*), Int2(*), Int1_2(*), Int2_2(*), Scr1(*)
 integer(kind=iwp) :: iA, iAdrBin, iAdrGam, iAdrRdBin, iB, iBinLength, iBinSize, iBlock, iI, iIA, iJ, iKap, iLam, iLamKap1, &
                      iLamKap2, iLastAdr, iLen, iMaxBas, iMaxBasProd, iMaxOccVir, iMemAvail, iMemNeeded, iMu, iMuNu1, iMuNu2, &
                      iNextAdr, iNextX, iNu, iOff, iOffCMO(nSym), iOffCMO_o(nSym), iOffCMO_v(nSym), iRec, iSize, iSym, iSym1, &
@@ -31,11 +32,10 @@ logical(kind=iwp) :: LoadZeros, NonZeroSym(4), Triangular
 integer(kind=iwp), allocatable :: iTable(:,:)
 real(kind=wp), allocatable :: Bin(:), Bin2(:), CMO_o(:), CMO_v(:), Temp1(:), Temp1_2(:), Temp2(:), Temp2_2(:)
 integer(kind=iwp), external :: IsFreeUnit
-#include "WrkSpc.fh"
 ! Some statement functions
 integer(kind=iwp) :: i, j, iSyI, iSyJ, iX, iY, iBin, iTri, iInt1, iBinOff
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
-iInt1(i,j,iSyI,iSyJ) = (nFro(iSyJ)+j-1)*nTOrb(iSyI)+nFro(iSyI)+nOcc(iSyI)+i-1
+iInt1(i,j,iSyI,iSyJ) = (nFro(iSyJ)+j-1)*nTOrb(iSyI)+nFro(iSyI)+nOcc(iSyI)+i
 iBinOff(iX,iY,iBin) = iY+(iX)*2+(iBin-1)*iBinLength
 
 !                                                                      *
@@ -79,23 +79,22 @@ call mma_allocate(CMO_v,lCMO_v,label='CMO_v')
 
 ! Copy CMO to CMO_o and CMO_v
 
-iOff = 0
 do iSym=1,nSym
-  iOff = nBas(iSym)*nFro(iSym)
+  iOff = nBas(iSym)*nFro(iSym)+1
   nNO = nBas(iSym)*nOcc(iSym)
   nNV = nBas(iSym)*nExt(iSym)
 
-  call dCopy_(nNO,Work(ipCMO+iOffCMO(iSym)+iOff),1,CMO_o(iOffCMO_o(iSym)+1),1)
+  call dCopy_(nNO,CMO(iOffCMO(iSym)+iOff),1,CMO_o(iOffCMO_o(iSym)+1),1)
 
   iOff = iOff+nNO
 
-  call dCopy_(nNV,Work(ipCMO+iOffCMO(iSym)+iOff),1,CMO_v(iOffCMO_v(iSym)+1),1)
+  call dCopy_(nNV,CMO(iOffCMO(iSym)+iOff),1,CMO_v(iOffCMO_v(iSym)+1),1)
 end do
 
 #ifdef _DEBUGPRINT_
 ! Print the elements of the Full CMO-matrices as well as CMO_o and CMO_v.
 do iSym=1,nSym
-  call RecPrt('Full CMO',' ',Work(ipCMO+iOffCMO(iSym)),nBas(iSym),nTOrb(iSym))
+  call RecPrt('Full CMO',' ',CMO(iOffCMO(iSym)+1),nBas(iSym),nTOrb(iSym))
 end do
 do iSym=1,nSym
   call RecPrt('Occupied CMO',' ',CMO_o(iOffCMO_o(iSym)+1),nBas(iSym),nOcc(iSym))
@@ -276,13 +275,13 @@ do iBlock=1,nBlocks
     do iI=1,nI
       do iA=1,nA
         if (NonZeroSym(1)) then
-          call Exch(iSym_D,iSym_A,iSym_C,iSym_B,iI+nFro(iSym_A),iA+nFro(iSym_B)+nOcc(iSym_B),Work(ipInt1),Work(ipScr1))
-          call Coul(iSym_D,iSym_C,iSym_A,iSym_B,iI+nFro(iSym_A),iA+nFro(iSym_B)+nOcc(iSym_B),Work(ipInt2),Work(ipScr1))
+          call Exch(iSym_D,iSym_A,iSym_C,iSym_B,iI+nFro(iSym_A),iA+nFro(iSym_B)+nOcc(iSym_B),Int1,Scr1)
+          call Coul(iSym_D,iSym_C,iSym_A,iSym_B,iI+nFro(iSym_A),iA+nFro(iSym_B)+nOcc(iSym_B),Int2,Scr1)
 #         ifdef _DEBUGPRINT_
           write(u6,*) ' *  I,A = ',iI,iA
-          call RecPrt('Int1:','(8F10.6)',Work(ipInt1),nOrb(iSym_D)+nDel(iSym_D),nOrb(iSym_C)+nDel(iSym_C))
+          call RecPrt('Int1:','(8F10.6)',Int1,nOrb(iSym_D)+nDel(iSym_D),nOrb(iSym_C)+nDel(iSym_C))
           write(u6,*) ' *  I,A = ',iI,iA
-          call RecPrt('Int2:','(8F10.6)',Work(ipInt2),nOrb(iSym_D)+nDel(iSym_D),nOrb(iSym_C)+nDel(iSym_C))
+          call RecPrt('Int2:','(8F10.6)',Int2,nOrb(iSym_D)+nDel(iSym_D),nOrb(iSym_C)+nDel(iSym_C))
 #         endif
         end if
 
@@ -290,13 +289,13 @@ do iBlock=1,nBlocks
         ! possible (IA|xx) to have (mu nu| xx) and (nu mu|xx)
         ! available at the same time for symmetrization.
         if (NonZeroSym(2) .and. (.not. Triangular)) then
-          call Exch(iSym_C,iSym_A,iSym_D,iSym_B,iI+nFro(iSym_A),iA+nFro(iSym_B)+nOcc(iSym_B),Work(ipInt1_2),Work(ipScr1))
-          call Coul(iSym_C,iSym_D,iSym_A,iSym_B,iI+nFro(iSym_A),iA+nFro(iSym_B)+nOcc(iSym_B),Work(ipInt2_2),Work(ipScr1))
+          call Exch(iSym_C,iSym_A,iSym_D,iSym_B,iI+nFro(iSym_A),iA+nFro(iSym_B)+nOcc(iSym_B),Int1_2,Scr1)
+          call Coul(iSym_C,iSym_D,iSym_A,iSym_B,iI+nFro(iSym_A),iA+nFro(iSym_B)+nOcc(iSym_B),Int2_2,Scr1)
 #         ifdef _DEBUGPRINT_
           write(u6,*) ' *  I,A = ',iI,iA
-          call RecPrt('Int1:','(8F10.6)',Work(ipInt1_2),nOrb(iSym_C)+nDel(iSym_C),nOrb(iSym_D)+nDel(iSym_D))
+          call RecPrt('Int1:','(8F10.6)',Int1_2,nOrb(iSym_C)+nDel(iSym_C),nOrb(iSym_D)+nDel(iSym_D))
           write(u6,*) ' *  I,A = ',iI,iA
-          call RecPrt('Int2:','(8F10.6)',Work(ipInt2_2),nOrb(iSym_C)+nDel(iSym_C),nOrb(iSym_D)+nDel(iSym_D))
+          call RecPrt('Int2:','(8F10.6)',Int2_2,nOrb(iSym_C)+nDel(iSym_C),nOrb(iSym_D)+nDel(iSym_D))
 #         endif
         end if
 
@@ -304,9 +303,9 @@ do iBlock=1,nBlocks
         if (NonZeroSym(1)) then
           do iJ=1,nJ
             do iB=1,nB
-              xiajb = Work(ipInt2+iInt1(iB,iJ,iSym_D,iSym_C))
-              xibja = Work(ipInt1+iInt1(iB,iJ,iSym_D,iSym_C))
-              EDenom = (work(mAdOcc(iSym_A)+iI-1)+work(mAdOcc(iSym_C)+iJ-1)-work(mAdVir(iSym_B)+iA-1)-work(mAdVir(iSym_D)+iB-1))
+              xiajb = Int2(iInt1(iB,iJ,iSym_D,iSym_C))
+              xibja = Int1(iInt1(iB,iJ,iSym_D,iSym_C))
+              EDenom = (EOcc(mAdOcc(iSym_A)+iI-1)+EOcc(mAdOcc(iSym_C)+iJ-1)-EVir(mAdVir(iSym_B)+iA-1)-EVir(mAdVir(iSym_D)+iB-1))
               Tiajb = (Two*xiajb-xibja)/EDenom
               Temp1((iJ-1)*nB+iB) = Tiajb
             end do !iSymB
@@ -319,9 +318,9 @@ do iBlock=1,nBlocks
         if (NonZeroSym(2) .and. (.not. Triangular)) then
           do iJ=1,nJ2
             do iB=1,nB2
-              xiajb = Work(ipInt2_2+iInt1(iB,iJ,iSym_C,iSym_D))
-              xibja = Work(ipInt1_2+iInt1(iB,iJ,iSym_C,iSym_D))
-              EDenom = (work(mAdOcc(iSym_A)+iI-1)+work(mAdOcc(iSym_D)+iJ-1)-work(mAdVir(iSym_B)+iA-1)-work(mAdVir(iSym_C)+iB-1))
+              xiajb = Int2_2(iInt1(iB,iJ,iSym_C,iSym_D))
+              xibja = Int1_2(iInt1(iB,iJ,iSym_C,iSym_D))
+              EDenom = (EOcc(mAdOcc(iSym_A)+iI-1)+EOcc(mAdOcc(iSym_D)+iJ-1)-EVir(mAdVir(iSym_B)+iA-1)-EVir(mAdVir(iSym_C)+iB-1))
               Tiajb = (Two*xiajb-xibja)/EDenom
               Temp1_2((iJ-1)*nB2+iB) = Tiajb
             end do !iSymB
@@ -411,33 +410,33 @@ do iBlock=1,nBlocks
       do iI=1,nI2
         do iA=1,nA2
           if (NonZeroSym(3)) then
-            call Exch(iSym_D,iSym_B,iSym_C,iSym_A,iI+nFro(iSym_B),iA+nFro(iSym_A)+nOcc(iSym_A),Work(ipInt1),Work(ipScr1))
-            call Coul(iSym_D,iSym_C,iSym_B,iSym_A,iI+nFro(iSym_B),iA+nFro(iSym_A)+nOcc(iSym_A),Work(ipInt2),Work(ipScr1))
+            call Exch(iSym_D,iSym_B,iSym_C,iSym_A,iI+nFro(iSym_B),iA+nFro(iSym_A)+nOcc(iSym_A),Int1,Scr1)
+            call Coul(iSym_D,iSym_C,iSym_B,iSym_A,iI+nFro(iSym_B),iA+nFro(iSym_A)+nOcc(iSym_A),Int2,Scr1)
 #           ifdef _DEBUGPRINT_
             write(u6,*) ' *  I,A = ',iI,iA
-            call RecPrt('Int1_lap2:','(8F10.6)',Work(ipInt1),nOrb(iSym_D)+nDel(iSym_D),nOrb(iSym_C)+nDel(iSym_C))
+            call RecPrt('Int1_lap2:','(8F10.6)',Int1,nOrb(iSym_D)+nDel(iSym_D),nOrb(iSym_C)+nDel(iSym_C))
             write(u6,*) ' *  I,A = ',iI,iA
-            call RecPrt('Int2_lap2:','(8F10.6)',Work(ipInt2),nOrb(iSym_D)+nDel(iSym_D),nOrb(iSym_C)+nDel(iSym_C))
+            call RecPrt('Int2_lap2:','(8F10.6)',Int2,nOrb(iSym_D)+nDel(iSym_D),nOrb(iSym_C)+nDel(iSym_C))
 #           endif
           end if
 
           if (NonZeroSym(4)) then
-            call Exch(iSym_C,iSym_B,iSym_D,iSym_A,iI+nFro(iSym_B),iA+nFro(iSym_A)+nOcc(iSym_A),Work(ipInt1_2),Work(ipScr1))
-            call Coul(iSym_C,iSym_D,iSym_B,iSym_A,iI+nFro(iSym_B),iA+nFro(iSym_A)+nOcc(iSym_A),Work(ipInt2_2),Work(ipScr1))
+            call Exch(iSym_C,iSym_B,iSym_D,iSym_A,iI+nFro(iSym_B),iA+nFro(iSym_A)+nOcc(iSym_A),Int1_2,Scr1)
+            call Coul(iSym_C,iSym_D,iSym_B,iSym_A,iI+nFro(iSym_B),iA+nFro(iSym_A)+nOcc(iSym_A),Int2_2,Scr1)
 #           ifdef _DEBUGPRINT_
             write(u6,*) ' *  I,A = ',iI,iA
-            call RecPrt('Int1_lap2:','(8F10.6)',Work(ipInt1_2),nOrb(iSym_C)+nDel(iSym_C),nOrb(iSym_D)+nDel(iSym_D))
+            call RecPrt('Int1_lap2:','(8F10.6)',Int1_2,nOrb(iSym_C)+nDel(iSym_C),nOrb(iSym_D)+nDel(iSym_D))
             write(u6,*) ' *  I,A = ',iI,iA
-            call RecPrt('Int2_lap:','(8F10.6)',Work(ipInt2_2),nOrb(iSym_C)+nDel(iSym_C),nOrb(iSym_D)+nDel(iSym_D))
+            call RecPrt('Int2_lap:','(8F10.6)',Int2_2,nOrb(iSym_C)+nDel(iSym_C),nOrb(iSym_D)+nDel(iSym_D))
 #           endif
           end if
           ! Construct Tiajb for a specific (i,a)-pair
           if (NonZeroSym(3)) then
             do iJ=1,nJ
               do iB=1,nB
-                xiajb = Work(ipInt2+iInt1(iB,iJ,iSym_D,iSym_C))
-                xibja = Work(ipInt1+iInt1(iB,iJ,iSym_D,iSym_C))
-                EDenom = (work(mAdOcc(iSym_B)+iI-1)+work(mAdOcc(iSym_C)+iJ-1)-work(mAdVir(iSym_A)+iA-1)-work(mAdVir(iSym_D)+iB-1))
+                xiajb = Int2(iInt1(iB,iJ,iSym_D,iSym_C))
+                xibja = Int1(iInt1(iB,iJ,iSym_D,iSym_C))
+                EDenom = (EOcc(mAdOcc(iSym_B)+iI-1)+EOcc(mAdOcc(iSym_C)+iJ-1)-EVir(mAdVir(iSym_A)+iA-1)-EVir(mAdVir(iSym_D)+iB-1))
                 Tiajb = (Two*xiajb-xibja)/EDenom
                 Temp1((iJ-1)*nB+iB) = Tiajb
               end do !iSymB
@@ -447,9 +446,9 @@ do iBlock=1,nBlocks
           if (NonZeroSym(4)) then
             do iJ=1,nJ2
               do iB=1,nB2
-                xiajb = Work(ipInt2_2+iInt1(iB,iJ,iSym_C,iSym_D))
-                xibja = Work(ipInt1_2+iInt1(iB,iJ,iSym_C,iSym_D))
-                EDenom = (work(mAdOcc(iSym_B)+iI-1)+work(mAdOcc(iSym_D)+iJ-1)-work(mAdVir(iSym_A)+iA-1)-work(mAdVir(iSym_C)+iB-1))
+                xiajb = Int2_2(iInt1(iB,iJ,iSym_C,iSym_D))
+                xibja = Int1_2(iInt1(iB,iJ,iSym_C,iSym_D))
+                EDenom = (EOcc(mAdOcc(iSym_B)+iI-1)+EOcc(mAdOcc(iSym_D)+iJ-1)-EVir(mAdVir(iSym_A)+iA-1)-EVir(mAdVir(iSym_C)+iB-1))
                 Tiajb = (Two*xiajb-xibja)/EDenom
 
                 Temp1_2((iJ-1)*nB2+iB) = Tiajb

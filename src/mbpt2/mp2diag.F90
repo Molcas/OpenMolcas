@@ -16,7 +16,7 @@ subroutine Mp2Diag()
 !                                                                      *
 !***********************************************************************
 
-use MBPT2_Global, only: ip_DiaA, mAdDel, mAdFro, mAdOcc, mAdVir
+use MBPT2_Global, only: DiaA, EOcc, EVir, ip_DiaA, mAdDel, mAdFro, mAdOcc, mAdVir
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Four
 use Definitions, only: wp, iwp
@@ -28,7 +28,6 @@ implicit none
 integer(kind=iwp) :: iA, iB, iI, iJ, iSym, iSym1, iSym2, nMaxOrb
 real(kind=wp) :: E_a, E_i, Ediff, xibja, xijab, xijba
 real(kind=wp), allocatable :: Int1(:), IntC(:), Scr1(:)
-#include "WrkSpc.fh"
 #include "corbinf.fh"
 ! statement function
 integer(kind=iwp) :: i, j, k, iDiaA
@@ -75,14 +74,14 @@ do iSym=1,nSym
       xijba = xijab
       xibja = IntC(iI+(iJ-1)*(nOrb(iSym)+nDel(iSym)))
       if (iA <= nExt(iSym)) then
-        E_a = Work(mAdVir(iSym)+iA-1)
+        E_a = EVir(mAdVir(iSym)+iA-1)
       else
-        E_a = Work(mAdDel(iSym)+iA-nExt(iSym)-1)
+        E_a = EVir(mAdDel(iSym)+iA-nExt(iSym)-1)
       end if
       if (iI > nFro(iSym)) then
-        E_i = Work(mAdOcc(iSym)+iI-nFro(iSym)-1)
+        E_i = EOcc(mAdOcc(iSym)+iI-nFro(iSym)-1)
       else
-        E_i = Work(mAdFro(iSym)+iI-1)
+        E_i = EOcc(mAdFro(iSym)+iI-1)
       end if
       Ediff = E_a-E_i
       !-----------------------------------------------------------------
@@ -90,7 +89,7 @@ do iSym=1,nSym
       !write(u6,*) 'xijba',xijba
       !write(u6,*) 'xibja',xibja
       !-----------------------------------------------------------------
-      Work(iDiaA(iA,iI,iSym)) = Work(iDiaA(iA,iI,iSym))+One/(Ediff+Four*xijab-xijba-xibja)
+      DiaA(iDiaA(iA,iI,iSym)) = DiaA(iDiaA(iA,iI,iSym))+One/(Ediff+Four*xijab-xijba-xibja)
 
     end do
   end do
@@ -102,7 +101,7 @@ call mma_deallocate(Scr1)
 #ifdef _DEBUGPRINT_
 do iSym=1,nSym
   write(u6,*) 'Symmetry nr',iSym
-  call RecPrt('Diag(ia|ia)','',work(iDiaA(1,1,iSym)),nOcc(iSym),nExt(iSym))
+  call RecPrt('Diag(ia|ia)','',DiaA(iDiaA(1,1,iSym)),nOcc(iSym),nExt(iSym))
 end do
 #endif
 

@@ -40,7 +40,6 @@ external :: Cho_SOSmp2_Col, ChoMP2_Vec
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "chomp2_dec.fh"
-#include "WrkSpc.fh"
 
 ! Initializations.
 ! ----------------

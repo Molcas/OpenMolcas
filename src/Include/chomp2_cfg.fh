@@ -42,8 +42,8 @@
 !      Common / ChLov / ThrLov, LovMP2, DoMP2, all_Vir, NamAct, nActa
       Common / ChLov / ThrLov, LovMP2, DoMP2, all_Vir, nActa
       Logical DoT1amp
-      Integer jT1amp, l_T1, iOffT1(8)
-      Common / ChT1AMP / DoT1amp, jT1amp, l_T1, iOffT1
+      Integer l_T1, iOffT1(8)
+      Common / ChT1AMP / DoT1amp, l_T1, iOffT1
 
       Common / Mpg2  / EMP2_dens, DoDens, DoDens2, NoGamma, DoGrdt
 
