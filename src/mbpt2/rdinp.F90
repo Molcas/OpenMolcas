@@ -50,7 +50,8 @@ character(len=8) :: emiloop, inGeo
 character(len=80) :: VecTitle
 character(len=100) :: ProgName
 character(len=180) :: Line
-real(kind=wp), allocatable :: C(:), EE(:), EO(:), Occup(:), SQ(:)
+integer(kind=iwp), allocatable :: SQ(:)
+real(kind=wp), allocatable :: C(:), EE(:), EO(:), Occup(:)
 character(len=4), parameter :: ComTab(39) = ['TITL','FROZ','DELE','SFRO','SDEL','EXTR','PRIN','TEST','PRPT','LUMO', &
                                              'EREF','VIRA','T1AM','GRDT','LAPL','GRID','BLOC','CHOA','DECO','NODE', &
                                              'THRC','SPAN','MXQU','PRES','CHKI','FORC','VERB','NOVE','FREE','PREC', &
@@ -154,6 +155,7 @@ nFre = 0
 !     Read the input stream line by line and identify key command      *
 !----------------------------------------------------------------------*
 Skip = .false.
+jCom = 0
 outer: do
   if (.not. Skip) then
     Line = Get_Ln(LuSpool)

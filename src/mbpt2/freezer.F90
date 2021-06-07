@@ -12,7 +12,6 @@
 subroutine Freezer(EAll,nFre,nFro,nFro1,nOcc,nBas,nSym,LocPrt)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none

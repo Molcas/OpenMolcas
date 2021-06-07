@@ -22,7 +22,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: i, iSym, iSym1, iSym2, iSymA, iSymB, iSymI, iSymJ, j, LIADOUT, lInt, nDelTot, nMaxOrb, nVirTot
+integer(kind=iwp) :: i, iSym, iSym1, iSym2, iSymA, iSymB, iSymI, iSymJ, j, LIADOUT, nDelTot, nMaxOrb, nVirTot
 real(kind=wp), allocatable :: Int1(:), Int1_2(:), Int2(:), Int2_2(:), Scr1(:)
 #include "trafo.fh"
 #include "corbinf.fh"
@@ -110,8 +110,6 @@ do iSym1=1,nSym
     nMaxOrb = max(nMaxOrb,(nOrb(iSym1)+nDel(iSym1))*(nOrb(iSym2)+nDel(iSym2)))
   end do
 end do
-
-lInt = nMaxOrb
 
 ! Allocate space for the block of exchange integrals
 ! type 1 and type 2 (ia|jb) and (ib|ja)

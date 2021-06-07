@@ -15,7 +15,7 @@
       External ip_of_Work
 #include "chomp2_dec.fh"
 
-      ip_EOc  = ip_of_Work(EOc_)
-      ip_EVir = ip_of_Work(EVir_)
+      ip_EOc  = ip_of_Work(EOc_(1))
+      ip_EVir = ip_of_Work(EVir_(1))
 
       End
