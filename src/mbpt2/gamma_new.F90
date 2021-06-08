@@ -22,21 +22,16 @@ use Definitions, only: u6
 implicit none
 #include "corbinf.fh"
 real(kind=wp), intent(out) :: Int1(*), Int2(*), Int1_2(*), Int2_2(*), Scr1(*)
-integer(kind=iwp) :: iA, iAdrBin, iAdrGam, iAdrRdBin, iB, iBinLength, iBinSize, iBlock, iI, iIA, iJ, iKap, iLam, iLamKap1, &
-                     iLamKap2, iLastAdr, iLen, iMaxBas, iMaxBasProd, iMaxOccVir, iMemAvail, iMemNeeded, iMu, iMuNu1, iMuNu2, &
-                     iNextAdr, iNextX, iNu, iOff, iOffCMO(nSym), iOffCMO_o(nSym), iOffCMO_v(nSym), iRec, iSize, iSym, iSym1, &
-                     iSym2, iSym_A, iSym_B, iSym_C, iSym_D, iTriMuNu, iType, lAllBins, lCMO_o, lCMO_v, lMax, LuBin, LuGam, nA, &
-                     nA2, nABCD, nB, nB2, nBins, nBlocks, nI, nI2, nJ, nJ2, nLam, nNO, nNu, nNV, nTOrb(nSym)
+integer(kind=iwp) :: i, iA, iAdrBin, iAdrGam, iAdrRdBin, iB, iBB, iBin, iBinLength, iBinSize, iBlock, iI, iIA, iJ, iJJ, iKap, &
+                     iLam, iLamKap1, iLamKap2, iLastAdr, iLen, iMaxBas, iMaxBasProd, iMaxOccVir, iMemAvail, iMemNeeded, iMu, &
+                     iMuNu1, iMuNu2, iNextAdr, iNextX, iNu, iOff, iOffCMO(nSym), iOffCMO_o(nSym), iOffCMO_v(nSym), iRec, iSize, &
+                     iSym, iSym1, iSym2, iSym_A, iSym_B, iSym_C, iSym_D, iTriMuNu, iType, lAllBins, lCMO_o, lCMO_v, lMax, LuBin, &
+                     LuGam, nA, nA2, nABCD, nB, nB2, nBins, nBlocks, nI, nI2, nJ, nJ2, nLam, nNO, nNu, nNV, nTOrb(nSym)
 real(kind=wp) :: EDenom, Tiajb, xiajb, xibja
 logical(kind=iwp) :: LoadZeros, NonZeroSym(4), Triangular
 integer(kind=iwp), allocatable :: iTable(:,:)
-real(kind=wp), allocatable :: Bin(:), Bin2(:), CMO_o(:), CMO_v(:), Temp1(:), Temp1_2(:), Temp2(:), Temp2_2(:)
+real(kind=wp), allocatable :: Bin(:,:,:), Bin2(:,:,:), CMO_o(:), CMO_v(:), Temp1(:), Temp1_2(:), Temp2(:), Temp2_2(:)
 integer(kind=iwp), external :: IsFreeUnit
-! Some statement functions
-integer(kind=iwp) :: i, j, iSyI, iSyJ, iX, iY, iBin, iTri, iInt1, iBinOff
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
-iInt1(i,j,iSyI,iSyJ) = (nFro(iSyJ)+j-1)*nTOrb(iSyI)+nFro(iSyI)+nOcc(iSyI)+i
-iBinOff(iX,iY,iBin) = iY+(iX)*2+(iBin-1)*iBinLength
 
 !                                                                      *
 !***********************************************************************
@@ -46,9 +41,9 @@ iAdrGam = 1
 LoadZeros = .false.
 
 iMaxBas = 0
-do i=1,nSym
-  nTOrb(i) = nOrb(i)+nDel(i)
-  iMaxBas = max(iMaxBas,nBas(i))
+do iSym=1,nSym
+  nTOrb(iSym) = nOrb(iSym)+nDel(iSym)
+  iMaxBas = max(iMaxBas,nBas(iSym))
 end do
 
 ! Setup one CMO for occupied and one for virtual orbitals together
@@ -67,9 +62,9 @@ end do
 
 lCMO_o = 0
 lCMO_v = 0
-do i=1,nSym
-  lCMO_o = lCMO_o+nOcc(i)*nBas(i)
-  lCMO_v = lCMO_v+nExt(i)*nBas(i)
+do iSym=1,nSym
+  lCMO_o = lCMO_o+nOcc(iSym)*nBas(iSym)
+  lCMO_v = lCMO_v+nExt(iSym)*nBas(iSym)
 end do
 
 ! Allocate memory for a virtual and an occupied CMO-matrix
@@ -179,15 +174,15 @@ end if
 ! needed to keep all bins in memory.
 
 lAllBins = min(iMemAvail,iMemNeeded)
+iBinLength = lAllBins/iMaxBasProd
 
 ! Allocate two bins
 
-call mma_allocate(Bin,lAllBins,label='Bins1')
+!FIXME: Mixed types in Bin/Bin2
+call mma_allocate(Bin,[1,2],[0,iBinLength/2-1],[1,iMaxBasProd],label='Bins1')
 if (nBlocks /= 1) then
-  call mma_allocate(Bin2,lAllBins,label='Bins2')
+  call mma_allocate(Bin2,[1,2],[0,iBinLength/2-1],[1,iMaxBasProd],label='Bins2')
 end if
-
-iBinLength = lAllBins/iMaxBasProd
 
 ! The construction and transformation of Tiajb are now made
 ! looping over symmetryblocks
@@ -237,19 +232,15 @@ do iBlock=1,nBlocks
 
   ! Initialize the bins to have length 0 and adress -1 to
   ! next element
-  do i=1,nBins
-    Bin(iBinOff(0,1,i)) = Zero
-    Bin(iBinOff(0,2,i)) = -One
-    if (nBlocks /= 1) then
-      Bin2(iBinOff(0,1,i)) = Zero
-      Bin2(iBinOff(0,2,i)) = -One
-    end if
-  end do
+  Bin(1,0,1:nBins) = Zero
+  Bin(2,0,1:nBins) = -One
+  if (nBlocks /= 1) then
+    Bin2(1,0,1:nBins) = Zero
+    Bin2(2,0,1:nBins) = -One
+  end if
 
   ! Check which symmetry combinations that are present.
-  do i=1,4
-    NonZeroSym(i) = .true.
-  end do
+  NonZeroSym(:) = .true.
   if (nI*nA*nJ*nB == 0) NonZeroSym(1) = .false.
   if (nI*nA*nJ2*nB2 == 0) NonZeroSym(2) = .false.
   if (nI2*nA2*nJ*nB == 0) NonZeroSym(3) = .false.
@@ -302,9 +293,11 @@ do iBlock=1,nBlocks
         ! Construct Tiajb for a specific (i,a)-pair
         if (NonZeroSym(1)) then
           do iJ=1,nJ
+            iJJ = iJ+nFro(iSym_C)
             do iB=1,nB
-              xiajb = Int2(iInt1(iB,iJ,iSym_D,iSym_C))
-              xibja = Int1(iInt1(iB,iJ,iSym_D,iSym_C))
+              iBB = iB+nFro(iSym_D)+nOcc(iSym_D)
+              xiajb = Int2((iJJ-1)*nTOrb(iSym_D)+iBB)
+              xibja = Int1((iJJ-1)*nTOrb(iSym_D)+iBB)
               EDenom = (EOcc(mAdOcc(iSym_A)+iI-1)+EOcc(mAdOcc(iSym_C)+iJ-1)-EVir(mAdVir(iSym_B)+iA-1)-EVir(mAdVir(iSym_D)+iB-1))
               Tiajb = (Two*xiajb-xibja)/EDenom
               Temp1((iJ-1)*nB+iB) = Tiajb
@@ -317,9 +310,11 @@ do iBlock=1,nBlocks
 
         if (NonZeroSym(2) .and. (.not. Triangular)) then
           do iJ=1,nJ2
+            iJJ = iJ+nFro(iSym_D)
             do iB=1,nB2
-              xiajb = Int2_2(iInt1(iB,iJ,iSym_C,iSym_D))
-              xibja = Int1_2(iInt1(iB,iJ,iSym_C,iSym_D))
+              iBB = iB+nFro(iSym_C)+nOcc(iSym_C)
+              xiajb = Int2_2((iJJ-1)*nTOrb(iSym_C)+iBB)
+              xibja = Int1_2((iJJ-1)*nTOrb(iSym_C)+iBB)
               EDenom = (EOcc(mAdOcc(iSym_A)+iI-1)+EOcc(mAdOcc(iSym_D)+iJ-1)-EVir(mAdVir(iSym_B)+iA-1)-EVir(mAdVir(iSym_C)+iB-1))
               Tiajb = (Two*xiajb-xibja)/EDenom
               Temp1_2((iJ-1)*nB2+iB) = Tiajb
@@ -344,8 +339,8 @@ do iBlock=1,nBlocks
           call dGemm_('N','T',nBas(iSym_C),nBas(iSym_D),nOcc(iSym_D),One,Temp2_2,nBas(iSym_C),CMO_o(iOffCMO_o(iSym_D)+1), &
                       nBas(iSym_D),Zero,Temp1_2,nBas(iSym_C))
         end if
-        ! Do a halfsymmetrization with respect to the two AO-indices if they are the same symmetry.
         if (Triangular) then
+          ! Do a halfsymmetrization with respect to the two AO-indices if they are the same symmetry.
           do iKap=1,nBas(iSym_D)
             do iLam=1,nBas(iSym_D)
               iLamKap1 = iLam+(iKap-1)*nBas(iSym_D)
@@ -353,8 +348,8 @@ do iBlock=1,nBlocks
               Temp2(iLamKap1) = (Temp1(iLamKap1)+Temp1(iLamKap2))/2
             end do
           end do
-        ! Do a halfsymmetrization with respect to the two AO-indices if they are different symmetries.
         else
+          ! Do a halfsymmetrization with respect to the two AO-indices if they are different symmetries.
           do iKap=1,nBas(iSym_C)
             do iLam=1,nBas(iSym_D)
               iLamKap1 = iLam+(iKap-1)*nBas(iSym_D)
@@ -379,25 +374,25 @@ do iBlock=1,nBlocks
           do iLam=1,nLam
             iRec = iLam+(iKap-1)*nBas(iSym_D)
             if (Triangular) then
-              iBin = iTri(iKap,iLam)
+              iBin = max(iKap,iLam)*(max(iKap,iLam)-1)/2+min(iKap,iLam)
             else
               iBin = iRec
             end if
             !write(u6,*) 'iKap,iLam,iBin=',iKap,iLam,iBin
-            iNextX = nint(Bin(iBinOff(0,1,iBin)))
+            iNextX = nint(Bin(1,0,iBin))
             iNextX = iNextX+1
             iBinSize = iNextX*2+2
             if (iBinSize > iBinLength) then
               iLastAdr = iAdrBin
-              call dDaFile(LuBin,1,Bin(iBinOff(0,1,iBin)),iBinLength,iAdrBin)
+              call dDaFile(LuBin,1,Bin(:,:,iBin),iBinLength,iAdrBin)
               iNextX = 1
-              Bin(iBinOff(0,1,iBin)) = Zero
-              Bin(iBinOff(0,2,iBin)) = real(iLastAdr,kind=wp)
+              Bin(1,0,iBin) = Zero
+              Bin(2,0,iBin) = real(iLastAdr,kind=wp)
             end if
             !write(u6,*) Temp2(iRec),real(iIA,kind=wp),iBin
-            Bin(iBinOff(iNextX,2,iBin)) = Temp2(iRec)
-            Bin(iBinOff(iNextX,1,iBin)) = real(iIA,kind=wp)
-            Bin(iBinOff(0,1,iBin)) = real(iNextX,kind=wp)
+            Bin(2,iNextX,iBin) = Temp2(iRec)
+            Bin(1,iNextX,iBin) = real(iIA,kind=wp)
+            Bin(1,0,iBin) = real(iNextX,kind=wp)
           end do
         end do
       end do !iA
@@ -433,9 +428,11 @@ do iBlock=1,nBlocks
           ! Construct Tiajb for a specific (i,a)-pair
           if (NonZeroSym(3)) then
             do iJ=1,nJ
+              iJJ = iJ+nFro(iSym_C)
               do iB=1,nB
-                xiajb = Int2(iInt1(iB,iJ,iSym_D,iSym_C))
-                xibja = Int1(iInt1(iB,iJ,iSym_D,iSym_C))
+                iBB = iB+nFro(iSym_D)+nOcc(iSym_D)
+                xiajb = Int2((iJJ-1)*nTOrb(iSym_D)+iBB)
+                xibja = Int1((iJJ-1)*nTOrb(iSym_D)+iBB)
                 EDenom = (EOcc(mAdOcc(iSym_B)+iI-1)+EOcc(mAdOcc(iSym_C)+iJ-1)-EVir(mAdVir(iSym_A)+iA-1)-EVir(mAdVir(iSym_D)+iB-1))
                 Tiajb = (Two*xiajb-xibja)/EDenom
                 Temp1((iJ-1)*nB+iB) = Tiajb
@@ -445,9 +442,11 @@ do iBlock=1,nBlocks
 
           if (NonZeroSym(4)) then
             do iJ=1,nJ2
+              iJJ = iJ+nFro(iSym_D)
               do iB=1,nB2
-                xiajb = Int2_2(iInt1(iB,iJ,iSym_C,iSym_D))
-                xibja = Int1_2(iInt1(iB,iJ,iSym_C,iSym_D))
+                iBB = iB+nFro(iSym_C)+nOcc(iSym_C)
+                xiajb = Int2_2((iJJ-1)*nTOrb(iSym_C)+iBB)
+                xibja = Int1_2((iJJ-1)*nTOrb(iSym_C)+iBB)
                 EDenom = (EOcc(mAdOcc(iSym_B)+iI-1)+EOcc(mAdOcc(iSym_D)+iJ-1)-EVir(mAdVir(iSym_A)+iA-1)-EVir(mAdVir(iSym_C)+iB-1))
                 Tiajb = (Two*xiajb-xibja)/EDenom
 
@@ -490,21 +489,21 @@ do iBlock=1,nBlocks
               iRec = iLam+(iKap-1)*nBas(iSym_D)
               iBin = iRec
               !write(u6,*) 'iKap,iLam,iBin=',iKap,iLam,iBin
-              iNextX = nint(Bin2(iBinOff(0,1,iBin)))
+              iNextX = nint(Bin2(1,0,iBin))
               iNextX = iNextX+1
 
               iBinSize = iNextX*2+2
               if (iBinSize > iBinLength) then
-                call dDaFile(LuBin,1,Bin2(iBinOff(0,1,iBin)),iBinLength,iAdrBin)
+                call dDaFile(LuBin,1,Bin2(:,:,iBin),iBinLength,iAdrBin)
                 iNextX = 1
-                Bin2(iBinOff(0,1,i)) = Zero
-                Bin2(iBinOff(0,2,i)) = real(iAdrBin,kind=wp)
+                Bin2(1,0,iBin) = Zero
+                Bin2(2,0,iBin) = real(iAdrBin,kind=wp)
               end if
 
               !write(u6,*) Temp2(iRec),real(iIA,kind=wp),iBin
-              Bin2(iBinOff(iNextX,2,iBin)) = Temp2(iRec)
-              Bin2(iBinOff(iNextX,1,iBin)) = real(iIA,kind=wp)
-              Bin2(iBinOff(0,1,iBin)) = real(iNextX,kind=wp)
+              Bin2(2,iNextX,iBin) = Temp2(iRec)
+              Bin2(1,iNextX,iBin) = real(iIA,kind=wp)
+              Bin2(1,0,iBin) = real(iNextX,kind=wp)
             end do
           end do
         end do !iA
@@ -521,16 +520,16 @@ do iBlock=1,nBlocks
   do iBin=1,nBins
     if (NonZeroSym(1) .or. NonZeroSym(2)) then
       do
-        iLen = nint(Bin(iBinOff(0,1,iBin)))
+        iLen = nint(Bin(1,0,iBin))
         do i=1,iLen
-          iIA = nint(Bin(iBinOff(i,1,iBin)))+1
-          Temp1(iIA) = Bin(iBinOff(i,2,iBin))
+          iIA = nint(Bin(1,i,iBin))+1
+          Temp1(iIA) = Bin(2,i,iBin)
         end do
 
-        iNextAdr = nint(Bin(iBinOff(0,2,iBin)))
+        iNextAdr = nint(Bin(2,0,iBin))
         if (iNextAdr == -1) exit
         iAdrRdBin = iNextAdr
-        call dDaFile(LuBin,2,Bin(iBinOff(0,1,iBin)),iBinLength,iAdrRdBin)
+        call dDaFile(LuBin,2,Bin(:,:,iBin),iBinLength,iAdrRdBin)
       end do
       ! Do second halftransformation
       call dGemm_('N','N',nBas(iSym_B),nOcc(iSym_A),nExt(iSym_B),One,CMO_v(iOffCMO_v(iSym_B)+1),nBas(iSym_B),Temp1,nExt(iSym_B), &
@@ -542,16 +541,16 @@ do iBlock=1,nBlocks
 
     if ((NonZeroSym(3) .or. NonZeroSym(4)) .and. (.not. Triangular)) then
       do
-        iLen = nint(Bin2(iBinOff(0,1,iBin)))
+        iLen = nint(Bin2(1,0,iBin))
         do i=1,iLen
-          iIA = nint(Bin2(iBinOff(i,1,iBin)))+1
-          Temp1_2(iIA) = Bin2(iBinOff(i,2,iBin))
+          iIA = nint(Bin2(1,i,iBin))+1
+          Temp1_2(iIA) = Bin2(2,i,iBin)
         end do
 
-        iNextAdr = nint(Bin2(iBinOff(0,2,iBin)))
+        iNextAdr = nint(Bin2(2,0,iBin))
         if (iNextAdr == -1) exit
         iAdrRdBin = iNextAdr
-        call dDaFile(LuBin,2,Bin2(iBinOff(0,1,iBin)),iBinLength,iAdrRdBin)
+        call dDaFile(LuBin,2,Bin2(:,:,iBin),iBinLength,iAdrRdBin)
       end do
       call dGemm_('N','N',nBas(iSym_A),nOcc(iSym_B),nExt(iSym_A),One,CMO_v(iOffCMO_v(iSym_A)+1),nBas(iSym_A),Temp1_2,nExt(iSym_A), &
                   Zero,Temp2_2,nBas(iSym_A))
@@ -564,7 +563,7 @@ do iBlock=1,nBlocks
         nNu = nBas(iSym_B)
         if (Triangular) nNu = iMu
         do iNu=1,nNu
-          iTriMuNu = iTri(iNu,iMu)
+          iTriMuNu = max(iNu,iMu)*(max(iNu,iMu)-1)/2+min(iNu,iMu)
           iMuNu1 = iNu+(iMu-1)*nBas(iSym_B)
           iMuNu2 = iMu+(iNu-1)*nBas(iSym_A)
           Temp2(iTriMuNu) = (Temp1(iMuNu1)+Temp1(iMuNu2))/2

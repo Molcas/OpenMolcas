@@ -11,21 +11,16 @@
 
 subroutine rhs_mp2_help2(iSymA,iSymB,iSymI,iSymJ,Int1,Int2,Scr1)
 
-use MBPT2_Global, only: Density, ip_Density, ip_Mp2Lagr, Mp2Lagr
+use MBPT2_Global, only: Density, Mp2Lagr
 use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iSymA, iSymB, iSymI, iSymJ
 real(kind=wp), intent(out) :: Int1(*), Int2(*), Scr1(*)
-integer(kind=iwp) :: iA, iAK, iB, iC, iCI, iI, iIC, iJ, iK, iKA, nB, nJ
+integer(kind=iwp) :: iA, iAA, iAK, iB, iBB, iC, iCC, iCI, iI, iIC, iJ, iK, iKA, nB, nJ
 real(kind=wp) :: Fac, xacbi, xaibc, xiajk, xikja
 #include "corbinf.fh"
-! statement functions
-integer(kind=iwp) :: i, j, k, iVirVir, iOccOcc, iMp2Lagr
-iVirVir(i,j,k) = nFro(k)+nOcc(k)+j-1+(nOrb(k)+nDel(k))*(i+nFro(k)+nOcc(k)-1)
-iOccOcc(i,j,k) = j-1+(nOrb(k)+nDel(k))*(i-1)
-iMp2Lagr(i,j,k) = ip_Mp2Lagr(k)+j-1+(nOcc(k)+nFro(k))*(i-1)
 
 !-----------------------------------------------------------------------
 !write(u6,*) 'Starting subroutine with symmetries: '
@@ -38,10 +33,12 @@ iMp2Lagr(i,j,k) = ip_Mp2Lagr(k)+j-1+(nOcc(k)+nFro(k))*(i-1)
 
 nB = nExt(iSymB)+nDel(iSymB)
 do iA=1,nExt(iSymA)+nDel(iSymA)
+  iAA = iA+nFro(iSymA)+nOcc(iSymA)
   ! Decide i the AB-matrix is symmetric, if so
   ! only loop over lower triangle
   if (iSymA == iSymB) nB = iA
   do iB=1,nB
+    iBB = iB+nFro(iSymB)+nOcc(iSymB)
 
     call Exch(iSymI,iSymA,iSymJ,iSymB,iA+nOcc(iSymA)+nFro(iSymA),iB+nOcc(iSymB)+nFro(iSymB),Int1,Scr1)
     if (iSymA /= iSymB) then
@@ -68,6 +65,7 @@ do iA=1,nExt(iSymA)+nDel(iSymA)
       iIC = (nFro(iSymB)+nOcc(iSymB))*(nOrb(iSymA)+nDel(iSymA))
       iCI = nFro(iSymB)+nOcc(iSymB)
       do iC=1,nExt(iSymB)+nDel(iSymB)
+        iCC = iC+nFro(iSymB)+nOcc(iSymB)
         do iI=1,nOcc(iSymA)+nFro(iSymA)
           xaibc = Int1(iIC+iI+(iC-1)*(nOrb(iSymA)+nDel(iSymA)))
           if (iSymA == iSymB) then
@@ -75,22 +73,20 @@ do iA=1,nExt(iSymA)+nDel(iSymA)
           else
             xacbi = Int2(iCI+iC+(iI-1)*(nOrb(iSymB)+nDel(iSymB)))
           end if
-          Mp2Lagr(iMp2Lagr(iA,iI,iSymA)) = Mp2Lagr(iMp2Lagr(iA,iI,iSymA))- &
-                                           Fac*Density(ip_Density(iSymB)+iVirVir(iB,iC,iSymB))*(Two*xaibc-xacbi)
+          Mp2Lagr%SB(iSymA)%A2(iI,iA) = Mp2Lagr%SB(iSymA)%A2(iI,iA)-Fac*Density%SB(iSymB)%A2(iCC,iBB)*(Two*xaibc-xacbi)
           if (iSymA == iSymB) then
-            Mp2Lagr(iMp2Lagr(iB,iI,iSymA)) = Mp2Lagr(iMp2Lagr(iB,iI,iSymA))- &
-                                             Fac*Density(ip_Density(iSymB)+iVirVir(iA,iC,iSymB))*(Two*xacbi-xaibc)
+            Mp2Lagr%SB(iSymA)%A2(iI,iB) = Mp2Lagr%SB(iSymA)%A2(iI,iB)-Fac*Density%SB(iSymB)%A2(iCC,iAA)*(Two*xacbi-xaibc)
           end if
           !write(u6,*) 'AIBC',iA,iI,iB,iC
           !write(u6,*) 'AIBC2',iB,iI,iA,iC
           !write(u6,*) 'icab',xaibc
           !write(u6,*) 'ibac',xacbi
-          !write(u6,*) 'Dens',Density(ip_Density(iSymB)+iVirVir(iB,iC,iSymB))
-          !write(u6,*) 'Dens2',Density(ip_Density(iSymB)+iVirVir(iA,iC,iSymB))
+          !write(u6,*) 'Dens',Density%SB(iSymB)%A2(iCC,iBB)
+          !write(u6,*) 'Dens2',Density%SB(iSymB)%A2(iCC,iAA)
           !write(u6,*) 'A',(Two*xaibc-xacbi)
           !write(u6,*) 'A2',(Two*xacbi-xaibc)
-          !write(u6,*) 'Bidrag',Density(ip_Density(iSymB)+iVirVir(iB,iC,iSymB))*(Two*xaibc-xacbi)
-          !write(u6,*) 'Bidrag2',Density(ip_Density(iSymB)+iVirVir(iA,iC,iSymB))*(Two*xacbi-xaibc)
+          !write(u6,*) 'Bidrag',Density%SB(iSymB)%A2(iCC,iBB)*(Two*xaibc-xacbi)
+          !write(u6,*) 'Bidrag2',Density%SB(iSymB)%A2(iCC,iAA)*(Two*xacbi-xaibc)
 
         end do
       end do
@@ -102,11 +98,11 @@ do iA=1,nExt(iSymA)+nDel(iSymA)
         iIC = (nFro(iSymA)+nOcc(iSymA))*(nOrb(iSymB)+nDel(iSymB))
         iCI = nFro(iSymA)+nOcc(iSymA)
         do iC=1,nExt(iSymA)+nDel(iSymA)
+          iCC = iC+nFro(iSymA)+nOcc(iSymA)
           do iI=1,nFro(iSymB)+nOcc(iSymB)
             xaibc = Int1(iCI+iC+(iI-1)*(nOrb(iSymA)+nDel(iSymA)))
             xacbi = Int2(iIC+iI+(iC-1)*(nOrb(iSymB)+nDel(iSymB)))
-            Mp2Lagr(iMp2Lagr(iB,iI,iSymB)) = Mp2Lagr(iMp2Lagr(iB,iI,iSymB))- &
-                                             Fac*Density(ip_Density(iSymA)+iVirVir(iA,iC,iSymA))*(Two*xaibc-xacbi)
+            Mp2Lagr%SB(iSymB)%A2(iI,iB) = Mp2Lagr%SB(iSymB)%A2(iI,iB)-Fac*Density%SB(iSymA)%A2(iCC,iAA)*(Two*xaibc-xacbi)
           end do
         end do
       end if
@@ -161,11 +157,9 @@ do iI=1,nFro(iSymI)+nOcc(iSymI)
           else
             xiajk = Int2(iAK+iA+(iK-1)*(nOrb(iSymJ)+nDel(iSymJ)))
           end if
-          Mp2Lagr(iMp2Lagr(iA,iJ,iSymJ)) = Mp2Lagr(iMp2Lagr(iA,iJ,iSymJ))- &
-                                           Fac*Density(ip_Density(iSymI)+iOccOcc(iI,iK,iSymI))*(Two*xikja-xiajk)
+          Mp2Lagr%SB(iSymJ)%A2(iJ,iA) = Mp2Lagr%SB(iSymJ)%A2(iJ,iA)-Fac*Density%SB(iSymI)%A2(iK,iI)*(Two*xikja-xiajk)
           if (iSymI == iSymJ) then
-            Mp2Lagr(iMp2Lagr(iA,iI,iSymJ)) = Mp2Lagr(iMp2Lagr(iA,iI,iSymJ))- &
-                                             Fac*Density(ip_Density(iSymI)+iOccOcc(iJ,iK,iSymI))*(Two*xiajk-xikja)
+            Mp2Lagr%SB(iSymJ)%A2(iI,iA) = Mp2Lagr%SB(iSymJ)%A2(iI,iA)-Fac*Density%SB(iSymI)%A2(iK,iJ)*(Two*xiajk-xikja)
           end if
           !write(u6,*) 'xikja',xikja
           !write(u6,*) 'xiajk',xiajk
@@ -179,8 +173,7 @@ do iI=1,nFro(iSymI)+nOcc(iSymI)
           do iA=1,nExt(iSymI)+nDel(iSymI)
             xikja = Int1(iAK+iA+(iK-1)*(nOrb(iSymI)+nDel(iSymI)))
             xiajk = Int2(iKA+iK+(iA-1)*(nOrb(iSymJ)+nDel(iSymJ)))
-            Mp2Lagr(iMp2Lagr(iA,iI,iSymI)) = Mp2Lagr(iMp2Lagr(iA,iI,iSymI))- &
-                                             Fac*Density(ip_Density(iSymJ)+iOccOcc(iJ,iK,iSymJ))*(Two*xikja-xiajk)
+            Mp2Lagr%SB(iSymI)%A2(iI,iA) = Mp2Lagr%SB(iSymI)%A2(iI,iA)-Fac*Density%SB(iSymJ)%A2(iK,iJ)*(Two*xikja-xiajk)
           end do
         end do
       end if

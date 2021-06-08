@@ -9,8 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Build_Mp2Dens_Old(TriDens,Density,ip_Density,CMO,mSym,nOrbAll,nOccAll,Diagonalize)
+subroutine Build_Mp2Dens_Old(TriDens,Density,CMO,mSym,nOrbAll,Diagonalize)
 
+use Data_Structures, only: DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -20,20 +21,17 @@ use Definitions, only: u6
 
 implicit none
 real(kind=wp), intent(out) :: TriDens(*)
-real(kind=wp), intent(in) :: Density(*)
-integer(kind=iwp), intent(in) :: ip_Density(8), mSym, nOrbAll(8), nOccAll(8)
+type(DSBA_Type), intent(in) :: Density
+integer(kind=iwp), intent(in) :: mSym, nOrbAll(8)
 real(kind=wp), intent(in) :: CMO(*)
 logical(kind=iwp), intent(in) :: Diagonalize
-integer(kind=iwp) :: idx, ipSymLin(8), ipSymRec(8), ipSymTri(8), iSym, iUHF, lRecTot, LuMP2, nOrbAllMax, nOrbAllTot
+integer(kind=iwp) :: i, idx, ipSymLin(8), ipSymRec(8), ipSymTri(8), iSym, iUHF, j, lRecTot, LuMP2, nOrbAllMax, nOrbAllTot
 character(len=30) :: Note
 integer(kind=iwp), allocatable :: IndT(:,:)
 real(kind=wp), allocatable :: AORecBlock(:), AOTriBlock(:), EigenValBlock(:), EigenValTot(:), EigenVecBlock(:), EigenVecTot(:), &
                               Energies(:), MOTriBlock(:), TmpRecBlock(:)
 integer(kind=iwp), external :: IsFreeUnit
 #include "corbinf.fh"
-! statement function
-integer(kind=iwp) :: i, j, iTri
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 nOrbAllTot = nOrbAll(1)
 nOrbAllMax = nOrbAll(1)
@@ -88,8 +86,8 @@ do iSym=1,mSym
       end do
     end if
     ! Transform the symmetryblock to AO-density
-    call DGEMM_('N','N',nOrbAll(iSym),nOrbAll(iSym),nOrbAll(iSym),One,CMO(ipSymRec(iSym)+1),nOrbAll(iSym), &
-                Density(ip_Density(iSym)),nOrbAll(iSym),Zero,TmpRecBlock,nOrbAll(iSym))
+    call DGEMM_('N','N',nOrbAll(iSym),nOrbAll(iSym),nOrbAll(iSym),One,CMO(ipSymRec(iSym)+1),nOrbAll(iSym),Density%SB(iSym)%A1, &
+                nOrbAll(iSym),Zero,TmpRecBlock,nOrbAll(iSym))
     call DGEMM_('N','T',nOrbAll(iSym),nOrbAll(iSym),nOrbAll(iSym),One,TmpRecBlock,nOrbAll(iSym),CMO(ipSymRec(iSym)+1), &
                 nOrbAll(iSym),Zero,AORecBlock,nOrbAll(iSym))
     !call RecPrt('AODens:','(20F8.5)',AORecBlock,nOrb(iSym),nOrb(iSym))
@@ -103,7 +101,7 @@ do iSym=1,mSym
       idx = 1
       do i=1,nOrbAll(iSym)
         do j=1,i
-          MOTriBlock(idx) = Density(ip_Density(iSym)+j-1+(i-1)*(nOrbAll(iSym)))
+          MOTriBlock(idx) = Density%SB(iSym)%A2(j,i)
           idx = idx+1
         end do
       end do
@@ -111,7 +109,7 @@ do iSym=1,mSym
       call NIDiag(MOTriBlock,EigenVecBlock,nOrbAll(iSym),nOrbAll(iSym))
 
       do i=1,nOrbAll(iSym)
-        EigenValBlock(i) = MOTriBlock(iTri(i,i))
+        EigenValBlock(i) = MOTriBlock(i*(i+1)/2)
       end do
 
       call JacOrd3(EigenValBlock,EigenVecBlock,nOrbAll(iSym),nOrbAll(iSym))
@@ -172,7 +170,5 @@ if (Diagonalize) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(nOccAll)
 
 end subroutine Build_Mp2Dens_Old

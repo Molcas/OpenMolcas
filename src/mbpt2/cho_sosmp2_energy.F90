@@ -17,6 +17,7 @@ subroutine Cho_SOSmp2_Energy(irc,EMP2,EOcc,EVir,Delete)
 ! Purpose: compute "Scaled Opposite-Spin" MP2 energy correction from
 !          MO Cholesky vectors of the matrix M(ai,bj)=(ai|bj)^2.
 
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
@@ -36,9 +37,6 @@ real(kind=r8), external :: ddot_
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
-! statement function
-integer(kind=iwp) :: i, j, MulD2h
-MulD2h(i,j) = ieor(i-1,j-1)+1
 
 irc = 0
 
@@ -77,7 +75,7 @@ do jSym=1,nSym
 
     nOV = 0
     do iiSym=1,nSym
-      iaSym = MulD2h(iiSym,jSym)
+      iaSym = Mul(iiSym,jSym)
       do ii=1,nOcc(iiSym)
         iiT = iiSoff(iiSym)+ii
         iaS = nOV+nVir(iaSym)*(ii-1)

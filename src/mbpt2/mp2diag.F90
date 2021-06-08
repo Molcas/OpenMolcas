@@ -16,7 +16,7 @@ subroutine Mp2Diag()
 !                                                                      *
 !***********************************************************************
 
-use MBPT2_Global, only: DiaA, EOcc, EVir, ip_DiaA, mAdDel, mAdFro, mAdOcc, mAdVir
+use MBPT2_Global, only: DiaA, EOcc, EVir, mAdDel, mAdFro, mAdOcc, mAdVir
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Four
 use Definitions, only: wp, iwp
@@ -29,9 +29,6 @@ integer(kind=iwp) :: iA, iB, iI, iJ, iSym, iSym1, iSym2, nMaxOrb
 real(kind=wp) :: E_a, E_i, Ediff, xibja, xijab, xijba
 real(kind=wp), allocatable :: Int1(:), IntC(:), Scr1(:)
 #include "corbinf.fh"
-! statement function
-integer(kind=iwp) :: i, j, k, iDiaA
-iDiaA(i,j,k) = ip_DiaA(k)+j-1+(nOcc(k)+nFro(k))*(i-1)
 
 !                                                                      *
 !***********************************************************************
@@ -89,7 +86,7 @@ do iSym=1,nSym
       !write(u6,*) 'xijba',xijba
       !write(u6,*) 'xibja',xibja
       !-----------------------------------------------------------------
-      DiaA(iDiaA(iA,iI,iSym)) = DiaA(iDiaA(iA,iI,iSym))+One/(Ediff+Four*xijab-xijba-xibja)
+      DiaA%SB(iSym)%A2(iI,iA) = DiaA%SB(iSym)%A2(iI,iA)+One/(Ediff+Four*xijab-xijba-xibja)
 
     end do
   end do
@@ -101,7 +98,7 @@ call mma_deallocate(Scr1)
 #ifdef _DEBUGPRINT_
 do iSym=1,nSym
   write(u6,*) 'Symmetry nr',iSym
-  call RecPrt('Diag(ia|ia)','',DiaA(iDiaA(1,1,iSym)),nOcc(iSym),nExt(iSym))
+  call RecPrt('Diag(ia|ia)','',DiaA%SB(iSym)%A2,nOcc(iSym),nExt(iSym))
 end do
 #endif
 

@@ -13,22 +13,20 @@
 
 subroutine Check_Amp2(nSym,nOcc,nVir,iSkip)
 
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nSym, nOcc(nSym), nVir(nSym)
 integer(kind=iwp), intent(out) :: iSkip
 integer(kind=iwp) :: iSym, iSyma, iSymi, nT1amTot, nT1am(8)
-! statement function
-integer(kind=iwp) :: i, j, MulD2h
-MulD2h(i,j) = ieor(i-1,j-1)+1
 
 iSkip = 0
 nT1amTot = 0
 do iSym=1,nSym
   nT1am(iSym) = 0
   do iSymi=1,nSym
-    iSyma = MulD2h(iSymi,iSym)
+    iSyma = Mul(iSymi,iSym)
     nT1am(iSym) = nT1am(iSym)+nVir(iSyma)*nOcc(iSymi)
   end do
   nT1amTot = nT1amTot+nT1am(iSym)

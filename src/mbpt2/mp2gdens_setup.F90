@@ -11,53 +11,30 @@
 
 subroutine MP2gDens_setup()
 
-use MBPT2_Global, only: Density, DiaA, ip_Density, ip_DiaA, ip_Mp2Lagr, ip_WDensity, mAdDel, mAdFro, mAdOcc, mAdVir, Mp2Lagr, &
-                        WDensity
-use stdalloc, only: mma_allocate
+use MBPT2_Global, only: Density, DiaA, mAdDel, mAdFro, mAdOcc, mAdVir, Mp2Lagr, WDensity
+use Data_Structures, only: Allocate_DSBA
 use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: i, iSym, l_Density, l_DiaA, l_Mp2Lagr, nExtT, nOccT
+integer(kind=iwp) :: iSym, nExtT, nOccT
 #include "corbinf.fh"
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-l_Density = 0
-l_Mp2Lagr = 0
-l_DiaA = 0
-do iSym=1,nSym
-  l_Density = l_Density+(nOrb(iSym)+nDel(iSym))*(nOrb(iSym)+nDel(iSym))
-  l_Mp2Lagr = l_Mp2Lagr+(nFro(iSym)+nOcc(iSym))*(nExt(iSym)+nDel(iSym))
-  l_DiaA = l_DiaA+(nFro(iSym)+nOcc(iSym))*(nExt(iSym)+nDel(iSym))
-end do
+call Allocate_DSBA(Density,nOrb+nDel,nOrb+nDel,nSym,label='MP2Density')
+call Allocate_DSBA(WDensity,nOrb+nDel,nOrb+nDel,nSym,label='MP2WDensity')
+call Allocate_DSBA(Mp2Lagr,nFro+nOcc,nExt+nDel,nSym,label='MP2Lagr')
+call Allocate_DSBA(DiaA,nFro+nOcc,nExt+nDel,nSym,Label='MP2DiaA')
+
+Density%A0(:) = Zero
+WDensity%A0(:) = Zero
+Mp2Lagr%A0(:) = Zero
+DiaA%A0(:) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call mma_allocate(Density,l_Density,label='MP2Density')
-call mma_allocate(WDensity,l_Density,label='MP2WDensity')
-call mma_allocate(Mp2Lagr,l_Mp2Lagr,label='MP2Lagr')
-call mma_allocate(DiaA,l_DiaA,label='MP2DiaA')
-
-Density(:) = Zero
-WDensity(:) = Zero
-Mp2Lagr(:) = Zero
-DiaA(:) = Zero
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-ip_Density(1) = 1
-ip_WDensity(1) = 1
-ip_Mp2Lagr(1) = 1
-ip_DiaA(1) = 1
-do i=1,nSym-1
-  ip_Density(i+1) = ip_Density(i)+(nOrb(i)+nDel(i))*(nOrb(i)+nDel(i))
-  ip_WDensity(i+1) = ip_WDensity(i)+(nOrb(i)+nDel(i))*(nOrb(i)+nDel(i))
-  ip_Mp2Lagr(i+1) = ip_Mp2Lagr(i)+(nFro(i)+nOcc(i))*(nExt(i)+nDel(i))
-  ip_DiaA(i+1) = ip_DiaA(i)+(nFro(i)+nOcc(i))*(nExt(i)+nDel(i))
-end do
-
 mAdOcc(1) = 1
 nOccT = nOcc(1)
 do iSym=2,nSym

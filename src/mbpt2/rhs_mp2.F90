@@ -12,12 +12,13 @@
 subroutine RHS_MP2()
 ! The RHS for the MP2-gradients
 
-use MBPT2_Global, only: Density, EMP2, ip_Density, LuIntM, mAdOcc, mAdVir, VECL2
+use MBPT2_Global, only: Density, EMP2, LuIntM, mAdOcc, mAdVir, VECL2
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
-use MBPT2_Global, only: EOcc, EVir, ip_Mp2Lagr, ip_WDensity, mAdDel, mAdFro, Mp2Lagr, WDensity
+use MBPT2_Global, only: EOcc, EVir, mAdDel, mAdFro, Mp2Lagr, WDensity
 use Definitions, only: u6
 #endif
 
@@ -130,14 +131,14 @@ do iSym=1,nSym
   nI = nOcc(iSym)+nFro(iSym)
   nA = nExt(iSym)+nDel(iSym)
   nB = nOrb(iSym)+nDel(iSym)
-  call RecPrt('MP2Lagr',' ',Mp2Lagr(ip_Mp2Lagr(iSym)),nI,nA)
-  call RecPrt('Dens',' ',Density(ip_Density(iSym)),nB,nB)
+  call RecPrt('MP2Lagr',' ',Mp2Lagr%SB(iSym)%A1,nI,nA)
+  call RecPrt('Dens',' ',Density%SB(iSym)%A1,nB,nB)
 end do
 #endif
 do iSymI=1,nSym
   do iSymJ=1,iSymI
     do iSymA=1,nSym
-      iSymB = ieor(iSymA-1,(ieor(iSymI-1,iSymJ-1)))+1
+      iSymB = Mul(iSymA,Mul(iSymI,iSymJ))
       if (iSymB <= iSymA) then
         ! Check if there is any doubly excited configurations in
         ! the current symmetry.
@@ -154,8 +155,8 @@ do iSym=1,nSym
   nI = nOcc(iSym)+nFro(iSym)
   nA = nExt(iSym)+nDel(iSym)
   nB = nOrb(iSym)+nDel(iSym)
-  call RecPrt('MP2Lagr',' ',Mp2Lagr(ip_Mp2Lagr(iSym)),nI,nA)
-  call RecPrt('Dens',' ',Density(ip_Density(iSym)),nB,nB)
+  call RecPrt('MP2Lagr',' ',Mp2Lagr%SB(iSym)%A1,nI,nA)
+  call RecPrt('Dens',' ',Density%SB(iSym)%A1,nB,nB)
 end do
 #endif
 !                                                                      *
@@ -164,12 +165,10 @@ end do
 do iSym=1,nSym
   do i=1,nOcc(iSym)+nExt(iSym)
     do j=1,nFro(iSym)
-      Density(ip_Density(iSym)+i+nFro(iSym)-1+(j-1)*(nOrb(iSym)+nDel(iSym))) = &
-         Density(ip_Density(iSym)+j-1+(i+nFro(iSym)-1)*(nOrb(iSym)+nDel(iSym)))
+      Density%SB(iSym)%A2(i+nFro(iSym),j) = Density%SB(iSym)%A2(j,i+nFro(iSym))
     end do
     do j=1,nDel(iSym)
-      Density(ip_Density(iSym)+j+nOrb(iSym)-1+(i+nFro(iSym)-1)*(nOrb(iSym)+nDel(iSym))) = &
-        Density(ip_Density(iSym)+i+nFro(iSym)-1+(j+nOrb(iSym)-1)*(nOrb(iSym)+nDel(iSym)))
+      Density%SB(iSym)%A2(j+nOrb(iSym),i+nFro(iSym)) = Density%SB(iSym)%A2(i+nFro(iSym),j+nOrb(iSym))
     end do
   end do
 end do
@@ -179,8 +178,8 @@ do iSym=1,nSym
   nI = nOcc(iSym)+nFro(iSym)
   nA = nExt(iSym)+nDel(iSym)
   nB = nOrb(iSym)+nDel(iSym)
-  call RecPrt('MP2Lagr',' ',Mp2Lagr(ip_Mp2Lagr(iSym)),nI,nA)
-  call RecPrt('Dens',' ',Density(ip_Density(iSym)),nB,nB)
+  call RecPrt('MP2Lagr',' ',Mp2Lagr%SB(iSym)%A1,nI,nA)
+  call RecPrt('Dens',' ',Density%SB(iSym)%A1,nB,nB)
 end do
 #endif
 
@@ -191,7 +190,7 @@ end do
 do iSymI=1,nSym
   do iSymJ=1,iSymI
     do iSymA=1,nSym
-      iSymB = ieor(iSymA-1,(ieor(iSymI-1,iSymJ-1)))+1
+      iSymB = Mul(iSymA,Mul(iSymI,iSymJ))
       if (iSymB <= iSymA) then
         ! Check if there is any doubly excited configurations in
         ! the current symmetry.
@@ -208,8 +207,8 @@ do iSym=1,nSym
   nI = nOcc(iSym)+nFro(iSym)
   nA = nExt(iSym)+nDel(iSym)
   nB = nOrb(iSym)+nDel(iSym)
-  call RecPrt('MP2Lagr',' ',Mp2Lagr(ip_Mp2Lagr(iSym)),nI,nA)
-  call RecPrt('Dens',' ',Density(ip_Density(iSym)),nB,nB)
+  call RecPrt('MP2Lagr',' ',Mp2Lagr%SB(iSym)%A1,nI,nA)
+  call RecPrt('Dens',' ',Density%SB(iSym)%A1,nB,nB)
 end do
 #endif
 
@@ -236,15 +235,15 @@ write(u6,*) 'EMP2 is ',EMP2
 write(u6,*) ' '
 do iSym=1,nSym
   write(u6,*) 'Density matrix for Symm:',iSym
-  call RecPrt('MP2Density','',Density(ip_Density(iSym)),nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
+  call RecPrt('MP2Density','',Density%SB(iSym)%A1,nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
 end do
 do iSym=1,nSym
   write(u6,*) 'WDensity matrix for Symm:',iSym
-  call RecPrt('MP2WDensity','',WDensity(ip_WDensity(iSym)),nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
+  call RecPrt('MP2WDensity','',WDensity%SB(iSym)%A1,nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
 end do
 do iSym=1,nSym
   write(u6,*) 'Lagrangian matrix for symm',iSym
-  call RecPrt('Lagr2','',Mp2Lagr(ip_Mp2Lagr(iSym)),nFro(iSym)+nOcc(iSym),nExt(iSym)+nDel(iSym))
+  call RecPrt('Lagr2','',Mp2Lagr%SB(iSyM)%A1,nFro(iSym)+nOcc(iSym),nExt(iSym)+nDel(iSym))
 end do
 #endif
 

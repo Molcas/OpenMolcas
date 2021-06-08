@@ -149,7 +149,7 @@ if (iPL >= 2) then
     do iSym=1,nSym
       if ((nDel1(iSym) /= 0) .or. (nDsto(iSym) /= 0)) then
         write(u6,Fmt2//'A,I2,T47,20I3,(/T49,20I3))') 'symmetry species',iSym, &
-                                                    (nBas(iSym)-nFro(iSym)-nOcc(iSym)-iOrb+1,iOrb=nDsto(iSym)+nDel1(iSym),1,-1)
+                                                     (nBas(iSym)-nFro(iSym)-nOcc(iSym)-iOrb+1,iOrb=nDsto(iSym)+nDel1(iSym),1,-1)
       end if
       if (nDel2(iSym) /= 0) then
         write(u6,Fmt2//'A,I2,T47,20I3,(/T49,20I3))') 'symmetry species',iSym,(iDel(iSym,iOrb),iOrb=1,nDel2(iSym))

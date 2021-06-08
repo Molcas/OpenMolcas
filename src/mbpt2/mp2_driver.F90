@@ -62,6 +62,7 @@ real(kind=r8), external :: ddot_, Seconds
 #include "trafo.fh"
 #include "corbinf.fh"
 #include "chomp2_cfg.fh"
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -365,30 +366,30 @@ if (Ready) then
     call SysHalt('mp2_driver')
   else if (DoCholesky .and. (ChoAlg > 0) .and. (.not. SOS_mp2) .and. (.not. LovMP2) .and. (.not. FNOMP2)) then
     if (iPL >= 2) write(u6,'(3(/6X,A,F20.10,A)//6X,A,F20.10,A//6X,A,F15.5)') &
-                    ' SCF energy                           =',ESCF,' a.u.', &
-                    ' Second-order correlation energy      =',E2BJAI,' a.u.', &
-                    ' ( Opposite-Spin contribution         =',-EOSMP2,' )', &
-                    ' Total energy                         =',E2BJAI+ESCF,' a.u.', &
-                    ' Reference weight ( Cref**2 )         =',Wref
+      ' SCF energy                           =',ESCF,' a.u.', &
+      ' Second-order correlation energy      =',E2BJAI,' a.u.', &
+      ' ( Opposite-Spin contribution         =',-EOSMP2,' )', &
+      ' Total energy                         =',E2BJAI+ESCF,' a.u.', &
+      ' Reference weight ( Cref**2 )         =',Wref
   else if (DoCholesky .and. LovMP2) then
     ESSMP2 = E2BJAI+EOSMP2
     if (iPL >= 2) write(u6,'(4(/6X,A,F20.10,A)//6X,A,F20.10,A//6X,A,F15.5)') &
-                    ' SCF energy                           =',ESCF,' a.u.', &
-                    ' Second-order correlation energy      =',E2BJAI,' a.u.', &
-                    ' ( Opposite-Spin contribution         =',-EOSMP2,' )', &
-                    ' ( Same-Spin contribution             =',ESSMP2,' )', &
-                    ' Total energy                         =',E2BJAI+ESCF,' a.u.', &
-                    ' Reference weight ( Cref**2 )         =',Wref
+      ' SCF energy                           =',ESCF,' a.u.', &
+      ' Second-order correlation energy      =',E2BJAI,' a.u.', &
+      ' ( Opposite-Spin contribution         =',-EOSMP2,' )', &
+      ' ( Same-Spin contribution             =',ESSMP2,' )', &
+      ' Total energy                         =',E2BJAI+ESCF,' a.u.', &
+      ' Reference weight ( Cref**2 )         =',Wref
   else if (DoCholesky .and. FNOMP2) then
     ESSMP2 = E2BJAI+EOSMP2-XEMP2
     if (iPL >= 2) write(u6,'(5(/6X,A,F20.10,A)//6X,A,F20.10,A//6X,A,F15.5)') &
-                    ' SCF energy                           =',ESCF,' a.u.', &
-                    ' Second-order correlation energy      =',E2BJAI,' a.u.', &
-                    ' ( Opposite-Spin contribution         =',-EOSMP2,' )', &
-                    ' ( Same-Spin contribution             =',ESSMP2,' )', &
-                    ' ( Truncation error estimate          =',XEMP2,' )', &
-                    ' Total energy                         =',E2BJAI+ESCF,' a.u.', &
-                    ' Reference weight ( Cref**2 )         =',Wref
+      ' SCF energy                           =',ESCF,' a.u.', &
+      ' Second-order correlation energy      =',E2BJAI,' a.u.', &
+      ' ( Opposite-Spin contribution         =',-EOSMP2,' )', &
+      ' ( Same-Spin contribution             =',ESSMP2,' )', &
+      ' ( Truncation error estimate          =',XEMP2,' )', &
+      ' Total energy                         =',E2BJAI+ESCF,' a.u.', &
+      ' Reference weight ( Cref**2 )         =',Wref
   else if (DoCholesky .and. SOS_mp2) then ! CD/DF SOS-MP2 energy
     E2BJAI = C_os*E2BJAI
     if (iPL >= 2) then
@@ -408,10 +409,10 @@ if (Ready) then
   else
     WRef = REFC**2
     if (iPL >= 2) write(u6,'(2(/6X,A,F20.10,A)//6X,A,F20.10,A/6X,A,F15.5)') &
-                    ' SCF energy                           =',ESCF,' a.u.', &
-                    ' Second-order correlation energy      =',E2BJAI,' a.u.', &
-                    ' Total energy                         =',E2BJAI+ESCF,' a.u.', &
-                    ' Reference weight ( Cref**2 )         =',Wref
+      ' SCF energy                           =',ESCF,' a.u.', &
+      ' Second-order correlation energy      =',E2BJAI,' a.u.', &
+      ' Total energy                         =',E2BJAI+ESCF,' a.u.', &
+      ' Reference weight ( Cref**2 )         =',Wref
   end if
   if (iPL >= 2) then
     ETot = E2BJAI+ESCF
@@ -446,8 +447,8 @@ end if
 
 if (Conventional .and. (iPL >= 2)) then
   write(u6,'(//6X,A//6X,A/6X,A/)') ' Data processing and timing information:', &
-                                  ' Section                                              time(sec)', &
-                                  '                                                    CPU  Elapsed'
+                                   ' Section                                              time(sec)', &
+                                   '                                                    CPU  Elapsed'
   write(u6,'(6X,A,2(2X,F8.2))') 'Input data processing                        ',TCPE(2)-TCPE(1),TIOE(2)-TIOE(1)
   write(u6,'(6X,A,2(2X,F8.2))') 'Transformation of integrals                  ',TCPE(3)-TCPE(2),TIOE(3)-TIOE(2)
   write(u6,'(6X,A,2(2X,F8.2))') 'MBPT2 calculations (BJAI)                    ',TCPE(4)-TCPE(3),TIOE(4)-TIOE(3)

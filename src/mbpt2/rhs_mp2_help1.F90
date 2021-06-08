@@ -11,28 +11,19 @@
 
 subroutine rhs_mp2_help1(iSymA,iSymB,iSymI,iSymJ,Int1,Int2,Scr1)
 
-use MBPT2_Global, only: Density, EMP2, EOcc, EVir, ip_Density, ip_Mp2Lagr, ip_WDensity, mAdDel, mAdFro, mAdOcc, mAdVir, Mp2Lagr, &
-                        VECL2, WDensity
+use MBPT2_Global, only: Density, EMP2, EOcc, EVir, mAdDel, mAdFro, mAdOcc, mAdVir, Mp2Lagr, VECL2, WDensity
 use Constants, only: One, Two
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iSymA, iSymB, iSymI, iSymJ
 real(kind=wp), intent(out) :: Int1(*), Int2(*), Scr1(*)
-integer(kind=iwp) :: iA, iAB, iAC, iB, iBA, iBC, iBDel, iBK, iC, iCA, iCB, iCJ, iI, iIJ, iIK, iJ, iJC, iJFroz, iJI, iJK, iK, iKB, &
-                     iKI, iKJ, nB, nJ
+integer(kind=iwp) :: iA, iAA, iAB, iAC, iB, iBB, iBA, iBC, iBDel, iBK, iC, iCA, iCB, iCJ, iI, iII, iIJ, iIK, iJ, iJC, iJFroz, iJI, &
+                     iJJ, iJK, iK, iKB, iKI, iKJ, nB, nJ
 real(kind=wp) :: EDenom, EDiff, EDiffac, EDiffbc, EDiffik, EDiffjk, fac_ab, fac_ij, T_ab, T_ba, T_ij, T_ji, Tij, Tji, xacbj, &
                  xaibj, xajbc, xajbi, xbcaj, xbiaj, xiajb, xiajc, xiakb, xibja, xibjc, xibjk, xicja, xicjb, xikjb, xjakb, xkaib, &
                  xkajb
 #include "corbinf.fh"
-! statement functions
-integer(kind=iwp) :: i, j, k, iVirVir, iOccOcc, iVirDel, iOccFro, iVirOcc, iMp2Lagr
-iVirVir(i,j,k) = nFro(k)+nOcc(k)+j-1+(nOrb(k)+nDel(k))*(i+nFro(k)+nOcc(k)-1)
-iOccOcc(i,j,k) = nFro(k)+j-1+(nOrb(k)+nDel(k))*(i+nFro(k)-1)
-iVirDel(i,j,k) = nFro(k)+nOcc(k)+j-1+(nOrb(k)+nDel(k))*(i+nFro(k)+nOcc(k)+nExt(k)-1)
-iOccFro(i,j,k) = j-1+(nOrb(k)+nDel(k))*(i+nFro(k)-1)
-iVirOcc(i,j,k) = j-1+nFro(k)+nOcc(k)+(nOrb(k)+nDel(k))*(i-1)
-iMp2Lagr(i,j,k) = ip_Mp2Lagr(k)+j-1+(nOcc(k)+nFro(k))*(i-1)
 
 !                                                                      *
 !***********************************************************************
@@ -114,6 +105,7 @@ do iI=1,nOcc(iSymI)
     iCB = iCA
     do iC=1,nExt(iSymB)
       do iA=1,nExt(iSymA)
+        iAA = iA+nFro(iSymA)+nOcc(iSymA)
         xiajc = Int1(iAC+iA+(iC-1)*(nOrb(iSymA)+nDel(iSymA)))
         if (ISymI == iSymJ) then
           xicja = Int1(iCA+iC+(iA-1)*(nOrb(iSymB)+nDel(iSymB)))
@@ -124,6 +116,7 @@ do iI=1,nOcc(iSymI)
         T_ij = (Two*xiajc-xicja)/EDiffac
         T_ji = (Two*xicja-xiajc)/EDiffac
         do iB=1,nExt(iSymA)
+          iBB = iB+nFro(iSymA)+nOcc(iSymA)
           xibjc = Int1(iBC+iB+(iC-1)*(nOrb(iSymA)+nDel(iSymA)))
           if (ISymI == iSymJ) then
             xicjb = Int1(iCB+iC+(iB-1)*(nOrb(iSymB)+nDel(iSymB)))
@@ -131,10 +124,8 @@ do iI=1,nOcc(iSymI)
             xicjb = Int2(iCB+iC+(iB-1)*(nOrb(iSymB)+nDel(iSymB)))
           end if
           EDiffbc = EOcc(mAdOcc(iSymI)+iI-1)+EOcc(mAdOcc(iSymJ)+iJ-1)-EVir(mAdVir(iSymB)+iC-1)-EVir(mAdVir(iSymA)+iB-1)
-          Density(ip_Density(iSymA)+iVirVir(iA,iB,iSymA)) = Density(ip_Density(iSymA)+iVirVir(iA,iB,iSymA))+ &
-                                                            Fac_ij*((xibjc*T_ij)+(xicjb*T_ji))/EDiffbc
-          WDensity(ip_WDensity(iSymA)+iVirVir(iB,iA,iSymA)) = WDensity(ip_WDensity(iSymA)+iVirVir(iB,iA,iSymA))- &
-                                                              Fac_ij*((xibjc*T_ij)+(xicjb*T_ji))
+          Density%SB(iSymA)%A2(iBB,iAA) = Density%SB(iSymA)%A2(iBB,iAA)+Fac_ij*((xibjc*T_ij)+(xicjb*T_ji))/EDiffbc
+          WDensity%SB(iSymA)%A2(iAA,iBB) = WDensity%SB(iSymA)%A2(iAA,iBB)-Fac_ij*((xibjc*T_ij)+(xicjb*T_ji))
         end do
         !write(u6,*) 'IJABC',iI,iJ,iA,iB,iC
         !write(u6,*) 'Symm',iSymI,iSymJ,iSymA,iSymB,iSymC
@@ -145,6 +136,7 @@ do iI=1,nOcc(iSymI)
         !write(u6,*) 'xiajc',xiajc
         !write(u6,*) 'xibjc',xibjc
         do iBDel=1,nDel(iSymA)
+          iBB = iBDel+nFro(iSymA)+nOcc(iSymA)+nExt(iSymA)
           xibjc = Int1(iBC+iBDel+nExt(iSymA)+(iC-1)*(nOrb(iSymA)+nDel(iSymA)))
           if (ISymI == iSymJ) then
             xicjb = Int1(iBC+iC+(iBDel+nExt(iSymA)-1)*(nOrb(iSymB)+nDel(iSymB)))
@@ -153,12 +145,9 @@ do iI=1,nOcc(iSymI)
 
           end if
           EDiffbc = EVir(mAdVir(iSymA)+iA-1)-EVir(mAdDel(iSymA)+iBDel-1)
-          Density(ip_Density(iSymA)+iVirDel(iBDel,iA,iSymA)) = Density(ip_Density(iSymA)+iVirDel(iBDel,iA,iSymA))+ &
-                                                               Fac_ij*((xibjc*T_ij)+(xicjb*T_ji))/EDiffbc
-          WDensity(ip_WDensity(iSymA)+iVirDel(iBDel,iA,iSymA)) = WDensity(ip_WDensity(iSymA)+iVirDel(iBDel,iA,iSymA))- &
-                                                                 Fac_ij*((xibjc*T_ij)+(xicjb*T_ji))
+          Density%SB(iSymA)%A2(iAA,iBB) = Density%SB(iSymA)%A2(iAA,iBB)+Fac_ij*((xibjc*T_ij)+(xicjb*T_ji))/EDiffbc
+          WDensity%SB(iSymA)%A2(iAA,iBB) = WDensity%SB(iSymA)%A2(iAA,iBB)-Fac_ij*((xibjc*T_ij)+(xicjb*T_ji))
           !-------------------------------------------------------------
-          !write(u6,*) 'index Dens',iVirDel(iBDel,iA,iSymA)
           !write(u6,*) 'xicjb',xicjb
           !write(u6,*) 'xibjc',xibjc
           !write(u6,*) 'EDiffbc',EDiffbc
@@ -191,29 +180,28 @@ do iI=1,nOcc(iSymI)
       iCB = iCA
       do iC=1,nExt(iSymA)
         do iA=1,nExt(iSymB)
+          iAA = iA+nFro(iSymB)+nOcc(iSymB)
           EDiffac = EOcc(mAdOcc(iSymI)+iI-1)+EOcc(mAdOcc(iSymJ)+iJ-1)-EVir(mAdVir(iSymB)+iA-1)-EVir(mAdVir(iSymA)+iC-1)
           xiajc = Int1(iCA+iC+(iA-1)*(nOrb(iSymA)+nDel(iSymA)))
           xicja = Int2(iAC+iA+(iC-1)*(nOrb(iSymB)+nDel(iSymB)))
           T_ij = (Two*xiajc-xicja)/EDiffac
           T_ji = (Two*xicja-xiajc)/EDiffac
           do iB=1,nExt(iSymB)
+            iBB = iB+nFro(iSymB)+nOcc(iSymB)
             EDiffbc = EOcc(mAdOcc(iSymI)+iI-1)+EOcc(mAdOcc(iSymJ)+iJ-1)-EVir(mAdVir(iSymA)+iC-1)-EVir(mAdVir(iSymB)+iB-1)
             xibjc = Int1(iCB+iC+(iB-1)*(nOrb(iSymA)+nDel(iSymA)))
             xicjb = Int2(iBC+iB+(iC-1)*(nOrb(iSymB)+nDel(iSymB)))
-            Density(ip_Density(iSymB)+iVirVir(iA,iB,iSymB)) = Density(ip_Density(iSymB)+iVirVir(iA,iB,iSymB))+ &
-                                                              Fac_ij*((xibjc*T_ij)+(xicjb*T_ji))/EDiffbc
-            WDensity(ip_WDensity(iSymB)+iVirVir(iB,iA,iSymB)) = WDensity(ip_WDensity(iSymB)+iVirVir(iB,iA,iSymB))- &
-                                                                Fac_ij*((xibjc*T_ij)+(xicjb*T_ji))
+            Density%SB(iSymB)%A2(iBB,iAA) = Density%SB(iSymB)%A2(iBB,iAA)+Fac_ij*((xibjc*T_ij)+(xicjb*T_ji))/EDiffbc
+            WDensity%SB(iSymB)%A2(iAA,iBB) = WDensity%SB(iSymB)%A2(iAA,iBB)-Fac_ij*((xibjc*T_ij)+(xicjb*T_ji))
 
           end do
           do iBDel=1,nDel(iSymB)
+            iBB = iBDel+nFro(iSymB)+nOcc(iSymB)+nExt(iSymB)
             xibjc = Int1(iBC+iBDel+nExt(iSymB)+(iC-1)*(nOrb(iSymB)+nDel(iSymB)))
-            xicjb = Int2(iCB+iC+(iBdel+nExt(iSymB)-1)*(nOrb(iSymA)+nDel(iSymA)))
+            xicjb = Int2(iCB+iC+(iBDel+nExt(iSymB)-1)*(nOrb(iSymA)+nDel(iSymA)))
             EDiffbc = EVir(mAdVir(iSymB)+iA-1)-EVir(mAdDel(iSymB)+iBDel-1)
-            Density(ip_Density(iSymA)+iVirDel(iBDel,iA,iSymB)) = Density(ip_Density(iSymB)+iVirDel(iBDel,iA,iSymB))+ &
-                                                                 Fac_ij*((xibjc*T_ij)+(xicjb*T_ji))/EDiffbc
-            WDensity(ip_WDensity(iSymA)+iVirDel(iBDel,iA,iSymB)) = WDensity(ip_WDensity(iSymB)+iVirDel(iBDel,iA,iSymB))- &
-                                                                   Fac_ij*((xibjc*T_ij)+(xicjb*T_ji))
+            Density%SB(iSymB)%A2(iAA,iBB) = Density%SB(iSymB)%A2(iAA,iBB)+Fac_ij*((xibjc*T_ij)+(xicjb*T_ji))/EDiffbc
+            WDensity%SB(iSymB)%A2(iAA,iBB) = WDensity%SB(iSymB)%A2(iAA,iBB)-Fac_ij*((xibjc*T_ij)+(xicjb*T_ji))
           end do
           !-------------------------------------------------------------
           !write(u6,*) 'The Denom is',EDenom
@@ -239,6 +227,7 @@ do iI=1,nOcc(iSymI)
     iKB = (nFro(iSymB)+nOcc(iSymB))*(nOrb(iSymA)+nDel(iSymA))
     iBK = nFro(iSymB)+nOcc(iSymB)
     do iA=1,nExt(iSymA)
+      iAA = iA+nFro(iSymA)+nOcc(iSymA)
       do iB=1,nExt(iSymB)
         EDenom = (EOcc(mAdOcc(iSymI)+iI-1)+EOcc(mAdOcc(iSymJ)+iJ-1)-EVir(mAdVir(iSymA)+iA-1)-EVir(mAdVir(iSymB)+iB-1))
         xiajb = Int1(iAB+iA+(iB-1)*(nOrb(iSymA)+nDel(iSymA)))
@@ -256,9 +245,8 @@ do iI=1,nOcc(iSymI)
           else
             xibjk = Int2(iBK+iB+(iK-1)*(nOrb(iSymB)+nDel(iSymB)))
           end if
-          Mp2Lagr(iMp2Lagr(iA,iK,iSymA)) = Mp2Lagr(iMp2Lagr(iA,iK,iSymA))+Fac_ij*(Tij*Xikjb+Tji*Xibjk)
-          WDensity(ip_WDensity(iSymA)+iVirOcc(iK,iA,iSymA)) = WDensity(ip_WDensity(iSymA)+iVirOcc(iK,iA,iSymA))- &
-                                                              Two*Fac_ij*(Tij*Xikjb+Tji*Xibjk)
+          Mp2Lagr%SB(iSymA)%A2(iK,iA) = Mp2Lagr%SB(iSymA)%A2(iK,iA)+Fac_ij*(Tij*Xikjb+Tji*Xibjk)
+          WDensity%SB(iSymA)%A2(iAA,iK) = WDensity%SB(iSymA)%A2(iAA,iK)-Two*Fac_ij*(Tij*Xikjb+Tji*Xibjk)
           !-------------------------------------------------------------
           !write(u6,*) 'The Denom is',EDenom
           !write(u6,*) 'Tij  ',Tij
@@ -283,6 +271,7 @@ do iI=1,nOcc(iSymI)
       iKB = (nFro(iSymA)+nOcc(iSymA))*(nOrb(iSymB)+nDel(iSymB))
       iBK = nFro(iSymA)+nOcc(iSymA)
       do iA=1,nExt(iSymB)
+        iAA = iA+nFro(iSymB)+nOcc(iSymB)
         do iB=1,nExt(iSymA)
           EDenom = (EOcc(mAdOcc(iSymI)+iI-1)+EOcc(mAdOcc(iSymJ)+iJ-1)-EVir(mAdVir(iSymB)+iA-1)-EVir(mAdVir(iSymA)+iB-1))
           xiajb = Int1(iBA+iB+(iA-1)*(nOrb(iSymA)+nDel(iSymA)))
@@ -294,9 +283,8 @@ do iI=1,nOcc(iSymI)
 
             xibjk = Int2(iKB+iK+(iB-1)*(nOrb(iSymB)+nDel(iSymB)))
 
-            Mp2Lagr(iMp2Lagr(iA,iK,iSymB)) = Mp2Lagr(iMp2Lagr(iA,iK,iSymB))+Fac_ij*(Tij*Xikjb+Tji*Xibjk)
-            WDensity(ip_WDensity(iSymB)+iVirOcc(iK,iA,iSymB)) = WDensity(ip_WDensity(iSymB)+iVirOcc(iK,iA,iSymB))- &
-                                                                Two*Fac_ij*(Tij*Xikjb+Tji*Xibjk)
+            Mp2Lagr%SB(iSymB)%A2(iK,iA) = Mp2Lagr%SB(iSymB)%A2(iK,iA)+Fac_ij*(Tij*Xikjb+Tji*Xibjk)
+            WDensity%SB(iSymB)%A2(iAA,iK) = WDensity%SB(iSymB)%A2(iAA,iK)-Two*Fac_ij*(Tij*Xikjb+Tji*Xibjk)
             !-----------------------------------------------------------
             !write(u6,*) 'The Denom is',EDenom
             !write(u6,*) 'Tij  ',Tij
@@ -364,6 +352,7 @@ do iA=1,nExt(iSymA)
     iKJ = iKI
     do iK=1,nOcc(iSymJ)
       do iI=1,nOcc(iSymI)
+        iII = iI+nFro(iSymI)
         EDiffik = EOcc(mAdOcc(iSymI)+iI-1)+EOcc(mAdOcc(iSymJ)+iK-1)-EVir(mAdVir(iSymA)+iA-1)-EVir(mAdVir(iSymB)+iB-1)
         xiakb = Int1(iIK+iI+(iK-1)*(nOrb(iSymI)+nDel(iSymI)))
         if (iSymA == iSymB) then
@@ -374,6 +363,7 @@ do iA=1,nExt(iSymA)
         T_ab = (Two*xiakb-xkaib)/EDiffik
         T_ba = (Two*xkaib-xiakb)/EDiffik
         do iJ=1,nOcc(iSymI)
+          iJJ = iJ+nFro(iSymI)
           ! Calculating the denominator
 
           EDiffjk = EOcc(mAdOcc(iSymI)+iJ-1)+EOcc(mAdOcc(iSymJ)+iK-1)-EVir(mAdVir(iSymA)+iA-1)-EVir(mAdVir(iSymB)+iB-1)
@@ -391,10 +381,8 @@ do iA=1,nExt(iSymA)
           !write(u6,*) 'xkiab',xkiab
           !write(u6,*) 'xkjab',xkjab
           !-------------------------------------------------------------
-          Density(ip_Density(iSymI)+iOccOcc(iI,iJ,iSymI)) = Density(ip_Density(iSymI)+iOccOcc(iI,iJ,iSymI))- &
-                                                            Fac_ab*(xjakb*T_ab+xkajb*T_ba)/EDiffjk
-          WDensity(ip_WDensity(iSymI)+iOccOcc(iI,iJ,iSymI)) = WDensity(ip_WDensity(iSymI)+iOccOcc(iI,iJ,iSymI))- &
-                                                              Fac_ab*(xjakb*T_ab+xkajb*T_ba)
+          Density%SB(iSymI)%A2(iJJ,iII) = Density%SB(iSymI)%A2(iJJ,iII)-Fac_ab*(xjakb*T_ab+xkajb*T_ba)/EDiffjk
+          WDensity%SB(iSymI)%A2(iJJ,iII) = WDensity%SB(iSymI)%A2(iJJ,iII)-Fac_ab*(xjakb*T_ab+xkajb*T_ba)
 
         end do
         do iJFroz=1,nFro(iSymI)
@@ -405,10 +393,8 @@ do iA=1,nExt(iSymA)
             xkajb = Int2(iK+nFro(iSymJ)+(iJFroz-1)*(nOrb(iSymJ)+nDel(iSymJ)))
           end if
           EDiffjk = EOcc(mAdOcc(iSymI)+iI-1)-EOcc(mAdFro(iSymI)+iJFroz-1)
-          Density(ip_Density(iSymI)+iOccFro(iI,iJFroz,iSymI)) = Density(ip_Density(iSymI)+iOccFro(iI,iJFroz,iSymI))+ &
-                                                                Fac_ab*((xjakb*T_ab)+(xkajb*T_ba))/EDiffjk
-          WDensity(ip_WDensity(iSymI)+iOccFro(iI,iJFroz,iSymI)) = WDensity(ip_WDensity(iSymI)+iOccFro(iI,iJFroz,iSymI))- &
-                                                                  Fac_ab*((xjakb*T_ab)+(xkajb*T_ba))
+          Density%SB(iSymI)%A2(iJFroz,iII) = Density%SB(iSymI)%A2(iJFroz,iII)+Fac_ab*((xjakb*T_ab)+(xkajb*T_ba))/EDiffjk
+          WDensity%SB(iSymI)%A2(iJFroz,iII) = WDensity%SB(iSymI)%A2(iJFroz,iII)-Fac_ab*((xjakb*T_ab)+(xkajb*T_ba))
         end do
       end do
     end do
@@ -420,12 +406,14 @@ do iA=1,nExt(iSymA)
       iKJ = iKI
       do iK=1,nOcc(iSymI)
         do iI=1,nOcc(iSymJ)
+          iII = iI+nFro(iSymJ)
           EDiffik = EOcc(mAdOcc(iSymJ)+iI-1)+EOcc(mAdOcc(iSymI)+iK-1)-EVir(mAdVir(iSymA)+iA-1)-EVir(mAdVir(iSymB)+iB-1)
           xiakb = Int1(iKI+iK+(iI-1)*(nOrb(iSymI)+nDel(iSymI)))
           xkaib = Int2(iIK+iI+(iK-1)*(nOrb(iSymJ)+nDel(iSymJ)))
           T_ab = (Two*xiakb-xkaib)/EDiffik
           T_ba = (Two*xkaib-xiakb)/EDiffik
           do iJ=1,nOcc(iSymJ)
+            iJJ = iJ+nFro(iSymJ)
             ! Calculating the denominator
 
             EDiffjk = EOcc(mAdOcc(iSymJ)+iJ-1)+EOcc(mAdOcc(iSymI)+iK-1)-EVir(mAdVir(iSymA)+iA-1)-EVir(mAdVir(iSymB)+iB-1)
@@ -433,10 +421,8 @@ do iA=1,nExt(iSymA)
             xjakb = Int1(iKJ+iK+(iJ-1)*(nOrb(iSymI)+nDel(iSymI)))
             xkajb = Int2(iJK+iJ+(iK-1)*(nOrb(iSymJ)+nDel(iSymJ)))
 
-            Density(ip_Density(iSymJ)+iOccOcc(iI,iJ,iSymJ)) = Density(ip_Density(iSymJ)+iOccOcc(iI,iJ,iSymJ))- &
-                                                              Fac_ab*(xjakb*T_ab+xkajb*T_ba)/EDiffjk
-            WDensity(ip_WDensity(iSymJ)+iOccOcc(iI,iJ,iSymJ)) = WDensity(ip_WDensity(iSymJ)+iOccOcc(iI,iJ,iSymJ))- &
-                                                                Fac_ab*(xjakb*T_ab+xkajb*T_ba)
+            Density%SB(iSymJ)%A2(iJJ,iII) = Density%SB(iSymJ)%A2(iJJ,iII)-Fac_ab*(xjakb*T_ab+xkajb*T_ba)/EDiffjk
+            WDensity%SB(iSymJ)%A2(iJJ,iII) = WDensity%SB(iSymJ)%A2(iJJ,iII)-Fac_ab*(xjakb*T_ab+xkajb*T_ba)
 
             !-----------------------------------------------------------
             !write(u6,*) 'The Denom is',EDenom
@@ -450,10 +436,8 @@ do iA=1,nExt(iSymA)
             xjakb = Int1(iK+nFro(iSymI)+(iJFroz-1)*(nOrb(iSymI)+nDel(iSymI)))
             xkajb = Int2(iJFroz+(iK+nFro(iSymI)-1)*(nOrb(iSymJ)+nDel(iSymJ)))
             EDiffjk = EOcc(mAdOcc(iSymJ)+iI-1)-EOcc(mAdFro(iSymJ)+iJFroz-1)
-            Density(ip_Density(iSymJ)+iOccFro(iI,iJFroz,iSymJ)) = Density(ip_Density(iSymJ)+iOccFro(iI,iJFroz,iSymJ))+ &
-                                                                  Fac_ab*((xjakb*T_ab)+(xkajb*T_ba))/EDiffjk
-            WDensity(ip_WDensity(iSymJ)+iOccFro(iI,iJFroz,iSymJ)) = WDensity(ip_WDensity(iSymJ)+iOccFro(iI,iJFroz,iSymJ))- &
-                                                                    Fac_ab*((xjakb*T_ab)+(xkajb*T_ba))
+            Density%SB(iSymJ)%A2(iJFroz,iII) = Density%SB(iSymJ)%A2(iJFroz,iII)+Fac_ab*((xjakb*T_ab)+(xkajb*T_ba))/EDiffjk
+            WDensity%SB(iSymJ)%A2(iJFroz,iII) = WDensity%SB(iSymJ)%A2(iJFroz,iII)-Fac_ab*((xjakb*T_ab)+(xkajb*T_ba))
           end do
         end do
       end do
@@ -471,6 +455,7 @@ do iA=1,nExt(iSymA)
     IJI = nFro(iSymJ)+nFro(iSymI)*(nOrb(iSymJ)+nDel(iSymJ))
     do iC=1,nExt(iSymI)+nDel(iSymI)
       do iI=1,nOcc(iSymI)
+        iII = iI+nFro(iSymI)
         do iJ=1,nOcc(iSymJ)
           EDenom = One/(EOcc(mAdOcc(iSymI)+iI-1)+EOcc(mAdOcc(iSymJ)+iJ-1)-EVir(mAdVir(iSymA)+iA-1)-EVir(mAdVir(iSymB)+iB-1))
           xaibj = Int1(iIJ+iI+(iJ-1)*(nOrb(iSymI)+nDel(iSymI)))
@@ -482,8 +467,8 @@ do iA=1,nExt(iSymA)
             xbiaj = Int2(iJI+iJ+(iI-1)*(nOrb(iSymJ)+nDel(iSymJ)))
             xbcaj = Int2(iJC+iJ+(iC-1)*(nOrb(iSymJ)+nDel(iSymJ)))
           end if
-          Mp2Lagr(iMp2Lagr(iC,iI+nFro(iSymI),iSymI)) = Mp2Lagr(iMp2Lagr(iC,iI+nFro(iSymI),iSymI))+ &
-                                                       EDenom*Fac_ab*(-Two*(xaibj*xacbj+xbiaj*xbcaj)+xaibj*xbcaj+xbiaj*xacbj)
+          Mp2Lagr%SB(iSymI)%A2(iII,iC) = Mp2Lagr%SB(iSymI)%A2(iII,iC)+ &
+                                         EDenom*Fac_ab*(-Two*(xaibj*xacbj+xbiaj*xbcaj)+xaibj*xbcaj+xbiaj*xacbj)
 
           !-------------------------------------------------------------
           !write(u6,*) 'EDenom',EDenom
@@ -504,14 +489,15 @@ do iA=1,nExt(iSymA)
       IJI = nFro(iSymI)+nFro(iSymJ)*(nOrb(iSymI)+nDel(iSymI))
       do iC=1,nExt(iSymJ)+nDel(iSymJ)
         do iI=1,nOcc(iSymJ)
+          iII = iI+nFro(iSymJ)
           do iJ=1,nOcc(iSymI)
             EDenom = One/(EOcc(mAdOcc(iSymJ)+iI-1)+EOcc(mAdOcc(iSymI)+iJ-1)-EVir(mAdVir(iSymA)+iA-1)-EVir(mAdVir(iSymB)+iB-1))
             xaibj = Int1(iJI+iJ+(iI-1)*(nOrb(iSymI)+nDel(iSymI)))
             xacbj = Int1(iJC+iJ+(iC-1)*(nOrb(iSymI)+nDel(iSymI)))
             xajbi = Int2(iIJ+iI+(iJ-1)*(nOrb(iSymJ)+nDel(iSymJ)))
             xajbc = Int2(iCJ+iC+(iJ-1)*(nOrb(iSymJ)+nDel(iSymJ)))
-            Mp2Lagr(iMp2Lagr(iC,iI+nFro(iSymJ),iSymJ)) = Mp2Lagr(iMp2Lagr(iC,iI+nFro(iSymJ),iSymJ))+ &
-                                                         EDenom*Fac_ab*(-Two*(xaibj*xacbj+xajbi*xajbc)+xaibj*xajbc+xajbi*xacbj)
+            Mp2Lagr%SB(iSymJ)%A2(iII,iC) = Mp2Lagr%SB(iSymJ)%A2(iII,iC)+ &
+                                           EDenom*Fac_ab*(-Two*(xaibj*xacbj+xajbi*xajbc)+xaibj*xajbc+xajbi*xacbj)
 
             !-----------------------------------------------------------
             !write(u6,*) 'EDenom',EDenom

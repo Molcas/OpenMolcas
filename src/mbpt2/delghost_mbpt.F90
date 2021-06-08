@@ -19,8 +19,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "Molcas.fh"
 integer(kind=iwp) :: i, irc, iStart, iStart_t, iSym, nUniqAt, nZero(8)
-character(len=LenIn8) :: UBName(mxBas)
 real(kind=wp), allocatable :: CMO_t(:), EOrb_t(:)
+character(len=LenIn8), allocatable :: UBName(:)
 logical(kind=iwp), parameter :: Debug = .false.
 #include "corbinf.fh"
 
@@ -54,8 +54,10 @@ write(u6,'(A,8I4)') ' Secondary orbitals before selection:',(nExt(i),i=1,nSym)
 write(u6,'(A,8I4)') ' Deleted orbitals before selection:  ',(nDel(i),i=1,nSym)
 
 call Get_iScalar('Unique atoms',nUniqAt)
+call mma_allocate(UBName,nnB,label='UBName')
 call Get_cArray('Unique Basis Names',UBName,LenIn8*nnB)
 call Delete_GHOSTS(irc,nSym,nBas,nFro,nOcc,nZero,nExt,nDel,UBName,nUniqAt,thr_ghs,.false.,CMO_t,EOrb_t)
+call mma_deallocate(UBName)
 
 if (irc /= 0) then
   write(u6,*) 'Delete_GHOSTS returned rc= ',irc

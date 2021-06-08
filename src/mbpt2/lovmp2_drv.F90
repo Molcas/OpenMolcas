@@ -39,9 +39,9 @@ integer(kind=iwp) :: i, ia, iDo, ie, ifr, ii, ik, iloc, iOff, iSkip, iSym, isyml
                      lOff, lsq, ltri, nAuxO(8), nBmx, nOA, ns_O(8), ns_V(8), nSQ, ntri, nVV, nxBasT, nxOrb, nZero(8)
 real(kind=wp) :: Dummy, EFRO, EOSF, StrA, STrF, STrX, Thrd, TrA(8), TrF(8), TrX(8)
 logical(kind=iwp) :: ortho
-character(len=LenIn8) :: UBName(mxBas)
 integer(kind=iwp), allocatable :: iD_vir(:)
 real(kind=wp), allocatable :: EOrb(:,:), LCMO(:,:), S(:), Saa(:), SQ(:), X(:)
+character(len=LenIn8), allocatable :: UBName(:)
 real(kind=wp), external :: ddot_
 #include "corbinf.fh"
 #include "chomp2_cfg.fh"
@@ -78,7 +78,8 @@ if (nxBasT > mxBas) then
   call Abend()
 end if
 
-call Get_cArray('Unique Basis Names',UBName,(LENIN8)*nxBasT)
+call mma_allocate(UBName,nxBasT,label='UBName')
+call Get_cArray('Unique Basis Names',UBName,(LenIn8)*nxBasT)
 
 !----------------------------------------------------------------------*
 !     Read the overlap matrix                                          *
@@ -225,6 +226,8 @@ else
     loff = loff+nExt(iSym)
   end do
 end if
+
+call mma_deallocate(UBName)
 
 iDo = 0
 jDo = 0

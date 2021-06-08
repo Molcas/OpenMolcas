@@ -17,6 +17,7 @@ subroutine RDINT2_MP2(IPRX)
 ! TR2CTL IMMEDIATELY AFTER THE CALL TO TRA2
 
 use MBPT2_Global, only: LuIntM, nBas
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -44,12 +45,12 @@ do NSP=1,NSYM
     NBQ = NBAS(NSQ)
     NOQ = NORB(NSQ)
     NOCQ = NOCC(NSQ)
-    NSPQ = ieor(NSP-1,NSQ-1)+1
+    NSPQ = Mul(NSP,NSQ)
     do NSR=1,NSYM
       NBR = NBAS(NSR)
       NOR = NORB(NSR)
       NOCR = NOCC(NSR)
-      NSPQR = ieor(NSPQ-1,NSR-1)+1
+      NSPQR = Mul(NSPQ,NSR)
       ISR = NSR
       do NSS=1,NSR
         NBS = NBAS(NSS)

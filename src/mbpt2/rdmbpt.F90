@@ -44,7 +44,7 @@ real(kind=wp), allocatable :: CMO_t(:), EOrb_t(:)
 logical(kind=iwp), parameter :: Debug = .false.
 #include "corbinf.fh"
 
-! Read nSym, nBas, nOrb, nOcc, nFro, CMO and orbital energies from COMFILE
+! Read nSym, nBas, nOrb, nOcc, nFro, CMO and orbital energies from RUNFILE
 
 call Get_iScalar('nSym',nSym)
 call Get_iArray('nBas',nBas,nSym)
@@ -89,7 +89,7 @@ end do
 call mma_deallocate(CMO_t)
 
 Label = 'OrbE'
-Call qpg_dArray(Label,Found,lthEOr)
+call qpg_dArray(Label,Found,lthEOr)
 if ((.not. Found) .or. (lthEOr == 0)) then
   Label = 'Guessorb energies'
   call qpg_dArray(Label,Found,lthEOr)

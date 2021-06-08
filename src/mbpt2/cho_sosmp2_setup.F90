@@ -16,6 +16,7 @@ subroutine Cho_SOSmp2_Setup(irc)
 !
 ! Purpose: setup of SOS-MP2 program.
 
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: iwp
 
@@ -26,9 +27,6 @@ integer(kind=iwp) :: iSym, iSyma, iSymAl, iSymb, iSymi, iTyp
 #include "choorb.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-! statement function
-integer(kind=iwp) :: i, j, MulD2h
-MulD2h(i,j) = ieor(i-1,j-1)+1
 
 irc = 0
 
@@ -54,7 +52,7 @@ end do
 do iSym=1,nSym
   nT1am(iSym) = 0
   do iSymi=1,nSym
-    iSyma = MulD2h(iSymi,iSym)
+    iSyma = Mul(iSymi,iSym)
     iT1am(iSyma,iSymi) = nT1am(iSym)
     nT1am(iSym) = nT1am(iSym)+nVir(iSyma)*nOcc(iSymi)
   end do
@@ -63,7 +61,7 @@ end do
 do iSym=1,nSym
   nT1AOT(iSym) = 0
   do iSymAl=1,nSym
-    iSymi = MulD2h(iSymAl,iSym)
+    iSymi = Mul(iSymAl,iSym)
     iT1AOT(iSymi,iSymAl) = nT1AOT(iSym)
     nT1AOT(iSym) = nT1AOT(iSym)+nOcc(iSymi)*nBas(iSymAl)
   end do
@@ -72,7 +70,7 @@ end do
 do iSym=1,nSym
   nAOVir(iSym) = 0
   do iSyma=1,nSym
-    iSymAl = MulD2h(iSyma,iSym)
+    iSymAl = Mul(iSyma,iSym)
     iAOVir(iSymAl,iSyma) = nAOVir(iSym)
     nAOVir(iSym) = nAOVir(iSym)+nBas(iSymAl)*nVir(iSyma)
   end do
@@ -82,7 +80,7 @@ if (ChoAlg == 2) then
   do iSym=1,nSym
     nMatab(iSym) = 0
     do iSymb=1,nSym
-      iSyma = MulD2h(iSymb,iSym)
+      iSyma = Mul(iSymb,iSym)
       iMatab(iSyma,iSymb) = nMatab(iSym)
       nMatab(iSym) = nMatab(iSym)+nVir(iSyma)*nVir(iSymb)
     end do

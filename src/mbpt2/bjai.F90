@@ -12,6 +12,7 @@
 subroutine BJAI(IAD,EPSI,EPSE,E2BJAI,VECL2)
 
 use MBPT2_Global, only: LuIntM
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Half
 use Definitions, only: wp, iwp, u6, r8
@@ -20,17 +21,14 @@ implicit none
 integer(kind=iwp), intent(out) :: IAD(3888)
 real(kind=wp), intent(in) :: EPSI(*), EPSE(*)
 real(kind=wp), intent(out) :: E2BJAI, VECL2
-integer(kind=iwp) :: iA, IAD1, IAD13, IAD2, IADA, IADAB, IADB, iB, iI, iJ, ISPQRS, iSymA, iSymB, iSymI, iSymJ, LA, LAA, LAB, LAB1, &
-                     nExtA, nExtB, nOccI, nOccJ, nOrbA, nOrbB, NRA, NRB, NRI, NRJ
+integer(kind=iwp) :: i, iA, IAD1, IAD13, IAD2, IADA, IADAB, IADB, iB, iI, iJ, ISPQRS, iSymA, iSymB, iSymI, iSymJ, j, LA, LAA, LAB, &
+                     LAB1, nExtA, nExtB, nOccI, nOccJ, nOrbA, nOrbB, NRA, NRB, NRI, NRJ
 real(kind=wp) :: A, B, CKAL1, CKAL2, dVectorA(255), dVectorB(255), EDIF, EDIFIJ, SKAL1, SKAL2
 logical(kind=iwp) :: DoCholesky
 real(kind=wp), allocatable :: INT1(:), INT2(:), AIBJ(:), AJBI(:)
 logical(kind=iwp), parameter :: Debug = .false.
 real(kind=r8), external :: ddot_
 #include "corbinf.fh"
-! statement function
-integer(kind=iwp) :: I, J, MUL
-MUL(I,J) = 1+ieor(I-1,J-1)
 
 SKAL2 = -huge(SKAL2)
 IAD13 = 0
@@ -64,7 +62,7 @@ do iSymI=1,nSym
         nOrbB = nOrb(iSymB)
         ISPQRS = ISPQRS+1
         if (nOccI*nOccJ*nExtA*nExtB /= 0) then
-          if (MUL(iSymI,iSymJ) == MUL(iSymA,iSymB)) then
+          if (Mul(iSymI,iSymJ) == Mul(iSymA,iSymB)) then
             IAD1 = IAD(3*ISPQRS-1)
             IAD2 = IAD(3*ISPQRS)
 
