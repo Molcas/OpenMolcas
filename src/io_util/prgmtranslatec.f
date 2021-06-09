@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2017, Ignacio Fdez. Galvan                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2017, Ignacio Fdez. Galvan                             *
+!***********************************************************************
 
-* Wrapper for the OpenMolcas PrgmTranslate_Mod routine, so it works
-* without using the module (i.e., from C). Some C-to-Fortran conversion
-* needs to be done, which feels quite hackish.
+! Wrapper for the OpenMolcas PrgmTranslate_Mod routine, so it works
+! without using the module (i.e., from C). Some C-to-Fortran conversion
+! needs to be done, which feels quite hackish.
 
 #ifndef _HAVE_EXTRA_
 #define MAXSTR 1024
@@ -38,7 +38,7 @@
       OutStr(l2+1:l2+1)=C_NULL_CHAR
       End Subroutine PrgmTranslateC
 #elif defined (NAGFOR)
-c Some compilers do not like empty files
+! Some compilers do not like empty files
       Subroutine empty_prgmtranslatec
       End
 #endif

@@ -1,37 +1,37 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991, Per-Olof Widmark                                 *
-*               1993,1996,1997, Markus P. Fuelscher                    *
-*               1996, Luis Serrano-Andres                              *
-*               2012, Victor P. Vysotskiy                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Per-Olof Widmark                                 *
+!               1993,1996,1997, Markus P. Fuelscher                    *
+!               1996, Luis Serrano-Andres                              *
+!               2012, Victor P. Vysotskiy                              *
+!***********************************************************************
       Subroutine DaClos(Lu)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Close unit Lu                                                    *
-*                                                                      *
-*     calling arguments:                                               *
-*     Lu      : integer, input                                         *
-*               logical unit number                                    *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     P.O. Widmark, IBM Sweden, 1991                                   *
-*     M.P. Fuelscher, University of Lund, Sweden, 1993, 1996, 1997     *
-*     L. Serrano-Andres, University of Lund, Sweden, 1996              *
-*     V.P. Vysotskiy, University of Lund, Sweden, 2012                 *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Close unit Lu                                                    *
+!                                                                      *
+!     calling arguments:                                               *
+!     Lu      : integer, input                                         *
+!               logical unit number                                    *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     P.O. Widmark, IBM Sweden, 1991                                   *
+!     M.P. Fuelscher, University of Lund, Sweden, 1993, 1996, 1997     *
+!     L. Serrano-Andres, University of Lund, Sweden, 1996              *
+!     V.P. Vysotskiy, University of Lund, Sweden, 2012                 *
+!                                                                      *
+!***********************************************************************
 
       Implicit Integer (A-Z)
 
@@ -69,10 +69,10 @@
 #endif
 #endif
 
-      If ( (Lu.le.0) .or. (Lu.gt.MxFile) )
-     * Call SysFileMsg(TheName,'MSG: unit', Lu,' ')
-      If ( isOpen(Lu).eq.0 )
-     * Call SysFileMsg(TheName,'MSG: notopened', Lu,' ')
+      If ( (Lu.le.0) .or. (Lu.gt.MxFile) )                              &
+     & Call SysFileMsg(TheName,'MSG: unit', Lu,' ')
+      If ( isOpen(Lu).eq.0 )                                            &
+     & Call SysFileMsg(TheName,'MSG: notopened', Lu,' ')
 #if defined (_HAVE_EXTRA_) && ! defined (_GA_)
       If(isFiM(Lu).eq.0) then
 #endif

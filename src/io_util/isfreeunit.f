@@ -1,35 +1,35 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Valera Veryazov                                        *
-************************************************************************
-*  isFreeUnit
-*
-*> @brief
-*>   Find free unit number
-*> @author V. Veryazov
-*>
-*> @details
-*> Find unused unit number, starting from initial value.
-*>
-*> @param[in] iseed guess for unit number
-*>
-*> @return Free unit number
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Valera Veryazov                                        *
+!***********************************************************************
+!  isFreeUnit
+!
+!> @brief
+!>   Find free unit number
+!> @author V. Veryazov
+!>
+!> @details
+!> Find unused unit number, starting from initial value.
+!>
+!> @param[in] iseed guess for unit number
+!>
+!> @return Free unit number
+!***********************************************************************
        Function isFreeUnit(iseed)
 #include "fio.fh"
        integer, intent(in) :: iseed
-c      check free chanal, starting from init
+!      check free chanal, starting from init
        Logical Opened
-*
-CVV since more and more developers' calling isfreeunit with constant...
+!
+!VV since more and more developers' calling isfreeunit with constant...
        init=iseed
        if(init.lt.1.or.init.gt.300) then
         write(6,*) '*** Possible bug in opening file'
@@ -48,16 +48,16 @@ CVV since more and more developers' calling isfreeunit with constant...
           Call Abend()
        End If
  2     Continue
-*
-*----- Check for Dafile
-*
+!
+!----- Check for Dafile
+!
        If (kan.gt.1.and.kan.le.MxFile.and.isOpen(kan).eq.1) Then
           kan=kan+1
           Go To 1
        End If
-*
-*----- Check for Fortran I/O
-*
+!
+!----- Check for Fortran I/O
+!
        Inquire(unit=kan,opened=Opened)
        If (Opened) Then
           kan=kan+1

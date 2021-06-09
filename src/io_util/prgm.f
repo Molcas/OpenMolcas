@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2017, Ignacio Fdez. Galvan                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2017, Ignacio Fdez. Galvan                             *
+!***********************************************************************
 
-* Module replacing the code in prgminit.c in molcas-extra
+! Module replacing the code in prgminit.c in molcas-extra
 
 #include "compiler_features.h"
 ! from getenvc.c
@@ -82,7 +82,7 @@
         Num = FindFile(Input, FileTable)
         If (Num .gt. 0) Then
 #ifdef _DEBUGPRINT_
-          Write(6,*) 'File ', Trim(Input), ' found in table: ',
+          Write(6,*) 'File ', Trim(Input), ' found in table: ',         &
      &               Trim(FileTable(Num)%Filename)
 #endif
 !         the value of $WorkDir will depend on some attributes,
@@ -200,9 +200,9 @@
 !       Count new unique entries
         j = 0
         Do i=1,Num
-          If (FindFile(TempTable(i)%Shortname,
+          If (FindFile(TempTable(i)%Shortname,                          &
      &                 FileTable, Exact=.True.) .gt. 0) Cycle
-          If (FindFile(TempTable(i)%Shortname,
+          If (FindFile(TempTable(i)%Shortname,                          &
      &                 TempTable(1:i-1), Exact=.True.) .gt. 0) Cycle
           j = j+1
         End Do
@@ -214,7 +214,7 @@
         Do i=1,Size(TempTable)
           If (TempTable(i)%Shortname .eq. '') Exit
           Num = k+1
-          j = FindFile(TempTable(i)%Shortname,
+          j = FindFile(TempTable(i)%Shortname,                          &
      &                 NewTable(1:k), Exact=.True.)
           If (j .gt. 0) Num=j
           NewTable(Num) = TempTable(i)
@@ -247,7 +247,7 @@
       Write(6,*) '===================================='
       Write(6,*) 'Number of entries: ', Size(FileTable)
       Do i=1,Size(FileTable)
-      Write(6,FmtStr) FileTable(i)%Shortname, FileTable(i)%Filename,
+      Write(6,FmtStr) FileTable(i)%Shortname, FileTable(i)%Filename,    &
      &                Trim(FileTable(i)%Attributes)
       End Do
       Write(6,*) '===================================='
@@ -297,8 +297,8 @@
           End If
         Else
           If (Index(Short, Trim(Table(i)%Shortname)) .eq. 1) Then
-            If ((Trim(Short) .eq. Trim(Table(i)%Shortname)) .or.
-     &          (Index(Table(i)%Attributes, '*') .gt. 0) .or.
+            If ((Trim(Short) .eq. Trim(Table(i)%Shortname)) .or.        &
+     &          (Index(Table(i)%Attributes, '*') .gt. 0) .or.           &
      &          (Index(Table(i)%Attributes, '.') .gt. 0)) Then
               FindFile=i
               Exit

@@ -1,47 +1,47 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990, Per-Olof Widmark                                 *
-*               2012, Victor P. Vysotskiy                              *
-************************************************************************
-************************************************************************
-*                                                                      *
-*                             A I X - I / O                            *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-* rc=AixWr(Handle,Buf,nBuf,iDisk)                                      *
-*                                                                      *
-* A buffer is written to a file associated with the file handle. The   *
-* operation is asynchronous, and must be followed by a call to AixWt   *
-* to assure data integrity.                                            *
-*                                                                      *
-* Input:  Handle   - This is the unique file identifier associated     *
-*                    with the file. It is created by AixOpn, and must  *
-*                    be used on subsequent references to the file.     *
-*         Buf      - The buffer that is to be written to disk.         *
-*         nBuf     - Length of the buffer in words.                    *
-*         iDisk    - External disk address.                            *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-* Author:  Per-Olof Widmark                                            *
-*          S&TC, ACIS, IBM Sweden                                      *
-* Written: November 1990                                               *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-* History:                                                             *
-*     V.P. Vysotskiy,University of Lund, Sweden, 2012                  *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990, Per-Olof Widmark                                 *
+!               2012, Victor P. Vysotskiy                              *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+!                             A I X - I / O                            *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+! rc=AixWr(Handle,Buf,nBuf,iDisk)                                      *
+!                                                                      *
+! A buffer is written to a file associated with the file handle. The   *
+! operation is asynchronous, and must be followed by a call to AixWt   *
+! to assure data integrity.                                            *
+!                                                                      *
+! Input:  Handle   - This is the unique file identifier associated     *
+!                    with the file. It is created by AixOpn, and must  *
+!                    be used on subsequent references to the file.     *
+!         Buf      - The buffer that is to be written to disk.         *
+!         nBuf     - Length of the buffer in words.                    *
+!         iDisk    - External disk address.                            *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+! Author:  Per-Olof Widmark                                            *
+!          S&TC, ACIS, IBM Sweden                                      *
+! Written: November 1990                                               *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+! History:                                                             *
+!     V.P. Vysotskiy,University of Lund, Sweden, 2012                  *
+!                                                                      *
+!***********************************************************************
       Integer Function AixWr(handle,Buf,nBuf,iDisk)
       Implicit Integer (a-z)
 
@@ -60,15 +60,15 @@
 #endif
 #include "warnings.fh"
       Data TheName/'AixWr'/
-*----------------------------------------------------------------------*
-* Entry to AixWr                                                       *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Entry to AixWr                                                       *
+!----------------------------------------------------------------------*
       Temp='Premature abort while writing buffer to disk:'
 
       AixWr=0
-*----------------------------------------------------------------------*
-* Check if file is opened.                                             *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Check if file is opened.                                             *
+!----------------------------------------------------------------------*
       n=1
 100   If(CtlBlk(pHndle,n).ne.handle) Then
          n=n+1
@@ -84,9 +84,9 @@
       Call FSCB2UNIT(handle,Lu)
       Call Timing(CPUA,CPUE,TIOA,TIOE)
 #endif
-*----------------------------------------------------------------------*
-* Position file pointer                                                *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Position file pointer                                                *
+!----------------------------------------------------------------------*
       pDisk=pHeadOffset+iDisk
       If(CtlBlk(pWhere,nFile).ne.pDisk) Then
          rc=c_lseek(desc,pDisk)
@@ -96,32 +96,32 @@
          If(rc.lt.0) Then
             Call FASTIO('STATUS')
             AixWr=AixErr(ErrTxt)
-            Call SysWarnFileMsg(TheName, FCtlBlk(nFile),
-     *                                 'MSG: seek', ErrTxt)
+            Call SysWarnFileMsg(TheName, FCtlBlk(nFile),                &
+     &                                 'MSG: seek', ErrTxt)
             Call SysCondMsg('rc < 0', rc, '<', 0)
          Else If(rc.ne.pDisk) Then
             Call FASTIO('STATUS')
             AixWr=eInErr
-            Call SysWarnFileMsg(TheName, FCtlBlk(nFile),
-     *                                 'MSG: seek', ' ')
+            Call SysWarnFileMsg(TheName, FCtlBlk(nFile),                &
+     &                                 'MSG: seek', ' ')
             Call SysCondMsg('rc != pDisk', rc, '!=', pDisk)
          End If
       End If
       CtlBlk(pWhere,nFile)=pDisk
-*----------------------------------------------------------------------*
-* Write to file                                                        *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Write to file                                                        *
+!----------------------------------------------------------------------*
       rc=c_write(desc,Buf,nBuf)
       If(rc.lt.0) Then
          Call FASTIO('STATUS')
          AixWr=AixErr(ErrTxt)
-            Call SysQuitFileMsg(_RC_IO_ERROR_WRITE_,
-     *            TheName,FCtlBlk(nFile), Temp, ErrTxt)
+            Call SysQuitFileMsg(_RC_IO_ERROR_WRITE_,                                    &
+     &            TheName,FCtlBlk(nFile), Temp, ErrTxt)
       Else If(rc.ne.nBuf) Then
          Call FASTIO('STATUS')
          AixWr=eEof
-            Call SysQuitFileMsg(_RC_IO_ERROR_WRITE_,
-     *            TheName,FCtlBlk(nFile), Temp, 'Disk full? ')
+            Call SysQuitFileMsg(_RC_IO_ERROR_WRITE_,                                    &
+     &            TheName,FCtlBlk(nFile), Temp, 'Disk full? ')
       End If
       CtlBlk(pWhere,nFile)=CtlBlk(pWhere,nFile)+nBuf
       iDisk=iDisk+nBuf
@@ -131,8 +131,8 @@
       ProfData(2,Lu)=ProfData(2,Lu)+nBuf
       ProfData(3,Lu)=ProfData(3,Lu)+TIOE
 #endif
-*----------------------------------------------------------------------*
-* Finished so return to caller                                         *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Finished so return to caller                                         *
+!----------------------------------------------------------------------*
       Return
       End

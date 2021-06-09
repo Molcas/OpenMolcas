@@ -1,46 +1,46 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991, Per-Olof Widmark                                 *
-*               1993,1996,1997, Markus P. Fuelscher                    *
-*               1996, Luis Serrano-Andres                              *
-*               2012, Victor P. Vysotskiy                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Per-Olof Widmark                                 *
+!               1993,1996,1997, Markus P. Fuelscher                    *
+!               1996, Luis Serrano-Andres                              *
+!               2012, Victor P. Vysotskiy                              *
+!***********************************************************************
 #if defined(_I8_) || defined(_OPENMP)
 #define NO_SPLITTING
 #endif
       Subroutine DaName_Main(Lu,String,mf,wa)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Open unit Lu for direct access I/O and link the data stream to   *
-*     the logical file name Name.                                      *
-*                                                                      *
-*     calling arguments:                                               *
-*     Lu      : integer, input                                         *
-*               logical unit number                                    *
-*     LuName  : character string, input                                *
-*               logical file name                                      *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     P.O. Widmark, IBM Sweden, 1991                                   *
-*     M.P. Fuelscher, University of Lund, Sweden, 1993, 1996, 1997     *
-*     L. Serrano-Andres, University of Lund, Sweden, 1996              *
-*----------------------------------------------------------------------*
-*                                                                      *
-* History:                                                             *
-*          V.P. Vysotskiy, University of Lund, Sweden, 2012            *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Open unit Lu for direct access I/O and link the data stream to   *
+!     the logical file name Name.                                      *
+!                                                                      *
+!     calling arguments:                                               *
+!     Lu      : integer, input                                         *
+!               logical unit number                                    *
+!     LuName  : character string, input                                *
+!               logical file name                                      *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     P.O. Widmark, IBM Sweden, 1991                                   *
+!     M.P. Fuelscher, University of Lund, Sweden, 1993, 1996, 1997     *
+!     L. Serrano-Andres, University of Lund, Sweden, 1996              *
+!----------------------------------------------------------------------*
+!                                                                      *
+! History:                                                             *
+!          V.P. Vysotskiy, University of Lund, Sweden, 2012            *
+!                                                                      *
+!***********************************************************************
 
 #ifndef _HAVE_EXTRA_
       Use Prgm
@@ -72,31 +72,31 @@
 
       tmp=Lu
       Lu=isfreeunit(tmp)
-*     Check calling arguments
-      If ( (Lu.le.0) .or. (Lu.gt.MxFile) )
-     * Call SysFileMsg(TheName,'MSG: unit', Lu,String)
+!     Check calling arguments
+      If ( (Lu.le.0) .or. (Lu.gt.MxFile) )                              &
+     & Call SysFileMsg(TheName,'MSG: unit', Lu,String)
 
-*     Check for consistency
-      If ( isOpen(Lu).ne.0 )
-     * Call SysFileMsg(TheName,'MSG: used', Lu,String)
+!     Check for consistency
+      If ( isOpen(Lu).ne.0 )                                            &
+     & Call SysFileMsg(TheName,'MSG: used', Lu,String)
 
-*     Reformat file name to standard notation
-*     (capital letters, no leading blank)
+!     Reformat file name to standard notation
+!     (capital letters, no leading blank)
       Call StdFmt(String,StdNam)
 
-*     If no file name has been given link it to the default name
-      If ( StdNam.eq.'        ' )
+!     If no file name has been given link it to the default name
+      If ( StdNam.eq.'        ' )                                       &
      &   Write(StdNam,'(A,I2.2,A)')'FT',Lu,'F001'
 
-*     Check the storage scheme
+!     Check the storage scheme
 #ifndef _GA_
       isFiM(Lu)=0
       isFiM(Lu)=isinmem(StdNam)
 #ifdef _DEBUGPRINT_IO_
-      if(isFiM(Lu)>0) write(6,*) "The file ",StdNam," will be kept in
+      if(isFiM(Lu)>0) write(6,*) "The file ",StdNam," will be kept in   &
      & memory"
 #endif
-*     Open file
+!     Open file
       temp = isFiM(Lu)
 #else
       temp=0
@@ -164,11 +164,11 @@
         Else If ( MaxFileSize.ne.0 ) then
           If ( Trace ) Write (6,*) ' This is a partitioned data set'
           lName = StrnLn(String)
-          If ( (lName.eq.0).or.(lName.eq.8) )
-     *   Call SysFileMsg(TheName,'Invalid file name. \n '//
-     *   'File names used in '//
-     *   'multiple unit files must be less than 8 characters.',
-     *                  Lu,String)
+          If ( (lName.eq.0).or.(lName.eq.8) )                           &
+     &   Call SysFileMsg(TheName,'Invalid file name. \n '//             &
+     &   'File names used in '//                                        &
+     &   'multiple unit files must be less than 8 characters.',         &
+     &                  Lu,String)
           Do i = 1,MaxSplitFile-1
             MPUnit(i,Lu)=-99
           End Do

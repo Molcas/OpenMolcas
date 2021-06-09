@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2001-2005, Valera Veryazov                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2001-2005, Valera Veryazov                             *
+!***********************************************************************
       Subroutine molcas_open(Lu,Name)
       Integer Lu,f_recl,f_iostat
       Character*10 f_access,f_form,f_status
@@ -24,7 +24,7 @@
       is_recl=.false.
       is_error=.false.
 
-      Call molcas_open_ext2(Lu,Name,f_access,f_form,f_iostat,is_recl,
+      Call molcas_open_ext2(Lu,Name,f_access,f_form,f_iostat,is_recl,   &
      &                      f_recl,f_status,is_error)
       If(f_iostat.ne.0) Then
          Write(6,*)

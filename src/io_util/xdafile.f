@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-CSVC: modified to convert to the use of byte lengths/offests by the
-C     underlying I/O routines (2016)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!SVC: modified to convert to the use of byte lengths/offests by the
+!     underlying I/O routines (2016)
       Subroutine dDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
 
       Implicit None
@@ -23,8 +23,8 @@ C     underlying I/O routines (2016)
       Integer lBuf, iDisk
 
       Call dDaFile_Internal(Buf)
-*
-*     This is to allow type punning without an explicit interface
+!
+!     This is to allow type punning without an explicit interface
       Contains
       Subroutine dDaFile_Internal(Buf)
       Use Iso_C_Binding
@@ -41,7 +41,7 @@ C     underlying I/O routines (2016)
 
       Return
       End Subroutine dDaFile_Internal
-*
+!
       End
 
 
@@ -81,8 +81,8 @@ C     underlying I/O routines (2016)
       Integer lBuf, iDisk
 
       Call iDaFile_Internal(Buf)
-*
-*     This is to allow type punning without an explicit interface
+!
+!     This is to allow type punning without an explicit interface
       Contains
       Subroutine iDaFile_Internal(Buf)
       Use Iso_C_Binding
@@ -99,5 +99,5 @@ C     underlying I/O routines (2016)
 
       Return
       End Subroutine iDaFile_Internal
-*
+!
       End
