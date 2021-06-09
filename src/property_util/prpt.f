@@ -111,23 +111,23 @@ c
       Else If((Method.eq.'RASSCF  ').or.(Method.eq.'CASSCF  ').or.
      &        (Method.eq.'CASDFT  ').or.(Method.eq.'CASSCFSA').or.
      &        (Method.eq.'CASPT2  ').or.(Method.eq.'RASSCFSA')) Then
-         If (Method.eq.'RASSCFSA') Then
-            Call RdVec_('TMPORB',Lu,Lbl,iUHF,nIrrep,nBas,
-     &                  nBas,Work(ipVec),Work(ipVec_ab),Work(ipOcc),
-     &                  Work(ipOcc_ab),Dummy,Dummy,iDummy,'',1,iError,
-     &                  iWFtype)
-            If (Short) Then
-               Do i = 0,nDim-1
-                  Work(ipOcc+i) = Work(ipOcc+i) + Work(ipOcc_ab+i)
-               End Do
-            End If
-            var = .False.
-         Else
+C        If (Method.eq.'RASSCFSA') Then
+C           Call RdVec_('TMPORB',Lu,Lbl,iUHF,nIrrep,nBas,
+C    &                  nBas,Work(ipVec),Work(ipVec_ab),Work(ipOcc),
+C    &                  Work(ipOcc_ab),Dummy,Dummy,iDummy,'',1,iError,
+C    &                  iWFtype)
+C           If (Short) Then
+C              Do i = 0,nDim-1
+C                 Work(ipOcc+i) = Work(ipOcc+i) + Work(ipOcc_ab+i)
+C              End Do
+C           End If
+C           var = .False.
+C        Else
             Call RdVec('TMPORB',Lu,Lbl,nIrrep,nBas,
      &                 nBas,Work(ipVec),Work(ipOcc),Dummy,
      &                 iDummy,note,0,iError)
             If(Note(2:4).eq.'var') var = .true.
-         End If
+C        End If
       Else If(Method.eq.'MBPT2   ') then
 *     MBPT2 has no occupation-numbers at the moment.
          Call FZero(Work(ipOcc),nDim)
@@ -372,6 +372,8 @@ c
      &               nIrrep,nBas,
      &               nBlock,Scr(iadDen),nDim,Occ,Thrs,
      &               nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
+C         write (*,*) scr(iadel+(icomp-1)*mdim),scr(iadnuc+icomp-1),
+C    *            scr(iadnuc+icomp-1)-scr(iadel+(icomp-1)*mdim)
           If (.Not.Short.and.iUHF.eq.1) Call Xprop(short,ifallorb,
      &               nIrrep,nBas,
      &               nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),Thrs,

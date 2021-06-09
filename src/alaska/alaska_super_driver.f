@@ -104,7 +104,9 @@
      &       (Method .eq. 'RASSCF  ') .or.
      &       (Method .eq. 'GASSCF  ') .or.
      &       (Method .eq. 'DMRGSCF ') .or.
-     &       (Method .eq. 'CASSCFSA') ) Then
+     &       (Method .eq. 'CASSCFSA') .or.
+     &       (Method .eq. 'RASSCFSA') .or.
+     &       (Method .eq. 'CASPT2  ') ) Then
             Do_Numerical_Cholesky= .False.
      &
          Else If(Method.eq.'MBPT2   ' .and.nSym.eq.1) Then
@@ -127,10 +129,10 @@
 *
       If (Numerical              .OR.
      &    Do_Numerical_Cholesky  .OR.
-     &    Method .eq. 'RASSCFSA' .OR.
+C    &    Method .eq. 'RASSCFSA' .OR.
      &    Method .eq. 'GASSCFSA' .OR.
      &  ((Method .eq. 'DMRGSCFS').and.(iGo.ne.2)) .OR.
-     &    Method .eq. 'CASPT2'   .OR.
+C    &    Method .eq. 'CASPT2'   .OR.
      &  ((Method .eq. 'MBPT2').and.(iMp2Prpt.ne.2)) .OR.
      &    Method .eq. 'CCSDT'    ) Then
          If (isNAC) Then
@@ -195,7 +197,9 @@
 ************************************************************************
 *                                                                      *
       Else If (Method.eq.'CASSCFSA' .or.
-     &        (Method.eq.'DMRGSCFS' .and. iGo.ne.2)) Then
+     &         Method.eq.'RASSCFSA' .or.
+     &        (Method.eq.'DMRGSCFS' .and. iGo.ne.2) .or.
+     &         Method.eq.'CASPT2  ') Then
 *                                                                      *
 ************************************************************************
 *                                                                      *

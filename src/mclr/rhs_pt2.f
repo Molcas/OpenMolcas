@@ -10,15 +10,7 @@
 *                                                                      *
 * Copyright (C) 1998, Anders Bernhardsson                              *
 ************************************************************************
-#define NOCODE
-      Subroutine RHS_PT2(rkappa,iprci)
-#ifdef NOCODE
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real(rkappa)
-         Call Unused_integer(iprci)
-      End If
-#else
+      Subroutine RHS_PT2(rkappa,iprci,CLag,SLag)
 *
 *    Calculate and reads in from CASPT2 the RHS needed
 *    for the calculation of the Lagrangian multipliers
@@ -41,28 +33,61 @@ c Avoid unused argument warnings
 #include "detdim.fh"
 #include "csfbas_mclr.fh"
 #endif
-      Real*8 rKappa(*)
+C     #include "caspt2.fh"
+      Real*8 rKappa(*),CLag(*),SLag(*)
       Half=0.5d0
+
 *
 *     Read in a and b part of effective gradient from CASPT2
 *
+C     write(6,*) "Lugamma = ", lugamma
+      nOLag = 0
+      nCLag = 0
+      DO i = 1, nSym
+        nOLag = nOLag + nOrb(i)*nOrb(i)
+        nCLag = nCLag + nRoots*nCSF(i)
+      END DO
+      nSLag = nRoots*(nRoots-1)/2
+C     Call Get_dArray('CLAG',Work(ipCLag),nClag)
+C          LUTMP = 88
+           Do i = 1, nCLag
+             Read (LUPT2,*) CLag(i)
+           End Do
+           Do i = 1, nOLag
+             Read (LUPT2,*) tmp ! rKappa(i)
+             rKappa(i) = rKappa(i) + tmp
+           End Do
+           Do i = 1, nSLag
+             Read (LUPT2,*) SLag(i)
+           End Do
+C       call sqprt(rkappa,12)
+C       call dscal_(nclag,-2.00d+00,clag,1)
+C       call dcopy_(nclag,0.0d+00,0,clag,1)
+C       call dcopy_(nolag,0.0d+00,0,rKappa,1)
+C       call dcopy_(nslag,0.0d+00,0,slag,1)
+C       call dcopy_(nclag,clag,1,clag2,1)
+C     Call Get_dArray('SLAG',Work(ipSLag),nSlag)
+
+      return
+      write(6,*) "in rhs_pt2"
+      write(6,*) "imethod =", imethod
       If (imethod.eq.2)Then
       i=0
       Call Getmem('TEMPCI','ALLO','REAL',ipT,nconf1)
       Call Getmem('TEMPCI','ALLO','REAL',ipT2,nconf1)
       Call Getmem('TEMPKAP','ALLO','REAL',ipK,ndens2)
-      Call dDaFile(LuPT2,2,Work(ipK),ndens2,i)
+      !! Call dDaFile(LuPT2,2,Work(ipK),ndens2,i)
 #ifdef _DEBUGED_
 *
 *    CASPT2 mode
 *
-      Call dDaFile(LuPT2,2,Work(ipT),nconf1,i)
+      !! Call dDaFile(LuPT2,2,Work(ipT),nconf1,i)
 #else
 *
 * lucia mode
 *
-      n=nint(xispsm(State_SYM,1))
-      Call dDaFile(LuPT2,2,Work(ipT),n,i)
+      !! n=1 !! nint(xispsm(State_SYM,1))
+      !! Call dDaFile(LuPT2,2,Work(ipT),n,i)
 #endif
 *
 *---- Transform from split GUGA to symmetric group
@@ -71,16 +96,16 @@ c Avoid unused argument warnings
 *
 *    CASPT2 mode (split graph)
 *
-      Call Gugactl_MCLR(ipT,1)
+      !! Call Gugactl_MCLR(ipT,1)
 #else
 *
 * lucia mode (Symmetric group)
 *
-      iprdia=0
-      Call INCSFSD(STATE_SYM,STATE_SYM,.false.)
-      CALL CSDTVC_MCLR(Work(ipT2),Work(ipT),2,
-     &                 WORK(KDTOC),iWORK(KICTS(1)),
-     &                 State_SYM,1,IPRDIA)
+      !!iprdia=0
+      !!Call INCSFSD(STATE_SYM,STATE_SYM,.false.)
+      !!CALL CSDTVC_MCLR(Work(ipT2),Work(ipT),2,
+     &!!                 WORK(KDTOC),iWORK(KICTS(1)),
+     &!!                 State_SYM,1,IPRDIA)
 #endif
 *
       Else
@@ -108,23 +133,43 @@ c Avoid unused argument warnings
       Call GetMem('Kappa2','ALLO','REAL',ipK2,ndens2)
       Call GetMem('Dens5','ALLO','REAL',ipD,ndens2)
 *
+      !! Density matrices generated in caspt2 module
+      !! They are rotated according to the (X)MS rotation matrix
+      !! They are just state-specific (unrelaxed) for SS-CASPT2
+C     Call Getmem('ONED','ALLO','REAL',ipG1q,ng1)
+C     Call Getmem('TWOD','ALLO','REAL',ipG2q,ng2)
+C     Call Getmem('ONED','ALLO','REAL',ipG1r,ntash**2)
+C     Call Getmem('TWOD','ALLO','REAL',ipG2r,itri(ntash**2,ntash**2))
+*
 *---  Read in necessary densities.
 *
-      Call Get_D1ao(ipDCAS,nDens)
-      irc=-1
-      iopt=0
-      Call RdRlx(irc,iopt,'D1PT22',Work(ipDP))
-      If (irc.ne.0) Goto 100
-      irc=-1
-      iopt=0
-      Call RdRlx(irc,iopt,'OVLP',rovlp)
-      If (irc.ne.0) Goto 100
+      write(6,*) "calling get_d1ao"
+      !! runfile_util/get_d1ao.f
+      write(6,*) "ipdcas,ndens,ndens2 = ", ipdcas,ndens,ndens2,ndenslt
+      Call Get_D1ao(ipDCAS,nDensLT) ! nDens2)
+        write(6,*) "ipt1"
+        do i = 1, ndensLT ! ndens2
+          write(6,'(i4,f20.10)') i,work(ipdcas+i-1)
+        end do
+        write(6,*) "a"
+C     irc=-1
+C     iopt=0
+C     Call RdRlx(irc,iopt,'D1PT22',Work(ipDP))
+C     If (irc.ne.0) Goto 100
+C     irc=-1
+C     iopt=0
+C     Call RdRlx(irc,iopt,'OVLP',rovlp)
+C     If (irc.ne.0) Goto 100
 *
 *--- Squared density
 *
+        write(6,*) "b"
       Call UnFold_MCLR(Work(ipDP),Work(ipDP2))
-*
       Call UnFold_MCLR(Work(ipDCAS),Work(ipDCAS2))
+        write(6,*) "ipdcas2: ndens=",ndens
+        do i = 1, ndens
+          write(6,'(i4,f20.10)') i,work(ipDCAS2+i-1)
+        end do
 *
 *==============================================================================*
 *
@@ -137,28 +182,55 @@ c Avoid unused argument warnings
 *
       nFlt=0
       nBMX=0
+      nBasT=0
       Do iSym = 1, nSym
          nFlt=nFlt+nBas(iSym)*(nBas(iSym)+1)/2
          nBMX=Max(nBMX,nBas(iSym))
+         nBasT = nBasT + nBas(iSym)
       End Do
+          write(6,*) "transformed to AO"
+          call prtril(work(ipDCAS),nbast)
 *
       Call FZero(Work(ipFAO1),nDens2)
       Call FockTwo_Drv(nSym,nBas,nBas,nSkip,
-     &                 Work(ipDP),Work(ipP2),Work(ipFAO1),nFlt,
+     &                 Work(ipDP),Work(ipDP2),Work(ipFAO1),nFlt,
      &                 ExFac,nDens2,nBMX)
       Call AO2MO(Work(ipFAO1),Work(ipFMO1))
+C     write(6,*) "ipFMO1"
+C     call sqprt(work(ipFMO1),nbast)
 *
 *  2) P(CAS)
 *
+      write(6,*) "ndens2 = ", ndens2
+      write(6,*) "nbast  = ", nbast
+      write(6,*) "ipdcas2"
+      call sqprt(work(ipdcas2),nbast)
       Call FZero(Work(ipFAO2),nDens2)
+      !! G_{\mu \nu} (D)
+      !!   = \sum_{\rho \sigma} (\mu \nu || \rho \sigma) D_{\rho \sigma}
+      !! The input of D in AO is
+      !!   - Work(ipDCAS)  (triangular, but the off-diagonal is doubled)
+      !!   - Work(ipDCAS2) (square)
+      !! The output of G(D) is in the AO basis (triangular)
       Call FockTwo_Drv(nSym,nBas,nBas,nSkip,
-     &                 Work(ipDAS),Work(ipDCAS2),Work(ipFAO2),nFlt,
+     &                 Work(ipDCAS),Work(ipDCAS2),Work(ipFAO2),nFlt,
      &                 ExFac,nDens2,nBMX)
+      !! ipFAO2: in triangular
+      write(6,*) "ipFAO2"
+      call prtril(work(ipFAO2),nbast)
       Call AO2MO(Work(ipFAO2),Work(ipFMO2))
+      CALL DSCAL_(nDens2,2.0D+00,Work(ipFMO2),1) !! to be consistent with the GAMESS implementation
+      !! ipFMO2: MO basis, square form
+      write(6,*) "ipFMO2"
+      call sqprt(work(ipFMO2),nbast)
+      write(6,*) "finish after FockTwo_Drv"
+C     call abend()
 *
 *-- Add one particle hamiltonian here ???
 *
-  ??? Call DaXpY_(ndens2,-rovlp,Work(kint1),1,Work(ipFMO1),1)
+      !! Call DaXpY_(ndens2,-rovlp,Work(kint1),1,Work(ipFMO1),1)
+      write(6,*) "finish after P(CAS)"
+C     call abend()
 *
 *==============================================================================*
 *
@@ -197,13 +269,20 @@ c Avoid unused argument warnings
 *---  Calculate efficent Fock matrix in AO basis (contravariant,folded)
 *     and write to disk. Woba
 *
+      !! This is likely antisymmetrization of the orbital Lagrangian
+      !! In fockgen.f, this is realized with DGeSub
       Do iS=1,nSym
         If (nbas(is).ne.0)
-     *  Call DGEadd(Work(ipK1-1+ipMat(is,is)),nBas(is),'N',
-     *              Work(ipK1-1+ipMat(is,is)),nBas(is),'T',
+     *  Call DGEadd(-1.0d+00,Work(ipK1-1+ipMat(is,is)),nBas(is),'T',
+     *              Work(ipK1-1+ipMat(is,is)),nBas(is),'N',
      *              Work(ipK2-1+ipMat(is,is)),nBas(is),
      *              nBas(is),nBas(is))
+C    *  Call DGEadd(Work(ipK1-1+ipMat(is,is)),nBas(is),'N',
+C    *              Work(ipK1-1+ipMat(is,is)),nBas(is),'T',
+C    *              Work(ipK2-1+ipMat(is,is)),nBas(is),
+C    *              nBas(is),nBas(is))
       End Do
+      !! MO -> AO transformation ... why needed?
       Do iS=1,nSym
         If (nBas(is).ne.0) Then
            Call DGEMM_('N','N',
@@ -218,6 +297,8 @@ c Avoid unused argument warnings
      &                 0.0d0,Work(ipFAO1-1+ipMat(iS,iS)),nBas(is))
         End If
       End Do
+      !! in integral_util/prepp.f
+      !! maybe square (ipFAO1) -> triangular (ipFAO2) conversion
       Call Fold2(nsym,nbas,Work(ipFAO1),Work(ipFAO2))
       Call Put_Fock_Occ(Work(ipFAO2),nDens2)
 *
@@ -233,7 +314,9 @@ c Avoid unused argument warnings
      *              rKappa(ipMat(is,is)),nBas(is),
      *              nBas(is),nBas(is))
       End Do
-
+*
+      !! zeroth- and first-order (CASSCF) part
+      ! Call FockGen(One,Work(ipG1r),Work(ipG2r),Work(ipT),Fock,1)
 *
 *    OK Thats all folks!!
 *
@@ -252,6 +335,11 @@ c Avoid unused argument warnings
       Call GetMem('Kappa','FREE','REAL',ipK,ndens2)
       Call GetMem('Dens5','FREE','REAL',ipD,ndens2)
       Call Getmem('TEMPCI','FREE','REAL',ipT,nconf1)
+*
+C     Call Getmem('ONED','FREE','REAL',ipG1r,ntash**2)
+C     Call Getmem('TWOD','FREE','REAL',ipG2r,itri(ntash**2,ntash**2))
+C     Call Getmem('TEMP','FREE','REAL',ipT,ndens2)
+C     Call Getmem('TEMP','FREE','REAL',ipF,ndens2)
 *
 *............
       return
@@ -319,6 +407,113 @@ c Avoid unused argument warnings
       End Do
       Call GetMem('Temp','FREE','REAL',ipT1,ndens2)
       Call GetMem('Temp','FREE','REAL',ipT2,ndens2)
-#endif
       Return
       End
+C
+C-----------------------------------------------------------------------
+C
+      Subroutine MO2AO(FMO ,FAO)
+      Implicit Real*8 (a-h,o-z)
+      Real*8 FMO(*),FAO(*)
+
+#include "Input.fh"
+#include "Pointers.fh"
+#include "WrkSpc.fh"
+      Call GetMem('Temp','ALLO','REAL',ipT1,ndens2)
+      Call GetMem('Temp','ALLO','REAL',ipT2,ndens2)
+      ip=1
+      write(6,*) "Work(ipCMO)"
+      call sqprt(work(ipCMO),nBas(is))
+      Do iS=1,nSym
+        If (nBas(is).ne.0) Then
+           Call Square(FMO(ip),
+     *                   Work(ipT1),
+     *                   1,nBas(is),nBas(is))
+      write(6,*) "Work(ipT1)"
+      call sqprt(work(ipT1),nBas(is))
+           Call DGEMM_('N','N',
+     &                 nBas(iS),nBas(iS),nBas(iS),
+     &                 1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(iS),
+     &                 Work(ipT1),nBas(iS),
+     &                 0.0d0,Work(ipT2),nBas(iS))
+           Call DGEMM_('N','T',
+     &                 nBas(is),nBas(iS),nBAs(iS),
+     &                 1.0d0,Work(ipT2),nBas(iS),
+     &                 Work(ipCMO+ipCM(iS)-1),nBas(iS),
+     &                 0.0d0,FAO(ipMat(iS,iS)),nBas(is))
+           ip=ip+nBas(is)*(nBas(iS)+1)/2
+        End If
+      End Do
+      Call GetMem('Temp','FREE','REAL',ipT1,ndens2)
+      Call GetMem('Temp','FREE','REAL',ipT2,ndens2)
+      Return
+      End
+C
+C-----------------------------------------------------------------------
+C
+      subroutine unfold_mclr(DTR,DSQ)
+C
+      implicit real*8 (a-h,o-z)
+#include "Pointers.fh"
+#include "Input.fh"
+C
+      dimension DTR(*),DSQ(*)
+C
+      !! DTR: triangular density matrix (in the AO basis)
+      !! DSQ: square     density matrix (in the AO basis)
+      CALL DCOPY_(nDens2,0.0D+00,0,DSQ,1)
+      indT  = 0 ! index for the triangular matrix
+      indS0 = 0 ! index for the square     matrix (not complete)
+      Do iSym = 1, nSym
+        iBas = nBas(iSym)
+        Do iAO1 = 1, iBas
+          Do iAO2 = 1, iAO1-1
+            indT = indT + 1
+            Val = DTR(indT)*0.5d+00
+            DSQ(indS0+(iAO1-1)*iBas+iAO2) = Val
+            DSQ(indS0+(iAO2-1)*iBas+iAO1) = Val
+          End Do
+          indT = indT + 1
+          Val = DTR(indT)
+          DSQ(indS0+(iAO1-1)*iBas+iAO2) = Val
+        End Do
+        indS0 = indS0 + iBas*iBas
+      End Do
+C
+      return
+C
+      end subroutine unfold_mclr
+C
+C-----------------------------------------------------------------------
+C
+      subroutine fold_mclr(DSQ,DTR)
+C
+      implicit real*8 (a-h,o-z)
+#include "Pointers.fh"
+#include "Input.fh"
+C
+      dimension DSQ(*),DTR(*)
+C
+      !! DTR: triangular density matrix (in the AO basis)
+      !! DSQ: square     density matrix (in the AO basis)
+      CALL DCOPY_(nDensLT,0.0D+00,0,DTR,1)
+      indT  = 0 ! index for the triangular matrix
+      indS0 = 0 ! index for the square     matrix (not complete)
+      Do iSym = 1, nSym
+        iBas = nBas(iSym)
+        Do iAO1 = 1, iBas
+          Do iAO2 = 1, iAO1-1
+            indT = indT + 1
+            Val = DSQ(indS0+(iAO1-1)*iBas+iAO2)
+            DTR(indT) = Val*2.0D+00
+          End Do
+          indT = indT + 1
+          Val = DSQ(indS0+(iAO1-1)*iBas+iAO2)
+          DTR(indT) = Val
+        End Do
+        indS0 = indS0 + iBas*iBas
+      End Do
+C
+      return
+C
+      end subroutine fold_mclr

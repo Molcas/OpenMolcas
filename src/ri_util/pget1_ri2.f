@@ -39,7 +39,8 @@
 *             Modified for RI-HF/CAS, Dec 2009 (F. Aquilante)          *
 *                                                                      *
 ************************************************************************
-      use pso_stuff, only: nnP, lPSO, lsa, DMdiag, nPos
+      use pso_stuff, only: nnP, lPSO, lsa, DMdiag, nPos, A_PT2
+      use aces_stuff, only: Gamma_On
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -472,6 +473,11 @@
      &                          Z_p_K(jp,jSOj,3)*Z_p_K(jp,lSOl,2))
                      End Do
                      temp=temp+temp2
+*
+                     If (Gamma_On) Then !! For CASPT2
+                       temp = temp + A_PT2(lSOl,jSOj)!*0.5d+00
+C                   write (*,'(2i3,f20.10)') lsol,jsoj,a_pt2(lsol,jsoj)
+                     End If
 *
                      PMax = Max(PMax,Abs(temp))
                      PAO(nijkl,iPAO) = Fac*temp

@@ -75,6 +75,9 @@
      &        JfGrad(3,4), ABCDeq, No_Batch, Rsv_Tsk
       Character Format*72
 *
+      Character*8 Method_chk
+      Character*4096 RealName
+*
       Integer iSD4(0:nSD,4)
       Save MemPrm
 *                                                                      *
@@ -261,6 +264,40 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*-----CASPT2
+*
+      Call Get_cArray('Relax Method',Method_chk,8)
+      If (Method_chk.eq.'CASPT2  ') Then
+        !! Just read A_{JK} type matrix constructed in CASPT2
+        nBasT   = 0
+        nBasA   = 0
+        nBasASQ = 0
+C       do i = 0,7
+C        write (*,*) i,nbas(i),nbas_aux(i)-1
+C       end do
+        Do iSym = 0, nIrrep-1
+          nBasT   = nBasT   + nBas(iSym)
+          nBasA   = nBasA   + nBas_Aux(iSym)-1
+          nBasASQ = nBasASQ + (nBas_Aux(iSym)-1)**2
+        End Do
+C       write (*,*) nbast,nbasa,nbasasq
+        Call MMA_Allocate(A_PT2,nBasA,nBasA,Label='A_PT2')
+        !! Now, read
+        Call PrgmTranslate('CMOPT2',RealName,lRealName)
+        LuCMOPT2 = 61
+        call molcas_Open(LuCMOPT2,RealName(1:lRealName))
+    !     Open (Unit=LuCMOPT2,
+    !  *        File=RealName(1:lRealName),
+    !  *        Status='OLD',
+    !  *        Form='UNFORMATTED')
+        Do i = 1, nBasASQ
+          Read (LuCMOPT2) A_PT2(i,1)
+        End Do
+        Close (LuCMOPT2)
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
 *-----Compute FLOP's for the transfer equation.
 *
       Do iAng = 0, iAngMx
@@ -343,6 +380,9 @@ C           iPrint=nPrint(iRout)
 C           nPrint(39)=5
 C        End If
          If (iPrint.ge.15) Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
+         !! jS and lS are the actual shell indices of auxiliary basis
+         !! jS >= lS
+C        Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -464,6 +504,7 @@ C        End If
 #ifdef _CD_TIMING_
            Call CWTIME(TwoelCPU1,TwoelWall1)
 #endif
+C     call dcopy_(ngrad,0.0d+00,0,temp,1)
            Call TwoEl_g(Coor,
      &          iAnga,iCmpa,iShela,iShlla,iAOV,
      &          mdci,mdcj,mdck,mdcl,nRys,
@@ -481,6 +522,8 @@ C        End If
      &          Mem_DBLE(ipxG),Mem_DBLE(ipxD),Temp,nGrad,
      &          JfGrad,JndGrd,Sew_Scr(ipMem1), nSO,Sew_Scr(ipMem2),Mem2,
      &          Aux,nAux,Shijij)
+C              Call PrGrad(' In Drvg1_2Center_RI: Grad',
+C    &                  Temp,nGrad,lIrrep,ChDisp,iPrint)
 #ifdef _CD_TIMING_
            Call CWTIME(TwoelCPU2,TwoelWall2)
            Twoel2_CPU = Twoel2_CPU + TwoelCPU2-TwoelCPU1
@@ -512,6 +555,7 @@ C        End If
       Call Free_Tsk(id)
       Call GetMem('ip_ij','Free','Inte',ip_ij,mij)
       Call GetMem('TMax','Free','Real',ipTMax,nTMax)
+      If (Method_chk.eq.'CASPT2  ') Call MMA_DeAllocate(A_PT2)
 *                                                                      *
 ************************************************************************
 *                                                                      *

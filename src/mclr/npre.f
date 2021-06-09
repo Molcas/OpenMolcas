@@ -12,17 +12,31 @@
 
 #include "Input.fh"
       iOut=0
-      Do is=1,nSym
-       jS=iEOR(iS-1,kS-1)+1
-       nRest=nOrb(js)-nIsh(js)
-       iOut=iOut+nIsh(is)*nRest*(nRest+1)
-       nRest=nOrb(js)-nRs1(js)
-       iOut=iOut+nRs1(is)*nRest*(nRest+1)
-       nRest=nOrb(js)-nRs2(js)
-       iOut=iOut+nRs2(is)*nRest*(nRest+1)
-       nRest=nOrb(js)-nRs3(js)
-       iOut=iOut+nRs3(is)*nRest*(nRest+1)
-      End Do
+      If (ActRot) Then ! .or.nRs1(ks).ne.0.or.nRs3(ks).ne.0) Then
+       Do is=1,nSym
+        jS=iEOR(iS-1,kS-1)+1
+        nRest=nOrb(js)-nIsh(js)
+        iOut=iOut+nIsh(is)*nRest*(nRest+1)
+        nRest=nOrb(js)!-nIsh(js)
+        iOut=iOut+nRs1(is)*nRest*(nRest+1)
+        nRest=nOrb(js)!-nRs1(js)
+        iOut=iOut+nRs2(is)*nRest*(nRest+1)
+        nRest=nOrb(js)!-nRs2(js)
+        iOut=iOut+nRs3(is)*nRest*(nRest+1)
+       End Do
+      Else
+       Do is=1,nSym
+        jS=iEOR(iS-1,kS-1)+1
+        nRest=nOrb(js)-nIsh(js)
+        iOut=iOut+nIsh(is)*nRest*(nRest+1)
+        nRest=nOrb(js)-nRs1(js)
+        iOut=iOut+nRs1(is)*nRest*(nRest+1)
+        nRest=nOrb(js)-nRs2(js)
+        iOut=iOut+nRs2(is)*nRest*(nRest+1)
+        nRest=nOrb(js)-nRs3(js)
+        iOut=iOut+nRs3(is)*nRest*(nRest+1)
+       End Do
+      End If
       nPre=iOut
       Return
       End

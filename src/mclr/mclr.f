@@ -54,6 +54,8 @@
 #include "dmrginfo_mclr.fh"
 #include "csfsd.fh"
 
+#include "Files_mclr.fh"
+
       Logical Reduce_Prt
       External Reduce_Prt
 *
@@ -200,7 +202,10 @@ c      idp=rtoi
          Call WfCtl_PDFT(iWork(ifpK),iWork(ifpS),iWork(ifpCI),
      &                 iWork(ifpSC),iWork(ifpRHS),
      &                 converged,iPL)
-      Else if (SA) Then
+      Else if (SA.or.PT2) Then
+C     write (*,*) "tractl start"
+C       if (pt2) call tractl_mclr
+C     write (*,*) "tractl finish"
          Call WfCtl_SA(iWork(ifpK),iWork(ifpS),iWork(ifpCI),
      &                 iWork(ifpSC),iWork(ifpRHS),
      &                 converged,iPL)
@@ -223,6 +228,7 @@ c      idp=rtoi
       If(.not.(TwoStep.and.(StepType.eq.'RUN1'))) Then
          If (PT2.or.SA.or.iMCPD) Then
             Call Out_PT2(iWork(ifpK),iWork(ifpCI))
+            If (PT2) Close (LUPT2) !! this file is opend in wfctl_sa
          Else If (TimeDep) Then
             Call Output_td(iWork(ifpK),iWork(ifpS),
      &                     iWork(ifpCI),iWork(ifpSC),

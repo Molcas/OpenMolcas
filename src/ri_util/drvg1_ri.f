@@ -268,7 +268,7 @@
       End If
 *
       Call Compute_AuxVec(iWork(iVk),iWork(iUk),iwork(iZk),
-     &                    myRank+1,nProcs)
+     &                    myRank+1,nProcs,Method.eq.'CASPT2  ')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -378,7 +378,10 @@
 *     Compute contributions due to the "2-center" two-electron integrals
 *
       Case_2C=.True.
+      Call CWTime(tc0,tw0)
       Call Drvg1_2center_RI(Temp,Work(ipTemp),nGrad,ip_ij2,nij_Eff)
+      Call CWTime(tc1,tw1)
+      write (6,*) 'CPU/Wall Time for 2center_RI = ',tc1-tc0,tw1-tw0
       Call GADGOP(Work(ipTemp),nGrad,'+')
       If (iPrint.ge.15) Call PrGrad(
      &    ' RI-Two-electron contribution - 2-center term',
@@ -393,7 +396,10 @@
 *     Compute contributions due to the "3-center" two-electron integrals
 *
       Case_3C=.True.
+      Call CWTime(tc0,tw0)
       Call Drvg1_3center_RI(Temp,Work(ipTemp),nGrad,ip_ij2,nij_Eff)
+      Call CWTime(tc1,tw1)
+      write (6,*) "CPU/Wall Time for 3center_RI = ",tc1-tc0,tw1-tw0
       Call GADGOP(Work(ipTemp),nGrad,'+')
       If (iPrint.ge.15) Call PrGrad(
      &    ' RI-Two-electron contribution - 3-center term',

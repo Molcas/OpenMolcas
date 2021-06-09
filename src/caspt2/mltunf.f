@@ -16,10 +16,11 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MLTUNF(LST,X,Y)
+      SUBROUTINE MLTUNF(LST,X,Y,debugprint)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION X(*),Y(*)
       DIMENSION LST(4,NLST1)
+      logical, optional :: debugprint
 #include "sigma.fh"
 
 C Given a list with entries LST(4,ITEM), ITEM=1,NLST1,
@@ -28,7 +29,7 @@ C an array of the form Y(p,q), compute the matrix
 C    X(p,L1,L2) := Add V*Y(p,L3), p=1..LEN1
 C where V=VAL1(L4), looped over ITEM=1,NLST1.
 C Note: Arrays are addressed by strides given in common.
-*     write(*,*)' In MLTUNF. List:'
+*     write(6,*)' In MLTUNF. List:'
 *     write(*,'(1x,4i5)') ((LST(I,J),I=1,4),J=1,NLST1)
 *     write(*,'(1x,a,3i5)')'INCX:',INCX1,INCX2,INCX3
 *     write(*,'(1x,a,3i5)')'INCY:',INCY1,INCY2
@@ -42,6 +43,9 @@ C Note: Arrays are addressed by strides given in common.
         IX=1+INCX2*(L1-1)+INCX3*(L2-1)
         IY=1+INCY2*(L3-1)
         CALL DAXPY_(LEN1,V,Y(IY),INCY1,X(IX),INCX1)
+C       if (debugprint)
+C    *    write (*,'(5i4,f20.10,2i4)') ilst,l1,l2,l3,l4,v,ix,iy
+C         write (*,'(5i4,f20.10,2i4)') ilst,l1,l2,l3,l4,v,ix,iy
       END DO
       RETURN
       END

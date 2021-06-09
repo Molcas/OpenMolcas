@@ -62,6 +62,7 @@
          Do jB=1,jA
 *
             i=itri1(ja,jb)
+C     write (*,*) "i in precaii (1) = ", i
 *
             Do kS=1,nSym
 *
@@ -90,8 +91,11 @@
                      icd=(jjD-1)*nBas(kS)+jjC
                      cdij=A_J(icd)
                      cidj=A_K(icd)
-                     rout(i) = rout(i) + 2.0d0*(rDens2*cidj
-     &                                 + 2.0d0* rDens1*cdij)
+                     !! is the coefficient opposite?
+C                    rout(i) = rout(i) + 2.0d0*(rDens2*cidj
+C    &                                 + 2.0d0* rDens1*cdij)
+                     rout(i) = rout(i) + 2.0d0*(rDens1*cdij
+     &                                 + 2.0d0* rDens2*cidj)
                   End Do
                End Do
             End Do
@@ -116,6 +120,7 @@
          Do jA=1,nIsh(jS)
             Do jB=1,jA
                i=itri1(jA,jB)
+C     if (ic.eq.1) write (*,*) "i in precaii (2) = ",  i
 *
 *              (ci|bj)
 *              (bi|cj)
@@ -148,6 +153,7 @@
          Do jB=1,jA
 *
             i=itri1(ja,jb)
+C      write (*,*) "i in precaii (3) = ",  i
 *
             rout(i) = rout(i) - sign*4.0d0*( Focka(jA,jB)
      &                                      +Focki(jA,jB) )

@@ -13,8 +13,8 @@
 *---- Stuff for Aces 2 read of Gamma file
 *
       Logical                Gamma_On
-      Integer                LuGamma, lBin, nGamma
-      Real*8, Allocatable:: G_Toc(:), Bin(:,:)
+      Integer                LuGamma, lBin, nGamma, nSSDM
+      Real*8, Allocatable:: G_Toc(:), Bin(:,:), SSDM(:,:,:)
       Integer, Allocatable:: SO2cI(:,:)
 *
       End Module Aces_Stuff

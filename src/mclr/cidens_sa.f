@@ -79,10 +79,19 @@
       Call GetMem('CIR','ALLO','REAL',ipR,nConfR)
 *
       Do i=0,nroots-1
+C       write (*,*) "ci lag and ci coeff in csf"
+C       do j = 1, 50
+C         write (*,'(i3,2f20.10)') j,work(ipin(ils)+i*ncsf(il)+j-1),
+C    *                               work(ipin(irs)+i*ncsf(ir)+j-1)
+C       end do
         Call CSF2SD(Work(ipin(iLS)+i*ncsf(il)),Work(ipL),iL)
         irc=opout(ils)
         Call CSF2SD(Work(ipin(iRS)+i*ncsf(ir)),Work(ipR),iR)
         irc=opout(irs)
+C       write (*,*) "ci lag and ci coeff in determinants"
+C       do j = 1, 55
+C         write (*,'(i3,2f20.10)') j,work(ipl+j-1),work(ipr+j-1)
+C       end do
         irc=ipnout(-1)
         icsm=iR
         issm=iL

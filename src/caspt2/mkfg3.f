@@ -130,6 +130,10 @@ C Put in zeroes. Recognize special cases:
       NCI=NCSF(LSYM)
 * This should not happen, but...
       IF(NCI.EQ.0) GOTO 999
+C     write (*,*) "EPSA"
+C     do i = 1, 5
+C       write (*,'(i3,f20.10)') i,epsa(i)
+C     end do
 
 C Here, for regular CAS or RAS cases.
 
@@ -360,6 +364,11 @@ C-SVC20100301: necessary batch of sigma vectors is now in the buffer
               F1sum=F1sum+CI(i)*work(lto-1+i)*work(lbufd-1+i)
             end do
             F1(it,iu)=F1sum-EPSA(iu)*G1(it,iu)
+C           F1(it,iu)=-G1(it,iu)*dble(it+iu)
+C      F1(it,iu)=-dble(it+iu)*G1(it,iu)
+C      write (*,'(2i3,2f20.10)') it,iu,f1(it,iu),g1(it,iu)
+C     write (*,'(2i3,3f20.10)')
+C    *it,iu,f1sum,-epsa(iu)*g1(it,iu),f1(it,iu)
           end if
         end do
       end if
@@ -400,6 +409,10 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
           iulev=idx2ij(2,idx)
           it=L2ACT(itlev)
           iu=L2ACT(iulev)
+C     write (*,'(4i3,f20.10)') it,iu,iy,iz,
+C    *    DDOT_(nsgm1,work(lto),1,
+C    &         work(lbuf1+mxci*(ib-1)),1)
+C     write (*,'(8i3)') it,iu,iy,iz,itlev,iulev,iylev,izlev
           G2(it,iu,iy,iz)=DDOT_(nsgm1,work(lto),1,
      &         work(lbuf1+mxci*(ib-1)),1)
           IF(IFF.ne.0) THEN
@@ -409,6 +422,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
      &             work(lbuf1-1+i+mxci*(ib-1))
             end do
             F2(it,iu,iy,iz)=F2sum
+C           write (*,'(4i3,f20.10)') it,iu,iy,iz,f2sum
           END IF
         end do
       end if
@@ -471,6 +485,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
          idxG3(4,iG3)=int(iX,I1)
          idxG3(5,iG3)=int(iY,I1)
          idxG3(6,iG3)=int(iZ,I1)
+C        write (*,'(6i3)') it,iu,iv,ix,iy,iz
         end do
         IF(IFF.ne.0) THEN
 * Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
@@ -544,6 +559,43 @@ C  only for the G1 and G2 replicate arrays
       CALL GADSUM(F2,NG2)
 
 * Correction to G2: It is now = <0| E_tu E_yz |0>
+C        do ip1=ntri2+1,nlev2
+C         itlev=idx2ij(1,ip1)
+C         iulev=idx2ij(2,ip1)
+C         it=L2ACT(itlev)
+C         iu=L2ACT(iulev)
+C         do ip3=ntri1+1,ip1
+C          iylev=idx2ij(1,ip3)
+C          izlev=idx2ij(2,ip3)
+C          iy=L2ACT(iylev)
+C          iz=L2ACT(izlev)
+C          G2(it,iu,iy,iz)=G2(iz,iy,iu,it)
+C         end do
+C        end do
+C        do ip1=1,nlev2-1
+C         itlev=idx2ij(1,ip1)
+C         iulev=idx2ij(2,ip1)
+C         it=L2ACT(itlev)
+C         iu=L2ACT(iulev)
+C         do ip3=ip1+1,nlev2
+C          iylev=idx2ij(1,ip3)
+C          izlev=idx2ij(2,ip3)
+C          iy=L2ACT(iylev)
+C          iz=L2ACT(izlev)
+C          G2(it,iu,iy,iz)=G2(iy,iz,it,iu)
+C         end do
+C        end do
+C        write (*,*) "g2 and f2 before"
+C        do it = 1, nlev
+C        do iu = 1, nlev
+C        do iv = 1, nlev
+C        do ix = 1, nlev
+C          write (*,'(4i4,2f20.10)') it,iu,iv,ix,
+C    *       g2(it,iu,iv,ix),f2(it,iu,iv,ix)
+C        end do
+C        end do
+C        end do
+C        end do
       do iu=1,nlev
        do iz=1,nlev
         do it=1,nlev
@@ -635,13 +687,26 @@ C-finished, so that GAdSUM works correctly.
 
 * Correction to G3: It is now <0| E_tu E_vx E_yz |0>
 * Similar for F3 values.
+C     call docpy_ng3,0.0d+00,0,g3,1)
+C     call docpy_ng3,0.0d+00,0,f3,1)
+C     If (DoPT2Num) Then
+C       DoTriPT2 = .false.
+C       If (iVibPT2.eq.1) Then
+C         G3(iDiffPT2) = G3(iDiffPT2) + PT2Delta
+C       Else
+C         G3(iDiffPT2) = G3(iDiffPT2) - PT2Delta
+C       End If
+C     End If
       DO iG3=1,NG3
+C     write (*,'(7x,"f3(",i4,") = ",f30.15,"d+00")') ig3,f3(ig3)
        iT=idxG3(1,iG3)
        iU=idxG3(2,iG3)
        iV=idxG3(3,iG3)
        iX=idxG3(4,iG3)
        iY=idxG3(5,iG3)
        iZ=idxG3(6,iG3)
+C     write (*,'(i5,6i2,f20.10)') ig3,it,iu,iv,ix,iy,iz,f3(ig3)
+C      write (*,'(i3,f20.10)') ig3,g3(ig3)
 * Correction: From <0| E_tu E_vx E_yz |0>, form <0| E_tuvxyz |0>
        if(iY.eq.iX) then
         G3(iG3)=G3(iG3)-G2(iT,iU,iV,iZ)
@@ -664,6 +729,39 @@ C-finished, so that GAdSUM works correctly.
        end if
        IF(IFF.ne.0) F3(iG3)=F3(iG3)-(EPSA(iU)+EPSA(iY))*G3(iG3)
       END DO
+C     write (*,*) "g1 and f1"
+C     do it = 1, nlev
+C       do iu = 1, nlev
+C         f1sum = 0.0d+00
+C         do iv = 1, nlev
+C           f1sum = f1sum + g2(it,iu,iv,iv)*epsa(iv)
+C         end do
+C         write (*,'(2i4,3f20.10)')
+C    *      it,iv,g1(it,iu),f1(it,iu),abs(f1sum-f1(it,iu))
+C       end do
+C     end do
+C     write (*,*) "g2 and f2"
+C     do it = 1, nlev
+C     do iu = 1, nlev
+C     do iv = 1, nlev
+C     do ix = 1, nlev
+C       write (*,'(4i4,2f20.10)') it,iu,iv,ix,
+C    *    g2(it,iu,iv,ix),f2(it,iu,iv,ix)
+C     end do
+C     end do
+C     end do
+C     end do
+C      write (*,*) "f1"
+C      call sqprt(f1,nlev)
+
+C     If (DoPT2Num) Then
+C       DoTriPT2 = .false.
+C       If (iVibPT2.eq.1) Then
+C         G2(iDiffPT2,1,1,1) = G2(iDiffPT2,1,1,1) + PT2Delta
+C       Else
+C         G2(iDiffPT2,1,1,1) = G2(iDiffPT2,1,1,1) - PT2Delta
+C       End If
+C     End If
 
       IF(iPrGlb.GE.DEBUG) THEN
 CSVC: if running parallel, G3/F3 are spread over processes,

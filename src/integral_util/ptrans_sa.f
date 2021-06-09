@@ -32,6 +32,7 @@ c -------------------------------------------------------------------
       subroutine ptrans_sa(cmo,npam,ipam,nxpam,DSO,PSOPam,nPSOPam,
      &                  G1,nG1,G2,nG2,Cred,nC,Scr1,nS1,Scr2,nS2,
      &                  ScrP,nsp)
+      use aces_stuff, only: nSSDM,SSDM
       Implicit Real*8 (a-h,o-z)
       Integer npam(4,0:*),indi(4)
       Real*8 ipam(nxpam)
@@ -454,6 +455,18 @@ C   FOR RAMAN SPECTRA
 !     &        -Quart*DSO(ioDs+ips,1)*DSO(ioDr+irq,5)
 !     &        -Quart*DSO(ioDs+ips,5)*DSO(ioDr+irq,1)
 !END ANDREW
+           If (nSSDM.ne.0) Then
+             !! The last four lines subtract unnecessary contributions
+             Do iSSDM = 1, nSSDM
+               PSOPam(ipso)=PSOPam(ipso)
+     *            -Quart*SSDM(ioDs+ips,1,iSSDM)*SSDM(ioDr+irq,2,iSSDM)
+     *            -Quart*SSDM(ioDs+ips,2,iSSDM)*SSDM(ioDr+irq,1,iSSDM)
+C    *            +Quart*SSDM(ioDs+ips,1,iSSDM)*DSO(ioDr+irq,1)
+C    *            +Quart*SSDM(ioDs+ips,1,iSSDM)*DSO(ioDr+irq,3)
+C    *            +Quart*DSO(ioDs+ips,1)*SSDM(ioDr+irq,1,iSSDM)
+C    *            +Quart*DSO(ioDs+ips,3)*SSDM(ioDr+irq,1,iSSDM)
+             End Do
+           End If
           end if
           if(isym.eq.ksym) then
            ipr=i3adr(ip,ir)
@@ -467,6 +480,17 @@ C   FOR RAMAN SPECTRA
 !     &        -Quart*DSO(ioDr+ipr,1)*DSO(ioDs+isq,5)
 !     &        -Quart*DSO(ioDr+ipr,5)*DSO(ioDs+isq,1)
 !END ANDREW
+           If (nSSDM.ne.0) Then
+             Do iSSDM = 1, nSSDM
+               PSOPam(ipso)=PSOPam(ipso)
+     *            -Quart*SSDM(ioDr+ipr,1,iSSDM)*SSDM(ioDs+isq,2,iSSDM)
+     *            -Quart*SSDM(ioDr+ipr,2,iSSDM)*SSDM(ioDs+isq,1,iSSDM)
+C    *            +Quart*SSDM(ioDr+ipr,1,iSSDM)*DSO(ioDs+isq,1)
+C    *            +Quart*SSDM(ioDr+ipr,1,iSSDM)*DSO(ioDs+isq,3)
+C    *            +Quart*DSO(ioDr+ipr,1)*SSDM(ioDs+isq,1,iSSDM)
+C    *            +Quart*DSO(ioDr+ipr,3)*SSDM(ioDs+isq,1,iSSDM)
+             End Do
+           End If
           end if
           if(isym.eq.jsym) then
            PSOPam(ipso)=PSOPam(ipso)
@@ -476,6 +500,18 @@ C   FOR RAMAN SPECTRA
      &        +DSO(ioDq+ipq,4)*DSO(ioDs+irs,3)
      &        +DSO(ioDq+ipq,1)*DSO(ioDs+irs,5)
      &        +DSO(ioDq+ipq,5)*DSO(ioDs+irs,1)
+           if(nSSDM.ne.0) then
+           issdm=1
+             do iSSDM = 1, nSSDM
+               PSOPam(ipso)=PSOPam(ipso)
+     *            +SSDM(ioDq+ipq,1,iSSDM)*SSDM(ioDs+irs,2,iSSDM)
+     *            +SSDM(ioDq+ipq,2,iSSDM)*SSDM(ioDs+irs,1,iSSDM)
+C    *            -SSDM(ioDq+ipq,1,iSSDM)*DSO(ioDs+irs,1)
+C    *            -SSDM(ioDq+ipq,1,iSSDM)*DSO(ioDs+irs,3)
+C    *            -DSO(ioDq+ipq,1)*SSDM(ioDr+irs,1,iSSDM)
+C    *            -DSO(ioDq+ipq,3)*SSDM(ioDr+irs,1,iSSDM)
+             End Do
+           End If
           end if
 C    IT STOPS HERE
  310     continue

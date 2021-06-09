@@ -32,6 +32,7 @@ C At position IVEC=IVECW, the RHS array, in contravariant repr.
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
+#include "pt2_guga.fh"
       DIMENSION DUMMY(1),IDUM(1)
 
       CALL QENTER('EQCTL1')
@@ -108,6 +109,13 @@ C sigma routines now use the full RHS size.
 #endif
 
       IDV=0
+      If (IFDENS) Then
+        !! idxG3 matrix is needed for computing Lagrangian. Here, the
+        !! shift avoids the matrix overwritten in PCOLLVEC -> SOLV2DRA
+        NG3MAX=iPARDIV(NG3TOT,NG2)
+        iPad=ItoB-MOD(6*NG3MAX,ItoB)
+        IDV = 6*NG3MAX+iPad
+      End If
       DO IVEC=1,MXVEC
         DO ICASE=1,NCASES
           DO ISYM=1,NSYM

@@ -88,6 +88,7 @@
       Character Format*72, Method*8, KSDFT*16
       Character*50 CFmt
       Character*16 SECNAM
+      Character*4096 RealName
       Parameter (SECNAM = 'drvg1_3center_ri')
 *
       Integer iSD4(0:nSD,4)
@@ -588,6 +589,31 @@ cVV: ifort 11 can't handle the code without this dummy print.
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*-----CASPT2
+*
+      If (Method.eq.'CASPT2  ') Then
+        !! Just read A_{JK} type matrix constructed in CASPT2
+C       write (*,*) "nBasT,nBasA = ", nBasT,nBasA
+        Call MMA_Allocate(B_PT2,nBasT,nBasT,nBasA,Label='B_PT2')
+C       B_PT2(:,:,:)=Zero
+        !! Now, read
+        Call PrgmTranslate('GAMMA',RealName,lRealName)
+        LuGAMMA = 60
+        call molcas_Open(LuGAMMA,RealName(1:lRealName))
+    !     Open (Unit=LuGAMMA,
+    !  *        File=RealName(1:lRealName),
+    !  *        Status='OLD',
+    !  *        Form='UNFORMATTED',
+    !  *        Access='DIRECT',
+    !  *        Recl=nBasT*nBasT*8)
+        Do iRec = 1, nBasA
+          Read (Unit=LuGAMMA,Rec=iRec) (B_PT2(i,1,iRec),i=1,nBasT*nBasT)
+        End Do
+        Close (LuGAMMA)
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
       Call mma_MaxDBLE(MemMax)
       Call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
       ipMem1=1
@@ -705,6 +731,10 @@ cVV: ifort 11 can't handle the code without this dummy print.
          End If
          If (AInt.lt.CutInt) Go To 14
          If (iPrint.ge.15) Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
+         !! jS is the shell index of auxiliary basis
+         !! kS and lS are shell indices of the original basis
+         !! jS runs over first, and kS >= lS
+C        Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -939,6 +969,7 @@ cVV: ifort 11 can't handle the code without this dummy print.
       Call GetMem('ip_ij','Free','Inte',ip_ij2,mij)
       Call GetMem('ip_ij','Free','Inte',ip_ij,nSkal*(nSkal+1))
       Call GetMem('TMax','Free','Real',ipTMax,nSkal**2)
+      If (Method.eq.'CASPT2  ') Call MMA_DeAllocate(B_PT2)
 *                                                                      *
 ************************************************************************
 *                                                                      *

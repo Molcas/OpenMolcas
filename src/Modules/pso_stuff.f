@@ -24,4 +24,9 @@
       Integer nZ_p_k
       Integer nV_K, nSOs1
       Integer iD0Lbl
+C
+      !! DF-CASPT2
+      Real*8, Allocatable :: A_PT2(:,:),B_PT2(:,:,:)
+      Integer nBasT,nBasA,nBasASQ
+C
       End Module PSO_Stuff

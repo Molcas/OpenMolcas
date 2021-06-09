@@ -122,6 +122,8 @@
             End Do
          End Do
       End Do
+C     write (*,*) "after two-electron1"
+C     call sqprt(fock,norb(1))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -209,6 +211,11 @@ c                     iij =itri(iAsh+nA(is),jAsh+nA(jS))
 *       Common part                                                    *
 ************************************************************************
 *
+C     call dcopy_(144,0.0d+00,0,fock,1)
+C     write (*,*) "g1"
+C     call sqprt(rdens1,5)
+C     write (*,*) "after two-electron2"
+C     call sqprt(fock,norb(1))
       Do iS=1,nSym
          If (nBas(iS).gt.0) Then
             jS=iEOr(is-1,iDSym-1)+1
@@ -222,6 +229,8 @@ c                     iij =itri(iAsh+nA(is),jAsh+nA(jS))
             End Do
          End If
       End Do
+C     write (*,*) "after FIMO"
+C     call sqprt(fock,norb(1))
 
 *
       If (iDsym.eq.1) Then
@@ -232,7 +241,11 @@ c                     iij =itri(iAsh+nA(is),jAsh+nA(jS))
      &                    Fock(ipMat(is,is)),1)
          End Do
       End If
+C     write (*,*) "after FIMO2"
+C     call sqprt(fock,12)
 *
+C     write (*,*) "fock"
+C     call sqprt(fock,12)
       Do iS=1,nSym
          jS=iEOR(iS-1,idSym-1)+1
          If (nBas(is)*nBas(jS).ne.0)
@@ -241,11 +254,15 @@ c                     iij =itri(iAsh+nA(is),jAsh+nA(jS))
      &                  FockOut(ipMat(iS,jS)),nBas(iS),
      &                  nBas(iS),nBas(jS))
       End Do
+C     write (*,*) "fock out"
+C     call sqprt(fockout,norb(1))
 
 *
 *
       Call DScal_(nDens2,Two,FockOut,1)
       If (idSym.eq.1) Call AddGrad2(FockOut,idSym,d_0)
+C     write (*,*) "fock with addgrad2"
+C     call sqprt(fockout,norb(1))
 
       if(doDMRG)then ! yma
         call dmrg_spc_change_mclr(LRras2(1:8),nash)

@@ -84,12 +84,18 @@ C Set up various offset arrays:
 
 C Core contribution:
       OVL=DDOT_(NVEC,VEC1,1,VEC2,1)
+C     write (*,*) "diadns for icase = ", icase
+C     write (*,*) "nvec = ", nvec
+C     do i = 1, nvec
+C       write (*,'(i3,2f20.10)') i,vec1(i),vec2(i)
+C     end do
+C     write (*,*) "ovl = ", ovl
       DO IS=1,NSYM
         NI=NISH(IS)
         NO=NORB(IS)
         IDII=IOFDIJ(IS)+1
         DO III=1,NI
-          DPT2(IDII)=DPT2(IDII)+2.0D0*OVL
+C         DPT2(IDII)=DPT2(IDII)+2.0D0*OVL
           IDII=IDII+NO+1
         END DO
       END DO
@@ -119,6 +125,11 @@ C Case A
 C -----------------------------------------------
    2  CONTINUE
 C Case BP
+C     if (icase.eq.2) then
+C     do i = 1, 15*15
+C       write (*,'(i4,f20.10)') i,vec1(i)
+C     end do
+C     end if
    3  CONTINUE
 C Case BM
 C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
@@ -190,17 +201,30 @@ C Case D
        NOI=NORB(ISYMI)
        IV=1+NIN*IOFCD(ISYM,ISYMA)
        INCA=NIN*NI
+C      write (*,*) "ns = ", ns, 2
+C      write (*,*) "noa = ", noa, 12
+C      write (*,*) "ni = ", ni,5
+C      write (*,*) "noi = ", noi,12
+C      write (*,*) "inca = ", inca, 49*5
+C      write (*,*) "iv   = ", iv, 1
+C      write (*,*) "ni   = ", ni,49
+C     write (*,*) "nvec = ", nvec
+C     do i = 1, nvec
+C       write (*,'(i3,2f20.10)') i,vec1(i),vec2(i)
+C     end do
        DO II=1,NI
          IV2=IV+NIN*(II-1)
          DO IJ=1,NI
            IDIJ=IOFDIJ(ISYMI)+II+NOI*(IJ-1)
            SUM=DPT2(IDIJ)
+C          write (*,*) "sum0 = ", sum
            IV1=IV+NIN*(IJ-1)
            DO IA=1,NS
              IV11=IV1+INCA*(IA-1)
              IV22=IV2+INCA*(IA-1)
              SUM=SUM-DDOT_(NIN,VEC1(IV11),1,VEC2(IV22),1)
            END DO
+C          write (*,*) "sum  = ", sum
            DPT2(IDIJ)=SUM
          END DO
        END DO
@@ -208,11 +232,17 @@ C Case D
          IV1=IV+INCA*(IA-1)
          DO IB=1,NS
            IDAB=IOFDAB(ISYMA)+IA+NOA*(IB-1)
+C          write (*,*) "sum0 = ", dpt2(idab)
            IV2=IV+INCA*(IB-1)
              DPT2(IDAB)=DPT2(IDAB)+
      &             DDOT_(INCA,VEC1(IV1),1,VEC2(IV2),1)
+C          write (*,*) "sum  = ", dpt2(idab)
          END DO
        END DO
+C     write (*,*) "nvec = ", nvec
+C     do i = 1, nvec
+C       write (*,'(i3,2f20.10)') i,vec1(i),vec2(i)
+C     end do
       END DO
 
       GOTO 100
@@ -387,8 +417,11 @@ C Unfold VEC1 and VEC2 into X1(MU,I;C,A), X2(MU,I;C,A):
 C  D(A,B) := Add contraction +X1(MU,I,C,A)*X2(MU,I,C,B):
         IDAB=1+IOFDAB(ISYMA)
         NOA=NORB(ISYMA)
-        CALL DGEMM_('T','N',NA,NA,NIN*NI*NC,+1.0D00,
+        CALL DGEMM_('T','N',NA,NA,NIN*NI*NC,+0.5D00,
      &             WORK(LX1),NIN*NI*NC,WORK(LX2),NIN*NI*NC,
+     &             1.0D00,DPT2(IDAB),NOA)
+        CALL DGEMM_('T','N',NA,NA,NIN*NI*NC,+0.5D00,
+     &             WORK(LX2),NIN*NI*NC,WORK(LX1),NIN*NI*NC,
      &             1.0D00,DPT2(IDAB),NOA)
  911    CONTINUE
        END DO
@@ -452,8 +485,14 @@ C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
 C D(I,J) := Add contraction -X2(MU,K,I)*X1(MU,K,J):
        IDIJ=1+IOFDIJ(ISYMI)
        NOI=NORB(ISYMI)
-       CALL DGEMM_('T','N',NI,NI,NAS*NK,-1.0D00,
+C      CALL DGEMM_('T','N',NI,NI,NAS*NK,-1.0D00,
+C    &            WORK(LX2),NAS*NK,WORK(LX1),NAS*NK,
+C    &            1.0D00,DPT2(IDIJ),NOI)
+       CALL DGEMM_('T','N',NI,NI,NAS*NK,-0.5D00,
      &            WORK(LX2),NAS*NK,WORK(LX1),NAS*NK,
+     &            1.0D00,DPT2(IDIJ),NOI)
+       CALL DGEMM_('T','N',NI,NI,NAS*NK,-0.5D00,
+     &            WORK(LX1),NAS*NK,WORK(LX2),NAS*NK,
      &            1.0D00,DPT2(IDIJ),NOI)
  813   CONTINUE
       END DO
@@ -494,8 +533,14 @@ C Unfold VEC1 and VEC2 into X1(A,C,IJ), X2(A,C,IJ):
 C D(A,B) := Add contraction  X1(A,C,IJ)*X2(B,C,IJ):
        IDAB=1+IOFDAB(ISYMA)
        NOA=NORB(ISYMA)
-       CALL DGEMM_('N','T',NA,NA,NIS*NC,+1.0D00,
+C      CALL DGEMM_('N','T',NA,NA,NIS*NC,+1.0D00,
+C    &            WORK(LX1),NA,WORK(LX2),NA,
+C    &            1.0D00,DPT2(IDAB),NOA)
+       CALL DGEMM_('N','T',NA,NA,NIS*NC,+0.5D00,
      &            WORK(LX1),NA,WORK(LX2),NA,
+     &            1.0D00,DPT2(IDAB),NOA)
+       CALL DGEMM_('N','T',NA,NA,NIS*NC,+0.5D00,
+     &            WORK(LX2),NA,WORK(LX1),NA,
      &            1.0D00,DPT2(IDAB),NOA)
  913   CONTINUE
       END DO

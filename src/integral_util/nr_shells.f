@@ -39,6 +39,8 @@
          Call Abend()
       End If
 *
+C      write (*,*) "in nr_shells"
+C      write (*,*) "atomic = ", atomic
       If (Atomic) Go To 300
 *                                                                      *
 ************************************************************************
@@ -49,8 +51,10 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
+C     write (*,*) "nCnttp = ", nCnttp
       Do iCnttp = 1, nCnttp
          nTest = nVal_Shells(iCnttp)-1
+C        write (*,*) "ntest,nCntr(iCnttp) = ", ntest, nCntr(iCnttp)
          Do iCnt = 1, nCntr(iCnttp)
 *
             Do 200 iAng=0, nTest

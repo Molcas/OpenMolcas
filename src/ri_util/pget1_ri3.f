@@ -35,7 +35,8 @@
 *             Modified for 3-center RI gradients, March 2007           *
 *                                                                      *
 ************************************************************************
-      use pso_stuff, only: lPSO, lsa, ipAorb, Thpkl
+      use pso_stuff, only: lPSO, lsa, ipAorb, Thpkl, B_PT2
+      use aces_stuff, only: Gamma_On
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -934,6 +935,13 @@
 *-----------------------Active space contribution: Sum_p Z(p,K)*Th(p,m,n)
 *
                            temp=temp+Thpkl(iThpkl)
+*
+                           If (Gamma_On) Then !! For CASPT2
+                             !! Not sure why scaled with 1/2
+                             !! It may be done in Mult_with_Q_CASPT2
+                             temp = temp + B_PT2(kSOk,lSOl,jSOj)*0.5d+00
+C         write (*,'(3i4,f20.10)') ksok,lsol,jsoj,b_pt2(ksok,lsol,jsoj)
+                           End If
 *
                            PMax=Max(PMax,Abs(temp))
                            PAO(nijkl,iPAO) =  Fac * temp

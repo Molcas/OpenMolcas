@@ -969,6 +969,13 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
 
         CALL PSBMAT_GETMEM('BC',lg_BC,NAS)
         CALL PSBMAT_READ('S',iCase,iSym,lg_BC,NAS)
+C     If (DoPT2Num) Then
+C       If (iVibPT2.eq.1) Then
+C         Work(lg_BC+iDiffPT2-1) = Work(lg_BC+iDiffPT2-1) - PT2Delta
+C       Else
+C         Work(lg_BC+iDiffPT2-1) = Work(lg_BC+iDiffPT2-1) + PT2Delta
+C       End If
+C     End If
 
         ! fill in the 3-el parts
 #ifdef _MOLCAS_MPP_
@@ -999,6 +1006,20 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
         call MKBC_F3(ISYM,WORK(lg_BC),NG3,F3,idxG3)
 #endif
 
+C     call docpy_nas*(nas+1)/2,0.0d+00,0,work(lg_bc),1)
+C     do i = 1, nas
+C       work(lg_bc+i*(i-1)/2+i-1) = 1.0d+00
+C     end do
+C     If (DoPT2Num) Then
+C     ipos = iDiffPT2-1+nAS*(iDiffPT2-1)
+C     ipos = iDiffPT2*(iDiffPT2+1)/2-1
+C     ipos = iDiffPT2-1
+C       If (iVibPT2.eq.1) Then
+C         Work(lg_BC+ipos) = Work(lg_BC+ipos) + PT2Delta
+C       Else
+C         Work(lg_BC+ipos) = Work(lg_BC+ipos) - PT2Delta
+C       End If
+C     End If
         CALL PSBMAT_WRITE('B',iCase,iSYM,lg_BC,NAS)
 
         IF(IPRGLB.GE.DEBUG) THEN
@@ -1090,7 +1111,15 @@ CGG.Nov03
             IDU=(IUABS*(IUABS+1))/2
             IDV=(IVABS*(IVABS+1))/2
             VALUE=VALUE+BSHIFT*0.5d0*BC(ISADR)*
-     &                    (4.0d0-DREF(IDT)-DREF(IDV)+DREF(IDU))
+     &                    (4.0d0-DREF(IDT)*1-DREF(IDV)*1+DREF(IDU))
+C     write (*,'(2i3,2f20.10)') ituv,itabs,bc(isadr),-dref(idt)
+C     If (DoPT2Num.and.iUabs.eq.iDiffPT2) Then
+C       If (iVibPT2.eq.1) Then
+C           VALUE=VALUE-BSHIFT*0.5d0*BC(ISADR)*(-PT2Delta)
+C       Else
+C           VALUE=VALUE-BSHIFT*0.5d0*BC(ISADR)*(+PT2Delta)
+C       End If
+C     End If
           ENDIF
 CGG End
           BC(ISADR)=VALUE
@@ -2041,10 +2070,29 @@ CGG End
               B11=B11+2.0D0*(FUY+(ET-EASUM)*DUY)
               B22=B22+2.0D0*(FUY+(EX-EASUM)*DUY)
             END IF
+
+
+C      write (*,*)" --- "
+C      write (*,'("itu,ixy = ",4i3)') itu,ixy,itu2,ixy2
+C      write (*,'(4i4)') itabs,iuabs,ixabs,iyabs
+C      write (*,'(4i5,2f20.10)') ib11,ib21,ib12,ib22,b11,b22
+C      b11=0.0d+00
+C      b22=0.0d+00
+C      if (itu.eq.ixy) then
+C      b11=1.0d+00
+C      b22=1.0d+00
+C      end if
+C        if (itu.eq.ixy) then
+C          b11=1.0d+00
+C          b22=1.0d+00
+C         else
+C          b11=0.0d+00
+C          b22=0.0d+00
+C         end if
             WORK(LBD-1+IB11)= B11
-            WORK(LBD-1+IB21)=-0.5D0*B11
-            WORK(LBD-1+IB12)=-0.5D0*B11
-            WORK(LBD-1+IB22)= B22
+            WORK(LBD-1+IB21)=-0.5D0*B11!*0.0d+00
+            WORK(LBD-1+IB12)=-0.5D0*B11!*0.0d+00
+            WORK(LBD-1+IB22)= B22!*0.0d+00
 CGG.Nov03
             IF (ITU.eq.IXY) THEN
               IDT=(ITABS*(ITABS+1))/2
@@ -2139,6 +2187,13 @@ CGG End
             WORK(LBE-1+IBE)=VALUE
           END DO
         END DO
+C     If (DoPT2Num) Then
+C       If (iVibPT2.eq.1) Then
+C         Work(LBE+iDiffPT2-1) = Work(LBE+iDiffPT2-1) + PT2Delta
+C       Else
+C         Work(LBE+iDiffPT2-1) = Work(LBE+iDiffPT2-1) - PT2Delta
+C       End If
+C     End If
 
 C Write to disk
         IF(NBE.GT.0.and.NINDEP(ISYM,6).GT.0) THEN
@@ -2194,6 +2249,13 @@ C Loop over superindex symmetry.
         IF(NBF.GT.0) THEN
           CALL GETMEM('BF','ALLO','REAL',LBF,NBF)
         END IF
+C     If (DoPT2Num) Then
+C       If (iVibPT2.eq.1) Then
+C         PREF(iDiffPT2) = PREF(iDiffPT2) + PT2Delta
+C       Else
+C         PREF(iDiffPT2) = PREF(iDiffPT2) - PT2Delta
+C       End If
+C     End If
         DO ITU=1,NAS
           ITUABS=ITU+NTUES(ISYM)
           ITABS=MTU(1,ITUABS)
@@ -2208,6 +2270,7 @@ C Loop over superindex symmetry.
             IP1=MAX(ITX,IUY)
             IP2=MIN(ITX,IUY)
             IP=(IP1*(IP1-1))/2+IP2
+C       write (*,'(4i3,f20.10)') itabs,ixabs,iuabs,iyabs,pref(ip)
             WORK(LBF-1+IBADR)=4.0D0*(FP(IP)-EASUM*PREF(IP))
           END DO
         END DO
@@ -2280,6 +2343,10 @@ CGG.Nov03
               WORK(LBFP-1+IBPADR)=WORK(LBFP-1+IBPADR)+BSHIFT*0.5d0*
      &                    (4.0d0-DREF(IDT)-DREF(IDU))*WORK(LSDP-1+ITGEU)
             ENDIF
+C       tmp = 0.0d+00
+C       if (itgeu.eq.ixgey) tmp=1.0d+00
+C       work(lbfp-1+ibpadr)=tmp
+C     write (*,*) "clear bmat for F"
 CGG End
             IF(ITABS.EQ.IUABS) GOTO 200
             IF(IXABS.EQ.IYABS) GOTO 200
@@ -2295,6 +2362,9 @@ CGG.Nov03
      &                    (4.0d0-DREF(IDT)-DREF(IDU))*WORK(LSDM-1+INSM)
               INSM=INSM+1
             ENDIF
+C       tmp = 0.0d+00
+C       if (itgtu.eq.ixgty) tmp=1.0d+00
+C       work(lbfm-1+ibmadr)=tmp
 
  200        CONTINUE
           END DO
@@ -2302,6 +2372,17 @@ CGG.Nov03
         IF(NBF.GT.0) THEN
           CALL GETMEM('BF','FREE','REAL',LBF,NBF)
         END IF
+      !! template
+C     Call TriPrt('(BP)',' ',Work(LBFP))
+C     call prtril(work(Lbfp),nas)
+C     If (DoPT2Num) Then
+C       If (iVibPT2.eq.1) Then
+C         Work(LBFP+iDiffPT2-1) = Work(LBFP+iDiffPT2-1) + PT2Delta
+C       Else
+C         Work(LBFP+iDiffPT2-1) = Work(LBFP+iDiffPT2-1) - PT2Delta
+C       End If
+C     End If
+
 
 C Write to disk
         IF(NBFP.GT.0.and.NINDEP(ISYM,8).GT.0) THEN
@@ -2382,6 +2463,8 @@ CGG.Nov03
             VALUE=FD(ID)-EASUM*DREF(ID)
             IF (IT.eq.IX) THEN
               IDT=(ITABS*(ITABS+1))/2
+C             write (*,'(i3,3f20.10)') i,dref(idt),work(lsd-1+it),
+C    *                    BSHIFT*0.5d0*(2.0d0-DREF(IDT))*WORK(LSD-1+IT)
               VALUE=VALUE+BSHIFT*0.5d0*(2.0d0-DREF(IDT))*WORK(LSD-1+IT)
             ENDIF
             WORK(LBG-1+IBG)=VALUE

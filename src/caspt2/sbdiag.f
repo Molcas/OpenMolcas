@@ -111,6 +111,7 @@ C usually print info on the total number of parameters
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"
+#include "pt2_guga.fh"
 
 * For fooling some compilers:
       DIMENSION WGRONK(2)
@@ -149,10 +150,24 @@ C for temporary storage.
      &  'SBDIAG_SER: ','CASE ',ICASE,' (',CASES(ICASE),') ','SYM ',ISYM
       END IF
 
+      IDTMP0 = 0
+      If (IFDENS) Then
+        !! correct?
+        iPad = ItoB - Mod(6*NG3,ItoB)
+        IDTMP0=6*NG3+iPad
+C       write (*,*) ng3,ipad,idtmp0
+      End If
+
       NS=(NAS*(NAS+1))/2
       CALL GETMEM('LS','ALLO','REAL',LS,NS)
       IDS=IDSMAT(ISYM,ICASE)
       CALL DDAFILE(LUSBT,2,WORK(LS),NS,IDS)
+C           if (icase.eq.10.or.icase.eq.11) then
+C             write (*,*) "overlap read"
+C             do i = 1, ns
+C               write (*,'(i3,f20.10)') i,work(ls+i-1)
+C             end do
+C           end if
       IF (IPRGLB.GE.INSANE) THEN
         FP=DNRM2_(NS,WORK(LS),1)
         WRITE(6,'("DEBUG> ",A,ES21.14)') 'SMAT NORM: ', FP
@@ -179,12 +194,16 @@ C Extremely small values give scale factor exactly zero.
       DO I=1,NAS
         IDIAG=IDIAG+I
         SD=WORK(LS-1+IDIAG)
-        IF(SD.GT.THRSHN) THEN
+        If (IFDORTHO) then
+          WORK(LSCA-1+I)=(1.0D00+DBLE(I)*3.0D-6*0)
+        Else
+          IF(SD.GT.THRSHN) THEN
 * Small variations of the scale factor were beneficial
-          WORK(LSCA-1+I)=(1.0D00+DBLE(I)*3.0D-6)/SQRT(SD)
-        ELSE
-          WORK(LSCA-1+I)=0.0D0
-        END IF
+              WORK(LSCA-1+I)=(1.0D00+DBLE(I)*3.0D-6*0)/SQRT(SD)
+          ELSE
+            WORK(LSCA-1+I)=0.0D0
+          END IF
+        End If
       END DO
       IJ=0
       DO J=1,NAS
@@ -205,6 +224,7 @@ C DIAGONALIZE THE SCALED S MATRIX:
       CALL GETMEM('LEIG','ALLO','REAL',LEIG,NAS)
 
       CALL TIMING(CPU1,CPUE,TIO,TIOE)
+          call dcopy_(nas**2,[0.0d+00],0,work(lvec),1)
       IJ=0
       DO J=1,NAS
         DO I=1,J
@@ -212,12 +232,20 @@ C DIAGONALIZE THE SCALED S MATRIX:
           WORK(LVEC-1+NAS*(J-1)+I)=WORK(LS-1+IJ)
         END DO
       END DO
+C         if (icase.eq.10.or.icase.eq.11) then
+C           write (*,*) "overlap for diagonalization"
+C           call sqprt(work(lvec),nas)
+C         end if
       INFO=0
       call dsyev_('V','L',NAS,WORK(LVEC),NAS,WORK(LEIG),WGRONK,-1,INFO)
       NSCRATCH=INT(WGRONK(1))
       CALL GETMEM('SCRATCH','ALLO','REAL',LSCRATCH,NSCRATCH)
       call dsyev_('V','U',NAS,WORK(LVEC),NAS,WORK(LEIG),WORK(LSCRATCH),
      &            NSCRATCH,INFO)
+C         if (icase.eq.10.or.icase.eq.11) then
+C           write (*,*) "eigenvectors of overlap"
+C           call sqprt(work(lvec),nas)
+C         end if
       CALL GETMEM('SCRATCH','FREE','REAL',LSCRATCH,NSCRATCH)
       CALL GETMEM('LS','FREE','REAL',LS,NS)
 
@@ -231,9 +259,24 @@ C DIAGONALIZE THE SCALED S MATRIX:
 
 C Form orthonormal vectors by scaling eigenvectors
       NIN=0
+C     write (*,*) "icase = ", icase
+      thrshsl = thrshs
       DO I=1,NAS
         EVAL=WORK(LEIG-1+I)
-        IF(EVAL.LT.THRSHS) CYCLE
+C       if (icase.eq.4) write (*,*) i,eval
+C       if (icase.eq.5) write (*,*) i,eval
+C       if (icase.eq.10) write (*,*) i,eval
+C       if (icase.eq.10) thrshs=work(leig)+1.0d-05
+C     if (eval.lt.thrshsl) then
+C     write (*,'(i3,x,f20.10)') i,eval
+C     else
+C     write (*,'(i3,x,f20.10,x,"+")') i,eval
+C     end if
+        IF(EVAL.LT.THRSHSl) CYCLE
+C       if (nin.eq.0.and.thrshsl.eq.1.0d-08) then
+C         thrshsl = eval+1.0d-05
+C         cycle
+C       end if
         FACT=1.0D00/SQRT(EVAL)
         NIN=NIN+1
         LVSTA=LVEC+NAS*(I-1)
@@ -244,6 +287,7 @@ C Form orthonormal vectors by scaling eigenvectors
           CALL DYAX(NAS,FACT,WORK(LVSTA),1,WORK(LVNEW),1)
         END IF
       END DO
+C     write (*,*) "icase,nin=", icase,nin
       NINDEP(ISYM,ICASE)=NIN
       CALL GETMEM('LEIG','FREE','REAL',LEIG,NAS)
 C Addition, for the scaled symmetric ON.
@@ -322,7 +366,7 @@ C USE LUSOLV AS TEMPORARY STORAGE. WE MAY NEED SECTIONING.
 C NOTE: SECTIONING MUST BE  PRECISELY THE SAME AS WHEN LATER
 C READ BACK (SEE BELOW).
       NAUX=MIN(19,NIN)
-      IDTMP=0
+      IDTMP=IDTMP0
       CALL DDAFILE(LUSOLV,1,WORK(LVEC),NAS*NAUX,IDTMP)
       DO KSTA=NAUX+1,NIN,NAUX
         KEND=MIN(KSTA-1+NAUX,NIN)
@@ -341,6 +385,15 @@ C TRANSFORM B. NEW B WILL OVERWRITE AND DESTROY WORK(LVEC)
       NB=NS
       CALL GETMEM('LB','ALLO','REAL',LB,NB)
       CALL DDAFILE(LUSBT,2,WORK(LB),NB,IDB)
+C           if (icase.eq.10.or.icase.eq.11) then
+C           if (icase.eq.4) then
+C             write (*,*) "B matrix read"
+C             do i = 1, ns
+C               write (*,'(i3,f20.10)') i,work(lb+i-1)
+C             end do
+C             write (*,*) "transformation(?) matrix"
+C             call sqprt(work(lvec),5)
+C           end if
       IF (IPRGLB.GE.INSANE) THEN
         FP=DNRM2_(NB,WORK(LB),1)
         WRITE(6,'("DEBUG> ",A,ES21.14)') 'BMAT NORM: ', FP
@@ -371,6 +424,10 @@ C WORK(LXBX) CONTAINS NOW THE UPPERTRIANGULAR
 C ELEMENTS OF THE J-th COLUMN OF TRANSFORMED B MATRIX.
         CALL DCOPY_(J,WORK(LXBX),1,WORK(LVSTA),1)
       END DO
+C           if (icase.eq.10.or.icase.eq.11) then
+C             write (*,*) "orthonormalized B?"
+C             call sqprt(work(lvec),5)
+C           end if
       CALL GETMEM('LBX','FREE','REAL',LBX,NAS)
       CALL GETMEM('LXBX','FREE','REAL',LXBX,NAS)
       CALL GETMEM('LB','FREE','REAL',LB,NB)
@@ -402,10 +459,12 @@ C - Alt 0: Use diagonal approxim., if allowed:
       ELSE
         NBB=(NIN*(NIN+1))/2
         IJ=0
+C       write (*,*) "B mat to be diagonalized"
         DO J=1,NIN
           DO I=1,J
             IJ=IJ+1
             WORK(LVEC-1+NIN*(J-1)+I)=WORK(LB-1+IJ)
+C           write (*,'(i5,f20.10)') ij,WORK(LB-1+IJ)
           END DO
         END DO
         CALL DSYEV_('V','U',NIN,WORK(LVEC),NIN,WORK(LEIG),
@@ -416,6 +475,12 @@ C - Alt 0: Use diagonal approxim., if allowed:
      &              WORK(LSCRATCH),NSCRATCH,INFO)
         CALL GETMEM('SCRATCH','FREE','REAL',LSCRATCH,NSCRATCH)
         CALL GETMEM('LB','FREE','REAL',LB,NB)
+C       if (icase.eq.4) then
+C       write (*,*) "eigenvalues"
+C       do i = 1, nin
+C         write (*,*) i,work(leig+i-1)
+C       end do
+C       end if
       END IF
       CALL TIMING(CPU2,CPUE,TIO,TIOE)
       CPU=CPU+CPU2-CPU1
@@ -428,6 +493,14 @@ C The eigenvalues are written back at same position as the
 C original B matrix, which is destroyed:
       IDB=IDBMAT(ISYM,ICASE)
       CALL DDAFILE(LUSBT,1,WORK(LEIG),NIN,IDB)
+C           if (icase.eq.10.or.icase.eq.11) then
+C             write (*,*) "vectors (C)"
+C             call sqprt(work(lvec),5)
+C             write (*,*) "eigenvalues"
+C             do i = 1, 5
+C               write (*,'(i3,f20.10)') i,work(leig+i-1)
+C             end do
+C           end if
       CALL GETMEM('LEIG','FREE','REAL',LEIG,NIN)
 
 C Finally, we must form the composite transformation matrix,
@@ -438,7 +511,7 @@ C full matrices, plus an additional 19 columns of results.
       NAUX=MIN(19,NIN)
       CALL GETMEM('LTRANS','ALLO','REAL',LTRANS,NAS*NIN)
       CALL GETMEM('LAUX'  ,'ALLO','REAL',LAUX  ,NAS*NAUX)
-      IDTMP=0
+      IDTMP=IDTMP0
       CALL DDAFILE(LUSOLV,2,WORK(LAUX),NAS*NAUX,IDTMP)
       IF(BTRANS.EQ.'YES') THEN
         CALL DGEMM_('N','N',
@@ -449,6 +522,10 @@ C full matrices, plus an additional 19 columns of results.
       ELSE
         CALL DCOPY_(NAS*NAUX,WORK(LAUX),1,WORK(LTRANS),1)
       END IF
+C           if (icase.eq.10.or.icase.eq.11) then
+C             write (*,*) "ltrans (1)"
+C             call sqprt(work(ltrans),5)
+C           end if
       DO KSTA=NAUX+1,NIN,NAUX
         KEND=MIN(KSTA-1+NAUX,NIN)
         NCOL=1+KEND-KSTA
@@ -464,6 +541,14 @@ C full matrices, plus an additional 19 columns of results.
       END DO
       CALL GETMEM('LAUX'  ,'FREE','REAL',LAUX  ,NAS*NAUX)
       CALL GETMEM('LVEC','FREE','REAL',LVEC,NIN**2)
+C     !! template
+C     If (DoPT2Num.and.icase.eq.1) Then
+C       If (iVibPT2.eq.1) Then
+C         Work(LTRANS+iDiffPT2-1) = Work(LTRANS+iDiffPT2-1) + PT2Delta
+C       Else
+C         Work(LTRANS+iDiffPT2-1) = Work(LTRANS+iDiffPT2-1) - PT2Delta
+C       End If
+C     End If
       IDT=IDTMAT(ISYM,ICASE)
       CALL DDAFILE(LUSBT,1,WORK(LTRANS),NAS*NIN,IDT)
       IF (IPRGLB.GE.INSANE) THEN
@@ -481,6 +566,12 @@ C      utilities.
       CALL DCOPY_(NAS*NIN,[0.0D0],0,WORK(LST),1)
       CALL TRIMUL(NAS,NIN,1.0D00,WORK(LS),WORK(LTRANS),
      &            NAS,WORK(LST),NAS)
+C     if (icase.eq.8.or.icase.eq.9) then
+C       write (*,*) "ltrans"
+C       call sqprt(work(ltrans),nas)
+C       write (*,*) "lst"
+C       call sqprt(work(lst),5)
+C     end if
       CALL GETMEM('LS','FREE','REAL',LS,NS)
       CALL GETMEM('LTRANS','FREE','REAL',LTRANS,NAS*NIN)
       IDST=IDSTMAT(ISYM,ICASE)

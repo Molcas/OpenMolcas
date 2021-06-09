@@ -389,7 +389,8 @@ C     that no CSF<->SD coefficents is in core
       NOCTPA = NOCTYP(IATP)
       NOCTPB = NOCTYP(IBTP)
       MNELR1 = MNR1IC(ISPC)
-      MXELR3 = MNR1IC(ISPC)
+C     MXELR3 = MNR1IC(ISPC)
+      MXELR3 = MXR3IC(ISPC)
       iRefSm=lsym
 *.... Obtain OOS pointer array
 *     strbas_mclr.fh

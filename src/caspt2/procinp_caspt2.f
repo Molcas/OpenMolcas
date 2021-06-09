@@ -45,6 +45,10 @@ C initialize global common-block variables appropriately.
       Integer iGroup, IOFF
 * Error condition
       Integer IERR
+* Do numerical gradient?
+      Logical DNG
+      Integer iDNG,IFINVAR
+      Character*100 ProgName, Get_SuperName
 
 #include "chocaspt2.fh"
 
@@ -482,6 +486,38 @@ C Consistency of these demands:
         M=2*M
       END DO
 *
+************************************************************************
+*
+* Gradient (taken from mbpt2/rdinp.f)
+*
+************************************************************************
+*
+*     Check if the calculation is inside a loop and make analytical
+*     gradients default in this case
+*
+*     Numerical gradients requested in GATEWAY
+      Call Qpg_iScalar('DNG',DNG)
+      If (DNG) Then
+         Call Get_iScalar('DNG',iDNG)
+         DNG = iDNG.eq.1
+      End If
+C     DNG=NoGrdt.or.DNG
+*
+*     Inside LAST_ENERGY we do not need analytical gradients
+      ProgName=Get_SuperName()
+      If (ProgName(1:11).eq.'last_energy') DNG=.true.
+*
+*     Inside NUMERICAL_GRADIENT override input!
+      If (ProgName(1:18).eq.'numerical_gradient') Then
+C        Call Put_iScalar('mp2prpt',0)
+         DNG=.true.
+C        DoDens=.false.
+         IFDENS=.false.
+C        DoGrdt=.false.
+      End If
+      IFSADREF = Input%SADREF
+      IFDORTHO = Input%DORTHO
+      IFINVAR  = Input%INVAR
 *---  Exit
       CALL QEXIT('PROC_INP')
       Return

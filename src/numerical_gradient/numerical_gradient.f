@@ -198,6 +198,9 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
       If (nAtMM .eq. 0) Call GenCxCTL(iRC,NMCart,rDelta)
 *
       Call qpg_dArray('CList',Found,nCList)
+      If (rDelta.lt.0.0d+00) Then
+        Found=.false.
+      End If
       If (Found) Then
          External_Coor_List=.True.
          Call Get_iScalar('No of Internal Coordinates',mInt)
@@ -286,6 +289,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      write(6,*) "External_Coor_List=",External_Coor_List
       If (External_Coor_List) Then
 *
 *        Externally define displacement list
@@ -351,12 +355,14 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
                If (rTest.eq.Zero) rTest=1.0D19
                rMax=Min(rMax,rTest)
             End Do
+            If (rDelta.lt.0.0d+00)  rMax=-1.889726d+00
             If (DispX) Work(ipDisp+(i-1)*3  )=rDelta*rMax
             If (DispY) Work(ipDisp+(i-1)*3+1)=rDelta*rMax
             If (DispZ) Work(ipDisp+(i-1)*3+2)=rDelta*rMax
          End Do
 *        Call RecPrt('Work(ipDisp)',' ',Work(ipDisp),1,nDisp)
       End If
+      If (rDelta.lt.0.0d+00)  rDelta=abs(rDelta)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -452,6 +458,11 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *     externally defined coordinates or not.
 *
       If (iPL.ge.3) Then
+         call dcopy_(nDisp,Work(ipDisp),1,Work(ipTemp),1)
+         Call dGeMV_('N',nDisp,nDisp,
+     &              1.0D+00,Work(ipAm),nDisp,
+     &              Work(ipTemp),1,
+     &              0.0D+00,Work(ipDisp),1)
 #ifdef _HIDE_
          Write (LuWr,'(1x,A)')
      &                 '---------------------------------------------'
@@ -558,6 +569,8 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *
          jpXYZ = ipXYZ + (iDisp-1)*3*nAtoms
          call dcopy_(3*nAtoms,Work(jpxyz),1,Work(ipC),1)
+C        write(6,*) "debug print"
+C        Call RecPrt('Work(ipC)',' ',Work(ipC),3*nAtoms,1)
 *        Call RecPrt('Work(ipC)',' ',Work(ipC),3*nAtoms,1)
          Call Put_Coord_New(Work(ipC),nAtoms)
 *
@@ -641,7 +654,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
                Write(LuWr,*) 'RASSCF returned with return code, rc = ',
      &                     iReturn
                Write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-               Call Abend()
+C              Call Abend()
             End If
          End If
 *
@@ -755,6 +768,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
          Else
             Call Get_dScalar('Last energy',EnergyArray(iRoot,iDisp))
          End If
+         write(6,'(f25.15)') energyarray(iroot,idisp)
 *
 *        Restore directory and prgm database
 *
@@ -929,19 +943,19 @@ C_MPP End Do
 *              one-point equation. The one with the lowest gradient is
 *              the one which is most likely to be correct.
 *
-               If (Abs(Grad(iR)).gt.1.0D-1) Then
-                  Energy_Ref=Work(ipEnergies_Ref+iR-1)
-                  Grada= (Eplus-Energy_Ref)/Disp
-                  Gradb= (Energy_Ref-EMinus)/Disp
-                  If (Abs(Grad(iR)/Grada).gt.1.5D0 .or.
-     &                Abs(Grad(iR)/Gradb).gt.1.5D0 ) Then
-                     If (Abs(Grada).le.Abs(Gradb)) Then
-                        Grad(iR)=Grada
-                     Else
-                        Grad(iR)=Gradb
-                     End If
-                  End If
-               End If
+              !If (Abs(Grad(iR)).gt.1.0D-1) Then
+              !   Energy_Ref=Work(ipEnergies_Ref+iR-1)
+              !   Grada= (Eplus-Energy_Ref)/Disp
+              !   Gradb= (Energy_Ref-EMinus)/Disp
+              !   If (Abs(Grad(iR)/Grada).gt.1.5D0 .or.
+     &        !       Abs(Grad(iR)/Gradb).gt.1.5D0 ) Then
+              !      If (Abs(Grada).le.Abs(Gradb)) Then
+              !         Grad(iR)=Grada
+              !      Else
+              !         Grad(iR)=Gradb
+              !      End If
+              !   End If
+              !End If
             End Do
          End If
 *
@@ -1016,7 +1030,7 @@ C_MPP End Do
                TempY = Work(ipTmp+3*(iAtom-1)+1)
                TempZ = Work(ipTmp+3*(iAtom-1)+2)
                Namei = AtomLbl(iAtom)
-               Write (LuWr,'(2X,A,3X,3F12.6)')
+               Write (LuWr,'(2X,A,3X,3F14.8)')
      &               Namei, TempX, TempY, TempZ
             End Do
             Write (LuWr,'(2x,A)')

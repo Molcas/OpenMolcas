@@ -74,6 +74,8 @@
       IAD1M(2)=IDISK
       call ddafile(LUONEM,1,WORK(LCMO),NCMO,IDISK)
       IEOF1M=IDISK
+C     write (*,*) "cmo read from disk"
+C     call sqprt(work(lcmo),12)
 
 * Loop over states, selecting those belonging to this group.
 * For each such state, compute the Fock matrix in original MO basis,
@@ -86,7 +88,20 @@
         Jstate=J+JSTATE_OFF
 
 * Copy the 1-RDM of Jstate from LDMIX into LDREF
-        CALL DCOPY_(NDREF,WORK(LDMIX+(Jstate-1)*NDREF),1,WORK(LDREF),1)
+        IF (IFSADREF) Then
+          !! This DREF is used only for constructing the Fock in H0.
+          !! DREF used in other places will be constructed in elsewhere
+          !! (STINI).
+          Call DCopy_(NDREF,0.0D+00,0,WORK(LDREF),1)
+          Do K = 1, Nstate
+C           wij = WORK(LDWGT+(K-1) + NSTATE*(K-1))
+            wij = 1.0d+00/nstate
+            offset = NDREF*(K-1)
+            CALL DAXPY_(NDREF,wij,WORK(LDMIX+offset),1,WORK(LDREF),1)
+          End Do
+        Else
+         CALL DCOPY_(NDREF,WORK(LDMIX+(Jstate-1)*NDREF),1,WORK(LDREF),1)
+        End If
 
 * Compute the Fock matrix in MO basis for state Jstate
 * INTCTL1/INTCTL2 call TRACTL(0) and other routines to compute the
@@ -238,7 +253,11 @@ c Modify the Fock matrix if needed
 * model functions, but using the new orbitals.
 * Note that the matrices FIFA, FIMO, etc are transformed as well
 
+C     write (*,*) "cmo before orbctl"
+C     call sqprt(work(lcmo),12)
       CALL ORBCTL(WORK(LCMO))
+C     write (*,*) "cmo after orbctl"
+C     call sqprt(work(lcmo),12)
 
 * In subroutine stini, the individual RHS, etc, arrays will be computed
 * for the states. If this is a true XMS calculation (Ngrp > 1) then
@@ -259,6 +278,8 @@ c Modify the Fock matrix if needed
       CPUINT=CPU1-CPU0
       TIOINT=TIO1-TIO0
       call dcopy_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
+C     write (*,*) "lcmopt2 final"
+C     call sqprt(work(lcmopt2),12)
 
       call getmem('LCMO','FREE','REAL',LCMO,NCMO)
 

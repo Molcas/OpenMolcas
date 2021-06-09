@@ -1,0 +1,66 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2021, Yoshio Nishimoto                                 *
+************************************************************************
+C     DO ISYM=1,NSYM
+C       NIES(ISYM)=NISHT
+C       NAES(ISYM)=NASHT
+C       NSES(ISYM)=NSSHT
+C       NOSH(ISYM)=NISH(ISYM)+NASH(ISYM)
+C       NSSH(ISYM)=NBAS(ISYM)-NFRO(ISYM)-NOSH(ISYM)-NDEL(ISYM)
+C       NORB(ISYM)=NOSH(ISYM)+NSSH(ISYM)
+C       NORBT=NORBT+NORB(ISYM)      ! L0
+C       NOSQT=NOSQT+NORB(ISYM)**2   ! L0*L0
+C       NBSQT=NBSQT+NBAS(ISYM)**2   ! L1*L1
+C       NFROT=NFROT+NFRO(ISYM)
+C       NISHT=NISHT+NISH(ISYM)      ! sum of inactive orbitals (over symm)
+C       NASHT=NASHT+NASH(ISYM)      ! sum of active orbitals
+C       NOSHT=NOSHT+NOSH(ISYM)      ! sum of occupied (inact+act) orbitals
+C       NRAS1T=NRAS1T+NRAS1(ISYM)
+C       NRAS2T=NRAS2T+NRAS2(ISYM)
+C       NRAS3T=NRAS3T+NRAS3(ISYM)
+C       NSSHT=NSSHT+NSSH(ISYM)      ! sum of virtual orbitals
+C       NDELT=NDELT+NDEL(ISYM)      ! sum of deleted orbitals
+C       NBAST=NBAST+NBAS(ISYM)      ! L1
+C       NIMX=MAX(NIMX,NISH(ISYM))
+C       NAMX=MAX(NAMX,NASH(ISYM))
+C       NSMX=MAX(NSMX,NSSH(ISYM))
+C       NOMX=MAX(NOMX,NORB(ISYM))
+C       NBMX=MAX(NBMX,NBAS(ISYM))
+C     END DO
+!!    nFro(iSym) : Number of frozen orbitals
+!!    nIsh(iSym) : Number of inactive orbitals
+!!    nAsh(iSym) : Number of active orbitals
+!!    nSsh(iSym) : Number of Secondary orbitals
+!!    nDel(iSym) : Number of deleted orbitals
+!!    nBas(iSym) : Number of basis functions
+!!
+!!    See superindex.f
+!!    NASUP(nSym,13)  : number of independent active pairs
+!!    NISUP(nSym,13)  : number of independent inactive+secondary pairs?
+!!    NINDEP(nSym,13) : number of independent IC basis
+!!    NEXC(nSym,13)   : ?
+!!    NEXCES(nSym,13) : ?
+      INTEGER ipDPT2,ipDPT2C,ipDPT2AO,ipDPT2CAO,
+     *        ipCLag,ipOLag,ipSLag,ipWLag,
+     *        nCLag,nOLag,nSLag,nWLag,
+     *        nBasTr,nBasSq
+      INTEGER idSDMat !! maybe the dimension can be defined with 11 not 13, but tentatively 13
+      COMMON /CASPT2_GRAD/ ipDPT2,ipDPT2C,ipDPT2AO,ipDPT2CAO,
+     *                     ipCLag,ipOLag,ipSLag,ipWLag,
+     *                     nCLag,nOLag,nSLag,nWLag,
+     *                     nBasTr,nBasSq,
+C    *                     idSDMat(8,MXCASE)
+     *                     idSDMat(8,13)
+      INTEGER, PARAMETER :: LuPT2    = 17 !! For MCLR
+      INTEGER, PARAMETER :: LuGAMMA  = 60 !! For ERI derivatives in ALASKA
+      INTEGER, PARAMETER :: LuCMOPT2 = 61 !! For back-transformation in ALASKA
+      INTEGER, PARAMETER :: LuSTD    = 62 !! For derivative of S and T in full CASPT2

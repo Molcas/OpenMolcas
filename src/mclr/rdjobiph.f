@@ -160,7 +160,8 @@ C
           if(iroot(i).eq.irlxroot)istate=i
         end do
       end if
-      If (Method.eq.'CASSCFSA') Then
+      If (Method.eq.'CASSCFSA'.or.Method.eq.'CASPT2  '.or.
+     *    Method.eq.'RASSCFSA') Then
          Call Get_iScalar('SA ready',iGo)
          If (iGO.eq.-1) Then
             Write (6,*) 'MCLR not implemented for SA-CASSCF'//

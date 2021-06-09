@@ -50,7 +50,13 @@
         call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
       end if
 
+C     If (ActRot) Call DCopy_(nDensC,rIn,1,rOut,1)
+      Call DCopy_(nDensC,rIn,1,rOut,1)
       Call Uncompress2(rIn,rtemp,isym)
+C     write (*,*) "norb= ", norb(1)
+C     write (*,*) "uncompressed"
+C     call sqprt(rtemp,norb(1))
+C     call abend
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -68,6 +74,7 @@
             nD=nOrb(is)-nIsh(is)
             If (nd.ne.0) Then
                ip2=ipMat(is,js)+nOrb(is)*(iI-1)
+               if (actrot) ip2 = ip2 + nIsh(iS) !! jS?
                irc=0
                call c_f_pointer(c_loc(rMFact(ip1+nd**2)),iMFact,[ND])
                call dgetrs_('N',ND,1,rMFact(ip1),nd,
@@ -90,7 +97,18 @@
 ************************************************************************
 *                                                                      *
          Do iI=1,nAsh(js)
-            nD=nOrb(is)-nAsh(is)
+            If (ActRot) Then
+               nD=nOrb(is)
+            Else
+C              nD=nOrb(is)-nAsh(is)
+               If (iI.le.nRs1(jS)) THen
+                 nD=nOrb(is)-nRs1(js)
+               Else If (iI.le.nRs1(jS)+nRs2(jS)) Then
+                 nD=nOrb(is)-nRs2(js)
+               Else If (iI.le.nRs1(jS)+nRs2(jS)+nRs3(jS)) Then
+                 nD=nOrb(is)-nRs3(js)
+               End If
+            End If
             If (nd.ne.0) Then
                ip2=ipMat(is,js)+nOrb(is)*(iI-1+nIsh(js))
                irc=0
@@ -112,7 +130,24 @@
 *                                                                      *
 ************************************************************************
 *
+C     write (*,*) "rtemp"
+C     do i = 1, nrtemp
+C       write (*,'(i3,f20.10)') i,rtemp(i)
+C     end do
+C     call sqprt(rtemp,12)
+C     write (*,*) "before compess2"
+C     do i = 1, nrout
+C       write (*,'(i3,f20.10)') i,rout(i)
+C     end do
+C       do i = 1, nrtemp
+C         if (abs(rtemp(i)).le.1.0d-10) rtemp(i)=0.0d+00
+C       end do
       Call Compress2(rtemp,nrtemp,rOut,nrOut,isym)
+C     write (*,*) "after compess2"
+C     do i = 1, nrout
+C       write (*,'(i3,f20.10)') i,rout(i)
+C     end do
+C     call abend
 
       if(doDMRG)then
         call dmrg_spc_change_mclr(LRras2(1:8),nash)

@@ -62,7 +62,15 @@ C (1): Compute a representation of the operator PCAS*W1T*W2
       CALL MMA_ALLOCATE(TRDOP1,NOP1)
       CALL MMA_ALLOCATE(TRDOP2,NOP2)
       CALL MMA_ALLOCATE(TRDOP3,NOP3)
+      call dcopy_(nop1,[0.0d+00],0,trdop1,1)
+      call dcopy_(nop2,[0.0d+00],0,trdop2,1)
+      call dcopy_(nop3,[0.0d+00],0,trdop3,1)
       CALL MKWWOP(IVEC,JVEC,OP0,TRDOP1,NOP2,TRDOP2,NOP3,TRDOP3)
+        write(6,*) "trdop1"
+       call sqprt(trdop1,nasht)
+       call dscal_(nop2,easum,trdop2,1)
+        write(6,*) "trdop2"
+       call prtril(trdop2,nop1)
 CTEST      WRITE(*,*)' TRDACT, back from MKWWOP.'
 CTEST      WRITE(*,*)' OP0:'
 CTEST      WRITE(*,'(1x,5f16.8)') OP0
@@ -88,6 +96,8 @@ CTEST      WRITE(*,*)' OP2:'
 CTEST      WRITE(*,'(1x,5f16.8)')(TRDOP2(I),I=1,NOP2)
 CTEST      WRITE(*,*)' OP3:'
 CTEST      WRITE(*,'(1x,5f16.8)')(TRDOP3(I),I=1,NOP3)
+        write(6,*) "trdop1 after modop"
+       call sqprt(trdop1,nasht)
       NTMP=NCONF
       CALL MMA_ALLOCATE(TRDTMP,NTMP)
       CALL MMA_ALLOCATE(TRDCI,NCONF)
@@ -108,6 +118,10 @@ CTEST      WRITE(*,*)' Norm:',DNRM2_(NCONF,TRDCI,1)
       END IF
       CALL DCOPY_(NTMP,[0.0D0],0,TRDTMP,1)
       CALL HAM3(OP0,TRDOP1,NOP2,TRDOP2,NOP3,TRDOP3,LSYM,TRDCI,TRDTMP)
+        write(6,*) "ntmp = ", ntmp
+        do i = 1, ntmp
+          write(6,'(i3,f20.10)') i,trdtmp(i)
+        end do
 CTEST      WRITE(*,*)' After HAM3, the wave function W(+)*W*(PSI0):'
 CTEST      CALL PRWF_CP2(LSYM,NCONF,TRDTMP,0.0D0)
 CTEST      WRITE(*,*)' Ovlp with CI:',DDOT_(NCONF,TRDCI,1,TRDTMP,1)
@@ -158,6 +172,8 @@ CTEST      WRITE(*,*)' ITABS,IUABS,SCP:',ITABS,IUABS,SCP
           DTU(ITABS,ITABS)=DTU(ITABS,ITABS)+OCCNUM
         END DO
       END IF
+C     write(6,*) "DTU"
+C     call sqprt(dtu,nasht)
 CPAM00 No more need for CI array
       CALL MMA_DEALLOCATE(TRDCI)
 C No more need for the TMP state vector
@@ -173,6 +189,8 @@ CTEST      call getmem('TRDACT D','CHEC','REAL',LDUM,NDUM)
 
 C (4): Add the correction <0| [W1T,E(tu)] W2 |0>.
       CALL COMMWEW(IVEC,JVEC,DTU)
+C     write(6,*) "DTU"
+C     call sqprt(dtu,nasht)
 
 CTEST      WRITE(*,*)' After point 4 in TRDACT, the array DTU is:'
 CTEST      do i=1,nasht

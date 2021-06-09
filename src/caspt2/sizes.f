@@ -58,17 +58,17 @@ C Preferred size for efficiency:
 C Actual max needed in-core:
         NPLBUF=MIN(NPLBUF,(NASHT*(NASHT+1))/2)
         NPOLY=NPOLY+NPLBUF*(NPLBUF+3+3*MXCI)
-*        WRITE(*,*)' Memory requirements for POLY3 (Above SGUGA):'
-*        WRITE(*,*)'   CI vector                      :',MXCI
-*        WRITE(*,*)'   Extra margin for small scratch :',NBOTTOM
-*        WRITE(*,*)'   Ten arrays G10,G20..F12        :',NGARR
-*        WRITE(*,*)'   H0,SGM0,C1,C2                  :',4*MXCI
-*        WRITE(*,*)'   VXYZB,TUBUF,DTUB               :',3*NPLBUF
-*        WRITE(*,*)'   A,B1,B2                        :',3*NPLBUF*MXCI
-*        WRITE(*,*)'   SCR                            :',NPLBUF**2
-*        WRITE(*,*)
-*        WRITE(*,*)' Total, for POLY3                 :',NPOLY
-*        WRITE(*,*)
+*        write(6,*)' Memory requirements for POLY3 (Above SGUGA):'
+*        write(6,*)'   CI vector                      :',MXCI
+*        write(6,*)'   Extra margin for small scratch :',NBOTTOM
+*        write(6,*)'   Ten arrays G10,G20..F12        :',NGARR
+*        write(6,*)'   H0,SGM0,C1,C2                  :',4*MXCI
+*        write(6,*)'   VXYZB,TUBUF,DTUB               :',3*NPLBUF
+*        write(6,*)'   A,B1,B2                        :',3*NPLBUF*MXCI
+*        write(6,*)'   SCR                            :',NPLBUF**2
+*        write(6,*)
+*        write(6,*)' Total, for POLY3                 :',NPOLY
+*        write(6,*)
       END IF
 
 C Precompute sizes, offsets etc.

@@ -45,9 +45,10 @@
              jT=0
           Else If (jBas.le.nIsh(jsym)+nRs1(jsym)) Then
              jT=1
-          Else If (jBas.le.nIsh(jsym)+nRs2(jsym)) Then
+          Else If (jBas.le.nIsh(jsym)+nRs1(jsym)+nRs2(jsym)) Then
              jT=2
-          Else If (jBas.le.nIsh(jsym)+nRs3(jsym)) Then
+          Else If (jBas.le.nIsh(jsym)+nRs1(jsym)+nRs2(jsym)
+     *                               +nRs3(jsym)) Then
              jT=3
           Else
              jT=4
@@ -57,9 +58,10 @@
              iT=0
            Else If (iBas.le.nIsh(isym)+nRs1(isym)) Then
              iT=1
-           Else If (iBas.le.nIsh(isym)+nRs2(isym)) Then
+           Else If (iBas.le.nIsh(isym)+nRs1(isym)+nRs2(isym)) Then
              iT=2
-           Else If (iBas.le.nIsh(isym)+nRs3(isym)) Then
+           Else If (iBas.le.nIsh(isym)+nRs1(isym)+nRs2(isym)
+     *                                +nRs3(isym)) Then
              iT=3
            Else
              iT=4
@@ -71,12 +73,28 @@
              ArrayOut(Index1)=Fact*ArrayIn(indexC)
             End If
            Else
-            If (iT.gt.jT) Then
-             indexC=indexc+1
-             Index1=ipMat(iSym,jSym)+(jBas-1)*nOrb(iSym)+iBas-1
-             Index2=ipMat(jSym,iSym)+(iBas-1)*nOrb(jSym)+jBas-1
-             ArrayOut(Index1)=Fact*ArrayIn(indexC)
-             ArrayOut(Index2)=-Fact*ArrayIn(indexC)
+            If (ActRot) Then
+             If (iT.gt.jT.or.(iT.eq.jT.and.iBas.gt.jBas.and.
+     *          (iT.eq.1.or.iT.eq.2.or.iT.eq.3))) Then
+              indexC=indexc+1
+              Index1=ipMat(iSym,jSym)+(jBas-1)*nOrb(iSym)+iBas-1
+              Index2=ipMat(jSym,iSym)+(iBas-1)*nOrb(jSym)+jBas-1
+C       if (it.eq.jt) then
+C             ArrayOut(Index1)=-Fact*ArrayIn(indexC)
+C             ArrayOut(Index2)=Fact*ArrayIn(indexC)
+C       else
+              ArrayOut(Index1)=Fact*ArrayIn(indexC)
+              ArrayOut(Index2)=-Fact*ArrayIn(indexC)
+C       end if
+             End If
+            Else
+             If (iT.gt.jT) Then
+              indexC=indexc+1
+              Index1=ipMat(iSym,jSym)+(jBas-1)*nOrb(iSym)+iBas-1
+              Index2=ipMat(jSym,iSym)+(iBas-1)*nOrb(jSym)+jBas-1
+              ArrayOut(Index1)=Fact*ArrayIn(indexC)
+              ArrayOut(Index2)=-Fact*ArrayIn(indexC)
+             End If
             End If
            End If
           End Do

@@ -123,11 +123,23 @@ C Form VEC1 from the BRA vector, transformed to covariant form.
           CALL RHS_SCAL(NAS1,NIS1,LVEC1,0.0D0)
           IF(ICASE1.LE.11) THEN
            CALL RHS_ALLO(NAS1,NIS1,LSCR)
-           CALL RHS_READ(NAS1,NIS1,LSCR,ICASE1,ISYM1,IBRA)
+           CALL RHS_READ(NAS1,NIS1,LSCR,ICASE1,ISYM1,IVEC) !! IBRA)
+           IF (IVEC.NE.JVEC.AND.ILOOP.EQ.1) THEN
+            CALL RHS_ALLO(NAS1,NIS1,LSCR2)
+            CALL RHS_READ(NAS1,NIS1,LSCR2,ICASE1,ISYM1,JVEC)
+            Call DaXpY_(NAS1*NIS1,1.0D+00,Work(LSCR2),1,Work(LSCR),1)
+            CALL RHS_FREE(NAS1,NIS1,LSCR2)
+           END IF
            CALL RHS_STRANS (NAS1,NIS1,1.0D0,LSCR,LVEC1,ICASE1,ISYM1)
            CALL RHS_FREE(NAS1,NIS1,LSCR)
           ELSE
-           CALL RHS_READ(NAS1,NIS1,LVEC1,ICASE1,ISYM1,IBRA)
+           CALL RHS_READ(NAS1,NIS1,LVEC1,ICASE1,ISYM1,IVEC) !! IBRA)
+           IF (IVEC.NE.JVEC.AND.ILOOP.EQ.1) THEN
+            CALL RHS_ALLO(NAS1,NIS1,LSCR2)
+            CALL RHS_READ(NAS1,NIS1,LSCR2,ICASE1,ISYM1,JVEC)
+            Call DaXpY_(NAS1*NIS1,1.0D+00,Work(LSCR2),1,Work(LVEC1),1)
+            CALL RHS_FREE(NAS1,NIS1,LSCR2)
+           END IF
           END IF
 C Form WEC1 from VEC1, if needed.
           NWEC1=0
@@ -188,7 +200,13 @@ C (p,q)=(t,i), (a,t), and (a,i), resp.
               NVEC2=NIS2*NAS2
               IF(NVEC2.EQ.0) GOTO 200
               CALL RHS_ALLO(NAS2,NIS2,LVEC2)
-              CALL RHS_READ(NAS2,NIS2,LVEC2,ICASE2,ISYM2,IKET)
+              CALL RHS_READ(NAS2,NIS2,LVEC2,ICASE2,ISYM2,IVEC) !! IKET)
+              IF (IVEC.NE.JVEC.AND.ILOOP.EQ.2) THEN
+               CALL RHS_ALLO(NAS2,NIS2,LSCR2)
+               CALL RHS_READ(NAS2,NIS2,LSCR2,ICASE2,ISYM2,JVEC)
+              Call DaXpY_(NAS2*NIS2,1.0D+00,Work(LSCR2),1,Work(LVEC2),1)
+               CALL RHS_FREE(NAS2,NIS2,LSCR2)
+              END IF
 #ifdef _MOLCAS_MPP_
               IF (IS_REAL_PAR()) THEN
                   CALL GETMEM('TMP1','ALLO','REAL',LTMP1,NVEC1)

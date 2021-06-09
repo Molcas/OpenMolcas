@@ -34,6 +34,8 @@
       If (dsym.lt.0) Fact=-Fact
       dsym=abs(dsym)
       call dcopy_(nDens,[0.0d0],0,ArrayOut,1)
+C     write (*,*) "norb=  ", norb
+C     write (*,*) "actrot= ", actrot
       jT=0 ! dummy initialize
       i1=0 ! dummy initialize
       j1=0 ! dummy initialize
@@ -49,11 +51,12 @@
              jT=1
              i1=nRs1(isym)
              j1=nRs1(jsym)
-          Else If (jBas.le.nIsh(jsym)+nRs2(jsym)) Then
+          Else If (jBas.le.nIsh(jsym)+nRs1(jsym)+nRs2(jsym)) Then
              jT=2
              i1=nRs2(isym)
              j1=nRs2(jsym)
-          Else If (jBas.le.nIsh(jsym)+nRs3(jsym)) Then
+          Else If (jBas.le.nIsh(jsym)+nRs1(jsym)+nRs2(jsym)
+     *                               +nRs3(jsym)) Then
              jT=3
              i1=nRs3(isym)
              j1=nRs3(jsym)
@@ -71,7 +74,7 @@
                ij=i1
                ji=0
              end if
-           Else If (iBas.le.nIsh(isym)+nRs2(isym)) Then
+           Else If (iBas.le.nIsh(isym)+nRs1(isym)+nRs2(isym)) Then
              iT=2
              ij=0
              ji=j1
@@ -79,7 +82,8 @@
                ij=i1
                ji=0
              end if
-           Else If (iBas.le.nIsh(isym)+nRs3(isym)) Then
+           Else If (iBas.le.nIsh(isym)+nRs1(isym)+nRs2(isym)
+     *                                +nRs3(isym)) Then
              iT=3
              ij=0
              ji=j1
@@ -99,15 +103,44 @@
              ArrayOut(Index1)=Fact*ArrayIn(indexC)
             End If
            Else
-            If (iT.gt.jT) Then
-             indexC=indexc+1
-             Index1=ipMat(iSym,jSym)+
-     &               (jBas-1)*norb(iSym)+iBas-ij-1
-             Index2=ipMat(jSym,iSym)+
-     &               (iBas-1)*norb(jSym)+jBas-ji-1
-             ArrayOut(Index1)=Fact*ArrayIn(indexC)
-             If (iBas.le.nB(isym))
-     &        ArrayOut(Index2)=Fact*ArrayIn(indexC)
+            If (ActRot) Then
+             !! No preconditioning for active-active for the moment
+             If (iT.gt.jT.or.(iT.eq.jT.and.iBas.gt.jBas.and.
+     *          (iT.eq.1.or.iT.eq.2.or.iT.eq.3))) Then
+              If (iT.eq.jT) Then
+                ij=nIsh(iSym) ! i1
+                ji=nIsh(jSym) ! j1
+                ij=0
+                ji=0
+              End If
+              if (iT.eq.4) then
+                ij=0
+                ji=j1
+              end if
+              ij=0
+              ji=0
+              indexC=indexc+1
+C             If (iT.gt.jT) Then
+              Index1=ipMat(iSym,jSym)+
+     &                (jBas-1)*norb(iSym)+iBas-ij-1
+              Index2=ipMat(jSym,iSym)+
+     &                (iBas-1)*norb(jSym)+jBas-ji-1
+              ArrayOut(Index1)=Fact*ArrayIn(indexC)
+              If (iBas.le.nB(isym))
+     &         ArrayOut(Index2)=Fact*ArrayIn(indexC)
+C             End If
+             End If
+            Else
+             If (iT.gt.jT) Then
+              indexC=indexc+1
+              Index1=ipMat(iSym,jSym)+
+     &                (jBas-1)*norb(iSym)+iBas-ij-1
+              Index2=ipMat(jSym,iSym)+
+     &                (iBas-1)*norb(jSym)+jBas-ji-1
+              ArrayOut(Index1)=Fact*ArrayIn(indexC)
+              If (iBas.le.nB(isym))
+     &         ArrayOut(Index2)=Fact*ArrayIn(indexC)
+             End If
             End If
            End If
           End Do

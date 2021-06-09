@@ -74,9 +74,9 @@
          End If
 *
       Else If (PT2) Then
-       If (iPL.ge.2)
-     &     Write(6,*) 'Calculating lagrange multipliers for CASPT2'
-       Call DaName(LuPT2,FnPT2)
+C      If (iPL.ge.2)
+C    &     Write(6,*) 'Calculating lagrange multipliers for CASPT2'
+C      Call DaName(LuPT2,FnPT2)
       Else
        If (iPL.ge.2) Then
        Write(6,*)'No ',FnPT2,' or ' ,FNMCK, ', I hope that is OK'

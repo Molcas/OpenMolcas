@@ -217,11 +217,13 @@
               calctype='XMS-CASPT2'
             else
               FockOpType='state-specific'
+              if (IFSADREF) FockOpType='state-average'
               calctype='MS-CASPT2'
             end if
           end if
         else
           FockOpType='state-specific'
+          if (IFSADREF) FockOpType='state-average'
           calctype='SS-CASPT2'
         end if
 
@@ -260,6 +262,11 @@
         if (IFNOPT2) then
           write(6,Fmt1)'The second-order perturbation calculation '//
      &     'will not be performed'
+        end if
+
+        if (IFDORTHO) then
+          write(6,Fmt1)'Unscaled orthornormalization will be used '//
+     &     'to generated internally contracted basis'
         end if
 
         call CollapseOutput(0,'CASPT2 specifications:')

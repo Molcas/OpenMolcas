@@ -29,8 +29,12 @@
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
       Call ICopy(4,iSD4( 1,1),nSD+1,iAnga,1)
+C     write (*,'("iAnga",4i3)') (iSD4(1,i),i=1,4)
       Call ICopy(4,iSD4( 2,1),nSD+1,iCmpa,1)
+C     write (*,'("iCmpa",4i3)') (iSD4(2,i),i=1,4)
       Call ICopy(4,iSD4( 0,1),nSD+1,iShlla,1)
+C     write (*,'("ishlla",4i3)') (iSD4(0,i),i=1,4)
+C     write (*,'("ishl ",4i3)') (iSD4(11,i),i=1,4)
       Call ICopy(4,iSD4(11,1),nSD+1,iShela,1)
       iPrimi   =   nExp(iSD4( 0,1))
       jPrimj   =   nExp(iSD4( 0,2))
@@ -40,6 +44,8 @@
       jpCffj   =  ipCff(iSD4( 0,2))
       kpCffk   =  ipCff(iSD4( 0,3))
       lpCffl   =  ipCff(iSD4( 0,4))
+C     write (*,'("iPrim",4i3)') iprimi,jprimj,kprimk,lpriml
+C     write (*,'("ipCffi ",4i6)') ipCffi,jpCffj,kpCffk,lpCffl
       iShell=iSD4(11,1)
       jShell=iSD4(11,2)
       kShell=iSD4(11,3)

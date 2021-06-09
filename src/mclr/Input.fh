@@ -129,6 +129,11 @@ c
       Integer iEndofinput(8), imass, nfiles, nUserPT, nsRot
 c
       Logical TwoStep
+c
+      ! Include rotations within RAS1, RAS2, RAS3
+      ! Activate this option, if the energy is non-invariant
+      ! to rations there
+      Logical ActRot
       Character(len=4) StepType
 
       Common/dInput/ ERASSCF,ESCF,PotNuc,Coor,weight,
@@ -149,7 +154,7 @@ c
      &               page,lcalc,TimeDep,iMCPD,PT2,
      &               SpinPol,elechess,save,
      &               TwoPert,BasCon, double, multi, mout,
-     &               lmass, newCho, TwoStep
+     &               lmass, newCho, TwoStep, ActRot
       Common/cInput/ perturbation, AtLbl, HeaderJP,Header1I,
      &               TitleJP,SewLab,Bline,titlein, ChIrr, cmass,
      &               StepType

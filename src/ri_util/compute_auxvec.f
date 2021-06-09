@@ -8,10 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Compute_AuxVec(ipVk,ipUk,ipZpk,myProc,nProc)
+      Subroutine Compute_AuxVec(ipVk,ipUk,ipZpk,myProc,nProc,CASPT2)
       use pso_stuff
       Implicit Real*8 (a-h,o-z)
       Integer ipVk(nProc), ipUk(nProc), ipZpk(nProc)
+      Logical CASPT2
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
@@ -465,6 +466,9 @@
          End Do
          If(iMp2prpt.eq.2) Then
             Call Mult_with_Q_MP2(nBas_aux,nBas,nIrrep)
+         Else If (CASPT2) Then
+            Call Mult_with_Q_CASPT2(nBas_aux,nBas,nIrrep,
+     *                              Cholesky.and..Not.Do_RI)
          End If
       End If
       If (Cholesky.and..Not.Do_RI) nBas_Aux(0)=nBas_Aux(0)-1

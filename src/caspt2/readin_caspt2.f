@@ -172,6 +172,19 @@ C types, which are not supported with stdalloc. Hence, the infraction.
       Logical :: RHSD = .False.
 !     CUMU
       Logical :: DoCumulant = .False.
+!     SADREF    use state-averaged density even for SS-CASPT2 with
+!               SA-CASSCF reference and MS-CASPT2 (not XMS)
+      Logical :: SADREF = .False.
+!     DORT      use the conventional orthonormalization for generating
+!               internally contracted basis, rather than scaled (?)
+!               procedure by the diagonal element. This option is
+!               'sometimes' needed for analytic gradient.
+      Logical :: DORTHO = .False.
+!     INVAR     specify the CASPT2 energy is invariant wrt active
+!               orbital rotations. This is automatically set for
+!               the case with IPEA shift. Otherwise, just for debug
+!               purpose
+      Logical :: INVAR  = .True.
       End Type
 
 #ifdef ALLOC_SCAL
@@ -601,6 +614,15 @@ c      call Quit_OnInstError
         End Do
         dealloc_dline
       End Do
+
+      Case('SADR')
+      Input%SADREF = .TRUE.
+
+      Case('DORT')
+      Input%DORTHO = .TRUE.
+
+      Case('INVA')
+      Input%INVAR = .FALSE.
 
 
       ! OBSOLETE KEYWORDS

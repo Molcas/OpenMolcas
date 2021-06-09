@@ -81,6 +81,7 @@
 *
        IB1=NBTCHES(JSYM)+1
        IB2=NBTCHES(JSYM)+NBTCH(JSYM)
+       write(6,*) "nbatches,nbtch = ", nbtches(jsym),nbtch(jsym)
 *
        MXBGRP=IB2-IB1+1
        IF (MXBGRP.LE.0) CYCLE
@@ -95,7 +96,7 @@
 
        CALL MEMORY_ESTIMATE(JSYM,IWORK(LBGRP),NBGRP,
      &                      NCHOBUF,MXPIQK,NADDBUF)
-       IF (IPRGLB.GT.VERBOSE) THEN
+       IF (IPRGLB.GT.VERBOSE.or..true.) THEN
          WRITE(6,*)
          WRITE(6,'(A,I12)') '  Number of Cholesky batches: ',IB2-IB1+1
          WRITE(6,'(A,I12)') '  Number of batch groups:     ',NBGRP
@@ -113,6 +114,7 @@
 *      IBSTEP=1
 *
 *      DO IBSTA=IB1,IB2,IBSTEP
+       write(6,*) "nbgrp = ", nbgrp
        DO IBGRP=1,NBGRP
         IBSTA=IWORK(LBGRP  +2*(IBGRP-1))
         IBEND=IWORK(LBGRP+1+2*(IBGRP-1))
@@ -122,7 +124,7 @@
            NV=NV+NVLOC_CHOBATCH(IB)
         END DO
 
-        IF (IPRGLB.GT.VERBOSE) THEN
+        IF (IPRGLB.GT.VERBOSE.or..true.) THEN
          WRITE(6,'(A,I12)') '  Cholesky vectors in this group = ', NV
          WRITE(6,*)
         END IF

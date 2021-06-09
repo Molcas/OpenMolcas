@@ -93,6 +93,7 @@ C First compute diagonal block contributions:
 CTEST      WRITE(6,*)' First, do it for (H0(diag)-E0).'
       CALL PSGMDIA(ALPHA,BETA,IVEC,JVEC)
       IF(ALPHA.EQ.0.0D0) GOTO 99
+      IF(MAXIT.EQ.0) GOTO 99
 CTEST      WRITE(6,*)
 CTEST     & ' From now on, scaling with BETA is already done.'
 CTEST      WRITE(6,*)' Test print  after SGMDIA call in SIGMA:'

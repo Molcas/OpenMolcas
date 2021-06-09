@@ -60,6 +60,11 @@
       Call GetMem('JInt','Allo','Real',ipJ,n2)
       Call GetMem('KInt','Allo','Real',ipK,n2)
       Call GetMem('Scr ','Allo','Real',ipS,n2)
+      If (ActRot.or.nRs1(iDSym).ne.0.or.nRs3(iDSym).ne.0) Then
+C       write (*,*) "ntash = ", ntash
+        Call GetMem('AINT','ALLO','REAL',ipActInt,ntAsh**4)
+        Call Precaaa_Pre(Work(ipActInt),Work(ipJ),Work(ipS))
+      End If
 *
       ip=1
       iAdr=0
@@ -156,6 +161,8 @@
 *            End Do
 
             Call SQM(Work(ipTemp3),rpre(ip),nd)
+C     write (*,*) "ib=",ib
+C     call sqprt(rpre(ip),nd)
 
 !            write(*,*)" ====== rpre ====== "
 !            do i=1,nd*nd
@@ -183,9 +190,13 @@
             If (ib.le.nRs1(iS)+nRs2(is)+nRs3(is)) iR=3
             If (ib.le.nRs1(iS)+nRs2(is)) iR=2
             If (ib.le.nRs1(iS)) iR=1
-            If (ir.eq.1) nD=nOrb(js)-nRs1(js)
-            If (ir.eq.2) nD=nOrb(js)-nRs2(js)
-            If (ir.eq.3) nD=nOrb(js)-nRs3(js)
+            If (ActRot) Then
+               nD=nOrb(js)
+            Else
+               If (ir.eq.1) nD=nOrb(js)-nRs1(js)
+               If (ir.eq.2) nD=nOrb(js)-nRs2(js)
+               If (ir.eq.3) nD=nOrb(js)-nRs3(js)
+            End If
             If (nd.eq.0) Goto 110
             call dcopy_(nD**2,[0.0d0],0,Work(ipTemp3),1)
             ndtri=nd*(nd+1)/2
@@ -233,12 +244,25 @@
      &                           Work(ipFAMO+ipcm(js)-1) ,
      &                           Work(ipF0SQMO+ipCM(js)-1),sign)
 *
+            !! symmetry not yet
+            !! Eq. (C.12e)
+            If (ActRot.or.nRs1(iS).ne.0.or.nRs3(iS).ne.0)
+     &         Call Precaaa(ib,is,js,nd,ir,Work(ipTemp3),
+     &                      nOrb(is),nOrb(js),
+     &                      Work(ipFIMO+ipCM(js)-1),
+     &                      Work(ipF0SqMO+ipCM(js)-1),sign,
+     &                      Work(ipJ),Work(ipK),Work(ipS),n2,
+     &                      Work(ipActInt)) ! OK
             EndIf ! newCho
 
             Call SQM(Work(ipTemp3),rpre(ip),nD)
+C      write (*,*) "ib = ", ib,nd
+C      call sqprt(rpre(ip),nd)
             irc=0
             call c_f_pointer(c_loc(rpre(ip+nd**2)),ipre,[nd])
             call dgetrf_(nd,nd,rpre(ip),nd,ipre,irc)
+C      write (*,*) "after LU"
+C      call sqprt(rpre(ip),nd)
             nullify(ipre)
             If (irc.ne.0) then
                Write(6,*) 'Error in DGETRF called from prec'
@@ -254,6 +278,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      If (ActRot.or.nRs1(iDSym).ne.0.or.nRs3(iDSym).ne.0) Then
+        Call GetMem('AINT','FREE','REAL',ipActInt,ntAsh**4)
+      End If
       Call GetMem('Scr ','Free','Real',ipS,n2)
       Call GetMem('KInt','Free','Real',ipK,n2)
       Call GetMem('JInt','Free','Real',ipJ,n2)

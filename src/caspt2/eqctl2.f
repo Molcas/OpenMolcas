@@ -137,14 +137,17 @@ C at this point LUSOLV is not used as a temporary disk anymore, so it's
 C safe to initialize it (safe to write zeros to LUSOLV or delete it)
 
 C Set up right-hand side matrix elements.
+C     write (*,*) "ifchol, ialgo = ", ifchol,ialgo
       IF(IfChol .AND. iALGO.eq.1) THEN
         IF (RHSDIRECT) THEN
+C     write (*,*) "rhsdirect = .true."
           IF (NSYM.EQ.1) THEN
             CALL RHSOD_NOSYM(IVECW)
           ELSE
             CALL RHSOD(IVECW)
           END IF
         ELSE
+C     write (*,*) "rhsdirect = .false."
           CALL RHS_ZERO(IVECW)
           CALL RHSALL2(IVECW)
         END IF
