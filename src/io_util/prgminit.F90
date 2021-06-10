@@ -8,37 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) Valera Veryazov                                        *
-!***********************************************************************
-!  handle2name
-!
-!> @brief
-!>   Retrieve the file name from molcas I/O
-!> @author Valera Veryazov
-!>
-!> @details
-!> The routine can be called from ::aixrd or ::aixwr.
-!> Return the file name, or '``Unknown``'.
-!>
-!> @param[in]  handle file handle
-!> @param[out] name   file name
+! Copyright (C) 2001-2016, Valera Veryazov                             *
 !***********************************************************************
 
-subroutine handle2name(handle,name)
+subroutine prgminit(module)
 
-implicit integer(a-z)
-#include "switch.fh"
-#include "ctl.fh"
-character*(*) name
+#ifndef _HAVE_EXTRA_
+use Prgm
+#endif
+character*(*) module
 
-name = 'Unknown'
-do i=1,MxFile
-  if (CtlBlk(pHndle,i) == handle) then
-    name = FCtlBlk(i)
-    exit
-  end if
-end do
+l = len(module)
+!write(6,*) l
+call prgminitc(module,l)
 
 return
 
-end subroutine handle2name
+end subroutine prgminit

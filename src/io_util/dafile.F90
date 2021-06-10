@@ -14,9 +14,8 @@
 !               2012, Victor P. Vysotskiy                              *
 !               2016, Steven Vancoillie                                *
 !***********************************************************************
-#define MOLCASWRITE AixWr
-#define MOLCASREAD  AixRd
-      Subroutine DaFile(Lu,iOpt,Buf,lBuf,iDisk)
+
+subroutine DaFile(Lu,iOpt,Buf,lBuf,iDisk)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -61,8 +60,7 @@
 !                                                                      *
 !***********************************************************************
 
-      Implicit Integer (A-Z)
-
+implicit integer(A-Z)
 #include "SysDef.fh"
 #include "blksize.fh"
 #include "fio.fh"
@@ -70,141 +68,77 @@
 #include "ofio.fh"
 #endif
 #include "warnings.fh"
-      Dimension Buf(*)
-      Character*80 Text,HeadErr
+dimension Buf(*)
+character*80 Text, HeadErr
+integer iRc
+data iRc/0/
 
-      Integer iRc
-      Data    iRc/0/
-
-
-      Call DaFile_checkarg(Lu,iOpt,lBuf,iDisk)
+call DaFile_checkarg(Lu,iOpt,lBuf,iDisk)
 !****************** REAL I/O IS HERE **************
-      lDisk    = iDisk
-!     Write to  disk
-      If ( (iOpt.eq.1) .or. (iOpt.eq.6) ) then
-        HeadErr='Premature abort while writing buffer to disk'
-!lock
-#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
-        If(isFiM(Lu).eq.0) then
-#endif
-          iRc = MOLCASWRITE(FSCB(Lu),Buf,lBuf,lDisk)
-#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
-        Else
-          iRc = FimWr(FSCB(Lu),Buf,lBuf,lDisk)
-          If(iRc.eq.-10)Then
-            isFiM(Lu)=0
-            iRc = MOLCASWRITE(FSCB(Lu),Buf,lBuf,lDisk)
-          End If
-        End If
-#endif
-!unlock
-!     Read from disk
-      Else If ( (iOpt.eq.2) .or. (iOpt.eq.7) .or. (iOpt.eq.99)) then
-        HeadErr='Premature abort while reading buffer from disk'
-!10    Continue
-#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
-        If (isFiM(Lu).eq.0) then
-#endif
-           if(iOpt.ne.99) then
-             iRc = MOLCASREAD(FSCB(Lu),Buf,lBuf,lDisk,0)
-           else
-             iRc = MOLCASREAD(FSCB(Lu),Buf,lBuf,lDisk,1)
-             Buf(1)=0
-             if(iRc.eq.0) Buf(1)=1
-             return
-           endif
-#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
-        Else
-           iRc = FimRd(FSCB(Lu),Buf,lBuf,lDisk)
-        End If
-#endif
-      End if
+lDisk = iDisk
+! Write to  disk
+if ((iOpt == 1) .or. (iOpt == 6)) then
+  HeadErr = 'Premature abort while writing buffer to disk'
+! lock
+# if defined (_HAVE_EXTRA_) && ! defined (_GA_)
+  if (isFiM(Lu) == 0) then
+# endif
+    iRc = AixWr(FSCB(Lu),Buf,lBuf,lDisk)
+# if defined (_HAVE_EXTRA_) && ! defined (_GA_)
+  else
+    iRc = FimWr(FSCB(Lu),Buf,lBuf,lDisk)
+    if (iRc == -10) then
+      isFiM(Lu) = 0
+      iRc = AixWr(FSCB(Lu),Buf,lBuf,lDisk)
+    end if
+  end if
+# endif
+! unlock
+! Read from disk
+else if ((iOpt == 2) .or. (iOpt == 7) .or. (iOpt == 99)) then
+  HeadErr = 'Premature abort while reading buffer from disk'
+  !10 continue
+# if defined (_HAVE_EXTRA_) && ! defined (_GA_)
+  if (isFiM(Lu) == 0) then
+# endif
+    if (iOpt /= 99) then
+      iRc = AixRd(FSCB(Lu),Buf,lBuf,lDisk,0)
+    else
+      iRc = AixRd(FSCB(Lu),Buf,lBuf,lDisk,1)
+      Buf(1) = 0
+      if (iRc == 0) Buf(1) = 1
+      return
+    end if
+# if defined (_HAVE_EXTRA_) && ! defined (_GA_)
+  else
+    iRc = FimRd(FSCB(Lu),Buf,lBuf,lDisk)
+  end if
+# endif
+end if
 
-      If ( iRc.ne.0 ) goto 1200
+if (iRc /= 0) goto 1200
 
 #ifdef _OLD_IO_STAT_
-        MxAddr(Lu)  = Max(MxAddr(Lu),Addr(Lu))
-        if(iOpt.ne.0) Then
-           Count(3,Lu) = Count(3,Lu)+1
-           Count(4,Lu) = Count(4,Lu)+dble(lBuf)/1024.0d0
-        End if
+MxAddr(Lu) = max(MxAddr(Lu),Addr(Lu))
+if (iOpt /= 0) then
+  count(3,Lu) = count(3,Lu)+1
+  count(4,Lu) = count(4,Lu)+dble(lBuf)/1024.0d0
+end if
 #endif
-      iDisk       = iDisk+lBuf
-      Addr(Lu)    = iDisk
-      If ( Trace ) Write (6,*) ' >>> Exit DaFile <<<'
+iDisk = iDisk+lBuf
+Addr(Lu) = iDisk
+if (Trace) write(6,*) ' >>> Exit DaFile <<<'
 
-      Return
+return
 
-1200  iRc = AixErr(Text)
-      write (6,*) HeadErr
-      write (6,*) Text
-      write (6,*) ' Unit      :',Lu
-      write (6,*) ' Option    :',iOpt
-      write (6,*) ' Buffer    :',lBuf
-      write (6,*) ' Address   :',iDisk
-      call quit(_RC_IO_ERROR_WRITE_)
-      End
+1200 continue
+iRc = AixErr(Text)
+write(6,*) HeadErr
+write(6,*) Text
+write(6,*) ' Unit      :',Lu
+write(6,*) ' Option    :',iOpt
+write(6,*) ' Buffer    :',lBuf
+write(6,*) ' Address   :',iDisk
+call quit(_RC_IO_ERROR_WRITE_)
 
-
-      Subroutine DaFile_checkarg(Lu,iOpt,lBuf,iDisk)
-!***********************************************************************
-!                                                                      *
-!     purpose:                                                         *
-!     Check arguments to iDafile                                       *
-!                                                                      *
-!     calling arguments:                                               *
-!     Lu      : integer, input                                         *
-!               logical unit number (Lu={1,2,...40,50,60,70,80,90}     *
-!     iOpt    : integer, input                                         *
-!               valid values: 0,1,2,5,6,7,8,10,99                      *
-!     lBuf    : integer, input                                         *
-!               length of the buffer Buf:   0<lBuf<2**29(2**60)        *
-!     iDisk   : integer, input/output                                  *
-!               disk address  >=0                                      *
-!                                                                      *
-!----------------------------------------------------------------------*
-!                                                                      *
-!     written by:                                                      *
-!     V.P. Vysotskiy, University of Lund, Sweden, 2012                 *
-!                                                                      *
-!***********************************************************************
-      Implicit Integer (A-Z)
-#include "fio.fh"
-      Character*16 TheName
-      Data TheName/'DaFile_checkarg'/
-!2012
-!VpV: a lot of checking is here.
-!     Check arguments
-      If ( (Lu.le.0) .or. (Lu.gt.MxFile) )                              &
-     & Call SysFileMsg(TheName,'MSG: unit', Lu,' ')
-
-      If ( isOpen(Lu).eq.0 )                                            &
-     & Call SysFileMsg(TheName,'MSG: not opened', Lu,' ')
-
-      If ( lBuf.lt.0) then
-          write (6,*) 'Invalid buffer size ',lBuf
-          goto 1000
-      End If
-
-      If ( iDisk.lt.0 ) then
-         write (6,*) 'Invalid disk address ',iDisk
-         goto 1000
-      endif
-
-      If ( (iOpt.lt.0) .or. (iOpt.gt.10.and.iOpt.ne.99) ) then
-         write (6,*) 'Invalid action code ',iOpt
-         goto 1000
-      endif
-
-      If (iOpt.eq.3.or.iOpt.eq.4.or.iOpt.eq.9) then
-        Write (6,*) 'DaFile: GSlist option is not in operation!'
-        goto 1000
-      End If
-
-      return
-
-1000  write (6,*) 'I/O error in ',TheName
-      write (6,*) 'Unit = ',Lu
-      Call Abend()
-
-      End
+end subroutine DaFile

@@ -37,34 +37,36 @@
 ! History:                                                             *
 !                                                                      *
 !***********************************************************************
-      Integer Function AixMv(FileName,NewName)
-      Implicit Integer (a-z)
 
-      Character*(*) FileName, NewName
-      Character*256 out1, out2
-      Character*80 ErrTxt
+integer function AixMv(FileName,NewName)
+implicit integer(a-z)
+character*(*) FileName, NewName
+character*256 out1, out2
+character*80 ErrTxt
+
 !----------------------------------------------------------------------*
 ! Entry to AixMv                                                       *
 !----------------------------------------------------------------------*
-      AixMv=0
+AixMv = 0
 !----------------------------------------------------------------------*
 ! rename file                                                          *
 !----------------------------------------------------------------------*
-      out1=' '
-      out2=' '
+out1 = ' '
+out2 = ' '
 
-      Call PrgmTranslate(FileName,out1,ltmp)
-      out1(ltmp+1:ltmp+1)=Char(0)
-      Call PrgmTranslate(NewName,out2,ltmp)
-      out2(ltmp+1:ltmp+1)=Char(0)
-      rc=c_rename(out1,out2)
-      If(rc.ne.0) Then
-         AixMv=AixErr(ErrTxt)
-         Call SysAbendMsg('AixMv','MSG: rename', ErrTxt)
-         Return
-      End If
+call PrgmTranslate(FileName,out1,ltmp)
+out1(ltmp+1:ltmp+1) = char(0)
+call PrgmTranslate(NewName,out2,ltmp)
+out2(ltmp+1:ltmp+1) = char(0)
+rc = c_rename(out1,out2)
+if (rc /= 0) then
+  AixMv = AixErr(ErrTxt)
+  call SysAbendMsg('AixMv','MSG: rename',ErrTxt)
+  return
+end if
 !----------------------------------------------------------------------*
 ! Finished so return to caller                                         *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end function AixMv

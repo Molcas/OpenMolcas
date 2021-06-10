@@ -8,37 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) Valera Veryazov                                        *
-!***********************************************************************
-!  handle2name
-!
-!> @brief
-!>   Retrieve the file name from molcas I/O
-!> @author Valera Veryazov
-!>
-!> @details
-!> The routine can be called from ::aixrd or ::aixwr.
-!> Return the file name, or '``Unknown``'.
-!>
-!> @param[in]  handle file handle
-!> @param[out] name   file name
+! Copyright (C) 1991, Per-Olof Widmark                                 *
+!               1993,1996,1997, Markus P. Fuelscher                    *
+!               1996, Luis Serrano-Andres                              *
+!               2012, Victor P. Vysotskiy                              *
 !***********************************************************************
 
-subroutine handle2name(handle,name)
+subroutine SetLuMark(Lu)
 
-implicit integer(a-z)
-#include "switch.fh"
-#include "ctl.fh"
-character*(*) name
+#include "fio.fh"
 
-name = 'Unknown'
-do i=1,MxFile
-  if (CtlBlk(pHndle,i) == handle) then
-    name = FCtlBlk(i)
-    exit
-  end if
-end do
+LuMark(Lu) = 0
 
 return
 
-end subroutine handle2name
+end subroutine SetLuMark

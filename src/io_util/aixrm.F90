@@ -34,51 +34,55 @@
 ! History:                                                             *
 !                                                                      *
 !***********************************************************************
-      Integer Function AixRm(name)
-      Implicit Integer (a-z)
+
+integer function AixRm(name)
+implicit integer(a-z)
 #include "switch.fh"
 #include "ctl.fh"
-      Character*(*) name
-      Character*256 tmp, out
-      Character*80 ErrTxt
+character*(*) name
+character*256 tmp, out
+character*80 ErrTxt
+
 !----------------------------------------------------------------------*
 ! Entry to AixRm                                                       *
 !----------------------------------------------------------------------*
-      AixRm=0
+AixRm = 0
 !----------------------------------------------------------------------*
 ! Strip file name and append string terminator                         *
 !----------------------------------------------------------------------*
-      n=Len(name)
-100   If(name(n:n).eq.' ') Then
-         n=n-1
-         If(n.le.0) Then
-            AixRm=eBlNme
-            Return
-         End If
-         Go To 100
-      End If
-      n=n+1
-      If(n.ge.Len(tmp)) Then
-         AixRm=eTlFn
-         Return
-      End If
-      tmp=name
-      tmp(n:n)=Char(0)
+n = len(name)
+100 continue
+if (name(n:n) == ' ') then
+  n = n-1
+  if (n <= 0) then
+    AixRm = eBlNme
+    return
+  end if
+  Go To 100
+end if
+n = n+1
+if (n >= len(tmp)) then
+  AixRm = eTlFn
+  return
+end if
+tmp = name
+tmp(n:n) = char(0)
 !----------------------------------------------------------------------*
 ! erase file                                                           *
 !----------------------------------------------------------------------*
-      out=' '
+out = ' '
 
-      Call PrgmTranslate(Name,out,ltmp)
-      out(ltmp+1:ltmp+1)=Char(0)
-      rc=c_remove(out)
-      If(rc.ne.0) Then
-         AixRm=AixErr(ErrTxt)
-      Call SysAbendMsg('AixRm','MSG: delete', ErrTxt)
-         Return
-      End If
+call PrgmTranslate(Name,out,ltmp)
+out(ltmp+1:ltmp+1) = char(0)
+rc = c_remove(out)
+if (rc /= 0) then
+  AixRm = AixErr(ErrTxt)
+  call SysAbendMsg('AixRm','MSG: delete',ErrTxt)
+  return
+end if
 !----------------------------------------------------------------------*
 ! Finished so return to caller                                         *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end function AixRm

@@ -8,35 +8,37 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine AixCheck()
-      Implicit Integer (a-z)
+
+subroutine AixCheck()
+
+implicit integer(a-z)
 #include "ctl.fh"
-      Logical Opened
-      character name*256
+logical Opened
+character name*256
+
 !----------------------------------------------------------------------*
 ! Check if slot in table is available, it should NOT!                  *
 !----------------------------------------------------------------------*
-      Do n = 1, MxFile
-         If (CtlBlk(pStat,n).ne.0) Then
-#ifndef _DEVEL_
-            Call SysAbendFileMsg('AixCheck',FCtlBlk(n),'Active unit.',  &
-     &                           'Should have been closed!')
-#else
-            Call SysWarnMsg('AixCheck','Active unit: '//FCtlBlk(n),     &
-     &                           ', should have been closed!')
-#endif
-         End If
-         Inquire(unit=n,Opened=Opened)
-         If (Opened ) Then
-         if(.not. (n.eq.6.or.n.eq.5))then
-          inquire(unit=n,name=name)
-            Write (6,*) 'Fortran file:', n, '(',name(1:index(name,' ')),&
-     &        ')  is still open!'
-#ifndef _DEVEL_
-            Call Abend()
-#endif
-         End If
-         endif
-      End Do
-      Return
-      End
+do n=1,MxFile
+  if (CtlBlk(pStat,n) /= 0) then
+#   ifndef _DEVEL_
+    call SysAbendFileMsg('AixCheck',FCtlBlk(n),'Active unit.','Should have been closed!')
+#   else
+    call SysWarnMsg('AixCheck','Active unit: '//FCtlBlk(n),', should have been closed!')
+#   endif
+  end if
+  inquire(unit=n,Opened=Opened)
+  if (Opened) then
+    if ((n /= 6) .and. (n /= 5)) then
+      inquire(unit=n,name=name)
+      write(6,*) 'Fortran file:',n,'(',name(1:index(name,' ')),')  is still open!'
+#     ifndef _DEVEL_
+      call Abend()
+#     endif
+    end if
+  end if
+end do
+
+return
+
+end subroutine AixCheck

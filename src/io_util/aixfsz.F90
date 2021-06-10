@@ -35,42 +35,45 @@
 ! History:                                                             *
 !                                                                      *
 !***********************************************************************
-      Integer  Function AixFsz(handle)
-      Implicit Integer (a-z)
+
+integer function AixFsz(handle)
+
+implicit integer(a-z)
 #include "switch.fh"
 #include "ctl.fh"
-      Character*80 ErrTxt
+character*80 ErrTxt
 
 !----------------------------------------------------------------------*
-! Entry to AixCls                                                      *
+! Entry to AixFsz                                                      *
 !----------------------------------------------------------------------*
-      AixFsz=0
+AixFsz = 0
 !----------------------------------------------------------------------*
 ! Check if file is opened.                                             *
 !----------------------------------------------------------------------*
-      n=1
-100   If(CtlBlk(pHndle,n).ne.handle) Then
-         n=n+1
-         If(n.gt.MxFile) Then
-            AixFsz=eNtOpn
-            Return
-         End If
-         Go To 100
-      End If
-      nFile=n
-      desc=CtlBlk(pDesc,nFile)
+n = 1
+100 continue
+if (CtlBlk(pHndle,n) /= handle) then
+  n = n+1
+  if (n > MxFile) then
+    AixFsz = eNtOpn
+    return
+  end if
+  Go To 100
+end if
+nFile = n
+desc = CtlBlk(pDesc,nFile)
 !----------------------------------------------------------------------*
 ! Get file size                                                        *
 !----------------------------------------------------------------------*
-      rc=c_stat(desc)
-      If(rc.lt.0) Then
-         AixFsz=AixErr(ErrTxt)
-      Call SysAbendFileMsg('AixFsz',FCtlBlk(nFile),                     &
-     &                    'MSG: close', ErrTxt)
-      End If
-      AixFsz=rc
+rc = c_stat(desc)
+if (rc < 0) then
+  AixFsz = AixErr(ErrTxt)
+  call SysAbendFileMsg('AixFsz',FCtlBlk(nFile),'MSG: close',ErrTxt)
+end if
+AixFsz = rc
 !----------------------------------------------------------------------*
 ! Finished so return to caller                                         *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end function AixFsz

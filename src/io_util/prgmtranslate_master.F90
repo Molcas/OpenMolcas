@@ -8,37 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) Valera Veryazov                                        *
-!***********************************************************************
-!  handle2name
-!
-!> @brief
-!>   Retrieve the file name from molcas I/O
-!> @author Valera Veryazov
-!>
-!> @details
-!> The routine can be called from ::aixrd or ::aixwr.
-!> Return the file name, or '``Unknown``'.
-!>
-!> @param[in]  handle file handle
-!> @param[out] name   file name
+! Copyright (C) 2001-2016, Valera Veryazov                             *
 !***********************************************************************
 
-subroutine handle2name(handle,name)
+subroutine prgmtranslate_master(in,out,lout)
 
-implicit integer(a-z)
-#include "switch.fh"
-#include "ctl.fh"
-character*(*) name
+character*(*) in, out
+integer Strnln
+external Strnln
 
-name = 'Unknown'
-do i=1,MxFile
-  if (CtlBlk(pHndle,i) == handle) then
-    name = FCtlBlk(i)
-    exit
-  end if
-end do
+lin = Strnln(in)
+out = ' '
+if (index(in,'/') /= 0) then
+  ! just in case if we processing translated name!
+  out = in
+  lout = lin
+else
+  call prgmtranslatec(in,lin,out,lout,0)
+end if
+out = out(1:lout)
 
 return
 
-end subroutine handle2name
+end subroutine prgmtranslate_master

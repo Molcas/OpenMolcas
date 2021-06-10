@@ -7,24 +7,27 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 2015,2016, Valera Veryazov                             *
 !***********************************************************************
+!SVC: modified to convert to the use of byte lengths/offests by the
+!     underlying I/O routines (2016)
 
-subroutine Append_file(iUnit)
+subroutine cDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
 
-iset = 0
-rewind(iUnit)
-10 continue
-read(iUnit,*,err=20,end=20)
-iset = iset+1
-goto 10
-20 continue
-rewind(iUnit)
-do i=1,iset
-  read(iUnit,*)
-end do
+implicit none
+
+#include "SysDef.fh"
+#include "fio.fh"
+integer Lu, iOpt, lBuf_, iDisk_
+character*1 Buf(lBuf_)
+integer lBuf, iDisk
+
+lBuf = lBuf_
+iDisk = iDisk_*MBL(Lu)
+
+call bDaFile(Lu,iOpt,Buf,lBuf,iDisk)
+
+iDisk_ = (iDisk+MBL(Lu)-1)/MBL(Lu)
 
 return
 
-end subroutine Append_file
+end subroutine cDaFile

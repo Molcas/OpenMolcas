@@ -13,7 +13,8 @@
 !               2012, Victor P. Vysotskiy                              *
 !               2016, Steven Vancoillie                                *
 !***********************************************************************
-      Subroutine MpDaFile(Lu,MaxFileSizel,iOpt,Buf,lBuf,iDisk)
+
+subroutine MpDaFile(Lu,MaxFileSizel,iOpt,Buf,lBuf,iDisk)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -66,10 +67,8 @@
 !                                                                      *
 !***********************************************************************
 
-      Implicit Integer (A-Z)
-
-      Character Buf(*)
-
+implicit integer(A-Z)
+character Buf(*)
 #include "SysDef.fh"
 #include "blksize.fh"
 #include "filesize.fh"
@@ -77,166 +76,162 @@
 #ifdef _OLD_IO_STAT_
 #include "ofio.fh"
 #endif
-      Character*8 Stdnam, ext
-      Character*256 tmp
-      Character*80 Text
-      Character*16 TheName
-      Data TheName/'MpDaFile'/
+character*8 Stdnam, ext
+character*256 tmp
+character*80 Text
+character*16 TheName
+data TheName/'MpDaFile'/
 
-      max_File_Size = MaxFileSizel*10**6
-      max_Bytes     = MIN(max_File_Length,max_File_Size)
-      n_Bytes       = lBuf
-      offset        = iDisk/max_Bytes
-!  set correct char to append: 0-9, A-Z
-           start_char=48
+max_File_Size = MaxFileSizel*10**6
+max_Bytes = min(max_File_Length,max_File_Size)
+n_Bytes = lBuf
+offset = iDisk/max_Bytes
+! set correct char to append: 0-9, A-Z
+start_char = 48
 
-         if(offset.le.9) then
-           start_char=48
-         else
-           start_char=55
-         endif
-!
-      If (offset.lt.0 .or. offset.gt.MaxSplitFile-1 ) Then
-      StdNam=LuName(Lu)
-      Call PrgmTranslate(StdNam,tmp,ltmp)
-         Write (6,*) '          Current I/O Status as follows'
-         Write (6,*)
-         Call FASTIO('STATUS')
-       Call SysAbendFileMsg(TheName,StdNam,                             &
-     &   'Extensions out of range!',                                    &
-     &   'increase MOLCAS_DISK value or MaxSplitFile in fio.fh ')
+if (offset <= 9) then
+  start_char = 48
+else
+  start_char = 55
+end if
 
-         Call Abend()
-      End If
-      LU_mod    = MPUnit(offset,LU)
-      iDisk_mod = iDisk-offset*max_Bytes
-!
-!---- If extension not opened before: open and initiate here!
-!
-      StdNam=LuName(Lu)
-      Call PrgmTranslate(StdNam,tmp,ltmp)
-      lStdNam=ltmp
-      If (Lu_Mod.lt.0) Then
-         Lu_Mod=isfreeunit(Lu)
-         MPUnit(offset,LU)=Lu_Mod
-         temp = 0
-         tmp(1+lStdNam:1+lStdNam)=Char(start_char+offset)
-         iext=strnln(StdNam)
-         ext=StdNam
-         if(offset.le.9) then
-          ext(1+iext:1+iext)=Char(start_char+offset)
-         else
-          ext(1+iext:1+iext)=Char(start_char+offset/10)
-          ext(2+iext:2+iext)=Char(start_char+offset-offset/10*10)
-         endif
-!
-         iRc = AixOpn(temp,tmp,.false.)
-         If ( iRc.ne.0 ) then
-            iRc = AixErr(Text)
-            Call SysFileMsg(TheName,'MSG: open', Lu_Mod,Text)
-         End If
-         isOpen(Lu_Mod)    = 1
-         FSCB(Lu_Mod)    = temp
-!
-!vv         LuName(Lu_Mod)    = tmp
-         LuName(Lu_Mod)    = ext
-         Call SetLuMark(Lu_Mod)
-         Addr(Lu_Mod)    = 0
-         Multi_File(Lu_Mod)=.True.
-         MPUnit(0,LU_Mod)=Lu
-#ifdef _OLD_IO_STAT_
-         MxAddr(Lu_Mod)  = 0
-         Count(1,Lu_Mod) = 0
-         Count(2,Lu_Mod) = 0
-         Count(3,Lu_Mod) = 0
-         Count(4,Lu_Mod) = 0
-#endif
-         MBL(Lu_Mod)     = MBL(Lu)
-!
-      End If
-!
-      If ( (iDisk_mod+n_Bytes).le.max_Bytes ) then
-!
-!------- The whole record in contained on a single file.
-!
-         p_Buf     = 1
-         n_Copy    = lBuf
-         CALL CHDAFILE(LU_mod,iOpt,Buf(p_Buf),n_Copy,iDisk_mod)
-      Else
-!
-!------- The record must be split over several files.
-!
-         p_Buf     = 1
-         n_Save    = lBuf
-         n_Copy    = (max_Bytes-iDisk_mod)
-         Do while( n_Save.gt.0 )
-            If (LU_MOD.lt.0) Then
-               Lu_Mod=isfreeunit(Lu)
-               MPUnit(offset,LU)=Lu_Mod
-               temp = 0
-           start_char=48
-         if(offset.le.9) then
-           start_char=48
-         else
-           start_char=55
-         endif
+if ((offset < 0) .or. (offset > MaxSplitFile-1)) then
+  StdNam = LuName(Lu)
+  call PrgmTranslate(StdNam,tmp,ltmp)
+  write(6,*) '          Current I/O Status as follows'
+  write(6,*)
+  call FASTIO('STATUS')
+  call SysAbendFileMsg(TheName,StdNam,'Extensions out of range!','increase MOLCAS_DISK value or MaxSplitFile in fio.fh ')
 
-               tmp(1+lStdNam:1+lStdNam)=Char(start_char+offset)
-         iext=strnln(StdNam)
-         ext=StdNam
-         if(offset.le.9) then
-           ext(1+iext:1+iext)=Char(start_char+offset)
-         else
-          ext(1+iext:1+iext)=Char(start_char+offset/10)
-          ext(2+iext:2+iext)=Char(start_char+offset-offset/10*10)
-         endif
-!
-               iRc = AixOpn(temp,tmp,.false.)
-               If ( iRc.ne.0 ) then
-                  iRc = AixErr(Text)
-                  Call SysFileMsg(TheName,'MSG: open', Lu_Mod,Text)
-               End If
-               isOpen(Lu_mod)    = 1
-               FSCB(Lu_mod)    = temp
-!
-!vv               LuName(Lu_Mod)    = tmp
-               LuName(Lu_Mod)    = ext
-               Call SetLuMark(Lu_Mod)
+  call Abend()
+end if
+LU_mod = MPUnit(offset,LU)
+iDisk_mod = iDisk-offset*max_Bytes
 
-               Addr(Lu_Mod)    = 0
-               Multi_File(Lu_Mod)=.True.
-               MPUnit(0,LU_Mod)=Lu
-#ifdef _OLD_IO_STAT_
-               MxAddr(Lu_Mod)  = 0
-               Count(1,Lu_Mod) = 0
-               Count(2,Lu_Mod) = 0
-               Count(3,Lu_Mod) = 0
-               Count(4,Lu_Mod) = 0
-#endif
-               MBL(Lu_Mod)     = MBL(Lu)
-!
-            End If
-            CALL CHDAFILE(LU_mod,iOpt,Buf(p_Buf),n_Copy,iDisk_mod)
-            p_Buf     = p_Buf+n_Copy
-            n_Save    = n_Save-n_Copy
-            n_Copy    = Min(max_Bytes,n_Save)
-            offset = offset + 1
-      If (offset.gt.MaxSplitFile-1 ) Then
-         Write (6,*) '          Current I/O Status as follows'
-         Write (6,*)
-         Call FASTIO('STATUS')
-       Call SysAbendFileMsg(TheName,StdNam,                             &
-     &   'Extensions out of range!',                                    &
-     &   'increase MOLCAS_DISK value or MaxSplitFile in fio.fh ')
+! If extension not opened before: open and initiate here!
 
-         Call Abend()
-      End If
+StdNam = LuName(Lu)
+call PrgmTranslate(StdNam,tmp,ltmp)
+lStdNam = ltmp
+if (Lu_Mod < 0) then
+  Lu_Mod = isfreeunit(Lu)
+  MPUnit(offset,LU) = Lu_Mod
+  temp = 0
+  tmp(1+lStdNam:1+lStdNam) = char(start_char+offset)
+  iext = strnln(StdNam)
+  ext = StdNam
+  if (offset <= 9) then
+    ext(1+iext:1+iext) = char(start_char+offset)
+  else
+    ext(1+iext:1+iext) = char(start_char+offset/10)
+    ext(2+iext:2+iext) = char(start_char+offset-offset/10*10)
+  end if
 
-            Lu_Mod=MPUnit(offset,LU)
-            iDisk_mod = 0
-         End Do
-      End If
+  iRc = AixOpn(temp,tmp,.false.)
+  if (iRc /= 0) then
+    iRc = AixErr(Text)
+    call SysFileMsg(TheName,'MSG: open',Lu_Mod,Text)
+  end if
+  isOpen(Lu_Mod) = 1
+  FSCB(Lu_Mod) = temp
 
+  !vv LuName(Lu_Mod) = tmp
+  LuName(Lu_Mod) = ext
+  call SetLuMark(Lu_Mod)
+  Addr(Lu_Mod) = 0
+  Multi_File(Lu_Mod) = .true.
+  MPUnit(0,LU_Mod) = Lu
+# ifdef _OLD_IO_STAT_
+  MxAddr(Lu_Mod) = 0
+  count(1,Lu_Mod) = 0
+  count(2,Lu_Mod) = 0
+  count(3,Lu_Mod) = 0
+  count(4,Lu_Mod) = 0
+# endif
+  MBL(Lu_Mod) = MBL(Lu)
 
-      Return
-      End
+end if
+
+if ((iDisk_mod+n_Bytes) <= max_Bytes) then
+
+  ! The whole record in contained on a single file.
+
+  p_Buf = 1
+  n_Copy = lBuf
+  call CHDAFILE(LU_mod,iOpt,Buf(p_Buf),n_Copy,iDisk_mod)
+else
+
+  ! The record must be split over several files.
+
+  p_Buf = 1
+  n_Save = lBuf
+  n_Copy = (max_Bytes-iDisk_mod)
+  do while (n_Save > 0)
+    if (LU_MOD < 0) then
+      Lu_Mod = isfreeunit(Lu)
+      MPUnit(offset,LU) = Lu_Mod
+      temp = 0
+      start_char = 48
+      if (offset <= 9) then
+        start_char = 48
+      else
+        start_char = 55
+      end if
+
+      tmp(1+lStdNam:1+lStdNam) = char(start_char+offset)
+      iext = strnln(StdNam)
+      ext = StdNam
+      if (offset <= 9) then
+        ext(1+iext:1+iext) = char(start_char+offset)
+      else
+        ext(1+iext:1+iext) = char(start_char+offset/10)
+        ext(2+iext:2+iext) = char(start_char+offset-offset/10*10)
+      end if
+
+      iRc = AixOpn(temp,tmp,.false.)
+      if (iRc /= 0) then
+        iRc = AixErr(Text)
+        call SysFileMsg(TheName,'MSG: open',Lu_Mod,Text)
+      end if
+      isOpen(Lu_mod) = 1
+      FSCB(Lu_mod) = temp
+
+      !vv LuName(Lu_Mod) = tmp
+      LuName(Lu_Mod) = ext
+      call SetLuMark(Lu_Mod)
+
+      Addr(Lu_Mod) = 0
+      Multi_File(Lu_Mod) = .true.
+      MPUnit(0,LU_Mod) = Lu
+#     ifdef _OLD_IO_STAT_
+      MxAddr(Lu_Mod) = 0
+      count(1,Lu_Mod) = 0
+      count(2,Lu_Mod) = 0
+      count(3,Lu_Mod) = 0
+      count(4,Lu_Mod) = 0
+#     endif
+      MBL(Lu_Mod) = MBL(Lu)
+
+    end if
+    call CHDAFILE(LU_mod,iOpt,Buf(p_Buf),n_Copy,iDisk_mod)
+    p_Buf = p_Buf+n_Copy
+    n_Save = n_Save-n_Copy
+    n_Copy = min(max_Bytes,n_Save)
+    offset = offset+1
+    if (offset > MaxSplitFile-1) then
+      write(6,*) '          Current I/O Status as follows'
+      write(6,*)
+      call FASTIO('STATUS')
+      call SysAbendFileMsg(TheName,StdNam,'Extensions out of range!','increase MOLCAS_DISK value or MaxSplitFile in fio.fh ')
+
+      call Abend()
+    end if
+
+    Lu_Mod = MPUnit(offset,LU)
+    iDisk_mod = 0
+  end do
+end if
+
+return
+
+end subroutine MpDaFile

@@ -8,41 +8,68 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 1991, Per-Olof Widmark                                 *
-!               1993,1996,1997, Markus P. Fuelscher                    *
-!               1996, Luis Serrano-Andres                              *
+! Copyright (C) 2012, Victor P. Vysotskiy                              *
 !***********************************************************************
 
-subroutine DaName(Lu,String)
+subroutine DaFile_checkarg(Lu,iOpt,lBuf,iDisk)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
-!     Open unit Lu for direct access I/O and link the data stream to   *
-!     the logical file name Name.                                      *
+!     Check arguments to iDafile                                       *
 !                                                                      *
 !     calling arguments:                                               *
 !     Lu      : integer, input                                         *
-!               logical unit number                                    *
-!     Name    : character string, input                                *
-!               logical file name                                      *
+!               logical unit number (Lu={1,2,...40,50,60,70,80,90}     *
+!     iOpt    : integer, input                                         *
+!               valid values: 0,1,2,5,6,7,8,10,99                      *
+!     lBuf    : integer, input                                         *
+!               length of the buffer Buf:   0<lBuf<2**29(2**60)        *
+!     iDisk   : integer, input/output                                  *
+!               disk address  >=0                                      *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
 !     written by:                                                      *
-!     P.O. Widmark, IBM Sweden, 1991                                   *
-!     M.P. Fuelscher, University of Lund, Sweden, 1993, 1996, 1997     *
-!     L. Serrano-Andres, University of Lund, Sweden, 1996              *
+!     V.P. Vysotskiy, University of Lund, Sweden, 2012                 *
 !                                                                      *
 !***********************************************************************
+implicit integer(A-Z)
+#include "fio.fh"
+character*16 TheName
+data TheName/'DaFile_checkarg'/
 
-character*(*) String
-integer Lu
-logical mf, wa
+! 2012
+! VpV: a lot of checking is here.
+! Check arguments
+if ((Lu <= 0) .or. (Lu > MxFile)) call SysFileMsg(TheName,'MSG: unit',Lu,' ')
 
-mf = .false.
-wa = .false.
-call Daname_Main(Lu,String,mf,wa)
+if (isOpen(Lu) == 0) call SysFileMsg(TheName,'MSG: not opened',Lu,' ')
+
+if (lBuf < 0) then
+  write(6,*) 'Invalid buffer size ',lBuf
+  goto 1000
+end if
+
+if (iDisk < 0) then
+  write(6,*) 'Invalid disk address ',iDisk
+  goto 1000
+end if
+
+if ((iOpt < 0) .or. ((iOpt > 10) .and. (iOpt /= 99))) then
+  write(6,*) 'Invalid action code ',iOpt
+  goto 1000
+end if
+
+if ((iOpt == 3) .or. (iOpt == 4) .or. (iOpt == 9)) then
+  write(6,*) 'DaFile: GSlist option is not in operation!'
+  goto 1000
+end if
 
 return
 
-end subroutine DaName
+1000 continue
+write(6,*) 'I/O error in ',TheName
+write(6,*) 'Unit = ',Lu
+call Abend()
+
+end subroutine DaFile_checkarg

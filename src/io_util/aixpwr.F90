@@ -41,82 +41,79 @@
 ! History:                                                             *
 !                                                                      *
 !***********************************************************************
-      Integer Function AixPWr(handle,Buf,nBuf,iDisk)
-      Implicit Integer (a-z)
 
+integer function AixPWr(handle,Buf,nBuf,iDisk)
+implicit integer(a-z)
 #include "SysDef.fh"
-
 #include "blksize.fh"
 #include "switch.fh"
 #include "ctl.fh"
-      Dimension Buf(*)
-      Character*80 ErrTxt
-      Character*16 TheName
+dimension Buf(*)
+character*80 ErrTxt
+character*16 TheName
 #ifndef _OLD_IO_STAT_
 #include "pfio.fh"
-      Real*8   CPUA,CPUE,TIOA,TIOE
+real*8 CPUA, CPUE, TIOA, TIOE
 #endif
 #include "warnings.fh"
-      Data TheName/'AixPWr'/
+data TheName/'AixPWr'/
+
 !----------------------------------------------------------------------*
-! Entry to AixWr                                                       *
+! Entry to AixPWr                                                      *
 !----------------------------------------------------------------------*
-      AixPWr=0
-      rc=0
+AixPWr = 0
+rc = 0
 !----------------------------------------------------------------------*
 ! Check if file is opened.                                             *
 !----------------------------------------------------------------------*
-      n=1
-100   If(CtlBlk(pHndle,n).ne.handle) Then
-         n=n+1
-         If(n.gt.MxFile) Then
-            AixPWr=eNtOpn
-            Return
-         End If
-         Go To 100
-      End If
-      nFile=n
-      desc=CtlBlk(pDesc,nFile)
+n = 1
+100 continue
+if (CtlBlk(pHndle,n) /= handle) then
+  n = n+1
+  if (n > MxFile) then
+    AixPWr = eNtOpn
+    return
+  end if
+  Go To 100
+end if
+nFile = n
+desc = CtlBlk(pDesc,nFile)
 #ifndef _OLD_IO_STAT_
-      Call FSCB2UNIT(handle,Lu)
-      Call Timing(CPUA,CPUE,TIOA,TIOE)
+call FSCB2UNIT(handle,Lu)
+call Timing(CPUA,CPUE,TIOA,TIOE)
 #endif
 !----------------------------------------------------------------------*
 ! Position file pointer                                                *
 !----------------------------------------------------------------------*
-      pDisk=pHeadOffset+iDisk
+pDisk = pHeadOffset+iDisk
 #ifndef _OLD_IO_STAT_
-      If(CtlBlk(pWhere,nFile).ne.pDisk) Then
-         ProfData(7,Lu)=ProfData(7,Lu)+1
-      End If
+if (CtlBlk(pWhere,nFile) /= pDisk) then
+  ProfData(7,Lu) = ProfData(7,Lu)+1
+end if
 #endif
 !----------------------------------------------------------------------*
 ! Write to file                                                        *
 !----------------------------------------------------------------------*
-      CtlBlk(pWhere,nFile)=pDisk+nBuf
-      if(nBuf.gt.0) rc=c_pwrite(desc,Buf,nBuf,pDisk)
-      If(rc.lt.0) Then
-         Call FASTIO('STATUS')
-         AixPWr=AixErr(ErrTxt)
-            Call SysQuitFileMsg(_RC_IO_ERROR_WRITE_,                                    &
-     &            TheName,FCtlBlk(nFile),                               &
-     &     'Premature abort while writing buffer to disk', ErrTxt)
-      Else If(rc.ne.nBuf) Then
-         Call FASTIO('STATUS')
-         AixPWr=eEof
-            Call SysQuitFileMsg(_RC_IO_ERROR_WRITE_,                                    &
-     &            TheName,FCtlBlk(nFile),                               &
-     &            'Premature abort while writing buffer to disk:',      &
-     &      'Disk full? ')
-      End If
+CtlBlk(pWhere,nFile) = pDisk+nBuf
+if (nBuf > 0) rc = c_pwrite(desc,Buf,nBuf,pDisk)
+if (rc < 0) then
+  call FASTIO('STATUS')
+  AixPWr = AixErr(ErrTxt)
+  call SysQuitFileMsg(_RC_IO_ERROR_WRITE_,TheName,FCtlBlk(nFile),'Premature abort while writing buffer to disk',ErrTxt)
+else if (rc /= nBuf) then
+  call FASTIO('STATUS')
+  AixPWr = eEof
+  call SysQuitFileMsg(_RC_IO_ERROR_WRITE_,TheName,FCtlBlk(nFile),'Premature abort while writing buffer to disk:','Disk full? ')
+end if
 #ifndef _OLD_IO_STAT_
-      Call Timing(CPUA,CPUE,TIOA,TIOE)
-      ProfData(1,Lu)=ProfData(1,Lu)+1
-      ProfData(2,Lu)=ProfData(2,Lu)+nBuf
-      ProfData(3,Lu)=ProfData(3,Lu)+TIOE
+call Timing(CPUA,CPUE,TIOA,TIOE)
+ProfData(1,Lu) = ProfData(1,Lu)+1
+ProfData(2,Lu) = ProfData(2,Lu)+nBuf
+ProfData(3,Lu) = ProfData(3,Lu)+TIOE
 #endif
 !----------------------------------------------------------------------*
 ! Finished so return to caller                                         *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end function AixPWr

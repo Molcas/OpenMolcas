@@ -23,46 +23,50 @@
 !>
 !> @return Free unit number
 !***********************************************************************
-       Function isFreeUnit(iseed)
+
+function isFreeUnit(iseed)
+
 #include "fio.fh"
-       integer, intent(in) :: iseed
-!      check free chanal, starting from init
-       Logical Opened
-!
+integer, intent(in) :: iseed
+! check free chanel, starting from init
+logical Opened
+
 !VV since more and more developers' calling isfreeunit with constant...
-       init=iseed
-       if(init.lt.1.or.init.gt.300) then
-        write(6,*) '*** Possible bug in opening file'
-        write(6,*) '*** isFreeUnit resets the unit number'
-        init=12
-       endif
-       isFreeUnit=-init
-       kan=min(init,Mxfile-1)
-       kan0=kan
-       Go to 2
- 1     Continue
-       If (kan.eq.MxFile+1) kan=10
-       If (kan.eq.kan0) Then
-          Call fastio('STATUS')
-          Write (6,*) ' isFreeUnit: no available unit!'
-          Call Abend()
-       End If
- 2     Continue
-!
-!----- Check for Dafile
-!
-       If (kan.gt.1.and.kan.le.MxFile.and.isOpen(kan).eq.1) Then
-          kan=kan+1
-          Go To 1
-       End If
-!
-!----- Check for Fortran I/O
-!
-       Inquire(unit=kan,opened=Opened)
-       If (Opened) Then
-          kan=kan+1
-          Go To 1
-       End If
-       isFreeUnit=kan
-       Return
-       End
+init = iseed
+if ((init < 1) .or. (init > 300)) then
+  write(6,*) '*** Possible bug in opening file'
+  write(6,*) '*** isFreeUnit resets the unit number'
+  init = 12
+end if
+isFreeUnit = -init
+kan = min(init,Mxfile-1)
+kan0 = kan
+Go to 2
+1 continue
+if (kan == MxFile+1) kan = 10
+if (kan == kan0) then
+  call fastio('STATUS')
+  write(6,*) ' isFreeUnit: no available unit!'
+  call Abend()
+end if
+2 continue
+
+! Check for Dafile
+
+if ((kan > 1) .and. (kan <= MxFile) .and. (isOpen(kan) == 1)) then
+  kan = kan+1
+  Go To 1
+end if
+
+! Check for Fortran I/O
+
+inquire(unit=kan,opened=Opened)
+if (Opened) then
+  kan = kan+1
+  Go To 1
+end if
+isFreeUnit = kan
+
+return
+
+end function isFreeUnit

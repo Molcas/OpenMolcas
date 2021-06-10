@@ -10,29 +10,32 @@
 !                                                                      *
 ! Copyright (C) 2001-2005, Valera Veryazov                             *
 !***********************************************************************
-      Subroutine molcas_open(Lu,Name)
-      Integer Lu,f_recl,f_iostat
-      Character*10 f_access,f_form,f_status
-      Logical is_recl,is_error
-      Character*(*) Name
 
-      f_recl=1
-      f_iostat=100
-      f_access='SEQUENTIAL'
-      f_form='FORMATTED'
-      f_status='UNKNOWN'
-      is_recl=.false.
-      is_error=.false.
+subroutine molcas_open(Lu,Name)
 
-      Call molcas_open_ext2(Lu,Name,f_access,f_form,f_iostat,is_recl,   &
-     &                      f_recl,f_status,is_error)
-      If(f_iostat.ne.0) Then
-         Write(6,*)
-         Write(6,'(3a)')   'molcas_open: Error opening file "',Name,'"'
-         Write(6,'(a,i9)') '   iostat is',f_iostat
-         Write(6,'(a)')    '   Aborting'
-         Write(6,*)
-         Call Abend()
-      End If
-      Return
-      End
+integer Lu, f_recl, f_iostat
+character*10 f_access, f_form, f_status
+logical is_recl, is_error
+character*(*) Name
+
+f_recl = 1
+f_iostat = 100
+f_access = 'SEQUENTIAL'
+f_form = 'FORMATTED'
+f_status = 'UNKNOWN'
+is_recl = .false.
+is_error = .false.
+
+call molcas_open_ext2(Lu,Name,f_access,f_form,f_iostat,is_recl,f_recl,f_status,is_error)
+if (f_iostat /= 0) then
+  write(6,*)
+  write(6,'(3a)') 'molcas_open: Error opening file "',Name,'"'
+  write(6,'(a,i9)') '   iostat is',f_iostat
+  write(6,'(a)') '   Aborting'
+  write(6,*)
+  call Abend()
+end if
+
+return
+
+end subroutine molcas_open

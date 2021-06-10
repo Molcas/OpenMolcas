@@ -14,7 +14,8 @@
 !               2001, Roland Lindh                                     *
 !               2016, Steven Vancoillie                                *
 !***********************************************************************
-      Subroutine bDaFile(Lu,iOpt,Buf,lBuf,iDisk)
+
+subroutine bDaFile(Lu,iOpt,Buf,lBuf,iDisk)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -56,51 +57,50 @@
 !                                                                      *
 !***********************************************************************
 
-      Implicit Integer (A-Z)
-
+implicit integer(A-Z)
 #include "SysDef.fh"
 #include "blksize.fh"
 #include "fio.fh"
+character Buf(*)
 
-      Character Buf(*)
+if (Trace) then
+  write(6,*) ' >>> Enter bDaFile <<<'
+  write(6,*) ' unit      :',Lu
+  write(6,*) ' name      :',LuName(Lu)
+  write(6,*) ' option    :',iOpt
+  write(6,*) ' length    :',lBuf
+  write(6,*) ' disk adr. :',iDisk
+end if
 
+if ((iOpt == 5) .or. (iOpt == 10)) then
+  Addr(Lu) = 0
+  iDisk = 0
+  goto 1100
+! Get filesize in 8-byte units
+else if (iOpt == 0) then
+  ! Dummy write. No I/O is made. Disk address is updated.
+  Addr(Lu) = iDisk+lBuf
+  iDisk = Addr(Lu)
+  goto 1100
+else if (iOpt == 8) then
+  iRc = AixFsz(FSCB(Lu))
+  iDisk = iRc
+  goto 1100
+end if
 
-      If ( Trace ) then
-        Write (6,*) ' >>> Enter bDaFile <<<'
-        Write (6,*) ' unit      :',Lu
-        Write (6,*) ' name      :',LuName(Lu)
-        Write (6,*) ' option    :',iOpt
-        Write (6,*) ' length    :',lBuf
-        Write (6,*) ' disk adr. :',iDisk
-      End If
+if (Multi_File(Lu) .and. MaxFileSize /= 0) then
+  jDisk = iDisk
+  kDisk = iDisk
+  call MpDaFile(Lu,MaxFileSize,iOpt,Buf,lBuf,kDisk)
+  Addr(Lu) = jDisk+lBuf
+  iDisk = Addr(Lu)
+else
+  call ChDaFile(Lu,iOpt,Buf,lBuf,iDisk)
+end if
 
-      If((iOpt.eq.5).or.(iOpt.eq.10)) then
-        Addr(Lu)   = 0
-        iDisk      = 0
-        goto 1100
-!*     Get filesize in 8-byte units
-      Else If (iOpt.eq.0) Then
-!*     Dummy write. No I/O is made. Disk address is updated.
-        Addr(Lu)   = iDisk+lBuf
-        iDisk      = Addr(Lu)
-        goto 1100
-      Else If ( iOpt.eq.8 ) then
-        iRc=AixFsz(FSCB(Lu))
-        iDisk=iRc
-        goto 1100
-      End If
+1100 continue
+if (Trace) write(6,*) ' >>> Exit bDaFile <<<'
 
-      If ( Multi_File(Lu) .and. MaxFileSize.ne.0 ) then
-         jDisk       = iDisk
-         kDisk       = iDisk
-         Call MpDaFile(Lu,MaxFileSize,iOpt,Buf,lBuf,kDisk)
-         Addr(Lu)    = jDisk+lBuf
-         iDisk       = Addr(Lu)
-      Else
-         Call ChDaFile(Lu,iOpt,Buf,lBuf,iDisk)
-      End If
+return
 
-1100  Continue
-      If ( Trace ) Write (6,*) ' >>> Exit bDaFile <<<'
-      Return
-      End
+end subroutine bDaFile

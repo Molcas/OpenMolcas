@@ -13,7 +13,8 @@
 !               1996, Luis Serrano-Andres                              *
 !               2012, Victor P. Vysotskiy                              *
 !***********************************************************************
-      Subroutine DaEras(Lu)
+
+subroutine DaEras(Lu)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -33,82 +34,78 @@
 !                                                                      *
 !***********************************************************************
 
-      Implicit Integer (A-Z)
-
+implicit integer(A-Z)
 #include "fio.fh"
-      Character*80 Text
-      Character*16 TheName
-      Data TheName/'DaEras'/
+character*80 Text
+character*16 TheName
+data TheName/'DaEras'/
 
+if (Trace) then
+  write(6,*) ' >>> Enter DaEras <<<'
+  write(6,*) ' unit :',Lu
+end if
 
-      If ( Trace ) then
-        Write (6,*) ' >>> Enter DaEras <<<'
-        Write (6,*) ' unit :',Lu
-      End If
+! Save calling arguments
 
-!     Save calling arguments
+if ((Lu <= 0) .or. (Lu > MxFile)) call SysFileMsg(TheName,'MSG: unit',Lu,' ')
 
-      If ( (Lu.le.0) .or. (Lu.gt.MxFile) )                              &
-     & Call SysFileMsg(TheName,'MSG: unit', Lu,' ')
-
-      If ( isOpen(Lu).eq.0 )                                            &
-     & Call SysFileMsg(TheName,'MSG: used', Lu,' ')
+if (isOpen(Lu) == 0) call SysFileMsg(TheName,'MSG: used',Lu,' ')
 #if defined (_HAVE_EXTRA_) && ! defined (_GA_)
-      If(isFiM(Lu).eq.0) then
+if (isFiM(Lu) == 0) then
 #endif
-        iRc = AixCls(FSCB(Lu))
+  iRc = AixCls(FSCB(Lu))
 #if defined (_HAVE_EXTRA_) && ! defined (_GA_)
-      Else
-        iRc=FimCls(FSCB(Lu))
-      End If
+else
+  iRc = FimCls(FSCB(Lu))
+end if
 #endif
-      If ( iRc.ne.0 ) then
-        iRc = AixErr(Text)
-        Call SysFileMsg(TheName,'MSG: close', Lu,Text)
-      End If
+if (iRc /= 0) then
+  iRc = AixErr(Text)
+  call SysFileMsg(TheName,'MSG: close',Lu,Text)
+end if
 #if defined (_HAVE_EXTRA_) && ! defined (_GA_)
-      If(isFiM(Lu).eq.0) then
+if (isFiM(Lu) == 0) then
 #endif
-        iRc = AixRm(LuName(Lu))
-        If ( iRc.ne.0 ) then
-          iRc = AixErr(Text)
-        Call SysFileMsg(TheName,'MSG: delete', Lu,Text)
-        End If
+  iRc = AixRm(LuName(Lu))
+  if (iRc /= 0) then
+    iRc = AixErr(Text)
+    call SysFileMsg(TheName,'MSG: delete',Lu,Text)
+  end if
 #if defined (_HAVE_EXTRA_) && ! defined (_GA_)
-      End If
+end if
 #endif
-      isOpen(Lu) = 0
+isOpen(Lu) = 0
 
-      If ( Multi_File(Lu) ) then
-        If ( MaxFileSize.ne.0 ) then
-          If ( Trace ) Then
-            Write (6,*) ' This is a partitioned data set'
-          End If
-          Do i = 1,MaxSplitFile-1
-            Lu_=MPUnit(i,Lu)
-            If ( Lu_.ge.1 ) Then
-              If ( isOpen(Lu_).ne.0 ) Then
-                iRc = AixCls(FSCB(Lu_))
-                If ( iRc.ne.0 ) then
-                  iRc = AixErr(Text)
-                  Call SysFileMsg(TheName,'MSG: close', Lu_,Text)
-                End If
-                iRc = AixRm(LuName(Lu_))
-                If ( iRc.ne.0 ) then
-                  iRc = AixErr(Text)
-                  Call SysFileMsg(TheName,'MSG: delete', Lu_,Text)
-                End If
-                isOpen(Lu_) = 0
-              End If
-            End If
-          End Do
-        End If
-      End If
+if (Multi_File(Lu)) then
+  if (MaxFileSize /= 0) then
+    if (Trace) then
+      write(6,*) ' This is a partitioned data set'
+    end if
+    do i=1,MaxSplitFile-1
+      Lu_ = MPUnit(i,Lu)
+      if (Lu_ >= 1) then
+        if (isOpen(Lu_) /= 0) then
+          iRc = AixCls(FSCB(Lu_))
+          if (iRc /= 0) then
+            iRc = AixErr(Text)
+            call SysFileMsg(TheName,'MSG: close',Lu_,Text)
+          end if
+          iRc = AixRm(LuName(Lu_))
+          if (iRc /= 0) then
+            iRc = AixErr(Text)
+            call SysFileMsg(TheName,'MSG: delete',Lu_,Text)
+          end if
+          isOpen(Lu_) = 0
+        end if
+      end if
+    end do
+  end if
+end if
 
-      If ( Trace ) then
-        Write (6,*) ' >>> Exit DaEras <<<'
-      End If
+if (Trace) then
+  write(6,*) ' >>> Exit DaEras <<<'
+end if
 
+return
 
-      Return
-      End
+end subroutine DaEras

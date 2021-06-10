@@ -13,10 +13,12 @@
 !               1996, Luis Serrano-Andres                              *
 !               2012, Victor P. Vysotskiy                              *
 !***********************************************************************
+
 #if defined(_I8_) || defined(_OPENMP)
 #define NO_SPLITTING
 #endif
-      Subroutine DaName_Main(Lu,String,mf,wa)
+
+subroutine DaName_Main(Lu,String,mf,wa)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -43,10 +45,9 @@
 !***********************************************************************
 
 #ifndef _HAVE_EXTRA_
-      Use Prgm
+use Prgm
 #endif
-      Implicit Integer (A-Z)
-
+implicit integer(A-Z)
 #include "fio.fh"
 #include "switch.fh"
 #ifdef _OLD_IO_STAT_
@@ -56,134 +57,122 @@
 #endif
 #include "blksize.fh"
 #include "filesize.fh"
-      Character*(*) String
-      Logical mf, wa
-      Character*8 StdNam
-      Character*80 Text
+character*(*) String
+logical mf, wa
+character*8 StdNam
+character*80 Text
+character*16 TheName
+data TheName/'DaName_Main'/
 
-      Character*16 TheName
-      Data TheName/'DaName_Main'/
+if (Trace) then
+  write(6,*) ' >>> Enter DaName_Main <<<'
+  write(6,*) ' unit :',Lu
+  write(6,*) ' name :',String,mf,wa
+end if
 
-      If ( Trace ) then
-        Write (6,*) ' >>> Enter DaName_Main <<<'
-        Write (6,*) ' unit :',Lu
-        Write (6,*) ' name :',String, mf, wa
-      End If
+tmp = Lu
+Lu = isfreeunit(tmp)
+! Check calling arguments
+if ((Lu <= 0) .or. (Lu > MxFile)) call SysFileMsg(TheName,'MSG: unit',Lu,String)
 
-      tmp=Lu
-      Lu=isfreeunit(tmp)
-!     Check calling arguments
-      If ( (Lu.le.0) .or. (Lu.gt.MxFile) )                              &
-     & Call SysFileMsg(TheName,'MSG: unit', Lu,String)
+! Check for consistency
+if (isOpen(Lu) /= 0) call SysFileMsg(TheName,'MSG: used',Lu,String)
 
-!     Check for consistency
-      If ( isOpen(Lu).ne.0 )                                            &
-     & Call SysFileMsg(TheName,'MSG: used', Lu,String)
+! Reformat file name to standard notation
+! (capital letters, no leading blank)
+call StdFmt(String,StdNam)
 
-!     Reformat file name to standard notation
-!     (capital letters, no leading blank)
-      Call StdFmt(String,StdNam)
+! If no file name has been given link it to the default name
+if (StdNam == '        ') write(StdNam,'(A,I2.2,A)') 'FT',Lu,'F001'
 
-!     If no file name has been given link it to the default name
-      If ( StdNam.eq.'        ' )                                       &
-     &   Write(StdNam,'(A,I2.2,A)')'FT',Lu,'F001'
-
-!     Check the storage scheme
+! Check the storage scheme
 #ifndef _GA_
-      isFiM(Lu)=0
-      isFiM(Lu)=isinmem(StdNam)
+isFiM(Lu) = 0
+isFiM(Lu) = isinmem(StdNam)
 #ifdef _DEBUGPRINT_IO_
-      if(isFiM(Lu)>0) write(6,*) "The file ",StdNam," will be kept in   &
-     & memory"
+if (isFiM(Lu) > 0) write(6,*) 'The file ',StdNam,' will be kept in memory'
 #endif
-!     Open file
-      temp = isFiM(Lu)
+! Open file
+temp = isFiM(Lu)
 #else
-      temp=0
+temp = 0
 #endif
-      iRc = AixOpn(temp,StdNam,.true.)
+iRc = AixOpn(temp,StdNam,.true.)
 #ifndef _GA_
-      if(iRc.eq.eFiMFo) Then
-#ifdef _DEBUGPRINT_IO_
-         write(6,*) "Failed to open file in memory"
+if (iRc == eFiMFo) then
+# ifdef _DEBUGPRINT_IO_
+  write(6,*) 'Failed to open file in memory'
+# endif
+  isFiM(Lu) = 0
+  iRc = 0
+end if
 #endif
-         isFiM(Lu)=0
-         iRc=0
-      end if
-#endif
-      If ( iRc.ne.0 ) then
-        iRc = AixErr(Text)
-      Call SysFileMsg(TheName,'MSG: open', Lu,Text)
-      End If
-      isOpen(Lu)  = 1
-      FSCB(Lu)    = temp
-      LuName(Lu)    = StdNam
+if (iRc /= 0) then
+  iRc = AixErr(Text)
+  call SysFileMsg(TheName,'MSG: open',Lu,Text)
+end if
+isOpen(Lu) = 1
+FSCB(Lu) = temp
+LuName(Lu) = StdNam
 #ifndef _OLD_IO_STAT_
-      inUse=0
-      Do i=1,NProfFiles
-         If(LuNameProf(i).eq.StdNam) Then
-            inUse=1
-         End If
-      End Do
+inUse = 0
+do i=1,NProfFiles
+  if (LuNameProf(i) == StdNam) then
+    inUse = 1
+  end if
+end do
 
-      If(inUse.eq.0) Then
-        If (NProfFiles+1.le.MxFile) Then
-           NProfFiles=NProfFiles+1
-           LuNameProf(NProfFiles)=StdNam
-        Else
-           Write (6,*) 'IO error: NProfFiles+1.gt.MxFile'
-           Write (6,*) 'Increase MxFile in src/Include/MxFile.fh!'
-           Call Abend()
-        End If
-      End If
+if (inUse == 0) then
+  if (NProfFiles+1 <= MxFile) then
+    NProfFiles = NProfFiles+1
+    LuNameProf(NProfFiles) = StdNam
+  else
+    write(6,*) 'IO error: NProfFiles+1.gt.MxFile'
+    write(6,*) 'Increase MxFile in src/Include/MxFile.fh!'
+    call Abend()
+  end if
+end if
 #endif
-      Call SetLuMark(Lu)
-      Addr(Lu)    = 0
-      MPUnit(0,Lu)=Lu
+call SetLuMark(Lu)
+Addr(Lu) = 0
+MPUnit(0,Lu) = Lu
 #ifdef _OLD_IO_STAT_
-      MxAddr(Lu)  = 0
-      Count(1,Lu) = 0
-      Count(2,Lu) = 0
-      Count(3,Lu) = 0
-      Count(4,Lu) = 0
+MxAddr(Lu) = 0
+count(1,Lu) = 0
+count(2,Lu) = 0
+count(3,Lu) = 0
+count(4,Lu) = 0
 #endif
-      Multi_File(Lu)=.False.
-      MBL(Lu)=MBl_nwa
-      if(wa) MBL(Lu)=MBl_wa
+Multi_File(Lu) = .false.
+MBL(Lu) = MBl_nwa
+if (wa) MBL(Lu) = MBl_wa
 #ifndef NO_SPLITTING
-      If(mf) then
-        Multi_File(Lu)=.True.
-        MaxFileSize = AllocDisk()
-        MFMB = Int(Dble(Max_File_Length)/(1024**2))
-        If (MaxFileSize.gt.MFMB) Then
-            Write (6,*)
-            Write (6,*) 'DANAME_MF: Requested MaxFileSize is too large!'
-            Write (6,*) ' Requested value of ',MaxFileSize
-            MaxFileSize=MFMB
-            Write (6,*) ' has been reset to  ',MaxFileSize
-        Else If ( MaxFileSize.ne.0 ) then
-          If ( Trace ) Write (6,*) ' This is a partitioned data set'
-          lName = StrnLn(String)
-          If ( (lName.eq.0).or.(lName.eq.8) )                           &
-     &   Call SysFileMsg(TheName,'Invalid file name. \n '//             &
-     &   'File names used in '//                                        &
-     &   'multiple unit files must be less than 8 characters.',         &
-     &                  Lu,String)
-          Do i = 1,MaxSplitFile-1
-            MPUnit(i,Lu)=-99
-          End Do
-        End If
-      End If
+if (mf) then
+  Multi_File(Lu) = .true.
+  MaxFileSize = AllocDisk()
+  MFMB = int(dble(Max_File_Length)/(1024**2))
+  if (MaxFileSize > MFMB) then
+    write(6,*)
+    write(6,*) 'DANAME_MF: Requested MaxFileSize is too large!'
+    write(6,*) ' Requested value of ',MaxFileSize
+    MaxFileSize = MFMB
+    write(6,*) ' has been reset to  ',MaxFileSize
+  else if (MaxFileSize /= 0) then
+    if (Trace) write(6,*) ' This is a partitioned data set'
+    lName = StrnLn(String)
+    if ((lName == 0) .or. (lName == 8)) &
+      call SysFileMsg(TheName,'Invalid file name.\n File names used in multiple unit files must be less than 8 characters.', &
+                      Lu,String)
+    do i=1,MaxSplitFile-1
+      MPUnit(i,Lu) = -99
+    end do
+  end if
+end if
 #endif
-      If ( Trace ) then
-        Write (6,*) ' >>> Exit DaName_Main <<<'
-      End If
+if (Trace) then
+  write(6,*) ' >>> Exit DaName_Main <<<'
+end if
 
+return
 
-      Return
-      End
-      Subroutine SetLuMark(Lu)
-#include "fio.fh"
-      LuMark(Lu)=0
-      return
-      end
+end subroutine DaName_Main

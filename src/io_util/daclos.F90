@@ -13,7 +13,8 @@
 !               1996, Luis Serrano-Andres                              *
 !               2012, Victor P. Vysotskiy                              *
 !***********************************************************************
-      Subroutine DaClos(Lu)
+
+subroutine DaClos(Lu)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -33,89 +34,83 @@
 !                                                                      *
 !***********************************************************************
 
-      Implicit Integer (A-Z)
-
+implicit integer(A-Z)
 #include "fio.fh"
 #ifndef _OLD_IO_STAT_
 #include "pfio.fh"
 #endif
+character*80 Text
+character*16 TheName
+data TheName/'DaClos'/
 
-      Character*80 Text
-      Character*16 TheName
-
-      Data TheName/'DaClos'/
-
-
-      If ( Trace ) then
-        Write (6,*) ' >>> Enter DaClos <<<'
-        Write (6,*) ' unit :',Lu
-        Write (6,*) ' name :',LuName(Lu)
-      End If
+if (Trace) then
+  write(6,*) ' >>> Enter DaClos <<<'
+  write(6,*) ' unit :',Lu
+  write(6,*) ' name :',LuName(Lu)
+end if
 #ifndef _OLD_IO_STAT_
-      LuP=0
-      Do i=1,NProfFiles
-         If(LuNameProf(i).eq.LuName(Lu)) Then
-            LuP=i
-         End If
-      End Do
+LuP = 0
+do i=1,NProfFiles
+  if (LuNameProf(i) == LuName(Lu)) then
+    LuP = i
+  end if
+end do
 #if defined (_HAVE_EXTRA_) && ! defined (_GA_)
-      If(isFiM(Lu).eq.0) then
+if (isFiM(Lu) == 0) then
 #endif
-         FlsSize(LuP)=AixFsz(FSCB(Lu))
+  FlsSize(LuP) = AixFsz(FSCB(Lu))
 #if defined (_HAVE_EXTRA_) && ! defined (_GA_)
-      Else
-         FlsSize(LuP)=FimFsz(FSCB(Lu))
-      End If
+else
+  FlsSize(LuP) = FimFsz(FSCB(Lu))
+end if
 #endif
 #endif
 
-      If ( (Lu.le.0) .or. (Lu.gt.MxFile) )                              &
-     & Call SysFileMsg(TheName,'MSG: unit', Lu,' ')
-      If ( isOpen(Lu).eq.0 )                                            &
-     & Call SysFileMsg(TheName,'MSG: notopened', Lu,' ')
+if ((Lu <= 0) .or. (Lu > MxFile)) call SysFileMsg(TheName,'MSG: unit',Lu,' ')
+if (isOpen(Lu) == 0) call SysFileMsg(TheName,'MSG: notopened',Lu,' ')
 #if defined (_HAVE_EXTRA_) && ! defined (_GA_)
-      If(isFiM(Lu).eq.0) then
+if (isFiM(Lu) == 0) then
 #endif
-       iRc = AixCls(FSCB(Lu))
+  iRc = AixCls(FSCB(Lu))
 #if defined (_HAVE_EXTRA_) && ! defined (_GA_)
-      Else
-        iRc=FimCls(FSCB(Lu))
-        isFiM(Lu)=0
-      End If
+else
+  iRc = FimCls(FSCB(Lu))
+  isFiM(Lu) = 0
+end if
 #endif
-      If ( iRc.ne.0 ) then
-        iRc = AixErr(Text)
-      Call SysFileMsg(TheName,'MSG: close', Lu,Text)
-      End If
-      isOpen(Lu) = 0
-      MBL(Lu)=0
-      If ( Multi_File(Lu) ) then
-        If ( MaxFileSize.ne.0 ) then
-          If ( Trace ) Write (6,*) ' This is a partitioned data set'
-          Do i = 1,MaxSplitFile-1
-             Lu_=MPUnit(i,Lu)
-             If (Lu_.ge.1) Then
-                irc=0
-                If ( isOpen(Lu_).ne.0 ) iRc = AixCls(FSCB(Lu_))
-                If ( iRc.ne.0 ) then
-                   iRc = AixErr(Text)
-                   Call SysFileMsg(TheName,'MSG: close', Lu_,Text)
-                End If
-                isOpen(Lu_) = 0
-                MPUnit(i,Lu)=-99
-                Multi_File(Lu_)=.False.
-                MBL(Lu_)=0
-             End If
-          End Do
-        End If
-        MPUnit(0,Lu)=0
-        Multi_File(Lu)=.False.
-      End If
+if (iRc /= 0) then
+  iRc = AixErr(Text)
+  call SysFileMsg(TheName,'MSG: close',Lu,Text)
+end if
+isOpen(Lu) = 0
+MBL(Lu) = 0
+if (Multi_File(Lu)) then
+  if (MaxFileSize /= 0) then
+    if (Trace) write(6,*) ' This is a partitioned data set'
+    do i=1,MaxSplitFile-1
+      Lu_ = MPUnit(i,Lu)
+      if (Lu_ >= 1) then
+        irc = 0
+        if (isOpen(Lu_) /= 0) iRc = AixCls(FSCB(Lu_))
+        if (iRc /= 0) then
+          iRc = AixErr(Text)
+          call SysFileMsg(TheName,'MSG: close',Lu_,Text)
+        end if
+        isOpen(Lu_) = 0
+        MPUnit(i,Lu) = -99
+        Multi_File(Lu_) = .false.
+        MBL(Lu_) = 0
+      end if
+    end do
+  end if
+  MPUnit(0,Lu) = 0
+  Multi_File(Lu) = .false.
+end if
 
-      If ( Trace ) then
-        Write (6,*) ' >>> Exit DaClos <<<'
-      End If
+if (Trace) then
+  write(6,*) ' >>> Exit DaClos <<<'
+end if
 
+return
 
-      Return
-      End
+end subroutine DaClos

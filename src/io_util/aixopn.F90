@@ -45,112 +45,116 @@
 ! 120304 - Use handle for the passing of 'Lu' value needed by FiM      *
 !                                                                      *
 !***********************************************************************
-      Integer Function AixOpn(handle,name,translate)
-      Implicit Integer (a-z)
+
+integer function AixOpn(handle,name,translate)
+
+implicit integer(a-z)
 #include "switch.fh"
 #include "ctl.fh"
-      Character*(*) name
-      Character*256 tmp
-      Logical Translate
-!      Integer Length,Prog_Length
-      Integer StrnLn
-      External StrnLn
-      Character*256 tmp1
-      Character*80 ErrTxt
-      save NVV
-      data NVV /666/
+character*(*) name
+character*256 tmp
+logical Translate
+!integer Length,Prog_Length
+integer StrnLn
+external StrnLn
+character*256 tmp1
+character*80 ErrTxt
+save NVV
+data NVV/666/
+
 !----------------------------------------------------------------------*
 ! Entry to AixOpn                                                      *
 !----------------------------------------------------------------------*
-      AixOpn=0
+AixOpn = 0
 !----------------------------------------------------------------------*
 ! Check if slot in table is available                                  *
 !----------------------------------------------------------------------*
-      n=1
-100   If(CtlBlk(pStat,n).ne.0) Then
-         n=n+1
-         If(n.gt.MxFile) Then
-            AixOpn=eTmF
-            Call SysWarnMsg('Aixopn','Too many opened files\n',         &
-     &      'try to increase MxFile')
-            Return
-         End If
-         Go To 100
-      End If
-      nFile=n
+n = 1
+100 continue
+if (CtlBlk(pStat,n) /= 0) then
+  n = n+1
+  if (n > MxFile) then
+    AixOpn = eTmF
+    call SysWarnMsg('Aixopn','Too many opened files\ntry to increase MxFile')
+    return
+  end if
+  Go To 100
+end if
+nFile = n
 !----------------------------------------------------------------------*
 ! Strip file name and append string terminator                         *
 !----------------------------------------------------------------------*
-      n=Len(name)
-200   If(name(n:n).eq.' ') Then
-         n=n-1
-         If(n.le.0) Then
-            AixOpn=eBlNme
-            Return
-         End If
-         Go To 200
-      End If
-      n=n+1
-      If(n.ge.Len(tmp)) Then
-         AixOpn=eTlFn
-         Return
-      End If
-      tmp=name
-      tmp(n:n)=Char(0)
+n = len(name)
+200 continue
+if (name(n:n) == ' ') then
+  n = n-1
+  if (n <= 0) then
+    AixOpn = eBlNme
+    return
+  end if
+  Go To 200
+end if
+n = n+1
+if (n >= len(tmp)) then
+  AixOpn = eTlFn
+  return
+end if
+tmp = name
+tmp(n:n) = char(0)
 !----------------------------------------------------------------------*
 ! Attempt to open file.                                                *
 !----------------------------------------------------------------------*
-      rc = 0
-      tmp1=tmp
-      ltmp=StrnLn(tmp1)
-      if(translate) then
-        call PrgmTranslate(tmp1,tmp,ltmp)
-      endif
-!       write(*,*) 'DEBUG AIXOPN: what would happen ',tmp(1:ltmp),'<'
-       tmp=tmp(1:ltmp)
-!
-!        print *,'in=',tmp1
-!        print *,'len=',ltmp
-!        print *,'res=',tmp
-      tmp(ltmp+1:ltmp+1)=Char(0)
+rc = 0
+tmp1 = tmp
+ltmp = StrnLn(tmp1)
+if (translate) then
+  call PrgmTranslate(tmp1,tmp,ltmp)
+end if
+!write(6,*) 'DEBUG AIXOPN: what would happen ',tmp(1:ltmp),'<'
+tmp = tmp(1:ltmp)
+
+!write(6,*) 'in=',tmp1
+!write(6,*) 'len=',ltmp
+!write(6,*) 'res=',tmp
+tmp(ltmp+1:ltmp+1) = char(0)
 #if defined (_HAVE_EXTRA_) && ! defined (_GA_)
-      If(handle.eq.0) Then
-         rc=c_open(tmp)
-      Else
-         rc=c_FimOpen(tmp,handle)
-         If(rc.lt.0) Then
-            rc=-rc
-            AixOpn=eFiMFo
-         End If
-      End If
-      If(handle.eq.0) Then
+if (handle == 0) then
+  rc = c_open(tmp)
+else
+  rc = c_FimOpen(tmp,handle)
+  if (rc < 0) then
+    rc = -rc
+    AixOpn = eFiMFo
+  end if
+end if
+if (handle == 0) then
 #else
-      rc=c_open(tmp)
+  rc = c_open(tmp)
 #endif
-      If(rc.lt.0) Then
-         rc=AixErr(ErrTxt)
-        Call SysWarnFileMsg('AixOpn',name,                              &
-     &            'MSG: open',ErrTxt)
-      call SysPutsEnd()
-      Call Abend()
-      End If
+  if (rc < 0) then
+    rc = AixErr(ErrTxt)
+    call SysWarnFileMsg('AixOpn',name,'MSG: open',ErrTxt)
+    call SysPutsEnd()
+    call Abend()
+  end if
 #if defined (_HAVE_EXTRA_) && ! defined (_GA_)
-      End If
+end if
 #endif
-      desc=rc
+desc = rc
 !----------------------------------------------------------------------*
 ! Attempt sucessful, update control blocks.                            *
 !----------------------------------------------------------------------*
-!      handle=iRand()
-       NVV=NVV+100
-       handle=NVV
-      CtlBlk(pHndle,nFile)=handle
-      CtlBlk(pDesc ,nFile)=desc
-      CtlBlk(pStat ,nFile)=1
-      CtlBlk(pWhere,nFile)=0
-      FCtlBlk(nFile)=name
+!handle = iRand()
+NVV = NVV+100
+handle = NVV
+CtlBlk(pHndle,nFile) = handle
+CtlBlk(pDesc,nFile) = desc
+CtlBlk(pStat,nFile) = 1
+CtlBlk(pWhere,nFile) = 0
+FCtlBlk(nFile) = name
 !----------------------------------------------------------------------*
 ! Finished so return to caller                                         *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end function AixOpn

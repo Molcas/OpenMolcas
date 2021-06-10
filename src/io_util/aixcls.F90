@@ -35,47 +35,51 @@
 ! History:                                                             *
 !                                                                      *
 !***********************************************************************
-      Integer Function AixCls(handle)
-      Implicit Integer (a-z)
+
+integer function AixCls(handle)
+
+implicit integer(a-z)
 #include "switch.fh"
 #include "ctl.fh"
-      Character*80 ErrTxt
+character*80 ErrTxt
+
 !----------------------------------------------------------------------*
 ! Entry to AixCls                                                      *
 !----------------------------------------------------------------------*
-      AixCls=0
+AixCls = 0
 !----------------------------------------------------------------------*
 ! Check if file is opened.                                             *
 !----------------------------------------------------------------------*
-      n=1
-100   If(CtlBlk(pHndle,n).ne.handle) Then
-         n=n+1
-         If(n.gt.MxFile) Then
-            AixCls=eNtOpn
-            Return
-         End If
-         Go To 100
-      End If
-      nFile=n
-      desc=CtlBlk(pDesc,nFile)
+n = 1
+100 continue
+if (CtlBlk(pHndle,n) /= handle) then
+  n = n+1
+  if (n > MxFile) then
+    AixCls = eNtOpn
+    return
+  end if
+  Go To 100
+end if
+nFile = n
+desc = CtlBlk(pDesc,nFile)
 !----------------------------------------------------------------------*
 ! Close file                                                           *
 !----------------------------------------------------------------------*
-      rc=c_close(desc)
-      If(rc.lt.0) Then
-         AixCls=AixErr(ErrTxt)
-      Call SysAbendFileMsg('AixCls',FCtlBlk(nFile),                     &
-     &                    'MSG: close', ErrTxt)
-      End If
+rc = c_close(desc)
+if (rc < 0) then
+  AixCls = AixErr(ErrTxt)
+  call SysAbendFileMsg('AixCls',FCtlBlk(nFile),'MSG: close',ErrTxt)
+end if
 !----------------------------------------------------------------------*
 ! Update control block                                                 *
 !----------------------------------------------------------------------*
-      CtlBlk(pHndle,nFile) = 0
-      CtlBlk(pDesc ,nFile) = 0
-      CtlBlk(pWhere,nFile) = 0
-      CtlBlk(pStat,nFile)  = 0
+CtlBlk(pHndle,nFile) = 0
+CtlBlk(pDesc,nFile) = 0
+CtlBlk(pWhere,nFile) = 0
+CtlBlk(pStat,nFile) = 0
 !----------------------------------------------------------------------*
 ! Finished so return to caller                                         *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end function AixCls

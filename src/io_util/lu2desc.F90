@@ -8,36 +8,27 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine LU2DESC(Lu,Desc)
-      Implicit Integer (A-Z)
+
+subroutine LU2DESC(Lu,Desc)
+
+implicit integer(A-Z)
 #include "ctl.fh"
+integer handle, n
 
-      Integer handle,n
+handle = lu2handle(Lu)
 
-      handle=lu2handle(Lu)
+n = 1
+10 continue
+if (CtlBlk(pHndle,n) /= handle) then
+  n = n+1
+  if (n > MxFile) then
+    return
+  end if
+  Go To 10
+end if
+nFile = n
+Desc = CtlBlk(pDesc,nFile)
 
-      n=1
-10    If(CtlBlk(pHndle,n).ne.handle) Then
-        n=n+1
-        If(n.gt.MxFile) Then
-           Return
-        End If
-        Go To 10
-      End If
-      nFile=n
-      Desc=CtlBlk(pDesc,nFile)
+return
 
-      Return
-      End
-
-
-      integer function lu2handle(lu)
-
-#include "fio.fh"
-
-      integer lu
-
-      lu2handle=FSCB(lu)
-
-      Return
-      End
+end subroutine LU2DESC

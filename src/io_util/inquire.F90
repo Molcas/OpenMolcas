@@ -10,35 +10,39 @@
 !                                                                      *
 ! Copyright (C) 2000-2016, Valera Veryazov                             *
 !***********************************************************************
-      subroutine f_inquire(NAME,exist)
-      Character*(*) name
-      Logical exist
-      Character*256 RealName
+
+subroutine f_inquire(NAME,exist)
+character*(*) name
+logical exist
+character*256 RealName
 #ifdef _SOLARIS_
-      Character*256 FTMP1,FTMP2
-      Integer n,irc
-      n=Len(name)
-200   If(name(n:n).eq.' ') Then
-         n=n-1
-         Go To 200
-      End If
-      n=n+1
-      ftmp1=name
-      ftmp1(n:n)=Char(0)
-      exist=.true.
-      irc=-1
-      FTMP2='                           '//                             &
-     &      '                           '
-      Call PrgmTranslate(Name,RealName,lRealName)
-      FTMP1(1:lRealName)=RealNAME(1:lRealName)
-!         print *,'before fndlnk', FTMP1
-      call fndlnk(irc,FTMP1,FTMP2)
-      if (irc.ne.0) exist=.false.
+character*256 FTMP1, FTMP2
+integer n, irc
+
+n = len(name)
+200 continue
+if (name(n:n) == ' ') then
+  n = n-1
+  Go To 200
+end if
+n = n+1
+ftmp1 = name
+ftmp1(n:n) = char(0)
+exist = .true.
+irc = -1
+FTMP2 = ''
+call PrgmTranslate(Name,RealName,lRealName)
+FTMP1(1:lRealName) = RealNAME(1:lRealName)
+!write(6,*) 'before fndlnk', FTMP1
+call fndlnk(irc,FTMP1,FTMP2)
+if (irc /= 0) exist = .false.
 #else
 
-        Call PrgmTranslate(Name,RealName,lRealName)
-!      print *,'Debug inquire:', RealNAME(1:lRealName)
-        inquire(file=RealNAME(1:lRealName),exist=exist)
+call PrgmTranslate(Name,RealName,lRealName)
+!write(6,*) 'Debug inquire:', RealNAME(1:lRealName)
+inquire(file=RealNAME(1:lRealName),exist=exist)
 #endif
-      return
-      end
+
+return
+
+end subroutine f_inquire

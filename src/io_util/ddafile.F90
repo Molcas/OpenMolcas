@@ -8,22 +8,38 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+!SVC: modified to convert to the use of byte lengths/offsets by the
+!     underlying I/O routines (2016)
 
-logical function next_non_comment(lu,line)
+subroutine dDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
 
 implicit none
-integer, intent(in) :: lu
-character(len=*), intent(out) :: line
+#include "SysDef.fh"
+#include "fio.fh"
+integer Lu, iOpt, lBuf_, iDisk_
+real*8 Buf(lBuf_)
+integer lBuf, iDisk
 
-next_non_comment = .false.
-100 continue
-read(lu,'(A)',end=900) line
-line = adjustl(line)
-if (line(1:1) == '*') goto 100
-if (line == ' ') goto 100
-next_non_comment = .true.
-900 continue
+call dDaFile_Internal(Buf)
 
-return
+! This is to allow type punning without an explicit interface
+contains
 
-end function next_non_comment
+subroutine dDaFile_Internal(Buf)
+  use iso_c_binding
+  real*8, target :: Buf(*)
+  character, pointer :: cBuf(:)
+
+  lBuf = lBuf_*RtoB
+  iDisk = iDisk_*MBL(Lu)
+
+  call c_f_pointer(c_loc(Buf(1)),cBuf,[lBuf])
+  call bDaFile(Lu,iOpt,cBuf,lBuf,iDisk)
+  nullify(cBuf)
+
+  iDisk_ = (iDisk+MBL(Lu)-1)/MBL(Lu)
+
+  return
+end subroutine dDaFile_Internal
+
+end subroutine dDaFile

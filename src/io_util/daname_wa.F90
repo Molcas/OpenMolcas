@@ -12,7 +12,8 @@
 !               1993,1996,1997, Markus P. Fuelscher                    *
 !               1996, Luis Serrano-Andres                              *
 !***********************************************************************
-      Subroutine DaName_WA(Lu,String)
+
+subroutine DaName_WA(Lu,String)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -34,12 +35,14 @@
 !                                                                      *
 !***********************************************************************
 
-      Character*(*) String
-      Integer Lu
-      Logical mf,wa
-      mf=.false.
-      wa=.true.
-      Call Daname_Main(Lu, String, mf, wa)
+character*(*) String
+integer Lu
+logical mf, wa
 
-      Return
-      End
+mf = .false.
+wa = .true.
+call Daname_Main(Lu,String,mf,wa)
+
+return
+
+end subroutine DaName_WA

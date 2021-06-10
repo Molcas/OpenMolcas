@@ -8,22 +8,39 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+!SVC: modified to convert to the use of byte lengths/offests by the
+!     underlying I/O routines (2016)
 
-logical function next_non_comment(lu,line)
+subroutine iDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
 
 implicit none
-integer, intent(in) :: lu
-character(len=*), intent(out) :: line
 
-next_non_comment = .false.
-100 continue
-read(lu,'(A)',end=900) line
-line = adjustl(line)
-if (line(1:1) == '*') goto 100
-if (line == ' ') goto 100
-next_non_comment = .true.
-900 continue
+#include "SysDef.fh"
+#include "fio.fh"
+integer Lu, iOpt, lBuf_, iDisk_
+integer Buf(lBuf_)
+integer lBuf, iDisk
 
-return
+call iDaFile_Internal(Buf)
 
-end function next_non_comment
+! This is to allow type punning without an explicit interface
+contains
+
+subroutine iDaFile_Internal(Buf)
+  use iso_c_binding
+  integer, target :: Buf(*)
+  character, pointer :: cBuf(:)
+
+  lBuf = lBuf_*ItoB
+  iDisk = iDisk_*MBL(Lu)
+
+  call c_f_pointer(c_loc(Buf(1)),cBuf,[lBuf])
+  call bDaFile(Lu,iOpt,cBuf,lBuf,iDisk)
+  nullify(cBuf)
+
+  iDisk_ = (iDisk+MBL(Lu)-1)/MBL(Lu)
+
+  return
+end subroutine iDaFile_Internal
+
+end subroutine iDaFile

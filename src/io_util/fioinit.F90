@@ -13,7 +13,8 @@
 !               1996, Luis Serrano-Andres                              *
 !               2012, Victor P. Vysotskiy                              *
 !***********************************************************************
-      Subroutine FIOInit()
+
+subroutine FIOInit()
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -34,7 +35,8 @@
 !     V.P. Vysotskiy, University of Lund, Sweden, 2012                 *
 !                                                                      *
 !***********************************************************************
-      Implicit Integer (A-Z)
+
+implicit integer(A-Z)
 #include "fio.fh"
 #ifdef _OLD_IO_STAT_
 #include "ofio.fh"
@@ -42,43 +44,44 @@
 #include "pfio.fh"
 #endif
 #include "ComDat.fh"
-!
-      Do i = 1, MxFile
-         isOpen(i)=0
-         FSCB(i)=0
-         Addr(i)=0
-         Multi_File(i)=.False.
-#ifdef _OLD_IO_STAT_
-         MxAddr(i)=0
-         Do j = 1, 4
-            Count(j,i)=0
-         End Do
-#else
-         Do j=1,8
-            PRofData(j,i)=0.d0
-         End Do
-#endif
-         LuName(i)(1:2)='FT'
-         Write (LuName(i)(3:4),'(I2.2)') i
-         LuName(i)(5:8)='F001'
-         LuMark(i)=-1
-         Do j = 0, MaxSplitFile-1
-            MPUnit(j,i)=0
-         End Do
-         MBL(i)=0
-      End Do
-!
+
+do i=1,MxFile
+  isOpen(i) = 0
+  FSCB(i) = 0
+  Addr(i) = 0
+  Multi_File(i) = .false.
+# ifdef _OLD_IO_STAT_
+  MxAddr(i) = 0
+  do j=1,4
+    count(j,i) = 0
+  end do
+# else
+  do j=1,8
+    PRofData(j,i) = 0.d0
+  end do
+# endif
+  LuName(i)(1:2) = 'FT'
+  write(LuName(i)(3:4),'(I2.2)') i
+  LuName(i)(5:8) = 'F001'
+  LuMark(i) = -1
+  do j=0,MaxSplitFile-1
+    MPUnit(j,i) = 0
+  end do
+  MBL(i) = 0
+end do
+
 #ifndef _OLD_IO_STAT_
-      NProfFiles=0
+NProfFiles = 0
 #endif
-      MaxFileSize=0
-      FirstCall=.true.
-      Trace=.false.
-      Query=.false.
-!
-!---- Initiate the COMFILE as closed
-!
-      AuxCom(pOpen)=NaN
-!
-      Return
-      End
+MaxFileSize = 0
+FirstCall = .true.
+Trace = .false.
+Query = .false.
+
+! Initiate the COMFILE as closed
+
+AuxCom(pOpen) = NaN
+
+return
+
+end subroutine FIOInit

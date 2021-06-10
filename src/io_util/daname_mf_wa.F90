@@ -12,7 +12,8 @@
 !               1993,1996,1997, Markus P. Fuelscher                    *
 !               1996, Luis Serrano-Andres                              *
 !***********************************************************************
-      Subroutine DaName_mf_wa(Lu,String)
+
+subroutine DaName_mf_wa(Lu,String)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -33,11 +34,15 @@
 !     L. Serrano-Andres, University of Lund, Sweden, 1996              *
 !                                                                      *
 !***********************************************************************
-      Character*(*) String
-      Integer Lu
-      Logical mf,wa
-      mf=.true.
-      wa=.true.
-      Call Daname_Main(Lu, String, mf, wa)
-      Return
-      End
+
+character*(*) String
+integer Lu
+logical mf, wa
+
+mf = .true.
+wa = .true.
+call Daname_Main(Lu,String,mf,wa)
+
+return
+
+end subroutine DaName_mf_wa

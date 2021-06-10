@@ -42,92 +42,88 @@
 ! History:                                                             *
 !                                                                      *
 !***********************************************************************
-      Integer Function AixPRd(handle,Buf,nBuf,iDisk,iErrSkip)
-      Implicit Integer (a-z)
 
+integer function AixPRd(handle,Buf,nBuf,iDisk,iErrSkip)
+implicit integer(a-z)
 #include "SysDef.fh"
-
 #include "blksize.fh"
 #include "switch.fh"
 #include "ctl.fh"
-      Dimension Buf(*)
-      Character*80 ErrTxt
-      Character*16 TheName
+dimension Buf(*)
+character*80 ErrTxt
+character*16 TheName
 #ifndef _OLD_IO_STAT_
 #include "pfio.fh"
-      Real*8   CPUA,CPUE,TIOA,TIOE
+real*8 CPUA, CPUE, TIOA, TIOE
 #endif
 #include "warnings.fh"
-      Data TheName/'AixPRd'/
+data TheName/'AixPRd'/
+
 !----------------------------------------------------------------------*
-! Entry to AixRd                                                       *
+! Entry to AixPRd                                                      *
 !----------------------------------------------------------------------*
-      AixPRd=0
-      rc=0
+AixPRd = 0
+rc = 0
 !----------------------------------------------------------------------*
 ! Check if file is opened.                                             *
 !----------------------------------------------------------------------*
-      n=1
-100   If(CtlBlk(pHndle,n).ne.handle) Then
-         n=n+1
-         If(n.gt.MxFile) Then
-            AixPRd=eNtOpn
-            Return
-         End If
-         Go To 100
-      End If
-      nFile=n
-      desc=CtlBlk(pDesc,nFile)
+n = 1
+100 continue
+if (CtlBlk(pHndle,n) /= handle) then
+  n = n+1
+  if (n > MxFile) then
+    AixPRd = eNtOpn
+    return
+  end if
+  Go To 100
+end if
+nFile = n
+desc = CtlBlk(pDesc,nFile)
 #ifndef _OLD_IO_STAT_
-      Call FSCB2UNIT(handle,Lu)
-      Call Timing(CPUA,CPUE,TIOA,TIOE)
+call FSCB2UNIT(handle,Lu)
+call Timing(CPUA,CPUE,TIOA,TIOE)
 #endif
 !----------------------------------------------------------------------*
 ! Position file pointer                                                *
 !----------------------------------------------------------------------*
-      pDisk=pHeadOffset+iDisk
+pDisk = pHeadOffset+iDisk
 #ifndef _OLD_IO_STAT_
-      If(CtlBlk(pWhere,nFile).ne.pDisk) Then
-         ProfData(8,Lu)=ProfData(8,Lu)+1
-      End If
+if (CtlBlk(pWhere,nFile) /= pDisk) then
+  ProfData(8,Lu) = ProfData(8,Lu)+1
+end if
 #endif
 !----------------------------------------------------------------------*
 ! Read from file                                                       *
 !----------------------------------------------------------------------*
-      CtlBlk(pWhere,nFile)=pDisk+nBuf
-      if(nBuf.gt.0) rc=c_pread(desc,Buf,nBuf,pDisk)
-      If(rc.lt.0) Then
-            if(iErrSkip.eq.1) then
-             AixPRd=99
-             return
-            endif
-         Call FASTIO('STATUS')
-         AixPRd=AixErr(ErrTxt)
-            Call SysQuitFileMsg(_RC_IO_ERROR_READ_,                                    &
-     &                                TheName,FCtlBlk(nFile),           &
-     &      'Premature abort while reading buffer from disk', ErrTxt)
+CtlBlk(pWhere,nFile) = pDisk+nBuf
+if (nBuf > 0) rc = c_pread(desc,Buf,nBuf,pDisk)
+if (rc < 0) then
+  if (iErrSkip == 1) then
+    AixPRd = 99
+    return
+  end if
+  call FASTIO('STATUS')
+  AixPRd = AixErr(ErrTxt)
+  call SysQuitFileMsg(_RC_IO_ERROR_READ_,TheName,FCtlBlk(nFile),'Premature abort while reading buffer from disk',ErrTxt)
 
-      Else If(rc.ne.nBuf) Then
-            if(iErrSkip.eq.1) then
-             AixPRd=99
-             return
-            endif
-         Call FASTIO('STATUS')
-         AixPRd=eEof
-            Call SysQuitFileMsg(_RC_IO_ERROR_READ_,                                    &
-     &            TheName,FCtlBlk(nFile),                               &
-     &            'Premature abort while reading buffer from disk:',    &
-     &      '\n End of file reached ')
-      End If
+else if (rc /= nBuf) then
+  if (iErrSkip == 1) then
+    AixPRd = 99
+    return
+  end if
+  call FASTIO('STATUS')
+  AixPRd = eEof
+  call SysQuitFileMsg(_RC_IO_ERROR_READ_,TheName,FCtlBlk(nFile),'Premature abort while reading buffer from disk:','\n End of file reached ')
+end if
 #ifndef _OLD_IO_STAT_
-      Call Timing(CPUA,CPUE,TIOA,TIOE)
-      ProfData(4,Lu)=ProfData(4,Lu)+1
-      ProfData(5,Lu)=ProfData(5,Lu)+nBuf
-      ProfData(6,Lu)=ProfData(6,Lu)+TIOE
+call Timing(CPUA,CPUE,TIOA,TIOE)
+ProfData(4,Lu) = ProfData(4,Lu)+1
+ProfData(5,Lu) = ProfData(5,Lu)+nBuf
+ProfData(6,Lu) = ProfData(6,Lu)+TIOE
 #endif
-
 !----------------------------------------------------------------------*
 ! Finished so return to caller                                         *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end function AixPRd

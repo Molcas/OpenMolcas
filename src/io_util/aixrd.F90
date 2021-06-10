@@ -43,117 +43,112 @@
 !          V.P. Vysotskiy,University of Lund, Sweden, 2012-2013        *
 !                                                                      *
 !***********************************************************************
-      Integer Function AixRd(handle,Buf,nBuf,iDisk,iErrSkip)
-      Implicit Integer (a-z)
 
+integer function AixRd(handle,Buf,nBuf,iDisk,iErrSkip)
+implicit integer(a-z)
 #include "SysDef.fh"
-
 #include "blksize.fh"
 #include "switch.fh"
 #include "ctl.fh"
-      Dimension Buf(*)
-      Character*80 ErrTxt
-      Character*16 TheName
-      Character*64 Temp
+dimension Buf(*)
+character*80 ErrTxt
+character*16 TheName
+character*64 Temp
 #ifndef _OLD_IO_STAT_
 #include "pfio.fh"
-      Real*8   CPUA,CPUE,TIOA,TIOE
+real*8 CPUA, CPUE, TIOA, TIOE
 #endif
 #include "warnings.fh"
-      Data TheName/'AixRd'/
+data TheName/'AixRd'/
+
 !----------------------------------------------------------------------*
 ! Entry to AixRd                                                       *
 !----------------------------------------------------------------------*
-      AixRd=0
-        Temp='Premature abort while reading buffer from disk'
+AixRd = 0
+Temp = 'Premature abort while reading buffer from disk'
 !----------------------------------------------------------------------*
 ! Check if file is opened.                                             *
 !----------------------------------------------------------------------*
-      n=1
-100   If(CtlBlk(pHndle,n).ne.handle) Then
-         n=n+1
-         If(n.gt.MxFile) Then
-            AixRd=eNtOpn
-            Return
-         End If
-         Go To 100
-      End If
-      nFile=n
-      desc=CtlBlk(pDesc,nFile)
+n = 1
+100 continue
+if (CtlBlk(pHndle,n) /= handle) then
+  n = n+1
+  if (n > MxFile) then
+    AixRd = eNtOpn
+    return
+  end if
+  Go To 100
+end if
+nFile = n
+desc = CtlBlk(pDesc,nFile)
 #ifndef _OLD_IO_STAT_
-      Call FSCB2UNIT(handle,Lu)
-      Call Timing(CPUA,CPUE,TIOA,TIOE)
+call FSCB2UNIT(handle,Lu)
+call Timing(CPUA,CPUE,TIOA,TIOE)
 #endif
 !----------------------------------------------------------------------*
 ! Position file pointer                                                *
 !----------------------------------------------------------------------*
-      pDisk=pHeadOffset+iDisk
-      If(CtlBlk(pWhere,nFile).ne.pDisk) Then
-         rc=c_lseek(desc,pDisk)
-#ifndef _OLD_IO_STAT_
-         ProfData(8,Lu)=ProfData(8,Lu)+1
-#endif
-         If(rc.lt.0) Then
-            if(iErrSkip.eq.1) then
-             AixRd=99
-             return
-            endif
-            Call FASTIO('STATUS')
-            AixRd=AixErr(ErrTxt)
-            Call SysWarnFileMsg(TheName, FCtlBlk(nFile),                &
-     &                                'MSG: seek', ErrTxt)
-            Call SysCondMsg('rc < 0', rc, '<', 0)
-         Else If(rc.ne.pDisk) Then
-            if(iErrSkip.eq.1) then
-             AixRd=99
-             return
-            endif
-            Call FASTIO('STATUS')
-            AixRd=eInErr
-            Call SysWarnFileMsg(TheName, FCtlBlk(nFile),                &
-     &                                'MSG: seek', ' ')
-            Call SysCondMsg('rc != pDisk', rc, '!=', pDisk)
-         End If
-      End If
-      CtlBlk(pWhere,nFile)=pDisk
+pDisk = pHeadOffset+iDisk
+if (CtlBlk(pWhere,nFile) /= pDisk) then
+  rc = c_lseek(desc,pDisk)
+# ifndef _OLD_IO_STAT_
+  ProfData(8,Lu) = ProfData(8,Lu)+1
+# endif
+  if (rc < 0) then
+    if (iErrSkip == 1) then
+      AixRd = 99
+      return
+    end if
+    call FASTIO('STATUS')
+    AixRd = AixErr(ErrTxt)
+    call SysWarnFileMsg(TheName,FCtlBlk(nFile),'MSG: seek',ErrTxt)
+    call SysCondMsg('rc < 0',rc,'<',0)
+  else if (rc /= pDisk) then
+    if (iErrSkip == 1) then
+      AixRd = 99
+      return
+    end if
+    call FASTIO('STATUS')
+    AixRd = eInErr
+    call SysWarnFileMsg(TheName,FCtlBlk(nFile),'MSG: seek',' ')
+    call SysCondMsg('rc != pDisk',rc,'!=',pDisk)
+  end if
+end if
+CtlBlk(pWhere,nFile) = pDisk
 !----------------------------------------------------------------------*
 ! Read from file                                                       *
 !----------------------------------------------------------------------*
-      rc=c_read(desc,Buf,nBuf)
-      If(rc.lt.0) Then
-            if(iErrSkip.eq.1) then
-             AixRd=99
-             return
-            endif
-         Call FASTIO('STATUS')
-         AixRd=AixErr(ErrTxt)
+rc = c_read(desc,Buf,nBuf)
+if (rc < 0) then
+  if (iErrSkip == 1) then
+    AixRd = 99
+    return
+  end if
+  call FASTIO('STATUS')
+  AixRd = AixErr(ErrTxt)
 
+  call SysQuitFileMsg(_RC_IO_ERROR_READ_,TheName,FCtlBlk(nFile),Temp,ErrTxt)
 
-        Call SysQuitFileMsg(_RC_IO_ERROR_READ_,                                        &
-     &    TheName,FCtlBlk(nFile),Temp, ErrTxt)
-
-      Else If(rc.ne.nBuf) Then
-            if(iErrSkip.eq.1) then
-             AixRd=99
-             return
-            endif
-         Call FASTIO('STATUS')
-         AixRd=eEof
-            Call SysQuitFileMsg(_RC_IO_ERROR_READ_,                                    &
-     &            TheName,FCtlBlk(nFile),                               &
-     &            Temp, '\nEnd of file reached ')
-      End If
-      CtlBlk(pWhere,nFile)=CtlBlk(pWhere,nFile)+nBuf
-      iDisk=iDisk+nBuf
+else if (rc /= nBuf) then
+  if (iErrSkip == 1) then
+    AixRd = 99
+    return
+  end if
+  call FASTIO('STATUS')
+  AixRd = eEof
+  call SysQuitFileMsg(_RC_IO_ERROR_READ_,TheName,FCtlBlk(nFile),Temp,'\nEnd of file reached ')
+end if
+CtlBlk(pWhere,nFile) = CtlBlk(pWhere,nFile)+nBuf
+iDisk = iDisk+nBuf
 #ifndef _OLD_IO_STAT_
-      Call Timing(CPUA,CPUE,TIOA,TIOE)
-      ProfData(4,Lu)=ProfData(4,Lu)+1
-      ProfData(5,Lu)=ProfData(5,Lu)+nBuf
-      ProfData(6,Lu)=ProfData(6,Lu)+TIOE
+call Timing(CPUA,CPUE,TIOA,TIOE)
+ProfData(4,Lu) = ProfData(4,Lu)+1
+ProfData(5,Lu) = ProfData(5,Lu)+nBuf
+ProfData(6,Lu) = ProfData(6,Lu)+TIOE
 #endif
-
 !----------------------------------------------------------------------*
 ! Finished so return to caller                                         *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end function AixRd

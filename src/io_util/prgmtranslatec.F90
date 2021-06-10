@@ -17,28 +17,35 @@
 
 #ifndef _HAVE_EXTRA_
 #define MAXSTR 1024
-      Subroutine PrgmTranslateC(InStr,l1,OutStr,l2,Par)
-      Use ISO_C_Binding, Only: C_CHAR, C_NULL_CHAR
-      Use Prgm
-      Implicit None
-      Character(Kind=C_CHAR), Intent(In) :: InStr(*)
-      Character(Kind=C_CHAR), Intent(Out) :: OutStr(*)
-      Integer, Intent(In) :: Par, l1
-      Integer, Intent(Out) :: l2
-      Character (Len=MAXSTR) :: TmpStr, TmpStr2
-      Integer :: i
-      TmpStr=''
-      Do i=1,l1
-        TmpStr(i:i)=InStr(i)
-      End Do
-      Call PrgmTranslate_Mod(TmpStr,l1,TmpStr2,l2,Par)
-      Do i=1,l2
-        OutStr(i)=TmpStr2(i:i)
-      End Do
-      OutStr(l2+1:l2+1)=C_NULL_CHAR
-      End Subroutine PrgmTranslateC
+
+subroutine PrgmTranslateC(InStr,l1,OutStr,l2,Par)
+
+use iso_c_binding, only: c_char, c_null_char
+use Prgm
+implicit none
+character(Kind=c_char), intent(In) :: InStr(*)
+character(Kind=c_char), intent(Out) :: OutStr(*)
+integer, intent(In) :: Par, l1
+integer, intent(Out) :: l2
+character(Len=MAXSTR) :: TmpStr, TmpStr2
+integer :: i
+
+TmpStr = ''
+do i=1,l1
+  TmpStr(i:i) = InStr(i)
+end do
+call PrgmTranslate_Mod(TmpStr,l1,TmpStr2,l2,Par)
+do i=1,l2
+  OutStr(i) = TmpStr2(i:i)
+end do
+OutStr(l2+1:l2+1) = c_null_char
+
+end subroutine PrgmTranslateC
+
 #elif defined (NAGFOR)
+
 ! Some compilers do not like empty files
-      Subroutine empty_prgmtranslatec
-      End
+#include "macros.fh"
+dummy_empty_procedure(PrgmTranslateC)
+
 #endif

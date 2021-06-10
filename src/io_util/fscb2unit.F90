@@ -21,32 +21,34 @@
 !>
 !> @param[in,out] cunit System (C)file descriptor
 !***********************************************************************
-       Subroutine FSCB2UNIT(cunit,LuP)
+
+subroutine FSCB2UNIT(cunit,LuP)
+
 #include "fio.fh"
 #include "pfio.fh"
+integer cunit, i, Lu
 
-       Integer cunit,i,Lu
-!
-       Lu=-1
-       Do i=1,MxFile
-!          print *,i,FSCB(i),cunit
-          If(FSCB(i).eq.cunit) Then
-          Lu=i
-          End If
-       End Do
+Lu = -1
+do i=1,MxFile
+  !write(6,*) i,FSCB(i),cunit
+  if (FSCB(i) == cunit) then
+    Lu = i
+  end if
+end do
 #ifndef _I8_
-       Lu=MPUnit(0,Lu)
+Lu = MPUnit(0,Lu)
 #endif
-       LuP=-1
-       If(Lu.eq.-1) Call Abend()
-       Do i=1,NProfFiles
-!          print *, i,LuNameProf(i),LuName(Lu)
-          If(LuNameProf(i).eq.LuName(Lu)) Then
-             LuP=i
-          End If
-       End Do
+LuP = -1
+if (Lu == -1) call Abend()
+do i=1,NProfFiles
+  !write(6,*) i,LuNameProf(i),LuName(Lu)
+  if (LuNameProf(i) == LuName(Lu)) then
+    LuP = i
+  end if
+end do
 
-       If(LuP.eq.-1) Call Abend()
+if (LuP == -1) call Abend()
 
-       Return
-       End
+return
+
+end subroutine FSCB2UNIT

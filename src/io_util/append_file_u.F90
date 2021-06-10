@@ -8,37 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) Valera Veryazov                                        *
-!***********************************************************************
-!  handle2name
-!
-!> @brief
-!>   Retrieve the file name from molcas I/O
-!> @author Valera Veryazov
-!>
-!> @details
-!> The routine can be called from ::aixrd or ::aixwr.
-!> Return the file name, or '``Unknown``'.
-!>
-!> @param[in]  handle file handle
-!> @param[out] name   file name
+! Copyright (C) 2015,2016, Valera Veryazov                             *
 !***********************************************************************
 
-subroutine handle2name(handle,name)
+subroutine Append_file_u(iUnit)
+! for unformatted files
 
-implicit integer(a-z)
-#include "switch.fh"
-#include "ctl.fh"
-character*(*) name
-
-name = 'Unknown'
-do i=1,MxFile
-  if (CtlBlk(pHndle,i) == handle) then
-    name = FCtlBlk(i)
-    exit
-  end if
+iset = 0
+rewind(iUnit)
+10 continue
+read(iUnit,err=20,end=20)
+iset = iset+1
+goto 10
+20 continue
+rewind(iUnit)
+do i=1,iset
+  read(iUnit)
 end do
 
 return
 
-end subroutine handle2name
+end subroutine Append_file_u
