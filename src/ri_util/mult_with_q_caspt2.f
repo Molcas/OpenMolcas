@@ -27,7 +27,7 @@
       Integer nBas_Aux(1:nIrrep), nBas(1:nIrrep)
       Logical SubAux
       Integer nLRb(8)
-      Character*6 Name_Q, Name
+      Character*6 Name_Q
 C     Integer Lu_B(4), Lu_A(2) , iAdrA_in(8), iAdrA_Out(8)
 *
       Character*15 SECNAM
