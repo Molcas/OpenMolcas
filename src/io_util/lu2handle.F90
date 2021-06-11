@@ -9,10 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function lu2handle(lu)
+function lu2handle(lu)
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: lu2handle
+integer(kind=iwp), intent(in) :: lu
 #include "fio.fh"
-integer lu
 
 lu2handle = FSCB(lu)
 

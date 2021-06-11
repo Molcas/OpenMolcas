@@ -25,17 +25,22 @@
 !***********************************************************************
 
 function isFreeUnit(iseed)
+! check free chanel, starting from iseed
 
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: isFreeUnit
+integer(kind=iwp), intent(in) :: iseed
+integer(kind=iwp) :: init, kan, kan0
+logical(kind=iwp) :: is_opened
 #include "fio.fh"
-integer, intent(in) :: iseed
-! check free chanel, starting from init
-logical Opened
 
 !VV since more and more developers' calling isfreeunit with constant...
 init = iseed
 if ((init < 1) .or. (init > 300)) then
-  write(6,*) '*** Possible bug in opening file'
-  write(6,*) '*** isFreeUnit resets the unit number'
+  write(u6,*) '*** Possible bug in opening file'
+  write(u6,*) '*** isFreeUnit resets the unit number'
   init = 12
 end if
 isFreeUnit = -init
@@ -46,7 +51,7 @@ Go to 2
 if (kan == MxFile+1) kan = 10
 if (kan == kan0) then
   call fastio('STATUS')
-  write(6,*) ' isFreeUnit: no available unit!'
+  write(u6,*) ' isFreeUnit: no available unit!'
   call Abend()
 end if
 2 continue
@@ -60,8 +65,8 @@ end if
 
 ! Check for Fortran I/O
 
-inquire(unit=kan,opened=Opened)
-if (Opened) then
+inquire(unit=kan,opened=is_opened)
+if (is_opened) then
   kan = kan+1
   Go To 1
 end if

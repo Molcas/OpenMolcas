@@ -20,21 +20,24 @@
 !> The routine can be called from ::aixrd or ::aixwr.
 !> Return the file name, or '``Unknown``'.
 !>
-!> @param[in]  handle file handle
-!> @param[out] name   file name
+!> @param[in]  handle   file handle
+!> @param[out] filename file name
 !***********************************************************************
 
-subroutine handle2name(handle,name)
+subroutine handle2name(handle,filename)
 
-implicit integer(a-z)
-#include "switch.fh"
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: handle
+character(len=*), intent(out) :: filename
+integer(kind=iwp) :: i
 #include "ctl.fh"
-character*(*) name
 
-name = 'Unknown'
+filename = 'Unknown'
 do i=1,MxFile
   if (CtlBlk(pHndle,i) == handle) then
-    name = FCtlBlk(i)
+    filename = FCtlBlk(i)
     exit
   end if
 end do

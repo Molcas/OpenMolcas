@@ -18,9 +18,9 @@ use constants, only: Zero, Two
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: err, i, icmd, idisk, im, iorb, ispin, itmpstr(72), j, jcmd, ln1, lsm, lsmtmp(8), ms_ref, mul, nact_sm, &
-                     nactel, nde, ndisk, ne_act, neact, ngsm, nlsm_act(8), nlsm_dbl(8), nlsm_frz(8), nlsm_inn(8), noidx(8), norb1, &
-                     norb2, norb_all_tmp, ntit
+integer(kind=iwp) :: err, i, icmd, idisk, idum(1), im, iorb, ispin, itmpstr(72), j, jcmd, ln1, lsm, lsmtmp(8), ms_ref, mul, &
+                     nact_sm, nactel, nde, ndisk, ne_act, neact, ngsm, nlsm_act(8), nlsm_dbl(8), nlsm_frz(8), nlsm_inn(8), &
+                     noidx(8), norb1, norb2, norb_all_tmp, ntit
 logical(kind=iwp) :: log_debug, skip
 character(len=4) :: command
 character(len=72) :: line
@@ -412,17 +412,23 @@ noidx = 0
 idisk = 0
 call idafile(ludrt,1,noidx,2,idisk)
 ! group symmetry
-call idafile(ludrt,1,[ng_sm],1,idisk)
+idum(1) = ng_sm
+call idafile(ludrt,1,idum,1,idisk)
 ! state symmetry
-call idafile(ludrt,1,[ns_sm],1,idisk)
+idum(1) = ns_sm
+call idafile(ludrt,1,idum,1,idisk)
 ! number of roots to be cal
-call idafile(ludrt,1,[1],1,idisk)
+idum(1) = 1
+call idafile(ludrt,1,idum,1,idisk)
 ! number of corelation electrons
-call idafile(ludrt,1,[n_electron],1,idisk)
+idum(1) = n_electron
+call idafile(ludrt,1,idum,1,idisk)
 ! number of active electrons
-call idafile(ludrt,1,[nactel],1,idisk)
+idum(1) = nactel
+call idafile(ludrt,1,idum,1,idisk)
 ! spin symmetry of the state, 2s+1
-call idafile(ludrt,1,[ispin],1,idisk)
+idum(1) = ispin
+call idafile(ludrt,1,idum,1,idisk)
 ! dbl orb
 call idafile(ludrt,1,nlsm_dbl,8,idisk)
 ! act orb
@@ -433,8 +439,10 @@ call idafile(ludrt,1,nlsm_all,8,idisk)
 call idafile(ludrt,1,nlsm_bas,8,idisk)
 ! method to choose ref. state, 4 for cas, 2 for rst
 if (logic_mr) then
-  call idafile(ludrt,1,[2],1,idisk)
-  call idafile(ludrt,1,[n_ref],1,idisk)
+  idum(1) = 2
+  call idafile(ludrt,1,idum,1,idisk)
+  idum(1) = n_ref
+  call idafile(ludrt,1,idum,1,idisk)
   ! reference states
   !iref_occ(norb_dz+1:norb_dz+norb_act,i)=itmpstr(1:norb_act)
   do i=1,n_ref
@@ -442,7 +450,8 @@ if (logic_mr) then
   end do
 end if
 if (logic_mrelcas) then
-  call idafile(ludrt,1,[4],1,idisk)
+  idum(1) = 4
+  call idafile(ludrt,1,idum,1,idisk)
 end if
 ! number of ref. states, if logic_mr = .true.
 noidx(2) = idisk

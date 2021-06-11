@@ -11,6 +11,8 @@
 
 subroutine Build_Mp2Dens_Old(TriDens,Density,CMO,mSym,nOrbAll,Diagonalize)
 
+#include "intent.fh"
+
 use Data_Structures, only: DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -20,7 +22,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-real(kind=wp), intent(out) :: TriDens(*)
+real(kind=wp), intent(_OUT_) :: TriDens(*)
 type(DSBA_Type), intent(in) :: Density
 integer(kind=iwp), intent(in) :: mSym, nOrbAll(8)
 real(kind=wp), intent(in) :: CMO(*)

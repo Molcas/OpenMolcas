@@ -39,6 +39,7 @@
 #include "real.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
+      Integer iDum(1)
       Logical Found, Kriging_Hessian, First_MicroIteration
       Character Step_Trunc, File1*8, File2*8, Step_Trunc_
       Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:),
@@ -424,8 +425,10 @@ C           Write (6,*) 'tBeta=',tBeta
                LudRdX=30
                Call DaName(LudRdX,'dRdX')
                iAd=0
-               Call iDaFile(LudRdX,1,[nLambda],1,iAd)
-               Call iDaFile(LudRdX,1,[n1],1,iAd)
+               iDum(1)=nLambda
+               Call iDaFile(LudRdX,1,iDum,1,iAd)
+               iDum(1)=n1
+               Call iDaFile(LudRdX,1,iDum,1,iAd)
                Call dDaFile(LudRdX,1,BM,nLambda*n1,iAd)
                Call DaClos(LudRdX)
             End If

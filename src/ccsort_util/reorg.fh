@@ -23,7 +23,6 @@ c
 c2.   add. constant for lun for T3hf and lun for TEMP files
        integer addt3,lunpublic
        parameter (addt3=50)
-       parameter (lunpublic=29)
 c
 c3.   names of TEMP files and status matrix for TEMP files
        character*7 tmpnam(1:mbas)
@@ -170,7 +169,7 @@ c
      &                    fullprint,noop,iokey,zrkey
 c
        common /luns/ lunsta,luna1,luna2,luna3,luna4,lunab,
-     &               lunt3,lunda1,lunda2
+     &               lunt3,lunda1,lunda2,lunpublic
 c
 c8    parameters for direct access file
 c

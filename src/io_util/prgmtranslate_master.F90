@@ -11,22 +11,27 @@
 ! Copyright (C) 2001-2016, Valera Veryazov                             *
 !***********************************************************************
 
-subroutine prgmtranslate_master(in,out,lout)
+subroutine prgmtranslate_master(namein,nameout,lout)
 
-character*(*) in, out
-integer Strnln
-external Strnln
+use Definitions, only: iwp
 
-lin = Strnln(in)
-out = ' '
-if (index(in,'/') /= 0) then
-  ! just in case if we processing translated name!
-  out = in
+implicit none
+character(len=*), intent(in) :: namein
+character(len=*), intent(out) :: nameout
+integer(kind=iwp), intent(out) :: lout
+integer(kind=iwp), external :: Strnln
+integer(kind=iwp) :: lin
+
+lin = Strnln(namein)
+nameout = ' '
+if (index(namein,'/') /= 0) then
+  ! just in case we process a translated name!
+  nameout = namein
   lout = lin
 else
-  call prgmtranslatec(in,lin,out,lout,0)
+  call prgmtranslatec(namein,lin,nameout,lout,0)
 end if
-out = out(1:lout)
+nameout = nameout(1:lout)
 
 return
 

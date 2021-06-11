@@ -13,28 +13,32 @@
 
 subroutine molcas_open_ext2(Lu,f_Name,f_access,f_form,f_iostat,is_recl,f_recl,f_status,is_error)
 
-integer Lu, f_recl, f_iostat
-character*(*) f_Name
-character*4096 RealName
-character*(*) f_access, f_form, f_status
-logical is_recl, is_error
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: Lu, f_recl
+integer(kind=iwp), intent(out) :: f_iostat
+character(len=*), intent(in) :: f_Name, f_access, f_form, f_status
+logical(kind=iwp), intent(in) :: is_recl
+logical(kind=iwp), intent(out) :: is_error
+integer(kind=iwp) :: lRealName
+character(len=4096) :: RealName
 
 is_error = .false.
 call prgmtranslate(f_Name,RealName,lRealName)
 if (index(RealName,'UNK_VAR') /= 0) then
-  write(6,*) '*** attempt to open ',RealName(1:lRealName)
+  write(u6,*) '*** attempt to open ',RealName(1:lRealName)
   RealName = f_Name
   lRealName = index(RealName,' ')
 end if
 
 if (is_recl) then
-  open(Unit=Lu,File=Realname(1:lRealName),status=f_status,err=100,access=f_access,form=f_form,iostat=f_iostat,recl=f_recl)
+  open(unit=Lu,file=Realname(1:lRealName),status=f_status,err=100,access=f_access,form=f_form,iostat=f_iostat,recl=f_recl)
 else
-
-  open(Unit=Lu,File=RealName(1:lRealName),status=f_status,err=100,access=f_access,form=f_form,iostat=f_iostat)
+  open(unit=Lu,file=RealName(1:lRealName),status=f_status,err=100,access=f_access,form=f_form,iostat=f_iostat)
 end if
-!write(6,*) 'DEBUG open ',RealName(1:lRealName)
-!write(6,*) 'Unit ', Lu
+!write(u6,*) 'DEBUG open ',RealName(1:lRealName)
+!write(u6,*) 'Unit ', Lu
 
 return
 

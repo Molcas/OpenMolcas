@@ -43,21 +43,30 @@
 !                                                                      *
 !***********************************************************************
 
-integer function AixPRd(handle,Buf,nBuf,iDisk,iErrSkip)
-implicit integer(a-z)
-#include "SysDef.fh"
-#include "blksize.fh"
+function AixPRd(handle,Buf,nBuf,iDisk,iErrSkip)
+
+#include "intent.fh"
+
+use Definitions, only: iwp
+#ifndef _OLD_IO_STAT_
+use Definitions, only: wp
+#endif
+
+implicit none
+integer(kind=iwp) :: AixPRd
+integer(kind=iwp), intent(in) :: handle, nBuf, iDisk, iErrSkip
+integer(kind=iwp), intent(_OUT_) :: Buf(*)
+integer(kind=iwp) :: desc, Lu, n, nFile, pDisk, rc
+character(len=80) :: ErrTxt
+character(len=16), parameter :: TheName = 'AixPRd'
+integer(kind=iwp), external :: AixErr, c_pread
 #include "switch.fh"
 #include "ctl.fh"
-dimension Buf(*)
-character*80 ErrTxt
-character*16 TheName
-#ifndef _OLD_IO_STAT_
-#include "pfio.fh"
-real*8 CPUA, CPUE, TIOA, TIOE
-#endif
 #include "warnings.fh"
-data TheName/'AixPRd'/
+#ifndef _OLD_IO_STAT_
+real(kind=wp) :: CPUA, CPUE, TIOA, TIOE
+#include "pfio.fh"
+#endif
 
 !----------------------------------------------------------------------*
 ! Entry to AixPRd                                                      *

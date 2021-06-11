@@ -11,6 +11,8 @@
 !----------------------------------------------------------------------*
 !     Define Common /ComDat/                                           *
 !----------------------------------------------------------------------*
+      Integer Nan, pLu, pOpen, lAux, mxOp, pFID, pVersN, pNext, pUsed,  &
+     &        pData, lToc, AuxCom, TocCom
       Parameter ( Nan    = -1         )
 !
       Parameter ( pLu    = 1          )

@@ -11,16 +11,19 @@
 ! Copyright (C) 2001-2016, Valera Veryazov                             *
 !***********************************************************************
 
-subroutine prgminit(module)
+subroutine prgminit(modname)
+
+use Definitions, only: iwp
 
 #ifndef _HAVE_EXTRA_
-use Prgm
+use Prgm, only: prgminitc
 #endif
-character*(*) module
+character(len=*), intent(in) :: modname
+integer(kind=iwp) :: l
 
-l = len(module)
-!write(6,*) l
-call prgminitc(module,l)
+l = len(modname)
+!write(u6,*) l
+call prgminitc(modname,l)
 
 return
 

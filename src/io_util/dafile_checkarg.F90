@@ -33,10 +33,13 @@ subroutine DaFile_checkarg(Lu,iOpt,lBuf,iDisk)
 !     V.P. Vysotskiy, University of Lund, Sweden, 2012                 *
 !                                                                      *
 !***********************************************************************
-implicit integer(A-Z)
+
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: Lu, iOpt, lBuf, iDisk
+character(len=16) :: TheName = 'DaFile_checkarg'
 #include "fio.fh"
-character*16 TheName
-data TheName/'DaFile_checkarg'/
 
 ! 2012
 ! VpV: a lot of checking is here.
@@ -46,30 +49,30 @@ if ((Lu <= 0) .or. (Lu > MxFile)) call SysFileMsg(TheName,'MSG: unit',Lu,' ')
 if (isOpen(Lu) == 0) call SysFileMsg(TheName,'MSG: not opened',Lu,' ')
 
 if (lBuf < 0) then
-  write(6,*) 'Invalid buffer size ',lBuf
+  write(u6,*) 'Invalid buffer size ',lBuf
   goto 1000
 end if
 
 if (iDisk < 0) then
-  write(6,*) 'Invalid disk address ',iDisk
+  write(u6,*) 'Invalid disk address ',iDisk
   goto 1000
 end if
 
 if ((iOpt < 0) .or. ((iOpt > 10) .and. (iOpt /= 99))) then
-  write(6,*) 'Invalid action code ',iOpt
+  write(u6,*) 'Invalid action code ',iOpt
   goto 1000
 end if
 
 if ((iOpt == 3) .or. (iOpt == 4) .or. (iOpt == 9)) then
-  write(6,*) 'DaFile: GSlist option is not in operation!'
+  write(u6,*) 'DaFile: GSlist option is not in operation!'
   goto 1000
 end if
 
 return
 
 1000 continue
-write(6,*) 'I/O error in ',TheName
-write(6,*) 'Unit = ',Lu
+write(u6,*) 'I/O error in ',TheName
+write(u6,*) 'Unit = ',Lu
 call Abend()
 
 end subroutine DaFile_checkarg

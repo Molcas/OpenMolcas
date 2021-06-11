@@ -11,13 +11,15 @@
 
 subroutine rhs_mp2_help2(iSymA,iSymB,iSymI,iSymJ,Int1,Int2,Scr1)
 
+#include "intent.fh"
+
 use MBPT2_Global, only: Density, Mp2Lagr
 use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iSymA, iSymB, iSymI, iSymJ
-real(kind=wp), intent(out) :: Int1(*), Int2(*), Scr1(*)
+real(kind=wp), intent(_OUT_) :: Int1(*), Int2(*), Scr1(*)
 integer(kind=iwp) :: iA, iAA, iAK, iB, iBB, iC, iCC, iCI, iI, iIC, iJ, iK, iKA, nB, nJ
 real(kind=wp) :: Fac, xacbi, xaibc, xiajk, xikja
 #include "corbinf.fh"

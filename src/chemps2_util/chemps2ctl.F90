@@ -19,7 +19,7 @@
 subroutine Chemps2Ctl(LW1,TUVX,IFINAL,IRST)
 
 #ifdef _MOLCAS_MPP_
-use MPI
+use MPI, only: MPI_COMM_WORLD
 use Para_Info, only: Is_Real_Par, King
 use Definitions, only: MPIInt
 #endif

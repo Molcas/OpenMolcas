@@ -14,6 +14,12 @@
 subroutine Append_file_u(iUnit)
 ! for unformatted files
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: iUnit
+integer(kind=iwp) :: i, iset
+
 iset = 0
 rewind(iUnit)
 10 continue

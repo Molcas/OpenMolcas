@@ -36,12 +36,18 @@
 !                                                                      *
 !***********************************************************************
 
-integer function AixCls(handle)
+function AixCls(handle)
 
-implicit integer(a-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: AixCls
+integer(kind=iwp), intent(in) :: handle
+integer(kind=iwp) :: desc, n, nFile, rc
+character(len=80) :: ErrTxt
+integer(kind=iwp), external :: AixErr, c_close
 #include "switch.fh"
 #include "ctl.fh"
-character*80 ErrTxt
 
 !----------------------------------------------------------------------*
 ! Entry to AixCls                                                      *

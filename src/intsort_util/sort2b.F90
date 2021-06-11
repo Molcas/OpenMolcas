@@ -46,7 +46,7 @@ integer(kind=iwp), intent(in) :: iBin, nInts, lSrtA, lStk
 integer(kind=iwp), intent(inout) :: iOrd, IOStk(lStk), nStk
 real(kind=wp), intent(in) :: SrtArr(lSrtA)
 integer(kind=iwp) :: iEnd, IntLen(4*lStRec), iOpt, iOptIO, iSave, iStart, iStk, jStk, kStk, llVRec, lVRec, mxVRec, nSave, nSaved
-real(kind=wp) :: PkVal(lStRec)
+real(kind=wp) :: PkVal(lStRec), Dum(1)
 #ifdef _DEBUGPRINT_
 #include "print.fh"
 integer(kind=iwp) :: iPrint, iRout
@@ -137,7 +137,8 @@ do while (nSaved < nInts)
   else
     iDaTwo = mDaTwo
     iOptIO = 0
-    call dDAFILE(LuTwo,iOptIO,[Zero],lStRec,mDaTwo)
+    Dum(1) = Zero
+    call dDAFILE(LuTwo,iOptIO,Dum,lStRec,mDaTwo)
   end if
 # ifdef _DEBUGPRINT_
   if (iPrint >= 10) then

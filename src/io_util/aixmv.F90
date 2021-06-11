@@ -38,11 +38,17 @@
 !                                                                      *
 !***********************************************************************
 
-integer function AixMv(FileName,NewName)
-implicit integer(a-z)
-character*(*) FileName, NewName
-character*256 out1, out2
-character*80 ErrTxt
+function AixMv(FileName,NewName)
+
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: AixMv
+character(len=*), intent(in) :: FileName, NewName
+integer(kind=iwp) :: ltmp, rc
+character(len=80) :: ErrTxt
+character(len=256) :: out1, out2
+integer(kind=iwp), external :: AixErr, c_rename
 
 !----------------------------------------------------------------------*
 ! Entry to AixMv                                                       *

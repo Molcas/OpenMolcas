@@ -44,22 +44,32 @@
 !                                                                      *
 !***********************************************************************
 
-integer function AixRd(handle,Buf,nBuf,iDisk,iErrSkip)
-implicit integer(a-z)
-#include "SysDef.fh"
-#include "blksize.fh"
+function AixRd(handle,Buf,nBuf,iDisk,iErrSkip)
+
+#include "intent.fh"
+
+use Definitions, only: iwp
+#ifndef _OLD_IO_STAT_
+use Definitions, only: wp
+#endif
+
+implicit none
+integer(kind=iwp) :: AixRd
+integer(kind=iwp), intent(in) :: handle, nBuf, iErrSkip
+integer(kind=iwp), intent(_OUT_) :: Buf(*)
+integer(kind=iwp), intent(inout) :: iDisk
+integer(kind=iwp) :: desc, Lu, n, nFile, pDisk, rc
+character(len=80) :: ErrTxt
+character(len=64) :: Temp
+character(len=16) :: TheName = 'AixRd'
+integer(kind=iwp), external :: AixErr, c_lseek, c_read
 #include "switch.fh"
 #include "ctl.fh"
-dimension Buf(*)
-character*80 ErrTxt
-character*16 TheName
-character*64 Temp
-#ifndef _OLD_IO_STAT_
-#include "pfio.fh"
-real*8 CPUA, CPUE, TIOA, TIOE
-#endif
 #include "warnings.fh"
-data TheName/'AixRd'/
+#ifndef _OLD_IO_STAT_
+real(kind=wp) :: CPUA, CPUE, TIOA, TIOE
+#include "pfio.fh"
+#endif
 
 !----------------------------------------------------------------------*
 ! Entry to AixRd                                                       *

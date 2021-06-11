@@ -36,14 +36,18 @@ subroutine FIOInit()
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
+use Constants, only: Zero
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: i, j
 #include "fio.fh"
+#include "ComDat.fh"
 #ifdef _OLD_IO_STAT_
 #include "ofio.fh"
 #else
 #include "pfio.fh"
 #endif
-#include "ComDat.fh"
 
 do i=1,MxFile
   isOpen(i) = 0
@@ -57,7 +61,7 @@ do i=1,MxFile
   end do
 # else
   do j=1,8
-    PRofData(j,i) = 0.d0
+    PRofData(j,i) = Zero
   end do
 # endif
   LuName(i)(1:2) = 'FT'

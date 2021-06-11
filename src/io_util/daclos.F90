@@ -34,19 +34,23 @@ subroutine DaClos(Lu)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: Lu
+integer(kind=iwp) :: i, iRc, Lu_, LuP
+character(len=80) :: Text
+character(len=16), parameter :: TheName = 'DaClos'
+integer(kind=iwp), external :: AixCls, AixErr, AixFsz
 #include "fio.fh"
 #ifndef _OLD_IO_STAT_
 #include "pfio.fh"
 #endif
-character*80 Text
-character*16 TheName
-data TheName/'DaClos'/
 
 if (Trace) then
-  write(6,*) ' >>> Enter DaClos <<<'
-  write(6,*) ' unit :',Lu
-  write(6,*) ' name :',LuName(Lu)
+  write(u6,*) ' >>> Enter DaClos <<<'
+  write(u6,*) ' unit :',Lu
+  write(u6,*) ' name :',LuName(Lu)
 end if
 #ifndef _OLD_IO_STAT_
 LuP = 0
@@ -86,7 +90,7 @@ isOpen(Lu) = 0
 MBL(Lu) = 0
 if (Multi_File(Lu)) then
   if (MaxFileSize /= 0) then
-    if (Trace) write(6,*) ' This is a partitioned data set'
+    if (Trace) write(u6,*) ' This is a partitioned data set'
     do i=1,MaxSplitFile-1
       Lu_ = MPUnit(i,Lu)
       if (Lu_ >= 1) then
@@ -108,7 +112,7 @@ if (Multi_File(Lu)) then
 end if
 
 if (Trace) then
-  write(6,*) ' >>> Exit DaClos <<<'
+  write(u6,*) ' >>> Exit DaClos <<<'
 end if
 
 return

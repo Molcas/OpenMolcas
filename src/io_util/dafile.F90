@@ -60,18 +60,22 @@ subroutine DaFile(Lu,iOpt,Buf,lBuf,iDisk)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
-#include "SysDef.fh"
-#include "blksize.fh"
+use Definitions, only: iwp, u6
+#ifdef _OLD_IO_STAT_
+use Definitions, only: wp
+#endif
+
+implicit none
+integer(kind=iwp), intent(in) :: Lu, iOpt, lBuf
+integer(kind=iwp), intent(inout) :: Buf(*), iDisk
+integer(kind=iwp) :: iRc = 0, lDisk
+character(len=80) :: Text, HeadErr
+integer(kind=iwp), external :: AixErr, AixRd, AixWr
 #include "fio.fh"
+#include "warnings.fh"
 #ifdef _OLD_IO_STAT_
 #include "ofio.fh"
 #endif
-#include "warnings.fh"
-dimension Buf(*)
-character*80 Text, HeadErr
-integer iRc
-data iRc/0/
 
 call DaFile_checkarg(Lu,iOpt,lBuf,iDisk)
 !****************** REAL I/O IS HERE **************
@@ -122,23 +126,23 @@ if (iRc /= 0) goto 1200
 MxAddr(Lu) = max(MxAddr(Lu),Addr(Lu))
 if (iOpt /= 0) then
   count(3,Lu) = count(3,Lu)+1
-  count(4,Lu) = count(4,Lu)+dble(lBuf)/1024.0d0
+  count(4,Lu) = count(4,Lu)+real(lBuf,kind=wp)/1024.0_wp
 end if
 #endif
 iDisk = iDisk+lBuf
 Addr(Lu) = iDisk
-if (Trace) write(6,*) ' >>> Exit DaFile <<<'
+if (Trace) write(u6,*) ' >>> Exit DaFile <<<'
 
 return
 
 1200 continue
 iRc = AixErr(Text)
-write(6,*) HeadErr
-write(6,*) Text
-write(6,*) ' Unit      :',Lu
-write(6,*) ' Option    :',iOpt
-write(6,*) ' Buffer    :',lBuf
-write(6,*) ' Address   :',iDisk
+write(u6,*) HeadErr
+write(u6,*) Text
+write(u6,*) ' Unit      :',Lu
+write(u6,*) ' Option    :',iOpt
+write(u6,*) ' Buffer    :',lBuf
+write(u6,*) ' Address   :',iDisk
 call quit(_RC_IO_ERROR_WRITE_)
 
 end subroutine DaFile

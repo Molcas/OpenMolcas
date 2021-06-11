@@ -35,13 +35,18 @@
 !                                                                      *
 !***********************************************************************
 
-integer function AixRm(name)
-implicit integer(a-z)
+function AixRm(filename)
+
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: AixRm
+character(len=*), intent(in) :: filename
+integer(kind=iwp) :: n, ltmp, rc
+character(len=256) :: tmp, outname
+character(len=80) :: ErrTxt
+integer(kind=iwp), external :: AixErr, c_remove
 #include "switch.fh"
-#include "ctl.fh"
-character*(*) name
-character*256 tmp, out
-character*80 ErrTxt
 
 !----------------------------------------------------------------------*
 ! Entry to AixRm                                                       *
@@ -50,9 +55,9 @@ AixRm = 0
 !----------------------------------------------------------------------*
 ! Strip file name and append string terminator                         *
 !----------------------------------------------------------------------*
-n = len(name)
+n = len(filename)
 100 continue
-if (name(n:n) == ' ') then
+if (filename(n:n) == ' ') then
   n = n-1
   if (n <= 0) then
     AixRm = eBlNme
@@ -65,16 +70,16 @@ if (n >= len(tmp)) then
   AixRm = eTlFn
   return
 end if
-tmp = name
+tmp = filename
 tmp(n:n) = char(0)
 !----------------------------------------------------------------------*
 ! erase file                                                           *
 !----------------------------------------------------------------------*
-out = ' '
+outname = ' '
 
-call PrgmTranslate(Name,out,ltmp)
-out(ltmp+1:ltmp+1) = char(0)
-rc = c_remove(out)
+call PrgmTranslate(filename,outname,ltmp)
+outname(ltmp+1:ltmp+1) = char(0)
+rc = c_remove(outname)
 if (rc /= 0) then
   AixRm = AixErr(ErrTxt)
   call SysAbendMsg('AixRm','MSG: delete',ErrTxt)

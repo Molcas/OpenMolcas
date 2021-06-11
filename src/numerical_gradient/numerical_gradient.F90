@@ -12,7 +12,7 @@
 subroutine Numerical_Gradient(ireturn)
 
 #ifndef _HAVE_EXTRA_
-use Prgm
+use Prgm, only: PrgmFree
 #endif
 use Para_Info, only: MyRank, nProcs, Set_Do_Parallel
 #if defined (_MOLCAS_MPP_) && !defined(_GA_)

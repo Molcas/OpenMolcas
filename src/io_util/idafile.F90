@@ -13,13 +13,14 @@
 
 subroutine iDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
 
-implicit none
+use iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: iwp, ItoB
 
-#include "SysDef.fh"
+implicit none
+integer(kind=iwp), intent(in) :: Lu, iOpt, lBuf_
+integer(kind=iwp), intent(inout) :: Buf(lBuf_), iDisk_
+integer(kind=iwp) :: lBuf, iDisk
 #include "fio.fh"
-integer Lu, iOpt, lBuf_, iDisk_
-integer Buf(lBuf_)
-integer lBuf, iDisk
 
 call iDaFile_Internal(Buf)
 
@@ -27,8 +28,7 @@ call iDaFile_Internal(Buf)
 contains
 
 subroutine iDaFile_Internal(Buf)
-  use iso_c_binding
-  integer, target :: Buf(*)
+  integer(kind=iwp), target :: Buf(*)
   character, pointer :: cBuf(:)
 
   lBuf = lBuf_*ItoB

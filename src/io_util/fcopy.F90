@@ -9,50 +9,54 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine fcopy(In,Ut,iErr)
+subroutine fcopy(NmIn,NmUt,iErr)
 
-character*(*) In, Ut
-character*1024 myIn, myUt
-integer c_open, c_copy, c_openw, c_close
-integer rcIn, rcUt, rc
+use Definitions, only: iwp, u6
+
+implicit none
+character(len=*), intent(in) :: NmIn, NmUt
+integer(kind=iwp), intent(out) :: iErr
+integer(kind=iwp) :: lIn, lUt, rc, rcIn, rcUt
+character(len=1024) :: myIn, myUt
+integer(kind=iwp), external :: c_close, c_copy, c_open, c_openw
 
 iErr = 0
-if ((len(In) > 1024) .or. (len(Ut) > 1024)) then
-  write(6,*) 'Error in fcopy: long filenames'
+if ((len(NmIn) > 1024) .or. (len(NmUt) > 1024)) then
+  write(u6,*) 'Error in fcopy: long filenames'
   iErr = 1
   return
 end if
-call PrgmTranslate(In,myIn,lIn)
+call PrgmTranslate(NmIn,myIn,lIn)
 myIn(1+lIn:1+lIn) = char(0)
-call PrgmTranslate(Ut,myUt,lUt)
+call PrgmTranslate(NmUt,myUt,lUt)
 myUt(1+lUt:1+lUt) = char(0)
 rcIn = c_open(myIn)
 if (rcIn < 0) then
-  write(6,*) 'Can not open file ',myIn(1:lIn)
+  write(u6,*) 'Can not open file ',myIn(1:lIn)
   iErr = 1
   return
 end if
 rcUt = c_openw(myUt)
 if (rcUt < 0) then
-  write(6,*) 'Can not open file ',myUt(1:lUt)
+  write(u6,*) 'Can not open file ',myUt(1:lUt)
   iErr = 1
   return
 end if
 rc = c_copy(rcIn,rcUt)
 if (rc < 0) then
-  write(6,*) 'Can not copy file ',myIn(1:lIn)
+  write(u6,*) 'Can not copy file ',myIn(1:lIn)
   iErr = 1
   return
 end if
 rc = c_close(rcIn)
 if (rc < 0) then
-  write(6,*) 'Can not close file ',myIn(1:lIn)
+  write(u6,*) 'Can not close file ',myIn(1:lIn)
   iErr = 1
   return
 end if
 rc = c_close(rcUt)
 if (rc < 0) then
-  write(6,*) 'Can not close file ',myUt(1:lUt)
+  write(u6,*) 'Can not close file ',myUt(1:lUt)
   iErr = 1
   return
 end if

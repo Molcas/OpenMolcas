@@ -14,24 +14,24 @@
 ! Module replacing the code in prgminit.c in molcas-extra
 
 #include "compiler_features.h"
+#include "macros.fh"
 ! from getenvc.c
 #define MAXSTR 256
 
-!define _DEBUGPRINT_
-
 module prgm
+
+use Definitions, only: iwp, u6
 
 implicit none
 private
 
 type FileEntry
-  character(Len=MAXSTR) :: Filename
-  character(Len=MAXSTR) :: Shortname
-  character(Len=16) :: Attributes
+  character(len=MAXSTR) :: Filename, Shortname
+  character(len=16) :: Attr
 end type FileEntry
-type(FileEntry), dimension(:), allocatable :: FileTable
-character(Len=MAXSTR) :: WorkDir = '', FastDir = '', Project = 'Noname'
-character(Len=16) :: SlaveDir = '', SubDir = ''
+type(FileEntry), allocatable :: FileTable(:)
+character(len=MAXSTR) :: WorkDir = '', FastDir = '', Project = 'Noname'
+character(len=16) :: SlaveDir = '', SubDir = ''
 
 public :: PrgmInitC, PrgmFree, PrgmTranslate_Mod, SetSubDir
 #ifndef _GA_
@@ -41,41 +41,42 @@ public :: IsInMem
 contains
 
 subroutine PrgmInitC(ModName,l)
-  character(Len=*), intent(In) :: ModName
-  integer, intent(In) :: l
+  character(len=*), intent(in) :: ModName
+  integer(kind=iwp), intent(in) :: l
+  unused_var(l)
   call PrgmCache()
   call ReadPrgmFile(ModName)
   call ReadPrgmFile('global')
   return
-!     Avoid unused argument warnings
-  if (.false.) call Unused_integer(l)
 end subroutine PrgmInitC
 
 subroutine PrgmFree()
   if (allocated(FileTable)) deallocate(FileTable)
+  return
 end subroutine PrgmFree
 
 subroutine PrgmTranslate_Mod(InStr,l1,OutStr,l2,Par)
-  character(Len=*), intent(In) :: InStr
-  character(Len=*), intent(Out) :: OutStr
-  integer, intent(In) :: Par, l1
-  integer, intent(Out) :: l2
-  character(Len=len(InStr)) :: Input
-  character(Len=MAXSTR) :: WD, Ext
-  character(Len=16) :: Attr
-  integer :: Num, Loc
-  logical :: Found, Lustre
+  character(len=*), intent(in) :: InStr
+  integer(kind=iwp), intent(in) :: l1, Par
+  character(len=*), intent(out) :: OutStr
+  integer(kind=iwp), intent(out) :: l2
+  integer(kind=iwp) :: Num, Loc
+  logical(kind=iwp) :: Found, Lustre
+  character(len=len(InStr)) :: Input
+  character(len=MAXSTR) :: WD, Ext
+  character(len=16) :: Attr
+  unused_var(l1)
   Lustre = .false.
   Input = InStr
   Loc = index(Input,char(0))
   if (Loc > 0) Input(Loc:) = ''
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Translating ',trim(Input)
+  write(u6,*) 'Translating ',trim(Input)
 # endif
-  inquire(File=Input,Exist=Found)
+  inquire(file=Input,exist=Found)
   if (Found) then
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'File ',trim(Input),' exists'
+    write(u6,*) 'File ',trim(Input),' exists'
 #   endif
     OutStr = Input
   else
@@ -84,11 +85,11 @@ subroutine PrgmTranslate_Mod(InStr,l1,OutStr,l2,Par)
     Num = FindFile(Input,FileTable)
     if (Num > 0) then
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'File ',trim(Input),' found in table: ',trim(FileTable(Num)%Filename)
+      write(u6,*) 'File ',trim(Input),' found in table: ',trim(FileTable(Num)%Filename)
 #     endif
       ! the value of $WorkDir will depend on some attributes,
       ! pass it to the ExpandVars function
-      Attr = FileTable(Num)%Attributes
+      Attr = FileTable(Num)%Attr
       if (index(Attr,'f') > 0) WD = FastDir
 #     ifdef MOLCAS_LUSTRE
       Lustre = (index(Attr,'l') > 0)
@@ -102,12 +103,12 @@ subroutine PrgmTranslate_Mod(InStr,l1,OutStr,l2,Par)
         OutStr = trim(OutStr)//Ext
       else if (index(Attr,'.') > 0) then
         Ext = Input(len_trim(FileTable(Num)%Shortname)+1:)
-        Loc = index(OutStr,'.',Back=.true.)
+        Loc = index(OutStr,'.',back=.true.)
         OutStr = ReplaceSubstr(OutStr,Loc,Loc,trim(Ext)//'.')
       end if
     else
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'Assuming $WorkDir/'//trim(Input)
+      write(u6,*) 'Assuming $WorkDir/'//trim(Input)
 #     endif
       if ((Par == 1)) WD = trim(WD)//SlaveDir
       OutStr = ExpandVars('$WorkDir/'//Input,trim(WD)//SubDir)
@@ -115,26 +116,25 @@ subroutine PrgmTranslate_Mod(InStr,l1,OutStr,l2,Par)
   end if
   l2 = len_trim(OutStr)
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Output: ',trim(OutStr)
+  write(u6,*) 'Output: ',trim(OutStr)
 # endif
   return
-  ! Avoid unused argument warnings
-  if (.false.) call Unused_integer(l1)
 end subroutine PrgmTranslate_Mod
 
 subroutine SetSubDir(Dir)
-  character(Len=*), intent(In) :: Dir
+  character(len=*), intent(in) :: Dir
   SubDir = trim(Dir)
-End Subroutine SetSubDir
+  return
+end subroutine SetSubDir
 
 #ifndef _GA_
 function IsInMem(Filename)
-  character(Len=*), intent(In) :: Filename
-  integer :: IsInMem
+  integer(kind=iwp) :: IsInMem
+  character(len=*), intent(in) :: Filename
+  unused_var(len(Filename)) ! GCC 4.8 doesn't like just "unused_var(Filename)" here
   ! since FiM is not in OpenMolcas, always return 0
   IsInMem = 0
-  ! Avoid unused argument warnings
-  if (.false.) call Unused_character(Filename)
+  return
 end function IsInMem
 #endif
 
@@ -142,18 +142,18 @@ end function IsInMem
 
 ! Subroutine to read the contents of a .prgm file and append them to FileTable
 subroutine ReadPrgmFile(ModName)
-  character(Len=*), intent(In) :: ModName
-  character(Len=MAXSTR) :: Dir, Line
-  character(Len=2*MAXSTR) :: FileName
-  logical :: Found
-  integer :: Lu, Error, Num, i, j, k
-  integer, external :: isFreeUnit
-  type(FileEntry), dimension(:), allocatable :: TempTable, NewTable
+  character(len=*), intent(in) :: ModName
+  character(len=MAXSTR) :: Dir, Line
+  character(len=2*MAXSTR) :: FileName
+  logical(kind=iwp) :: Found
+  integer(kind=iwp) :: Lu, Error, Num, i, j, k
+  integer(kind=iwp), external :: isFreeUnit
+  type(FileEntry), allocatable :: TempTable(:), NewTable(:)
 
   if (.not. allocated(FileTable)) allocate(FileTable(0))
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'ModName: '//trim(ModName)
+  write(u6,*) 'ModName: '//trim(ModName)
 # endif
 
   ! If other locations are enabled, pymolcas should be changed too
@@ -161,16 +161,16 @@ subroutine ReadPrgmFile(ModName)
   call GetEnvF('MOLCAS',Dir)
   Dir = trim(Dir)//'/data'
   FileName = trim(Dir)//'/'//trim(ModName)//'.prgm'
-  inquire(File=FileName,Exist=Found)
+  inquire(file=FileName,exist=Found)
   if (Found) then
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'FileName: '//trim(FileName)
+    write(u6,*) 'FileName: '//trim(FileName)
 #   endif
     Lu = isFreeUnit(30)
     call molcas_open(Lu,trim(FileName))
     Num = 0
     do
-      read(Lu,*,IOStat=Error)
+      read(Lu,*,iostat=Error)
       if (Error /= 0) exit
       Num = Num+1
     end do
@@ -178,7 +178,7 @@ subroutine ReadPrgmFile(ModName)
     rewind(Lu)
     Num = 0
     do
-      read(Lu,'(A)',IOStat=Error) Line
+      read(Lu,'(A)',iostat=Error) Line
       if (Error /= 0) exit
       Line = adjustl(Line)
       if (Line(1:1) == '#') cycle
@@ -192,7 +192,7 @@ subroutine ReadPrgmFile(ModName)
       Line = adjustl(Line(index(Line,' '):))
       TempTable(Num)%Filename = Line(:index(Line,' '))
       Line = adjustl(Line(index(Line,' '):))
-      TempTable(Num)%Attributes = Line(:index(Line,' '))
+      TempTable(Num)%Attr = Line(:index(Line,' '))
     end do
     ! Make sure leftover entries are blanked
     do i=Num+1,size(TempTable)
@@ -225,42 +225,42 @@ subroutine ReadPrgmFile(ModName)
   end if
 # ifdef _DEBUGPRINT_
   call ReportPrgm()
+# else
+  unused_proc(ReportPrgm())
 # endif
   return
-  ! Avoid unused argument warnings
-  if (.false.) call ReportPrgm()
 end subroutine ReadPrgmFile
 
 ! Subroutine to print the contents of FileTable
 subroutine ReportPrgm()
-  character(Len=MAXSTR) :: FmtStr
-  integer, dimension(2) :: MaxLen
-  integer :: i
+  character(len=MAXSTR) :: FmtStr
+  integer(kind=iwp) :: MaxLen(2)
+  integer(kind=iwp) :: i
   MaxLen = 0
   do i=1,size(FileTable)
     MaxLen(1) = max(MaxLen(1),len_trim(FileTable(i)%Shortname))
     MaxLen(2) = max(MaxLen(2),len_trim(FileTable(i)%Filename))
   end do
   write(FmtStr,*) '(A',MaxLen(1),',1X,A',MaxLen(2),',1X,"<",A,">")'
-  write(6,*) '===================================='
-  write(6,*) 'Number of entries: ',size(FileTable)
+  write(u6,*) '===================================='
+  write(u6,*) 'Number of entries: ',size(FileTable)
   do i=1,size(FileTable)
-    write(6,FmtStr) FileTable(i)%Shortname,FileTable(i)%Filename,trim(FileTable(i)%Attributes)
+    write(u6,FmtStr) FileTable(i)%Shortname,FileTable(i)%Filename,trim(FileTable(i)%Attr)
   end do
-  write(6,*) '===================================='
+  write(u6,*) '===================================='
+  return
 end subroutine ReportPrgm
 
 ! Function to strip all the characters in Chars from String (in any position)
 function Strip(String,Chars)
-  character(Len=*), intent(In) :: String
-  character(Len=*), intent(In) :: Chars
 # ifdef ALLOC_ASSIGN
-  character(Len=:), allocatable :: Strip
+  character(len=:), allocatable :: Strip
 # else
-  character(Len=len(String)) :: Strip
+  character(len=len(String)) :: Strip
 # endif
-  character(Len=len(String)) :: Tmp
-  integer :: i, j
+  character(len=*), intent(in) :: String, Chars
+  character(len=len(String)) :: Tmp
+  integer(kind=iwp) :: i, j
   j = 0
   do i=1,len_trim(String)
     if (index(Chars,String(i:i)) /= 0) cycle
@@ -268,16 +268,18 @@ function Strip(String,Chars)
     Tmp(j:j) = String(i:i)
   end do
   Strip = trim(Tmp(1:j))
+  return
 end function Strip
 
 ! Function to find a file, given its Shortname, in a file table
 ! Returns the index in the table (or 0 if not found)
 function FindFile(Short,Table,Exact)
-  character(Len=*), intent(In) :: Short
-  type(FileEntry), dimension(:), intent(In) :: Table
-  logical, optional, intent(In) :: Exact
-  logical :: FindExact
-  integer :: FindFile, i
+  integer(kind=iwp) :: FindFile
+  character(len=*), intent(in) :: Short
+  type(FileEntry), intent(in) :: Table(:)
+  logical(kind=iwp), intent(in), optional :: Exact
+  logical(kind=iwp) :: FindExact
+  integer(kind=iwp) :: i
   FindFile = 0
   if (present(Exact)) then
     FindExact = Exact
@@ -294,29 +296,30 @@ function FindFile(Short,Table,Exact)
       end if
     else
       if (index(Short,trim(Table(i)%Shortname)) == 1) then
-        if ((trim(Short) == trim(Table(i)%Shortname)) .or. (index(Table(i)%Attributes,'*') > 0) .or. &
-            (index(Table(i)%Attributes,'.') > 0)) then
+        if ((trim(Short) == trim(Table(i)%Shortname)) .or. (index(Table(i)%Attr,'*') > 0) .or. &
+            (index(Table(i)%Attr,'.') > 0)) then
           FindFile = i
           exit
         end if
       end if
     end if
   end do
+  return
 end function
 
 ! Function to replace environment variables in a string
 ! A variable starts with '$' and ends with [ $/.] or the end of the string
 function ExpandVars(String,WD)
-  character(Len=*), intent(In) :: String, WD
 # ifdef ALLOC_ASSIGN
-  character(Len=:), allocatable :: ExpandVars
+  character(len=:), allocatable :: ExpandVars
 # define LEV Len(ExpandVars)
 # else
-  character(Len=MAXSTR) :: ExpandVars
+  character(len=MAXSTR) :: ExpandVars
 # define LEV Len_Trim(ExpandVars)
 # endif
-  character(Len=MAXSTR) :: Var, Val
-  integer :: i, j, Ini, Fin
+  character(len=*), intent(in) :: String, WD
+  character(len=MAXSTR) :: Var, Val
+  integer(kind=iwp) :: i, j, Ini, Fin
   ! start with a copy of the string, this copy will be modified on the fly
   ExpandVars = String
   Ini = 0
@@ -355,33 +358,36 @@ function ExpandVars(String,WD)
       i = Ini+len_trim(Val)-1
     end if
   end do
+  return
 end function ExpandVars
 
 ! Function to replace a substring (between the Ini and Fin positions) with Repl
 function ReplaceSubstr(String,Ini,Fin,Repl)
-  character(Len=*), intent(In) :: String, Repl
-  integer, intent(In) :: Ini, Fin
 # ifdef ALLOC_ASSIGN
-  character(Len=:), allocatable :: ReplaceSubstr
+  character(len=:), allocatable :: ReplaceSubstr
 # else
-  character(Len=MAXSTR) :: ReplaceSubstr
+  character(len=MAXSTR) :: ReplaceSubstr
 # endif
-  integer :: i, j
+  character(len=*), intent(in) :: String, Repl
+  integer(kind=iwp), intent(in) :: Ini, Fin
+  integer(kind=iwp) :: i, j
   ! make sure the indices are within limits
   i = min(max(1,Ini),len(String))
   j = min(max(1,Fin),len(String))
   j = max(i,j)
   ReplaceSubstr = trim(String(:i-1)//Repl//String(j+1:))
+  return
 end function ReplaceSubstr
 
 ! Save some often used variables as module variables, for faster access
-subroutine PrgmCache
+subroutine PrgmCache()
   use Para_Info, only: mpp_id
   call GetEnvF('WorkDir',WorkDir)
   call GetEnvF('FastDir',FastDir)
   call GetEnvF('Project',Project)
   if (trim(Project) == '') Project = 'Noname'
   if (mpp_id() > 0) write(SlaveDir,'(A,I0)') '/tmp_',mpp_id()
+  return
 end subroutine PrgmCache
 
 end module prgm

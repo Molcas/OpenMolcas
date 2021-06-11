@@ -12,6 +12,7 @@
 ! Define the largest file that can be handeled by the IO system        *
 ! (units=Bytes)                                                        *
 !----------------------------------------------------------------------*
+      Integer max_File_Length
 #ifdef _I8_
       Parameter ( max_File_Length = 214748364800 )
 #else

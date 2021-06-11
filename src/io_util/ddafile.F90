@@ -13,12 +13,15 @@
 
 subroutine dDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
 
+use iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: wp, iwp, RtoB
+
 implicit none
-#include "SysDef.fh"
+integer(kind=iwp), intent(in) :: Lu, iOpt, lBuf_
+real(kind=wp), intent(inout) :: Buf(lBuf_)
+integer(kind=iwp), intent(inout) :: iDisk_
+integer(kind=iwp) :: lBuf, iDisk
 #include "fio.fh"
-integer Lu, iOpt, lBuf_, iDisk_
-real*8 Buf(lBuf_)
-integer lBuf, iDisk
 
 call dDaFile_Internal(Buf)
 
@@ -26,8 +29,7 @@ call dDaFile_Internal(Buf)
 contains
 
 subroutine dDaFile_Internal(Buf)
-  use iso_c_binding
-  real*8, target :: Buf(*)
+  real(kind=wp), target :: Buf(*)
   character, pointer :: cBuf(:)
 
   lBuf = lBuf_*RtoB

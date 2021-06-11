@@ -16,11 +16,13 @@ subroutine LDF_AuxBasVectorNorm(V,Norm)
 !
 ! Purpose: compute Frobenius norm of aux bas vector.
 
+#include "intent.fh"
+
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: V(*)
-real(kind=wp), intent(out) :: Norm(*)
+real(kind=wp), intent(_OUT_) :: Norm(*)
 integer iAtom, nAtom, iAtomPair, ip, l
 integer(kind=iwp), external :: LDF_nAtom, LDF_nBasAux_Atom
 real(kind=wp), external :: ddot_

@@ -15,20 +15,24 @@
 ! without using the module (i.e., from C). Some C-to-Fortran conversion
 ! needs to be done, which feels quite hackish.
 
+#include "compiler_features.h"
+#include "intent.fh"
 #ifndef _HAVE_EXTRA_
 #define MAXSTR 1024
 
 subroutine PrgmTranslateC(InStr,l1,OutStr,l2,Par)
 
 use iso_c_binding, only: c_char, c_null_char
-use Prgm
+use Prgm, only: PrgmTranslate_Mod
+use Definitions, only: iwp
+
 implicit none
-character(Kind=c_char), intent(In) :: InStr(*)
-character(Kind=c_char), intent(Out) :: OutStr(*)
-integer, intent(In) :: Par, l1
-integer, intent(Out) :: l2
-character(Len=MAXSTR) :: TmpStr, TmpStr2
-integer :: i
+character(kind=c_char), intent(in) :: InStr(*)
+integer(kind=iwp), intent(in) :: l1, Par
+character(kind=c_char), intent(_OUT_) :: OutStr(*)
+integer(kind=iwp), intent(out) :: l2
+character(len=MAXSTR) :: TmpStr, TmpStr2
+integer(kind=iwp) :: i
 
 TmpStr = ''
 do i=1,l1
@@ -42,7 +46,7 @@ OutStr(l2+1:l2+1) = c_null_char
 
 end subroutine PrgmTranslateC
 
-#elif defined (NAGFOR)
+#elif !defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
 #include "macros.fh"

@@ -25,7 +25,7 @@
 #include "general.fh"
 #include "casvb.fh"
 #include "WrkSpc.fh"
-      Real*8 CA(*),CB(*),OCCA(*),OCCB(*)
+      Real*8 CA(*),CB(*),OCCA(*),OCCB(*),Dum(1)
 *
       Call GetMem('DS','ALLO','REAL',ipDS,NACPAR)
       Call GetMem('DT','ALLO','REAL',ipDT,NACPAR)
@@ -64,7 +64,8 @@
        If ( iOrbTyp.ne.2 ) then
 *        SIMPLY READ OCC NOS AS ALPHAS AND ZERO BETA OCC NOS
          iad15=IADR15(2)
-         Call DDAFile(JOBIPH,0,[0.0d0],NTOT2,IAD15)
+         Dum(1)=0.0d0
+         Call DDAFile(JOBIPH,0,Dum,NTOT2,IAD15)
          CALL DDAFILE(JOBIPH,2,OCCA,NTOT,IAD15)
          call dcopy_(nTOT,[0.0d0],0,OCCB,1)
        end if
@@ -134,11 +135,12 @@ c           Also count no of active electrons ...
 *     READ IN DENSITIES
 *
       iad15=IADR15(3)
+      Dum(1)=0.0d0
       Do i=1,i_root
         Call DDAFile(JOBIPH,2,Work(ipDS),NACPAR,IAD15)
         Call DDAFile(JOBIPH,2,Work(ipDT),NACPAR,IAD15)
-        Call DDAFile(JOBIPH,0,[0.0d0],NACPR2,IAD15)
-        Call DDAFile(JOBIPH,0,[0.0d0],NACPR2,IAD15)
+        Call DDAFile(JOBIPH,0,Dum,NACPR2,IAD15)
+        Call DDAFile(JOBIPH,0,Dum,NACPR2,IAD15)
       End Do
 *
 *     CREATE SPIN DENSITIES

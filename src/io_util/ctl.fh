@@ -12,7 +12,8 @@
 ! Control blocks for AIX I/O routines.                                 *
 !----------------------------------------------------------------------*
 #include "MxFile.fh"
-      Integer, Parameter :: pHeadOffset = 0
+      Integer pHeadOffset, pHndle, pWhere, pDesc, pStat, pEnd, CtlBlk
+      Parameter (pHeadOffset = 0)
       Parameter (pHndle =  1)
       Parameter (pWhere =  pHndle + 1)
       Parameter (pDesc  =  pWhere + 1)

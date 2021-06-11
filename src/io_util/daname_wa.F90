@@ -35,9 +35,12 @@ subroutine DaName_WA(Lu,String)
 !                                                                      *
 !***********************************************************************
 
-character*(*) String
-integer Lu
-logical mf, wa
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(inout) :: Lu
+character(len=*), intent(in) :: String
+logical(kind=iwp) :: mf, wa
 
 mf = .false.
 wa = .true.

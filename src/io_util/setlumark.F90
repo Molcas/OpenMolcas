@@ -16,6 +16,10 @@
 
 subroutine SetLuMark(Lu)
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: Lu
 #include "fio.fh"
 
 LuMark(Lu) = 0

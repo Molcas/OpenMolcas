@@ -57,19 +57,23 @@ subroutine bDaFile(Lu,iOpt,Buf,lBuf,iDisk)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
-#include "SysDef.fh"
-#include "blksize.fh"
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: Lu, iOpt, lBuf
+character, intent(inout) :: Buf(*)
+integer(kind=iwp), intent(inout) :: iDisk
+integer(kind=iwp) :: iRC, kDisk, jDisk
+integer(kind=iwp), external :: AixFsz
 #include "fio.fh"
-character Buf(*)
 
 if (Trace) then
-  write(6,*) ' >>> Enter bDaFile <<<'
-  write(6,*) ' unit      :',Lu
-  write(6,*) ' name      :',LuName(Lu)
-  write(6,*) ' option    :',iOpt
-  write(6,*) ' length    :',lBuf
-  write(6,*) ' disk adr. :',iDisk
+  write(u6,*) ' >>> Enter bDaFile <<<'
+  write(u6,*) ' unit      :',Lu
+  write(u6,*) ' name      :',LuName(Lu)
+  write(u6,*) ' option    :',iOpt
+  write(u6,*) ' length    :',lBuf
+  write(u6,*) ' disk adr. :',iDisk
 end if
 
 if ((iOpt == 5) .or. (iOpt == 10)) then
@@ -99,7 +103,7 @@ else
 end if
 
 1100 continue
-if (Trace) write(6,*) ' >>> Exit bDaFile <<<'
+if (Trace) write(u6,*) ' >>> Exit bDaFile <<<'
 
 return
 

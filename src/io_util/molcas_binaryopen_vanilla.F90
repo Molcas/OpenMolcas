@@ -13,14 +13,18 @@
 
 subroutine molcas_binaryopen_vanilla(Lu,f_name)
 
-integer Lu
-character*(*) f_name
-character*4096 RealName
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: Lu
+character(len=*), intent(in) :: f_name
+integer(kind=iwp) :: lRealName
+character(len=4096) :: RealName
 
 !RealName = f_Name
 call PrgmTranslate(f_Name,RealName,lRealName)
-!write(6,*)  'DEBUG binopen ',RealName(1:lRealName)
-open(Unit=Lu,File=RealName(1:lRealName),form='unformatted')
+!write(u6,*) 'DEBUG binopen ',RealName(1:lRealName)
+open(unit=Lu,file=RealName(1:lRealName),form='unformatted')
 
 return
 

@@ -34,15 +34,19 @@ subroutine DaEras(Lu)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: Lu
+integer(kind=iwp) :: i, iRc, Lu_
+character(len=80) :: Text
+character(len=16), parameter :: TheName = 'DaEras'
+integer(kind=iwp), external :: AixCls, AixErr, AixRm
 #include "fio.fh"
-character*80 Text
-character*16 TheName
-data TheName/'DaEras'/
 
 if (Trace) then
-  write(6,*) ' >>> Enter DaEras <<<'
-  write(6,*) ' unit :',Lu
+  write(u6,*) ' >>> Enter DaEras <<<'
+  write(u6,*) ' unit :',Lu
 end if
 
 ! Save calling arguments
@@ -79,7 +83,7 @@ isOpen(Lu) = 0
 if (Multi_File(Lu)) then
   if (MaxFileSize /= 0) then
     if (Trace) then
-      write(6,*) ' This is a partitioned data set'
+      write(u6,*) ' This is a partitioned data set'
     end if
     do i=1,MaxSplitFile-1
       Lu_ = MPUnit(i,Lu)
@@ -103,7 +107,7 @@ if (Multi_File(Lu)) then
 end if
 
 if (Trace) then
-  write(6,*) ' >>> Exit DaEras <<<'
+  write(u6,*) ' >>> Exit DaEras <<<'
 end if
 
 return

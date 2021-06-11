@@ -11,8 +11,13 @@
 
 subroutine ChDaFile(Lu,iOpt,Buf,lBuf,iDisk)
 
-implicit integer(A-Z)
-character Buf(*)
+use iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: Lu, iOpt, lBuf
+integer(kind=iwp), intent(inout) :: iDisk
+character, intent(inout) :: Buf(*)
 
 call ChDaFile_Internal(Buf)
 
@@ -20,7 +25,6 @@ call ChDaFile_Internal(Buf)
 contains
 
 subroutine ChDaFile_Internal(Buf)
-  use iso_c_binding
   character, target :: Buf(*)
   integer, pointer :: iBuf(:)
   call c_f_pointer(c_loc(Buf(1)),iBuf,[1])

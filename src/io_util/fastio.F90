@@ -40,24 +40,24 @@ subroutine FastIO(String)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+character(len=*), intent(in) :: String
+integer(kind=iwp) :: i, lString
+real(kind=wp) :: file_size, tot_MB_in, tot_MB_out, tot_Rec_in, tot_Rec_out
+character(len=100) :: Frmt
+integer(kind=iwp), external :: iPrintLevel
 #include "fio.fh"
 #ifdef _OLD_IO_STAT_
+real(kind=wp) :: MB_in, MB_out, Rec_in, Rec_out
+!FIXME min_Block_length is undefined
 #include "ofio.fh"
 #else
+real(kind=wp) :: rrd, rwr, tot_Time_in, tot_Time_out
 #include "pfio.fh"
 #endif
-#include "blksize.fh"
-#include "SysDef.fh"
-character*(*) String
-real*8 tot_Rec_in, tot_Rec_out, file_size
-real*8 tot_MB_in, tot_MB_out
-#ifdef _OLD_IO_STAT_
-real*8 Rec_in, Rec_out, MB_in, MB_out
-#else
-real*8 tot_Time_out, tot_Time_in, rwr, rrd
-#endif
-character*100 Fmt
 
 lString = len(String)
 if (lString >= 8) then
@@ -73,53 +73,51 @@ end if
 ! Print I/O statistics
 if ((String(1:6) == 'STATUS') .and. (iPrintLevel(-1) >= 3)) then
 # ifdef _OLD_IO_STAT_
-
   call CollapseOutput(1,'I/O statistics')
-  write(6,'(3X,A)') '--------------'
-  write(6,'(1X,A)')
-  write(6,'(1X,A)') ' Unit  Name          Xtent      pages      MBytes     pages      MBytes'
-  write(6,'(1X,A)') '                    (MBytes)     in          in        out        out  '
-  write(6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
-  tot_Rec_in = 0.0d0
-  tot_Rec_out = 0.0d0
-  tot_MB_in = 0.0d0
-  tot_MB_out = 0.0d0
+  write(u6,'(3X,A)') '--------------'
+  write(u6,'(1X,A)')
+  write(u6,'(1X,A)') ' Unit  Name          Xtent      pages      MBytes     pages      MBytes'
+  write(u6,'(1X,A)') '                    (MBytes)     in          in        out        out  '
+  write(u6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
+  tot_Rec_in = Zero
+  tot_Rec_out = Zero
+  tot_MB_in = Zero
+  tot_MB_out = Zero
   do i=1,MxFile
     if (FSCB(i) /= 0) then
-      Rec_in = count(1,i)/1024.0d0
-      Rec_out = count(3,i)/1024.0d0
-      MB_in = count(2,i)/1024.0d0
-      MB_out = count(4,i)/1024.0d0
+      Rec_in = count(1,i)/1024.0_wp
+      Rec_out = count(3,i)/1024.0_wp
+      MB_in = count(2,i)/1024.0_wp
+      MB_out = count(4,i)/1024.0_wp
       tot_Rec_in = tot_Rec_in+Rec_in
       tot_Rec_out = tot_Rec_out+Rec_out
       tot_MB_in = tot_MB_in+MB_in
       tot_MB_out = tot_MB_out+MB_out
-      ! min_Block_length was undefined long ago...
-      file_size = (dble(MxAddr(i))*dble(min_Block_length))/(1024.0d0)**2
-      write(6,'(2X,I2,3X,A8,1X,5F11.2)') i,LuName(i),file_size,Rec_in,MB_in,Rec_out,MB_out
+      file_size = (real(MxAddr(i),kind=wp)*real(min_Block_length,kind=wp))/(1024.0_wp**2)
+      write(u6,'(2X,I2,3X,A8,1X,5F11.2)') i,LuName(i),file_size,Rec_in,MB_in,Rec_out,MB_out
     end if
   end do
-  write(6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,'(1X,A,20X,4F11.2)') ' Total',tot_Rec_in,tot_MB_in,tot_Rec_out,tot_MB_out
-  write(6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,'(1X,A,20X,4F11.2)') ' Total',tot_Rec_in,tot_MB_in,tot_Rec_out,tot_MB_out
+  write(u6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
   call CollapseOutput(0,'I/O statistics')
 # else
-  tot_Rec_in = 0.0d0
-  tot_Rec_out = 0.0d0
-  tot_MB_in = 0.0d0
-  tot_MB_out = 0.0d0
-  tot_Time_in = 0.0d0
-  tot_Time_out = 0.0d0
-  file_size = 0.0d0
+  tot_Rec_in = Zero
+  tot_Rec_out = Zero
+  tot_MB_in = Zero
+  tot_MB_out = Zero
+  tot_Time_in = Zero
+  tot_Time_out = Zero
+  file_size = Zero
   call CollapseOutput(1,'I/O STATISTICS')
 
   ! Part I: general I/O information
-  write(6,*) ''
-  write(6,'(1X,A)') ' I. General I/O information'
-  write(6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,'(1X,A)') ' Unit  Name          Flsize      Write/Read            MBytes           Write/Read'
-  write(6,'(1X,A)') '                     (MBytes)       Calls              In/Out           Time, sec.'
-  write(6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*) ''
+  write(u6,'(1X,A)') ' I. General I/O information'
+  write(u6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,'(1X,A)') ' Unit  Name          Flsize      Write/Read            MBytes           Write/Read'
+  write(u6,'(1X,A)') '                     (MBytes)       Calls              In/Out           Time, sec.'
+  write(u6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
 
   do i=1,NProfFiles
 
@@ -131,43 +129,43 @@ if ((String(1:6) == 'STATUS') .and. (iPrintLevel(-1) >= 3)) then
     tot_Time_out = tot_Time_out+PRofData(6,i)
     file_size = file_size+FlsSize(i)
 
-    Fmt = '(2X,I2,2X,A8,3X,F11.2,A2,I8,A1,I8,A2,F9.1,A1,F9.1,A2,I8,A1,I8)'
-    write(6,Fmt) i,LuNameProf(i),FlsSize(i)/1024.d0/1024.d0,' .',int(PRofData(1,i)),'/',int(PRofData(4,i)),' .', &
-                 PRofData(2,i)/1024**2,'/',PRofData(5,i)/1024**2,' .',int(PRofData(3,i)),'/',int(PRofData(6,i))
+    Frmt = '(2X,I2,2X,A8,3X,F11.2,A2,I8,A1,I8,A2,F9.1,A1,F9.1,A2,I8,A1,I8)'
+    write(u6,Frmt) i,LuNameProf(i),FlsSize(i)/1024.d0/1024.d0,' .',int(PRofData(1,i)),'/',int(PRofData(4,i)),' .', &
+                   PRofData(2,i)/1024**2,'/',PRofData(5,i)/1024**2,' .',int(PRofData(3,i)),'/',int(PRofData(6,i))
   end do
-  write(6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
 
-  Fmt = '(2X,A10,5X,F11.2,A2,I8,A1,I8,A2,F9.1,A1,F9.1,A2,I8,A1,I8)'
-  write(6,Fmt) '*  TOTAL ',file_size/1024.d0/1024.d0,' .',int(tot_Rec_in),'/',int(tot_Rec_out),' .',tot_MB_in/1024**2,'/', &
-               tot_MB_out/1024**2,' .',int(tot_Time_in),'/',int(tot_Time_out)
-  write(6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
+  Frmt = '(2X,A10,5X,F11.2,A2,I8,A1,I8,A2,F9.1,A1,F9.1,A2,I8,A1,I8)'
+  write(u6,Frmt) '*  TOTAL ',file_size/(1024.0_wp**2),' .',int(tot_Rec_in),'/',int(tot_Rec_out),' .',tot_MB_in/1024**2,'/', &
+                 tot_MB_out/1024**2,' .',int(tot_Time_in),'/',int(tot_Time_out)
+  write(u6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
 
   !Part II: a little bit more about I/O Access Patterns
   ! Percentage of write/read activity that was random writes/reads.
-  write(6,*) ''
-  write(6,'(1X,A)') ' II. I/O Access Patterns'
-  write(6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - -'
-  write(6,'(1X,A)') ' Unit  Name               % of random'
-  write(6,'(1X,A)') '                        Write/Read calls'
-  write(6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*) ''
+  write(u6,'(1X,A)') ' II. I/O Access Patterns'
+  write(u6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - -'
+  write(u6,'(1X,A)') ' Unit  Name               % of random'
+  write(u6,'(1X,A)') '                        Write/Read calls'
+  write(u6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - -'
   do i=1,NProfFiles
 
     if (PRofData(1,i) > 0) then
-      rwr = 100*PRofData(7,i)/PRofData(1,i)
+      rwr = 100.0_wp*PRofData(7,i)/PRofData(1,i)
     else
-      rwr = 0.d0
+      rwr = Zero
     end if
 
     if (PRofData(4,i) > 0) then
-      rrd = 100*PRofData(8,i)/PRofData(4,i)
+      rrd = 100.0_wp*PRofData(8,i)/PRofData(4,i)
     else
-      rrd = 0.d0
+      rrd = Zero
     end if
 
-    write(6,'(2X,I2,2X,A8,7X,F9.1,A1,F6.1)') i,LuNameProf(i),rwr,'/',rrd
+    write(u6,'(2X,I2,2X,A8,7X,F9.1,A1,F6.1)') i,LuNameProf(i),rwr,'/',rrd
 
   end do
-  write(6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - -'
+  write(u6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - -'
   call CollapseOutput(0,'I/O STATISTICS')
 # endif
 end if

@@ -13,13 +13,14 @@
 
 subroutine cDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
 
-implicit none
+use Definitions, only: iwp
 
-#include "SysDef.fh"
+implicit none
+integer(kind=iwp), intent(in) :: Lu, iOpt, lBuf_
+character, intent(inout) :: Buf(lBuf_)
+integer(kind=iwp), intent(inout) :: iDisk_
+integer(kind=iwp) :: lBuf, iDisk
 #include "fio.fh"
-integer Lu, iOpt, lBuf_, iDisk_
-character*1 Buf(lBuf_)
-integer lBuf, iDisk
 
 lBuf = lBuf_
 iDisk = iDisk_*MBL(Lu)

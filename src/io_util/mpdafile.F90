@@ -50,7 +50,7 @@ subroutine MpDaFile(Lu,MaxFileSizel,iOpt,Buf,lBuf,iDisk)
 !               Buffer carrying/receiving the data to write/read       *
 !     lBuf    : integer, input                                         *
 !               length of the buffer Buf in bytes!!                    *
-!     iDisk   : integer, input/output                                  *
+!     iDisk   : integer, input                                         *
 !               disk address as byte offset!!!                         *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -67,20 +67,24 @@ subroutine MpDaFile(Lu,MaxFileSizel,iOpt,Buf,lBuf,iDisk)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
-character Buf(*)
-#include "SysDef.fh"
-#include "blksize.fh"
+use Definitions, only: iwp, u6
+!subroutine MpDaFile(Lu,MaxFileSizel,iOpt,Buf,lBuf,iDisk)
+
+implicit none
+integer(kind=iwp), intent(in) :: Lu, MaxFileSizel, iOpt, lBuf, iDisk
+character, intent(inout) :: Buf(*)
+integer(kind=iwp) :: iDisk_mod, iext, iRc, lStdNam, ltmp, Lu_mod, max_Bytes, max_File_Size, n_Bytes, n_Copy, n_Save, offset, &
+                     p_Buf, start_char, temp
+character(len=256) :: tmp
+character(len=80) :: Text
+character(len=8) :: Stdnam, ext
+character(len=16), parameter :: TheName = 'MpDaFile'
+integer(kind=iwp), external :: AixErr, AixOpn, isFreeUnit, StrnLn
 #include "filesize.fh"
 #include "fio.fh"
 #ifdef _OLD_IO_STAT_
 #include "ofio.fh"
 #endif
-character*8 Stdnam, ext
-character*256 tmp
-character*80 Text
-character*16 TheName
-data TheName/'MpDaFile'/
 
 max_File_Size = MaxFileSizel*10**6
 max_Bytes = min(max_File_Length,max_File_Size)
@@ -98,14 +102,14 @@ end if
 if ((offset < 0) .or. (offset > MaxSplitFile-1)) then
   StdNam = LuName(Lu)
   call PrgmTranslate(StdNam,tmp,ltmp)
-  write(6,*) '          Current I/O Status as follows'
-  write(6,*)
+  write(u6,*) '          Current I/O Status as follows'
+  write(u6,*)
   call FASTIO('STATUS')
   call SysAbendFileMsg(TheName,StdNam,'Extensions out of range!','increase MOLCAS_DISK value or MaxSplitFile in fio.fh ')
 
   call Abend()
 end if
-LU_mod = MPUnit(offset,LU)
+Lu_mod = MPUnit(offset,LU)
 iDisk_mod = iDisk-offset*max_Bytes
 
 ! If extension not opened before: open and initiate here!
@@ -219,8 +223,8 @@ else
     n_Copy = min(max_Bytes,n_Save)
     offset = offset+1
     if (offset > MaxSplitFile-1) then
-      write(6,*) '          Current I/O Status as follows'
-      write(6,*)
+      write(u6,*) '          Current I/O Status as follows'
+      write(u6,*)
       call FASTIO('STATUS')
       call SysAbendFileMsg(TheName,StdNam,'Extensions out of range!','increase MOLCAS_DISK value or MaxSplitFile in fio.fh ')
 

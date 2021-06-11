@@ -14,10 +14,6 @@
 !               2012, Victor P. Vysotskiy                              *
 !***********************************************************************
 
-#if defined(_I8_) || defined(_OPENMP)
-#define NO_SPLITTING
-#endif
-
 subroutine DaName_Main(Lu,String,mf,wa)
 !***********************************************************************
 !                                                                      *
@@ -44,30 +40,49 @@ subroutine DaName_Main(Lu,String,mf,wa)
 !                                                                      *
 !***********************************************************************
 
-#ifndef _HAVE_EXTRA_
-use Prgm
+#if defined(_I8_) || defined(_OPENMP)
+#define NO_SPLITTING
 #endif
-implicit integer(A-Z)
+
+#ifndef _GA_
+use Prgm, only: isInMem
+#endif
+use Definitions, only: iwp, u6
+#ifndef NO_SPLITTING
+use Definitions, only: wp
+#endif
+
+implicit none
+integer(kind=iwp), intent(inout) :: Lu
+character(len=*) :: String
+logical(kind=iwp), intent(in) :: mf, wa
+integer(kind=iwp) :: iRc, temp, tmp
+character(len=80) :: Text
+character(len=8) :: StdNam
+character(len=16), parameter :: TheName = 'DaName_Main'
+integer(kind=iwp), external :: AixErr, AixOpn, isFreeUnit
 #include "fio.fh"
+#include "blksize.fh"
+#ifndef NO_SPLITTING
+integer(kind=iwp) :: lName, MFMB
+integer(kind=iwp), external :: StrnLn
+!FIXME AllocDisk is undefined
+#include "filesize.fh"
+#endif
+#ifndef _GA_
 #include "switch.fh"
+#endif
 #ifdef _OLD_IO_STAT_
 #include "ofio.fh"
 #else
+integer(kind=iwp) :: i, inUse
 #include "pfio.fh"
 #endif
-#include "blksize.fh"
-#include "filesize.fh"
-character*(*) String
-logical mf, wa
-character*8 StdNam
-character*80 Text
-character*16 TheName
-data TheName/'DaName_Main'/
 
 if (Trace) then
-  write(6,*) ' >>> Enter DaName_Main <<<'
-  write(6,*) ' unit :',Lu
-  write(6,*) ' name :',String,mf,wa
+  write(u6,*) ' >>> Enter DaName_Main <<<'
+  write(u6,*) ' unit :',Lu
+  write(u6,*) ' name :',String,mf,wa
 end if
 
 tmp = Lu
@@ -90,7 +105,7 @@ if (StdNam == '        ') write(StdNam,'(A,I2.2,A)') 'FT',Lu,'F001'
 isFiM(Lu) = 0
 isFiM(Lu) = isinmem(StdNam)
 #ifdef _DEBUGPRINT_IO_
-if (isFiM(Lu) > 0) write(6,*) 'The file ',StdNam,' will be kept in memory'
+if (isFiM(Lu) > 0) write(u6,*) 'The file ',StdNam,' will be kept in memory'
 #endif
 ! Open file
 temp = isFiM(Lu)
@@ -101,7 +116,7 @@ iRc = AixOpn(temp,StdNam,.true.)
 #ifndef _GA_
 if (iRc == eFiMFo) then
 # ifdef _DEBUGPRINT_IO_
-  write(6,*) 'Failed to open file in memory'
+  write(u6,*) 'Failed to open file in memory'
 # endif
   isFiM(Lu) = 0
   iRc = 0
@@ -127,8 +142,8 @@ if (inUse == 0) then
     NProfFiles = NProfFiles+1
     LuNameProf(NProfFiles) = StdNam
   else
-    write(6,*) 'IO error: NProfFiles+1.gt.MxFile'
-    write(6,*) 'Increase MxFile in src/Include/MxFile.fh!'
+    write(u6,*) 'IO error: NProfFiles+1.gt.MxFile'
+    write(u6,*) 'Increase MxFile in src/Include/MxFile.fh!'
     call Abend()
   end if
 end if
@@ -150,15 +165,15 @@ if (wa) MBL(Lu) = MBl_wa
 if (mf) then
   Multi_File(Lu) = .true.
   MaxFileSize = AllocDisk()
-  MFMB = int(dble(Max_File_Length)/(1024**2))
+  MFMB = int(real(Max_File_Length,kind=wp)/(1024.0_wp**2))
   if (MaxFileSize > MFMB) then
-    write(6,*)
-    write(6,*) 'DANAME_MF: Requested MaxFileSize is too large!'
-    write(6,*) ' Requested value of ',MaxFileSize
+    write(u6,*)
+    write(u6,*) 'DANAME_MF: Requested MaxFileSize is too large!'
+    write(u6,*) ' Requested value of ',MaxFileSize
     MaxFileSize = MFMB
-    write(6,*) ' has been reset to  ',MaxFileSize
+    write(u6,*) ' has been reset to  ',MaxFileSize
   else if (MaxFileSize /= 0) then
-    if (Trace) write(6,*) ' This is a partitioned data set'
+    if (Trace) write(u6,*) ' This is a partitioned data set'
     lName = StrnLn(String)
     if ((lName == 0) .or. (lName == 8)) &
       call SysFileMsg(TheName,'Invalid file name.\n File names used in multiple unit files must be less than 8 characters.', &
@@ -170,7 +185,7 @@ if (mf) then
 end if
 #endif
 if (Trace) then
-  write(6,*) ' >>> Exit DaName_Main <<<'
+  write(u6,*) ' >>> Exit DaName_Main <<<'
 end if
 
 return

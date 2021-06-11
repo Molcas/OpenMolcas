@@ -11,36 +11,41 @@
 ! Copyright (C) 2000-2016, Valera Veryazov                             *
 !***********************************************************************
 
-subroutine f_inquire(NAME,exist)
-character*(*) name
-logical exist
-character*256 RealName
-#ifdef _SOLARIS_
-character*256 FTMP1, FTMP2
-integer n, irc
+subroutine f_inquire(filename,exists)
 
-n = len(name)
+use Definitions, only: iwp
+
+implicit none
+character(len=*), intent(in) :: filename
+logical(kind=iwp), intent(out) :: exists
+integer(kind=iwp) :: lRealName
+character(len=256) :: RealName
+#ifdef _SOLARIS_
+integer(kind=iwp) :: n, irc
+character(len=256) :: FTMP1, FTMP2
+
+n = len(filename)
 200 continue
-if (name(n:n) == ' ') then
+if (filename(n:n) == ' ') then
   n = n-1
   Go To 200
 end if
 n = n+1
-ftmp1 = name
+ftmp1 = filename
 ftmp1(n:n) = char(0)
-exist = .true.
+exists = .true.
 irc = -1
 FTMP2 = ''
-call PrgmTranslate(Name,RealName,lRealName)
-FTMP1(1:lRealName) = RealNAME(1:lRealName)
-!write(6,*) 'before fndlnk', FTMP1
+call PrgmTranslate(filename,RealName,lRealName)
+FTMP1(1:lRealName) = RealName(1:lRealName)
+!write(u6,*) 'before fndlnk', FTMP1
 call fndlnk(irc,FTMP1,FTMP2)
-if (irc /= 0) exist = .false.
+if (irc /= 0) exists = .false.
 #else
 
-call PrgmTranslate(Name,RealName,lRealName)
-!write(6,*) 'Debug inquire:', RealNAME(1:lRealName)
-inquire(file=RealNAME(1:lRealName),exist=exist)
+call PrgmTranslate(filename,RealName,lRealName)
+!write(u6,*) 'Debug inquire:', RealName(1:lRealName)
+inquire(file=RealName(1:lRealName),exist=exists)
 #endif
 
 return

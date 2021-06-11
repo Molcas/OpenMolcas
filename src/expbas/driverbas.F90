@@ -12,7 +12,7 @@
 subroutine driverBas(ireturn)
 
 use desymmetrize_mod, only: desym
-use info_expbas_mod
+use info_expbas_mod, only: DoDesy, DoExpbas
 use Definitions, only: iwp
 
 implicit none

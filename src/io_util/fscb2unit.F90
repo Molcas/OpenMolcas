@@ -24,13 +24,18 @@
 
 subroutine FSCB2UNIT(cunit,LuP)
 
+use Definitions, only: iwp
+
+implicit none
+integer(iwp), intent(in) :: cunit
+integer(iwp), intent(out) :: LuP
+integer(iwp) :: i, Lu
 #include "fio.fh"
 #include "pfio.fh"
-integer cunit, i, Lu
 
 Lu = -1
 do i=1,MxFile
-  !write(6,*) i,FSCB(i),cunit
+  !write(u6,*) i,FSCB(i),cunit
   if (FSCB(i) == cunit) then
     Lu = i
   end if
@@ -41,7 +46,7 @@ Lu = MPUnit(0,Lu)
 LuP = -1
 if (Lu == -1) call Abend()
 do i=1,NProfFiles
-  !write(6,*) i,LuNameProf(i),LuName(Lu)
+  !write(u6,*) i,LuNameProf(i),LuName(Lu)
   if (LuNameProf(i) == LuName(Lu)) then
     LuP = i
   end if

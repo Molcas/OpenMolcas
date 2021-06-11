@@ -11,40 +11,46 @@
 ! Copyright (C) 2001-2016, Valera Veryazov                             *
 !***********************************************************************
 
-subroutine prgmtranslate(in,out,lout)
+subroutine prgmtranslate(namein,nameout,lout)
 
-character*(*) in, out
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_IO_
-character LL*128
+use Definitions, only: u6
 #endif
-integer Strnln
-external Strnln
 
-lin = Strnln(in)
-out = ' '
-if (index(in,'/') /= 0) then
-  ! just in case if we processing translated name!
-  out = in
+implicit none
+character(len=*), intent(in) :: namein
+character(len=*), intent(out) :: nameout
+integer(kind=iwp), intent(out) :: lout
+integer(kind=iwp) :: lin
+#ifdef _DEBUGPRINT_IO_
+character(len=68), parameter :: LL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz /.-_*'
+#endif
+integer(kind=iwp), external :: Strnln
+
+lin = Strnln(namein)
+nameout = ' '
+if (index(namein,'/') /= 0) then
+  ! just in case we process a translated name!
+  nameout = namein
   lout = lin
 else
-  call prgmtranslatec(in,lin,out,lout,1)
+  call prgmtranslatec(namein,lin,nameout,lout,1)
 end if
-out = out(1:lout)
+nameout = nameout(1:lout)
 #ifdef _DEBUGPRINT_IO_
-LL = 'QWERTYUIOPASDFGHJKLZXCVBNM1234567890qwertyuiopasdfghjklzxcvbnm /.-_*'
-
-!write(6,*) 'Translate: >',in(1:lin),'< to >',out(1:lout),'<'
+!write(u6,*) 'Translate: >',namein(1:lin),'< to >',nameout(1:lout),'<'
 do i=1,lin
-  if (index(LL,in(i:i)) == 0) then
-    write(6,*) 'Translate: >',in(1:lin),'< to >',out(1:lout),'<'
-    write(6,*) 'invalid in:',in(i:i),'<'
+  if (index(LL,namein(i:i)) == 0) then
+    write(u6,*) 'Translate: >',namein(1:lin),'< to >',nameout(1:lout),'<'
+    write(u6,*) 'invalid namein:',namein(i:i),'<'
     call abend()
   end if
 end do
 do i=1,lout
-  if (index(LL,out(i:i)) == 0) then
-    write(6,*) 'Translate: >',in(1:lin),'< to >',out(1:lout),'<'
-    write(6,*) 'invalid out:',out(i:i),'<'
+  if (index(LL,nameout(i:i)) == 0) then
+    write(u6,*) 'Translate: >',namein(1:lin),'< to >',nameout(1:lout),'<'
+    write(u6,*) 'invalid nameout:',nameout(i:i),'<'
     call abend()
   end if
 end do

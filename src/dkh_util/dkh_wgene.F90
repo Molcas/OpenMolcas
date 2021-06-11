@@ -12,6 +12,8 @@
 subroutine dkh_wgene(n,ord,nst,ndk,ifodd,cdk,wr,rw,t1,t2,e,rer,or,ro,info,s1,s2,t3,t4)
 ! Calculate U(Word)O/E_{nst}U^{\dag}(Word)
 
+#include "intent.fh"
+
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -21,7 +23,8 @@ logical(kind=iwp), intent(inout) :: ifodd
 integer(kind=iwp), intent(inout) :: info
 real(kind=wp), intent(in) :: cdk(ndk), wr(n,n), rw(n,n)
 real(kind=wp), intent(inout) :: t1(n,n), t2(n,n), e(n,n,ndk), rer(n,n,ndk), or(n,n,ndk), ro(n,n,ndk)
-real(kind=wp), intent(out) :: s1(n,n,*), s2(n,n,*), t3(n,n), t4(n,n)
+real(kind=wp), intent(_OUT_) :: s1(n,n,*), s2(n,n,*)
+real(kind=wp), intent(out) :: t3(n,n), t4(n,n)
 integer(kind=iwp) :: m, i, j, k
 real(kind=wp) :: c
 

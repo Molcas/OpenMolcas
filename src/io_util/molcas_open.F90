@@ -11,12 +11,16 @@
 ! Copyright (C) 2001-2005, Valera Veryazov                             *
 !***********************************************************************
 
-subroutine molcas_open(Lu,Name)
+subroutine molcas_open(Lu,FileName)
 
-integer Lu, f_recl, f_iostat
-character*10 f_access, f_form, f_status
-logical is_recl, is_error
-character*(*) Name
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: Lu
+character(len=*) :: FileName
+integer(kind=iwp) :: f_recl, f_iostat
+character(len=10) :: f_access, f_form, f_status
+logical(kind=iwp) :: is_recl, is_error
 
 f_recl = 1
 f_iostat = 100
@@ -26,13 +30,13 @@ f_status = 'UNKNOWN'
 is_recl = .false.
 is_error = .false.
 
-call molcas_open_ext2(Lu,Name,f_access,f_form,f_iostat,is_recl,f_recl,f_status,is_error)
+call molcas_open_ext2(Lu,trim(FileName),f_access,f_form,f_iostat,is_recl,f_recl,f_status,is_error)
 if (f_iostat /= 0) then
-  write(6,*)
-  write(6,'(3a)') 'molcas_open: Error opening file "',Name,'"'
-  write(6,'(a,i9)') '   iostat is',f_iostat
-  write(6,'(a)') '   Aborting'
-  write(6,*)
+  write(u6,*)
+  write(u6,'(3a)') 'molcas_open: Error opening file "',trim(FileName),'"'
+  write(u6,'(a,i9)') '   iostat is',f_iostat
+  write(u6,'(a)') '   Aborting'
+  write(u6,*)
   call Abend()
 end if
 

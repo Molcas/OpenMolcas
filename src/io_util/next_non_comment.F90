@@ -9,9 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-logical function next_non_comment(lu,line)
+function next_non_comment(lu,line)
+
+use Definitions, only: iwp
 
 implicit none
+logical(kind=iwp) :: next_non_comment
 integer, intent(in) :: lu
 character(len=*), intent(out) :: line
 

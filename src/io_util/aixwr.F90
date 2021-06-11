@@ -43,21 +43,28 @@
 !                                                                      *
 !***********************************************************************
 
-integer function AixWr(handle,Buf,nBuf,iDisk)
-implicit integer(a-z)
-#include "SysDef.fh"
-#include "blksize.fh"
+function AixWr(handle,Buf,nBuf,iDisk)
+
+use Definitions, only: iwp
+#ifndef _OLD_IO_STAT_
+use Definitions, only: wp
+#endif
+
+implicit none
+integer(kind=iwp) :: AixWr
+integer(kind=iwp), intent(in) :: handle, Buf(*), nBuf
+integer(kind=iwp), intent(inout) :: iDisk
+integer(kind=iwp) :: desc, Lu, n, nFile, rc, pDisk
+character(len=80) :: ErrTxt
+character(len=16), parameter :: TheName = 'TheName'
+integer(kind=iwp), external :: AixErr, c_lseek, c_write
 #include "switch.fh"
 #include "ctl.fh"
-dimension Buf(*)
-character*80 ErrTxt
-character*16 TheName
-#ifndef _OLD_IO_STAT_
-#include "pfio.fh"
-real*8 CPUA, CPUE, TIOA, TIOE
-#endif
 #include "warnings.fh"
-data TheName/'AixWr'/
+#ifndef _OLD_IO_STAT_
+real(kind=wp) CPUA, CPUE, TIOA, TIOE
+#include "pfio.fh"
+#endif
 
 !----------------------------------------------------------------------*
 ! Entry to AixWr                                                       *

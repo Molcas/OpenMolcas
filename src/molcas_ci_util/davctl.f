@@ -244,6 +244,7 @@ C
 #include "rasscf_lucia.fh"
 
       Character*8 Label
+      Real*8 Dum(1)
 
 
 *     check input arguments
@@ -389,26 +390,27 @@ CFUE  End If
         iDisk  = 0
         H_diag_RecNo = RecNo((1),(1))
         disk_address(H_diag_RecNo) = iDisk
-        Call DDafile(LuDavid,0,[0.0d0],nConf,iDisk)
+        Dum(1)=0.0d0
+        Call DDafile(LuDavid,0,Dum,nConf,iDisk)
         Do iRoot = 1,nkeep
           CI_vec_RecNo = RecNo((2),iRoot)
           disk_address(CI_vec_RecNo) = iDisk
-          Call DDafile(LuDavid,0,[0.0d0],nConf,iDisk)
+          Call DDafile(LuDavid,0,Dum,nConf,iDisk)
         End Do
         Do iRoot = 1,nKeep
           Sig_vec_RecNo = RecNo((3),iRoot)
           disk_address(Sig_vec_RecNo) = iDisk
-          Call DDaFile(LuDavid,0,[0.0d0],nConf,iDisk)
+          Call DDaFile(LuDavid,0,Dum,nConf,iDisk)
         End Do
         Do iRoot = 1,nRoots
           tmp_CI_vec_RecNo = RecNo((4),iRoot)
           disk_address(tmp_CI_vec_RecNo) = iDisk
-          Call DDaFile(LuDavid,0,[0.0d0],nConf,iDisk)
+          Call DDaFile(LuDavid,0,Dum,nConf,iDisk)
         End Do
         Do iRoot = 1,nRoots
           tmp_Sig_vec_RecNo = RecNo((5),iRoot)
           disk_address(tmp_Sig_vec_RecNo) = iDisk
-          Call DDaFile(LuDavid,0,[0.0d0],nConf,iDisk)
+          Call DDaFile(LuDavid,0,Dum,nConf,iDisk)
         End Do
       End If
 
@@ -422,9 +424,10 @@ CFUE  End If
           memory_address(nStk) = iMem
         End Do
         iDisk = 0
+        Dum(1)=0.0d0
         Do nStk = 1,mxDiskStk
           disk_address(nStk) = iDisk
-          Call DDaFile(LuDavid,0,[0.0d0],nConf,iDisk)
+          Call DDaFile(LuDavid,0,Dum,nConf,iDisk)
         End Do
         Do nStk = 1,(mxMemStk+mxDiskStk)
           LblStk(nStk) = '                '

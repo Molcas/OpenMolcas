@@ -36,12 +36,18 @@
 !                                                                      *
 !***********************************************************************
 
-integer function AixFsz(handle)
+function AixFsz(handle)
 
-implicit integer(a-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: AixFsz
+integer(kind=iwp), intent(in) :: handle
+integer(kind=iwp) :: desc, n, nFile, rc
+character(len=80) :: ErrTxt
+integer(kind=iwp), external :: AixErr, c_stat
 #include "switch.fh"
 #include "ctl.fh"
-character*80 ErrTxt
 
 !----------------------------------------------------------------------*
 ! Entry to AixFsz                                                      *
