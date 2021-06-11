@@ -1978,6 +1978,11 @@ if (DMRG)
   # Builds with build subdirectory outside the source tree require the second argument of add_subdirectory
   add_subdirectory (${proj_bin} ${proj_bin})
 
+  # Make sure GlobalArrays is built first if we're building both
+  if (TARGET GlobalArrays)
+    add_dependencies (qcmaquis GlobalArrays)
+  endif ()
+
   foreach (lib ${HDF5_QCM_LIBRARIES})
     get_filename_component (name ${lib} NAME_WE)
     if (NOT TARGET ${name})
@@ -2103,7 +2108,7 @@ if (GEN1INT)
   message ("Configuring Gen1Int:")
 
   set (custom_dir ${PROJECT_SOURCE_DIR}/cmake/custom)
-  set (proj_bin ${PROJECT_BINARY_DIR}/External/gen1int_util)
+  set (proj_bin ${PROJECT_BINARY_DIR}/External/gen1int)
 
   configure_file (${custom_dir}/gen1int.cmake ${proj_bin}/CMakeLists.txt COPYONLY)
   add_subdirectory (${proj_bin} ${proj_bin})
@@ -3358,3 +3363,8 @@ endforeach ()
 if (IS_DIRECTORY "$ENV{HOME}/.Molcas")
   install (CODE "execute_process (COMMAND sh \"-c\" \"cd ${CMAKE_INSTALL_PREFIX}; echo `pwd` > $HOME/.Molcas/molcas 2> /dev/null\")")
 endif ()
+
+# Final warning(s)
+if (GEN1INT)
+  message (WARNING "OpenMolcas is LGPL code, but Gen1Int's original license is GPL.\nThe generated binaries *cannot* be redistributed.")
+endif()

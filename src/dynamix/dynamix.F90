@@ -124,7 +124,7 @@ if (.not. Found) then
       call DxRdOut(pcoo,POUT,natom)
       ! Save on RUNFILE
       call Put_dArray('Proj_Coord',pcoo,POUT*natom*3)
-    elseif (PIN /= natom*3) then
+    else if (PIN /= natom*3) then
       call mma_allocate(pcoo,PIN,natom*3)
       call DxRdIn(pcoo,PIN,natom)
       ! Save on RUNFILE
@@ -135,7 +135,7 @@ if (.not. Found) then
   if (VELO == 1) then
     call DxRdVel(vel,natom)
     write(u6,'(5X,A,T55)') 'The initial velocities (bohr/au) are read in.'
-  elseif (VELO == 2) then
+  else if (VELO == 2) then
     call DxRdVel(vel,natom)
     do i=1,natom
       do j=1,3
@@ -145,7 +145,7 @@ if (.not. Found) then
     write(u6,'(5X,A,T55)') 'The initial mass weighted velocities (bohr/au) are read in.'
 
     ! Maxwell-Boltzmann distribution
-  elseif (VELO == 3) then
+  else if (VELO == 3) then
     nFlag = 0
     val = Zero
     buffer = Zero
@@ -179,7 +179,7 @@ if (.not. Found) then
   ! Check if reduced dimensionality
   if (POUT /= 0) then
     call project_out_vel(vel,natom)
-  elseif (PIN /= natom*3) then
+  else if (PIN /= natom*3) then
     call project_in_vel(vel,natom)
     caption = 'Vel (red dim)'
     call DxPtTableWithoutMassForce(caption,time,natom,atom,vel)

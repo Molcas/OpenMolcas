@@ -105,7 +105,7 @@ do iCount=0,nSconf-1
     do j=1,nConstr(iSym)
       if (indxC(j,1,iSym) == 1) then
         Line(k:k+2) = ' u '
-      elseif (indxC(j,1,iSym) == 2) then
+      else if (indxC(j,1,iSym) == 2) then
         Line(k:k+2) = ' d '
       else
         Line(k:k+2) = '   '
@@ -118,7 +118,7 @@ do iCount=0,nSconf-1
     do j=1,nConstr(iSym)
       if (indxC(j,2,iSym) == 1) then
         Line(k:k+2) = ' u '
-      elseif (indxC(j,2,iSym) == 2) then
+      else if (indxC(j,2,iSym) == 2) then
         Line(k:k+2) = ' d '
       else
         Line(k:k+2) = '   '

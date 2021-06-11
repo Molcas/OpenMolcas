@@ -88,7 +88,7 @@ call GetMassDx(Mass,natom)
 ! Check if reduced dimensionality
 if (POUT /= 0) then
   call project_out_for(force,natom)
-elseif (PIN /= natom*3) then
+else if (PIN /= natom*3) then
   call project_in_for(force,natom)
 end if
 !--------------------------------------------------------------------C
@@ -138,7 +138,7 @@ end do
 ! Check if reduced dimensionality (should not be needed)
 if (POUT /= 0) then
   call project_out_vel(vel,natom)
-elseif (PIN /= natom*3) then
+else if (PIN /= natom*3) then
   call project_in_vel(vel,natom)
 end if
 

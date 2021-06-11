@@ -34,7 +34,6 @@
 #include "rmat.fh"
 #include "gam.fh"
 #include "real.fh"
-#include "relae.fh"
 #include "FMM.fh"
 #include "nac.fh"
 #include "srint.fh"
@@ -61,8 +60,6 @@ C
       Seward_Status=InActive
 *
 *-----LInfo
-*
-      IRFLAG1=0
 *
       Call GetEnvF('MOLCAS_NEW_DEFAULTS', Env)
       Call UpCase(Env)
@@ -147,10 +144,6 @@ C
 *---- gam.fh
 *
       lgamma = 9
-*
-*     relae.fh
-*
-      irelae=-1
 *
       Call DCR_Init()
 *

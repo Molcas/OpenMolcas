@@ -60,7 +60,7 @@ do iCnttp=1,nCnttp
     do jCnttp=iCnttp,nCnttp
       ! still figure out how to loop only over the centers belonging to the
       ! same fragment (keep track of mdc?) ! still to be done !!!
-      if (.not. dbsc(jCnttp)%Frag) cycle !Go To 1970
+      if (.not. dbsc(jCnttp)%Frag) cycle
 
       do jAng=0,dbsc(jCnttp)%nVal-1
         jShll = dbsc(jCnttp)%iVal+jAng

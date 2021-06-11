@@ -11,6 +11,7 @@
       Subroutine BSSint
       use Basis_Info
       use Symmetry_Info, only: nIrrep
+      use DKH_Info, only: CLightAU
       Implicit real*8(a-h,o-z)
 #include "Molcas.fh"
 #include "rinfo.fh"
@@ -19,7 +20,6 @@
 #include "WrkSpc.fh"
 #include "wldata.fh"
 #include "oneswi.fh"
-#include "RelLight.fh"
       integer ipaddr(3)
       Character*8 Label
       Logical IfTest

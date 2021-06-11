@@ -100,12 +100,12 @@ if ((ca == Zero) .and. (cb == Zero)) then
   llo = mod((lit-1),2)+1
   if ((llo /= mod((ljt-1),2)+1) .or. (llo > lhi)) return
   inc = 2
-elseif (ca == Zero) then
+else if (ca == Zero) then
   lhi = min(lcru,lit)
   llo = mod((lit-1),2)+1
   if (llo > lhi) return
   inc = 2
-elseif (cb == Zero) then
+else if (cb == Zero) then
   lhi = min(lcru,ljt)
   llo = mod((ljt-1),2)+1
   if (llo > lhi) return

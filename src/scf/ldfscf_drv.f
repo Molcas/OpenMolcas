@@ -69,7 +69,6 @@ C
       Integer irc
       Integer ip_UBFNorm, l_UBFNorm
       Integer ipF, lF, ipF2
-      Integer ip_myF, l_myF
       Integer iDen
       Integer AB_MAE, AB_MRNrm
       Integer lMode
@@ -408,56 +407,44 @@ C--------------------------------------------------------------
             Call LDF_Fock_CoulombOnly(IntegralOption,
      &                                Timing,Mode,ThrPS,
      &                                Add,PackedD,PackedF,
-     &                                nDen,FactC,ip_D,ip_F)
+     &                                nDen,FactC,ip_D,FLT)
             ! Debug: check Coulomb error
             If (LDF_CoulombCheck) Then
                Call WarningMessage(0,
      &                            SecNam//': Analysis of Coulomb error')
                Call xFlush(6)
-               l_myF=nDen
-               Call GetMem('DrvmyF','Allo','Inte',ip_myF,l_myF)
                If (PackedF) Then
                   lF=nBas(1)*(nBas(1)+1)/2
                Else
                   lF=nBas(1)**2
                End If
+               Call GetMem('DrvF','Allo','Real',ipF,nDen*lF)
                Do iDen=1,nDen
-                  Call GetMem('DrvF','Allo','Real',ipF,lF)
-                  Call dCopy_(lF,Work(ip_F(iDen)),1,Work(ipF),1)
-                  iWork(ip_myF-1+iDen)=ipF
+                  Call dCopy_(lF,Work(ip_F(iDen)),1,
+     &                           Work(ipF+(iDen-1)*lF),1)
                End Do
                ComputeF=.False.
                Call LDF_Fock_CoulombErrorAnalysis(ComputeF,Mode,
      &                                            PackedD,PackedF,
      &                                            nDen,FactC,ip_D,
-     &                                            iWork(ip_myF))
-               Do iDen=1,nDen
-                  ipF=iWork(ip_myF-1+iDen)
-                  Call GetMem('DrvF','Free','Real',ipF,lF)
-               End Do
-               Call GetMem('DrvmyF','Free','Inte',ip_myF,l_myF)
+     &                                            Work(ipF))
+               Call GetMem('DrvF','Free','Real',ipF,nDen*lF)
             End If
             ! Debug: check mode consistency
             If (LDF_ModeCheck) Then
                LDF_ModeCheck=.False. ! check only once
                Call WarningMessage(0,SecNam//': Mode Check')
                Call xFlush(6)
-               l_myF=nDen*2
-               Call GetMem('DrvmyF','Allo','Inte',ip_myF,l_myF)
                If (PackedF) Then
                   lF=nBas(1)*(nBas(1)+1)/2
                Else
                   lF=nBas(1)**2
                End If
+               Call GetMem('DrvF','Allo','Real',ipF,nDen*2*lF)
                Do iDen=1,nDen
-                  Call GetMem('DrvF','Allo','Real',ipF,lF)
-                  iWork(ip_myF-1+iDen)=ipF
-               End Do
-               Do iDen=1,nDen
-                  Call GetMem('DrvF','Allo','Real',ipF,lF)
                   ipF2=ip_F(iDen)
-                  Call dCopy_(lF,Work(ipF2),1,Work(ipF),1)
-                  iWork(ip_myF-1+nDen+iDen)=ipF
+                  Call dCopy_(lF,Work(ipF2),1,
+     &                           Work(ipF+(nDen+iDen-1)*lF),1)
                End Do
                If (Mode.eq.1) Then
                   lMode=3
@@ -467,8 +454,7 @@ C--------------------------------------------------------------
                   factor=-2.0d0
                Else If (Mode.eq.3) Then
                   Do iDen=1,nDen
-                     ipF=iWork(ip_myF-1+nDen+iDen)
-                     Call dScal_(lF,2.0d0,Work(ipF),1)
+                     Call dScal_(lF,2.0d0,Work(ipF+(nDen+iDen-1)*lF),1)
                   End Do
                   lMode=1
                   factor=-1.0d0
@@ -482,12 +468,10 @@ C--------------------------------------------------------------
      &                                   Timing,lMode,ThrPS,
      &                                   Add,PackedD,PackedF,
      &                                   nDen,FactC,ip_D,
-     &                                   iWork(ip_myF))
+     &                                   Work(ipF))
                Do iDen=1,nDen
-                  ipF=iWork(ip_myF-1+iDen)
-                  ipF2=iWork(ip_myF-1+nDen+iDen)
-                  Call dAXPY_(lF,factor,Work(ipF),1,
-     &                                 Work(ipF2),1)
+                  Call dAXPY_(lF,factor,Work(ipF+(iDen-1)*lF),1,
+     &                                  Work(ipF+(nDen+iDen-1)*lF),1)
                End Do
                If (Mode.eq.1) Then
                   lMode=2
@@ -508,18 +492,16 @@ C--------------------------------------------------------------
      &                                   Timing,lMode,ThrPS,
      &                                   Add,PackedD,PackedF,
      &                                   nDen,FactC,ip_D,
-     &                                   iWork(ip_myF))
+     &                                   Work(ipF))
                Do iDen=1,nDen
-                  ipF=iWork(ip_myF-1+iDen)
-                  ipF2=iWork(ip_myF-1+nDen+iDen)
-                  Call dAXPY_(lF,factor,Work(ipF),1,
-     &                                 Work(ipF2),1)
+                  Call dAXPY_(lF,factor,Work(ipF+(iDen-1)*lF),1,
+     &                                  Work(ipF+(nDen+iDen-1)*lF),1)
                End Do
                Call Cho_Head(SecNam//': Mode Check','=',80,6)
                n=0
                Do iDen=1,nDen
-                  ipF=iWork(ip_myF-1+nDen+iDen)
-                  FNorm=sqrt(dDot_(lF,Work(ipF),1,Work(ipF),1))
+                  FNorm=sqrt(dDot_(lF,Work(ipF+(nDen+iDen-1)*lF),1,
+     &                                Work(ipF+(nDen+iDen-1)*lF),1))
                   If (FNorm.gt.Tol_ModeCheck) Then
                      Write(6,'(3X,A,I3,A,1P,D20.10,A)')
      &               'Density no.',iDen,' Check norm=',Fnorm,
@@ -536,11 +518,7 @@ C--------------------------------------------------------------
                   Call LDF_Quit(1)
                End If
                Call xFlush(6)
-               Do iDen=1,nDen*2
-                  ipF=iWork(ip_myF-1+iDen)
-                  Call GetMem('DrvF','Free','Real',ipF,lF)
-               End Do
-               Call GetMem('DrvmyF','Free','Inte',ip_myF,l_myF)
+               Call GetMem('DrvF','Free','Real',ipF,nDen*2*lF)
             End If
          Else ! spin-unrestricted Coulomb-only
             ! Add alpha and beta parts of density matrix
@@ -607,56 +585,44 @@ C--------------------------------------------------------------
             Call LDF_Fock_CoulombOnly(IntegralOption,
      &                                Timing,Mode,ThrPS,
      &                                Add,PackedD,PackedF,
-     &                                nDen,FactC,ip_D,ip_F)
+     &                                nDen,FactC,ip_D,FLT)
             ! Debug: check Coulomb error
             If (LDF_CoulombCheck) Then
                Call WarningMessage(2,
      &                            SecNam//': Analysis of Coulomb error')
                Call xFlush(6)
-               l_myF=nDen
-               Call GetMem('DrvmyF','Allo','Inte',ip_myF,l_myF)
                If (PackedF) Then
                   lF=nBas(1)*(nBas(1)+1)/2
                Else
                   lF=nBas(1)**2
                End If
+               Call GetMem('DrvF','Allo','Real',ipF,nDen*lF)
                Do iDen=1,nDen
-                  Call GetMem('DrvF','Allo','Real',ipF,lF)
-                  Call dCopy_(lF,Work(ip_F(iDen)),1,Work(ipF),1)
-                  iWork(ip_myF-1+iDen)=ipF
+                  Call dCopy_(lF,Work(ip_F(iDen)),1,
+     &                           Work(ipF+(iDen-1)*lF),1)
                End Do
                ComputeF=.False.
                Call LDF_Fock_CoulombErrorAnalysis(ComputeF,Mode,
      &                                            PackedD,PackedF,
      &                                            nDen,FactC,ip_D,
-     &                                            iWork(ip_myF))
-               Do iDen=1,nDen
-                  ipF=iWork(ip_myF-1+iDen)
-                  Call GetMem('DrvF','Free','Real',ipF,lF)
-               End Do
-               Call GetMem('DrvmyF','Free','Inte',ip_myF,l_myF)
+     &                                            Work(ipF))
+               Call GetMem('DrvF','Free','Real',ipF,nDen*lF)
             End If
             ! Debug: check mode consistency
             If (LDF_ModeCheck) Then
                LDF_ModeCheck=.False. ! check only once
                Call WarningMessage(0,SecNam//': Mode Check')
                Call xFlush(6)
-               l_myF=nDen*2
-               Call GetMem('DrvmyF','Allo','Inte',ip_myF,l_myF)
                If (PackedF) Then
                   lF=nBas(1)*(nBas(1)+1)/2
                Else
                   lF=nBas(1)**2
                End If
+               Call GetMem('DrvF','Allo','Real',ipF,nDen*2*lF)
                Do iDen=1,nDen
-                  Call GetMem('DrvF','Allo','Real',ipF,lF)
-                  iWork(ip_myF-1+iDen)=ipF
-               End Do
-               Do iDen=1,nDen
-                  Call GetMem('DrvF','Allo','Real',ipF,lF)
                   ipF2=ip_F(iDen)
-                  Call dCopy_(lF,Work(ipF2),1,Work(ipF),1)
-                  iWork(ip_myF-1+nDen+iDen)=ipF
+                  Call dCopy_(lF,Work(ipF2),1,
+     &                           Work(ipF+(nDen+iDen-1)*lF),1)
                End Do
                If (Mode.eq.1) Then
                   lMode=3
@@ -666,8 +632,7 @@ C--------------------------------------------------------------
                   factor=-2.0d0
                Else If (Mode.eq.3) Then
                   Do iDen=1,nDen
-                     ipF=iWork(ip_myF-1+nDen+iDen)
-                     Call dScal_(lF,2.0d0,Work(ipF),1)
+                     Call dScal_(lF,2.0d0,Work(ipF+(nDen+iDen-1)*lF),1)
                   End Do
                   lMode=1
                   factor=-1.0d0
@@ -681,12 +646,10 @@ C--------------------------------------------------------------
      &                                   Timing,lMode,ThrPS,
      &                                   Add,PackedD,PackedF,
      &                                   nDen,FactC,ip_D,
-     &                                   iWork(ip_myF))
+     &                                   Work(ipF))
                Do iDen=1,nDen
-                  ipF=iWork(ip_myF-1+iDen)
-                  ipF2=iWork(ip_myF-1+nDen+iDen)
-                  Call dAXPY_(lF,factor,Work(ipF),1,
-     &                                 Work(ipF2),1)
+                  Call dAXPY_(lF,factor,Work(ipF+(iDen-1)*lF),1,
+     &                                  Work(ipF+(nDen+iDen-1)*lF),1)
                End Do
                If (Mode.eq.1) Then
                   lMode=2
@@ -707,18 +670,16 @@ C--------------------------------------------------------------
      &                                   Timing,lMode,ThrPS,
      &                                   Add,PackedD,PackedF,
      &                                   nDen,FactC,ip_D,
-     &                                   iWork(ip_myF))
+     &                                   Work(ipF))
                Do iDen=1,nDen
-                  ipF=iWork(ip_myF-1+iDen)
-                  ipF2=iWork(ip_myF-1+nDen+iDen)
-                  Call dAXPY_(lF,factor,Work(ipF),1,
-     &                                 Work(ipF2),1)
+                  Call dAXPY_(lF,factor,Work(ipF+(iDen-1)*lF),1,
+     &                                  Work(ipF+(nDen+iDen-1)*lF),1)
                End Do
                Call Cho_Head(SecNam//': Mode Check','=',80,6)
                n=0
                Do iDen=1,nDen
-                  ipF=iWork(ip_myF-1+nDen+iDen)
-                  FNorm=sqrt(dDot_(lF,Work(ipF),1,Work(ipF),1))
+                  FNorm=sqrt(dDot_(lF,Work(ipF+(nDen+iDen-1)*lF),1,
+     &                                Work(ipF+(nDen+iDen-1)*lF),1))
                   If (FNorm.gt.Tol_ModeCheck) Then
                      Write(6,'(3X,A,I3,A,1P,D20.10,A)')
      &               'Density no.',iDen,' Check norm=',Fnorm,
@@ -735,11 +696,7 @@ C--------------------------------------------------------------
                   Call LDF_Quit(1)
                End If
                Call xFlush(6)
-               Do iDen=1,nDen*2
-                  ipF=iWork(ip_myF-1+iDen)
-                  Call GetMem('DrvF','Free','Real',ipF,lF)
-               End Do
-               Call GetMem('DrvmyF','Free','Inte',ip_myF,l_myF)
+               Call GetMem('DrvF','Free','Real',ipF,nDen*2*lF)
             End If
             ! Copy result to FLT_ab
             Call dCopy_(nFLT,FLT,1,FLT_ab,1)
