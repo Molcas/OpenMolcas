@@ -37,6 +37,7 @@
 
 function AixRm(filename)
 
+use Fast_IO, only: eBlNme, eTlFn
 use Definitions, only: iwp
 
 implicit none
@@ -46,7 +47,6 @@ integer(kind=iwp) :: n, ltmp, rc
 character(len=256) :: tmp, outname
 character(len=80) :: ErrTxt
 integer(kind=iwp), external :: AixErr, c_remove
-#include "switch.fh"
 
 !----------------------------------------------------------------------*
 ! Entry to AixRm                                                       *

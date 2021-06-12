@@ -57,6 +57,7 @@ subroutine bDaFile(Lu,iOpt,Buf,lBuf,iDisk)
 !                                                                      *
 !***********************************************************************
 
+use Fast_IO, only: Addr, FSCB, LuName, MaxFileSize, Multi_File, Trace
 use Definitions, only: iwp, u6
 
 implicit none
@@ -66,7 +67,6 @@ integer(kind=iwp), intent(inout) :: iDisk
 integer(kind=iwp) :: iRC, kDisk, jDisk
 logical(kind=iwp) :: Skip
 integer(kind=iwp), external :: AixFsz
-#include "fio.fh"
 
 if (Trace) then
   write(u6,*) ' >>> Enter bDaFile <<<'

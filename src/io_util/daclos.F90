@@ -34,6 +34,11 @@ subroutine DaClos(Lu)
 !                                                                      *
 !***********************************************************************
 
+use Fast_IO, only: FlsSize, FSCB, isOpen, LuName, LuNameProf, MaxFileSize, MaxSplitFile, MBL, MPUnit, Multi_File, MxFile, &
+                   NProfFiles, Trace
+#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
+use Fast_IO, only: isFiM
+#endif
 use Definitions, only: iwp, u6
 
 implicit none
@@ -42,17 +47,12 @@ integer(kind=iwp) :: i, iRc, Lu_, LuP
 character(len=80) :: Text
 character(len=6), parameter :: TheName = 'DaClos'
 integer(kind=iwp), external :: AixCls, AixErr, AixFsz
-#include "fio.fh"
-#ifndef _OLD_IO_STAT_
-#include "pfio.fh"
-#endif
 
 if (Trace) then
   write(u6,*) ' >>> Enter DaClos <<<'
   write(u6,*) ' unit :',Lu
   write(u6,*) ' name :',LuName(Lu)
 end if
-#ifndef _OLD_IO_STAT_
 LuP = 0
 do i=1,NProfFiles
   if (LuNameProf(i) == LuName(Lu)) then
@@ -67,7 +67,6 @@ if (isFiM(Lu) == 0) then
 else
   FlsSize(LuP) = FimFsz(FSCB(Lu))
 end if
-#endif
 #endif
 
 if ((Lu <= 0) .or. (Lu > MxFile)) call SysFileMsg(TheName,'MSG: unit',Lu,' ')

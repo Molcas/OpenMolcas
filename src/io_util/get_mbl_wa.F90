@@ -8,17 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!----------------------------------------------------------------------*
-! Control blocks for AIX I/O routines.                                 *
-!----------------------------------------------------------------------*
-#include "MxFile.fh"
-      Integer pHeadOffset, pHndle, pWhere, pDesc, pStat, pEnd, CtlBlk
-      Parameter (pHeadOffset = 0)
-      Parameter (pHndle =  1)
-      Parameter (pWhere =  pHndle + 1)
-      Parameter (pDesc  =  pWhere + 1)
-      Parameter (pStat  =  pDesc  + 1)
-      Parameter (pEnd   =  pStat)
-      Dimension CtlBlk(pEnd,MxFile)
-      Character*80 FCtlBlk(MxFile)
-      Common /AixCmn/ CtlBlk,FCtlBlk
+
+function get_MBl_wa()
+! help function to get the value without using the module
+
+use Fast_IO, only: MBl_wa
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: get_MBl_wa
+
+get_MBl_wa = MBl_wa
+
+return
+
+end function get_MBl_wa

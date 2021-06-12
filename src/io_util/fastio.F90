@@ -40,24 +40,16 @@ subroutine FastIO(String)
 !                                                                      *
 !***********************************************************************
 
+use Fast_IO, only: FlsSize, LuNameProf, NProfFiles, ProfData, Query, Trace
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=*), intent(in) :: String
 integer(kind=iwp) :: i, lString
-real(kind=wp) :: file_size, tot_MB_in, tot_MB_out, tot_Rec_in, tot_Rec_out
+real(kind=wp) :: file_size, rrd, rwr, tot_MB_in, tot_MB_out, tot_Rec_in, tot_Rec_out, tot_Time_in, tot_Time_out
 character(len=100) :: Frmt
 integer(kind=iwp), external :: iPrintLevel
-#include "fio.fh"
-#ifdef _OLD_IO_STAT_
-real(kind=wp) :: MB_in, MB_out, Rec_in, Rec_out
-!FIXME min_Block_length is undefined
-#include "ofio.fh"
-#else
-real(kind=wp) :: rrd, rwr, tot_Time_in, tot_Time_out
-#include "pfio.fh"
-#endif
 
 lString = len(String)
 if (lString >= 8) then
@@ -72,36 +64,6 @@ if (lString >= 8) then
 end if
 ! Print I/O statistics
 if ((String(1:6) == 'STATUS') .and. (iPrintLevel(-1) >= 3)) then
-# ifdef _OLD_IO_STAT_
-  call CollapseOutput(1,'I/O statistics')
-  write(u6,'(3X,A)') '--------------'
-  write(u6,'(1X,A)')
-  write(u6,'(1X,A)') ' Unit  Name          Xtent      pages      MBytes     pages      MBytes'
-  write(u6,'(1X,A)') '                    (MBytes)     in          in        out        out  '
-  write(u6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
-  tot_Rec_in = Zero
-  tot_Rec_out = Zero
-  tot_MB_in = Zero
-  tot_MB_out = Zero
-  do i=1,MxFile
-    if (FSCB(i) /= 0) then
-      Rec_in = count(1,i)/1024.0_wp
-      Rec_out = count(3,i)/1024.0_wp
-      MB_in = count(2,i)/1024.0_wp
-      MB_out = count(4,i)/1024.0_wp
-      tot_Rec_in = tot_Rec_in+Rec_in
-      tot_Rec_out = tot_Rec_out+Rec_out
-      tot_MB_in = tot_MB_in+MB_in
-      tot_MB_out = tot_MB_out+MB_out
-      file_size = (real(MxAddr(i),kind=wp)*real(min_Block_length,kind=wp))/(1024.0_wp**2)
-      write(u6,'(2X,I2,3X,A8,1X,5F11.2)') i,LuName(i),file_size,Rec_in,MB_in,Rec_out,MB_out
-    end if
-  end do
-  write(u6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(u6,'(1X,A,20X,4F11.2)') ' Total',tot_Rec_in,tot_MB_in,tot_Rec_out,tot_MB_out
-  write(u6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
-  call CollapseOutput(0,'I/O statistics')
-# else
   tot_Rec_in = Zero
   tot_Rec_out = Zero
   tot_MB_in = Zero
@@ -167,7 +129,6 @@ if ((String(1:6) == 'STATUS') .and. (iPrintLevel(-1) >= 3)) then
   end do
   write(u6,'(1X,A)') ' - - - - - - - - - - - - - - - - - - - -'
   call CollapseOutput(0,'I/O STATISTICS')
-# endif
 end if
 
 return

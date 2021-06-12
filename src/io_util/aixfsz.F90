@@ -38,6 +38,7 @@
 
 function AixFsz(handle)
 
+use Fast_IO, only: CtlBlk, eNtOpn, FCtlBlk, pDesc, pHndle, MxFile
 use Definitions, only: iwp
 
 implicit none
@@ -46,8 +47,6 @@ integer(kind=iwp), intent(in) :: handle
 integer(kind=iwp) :: desc, n, nFile, rc
 character(len=80) :: ErrTxt
 integer(kind=iwp), external :: AixErr, c_stat
-#include "switch.fh"
-#include "ctl.fh"
 
 !----------------------------------------------------------------------*
 ! Entry to AixFsz                                                      *

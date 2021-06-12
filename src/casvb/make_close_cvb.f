@@ -13,6 +13,8 @@
 ************************************************************************
       subroutine make_close_cvb(it)
       implicit real*8(a-h,o-z)
+      integer find_lu
+      external find_lu
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -21,7 +23,6 @@
 
 #include "io_cvb.fh"
 #include "idbl_cvb.fh"
-#include "fio.fh"
       character*8 vec(11)
       vec(1)='TMP01'
       vec(2)='TMP02'
@@ -38,15 +39,9 @@
       if(it.eq.0) il=10
       if(it.eq.1) il=11
 c  Preassign some file names to identifiers :
-      do n=1,MxFile
-         do i=1,il
-             if(isOpen(n).eq.1) then
-              if (LuName(n).eq.vec(i)) then
-c         print *,'closing ',LuName(n)
-                call daclos(n)
-              endif
-              endif
-      enddo
+      do i=1,il
+        n=find_lu(vec(i))
+        if(n.gt.0)call daclos(n)
       enddo
       if(.not.variat) then
          call mkguga_free()

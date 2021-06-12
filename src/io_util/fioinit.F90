@@ -36,55 +36,28 @@ subroutine FIOInit()
 !                                                                      *
 !***********************************************************************
 
+use Fast_IO, only: Addr, FSCB, isOpen, LuName, MaxFileSize, MBL, MPUnit, Multi_File, MxFile, ProfData, Query, Trace
 use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: i, j
-#include "fio.fh"
-#include "ComDat.fh"
-#ifdef _OLD_IO_STAT_
-#include "ofio.fh"
-#else
-#include "pfio.fh"
-#endif
+integer(kind=iwp) :: i
 
+isOpen(:) = 0
+FSCB(:) = 0
+Addr(:) = 0
+Multi_File(:) = .false.
+ProfData(:,:) = Zero
+MPUnit(:,:) = 0
+MBL(:) = 0
+LuName(:) = 'FT__F001'
 do i=1,MxFile
-  isOpen(i) = 0
-  FSCB(i) = 0
-  Addr(i) = 0
-  Multi_File(i) = .false.
-# ifdef _OLD_IO_STAT_
-  MxAddr(i) = 0
-  do j=1,4
-    count(j,i) = 0
-  end do
-# else
-  do j=1,8
-    PRofData(j,i) = Zero
-  end do
-# endif
-  LuName(i)(1:2) = 'FT'
   write(LuName(i)(3:4),'(I2.2)') i
-  LuName(i)(5:8) = 'F001'
-  LuMark(i) = -1
-  do j=0,MaxSplitFile-1
-    MPUnit(j,i) = 0
-  end do
-  MBL(i) = 0
 end do
 
-#ifndef _OLD_IO_STAT_
-NProfFiles = 0
-#endif
 MaxFileSize = 0
-FirstCall = .true.
 Trace = .false.
 Query = .false.
-
-! Initiate the COMFILE as closed
-
-AuxCom(pOpen) = NaN
 
 return
 

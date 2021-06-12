@@ -37,7 +37,7 @@ c       parameter (MakeErr=100)
 #ifdef _HAVE_EXTRA_
 c FIXME: This include file should be created,
 c        as it contains a shared common block
-#include "lfalcon.fh"
+c#include "lfalcon.fh"
 #else
        Logical isFalcon
        isFalcon = .false.

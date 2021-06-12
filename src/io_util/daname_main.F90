@@ -46,9 +46,12 @@ subroutine DaName_Main(Lu,String,mf,wa)
 
 #ifndef _GA_
 use Prgm, only: isInMem
+use Fast_IO, only: eFiMFo, isFiM
 #endif
+use Fast_IO, only: Addr, FSCB, isOpen, LuName, LuNameProf, MBL, MBl_nwa, MBl_wa, MPUnit, Multi_File, MxFile, NProfFiles, Trace
 use Definitions, only: iwp, u6
 #ifndef NO_SPLITTING
+use Fast_IO, only: Max_File_Length
 use Definitions, only: wp
 #endif
 
@@ -56,27 +59,15 @@ implicit none
 integer(kind=iwp), intent(inout) :: Lu
 character(len=*) :: String
 logical(kind=iwp), intent(in) :: mf, wa
-integer(kind=iwp) :: iRc, temp, tmp
+integer(kind=iwp) :: i, inUse, iRc, temp, tmp
 character(len=80) :: Text
 character(len=8) :: StdNam
 character(len=11), parameter :: TheName = 'DaName_Main'
 integer(kind=iwp), external :: AixErr, AixOpn, isFreeUnit
-#include "fio.fh"
-#include "blksize.fh"
 #ifndef NO_SPLITTING
 integer(kind=iwp) :: lName, MFMB
 integer(kind=iwp), external :: StrnLn
 !FIXME AllocDisk is undefined
-#include "filesize.fh"
-#endif
-#ifndef _GA_
-#include "switch.fh"
-#endif
-#ifdef _OLD_IO_STAT_
-#include "ofio.fh"
-#else
-integer(kind=iwp) :: i, inUse
-#include "pfio.fh"
 #endif
 
 if (Trace) then
@@ -129,7 +120,6 @@ end if
 isOpen(Lu) = 1
 FSCB(Lu) = temp
 LuName(Lu) = StdNam
-#ifndef _OLD_IO_STAT_
 inUse = 0
 do i=1,NProfFiles
   if (LuNameProf(i) == StdNam) then
@@ -143,24 +133,14 @@ if (inUse == 0) then
     LuNameProf(NProfFiles) = StdNam
   else
     write(u6,*) 'IO error: NProfFiles+1.gt.MxFile'
-    write(u6,*) 'Increase MxFile in src/Include/MxFile.fh!'
+    write(u6,*) 'Increase MxFile in module Fast_IO'
     call Abend()
   end if
 end if
-#endif
-call SetLuMark(Lu)
 Addr(Lu) = 0
 MPUnit(0,Lu) = Lu
-#ifdef _OLD_IO_STAT_
-MxAddr(Lu) = 0
-count(1,Lu) = 0
-count(2,Lu) = 0
-count(3,Lu) = 0
-count(4,Lu) = 0
-#endif
 Multi_File(Lu) = .false.
-MBL(Lu) = MBl_nwa
-if (wa) MBL(Lu) = MBl_wa
+MBL(Lu) = merge(MBl_wa,MBl_nwa,wa)
 #ifndef NO_SPLITTING
 if (mf) then
   Multi_File(Lu) = .true.

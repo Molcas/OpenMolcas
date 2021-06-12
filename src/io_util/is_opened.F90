@@ -8,9 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!----------------------------------------------------------------------*
-! Define minimal block size handeled by the IO system                  *
-! (units=Bytes)                                                        *
-!----------------------------------------------------------------------*
-       Integer MBl_wa, MBl_nwa
-       Parameter (MBl_wa=8, MBl_nwa=512)
+
+function is_opened(lu)
+! help function to get the value without using the module
+
+use Fast_IO, only: isOpen, MxFile
+use Definitions, only: iwp
+
+implicit none
+logical(kind=iwp) :: is_opened
+integer(kind=iwp), intent(in) :: lu
+
+if ((lu > 0) .and. (lu < MxFile)) then
+  is_opened = isOpen(lu) /= 0
+else
+  is_opened = .false.
+end if
+
+return
+
+end function is_opened

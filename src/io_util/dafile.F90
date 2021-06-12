@@ -60,10 +60,11 @@ subroutine DaFile(Lu,iOpt,Buf,lBuf,iDisk)
 !                                                                      *
 !***********************************************************************
 
-use Definitions, only: iwp, u6
-#ifdef _OLD_IO_STAT_
-use Definitions, only: wp
+use Fast_IO, only: Addr, FSCB, Trace
+# if defined (_HAVE_EXTRA_) && ! defined (_GA_)
+use Fast_IO, only: isFiM
 #endif
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: Lu, iOpt, lBuf
@@ -71,11 +72,7 @@ integer(kind=iwp), intent(inout) :: Buf(*), iDisk
 integer(kind=iwp) :: iRc = 0, lDisk
 character(len=80) :: Text, HeadErr
 integer(kind=iwp), external :: AixErr, AixRd, AixWr
-#include "fio.fh"
 #include "warnings.fh"
-#ifdef _OLD_IO_STAT_
-#include "ofio.fh"
-#endif
 
 call DaFile_checkarg(Lu,iOpt,lBuf,iDisk)
 !****************** REAL I/O IS HERE **************
@@ -130,13 +127,6 @@ if (iRc /= 0) then
   call quit(_RC_IO_ERROR_WRITE_)
 end if
 
-#ifdef _OLD_IO_STAT_
-MxAddr(Lu) = max(MxAddr(Lu),Addr(Lu))
-if (iOpt /= 0) then
-  count(3,Lu) = count(3,Lu)+1
-  count(4,Lu) = count(4,Lu)+real(lBuf,kind=wp)/1024.0_wp
-end if
-#endif
 iDisk = iDisk+lBuf
 Addr(Lu) = iDisk
 if (Trace) write(u6,*) ' >>> Exit DaFile <<<'

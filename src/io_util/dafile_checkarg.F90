@@ -34,12 +34,12 @@ subroutine DaFile_checkarg(Lu,iOpt,lBuf,iDisk)
 !                                                                      *
 !***********************************************************************
 
+use Fast_IO, only: isOpen, MxFile
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: Lu, iOpt, lBuf, iDisk
 character(len=15), parameter :: TheName = 'DaFile_checkarg'
-#include "fio.fh"
 
 ! 2012
 ! VpV: a lot of checking is here.

@@ -38,6 +38,7 @@
 
 function AixCls(handle)
 
+use Fast_IO, only: CtlBlk, eNtOpn, FCtlBlk, MxFile, pDesc, pHndle, pStat, pWhere
 use Definitions, only: iwp
 
 implicit none
@@ -46,8 +47,6 @@ integer(kind=iwp), intent(in) :: handle
 integer(kind=iwp) :: desc, n, nFile, rc
 character(len=80) :: ErrTxt
 integer(kind=iwp), external :: AixErr, c_close
-#include "switch.fh"
-#include "ctl.fh"
 
 !----------------------------------------------------------------------*
 ! Entry to AixCls                                                      *

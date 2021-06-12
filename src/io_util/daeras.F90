@@ -34,6 +34,10 @@ subroutine DaEras(Lu)
 !                                                                      *
 !***********************************************************************
 
+use Fast_IO, only: FSCB, isOpen, LuName, MaxFileSize, MaxSplitFile, MPUnit, Multi_File, MxFile, Trace
+#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
+use Fast_IO, only: isFiM
+#endif
 use Definitions, only: iwp, u6
 
 implicit none
@@ -42,7 +46,6 @@ integer(kind=iwp) :: i, iRc, Lu_
 character(len=80) :: Text
 character(len=6), parameter :: TheName = 'DaEras'
 integer(kind=iwp), external :: AixCls, AixErr, AixRm
-#include "fio.fh"
 
 if (Trace) then
   write(u6,*) ' >>> Enter DaEras <<<'

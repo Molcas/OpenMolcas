@@ -11,6 +11,7 @@
 
 subroutine LU2DESC(Lu,Desc)
 
+use Fast_IO, only: CtlBlk, MxFile, pDesc, pHndle
 use Definitions, only: iwp
 
 implicit none
@@ -18,7 +19,6 @@ integer(kind=iwp), intent(in) :: Lu
 integer(kind=iwp), intent(inout) :: Desc
 integer(kind=iwp) :: handle, n, nFile
 integer(kind=iwp), external :: lu2handle
-#include "ctl.fh"
 
 handle = lu2handle(Lu)
 

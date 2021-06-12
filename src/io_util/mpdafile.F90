@@ -67,8 +67,8 @@ subroutine MpDaFile(Lu,MaxFileSizel,iOpt,Buf,lBuf,iDisk)
 !                                                                      *
 !***********************************************************************
 
+use Fast_IO, only: Addr, FSCB, isOpen, LuName, Max_File_Length, MaxSplitFile, MBL, MPUnit, Multi_File
 use Definitions, only: iwp, u6
-!subroutine MpDaFile(Lu,MaxFileSizel,iOpt,Buf,lBuf,iDisk)
 
 implicit none
 integer(kind=iwp), intent(in) :: Lu, MaxFileSizel, iOpt, lBuf, iDisk
@@ -80,11 +80,6 @@ character(len=80) :: Text
 character(len=8) :: Stdnam, ext
 character(len=8), parameter :: TheName = 'MpDaFile'
 integer(kind=iwp), external :: AixErr, AixOpn, isFreeUnit, StrnLn
-#include "filesize.fh"
-#include "fio.fh"
-#ifdef _OLD_IO_STAT_
-#include "ofio.fh"
-#endif
 
 max_File_Size = MaxFileSizel*10**6
 max_Bytes = min(max_File_Length,max_File_Size)
@@ -141,17 +136,9 @@ if (Lu_Mod < 0) then
 
   !vv LuName(Lu_Mod) = tmp
   LuName(Lu_Mod) = ext
-  call SetLuMark(Lu_Mod)
   Addr(Lu_Mod) = 0
   Multi_File(Lu_Mod) = .true.
   MPUnit(0,LU_Mod) = Lu
-# ifdef _OLD_IO_STAT_
-  MxAddr(Lu_Mod) = 0
-  count(1,Lu_Mod) = 0
-  count(2,Lu_Mod) = 0
-  count(3,Lu_Mod) = 0
-  count(4,Lu_Mod) = 0
-# endif
   MBL(Lu_Mod) = MBL(Lu)
 
 end if
@@ -202,18 +189,10 @@ else
 
       !vv LuName(Lu_Mod) = tmp
       LuName(Lu_Mod) = ext
-      call SetLuMark(Lu_Mod)
 
       Addr(Lu_Mod) = 0
       Multi_File(Lu_Mod) = .true.
       MPUnit(0,LU_Mod) = Lu
-#     ifdef _OLD_IO_STAT_
-      MxAddr(Lu_Mod) = 0
-      count(1,Lu_Mod) = 0
-      count(2,Lu_Mod) = 0
-      count(3,Lu_Mod) = 0
-      count(4,Lu_Mod) = 0
-#     endif
       MBL(Lu_Mod) = MBL(Lu)
 
     end if

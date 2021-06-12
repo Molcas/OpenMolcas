@@ -24,14 +24,13 @@
 
 subroutine FSCB2UNIT(cunit,LuP)
 
+use Fast_IO, only: FSCB, LuName, LuNameProf, MxFile, NProfFiles
 use Definitions, only: iwp
 
 implicit none
 integer(iwp), intent(in) :: cunit
 integer(iwp), intent(out) :: LuP
 integer(iwp) :: i, Lu
-#include "fio.fh"
-#include "pfio.fh"
 
 Lu = -1
 do i=1,MxFile

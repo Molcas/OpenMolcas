@@ -43,7 +43,6 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "machine.fh"
 #include "stdalloc.fh"
 #include "dmrginfo_mclr.fh"
 *

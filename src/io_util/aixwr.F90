@@ -45,26 +45,19 @@
 
 function AixWr(handle,Buf,nBuf,iDisk)
 
-use Definitions, only: iwp
-#ifndef _OLD_IO_STAT_
-use Definitions, only: wp
-#endif
+use Fast_IO, only: CtlBlk, eEof, eInErr, eNtOpn, FCtlBlk, MxFile, pDesc, pHndle, ProfData, pWhere
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: AixWr
 integer(kind=iwp), intent(in) :: handle, Buf(*), nBuf
 integer(kind=iwp), intent(inout) :: iDisk
 integer(kind=iwp) :: desc, Lu, n, nFile, rc, pDisk
+real(kind=wp) CPUA, CPUE, TIOA, TIOE
 character(len=80) :: ErrTxt
 character(len=5), parameter :: TheName = 'AixWr'
 integer(kind=iwp), external :: AixErr, c_lseek, c_write
-#include "switch.fh"
-#include "ctl.fh"
 #include "warnings.fh"
-#ifndef _OLD_IO_STAT_
-real(kind=wp) CPUA, CPUE, TIOA, TIOE
-#include "pfio.fh"
-#endif
 
 !----------------------------------------------------------------------*
 ! Entry to AixWr                                                       *
@@ -84,19 +77,15 @@ do
 end do
 nFile = n
 desc = CtlBlk(pDesc,nFile)
-#ifndef _OLD_IO_STAT_
 call FSCB2UNIT(handle,Lu)
 call Timing(CPUA,CPUE,TIOA,TIOE)
-#endif
 !----------------------------------------------------------------------*
 ! Position file pointer                                                *
 !----------------------------------------------------------------------*
-pDisk = pHeadOffset+iDisk
+pDisk = iDisk
 if (CtlBlk(pWhere,nFile) /= pDisk) then
   rc = c_lseek(desc,pDisk)
-# ifndef _OLD_IO_STAT_
   ProfData(7,Lu) = ProfData(7,Lu)+1
-# endif
   if (rc < 0) then
     call FASTIO('STATUS')
     AixWr = AixErr(ErrTxt)
@@ -125,12 +114,10 @@ else if (rc /= nBuf) then
 end if
 CtlBlk(pWhere,nFile) = CtlBlk(pWhere,nFile)+nBuf
 iDisk = iDisk+nBuf
-#ifndef _OLD_IO_STAT_
 call Timing(CPUA,CPUE,TIOA,TIOE)
 ProfData(1,Lu) = ProfData(1,Lu)+1
 ProfData(2,Lu) = ProfData(2,Lu)+nBuf
 ProfData(3,Lu) = ProfData(3,Lu)+TIOE
-#endif
 !----------------------------------------------------------------------*
 ! Finished so return to caller                                         *
 !----------------------------------------------------------------------*

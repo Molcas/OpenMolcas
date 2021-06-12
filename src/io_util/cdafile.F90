@@ -13,6 +13,7 @@
 
 subroutine cDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
 
+use Fast_IO, only: MBL
 use Definitions, only: iwp
 
 implicit none
@@ -20,7 +21,6 @@ integer(kind=iwp), intent(in) :: Lu, iOpt, lBuf_
 character, intent(inout) :: Buf(lBuf_)
 integer(kind=iwp), intent(inout) :: iDisk_
 integer(kind=iwp) :: lBuf, iDisk
-#include "fio.fh"
 
 lBuf = lBuf_
 iDisk = iDisk_*MBL(Lu)

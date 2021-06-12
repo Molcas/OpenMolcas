@@ -12,9 +12,10 @@
 !               1993,1996,1997, Markus P. Fuelscher                    *
 !               1996, Luis Serrano-Andres                              *
 !               2012, Victor P. Vysotskiy                              *
+!               2021, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 !                                                                      *
-!     This file defines the common blocks /FIO1/ - /FIO4/              *
+!     This file defines the module Fast_IO                             *
 !     including all entries required for fast I/O system.              *
 !                                                                      *
 !     Following the list of entries and their usage:                   *
@@ -22,13 +23,8 @@
 !     isOpen    : open/close flag                                      *
 !     FSCB      : file descriptors (C language)                        *
 !     Addr      : pointer to the current position                      *
-!     MxAddr    : largest address written                              *
-!     Count     : counters for the I/O statistics                      *
-!                 (# of I/O startups, amount of data transferred)      *
 !     Trace     : enable/disable debugging output                      *
 !     Query     : enable/disable the traceback facilities              *
-!     FirstCall : enable/disable multifile partitiong                  *
-!     RefBuf    : anchor of the gather/scatter process                 *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -40,27 +36,52 @@
 ! History:                                                             *
 !     New I/O Stat, V.P. Vysotskiy, University of Lund, Sweden, 2012   *
 !     OpenMP,       V.P. Vysotskiy, University of Lund, Sweden, 2012   *
+!     Cleanup and conversion to module,  I. Fdez. Galvan, 2021         *
 !***********************************************************************
-      Integer MaxSplitFile
-      Parameter (MaxSplitFile=20)
-#include "MxFile.fh"
-      Integer isOpen,FSCB,Addr,MaxFileSize,MPUnit,MBL
-      Common /FIO1/ isOpen(MxFile),                                     &
-     &              FSCB(MxFile),                                       &
-     &              Addr(MxFile),                                       &
-     &              MPUnit(0:MaxSplitFile-1,MxFile),                    &
-     &              MBL(MxFile),                                        &
-     &              MaxFileSize
 
-      Logical     Trace,Query,FirstCall,Multi_File
-      Common /FIO2/ Trace,                                              &
-     &              Query,                                              &
-     &              FirstCall,                                          &
-     &              Multi_File(MxFile)
+module Fast_IO
 
-      Character*8 LuName
-      Common /FIO3/ LuName(MxFile)
-      Integer LuMark(MxFile)
-      Common /FIO4/ LuMark
-      Integer isFiM(MxFile)
-      Common /FIO6/ isFiM
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+integer(kind=iwp), parameter :: MxFile = 199, MaxSplitFile = 20
+integer(kind=iwp) :: Addr(MxFile), FlsSize(MxFile), FSCB(MxFile), isFiM(MxFile), isOpen(MxFile), MaxFileSize, MBL(MxFile), &
+                     MPUnit(0:MaxSplitFile-1,MxFile), NProfFiles
+logical(kind=iwp) :: Multi_File(MxFile), Query, Trace
+real(kind=wp) :: ProfData(8,MxFile)
+character(len=8) :: LuName(MxFile), LuNameProf(MxFile)
+!-----------------------------------------------
+! Error codes for AIX/IO and FIM/IO routines.
+integer(kind=iwp), parameter :: eEof   = 1024, &
+                                eNtOpn = 1025, &
+                                eInErr = 1026, &
+                                eTmF   = 1027, &
+                                eTlFn  = 1028, &
+                                eBlNme = 1029, &
+                                eNoMsg = 1030, &
+                                eFiMFo = 1031
+!-----------------------------------------------
+! Control blocks for AIX I/O routines.
+integer(kind=iwp), parameter :: pHndle = 1, &
+                                pWhere = 2, &
+                                pDesc  = 3, &
+                                pStat  = 4
+integer(kind=iwp) :: CtlBlk(4,MxFile)
+character(len=80) :: FCtlBlk(MxFile)
+!-----------------------------------------------
+! Define the largest file that can be handled by the IO system (units=Bytes)
+#ifdef _I8_
+integer(kind=iwp), parameter :: Max_File_Length = 214748364800
+#else
+integer(kind=iwp), parameter :: Max_File_Length = 2147483647
+#endif
+! Define minimal block size handled by the IO system (units=Bytes)
+integer(kind=iwp), parameter :: MBl_wa = 8, MBl_nwa = 512
+
+public :: Addr, CtlBlk, eBlNme, eEof, eFiMFo, eInErr, eNoMsg, eNtOpn, eTlFn, eTmF, FCtlBlk, FlsSize, FSCB, isFiM, isOpen, LuName, &
+          LuNameProf, Max_File_Length, MaxFileSize, MaxSplitFile, MBL, MBl_nwa, MBl_wa, MPUnit, Multi_File, MxFile, NProfFiles, &
+          pDesc, pHndle, ProfData, pStat, pWhere, Query, Trace
+
+end module Fast_IO

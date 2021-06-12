@@ -44,25 +44,18 @@
 
 function AixPWr(handle,Buf,nBuf,iDisk)
 
-use Definitions, only: iwp
-#ifndef _OLD_IO_STAT_
-use Definitions, only: wp
-#endif
+use Fast_IO, only: CtlBlk, eEof, eNtOpn, FCtlBlk, MxFile, pDesc, pHndle, ProfData, pWhere
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: AixPWr
 integer(kind=iwp), intent(in) :: handle, Buf(*), nBuf, iDisk
 integer(kind=iwp) :: desc, Lu, n, nFile, pDisk, rc
+real(kind=wp) :: CPUA, CPUE, TIOA, TIOE
 character(len=80) :: ErrTxt
 character(len=6), parameter :: TheName = 'AixPWr'
 integer(kind=iwp), external :: AixErr, c_pwrite
-#include "ctl.fh"
 #include "warnings.fh"
-#ifndef _OLD_IO_STAT_
-#include "pfio.fh"
-real(kind=wp) :: CPUA, CPUE, TIOA, TIOE
-#endif
-#include "switch.fh"
 
 !----------------------------------------------------------------------*
 ! Entry to AixPWr                                                      *
@@ -83,19 +76,15 @@ do
 end do
 nFile = n
 desc = CtlBlk(pDesc,nFile)
-#ifndef _OLD_IO_STAT_
 call FSCB2UNIT(handle,Lu)
 call Timing(CPUA,CPUE,TIOA,TIOE)
-#endif
 !----------------------------------------------------------------------*
 ! Position file pointer                                                *
 !----------------------------------------------------------------------*
-pDisk = pHeadOffset+iDisk
-#ifndef _OLD_IO_STAT_
+pDisk = iDisk
 if (CtlBlk(pWhere,nFile) /= pDisk) then
   ProfData(7,Lu) = ProfData(7,Lu)+1
 end if
-#endif
 !----------------------------------------------------------------------*
 ! Write to file                                                        *
 !----------------------------------------------------------------------*
@@ -110,12 +99,10 @@ else if (rc /= nBuf) then
   AixPWr = eEof
   call SysQuitFileMsg(_RC_IO_ERROR_WRITE_,TheName,FCtlBlk(nFile),'Premature abort while writing buffer to disk:','Disk full? ')
 end if
-#ifndef _OLD_IO_STAT_
 call Timing(CPUA,CPUE,TIOA,TIOE)
 ProfData(1,Lu) = ProfData(1,Lu)+1
 ProfData(2,Lu) = ProfData(2,Lu)+nBuf
 ProfData(3,Lu) = ProfData(3,Lu)+TIOE
-#endif
 !----------------------------------------------------------------------*
 ! Finished so return to caller                                         *
 !----------------------------------------------------------------------*

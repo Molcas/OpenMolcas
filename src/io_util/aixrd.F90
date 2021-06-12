@@ -48,10 +48,8 @@ function AixRd(handle,Buf,nBuf,iDisk,iErrSkip)
 
 #include "intent.fh"
 
-use Definitions, only: iwp
-#ifndef _OLD_IO_STAT_
-use Definitions, only: wp
-#endif
+use Fast_IO, only: CtlBlk, eEof, eInErr, eNtOpn, FCtlBlk, MxFile, pDesc, pHndle, ProfData, pWhere
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: AixRd
@@ -59,17 +57,12 @@ integer(kind=iwp), intent(in) :: handle, nBuf, iErrSkip
 integer(kind=iwp), intent(_OUT_) :: Buf(*)
 integer(kind=iwp), intent(inout) :: iDisk
 integer(kind=iwp) :: desc, Lu, n, nFile, pDisk, rc
+real(kind=wp) :: CPUA, CPUE, TIOA, TIOE
 character(len=80) :: ErrTxt
 character(len=64) :: Temp
 character(len=5), parameter :: TheName = 'AixRd'
 integer(kind=iwp), external :: AixErr, c_lseek, c_read
-#include "switch.fh"
-#include "ctl.fh"
 #include "warnings.fh"
-#ifndef _OLD_IO_STAT_
-real(kind=wp) :: CPUA, CPUE, TIOA, TIOE
-#include "pfio.fh"
-#endif
 
 !----------------------------------------------------------------------*
 ! Entry to AixRd                                                       *
@@ -90,19 +83,15 @@ do
 end do
 nFile = n
 desc = CtlBlk(pDesc,nFile)
-#ifndef _OLD_IO_STAT_
 call FSCB2UNIT(handle,Lu)
 call Timing(CPUA,CPUE,TIOA,TIOE)
-#endif
 !----------------------------------------------------------------------*
 ! Position file pointer                                                *
 !----------------------------------------------------------------------*
-pDisk = pHeadOffset+iDisk
+pDisk = iDisk
 if (CtlBlk(pWhere,nFile) /= pDisk) then
   rc = c_lseek(desc,pDisk)
-# ifndef _OLD_IO_STAT_
   ProfData(8,Lu) = ProfData(8,Lu)+1
-# endif
   if (rc < 0) then
     if (iErrSkip == 1) then
       AixRd = 99
@@ -149,12 +138,10 @@ else if (rc /= nBuf) then
 end if
 CtlBlk(pWhere,nFile) = CtlBlk(pWhere,nFile)+nBuf
 iDisk = iDisk+nBuf
-#ifndef _OLD_IO_STAT_
 call Timing(CPUA,CPUE,TIOA,TIOE)
 ProfData(4,Lu) = ProfData(4,Lu)+1
 ProfData(5,Lu) = ProfData(5,Lu)+nBuf
 ProfData(6,Lu) = ProfData(6,Lu)+TIOE
-#endif
 !----------------------------------------------------------------------*
 ! Finished so return to caller                                         *
 !----------------------------------------------------------------------*

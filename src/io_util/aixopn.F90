@@ -48,6 +48,7 @@
 
 function AixOpn(handle,filename,translate)
 
+use Fast_IO, only: CtlBlk, eBlNme, eTlFn, eTmF, FCtlBlk, MxFile, pDesc, pHndle, pStat, pWhere
 use Definitions, only: iwp
 
 implicit none
@@ -59,8 +60,6 @@ integer(kind=iwp) :: desc, ltmp, n, nFile, NVV = 666, rc
 character(len=80) :: ErrTxt
 character(len=256) :: tmp, tmp1
 integer(kind=iwp), external :: AixErr, c_open, StrnLn
-#include "switch.fh"
-#include "ctl.fh"
 
 !----------------------------------------------------------------------*
 ! Entry to AixOpn                                                      *

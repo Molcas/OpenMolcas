@@ -26,13 +26,13 @@
 
 subroutine handle2name(handle,filename)
 
+use Fast_IO, only: CtlBlk, FCtlBlk, MxFile, pHndle
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: handle
 character(len=*), intent(out) :: filename
 integer(kind=iwp) :: i
-#include "ctl.fh"
 
 filename = 'Unknown'
 do i=1,MxFile

@@ -11,12 +11,12 @@
 
 function lu2handle(lu)
 
+use Fast_IO, only: FSCB
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: lu2handle
 integer(kind=iwp), intent(in) :: lu
-#include "fio.fh"
 
 lu2handle = FSCB(lu)
 

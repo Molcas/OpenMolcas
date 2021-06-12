@@ -27,6 +27,7 @@
 function isFreeUnit(iseed)
 ! check free chanel, starting from iseed
 
+use Fast_IO, only: isOpen, MxFile
 use Definitions, only: iwp, u6
 
 implicit none
@@ -34,7 +35,6 @@ integer(kind=iwp) :: isFreeUnit
 integer(kind=iwp), intent(in) :: iseed
 integer(kind=iwp) :: init, kan, kan0
 logical(kind=iwp) :: is_opened, skip
-#include "fio.fh"
 
 !VV since more and more developers' calling isfreeunit with constant...
 init = iseed
@@ -44,7 +44,7 @@ if ((init < 1) .or. (init > 300)) then
   init = 12
 end if
 isFreeUnit = -init
-kan = min(init,Mxfile-1)
+kan = min(init,MxFile-1)
 kan0 = kan
 skip = .true.
 do

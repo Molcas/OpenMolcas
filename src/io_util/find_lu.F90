@@ -8,11 +8,28 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!----------------------------------------------------------------------*
-! Internal switches for AIX/IO and FIM/IO routines.                    *
-!----------------------------------------------------------------------*
-      Integer eEof, eNtOpn, eInErr, eTmF, eTlFn, eBlNme, eNoMsg, eFiMFo
-      Parameter (eEof   = 1024,      eNtOpn = eEof   +1)
-      Parameter (eInErr = eNtOpn +1, eTmF   = eInErr +1)
-      Parameter (eTlFn  = eTmF   +1, eBlNme = eTlFn  +1)
-      Parameter (eNoMsg = eBlNme +1, eFiMFo = eNoMsg +1)
+
+function find_Lu(filename)
+! find the unit number assigned to an opened file (not translated)
+! returns -1 if not found
+
+use Fast_IO, only: isOpen, LuName, MxFile
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: find_Lu
+character(len=*), intent(in) :: filename
+integer(kind=iwp) :: n
+
+find_Lu = -1
+do n=1,MxFile
+  if (isOpen(n) == 0) cycle
+  if (LuName(n) == filename) then
+    find_Lu = n
+    exit
+  end if
+end do
+
+return
+
+end function find_Lu

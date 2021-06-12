@@ -14,6 +14,7 @@
 subroutine dDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
 
 use iso_c_binding, only: c_f_pointer, c_loc
+use Fast_IO, only: MBL
 use Definitions, only: wp, iwp, RtoB
 
 implicit none
@@ -21,7 +22,6 @@ integer(kind=iwp), intent(in) :: Lu, iOpt, lBuf_
 real(kind=wp), intent(inout) :: Buf(lBuf_)
 integer(kind=iwp), intent(inout) :: iDisk_
 integer(kind=iwp) :: lBuf, iDisk
-#include "fio.fh"
 
 call dDaFile_Internal(Buf)
 

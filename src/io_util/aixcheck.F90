@@ -11,13 +11,13 @@
 
 subroutine AixCheck()
 
+use Fast_IO, only: CtlBlk, FCtlBlk, MxFile, pStat
 use Definitions, only: iwp, u6, u5
 
 implicit none
 integer(kind=iwp) :: n
 logical(kind=iwp) :: is_open
 character(len=256) :: filename
-#include "ctl.fh"
 
 !----------------------------------------------------------------------*
 ! Check if slot in table is available, it should NOT!                  *
