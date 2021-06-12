@@ -40,7 +40,7 @@ implicit none
 integer(kind=iwp), intent(in) :: Lu
 integer(kind=iwp) :: i, iRc, Lu_
 character(len=80) :: Text
-character(len=16), parameter :: TheName = 'DaEras'
+character(len=6), parameter :: TheName = 'DaEras'
 integer(kind=iwp), external :: AixCls, AixErr, AixRm
 #include "fio.fh"
 

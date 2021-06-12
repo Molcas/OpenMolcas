@@ -40,7 +40,7 @@ implicit none
 integer(kind=iwp), intent(in) :: Lu
 integer(kind=iwp) :: i, iRc, Lu_, LuP
 character(len=80) :: Text
-character(len=16), parameter :: TheName = 'DaClos'
+character(len=6), parameter :: TheName = 'DaClos'
 integer(kind=iwp), external :: AixCls, AixErr, AixFsz
 #include "fio.fh"
 #ifndef _OLD_IO_STAT_

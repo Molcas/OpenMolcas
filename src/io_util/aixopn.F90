@@ -70,30 +70,28 @@ AixOpn = 0
 ! Check if slot in table is available                                  *
 !----------------------------------------------------------------------*
 n = 1
-100 continue
-if (CtlBlk(pStat,n) /= 0) then
+do
+  if (CtlBlk(pStat,n) == 0) exit
   n = n+1
   if (n > MxFile) then
     AixOpn = eTmF
     call SysWarnMsg('Aixopn','Too many opened files\n','try to increase MxFile')
     return
   end if
-  Go To 100
-end if
+end do
 nFile = n
 !----------------------------------------------------------------------*
 ! Strip file name and append string terminator                         *
 !----------------------------------------------------------------------*
 n = len(filename)
-200 continue
-if (filename(n:n) == ' ') then
+do
+  if (filename(n:n) /= ' ') exit
   n = n-1
   if (n <= 0) then
     AixOpn = eBlNme
     return
   end if
-  Go To 200
-end if
+end do
 n = n+1
 if (n >= len(tmp)) then
   AixOpn = eTlFn

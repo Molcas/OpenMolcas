@@ -101,7 +101,6 @@ if ((iOpt == 1) .or. (iOpt == 6)) then
 ! Read from disk
 else if ((iOpt == 2) .or. (iOpt == 7) .or. (iOpt == 99)) then
   HeadErr = 'Premature abort while reading buffer from disk'
-  !10 continue
 # if defined (_HAVE_EXTRA_) && ! defined (_GA_)
   if (isFiM(Lu) == 0) then
 # endif
@@ -120,7 +119,16 @@ else if ((iOpt == 2) .or. (iOpt == 7) .or. (iOpt == 99)) then
 # endif
 end if
 
-if (iRc /= 0) goto 1200
+if (iRc /= 0) then
+  iRc = AixErr(Text)
+  write(u6,*) HeadErr
+  write(u6,*) Text
+  write(u6,*) ' Unit      :',Lu
+  write(u6,*) ' Option    :',iOpt
+  write(u6,*) ' Buffer    :',lBuf
+  write(u6,*) ' Address   :',iDisk
+  call quit(_RC_IO_ERROR_WRITE_)
+end if
 
 #ifdef _OLD_IO_STAT_
 MxAddr(Lu) = max(MxAddr(Lu),Addr(Lu))
@@ -134,15 +142,5 @@ Addr(Lu) = iDisk
 if (Trace) write(u6,*) ' >>> Exit DaFile <<<'
 
 return
-
-1200 continue
-iRc = AixErr(Text)
-write(u6,*) HeadErr
-write(u6,*) Text
-write(u6,*) ' Unit      :',Lu
-write(u6,*) ' Option    :',iOpt
-write(u6,*) ' Buffer    :',lBuf
-write(u6,*) ' Address   :',iDisk
-call quit(_RC_IO_ERROR_WRITE_)
 
 end subroutine DaFile

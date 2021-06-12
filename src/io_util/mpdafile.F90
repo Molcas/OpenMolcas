@@ -78,7 +78,7 @@ integer(kind=iwp) :: iDisk_mod, iext, iRc, lStdNam, ltmp, Lu_mod, max_Bytes, max
 character(len=256) :: tmp
 character(len=80) :: Text
 character(len=8) :: Stdnam, ext
-character(len=16), parameter :: TheName = 'MpDaFile'
+character(len=8), parameter :: TheName = 'MpDaFile'
 integer(kind=iwp), external :: AixErr, AixOpn, isFreeUnit, StrnLn
 #include "filesize.fh"
 #include "fio.fh"

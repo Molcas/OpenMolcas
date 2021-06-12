@@ -23,14 +23,13 @@ integer(kind=iwp), external :: lu2handle
 handle = lu2handle(Lu)
 
 n = 1
-10 continue
-if (CtlBlk(pHndle,n) /= handle) then
+do
+  if (CtlBlk(pHndle,n) == handle) exit
   n = n+1
   if (n > MxFile) then
     return
   end if
-  Go To 10
-end if
+end do
 nFile = n
 Desc = CtlBlk(pDesc,nFile)
 

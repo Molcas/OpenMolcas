@@ -64,6 +64,7 @@ integer(kind=iwp), intent(in) :: Lu, iOpt, lBuf
 character, intent(inout) :: Buf(*)
 integer(kind=iwp), intent(inout) :: iDisk
 integer(kind=iwp) :: iRC, kDisk, jDisk
+logical(kind=iwp) :: Skip
 integer(kind=iwp), external :: AixFsz
 #include "fio.fh"
 
@@ -76,33 +77,35 @@ if (Trace) then
   write(u6,*) ' disk adr. :',iDisk
 end if
 
+Skip = .false.
 if ((iOpt == 5) .or. (iOpt == 10)) then
   Addr(Lu) = 0
   iDisk = 0
-  goto 1100
+  Skip = .true.
 ! Get filesize in 8-byte units
 else if (iOpt == 0) then
   ! Dummy write. No I/O is made. Disk address is updated.
   Addr(Lu) = iDisk+lBuf
   iDisk = Addr(Lu)
-  goto 1100
+  Skip = .true.
 else if (iOpt == 8) then
   iRc = AixFsz(FSCB(Lu))
   iDisk = iRc
-  goto 1100
+  Skip = .true.
 end if
 
-if (Multi_File(Lu) .and. MaxFileSize /= 0) then
-  jDisk = iDisk
-  kDisk = iDisk
-  call MpDaFile(Lu,MaxFileSize,iOpt,Buf,lBuf,kDisk)
-  Addr(Lu) = jDisk+lBuf
-  iDisk = Addr(Lu)
-else
-  call ChDaFile(Lu,iOpt,Buf,lBuf,iDisk)
+if (.not. Skip) then
+  if (Multi_File(Lu) .and. MaxFileSize /= 0) then
+    jDisk = iDisk
+    kDisk = iDisk
+    call MpDaFile(Lu,MaxFileSize,iOpt,Buf,lBuf,kDisk)
+    Addr(Lu) = jDisk+lBuf
+    iDisk = Addr(Lu)
+  else
+    call ChDaFile(Lu,iOpt,Buf,lBuf,iDisk)
+  end if
 end if
 
-1100 continue
 if (Trace) write(u6,*) ' >>> Exit bDaFile <<<'
 
 return

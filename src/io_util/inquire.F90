@@ -25,11 +25,10 @@ integer(kind=iwp) :: n, irc
 character(len=256) :: FTMP1, FTMP2
 
 n = len(filename)
-200 continue
-if (filename(n:n) == ' ') then
+do
+  if (filename(n:n) /= ' ') exit
   n = n-1
-  Go To 200
-end if
+end do
 n = n+1
 ftmp1 = filename
 ftmp1(n:n) = char(0)

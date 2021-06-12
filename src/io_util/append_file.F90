@@ -17,15 +17,15 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iUnit
-integer(kind=iwp) :: i, iset
+integer(kind=iwp) :: i, iset, stat
 
 iset = 0
 rewind(iUnit)
-10 continue
-read(iUnit,*,err=20,end=20)
-iset = iset+1
-goto 10
-20 continue
+do
+  read(iUnit,*,iostat=stat)
+  if (stat /= 0) exit
+  iset = iset+1
+end do
 rewind(iUnit)
 do i=1,iset
   read(iUnit,*)

@@ -33,16 +33,15 @@ if (index(RealName,'UNK_VAR') /= 0) then
 end if
 
 if (is_recl) then
-  open(unit=Lu,file=Realname(1:lRealName),status=f_status,err=100,access=f_access,form=f_form,iostat=f_iostat,recl=f_recl)
+  open(unit=Lu,file=Realname(1:lRealName),status=f_status,access=f_access,form=f_form,iostat=f_iostat,recl=f_recl)
 else
-  open(unit=Lu,file=RealName(1:lRealName),status=f_status,err=100,access=f_access,form=f_form,iostat=f_iostat)
+  open(unit=Lu,file=RealName(1:lRealName),status=f_status,access=f_access,form=f_form,iostat=f_iostat)
 end if
 !write(u6,*) 'DEBUG open ',RealName(1:lRealName)
 !write(u6,*) 'Unit ', Lu
 
-return
+if (f_iostat /= 0) is_error = .true.
 
-100 continue
-is_error = .true.
+return
 
 end subroutine molcas_open_ext2

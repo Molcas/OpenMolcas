@@ -59,7 +59,7 @@ logical(kind=iwp), intent(in) :: mf, wa
 integer(kind=iwp) :: iRc, temp, tmp
 character(len=80) :: Text
 character(len=8) :: StdNam
-character(len=16), parameter :: TheName = 'DaName_Main'
+character(len=11), parameter :: TheName = 'DaName_Main'
 integer(kind=iwp), external :: AixErr, AixOpn, isFreeUnit
 #include "fio.fh"
 #include "blksize.fh"

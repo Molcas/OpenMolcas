@@ -54,7 +54,7 @@ integer(kind=iwp) :: AixPWr
 integer(kind=iwp), intent(in) :: handle, Buf(*), nBuf, iDisk
 integer(kind=iwp) :: desc, Lu, n, nFile, pDisk, rc
 character(len=80) :: ErrTxt
-character(len=16), parameter :: TheName = 'AixPWr'
+character(len=6), parameter :: TheName = 'AixPWr'
 integer(kind=iwp), external :: AixErr, c_pwrite
 #include "ctl.fh"
 #include "warnings.fh"
@@ -73,15 +73,14 @@ rc = 0
 ! Check if file is opened.                                             *
 !----------------------------------------------------------------------*
 n = 1
-100 continue
-if (CtlBlk(pHndle,n) /= handle) then
+do
+  if (CtlBlk(pHndle,n) == handle) exit
   n = n+1
   if (n > MxFile) then
     AixPWr = eNtOpn
     return
   end if
-  Go To 100
-end if
+end do
 nFile = n
 desc = CtlBlk(pDesc,nFile)
 #ifndef _OLD_IO_STAT_

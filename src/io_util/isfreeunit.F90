@@ -33,7 +33,7 @@ implicit none
 integer(kind=iwp) :: isFreeUnit
 integer(kind=iwp), intent(in) :: iseed
 integer(kind=iwp) :: init, kan, kan0
-logical(kind=iwp) :: is_opened
+logical(kind=iwp) :: is_opened, skip
 #include "fio.fh"
 
 !VV since more and more developers' calling isfreeunit with constant...
@@ -46,30 +46,34 @@ end if
 isFreeUnit = -init
 kan = min(init,Mxfile-1)
 kan0 = kan
-Go to 2
-1 continue
-if (kan == MxFile+1) kan = 10
-if (kan == kan0) then
-  call fastio('STATUS')
-  write(u6,*) ' isFreeUnit: no available unit!'
-  call Abend()
-end if
-2 continue
+skip = .true.
+do
+  if (.not. skip) then
+    if (kan == MxFile+1) kan = 10
+    if (kan == kan0) then
+      call fastio('STATUS')
+      write(u6,*) ' isFreeUnit: no available unit!'
+      call Abend()
+    end if
+  end if
+  skip = .false.
 
-! Check for Dafile
+  ! Check for Dafile
 
-if ((kan > 1) .and. (kan <= MxFile) .and. (isOpen(kan) == 1)) then
-  kan = kan+1
-  Go To 1
-end if
+  if ((kan > 1) .and. (kan <= MxFile) .and. (isOpen(kan) == 1)) then
+    kan = kan+1
+  else
 
-! Check for Fortran I/O
+    ! Check for Fortran I/O
 
-inquire(unit=kan,opened=is_opened)
-if (is_opened) then
-  kan = kan+1
-  Go To 1
-end if
+    inquire(unit=kan,opened=is_opened)
+    if (is_opened) then
+      kan = kan+1
+    else
+      exit
+    end if
+  end if
+end do
 isFreeUnit = kan
 
 return

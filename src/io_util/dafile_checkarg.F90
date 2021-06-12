@@ -38,7 +38,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: Lu, iOpt, lBuf, iDisk
-character(len=16) :: TheName = 'DaFile_checkarg'
+character(len=15), parameter :: TheName = 'DaFile_checkarg'
 #include "fio.fh"
 
 ! 2012
@@ -50,29 +50,32 @@ if (isOpen(Lu) == 0) call SysFileMsg(TheName,'MSG: not opened',Lu,' ')
 
 if (lBuf < 0) then
   write(u6,*) 'Invalid buffer size ',lBuf
-  goto 1000
+  call Error()
 end if
 
 if (iDisk < 0) then
   write(u6,*) 'Invalid disk address ',iDisk
-  goto 1000
+  call Error()
 end if
 
 if ((iOpt < 0) .or. ((iOpt > 10) .and. (iOpt /= 99))) then
   write(u6,*) 'Invalid action code ',iOpt
-  goto 1000
+  call Error()
 end if
 
 if ((iOpt == 3) .or. (iOpt == 4) .or. (iOpt == 9)) then
   write(u6,*) 'DaFile: GSlist option is not in operation!'
-  goto 1000
+  call Error()
 end if
 
 return
 
-1000 continue
-write(u6,*) 'I/O error in ',TheName
-write(u6,*) 'Unit = ',Lu
-call Abend()
+contains
+
+subroutine Error()
+  write(u6,*) 'I/O error in ',TheName
+  write(u6,*) 'Unit = ',Lu
+  call Abend()
+end subroutine Error
 
 end subroutine DaFile_checkarg

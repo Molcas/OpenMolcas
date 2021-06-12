@@ -57,15 +57,14 @@ AixCls = 0
 ! Check if file is opened.                                             *
 !----------------------------------------------------------------------*
 n = 1
-100 continue
-if (CtlBlk(pHndle,n) /= handle) then
+do
+  if (CtlBlk(pHndle,n) == handle) exit
   n = n+1
   if (n > MxFile) then
     AixCls = eNtOpn
     return
   end if
-  Go To 100
-end if
+end do
 nFile = n
 desc = CtlBlk(pDesc,nFile)
 !----------------------------------------------------------------------*

@@ -56,15 +56,14 @@ AixRm = 0
 ! Strip file name and append string terminator                         *
 !----------------------------------------------------------------------*
 n = len(filename)
-100 continue
-if (filename(n:n) == ' ') then
+do
+  if (filename(n:n) /= ' ') exit
   n = n-1
   if (n <= 0) then
     AixRm = eBlNme
     return
   end if
-  Go To 100
-end if
+end do
 n = n+1
 if (n >= len(tmp)) then
   AixRm = eTlFn

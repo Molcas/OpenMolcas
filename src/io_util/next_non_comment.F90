@@ -15,17 +15,19 @@ use Definitions, only: iwp
 
 implicit none
 logical(kind=iwp) :: next_non_comment
-integer, intent(in) :: lu
+integer(kind=iwp), intent(in) :: lu
 character(len=*), intent(out) :: line
+integer(kind=iwp) :: stat
 
 next_non_comment = .false.
-100 continue
-read(lu,'(A)',end=900) line
-line = adjustl(line)
-if (line(1:1) == '*') goto 100
-if (line == ' ') goto 100
+do
+  read(lu,'(A)',iostat=stat) line
+  if (stat < 0) return
+  if (stat > 0) call abend()
+  line = adjustl(line)
+  if ((line(1:1) /= '*') .and. (line /= ' ')) exit
+end do
 next_non_comment = .true.
-900 continue
 
 return
 

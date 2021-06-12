@@ -61,7 +61,7 @@ integer(kind=iwp), intent(inout) :: iDisk
 integer(kind=iwp) :: desc, Lu, n, nFile, pDisk, rc
 character(len=80) :: ErrTxt
 character(len=64) :: Temp
-character(len=16) :: TheName = 'AixRd'
+character(len=5), parameter :: TheName = 'AixRd'
 integer(kind=iwp), external :: AixErr, c_lseek, c_read
 #include "switch.fh"
 #include "ctl.fh"
@@ -80,15 +80,14 @@ Temp = 'Premature abort while reading buffer from disk'
 ! Check if file is opened.                                             *
 !----------------------------------------------------------------------*
 n = 1
-100 continue
-if (CtlBlk(pHndle,n) /= handle) then
+do
+  if (CtlBlk(pHndle,n) == handle) exit
   n = n+1
   if (n > MxFile) then
     AixRd = eNtOpn
     return
   end if
-  Go To 100
-end if
+end do
 nFile = n
 desc = CtlBlk(pDesc,nFile)
 #ifndef _OLD_IO_STAT_

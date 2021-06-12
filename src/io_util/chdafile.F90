@@ -26,7 +26,7 @@ contains
 
 subroutine ChDaFile_Internal(Buf)
   character, target :: Buf(*)
-  integer, pointer :: iBuf(:)
+  integer(kind=iwp), pointer :: iBuf(:)
   call c_f_pointer(c_loc(Buf(1)),iBuf,[1])
   call DaFile(Lu,iOpt,iBuf,lBuf,iDisk)
   nullify(iBuf)
