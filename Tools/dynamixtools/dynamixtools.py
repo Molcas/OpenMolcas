@@ -662,9 +662,9 @@ def angular_vel (mass, xyz, vel, atomN):
     h=0
     xyz=np.reshape(xyz, (atomN, 3))
     while (h < atomN):
-        px=float(vel[0])*float(mass[h])
-        py=float(vel[1])*float(mass[h])
-        pz=float(vel[2])*float(mass[h])
+        px=float(vel[0])
+        py=float(vel[1])
+        pz=float(vel[2])
         wx=-float(xyz[h, 1])*pz+float(xyz[h, 2])*py
         wy=-float(xyz[h, 2])*px+float(xyz[h, 0])*pz
         wz=-float(xyz[h, 0])*py+float(xyz[h, 1])*px
