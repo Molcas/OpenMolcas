@@ -73,7 +73,7 @@ C         Call RHS_Save(nIN,nIS,lg_V2,iCase,iSym,iVecR)
           !! T <- T + lambda
           Call DScal_(nIN*nIS,2.0D+00,Work(lg_V1),1)
           If (MaxIt.eq.0) Then
-C           call dcopy_(nin*nis,0.0d+00,0,work(lg_v2),1)
+C           call dcopy_(nin*nis,[0.0d+00],0,work(lg_v2),1)
 C           Call DaXpY_(nIN*nIS,2.0D+00,Work(lg_V1),1,Work(lg_V2),1)
             !! Save the modified T in the original T
 C           Call RHS_Save(nIN,nIS,lg_V2,iCase,iSym,iVecX)

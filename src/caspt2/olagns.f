@@ -350,7 +350,7 @@ C    *                iJ+nFroJ,iI+nFroI,
 C    *                ERI2,Scr)
 C         End If
 C
-          Call DCopy_(nAshA*nAshB,0.0D+00,0,AmpL1,1)
+          Call DCopy_(nAshA*nAshB,[0.0D+00],0,AmpL1,1)
 C
           Do iA = 1, nAshA
             iAabs = iA + nAes(iSymA)
@@ -434,7 +434,7 @@ C    *                iJ+nFroJ,iI+nFroI,
 C    *                ERI2,Scr)
 C         End If
 C
-          Call DCopy_(nAshA*nAshB,0.0D+00,0,AmpL1,1)
+          Call DCopy_(nAshA*nAshB,[0.0D+00],0,AmpL1,1)
 C
           Do iA = 1, nAshA
             iAabs = iA + nAes(iSymA)
@@ -536,7 +536,7 @@ C    *                iJ+nFroJ,iI+nFroI,
 C    *                ERI2,Scr)
 C         End If
 C
-          Call DCopy_((nAshA+nSshA)*(nAshB+nSshB),0.0D+00,0,AmpL1,1)
+          Call DCopy_((nAshA+nSshA)*(nAshB+nSshB),[0.0D+00],0,AmpL1,1)
 C
           Do iA = 1, nSshA
             iAabs = iA + nSes(iSymA)
@@ -674,7 +674,7 @@ C    *                iJ+nFroJ,iI+nFroI,
 C    *                ERI2,Scr)
 C         End If
 C
-          Call DCopy_((nAshA+nSshA)*(nAshB+nSshB),0.0D+00,0,AmpL1,1)
+          Call DCopy_((nAshA+nSshA)*(nAshB+nSshB),[0.0D+00],0,AmpL1,1)
 C
           Do iA = 1, nSshA
             iAabs = iA + nSes(iSymA)
@@ -767,7 +767,7 @@ C    *                iJ+nFroJ,iI+nFroI,
 C    *                ERI2,Scr)
 C         End If
 C
-          Call DCopy_((nAshA+nSshA)*(nAshB+nSshB),0.0D+00,0,AmpL1,1)
+          Call DCopy_((nAshA+nSshA)*(nAshB+nSshB),[0.0D+00],0,AmpL1,1)
 C
           IgeJ  = kIgeJ(iIabs,iJabs) - nIgeJes(iSym) ! iSymIJ
           IgtJ  = kIgtJ(iIabs,iJabs) - nIgtJes(iSym) ! iSymIJ
@@ -845,7 +845,7 @@ C    *                iJ+nFroJ,iI+nFroI,
 C    *                ERI2,Scr)
 C         End If
 C
-          Call DCopy_(nSshA*nSshB,0.0D+00,0,AmpL1,1)
+          Call DCopy_(nSshA*nSshB,[0.0D+00],0,AmpL1,1)
 C
           iTabs = iI + nAes(iSymI)
           iUabs = iJ + nAes(iSymJ)
@@ -929,7 +929,7 @@ C    *                iJ+nFroJ,iI+nFroI,
 C    *                ERI2,Scr)
 C         End If
 C
-          Call DCopy_(nSshA*nSshB,0.0D+00,0,AmpL1,1)
+          Call DCopy_(nSshA*nSshB,[0.0D+00],0,AmpL1,1)
 C
           Do iA = 1, nSshA
             iAabs = iA + nSes(iSymA)
@@ -1014,7 +1014,7 @@ C    *                iJ+nFroJ,iI+nFroI,
 C    *                ERI2,Scr)
 C         End If
 C
-          Call DCopy_(nSshA*nSshB,0.0D+00,0,AmpL1,1)
+          Call DCopy_(nSshA*nSshB,[0.0D+00],0,AmpL1,1)
 C
           iViHP0= kIgeJ(iIabs,iJabs) - nIgeJes(iSym)
           iViHP = nAgeB(iSym)*(iViHP0-1)

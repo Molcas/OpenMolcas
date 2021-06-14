@@ -92,7 +92,7 @@ C     call sqprt(work(lcmo),12)
           !! This DREF is used only for constructing the Fock in H0.
           !! DREF used in other places will be constructed in elsewhere
           !! (STINI).
-          Call DCopy_(NDREF,0.0D+00,0,WORK(LDREF),1)
+          Call DCopy_(NDREF,[0.0D+00],0,WORK(LDREF),1)
           Do K = 1, Nstate
 C           wij = WORK(LDWGT+(K-1) + NSTATE*(K-1))
             wij = 1.0d+00/nstate

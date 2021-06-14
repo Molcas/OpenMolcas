@@ -271,7 +271,7 @@ C
         !! Note that Work(ipDPT2) has the index of frozen orbitals.
         !! Note also that unrelaxed (w/o Z-vector) dipole moments with
         !! frozen orbitals must be wrong.
-C       call dcopy_(ndpt,0.0d+00,0,work(ldpt),1)
+C       call dcopy_(ndpt,[0.0d+00],0,work(ldpt),1)
         If (nFroT.eq.0) Then
           Call DCopy_(nOsqT,Work(LDSUM),1,Work(ipDPT),1)
         Else
@@ -444,7 +444,7 @@ C    *!    + val
       ! end do
 C     ! call sqprt(work(ipdepsa),5)
 C
-C          call dcopy_(144,0.0d+00,0,work(ipdpt),1)
+C          call dcopy_(144,[0.0d+00],0,work(ipdpt),1)
 C       !! Just add DEPSA to DPT2
         Call AddDEPSA(Work(ipDPT),Work(ipDEPSA),Work(LDSUM))
         !! Just transform the density in MO to AO
@@ -471,9 +471,9 @@ C       call sqprt(work(ipdptao),12)
 C        write(6,*) "fpt2ao ref"
 C       call sqprt(work(ipfptao),12)
 
-C       call dcopy_(144,0.0d+00,0,work(ipolag),1)
-C       call dcopy_(nbast**2,0.0d+00,0,work(ipfptao),1)
-C       Call DCopy_(nDPTAO,0.0d+00,0,Work(ipDPTC),1)
+C       call dcopy_(144,[0.0d+00],0,work(ipolag),1)
+C       call dcopy_(nbast**2,[0.0d+00],0,work(ipfptao),1)
+C       Call DCopy_(nDPTAO,[0.0d+00],0,Work(ipDPTC),1)
 C
 C
 C       write(6,*) "nfrot = ", nfrot
@@ -498,7 +498,7 @@ C
 C
 C
 C
-C         call dcopy_(144,0.0d+00,0,work(ipdpt),1)
+C         call dcopy_(144,[0.0d+00],0,work(ipdpt),1)
         do i = 6, 10
           do j = 6, 10
           val = 0.0d+00
@@ -981,7 +981,7 @@ C
               End Do
             End Do
           End If
-C         call dcopy_(nasht**2,0.0d+00,0,work(ipdepsa),1)
+C         call dcopy_(nasht**2,[0.0d+00],0,work(ipdepsa),1)
 C
           !! We have to do many things again...
           !! Just add DEPSA to DPT2
@@ -1119,12 +1119,16 @@ C           Wgt  = Work(LDWgt+iState-1+nState*(iState-1))
           If (IfChol) Then
             Call CnstAB_SSDM(Work(ipDPTAO),Work(ipWRK1))
           Else
+            !! Well, it is not working any more. I need to use
+            !! Position='APPEND', but it is not possible if I need to
+            !! use molcas_open or molcas_open_ext2
+            call abend()
             Call PrgmTranslate('CMOPT2',RealName,lRealName)
-    !         Open (Unit=LuCMOPT2,
-    !  *            File=RealName(1:lRealName),
-    !  *            Position='APPEND',
-    !  *            Status='OLD',
-    !  *            Form='UNFORMATTED')
+C           Open (Unit=LuCMOPT2,
+C    *            File=RealName(1:lRealName),
+C    *            Position='APPEND',
+C    *            Status='OLD',
+C    *            Form='UNFORMATTED')
             call molcas_Open(LuCMOPT2,RealName(1:lRealName))
             Do iBasI = 1, nBasT
               Do jBasI = 1, iBasI
@@ -1157,7 +1161,7 @@ C    *                 work(ipwrk1),work(ipwrk2))
 C
 C       CALL GETMEM('WRK1  ','ALLO','REAL',ipWRK1,nBasT*nBasT)
 C       CALL GETMEM('WRK2  ','ALLO','REAL',ipWRK2,nBasT*nBasT)
-C       call dcopy_(nbast*nbast,0.0d+00,0,Work(ipWRK1),1)
+C       call dcopy_(nbast*nbast,[0.0d+00],0,Work(ipWRK1),1)
 C       do i = 1, 5
 C         Work(ipWRK1+i-1+nBasT*(i-1)) = 1.0D+00
 C       end do
@@ -1404,7 +1408,7 @@ C       CALL GETMEM('WRK2  ','FREE','REAL',ipWRK2,nBasT*nBasT)
 C
 
 
-C       call dcopy_(nbast*nbast,0.0d+00,0,work(ipwlag),1)
+C       call dcopy_(nbast*nbast,[0.0d+00],0,work(ipwlag),1)
 C       write(6,*) "Wlag"
 C       call sqprt(work(ipwlag),nbast)
 C       call test_dens(work(ipolag),work(ipclag),work(iptrf),
@@ -1445,7 +1449,7 @@ C       end do
 
 C       CALL GETMEM('aaa','allo','REAL',kdtoc,1000)
 C       CALL GETMEM('bbb','allo','REAL',kdtoc2,1000)
-C       call dcopy_(ndet,0.0d+00,0,work(ldpt),1)
+C       call dcopy_(ndet,[0.0d+00],0,work(ldpt),1)
 C       call csdtvc(work(ipclag),work(ldpt),1,
 C    *              work(kdtoc),iwork(kicts(1)),1,0)
 C       write(6,*) "clag in det",ndet
@@ -1988,7 +1992,7 @@ C     call sqprt(work(ipolag),nbast)
         !  Construct the active density of the orbital energy
         !  Assume the state-averaged density (SS- and XMS-CASPT2)
 C       nSeq = 0
-C       Call DCopy_(nAshI*nAshI,0.0D+00,0,Work(ipWRK1),1)
+C       Call DCopy_(nAshI*nAshI,[0.0D+00],0,Work(ipWRK1),1)
 C       Do iState = 1, nState
 C         Wgt  = Work(LDWgt+iState-1+nState*(iState-1))
 C         Wgt  = 1.0D+00/nState
@@ -3480,7 +3484,7 @@ C     !     work(ipdpt2+i-1+12*(j-1))=0.0d+00
       !     end do
       !     write(6,*) "DPT2 recovered"
       !     call sqprt(work(ipdpt2),norbt)
-C     !     call dcopy_(nbast*nbast,0.0d+00,0,work(ipolag),1)
+C     !     call dcopy_(nbast*nbast,[0.0d+00],0,work(ipolag),1)
       !     CALL DGEMM_('N','T',nOrbI,nOrbI,nOrbI,
      *!                 1.0D+00,Work(ipWRK1),nOrbI,Work(ipDPT2),nOrbI,
      *!                 1.0D+00,Work(ipOLAG),nOrbI)

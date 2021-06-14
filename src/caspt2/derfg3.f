@@ -191,7 +191,7 @@ C     term is computed similarly. It is because the indices of the
 C     latter excitation operator are the same.
 C
       CALL QENTER('DERFG3')
-C     call dcopy_(nlev**4,0.0d+00,0,df2,1)
+C     call dcopy_(nlev**4,[0.0d+00],0,df2,1)
 C     CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
 C
 C Put in zeroes. Recognize special cases:
@@ -532,9 +532,9 @@ C
 
       !! For the derivative of the Fock-contracted portion
 C     CALL GETMEM('FCDER1','ALLO','REAL',LFCDer1,NBUFD*MXCI)
-C     Call DCopy_(NBUFD*MXCI,0.0D+00,0,Work(LFCDer1),1)
+C     Call DCopy_(NBUFD*MXCI,[0.0D+00],0,Work(LFCDer1),1)
 C     CALL GETMEM('FCDER2','ALLO','REAL',LFCDer2,NLEV*NLEV)
-C     Call DCopy_(NLEV*NLEV ,0.0D+00,0,Work(LFCDer2),1)
+C     Call DCopy_(NLEV*NLEV ,[0.0D+00],0,Work(LFCDer2),1)
 
 C-SVC20100301: calculate maximum number of tasks possible
       MXTASK=(NTRI2-1)/NBUF1+1+(NTRI1-1)/NBUF1+1
@@ -2292,7 +2292,7 @@ C    &!            WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
       !! = t+ u ( w+ w fww - del(wv) fwv) v+ x y+ z
       !! = t+ u w+ v+ w x y+ z * f_{ww}
       !! = EtuEwv,xwEyz
-C     call dcopy_(ng3,0.0d+00,0,f3,1)
+C     call dcopy_(ng3,[0.0d+00],0,f3,1)
 C     tmp = 0.0d+00
 C     do i = 1, nlev
 C       tmp = tmp + epsa(i)
@@ -2432,7 +2432,7 @@ C     end do
       !! = t+ (del(ux) - x+ u) y
       !! = del(ux) G1(t,y) - E_{tx,yu}
       !! = del(ux) G1(t,y) + E_{tx,uy}
-C     call dcopy_(nlev**4,0.0d+00,0,df2,1)
+C     call dcopy_(nlev**4,[0.0d+00],0,df2,1)
 C     call dcopy_(nsgm1,[0.0d+00],0,work(lbuf1),1)
 C     call dcopy_(nsgm1,[0.0d+00],0,work(lbuf2),1)
 C     call dcopy_(nsgm1,work(lbufd),1,work(lbuf1),1)
@@ -2519,7 +2519,7 @@ C     end do
 
 
         !! <CLAG|Etu|CI>
-      ! call dcopy_(nlev*nlev,0.0d+00,0,g1,1)
+      ! call dcopy_(nlev*nlev,[0.0d+00],0,g1,1)
       ! do it = 1, nlev
       ! do iu = 1, nlev
       !   call dcopy_(nsgm1,[0.0d+00],0,work(lbuf1),1)
@@ -2538,7 +2538,7 @@ C
       ! scal = ddot_(nsgm1,ci,1,clag,1)
       ! call daxpy_(nsgm1,-scal,ci,1,clag,1)
       ! !! <CLAG|Etu|CI>
-      ! call dcopy_(nlev*nlev,0.0d+00,0,g1,1)
+      ! call dcopy_(nlev*nlev,[0.0d+00],0,g1,1)
       ! do it = 1, nlev
       ! do iu = 1, nlev
       !   call dcopy_(nsgm1,[0.0d+00],0,work(lbuf1),1)
@@ -2593,7 +2593,7 @@ C     scal = ddot_(nsgm1,clag,1,ci,1)
 C     write(6,*) "scal = ", scal
 C        write(6,*) "dg1"
 C        call sqprt(dg1,5)
-C        call dcopy_(25,0.0d+00,0,dg1,1)
+C        call dcopy_(25,[0.0d+00],0,dg1,1)
 C       write(6,*) "after"
 C       do i = 1, nsgm1
 C         write(6,'(i3,f20.10)') i,work(lbufd+i-1)

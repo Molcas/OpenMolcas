@@ -134,12 +134,12 @@ C    *            0.0D+00,Work(LDG1),nAshT)
 C     call docpy_25,0.0d+00,0,depsa,1)
       !! Check: should be MSTATE(JSTATE)?
 C     write(6,*) "CLag for jState = ", jState
-      !!  Call DCopy_(nG1,0.0D+00,0,Work(LDG1),1)
-      !!  Call DCopy_(nG2,0.0D+00,0,Work(LDG2),1)
-      !!  Call DCopy_(nG3,0.0D+00,0,Work(LDG3),1)
-      !!  Call DCopy_(nG1,0.0D+00,0,Work(LDF1),1)
-      !!  Call DCopy_(nG2,0.0D+00,0,Work(LDF2),1)
-      !!  Call DCopy_(nG3,0.0D+00,0,Work(LDF3),1)
+      !!  Call DCopy_(nG1,[0.0D+00],0,Work(LDG1),1)
+      !!  Call DCopy_(nG2,[0.0D+00],0,Work(LDG2),1)
+      !!  Call DCopy_(nG3,[0.0D+00],0,Work(LDG3),1)
+      !!  Call DCopy_(nG1,[0.0D+00],0,Work(LDF1),1)
+      !!  Call DCopy_(nG2,[0.0D+00],0,Work(LDF2),1)
+      !!  Call DCopy_(nG3,[0.0D+00],0,Work(LDF3),1)
       !!  call cnst_SA_CLag(Work(LG1),Work(LG2),Work(LDG1),Work(LDG2),eee)
       if (.false.) then
         if (.false.) then

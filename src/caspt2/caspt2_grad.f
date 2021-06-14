@@ -47,15 +47,15 @@ C
 C     write(6,*) "nclag,nolag,nslag"
 C     write(6,*)  nclag, nolag, nslag
 C     write(6,*) ipclag,ipolag,ipslag
-      Call DCopy_(nBasSq,0.0D+00,0,Work(ipDPT2)   ,1)
-      Call DCopy_(nBasSq,0.0D+00,0,Work(ipDPT2C)  ,1)
-      Call DCopy_(nBasTr,0.0D+00,0,Work(ipDPT2AO) ,1)
-      Call DCopy_(nBasTr,0.0D+00,0,Work(ipDPT2CAO),1)
+      Call DCopy_(nBasSq,[0.0D+00],0,Work(ipDPT2)   ,1)
+      Call DCopy_(nBasSq,[0.0D+00],0,Work(ipDPT2C)  ,1)
+      Call DCopy_(nBasTr,[0.0D+00],0,Work(ipDPT2AO) ,1)
+      Call DCopy_(nBasTr,[0.0D+00],0,Work(ipDPT2CAO),1)
 C
-      Call DCopy_(nCLag ,0.0D+00,0,Work(ipCLag),1)
-      Call DCopy_(nOLag ,0.0D+00,0,Work(ipOLag),1)
-      Call DCopy_(nSLag ,0.0D+00,0,Work(ipSLag),1)
-      Call DCopy_(nWLag ,0.0D+00,0,Work(ipWLag),1)
+      Call DCopy_(nCLag ,[0.0D+00],0,Work(ipCLag),1)
+      Call DCopy_(nOLag ,[0.0D+00],0,Work(ipOLag),1)
+      Call DCopy_(nSLag ,[0.0D+00],0,Work(ipSLag),1)
+      Call DCopy_(nWLag ,[0.0D+00],0,Work(ipWLag),1)
 C
       !! LuGamma should be 60, but this record is used in MCLR, so
       !! have to use a different value. This number has to be consistent

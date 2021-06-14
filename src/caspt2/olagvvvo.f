@@ -1043,7 +1043,7 @@ C
             !! IA, IS, AA, AS
 C
             !! 1) Half back-transformation of Bra and Ket density
-C           Call DCopy_(nBasT**2,0.0D+00,0,Work(ipHTVec),1)
+C           Call DCopy_(nBasT**2,[0.0D+00],0,Work(ipHTVec),1)
 C
 C           - Doubly Occupied Orbitals
 C
@@ -1168,7 +1168,7 @@ C     JNUM  = 1
 C     NUMV  = 1
 C       do ivec = 134, 1, -1
 C           iSwap=0
-C           call dcopy_(144,0.0d+00,0,work(ipwrk),1)
+C           call dcopy_(144,[0.0d+00],0,work(ipwrk),1)
 C           Call Cho_ReOrdr(irc,Work(ip_CHSPC+lscr*(iVec-1)),lscr,jVref,
 C    *                      JVEC1,JNUM,NUMV,iSym,JREDC,iSwap,ipWRK,
 C    *                      iSkip)
