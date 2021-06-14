@@ -159,11 +159,15 @@ C
         Call mma_allocate(CMOPT2,nBasT*nBasT,Label='CMOPT2')
         Call PrgmTranslate('CMOPT2',RealName,lRealName)
         LuCMOPT2 = 61
-    !     Open (Unit=LuCMOPT2,
-    !  *        File=RealName(1:lRealName),
-    !  *        Status='OLD',
-    !  *        Form='UNFORMATTED')
-        call molcas_Open(LuCMOPT2,RealName(1:lRealName))
+C       Open (Unit=LuCMOPT2,
+C    *        File=RealName(1:lRealName),
+C    *        Status='OLD',
+C    *        Form='UNFORMATTED')
+C       call molcas_Open(LuCMOPT2,RealName(1:lRealName))
+        Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
+     &                        'DIRECT','UNFORMATTED',
+     &                        iost,.FALSE.,
+     &                        1,'OLD',is_error)
         Do i = 1, nBasT*nBasT
           Read (LuCMOPT2) CMOPT2(i)
         End Do
@@ -220,13 +224,17 @@ C
 C       nOcc = 10 ! nIsh(1) + nAsh(1)
         Call PrgmTranslate('GAMMA',RealName,lRealName)
         LuGamma = 60
-    !     Open (Unit=LuGamma,
-    !  *        File=RealName(1:lRealName),
-    !  *        Status='OLD',
-    !  *        Form='UNFORMATTED',
-    !  *        Access='DIRECT',
-    !  *        Recl=nOcc(1)*nOcc(1)*8)
-        call molcas_Open(LuGamma,RealName(1:lRealName))
+C       Open (Unit=LuGamma,
+C    *        File=RealName(1:lRealName),
+C    *        Status='OLD',
+C    *        Form='UNFORMATTED',
+C    *        Access='DIRECT',
+C    *        Recl=nOcc(1)*nOcc(1)*8)
+C       call molcas_Open(LuGamma,RealName(1:lRealName))
+        Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
+     &                        'DIRECT','UNFORMATTED',
+     &                        iost,.TRUE.,
+     &                        nOcc(1)*nOcc(1)*8,'OLD',is_error)
 *
         Call mma_allocate(WRK1,nOcc(1)*nOcc(1),Label='WRK1')
         Call mma_allocate(WRK2,MaxShlAO*nOcc(1),Label='WRK2')
@@ -351,9 +359,10 @@ C     End If
         kS = 1
         lS = 1
         !! proceed the index
-        Do Count = 1, int(TskLw)-1
+        Do iCount = 1, int(TskLw)-1
           Call CASPT2_Grad_FwdCnt(iS,jS,kS,lS,LoadVec)
         End Do
+        Count=dble(iCount)
         !! If LoadVec is true, a new vector of the half-transformed
         !! T-amplitude is read. In the first loop, it is always true.
         !! In other loops, a new vector is read only when I- and K-th

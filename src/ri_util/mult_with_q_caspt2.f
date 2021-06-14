@@ -102,11 +102,15 @@ C        write (*,*) "nBas2 = ", nBas2
       Call GetMem('A_HalfT_vec','Allo','Real',ip_A_ht,l_A_ht)
 *
       Call PrgmTranslate('CMOPT2',RealName,lRealName)
-      call molcas_Open(LuCMOPT2,RealName(1:lRealName))
-    !   Open (Unit=LuCMOPT2,
-    !  *      File=RealName(1:lRealName),
-    !  *      Status='OLD',
-    !  *      Form='UNFORMATTED')
+C     call molcas_Open(LuCMOPT2,RealName(1:lRealName))
+C     Open (Unit=LuCMOPT2,
+C    *      File=RealName(1:lRealName),
+C    *      Status='OLD',
+C    *      Form='UNFORMATTED')
+      Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
+     &                      'DIRECT','UNFORMATTED',
+     &                      iost,.FALSE.,
+     &                      1,'OLD',is_error)
       Do i = 1, l_A_t
         Read (LuCMOPT2) Work(ip_A_t+i-1)
       End Do
@@ -169,13 +173,17 @@ C     write (*,*) "nvec in mult = ", nvec
       ip_B = ip_B_t + l_B_t
 *
       Call PrgmTranslate('GAMMA',RealName,lRealName)
-      call molcas_Open(LuGAMMA,RealName(1:lRealName))
-    !   Open (Unit=LuGAMMA,
-    !  *      File=RealName(1:lRealName),
-    !  *      Status='OLD',
-    !  *      Form='UNFORMATTED',
-    !  *      Access='DIRECT',
-    !  *      Recl=nBas2*8)
+C     call molcas_Open(LuGAMMA,RealName(1:lRealName))
+C     Open (Unit=LuGAMMA,
+C    *      File=RealName(1:lRealName),
+C    *      Status='OLD',
+C    *      Form='UNFORMATTED',
+C    *      Access='DIRECT',
+C    *      Recl=nBas2*8)
+        Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
+     &                        'DIRECT','UNFORMATTED',
+     &                        iost,.TRUE.,
+     &                        nBas2*8,'OLD',is_error)
 *
 *     The B-vectors should be read one batch at the time
 *     --------------------------------------------------

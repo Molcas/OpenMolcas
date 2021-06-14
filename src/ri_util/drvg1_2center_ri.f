@@ -285,11 +285,15 @@ C       write (*,*) nbast,nbasa,nbasasq
         !! Now, read
         Call PrgmTranslate('CMOPT2',RealName,lRealName)
         LuCMOPT2 = 61
-        call molcas_Open(LuCMOPT2,RealName(1:lRealName))
-    !     Open (Unit=LuCMOPT2,
-    !  *        File=RealName(1:lRealName),
-    !  *        Status='OLD',
-    !  *        Form='UNFORMATTED')
+C       call molcas_Open(LuCMOPT2,RealName(1:lRealName))
+C       Open (Unit=LuCMOPT2,
+C    *        File=RealName(1:lRealName),
+C    *        Status='OLD',
+C    *        Form='UNFORMATTED')
+        Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
+     &                        'DIRECT','UNFORMATTED',
+     &                        iost,.FALSE.,
+     &                        1,'OLD',is_error)
         Do i = 1, nBasASQ
           Read (LuCMOPT2) A_PT2(i,1)
         End Do

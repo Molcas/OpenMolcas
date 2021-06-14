@@ -56,11 +56,15 @@ C
         !! No need to save CMOPT2. Just save A_PT2 and B_PT2.
         !! First, save A_PT2 in LuCMOPT2
         Call PrgmTranslate('CMOPT2',RealName,lRealName)
-    !     Open (Unit=LuCMOPT2,
-    !  *        File=RealName(1:lRealName),
-    !  *        Status='REPLACE',
-    !  *        Form='UNFORMATTED')
-        call molcas_Open(LuCMOPT2,RealName(1:lRealName))
+C       Open (Unit=LuCMOPT2,
+C    *        File=RealName(1:lRealName),
+C    *        Status='REPLACE',
+C    *        Form='UNFORMATTED')
+C       call molcas_Open(LuCMOPT2,RealName(1:lRealName))
+        Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
+     &                        'DIRECT','UNFORMATTED',
+     &                        iost,.FALSE.,
+     &                        1,'REPLACE',is_error)
 C      write(6,*) "write...",numcho
         Do i = 1, NumCho*NumCho
 C       write(6,*) "i = ", i
@@ -69,13 +73,17 @@ C       write(6,*) "i = ", i
         Close (LuCMOPT2)
         !! Prepare for saving B_PT2. B_PT2 is saved in VVVOX2
         Call PrgmTranslate('GAMMA',RealName,lRealName)
-    !     Open (Unit=LuGamma,
-    !  *        File=RealName(1:lRealName),
-    !  *        Status='REPLACE',
-    !  *        Form='UNFORMATTED',
-    !  *        Access='DIRECT',
-    !  *        Recl=nBas(iSym)*nBas(iSym)*8)
-        call molcas_Open(LuGamma,RealName(1:lRealName))
+C       Open (Unit=LuGamma,
+C    *        File=RealName(1:lRealName),
+C    *        Status='REPLACE',
+C    *        Form='UNFORMATTED',
+C    *        Access='DIRECT',
+C    *        Recl=nBas(iSym)*nBas(iSym)*8)
+C       call molcas_Open(LuGamma,RealName(1:lRealName))
+        Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
+     &                        'DIRECT','UNFORMATTED',
+     &                        iost,.TRUE.,
+     &                        nBas(iSym)**2*8,'REPLACE',is_error)
       End If
       !! 2) Compute ERI (mu rho | nu sigma)
       !! 3) Quarter-transformation of ERI
@@ -119,11 +127,15 @@ C     Call dDaFile(LuGamma,1,Work(LCMOPT2),nBasT*nBasT,iDisk)
         Close (LuGamma)
       Else
         Call PrgmTranslate('CMOPT2',RealName,lRealName)
-        call molcas_Open(LuCMOPT2,RealName(1:lRealName))
-    !     Open (Unit=LuCMOPT2,
-    !  *        File=RealName(1:lRealName),
-    !  *        Status='REPLACE',
-    !  *        Form='UNFORMATTED')
+C       Open (Unit=LuCMOPT2,
+C    *        File=RealName(1:lRealName),
+C    *        Status='REPLACE',
+C    *        Form='UNFORMATTED')
+C       call molcas_Open(LuCMOPT2,RealName(1:lRealName))
+        Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
+     &                        'DIRECT','UNFORMATTED',
+     &                        iost,.FALSE.,
+     &                        1,'REPLACE',is_error)
         !! First, CMOPT2 has to be saved. The MO coefficient matrix in
         !! grvg1.f may be different from CMOPT2.
 C       Write (LuCMOPT2) (Work(LCMOPT2+i-1),i=1,nBasT*nBasT)
@@ -182,13 +194,21 @@ C       call sqprt(Work(LCMOPT2),nbast)
 C
 C       write(6,*) "going to open LuGamma"
         Call PrgmTranslate('GAMMA',RealName,lRealName)
-    !     Open (Unit=LuGamma,
-    !  *        File=RealName(1:lRealName),
-    !  *        Status='REPLACE',
-    !  *        Form='UNFORMATTED',
-    !  *        Access='DIRECT',
-    !  *        Recl=nOcc*nOcc*8)
-        call molcas_Open(LuGamma,RealName(1:lRealName))
+C       Open (Unit=LuGamma,
+C    *        File=RealName(1:lRealName),
+C    *        Status='REPLACE',
+C    *        Form='UNFORMATTED',
+C    *        Access='DIRECT',
+C    *        Recl=nOcc*nOcc*8)
+C       call molcas_Open(LuGamma,RealName(1:lRealName))
+        Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
+     &                        'DIRECT','UNFORMATTED',
+     &                        iost,.TRUE.,
+     &                        nOcc*nOcc*8,'REPLACE',is_error)
+        if (is_error.eq.1) then
+         write (6,*) "Something is wrong in opening LuGamma in olagvvvo"
+          call abend
+        end if
 C       Call dDaFile(LuGamma,1,Work(LCMOPT2),nBasT*nBasT,iDisk)
 C       write(6,*) "Idisk = ", idisk
 C       Call dDaFile(LuGamma,1,1.0d+00,1,iDisk)
