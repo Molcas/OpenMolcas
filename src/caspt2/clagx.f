@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
-      Subroutine CLagX(IFF,CLag,trf,DEPSA,RDMSA,RDMEIG)
+      Subroutine CLagX(IFF,CLag,trf,DEPSA)
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -23,8 +23,7 @@ C#include "sigma.fh"
 #include "pt2_guga.fh"
 C
       DIMENSION CLag(nConf,nState)
-      dimension trf(nbast,nbast),DEPSA(nAshT,nAshT),
-     *          RDMSA(nAshT,nAshT),RDMEIG(nAshT,nAshT)
+      dimension trf(nbast,nbast),DEPSA(nAshT,nAshT)
 C
       !! reduced density matrix and fock-weighted RDM
       CALL GETMEM('G1'   ,'ALLO','REAL',LG1 ,NG1)
@@ -1912,7 +1911,7 @@ C       end do
 
       CALL GETMEM ('Tasks','FREE','INTE',lTask,2*nTasks)
 
-  99  CONTINUE
+C 99  CONTINUE
 
       CALL QEXIT('DENS1_RPT2')
 

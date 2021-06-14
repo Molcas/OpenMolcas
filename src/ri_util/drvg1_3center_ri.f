@@ -95,6 +95,7 @@
       save MemPrm
       Logical Timings,FlipFlop
       COMMON /CHOTIME / timings
+      Logical is_error
 #include "ymnij.fh"
 *                                                                      *
 ************************************************************************

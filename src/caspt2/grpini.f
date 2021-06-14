@@ -96,8 +96,8 @@ C     call sqprt(work(lcmo),12)
           Do K = 1, Nstate
 C           wij = WORK(LDWGT+(K-1) + NSTATE*(K-1))
             wij = 1.0d+00/nstate
-            offset = NDREF*(K-1)
-            CALL DAXPY_(NDREF,wij,WORK(LDMIX+offset),1,WORK(LDREF),1)
+            ioffset = NDREF*(K-1)
+            CALL DAXPY_(NDREF,wij,WORK(LDMIX+ioffset),1,WORK(LDREF),1)
           End Do
         Else
          CALL DCOPY_(NDREF,WORK(LDMIX+(Jstate-1)*NDREF),1,WORK(LDREF),1)

@@ -12,7 +12,7 @@
 ************************************************************************
       SubRoutine Precaaa(iC,is,js,nd,ir,rOut,nbai,nbaj,
      &                   focki,fock,sign,
-     &                   A_J,A_K,Scr,nScr,ActInt)
+     &                   Scr,nScr,ActInt)
 ************************************************************************
 *                                                                      *
 *                                        [2]                           *
@@ -41,7 +41,7 @@
 #include "WrkSpc.fh"
 #include "Pointers.fh"
       Real*8 Fock(nbaj,nbaj),Focki(nbaj,nbaj)
-      Real*8 rout(nd*(nd+1)/2), A_J(nScr), A_K(nScr), Scr(nScr)
+      Real*8 rout(nd*(nd+1)/2), Scr(nScr)
       Real*8 ActInt(ntAsh,ntAsh,ntAsh,ntAsh)
 *                                                                      *
 ************************************************************************

@@ -313,8 +313,7 @@ C
         Call DCopy_(nAshT*nAshT,[0.0D+00],0,Work(ipDEPSA),1)
         !! Derivative of off-diagonal H0 of <Psi1|H0|Psi1>
         IF (MAXIT.NE.0) Call SIGDER(iVecX,iVecR)
-        Call CLagX(1,Work(ipCLag),Work(ipTRF),Work(ipDEPSA),
-     *             Work(ipRDMSA),Work(ipRDMEIG))
+        Call CLagX(1,Work(ipCLag),Work(ipTRF),Work(ipDEPSA))
 C       call test3_dens(work(ipclag))
         write(6,*) "original depsa"
         call sqprt(work(ipdepsa),nasht)
@@ -2440,7 +2439,7 @@ C
       DIMENSION DPT2C(*),DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
 C
       DIMENSION Val1(2),nSymX(8),nBasX(8),KEEP(8)
-      LOGICAL   DoVVVO
+      LOGICAL   DoVVVO,Square
       logical dorys
       Integer iSD4(0:nSD,4)
       Allocatable :: T_hbf(:,:,:,:),iOffAO(:)
@@ -2727,7 +2726,7 @@ C     write(6,*) "DoVVVO = ", dovvvo
         nOcc  = nFro(1)+nIsh(1)+nAsh(1)
         lT2AO = nOcc*nOcc*nBasT*nBasT
         Call GetMem('T2AO','Allo','Real',ipT2AO,lT2AO)
-        Call GetOrd(IRC,iSquar,nSymX,nBasX,KEEP)
+        Call GetOrd(IRC,Square,nSymX,nBasX,KEEP)
 C
         Call DCopy_(lT2AO,[0.0D+00],0,Work(ipT2AO),1)
       End If

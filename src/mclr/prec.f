@@ -251,7 +251,7 @@ C     call sqprt(rpre(ip),nd)
      &                      nOrb(is),nOrb(js),
      &                      Work(ipFIMO+ipCM(js)-1),
      &                      Work(ipF0SqMO+ipCM(js)-1),sign,
-     &                      Work(ipJ),Work(ipK),Work(ipS),n2,
+     &                      Work(ipS),n2,
      &                      Work(ipActInt)) ! OK
             EndIf ! newCho
 
