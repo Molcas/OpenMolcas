@@ -229,6 +229,7 @@ C
 
       DO J=1,NCOL
         DO I=1,NROW
+          SCAL = 0.0D+00
           If (Mode.eq.1) Then
             DELTA  = SHIFT+DIN(I)+DIS(J)
             DELINV = DELTA/(DELTA**2+SHIFTI**2)
@@ -260,19 +261,18 @@ C
 
       INTEGER ICONV
 
-      INTEGER I,IC,IS,ITER
+      INTEGER I,ITER
       INTEGER IVECP,IVECT,IVECU
-      INTEGER LAXITY
       INTEGER Cho_X_GetTol
       EXTERNAL Cho_X_GetTol
       REAL*8 ALPHA,BETA,PR,PT,UR
       REAL*8 ECORR(0:8,0:MXCASE)
       REAL*8 EAIVX,EATVX,EBJAI,EBJAT,EBVAT,EVJAI,EVJTI,EVJTU
-      REAL*8 E2NONV,ESHIFT
+      REAL*8 E2NONV
       REAL*8 OVLAPS(0:8,0:MXCASE)
-      REAL*8 SAV,SAVI,DSCALE
+      REAL*8 DSCALE
 
-      CALL QENTER('PCG')
+      CALL QENTER('PCG_RES')
 C Flag to tell wether convergence was obtained
       ICONV = 0
 
@@ -475,26 +475,7 @@ C     !     WRITE(6,'(6x,a,f13.5)') 'Reference weight:     ',REFWGT
       !  EndIf
       END IF
 
-* In automatic verification calculations, the precision is lower
-* in case of Cholesky calculation.
-C     LAXITY=8
-C     IF(IfChol) LAXITY=Cho_X_GetTol(LAXITY)
-C     Call Add_Info('E_CASPT2',[E2TOT],1,LAXITY)
-
-C     IF(IPRGLB.GE.USUAL) THEN
-C      WRITE(6,*)
-C      WRITE(6,'(6x,a)')
-C    &  'Contributions to the CASPT2 correlation energy'
-C      WRITE(6,'(6x,a,F18.10)')
-C    &  'Active & Virtual Only:    ',EATVX+EBVAT
-C      WRITE(6,'(6x,a,F18.10)')
-C    &  'One Inactive Excited:     ',EVJTU+EAIVX+EBJAT
-C      WRITE(6,'(6x,a,F18.10)')
-C    &  'Two Inactive Excited:     ',EVJTI+EVJAI+EBJAI
-C      WRITE(6,*)
-C     END IF
-C     CALL GETMEM('LISTS','FREE','INTE',LLISTS,NLSTOT)
-      CALL QEXIT('PCG')
+      CALL QEXIT('PCG_RES')
 C
       RETURN
 C

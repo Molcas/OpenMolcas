@@ -74,7 +74,7 @@ C     write (*,*) "aaaaa"
          in2 = 0
          Do 11 i1 = 1, iCmp(jPam) !! azimuthal number loop (1,3,5,...)
             iSO = iAOtSO(iAO(jPam)+i1,0)
-     &          + iAOst(jPam) !! iAOst(jPam) is zero (dependent on symmetry?)
+     &          + iAOst(jPam)
             nPam(jPam) = nPam(jPam) + iiBas(jPam)
 C        if (jpam.eq.1) then
 C          write (*,*) "i1 = ", i1
