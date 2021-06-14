@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine UnixInfo(SuperModuleName,ModuleName)
       Character*(*) ModuleName, SuperModuleName
       External StrnLn
@@ -28,13 +28,13 @@
       shell=' '
       molcasdir=' '
 #ifndef _DEMO_
-      Call UnixInfoC(pid, ppid,
-     +  sec,mins,hour,mday,mon,year,wday,yday,isdst,
-     +  username,realname,homedir,shell,
-     +  molcasdir)
+      Call UnixInfoC(pid, ppid,                                         &
+     &  sec,mins,hour,mday,mon,year,wday,yday,isdst,                    &
+     &  username,realname,homedir,shell,                                &
+     &  molcasdir)
 #endif
 
-C  Clear ProgName of directory part:
+!  Clear ProgName of directory part:
       LenProgName=StrnLn(ProgName)
       Do 100 Ich=LenProgName,1,-1
       If(ProgName(Ich:Ich).Eq.'/')Then
@@ -95,11 +95,11 @@ C  Clear ProgName of directory part:
       Write(6,'(A,I35)')' Minutes           :',mins
       Write(6,'(A,I35)')' Hours             :',hour
       Write(6,'(A,I35)')' Day of month      :',mday
-      Write(6,'(A,I29,3A)')' Month             :',mon,
-     +  ' (',Month(mon),')'
+      Write(6,'(A,I29,3A)')' Month             :',mon,                  &
+     &  ' (',Month(mon),')'
       Write(6,'(A,I35)')' Year              :',year
-      Write(6,'(A,I29,3A)')' Day of week       :',wday,
-     +  ' (',WeekDay(wday),')'
+      Write(6,'(A,I29,3A)')' Day of week       :',wday,                 &
+     &  ' (',WeekDay(wday),')'
       Write(6,'(A,I35)')' Day of year       :',yday
       Write(6,'(A,I35)')' Daylight saving ? :',isdst
 #ifdef _PLEASE_DELETE_ME_
@@ -112,7 +112,7 @@ C  Clear ProgName of directory part:
       Len=StrnLn(RealName)
       Do i=1,Len
          j=iChar(RealName(i:i))
-         If ((j.le.8).or.(j.ge.160).or.((j.ge.14).and.(j.le.31)))
+         If ((j.le.8).or.(j.ge.160).or.((j.ge.14).and.(j.le.31)))       &
      &      RealName(i:i)='?'
       EndDo
       I1=Max(1,35-Len+1)

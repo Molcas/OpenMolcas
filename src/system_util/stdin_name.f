@@ -1,39 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2000-2016, Valera Veryazov                             *
-************************************************************************
-******************************************************************************
-*                                                                            *
-* Author:   Valera Veryazov 2000-2016                                        *
-*           Theoretical Chemistry                                            *
-*           Lund University                                                  *
-*           Sweden                                                           *
-*                                                                            *
-******************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2000-2016, Valera Veryazov                             *
+!***********************************************************************
+!*****************************************************************************
+!                                                                            *
+! Author:   Valera Veryazov 2000-2016                                        *
+!           Theoretical Chemistry                                            *
+!           Lund University                                                  *
+!           Sweden                                                           *
+!                                                                            *
+!*****************************************************************************
        Subroutine StdIn_Name(Name)
        Character*(*) Name
        Character*132 Line
-*
+!
        nName=LEN(Name)
        If (nName.ne.16) Then
           Write (6,*) 'StdIn_Name: Wrong length of character Name'
           Call Abend()
        End If
-C      Write (*,*) 'nName=',nName
-*
+!      Write (*,*) 'nName=',nName
+!
        Name='Stdin.  '
        Call GetEnvf('EMIL_RC2',Line)
        Read (Line,'(I132.132)') Iter
-c      Write (*,*) 'Line=',Line
-c      Write (*,*) 'Iter=',Iter
+!      Write (*,*) 'Line=',Line
+!      Write (*,*) 'Iter=',Iter
        Iter = Iter+1
        If (Line(1:1).eq.' ') Then
           Name(7:7)='2'
@@ -62,8 +62,8 @@ c      Write (*,*) 'Iter=',Iter
 20      i=i+1
         goto 10
 30      Name(index(Name,' '):)='.'//Line(ib:ie)
-c        write(*,*) '>',Line,'<', ib, ie
-c       Write (6,*) 'StdIn=',Name
-*
+!        write(*,*) '>',Line,'<', ib, ie
+!       Write (6,*) 'StdIn=',Name
+!
        Return
        End

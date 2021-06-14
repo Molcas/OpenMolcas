@@ -1,49 +1,49 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2001, Valera Veryazov                                  *
-************************************************************************
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*       general purpose routine for printing nice messages             *
-*       with simple reformatting:                                      *
-*           \n and long string converted to new line                   *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     V.Veryazov University of Lund, 2001                              *
-*                                                                      *
-************************************************************************
-c       call SysPutsStart()
-c       call SysPuts('MOL;CAS\n\nmolcas is a quantum '//
-c     6  'chemistry software developed by scientists to be '//
-c     6   'used by scientists. It is not primarily a commercial '//
-c     6   'product and it is not sold in order to produce a '//
-c     6   'fortune for its owner (the Lund University).',' ',' ')
-c       call SysPutsEnd()
-c       end
-*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2001, Valera Veryazov                                  *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!       general purpose routine for printing nice messages             *
+!       with simple reformatting:                                      *
+!           \n and long string converted to new line                   *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     V.Veryazov University of Lund, 2001                              *
+!                                                                      *
+!***********************************************************************
+!       call SysPutsStart()
+!       call SysPuts('MOL;CAS\n\nmolcas is a quantum '//
+!     6  'chemistry software developed by scientists to be '//
+!     6   'used by scientists. It is not primarily a commercial '//
+!     6   'product and it is not sold in order to produce a '//
+!     6   'fortune for its owner (the Lund University).',' ',' ')
+!       call SysPutsEnd()
+!       end
+!
       Subroutine SysPuts(str,str1,str2)
       Character*(*) str,str1,str2
       Character *512 Junk
-c because of bug in g77 we can't just concatenate strings and
-c  had to have limited length of the string
+! because of bug in g77 we can't just concatenate strings and
+!  had to have limited length of the string
       iTooLong=60
       iLongEnough=50
       call mycat(Junk,str,str1,str2)
       mlen=mylen(Junk)
       mleni=mlen
       ipos=1
-c  check is '\n' .eq. <CR>?
+!  check is '\n' .eq. <CR>?
       icr=len('\n')-1
       icr1=0
 100   j=100000
@@ -78,14 +78,14 @@ c  check is '\n' .eq. <CR>?
       if(mlen.gt.0) goto 100
       return
       end
-************************************************************************
+!***********************************************************************
       subroutine  SysDumpStr(str)
       character*(*) str
       character fmt*20
       iTooLong=60
       i=len(str)
       if(i.gt.iTooLong+8) then
-c oops! too long
+! oops! too long
       write (6,'(a,a)')   ' ###    ',str
       return
       endif
@@ -99,11 +99,11 @@ c oops! too long
       return
       end
 
-************************************************************************
+!***********************************************************************
       subroutine mycat(Junk,str0,str1,str2)
-c
-c  Junk=str0//str1//str2
-c
+!
+!  Junk=str0//str1//str2
+!
       Character*(*) Junk,str0,str1,str2
       maxlen=len(Junk)
 
@@ -135,11 +135,11 @@ c
         write(6,*) str0,str1,str2
         return
       end
-************************************************************************
+!***********************************************************************
       function mylen(s)
-c
-c  return real length of the string without spaces...
-c
+!
+!  return real length of the string without spaces...
+!
       Character*(*) s
       il=len(s)
       if(il.eq.0) then
@@ -155,4 +155,4 @@ c
       mylen=0
       return
       end
-************************************************************************
+!***********************************************************************

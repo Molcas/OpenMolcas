@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2012, Thomas Bondo Pedersen                            *
-************************************************************************
-C#define _DEBUGPRINT_
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2012, Thomas Bondo Pedersen                            *
+!***********************************************************************
+!#define _DEBUGPRINT_
       Subroutine ThisIsRestrictedCode(developer_name,code_name,Abort)
-C
-C     Thomas Bondo Pedersen, December 2012.
-C
-C     An extension of OnlyIMayUseIt, this routine allows you to
-C     identify the code portion which is not for others to use.
-C     Based on (and using) OnlyIMayUseIt by V. Veryazov.
-C
-C     If Abort: stop the execution
-C
+!
+!     Thomas Bondo Pedersen, December 2012.
+!
+!     An extension of OnlyIMayUseIt, this routine allows you to
+!     identify the code portion which is not for others to use.
+!     Based on (and using) OnlyIMayUseIt by V. Veryazov.
+!
+!     If Abort: stop the execution
+!
       Implicit None
       Character*(*) developer_name
       Character*(*) code_name

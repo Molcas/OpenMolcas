@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2019, Oskar Weser                                      *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2019, Oskar Weser                                      *
+!***********************************************************************
 
 #include "compiler_features.h"
 #include "molcastypes.fh"
 
       module filesystem
-      use, intrinsic :: iso_c_binding, only: c_char, MOLCAS_C_INT,
+      use, intrinsic :: iso_c_binding, only: c_char, MOLCAS_C_INT,      &
      &      C_INT, c_ptr, C_NULL_CHAR
-      use fortran_strings, only: split, StringWrapper_t, Cptr_to_str,
+      use fortran_strings, only: split, StringWrapper_t, Cptr_to_str,   &
      &  str
       implicit none
       private
-      public :: getcwd_, chdir_, symlink_, get_errno_, strerror_,
+      public :: getcwd_, chdir_, symlink_, get_errno_, strerror_,       &
      &    mkdir_, remove_, real_path, basename
       interface
       subroutine getcwd_c(path, n, err) bind(C, name="getcwd_wrapper")
@@ -100,7 +100,7 @@
         character(len=*), intent(in) :: to, from
         integer, intent(out), optional :: err
         integer(MOLCAS_C_INT) :: c_err
-        call symlink_c(
+        call symlink_c(                                                 &
      &    trim(to)//C_NULL_CHAR, trim(from)//C_NULL_CHAR, c_err)
         if (present(err)) err = int(c_err)
       end subroutine
@@ -109,7 +109,7 @@
         character(len=*), intent(in) :: path
         integer, optional, intent(out) :: err
         integer(MOLCAS_C_INT) :: loc_err
-        call mkdir_c(trim(path)//C_NULL_CHAR,
+        call mkdir_c(trim(path)//C_NULL_CHAR,                           &
      &        int(o'772', MOLCAS_C_INT), loc_err)
         if (present(err)) err = loc_err
       end subroutine

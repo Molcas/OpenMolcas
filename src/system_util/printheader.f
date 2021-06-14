@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-CSVC: print a banner with module name and runtime information
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!SVC: print a banner with module name and runtime information
       subroutine print_module_header(modulename)
 #ifdef _MOLCAS_MPP_
       use Para_Info, only: nProcs
@@ -31,7 +31,7 @@ CSVC: print a banner with module name and runtime information
 #include "WrkSpc.fh"
       real*8 :: bytes
       integer :: order, group
-      character(len=3) :: unit(0:8) =
+      character(len=3) :: unit(0:8) =                                   &
      & ['  B',' kB',' MB',' GB',' TB', ' PB', ' EB', ' ZB', ' YB']
       character(len=16) :: memory
       integer :: nthreads
@@ -52,10 +52,10 @@ CSVC: print a banner with module name and runtime information
       write(proc,'(I16)') nprocs_global
       if (nprocs_global.gt.1) then
         if (nprocs.gt.1) then
-          line = 'launched '//trim(adjustl(proc))//' MPI processes, '//
+          line = 'launched '//trim(adjustl(proc))//' MPI processes, '// &
      &           'running in PARALLEL mode (work-sharing enabled)'
         else
-          line = 'launched '//trim(adjustl(proc))//' MPI processes, '//
+          line = 'launched '//trim(adjustl(proc))//' MPI processes, '// &
      &           'running in SERIAL mode (work-sharing disabled)'
         end if
       else
@@ -73,7 +73,7 @@ CSVC: print a banner with module name and runtime information
       nthreads = 1
 #endif
 
-* mxmem is the number of 8-byte words (real*8) we have available.
+! mxmem is the number of 8-byte words (real*8) we have available.
       bytes = 8*mxmem
       order = FLOOR(LOG10(bytes))
       group = MIN(order/3,8)
@@ -82,20 +82,20 @@ CSVC: print a banner with module name and runtime information
       else
         write (memory,'(I3,A)') INT(bytes/10**(3*group)),unit(group)
       end if
-* report the maximum number of threads available
+! report the maximum number of threads available
       if (nthreads.eq.1) then
         write (threads,'(A)') '1 thread'
       else
         write (threads,'(I8,A8)') nthreads, ' threads'
       end if
-* if OPENMP is not compiled in, we don't know how many threads
-* could be available in linear algebra libraries...
+! if OPENMP is not compiled in, we don't know how many threads
+! could be available in linear algebra libraries...
 #ifndef _OPENMP
       threads=trim(threads)//'?'
 #endif
 
-      line = 'available to each process: '//
-     &        trim(adjustl(memory))//' of memory, '//
+      line = 'available to each process: '//                            &
+     &        trim(adjustl(memory))//' of memory, '//                   &
      &        trim(adjustl(threads))
       call center_text(line)
       write(6,'(a)') trim(line)
@@ -117,7 +117,7 @@ CSVC: print a banner with module name and runtime information
       end
 
       subroutine center_text(line)
-CSVC: centers the text of a line
+!SVC: centers the text of a line
       implicit none
       character(len=*) :: line
       character(len=100) :: text

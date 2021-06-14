@@ -1,51 +1,51 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2000-2016, Valera Veryazov                             *
-************************************************************************
-************************************************************************
-*                                                                      *
-* Author:   Valera Veryazov 2000-2016                                  *
-*           Theoretical Chemistry                                      *
-*           Lund University                                            *
-*           Sweden                                                     *
-*                                                                      *
-************************************************************************
-*  MolcasControl
-*
-*> @brief
-*>   Query a string from the control file
-*> @author V. Veryazov
-*>
-*> @details
-*> Only lines started from ``!`` are in use.
-*>
-*> If user modified molcas.control file
-*> (by placing ``!`` instead of ``#``)
-*> return a value of the field (as a string)
-*> and mark the label as a comment,
-*> else return blank value.
-*>
-*> Usage:
-*>
-*> \code
-*> Call MolcasControl('SHUTDOWN',Value)
-*> if(Value.eq.'YES') Call abend
-*> \endcode
-*>
-*> @side_effects
-*> file molcas.control
-*>
-*> @param[in]  Label Query string
-*> @param[out] Value Returned value
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2000-2016, Valera Veryazov                             *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+! Author:   Valera Veryazov 2000-2016                                  *
+!           Theoretical Chemistry                                      *
+!           Lund University                                            *
+!           Sweden                                                     *
+!                                                                      *
+!***********************************************************************
+!  MolcasControl
+!
+!> @brief
+!>   Query a string from the control file
+!> @author V. Veryazov
+!>
+!> @details
+!> Only lines started from ``!`` are in use.
+!>
+!> If user modified molcas.control file
+!> (by placing ``!`` instead of ``#``)
+!> return a value of the field (as a string)
+!> and mark the label as a comment,
+!> else return blank value.
+!>
+!> Usage:
+!>
+!> \code
+!> Call MolcasControl('SHUTDOWN',Value)
+!> if(Value.eq.'YES') Call abend
+!> \endcode
+!>
+!> @side_effects
+!> file molcas.control
+!>
+!> @param[in]  Label Query string
+!> @param[out] Value Returned value
+!***********************************************************************
       Subroutine MolcasControl(Label,Value)
       parameter(nLines=20)
       character filename*16
@@ -73,7 +73,7 @@
 
 100   continue
       close(Lu)
-c
+!
 
       if(.not.Modify) return
 
@@ -97,27 +97,27 @@ c
 
       Return
       End
-c
-************************************************************************
-*  MolcasControlInit
-*
-*> @brief
-*>   Initiate molcas.control file
-*> @author V.Veryazov
-*>
-*> @details
-*> Create a dummy file molcas.control.
-*> Not more than 20 entries are permitted
-*> Initial value (as well as ``=`` sign) can be omitted
-*>
-*> Usage:
-*>
-*> \code
-*> Call MolcasControlInit('SHUTDOWN=YES,ITER')
-*> \endcode
-*>
-*> @param[in] label Coma separated list of fields
-************************************************************************
+!
+!***********************************************************************
+!  MolcasControlInit
+!
+!> @brief
+!>   Initiate molcas.control file
+!> @author V.Veryazov
+!>
+!> @details
+!> Create a dummy file molcas.control.
+!> Not more than 20 entries are permitted
+!> Initial value (as well as ``=`` sign) can be omitted
+!>
+!> Usage:
+!>
+!> \code
+!> Call MolcasControlInit('SHUTDOWN=YES,ITER')
+!> \endcode
+!>
+!> @param[in] label Coma separated list of fields
+!***********************************************************************
       Subroutine MolcasControlInit(label)
       parameter(nLines=20)
       character*(*) Label

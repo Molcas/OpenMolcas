@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine xquit(rc)
-CSVC: routine that terminates Molcas properly
+!SVC: routine that terminates Molcas properly
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: King
 #endif
@@ -21,11 +21,11 @@ CSVC: routine that terminates Molcas properly
 
       call xflush(6)
 
-CSVC: write rc to stderr if not 0 (all is well)
+!SVC: write rc to stderr if not 0 (all is well)
       if (rc .ne. _RC_ALL_IS_WELL_) then
-CIFG: do not write message if rc is "out of bounds"
-C     (this avoids it, e.g., when a slave process quits with -2,
-C     also avoids writing garbage from rc_msg)
+!IFG: do not write message if rc is "out of bounds"
+!     (this avoids it, e.g., when a slave process quits with -2,
+!     also avoids writing garbage from rc_msg)
         lb = lbound(rc_msg,dim=1)
         ub = ubound(rc_msg,dim=1)
         if (rc .ge. lb .and. rc .le. ub) then
@@ -34,30 +34,30 @@ C     also avoids writing garbage from rc_msg)
         end if
       end if
 
-CSVC: write return code to file
+!SVC: write return code to file
       call write_rc(rc)
 
-CSVC: critical errors result in backtrace + immediate abort, while
-C     regular errors only do this if MOLCAS_BOMB has been set too.
-      if (        (rc .ge. _RC_GROUP_CRITICAL_)
+!SVC: critical errors result in backtrace + immediate abort, while
+!     regular errors only do this if MOLCAS_BOMB has been set too.
+      if (        (rc .ge. _RC_GROUP_CRITICAL_)                                         &
 #if _MOLCAS_MPP_
-CIFG: in a parallel (real or fake) run, we have to be more strict
-C     with errors, or a deadlock may occur when some slave process
-C     quits (e.g., a glitch or bug causes a missing file). Of course,
-C     it could be argued that the error raised for those cases should
-C     be critical... but it's often an "INPUT ERROR"
-     &        .or.(rc .ge. _RC_GROUP_USER_ERROR_ .and. (.not.King()))
+!IFG: in a parallel (real or fake) run, we have to be more strict
+!     with errors, or a deadlock may occur when some slave process
+!     quits (e.g., a glitch or bug causes a missing file). Of course,
+!     it could be argued that the error raised for those cases should
+!     be critical... but it's often an "INPUT ERROR"
+     &        .or.(rc .ge. _RC_GROUP_USER_ERROR_ .and. (.not.King()))                     &
 #endif
      &        .or.(rc .ge. _RC_GROUP_ERROR_ .and. bomb_on_error())) then
         call xabort(rc)
       end if
 
-CSVC: terminate GA/MPI gracefully
+!SVC: terminate GA/MPI gracefully
       call GATerminate
 
-CSVC: eventual exit normally. We should not exit with rc here because
-C     some MPI implementations (like MPICH) will treat a non-zero return
-C     code similar to an abort.
+!SVC: eventual exit normally. We should not exit with rc here because
+!     some MPI implementations (like MPICH) will treat a non-zero return
+!     code similar to an abort.
       stop
       end
 
@@ -74,9 +74,9 @@ C     code similar to an abort.
         rc = .false.
       end if
       end
-c-----------------------------------------------------------------------
-c     convenient wrapper routines for xquit
-c-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+!     convenient wrapper routines for xquit
+!-----------------------------------------------------------------------
       subroutine quit(rc)
       implicit none
       integer rc
