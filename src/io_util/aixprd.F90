@@ -110,7 +110,8 @@ else if (rc /= nBuf) then
   end if
   call FASTIO('STATUS')
   AixPRd = eEof
-  call SysQuitFileMsg(_RC_IO_ERROR_READ_,TheName,FCtlBlk(nFile),'Premature abort while reading buffer from disk:','\n End of file reached ')
+  call SysQuitFileMsg(_RC_IO_ERROR_READ_,TheName,FCtlBlk(nFile),'Premature abort while reading buffer from disk:', &
+                      '\n End of file reached ')
 end if
 call Timing(CPUA,CPUE,TIOA,TIOE)
 ProfData(4,Lu) = ProfData(4,Lu)+1

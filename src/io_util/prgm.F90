@@ -20,6 +20,7 @@
 
 module prgm
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
@@ -30,7 +31,7 @@ type FileEntry
   character(len=16) :: Attr
 end type FileEntry
 type(FileEntry), allocatable :: FileTable(:)
-character(len=MAXSTR) :: WorkDir = '', FastDir = '', Project = 'Noname'
+character(len=MAXSTR) :: WorkDir = '', FastDir = '', Project = 'Noname', StatusFile = ''
 character(len=16) :: SlaveDir = '', SubDir = ''
 
 public :: PrgmInitC, PrgmFree, PrgmTranslate_Mod, SetSubDir
@@ -38,20 +39,35 @@ public :: PrgmInitC, PrgmFree, PrgmTranslate_Mod, SetSubDir
 public :: IsInMem
 #endif
 
+! Private extensions to mma interfaces
+
+interface cptr2loff
+  module procedure :: fe_cptr2loff
+end interface
+interface mma_allocate
+  module procedure :: fe_mma_allo_1D, fe_mma_allo_1D_lim
+end interface
+interface mma_deallocate
+  module procedure :: fe_mma_free_1D
+end interface
+
 contains
 
 subroutine PrgmInitC(ModName,l)
   character(len=*), intent(in) :: ModName
   integer(kind=iwp), intent(in) :: l
+  integer(kind=iwp) :: n
   unused_var(l)
   call PrgmCache()
   call ReadPrgmFile(ModName)
   call ReadPrgmFile('global')
+  ! Save location of the "status" file, since it will be needed after deallocation
+  call PrgmTranslate_Mod('status',5,StatusFile,n,0)
   return
 end subroutine PrgmInitC
 
 subroutine PrgmFree()
-  if (allocated(FileTable)) deallocate(FileTable)
+  if (allocated(FileTable)) call mma_deallocate(FileTable)
   return
 end subroutine PrgmFree
 
@@ -82,7 +98,11 @@ subroutine PrgmTranslate_Mod(InStr,l1,OutStr,l2,Par)
   else
     WD = WorkDir
     if (trim(WD) == '') WD = '.'
-    Num = FindFile(Input,FileTable)
+    if (allocated(FileTable)) then
+      Num = FindFile(Input,FileTable)
+    else
+      Num = -1
+    end if
     if (Num > 0) then
 #     ifdef _DEBUGPRINT_
       write(u6,*) 'File ',trim(Input),' found in table: ',trim(FileTable(Num)%Filename)
@@ -106,6 +126,11 @@ subroutine PrgmTranslate_Mod(InStr,l1,OutStr,l2,Par)
         Loc = index(OutStr,'.',back=.true.)
         OutStr = ReplaceSubstr(OutStr,Loc,Loc,trim(Ext)//'.')
       end if
+    else if ((Num < 0) .and. (Input == 'status')) then
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'Using cached "status" entry'
+#     endif
+      OutStr = trim(StatusFile)
     else
 #     ifdef _DEBUGPRINT_
       write(u6,*) 'Assuming $WorkDir/'//trim(Input)
@@ -150,7 +175,9 @@ subroutine ReadPrgmFile(ModName)
   integer(kind=iwp), external :: isFreeUnit
   type(FileEntry), allocatable :: TempTable(:), NewTable(:)
 
-  if (.not. allocated(FileTable)) allocate(FileTable(0))
+# include "macros.fh"
+  unused_proc(mma_allocate(FileTable,[0,0]))
+  if (.not. allocated(FileTable)) call mma_allocate(FileTable,0,label='FileTable')
 
 # ifdef _DEBUGPRINT_
   write(u6,*) 'ModName: '//trim(ModName)
@@ -174,7 +201,7 @@ subroutine ReadPrgmFile(ModName)
       if (Error /= 0) exit
       Num = Num+1
     end do
-    allocate(TempTable(Num))
+    call mma_allocate(TempTable,Num,label='TempTable')
     rewind(Lu)
     Num = 0
     do
@@ -207,7 +234,7 @@ subroutine ReadPrgmFile(ModName)
     end do
     Num = j
     ! Merge and update FileTable
-    allocate(NewTable(size(FileTable)+Num))
+    call mma_allocate(NewTable,size(FileTable)+Num,label='FileTable')
     NewTable(1:size(FileTable)) = FileTable
     k = size(FileTable)
     do i=1,size(TempTable)
@@ -218,9 +245,9 @@ subroutine ReadPrgmFile(ModName)
       NewTable(Num) = TempTable(i)
       k = max(k,Num)
     end do
-    deallocate(FileTable)
+    call mma_deallocate(FileTable)
     call move_alloc(NewTable,FileTable)
-    deallocate(TempTable)
+    call mma_deallocate(TempTable)
     close(Lu)
   end if
 # ifdef _DEBUGPRINT_
@@ -389,5 +416,22 @@ subroutine PrgmCache()
   if (mpp_id() > 0) write(SlaveDir,'(A,I0)') '/tmp_',mpp_id()
   return
 end subroutine PrgmCache
+
+! Private extensions to mma_interfaces, using preprocessor templates
+! (see src/mma_util/stdalloc.f)
+
+! Define fe_cptr2loff, fe_mma_allo_1D, fe_mma_allo_1D_lim, fe_mma_free_1D
+#define _TYPE_ type(FileEntry)
+#  define _FUNC_NAME_ fe_cptr2loff
+#  include "cptr2loff_template.fh"
+#  undef _FUNC_NAME_
+#  define _SUBR_NAME_ fe_mma
+#  define _DIMENSIONS_ 1
+#  define _DEF_LABEL_ 'fe_mma'
+#  include "mma_allo_template.fh"
+#  undef _SUBR_NAME_
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+#undef _TYPE_
 
 end module prgm

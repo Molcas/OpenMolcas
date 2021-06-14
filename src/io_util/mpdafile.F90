@@ -100,7 +100,7 @@ if ((offset < 0) .or. (offset > MaxSplitFile-1)) then
   write(u6,*) '          Current I/O Status as follows'
   write(u6,*)
   call FASTIO('STATUS')
-  call SysAbendFileMsg(TheName,StdNam,'Extensions out of range!','increase MOLCAS_DISK value or MaxSplitFile in fio.fh ')
+  call SysAbendFileMsg(TheName,StdNam,'Extensions out of range!','increase MOLCAS_DISK value or MaxSplitFile in Fast_IO')
 
   call Abend()
 end if
@@ -205,7 +205,7 @@ else
       write(u6,*) '          Current I/O Status as follows'
       write(u6,*)
       call FASTIO('STATUS')
-      call SysAbendFileMsg(TheName,StdNam,'Extensions out of range!','increase MOLCAS_DISK value or MaxSplitFile in fio.fh ')
+      call SysAbendFileMsg(TheName,StdNam,'Extensions out of range!','increase MOLCAS_DISK value or MaxSplitFile in Fast_IO')
 
       call Abend()
     end if

@@ -34,13 +34,16 @@ C     called to do the actual termination.
       if(nfld_stat.gt.0) Call GetMem('iGAStat','Free','Real',
      &                   iGAStat,iDum)
 
+      Call fin_run_use()
+#ifndef _HAVE_EXTRA_
+      Call prgmfree()
+#endif
+
       Call GetMem('ip_iDum','Free','Inte',ip_iDummy,1)
       Call GetMem('ip_sDum','Free','SNGL',ip_sDummy, 1)
       Call GetMem('ip_Dum', 'Free','Real',ip_Dummy, 1)
       Call GetMem('Finish','List','Real',iDum,iDum)
       Call GetMem('Finish','Term','Real',iDum,iDum)
-
-      Call fin_run_use()
 
       Call StatusLine('Happy landing',' ')
       Call WarningCheckOut(iWarn)
@@ -50,7 +53,9 @@ C     called to do the actual termination.
      &          'Please, check the output with care!')
       End If
 
+#ifdef _HAVE_EXTRA_
       Call prgmfree()
+#endif
       Call AixCheck()
       call xml_close('module')
 
