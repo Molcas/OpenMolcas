@@ -30,43 +30,37 @@
 !> @param[in] Level Warning level
 !> @param[in] STR   Message
 !***********************************************************************
-      Subroutine WarningMessage(Level,STR)
-      character*(*) STR
-      Integer Level
-#include "warn.fh"
-      if(Level.gt.MaxWarnMess) MaxWarnMess=Level
-      call SysPutsStart()
-      if (Level .eq. 1) then
-        call SysPuts('WARNING: ',STR,' ')
-      else if (Level .eq. 2) then
-        call SysPuts('ERROR: ',STR,' ')
-      else
-        call SysPuts(STR,' ',' ')
-      end if
-      call SysPutsEnd()
 
-!      write(6,'(A)') '*** '
-!      jj=1
-!10    i=index(STR(jj:),';')
-!      if(i.eq.0) then
-!      goto 20
-!      else
-!      write(6,'(A,A)') '*** ',STR(jj:jj+i-2)
-!      jj=i+jj
-!      goto 10
-!      endif
-!20    write(6,'(A,A)') '*** ',STR(jj:)
-!      write(6,'(A)') '*** '
-      Return
-      End
-      Subroutine WarningInit
+subroutine WarningMessage(Level,STR)
+
+character*(*) STR
+integer Level
 #include "warn.fh"
-! this is unfinished routine. it must be possible to keep more info
-      MaxWarnMess=-1
-      return
-      end
-      Subroutine WarningCheckOut(iWarn)
-#include "warn.fh"
-      iWarn=MaxWarnMess
-      return
-      end
+
+if (Level > MaxWarnMess) MaxWarnMess = Level
+call SysPutsStart()
+if (Level == 1) then
+  call SysPuts('WARNING: ',STR,' ')
+else if (Level == 2) then
+  call SysPuts('ERROR: ',STR,' ')
+else
+  call SysPuts(STR,' ',' ')
+end if
+call SysPutsEnd()
+
+!write(6,'(A)') '*** '
+!jj = 1
+!10 i = index(STR(jj:),';')
+!if (i == 0) then
+!  goto 20
+!else
+!  write(6,'(A,A)') '*** ',STR(jj:jj+i-2)
+!  jj = i+jj
+!  goto 10
+!endif
+!20 write(6,'(A,A)') '*** ',STR(jj:)
+!write(6,'(A)') '*** '
+
+return
+
+end subroutine WarningMessage

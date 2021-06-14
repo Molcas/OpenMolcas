@@ -8,18 +8,22 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
+
+function IsStructure()
 !  This function return 0 if module is running outside structure
 !                       1 if module is running inside structure
-!
-      Function IsStructure ()
-      character*256 Value
-      Character*100 Get_SuperName
-      External Get_SuperName
-      Value=' '
-      call getenvf('MOLCAS_STRUCTURE',Value)
-      IsStructure=0
-      if (Value.eq.'1')  IsStructure=1
-      if (Get_SuperName().eq.'last_energy') IsStructure=1
-      Return
-      end
+
+integer IsStructure
+character*256 value
+character*100 Get_SuperName
+external Get_SuperName
+
+value = ' '
+call getenvf('MOLCAS_STRUCTURE',value)
+IsStructure = 0
+if (value == '1') IsStructure = 1
+if (Get_SuperName() == 'last_energy') IsStructure = 1
+
+return
+
+end function IsStructure

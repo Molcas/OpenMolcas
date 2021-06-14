@@ -23,7 +23,8 @@
 !   (INT)inc_clock         : returns number of clock ticks per second  *
 !                                                                      *
 !***********************************************************************
-      Subroutine Timing(CPUA,CPUE,TIOA,TIOE)
+
+subroutine Timing(CPUA,CPUE,TIOA,TIOE)
 !***********************************************************************
 !                                                                      *
 !     This subroutine has two entry points. The first, called          *
@@ -55,51 +56,29 @@
 !***********************************************************************
 
 #include "SysCtl.fh"
-!
-      Real*8 CPUA,CPUE,TIOA,TIOE
-      REal*8 elapse,usercpu,syscpu
+real*8 CPUA, CPUE, TIOA, TIOE
+real*8 elapse, usercpu, syscpu
 
-      call timingc(elapse,usercpu,syscpu)
-! --- times relative to values in Common /$SysBuf/ --------------------*
-      CPUA = usercpu-Heuer(1)
-      CPUE = usercpu-Heuer(2)
-      TIOA = elapse-Heuer(3)
-      TIOE = elapse-Heuer(4)
-! --- save current times in the Common /$SysBuf/ ----------------------*
-      Heuer(2) = usercpu
-      Heuer(4) = elapse
-      Return
-!
-      entry SetTim
-      call timingcinit()
-      call timingc(elapse,usercpu,syscpu)
-      Heuer(1) = usercpu
-      Heuer(2) = usercpu
-      Heuer(3) = elapse
-      Heuer(4) = elapse
-      ClkInc=inc_clock()
-      Return
-      End
-!
-      Function WallCl()
-      Real*8 WallCl,elapse,usercpu,syscpu
+call timingc(elapse,usercpu,syscpu)
+! times relative to values in Common /$SysBuf/
+CPUA = usercpu-Heuer(1)
+CPUE = usercpu-Heuer(2)
+TIOA = elapse-Heuer(3)
+TIOE = elapse-Heuer(4)
+! save current times in the Common /$SysBuf/
+Heuer(2) = usercpu
+Heuer(4) = elapse
+return
 
-      call timingc(elapse,usercpu,syscpu)
-      WallCl=elapse
-      Return
-      End
-!
-      Function Seconds()
-      Real*8 Seconds,elapse,usercpu,syscpu
+entry SetTim
+call timingcinit()
+call timingc(elapse,usercpu,syscpu)
+Heuer(1) = usercpu
+Heuer(2) = usercpu
+Heuer(3) = elapse
+Heuer(4) = elapse
+ClkInc = inc_clock()
 
-      call timingc(elapse,usercpu,syscpu)
-      Seconds=usercpu
-      Return
-      End
-!
-      SubRoutine CWTime(usercpu,elapse)
-      Real*8 elapse,usercpu,syscpu
+return
 
-      call timingc(elapse,usercpu,syscpu)
-      Return
-      End
+end subroutine Timing

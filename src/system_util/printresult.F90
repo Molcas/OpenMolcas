@@ -8,35 +8,39 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine PrintResult(iUnit,FMT,STR,iCount,STR2,Value,iRank)
+
+subroutine PrintResult(iUnit,FMT,STR,iCount,STR2,value,iRank)
 ! routine to print result in the form:
-!      Write(iUnit,FMT) STR,iCount,STR2,(Value(i),i=1,iRank)
+!      write(iUnit,FMT) STR,iCount,STR2,(Value(i),i=1,iRank)
 !  or, if iCount=0
-!      Write(iUnit,FMT) STR, (Value(i),i=1,iRank)
-!
-      character*(*) STR
-      character*(*) STR2
-      character*(*) FMT
-      character*120 TMP
-      character*2 Marker
-      real*8 Value(iRank)
+!      write(iUnit,FMT) STR,(Value(i),i=1,iRank)
+
+character*(*) STR
+character*(*) STR2
+character*(*) FMT
+character*120 TMP
+character*2 Marker
+real*8 value(iRank)
 #include "icolorize.fh"
-      if(icolorize.eq.1) then
-        Marker='::'
-        if(iCount.eq.0) then
-          write(TMP,FMT) STR,(Value(i),i=1,iRank)
-        else
-          Write(TMP,FMT) STR,iCount,STR2,(Value(i),i=1,iRank)
-        endif
-        init=1
-        if(TMP(1:3).eq.'   ') init=3
-        Write(iUnit,'(a,a)') Marker,TMP(init:mylen(TMP))
-      else
-        if(iCount.eq.0) then
-          Write(iUnit,FMT) STR,(Value(i),i=1,iRank)
-        else
-          Write(iUnit,FMT) STR,iCount,STR2,(Value(i),i=1,iRank)
-        endif
-      endif
-      return
-      end
+
+if (icolorize == 1) then
+  Marker = '::'
+  if (iCount == 0) then
+    write(TMP,FMT) STR,(value(i),i=1,iRank)
+  else
+    write(TMP,FMT) STR,iCount,STR2,(value(i),i=1,iRank)
+  end if
+  init = 1
+  if (TMP(1:3) == '   ') init = 3
+  write(iUnit,'(a,a)') Marker,TMP(init:mylen(TMP))
+else
+  if (iCount == 0) then
+    write(iUnit,FMT) STR,(value(i),i=1,iRank)
+  else
+    write(iUnit,FMT) STR,iCount,STR2,(value(i),i=1,iRank)
+  end if
+end if
+
+return
+
+end subroutine PrintResult

@@ -36,37 +36,43 @@
 !>
 !> @return Print level
 !***********************************************************************
-      Integer function iPrintLevel(Level)
-      Data isFirst/0/
-      Save isFirst
-      Save nPrintLevel
-      character *80 Name, Value
-      if(Level.ge.0) Then
-        nPrintLevel=Level
-        isFirst=1
-        iPrintLevel=Level
-        return
-      endif
-      if (isFirst.eq.0) then
-        Name='MOLCAS_PRINT'
-        call getenvf(Name,Value)
-        call UpCase(Value)
-        if     (Value.eq.'SILENT'.or.Value.eq.'0') then
-                nPrintLevel=0
-        elseif (Value.eq.'TERSE'.or.Value.eq.'1') then
-                nPrintLevel=1
-        elseif (Value.eq.'NORMAL'.or.Value.eq.'2') then
-                nPrintLevel=2
-        elseif (Value.eq.'VERBOSE'.or.Value.eq.'3') then
-                nPrintLevel=3
-        elseif (Value.eq.'DEBUG'.or.Value.eq.'4') then
-                nPrintLevel=4
-        elseif (Value.eq.'INSANE'.or.Value.eq.'5') then
-                nPrintLevel=5
-        else
-                nPrintLevel=2
-        endif
-      endif
-      iPrintLevel=nPrintLevel
-      return
-      end
+
+function iPrintLevel(Level)
+
+integer iPrintLevel
+data isFirst/0/
+save isFirst
+save nPrintLevel
+character*80 Name, value
+
+if (Level >= 0) then
+  nPrintLevel = Level
+  isFirst = 1
+  iPrintLevel = Level
+  return
+end if
+if (isFirst == 0) then
+  Name = 'MOLCAS_PRINT'
+  call getenvf(Name,value)
+  call UpCase(value)
+  if (value == 'SILENT' .or. value == '0') then
+    nPrintLevel = 0
+  elseif (value == 'TERSE' .or. value == '1') then
+    nPrintLevel = 1
+  elseif (value == 'NORMAL' .or. value == '2') then
+    nPrintLevel = 2
+  elseif (value == 'VERBOSE' .or. value == '3') then
+    nPrintLevel = 3
+  elseif (value == 'DEBUG' .or. value == '4') then
+    nPrintLevel = 4
+  elseif (value == 'INSANE' .or. value == '5') then
+    nPrintLevel = 5
+  else
+    nPrintLevel = 2
+  end if
+end if
+iPrintLevel = nPrintLevel
+
+return
+
+end function iPrintLevel

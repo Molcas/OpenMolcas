@@ -10,46 +10,45 @@
 !                                                                      *
 ! Copyright (C) 2012, Thomas Bondo Pedersen                            *
 !***********************************************************************
-!#define _DEBUGPRINT_
-      Subroutine ThisIsRestrictedCode(developer_name,code_name,Abort)
+
+subroutine ThisIsRestrictedCode(developer_name,code_name,Abort)
+! Thomas Bondo Pedersen, December 2012.
 !
-!     Thomas Bondo Pedersen, December 2012.
+! An extension of OnlyIMayUseIt, this routine allows you to
+! identify the code portion which is not for others to use.
+! Based on (and using) OnlyIMayUseIt by V. Veryazov.
 !
-!     An extension of OnlyIMayUseIt, this routine allows you to
-!     identify the code portion which is not for others to use.
-!     Based on (and using) OnlyIMayUseIt by V. Veryazov.
-!
-!     If Abort: stop the execution
-!
-      Implicit None
-      Character*(*) developer_name
-      Character*(*) code_name
-      Logical Abort
+! If Abort: stop the execution
+
+implicit none
+character*(*) developer_name
+character*(*) code_name
+logical Abort
 #include "warnings.fh"
 
-      Character*256 val
+character*256 val
 
-      val=' '
-      Call GetEnvf('MOLCAS_ISDEV',val)
-      If (val.eq.'PRODUCTION') Return
+val = ' '
+call GetEnvf('MOLCAS_ISDEV',val)
+if (val == 'PRODUCTION') return
 
 #if defined (_DEBUGPRINT_)
-      Call OnlyIMayUseIt(developer_name)
-      Write(6,'(A,A)') '>>>>> Restricted code: ',code_name
-      Write(6,'(A,A,//)') '>>>>> Contact ',developer_name
-      If (Abort) Then
-         If (val.eq.' ' .or. val.ne.developer_name) Then
-            Call xQuit(_RC_GENERAL_ERROR_)
-         End If
-      End If
-      Call xFlush(6)
+call OnlyIMayUseIt(developer_name)
+write(6,'(A,A)') '>>>>> Restricted code: ',code_name
+write(6,'(A,A,//)') '>>>>> Contact ',developer_name
+if (Abort) then
+  if (val == ' ' .or. val /= developer_name) then
+    call xQuit(_RC_GENERAL_ERROR_)
+  end if
+end if
+call xFlush(6)
 #else
-      If (val.eq.' ' .or. val.ne.developer_name) Then
-         Call OnlyIMayUseIt(developer_name)
-         Write(6,'(A,A,//)') '>>>>> Restricted code: ',code_name
-         If (Abort) Call xQuit(_RC_GENERAL_ERROR_)
-         Call xFlush(6)
-      End If
+if (val == ' ' .or. val /= developer_name) then
+  call OnlyIMayUseIt(developer_name)
+  write(6,'(A,A,//)') '>>>>> Restricted code: ',code_name
+  if (Abort) call xQuit(_RC_GENERAL_ERROR_)
+  call xFlush(6)
+end if
 #endif
 
-      End
+end subroutine ThisIsRestrictedCode

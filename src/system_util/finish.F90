@@ -10,58 +10,58 @@
 !                                                                      *
 ! Copyright (C) 2001-2016, Valera Veryazov                             *
 !***********************************************************************
-      subroutine finish(rc)
-      use Symmetry_Info, only: Symmetry_Info_Free
-      use Isotopes, only: Free_Isotopes
+
+subroutine finish(rc)
+! Gracefully shuts down a program module.
+! After everything is closed properly, xquit is
+! called to do the actual termination.
+
+use Symmetry_Info, only: Symmetry_Info_Free
+use Isotopes, only: Free_Isotopes
 #ifndef _HAVE_EXTRA_
-      Use Prgm
+use Prgm
 #endif
-!     Gracefully shuts down a program module.
-!     After everything is closed properly, xquit is
-!     called to do the actual termination.
-      implicit none
-      integer, intent(in) :: rc
+
+implicit none
+integer, intent(in) :: rc
 #include "WrkSpc.fh"
 #include "timtra.fh"
-      integer :: idum = 0
-      integer :: iwarn
+integer :: idum = 0
+integer :: iwarn
 
-      Call Symmetry_Info_Free()
-      Call Free_Isotopes()
+call Symmetry_Info_Free()
+call Free_Isotopes()
 
-      if(nfld_tim.gt.0) Call GetMem('iGATim','Free','Real',             &
-     &                  iGATim,iDum)
-      if(nfld_stat.gt.0) Call GetMem('iGAStat','Free','Real',           &
-     &                   iGAStat,iDum)
+if (nfld_tim > 0) call GetMem('iGATim','Free','Real',iGATim,iDum)
+if (nfld_stat > 0) call GetMem('iGAStat','Free','Real',iGAStat,iDum)
 
-      Call fin_run_use()
+call fin_run_use()
 #ifndef _HAVE_EXTRA_
-      Call prgmfree()
+call prgmfree()
 #endif
 
-      Call GetMem('ip_iDum','Free','Inte',ip_iDummy,1)
-      Call GetMem('ip_sDum','Free','SNGL',ip_sDummy, 1)
-      Call GetMem('ip_Dum', 'Free','Real',ip_Dummy, 1)
-      Call GetMem('Finish','List','Real',iDum,iDum)
-      Call GetMem('Finish','Term','Real',iDum,iDum)
+call GetMem('ip_iDum','Free','Inte',ip_iDummy,1)
+call GetMem('ip_sDum','Free','SNGL',ip_sDummy,1)
+call GetMem('ip_Dum','Free','Real',ip_Dummy,1)
+call GetMem('Finish','List','Real',iDum,iDum)
+call GetMem('Finish','Term','Real',iDum,iDum)
 
-      Call StatusLine('Happy landing',' ')
-      Call WarningCheckOut(iWarn)
-      If (iWarn.gt.1) Then
-        Call WarningMessage(1,                                          &
-     &          'There were warnings during the execution;'//           &
-     &          'Please, check the output with care!')
-      End If
+call StatusLine('Happy landing',' ')
+call WarningCheckOut(iWarn)
+if (iWarn > 1) then
+  call WarningMessage(1,'There were warnings during the execution;Please, check the output with care!')
+end if
 
 #ifdef _HAVE_EXTRA_
-      Call prgmfree()
+call prgmfree()
 #endif
-      Call AixCheck()
-      call xml_close('module')
+call AixCheck()
+call xml_close('module')
 
 #ifdef _DELAYED_
-      Call close_BLAS()
+call close_BLAS()
 #endif
 
-      Call xquit(rc)
-      End
+call xquit(rc)
+
+end subroutine finish

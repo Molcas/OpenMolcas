@@ -28,21 +28,25 @@
 !> The routine checks ``MOLCAS_STAMP`` and quits if this variable
 !> has wrong value (to prevent the creation of dummy files)
 !***********************************************************************
-      Subroutine CheckRun()
-      Character Molcas*256
-      Character Env*40
-      Env='MOLCAS_STAMP'
-!
-      Molcas=' '
-      Call getenvf(Env,Molcas)
-      if (Molcas(1:1) .eq. 'A') then
-      Return
-      endif
+
+subroutine CheckRun()
+
+character Molcas*256
+character Env*40
+Env = 'MOLCAS_STAMP'
+
+Molcas = ' '
+call getenvf(Env,Molcas)
+if (Molcas(1:1) == 'A') then
+  return
+end if
 #ifdef _HAVE_EXTRA_
-      if (Molcas(1:1) .ne. '5') then
-        write (6,*) 'Usage: molcas module_name input'
-        Call Abend()
-      endif
+if (Molcas(1:1) /= '5') then
+  write(6,*) 'Usage: molcas module_name input'
+  call Abend()
+end if
 #endif
-      Return
-      End
+
+return
+
+end subroutine CheckRun

@@ -23,136 +23,54 @@
 !     V.Veryazov University of Lund, 2001                              *
 !                                                                      *
 !***********************************************************************
-!       call SysPutsStart()
-!       call SysPuts('MOL;CAS\n\nmolcas is a quantum '//
-!     6  'chemistry software developed by scientists to be '//
-!     6   'used by scientists. It is not primarily a commercial '//
-!     6   'product and it is not sold in order to produce a '//
-!     6   'fortune for its owner (the Lund University).',' ',' ')
-!       call SysPutsEnd()
-!       end
-!
-      Subroutine SysPuts(str,str1,str2)
-      Character*(*) str,str1,str2
-      Character *512 Junk
+
+subroutine SysPuts(str,str1,str2)
+
+character*(*) str, str1, str2
+character*512 Junk
+
 ! because of bug in g77 we can't just concatenate strings and
-!  had to have limited length of the string
-      iTooLong=60
-      iLongEnough=50
-      call mycat(Junk,str,str1,str2)
-      mlen=mylen(Junk)
-      mleni=mlen
-      ipos=1
-!  check is '\n' .eq. <CR>?
-      icr=len('\n')-1
-      icr1=0
-100   j=100000
-      ii=index(Junk(ipos:mleni),'\n')
-      if(ii.gt.0) j=min(j,ii)
-      iii=index(Junk(ipos:mleni),';')
-      if(iii.gt.0) j=min(j,iii)
-      if(j.eq.ii.and.ii.gt.0) icr1=icr
-      if(j.eq.iii.and.iii.gt.0) icr1=0
-      if(j.eq.100000) j=0
-      i=j
-      if(i.gt.iTooLong.or.(i.eq.0.and.mlen.gt.iTooLong)) then
-         ij=index(Junk(ipos+iLongEnough:mleni),' ')
-         if(ij.eq.0)then
-            call SysDumpStr(Junk(ipos:mleni))
-            if(i.eq.0) return
-         else
-            ij=ij+iLongEnough-1
-            call SysDumpStr(Junk(ipos:ipos+ij))
-         endif
-         ipos=ipos+ij+1
-         mlen=mlen-ij-1
-         goto 100
-      endif
-      if(i.eq.0) then
-         call SysDumpStr(Junk(ipos:mleni))
-         return
-      endif
-      call SysDumpStr(Junk(ipos:ipos+i-2))
-      ipos=ipos+i+icr1
-      mlen=mlen-i-icr1
-      if(mlen.gt.0) goto 100
-      return
-      end
-!***********************************************************************
-      subroutine  SysDumpStr(str)
-      character*(*) str
-      character fmt*20
-      iTooLong=60
-      i=len(str)
-      if(i.gt.iTooLong+8) then
-! oops! too long
-      write (6,'(a,a)')   ' ###    ',str
-      return
-      endif
-      i=iTooLong+8-i
-      if (i.eq.0) then
-        fmt = '(a,a,a)'
-      else
-        write(fmt,'(a, i2,a)') '(a,a,',i,'x,a)'
-      endif
-      write (6,fmt) ' ###    ',str,' ###'
-      return
-      end
+! had to have limited length of the string
+iTooLong = 60
+iLongEnough = 50
+call mycat(Junk,str,str1,str2)
+mlen = mylen(Junk)
+mleni = mlen
+ipos = 1
+! check is '\n' == <CR>?
+icr = len('\n')-1
+icr1 = 0
+100 j = 100000
+ii = index(Junk(ipos:mleni),'\n')
+if (ii > 0) j = min(j,ii)
+iii = index(Junk(ipos:mleni),';')
+if (iii > 0) j = min(j,iii)
+if (j == ii .and. ii > 0) icr1 = icr
+if (j == iii .and. iii > 0) icr1 = 0
+if (j == 100000) j = 0
+i = j
+if (i > iTooLong .or. (i == 0 .and. mlen > iTooLong)) then
+  ij = index(Junk(ipos+iLongEnough:mleni),' ')
+  if (ij == 0) then
+    call SysDumpStr(Junk(ipos:mleni))
+    if (i == 0) return
+  else
+    ij = ij+iLongEnough-1
+    call SysDumpStr(Junk(ipos:ipos+ij))
+  end if
+  ipos = ipos+ij+1
+  mlen = mlen-ij-1
+  goto 100
+end if
+if (i == 0) then
+  call SysDumpStr(Junk(ipos:mleni))
+  return
+end if
+call SysDumpStr(Junk(ipos:ipos+i-2))
+ipos = ipos+i+icr1
+mlen = mlen-i-icr1
+if (mlen > 0) goto 100
 
-!***********************************************************************
-      subroutine mycat(Junk,str0,str1,str2)
-!
-!  Junk=str0//str1//str2
-!
-      Character*(*) Junk,str0,str1,str2
-      maxlen=len(Junk)
+return
 
-      Junk=' '
-      ile=1
-      il=mylen(str0)
-      if (il.gt.0) then
-         ils=1
-         ile=il+1
-         if(ile.gt.maxlen) goto 100
-         Junk(ils:ile)=str0(1:il)
-      end if
-      il=mylen(str1)
-      if (il.gt.0) then
-         ils=ile+1
-         ile=ile+il
-         if(ile.gt.maxlen) goto 100
-        Junk(ils:ile)=str1(1:il)
-      end if
-      il=mylen(str2)
-      if (il.gt.0) then
-         ils=ile+1
-         ile=ile+il
-         if(ile.gt.maxlen) goto 100
-        Junk(ils:ile)=str2(1:il)
-      end if
-      return
-100     write(6,*) ' too long strings to concatenate: '
-        write(6,*) str0,str1,str2
-        return
-      end
-!***********************************************************************
-      function mylen(s)
-!
-!  return real length of the string without spaces...
-!
-      Character*(*) s
-      il=len(s)
-      if(il.eq.0) then
-      mylen=0
-      return
-      endif
-      do i=il,1,-1
-       if(s(i:i).ne.' ') then
-        mylen=i
-       return
-       endif
-      enddo
-      mylen=0
-      return
-      end
-!***********************************************************************
+end subroutine SysPuts

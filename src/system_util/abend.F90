@@ -10,13 +10,17 @@
 !                                                                      *
 ! Copyright (C) 2001-2005, Valera Veryazov                             *
 !***********************************************************************
-      Subroutine Abend()
-! this routine kept only for compatibility
-      Implicit None
-#include "warnings.fh"
-      Integer RC
 
-      RC=_RC_INTERNAL_ERROR_
-      call xQuit(RC)
-      Return
-      End
+subroutine Abend()
+! this routine kept only for compatibility
+
+implicit none
+#include "warnings.fh"
+integer RC
+
+RC = _RC_INTERNAL_ERROR_
+call xQuit(RC)
+
+return
+
+end subroutine Abend

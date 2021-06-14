@@ -8,38 +8,44 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine xabort(rc)
-!     this routine aborts the process(es) with rc
+
+subroutine xabort(rc)
+! this routine aborts the process(es) with rc
+
 #ifdef _MOLCAS_MPP_
-      use mpi
-      use Para_Info, only: Is_Real_Par
+use mpi
+use Para_Info, only: Is_Real_Par
 #endif
-      implicit none
-      integer :: rc
+
+implicit none
+integer :: rc
 #ifdef _MOLCAS_MPP_
-      integer*4 :: rc4, ierr4
+integer*4 :: rc4, ierr4
 #endif
 
 #ifdef _MOLCAS_MPP_
-      if (is_real_par()) then
-!     unlike abort, mpi_abort does not print a backtrace,
-!     so we do it manually here
-        call xbacktrace
-        rc4 = int(rc,kind(rc4))
-        call mpi_abort(MPI_COMM_WORLD,rc4,ierr4)
-      else
+if (is_real_par()) then
+  ! unlike abort, mpi_abort does not print a backtrace,
+  ! so we do it manually here
+  call xbacktrace()
+  rc4 = int(rc,kind(rc4))
+  call mpi_abort(MPI_COMM_WORLD,rc4,ierr4)
+else
 #endif
 
 #if defined (__GNUC__) || defined(__INTEL_COMPILER)
-        call abort
+  call abort()
 #else
-        stop 'Molcas aborted...'
+  stop 'Molcas aborted...'
 #endif
 
 #ifdef _MOLCAS_MPP_
-      end if
+end if
 #else
+
+return
 ! Avoid unused argument warnings
-      if (.false.) call Unused_integer(rc)
+if (.false.) call Unused_integer(rc)
 #endif
-      end
+
+end subroutine xabort

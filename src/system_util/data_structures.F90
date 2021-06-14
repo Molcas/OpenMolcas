@@ -14,1072 +14,1060 @@
 !         MODULE for TRANSFORMATION of CHOLESKY VECTORS                *
 !              and GENERATION of TWO-ELECTRONS INTEGRALS               *
 !***********************************************************************
-Module Data_Structures
-Private
-Public:: DSBA_Type,   Allocate_DSBA,   Deallocate_DSBA, Map_to_DSBA
-Public:: SBA_Type,    Allocate_SBA,    Deallocate_SBA,  Map_to_SBA
-Public:: twxy_Type,   Allocate_twxy,   Deallocate_twxy, Map_to_twxy
-Public:: NDSBA_Type,  Allocate_NDSBA,  Deallocate_NDSBA
-Public:: G2_Type,     Allocate_G2,     Deallocate_G2
-Public:: L_Full_Type, Allocate_L_Full, Deallocate_L_Full
-Public:: Lab_Type, Allocate_Lab, Deallocate_Lab
-Public:: Integer_Pointer
+
+module Data_Structures
+
+implicit none
+private
+
+public :: DSBA_Type, Allocate_DSBA, Deallocate_DSBA, Map_to_DSBA
+public :: SBA_Type, Allocate_SBA, Deallocate_SBA, Map_to_SBA
+public :: twxy_Type, Allocate_twxy, Deallocate_twxy, Map_to_twxy
+public :: NDSBA_Type, Allocate_NDSBA, Deallocate_NDSBA
+public :: G2_Type, Allocate_G2, Deallocate_G2
+public :: L_Full_Type, Allocate_L_Full, Deallocate_L_Full
+public :: Lab_Type, Allocate_Lab, Deallocate_Lab
+public :: Integer_Pointer
+
 #include "stdalloc.fh"
 #include "real.fh"
 
-Type Integer_Pointer
-     Integer, Contiguous, Pointer :: I1(:)=>Null()
-End Type Integer_Pointer
+type Integer_Pointer
+  integer, contiguous, pointer :: I1(:) => null()
+end type Integer_Pointer
 
-Type SB_Type
-  Real*8, Contiguous, Pointer:: A3(:,:,:)=>Null()
-  Real*8, Contiguous, Pointer:: A2(:,:)=>Null()
-  Real*8, Contiguous, Pointer:: A1(:)=>Null()
-End Type  SB_Type
+type SB_Type
+  real*8, contiguous, pointer :: A3(:,:,:) => null()
+  real*8, contiguous, pointer :: A2(:,:) => null()
+  real*8, contiguous, pointer :: A1(:) => null()
+end type SB_Type
 
-Type DSB_Type
-  Real*8, Contiguous, Pointer:: A2(:,:)=>Null()
-  Real*8, Contiguous, Pointer:: A1(:)=>Null()
-End Type  DSB_Type
+type DSB_Type
+  real*8, contiguous, pointer :: A2(:,:) => null()
+  real*8, contiguous, pointer :: A1(:) => null()
+end type DSB_Type
 
-Type V1
-  Real*8, Contiguous, Pointer:: A(:)=>Null()
-End Type V1
+type V1
+  real*8, contiguous, pointer :: A(:) => null()
+end type V1
 
-Type V2
-  Real*8, Contiguous, Pointer:: A(:,:)=>Null()
-End Type V2
+type V2
+  real*8, contiguous, pointer :: A(:,:) => null()
+end type V2
 
-Type G2_pointers
-  Real*8, Contiguous, Pointer:: A4(:,:,:,:)=>Null()
-  Real*8, Contiguous, Pointer:: A2(:,:)=>Null()
-End Type G2_pointers
+type G2_pointers
+  real*8, contiguous, pointer :: A4(:,:,:,:) => null()
+  real*8, contiguous, pointer :: A2(:,:) => null()
+end type G2_pointers
 
-Type L_Full_Pointers
-  Real*8, Contiguous, Pointer :: A3(:,:,:)=>Null()
-  Real*8, Contiguous, Pointer :: A21(:,:)=>Null()
-  Real*8, Contiguous, Pointer :: A12(:,:)=>Null()
-End Type L_Full_Pointers
+type L_Full_Pointers
+  real*8, contiguous, pointer :: A3(:,:,:) => null()
+  real*8, contiguous, pointer :: A21(:,:) => null()
+  real*8, contiguous, pointer :: A12(:,:) => null()
+end type L_Full_Pointers
 
+type NDSBA_Type
+  integer :: iCase = 0
+  integer :: nSym = 0
+  real*8, allocatable :: A0(:)
+  type(DSB_Type) :: SB(8,8)
+end type NDSBA_Type
 
-Type NDSBA_Type
-  Integer:: iCase=0
-  Integer:: nSym=0
-  Real*8, Allocatable :: A0(:)
-  Type (DSB_Type):: SB(8,8)
-End Type NDSBA_Type
+type DSBA_Type
+  integer :: iCase = 0
+  integer :: nSym = 0
+  logical :: Fake = .false.
+  logical :: Active = .false.
+  real*8, allocatable :: A00(:)
+  real*8, contiguous, pointer :: A0(:)
+  type(DSB_Type) :: SB(8)
+end type DSBA_Type
 
+type SBA_Type
+  integer :: iCase = 0
+  integer :: iSym = 0
+  integer :: nSym = 0
+  real*8, allocatable :: A0(:)
+  type(SB_Type) :: SB(8)
+end type SBA_Type
 
-Type DSBA_Type
-  Integer:: iCase=0
-  Integer:: nSym=0
-  Logical:: Fake=.False.
-  Logical:: Active=.False.
-  Real*8, Allocatable:: A00(:)
-  Real*8, Contiguous, Pointer :: A0(:)
-  Type (DSB_Type):: SB(8)
-End Type DSBA_Type
+type twxy_type
+  integer :: iCase = 0
+  integer :: JSYM = 0
+  integer :: nSym = 0
+  real*8, allocatable :: twxy_full(:)
+  type(V2) :: SB(8,8)
+end type twxy_type
 
-Type SBA_Type
-  Integer:: iCase=0
-  Integer:: iSym=0
-  Integer:: nSym=0
-  Real*8, Allocatable :: A0(:)
-  Type (SB_Type):: SB(8)
-End Type SBA_Type
+type G2_type
+  integer :: iCase = 0
+  integer :: nSym = 0
+  real*8, allocatable :: A0(:)
+  type(G2_Pointers) :: SB(8,8,8)
+end type G2_type
 
-Type twxy_type
-  Integer :: iCase=0
-  Integer :: JSYM=0
-  Integer :: nSym=0
-  Real*8, Allocatable:: twxy_full(:)
-  Type (V2):: SB(8,8)
-End Type twxy_type
+type L_Full_Type
+  integer :: iCase = 0
+  integer :: iSym = 0
+  integer :: nSym = 0
+  integer :: nShell = 0
+  real*8, allocatable :: A0(:)
+  type(L_Full_Pointers), allocatable :: SPB(:,:,:)
+end type L_Full_Type
 
-Type G2_type
-  Integer :: iCase=0
-  Integer :: nSym=0
-  Real*8, Allocatable:: A0(:)
-  Type (G2_Pointers):: SB(8,8,8)
-End Type G2_type
+type Lab_Type
+  integer :: nSym = 0
+  integer :: nDen = 0
+  integer :: nShell = 0
+  real*8, allocatable :: A0(:)
+  logical, allocatable :: Keep(:,:)
+  type(V1), allocatable :: SB(:,:,:)
+end type Lab_Type
 
-Type L_Full_Type
-  Integer :: iCase=0
-  Integer :: iSym=0
-  Integer :: nSym=0
-  Integer :: nShell=0
-  Real*8, Allocatable:: A0(:)
-  Type (L_Full_Pointers), Allocatable :: SPB(:,:,:)
-End Type L_Full_Type
+contains
 
-Type Lab_Type
-  Integer :: nSym=0
-  Integer :: nDen=0
-  Integer :: nShell=0
-  Real*8, Allocatable:: A0(:)
-  Logical, Allocatable:: Keep(:,:)
-  Type (V1), Allocatable :: SB(:,:,:)
-End Type Lab_Type
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!                                                                      !
+!                N D S B A - T Y P E   S E C T I O N                   !
+!                                                                      !
+!                Non-Diagonal Symmetry Blocked Arrays                  !
+!                                                                      !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-Contains
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!                                                                     !
-!                N D S B A - T Y P E   S E C T I O N                  !
-!                                                                     !
-!                Non-Diagonal Symmetry Blocked Arrays                 !
-!                                                                     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+subroutine Allocate_NDSBA(Adam,n,m,nSym)
 
-Subroutine Allocate_NDSBA(Adam,n,m,nSym)
-  Implicit None
-  Type (NDSBA_Type),Target, Intent(Out) :: Adam
-  Integer, Intent(In) :: nSym
-  Integer, Intent(In) :: n(nSym), m(nSym)
+  type(NDSBA_Type), target, intent(out) :: Adam
+  integer, intent(in) :: nSym
+  integer, intent(in) :: n(nSym), m(nSym)
+  integer iE, iS, iSym, jSym, MemTot
 
-  Integer iE, iS, iSym, jSym, MemTot
+  Adam%iCase = 1
+  Adam%nSym = nSym
 
-  Adam%iCase=1
-  Adam%nSym=nSym
-
-  MemTot=0
-  Do jSym = 1, nSym
-     Do iSym = jSym, nSym
-        MemTot = MemTot + n(iSym)*m(jSym)
-     End Do
-  End Do
-  Call mma_allocate(Adam%A0,MemTot,Label='%A0')
+  MemTot = 0
+  do jSym=1,nSym
+    do iSym=jSym,nSym
+      MemTot = MemTot+n(iSym)*m(jSym)
+    end do
+  end do
+  call mma_allocate(Adam%A0,MemTot,Label='%A0')
 
   iE = 0
-  Do jSym = 1, nSym
-     Do iSym = jSym, nSym
-        iS = iE + 1
-        iE = iE + n(iSym) * m(jSym)
+  do jSym=1,nSym
+    do iSym=jSym,nSym
+      iS = iE+1
+      iE = iE+n(iSym)*m(jSym)
 
-        Adam%SB(jSym,iSym)%A2(1:n(iSym),1:m(jSym)) => Adam%A0(iS:iE)
-        Adam%SB(jSym,iSym)%A1(1:n(iSym)*m(jSym))   => Adam%A0(iS:iE)
-        Adam%SB(iSym,jSym)%A2(1:n(iSym),1:m(jSym)) => Adam%A0(iS:iE)
-        Adam%SB(iSym,jSym)%A1(1:n(iSym)*m(jSym))   => Adam%A0(iS:iE)
-     End Do
-  End Do
-  End Subroutine Allocate_NDSBA
+      Adam%SB(jSym,iSym)%A2(1:n(iSym),1:m(jSym)) => Adam%A0(iS:iE)
+      Adam%SB(jSym,iSym)%A1(1:n(iSym)*m(jSym)) => Adam%A0(iS:iE)
+      Adam%SB(iSym,jSym)%A2(1:n(iSym),1:m(jSym)) => Adam%A0(iS:iE)
+      Adam%SB(iSym,jSym)%A1(1:n(iSym)*m(jSym)) => Adam%A0(iS:iE)
+    end do
+  end do
 
+end subroutine Allocate_NDSBA
 
-  Subroutine Deallocate_NDSBA(Adam)
-  Implicit None
-  Type (NDSBA_Type) Adam
-  Integer iSym, jSym
+subroutine Deallocate_NDSBA(Adam)
 
-    Do iSym = 1, Adam%nSym
-       Do jSym = 1, Adam%nSym
-          Adam%SB(iSym,jSym)%A2=> Null()
-          Adam%SB(iSym,jSym)%A1=> Null()
-       End Do
-    End Do
-  Call mma_deallocate(Adam%A0)
-  Adam%nSym=0
-  Adam%iCase=0
+  type(NDSBA_Type) Adam
+  integer iSym, jSym
 
-  End Subroutine Deallocate_NDSBA
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!                                                                     !
-!                D S B A - T Y P E   S E C T I O N                    !
-!                                                                     !
-!                Diagonal Symmetry Blocked Arrays                     !
-!                                                                     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  do iSym=1,Adam%nSym
+    do jSym=1,Adam%nSym
+      Adam%SB(iSym,jSym)%A2 => null()
+      Adam%SB(iSym,jSym)%A1 => null()
+    end do
+  end do
+  call mma_deallocate(Adam%A0)
+  Adam%nSym = 0
+  Adam%iCase = 0
 
-Subroutine Allocate_DSBA(Adam,n,m,nSym,Case,Ref,Label)
-  Implicit None
-  Type (DSBA_Type),Target, Intent(Out) :: Adam
-  Integer, Intent(In) :: nSym
-  Integer, Intent(In) :: n(nSym), m(nSym)
-  Character(Len=3), Intent(In), Optional :: Case
-  Real*8, Target, Optional :: Ref(*)
-  Character(Len=*), Intent(In), Optional :: Label
+end subroutine Deallocate_NDSBA
 
-  Integer iE, iS, iSym, MemTot
-  Integer :: iCase=0
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!                                                                      !
+!                D S B A - T Y P E   S E C T I O N                     !
+!                                                                      !
+!                Diagonal Symmetry Blocked Arrays                      !
+!                                                                      !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  If (Adam%Active) Then
-    Write (6,*) 'DSBA-Type double allocate'
-    Call abend()
-  End If
+subroutine Allocate_DSBA(Adam,n,m,nSym,case,Ref,Label)
 
-  If (Present(Case)) Then
-     Select Case (Case)
-      Case ('TRI')
-        iCase=2
-        Do iSym = 1, nSym
-           If (n(iSym)/=m(iSym)) Then
-             Write (6,*) 'Allocate_DSBA: n(iSym)/=m(iSym), illegal if CASE="TRI".'
-             Call Abend()
-           End If
-        End Do
-      Case ('REC')
-        iCase=1
-      Case Default
-        Write (6,*) 'Allocate_DSBA: Illegal Case parameter, Case=',Case
-        Write (6,*) 'Allowed value are "TRI" and "REC".'
-        Call Abend()
-     End Select
-  Else
-    iCase=1
-  End If
-  Adam%iCase=iCase
-  Adam%nSym=nSym
+  type(DSBA_Type), target, intent(Out) :: Adam
+  integer, intent(in) :: nSym
+  integer, intent(in) :: n(nSym), m(nSym)
+  character(Len=3), intent(in), optional :: case
+  real*8, target, optional :: Ref(*)
+  character(Len=*), intent(in), optional :: Label
+  integer iE, iS, iSym, MemTot
+  integer :: iCase = 0
 
-  MemTot=0
-  If (iCase==1) Then
-    Do iSym = 1, nSym
-       MemTot = MemTot + n(iSym)*m(iSym)
-    End Do
-  Else
-    Do iSym = 1, nSym
-       MemTot = MemTot + n(iSym)*(n(iSym)+1)/2
-    End Do
-  End If
-  If (Present(Ref)) Then
-    Adam%Fake=.True.
+  if (Adam%Active) then
+    write(6,*) 'DSBA-Type double allocate'
+    call abend()
+  end if
+
+  if (present(case)) then
+    select case (case)
+      case ('TRI')
+        iCase = 2
+        do iSym=1,nSym
+          if (n(iSym) /= m(iSym)) then
+            write(6,*) 'Allocate_DSBA: n(iSym)/=m(iSym), illegal if CASE="TRI".'
+            call Abend()
+          end if
+        end do
+      case ('REC')
+        iCase = 1
+      case default
+        write(6,*) 'Allocate_DSBA: Illegal Case parameter, Case=',case
+        write(6,*) 'Allowed value are "TRI" and "REC".'
+        call Abend()
+    end select
+  else
+    iCase = 1
+  end if
+  Adam%iCase = iCase
+  Adam%nSym = nSym
+
+  MemTot = 0
+  if (iCase == 1) then
+    do iSym=1,nSym
+      MemTot = MemTot+n(iSym)*m(iSym)
+    end do
+  else
+    do iSym=1,nSym
+      MemTot = MemTot+n(iSym)*(n(iSym)+1)/2
+    end do
+  end if
+  if (present(Ref)) then
+    Adam%Fake = .true.
     Adam%A0(1:MemTot) => Ref(1:MemTot)
-  Else
-    Adam%A0=>Null()
-    If (Present(Label)) Then
-      Call mma_allocate(Adam%A00,MemTot,Label=Label)
-    Else
-      Call mma_allocate(Adam%A00,MemTot,Label='%A00')
-    End If
+  else
+    Adam%A0 => null()
+    if (present(Label)) then
+      call mma_allocate(Adam%A00,MemTot,Label=Label)
+    else
+      call mma_allocate(Adam%A00,MemTot,Label='%A00')
+    end if
     Adam%A0(1:MemTot) => Adam%A00(1:MemTot)
-  End If
+  end if
 
-  Adam%Active=.True.
+  Adam%Active = .true.
   iE = 0
-  If (iCase==1) Then
-    Do iSym = 1, nSym
-      iS = iE + 1
-      iE = iE + n(iSym) * m(iSym)
+  if (iCase == 1) then
+    do iSym=1,nSym
+      iS = iE+1
+      iE = iE+n(iSym)*m(iSym)
 
       Adam%SB(iSym)%A2(1:n(iSym),1:m(iSym)) => Adam%A0(iS:iE)
-      Adam%SB(iSym)%A1(1:n(iSym)*m(iSym))   => Adam%A0(iS:iE)
-    End Do
-  Else
-    Do iSym = 1, nSym
-      iS = iE + 1
-      iE = iE + n(iSym) * (n(iSym)+1)/2
+      Adam%SB(iSym)%A1(1:n(iSym)*m(iSym)) => Adam%A0(iS:iE)
+    end do
+  else
+    do iSym=1,nSym
+      iS = iE+1
+      iE = iE+n(iSym)*(n(iSym)+1)/2
 
-      Adam%SB(iSym)%A1(1:n(iSym)*(n(iSym)+1)/2)   => Adam%A0(iS:iE)
-    End Do
-  End If
-End Subroutine Allocate_DSBA
+      Adam%SB(iSym)%A1(1:n(iSym)*(n(iSym)+1)/2) => Adam%A0(iS:iE)
+    end do
+  end if
 
+end subroutine Allocate_DSBA
 
+subroutine Deallocate_DSBA(Adam)
 
-  Subroutine Deallocate_DSBA(Adam)
-  Implicit None
-  Type (DSBA_Type) Adam
-  Integer iSym
+  type(DSBA_Type) Adam
+  integer iSym
 
-  If (.NOT.Adam%Active) Return
+  if (.not. Adam%Active) return
 
-  Adam%Active=.False.
-  If (Adam%iCase==1) Then
-    Do iSym = 1, Adam%nSym
-       Adam%SB(iSym)%A2=> Null()
-       Adam%SB(iSym)%A1=> Null()
-    End Do
-  Else
-    Do iSym = 1, Adam%nSym
-       Adam%SB(iSym)%A1=> Null()
-    End Do
-  End If
-  If (Adam%Fake) Then
-    Adam%A0=>Null()
-    Adam%Fake=.False.
-  Else
-    Adam%A0=>Null()
-    Call mma_deallocate(Adam%A00)
-  End If
-  Adam%nSym=0
-  Adam%iCase=0
+  Adam%Active = .false.
+  if (Adam%iCase == 1) then
+    do iSym=1,Adam%nSym
+      Adam%SB(iSym)%A2 => null()
+      Adam%SB(iSym)%A1 => null()
+    end do
+  else
+    do iSym=1,Adam%nSym
+      Adam%SB(iSym)%A1 => null()
+    end do
+  end if
+  if (Adam%Fake) then
+    Adam%A0 => null()
+    Adam%Fake = .false.
+  else
+    Adam%A0 => null()
+    call mma_deallocate(Adam%A00)
+  end if
+  Adam%nSym = 0
+  Adam%iCase = 0
 
-  End Subroutine Deallocate_DSBA
+end subroutine Deallocate_DSBA
 
-  Subroutine Map_to_DSBA(Adam,ipAdam)
-  Implicit None
-  Type (DSBA_Type):: Adam
-  Integer ipAdam(*)
-  Integer, External:: ip_of_Work
-  Integer iSym
+subroutine Map_to_DSBA(Adam,ipAdam)
 
-  Do iSym=1, Adam%nSym
-     ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A1(1))
-  End Do
+  type(DSBA_Type) :: Adam
+  integer ipAdam(*)
+  integer, external :: ip_of_Work
+  integer iSym
 
-  End Subroutine Map_to_DSBA
+  do iSym=1,Adam%nSym
+    ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A1(1))
+  end do
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!                                                                     !
-!                  S B A - T Y P E   S E C T I O N                    !
-!                                                                     !
-!                    Symmetry Blocked Arrays                          !
-!                                                                     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+end subroutine Map_to_DSBA
 
-  Subroutine Allocate_SBA(Adam,n,m,NUMV,iSym,nSym,iCase,Memory)
-  Implicit None
-  Type (SBA_Type),Target:: Adam
-  Integer NUMV
-  Integer iSym
-  Integer nSym
-  Integer n(nSym), m(nSym)
-  Integer iCase
-  Integer, Optional :: Memory
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!                                                                      !
+!                  S B A - T Y P E   S E C T I O N                     !
+!                                                                      !
+!                    Symmetry Blocked Arrays                           !
+!                                                                      !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+subroutine Allocate_SBA(Adam,n,m,NUMV,iSym,nSym,iCase,Memory)
 
-  Integer iE, iS, iSyma, iSymb, MemTot, n2Dim, n3Dim
+  type(SBA_Type), target :: Adam
+  integer NUMV
+  integer iSym
+  integer nSym
+  integer n(nSym), m(nSym)
+  integer iCase
+  integer, optional :: Memory
+  integer iE, iS, iSyma, iSymb, MemTot, n2Dim, n3Dim
+  integer i, j, MulD2h
+  ! statement function
+  MulD2h(i,j) = ieor(i-1,j-1)+1
 
-  Integer i, j, MulD2h
-  MulD2h(i,j) = iEOR(i-1,j-1) + 1
+  MemTot = 0
 
-  MemTot=0
+  select case (iCase)
+    case (0)
+      do iSyma=1,nSym
+        iSymb = MulD2h(iSym,iSyma)
+        MemTot = MemTot+n(iSyma)*m(iSymb)*NUMV
+      end do
+    case (1)
+      do iSyma=1,nSym
+        iSymb = MulD2h(iSym,iSyma)
+        MemTot = MemTot+m(iSyma)*n(iSymb)*NUMV
+      end do
+    case (2)
+      do iSyma=1,nSym
+        iSymb = MulD2h(iSym,iSyma)
+        MemTot = MemTot+n(iSyma)*NUMV*m(iSymb)
+      end do
+    case (3)
+      do iSyma=1,nSym
+        iSymb = MulD2h(iSym,iSyma)
+        MemTot = MemTot+m(iSyma)*NUMV*n(iSymb)
+      end do
+    case (4)
+      do iSyma=1,nSym
+        if (n(iSyma) /= m(iSyma)) then
+          write(6,*) 'Allocate_SBA: iCase=4 only valid if n(:)=m(:).'
+          call abend()
+        end if
+        iSymb = MulD2h(iSym,iSyma)
+        if (iSyma == iSymb) then
+          n2Dim = n(iSyma)*(n(iSyma)+1)/2
+        else
+          n2Dim = n(iSyma)*n(iSymb)
+        end if
+        MemTot = MemTot+n2dim*NUMV
+      end do
+    case (5)
+      do iSyma=1,nSym
+        if (n(iSyma) /= m(iSyma)) then
+          write(6,*) 'Allocate_SBA: iCase=5 only valid if n(:)=m(:).'
+          call abend()
+        end if
+        iSymb = MulD2h(iSym,iSyma)
+        if (iSyma == iSymb) then
+          n2Dim = n(iSyma)*(n(iSyma)+1)/2
+        else if (iSymb > iSyma) then
+          n2Dim = n(iSyma)*n(iSymb)
+        else
+          n2Dim = 0
+        end if
+        MemTot = MemTot+n2dim*NUMV
+      end do
+    case (6)
+      do iSyma=1,nSym
+        if (n(iSyma) /= m(iSyma)) then
+          write(6,*) 'Allocate_SBA: iCase=5 only valid if n(:)=m(:).'
+          call abend()
+        end if
+        iSymb = MulD2h(iSym,iSyma)
+        if (iSyma >= iSymb) then
+          n2Dim = n(iSyma)*n(iSymb)
+        else
+          n2Dim = 0
+        end if
+        MemTot = MemTot+n2dim*NUMV
+      end do
+    case default
+      write(6,*) 'Allocate_SBA: Illegal case.'
+      call Abend()
+  end select
 
-  Select Case (iCase)
-    Case(0)
-       Do iSyma = 1, nSym
-          iSymb = MulD2h(iSym,iSyma)
-          MemTot = MemTot + n(iSyma)*m(iSymb)*NUMV
-       End Do
-    Case(1)
-       Do iSyma = 1, nSym
-          iSymb = MulD2h(iSym,iSyma)
-          MemTot = MemTot + m(iSyma)*n(iSymb)*NUMV
-       End Do
-    Case(2)
-       Do iSyma = 1, nSym
-          iSymb = MulD2h(iSym,iSyma)
-          MemTot = MemTot + n(iSyma)*NUMV*m(iSymb)
-       End Do
-    Case(3)
-       Do iSyma = 1, nSym
-          iSymb = MulD2h(iSym,iSyma)
-          MemTot = MemTot + m(iSyma)*NUMV*n(iSymb)
-       End Do
-    Case(4)
-       Do iSyma = 1, nSym
-          If (n(iSyma)/=m(iSyma)) Then
-             Write (6,*) 'Allocate_SBA: iCase=4 only valid if n(:)=m(:).'
-             Call abend()
-          End If
-          iSymb = MulD2h(iSym,iSyma)
-          If (iSyma==iSymb) Then
-            n2Dim = n(iSyma)*(n(iSyma)+1)/2
-          Else
-            n2Dim = n(iSyma)*n(iSymb)
-          End If
-          MemTot = MemTot + n2dim*NUMV
-       End Do
-    Case(5)
-       Do iSyma = 1, nSym
-          If (n(iSyma)/=m(iSyma)) Then
-             Write (6,*) 'Allocate_SBA: iCase=5 only valid if n(:)=m(:).'
-             Call abend()
-          End If
-          iSymb = MulD2h(iSym,iSyma)
-          If (iSyma==iSymb) Then
-            n2Dim = n(iSyma)*(n(iSyma)+1)/2
-          Else If (iSymb>iSyma) Then
-            n2Dim = n(iSyma)*n(iSymb)
-          Else
-            n2Dim = 0
-          End If
-          MemTot = MemTot + n2dim*NUMV
-       End Do
-    Case(6)
-       Do iSyma = 1, nSym
-          If (n(iSyma)/=m(iSyma)) Then
-             Write (6,*) 'Allocate_SBA: iCase=5 only valid if n(:)=m(:).'
-             Call abend()
-          End If
-          iSymb = MulD2h(iSym,iSyma)
-          If (iSyma>=iSymb) Then
-            n2Dim = n(iSyma)*n(iSymb)
-          Else
-            n2Dim = 0
-          End If
-          MemTot = MemTot + n2dim*NUMV
-       End Do
-    Case Default
-       Write (6,*) "Allocate_SBA: Illegal case."
-       Call Abend()
-  End Select
+  if (present(Memory)) then
+    Memory = MemTot
+    return
+  end if
 
-  If (Present(Memory)) Then
-     Memory=MemTot
-     Return
-  End If
+  Adam%iSym = iSym
+  Adam%nSym = nSym
+  Adam%iCase = iCase
 
-  Adam%iSym=iSym
-  Adam%nSym=nSym
-  Adam%iCase=iCase
-
-
-  Call mma_allocate(Adam%A0,MemTot,Label='%A0')
-
+  call mma_allocate(Adam%A0,MemTot,Label='%A0')
 
   iE = 0
 
-  Select Case (iCase)
-    Case(0)
-       Do iSyma = 1, nSym
-          iSymb = MulD2h(iSym,iSyma)
-          iS = iE + 1
-          iE = iE + n(iSyma)*m(iSymb)*NUMV
-          n2Dim = n(iSyma)*m(iSymb)
-          n3Dim = n2Dim*NUMV
-          Adam%SB(iSyma)%A1(1:n3Dim) => Adam%A0(iS:iE)
-          Adam%SB(iSyma)%A2(1:n2Dim,1:NUMV) => Adam%A0(iS:iE)
-          Adam%SB(iSyma)%A3(1:n(iSyma),1:m(iSymb),1:NUMV) => Adam%A0(iS:iE)
-       End Do
-    Case(1)
-       Do iSyma = 1, nSym
-          iSymb = MulD2h(iSym,iSyma)
-          iS = iE + 1
-          iE = iE + m(iSyma)*n(iSymb)*NUMV
-          n2Dim = m(iSyma)*n(iSymb)
-          n3Dim = n2Dim*NUMV
-          Adam%SB(iSyma)%A1(1:n3Dim) => Adam%A0(iS:iE)
-          Adam%SB(iSyma)%A2(1:n2Dim,1:NUMV) => Adam%A0(iS:iE)
-          Adam%SB(iSyma)%A3(1:m(iSyma),1:n(iSymb),1:NUMV) => Adam%A0(iS:iE)
-       End Do
-    Case(2)
-       Do iSyma = 1, nSym
-          iSymb = MulD2h(iSym,iSyma)
-          iS = iE + 1
-          iE = iE + n(iSyma)*NUMV*m(iSymb)
-          Adam%SB(iSyma)%A3(1:n(iSyma),1:NUMV,1:m(iSymb)) => Adam%A0(iS:iE)
-       End Do
-    Case(3)
-       Do iSyma = 1, nSym
-          iSymb = MulD2h(iSym,iSyma)
-          iS = iE + 1
-          iE = iE + m(iSyma)*NUMV*n(iSymb)
-          Adam%SB(iSyma)%A3(1:m(iSyma),1:NUMV,1:n(iSymb)) => Adam%A0(iS:iE)
-       End Do
-    Case(4)
-       Do iSyma = 1, nSym
-          iSymb = MulD2h(iSym,iSyma)
-          iS = iE + 1
-          If (iSyma==iSymb) Then
-            n2Dim = n(iSyma)*(n(iSyma)+1)/2
-          Else
-            n2Dim = n(iSyma)*n(iSymb)
-          End If
-          iE = iE + n2Dim*NUMV
-          Adam%SB(iSymb)%A2(1:n2Dim,1:NUMV) => Adam%A0(iS:iE)
-       End Do
-    Case(5)
-       Do iSyma = 1, nSym
-          iSymb = MulD2h(iSym,iSyma)
-          If (iSymb>iSyma) Cycle
-          iS = iE + 1
-          If (iSyma==iSymb) Then
-            n2Dim = n(iSyma)*(n(iSyma)+1)/2
-          Else
-            n2Dim = n(iSyma)*n(iSymb)
-          End If
-          iE = iE + n2Dim*NUMV
-          Adam%SB(iSymb)%A2(1:n2Dim,1:NUMV) => Adam%A0(iS:iE)
-       End Do
-    Case(6)
-       Do iSyma = 1, nSym
-          iSymb = MulD2h(iSym,iSyma)
-          If (iSymb>iSyma) Cycle
-          iS = iE + 1
+  select case (iCase)
+    case (0)
+      do iSyma=1,nSym
+        iSymb = MulD2h(iSym,iSyma)
+        iS = iE+1
+        iE = iE+n(iSyma)*m(iSymb)*NUMV
+        n2Dim = n(iSyma)*m(iSymb)
+        n3Dim = n2Dim*NUMV
+        Adam%SB(iSyma)%A1(1:n3Dim) => Adam%A0(iS:iE)
+        Adam%SB(iSyma)%A2(1:n2Dim,1:NUMV) => Adam%A0(iS:iE)
+        Adam%SB(iSyma)%A3(1:n(iSyma),1:m(iSymb),1:NUMV) => Adam%A0(iS:iE)
+      end do
+    case (1)
+      do iSyma=1,nSym
+        iSymb = MulD2h(iSym,iSyma)
+        iS = iE+1
+        iE = iE+m(iSyma)*n(iSymb)*NUMV
+        n2Dim = m(iSyma)*n(iSymb)
+        n3Dim = n2Dim*NUMV
+        Adam%SB(iSyma)%A1(1:n3Dim) => Adam%A0(iS:iE)
+        Adam%SB(iSyma)%A2(1:n2Dim,1:NUMV) => Adam%A0(iS:iE)
+        Adam%SB(iSyma)%A3(1:m(iSyma),1:n(iSymb),1:NUMV) => Adam%A0(iS:iE)
+      end do
+    case (2)
+      do iSyma=1,nSym
+        iSymb = MulD2h(iSym,iSyma)
+        iS = iE+1
+        iE = iE+n(iSyma)*NUMV*m(iSymb)
+        Adam%SB(iSyma)%A3(1:n(iSyma),1:NUMV,1:m(iSymb)) => Adam%A0(iS:iE)
+      end do
+    case (3)
+      do iSyma=1,nSym
+        iSymb = MulD2h(iSym,iSyma)
+        iS = iE+1
+        iE = iE+m(iSyma)*NUMV*n(iSymb)
+        Adam%SB(iSyma)%A3(1:m(iSyma),1:NUMV,1:n(iSymb)) => Adam%A0(iS:iE)
+      end do
+    case (4)
+      do iSyma=1,nSym
+        iSymb = MulD2h(iSym,iSyma)
+        iS = iE+1
+        if (iSyma == iSymb) then
+          n2Dim = n(iSyma)*(n(iSyma)+1)/2
+        else
           n2Dim = n(iSyma)*n(iSymb)
-          iE = iE + n2Dim*NUMV
-          Adam%SB(iSymb)%A2(1:n2Dim,1:NUMV) => Adam%A0(iS:iE)
-       End Do
-    Case Default
-       Write (6,*) "Allocate_SBA: Illegal case."
-       Call Abend()
-  End Select
-  End Subroutine Allocate_SBA
+        end if
+        iE = iE+n2Dim*NUMV
+        Adam%SB(iSymb)%A2(1:n2Dim,1:NUMV) => Adam%A0(iS:iE)
+      end do
+    case (5)
+      do iSyma=1,nSym
+        iSymb = MulD2h(iSym,iSyma)
+        if (iSymb > iSyma) cycle
+        iS = iE+1
+        if (iSyma == iSymb) then
+          n2Dim = n(iSyma)*(n(iSyma)+1)/2
+        else
+          n2Dim = n(iSyma)*n(iSymb)
+        end if
+        iE = iE+n2Dim*NUMV
+        Adam%SB(iSymb)%A2(1:n2Dim,1:NUMV) => Adam%A0(iS:iE)
+      end do
+    case (6)
+      do iSyma=1,nSym
+        iSymb = MulD2h(iSym,iSyma)
+        if (iSymb > iSyma) cycle
+        iS = iE+1
+        n2Dim = n(iSyma)*n(iSymb)
+        iE = iE+n2Dim*NUMV
+        Adam%SB(iSymb)%A2(1:n2Dim,1:NUMV) => Adam%A0(iS:iE)
+      end do
+    case default
+      write(6,*) 'Allocate_SBA: Illegal case.'
+      call Abend()
+  end select
 
+end subroutine Allocate_SBA
 
-  Subroutine Deallocate_SBA(Adam)
-  Implicit None
-  Type (SBA_Type) Adam
-  Integer iSym
+subroutine Deallocate_SBA(Adam)
 
-  Do iSym = 1, Adam%nSym
-      Adam%SB(iSym)%A1 => Null()
-      Adam%SB(iSym)%A2 => Null()
-      Adam%SB(iSym)%A3 => Null()
-  End Do
-  Call mma_deallocate(Adam%A0)
-  Adam%iCase=0
-  Adam%iSym=0
-  Adam%nSym=0
+  type(SBA_Type) Adam
+  integer iSym
 
-  End Subroutine Deallocate_SBA
+  do iSym=1,Adam%nSym
+    Adam%SB(iSym)%A1 => null()
+    Adam%SB(iSym)%A2 => null()
+    Adam%SB(iSym)%A3 => null()
+  end do
+  call mma_deallocate(Adam%A0)
+  Adam%iCase = 0
+  Adam%iSym = 0
+  Adam%nSym = 0
 
-  Subroutine Map_to_SBA(Adam,ipAdam,Tweak)
-  Implicit None
-  Type (SBA_Type):: Adam
-  Integer ipAdam(*)
-  Logical, Optional :: Tweak
+end subroutine Deallocate_SBA
 
+subroutine Map_to_SBA(Adam,ipAdam,Tweak)
 
-  Integer, External:: ip_of_Work
-  Integer iSym,jSym
-  Logical :: Swap=.False.
+  type(SBA_Type) :: Adam
+  integer ipAdam(*)
+  logical, optional :: Tweak
+  integer, external :: ip_of_Work
+  integer iSym, jSym
+  logical :: Swap = .false.
+  integer i, j, MulD2h
+  ! statement function
+  MulD2h(i,j) = ieor(i-1,j-1)+1
 
-  Integer i, j, MulD2h
-  MulD2h(i,j) = iEOR(i-1,j-1) + 1
+  if (Adam%iCase < 4) then
+    do iSym=1,Adam%nSym
+      ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A3(1,1,1))
+    end do
+  else
+    if (present(Tweak)) Swap = Tweak
+    if (Swap) then
+      do iSym=1,Adam%nSym
+        jsym = MulD2h(iSym,Adam%iSym)
+        if (.not. associated(Adam%SB(jSym)%A2)) cycle
 
-  If (Adam%iCase<4) Then
-     Do iSym=1, Adam%nSym
-        ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A3(1,1,1))
-     End Do
-  Else
-     If (Present(Tweak)) Swap=Tweak
-     If (Swap) Then
-        Do iSym=1, Adam%nSym
-           jsym=MulD2h(iSym,Adam%iSym)
-           If (.NOT.Associated(Adam%SB(jSym)%A2)) Cycle
+        ipAdam(iSym) = ip_of_Work(Adam%SB(jSym)%A2(1,1))
 
-           ipAdam(iSym) = ip_of_Work(Adam%SB(jSym)%A2(1,1))
+      end do
+    else
+      do iSym=1,Adam%nSym
+        if (.not. associated(Adam%SB(iSym)%A2)) cycle
 
-        End Do
-     Else
-        Do iSym=1, Adam%nSym
-           If (.NOT.Associated(Adam%SB(iSym)%A2)) Cycle
+        ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A2(1,1))
+      end do
+    end if
+  end if
 
-           ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A2(1,1))
-        End Do
-     End If
-  End If
+end subroutine Map_to_SBA
 
-  End Subroutine Map_to_SBA
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!                                                                      !
+!                  T W X Y - T Y P E   S E C T I O N                   !
+!                                                                      !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!                                                                     !
-!                  T W X Y - T Y P E   S E C T I O N                  !
-!                                                                     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+subroutine Allocate_twxy(twxy,n,m,JSYM,nSym,iCase)
 
+  type(twxy_type), target :: twxy
+  integer JSYM, nSym, iCase
+  integer n(nSym), m(nSym)
+  integer iSymx, iSymy, iSymt, iSymw
+  integer iSyma
+  integer mtwxy
+  integer iS, iE, n1, n2
+  integer i, j, MulD2h
+  !statement function
+  MulD2h(i,j) = ieor(i-1,j-1)+1
 
-Subroutine Allocate_twxy(twxy,n,m,JSYM,nSym,iCase)
-Implicit None
-Type (twxy_type), Target:: twxy
-Integer JSYM, nSym, iCase
-Integer n(nSym), m(nSym)
-Integer iSymx, iSymy, iSymt, iSymw
-Integer iSyma
-Integer mtwxy
-Integer iS, iE, n1, n2
+  twxy%iCase = iCase
+  twxy%JSYM = JSYM
+  twxy%nSym = nSym
+  ! *** memory for the (tw|xy) integrals --- temporary array
+  mtwxy = 0
+  select case (iCase)
+    case (0)  ! twxy
+      do iSymy=1,nSym
+        if (n(iSymy) /= m(iSymy)) then
+          write(6,*) 'Allocate_twxy: iCase=0 only valid if n(:)=m(:).'
+          call abend()
+        end if
+        iSymx = MulD2h(iSymy,JSYM)
+        n2 = n(iSymx)*n(iSymy)
+        do iSymw=iSymy,nSym    ! iSymw >= iSymy (particle symmetry)
+          iSymt = MulD2h(isymw,JSYM)
+          n1 = n(iSymt)*n(iSymw)
+          mtwxy = mtwxy+n1*n2
+        end do
+      end do
+    case (1) ! waxy
+      do iSymy=1,nSym
+        iSymx = MulD2h(iSymy,JSYM)
+        n2 = n(iSymx)*n(iSymy)
+        if (iSymx == iSymy) n2 = n(iSymx)*(n(iSymx)+1)/2
+        if (iSymx <= iSymy) then
+          do iSyma=1,nSym
+            iSymw = MulD2h(iSyma,JSYM)
+            n1 = n(iSymw)*m(iSyma)
+            mtwxy = mtwxy+n1*n2
+          end do
+        end if
+      end do
+    case (2)  ! twxy
+      do iSymy=1,nSym
+        if (n(iSymy) /= m(iSymy)) then
+          write(6,*) 'Allocate_twxy: iCase=2 only valid if n(:)=m(:).'
+          call abend()
+        end if
+        iSymx = MulD2h(iSymy,JSYM)
+        n2 = n(iSymx)*n(iSymy)
+        if (iSymx == iSymy) n2 = n(iSymx)*(n(iSymx)+1)/2
+        if (iSymx >= iSymy) then
+          do iSymw=iSymy,nSym
+            iSymt = MulD2h(iSymw,JSYM)
+            if (iSymt >= iSymw) then
+              n1 = n(iSymt)*n(iSymw)
+              if (iSymt == iSymw) n1 = n(iSymt)*(n(iSymt)+1)/2
+              mtwxy = mtwxy+n1*n2
+            end if
+          end do
+        end if
+      end do
+    case default
+      write(6,*) 'Allocate_twxy: Illegal case.'
+      call Abend()
+  end select
 
-Integer i, j, MulD2h
-MulD2h(i,j) = iEOR(i-1,j-1) + 1
+  call mma_allocate(twxy%twxy_full,mtwxy,Label='twxy')
+  twxy%twxy_full(:) = Zero
 
-twxy%iCase=iCase
-twxy%JSYM=JSYM
-twxy%nSym=nSym
-! *** memory for the (tw|xy) integrals --- temporary array
-mtwxy = 0
-Select Case (iCase)
-Case (0)  ! twxy
-  Do iSymy=1,nSym
-     If (n(iSymy)/=m(iSymy)) Then
-        Write (6,*) 'Allocate_twxy: iCase=0 only valid if n(:)=m(:).'
-        Call abend()
-     End If
-     iSymx=MulD2h(iSymy,JSYM)
-     n2 = n(iSymx)*n(iSymy)
-     Do iSymw=iSymy,nSym    ! iSymw.ge.iSymy (particle symmetry)
-        iSymt=MulD2h(isymw,JSYM)
-        n1 = n(iSymt)*n(iSymw)
-        mtwxy = mtwxy + n1 * n2
-     End Do
-  End Do
-Case (1) ! waxy
-  Do iSymy=1,nSym
-     iSymx=MulD2h(iSymy,JSYM)
-     n2=n(iSymx)*n(iSymy)
-     If (iSymx==iSymy) n2=n(iSymx)*(n(iSymx)+1)/2
-     If (iSymx.le.iSymy) then
-        Do iSyma=1,nSym
-           iSymw=MulD2h(iSyma,JSYM)
-           n1=n(iSymw)*m(iSyma)
-           mtwxy = mtwxy + n1 * n2
-        End Do
-     End If
-  End Do
-Case (2)  ! twxy
-  Do iSymy=1,nSym
-     If (n(iSymy)/=m(iSymy)) Then
-        Write (6,*) 'Allocate_twxy: iCase=2 only valid if n(:)=m(:).'
-        Call abend()
-     End If
-     iSymx=MulD2h(iSymy,JSYM)
-     n2=n(iSymx)*n(iSymy)
-     If (iSymx==iSymy) n2=n(iSymx)*(n(iSymx)+1)/2
-     If (iSymx.ge.iSymy) then
-        Do iSymw=iSymy,nSym
-           iSymt=MulD2h(iSymw,JSYM)
-           If (iSymt.ge.iSymw) Then
-              n1=n(iSymt)*n(iSymw)
-              If (iSymt==iSymw) n1=n(iSymt)*(n(iSymt)+1)/2
-              mtwxy = mtwxy + n1 * n2
-           End If
-        End Do
-     End If
-  End Do
-Case Default
-  Write (6,*) "Allocate_twxy: Illegal case."
-  Call Abend()
-End Select
+  ! *** setup pointers to the symmetry blocks of (tw|xy)
 
-Call mma_allocate(twxy%twxy_full,mtwxy,Label='twxy')
-twxy%twxy_full(:)=Zero
-
-! *** setup pointers to the symmetry blocks of (tw|xy)
-
-iE = 0
-Select Case (iCase)
-Case (0)
-  Do iSymy=1,nSym
-     iSymx=MulD2h(iSymy,JSYM)
-     n2 = n(iSymx)*n(iSymy)
-     Do iSymw=iSymy,nSym   ! iSymw.ge.iSymy (particle symmetry)
-        iSymt=MulD2h(isymw,JSYM)
-        n1 = n(iSymt)*n(iSymw)
-        iS = iE + 1
-        iE = iE + n1*n2
-        twxy%SB(iSymw,iSymy)%A(1:n1,1:n2) => twxy%twxy_full(iS:iE)
-     End Do
-  End Do
-Case (1)
-  Do iSymy=1,nSym
-     iSymx=MulD2h(iSymy,JSYM)
-     n2=n(iSymx)*n(iSymy)
-     If (iSymx==iSymy) n2=n(iSymx)*(n(iSymx)+1)/2
-     If (iSymx.le.iSymy) then
-        Do iSyma=1,nSym
-           iSymw=MulD2h(iSyma,JSYM)
-           n1 =  n(iSymw)*m(iSyma)
-           iS = iE + 1
-           iE = iE + n1*n2
-           twxy%SB(iSymw,iSymx)%A(1:n1,1:n2) => twxy%twxy_full(iS:iE)
-        End Do
-     End If
-  End Do
-Case (2) ! twxy
-  Do iSymy=1,nSym
-     iSymx=MulD2h(iSymy,JSYM)
-     n2=n(iSymx)*n(iSymy)
-     If (iSymx==iSymy) n2=n(iSymx)*(n(iSymx)+1)/2
-     If (iSymx.ge.iSymy) then
-        Do iSymw=iSymy,nSym ! iSymw.ge.iSymy
-           iSymt=MulD2h(iSymw,JSYM)
-           If (iSymt.ge.iSymw) Then
-              n1=n(iSymt)*n(iSymw)
-              If (iSymt==iSymw) n1=n(iSymt)*(n(iSymt)+1)/2
-              iS = iE + 1
-              iE = iE + n1 * n2
+  iE = 0
+  select case (iCase)
+    case (0)
+      do iSymy=1,nSym
+        iSymx = MulD2h(iSymy,JSYM)
+        n2 = n(iSymx)*n(iSymy)
+        do iSymw=iSymy,nSym   ! iSymw >= iSymy (particle symmetry)
+          iSymt = MulD2h(isymw,JSYM)
+          n1 = n(iSymt)*n(iSymw)
+          iS = iE+1
+          iE = iE+n1*n2
+          twxy%SB(iSymw,iSymy)%A(1:n1,1:n2) => twxy%twxy_full(iS:iE)
+        end do
+      end do
+    case (1)
+      do iSymy=1,nSym
+        iSymx = MulD2h(iSymy,JSYM)
+        n2 = n(iSymx)*n(iSymy)
+        if (iSymx == iSymy) n2 = n(iSymx)*(n(iSymx)+1)/2
+        if (iSymx <= iSymy) then
+          do iSyma=1,nSym
+            iSymw = MulD2h(iSyma,JSYM)
+            n1 = n(iSymw)*m(iSyma)
+            iS = iE+1
+            iE = iE+n1*n2
+            twxy%SB(iSymw,iSymx)%A(1:n1,1:n2) => twxy%twxy_full(iS:iE)
+          end do
+        end if
+      end do
+    case (2) ! twxy
+      do iSymy=1,nSym
+        iSymx = MulD2h(iSymy,JSYM)
+        n2 = n(iSymx)*n(iSymy)
+        if (iSymx == iSymy) n2 = n(iSymx)*(n(iSymx)+1)/2
+        if (iSymx >= iSymy) then
+          do iSymw=iSymy,nSym ! iSymw >= iSymy
+            iSymt = MulD2h(iSymw,JSYM)
+            if (iSymt >= iSymw) then
+              n1 = n(iSymt)*n(iSymw)
+              if (iSymt == iSymw) n1 = n(iSymt)*(n(iSymt)+1)/2
+              iS = iE+1
+              iE = iE+n1*n2
               twxy%SB(iSymw,iSymy)%A(1:n1,1:n2) => twxy%twxy_full(iS:iE)
               twxy%SB(iSymy,iSymw)%A(1:n1,1:n2) => twxy%twxy_full(iS:iE) ! symmetrization
-           End If
-        End Do
-     End If
-  End Do
-End Select
+            end if
+          end do
+        end if
+      end do
+  end select
 
-End Subroutine Allocate_twxy
+end subroutine Allocate_twxy
 
-Subroutine Deallocate_twxy(twxy)
-Implicit None
-Type (twxy_type) twxy
-Integer iSymy, iSymw
+subroutine Deallocate_twxy(twxy)
 
-Call mma_deallocate(twxy%twxy_full)
+  type(twxy_type) twxy
+  integer iSymy, iSymw
 
-! *** setup pointers to the symmetry blocks of (tw|xy)
+  call mma_deallocate(twxy%twxy_full)
 
-Do iSymy=1,8
-   Do iSymw=1,8
-      twxy%SB(iSymw,iSymy)%A => Null()
-   End Do
-End Do
+  ! *** setup pointers to the symmetry blocks of (tw|xy)
 
-End Subroutine Deallocate_twxy
+  do iSymy=1,8
+    do iSymw=1,8
+      twxy%SB(iSymw,iSymy)%A => null()
+    end do
+  end do
 
-Subroutine Map_to_twxy(Adam,ipAdam)
-Implicit None
-Type (twxy_type):: Adam
-Integer ipAdam(8,8)
-Integer, External:: ip_of_Work
-Integer iSymx, iSymy, iSymt, iSymw
-Integer iSyma
+end subroutine Deallocate_twxy
 
-Integer i, j, MulD2h
-MulD2h(i,j) = iEOR(i-1,j-1) + 1
+subroutine Map_to_twxy(Adam,ipAdam)
 
-ipAdam(:,:)=0
-Select Case (Adam%iCase)
-Case (0)
-  Do iSymy=1,Adam%nSym
-     iSymx=MulD2h(iSymy,Adam%JSYM)
-     Do iSymw=iSymy,Adam%nSym   ! iSymw.ge.iSymy (particle symmetry)
-        iSymt=MulD2h(isymw,Adam%JSYM)
-        ipAdam(iSymw,iSymy) = ip_of_Work(Adam%SB(iSymw,iSymy)%A(1,1))
-     End Do
-  End Do
-Case (1)
-  Do iSymy=1,Adam%nSym
-     iSymx=MulD2h(iSymy,Adam%JSYM)
-     If (iSymx.le.iSymy) then
-        Do iSyma=1,Adam%nSym
-           iSymw=MulD2h(iSyma,Adam%JSYM)
-           ipAdam(iSymw,iSymx) = ip_of_Work(Adam%SB(iSymw,iSymx)%A(1,1))
-        End Do
-     End If
-  End Do
-Case (2)
-  Do iSymy=1,Adam%nSym
-     iSymx=MulD2h(iSymy,Adam%JSYM)
-     If (iSymx.ge.iSymy) then
-        Do iSymw=iSymy,Adam%nSym ! iSymw.ge.iSymy
-           iSymt=MulD2h(iSymw,Adam%JSYM)
-           If (iSymt.ge.iSymw) Then
+  type(twxy_type) :: Adam
+  integer ipAdam(8,8)
+  integer, external :: ip_of_Work
+  integer iSymx, iSymy, iSymt, iSymw
+  integer iSyma
+  integer i, j, MulD2h
+  ! statement function
+  MulD2h(i,j) = ieor(i-1,j-1)+1
+
+  ipAdam(:,:) = 0
+  select case (Adam%iCase)
+    case (0)
+      do iSymy=1,Adam%nSym
+        iSymx = MulD2h(iSymy,Adam%JSYM)
+        do iSymw=iSymy,Adam%nSym   ! iSymw >= iSymy (particle symmetry)
+          iSymt = MulD2h(isymw,Adam%JSYM)
+          ipAdam(iSymw,iSymy) = ip_of_Work(Adam%SB(iSymw,iSymy)%A(1,1))
+        end do
+      end do
+    case (1)
+      do iSymy=1,Adam%nSym
+        iSymx = MulD2h(iSymy,Adam%JSYM)
+        if (iSymx <= iSymy) then
+          do iSyma=1,Adam%nSym
+            iSymw = MulD2h(iSyma,Adam%JSYM)
+            ipAdam(iSymw,iSymx) = ip_of_Work(Adam%SB(iSymw,iSymx)%A(1,1))
+          end do
+        end if
+      end do
+    case (2)
+      do iSymy=1,Adam%nSym
+        iSymx = MulD2h(iSymy,Adam%JSYM)
+        if (iSymx >= iSymy) then
+          do iSymw=iSymy,Adam%nSym ! iSymw >= iSymy
+            iSymt = MulD2h(iSymw,Adam%JSYM)
+            if (iSymt >= iSymw) then
               ipAdam(iSymw,iSymy) = ip_of_Work(Adam%SB(iSymw,iSymy)%A(1,1))
               ipAdam(iSymy,iSymw) = ip_of_Work(Adam%SB(iSymw,iSymy)%A(1,1))
-           End If
-        End Do
-     End If
-  End Do
-End Select
-
-End Subroutine Map_to_twxy
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!                                                                     !
-!                      G 2 - T Y P E   S E C T I O N                  !
-!                                                                     !
-!              Symmetry block 2-particle-like arrays                  !
-!                                                                     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-Subroutine Allocate_G2(Adam,n,nSym,iCase)
-Implicit None
-Type (G2_Type), Target:: Adam
-Integer nSym, iCase
-Integer n(nSym)
-
-Integer MemTot, ijSym, iSym, jSym, kSym, lSym, iE, iS, n1, n2, n3, n4, n12, n34
-
-Adam%nSym=nSym
-Adam%iCase=iCase
-
-MemTot=0
-Select Case (iCase)
-
-Case(1)
-
-Do ijsym=1,nsym
-   Do isym=1,nsym
-      jsym=iEOR(isym-1,ijsym-1)+1
-      n12 = n(iSym)*n(jSym)
-      Do kSym=1,nSym
-         lSym=iEOR(kSym-1,ijSym-1)+1
-         n34=n(kSym)*n(lSym)
-         MemTot=MemTot+n12*n34
-      End Do
-   End Do
-End Do
-
-Case Default
-
-Write (6,*) 'Allocate_G2: illegal case valeu=',iCase
-Call Abend()
-
-End Select
-
-Call mma_allocate(Adam%A0,MemTot,Label='G2%A0')
-
-iE = 0
-Select Case (iCase)
-
-Case(1)
-
-Do ijsym=1,nsym
-   Do isym=1,nsym
-      jsym=iEOR(isym-1,ijsym-1)+1
-      n1=n(iSym)
-      n2=n(jSym)
-      n12 = n1*n2
-      Do kSym=1,nSym
-         lSym=iEOR(kSym-1,ijSym-1)+1
-         n3=n(kSym)
-         n4=n(lSym)
-         n34=n3*n4
-         iS = iE + 1
-         iE = iE + n12*n34
-         Adam%SB(iSym,jSym,kSym)%A4(1:n1,1:n2,1:n3,1:n4) => Adam%A0(iS:iE)
-         Adam%SB(iSym,jSym,kSym)%A2(1:n12,1:n34) => Adam%A0(iS:iE)
-      End Do
-   End Do
-End Do
-
-Case Default
-
-Write (6,*) 'What?'
-Call Abend()
-
-End Select
-
-End Subroutine Allocate_G2
-
-Subroutine Deallocate_G2(Adam)
-Implicit None
-Type (G2_Type) Adam
-
-Integer iSym, jSym, kSym
-
-Adam%iCase=0
-
-Call mma_deallocate(Adam%A0)
-
-Do iSym=1,Adam%nSym
-   Do jSym=1,Adam%nSym
-      Do kSym=1,Adam%nSym
-         Adam%SB(iSym,jSym,kSym)%A4=>Null()
-         Adam%SB(iSym,jSym,kSym)%A2=>Null()
-      End Do
-   End Do
-End Do
-Adam%nSym=0
-End Subroutine Deallocate_G2
+            end if
+          end do
+        end if
+      end do
+  end select
+
+end subroutine Map_to_twxy
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!                                                                      !
+!                      G 2 - T Y P E   S E C T I O N                   !
+!                                                                      !
+!              Symmetry block 2-particle-like arrays                   !
+!                                                                      !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+subroutine Allocate_G2(Adam,n,nSym,iCase)
+
+  type(G2_Type), target :: Adam
+  integer nSym, iCase
+  integer n(nSym)
+  integer MemTot, ijSym, iSym, jSym, kSym, lSym, iE, iS, n1, n2, n3, n4, n12, n34
+
+  Adam%nSym = nSym
+  Adam%iCase = iCase
+
+  MemTot = 0
+  select case (iCase)
+
+    case (1)
+
+      do ijsym=1,nsym
+        do isym=1,nsym
+          jsym = ieor(isym-1,ijsym-1)+1
+          n12 = n(iSym)*n(jSym)
+          do kSym=1,nSym
+            lSym = ieor(kSym-1,ijSym-1)+1
+            n34 = n(kSym)*n(lSym)
+            MemTot = MemTot+n12*n34
+          end do
+        end do
+      end do
+
+    case default
+
+      write(6,*) 'Allocate_G2: illegal case valeu=',iCase
+      call Abend()
+
+  end select
+
+  call mma_allocate(Adam%A0,MemTot,Label='G2%A0')
+
+  iE = 0
+  select case (iCase)
+
+    case (1)
+
+      do ijsym=1,nsym
+        do isym=1,nsym
+          jsym = ieor(isym-1,ijsym-1)+1
+          n1 = n(iSym)
+          n2 = n(jSym)
+          n12 = n1*n2
+          do kSym=1,nSym
+            lSym = ieor(kSym-1,ijSym-1)+1
+            n3 = n(kSym)
+            n4 = n(lSym)
+            n34 = n3*n4
+            iS = iE+1
+            iE = iE+n12*n34
+            Adam%SB(iSym,jSym,kSym)%A4(1:n1,1:n2,1:n3,1:n4) => Adam%A0(iS:iE)
+            Adam%SB(iSym,jSym,kSym)%A2(1:n12,1:n34) => Adam%A0(iS:iE)
+          end do
+        end do
+      end do
+
+    case default
+
+      write(6,*) 'What?'
+      call Abend()
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!                                                                     !
-!                      L F u l l - T Y P E   S E C T I O N            !
-!                                                                     !
-!                      L  full storage shell-pair blocked             !
-!                                                                     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  end select
+
+end subroutine Allocate_G2
 
-Subroutine Allocate_L_Full(Adam,nShell,iShp_rs,JNUM,JSYM,nSym, Memory)
-use ChoArr, only: nBasSh
-use ChoSwp, only: nnBstRSh
-Implicit None
-Type (L_Full_Type), Target:: Adam
-Integer nShell
-Integer iShp_rs( nShell*(nShell+2)/2 )
-Integer JNUM, JSYM, nSym
-Integer, Optional, Intent(Out):: Memory
+subroutine Deallocate_G2(Adam)
 
-Integer iaSh, ibSh, iShp
-Integer iSyma, iSymb
-Integer LFULL
-Integer iS, iE
-Integer n1, n2
+  type(G2_Type) Adam
+  integer iSym, jSym, kSym
 
-Integer i, j, MulD2h
-MulD2h(i,j) = iEOR(i-1,j-1) + 1
+  Adam%iCase = 0
 
-LFULL=0
-Do iaSh=1,nShell
-   Do ibSh=1,iaSh
-      iShp = iaSh*(iaSh-1)/2 + ibSh
+  call mma_deallocate(Adam%A0)
 
-      If (iShp_rs(iShp)<=0) Cycle
+  do iSym=1,Adam%nSym
+    do jSym=1,Adam%nSym
+      do kSym=1,Adam%nSym
+        Adam%SB(iSym,jSym,kSym)%A4 => null()
+        Adam%SB(iSym,jSym,kSym)%A2 => null()
+      end do
+    end do
+  end do
+  Adam%nSym = 0
 
-      If (nnBstRSh(Jsym,iShp_rs(iShp),1)<=0) Cycle
+end subroutine Deallocate_G2
 
-      Do iSymb=1,nSym
-         iSyma=MulD2h(iSymb,Jsym)
-         If (iSyma<iSymb) Cycle
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!                                                                      !
+!                      L F u l l - T Y P E   S E C T I O N             !
+!                                                                      !
+!                      L  full storage shell-pair blocked              !
+!                                                                      !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-         LFULL = LFULL + nBasSh(iSyma,iaSh)*nBasSh(iSymb,ibSh)
-         If (iaSh==ibSh) Cycle
+subroutine Allocate_L_Full(Adam,nShell,iShp_rs,JNUM,JSYM,nSym,Memory)
 
-         LFULL = LFULL + nBasSh(iSyma,ibSh)*nBasSh(iSymb,iaSh)
+  use ChoArr, only: nBasSh
+  use ChoSwp, only: nnBstRSh
 
-      End Do
+  type(L_Full_Type), target :: Adam
+  integer nShell
+  integer iShp_rs(nShell*(nShell+2)/2)
+  integer JNUM, JSYM, nSym
+  integer, optional, intent(out) :: Memory
+  integer iaSh, ibSh, iShp
+  integer iSyma, iSymb
+  integer LFULL
+  integer iS, iE
+  integer n1, n2
+  integer i, j, MulD2h
+  ! statement function
+  MulD2h(i,j) = ieor(i-1,j-1)+1
 
-   End Do
-End Do
-LFULL=LFULL*JNUM
+  LFULL = 0
+  do iaSh=1,nShell
+    do ibSh=1,iaSh
+      iShp = iaSh*(iaSh-1)/2+ibSh
 
-If (Present(Memory)) Then
-   Memory=LFULL
-   Return
-End If
+      if (iShp_rs(iShp) <= 0) cycle
 
-Adam%iCase=1
-Adam%nSym=nSym
-Adam%iSym=JSYM
-Adam%nShell=nShell
+      if (nnBstRSh(Jsym,iShp_rs(iShp),1) <= 0) cycle
 
-Call mma_Allocate(Adam%A0,LFULL,Label='Adam%A0')
+      do iSymb=1,nSym
+        iSyma = MulD2h(iSymb,Jsym)
+        if (iSyma < iSymb) cycle
 
-Allocate(Adam%SPB(nSym,nShell*(nShell+1)/2,2))
+        LFULL = LFULL+nBasSh(iSyma,iaSh)*nBasSh(iSymb,ibSh)
+        if (iaSh == ibSh) cycle
 
-iE=0
-Do iaSh=1,nShell
-   Do ibSh=1,iaSh
-      iShp = iaSh*(iaSh-1)/2 + ibSh
+        LFULL = LFULL+nBasSh(iSyma,ibSh)*nBasSh(iSymb,iaSh)
 
-      If (iShp_rs(iShp)<=0) Cycle
+      end do
 
-      If (nnBstRSh(Jsym,iShp_rs(iShp),1)<=0) Cycle
+    end do
+  end do
+  LFULL = LFULL*JNUM
 
-      Do iSymb=1,nSym
-         iSyma=MulD2h(iSymb,Jsym)
-         If (iSyma<iSymb) Cycle
+  if (present(Memory)) then
+    Memory = LFULL
+    return
+  end if
 
-         iS = iE + 1
+  Adam%iCase = 1
+  Adam%nSym = nSym
+  Adam%iSym = JSYM
+  Adam%nShell = nShell
 
-         n1 = nBasSh(iSyma,iaSh)
-         n2 = nBasSh(iSymb,ibSh)
+  call mma_Allocate(Adam%A0,LFULL,Label='Adam%A0')
 
-         iE = iE + n1*JNUM*n2
+  allocate(Adam%SPB(nSym,nShell*(nShell+1)/2,2))
 
-         Adam%SPB(iSyma,iShp_rs(iShp),1)%A3(1:n1,1:JNUM,1:n2) => Adam%A0(iS:iE)
-         Adam%SPB(iSyma,iShp_rs(iShp),1)%A21(1:n1*JNUM,1:n2) => Adam%A0(iS:iE)
-         Adam%SPB(iSyma,iShp_rs(iShp),1)%A12(1:n1,1:JNUM*n2) => Adam%A0(iS:iE)
+  iE = 0
+  do iaSh=1,nShell
+    do ibSh=1,iaSh
+      iShp = iaSh*(iaSh-1)/2+ibSh
 
-         If (iaSh==ibSh) Cycle
+      if (iShp_rs(iShp) <= 0) cycle
 
-         iS = iE + 1
+      if (nnBstRSh(Jsym,iShp_rs(iShp),1) <= 0) cycle
 
-         n1 = nBasSh(iSyma,ibSh)
-         n2 = nBasSh(iSymb,iaSh)
+      do iSymb=1,nSym
+        iSyma = MulD2h(iSymb,Jsym)
+        if (iSyma < iSymb) cycle
 
-         iE = iE + n1*JNUM*n2
+        iS = iE+1
 
-         Adam%SPB(iSyma,iShp_rs(iShp),2)%A3(1:n1,1:JNUM,1:n2) => Adam%A0(iS:iE)
-         Adam%SPB(iSyma,iShp_rs(iShp),2)%A21(1:n1*JNUM,1:n2) => Adam%A0(iS:iE)
-         Adam%SPB(iSyma,iShp_rs(iShp),2)%A12(1:n1,1:JNUM*n2) => Adam%A0(iS:iE)
+        n1 = nBasSh(iSyma,iaSh)
+        n2 = nBasSh(iSymb,ibSh)
 
-      End Do
+        iE = iE+n1*JNUM*n2
 
-   End Do
-End Do
+        Adam%SPB(iSyma,iShp_rs(iShp),1)%A3(1:n1,1:JNUM,1:n2) => Adam%A0(iS:iE)
+        Adam%SPB(iSyma,iShp_rs(iShp),1)%A21(1:n1*JNUM,1:n2) => Adam%A0(iS:iE)
+        Adam%SPB(iSyma,iShp_rs(iShp),1)%A12(1:n1,1:JNUM*n2) => Adam%A0(iS:iE)
 
-End Subroutine Allocate_L_Full
+        if (iaSh == ibSh) cycle
 
+        iS = iE+1
 
-Subroutine deallocate_L_Full(Adam)
-Implicit None
-Type (L_Full_Type):: Adam
+        n1 = nBasSh(iSyma,ibSh)
+        n2 = nBasSh(iSymb,iaSh)
 
-Integer iaSh, ibSh, iShp, iSyma
+        iE = iE+n1*JNUM*n2
 
-Do iaSh=1,Adam%nShell
-   Do ibSh=1,iaSh
-      iShp = iaSh*(iaSh-1)/2 + ibSh
+        Adam%SPB(iSyma,iShp_rs(iShp),2)%A3(1:n1,1:JNUM,1:n2) => Adam%A0(iS:iE)
+        Adam%SPB(iSyma,iShp_rs(iShp),2)%A21(1:n1*JNUM,1:n2) => Adam%A0(iS:iE)
+        Adam%SPB(iSyma,iShp_rs(iShp),2)%A12(1:n1,1:JNUM*n2) => Adam%A0(iS:iE)
 
-      Do iSyma=1, Adam%nSym
+      end do
 
-         Adam%SPB(iSyma,iShp,1)%A3 => Null()
-         Adam%SPB(iSyma,iShp,1)%A21=> Null()
-         Adam%SPB(iSyma,iShp,1)%A12=> Null()
-         Adam%SPB(iSyma,iShp,2)%A3 => Null()
-         Adam%SPB(iSyma,iShp,2)%A21=> Null()
-         Adam%SPB(iSyma,iShp,2)%A12=> Null()
+    end do
+  end do
 
-      End Do
+end subroutine Allocate_L_Full
 
-   End Do
-End Do
+subroutine deallocate_L_Full(Adam)
 
-deallocate(Adam%SPB)
-call mma_deallocate(Adam%A0)
-Adam%iCase=0
-Adam%nSym=0
-Adam%iSym=0
-Adam%nShell=0
+  type(L_Full_Type) :: Adam
+  integer iaSh, ibSh, iShp, iSyma
 
-End Subroutine deallocate_L_Full
+  do iaSh=1,Adam%nShell
+    do ibSh=1,iaSh
+      iShp = iaSh*(iaSh-1)/2+ibSh
 
+      do iSyma=1,Adam%nSym
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!                                                                     !
-!                      L a b - T Y P E   S E C T I O N                !
-!                                                                     !
-!                      Lab storaged                                   !
-!                                                                     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        Adam%SPB(iSyma,iShp,1)%A3 => null()
+        Adam%SPB(iSyma,iShp,1)%A21 => null()
+        Adam%SPB(iSyma,iShp,1)%A12 => null()
+        Adam%SPB(iSyma,iShp,2)%A3 => null()
+        Adam%SPB(iSyma,iShp,2)%A21 => null()
+        Adam%SPB(iSyma,iShp,2)%A12 => null()
 
-Subroutine Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,nDen,Memory)
-Implicit None
+      end do
 
-Type (Lab_Type), Target:: Lab
-Integer JNUM, nShell, nSym, nDen
-Integer nBasSh(nSym,nShell), nBas(nSym)
-Integer, Optional :: Memory
+    end do
+  end do
 
-Integer iSym, iDen, Lab_Memory
-Integer iE, iS, iSh
+  deallocate(Adam%SPB)
+  call mma_deallocate(Adam%A0)
+  Adam%iCase = 0
+  Adam%nSym = 0
+  Adam%iSym = 0
+  Adam%nShell = 0
 
-Lab_Memory=0
-Do iSym = 1, nSym
-   Lab_Memory=Max(nBas(iSym),Lab_Memory)
-End Do
-Lab_Memory = Lab_Memory * JNUM * nDen
+end subroutine deallocate_L_Full
 
-If (Present(Memory)) Then
-   Memory=Lab_Memory
-   Return
-End If
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!                                                                      !
+!                      L a b - T Y P E   S E C T I O N                 !
+!                                                                      !
+!                      Lab storaged                                    !
+!                                                                      !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-Lab%nSym=nSym
-Lab%nDen=nDen
-Lab%nShell=nShell
-Call mma_allocate(Lab%A0,Lab_Memory,Label='Lab%A0')
-Call mma_allocate(Lab%Keep,nShell,nDen,Label='Lab%Keep')
-Allocate(Lab%SB(nShell,nSym,nDen))
+subroutine Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,nDen,Memory)
 
-Do iSym = 1, nSym
-   iE = 0
-   Do iDen = 1, nDen
-      Do iSh = 1, nShell
+  type(Lab_Type), target :: Lab
+  integer JNUM, nShell, nSym, nDen
+  integer nBasSh(nSym,nShell), nBas(nSym)
+  integer, optional :: Memory
+  integer iSym, iDen, Lab_Memory
+  integer iE, iS, iSh
 
-         iS = iE + 1
-         iE = iE + nBasSh(iSym,iSh) * JNUM
+  Lab_Memory = 0
+  do iSym=1,nSym
+    Lab_Memory = max(nBas(iSym),Lab_Memory)
+  end do
+  Lab_Memory = Lab_Memory*JNUM*nDen
 
-         Lab%SB(iSh,iSym,iDen)%A(1:nBasSh(iSym,iSh)*JNUM) => Lab%A0(iS:iE)
+  if (present(Memory)) then
+    Memory = Lab_Memory
+    return
+  end if
 
-      End Do
-   End Do
-End Do
+  Lab%nSym = nSym
+  Lab%nDen = nDen
+  Lab%nShell = nShell
+  call mma_allocate(Lab%A0,Lab_Memory,Label='Lab%A0')
+  call mma_allocate(Lab%Keep,nShell,nDen,Label='Lab%Keep')
+  allocate(Lab%SB(nShell,nSym,nDen))
 
-End Subroutine Allocate_Lab
+  do iSym=1,nSym
+    iE = 0
+    do iDen=1,nDen
+      do iSh=1,nShell
 
-Subroutine Deallocate_Lab(Lab)
-Implicit None
-Type (Lab_Type) Lab
+        iS = iE+1
+        iE = iE+nBasSh(iSym,iSh)*JNUM
 
-Integer iSym, iDen, iSh
+        Lab%SB(iSh,iSym,iDen)%A(1:nBasSh(iSym,iSh)*JNUM) => Lab%A0(iS:iE)
 
-Do iSym = 1, Lab%nSym
-   Do iDen = 1, Lab%nDen
-      Do iSh = 1, Lab%nShell
+      end do
+    end do
+  end do
 
-         Lab%SB(iSh,iSym,iDen)%A=>Null()
+end subroutine Allocate_Lab
 
-      End Do
-   End Do
-End Do
+subroutine Deallocate_Lab(Lab)
 
-Lab%nSym=0
-Lab%nDen=0
-Lab%nShell=0
-Call mma_deallocate(Lab%A0)
-Call mma_deallocate(Lab%Keep)
-Deallocate(Lab%SB)
+  type(Lab_Type) Lab
+  integer iSym, iDen, iSh
 
-End Subroutine Deallocate_Lab
+  do iSym=1,Lab%nSym
+    do iDen=1,Lab%nDen
+      do iSh=1,Lab%nShell
 
-End Module Data_Structures
+        Lab%SB(iSh,iSym,iDen)%A => null()
+
+      end do
+    end do
+  end do
+
+  Lab%nSym = 0
+  Lab%nDen = 0
+  Lab%nShell = 0
+  call mma_deallocate(Lab%A0)
+  call mma_deallocate(Lab%Keep)
+  deallocate(Lab%SB)
+
+end subroutine Deallocate_Lab
+
+end module Data_Structures

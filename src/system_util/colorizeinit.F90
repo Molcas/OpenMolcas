@@ -8,13 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine ColorizeInit()
-#include "icolorize.fh"
-      Character Str*32
-      Str=' '
-      icolorize=1
-      call getenvf('MOLCAS_COLOR',Str)
-      if(Str(1:1).eq.'N'.or.Str(1:1).eq.'n') icolorize=0
 
-      return
-      end
+subroutine ColorizeInit()
+
+#include "icolorize.fh"
+character Str*32
+
+Str = ' '
+icolorize = 1
+call getenvf('MOLCAS_COLOR',Str)
+if (Str(1:1) == 'N' .or. Str(1:1) == 'n') icolorize = 0
+
+return
+
+end subroutine ColorizeInit

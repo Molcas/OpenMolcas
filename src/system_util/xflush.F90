@@ -9,42 +9,52 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1996, Markus P. Fuelscher                              *
+!               2021, Ignacio Fdez. Galvan                             *
 !***********************************************************************
-      Subroutine xflush(Lu)
-!*********************************************************************
-!                                                                    *
-!   purpose:                                                         *
-!   Dump buffers                                                     *
-!                                                                    *
-!   calling arguments:                                               *
-!   Lu      : integer                                                *
-!             Logical unit number                                    *
-!                                                                    *
-!--------------------------------------------------------------------*
-!                                                                    *
-!   written by:                                                      *
-!   M.P. Fuelscher                                                   *
-!   University of Lund, Sweden, 1996                                 *
-!                                                                    *
-!--------------------------------------------------------------------*
-!                                                                    *
-!   history: none                                                    *
-!                                                                    *
-!*********************************************************************
 
-#if   defined(_CRAY_C90_)
-      If (Lu.EQ.6) then
-         Call Flush(101)
-      else
-         Call Flush(Lu)
-      End If
+subroutine xflush(Lu)
+!***********************************************************************
+!                                                                      *
+!   purpose:                                                           *
+!   Dump buffers                                                       *
+!                                                                      *
+!   calling arguments:                                                 *
+!   Lu      : integer                                                  *
+!             Logical unit number                                      *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!   written by:                                                        *
+!   M.P. Fuelscher                                                     *
+!   University of Lund, Sweden, 1996                                   *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!   history: Flush intrinsic available since Fortran 2003 (Jun. 2021)  *
+!                                                                      *
+!***********************************************************************
+
+#define _F2003_
+#ifdef _F2003_
+
+flush(Lu)
+
+#elif   defined(_CRAY_C90_)
+if (Lu == 6) then
+  call flush(101)
+else
+  call flush(Lu)
+end if
 #elif defined(__INTEL_COMPILER) || defined(NAGFOR)
-       Return
-       If (.False.) Call Unused_integer(Lu)
+#include "macros.fh"
+unused_var(Lu)
+return
 #elif defined(_SOLARIS_) || defined(_IRIX64_) || defined(_HP_UX_)
-      Call Flush(Lu)
+call flush(Lu)
 #elif defined(_PRIMEPOWER_) || defined(_LINUX_)
-      Call Flush(Lu)
+call flush(Lu)
 #endif
-      Return
-      End
+
+return
+
+end subroutine xflush

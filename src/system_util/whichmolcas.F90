@@ -19,25 +19,26 @@
 !                                                                            *
 !*****************************************************************************
 
-      Subroutine WhichMolcas(Molcas)
-!
+subroutine WhichMolcas(Molcas)
 !  if MOLCAS_STAMP='Alone'
 !     get value of MOLCAS.
-!
-!
-      Character*(*) Molcas
-      Character Env*40
-      Env='MOLCAS_STAMP'
-!
-      Molcas=' '
-      Call getenvf(Env,Molcas)
-      if (Molcas(1:1) .ne. 'A') then
-      Molcas=' '
-      Return
-      endif
-      Env='MOLCAS'
-!
-      Molcas=' '
-      Call getenvf(Env,Molcas)
-      Return
-      End
+
+character*(*) Molcas
+character Env*40
+
+Env = 'MOLCAS_STAMP'
+
+Molcas = ' '
+call getenvf(Env,Molcas)
+if (Molcas(1:1) /= 'A') then
+  Molcas = ' '
+  return
+end if
+Env = 'MOLCAS'
+
+Molcas = ' '
+call getenvf(Env,Molcas)
+
+return
+
+end subroutine WhichMolcas

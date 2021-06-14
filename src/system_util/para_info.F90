@@ -11,32 +11,32 @@
 ! Copyright (C) 2014, Steven Vancoillie                                *
 !               2021, Ignacio Fdez. Galvan                             *
 !***********************************************************************
-
+!
 ! Common information regarding the parallel runtime
-
+!
 ! GLOBAL rank and number of processes. This reflects the _entire_ MPI runtime,
 ! regardless of whether we are running in fake parallel or not!
-
+!
 !     mpp_procid
 !     mpp_nprocs
-
+!
 ! rank number of the root process, i.e., the mpp_procid of the "king"
-
+!
 !     mpp_rootid
-
+!
 ! variable that describes if the MPI processes are sharing work, so if this is
 ! false, it means we are using a fake parallel environment and work is replicated.
-
+!
 !     mpp_workshare
-
+!
 ! global variables describing the parallel environment
 !
 ! S. Vancoillie, Aug 2014, in an effort to clean up use of parallel
 ! header files and global variables with overlapping functionality.
-
+!
 !     MyRank   - rank of process, starting from 0
 !     nProcs   - number of processes
-
+!
 ! NOTE: MyRank and nProcs are the LOCAL view of the rank and number
 ! of processes. That means that for a "fake" parallel run (where each
 ! process actually runs in serial), MyRank=0 and nProcs=1.
@@ -44,66 +44,70 @@
 ! you a single "master" process or "king" of all processes!!! For that,
 ! you need to use the logical function KING().
 
-Module Para_Info
+module Para_Info
 
-Implicit None
-Private
+implicit none
+private
+
 #ifdef _MOLCAS_MPP_
-Integer :: mpp_procid, mpp_nprocs
-Logical :: mpp_workshare
-Public :: mpp_procid, mpp_nprocs, mpp_workshare
+integer :: mpp_procid, mpp_nprocs
+logical :: mpp_workshare
+public :: mpp_procid, mpp_nprocs, mpp_workshare
 #endif
-Integer :: MyRank, nProcs
-Integer, Parameter :: mpp_rootid = 0
-Public :: MyRank, nProcs, mpp_rootid, mpp_id, Is_Real_Par, King, Set_Do_Parallel
+integer :: MyRank, nProcs
+integer, parameter :: mpp_rootid = 0
+public :: MyRank, nProcs, mpp_rootid, mpp_id, Is_Real_Par, King, Set_Do_Parallel
 
-Contains
+contains
 
-Logical Function Is_Real_Par()
+function Is_Real_Par()
 ! SVC: determine if multiple processes are working together
-#ifdef _MOLCAS_MPP_
+  logical :: Is_Real_Par
+# ifdef _MOLCAS_MPP_
   Is_Real_Par = mpp_workshare
-#else
-  Is_Real_Par = .FALSE.
-#endif
-End Function Is_Real_Par
+# else
+  Is_Real_Par = .false.
+# endif
+end function Is_Real_Par
 
-Logical Function King()
+function King()
 ! SVC: determine if this is the absolute master process,
 !       regardless of the parallel environment
-#ifdef _MOLCAS_MPP_
+  logical :: King
+# ifdef _MOLCAS_MPP_
   King = mpp_procid == mpp_rootid
-#else
-  King = .TRUE.
-#endif
-End Function King
+# else
+  King = .true.
+# endif
+end function King
 
-Integer Function mpp_id()
+function mpp_id()
 ! returns the absolute id of the process,
 ! regardless of the parallel environment
-#ifdef _MOLCAS_MPP_
+  integer :: mpp_id
+# ifdef _MOLCAS_MPP_
   mpp_id = mpp_procid
-#else
+# else
   mpp_id = mpp_rootid
-#endif
-End Function mpp_id
+# endif
+end function mpp_id
 
-Subroutine Set_Do_Parallel(Par_Status)
-  Logical, Intent(In) :: Par_Status
-#ifdef _MOLCAS_MPP_
+subroutine Set_Do_Parallel(Par_Status)
+  logical, intent(In) :: Par_Status
+# ifdef _MOLCAS_MPP_
   mpp_workshare = (Par_Status .and. (mpp_nprocs > 1))
-  If (mpp_workshare) Then
+  if (mpp_workshare) then
     MyRank = mpp_procid
     nProcs = mpp_nprocs
-  Else
+  else
     MyRank = 0
     nProcs = 1
-  End If
-#else
-  Return
-! Avoid unused argument warnings
-  If (.False.) Call Unused_logical(Par_Status)
-#endif
-End Subroutine Set_Do_Parallel
+  end if
+# else
+  return
+  ! Avoid unused argument warnings
+  if (.false.) call Unused_logical(Par_Status)
+# endif
+end subroutine Set_Do_Parallel
 
-End Module Para_Info
+end module Para_Info

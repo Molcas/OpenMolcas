@@ -11,159 +11,153 @@
 ! Copyright (C) 2019, Oskar Weser                                      *
 !***********************************************************************
 
+module filesystem
+
 #include "compiler_features.h"
 #include "molcastypes.fh"
 
-      module filesystem
-      use, intrinsic :: iso_c_binding, only: c_char, MOLCAS_C_INT,      &
-     &      C_INT, c_ptr, C_NULL_CHAR
-      use fortran_strings, only: split, StringWrapper_t, Cptr_to_str,   &
-     &  str
-      implicit none
-      private
-      public :: getcwd_, chdir_, symlink_, get_errno_, strerror_,       &
-     &    mkdir_, remove_, real_path, basename
-      interface
-      subroutine getcwd_c(path, n, err) bind(C, name="getcwd_wrapper")
-        import :: c_char, MOLCAS_C_INT
-        implicit none
-        character(len=1, kind=c_char), intent(out) :: path(*)
-        integer(MOLCAS_C_INT), intent(in) :: n
-        integer(MOLCAS_C_INT), intent(out) :: err
-      end subroutine
+use, intrinsic :: iso_c_binding, only: c_char, MOLCAS_C_INT, c_int, c_ptr, c_null_char
+use fortran_strings, only: split, StringWrapper_t, Cptr_to_str, str
 
-      subroutine chdir_c(path, err) bind(C, name="chdir_wrapper")
-        import :: c_char, MOLCAS_C_INT
-        implicit none
-        character(len=1, kind=c_char), intent(in) :: path(*)
-        integer(MOLCAS_C_INT), intent(out) :: err
-      end subroutine
+implicit none
+private
 
-      subroutine symlink_c(to, from, err)bind(C, name="symlink_wrapper")
-        import :: c_char, MOLCAS_C_INT
-        implicit none
-        character(len=1, kind=c_char), intent(in) :: to(*), from(*)
-        integer(MOLCAS_C_INT), intent(out) :: err
-      end subroutine
+public :: getcwd_, chdir_, symlink_, get_errno_, strerror_, mkdir_, remove_, real_path, basename
 
-      subroutine mkdir_c(path, mode, err) bind(C, name="mkdir_wrapper")
-        import :: c_char, MOLCAS_C_INT
-        implicit none
-        character(len=1, kind=c_char), intent(in) :: path(*)
-        integer(kind=MOLCAS_C_INT), intent(in) :: mode
-        integer(kind=MOLCAS_C_INT), intent(out) :: err
-      end subroutine mkdir_c
+interface
+  subroutine getcwd_c(path,n,err) bind(C,name='getcwd_wrapper')
+    import :: c_char, MOLCAS_C_INT
+    character(len=1,kind=c_char), intent(out) :: path(*)
+    integer(MOLCAS_C_INT), intent(in) :: n
+    integer(MOLCAS_C_INT), intent(out) :: err
+  end subroutine getcwd_c
 
-      function get_errno_c() bind(C, name="get_errno")
-        import :: MOLCAS_C_INT
-        implicit none
-        integer(MOLCAS_C_INT) :: get_errno_c
-      end function
+  subroutine chdir_c(path,err) bind(C,name='chdir_wrapper')
+    import :: c_char, MOLCAS_C_INT
+    character(len=1,kind=c_char), intent(in) :: path(*)
+    integer(MOLCAS_C_INT), intent(out) :: err
+  end subroutine chdir_c
 
-#ifdef C_PTR_BINDING
-      function strerror_c(errno) bind(C, name="strerror")
-        import :: c_ptr, C_INT
-        implicit none
-        integer(C_INT), value, intent(in) :: errno
-        type(c_ptr) :: strerror_c
-       end function
-#endif
+  subroutine symlink_c(to,from,err) bind(C,name='symlink_wrapper')
+    import :: c_char, MOLCAS_C_INT
+    character(len=1,kind=c_char), intent(in) :: to(*), from(*)
+    integer(MOLCAS_C_INT), intent(out) :: err
+  end subroutine symlink_c
 
-      subroutine remove_c(path, err) bind(C, name="remove_wrapper")
-        import :: c_char, MOLCAS_C_INT
-        implicit none
-        integer(kind=MOLCAS_C_INT), intent(out) :: err
-        character(len=1, kind=c_char), intent(in) :: path(*)
-      end subroutine remove_c
+  subroutine mkdir_c(path,mode,err) bind(C,name='mkdir_wrapper')
+    import :: c_char, MOLCAS_C_INT
+    character(len=1,kind=c_char), intent(in) :: path(*)
+    integer(kind=MOLCAS_C_INT), intent(in) :: mode
+    integer(kind=MOLCAS_C_INT), intent(out) :: err
+  end subroutine mkdir_c
 
-      end interface
+  function get_errno_c() bind(C,name='get_errno')
+    import :: MOLCAS_C_INT
+    integer(MOLCAS_C_INT) :: get_errno_c
+  end function get_errno_c
 
-      contains
+# ifdef C_PTR_BINDING
+  function strerror_c(errno) bind(C,name='strerror')
+    import :: c_ptr, c_int
+    type(c_ptr) :: strerror_c
+    integer(c_int), value, intent(in) :: errno
+  end function strerror_c
+# endif
 
-      subroutine getcwd_(path, err)
-        character(len=*), intent(out) :: path
-        integer, intent(out), optional :: err
-        integer(MOLCAS_C_INT) :: c_err
-        call getcwd_c(path, len(path, MOLCAS_C_INT), c_err)
-        if (present(err)) err = int(c_err)
-      end subroutine
+  subroutine remove_c(path,err) bind(C,name='remove_wrapper')
+    import :: c_char, MOLCAS_C_INT
+    character(len=1,kind=c_char), intent(in) :: path(*)
+    integer(kind=MOLCAS_C_INT), intent(out) :: err
+  end subroutine remove_c
 
-      subroutine chdir_(path, err)
-        character(len=*), intent(in) :: path
-        integer, intent(out), optional :: err
-        integer(MOLCAS_C_INT) :: c_err
-        call chdir_c(trim(path)//C_NULL_CHAR, c_err)
-        if (present(err)) err = int(c_err)
-      end subroutine
+end interface
 
-      subroutine symlink_(to, from, err)
-        character(len=*), intent(in) :: to, from
-        integer, intent(out), optional :: err
-        integer(MOLCAS_C_INT) :: c_err
-        call symlink_c(                                                 &
-     &    trim(to)//C_NULL_CHAR, trim(from)//C_NULL_CHAR, c_err)
-        if (present(err)) err = int(c_err)
-      end subroutine
+contains
 
-      subroutine mkdir_(path, err)
-        character(len=*), intent(in) :: path
-        integer, optional, intent(out) :: err
-        integer(MOLCAS_C_INT) :: loc_err
-        call mkdir_c(trim(path)//C_NULL_CHAR,                           &
-     &        int(o'772', MOLCAS_C_INT), loc_err)
-        if (present(err)) err = loc_err
-      end subroutine
+subroutine getcwd_(path,err)
+  character(len=*), intent(out) :: path
+  integer, intent(out), optional :: err
+  integer(MOLCAS_C_INT) :: c_err
+  call getcwd_c(path,len(path,MOLCAS_C_INT),c_err)
+  if (present(err)) err = int(c_err)
+end subroutine getcwd_
 
-      integer function get_errno_()
-        get_errno_ = int(get_errno_c())
-      end function
+subroutine chdir_(path,err)
+  character(len=*), intent(in) :: path
+  integer, intent(out), optional :: err
+  integer(MOLCAS_C_INT) :: c_err
+  call chdir_c(trim(path)//c_null_char,c_err)
+  if (present(err)) err = int(c_err)
+end subroutine chdir_
+
+subroutine symlink_(to,from,err)
+  character(len=*), intent(in) :: to, from
+  integer, intent(out), optional :: err
+  integer(MOLCAS_C_INT) :: c_err
+  call symlink_c(trim(to)//c_null_char,trim(from)//c_null_char,c_err)
+  if (present(err)) err = int(c_err)
+end subroutine symlink_
+
+subroutine mkdir_(path,err)
+  character(len=*), intent(in) :: path
+  integer, optional, intent(out) :: err
+  integer(MOLCAS_C_INT) :: loc_err
+  call mkdir_c(trim(path)//c_null_char,int(o'772',MOLCAS_C_INT),loc_err)
+  if (present(err)) err = loc_err
+end subroutine mkdir_
+
+function get_errno_()
+  integer :: get_errno_
+  get_errno_ = int(get_errno_c())
+end function get_errno_
 
 !> Return Error String from Error number
-      function strerror_(errnum) result(res)
-        integer, intent(in) :: errnum
-        character(len=:), allocatable :: res
-#ifdef C_PTR_BINDING
-        res = Cptr_to_str(strerror_c(int(errnum, C_INT)))
-#else
-        integer :: rc
-        character(len=80) :: errstr
-        integer, external :: aixerr
-        errstr = ''
-        rc = aixerr(errstr)
-        res = trim(errstr)
-#endif
-      end function
+function strerror_(errnum) result(res)
+  character(len=:), allocatable :: res
+  integer, intent(in) :: errnum
+# ifndef C_PTR_BINDING
+  integer :: rc
+  character(len=80) :: errstr
+  integer, external :: aixerr
+  errstr = ''
+  rc = aixerr(errstr)
+  res = trim(errstr)
+# else
+  res = Cptr_to_str(strerror_c(int(errnum,c_int)))
+# endif
+end function strerror_
 
-      subroutine remove_(path, err)
-        character(len=*) :: path
-        integer, optional, intent(out) :: err
-        integer(MOLCAS_C_INT) :: loc_err
-        call remove_c(trim(path)//C_NULL_CHAR, loc_err)
-        if (present(err)) err = int(loc_err)
-      end subroutine
+subroutine remove_(path,err)
+  character(len=*) :: path
+  integer, optional, intent(out) :: err
+  integer(MOLCAS_C_INT) :: loc_err
+  call remove_c(trim(path)//c_null_char,loc_err)
+  if (present(err)) err = int(loc_err)
+end subroutine remove_
 
-      function real_path(molcas_name) result(path)
-        character(len=*), intent(in) :: molcas_name
-        character(len=:), allocatable :: path
-        character(len=1024) :: buffer
-        integer :: L
-        call prgmtranslate_master(molcas_name, buffer, L)
-        path = buffer(:L)
-      end function
+function real_path(molcas_name) result(path)
+  character(len=:), allocatable :: path
+  character(len=*), intent(in) :: molcas_name
+  character(len=1024) :: buffer
+  integer :: L
+  call prgmtranslate_master(molcas_name,buffer,L)
+  path = buffer(:L)
+end function real_path
 
-      function basename(path) result(res)
-        character(len=*), intent(in) :: path
-        character(len=:), allocatable :: res
-        type(StringWrapper_t), allocatable :: names(:)
+function basename(path) result(res)
+  character(len=:), allocatable :: res
+  character(len=*), intent(in) :: path
+  type(StringWrapper_t), allocatable :: names(:)
 
-        call split(path, '/', names)
+  call split(path,'/',names)
 
-        if (size(names(size(names))%str) /= 0) then
-        ! Base is a normal file that is not a directory .../.../basename
-            res = str(names(size(names))%str)
-        else
-        ! Base is itself a directory .../.../basename/
-            res = str(names(size(names) - 1)%str)
-        end if
-      end function
-      end module filesystem
+  if (size(names(size(names))%str) /= 0) then
+    ! Base is a normal file that is not a directory .../.../basename
+    res = str(names(size(names))%str)
+  else
+    ! Base is itself a directory .../.../basename/
+    res = str(names(size(names)-1)%str)
+  end if
+end function basename
+
+end module filesystem

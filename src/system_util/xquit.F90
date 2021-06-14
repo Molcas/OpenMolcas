@@ -8,97 +8,59 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine xquit(rc)
-!SVC: routine that terminates Molcas properly
-#ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: King
-#endif
-      implicit none
-      integer rc, lb, ub
-#include "warnings.fh"
-      character(len=128) :: msg
-      logical, external :: bomb_on_error
 
-      call xflush(6)
+subroutine xquit(rc)
+!SVC: routine that terminates Molcas properly
+
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: King
+#endif
+
+implicit none
+integer rc, lb, ub
+#include "warnings.fh"
+character(len=128) :: msg
+logical, external :: bomb_on_error
+
+call xflush(6)
 
 !SVC: write rc to stderr if not 0 (all is well)
-      if (rc .ne. _RC_ALL_IS_WELL_) then
-!IFG: do not write message if rc is "out of bounds"
-!     (this avoids it, e.g., when a slave process quits with -2,
-!     also avoids writing garbage from rc_msg)
-        lb = lbound(rc_msg,dim=1)
-        ub = ubound(rc_msg,dim=1)
-        if (rc .ge. lb .and. rc .le. ub) then
-          write(msg,'(a,i6,2a)') 'xquit (rc = ', rc, '): ', rc_msg(rc)
-          call write_stderr(msg)
-        end if
-      end if
+if (rc /= _RC_ALL_IS_WELL_) then
+  !IFG: do not write message if rc is "out of bounds"
+  !     (this avoids it, e.g., when a slave process quits with -2,
+  !     also avoids writing garbage from rc_msg)
+  lb = lbound(rc_msg,dim=1)
+  ub = ubound(rc_msg,dim=1)
+  if (rc >= lb .and. rc <= ub) then
+    write(msg,'(a,i6,2a)') 'xquit (rc = ',rc,'): ',rc_msg(rc)
+    call write_stderr(msg)
+  end if
+end if
 
 !SVC: write return code to file
-      call write_rc(rc)
+call write_rc(rc)
 
 !SVC: critical errors result in backtrace + immediate abort, while
 !     regular errors only do this if MOLCAS_BOMB has been set too.
-      if (        (rc .ge. _RC_GROUP_CRITICAL_)                                         &
-#if _MOLCAS_MPP_
+if ((rc >= _RC_GROUP_CRITICAL_) .or. &
+#   if _MOLCAS_MPP_
 !IFG: in a parallel (real or fake) run, we have to be more strict
 !     with errors, or a deadlock may occur when some slave process
 !     quits (e.g., a glitch or bug causes a missing file). Of course,
 !     it could be argued that the error raised for those cases should
 !     be critical... but it's often an "INPUT ERROR"
-     &        .or.(rc .ge. _RC_GROUP_USER_ERROR_ .and. (.not.King()))                     &
-#endif
-     &        .or.(rc .ge. _RC_GROUP_ERROR_ .and. bomb_on_error())) then
-        call xabort(rc)
-      end if
+    (rc >= _RC_GROUP_USER_ERROR_ .and. (.not. King())) .or. &
+#   endif
+    (rc >= _RC_GROUP_ERROR_ .and. bomb_on_error())) then
+  call xabort(rc)
+end if
 
 !SVC: terminate GA/MPI gracefully
-      call GATerminate
+call GATerminate()
 
 !SVC: eventual exit normally. We should not exit with rc here because
 !     some MPI implementations (like MPICH) will treat a non-zero return
 !     code similar to an abort.
-      stop
-      end
+stop
 
-      function bomb_on_error() result(rc)
-      implicit none
-      logical :: rc
-      character(len=16) :: bomb, env
-      bomb=' '
-      env='MOLCAS_BOMB'
-      call getenvf(env,bomb)
-      if (bomb(1:1).eq.'Y'.or.bomb(1:1).eq.'y'.or.bomb(1:1).eq.'1') then
-        rc = .true.
-      else
-        rc = .false.
-      end if
-      end
-!-----------------------------------------------------------------------
-!     convenient wrapper routines for xquit
-!-----------------------------------------------------------------------
-      subroutine quit(rc)
-      implicit none
-      integer rc
-      call xquit(rc)
-      End
-      Subroutine Quit_OnUserError
-      implicit none
-#include "warnings.fh"
-      Call xQuit(_RC_INPUT_ERROR_)
-      End
-      Subroutine Quit_OnConvError
-      implicit none
-#include "warnings.fh"
-      Call xQuit(_RC_NOT_CONVERGED_)
-      End
-      Subroutine Quit_OnInstError
-      implicit none
-#include "warnings.fh"
-      Call xQuit(_RC_INSTALL_ERROR_)
-      End
-      Subroutine Quit_OnTimeOut
-      implicit none
-#include "warnings.fh"
-      Call xQuit(_RC_TIMEOUT_)
-      End
+end subroutine xquit

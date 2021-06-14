@@ -18,39 +18,25 @@
 !           Sweden                                                           *
 !                                                                            *
 !*****************************************************************************
-      Subroutine systemf(c,rc)
-      Implicit None
-      Character*(*) C
-      Character*1024 C2
-      Integer LenC,StrnLn,i,rc
 
-      LenC=StrnLn(C)
-      if(LenC.gt.1024-1)then
-        Write(6,*)' Error in systemf.f ! LenC :',LenC
-        call abend()
-      endif
+subroutine systemf(c,rc)
 
-      do 100 i=1,lenc
-      c2(i:i)=c(i:i)
-100   continue
-      call systemc(c2,lenc,rc)
-      Return
-      End
-      Subroutine systemf2(c,rc)
-      Implicit None
-      Character*(*) C
-      Character*1024 C2
-      Integer LenC,StrnLn,i,rc
+implicit none
+character*(*) C
+character*1024 C2
+integer LenC, StrnLn, i, rc
 
-      LenC=StrnLn(C)
-      if(LenC.gt.1024-1)then
-        Write(6,*)' Error in systemf.f ! LenC :',LenC
-        call abend()
-      endif
+LenC = StrnLn(C)
+if (LenC > 1024-1) then
+  write(6,*) ' Error in systemf.f ! LenC :',LenC
+  call abend()
+end if
 
-      do 100 i=1,lenc
-      c2(i:i)=c(i:i)
-100   continue
-      call systemc2(c2,lenc,rc)
-      Return
-      End
+do i=1,lenc
+  c2(i:i) = c(i:i)
+end do
+call systemc(c2,lenc,rc)
+
+return
+
+end subroutine systemf

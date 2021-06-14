@@ -8,15 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine xbacktrace
+
+subroutine xbacktrace
 !SVC: this routine tries to print a backtrace
-      implicit none
-!     use backtrace intrinsic (introduced since gfortran 4.8)
+
+implicit none
+
+! use backtrace intrinsic (introduced since gfortran 4.8)
 #include "compiler_features.h"
-#if   defined(__GNUC__) && (GCC_VERSION >= 40800)
-      call backtrace()
-!     use tracebackqq intrinsic for ifort
+#if defined(__GNUC__) && (GCC_VERSION >= 40800)
+call backtrace()
+! use tracebackqq intrinsic for ifort
 #elif defined(__INTEL_COMPILER)
-      call tracebackqq()
+call tracebackqq()
 #endif
-      end
+
+end subroutine xbacktrace

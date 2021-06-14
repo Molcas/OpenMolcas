@@ -26,18 +26,23 @@
 !> @param[in] iSw Begin/End switch
 !> @param[in] STR Message
 !***********************************************************************
-      Subroutine CollapseOutput(iSw, STR)
-      character*(*) STR
-      Integer iSw
+
+subroutine CollapseOutput(iSw,STR)
+
+character*(*) STR
+integer iSw
 #include "icolorize.fh"
-      if(icolorize.eq.1) then
-       if(iSw.eq.1) then
-         write(6,'(A,A)') '++ ',STR(:mylen(STR))
-       else
-        write(6,'(A)') '--'
-       endif
-      else
-         if(iSw.eq.1) write(6,'(A)') STR(:mylen(STR))
-      endif
-      Return
-      End
+
+if (icolorize == 1) then
+  if (iSw == 1) then
+    write(6,'(A,A)') '++ ',STR(:mylen(STR))
+  else
+    write(6,'(A)') '--'
+  end if
+else
+  if (iSw == 1) write(6,'(A)') STR(:mylen(STR))
+end if
+
+return
+
+end subroutine CollapseOutput

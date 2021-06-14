@@ -19,35 +19,30 @@
 !                                                                            *
 !*****************************************************************************
 !
-!
 !   Use this routine wisely!
-!
 !
 !   in case if you would like to block some dev. code
 !   from usage, or apply some conditions for this:
 !
 !   add a call
 !     Call OnlyIMayUseIt("name")
-!
-!
 
+subroutine OnlyIMayUseIt(Name)
 
-      subroutine OnlyIMayUseIt(Name)
-      Character*(*) Name
-      character*256 value
-      character*1024 message
-      value=' '
-      call getenvf('MOLCAS_ISDEV',value)
-      if(value.eq.'PRODUCTION') then
-      return
-      endif
-      if(value.eq.' '.or.value.ne.Name) then
-      message='This code is for testing purpose only;'//                &
-     & 'if you want to use it by other means, ;'//                      &
-     & 'e.g. to publish the results -- you must contact;'//             &
-     & Name//' to find the conditions applied;;'//                      &
-     & 'Alternatively you may either use the production version;'
-      Call WarningMessage(2,message)
-      return
-      endif
-      End
+character*(*) Name
+character*256 value
+character*1024 message
+
+value = ' '
+call getenvf('MOLCAS_ISDEV',value)
+if (value == 'PRODUCTION') then
+  return
+end if
+if (value == ' ' .or. value /= Name) then
+  message = 'This code is for testing purpose only;if you want to use it by other means, ;e.g. to publish the results -- you must &
+            &contact;'//Name//' to find the conditions applied;;Alternatively you may either use the production version;'
+  call WarningMessage(2,message)
+  return
+end if
+
+end subroutine OnlyIMayUseIt

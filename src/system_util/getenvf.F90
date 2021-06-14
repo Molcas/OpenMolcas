@@ -18,7 +18,6 @@
 !           Sweden                                                           *
 !                                                                            *
 !*****************************************************************************
-
 !
 !  This is a simple wrapper for getenv
 !   Note:
@@ -33,16 +32,20 @@
 !      print *, 'MOLCAS=',Value
 !
 
-      Subroutine getenvf(Name,Value)
-      Character*(*) Name, Value
-      value=' '
-      ilen=len(Name)
-      maxlen=len(Value)
-      Call getenvf2c(Name,ilen,Value,maxlen,irl)
-       if(irl.eq.0) then
-        Value=' '
-       else
-        Value=Value(1:irl)
-       endif
-      Return
-      End
+subroutine getenvf(Name,value)
+
+character*(*) Name, value
+
+value = ' '
+ilen = len(Name)
+maxlen = len(value)
+call getenvf2c(Name,ilen,value,maxlen,irl)
+if (irl == 0) then
+  value = ' '
+else
+  value = value(1:irl)
+end if
+
+return
+
+end subroutine getenvf

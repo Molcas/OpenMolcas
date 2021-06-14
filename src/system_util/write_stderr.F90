@@ -8,13 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine write_stderr (msg)
-      use Para_Info, Only: MyRank
-      implicit none
-      character(len=*) :: msg
-      write(0,'(a,i6,a,1x,a)')                                          &
-     &  '[ process ', myrank, ']:',                                     &
-     &  trim(msg)
-      call xflush(0)
-      end
 
+subroutine write_stderr(msg)
+
+use Para_Info, only: MyRank
+
+implicit none
+character(len=*) :: msg
+
+write(0,'(a,i6,a,1x,a)') '[ process ',myrank,']:',trim(msg)
+call xflush(0)
+
+end subroutine write_stderr

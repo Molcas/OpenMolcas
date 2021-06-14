@@ -22,50 +22,54 @@
 !>
 !> @param[in,out] String a string
 !***********************************************************************
-      Subroutine Center(String)
-      Character*(*) String
+
+subroutine Center(String)
+
+character*(*) String
+
 !----------------------------------------------------------------------*
 !     get the length of the line                                       *
 !----------------------------------------------------------------------*
-      lString=0
-      lString=Len(String)
+lString = 0
+lString = len(String)
 !----------------------------------------------------------------------*
 !     get the number of leading blanks                                 *
 !----------------------------------------------------------------------*
-      lLeft=0
-      Do 100 i=lString,1,-1
-        If( String(i:i).ne.' ' ) lLeft=i-1
-100   Continue
+lLeft = 0
+do i=lString,1,-1
+  if (String(i:i) /= ' ') lLeft = i-1
+end do
 !----------------------------------------------------------------------*
 !     get the number of trailing blanks                                *
 !----------------------------------------------------------------------*
-      lRight=0
-      Do 200 i=1,lString
-        If( String(i:i).ne.' ' ) lRight=lString-i
-200   Continue
+lRight = 0
+do i=1,lString
+  if (String(i:i) /= ' ') lRight = lString-i
+end do
 !----------------------------------------------------------------------*
 !     shift the line                                                   *
 !----------------------------------------------------------------------*
-      If ( lLeft+lRight.ne.0 ) Then
-         lShift=(lRight-lLeft)/2
-         If ( lShift.gt.0 ) Then
-           Do 310 i=lString,lShift+1,-1
-             String(i:i)=String(i-lShift:i-lShift)
-310        Continue
-           Do 320 i=1,lLeft+lShift
-             String(i:i)=' '
-320        Continue
-         Else If ( lShift.lt.0 ) Then
-           Do 410 i=1,lString-lShift
-             String(i:i)=String(i-lShift:i-lShift)
-410        Continue
-           Do 420 i=lString,lString-lRight-lShift,-1
-             String(i:i)=' '
-420        Continue
-         End If
-      End If
+if (lLeft+lRight /= 0) then
+  lShift = (lRight-lLeft)/2
+  if (lShift > 0) then
+    do i=lString,lShift+1,-1
+      String(i:i) = String(i-lShift:i-lShift)
+    end do
+    do i=1,lLeft+lShift
+      String(i:i) = ' '
+    end do
+  else if (lShift < 0) then
+    do i=1,lString-lShift
+      String(i:i) = String(i-lShift:i-lShift)
+    end do
+    do i=lString,lString-lRight-lShift,-1
+      String(i:i) = ' '
+    end do
+  end if
+end if
 !----------------------------------------------------------------------*
 !     normal termination                                               *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine Center

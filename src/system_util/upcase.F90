@@ -20,33 +20,35 @@
 !          Lund University                                             *
 !                                                                      *
 !***********************************************************************
-      Subroutine UpCase(string)
-      Character*(*)  string
-      Character*26   up,lw
-      Dimension      itab(0:255)
-      Save           up,lw,ifset,itab
 
-      Data up    /'ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
-      Data lw    /'abcdefghijklmnopqrstuvwxyz'/
-      Data ifset / 0 /
+subroutine UpCase(string)
 
-      If (ifset.eq.0) Then
-        ifset=1
-        Do i=0,255
-          itab(i)=i
-        End Do
-        Do ii=1,26
-          i=ichar(up(ii:ii))
-          j=ichar(lw(ii:ii))
-          itab(j)=i
-        End Do
-      End If
+character*(*) string
+character*26 up, lw
+dimension itab(0:255)
+save up, lw, ifset, itab
+data up/'ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
+data lw/'abcdefghijklmnopqrstuvwxyz'/
+data ifset/0/
 
-      Do ii=1,len(string)
-        i=ichar(string(ii:ii))
-        j=itab(i)
-        string(ii:ii)=char(j)
-      End Do
+if (ifset == 0) then
+  ifset = 1
+  do i=0,255
+    itab(i) = i
+  end do
+  do ii=1,26
+    i = ichar(up(ii:ii))
+    j = ichar(lw(ii:ii))
+    itab(j) = i
+  end do
+end if
 
-      Return
-      End
+do ii=1,len(string)
+  i = ichar(string(ii:ii))
+  j = itab(i)
+  string(ii:ii) = char(j)
+end do
+
+return
+
+end subroutine UpCase

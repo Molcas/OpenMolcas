@@ -27,18 +27,24 @@
 !> @param[in] STR  Status
 !> @param[in] STR1 Status
 !***********************************************************************
-      Subroutine StatusLine(STR,STR1)
+
+subroutine StatusLine(STR,STR1)
+
 #ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: King
+use Para_Info, only: King
 #endif
-      character*(*) STR, STR1
-      Integer Lu
+
+character*(*) STR, STR1
+integer Lu
+
 #ifdef _MOLCAS_MPP_
-      if(.Not.King()) return
+if (.not. King()) return
 #endif
-      Lu=2
-      call molcas_open(Lu,'status')
-      write(Lu,'(A,A)') STR,STR1
-      close(Lu)
-      Return
-      End
+Lu = 2
+call molcas_open(Lu,'status')
+write(Lu,'(A,A)') STR,STR1
+close(Lu)
+
+return
+
+end subroutine StatusLine
