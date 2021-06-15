@@ -33,7 +33,7 @@ character(len=13) :: orbitals
 character(len=120) :: Line, BlLine, StLine
 character(len=LenIn8), allocatable :: UBName(:)
 integer(kind=iwp), parameter :: lPaper = 132
-character(len=9), parameter :: SecNam = 'RPA_PrInp'
+character(len=*), parameter :: SecNam = 'RPA_PrInp'
 integer(kind=iwp), external :: RPA_iUHF
 
 ! set restricted(1)/unrestricted(2)

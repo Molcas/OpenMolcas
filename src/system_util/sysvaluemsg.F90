@@ -13,7 +13,11 @@
 
 subroutine SysValueMsg(Text1,N1)
 
-character*(*) Text1
+use Definitions, only: iwp
+
+implicit none
+character(len=*), intent(in) :: Text1
+integer(kind=iwp), intent(in) :: N1
 
 call SysValueWarnMsg(Text1,N1)
 call SysPutsEnd()

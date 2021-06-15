@@ -31,21 +31,20 @@
 
 subroutine CheckRun()
 
-character Molcas*256
-character Env*40
-Env = 'MOLCAS_STAMP'
+use Definitions, only: u6
+
+implicit none
+character(len=256) :: Molcas
 
 Molcas = ' '
-call getenvf(Env,Molcas)
+call getenvf('MOLCAS_STAMP',Molcas)
 if (Molcas(1:1) == 'A') then
   return
 end if
-#ifdef _HAVE_EXTRA_
 if (Molcas(1:1) /= '5') then
-  write(6,*) 'Usage: molcas module_name input'
+  write(u6,*) 'Usage: molcas module_name input'
   call Abend()
 end if
-#endif
 
 return
 

@@ -13,8 +13,12 @@
 
 subroutine SysWarnFileMsg(Location,TheFile,Text1,Text2)
 
-character*(*) Location, Text1, Text2, TheFile
-character Str*256
+use Definitions, only: iwp
+
+implicit none
+character(len=*), intent(in) :: Location, Text1, Text2, TheFile
+integer(kind=iwp) :: i
+character(len=256) :: Str
 
 call SysPutsStart()
 call SysPuts('Location: ',Location,'\n')

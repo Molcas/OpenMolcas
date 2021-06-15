@@ -13,8 +13,11 @@
 
 subroutine SysQuitFileMsg(rc,Location,TheFile,Text1,Text2)
 
-integer rc
-character*(*) Location, Text1, Text2, TheFile
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: rc
+character(len=*), intent(in) :: Location, Text1, Text2, TheFile
 
 call SysWarnFileMsg(Location,TheFile,Text1,Text2)
 call Quit(rc)

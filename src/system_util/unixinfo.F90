@@ -11,12 +11,14 @@
 
 subroutine UnixInfo(SuperModuleName,ModuleName)
 
-character*(*) ModuleName, SuperModuleName
-external StrnLn
-integer StrnLn
+use Definitions, only: iwp
+
+implicit none
+character(len=*), intent(in) :: SuperModuleName, ModuleName
+integer(kind=iwp) :: Ich, Islash, LenProgName
+integer(kind=iwp), external :: StrnLn
+logical(kind=iwp) :: IfTest = .false.
 #include "unixinfo.fh"
-logical IfTest
-data IfTest/.false./
 
 #ifdef _DEBUGPRINT_
 IfTest = .true.

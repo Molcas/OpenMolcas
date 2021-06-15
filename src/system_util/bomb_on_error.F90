@@ -11,17 +11,14 @@
 
 function bomb_on_error() result(rc)
 
+use Definitions, only: iwp
+
 implicit none
-logical :: rc
-character(len=16) :: bomb, env
+logical(kind=iwp) :: rc
+character(len=16) :: bomb
 
 bomb = ' '
-env = 'MOLCAS_BOMB'
-call getenvf(env,bomb)
-if (bomb(1:1) == 'Y' .or. bomb(1:1) == 'y' .or. bomb(1:1) == '1') then
-  rc = .true.
-else
-  rc = .false.
-end if
+call getenvf('MOLCAS_BOMB',bomb)
+rc = (bomb(1:1) == 'Y') .or. (bomb(1:1) == 'y') .or. (bomb(1:1) == '1')
 
 end function bomb_on_error

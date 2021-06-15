@@ -30,32 +30,42 @@ subroutine SysExpand(strin,strout,iRet)
 !   call sysexpand('blah-blah ',s,i)  - will print string as is and return i=0
 !***********************************************************************
 
-parameter(MAXlabel=8)
-character*(*) strin, strout
-character*16 MSGlabel(MAXlabel)
-character*128 MSGtext(MAXlabel)
-character*512 sstrin
-dimension MSGlen(MAXlabel)
-character*27 up, lw
-character*36 printable
-character c
-dimension itab(0:255)
-save up, lw, ifset, itab
-save MSGlabel, MSGtext, MSGlen
-data up/'ABCDEFGHIJKLMNOPQRSTUVWXYZ '/
-data lw/'abcdefghijklmnopqrstuvwxyz '/
-data printable/'1234567890-=~!@#$%^&*()_+<>,.?/[]":;'/
-data ifset/0/
+use Definitions, only: iwp, u6
+
+implicit none
+character(len=*), intent(in) :: strin
+character(len=*), intent(out) :: strout
+integer(kind=iwp), intent(out) :: iRet
+integer(kind=iwp), save :: ifset = 0, itab(0:255)
+integer(kind=iwp) :: i, ii, ik, ip, j
+character(len=512) ::  sstrin
+character :: c
+character(len=*), parameter :: up = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ', &
+                               lw = 'abcdefghijklmnopqrstuvwxyz ', &
+                               printable = '1234567890-=~!@#$%^&*()_+<>,.?/[]":;'
 ! FORTRAN hash :-)
-data MSGlabel/'OPEN','CLOSE','UNIT','DELETE','SEEK','INVALIDOPTION','USED','NOTOPENED'/
-data MSGtext/'Premature abort while opening file',                           & !OPEN
-             'Premature abort while closing the file',                       & !CLOSE
-             'Invalid unit number (Lu<=0 or Lu>99)',                         & !UNIT
-             'Premature abort while removing the file',                      & !DELETE
-             'Premature abort while seeking the file',                       & !SEEK
-             'An invalid option or combination of options has been supplied',&
-             'Invalid unit number. The file is already opened',              & !USED
-             'File is not Opened'/                                             !NOT OPENED
+integer(kind=iwp), parameter :: MAXlabel = 8
+integer(kind=iwp), save :: MSGlen(MAXlabel)
+character(len=*), parameter :: MSGlabel(MAXlabel) = [character(len=13) :: &
+                                 'OPEN',          &
+                                 'CLOSE',         &
+                                 'UNIT',          &
+                                 'DELETE',        &
+                                 'SEEK',          &
+                                 'INVALIDOPTION', &
+                                 'USED',          &
+                                 'NOTOPENED'      &
+                               ], &
+                               MSGtext(MAXlabel) = [character(len=128) :: &
+                                 'Premature abort while opening file',                           & !OPEN
+                                 'Premature abort while closing the file',                       & !CLOSE
+                                 'Invalid unit number (Lu<=0 or Lu>99)',                         & !UNIT
+                                 'Premature abort while removing the file',                      & !DELETE
+                                 'Premature abort while seeking the file',                       & !SEEK
+                                 'An invalid option or combination of options has been supplied',& !INVALIDOPTION
+                                 'Invalid unit number. The file is already opened',              & !USED
+                                 'File is not Opened'                                            & !NOT OPENED
+                               ]
 
 ! preset of saved data
 ! this code uses a part of upcase routine
@@ -87,7 +97,7 @@ if (sstrin(1:4) /= 'MSG:') then
     if (c /= '\') then
 #   endif
       ip = index(up,c)+index(lw,c)+index(printable,c)
-      !write(6,*) 'ii',ii
+      !write(u6,*) 'ii',ii
       if (ip == 0) sstrin(ii:ii) = ' '
 #   ifdef NAGFOR
     end if

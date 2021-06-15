@@ -19,17 +19,18 @@ use Para_Info, only: Set_Do_Parallel
 #ifdef _DEBUGPRINT_
 use Para_Info, only: nProcs
 #endif
+use Definitions, only: iwp, u5, u6
 
 implicit none
-character*(*) ModuleName
-character*8 Prin
+character(len=*), intent(in) :: ModuleName
+character(len=8) :: Prin
 #ifdef _MOLCAS_MPP_
-logical parallelized
+logical(kind=iwp) parallelized
 #endif
 #include "standard_iounits.fh"
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Start.'
+write(u6,*) ' Start.'
 #endif
 
 ! fill the returncode database with human-readable messages
@@ -39,23 +40,25 @@ call WarningInit()
 
 ! Initialize delayed BLAS+LAPACK
 
+#ifdef _DELAYED_
 call Init_LinAlg()
 #ifdef _DEBUGPRINT_
-write(6,*) ' BLAS+LAPACK initialized '
+write(u6,*) ' BLAS+LAPACK initialized '
+#endif
 #endif
 
 ! Initialize Timing
 
 call SetTim()
 #ifdef _DEBUGPRINT_
-write(6,*) ' TIMING set'
+write(u6,*) ' TIMING set'
 #endif
 
 ! Initialize the parallel environment
 
 call GAInit()
 #ifdef _DEBUGPRINT_
-write(6,*) ' GA initialized: MyRank, nProcs = ',MyRank,nProcs
+write(u6,*) ' GA initialized: MyRank, nProcs = ',MyRank,nProcs
 #endif
 
 ! Now that each process is in its own directory, we can read/write
@@ -81,9 +84,11 @@ call nap_time()
 ! Check that binary was executed via molcas script (check $MOLCAS_STAMP)
 ! (DO NOT MOVE FROM HERE)
 
+#ifdef _HAVE_EXTRA_
 call CheckRun()
 #ifdef _DEBUGPRINT_
-write(6,*) ' CHECKRUN passed'
+write(u6,*) ' CHECKRUN passed'
+#endif
 #endif
 
 !  Initialize Memory manager (MOLCAS_MEM)
@@ -91,7 +96,7 @@ write(6,*) ' CHECKRUN passed'
 !
 call IniMem()
 #ifdef _DEBUGPRINT_
-write(6,*) ' MEMORY MANAGER initialized'
+write(u6,*) ' MEMORY MANAGER initialized'
 #endif
 !
 !  Get various unix-related information :
@@ -99,12 +104,12 @@ write(6,*) ' MEMORY MANAGER initialized'
 !
 call UnixInfo(ModuleName,ModuleName)
 #ifdef _DEBUGPRINT_
-write(6,*) ' UNIXINFO passed '
+write(u6,*) ' UNIXINFO passed '
 #endif
 
 call prgminit(ModuleName)
 #ifdef _DEBUGPRINT_
-write(6,*) ' PRGM initialized'
+write(u6,*) ' PRGM initialized'
 #endif
 
 ! Now that prgm has been initialized, we know if a module is supposed to
@@ -124,23 +129,23 @@ end if
 
 ! Redirect standard input to a file 'stdin'.
 
-LuRd = 5
+LuRd = u5
 close(LuRd)
 call molcas_open(LuRd,'stdin')
 #ifdef _DEBUGPRINT_
-write(6,*) ' STDIN opened '
+write(u6,*) ' STDIN opened '
 #endif
 
 ! Redirect standard output for slaves to a file 'stdout'.
 
-LuWr = 6
+LuWr = u6
 if (.not. King()) then
   close(LuWr)
   call molcas_open(LuWr,'stdout')
   call Append_file(LuWr)
 end if
 #ifdef _DEBUGPRINT_
-write(6,*) ' STDOUT opened '
+write(u6,*) ' STDOUT opened '
 #endif
 
 ! Initialize XML
@@ -148,7 +153,7 @@ write(6,*) ' STDOUT opened '
 call ColorizeInit()
 call xml_Open('module',' ',' ',0,ModuleName)
 #ifdef _DEBUGPRINT_
-write(6,*) ' XML initialized '
+write(u6,*) ' XML initialized '
 #endif
 
 ! Initiate spool mode to read from standard input
@@ -159,7 +164,7 @@ Spool = .true.
 
 call FIOInit()
 #ifdef _DEBUGPRINT_
-write(6,*) ' I/O initialized '
+write(u6,*) ' I/O initialized '
 #endif
 
 ! Initialize timings and statistics
@@ -167,14 +172,14 @@ write(6,*) ' I/O initialized '
 call IniTim()
 call IniStat()
 #ifdef _DEBUGPRINT_
-write(6,*) ' TIMINGS/STATISTICS initialized'
+write(u6,*) ' TIMINGS/STATISTICS initialized'
 #endif
 
 ! Set standard name for the runfile
 
 call NameRun('RUNFILE')
 #ifdef _DEBUGPRINT_
-write(6,*) ' RUNFILE initialized '
+write(u6,*) ' RUNFILE initialized '
 #endif
 call Init_Run_Use()
 
@@ -187,7 +192,7 @@ call poke_iScalar('xml opened',0)
 
 call NQ_Init()
 #ifdef _DEBUGPRINT_
-write(6,*) ' GRID initialized '
+write(u6,*) ' GRID initialized '
 #endif
 
 !***********************************************************************
@@ -199,7 +204,7 @@ if (Prin(1:1) /= '0' .and. Prin(1:1) /= 'S') then
   call Print_Module_Header(ModuleName)
   ! Force output to be written to stdout, such that in case of problems
   ! later on, at least all the start info has been printed.
-  call xFlush(6)
+  call xFlush(u6)
 end if
 ! Write to the status file that the moduel has started
 call StatusLine(ModuleName,' properly started!')

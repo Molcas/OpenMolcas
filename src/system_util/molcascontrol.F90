@@ -36,49 +36,48 @@
 !> Usage:
 !>
 !> \code
-!> Call MolcasControl('SHUTDOWN',Value)
-!> if(Value.eq.'YES') Call abend
+!> Call MolcasControl('SHUTDOWN',Val)
+!> if (Val == 'YES') Call abend()
 !> \endcode
 !>
 !> @side_effects
 !> file molcas.control
 !>
 !> @param[in]  Label Query string
-!> @param[out] Value Returned value
+!> @param[out] Val   Returned value
 !***********************************************************************
 
-subroutine MolcasControl(Label,value)
+subroutine MolcasControl(Label,Val)
 
-parameter(nLines=20)
-character filename*16
-character*80 Line(nLines)
-character*(*) Label
-character*(*) value
-logical Exist
-logical Modify
-integer StrnLn
+use Definitions, only: iwp
 
-filename = 'molcas.control'
-value = ' '
+implicit none
+character(len=*), intent(in) :: Label
+character(len=*), intent(out) :: Val
+character(len=80) :: Line(20)
+character(len=*), parameter :: filename = 'molcas.control'
+integer(kind=iwp) :: i, ic, iLine, Lu
+logical(kind=iwp) :: Exists, Modify
+integer(kind=iwp), external :: StrnLn
+
+Val = ' '
 Modify = .false.
-value = ' '
-call f_inquire(filename,Exist)
-if (.not. Exist) return
+call f_inquire(filename,Exists)
+if (.not. Exists) return
 Lu = 1
-Lu = isfreeunit(Lu)
-open(Lu,File=filename)
+call molcas_open(Lu,filename)
 iLine = 1
 1 read(Lu,'(a)',end=100,err=100) Line(iLine)
 if (Line(iLine)(1:1) == '!') Modify = .true.
 iLine = iLine+1
-if (iLine < nLines) goto 1
+if (iLine < size(Line)) goto 1
 
 100 continue
 close(Lu)
 
 if (.not. Modify) return
 
-open(Lu,File=filename)
+call molcas_open(Lu,filename)
 do ic=1,iLine-1
   if (Line(ic)(1:1) == '!') then
     i = index(Line(ic)(2:),'=')
@@ -86,7 +85,7 @@ do ic=1,iLine-1
       if (Line(ic)(2:i) == Label) then
         Line(ic)(1:1) = '#'
         Modify = .true.
-        value = Line(ic)(i+2:)
+        Val = Line(ic)(i+2:)
       end if
     end if
   end if

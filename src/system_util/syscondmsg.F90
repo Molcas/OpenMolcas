@@ -13,8 +13,12 @@
 
 subroutine SysCondMsg(Text1,N1,Text2,N2)
 
-character s*64
-character*(*) Text1, Text2
+use Definitions, only: iwp
+
+implicit none
+character(len=*), intent(in) :: Text1, Text2
+integer(kind=iwp), intent(in) :: N1, N2
+character(len=64) :: s
 
 call SysPuts('Condition: ',Text1,' ')
 write(s,'(i16,a,i16)') N1,Text2,N2

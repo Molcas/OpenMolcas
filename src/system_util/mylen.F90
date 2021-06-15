@@ -14,7 +14,12 @@
 function mylen(s)
 ! return real length of the string without spaces...
 
-character*(*) s
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: mylen
+character(len=*), intent(in) :: s
+integer(kind=iwp) :: i, il
 
 il = len(s)
 if (il == 0) then

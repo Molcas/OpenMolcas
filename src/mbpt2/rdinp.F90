@@ -55,7 +55,7 @@ character(len=100) :: ProgName
 character(len=180) :: Line
 integer(kind=iwp), allocatable :: SQ(:)
 real(kind=wp), allocatable :: C(:), EE(:), EO(:), Occup(:)
-character(len=4), parameter :: ComTab(39) = ['TITL','FROZ','DELE','SFRO','SDEL','EXTR','PRIN','TEST','PRPT','LUMO', &
+character(len=*), parameter :: ComTab(39) = ['TITL','FROZ','DELE','SFRO','SDEL','EXTR','PRIN','TEST','PRPT','LUMO', &
                                              'EREF','VIRA','T1AM','GRDT','LAPL','GRID','BLOC','CHOA','DECO','NODE', &
                                              'THRC','SPAN','MXQU','PRES','CHKI','FORC','VERB','NOVE','FREE','PREC', &
                                              'SOSM','OEDT','OSFA','LOVM','DOMP','FNOM','GHOS','NOGR','END ']

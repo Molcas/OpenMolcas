@@ -39,7 +39,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: Lu, iOpt, lBuf, iDisk
-character(len=15), parameter :: TheName = 'DaFile_checkarg'
+character(len=*), parameter :: TheName = 'DaFile_checkarg'
 
 ! 2012
 ! VpV: a lot of checking is here.

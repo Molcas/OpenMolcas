@@ -11,8 +11,10 @@
 
 subroutine quit(rc)
 
+use Definitions, only: iwp
+
 implicit none
-integer rc
+integer(kind=iwp), intent(in) :: rc
 
 call xquit(rc)
 

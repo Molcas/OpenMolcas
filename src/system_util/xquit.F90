@@ -15,14 +15,16 @@ subroutine xquit(rc)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: King
 #endif
+use Definitions, only: iwp, u6
 
 implicit none
-integer rc, lb, ub
-#include "warnings.fh"
+integer(kind=iwp), intent(in) :: rc
+integer(kind=iwp) :: lb, ub
 character(len=128) :: msg
-logical, external :: bomb_on_error
+logical(kind=iwp), external :: bomb_on_error
+#include "warnings.fh"
 
-call xflush(6)
+call xflush(u6)
 
 !SVC: write rc to stderr if not 0 (all is well)
 if (rc /= _RC_ALL_IS_WELL_) then

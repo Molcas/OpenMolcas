@@ -10,40 +10,35 @@
 !                                                                      *
 ! Copyright (C) 2000-2016, Valera Veryazov                             *
 !***********************************************************************
-!*****************************************************************************
-!                                                                            *
-! Author:   Valera Veryazov 2000-2016                                        *
-!           Theoretical Chemistry                                            *
-!           Lund University                                                  *
-!           Sweden                                                           *
-!                                                                            *
-!*****************************************************************************
+!***********************************************************************
+!                                                                      *
+! Author:   Valera Veryazov 2000-2016                                  *
+!           Theoretical Chemistry                                      *
+!           Lund University                                            *
+!           Sweden                                                     *
+!                                                                      *
+!***********************************************************************
 !
 !  This is a simple wrapper for getenv
-!   Note:
-!     Value must be defined as character*256
-!     Name must be terminated by space
-!
-!  Sample:
-!    Character Env*40
-!    Character Value*256
-!      Env='MOLCAS '
-!      call getenvf(Env,Value)
-!      print *, 'MOLCAS=',Value
 !
 
-subroutine getenvf(Name,value)
+subroutine getenvf(VarName,Val)
 
-character*(*) Name, value
+use Definitions, only: iwp
 
-value = ' '
-ilen = len(Name)
-maxlen = len(value)
-call getenvf2c(Name,ilen,value,maxlen,irl)
+implicit none
+character(len=*), intent(in) :: VarName
+character(len=*), intent(out) :: Val
+integer(kind=iwp) :: ilen, irl, maxlen
+
+Val = ' '
+ilen = len(VarName)
+maxlen = len(Val)
+call getenvf2c(VarName,ilen,Val,maxlen,irl)
 if (irl == 0) then
-  value = ' '
+  Val = ' '
 else
-  value = value(1:irl)
+  Val = Val(1:irl)
 end if
 
 return

@@ -24,7 +24,7 @@ real(kind=wp) :: xMin
 integer(kind=iwp), allocatable :: Pivot(:), Point(:)
 real(kind=wp), allocatable :: EOcc(:)
 integer(kind=iwp), external :: Cho_iRange
-character(len=7), parameter :: SecNam = 'Freezer'
+character(len=*), parameter :: SecNam = 'Freezer'
 
 ! For nSym=1, simply transfer nFre to nFro1.
 ! Else initialize nFro1 array.

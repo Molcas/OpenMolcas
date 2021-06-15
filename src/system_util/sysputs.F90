@@ -26,15 +26,19 @@
 
 subroutine SysPuts(str,str1,str2)
 
-character*(*) str, str1, str2
-character*512 Junk
+use Definitions, only: iwp
+
+implicit none
+character(len=*), intent(in) :: str, str1, str2
+integer(kind=iwp) :: i, icr, icr1, ii, iii, ij, iLongEnough, ipos, iTooLong, j, mlen, mleni
+character(len=512) :: Junk
 
 ! because of bug in g77 we can't just concatenate strings and
 ! had to have limited length of the string
 iTooLong = 60
 iLongEnough = 50
 call mycat(Junk,str,str1,str2)
-mlen = mylen(Junk)
+mlen = len_trim(Junk)
 mleni = mlen
 ipos = 1
 ! check is '\n' == <CR>?

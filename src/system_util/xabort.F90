@@ -15,12 +15,17 @@ subroutine xabort(rc)
 #ifdef _MOLCAS_MPP_
 use mpi
 use Para_Info, only: Is_Real_Par
+use Definitions, only: MPIInt
 #endif
+use Definitions, only: iwp
 
 implicit none
-integer :: rc
+integer(kind=iwp) :: rc
 #ifdef _MOLCAS_MPP_
-integer*4 :: rc4, ierr4
+integer(kind=MPIInt) :: rc4, ierr4
+#else
+#include "macros.fh"
+unused_var(rc)
 #endif
 
 #ifdef _MOLCAS_MPP_
@@ -28,7 +33,7 @@ if (is_real_par()) then
   ! unlike abort, mpi_abort does not print a backtrace,
   ! so we do it manually here
   call xbacktrace()
-  rc4 = int(rc,kind(rc4))
+  rc4 = int(rc,kind=MPIInt)
   call mpi_abort(MPI_COMM_WORLD,rc4,ierr4)
 else
 #endif
@@ -41,11 +46,8 @@ else
 
 #ifdef _MOLCAS_MPP_
 end if
-#else
+#endif
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(rc)
-#endif
 
 end subroutine xabort

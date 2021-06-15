@@ -19,15 +19,15 @@ subroutine finish(rc)
 use Symmetry_Info, only: Symmetry_Info_Free
 use Isotopes, only: Free_Isotopes
 #ifndef _HAVE_EXTRA_
-use Prgm
+use Prgm, only: prgmfree
 #endif
+use Definitions, only: iwp
 
 implicit none
-integer, intent(in) :: rc
+integer(iwp), intent(in) :: rc
+integer(iwp) :: idum = 0, iwarn
 #include "WrkSpc.fh"
 #include "timtra.fh"
-integer :: idum = 0
-integer :: iwarn
 
 call Symmetry_Info_Free()
 call Free_Isotopes()

@@ -29,7 +29,7 @@ integer(kind=iwp) :: ia, iAdr, iBat, iOpt, irc, iSym, iVec1, jCol, lScr, lTot, l
 real(kind=wp) :: Fac
 logical(kind=iwp) :: DoClose
 real(kind=wp), allocatable :: Wrk(:)
-character(len=14), parameter :: SecNam = 'Cho_SOSmp2_Col'
+character(len=*), parameter :: SecNam = 'Cho_SOSmp2_Col'
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2_dec.fh"

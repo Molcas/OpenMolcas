@@ -23,13 +23,14 @@
 
 subroutine UpCase(string)
 
-character*(*) string
-character*26 up, lw
-dimension itab(0:255)
-save up, lw, ifset, itab
-data up/'ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
-data lw/'abcdefghijklmnopqrstuvwxyz'/
-data ifset/0/
+use Definitions, only: iwp
+
+implicit none
+character(len=*), intent(inout) :: string
+integer(kind=iwp), save :: ifset = 0, itab(0:255)
+integer(kind=iwp) :: i, ii
+character(len=*), parameter :: up = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', &
+                               lw = 'abcdefghijklmnopqrstuvwxyz'
 
 if (ifset == 0) then
   ifset = 1
@@ -37,16 +38,14 @@ if (ifset == 0) then
     itab(i) = i
   end do
   do ii=1,26
-    i = ichar(up(ii:ii))
-    j = ichar(lw(ii:ii))
-    itab(j) = i
+    i = ichar(lw(ii:ii))
+    itab(i) = ichar(up(ii:ii))
   end do
 end if
 
 do ii=1,len(string)
   i = ichar(string(ii:ii))
-  j = itab(i)
-  string(ii:ii) = char(j)
+  string(ii:ii) = char(itab(i))
 end do
 
 return

@@ -27,7 +27,8 @@
 
 subroutine SysAbendMsg(Location,Text1,Text2)
 
-character*(*) Location, Text1, Text2
+implicit none
+character(len=*), intent(in) :: Location, Text1, Text2
 
 call SysWarnMsg(Location,Text1,Text2)
 call Abend()

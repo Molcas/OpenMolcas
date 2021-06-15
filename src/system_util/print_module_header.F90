@@ -18,34 +18,32 @@ use Para_Info, only: nProcs
 #ifdef _OPENMP
 use omp_lib
 #endif
+use Definitions, only: iwp, wp, u6
 
 implicit none
 character(len=*) :: modulename
 character(len=100) :: line
-integer :: i
-#include "unixinfo.fh"
+integer(kind=iwp) :: i, order, group, nthreads
 #ifdef _MOLCAS_MPP_
-integer :: nprocs_global
-integer, external :: GAnNodes
+integer(kind=iwp) :: nprocs_global
 character(len=16) :: proc
+integer(kind=iwp), external :: GAnNodes
 #endif
+real(kind=wp) :: bytes
+#include "unixinfo.fh"
 #include "WrkSpc.fh"
-real*8 :: bytes
-integer :: order, group
-character(len=3) :: unit(0:8) = ['  B',' kB',' MB',' GB',' TB',' PB',' EB',' ZB',' YB']
-character(len=16) :: memory
-integer :: nthreads
-character(len=16) :: threads
+character(len=16) :: memory, threads
+character(len=*), parameter :: unit(0:8) = ['  B',' kB',' MB',' GB',' TB',' PB',' EB',' ZB',' YB']
 
-write(6,*)
-write(6,'(50a)')('()',i=1,50)
+write(u6,*)
+write(u6,'(50a)')('()',i=1,50)
 
-write(6,'(a)')
+write(u6,'(a)')
 line = '&'//trim(modulename)
 call upcase(line)
 call center_text(line)
-write(6,'(a)') trim(line)
-write(6,'(a)')
+write(u6,'(a)') trim(line)
+write(u6,'(a)')
 
 #ifdef _MOLCAS_MPP_
 nprocs_global = GAnNodes()
@@ -63,7 +61,7 @@ end if
 line = 'only a single process is used'
 #endif
 call center_text(line)
-write(6,'(a)') trim(line)
+write(u6,'(a)') trim(line)
 
 #ifdef _OPENMP
 nthreads = omp_get_max_threads()
@@ -94,7 +92,7 @@ threads = trim(threads)//'?'
 
 line = 'available to each process: '//trim(adjustl(memory))//' of memory, '//trim(adjustl(threads))
 call center_text(line)
-write(6,'(a)') trim(line)
+write(u6,'(a)') trim(line)
 
 line = 'pid:'
 #ifdef _MOLCAS_MPP_
@@ -106,9 +104,9 @@ end if
 #endif
 write(line,'(a,1x,i0)') trim(line),pid
 call center_text(line)
-write(6,'(a)') trim(line)
+write(u6,'(a)') trim(line)
 
-write(6,'(50a)')('()',i=1,50)
-write(6,*)
+write(u6,'(50a)')('()',i=1,50)
+write(u6,*)
 
 end subroutine print_module_header

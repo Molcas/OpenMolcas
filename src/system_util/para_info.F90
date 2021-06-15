@@ -46,23 +46,25 @@
 
 module Para_Info
 
+use Definitions, only: iwp
+
 implicit none
 private
 
 #ifdef _MOLCAS_MPP_
-integer :: mpp_procid, mpp_nprocs
-logical :: mpp_workshare
+integer(kind=iwp) :: mpp_procid, mpp_nprocs
+logical(kind=iwp) :: mpp_workshare
 public :: mpp_procid, mpp_nprocs, mpp_workshare
 #endif
-integer :: MyRank, nProcs
-integer, parameter :: mpp_rootid = 0
+integer(kind=iwp) :: MyRank, nProcs
+integer(kind=iwp), parameter :: mpp_rootid = 0
 public :: MyRank, nProcs, mpp_rootid, mpp_id, Is_Real_Par, King, Set_Do_Parallel
 
 contains
 
 function Is_Real_Par()
 ! SVC: determine if multiple processes are working together
-  logical :: Is_Real_Par
+  logical(kind=iwp) :: Is_Real_Par
 # ifdef _MOLCAS_MPP_
   Is_Real_Par = mpp_workshare
 # else
@@ -73,7 +75,7 @@ end function Is_Real_Par
 function King()
 ! SVC: determine if this is the absolute master process,
 !       regardless of the parallel environment
-  logical :: King
+  logical(kind=iwp) :: King
 # ifdef _MOLCAS_MPP_
   King = mpp_procid == mpp_rootid
 # else
@@ -84,7 +86,7 @@ end function King
 function mpp_id()
 ! returns the absolute id of the process,
 ! regardless of the parallel environment
-  integer :: mpp_id
+  integer(kind=iwp) :: mpp_id
 # ifdef _MOLCAS_MPP_
   mpp_id = mpp_procid
 # else
@@ -93,7 +95,7 @@ function mpp_id()
 end function mpp_id
 
 subroutine Set_Do_Parallel(Par_Status)
-  logical, intent(In) :: Par_Status
+  logical(kind=iwp), intent(in) :: Par_Status
 # ifdef _MOLCAS_MPP_
   mpp_workshare = (Par_Status .and. (mpp_nprocs > 1))
   if (mpp_workshare) then
@@ -104,9 +106,9 @@ subroutine Set_Do_Parallel(Par_Status)
     nProcs = 1
   end if
 # else
+# include "macros.fh"
+  unused_var(Par_Status)
   return
-  ! Avoid unused argument warnings
-  if (.false.) call Unused_logical(Par_Status)
 # endif
 end subroutine Set_Do_Parallel
 

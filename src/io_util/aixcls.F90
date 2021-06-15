@@ -72,7 +72,8 @@ desc = CtlBlk(pDesc,nFile)
 rc = c_close(desc)
 if (rc < 0) then
   AixCls = AixErr(ErrTxt)
-  call SysAbendFileMsg('AixCls',FCtlBlk(nFile),'MSG: close',ErrTxt)
+  call SysWarnFileMsg('AixCls',FCtlBlk(nFile),'MSG: close',ErrTxt)
+  call Abend()
 end if
 !----------------------------------------------------------------------*
 ! Update control block                                                 *

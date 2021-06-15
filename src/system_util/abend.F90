@@ -16,10 +16,8 @@ subroutine Abend()
 
 implicit none
 #include "warnings.fh"
-integer RC
 
-RC = _RC_INTERNAL_ERROR_
-call xQuit(RC)
+call xQuit(_RC_INTERNAL_ERROR_)
 
 return
 

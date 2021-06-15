@@ -13,7 +13,7 @@
 
 subroutine dDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
 
-use iso_c_binding, only: c_f_pointer, c_loc
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Fast_IO, only: MBL
 use Definitions, only: wp, iwp, RtoB
 

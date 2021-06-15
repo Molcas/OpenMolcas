@@ -13,19 +13,21 @@
 
 subroutine MolcasControlInit(label)
 
-parameter(nLines=20)
-character*(*) Label
-character*512 tmp
-character*32 My
-character filename*16
-integer StrnLn
+use Definitions, only: iwp
 
-filename = 'molcas.control'
+implicit none
+character(len=*), intent(in) :: Label
+character(len=512) :: tmp
+character(len=32) :: My
+integer(kind=iwp) :: i, ic, islast, Lu
+integer(kind=iwp), parameter :: nLines = 20
+character(len=*), parameter :: filename = 'molcas.control'
+integer(kind=iwp), external :: StrnLn
+
 iC = 0
 tmp = Label(1:len(Label))
 Lu = 1
-Lu = isfreeunit(Lu)
-open(Lu,File=filename)
+call molcas_open(Lu,filename)
 write(Lu,'(a)') '# Molcas control file: change # to ! to activate.'
 islast = 0
 

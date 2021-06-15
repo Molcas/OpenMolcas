@@ -14,7 +14,7 @@
 
 module Definitions
 
-use, intrinsic :: iso_fortran_env, only: int32, int64, real64, input_unit, output_unit
+use, intrinsic :: iso_fortran_env, only: int32, int64, real64, error_unit, input_unit, output_unit
 use, intrinsic :: iso_c_binding, only: c_double
 #   ifdef _I8_
 use, intrinsic :: iso_c_binding, only: c_long
@@ -29,7 +29,7 @@ public :: wp, iwp, DefInt, MPIInt, HDF5Int
 public :: MOLCAS_C_INT, MOLCAS_C_REAL
 public :: i1, i4, i8, r4, r8
 public :: ItoB, RtoB, RtoI, CtoR
-public :: u5, u6
+public :: u0, u5, u6
 
 ! This is the working precision and should be preferably used
 ! (we assume logical kinds are the same as integer kinds).
@@ -71,8 +71,9 @@ integer(kind=iwp), parameter :: &
                                 ItoB = 4, RtoB = 8, RtoI = 2, CtoR = 2
 #   endif
 
-! Output and input units, typically 5 & 6, but they could be something else
-integer(kind=iwp), parameter :: u5 = input_unit, &
+! Output, input and error units, typically 6, 5 & 0, but they could be something else
+integer(kind=iwp), parameter :: u0 = error_unit, &
+                                u5 = input_unit, &
                                 u6 = output_unit
 
 ! Although the constants from `iso_fortran_env` or `selected_real_kind`

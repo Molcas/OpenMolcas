@@ -29,8 +29,12 @@
 
 subroutine SysWarnMsg(Location,Text1,Text2)
 
-character*(*) Location, Text1, Text2
-character Str*256
+use Definitions, only: iwp
+
+implicit none
+character(len=*), intent(in) :: Location, Text1, Text2
+integer(kind=iwp) :: i, Level
+character(len=256) :: Str
 #include "warn.fh"
 
 Level = 1

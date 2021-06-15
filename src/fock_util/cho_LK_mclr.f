@@ -121,7 +121,7 @@ C
 #endif
 
       ! Allow LT-format access to JA although it is in SQ-format
-      Call Allocate_DSBA(JALT,nBas,nBas,nSym,Case='TRI',Ref=JA%A0)
+      Call Allocate_DSBA(JALT,nBas,nBas,nSym,aCase='TRI',Ref=JA%A0)
       timings=.false.
 *
 *

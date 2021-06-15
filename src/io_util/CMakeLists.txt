@@ -38,6 +38,7 @@ set (sources
      daname_mf_wa.F90
      daname_wa.F90
      ddafile.F90
+     f_inquire.F90
      fast_io.F90
      fastio.F90
      fcopy.F90
@@ -48,7 +49,6 @@ set (sources
      get_mbl_wa.F90
      handle2name.F90
      idafile.F90
-     inquire.F90
      isfreeunit.F90
      is_opened.F90
      lu2desc.F90

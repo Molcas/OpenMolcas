@@ -62,7 +62,7 @@ logical(kind=iwp), intent(in) :: mf, wa
 integer(kind=iwp) :: i, inUse, iRc, temp, tmp
 character(len=80) :: Text
 character(len=8) :: StdNam
-character(len=11), parameter :: TheName = 'DaName_Main'
+character(len=*), parameter :: TheName = 'DaName_Main'
 integer(kind=iwp), external :: AixErr, AixOpn, isFreeUnit
 #ifndef NO_SPLITTING
 integer(kind=iwp) :: lName, MFMB

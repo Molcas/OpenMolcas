@@ -22,7 +22,7 @@
 
 subroutine PrgmTranslateC(InStr,l1,OutStr,l2,Par)
 
-use iso_c_binding, only: c_char, c_null_char
+use, intrinsic :: iso_c_binding, only: c_char, c_null_char
 use Prgm, only: PrgmTranslate_Mod
 use Definitions, only: iwp
 

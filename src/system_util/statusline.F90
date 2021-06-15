@@ -33,9 +33,11 @@ subroutine StatusLine(STR,STR1)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: King
 #endif
+use Definitions, only: iwp
 
-character*(*) STR, STR1
-integer Lu
+implicit none
+character(len=*), intent(in) :: STR, STR1
+integer(kind=iwp) :: Lu
 
 #ifdef _MOLCAS_MPP_
 if (.not. King()) return

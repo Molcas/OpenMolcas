@@ -13,7 +13,11 @@
 
 function Seconds()
 
-real*8 Seconds, elapse, usercpu, syscpu
+use Definitions, only: wp
+
+implicit none
+real(kind=wp) :: Seconds
+real(kind=wp) :: elapse, usercpu, syscpu
 
 call timingc(elapse,usercpu,syscpu)
 Seconds = usercpu

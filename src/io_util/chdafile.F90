@@ -11,7 +11,7 @@
 
 subroutine ChDaFile(Lu,iOpt,Buf,lBuf,iDisk)
 
-use iso_c_binding, only: c_f_pointer, c_loc
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Definitions, only: iwp
 
 implicit none

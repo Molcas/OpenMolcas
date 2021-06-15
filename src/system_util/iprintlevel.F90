@@ -39,11 +39,13 @@
 
 function iPrintLevel(Level)
 
-integer iPrintLevel
-data isFirst/0/
-save isFirst
-save nPrintLevel
-character*80 Name, value
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) iPrintLevel
+integer(kind=iwp), intent(in) :: Level
+integer(kind=iwp), save :: isFirst = 0, nPrintLevel
+character(len=80) :: Val
 
 if (Level >= 0) then
   nPrintLevel = Level
@@ -52,24 +54,24 @@ if (Level >= 0) then
   return
 end if
 if (isFirst == 0) then
-  Name = 'MOLCAS_PRINT'
-  call getenvf(Name,value)
-  call UpCase(value)
-  if (value == 'SILENT' .or. value == '0') then
-    nPrintLevel = 0
-  elseif (value == 'TERSE' .or. value == '1') then
-    nPrintLevel = 1
-  elseif (value == 'NORMAL' .or. value == '2') then
-    nPrintLevel = 2
-  elseif (value == 'VERBOSE' .or. value == '3') then
-    nPrintLevel = 3
-  elseif (value == 'DEBUG' .or. value == '4') then
-    nPrintLevel = 4
-  elseif (value == 'INSANE' .or. value == '5') then
-    nPrintLevel = 5
-  else
-    nPrintLevel = 2
-  end if
+  call getenvf('MOLCAS_PRINT',Val)
+  call UpCase(Val)
+  select case (Val)
+    case ('SILENT','0')
+      nPrintLevel = 0
+    case ('TERSE','1')
+      nPrintLevel = 1
+    case ('NORMAL','2')
+      nPrintLevel = 2
+    case ('VERBOSE','3')
+      nPrintLevel = 3
+    case ('DEBUG','4')
+      nPrintLevel = 4
+    case ('INSANE','5')
+      nPrintLevel = 5
+    case default
+      nPrintLevel = 2
+  end select
 end if
 iPrintLevel = nPrintLevel
 

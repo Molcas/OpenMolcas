@@ -126,7 +126,7 @@ C
       DoReord = .false.
       IREDC = -1  ! unknown reduced set in core
       ! Temporary use of FSQ
-      Call Allocate_DSBA(KLT,nBas,nBas,nSym,Case='TRI',Ref=FSQ%A0)
+      Call Allocate_DSBA(KLT,nBas,nBas,nSym,aCase='TRI',Ref=FSQ%A0)
 
       nDen = 2  ! the two bi-orthonormal sets of orbitals
       If (Fake_CMO2) nDen = 1  ! MO1 = MO2

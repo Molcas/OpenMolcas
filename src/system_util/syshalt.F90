@@ -35,7 +35,8 @@
 
 subroutine SysHalt(Location)
 
-character*(*) Location
+implicit none
+character(len=*), intent(in) :: Location
 
 call SysAbendMsg(Location,'Internal error',' ')
 

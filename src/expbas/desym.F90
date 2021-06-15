@@ -105,7 +105,7 @@ subroutine desym(ireturn)
   character(len=LenIn+8), allocatable :: Label(:)
   character(len=LenIn+9), allocatable :: gtolabel(:)
   integer(kind=iwp), parameter :: notSymm = 1, arbitrary_number = 42, noUHF = 0, iWarn = 1
-  character(len=8), parameter :: baslab_0(1) = ['01s     '], &
+  character(len=*), parameter :: baslab_0(1) = ['01s     '], &
                                  baslab_1(3) = ['02px    ','02py    ','02pz    '], &
                                  baslab_2(5) = ['03d02-  ','03d01-  ','03d00   ','03d01+  ','03d02+  '], &
                                  baslab_3(7) = ['04f03-  ','04f02-  ','04f01-  ','04f00   ','04f01+  ','04f02+  ','04f03+  '], &

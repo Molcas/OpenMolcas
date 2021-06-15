@@ -30,12 +30,12 @@
 *
       If (.not.GetFM) Go To 99
 *
-       Call Allocate_DSBA(FLT,nBas,nBas,nSym,Case='TRI',Ref=FM)
+       Call Allocate_DSBA(FLT,nBas,nBas,nSym,aCase='TRI',Ref=FM)
 
       Call Get_NameRun(NamRfil) ! save the old RUNFILE name
       Call NameRun('AUXRFIL')   ! switch RUNFILE name
 *
-       Call Allocate_DSBA(DLT,nBas,nBas,nSym,Case='TRI')
+       Call Allocate_DSBA(DLT,nBas,nBas,nSym,aCase='TRI')
       Call get_dArray('D1ao',DLT%A0,lFDM)
 *
       FLT%A0(:)=Zero

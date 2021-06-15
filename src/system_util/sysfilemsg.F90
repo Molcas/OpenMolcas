@@ -13,8 +13,13 @@
 
 subroutine SysFileMsg(Location,Text1,Lu,Text2)
 
-character*(*) Location, Text1, Text2
-character*256 str
+use Definitions, only: iwp
+
+implicit none
+character(len=*), intent(in) :: Location, Text1, Text2
+integer(kind=iwp), intent(in) :: Lu
+integer(kind=iwp) :: i
+character(len=256) :: str
 
 call SysPutsStart()
 call SysPuts('Location: ',Location,'\n')

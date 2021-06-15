@@ -29,18 +29,21 @@
 
 subroutine CollapseOutput(iSw,STR)
 
-character*(*) STR
-integer iSw
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: iSw
+character(len=*), intent(in) :: STR
 #include "icolorize.fh"
 
 if (icolorize == 1) then
   if (iSw == 1) then
-    write(6,'(A,A)') '++ ',STR(:mylen(STR))
+    write(u6,'(A,A)') '++ ',trim(STR)
   else
-    write(6,'(A)') '--'
+    write(u6,'(A)') '--'
   end if
 else
-  if (iSw == 1) write(6,'(A)') STR(:mylen(STR))
+  if (iSw == 1) write(u6,'(A)') trim(STR)
 end if
 
 return

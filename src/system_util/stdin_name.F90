@@ -10,32 +10,36 @@
 !                                                                      *
 ! Copyright (C) 2000-2016, Valera Veryazov                             *
 !***********************************************************************
-!*****************************************************************************
-!                                                                            *
-! Author:   Valera Veryazov 2000-2016                                        *
-!           Theoretical Chemistry                                            *
-!           Lund University                                                  *
-!           Sweden                                                           *
-!                                                                            *
-!*****************************************************************************
+!***********************************************************************
+!                                                                      *
+! Author:   Valera Veryazov 2000-2016                                  *
+!           Theoretical Chemistry                                      *
+!           Lund University                                            *
+!           Sweden                                                     *
+!                                                                      *
+!***********************************************************************
 
 subroutine StdIn_Name(Name)
 
-character*(*) Name
-character*132 Line
+use Definitions, only: iwp, u6
+
+implicit none
+character(len=16), intent(out) :: Name
+character(len=132) :: Line
+integer(kind=iwp) :: i, ib, ie, Iter, nName
 
 nName = len(Name)
 if (nName /= 16) then
-  write(6,*) 'StdIn_Name: Wrong length of character Name'
+  write(u6,*) 'StdIn_Name: Wrong length of character Name'
   call Abend()
 end if
-!write(6,*) 'nName=',nName
+!write(u6,*) 'nName=',nName
 
 Name = 'Stdin.  '
 call GetEnvf('EMIL_RC2',Line)
 read(Line,'(I132.132)') Iter
-!write(6,*) 'Line=',Line
-!write(6,*) 'Iter=',Iter
+!write(u6,*) 'Line=',Line
+!write(u6,*) 'Iter=',Iter
 Iter = Iter+1
 if (Line(1:1) == ' ') then
   Name(7:7) = '2'
@@ -44,7 +48,7 @@ else if (Iter <= 9) then
 else if (Iter <= 99) then
   write(Name(7:8),'(I2)') Iter
 else
-  write(6,*) 'StdIn_Name: Error in Line!'
+  write(u6,*) 'StdIn_Name: Error in Line!'
   call Abend()
 end if
 Line = ' '
@@ -64,8 +68,8 @@ end if
 20 i = i+1
 goto 10
 30 Name(index(Name,' '):) = '.'//Line(ib:ie)
-!write(6,*) '>',Line,'<',ib,ie
-!write(6,*) 'StdIn=',Name
+!write(u6,*) '>',Line,'<',ib,ie
+!write(u6,*) 'StdIn=',Name
 
 return
 

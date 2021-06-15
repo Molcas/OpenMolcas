@@ -206,7 +206,7 @@ integer(kind=iwp) :: i, iAng, iAO, iB, iBas, iC, iCmp, iCnt, iCnttp, iComp, iDCR
                      nDCRT, nOp(2), nSkal, nSO, nStabM
 real(kind=wp) :: A(3), B(3), Fact, RB(3)
 real(kind=wp), allocatable :: Zeta(:), ZI(:), SO(:), Fnl(:)
-character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
+character(len=*), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 
 iRout = 112

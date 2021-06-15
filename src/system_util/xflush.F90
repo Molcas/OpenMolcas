@@ -35,12 +35,21 @@ subroutine xflush(Lu)
 !***********************************************************************
 
 #define _F2003_
+
+use Definitions, only: iwp
+#if !defined(_F2003_) && defined(_CRAY_C90_)
+use Definitions, only: u6
+#endif
+
 #ifdef _F2003_
+
+implicit none
+integer(kind=iwp), intent(in) :: Lu
 
 flush(Lu)
 
-#elif   defined(_CRAY_C90_)
-if (Lu == 6) then
+#elif defined(_CRAY_C90_)
+if (Lu == u6) then
   call flush(101)
 else
   call flush(Lu)

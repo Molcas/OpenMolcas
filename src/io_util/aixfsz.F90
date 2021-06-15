@@ -72,7 +72,8 @@ desc = CtlBlk(pDesc,nFile)
 rc = c_stat(desc)
 if (rc < 0) then
   AixFsz = AixErr(ErrTxt)
-  call SysAbendFileMsg('AixFsz',FCtlBlk(nFile),'MSG: close',ErrTxt)
+  call SysWarnFileMsg('AixFsz',FCtlBlk(nFile),'MSG: close',ErrTxt)
+  call Abend()
 end if
 AixFsz = rc
 !----------------------------------------------------------------------*

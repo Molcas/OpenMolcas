@@ -25,29 +25,38 @@
 
 subroutine Center(String)
 
-character*(*) String
+use Definitions, only: iwp
+
+implicit none
+character(len=*), intent(inout) :: String
+integer(kind=iwp) :: i, lLeft, lRight, lShift, lString
 
 !----------------------------------------------------------------------*
-!     get the length of the line                                       *
+! get the length of the line                                           *
 !----------------------------------------------------------------------*
-lString = 0
 lString = len(String)
 !----------------------------------------------------------------------*
-!     get the number of leading blanks                                 *
+! get the number of leading blanks                                     *
 !----------------------------------------------------------------------*
 lLeft = 0
-do i=lString,1,-1
-  if (String(i:i) /= ' ') lLeft = i-1
+do i=1,lString
+  if (String(i:i) /= ' ') then
+    lLeft = i-1
+    exit
+  end if
 end do
 !----------------------------------------------------------------------*
-!     get the number of trailing blanks                                *
+! get the number of trailing blanks                                    *
 !----------------------------------------------------------------------*
 lRight = 0
-do i=1,lString
-  if (String(i:i) /= ' ') lRight = lString-i
+do i=lString,1,-1
+  if (String(i:i) /= ' ') then
+    lRight = lString-i
+    exit
+  endif
 end do
 !----------------------------------------------------------------------*
-!     shift the line                                                   *
+! shift the line                                                       *
 !----------------------------------------------------------------------*
 if (lLeft+lRight /= 0) then
   lShift = (lRight-lLeft)/2
@@ -68,7 +77,7 @@ if (lLeft+lRight /= 0) then
   end if
 end if
 !----------------------------------------------------------------------*
-!     normal termination                                               *
+! normal termination                                                   *
 !----------------------------------------------------------------------*
 return
 

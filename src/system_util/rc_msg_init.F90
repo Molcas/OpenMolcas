@@ -14,7 +14,7 @@ subroutine rc_msg_init()
 implicit none
 #include "warnings.fh"
 
-rc_msg = '_UNKNOWN_ERROR_CODE_'
+rc_msg(:) = '_UNKNOWN_ERROR_CODE_'
 
 rc_msg(_RC_ALL_IS_WELL_)          = '_ALL_IS_WELL_'
 rc_msg(_RC_JOB_KILLED_)           = '_JOB_KILLED_'

@@ -57,7 +57,7 @@ integer(kind=iwp), intent(_OUT_) :: Buf(*)
 integer(kind=iwp) :: desc, Lu, n, nFile, pDisk, rc
 real(kind=wp) :: CPUA, CPUE, TIOA, TIOE
 character(len=80) :: ErrTxt
-character(len=6), parameter :: TheName = 'AixPRd'
+character(len=*), parameter :: TheName = 'AixPRd'
 integer(kind=iwp), external :: AixErr, c_pread
 #include "warnings.fh"
 

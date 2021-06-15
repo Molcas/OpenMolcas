@@ -262,7 +262,7 @@ C --- Vector MO transformation screening thresholds
       EndIf
 #endif
       Do jDen = 1, nDen
-         Call Allocate_DSBA(KLT(jDen),nBas,nBas,nSym,Case='TRI')
+         Call Allocate_DSBA(KLT(jDen),nBas,nBas,nSym,aCase='TRI')
          KLT(jDen)%A0(:)=Zero
       End Do
 

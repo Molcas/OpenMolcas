@@ -21,14 +21,18 @@
 
 subroutine systemf(c,rc)
 
+use Definitions, only: iwp, u6
+
 implicit none
-character*(*) C
-character*1024 C2
-integer LenC, StrnLn, i, rc
+character(len=*), intent(in) :: C
+integer(kind=iwp), intent(out) :: rc
+integer(kind=iwp) :: i, LenC
+character(len=1024) :: C2
+integer(kind=iwp), external :: StrnLn
 
 LenC = StrnLn(C)
 if (LenC > 1024-1) then
-  write(6,*) ' Error in systemf.f ! LenC :',LenC
+  write(u6,*) ' Error in systemf.f ! LenC :',LenC
   call abend()
 end if
 

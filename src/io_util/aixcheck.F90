@@ -24,10 +24,9 @@ character(len=256) :: filename
 !----------------------------------------------------------------------*
 do n=1,MxFile
   if (CtlBlk(pStat,n) /= 0) then
-#   ifndef _DEVEL_
-    call SysAbendFileMsg('AixCheck',FCtlBlk(n),'Active unit.','Should have been closed!')
-#   else
     call SysWarnMsg('AixCheck','Active unit: '//FCtlBlk(n),', should have been closed!')
+#   ifndef _DEVEL_
+    call Abend()
 #   endif
   end if
   inquire(unit=n,opened=is_open)

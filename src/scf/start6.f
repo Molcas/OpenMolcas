@@ -507,8 +507,9 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          FactXI=One
       EndIf
 *
-      Call Allocate_DSBA(PLT(1),nBas,nBas,nSym,Case='TRI')
-      Call Allocate_DSBA(PLT(2),nBas,nBas,nSym,Case='TRI',Ref=PLT(1)%A0)
+      Call Allocate_DSBA(PLT(1),nBas,nBas,nSym,aCase='TRI')
+      Call Allocate_DSBA(PLT(2),nBas,nBas,nSym,aCase='TRI',
+     &                   Ref=PLT(1)%A0)
       If (DFTX) Then
          PLT(1)%A0(:)=Zero
       Else
@@ -551,13 +552,13 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          iOff=iOff+nBas(i)**2
       End Do
 *
-      Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI')
-      Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI')
+      Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,aCase='TRI')
+      Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,aCase='TRI')
       FLT(1)%A0(:)=Zero
       FLT(2)%A0(:)=Zero
 
-      Call Allocate_DSBA(KLT(1),nBas,nBas,nSym,Case='TRI')
-      Call Allocate_DSBA(KLT(2),nBas,nBas,nSym,Case='TRI')
+      Call Allocate_DSBA(KLT(1),nBas,nBas,nSym,aCase='TRI')
+      Call Allocate_DSBA(KLT(2),nBas,nBas,nSym,aCase='TRI')
       KLT(1)%A0(:)=Zero
       KLT(2)%A0(:)=Zero
 *
@@ -624,6 +625,7 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
 
       Close(LU)
       Return
- 888  Call SysAbendFileMsg('RdTwoEnrg','INPORB',
+ 888  Call SysWarnFileMsg('RdTwoEnrg','INPORB',
      &   'Error during reading INPORB\n','Field not there')
+      Call Abend()
       End

@@ -13,8 +13,11 @@
 
 subroutine SysQuitMsg(rc,Location,Text1,Text2)
 
-integer rc
-character*(*) Location, Text1, Text2
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: rc
+character(len=*), intent(in) :: Location, Text1, Text2
 
 call SysWarnMsg(Location,Text1,Text2)
 call Quit(rc)

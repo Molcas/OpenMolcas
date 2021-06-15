@@ -36,7 +36,7 @@ real(kind=wp) :: Stat(7,3), RMS1, RMS2, RMS3
 logical(kind=iwp) :: Add, Packed_myF
 integer(kind=iwp) :: ipF, lF, iD, i
 real(kind=wp), allocatable :: myF(:)
-character(len=29), parameter :: SecNam = 'LDF_Fock_CoulombErrorAnalysis'
+character(len=*), parameter :: SecNam = 'LDF_Fock_CoulombErrorAnalysis'
 logical(kind=iwp), parameter :: PrintNorm = .false.
 real(kind=r8), external :: ddot_
 #include "localdf_bas.fh"

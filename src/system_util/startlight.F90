@@ -12,13 +12,14 @@
 subroutine StartLight(ModuleName)
 
 #ifndef _HAVE_EXTRA_
-use Prgm
+use Prgm, only: prgmfree
 #endif
+use Definitions, only: u5
 
 implicit none
-character*(*) ModuleName
-external Get_SuperName
-character*100 SuperName, Get_SuperName
+character(len=*), intent(in) :: ModuleName
+character(len=100) :: SuperName
+character(len=100), external :: Get_SuperName
 #include "timtra.fh"
 
 !                                                                      *
@@ -43,8 +44,8 @@ call prgminit(ModuleName)
 SuperName = Get_SuperName()
 call UnixInfo(SuperName,ModuleName)
 
-close(5)
-call molcas_open(5,'stdin')
+close(u5)
+call molcas_open(u5,'stdin')
 !                                                                      *
 !***********************************************************************
 !                                                                      *

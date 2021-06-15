@@ -45,10 +45,10 @@
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 ************************************************************************
 *
-      Call Allocate_DSBA(JA ,nBas,nBas,nSym,Case='TRI',Ref=W_JA )
-      Call Allocate_DSBA(KA ,nBas,nBas,nSym,           Ref=W_KA )
-      Call Allocate_DSBA(FkA,nBas,nBas,nSym,           Ref=W_FkA)
-      Call Allocate_DSBA(CMO,nBas,nBas,nSym,           Ref=W_CMO)
+      Call Allocate_DSBA(JA ,nBas,nBas,nSym,aCase='TRI',Ref=W_JA )
+      Call Allocate_DSBA(KA ,nBas,nBas,nSym,            Ref=W_KA )
+      Call Allocate_DSBA(FkA,nBas,nBas,nSym,            Ref=W_FkA)
+      Call Allocate_DSBA(CMO,nBas,nBas,nSym,            Ref=W_CMO)
 *
 **    Compute Shell Offsets ( MOs and transformed vectors)
 *

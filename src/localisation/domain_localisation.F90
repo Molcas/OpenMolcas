@@ -28,7 +28,7 @@ integer(kind=iwp) :: i, iC, iChange, iCount(0:3), ij, kC, nAtom, nBasT, nnOcc, n
 real(kind=wp) :: Fac, ThrPD(3), Tst
 integer(kind=iwp), allocatable :: iClass(:), iDomain(:), iPairDomain(:), nBas_per_Atom(:), nBas_Start(:)
 real(kind=wp), allocatable :: Coord(:,:), f(:), QD(:), Rmin(:)
-character(len=19), parameter :: SecNam = 'Domain_Localisation'
+character(len=*), parameter :: SecNam = 'Domain_Localisation'
 
 ! Set return code.
 ! ----------------

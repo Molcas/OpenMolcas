@@ -11,17 +11,18 @@
 
 subroutine normal(line)
 
-character*(*) line
-character*1 ch
-character*26 upper, lower
-dimension inew(0:255)
-intrinsic len, char, ichar
-save upper, lower, ifirst, inew
-data upper/'ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
-data lower/'abcdefghijklmnopqrstuvwxyz'/
-data ifirst/1/
+use Definitions, only: iwp
+
+implicit none
+character(len=*), intent(inout) :: line
+character :: ch
+integer(kind=iwp), save :: ifirst = 1, inew(0:255)
+integer(kind=iwp) :: i, iflag, iold, ipos
+character(len=*), parameter :: upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', &
+                               lower = 'abcdefghijklmnopqrstuvwxyz'
 
 if (ifirst == 1) then
+  ifirst = 0
   do i=0,255
     inew(i) = i
   end do
@@ -29,7 +30,6 @@ if (ifirst == 1) then
     iold = ichar(lower(i:i))
     inew(iold) = ichar(upper(i:i))
   end do
-  ifirst = 0
 end if
 
 ipos = 0

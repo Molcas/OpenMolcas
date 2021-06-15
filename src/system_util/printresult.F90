@@ -9,35 +9,35 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PrintResult(iUnit,FMT,STR,iCount,STR2,value,iRank)
+subroutine PrintResult(iUnit,FRMT,STR,iCount,STR2,Val,iRank)
 ! routine to print result in the form:
-!      write(iUnit,FMT) STR,iCount,STR2,(Value(i),i=1,iRank)
+!      write(iUnit,FRMT) STR,iCount,STR2,(Val(i),i=1,iRank)
 !  or, if iCount=0
-!      write(iUnit,FMT) STR,(Value(i),i=1,iRank)
+!      write(iUnit,FRMT) STR,(Val(i),i=1,iRank)
 
-character*(*) STR
-character*(*) STR2
-character*(*) FMT
-character*120 TMP
-character*2 Marker
-real*8 value(iRank)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: iUnit, iCount, iRank
+character(len=*), intent(in) :: FRMT, STR, STR2
+real(kind=wp), intent(in) :: Val(iRank)
+character(len=120) :: TMP
+character(len=2), parameter :: Marker = '::'
 #include "icolorize.fh"
 
 if (icolorize == 1) then
-  Marker = '::'
   if (iCount == 0) then
-    write(TMP,FMT) STR,(value(i),i=1,iRank)
+    write(TMP,FRMT) STR,Val(1:iRank)
   else
-    write(TMP,FMT) STR,iCount,STR2,(value(i),i=1,iRank)
+    write(TMP,FRMT) STR,iCount,STR2,Val(1:iRank)
   end if
-  init = 1
-  if (TMP(1:3) == '   ') init = 3
-  write(iUnit,'(a,a)') Marker,TMP(init:mylen(TMP))
+  if (TMP(1:3) == '   ') TMP = TMP(3:)
+  write(iUnit,'(a,a)') Marker,trim(TMP)
 else
   if (iCount == 0) then
-    write(iUnit,FMT) STR,(value(i),i=1,iRank)
+    write(iUnit,FRMT) STR,Val(1:iRank)
   else
-    write(iUnit,FMT) STR,iCount,STR2,(value(i),i=1,iRank)
+    write(iUnit,FRMT) STR,iCount,STR2,Val(1:iRank)
   end if
 end if
 

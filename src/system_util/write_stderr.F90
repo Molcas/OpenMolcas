@@ -12,11 +12,12 @@
 subroutine write_stderr(msg)
 
 use Para_Info, only: MyRank
+use Definitions, only: u0
 
 implicit none
-character(len=*) :: msg
+character(len=*), intent(in) :: msg
 
-write(0,'(a,i6,a,1x,a)') '[ process ',myrank,']:',trim(msg)
-call xflush(0)
+write(u0,'(a,i6,a,1x,a)') '[ process ',myrank,']:',trim(msg)
+call xflush(u0)
 
 end subroutine write_stderr

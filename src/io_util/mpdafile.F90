@@ -78,7 +78,7 @@ integer(kind=iwp) :: iDisk_mod, iext, iRc, lStdNam, ltmp, Lu_mod, max_Bytes, max
 character(len=256) :: tmp
 character(len=80) :: Text
 character(len=8) :: Stdnam, ext
-character(len=8), parameter :: TheName = 'MpDaFile'
+character(len=*), parameter :: TheName = 'MpDaFile'
 integer(kind=iwp), external :: AixErr, AixOpn, isFreeUnit, StrnLn
 
 max_File_Size = MaxFileSizel*10**6
@@ -100,8 +100,7 @@ if ((offset < 0) .or. (offset > MaxSplitFile-1)) then
   write(u6,*) '          Current I/O Status as follows'
   write(u6,*)
   call FASTIO('STATUS')
-  call SysAbendFileMsg(TheName,StdNam,'Extensions out of range!','increase MOLCAS_DISK value or MaxSplitFile in Fast_IO')
-
+  call SysWarnFileMsg(TheName,StdNam,'Extensions out of range!','increase MOLCAS_DISK value or MaxSplitFile in Fast_IO')
   call Abend()
 end if
 Lu_mod = MPUnit(offset,LU)
@@ -205,8 +204,7 @@ else
       write(u6,*) '          Current I/O Status as follows'
       write(u6,*)
       call FASTIO('STATUS')
-      call SysAbendFileMsg(TheName,StdNam,'Extensions out of range!','increase MOLCAS_DISK value or MaxSplitFile in Fast_IO')
-
+      call SysWarnFileMsg(TheName,StdNam,'Extensions out of range!','increase MOLCAS_DISK value or MaxSplitFile in Fast_IO')
       call Abend()
     end if
 

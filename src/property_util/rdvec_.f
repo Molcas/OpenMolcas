@@ -130,7 +130,8 @@
       End Do
 
       If(iVer.eq.0) Then
-        Call SysAbendMsg(Location,'INPORB file in old format',' ')
+        Call SysWarnMsg(Location,'INPORB file in old format',' ')
+        Call Abend()
       End If
 *----------------------------------------------------------------------*
 * INFO section, read it unconditionally                                *
@@ -145,15 +146,21 @@
 * In case of UHF mismatch:
       If(myiUHF.ne.iUHF) Then
 * Stop if UHF requested, but the INPORB is not UHF
-        If(myiUHF.eq.0)
-     &    Call SysAbendFileMsg(Location,Name,'IUHF does not match',' ')
+        If(myiUHF.eq.0) Then
+          Call SysWarnFileMsg(Location,Name,'IUHF does not match',' ')
+          Call Abend()
+        End If
 * With a UHF INPORB, only go on if alpha or beta orbitals
 * explicitly requested
-        If(iUHF.eq.0.and.iBeta.eq.0)
-     &    Call SysAbendFileMsg(Location,Name,'IUHF does not match',' ')
+        If(iUHF.eq.0.and.iBeta.eq.0) Then
+          Call SysWarnFileMsg(Location,Name,'IUHF does not match',' ')
+          Call Abend()
+        End If
       End If
-      If(myNSYM.ne.NSYM) Call SysAbendFileMsg(Location,Name,
-     &   'NSYM does not match',' ')
+      If(myNSYM.ne.NSYM) Then
+        Call SysWarnFileMsg(Location,Name,'NSYM does not match',' ')
+        Call Abend()
+      End If
       Call GetMem('MYNBAS','Allo','Inte',imyNBAS,NSYM)
       Call GetMem('MYNORB','Allo','Inte',imyNORB,NSYM)
       Read(Lu,*,end=999,err=999) (iWork(imyNBAS+i-1),i=1,NSYM)
@@ -167,7 +174,8 @@
             If(iWarn.eq.1) Then
               Call SysWarnMsg(Location,Line,' ')
             Else
-              Call SysAbendFileMsg(Location,Name,Line,' ')
+              Call SysWarnFileMsg(Location,Name,Line,' ')
+              Call Abend()
             End If
           End If
         End Do
@@ -178,7 +186,8 @@
             If(iWarn.eq.1) Then
               Call SysWarnMsg(Location,Line,' ')
             Else
-              Call SysAbendFileMsg(Location,Name,Line,' ')
+              Call SysWarnFileMsg(Location,Name,Line,' ')
+              Call Abend()
             End If
           End If
         End Do
@@ -379,10 +388,12 @@ c         iShift=(ISYM-1)*7
 *----------------------------------------------------------------------*
 *                                                                      *
 *----------------------------------------------------------------------*
-999   Call SysAbendFileMsg(Location,Name,
+999   Call SysWarnFileMsg(Location,Name,
      &   'Error during reading INPORB\n',Line)
-888   Call SysAbendFileMsg(Location,Name,
+      Call Abend()
+888   Call SysWarnFileMsg(Location,Name,
      &   'Error during reading INPORB\n',Line)
+      Call Abend()
       End
 ************************************************************************
 *                                                                      *
@@ -556,6 +567,7 @@ c routine returns isUHF based on information in INPORB
         Read(Lu,*,end=999,err=999) isUHF
         close(Lu)
       return
-999      Call SysAbendFileMsg(Location,Name,
+999      Call SysWarnFileMsg(Location,Name,
      &     'Error during reading INPORB\n',Line)
+         Call Abend()
       end

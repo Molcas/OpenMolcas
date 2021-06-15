@@ -13,7 +13,10 @@
 
 subroutine CWTime(usercpu,elapse)
 
-real*8 elapse, usercpu, syscpu
+use Definitions, only: wp
+
+implicit none
+real(kind=wp) :: elapse, usercpu, syscpu
 
 call timingc(elapse,usercpu,syscpu)
 

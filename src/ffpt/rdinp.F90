@@ -36,7 +36,7 @@ character(len=4) :: Token
 integer(kind=iwp) :: i, i1, i2, iCom, iEnd, iSta, j, k, newline, ctrl
 real(kind=wp) :: C, W, X, Y, Z
 integer(kind=iwp), parameter :: mCom = 11
-character(len=4), parameter :: Com(mCom) = ['TITL','DIPO','EFLD','QUAD','OCTU','EFGR','RELA','GLBL','SELE','CUMU','END ']
+character(len=*), parameter :: Com(mCom) = ['TITL','DIPO','EFLD','QUAD','OCTU','EFGR','RELA','GLBL','SELE','CUMU','END ']
 logical(kind=iwp) :: Op0(9) = .false., Op2(3) = .false., Op3(4) = .false., Op4(8) = .false., Op5(12) = .false., Op6(8) = .false., &
                      skip
 

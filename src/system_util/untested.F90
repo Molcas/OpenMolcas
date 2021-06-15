@@ -21,6 +21,7 @@ character(len=8) :: isdev
 
 call WarningMessage(1,label//';This code is untested or experimental, and should be carefully verified.')
 #ifndef _DEVEL_
+isdev = ''
 call getenvf('MOLCAS_ISDEV',isdev)
 if (isdev == '') call abend()
 #endif

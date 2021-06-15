@@ -20,7 +20,7 @@ subroutine RPA_RdOrb()
 use RPA_globals, only: LumOrb
 
 implicit none
-character(len=9), parameter :: SecNam = 'RPA_RdOrb'
+character(len=*), parameter :: SecNam = 'RPA_RdOrb'
 
 if (LumOrb) then
   ! read from InpOrb

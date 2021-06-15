@@ -13,8 +13,12 @@
 
 subroutine SysValueWarnMsg(Text1,N1)
 
-character s*20
-character*(*) Text1
+use Definitions, only: iwp
+
+implicit none
+character(len=*), intent(in) :: Text1
+integer(kind=iwp), intent(in) :: N1
+character(len=20) :: s
 
 write(s,'(a,i16)') ' = ',N1
 call SysPuts('Value: ',Text1,s)

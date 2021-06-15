@@ -43,7 +43,7 @@ real(kind=wp) :: Dummy(1)
 character(len=80) :: VTitle
 integer(kind=iwp), allocatable :: Ind_(:)
 real(kind=wp), allocatable :: CMO_(:), EOr_(:), Occ_(:)
-character(len=18), parameter :: SecNam = 'RdVec_Localisation'
+character(len=*), parameter :: SecNam = 'RdVec_Localisation'
 
 nBasT = nBas(1)
 nOrbT = nOrb(1)

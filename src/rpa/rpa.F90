@@ -27,7 +27,7 @@ integer(kind=iwp), intent(out) :: rc
 #include "warnings.fh"
 integer(kind=iwp) :: irc
 character(len=80) :: string
-character(len=3), parameter :: SecNam = 'RPA'
+character(len=*), parameter :: SecNam = 'RPA'
 
 !=======================================================================
 ! Enter

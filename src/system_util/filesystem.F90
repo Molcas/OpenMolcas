@@ -14,10 +14,10 @@
 module filesystem
 
 #include "compiler_features.h"
-#include "molcastypes.fh"
 
-use, intrinsic :: iso_c_binding, only: c_char, MOLCAS_C_INT, c_int, c_ptr, c_null_char
+use, intrinsic :: iso_c_binding, only: c_char, c_int, c_ptr, c_null_char
 use fortran_strings, only: split, StringWrapper_t, Cptr_to_str, str
+use Definitions, only: iwp, MOLCAS_C_INT
 
 implicit none
 private
@@ -76,7 +76,7 @@ contains
 
 subroutine getcwd_(path,err)
   character(len=*), intent(out) :: path
-  integer, intent(out), optional :: err
+  integer(kind=iwp), intent(out), optional :: err
   integer(MOLCAS_C_INT) :: c_err
   call getcwd_c(path,len(path,MOLCAS_C_INT),c_err)
   if (present(err)) err = int(c_err)
@@ -84,7 +84,7 @@ end subroutine getcwd_
 
 subroutine chdir_(path,err)
   character(len=*), intent(in) :: path
-  integer, intent(out), optional :: err
+  integer(kind=iwp), intent(out), optional :: err
   integer(MOLCAS_C_INT) :: c_err
   call chdir_c(trim(path)//c_null_char,c_err)
   if (present(err)) err = int(c_err)
@@ -92,7 +92,7 @@ end subroutine chdir_
 
 subroutine symlink_(to,from,err)
   character(len=*), intent(in) :: to, from
-  integer, intent(out), optional :: err
+  integer(kind=iwp), intent(out), optional :: err
   integer(MOLCAS_C_INT) :: c_err
   call symlink_c(trim(to)//c_null_char,trim(from)//c_null_char,c_err)
   if (present(err)) err = int(c_err)
@@ -100,25 +100,25 @@ end subroutine symlink_
 
 subroutine mkdir_(path,err)
   character(len=*), intent(in) :: path
-  integer, optional, intent(out) :: err
+  integer(kind=iwp), optional, intent(out) :: err
   integer(MOLCAS_C_INT) :: loc_err
   call mkdir_c(trim(path)//c_null_char,int(o'772',MOLCAS_C_INT),loc_err)
   if (present(err)) err = loc_err
 end subroutine mkdir_
 
 function get_errno_()
-  integer :: get_errno_
+  integer(kind=iwp) :: get_errno_
   get_errno_ = int(get_errno_c())
 end function get_errno_
 
 !> Return Error String from Error number
 function strerror_(errnum) result(res)
   character(len=:), allocatable :: res
-  integer, intent(in) :: errnum
+  integer(kind=iwp), intent(in) :: errnum
 # ifndef C_PTR_BINDING
-  integer :: rc
+  integer(kind=iwp) :: rc
   character(len=80) :: errstr
-  integer, external :: aixerr
+  integer(kind=iwp), external :: aixerr
   errstr = ''
   rc = aixerr(errstr)
   res = trim(errstr)
@@ -129,7 +129,7 @@ end function strerror_
 
 subroutine remove_(path,err)
   character(len=*) :: path
-  integer, optional, intent(out) :: err
+  integer(kind=iwp), optional, intent(out) :: err
   integer(MOLCAS_C_INT) :: loc_err
   call remove_c(trim(path)//c_null_char,loc_err)
   if (present(err)) err = int(loc_err)
@@ -139,7 +139,7 @@ function real_path(molcas_name) result(path)
   character(len=:), allocatable :: path
   character(len=*), intent(in) :: molcas_name
   character(len=1024) :: buffer
-  integer :: L
+  integer(kind=iwp) :: L
   call prgmtranslate_master(molcas_name,buffer,L)
   path = buffer(:L)
 end function real_path

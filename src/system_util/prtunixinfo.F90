@@ -11,58 +11,30 @@
 
 subroutine PrtUnixInfo()
 
-#include "unixinfo.fh"
-external StrnLn
-integer StrnLn
-character*35 print
+use Definitions, only: iwp, u6
 
-print = ' '
-Len = StrnLn(ProgName)
-I1 = max(1,35-Len+1)
-print(I1:35) = ProgName(1:35-I1+1)
-write(6,'(2A)')       ' Program name      :',print
-write(6,'(A,I35)')    ' Process ID        :',pid
-write(6,'(A,I35)')    ' Parent process ID :',ppid
-write(6,'(A,I35)')    ' Seconds           :',sec
-write(6,'(A,I35)')    ' Minutes           :',mins
-write(6,'(A,I35)')    ' Hours             :',hour
-write(6,'(A,I35)')    ' Day of month      :',mday
-write(6,'(A,I29,3A)') ' Month             :',mon,' (',Month(mon),')'
-write(6,'(A,I35)')    ' Year              :',year
-write(6,'(A,I29,3A)') ' Day of week       :',wday,' (',WeekDay(wday),')'
-write(6,'(A,I35)')    ' Day of year       :',yday
-write(6,'(A,I35)')    ' Daylight saving ? :',isdst
-#ifdef _PLEASE_DELETE_ME_
-print = ' '
-Len = StrnLn(UserName)
-I1 = max(1,35-Len+1)
-print(I1:35) = UserName(1:35-I1+1)
-write(6,'(2A)') ' User name         :',print
-print = ' '
-Len = StrnLn(RealName)
-do i=1,Len
-  j = ichar(RealName(i:i))
-  if ((j <= 8) .or. (j >= 160) .or. ((j >= 14) .and. (j <= 31))) RealName(i:i) = '?'
-end do
-I1 = max(1,35-Len+1)
-print(I1:35) = RealName(1:35-I1+1)
-write(6,'(2A)') ' Name              :',print
-print = ' '
-Len = StrnLn(HomeDir)
-I1 = max(1,35-Len+1)
-print(I1:35) = HomeDir(1:35-I1+1)
-write(6,'(2A)') ' Home directory    :',print
-print = ' '
-Len = StrnLn(Shell)
-I1 = max(1,35-Len+1)
-print(I1:35) = Shell(1:35-I1+1)
-write(6,'(2A)') ' Shell             :',print
-print = ' '
-Len = StrnLn(MolcasDir)
-I1 = max(1,35-Len+1)
-print(I1:35) = MolcasDir(1:35-I1+1)
-write(6,'(2A)') ' Molcas directory  :',print
-#endif
+implicit none
+integer(kind=iwp) :: I1, length
+character(len=35) :: prt
+integer(kind=iwp), external :: StrnLn
+#include "unixinfo.fh"
+
+prt = ' '
+length = StrnLn(ProgName)
+I1 = max(1,35-length+1)
+prt(I1:35) = ProgName(1:35-I1+1)
+write(u6,'(2A)')       ' Program name      :',prt
+write(u6,'(A,I35)')    ' Process ID        :',pid
+write(u6,'(A,I35)')    ' Parent process ID :',ppid
+write(u6,'(A,I35)')    ' Seconds           :',sec
+write(u6,'(A,I35)')    ' Minutes           :',mins
+write(u6,'(A,I35)')    ' Hours             :',hour
+write(u6,'(A,I35)')    ' Day of month      :',mday
+write(u6,'(A,I29,3A)') ' Month             :',mon,' (',Month(mon),')'
+write(u6,'(A,I35)')    ' Year              :',year
+write(u6,'(A,I29,3A)') ' Day of week       :',wday,' (',WeekDay(wday),')'
+write(u6,'(A,I35)')    ' Day of year       :',yday
+write(u6,'(A,I35)')    ' Daylight saving ? :',isdst
 
 return
 

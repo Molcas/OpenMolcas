@@ -24,7 +24,7 @@ implicit none
 integer(kind=iwp) :: iUHF, iSym, i
 logical(kind=iwp) :: Warn
 character(len=8) :: Model
-character(len=9), parameter :: SecNam = 'RPA_RdRun'
+character(len=*), parameter :: SecNam = 'RPA_RdRun'
 integer(kind=iwp), external :: RPA_iUHF
 
 ! Set type of SCF reference wave function

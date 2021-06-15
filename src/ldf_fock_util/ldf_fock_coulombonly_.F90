@@ -35,7 +35,7 @@ integer(kind=iwp) :: l_WBlkP, iD, nAtom, TaskListID, jAB, AB, A, B, CD, C, nuv, 
 real(kind=wp) :: Const, tC1, tC2, tIC1, tIC2, tW1, tW2, tIW1, tIW2, tIC, tIW, tauWr, GABCD, GCDAB
 integer(kind=iwp), allocatable :: WBlkP(:)
 real(kind=wp), allocatable :: FckInt(:), FckCoef(:), tauW(:), VNrm(:), DNrm(:)
-character(len=21), parameter :: SecNam = 'LDF_Fock_CoulombOnly_'
+character(len=*), parameter :: SecNam = 'LDF_Fock_CoulombOnly_'
 logical(kind=iwp), external :: Rsv_Tsk
 integer(kind=iwp), external :: LDF_nAtom, LDF_nBas_Atom, LDF_nBasAux_Atom, LDF_nBasAux_Pair_wLD
 #include "WrkSpc.fh"

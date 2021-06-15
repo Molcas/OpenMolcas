@@ -13,6 +13,10 @@
 
 subroutine WarningCheckOut(iWarn)
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(out) :: iWarn
 #include "warn.fh"
 
 iWarn = MaxWarnMess

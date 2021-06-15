@@ -27,7 +27,7 @@ character(len=72) :: line
 character(len=132) :: modline
 ! copy from molcas, bsuo, jun. 30, 2009
 integer(kind=iwp), parameter :: ncmd = 18, mxtit = 10
-character(len=4), parameter :: cmd(ncmd) = ['TITL','ELEC','SPIN','SYMM','ACTI','PRIN','REFE','FIRS','INAC','CIAL', &
+character(len=*), parameter :: cmd(ncmd) = ['TITL','ELEC','SPIN','SYMM','ACTI','PRIN','REFE','FIRS','INAC','CIAL', &
                                             'VALE','INTE','NOCO','ONEO','EXTR','NONI','NACT','END ']
 
 n_electron = 0

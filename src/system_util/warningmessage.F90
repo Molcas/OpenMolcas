@@ -33,8 +33,10 @@
 
 subroutine WarningMessage(Level,STR)
 
-character*(*) STR
-integer Level
+use Definitions, only: iwp
+implicit none
+integer(kind=iwp), intent(in) :: Level
+character(len=*), intent(in) :: STR
 #include "warn.fh"
 
 if (Level > MaxWarnMess) MaxWarnMess = Level
@@ -48,18 +50,18 @@ else
 end if
 call SysPutsEnd()
 
-!write(6,'(A)') '*** '
+!write(u6,'(A)') '*** '
 !jj = 1
 !10 i = index(STR(jj:),';')
 !if (i == 0) then
 !  goto 20
 !else
-!  write(6,'(A,A)') '*** ',STR(jj:jj+i-2)
+!  write(u6,'(A,A)') '*** ',STR(jj:jj+i-2)
 !  jj = i+jj
 !  goto 10
 !endif
-!20 write(6,'(A,A)') '*** ',STR(jj:)
-!write(6,'(A)') '*** '
+!20 write(u6,'(A,A)') '*** ',STR(jj:)
+!write(u6,'(A)') '*** '
 
 return
 

@@ -14,11 +14,12 @@
 subroutine Init_LinAlg()
 ! Initialization procedure for linear algebra libraries (if needed)
 
+use Definitions, only: iwp
+
 implicit none
-#ifdef _DELAYED_
-integer :: iPr
-character(Len=8) :: linalg_info
-character(Len=1024) :: linalg_lib
+integer(kind=iwp) :: iPr
+character(len=1024) :: linalg_lib
+character(len=8) :: linalg_info
 
 linalg_lib = 'Internal'
 call GetEnvf('MOLCAS_LINALG',linalg_lib)
@@ -31,6 +32,5 @@ if ((linalg_info(1:1) /= ' ') .and. &
     (linalg_info(1:4) /= 'OFF ') .and. &
     (linalg_info(1:1) /= '0')) iPr = 1
 call Initialize_BLAS(linalg_lib,iPr)
-#endif
 
 end subroutine Init_LinAlg

@@ -14,27 +14,32 @@
 subroutine mycat(Junk,str0,str1,str2)
 ! Junk=str0//str1//str2
 
-character*(*) Junk, str0, str1, str2
+use Definitions, only: iwp, u6
+
+implicit none
+character(len=*), intent(out) :: Junk
+character(len=*), intent(in) :: str0, str1, str2
+integer(kind=iwp) :: il, ile, ils, maxlen
 
 maxlen = len(Junk)
 
 Junk = ' '
 ile = 1
-il = mylen(str0)
+il = len_trim(str0)
 if (il > 0) then
   ils = 1
   ile = il+1
   if (ile > maxlen) goto 100
   Junk(ils:ile) = str0(1:il)
 end if
-il = mylen(str1)
+il = len_trim(str1)
 if (il > 0) then
   ils = ile+1
   ile = ile+il
   if (ile > maxlen) goto 100
   Junk(ils:ile) = str1(1:il)
 end if
-il = mylen(str2)
+il = len_trim(str2)
 if (il > 0) then
   ils = ile+1
   ile = ile+il
@@ -42,8 +47,8 @@ if (il > 0) then
   Junk(ils:ile) = str2(1:il)
 end if
 return
-100 write(6,*) ' too long strings to concatenate: '
-write(6,*) str0,str1,str2
+100 write(u6,*) ' too long strings to concatenate: '
+write(u6,*) str0,str1,str2
 
 return
 

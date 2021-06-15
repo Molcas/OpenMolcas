@@ -24,7 +24,7 @@ character(len=*), intent(out) :: nameout
 integer(kind=iwp), intent(out) :: lout
 integer(kind=iwp) :: lin
 #ifdef _DEBUGPRINT_IO_
-character(len=68), parameter :: LL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz /.-_*'
+character(len=*), parameter :: LL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz /.-_*'
 #endif
 integer(kind=iwp), external :: Strnln
 

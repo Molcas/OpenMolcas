@@ -24,7 +24,7 @@
 !                                                                      *
 !***********************************************************************
 
-subroutine Timing(CPUA,CPUE,TIOA,TIOE)
+subroutine SetTim()
 !***********************************************************************
 !                                                                      *
 !     This subroutine has two entry points. The first, called          *
@@ -58,19 +58,18 @@ subroutine Timing(CPUA,CPUE,TIOA,TIOE)
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp), intent(out) :: CPUA, CPUE, TIOA, TIOE
 real(kind=wp) :: elapse, usercpu, syscpu
+integer(kind=iwp), external :: inc_clock
 #include "SysCtl.fh"
 
+call timingcinit()
 call timingc(elapse,usercpu,syscpu)
-! times relative to values in Common /$SysBuf/
-CPUA = usercpu-Heuer(1)
-CPUE = usercpu-Heuer(2)
-TIOA = elapse-Heuer(3)
-TIOE = elapse-Heuer(4)
-! save current times in the Common /$SysBuf/
+Heuer(1) = usercpu
 Heuer(2) = usercpu
+Heuer(3) = elapse
 Heuer(4) = elapse
+ClkInc = inc_clock()
+
 return
 
-end subroutine Timing
+end subroutine SetTim

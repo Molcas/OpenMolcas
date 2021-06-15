@@ -55,7 +55,7 @@ integer(kind=iwp), intent(inout) :: iDisk
 integer(kind=iwp) :: desc, Lu, n, nFile, rc, pDisk
 real(kind=wp) CPUA, CPUE, TIOA, TIOE
 character(len=80) :: ErrTxt
-character(len=5), parameter :: TheName = 'AixWr'
+character(len=*), parameter :: TheName = 'AixWr'
 integer(kind=iwp), external :: AixErr, c_lseek, c_write
 #include "warnings.fh"
 

@@ -13,23 +13,27 @@
 
 subroutine SysDumpStr(str)
 
-character*(*) str
-character fmt*20
+use Definitions, only: iwp, u6
+
+implicit none
+character(len=*), intent(in) :: str
+integer(kind=iwp) :: i, iTooLong
+character(len=20) :: frmt
 
 iTooLong = 60
 i = len(str)
 if (i > iTooLong+8) then
   ! oops! too long
-  write(6,'(a,a)') ' ###    ',str
+  write(u6,'(a,a)') ' ###    ',str
   return
 end if
 i = iTooLong+8-i
 if (i == 0) then
-  fmt = '(a,a,a)'
+  frmt = '(a,a,a)'
 else
-  write(fmt,'(a, i2,a)') '(a,a,',i,'x,a)'
+  write(frmt,'(a, i2,a)') '(a,a,',i,'x,a)'
 end if
-write(6,fmt) ' ###    ',str,' ###'
+write(u6,frmt) ' ###    ',str,' ###'
 
 return
 

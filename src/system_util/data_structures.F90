@@ -17,6 +17,8 @@
 
 module Data_Structures
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
 private
 
@@ -33,94 +35,94 @@ public :: Integer_Pointer
 #include "real.fh"
 
 type Integer_Pointer
-  integer, contiguous, pointer :: I1(:) => null()
+  integer(kind=iwp), contiguous, pointer :: I1(:) => null()
 end type Integer_Pointer
 
 type SB_Type
-  real*8, contiguous, pointer :: A3(:,:,:) => null()
-  real*8, contiguous, pointer :: A2(:,:) => null()
-  real*8, contiguous, pointer :: A1(:) => null()
+  real(kind=wp), contiguous, pointer :: A3(:,:,:) => null()
+  real(kind=wp), contiguous, pointer :: A2(:,:) => null()
+  real(kind=wp), contiguous, pointer :: A1(:) => null()
 end type SB_Type
 
 type DSB_Type
-  real*8, contiguous, pointer :: A2(:,:) => null()
-  real*8, contiguous, pointer :: A1(:) => null()
+  real(kind=wp), contiguous, pointer :: A2(:,:) => null()
+  real(kind=wp), contiguous, pointer :: A1(:) => null()
 end type DSB_Type
 
 type V1
-  real*8, contiguous, pointer :: A(:) => null()
+  real(kind=wp), contiguous, pointer :: A(:) => null()
 end type V1
 
 type V2
-  real*8, contiguous, pointer :: A(:,:) => null()
+  real(kind=wp), contiguous, pointer :: A(:,:) => null()
 end type V2
 
 type G2_pointers
-  real*8, contiguous, pointer :: A4(:,:,:,:) => null()
-  real*8, contiguous, pointer :: A2(:,:) => null()
+  real(kind=wp), contiguous, pointer :: A4(:,:,:,:) => null()
+  real(kind=wp), contiguous, pointer :: A2(:,:) => null()
 end type G2_pointers
 
 type L_Full_Pointers
-  real*8, contiguous, pointer :: A3(:,:,:) => null()
-  real*8, contiguous, pointer :: A21(:,:) => null()
-  real*8, contiguous, pointer :: A12(:,:) => null()
+  real(kind=wp), contiguous, pointer :: A3(:,:,:) => null()
+  real(kind=wp), contiguous, pointer :: A21(:,:) => null()
+  real(kind=wp), contiguous, pointer :: A12(:,:) => null()
 end type L_Full_Pointers
 
 type NDSBA_Type
-  integer :: iCase = 0
-  integer :: nSym = 0
-  real*8, allocatable :: A0(:)
+  integer(kind=iwp) :: iCase = 0
+  integer(kind=iwp) :: nSym = 0
+  real(kind=wp), allocatable :: A0(:)
   type(DSB_Type) :: SB(8,8)
 end type NDSBA_Type
 
 type DSBA_Type
-  integer :: iCase = 0
-  integer :: nSym = 0
-  logical :: Fake = .false.
-  logical :: Active = .false.
-  real*8, allocatable :: A00(:)
-  real*8, contiguous, pointer :: A0(:)
+  integer(kind=iwp) :: iCase = 0
+  integer(kind=iwp) :: nSym = 0
+  logical(kind=iwp) :: Fake = .false.
+  logical(kind=iwp) :: Active = .false.
+  real(kind=wp), allocatable :: A00(:)
+  real(kind=wp), contiguous, pointer :: A0(:)
   type(DSB_Type) :: SB(8)
 end type DSBA_Type
 
 type SBA_Type
-  integer :: iCase = 0
-  integer :: iSym = 0
-  integer :: nSym = 0
-  real*8, allocatable :: A0(:)
+  integer(kind=iwp) :: iCase = 0
+  integer(kind=iwp) :: iSym = 0
+  integer(kind=iwp) :: nSym = 0
+  real(kind=wp), allocatable :: A0(:)
   type(SB_Type) :: SB(8)
 end type SBA_Type
 
 type twxy_type
-  integer :: iCase = 0
-  integer :: JSYM = 0
-  integer :: nSym = 0
-  real*8, allocatable :: twxy_full(:)
+  integer(kind=iwp) :: iCase = 0
+  integer(kind=iwp) :: JSYM = 0
+  integer(kind=iwp) :: nSym = 0
+  real(kind=wp), allocatable :: twxy_full(:)
   type(V2) :: SB(8,8)
 end type twxy_type
 
 type G2_type
-  integer :: iCase = 0
-  integer :: nSym = 0
-  real*8, allocatable :: A0(:)
+  integer(kind=iwp) :: iCase = 0
+  integer(kind=iwp) :: nSym = 0
+  real(kind=wp), allocatable :: A0(:)
   type(G2_Pointers) :: SB(8,8,8)
 end type G2_type
 
 type L_Full_Type
-  integer :: iCase = 0
-  integer :: iSym = 0
-  integer :: nSym = 0
-  integer :: nShell = 0
-  real*8, allocatable :: A0(:)
+  integer(kind=iwp) :: iCase = 0
+  integer(kind=iwp) :: iSym = 0
+  integer(kind=iwp) :: nSym = 0
+  integer(kind=iwp) :: nShell = 0
+  real(kind=wp), allocatable :: A0(:)
   type(L_Full_Pointers), allocatable :: SPB(:,:,:)
 end type L_Full_Type
 
 type Lab_Type
-  integer :: nSym = 0
-  integer :: nDen = 0
-  integer :: nShell = 0
-  real*8, allocatable :: A0(:)
-  logical, allocatable :: Keep(:,:)
+  integer(kind=iwp) :: nSym = 0
+  integer(kind=iwp) :: nDen = 0
+  integer(kind=iwp) :: nShell = 0
+  real(kind=wp), allocatable :: A0(:)
+  logical(kind=iwp), allocatable :: Keep(:,:)
   type(V1), allocatable :: SB(:,:,:)
 end type Lab_Type
 
@@ -137,9 +139,8 @@ contains
 subroutine Allocate_NDSBA(Adam,n,m,nSym)
 
   type(NDSBA_Type), target, intent(out) :: Adam
-  integer, intent(in) :: nSym
-  integer, intent(in) :: n(nSym), m(nSym)
-  integer iE, iS, iSym, jSym, MemTot
+  integer(kind=iwp), intent(in) :: nSym, n(nSym), m(nSym)
+  integer(kind=iwp) :: iE, iS, iSym, jSym, MemTot
 
   Adam%iCase = 1
   Adam%nSym = nSym
@@ -169,8 +170,8 @@ end subroutine Allocate_NDSBA
 
 subroutine Deallocate_NDSBA(Adam)
 
-  type(NDSBA_Type) Adam
-  integer iSym, jSym
+  type(NDSBA_Type), intent(inout) :: Adam
+  integer(kind=iwp) :: iSym, jSym
 
   do iSym=1,Adam%nSym
     do jSym=1,Adam%nSym
@@ -192,37 +193,35 @@ end subroutine Deallocate_NDSBA
 !                                                                      !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-subroutine Allocate_DSBA(Adam,n,m,nSym,case,Ref,Label)
+subroutine Allocate_DSBA(Adam,n,m,nSym,aCase,Ref,Label)
 
-  type(DSBA_Type), target, intent(Out) :: Adam
-  integer, intent(in) :: nSym
-  integer, intent(in) :: n(nSym), m(nSym)
-  character(Len=3), intent(in), optional :: case
-  real*8, target, optional :: Ref(*)
-  character(Len=*), intent(in), optional :: Label
-  integer iE, iS, iSym, MemTot
-  integer :: iCase = 0
+  type(DSBA_Type), target, intent(out) :: Adam
+  integer(kind=iwp), intent(in) :: nSym, n(nSym), m(nSym)
+  character(len=3), intent(in), optional :: aCase
+  real(kind=wp), target, intent(in), optional :: Ref(*)
+  character(len=*), intent(in), optional :: Label
+  integer(kind=iwp) :: iE, iS, iSym, MemTot, iCase = 0
 
   if (Adam%Active) then
-    write(6,*) 'DSBA-Type double allocate'
+    write(u6,*) 'DSBA-Type double allocate'
     call abend()
   end if
 
-  if (present(case)) then
-    select case (case)
+  if (present(aCase)) then
+    select case (aCase)
       case ('TRI')
         iCase = 2
         do iSym=1,nSym
           if (n(iSym) /= m(iSym)) then
-            write(6,*) 'Allocate_DSBA: n(iSym)/=m(iSym), illegal if CASE="TRI".'
+            write(u6,*) 'Allocate_DSBA: n(iSym)/=m(iSym), illegal if aCase="TRI".'
             call Abend()
           end if
         end do
       case ('REC')
         iCase = 1
       case default
-        write(6,*) 'Allocate_DSBA: Illegal Case parameter, Case=',case
-        write(6,*) 'Allowed value are "TRI" and "REC".'
+        write(u6,*) 'Allocate_DSBA: Illegal aCase parameter, aCase=',aCase
+        write(u6,*) 'Allowed value are "TRI" and "REC".'
         call Abend()
     end select
   else
@@ -277,8 +276,8 @@ end subroutine Allocate_DSBA
 
 subroutine Deallocate_DSBA(Adam)
 
-  type(DSBA_Type) Adam
-  integer iSym
+  type(DSBA_Type), intent(inout) :: Adam
+  integer(kind=iwp) :: iSym
 
   if (.not. Adam%Active) return
 
@@ -307,10 +306,10 @@ end subroutine Deallocate_DSBA
 
 subroutine Map_to_DSBA(Adam,ipAdam)
 
-  type(DSBA_Type) :: Adam
-  integer ipAdam(*)
-  integer, external :: ip_of_Work
-  integer iSym
+  type(DSBA_Type), intent(in) :: Adam
+  integer(kind=iwp), intent(out) :: ipAdam(Adam%nSym)
+  integer(kind=iwp) :: iSym
+  integer(kind=iwp), external :: ip_of_Work
 
   do iSym=1,Adam%nSym
     ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A1(1))
@@ -328,15 +327,11 @@ end subroutine Map_to_DSBA
 
 subroutine Allocate_SBA(Adam,n,m,NUMV,iSym,nSym,iCase,Memory)
 
-  type(SBA_Type), target :: Adam
-  integer NUMV
-  integer iSym
-  integer nSym
-  integer n(nSym), m(nSym)
-  integer iCase
-  integer, optional :: Memory
-  integer iE, iS, iSyma, iSymb, MemTot, n2Dim, n3Dim
-  integer i, j, MulD2h
+  type(SBA_Type), target, intent(out) :: Adam
+  integer(kind=iwp), intent(in) :: nSym, n(nSym), m(nSym), NUMV, iSym, iCase
+  integer(kind=iwp), intent(out), optional :: Memory
+  integer(kind=iwp) :: iE, iS, iSyma, iSymb, MemTot, n2Dim, n3Dim
+  integer(kind=iwp) :: i, j, MulD2h
   ! statement function
   MulD2h(i,j) = ieor(i-1,j-1)+1
 
@@ -366,7 +361,7 @@ subroutine Allocate_SBA(Adam,n,m,NUMV,iSym,nSym,iCase,Memory)
     case (4)
       do iSyma=1,nSym
         if (n(iSyma) /= m(iSyma)) then
-          write(6,*) 'Allocate_SBA: iCase=4 only valid if n(:)=m(:).'
+          write(u6,*) 'Allocate_SBA: iCase=4 only valid if n(:)=m(:).'
           call abend()
         end if
         iSymb = MulD2h(iSym,iSyma)
@@ -380,7 +375,7 @@ subroutine Allocate_SBA(Adam,n,m,NUMV,iSym,nSym,iCase,Memory)
     case (5)
       do iSyma=1,nSym
         if (n(iSyma) /= m(iSyma)) then
-          write(6,*) 'Allocate_SBA: iCase=5 only valid if n(:)=m(:).'
+          write(u6,*) 'Allocate_SBA: iCase=5 only valid if n(:)=m(:).'
           call abend()
         end if
         iSymb = MulD2h(iSym,iSyma)
@@ -396,7 +391,7 @@ subroutine Allocate_SBA(Adam,n,m,NUMV,iSym,nSym,iCase,Memory)
     case (6)
       do iSyma=1,nSym
         if (n(iSyma) /= m(iSyma)) then
-          write(6,*) 'Allocate_SBA: iCase=5 only valid if n(:)=m(:).'
+          write(u6,*) 'Allocate_SBA: iCase=6 only valid if n(:)=m(:).'
           call abend()
         end if
         iSymb = MulD2h(iSym,iSyma)
@@ -408,7 +403,7 @@ subroutine Allocate_SBA(Adam,n,m,NUMV,iSym,nSym,iCase,Memory)
         MemTot = MemTot+n2dim*NUMV
       end do
     case default
-      write(6,*) 'Allocate_SBA: Illegal case.'
+      write(u6,*) 'Allocate_SBA: Illegal case.'
       call Abend()
   end select
 
@@ -497,7 +492,7 @@ subroutine Allocate_SBA(Adam,n,m,NUMV,iSym,nSym,iCase,Memory)
         Adam%SB(iSymb)%A2(1:n2Dim,1:NUMV) => Adam%A0(iS:iE)
       end do
     case default
-      write(6,*) 'Allocate_SBA: Illegal case.'
+      write(u6,*) 'Allocate_SBA: Illegal case.'
       call Abend()
   end select
 
@@ -505,8 +500,8 @@ end subroutine Allocate_SBA
 
 subroutine Deallocate_SBA(Adam)
 
-  type(SBA_Type) Adam
-  integer iSym
+  type(SBA_Type), intent(inout) :: Adam
+  integer(kind=iwp) :: iSym
 
   do iSym=1,Adam%nSym
     Adam%SB(iSym)%A1 => null()
@@ -522,13 +517,13 @@ end subroutine Deallocate_SBA
 
 subroutine Map_to_SBA(Adam,ipAdam,Tweak)
 
-  type(SBA_Type) :: Adam
-  integer ipAdam(*)
-  logical, optional :: Tweak
-  integer, external :: ip_of_Work
-  integer iSym, jSym
-  logical :: Swap = .false.
-  integer i, j, MulD2h
+  type(SBA_Type), intent(in) :: Adam
+  integer(kind=iwp), intent(out) :: ipAdam(Adam%nSym)
+  logical(kind=iwp), optional :: Tweak
+  integer(kind=iwp) :: iSym, jSym
+  logical(kind=iwp) :: Swap
+  integer(kind=iwp), external :: ip_of_Work
+  integer(kind=iwp) :: i, j, MulD2h
   ! statement function
   MulD2h(i,j) = ieor(i-1,j-1)+1
 
@@ -537,6 +532,7 @@ subroutine Map_to_SBA(Adam,ipAdam,Tweak)
       ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A3(1,1,1))
     end do
   else
+    Swap = .false.
     if (present(Tweak)) Swap = Tweak
     if (Swap) then
       do iSym=1,Adam%nSym
@@ -565,14 +561,10 @@ end subroutine Map_to_SBA
 
 subroutine Allocate_twxy(twxy,n,m,JSYM,nSym,iCase)
 
-  type(twxy_type), target :: twxy
-  integer JSYM, nSym, iCase
-  integer n(nSym), m(nSym)
-  integer iSymx, iSymy, iSymt, iSymw
-  integer iSyma
-  integer mtwxy
-  integer iS, iE, n1, n2
-  integer i, j, MulD2h
+  type(twxy_type), target, intent(out) :: twxy
+  integer(kind=iwp), intent(in) :: nSym, n(nSym), m(nSym), JSYM, iCase
+  integer(kind=iwp) :: iSymx, iSymy, iSymt, iSymw, iSyma, mtwxy, iS, iE, n1, n2
+  integer(kind=iwp) :: i, j, MulD2h
   !statement function
   MulD2h(i,j) = ieor(i-1,j-1)+1
 
@@ -585,7 +577,7 @@ subroutine Allocate_twxy(twxy,n,m,JSYM,nSym,iCase)
     case (0)  ! twxy
       do iSymy=1,nSym
         if (n(iSymy) /= m(iSymy)) then
-          write(6,*) 'Allocate_twxy: iCase=0 only valid if n(:)=m(:).'
+          write(u6,*) 'Allocate_twxy: iCase=0 only valid if n(:)=m(:).'
           call abend()
         end if
         iSymx = MulD2h(iSymy,JSYM)
@@ -612,7 +604,7 @@ subroutine Allocate_twxy(twxy,n,m,JSYM,nSym,iCase)
     case (2)  ! twxy
       do iSymy=1,nSym
         if (n(iSymy) /= m(iSymy)) then
-          write(6,*) 'Allocate_twxy: iCase=2 only valid if n(:)=m(:).'
+          write(u6,*) 'Allocate_twxy: iCase=2 only valid if n(:)=m(:).'
           call abend()
         end if
         iSymx = MulD2h(iSymy,JSYM)
@@ -630,7 +622,7 @@ subroutine Allocate_twxy(twxy,n,m,JSYM,nSym,iCase)
         end if
       end do
     case default
-      write(6,*) 'Allocate_twxy: Illegal case.'
+      write(u6,*) 'Allocate_twxy: Illegal case.'
       call Abend()
   end select
 
@@ -693,8 +685,8 @@ end subroutine Allocate_twxy
 
 subroutine Deallocate_twxy(twxy)
 
-  type(twxy_type) twxy
-  integer iSymy, iSymw
+  type(twxy_type), intent(inout) :: twxy
+  integer(kind=iwp) :: iSymy, iSymw
 
   call mma_deallocate(twxy%twxy_full)
 
@@ -710,12 +702,11 @@ end subroutine Deallocate_twxy
 
 subroutine Map_to_twxy(Adam,ipAdam)
 
-  type(twxy_type) :: Adam
-  integer ipAdam(8,8)
-  integer, external :: ip_of_Work
-  integer iSymx, iSymy, iSymt, iSymw
-  integer iSyma
-  integer i, j, MulD2h
+  type(twxy_type), intent(in) :: Adam
+  integer(kind=iwp), intent(out) :: ipAdam(8,8)
+  integer(kind=iwp) :: iSymx, iSymy, iSymt, iSymw, iSyma
+  integer(kind=iwp), external :: ip_of_Work
+  integer(kind=iwp) :: i, j, MulD2h
   ! statement function
   MulD2h(i,j) = ieor(i-1,j-1)+1
 
@@ -766,10 +757,9 @@ end subroutine Map_to_twxy
 
 subroutine Allocate_G2(Adam,n,nSym,iCase)
 
-  type(G2_Type), target :: Adam
-  integer nSym, iCase
-  integer n(nSym)
-  integer MemTot, ijSym, iSym, jSym, kSym, lSym, iE, iS, n1, n2, n3, n4, n12, n34
+  type(G2_Type), target, intent(out) :: Adam
+  integer(kind=iwp), intent(in) :: nSym, n(nSym), iCase
+  integer(kind=iwp) :: MemTot, ijSym, iSym, jSym, kSym, lSym, iE, iS, n1, n2, n3, n4, n12, n34
 
   Adam%nSym = nSym
   Adam%iCase = iCase
@@ -793,7 +783,7 @@ subroutine Allocate_G2(Adam,n,nSym,iCase)
 
     case default
 
-      write(6,*) 'Allocate_G2: illegal case valeu=',iCase
+      write(u6,*) 'Allocate_G2: illegal case valeu=',iCase
       call Abend()
 
   end select
@@ -826,7 +816,7 @@ subroutine Allocate_G2(Adam,n,nSym,iCase)
 
     case default
 
-      write(6,*) 'What?'
+      write(u6,*) 'What?'
       call Abend()
 
   end select
@@ -835,8 +825,8 @@ end subroutine Allocate_G2
 
 subroutine Deallocate_G2(Adam)
 
-  type(G2_Type) Adam
-  integer iSym, jSym, kSym
+  type(G2_Type), intent(inout) :: Adam
+  integer(kind=iwp) :: iSym, jSym, kSym
 
   Adam%iCase = 0
 
@@ -867,17 +857,11 @@ subroutine Allocate_L_Full(Adam,nShell,iShp_rs,JNUM,JSYM,nSym,Memory)
   use ChoArr, only: nBasSh
   use ChoSwp, only: nnBstRSh
 
-  type(L_Full_Type), target :: Adam
-  integer nShell
-  integer iShp_rs(nShell*(nShell+2)/2)
-  integer JNUM, JSYM, nSym
-  integer, optional, intent(out) :: Memory
-  integer iaSh, ibSh, iShp
-  integer iSyma, iSymb
-  integer LFULL
-  integer iS, iE
-  integer n1, n2
-  integer i, j, MulD2h
+  type(L_Full_Type), target, intent(out) :: Adam
+  integer(kind=iwp) :: nShell, iShp_rs(nShell*(nShell+2)/2), JNUM, JSYM, nSym
+  integer(kind=iwp), intent(out), optional :: Memory
+  integer(kind=iwp) :: iaSh, ibSh, iShp, iSyma, iSymb, LFULL, iS, iE, n1, n2
+  integer(kind=iwp) :: i, j, MulD2h
   ! statement function
   MulD2h(i,j) = ieor(i-1,j-1)+1
 
@@ -965,8 +949,8 @@ end subroutine Allocate_L_Full
 
 subroutine deallocate_L_Full(Adam)
 
-  type(L_Full_Type) :: Adam
-  integer iaSh, ibSh, iShp, iSyma
+  type(L_Full_Type), intent(inout) :: Adam
+  integer(kind=iwp) :: iaSh, ibSh, iShp, iSyma
 
   do iaSh=1,Adam%nShell
     do ibSh=1,iaSh
@@ -1005,12 +989,10 @@ end subroutine deallocate_L_Full
 
 subroutine Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,nDen,Memory)
 
-  type(Lab_Type), target :: Lab
-  integer JNUM, nShell, nSym, nDen
-  integer nBasSh(nSym,nShell), nBas(nSym)
-  integer, optional :: Memory
-  integer iSym, iDen, Lab_Memory
-  integer iE, iS, iSh
+  type(Lab_Type), target, intent(out) :: Lab
+  integer(kind=iwp), intent(in) :: JNUM, nShell, nSym, nBasSh(nSym,nShell), nBas(nSym), nDen
+  integer(kind=iwp), intent(out), optional :: Memory
+  integer(kind=iwp) :: iSym, iDen, Lab_Memory, iE, iS, iSh
 
   Lab_Memory = 0
   do iSym=1,nSym
@@ -1048,8 +1030,8 @@ end subroutine Allocate_Lab
 
 subroutine Deallocate_Lab(Lab)
 
-  type(Lab_Type) Lab
-  integer iSym, iDen, iSh
+  type(Lab_Type), intent(inout) :: Lab
+  integer(kind=iwp) :: iSym, iDen, iSh
 
   do iSym=1,Lab%nSym
     do iDen=1,Lab%nDen

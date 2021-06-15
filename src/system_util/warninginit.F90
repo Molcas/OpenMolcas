@@ -13,6 +13,7 @@
 
 subroutine WarningInit
 
+implicit none
 #include "warn.fh"
 
 ! this is unfinished routine. it must be possible to keep more info

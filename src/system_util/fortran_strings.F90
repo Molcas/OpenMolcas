@@ -13,9 +13,8 @@
 
 module fortran_strings
 
-#include "molcastypes.fh"
-
-use, intrinsic :: iso_c_binding, only: c_ptr, MOLCAS_C_INT, c_f_pointer
+use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer
+use Definitions, only: wp, iwp, MOLCAS_C_INT
 
 implicit none
 private
@@ -43,7 +42,7 @@ end type
 !>
 !>  @param[in] A Fortran integer or real, or character array.
 interface str
-  module procedure I_to_str, R_to_str, character_array_to_str
+  module procedure :: I_to_str, R_to_str, character_array_to_str
 end interface
 
 interface
@@ -55,7 +54,7 @@ interface
 end interface
 
 interface operator(.in.)
-  module procedure substr_in_str
+  module procedure :: substr_in_str
 end interface
 
 character(len=*), parameter :: UPPERCASE_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', &
@@ -65,7 +64,7 @@ contains
 
 pure function I_to_str(i) result(str)
   character(len=:), allocatable :: str
-  integer, intent(in) :: i
+  integer(kind=iwp), intent(in) :: i
   character(len=range(i)+2) :: tmp
   write(tmp,'(I0)') I
   str = trim(tmp)
@@ -73,7 +72,7 @@ end function I_to_str
 
 pure function R_to_str(x) result(str)
   character(len=:), allocatable :: str
-  real*8, intent(in) :: x
+  real(kind=wp), intent(in) :: x
   character(len=range(x)+2) :: tmp
   write(tmp,'(I0)') x
   str = trim(tmp)
@@ -82,7 +81,7 @@ end function R_to_str
 pure function character_array_to_str(array) result(res)
   character(len=:), allocatable :: res
   character(len=1), intent(in) :: array(:)
-  integer :: i, L
+  integer(kind=iwp) :: i, L
 
   L = size(array)
   allocate(character(len=L) :: res)
@@ -95,8 +94,8 @@ end function character_array_to_str
 function Cptr_to_str(c_string) result(res)
   character(len=:), allocatable :: res
   type(c_ptr), intent(in) :: c_string
-  character, pointer, dimension(:) :: string
-  integer :: i, L
+  character, pointer :: string(:)
+  integer(kind=iwp) :: i, L
   L = int(strlen_c(c_string))
   allocate(character(len=L) :: res)
   call c_f_pointer(c_string,string,[L])
@@ -109,7 +108,7 @@ end function Cptr_to_str
 pure function to_upper(in_str) result(string)
   character(len=*), intent(in) :: in_str
   character(len=len(in_str)) :: string
-  integer :: ic, i, L
+  integer(kind=iwp) :: ic, i, L
 
   L = len_trim(in_str)
   do i=1,L
@@ -127,7 +126,7 @@ end function to_upper
 pure function to_lower(in_str) result(string)
   character(len=*), intent(in) :: in_str
   character(len=len(in_str)) :: string
-  integer :: ic, i, L
+  integer(kind=iwp) :: ic, i, L
 
   L = len_trim(in_str)
   do i=1,L
@@ -142,7 +141,7 @@ pure function to_lower(in_str) result(string)
 end function to_lower
 
 pure function substr_in_str(substring,string)
-  logical :: substr_in_str
+  logical(kind=iwp) :: substr_in_str
   character(len=*), intent(in) :: string, substring
   substr_in_str = index(string,substring) /= 0
 end function substr_in_str
@@ -153,7 +152,7 @@ subroutine split(string,delimiter,res)
   character(len=*), intent(in) :: string
   character(len=1), intent(in) :: delimiter
   type(StringWrapper_t), allocatable, intent(out) :: res(:)
-  integer :: i, n, low
+  integer(kind=iwp) :: i, n, low
 
   allocate(res(count_char(string,delimiter)+1))
 
@@ -180,7 +179,7 @@ end subroutine split
 pure function char_array(string) result(res)
   character(len=*), intent(in) :: string
   character(len=1) :: res(len(string))
-  integer :: i
+  integer(kind=iwp) :: i
   do i=1,len(string)
     res(i) = string(i:i)
   end do
@@ -189,10 +188,10 @@ end function char_array
 !> @brief
 !> Count the occurence of a character in a string.
 pure function count_char(str,char) result(c)
-  integer :: c
+  integer(kind=iwp) :: c
   character(len=*), intent(in) :: str
   character(len=1), intent(in) :: char
-  integer :: i
+  integer(kind=iwp) :: i
   c = 0
   do i=1,len(str)
     if (str(i:i) == char) c = c+1

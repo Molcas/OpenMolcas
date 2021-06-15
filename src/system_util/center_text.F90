@@ -12,10 +12,12 @@
 subroutine center_text(line)
 !SVC: centers the text of a line
 
+use Definitions, only: iwp
+
 implicit none
-character(len=*) :: line
-character(len=100) :: text
-integer :: linewidth, textwidth, textoffset
+character(len=*), intent(inout) :: line
+character(len=len(line)) :: text
+integer(kind=iwp) :: linewidth, textwidth, textoffset
 
 text = adjustl(line)
 linewidth = len(line)
