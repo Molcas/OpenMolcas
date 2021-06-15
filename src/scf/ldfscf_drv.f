@@ -98,8 +98,7 @@ C
 #if defined (_DEBUGPRINT_)
       ! Enter
 #endif
-      Call ThisIsRestrictedCode('Thomas Bondo Pedersen','LDF-SCF',
-     &                          .false.)
+      Call Untested('LDF-SCF')
 
       ! Get print level
 #if defined (_DEBUGPRINT_)

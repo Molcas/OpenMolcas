@@ -358,8 +358,7 @@ C
 C
       LOGICAL Change,Dbg,SkpRem,StopBA
 C
-      Call ThisIsRestrictedCode('Thomas Bondo Pedersen',
-     &        'Laplace quadrature generation (subroutine remez)',.true.)
+      Call Untested('Laplace quadrature generation (subroutine remez)')
 C
       Dbg = .FALSE.
       SkpRem = .FALSE.

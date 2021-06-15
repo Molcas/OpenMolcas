@@ -78,7 +78,6 @@ hcbanner = '''#
 # MOLCAS_Count
 # MOLCAS_EMIL_DEBUG
 # MOLCAS_IN_GEO
-# MOLCAS_ISDEV
 # MOLCAS_LASTMOD
 # MOLCAS_LINK
 # MOLCAS_LOG
@@ -98,7 +97,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py2.18'
+  version = 'py2.19'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -567,7 +566,6 @@ class Molcas_wrapper(object):
                     'MOLCAS_TEST',
                     'MOLCAS_LOG',
                     'MOLCAS_ECHO_INPUT',
-                    'MOLCAS_ISDEV',
                     'MOLCAS_SILENT_LIC']
     for key in do_not_print:
       if key in lines:

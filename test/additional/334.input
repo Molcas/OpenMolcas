@@ -15,6 +15,7 @@
 * Comments: This test should ensure that the debug algorithm (generation of
 *           integrals) gives the same result as the default algorithm.
 *-------------------------------------------------------------------------------
+>EXPORT MOLCAS_ISDEV=TEST
  &Gateway
 Title
  H2O LDF feature tests with def-SVP basis set
