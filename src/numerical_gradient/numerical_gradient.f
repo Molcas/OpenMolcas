@@ -458,11 +458,11 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *     externally defined coordinates or not.
 *
       If (iPL.ge.3) Then
-         call dcopy_(nDisp,Work(ipDisp),1,Work(ipTemp),1)
-         Call dGeMV_('N',nDisp,nDisp,
-     &              1.0D+00,Work(ipAm),nDisp,
-     &              Work(ipTemp),1,
-     &              0.0D+00,Work(ipDisp),1)
+C        call dcopy_(nDisp,Work(ipDisp),1,Work(ipTemp),1)
+C        Call dGeMV_('N',nDisp,nDisp,
+C    &              1.0D+00,Work(ipAm),nDisp,
+C    &              Work(ipTemp),1,
+C    &              0.0D+00,Work(ipDisp),1)
 #ifdef _HIDE_
          Write (LuWr,'(1x,A)')
      &                 '---------------------------------------------'

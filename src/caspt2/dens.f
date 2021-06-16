@@ -1367,7 +1367,7 @@ C       write(6,*) "trf"
 C       call sqprt(work(ipTrf),12)
 C       If (BSHIFT.ne.0.0D+00) Then
           !! sufficient only for active
-          nBasI = nBas(iSym)
+          nBasI = nBas(1)
         Call DCopy_(nBasI**2,Work(ipOLag),1,Work(ipWRK1),1)
         Call DGeSub(Work(ipWRK1),nBas(1),'N',
      &              Work(ipWRK1),nBas(1),'T',

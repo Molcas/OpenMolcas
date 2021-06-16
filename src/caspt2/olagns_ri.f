@@ -452,7 +452,8 @@ C
 #include "caspt2.fh"
 #include "output.fh"
 #include "WrkSpc.fh"
-      DIMENSION Cho_Bra(nBra), Cho_Ket(nKet)
+C     DIMENSION Cho_Bra(nBra), Cho_Ket(nKet)
+      DIMENSION Cho_Bra(*), Cho_Ket(*)
       Character Case*2
 C
       IF (iPrGlb.GE.DEBUG) THEN

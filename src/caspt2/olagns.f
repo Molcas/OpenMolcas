@@ -98,6 +98,8 @@ C
 C
       LOGICAL   PM
       DIMENSION IOFF1(8),IOFF2(8)
+      !! just to avoid the unused ... of ERI2
+      if (.false.) write (6,*) eri2(1)
 C
 C     DMNS_{ijkl}*d(ij|kl)/dx -> (pj|kl)*D_{qjkl} + (ip|kl)*D_{iqkl}
 C                              + (ij|pl)*D_{ijql} + (ij|kp)*D_{ijkq}
@@ -341,12 +343,11 @@ C
           Call Exch(iSymA,iSymI,iSymB,iSymJ,
      *              iI+nCorI,iJ+nFroJ,
      *              ERI1,Scr)
-          !! not yet sure but to avoid the unused ... of ERI2
-          If ((iI.ne.iJ).or.(iSymI.ne.iSymJ)) then
-            Call Exch(iSymA,iSymJ,iSymB,iSymI,
-     *                iJ+nFroJ,iI+nFroI,
-     *                ERI2,Scr)
-          End If
+C         If ((iI.ne.iJ).or.(iSymI.ne.iSymJ)) then
+C           Call Exch(iSymA,iSymJ,iSymB,iSymI,
+C    *                iJ+nFroJ,iI+nFroI,
+C    *                ERI2,Scr)
+C         End If
 C
           Call DCopy_(nAshA*nAshB,[0.0D+00],0,AmpL1,1)
 C
@@ -1100,6 +1101,10 @@ C
 C
       Dimension ERI(*),AmpMO(*)
 C
+      nSkpA = 0
+      nSkpB = 0
+      nDimA = 0
+      nDimB = 0
       If (iLeft .eq.1) Then
         nDimA = nAshA
         nSkpA = nCorA
