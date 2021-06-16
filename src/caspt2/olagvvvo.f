@@ -29,7 +29,7 @@ C
       logical dorys
       Allocatable :: T_hbf(:,:,:,:),iOffAO(:)
       Character*4096 RealName
-      Logical DoCholesky,is_error
+      Logical DoCholesky,is_error,Square
 C
 C     ----- (VV|VO)
 C
@@ -44,7 +44,7 @@ C     to U_{pq} for (p,q) = (all, inact+act).
 C
       Call GetMem('WRK1','Allo','Real',ipWRK1,nBasT*nBasT)
       Call GetMem('WRK2','Allo','Real',ipWRK2,nBasT*nBasT)
-      Call GetOrd(IRC,iSquar,nSymX,nBasX,KEEP)
+      Call GetOrd(IRC,Square,nSymX,nBasX,KEEP)
 C
       nTot1 = nBasT*(nBasT+1)/2
       nTot2 = nBast*nBasT
