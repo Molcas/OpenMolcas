@@ -28,7 +28,7 @@ C
       logical dorys
       Allocatable :: T_hbf(:,:,:,:),iOffAO(:)
       Character*4096 RealName
-      Logical DoCholesky
+      Logical DoCholesky,is_error
 C
 C     ----- (VV|VO)
 C
@@ -204,7 +204,7 @@ C       call molcas_Open(LuGamma,RealName(1:lRealName))
      &                        'DIRECT','UNFORMATTED',
      &                        iost,.TRUE.,
      &                        nOcc*nOcc*8,'REPLACE',is_error)
-        if (is_error.eq.1) then
+        if (is_error) then
          write (6,*) "Something is wrong in opening LuGamma in olagvvvo"
           call abend
         end if

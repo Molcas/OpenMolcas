@@ -409,48 +409,6 @@ C     Call Getmem('TEMP','FREE','REAL',ipF,ndens2)
       Call GetMem('Temp','FREE','REAL',ipT2,ndens2)
       Return
       End
-C
-C-----------------------------------------------------------------------
-C
-      Subroutine MO2AO(FMO ,FAO)
-      Implicit Real*8 (a-h,o-z)
-      Real*8 FMO(*),FAO(*)
-
-#include "Input.fh"
-#include "Pointers.fh"
-#include "WrkSpc.fh"
-      Call GetMem('Temp','ALLO','REAL',ipT1,ndens2)
-      Call GetMem('Temp','ALLO','REAL',ipT2,ndens2)
-      ip=1
-      write(6,*) "Work(ipCMO)"
-      call sqprt(work(ipCMO),nBas(is))
-      Do iS=1,nSym
-        If (nBas(is).ne.0) Then
-           Call Square(FMO(ip),
-     *                   Work(ipT1),
-     *                   1,nBas(is),nBas(is))
-      write(6,*) "Work(ipT1)"
-      call sqprt(work(ipT1),nBas(is))
-           Call DGEMM_('N','N',
-     &                 nBas(iS),nBas(iS),nBas(iS),
-     &                 1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(iS),
-     &                 Work(ipT1),nBas(iS),
-     &                 0.0d0,Work(ipT2),nBas(iS))
-           Call DGEMM_('N','T',
-     &                 nBas(is),nBas(iS),nBAs(iS),
-     &                 1.0d0,Work(ipT2),nBas(iS),
-     &                 Work(ipCMO+ipCM(iS)-1),nBas(iS),
-     &                 0.0d0,FAO(ipMat(iS,iS)),nBas(is))
-           ip=ip+nBas(is)*(nBas(iS)+1)/2
-        End If
-      End Do
-      Call GetMem('Temp','FREE','REAL',ipT1,ndens2)
-      Call GetMem('Temp','FREE','REAL',ipT2,ndens2)
-      Return
-      End
-C
-C-----------------------------------------------------------------------
-C
       subroutine unfold_mclr(DTR,DSQ)
 C
       implicit real*8 (a-h,o-z)
@@ -483,37 +441,3 @@ C
       return
 C
       end subroutine unfold_mclr
-C
-C-----------------------------------------------------------------------
-C
-      subroutine fold_mclr(DSQ,DTR)
-C
-      implicit real*8 (a-h,o-z)
-#include "Pointers.fh"
-#include "Input.fh"
-C
-      dimension DSQ(*),DTR(*)
-C
-      !! DTR: triangular density matrix (in the AO basis)
-      !! DSQ: square     density matrix (in the AO basis)
-      CALL DCOPY_(nDensLT,0.0D+00,0,DTR,1)
-      indT  = 0 ! index for the triangular matrix
-      indS0 = 0 ! index for the square     matrix (not complete)
-      Do iSym = 1, nSym
-        iBas = nBas(iSym)
-        Do iAO1 = 1, iBas
-          Do iAO2 = 1, iAO1-1
-            indT = indT + 1
-            Val = DSQ(indS0+(iAO1-1)*iBas+iAO2)
-            DTR(indT) = Val*2.0D+00
-          End Do
-          indT = indT + 1
-          Val = DSQ(indS0+(iAO1-1)*iBas+iAO2)
-          DTR(indT) = Val
-        End Do
-        indS0 = indS0 + iBas*iBas
-      End Do
-C
-      return
-C
-      end subroutine fold_mclr

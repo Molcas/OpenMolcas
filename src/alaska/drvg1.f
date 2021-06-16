@@ -77,7 +77,7 @@ C#include "caspt2_grad.fh"
       Character*8 Method_chk
       Real*8, Allocatable:: TMax(:,:)
       Integer, Allocatable:: Ind_ij(:,:)
-      Logical LoadVec ! For CASPT2 gradient
+      Logical LoadVec,is_error ! For CASPT2 gradient
       Real*8, Allocatable :: CMOPT2(:)
       Integer, Allocatable :: iOffAO(:)
       Integer :: nOcc(8),nFro(8)

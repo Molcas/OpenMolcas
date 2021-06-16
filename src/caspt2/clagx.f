@@ -679,6 +679,8 @@ C
           idS = idSMAT(iSym,iCase)
           CALL DDAFILE(LUSBT,2,WORK(LS),NS,idS)
         End If
+        ScalS1 = 0.0D+00
+        ScalS2 = 0.0D+00
         Do iTU = 1, nAS
           If (iCase.eq. 2) Then
             iTgeUabs = iTU + nTgeUes(iSym)
@@ -1068,6 +1070,12 @@ C     call docpy_nas*nas,0.0d+00,0,work(lwrk3),1)
           idS = idSMAT(iSym,iCase)
           CALL DDAFILE(LUSBT,2,WORK(LS),NS,idS)
         End If
+        ScalB1 = 0.0D+00
+        ScalB2 = 0.0D+00
+        iXabs  = 0
+        iYabs  = 0
+        iTabs  = 0
+        iUabs  = 0
         Do iTU = 1, nAS
           If (iCase.eq. 8) Then
             iTgeUabs = iTU + nTgeUes(iSym)
@@ -3698,6 +3706,7 @@ C
       iMO  = 1
       DO iSym = 1, nSym
         nAshI = nAsh(iSym)
+        nOrbI = 0
         If (nAshI.ne.0) Then
           nOrbI = nBas(iSym)-nDel(iSym)
           nFroI = nFro(iSym)

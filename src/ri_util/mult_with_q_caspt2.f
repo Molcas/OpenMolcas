@@ -32,7 +32,7 @@ C     Integer Lu_B(4), Lu_A(2) , iAdrA_in(8), iAdrA_Out(8)
 *
       Character*15 SECNAM
       Parameter (SECNAM = 'Mult_with_Q_MP2')
-      Logical timings
+      Logical timings,is_error
 *
       COMMON  /CHOTIME /timings
 *

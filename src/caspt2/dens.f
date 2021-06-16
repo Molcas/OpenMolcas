@@ -3603,108 +3603,6 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE OLAGNS_HELP2(iSymA,iSymB,iSymI,iSymJ)
-C
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-C
-C     DMNS_{ijkl}*d(ij|kl)/dx -> (pj|kl)*D_{qjkl} + (ip|kl)*D_{iqkl}
-C                              + (ij|pl)*D_{ijql} + (ij|kp)*D_{ijkq}
-
-C     Integrals needed:
-C     (OO|OO), (VO|OO), (VV|OO), (VO|VO), (VV|VO)
-C     -> <OO|OO>, <VO|OO>, <VO|VO>, <VV|OO>, <VV|VO>
-C     Here, O is occupied (doubly and partially) orbitals
-C           V is not filled (partially and virtual) orbitals
-C
-C     <**|VV> and <**|OO> are fetched by Exch
-C     <V*|V*> and <O*|O*> are fetched by Exch
-C
-C     EXCH(ISYP,ISYI,ISYQ,ISYJ,II,IJ,ERI,SCR)
-C
-      nMaxOrb=0
-      Do iSym1 = 1,nSym
-         Do iSym2 = 1,nSym
-            nMaxOrb = Max(nMaxOrb,(nOrb(iSym1)+nDel(iSym1))
-     &                               *(nOrb(iSym2)+nDel(iSym2)))
-         End Do
-      End Do
-C
-      lInt = nMaxOrb
-C
-      Call GetMem('Int1','Allo','Real',ipInt1,lInt) !! for (ia|jb)
-      Call GetMem('Int2','Allo','Real',ipInt2,lInt) !! for (ib|ja)
-      Call GetMem('Scr1','Allo','Real',ipScr1,lInt) !! work space
-C
-C     rhs_mp2_help1.f
-C
-      !! (*O|*O) integrals
-      !! have to check nFro and nIsh
-      nJ = nFro(iSymJ)+nIsh(iSymJ)+nAsh(iSymJ)
-      Do iI = 1, nFro(iSymI)+nIsh(iSymI)+nAsh(iSymI)
-        If (iSymI.eq.iSymJ) nJ = iI
-        Do iJ = 1, nJ
-          Fac = 1.0D+00
-          If ((iI.ne.iJ).and.(iSymI.eq.iSymJ)) Fac = 2.0d+00
-          If (iSymI.ne.iSymJ) Fac = 2.0d+00
-C
-          Call Exch(iSymA,iSymI,iSymB,iSymJ,
-C    *              iI+nFro(iSymI),iJ+nFro(iSymJ), !! check
-     *              iI,iJ,
-     *              Work(ipInt1),Work(ipScr1))
-          If (iSymI.ne.iSymJ) then
-            Call Exch(iSymB,iSymI,iSymA,iSymJ,
-C    *                iI+nFro(iSymI),iJ+nFro(iSymJ),
-     *                iI,iJ,
-     *                Work(ipInt2),Work(ipScr1))
-          End If
-C
-          !! H subspace
-          !! (ai|bj) -> U_{ma}*(mi|bj)
-          Do iCase = 12, 13
-             nAS = nASUP(iSym,iCase)
-             nIS = nISUP(iSym,iCase)
-             nW  = nAS*nIS
-             IF (nINDEP(iSym,iCase).eq.0) Cycle
-             CALL MLTUNF(LIST(LLST1),WORK(LX1),VEC1)
-           End Do
-        End Do
-      End Do
-C
-      !! (V*|V*) integrals (not yet decided)
-      nB = nIsh(iSymB)+nSsh(iSymB)
-      Do iA = 1, nIsh(iSymA)+nSsh(iSymA)
-        If (iSymA.Eq.iSymB) nB = iA
-        Do iB = 1, nB
-          Fac = 1.0d+00
-          If ((iA.ne.iB).and.(iSymA.eq.iSymB)) Fac = 2.0d+00
-          If (iSymA.ne.iSymB) Fac = 2.0d+00
-*
-          Call Exch(iSymI,iSymA,iSymJ,iSymB,
-     *              iA + nFro(iSymA)+nIsh(iSymA),
-     *              iB + nFro(iSymB)+nIsh(iSymB),
-     *              Work(ipInt1), Work(ipScr1))
-          If (iSymA.ne.iSymB) Then
-            Call Exch(iSymJ,iSymA,iSymI,iSymB,
-     *                iA + nFro(iSymA)+nIsh(iSymA),
-     *                iB + nFro(iSymB)+nIsh(iSymB),
-     *                Work(ipInt2),Work(ipScr1))
-          End If
-        End Do
-      End Do
-C
-      !! (V*|O*) integrals, which are not needed in MP2
-C
-      Call GetMem('Int1','Free','Real',ipInt1,lInt)
-      Call GetMem('Int2','Free','Real',ipInt2,lInt)
-      Call GetMem('Scr1','Free','Real',ipScr1,lInt)
-C
-      END SUBROUTINE OLAGNS_HELP2
-C
-C-----------------------------------------------------------------------
-C
 C*MODULE MTHLIB  *DECK PRTRIL
       SUBROUTINE PRTRIL(D,N)
 C
@@ -3753,8 +3651,9 @@ C
 C
       Dimension DPT2AO(*),SSDM(*)
       Character*4096 RealName
-      Integer iSkip(8)
+      Integer iSkip(8),ipWRK(8)
       integer nnbstr(8,3)
+      Logical is_error
 C
       INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
       call getritrfinfo(nnbstr,maxvec,n2)
@@ -3790,7 +3689,7 @@ C     call molcas_Open(LuCMOPT2,RealName(1:lRealName))
 C
       CALL GETMEM('CHSPC','ALLO','REAL',IP_CHSPC,NCHSPC)
       CALL GETMEM('HTVEC','ALLO','REAL',ipHTVec,nBasT*nBasT)
-      CALL GETMEM('WRK  ','ALLO','REAL',ipWRK,nBasT*nBasT)
+      CALL GETMEM('WRK  ','ALLO','REAL',ipWRK(iSym),nBasT*nBasT)
       !! V(P) = (mu nu|P)*D_{mu nu}
       CALL GETMEM('V1   ','ALLO','REAL',ipV1,NumCho)
       CALL GETMEM('V2   ','ALLO','REAL',ipV2,NumCho)
@@ -3872,17 +3771,19 @@ C
             JNUM  = 1
             NUMV  = 1
             iSwap = 2
-            Call DCopy_(nBasI**2,[0.0D+00],0,Work(ipWRK),1)
+            Call DCopy_(nBasI**2,[0.0D+00],0,Work(ipWRK(iSym)),1)
             Call Cho_ReOrdr(irc,Work(ipVecL),lscr,jVref,
      *                      JVEC1,JNUM,NUMV,iSym,JREDC,iSwap,ipWRK,
      *                      iSkip)
             ipVecL = ipVecL + lscr
 C
-            Work(ipV1+iVec-1) = DDot_(nBasI**2,DPT2AO,1,Work(ipWRK),1)
-            Work(ipV2+iVec-1) = DDot_(nBasI**2,SSDM  ,1,Work(ipWRK),1)
+            Work(ipV1+iVec-1) = DDot_(nBasI**2,DPT2AO,1,
+     *                                         Work(ipWRK(iSym)),1)
+            Work(ipV2+iVec-1) = DDot_(nBasI**2,SSDM  ,1,
+     *                                         Work(ipWRK(iSym)),1)
 C
             Call DGemm_('N','N',nBasI,nBasI,nBasI,
-     *                  1.0D+00,DPT2AO,nBasI,Work(ipWRK),nBasI,
+     *                  1.0D+00,DPT2AO,nBasI,Work(ipWRK(iSym)),nBasI,
      *                  0.0D+00,Work(ipHTVec),nBasI)
             Call DGemm_('N','N',nBasI,nBasI,nBasI,
      *                  1.0D+00,Work(ipHTVec),nBasI,SSDM,nBasI,
@@ -3914,7 +3815,7 @@ C
             JNUM  = 1
             NUMV  = 1
             iSwap = 2
-            Call DCopy_(nBasI**2,[0.0D+00],0,Work(ipWRK),1)
+            Call DCopy_(nBasI**2,[0.0D+00],0,Work(ipWRK(iSym)),1)
             Call Cho_ReOrdr(irc,Work(ipVecL),lscr,jVref,
      *                      JVEC1,JNUM,NUMV,iSym,JREDC,iSwap,ipWRK,
      *                      iSkip)
@@ -3924,7 +3825,7 @@ C
             Do jVec = 1, NumCho
               Work(ipA_PT2+iVec-1+NumCho*(jVec-1))
      *          = Work(ipA_PT2+iVec-1+NumCho*(jVec-1))
-     *          - DDot_(nBasT**2,Work(ipWRK),1,
+     *          - DDot_(nBasT**2,Work(ipWRK(iSym)),1,
      *                  Work(ipB_SSDM+nBasT**2*(jVec-1)),1)
             End Do
           End Do
@@ -3966,25 +3867,27 @@ C     call molcas_Open(LuGamma,RealName(1:lRealName))
      &                      iost,.TRUE.,
      &                      nBas(iSym)**2*8,'REPLACE',is_error)
       Do iVec = 1, NumCho
-        Read  (Unit=LuGAMMA,Rec=iVec) (Work(ipWRK+i-1),i=1,nBasT**2)
+        Read  (Unit=LuGAMMA,Rec=iVec)
+     *    (Work(ipWRK(iSym)+i-1),i=1,nBasT**2)
         !! The contributions are doubled, because halved in PGet1_RI3?
         !! Coulomb
         Call DaXpY_(nBasT**2,Work(ipV2+iVec-1)*2.D+00,
-     *              DPT2AO,1,Work(ipWRK),1)
+     *              DPT2AO,1,Work(ipWRK(iSym)),1)
         Call DaXpY_(nBasT**2,Work(ipV1+iVec-1)*2.D+00,
-     *              SSDM  ,1,Work(ipWRK),1)
+     *              SSDM  ,1,Work(ipWRK(iSym)),1)
         !! Exchange
         Call DaXpY_(nBasT**2,-2.0D+00,
      *              Work(ipB_SSDM+nBasT**2*(iVec-1)),1,
-     *              Work(ipWRK),1)
-        Write (Unit=LuGAMMA,Rec=iVec) (Work(ipWRK+i-1),i=1,nBasT**2)
+     *              Work(ipWRK(iSym)),1)
+        Write (Unit=LuGAMMA,Rec=iVec)
+     *    (Work(ipWRK(iSym)+i-1),i=1,nBasT**2)
       End Do
       Close (LuGamma)
 C     Call GetMem('B_PT2 ','FREE','REAL',ipB_PT2,nBasT**2*NumChoTot)
 C
       CALL GETMEM('CHSPC','FREE','REAL',IP_CHSPC,NCHSPC)
       CALL GETMEM('HTVEC','FREE','REAL',ipHTVec,nBasT*nBasT)
-      CALL GETMEM('WRK  ','FREE','REAL',ipWRK,nBasT*nBasT)
+      CALL GETMEM('WRK  ','FREE','REAL',ipWRK(iSym),nBasT*nBasT)
       CALL GETMEM('V1   ','FREE','REAL',ipV1,NCHSPC)
       CALL GETMEM('V2   ','FREE','REAL',ipV2,NCHSPC)
       Call GetMem('B_SSDM','FREE','REAL',ipB_SSDM,nBasT**2*NumChoTot)
