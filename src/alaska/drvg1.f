@@ -334,6 +334,8 @@ C     End If
       Call mma_MaxDBLE(MemMax)
       Call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
       ipMem1 = 1
+      ijS = 0
+      klS = 0
 *                                                                      *
 ************************************************************************
 *                                                                      *

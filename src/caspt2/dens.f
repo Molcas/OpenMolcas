@@ -722,8 +722,16 @@ C         write(6,*) "ialgo = ", ialgo
        write(6,*) nish(isym),nash(isym),nssh(isym),NVLOC_CHOBATCH(1)
             Call GetMem('DENBRA','ALLO','REAL',ipDBra,nChoBuf)
             Call dcopy_(nChoBuf,[0.0D+00],0,Work(ipDBra),1)
+C           CALL OLagNS_RI(iSym,Work(ipWRK1),Work(ipWRK2),
+C    *                     Work(ipDPTC),Work(ipDBra),Work(ipA_PT2),
+C    *                     NVLOC_CHOBATCH(1))
+            ipAI = ipDBra
+            ipSI = ipAI + nAsh(iSym)*nIsh(iSym)*NVLOC_CHOBATCH(1)
+            ipAA = ipSI + nSsh(iSym)*nIsh(iSym)*NVLOC_CHOBATCH(1)
+            ipSA = ipAA + nAsh(iSym)*nAsh(iSym)*NVLOC_CHOBATCH(1)
             CALL OLagNS_RI(iSym,Work(ipWRK1),Work(ipWRK2),
-     *                     Work(ipDPTC),Work(ipDBra),Work(ipA_PT2),
+     *                     Work(ipDPTC),Work(ipAI),Work(ipSI),
+     *                     Work(ipAA),Work(ipSA),Work(ipA_PT2),
      *                     NVLOC_CHOBATCH(1))
 C           do i = 1, nchobuf
 C             write(6,'(i4,f20.10)') i,work(ipdbra+i-1)

@@ -13,6 +13,7 @@
       Subroutine OLagVVVO(iSym,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,T2AO,
      *                     DIA,DI,FIFA,FIMO,DBra,A_PT2,NumCho)
       USE iSD_data
+      USE CHOVEC_IO
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -99,13 +100,26 @@ C       call molcas_Open(LuGamma,RealName(1:lRealName))
       isymb = 1
 C     nocc = nfro(1)+nish(1)+nash(1)
       nocc = nish(1)+nash(1)
+      If (DoCholesky) Then
+        ipAI = 1
+        ipSI = ipAI + nAsh(iSym)*nIsh(iSym)*NVLOC_CHOBATCH(1)
+        ipAA = ipSI + nSsh(iSym)*nIsh(iSym)*NVLOC_CHOBATCH(1)
+        ipSA = ipAA + nAsh(iSym)*nAsh(iSym)*NVLOC_CHOBATCH(1)
+      Else
+        ipAI = 1
+        ipSI = 1
+        ipAA = 1
+        ipSA = 1
+      End If
       Call VVVO_Drv(nSym,nBas,nIsh,nFro,KEEP,
      *              iSym,iSymI,iSymA,iSymJ,iSymB,
      *              T2AO,Work(ipvLag),
      *              nOcc,nBasT,nTot2,nBMX,
      *              Work(LCMOPT2+nBasT*nFro(iSymA)),
      *              DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
-     *              DIA,DI,FIFA,FIMO,DBra)
+     *              DIA,DI,FIFA,FIMO,DBra(ipAI),DBra(ipSI),
+     *              DBra(ipAA),DBra(ipSA))
+C    *              DIA,DI,FIFA,FIMO,DBra)
 C     write(6,*) "fpt2cao"
 C     call sqprt(fpt2cao,12)
 C
@@ -324,7 +338,8 @@ C
      *                    iSym,iSymI,iSymJ,iSymK,iSymL,
      &                    T2AO,vLag,nOcc,nBasT,nTot2,
      &                    nBMX,CMO,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
-     *                    DIA,DI,FIFA,FIMO,DBra)
+     *                    DIA,DI,FIFA,FIMO,BraAI,BraSI,BraAA,BraSA)
+C    *                    DIA,DI,FIFA,FIMO,DBra)
 
 
       Implicit Real*8 (A-H,O-Z)
@@ -336,7 +351,8 @@ C
       Dimension CMO(*),T2AO(*),vLag(*)
       Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
       Dimension DIA(*),DI(*),FIFA(*),FIMO(*)
-      Dimension DBra(*)
+      Dimension BraAI(*),BraSI(*),BraAA(*),BraSA(*)
+C     Dimension DBra(*)
       Logical DoCholesky,REORD,DECO
       Integer ALGO
       COMMON /CHORAS/ REORD,DECO,ALGO
@@ -373,7 +389,8 @@ C        write(6,*) "calling drv2"
      *                  iSym,iSymI,iSymJ,iSymK,iSymL,
      &                  T2AO,vLag,nOcc,nBasT,
      &                  nTot2,nBMX,CMO,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
-     *                  DIA,DI,FIFA,FIMO,DBra)
+     *                  DIA,DI,FIFA,FIMO,BraAI,BraSI,BraAA,BraSA)
+C    *                  DIA,DI,FIFA,FIMO,DBra)
 
 C     ENDIF
 
@@ -389,14 +406,19 @@ C
      *                     iSym,iSymI,iSymJ,iSymK,iSymL,
      &                     T2AO,vLag,nOcc,nBasT,
      &                     nBSQT,nBMX,CMO,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
-     *                     DIA,DI,FIFA,FIMO,DBra)
+     *                     DIA,DI,FIFA,FIMO,BraAI,BraSI,BraAA,BraSA)
+C    *                     DIA,DI,FIFA,FIMO,DBra)
+C
+      USE CHOVEC_IO
+C
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
       Real*8 T2AO(*),vLag(*),CMO(*)
       Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
       DImension DIA(*),DI(*),FIFA(*),FIMO(*)
-      Dimension DBra(*)
+C     Dimension DBra(*)
+      Dimension BraAI(*),BraSI(*),BraAA(*),BraSA(*)
       Integer nBas(8), nAux(8), Keep(8), nfro(8)
       Logical DoCholesky,GenInt
       Integer ALGO
@@ -409,8 +431,8 @@ C     Real*8 CMO_DUMMY(1)
           SUBROUTINE VVVOX2(nAux,KEEP,iSym0,iSymI,iSymJ,iSymK,iSymL,
      *                      vLag,CMO,WRK,
      *                      DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
-     *                      DIA,DI,FIFA,FIMO,BraD)
-
+     *                      DIA,DI,FIFA,FIMO,BraAI,BraSI,BraAA,BraSA)
+C    *                      DIA,DI,FIFA,FIMO,BraD)
           IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -419,9 +441,14 @@ C     Real*8 CMO_DUMMY(1)
           Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
           Dimension DIA(*),DI(*),FIFA(*),FIMO(*)
           Integer ISTLT(8),ISTSQ(8),nAux(8),KEEP(8)
-          Real*8, Target :: BraD(*)
-          Real*8, Pointer :: BraAI(:,:,:),BraSI(:,:,:),
-     *                       BraAA(:,:,:),BraSA(:,:,:)
+      Dimension BraAI(*),BraSI(*),BraAA(*),BraSA(*)
+C     Dimension BraAI(nAsh(iSym0),nIsh(iSym0),NVLOC_CHOBATCH(iSym0)),
+C    *          BraSI(nSsh(iSym0),nIsh(iSym0),NVLOC_CHOBATCH(iSym0)),
+C    *          BraAA(nAsh(iSym0),nAsh(iSym0),NVLOC_CHOBATCH(iSym0)),
+C    *          BraSA(nSsh(iSym0),nAsh(iSym0),NVLOC_CHOBATCH(iSym0))
+C         Real*8, Target :: BraD(*)
+C         Real*8, Pointer :: BraAI(:,:,:),BraSI(:,:,:),
+C    *                       BraAA(:,:,:),BraSA(:,:,:)
           Integer iSkip(8)
           integer nnbstr(8,3)
           end subroutine
@@ -473,7 +500,8 @@ C       write(6,*) "calling vvvox2"
         Call VVVOX2(nAux,Keep,iSym,iSymI,iSymJ,iSymK,iSymL,
      *              vLag,CMO,Work(LWRK),
      *              DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
-     *              DIA,DI,FIFA,FIMO,DBra)
+     *              DIA,DI,FIFA,FIMO,BraAI,BraSI,BraAA,BraSA)
+C    *              DIA,DI,FIFA,FIMO,DBra)
 C       write(6,*) "finished vvvox2"
       Else
         Call VVVOX(nSym,nBas,nAux,nFro,Keep,
@@ -808,7 +836,8 @@ C
       SUBROUTINE VVVOX2(nAux,KEEP,iSym0,iSymI,iSymJ,iSymK,iSymL,
      *                  vLag,CMO,WRK,
      *                  DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
-     *                  DIA,DI,FIFA,FIMO,BraD)
+     *                  DIA,DI,FIFA,FIMO,BraAI,BraSI,BraAA,BraSA)
+C    *                  DIA,DI,FIFA,FIMO,BraD)
 C
       USE CHOVEC_IO
 C
@@ -830,9 +859,13 @@ C
       Dimension DIA(*),DI(*),FIFA(*),FIMO(*)
       Integer ISTLT(8),ISTSQ(8),nAux(8),KEEP(8),ipWRK(8)
 C
-      Real*8, Target :: BraD(*)
-      Real*8, Pointer :: BraAI(:,:,:),BraSI(:,:,:),
-     *                   BraAA(:,:,:),BraSA(:,:,:)
+      Dimension BraAI(nAsh(iSym0),nIsh(iSym0),NVLOC_CHOBATCH(iSym0)),
+     *          BraSI(nSsh(iSym0),nIsh(iSym0),NVLOC_CHOBATCH(iSym0)),
+     *          BraAA(nAsh(iSym0),nAsh(iSym0),NVLOC_CHOBATCH(iSym0)),
+     *          BraSA(nSsh(iSym0),nAsh(iSym0),NVLOC_CHOBATCH(iSym0))
+C     Real*8, Target :: BraD(*)
+C     Real*8, Pointer :: BraAI(:,:,:),BraSI(:,:,:),
+C    *                   BraAA(:,:,:),BraSA(:,:,:)
       Integer iSkip(8)
       integer nnbstr(8,3)
 C
@@ -848,25 +881,25 @@ C
       nVec = NVLOC_CHOBATCH(1)
       !! Set pointers
       !! active-inactive-active
-      n = nAsh(iSym)*nIsh(iSym)*nVec
-      i = 1
-      j = n + i-1
-      BraAI(1:nAsh(iSym),1:nIsh(iSym),1:nVec) => BraD(i:j)
-      !! secondary-inactive
-      n = nSsh(iSym)*nIsh(iSym)*nVec
-      i = j+1
-      j = n + i-1
-      BraSI(1:nSsh(iSym),1:nIsh(iSym),1:nVec) => BraD(i:j)
-      !! active-active
-      n = nAsh(iSym)*nAsh(iSym)*nVec
-      i = j+1
-      j = n + i-1
-      BraAA(1:nAsh(iSym),1:nAsh(iSym),1:nVec) => BraD(i:j)
-      !! secondary-active
-      n = nSsh(iSym)*nAsh(iSym)*nVec
-      i = j+1
-      j = n + i-1
-      BraSA(1:nSsh(iSym),1:nAsh(iSym),1:nVec) => BraD(i:j)
+C     n = nAsh(iSym)*nIsh(iSym)*nVec
+C     i = 1
+C     j = n + i-1
+C     BraAI(1:nAsh(iSym),1:nIsh(iSym),1:nVec) => BraD(i:j)
+C     !! secondary-inactive
+C     n = nSsh(iSym)*nIsh(iSym)*nVec
+C     i = j+1
+C     j = n + i-1
+C     BraSI(1:nSsh(iSym),1:nIsh(iSym),1:nVec) => BraD(i:j)
+C     !! active-active
+C     n = nAsh(iSym)*nAsh(iSym)*nVec
+C     i = j+1
+C     j = n + i-1
+C     BraAA(1:nAsh(iSym),1:nAsh(iSym),1:nVec) => BraD(i:j)
+C     !! secondary-active
+C     n = nSsh(iSym)*nAsh(iSym)*nVec
+C     i = j+1
+C     j = n + i-1
+C     BraSA(1:nSsh(iSym),1:nAsh(iSym),1:nVec) => BraD(i:j)
       Do jSym = 1, nSym
         iSkip(jSym) = 1
       End Do

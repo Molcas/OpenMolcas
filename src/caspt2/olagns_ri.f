@@ -67,7 +67,9 @@ C     For 2c-2e ERI derivatives,
 C     D(tP,tQ) = tD_{pq} * C_{mu p} C_{nu q} * (mu nu|tP)
 C     then saved.
 C
-      Subroutine OLagNS_RI(iSym0,WRK1,WRK2,DPT2C,BRAD,A_PT2,nChoVec)
+C     Subroutine OLagNS_RI(iSym0,WRK1,WRK2,DPT2C,BRAD,A_PT2,nChoVec)
+      Subroutine OLagNS_RI(iSym0,WRK1,WRK2,DPT2C,
+     *                     BraAI,BraSI,BraAA,BraSA,A_PT2,nChoVec)
 C
       Use CHOVEC_IO
 C
@@ -92,9 +94,13 @@ C
 #endif
 C
       Dimension WRK1(*),WRK2(*),DPT2C(*),A_PT2(nChoVec,nChoVec)
-      Real*8, Target :: BraD(*)
-      Real*8, Pointer :: BraAI(:,:,:),BraSI(:,:,:),
-     *                   BraAA(:,:,:),BraSA(:,:,:)
+      Dimension BraAI(nAsh(iSym0),nIsh(iSym0),nChoVec),
+     *          BraSI(nSsh(iSym0),nIsh(iSym0),nChoVec),
+     *          BraAA(nAsh(iSym0),nAsh(iSym0),nChoVec),
+     *          BraSA(nSsh(iSym0),nAsh(iSym0),nChoVec)
+C     Real*8, Target :: BraD(*)
+C     Real*8, Pointer :: BraAI(:,:,:),BraSI(:,:,:),
+C    *                   BraAA(:,:,:),BraSA(:,:,:)
 C
       Call ICopy(NSYM,NISH,1,nSh(1,Inactive),1)
       Call ICopy(NSYM,NASH,1,nSh(1,Active  ),1)
@@ -110,25 +116,25 @@ C
       iSym = iSym0
       !! Set pointers
       !! active-inactive
-      n = nAsh(iSym)*nIsh(iSym)*nChoVec
-      i = 1
-      j = n + i-1
-      BraAI(1:nAsh(iSym),1:nIsh(iSym),1:nChoVec) => BraD(i:j)
-      !! secondary-inactive
-      n = nSsh(iSym)*nIsh(iSym)*nChoVec
-      i = j+1
-      j = n + i-1
-      BraSI(1:nSsh(iSym),1:nIsh(iSym),1:nChoVec) => BraD(i:j)
-      !! active-active
-      n = nAsh(iSym)*nAsh(iSym)*nChoVec
-      i = j+1
-      j = n + i-1
-      BraAA(1:nAsh(iSym),1:nAsh(iSym),1:nChoVec) => BraD(i:j)
-      !! secondary-active
-      n = nSsh(iSym)*nAsh(iSym)*nChoVec
-      i = j+1
-      j = n + i-1
-      BraSA(1:nSsh(iSym),1:nAsh(iSym),1:nChoVec) => BraD(i:j)
+C     n = nAsh(iSym)*nIsh(iSym)*nChoVec
+C     i = 1
+C     j = n + i-1
+C     BraAI(1:nAsh(iSym),1:nIsh(iSym),1:nChoVec) => BraD(i:j)
+C     !! secondary-inactive
+C     n = nSsh(iSym)*nIsh(iSym)*nChoVec
+C     i = j+1
+C     j = n + i-1
+C     BraSI(1:nSsh(iSym),1:nIsh(iSym),1:nChoVec) => BraD(i:j)
+C     !! active-active
+C     n = nAsh(iSym)*nAsh(iSym)*nChoVec
+C     i = j+1
+C     j = n + i-1
+C     BraAA(1:nAsh(iSym),1:nAsh(iSym),1:nChoVec) => BraD(i:j)
+C     !! secondary-active
+C     n = nSsh(iSym)*nAsh(iSym)*nChoVec
+C     i = j+1
+C     j = n + i-1
+C     BraSA(1:nSsh(iSym),1:nAsh(iSym),1:nChoVec) => BraD(i:j)
 *
       SCLNEL = 1.0D+00/DBLE(MAX(1,NACTEL))
 *                                                                      *
