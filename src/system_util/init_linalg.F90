@@ -14,6 +14,8 @@
 subroutine Init_LinAlg()
 ! Initialization procedure for linear algebra libraries (if needed)
 
+#ifdef _DELAYED_
+
 use Definitions, only: iwp
 
 implicit none
@@ -32,5 +34,7 @@ if ((linalg_info(1:1) /= ' ') .and. &
     (linalg_info(1:4) /= 'OFF ') .and. &
     (linalg_info(1:1) /= '0')) iPr = 1
 call Initialize_BLAS(linalg_lib,iPr)
+
+#endif
 
 end subroutine Init_LinAlg

@@ -30,7 +30,7 @@ subroutine SysExpand(strin,strout,iRet)
 !   call sysexpand('blah-blah ',s,i)  - will print string as is and return i=0
 !***********************************************************************
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
 
 implicit none
 character(len=*), intent(in) :: strin

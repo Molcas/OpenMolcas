@@ -12,20 +12,22 @@
 subroutine Start(ModuleName)
 ! Initialization procedure for a program module.
 
+use warnings, only: rc_msg_init
 use Para_Info, only: MyRank, King
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Set_Do_Parallel
+use Definitions, only: iwp
 #endif
 #ifdef _DEBUGPRINT_
 use Para_Info, only: nProcs
 #endif
-use Definitions, only: iwp, u5, u6
+use Definitions, only: u5, u6
 
 implicit none
 character(len=*), intent(in) :: ModuleName
 character(len=8) :: Prin
 #ifdef _MOLCAS_MPP_
-logical(kind=iwp) parallelized
+logical(kind=iwp) :: parallelized
 #endif
 #include "standard_iounits.fh"
 
@@ -33,13 +35,14 @@ logical(kind=iwp) parallelized
 write(u6,*) ' Start.'
 #endif
 
+! fill the returncode database with human-readable messages
+call rc_msg_init()
+
 ! Initialize delayed BLAS+LAPACK
 
-#ifdef _DELAYED_
 call Init_LinAlg()
 #ifdef _DEBUGPRINT_
 write(u6,*) ' BLAS+LAPACK initialized '
-#endif
 #endif
 
 ! Initialize Timing

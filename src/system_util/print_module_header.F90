@@ -18,7 +18,8 @@ use Para_Info, only: nProcs
 #ifdef _OPENMP
 use omp_lib, only: omp_get_max_threads
 #endif
-use Definitions, only: iwp, wp, u6
+use stdalloc, only: mxMem
+use Definitions, only: iwp, wp, u6, RtoB
 
 implicit none
 character(len=*) :: modulename
@@ -31,7 +32,6 @@ integer(kind=iwp), external :: GAnNodes
 #endif
 real(kind=wp) :: bytes
 #include "unixinfo.fh"
-#include "WrkSpc.fh"
 character(len=16) :: memory, threads
 character(len=*), parameter :: unit(0:8) = ['  B',' kB',' MB',' GB',' TB',' PB',' EB',' ZB',' YB']
 
@@ -70,7 +70,7 @@ nthreads = 1
 #endif
 
 ! mxmem is the number of 8-byte words (real*8) we have available.
-bytes = 8*mxmem
+bytes = RtoB*mxMem
 order = floor(log10(bytes))
 group = min(order/3,8)
 if (mod(order,3) == 0) then

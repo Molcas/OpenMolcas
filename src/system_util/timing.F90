@@ -55,7 +55,7 @@ subroutine Timing(CPUA,CPUE,TIOA,TIOE)
 !                                                                      *
 !***********************************************************************
 
-use Definitions, only: wp, iwp
+use Definitions, only: wp
 
 implicit none
 real(kind=wp), intent(out) :: CPUA, CPUE, TIOA, TIOE

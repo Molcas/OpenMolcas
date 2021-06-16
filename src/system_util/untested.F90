@@ -11,8 +11,6 @@
 
 subroutine Untested(label)
 
-use Definitions, only: u6
-
 implicit none
 character(len=*), intent(in) :: label
 #ifndef _DEVEL_
