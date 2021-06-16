@@ -55,19 +55,15 @@ Line = ' '
 call GetEnvf('EMIL_InLoop',Line)
 ib = -1
 ie = -1
-i = 1
-10 continue
-if (Line(i:i) /= ' ' .and. ib == -1) then
-  ib = i
-  goto 20
-end if
-if (Line(i:i) == ' ' .and. ib > 0) then
-  ie = i
-  goto 30
-end if
-20 i = i+1
-goto 10
-30 Name(index(Name,' '):) = '.'//Line(ib:ie)
+do i=1,len(Line)
+  if ((Line(i:i) /= ' ') .and. (ib == -1)) then
+    ib = i
+  else if ((Line(i:i) == ' ') .and. (ib > 0)) then
+    ie = i
+    exit
+  end if
+end do
+Name(index(Name,' '):) = '.'//Line(ib:ie)
 !write(u6,*) '>',Line,'<',ib,ie
 !write(u6,*) 'StdIn=',Name
 

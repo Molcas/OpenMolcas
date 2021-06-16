@@ -34,7 +34,7 @@ if (rc /= _RC_ALL_IS_WELL_) then
   !     also avoids writing garbage from rc_msg)
   lb = lbound(rc_msg,dim=1)
   ub = ubound(rc_msg,dim=1)
-  if (rc >= lb .and. rc <= ub) then
+  if ((rc >= lb) .and. (rc <= ub)) then
     write(msg,'(a,i6,2a)') 'xquit (rc = ',rc,'): ',rc_msg(rc)
     call write_stderr(msg)
   end if

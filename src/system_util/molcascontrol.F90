@@ -56,7 +56,7 @@ character(len=*), intent(in) :: Label
 character(len=*), intent(out) :: Val
 character(len=80) :: Line(20)
 character(len=*), parameter :: filename = 'molcas.control'
-integer(kind=iwp) :: i, ic, iLine, Lu
+integer(kind=iwp) :: i, ic, iLine, Lu, stat
 logical(kind=iwp) :: Exists, Modify
 integer(kind=iwp), external :: StrnLn
 
@@ -67,12 +67,14 @@ if (.not. Exists) return
 Lu = 1
 call molcas_open(Lu,filename)
 iLine = 1
-1 read(Lu,'(a)',end=100,err=100) Line(iLine)
-if (Line(iLine)(1:1) == '!') Modify = .true.
-iLine = iLine+1
-if (iLine < size(Line)) goto 1
+do
+  read(Lu,'(a)',iostat=stat) Line(iLine)
+  if (stat /= 0) exit
+  if (Line(iLine)(1:1) == '!') Modify = .true.
+  iLine = iLine+1
+  if (iLine >= size(Line)) exit
+end do
 
-100 continue
 close(Lu)
 
 if (.not. Modify) return

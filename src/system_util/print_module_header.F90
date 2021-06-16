@@ -16,7 +16,7 @@ subroutine print_module_header(modulename)
 use Para_Info, only: nProcs
 #endif
 #ifdef _OPENMP
-use omp_lib
+use omp_lib, only: omp_get_max_threads
 #endif
 use Definitions, only: iwp, wp, u6
 

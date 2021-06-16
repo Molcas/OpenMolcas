@@ -44,36 +44,38 @@ ipos = 1
 ! check is '\n' == <CR>?
 icr = len('\n')-1
 icr1 = 0
-100 j = 100000
-ii = index(Junk(ipos:mleni),'\n')
-if (ii > 0) j = min(j,ii)
-iii = index(Junk(ipos:mleni),';')
-if (iii > 0) j = min(j,iii)
-if (j == ii .and. ii > 0) icr1 = icr
-if (j == iii .and. iii > 0) icr1 = 0
-if (j == 100000) j = 0
-i = j
-if (i > iTooLong .or. (i == 0 .and. mlen > iTooLong)) then
-  ij = index(Junk(ipos+iLongEnough:mleni),' ')
-  if (ij == 0) then
-    call SysDumpStr(Junk(ipos:mleni))
-    if (i == 0) return
-  else
-    ij = ij+iLongEnough-1
-    call SysDumpStr(Junk(ipos:ipos+ij))
+do
+  j = 100000
+  ii = index(Junk(ipos:mleni),'\n')
+  if (ii > 0) j = min(j,ii)
+  iii = index(Junk(ipos:mleni),';')
+  if (iii > 0) j = min(j,iii)
+  if ((j == ii) .and. (ii > 0)) icr1 = icr
+  if ((j == iii) .and. (iii > 0)) icr1 = 0
+  if (j == 100000) j = 0
+  i = j
+  if ((i > iTooLong) .or. ((i == 0) .and. (mlen > iTooLong))) then
+    ij = index(Junk(ipos+iLongEnough:mleni),' ')
+    if (ij == 0) then
+      call SysDumpStr(Junk(ipos:mleni))
+      if (i == 0) return
+    else
+      ij = ij+iLongEnough-1
+      call SysDumpStr(Junk(ipos:ipos+ij))
+    end if
+    ipos = ipos+ij+1
+    mlen = mlen-ij-1
+    cycle
   end if
-  ipos = ipos+ij+1
-  mlen = mlen-ij-1
-  goto 100
-end if
-if (i == 0) then
-  call SysDumpStr(Junk(ipos:mleni))
-  return
-end if
-call SysDumpStr(Junk(ipos:ipos+i-2))
-ipos = ipos+i+icr1
-mlen = mlen-i-icr1
-if (mlen > 0) goto 100
+  if (i == 0) then
+    call SysDumpStr(Junk(ipos:mleni))
+    return
+  end if
+  call SysDumpStr(Junk(ipos:ipos+i-2))
+  ipos = ipos+i+icr1
+  mlen = mlen-i-icr1
+  if (mlen <= 0) exit
+end do
 
 return
 

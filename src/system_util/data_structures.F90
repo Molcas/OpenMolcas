@@ -17,6 +17,7 @@
 
 module Data_Structures
 
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -331,31 +332,28 @@ subroutine Allocate_SBA(Adam,n,m,NUMV,iSym,nSym,iCase,Memory)
   integer(kind=iwp), intent(in) :: nSym, n(nSym), m(nSym), NUMV, iSym, iCase
   integer(kind=iwp), intent(out), optional :: Memory
   integer(kind=iwp) :: iE, iS, iSyma, iSymb, MemTot, n2Dim, n3Dim
-  integer(kind=iwp) :: i, j, MulD2h
-  ! statement function
-  MulD2h(i,j) = ieor(i-1,j-1)+1
 
   MemTot = 0
 
   select case (iCase)
     case (0)
       do iSyma=1,nSym
-        iSymb = MulD2h(iSym,iSyma)
+        iSymb = Mul(iSym,iSyma)
         MemTot = MemTot+n(iSyma)*m(iSymb)*NUMV
       end do
     case (1)
       do iSyma=1,nSym
-        iSymb = MulD2h(iSym,iSyma)
+        iSymb = Mul(iSym,iSyma)
         MemTot = MemTot+m(iSyma)*n(iSymb)*NUMV
       end do
     case (2)
       do iSyma=1,nSym
-        iSymb = MulD2h(iSym,iSyma)
+        iSymb = Mul(iSym,iSyma)
         MemTot = MemTot+n(iSyma)*NUMV*m(iSymb)
       end do
     case (3)
       do iSyma=1,nSym
-        iSymb = MulD2h(iSym,iSyma)
+        iSymb = Mul(iSym,iSyma)
         MemTot = MemTot+m(iSyma)*NUMV*n(iSymb)
       end do
     case (4)
@@ -364,7 +362,7 @@ subroutine Allocate_SBA(Adam,n,m,NUMV,iSym,nSym,iCase,Memory)
           write(u6,*) 'Allocate_SBA: iCase=4 only valid if n(:)=m(:).'
           call abend()
         end if
-        iSymb = MulD2h(iSym,iSyma)
+        iSymb = Mul(iSym,iSyma)
         if (iSyma == iSymb) then
           n2Dim = n(iSyma)*(n(iSyma)+1)/2
         else
@@ -378,7 +376,7 @@ subroutine Allocate_SBA(Adam,n,m,NUMV,iSym,nSym,iCase,Memory)
           write(u6,*) 'Allocate_SBA: iCase=5 only valid if n(:)=m(:).'
           call abend()
         end if
-        iSymb = MulD2h(iSym,iSyma)
+        iSymb = Mul(iSym,iSyma)
         if (iSyma == iSymb) then
           n2Dim = n(iSyma)*(n(iSyma)+1)/2
         else if (iSymb > iSyma) then
@@ -394,7 +392,7 @@ subroutine Allocate_SBA(Adam,n,m,NUMV,iSym,nSym,iCase,Memory)
           write(u6,*) 'Allocate_SBA: iCase=6 only valid if n(:)=m(:).'
           call abend()
         end if
-        iSymb = MulD2h(iSym,iSyma)
+        iSymb = Mul(iSym,iSyma)
         if (iSyma >= iSymb) then
           n2Dim = n(iSyma)*n(iSymb)
         else
@@ -423,7 +421,7 @@ subroutine Allocate_SBA(Adam,n,m,NUMV,iSym,nSym,iCase,Memory)
   select case (iCase)
     case (0)
       do iSyma=1,nSym
-        iSymb = MulD2h(iSym,iSyma)
+        iSymb = Mul(iSym,iSyma)
         iS = iE+1
         iE = iE+n(iSyma)*m(iSymb)*NUMV
         n2Dim = n(iSyma)*m(iSymb)
@@ -434,7 +432,7 @@ subroutine Allocate_SBA(Adam,n,m,NUMV,iSym,nSym,iCase,Memory)
       end do
     case (1)
       do iSyma=1,nSym
-        iSymb = MulD2h(iSym,iSyma)
+        iSymb = Mul(iSym,iSyma)
         iS = iE+1
         iE = iE+m(iSyma)*n(iSymb)*NUMV
         n2Dim = m(iSyma)*n(iSymb)
@@ -445,21 +443,21 @@ subroutine Allocate_SBA(Adam,n,m,NUMV,iSym,nSym,iCase,Memory)
       end do
     case (2)
       do iSyma=1,nSym
-        iSymb = MulD2h(iSym,iSyma)
+        iSymb = Mul(iSym,iSyma)
         iS = iE+1
         iE = iE+n(iSyma)*NUMV*m(iSymb)
         Adam%SB(iSyma)%A3(1:n(iSyma),1:NUMV,1:m(iSymb)) => Adam%A0(iS:iE)
       end do
     case (3)
       do iSyma=1,nSym
-        iSymb = MulD2h(iSym,iSyma)
+        iSymb = Mul(iSym,iSyma)
         iS = iE+1
         iE = iE+m(iSyma)*NUMV*n(iSymb)
         Adam%SB(iSyma)%A3(1:m(iSyma),1:NUMV,1:n(iSymb)) => Adam%A0(iS:iE)
       end do
     case (4)
       do iSyma=1,nSym
-        iSymb = MulD2h(iSym,iSyma)
+        iSymb = Mul(iSym,iSyma)
         iS = iE+1
         if (iSyma == iSymb) then
           n2Dim = n(iSyma)*(n(iSyma)+1)/2
@@ -471,7 +469,7 @@ subroutine Allocate_SBA(Adam,n,m,NUMV,iSym,nSym,iCase,Memory)
       end do
     case (5)
       do iSyma=1,nSym
-        iSymb = MulD2h(iSym,iSyma)
+        iSymb = Mul(iSym,iSyma)
         if (iSymb > iSyma) cycle
         iS = iE+1
         if (iSyma == iSymb) then
@@ -484,7 +482,7 @@ subroutine Allocate_SBA(Adam,n,m,NUMV,iSym,nSym,iCase,Memory)
       end do
     case (6)
       do iSyma=1,nSym
-        iSymb = MulD2h(iSym,iSyma)
+        iSymb = Mul(iSym,iSyma)
         if (iSymb > iSyma) cycle
         iS = iE+1
         n2Dim = n(iSyma)*n(iSymb)
@@ -523,9 +521,6 @@ subroutine Map_to_SBA(Adam,ipAdam,Tweak)
   integer(kind=iwp) :: iSym, jSym
   logical(kind=iwp) :: Swap
   integer(kind=iwp), external :: ip_of_Work
-  integer(kind=iwp) :: i, j, MulD2h
-  ! statement function
-  MulD2h(i,j) = ieor(i-1,j-1)+1
 
   if (Adam%iCase < 4) then
     do iSym=1,Adam%nSym
@@ -536,7 +531,7 @@ subroutine Map_to_SBA(Adam,ipAdam,Tweak)
     if (present(Tweak)) Swap = Tweak
     if (Swap) then
       do iSym=1,Adam%nSym
-        jsym = MulD2h(iSym,Adam%iSym)
+        jsym = Mul(iSym,Adam%iSym)
         if (.not. associated(Adam%SB(jSym)%A2)) cycle
 
         ipAdam(iSym) = ip_of_Work(Adam%SB(jSym)%A2(1,1))
@@ -564,9 +559,6 @@ subroutine Allocate_twxy(twxy,n,m,JSYM,nSym,iCase)
   type(twxy_type), target, intent(out) :: twxy
   integer(kind=iwp), intent(in) :: nSym, n(nSym), m(nSym), JSYM, iCase
   integer(kind=iwp) :: iSymx, iSymy, iSymt, iSymw, iSyma, mtwxy, iS, iE, n1, n2
-  integer(kind=iwp) :: i, j, MulD2h
-  !statement function
-  MulD2h(i,j) = ieor(i-1,j-1)+1
 
   twxy%iCase = iCase
   twxy%JSYM = JSYM
@@ -580,22 +572,22 @@ subroutine Allocate_twxy(twxy,n,m,JSYM,nSym,iCase)
           write(u6,*) 'Allocate_twxy: iCase=0 only valid if n(:)=m(:).'
           call abend()
         end if
-        iSymx = MulD2h(iSymy,JSYM)
+        iSymx = Mul(iSymy,JSYM)
         n2 = n(iSymx)*n(iSymy)
         do iSymw=iSymy,nSym    ! iSymw >= iSymy (particle symmetry)
-          iSymt = MulD2h(isymw,JSYM)
+          iSymt = Mul(isymw,JSYM)
           n1 = n(iSymt)*n(iSymw)
           mtwxy = mtwxy+n1*n2
         end do
       end do
     case (1) ! waxy
       do iSymy=1,nSym
-        iSymx = MulD2h(iSymy,JSYM)
+        iSymx = Mul(iSymy,JSYM)
         n2 = n(iSymx)*n(iSymy)
         if (iSymx == iSymy) n2 = n(iSymx)*(n(iSymx)+1)/2
         if (iSymx <= iSymy) then
           do iSyma=1,nSym
-            iSymw = MulD2h(iSyma,JSYM)
+            iSymw = Mul(iSyma,JSYM)
             n1 = n(iSymw)*m(iSyma)
             mtwxy = mtwxy+n1*n2
           end do
@@ -607,12 +599,12 @@ subroutine Allocate_twxy(twxy,n,m,JSYM,nSym,iCase)
           write(u6,*) 'Allocate_twxy: iCase=2 only valid if n(:)=m(:).'
           call abend()
         end if
-        iSymx = MulD2h(iSymy,JSYM)
+        iSymx = Mul(iSymy,JSYM)
         n2 = n(iSymx)*n(iSymy)
         if (iSymx == iSymy) n2 = n(iSymx)*(n(iSymx)+1)/2
         if (iSymx >= iSymy) then
           do iSymw=iSymy,nSym
-            iSymt = MulD2h(iSymw,JSYM)
+            iSymt = Mul(iSymw,JSYM)
             if (iSymt >= iSymw) then
               n1 = n(iSymt)*n(iSymw)
               if (iSymt == iSymw) n1 = n(iSymt)*(n(iSymt)+1)/2
@@ -635,10 +627,10 @@ subroutine Allocate_twxy(twxy,n,m,JSYM,nSym,iCase)
   select case (iCase)
     case (0)
       do iSymy=1,nSym
-        iSymx = MulD2h(iSymy,JSYM)
+        iSymx = Mul(iSymy,JSYM)
         n2 = n(iSymx)*n(iSymy)
         do iSymw=iSymy,nSym   ! iSymw >= iSymy (particle symmetry)
-          iSymt = MulD2h(isymw,JSYM)
+          iSymt = Mul(isymw,JSYM)
           n1 = n(iSymt)*n(iSymw)
           iS = iE+1
           iE = iE+n1*n2
@@ -647,12 +639,12 @@ subroutine Allocate_twxy(twxy,n,m,JSYM,nSym,iCase)
       end do
     case (1)
       do iSymy=1,nSym
-        iSymx = MulD2h(iSymy,JSYM)
+        iSymx = Mul(iSymy,JSYM)
         n2 = n(iSymx)*n(iSymy)
         if (iSymx == iSymy) n2 = n(iSymx)*(n(iSymx)+1)/2
         if (iSymx <= iSymy) then
           do iSyma=1,nSym
-            iSymw = MulD2h(iSyma,JSYM)
+            iSymw = Mul(iSyma,JSYM)
             n1 = n(iSymw)*m(iSyma)
             iS = iE+1
             iE = iE+n1*n2
@@ -662,12 +654,12 @@ subroutine Allocate_twxy(twxy,n,m,JSYM,nSym,iCase)
       end do
     case (2) ! twxy
       do iSymy=1,nSym
-        iSymx = MulD2h(iSymy,JSYM)
+        iSymx = Mul(iSymy,JSYM)
         n2 = n(iSymx)*n(iSymy)
         if (iSymx == iSymy) n2 = n(iSymx)*(n(iSymx)+1)/2
         if (iSymx >= iSymy) then
           do iSymw=iSymy,nSym ! iSymw >= iSymy
-            iSymt = MulD2h(iSymw,JSYM)
+            iSymt = Mul(iSymw,JSYM)
             if (iSymt >= iSymw) then
               n1 = n(iSymt)*n(iSymw)
               if (iSymt == iSymw) n1 = n(iSymt)*(n(iSymt)+1)/2
@@ -706,36 +698,33 @@ subroutine Map_to_twxy(Adam,ipAdam)
   integer(kind=iwp), intent(out) :: ipAdam(8,8)
   integer(kind=iwp) :: iSymx, iSymy, iSymt, iSymw, iSyma
   integer(kind=iwp), external :: ip_of_Work
-  integer(kind=iwp) :: i, j, MulD2h
-  ! statement function
-  MulD2h(i,j) = ieor(i-1,j-1)+1
 
   ipAdam(:,:) = 0
   select case (Adam%iCase)
     case (0)
       do iSymy=1,Adam%nSym
-        iSymx = MulD2h(iSymy,Adam%JSYM)
+        iSymx = Mul(iSymy,Adam%JSYM)
         do iSymw=iSymy,Adam%nSym   ! iSymw >= iSymy (particle symmetry)
-          iSymt = MulD2h(isymw,Adam%JSYM)
+          iSymt = Mul(isymw,Adam%JSYM)
           ipAdam(iSymw,iSymy) = ip_of_Work(Adam%SB(iSymw,iSymy)%A(1,1))
         end do
       end do
     case (1)
       do iSymy=1,Adam%nSym
-        iSymx = MulD2h(iSymy,Adam%JSYM)
+        iSymx = Mul(iSymy,Adam%JSYM)
         if (iSymx <= iSymy) then
           do iSyma=1,Adam%nSym
-            iSymw = MulD2h(iSyma,Adam%JSYM)
+            iSymw = Mul(iSyma,Adam%JSYM)
             ipAdam(iSymw,iSymx) = ip_of_Work(Adam%SB(iSymw,iSymx)%A(1,1))
           end do
         end if
       end do
     case (2)
       do iSymy=1,Adam%nSym
-        iSymx = MulD2h(iSymy,Adam%JSYM)
+        iSymx = Mul(iSymy,Adam%JSYM)
         if (iSymx >= iSymy) then
           do iSymw=iSymy,Adam%nSym ! iSymw >= iSymy
-            iSymt = MulD2h(iSymw,Adam%JSYM)
+            iSymt = Mul(iSymw,Adam%JSYM)
             if (iSymt >= iSymw) then
               ipAdam(iSymw,iSymy) = ip_of_Work(Adam%SB(iSymw,iSymy)%A(1,1))
               ipAdam(iSymy,iSymw) = ip_of_Work(Adam%SB(iSymw,iSymy)%A(1,1))
@@ -861,9 +850,6 @@ subroutine Allocate_L_Full(Adam,nShell,iShp_rs,JNUM,JSYM,nSym,Memory)
   integer(kind=iwp) :: nShell, iShp_rs(nShell*(nShell+2)/2), JNUM, JSYM, nSym
   integer(kind=iwp), intent(out), optional :: Memory
   integer(kind=iwp) :: iaSh, ibSh, iShp, iSyma, iSymb, LFULL, iS, iE, n1, n2
-  integer(kind=iwp) :: i, j, MulD2h
-  ! statement function
-  MulD2h(i,j) = ieor(i-1,j-1)+1
 
   LFULL = 0
   do iaSh=1,nShell
@@ -875,7 +861,7 @@ subroutine Allocate_L_Full(Adam,nShell,iShp_rs,JNUM,JSYM,nSym,Memory)
       if (nnBstRSh(Jsym,iShp_rs(iShp),1) <= 0) cycle
 
       do iSymb=1,nSym
-        iSyma = MulD2h(iSymb,Jsym)
+        iSyma = Mul(iSymb,Jsym)
         if (iSyma < iSymb) cycle
 
         LFULL = LFULL+nBasSh(iSyma,iaSh)*nBasSh(iSymb,ibSh)
@@ -913,7 +899,7 @@ subroutine Allocate_L_Full(Adam,nShell,iShp_rs,JNUM,JSYM,nSym,Memory)
       if (nnBstRSh(Jsym,iShp_rs(iShp),1) <= 0) cycle
 
       do iSymb=1,nSym
-        iSyma = MulD2h(iSymb,Jsym)
+        iSyma = Mul(iSymb,Jsym)
         if (iSyma < iSymb) cycle
 
         iS = iE+1

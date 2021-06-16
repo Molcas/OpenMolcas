@@ -54,15 +54,13 @@ call SysPutsEnd()
 
 !write(u6,'(A)') '*** '
 !jj = 1
-!10 i = index(STR(jj:),';')
-!if (i == 0) then
-!  goto 20
-!else
+!do
+!  i = index(STR(jj:),';')
+!  if (i == 0) exit
 !  write(u6,'(A,A)') '*** ',STR(jj:jj+i-2)
 !  jj = i+jj
-!  goto 10
-!endif
-!20 write(u6,'(A,A)') '*** ',STR(jj:)
+!end do
+!write(u6,'(A,A)') '*** ',STR(jj:)
 !write(u6,'(A)') '*** '
 
 return

@@ -13,7 +13,7 @@ subroutine xabort(rc)
 ! this routine aborts the process(es) with rc
 
 #ifdef _MOLCAS_MPP_
-use mpi
+use mpi, only: MPI_COMM_WORLD
 use Para_Info, only: Is_Real_Par
 use Definitions, only: MPIInt
 #endif

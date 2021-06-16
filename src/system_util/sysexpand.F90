@@ -38,7 +38,7 @@ character(len=*), intent(out) :: strout
 integer(kind=iwp), intent(out) :: iRet
 integer(kind=iwp), save :: ifset = 0, itab(0:255)
 integer(kind=iwp) :: i, ii, ik, ip, j
-character(len=512) ::  sstrin
+character(len=512) :: sstrin
 character :: c
 character(len=*), parameter :: up = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ', &
                                lw = 'abcdefghijklmnopqrstuvwxyz ', &
@@ -47,25 +47,25 @@ character(len=*), parameter :: up = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ', &
 integer(kind=iwp), parameter :: MAXlabel = 8
 integer(kind=iwp), save :: MSGlen(MAXlabel)
 character(len=*), parameter :: MSGlabel(MAXlabel) = [character(len=13) :: &
-                                 'OPEN',          &
-                                 'CLOSE',         &
-                                 'UNIT',          &
-                                 'DELETE',        &
-                                 'SEEK',          &
-                                 'INVALIDOPTION', &
-                                 'USED',          &
-                                 'NOTOPENED'      &
-                               ], &
-                               MSGtext(MAXlabel) = [character(len=128) :: &
-                                 'Premature abort while opening file',                           & !OPEN
-                                 'Premature abort while closing the file',                       & !CLOSE
-                                 'Invalid unit number (Lu<=0 or Lu>99)',                         & !UNIT
-                                 'Premature abort while removing the file',                      & !DELETE
-                                 'Premature abort while seeking the file',                       & !SEEK
-                                 'An invalid option or combination of options has been supplied',& !INVALIDOPTION
-                                 'Invalid unit number. The file is already opened',              & !USED
-                                 'File is not Opened'                                            & !NOT OPENED
-                               ]
+                                                     'OPEN', &
+                                                     'CLOSE', &
+                                                     'UNIT', &
+                                                     'DELETE', &
+                                                     'SEEK', &
+                                                     'INVALIDOPTION', &
+                                                     'USED', &
+                                                     'NOTOPENED' &
+                                                    ], &
+  MSGtext(MAXlabel) = [character(len=128) :: &
+                       'Premature abort while opening file',                            & !OPEN
+                       'Premature abort while closing the file',                        & !CLOSE
+                       'Invalid unit number (Lu<=0 or Lu>99)',                          & !UNIT
+                       'Premature abort while removing the file',                       & !DELETE
+                       'Premature abort while seeking the file',                        & !SEEK
+                       'An invalid option or combination of options has been supplied', & !INVALIDOPTION
+                       'Invalid unit number. The file is already opened',               & !USED
+                       'File is not Opened'                                             & !NOT OPENED
+                      ]
 
 ! preset of saved data
 ! this code uses a part of upcase routine
@@ -82,9 +82,9 @@ if (ifset == 0) then
   end do
   do i=1,MAXlabel
     do j=128,1,-1
-      if (MSGtext(i)(j:j) /= ' ') goto 1
+      if (MSGtext(i)(j:j) /= ' ') exit
     end do
-1   MSGlen(i) = j
+    MSGlen(i) = j
   end do
 end if
 ! fixation of bug in G77
@@ -116,19 +116,23 @@ do ii=5,len(sstrin)
     sstrin(ik:ik) = char(j)
   end if
 end do
+strout = sstrin(1:ik)
+iRet = ik
 do ii=1,MAXlabel
-  if (sstrin(1:ik) == MSGlabel(ii)) goto 10
+  if (sstrin(1:ik) == MSGlabel(ii)) then
+    strout = MSGtext(ii)(1:MSGlen(ii))
+    iRet = MSGlen(ii)
+    return
+  end if
 end do
 ! try again...
 do ii=1,MAXlabel
-  if (sstrin(1:4) == MSGlabel(ii)(1:4)) goto 10
+  if (sstrin(1:4) == MSGlabel(ii)(1:4)) then
+    strout = MSGtext(ii)(1:MSGlen(ii))
+    iRet = MSGlen(ii)
+    return
+  end if
 end do
-strout = sstrin(1:ik)
-iRet = ik
-return
-10 continue
-strout = MSGtext(ii)(1:MSGlen(ii))
-iRet = MSGlen(ii)
 
 return
 

@@ -37,14 +37,13 @@ call UnixInfoC(pid,ppid,sec,mins,hour,mday,mon,year,wday,yday,isdst,username,rea
 
 !  Clear ProgName of directory part:
 LenProgName = StrnLn(ProgName)
+Islash = 0
 do Ich=LenProgName,1,-1
   if (ProgName(Ich:Ich) == '/') then
     Islash = Ich
-    goto 200
+    exit
   end if
 end do
-Islash = 0
-200 continue
 do Ich=1,LenProgName
   if (Ich <= LenProgName-Islash) then
     ProgName(Ich:Ich) = ProgName(Ich+Islash:Ich+Islash)

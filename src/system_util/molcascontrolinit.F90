@@ -31,24 +31,26 @@ call molcas_open(Lu,filename)
 write(Lu,'(a)') '# Molcas control file: change # to ! to activate.'
 islast = 0
 
-10 i = index(tmp,',')
-My = ' '
-if (i > 0) then
-  My(1:i-1) = tmp(1:i-1)
-  tmp = tmp(i+1:)
-else
-  My = trim(tmp)
-  islast = 1
-end if
-iC = iC+1
-if (ic > nLines) call abend()
-i = StrnLn(My)
-if (index(My,'=') == 0) then
-  i = i+1
-  My(i:i) = '='
-end if
-write(Lu,'(a,a)') '#',My(1:i)
-if (islast == 0) goto 10
+do
+  i = index(tmp,',')
+  My = ' '
+  if (i > 0) then
+    My(1:i-1) = tmp(1:i-1)
+    tmp = tmp(i+1:)
+  else
+    My = trim(tmp)
+    islast = 1
+  end if
+  iC = iC+1
+  if (ic > nLines) call abend()
+  i = StrnLn(My)
+  if (index(My,'=') == 0) then
+    i = i+1
+    My(i:i) = '='
+  end if
+  write(Lu,'(a,a)') '#',My(1:i)
+  if (islast /= 0) exit
+end do
 close(Lu)
 
 return
