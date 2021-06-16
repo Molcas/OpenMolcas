@@ -65,7 +65,7 @@ character(len=100), external :: Get_SuperName
 character(len=180), external :: Get_Ln
 #include "chomp2_cfg.fh"
 #include "corbinf.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "Molcas.fh"
 
 !----------------------------------------------------------------------*

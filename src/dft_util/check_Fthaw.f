@@ -12,7 +12,7 @@
 
       use OFembed, only: ThrFThaw
       Implicit Real*8 (a-h,o-z)
-#include "warnings.fh"
+#include "warnings.h"
       Character*16 NamRfil
       Logical ok
       Real*8 Ene(1000,4)

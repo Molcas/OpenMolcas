@@ -105,7 +105,7 @@
               If (maxlab.gt.1.or.labs(1).ne.'                ') Then
                 Write(outlab,'(1x,a,6a16)') 'Component              ',
      &                                   (labs(j),j=i,min(i+5,maxlab))
-                Write(6,'(a)') outlab(:mylen(outlab))
+                Write(6,'(a)') trim(outlab)
               End If
             End If
             jcount=0
@@ -119,14 +119,14 @@
             End Do
             Write (outlab,'(1x,a,6a16)') 'Irrep  Orb   Occupation',
      &                                (labs(j),j=i,min(i+5,maxlab))
-            Write(6,'(a)') outlab(:mylen(outlab))
+            Write(6,'(a)') trim(outlab)
             lbb4='    '
             Write (outlab,'(33a4)') (lbb4,j=1,33)
             lbb4='----'
             lab ='----------------'
             Write (outlab,'(6a4,6a16)') (lbb4,j=1,6),
      &                              (lab,j=i,min(i+5,maxlab))
-            Write(6,'(1x,a)') outlab(:mylen(outlab))
+            Write(6,'(1x,a)') trim(outlab)
             icount=0
             Do ii=0,nIrrep-1
                Do jj=1,nBas(ii)
@@ -147,7 +147,7 @@
                   End If
                End Do
             End Do
-            Write(6,'(1x,a)') outlab(:mylen(outlab))
+            Write(6,'(1x,a)') trim(outlab)
          End if
 *
 

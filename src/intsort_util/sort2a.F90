@@ -45,7 +45,7 @@ integer(kind=iwp), intent(out) :: IOStk(lStk)
 integer(kind=iwp), intent(inout) :: nStk
 #include "print.fh"
 #include "PkCtl.fh"
-#include "warnings.fh"
+#include "warnings.h"
 integer(kind=iwp) :: idiv, iI_Storage, iInd, iInt, indx, Init_do_setup_d, Init_do_setup_e, Init_do_setup_l, iOpt, iP_Storage, &
                      iPrint, iRout, iSec, ist1, ist2, iZero, lIBin, lVBin, mDaRec, mStRec, nInts, nInts1, nInts2, PkIBin(lStRec)
 real(kind=wp) :: PkVBin(lStRec)

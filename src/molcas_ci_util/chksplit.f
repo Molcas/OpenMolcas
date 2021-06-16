@@ -28,7 +28,7 @@
 #include "output_ras.fh"
 #include "general.fh"
 #include "splitcas.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
 *      IF(DoSplitCAS) THEN
         IERR=0

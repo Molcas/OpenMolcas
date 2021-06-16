@@ -62,7 +62,7 @@ character(len=80) :: ErrTxt
 character(len=64) :: Temp
 character(len=*), parameter :: TheName = 'AixRd'
 integer(kind=iwp), external :: AixErr, c_lseek, c_read
-#include "warnings.fh"
+#include "warnings.h"
 
 !----------------------------------------------------------------------*
 ! Entry to AixRd                                                       *

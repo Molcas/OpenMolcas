@@ -42,7 +42,7 @@ C
       use fciqmc, only : DoNECI
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "rasrc.fh"
 #include "WrkSpc.fh"
 #include "wadr.fh"

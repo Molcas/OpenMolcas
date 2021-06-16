@@ -23,7 +23,7 @@ character(len=*), intent(in) :: FRMT, STR, STR2
 real(kind=wp), intent(in) :: Val(iRank)
 character(len=120) :: TMP
 character(len=2), parameter :: Marker = '::'
-#include "icolorize.fh"
+#include "print.fh"
 
 if (icolorize == 1) then
   if (iCount == 0) then

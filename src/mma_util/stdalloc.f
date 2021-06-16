@@ -41,7 +41,7 @@
 * out-of-memory handling
       subroutine mma_oom(bufsize,mma_avail)
         implicit none
-#include "warnings.fh"
+#include "warnings.h"
         integer :: bufsize, mma_avail
         write(6,'(1x,a)') '?mma_allo_?D: error: out-of-memory'
         write(6,'(1x,a,i12)') ' available (kB): ',
@@ -54,13 +54,13 @@
 * double allocation/deallocation handling
       subroutine mma_double_allo
         implicit none
-#include "warnings.fh"
+#include "warnings.h"
         write(6,'(1x,a)') '?mma_allo_?D: error: double allocate'
         call quit(_RC_MEMORY_ERROR_)
       end subroutine
       subroutine mma_double_free
         implicit none
-#include "warnings.fh"
+#include "warnings.h"
         write(6,'(1x,a)') '?mma_free_?D: error: double deallocate'
         call quit(_RC_MEMORY_ERROR_)
       end subroutine

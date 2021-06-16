@@ -23,7 +23,9 @@ text = adjustl(line)
 linewidth = len(line)
 textwidth = len_trim(text)
 textoffset = (linewidth-textwidth)/2
-line = ' '
-line(textoffset+1:textoffset+textwidth) = text
+if (textoffset > 0) then
+  line = ' '
+  line(textoffset+1:textoffset+textwidth) = text
+end if
 
 end subroutine center_text

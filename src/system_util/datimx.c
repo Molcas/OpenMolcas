@@ -53,7 +53,7 @@
 void datimx(char *TimeStamp)
 {
 #ifdef _WIN32_
-strcpy(TimeStamp,"Once upon a time..");
+strcpy(TimeStamp,"Once upon a time...");
 #else
   static int CTIME_RES_LENGTH = 24;
   char *ptr;
@@ -61,17 +61,15 @@ strcpy(TimeStamp,"Once upon a time..");
   struct timeval t;
   struct timezone tz;
   if ( gettimeofday(&t,&tz) != 0 ) {
-       printf(" *** Error in procedure datimx: %s\n",strerror(errno));
-       exit(20);
-     }
-     else
-     {
-       x=(time_t)t.tv_sec;
-       ptr=ctime(&x);
-       if(ptr!=NULL) {
-        strncpy(TimeStamp,ptr, CTIME_RES_LENGTH);
-        TimeStamp[CTIME_RES_LENGTH+1]=0;
-        }
-     }
+    printf(" *** Error in procedure datimx: %s\n",strerror(errno));
+    exit(20);
+  } else {
+    x=(time_t)t.tv_sec;
+    ptr=ctime(&x);
+    if(ptr!=NULL) {
+      strncpy(TimeStamp,ptr, CTIME_RES_LENGTH);
+      TimeStamp[CTIME_RES_LENGTH+1]=0;
+    }
+  }
 #endif
 }

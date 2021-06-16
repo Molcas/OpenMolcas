@@ -237,7 +237,7 @@ C
 
 
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
 #include "davctl.fh"
 #include "WrkSpc.fh"

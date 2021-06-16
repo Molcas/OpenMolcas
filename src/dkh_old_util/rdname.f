@@ -47,9 +47,6 @@ C
 C...      unformatted files
           LINE=BLANK
           READ (LU,END=999)          LINE
-          NOFB=MYLEN(LINE)
-          IF (NOFB.EQ.0) NOFB=1
-          IF (NOFB.LT.80) LINE=LINE(1:NOFB)
         ELSE
 C...      formatted files
           READ (LU,'(A80)',END=999) LINE

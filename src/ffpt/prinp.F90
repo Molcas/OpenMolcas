@@ -59,7 +59,7 @@ if (mTit > 0) then
     if (i >= 4 .and. i <= nLine-2) then
       PrLine = Title(i-3)
     end if
-    call Center(PrLine)
+    call Center_Text(PrLine)
     write(u6,Fmt1) '*'//PrLine//'*'
   end do
   write(u6,*)

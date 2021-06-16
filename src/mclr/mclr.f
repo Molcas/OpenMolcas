@@ -48,7 +48,7 @@
       use negpre, only: SS
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "stdalloc.fh"
 #include "machine.fh"
 #include "SysDef.fh"

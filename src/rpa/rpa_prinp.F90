@@ -84,7 +84,7 @@ if (nTitle > 0) then
     if ((i == 1) .or. (i == nLine)) Line = StLine
     if (i == 3) Line = 'Title:'
     if ((i >= 4) .and. (i <= nLine-2)) Line = Title(i-3)
-    call Center(Line)
+    call Center_Text(Line)
     write(u6,Fmt1) '*'//Line//'*'
   end do
   write(u6,*)

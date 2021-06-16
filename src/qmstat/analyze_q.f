@@ -15,7 +15,7 @@
 #include "files_qmstat.fh"
 #include "qminp.fh"
 #include "WrkSpc.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Parameter(iHUltraMax=1000)
       Dimension iCo(3)

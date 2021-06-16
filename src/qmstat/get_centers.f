@@ -17,7 +17,7 @@
 
 #include "maxi.fh"
 #include "files_qmstat.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Dimension xyz(MxAt,MxAt,3)
       Character*13 TheLine

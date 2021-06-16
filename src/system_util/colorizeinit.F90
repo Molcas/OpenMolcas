@@ -13,7 +13,7 @@ subroutine ColorizeInit()
 
 implicit none
 character(len=32) :: Str
-#include "icolorize.fh"
+#include "print.fh"
 
 Str = ' '
 icolorize = 1

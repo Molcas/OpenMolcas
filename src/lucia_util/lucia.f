@@ -28,7 +28,7 @@
 
 #include "glbbas.fh"
 #include "rasscf_lucia.fh"
-#include "warnings.fh"
+#include "warnings.h"
 *.Scratch : A character line
 *
 *.    No floating point underflow

@@ -104,14 +104,14 @@ c***********************************************************************
       If ( iOrbTyp.ne.2 ) then
          IF(IPRLEV.GE.USUAL)Write(LF,'(6X,3A)')
      &   'Average orbitals are written to the ',
-     &   filename(:mylen(filename)),' file'
+     &   trim(filename),' file'
          Write(VecTyp,'(A)')
      &   '* RASSCF average (pseudo-natural) orbitals'
          Call dDaFile(JobIph,2,Work(ipOcc),ntot,iDisk)
       Else
          IF(IPRLEV.GE.USUAL)Write(LF,'(6X,3A)')
      &   'Canonical orbitals are written to the ',
-     &   filename(:mylen(filename)),' file'
+     &   trim(filename),' file'
          Write(VecTyp,'(A)')
      &   '* RASSCF canonical orbitals for CASPT2'
          call dcopy_(ntot,[1.0D0],0,Work(ipOcc),1)
@@ -163,7 +163,7 @@ c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
         Call dDaFile(JobIph,2,Work(ipOcc),ntot,iDisk)
         IF(IPRLEV.GE.USUAL)Write(LF,'(6X,A,I3,3A)')
      &   'Natural orbitals for root ',IRT,
-     &   ' are written to the ',filename(:mylen(filename)),' file'
+     &   ' are written to the ',trim(filename),' file'
          Write(VecTyp,'(A41,I3,A3,f22.12)')
      &   '* RASSCF natural orbitals for root number',IRT,
      &   ' E=',Energy
@@ -198,7 +198,7 @@ c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
         Call dDaFile(JobIph,2,Work(ipOcc),ntot,iDisk)
         IF(IPRLEV.GE.USUAL)Write(LF,'(6X,A,I3,3A)')
      &   'Spin density orbitals for root ',IRT,
-     &   ' are written to the ',filename(:mylen(filename)),' file'
+     &   ' are written to the ',trim(filename),' file'
         Write(VecTyp,'(A,I3)')
      &   '* RASSCF spin density orbitals for root number',IRT
 *----------------------------------------------------------------------*

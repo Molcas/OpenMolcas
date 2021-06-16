@@ -15,7 +15,7 @@
       Character*80 line
       Dimension NBAS_L(8)
       Dimension NORB_L(8)
-#include "warnings.fh"
+#include "warnings.h"
 #include "inporbfmt.fh"
       Logical lExists
 

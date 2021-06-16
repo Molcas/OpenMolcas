@@ -211,7 +211,7 @@
             Line(iSt:iSt+2)='):'
             Fact=Debye*Angstrom**(lPole-1)
          End If
-         Write(6,'(6X,A)') Line(:mylen(Line))
+         Write(6,'(6X,A)') trim(Line)
          If (lpole.gt.0) Then
             Write (6,'(6X,A,3F10.4)') 'Origin of the operator (Ang)=',
      &            (cen1(i)*Angstrom,i=1,3)

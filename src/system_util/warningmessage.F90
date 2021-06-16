@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) Valera Veryazov                                        *
 !***********************************************************************
+!***********************************************************************
 !  WarningMessage
 !
 !> @brief
@@ -33,11 +34,12 @@
 
 subroutine WarningMessage(Level,STR)
 
+use warnings, only: MaxWarnMess
 use Definitions, only: iwp
+
 implicit none
 integer(kind=iwp), intent(in) :: Level
 character(len=*), intent(in) :: STR
-#include "warn.fh"
 
 if (Level > MaxWarnMess) MaxWarnMess = Level
 call SysPutsStart()

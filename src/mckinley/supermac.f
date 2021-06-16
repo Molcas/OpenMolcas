@@ -15,7 +15,7 @@
       Character(LEN=8) Method
       Character(LEN=16) StdIn
       Logical Do_Cholesky, Do_ESPF, Numerical, Found
-#include "warnings.fh"
+#include "warnings.h"
 #include "temperatures.fh"
 *
       Call Get_cArray('Relax Method',Method,8)
@@ -163,7 +163,7 @@
       Subroutine Lu2Lu(Filename,LuInput)
       Character FileName*(*), Line*180
       Logical Exist
-#include "warnings.fh"
+#include "warnings.h"
 *
       Call f_inquire(Filename,Exist)
       If (.Not.Exist) Then

@@ -11,7 +11,7 @@
       SUBROUTINE ALLOC_MRCI
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "mrci.fh"
 *------
 * POW: This array is not used!

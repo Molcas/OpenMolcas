@@ -28,7 +28,7 @@ integer(kind=iwp), intent(out) :: ireturn
 #include "standard_iounits.fh"
 #include "WrkSpc.fh"
 #include "timtra.fh"
-#include "warnings.fh"
+#include "warnings.h"
 real(kind=wp) :: Energy_Ref, FX(3), rDum(1), Dsp, EMinus, EPlus, Grada, Gradb, rDeg, rDelta, rMax, rTest, Sgn, TempX, TempY, &
                  TempZ, x, x0, y, y0, z, z0
 integer(kind=iwp) :: iOper(0:7), jStab(0:7), iCoSet(0:7,0:7), iDispXYZ(3), rc, error, i, iAt, iAtom, ibla, iBlabla, iChxyz, iCoor, &

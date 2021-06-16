@@ -29,16 +29,16 @@
 
 subroutine SysWarnMsg(Location,Text1,Text2)
 
+use warnings, only: MaxWarnMess
 use Definitions, only: iwp
 
 implicit none
 character(len=*), intent(in) :: Location, Text1, Text2
 integer(kind=iwp) :: i, Level
 character(len=256) :: Str
-#include "warn.fh"
 
-Level = 1
 ! for these messages assume that Level is 1
+Level = 1
 if (Level > MaxWarnMess) MaxWarnMess = Level
 call SysPutsStart()
 call SysPuts('Location: ',Location,'\n\n\n')

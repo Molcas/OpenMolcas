@@ -59,7 +59,7 @@ real(kind=wp) :: CPUA, CPUE, TIOA, TIOE
 character(len=80) :: ErrTxt
 character(len=*), parameter :: TheName = 'AixPRd'
 integer(kind=iwp), external :: AixErr, c_pread
-#include "warnings.fh"
+#include "warnings.h"
 
 !----------------------------------------------------------------------*
 ! Entry to AixPRd                                                      *

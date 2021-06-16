@@ -22,7 +22,7 @@
       use Data_Structures, only: DSBA_Type
       use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA
       Implicit Real*8 (a-h,o-z)
-#include "warnings.fh"
+#include "warnings.h"
       Character(LEN=13), Parameter :: SECNAM = 'CHO_FOCK_MCLR'
       Integer   ipLpq(8,3)
       Integer   LuAChoVec(8)

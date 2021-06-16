@@ -12,6 +12,7 @@
 subroutine xquit(rc)
 !SVC: routine that terminates Molcas properly
 
+use warnings, only: rc_msg
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: King
 #endif
@@ -22,7 +23,7 @@ integer(kind=iwp), intent(in) :: rc
 integer(kind=iwp) :: lb, ub
 character(len=128) :: msg
 logical(kind=iwp), external :: bomb_on_error
-#include "warnings.fh"
+#include "warnings.h"
 
 call xflush(u6)
 

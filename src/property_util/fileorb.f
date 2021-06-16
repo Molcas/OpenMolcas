@@ -20,7 +20,7 @@
         tmp=' '
         call getenvf('MOLCAS_SUBMIT_DIR',tmp)
         if(tmp.ne.' ') then
-         fileout=tmp(1:mylen(tmp))//'/'//filein
+         fileout=trim(tmp)//'/'//filein
 c         print *,'vv',fileout
          call f_inquire(fileout,Exist)
          if(Exist) goto 100
@@ -28,12 +28,12 @@ c         print *,'vv',fileout
          fileout=filein
          call f_inquire(fileout,Exist)
          if(.not.Exist)        then
-          tmp='file '//fileout(1:mylen(fileout))//' not found'
+          tmp='file '//trim(fileout)//' not found'
           Call WarningMessage(2,tmp)
           Call Quit_OnUserError()
          endif
 100      continue
 c         write(6,*) 'INPORB file=',fileout
-c         call fcopy(fileout(1:mylen(fileout)),'INPORB')
+c         call fcopy(trim(fileout),'INPORB')
          return
          end

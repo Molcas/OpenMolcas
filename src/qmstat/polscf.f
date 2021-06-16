@@ -19,7 +19,7 @@
 #include "qm1.fh"
 #include "numbers.fh"
 #include "WrkSpc.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Dimension Poli(MxQCen,10),VMat(MxOT),FFp(nPol*nPart,3)
       Dimension VpolMat(MxOT),Smat(MxOT),RoMat(MxOT)

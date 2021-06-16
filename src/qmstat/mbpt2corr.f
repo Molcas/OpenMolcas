@@ -20,7 +20,7 @@
 #include "qminp.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "warnings.fh"
+#include "warnings.h"
       Real*8, Allocatable:: Diff(:)
       Dimension Cmo(MxBas**2)
 

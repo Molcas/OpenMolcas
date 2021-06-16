@@ -83,7 +83,7 @@
       Call CollapseOutput(1,'   Molecular orbitals:')
       Write(6,'(6X,A)') '-------------------'
       Write(6,*)
-      Write(6,'(6X,2A)') 'Title: ',Header(:mylen(Header))
+      Write(6,'(6X,2A)') 'Title: ',trim(Header)
 c     Write(6,*)
 c     Write(6,*) 'test print out'
 *----------------------------------------------------------------------*

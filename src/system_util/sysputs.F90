@@ -37,7 +37,7 @@ character(len=512) :: Junk
 ! had to have limited length of the string
 iTooLong = 60
 iLongEnough = 50
-call mycat(Junk,str,str1,str2)
+Junk = trim(str)//trim(str1)//trim(str2)
 mlen = len_trim(Junk)
 mleni = mlen
 ipos = 1

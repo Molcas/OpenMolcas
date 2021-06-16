@@ -33,11 +33,6 @@ logical(kind=iwp) parallelized
 write(u6,*) ' Start.'
 #endif
 
-! fill the returncode database with human-readable messages
-call rc_msg_init()
-! initialize global counter for the maximum warning level
-call WarningInit()
-
 ! Initialize delayed BLAS+LAPACK
 
 #ifdef _DELAYED_

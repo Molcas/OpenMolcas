@@ -59,7 +59,7 @@
 #include "numbers.fh"
 #include "WrkSpc.fh"
 #include "tratoc.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Parameter (IndMax=nTraBuf) !nTraBuf definied in tratoc.fh
 
@@ -95,7 +95,7 @@
           If(i.eq.1.or.i.eq.6) Line=StLine
           If(i.eq.3) Line='Project:'
           If(i.eq.4) Write(Line,'(A72)')JobLab
-          Call Center(Line)
+          Call Center_Text(Line)
           Write(6,*)'*'//Line//'*'
 9991    Continue
         Write(6,*)

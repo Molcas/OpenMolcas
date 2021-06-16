@@ -62,7 +62,7 @@
       Implicit Real*8 (a-h,o-z)
       Integer iD_A(*), kCol, nRow, nMem, lu_Z, lScr, lindep
       Real*8  Diag(*), A_k(*), Zm(nRow,*), Scr(*)
-#include "warnings.fh"
+#include "warnings.h"
       Parameter ( one = 1.0d0, zero = 0.0d0 , thr_neg=-1.0d-8)
 
 ************************************************************************

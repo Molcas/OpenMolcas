@@ -30,20 +30,6 @@ c                    this file contains subroutines which depend on plat
       write(6,*)
       write(6,*)
 
-      call get_date()
-
-      return
-      end
-
-      subroutine get_date()
-#ifdef _XIANEST_
-      character*64 date
-      call fdate(date)
-#endif
-#ifdef MOLPRO
-#else
-      call datimm()
-#endif
       return
       end
 
@@ -535,8 +521,8 @@ c...end of readint
       implicit none
       character*(*),intent(out) :: string
       character*128  :: line
-      integer :: i,j,k,mylen
-      k=mylen(string)
+      integer :: i,j,k
+      k=len_trim(string)
       line(1:k)=string(1:k)
       do i=1,k
         if(string(i:i).ne." ") exit

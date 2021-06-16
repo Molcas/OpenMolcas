@@ -53,7 +53,7 @@ C
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
       Implicit Real*8 (a-h,o-z)
-#include "warnings.fh"
+#include "warnings.h"
 
       Real*8 G2(*), MO_Int(*)
       Integer   kOff(8),kaOff(8)

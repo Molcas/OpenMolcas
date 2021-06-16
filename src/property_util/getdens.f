@@ -63,7 +63,7 @@
          Write (6,*)
          Write (6,'(A)') ' Header from vector file:'
          Write (6,*)
-         Write (6,'(A)') Line(:mylen(Line))
+         Write (6,'(A)') trim(Line)
          Write (6,*)
 #ifdef _HDF5_
       End If

@@ -26,7 +26,7 @@ integer(kind=iwp), intent(in) :: nComp, lOper(nComp), nOrdOp, iChO(nComp), ipad,
 integer(kind=iwp), intent(out) :: ip(nComp)
 real(kind=wp), intent(in) :: CCoor(3,nComp), rNuc(nComp), rHrmt, opmol(*), opnuc(*), PtChrg(nGrid)
 #include "print.fh"
-#include "warnings.fh"
+#include "warnings.h"
 integer(kind=iwp) :: iadr, iComp, iIrrep, iOpt, iPrint, iRC, iRout, iSmLbl, iStabO(0:7), LenInt, LenTot, llOper, nIC, nStabO
 real(kind=wp), allocatable :: Int1El(:)
 integer(kind=iwp), external :: n2Tri

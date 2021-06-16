@@ -161,7 +161,7 @@ c#endif
 
       KCMO  = 0
       IF(TITLE(1:1).NE.'*') TITLE='*'//TITLE(:LEN(TITLE)-1)
-      WRITE(LU,'(A)') TITLE(:mylen(TITLE))
+      WRITE(LU,'(A)') trim(TITLE)
       Write(LU,'(3i8)') IUHF, NSYM, iWFtype
       WRITE(LU,'(8i8)') (NBAS(I),I=1,NSYM)
       WRITE(LU,'(8i8)') (NORB(I),I=1,NSYM)
@@ -171,7 +171,7 @@ c#endif
       ELSE
         cDNA=' '
         Call Get_cArray('BirthCertificate',cDNA(:nDNA),nDNA)
-        WRITE(LU,'(A)') '*BC:'//cDNA(:mylen(cDNA))
+        WRITE(LU,'(A)') '*BC:'//trim(cDNA)
       ENDIF
 
 * Extras section
@@ -315,7 +315,7 @@ c#endif
         in=isfreeunit(in)
         call molcas_open(in,'ORB.std')
 765     read(in,'(a)',end=766,err=766) InOut
-        write(Lu,'(a)') InOut(1:mylen(InOut))
+        write(Lu,'(a)') trim(InOut)
         goto 765
 766     close(in)
       endif

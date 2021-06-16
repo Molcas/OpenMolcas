@@ -72,7 +72,7 @@ integer(kind=iwp), intent(inout) :: Buf(*), iDisk
 integer(kind=iwp) :: iRc = 0, lDisk
 character(len=80) :: Text, HeadErr
 integer(kind=iwp), external :: AixErr, AixRd, AixWr
-#include "warnings.fh"
+#include "warnings.h"
 
 call DaFile_checkarg(Lu,iOpt,lBuf,iDisk)
 !****************** REAL I/O IS HERE **************

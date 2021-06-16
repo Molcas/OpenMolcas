@@ -12,7 +12,7 @@
       Implicit Real*8 (a-h,o-z)
 
 #include "WrkSpc.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Character*10 Label,OneFile
       Dimension nInt(1)

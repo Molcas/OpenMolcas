@@ -55,7 +55,7 @@ C!
 #include "indims.fh"
 #include "WrkSpc.fh"
 #include "io_mula.fh"
-#include "warnings.fh"
+#include "warnings.h"
       Integer nIndex(3,0:maxMax_n)
 C!
 C!

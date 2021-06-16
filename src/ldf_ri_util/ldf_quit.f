@@ -17,7 +17,7 @@ C       other  => _RC_GENERAL_ERROR
 C
       Implicit None
       Integer irc
-#include "warnings.fh"
+#include "warnings.h"
 
       If (irc.eq.-1) Then
          Call xQuit(_RC_INPUT_ERROR_)

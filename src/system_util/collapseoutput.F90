@@ -34,7 +34,7 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: iSw
 character(len=*), intent(in) :: STR
-#include "icolorize.fh"
+#include "print.fh"
 
 if (icolorize == 1) then
   if (iSw == 1) then

@@ -85,7 +85,7 @@
       Parameter (ROUTINE='READVC  ')
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "wadr.fh"
 #include "casvb.fh"
 #include "sxci.fh"

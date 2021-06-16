@@ -20,7 +20,7 @@
       Implicit Real*8 (A-H,O-Z)
 *
 #include "SysCtl.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "mama.fh"
 #include "WrkSpc.fh"
 *
@@ -57,7 +57,6 @@
 *     Allocate "dummy" pointers                                        *
 *----------------------------------------------------------------------*
       Call GetMem('ip_Dum', 'Allo','REAL',ip_Dummy,  1)
-      Call GetMem('ip_sDum','Allo','SNGL',ip_sDummy, 1)
       Call GetMem('ip_iDum','Allo','INTE',ip_iDummy, 1)
 *----------------------------------------------------------------------*
 *     exit                                                             *

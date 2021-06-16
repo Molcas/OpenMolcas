@@ -24,7 +24,7 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-#include "warnings.fh"
+#include "warnings.h"
       Integer:: IRC=0
       Real*8 Maxed, MaxErr
       Character(LEN=5) ConLbl(5)

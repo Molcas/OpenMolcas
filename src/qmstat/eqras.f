@@ -20,7 +20,7 @@
 #include "numbers.fh"
 #include "integral.fh"
 #include "WrkSpc.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "constants.fh"
 
       Parameter (Conver1=1.0d10*CONST_BOHR_RADIUS_IN_SI_)

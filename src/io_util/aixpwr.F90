@@ -55,7 +55,7 @@ real(kind=wp) :: CPUA, CPUE, TIOA, TIOE
 character(len=80) :: ErrTxt
 character(len=*), parameter :: TheName = 'AixPWr'
 integer(kind=iwp), external :: AixErr, c_pwrite
-#include "warnings.fh"
+#include "warnings.h"
 
 !----------------------------------------------------------------------*
 ! Entry to AixPWr                                                      *

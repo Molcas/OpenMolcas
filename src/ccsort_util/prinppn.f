@@ -69,7 +69,7 @@ CLD    Character*120  Line,BlLine,StLine
 *     & Line='Project:'
 *       If ( i.ge.4 .and. i.le.nLine-2 )
 *     & Write(Line,'(18A4)')(Title(i-3,j),j=1,18)
-*       Call Center(Line)
+*       Call Center_Text(Line)
 *       Write(*,Fmt1) '*'//Line//'*'
 *       End Do
 *       Write(*,*)

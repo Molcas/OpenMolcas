@@ -16,6 +16,7 @@ subroutine finish(rc)
 ! After everything is closed properly, xquit is
 ! called to do the actual termination.
 
+use warnings, only: MaxWarnMess
 use Symmetry_Info, only: Symmetry_Info_Free
 use Isotopes, only: Free_Isotopes
 #ifndef _HAVE_EXTRA_
@@ -25,7 +26,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(iwp), intent(in) :: rc
-integer(iwp) :: idum = 0, iwarn
+integer(iwp) :: idum = 0
 #include "WrkSpc.fh"
 #include "timtra.fh"
 
@@ -41,14 +42,12 @@ call prgmfree()
 #endif
 
 call GetMem('ip_iDum','Free','Inte',ip_iDummy,1)
-call GetMem('ip_sDum','Free','SNGL',ip_sDummy,1)
 call GetMem('ip_Dum','Free','Real',ip_Dummy,1)
 call GetMem('Finish','List','Real',iDum,iDum)
 call GetMem('Finish','Term','Real',iDum,iDum)
 
 call StatusLine('Happy landing',' ')
-call WarningCheckOut(iWarn)
-if (iWarn > 1) then
+if (MaxWarnMess > 1) then
   call WarningMessage(1,'There were warnings during the execution;Please, check the output with care!')
 end if
 

@@ -14,7 +14,7 @@
       use Slapaf_Info, only: jStab, nStab, Smmtrc
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
-#include "warnings.fh"
+#include "warnings.h"
 *
 #include "real.fh"
       Real*8 Tx(3,MxAtom), A(3,nCent), B(3,nCent), ATemp(3),

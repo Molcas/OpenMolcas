@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: rc
-#include "warnings.fh"
+#include "warnings.h"
 
 integer(kind=iwp) :: NSTATE, LUIPH, IAD, ITOC15(15), NCI, IDISK, I
 real(kind=wp), allocatable :: CIBigArray(:)

@@ -33,7 +33,7 @@
       use Data_structures, only: Allocate_SBA, Deallocate_SBA
       Implicit Real*8 (a-h,o-z)
       Real*8 CMO(*)
-#include "warnings.fh"
+#include "warnings.h"
       Character(LEN=13), Parameter:: SECNAM = 'CHO_PREC_MCLR'
 
       Integer   ISTSQ(8)
