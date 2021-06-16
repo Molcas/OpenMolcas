@@ -82,7 +82,7 @@ C
         Do iSym = 1, nSym
           idSDMat(iSym,iCase) = idSD
           nAS = nASUP(iSym,iCase)
-          CALL DDAFILE(LuSTD,0,      DUMMY,nAS*nAS,idSD)
+          CALL DDAFILE(LuSTD,0,Work(ipWRK),nAS*nAS,idSD)
           idSDer = idSDMat(iSym,iCase)
           CALL DDAFILE(LuSTD,1,Work(ipWRK),nAS*nAS,idSDer) ! idSDMat(iSym,iCase))
         End Do

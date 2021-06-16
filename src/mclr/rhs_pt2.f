@@ -219,7 +219,7 @@ C     call sqprt(work(ipFMO1),nbast)
       write(6,*) "ipFAO2"
       call prtril(work(ipFAO2),nbast)
       Call AO2MO(Work(ipFAO2),Work(ipFMO2))
-      CALL DSCAL_(nDens2,2.0D+00,Work(ipFMO2),1) !! to be consistent with the GAMESS implementation
+      CALL DSCAL_(nDens2,2.0D+00,Work(ipFMO2),1)
       !! ipFMO2: MO basis, square form
       write(6,*) "ipFMO2"
       call sqprt(work(ipFMO2),nbast)
