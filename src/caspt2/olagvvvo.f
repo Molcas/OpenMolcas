@@ -433,6 +433,7 @@ C     Real*8 CMO_DUMMY(1)
      *                      DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *                      DIA,DI,FIFA,FIMO,BraAI,BraSI,BraAA,BraSA)
 C    *                      DIA,DI,FIFA,FIMO,BraD)
+          USE CHOVEC_IO
           IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -442,10 +443,10 @@ C    *                      DIA,DI,FIFA,FIMO,BraD)
           Dimension DIA(*),DI(*),FIFA(*),FIMO(*)
           Integer ISTLT(8),ISTSQ(8),nAux(8),KEEP(8)
 C         Dimension BraAI(*),BraSI(*),BraAA(*),BraSA(*)
-          Dimension BraAI(nAsh(iSym0),nIsh(iSym0),*),
-     *              BraSI(nSsh(iSym0),nIsh(iSym0),*),
-     *              BraAA(nAsh(iSym0),nAsh(iSym0),*),
-     *              BraSA(nSsh(iSym0),nAsh(iSym0),*)
+         Dimension BraAI(nAsh(iSym0),nIsh(iSym0),NVLOC_CHOBATCH(iSym0)),
+     *             BraSI(nSsh(iSym0),nIsh(iSym0),NVLOC_CHOBATCH(iSym0)),
+     *             BraAA(nAsh(iSym0),nAsh(iSym0),NVLOC_CHOBATCH(iSym0)),
+     *             BraSA(nSsh(iSym0),nAsh(iSym0),NVLOC_CHOBATCH(iSym0))
 C         Real*8, Target :: BraD(*)
 C         Real*8, Pointer :: BraAI(:,:,:),BraSI(:,:,:),
 C    *                       BraAA(:,:,:),BraSA(:,:,:)
