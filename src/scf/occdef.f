@@ -34,7 +34,7 @@
 *
       If (OnlyProp) Return
 *
-*define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Do iD = 1, nD
          Write (6,*) 'iD=',iD
@@ -201,7 +201,7 @@
             End Do ! iSym
 *
          End Do    ! iD
-*define _SPECIAL_DEBUGPRINT_
+#define _SPECIAL_DEBUGPRINT_
 #ifdef _SPECIAL_DEBUGPRINT_
          Call DebugCMO(CMO,mBB,nD,Occ,mmB,nBas,nOrb,nSym,iFerm,
      &                 '@ the last position')
@@ -240,7 +240,8 @@
             iOcc = 0
             Do iOrb = 1, nOrb(iSym)-1
                jOrb = iOrb + 1
-               If (Occ(jOrb+jOff,iD).gt.Occ(iOrb+jOff,iD)) Then
+               If (Occ(iOrb+jOff,iD)==Zero .and.
+     &             Occ(jOrb+jOff,iD).gt.Occ(iOrb+jOff,iD)) Then
 *
                   iTmp=OrbType(iOrb+jOff,iD)
                   OrbType(iOrb+jOff,iD)=OrbType(jOrb+jOff,iD)
@@ -318,6 +319,7 @@
       Integer nBas(nSym),nOrb(nSym), iFerm(nnB)
       Character*(*) Label
 *
+      Write (6,*) Label
       Do iD = 1, nD
          Write (6,*)
          If (iD.eq.1) Then
