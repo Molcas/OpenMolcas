@@ -1,29 +1,29 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2019, Thomas J. Duignan                                *
-*               2021, Rulin Feng                                       *
-************************************************************************
-************************************************************************
-*                                                                      *
-* This routine dots the UHF spin density with the property integrals   *
-* and trace the resulting matrix for each of the 9 components of the   *
-* hyperfine magnetic integrals to obtain the 3 by 3 HFC tensor matrix  *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-* Parameters:                                                          *
-* nb     -  Number of total basis functions, input.                    *
-* nat    -  Number of atoms, input.                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2019, Thomas J. Duignan                                *
+!               2021, Rulin Feng                                       *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+! This routine dots the UHF spin density with the property integrals   *
+! and trace the resulting matrix for each of the 9 components of the   *
+! hyperfine magnetic integrals to obtain the 3 by 3 HFC tensor matrix  *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+! Parameters:                                                          *
+! nb     -  Number of total basis functions, input.                    *
+! nat    -  Number of atoms, input.                                    *
+!                                                                      *
+!***********************************************************************
       Subroutine cmp_hfc(nb, nat)
       Implicit none
 #include "real.fh"
@@ -35,7 +35,7 @@
       Real*8 hfc(3,3), trace, amat(3,3)
       character*8 label
 
-* Sizes of the matrices
+! Sizes of the matrices
       nb2 = nb * nb
       nbtri = nb * (nb + 1) / 2
       irc = -1
@@ -78,7 +78,7 @@
             call rdone(irc,iopt,label,icomp,work(ita),toper)
             if (irc.ne.0) goto 999
             call square(Work(ita), Work(isa), nb, 1, nb)
-            call dgemm_('N', 'N', nb, nb, nb, 1.0d0, Work(isd),
+            call dgemm_('N', 'N', nb, nb, nb, 1.0d0, Work(isd),         &
      &                  nb, Work(isa), nb, 0.0d0, Work(isr), nb)
             do kdir = 1, nb
               trace = trace + Work(isr + nb * (kdir - 1) + kdir - 1)
@@ -99,15 +99,15 @@
 
         write(6,*) ''
         write(6,*) ''
-        write(6,'(A,I3)') 'Hyperfine coupling tensor matrix for atom
+        write(6,'(A,I3)') 'Hyperfine coupling tensor matrix for atom    &
      &                    :', iat
         write(6,*) ''
-        write(6,'(A,A)')    '   --------------------------------------',
+        write(6,'(A,A)')    '   --------------------------------------',&
      &                      '-------------------'
         do idir = 1, 3
           write(6,'(3E20.10)') (-amat(idir,jdir),jdir=1,3)
         enddo
-        write(6,'(A,A)')    '   --------------------------------------',
+        write(6,'(A,A)')    '   --------------------------------------',&
      &                      '-------------------'
       enddo
       Call Add_Info('AMAT',AMAT,9,5)

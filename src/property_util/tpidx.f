@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SUBROUTINE tpidx2orb(NSYM,NB,
-     $        TYPEINDEX,
-     $        NF,NI,N1,N2,N3,NS,ND)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SUBROUTINE tpidx2orb(NSYM,NB,                                     &
+     &        TYPEINDEX,                                                &
+     &        NF,NI,N1,N2,N3,NS,ND)
       IMPLICIT NONE
       integer :: NSYM, NB(NSYM)
       integer :: TYPEINDEX(*)
@@ -18,18 +18,18 @@
       integer :: iSym, iStart
       iStart=1
       do isym=1,nsym
-        call tpidx2orb_sym(
-     $          TYPEINDEX(iStart),NB(iSym),
-     $          NF(iSym),NI(iSym),
-     $          N1(iSym),N2(iSym),N3(iSym),
-     $          NS(iSym),ND(iSym))
+        call tpidx2orb_sym(                                             &
+     &          TYPEINDEX(iStart),NB(iSym),                             &
+     &          NF(iSym),NI(iSym),                                      &
+     &          N1(iSym),N2(iSym),N3(iSym),                             &
+     &          NS(iSym),ND(iSym))
         iStart=iStart+nB(iSym)
       end do
       END
 
-      SUBROUTINE orb2tpidx(NSYM,NB,
-     $        NF,NI,N1,N2,N3,NS,ND,
-     $        TYPEINDEX)
+      SUBROUTINE orb2tpidx(NSYM,NB,                                     &
+     &        NF,NI,N1,N2,N3,NS,ND,                                     &
+     &        TYPEINDEX)
       IMPLICIT NONE
       integer :: NSYM, NB(NSYM)
       integer :: NF(*), NI(*), N1(*), N2(*), N3(*), NS(*), ND(*)
@@ -37,11 +37,11 @@
       integer :: iSym, iStart
       iStart=1
       do isym=1,nsym
-        call orb2tpidx_sym(
-     $          NF(iSym),NI(iSym),
-     $          N1(iSym),N2(iSym),N3(iSym),
-     $          NS(iSym),ND(iSym),
-     $          TYPEINDEX(iStart))
+        call orb2tpidx_sym(                                             &
+     &          NF(iSym),NI(iSym),                                      &
+     &          N1(iSym),N2(iSym),N3(iSym),                             &
+     &          NS(iSym),ND(iSym),                                      &
+     &          TYPEINDEX(iStart))
         iStart=iStart+nB(iSym)
       end do
       END
@@ -94,9 +94,9 @@
       end do
       END
 
-      SUBROUTINE tpstr2orb(NSYM,NB,
-     $        TYPESTRING,
-     $        NF,NI,N1,N2,N3,NS,ND)
+      SUBROUTINE tpstr2orb(NSYM,NB,                                     &
+     &        TYPESTRING,                                               &
+     &        NF,NI,N1,N2,N3,NS,ND)
       IMPLICIT NONE
       integer :: NSYM, NB(NSYM)
       character :: typestring(*)
@@ -104,18 +104,18 @@
       integer :: iSym, iStart
       iStart=1
       do isym=1,nsym
-        call tpstr2orb_sym(
-     $          TYPESTRING(iStart),NB(iSym),
-     $          NF(iSym),NI(iSym),
-     $          N1(iSym),N2(iSym),N3(iSym),
-     $          NS(iSym),ND(iSym))
+        call tpstr2orb_sym(                                             &
+     &          TYPESTRING(iStart),NB(iSym),                            &
+     &          NF(iSym),NI(iSym),                                      &
+     &          N1(iSym),N2(iSym),N3(iSym),                             &
+     &          NS(iSym),ND(iSym))
         iStart=iStart+nB(iSym)
       end do
       END
 
-      SUBROUTINE orb2tpstr(NSYM,NB,
-     $        NF,NI,N1,N2,N3,NS,ND,
-     $        TYPESTRING)
+      SUBROUTINE orb2tpstr(NSYM,NB,                                     &
+     &        NF,NI,N1,N2,N3,NS,ND,                                     &
+     &        TYPESTRING)
       IMPLICIT NONE
       integer :: NSYM, NB(NSYM)
       integer :: NF(*), NI(*), N1(*), N2(*), N3(*), NS(*), ND(*)
@@ -123,27 +123,27 @@
       integer :: iSym, iStart
       iStart=1
       do isym=1,nsym
-        call orb2tpstr_sym(
-     $          NF(iSym),NI(iSym),
-     $          N1(iSym),N2(iSym),N3(iSym),
-     $          NS(iSym),ND(iSym),
-     $          TYPESTRING(iStart))
+        call orb2tpstr_sym(                                             &
+     &          NF(iSym),NI(iSym),                                      &
+     &          N1(iSym),N2(iSym),N3(iSym),                             &
+     &          NS(iSym),ND(iSym),                                      &
+     &          TYPESTRING(iStart))
         iStart=iStart+nB(iSym)
       end do
       END
 
       SUBROUTINE tpidx2orb_sym(TYPEINDEX,NB,NF,NI,N1,N2,N3,NS,ND)
-*SVC: read orbital partition info from a typeindex array
-*     corresponding to a _specific_symmetry_ (so these variables are
-*     scalars!!
-*     A typeindex array consists of integers with 7 possible values
-*     corresponding to the types 'fi123sd' -> '1234567'.
+!SVC: read orbital partition info from a typeindex array
+!     corresponding to a _specific_symmetry_ (so these variables are
+!     scalars!!
+!     A typeindex array consists of integers with 7 possible values
+!     corresponding to the types 'fi123sd' -> '1234567'.
       implicit none
       integer :: typeindex(*), NB
       integer :: NF, NI, N1, N2, N3, NS, ND
 
       integer :: IB, ITYPE
-*
+!
       NF=0
       NI=0
       N1=0
@@ -151,7 +151,7 @@
       N3=0
       NS=0
       ND=0
-* switch typeindex:
+! switch typeindex:
       DO IB=1,NB
         ITYPE=TYPEINDEX(IB)
         IF     (ITYPE.EQ.1) THEN
@@ -177,11 +177,11 @@
       End
 
       SUBROUTINE orb2tpidx_sym(NF,NI,N1,N2,N3,NS,ND,TYPEINDEX)
-*SVC: convert orbital partition info to a typeindex array
-*     corresponding to a _specific_symmetry_ (so these variables are
-*     scalars!!
-*     A typeindex array consists of integers with 7 possible values
-*     corresponding to the types 'fi123sd' -> '1234567'.
+!SVC: convert orbital partition info to a typeindex array
+!     corresponding to a _specific_symmetry_ (so these variables are
+!     scalars!!
+!     A typeindex array consists of integers with 7 possible values
+!     corresponding to the types 'fi123sd' -> '1234567'.
       implicit none
       integer :: typeindex(*)
       integer :: NF, NI, N1, N2, N3, NS, ND
@@ -189,7 +189,7 @@
       integer :: IB, iOff
 
       iOff=0
-*
+!
       DO IB=1,NF
         TYPEINDEX(iOff+IB)=1
       END DO
@@ -227,10 +227,10 @@
       End
 
       SUBROUTINE tpstr2orb_sym(TYPESTRING,NB,NF,NI,N1,N2,N3,NS,ND)
-*SVC: read orbital partition info from a typestring array
-*     corresponding to a _specific_symmetry_ (so these variables are
-*     scalars!!
-*     A typestring array consists of characters of 'fi123sd'
+!SVC: read orbital partition info from a typestring array
+!     corresponding to a _specific_symmetry_ (so these variables are
+!     scalars!!
+!     A typestring array consists of characters of 'fi123sd'
       implicit none
       character :: typestring(*)
       integer :: NB
@@ -238,7 +238,7 @@
 
       integer :: IB
       character :: CTYPE
-*
+!
       NF=0
       NI=0
       N1=0
@@ -246,7 +246,7 @@
       N3=0
       NS=0
       ND=0
-* switch typeindex:
+! switch typeindex:
       DO IB=1,NB
         CTYPE=TYPESTRING(IB)
         CALL UPCASE(CTYPE)
@@ -265,8 +265,8 @@
         ELSE IF(CTYPE.EQ.'D') THEN
           ND = ND + 1
         ELSE
-          WRITE (6,*) 'TPSTR2ORB_SYM: unknown type index character '
-     $            //CTYPE
+          WRITE (6,*) 'TPSTR2ORB_SYM: unknown type index character '    &
+     &            //CTYPE
           call AbEnd
         END IF
       END DO
@@ -274,10 +274,10 @@
       End
 
       SUBROUTINE orb2tpstr_sym(NF,NI,N1,N2,N3,NS,ND,TYPESTRING)
-*SVC: convert orbital partition info to a typestring array
-*     corresponding to a _specific_symmetry_ (so these variables are
-*     scalars!!
-*     A typestring array consists of characters of 'fi123sd'
+!SVC: convert orbital partition info to a typestring array
+!     corresponding to a _specific_symmetry_ (so these variables are
+!     scalars!!
+!     A typestring array consists of characters of 'fi123sd'
       implicit none
       character :: typestring(*)
       integer :: NF, NI, N1, N2, N3, NS, ND
@@ -285,7 +285,7 @@
       integer :: IB, iOff
 
       iOff=0
-*
+!
       DO IB=1,NF
         TYPESTRING(iOff+IB)='F'
       END DO

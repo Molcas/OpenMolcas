@@ -1,30 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1999, Coen de Graaf                                    *
-*               1999, Anders Bernhardsson                              *
-*               1999, Roland Lindh                                     *
-*               2018, Jesper Norell                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1999, Coen de Graaf                                    *
+!               1999, Anders Bernhardsson                              *
+!               1999, Roland Lindh                                     *
+!               2018, Jesper Norell                                    *
+!***********************************************************************
       Subroutine Molden_DysOrb(iUHF,filename,ENE,OCC,CMO,NDO,NZ)
-************************************************************************
-*                                                                      *
-*     Object: to generate MOLDEN files for Dyson orbitals              *
-*                                                                      *
-*     Modified from molden_interface by Jesper Norell 2018             *
-*     (Since requirements for e.g. number of orbitals and              *
-*     treament of symmetry differs from "normal" MOs)                  *
-*                                                                      *
-*     Authors: Coen de Graaf, Anders Bernardsson and R. Lindh, 1999    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Object: to generate MOLDEN files for Dyson orbitals              *
+!                                                                      *
+!     Modified from molden_interface by Jesper Norell 2018             *
+!     (Since requirements for e.g. number of orbitals and              *
+!     treament of symmetry differs from "normal" MOs)                  *
+!                                                                      *
+!     Authors: Coen de Graaf, Anders Bernardsson and R. Lindh, 1999    *
+!                                                                      *
+!***********************************************************************
       use Real_Spherical
       use Basis_Info
       use Center_Info
@@ -35,8 +35,8 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-*
-*
+!
+!
       Parameter (EorbThr = 50.D0 )
       Real*8 Coor(3,MxAtom),Znuc(MxAtom)
       Character shelllabel(7)
@@ -55,12 +55,12 @@
       Character*100 Supername,Get_SuperName
       External Get_SuperName
       data shelllabel /'s','p','d','f','g','h','i'/
-      data number /'1','2','3','4','5','6','7','8','9','0',
-     &             'a','b','c','d','e','f','g','h','i','j',
-     &             'k','l','m','n','o','p','q','r','s','t',
-     &             'u','v','w','x','y','z','A','B','C','D',
-     &             'E','F','G','H','I','J','K','L','M','N',
-     &             'O','P','Q','R','S','T','V','W','X','Y',
+      data number /'1','2','3','4','5','6','7','8','9','0',             &
+     &             'a','b','c','d','e','f','g','h','i','j',             &
+     &             'k','l','m','n','o','p','q','r','s','t',             &
+     &             'u','v','w','x','y','z','A','B','C','D',             &
+     &             'E','F','G','H','I','J','K','L','M','N',             &
+     &             'O','P','Q','R','S','T','V','W','X','Y',             &
      &             'Z'/
       data iRc/0/
       save iRc
@@ -71,42 +71,42 @@
       Dimension OCC(NDO)
       Dimension CMO(NZ*NDO)
       Dimension DESYM(NZ,NZ)
-*
-*     Statement function
-*
+!
+!     Statement function
+!
       CC(ix,iy,iz)=SQRT(DblFac(2*ix-1)*DblFac(2*iy-1)*DblFac(2*iz-1))
-*
+!
       if(iRc.eq.1) Return
-*
-* Do nothing within numerical_gradient
+!
+! Do nothing within numerical_gradient
       SuperName=Get_Supername()
       If (SuperName == 'numerical_gradient') Then
         Return
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Get the print level
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Get the print level
+!
       iPL=iPrintLevel(-1)
       jPL=iPL
       If (Reduce_Prt().and.iPL.lt.3) jPL=0
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (MolWgh.eq.1) Then
          If (jPL.ge.2) Then
-            Write (6,*) 'Molden_Interface: '
+            Write (6,*) 'Molden_Interface: '                            &
      &                //'Unsupported normalization,Molwgh=1!'
          End If
          iRc=1
          Return
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call GetEnvf('MOLCAS_MOLDEN',Env)
-c      If (Env.eq.' '.or.Env.eq.'OFF') Then
+!      If (Env.eq.' '.or.Env.eq.'OFF') Then
       If (Env.eq.'OFF') Then
          If (jPL.ge.2) Then
             Write(6,*)
@@ -116,43 +116,43 @@ c      If (Env.eq.' '.or.Env.eq.'OFF') Then
          iRC=1
          Return
       End If
-cVV: current version of Molden has no clear limit for MaxOrb
-c      If (MaxOrb.gt.MaxOrb_Molden) Then
-c         If (jPL.ge.2) Then
-c            Write(6,*)
-c            Write(6,*) ' Molden_Interface: W A R N I N G !!!!'
-c            Write(6,*)
-c            Write(6,*) ' No Molden input file will be generated!'
-c            Write(6,*)
-c            Write(6,*) ' Calculation exceeds the max number of orbitals'
-c     &               //' allowed for MOLDEN. To change this modify the '
-c            Write(6,*) ' parameter MaxOrb_Molden in  src/util/molden_in'
-c     &               //'terface.f and follow the instructions in Molden'
-c            Write(6,*) ' on how to modify the parameter MaxOrb.'
-c            Write(6,*)
-c         End If
-c         iRC=1
-c         Return
-c      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!VV: current version of Molden has no clear limit for MaxOrb
+!      If (MaxOrb.gt.MaxOrb_Molden) Then
+!         If (jPL.ge.2) Then
+!            Write(6,*)
+!            Write(6,*) ' Molden_Interface: W A R N I N G !!!!'
+!            Write(6,*)
+!            Write(6,*) ' No Molden input file will be generated!'
+!            Write(6,*)
+!            Write(6,*) ' Calculation exceeds the max number of orbitals'
+!     &               //' allowed for MOLDEN. To change this modify the '
+!            Write(6,*) ' parameter MaxOrb_Molden in  src/util/molden_in'
+!     &               //'terface.f and follow the instructions in Molden'
+!            Write(6,*) ' on how to modify the parameter MaxOrb.'
+!            Write(6,*)
+!         End If
+!         iRC=1
+!         Return
+!      End If
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call f_Inquire('RUNFILE',Exist)
       If (.Not.Exist) then
       iRC=1
       Return
       Endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*-----Read the characteristics of all different basis sets,
-*     provide each atom with a nuclear charge and establish
-*     a link between an atom and its basis set ---
-*
-*     NOTICE!!!
-*     This call will also fill info.fh and the dynamic storage in
-*     Work(ipInf)
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!-----Read the characteristics of all different basis sets,
+!     provide each atom with a nuclear charge and establish
+!     a link between an atom and its basis set ---
+!
+!     NOTICE!!!
+!     This call will also fill info.fh and the dynamic storage in
+!     Work(ipInf)
+!
       Call Inter1       (AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
       Call Qpg_iArray('nOrb',Found,nData)
       If (Found) Then
@@ -160,12 +160,12 @@ c      End If
       Else
          Call iCopy(nIrrep,nBas,1,nOrb,1)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       iAngMx_Valence=0
       Do iCnttp = 1, nCnttp
-         If (.Not.dbsc(iCnttp)%Aux .and.
+         If (.Not.dbsc(iCnttp)%Aux .and.                                &
      &       .Not.dbsc(iCnttp)%Frag ) Then
             nTest=dbsc(iCnttp)%nVal-1
             iAngMx_Valence=Max(iAngMx_Valence,nTest)
@@ -178,25 +178,25 @@ c      End If
         End If
         Go To 999
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Unnormalize contraction coefficients for the valence shells
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Unnormalize contraction coefficients for the valence shells
+!
       Do iCnttp=1,nCnttp
         If (.Not.(dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag)) Then
          Do l=0,dbsc(iCnttp)%nVal-1
           ishell=dbsc(iCnttp)%iVal+l
-          Call Unnrmlz(Shells(ishell)%Exp,Shells(ishell)%nExp,
+          Call Unnrmlz(Shells(ishell)%Exp,Shells(ishell)%nExp,          &
      &                 Shells(ishell)%pCff,Shells(ishell)%nBasis,l)
          End Do
         End If
       End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Compute memory requirements and allocate memory
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Compute memory requirements and allocate memory
+!
       nB=0
       Do iS=0,nirrep-1
        nB=nB+nBas(is)
@@ -216,26 +216,26 @@ c      End If
          ipC2_ab=ip_Dummy
          ipV_ab =ip_Dummy
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Open input file for MOLDEN
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Open input file for MOLDEN
+!
       MF=9
       call molcas_open(MF,filename)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Write the atom information in MOLDEN format to unit MF
-*
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Write the atom information in MOLDEN format to unit MF
+!
+!
       y_cart=.false.
       y_sphere=.false.
       Do iCnttp=1,nCnttp
         If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag) Go To 995
         Do iCntr=1,dbsc(iCnttp)%nCntr
           Do l=0,dbsc(iCnttp)%nVal-1
-*           Test for the appearance of cartesian functions with l=2,3,4
+!           Test for the appearance of cartesian functions with l=2,3,4
             ishell=dbsc(iCnttp)%iVal+l
             if ((l.ge.2).and.(.not.y_cart)) Then
               if (.not.Shells(ishell)%Transf) y_cart=.true.
@@ -247,7 +247,7 @@ c      End If
               If (jPL.ge.2) Then
                  Write (6,*)
                  Write (6,*) 'Failed to generate input file to MOLDEN'
-                 Write (6,*) 'No mixing allowed of spherical and',
+                 Write (6,*) 'No mixing allowed of spherical and',      &
      &                       ' cartesian d, f, g-functions'
               End If
               Go to 991
@@ -257,16 +257,16 @@ c      End If
  995    Continue
       End Do
       Write (MF,'(A)') '[Molden Format]'
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Write atomic information
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Write atomic information
+!
       Write (MF,'(A)') '[N_Atoms]'
       Write (MF,*) natom
       Write (MF,'(A)') '[Atoms] (AU)'
       Do iatom=1,natom
-        Write (MF,99) AtomLabel(iatom),iatom,int(Znuc(iatom)),
+        Write (MF,99) AtomLabel(iatom),iatom,int(Znuc(iatom)),          &
      &                (coor(i,iatom),i=1,3)
  99     Format(A,2(3x,I4),5x,3F16.8,3I4)
       End Do
@@ -275,35 +275,35 @@ c      End If
         If (S%iAngMx.gt.2) Write (MF,'(A)') '[7F]'
         If (S%iAngMx.gt.3) Write (MF,'(A)') '[9G]'
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Write Gaussian basis set information to MOLDEN input file.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Write Gaussian basis set information to MOLDEN input file.
+!
       Write (MF,'(A)') '[GTO] (AU)'
-*
-*     Read exponents and contraction coefficients of each unique basis.
-*     Write the present basis set (iCnttp) to the molden.input file for
-*     the appropriate atoms.
-*     Moreover, a list is constructed which contains a label for each
-*     GTO (gtolabel). This list follows the MOLDEN order of GTOs.
-*     Later this list will be used in the transformation of sabf (the
-*     symmetry adapted basis functions).
-*
+!
+!     Read exponents and contraction coefficients of each unique basis.
+!     Write the present basis set (iCnttp) to the molden.input file for
+!     the appropriate atoms.
+!     Moreover, a list is constructed which contains a label for each
+!     GTO (gtolabel). This list follows the MOLDEN order of GTOs.
+!     Later this list will be used in the transformation of sabf (the
+!     symmetry adapted basis functions).
+!
       iatom=0
       mdc=0
       kk=0
-*
+!
       Do iCnttp=1,nCnttp             ! loop over unique basis sets
         If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag) Go To 996
-*
+!
         Do iCntr=1,dbsc(iCnttp)%nCntr   ! loop over sym. unique centers
           mdc=mdc+1
           nDeg=nIrrep/dc(mdc)%nStab
           Do iDeg=1,nDeg             ! loop over centers
             iAtom=iAtom+1
             Write (MF,'(I4)') iAtom
-*
+!
             Do l=0,dbsc(iCnttp)%nVal-1
               ishell=dbsc(iCnttp)%iVal+l
               If (Shells(iShell)%nBasis.gt.nNumber) Then
@@ -311,13 +311,13 @@ c      End If
                  Write (6,*) 'nBasis(iShell)=',Shells(iShell)%nBasis
                  Call Abend()
               End If
-*
-*             Iterate over each contracted GTO
-*
+!
+!             Iterate over each contracted GTO
+!
               Do icontr=1,Shells(ishell)%nBasis
-*
-*               Find the number of exponents with non-zero exponents
-*
+!
+!               Find the number of exponents with non-zero exponents
+!
                 isegm=0
                 Do iprim=1,Shells(ishell)%nExp
                   coeff=Shells(ishell)%pCff(iprim,icontr)
@@ -325,11 +325,11 @@ c      End If
                     isegm=isegm+1
                   End If
                 End Do
-*
+!
                 Write (MF,'(3x,A1,I4)') shelllabel(l+1),isegm
-*
-*               Write exponents and contraction coefficients.
-*
+!
+!               Write exponents and contraction coefficients.
+!
                 Do iprim=1,Shells(ishell)%nExp
                   coeff=Shells(ishell)%pCff(iprim,icontr)
                   prim=Shells(ishell)%Exp(iprim)
@@ -337,304 +337,304 @@ c      End If
                     Write (MF,'(E17.9,E17.9)') prim,coeff
                   End If
                 End Do
-*
-*               Construction of gtolabel
-*               Molden order: for p-functions: px(1), py(1), pz(1),
-*                                              px(2), py(2), pz(2), etc.
-*               for d-, and f-functions: similar
-*
+!
+!               Construction of gtolabel
+!               Molden order: for p-functions: px(1), py(1), pz(1),
+!                                              px(2), py(2), pz(2), etc.
+!               for d-, and f-functions: similar
+!
                 If (l.eq.0) Then
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'01s     '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'01s     '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                 End If
                 If (l.eq.1) Then
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'02px    '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'02px    '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'02py    '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'02py    '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'02pz    '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'02pz    '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                 End If
                 If ((l.eq.2).and.(.not.y_cart)) Then
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'03d00   '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'03d00   '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'03d01+  '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'03d01+  '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'03d01-  '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'03d01-  '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'03d02+  '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'03d02+  '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'03d02-  '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'03d02-  '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                 End If
                 If ((l.eq.2).and.(y_cart)) Then
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'d020000 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'d020000 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(2,0,0)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'d000200 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'d000200 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(0,2,0)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'d000002 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'d000002 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(0,0,2)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'d010100 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'d010100 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(1,1,0)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'d010001 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'d010001 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(1,0,1)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'d000101 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'d000101 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(0,1,1)
                   iWork(ipCent3+kk-1)=iAtom
                 End If
                 If ((l.eq.3).and.(.not.y_cart)) Then
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'04f00   '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'04f00   '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'04f01+  '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'04f01+  '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'04f01-  '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'04f01-  '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'04f02+  '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'04f02+  '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'04f02-  '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'04f02-  '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'04f03+  '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'04f03+  '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'04f03-  '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'04f03-  '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                 End If
                 If ((l.eq.3).and.(y_cart)) Then
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'f030000 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'f030000 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(3,0,0)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'f000300 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'f000300 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(0,3,0)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'f000003 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'f000003 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(0,0,3)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'f010200 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'f010200 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(1,2,0)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'f020100 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'f020100 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(2,1,0)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'f020001 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'f020001 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(2,0,1)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'f010002 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'f010002 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(1,0,2)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'f000102 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'f000102 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(0,1,2)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'f000201 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'f000201 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(0,2,1)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'f010101 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'f010101 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(1,1,1)
                   iWork(ipCent3+kk-1)=iAtom
                 End If
                 If ((l.eq.4).and.(.not.y_cart)) Then
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'05g00   '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'05g00   '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'05g01+  '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'05g01+  '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'05g01-  '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'05g01-  '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'05g02+  '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'05g02+  '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                  iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'05g02-  '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'05g02-  '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'05g03+  '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'05g03+  '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'05g03-  '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'05g03-  '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'05g04+  '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'05g04+  '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'05g04-  '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'05g04-  '//           &
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                 End If
                 If ((l.eq.4).and.(y_cart)) Then
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'g040000 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'g040000 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(4,0,0)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'g000400 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'g000400 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(0,4,0)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'g000004 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'g000004 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(0,0,4)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'g030100 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'g030100 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(3,1,0)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'g030001 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'g030001 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(3,0,1)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'g010300 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'g010300 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(1,3,0)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'g000301 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'g000301 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(0,3,1)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'g010003 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'g010003 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(1,0,3)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'g000103 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'g000103 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(0,1,3)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'g020200 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'g020200 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(2,2,0)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'g020002 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'g020002 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(2,0,2)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'g000202 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'g000202 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(0,2,2)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'g020101 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'g020101 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(2,1,1)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'g010201 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'g010201 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(1,2,1)
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'g010102 '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'g010102 '//           &
      &                         number(icontr)
                   r_Norm(kk)=CC(1,1,2)
                   iWork(ipCent3+kk-1)=iAtom
@@ -654,34 +654,34 @@ c      End If
          End If
          Go To 998
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
       nTot=0
       nTot2=0
       Do iS=0,nIrrep-1
          nTot=nTot+nBas(iS)
          nTot2=nTot2+nBas(iS)**2
       End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      Back 'transformation' of the symmetry adapted basis functions.
-*      Probably somewhat clumsy, but it seems to work.If someone
-*      knows a more elegant way to do it, please improve this part!
-*
-*      PART 1: Obtain symmetry information (soout), construct a label
-*              for each sabf, which will be used in part 2 to find the
-*              corresponding GTO in the MOLDEN list by comparing with
-*              gtolabel
-*
-*      nB       --- Total number of contracted basis functions
-*      ipcent2  --- degeneracy of a basis function
-*      ipCent   --- centres over which the basis function is
-*                   delocalized
-*      ipPhase  --- phase of the AO in the linear combination
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!      Back 'transformation' of the symmetry adapted basis functions.
+!      Probably somewhat clumsy, but it seems to work.If someone
+!      knows a more elegant way to do it, please improve this part!
+!
+!      PART 1: Obtain symmetry information (soout), construct a label
+!              for each sabf, which will be used in part 2 to find the
+!              corresponding GTO in the MOLDEN list by comparing with
+!              gtolabel
+!
+!      nB       --- Total number of contracted basis functions
+!      ipcent2  --- degeneracy of a basis function
+!      ipCent   --- centres over which the basis function is
+!                   delocalized
+!      ipPhase  --- phase of the AO in the linear combination
+!
       Call mma_allocate(label,MaxBfn+MaxBfn_Aux,label='label')
       Call icopy(8*nB,[0],0,iWork(ipPhase),1)
       Call icopy(8*nB,[0],0,iWork(ipCent),1)
@@ -690,20 +690,20 @@ c      End If
       Do iContr=1,nB
         iWork(ipCent2+iContr-1)=0
         Do k=1,8
-          If (iWork(ipCent+ipc).ne.0)
+          If (iWork(ipCent+ipc).ne.0)                                   &
      &       iWork(ipcent2+iContr-1)=iWork(ipCent2+iContr-1)+1
           ipc=ipc+1
         End Do
       End Do
-*
+!
 
-************************************************************************
-*
-*      Construct a matrix which inverses the symmetry transformation
-*      of the basis fuctions (DESYM)
-*
-*      NOTE: Also necessary for no symmetry calculations
-*      to properly keep track of i.e. px vs py vs pz
+!***********************************************************************
+!
+!      Construct a matrix which inverses the symmetry transformation
+!      of the basis fuctions (DESYM)
+!
+!      NOTE: Also necessary for no symmetry calculations
+!      to properly keep track of i.e. px vs py vs pz
 
       DESYM=0.0D0
       iBtot=0
@@ -733,7 +733,7 @@ c      End If
                 ! GTO Found
                 idx1=8*(iBtot-1)+iSymcent
                 idx2=(iBtot-1)
-                coeff=DBLE(iWork(ipPhase+idx1))*r_Norm(iGTO)
+                coeff=DBLE(iWork(ipPhase+idx1))*r_Norm(iGTO)            &
      &                / SQRT(DBLE(iWork(ipCent2+idx2)))
                 DESYM(iBtot,iGTO)=DESYM(iBtot,iGTO)+coeff
                 iSymcent=iSymcent+1 ! Keep track of symmetry centre
@@ -744,14 +744,14 @@ c      End If
       End Do ! iIrrep=0,nIrrep-1
       Call mma_deallocate(label)
 
-************************************************************************
-*                                                                      *
-*
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      Dump vector in the molden.input file
-*
+!***********************************************************************
+!                                                                      *
+!
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!      Dump vector in the molden.input file
+!
 
       Write (MF,'(A)') '[MO]'
 
@@ -786,9 +786,9 @@ c      End If
 
 
 
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
  991  Continue
       Call GetMem('ICENT','FREE','INTE',ipCent,8*nB)
       Call GetMem('IPHASE','FREE','INTE',ipPhase,8*nB)
@@ -802,8 +802,8 @@ c      End If
       Call GetMem('VECTOR','FREE','REAL',ipV,nB**2)
  998  Close (MF)
  999  Call ClsSew
-*
-C -------------FORMATS-------------
+!
+! -------------FORMATS-------------
  100  format(I4,3x,F16.8)
  103  format('Ene= ',F10.4)
  104  format('Occup= ',F10.5)

@@ -1,43 +1,43 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-* INPORB formatting parameters
-* to add a new version, increase version number and
-* add appropriate new Magic string and format descriptors
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+! INPORB formatting parameters
+! to add a new version, increase version number and
+! add appropriate new Magic string and format descriptors
       Integer, Parameter :: mxVer = 5
       Character(Len=11) :: Magic(mxVer)
-      Character(Len=40) :: FMTORB(mxVer), FMTOCC(mxVer),
+      Character(Len=40) :: FMTORB(mxVer), FMTOCC(mxVer),                &
      &                 FMTOCCHR(mxVer), FMTENE(mxVer), FMTIND(mxVer)
-      Integer :: nDivOrb(mxVer), nDivOcc(mxVer), nDivOccHR(mxVer),
+      Integer :: nDivOrb(mxVer), nDivOcc(mxVer), nDivOccHR(mxVer),      &
      &           nDivEne(mxVer), nDivInd(mxVer), nSkpInd(mxVer)
-      Integer, Parameter :: iVer10=1, iVer11=2, iVer20=3, iVer21=4,
+      Integer, Parameter :: iVer10=1, iVer11=2, iVer20=3, iVer21=4,     &
      &                      iVer22=5
-      Parameter (Magic =     ['#INPORB 1.0', '#INPORB 1.1',
-     &                        '#INPORB 2.0', '#INPORB 2.1',
+      Parameter (Magic =     ['#INPORB 1.0', '#INPORB 1.1',             &
+     &                        '#INPORB 2.0', '#INPORB 2.1',             &
      &                        '#INPORB 2.2'])
-      Parameter (FMTORB = [Character(Len=40) ::
-     & '(4E18.12)', '(4E18.12)', '(5(1X,ES21.14))', '(5(1X,ES21.14))',
+      Parameter (FMTORB = [Character(Len=40) ::                         &
+     & '(4E18.12)', '(4E18.12)', '(5(1X,ES21.14))', '(5(1X,ES21.14))',  &
      & '(5(1X,ES21.14))'])
       Parameter (nDivOrb =   [4, 4, 5, 5, 5])
-      Parameter (FMTOCC = [Character(Len=40) ::
-     & '(4E18.12)', '(4E18.12)', '(10(1X,F7.4))', '(4E18.12)',
+      Parameter (FMTOCC = [Character(Len=40) ::                         &
+     & '(4E18.12)', '(4E18.12)', '(10(1X,F7.4))', '(4E18.12)',          &
      & '(5(1X,ES21.14))'])
       Parameter (nDivOcc =   [4, 4, 10, 4, 5])
-      Parameter (FMTOCCHR = [Character(Len=40) ::
+      Parameter (FMTOCCHR = [Character(Len=40) ::                       &
      & '', '', '', '(10(1X,F7.4))', '(10(1X,F7.4))'])
       Parameter (nDivOccHR = [0, 0, 0, 10, 10])
-      Parameter (FMTENE = [Character(Len=40) ::
-     & '(4E18.12)', '(4E18.12)', '(10(1X,ES11.4))', '(10(1X,ES11.4))',
+      Parameter (FMTENE = [Character(Len=40) ::                         &
+     & '(4E18.12)', '(4E18.12)', '(10(1X,ES11.4))', '(10(1X,ES11.4))',  &
      & '(10(1X,ES11.4))'])
       Parameter (nDivEne =   [4, 4, 10, 10, 10])
-      Parameter (FMTIND = [Character(Len=40) ::
+      Parameter (FMTIND = [Character(Len=40) ::                         &
      & '(A4)', '(2X,A10)', '(2X,A10)', '(2X,A10)', '(2X,A10)'])
       Parameter (nDivInd =   [4, 10, 10, 10, 10])
       Parameter (nSkpInd =   [0, 1, 1, 1, 1])

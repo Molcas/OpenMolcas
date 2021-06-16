@@ -1,76 +1,76 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Valera Veryazov                                        *
-************************************************************************
-*  WRVEC
-*
-*> @brief
-*>   A routine to write MO coefficients, occupation numbers, one-electron energies and type index information to ``INPORB`` file
-*> @author V. Veryazov
-*>
-*> @details
-*> New version of ::wrvec routine.
-*> ::WRVEC is a wrapper to ::WRVEC_, which writes UHF
-*> information to ``INPORB`` file.
-*>
-*> \p Label defines the type of information to write to ``INPORB`` file.
-*> Valid targets are: ``C``---CMO, ``O``---OCC, ``E``---EORB, ``I``---INDT, ``A``---Append Index, ``K``---Coordinates, ``B``---Basis section
-*>
-*> Example: Write CMO coeff. for RHF:
-*>
-*> \code
-*> Call WrVec('INPORB',Lu,'C',NSYM,NBAS,NBAS,CMO,Dummy,Dummy,iDummy,Title)
-*> \endcode
-*>
-*> @param[in] Name  File name
-*> @param[in] LU_   Unit number
-*> @param[in] LABEL Task
-*> @param[in] NSYM  N symmetries
-*> @param[in] NBAS  N basis functions
-*> @param[in] NORB  N orbitals
-*> @param[in] CMO   MO coefficients
-*> @param[in] OCC   Occupations
-*> @param[in] EORB  One electron energies
-*> @param[in] INDT  Type Index information
-*> @param[in] TITLE Title of orbitals
-************************************************************************
-      SUBROUTINE WRVEC(Name,LU_,LABEL,NSYM,NBAS,NORB,CMO,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Valera Veryazov                                        *
+!***********************************************************************
+!  WRVEC
+!
+!> @brief
+!>   A routine to write MO coefficients, occupation numbers, one-electron energies and type index information to ``INPORB`` file
+!> @author V. Veryazov
+!>
+!> @details
+!> New version of ::wrvec routine.
+!> ::WRVEC is a wrapper to ::WRVEC_, which writes UHF
+!> information to ``INPORB`` file.
+!>
+!> \p Label defines the type of information to write to ``INPORB`` file.
+!> Valid targets are: ``C``---CMO, ``O``---OCC, ``E``---EORB, ``I``---INDT, ``A``---Append Index, ``K``---Coordinates, ``B``---Basis section
+!>
+!> Example: Write CMO coeff. for RHF:
+!>
+!> \code
+!> Call WrVec('INPORB',Lu,'C',NSYM,NBAS,NBAS,CMO,Dummy,Dummy,iDummy,Title)
+!> \endcode
+!>
+!> @param[in] Name  File name
+!> @param[in] LU_   Unit number
+!> @param[in] LABEL Task
+!> @param[in] NSYM  N symmetries
+!> @param[in] NBAS  N basis functions
+!> @param[in] NORB  N orbitals
+!> @param[in] CMO   MO coefficients
+!> @param[in] OCC   Occupations
+!> @param[in] EORB  One electron energies
+!> @param[in] INDT  Type Index information
+!> @param[in] TITLE Title of orbitals
+!***********************************************************************
+      SUBROUTINE WRVEC(Name,LU_,LABEL,NSYM,NBAS,NORB,CMO,               &
      & OCC, EORB, INDT,TITLE)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION NBAS(NSYM),NORB(NSYM),CMO(*),OCC(*),EORB(*),INDT(7,8)
       CHARACTER*(*) TITLE, Name,LABEL
       Dimension vDum(2)
-      CALL WrVec_(Name,LU_,LABEL,0,NSYM,NBAS,NORB,CMO,
-     & vDum, OCC, vDum,
+      CALL WrVec_(Name,LU_,LABEL,0,NSYM,NBAS,NORB,CMO,                  &
+     & vDum, OCC, vDum,                                                 &
      & EORB,vDum, INDT,TITLE,0)
        RETURN
        END
 
-      SUBROUTINE WRVEC_(Name,LU_,LABEL,IUHF,NSYM,NBAS,NORB,CMO,
-     & CMO_ab, OCC, OCC_ab,
+      SUBROUTINE WRVEC_(Name,LU_,LABEL,IUHF,NSYM,NBAS,NORB,CMO,         &
+     & CMO_ab, OCC, OCC_ab,                                             &
      & EORB,EORB_ab, INDT,TITLE,iWFtype)
-*
-* The routine to dump information to INPORB
-*
-* --------------------------------------------------------------------------------
-* iWFtype =  0  -- Unknown origin of orbitals
-*            1  -- Orbitals for Guessorb
-*            2  -- Orbitals for closed shell HF
-*            3  -- Orbitals for closed shell DFT
-*            4  -- Orbitals for unrestricted HF
-*            5  -- Orbitals for unrestricted DFT
-*            6  -- Natural orbitals for unrestricted HF
-*            7  -- Natural orbitals for unrestricted DFT
-*            8  --
-* --------------------------------------------------------------------------------
+!
+! The routine to dump information to INPORB
+!
+! --------------------------------------------------------------------------------
+! iWFtype =  0  -- Unknown origin of orbitals
+!            1  -- Orbitals for Guessorb
+!            2  -- Orbitals for closed shell HF
+!            3  -- Orbitals for closed shell DFT
+!            4  -- Orbitals for unrestricted HF
+!            5  -- Orbitals for unrestricted DFT
+!            6  -- Natural orbitals for unrestricted HF
+!            7  -- Natural orbitals for unrestricted DFT
+!            8  --
+! --------------------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION NBAS(NSYM),NORB(NSYM),CMO(*),OCC(*),EORB(*),INDT(*)
       DIMENSION CMO_ab(*),OCC_ab(*), EORB_ab(*)
@@ -82,7 +82,7 @@
       Character*12 lBuff
       Dimension iBuff(0:7)
       Character*7 Crypt
-C-SVC: variable to hold birth certificate
+!-SVC: variable to hold birth certificate
       Character cDNA*256
       Character*120 inout
       Character*20 InpOrbVer
@@ -90,10 +90,10 @@ C-SVC: variable to hold birth certificate
       Data Crypt/'fi123sd'/
       Integer, Save :: iVer=0
 #include "inporbfmt.fh"
-*
-*
+!
+!
 
-* Analyze Label
+! Analyze Label
       iCMO=0
       iOCC=0
       iEne=0
@@ -126,15 +126,15 @@ C-SVC: variable to hold birth certificate
        goto 50
 102    continue
        Call Append_file(LU)
-c#ifdef NAGFOR
-c        BACKSPACE(LU)
-c#endif
+!#ifdef NAGFOR
+!        BACKSPACE(LU)
+!#endif
        goto 100
       endif
 
-*
-*  Get version
-*
+!
+!  Get version
+!
       iDefault=iVer22
       If (iVer.eq.0) Then
         Call getenvf('MOLCAS_INPORB_VERSION',InpOrbVer)
@@ -146,16 +146,16 @@ c#endif
             if(Magic(jVer).eq.InpOrbVer) iVer=jVer
           End Do
           If (iVer.eq.0) Then
-            Call WarningMessage(0,
+            Call WarningMessage(0,                                      &
      &           'Unknown INPORB version, using the default')
             iVer=iDefault
           End If
         End If
       End If
 
-*
-*  Write INFO header
-*
+!
+!  Write INFO header
+!
       WRITE(LU,'(A)') Magic(iVer)
       Write(Lu,'(A)') '#INFO'
 
@@ -174,7 +174,7 @@ c#endif
         WRITE(LU,'(A)') '*BC:'//trim(cDNA)
       ENDIF
 
-* Extras section
+! Extras section
       If (iTwoE.eq.1 ) iExtras=1  ! so far only case
 
       If(iExtras.eq.1) then
@@ -185,7 +185,7 @@ c#endif
         EndIf
       EndIf
 
-* ORB section
+! ORB section
       if(iCMO.eq.1) then
       NDIV=nDivOrb(iVer)
       FMT=FmtOrb(iVer)
@@ -217,7 +217,7 @@ c#endif
       Endif  ! UHF
       Endif  ! iCMO
 
-* OCC section
+! OCC section
       if(iOcc.eq.1) then
       NDIV=nDivOcc(iVer)
       FMT=FmtOcc(iVer)
@@ -274,7 +274,7 @@ c#endif
       End If
       Endif  ! iOcc
 
-* ONE section
+! ONE section
       if(iEne.eq.1) then
       NDIV=nDivEne(iVer)
       FMT=FmtEne(iVer)
@@ -319,7 +319,7 @@ c#endif
         goto 765
 766     close(in)
       endif
-* INDEX section. NOTE THIS SECTION SHOULD ALWAYS BE LAST (Gv constraint)
+! INDEX section. NOTE THIS SECTION SHOULD ALWAYS BE LAST (Gv constraint)
 100   if(iInd.eq.1) then
        if(iAppend.eq.0.or.(iAppend.eq.1.and.isIndex.eq.0)) then
          Write(Lu,'(A)') '#INDEX'
@@ -328,27 +328,27 @@ c#endif
       nDiv=nDivInd(iVer)
 
       iBuff(0)=1
-c       do i=1,7
+!       do i=1,7
        i=1
 601    continue
        iBuff(i)=iBuff(i-1)+IndT(i+iShift)
        i=i+1
        if(i.le.7) goto 601
 
-c       enddo
+!       enddo
 
       DO ISYM=1,NSYM
       If (nSkpInd(iVer).gt.0) write(Lu,'(A)') '* 1234567890'
       iLab=0
       iBuff(0)=1
-c       do i=1,7
+!       do i=1,7
        i=1
 600    continue
        iBuff(i)=iBuff(i-1)+IndT(i+iShift)
        i=i+1
        if(i.le.7) goto 600
 
-c       enddo
+!       enddo
        Ip=1
          DO IORB=1,NORB(ISYM),nDiv
          Buff='          '
@@ -365,7 +365,7 @@ c       enddo
           Ip=Ip+1
           enddo
             WRITE(lBuff,FMTIND(iVer)) Buff
-            If (Index(FMTIND(iVer),'X').gt.0)
+            If (Index(FMTIND(iVer),'X').gt.0)                           &
      &         WRITE(lBuff(1:1),'(i1)') iLab
             WRITE(LU,'(A)') Trim(lBuff)
             iLab=iLab+1

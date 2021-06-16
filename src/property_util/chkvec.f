@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine ChkVec(OrbFileName,iVer,NSYM_L,NBAS_L,NORB_L,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine ChkVec(OrbFileName,iVer,NSYM_L,NBAS_L,NORB_L,          &
      &                    InfoLbl,iRc)
       Character*(*) OrbFileName
       Character*8 InfoLbl
@@ -19,14 +19,14 @@
 #include "inporbfmt.fh"
       Logical lExists
 
-* Purpose: To check if OrbFileName is a valid orbital file, and which
-* information it contains.
+! Purpose: To check if OrbFileName is a valid orbital file, and which
+! information it contains.
       Call f_Inquire(OrbFileName,lExists)
       If (.not.lExists) Go To 921
       LU=99
       LU=IsFreeUnit(LU)
       Call Molcas_Open(LU, OrbFileName)
-* Check version!
+! Check version!
       READ(LU,'(A80)',ERR=920,END=920) Line
       iVer=0
       Do jVer=1,mxVer
@@ -35,7 +35,7 @@
       iRc=_RC_IO_ERROR_READ_
       IF(iVer.eq.0) Return
 
-* Find and read information section:
+! Find and read information section:
   10  CONTINUE
       READ(LU,'(A80)',ERR=920) LINE
       IF(LINE.NE.'#INFO') GOTO 10
@@ -52,12 +52,12 @@
       IF(LINE(1:1).EQ.'*') GOTO 13
       READ(LINE,*) (NORB_L(I),I=1,NSYM_L)
 
-* Create a InfoLbl telling what data sets are available:
+! Create a InfoLbl telling what data sets are available:
       iORB=0
       iOCC=0
       iONE=0
       iIND=0
-* Find section InfoLbls:
+! Find section InfoLbls:
       If (IUHF.eq.0) Then
   21    CONTINUE
         READ(LU,'(A80)',END=900,ERR=900) LINE
@@ -76,7 +76,7 @@
         GOTO 22
       End If
 
-* Intentionally reached end of file:
+! Intentionally reached end of file:
  900  CONTINUE
       InfoLbl=' '
       ip=0
@@ -89,15 +89,15 @@
       ip=ip+iind
       if(iind.eq.1) InfoLbl(ip:ip)='I'
 
-* -----------------------------------------------------------------
+! -----------------------------------------------------------------
       CLOSE(LU)
       iRC=_RC_ALL_IS_WELL_
       RETURN
-* -----------------------------------------------------------------
+! -----------------------------------------------------------------
  920  CONTINUE
       CLOSE(LU)
  921  CONTINUE
       iRC=_RC_IO_ERROR_READ_
       RETURN
-* -----------------------------------------------------------------
+! -----------------------------------------------------------------
       End

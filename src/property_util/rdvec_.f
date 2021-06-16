@@ -1,82 +1,82 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Valera Veryazov                                        *
-************************************************************************
-*  RDVEC
-*
-*> @brief
-*>   A routine to read MO coefficients, occupation numbers, one-electron energies and type index information from ``INPORB`` file
-*> @author V. Veryazov
-*>
-*> @details
-*> New version of ::rdvec routine.
-*> ::RDVEC is a wrapper to ::RDVEC_, which read UHF
-*> information from ``INPORB`` file.
-*>
-*> \p Label defines the type of information to read from ``INPORB`` file
-*> Valid targets are: ``C``---CMO, ``O``---OCC, ``E``---EORB, ``I``---INDT
-*> ``A``---alpha values, ``B``---beta values
-*>
-*> ::RdVec checks that \p NBAS / \p NORB information is consistent,
-*> and reacts according to \p iWarn. ``0``: No checks for \p NBAS / \p NORB;
-*> ``1``: Print error message; ``2``: ::Abend.
-*>
-*> Example: Get CMO coeff. and OCC for RHF:
-*>
-*> \code
-*> Call RdVec('INPORB',Lu,'CO',NSYM,NBAS,NBAS,CMO,OCC,Dummy,iDummy,Title,0,iErr)
-*> \endcode
-*>
-*> @param[in]  Name  File name
-*> @param[in]  LU_   Unit number
-*> @param[in]  LABEL Task
-*> @param[in]  NSYM  N symmetries
-*> @param[in]  NBAS  N basis functions
-*> @param[in]  NORB  N orbitals
-*> @param[out] CMO   MO coefficients
-*> @param[out] OCC   Occupations
-*> @param[out] EORB  One electron energies
-*> @param[out] INDT  Type Index information
-*> @param[out] TITLE Title of orbitals
-*> @param[in]  IWARN Warning level
-*> @param[out] IERR  Return code
-************************************************************************
-      SUBROUTINE RDVEC(Name,LU_,LABEL,NSYM,NBAS,NORB,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Valera Veryazov                                        *
+!***********************************************************************
+!  RDVEC
+!
+!> @brief
+!>   A routine to read MO coefficients, occupation numbers, one-electron energies and type index information from ``INPORB`` file
+!> @author V. Veryazov
+!>
+!> @details
+!> New version of ::rdvec routine.
+!> ::RDVEC is a wrapper to ::RDVEC_, which read UHF
+!> information from ``INPORB`` file.
+!>
+!> \p Label defines the type of information to read from ``INPORB`` file
+!> Valid targets are: ``C``---CMO, ``O``---OCC, ``E``---EORB, ``I``---INDT
+!> ``A``---alpha values, ``B``---beta values
+!>
+!> ::RdVec checks that \p NBAS / \p NORB information is consistent,
+!> and reacts according to \p iWarn. ``0``: No checks for \p NBAS / \p NORB;
+!> ``1``: Print error message; ``2``: ::Abend.
+!>
+!> Example: Get CMO coeff. and OCC for RHF:
+!>
+!> \code
+!> Call RdVec('INPORB',Lu,'CO',NSYM,NBAS,NBAS,CMO,OCC,Dummy,iDummy,Title,0,iErr)
+!> \endcode
+!>
+!> @param[in]  Name  File name
+!> @param[in]  LU_   Unit number
+!> @param[in]  LABEL Task
+!> @param[in]  NSYM  N symmetries
+!> @param[in]  NBAS  N basis functions
+!> @param[in]  NORB  N orbitals
+!> @param[out] CMO   MO coefficients
+!> @param[out] OCC   Occupations
+!> @param[out] EORB  One electron energies
+!> @param[out] INDT  Type Index information
+!> @param[out] TITLE Title of orbitals
+!> @param[in]  IWARN Warning level
+!> @param[out] IERR  Return code
+!***********************************************************************
+      SUBROUTINE RDVEC(Name,LU_,LABEL,NSYM,NBAS,NORB,                   &
      &   CMO, OCC, EORB, INDT,TITLE,iWarn,iErr)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION NBAS(NSYM),NORB(NSYM),CMO(*),OCC(*), INDT(*), EORB(*)
       CHARACTER*(*) TITLE, Name, Label
       Dimension vDum(2)
-      Call RdVec_(Name,LU_,LABEL,0,NSYM,NBAS,NORB,
-     &   CMO,vDum, OCC, vDum, EORB, vDum,
+      Call RdVec_(Name,LU_,LABEL,0,NSYM,NBAS,NORB,                      &
+     &   CMO,vDum, OCC, vDum, EORB, vDum,                               &
      &   INDT,TITLE,iWarn,iErr,iWFtype)
        RETURN
        END
 
-      SUBROUTINE RDVEC_(Name,LU_,LABEL,IUHF,NSYM,NBAS,NORB,
-     &   CMO,CMO_ab, OCC, OCC_ab, EORB, EORB_ab,
+      SUBROUTINE RDVEC_(Name,LU_,LABEL,IUHF,NSYM,NBAS,NORB,             &
+     &   CMO,CMO_ab, OCC, OCC_ab, EORB, EORB_ab,                        &
      &   INDT,TITLE,iWarn,iErr,iWFtype)
-* --------------------------------------------------------------------------------
-*  Advanced RdVec (to remove all clones!)
-* --------------------------------------------------------------------------------
-* iWFtype =  0  -- Unknown origin of orbitals
-*            1  -- Orbitals for Guessorb
-*            2  -- Orbitals for closed shell HF
-*            3  -- Orbitals for closed shell DFT
-*            4  -- Orbitals for unrestricted HF
-*            5  -- Orbitals for unrestricted DFT
-*            6  -- Natural orbitals for unrestricted HF
-*            7  -- Natural orbitals for unrestricted DFT
-*            8  --
-* --------------------------------------------------------------------------------
+! --------------------------------------------------------------------------------
+!  Advanced RdVec (to remove all clones!)
+! --------------------------------------------------------------------------------
+! iWFtype =  0  -- Unknown origin of orbitals
+!            1  -- Orbitals for Guessorb
+!            2  -- Orbitals for closed shell HF
+!            3  -- Orbitals for closed shell DFT
+!            4  -- Orbitals for unrestricted HF
+!            5  -- Orbitals for unrestricted DFT
+!            6  -- Natural orbitals for unrestricted HF
+!            7  -- Natural orbitals for unrestricted DFT
+!            8  --
+! --------------------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "WrkSpc.fh"
       DIMENSION NBAS(NSYM),NORB(NSYM),CMO(*),OCC(*), INDT(*), EORB(*)
@@ -86,18 +86,18 @@
       LOGICAL Exist
       Character*7 Crypt, CryptUp
       Character*10 Buff
-*
-* Note! the size of Magic must be exact (thanks to MS formatted inporb!)
-*
+!
+! Note! the size of Magic must be exact (thanks to MS formatted inporb!)
+!
       Character*8 Location
       data Crypt   /'fi123sd'/
       DATA CryptUP /'FIXXXSD'/
 #include "inporbfmt.fh"
       Location='rdVec_'
       Line='not defined yet'
-*
-* Analyze Label
-*
+!
+! Analyze Label
+!
       iCMO=0
       iOCC=0
       iEne=0
@@ -109,9 +109,9 @@
       If(index(Label,'I').ne.0) iInd=1
       If(index(Label,'A').ne.0) iBeta=-1
       If(index(Label,'B').ne.0) iBeta=1
-*----------------------------------------------------------------------*
-* Open file Name                                                       *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Open file Name                                                       *
+!----------------------------------------------------------------------*
       iErr=0
       Lu=Lu_
       Call OpnFl(Name,Lu,Exist)
@@ -120,9 +120,9 @@
         Call Abend()
       End If
       REWIND (LU)
-*----------------------------------------------------------------------*
-* Check version!                                                       *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Check version!                                                       *
+!----------------------------------------------------------------------*
       READ(LU,'(A256)',END=999,ERR=999) Line
       iVer=0
       Do jVer=1,mxVer
@@ -133,25 +133,25 @@
         Call SysWarnMsg(Location,'INPORB file in old format',' ')
         Call Abend()
       End If
-*----------------------------------------------------------------------*
-* INFO section, read it unconditionally                                *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! INFO section, read it unconditionally                                *
+!----------------------------------------------------------------------*
 50    READ(LU,'(A256)',END=999,ERR=999) Line
       If(Line(1:5).ne.'#INFO') goto 50
       Read(Lu,'(a)',end=999,err=999) Title
       Read(Lu,'(a)',End=999,Err=999) Line
       Line(76:80)='0 0 0'
       Read(Line,*) myiUHF,myNSYM,iWFtype
-*     Read(Lu,*,end=999,err=999) myiUHF,myNSYM
-* In case of UHF mismatch:
+!     Read(Lu,*,end=999,err=999) myiUHF,myNSYM
+! In case of UHF mismatch:
       If(myiUHF.ne.iUHF) Then
-* Stop if UHF requested, but the INPORB is not UHF
+! Stop if UHF requested, but the INPORB is not UHF
         If(myiUHF.eq.0) Then
           Call SysWarnFileMsg(Location,Name,'IUHF does not match',' ')
           Call Abend()
         End If
-* With a UHF INPORB, only go on if alpha or beta orbitals
-* explicitly requested
+! With a UHF INPORB, only go on if alpha or beta orbitals
+! explicitly requested
         If(iUHF.eq.0.and.iBeta.eq.0) Then
           Call SysWarnFileMsg(Location,Name,'IUHF does not match',' ')
           Call Abend()
@@ -165,9 +165,9 @@
       Call GetMem('MYNORB','Allo','Inte',imyNORB,NSYM)
       Read(Lu,*,end=999,err=999) (iWork(imyNBAS+i-1),i=1,NSYM)
       Read(Lu,*,end=999,err=999) (iWork(imyNORB+i-1),i=1,NSYM)
-*----------------------------------------------------------------------*
-* Do checks                                                            *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Do checks                                                            *
+!----------------------------------------------------------------------*
         Do i=1,NSYM
           If(iWork(imyNBAS+i-1).ne.NBAS(i)) Then
             Line='NBAS does not match'
@@ -193,9 +193,9 @@
         End Do
       End If
       Call GetMem('MYNBAS','Free','Inte',imyNBAS,NSYM)
-*----------------------------------------------------------------------*
-* ORB section                                                          *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! ORB section                                                          *
+!----------------------------------------------------------------------*
       If(iCMO.eq.1) Then
         nDiv = nDivOrb(iVer)
         FMT = FmtOrb(iVer)
@@ -210,7 +210,7 @@
 111           READ(LU,'(A256)',END=999,ERR=999) LINE
               If(LINE(1:1).EQ.'*') GOTO 111
               If(iOrb.le.nOrb(iSym)) Then
-                 READ(LINE,FMT,err=888,end=888)
+                 READ(LINE,FMT,err=888,end=888)                         &
      &               (CMO(I+KCMO),I=IBAS,IBASEND)
               End If
             End Do
@@ -229,10 +229,10 @@
                 If(LINE(1:1).EQ.'*') GOTO 112
                 If(iOrb.le.nOrb(iSym)) Then
                   If (iBeta.eq.1) Then
-                    READ(LINE,FMT,err=888,end=888)
+                    READ(LINE,FMT,err=888,end=888)                      &
      &                  (CMO(I+KCMO),I=IBAS,IBASEND)
                   Else
-                    READ(LINE,FMT,err=888,end=888)
+                    READ(LINE,FMT,err=888,end=888)                      &
      &                  (CMO_ab(I+KCMO),I=IBAS,IBASEND)
                   End If
                 End If
@@ -242,9 +242,9 @@
           End Do
         End If ! iUHF
       End If ! iCMO
-*----------------------------------------------------------------------*
-* OCC section                                                          *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! OCC section                                                          *
+!----------------------------------------------------------------------*
       If(iOcc.eq.1) Then
         nDiv = nDivOcc(iVer)
         FMT = FmtOcc(iVer)
@@ -257,10 +257,10 @@
             IORBEND=MIN(IORB+NDIV-1,iWork(imyNORB+ISYM-1))
 113         READ(LU,'(A256)',END=999,ERR=999) LINE
             If(LINE(1:1).EQ.'*') GOTO 113
-            READ(LINE,FMT,err=888,end=888)
+            READ(LINE,FMT,err=888,end=888)                              &
      &              (OCC(I+KOCC),I=IORB,IORBEND)
           End Do
-*         KOCC=KOCC+iWork(imyNORB+ISYM-1)
+!         KOCC=KOCC+iWork(imyNORB+ISYM-1)
           KOCC=KOCC+nOrb(iSym)
         End Do
         If(iUHF.eq.1.or.iBeta.eq.1) Then
@@ -273,21 +273,21 @@
 114           READ(LU,'(A256)',END=999,ERR=999) LINE
               If(LINE(1:1).EQ.'*') GOTO 114
               If (iBeta.eq.1) Then
-                READ(LINE,FMT,err=888,end=888)
+                READ(LINE,FMT,err=888,end=888)                          &
      &              (OCC(I+KOCC),I=IORB,IORBEND)
               Else
-                READ(LINE,FMT,err=888,end=888)
+                READ(LINE,FMT,err=888,end=888)                          &
      &              (OCC_ab(I+KOCC),I=IORB,IORBEND)
               End If
             End Do
-*           KOCC=KOCC+iWork(imyNORB+ISYM-1)
+!           KOCC=KOCC+iWork(imyNORB+ISYM-1)
             KOCC=KOCC+nOrb(iSym)
           End Do
         End If ! iUHF
       End If ! iOCC
-*----------------------------------------------------------------------*
-* ONE section                                                          *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! ONE section                                                          *
+!----------------------------------------------------------------------*
       If(iEne.eq.1) Then
         nDiv = nDivEne(iVer)
         FMT = FmtEne(iVer)
@@ -300,10 +300,10 @@
             IORBEND=MIN(IORB+NDIV-1,iWork(imyNORB+ISYM-1))
 115         READ(LU,'(A256)',END=999,ERR=999) LINE
             If(LINE(1:1).EQ.'*') GOTO 115
-            READ(LINE,FMT,err=888,end=888)
+            READ(LINE,FMT,err=888,end=888)                              &
      &          (EORB(I+KOCC),I=IORB,IORBEND)
           End Do
-*         KOCC=KOCC+iWork(imyNORB+ISYM-1)
+!         KOCC=KOCC+iWork(imyNORB+ISYM-1)
           KOCC=KOCC+nOrb(iSym)
         End Do
         If(iUHF.eq.1.or.iBeta.eq.1) Then
@@ -316,21 +316,21 @@
 116           READ(LU,'(A256)',END=999,ERR=999) LINE
               If(LINE(1:1).EQ.'*') GOTO 116
               If (iBeta.eq.1) Then
-                READ(LINE,FMT,err=888,end=888)
+                READ(LINE,FMT,err=888,end=888)                          &
      &              (EORB(I+KOCC),I=IORB,IORBEND)
               Else
-                READ(LINE,FMT,err=888,end=888)
+                READ(LINE,FMT,err=888,end=888)                          &
      &              (EORB_ab(I+KOCC),I=IORB,IORBEND)
               End If
             End Do
-*           KOCC=KOCC+iWork(imyNORB+ISYM-1)
+!           KOCC=KOCC+iWork(imyNORB+ISYM-1)
             KOCC=KOCC+nOrb(iSym)
           End Do
         End If ! iUHF
       End If ! iOne
-*----------------------------------------------------------------------*
-* INDEX section                                                        *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! INDEX section                                                        *
+!----------------------------------------------------------------------*
       If(iInd.eq.1) Then
         Rewind(LU)
 57      READ(LU,'(A256)',END=666,ERR=666) Line
@@ -339,7 +339,7 @@
         nDiv=nDivInd(iVer)
         iShift=1
         Do ISYM=1,NSYM
-c         iShift=(ISYM-1)*7
+!         iShift=(ISYM-1)*7
           Do i=1,nSkpInd(iVer)
             read(LU,*)
           EndDo
@@ -374,46 +374,46 @@ c         iShift=(ISYM-1)*7
       End If  ! Index
       Close(Lu)
       Goto 777
-*----------------------------------------------------------------------*
-* a special case - INDEX information is not found                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! a special case - INDEX information is not found                      *
+!----------------------------------------------------------------------*
 666   iErr=1
       WRITE(6,*) '* TypeIndex information is IGNORED *'
       Close(Lu)
-*----------------------------------------------------------------------*
-*                                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!                                                                      *
+!----------------------------------------------------------------------*
 777   Call GetMem('MYNORB','Free','Inte',imyNORB,NSYM)
       Return
-*----------------------------------------------------------------------*
-*                                                                      *
-*----------------------------------------------------------------------*
-999   Call SysWarnFileMsg(Location,Name,
+!----------------------------------------------------------------------*
+!                                                                      *
+!----------------------------------------------------------------------*
+999   Call SysWarnFileMsg(Location,Name,                                &
      &   'Error during reading INPORB\n',Line)
       Call Abend()
-888   Call SysWarnFileMsg(Location,Name,
+888   Call SysWarnFileMsg(Location,Name,                                &
      &   'Error during reading INPORB\n',Line)
       Call Abend()
       End
-************************************************************************
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!***********************************************************************
       SUBROUTINE VECSORT(NSYM,NBAS,NORB,CMO,OCC,INDT,NNWORD,NEWORD,iErr)
-*
-* Sorting routine: sort CMO, OCC according to INDT
-*
+!
+! Sorting routine: sort CMO, OCC according to INDT
+!
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 
       DIMENSION NBAS(NSYM),NORB(NSYM),CMO(*),OCC(*), INDT(*)
-* PAM 2012: Have VecSort return an array NEWORD with new orbital indices.
-* If typedef info in an orbital file is used to change the order
-* of orbitals, this is done by a call to VecSort. If user, as a result,
-* needs to alter orbital indices ( e.g. in the supersymmetry array
-* IXSYM) he needs to know how orbitals have changed order.
-* The mapping is (New orbital index)=NEWORD(Old orbital index).
+! PAM 2012: Have VecSort return an array NEWORD with new orbital indices.
+! If typedef info in an orbital file is used to change the order
+! of orbitals, this is done by a call to VecSort. If user, as a result,
+! needs to alter orbital indices ( e.g. in the supersymmetry array
+! IXSYM) he needs to know how orbitals have changed order.
+! The mapping is (New orbital index)=NEWORD(Old orbital index).
       DIMENSION NEWORD(*)
-* PAM 2012: End of update
+! PAM 2012: End of update
 
       MBAS=NBAS(1)
       Do i=2,nSym
@@ -425,9 +425,9 @@ c         iShift=(ISYM-1)*7
       kocc=0
       iii=0
 
-* PAM 2012: NewOrd update
-* If NNWORD is .gt. 0, this indicates the caller wish to get back
-* a reindicing array. Then this must be large enough:
+! PAM 2012: NewOrd update
+! If NNWORD is .gt. 0, this indicates the caller wish to get back
+! a reindicing array. Then this must be large enough:
       If (NNWORD.gt.0) Then
        nw=0
        Do ISYM=1,NSYM
@@ -442,13 +442,13 @@ c         iShift=(ISYM-1)*7
         NEWORD(nw)=nw
        End Do
       End If
-* PAM 2012: End of update
+! PAM 2012: End of update
 
       Do ISYM=1,NSYM
-*---- Check Do we need make sort?
+!---- Check Do we need make sort?
       NeedSort=0
-c      print *,'indt'
-c      print *,(indt(i+iii),i=1,norb(isym))
+!      print *,'indt'
+!      print *,(indt(i+iii),i=1,norb(isym))
         Do I=1,NORB(ISYM)
           If(IndT(i+iii).eq.0) Then
            iErr=1
@@ -457,10 +457,10 @@ c      print *,(indt(i+iii),i=1,norb(isym))
            If(IndT(i+iii).lt.IndT(i-1+iii)) NeedSort=1
           End If
         End Do
-c       print *,'NeedSort=',NeedSort
+!       print *,'NeedSort=',NeedSort
        If(NeedSort.eq.1) Then
-*---- Start sort
-*---- we Do have only a few types of orbitals, so sorting is a simple...
+!---- Start sort
+!---- we Do have only a few types of orbitals, so sorting is a simple...
         Do iType=1,7
           ip=0
           isfirst=0
@@ -474,32 +474,32 @@ c       print *,'NeedSort=',NeedSort
               End If
             End If
             If(isfirst.eq.1.and.IndT(i+iii).eq.iType) Then
-*---- We need to shift CMO, Occ
+!---- We need to shift CMO, Occ
               m=IndT(i+iii)
               q=Occ(i+KOCC)
-* PAM 2012: NewOrd update
+! PAM 2012: NewOrd update
               nw=NEWORD(i+KOCC)
-* PAM 2012: End of update
+! PAM 2012: End of update
               Do ii=1,NBAS(ISYM)
                Work(iTCMO+ii-1)=CMO((i-1)*NORB(ISYM)+KCMO+ii)
               End Do
               Do j=i,ip+2,-1
                IndT(j+iii)=IndT(j-1+iii)
                Occ(j+KOCC)=Occ(j-1+KOCC)
-* PAM 2012: NewOrd update
+! PAM 2012: NewOrd update
                NEWORD(j+KOCC)=NEWORD(j-1+KOCC)
-* PAM 2012: End of update
+! PAM 2012: End of update
                Do ii=1,NBAS(ISYM)
-                 CMO((j-1)*NORB(ISYM)+KCMO+ii)=
+                 CMO((j-1)*NORB(ISYM)+KCMO+ii)=                         &
      &                 CMO((j-2)*NORB(ISYM)+KCMO+ii)
                End Do
               End Do
 
               IndT(ip+1+iii)=m
               Occ(ip+1+KOCC)=q
-* PAM 2012: NewOrd update
+! PAM 2012: NewOrd update
                NEWORD(ip+1+KOCC)=nw
-* PAM 2012: End of update
+! PAM 2012: End of update
               Do ii=1,NBAS(ISYM)
                CMO((ip)*NORB(ISYM)+KCMO+ii)=Work(iTCMO+ii-1)
               End Do
@@ -508,18 +508,18 @@ c       print *,'NeedSort=',NeedSort
             End If
           End Do
       End Do
-c      print *,'sorted:'
-c      print '(10i2)',(IndT(i+iii), i=1,NORB(ISYM))
-c      print '(4E18.12)',(Occ(i+KOCC), i=1,NORB(ISYM))
+!      print *,'sorted:'
+!      print '(10i2)',(IndT(i+iii), i=1,NORB(ISYM))
+!      print '(4E18.12)',(Occ(i+KOCC), i=1,NORB(ISYM))
 
-c      Do ii=1,NBAS(ISYM)
-c      print *
-c      print '(4E18.12)',(CMO(i+KOCC+(ii-1)*NBAS(ISYM)),i=1,NORB(ISYM))
-c      End Do
+!      Do ii=1,NBAS(ISYM)
+!      print *
+!      print '(4E18.12)',(CMO(i+KOCC+(ii-1)*NBAS(ISYM)),i=1,NORB(ISYM))
+!      End Do
 
-*---- End sort
+!---- End sort
        End If
-*---- Next symmetry
+!---- Next symmetry
         KCMO=KCMO+NBAS(ISYM)*NORB(ISYM)
         KOCC=KOCC+NORB(ISYM)
         iii=iii+NORB(ISYM)
@@ -529,9 +529,9 @@ c      End Do
 
         Return
       End
-*
+!
       Subroutine Chk_vec_UHF(Name,Lu,isUHF)
-c routine returns isUHF based on information in INPORB
+! routine returns isUHF based on information in INPORB
       Character *(*) Name
       CHARACTER LINE*80,Location *11
       Logical Exist
@@ -545,7 +545,7 @@ c routine returns isUHF based on information in INPORB
        Call Abend()
       End If
       REWIND (LU)
-* Check version!
+! Check version!
       READ(LU,'(A80)',END=999,ERR=999) Line
       iVer=0
       Do jVer=1,mxVer
@@ -553,7 +553,7 @@ c routine returns isUHF based on information in INPORB
       End Do
 
       If(iVer.eq.0) Then
-          Call SysWarnMsg(Location,
+          Call SysWarnMsg(Location,                                     &
      & 'INPORB file in old format',' ')
         Call SysPutsEnd()
        isUHF=0
@@ -562,12 +562,12 @@ c routine returns isUHF based on information in INPORB
       End If
 50    READ(LU,'(A80)',END=999,ERR=999) Line
       If(Line(1:5).ne.'#INFO') goto 50
-* Now Do the real job
+! Now Do the real job
         Read (Lu,'(a)',end=999,err=999) Line
         Read(Lu,*,end=999,err=999) isUHF
         close(Lu)
       return
-999      Call SysWarnFileMsg(Location,Name,
+999      Call SysWarnFileMsg(Location,Name,                             &
      &     'Error during reading INPORB\n',Line)
          Call Abend()
       end
