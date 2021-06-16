@@ -679,8 +679,18 @@ C
           idS = idSMAT(iSym,iCase)
           CALL DDAFILE(LUSBT,2,WORK(LS),NS,idS)
         End If
+        ScalB1 = 0.0D+00
+        ScalB2 = 0.0D+00
         ScalS1 = 0.0D+00
         ScalS2 = 0.0D+00
+        iTabs  = 0
+        iUabs  = 0
+        iXabs  = 0
+        iYabs  = 0
+        iTgeUabs = 0
+        iTgtUabs = 0
+        iXgeYabs = 0
+        iXgtYabs = 0
         Do iTU = 1, nAS
           If (iCase.eq. 2) Then
             iTgeUabs = iTU + nTgeUes(iSym)
@@ -897,6 +907,7 @@ C
      *                   Work(LWRK2),i1Work(LidxG3))
         CALL GETMEM('idxG3','FREE','CHAR',LidxG3,6*NG3+iPad)
       Else If (iCase.eq. 5) Then !! D
+        LS=0
         If (BSHIFT.ne.0.0D+00) Then
           NS = NAS*(NAS+1)/2
           CALL GETMEM('S','ALLO','REAL',LS,NS)
@@ -1064,6 +1075,7 @@ C
       Else If (iCase.eq. 8.or.iCase.eq. 9) Then !! F
 C     write(6,*) "Clear B derivative for F"
 C     call docpy_nas*nas,0.0d+00,0,work(lwrk3),1)
+        LS=0
         If (BSHIFT.ne.0.0D+00) Then
           NS = NAS*(NAS+1)/2
           CALL GETMEM('S','ALLO','REAL',LS,NS)
@@ -1072,10 +1084,16 @@ C     call docpy_nas*nas,0.0d+00,0,work(lwrk3),1)
         End If
         ScalB1 = 0.0D+00
         ScalB2 = 0.0D+00
+        ScalS1 = 0.0D+00
+        ScalS2 = 0.0D+00
         iXabs  = 0
         iYabs  = 0
         iTabs  = 0
         iUabs  = 0
+        iTgeUabs = 0
+        iTgtUabs = 0
+        iXgeYabs = 0
+        iXgtYabs = 0
         Do iTU = 1, nAS
           If (iCase.eq. 8) Then
             iTgeUabs = iTU + nTgeUes(iSym)

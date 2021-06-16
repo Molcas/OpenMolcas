@@ -470,7 +470,7 @@ C
 #include "caspt2_grad.fh"
 C
       Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*),WRK(*)
-      Integer ISTLT(8),ISTSQ(8),iSkip(8)
+      Integer ISTLT(8),ISTSQ(8),iSkip(8),ipWRK(8)
 C
       integer nnbstr(8,3)
 C
@@ -510,7 +510,7 @@ C
       If (nBasKL.eq.0) Return
 C
       CALL GETMEM('CHSPC','ALLO','REAL',IP_CHSPC,NCHSPC)
-      CALL GETMEM('WRK  ','ALLO','REAL',ipWRK,nBasT*nBasT)
+      CALL GETMEM('WRK  ','ALLO','REAL',ipWRK(iSym),nBasT*nBasT)
 C
       IBATCH_TOT=NBTCHES(iSym)
 
@@ -588,7 +588,7 @@ C           lscr  = nBasI*(nBasI+1)/2
 C           Call Cho_ReOrdr(irc,Work(ip_CHSPC+lscr*(iVec-1)),lscr,jVref,
 C    *                      JVEC1,JNUM,NUMV,iSym,JREDC,iSwap,ipWRK,
 C    *                      iSkip)
-            Call DCopy_(nBasI**2,[0.0D+00],0,Work(ipWRK),1)
+            Call DCopy_(nBasI**2,[0.0D+00],0,Work(ipWRK(iSym)),1)
             Call Cho_ReOrdr(irc,Work(ipVecL),lscr,jVref,
      *                      JVEC1,JNUM,NUMV,iSym,JREDC,iSwap,ipWRK,
      *                      iSkip)
@@ -596,14 +596,14 @@ C    *                      iSkip)
 C
 C           ----- Fock-like transformations -----
 C
-            Call FDGTRF_RI(Work(ipWRK),DPT2AO ,FPT2AO )
-            Call FDGTRF_RI(Work(ipWRK),DPT2CAO,FPT2CAO)
+            Call FDGTRF_RI(Work(ipWRK(iSym)),DPT2AO ,FPT2AO )
+            Call FDGTRF_RI(Work(ipWRK(iSym)),DPT2CAO,FPT2CAO)
           End Do
         End Do
       End Do
 C
       CALL GETMEM('CHSPC','FREE','REAL',IP_CHSPC,NCHSPC)
-      CALL GETMEM('WRK  ','FREE','REAL',ipWRK,nBasT*nBasT)
+      CALL GETMEM('WRK  ','FREE','REAL',ipWRK(iSym),nBasT*nBasT)
 C
       !! Have to symmetrize Fock-transformed matrices
       Do i = 1, nBasI

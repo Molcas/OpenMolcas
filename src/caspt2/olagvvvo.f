@@ -828,7 +828,7 @@ C
       Real*8 vLag(nBasT,*),CMO(nBasT,*),WRK(nBasT,nBasT)
       Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
       Dimension DIA(*),DI(*),FIFA(*),FIMO(*)
-      Integer ISTLT(8),ISTSQ(8),nAux(8),KEEP(8)
+      Integer ISTLT(8),ISTSQ(8),nAux(8),KEEP(8),ipWRK(8)
 C
       Real*8, Target :: BraD(*)
       Real*8, Pointer :: BraAI(:,:,:),BraSI(:,:,:),
@@ -927,6 +927,9 @@ C     write(6,*) "keep=",keepi,keepj,keepk,keepl
 C     write(6,*) "nAux=",nAuxi,nAuxj,nAuxk,nAuxl
       IF (nAuxI+nAuxJ+nAuxK+nAuxL.EQ.0) Return ! frozen orbitals
 C
+      jSym = iSymJ
+      kSym = iSymK
+      lSym = iSymL
       nIshI = nIsh(iSym)
       nIshJ = nIsh(jSym)
       nIshK = nIsh(kSym)
@@ -945,7 +948,7 @@ C     write(6,*) "nchspc = ", nchspc
       CALL GETMEM('CHSPC','ALLO','REAL',IP_CHSPC,NCHSPC)
 C     CALL GETMEM('HTSPC','ALLO','REAL',IP_HTSPC,NHTSPC)
       CALL GETMEM('HTVEC','ALLO','REAL',ipHTVec,nBasT*nBasT)
-      CALL GETMEM('WRK  ','ALLO','REAL',ipWRK,nBasT*nBasT)
+      CALL GETMEM('WRK  ','ALLO','REAL',ipWRK(iSym),nBasT*nBasT)
 C
       IBATCH_TOT=NBTCHES(iSym)
 
@@ -1109,7 +1112,7 @@ C           Call Cho_ReOrdr(irc,Work(ip_CHSPC+lscr*(iVec-1)),lscr,jVref,
 C    *                      JVEC1,JNUM,NUMV,iSym,JREDC,iSwap,ipWRK,
 C    *                      iSkip)
 C          write(6,*) ivec,ipvecl,lscr
-            Call DCopy_(nBasI**2,[0.0D+00],0,Work(ipWRK),1)
+            Call DCopy_(nBasI**2,[0.0D+00],0,Work(ipWRK(iSym)),1)
             Call Cho_ReOrdr(irc,Work(ipVecL),lscr,jVref,
      *                      JVEC1,JNUM,NUMV,iSym,JREDC,iSwap,ipWRK,
      *                      iSkip)
@@ -1118,7 +1121,7 @@ C
             !! 3) Contract with Cholesky vectors
             Call DGemm_('N','N',nOrbI,nBasI,nBasI,
      *                  1.0D+00,Work(ipHTVec),nOrbI,
-     *                          Work(ipWRK),nBasI,
+     *                          Work(ipWRK(iSym)),nBasI,
      *                  1.0D+00,vLag,nBasI)
 C
             !! For derivative (2c-2e derivative; construct A_PT2)
@@ -1144,12 +1147,12 @@ C
 C           ----- Fock-like transformations -----
 C
             If (nFroT.eq.0) Then
-              Call FDGTRF(Work(ipWRK),DPT2AO,FPT2AO)
-              Call FDGTRF(Work(ipWRK),DPT2CAO,FPT2CAO)
+              Call FDGTRF(Work(ipWRK(iSym)),DPT2AO,FPT2AO)
+              Call FDGTRF(Work(ipWRK(iSym)),DPT2CAO,FPT2CAO)
             End If
             If (nFroT.ne.0) Then
-              Call FDGTRF(Work(ipWRK),DIA,FIFA)
-              Call FDGTRF(Work(ipWRK),DI ,FIMO)
+              Call FDGTRF(Work(ipWRK(iSym)),DIA,FIFA)
+              Call FDGTRF(Work(ipWRK(iSym)),DI ,FIMO)
             End If
           End Do
 C
@@ -1198,7 +1201,7 @@ C
       CALL GETMEM('CHSPC','FREE','REAL',IP_CHSPC,NCHSPC)
 C     CALL GETMEM('HTSPC','FREE','REAL',IP_HTSPC,NHTSPC)
       CALL GETMEM('HTVEC','FREE','REAL',ipHTVec,nBasT*nBasT)
-      CALL GETMEM('WRK  ','FREE','REAL',ipWRK,nBasT*nBasT)
+      CALL GETMEM('WRK  ','FREE','REAL',ipWRK(iSym),nBasT*nBasT)
 C
       !! Have to (?) symmetrize Fock-transformed matrices
       If (nFroT.eq.0) Then
