@@ -2401,7 +2401,7 @@ C
      *          Scr(nMaxOrb,nMaxOrb)
       DIMENSION DPT2C(*),DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
 C
-      DIMENSION nSymX(8),nBasX(8),KEEP(8)
+      DIMENSION nBasX(8),KEEP(8)
       LOGICAL   DoVVVO,Square
       logical dorys
 C     Integer iSD4(0:nSD,4)

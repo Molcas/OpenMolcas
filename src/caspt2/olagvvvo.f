@@ -24,7 +24,7 @@ C
       DIMENSION DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*),T2AO(*)
       Dimension DIA(*),DI(*),FIFA(*),FIMO(*),DBra(*),A_PT2(*)
 C
-      DIMENSION nSymX(8),nBasX(8),KEEP(8)
+      DIMENSION nBasX(8),KEEP(8)
       logical dorys
       Allocatable :: T_hbf(:,:,:,:),iOffAO(:)
       Character*4096 RealName

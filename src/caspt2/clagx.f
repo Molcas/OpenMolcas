@@ -2862,6 +2862,7 @@ C
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
+#include "output.fh"
 C
       Dimension CLag(nConf,nState),DEPSA(nAshT,nAshT),FIFA(*),FIMO(*),
      *          WRK1(nBasT,nBasT),WRK2(*)
