@@ -276,7 +276,7 @@ C Transform contrav C  to eigenbasis of H0(diag):
       CALL PTRTOSR(1,IVEC,IVEC)
       IF(IVEC.NE.JVEC) CALL PTRTOSR(1,JVEC,JVEC)
 
-  99  CONTINUE
+C 99  CONTINUE
       CALL QEXIT('SIGDER')
       RETURN
 

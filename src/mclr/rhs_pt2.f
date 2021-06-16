@@ -152,14 +152,14 @@ C     Call Getmem('TWOD','ALLO','REAL',ipG2r,itri(ntash**2,ntash**2))
           write(6,'(i4,f20.10)') i,work(ipdcas+i-1)
         end do
         write(6,*) "a"
-C     irc=-1
-C     iopt=0
-C     Call RdRlx(irc,iopt,'D1PT22',Work(ipDP))
-C     If (irc.ne.0) Goto 100
-C     irc=-1
-C     iopt=0
-C     Call RdRlx(irc,iopt,'OVLP',rovlp)
-C     If (irc.ne.0) Goto 100
+      irc=-1
+      iopt=0
+      Call RdRlx(irc,iopt,'D1PT22',Work(ipDP))
+      If (irc.ne.0) Goto 100
+      irc=-1
+      iopt=0
+      Call RdRlx(irc,iopt,'OVLP',rovlp)
+      If (irc.ne.0) Goto 100
 *
 *--- Squared density
 *

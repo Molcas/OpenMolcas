@@ -24,9 +24,8 @@ C
       DIMENSION DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*),T2AO(*)
       Dimension DIA(*),DI(*),FIFA(*),FIMO(*),DBra(*),A_PT2(*)
 C
-      DIMENSION Val1(2),nSymX(8),nBasX(8),KEEP(8)
+      DIMENSION nSymX(8),nBasX(8),KEEP(8)
       logical dorys
-      Integer iSD4(0:nSD,4)
       Allocatable :: T_hbf(:,:,:,:),iOffAO(:)
       Character*4096 RealName
       Logical DoCholesky
@@ -103,7 +102,7 @@ C     nocc = nfro(1)+nish(1)+nash(1)
       Call VVVO_Drv(nSym,nBas,nIsh,nFro,KEEP,
      *              iSym,iSymI,iSymA,iSymJ,iSymB,
      *              T2AO,Work(ipvLag),
-     *              nOcc,nBasT,nTot1,nTot2,nBMX,
+     *              nOcc,nBasT,nTot2,nBMX,
      *              Work(LCMOPT2+nBasT*nFro(iSymA)),
      *              DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *              DIA,DI,FIFA,FIMO,DBra)
@@ -323,7 +322,7 @@ C
       !! ftwo_drv.f
       SUBROUTINE VVVO_Drv(nSym,nBas,nAsh,nFro,nSkipX,
      *                    iSym,iSymI,iSymJ,iSymK,iSymL,
-     &                    T2AO,vLag,nOcc,nBasT,nTot1,nTot2,
+     &                    T2AO,vLag,nOcc,nBasT,nTot2,
      &                    nBMX,CMO,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *                    DIA,DI,FIFA,FIMO,DBra)
 
@@ -372,7 +371,7 @@ C     ELSE
 C        write(6,*) "calling drv2"
          Call VVVO_Drv2(nSym,nBas,nAsh,nFro,nSkipX,
      *                  iSym,iSymI,iSymJ,iSymK,iSymL,
-     &                  T2AO,vLag,nOcc,nBasT,nTot1,
+     &                  T2AO,vLag,nOcc,nBasT,
      &                  nTot2,nBMX,CMO,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *                  DIA,DI,FIFA,FIMO,DBra)
 
@@ -388,7 +387,7 @@ C
       !! focktwo_drv.f
       Subroutine VVVO_Drv2(nSym,nBas,nAux,nFro,Keep,
      *                     iSym,iSymI,iSymJ,iSymK,iSymL,
-     &                     T2AO,vLag,nOcc,nBasT,nTot1,
+     &                     T2AO,vLag,nOcc,nBasT,
      &                     nBSQT,nBMX,CMO,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *                     DIA,DI,FIFA,FIMO,DBra)
       Implicit Real*8 (a-h,o-z)
@@ -402,13 +401,13 @@ C
       Logical DoCholesky,GenInt
       Integer ALGO
       Logical REORD,DECO
-      Real*8 CMO_DUMMY(1)
+C     Real*8 CMO_DUMMY(1)
 
       Common /CHORAS / REORD,DECO,ALGO
 *
         interface
           SUBROUTINE VVVOX2(nAux,KEEP,iSym0,iSymI,iSymJ,iSymK,iSymL,
-     *                      vLag,CMO,nOcc,LBUF,X1,X2,WRK,
+     *                      vLag,CMO,WRK,
      *                      DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *                      DIA,DI,FIFA,FIMO,BraD)
 
@@ -416,7 +415,7 @@ C
 #include "rasdim.fh"
 #include "caspt2.fh"
           Real*8 vLag(nBasT,*),CMO(nBasT,*),
-     *           X1(*),X2(*),WRK(nBasT,nBasT)
+     *           WRK(nBasT,nBasT)
           Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
           Dimension DIA(*),DI(*),FIFA(*),FIMO(*)
           Integer ISTLT(8),ISTSQ(8),nAux(8),KEEP(8)
@@ -472,8 +471,7 @@ C        write(6,*) "calling vvvox"
       IF (DoCholesky) Then
 C       write(6,*) "calling vvvox2"
         Call VVVOX2(nAux,Keep,iSym,iSymI,iSymJ,iSymK,iSymL,
-     *              vLag,CMO,nOcc,
-     *              LBUF,Work(LW1),Work(LW2),Work(LWRK),
+     *              vLag,CMO,Work(LWRK),
      *              DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *              DIA,DI,FIFA,FIMO,DBra)
 C       write(6,*) "finished vvvox2"
@@ -808,7 +806,7 @@ C-----------------------------------------------------------------------
 C
       !! focktwo.f
       SUBROUTINE VVVOX2(nAux,KEEP,iSym0,iSymI,iSymJ,iSymK,iSymL,
-     *                  vLag,CMO,nOcc,LBUF,X1,X2,WRK,
+     *                  vLag,CMO,WRK,
      *                  DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *                  DIA,DI,FIFA,FIMO,BraD)
 C
@@ -827,8 +825,7 @@ C
 #include "output.fh"
 #include "caspt2_grad.fh"
 C
-      Real*8 vLag(nBasT,*),CMO(nBasT,*),
-     *       X1(*),X2(*),WRK(nBasT,nBasT)
+      Real*8 vLag(nBasT,*),CMO(nBasT,*),WRK(nBasT,nBasT)
       Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
       Dimension DIA(*),DI(*),FIFA(*),FIMO(*)
       Integer ISTLT(8),ISTSQ(8),nAux(8),KEEP(8)
@@ -1226,11 +1223,6 @@ C
       End If
 C
       Return
-C
- 999  CONTINUE
-      WRITE(6,*)' Error return code IRC=',IRC
-      WRITE(6,*)' from RDORD call, in FTWOI.'
-      CALL Abend
 C
       Contains
 C

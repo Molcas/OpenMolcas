@@ -452,8 +452,7 @@ C-----------------------------------------------------------------------
 C
       !! focktwo.f
       SUBROUTINE OLagFro4(iSym0,iSymI,iSymJ,iSymK,iSymL0,
-     *                    DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
-     *                    DIA,DI,FIFA,FIMO,WRK)
+     *                    DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,WRK)
 C
       USE CHOVEC_IO
 C
@@ -470,8 +469,7 @@ C
 #include "output.fh"
 #include "caspt2_grad.fh"
 C
-      Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
-      Dimension DIA(*),DI(*),FIFA(*),FIMO(*),WRK(*)
+      Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*),WRK(*)
       Integer ISTLT(8),ISTSQ(8),iSkip(8)
 C
       integer nnbstr(8,3)
@@ -506,9 +504,9 @@ C
       If (iSymK.EQ.iSymI) iSMax = iSymJ
       iSymL  = 1+iEor(iSymIJ-1,iSymK-1)
       IF (iSymL.GT.iSMax) Return !! should not
-      nBasL  = nBas(iSymL)
+      nBasL  = nBas(iSymL0)
       nBasKL = nBasK*nBasL
-      IF (iSymK.EQ.iSymL) nBasKL = (nBasK*(nBasK+1))/2
+      IF (iSymK.EQ.iSymL0) nBasKL = (nBasK*(nBasK+1))/2
       If (nBasKL.eq.0) Return
 C
       CALL GETMEM('CHSPC','ALLO','REAL',IP_CHSPC,NCHSPC)
@@ -600,8 +598,6 @@ C           ----- Fock-like transformations -----
 C
             Call FDGTRF_RI(Work(ipWRK),DPT2AO ,FPT2AO )
             Call FDGTRF_RI(Work(ipWRK),DPT2CAO,FPT2CAO)
-C           Call FDGTRF_RI(Work(ipWRK),DIA    ,FIFA   )
-C           Call FDGTRF_RI(Work(ipWRK),DI     ,FIMO   )
           End Do
         End Do
       End Do
@@ -618,12 +614,6 @@ C
           tmp = (FPT2CAO(i+nBasI*(j-1))+FPT2CAO(j+nBasI*(i-1)))*0.5d+00
           FPT2CAO(i+nBasI*(j-1)) = Tmp
           FPT2CAO(j+nBasI*(i-1)) = Tmp
-C         tmp = (FIFA(i+nBasI*(j-1))+FIFA(j+nBasI*(i-1)))*0.5d+00
-C         FIFA(i+nBasI*(j-1)) = Tmp
-C         FIFA(j+nBasI*(i-1)) = Tmp
-C         tmp = (FIMO(i+nBasI*(j-1))+FIMO(j+nBasI*(i-1)))*0.5d+00
-C         FIMO(i+nBasI*(j-1)) = Tmp
-C         FIMO(j+nBasI*(i-1)) = Tmp
         End Do
       End Do
 C

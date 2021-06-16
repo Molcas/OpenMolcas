@@ -53,6 +53,7 @@ C
       !! ???
       invar=.true.
       if (bshift.ne.0.0d+00) invar=.false.
+      IF (.not.IFINVAR) INVAR = .FALSE.
 C     invar=.false.
 C
       If (.not.INVAR .and. IPRGLB.GE.USUAL) Then
@@ -445,10 +446,10 @@ C     ! call sqprt(work(ipdepsa),5)
 C
 C          call dcopy_(144,[0.0d+00],0,work(ipdpt),1)
 C       !! Just add DEPSA to DPT2
-        Call AddDEPSA(Work(ipDPT),Work(ipDEPSA),Work(LDSUM))
+        Call AddDEPSA(Work(ipDPT),Work(ipDEPSA))
         !! Just transform the density in MO to AO
-        CALL DPT2_Trf(Work(LDPT),Work(ipDPTC),Work(ipDPTAO),
-     *                Work(ipDPTCAO),Work(LCMOPT2),Work(ipDEPSA),
+        CALL DPT2_Trf(Work(LDPT),Work(ipDPTAO),
+     *                Work(LCMOPT2),Work(ipDEPSA),
      *                Work(LDSUM))
 C       CALL GETMEM('DEPSA ','FREE','REAL',ipDEPSA,nAshT)
         !! Save the AO density
@@ -855,8 +856,7 @@ C         call sqprt(work(ipdpt),nbast)
             !! the DPT2 is obtained after OLagVVVO.
             Call OLagFro4(1,1,1,1,1,
      *                    Work(ipDPTAO),Work(ipDPTCAO),Work(ipFPTAO),
-     *                    Work(ipFPTCAO),Work(ipDIA),Work(ipDI),
-     *                    Work(ipFIFA),Work(ipFIMO),Work(ipWRK1))
+     *                    Work(ipFPTCAO),Work(ipWRK1))
             !! AO -> MO transformations for FPT2AO and FPT2CAO
             Call OLagTrf(2,iSym,Work(LCMOPT2),Work(ipFPT),
      *                   Work(ipFPTAO),Work(ipWRK1))
@@ -915,7 +915,7 @@ C       write(6,*) "fpt2"
 C       call sqprt(Work(ipfpt),nbast)
         CALL EigDer(Work(ipDPT),Work(ipDPTC),Work(ipFPTAO),
      *              Work(ipFPTCAO),Work(ipRDMEIG),Work(LCMOPT2),
-     *              Work(ipTrf),Work(ipWLag),Work(ipFPT),Work(ipFPTC),
+     *              Work(ipTrf),Work(ipFPT),Work(ipFPTC),
      *              Work(ipFIFA),Work(ipFIMO),Work(ipRDMSA))
 C          call test2_dens(work(ipolag),work(ipdepsa))
 C       write(6,*) "olag after eigder"
@@ -947,7 +947,7 @@ C    *              0.0D+00,Work(ipRDMEIG),nAshT)
         ISAV = IDCIEX
         IDCIEX = IDTCEX
         !! Now, compute the configuration Lagrangian
-        Call CLagEig(Work(ipCLag),Work(ipRDMEIG),.true.)
+        Call CLagEig(Work(ipCLag),Work(ipRDMEIG))
         !! Now, compute the state Lagrangian and do some projections
         Call CLagFinal(Work(ipCLag),Work(ipSLag))
 C
@@ -984,15 +984,15 @@ C         call dcopy_(nasht**2,[0.0d+00],0,work(ipdepsa),1)
 C
           !! We have to do many things again...
           !! Just add DEPSA to DPT2
-          Call AddDEPSA(Work(ipDPT),Work(ipDEPSA),Work(LDSUM))
+          Call AddDEPSA(Work(ipDPT),Work(ipDEPSA))
           !! Just transform the density in MO to AO
-          CALL DPT2_Trf(Work(LDPT),Work(ipDPTC),Work(ipDPTAO),
-     *                  Work(ipDPTCAO),Work(LCMOPT2),Work(ipDEPSA),
+          CALL DPT2_Trf(Work(LDPT),Work(ipDPTAO),
+     *                  Work(LCMOPT2),Work(ipDEPSA),
      *                  Work(LDSUM))
           !! Some transformations similar to EigDer
-          Call EigDer2(Work(ipDPT),Work(ipRDMEIG),Work(LCMOPT2),
-     *                 Work(ipTrf),Work(ipFIFA),Work(ipRDMSA),
-     *                 Work(ipDEPSA),Work(ipWRK1),Work(ipWRK2))
+          Call EigDer2(Work(ipRDMEIG),Work(ipTrf),Work(ipFIFA),
+     *                 Work(ipRDMSA),Work(ipDEPSA),
+     *                 Work(ipWRK1),Work(ipWRK2))
 C
           Call DCopy_(nConf*nState,Work(ipCLagT),1,Work(ipCLag),1) !test
           Call DaXpY_(nAshT**2,1.0D+00,Work(ipEigT),1,Work(ipRDMEIG),1) !test
@@ -1002,7 +1002,7 @@ C
           !! RDMEIG contributions
           !! Use canonical CSFs rather than natural CSFs
           !! Now, compute the configuration Lagrangian
-          Call CLagEig(Work(ipCLag),Work(ipRDMEIG),.true.)
+          Call CLagEig(Work(ipCLag),Work(ipRDMEIG))
           !! Now, compute the state Lagrangian and do some projections
           Call CLagFinal(Work(ipCLag),Work(ipSLag))
         End If
@@ -1527,6 +1527,7 @@ C
 C
       iSQ = 0
       iTOrb = 1 ! LTOrb
+      ipTrfL = 0
 C     write(6,*) "norbt = ",norbt
 C     write(6,*) "nosqt = ", nosqt
 C     write(6,*) "nbast = ", nbast
@@ -1551,7 +1552,7 @@ C     write(6,*) "nbast = ", nbast
         nCor  = nFroI + nIshI
         nOcc  = nCor  + nAshI
         nVir  = nSshI + nDelI
-        ipTrfL = ipTrf + iSQ
+        ipTrfL = ipTrfL + iSQ
         !! frozen + inactive
 C       Do iIsh = 1, nFroI + nIshI
 C         Trf(ipTrfL+iIsh+nBasI*(iIsh-1)) = 1.0D+00
@@ -1646,13 +1647,13 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE AddDEPSA(DPT2,DEPSA,DSUM)
+      SUBROUTINE AddDEPSA(DPT2,DEPSA)
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 C
-      DIMENSION DPT2(*),DEPSA(nAshT,nAshT),DSUM(*)
+      DIMENSION DPT2(*),DEPSA(nAshT,nAshT)
 C
 C     write(6,*) "DPT2MO"
 C     call sqprt(dpt2,nbas(1)-ndel(1))
@@ -1671,9 +1672,6 @@ C
             Do jOrb0 = 1, nAsh(iSym)
               jOrb1 = nIsh(iSym)+jOrb0
               jOrb2 = nFro(iSym)+nIsh(iSym)+jOrb0
-C             DSUM(iMO1+iOrb1-1+nOrbI1*(jOrb1-1))
-C    *          = DSUM(iMO1+iOrb1-1+nOrbI1*(jOrb1-1))
-C    *          + DEPSA(iOrb0,jOrb0)
               DPT2(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))
      *          = DPT2(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))
      *          + DEPSA(iOrb0,jOrb0)
@@ -1773,15 +1771,14 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE DPT2_Trf(DPT2,DPT2C,DPT2AO,DPT2CAO,CMO,DEPSA,DSUM)
+      SUBROUTINE DPT2_Trf(DPT2,DPT2AO,CMO,DEPSA,DSUM)
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 C
-      DIMENSION DPT2(*),DPT2C(*),DPT2AO(*),DPT2CAO(*),CMO(*),
-     *          DEPSA(nAshT,nAshT),DSUM(*)
+      DIMENSION DPT2(*),DPT2AO(*),CMO(*),DEPSA(nAshT,nAshT),DSUM(*)
 C
       !! DPT2 transformation
       !! Just transform DPT2 (in MO, block-squared) to DPT2AO (in AO,
@@ -1873,7 +1870,7 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE EigDer(DPT2,DPT2C,FPT2AO,FPT2CAO,RDMEIG,CMO,Trf,WLag,
+      SUBROUTINE EigDer(DPT2,DPT2C,FPT2AO,FPT2CAO,RDMEIG,CMO,Trf,
      *                  FPT2,FPT2C,FIFA,FIMO,RDMSA)
 C
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -1883,7 +1880,7 @@ C
 #include "caspt2_grad.fh"
 C
       DIMENSION DPT2(*),DPT2C(*),FPT2AO(*),FPT2CAO(*),RDMEIG(*),CMO(*),
-     *          Trf(*),WLag(*)
+     *          Trf(*)
       DIMENSION FPT2(*),FPT2C(*),FIFA(*),FIMO(*),RDMSA(*)
 C
 C     write (6,*) "here is eigder"
@@ -2059,38 +2056,6 @@ C    *              1.0D+00,Work(ipWRK1),nOrbI,DPT2C(iSQ),nOrbI,
 C     write(6,*) "olag in eigder"
 C     call sqprt(work(ipolag),nbasT)
 C
-C     ----- W contribution
-C
-      !! (k,l) = (cor,cor)
-      !! Eigenvalue contributions
-      !! Symmetry not yet
-C     write(6,*) "eigenvalues"
-C     do i = 1, 12
-C       write(6,'(i3,f20.10)') i,eps(i)
-C     end do
-      Do iSym = 1, nSym
-        nOrbI = nOrb(iSym)
-C       write(6,*) "norbi = ", norbi
-        Do iOrbI = 1, nOrbI
-          Do iOrbJ = 1, iOrbI-1 ! nOrbI
-C         write(6,*) eps(iorbj),DPT2(iOrbI+nOrbI*(iOrbJ-1))
-      !     WLag(iOrbI+nOrbI*(iOrbJ-1))
-     *!       = 2.0D+00*EPS(iOrbJ)*DPT2(iOrbI+nOrbI*(iOrbJ-1))
-          End Do
-C         write(6,*) EPS(iOrbI),DPT2(iOrbI+nOrbI*(iOrbI-1))
-      !   WLag(iOrbI+nOrbI*(iOrbI-1))
-     *!     = EPS(iOrbI)*DPT2(iOrbI+nOrbI*(iOrbI-1))
-        End Do
-      End Do
-C     write(6,*) "wlag in eigder"
-C     call sqprt(wlag,nbasT)
-C     DO IP = 1, L0
-C       DO IQ = 1, IP-1
-C         WLAG(IP,IQ) = WLAG(IP,IQ) + 2.0D+00*EIG(IQ)*DPT2(IP,IQ)
-C       END DO
-C       WLAG(IP,IQ) = WLAG(IP,IQ) + EIG(IQ)*DPT2(IP,IQ)
-C     END DO
-C
 C     ----- CASSCF density derivative contribution in active space
 C
       iSQ = 1
@@ -2127,8 +2092,7 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE EigDer2(DPT2,RDMEIG,CMO,Trf,FIFA,RDMSA,
-     *                   DEPSA,WRK1,WRK2)
+      SUBROUTINE EigDer2(RDMEIG,Trf,FIFA,RDMSA,DEPSA,WRK1,WRK2)
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -2136,7 +2100,7 @@ C
 #include "WrkSpc.fh"
 #include "caspt2_grad.fh"
 C
-      DIMENSION DPT2(*),RDMEIG(*),CMO(*),Trf(*)
+      DIMENSION RDMEIG(*),Trf(*)
       DIMENSION FIFA(*),RDMSA(*),DEPSA(*),WRK1(*),WRK2(*)
 C
       CALL GETMEM('FPT2 ','ALLO','REAL',ipFPT2 ,nBSQT)
@@ -2258,8 +2222,7 @@ C
         !! it's very inefficient
         Call OLagFro4(1,1,1,1,1,
      *                Work(ipDAO),Work(ipWRK1),Work(ipDMO),
-     *                Work(ipWRK1),Work(ipWRK1),Work(ipWRK1),
-     *                Work(ipWRK1),Work(ipWRK1),Work(ipWRK2))
+     *                Work(ipWRK1),Work(ipWRK2))
         !! G(D) in AO -> G(D) in MO
         Do iSym = 1, nSym
           Call OLagTrf(2,iSym,Work(LCMOPT2),FPT2,
@@ -2438,10 +2401,10 @@ C
      *          Scr(nMaxOrb,nMaxOrb)
       DIMENSION DPT2C(*),DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
 C
-      DIMENSION Val1(2),nSymX(8),nBasX(8),KEEP(8)
+      DIMENSION nSymX(8),nBasX(8),KEEP(8)
       LOGICAL   DoVVVO,Square
       logical dorys
-      Integer iSD4(0:nSD,4)
+C     Integer iSD4(0:nSD,4)
       Allocatable :: T_hbf(:,:,:,:),iOffAO(:)
       Character*4096 RealName
       DIMENSION IOFF1(8),IOFF2(8)
@@ -3769,566 +3732,6 @@ C
  9028 FORMAT(15X,10(4X,I4,3X))
  9048 FORMAT(I5,2X,A8,10F11.6)
       END
-
-      subroutine aaaa(ish,inds_,isoff_,ntots,nvals,nprjs,
-     *  nprj,nsro,nsoc,iprj,isro,isoc)
-
-      implicit real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
-C#include "Basis_Mode_Parameters.fh"
-C#include "Basis_Mode.fh"
-
-      inds_=inds(ish)
-      isoff_= 0 ! isoff(ish)
-      ntots = ntot_shells(ish)
-      nvals = nval_shells(ish)
-      nprjs = nprj_shells(ish)
-      nprj  = nprj_shells(ish)
-      nsro  = nsro_shells(ish)
-      nsoc  = nsoc_shells(ish)
-      iprj  = 0 ! iprj_shells_start(ish)
-      isro  = 0 ! isro_shells_start(ish)
-      isoc  = 0 ! isoc_shells_start(ish)
-      end
-      subroutine bbbb
-
-      implicit real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
-        write(6,*) "iAOtSO"
-        do i = 1, 12
-          write(6,*) i,iAOtSO(i,0)
-        end do
-        write(6,*) "lOffAO"
-        do i = 1, 12
-          write(6,*) i,lOffAO(i)
-        end do
-        write(6,*) "kOffAO"
-        do i = 1, 12
-          do j = 0, itabmx
-            write(6,*) i,j,koffao(i,j)
-          end do
-        end do
-      end
-
-
-
-      subroutine test_dens(olag,clag,trf,wrk1,wrk2)
-C
-      implicit real*8 (a-h,o-z)
-C
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "pt2_guga.fh"
-C
-      dimension olag(*),clag(*),trf(*),wrk1(*),wrk2(*)
-C
-      CALL GETMEM('G1'   ,'ALLO','REAL',LG1 ,NG1)
-      CALL PT2_GET(NG1,' GAMMA1',WORK(LG1))
-      write(6,*) "G1 in quasi-canonical"
-      call sqprt(work(lg1),nasht)
-C
-      write(6,*) "G1 in natural"
-      call dgemm_('n','n',nasht,nasht,nasht,
-     *            1.0d+00,trf(6+12*(6-1)),12,work(lg1),nasht,
-     *            0.0d+00,wrk1,nasht)
-      call dgemm_('n','t',nasht,nasht,nasht,
-     *            1.0d+00,wrk1,nasht,trf(6+12*(6-1)),12,
-     *            0.0d+00,work(lg1),nasht)
-      call sqprt(work(lg1),nasht)
-C
-      !! OLAG: quasi-canonical -> natural
-      nOrbI = nOrbT
-      nIshI = nIsh(1)
-      Call DGemm_('N','N',nOrbI,nOrbI,nOrbI,
-     *            1.0D+00,TRF,nOrbI,OLag,nOrbI,
-     *            0.0D+00,Wrk1,nOrbI)
-      Call DGemm_('N','T',nOrbI,nOrbI,nOrbI,
-     *            1.0D+00,WRK1,nOrbI,TRF,nOrbI,
-     *            0.0D+00,Wrk1,nOrbI)
-C
-      Call DGeSub(Wrk1,nOrbT,'N',
-     *            Wrk1,nOrbT,'T',
-     *            Wrk2,nOrbT,
-     *            nOrbT,nOrbT)
-C
-      call sqprt(wrk2,12)
-      Do iI = 1, nAshT
-        GamI = Work(LG1+iI-1+nAshT*(iI-1))
-        Do iJ = 1, nAshT
-          GamJ = Work(LG1+iJ-1+nAshT*(iJ-1))
-C         Val = Wrk2(nIshI+iI+nOrbI*(nIshI+iJ-1))*1.0d+00!*0.5d+00
-          Val = OLag(nIshI+iI+nOrbI*(nIshI+iJ-1))*1.0d+00!*0.5d+00
-          val=0.0d+00
-          If (iI.eq.iJ) Then
-            Wrk2(iI+nAshT*(iJ-1)) = 0.0D+00
-          Else
-            Wrk2(iI+nAshT*(iJ-1)) = Val/(GamI-GamJ)
-          End If
-        End Do
-      End Do
-      Call DCopy_(nAshT**2,Wrk2,1,Work(LG1),1)
-      call sqprt(work(lg1),5)
-C
-      !! natural -> quasi-canonical
-C     Call DGemm_('T','N',nAshT,nAshT,nAshT,
-C    *           1.0D+00,TRF(nIshI+1+nOrbI*nIshI),nOrbI,Work(LG1),nAshT,
-C    *            0.0D+00,WRK1,nAshT)
-C     Call DGemm_('N','N',nAshT,nAshT,nAshT,
-C    *            1.0D+00,WRK1,nAshT,TRF(nIshI+1+nOrbI*nIshI),nOrbI,
-C    *            0.0D+00,Work(LG1),nAshT)
-       write(6,*) "???"
-      call sqprt(work(lg1),nasht)
-C
-C     CALL PT2_GET(NG1,' GAMMA1',WORK(LG1))
-C     call dgemm_('n','n',nasht,nasht,nasht,
-C    *            1.0d+00,trf(6+12*(6-1)),12,work(lg1),nasht,
-C    *            0.0d+00,wrk1,nasht)
-C     call dgemm_('n','t',nasht,nasht,nasht,
-C    *            1.0d+00,wrk1,nasht,trf(6+12*(6-1)),12,
-C    *            0.0d+00,work(lg1),nasht)
-      Call CLagEig(CLag,Work(LG1),.false.)
-C
-      CALL GETMEM('G1'   ,'FREE','REAL',LG1 ,NG1)
-C
-      end subroutine test_dens
-
-      subroutine test2_dens(olag,depsa)
-      implicit real*8 (A-H,O-Z)
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "pt2_guga.fh"
-      dimension olag(nbast,nbast),depsa(5,5)
-      dimension wrk1(nbast,nbast),wrk2(nbast,nbast),wrk3(nbast,nbast)
-      dimension amat(nasht*(nasht-1)/2,nasht*(nasht-1)/2),
-     *          uu(nasht*nasht),xx(nasht*nasht),
-     *          amat2(nasht,nasht,nasht,nasht),
-     *          asav(nasht,nasht,nasht,nasht)
-      dimension g1(nasht,nasht)
-
-      dimension fifa(nbast,nbast)
-      dimension ipiv(nasht*nasht)
-C
-      CALL PT2_GET(NG1,' GAMMA1',G1)
-      Call SQUARE(Work(LFIFA),fifa,1,nBasT,nBasT)
-      write(6,*) "g1"
-      call sqprt(g1,5)
-      write(6,*) "olag"
-      call sqprt(olag,nbast)
-C
-      iSym = 1
-C
-      nBasI = nBas(iSym)
-      nFroI = nFro(iSym)
-      nIshI = nIsh(iSym)
-      nAshI = nAsh(iSym)
-      nCorI = nFroI+nIshI
-C
-      isymi=1
-      isymj=1
-      isyma=1
-      isymb=1
-      indpq = 0
-      Do iAshI = 1, nAsh(iSym)
-        iOrb = nCorI+iAshI
-        indp = iAshI
-        Do jAshI = 1, iAshI-1
-          jOrb = nCorI+jAshI
-          indq = jAshI
-          indpq = indpq + 1
-          Call DCopy_(nAshI*(nAshI-1)/2,[0.0D+00],0,AMat(1,indpq),1)
-C
-          Call Coul(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK3)
-          Call Coul(iSymA,iSymI,iSymB,iSymJ,jOrb,iOrb,WRK2,WRK3)
-          indab = 0
-          Do kAshI = 1, nAsh(iSym)
-            kOrb = nCorI+kAshI
-            inda = kAshI
-            Do lAshI = 1, kAshI-1
-              lOrb = nCorI+lAshI
-              indb = lAshI
-              indab = indab + 1
-              Do mAshI = 1, nAsh(iSym)
-                AMat(indab,indpq) = AMat(indab,indpq)
-     *            + G1(mAshI,indb)*WRK1(nCorI+mAshI,nCorI+inda) ! pq
-     *            - G1(mAshI,inda)*WRK1(nCorI+mAshI,nCorI+indb)
-C    *            - G1(mAshI,indb)*WRK2(nCorI+mAshI,nCorI+inda) ! qp
-C    *            + G1(mAshI,inda)*WRK2(nCorI+mAshI,nCorI+indb)
-              End Do
-            End Do
-          End Do
-C
-          Call Exch(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK3)
-          Call Exch(iSymA,iSymI,iSymB,iSymJ,jOrb,iOrb,WRK2,WRK3)
-          indab = 0
-          Do kAshI = 1, nAsh(iSym)
-            kOrb = nCorI+kAshI
-            inda = kAshI
-            Do lAshI = 1, kAshI-1
-              lOrb = nCorI+lAshI
-              indb = lAshI
-              indab = indab + 1
-              Do mAshI = 1, nAsh(iSym)
-                AMat(indab,indpq) = AMat(indab,indpq)
-     *          - 0.25d+00*G1(mAshI,indb)*WRK1(nCorI+mAshI,nCorI+inda) !pq
-     *          - 0.25d+00*G1(mAshI,indb)*WRK1(nCorI+inda,nCorI+mAshI)
-     *          + 0.25d+00*G1(mAshI,inda)*WRK1(nCorI+mAshI,nCorI+indb)
-     *          + 0.25d+00*G1(mAshI,inda)*WRK1(nCorI+indb,nCorI+mAshI)
-C    *          - 0.25d+00*G1(mAshI,indb)*WRK2(nCorI+mAshI,nCorI+inda) !qp
-C    *          - 0.25d+00*G1(mAshI,indb)*WRK2(nCorI+inda,nCorI+mAshI)
-C    *          + 0.25d+00*G1(mAshI,inda)*WRK2(nCorI+mAshI,nCorI+indb)
-C    *          + 0.25d+00*G1(mAshI,inda)*WRK2(nCorI+indb,nCorI+mAshI)
-              End Do
-            End Do
-          End Do
-C
-          Call DScal_(nAshI*(nAshI-1)/2,2.0D+00,AMat(1,indpq),1)
-C
-          indab = 0
-          Do kAshI = 1, nAsh(iSym)
-            inda = kAshI
-            Do lAshI = 1, kAshI-1
-              indb = lAshI
-              indab = indab+1
-              If (indp.eq.inda.and.indq.eq.indb) then
-                AMat(indab,indpq) = AMat(indab,indpq)
-     *            + FIFA(nCorI+inda,nCorI+inda)
-     *            - FIFA(nCorI+indb,nCorI+indb)
-              end if
-C             If (indq.eq.inda.and.indp.eq.indb) then
-C               AMat(indab,indpq) = AMat(indab,indpq)
-C    *            - FIFA(nCorI+inda,nCorI+inda)
-C    *            + FIFA(nCorI+indb,nCorI+indb)
-C             end if
-            End Do
-          End Do
-        End Do
-      End Do
-C
-      !! Fij = hij + ((ij|kl)-(ik|jl)/2)*Dkl
-      !! 0 = Fmj*Umi + Fim*Umj + (ij|ml)-(im|jl)/2)*Dkl*Umk + ((ij|km)-(ik|jm)/2)*Dkl*Uml
-      !!   = Fmj*Umi + Fim*Umj + Upq * (((ij|pl)-(ip|jl)/2)*Dql + ((ij|kp)-(ik|jp)/2)*Dkq)
-      !! Z*A = L
-      !! R^a = U^a*L
-      !!     = Z*A*U^a
-      !!     = Z*B^a
-      l1 = nasht*nasht
-      Do iAshI = 1, nAsh(iSym)
-        iOrb = nCorI+iAshI
-        indp = iAshI
-        Do jAshI = 1, nAsh(iSym)
-          jOrb = nCorI+jAshI
-          indq = jAshI
-          Call DCopy_(l1,[0.0D+00],0,AMat2(1,1,indp,indq),1)
-C
-          Call Coul(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK3)
-          Call Exch(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK2,WRK3)
-          Do kAshI = 1, nAsh(iSym)
-            kOrb = nCorI+kAshI
-            inda = kAshI
-            Do lAshI = 1, nAsh(iSym)
-              lOrb = nCorI+lAshI
-              indb = lAshI
-              Do mAshI = 1, nAsh(iSym)
-                AMat2(inda,indb,indp,indq) = AMat2(inda,indb,indp,indq)
-C    *          + 1.0D+00*G1(mAshI,indb)*WRK1(nCorI+mAshI,nCorI+inda)
-C    *          - 0.5d+00*G1(mAshI,indb)*WRK2(nCorI+mAshI,nCorI+inda)
-C    *          + 2.0D+00*G1(mAshI,indb)*WRK1(nCorI+mAshI,nCorI+inda)
-C    *          - 0.5d+00*G1(mAshI,indb)*WRK2(nCorI+mAshI,nCorI+inda)
-C    *          - 0.5d+00*G1(mAshI,indb)*WRK2(nCorI+inda,nCorI+mAshI)
-C    *          - 2.0D+00*G1(mAshI,inda)*WRK1(nCorI+mAshI,nCorI+indb)
-C    *          + 0.5d+00*G1(mAshI,inda)*WRK2(nCorI+mAshI,nCorI+indb)
-C    *          + 0.5d+00*G1(mAshI,inda)*WRK2(nCorI+indb,nCorI+mAshI)
-
-     *          + 1.0D+00*G1(mAshI,indb)*WRK1(nCorI+inda,nCorI+mAshI)
-     *          + 1.0D+00*G1(mAshI,indb)*WRK1(nCorI+mAshI,nCorI+inda)
-     *          - 0.5d+00*G1(mAshI,indb)*WRK2(nCorI+inda,nCorI+mAshI)
-     *          - 0.5d+00*G1(mAshI,indb)*WRK2(nCorI+mAshI,nCorI+inda)
-              End Do
-            End Do
-          End Do
-          Call Coul(iSymA,iSymI,iSymB,iSymJ,jOrb,iOrb,WRK1,WRK3)
-          Call Exch(iSymA,iSymI,iSymB,iSymJ,jOrb,iOrb,WRK2,WRK3)
-          Do kAshI = 1, nAsh(iSym)
-            kOrb = nCorI+kAshI
-            inda = kAshI
-            Do lAshI = 1, nAsh(iSym)
-              lOrb = nCorI+lAshI
-              indb = lAshI
-              Do mAshI = 1, nAsh(iSym)
-                AMat2(inda,indb,indp,indq) = AMat2(inda,indb,indp,indq)
-C    *          + 2.0D+00*G1(mAshI,indb)*WRK1(nCorI+mAshI,nCorI+inda)
-C    *          - 0.5d+00*G1(mAshI,indb)*WRK2(nCorI+mAshI,nCorI+inda)
-C    *          - 0.5d+00*G1(mAshI,indb)*WRK2(nCorI+inda,nCorI+mAshI)
-C    *          - 2.0D+00*G1(mAshI,inda)*WRK1(nCorI+mAshI,nCorI+indb)
-C    *          + 0.5d+00*G1(mAshI,inda)*WRK2(nCorI+mAshI,nCorI+indb)
-C    *          + 0.5d+00*G1(mAshI,inda)*WRK2(nCorI+indb,nCorI+mAshI)
-              End Do
-            End Do
-          End Do
-C
-          Do kAshI = 1, nAsh(iSym)
-            inda = kAshI
-            Do lAshI = 1, nAsh(iSym)
-              indb = lAshI
-              If (indp.eq.inda.and.indq.eq.indb) then
-                AMat2(inda,indb,indp,indq) = AMat2(inda,indb,indp,indq)
-C    *            + FIFA(nCorI+inda,nCorI+inda)
-C    *            - FIFA(nCorI+indb,nCorI+indb)
-              end if
-            End Do
-          End Do
-        End Do
-      End Do
-C     call sqprt(amat2,l1)
-C
-      l1 = nasht*(nasht-1)/2
-      do ipq = 1, nasht*(nasht-1)/2
-        do iab = 1, nasht*(nasht-1)/2
-C         write(6,'(2i3,2f20.10)') ipq,iab,amat(ipq,iab)
-        end do
-      end do
-C     do inda = 1, nasht
-C     do indb = 1, nasht
-C       if (inda.eq.indb) cycle
-C     do indp = 1, nasht
-C     do indq = 1, nasht
-C       if (indp.eq.indq) cycle
-C       val = amat2(inda,indb,indp,indq)
-C    *      - amat2(inda,indb,indq,indp)
-C    *      - amat2(indb,inda,indp,indq)
-C    *      + amat2(indb,inda,indq,indp)
-C       write(6,'(4i3,f20.10)') inda,indb,indp,indq,val
-C     end do
-C     end do
-C     end do
-C     end do
-      indpq = 0
-      write(6,*) "density"
-      Do iAshI = 1, nAsh(iSym)
-        iOrb = nCorI+iAshI
-        indp = iAshI
-        write(6,*) iorb,eps(iorb)
-        Do jAshI = 1, iAshI-1
-          jOrb = nCorI+jAshI
-          indq = jAshI
-          indpq = indpq + 1
-          UU(indpq) = olag(iorb,jorb) - olag(jorb,iorb)
-          val = uu(indpq)/(eps(iorb)-eps(jorb))
-          xx(iashi+5*(jashi-1)) = val*0.5d+00
-          xx(jashi+5*(iashi-1)) = val*0.5d+00
-C    *     + depsa(iashi,jashi)*(eps(iorb)-eps(jorb))*0.50d+00
-      write(6,'(i3,2f20.10)')
-     * indpq,uu(indpq)/(eps(iorb)-eps(jorb)),
-     *          1.0d+00/(eps(iorb)-eps(jorb))
-        End Do
-      End Do
-      write(6,*) "density square"
-      call sqprt(xx,5)
-      write(6,*) "antisymmetrized U"
-      do i = 1, l1
-      write(6,'(i3,f20.10)') i,uu(i)
-      end do
-      call dcopy_(l1*l1,amat,1,asav,1)
-      CALL DGETRF_(L1,L1,AMat,L1,IPIV,INFO)
-      CALL DGETRS_('N',L1,1,AMat,L1,IPIV,UU,L1,INFO)
-      write(6,*) "answer"
-      do i = 1, l1
-      write(6,'(i3,f20.10)') i,uu(i)
-      end do
-      call dcopy_(l1*l1,asav,1,amat,1)
-      call dgemv_('N',l1,l1,
-     *           1.0d+00,amat,l1,uu,1,
-     *           0.0d+00,xx,1)
-      write(6,*) "compare with anti-U"
-      do i = 1, l1
-      write(6,'(i3,f20.10)') i,xx(i)
-      end do
-      indpq = 0
-      call dcopy_(25,xx,1,wrk1,1)
-      call dcopy_(25,[0.0d+00],0,xx,1)
-      Do iAshI = 1, nAsh(iSym)
-        iOrb = nCorI+iAshI
-        indp = iAshI
-        Do jAshI = 1, iAshI-1
-          jOrb = nCorI+jAshI
-          indq = jAshI
-          indpq = indpq + 1
-          val = uu(indpq)!/(fifa(iorb,iorb)-fifa(jorb,jorb))
-     *        - wrk1(indpq,1)/(fifa(iorb,iorb)-fifa(jorb,jorb))
-          xx(iashi+nasht*(jashi-1)) = val
-          xx(jashi+nasht*(iashi-1)) = val
-        End Do
-      End Do
-      call sqprt(xx,5)
-
-
-C     l1 = nasht*nasht
-C     Do iAshI = 1, nAsh(iSym)
-C       iOrb = nCorI+iAshI
-C       indp = iAshI
-C       Do jAshI = 1, nAsh(iSym)
-C         jOrb = nCorI+jAshI
-C         indq = jAshI
-C         UU(indp+nasht*(indq-1))
-C    *      = (olag(iorb,jorb)-olag(jorb,iorb))
-C    *       /(fifa(iorb,iorb)-fifa(jorb,jorb))
-C         if (indp.eq.indq)
-C    *    UU(indp+nasht*(indq-1))=0.0d+00
-C       End Do
-C     End Do
-C     write(6,*) "antisymmetrized U"
-C     do i = 1, l1
-C     write(6,'(i3,f20.10)') i,uu(i)
-C     end do
-C     CALL DGETRF_(L1,L1,AMat2,L1,IPIV,INFO)
-C     CALL DGETRS_('T',L1,1,AMat2,L1,IPIV,UU,L1,INFO)
-C     write(6,*) "answer"
-C     do i = 1, l1
-C     write(6,'(i3,f20.10)') i,uu(i)
-C     end do
-C     call dgemv_('T',l1,l1,
-C    *           1.0d+00,amat2,l1,uu,1,
-C    *           0.0d+00,xx,1)
-C     write(6,*) "compare with anti-U"
-C     do i = 1, l1
-C     write(6,'(i3,f20.10)') i,xx(i)
-C     end do
-
-
-C       Do iAshI = 1, nAsh(iSym)
-C         iOrb = nCorI+iAshI
-C         indp = iAshI
-C         Do jAshI = 1, nAsh(iSym)
-C           jOrb = nCorI+jAshI
-C           indq = jAshI
-C           xx(indp+nasht*(indq-1)) = olag(iorb,jorb)
-C         End Do
-C       End Do
-
-C     do iter = 1, 10
-C     write(6,*) "iter = ", iter
-C     write(6,*) "xx"
-C     call sqprt(xx,5)
-C       Do iAshI = 1, nAsh(iSym)
-C         iOrb = nCorI+iAshI
-C         indp = iAshI
-C         Do jAshI = 1, nAsh(iSym)
-C           jOrb = nCorI+jAshI
-C           indq = jAshI
-C           uu(indp+nasht*(indq-1))
-C    *        = (xx(indp+nasht*(indq-1))-xx(indq+nasht*(indp-1)))
-C    *         /(fifa(iorb,iorb)-fifa(jorb,jorb))
-C           if (indp.eq.indq)
-C    *      uu(indp+nasht*(indq-1))=0.0d+00
-C         End Do
-C       End Do
-C     write(6,*) "uu"
-C     call sqprt(uu,5)
-C       call dgemv_('N',l1,l1,
-C    *             1.0d+00,amat2,l1,uu,1,
-C    *             0.0d+00,xx,1)
-C     write(6,*) "xx after DGEMV"
-C     call sqprt(xx,5)
-C     end do
-C     call abend
-      pcoeff = 1.234925d-04
-C     pcoeff = -6.2567689057d-05
-      write(6,*) "pcoeff=",pcoeff
-      call dscal_(25,pcoeff,g1,1)
-      call sqprt(g1,5)
-      call dscal_(25,sqrt(pcoeff)/pcoeff,g1,1)
-      call sqprt(g1,5)
-C
-      end subroutine test2_dens
-
-
-
-      subroutine test3_dens(clag)
-      implicit real*8 (a-h,o-z)
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "pt2_guga.fh"
-      dimension clag(*)
-      dimension wrk1(nbast,nbast),wrk2(nbast,nbast),wrk3(nbast,nbast)
-      dimension amat(nasht*(nasht-1)/2,nasht*(nasht-1)/2)
-      dimension g1(nasht,nasht)
-
-      dimension fifa(nbast,nbast)
-      dimension ipiv(nasht*nasht)
-C
-      CALL PT2_GET(NG1,' GAMMA1',G1)
-      Call SQUARE(Work(LFIFA),fifa,1,nBasT,nBasT)
-      write(6,*) "g1"
-      call sqprt(g1,5)
-      ! write(6,*) "olag"
-      ! call sqprt(olag,nbast)
-C
-      iSym = 1
-C
-      nBasI = nBas(iSym)
-      nFroI = nFro(iSym)
-      nIshI = nIsh(iSym)
-      nAshI = nAsh(iSym)
-      nCorI = nFroI+nIshI
-C
-      isymi=1
-      isymj=1
-      isyma=1
-      isymb=1
-      indpq = 0
-      Do iAshI = 1, nAsh(iSym)
-        iOrb = nCorI+iAshI
-        indp = iAshI
-        Do jAshI = 1, iAshI-1
-          jOrb = nCorI+jAshI
-          indq = jAshI
-          indpq = indpq + 1
-          Call DCopy_(nAshI*(nAshI-1)/2,[0.0D+00],0,AMat(1,indpq),1)
-C
-          Call Coul(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK3)
-          indab = 0
-          Do kAshI = 1, nAsh(iSym)
-            kOrb = nCorI+kAshI
-            inda = kAshI
-            Do lAshI = 1, kAshI-1
-              lOrb = nCorI+lAshI
-              indb = lAshI
-              indab = indab + 1
-              Do mAshI = 1, nAsh(iSym)
-                AMat(indab,indpq) = AMat(indab,indpq)
-     *            + G1(mAshI,indb)*WRK1(nCorI+mAshI,nCorI+inda) ! pq
-     *            - G1(mAshI,inda)*WRK1(nCorI+mAshI,nCorI+indb)
-              End Do
-            End Do
-          End Do
-C
-          Call Exch(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK3)
-          indab = 0
-          Do kAshI = 1, nAsh(iSym)
-            kOrb = nCorI+kAshI
-            inda = kAshI
-            Do lAshI = 1, kAshI-1
-              lOrb = nCorI+lAshI
-              indb = lAshI
-              indab = indab + 1
-              Do mAshI = 1, nAsh(iSym)
-                AMat(indab,indpq) = AMat(indab,indpq)
-     *          - 0.25d+00*G1(mAshI,indb)*WRK1(nCorI+mAshI,nCorI+inda) !pq
-     *          - 0.25d+00*G1(mAshI,indb)*WRK1(nCorI+inda,nCorI+mAshI)
-     *          + 0.25d+00*G1(mAshI,inda)*WRK1(nCorI+mAshI,nCorI+indb)
-     *          + 0.25d+00*G1(mAshI,inda)*WRK1(nCorI+indb,nCorI+mAshI)
-              End Do
-            End Do
-          End Do
-        End Do
-      End Do
-C
-      end subroutine test3_dens
 C
 C-----------------------------------------------------------------------
 C
@@ -4372,11 +3775,15 @@ C
       Call GetMem('A_PT2 ','ALLO','REAL',ipA_PT2,NumChoTot**2)
       !! Read A_PT2
       Call PrgmTranslate('CMOPT2',RealName,lRealName)
-    !   Open (Unit=LuCMOPT2,
-    !  *      File=RealName(1:lRealName),
-    !  *      Status='OLD',
-    !  *      Form='UNFORMATTED')
-      call molcas_Open(LuCMOPT2,RealName(1:lRealName))
+C     Open (Unit=LuCMOPT2,
+C    *      File=RealName(1:lRealName),
+C    *      Status='OLD',
+C    *      Form='UNFORMATTED')
+C     call molcas_Open(LuCMOPT2,RealName(1:lRealName))
+      Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
+     &                      'DIRECT','UNFORMATTED',
+     &                      iost,.FALSE.,
+     &                        1,'REPLACE',is_error)
       Do i = 1, NumChoTot*NumChoTot
         Read (LuCMOPT2) Work(ipA_PT2+i-1)
       End Do
@@ -4547,13 +3954,17 @@ C
 C     Call GetMem('B_PT2 ','ALLO','REAL',ipB_PT2,nBasT**2*NumChoTot)
       !! Read B_PT2
       Call PrgmTranslate('GAMMA',RealName,lRealName)
-    !   Open (Unit=LuGamma,
-    !  *      File=RealName(1:lRealName),
-    !  *      Status='OLD',
-    !  *      Form='UNFORMATTED',
-    !  *      Access='DIRECT',
-    !  *      Recl=nBas(iSym)*nBas(iSym)*8)
-      call molcas_Open(LuGamma,RealName(1:lRealName))
+C     Open (Unit=LuGamma,
+C    *      File=RealName(1:lRealName),
+C    *      Status='OLD',
+C    *      Form='UNFORMATTED',
+C    *      Access='DIRECT',
+C    *      Recl=nBas(iSym)*nBas(iSym)*8)
+C     call molcas_Open(LuGamma,RealName(1:lRealName))
+      Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
+     &                      'DIRECT','UNFORMATTED',
+     &                      iost,.TRUE.,
+     &                      nBas(iSym)**2*8,'REPLACE',is_error)
       Do iVec = 1, NumCho
         Read  (Unit=LuGAMMA,Rec=iVec) (Work(ipWRK+i-1),i=1,nBasT**2)
         !! The contributions are doubled, because halved in PGet1_RI3?

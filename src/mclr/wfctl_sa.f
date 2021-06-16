@@ -675,7 +675,6 @@ C       end do
       Integer opOut
       Real*8 Kap(*),KapOut(*)
       Dimension rdum(1)
-C     real*8 wrk(144)
 *
       Call GetMem('RMOAA','ALLO','REAL',iprmoaa,n2dens)
       Call GetMem('SCR2','ALLO','REAL',ipSc2,ndens2)
@@ -691,122 +690,24 @@ C     real*8 wrk(144)
         call dmrg_spc_change_mclr(RGras2(1:8),nash)
         call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
       end if
-C     write(6,*) "in TimesE2"
-C     do i = 1, 55
-C       write(6,'(i3,f20.10)') i,kap(i)
-C     end do
       If (Mode.eq.0) Then
         Call Uncompress(Kap,Work(ipSC1),isym)
       Else If (Mode.eq.1) Then
         Call DCopy_(ndens2,Kap,1,Work(ipSC1),1)
       End If
-C     write(6,*) "uncompressed"
-C     call sqprt(work(ipsc1),12)
-C     write(6,*) "inside ipcid"
-C     do i = 1,50
-C       write(6,'(i3,f20.10)') i,work(ipcid+i-1)
-C     end do
 
 ! Integral derivative !yma
-C      call sqprt(work(ipsc1),12)
-      ! do i = 6, 10
-      ! do j = 6, 10
-      !   work(ipsc1+i-1+12*(j-1))=0.0d+00
-      ! end do
-      ! end do
-C       call dcopy_(144,0.0d+00,0,work(ipsc1),1)
-C       work(ipsc1+7-1+12*(6-1)) = 1.0d+00
-C       work(ipsc1+6-1+12*(7-1)) =-1.0d+00
       Call RInt_generic(Work(ipSC1),Work(iprmoaa),rdum,
      &                 Work(ipSc2),
      &                 Work(ipTemp3),Work(ipTemp4),Work(ipSc3),
      &                 isym,reco,jspin)
-C     write(6,*) "ipsc2"
-C      call sqprt(work(ipsc2),12)
-C     write(6,*) "iptemp4"
-C      call sqprt(work(iptemp4),12)
-      !   do i = 6, 10
-      !     !! (ij|ik)
-      !       write(6,*) "ib=",i
-      !     call dcopy_(144,0.0d+00,0,wrk,1)
-      !     do k = 6, 10
-      ! call dcopy_(144,0.0d+00,0,work(ipsc1),1)
-      ! if (i.ne.k) then
-      ! work(ipsc1+i-1+12*(k-1)) = 1.0d+00
-      ! work(ipsc1+k-1+12*(i-1)) =-1.0d+00
-      ! else
-      ! end if
-      ! Call RInt_generic(Work(ipSC1),Work(iprmoaa),rdum,
-     &!                  Work(ipSc2),
-     &!                  Work(ipTemp3),Work(ipTemp4),Work(ipSc3),
-     &!                  isym,reco,jspin)
-      !     do j = 6, 10
-      !       val = work(ipsc2+i-1+12*(j-1))
-      !       write(6,'(i2,"-",i2,"= ", f20.10)') j,k,val
-      !       wrk(j+12*(k-1)) = val
-      !     end do
-      !     end do
-      !     call sqprt(wrk,12)
-      !   end do
-      !  call abend
-C       do i = 6, 10
-C       do j = 6, 10
-C         work(ipsc1+i-1+12*(j-1))=0.0d+00
-C       end do
-C       end do
-C      call sqprt(work(ipsc1),12)
-C     Call RInt_generic(Work(ipSC1),Work(iprmoaa),rdum,
-C    &                 Work(ipSc2),
-C    &                 Work(ipTemp3),Work(ipTemp4),Work(ipSc3),
-C    &                 isym,reco,jspin)
-C      call sqprt(work(ipsc2),12)
-C      call abend
-C      do iR = 1, nroots
-C        do jR = 1, nroots
-C          ovl = ddot_(nconf1,work(ipin(ipcid)+(iR-1)*nconf1),1,
-C    *                        work(ipin(ipci)+(jR-1)*nconf1),1)
-C          call daxpy_(nconf1,-ovl,work(ipin(ipci)+(jR-1)*nconf1),1,
-C    *                             work(ipin(ipcid)+(iR-1)*nconf1),1)
-C        end do
-C       end do
 
       Call Kap_CI(ipTemp4,iprmoaa,ipCIOUT)
       Call Ci_Ci(ipcid,ipS2)
-C     call dcopy_(144,0.0d+00,0,work(ipsc1),1)
       Call CI_KAP(ipCid,Work(ipSc1),Work(ipSc3),isym)
-C     write(6,*) "ipsc3"
-C      call sqprt(work(ipsc3),12)
 
-      ! call dcopy_(ndens,0.0d+00,0,work(ipsc2),1)
-      ! call dcopy_(ndens,0.0d+00,0,work(ipsc3),1)
-      ! call dcopy_(nconf*nroots,0.0d+00,0,work(ipin(ipciout)),1)
-      ! if (mode.eq.2) then
-      ! Call CI_KAP(ipCid,Work(ipSc1),Work(ipSc3),isym)
-      ! call sqprt(work(ipsc3),norb(1))
-      !   do i = nish(1)+1, nish(1)+nash(1)
-      !   do j = nish(1)+1, nish(1)+nash(1)
-      !   write(6,'(2i3,f20.10)')
-     *!    i,j,work(ipsc3+i-1+norb(1)*(j-1))*0.5d+00
-      !   end do
-      !   end do
-      ! call abend
-      ! end if
       Call DZaXpY(nDens,One,Work(ipSc2),1,
      &            Work(ipSc3),1,Work(ipSc1),1)
-C     write(6,*) "ipsc1"
-C      call sqprt(work(ipsc1),12)
-C       do i = 6, 10
-C       do j = 6, 10
-C         work(ipsc1+i-1+12*(j-1))=0.0d+00
-C       end do
-C       end do
-C     do i = 1, ndens
-C       if (abs(work(ipsc1+i-1)).le.1.0d-10) work(ipsc1+i-1) = 0.0d+00
-C     end do
-C     do i = 1, nconf1*nroots
-C       if (abs(work(ipin(ips2)+i-1)).le.1.0d-10)
-C    *    work(ipin(ips2)+i-1) = 0.0d+00
-C     end do
 *
       If (Mode.eq.0) Then
         Call Compress(Work(ipSc1),KapOut,isym)   ! ds

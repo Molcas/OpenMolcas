@@ -527,15 +527,15 @@ C            if (jS.ne.lS) then
               Call CASPT2_BTAMP(iS,jS,kS,lS,
      *                         iFnc(1)*iBasn,iFnc(2)*jBasn,
      *                         iFnc(3)*kBasn,iFnc(4)*lBasn,
-     *                         iSD,iSD4,iOffAO,nBasT,
-     *                         MaxShlAO,nOcc(1),CMOPT2(1+nbast*nfro(1)),
+     *                         iOffAO,nBasT,
+     *                         nOcc(1),CMOPT2(1+nbast*nfro(1)),
      *                         WRK1,WRK2,G_Toc)
 C            else
 C            Call CASPT2_BTAMP(jS,iS,lS,kS,
 C    *                         iFnc(2)*jBasn,iFnc(1)*iBasn,
 C    *                         iFnc(4)*lBasn,iFnc(3)*kBasn,
-C    *                         iSD,iSD4,iOffAO,nBasT,
-C    *                         MaxShlAO,CMOPT2,WRK1,WRK2,G_Toc)
+C    *                         iOffAO,nBasT,
+C    *                         CMOPT2,WRK1,WRK2,G_Toc)
 C            end if
            End If
            Call PGet0(iCmpa,iShela,
@@ -771,7 +771,7 @@ C       write(6,*) "closep finished"
 ************************************************************************
 *                                                                      *
       Subroutine CASPT2_BTAMP(iS,jS,kS,lS,nBasI,nBasJ,nBasK,nBasL,
-     *                        iSD,iSD4,iOffAO,nBasT,MaxShlAO,nOcc,
+     *                        iOffAO,nBasT,nOcc,
      *                        CMOPT2,WRK1,WRK2,G_Toc)
 *
       Implicit Real*8 (A-H,O-Z)
@@ -780,7 +780,7 @@ C       write(6,*) "closep finished"
 #include "etwas.fh"
 #include "stdalloc.fh"
 *
-      Dimension iSD(0:nSD,*),iSD4(0:nSD,4),iOffAO(*),CMOPT2(*),
+      Dimension iOffAO(*),CMOPT2(*),
 C    *          G_toc(MaxShlAO,MaxShlAO,MaxShlAO,MaxShlAO)
      *          G_Toc(*)
       Dimension WRK1(*),WRK2(*)

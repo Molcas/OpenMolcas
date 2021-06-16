@@ -180,6 +180,7 @@
       Subroutine PT2_SLag
 C
       Implicit Real*8 (A-H,O-Z)
+      integer opout
 C
 C     At present, Molcas accepts equally-weighted MCSCF reference,
 C     so all SLag values are employed in the following computation.

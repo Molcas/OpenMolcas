@@ -51,11 +51,8 @@ C  part of the three-electron density matrix G3:
 
         CALL MKSA(WORK(LDREF),WORK(LPREF),
      &            NG3,WORK(LG3),i1WORK(LidxG3))
-      CALL GETMEM('GAMMA2','ALLO','REAL',LG2,NG2)
-      CALL PT2_GET(NG2,'GAMMA2',WORK(LG2))
         CALL MKSC(WORK(LDREF),WORK(LPREF),
-     &            NG3,WORK(LG3),i1WORK(LidxG3),work(lg2))
-      CALL GETMEM('GAMMA2','FREE','REAL',LG2,NG2)
+     &            NG3,WORK(LG3),i1WORK(LidxG3))
 
         CALL GETMEM('GAMMA3','FREE','REAL',LG3,NG3)
         CALL GETMEM('idxG3','FREE','CHAR',LidxG3,6*NG3+iPad)
@@ -895,7 +892,7 @@ C Add -dyu Gvzxt
 ********************************************************************************
 * Case C (ICASE=4)
 ********************************************************************************
-      SUBROUTINE MKSC(DREF,PREF,NG3,G3,idxG3,g2)
+      SUBROUTINE MKSC(DREF,PREF,NG3,G3,idxG3)
       USE SUPERINDEX
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -954,61 +951,9 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
           CALL MKSC_DP(DREF,PREF,ISYM,WORK(lg_SC),1,NAS,1,NAS,0)
         END IF
 #else
-C     If (DoPT2Num) Then
-C       If (iVibPT2.eq.1) Then
-C         G3(iDiffPT2) = G3(iDiffPT2) + PT2Delta
-C       Else
-C         G3(iDiffPT2) = G3(iDiffPT2) - PT2Delta
-C       End If
-C     End If
         call MKSC_G3(ISYM,WORK(lg_SC),NG3,G3,idxG3)
-C     call docpy_nas*(nas+1)/2,0.0d+00,0,work(lg_sc),1)
-C     If (DoPT2Num) Then
-C       If (iVibPT2.eq.1) Then
-C         DREF(iDiffPT2) = DREF(iDiffPT2) + PT2Delta
-C       Else
-C         DREF(iDiffPT2) = DREF(iDiffPT2) - PT2Delta
-C       End If
-C     End If
-        CALL MKSC_DP(DREF,PREF,ISYM,WORK(lg_SC),1,NAS,1,NAS,0,g2)
-C     If (DoPT2Num) Then
-C       If (iVibPT2.eq.1) Then
-C         DREF(iDiffPT2) = DREF(iDiffPT2) - PT2Delta
-C       Else
-C         DREF(iDiffPT2) = DREF(iDiffPT2) + PT2Delta
-C       End If
-C     End If
+        CALL MKSC_DP(DREF,PREF,ISYM,WORK(lg_SC),1,NAS,1,NAS,0)
 #endif
-C     If (DoPT2Num) Then
-C       If (iVibPT2.eq.1) Then
-C         Work(lg_SC+iDiffPT2-1) = Work(lg_SC+iDiffPT2-1) + PT2Delta
-C       Else
-C         Work(lg_SC+iDiffPT2-1) = Work(lg_SC+iDiffPT2-1) - PT2Delta
-C       End If
-C     End If
-C     write (*,*) "active overlap"
-C     do i = 1, 5
-C     do j = 1, 5
-C     do k = 1, 5
-C     ijk = i+5*(j-1)+25*(k-1)
-C     do l = 1, 5
-C     do m = 1, 5
-C     do n = 1, 5
-C     lmn = l+5*(m-1)+25*(n-1)
-C     if (ijk.ge.lmn) nseq = ijk*(ijk-1)/2+lmn-1
-C     if (ijk.lt.lmn) nseq = lmn*(lmn-1)/2+ijk-1
-C     write (*,'(6i2,f20.10)') i,j,k,l,m,n,work(lg_sc+nseq)
-C     end do
-C     end do
-C     end do
-C     end do
-C     end do
-C     end do
-C     call docpy_nas*(nas+1)/2,0.0d+00,0,work(lg_sc),1)
-C     do i = 1, nas
-C       nseq = i*(i+1)/2
-C       work(lg_sc+nseq-1) = 1.0d+00
-C     end do
 
 
         CALL PSBMAT_WRITE('S',iCase,iSYM,lg_SC,NAS)
@@ -1657,7 +1602,7 @@ c Avoid unused argument warnings
       END
 #endif
 
-      SUBROUTINE MKSC_DP (DREF,PREF,iSYM,SC,iLo,iHi,jLo,jHi,LDC,g2)
+      SUBROUTINE MKSC_DP (DREF,PREF,iSYM,SC,iLo,iHi,jLo,jHi,LDC)
 C In parallel, this subroutine is called on a local chunk of memory
 C and LDC is set. In serial, the whole array is passed but then the
 C storage uses a triangular scheme, and the LDC passed is zero.
@@ -1672,10 +1617,8 @@ C storage uses a triangular scheme, and the LDC passed is zero.
 
       DIMENSION DREF(NDREF),PREF(NPREF)
       DIMENSION SC(*)
-      ! dimension g2(5,5,5,5)
 
       ISADR=0
-C     write (*,*) "begin of mksc_dp"
 C-SVC20100831: fill in the G2 and G1 corrections for this SC block
       DO 100 IXYZ=jLo,jHi
         IXYZABS=IXYZ+NTUVES(ISYM)
@@ -1714,9 +1657,6 @@ C Add  dyx Gvutz
             IP2=MIN(IVU,ITZ)
             IP=(IP1*(IP1-1))/2+IP2
             VALUE=VALUE+2.0D0*PREF(IP)
-C     diff = abs(2.0d+00*pref(ip)-g2(ivabs,iuabs,itabs,izabs))
-C     if (diff.ge.1.0d-08)
-C    *write (*,'(2f20.10)')2.0d+00*pref(ip),g2(ivabs,iuabs,itabs,izabs)
           END IF
 C Add  dtu Gvxyz + dtu dyx Gvz
           IF(ITABS.EQ.IUABS) THEN
@@ -1726,9 +1666,6 @@ C Add  dtu Gvxyz + dtu dyx Gvz
             IP2=MIN(IVX,IYZ)
             IP=(IP1*(IP1-1))/2+IP2
             VALUE=VALUE+2.0D0*PREF(IP)
-C     diff = abs(2.0d+00*pref(ip)-g2(ivabs,ixabs,iyabs,izabs))
-C     if (diff.ge.1.0d-08)
-C    *write (*,'(2f20.10)')2.0d+00*pref(ip),g2(ivabs,ixabs,iyabs,izabs)
             IF(IYABS.EQ.IXABS) THEN
               ID1=MAX(IVABS,IZABS)
               ID2=MIN(IVABS,IZABS)
@@ -1742,7 +1679,6 @@ C    *write (*,'(2f20.10)')2.0d+00*pref(ip),g2(ivabs,ixabs,iyabs,izabs)
           END IF
  101    CONTINUE
  100  CONTINUE
-C     write (*,*) "end of mksc_dp"
       END
 
 ********************************************************************************

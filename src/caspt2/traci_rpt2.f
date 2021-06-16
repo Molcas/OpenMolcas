@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE TRACI_RPT2(ISTART,NDIM,XMAT,LSYM,NCI,CI,DO_PROJ)
+      SUBROUTINE TRACI_RPT2(ISTART,NDIM,XMAT,LSYM,NCI,CI)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION XMAT(NDIM,NDIM),CI(*)
 #include "pt2_guga.fh"

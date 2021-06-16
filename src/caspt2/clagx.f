@@ -62,10 +62,8 @@ C
       !! DEASUM is the derivative cont. of EASUM
       DEASUM = 0.0D+00
 C
-C     write(6,*) "calling clagd"
       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
       Call CLagD(Work(LG1),Work(LG2),Work(LG3),
-     *           Work(LF1),Work(LF2),Work(LF3),
      *           Work(LDG1),Work(LDG2),Work(LDG3),
      *           Work(LDF1),Work(LDF2),Work(LDF3),DEASUM,
      *           DEPSA)
@@ -220,9 +218,7 @@ C
      *              Work(LDG1),Work(LDG2),Work(LDG3),
      *              Work(LDF1),Work(LDF2),Work(LDF3),
      *              DEPSA,
-     *              Work(LG1),Work(LG2),Work(LG3),
-     *              Work(LF1),Work(LF2),Work(LF3),
-     *              TRF)
+     *              Work(LG1),Work(LG2),Work(LG3))
 C     write(6,*) "depsa after cnstclag"
 C     call sqprt(depsa,nasht)
 C
@@ -246,8 +242,7 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE CLagD(G1,G2,G3,F1,F2,F3,
-     *                 DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA)
+      SUBROUTINE CLagD(G1,G2,G3,DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA)
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -261,9 +256,8 @@ C
       LOGICAL Is_Real_Par, KING
 #endif
 
-      DIMENSION G1(*),G2(*),G3(*),F1(*),F2(*),F3(*),
-     *          DG1(*),DG2(*),DG3(*),DF1(*),DF2(*),DF3(*),
-     *          DEPSA(*)
+      DIMENSION G1(*),G2(*),G3(*),DG1(*),DG2(*),DG3(*),
+     *          DF1(*),DF2(*),DF3(*),DEPSA(*)
 
       Do iCase = 1, 13
 C       cycle
@@ -331,9 +325,8 @@ C             END IF
 
               CALL CLagDX(0,ISYM,ICASE,WORK(LVEC1),WORK(LVEC2),
      *                    WORK(LVEC3),WORK(LVEC4),
-     *                    nIN,nIS,nAS,G1,G2,G3,F1,F2,F3,
-     *                    DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-     *                    iWORK(LLISTS))
+     *                    nIN,nIS,nAS,G1,G2,G3,
+     *                    DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA)
 
               ! free local buffer
               CALL GETMEM('VEC1','FREE','REAL',LVEC1,nVec)
@@ -343,17 +336,15 @@ C             END IF
           ELSE
             CALL CLagDX(0,ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
      *                  Work(lg_V3),Work(lg_V4),
-     *                  nIN,nIS,nAS,G1,G2,G3,F1,F2,F3,
-     *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-     *                  iWORK(LLISTS))
+     *                  nIN,nIS,nAS,G1,G2,G3,
+     *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA)
           END IF
 #else
 C          write(6,*) "calling clagdx for icase = ", icase
           CALL CLagDX(0,iSym,iCase,Work(lg_V1),WORK(lg_V2),
      *                Work(lg_V3),Work(lg_V4),
-     *                nIN,nIS,nAS,G1,G2,G3,F1,F2,F3,
-     *                DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-     *                iWORK(LLISTS))
+     *                nIN,nIS,nAS,G1,G2,G3,
+     *                DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA)
      *
 #endif
 C
@@ -397,9 +388,8 @@ C             END IF
 
               CALL CLagDX(1,ISYM,ICASE,WORK(LVEC1),WORK(LVEC2),
      *                    WORK(LVEC3),WORK(LVEC4),
-     *                    nIN,nIS,nAS,G1,G2,G3,F1,F2,F3,
-     *                    DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-     *                    iWORK(LLISTS))
+     *                    nIN,nIS,nAS,G1,G2,G3,
+     *                    DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA)
 
               ! free local buffer
               CALL GETMEM('VEC1','FREE','REAL',LVEC1,nVec)
@@ -409,17 +399,15 @@ C             END IF
           ELSE
             CALL CLagDX(1,ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
      *                  Work(lg_V3),Work(lg_V4),
-     *                  nIN,nIS,nAS,G1,G2,G3,F1,F2,F3,
-     *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-     *                  iWORK(LLISTS))
+     *                  nIN,nIS,nAS,G1,G2,G3,
+     *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA)
           END IF
 #else
 C          write(6,*) "calling clagdx for icase = ", icase
           CALL CLagDX(1,iSym,iCase,Work(lg_V1),WORK(lg_V2),
      *                Work(lg_V3),Work(lg_V4),
-     *                nIN,nIS,nAS,G1,G2,G3,F1,F2,F3,
-     *                DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-     *                iWORK(LLISTS))
+     *                nIN,nIS,nAS,G1,G2,G3,
+     *                DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA)
 #endif
 C
             Call DScal_(NG1,-1.0D+00,DG1,1)
@@ -463,8 +451,8 @@ C
 C-----------------------------------------------------------------------
 C
       Subroutine CLagDX(Mode,iSym,iCase,VEC1,VEC2,VEC3,VEC4,nIN,nIS,nAS,
-     *                  G1,G2,G3,F1,F2,F3,DG1,DG2,DG3,DF1,DF2,DF3,
-     *                  DEASUM,DEPSA,LIST)
+     *                  G1,G2,G3,DG1,DG2,DG3,DF1,DF2,DF3,
+     *                  DEASUM,DEPSA)
 C
       USE SUPERINDEX
 C
@@ -479,9 +467,8 @@ C
 #include "SysDef.fh"
 #include "caspt2_grad.fh"
 C
-      DIMENSION VEC1(*),VEC2(*),VEC3(*),VEC4(*),LIST(*)
+      DIMENSION VEC1(*),VEC2(*),VEC3(*),VEC4(*)
       DIMENSION G1(nAshT,nAshT),G2(nAshT,nAshT,nAshT,nAshT),G3(*),
-     *          F1(nAshT,nAshT),F2(nAshT,nAshT,nAshT,nAshT),F3(*),
      *          DG1(nAshT,nAshT),DG2(nAshT,nAshT,nAshT,nAshT),DG3(*),
      *          DF1(nAshT,nAshT),DF2(nAshT,nAshT,nAshT,nAshT),DF3(*),
      *          DEPSA(nAshT,nAshT)
@@ -667,7 +654,7 @@ C
         idS = idSMAT(iSym,1)
         CALL DDAFILE(LUSBT,2,WORK(LWRK2),nAS*(nAS+1)/2,idS)
         Call CLagDXA_DP (iSym,nAS,Work(LWRK3),Work(LWRK1),
-     *                   DF3,DG3,DF2,DG2,DF1,DG1,DEPSA,DEASUM,
+     *                   DF2,DG2,DF1,DG1,DEPSA,DEASUM,
      *                   1,nAS,1,nAS,0,g1,g2,work(lwrk2))
         !! G3 and F3 relevant
         iPad=ItoB-MOD(6*NG3,ItoB)
@@ -678,7 +665,7 @@ C
         CALL DDAFILE(LUSBT,2,WORK(LWRK2),nAS*(nAS+1)/2,idS)
         CALL MKSC_G3(iSym,Work(LWRK2),nG3,G3,i1Work(LidxG3))
         call CLagDXA_FG3(iSym,nAS,NG3,Work(LWRK3),Work(LWRK1),
-     *                   DF1,DF2,DF3,DG1,DG2,DG3,DEASUM,DEPSA,G2,G3,
+     *                   DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,G2,
      *                   Work(LWRK2),i1Work(LidxG3))
         CALL GETMEM('idxG3','FREE','CHAR',LidxG3,6*NG3+iPad)
       Else If (iCase.eq. 2.or.iCase.eq. 3) Then !! B
@@ -892,7 +879,7 @@ C     call docpy_nas*nas,0.0d+00,0,work(lwrk1),1)
         idS = idSMAT(iSym,4)
         CALL DDAFILE(LUSBT,2,WORK(LWRK2),nAS*(nAS+1)/2,idS)
         Call CLagDXC_DP (iSym,nAS,Work(LWRK3),Work(LWRK1),
-     *                   DF3,DG3,DF2,DG2,DF1,DG1,DEPSA,DEASUM,
+     *                   DF2,DG2,DF1,DG1,DEPSA,DEASUM,
      *                   1,nAS,1,nAS,0,g1,g2,work(lwrk2))
 C
         !! G3 and F3 relevant
@@ -904,7 +891,7 @@ C
         CALL DDAFILE(LUSBT,2,WORK(LWRK2),nAS*(nAS+1)/2,idS)
         CALL MKSC_G3(iSym,Work(LWRK2),nG3,G3,i1Work(LidxG3))
         call CLagDXC_FG3(iSym,nAS,NG3,Work(LWRK3),Work(LWRK1),
-     *                   DF1,DF2,DF3,DG1,DG2,DG3,DEASUM,DEPSA,G2,G3,
+     *                   DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,G2,
      *                   Work(LWRK2),i1Work(LidxG3))
         CALL GETMEM('idxG3','FREE','CHAR',LidxG3,6*NG3+iPad)
       Else If (iCase.eq. 5) Then !! D
@@ -1227,7 +1214,7 @@ C
       !! From poly3
       SUBROUTINE CnstCLag(IFF,CLag,
      *                    DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,
-     *                    G1,G2,G3,F1,F2,F3,TRF)
+     *                    G1,G2,G3)
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -1240,8 +1227,8 @@ C
 C
       DIMENSION CLag(nConf)
       DIMENSION DG1(*),DG2(*),DG3(*),DF1(*),DF2(*),DF3(*)
-      DIMENSION G1(*),G2(*),G3(*),F1(*),F2(*),F3(*)
-      DIMENSION DEPSA(*),TRF(norbt,norbt)
+      DIMENSION G1(*),G2(*),G3(*)
+      DIMENSION DEPSA(*)
 C
       INTEGER ILEV
       INTEGER NG3MAX,IPAD,LIDXG3
@@ -1295,243 +1282,20 @@ C-SVC20100831: allocate local G3 matrices
         WORK(LCI) = 1.0D+00
       End If
 C
-      !! construct transformation matrix for active only
-      CALL GETMEM('LTRF','ALLO','REAL',LTRF,NLEV*NLEV)
-      nCor = nFro(1)+nIsh(1)
-      Do iT = 1, nLEV
-        Do iU = 1, nLEV
-          Work(LTRF+iT-1+nLEV*(iU-1)) = TRF(nCor+iT,nCor+iU)
-        End Do
-      End Do
-C     call sqprt(work(ltrf),5)
-C
-C
 C     CALL MKFG3mod(IFF,WORK(LCI),WORK(LG1),WORK(LF1),WORK(LG2),
 C    &              WORK(LF2),WORK(LG3),WORK(LF3),i1WORK(LidxG3))
       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
       If (ISCF.EQ.0) Then
-        CALL DERFG3(IFF,WORK(LCI),CLAG,DG1,DG2,DG3,DF1,DF2,DF3,
-     &              i1WORK(LidxG3),DEPSA,G1,G2,G3,F1,F2,F3,Work(LTRF))
+        CALL DERFG3(WORK(LCI),CLAG,DG1,DG2,DG3,DF1,DF2,DF3,
+     &              i1WORK(LidxG3),DEPSA,G1,G2)
       Else
-        CALL DERSPE(DG1,DG2,DG3,DF1,DF2,DF3,
-     &              i1WORK(LidxG3),DEPSA,G1,G2,G3,F1,F2,F3)
+        CALL DERSPE(DF1,DF2,DF3,i1WORK(LidxG3),DEPSA,G1,G2,G3)
       End If
       CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
       CPUT =CPTF10-CPTF0
       WALLT=TIOTF10-TIOTF0
       write(6,*) "DERFG3: CPU/WALL TIME=", cput,wallt
-C      clag( 1) =       0.0033419667d+00
-C      clag( 2) =       0.0002249578d+00
-C      clag( 3) =       0.0000477485d+00
-C      clag( 4) =       0.0001358558d+00
-C      clag( 5) =       0.0000537170d+00
-C      clag( 6) =       0.0001577405d+00
-C      clag( 7) =       0.0006750156d+00
-C      clag( 8) =      -0.0002246736d+00
-C      clag( 9) =       0.0009028156d+00
-C      clag(10) =      -0.0000856915d+00
-C      clag(11) =       0.0001898570d+00
-C      clag(12) =      -0.0002448530d+00
-C      clag(13) =      -0.0000608225d+00
-C      clag(14) =      -0.0003217338d+00
-C      clag(15) =       0.0001718092d+00
-C      clag(16) =      -0.0014746604d+00
-C      clag(17) =       0.0005132961d+00
-C      clag(18) =      -0.0003930722d+00
-C      clag(19) =       0.0005589129d+00
-C      clag(20) =      -0.0003407763d+00
-C      clag(21) =       0.0000909495d+00
-C      clag(22) =       0.0003151968d+00
-C      clag(23) =       0.0002576428d+00
-C      clag(24) =       0.0000565592d+00
-C      clag(25) =      -0.0000568434d+00
-C      clag(26) =      -0.0014401280d+00
-C      clag(27) =       0.0006322409d+00
-C      clag(28) =      -0.0004608580d+00
-C      clag(29) =       0.0007146639d+00
-C      clag(30) =      -0.0003655032d+00
-C      clag(31) =       0.0005208278d+00
-C      clag(32) =      -0.0003204548d+00
-C      clag(33) =      -0.0002702905d+00
-C      clag(34) =      -0.0002150102d+00
-C      clag(35) =       0.0000302691d+00
-C      clag(36) =      -0.0000198952d+00
-C      clag(37) =      -0.0000154898d+00
-C      clag(38) =       0.0000595435d+00
-C      clag(39) =      -0.0000630962d+00
-C      clag(40) =      -0.0000289901d+00
-C      clag(41) =       0.0000200373d+00
-C      clag(42) =      -0.0001024603d+00
-C      clag(43) =      -0.0002046363d+00
-C      clag(44) =       0.0001811884d+00
-C      clag(45) =       0.0003326761d+00
-C      clag(46) =      -0.0000535749d+00
-C      clag(47) =       0.0009232792d+00
-C      clag(48) =      -0.0003024070d+00
-C      clag(49) =      -0.0002638956d+00
-C      clag(50) =       0.0003198863d+00
-C      clag(51) =       0.0009393375d+00
-C      clag(52) =      -0.0003164757d+00
-C      clag(53) =      -0.0000623857d+00
-C      clag(54) =      -0.0001465139d+00
-C      clag(55) =       0.0003738876d+00
-C      clag(56) =      -0.0001809042d+00
-C      clag(57) =      -0.0004018830d+00
-C      clag(58) =       0.0002795275d+00
-C      clag(59) =      -0.0007469225d+00
-C      clag(60) =       0.0002985701d+00
-C      clag(61) =       0.0001286082d+00
-C      clag(62) =      -0.0001786304d+00
-C      clag(63) =      -0.0003595346d+00
-C      clag(64) =       0.0001736566d+00
-C      clag(65) =      -0.0001951150d+00
-C      clag(66) =       0.0001490719d+00
-C      clag(67) =       0.0000665068d+00
-C      clag(68) =       0.0001683986d+00
-C      clag(69) =       0.0003875300d+00
-C      clag(70) =      -0.0003934986d+00
-C      clag(71) =       0.0005189804d+00
-C      clag(72) =      -0.0002384581d+00
-C      clag(73) =      -0.0000719069d+00
-C      clag(74) =       0.0000711964d+00
-C      clag(75) =       0.0011132784d+00
-C      clag(76) =      -0.0005809397d+00
-C      clag(77) =      -0.0000144951d+00
-C      clag(78) =      -0.0003169021d+00
-C      clag(79) =       0.0001146816d+00
-C      clag(80) =       0.0000709122d+00
-C      clag(81) =      -0.0003355183d+00
-C      clag(82) =       0.0000129319d+00
-C      clag(83) =      -0.0001129763d+00
-C      clag(84) =       0.0002715694d+00
-C      clag(85) =       0.0002906120d+00
-C      clag(86) =       0.0000309797d+00
-C      clag(87) =       0.0002752643d+00
-C      clag(88) =      -0.0001649880d+00
-C      clag(89) =       0.0001334399d+00
-C      clag(90) =       0.0001125500d+00
-C      clag(91) =      -0.0004615686d+00
-C      clag(92) =       0.0002094680d+00
-C      clag(93) =       0.0001988099d+00
-C      clag(94) =      -0.0001192291d+00
-C      clag(95) =      -0.0000194689d+00
-C      clag( 1) =       0.0027024925d+00
-C      clag( 2) =       0.0000695906d+00
-C      clag( 3) =       0.0003663558d+00
-C      clag( 4) =       0.0004356195d+00
-C      clag( 5) =      -0.0003152820d+00
-C      clag( 6) =      -0.0000466116d+00
-C      clag( 7) =       0.0000985096d+00
-C      clag( 8) =       0.0001036824d+00
-C      clag( 9) =       0.0007409398d+00
-C      clag(10) =      -0.0000836167d+00
-C      clag(11) =       0.0006440501d+00
-C      clag(12) =      -0.0001626290d+00
-C      clag(13) =       0.0006233449d+00
-C      clag(14) =      -0.0000862883d+00
-C      clag(15) =      -0.0000938201d+00
-C      clag(16) =       0.0009037819d+00
-C      clag(17) =      -0.0005558718d+00
-C      clag(18) =      -0.0000260911d+00
-C      clag(19) =       0.0002184777d+00
-C      clag(20) =       0.0004069705d+00
-C      clag(21) =      -0.0007431993d+00
-C      clag(22) =       0.0005576766d+00
-C      clag(23) =      -0.0002573870d+00
-C      clag(24) =       0.0000955538d+00
-C      clag(25) =       0.0000838725d+00
-C      clag(26) =       0.0010222152d+00
-C      clag(27) =       0.0006520509d+00
-C      clag(28) =       0.0004881429d+00
-C      clag(29) =      -0.0002027321d+00
-C      clag(30) =      -0.0004294236d+00
-C      clag(31) =      -0.0000236753d+00
-C      clag(32) =       0.0003032028d+00
-C      clag(33) =      -0.0000020748d+00
-C      clag(34) =      -0.0000522391d+00
-C      clag(35) =      -0.0000303260d+00
-C      clag(36) =       0.0000396057d+00
-C      clag(37) =       0.0000831619d+00
-C      clag(38) =      -0.0000404725d+00
-C      clag(39) =       0.0000867431d+00
-C      clag(40) =      -0.0001239755d+00
-C      clag(41) =       0.0000281801d+00
-C      clag(42) =      -0.0000803198d+00
-C      clag(43) =      -0.0000572129d+00
-C      clag(44) =      -0.0001397638d+00
-C      clag(45) =       0.0000177778d+00
-C      clag(46) =       0.0000219842d+00
-C      clag(47) =      -0.0002411440d+00
-C      clag(48) =       0.0000418936d+00
-C      clag(49) =       0.0000782165d+00
-C      clag(50) =      -0.0000129035d+00
-C      clag(51) =       0.0004885408d+00
-C      clag(52) =       0.0000374882d+00
-C      clag(53) =       0.0004379217d+00
-C      clag(54) =      -0.0001349036d+00
-C      clag(55) =      -0.0001158469d+00
-C      clag(56) =       0.0003216201d+00
-C      clag(57) =      -0.0000344045d+00
-C      clag(58) =       0.0000589182d+00
-C      clag(59) =      -0.0006063772d+00
-C      clag(60) =      -0.0001677165d+00
-C      clag(61) =      -0.0002049347d+00
-C      clag(62) =      -0.0003289529d+00
-C      clag(63) =       0.0000683542d+00
-C      clag(64) =      -0.0000635509d+00
-C      clag(65) =       0.0000019043d+00
-C      clag(66) =      -0.0001314788d+00
-C      clag(67) =      -0.0002597460d+00
-C      clag(68) =      -0.0001438707d+00
-C      clag(69) =       0.0001902691d+00
-C      clag(70) =      -0.0001638085d+00
-C      clag(71) =       0.0000757012d+00
-C      clag(72) =      -0.0000504627d+00
-C      clag(73) =      -0.0002171134d+00
-C      clag(74) =      -0.0001623732d+00
-C      clag(75) =       0.0005072991d+00
-C      clag(76) =       0.0001800657d+00
-C      clag(77) =       0.0004871197d+00
-C      clag(78) =       0.0001104326d+00
-C      clag(79) =       0.0002382450d+00
-C      clag(80) =       0.0004470024d+00
-C      clag(81) =      -0.0003978187d+00
-C      clag(82) =       0.0002725784d+00
-C      clag(83) =       0.0000508891d+00
-C      clag(84) =      -0.0000351861d+00
-C      clag(85) =       0.0000025437d+00
-C      clag(86) =       0.0000713811d+00
-C      clag(87) =      -0.0000249827d+00
-C      clag(88) =      -0.0001655991d+00
-C      clag(89) =      -0.0000263753d+00
-C      clag(90) =      -0.0000151061d+00
-C      clag(91) =       0.0000323581d+00
-C      clag(92) =      -0.0000610925d+00
-C      clag(93) =       0.0001861054d+00
-C      clag(94) =       0.0001623732d+00
-C      clag(95) =      -0.0001680860d+00
-C      clag( 1) =      -0.0009997052d+00
-C      clag( 2) =       0.0000000000d+00
-C      clag( 3) =       0.0155051936d+00
-C      clag( 4) =      -0.0055484435d+00
-C      clag( 5) =       0.0000000000d+00
-C      clag( 6) =      -0.0005734506d+00
-C      clag( 7) =       0.0000000000d+00
-C      clag( 8) =       0.0074289801d+00
-C      clag( 9) =       0.0000000000d+00
-C      clag(10) =      -0.0013715749d+00
-C      clag(11) =       0.0000000000d+00
-C      clag(12) =       0.0069490937d+00
-C      clag(13) =       0.0000000000d+00
-C      clag(14) =      -0.0017335964d+00
-C      clag(15) =       0.0038805581d+00
-C      clag(16) =       0.0000000000d+00
-C      clag(17) =       0.0004837233d+00
-C      clag(18) =      -0.0002733600d+00
-C      clag(19) =       0.0000000000d+00
-C      clag(20) =      -0.0007986500d+00
-
-
+C
       write(6,*) "clag after DERFG3"
       do i = 1, min(50,nconf)
         write(6,'(i3,2f20.10)') i,clag(i),work(lci+i-1)
@@ -1561,7 +1325,6 @@ C       write(6,'(i3,2f20.10)') i,clag(i),
 C    *    clag(i)*2.0d+00
 C     end do
 C
-      CALL GETMEM('LTRF','FREE','REAL',LTRF,NLEV*NLEV)
       CALL GETMEM('LCI','FREE','REAL',LCI,NCONF)
       CALL GETMEM('idxG3','FREE','CHAR',LidxG3,6*NG3+iPad)
 C
@@ -1572,7 +1335,7 @@ C
 C-----------------------------------------------------------------------
 C
       !! From poly3
-      SUBROUTINE CLagEig(CLag,RDMEIG,proj)
+      SUBROUTINE CLagEig(CLag,RDMEIG)
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -1584,7 +1347,6 @@ C
 #include "SysDef.fh"
 C
       DIMENSION CLag(nConf,nState),RDMEIG(*)
-      logical proj
 C
       !! RDMEIG
       Call GetMem('LCI','ALLO','REAL',LCI,nConf)
@@ -1781,7 +1543,7 @@ C
       REAL*8 CI(MXCI),SGM1(MXCI)
       REAL*8 CLag(nConf,nState),RDMEIG(NLEV,NLEV) !! Symmetry?
 
-      REAL*8 GTU
+C     REAL*8 GTU
 
       INTEGER ID
       INTEGER IST,ISU,ISTU
@@ -2175,8 +1937,8 @@ C
 C-----------------------------------------------------------------------
 C
       Subroutine CLagDXA_FG3(iSym,nAS,NG3,BDER,SDER,
-     *                       DF1,DF2,DF3,DG1,DG2,DG3,DEASUM,DEPSA,
-     *                       G2,G3,SC,idxG3)
+     *                       DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,
+     *                       G2,SC,idxG3)
 C
       USE SUPERINDEX
 C
@@ -2193,7 +1955,7 @@ C
       Dimension DF1(nAshT,nAshT),DF2(nAshT,nAshT,nAshT,nAshT),
      *          DG1(nAshT,nAshT),DG2(nAshT,nAshT,nAshT,nAshT),
      *          DEPSA(nAshT,nAshT)
-      Dimension G2(nAshT,nAshT,nAshT,nAshT),G3(*)
+      Dimension G2(nAshT,nAshT,nAshT,nAshT)
       DIMENSION SC(*)
       INTEGER*1 idxG3(6,NG3)
 C
@@ -2386,7 +2148,7 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      Subroutine CLagDXA_DP(iSym,nAS,BDER,SDER,DF3,DG3,DF2,DG2,DF1,DG1,
+      Subroutine CLagDXA_DP(iSym,nAS,BDER,SDER,DF2,DG2,DF1,DG1,
      *                      DEPSA,DEASUM,iLo,iHi,jLo,jHi,LDA,g1,g2,sa)
 C
       USE SUPERINDEX
@@ -2400,7 +2162,7 @@ C
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 C
-      Dimension BDER(*),SDER(*),DF3(*),DG3(*),
+      Dimension BDER(*),SDER(*),
      *          DF2(nAshT,nAshT,nAshT,nAshT),
      *          DG2(nAshT,nAshT,nAshT,nAshT),
      *          DF1(nAshT,nAshT),DG1(nAshT,nAshT),DEPSA(nAshT,nAshT)
@@ -2408,6 +2170,7 @@ C
 C     INTEGER*1 idxG3(6,NG3)
 C
       ISADR=0
+      if (isadr.ne.0) write (6,*) lda !! just for avoid compiling error
       DO 100 IXYZ=jLo,jHi
         IXYZABS=IXYZ+NTUVES(ISYM)
         IXABS=MTUV(1,IXYZABS)
@@ -2581,8 +2344,8 @@ C
 C-----------------------------------------------------------------------
 C
       Subroutine CLagDXC_FG3(iSym,nAS,NG3,BDER,SDER,
-     *                       DF1,DF2,DF3,DG1,DG2,DG3,DEASUM,DEPSA,
-     *                       G2,G3,SC,idxG3)
+     *                       DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,
+     *                       G2,SC,idxG3)
 C
       USE SUPERINDEX
 C
@@ -2599,7 +2362,7 @@ C
       Dimension DF1(nAshT,nAshT),DF2(nAshT,nAshT,nAshT,nAshT),
      *          DG1(nAshT,nAshT),DG2(nAshT,nAshT,nAshT,nAshT),
      *          DEPSA(nAshT,nAshT)
-      Dimension G2(nAshT,nAshT,nAshT,nAshT),G3(*)
+      Dimension G2(nAshT,nAshT,nAshT,nAshT)
       DIMENSION SC(*)
       INTEGER*1 idxG3(6,NG3)
 C
@@ -2790,8 +2553,8 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      Subroutine CLagDXC_DP(iSym,nAS,BDER,SDER,DF3,DG3,DF2,DG2,DF1,DG1,
-     *                      DEPSA,DEASUM,iLo,iHi,jLo,jHi,LDA,g1,g2,sc)
+      Subroutine CLagDXC_DP(iSym,nAS,BDER,SDER,DF2,DG2,DF1,DG1,
+     *                      DEPSA,DEASUM,iLo,iHi,jLo,jHi,LDC,g1,g2,sc)
 C
       USE SUPERINDEX
 C
@@ -2804,7 +2567,7 @@ C
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 C
-      Dimension BDER(*),SDER(*),DF3(*),DG3(*),
+      Dimension BDER(*),SDER(*),
      *          DF2(nAshT,nAshT,nAshT,nAshT),
      *          DG2(nAshT,nAshT,nAshT,nAshT),
      *          DF1(nAshT,nAshT),DG1(nAshT,nAshT),DEPSA(nAshT,nAshT)
@@ -2812,6 +2575,7 @@ C
 C     INTEGER*1 idxG3(6,NG3)
 C
       ISADR=0
+      if (isadr.ne.0) write (6,*) ldc !! just for avoid compiling error
       DO 100 IXYZ=jLo,jHi
         IXYZABS=IXYZ+NTUVES(ISYM)
         IXABS=MTUV(1,IXYZABS)
@@ -3696,7 +3460,7 @@ C
      *          G2(nAshT,nAshT,nAshT,nAshT)
       Real*8    INT2(nAshT,nAshT,nAshT,nAshT)
 C
-      LOGICAL   RSV_TSK
+C     LOGICAL   RSV_TSK
 C
       Call DCopy_(nAshT**2,[0.0D+00],0,G1,1)
       Call DCopy_(nAshT**4,[0.0D+00],0,G2,1)

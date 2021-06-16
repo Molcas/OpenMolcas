@@ -37,7 +37,6 @@ C
       Call GetMem('Scr1','Allo','Real',ipScr1,lInt) !! work space
 
       Call GetMem('Amp1','Allo','Real',ipAmp1,lInt) !! for amplitude
-      Call GetMem('Amp2','Allo','Real',ipAmp2,lInt) !! for amplitude
 C
 
       !! (ia|jb)
@@ -58,7 +57,7 @@ C
 C               if (icase.ne.12.and.icase.ne.13) cycle
                 Call OLagNs_Hel2(iCase,iSym,iSymA,iSymB,iSymI,iSymJ,
      *                           nMaxOrb,Work(ipInt1),Work(ipInt2),
-     *                           Work(ipAmp1),Work(ipAmp2),Work(ipScr1),
+     *                           Work(ipAmp1),Work(ipScr1),
      *                           DPT2C,T2AO)
               End Do
             End Do
@@ -76,14 +75,13 @@ C
       Call GetMem('Scr1','Free','Real',ipScr1,lInt)
 
       Call GetMem('Amp1','Free','Real',ipAmp1,lInt)
-      Call GetMem('Amp2','Free','Real',ipAmp2,lInt)
 C
       END SUBROUTINE OLagNS2
 C
 C-----------------------------------------------------------------------
 C
       SUBROUTINE OLagNS_Hel2(iCase,iSym,iSymA,iSymB,iSymI,iSymJ,nMaxOrb,
-     *                       ERI1,ERI2,Amp1,Amp2,Scr,DPT2C,T2AO)
+     *                       ERI1,ERI2,Amp1,Scr,DPT2C,T2AO)
       USE SUPERINDEX
       USE iSD_data
 C
@@ -94,12 +92,11 @@ C
 #include "eqsolv.fh"
 #include "caspt2_grad.fh"
 #include "nsd.fh"
-      DIMENSION ERI1(*),ERI2(*),
-     *          Amp1(nMaxOrb,nMaxOrb),Amp2(nMaxOrb,nMaxOrb),
+      DIMENSION ERI1(*),ERI2(*),Amp1(nMaxOrb,nMaxOrb),
      *          Scr(nMaxOrb,nMaxOrb)
       DIMENSION DPT2C(*),T2AO(*)
 C
-      LOGICAL   DoVVVO,PM
+      LOGICAL   PM
       DIMENSION IOFF1(8),IOFF2(8)
 C
 C     DMNS_{ijkl}*d(ij|kl)/dx -> (pj|kl)*D_{qjkl} + (ip|kl)*D_{iqkl}
@@ -344,11 +341,12 @@ C
           Call Exch(iSymA,iSymI,iSymB,iSymJ,
      *              iI+nCorI,iJ+nFroJ,
      *              ERI1,Scr)
-C         If ((iI.ne.iJ).or.(iSymI.ne.iSymJ)) then
-C           Call Exch(iSymA,iSymJ,iSymB,iSymI,
-C    *                iJ+nFroJ,iI+nFroI,
-C    *                ERI2,Scr)
-C         End If
+          !! not yet sure but to avoid the unused ... of ERI2
+          If ((iI.ne.iJ).or.(iSymI.ne.iSymJ)) then
+            Call Exch(iSymA,iSymJ,iSymB,iSymI,
+     *                iJ+nFroJ,iI+nFroI,
+     *                ERI2,Scr)
+          End If
 C
           Call DCopy_(nAshA*nAshB,[0.0D+00],0,AmpL1,1)
 C
@@ -1006,8 +1004,6 @@ C
           Call Exch(iSymA,iSymI,iSymB,iSymJ,
      *              iI+nFroI,iJ+nFroJ,
      *              ERI1,Scr)
-C      write(6,*) "ij = ", ii,ij
-C      call sqprt(eri1,12)
 C         If ((iI.ne.iJ).or.(iSymI.ne.iSymJ)) then
 C           Call Exch(iSymA,iSymJ,iSymB,iSymI,
 C    *                iJ+nFroJ,iI+nFroI,

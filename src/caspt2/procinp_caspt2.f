@@ -47,7 +47,7 @@ C initialize global common-block variables appropriately.
       Integer IERR
 * Do numerical gradient?
       Logical DNG
-      Integer iDNG,IFINVAR
+      Integer iDNG
       Character*100 ProgName, Get_SuperName
 
 #include "chocaspt2.fh"

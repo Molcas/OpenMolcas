@@ -943,19 +943,19 @@ C_MPP End Do
 *              one-point equation. The one with the lowest gradient is
 *              the one which is most likely to be correct.
 *
-              !If (Abs(Grad(iR)).gt.1.0D-1) Then
-              !   Energy_Ref=Work(ipEnergies_Ref+iR-1)
-              !   Grada= (Eplus-Energy_Ref)/Disp
-              !   Gradb= (Energy_Ref-EMinus)/Disp
-              !   If (Abs(Grad(iR)/Grada).gt.1.5D0 .or.
-     &        !       Abs(Grad(iR)/Gradb).gt.1.5D0 ) Then
-              !      If (Abs(Grada).le.Abs(Gradb)) Then
-              !         Grad(iR)=Grada
-              !      Else
-              !         Grad(iR)=Gradb
-              !      End If
-              !   End If
-              !End If
+               If (Abs(Grad(iR)).gt.1.0D-1) Then
+                  Energy_Ref=Work(ipEnergies_Ref+iR-1)
+                  Grada= (Eplus-Energy_Ref)/Disp
+                  Gradb= (Energy_Ref-EMinus)/Disp
+                  If (Abs(Grad(iR)/Grada).gt.1.5D0 .or.
+     &                Abs(Grad(iR)/Gradb).gt.1.5D0 ) Then
+                     If (Abs(Grada).le.Abs(Gradb)) Then
+                        Grad(iR)=Grada
+                     Else
+                        Grad(iR)=Gradb
+                     End If
+                  End If
+               End If
             End Do
          End If
 *

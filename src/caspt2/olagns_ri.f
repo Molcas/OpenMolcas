@@ -263,9 +263,7 @@ C
 *      Loop over the bras and kets, form <A|0>
 *
       Call OLagNS_RI2(Inactive,Active,Active,Active,
-     &                'A ',
-     &                Work(LBRA),Work(LKET),Work(LPIQK),
-     &                Work(LBUFF),iWork(LidxB))
+     &                'A ',Work(LBRA),Work(LKET))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -274,9 +272,7 @@ C
 *
       nKet = nBra
       Call OLagNS_RI2(Inactive,Active,Inactive,Active,
-     &                'B ',
-     &                Work(LBRA),Work(LBRA),Work(LPIQK),
-     &                Work(LBUFF),iWork(LidxB))
+     &                'B ',Work(LBRA),Work(LBRA))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -293,9 +289,7 @@ C
 * Loop over the bra and ket vectors.
 *
       Call OLagNS_RI2(Inactive,Virtual,Active,Active,
-     &                'D1',
-     &                Work(LBRA),Work(LKET),Work(LPIQK),
-     &                Work(LBUFF),iWork(LidxB))
+     &                'D1',Work(LBRA),Work(LKET))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -304,9 +298,7 @@ C
 *
       nKet = nBra
       Call OLagNS_RI2(Inactive,Virtual,Inactive,Virtual,
-     &                'H ',
-     &                Work(LBRA),Work(LBRA),Work(LPIQK),
-     &                Work(LBUFF),iWork(LidxB))
+     &                'H ',Work(LBRA),Work(LBRA))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -322,9 +314,7 @@ C                                                                      *
 * AUVX: Loop over the bras and kets
 *
       Call OLagNS_RI2(Active,Virtual,Active,Active,
-     &                'C ',
-     &                Work(LBRA),Work(LKET),Work(LPIQK),
-     &                Work(LBUFF),iWork(LidxB))
+     &                'C ',Work(LBRA),Work(LKET))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -333,9 +323,7 @@ C                                                                      *
 *
       nKet = nBra
       Call OLagNS_RI2(Active,Virtual,Active,Virtual,
-     &                'F ',
-     &                Work(LBRA),Work(LBRA),Work(LPIQK),
-     &                Work(LBUFF),iWork(LidxB))
+     &                'F ',Work(LBRA),Work(LBRA))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -351,9 +339,7 @@ C                                                                      *
 * Loop over bras and kets, form <D2|0>.
 *
       Call OLagNS_RI2(Active,Virtual,Inactive,Active,
-     &                'D2',
-     &                Work(LBRA),Work(LKET),Work(LPIQK),
-     &                Work(LBUFF),iWork(LidxB))
+     &                'D2',Work(LBRA),Work(LKET))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -369,9 +355,7 @@ C                                                                      *
 * Loop over bras and kets, form  <G|0>
 *
       Call OLagNS_RI2(Active,Virtual,Inactive,Virtual,
-     &                'G ',
-     &                Work(LBRA),Work(LKET),Work(LPIQK),
-     &                Work(LBUFF),iWork(LidxB))
+     &                'G ',Work(LBRA),Work(LKET))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -395,9 +379,7 @@ C                                                                      *
 * AJVL: Loop over bras and kets. Form <E|0>
 *
       Call OLagNS_RI2(Inactive,Virtual,Inactive,Active,
-     &                'E ',
-     &                Work(LBRA),Work(LKET),Work(LPIQK),
-     &                Work(LBUFF),iWork(LidxB))
+     &                'E ',Work(LBRA),Work(LKET))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -463,8 +445,7 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      Subroutine OLagNS_RI2(ITI,ITP,ITK,ITQ,Case,
-     &                      Cho_Bra,Cho_Ket,PIQK,BUFF,idxBuff)
+      Subroutine OLagNS_RI2(ITI,ITP,ITK,ITQ,Case,Cho_Bra,Cho_Ket)
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -472,7 +453,6 @@ C
 #include "output.fh"
 #include "WrkSpc.fh"
       DIMENSION Cho_Bra(nBra), Cho_Ket(nKet)
-      DIMENSION BUFF(nAddBuf),idxBuff(nAddBuf),PIQK(mxPIQK)
       Character Case*2
 C
       IF (iPrGlb.GE.DEBUG) THEN
@@ -532,39 +512,39 @@ C
 *
           !! NBUFF(=nAddBuf) is removed
           If (Case.eq.'A ') Then
-             CALL OLagNS_RI_A(NP,NI,NQ,NK,PIQK,
+             CALL OLagNS_RI_A(NP,NI,NQ,NK,
      &                        Cho_Bra(LBRASM),
      &                        Cho_Ket(LKETSM),NV)
           Else If (Case.eq.'B ') Then
-             CALL OLagNS_RI_B(NP,NI,NQ,NK,PIQK,
+             CALL OLagNS_RI_B(NP,NI,NQ,NK,
      &                        Cho_Bra(LBRASM),
      &                        Cho_Ket(LKETSM),NV)
           Else If (Case.eq.'D1') Then
-             CALL OLagNS_RI_D1(NP,NI,NQ,NK,PIQK,
+             CALL OLagNS_RI_D1(NP,NI,NQ,NK,
      &                         Cho_Bra(LBRASM),
      &                         Cho_Ket(LKETSM),NV)
           Else If (Case.eq.'H ') Then
-             CALL OLagNS_RI_H(NP,NI,NQ,NK,PIQK,NPIQK,
+             CALL OLagNS_RI_H(NP,NI,NQ,NK,NPIQK,
      &                        Cho_Bra(LBRASM),
      &                        Cho_Ket(LKETSM),NV)
           Else If (Case.eq.'C ') Then
-             CALL OLagNS_RI_C(NP,NI,NQ,NK,PIQK,
+             CALL OLagNS_RI_C(NP,NI,NQ,NK,
      &                        Cho_Bra(LBRASM),
      &                        Cho_Ket(LKETSM),NV)
           Else If (Case.eq.'F ') Then
-             CALL OLagNS_RI_F(NP,NI,NQ,NK,PIQK,
+             CALL OLagNS_RI_F(NP,NI,NQ,NK,
      &                        Cho_Bra(LBRASM),
      &                        Cho_Ket(LKETSM),NV)
           Else If (Case.eq.'D2') Then
-             CALL OLagNS_RI_D2(NP,NI,NQ,NK,PIQK,
+             CALL OLagNS_RI_D2(NP,NI,NQ,NK,
      &                         Cho_Bra(LBRASM),
      &                         Cho_Ket(LKETSM),NV)
           Else If (Case.eq.'G ') Then
-             CALL OLagNS_RI_G(NP,NI,NQ,NK,PIQK,NPIQK,
+             CALL OLagNS_RI_G(NP,NI,NQ,NK,NPIQK,
      &                        Cho_Bra(LBRASM),
      &                        Cho_Ket(LKETSM),NV)
           Else If (Case.eq.'E ') Then
-             CALL OLagNS_RI_E(NP,NI,NQ,NK,PIQK,
+             CALL OLagNS_RI_E(NP,NI,NQ,NK,
      &                        Cho_Bra(LBRASM),
      &                        Cho_Ket(LKETSM),NV)
           Else
@@ -585,14 +565,13 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE OLagNS_RI_A(NT,NJ,NV,NX,TJVX,
+      SUBROUTINE OLagNS_RI_A(NT,NJ,NV,NX,
      &                       Cho_Bra,Cho_Ket,NCHO)
 C
       USE SUPERINDEX
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-      DIMENSION TJVX(NT,NJ,NV,NX)
       DIMENSION Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NX,NCHO)
 C
       ISYJ = ISYI
@@ -693,14 +672,13 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE OLagNS_RI_B(NT,NJ,NV,NL,TJVL,
+      SUBROUTINE OLagNS_RI_B(NT,NJ,NV,NL,
      &                       Cho_Bra,Cho_Ket,NCHO)
 C
       USE SUPERINDEX
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-      DIMENSION TJVL(NT,NJ,NV,NL)
       DIMENSION Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NL,NCHO)
 C
       ISYJ = ISYI
@@ -914,14 +892,13 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE OLagNS_RI_C(NA,NU,NV,NX,AUVX,
+      SUBROUTINE OLagNS_RI_C(NA,NU,NV,NX,
      &                       Cho_Bra,Cho_Ket,NCHO)
 C
       USE SUPERINDEX
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-      DIMENSION AUVX(NA,NU,NV,NX)
       DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NX,NCHO)
 C
       ISYU = ISYI
@@ -1060,14 +1037,13 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE OLagNS_RI_D1(NA,NJ,NV,NX,AJVX,
+      SUBROUTINE OLagNS_RI_D1(NA,NJ,NV,NX,
      &                        Cho_Bra,Cho_Ket,NCHO)
 C
       USE SUPERINDEX
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-      DIMENSION AJVX(NV,NX,*)
       DIMENSION Cho_Bra(NA,NJ,NCHO), Cho_Ket(NV,NX,NCHO)
 *      Logical Incore
       DIMENSION IOFFD(8,8)
@@ -1187,14 +1163,13 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE OLagNS_RI_D2(NA,NU,NV,NL,AUVL,
+      SUBROUTINE OLagNS_RI_D2(NA,NU,NV,NL,
      &                        Cho_Bra,Cho_Ket,NCHO)
 C
       USE SUPERINDEX
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-      DIMENSION AUVL(NA,NU,NV,NL)
       DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NL,NCHO)
 *      Logical Incore
       DIMENSION IOFFD(8,8)
@@ -1238,7 +1213,7 @@ C
 
       nOrbA = nFro(iSyA)+nIsh(iSyA)+nAsh(iSyA)+nSsh(iSyA)
       DO IA=1,NA
-        IAABS=IA+NSES(ISYMA)
+        IAABS=IA+NSES(ISYA)
         iAtot = iA + nFro(iSyA) + nIsh(iSyA) + nAsh(iSyA)
         DO IU=1,NU
           IUABS=IU+NAES(ISYU)
@@ -1250,7 +1225,7 @@ C
             IVABS=IV+NAES(ISYV)
             iVtot = iV + nFro(iSyV) + nIsh(iSyV)
             DO IL=1,NL
-              ILABS=IL+NIES(ISYML)
+              ILABS=IL+NIES(ISYL)
               iLtot = iL + nFro(iSyL)
               IW1=NAS1+KTU(IVABS,IUABS)-NTUES(ISYM)
               IW2=IOFFD(ISYA,ISYM)+IL+NL*(IA-1)
@@ -1299,14 +1274,13 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE OLagNS_RI_E(NA,NJ,NV,NL,AJVL,
+      SUBROUTINE OLagNS_RI_E(NA,NJ,NV,NL,
      &                       Cho_Bra,Cho_Ket,NCHO)
 C
       USE SUPERINDEX
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-      DIMENSION AJVL(NV,NL,*)
       DIMENSION Cho_Bra(NA,NJ,NCHO), Cho_Ket(NV,NL,NCHO)
 *      Logical Incore
       DIMENSION IOFF1(8),IOFF2(8)
@@ -1526,14 +1500,13 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE OLagNS_RI_F(NA,NU,NC,NX,AUCX,
+      SUBROUTINE OLagNS_RI_F(NA,NU,NC,NX,
      &                       Cho_Bra,Cho_Ket,NCHO)
 C
       USE SUPERINDEX
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-      DIMENSION AUCX(NA,NU,NC,NX)
       DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NC,NX,NCHO)
 C
       ISYU = ISYI
@@ -1747,14 +1720,13 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE OLagNS_RI_G(NA,NU,NC,NL,AUCL,NAUCL,
+      SUBROUTINE OLagNS_RI_G(NA,NU,NC,NL,NAUCL,
      &                       Cho_Bra,Cho_Ket,NCHO)
 C
       USE SUPERINDEX
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-      DIMENSION AUCL(NA,NU,*)
 C     DIMENSION Buff(nBuff)
 C     DIMENSION idxBuf(nBuff)
 C     DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NC*NL,NCHO)
@@ -1993,14 +1965,14 @@ C
 C-----------------------------------------------------------------------
 C
       !! ADDRHSH
-      Subroutine OLagNS_RI_H(NA,NJ,NC,NL,AJCL,NAJCL,
+      Subroutine OLagNS_RI_H(NA,NJ,NC,NL,NAJCL,
      &                   Cho_Bra,Cho_Ket,NCHO)
 C
       USE SUPERINDEX
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-      DIMENSION AJCL(NC*NL,*)
+C     DIMENSION AJCL(NC*NL,*)
       DIMENSION Cho_Bra(NA,NJ,NCHO), Cho_Ket(NC,NL,NCHO)
 C
       ISYJ = ISYI
@@ -2017,6 +1989,7 @@ C
       NISP=NIGEJ(ISYM)
       NWHP=NASP*NISP
       IF(NWHP.EQ.0) Return
+      if (nwhp.eq.0) write (6,*) cho_bra(1,1,1) !! avoid unused tenta
       NASM=NAGTB(ISYM)
       NISM=NIGTJ(ISYM)
 C     NWHM=NASM*NISM
