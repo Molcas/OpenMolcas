@@ -419,7 +419,7 @@ C
 C
       !! DTR: triangular density matrix (in the AO basis)
       !! DSQ: square     density matrix (in the AO basis)
-      CALL DCOPY_(nDens2,0.0D+00,0,DSQ,1)
+      CALL DCOPY_(nDens2,[0.0D+00],0,DSQ,1)
       indT  = 0 ! index for the triangular matrix
       indS0 = 0 ! index for the square     matrix (not complete)
       Do iSym = 1, nSym
