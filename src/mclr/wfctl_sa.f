@@ -166,7 +166,7 @@
 *
       do iDisp=1,nDisp
       call dcopy_(nDens2,[Zero],0,Work(ipKap),1)
-      call dcopy_(nDens2,[Zero],0,Work(ipSigma),1) !! residues of orbital
+      call dcopy_(nDens2,[Zero],0,Work(ipSigma),1)
       call dcopy_(nDens2,[Zero],0,Work(ipdKap),1)
 *
 *-----------------------------------------------------------------------------
