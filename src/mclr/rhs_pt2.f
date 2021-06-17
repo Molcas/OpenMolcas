@@ -188,8 +188,8 @@ C     Call Getmem('TWOD','ALLO','REAL',ipG2r,itri(ntash**2,ntash**2))
          nBMX=Max(nBMX,nBas(iSym))
          nBasT = nBasT + nBas(iSym)
       End Do
-          write(6,*) "transformed to AO"
-          call prtril(work(ipDCAS),nbast)
+C         write(6,*) "transformed to AO"
+C         call prtril(work(ipDCAS),nbast)
 *
       Call FZero(Work(ipFAO1),nDens2)
       Call FockTwo_Drv(nSym,nBas,nBas,nSkip,
@@ -216,8 +216,8 @@ C     call sqprt(work(ipFMO1),nbast)
      &                 Work(ipDCAS),Work(ipDCAS2),Work(ipFAO2),nFlt,
      &                 ExFac,nDens2,nBMX)
       !! ipFAO2: in triangular
-      write(6,*) "ipFAO2"
-      call prtril(work(ipFAO2),nbast)
+C     write(6,*) "ipFAO2"
+C     call prtril(work(ipFAO2),nbast)
       Call AO2MO(Work(ipFAO2),Work(ipFMO2))
       CALL DSCAL_(nDens2,2.0D+00,Work(ipFMO2),1)
       !! ipFMO2: MO basis, square form
