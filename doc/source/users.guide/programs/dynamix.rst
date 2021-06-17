@@ -353,7 +353,7 @@ From the command prompt: ::
   -m METHOD, --method METHOD
                         Keyword to specify the sampling method:
                         1 Initial conditions based on the molecular vibrational frequencies and energies sampled from a Boltzmann distribution (Default).
-                        2 Thermal normal mode sampling where the cumulitative distribution function for a classical boltzmann distribution at temperature T is used to approximate the energy.
+                        2 Thermal normal mode sampling where the cumulitative distribution function for a classical boltzmann distribution at temperature T is used to approximate the energy of each mode.
                         3 Wigner distribution for the ground vibrational state, n=0.
 
 Having a :file:`water.freq.molden` file, this is the command to generate 200 initial conditions using 3435432 as seed and a temperature of 300 kelvin: ::
