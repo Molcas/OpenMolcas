@@ -201,7 +201,7 @@
             End Do ! iSym
 *
          End Do    ! iD
-#define _SPECIAL_DEBUGPRINT_
+!#define _SPECIAL_DEBUGPRINT_
 #ifdef _SPECIAL_DEBUGPRINT_
          Call DebugCMO(CMO,mBB,nD,Occ,mmB,nBas,nOrb,nSym,iFerm,
      &                 '@ the last position')
