@@ -617,9 +617,12 @@ C    *    abs(slagv-floor(slagv+1.0d-03))
            nIN = nINDEP(iSym,iCase)
            nAS = nASUP(iSym,iCase)
 
-           CALL GETMEM('WRK1','ALLO','REAL',ipWRK1,nAS*nAS) !! derivative
-           CALL GETMEM('WRK2','ALLO','REAL',ipWRK2,nAS*nAS) !! trans
-           CALL GETMEM('WRK3','ALLO','REAL',ipWRK3,nAS*nAS) !! wrk
+           !! derivative
+           CALL GETMEM('WRK1','ALLO','REAL',ipWRK1,nAS*nAS)
+           !! trans
+           CALL GETMEM('WRK2','ALLO','REAL',ipWRK2,nAS*nAS)
+           !! wrk
+           CALL GETMEM('WRK3','ALLO','REAL',ipWRK3,nAS*nAS)
 
            Call DCopy_(nAS*nAS,[0.0D+00],0,Work(ipWRK1),1)
            idT  = idTMAT(iSym,iCase)
@@ -711,9 +714,12 @@ C
 C
            Call SqPrt(Work(ipWRK1),nIN)
 
-           CALL GETMEM('WRK1','FREE','REAL',ipWRK1,nAS*nAS) !! derivative
-           CALL GETMEM('WRK2','FREE','REAL',ipWRK2,nAS*nAS) !! trans
-           CALL GETMEM('WRK3','FREE','REAL',ipWRK3,nAS*nAS) !! wrk
+           !! derivative
+           CALL GETMEM('WRK1','FREE','REAL',ipWRK1,nAS*nAS)
+           !! trans
+           CALL GETMEM('WRK2','FREE','REAL',ipWRK2,nAS*nAS)
+           !! wrk
+           CALL GETMEM('WRK3','FREE','REAL',ipWRK3,nAS*nAS)
            Call AbEnd()
          End If
 

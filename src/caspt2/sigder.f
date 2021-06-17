@@ -84,7 +84,8 @@ C
           nAS = nASUP(iSym,iCase)
           CALL DDAFILE(LuSTD,0,Work(ipWRK),nAS*nAS,idSD)
           idSDer = idSDMat(iSym,iCase)
-          CALL DDAFILE(LuSTD,1,Work(ipWRK),nAS*nAS,idSDer) ! idSDMat(iSym,iCase))
+          ! idSDMat(iSym,iCase))
+          CALL DDAFILE(LuSTD,1,Work(ipWRK),nAS*nAS,idSDer)
         End Do
       End Do
       Call GETMEM('WRK','FREE','REAL',ipWRK,MaxLen)
@@ -202,8 +203,9 @@ C Loop over types and symmetry block of VEC1 vector:
 C Form VEC1 from the BRA vector, transformed to covariant form.
           !! Prepare vectors
           IMLTOP=1
+          !! IBRA)
           Call PrepVec1(IMLTOP,NAS1,NIS1,ICASE1,ISYM1,NWEC1,
-     *                  LVEC1,LWEC1,LVEC1S,LWEC1S,IVEC,ILOOP.EQ.1) !! IBRA)
+     *                  LVEC1,LWEC1,LVEC1S,LWEC1S,IVEC,ILOOP.EQ.1)
           If (ICASE1.LE.11) Then
             idSDer = idSDMat(iSym1,iCase1)
             CALL DDAFILE(LuSTD,2,Work(ipSDER1),nAS1*nAS1,idSDer)
@@ -223,8 +225,9 @@ C           if (icase1.ne. 6.or.icase2.ne.12) cycle
               IF(NVEC2.EQ.0) GOTO 200
 C
               IMLTOP=1
+              !! IKET)
               Call PrepVec1(IMLTOP,NAS2,NIS2,ICASE2,ISYM2,NWEC2,
-     *                      LVEC2,LWEC2,LVEC2S,LWEC2S,IVEC,ILOOP.EQ.2) !! IKET)
+     *                      LVEC2,LWEC2,LVEC2S,LWEC2S,IVEC,ILOOP.EQ.2)
 C
               !! S1*C1 derivative
               If (iCase1.LE.11) Call C1S1DER(Work(ipSDER1))

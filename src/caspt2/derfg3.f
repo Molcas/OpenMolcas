@@ -256,81 +256,81 @@ C     do i = 1, 5
 C       write(6,'(i3,f20.10)') i,epsa(i)
 C     end do
 
-      !! F2_{tuvw}
-      !! = <0|E_{tu,vw,xy}|0>*f_{xy}
-      !! = <0|t+ v+ x+ y w u|0> * f_{xy}
-      !!   t+ v+ x+ y w u
-      !! = t+ x+ v+ w y u
-      !! = t+ x+ (del(vw) - w v+) y u
-      !! = del(vw) t+ x+ y u - t+ x+ w v+ y u
-      !! = del(vw)*F1(tu) - t+ (del(xw)-w x+)*(del(vy)-y v+) u
-      !! = del(vw)*F1(tu) - del(xw)*del(vy)*t+ u
-      !!   + del(xw)* t+ y v+ u + del(vy)*t+ w x+ u - t+ w x+ y v+ u
-      !! = del(vw)*F1(tu) - del(xw)*del(vy)*G1_{tu}*f_{xy}
-      !!   + del(xw)*<0|E_{ty}E_{vu}|0>*f_{xy} + del(vy)*<0|E_{tw}E_{xu}|0>*f_{xy}
-      !!   - <0|E_{tw}E_{xy}E_{vu}|0>*f_{xy}
-      !! (if canonical)
-      !! = F1(tu) - G1{tu}*f_{wv} + <0|E_{tw}E_{vu}|0*f_{ww}
-      !!   + <0|E_{tw}E_{vu}|0>*f_{vv} - <0|E_{tw}tE_{xy}E_{vu}|0>
-      !!
-      !!   E_{tu}E_{vw}E_{yz}*f_{vw}
-      !! = t+ u v+ w y+ z * f_{vw}
-      !! = t+ (del(uv) - v+ u)*(del(wy) - y+ w) z * f_{vw}
-      !! = del(uv)*del(wy)*t+ z f_{vw}
-      !!   - del(uv)* t+ y+ w z * f_{vw}
-      !!   - del(wy)* t+ v+ u z * f_{vw}
-      !!   + t+ v+ u y+ w z * f_{vw}
-      !! = del(uv)*del(wy)*G1(tz)*f_{vw}
-      !!   - del(uv)*E_{ty,zw}*f_{vw}
-      !!   - del(wy)*E_{tv,zu}*f_{vw}
-      !!   + t+ v+ (del(uy)-y+ u) w z * f_{vw}
-      !! = del(uv)*del(wy)*G1(tz)*f_{vw}
-      !!   - del(uv)*E_{ty,zw}*f_{vw}
-      !!   - del(wy)*E_{tv,zu}*f_{vw}
-      !!   + del(uy) t+ v+ w z * f_{vw}
-      !!   - t+ v+ y+ u w z * f_{vw}
-      !! = del(uv)*del(wy)*G1(tz)*f_{vw}
-      !!   - del(uv)*E_{ty,zw}*f_{vw}
-      !!   - del(wy)*E_{tv,zu}*f_{vw}
-      !!   + del(uy)*F1_{tz}
-      !!   + t+ y+ v+ w z u * f_{vw}
-      !! = del(uv)*del(wy)*G1(tz)*f_{vw}
-      !!   - del(uv)*E_{ty,zw}*f_{vw}
-      !!   - del(wy)*E_{tv,zu}*f_{vw}
-      !!   + del(uy)*F1_{tz}
-      !!   + F2_{tuyz}
+C     !! F2_{tuvw}
+C     !! = <0|E_{tu,vw,xy}|0>*f_{xy}
+C     !! = <0|t+ v+ x+ y w u|0> * f_{xy}
+C     !!   t+ v+ x+ y w u
+C     !! = t+ x+ v+ w y u
+C     !! = t+ x+ (del(vw) - w v+) y u
+C     !! = del(vw) t+ x+ y u - t+ x+ w v+ y u
+C     !! = del(vw)*F1(tu) - t+ (del(xw)-w x+)*(del(vy)-y v+) u
+C     !! = del(vw)*F1(tu) - del(xw)*del(vy)*t+ u
+C     !!   + del(xw)* t+ y v+ u + del(vy)*t+ w x+ u - t+ w x+ y v+ u
+C     !! = del(vw)*F1(tu) - del(xw)*del(vy)*G1_{tu}*f_{xy}
+C     !!   + del(xw)*<0|E_{ty}E_{vu}|0>*f_{xy} + del(vy)*<0|E_{tw}E_{xu}|0>*f_{xy}
+C     !!   - <0|E_{tw}E_{xy}E_{vu}|0>*f_{xy}
+C     !! (if canonical)
+C     !! = F1(tu) - G1{tu}*f_{wv} + <0|E_{tw}E_{vu}|0*f_{ww}
+C     !!   + <0|E_{tw}E_{vu}|0>*f_{vv} - <0|E_{tw}tE_{xy}E_{vu}|0>
+C     !!
+C     !!   E_{tu}E_{vw}E_{yz}*f_{vw}
+C     !! = t+ u v+ w y+ z * f_{vw}
+C     !! = t+ (del(uv) - v+ u)*(del(wy) - y+ w) z * f_{vw}
+C     !! = del(uv)*del(wy)*t+ z f_{vw}
+C     !!   - del(uv)* t+ y+ w z * f_{vw}
+C     !!   - del(wy)* t+ v+ u z * f_{vw}
+C     !!   + t+ v+ u y+ w z * f_{vw}
+C     !! = del(uv)*del(wy)*G1(tz)*f_{vw}
+C     !!   - del(uv)*E_{ty,zw}*f_{vw}
+C     !!   - del(wy)*E_{tv,zu}*f_{vw}
+C     !!   + t+ v+ (del(uy)-y+ u) w z * f_{vw}
+C     !! = del(uv)*del(wy)*G1(tz)*f_{vw}
+C     !!   - del(uv)*E_{ty,zw}*f_{vw}
+C     !!   - del(wy)*E_{tv,zu}*f_{vw}
+C     !!   + del(uy) t+ v+ w z * f_{vw}
+C     !!   - t+ v+ y+ u w z * f_{vw}
+C     !! = del(uv)*del(wy)*G1(tz)*f_{vw}
+C     !!   - del(uv)*E_{ty,zw}*f_{vw}
+C     !!   - del(wy)*E_{tv,zu}*f_{vw}
+C     !!   + del(uy)*F1_{tz}
+C     !!   + t+ y+ v+ w z u * f_{vw}
+C     !! = del(uv)*del(wy)*G1(tz)*f_{vw}
+C     !!   - del(uv)*E_{ty,zw}*f_{vw}
+C     !!   - del(wy)*E_{tv,zu}*f_{vw}
+C     !!   + del(uy)*F1_{tz}
+C     !!   + F2_{tuyz}
 
-      !! F2_{tuvw}
-      !! = <0|E_{tu,vw,xy}|0>*f_{xy}
-      !! = <0|t+ v+ x+ y w u|0> * f_{xy}
-      !!   t+ v+ x+ y w u
-      !! =-t+ v+ x+ y u w
-      !! =-t+ x+ v+ u y w * f_{xy}
-      !! =-t+ x+ (del(vu) - u v+) y w * f_{xy}
-      !! =-del(vu) E_{tx,wy}*f_{xy} + t+ x+ u v+ y w * f_{xy}
-      !! =-del(vu) E_{tx,wy}*f_{xy}
-      !!  + t+ (del(ux) - u x+) (del(vy) - y v+) w * f_{xy}
-      !! =-del(vu) E_{tx,wy}*f_{xy}
-      !!  + del(ux)del(vy) G(t,w)*f_{xy} - del(ux) E_{ty}E_{vw}*f_{xy}
-      !!  - del(vy) E_{tu}E_{xw}*f_{xy} + E_{tu}E_{xy}E_{vw}*f_{xy}
-      !! = -del(vu) E_{tx,wy}*f_{xy} + del(ux)del(vy) G1(t,w)*f_{xy}
-      !!   -del(ux) E_{ty}E_{vw}*f_{xy}
+C     !! F2_{tuvw}
+C     !! = <0|E_{tu,vw,xy}|0>*f_{xy}
+C     !! = <0|t+ v+ x+ y w u|0> * f_{xy}
+C     !!   t+ v+ x+ y w u
+C     !! =-t+ v+ x+ y u w
+C     !! =-t+ x+ v+ u y w * f_{xy}
+C     !! =-t+ x+ (del(vu) - u v+) y w * f_{xy}
+C     !! =-del(vu) E_{tx,wy}*f_{xy} + t+ x+ u v+ y w * f_{xy}
+C     !! =-del(vu) E_{tx,wy}*f_{xy}
+C     !!  + t+ (del(ux) - u x+) (del(vy) - y v+) w * f_{xy}
+C     !! =-del(vu) E_{tx,wy}*f_{xy}
+C     !!  + del(ux)del(vy) G(t,w)*f_{xy} - del(ux) E_{ty}E_{vw}*f_{xy}
+C     !!  - del(vy) E_{tu}E_{xw}*f_{xy} + E_{tu}E_{xy}E_{vw}*f_{xy}
+C     !! = -del(vu) E_{tx,wy}*f_{xy} + del(ux)del(vy) G1(t,w)*f_{xy}
+C     !!   -del(ux) E_{ty}E_{vw}*f_{xy}
 
-      !! = G1(tz)*f_{uy}
-      !!   + E_{ty,wz}*f_{uw} (in the code, E(it,iw(iu),iy,iz))*e(u))
-      !!   + E_{tv,uz}*f_{vy} (E(it,iu,iv(iy),iz)*e(y))
-      !!   + del(uy)*F1_{tz}
-      !!   + F2_{tuyz}
+C     !! = G1(tz)*f_{uy}
+C     !!   + E_{ty,wz}*f_{uw} (in the code, E(it,iw(iu),iy,iz))*e(u))
+C     !!   + E_{tv,uz}*f_{vy} (E(it,iu,iv(iy),iz)*e(y))
+C     !!   + del(uy)*F1_{tz}
+C     !!   + F2_{tuyz}
 * Correction to F2: It is now = <0| E_tu H0Diag E_yz |0>
-      !! Etu H0Diag Eyz
-      !! = t+ u w+ w y+ z fww
-      !! = del(uw) t+ w y+ z fww - t+ w+ u w y+ z fww
-      !! = t+ u y+ z fuu - del(wy) t+ w+ u z fww + t+ w+ u y+ w z fww
-      !! = t+ u y+ z fuu - t+ y+ u z fyy + del(uy) t+ w+ w z fww  - t+ w+ y+ u w z fww
-      !! = t+ u y+ z fuu - t+ y+ u z fyy + del(uy) Ftz - t+ y+ w+ w u z fww
-      !! = del(uy) Gtz fuu - Gty,zu fuu - Gty,zu fyy + del(uy) Ftz - Fty,zu
-      !! = del(uy) (Ftz+Gtz fuu) + Gty,uz (fuu+fyy) + Fty,uz
-      !!-> del(uy) (F1(tz)+G1(tz) fuu) + G2(tuyz) (fuu+fyy) + F2(tuyz)
+C     !! Etu H0Diag Eyz
+C     !! = t+ u w+ w y+ z fww
+C     !! = del(uw) t+ w y+ z fww - t+ w+ u w y+ z fww
+C     !! = t+ u y+ z fuu - del(wy) t+ w+ u z fww + t+ w+ u y+ w z fww
+C     !! = t+ u y+ z fuu - t+ y+ u z fyy + del(uy) t+ w+ w z fww  - t+ w+ y+ u w z fww
+C     !! = t+ u y+ z fuu - t+ y+ u z fyy + del(uy) Ftz - t+ y+ w+ w u z fww
+C     !! = del(uy) Gtz fuu - Gty,zu fuu - Gty,zu fyy + del(uy) Ftz - Fty,zu
+C     !! = del(uy) (Ftz+Gtz fuu) + Gty,uz (fuu+fyy) + Fty,uz
+C     !!-> del(uy) (F1(tz)+G1(tz) fuu) + G2(tuyz) (fuu+fyy) + F2(tuyz)
 * Correction to F2: Some values not computed follow from symmetry
        do ip1=1,nlev2-1
         itlev=idx2ij(1,ip1)
@@ -817,8 +817,8 @@ C     CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
           it=L2ACT(itlev)
           iu=L2ACT(iulev)
 C         write(6,'("0 ",4i1)') it,iu,iy,iz
-          !! E_{tu}E_{yz} = E_{ut}E_{zy} = E_{yz}E_{tu} = E_{zy}E_{ut}
-          !! However, this does not apply to the configuration derivative.
+C         !! E_{tu}E_{yz} = E_{ut}E_{zy} = E_{yz}E_{tu} = E_{zy}E_{ut}
+C         !! However, this does not apply to the configuration derivative.
 C
           !! CLAG(I) = <I|E_{tu}E_{yz}|0> + <0|E_{tu}E_{yz}|I>
           !! left derivative
@@ -839,7 +839,8 @@ C
           Call DCopy_(nsgm1,[0.0D+00],0,Work(LBUFT),1)
           If (ScalGYZL.ne.0.0D+00) Then
             DG2(iT,iU,iY,iZ) = 0.0D+00
-            If (.not.RASSPE.or.iY.LE.iZ) Then ! .not.RAS.or.iT.GE.iU.or.iY.LE.iZ) Then
+            If (.not.RASSPE.or.iY.LE.iZ) Then
+C             ! .not.RAS.or.iT.GE.iU.or.iY.LE.iZ) Then
               Call DaXpY_(nsgm1,ScalGYZL,Work(LTO),1,Work(LBUFT),1)
             End If
           End If
@@ -851,7 +852,8 @@ C
           ScalGZYL=DG2(iT,iU,iZ,iY)
           If (ScalGZYL.ne.0.0D+00) Then ! .and.IYLEV.NE.IZLEV) Then
             DG2(iT,iU,iZ,iY) = 0.0D+00
-            If (.not.RASSPE.or.iZ.LE.iY) Then ! .or.iT.GE.iU.or.iZ.LE.iY) Then
+            If (.not.RASSPE.or.iZ.LE.iY) Then
+C                        ! .or.iT.GE.iU.or.iZ.LE.iY) Then
               Call DaXpY_(nsgm1,ScalGZYL,Work(LBUF4),1,Work(LBUFT),1)
             End If
           End If

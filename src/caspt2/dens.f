@@ -478,9 +478,9 @@ C
 C
 C       write(6,*) "nfrot = ", nfrot
         If (nFroT.ne.0) Then
-          !! If frozen orbitals exist, we need to obtain electron-repulsion
-          !! integrals with frozen orbitals to construct the orbital
-          !! Lagrangian.
+          !! If frozen orbitals exist, we need to obtain
+          !! electron-repulsion integrals with frozen orbitals to
+          !! construct the orbital Lagrangian.
           If (.not.IfChol) Call TRAFRO(1)
 C
           !! Get density matrix (Work(ipDIA)) and inactive density
@@ -1003,7 +1003,8 @@ C
      *                 Work(ipWRK1),Work(ipWRK2))
 C
           Call DCopy_(nConf*nState,Work(ipCLagT),1,Work(ipCLag),1) !test
-          Call DaXpY_(nAshT**2,1.0D+00,Work(ipEigT),1,Work(ipRDMEIG),1) !test
+         !test
+          Call DaXpY_(nAshT**2,1.0D+00,Work(ipEigT),1,Work(ipRDMEIG),1)
           call DCopy_(nState*(nState-1)/2,[0.0D+00],0,Work(ipSLag),1)
           CALL GETMEM('CLagT','FREE','REAL',ipCLagT,nConf*nState)
           CALL GETMEM('EigT ','FREE','REAL',ipEigT ,nAshT**2)
@@ -2041,7 +2042,8 @@ C    *              2.0D+00,Work(ipWRK1),nOrbI,DPT2(iSQ),nOrbI,
 C
         !! explicit derivative of the effective Hamiltonian
         !! dfpq/da = d/da(C_{mu p} C_{nu q} f_{mu nu})
-        !!         = f_{mu nu}^a + (C_{mu m} U_{mp} C_{nu q} + C_{mu p} C_{nu m} U_{mq}) * f_{mu nu}
+        !!         = f_{mu nu}^a + (C_{mu m} U_{mp} C_{nu q}
+        !!                       + C_{mu p} C_{nu m} U_{mq}) * f_{mu nu}
         !!         = f_{mu nu}^a + U_{mp} f_{mq} + U_{mq} f_{pm}
         !! U_{pq}  = f_{pm} df_{qm} + f_{mp} df_{mq}
 C       Call SQUARE(Work(LFIMO+iSQ-1),Work(ipWRK1),1,nOrbI,nOrbI)

@@ -93,7 +93,8 @@ C       call molcas_Open(LuGamma,RealName(1:lRealName))
       !! the third argument is used wrongly, but should be no problem
 
       !! D_{mu nu} := DPT2AO
-      !! FPT2AO = ((mu nu|rho sigma)-(mu rho|nu sigma)/4-(mu sigma|nu rho)/4)*D_{rho sigma}
+      !! FPT2AO = ((mu nu|rho sigma)-(mu rho|nu sigma)/4
+      !!          -(mu sigma|nu rho)/4)*D_{rho sigma}
       isymi = 1
       isymj = 1
       isyma = 1
@@ -127,7 +128,8 @@ C
       !! It will be used in drvg1.f etc for gradient.
 C     write(6,*) "1"
 C     write(6,*) "lugamma = ", lugamma
-C     Call DaName_MF(LuGamma,'GAMMA') !! MP2: DaName_MF_MA, MRCI: DaName_MF
+C     !! MP2: DaName_MF_MA, MRCI: DaName_MF
+C     Call DaName_MF(LuGamma,'GAMMA')
 C     iDisk = 0
 C     write(6,*) "2"
 C     write(6,*) "nbast = ", nbast
@@ -618,7 +620,8 @@ C     write(6,*) "b"
       If (nBasKL.eq.0) Return
 C     write(6,*) "c"
 C
-      IF (KEEPI+KEEPJ+KEEPK+KEEPL.NE.0) Return ! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
+      ! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
+      IF (KEEPI+KEEPJ+KEEPK+KEEPL.NE.0) Return
 C     write(6,*) "d"
       IF (nAuxI+nAuxJ+nAuxK+nAuxL.EQ.0) Return ! frozen orbitals
 C     write(6,*) "e"
@@ -665,11 +668,13 @@ C           FLT(ISF)=FLT(ISF)+TEMP
             !! (mu j|rho sigma) = sum_{nu} C_{nu j} (mu nu|rho sigma)
 
             !! L_{mu i} = T_{ij}^{mu nu} * (mu rho | j sigma)
-            !!          = T_{ij}^{rho sigma} * C_{nu j} * (mu rho | nu sigma)
+            !!          = T_{ij}^{rho sigma} * C_{nu j}
+            !!                 * (mu rho | nu sigma)
 
             !! IP = mu, JQ = rho
             !! X2 = (nu sigma) --> X2' = C_{nu j}*(nu sigma) = (j sigma)
-            !! T_{ij}^{rho sigma} * (j sigma) -> U_{i rho} for (mu, rho) pairs
+            !! T_{ij}^{rho sigma} * (j sigma)
+            !!   -> U_{i rho} for (mu, rho) pairs
 
             CALL SQUARE (X1(ISX),X2(1),1,nBasK,nBasL)
 C     write(6,*) "ip,jq= ",ip,jq
@@ -957,7 +962,8 @@ C     write(6,*) "nbaskl = ", nbaskl
       If (nBasKL.eq.0) Return
 C
 C     write(6,*) "keep=",keepi,keepj,keepk,keepl
-      IF (KEEPI+KEEPJ+KEEPK+KEEPL.NE.0) Return ! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
+      ! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
+      IF (KEEPI+KEEPJ+KEEPK+KEEPL.NE.0) Return
 C     write(6,*) "nAux=",nAuxi,nAuxj,nAuxk,nAuxl
       IF (nAuxI+nAuxJ+nAuxK+nAuxL.EQ.0) Return ! frozen orbitals
 C
@@ -1073,7 +1079,8 @@ C
             !! In 1), HT_{i mu,P} = C_{mu a}*(ia|P)
             !! In 2), L_{i mu} = HT_{i nu,P} * (mu nu|P)
             !! Then, L_{pi} = C_{mu p} * L_{i mu}^T
-            !! Transpose is done in VVVO_Drv2, and C_{mu p} is in OLagVVVO
+            !! Transpose is done in VVVO_Drv2,
+            !! and C_{mu p} is in OLagVVVO
             !! IA, IS, AA, AS
 C
             !! 1) Half back-transformation of Bra and Ket density
@@ -1128,7 +1135,7 @@ C
      *                          CMO(1,1+nIshI),nBasI,
      *                  1.0D+00,Work(ipHTVec+nIshI+nAshI),nOrbI)
 C
-            !! 2) (strange) reduced form -> squared AO vector (mu nu|iVec)
+            !! 2) (strange) reduced form -> squared AO (mu nu|iVec)
             jVref = 1 !! only for iSwap=1
             lscr  = nBasI*(nBasI+1)/2
 C           lscr  = INFVEC(iVec,2,iSym)

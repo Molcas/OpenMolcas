@@ -53,14 +53,20 @@ C     END DO
      *        ipCLag,ipOLag,ipSLag,ipWLag,
      *        nCLag,nOLag,nSLag,nWLag,
      *        nBasTr,nBasSq
-      INTEGER idSDMat !! maybe the dimension can be defined with 11 not 13, but tentatively 13
+      !! maybe the dimension can be defined with 11 not 13,
+      !! but tentatively 13
+      INTEGER idSDMat
       COMMON /CASPT2_GRAD/ ipDPT2,ipDPT2C,ipDPT2AO,ipDPT2CAO,
      *                     ipCLag,ipOLag,ipSLag,ipWLag,
      *                     nCLag,nOLag,nSLag,nWLag,
      *                     nBasTr,nBasSq,
 C    *                     idSDMat(8,MXCASE)
      *                     idSDMat(8,13)
-      INTEGER, PARAMETER :: LuPT2    = 17 !! For MCLR
-      INTEGER, PARAMETER :: LuGAMMA  = 60 !! For ERI derivatives in ALASKA
-      INTEGER, PARAMETER :: LuCMOPT2 = 61 !! For back-transformation in ALASKA
-      INTEGER, PARAMETER :: LuSTD    = 62 !! For derivative of S and T in full CASPT2
+      !! For MCLR
+      INTEGER, PARAMETER :: LuPT2    = 17
+      !! For ERI derivatives in ALASKA
+      INTEGER, PARAMETER :: LuGAMMA  = 60
+      !! For back-transformation in ALASKA
+      INTEGER, PARAMETER :: LuCMOPT2 = 61
+      !! For derivative of S and T in full CASPT2
+      INTEGER, PARAMETER :: LuSTD    = 62
