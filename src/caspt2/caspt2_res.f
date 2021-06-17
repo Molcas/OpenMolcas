@@ -28,7 +28,8 @@ C
       !!    diagonal CASPT2, compute the lambda directly.
 C
 C     write(6,*) "in CASPT2_res"
-      If (MAXIT.ne.0) THEN !  .and. (SHIFT.NE.0.0D+00.or.SHIFTI.ne.0.0D+00)) Then
+      If (MAXIT.ne.0) THEN
+C          .and. (SHIFT.NE.0.0D+00.or.SHIFTI.ne.0.0D+00)) Then
         iRHS2  = 7
       End If
 C
@@ -115,7 +116,8 @@ C
       !! IVECR is also not needed
       !! IVECX is needed, so use a different array
       !! IVECC and IVECC2 are later transformed
-      If (MAXIT.ne.0) THEN !  .and. SHIFT.NE.0.0D+00.or.SHIFTI.ne.0.0D+00) Then
+      If (MAXIT.ne.0) THEN
+C          .and. SHIFT.NE.0.0D+00.or.SHIFTI.ne.0.0D+00) Then
       SAV=SHIFT
       SAVI=SHIFTI
       SHIFT=0.0d0
