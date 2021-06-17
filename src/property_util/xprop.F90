@@ -8,10 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Xprop(short, ifallorb,                                 &
-     &                 nirrep,nbas,ntotv,vec,ntoto,occ,thrs,            &
-     &                 ntotd,opel,                                      &
-     &                 out)
+subroutine Xprop(short,ifallorb,nirrep,nbas,ntotv,vec,ntoto,occ,thrs,ntotd,opel,out)
 !***********************************************************************
 !                                                                      *
 !     Purpose: the calculation of the average value of an operator,    *
@@ -67,88 +64,88 @@
 ! - Enable properties to be printed for all orbitals                   *
 ! (including virtuals) and not weighted by occupation numbers          *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      logical short, ifallorb
-      dimension nbas(0:nirrep-1),vec(1:ntotv),                          &
-     &          occ(1:ntoto),opel(1:ntotd),out(1:ntoto)
-!
-      if (short) then
-        icount=1
-        sum=DDOT_(ntotd,vec,1,opel,1)
-        Out(1) = Sum
-      else if (.Not.ifallorb) then
-        ndim2=0
-        do 1 i=0,nirrep-1
-          ndim2=ndim2+nbas(i)**2
-    1   continue
-!
-        iadv=0
-        iado=0
-        iadout=0
-        jCount = 1
-        do 199 i=0,nirrep-1
-        do 200 iv=1,nbas(i)
-          iado=iado+1
-          iadout=iadout+1
-          sum=0.0d+00
-          icount=jCount
-          do 201 iv1=1,nbas(i)
-            do 202 iv2=1,iv1-1
-              sum=sum+2.0d+00*vec(iadv+iv1)*vec(iadv+iv2)*opel(icount)
-              icount=icount+1
-  202       continue
-            sum=sum+vec(iadv+iv1)*vec(iadv+iv1)*opel(icount)
-            icount=icount+1
-  201     continue
-          out(iadout)=occ(iado)*sum
-          iadv=iadv+nbas(i)
-  200   continue
-        jCount = jCount + nBas(i)*(nBas(i)+1)/2
-  199   continue
-      else if (ifallorb) then
-        ndim2=0
-        do 2 i=0,nirrep-1
-          ndim2=ndim2+nbas(i)**2
-    2   continue
-!
-        iadv=0
-        iado=0
-        iadout=0
-        jCount = 1
-        do 195 i=0,nirrep-1
-        do 196 iv=1,nbas(i)
-          iado=iado+1
-          iadout=iadout+1
-          sum=0.0d+00
-          icount=jCount
-          do 197 iv1=1,nbas(i)
-            do 198 iv2=1,iv1-1
-              sum=sum+2.0d+00*vec(iadv+iv1)*vec(iadv+iv2)*opel(icount)
-              icount=icount+1
-  198       continue
-            sum=sum+vec(iadv+iv1)*vec(iadv+iv1)*opel(icount)
-            icount=icount+1
-  197     continue
-          out(iadout)=sum
-          iadv=iadv+nbas(i)
-  196   continue
-        jCount = jCount + nBas(i)*(nBas(i)+1)/2
-  195   continue
-      endif
-!
-!     if (short) then
-!       write (*,'(3x,a,f18.10)') 'Total = ', out(1)
-!     else
-!       ii=0
-!       do 2 i=0,nirrep-1
-!         write (*,'(1x,a,i2)') 'Irrep No.',i
-!         write (*,'(5(3x,i3,i3,f18.10))')
-!    &    (j,out(ii+j),j=1,nbas(i))
-!         ii=ii+nbas(i)
-!   2   continue
-!     endif
-!
-      Return
+
+implicit real*8(A-H,O-Z)
+logical short, ifallorb
+dimension nbas(0:nirrep-1), vec(1:ntotv), occ(1:ntoto), opel(1:ntotd), out(1:ntoto)
+
+if (short) then
+  icount = 1
+  sum = DDOT_(ntotd,vec,1,opel,1)
+  Out(1) = Sum
+else if (.not. ifallorb) then
+  ndim2 = 0
+  do i=0,nirrep-1
+    ndim2 = ndim2+nbas(i)**2
+  end do
+
+  iadv = 0
+  iado = 0
+  iadout = 0
+  jCount = 1
+  do i=0,nirrep-1
+    do iv=1,nbas(i)
+      iado = iado+1
+      iadout = iadout+1
+      sum = 0.0d+00
+      icount = jCount
+      do iv1=1,nbas(i)
+        do iv2=1,iv1-1
+          sum = sum+2.0d+00*vec(iadv+iv1)*vec(iadv+iv2)*opel(icount)
+          icount = icount+1
+        end do
+        sum = sum+vec(iadv+iv1)*vec(iadv+iv1)*opel(icount)
+        icount = icount+1
+      end do
+      out(iadout) = occ(iado)*sum
+      iadv = iadv+nbas(i)
+    end do
+    jCount = jCount+nBas(i)*(nBas(i)+1)/2
+  end do
+else if (ifallorb) then
+  ndim2 = 0
+  do i=0,nirrep-1
+    ndim2 = ndim2+nbas(i)**2
+  end do
+
+  iadv = 0
+  iado = 0
+  iadout = 0
+  jCount = 1
+  do i=0,nirrep-1
+    do iv=1,nbas(i)
+      iado = iado+1
+      iadout = iadout+1
+      sum = 0.0d+00
+      icount = jCount
+      do iv1=1,nbas(i)
+        do iv2=1,iv1-1
+          sum = sum+2.0d+00*vec(iadv+iv1)*vec(iadv+iv2)*opel(icount)
+          icount = icount+1
+        end do
+        sum = sum+vec(iadv+iv1)*vec(iadv+iv1)*opel(icount)
+        icount = icount+1
+      end do
+      out(iadout) = sum
+      iadv = iadv+nbas(i)
+    end do
+    jCount = jCount+nBas(i)*(nBas(i)+1)/2
+  end do
+end if
+
+!if (short) then
+!  write(6,'(3x,a,f18.10)') 'Total = ',out(1)
+!else
+!  ii = 0
+!  do i=0,nirrep-1
+!    write(6,'(1x,a,i2)') 'Irrep No.',i
+!    write(6,'(5(3x,i3,i3,f18.10))') (j,out(ii+j),j=1,nbas(i))
+!    ii = ii+nbas(i)
+!  end do
+!end if
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_real(thrs)
-      End
+if (.false.) call Unused_real(thrs)
+
+end subroutine Xprop

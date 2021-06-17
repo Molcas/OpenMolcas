@@ -9,36 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine fileorb(filein,fileout)
+subroutine orb2tpstr(NSYM,NB,NF,NI,N1,N2,N3,NS,ND,TYPESTRING)
 
-character*(*) filein
-character*(*) fileout
-character*256 tmp
-logical Exist
+implicit none
+integer :: NSYM, NB(NSYM)
+integer :: NF(*), NI(*), N1(*), N2(*), N3(*), NS(*), ND(*)
+character :: typestring(*)
+integer :: iSym, iStart
 
-if (index(filein,'/') /= 0) then
-  fileout = filein
-  goto 100
-end if
-tmp = ' '
-call getenvf('MOLCAS_SUBMIT_DIR',tmp)
-if (tmp /= ' ') then
-  fileout = trim(tmp)//'/'//filein
-  !write(6,*) 'vv',fileout
-  call f_inquire(fileout,Exist)
-  if (Exist) goto 100
-end if
-fileout = filein
-call f_inquire(fileout,Exist)
-if (.not. Exist) then
-  tmp = 'file '//trim(fileout)//' not found'
-  call WarningMessage(2,tmp)
-  call Quit_OnUserError()
-end if
-100 continue
-!write(6,*) 'INPORB file=',fileout
-!call fcopy(trim(fileout),'INPORB')
+iStart = 1
+do isym=1,nsym
+  call orb2tpstr_sym(NF(iSym),NI(iSym),N1(iSym),N2(iSym),N3(iSym),NS(iSym),ND(iSym),TYPESTRING(iStart))
+  iStart = iStart+nB(iSym)
+end do
 
-return
-
-end subroutine fileorb
+end subroutine orb2tpstr

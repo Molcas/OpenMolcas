@@ -11,7 +11,8 @@
 ! Copyright (C) 2000, Per-Olof Widmark                                 *
 !               2017, Ignacio Fdez. Galvan                             *
 !***********************************************************************
-      Real*8 Function dxNuclearMass(Z,A,Rc,Opt)
+
+real*8 function dxNuclearMass(Z,A,Rc,Opt)
 !***********************************************************************
 !                                                                      *
 ! Routine: dxNuclearMass                                               *
@@ -35,65 +36,67 @@
 ! Opt - Options. Input.                                                *
 !                                                                      *
 !***********************************************************************
-      Use Isotopes
-      Implicit None
+
+use Isotopes
+
+implicit none
 #include "proputil.fh"
 #include "constants2.fh"
 !----------------------------------------------------------------------*
 ! Parameters.                                                          *
 !----------------------------------------------------------------------*
-      Integer    StopOnWarning
-      Parameter (StopOnWarning=_OPT_STOP_ON_WARNING_)
-      Integer    StopOnError
-      Parameter (StopOnError=_OPT_STOP_ON_ERROR_)
+integer StopOnWarning
+parameter(StopOnWarning=_OPT_STOP_ON_WARNING_)
+integer StopOnError
+parameter(StopOnError=_OPT_STOP_ON_ERROR_)
 !----------------------------------------------------------------------*
 ! Dummy parameters.                                                    *
 !----------------------------------------------------------------------*
-      Integer Z
-      Integer A
-      Integer Rc
-      Integer Opt
+integer Z
+integer A
+integer Rc
+integer Opt
 !----------------------------------------------------------------------*
 ! Local variables.                                                     *
 !----------------------------------------------------------------------*
-      Real*8  Coef(7)
-      Data    Coef/1.00781360D0,1.00866184D0,0.01685183D0,0.01928950D0, &
-     &             0.00075636D0,0.10146129D0,0.02449108D0/
-      Save    Coef
-      Real*8  t
+real*8 Coef(7)
+data Coef/1.00781360d0,1.00866184d0,0.01685183d0,0.01928950d0,0.00075636d0,0.10146129d0,0.02449108d0/
+save Coef
+real*8 t
+
 !----------------------------------------------------------------------*
 ! Search table.                                                        *
 !----------------------------------------------------------------------*
-      dxNuclearMass=NuclideMass(Z,A)
+dxNuclearMass = NuclideMass(Z,A)
 !----------------------------------------------------------------------*
 ! Optionally use the semi-empirical mass formula.                      *
 !----------------------------------------------------------------------*
-      If(dxNuclearMass.lt.0.0d0) Then
-         Write(6,'(a)') '***'
-         Write(6,'(a)') '*** dxNuclearMass: warning'
-         Write(6,'(2a,2i6)') '*** semi empirical mass formula used for',&
-     &              ' nuclei (Z,A)=',Z,A
-         Write(6,'(a)') '***'
-         If(iAnd(StopOnWarning,Opt).ne.0) Call Quit_OnUserError
-         t=0.0d0
-         t=t+Coef(1)*Z
-         t=t+Coef(2)*(A-Z)
-         t=t-Coef(3)*A
-         t=t+Coef(4)*A**(2.0d0/3.0d0)
-         t=t+Coef(5)*Z*(Z-1)/Dble(A)**(1.0d0/3.0d0)
-         t=t+Coef(6)*(Z-0.5d0*A)**2/Dble(A)
-         If( mod(Z,2).eq.0 .and. mod(A,2).eq.0 ) Then
-            t=t-Coef(7)/Dble(A)**(0.75)
-         End If
-         If( mod(Z+1,2).eq.0 .and. mod(A,2).eq.0 ) Then
-            t=t+Coef(7)/Dble(A)**(0.75)
-         End If
-         dxNuclearMass=uToau*t
-      End If
+if (dxNuclearMass < 0.0d0) then
+  write(6,'(a)') '***'
+  write(6,'(a)') '*** dxNuclearMass: warning'
+  write(6,'(a,2i6)') '*** semi empirical mass formula used for nuclei (Z,A)=',Z,A
+  write(6,'(a)') '***'
+  if (iand(StopOnWarning,Opt) /= 0) call Quit_OnUserError()
+  t = 0.0d0
+  t = t+Coef(1)*Z
+  t = t+Coef(2)*(A-Z)
+  t = t-Coef(3)*A
+  t = t+Coef(4)*A**(2.0d0/3.0d0)
+  t = t+Coef(5)*Z*(Z-1)/dble(A)**(1.0d0/3.0d0)
+  t = t+Coef(6)*(Z-0.5d0*A)**2/dble(A)
+  if ((mod(Z,2) == 0) .and. (mod(A,2) == 0)) then
+    t = t-Coef(7)/dble(A)**(0.75)
+  end if
+  if ((mod(Z,2) == 1) .and. (mod(A,2) == 0)) then
+    t = t+Coef(7)/dble(A)**(0.75)
+  end if
+  dxNuclearMass = uToau*t
+end if
 !----------------------------------------------------------------------*
 ! Done.                                                                *
 !----------------------------------------------------------------------*
-      Return
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(Rc)
-      End
+if (.false.) call Unused_integer(Rc)
+
+end function dxNuclearMass

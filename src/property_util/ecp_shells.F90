@@ -8,125 +8,128 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine ECP_shells(iAtmNr,List)
+
+subroutine ECP_shells(iAtmNr,List)
+
 #include "itmax.fh"
-      Integer List(0:iTabMx)
+integer List(0:iTabMx)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call ICopy(iTabMx+1,[0],0,List,1)
+call ICopy(iTabMx+1,[0],0,List,1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Dummy
-      If (iAtmNr.eq.0) Then
-         list(0)=0
-         list(1)=0
-         list(2)=0
-         list(3)=0
+if (iAtmNr == 0) then
+  list(0) = 0
+  list(1) = 0
+  list(2) = 0
+  list(3) = 0
 ! H-He
-      Else If((iAtmNr.gt.2) .and. (iAtmNr.le.4)) Then
-         list(0)=1
-         list(1)=0
-         list(2)=0
-         list(3)=0
-      Else If(iAtmNr.le.10) Then
-         list(0)=1
-         list(1)=1
-         list(2)=0
-         list(3)=0
-      Else If(iAtmNr.le.12) Then
-         list(0)=1
-         list(1)=0
-         list(2)=0
-         list(3)=0
-      Else If(iAtmNr.le.18) Then
-         list(0)=1
-         list(1)=1
-         list(2)=0
-         list(3)=0
-      Else If(iAtmNr.le.20) Then
-         list(0)=1
-         list(1)=0
-         list(2)=0
-         list(3)=0
-      Else If(iAtmNr.le.30) Then
-         list(0)=1
-         list(1)=0
-         list(2)=1
-         list(3)=0
-      Else If(iAtmNr.le.36) Then
-         list(0)=1
-         list(1)=1
-         list(2)=1
-         list(3)=0
-      Else If(iAtmNr.le.38) Then
-         list(0)=1
-         list(1)=0
-         list(2)=0
-         list(3)=0
-      Else If(iAtmNr.le.48) Then
-         list(0)=1
-         list(1)=0
-         list(2)=1
-         list(3)=0
-      Else If(iAtmNr.le.54) Then
-         list(0)=1
-         list(1)=1
-         list(2)=1
-         list(3)=0
-      Else If(iAtmNr.le.56) Then
-         list(0)=1
-         list(1)=0
-         list(2)=0
-         list(3)=0
-      Else If(iAtmNr.le.70) Then
-         list(0)=1
-         list(1)=0
-         list(2)=0
-         list(3)=1
-      Else If(iAtmNr.le.80) Then
-         list(0)=1
-         list(1)=0
-         list(2)=1
-         list(3)=1
-      Else If(iAtmNr.le.86) Then
-         list(0)=1
-         list(1)=1
-         list(2)=1
-         list(3)=1
-      Else If(iAtmNr.le.88) Then
-         list(0)=1
-         list(1)=0
-         list(2)=0
-         list(3)=0
-      Else If(iAtmNr.le.102) Then
-         list(0)=1
-         list(1)=0
-         list(2)=0
-         list(3)=1
-      Else If(iAtmNr.le.112) Then
-         list(0)=1
-         list(1)=0
-         list(2)=1
-         list(3)=1
-      Else If(iAtmNr.le.118) Then
-         list(0)=1
-         list(1)=1
-         list(2)=1
-         list(3)=1
-      Else If(iAtmNr.le.120) Then
-         list(0)=1
-         list(1)=0
-         list(2)=0
-         list(3)=0
-      Else
-          Write (6,*) 'ECP_shells can not handle atom numbers beyond'   &
-     &               //' 112.'
-          Call Abend()
-      EndIf
+else if ((iAtmNr > 2) .and. (iAtmNr <= 4)) then
+  list(0) = 1
+  list(1) = 0
+  list(2) = 0
+  list(3) = 0
+else if (iAtmNr <= 10) then
+  list(0) = 1
+  list(1) = 1
+  list(2) = 0
+  list(3) = 0
+else if (iAtmNr <= 12) then
+  list(0) = 1
+  list(1) = 0
+  list(2) = 0
+  list(3) = 0
+else if (iAtmNr <= 18) then
+  list(0) = 1
+  list(1) = 1
+  list(2) = 0
+  list(3) = 0
+else if (iAtmNr <= 20) then
+  list(0) = 1
+  list(1) = 0
+  list(2) = 0
+  list(3) = 0
+else if (iAtmNr <= 30) then
+  list(0) = 1
+  list(1) = 0
+  list(2) = 1
+  list(3) = 0
+else if (iAtmNr <= 36) then
+  list(0) = 1
+  list(1) = 1
+  list(2) = 1
+  list(3) = 0
+else if (iAtmNr <= 38) then
+  list(0) = 1
+  list(1) = 0
+  list(2) = 0
+  list(3) = 0
+else if (iAtmNr <= 48) then
+  list(0) = 1
+  list(1) = 0
+  list(2) = 1
+  list(3) = 0
+else if (iAtmNr <= 54) then
+  list(0) = 1
+  list(1) = 1
+  list(2) = 1
+  list(3) = 0
+else if (iAtmNr <= 56) then
+  list(0) = 1
+  list(1) = 0
+  list(2) = 0
+  list(3) = 0
+else if (iAtmNr <= 70) then
+  list(0) = 1
+  list(1) = 0
+  list(2) = 0
+  list(3) = 1
+else if (iAtmNr <= 80) then
+  list(0) = 1
+  list(1) = 0
+  list(2) = 1
+  list(3) = 1
+else if (iAtmNr <= 86) then
+  list(0) = 1
+  list(1) = 1
+  list(2) = 1
+  list(3) = 1
+else if (iAtmNr <= 88) then
+  list(0) = 1
+  list(1) = 0
+  list(2) = 0
+  list(3) = 0
+else if (iAtmNr <= 102) then
+  list(0) = 1
+  list(1) = 0
+  list(2) = 0
+  list(3) = 1
+else if (iAtmNr <= 112) then
+  list(0) = 1
+  list(1) = 0
+  list(2) = 1
+  list(3) = 1
+else if (iAtmNr <= 118) then
+  list(0) = 1
+  list(1) = 1
+  list(2) = 1
+  list(3) = 1
+else if (iAtmNr <= 120) then
+  list(0) = 1
+  list(1) = 0
+  list(2) = 0
+  list(3) = 0
+else
+  write(6,*) 'ECP_shells can not handle atom numbers beyond 112.'
+  call Abend()
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+return
+
+end subroutine ECP_Shells

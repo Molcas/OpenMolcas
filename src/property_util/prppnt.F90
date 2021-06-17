@@ -8,7 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Module PrpPnt
-      Real*8, Allocatable :: Den(:), Vec(:), Occ(:)
-      Integer  nDen, nVec, nOcc
-      End Module
+
+module PrpPnt
+
+real*8, allocatable :: Den(:), Vec(:), Occ(:)
+integer nDen, nVec, nOcc
+
+end module PrpPnt

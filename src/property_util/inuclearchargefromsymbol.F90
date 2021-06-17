@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2000, Per-Olof Widmark                                 *
 !***********************************************************************
-      Integer Function iNuclearChargeFromSymbol(Symbol)
+
+function iNuclearChargeFromSymbol(Symbol)
 !***********************************************************************
 !                                                                      *
 ! Routine: iNuclearChargeFromSymbol                                    *
@@ -29,35 +30,36 @@
 ! Parameters:                                                          *
 !                                                                      *
 !***********************************************************************
-      Implicit None
+
+implicit none
+integer iNuclearChargeFromSymbol
 !----------------------------------------------------------------------*
 ! Dummy parameters.                                                    *
 !----------------------------------------------------------------------*
-      Character*(*) Symbol
+character*(*) Symbol
 !----------------------------------------------------------------------*
 ! Local variables.                                                     *
 !----------------------------------------------------------------------*
-      Integer  Z
-      Integer  Opt
-      Integer  Rc
+integer Z
+integer Opt
+integer Rc
 !----------------------------------------------------------------------*
 ! External references                                                  *
 !----------------------------------------------------------------------*
-      Integer   ixNuclearChargeFromSymbol
-      External  ixNuclearChargeFromSymbol
+integer ixNuclearChargeFromSymbol
+external ixNuclearChargeFromSymbol
+
+Opt = 0
+Rc = 0
+Z = ixNuclearChargeFromSymbol(Symbol,Rc,Opt)
+if (Rc /= 0) then
+  call SysAbendMsg('inuclearchargefromsymbol','Fail to get nuclear charge',' ')
+end if
 !----------------------------------------------------------------------*
-!                                                                      *
+! Done                                                                 *
 !----------------------------------------------------------------------*
-      Opt=0
-      Rc=0
-      Z=ixNuclearChargeFromSymbol(Symbol,Rc,Opt)
-      If(Rc.ne.0) Then
-      Call SysAbendMsg('inuclearchargefromsymbol',                      &
-     & 'Fail to get nuclear charge',' ')
-      End If
-!----------------------------------------------------------------------*
-!                                                                      *
-!----------------------------------------------------------------------*
-      iNuclearChargeFromSymbol=Z
-      Return
-      End
+iNuclearChargeFromSymbol = Z
+
+return
+
+end function iNuclearChargeFromSymbol

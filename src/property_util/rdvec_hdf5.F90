@@ -29,97 +29,99 @@
 !> @param[out] Ene      Orbital energies
 !> @param[out] Ind      Orbital type indices
 !***********************************************************************
-      Subroutine RdVec_HDF5(fileid,Label,nSym,nBas,CMO,Occ,Ene,Ind)
+
+subroutine RdVec_HDF5(fileid,Label,nSym,nBas,CMO,Occ,Ene,Ind)
+
 #ifdef _HDF5_
-      Use mh5, Only: mh5_exists_dset, mh5_fetch_dset
+use mh5, only: mh5_exists_dset, mh5_fetch_dset
 #endif
-      Implicit None
-      Integer, Intent(In) :: fileid,nSym,nBas(nSym)
-      Character(Len=*), Intent(In) :: Label
-      Real*8, Dimension(*) :: CMO,Occ,Ene
-      Integer, Dimension(*) :: Ind
+
+implicit none
+integer, intent(In) :: fileid, nSym, nBas(nSym)
+character(Len=*), intent(In) :: Label
+real*8, dimension(*) :: CMO, Occ, Ene
+integer, dimension(*) :: Ind
 #ifdef _HDF5_
 #include "stdalloc.fh"
-      Integer :: Beta,nB
-      Character(Len=128) :: DataSet,su,sl
-      Character(Len=1), Allocatable :: typestring(:)
+integer :: Beta, nB
+character(Len=128) :: DataSet, su, sl
+character(Len=1), allocatable :: typestring(:)
 
-      Beta=0
-      su=''
-      sl=''
-      If (Index(Label,'A').gt.0) Then
-        Beta=-1
-        su='ALPHA_'
-        sl='alpha '
-      End If
-      If (Index(Label,'B').gt.0) Then
-        If (Beta.ne.0) Then
-          Write(6,*)
-          Call AbEnd
-        End If
-        Beta=1
-        su='BETA_'
-        sl='beta '
-      End If
+Beta = 0
+su = ''
+sl = ''
+if (index(Label,'A') > 0) then
+  Beta = -1
+  su = 'ALPHA_'
+  sl = 'alpha '
+end if
+if (index(Label,'B') > 0) then
+  if (Beta /= 0) then
+    write(6,*)
+    call AbEnd()
+  end if
+  Beta = 1
+  su = 'BETA_'
+  sl = 'beta '
+end if
 
-      If (Index(Label,'E').gt.0) Then
-        DataSet='MO_'//Trim(su)//'ENERGIES'
-        If (mh5_exists_dset(fileid,DataSet)) Then
-          Call mh5_fetch_dset(fileid,DataSet,Ene)
-        Else
-          Write(6,*) 'The HDF5 file does not contain '//                &
-     &               Trim(sl)//'MO energies.'
-          Call AbEnd()
-        End If
-      End If
+if (index(Label,'E') > 0) then
+  DataSet = 'MO_'//trim(su)//'ENERGIES'
+  if (mh5_exists_dset(fileid,DataSet)) then
+    call mh5_fetch_dset(fileid,DataSet,Ene)
+  else
+    write(6,*) 'The HDF5 file does not contain '//trim(sl)//'MO energies.'
+    call AbEnd()
+  end if
+end if
 
-      If (Index(Label,'O').gt.0) Then
-        DataSet='MO_'//Trim(su)//'OCCUPATIONS'
-        If (mh5_exists_dset(fileid,DataSet)) Then
-          Call mh5_fetch_dset(fileid,DataSet,Occ)
-        Else
-          Write(6,*) 'The HDF5 file does not contain '//                &
-     &               Trim(sl)//'MO occupations.'
-          Call AbEnd()
-        End If
-      End If
+if (index(Label,'O') > 0) then
+  DataSet = 'MO_'//trim(su)//'OCCUPATIONS'
+  if (mh5_exists_dset(fileid,DataSet)) then
+    call mh5_fetch_dset(fileid,DataSet,Occ)
+  else
+    write(6,*) 'The HDF5 file does not contain '//trim(sl)//'MO occupations.'
+    call AbEnd()
+  end if
+end if
 
-      If (Index(Label,'C').gt.0) Then
-        DataSet='MO_'//Trim(su)//'VECTORS'
-        If (mh5_exists_dset(fileid,DataSet)) Then
-          Call mh5_fetch_dset(fileid,DataSet,CMO)
-        Else
-          Write(6,*) 'The HDF5 file does not contain '//                &
-     &               Trim(sl)//'MO coefficients.'
-          Call AbEnd()
-        End If
-      End If
+if (index(Label,'C') > 0) then
+  DataSet = 'MO_'//trim(su)//'VECTORS'
+  if (mh5_exists_dset(fileid,DataSet)) then
+    call mh5_fetch_dset(fileid,DataSet,CMO)
+  else
+    write(6,*) 'The HDF5 file does not contain '//trim(sl)//'MO coefficients.'
+    call AbEnd()
+  end if
+end if
 
-      If (Index(Label,'I').gt.0) Then
-        nB = Sum(nBas)
-        Call mma_allocate(typestring,nB)
-        DataSet='MO_'//Trim(su)//'TYPEINDICES'
-        If (mh5_exists_dset(fileid,DataSet)) Then
-          Call mh5_fetch_dset(fileid,DataSet,typestring)
-          Call tpstr2tpidx(typestring,Ind,nB)
-        End If
-        Call mma_deallocate(typestring)
-      End If
+if (index(Label,'I') > 0) then
+  nB = sum(nBas)
+  call mma_allocate(typestring,nB)
+  DataSet = 'MO_'//trim(su)//'TYPEINDICES'
+  if (mh5_exists_dset(fileid,DataSet)) then
+    call mh5_fetch_dset(fileid,DataSet,typestring)
+    call tpstr2tpidx(typestring,Ind,nB)
+  end if
+  call mma_deallocate(typestring)
+end if
 
 #else
-      Call WarningMessage(2,'Calling RdVec_HDF5, but HDF5 is disabled')
-      Call AbEnd()
-      Return
+call WarningMessage(2,'Calling RdVec_HDF5, but HDF5 is disabled')
+call AbEnd()
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(fileid)
-         Call Unused_character(Label)
-         Call Unused_integer(nSym)
-         Call Unused_integer_array(nBas)
-         Call Unused_real_array(CMO)
-         Call Unused_real_array(Occ)
-         Call Unused_real_array(Ene)
-         Call Unused_integer_array(Ind)
-      End If
+if (.false.) then
+  call Unused_integer(fileid)
+  call Unused_character(Label)
+  call Unused_integer(nSym)
+  call Unused_integer_array(nBas)
+  call Unused_real_array(CMO)
+  call Unused_real_array(Occ)
+  call Unused_real_array(Ene)
+  call Unused_integer_array(Ind)
+end if
 #endif
-      End Subroutine RdVec_HDF5
+
+end subroutine RdVec_HDF5

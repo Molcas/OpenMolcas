@@ -8,371 +8,336 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE PRIMO(Header,PrOcc,PrEne,ThrOcc,ThrEne,                &
-     &                 nSym,nBas,nOrb,Name,Ene,Occ,CMO,iPrForm)
-!
+
+subroutine PRIMO(Header,PrOcc,PrEne,ThrOcc,ThrEne,nSym,nBas,nOrb,Name,Ene,Occ,CMO,iPrForm)
 !***********************************************************************
 !                                                                      *
-!     Purpose: print a set of orbitals                                 *
+! Purpose: print a set of orbitals                                     *
 !                                                                      *
-!     Calling parameters:                                              *
-!     Header : Header line which is printed together with the          *
-!              section title                                           *
-!     nSym   : number of irreducible representations                   *
-!     nOrb   : Total number of orbitals per irred. rep.                *
-!     nBas   : Number of basis functions per irred. rep.               *
-!     Name   : Center and function type label per basis function       *
-!     Ene    : Orbital Energies                                        *
-!     CMO    : Orbital coefficients                                    *
-!     Occ    : Orbital Occupations                                     *
-!     PrEne  : Switch to turn printing of orbital Energies ON/OFF      *
-!     PrOcc  : Switch to turn printing of orbital Occupatios ON/OFF    *
-!     ThrOcc : Threshold for Occupation number to be printed           *
-!              Orbitals with Occupation number less than ThrOcc are    *
-!              not printed                                             *
-!     ThrEne : Threshold for orbitals Energies to be printed           *
-!              Orbitals with Energies larger than ThrEne are           *
-!              not printed                                             *
-!     iPrForm: print level: -1 - Old way, 0- None, 1-list, 2-Short,    *
-!              3-long                                                  *
+! Calling parameters:                                                  *
+! Header : Header line which is printed together with the              *
+!          section title                                               *
+! nSym   : number of irreducible representations                       *
+! nOrb   : Total number of orbitals per irred. rep.                    *
+! nBas   : Number of basis functions per irred. rep.                   *
+! Name   : Center and function type label per basis function           *
+! Ene    : Orbital Energies                                            *
+! CMO    : Orbital coefficients                                        *
+! Occ    : Orbital Occupations                                         *
+! PrEne  : Switch to turn printing of orbital Energies ON/OFF          *
+! PrOcc  : Switch to turn printing of orbital Occupatios ON/OFF        *
+! ThrOcc : Threshold for Occupation number to be printed               *
+!          Orbitals with Occupation number less than ThrOcc are        *
+!          not printed                                                 *
+! ThrEne : Threshold for orbitals Energies to be printed               *
+!          Orbitals with Energies larger than ThrEne are               *
+!          not printed                                                 *
+! iPrForm: print level: -1 - Old way, 0- None, 1-list, 2-Short,        *
+!          3-long                                                      *
 !                                                                      *
 !***********************************************************************
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
-!
 #include "Molcas.fh"
-      DIMENSION nBas(*),nOrb(*),Ene(*),CMO(*),Occ(*)
-      CHARACTER*(LENIN8) Name(*)
-      CHARACTER*(*) Header
-      CHARACTER*24 FMT0,FMT1,FMT2,LABEL0,LABEL1,LABEL2
-      Character*3 IrrepName(8)
-      Character*20 Fmt_s, Fmt_l, Fmt_f, Fmt
-      Character*180 Line
-      Parameter (Magic=5+1+LENIN8+1+6+3)
-      Character*(Magic) ChCMO
-      Character*4 Star(10)
-      Real*8 Shift(10)
-      LOGICAL PrEne,PrOcc, Large, Go, Debug, Header_Done
-      Logical Reduce_Prt
-      External Reduce_Prt
-      Character*(LENIN8) Clean_BName !14
-      External Clean_BName
-      Debug=.false.
+dimension nBas(*), nOrb(*), Ene(*), CMO(*), Occ(*)
+character*(LENIN8) Name(*)
+character*(*) Header
+character*24 FMT0, FMT1, FMT2, LABEL0, LABEL1, LABEL2
+character*3 IrrepName(8)
+character*20 Fmt_s, Fmt_l, Fmt_f, Fmt
+character*180 Line
+parameter(Magic=5+1+LENIN8+1+6+3)
+character*(Magic) ChCMO
+character*4 Star(10)
+real*8 Shift(10)
+logical PrEne, PrOcc, Large, Go, Debug, Header_Done
+logical Reduce_Prt
+external Reduce_Prt
+character*(LENIN8) Clean_BName !14
+external Clean_BName
+Debug = .false.
 #ifdef _DEBUGPRINT_
-      Debug=.true.
+Debug = .true.
 #endif
-!
+
+!                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
-      Do i=1,10
-         Star(i)=' '
-      End Do
-      iPL=iPrintLevel(-1)
-      If (Reduce_Prt().and.iPL.lt.3) iPL=0
-      If (iPL.le.1) Return
-!
-      If (iPrForm.eq.0) Return
-!
-!----------------------------------------------------------------------*
-!     Print Header                                                     *
-!----------------------------------------------------------------------*
-!
-!
-      Write(6,*)
-      Call CollapseOutput(1,'   Molecular orbitals:')
-      Write(6,'(6X,A)') '-------------------'
-      Write(6,*)
-      Write(6,'(6X,2A)') 'Title: ',trim(Header)
-!     Write(6,*)
-!     Write(6,*) 'test print out'
-!----------------------------------------------------------------------*
-!     Legend (general)                                                 *
-!----------------------------------------------------------------------*
-      If(iPrForm.ge.4) Then
-         Write (6,'(6X,A)') 'LEGEND'
-         Write (6,'(6X,A)') '============================'              &
-     &                    //'============================='             &
-     &                    //'============================'              &
-     &                    //'============================'
-         Write (6,'(6X,A)') 'A basis set label has the st'              &
-     &                    //'ructure "nl+m" or "nl-m" wher'             &
-     &                    //'e n is the principle quantum'              &
-     &                    //'number for atomic basis'
-         Write (6,'(6X,A)') 'functions (a star, "*", deno'              &
-     &                    //'tes a primitive, diffuse or a'             &
-     &                    //' polarization function), l d'              &
-     &                    //'enotes the angular quantum, '
-         Write (6,'(6X,A)') 'and m the magnetic quantum n'              &
-     &                    //'umber. The basis functions ar'             &
-     &                    //'e normally real Spherical ha'              &
-     &                    //'rmonics. For Cartesian type '
-         Write (6,'(6X,A)') 'basis functions we use the n'              &
-     &                    //'otation "ijk" to denote the '              &
-     &                    //'power of the x, y, and z com'              &
-     &                    //'ponent in the radial part.'
-         Write (6,'(6X,A)') 'For p-functions we always use'             &
-     &                    //' the notation px, py, and pz.'
-      End If
-!----------------------------------------------------------------------*
-!     Define standard output format                                    *
-!----------------------------------------------------------------------*
-      NCOLS=10
-      LABEL0='Orbital '
-      LABEL1='Energy  '
-      LABEL2='Occ. No.'
-      FMT0='(10X,A12,3X,10(I5,A,1X))'
-      FMT1='(10X,A12,2X,10F10.4)'
-      FMT2='(5X,I4,1X,A,10F10.4)'
-!
-!----------------------------------------------------------------------*
-!     Set up list of pointers                                          *
-!----------------------------------------------------------------------*
-!
-      ISX=1
-      ISB=1
-      ISCMO=1
-!
-!----------------------------------------------------------------------*
-!     Start loop over all irreducible representations                  *
-!----------------------------------------------------------------------*
-!
-      nTot=0
-      Do iSym = 1, nSym
-         nTot=nTot+nBas(iSym)
-      End Do
-      Large=.false.
-      if (iPrForm.eq.-1) Large=nTot.gt.256
-      if (iPrForm.eq.1)  Large=.false.
-      if (iPrForm.eq.2)  Large=.true.
-      if (iPrForm.eq.3)  Large=.false.
-      if (iPrForm.eq.4)  Large=.false.
-      Call Get_cArray('Irreps',IrrepName,24)
-!
-      Do 100 iSym=1,nSym
-        nB=nBas(iSym)
-        nO=nOrb(iSym)
-        If( nO.EQ.0 ) Go To 100
-!
-        Header_Done=.False.
-!
-!----------------------------------------------------------------------*
-!     Start loop over columns                                          *
-!----------------------------------------------------------------------*
-!
-        If (Large) Then
-           FMT_s='(I5,1X,A,A,F6.3,A)'
-           FMT_l='(I5,1X,A,A,F6.2,A)'
-           FMT_f='(I5,1X,A,A,F6.1,A)'
-!
-           Do iSO = 0, nO-1
-            If (PrEne.and.PrOcc) Then
-               Go = Ene(ISX+IsO).LE.ThrEne .AND. Occ(ISX+IsO).GE.ThrOcc
-            Else If (PrEne) Then
-               Go = Ene(ISX+IsO).LE.ThrEne
-            Else If (PrOcc) Then
-               Go = Occ(ISX+IsO).GE.ThrOcc
-            Else
-               Go = .False.
-            End If
-            If (Debug) Write (6,*) 'Go=',Go
-            If (Go) Then
-               If (.Not.Header_Done) Then
-                  Write(6,'(/6X,A,I2,A,A)')                             &
-     &                 'Molecular orbitals for symmetry species',iSym,  &
-     &                 ': ',IrrepName(iSym)
-                  Write (6,*)
-!
-!----------------------------------------------------------------------*
-!                 Start by listing the basis of this irrep             *
-!----------------------------------------------------------------------*
-!
-                  Write (6,*)
-                  Write (6,'(6X,A)') 'Basis set list:'
-                  nCol=Min((nB+9)/10,5)
-                  Inc=(nB+nCol-1)/nCol
-                  jSB=iSB-1
-                  Do iB = 1, Inc
-!t.t.;
-!                    Write (6,'(6X,5(I3,1X,A,15X))')
-                     Write (6,'(4X,5(I5,1X,A,9X))')                     &
-!t.t.; end
-     &               (jB,Clean_BName(Name(jSB+jB),LENIN),jB=iB, nB, Inc)
-                  End Do
-                  Write (6,*)
-!
-                  Write (6,*)
-                  Write (6,*)                                           &
-     &                 ' Index Energy  Occupation Coefficients ...'
-                  Write (6,*)
-                  Header_Done=.True.
-               End If
-!............. This will occupy the first 25 positions
-               If (PrEne) Then
-                  Energy=Ene(ISX+iSO)
-               Else
-                  Energy=Zero
-               End If
-               If (PrOcc) Then
-                  Occupation=Occ(ISX+iSO)
-               Else
-                  Occupation=Zero
-               End If
-               Write(Line,'(I5,2F10.4)') iSO+1,Energy,Occupation
-               If (Debug) Write (6,'(A,A)') 'Line=',Line
-               iPos=1
-               Cff_Mx=0.0D0
-               Do iB = 0, NB-1
-                  If (Abs(CMO(isCMO+iSO*nB+iB)).gt.Cff_Mx)              &
-     &               Cff_Mx=Abs(CMO(isCMO+iSO*nB+iB))
-               End Do
-               If (Debug) Write (6,*) 'Cff_Mx=',Cff_Mx
-               Do iB = 0, NB-1
-                  If (Debug) Write (6,*) ' iB=',iB
-                  If (Abs(CMO(isCMO+iSO*nB+iB)).ge.Cff_Mx*0.5D0) Then
-                     If (Debug) Write (6,*) ' Process iB=',iB
-                     If (Abs(CMO(isCMO+iSO*nB+iB)).ge.100.0D0) Then
-                        Fmt=Fmt_f
-                     Else If (Abs(CMO(isCMO+iSO*nB+iB)).ge.10.0D0) Then
-                        Fmt=Fmt_l
-                     Else
-                        Fmt=Fmt_s
-                     End If
-                     If (Debug) Write (6,*) ' Fmt=',Fmt
-                     Write (ChCMO,Fmt)                                  &
-     &                  iB+1,Clean_BName(Name(ISB+IB),LENIN),           &
-     &                  '(',CMO(isCMO+iSO*nB+iB),'), '
-                     If (Debug) Write (6,'(A)') ChCMO
-                     If (iPos.eq.1) Then
-                        Line(2+Magic:2+Magic*2-1)=ChCMO
-                        iPos=2
-                     Else If (iPos.eq.2) Then
-                        Line(2+Magic*2:2+Magic*3-1)=ChCMO
-                        iPos=3
-                     Else If (iPos.eq.3) Then
-                        Line(2+Magic*3:2+Magic*4-1)=ChCMO
-                        iPos=4
-                     Else If (iPos.eq.4) Then
-                        Line(2+Magic*4:2+Magic*5-1)=ChCMO
-                        iPos=1
-                        Write (6,'(A)') Line
-                        Line=' '
-                     End If
-                  End If
-               End Do
-               If (iPos.ne.1) Write (6,'(A)') Line
-               Write (6,*)
-            End If
-           End Do
-!
-        Else
-!
-        Do 110 ISO=0,NO-1,NCOLS
-          IEO=ISO+NCOLS-1
-          IEO=MIN((NO-1),IEO)
-          IEO2=IEO
+do i=1,10
+  Star(i) = ' '
+end do
+iPL = iPrintLevel(-1)
+if (Reduce_Prt() .and. (iPL < 3)) iPL = 0
+if (iPL <= 1) return
 
-!vv NAG
-!          Do IO=ISO,IEO2
-!            If (PrEne.and.PrOcc) Then
-!               If ( Ene(ISX+IO).GT.ThrEne  .OR.
-!     &              Occ(ISX+IO).LT.ThrOcc ) IEO=IEO-1
-!            Else If (PrEne) Then
-!               If ( Ene(ISX+IO).GT.ThrEne ) IEO=IEO-1
-!            Else If (PrOcc) Then
-!               If ( Occ(ISX+IO).LT.ThrOcc ) IEO=IEO-1
-!            End If
-!          End Do
+if (iPrForm == 0) return
 
-            If (PrEne.and.PrOcc) Then
-             Do IO=ISO,IEO2
-               If ( Ene(ISX+IO).GT.ThrEne  .OR.                         &
-     &              Occ(ISX+IO).LT.ThrOcc ) IEO=IEO-1
-             enddo
-            Else If (PrEne) Then
-             Do IO=ISO,IEO2
-               If ( Ene(ISX+IO).GT.ThrEne ) IEO=IEO-1
-             enddo
-            Else If (PrOcc) Then
-             Do IO=ISO,IEO2
-               If ( Occ(ISX+IO).LT.ThrOcc ) IEO=IEO-1
-             enddo
-            End If
-          If ( IEO.GE.ISO ) Then
-             If (.Not.Header_Done) Then
-                Write(6,'(/6X,A,I2,A,A)')                               &
-     &               'Molecular orbitals for symmetry species',iSym,    &
-     &               ': ',IrrepName(iSym)
-                Header_Done=.True.
-             End If
-             If (PrEne) Then
-                tmp=0.0D0
-                Do IO=ISO,IEO
-                   Shift(IO-ISO+1)=1.0D0
-                   tmp=Max(Abs(Ene(ISX+IO)),tmp)
-                End Do
-                If (tmp.gt.1.0D3) Then
-                   Write (6,*)
-                   Write (6,'(10X,A)') 'Some orbital energies have '//  &
-     &                   'been scaled by powers of 10, the power is '// &
-     &                   'written right after the orbital index'
-                   Write (6,*)
-                   Do IO=ISO,IEO
-                      tmp=Abs(Ene(ISX+IO))
-                      If (tmp.gt.1.0D3) Then
-                         tmp=tmp*1.0D-2
-                         itmp=INT(LOG10(tmp))
-                         Shift(IO-ISO+1)=10.0D0**itmp
-                         Write (Star(IO-ISO+1),'(A,I1,A)')              &
-     &                         ' (',itmp,')'
-                      Else
-                         Star(IO-ISO+1)='    '
-                      End If
-                   End Do
-                Else
-                   Do IO=ISO,IEO
-                      Star(IO-ISO+1)='    '
-                   End Do
-                End If
-             End If
-             Write(6,*)
-             Write(6,FMT0) LABEL0,(1+IO,Star(IO-ISO+1),IO=ISO,IEO)
-             IF ( PrEne ) Write(6,FMT1) LABEL1,                         &
-     &          (Ene(ISX+IO)/Shift(IO-ISO+1),IO=ISO,IEO)
-             IF ( PrOcc ) Write(6,FMT1) LABEL2,(Occ(ISX+IO),IO=ISO,IEO)
-             Write(6,*)
-             if(iPrForm.ne.1) then
-              Do IB=0,NB-1
-                Write(6,FMT2)                                           &
-     &            IB+1,Clean_BName(Name(ISB+IB),LENIN),                 &
-     &            (CMO(ISCMO+IO*NB+IB),IO=ISO,IEO)
-              End Do
-             endif
-           End If
-!
 !----------------------------------------------------------------------*
-!     End of loop over columns                                         *
+! Print Header                                                         *
 !----------------------------------------------------------------------*
-!
-110     CONTINUE
-        End If
-!
+
+write(6,*)
+call CollapseOutput(1,'   Molecular orbitals:')
+write(6,'(6X,A)') '-------------------'
+write(6,*)
+write(6,'(6X,2A)') 'Title: ',trim(Header)
+!write(6,*)
+!write(6,*) 'test print out'
 !----------------------------------------------------------------------*
-!     Update list of pointers                                          *
+! Legend (general)                                                     *
 !----------------------------------------------------------------------*
-!
-        ISX=ISX+NO
-        ISB=ISB+NB
-        ISCMO=ISCMO+NO*NB
-!
+if (iPrForm >= 4) then
+  write(6,'(6X,A)') 'LEGEND'
+  write(6,'(6X,A)') '============================================================================================================='
+  write(6,'(6X,A)') 'A basis set label has the structure "nl+m" or "nl-m" where n is the principal quantum number for atomic basis'
+  write(6,'(6X,A)') 'functions (a star, "*", denotes a primitive, diffuse or a polarization function), l denotes the angular,'
+  write(6,'(6X,A)') 'and m the magnetic quantum number. The basis functions are normally real Spherical harmonics. For Cartesian'
+  write(6,'(6X,A)') 'type basis functions we use the notation "ijk" to denote the power of the x, y, and z component in the radial'
+  write(6,'(6X,A)') 'part. For p-functions we always use the notation px, py, and pz.'
+end if
 !----------------------------------------------------------------------*
-!     End of loop over all irreducible representations                 *
+! Define standard output format                                        *
 !----------------------------------------------------------------------*
-!
-100   CONTINUE
-!
-      Call CollapseOutput(0,'   Molecular orbitals:')
-      Write (6,*)
-!
-      Return
-      End
+NCOLS = 10
+LABEL0 = 'Orbital '
+LABEL1 = 'Energy  '
+LABEL2 = 'Occ. No.'
+FMT0 = '(10X,A12,3X,10(I5,A,1X))'
+FMT1 = '(10X,A12,2X,10F10.4)'
+FMT2 = '(5X,I4,1X,A,10F10.4)'
+
+!----------------------------------------------------------------------*
+! Set up list of pointers                                              *
+!----------------------------------------------------------------------*
+
+ISX = 1
+ISB = 1
+ISCMO = 1
+
+!----------------------------------------------------------------------*
+! Start loop over all irreducible representations                      *
+!----------------------------------------------------------------------*
+
+nTot = 0
+do iSym=1,nSym
+  nTot = nTot+nBas(iSym)
+end do
+Large = .false.
+if (iPrForm == -1) Large = nTot > 256
+if (iPrForm == 1) Large = .false.
+if (iPrForm == 2) Large = .true.
+if (iPrForm == 3) Large = .false.
+if (iPrForm == 4) Large = .false.
+call Get_cArray('Irreps',IrrepName,24)
+
+do iSym=1,nSym
+  nB = nBas(iSym)
+  nO = nOrb(iSym)
+  if (nO == 0) Go To 100
+
+  Header_Done = .false.
+
+  !--------------------------------------------------------------------*
+  ! Start loop over columns                                            *
+  !--------------------------------------------------------------------*
+
+  if (Large) then
+    FMT_s = '(I5,1X,A,A,F6.3,A)'
+    FMT_l = '(I5,1X,A,A,F6.2,A)'
+    FMT_f = '(I5,1X,A,A,F6.1,A)'
+
+    do iSO=0,nO-1
+      if (PrEne .and. PrOcc) then
+        Go = (Ene(ISX+IsO) <= ThrEne) .and. (Occ(ISX+IsO) >= ThrOcc)
+      else if (PrEne) then
+        Go = Ene(ISX+IsO) <= ThrEne
+      else if (PrOcc) then
+        Go = Occ(ISX+IsO) >= ThrOcc
+      else
+        Go = .false.
+      end if
+      if (Debug) write(6,*) 'Go=',Go
+      if (Go) then
+        if (.not. Header_Done) then
+          write(6,'(/6X,A,I2,A,A)') 'Molecular orbitals for symmetry species',iSym,': ',IrrepName(iSym)
+          write(6,*)
+
+          !------------------------------------------------------------*
+          ! Start by listing the basis of this irrep                   *
+          !------------------------------------------------------------*
+
+          write(6,*)
+          write(6,'(6X,A)') 'Basis set list:'
+          nCol = min((nB+9)/10,5)
+          Inc = (nB+nCol-1)/nCol
+          jSB = iSB-1
+          do iB=1,Inc
+            write(6,'(4X,5(I5,1X,A,9X))') (jB,Clean_BName(Name(jSB+jB),LENIN),jB=iB,nB,Inc)
+          end do
+          write(6,*)
+
+          write(6,*)
+          write(6,*) ' Index Energy  Occupation Coefficients ...'
+          write(6,*)
+          Header_Done = .true.
+        end if
+        ! This will occupy the first 25 positions
+        if (PrEne) then
+          Energy = Ene(ISX+iSO)
+        else
+          Energy = Zero
+        end if
+        if (PrOcc) then
+          Occupation = Occ(ISX+iSO)
+        else
+          Occupation = Zero
+        end if
+        write(Line,'(I5,2F10.4)') iSO+1,Energy,Occupation
+        if (Debug) write(6,'(A,A)') 'Line=',Line
+        iPos = 1
+        Cff_Mx = 0.0d0
+        do iB=0,NB-1
+          if (abs(CMO(isCMO+iSO*nB+iB)) > Cff_Mx) Cff_Mx = abs(CMO(isCMO+iSO*nB+iB))
+        end do
+        if (Debug) write(6,*) 'Cff_Mx=',Cff_Mx
+        do iB=0,NB-1
+          if (Debug) write(6,*) ' iB=',iB
+          if (abs(CMO(isCMO+iSO*nB+iB)) >= Cff_Mx*0.5d0) then
+            if (Debug) write(6,*) ' Process iB=',iB
+            if (abs(CMO(isCMO+iSO*nB+iB)) >= 100.0d0) then
+              Fmt = Fmt_f
+            else if (abs(CMO(isCMO+iSO*nB+iB)) >= 10.0d0) then
+              Fmt = Fmt_l
+            else
+              Fmt = Fmt_s
+            end if
+            if (Debug) write(6,*) ' Fmt=',Fmt
+            write(ChCMO,Fmt) iB+1,Clean_BName(Name(ISB+IB),LENIN),'(',CMO(isCMO+iSO*nB+iB),'), '
+            if (Debug) write(6,'(A)') ChCMO
+            if (iPos == 1) then
+              Line(2+Magic:2+Magic*2-1) = ChCMO
+              iPos = 2
+            else if (iPos == 2) then
+              Line(2+Magic*2:2+Magic*3-1) = ChCMO
+              iPos = 3
+            else if (iPos == 3) then
+              Line(2+Magic*3:2+Magic*4-1) = ChCMO
+              iPos = 4
+            else if (iPos == 4) then
+              Line(2+Magic*4:2+Magic*5-1) = ChCMO
+              iPos = 1
+              write(6,'(A)') Line
+              Line = ' '
+            end if
+          end if
+        end do
+        if (iPos /= 1) write(6,'(A)') Line
+        write(6,*)
+      end if
+    end do
+
+  else
+
+    do ISO=0,NO-1,NCOLS
+      IEO = ISO+NCOLS-1
+      IEO = min((NO-1),IEO)
+      IEO2 = IEO
+
+      !vv NAG
+      !do IO=ISO,IEO2
+      !  if (PrEne .and. PrOcc) then
+      !    if ((Ene(ISX+IO) > ThrEne) .or. (Occ(ISX+IO) < ThrOcc)) IEO = IEO-1
+      !  else if (PrEne) Then
+      !    if (Ene(ISX+IO) > ThrEne ) IEO = IEO-1
+      !  else if (PrOcc) Then
+      !    if (Occ(ISX+IO) < ThrOcc ) IEO = IEO-1
+      !  end if
+      !end do
+
+      if (PrEne .and. PrOcc) then
+        do IO=ISO,IEO2
+          if ((Ene(ISX+IO) > ThrEne) .or. (Occ(ISX+IO) < ThrOcc)) IEO = IEO-1
+        end do
+      else if (PrEne) then
+        do IO=ISO,IEO2
+          if (Ene(ISX+IO) > ThrEne) IEO = IEO-1
+        end do
+      else if (PrOcc) then
+        do IO=ISO,IEO2
+          if (Occ(ISX+IO) < ThrOcc) IEO = IEO-1
+        end do
+      end if
+      if (IEO >= ISO) then
+        if (.not. Header_Done) then
+          write(6,'(/6X,A,I2,A,A)') 'Molecular orbitals for symmetry species',iSym,': ',IrrepName(iSym)
+          Header_Done = .true.
+        end if
+        if (PrEne) then
+          tmp = 0.0d0
+          do IO=ISO,IEO
+            Shift(IO-ISO+1) = 1.0d0
+            tmp = max(abs(Ene(ISX+IO)),tmp)
+          end do
+          if (tmp > 1.0d3) then
+            write(6,*)
+            write(6,'(10X,A)') 'Some orbital energies have been scaled by powers of 10, the power is written right after the orbita&
+                               &l index'
+            write(6,*)
+            do IO=ISO,IEO
+              tmp = abs(Ene(ISX+IO))
+              if (tmp > 1.0d3) then
+                tmp = tmp*1.0D-2
+                itmp = int(log10(tmp))
+                Shift(IO-ISO+1) = 10.0d0**itmp
+                write(Star(IO-ISO+1),'(A,I1,A)') ' (',itmp,')'
+              else
+                Star(IO-ISO+1) = '    '
+              end if
+            end do
+          else
+            do IO=ISO,IEO
+              Star(IO-ISO+1) = '    '
+            end do
+          end if
+        end if
+        write(6,*)
+        write(6,FMT0) LABEL0,(1+IO,Star(IO-ISO+1),IO=ISO,IEO)
+        if (PrEne) write(6,FMT1) LABEL1,(Ene(ISX+IO)/Shift(IO-ISO+1),IO=ISO,IEO)
+        if (PrOcc) write(6,FMT1) LABEL2,(Occ(ISX+IO),IO=ISO,IEO)
+        write(6,*)
+        if (iPrForm /= 1) then
+          do IB=0,NB-1
+            write(6,FMT2) IB+1,Clean_BName(Name(ISB+IB),LENIN),(CMO(ISCMO+IO*NB+IB),IO=ISO,IEO)
+          end do
+        end if
+      end if
+
+      !----------------------------------------------------------------*
+      ! End of loop over columns                                       *
+      !----------------------------------------------------------------*
+
+    end do
+  end if
+
+  !--------------------------------------------------------------------*
+  ! Update list of pointers                                            *
+  !--------------------------------------------------------------------*
+
+  ISX = ISX+NO
+  ISB = ISB+NB
+  ISCMO = ISCMO+NO*NB
+
+  !--------------------------------------------------------------------*
+  ! End of loop over all irreducible representations                   *
+  !--------------------------------------------------------------------*
+
+100 continue
+end do
+
+call CollapseOutput(0,'   Molecular orbitals:')
+write(6,*)
+
+return
+
+end subroutine PRIMO

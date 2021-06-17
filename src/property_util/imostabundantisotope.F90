@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2000, Per-Olof Widmark                                 *
 !***********************************************************************
-      Integer Function iMostAbundantIsotope(Z)
+
+function iMostAbundantIsotope(Z)
 !***********************************************************************
 !                                                                      *
 ! Routine: iMostAbundantIsotope                                        *
@@ -32,34 +33,36 @@
 !      returned.                                                       *
 !                                                                      *
 !***********************************************************************
-      Implicit  None
+
+implicit none
+integer iMostAbundantIsotope
 !----------------------------------------------------------------------*
 ! Dummy parameters.                                                    *
 !----------------------------------------------------------------------*
-      Integer   Z
+integer Z
 !----------------------------------------------------------------------*
 ! Local variables.                                                     *
 !----------------------------------------------------------------------*
-      Integer   Rc
-      Integer   Opt
-      Integer   A
+integer Rc
+integer Opt
+integer A
 !----------------------------------------------------------------------*
 ! External references.                                                 *
 !----------------------------------------------------------------------*
-      Integer   ixMostAbundantIsotope
-      external  ixMostAbundantIsotope
-!----------------------------------------------------------------------*
-!                                                                      *
-!----------------------------------------------------------------------*
-      Rc=0
-      Opt=0
-      A=ixMostAbundantIsotope(Z,Rc,Opt)
-      If(Rc.ne.0) Then
-      Call SysAbendMsg('imostabundantisotope','Fail to get mass',' ')
-      End if
+integer ixMostAbundantIsotope
+external ixMostAbundantIsotope
+
+Rc = 0
+Opt = 0
+A = ixMostAbundantIsotope(Z,Rc,Opt)
+if (Rc /= 0) then
+  call SysAbendMsg('imostabundantisotope','Fail to get mass',' ')
+end if
 !----------------------------------------------------------------------*
 ! Done.                                                                *
 !----------------------------------------------------------------------*
-      iMostAbundantIsotope=A
-      Return
-      End
+iMostAbundantIsotope = A
+
+return
+
+end function iMostAbundantIsotope

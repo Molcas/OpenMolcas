@@ -11,8 +11,9 @@
 ! Copyright (C) 2000, Per-Olof Widmark                                 *
 !               2017, Ignacio Fdez. Galvan                             *
 !***********************************************************************
-      Integer Function ixMostAbundantIsotope(Z,Rc,Opt)
-#include "proputil.fh"
+
+function ixMostAbundantIsotope(Z,Rc,Opt)
+
 !***********************************************************************
 !                                                                      *
 ! Routine: ixMostAbundantIsotope                                       *
@@ -42,46 +43,53 @@
 ! Opt - Options.                                                       *
 !                                                                      *
 !***********************************************************************
-      Use isotopes, only: Initialize_Isotopes, ElementList, MaxAtomNum
-      Implicit None
+
+use isotopes, only: Initialize_Isotopes, ElementList, MaxAtomNum
+
+implicit none
+#include "proputil.fh"
+integer ixMostAbundantIsotope
 !----------------------------------------------------------------------*
 ! Parameters.                                                          *
 !----------------------------------------------------------------------*
-      Integer    StopOnError
-      Parameter (StopOnError=_OPT_STOP_ON_ERROR_)
+integer StopOnError
+parameter(StopOnError=_OPT_STOP_ON_ERROR_)
 !----------------------------------------------------------------------*
 ! Dummy parameters.                                                    *
 !----------------------------------------------------------------------*
-      Integer Z
-      Integer Rc
-      Integer Opt
+integer Z
+integer Rc
+integer Opt
 !----------------------------------------------------------------------*
 ! Local variables.                                                     *
 !----------------------------------------------------------------------*
-      Integer A
+integer A
+
 !----------------------------------------------------------------------*
 ! Compute A.                                                           *
 !----------------------------------------------------------------------*
-      Call Initialize_Isotopes()
-      If(Z.lt.0) Then
-         Write(6,'(a)') '***'
-         Write(6,'(a)') '*** ixMostAbundantIsotope: error'
-         Write(6,'(a)') '***    Charge less than zero!'
-         Write(6,'(a)') '***'
-         If(iAnd(Opt,StopOnError).ne.0) Call Quit_OnUserError
-         A=1
-      Else If(Z.eq.0) Then
-         A=1
-      Else If(Z.gt.MaxAtomNum) Then
-         A=176+Z
-      Else
-         A=ElementList(Z)%Isotopes(1)%A
-      End If
+call Initialize_Isotopes()
+if (Z < 0) then
+  write(6,'(a)') '***'
+  write(6,'(a)') '*** ixMostAbundantIsotope: error'
+  write(6,'(a)') '***    Charge less than zero!'
+  write(6,'(a)') '***'
+  if (iand(Opt,StopOnError) /= 0) call Quit_OnUserError()
+  A = 1
+else if (Z == 0) then
+  A = 1
+else if (Z > MaxAtomNum) then
+  A = 176+Z
+else
+  A = ElementList(Z)%Isotopes(1)%A
+end if
 !----------------------------------------------------------------------*
 ! Done.                                                                *
 !----------------------------------------------------------------------*
-      ixMostAbundantIsotope=A
-      Return
+ixMostAbundantIsotope = A
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(Rc)
-      End
+if (.false.) call Unused_integer(Rc)
+
+end function ixMostAbundantIsotope

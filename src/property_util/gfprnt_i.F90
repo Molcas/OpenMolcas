@@ -9,36 +9,32 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine fileorb(filein,fileout)
+subroutine GFPrnt_i(EVal,nDim)
 
-character*(*) filein
-character*(*) fileout
-character*256 tmp
-logical Exist
+implicit real*8(a-h,o-z)
+real*8 EVal(nDim)
+character*80 format, Line*120
 
-if (index(filein,'/') /= 0) then
-  fileout = filein
-  goto 100
-end if
-tmp = ' '
-call getenvf('MOLCAS_SUBMIT_DIR',tmp)
-if (tmp /= ' ') then
-  fileout = trim(tmp)//'/'//filein
-  !write(6,*) 'vv',fileout
-  call f_inquire(fileout,Exist)
-  if (Exist) goto 100
-end if
-fileout = filein
-call f_inquire(fileout,Exist)
-if (.not. Exist) then
-  tmp = 'file '//trim(fileout)//' not found'
-  call WarningMessage(2,tmp)
-  call Quit_OnUserError()
-end if
-100 continue
-!write(6,*) 'INPORB file=',fileout
-!call fcopy(trim(fileout),'INPORB')
+LUt = 6
+Inc = 6
+do iHarm=1,nDim,Inc
+  Jnc = min(Inc,nDim-iHarm+1)
+  write(format,'(A,I3,A)') '(5X,A10,1x,',Jnc,'I10)'
+  write(LUt,format) ' ',(i,i=iHarm,iHarm+Jnc-1)
+  write(LUt,*)
+
+  write(format,'(A,I3,A)') '(A12,1x,',Jnc,'F10.2)'
+  Line = ' '
+  write(Line,format) 'Freq.',(EVal(i),i=iHarm,iHarm+Jnc-1)
+  do i=1,120
+    if (Line(i:i) == '-') Line(i:i) = 'i'
+  end do
+  write(LUt,'(5X,A)') Line
+  write(LUt,*)
+
+  write(LUt,*)
+end do
 
 return
 
-end subroutine fileorb
+end subroutine GFPrnt_i

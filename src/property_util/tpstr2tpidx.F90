@@ -9,36 +9,29 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine fileorb(filein,fileout)
+subroutine tpstr2tpidx(TYPESTRING,TYPEINDEX,NB)
 
-character*(*) filein
-character*(*) fileout
-character*256 tmp
-logical Exist
+implicit none
+character :: TYPESTRING(*)
+integer :: TYPEINDEX(*), NB, i
 
-if (index(filein,'/') /= 0) then
-  fileout = filein
-  goto 100
-end if
-tmp = ' '
-call getenvf('MOLCAS_SUBMIT_DIR',tmp)
-if (tmp /= ' ') then
-  fileout = trim(tmp)//'/'//filein
-  !write(6,*) 'vv',fileout
-  call f_inquire(fileout,Exist)
-  if (Exist) goto 100
-end if
-fileout = filein
-call f_inquire(fileout,Exist)
-if (.not. Exist) then
-  tmp = 'file '//trim(fileout)//' not found'
-  call WarningMessage(2,tmp)
-  call Quit_OnUserError()
-end if
-100 continue
-!write(6,*) 'INPORB file=',fileout
-!call fcopy(trim(fileout),'INPORB')
+do i=1,NB
+  select case (TYPESTRING(i))
+    case ('F','f')
+      TYPEINDEX(i) = 1
+    case ('I','i')
+      TYPEINDEX(i) = 2
+    case ('1')
+      TYPEINDEX(i) = 3
+    case ('2')
+      TYPEINDEX(i) = 4
+    case ('3')
+      TYPEINDEX(i) = 5
+    case ('S','s')
+      TYPEINDEX(i) = 6
+    case ('D','d')
+      TYPEINDEX(i) = 7
+  end select
+end do
 
-return
-
-end subroutine fileorb
+end subroutine tpstr2tpidx

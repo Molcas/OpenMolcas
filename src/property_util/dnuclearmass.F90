@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2000, Per-Olof Widmark                                 *
 !***********************************************************************
-      Real*8 Function dNuclearMass(Z,A)
+
+function dNuclearMass(Z,A)
 !***********************************************************************
 !                                                                      *
 ! Routine: dNuclearMass                                                *
@@ -31,35 +32,37 @@
 ! A  - The number of nucleons for the isotope.                         *
 !                                                                      *
 !***********************************************************************
-      Implicit  None
+
+implicit none
+real*8 dNuclearMass
 !----------------------------------------------------------------------*
 ! Dummy parameters.                                                    *
 !----------------------------------------------------------------------*
-      Integer   Z
-      Integer   A
+integer Z
+integer A
 !----------------------------------------------------------------------*
 ! Local variables.                                                     *
 !----------------------------------------------------------------------*
-      Real*8    Mass
-      Integer   Rc
-      Integer   Opt
+real*8 Mass
+integer Rc
+integer Opt
 !----------------------------------------------------------------------*
 ! External references.                                                 *
 !----------------------------------------------------------------------*
-      Real*8    dxNuclearMass
-      External  dxNuclearMass
-!----------------------------------------------------------------------*
-!                                                                      *
-!----------------------------------------------------------------------*
-      Rc=0
-      Opt=0
-      Mass=dxNuclearMass(Z,A,Rc,Opt)
-      If(Rc.ne.0) Then
-         Call SysAbendMsg('dnuclearmass','fail to get mass',' ')
-      End If
+real*8 dxNuclearMass
+external dxNuclearMass
+
+Rc = 0
+Opt = 0
+Mass = dxNuclearMass(Z,A,Rc,Opt)
+if (Rc /= 0) then
+  call SysAbendMsg('dnuclearmass','fail to get mass',' ')
+end if
 !----------------------------------------------------------------------*
 ! Done.                                                                *
 !----------------------------------------------------------------------*
-      dNuclearMass=Mass
-      Return
-      End
+dNuclearMass = Mass
+
+return
+
+end function dNuclearMass

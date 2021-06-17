@@ -11,8 +11,8 @@
 ! Copyright (C) 2000, Per-Olof Widmark                                 *
 !               2017, Ignacio Fdez. Galvan                             *
 !***********************************************************************
-      Integer Function ixNuclearChargeFromSymbol(Symbol,Rc,Opt)
-#include "proputil.fh"
+
+function ixNuclearChargeFromSymbol(Symbol,Rc,Opt)
 !***********************************************************************
 !                                                                      *
 ! This function returns the nuclear charge of an atom based on the     *
@@ -26,55 +26,61 @@
 ! Modified: March 2017, Ignacio Fdez. Galvan (use periodic_table.fh)   *
 !                                                                      *
 !***********************************************************************
-      Implicit None
+
+implicit none
+#include "proputil.fh"
+integer ixNuclearChargeFromSymbol
 !----------------------------------------------------------------------*
 ! Parameters.                                                          *
 !----------------------------------------------------------------------*
-      Integer    StopOnError
-      Parameter (StopOnError=_OPT_STOP_ON_ERROR_)
+integer StopOnError
+parameter(StopOnError=_OPT_STOP_ON_ERROR_)
 !----------------------------------------------------------------------*
 ! Dummy parameters.                                                    *
 !----------------------------------------------------------------------*
-      Character*(*) Symbol
-      Integer Rc
-      Integer Opt
+character*(*) Symbol
+integer Rc
+integer Opt
 !----------------------------------------------------------------------*
 ! Local variables.                                                     *
 !----------------------------------------------------------------------*
 #include "periodic_table.fh"
-      Character*2 Sym1,Sym2
-      Integer Index
-      Integer i
+character*2 Sym1, Sym2
+integer Index
+integer i
 !----------------------------------------------------------------------*
 ! External references.                                                 *
 !----------------------------------------------------------------------*
-      External UpCase
+external UpCase
+
 !----------------------------------------------------------------------*
 ! Locate symbol in table.                                              *
 !----------------------------------------------------------------------*
-      Index=0
-      Sym1=AdjustL(Symbol)
-      Call UpCase(Sym1)
-      Do i=1,Num_Elem
-         Sym2=AdjustL(PTab(i))
-         Call UpCase(Sym2)
-         if(Sym1.eq.Sym2) Index=i
-      End Do
+Index = 0
+Sym1 = adjustl(Symbol)
+call UpCase(Sym1)
+do i=1,Num_Elem
+  Sym2 = adjustl(PTab(i))
+  call UpCase(Sym2)
+  if (Sym1 == Sym2) Index = i
+end do
 !----------------------------------------------------------------------*
 ! Are we successful.                                                   *
 !----------------------------------------------------------------------*
-      If(Index.eq.0) Then
-         Write(6,'(a)') '***'
-         Write(6,'(a)') '*** NuclearChargeBySymbol: error'
-         Write(6,'(2a)') '***    unknown atom: ',Symbol
-         Write(6,'(a)') '***'
-         If(iAnd(Opt,StopOnError).ne.0) Call Quit_OnUserError
-      End If
+if (Index == 0) then
+  write(6,'(a)') '***'
+  write(6,'(a)') '*** NuclearChargeBySymbol: error'
+  write(6,'(2a)') '***    unknown atom: ',Symbol
+  write(6,'(a)') '***'
+  if (iand(Opt,StopOnError) /= 0) call Quit_OnUserError()
+end if
 !----------------------------------------------------------------------*
-!                                                                      *
+! Done                                                                 *
 !----------------------------------------------------------------------*
-      ixNuclearChargeFromSymbol=Index
-      Return
+ixNuclearChargeFromSymbol = Index
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(Rc)
-      End
+if (.false.) call Unused_integer(Rc)
+
+end function ixNuclearChargeFromSymbol
