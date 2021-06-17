@@ -273,14 +273,10 @@ C     call abend()
       !! In fockgen.f, this is realized with DGeSub
       Do iS=1,nSym
         If (nbas(is).ne.0)
-     *  Call DGEadd(-1.0d+00,Work(ipK1-1+ipMat(is,is)),nBas(is),'T',
-     *              Work(ipK1-1+ipMat(is,is)),nBas(is),'N',
+     *  Call DGEadd(Work(ipK1-1+ipMat(is,is)),nBas(is),'N',
+     *              Work(ipK1-1+ipMat(is,is)),nBas(is),'T',
      *              Work(ipK2-1+ipMat(is,is)),nBas(is),
      *              nBas(is),nBas(is))
-C    *  Call DGEadd(Work(ipK1-1+ipMat(is,is)),nBas(is),'N',
-C    *              Work(ipK1-1+ipMat(is,is)),nBas(is),'T',
-C    *              Work(ipK2-1+ipMat(is,is)),nBas(is),
-C    *              nBas(is),nBas(is))
       End Do
       !! MO -> AO transformation ... why needed?
       Do iS=1,nSym
