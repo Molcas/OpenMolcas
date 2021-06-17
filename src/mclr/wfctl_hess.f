@@ -333,7 +333,7 @@ C         iDisp=iDisp+1
 *         (T1,T2,T3,T4,T5,T6,T7,Kappa1,CI1)
 *
           If (PT2) then
-             Call RHS_PT2(Work(ipTemp4),ipST)
+            Call RHS_PT2(Work(ipTemp4),ipST,Work(ipTemp4),Work(ipTemp4))
           Else
              kain=ipkap
 
