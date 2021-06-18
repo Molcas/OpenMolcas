@@ -66,11 +66,11 @@ C (1): Compute a representation of the operator PCAS*W1T*W2
       call dcopy_(nop2,[0.0d+00],0,trdop2,1)
       call dcopy_(nop3,[0.0d+00],0,trdop3,1)
       CALL MKWWOP(IVEC,JVEC,OP0,TRDOP1,NOP2,TRDOP2,NOP3,TRDOP3)
-        write(6,*) "trdop1"
-       call sqprt(trdop1,nasht)
-       call dscal_(nop2,easum,trdop2,1)
-        write(6,*) "trdop2"
-       call prtril(trdop2,nop1)
+C       write(6,*) "trdop1"
+C      call sqprt(trdop1,nasht)
+C      call dscal_(nop2,easum,trdop2,1)
+C       write(6,*) "trdop2"
+C      call prtril(trdop2,nop1)
 CTEST      WRITE(*,*)' TRDACT, back from MKWWOP.'
 CTEST      WRITE(*,*)' OP0:'
 CTEST      WRITE(*,'(1x,5f16.8)') OP0
@@ -96,8 +96,8 @@ CTEST      WRITE(*,*)' OP2:'
 CTEST      WRITE(*,'(1x,5f16.8)')(TRDOP2(I),I=1,NOP2)
 CTEST      WRITE(*,*)' OP3:'
 CTEST      WRITE(*,'(1x,5f16.8)')(TRDOP3(I),I=1,NOP3)
-        write(6,*) "trdop1 after modop"
-       call sqprt(trdop1,nasht)
+C       write(6,*) "trdop1 after modop"
+C      call sqprt(trdop1,nasht)
       NTMP=NCONF
       CALL MMA_ALLOCATE(TRDTMP,NTMP)
       CALL MMA_ALLOCATE(TRDCI,NCONF)
@@ -118,10 +118,10 @@ CTEST      WRITE(*,*)' Norm:',DNRM2_(NCONF,TRDCI,1)
       END IF
       CALL DCOPY_(NTMP,[0.0D0],0,TRDTMP,1)
       CALL HAM3(OP0,TRDOP1,NOP2,TRDOP2,NOP3,TRDOP3,LSYM,TRDCI,TRDTMP)
-        write(6,*) "ntmp = ", ntmp
-        do i = 1, ntmp
-          write(6,'(i3,f20.10)') i,trdtmp(i)
-        end do
+C       write(6,*) "ntmp = ", ntmp
+C       do i = 1, ntmp
+C         write(6,'(i3,f20.10)') i,trdtmp(i)
+C       end do
 CTEST      WRITE(*,*)' After HAM3, the wave function W(+)*W*(PSI0):'
 CTEST      CALL PRWF_CP2(LSYM,NCONF,TRDTMP,0.0D0)
 CTEST      WRITE(*,*)' Ovlp with CI:',DDOT_(NCONF,TRDCI,1,TRDTMP,1)

@@ -41,163 +41,95 @@ C
       Character*4096 RealName
 
       CALL QENTER('DENS')
-        CALL GETMEM('G1','ALLO','REAL',LG1,NG1)
-        CALL GETMEM('G2','ALLO','REAL',LG2,NG2)
-        CALL GETMEM('F1','ALLO','REAL',LF1,NG1)
-        CALL PT2_GET(NG1,' GAMMA1',WORK(LG1))
-        CALL PT2_GET(NG2,' GAMMA2',WORK(LG2))
-        CALL PT2_GET(NG1,' DELTA1',WORK(LF1))
-      !! CASPT2 is invariant with respect to rotations in active?
-      INVAR=.TRUE.
-      If (BSHIFT.NE.0.0D+00.OR.NRAS1T+NRAS3T.NE.0) INVAR=.FALSE.
-      !! ???
-      invar=.true.
-      if (bshift.ne.0.0d+00) invar=.false.
-      IF (.not.IFINVAR) INVAR = .FALSE.
-C     invar=.false.
 C
-      If (.not.INVAR .and. IPRGLB.GE.USUAL) Then
-        Write (6,*)
-        Write (6,'(3X,"This is a non-invariant CASPT2 calculation")')
-        If (BSHIFT.NE.0.0D+00)
-     *    Write (6,'(3X,"- IPEA shift is employed")')
-        If (NRAS1T+NRAS3T.ne.0)
-     *    Write (6,'(3X,"- RAS reference is employed")')
-        Write (6,'(3X,"A linear equation will be solved to obtain ",
-     *                "off-diagonal active density")')
-        Write (6,*)
-      End If
-C       do it = 1, nasht
-C       do iu = 1, nasht
-C       vvv = 0.0d+00
-C       do iv = 1, nasht
-C         vvv = vvv + work(lg2+it-1+nasht*(iu-1)
-C    *  +nasht**2*(iv-1)+nasht**3*(iv-1))*epsa(iv)
-C       end do
-C       write(6,'(2i3,3f20.10)') it,iu,vvv,work(lf1+it-1+nasht*(iu-1)),
-C    *   work(lg1+it-1+nasht*(iu-1))
-C       end do
-C       end do
-
-c       easum = 0.0d+00
-c       do it = 1, nasht
-c         easum = easum + epsa(it)*work(lg1+it-1+nasht*(it-1))
-c       end do
-c       write(6,*) "easum = ", easum
-c       do it = 1, nasht
-c       do iu = 1, nasht
-c         bvalue = 0.0d+00
-c         do iv = 1, nasht
-c           bvalue = bvalue + work(lg2+it-1+nasht*(iu-1)
-c    *    +nasht**2*(iv-1)+nasht**3*(iv-1))*epsa(iv)
-c         end do
-c         bvalue = bvalue - easum*work(lg1+it-1+nasht*(iu-1))
-c
-c         write(6,'(2i3,2f20.10)')
-c    *      it,iu,work(lg1+it-1+nasht*(iu-1)),bvalue
-c       end do
-c       end do
-        CALL GETMEM('G1','FREE','REAL',LG1,NG1)
-        CALL GETMEM('G2','FREE','REAL',LG2,NG2)
-        CALL GETMEM('F1','FREE','REAL',LF1,NG1)
-C     do icase = 1, 13
-C       write(6,*) "-------------"
-C       write(6,*) "icase  = ",icase
-C       write(6,*) "nasup  = ", nasup(1,icase)
-C       write(6,*) "nisup  = ", nisup(1,icase)
-C       write(6,*) "nindep = ", nindep(1,icase)
-C       write(6,*) "nexc   = ", nexc(1,icase)
-C       write(6,*) "nexces = ", nexces(1,icase)
-C     end do
+      IF (IFGRDT) THEN
+        !! CASPT2 is invariant with respect to rotations in active?
+        INVAR=.TRUE.
+        If (BSHIFT.NE.0.0d+00) INVAR=.FALSE.
+        IF (.not.IFINVAR)      INVAR=.FALSE.
+C
+        If (.not.INVAR .and. IPRGLB.GE.USUAL) Then
+          Write (6,*)
+          Write (6,'(3X,"This is a non-invariant CASPT2 calculation")')
+          If (BSHIFT.NE.0.0D+00)
+     *      Write (6,'(3X,"- IPEA shift is employed")')
+          Write (6,'(3X,"A linear equation will be solved to obtain ",
+     *                  "off-diagonal active density")')
+          Write (6,*)
+        End If
 C Compute total density matrix as symmetry-blocked array of
 C triangular matrices in DMAT. Size of a triangular submatrix is
 C  (NORB(ISYM)*(NORB(ISYM)+1))/2.
-      NDMAT=0
-      NDPT=0
-      nDPTAO=0
-      DO ISYM=1,NSYM
-        NO=NORB(ISYM)
-        nAO = nBas(iSym)
-        NDPT=NDPT+NO**2
-        NDMAT=NDMAT+(NO*(NO+1))/2
-        nDPTAO = nDPTAO + nAO**2
-      END DO
-      CALL DCOPY_(NDMAT,[0.0D0],0,DMAT,1)
+        NDMAT=0
+        NDPT=0
+        nDPTAO=0
+        DO ISYM=1,NSYM
+          NO=NORB(ISYM)
+          nAO = nBas(iSym)
+          NDPT=NDPT+NO**2
+          NDMAT=NDMAT+(NO*(NO+1))/2
+          nDPTAO = nDPTAO + nAO**2
+        END DO
+        CALL DCOPY_(NDMAT,[0.0D0],0,DMAT,1)
 C First, put in the reference density matrix.
-      IDMOFF=0
-      DO ISYM=1,NSYM
-        NI=NISH(ISYM)
-        NA=NASH(ISYM)
-        NO=NORB(ISYM)
-        DO II=1,NI
-          IDM=IDMOFF+(II*(II+1))/2
-          DMAT(IDM)=2.0D0
-        END DO
-        DO IT=1,NA
-          ITABS=NAES(ISYM)+IT
-          ITTOT=NI+IT
-          DO IU=1,IT
-            IUABS=NAES(ISYM)+IU
-            IUTOT=NI+IU
-            IDRF=(ITABS*(ITABS-1))/2+IUABS
-            IDM=IDMOFF+((ITTOT*(ITTOT-1))/2+IUTOT)
-            DMAT(IDM)=WORK(LDREF-1+IDRF)
+        IDMOFF=0
+        DO ISYM=1,NSYM
+          NI=NISH(ISYM)
+          NA=NASH(ISYM)
+          NO=NORB(ISYM)
+          DO II=1,NI
+            IDM=IDMOFF+(II*(II+1))/2
+            DMAT(IDM)=2.0D0
           END DO
+          DO IT=1,NA
+            ITABS=NAES(ISYM)+IT
+            ITTOT=NI+IT
+            DO IU=1,IT
+              IUABS=NAES(ISYM)+IU
+              IUTOT=NI+IU
+              IDRF=(ITABS*(ITABS-1))/2+IUABS
+              IDM=IDMOFF+((ITTOT*(ITTOT-1))/2+IUTOT)
+              DMAT(IDM)=WORK(LDREF-1+IDRF)
+            END DO
+          END DO
+           IDMOFF=IDMOFF+(NO*(NO+1))/2
         END DO
-         IDMOFF=IDMOFF+(NO*(NO+1))/2
-      END DO
-*     write(6,*)' DENS. Initial DMAT:'
-*     WRITE(*,'(1x,8f16.8)')(dmat(i),i=1,ndmat)
+*       write(6,*)' DENS. Initial DMAT:'
+*       WRITE(*,'(1x,8f16.8)')(dmat(i),i=1,ndmat)
 C Add the 1st and 2nd order density matrices:
-      CALL GETMEM('DPT','ALLO','REAL',LDPT,NDPT)
-      CALL GETMEM('DSUM','ALLO','REAL',LDSUM,NDPT)
-      CALL DCOPY_(NDPT,[0.0D0],0,WORK(LDSUM),1)
-
-C The 1st order contribution to the density matrix
-      CALL DCOPY_(NDPT,[0.0D0],0,WORK(LDPT),1)
-      !! working on H only now
-      !  CALL TRDNS1(IVEC,WORK(LDPT))
-      !  CALL DAXPY_(NDPT,1.0D00,WORK(LDPT),1,WORK(LDSUM),1)
-*     write(6,*)' DPT after TRDNS1.'
-*     WRITE(*,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)
-      CALL DCOPY_(NDPT,[0.0D0],0,WORK(LDPT),1)
-C
-C
-C
-      !! Modify the solution (T; amplitude), if the real- or imaginary-
-      !! shift is utilized. We need both the unmodified (T) and modified
-      !! (T+\lambda) amplitudes. \lambda can be obtained by solving the
-      !! CASPT2 equation, but it can alternatively obtained by a direct
-      !! summation only if CASPT2-D.
-      !! iVecX remains unchanged (iVecX = T)
-      !! iVecR will be 2\lambda
-      Call CASPT2_Res
-C
-C
-C
-      CALL TRDNS2D(IVEC,JVEC,WORK(LDPT),NDPT)
-      IF(IFDENS) THEN
-C The exact density matrix evaluation:
-C       CALL TRDTMP(WORK(LDPT))
-      ELSE
-C The approximate density matrix evaluation:
-C       CALL TRDNS2A(IVEC,IVEC,WORK(LDPT))
-      END IF
-      CALL DAXPY_(NDPT,1.0D00,WORK(LDPT),1,WORK(LDSUM),1)
-*     write(6,*)' DPT after TRDNS2D.'
-*     WRITE(*,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)
-      IF (MAXIT.NE.0) THEN
-        !! off-diagonal are ignored for CASPT2-D
+        CALL GETMEM('DPT','ALLO','REAL',LDPT,NDPT)
+        CALL GETMEM('DSUM','ALLO','REAL',LDSUM,NDPT)
+        CALL DCOPY_(NDPT,[0.0D0],0,WORK(LDSUM),1)
         CALL DCOPY_(NDPT,[0.0D0],0,WORK(LDPT),1)
-C       CALL TRDNS2O(IVEC,IVEC,WORK(LDPT))
-        CALL TRDNS2O(iVecX,iVecR,WORK(LDPT))
-        CALL DAXPY_(NDPT,1.0D00,WORK(LDPT),1,WORK(LDSUM),1)
-      END IF
-*     write(6,*)' DPT after TRDNS2O.'
-*     WRITE(*,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)
 C
-      !! for analytic gradient
-      IF (IFDENS) THEN
+C
+C
+        !! Modify the solution (T; amplitude), if the real- or
+        !! imaginary- shift is utilized. We need both the unmodified (T)
+        !! and modified (T+\lambda) amplitudes. \lambda can be obtained
+        !! by solving the CASPT2 equation, but it can alternatively
+        !! obtained by a direct summation only if CASPT2-D.
+        !! iVecX remains unchanged (iVecX = T)
+        !! iVecR will be 2\lambda
+        Call CASPT2_Res
+C
+C
+C
+        !! Diagonal part
+        CALL TRDNS2D(IVEC,JVEC,WORK(LDPT),NDPT)
+        CALL DAXPY_(NDPT,1.0D00,WORK(LDPT),1,WORK(LDSUM),1)
+*       write(6,*)' DPT after TRDNS2D.'
+*       WRITE(*,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)
+        !! Off-diagonal part, if full-CASPT2
+        IF (MAXIT.NE.0) THEN
+          !! off-diagonal are ignored for CASPT2-D
+          CALL DCOPY_(NDPT,[0.0D0],0,WORK(LDPT),1)
+          CALL TRDNS2O(iVecX,iVecR,WORK(LDPT))
+          CALL DAXPY_(NDPT,1.0D00,WORK(LDPT),1,WORK(LDSUM),1)
+        END IF
+*       write(6,*)' DPT after TRDNS2O.'
+*       WRITE(*,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)
+C
         IF (.not.IFSADREF.and.nState.ge.2) Then
           write(6,*)
      *      "Please add SADREF keyword in CASPT2 section",
@@ -307,6 +239,8 @@ C           Wgt  = Work(LDWgt+iState-1+nState*(iState-1))
 C       write(6,*) "state-averaged density matrix"
 C       call sqprt(work(iprdmsa),nasht)
 C
+C       ----- Construct configuration Lagrangian -----
+C
         !! For CI coefficient derivatives (CLag)
         !! Calculate the configuration Lagrangian
         !! Already transformed to natural (CASSCF) orbital basis
@@ -333,29 +267,23 @@ C
           !! The density of the independent pairs (off-diagonal blocks)
           !! should be determined by solving Z-vector, so these blocks
           !! should be removed...?
-        write(6,*) "removing DEPSA of off-diagonal blocks"
-        write(6,*) "before"
-        call sqprt(work(ipdepsa),nasht)
-          Do II = 1, nRAS1T
-            Do JJ = nRAS1T+1, nAshT
-              Work(ipDEPSA+II-1+nAshT*(JJ-1)) = 0.0D+00
-              Work(ipDEPSA+JJ-1+nAshT*(II-1)) = 0.0D+00
+          write(6,*) "removing DEPSA of off-diagonal blocks"
+          write(6,*) "before"
+          call sqprt(work(ipdepsa),nasht)
+            Do II = 1, nRAS1T
+              Do JJ = nRAS1T+1, nAshT
+                Work(ipDEPSA+II-1+nAshT*(JJ-1)) = 0.0D+00
+                Work(ipDEPSA+JJ-1+nAshT*(II-1)) = 0.0D+00
+              End Do
             End Do
-          End Do
-          Do II = nRAS1T+1, nRAS1T+nRAS2T
-            Do JJ = nRAS1T+nRAS2T+1, nAshT
-              Work(ipDEPSA+II-1+nAshT*(JJ-1)) = 0.0D+00
-              Work(ipDEPSA+JJ-1+nAshT*(II-1)) = 0.0D+00
+            Do II = nRAS1T+1, nRAS1T+nRAS2T
+              Do JJ = nRAS1T+nRAS2T+1, nAshT
+                Work(ipDEPSA+II-1+nAshT*(JJ-1)) = 0.0D+00
+                Work(ipDEPSA+JJ-1+nAshT*(II-1)) = 0.0D+00
+              End Do
             End Do
-          End Do
-        write(6,*) "after"
-        call sqprt(work(ipdepsa),nasht)
-C       work(ipdepsa+1-1+nasht*(1-1)) = -0.0010235084d+00
-C       work(ipdepsa+2-1+nasht*(2-1)) = -0.0005207568d+00
-C       work(ipdepsa+3-1+nasht*(3-1)) = -0.0001867875d+00
-C       work(ipdepsa+4-1+nasht*(4-1)) = -0.0000110703d+00
-C       work(ipclag+2-1) = 0.0002565628d+00
-C       work(ipclag+5-1) = 0.0004206981d+00
+          write(6,*) "after"
+          call sqprt(work(ipdepsa),nasht)
         End If
 C
         !! If CASPT2 energy is not invariant to rotations in active
@@ -369,29 +297,8 @@ C
           !! Clear
           Call DCopy_(nAshT**2,[0.0D+00],0,Work(ipDEPSA),1)
         End If
-C       call dscal_(25,2.0d+00,work(ipdepsa),1)
-C       write(6,*) "2*depsa"
-C       call sqprt(work(ipdepsa),5)
-C       call dscal_(25,0.5d+00,work(ipdepsa),1)
-
-          do i = 1, nasht
-          do j = 1, nasht
-C          if (i.eq.j) cycle
-C          work(ipdepsa+i-1+nasht*(j-1))= 0.0d+00
-          end do
-          end do
-C     work(ipdepsa+ 3-1) =  - 0.0001234d+00
-C     work(ipdepsa+ 4-1) =  - 0.0000048d+00
-C     work(ipdepsa+10-1) =  + 0.0001001d+00
-C     work(ipdepsa+11-1) =  - 0.0001234d+00
-C     work(ipdepsa+14-1) =  - 0.0001061d+00
-C     work(ipdepsa+16-1) =  - 0.0000048d+00
-C     work(ipdepsa+18-1) =  - 0.0001061d+00
-C     work(ipdepsa+22-1) =  + 0.0001001d+00
-        !! asdf test
-        !***************************
-C       Call CLagFinal(Work(ipCLag),Work(ipSLag))
-        !***************************
+C       write(6,*) "depsad"
+C       call sqprt(work(ipdepsa),nasht)
 C
         !! Transform the quasi-variational amplitude (T+\lambda/2?)
         !! in SR (iVecX) to C (iVecC2)
@@ -406,45 +313,6 @@ C         Call DGemm_('N','t',nAshT,nAshT,nAshT,
 C    *                1.0D+00,Work(ipdptcao),nAshT,Work(ipTrfL),nBasT,
 C    *                0.0D+00,Work(ipDEPSA),nAshT)
 C
-C     scal= 1.0d+00
-C     work(ipdepsa+ 3-1) = work(ipdepsa+ 3-1)*1 + 0.0000612d+00*scal
-C     work(ipdepsa+ 4-1) = work(ipdepsa+ 4-1)*1 + 0.0005517d+00*scal
-C     work(ipdepsa+10-1) = work(ipdepsa+10-1)*1 + 0.0000000d+00*scal
-C     work(ipdepsa+11-1) = work(ipdepsa+11-1)*1 + 0.0000612d+00*scal
-C     work(ipdepsa+14-1) = work(ipdepsa+14-1)*1 + 0.0052315d+00*scal
-C     work(ipdepsa+16-1) = work(ipdepsa+16-1)*1 + 0.0005517d+00*scal
-C     work(ipdepsa+18-1) = work(ipdepsa+18-1)*1 + 0.0052315d+00*scal
-C     work(ipdepsa+22-1) = work(ipdepsa+22-1)*1 + 0.0000000d+00*scal
-      ! do i = 1,5
-      !   do j = 1,5
-      !   val = 0.0d+00
-      !   if ((i.eq.1.and.j.eq.3) .or. (i.eq.3.and.j.eq.1)) then
-      !     val = -0.0001224565d+00
-      !     val =  0.0000240d+00
-      !     val = -0.0000612d+00 - 0.0000675d+00
-      !   else if ((i.eq.1.and.j.eq.4) .or. (i.eq.4.and.j.eq.1)) then
-      !     val = -0.0011033251d+00
-      !     val =  0.0006138d+00
-      !     val = -0.0005517d+00 - 0.0005327d+00
-      !   else if ((i.eq.2.and.j.eq.5) .or. (i.eq.5.and.j.eq.2)) then
-C     !     val =  0.0006955589d+00
-      !     val = -0.0004582d+00
-      !     val =  0.0001074d+00
-      !   else if ((i.eq.3.and.j.eq.4) .or. (i.eq.4.and.j.eq.3)) then
-      !     val = -0.0104630916d+00
-      !     val =  0.0056357d+00
-      !     val = -0.0052315d+00 - 0.0052882d+00
-      !   else
-C     !     cycle
-      !   end if
-C     !   val=val*0.5d+00
-C     !   work(ipdepsa+i-1+5*(j-1)) = work(ipdepsa+i-1+5*(j-1))*0
-C    *!    + val
-      !   end do
-      ! end do
-C     ! call sqprt(work(ipdepsa),5)
-C
-C          call dcopy_(144,[0.0d+00],0,work(ipdpt),1)
 C       !! Just add DEPSA to DPT2
         Call AddDEPSA(Work(ipDPT),Work(ipDEPSA))
         !! Just transform the density in MO to AO
@@ -455,28 +323,8 @@ C       CALL GETMEM('DEPSA ','FREE','REAL',ipDEPSA,nAshT)
         !! Save the AO density
         !! ... write
 C
-        !! Construct orbital Lagrangian that comes from the derivative
-        !! of ERIs. Also, do the Fock transformation of the DPT2 and
-        !! DPT2C densities.
-C       CALL OLagNS(Work(ipDPTC),Work(ipDPTAO),Work(ipDPTCAO),
-C    *              Work(ipFPTAO),Work(ipFPTCAO))
-C        write(6,*) "olag"
-C       call sqprt(work(ipolag),12)
-C     write(6,*) "OLag"
-C     do i = 1, 144
-C       write(6,'(i3,f20.10)') i,work(ipolag+i-1)
-C     end do
-C        write(6,*) "dpt2ao ref"
-C       call sqprt(work(ipdptao),12)
-C        write(6,*) "fpt2ao ref"
-C       call sqprt(work(ipfptao),12)
-
-C       call dcopy_(144,[0.0d+00],0,work(ipolag),1)
-C       call dcopy_(nbast**2,[0.0d+00],0,work(ipfptao),1)
-C       Call DCopy_(nDPTAO,[0.0d+00],0,Work(ipDPTC),1)
+C       ----- Construct orbital Lagrangian -----
 C
-C
-C       write(6,*) "nfrot = ", nfrot
         If (nFroT.ne.0) Then
           !! If frozen orbitals exist, we need to obtain
           !! electron-repulsion integrals with frozen orbitals to
@@ -492,206 +340,9 @@ C         call sqprt(work(ipdia),12)
 C         call sqprt(work(ipdi),12)
         End If
 C
-C
-C
-        If (.false.) then
-C
-C
-C
-C         call dcopy_(144,[0.0d+00],0,work(ipdpt),1)
-        do i = 6, 10
-          do j = 6, 10
-          val = 0.0d+00
-          if ((i.eq.6.and.j.eq.8) .or. (i.eq.8.and.j.eq.6)) then
-            val = -0.0000264d+00
-            val =  0.0004270d+00
-            val =  0.0022536d+00
-            val = -0.0001392d+00
-
-C           val = -0.0010462839d+00 !! g-T
-            val = -0.0002482178d+00 !! g-N
-            val = -0.0004752616d+00 !! after all
-            val =  0.0000762193d+00 !! after all+depsa
-C        val=-0.0001224d+00
-         val=-0.0001916426d+00
-          else if ((i.eq.6.and.j.eq.9) .or. (i.eq.9.and.j.eq.6)) then
-            val = -0.0040663d+00
-            val = -0.0040513d+00
-            val = -0.0056767d+00
-            val = -0.0056977d+00
-
-C           val = -0.0013117791d+00 !! g-T
-            val = -0.0013208468d+00 !! g-N
-            val = -0.0010672239d+00 !! after all
-            val =  0.0000107227d+00 !! after all+depsa
-C        val=-0.0001472d+00
-         val=-0.0010467525d+00
-          else if ((i.eq.7.and.j.eq.10) .or. (i.eq.10.and.j.eq.7)) then
-            val = -0.0131419d+00
-            val = -0.0139400d+00
-            val = -0.0211634d+00
-            val = -0.0199518d+00
-
-C           val = -0.0125402532d+00 !! g-T
-            val = -0.0128318974d+00 !! g-N
-            val = -0.0118058046d+00 !! after all
-            val = -0.0000747859d+00 !! after all+depsa
-C        val=-0.0125014d+00
-         val=-0.0120205513d+00
-          else if ((i.eq.8.and.j.eq.9) .or. (i.eq.9.and.j.eq.8)) then
-            val =  0.0167787d+00
-            val =  0.0160932d+00
-            val =  0.0306999d+00
-            val =  0.0320075d+00
-
-C           val = -0.0212510757d+00 !! g-T
-            val = -0.0212531499d+00 !! g-N
-            val = -0.0207823583d+00 !! after all
-            val = -0.0000278912d+00 !! after all+depsa
-C        val=-0.0100415d+00
-         val=-0.0206811594d+00
-          else
-            cycle
-          end if
-C         if (i.lt.j) val=-val
-        if (.false.) then
-           val = -0.25d+00*val
-C         work(ipdpt+i-1+12*(j-1)) = work(ipdpt+i-1+12*(j-1))
-C    *     + val
-C         work(ipdpt+j-1+12*(i-1)) = work(ipdpt+j-1+12*(i-1))
-C    *     + val
-C         work(ldsum+i-1+12*(j-1)) = work(ldsum+i-1+12*(j-1))
-C    *     + val
-C         work(ldsum+j-1+12*(i-1)) = work(ldsum+j-1+12*(i-1))
-C    *     + val
-C      work(iprdmeig+i-6+5*(j-6))=work(iprdmeig+i-6+5*(j-6)) + val
-C      work(iprdmeig+j-6+5*(i-6))=work(iprdmeig+j-6+5*(i-6)) + val
-        else
-           val = -0.5d+00*val
-C         work(ipdpt+i-1+12*(j-1)) = work(ipdpt+i-1+12*(j-1))*0
-C    *     + val
-C         work(ipdpt+j-1+12*(i-1)) = work(ipdpt+j-1+12*(i-1))*0
-C    *     + val
-C         work(ldsum+i-1+12*(j-1)) = work(ldsum+i-1+12*(j-1))*0
-C    *     + val
-C         work(ldsum+j-1+12*(i-1)) = work(ldsum+j-1+12*(i-1))*0
-C    *     + val
-        end if
-          end do
-        end do
-        call dcopy_(25,[0.0d+00],0,Work(ipWRK1),1)
-        work(ipwrk1+3-1+5*(1-1)) = 0.0000043d+00
-        work(ipwrk1+1-1+5*(3-1)) = 0.0000043d+00
-        work(ipwrk1+4-1+5*(1-1)) =-0.0001063d+00
-        work(ipwrk1+1-1+5*(4-1)) =-0.0001063d+00
-        work(ipwrk1+5-1+5*(2-1)) =-0.0002388d+00
-        work(ipwrk1+2-1+5*(5-1)) =-0.0002388d+00
-        work(ipwrk1+4-1+5*(3-1)) = 0.0014233d+00
-        work(ipwrk1+3-1+5*(4-1)) = 0.0014233d+00
-        work(ipwrk1+3-1+5*(1-1)) = 0.0000239518d+00
-        work(ipwrk1+1-1+5*(3-1)) = 0.0000239518d+00
-        work(ipwrk1+4-1+5*(1-1)) = 0.0006138144d+00
-        work(ipwrk1+1-1+5*(4-1)) = 0.0006138144d+00
-        work(ipwrk1+5-1+5*(2-1)) =-0.0004581528d+00
-        work(ipwrk1+2-1+5*(5-1)) =-0.0004581528d+00
-        work(ipwrk1+4-1+5*(3-1)) = 0.0056356566d+00
-        work(ipwrk1+3-1+5*(4-1)) = 0.0056356566d+00
-
-        work(ipwrk1+3-1+5*(1-1)) = 0.0000255636d+00
-        work(ipwrk1+1-1+5*(3-1)) = 0.0000255636d+00
-        work(ipwrk1+4-1+5*(1-1)) = 0.0007603565d+00
-        work(ipwrk1+1-1+5*(4-1)) = 0.0007603565d+00
-        work(ipwrk1+5-1+5*(2-1)) =-0.0001414500d+00
-        work(ipwrk1+2-1+5*(5-1)) =-0.0001414500d+00
-        work(ipwrk1+4-1+5*(3-1)) = 0.0055442664d+00
-        work(ipwrk1+3-1+5*(4-1)) = 0.0055442664d+00
-
-        !! with diagonal(?)
-        work(ipwrk1+3-1+5*(1-1)) = 0.0000270181d+00
-        work(ipwrk1+1-1+5*(3-1)) = 0.0000270181d+00
-        work(ipwrk1+4-1+5*(1-1)) = 0.0006236086d+00
-        work(ipwrk1+1-1+5*(4-1)) = 0.0006236086d+00
-        work(ipwrk1+5-1+5*(2-1)) =-0.0004306630d+00
-        work(ipwrk1+2-1+5*(5-1)) =-0.0004306630d+00
-        work(ipwrk1+4-1+5*(3-1)) = 0.0055647223d+00
-        work(ipwrk1+3-1+5*(4-1)) = 0.0055647223d+00
-        !! without diagonal
-        work(ipwrk1+3-1+5*(1-1)) = 0.0000274314d+00
-        work(ipwrk1+1-1+5*(3-1)) =-0.0000274314d+00
-        work(ipwrk1+4-1+5*(1-1)) = 0.0006093060d+00
-        work(ipwrk1+1-1+5*(4-1)) =-0.0006093060d+00
-        work(ipwrk1+5-1+5*(2-1)) =-0.0001112837d+00
-        work(ipwrk1+2-1+5*(5-1)) = 0.0001112837d+00
-        work(ipwrk1+4-1+5*(3-1)) = 0.0054718711d+00
-        work(ipwrk1+3-1+5*(4-1)) =-0.0054718711d+00
-        !! without diagonal with IPEA 0.5
-C       work(ipwrk1+3-1+5*(1-1)) = 0.0000262871d+00
-C       work(ipwrk1+1-1+5*(3-1)) =-0.0000262871d+00
-C       work(ipwrk1+4-1+5*(1-1)) = 0.0006068526d+00
-C       work(ipwrk1+1-1+5*(4-1)) =-0.0006068526d+00
-C       work(ipwrk1+5-1+5*(2-1)) =-0.0001029116d+00
-C       work(ipwrk1+2-1+5*(5-1)) = 0.0001029116d+00
-C       work(ipwrk1+4-1+5*(3-1)) = 0.0055083426d+00
-C       work(ipwrk1+3-1+5*(4-1)) =-0.0055083426d+00
-        !! without diagonal with canonical keyword
-C       work(ipwrk1+3-1+5*(1-1)) = 0.0000698704d+00
-C       work(ipwrk1+1-1+5*(3-1)) = 0.0000698704d+00
-C       work(ipwrk1+4-1+5*(1-1)) = 0.0006505549d+00
-C       work(ipwrk1+1-1+5*(4-1)) = 0.0006505549d+00
-C       work(ipwrk1+5-1+5*(2-1)) =-0.0001112837d+00
-C       work(ipwrk1+2-1+5*(5-1)) =-0.0001112837d+00
-C       work(ipwrk1+4-1+5*(3-1)) = 0.0054667427d+00
-C       work(ipwrk1+3-1+5*(4-1)) = 0.0054667427d+00
-        write(6,*) "trf"
-        call sqprt(work(iptrf),12)
-        write(6,*) "Z in natural"
-        call sqprt(work(ipwrk1),5)
-        call dgemm_('T','N',5,5,5,
-     *             1.0d+00,Work(ipTRF+6-1+12*(6-1)),12,
-     *                     Work(ipWRK1),5,
-     *             0.0d+00,Work(ipWRK2),5)
-        call dgemm_('N','N',5,5,5,
-     *             1.0D+00,Work(ipWRK2),5,
-     *                     Work(ipTRF+6-1+12*(6-1)),12,
-     *             0.0d+00,Work(ipWRK1),5)
-        write(6,*) "Z in quasi-canonical"
-        call sqprt(work(ipwrk1),5)
-C       write(6,*) "D before"
-C       call sqprt(work(ipdpt),12)
-        do i = 1, 5
-C         work(ipwrk1+i-1+5*(i-1)) = 0.0d+00
-          ii = i+5
-        write(6,*) ii,eps(ii)
-          do j = 1, i-1
-            if (i.eq.j) cycle
-            jj = j+5
-            val = work(ipwrk1+i-1+5*(j-1))/(eps(ii)-eps(jj))
-            val=val*0.5d+00
-             work(ipwrk1+i-1+5*(j-1)) = val
-             work(ipwrk1+j-1+5*(i-1)) = val
-C     write(6,'(i3,1f20.10)')
-C    * indpq,work(ipwrk1+i-1+5*(j-1))/(eps(ii)-eps(jj))
-C           work(ipdpt+ii-1+12*(jj-1))
-C    *    = work(ipdpt+ii-1+12*(jj-1))*1.0d+00
-C    *    + work(ipwrk1+i-1+5*(j-1))*1.0d+00
-C           work(ipdptc+ii-1+12*(jj-1))
-C    *    = work(ipdptc+ii-1+12*(jj-1))
-C    *    - work(ipwrk1+i-1+5*(j-1))*1.0d+00
-          end do
-        end do
-        write(6,*) "Z density"
-        call sqprt(work(ipwrk1),5)
-C       write(6,*) "D after"
-C       call sqprt(work(ipdpt),12)
-C
-C
-C
-        end if
-C
-C
-C
-C
-C
+        !! Construct orbital Lagrangian that comes from the derivative
+        !! of ERIs. Also, do the Fock transformation of the DPT2 and
+        !! DPT2C densities.
         If (IfChol) Then
           NumChoTot = 0
           Do iSym = 1, nSym
@@ -1190,127 +841,10 @@ C       call sqprt(work(ipolag),12)
 C       Do iSym = 1, nSym
 C       write(6,*) "olag before"
 C       call sqprt(work(ipolag),nbast)
-      if (.false.) then
-        do i = 1, nbast
-        do j = 1, i
-          if (i.eq.j) then
-            work(ipwlag+i-1+nbast*(j-1)) = work(ipwlag+i-1+nbast*(j-1))
-     *        + 0.5d+00*work(ipolag+i-1+nbast*(j-1))
-          else
-            work(ipwlag+i-1+nbast*(j-1)) = work(ipwlag+i-1+nbast*(j-1))
-     *        + 1.0d+00*work(ipolag+j-1+nbast*(i-1))
-          end if
-          vali = work(ipolag+i-1+nbast*(j-1))
-          valj = work(ipolag+j-1+nbast*(i-1))
-          work(ipolag+i-1+nbast*(j-1)) = vali-valj
-          work(ipolag+j-1+nbast*(i-1)) = 0.0d+00 ! -vali+valj
-          if (i.le.nIsh(1).and.j.le.nIsh(1)) then
-          work(ipolag+i-1+nbast*(j-1)) = 0.0d+00
-          work(ipolag+j-1+nbast*(i-1)) = 0.0d+00
-          end if
-          if (i.gt.nIsh(1)+nAsh(1).and.j.gt.nIsh(1)+nAsh(1)) then
-          work(ipolag+i-1+nbast*(j-1)) = 0.0d+00
-          work(ipolag+j-1+nbast*(i-1)) = 0.0d+00
-          end if
-        end do
-        end do
-C       write(6,*) "olag after antisymetrization"
-C       call sqprt(work(ipolag),nbast)
-
-C       write(6,*) "Wlag square"
-C       call sqprt(work(ipwlag),nbast)
-        !! It seems Molcas does similar to GAMESS
-        call daxpy_(nbast*nbast,0.5d+00,work(ipolag),1,work(ipwlag),1)
 C
-        !! W(MO) -> W(AO) using the quasi-canonical orbitals
-        !! No need to back transform to natural orbital basis
-        Call DGemm_('N','N',nBasT,nBasT,nBasT,
-     *              1.0D+00,Work(LCMOPT2),nBasT,Work(ipWLag),nBasT,
-     *              0.0D+00,Work(ipWRK1),nBasT)
-        Call DGemm_('N','T',nBasT,nBasT,nBasT,
-     *              1.0D+00,Work(ipWRK1),nBasT,Work(LCMOPT2),nBasT,
-     *              0.0D+00,Work(ipWLag),nBasT)
-C
-        !! square -> triangle for WLag(AO)
-        Call DCopy_(nBasT*nBasT,Work(ipWLag),1,Work(ipWRK1),1)
-        iBasTr = 1
-        iBasSq = 1
-        Do iSym = 1, nSym
-          nBasI = nBas(iSym)
-          liBasTr = iBasTr
-          liBasSq = iBasSq
-          Do iBasI = 1, nBasI
-            Do jBasI = 1, iBasI
-              liBasSq = iBasSq + iBasI-1 + nBasI*(jBasI-1)
-              If (iBasI.eq.jBasI) Then
-                Work(ipWLag   +liBasTr-1) = Work(ipWRK1  +liBasSq-1)
-              Else
-              liBasSq2 = iBasSq + jBasI-1 + nBasI*(iBasI-1)
-                Work(ipWLag   +liBasTr-1)
-     *            = Work(ipWRK1  +liBasSq-1)
-     *            + Work(ipWRK1  +liBasSq2-1)
-              End If
-              liBasTr = liBasTr + 1
-            End Do
-          End Do
-          iBasTr = iBasTr + nBasI*(nBasI+1)/2
-          iBasSq = iBasSq + nBasI*nBasI
-        End Do
-C
-C
-C
-        !! Transform quasi-canonical -> natural MO basis
-        !! orbital Lagrangian
-          Call DGemm_('N','N',nBasT,nBasT,nBasT,
-     *                1.0D+00,Work(ipTrf),nBasT,Work(ipOLag),nBasT,
-     *                0.0D+00,Work(ipWRK1),nBasT)
-          Call DGemm_('N','T',nBasT,nBasT,nBasT,
-     *                1.0D+00,Work(ipWRK1),nBasT,Work(ipTrf),nBasT,
-     *                0.0D+00,Work(ipOLag),nBasT)
-      else
         Call DaXpY_(nBasSq,0.5D+00,Work(ipOLag),1,Work(ipWLag),1)
-        do i = 1, nbast
-        do j = 1, i
-C         if (i.gt.nIsh(1).and.i.le.nIsh(1)+nAsh(1).and.
-C    *        j.gt.nIsh(1).and.j.le.nIsh(1)+nAsh(1).and.i.ne.j) then
-C         work(ipolag+i-1+nbast*(j-1))
-C    *      = 2.0d+00*work(ipolag+i-1+nbast*(j-1))
-C         work(ipolag+j-1+nbast*(i-1))
-C    *      = 2.0d+00*work(ipolag+j-1+nbast*(i-1))
-C         end if
-C         if (i.eq.j) then
-C           work(ipwlag+i-1+nbast*(j-1)) = work(ipwlag+i-1+nbast*(j-1))
-C    *        + 0.5d+00*work(ipolag+i-1+nbast*(j-1))
-C         else
-C           work(ipwlag+i-1+nbast*(j-1)) = work(ipwlag+i-1+nbast*(j-1))
-C    *        + 1.0d+00*work(ipolag+j-1+nbast*(i-1))
-C         end if
-       !  vali = work(ipolag+i-1+nbast*(j-1))
-       !  valj = work(ipolag+j-1+nbast*(i-1))
-       !  work(ipolag+i-1+nbast*(j-1)) = vali-valj
-       !  work(ipolag+j-1+nbast*(i-1)) = 0.0d+00 ! -vali+valj
-C         if (i.le.nIsh(1).and.j.le.nIsh(1)) then
-C         work(ipolag+i-1+nbast*(j-1)) = 0.0d+00
-C         work(ipolag+j-1+nbast*(i-1)) = 0.0d+00
-C         end if
-C         if (i.gt.nIsh(1)+nAsh(1).and.j.gt.nIsh(1)+nAsh(1)) then
-C         work(ipolag+i-1+nbast*(j-1)) = 0.0d+00
-C         work(ipolag+j-1+nbast*(i-1)) = 0.0d+00
-C         end if
-C         if (i.gt.nIsh(1).and.i.le.nIsh(1)+nAsh(1).and.
-C    *        j.gt.nIsh(1).and.j.le.nIsh(1)+nAsh(1)) then
-C         work(ipolag+i-1+nbast*(j-1)) = 0.0d+00
-C         work(ipolag+j-1+nbast*(i-1)) = 0.0d+00
-C         end if
-        end do
-        end do
-C       write(6,*) "olag after antisymetrization"
-C       call sqprt(work(ipolag),nbast)
-
 C       write(6,*) "Wlag square"
 C       call sqprt(work(ipwlag),nbast)
-        !! It seems Molcas does similar to GAMESS
-C       call daxpy_(nbast*nbast,0.5d+00,work(ipolag),1,work(ipwlag),1)
 C
         !! W(MO) -> W(AO) using the quasi-canonical orbitals
         !! No need to back transform to natural orbital basis
@@ -1353,125 +887,98 @@ C
         !! orbital Lagrangian
 C       write(6,*) "OLag before transformation"
 C       call sqprt(work(ipolag),12)
-C         do i = 1, nbast
-C         do j = 1, i
-C           vali = work(ipolag+i-1+nbast*(j-1))
-C           valj = work(ipolag+j-1+nbast*(i-1))
-C           work(ipolag+i-1+nbast*(j-1)) = vali-valj
-C           work(ipolag+j-1+nbast*(i-1)) = 0.0d+00 ! -vali+valj
-C         end do
-C         end do
-C         write(6,*) "OLag after antisymmetrization"
-C         call sqprt(work(ipolag),12)
-C         call abend
-          Call DGemm_('N','N',nBasT,nBasT,nBasT,
-     *                1.0D+00,Work(ipTrf),nBasT,Work(ipOLag),nBasT,
-     *                0.0D+00,Work(ipWRK1),nBasT)
-          Call DGemm_('N','T',nBasT,nBasT,nBasT,
-     *                1.0D+00,Work(ipWRK1),nBasT,Work(ipTrf),nBasT,
-     *                0.0D+00,Work(ipOLag),nBasT)
+C       write(6,*) "OLag after antisymmetrization"
+C       call sqprt(work(ipolag),12)
+        Call DGemm_('N','N',nBasT,nBasT,nBasT,
+     *              1.0D+00,Work(ipTrf),nBasT,Work(ipOLag),nBasT,
+     *              0.0D+00,Work(ipWRK1),nBasT)
+        Call DGemm_('N','T',nBasT,nBasT,nBasT,
+     *              1.0D+00,Work(ipWRK1),nBasT,Work(ipTrf),nBasT,
+     *              0.0D+00,Work(ipOLag),nBasT)
 C       write(6,*) "OLag after transformation (pre)"
 C       call sqprt(work(ipolag),12)
-C       write(6,*) "trf"
-C       call sqprt(work(ipTrf),12)
-C       If (BSHIFT.ne.0.0D+00) Then
-          !! sufficient only for active
-          nBasI = nBas(1)
+        !! sufficient only for active
+        nBasI = nBas(1)
         Call DCopy_(nBasI**2,Work(ipOLag),1,Work(ipWRK1),1)
         Call DGeSub(Work(ipWRK1),nBas(1),'N',
      &              Work(ipWRK1),nBas(1),'T',
      &              Work(ipOLag),nBas(1),
      &              nBas(1),nBas(1))
-C         do i = 1, nbast
-C         do j = 1, i
-C           vali = work(ipolag+i-1+nbast*(j-1))
-C           valj = work(ipolag+j-1+nbast*(i-1))
-C           work(ipolag+i-1+nbast*(j-1)) = vali-valj
-C           work(ipolag+j-1+nbast*(i-1)) = 0.0d+00 ! -vali+valj
-C         end do
-C         end do
-C       write(6,*) "OLag after transformation (pre)"
-C       call sqprt(work(ipolag),12)
-C       End If
-C       End Do
-      end if
-        !! for configuration Lagrangian
-        !! Somehow, transformations using TRACI_RPT2 do not work well
-C       ipTrfL = ipTrf+nAshT*nBasT+nAshT
-C       Call DGemm_('N','N',nAshT,nAshT,nAshT,
-C    *              1.0D+00,Work(ipTrfL),nBasT,Work(ipRDMEIG),nAshT,
-C    *              0.0D+00,Work(ipWRK1),nAshT)
-C       Call DGemm_('N','T',nAshT,nAshT,nAshT,
-C    *              1.0D+00,Work(ipWRK1),nAshT,Work(ipTrfL),nBasT,
-C    *              0.0D+00,Work(ipRDMEIG),nAshT)
-        !! W (renormalization) term
-C         Call DGemm_('N','N',nBasT,nBasT,nBasT,
-C    *                1.0D+00,Work(ipTrf),nBasT,Work(ipWLag),nBasT,
-C    *                0.0D+00,Work(ipWRK1),nBasT)
-C         Call DGemm_('N','T',nBasT,nBasT,nBasT,
-C    *                1.0D+00,Work(ipWRK1),nBasT,Work(ipTrf),nBasT,
-C    *                0.0D+00,Work(ipWLag),nBasT)
-C       write(6,*) "RDMEIG after transformation"
-C       call sqprt(work(iprdmeig),5)
-C       CALL GETMEM('WRK2  ','FREE','REAL',ipWRK2,nBasT*nBasT)
 C
-
-
-C       call dcopy_(nbast*nbast,[0.0d+00],0,work(ipwlag),1)
-C       write(6,*) "Wlag"
-C       call sqprt(work(ipwlag),nbast)
-C       call test_dens(work(ipolag),work(ipclag),work(iptrf),
-C    *                 work(ipwrk1),work(ipwrk2))
         CALL GETMEM('TRFMAT','FREE','REAL',ipTRF   ,nBsqT)
         CALL GETMEM('WRK1  ','FREE','REAL',ipWRK1,nBasT*nBasT)
         CALL GETMEM('WRK2  ','FREE','REAL',ipWRK2,nBasT*nBasT)
-C
-        !! Calculate the configuration Lagrangian again.
-        !! The contribution comes from the derivative of eigenvalues.
-C       do i = 1, 5
-C         do j = 1, 5
-C           val = work(ipolag+5+i-1+12*(5+j-1))
-C           work(iprdmeig+i-1+5*(j-1))
-C         = work(iprdmeig+i-1+5*(j-1)) + val
-C           work(iprdmeig+j-1+5*(i-1))
-C         = work(iprdmeig+j-1+5*(i-1)) + val
-C         end do
-C       end do
-C       write(6,*) "clag in det",nclag
-C       do i = 1, nclag
-C         write(6,'(i3,1f20.10)') i,work(ipclag+i-1)
-C       end do
-C       write(6,*) "RDMEIG"
-C       call sqprt(work(iprdmeig),5)
-        !! Here is the original place
-C       Call CLagEig(Work(ipCLag),Work(ipRDMEIG),.true.)
-C       write(6,*) "clag in det",nclag
-C       do i = 1, nclag
-C         write(6,'(i3,1f20.10)') i,work(ipclag+i-1)
-C       end do
-        !! Here is the original place
-C       Call CLagFinal(Work(ipCLag),Work(ipSLag))
-C       write(6,*) "clag in det",nclag
-C       do i = 1, nclag
-C         write(6,'(i3,1f20.10)') i,work(ipclag+i-1)
-C       end do
-
-C       CALL GETMEM('aaa','allo','REAL',kdtoc,1000)
-C       CALL GETMEM('bbb','allo','REAL',kdtoc2,1000)
-C       call dcopy_(ndet,[0.0d+00],0,work(ldpt),1)
-C       call csdtvc(work(ipclag),work(ldpt),1,
-C    *              work(kdtoc),iwork(kicts(1)),1,0)
-C       write(6,*) "clag in det",ndet
-C       do i = 1, ndet
-C         write(6,'(i3,2f20.10)') i,work(ldpt+i-1),work(ipclag+i-1)
-C       end do
-C       CALL GETMEM('aaa','free','REAL',kdtoc,1000)
-C       CALL GETMEM('bbb','free','REAL',kdtoc2,1000)
-C
         CALL GETMEM('RDMSA ','FREE','REAL',ipRDMSA ,nAshT*nAshT)
         CALL GETMEM('RDMEIG','FREE','REAL',ipRDMEIG,nAshT*nAshT)
-      END IF
+        !! end of with gradient
+      ELSE
+        !! without gradient
+C Compute total density matrix as symmetry-blocked array of
+C triangular matrices in DMAT. Size of a triangular submatrix is
+C  (NORB(ISYM)*(NORB(ISYM)+1))/2.
+        NDMAT=0
+        NDPT=0
+        DO ISYM=1,NSYM
+          NO=NORB(ISYM)
+          NDPT=NDPT+NO**2
+          NDMAT=NDMAT+(NO*(NO+1))/2
+        END DO
+        CALL DCOPY_(NDMAT,[0.0D0],0,DMAT,1)
+C First, put in the reference density matrix.
+        IDMOFF=0
+        DO ISYM=1,NSYM
+          NI=NISH(ISYM)
+          NA=NASH(ISYM)
+          NO=NORB(ISYM)
+          DO II=1,NI
+            IDM=IDMOFF+(II*(II+1))/2
+            DMAT(IDM)=2.0D0
+          END DO
+          DO IT=1,NA
+            ITABS=NAES(ISYM)+IT
+            ITTOT=NI+IT
+            DO IU=1,IT
+              IUABS=NAES(ISYM)+IU
+              IUTOT=NI+IU
+              IDRF=(ITABS*(ITABS-1))/2+IUABS
+              IDM=IDMOFF+((ITTOT*(ITTOT-1))/2+IUTOT)
+              DMAT(IDM)=WORK(LDREF-1+IDRF)
+            END DO
+          END DO
+           IDMOFF=IDMOFF+(NO*(NO+1))/2
+        END DO
+*       WRITE(6,*)' DENS. Initial DMAT:'
+*       WRITE(6,'(1x,8f16.8)')(dmat(i),i=1,ndmat)
+C Add the 1st and 2nd order density matrices:
+        CALL GETMEM('DPT','ALLO','REAL',LDPT,NDPT)
+        CALL GETMEM('DSUM','ALLO','REAL',LDSUM,NDPT)
+        CALL DCOPY_(NDPT,[0.0D0],0,WORK(LDSUM),1)
 
+C The 1st order contribution to the density matrix
+        CALL DCOPY_(NDPT,[0.0D0],0,WORK(LDPT),1)
+        CALL TRDNS1(IVEC,WORK(LDPT))
+        CALL DAXPY_(NDPT,1.0D00,WORK(LDPT),1,WORK(LDSUM),1)
+*       WRITE(6,*)' DPT after TRDNS1.'
+*       WRITE(6,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)
+        CALL DCOPY_(NDPT,[0.0D0],0,WORK(LDPT),1)
+        CALL TRDNS2D(IVEC,IVEC,WORK(LDPT),NDPT)
+        IF(IFDENS) THEN
+C The exact density matrix evaluation:
+          CALL TRDTMP(WORK(LDPT))
+        ELSE
+C The approximate density matrix evaluation:
+          CALL TRDNS2A(IVEC,IVEC,WORK(LDPT))
+        END IF
+        CALL DAXPY_(NDPT,1.0D00,WORK(LDPT),1,WORK(LDSUM),1)
+*       WRITE(6,*)' DPT after TRDNS2D.'
+*       WRITE(6,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)
+        CALL DCOPY_(NDPT,[0.0D0],0,WORK(LDPT),1)
+        CALL TRDNS2O(IVEC,IVEC,WORK(LDPT))
+        CALL DAXPY_(NDPT,1.0D00,WORK(LDPT),1,WORK(LDSUM),1)
+*       WRITE(6,*)' DPT after TRDNS2O.'
+*       WRITE(6,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)
+      END IF
+C
       CALL GETMEM('DPT','FREE','REAL',LDPT,NDPT)
       IDMOFF=0
       IDSOFF=0
@@ -1490,14 +997,8 @@ C
       CALL GETMEM('DSUM','FREE','REAL',LDSUM,NDPT)
 C Scale with 1/DENORM to normalize
       X=1.0D0/DENORM
-C     write(6,*) "scaling of DM: ",x
-        x = 1.0d+00
+      If (IFGRDT) X=1.0D+00
       CALL DSCAL_(NDMAT,X,DMAT,1)
-C       write(6,*) "final dmat in MO"
-C       do i = 1, ndmat
-C         write(6,'(i4,f20.10)') i,dmat(i)
-C       end do
-C       call prtril(dmat,nbast)
 
 CSVC: For true parallel calculations, replicate the DMAT array
 C so that the slaves have the same density matrix as the master.

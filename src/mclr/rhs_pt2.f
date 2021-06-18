@@ -51,14 +51,14 @@ C     write(6,*) "Lugamma = ", lugamma
 C     Call Get_dArray('CLAG',Work(ipCLag),nClag)
 C          LUTMP = 88
            Do i = 1, nCLag
-             Read (LUPT2,*) CLag(i)
+             Read (LUPT2,*,END=200) CLag(i)
            End Do
            Do i = 1, nOLag
-             Read (LUPT2,*) tmp ! rKappa(i)
+             Read (LUPT2,*,END=200) tmp ! rKappa(i)
              rKappa(i) = rKappa(i) + tmp
            End Do
            Do i = 1, nSLag
-             Read (LUPT2,*) SLag(i)
+             Read (LUPT2,*,END=200) SLag(i)
            End Do
 C       call sqprt(rkappa,12)
 C       call dscal_(nclag,-2.00d+00,clag,1)
@@ -69,6 +69,18 @@ C       call dcopy_(nclag,clag,1,clag2,1)
 C     Call Get_dArray('SLAG',Work(ipSLag),nSlag)
 
       return
+
+  200 continue
+      write(6,*)
+      write(6,'(x,"The file which has to be written in CASPT2 module ",
+     *            "does not exist in RHS_PT2.")')
+      write(6,'(x,"For single-point gradient calculation, you need ",
+     *            "GRAD or GRDT keyword in &CASPT2.")')
+      write(6,'(x,"For geometry optimization, you do not need ",
+     *            "anything, so something is wrong with the code.")')
+      write(6,*)
+      call abend()
+
       write(6,*) "in rhs_pt2"
       write(6,*) "imethod =", imethod
       If (imethod.eq.2)Then
@@ -154,11 +166,11 @@ C     Call Getmem('TWOD','ALLO','REAL',ipG2r,itri(ntash**2,ntash**2))
         write(6,*) "a"
       irc=-1
       iopt=0
-      Call RdRlx(irc,iopt,'D1PT22',Work(ipDP))
+C     Call RdRlx(irc,iopt,'D1PT22',Work(ipDP))
       If (irc.ne.0) Goto 100
       irc=-1
       iopt=0
-      Call RdRlx(irc,iopt,'OVLP',rovlp)
+C     Call RdRlx(irc,iopt,'OVLP',rovlp)
       If (irc.ne.0) Goto 100
 *
 *--- Squared density

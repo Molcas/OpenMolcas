@@ -416,7 +416,7 @@ C Case 10 code section:
             SUM=SUM-CBLK(IY+NAS*(IIS-1))
      &                   *TBLK(IX+NAS*(IIS-1))
           END DO
-          write(6,'(2i3,f20.10)') ix,iy,sum
+C         write(6,'(2i3,f20.10)') ix,iy,sum
           DCOM(IXABS,IYABS)=DCOM(IXABS,IYABS)+SUM
 
         END DO
@@ -436,7 +436,7 @@ C Case 11 code section:
             SUM=SUM-CBLK(IY+NAS*(IIS-1))
      &                   *TBLK(IX+NAS*(IIS-1))
           END DO
-          write(6,'(2i3,f20.10)') ix,iy,sum
+C         write(6,'(2i3,f20.10)') ix,iy,sum
           DCOM(IXABS,IYABS)=DCOM(IXABS,IYABS)+SUM
 
         END DO

@@ -111,8 +111,16 @@ C    *      Form='UNFORMATTED')
      &                      'DIRECT','UNFORMATTED',
      &                      iost,.FALSE.,
      &                      1,'OLD',is_error)
+C     If (is_error) then
+C       write (6,'(x,"Maybe, you did not add GRAD or GRDT ",
+C    *               "keyword in &CASPT2?")')
+C       write (6,'(x,"Please add either one, if this is single-point ",
+C    *               "gradient calculation.")')
+C       write (6,'(x,"Otherwise, something is wrong...")')
+C       call abend()
+C     end if
       Do i = 1, l_A_t
-        Read (LuCMOPT2) Work(ip_A_t+i-1)
+        Read (LuCMOPT2,END=100) Work(ip_A_t+i-1)
       End Do
 *
 #ifdef _DEBUG_
@@ -226,4 +234,13 @@ C    *      Recl=nBas2*8)
       write (6,*) 'CPU/Wall Time for mult_with_q_caspt2:',
      *  totcpu1-totcpu0, totwall1-totwall0
       Return
+C
+  100 continue
+      write (6,'(x,"Maybe, you did not add GRAD or GRDT ",
+     *             "keyword in &CASPT2?")')
+      write (6,'(x,"Please add either one, if this is single-point ",
+     *             "gradient calculation.")')
+      write (6,'(x,"Otherwise, something is wrong...")')
+      call abend()
+C
       End

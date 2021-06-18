@@ -71,11 +71,13 @@ C       if (icase.ne. 1)                   cycle ! A
           ELSE
             CALL RHS_ALLO(NIN,NIS,lg_V2)
             CALL RHS_READ_SR(lg_V2,ICASE,ISYM,JVEC)
+            If (IFGRDT) Then
 C           do i = 1, nin*nis
 C             write(6,*) i,work(lg_v2+i-1),work(lg_v1+i-1)
 C           end do
             Call DaXpY_(nIN*nIS,1.0D+00,Work(lg_V2),1,Work(lg_V1),1)
             CALL RHS_READ_SR(lg_V2,ICASE,ISYM,IVEC)
+            End If
 C           write(6,*) "diff"
 C           do i = 1, nin*nis
 C             value1 = work(lg_v1+i-1)
@@ -126,7 +128,7 @@ C full array in case we are running in parallel
           CALL DIADNS(ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
      &                DPT2,iWORK(LLISTS))
 #endif
-          If (SHIFTI.ne.0) Then
+          If (IFGRDT.and.SHIFTI.ne.0) Then
             nAS = nASUP(iSym,iCase)
             Call GETMEM('LBD','ALLO','REAL',LBD,nAS)
             Call GETMEM('LID','ALLO','REAL',LID,nIS)

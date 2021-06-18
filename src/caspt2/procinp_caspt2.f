@@ -49,6 +49,8 @@ C initialize global common-block variables appropriately.
       Logical DNG
       Integer iDNG
       Character*100 ProgName, Get_SuperName
+      Character*8 emiloop
+      Character*8 inGeo
 
 #include "chocaspt2.fh"
 
@@ -492,6 +494,9 @@ C Consistency of these demands:
 *
 ************************************************************************
 *
+      IFGRDT   = Input%GRDT
+      If(IFGRDT) IFDENS=.true.
+*
 *     Check if the calculation is inside a loop and make analytical
 *     gradients default in this case
 *
@@ -514,7 +519,26 @@ C        Call Put_iScalar('mp2prpt',0)
 C        DoDens=.false.
          IFDENS=.false.
 C        DoGrdt=.false.
+         IFGRDT=.false.
       End If
+*
+      If(nSym .eq. 1) Then
+         Call GetEnvF('EMIL_InLoop',emiloop)
+         If (emiloop.eq.' ') emiloop='0'
+         Call GetEnvF('MOLCAS_IN_GEO',inGeo)
+         If ((emiloop(1:1).ne.'0') .and. inGeo(1:1) .ne. 'Y'
+     &       .and. .not.DNG) Then
+C           Call Put_iScalar('mp2prpt',2)
+C           DoDens=.true.
+C           DoGrdt=.true.
+            IFDENS=.true.
+            IFGRDT=.true.
+         End If
+      Else
+        IFDENS = .False.
+        IFGRDT = .False.
+      End If
+C
       IFSADREF = Input%SADREF
       IFDORTHO = Input%DORTHO
       IFINVAR  = Input%INVAR

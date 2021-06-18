@@ -185,6 +185,8 @@ C types, which are not supported with stdalloc. Hence, the infraction.
 !               the case with IPEA shift. Otherwise, just for debug
 !               purpose
       Logical :: INVAR  = .True.
+!     GRDT      used for single-point gradient calculation
+      Logical :: GRDT   = .False.
       End Type
 
 #ifdef ALLOC_SCAL
@@ -624,11 +626,17 @@ c      call Quit_OnInstError
       Case('INVA')
       Input%INVAR = .FALSE.
 
+      Case('GRDT')
+      Input%GRDT  = .TRUE.
+
+      Case('GRAD') !! is it intended use?
+      Input%GRDT  = .TRUE.
+
 
       ! OBSOLETE KEYWORDS
 
-      Case('GRAD')
-      GoTo 9930
+C     Case('GRAD')
+C     GoTo 9930
 
       Case('NOTR')
       GoTo 9930

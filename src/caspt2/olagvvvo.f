@@ -443,7 +443,7 @@ C    *                      DIA,DI,FIFA,FIMO,BraD)
      *           WRK(nBasT,nBasT)
           Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
           Dimension DIA(*),DI(*),FIFA(*),FIMO(*)
-          Integer ISTLT(8),ISTSQ(8),nAux(8),KEEP(8)
+          Integer nAux(8),KEEP(8)
 C         Dimension BraAI(*),BraSI(*),BraAA(*),BraSA(*)
          Dimension BraAI(nAsh(iSym0),nIsh(iSym0),NVLOC_CHOBATCH(iSym0)),
      *             BraSI(nSsh(iSym0),nIsh(iSym0),NVLOC_CHOBATCH(iSym0)),
@@ -452,8 +452,8 @@ C         Dimension BraAI(*),BraSI(*),BraAA(*),BraSA(*)
 C         Real*8, Target :: BraD(*)
 C         Real*8, Pointer :: BraAI(:,:,:),BraSI(:,:,:),
 C    *                       BraAA(:,:,:),BraSA(:,:,:)
-          Integer iSkip(8)
-          integer nnbstr(8,3)
+C         Integer iSkip(8)
+C         integer nnbstr(8,3)
           end subroutine
         end interface
 
