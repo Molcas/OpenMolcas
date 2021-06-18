@@ -68,6 +68,7 @@ John Burkardt
 Yannick Carissan  
 Liviu Chibotaru  
 Christophe Chipot  
+Jonathan R. Church  
 Aron Cohen  
 David L. Cooper  
 Maurizio Cossi  
