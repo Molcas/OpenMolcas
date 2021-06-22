@@ -13,7 +13,6 @@
 !***********************************************************************
 
 function ixMostAbundantIsotope(Z,Rc,Opt)
-
 !***********************************************************************
 !                                                                      *
 ! Routine: ixMostAbundantIsotope                                       *
@@ -45,35 +44,25 @@ function ixMostAbundantIsotope(Z,Rc,Opt)
 !***********************************************************************
 
 use isotopes, only: Initialize_Isotopes, ElementList, MaxAtomNum
+use Definitions, only: iwp, u6
+
+#include "proputil.fh"
 
 implicit none
-#include "proputil.fh"
-integer ixMostAbundantIsotope
-!----------------------------------------------------------------------*
-! Parameters.                                                          *
-!----------------------------------------------------------------------*
-integer StopOnError
-parameter(StopOnError=_OPT_STOP_ON_ERROR_)
-!----------------------------------------------------------------------*
-! Dummy parameters.                                                    *
-!----------------------------------------------------------------------*
-integer Z
-integer Rc
-integer Opt
-!----------------------------------------------------------------------*
-! Local variables.                                                     *
-!----------------------------------------------------------------------*
-integer A
+integer(kind=iwp) :: ixMostAbundantIsotope
+integer(kind=iwp), intent(in) :: Z, Rc, Opt
+integer(kind=iwp) :: A
+integer(kind=iwp), parameter :: StopOnError = _OPT_STOP_ON_ERROR_
 
 !----------------------------------------------------------------------*
 ! Compute A.                                                           *
 !----------------------------------------------------------------------*
 call Initialize_Isotopes()
 if (Z < 0) then
-  write(6,'(a)') '***'
-  write(6,'(a)') '*** ixMostAbundantIsotope: error'
-  write(6,'(a)') '***    Charge less than zero!'
-  write(6,'(a)') '***'
+  write(u6,'(a)') '***'
+  write(u6,'(a)') '*** ixMostAbundantIsotope: error'
+  write(u6,'(a)') '***    Charge less than zero!'
+  write(u6,'(a)') '***'
   if (iand(Opt,StopOnError) /= 0) call Quit_OnUserError()
   A = 1
 else if (Z == 0) then

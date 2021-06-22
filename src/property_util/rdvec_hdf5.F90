@@ -32,20 +32,24 @@
 
 subroutine RdVec_HDF5(fileid,Label,nSym,nBas,CMO,Occ,Ene,Ind)
 
+use Definitions, only: wp, iwp
 #ifdef _HDF5_
 use mh5, only: mh5_exists_dset, mh5_fetch_dset
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: u6
 #endif
 
+#include "intent.fh"
+
 implicit none
-integer, intent(In) :: fileid, nSym, nBas(nSym)
-character(Len=*), intent(In) :: Label
-real*8, dimension(*) :: CMO, Occ, Ene
-integer, dimension(*) :: Ind
+integer(kind=iwp), intent(in) :: fileid, nSym, nBas(nSym)
+character(len=*), intent(in) :: Label
+real(kind=wp), intent(_OUT_) :: CMO(*), Occ(*), Ene(*)
+integer(kind=iwp), intent(_OUT_) :: Ind(*)
 #ifdef _HDF5_
-#include "stdalloc.fh"
-integer :: Beta, nB
-character(Len=128) :: DataSet, su, sl
-character(Len=1), allocatable :: typestring(:)
+integer(kind=iwp) :: Beta, nB
+character(len=128) :: DataSet, su, sl
+character(len=1), allocatable :: typestring(:)
 
 Beta = 0
 su = ''
@@ -57,7 +61,7 @@ if (index(Label,'A') > 0) then
 end if
 if (index(Label,'B') > 0) then
   if (Beta /= 0) then
-    write(6,*)
+    write(u6,*)
     call AbEnd()
   end if
   Beta = 1
@@ -70,7 +74,7 @@ if (index(Label,'E') > 0) then
   if (mh5_exists_dset(fileid,DataSet)) then
     call mh5_fetch_dset(fileid,DataSet,Ene)
   else
-    write(6,*) 'The HDF5 file does not contain '//trim(sl)//'MO energies.'
+    write(u6,*) 'The HDF5 file does not contain '//trim(sl)//'MO energies.'
     call AbEnd()
   end if
 end if
@@ -80,7 +84,7 @@ if (index(Label,'O') > 0) then
   if (mh5_exists_dset(fileid,DataSet)) then
     call mh5_fetch_dset(fileid,DataSet,Occ)
   else
-    write(6,*) 'The HDF5 file does not contain '//trim(sl)//'MO occupations.'
+    write(u6,*) 'The HDF5 file does not contain '//trim(sl)//'MO occupations.'
     call AbEnd()
   end if
 end if
@@ -90,7 +94,7 @@ if (index(Label,'C') > 0) then
   if (mh5_exists_dset(fileid,DataSet)) then
     call mh5_fetch_dset(fileid,DataSet,CMO)
   else
-    write(6,*) 'The HDF5 file does not contain '//trim(sl)//'MO coefficients.'
+    write(u6,*) 'The HDF5 file does not contain '//trim(sl)//'MO coefficients.'
     call AbEnd()
   end if
 end if

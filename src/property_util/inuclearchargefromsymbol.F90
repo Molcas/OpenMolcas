@@ -31,23 +31,13 @@ function iNuclearChargeFromSymbol(Symbol)
 !                                                                      *
 !***********************************************************************
 
+use Definitions, only: iwp
+
 implicit none
-integer iNuclearChargeFromSymbol
-!----------------------------------------------------------------------*
-! Dummy parameters.                                                    *
-!----------------------------------------------------------------------*
-character*(*) Symbol
-!----------------------------------------------------------------------*
-! Local variables.                                                     *
-!----------------------------------------------------------------------*
-integer Z
-integer Opt
-integer Rc
-!----------------------------------------------------------------------*
-! External references                                                  *
-!----------------------------------------------------------------------*
-integer ixNuclearChargeFromSymbol
-external ixNuclearChargeFromSymbol
+integer(kind=iwp) :: iNuclearChargeFromSymbol
+character(len=*), intent(in) :: Symbol
+integer(kind=iwp) :: Opt, Rc, Z
+integer(kind=iwp), external :: ixNuclearChargeFromSymbol
 
 Opt = 0
 Rc = 0

@@ -19,13 +19,22 @@ subroutine Seek_n_Destroy(nBasAtoms,nDimSubD,ipSubVal,ipSubVec,nBast,Threshold,T
 ! deplete the corresponding scaled eigenvector from the main matrix.   *
 !----------------------------------------------------------------------*
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "WrkSpc.fh"
-#include "Molcas.fh"
-external DNRM2_
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
-!define _DEBUGPRINT_
+implicit none
+integer(kind=iwp), intent(in) :: nBasAtoms, nDimSubD, ipSubVal, ipSubVec, nBast, ipSubDNAOindex, ipDS, iWhat, ipAtomA, ipAtomB, &
+                                 IAtom, JAtom, ipWhat, ipAtomC, KAtom
+real(kind=wp), intent(in) :: Threshold, ThrsD
+real(kind=wp), intent(inout) :: TotElec
+integer(kind=iwp), intent(inout) :: iCounter
+integer(kind=iwp) :: I, iCounterOld, iCounterTrue, iFound, iFoundOrb, ipEiVal, ipGood, ipScrM, ipScrV, iStHas2bFnd, J, K
+real(kind=wp) :: Accumulate, E, EigenNorm, Thrs, Thrs_Original, TotElecAvail, TotElecCount, TotElecFound
+real(kind=wp), external :: DNRM2_
+#include "WrkSpc.fh"
 
 Thrs = Threshold
 Thrs_Original = Threshold
@@ -48,14 +57,14 @@ do I=1,nBasAtoms
   TotElecAvail = TotElecAvail+Work(ipSubVal+I-1)
 end do
 
-if ((TotElecAvail > 2*ThrsD) .and. (iWhat == 1) .and. (Thrs >= 1.999d0)) iStHas2bFnd = 1
+if ((TotElecAvail > 2*ThrsD) .and. (iWhat == 1) .and. (Thrs >= 1.999_wp)) iStHas2bFnd = 1
 
 if (TotElecAvail < Zero) goto 666
 
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) 'Total electrons in eigenvalues = ',TotElecAvail
-write(6,*) 'Something has to be found = ',iStHas2bFnd
+write(u6,*)
+write(u6,*) 'Total electrons in eigenvalues = ',TotElecAvail
+write(u6,*) 'Something has to be found = ',iStHas2bFnd
 #endif
 
 E = Zero
@@ -66,8 +75,8 @@ end do
 if (E < Zero) goto 666
 
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) 'Number of electrons as sum of the DS diagonal = ',E
+write(u6,*)
+write(u6,*) 'Number of electrons as sum of the DS diagonal = ',E
 #endif
 
 !----------------------------------------------------------------------*
@@ -99,11 +108,11 @@ end do
 
 #ifdef _DEBUGPRINT_
 if (TotElecFound > TotElecAvail) then
-  write(6,*)
-  write(6,*) 'Something fishy is going on'
-  write(6,*) 'iFoundOrb     = ',iFoundOrb
-  write(6,*) 'TotElecFound  = ',TotElecFound
-  write(6,*) 'TotElecAvail  = ',TotElecAvail
+  write(u6,*)
+  write(u6,*) 'Something fishy is going on'
+  write(u6,*) 'iFoundOrb     = ',iFoundOrb
+  write(u6,*) 'TotElecFound  = ',TotElecFound
+  write(u6,*) 'TotElecAvail  = ',TotElecAvail
 end if
 #endif
 
@@ -112,9 +121,9 @@ end if
 
 if ((iFoundOrb == 0) .and. (iStHas2bFnd == 1)) then
   iStHas2bFnd = 0
-  !Thrs = Thrs-0.05d0
-  !Thrs = Thrs-0.01d0
-  Thrs = Thrs-0.005d0
+  !Thrs = Thrs-0.05_wp
+  !Thrs = Thrs-0.01_wp
+  Thrs = Thrs-0.005_wp
   goto 777
 end if
 
@@ -122,7 +131,7 @@ Thrs = Thrs_Original
 
 TotElecCount = TotElecFound-TotElecAvail
 
-if ((iFoundOrb > 0) .and. (TotElecCount <= 0.1)) then
+if ((iFoundOrb > 0) .and. (TotElecCount <= 0.1_wp)) then
 
   TotElec = TotElec+TotElecFound
 
@@ -152,9 +161,9 @@ if ((iFoundOrb > 0) .and. (TotElecCount <= 0.1)) then
     Work(ipWhat+iCounterTrue) = Work(ipWhat+iCounterTrue)+(Accumulate/2)
 
 #   ifdef _DEBUGPRINT_
-    write(6,*)
-    write(6,*) 'NBO bond order between Atom ',iWork(ipAtomA+iCounterTrue),' and Atom ',iWork(ipAtomB+iCounterTrue),' is ', &
-               Work(ipWhat+iCounterTrue)
+    write(u6,*)
+    write(u6,*) 'NBO bond order between Atom ',iWork(ipAtomA+iCounterTrue),' and Atom ',iWork(ipAtomB+iCounterTrue),' is ', &
+                Work(ipWhat+iCounterTrue)
 #   endif
 
     iCounter = iCounterOld+1
@@ -166,9 +175,9 @@ if ((iFoundOrb > 0) .and. (TotElecCount <= 0.1)) then
       Work(ipWhat+iCounter) = Work(ipEiVal+I-1)
 
 #     ifdef _DEBUGPRINT_
-      write(6,*)
-      write(6,*) 'NBO located ',Work(ipEiVal+I-1),' electrons'
-      write(6,*) 'non bonding on atom ',iWork(ipAtomA+iCounter)
+      write(u6,*)
+      write(u6,*) 'NBO located ',Work(ipEiVal+I-1),' electrons'
+      write(u6,*) 'non bonding on atom ',iWork(ipAtomA+iCounter)
 #     endif
 
       iCounter = iCounter+1
@@ -183,9 +192,9 @@ if ((iFoundOrb > 0) .and. (TotElecCount <= 0.1)) then
       Work(ipWhat+iCounter) = Work(ipEiVal+I-1)/2
 
 #     ifdef _DEBUGPRINT_
-      write(6,*)
-      write(6,*) 'NBO tricenter bond order between Atom ',iWork(ipAtomA+iCounter),' and Atom ',iWork(ipAtomB+iCounter), &
-                 ' and Atom ',iWork(ipAtomC+iCounter),' is ',Work(ipWhat+iCounter)
+      write(u6,*)
+      write(u6,*) 'NBO tricenter bond order between Atom ',iWork(ipAtomA+iCounter),' and Atom ',iWork(ipAtomB+iCounter), &
+                  ' and Atom ',iWork(ipAtomC+iCounter),' is ',Work(ipWhat+iCounter)
 #     endif
 
       iCounter = iCounter+1
@@ -210,23 +219,23 @@ if ((iFoundOrb > 0) .and. (TotElecCount <= 0.1)) then
     EigenNorm = DNRM2_(nBasAtoms,Work(ipScrV),1)
 
 #   ifdef _DEBUGPRINT_
-    write(6,*)
-    write(6,*) 'Vector euclidean norm = ',EigenNorm
+    write(u6,*)
+    write(u6,*) 'Vector euclidean norm = ',EigenNorm
 #   endif
 
     call DScal_(nBasAtoms,1/EigenNorm,Work(ipScrV),1)
 
 #   ifdef _DEBUGPRINT_
-    write(6,*)
+    write(u6,*)
     call RecPrt('Normalized orbital eigenvector',' ',Work(ipScrV),nBasAtoms,1)
 #   endif
 
-    call DGEMM_('N','T',nBasAtoms,nBasAtoms,1,1.0d0,Work(ipScrV),nBasAtoms,Work(ipScrV),nBasAtoms,0.0d0,Work(ipScrM),nBasAtoms)
+    call DGEMM_('N','T',nBasAtoms,nBasAtoms,1,One,Work(ipScrV),nBasAtoms,Work(ipScrV),nBasAtoms,Zero,Work(ipScrM),nBasAtoms)
 
 #   ifdef _DEBUGPRINT_
     call RecPrt('Multiplied Eigenvectors',' ',Work(ipScrM),nBasAtoms,nBasAtoms)
 
-    write(6,*) 'Eigen value to be multiplied = ',Work(ipEiVal+I-1)
+    write(u6,*) 'Eigen value to be multiplied = ',Work(ipEiVal+I-1)
 #   endif
 
     call DScal_(nDimSubD,Work(ipEiVal+I-1),Work(ipScrM),1)
@@ -248,8 +257,8 @@ if ((iFoundOrb > 0) .and. (TotElecCount <= 0.1)) then
     do K=1,NBAST
       E = E+Work(ipDS+(K-1)*NBAST+K-1)
     end do
-    write(6,*)
-    write(6,*) 'Number of electrons as sum of the DS diagonal = ',E
+    write(u6,*)
+    write(u6,*) 'Number of electrons as sum of the DS diagonal = ',E
 #   endif
 
     call Free_Work(ipScrV)

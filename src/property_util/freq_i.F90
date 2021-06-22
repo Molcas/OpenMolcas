@@ -11,12 +11,21 @@
 
 subroutine FREQ_i(nX,H,mass,Tmp1,Tmp2,EVec,EVal,iNeg)
 
-implicit real*8(a-h,o-z)
-real*8 Tmp1(nX,nX), Tmp2(nX,nX), H(nX,nX), EVec(2*nX,nX), EVal(2*nX), mass(*)
-#include "constants2.fh"
+use Constants, only: Zero, One, autocm
+use Definitions, only: wp, iwp, r8
+
+implicit none
+integer(kind=iwp), intent(in) :: nX
+real(kind=wp), intent(inout) :: H(nX,nX)
+real(kind=wp), intent(in) :: mass(*)
+real(kind=wp), intent(out) :: Tmp1(nX, nX), Tmp2(nX,nX), EVec(2*nX,nX), EVal(2*nX)
+integer(kind=iwp), intent(out) :: iNeg
+integer(kind=iwp) :: i, iHarm, ii, iOpt, iprint, j, jHarm
+real(kind=wp) :: r2, rlow, temp
+real(kind=r8), external :: DDot_
 
 iprint = 0
-call dcopy_(nX**2,[0.0d0],0,Tmp1,1)
+call dcopy_(nX**2,[Zero],0,Tmp1,1)
 do i=1,nX
   ii = (i-1)/3+1
   do j=1,nX
@@ -37,7 +46,7 @@ iNeg = 0
 do iHarm=1,2*nX,2
   jHarm = (iHarm+1)/2
   temp = EVal(iHarm)
-  if (temp >= 0.0d0) then
+  if (temp >= Zero) then
     EVal(jHarm) = sqrt(temp)*autocm
   else
     iNeg = iNeg+1
@@ -50,7 +59,7 @@ if (iPrint >= 99) call RecPrt('Converted EVal',' ',EVal,1,nX)
 
 do iHarm=1,nX
   r2 = DDot_(nX,EVec(1,iHarm),2,EVec(1,iHarm),2)
-  r2 = 1.0d0/sqrt(r2)
+  r2 = One/sqrt(r2)
   call DScal_(nX,r2,EVec(1,iHarm),2)
 end do
 if (iPrint >= 99) call RecPrt('Normalized EVec',' ',EVec,nX*2,nX)

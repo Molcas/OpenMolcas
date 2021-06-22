@@ -27,51 +27,47 @@ subroutine Molden_DysOrb(iUHF,filename,ENE,OCC,CMO,NDO,NZ)
 !                                                                      *
 !***********************************************************************
 
-use Real_Spherical
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nBas, MolWgh, nCnttp, Shells
+use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, lIrrep
 use Sizes_of_Seward, only: S
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "Molcas.fh"
-#include "real.fh"
+integer(kind=iwp), intent(in) :: iUHF, NDO, NZ
+character(len=*), intent(in) :: filename
+real(kind=wp), intent(in) :: ENE(NDO), OCC(NDO), CMO(NZ*NDO)
+integer(kind=iwp) :: i, iAngMx_Valence, iatom, iB, ibas_lab(MxAtom), iBtot, iCntr, iCnttp, icontr, iCount, iDeg, idx, idx1, idx2, &
+                     iGTO, iIrrep, iLabel, ipc, ipC2, ipC2_ab, ipCent, ipCent2, ipCent3, iPL, ipPhase, iprim, ipV, ipV_ab, &
+                     iRc = 0, iS, isegm, ishell, iSymcent, jPL, k, kk, kk_Max, l, mdc, MF, nAtom, nB, nData, nDeg, nOrb(8), nTest, &
+                     nTot, nTot2
+real(kind=wp) :: COEF, coeff, Coor(3,MxAtom), DESYM(NZ,NZ), prim, r_Norm(maxbfn), Znuc(MxAtom)
+logical(kind=iwp) :: Exists, Found, y_cart, y_sphere
+character(len=LenIn) :: AtomLabel(MxAtom)
+character(len=LenIn8+1) :: gtolabel(maxbfn)
+character(len=100) :: Supername
+character(len=8) :: Env, MO_Label(maxbfn)
+character(len=LenIn8), allocatable :: label(:)
+real(kind=wp), parameter :: EorbThr = 50.0_wp
+character, parameter :: shelllabel(7) = ['s','p','d','f','g','h','i'], &
+                        cNumber(61) = ['1','2','3','4','5','6','7','8','9','0', &
+                                       'a','b','c','d','e','f','g','h','i','j', &
+                                       'k','l','m','n','o','p','q','r','s','t', &
+                                       'u','v','w','x','y','z','A','B','C','D', &
+                                       'E','F','G','H','I','J','K','L','M','N', &
+                                       'O','P','Q','R','S','T','V','W','X','Y', &
+                                       'Z']
+integer(kind=iwp), external :: iPrintLevel
+real(kind=r8), external :: DblFac
+logical(kind=iwp), external :: Reduce_Prt
+character(len=100), external :: Get_SuperName
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
-parameter(EorbThr=50.d0)
-real*8 Coor(3,MxAtom), Znuc(MxAtom)
-character shelllabel(7)
-character*(LENIN) AtomLabel(MxAtom)
-character*(LENIN8), allocatable :: label(:)
-character*8 MO_Label(maxbfn)
-parameter(nNumber=61)
-character Number(nNumber)
-integer ibas_lab(MxAtom), nOrb(8)
-character*(LENIN8+1) gtolabel(maxbfn)
-real*8 r_Norm(maxbfn)
-character*(*) Filename
-character Env*8
-logical Exist, y_cart, y_sphere, Found, Reduce_Prt
-external Reduce_Prt
-character*100 Supername, Get_SuperName
-external Get_SuperName
-data shelllabel/'s','p','d','f','g','h','i'/
-data number/'1','2','3','4','5','6','7','8','9','0', &
-            'a','b','c','d','e','f','g','h','i','j', &
-            'k','l','m','n','o','p','q','r','s','t', &
-            'u','v','w','x','y','z','A','B','C','D', &
-            'E','F','G','H','I','J','K','L','M','N', &
-            'O','P','Q','R','S','T','V','W','X','Y', &
-            'Z'/
-data iRc/0/
-save iRc
-! Jesper
-integer NDO, NZ
-dimension ENE(NDO)
-dimension OCC(NDO)
-dimension CMO(NZ*NDO)
-dimension DESYM(NZ,NZ)
 ! Statement function
+integer(kind=iwp) :: ix, iy, iz
+real(kind=wp) :: CC
 CC(ix,iy,iz) = sqrt(DblFac(2*ix-1)*DblFac(2*iy-1)*DblFac(2*iz-1))
 
 if (iRc == 1) return
@@ -94,7 +90,7 @@ if (Reduce_Prt() .and. (iPL < 3)) jPL = 0
 !                                                                      *
 if (MolWgh == 1) then
   if (jPL >= 2) then
-    write(6,*) 'Molden_Interface: Unsupported normalization,Molwgh=1!'
+    write(u6,*) 'Molden_Interface: Unsupported normalization,Molwgh=1!'
   end if
   iRc = 1
   return
@@ -106,9 +102,9 @@ call GetEnvf('MOLCAS_MOLDEN',Env)
 !if ((Env == ' ') .or. (Env == 'OFF')) Then
 if (Env == 'OFF') then
   if (jPL >= 2) then
-    write(6,*)
-    write(6,*) ' Molden files will not be produced'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) ' Molden files will not be produced'
+    write(u6,*)
   end if
   iRC = 1
   return
@@ -116,15 +112,15 @@ end if
 !VV: current version of Molden has no clear limit for MaxOrb
 !if (MaxOrb > MaxOrb_Molden) then
 !  if (jPL >= 2) then
-!    write(6,*)
-!    write(6,*) ' Molden_Interface: W A R N I N G !!!!'
-!    write(6,*)
-!    write(6,*) ' No Molden input file will be generated!'
-!    write(6,*)
-!    write(6,*) ' Calculation exceeds the max number of orbitals allowed for MOLDEN. To change this modify the'
-!    write(6,*) ' parameter MaxOrb_Molden in src/util/molden_interface.f and follow the instructions in Molden'
-!    write(6,*) ' on how to modify the parameter MaxOrb.'
-!    write(6,*)
+!    write(u6,*)
+!    write(u6,*) ' Molden_Interface: W A R N I N G !!!!'
+!    write(u6,*)
+!    write(u6,*) ' No Molden input file will be generated!'
+!    write(u6,*)
+!    write(u6,*) ' Calculation exceeds the max number of orbitals allowed for MOLDEN. To change this modify the'
+!    write(u6,*) ' parameter MaxOrb_Molden in src/util/molden_interface.f and follow the instructions in Molden'
+!    write(u6,*) ' on how to modify the parameter MaxOrb.'
+!    write(u6,*)
 !  end if
 !  iRC = 1
 !  return
@@ -132,8 +128,8 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call f_Inquire('RUNFILE',Exist)
-if (.not. Exist) then
+call f_Inquire('RUNFILE',Exists)
+if (.not. Exists) then
   iRC = 1
   return
 end if
@@ -166,8 +162,8 @@ do iCnttp=1,nCnttp
 end do
 if (iAngMx_Valence > 4) then
   if (jPL >= 2) then
-    write(6,*) 'Sorry, Molden does not know how to handle'
-    write(6,*) 'functions with angular momentum larger than g'
+    write(u6,*) 'Sorry, Molden does not know how to handle'
+    write(u6,*) 'functions with angular momentum larger than g'
   end if
   Go To 999
 end if
@@ -236,9 +232,9 @@ do iCnttp=1,nCnttp
       end if
       if (y_sphere .and. y_cart) then
         if (jPL >= 2) then
-          write(6,*)
-          write(6,*) 'Failed to generate input file to MOLDEN'
-          write(6,*) 'No mixing allowed of spherical and cartesian d, f, g-functions'
+          write(u6,*)
+          write(u6,*) 'Failed to generate input file to MOLDEN'
+          write(u6,*) 'No mixing allowed of spherical and cartesian d, f, g-functions'
         end if
         Go to 991
       end if
@@ -295,9 +291,9 @@ do iCnttp=1,nCnttp             ! loop over unique basis sets
 
       do l=0,dbsc(iCnttp)%nVal-1
         ishell = dbsc(iCnttp)%iVal+l
-        if (Shells(iShell)%nBasis > nNumber) then
-          write(6,*) 'Interf: too many contracted functions!'
-          write(6,*) 'nBasis(iShell)=',Shells(iShell)%nBasis
+        if (Shells(iShell)%nBasis > size(cNumber)) then
+          write(u6,*) 'Interf: too many contracted functions!'
+          write(u6,*) 'nBasis(iShell)=',Shells(iShell)%nBasis
           call Abend()
         end if
 
@@ -334,241 +330,241 @@ do iCnttp=1,nCnttp             ! loop over unique basis sets
 
           if (l == 0) then
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'01s     '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'01s     '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
           end if
           if (l == 1) then
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'02px    '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'02px    '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'02py    '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'02py    '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'02pz    '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'02pz    '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
           end if
           if ((l == 2) .and. (.not. y_cart)) then
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'03d00   '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'03d00   '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'03d01+  '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'03d01+  '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'03d01-  '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'03d01-  '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'03d02+  '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'03d02+  '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'03d02-  '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'03d02-  '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
           end if
           if ((l == 2) .and. (y_cart)) then
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'d020000 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'d020000 '//cNumber(icontr)
             r_Norm(kk) = CC(2,0,0)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'d000200 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'d000200 '//cNumber(icontr)
             r_Norm(kk) = CC(0,2,0)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'d000002 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'d000002 '//cNumber(icontr)
             r_Norm(kk) = CC(0,0,2)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'d010100 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'d010100 '//cNumber(icontr)
             r_Norm(kk) = CC(1,1,0)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'d010001 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'d010001 '//cNumber(icontr)
             r_Norm(kk) = CC(1,0,1)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'d000101 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'d000101 '//cNumber(icontr)
             r_Norm(kk) = CC(0,1,1)
             iWork(ipCent3+kk-1) = iAtom
           end if
           if ((l == 3) .and. (.not. y_cart)) then
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'04f00   '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'04f00   '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'04f01+  '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'04f01+  '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'04f01-  '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'04f01-  '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'04f02+  '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'04f02+  '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'04f02-  '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'04f02-  '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'04f03+  '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'04f03+  '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'04f03-  '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'04f03-  '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
           end if
           if ((l == 3) .and. (y_cart)) then
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'f030000 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'f030000 '//cNumber(icontr)
             r_Norm(kk) = CC(3,0,0)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'f000300 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'f000300 '//cNumber(icontr)
             r_Norm(kk) = CC(0,3,0)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'f000003 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'f000003 '//cNumber(icontr)
             r_Norm(kk) = CC(0,0,3)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'f010200 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'f010200 '//cNumber(icontr)
             r_Norm(kk) = CC(1,2,0)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'f020100 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'f020100 '//cNumber(icontr)
             r_Norm(kk) = CC(2,1,0)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'f020001 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'f020001 '//cNumber(icontr)
             r_Norm(kk) = CC(2,0,1)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'f010002 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'f010002 '//cNumber(icontr)
             r_Norm(kk) = CC(1,0,2)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'f000102 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'f000102 '//cNumber(icontr)
             r_Norm(kk) = CC(0,1,2)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'f000201 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'f000201 '//cNumber(icontr)
             r_Norm(kk) = CC(0,2,1)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'f010101 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'f010101 '//cNumber(icontr)
             r_Norm(kk) = CC(1,1,1)
             iWork(ipCent3+kk-1) = iAtom
           end if
           if ((l == 4) .and. (.not. y_cart)) then
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'05g00   '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'05g00   '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'05g01+  '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'05g01+  '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'05g01-  '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'05g01-  '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'05g02+  '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'05g02+  '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'05g02-  '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'05g02-  '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'05g03+  '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'05g03+  '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'05g03-  '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'05g03-  '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'05g04+  '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'05g04+  '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'05g04-  '//number(icontr)
-            r_Norm(kk) = 1.0d0
+            gtolabel(kk) = AtomLabel(iAtom)//'05g04-  '//cNumber(icontr)
+            r_Norm(kk) = One
             iWork(ipCent3+kk-1) = iAtom
           end if
           if ((l == 4) .and. (y_cart)) then
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'g040000 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'g040000 '//cNumber(icontr)
             r_Norm(kk) = CC(4,0,0)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'g000400 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'g000400 '//cNumber(icontr)
             r_Norm(kk) = CC(0,4,0)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'g000004 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'g000004 '//cNumber(icontr)
             r_Norm(kk) = CC(0,0,4)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'g030100 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'g030100 '//cNumber(icontr)
             r_Norm(kk) = CC(3,1,0)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'g030001 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'g030001 '//cNumber(icontr)
             r_Norm(kk) = CC(3,0,1)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'g010300 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'g010300 '//cNumber(icontr)
             r_Norm(kk) = CC(1,3,0)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'g000301 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'g000301 '//cNumber(icontr)
             r_Norm(kk) = CC(0,3,1)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'g010003 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'g010003 '//cNumber(icontr)
             r_Norm(kk) = CC(1,0,3)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'g000103 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'g000103 '//cNumber(icontr)
             r_Norm(kk) = CC(0,1,3)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'g020200 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'g020200 '//cNumber(icontr)
             r_Norm(kk) = CC(2,2,0)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'g020002 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'g020002 '//cNumber(icontr)
             r_Norm(kk) = CC(2,0,2)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'g000202 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'g000202 '//cNumber(icontr)
             r_Norm(kk) = CC(0,2,2)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'g020101 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'g020101 '//cNumber(icontr)
             r_Norm(kk) = CC(2,1,1)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'g010201 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'g010201 '//cNumber(icontr)
             r_Norm(kk) = CC(1,2,1)
             iWork(ipCent3+kk-1) = iAtom
             kk = kk+1
-            gtolabel(kk) = AtomLabel(iAtom)//'g010102 '//number(icontr)
+            gtolabel(kk) = AtomLabel(iAtom)//'g010102 '//cNumber(icontr)
             r_Norm(kk) = CC(1,1,2)
             iWork(ipCent3+kk-1) = iAtom
           end if
@@ -582,8 +578,8 @@ end do
 kk_Max = kk
 if (nB > kk_max) then
   if (jPL >= 2) then
-    write(6,*) 'Molden_Interface: nB.gt.kk_max'
-    write(6,*) 'nB,kk_Max=',nB,kk_Max
+    write(u6,*) 'Molden_Interface: nB.gt.kk_max'
+    write(u6,*) 'nB,kk_Max=',nB,kk_Max
   end if
   Go To 998
 end if
@@ -636,7 +632,7 @@ end do
 !  NOTE: Also necessary for no symmetry calculations
 !  to properly keep track of i.e. px vs py vs pz
 
-DESYM = 0.0d0
+DESYM = Zero
 iBtot = 0
 iCount = 0
 do iIrrep=0,nIrrep-1 ! For all the irreps of symmetrized functions
@@ -659,11 +655,11 @@ do iIrrep=0,nIrrep-1 ! For all the irreps of symmetrized functions
 
     do iGTO=1,nB ! Find matching Gaussian (GTO)
 
-      if (gtolabel(iGTO) == label(iBtot)//number(iCount)) then
+      if (gtolabel(iGTO) == label(iBtot)//cNumber(iCount)) then
         ! GTO Found
         idx1 = 8*(iBtot-1)+iSymcent
         idx2 = (iBtot-1)
-        coeff = dble(iWork(ipPhase+idx1))*r_Norm(iGTO)/sqrt(dble(iWork(ipCent2+idx2)))
+        coeff = real(iWork(ipPhase+idx1),kind=wp)*r_Norm(iGTO)/sqrt(real(iWork(ipCent2+idx2),kind=wp))
         DESYM(iBtot,iGTO) = DESYM(iBtot,iGTO)+coeff
         iSymcent = iSymcent+1 ! Keep track of symmetry centre
       end if ! GTO finding

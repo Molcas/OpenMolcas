@@ -11,7 +11,14 @@
 
 module PrpPnt
 
-real*8, allocatable :: Den(:), Vec(:), Occ(:)
-integer nDen, nVec, nOcc
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+real(kind=wp), allocatable :: Den(:), Occ(:), Vec(:)
+integer(kind=iwp) :: nDen, nOcc, nVec
+
+public :: Den, nDen, nOcc, nVec, Occ, Vec
 
 end module PrpPnt

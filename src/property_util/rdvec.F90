@@ -35,7 +35,7 @@
 !> Call RdVec('INPORB',Lu,'CO',NSYM,NBAS,NBAS,CMO,OCC,Dummy,iDummy,Title,0,iErr)
 !> \endcode
 !>
-!> @param[in]  Name  File name
+!> @param[in]  FName File name
 !> @param[in]  LU_   Unit number
 !> @param[in]  LABEL Task
 !> @param[in]  NSYM  N symmetries
@@ -50,14 +50,23 @@
 !> @param[out] IERR  Return code
 !***********************************************************************
 
-subroutine RDVEC(Name,LU_,LABEL,NSYM,NBAS,NORB,CMO,OCC,EORB,INDT,TITLE,iWarn,iErr)
+subroutine RDVEC(FName,LU_,LABEL,NSYM,NBAS,NORB,CMO,OCC,EORB,INDT,TITLE,iWarn,iErr)
 
-implicit real*8(A-H,O-Z)
-dimension NBAS(NSYM), NORB(NSYM), CMO(*), OCC(*), INDT(*), EORB(*)
-character*(*) TITLE, Name, Label
-dimension vDum(2)
+use Definitions, only: wp, iwp
 
-call RdVec_(Name,LU_,LABEL,0,NSYM,NBAS,NORB,CMO,vDum,OCC,vDum,EORB,vDum,INDT,TITLE,iWarn,iErr,iWFtype)
+#include "intent.fh"
+
+implicit none
+character(len=*), intent(in) :: FName, LABEL
+integer(kind=iwp), intent(in) :: LU_, NSYM, NBAS(NSYM), NORB(NSYM), iWarn
+real(kind=wp), intent(_OUT_) :: CMO(*), OCC(*), EORB(*)
+integer(kind=iwp), intent(_OUT_) :: INDT(*)
+character(len=*), intent(out) :: TITLE
+integer(kind=iwp), intent(out) :: iErr
+integer(kind=iwp) :: iWFType
+real(kind=wp) :: vDum(2)
+
+call RdVec_(FName,LU_,LABEL,0,NSYM,NBAS,NORB,CMO,vDum,OCC,vDum,EORB,vDum,INDT,TITLE,iWarn,iErr,iWFtype)
 
 return
 

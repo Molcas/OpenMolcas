@@ -34,23 +34,13 @@ function iMostAbundantIsotope(Z)
 !                                                                      *
 !***********************************************************************
 
+use Definitions, only: iwp
+
 implicit none
-integer iMostAbundantIsotope
-!----------------------------------------------------------------------*
-! Dummy parameters.                                                    *
-!----------------------------------------------------------------------*
-integer Z
-!----------------------------------------------------------------------*
-! Local variables.                                                     *
-!----------------------------------------------------------------------*
-integer Rc
-integer Opt
-integer A
-!----------------------------------------------------------------------*
-! External references.                                                 *
-!----------------------------------------------------------------------*
-integer ixMostAbundantIsotope
-external ixMostAbundantIsotope
+integer(kind=iwp) :: iMostAbundantIsotope
+integer(kind=iwp), intent(in) :: Z
+integer(kind=iwp) :: A, Opt, Rc
+integer(kind=iwp), external :: ixMostAbundantIsotope
 
 Rc = 0
 Opt = 0

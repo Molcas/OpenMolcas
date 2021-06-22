@@ -16,10 +16,12 @@ subroutine tpidx2orb_sym(TYPEINDEX,NB,NF,NI,N1,N2,N3,NS,ND)
 !     A typeindex array consists of integers with 7 possible values
 !     corresponding to the types 'fi123sd' -> '1234567'.
 
+use Definitions, only: iwp, u6
+
 implicit none
-integer :: typeindex(*), NB
-integer :: NF, NI, N1, N2, N3, NS, ND
-integer :: IB, ITYPE
+integer(kind=iwp), intent(in) :: typeindex(*), NB
+integer(kind=iwp), intent(out) :: NF, NI, N1, N2, N3, NS, ND
+integer(kind=iwp) :: IB, ITYPE
 
 NF = 0
 NI = 0
@@ -46,7 +48,7 @@ do IB=1,NB
   else if (ITYPE == 7) then
     ND = ND+1
   else
-    write(6,*) 'TPIDX2ORB_SYM: unknown type index number'
+    write(u6,*) 'TPIDX2ORB_SYM: unknown type index number'
     call AbEnd()
   end if
 end do

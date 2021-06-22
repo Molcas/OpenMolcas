@@ -11,11 +11,14 @@
 
 subroutine orb2tpidx(NSYM,NB,NF,NI,N1,N2,N3,NS,ND,TYPEINDEX)
 
+use Definitions, only: iwp
+
+#include "intent.fh"
+
 implicit none
-integer :: NSYM, NB(NSYM)
-integer :: NF(*), NI(*), N1(*), N2(*), N3(*), NS(*), ND(*)
-integer :: TYPEINDEX(*)
-integer :: iSym, iStart
+integer(kind=iwp), intent(in) :: NSYM, NB(NSYM), NF(*), NI(*), N1(*), N2(*), N3(*), NS(*), ND(*)
+integer(kind=iwp), intent(_OUT_) :: TYPEINDEX(*)
+integer(kind=iwp) :: iSym, iStart
 
 iStart = 1
 do isym=1,nsym

@@ -94,7 +94,7 @@
       type(t_ON_scheme), intent(in) :: scheme
 
       logical :: found, changed
-      integer :: iPrlev, nData, ifvb,
+      integer :: iPrlev, nData,
      &    i, j, iTIND, NNwOrd, iSym,
      &    LNEWORD, LTMPXSYM, iErr, IAD19, iJOB,
      &    lll, lJobH, ldJobH, lscr, iDisk,

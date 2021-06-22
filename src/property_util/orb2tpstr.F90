@@ -11,11 +11,14 @@
 
 subroutine orb2tpstr(NSYM,NB,NF,NI,N1,N2,N3,NS,ND,TYPESTRING)
 
+use Definitions, only: iwp
+
+#include "intent.fh"
+
 implicit none
-integer :: NSYM, NB(NSYM)
-integer :: NF(*), NI(*), N1(*), N2(*), N3(*), NS(*), ND(*)
-character :: typestring(*)
-integer :: iSym, iStart
+integer(kind=iwp), intent(in) :: NSYM, NB(NSYM), NF(*), NI(*), N1(*), N2(*), N3(*), NS(*), ND(*)
+character, intent(_OUT_) :: typestring(*)
+integer(kind=iwp) :: iSym, iStart
 
 iStart = 1
 do isym=1,nsym

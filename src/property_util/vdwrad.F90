@@ -8,41 +8,43 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 function vdWRad(iAtmNr)
 ! A function that returns the van der Waals radie of an element, when
 ! such a radie is available. The user should exercise some care and
 ! check if the radie is zero, in which case the radie has not been
 ! reported. Reference: Bondi, J.Phys.Chem. 68 (1964) 441.
 
-implicit real*8(a-h,o-z)
-parameter(nAtmNr=102)
-real*8 Radii(nAtmNr)
-save Radii
-#include "angstr.fh"
-data Radii/                                                &
-  1.20d0,                                          1.40d0, & ! 1-2
-  1.82d0,0.00d0,0.00d0,1.70d0,1.55d0,1.52d0,1.47d0,1.54d0, & ! 3-10
-  2.27d0,1.73d0,0.00d0,2.10d0,1.80d0,1.80d0,1.75d0,1.88d0, & ! 10-18
-  2.75d0,0.00d0,                                           &
-         0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,1.63d0,1.40d0,1.39d0, &
-                1.87d0,0.00d0,1.85d0,1.90d0,1.85d0,2.02d0, & ! 19-36
-  0.00d0,0.00d0,                                           &
-         0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,1.63d0,1.72d0,1.58d0, &
-                1.93d0,2.17d0,0.00d0,2.06d0,1.98d0,2.16d0, & ! 37-54
-  0.0d0,0.00d0,                                            &
-         0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0, &
-         0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,1.75d0,1.66d0,1.55d0, &
-                1.96d0,2.02d0,0.00d0,0.00d0,0.00d0,0.00d0, & ! 55-86
-  0.0d0,0.00d0,                                            &
-         0.00d0,0.00d0,0.00d0,1.86d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0/ ! 87-102
+use Constants, only: Angstrom
+use Definitions, only: wp, iwp, u6
 
-Ang2au = 1.0d0/angstr
-if (iAtmNr > nAtmNr) then
-  write(6,*) 'vdWRad: Too high atom number!'
-  write(6,*) 'iAtmNr=',iAtmNr
+implicit none
+real(kind=wp) :: vdwRad
+integer(kind=iwp), intent(in) :: iAtmNr
+real(kind=wp), parameter :: Radii(102) = [ &
+  1.20_wp,                                                1.40_wp,                                                         & ! 1-2
+  1.82_wp,0.00_wp,0.00_wp,1.70_wp,1.55_wp,1.52_wp,1.47_wp,1.54_wp,                                                         & ! 3-10
+  2.27_wp,1.73_wp,0.00_wp,2.10_wp,1.80_wp,1.80_wp,1.75_wp,1.88_wp,                                                         & ! 11-18
+  2.75_wp,0.00_wp,                                                                                                         &
+          0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,1.63_wp,1.40_wp,1.39_wp,                                 &
+                  1.87_wp,0.00_wp,1.85_wp,1.90_wp,1.85_wp,2.02_wp,                                                         & ! 19-36
+  0.00_wp,0.00_wp,                                                                                                         &
+          0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,1.63_wp,1.72_wp,1.58_wp,                                 &
+                  1.93_wp,2.17_wp,0.00_wp,2.06_wp,1.98_wp,2.16_wp,                                                         & ! 37-54
+  0.00_wp,0.00_wp,                                                                                                         &
+          0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp, &
+          0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,1.75_wp,1.66_wp,1.55_wp,                                 &
+                  1.96_wp,2.02_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,                                                         & ! 54-86
+  0.00_wp,0.00_wp,                                                                                                         &
+          0.00_wp,0.00_wp,0.00_wp,1.86_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp  & ! 87-102
+                                         ]
+
+if (iAtmNr > size(Radii)) then
+  write(u6,*) 'vdWRad: Too high atom number!'
+  write(u6,*) 'iAtmNr=',iAtmNr
   call Quit_OnUserError()
 end if
-vdWRad = Radii(iAtmNr)*Ang2au
+vdWRad = Radii(iAtmNr)/Angstrom
 
 return
 

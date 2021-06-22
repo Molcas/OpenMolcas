@@ -33,31 +33,17 @@ function dNuclearMass(Z,A)
 !                                                                      *
 !***********************************************************************
 
-implicit none
-real*8 dNuclearMass
-!----------------------------------------------------------------------*
-! Dummy parameters.                                                    *
-!----------------------------------------------------------------------*
-integer Z
-integer A
-!----------------------------------------------------------------------*
-! Local variables.                                                     *
-!----------------------------------------------------------------------*
-real*8 Mass
-integer Rc
-integer Opt
-!----------------------------------------------------------------------*
-! External references.                                                 *
-!----------------------------------------------------------------------*
-real*8 dxNuclearMass
-external dxNuclearMass
+use Definitions, only: wp, iwp
 
-Rc = 0
+implicit none
+real(kind=wp) :: dNuclearMass
+integer(kind=iwp), intent(in) :: Z, A
+real(kind=wp) :: Mass
+integer(kind=iwp) :: Opt
+real(kind=wp), external :: dxNuclearMass
+
 Opt = 0
-Mass = dxNuclearMass(Z,A,Rc,Opt)
-if (Rc /= 0) then
-  call SysAbendMsg('dnuclearmass','fail to get mass',' ')
-end if
+Mass = dxNuclearMass(Z,A,Opt)
 !----------------------------------------------------------------------*
 ! Done.                                                                *
 !----------------------------------------------------------------------*

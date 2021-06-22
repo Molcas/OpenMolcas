@@ -8,5 +8,6 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      integer ifvb
       common /ifvbcom/ifvb
 #include "applyh_cvb.fh"

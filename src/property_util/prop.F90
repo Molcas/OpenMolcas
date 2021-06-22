@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 subroutine Prop(Short,qplab,cen1,cen2,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,lpole,labs,tmat,temp,ifallorb)
 !***********************************************************************
 !                                                                      *
@@ -55,31 +56,32 @@ subroutine Prop(Short,qplab,cen1,cen2,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,lpole
 ! (including virtuals) and not weighted by occupation numbers          *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "constants2.fh"
-#include "real.fh"
-#include "WrkSpc.fh"
+use Constants, only: Zero, One, Angstrom, Debye
+use Definitions, only: wp, iwp, u6
+
+implicit none
+logical(kind=iwp), intent(in) :: Short, ifallorb
+character(len=8), intent(in) :: qplab
+integer(kind=iwp), intent(in) :: nIrrep, nBas(0:nIrrep-1), nTot, lpole
+real(kind=wp), intent(in) :: cen1(3), cen2(3), Occ(nTot), ThrSV, PrEl(nTot,(lpole+1)*(lpole+2)/2), PrNu((lpole+1)*(lpole+2)/2)
+character(len=16), intent(out) :: labs((lpole+1)*(lpole+2)/2)
+real(kind=wp), intent(out) :: tmat((lpole+1)*(lpole+2)/2,(lpole+1)*(lpole+2)/2), temp((lpole+1)*(lpole+2)/2)
+integer(kind=iwp) :: i, icen, icen1, icen2, ilab, inp, iOcc, ip_, iPL, ipPrTot, iSt, iTol, iTol_E0, iTol_E1, ix, ixx, iy, iyy, iz, &
+                     izz, j, jMax, maxlab
+real(kind=wp) :: Fact, Molecular_Charge = Zero, PrElAug(nTot,(lpole+1)*(lpole+2)/2+1), PrNuAug((lpole+1)*(lpole+2)/2+1), sig, tmp, &
+                 X_Coor, Y_Coor, Z_Coor
+logical(kind=iwp) :: StoreInfo
+integer(kind=iwp), parameter :: lmax = 16
+character(len=lmax) :: lab, labsAug((lpole+1)*(lpole+2)/2+1)
+character(len=80) :: Line
+character(len=8) :: oplab
+character(len=5) :: lab5
+character(len=4) :: lab4
+character(len=3) :: lab3
+integer(kind=iwp), external :: Cho_X_GetTol, iPrintLevel
+logical(kind=iwp), external :: Reduce_Prt
 #include "hfc_logical.fh"
-parameter(lmax=16)
-character*3 lab3
-character*4 lab4
-character*5 lab5
-character*8 qplab, oplab
-character*(lmax) labs(1:(lpole+1)*(lpole+2)/2), lab
-character*80 Line
-logical Short, ifallorb
-integer nBas(0:nIrrep-1)
-integer Cho_X_GetTol
-external Cho_X_GetTol
-real*8 cen1(1:3), cen2(1:3), Occ(1:nTot), PrEl(1:nTot,1:(lpole+1)*(lpole+2)/2), PrNu(1:(lpole+1)*(lpole+2)/2)
-real*8 tmat(1:(lpole+1)*(lpole+2)/2,1:(lpole+1)*(lpole+2)/2), temp(1:(lpole+1)*(lpole+2)/2)
-character*(lmax) labsAug(1:(lpole+1)*(lpole+2)/2+1)
-real*8 PrElAug(1:nTot,1:(lpole+1)*(lpole+2)/2+1), PrNuAug(1:(lpole+1)*(lpole+2)/2+1)
-real*8 Molecular_Charge
-save Molecular_Charge
-data Molecular_Charge/0.0d0/
-logical StoreInfo, Reduce_Prt
-external Reduce_Prt
+#include "WrkSpc.fh"
 
 !                                                                      *
 !***********************************************************************
@@ -121,7 +123,7 @@ if (lab4 == 'ANGM') return
 
 ! invalid label supplied
 
-write(6,'(//1x,a,a8,a//)') ' The label: *',oplab,'* is not a valid label ... stop'
+write(u6,'(//1x,a,a8,a//)') ' The label: *',oplab,'* is not a valid label ... stop'
 call Quit_OnUserError()
 !                                                                      *
 !***********************************************************************
@@ -130,9 +132,9 @@ call Quit_OnUserError()
 
 200 continue
 if (lPole > lMax) then
-  write(6,*) 'Prop: lPole.gt.lMax'
-  write(6,*) 'lPole=',lPole
-  write(6,*) 'Increase lMax and recompile!'
+  write(u6,*) 'Prop: lPole.gt.lMax'
+  write(u6,*) 'lPole=',lPole
+  write(u6,*) 'Increase lMax and recompile!'
   call Abend()
 end if
 ilab = 0
@@ -172,7 +174,7 @@ if ((iPL == 2) .and. Short) then
   Line = ' '
   if (lPole == 0) then
     Line = 'Charge (e):'
-    Fact = 1.0d0
+    Fact = One
   else if (lPole == 1) then
     Line = 'Dipole Moment (Debye):'
     Fact = Debye
@@ -206,24 +208,24 @@ if ((iPL == 2) .and. Short) then
     Line(iSt:iSt+2) = '):'
     Fact = Debye*Angstrom**(lPole-1)
   end if
-  write(6,'(6X,A)') trim(Line)
+  write(u6,'(6X,A)') trim(Line)
   if (lpole > 0) then
-    write(6,'(6X,A,3F10.4)') 'Origin of the operator (Ang)=',(cen1(i)*Angstrom,i=1,3)
+    write(u6,'(6X,A,3F10.4)') 'Origin of the operator (Ang)=',(cen1(i)*Angstrom,i=1,3)
   end if
   if (lPole == 0) then
     tmp = Work(ipPrTot)
-    write(6,'(6X,A,A,F10.4)') labs(1),'=',Work(ipPrTot)*Fact
+    write(u6,'(6X,A,A,F10.4)') labs(1),'=',Work(ipPrTot)*Fact
     Molecular_Charge = Work(ipPrTot)*Fact
   else if (lPole == 1) then
     tmp = sqrt(Work(ipPrTot)**2+Work(ipPrTot+1)**2+Work(ipPrTot+2)**2)
-    write(6,'(4X,4(A,A,ES12.4))') labs(1),'=',Work(ipPrTot)*Fact,labs(2),'=',Work(ipPrTot+1)*Fact,labs(3),'=', &
-                                  Work(ipPrTot+2)*Fact,'           Total','=',tmp*Fact
-    if (abs(Molecular_Charge) > 0.90d0) then
-      write(6,'(6X,A)') 'Center of Charge (Ang)'
+    write(u6,'(4X,4(A,A,ES12.4))') labs(1),'=',Work(ipPrTot)*Fact,labs(2),'=',Work(ipPrTot+1)*Fact,labs(3),'=', &
+                                   Work(ipPrTot+2)*Fact,'           Total','=',tmp*Fact
+    if (abs(Molecular_Charge) > 0.9_wp) then
+      write(u6,'(6X,A)') 'Center of Charge (Ang)'
       X_Coor = Angstrom*(Work(ipPrTot)/Molecular_Charge)
       Y_Coor = Angstrom*(Work(ipPrTot+1)/Molecular_Charge)
       Z_Coor = Angstrom*(Work(ipPrTot+2)/Molecular_Charge)
-      write(6,'(6X,3(A,A,F14.8))') labs(1),'=',X_Coor,labs(2),'=',Y_Coor,labs(3),'=',Z_Coor
+      write(u6,'(6X,3(A,A,F14.8))') labs(1),'=',X_Coor,labs(2),'=',Y_Coor,labs(3),'=',Z_Coor
       Molecular_Charge = Zero
     end if
     call Put_DArray('Dipole moment',Work(ipPrTot),3)
@@ -233,14 +235,14 @@ if ((iPL == 2) .and. Short) then
     !end if
   else if (lPole >= 2) then
     ip_ = ipPrTot
-    tmp = 0.0d0
+    tmp = Zero
     do i=0,Maxlab-1
       tmp = max(tmp,abs(Work(ipPrTot+i)))
     end do
     ip_ = ipPrTot
     do i=1,maxlab,4
       jMax = min(maxlab-i,3)
-      write(6,'(4X,4(A,A,ES12.4))') (labs(i+j),'=',Work(ip_+j)*Fact,j=0,jMax)
+      write(u6,'(4X,4(A,A,ES12.4))') (labs(i+j),'=',Work(ip_+j)*Fact,j=0,jMax)
       ip_ = ip_+4
     end do
   end if
@@ -257,14 +259,14 @@ if ((iPL == 2) .and. Short) then
     end do
 
     if (lPole >= 3) then
-      write(6,'(6X,A,I1,A)') 'In traceless form (Debye*Ang**',lPole-1,')'
+      write(u6,'(6X,A,I1,A)') 'In traceless form (Debye*Ang**',lPole-1,')'
     else
-      write(6,'(6X,A,I1,A)') 'In traceless form (Debye*Ang)'
+      write(u6,'(6X,A,I1,A)') 'In traceless form (Debye*Ang)'
     end if
     ip_ = ipPrTot
     do i=1,maxlab,4
       jMax = min(maxlab-i,3)
-      write(6,'(4X,4(A,A,ES12.4))') (labs(i+j),'=',Work(ip_+j)*Fact,j=0,jMax)
+      write(u6,'(4X,4(A,A,ES12.4))') (labs(i+j),'=',Work(ip_+j)*Fact,j=0,jMax)
       ip_ = ip_+4
     end do
 
@@ -284,19 +286,19 @@ else if ((iPL >= 3) .or. ((.not. Short) .and. (iPL == 2))) then
     lab3 = '-th'
     write(lab5,'(i2,a3)') lpole,lab3
   end if
-  write(6,'(//6x,a5,a,3(f12.8,a))') lab5,' cartesian moments: origin at (',cen1(1),',',cen1(2),',',cen1(3),')'
-  write(6,'(6x,76(''-''))')
+  write(u6,'(//6x,a5,a,3(f12.8,a))') lab5,' cartesian moments: origin at (',cen1(1),',',cen1(2),',',cen1(3),')'
+  write(u6,'(6x,76(''-''))')
   sig = -One
   call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,Work(ipPrTot),iPL,0,ifallorb)
   if (lpole == 1) then
-    write(6,'(6x,76(''-''))')
-    write(6,'(6x,a,3f16.8,3x,a)') 'Total             ',(Work(ipPrTot+j)*Debye,j=0,2),'Debye'
+    write(u6,'(6x,76(''-''))')
+    write(u6,'(6x,a,3f16.8,3x,a)') 'Total             ',(Work(ipPrTot+j)*Debye,j=0,2),'Debye'
     call Put_DArray('Dipole moment',Work(ipPrTot),3)
   end if
 
   if ((lpole >= 2) .and. (lpole <= 4)) then
-    write(6,'(//6x,a,i2,a,3(f12.8,a))') 'Cartesian ',lpole,'-pole moment: origin at (',cen1(1),',',cen1(2),',',cen1(3),')'
-    write(6,'(6x,76(''-''))')
+    write(u6,'(//6x,a,i2,a,3(f12.8,a))') 'Cartesian ',lpole,'-pole moment: origin at (',cen1(1),',',cen1(2),',',cen1(3),')'
+    write(u6,'(6x,76(''-''))')
 
     ! Transform cartesian moments to multipole moments
 
@@ -354,11 +356,11 @@ if (lab3 == 'EF0') then
   ! tensor at the given centre
 
   if ((iPL >= 3) .or. ((.not. Short) .and. (iPL == 2))) then
-    write(6,'(//6x,a,i5,1x,a,3(f12.8,a))') ' Electric potential:  centre no.',icen,'(',cen1(1),',',cen1(2),',',cen1(3),')'
-    write(6,'(6x,72(''-''))')
+    write(u6,'(//6x,a,i5,1x,a,3(f12.8,a))') ' Electric potential:  centre no.',icen,'(',cen1(1),',',cen1(2),',',cen1(3),')'
+    write(u6,'(6x,72(''-''))')
   else
     if (icen == 1) then
-      write(6,'(//6X,A)') 'Electric potential:'
+      write(u6,'(//6X,A)') 'Electric potential:'
     end if
   end if
   sig = -One
@@ -373,12 +375,12 @@ if (lab3 == 'EF1') then
   ! at the given centre
 
   if ((iPL >= 3) .or. ((.not. Short) .and. (iPL == 2))) then
-    write(6,'(//6x,a,i5,1x,a,3(f12.8,a))') ' Electric field:  centre no.',icen,'(',cen1(1),',',cen1(2),',',cen1(3),')'
-    write(6,'(6x,72(''-''))')
+    write(u6,'(//6x,a,i5,1x,a,3(f12.8,a))') ' Electric field:  centre no.',icen,'(',cen1(1),',',cen1(2),',',cen1(3),')'
+    write(u6,'(6x,72(''-''))')
   else
     if (icen == 1) then
-      write(6,'(//6X,A)') 'Electric field:'
-      write(6,'(5X,6A16)') (labs(i),i=1,MaxLab)
+      write(u6,'(//6X,A)') 'Electric field:'
+      write(u6,'(5X,6A16)') (labs(i),i=1,MaxLab)
     end if
   end if
   sig = +One
@@ -416,12 +418,12 @@ if (lab3 == 'EF2') then
   ! tensor at the given centre
 
   if ((iPL >= 3) .or. ((.not. Short) .and. (iPL == 2))) then
-    write(6,'(//6x,a,i5,1x,a,3(f12.8,a))') ' Electric field gradient:  centre no.',icen,'(',cen1(1),',',cen1(2),',',cen1(3),')'
-    write(6,'(6x,78(''-''))')
+    write(u6,'(//6x,a,i5,1x,a,3(f12.8,a))') ' Electric field gradient:  centre no.',icen,'(',cen1(1),',',cen1(2),',',cen1(3),')'
+    write(u6,'(6x,78(''-''))')
   else
     if (icen == 1) then
-      write(6,'(//6X,A)') 'Electric field gradient:'
-      write(6,'(5X,6A16)') (labsAug(i),i=1,MaxLab)
+      write(u6,'(//6X,A)') 'Electric field gradient:'
+      write(u6,'(5X,6A16)') (labsAug(i),i=1,MaxLab)
     end if
   end if
   sig = +One
@@ -477,10 +479,10 @@ labs(9) = '   (XO*XG+YO*YG)'
 ! tensor at the given centre (O=cen1) with the gauge origin
 ! at centre G=cen2
 
-write(6,'(//6x,a,i3,1x,a,3(f12.8,a)/1x,a,3(f12.8,a))') ' Diamagnetic shielding:   centre no.',icen1,'(',cen1(1),',',cen1(2),',', &
-                                                       cen1(3),')','                       gauge origin at (',cen2(1),',',cen2(2), &
-                                                       ',',cen2(3),')'
-write(6,'(6x,78(''-''))')
+write(u6,'(//6x,a,i3,1x,a,3(f12.8,a)/1x,a,3(f12.8,a))') ' Diamagnetic shielding:   centre no.',icen1,'(',cen1(1),',',cen1(2),',', &
+                                                        cen1(3),')','                       gauge origin at (',cen2(1),',', &
+                                                        cen2(2),',',cen2(3),')'
+write(u6,'(6x,78(''-''))')
 sig = One
 call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,Work(ipPrTot),iPL,0,ifallorb)
 !                                                                      *
@@ -521,14 +523,14 @@ if (lpole > 3) then
   lab3 = '-th'
   write(lab5,'(i2,a3)') lpole,lab3
 end if
-write(6,'(//6x,a5,a,3(f12.8,a))') lab5,' cartesian moments: origin at (',cen1(1),',',cen1(2),',',cen1(3),')'
-write(6,'(6x,76(''-''))')
+write(u6,'(//6x,a5,a,3(f12.8,a))') lab5,' cartesian moments: origin at (',cen1(1),',',cen1(2),',',cen1(3),')'
+write(u6,'(6x,76(''-''))')
 sig = One
 call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,Work(ipPrTot),iPL,0,ifallorb)
 
 if ((lpole >= 2) .and. (lpole <= 4)) then
-  write(6,'(//6x,a,i2,a,3(f12.8,a))') 'Cartesian ',lpole,'-pole moment: origin at (',cen1(1),',',cen1(2),',',cen1(3),')'
-  write(6,'(6x,76(''-''))')
+  write(u6,'(//6x,a,i2,a,3(f12.8,a))') 'Cartesian ',lpole,'-pole moment: origin at (',cen1(1),',',cen1(2),',',cen1(3),')'
+  write(u6,'(6x,76(''-''))')
 
   inp = 0
   call Tmltpl(inp,lpole,maxlab,labs,1,PrNu,tmat,temp)
@@ -556,12 +558,12 @@ call GetMem('PrTot','Allo','Real',ipPrTot,maxlab)
 labs(1) = '      Delta(R-C)'
 
 if ((iPL >= 3) .or. ((.not. Short) .and. (iPL == 2))) then
-  write(6,'(//6x,a,i5,1x,a,3(f12.8,a))') ' Contact term:  centre no.',icen,'(',cen1(1),',',cen1(2),',',cen1(3),')'
-  write(6,'(6x,78(''-''))')
+  write(u6,'(//6x,a,i5,1x,a,3(f12.8,a))') ' Contact term:  centre no.',icen,'(',cen1(1),',',cen1(2),',',cen1(3),')'
+  write(u6,'(6x,78(''-''))')
 else
   if (icen == 1) then
-    write(6,'(//6X,A)') 'Contact term:'
-    write(6,'(5X,6A16)') (labs(i),i=1,MaxLab)
+    write(u6,'(//6X,A)') 'Contact term:'
+    write(u6,'(5X,6A16)') (labs(i),i=1,MaxLab)
   end if
 end if
 sig = +One
@@ -576,7 +578,7 @@ StoreInfo = .false.
 iTol = 5
 iTol_E0 = 8
 iTol_E1 = Cho_X_GetTol(iTol_E0)
-iTol = int(dble(iTol)*dble(iTol_E1)/dble(iTol_E0))
+iTol = int(real(iTol*iTol_E1,kind=wp)/real(iTol_E0,kind=wp))
 if (StoreInfo) call Add_Info(OpLab,Work(ipPrTot),maxlab,iTol)
 call GetMem('PrTot','Free','Real',ipPrTot,maxlab)
 

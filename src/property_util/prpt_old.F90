@@ -55,13 +55,19 @@ subroutine Prpt_old(nirrep,nbas,ndim,n2dim,vec,occ,maxscr,scr)
 ! 1991 R. Lindh, Dept. of Theor. Chem. Univ. of Lund, Sweden.          *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-character*8 label
-logical short, NxtOpr, ifallorb
-integer nbas(0:nirrep)
-real*8 vec(1:n2dim), occ(1:ndim), scr(1:maxscr)
-dimension idum(1)
+use iso_c_binding, only: c_f_pointer, c_loc
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: nirrep, nbas(0:nirrep), ndim, n2dim, maxscr
+real(kind=wp), intent(in) :: vec(n2dim), occ(ndim)
+real(kind=wp), intent(out) :: scr(maxscr)
+integer(kind=iwp) :: iadC1, iadC2, iadDen, iadEl, iadLab, iadNuc, iadopr, iadtmp, iadtmt, iCount, idum(1), iOcc, iopt, irc, iscr, &
+                     iSmLbl, iVec, jCount, jRC, maxCen, maxGG, mDim, nblock, nComp, nfblock, n_Int, nscr
+real(kind=wp) :: dummy
+logical(kind=iwp) :: short, NxtOpr, ifallorb
+character(len=8) :: label
 
 call Prpt_old_Internal(Scr)
 
@@ -72,15 +78,14 @@ contains
 
 subroutine Prpt_old_Internal(Scr)
 
-  use iso_c_binding
-
-  real*8, target :: Scr(*)
+  real(kind=wp), target :: Scr(*)
   character, pointer :: cScr(:)
+  integer(kind=iwp) :: i, iComp, iEF, ii, il, ir, j, k
 
-  write(6,*)
+  write(u6,*)
   call CollapseOutput(1,'   Molecular properties:')
-  write(6,'(3X,A)') '   ---------------------'
-  write(6,*)
+  write(u6,'(3X,A)') '   ---------------------'
+  write(u6,*)
   short = .true.
   ifallorb = .false.
   mDim = 1
@@ -136,7 +141,7 @@ subroutine Prpt_old_Internal(Scr)
   iadC2 = iadC1+3
   iadNuc = iadC2+3
 
-  !write(6,*) ' Starting scan of ONEINT for multipole moments'
+  !write(u6,*) ' Starting scan of ONEINT for multipole moments'
   do i=1,99
     NxtOpr = .false.
     nComp = (i+1)*(i+2)/2
@@ -154,7 +159,7 @@ subroutine Prpt_old_Internal(Scr)
       irc = -1
       iopt = 1
       call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
-      if (irc == 0) nInt = idum(1)
+      if (irc == 0) n_Int = idum(1)
       if (irc /= 0) go to 101
       NxtOpr = .true.
       irc = -1
@@ -162,15 +167,15 @@ subroutine Prpt_old_Internal(Scr)
       iadOpr = iadLab+2*nComp
       call RdOne(irc,iopt,label,iComp,scr(iadOpr),iSmLbl)
       if (irc /= 0) go to 101
-      if (nInt /= 0) call CmpInt(scr(iadOpr),nInt,nBas,nIrrep,iSmLbl)
-      scr(iadNuc+icomp-1) = scr(iadOpr+nInt+3)
+      if (n_Int /= 0) call CmpInt(scr(iadOpr),n_Int,nBas,nIrrep,iSmLbl)
+      scr(iadNuc+icomp-1) = scr(iadOpr+n_Int+3)
       if (iComp == 1) then
         do k=0,2
-          scr(iadC1+k) = scr(iadOpr+nInt+k)
-          scr(iadC2+k) = scr(iadOpr+nInt+k)
+          scr(iadC1+k) = scr(iadOpr+n_Int+k)
+          scr(iadC2+k) = scr(iadOpr+n_Int+k)
         end do
       end if
-      if (nInt == 0) Go To 101
+      if (n_Int == 0) Go To 101
       call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,dummy,nblock,Scr(iadOpr),Scr(iadEl+iComp-1))
   101 continue
     end do
@@ -196,7 +201,7 @@ subroutine Prpt_old_Internal(Scr)
 
   199 continue
 
-  !write(6,*) ' Starting scan of ONEINT for various elec. field integrals'
+  !write(u6,*) ' Starting scan of ONEINT for various elec. field integrals'
 
   do iEF=0,2
     nComp = (iEF+1)*(iEF+2)/2
@@ -217,7 +222,7 @@ subroutine Prpt_old_Internal(Scr)
         irc = -1
         iopt = 1
         call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
-        if (irc == 0) nInt = idum(1)
+        if (irc == 0) n_Int = idum(1)
         if (irc /= 0) go to 201
         NxtOpr = .true.
         irc = -1
@@ -225,15 +230,15 @@ subroutine Prpt_old_Internal(Scr)
         iadOpr = iadLab+2*nComp
         call RdOne(irc,iopt,label,iComp,scr(iadOpr),iSmLbl)
         if (irc /= 0) go to 201
-        if (nInt /= 0) call CmpInt(scr(iadOpr),nInt,nBas,nIrrep,iSmLbl)
-        scr(iadNuc+icomp-1) = scr(iadOpr+nInt+3)
+        if (n_Int /= 0) call CmpInt(scr(iadOpr),n_Int,nBas,nIrrep,iSmLbl)
+        scr(iadNuc+icomp-1) = scr(iadOpr+n_Int+3)
         if (iComp == 1) then
           do k=0,2
-            scr(iadC1+k) = scr(iadOpr+nInt+k)
-            scr(iadC2+k) = scr(iadOpr+nInt+k)
+            scr(iadC1+k) = scr(iadOpr+n_Int+k)
+            scr(iadC2+k) = scr(iadOpr+n_Int+k)
           end do
         end if
-        if (nInt == 0) Go To 201
+        if (n_Int == 0) Go To 201
         call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,dummy,nblock,Scr(iadOpr),Scr(iadEl+iComp-1))
   201   continue
       end do
@@ -250,7 +255,7 @@ subroutine Prpt_old_Internal(Scr)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  !write(6,*) ' Starting scan of ONEINT diamagnetic shielding'
+  !write(u6,*) ' Starting scan of ONEINT diamagnetic shielding'
 
   nComp = 9
 
@@ -273,7 +278,7 @@ subroutine Prpt_old_Internal(Scr)
         irc = -1
         iopt = 1
         call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
-        if (irc == 0) nInt = idum(1)
+        if (irc == 0) n_Int = idum(1)
         if (irc /= 0) go to 402
         NxtOpr = .true.
         irc = -1
@@ -281,19 +286,19 @@ subroutine Prpt_old_Internal(Scr)
         iadOpr = iadLab+2*nComp
         call RdOne(irc,iopt,label,iComp,scr(iadOpr),iSmLbl)
         if (irc /= 0) go to 402
-        if (nInt /= 0) call CmpInt(scr(iadOpr),nInt,nBas,nIrrep,iSmLbl)
-        scr(iadNuc+icomp-1) = scr(iadOpr+nInt+3)
+        if (n_Int /= 0) call CmpInt(scr(iadOpr),n_Int,nBas,nIrrep,iSmLbl)
+        scr(iadNuc+icomp-1) = scr(iadOpr+n_Int+3)
         if (iComp == 1) then
           do k=0,2
-            scr(iadC1+k) = scr(iadOpr+nInt+k)
+            scr(iadC1+k) = scr(iadOpr+n_Int+k)
           end do
         end if
         if (iComp == 2) then
           do k=0,2
-            scr(iadC2+k) = scr(iadOpr+nInt+k)
+            scr(iadC2+k) = scr(iadOpr+n_Int+k)
           end do
         end if
-        if (nInt == 0) Go To 402
+        if (n_Int == 0) Go To 402
         call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,dummy,nblock,Scr(iadOpr),Scr(iadEl+iComp-1))
   402   continue
       end do
@@ -314,15 +319,15 @@ subroutine Prpt_old_Internal(Scr)
   499 continue
 
   call CollapseOutput(0,'   Molecular properties:')
-  write(6,*)
+  write(u6,*)
   return
 
   999 continue
-  write(6,'(//1x,a/1x,a/1x,a,i8,a,i8)') ' Warrning:',' Not enough scratch area to perform calculations',' Needed at least:',iscr, &
+  write(u6,'(//1x,a/1x,a/1x,a,i8,a,i8)') ' Warrning:',' Not enough scratch area to perform calculations',' Needed at least:',iscr, &
                                         '   available:',maxscr
 
   call CollapseOutput(0,'   Molecular properties:')
-  write(6,*)
+  write(u6,*)
 
   return
 

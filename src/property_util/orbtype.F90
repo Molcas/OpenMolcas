@@ -36,48 +36,31 @@
 
 subroutine OrbType(Z,List,opt)
 
+use Definitions, only: iwp, u6
+
 implicit none
-!----------------------------------------------------------------------*
-! Dummy arguments                                                      *
-!----------------------------------------------------------------------*
-integer Z, List, opt
-dimension List(4)
-!----------------------------------------------------------------------*
-! Type declare local variables                                         *
-!----------------------------------------------------------------------*
-integer DeepCore, Core, SoftCore
-integer DeepValence, Valence, ExtraValence
-integer i
-!----------------------------------------------------------------------*
-! Dimension local variables                                            *
-!----------------------------------------------------------------------*
-dimension DeepCore(4)
-dimension Core(4)
-dimension SoftCore(4)
-dimension DeepValence(4)
-dimension Valence(4)
-dimension ExtraValence(4)
+integer(kind=iwp), intent(in) :: Z, opt
+integer(kind=iwp), intent(out) :: List(4)
+integer(kind=iwp) :: DeepCore(4), Core(4), SoftCore(4), DeepValence(4), Valence(4), ExtraValence(4), i
 
 !----------------------------------------------------------------------*
 ! Is this a legal element?                                             *
 !----------------------------------------------------------------------*
 !NIKO if ((Z < 1) .or. (Z > 112)) then
 if ((Z < 0) .or. (Z > 112)) then
-  write(6,*) 'orbtype: do only know elements 1-112'
+  write(u6,*) 'orbtype: do only know elements 1-112'
   call Abend()
 end if
 !----------------------------------------------------------------------*
 ! Initialize                                                           *
 !----------------------------------------------------------------------*
-do i=1,4
-  DeepCore(i) = 0
-  Core(i) = 0
-  SoftCore(i) = 0
-  DeepValence(i) = 0
-  Valence(i) = 0
-  ExtraValence(i) = 0
-  List(i) = 0
-end do
+DeepCore(:) = 0
+Core(:) = 0
+SoftCore(:) = 0
+DeepValence(:) = 0
+Valence(:) = 0
+ExtraValence(:) = 0
+List(:) = 0
 !----------------------------------------------------------------------*
 ! How many shells are there for this atom                              *
 !----------------------------------------------------------------------*
@@ -242,7 +225,7 @@ else if (Z <= 112) then
   Valence(3) = 1
   ExtraValence(2) = 1
 else
-  write(6,*) 'orbtype: element',Z,' not yet implemented'
+  write(u6,*) 'orbtype: element',Z,' not yet implemented'
   call Abend()
 end if
 !----------------------------------------------------------------------*

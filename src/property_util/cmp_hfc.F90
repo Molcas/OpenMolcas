@@ -27,15 +27,15 @@
 
 subroutine cmp_hfc(nb,nat)
 
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
+
 implicit none
-#include "real.fh"
+integer(kind=iwp), intent(in) :: nb, nat
+integer(kind=iwp) :: iat, icomp, idir, iopt, ip, irc, isa, isd, isr, ita, itd, jdir, jp, kdir, lu_one, nb2, nbtri, stri, toper
+real(kind=wp) :: amat(3,3), hfc(3,3), trace
+character(len=8) :: label
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
-integer nb, nat, nb2, irc, iopt, icomp, toper, lu_one, kdir
-integer nbtri, ip, jp, isd, itd, stri
-integer ita, isa, isr, idir, jdir, iat
-real*8 hfc(3,3), trace, amat(3,3)
-character*8 label
 
 ! Sizes of the matrices
 nb2 = nb*nb
@@ -55,7 +55,7 @@ do ip=0,nb-1
   stri = isd+ip*nb
   do jp=0,nb-1
     if (ip /= jp) then
-      Work(stri+jp) = 0.5d0*Work(stri+jp)
+      Work(stri+jp) = Half*Work(stri+jp)
     end if
   end do
 end do
@@ -80,7 +80,7 @@ do iat=1,nat
       call rdone(irc,iopt,label,icomp,work(ita),toper)
       if (irc /= 0) goto 999
       call square(Work(ita),Work(isa),nb,1,nb)
-      call dgemm_('N','N',nb,nb,nb,1.0d0,Work(isd),nb,Work(isa),nb,0.0d0,Work(isr),nb)
+      call dgemm_('N','N',nb,nb,nb,One,Work(isd),nb,Work(isa),nb,Zero,Work(isr),nb)
       do kdir=1,nb
         trace = trace+Work(isr+nb*(kdir-1)+kdir-1)
       end do
@@ -98,15 +98,15 @@ do iat=1,nat
     end do
   end do
 
-  write(6,*) ''
-  write(6,*) ''
-  write(6,'(A,I3)') 'Hyperfine coupling tensor matrix for atom:',iat
-  write(6,*) ''
-  write(6,'(A)') '   ---------------------------------------------------------'
+  write(u6,*) ''
+  write(u6,*) ''
+  write(u6,'(A,I3)') 'Hyperfine coupling tensor matrix for atom:',iat
+  write(u6,*) ''
+  write(u6,'(A)') '   ---------------------------------------------------------'
   do idir=1,3
-    write(6,'(3E20.10)') (-amat(idir,jdir),jdir=1,3)
+    write(u6,'(3E20.10)') (-amat(idir,jdir),jdir=1,3)
   end do
-  write(6,'(A)') '   ---------------------------------------------------------'
+  write(u6,'(A)') '   ---------------------------------------------------------'
 end do
 call Add_Info('AMAT',AMAT,9,5)
 
@@ -120,8 +120,8 @@ call clsone(irc,iopt)
 return
 
 999 continue
-write(6,*) ' *** Error in subroutine cmp_hfc ***'
-write(6,'(A,A)') '     Label = ',Label
+write(u6,*) ' *** Error in subroutine cmp_hfc ***'
+write(u6,'(A,A)') '     Label = ',Label
 call Abend()
 
 end subroutine cmp_hfc

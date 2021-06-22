@@ -20,22 +20,28 @@ subroutine GetDens(FName,Density,iPrint)
 !             January 2000                                             *
 !***********************************************************************
 
-use PrpPnt
+use PrpPnt, only: Den, nDen, nOcc, nVec, Occ, Vec
 use Basis_Info, only: nBas
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 #ifdef _HDF5_
 use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_close_file
 #endif
+use stdalloc, only: mma_allocate
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
-#include "stdalloc.fh"
-character Line*80
-character*(*) FName
-logical Density
-dimension Dummy(1), iDummy(1)
+implicit none
+character(len=*), intent(in) :: FName
+logical(kind=iwp), intent(in) :: Density
+integer(kind=iwp), intent(in) :: iPrint
+integer(kind=iwp) :: iadDen, iadOcc, iadVec, iBas, icd, ico, ictd, icto, ictv, icv, iDummy(1), iErr, iIrrep, j1, j2, LuVec
+#ifdef _HDF5_
+integer(kind=iwp) :: id_file
+#endif
+real(kind=wp) :: Dummy(1)
+character(len=80) :: Line
+integer(kind=iwp), external :: n2Tri
 
 nDen = n2Tri(1)
 nVec = S%n2Tot
@@ -52,18 +58,18 @@ if (mh5_is_hdf5(FName)) then
   id_file = mh5_open_file_r(FName)
   call RdVec_HDF5(id_file,'CO',nIrrep,nBas,Vec,Occ,Dummy,iDummy)
   call mh5_close_file(id_file)
-  write(6,*)
-  write(6,'(A,1X,A)') ' Vectors read from HDF5 file:',trim(FName)
-  write(6,*)
+  write(u6,*)
+  write(u6,'(A,1X,A)') ' Vectors read from HDF5 file:',trim(FName)
+  write(u6,*)
 else
 #endif
   LuVec = 19
   call RdVec(FName,LuVec,'CO',nIrrep,nBas,nBas,Vec,Occ,Dummy,iDummy,Line,0,iErr)
-  write(6,*)
-  write(6,'(A)') ' Header from vector file:'
-  write(6,*)
-  write(6,'(A)') trim(Line)
-  write(6,*)
+  write(u6,*)
+  write(u6,'(A)') ' Header from vector file:'
+  write(u6,*)
+  write(u6,'(A)') trim(Line)
+  write(u6,*)
 #ifdef _HDF5_
 end if
 #endif

@@ -11,33 +11,36 @@
 
 subroutine isoloop(double)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp, u6
+
+implicit none
 #include "Molcas.fh"
+logical(kind=iwp), intent(in) :: double
+integer(kind=iwp) :: ipCoor, ipT, n, nAtoms_All, nTemp
+character(len=2) :: Element(MxAtom)
 #include "WrkSpc.fh"
-character*2 Element(MxAtom)
-logical double
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-write(6,*)
+write(u6,*)
 call CollapseOutput(1,'   Isotopic shifts:')
-write(6,'(3X,A)') '   ----------------'
-write(6,*)
+write(u6,'(3X,A)') '   ----------------'
+write(u6,*)
 
 call Get_nAtoms_All(nAtoms_All)
 call Allocate_Work(ipCoor,3*nAtoms_All)
 call Get_Coord_All(Work(ipCoor),nAtoms_All)
 call Get_Name_All(Element)
 
-write(6,*)
-write(6,*)
-write(6,*) '****************************************'
-write(6,*) '*                                      *'
-write(6,*) '* Isotope shifted frequencies in cm-1  *'
-write(6,*) '*                                      *'
-write(6,*) '****************************************'
-write(6,*)
+write(u6,*)
+write(u6,*)
+write(u6,*) '****************************************'
+write(u6,*) '*                                      *'
+write(u6,*) '* Isotope shifted frequencies in cm-1  *'
+write(u6,*) '*                                      *'
+write(u6,*) '****************************************'
+write(u6,*)
 n = 3*nAtoms_All
 nTemp = 6*2*n**2
 call Getmem('ISOLOOP','ALLO','REAL',ipT,nTemp)
@@ -46,7 +49,7 @@ call Getmem('ISOLOOP','FREE','REAL',ipT,nTemp)
 call Free_Work(ipCoor)
 
 call CollapseOutput(0,'   Isotopic shifts:')
-write(6,*)
+write(u6,*)
 
 return
 

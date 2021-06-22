@@ -11,7 +11,7 @@
 ! Copyright (C) Valera Veryazov                                        *
 !***********************************************************************
 
-subroutine WRVEC_(Name,LU_,LABEL,IUHF,NSYM,NBAS,NORB,CMO,CMO_ab,OCC,OCC_ab,EORB,EORB_ab,INDT,TITLE,iWFtype)
+subroutine WRVEC_(FName,LU_,LABEL,IUHF,NSYM,NBAS,NORB,CMO,CMO_ab,OCC,OCC_ab,EORB,EORB_ab,INDT,TITLE,iWFtype)
 ! The routine to dump information to INPORB
 !-----------------------------------------------------------------------
 !iWFtype =  0  -- Unknown origin of orbitals
@@ -25,24 +25,26 @@ subroutine WRVEC_(Name,LU_,LABEL,IUHF,NSYM,NBAS,NORB,CMO,CMO_ab,OCC,OCC_ab,EORB,
 !           8  --
 !-----------------------------------------------------------------------
 
-implicit real*8(A-H,O-Z)
-dimension NBAS(NSYM), NORB(NSYM), CMO(*), OCC(*), EORB(*), INDT(*)
-dimension CMO_ab(*), OCC_ab(*), EORB_ab(*)
-character*(*) TITLE, Name, LABEL
-character*8 Line
-character FMT*40
-logical Exist
-character*10 Buff
-character*12 lBuff
-dimension iBuff(0:7)
-character*7 Crypt
+use Definitions, only: wp, iwp, u6
+
+implicit none
+character(len=*), intent(in) :: FName, LABEL
+integer(kind=iwp), intent(in) :: LU_, IUHF, NSYM, NBAS(NSYM), NORB(NSYM), INDT(*), iWFtype
+real(kind=wp), intent(in) :: CMO(*), CMO_ab(*), OCC(*), OCC_ab(*), EORB(*), EORB_ab(*)
+character(len=*), intent(inout) :: TITLE
+integer(kind=iwp) :: I, iAppend, iB, IBAS, IBASEND, iBasis, iBB, iBuff(0:7), iCMO, iDefault, iEne, iExtras, iInd, iKoor, iLab, &
+                     iOCC, IORB, IORBEND, Ip, iShift, isIndex, ISYM, iTwoE, iVer = 0, jVer, KCMO, KOCC, lin, Lu, NDIV, nDNA
+logical(kind=iwp) :: Exists, IsBorn
 !-SVC: variable to hold birth certificate
-character cDNA*256
-character*120 inout
-character*20 InpOrbVer
-logical IsBorn
-data Crypt/'fi123sd'/
-integer, save :: iVer = 0
+character(len=256) :: cDNA
+character(len=120) :: str
+character(len=84) :: FRMT
+character(len=20) :: InpOrbVer
+character(len=12) :: lBuff
+character(len=10) :: Buff
+character(len=8) :: Line
+character(len=*), parameter :: Crypt = 'fi123sd'
+integer(kind=iwp) :: isFreeUnit
 #include "inporbfmt.fh"
 
 ! Analyze Label
@@ -66,7 +68,7 @@ if (index(Label,'K') /= 0) iKoor = 1
 if (index(Label,'B') /= 0) iBasis = 1
 isIndex = 0
 Lu = Lu_
-call OpnFl(Name,Lu,Exist)
+call OpnFl(FName,Lu,Exists)
 rewind(Lu)
 if (iAppend == 1) then
   iInd = 1
@@ -115,7 +117,7 @@ write(LU,'(8i8)') (NBAS(I),I=1,NSYM)
 write(LU,'(8i8)') (NORB(I),I=1,NSYM)
 call qpg_cArray('BirthCertificate',IsBorn,nDNA)
 if (.not. IsBorn) then
-  write(6,*) 'RunFile has no Birth Certificate'
+  write(u6,*) 'RunFile has no Birth Certificate'
 else
   cDNA = ' '
   call Get_cArray('BirthCertificate',cDNA(:nDNA),nDNA)
@@ -136,7 +138,7 @@ end if
 ! ORB section
 if (iCMO == 1) then
   NDIV = nDivOrb(iVer)
-  FMT = FmtOrb(iVer)
+  FRMT = FmtOrb(iVer)
   write(Lu,'(A)') '#ORB'
   KCMO = 0
   do ISYM=1,NSYM
@@ -144,7 +146,7 @@ if (iCMO == 1) then
       write(LU,'(A,2I5)') '* ORBITAL',ISYM,IORB
       do IBAS=1,NBAS(ISYM),NDIV
         IBASEND = min(IBAS+NDIV-1,NBAS(ISYM))
-        write(LU,FMT) (CMO(I+KCMO),I=IBAS,IBASEND)
+        write(LU,FRMT) (CMO(I+KCMO),I=IBAS,IBASEND)
       end do
       KCMO = KCMO+NBAS(ISYM)
     end do
@@ -157,7 +159,7 @@ if (iCMO == 1) then
         write(LU,'(A,2I5)') '* ORBITAL',ISYM,IORB
         do IBAS=1,NBAS(ISYM),NDIV
           IBASEND = min(IBAS+NDIV-1,NBAS(ISYM))
-          write(LU,FMT) (CMO_ab(I+KCMO),I=IBAS,IBASEND)
+          write(LU,FRMT) (CMO_ab(I+KCMO),I=IBAS,IBASEND)
         end do
         KCMO = KCMO+NBAS(ISYM)
       end do
@@ -168,14 +170,14 @@ end if  ! iCMO
 ! OCC section
 if (iOcc == 1) then
   NDIV = nDivOcc(iVer)
-  FMT = FmtOcc(iVer)
+  FRMT = FmtOcc(iVer)
   write(Lu,'(A)') '#OCC'
   write(LU,'(A)') '* OCCUPATION NUMBERS'
   KOCC = 0
   do ISYM=1,NSYM
     do IORB=1,NORB(ISYM),NDIV
       IORBEND = min(IORB+NDIV-1,NORB(ISYM))
-      write(LU,FMT) (OCC(I+KOCC),I=IORB,IORBEND)
+      write(LU,FRMT) (OCC(I+KOCC),I=IORB,IORBEND)
     end do
     KOCC = KOCC+NORB(ISYM)
   end do
@@ -187,7 +189,7 @@ if (iOcc == 1) then
     do ISYM=1,NSYM
       do IORB=1,NORB(ISYM),NDIV
         IORBEND = min(IORB+NDIV-1,NORB(ISYM))
-        write(LU,FMT) (OCC_ab(I+KOCC),I=IORB,IORBEND)
+        write(LU,FRMT) (OCC_ab(I+KOCC),I=IORB,IORBEND)
       end do
       KOCC = KOCC+NORB(ISYM)
     end do
@@ -195,14 +197,14 @@ if (iOcc == 1) then
 
   NDIV = nDivOccHR(iVer)
   if (NDIV > 0) then
-    FMT = FmtOccHR(iVer)
+    FRMT = FmtOccHR(iVer)
     write(Lu,'(A)') '#OCHR'
     write(LU,'(A)') '* OCCUPATION NUMBERS (HUMAN-READABLE)'
     KOCC = 0
     do ISYM=1,NSYM
       do IORB=1,NORB(ISYM),NDIV
         IORBEND = min(IORB+NDIV-1,NORB(ISYM))
-        write(LU,FMT) (OCC(I+KOCC),I=IORB,IORBEND)
+        write(LU,FRMT) (OCC(I+KOCC),I=IORB,IORBEND)
       end do
       KOCC = KOCC+NORB(ISYM)
     end do
@@ -214,7 +216,7 @@ if (iOcc == 1) then
       do ISYM=1,NSYM
         do IORB=1,NORB(ISYM),NDIV
           IORBEND = min(IORB+NDIV-1,NORB(ISYM))
-          write(LU,FMT) (OCC_ab(I+KOCC),I=IORB,IORBEND)
+          write(LU,FRMT) (OCC_ab(I+KOCC),I=IORB,IORBEND)
         end do
         KOCC = KOCC+NORB(ISYM)
       end do
@@ -225,14 +227,14 @@ end if  ! iOcc
 ! ONE section
 if (iEne == 1) then
   NDIV = nDivEne(iVer)
-  FMT = FmtEne(iVer)
+  FRMT = FmtEne(iVer)
   write(Lu,'(A)') '#ONE'
   write(LU,'(A)') '* ONE ELECTRON ENERGIES'
   KOCC = 0
   do ISYM=1,NSYM
     do IORB=1,NORB(ISYM),NDIV
       IORBEND = min(IORB+NDIV-1,NORB(ISYM))
-      write(LU,FMT) (EORB(I+KOCC),I=IORB,IORBEND)
+      write(LU,FRMT) (EORB(I+KOCC),I=IORB,IORBEND)
     end do
     KOCC = KOCC+NORB(ISYM)
   end do
@@ -244,14 +246,14 @@ if (iEne == 1) then
     do ISYM=1,NSYM
       do IORB=1,NORB(ISYM),NDIV
         IORBEND = min(IORB+NDIV-1,NORB(ISYM))
-        write(LU,FMT) (EORB_ab(I+KOCC),I=IORB,IORBEND)
+        write(LU,FRMT) (EORB_ab(I+KOCC),I=IORB,IORBEND)
       end do
       KOCC = KOCC+NORB(ISYM)
     end do
   end if  ! UHF
 end if  ! iEne
-call getenvf('MOLCAS_SAGIT',inout)
-if ((inout(1:1) == 'y') .or. (inout(1:1) == 'Y')) then
+call getenvf('MOLCAS_SAGIT',str)
+if ((str(1:1) == 'y') .or. (str(1:1) == 'Y')) then
   iKoor = iCMO
   iBasis = iCMO
 else
@@ -259,15 +261,15 @@ else
   iBasis = 0
 end if
 if ((iKoor == 1) .and. (iBasis == 1)) then
-  in = 16
-  in = isfreeunit(in)
-  call molcas_open(in,'ORB.std')
+  lin = 16
+  lin = isfreeunit(lin)
+  call molcas_open(lin,'ORB.std')
 765 continue
-  read(in,'(a)',end=766,err=766) InOut
-  write(Lu,'(a)') trim(InOut)
+  read(lin,'(a)',end=766,err=766) str
+  write(Lu,'(a)') trim(str)
   goto 765
 766 continue
-  close(in)
+  close(lin)
 end if
 ! INDEX section. NOTE THIS SECTION SHOULD ALWAYS BE LAST (Gv constraint)
 100 continue

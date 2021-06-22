@@ -11,28 +11,32 @@
 
 subroutine GFPrnt_i(EVal,nDim)
 
-implicit real*8(a-h,o-z)
-real*8 EVal(nDim)
-character*80 format, Line*120
+use Definitions, only: wp, iwp, u6
 
-LUt = 6
+implicit none
+integer(kind=iwp), intent(in) :: nDim
+real(kind=wp), intent(in) :: EVal(nDim)
+integer(kind=iwp) :: i, iHarm, Inc, Jnc
+character(len=120) :: Line
+character(len=80) :: frmt
+
 Inc = 6
 do iHarm=1,nDim,Inc
   Jnc = min(Inc,nDim-iHarm+1)
-  write(format,'(A,I3,A)') '(5X,A10,1x,',Jnc,'I10)'
-  write(LUt,format) ' ',(i,i=iHarm,iHarm+Jnc-1)
-  write(LUt,*)
+  write(frmt,'(A,I3,A)') '(5X,A10,1x,',Jnc,'I10)'
+  write(u6,frmt) ' ',(i,i=iHarm,iHarm+Jnc-1)
+  write(u6,*)
 
-  write(format,'(A,I3,A)') '(A12,1x,',Jnc,'F10.2)'
+  write(frmt,'(A,I3,A)') '(A12,1x,',Jnc,'F10.2)'
   Line = ' '
-  write(Line,format) 'Freq.',(EVal(i),i=iHarm,iHarm+Jnc-1)
+  write(Line,frmt) 'Freq.',(EVal(i),i=iHarm,iHarm+Jnc-1)
   do i=1,120
     if (Line(i:i) == '-') Line(i:i) = 'i'
   end do
-  write(LUt,'(5X,A)') Line
-  write(LUt,*)
+  write(u6,'(5X,A)') Line
+  write(u6,*)
 
-  write(LUt,*)
+  write(u6,*)
 end do
 
 return

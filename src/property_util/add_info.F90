@@ -11,7 +11,7 @@
 ! Copyright (C) Valera Veryazov                                        *
 !***********************************************************************
 
-subroutine Add_Info(Label,Array,nArray,iToll)
+subroutine Add_Info(Label,Array,nArray,iTol)
 !***********************************************************************
 !                                                                      *
 !     written by:                                                      *
@@ -20,10 +20,9 @@ subroutine Add_Info(Label,Array,nArray,iToll)
 !    parameters:                                                       *
 !       Label - text label                                             *
 !       Array(nArray) - values to check                                *
-!       iToll - tolerance:                                             *
-!                if positive:10**(-iToll)                              *
-!                else                                                  *
-!                           : -iToll                                   *
+!       iTol - tolerance:                                              *
+!               if positive: 10**(-iTol)                               *
+!               else: -iTol                                            *
 !                                                                      *
 !***********************************************************************
 
@@ -31,27 +30,28 @@ use Para_Info, only: MyRank
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, King
 #endif
+use Definitions, only: wp, iwp
 
-character*(*) Label
-character*120 Line
-real*8 Array(nArray)
-!character*32 File_Name
-!logical Exist
-character*30 Junk
-character*8 Toll
-!integer irecl
-!logical is_error
-character*256 STRING
-character*256 STMP
-character*256 STRING2
-character(LEN=256) Collect
-logical Found
-!--- Some variables for Geo environment //Jonas 2011
-integer iGeoInfo(2)
-character*15 Energy_File
-character*13 GeoDataF
-integer iGeoData, iuGeoData
-integer nIntCoord, iDum(1)
+#include "intent.fh"
+
+implicit none
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(in) :: nArray
+real(kind=wp), intent(_IN_) :: Array(nArray)
+integer(kind=iwp), intent(inout) :: iTol
+integer(kind=iwp) :: i, ia, iArray, icomma, iDum(1), iGeoData, iGeoInfo(2), ik, isfound, iuGeoData, j, k, l, length, LuDispEn, n0, &
+                     nIntCoord, nlabel, Num
+logical(kind=iwp) :: Found
+character(len=256) :: Collect, STMP, STRING, STRING2
+character(len=120) :: Line
+character(len=30) :: Junk
+character(len=15) :: Energy_File
+character(len=8) :: Tol
+character(len=*), parameter :: GeoDataF = 'GEODATA'
+integer(kind=iwp), external :: isFreeUnit
+!integer(kind=iwp) :: irecl
+!character(len=32) :: File_Name
+!logical(kind=iwp) :: Exist, is_error
 
 !------------------------------------------------
 ! If this is a fake parallel run (e.g. inside the parallel loop of CASPT2_gradient,
@@ -59,10 +59,10 @@ integer nIntCoord, iDum(1)
 #ifdef _MOLCAS_MPP_
 if ((.not. King()) .and. (.not. Is_Real_Par())) return
 #endif
-! Number - is a number of exported variables from an array.
-Number = 20
+! Num - is a number of exported variables from an array.
+Num = 20
 !File_Name = 'molcas_info'
-if (iToll == 0) iToll = 8
+if (iTol == 0) iTol = 8
 
 !Lu_Info = 99
 
@@ -77,8 +77,8 @@ call open_molcas_info()
 !if (Exist) then
 !  call molcas_open_Ext2(Lu_info,file_name,'sequential','formatted',ios,.false.,irecl,'unknown',is_error)
 !  if (ios /= 0) then
-!    write(6,*) 'Add_Info: can not create info file'
-!    write(6,*) 'Check file permissions!'
+!    write(u6,*) 'Add_Info: can not create info file'
+!    write(u6,*) 'Check file permissions!'
 !    call Abend()
 !  end if
 !  nLines = 0
@@ -92,18 +92,18 @@ call open_molcas_info()
 !    read(Lu_Info,'(A)') Line
 !  end do
 !# ifdef NAGFOR
-! FIXME: ugly hack to make NAG compiler happy
+!  ! FIXME: ugly hack to make NAG compiler happy
 !  close(Lu_Info)
 !  open(Lu_Info,file=file_name,position='append')
-!#endif
+!# endif
 !----------------------------------------------------------------------*
 ! Open new file                                                        *
 !----------------------------------------------------------------------*
 !else
 !  call molcas_open_Ext2(Lu_info,file_name,'sequential','formatted',ios,.false.,irecl,'unknown',is_error)
 !  if (ios /= 0) then
-!    write(6,*) 'Add_Info: can not create a new file'
-!    write(6,*) 'Check file permissions!'
+!    write(u6,*) 'Add_Info: can not create a new file'
+!    write(u6,*) 'Check file permissions!'
 !    call Abend()
 !  end if
 !  do i=1,Len(Line)
@@ -116,7 +116,7 @@ call open_molcas_info()
 !----------------------------------------------------------------------*
 ! Append new information                                               *
 !----------------------------------------------------------------------*
-write(Toll,'(i8)') iToll
+write(Tol,'(i8)') iTol
 nlabel = len(label)
 Line = label
 n0 = nlabel
@@ -138,7 +138,6 @@ if (Found) then
     call Molcas_Open(LuDispEn,Energy_File)
     write(LuDispEn,'(F16.8)') Array(nArray)
     close(LuDispEn)
-    GeoDataF = 'GEODATA'
     iGeoData = 0
     iuGeoData = 10
     iuGeoData = isFreeUnit(iuGeoData)
@@ -160,12 +159,12 @@ call upcase(STRING)
 STMP = STRING
 isfound = 0
 999 continue
-icoma = index(STMP,',')
-if (icoma /= 0) then
+icomma = index(STMP,',')
+if (icomma /= 0) then
   STRING = ' '
-  STRING = STMP(1:icoma-1)
-  if (icoma < len(STMP)) then
-    STMP = STMP(icoma+1:)
+  STRING = STMP(1:icomma-1)
+  if (icomma < len(STMP)) then
+    STMP = STMP(icomma+1:)
   else
     STMP = ''
   end if
@@ -208,11 +207,11 @@ do iArray=1,nArray
   Line(nlabel:nlabel) = '='
   nlabel = nlabel+1
   Line(nlabel:nlabel) = '"'
-  ia = int(Array(iArray)+0.3d0)
-  if ((abs(Array(iArray)-ia) < 0.0000001d0) .and. (ia /= 0)) then
+  ia = int(Array(iArray)+0.3_wp)
+  if ((abs(Array(iArray)-ia) < 1.0e-7_wp) .and. (ia /= 0)) then
     write(Junk,'(I30)') ia
   else
-    if (abs(Array(iArray)) > 1D-14) then
+    if (abs(Array(iArray)) > 1.0e-14_wp) then
       write(Junk,'(F30.12)') Array(iArray)
     else
       Junk = '0.0'
@@ -226,7 +225,7 @@ do iArray=1,nArray
   end do
   nlabel = nlabel+1
   Line(nlabel:nlabel) = '"'
-  if (iArray < Number) then
+  if (iArray < Num) then
     !------------------------------------------------------------------*
     ! Export only head of Array                                        *
     !------------------------------------------------------------------*
@@ -243,9 +242,9 @@ do iArray=1,nArray
   end if
   ik = 0
   do i=1,8
-    if (Toll(i:i) /= ' ') then
+    if (Tol(i:i) /= ' ') then
       ik = ik+1
-      Junk(ik:ik) = Toll(i:i)
+      Junk(ik:ik) = Tol(i:i)
     end if
   end do
   collect = '#> '//Line(1:nlabel)//'/'//Junk(1:ik)

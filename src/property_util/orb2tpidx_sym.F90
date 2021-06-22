@@ -16,10 +16,14 @@ subroutine orb2tpidx_sym(NF,NI,N1,N2,N3,NS,ND,TYPEINDEX)
 !     A typeindex array consists of integers with 7 possible values
 !     corresponding to the types 'fi123sd' -> '1234567'.
 
+use Definitions, only: iwp
+
+#include "intent.fh"
+
 implicit none
-integer :: typeindex(*)
-integer :: NF, NI, N1, N2, N3, NS, ND
-integer :: IB, iOff
+integer(kind=iwp), intent(in) :: NF, NI, N1, N2, N3, NS, ND
+integer(kind=iwp), intent(_OUT_) :: typeindex(*)
+integer(kind=iwp) :: IB, iOff
 
 iOff = 0
 

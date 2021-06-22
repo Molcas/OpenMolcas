@@ -11,23 +11,28 @@
 
 subroutine Freq_Molden(Freq,nFreq,Vectors,nVectors,nSym,Intens,mDisp,RedMas)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "WrkSpc.fh"
-real*8 Freq(nFreq), Vectors(nVectors), Intens(nFreq), RedMas(nFreq)
-integer mDisp(nSym)
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
+implicit none
 #include "Molcas.fh"
-character*2 Element(MxAtom*8)
+integer(kind=iwp), intent(in) :: nFreq, nVectors, nSym, mDisp(nSym)
+real(kind=wp), intent(in) :: Freq(nFreq), Vectors(nVectors), Intens(nFreq), RedMas(nFreq)
+integer(kind=iwp) :: i, iCoor, iCoord, iFreq, ipCoord, ipNMode, ipTemp, Lu_9, nAll_Atoms, nCoord, nUnique_Atoms
+character(len=2) :: Element(MxAtom*8)
+integer(kind=iwp), external :: isFreeUnit
+#include "WrkSpc.fh"
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call RecPrt('Freq',' ',Freq,1,nFreq)
 call RecPrt('Intens',' ',Intens,1,nFreq)
 call RecPrt('Vectors',' ',Vectors,1,nVectors)
-write(6,*) 'mDisp=',mDisp
+write(u6,*) 'mDisp=',mDisp
 #endif
 !                                                                      *
 !***********************************************************************

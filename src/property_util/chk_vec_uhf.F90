@@ -11,20 +11,26 @@
 ! Copyright (C) Valera Veryazov                                        *
 !***********************************************************************
 
-subroutine Chk_vec_UHF(Name,Lu,isUHF)
+subroutine Chk_vec_UHF(FName,Lu,isUHF)
 ! routine returns isUHF based on information in INPORB
 
-character*(*) Name
-character LINE*80, Location*11
-logical Exist
+use Definitions, only: iwp, u6
+
+implicit none
+character(len=*), intent(in) :: FName
+integer(kind=iwp), intent(inout) :: Lu
+integer(kind=iwp), intent(out) :: isUHF
+integer(kind=iwp) :: iVer, jVer
+character(len=80) :: LINE
+logical(kind=iwp) :: Exists
+character(len=*), parameter :: Location = 'Chk_vec_UHF'
 #include "inporbfmt.fh"
 
-Location = 'Chk_vec_UHF'
 Line = 'not defined yet'
 
-call OpnFl(Name,Lu,Exist)
-if (.not. Exist) then
-  write(6,*) 'RdVec: File ',Name(1:index(Name,' ')),' not found!'
+call OpnFl(FName,Lu,Exists)
+if (.not. Exists) then
+  write(u6,*) 'RdVec: File ',trim(FName),' not found!'
   call Abend()
 end if
 rewind(LU)
@@ -53,7 +59,7 @@ close(Lu)
 return
 
 999 continue
-call SysWarnFileMsg(Location,Name,'Error during reading INPORB\n',Line)
+call SysWarnFileMsg(Location,FName,'Error during reading INPORB\n',Line)
 call Abend()
 
 end subroutine Chk_vec_UHF

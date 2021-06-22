@@ -13,40 +13,36 @@ function Bragg_Slater(iAtmNr)
 ! Bragg-Slater radii in Angstrom (J. C. Slater, Quantum Theory of
 ! Molecules and Solids, volume 2, table 3-1) up to Radon.
 
-implicit real*8(a-h,o-z)
-parameter(nAtmNr=102)
-real*8 BS_Radii(nAtmNr)
-save BS_Radii
-#include "angstr.fh"
-data BS_Radii/                                                     &
-  0.25d0,0.25d0,                                                   &
-  1.45d0,1.05d0,0.85d0,0.70d0,0.65d0,0.60d0,0.50d0,0.45d0,         &
-  1.80d0,1.50d0,1.25d0,1.10d0,1.00d0,1.00d0,1.00d0,1.00d0,         &
-  2.20d0,1.80d0,                                                   & ! 19-36
-         1.60d0,1.40d0,1.35d0,1.40d0,1.40d0,                       &
-                         1.40d0,1.35d0,1.35d0,1.35d0,1.35d0,       &
-                         1.30d0,1.25d0,1.15d0,1.15d0,1.15d0,1.15d0,&
-  2.35d0,2.00d0,                                                   & ! 37-54
-         1.80d0,1.55d0,1.45d0,1.45d0,1.35d0,                       &
-                         1.30d0,1.35d0,1.40d0,1.60d0,1.55d0,       &
-                         1.55d0,1.45d0,1.45d0,1.40d0,1.40d0,1.40d0,&
-  2.6d0,2.15d0,                                                    & ! 55-86
-         1.95d0,1.85d0,1.85d0,1.85d0,1.85d0,1.85d0,1.85d0,         &
-                1.80d0,1.75d0,1.75d0,1.75d0,1.75d0,1.75d0,1.75d0,  &
-         1.75d0,1.55d0,1.45d0,1.35d0,1.35d0,                       &
-                         1.30d0,1.35d0,1.35d0,1.35d0,1.50d0,       &
-                         1.90d0,1.80d0,1.60d0,1.90d0,1.90d0,1.90d0,&
-  2.6d0,2.15d0,                                                    & ! 87-102
-         1.95d0,1.80d0,1.75d0,1.75d0,1.75d0,1.75d0,1.75d0,         &
-                1.75d0,1.75d0,1.75d0,1.75d0,1.75d0,1.75d0,1.75d0/
+use Constants, only: Angstrom
+use Definitions, only: wp, iwp, u6
 
-Ang2au = 1.0d0/angstr
-if (iAtmNr > nAtmNr) then
-  write(6,*) 'Bragg-Slater: Too high atom number!'
-  write(6,*) 'iAtmNr=',iAtmNr
+implicit none
+real(kind=wp) :: Bragg_Slater
+integer(kind=iwp), intent(in) :: iAtmNr
+real(kind=wp), parameter :: BS_Radii(102) = [ &
+  0.25_wp,                                                0.25_wp,                                                         & ! 1-2
+  1.45_wp,1.05_wp,0.85_wp,0.70_wp,0.65_wp,0.60_wp,0.50_wp,0.45_wp,                                                         & ! 3-10
+  1.80_wp,1.50_wp,1.25_wp,1.10_wp,1.00_wp,1.00_wp,1.00_wp,1.00_wp,                                                         & ! 11-18
+  2.20_wp,1.80_wp,                                                                                                         &
+          1.60_wp,1.40_wp,1.35_wp,1.40_wp,1.40_wp,1.40_wp,1.35_wp,1.35_wp,1.35_wp,1.35_wp,                                 &
+                  1.30_wp,1.25_wp,1.15_wp,1.15_wp,1.15_wp,1.15_wp,                                                         & ! 19-36
+  2.35_wp,2.00_wp,                                                                                                         &
+          1.80_wp,1.55_wp,1.45_wp,1.45_wp,1.35_wp,1.30_wp,1.35_wp,1.40_wp,1.60_wp,1.55_wp,                                 &
+                  1.55_wp,1.45_wp,1.45_wp,1.40_wp,1.40_wp,1.40_wp,                                                         & ! 37-54
+  2.60_wp,2.15_wp,                                                                                                         &
+          1.95_wp,1.85_wp,1.85_wp,1.85_wp,1.85_wp,1.85_wp,1.85_wp,1.80_wp,1.75_wp,1.75_wp,1.75_wp,1.75_wp,1.75_wp,1.75_wp, &
+          1.75_wp,1.55_wp,1.45_wp,1.35_wp,1.35_wp,1.30_wp,1.35_wp,1.35_wp,1.35_wp,1.50_wp,                                 &
+                  1.90_wp,1.80_wp,1.60_wp,1.90_wp,1.90_wp,1.90_wp,                                                         & ! 55-86
+  2.60_wp,2.15_wp,                                                                                                         &
+          1.95_wp,1.80_wp,1.75_wp,1.75_wp,1.75_wp,1.75_wp,1.75_wp,1.75_wp,1.75_wp,1.75_wp,1.75_wp,1.75_wp,1.75_wp,1.75_wp  & ! 87-102
+]
+
+if (iAtmNr > size(BS_Radii)) then
+  write(u6,*) 'Bragg-Slater: Too high atom number!'
+  write(u6,*) 'iAtmNr=',iAtmNr
   call Quit_OnUserError()
 end if
-Bragg_Slater = BS_Radii(iAtmNr)*Ang2au
+Bragg_Slater = BS_Radii(iAtmNr)/Angstrom
 
 return
 

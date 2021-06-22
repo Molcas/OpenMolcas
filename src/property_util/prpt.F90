@@ -21,13 +21,19 @@ subroutine Prpt()
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: i, iDummy(1), iError, ipOcc, ipOcc_ab, ipScr, ipVec, ipVec_ab, iSym, iUHF, iWFType, Lu, MaxScr, n2Dim, n2Tot, &
+                     nBas(8), nDim, nIrrep, nTriDim
+real(kind=wp) :: Dummy(1)
+logical(kind=iwp) :: ifallorb, Short, var
+character(len=81) :: note
+character(len=8) :: Method
+character(len=4) :: PrpLst
+character(len=2) :: lbl
+integer(kind=iwp), external :: isFreeUnit
 #include "WrkSpc.fh"
-integer nBas(8)
-character*8 Method
-logical var, Short, ifallorb
-character*81 note, lbl*2, PrpLst*4
-dimension Dummy(1), iDummy(1)
 
 call GetEnvf('MOLCAS_PROPERTIES',PrpLst)
 call UpCase(PrpLst)
@@ -134,7 +140,7 @@ else if (Method == 'MBPT2   ') then
   call FZero(Work(ipOcc),nDim)
   var = .true.
 else
-  write(6,*) 'Properties not supported for ',Method
+  write(u6,*) 'Properties not supported for ',Method
 end if
 
 MaxScr = nTriDim+nDim*(nDim+1)/2+10+480+4*10

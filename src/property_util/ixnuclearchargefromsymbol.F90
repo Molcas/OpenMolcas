@@ -27,57 +27,44 @@ function ixNuclearChargeFromSymbol(Symbol,Rc,Opt)
 !                                                                      *
 !***********************************************************************
 
-implicit none
+use Definitions, only: iwp, u6
+
 #include "proputil.fh"
-integer ixNuclearChargeFromSymbol
-!----------------------------------------------------------------------*
-! Parameters.                                                          *
-!----------------------------------------------------------------------*
-integer StopOnError
-parameter(StopOnError=_OPT_STOP_ON_ERROR_)
-!----------------------------------------------------------------------*
-! Dummy parameters.                                                    *
-!----------------------------------------------------------------------*
-character*(*) Symbol
-integer Rc
-integer Opt
-!----------------------------------------------------------------------*
-! Local variables.                                                     *
-!----------------------------------------------------------------------*
+
+implicit none
+integer(kind=iwp) :: ixNuclearChargeFromSymbol
+character(len=*), intent(in) :: Symbol
+integer(kind=iwp), intent(in) :: Rc, Opt
+integer(kind=iwp), parameter :: StopOnError = _OPT_STOP_ON_ERROR_
+integer(kind=iwp) :: i, idx
+character(len=2) :: Sym1, Sym2
 #include "periodic_table.fh"
-character*2 Sym1, Sym2
-integer Index
-integer i
-!----------------------------------------------------------------------*
-! External references.                                                 *
-!----------------------------------------------------------------------*
-external UpCase
 
 !----------------------------------------------------------------------*
 ! Locate symbol in table.                                              *
 !----------------------------------------------------------------------*
-Index = 0
+idx = 0
 Sym1 = adjustl(Symbol)
 call UpCase(Sym1)
 do i=1,Num_Elem
   Sym2 = adjustl(PTab(i))
   call UpCase(Sym2)
-  if (Sym1 == Sym2) Index = i
+  if (Sym1 == Sym2) idx = i
 end do
 !----------------------------------------------------------------------*
 ! Are we successful.                                                   *
 !----------------------------------------------------------------------*
-if (Index == 0) then
-  write(6,'(a)') '***'
-  write(6,'(a)') '*** NuclearChargeBySymbol: error'
-  write(6,'(2a)') '***    unknown atom: ',Symbol
-  write(6,'(a)') '***'
+if (idx == 0) then
+  write(u6,'(a)') '***'
+  write(u6,'(a)') '*** NuclearChargeBySymbol: error'
+  write(u6,'(2a)') '***    unknown atom: ',Symbol
+  write(u6,'(a)') '***'
   if (iand(Opt,StopOnError) /= 0) call Quit_OnUserError()
 end if
 !----------------------------------------------------------------------*
 ! Done                                                                 *
 !----------------------------------------------------------------------*
-ixNuclearChargeFromSymbol = Index
+ixNuclearChargeFromSymbol = idx
 
 return
 ! Avoid unused argument warnings

@@ -11,7 +11,7 @@
 ! Copyright (C) Valera Veryazov                                        *
 !***********************************************************************
 
-subroutine RDVEC_(Name,LU_,LABEL,IUHF,NSYM,NBAS,NORB,CMO,CMO_ab,OCC,OCC_ab,EORB,EORB_ab,INDT,TITLE,iWarn,iErr,iWFtype)
+subroutine RDVEC_(FName,LU_,LABEL,IUHF,NSYM,NBAS,NORB,CMO,CMO_ab,OCC,OCC_ab,EORB,EORB_ab,INDT,TITLE,iWarn,iErr,iWFtype)
 !-----------------------------------------------------------------------
 ! Advanced RdVec (to remove all clones!)
 !-----------------------------------------------------------------------
@@ -26,22 +26,30 @@ subroutine RDVEC_(Name,LU_,LABEL,IUHF,NSYM,NBAS,NORB,CMO,CMO_ab,OCC,OCC_ab,EORB,
 !           8  --
 !-----------------------------------------------------------------------
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp, u6
+
+#include "intent.fh"
+
+implicit none
+character(len=*), intent(in) :: FName, LABEL
+integer(kind=iwp), intent(in) :: LU_, iUHF, NSYM, NBAS(NSYM), NORB(NSYM), iWarn
+real(kind=wp), intent(_OUT_) :: CMO(*), CMO_ab(*), OCC(*), OCC_ab(*), EORB(*), EORB_ab(*)
+integer(kind=iwp), intent(_OUT_) :: INDT(*)
+character(len=*), intent(out) :: TITLE
+integer(kind=iwp), intent(out) :: iErr, iWFType
+integer(kind=iwp) :: i, iA, iB, IBAS, IBASEND, iBeta, iCMO, iEne, iInd, imyNBAS, imyNORB, IND, iOcc, IORB, IORBEND, iShift, ISYM, &
+                     iVer, jVer, KCMO, KOCC, Lu, myiUHF, myNSYM, nDiv
+logical(kind=iwp) :: Exists
+character(len=256) :: LINE
+character(len=40) :: FRMT
+character(len=10) :: Buff
+character(len=*), parameter :: Crypt = 'fi123sd', &
+                               CryptUP = 'FIXXXSD', &
+                               Location = 'rdVec_'
 #include "WrkSpc.fh"
-dimension NBAS(NSYM), NORB(NSYM), CMO(*), OCC(*), INDT(*), EORB(*)
-dimension CMO_ab(*), OCC_ab(*), EORB_ab(*)
-character*(*) TITLE, Name, Label
-character LINE*256, FMT*40
-logical Exist
-character*7 Crypt, CryptUp
-character*10 Buff
 ! Note! the size of Magic must be exact (thanks to MS formatted inporb!)
-character*8 Location
-data Crypt/'fi123sd'/
-data CryptUP/'FIXXXSD'/
 #include "inporbfmt.fh"
 
-Location = 'rdVec_'
 Line = 'not defined yet'
 
 ! Analyze Label
@@ -62,9 +70,9 @@ if (index(Label,'B') /= 0) iBeta = 1
 !----------------------------------------------------------------------*
 iErr = 0
 Lu = Lu_
-call OpnFl(Name,Lu,Exist)
-if (.not. Exist) then
-  write(6,*) 'RdVec: File ',Name(1:index(Name,' ')),' not found!'
+call OpnFl(FName,Lu,Exists)
+if (.not. Exists) then
+  write(u6,*) 'RdVec: File ',trim(FName),' not found!'
   call Abend()
 end if
 rewind(LU)
@@ -96,18 +104,18 @@ read(Line,*) myiUHF,myNSYM,iWFtype
 if (myiUHF /= iUHF) then
   ! Stop if UHF requested, but the INPORB is not UHF
   if (myiUHF == 0) then
-    call SysWarnFileMsg(Location,Name,'IUHF does not match',' ')
+    call SysWarnFileMsg(Location,FName,'IUHF does not match',' ')
     call Abend()
   end if
   ! With a UHF INPORB, only go on if alpha or beta orbitals
   ! explicitly requested
   if ((iUHF == 0) .and. (iBeta == 0)) then
-    call SysWarnFileMsg(Location,Name,'IUHF does not match',' ')
+    call SysWarnFileMsg(Location,FName,'IUHF does not match',' ')
     call Abend()
   end if
 end if
 if (myNSYM /= NSYM) then
-  call SysWarnFileMsg(Location,Name,'NSYM does not match',' ')
+  call SysWarnFileMsg(Location,FName,'NSYM does not match',' ')
   call Abend()
 end if
 call GetMem('MYNBAS','Allo','Inte',imyNBAS,NSYM)
@@ -123,7 +131,7 @@ do i=1,NSYM
     if (iWarn == 1) then
       call SysWarnMsg(Location,Line,' ')
     else
-      call SysWarnFileMsg(Location,Name,Line,' ')
+      call SysWarnFileMsg(Location,FName,Line,' ')
       call Abend()
     end if
   end if
@@ -135,7 +143,7 @@ if (iWarn > 0) then
       if (iWarn == 1) then
         call SysWarnMsg(Location,Line,' ')
       else
-        call SysWarnFileMsg(Location,Name,Line,' ')
+        call SysWarnFileMsg(Location,FName,Line,' ')
         call Abend()
       end if
     end if
@@ -147,7 +155,7 @@ call GetMem('MYNBAS','Free','Inte',imyNBAS,NSYM)
 !----------------------------------------------------------------------*
 if (iCMO == 1) then
   nDiv = nDivOrb(iVer)
-  FMT = FmtOrb(iVer)
+  FRMT = FmtOrb(iVer)
   rewind(LU)
 51 continue
   read(LU,'(A256)',end=999,ERR=999) Line
@@ -161,7 +169,7 @@ if (iCMO == 1) then
         read(LU,'(A256)',end=999,ERR=999) LINE
         if (LINE(1:1) == '*') goto 111
         if (iOrb <= nOrb(iSym)) then
-          read(LINE,FMT,err=888,end=888) (CMO(I+KCMO),I=IBAS,IBASEND)
+          read(LINE,FRMT,err=888,end=888) (CMO(I+KCMO),I=IBAS,IBASEND)
         end if
       end do
       if (iOrb <= nOrb(iSym)) KCMO = KCMO+NBAS(ISYM)
@@ -181,9 +189,9 @@ if (iCMO == 1) then
           if (LINE(1:1) == '*') goto 112
           if (iOrb <= nOrb(iSym)) then
             if (iBeta == 1) then
-              read(LINE,FMT,err=888,end=888) (CMO(I+KCMO),I=IBAS,IBASEND)
+              read(LINE,FRMT,err=888,end=888) (CMO(I+KCMO),I=IBAS,IBASEND)
             else
-              read(LINE,FMT,err=888,end=888) (CMO_ab(I+KCMO),I=IBAS,IBASEND)
+              read(LINE,FRMT,err=888,end=888) (CMO_ab(I+KCMO),I=IBAS,IBASEND)
             end if
           end if
         end do
@@ -197,7 +205,7 @@ end if ! iCMO
 !----------------------------------------------------------------------*
 if (iOcc == 1) then
   nDiv = nDivOcc(iVer)
-  FMT = FmtOcc(iVer)
+  FRMT = FmtOcc(iVer)
   rewind(LU)
 53 continue
   read(LU,'(A256)',end=999,ERR=999) Line
@@ -209,7 +217,7 @@ if (iOcc == 1) then
 113   continue
       read(LU,'(A256)',end=999,ERR=999) LINE
       if (LINE(1:1) == '*') goto 113
-      read(LINE,FMT,err=888,end=888) (OCC(I+KOCC),I=IORB,IORBEND)
+      read(LINE,FRMT,err=888,end=888) (OCC(I+KOCC),I=IORB,IORBEND)
     end do
     !KOCC = KOCC+iWork(imyNORB+ISYM-1)
     KOCC = KOCC+nOrb(iSym)
@@ -226,9 +234,9 @@ if (iOcc == 1) then
         read(LU,'(A256)',end=999,ERR=999) LINE
         if (LINE(1:1) == '*') goto 114
         if (iBeta == 1) then
-          read(LINE,FMT,err=888,end=888) (OCC(I+KOCC),I=IORB,IORBEND)
+          read(LINE,FRMT,err=888,end=888) (OCC(I+KOCC),I=IORB,IORBEND)
         else
-          read(LINE,FMT,err=888,end=888) (OCC_ab(I+KOCC),I=IORB,IORBEND)
+          read(LINE,FRMT,err=888,end=888) (OCC_ab(I+KOCC),I=IORB,IORBEND)
         end if
       end do
       !KOCC = KOCC+iWork(imyNORB+ISYM-1)
@@ -241,7 +249,7 @@ end if ! iOCC
 !----------------------------------------------------------------------*
 if (iEne == 1) then
   nDiv = nDivEne(iVer)
-  FMT = FmtEne(iVer)
+  FRMT = FmtEne(iVer)
   rewind(LU)
 55 continue
   read(LU,'(A256)',end=666,ERR=666) Line
@@ -253,7 +261,7 @@ if (iEne == 1) then
 115   continue
       read(LU,'(A256)',end=999,ERR=999) LINE
       if (LINE(1:1) == '*') goto 115
-      read(LINE,FMT,err=888,end=888) (EORB(I+KOCC),I=IORB,IORBEND)
+      read(LINE,FRMT,err=888,end=888) (EORB(I+KOCC),I=IORB,IORBEND)
     end do
     !KOCC = KOCC+iWork(imyNORB+ISYM-1)
     KOCC = KOCC+nOrb(iSym)
@@ -270,9 +278,9 @@ if (iEne == 1) then
         read(LU,'(A256)',end=999,ERR=999) LINE
         if (LINE(1:1) == '*') goto 116
         if (iBeta == 1) then
-          read(LINE,FMT,err=888,end=888) (EORB(I+KOCC),I=IORB,IORBEND)
+          read(LINE,FRMT,err=888,end=888) (EORB(I+KOCC),I=IORB,IORBEND)
         else
-          read(LINE,FMT,err=888,end=888) (EORB_ab(I+KOCC),I=IORB,IORBEND)
+          read(LINE,FRMT,err=888,end=888) (EORB_ab(I+KOCC),I=IORB,IORBEND)
         end if
       end do
       !KOCC = KOCC+iWork(imyNORB+ISYM-1)
@@ -288,7 +296,7 @@ if (iInd == 1) then
 57 continue
   read(LU,'(A256)',end=666,ERR=666) Line
   if (Line(1:6) /= '#INDEX') goto 57
-  FMT = FMTIND(iVer)
+  FRMT = FMTIND(iVer)
   nDiv = nDivInd(iVer)
   iShift = 1
   do ISYM=1,NSYM
@@ -297,14 +305,14 @@ if (iInd == 1) then
       read(LU,*)
     end do
     do IORB=1,iWork(imyNORB+ISYM-1),nDiv
-      read(LU,FMT,err=666,end=666) Buff
+      read(LU,FRMT,err=666,end=666) Buff
       do i=1,nDiv
         IND = index(Crypt,Buff(i:i))+index(CryptUp,Buff(i:i))
         if (Buff(i:i) /= ' ') then
           if (IND == 0) then
-            write(6,*) '* ERROR IN RDVEC WHILE READING TypeIndex'
-            write(6,'(3A)') '* Type=',Buff(i:i),' is UNKNOWN'
-            write(6,*) '* TypeIndex information is IGNORED'
+            write(u6,*) '* ERROR IN RDVEC WHILE READING TypeIndex'
+            write(u6,'(3A)') '* Type=',Buff(i:i),' is UNKNOWN'
+            write(u6,*) '* TypeIndex information is IGNORED'
             iErr = 1
             close(Lu)
             goto 777
@@ -331,7 +339,7 @@ goto 777
 !----------------------------------------------------------------------*
 666 continue
 iErr = 1
-write(6,*) '* TypeIndex information is IGNORED *'
+write(u6,*) '* TypeIndex information is IGNORED *'
 close(Lu)
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -344,10 +352,10 @@ return
 !                                                                      *
 !----------------------------------------------------------------------*
 999 continue
-call SysWarnFileMsg(Location,Name,'Error during reading INPORB\n',Line)
+call SysWarnFileMsg(Location,FName,'Error during reading INPORB\n',Line)
 call Abend()
 888 continue
-call SysWarnFileMsg(Location,Name,'Error during reading INPORB\n',Line)
+call SysWarnFileMsg(Location,FName,'Error during reading INPORB\n',Line)
 call Abend()
 
 end subroutine RDVEC_

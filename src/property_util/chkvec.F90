@@ -13,14 +13,18 @@ subroutine ChkVec(OrbFileName,iVer,NSYM_L,NBAS_L,NORB_L,InfoLbl,iRc)
 ! Purpose: To check if OrbFileName is a valid orbital file, and which
 ! information it contains.
 
-character*(*) OrbFileName
-character*8 InfoLbl
-character*80 line
-dimension NBAS_L(8)
-dimension NORB_L(8)
+use Definitions, only: iwp
+
+implicit none
+character(len=*), intent(in) :: OrbFileName
+integer(kind=iwp), intent(out) :: iVer, NSYM_L, NBAS_L(8), NORB_L(8), iRc
+character(len=8), intent(out) :: InfoLbl
+integer(kind=iwp) :: I, iIND, iOCC, iONE, iORB, ip, IUHF, jVer, LU
+logical(kind=iwp) :: lExists
+character(len=80) :: line
+integer(kind=iwp), external :: isFreeUnit
 #include "warnings.h"
 #include "inporbfmt.fh"
-logical lExists
 
 call f_Inquire(OrbFileName,lExists)
 if (.not. lExists) Go To 921

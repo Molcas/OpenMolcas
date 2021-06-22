@@ -18,14 +18,22 @@ subroutine Dens_IF(i_root,CA,CB,OCCA,OCCB)
 !
 ! EAW 990118
 
-implicit real*8(a-h,o-z)
-#include "SysDef.fh"
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(in) :: i_root
+real(kind=wp), intent(_OUT_) :: CA(*), CB(*), OCCA(*), OCCB(*)
+integer(kind=iwp) :: i, iA, iAC, iAC2, iad15, ii, IMO, IOCC, ip, ip1, ip2, ipAM1, ipAM2, ipC, ipDA, ipDB, ipDS, ipDT, ipUnity, &
+                     ipVB, iS, J, nAct
+real(kind=wp) :: Dum(1), OCCNO
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "casvb.fh"
 #include "WrkSpc.fh"
-real*8 CA(*), CB(*), OCCA(*), OCCB(*), Dum(1)
 
 call GetMem('DS','ALLO','REAL',ipDS,NACPAR)
 call GetMem('DT','ALLO','REAL',ipDT,NACPAR)
@@ -46,8 +54,8 @@ call DDAFile(JOBIPH,2,Work(ipC),NTOT2,IAD15)
 ! COEN WANTED IT AS A BLOCKED MATRIX, SO HERE THEY COME...
 ip1 = ipC
 ip2 = 1
-call dcopy_(nTOT**2,[0.0d0],0,CA,1)
-call dcopy_(nTOT**2,[0.0d0],0,CB,1)
+call dcopy_(nTOT**2,[Zero],0,CA,1)
+call dcopy_(nTOT**2,[Zero],0,CB,1)
 do iS=1,nSym
   do i=1,nbas(is)
     call dcopy_(nbas(is),Work(ip1),1,CA(ip2),1)
@@ -64,16 +72,16 @@ if (i_root == 0) then
   if (iOrbTyp /= 2) then
     ! SIMPLY READ OCC NOS AS ALPHAS AND ZERO BETA OCC NOS
     iad15 = IADR15(2)
-    Dum(1) = 0.0d0
+    Dum(1) = Zero
     call DDAFile(JOBIPH,0,Dum,NTOT2,IAD15)
     call DDAFILE(JOBIPH,2,OCCA,NTOT,IAD15)
-    call dcopy_(nTOT,[0.0d0],0,OCCB,1)
+    call dcopy_(nTOT,[Zero],0,OCCB,1)
   end if
   ! Canonical...
   if (iOrbTyp == 2) then
     ! SIMPLY ZERO ALPHA and BETA OCC NOS
-    call dcopy_(nTOT,[0.0d0],0,OCCA,1)
-    call dcopy_(nTOT,[0.0d0],0,OCCB,1)
+    call dcopy_(nTOT,[Zero],0,OCCA,1)
+    call dcopy_(nTOT,[Zero],0,OCCB,1)
   end if
 
   if (IFVB /= 0) then
@@ -86,7 +94,7 @@ if (i_root == 0) then
     iAC = 0
     IMO = 1
     IOCC = 1
-    OCCNO = 0d0
+    OCCNO = Zero
     nAct = 0
     do iS=1,nSym
       call dcopy_(nTOT*nash(is),CA((NISH(iS)+NFRO(IS))*NTOT+IMO),1,Work(IAC+ipAM1),1)
@@ -99,7 +107,7 @@ if (i_root == 0) then
       IOCC = IOCC+NBAS(iS)
     end do
 
-    call DGEMM_('N','N',NTOT,NAC,NAC,1d0,Work(ipAM1),NTOT,Work(ipVB),NAC,0d0,Work(ipAM2),NTOT)
+    call DGEMM_('N','N',NTOT,NAC,NAC,One,Work(ipAM1),NTOT,Work(ipVB),NAC,Zero,Work(ipAM2),NTOT)
 
     ! Scatter active MOs ...
     ! Also reset active occ nos - we choose nel/nact since that
@@ -110,7 +118,7 @@ if (i_root == 0) then
     IOCC = 1
     do iS=1,nSym
       call dcopy_(nTOT*nash(is),Work(IAC+ipAM2),1,CA((NISH(iS)+NFRO(IS))*NTOT+IMO),1)
-      call dcopy_(nash(is),[OCCNO/dble(nAct)],0,OCCA(NISH(iS)+NFRO(IS)+IOCC),1)
+      call dcopy_(nash(is),[OCCNO/real(nAct,kind=wp)],0,OCCA(NISH(iS)+NFRO(IS)+IOCC),1)
       IAC = IAC+NASH(iS)*NTOT
       IMO = IMO+nBas(is)*ntot
       IOCC = IOCC+NBAS(iS)
@@ -129,7 +137,7 @@ else
 ! READ IN DENSITIES
 
   iad15 = IADR15(3)
-  Dum(1) = 0.0d0
+  Dum(1) = Zero
   do i=1,i_root
     call DDAFile(JOBIPH,2,Work(ipDS),NACPAR,IAD15)
     call DDAFile(JOBIPH,2,Work(ipDT),NACPAR,IAD15)
@@ -140,8 +148,8 @@ else
   ! CREATE SPIN DENSITIES
 
   do i=0,NACPAR-1
-    Work(ipDA+i) = 0.5d0*(Work(ipDS+i)+Work(ipDT+i))
-    Work(ipDB+i) = 0.5d0*(Work(ipDS+i)-Work(ipDT+i))
+    Work(ipDA+i) = Half*(Work(ipDS+i)+Work(ipDT+i))
+    Work(ipDB+i) = Half*(Work(ipDS+i)-Work(ipDT+i))
   end do
 
 
@@ -149,8 +157,8 @@ else
 
   ! FIRST ALPHA
 
-  call dcopy_(nac**2,[0.0d0],0,Work(ipUnity),1)
-  call dcopy_(nac,[1.0d0],0,Work(ipUnity),nac+1)
+  call dcopy_(nac**2,[Zero],0,Work(ipUnity),1)
+  call dcopy_(nac,[One],0,Work(ipUnity),nac+1)
   call Jacob(Work(ipDA),Work(ipUNITY),NAC,NAC)
 
   ! TRANSFORM THE ACTIVE ORBITALS
@@ -162,8 +170,8 @@ else
     if (nBas(iS) /= 0) then
       ip = ip+nBas(iS)*nIsh(iS)
       iAC2 = iAC2+nish(is)*nTot
-      if (NASH(IS) > 0) call DGEMM_('N','N',NBAS(IS),NASH(IS),NASH(IS),1.0d0,Work(ip),NBAS(IS),WORK(IPUNITY+IAC),NAC,0.0d0,&
-                                    CA(iAC2),NTOT)
+      if (NASH(IS) > 0) call DGEMM_('N','N',NBAS(IS),NASH(IS),NASH(IS),One,Work(ip),NBAS(IS),WORK(IPUNITY+IAC),NAC,Zero,CA(iAC2), &
+                                    NTOT)
       iAC = iAC+NASH(IS)*NAC+NASH(IS)
       iAC2 = iAC2+(nbas(is)-nish(is))*NTOT+nbas(is)
       ip = ip+nbas(is)*(nbas(is)-nish(is))
@@ -176,8 +184,8 @@ else
   i = 0
   ii = 0
   do iS=1,nSYM
-    call dcopy_(nBAS(is),[0.0d0],0,OCCA(ip),1)
-    call dcopy_((nFro(is)+nish(is)),[1.0d0],0,OCCA(ip),1)
+    call dcopy_(nBAS(is),[Zero],0,OCCA(ip),1)
+    call dcopy_((nFro(is)+nish(is)),[One],0,OCCA(ip),1)
     ip = ip+nFro(is)+nish(is)
     do iA=1,nash(is)
       ii = ii+1
@@ -190,8 +198,8 @@ else
 
   ! THEN ONCE AGAIN FOR BETA....
 
-  call dcopy_(nac**2,[0.0d0],0,Work(ipUnity),1)
-  call dcopy_(nac,[1.0d0],0,Work(ipUnity),nac+1)
+  call dcopy_(nac**2,[Zero],0,Work(ipUnity),1)
+  call dcopy_(nac,[One],0,Work(ipUnity),nac+1)
 
   call Jacob(Work(ipDB),Work(ipUNITY),NAC,NAC)
 
@@ -202,8 +210,8 @@ else
     if (nbas(is) /= 0) then
       ip = ip+nBas(is)*nIsh(is)
       iAC2 = iAC2+nish(is)*NTOT
-      if (NASH(IS) > 0) call DGEMM_('N','N',NBAS(IS),NASH(IS),NASH(IS),1.0d0,Work(ip),NBAS(IS),WORK(IPUNITY+IAC),NAC,0.0d0, &
-                                    CB(iac2),NTOT)
+      if (NASH(IS) > 0) call DGEMM_('N','N',NBAS(IS),NASH(IS),NASH(IS),One,Work(ip),NBAS(IS),WORK(IPUNITY+IAC),NAC,Zero,CB(iac2), &
+                                    NTOT)
       iAC = iAC+NASH(IS)*NAC+NASH(IS)
       iAC2 = iAC2+(nbas(is)-nish(is))*NTOT+nbas(is)
       ip = ip+nbas(is)*(nbas(is)-nish(is))
@@ -214,8 +222,8 @@ else
   i = 0
   ii = 0
   do iS=1,nSYM
-    call dcopy_(nBAS(is),[0.0d0],0,OCCB(ip),1)
-    call dcopy_((nFro(is)+nish(is)),[1.0d0],0,OCCB(ip),1)
+    call dcopy_(nBAS(is),[Zero],0,OCCB(ip),1)
+    call dcopy_((nFro(is)+nish(is)),[One],0,OCCB(ip),1)
     ip = ip+nFro(is)+nish(is)
     do iA=1,nash(is)
       ii = ii+1

@@ -15,10 +15,14 @@ subroutine orb2tpstr_sym(NF,NI,N1,N2,N3,NS,ND,TYPESTRING)
 !     scalars!!
 !     A typestring array consists of characters of 'fi123sd'
 
+use Definitions, only: iwp
+
+#include "intent.fh"
+
 implicit none
-character :: typestring(*)
-integer :: NF, NI, N1, N2, N3, NS, ND
-integer :: IB, iOff
+integer(kind=iwp), intent(in) :: NF, NI, N1, N2, N3, NS, ND
+character, intent(_OUT_) :: typestring(*)
+integer(kind=iwp) :: IB, iOff
 
 iOff = 0
 

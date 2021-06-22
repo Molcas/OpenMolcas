@@ -11,8 +11,12 @@
 
 subroutine ECP_shells(iAtmNr,List)
 
+use Definitions, only: iwp, u6
+
+implicit none
 #include "itmax.fh"
-integer List(0:iTabMx)
+integer(kind=iwp), intent(in) :: iAtmNr
+integer(kind=iwp), intent(out) ::  List(0:iTabMx)
 
 !                                                                      *
 !***********************************************************************
@@ -124,7 +128,7 @@ else if (iAtmNr <= 120) then
   list(2) = 0
   list(3) = 0
 else
-  write(6,*) 'ECP_shells can not handle atom numbers beyond 112.'
+  write(u6,*) 'ECP_shells can not handle atom numbers beyond 112.'
   call Abend()
 end if
 !                                                                      *

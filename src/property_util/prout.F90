@@ -54,30 +54,39 @@ subroutine PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,PrTo
 ! (including virtuals) and not weighted by occupation numbers          *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-character*4 lbb4
-character*16 labs(1:maxlab), lab
-character*132 outlab
-character*5 lab5
-logical Short, ifallorb
-integer nBas(0:nIrrep-1)
-real*8 Occ(1:nTot), PrEl(1:nTot,1:maxlab), PrNu(1:maxlab), TotEl(1:6), PrTot(1:maxlab)
-character Format1*18, Format2*13, Format3*14, Format4*14
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+logical(kind=iwp), intent(in) :: Short, ifallorb
+integer(kind=iwp), intent(in) :: nIrrep, nBas(0:nIrrep-1), nTot, maxlab, iPL, iPoint
+real(kind=wp), intent(in) :: sig, Occ(nTot), ThrSV, PrEl(nTot,maxlab), PrNu(maxlab)
+character(len=16), intent(in) :: labs(maxlab)
+real(kind=wp), intent(out) :: PrTot(maxlab)
+integer(kind=iwp) :: i, icount, ii, j, jcount, jj, nDec, nLog10
+real(kind=wp) :: TotEl(6), val
+character(len=132) :: outlab
+character(len=18) :: Format1
+character(len=16) :: lab
+character(len=14) :: Format3
+character(len=13) :: Format2
+character(len=11) :: Format4
+character(len=4) :: lbb4
+character(len=5) :: lab5
 
 Format1 = '(2i5,f14.8,6f16.8)'
 Format2 = '(1x,a,6f16.8)'
 Format3 = '(1x,a,6f16.8/)'
 Format4 = '(a5,6f16.8)'
-value = Zero
+val = Zero
 do i=1,maxlab
-  value = max(value,abs(PrNu(i)))
+  val = max(val,abs(PrNu(i)))
   do j=1,nTot
-    value = max(value,abs(PrEl(j,i)))
+    val = max(val,abs(PrEl(j,i)))
   end do
 end do
-value = max(value,One)
-nLog10 = max(1,int(log10(value)+One)+1)
+val = max(val,One)
+nLog10 = max(1,int(log10(val)+One)+1)
 nDec = min(14-nLog10,8)
 write(Format1(17:17),'(I1)') nDec
 write(Format2(12:12),'(I1)') nDec
@@ -85,9 +94,9 @@ write(Format3(12:12),'(I1)') nDec
 write(Format4(10:10),'(I1)') nDec
 
 if ((.not. Short) .and. (.not. ifallorb)) then
-  write(6,'(A,D9.2/)') ' orbital contributions printed for occupation numbers >',ThrSV
+  write(u6,'(A,D9.2/)') ' orbital contributions printed for occupation numbers >',ThrSV
 else if ((.not. Short) .and. ifallorb) then
-  write(6,'(A)') ' orbital properties printed for all occupation numbers'
+  write(u6,'(A)') ' orbital properties printed for all occupation numbers'
 end if
 
 do i=1,maxlab,6
@@ -100,7 +109,7 @@ do i=1,maxlab,6
     if (iPL >= 3) then
       if ((maxlab > 1) .or. (labs(1) /= ' ')) then
         write(outlab,'(1x,a,6a16)') 'Component              ',(labs(j),j=i,min(i+5,maxlab))
-        write(6,'(a)') trim(outlab)
+        write(u6,'(a)') trim(outlab)
       end if
     end if
     jcount = 0
@@ -113,13 +122,13 @@ do i=1,maxlab,6
       TotEl(j) = Zero
     end do
     write(outlab,'(1x,a,6a16)') 'Irrep  Orb   Occupation',(labs(j),j=i,min(i+5,maxlab))
-    write(6,'(a)') trim(outlab)
+    write(u6,'(a)') trim(outlab)
     lbb4 = '    '
     write(outlab,'(33a4)') (lbb4,j=1,33)
     lbb4 = '----'
     lab = '----------------'
     write(outlab,'(6a4,6a16)') (lbb4,j=1,6),(lab,j=i,min(i+5,maxlab))
-    write(6,'(1x,a)') trim(outlab)
+    write(u6,'(1x,a)') trim(outlab)
     icount = 0
     do ii=0,nIrrep-1
       do jj=1,nBas(ii)
@@ -129,29 +138,29 @@ do i=1,maxlab,6
           jcount = jcount+1
           if (ifallorb) then
             TotEl(jcount) = TotEl(jcount)+PrEl(icount,j)*Occ(icount)
-          else if (.not. ifallorb) then
+          else
             TotEl(jcount) = TotEl(jcount)+PrEl(icount,j)
           end if
         end do
         if (ifallorb .or. (Occ(icount) > ThrSV)) then
-          write(6,Format1) ii+1,jj,Occ(icount),(sig*PrEl(icount,j),j=i,min(i+5,maxlab))
+          write(u6,Format1) ii+1,jj,Occ(icount),(sig*PrEl(icount,j),j=i,min(i+5,maxlab))
         end if
       end do
     end do
-    write(6,'(1x,a)') trim(outlab)
+    write(u6,'(1x,a)') trim(outlab)
   end if
 
   do j=i,min(i+5,maxlab)
     PrTot(j) = sig*TotEl(j-i+1)+PrNu(j)
   end do
   if ((iPL >= 3) .or. ((.not. Short) .and. (iPL == 2))) then
-    write(6,Format2) 'Total electronic       ',(sig*TotEl(j-i+1),j=i,min(i+5,maxlab))
-    write(6,Format2) 'Total nuclear          ',(PrNu(j),j=i,min(i+5,maxlab))
-    write(6,Format3) 'Total                  ',(PrTot(j),j=i,min(i+5,maxlab))
+    write(u6,Format2) 'Total electronic       ',(sig*TotEl(j-i+1),j=i,min(i+5,maxlab))
+    write(u6,Format2) 'Total nuclear          ',(PrNu(j),j=i,min(i+5,maxlab))
+    write(u6,Format3) 'Total                  ',(PrTot(j),j=i,min(i+5,maxlab))
   else
     lab5 = '     '
     if ((iPoint > 0) .and. (i == 1)) write(lab5,'(I5)') iPoint
-    write(6,Format4) lab5,(PrTot(j),j=i,min(i+5,maxlab))
+    write(u6,Format4) lab5,(PrTot(j),j=i,min(i+5,maxlab))
   end if
 end do
 

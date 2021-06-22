@@ -8,7 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-subroutine Xprop(short,ifallorb,nirrep,nbas,ntotv,vec,ntoto,occ,thrs,ntotd,opel,out)
+
+subroutine Xprop(short,ifallorb,nirrep,nbas,ntotv,vec,ntoto,occ,thrs,ntotd,opel,dout)
 !***********************************************************************
 !                                                                      *
 !     Purpose: the calculation of the average value of an operator,    *
@@ -19,7 +20,7 @@ subroutine Xprop(short,ifallorb,nirrep,nbas,ntotv,vec,ntoto,occ,thrs,ntotd,opel,
 !     Parameters                                                       *
 !                                                                      *
 !       short          logical, if (short) then only the total average *
-!                      value is calculated and transferred in out(1)   *
+!                      value is calculated and transferred in dout(1)  *
 !       ifallorb       logical, if (ifallorb) then print the property  *
 !                      of all orbitals (including virtuals) and none is*
 !                      weighted by occupation number (S.S.Dong, 2018)  *
@@ -53,10 +54,10 @@ subroutine Xprop(short,ifallorb,nirrep,nbas,ntotv,vec,ntoto,occ,thrs,ntotd,opel,
 !       (1:ntotd)      triangles of diagonal blocks of the operator    *
 !                      matrix                                          *
 !                      size: sum(i,i=0,nirrep-1)(nbas(i)*(nbas(i)+1)/2)*
-!       out            on return if (short) out(1) contains the total  *
+!       dout           on return if (short) dout(1) contains the total *
 !                      average value                                   *
 !                      else                                            *
-!                      out(i), i=1,sum(k,k=0,nirrep-1)(nbas(i))        *
+!                      dout(i), i=1,sum(k,k=0,nirrep-1)(nbas(i))       *
 !                      contains the orbital contributions (multiplied  *
 !                      by the corresponding occupation numbers)        *
 !                                                                      *
@@ -65,14 +66,22 @@ subroutine Xprop(short,ifallorb,nirrep,nbas,ntotv,vec,ntoto,occ,thrs,ntotd,opel,
 ! (including virtuals) and not weighted by occupation numbers          *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-logical short, ifallorb
-dimension nbas(0:nirrep-1), vec(1:ntotv), occ(1:ntoto), opel(1:ntotd), out(1:ntoto)
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, r8
+
+implicit none
+logical(kind=iwp), intent(in) :: short, ifallorb
+integer(kind=iwp), intent(in) :: nirrep, nbas(0:nirrep-1), ntotv, ntoto, ntotd
+real(kind=wp), intent(in) :: vec(ntotv), occ(ntoto), thrs, opel(ntotd)
+real(kind=wp), intent(inout) :: dout(ntoto)
+integer(kind=iwp) :: i, iado, iadout, iadv, icount, iv, iv1, iv2, jCount, nDim2
+real(kind=wp) :: dsum
+real(kind=r8), external :: DDOT_
 
 if (short) then
   icount = 1
-  sum = DDOT_(ntotd,vec,1,opel,1)
-  Out(1) = Sum
+  dsum = DDOT_(ntotd,vec,1,opel,1)
+  dout(1) = dsum
 else if (.not. ifallorb) then
   ndim2 = 0
   do i=0,nirrep-1
@@ -87,17 +96,17 @@ else if (.not. ifallorb) then
     do iv=1,nbas(i)
       iado = iado+1
       iadout = iadout+1
-      sum = 0.0d+00
+      dsum = Zero
       icount = jCount
       do iv1=1,nbas(i)
         do iv2=1,iv1-1
-          sum = sum+2.0d+00*vec(iadv+iv1)*vec(iadv+iv2)*opel(icount)
+          dsum = dsum+Two*vec(iadv+iv1)*vec(iadv+iv2)*opel(icount)
           icount = icount+1
         end do
-        sum = sum+vec(iadv+iv1)*vec(iadv+iv1)*opel(icount)
+        dsum = dsum+vec(iadv+iv1)*vec(iadv+iv1)*opel(icount)
         icount = icount+1
       end do
-      out(iadout) = occ(iado)*sum
+      dout(iadout) = occ(iado)*dsum
       iadv = iadv+nbas(i)
     end do
     jCount = jCount+nBas(i)*(nBas(i)+1)/2
@@ -116,17 +125,17 @@ else if (ifallorb) then
     do iv=1,nbas(i)
       iado = iado+1
       iadout = iadout+1
-      sum = 0.0d+00
+      dsum = Zero
       icount = jCount
       do iv1=1,nbas(i)
         do iv2=1,iv1-1
-          sum = sum+2.0d+00*vec(iadv+iv1)*vec(iadv+iv2)*opel(icount)
+          dsum = dsum+Two*vec(iadv+iv1)*vec(iadv+iv2)*opel(icount)
           icount = icount+1
         end do
-        sum = sum+vec(iadv+iv1)*vec(iadv+iv1)*opel(icount)
+        dsum = dsum+vec(iadv+iv1)*vec(iadv+iv1)*opel(icount)
         icount = icount+1
       end do
-      out(iadout) = sum
+      dout(iadout) = dsum
       iadv = iadv+nbas(i)
     end do
     jCount = jCount+nBas(i)*(nBas(i)+1)/2
@@ -134,12 +143,12 @@ else if (ifallorb) then
 end if
 
 !if (short) then
-!  write(6,'(3x,a,f18.10)') 'Total = ',out(1)
+!  write(u6,'(3x,a,f18.10)') 'Total = ',dout(1)
 !else
 !  ii = 0
 !  do i=0,nirrep-1
-!    write(6,'(1x,a,i2)') 'Irrep No.',i
-!    write(6,'(5(3x,i3,i3,f18.10))') (j,out(ii+j),j=1,nbas(i))
+!    write(u6,'(1x,a,i2)') 'Irrep No.',i
+!    write(u6,'(5(3x,i3,i3,f18.10))') (j,dout(ii+j),j=1,nbas(i))
 !    ii = ii+nbas(i)
 !  end do
 !end if

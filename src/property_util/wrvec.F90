@@ -22,7 +22,8 @@
 !> information to ``INPORB`` file.
 !>
 !> \p Label defines the type of information to write to ``INPORB`` file.
-!> Valid targets are: ``C``---CMO, ``O``---OCC, ``E``---EORB, ``I``---INDT, ``A``---Append Index, ``K``---Coordinates, ``B``---Basis section
+!> Valid targets are:
+!> ``C``---CMO, ``O``---OCC, ``E``---EORB, ``I``---INDT, ``A``---Append Index, ``K``---Coordinates, ``B``---Basis section
 !>
 !> Example: Write CMO coeff. for RHF:
 !>
@@ -30,7 +31,7 @@
 !> Call WrVec('INPORB',Lu,'C',NSYM,NBAS,NBAS,CMO,Dummy,Dummy,iDummy,Title)
 !> \endcode
 !>
-!> @param[in] Name  File name
+!> @param[in] FName File name
 !> @param[in] LU_   Unit number
 !> @param[in] LABEL Task
 !> @param[in] NSYM  N symmetries
@@ -43,14 +44,18 @@
 !> @param[in] TITLE Title of orbitals
 !***********************************************************************
 
-subroutine WRVEC(Name,LU_,LABEL,NSYM,NBAS,NORB,CMO,OCC,EORB,INDT,TITLE)
+subroutine WRVEC(FName,LU_,LABEL,NSYM,NBAS,NORB,CMO,OCC,EORB,INDT,TITLE)
 
-implicit real*8(A-H,O-Z)
-dimension NBAS(NSYM), NORB(NSYM), CMO(*), OCC(*), EORB(*), INDT(7,8)
-character*(*) TITLE, Name, LABEL
-dimension vDum(2)
+use Definitions, only: wp, iwp
 
-call WrVec_(Name,LU_,LABEL,0,NSYM,NBAS,NORB,CMO,vDum,OCC,vDum,EORB,vDum,INDT,TITLE,0)
+implicit none
+character(len=*), intent(in) :: FName, LABEL
+integer(kind=iwp), intent(in) :: LU_, NSYM, NBAS(NSYM), NORB(NSYM), INDT(7,8)
+real(kind=wp), intent(in) :: CMO(*), OCC(*), EORB(*)
+character(len=*), intent(inout) :: TITLE
+real(kind=wp) :: vDum(2)
+
+call WrVec_(FName,LU_,LABEL,0,NSYM,NBAS,NORB,CMO,vDum,OCC,vDum,EORB,vDum,INDT,TITLE,0)
 
 return
 

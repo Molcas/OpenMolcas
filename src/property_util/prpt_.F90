@@ -59,17 +59,25 @@ subroutine Prpt_(nIrrep,nBas,n2Dim,nDim,Occ,n2Tot,Vec,MaxScr,Scr,var,Short,iUHF,
 ! (including virtuals) and not weighted by occupation numbers          *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "WrkSpc.fh"
+use iso_c_binding, only: c_f_pointer, c_loc
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: nIrrep, nBas(0:nIrrep-1), n2Dim, nDim, n2Tot, MaxScr, iUHF
+real(kind=wp), intent(in) :: Occ(nDim), Vec(n2Tot)
+real(kind=wp), intent(out) :: Scr(MaxScr)
+logical(kind=iwp), intent(in) :: var, Short, ifallorb
+integer(kind=iwp) :: iadC1, iadC2, iadDen, iadDen_ab, iadEl, iadEl_Work, iadElSum, iadLab, iadNuc, iadNucSum, iadopr, iadtmp, &
+                     iadtmt, idum(1), iInd1, iInd2, iOcc_ab, iopt, ip_Scr, ipD1ao, iPL, ipScr, ipVec, irc, iscr, iSmLbl, iTol, &
+                     jRC, lpole, maxCen, maxGG, mBas(0:7), mDim, mInt, nbast, nblock, nCen, nComp, nfblock, nscr, tNUC
+logical(kind=iwp) :: NxtOpr
+character(len=8) :: label
+real(kind=wp), parameter :: Thrs = 1.0e-6_wp
+integer(kind=iwp), external :: ip_of_Work, iPrintLevel
+logical(kind=iwp), external :: Reduce_Prt
 #include "hfc_logical.fh"
-character*8 label
-logical short, NxtOpr, var, Reduce_Prt, ifallorb
-external Reduce_Prt
-integer nBas(0:nirrep-1), mBas(0:7)
-real*8 occ(1:ndim), scr(1:maxscr), Vec(n2Tot)
-dimension idum(1)
-integer tNUC, nbast
+#include "WrkSpc.fh"
 
 call Prpt_Internal(Scr)
 
@@ -82,10 +90,9 @@ contains
 
 subroutine Prpt_Internal(Scr)
 
-  use iso_c_binding
-
-  real*8, target :: Scr(*)
+  real(kind=wp), target :: Scr(*)
   character, pointer :: cScr(:)
+  integer(kind=iwp) :: i, iComp, iEF, iIrrep, iOcc, j, k
 
   !                                                                    *
   !*********************************************************************
@@ -94,15 +101,14 @@ subroutine Prpt_Internal(Scr)
   if (Reduce_Prt() .and. (iPL < 3)) iPL = 0
 
   if (iPL >= 2) then
-    write(6,*)
+    write(u6,*)
     call CollapseOutput(1,'   Molecular properties:')
-    write(6,'(3X,A)') '   ---------------------'
-    write(6,*)
+    write(u6,'(3X,A)') '   ---------------------'
+    write(u6,*)
   end if
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  Thrs = 1.0D-6
   call ICopy(nIrrep,nBas,1,mBas,1)
   if (Short) then
     mDim = 1
@@ -180,7 +186,7 @@ subroutine Prpt_Internal(Scr)
   iadC2 = iadC1+3
   iadNuc = iadC2+3
 
-  !write(6,*) ' Starting scan of ONEINT for multipole moments'
+  !write(u6,*) ' Starting scan of ONEINT for multipole moments'
   do i=0,99
     NxtOpr = .false.
     nComp = (i+1)*(i+2)/2
@@ -283,10 +289,10 @@ subroutine Prpt_Internal(Scr)
         call Get_iScalar('LP_nCenter',tNUC)
         call cmp_hfc(nbast,tNUC)
       else
-        write(6,'(/,/,6X,A)') 'Skipping Hyperfine tensor matrix for UHF with symmetry'
+        write(u6,'(/,/,6X,A)') 'Skipping Hyperfine tensor matrix for UHF with symmetry'
       end if
     else
-      write(6,'(/,/,6X,A)') 'Skipping Hyperfine tensor matrix'
+      write(u6,'(/,/,6X,A)') 'Skipping Hyperfine tensor matrix'
     end if
   end if
 
@@ -297,7 +303,7 @@ subroutine Prpt_Internal(Scr)
   !*********************************************************************
   !                                                                    *
 
-  !write(6,*) ' Starting scan of ONEINT for various elec. field integrals'
+  !write(u6,*) ' Starting scan of ONEINT for various elec. field integrals'
 
   do iEF=0,2
     nComp = (iEF+1)*(iEF+2)/2
@@ -377,7 +383,7 @@ subroutine Prpt_Internal(Scr)
       ! set the tolerance according to the total number of centers
       ! (assuming error scales with sqrt(ncen))
       iTol = 5
-      iTol = iTol-nint(Half*log10(dble(nCen)))
+      iTol = iTol-nint(Half*log10(real(nCen,kind=wp)))
       ! set MAG_X2C to avoid tests of electric field properties when
       ! wavefunction is X2C transformed (there is no way to tell but we
       ! can kind of tell by reading MAG x2c integrals) This is a workaround.
@@ -395,7 +401,7 @@ subroutine Prpt_Internal(Scr)
   !*********************************************************************
   !                                                                    *
 
-  !write(6,*) ' Starting scan of ONEINT for various contact term integrals'
+  !write(u6,*) ' Starting scan of ONEINT for various contact term integrals'
 
   nComp = 1
 
@@ -473,7 +479,7 @@ subroutine Prpt_Internal(Scr)
     ! set the tolerance according to the total number of centers
     ! (assuming error scales with sqrt(ncen))
     iTol = 5
-    iTol = iTol-nint(Half*log10(dble(nCen)))
+    iTol = iTol-nint(Half*log10(real(nCen,kind=wp)))
     if (.not. MAG_X2C) then
       write(label,'(a,a)') 'CNT','   el'
       call Add_Info(label,Work(iadElSum),nComp,iTol)
@@ -486,7 +492,7 @@ subroutine Prpt_Internal(Scr)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  !write(6,*) ' Starting scan of ONEINT diamagnetic shielding'
+  !write(u6,*) ' Starting scan of ONEINT diamagnetic shielding'
 
   nComp = 9
   lpole = 2
@@ -562,21 +568,21 @@ subroutine Prpt_Internal(Scr)
   499 continue
   if (iPL >= 2) then
     call CollapseOutput(0,'   Molecular properties:')
-    write(6,*)
+    write(u6,*)
   end if
   return
   !                                                                    *
   !*********************************************************************
   !                                                                    *
   999 continue
-  write(6,'(//1x,a/1x,a/1x,a,i8,a,i8)') ' Warning:',' Not enough scratch area to perform calculations',' Needed at least:',iscr, &
+  write(u6,'(//1x,a/1x,a/1x,a,i8,a,i8)') ' Warning:',' Not enough scratch area to perform calculations',' Needed at least:',iscr, &
                                         '   available:',maxscr
   !                                                                    *
   !*********************************************************************
   !                                                                    *
   if (iPL >= 2) then
     call CollapseOutput(0,'   Molecular properties:')
-    write(6,*)
+    write(u6,*)
   end if
 
 end subroutine Prpt_Internal

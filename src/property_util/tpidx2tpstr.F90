@@ -11,9 +11,14 @@
 
 subroutine tpidx2tpstr(TYPEINDEX,TYPESTRING,NB)
 
+use Definitions, only: iwp
+
+#include "intent.fh"
+
 implicit none
-character :: TYPESTRING(*)
-integer :: TYPEINDEX(*), NB, i
+integer(kind=iwp), intent(in) :: TYPEINDEX(*), NB
+character, intent(_OUT_) :: TYPESTRING(*)
+integer(kind=iwp) :: i
 
 do i=1,NB
   select case (TYPEINDEX(i))

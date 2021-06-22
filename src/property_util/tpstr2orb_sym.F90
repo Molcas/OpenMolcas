@@ -15,11 +15,13 @@ subroutine tpstr2orb_sym(TYPESTRING,NB,NF,NI,N1,N2,N3,NS,ND)
 !     scalars!!
 !     A typestring array consists of characters of 'fi123sd'
 
+use Definitions, only: iwp, u6
+
 implicit none
-character :: typestring(*)
-integer :: NB
-integer :: NF, NI, N1, N2, N3, NS, ND
-integer :: IB
+character, intent(in) :: typestring(*)
+integer(kind=iwp), intent(in) :: NB
+integer(kind=iwp), intent(out) :: NF, NI, N1, N2, N3, NS, ND
+integer(kind=iwp) :: IB
 character :: CTYPE
 
 NF = 0
@@ -48,7 +50,7 @@ do IB=1,NB
   else if (CTYPE == 'D') then
     ND = ND+1
   else
-    write(6,*) 'TPSTR2ORB_SYM: unknown type index character '//CTYPE
+    write(u6,*) 'TPSTR2ORB_SYM: unknown type index character '//CTYPE
     call AbEnd()
   end if
 end do

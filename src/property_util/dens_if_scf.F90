@@ -23,13 +23,15 @@ subroutine Dens_IF_SCF(COEFF,CMO,Mode)
 ! dumping it into a large matrix of dimension nTot x nTot
 !   (Coen de Graaf, Oct. 99)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-#include "SysDef.fh"
-#include "real.fh"
-real*8 COEFF(*), CMO(*)
-character Mode*1
-integer nBas(0:7)
+#include "intent.fh"
+
+implicit none
+real(kind=wp), intent(_OUT_) :: COEFF(*), CMO(*)
+character, intent(in) :: Mode
+integer(kind=iwp) :: i, ip1, ip2, iS, nBas(0:7), nIrrep, nTot, nTot2
 
 ! COEN WANTED IT AS A BLOCKED MATRIX, SO HERE THEY COME...
 

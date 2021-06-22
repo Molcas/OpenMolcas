@@ -30,45 +30,30 @@
 
 subroutine s2calc(Ca,Cb,S,nAlpha,nBeta,nBas,nOrb,nSym,s2)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit none
-#include "stdalloc.fh"
-!----------------------------------------------------------------------*
-! Dummy arguments                                                      *
-!----------------------------------------------------------------------*
-real*8 Ca(*)
-real*8 Cb(*)
-real*8 S(*)
-integer nAlpha(*)
-integer nBeta(*)
-integer nBas(*)
-integer nOrb(*)
-integer nSym
-real*8 s2
-!----------------------------------------------------------------------*
-! Local variables.                                                     *
-!----------------------------------------------------------------------*
-real*8 sz
-real*8 sb
-real*8 so
-integer iSym
-integer npSmat
-integer npHalf
-integer npTfrm
-integer idxCMO
-integer idxOvl
-integer i
-real*8, dimension(:), allocatable :: Smat, Half, Tfrm
+real(kind=wp), intent(in) :: Ca(*), Cb(*), S(*)
+integer(kind=iwp), intent(in) :: nAlpha(*), nBeta(*), nBas(*), nOrb(*), nSym
+real(kind=wp), intent(out) :: s2
+real(kind=wp) :: sb, so, sz
+integer(kind=iwp) :: i, idxCMO, idxOvl, iSym, npHalf, npSmat, npTfrm
+real(kind=wp), allocatable :: Smat(:), Halft(:), Tfrm(:)
 
 !----------------------------------------------------------------------*
 ! Debug printing stuff                                                 *
 !----------------------------------------------------------------------*
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-write(6,'(a,8i5)') 'nSym  . . . . . .',nSym
-write(6,'(a,8i5)') 'nBas  . . . . . .',(nBas(iSym),iSym=1,nSym)
-write(6,'(a,8i5)') 'nOrb  . . . . . .',(nOrb(iSym),iSym=1,nSym)
-write(6,'(a,8i5)') 'nAlpha  . . . . .',(nAlpha(iSym),iSym=1,nSym)
-write(6,'(a,8i5)') 'nBeta . . . . . .',(nBeta(iSym),iSym=1,nSym)
+write(u6,'(a,8i5)') 'nSym  . . . . . .',nSym
+write(u6,'(a,8i5)') 'nBas  . . . . . .',(nBas(iSym),iSym=1,nSym)
+write(u6,'(a,8i5)') 'nOrb  . . . . . .',(nOrb(iSym),iSym=1,nSym)
+write(u6,'(a,8i5)') 'nAlpha  . . . . .',(nAlpha(iSym),iSym=1,nSym)
+write(u6,'(a,8i5)') 'nBeta . . . . . .',(nBeta(iSym),iSym=1,nSym)
 i = 1
 do iSym=1,nSym
   call RecPrt('Ca',' ',Ca(i),nBas(iSym),nBas(iSym))
@@ -80,21 +65,21 @@ end do
 !----------------------------------------------------------------------*
 ! Initialize                                                           *
 !----------------------------------------------------------------------*
-s2 = 0.0d0
+s2 = Zero
 !----------------------------------------------------------------------*
 ! Compute <sz> and N_beta                                              *
 !----------------------------------------------------------------------*
-sz = 0.0d0
-sb = 0.0d0
+sz = Zero
+sb = Zero
 do iSym=1,nSym
-  sz = sz+0.5d0*(nAlpha(iSym)-nBeta(iSym))
-  sb = sb+1.0d0*nBeta(iSym)
+  sz = sz+Half*(nAlpha(iSym)-nBeta(iSym))
+  sb = sb+One*nBeta(iSym)
 end do
-s2 = s2+sz*(sz+1.0d0)+sb
+s2 = s2+sz*(sz+One)+sb
 #ifdef _DEBUGPRINT_
-write(6,'(a,f12.6)') 'sz  . . . . . . .',sz
-write(6,'(a,f12.6)') 'sb  . . . . . . .',sb
-write(6,'(a,f12.6)') 's2  . . . . . . .',s2
+write(u6,'(a,f12.6)') 'sz  . . . . . . .',sz
+write(u6,'(a,f12.6)') 'sb  . . . . . . .',sb
+write(u6,'(a,f12.6)') 's2  . . . . . . .',s2
 #endif
 !----------------------------------------------------------------------*
 ! Compute size of scratch matrices, the allocate.                      *
@@ -108,29 +93,29 @@ do iSym=1,nSym
   npTfrm = max(npTfrm,nAlpha(iSym)*nBeta(iSym))
 end do
 #ifdef _DEBUGPRINT_
-write(6,'(a,i5)') 'npSmat  . . . . .',npSmat
-write(6,'(a,i5)') 'npHalf  . . . . .',npHalf
-write(6,'(a,i5)') 'npTfrm  . . . . .',npTfrm
+write(u6,'(a,i5)') 'npSmat  . . . . .',npSmat
+write(u6,'(a,i5)') 'npHalf  . . . . .',npHalf
+write(u6,'(a,i5)') 'npTfrm  . . . . .',npTfrm
 #endif
 if (npTfrm == 0) return
 call mma_allocate(Smat,npSmat)
-call mma_allocate(Half,npHalf)
+call mma_allocate(Halft,npHalf)
 call mma_allocate(Tfrm,npTfrm)
 !----------------------------------------------------------------------*
 ! Compute sum_a sum_b [ C_alpha* S C_beta ]^2                          *
 !----------------------------------------------------------------------*
 !call xxdGemul(a,lda,'N/T',b,ldb,'N/T',c,ldc,l,m,n)
 ! C=A*B, m is contraction index
-so = 0.0d0
+so = Zero
 idxCMO = 1
 idxOvl = 1
 do iSym=1,nSym
-  !write(6,'(a,i1)') 'Irrep ',iSym
+  !write(u6,'(a,i1)') 'Irrep ',iSym
   if (nAlpha(iSym)*nBeta(iSym) > 0) then
     call Square(S(idxOvl),Smat,1,nBas(iSym),nBas(iSym))
-    call DGEMM_('T','N',nAlpha(iSym),nBas(iSym),nBas(iSym),1.0d0,Ca(idxCMO),nBas(iSym),Smat,nBas(iSym),0.0d0,Half,nAlpha(iSYm))
-    !call RecPrt('Half transform','(12f12.6)',Half,nAlpha(iSym),nBas(iSym))
-    call DGEMM_('N','N',nAlpha(iSym),nBeta(iSym),nBas(iSym),1.0d0,Half,nAlpha(iSym),Cb(idxCMO),nBas(iSym),0.0d0,Tfrm,nAlpha(iSym))
+    call DGEMM_('T','N',nAlpha(iSym),nBas(iSym),nBas(iSym),One,Ca(idxCMO),nBas(iSym),Smat,nBas(iSym),Zero,Halft,nAlpha(iSYm))
+    !call RecPrt('Half transform','(12f12.6)',Halft,nAlpha(iSym),nBas(iSym))
+    call DGEMM_('N','N',nAlpha(iSym),nBeta(iSym),nBas(iSym),One,Halft,nAlpha(iSym),Cb(idxCMO),nBas(iSym),Zero,Tfrm,nAlpha(iSym))
     !call RecPrt('Transform','(12f12.6)',Tfrm,nAlpha(iSym),nBeta(iSym))
     do i=1,nAlpha(iSym)*nBeta(iSym)
       so = so+Tfrm(i)*Tfrm(i)
@@ -140,13 +125,13 @@ do iSym=1,nSym
   idxOvl = idxOvl+nBas(iSym)*(nBas(iSym)+1)/2
 end do
 s2 = s2-so
-!write(6,'(a,f12.6)') 'so  . . . . . . .',so
-!write(6,'(a,f12.6)') 's2  . . . . . . .',s2
+!write(u6,'(a,f12.6)') 'so  . . . . . . .',so
+!write(u6,'(a,f12.6)') 's2  . . . . . . .',s2
 !----------------------------------------------------------------------*
 ! Deallocate scratch matrix.                                           *
 !----------------------------------------------------------------------*
 call mma_deallocate(Tfrm)
-call mma_deallocate(Half)
+call mma_deallocate(Halft)
 call mma_deallocate(Smat)
 !----------------------------------------------------------------------*
 !                                                                      *

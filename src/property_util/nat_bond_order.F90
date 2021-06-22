@@ -34,11 +34,11 @@
 !>
 !> @param[in] NSYM  Number of irreducible representations
 !> @param[in] NBAS  Number of basis functions per irred. rep.
-!> @param[in] NAME  Center and function type label
+!> @param[in] BNAME Center and function type label
 !> @param[in] iCase Type of run
 !***********************************************************************
 
-subroutine NAT_BOND_ORDER(NSYM,NBAS,NAME,iCase)
+subroutine NAT_BOND_ORDER(NSYM,NBAS,BNAME,iCase)
 !***********************************************************************
 !                                                                      *
 !     Author: Luca De Vico, University of Lund, 2006                   *
@@ -68,27 +68,35 @@ subroutine NAT_BOND_ORDER(NSYM,NBAS,NAME,iCase)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "WrkSpc.fh"
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "Molcas.fh"
-dimension NBAS(*)
-integer NBAST, tNUC, tRealNUC, NPBonds, AtomA, AtomB
-character*(LENIN8) NAME(*)
-integer ICNT(MXBAS), nStab(MxAtom)
-character*(LENIN) CNAME(MXATOM)
-character*(LENIN4) LblCnt4(MxAtom)
-!character*(LENIN) LblCnt(MxAtom)
-character*(LENIN) TLbl(MXATOM)
-character*(LENIN4) Atom_A, Atom_B, Atom_C, Atom_D
-character*16 Label
-character*1 Sign
-character*36 LabelSym
-character*36 LabelNoSym
-character*49 Label3ASym
-character*49 Label3ANoSym
-logical Exist, SearchedSingle, SearchedTriple, Reduce_Prt
-external Reduce_Prt
+integer(kind=iwp), intent(in) :: NSYM, NBAS(*), iCase
+character(len=LenIn8), intent(in) :: BNAME(*)
+integer(kind=iwp) :: AtomA, AtomB, I, i_Component, i_Opt, i_Rc, i_SymLbl, iANr, IAtom, IB, iBlo, iBondNumb, ICNT(MXBAS), &
+                     iElToAsgn, iErr, iHalf, ii, IMN, iNoNuc, iOdd, ip_center, ipAll, ipANr, ipBondAtomA, ipBondAtomB, ipBonds, &
+                     ipCM, ipDNAO, ipDS, ipDS_Orig, ipDS_tmp, ipDummy, iPL, ipNBFpA, ipP, ipPInv, ipS, ipS_blo, ipS_orig, ipS_tmp, &
+                     ipScr, ipSingEl, ipSingElAtom, ipSubDNAO, ipSubDNAOindex, ipSubIVal, ipSubVal, ipSubVec, ipTmp, ipTripl, &
+                     ipTriplAtomA, ipTriplAtomB, ipTriplAtomC, IS, isAtom, iSElem, ISING, iSingNumb, isThereAtLeastABond, iSubD, &
+                     iSum, iSyLbl, ISYM, iTriplBondNumb, iTry, ix_Single, ix_Triple, J, jANr, JAtom, jj, k, KAtom, MY, NB, nBas2, &
+                     nBasAtoms, nBasAtomsA, nBasAtomsB, nBasAtomsC, nBasMax, NBAST, NBAST2, nDens, nDimSubD, nNUC, NPBonds, nScr, &
+                     nStab(MxAtom), NY, tNUC, tRealNUC
+real(kind=wp) :: coeff, covij, Covrad1, Covrad2, DET, ElecNonAssgn, rij, rij2, thr_BO, thr_CO, thr_Decr, thr_DecrStep, thr_Diff, &
+                 thr_Dummy, thr_Dummy1, thr_Dummy2, thr_LP, thr_LP_Orig, thr_MIN, thr_NA, thr_Orig, thr_SO, TotBondElec, &
+                 TotCoreElec, TotEl, TotLoneElec, TotSingleElec, TotTriplBondElec, x, y, z
+logical(kind=iwp) :: Exists, SearchedSingle, SearchedTriple
+character(len=LenIn4) :: Atom_A, Atom_B, Atom_C, Atom_D, LblCnt4(MxAtom)
+character(len=LenIn) :: CNAME(MXATOM), TLbl(MXATOM) !, LblCnt(MxAtom)
+character(len=49) :: Label3ANoSym, Label3ASym
+character(len=36) :: LabelNoSym, LabelSym
+character(len=16) :: Label
+character, parameter :: cSign = '-'
+integer(kind=iwp), external :: iPrintLevel
+real(kind=wp), external :: Covrad
+logical(kind=iwp), external :: Reduce_Prt
+#include "WrkSpc.fh"
 
 !define _DEBUGPRINT_
 !                                                                      *
@@ -112,30 +120,30 @@ if (iCase == 0) return
 !----------------------------------------------------------------------*
 
 ! Core Orbitals threshold, default 1.999
-thr_CO = 1.999
+thr_CO = 1.999_wp
 ! Lone Pairs threshold .le. Core Orbitals threshold, default 1.90
-!thr_LP = 1.90
-!thr_LP = 1.85
-thr_LP = 1.80
+!thr_LP = 1.90_wp
+!thr_LP = 1.85_wp
+thr_LP = 1.80_wp
 thr_LP_Orig = thr_LP
 ! Bond occupation threshold .le. Lone Pairs Orbitals threshold
 ! Guessed to 1.90. Minimum possible threshold thr_MIN guessed to 1.50
-thr_BO = 1.999
+thr_BO = 1.999_wp
 thr_Orig = thr_BO
-thr_MIN = 1.50
+thr_MIN = 1.50_wp
 ! Non-assigned threshold, guessed to 0.90
-thr_NA = 0.90
+thr_NA = 0.90_wp
 ! Single occupied orbitals threshold, guessed to 0.999
-thr_SO = 0.90
+thr_SO = 0.90_wp
 ! Not so Dummy thresholds
-thr_Dummy = 4.0
-thr_Dummy1 = 2.02
-thr_Dummy2 = 1.02
+thr_Dummy = 4.0_wp
+thr_Dummy1 = 2.02_wp
+thr_Dummy2 = 1.02_wp
 ipDummy = 1
 
 ! Decreasing threshold and decrease step
-thr_DecrStep = 0.01
-thr_Decr = 0.0
+thr_DecrStep = 0.01_wp
+thr_Decr = Zero
 
 SearchedSingle = .false.
 SearchedTriple = .false.
@@ -159,7 +167,7 @@ NBAST2 = NBAST**2
 !----------------------------------------------------------------------*
 
 call Get_iScalar('Unique atoms',nNUC)
-call Get_cArray('Unique Atom Names',CNAME,(LENIN)*nNuc)
+call Get_cArray('Unique Atom Names',CNAME,LenIn*nNuc)
 call Get_iArray('nStab',nStab,nNuc)
 
 !----------------------------------------------------------------------*
@@ -169,13 +177,13 @@ call Get_iArray('nStab',nStab,nNuc)
 do I=1,NBAST
   ICNT(I) = -1
   do J=1,NNUC
-    if (NAME(I)(1:LENIN) == CNAME(J)) ICNT(I) = J
+    if (BNAME(I)(1:LenIn) == CNAME(J)) ICNT(I) = J
   end do
   if (ICNT(I) < 0) then
-    write(6,*)
-    write(6,*) 'NBO analysis not implemented with pseudo atoms'
-    write(6,*) '(yet). Continuing normal execution.'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) 'NBO analysis not implemented with pseudo atoms'
+    write(u6,*) '(yet). Continuing normal execution.'
+    write(u6,*)
     return
   end if
 end do
@@ -198,9 +206,9 @@ call Get_LblCnt_All(TLbl)
 
 ! Atom label plus symmetry generator
 
-call Get_cArray('LP_L',LblCnt4,(LENIN4)*tNUC)
+call Get_cArray('LP_L',LblCnt4,LenIn4*tNUC)
 !do i=1,tNUC
-!  LblCnt(i)(1:LENIN) = LblCnt4(i)(1:LENIN)
+!  LblCnt(i)(1:LenIn) = LblCnt4(i)(1:LenIn)
 !end do
 
 !----------------------------------------------------------------------*
@@ -305,9 +313,9 @@ call Allocate_iWork(ip_center,NBAST)
 call Get_iArray('Center Index',iWork(ip_center),NBAST)
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'iWork(ip_center) ='
+write(u6,*) 'iWork(ip_center) ='
 do I=1,NBAST
-  write(6,*) iWork(ip_center+I-1)
+  write(u6,*) iWork(ip_center+I-1)
 end do
 #endif
 
@@ -326,9 +334,9 @@ do I=1,NBAST
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'number of basis per atom iWork(ipNBFpA) ='
+write(u6,*) 'number of basis per atom iWork(ipNBFpA) ='
 do I=1,tNUC
-  write(6,*) iWork(ipNBFpA+I-1)
+  write(u6,*) iWork(ipNBFpA+I-1)
 end do
 #endif
 
@@ -370,14 +378,14 @@ i_Component = 1
 i_SymLbl = 1
 call RdOne(i_Rc,i_Opt,'Mltpl  0',i_Component,Work(ipS_orig),i_SymLbl)
 if (i_Rc /= 0) then
-  write(6,*) 'NBO Error: Could not read overlaps from ONEINT.'
+  write(u6,*) 'NBO Error: Could not read overlaps from ONEINT.'
   call Abend()
 end if
 
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) 'Original Overlap Matrix'
-write(6,'(2X,8F12.8)') (Work(ipS_orig+J-1),J=1,iSElem)
+write(u6,*)
+write(u6,*) 'Original Overlap Matrix'
+write(u6,'(2X,8F12.8)') (Work(ipS_orig+J-1),J=1,iSElem)
 #endif
 
 !----------------------------------------------------------------------*
@@ -409,8 +417,8 @@ do ISYM=1,NSYM
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) 'Before desymmetrization'
+write(u6,*)
+write(u6,*) 'Before desymmetrization'
 call RecPrt('Overlap Matrix = ',' ',Work(ipS_tmp),NBAST,NBAST)
 #endif
 
@@ -434,9 +442,9 @@ if (nSym > 1) then
   end do
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'S_blo = '
+  write(u6,*) 'S_blo = '
   do i=1,nBas2
-    write(6,*) (Work(ipS_blo+I-1))
+    write(u6,*) (Work(ipS_blo+I-1))
   end do
 # endif
 
@@ -446,7 +454,7 @@ if (nSym > 1) then
   end do
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'nBasMax = ',nBasMax
+  write(u6,*) 'nBasMax = ',nBasMax
 # endif
 
   nScr = nBasMax*NBAST
@@ -467,8 +475,8 @@ else
 end if
 
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) 'After desymmetrization'
+write(u6,*)
+write(u6,*) 'After desymmetrization'
 call RecPrt('S Matrix = ',' ',Work(ipS),NBAST,NBAST)
 #endif
 
@@ -492,8 +500,8 @@ call Allocate_Work(ipDNAO,(NBAST2))
 call FZero(Work(ipDNAO),(NBAST2))
 
 write(Label,'(A,I1)') 'LoProp Dens ',0
-call qpg_dArray(Label,Exist,nDens)
-if ((.not. Exist) .or. (nDens == 0)) then
+call qpg_dArray(Label,Exists,nDens)
+if ((.not. Exists) .or. (nDens == 0)) then
   call SysAbendMsg('get_density_matrix','Could not locate:',Label)
 end if
 call Allocate_Work(ipTmp,(nDens))
@@ -526,8 +534,8 @@ do I=1,NBAST
     E = E+Work(ipDNAO+(J-1)*NBAST+I-1)*Work(ipS+(J-1)*NBAST+I-1)
   end do
 end do
-write(6,*)
-write(6,*) 'Number of electrons as sum of D and S elements = ',E
+write(u6,*)
+write(u6,*) 'Number of electrons as sum of D and S elements = ',E
 #endif
 
 !----------------------------------------------------------------------*
@@ -536,7 +544,7 @@ write(6,*) 'Number of electrons as sum of D and S elements = ',E
 
 call Allocate_Work(ipDS,(NBAST2))
 call FZero(Work(ipDS),(NBAST2))
-call DGEMM_('N','N',NBAST,NBAST,NBAST,1.0d0,Work(ipDNAO),NBAST,Work(ipS),NBAST,0.0d0,Work(ipDS),NBAST)
+call DGEMM_('N','N',NBAST,NBAST,NBAST,One,Work(ipDNAO),NBAST,Work(ipS),NBAST,Zero,Work(ipDS),NBAST)
 
 #ifdef _DEBUGPRINT_
 call RecPrt('DS-NAO Matrix = ',' ',Work(ipDS),NBAST,NBAST)
@@ -544,8 +552,8 @@ E = Zero
 do I=1,NBAST
   E = E+Work(ipDS+(I-1)*NBAST+I-1)
 end do
-write(6,*)
-write(6,*) 'Number of electrons as sum of the DS diagonal = ',E
+write(u6,*)
+write(u6,*) 'Number of electrons as sum of the DS diagonal = ',E
 #endif
 
 !call Get_iScalar('nSym',nSym)
@@ -558,7 +566,7 @@ if (nSym == 1) then
   call Allocate_Work(ip_VV_CAB,tNuc)
   call Allocate_Work(ip_VV_VAB,tNuc)
   call Allocate_iWork(ip_VV_N,tNuc+1)
-  call Vale(tNUC,iWork(ipNBFpA),Work(ip_Charge),NBAST,Work(ipDS),CNAME,LENIN,iWork(ip_VV_N),Work(ip_VV_QAB),Work(ip_VV_WAB), &
+  call Vale(tNUC,iWork(ipNBFpA),Work(ip_Charge),NBAST,Work(ipDS),CNAME,LenIn,iWork(ip_VV_N),Work(ip_VV_QAB),Work(ip_VV_WAB), &
             Work(ip_VV_CAB),Work(ip_VV_VAB))
   call Free_Work(ip_VV_N)
   call Free_Work(ip_VV_VAB)
@@ -607,8 +615,8 @@ do I=1,NBAST
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) 'Number of electrons = ',TotEl
+write(u6,*)
+write(u6,*) 'Number of electrons = ',TotEl
 #endif
 
 !----------------------------------------------------------------------*
@@ -663,17 +671,17 @@ do IAtom=1,tRealNUC
   end do
 
 # ifdef _DEBUGPRINT_
-  write(6,*)
+  write(u6,*)
   call RecPrt('SubDNAO Matrix = ',' ',Work(ipSubDNAO),nBasAtoms,nBasAtoms)
-  write(6,*)
+  write(u6,*)
   call iVcPrt('SubDNAO index Matrix = ',' ',iWork(ipSubDNAOindex),nDimSubD)
-  write(6,*) 'SubDNAO diagonal elements'
+  write(u6,*) 'SubDNAO diagonal elements'
   do I=1,nBasAtoms
-    write(6,*) Work(ipSubDNAO+(I-1)*nBasAtoms+I-1)
+    write(u6,*) Work(ipSubDNAO+(I-1)*nBasAtoms+I-1)
   end do
 
-  !write(6,*)
-  !write(6,*) 'SubDS=',DDot_(nDimSubD,Work(ipSubDNAO),1,Work(ipSubDNAO),1),DDot_(nDimSubD,Work(ipSubDNAO),1,One,0)
+  !write(u6,*)
+  !write(u6,*) 'SubDS=',DDot_(nDimSubD,Work(ipSubDNAO),1,Work(ipSubDNAO),1),DDot_(nDimSubD,Work(ipSubDNAO),1,One,0)
 # endif
 
   ! Diagonalization
@@ -681,18 +689,18 @@ do IAtom=1,tRealNUC
   call xEigen(1,nBasAtoms,nBasAtoms,work(ipSubDNAO),Work(ipSubVal),Work(ipSubIVal),Work(ipSubVec),iErr)
 
   if (iErr /= 0) then
-    write(6,*) 'Something went wrong when diagonalizing.'
-    write(6,*) 'NBO analysis cannot be finished, sorry.'
+    write(u6,*) 'Something went wrong when diagonalizing.'
+    write(u6,*) 'NBO analysis cannot be finished, sorry.'
     return
   end if
 
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'One atom submatrix diagonalization'
+  write(u6,*)
+  write(u6,*) 'One atom submatrix diagonalization'
   call RecPrt('Eigen vectors Matrix = ',' ',Work(ipSubVec),nBasAtoms,nBasAtoms)
-  write(6,*)
+  write(u6,*)
   call RecPrt('Eigen values, real = ',' ',Work(ipSubVal),nBasAtoms,1)
-  write(6,*)
+  write(u6,*)
   call RecPrt('Eigen values, imaginary = ',' ',Work(ipSubIVal),nBasAtoms,1)
 
 # endif
@@ -725,8 +733,8 @@ E = Zero
 do I=1,NBAST
   E = E+Work(ipDS+(I-1)*NBAST+I-1)
 end do
-write(6,*)
-write(6,*) 'Number of electrons as sum of the DS diagonal = ',E
+write(u6,*)
+write(u6,*) 'Number of electrons as sum of the DS diagonal = ',E
 #endif
 
 !----------------------------------------------------------------------*
@@ -768,14 +776,14 @@ do IAtom=1,tRealNUC-1
 
     iANr = iWork(ipANr+IAtom-1)
     if (iANr > 86) then
-      Covrad1 = 2.70d0
+      Covrad1 = 2.70_wp
     else
       Covrad1 = Covrad(iANr)
     end if
 
     jANr = iWork(ipANr+JAtom-1)
     if (jANr > 86) then
-      Covrad2 = 2.70d0
+      Covrad2 = 2.70_wp
     else
       Covrad2 = Covrad(jANr)
     end if
@@ -783,7 +791,7 @@ do IAtom=1,tRealNUC-1
     covij = Covrad1+Covrad2
 
     thr_Diff = thr_Orig-thr_BO
-    coeff = 1.25+thr_Diff
+    coeff = 1.25_wp+thr_Diff
 
     if (rij > (coeff*covij)) then
       goto 91
@@ -792,9 +800,9 @@ do IAtom=1,tRealNUC-1
     end if
 
 #   ifdef _DEBUGPRINT_
-    write(6,*)
-    write(6,*) 'Good rij = ',rij
-    write(6,*) 'covalent = ',covij
+    write(u6,*)
+    write(u6,*) 'Good rij = ',rij
+    write(u6,*) 'covalent = ',covij
 #   endif
 
     nBasAtomsA = iWork(ipNBFpA+IAtom-1)
@@ -845,7 +853,7 @@ do IAtom=1,tRealNUC-1
     end do
 
 #   ifdef _DEBUGPRINT_
-    write(6,*)
+    write(u6,*)
     call RecPrt('SubDNAO Matrix = ',' ',Work(ipSubDNAO),nBasAtoms,nBasAtoms)
 #   endif
 
@@ -854,18 +862,18 @@ do IAtom=1,tRealNUC-1
     call xEigen(1,nBasAtoms,nBasAtoms,work(ipSubDNAO),Work(ipSubVal),Work(ipSubIVal),Work(ipSubVec),iErr)
 
     if (iErr /= 0) then
-      write(6,*) 'Something went wrong when diagonalizing.'
-      write(6,*) 'NBO analysis cannot be finished, sorry.'
+      write(u6,*) 'Something went wrong when diagonalizing.'
+      write(u6,*) 'NBO analysis cannot be finished, sorry.'
       return
     end if
 
 #   ifdef _DEBUGPRINT_
-    write(6,*)
-    write(6,*) 'Two atoms submatrix diagonalization'
+    write(u6,*)
+    write(u6,*) 'Two atoms submatrix diagonalization'
     call RecPrt('Eigen vectors Matrix = ',' ',Work(ipSubVec),nBasAtoms,nBasAtoms)
-    write(6,*)
+    write(u6,*)
     call RecPrt('Eigen values, real = ',' ',Work(ipSubVal),nBasAtoms,1)
-    write(6,*)
+    write(u6,*)
     call RecPrt('Eigen values, imaginary = ',' ',Work(ipSubIVal),nBasAtoms,1)
 #   endif
 
@@ -898,8 +906,8 @@ E = Zero
 do K=1,NBAST
   E = E+Work(ipDS+(K-1)*NBAST+K-1)
 end do
-write(6,*)
-write(6,*) 'Number of electrons as sum of the DS diagonal = ',E
+write(u6,*)
+write(u6,*) 'Number of electrons as sum of the DS diagonal = ',E
 #endif
 
 !----------------------------------------------------------------------*
@@ -909,8 +917,8 @@ write(6,*) 'Number of electrons as sum of the DS diagonal = ',E
 ElecNonAssgn = TotEl-TotCoreElec-TotLoneElec-TotBondElec
 
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) 'Number of non assigned electrons = ',ElecNonAssgn
+write(u6,*)
+write(u6,*) 'Number of non assigned electrons = ',ElecNonAssgn
 #endif
 
 !----------------------------------------------------------------------*
@@ -946,7 +954,7 @@ if ((ElecNonAssgn >= 2*thr_NA) .and. (tNUC > 2)) then
   ! + 100 added to stay on the safe side to avoid memory problems      *
   !--------------------------------------------------------------------*
 
-  iElToAsgn = int(ElecNonAssgn+0.5)+100
+  iElToAsgn = int(ElecNonAssgn+Half)+100
 
   if (ix_Triple < iElToAsgn) then
     if (SearchedTriple) then
@@ -1027,7 +1035,7 @@ if ((ElecNonAssgn >= 2*thr_NA) .and. (tNUC > 2)) then
         end do
 
 #       ifdef _DEBUGPRINT_
-        write(6,*)
+        write(u6,*)
         call RecPrt('SubDNAO Matrix = ',' ',Work(ipSubDNAO),nBasAtoms,nBasAtoms)
 #       endif
 
@@ -1036,17 +1044,17 @@ if ((ElecNonAssgn >= 2*thr_NA) .and. (tNUC > 2)) then
         call xEigen(1,nBasAtoms,nBasAtoms,work(ipSubDNAO),Work(ipSubVal),Work(ipSubIVal),Work(ipSubVec),iErr)
 
         if (iErr /= 0) then
-          write(6,*) 'Something went wrong when diagonalizing.'
-          write(6,*) 'NBO analysis cannot be finished, sorry.'
+          write(u6,*) 'Something went wrong when diagonalizing.'
+          write(u6,*) 'NBO analysis cannot be finished, sorry.'
           return
         end if
 
 #       ifdef _DEBUGPRINT_
-        write(6,*)
+        write(u6,*)
         call RecPrt('Eigen vectors Matrix = ',' ',Work(ipSubVec),nBasAtoms,nBasAtoms)
-        write(6,*)
+        write(u6,*)
         call RecPrt('Eigen values, real = ',' ',Work(ipSubVal),nBasAtoms,1)
-        write(6,*)
+        write(u6,*)
         call RecPrt('Eigen values, imaginary = ',' ',Work(ipSubIVal),nBasAtoms,1)
 #       endif
 
@@ -1087,8 +1095,8 @@ if ((ElecNonAssgn >= 2*thr_NA) .and. (tNUC > 2)) then
     do K=1,NBAST
       E = E+Work(ipDS+(K-1)*NBAST+K-1)
     end do
-    write(6,*)
-    write(6,*) 'Number of electrons as sum of the DS diagonal = ',E
+    write(u6,*)
+    write(u6,*) 'Number of electrons as sum of the DS diagonal = ',E
 #   endif
 
   end if
@@ -1102,8 +1110,8 @@ end if
 ! pairs.                                                               *
 !----------------------------------------------------------------------*
 
-if ((isThereAtLeastABond /= 0) .and. (TotBondElec < 0.1) .and. (thr_LP == thr_LP_Orig)) then
-  thr_LP = thr_LP+0.1
+if ((isThereAtLeastABond /= 0) .and. (TotBondElec < 0.1_wp) .and. (thr_LP == thr_LP_Orig)) then
+  thr_LP = thr_LP+0.1_wp
   do I=1,(NBAST2)
     Work(ipDS+I-1) = Work(ipDS_Orig+I-1)
   end do
@@ -1121,8 +1129,8 @@ call Free_Work(ipDS_Orig)
 if (ElecNonAssgn >= thr_NA) then
 
   ! upper limit, overestimated to stay on the safe side
-  iElToAsgn = int(ElecNonAssgn+0.6)+10
-  !iElToAsgn = int(ElecNonAssgn+0.6)+1
+  iElToAsgn = int(ElecNonAssgn+0.6_wp)+10
+  !iElToAsgn = int(ElecNonAssgn+0.6_wp)+1
 
   if (ix_Single < iElToAsgn) then
     if (SearchedSingle) then
@@ -1182,7 +1190,7 @@ if (ElecNonAssgn >= thr_NA) then
     end do
 
 #   ifdef _DEBUGPRINT_
-    write(6,*)
+    write(u6,*)
     call RecPrt('SubDNAO Matrix = ',' ',Work(ipSubDNAO),nBasAtoms,nBasAtoms)
 #   endif
 
@@ -1191,17 +1199,17 @@ if (ElecNonAssgn >= thr_NA) then
     call xEigen(1,nBasAtoms,nBasAtoms,work(ipSubDNAO),Work(ipSubVal),Work(ipSubIVal),Work(ipSubVec),iErr)
 
     if (iErr /= 0) then
-      write(6,*) 'Something went wrong when diagonalizing.'
-      write(6,*) 'NBO analysis cannot be finished, sorry.'
+      write(u6,*) 'Something went wrong when diagonalizing.'
+      write(u6,*) 'NBO analysis cannot be finished, sorry.'
       return
     end if
 
 #   ifdef _DEBUGPRINT_
-    write(6,*)
+    write(u6,*)
     call RecPrt('Eigen vectors Matrix = ',' ',Work(ipSubVec),nBasAtoms,nBasAtoms)
-    write(6,*)
+    write(u6,*)
     call RecPrt('Eigen values, real = ',' ',Work(ipSubVal),nBasAtoms,1)
-    write(6,*)
+    write(u6,*)
     call RecPrt('Eigen values, imaginary = ',' ',Work(ipSubIVal),nBasAtoms,1)
 #   endif
 
@@ -1229,18 +1237,17 @@ end if
 ! Print out of the NBO analysis                                        *
 !----------------------------------------------------------------------*
 
-Sign = '-'
 LabelSym = 'Atom A:Gen.  Atom B:Gen.  Bond Order'
 LabelNoSym = 'Atom A       Atom B       Bond Order'
 Label3ASym = 'Atom A:Gen.  Atom B:Gen.  Atom C:Gen.  Bond Order'
 Label3ANoSym = 'Atom A       Atom B       Atom C       Bond Order'
 
-write(6,*)
+write(u6,*)
 call CollapseOutput(1,'   Natural Bond Order analysis')
-write(6,'(3X,A)') '   ---------------------------'
+write(u6,'(3X,A)') '   ---------------------------'
 
-write(6,'(6X,A)') 'Based on LoProp computed density'
-write(6,'(6X,85A)') (Sign,i=1,85)
+write(u6,'(6X,A)') 'Based on LoProp computed density'
+write(u6,'(6X,85A)') (cSign,i=1,85)
 
 if (iBondNumb > 1) then
   ! Two columns format printing
@@ -1249,29 +1256,29 @@ if (iBondNumb > 1) then
   if (iHalf*2 /= iBondNumb) iOdd = 1
 
   if (nSym > 1) then
-    write(6,'(6X,A)') LabelSym//' | '//LabelSym
+    write(u6,'(6X,A)') LabelSym//' | '//LabelSym
   else
-    write(6,'(6X,A)') LabelNoSym//' | '//LabelNoSym
+    write(u6,'(6X,A)') LabelNoSym//' | '//LabelNoSym
   end if
   do I=0,iHalf-1
     Atom_A = LblCnt4(iWork(ipBondAtomA+I))
     Atom_B = LblCnt4(iWork(ipBondAtomB+I))
     Atom_C = LblCnt4(iWork(ipBondAtomA+I+iHalf))
     Atom_D = LblCnt4(iWork(ipBondAtomB+I+iHalf))
-    write(6,'(8X,A,3X,A,3X,F7.3,2X,A,3X,A,3X,A,3X,F7.3)') Atom_A,Atom_B,Work(ipBonds+I),'|',Atom_C,Atom_D,Work(ipBonds+I+iHalf)
+    write(u6,'(8X,A,3X,A,3X,F7.3,2X,A,3X,A,3X,A,3X,F7.3)') Atom_A,Atom_B,Work(ipBonds+I),'|',Atom_C,Atom_D,Work(ipBonds+I+iHalf)
   end do
   if (iOdd == 1) then
     Atom_A = LblCnt4(iWork(ipBondAtomA+iBondNumb-1))
     Atom_B = LblCnt4(iWork(ipBondAtomB+iBondNumb-1))
-    write(6,'(8X,A,3X,A,3X,F7.3,2X,A)') Atom_A,Atom_B,Work(ipBonds+iBondNumb-1),'|'
+    write(u6,'(8X,A,3X,A,3X,F7.3,2X,A)') Atom_A,Atom_B,Work(ipBonds+iBondNumb-1),'|'
   end if
 
 else
   ! One column format printing
   if (nSym > 1) then
-    write(6,'(6X,A)') LabelSym
+    write(u6,'(6X,A)') LabelSym
   else
-    write(6,'(6X,A)') LabelNoSym
+    write(u6,'(6X,A)') LabelNoSym
   end if
   do I=0,iBondNumb-1
     Atom_A = LblCnt4(iWork(ipBondAtomA+I))
@@ -1284,59 +1291,59 @@ else
     !& //LblCnt(iWork(ipBondAtomB +I))
     !& (Index(LblCnt(iWork(ipBondAtomB +I)),':')+1:)
     !Atom_B = TLbl(iWork(ipBondAtomB +I))
-    write(6,'(8X,A,3X,A,3X,F7.3)') Atom_A,Atom_B,Work(ipBonds+I)
+    write(u6,'(8X,A,3X,A,3X,F7.3)') Atom_A,Atom_B,Work(ipBonds+I)
   end do
 end if
 
-write(6,'(6X,85A)') (Sign,i=1,85)
+write(u6,'(6X,85A)') (cSign,i=1,85)
 
 if (iTriplBondNumb > 0) then
   if (nSym > 1) then
-    write(6,'(6X,A)') Label3ASym
+    write(u6,'(6X,A)') Label3ASym
   else
-    write(6,'(6X,A)') Label3ANoSym
+    write(u6,'(6X,A)') Label3ANoSym
   end if
   do I=0,iTriplBondNumb-1
     Atom_A = LblCnt4(iWork(ipTriplAtomA+I))
     Atom_B = LblCnt4(iWork(ipTriplAtomB+I))
     Atom_C = LblCnt4(iWork(ipTriplAtomC+I))
-    write(6,'(8X,A,3X,A,3X,A,3X,F7.3)') Atom_A,Atom_B,Atom_C,Work(ipTripl+I)
+    write(u6,'(8X,A,3X,A,3X,A,3X,F7.3)') Atom_A,Atom_B,Atom_C,Work(ipTripl+I)
   end do
 
-  write(6,'(6X,85A)') (Sign,i=1,85)
+  write(u6,'(6X,85A)') (cSign,i=1,85)
 
 end if
 
 if (TotCoreElec > Zero) then
-  write(6,'(6X,A,F10.3,A)') 'NBO located ',TotCoreElec,' core electrons.'
+  write(u6,'(6X,A,F10.3,A)') 'NBO located ',TotCoreElec,' core electrons.'
 end if
 
 if (TotLoneElec > Zero) then
-  write(6,'(6X,A,F10.3,A)') 'NBO located ',TotLoneElec,' lone pair electrons.'
+  write(u6,'(6X,A,F10.3,A)') 'NBO located ',TotLoneElec,' lone pair electrons.'
 end if
 
 if (TotBondElec > Zero) then
-  write(6,'(6X,A,F10.3,A,I4,A)') 'NBO located ',TotBondElec,' electrons involved in ',iBondNumb+iTriplBondNumb,' bonds.'
+  write(u6,'(6X,A,F10.3,A,I4,A)') 'NBO located ',TotBondElec,' electrons involved in ',iBondNumb+iTriplBondNumb,' bonds.'
 end if
 
 if (iSingNumb > 0) then
   do I=0,iSingNumb-1
     Atom_A = LblCnt4(iWork(ipSingElAtom+I))
-    write(6,'(6X,A,F10.3,A,A)') 'NBO located ',Work(ipSingEl+I),' non-bonded electrons on atom ',Atom_A
+    write(u6,'(6X,A,F10.3,A,A)') 'NBO located ',Work(ipSingEl+I),' non-bonded electrons on atom ',Atom_A
 
   end do
 end if
 
-if (ElecNonAssgn > 0.0006) then
-  write(6,'(6X,A,F8.3,A)') 'The remaining ',ElecNonAssgn,' electrons are to be considered as diffuse'
-  !write(6,'(29X,A)') 'diffuse on more than one bond.'
-elseif (ElecNonAssgn < (Zero-0.01)) then
-  write(6,'(6X,A)') 'NBO analysis, and just that ONLY, did not converge to a'
-  write(6,'(6X,A)') 'proper answer, sorry. Calculation will continue as normal.'
+if (ElecNonAssgn > 6.0e-4_wp) then
+  write(u6,'(6X,A,F8.3,A)') 'The remaining ',ElecNonAssgn,' electrons are to be considered as diffuse'
+  !write(u6,'(29X,A)') 'diffuse on more than one bond.'
+elseif (ElecNonAssgn < (Zero-0.01_wp)) then
+  write(u6,'(6X,A)') 'NBO analysis, and just that ONLY, did not converge to a'
+  write(u6,'(6X,A)') 'proper answer, sorry. Calculation will continue as normal.'
 end if
 
 call CollapseOutput(0,'   Natural Bond Order analysis')
-write(6,*)
+write(u6,*)
 
 !----------------------------------------------------------------------*
 ! Deallocation of work                                                 *
@@ -1374,7 +1381,7 @@ return
 !----------------------------------------------------------------------*
 
 991 continue
-write(6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
+write(u6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
 call Abend()
 
 end subroutine NAT_BOND_ORDER

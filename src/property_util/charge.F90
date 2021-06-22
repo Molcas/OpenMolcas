@@ -35,7 +35,7 @@
 !>
 !> @param[in] NSYM    Number of irreducible representations
 !> @param[in] NBAS    Number of basis functions per irred. rep.
-!> @param[in] NAME    Center and function type label per basis function
+!> @param[in] BNAME   Center and function type label per basis function
 !> @param[in] CMO     Orbital coefficients
 !> @param[in] OCCN    Orbital occupations
 !> @param[in] SMAT    Overlap matrix
@@ -44,27 +44,31 @@
 !> @param[in] lSave   Boolean for saving on the Runfile
 !***********************************************************************
 
-subroutine CHARGE(NSYM,NBAS,NAME,CMO,OCCN,SMAT,iCase,FullMlk,lSave)
+subroutine CHARGE(NSYM,NBAS,BNAME,CMO,OCCN,SMAT,iCase,FullMlk,lSave)
 ! a temporary clone for CHARGE util
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "WrkSpc.fh"
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "Molcas.fh"
-character*(LENIN8) NAME(*)
-dimension NBAS(NSYM), CMO(*), OCCN(*), SMAT(*)
-logical FullMlk, lSave, Reduce_Prt
-external Reduce_Prt
+integer(kind=iwp), intent(in) :: NSYM, NBAS(NSYM), iCase
+character(len=LenIn8), intent(in) :: BNAME(*)
+real(kind=wp), intent(in) :: CMO(*), OCCN(*), SMAT(*)
+logical(kind=iwp), intent(in) :: FullMlk, lSave
+integer(kind=iwp) :: iPL, ipQQ, iSym, MXTYP, nNuc
+integer(kind=iwp), external :: iPrintLevel
+logical(kind=iwp), external :: Reduce_Prt
+#include "WrkSpc.fh"
 
 iPL = iPrintLevel(-1)
 if (Reduce_Prt() .and. (iPL < 3)) iPL = 0
 
 if (iCase /= 0) then
   if (iPL >= 2) then
-    write(6,*)
+    write(u6,*)
     call CollapseOutput(1,'   Molecular charges:')
-    write(6,'(3X,A)') '   ------------------'
-    write(6,*)
+    write(u6,'(3X,A)') '   ------------------'
+    write(u6,*)
   end if
 end if
 MXTYP = 0
@@ -73,14 +77,13 @@ do iSym=1,nSym
 end do
 call Get_iScalar('Unique atoms',nNUC)
 call GetMem('QQ','ALLO','REAL',ipQQ,MXTYP*nNuc)
-call FZero(Work(ipQQ),MXTYP*nNuc)
-call CHARGE_(NSYM,NBAS,NAME,CMO,OCCN,SMAT,iCase,FullMlk,lSave,MXTYP,Work(ipQQ),nNuc)
+call CHARGE_(NSYM,NBAS,BNAME,CMO,OCCN,SMAT,iCase,FullMlk,lSave,MXTYP,Work(ipQQ),nNuc)
 call GetMem('QQ','FREE','REAL',ipQQ,MXTYP*nNuc)
 
 if (iCase /= 0) then
   if (iPL >= 2) then
     call CollapseOutput(0,'   Molecular charges:')
-    write(6,*)
+    write(u6,*)
   end if
 end if
 

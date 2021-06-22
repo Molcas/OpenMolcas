@@ -11,21 +11,26 @@
 
 subroutine Isotop_i(n,Element,mAtoms,Temp,nTemp,Coord,double)
 
-use Isotopes
+use Isotopes, only: ElementList, Initialize_Isotopes, Isotope, MaxAtomNum, PTab
+use Constants, only: UtoAU
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "Molcas.fh"
-#include "real.fh"
-#include "constants2.fh"
+integer(kind=iwp), intent(in) :: n, mAtoms, nTemp
+character(len=2), intent(in) :: Element(mAtoms)
+real(kind=wp), intent(out) :: Temp(nTemp)
+real(kind=wp), intent(inout) :: Coord(3, mAtoms)
+logical(kind=iwp), intent(in) :: double
+integer(kind=iwp) :: AtNum, AtNum2, i, iElement, iMass, ineg, ip1, ip2, ipDefMass, ipH, ipH2, ipVal, ipVec, IsoNum, j, k, l, m, &
+                     nAt, Subs, Subs2
+real(kind=wp) :: dMass, dMass1, dMass2, Mass(MxAtom), MassIso, umass(MxAtom)
+logical(kind=iwp) :: Changed, EQ, Found, lmass
+character(len=3) :: cmass(MxAtom)
+integer(kind=iwp) :: iNuclearChargeFromSymbol
+!#include "real.fh"
+!#include "constants2.fh"
 #include "WrkSpc.fh"
-integer AtNum, IsoNum, AtNum2, Subs, Subs2
-real*8 Temp(nTemp), Coord(3,mAtoms)
-real*8 MassIso
-real*8 Mass(MxAtom)
-character*2 Element(mAtoms)
-logical EQ, double, lmass, Found, Changed
-character*3 cmass(MxAtom)
-real*8 umass(MxAtom)
 
 !                                                                      *
 !***********************************************************************
@@ -72,10 +77,10 @@ call Initialize_Isotopes()
 !                                                                      *
 ! Single substitutions
 
-write(6,*)
-write(6,*) ' Single substitutions:'
-write(6,*) ' -----------------------'
-write(6,*)
+write(u6,*)
+write(u6,*) ' Single substitutions:'
+write(u6,*) ' -----------------------'
+write(u6,*)
 do i=1,mAtoms
 
   if (i > 1) then
@@ -110,13 +115,13 @@ do i=1,mAtoms
     end if
 
     call dcopy_(n**2,Temp(ipH),1,Temp(ipH2),1)
-    write(6,*) 'Masses:'
-    write(6,*) '======='
-    write(6,'(20I4)') (nint(mass(l)/UtoAU),l=1,mAtoms)
-    write(6,*)
-    write(6,*)
-    write(6,*) 'Frequencies:'
-    write(6,*) '============'
+    write(u6,*) 'Masses:'
+    write(u6,*) '======='
+    write(u6,'(20I4)') (nint(mass(l)/UtoAU),l=1,mAtoms)
+    write(u6,*)
+    write(u6,*)
+    write(u6,*) 'Frequencies:'
+    write(u6,*) '============'
     call freq_i(n,Temp(ipH2),mass,Temp(ip1),Temp(ip2),Temp(ipVec),Temp(ipVal),ineg)
     call GFPrnt_i(Temp(ipVal),n)
   end do
@@ -129,10 +134,10 @@ end do
 !                                                                      *
 ! Full substitutions
 
-write(6,*)
-write(6,*) ' Full substitutions:'
-write(6,*) ' -----------------------'
-write(6,*)
+write(u6,*)
+write(u6,*) ' Full substitutions:'
+write(u6,*) ' -----------------------'
+write(u6,*)
 do iElement=1,MaxAtomNum
 
   Found = .false.
@@ -162,13 +167,13 @@ do iElement=1,MaxAtomNum
 
       if (Changed) then
         call dcopy_(n**2,Temp(ipH),1,Temp(ipH2),1)
-        write(6,*) 'Masses:'
-        write(6,*) '======='
-        write(6,'(20I4)') (nint(mass(l)/UtoAU),l=1,mAtoms)
-        write(6,*)
-        write(6,*)
-        write(6,*) 'Frequencies:'
-        write(6,*) '============'
+        write(u6,*) 'Masses:'
+        write(u6,*) '======='
+        write(u6,'(20I4)') (nint(mass(l)/UtoAU),l=1,mAtoms)
+        write(u6,*)
+        write(u6,*)
+        write(u6,*) 'Frequencies:'
+        write(u6,*) '============'
         call Freq_i(n,Temp(ipH2),mass,Temp(ip1),Temp(ip2),Temp(ipVec),Temp(ipVal),ineg)
         call GFPrnt_i(Temp(ipVal),n)
       end if
@@ -187,10 +192,10 @@ end do
 ! Double substitutions
 
 if (double) then
-  write(6,*)
-  write(6,*) ' Double substitutions:'
-  write(6,*) ' -----------------------'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' Double substitutions:'
+  write(u6,*) ' -----------------------'
+  write(u6,*)
 
   do i=1,mAtoms
     AtNum = iNuclearChargeFromSymbol(Element(i))
@@ -240,13 +245,13 @@ if (double) then
           end if
 
           call dcopy_(n**2,Temp(ipH),1,Temp(ipH2),1)
-          write(6,*) 'Masses:'
-          write(6,*) '======='
-          write(6,'(20I4)') (nint(mass(m)/UtoAU),m=1,mAtoms)
-          write(6,*)
-          write(6,*)
-          write(6,*) 'Frequencies:'
-          write(6,*) '============'
+          write(u6,*) 'Masses:'
+          write(u6,*) '======='
+          write(u6,'(20I4)') (nint(mass(m)/UtoAU),m=1,mAtoms)
+          write(u6,*)
+          write(u6,*)
+          write(u6,*) 'Frequencies:'
+          write(u6,*) '============'
           call freq_i(n,Temp(ipH2),mass,Temp(ip1),Temp(ip2),Temp(ipVec),Temp(ipVal),ineg)
           call GFPrnt_i(Temp(ipVal),n)
 

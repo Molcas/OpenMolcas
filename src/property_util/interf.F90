@@ -16,16 +16,19 @@ subroutine Interf(i_root,Ene,isuseene,iscasvb)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: i_root, isuseene, iscasvb
+real(kind=wp), intent(in) :: Ene(*)
+integer(kind=iwp) :: i, iDum(7,8), ipCA, ipCB, ipEA, ipEB, ipOccA, ipOccB, iS, iUHF, LuTmp, mAdCMOA, mAdCMOB, nB, nB2
+character(len=80) :: Note
+character(len=10) :: Filename
+integer(kind=iwp), external :: isFreeUnit
 #include "rasdim.fh"
 #include "general.fh"
 #include "casvb.fh"
 #include "WrkSpc.fh"
-#include "output_ras.fh"
-character*10 Filename
-character*80 Note
-dimension Ene(*)
-dimension iDum(7,8)
 
 !                                                                      *
 !***********************************************************************

@@ -12,44 +12,51 @@
 !               Luca De Vico                                           *
 !***********************************************************************
 
-subroutine CHARGE_(NSYM,NBAS,NAME,CMO,OCCN,SMAT,iCase,FullMlk,lSave,MXTYP,QQ,nNuc)
+subroutine CHARGE_(NSYM,NBAS,BNAME,CMO,OCCN,SMAT,iCase,FullMlk,lSave,MXTYP,QQ,nNuc)
 
-implicit real*8(A-H,O-Z)
-#include "angtp.fh"
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
 #include "Molcas.fh"
-#include "real.fh"
-#include "WrkSpc.fh"
-
-character*(LENIN8) NAME(*)
-dimension NBAS(NSYM), CMO(*), OCCN(*), SMAT(*)
-
-!parameter(MXTYP=maxbfn)
-character*(LENIN) CNAME(MXATOM)
-character*8 TNAME(MXTYP), TMP
-character*8 TSwap(MXTYP)
-!character*4 TLbl(MXATOM)
-character*3 AufBau(19)
-integer ICNT(MXBAS), ITYP(MXBAS), nStab(MxAtom)
-integer tNUC, NPBonds, AtomA, AtomB, nBas2
-real*8 QQ(MXTYP,nNuc), QSUM(MXATOM)
-real*8 Q2(MXATOM), QSUM_TOT(MXATOM)
-logical FullMlk, lSave
-!character*(LENIN) LblCnt(MxAtom)
-character*(LENIN4) LblCnt4(MxAtom)
-save ipqswap
-save ipDSswap
-logical DMN_SpinAV
+integer(kind=iwp), intent(in) :: NSYM, NBAS(NSYM), iCase, MXTYP, nNuc
+character(len=LenIn8), intent(in) :: BNAME(*)
+real(kind=wp), intent(in) :: CMO(*), OCCN(*), SMAT(*)
+logical(kind=iwp), intent(in) :: FullMlk, lSave
+real(kind=wp), intent(out) :: QQ(MXTYP,nNuc)
+integer(kind=iwp), save :: ipDSswap, ipqswap
+integer(kind=iwp) :: AtomA, AtomB, i0, iAB, iAng, iB, iBlo, ICNT(MXBAS), iEnd, iix, iixx, ik, ikk, iM, iMN, IMO, iNuc, IO, &
+                     ip_center, ip_Charge, iPair, ipBonds, ipD, ipD_blo, ipD_tmp, ipDS, iPL, ipP, ipPInv, ipS, ipS_blo, ipS_tmp, &
+                     ipScr, IS, ISING, ISMO, IST, iStart, iSum, iSwap, iSyLbl, ISYM, IT, ITYP(MXBAS), ix, J, jAng, jEnd, jM, &
+                     jPair, jx, k, l, lqSwap, MY, MYNUC, MYTYP, NB, nBas2, NBAST, NPBonds, nScr, nStab(MxAtom), NXTYP, NY, NYNUC, &
+                     NYTYP, tNUC
+real(kind=wp) :: BO, BOThrs, DET, DMN, Q2(MXATOM), QSUM(MXATOM), QSUM_TOT(MXATOM), QSUMI, TCh, TERM, xsg
+logical(kind=iwp) :: DMN_SpinAV, DoBond
+character(len=LenIn) :: CNAME(MXATOM)
+character(len=LenIn4) :: LblCnt4(MxAtom)
+character(len=100) :: ProgName
+character(len=8) :: TMP, TNAME(MXTYP), TSwap(MXTYP)
+character(len=*), parameter :: AufBau(19) = ['01s', &
+                                             '02s','02p', &
+                                             '03s','03p', &
+                                             '04s','03d','04p', &
+                                             '05s','04d','05p', &
+                                             '06s','04f','05d','06p', &
+                                             '07s','05f','06d','07p']
+integer(kind=iwp), external :: iPrintLevel
+real(kind=r8), external :: DDot_
+logical(kind=iwp), external :: Reduce_Prt
+character(len=LenIn8), external :: Clean_BName
+character(len=100), external :: Get_ProgName
+!character(len=4) :: TLbl(MXATOM)
+!character(len=LenIn) :: LblCnt(MxAtom)
+#include "angtp.fh"
 #include "spave.fh"
-external Get_ProgName
-character*100 ProgName, Get_ProgName
-logical DoBond, Reduce_Prt
-external Reduce_Prt
-character*(LENIN8) Clean_BName
-external Clean_BName
-data AufBau/'01s','02s','02p','03s','03p','04s','03d','04p','05s','04d','05p','06s','04f','05d','06p','07s','05f','06d','07p'/
+#include "WrkSpc.fh"
 !---- Statement function
-!
-Fac(i) = dble(nStab(i))/dble(nSym)
+integer(kind=iwp) :: i
+real(kind=wp) :: Fac
+Fac(i) = real(nStab(i),kind=wp)/real(nSym,kind=wp)
 
 !                                                                      *
 !***********************************************************************
@@ -57,11 +64,11 @@ Fac(i) = dble(nStab(i))/dble(nSym)
 iPL = iPrintLevel(-1)
 if (Reduce_Prt() .and. (iPL < 3)) iPL = 0
 
-xsg = -1.0d0
+xsg = -One
 DMN_SpinAV = .false.
 if ((iCase == 0) .or. (iCase == 1)) then
   if (Do_SpinAV) DMN_SpinAV = .true.
-  if (iCase == 1) xsg = 1.0d0
+  if (iCase == 1) xsg = One
 end if
 !                                                                      *
 !***********************************************************************
@@ -92,7 +99,7 @@ if (ProgName(1:iEnd) == 'CPF') DoBond = .false.
 ! Set the Mulliken Bond Order threshold for printout                   *
 !----------------------------------------------------------------------*
 
-BOThrs = 0.5d0
+BOThrs = Half
 
 !----------------------------------------------------------------------*
 ! GET THE TOTAL NUMBER OF BASIS FUNCTIONS AND CHECK LIMITS             *
@@ -108,7 +115,7 @@ if (NBAST > MXBAS) goto 991
 ! Find the list of unique center labels                                *
 !----------------------------------------------------------------------*
 
-call Get_cArray('Unique Atom Names',CNAME,LENIN*nNuc)
+call Get_cArray('Unique Atom Names',CNAME,LenIn*nNuc)
 call Get_iArray('nStab',nStab,nNuc)
 
 
@@ -119,7 +126,7 @@ call Get_iArray('nStab',nStab,nNuc)
 do I=1,NBAST
   ICNT(I) = -1
   do J=1,NNUC
-    if (NAME(I)(1:LENIN) == CNAME(J)) ICNT(I) = J
+    if (BNAME(I)(1:LenIn) == CNAME(J)) ICNT(I) = J
   end do
 end do
 
@@ -133,19 +140,19 @@ do I=1,NBAST
   if (ICNT(I) < 0) Go To 99  ! skip pseudo center
   do J=1,NXTYP
     if (J > MxTyp) then
-      write(6,*) 'Charge: J.gt.MxTyp'
-      write(6,*) 'J=',J
-      write(6,*) 'MxTyp=',MxTyp
-      write(6,*) 'Increase MxType and recompile!'
+      write(u6,*) 'Charge: J.gt.MxTyp'
+      write(u6,*) 'J=',J
+      write(u6,*) 'MxTyp=',MxTyp
+      write(u6,*) 'Increase MxType and recompile!'
       call Abend()
     end if
-    if (NAME(I)(LENIN1:LENIN8) == TNAME(J)) then
+    if (BNAME(I)(LenIn1:LenIn8) == TNAME(J)) then
       ITYP(I) = J
       Go To 99
     end if
   end do
   NXTYP = NXTYP+1
-  TNAME(NXTYP) = NAME(I)(LENIN1:LENIN8)
+  TNAME(NXTYP) = BNAME(I)(LenIn1:LenIn8)
 
   ITYP(I) = NXTYP
 99 continue
@@ -224,9 +231,9 @@ do i=ix,jx-1
     end if
   end do
 end do
-!write(6,*) ' Sorted n subrange'
+!write(u6,*) ' Sorted n subrange'
 !do i=ix,jx
-!  write(6,*) TName(i)
+!  write(u6,*) TName(i)
 !end do
 
 ! Now sort with respect to the magnetic index
@@ -325,7 +332,7 @@ end do
 do I=1,NBAST
   if (ICNT(I) < 0) Go To 98  ! skip pseudo center
   do J=1,NXTYP
-    if (NAME(I)(LENIN1:LENIN8) == TNAME(J)) then
+    if (BNAME(I)(LenIn1:LenIn8) == TNAME(J)) then
       ITYP(I) = J
       Go To 98
     end if
@@ -416,9 +423,9 @@ if (DoBond) then
 
   ! Atom labels plus symmetry generator
 
-  call Get_cArray('LP_L',LblCnt4,(LENIN4)*tNUC)
+  call Get_cArray('LP_L',LblCnt4,LenIn4*tNUC)
   !do i=1,tNUC
-  !  LblCnt(i)(1:LENIN) = LblCnt4(i)(1:LENIN)
+  !  LblCnt(i)(1:LenIn) = LblCnt4(i)(1:LenIn)
   !end do
 
   !--------------------------------------------------------------------*
@@ -440,9 +447,7 @@ end if
 ! function type                                                        *
 !----------------------------------------------------------------------*
 
-!NDIM = NNUC*MXTYP
-NDIM = NXTYP*NNUC
-call FZero(QQ,nDim)
+QQ(:,:) = Zero
 IB = 0
 IS = 0
 IMO = 0
@@ -509,8 +514,8 @@ if (DoBond) then
       E = E+Work(ipD_tmp+(J-1)*NBAST+I-1)*Work(ipS_tmp+(J-1)*NBAST+I-1)
     end do
   end do
-  write(6,*)
-  write(6,*) 'Number of electrons as sum of D and S elements = ',E
+  write(u6,*)
+  write(u6,*) 'Number of electrons as sum of D and S elements = ',E
 # endif
 
   ! In case of symmetry, we desymmetrize D and S through D_blo and S_blo
@@ -532,13 +537,13 @@ if (DoBond) then
     end do
 
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'D_blo = '
+    write(u6,*) 'D_blo = '
     do i=1,nBas2
-      write(6,*) (Work(ipD_blo+I-1))
+      write(u6,*) (Work(ipD_blo+I-1))
     end do
-    write(6,*) 'S_blo = '
+    write(u6,*) 'S_blo = '
     do i=1,nBas2
-      write(6,*) (Work(ipS_blo+I-1))
+      write(u6,*) (Work(ipS_blo+I-1))
     end do
 #   endif
 
@@ -566,25 +571,25 @@ if (DoBond) then
   end if
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'After Desymmetrization'
+  write(u6,*) 'After Desymmetrization'
   !call RecPrt('Density Matrix = ',' ',Work(ipD),NBAST,NBAST)
   !call RecPrt('Overlap Matrix = ',' ',Work(ipS),NBAST,NBAST)
-  write(6,*) 'Dens=',DDot_(nBast**2,Work(ipD),1,Work(ipD),1),DDot_(nBast**2,Work(ipD),1,[One],0)
-  write(6,*) 'Ovrl=',DDot_(nBast**2,Work(ipS),1,Work(ipS),1),DDot_(nBast**2,Work(ipS),1,[One],0)
-  write(6,*) 'DO  =',DDot_(nBast**2,Work(ipS),1,Work(ipD),1)
+  write(u6,*) 'Dens=',DDot_(nBast**2,Work(ipD),1,Work(ipD),1),DDot_(nBast**2,Work(ipD),1,[One],0)
+  write(u6,*) 'Ovrl=',DDot_(nBast**2,Work(ipS),1,Work(ipS),1),DDot_(nBast**2,Work(ipS),1,[One],0)
+  write(u6,*) 'DO  =',DDot_(nBast**2,Work(ipS),1,Work(ipD),1)
   E = Zero
   do I=1,NBAST
     do J=1,NBAST
       E = E+Work(ipD+(J-1)*NBAST+I-1)*Work(ipS+(J-1)*NBAST+I-1)
     end do
   end do
-  write(6,*)
-  write(6,*) 'Number of electrons as sum of D by S elements = ',E
+  write(u6,*)
+  write(u6,*) 'Number of electrons as sum of D by S elements = ',E
 # endif
 
   ! Finally, we compute the DS matrix as product of D and S
 
-  call DGEMM_('N','N',NBAST,NBAST,NBAST,1.0d0,Work(ipD),NBAST,Work(ipS),NBAST,0.0d0,Work(ipDS),NBAST)
+  call DGEMM_('N','N',NBAST,NBAST,NBAST,One,Work(ipD),NBAST,Work(ipS),NBAST,Zero,Work(ipDS),NBAST)
 
 # ifdef _DEBUGPRINT_
   call RecPrt('DS Matrix = ',' ',Work(ipDS),NBAST,NBAST)
@@ -592,8 +597,8 @@ if (DoBond) then
   do I=1,NBAST
     E = E+Work(ipDS+(I-1)*NBAST+I-1)
   end do
-  write(6,*)
-  write(6,*) 'Number of electrons as sum of the DS diagonal = ',E
+  write(u6,*)
+  write(u6,*) 'Number of electrons as sum of the DS diagonal = ',E
 # endif
 
   ! in case of first call for UHF we dump everything only
@@ -619,8 +624,8 @@ if (DoBond) then
     do I=1,NBAST
       E = E+Work(ipDS+(I-1)*NBAST+I-1)
     end do
-    write(6,*)
-    write(6,*) 'Number of electrons as sum of the DS diagonal = ',E
+    write(u6,*)
+    write(u6,*) 'Number of electrons as sum of the DS diagonal = ',E
 #   endif
 
   end if
@@ -653,7 +658,7 @@ if (iCase /= 0) then
   call Allocate_Work(ip_Charge,nNuc)
   call Get_dArray('Effective nuclear charge',Work(ip_Charge),nNuc)
   do iNuc=0,nNuc-1
-    Work(ip_Charge+iNuc) = Work(ip_Charge+iNuc)*dble(nSym/nStab(iNuc+1))
+    Work(ip_Charge+iNuc) = Work(ip_Charge+iNuc)*real(nSym/nStab(iNuc+1),kind=wp)
   end do
   call DaXpY_(nNuc,-One,QSUM_TOT,1,Work(ip_Charge),1)
   if (lSave) call Put_dArray('Mulliken Charge',Work(ip_Charge),nNuc)
@@ -666,10 +671,10 @@ end if
 if (DoBond .and. (tNUC > 1) .and. (iCase >= 1)) then
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'nPBonds,tNuc=',nPBonds,tNuc
+  write(u6,*) 'nPBonds,tNuc=',nPBonds,tNuc
   do MY=1,NBAST
     AtomA = iWork(ip_center+MY-1)
-    write(6,*) 'AtomA,My=',AtomA,My
+    write(u6,*) 'AtomA,My=',AtomA,My
   end do
 # endif
   do MY=1,NBAST
@@ -686,11 +691,11 @@ if (DoBond .and. (tNUC > 1) .and. (iCase >= 1)) then
       Work(jPair) = Work(jPair)+Work(ipDS+(NY-1)*NBAST+MY-1)*Work(ipDS+(MY-1)*NBAST+NY-1)
 
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'Bond Number=',iPair
-      write(6,*) 'Atom numbers = ',AtomA,AtomB
-      write(6,*) 'Bond number = ',iPair,'bond order = ',Work(jPair)
-      write(6,*) 'Work(ipDS+ (NY-1) * NBAST + MY-1) =',Work(ipDS+(NY-1)*NBAST+MY-1)
-      write(6,*) 'Work(ipDS+ (MY-1) * NBAST + NY-1) =',Work(ipDS+(MY-1)*NBAST+NY-1)
+      write(u6,*) 'Bond Number=',iPair
+      write(u6,*) 'Atom numbers = ',AtomA,AtomB
+      write(u6,*) 'Bond number = ',iPair,'bond order = ',Work(jPair)
+      write(u6,*) 'Work(ipDS+ (NY-1) * NBAST + MY-1) =',Work(ipDS+(NY-1)*NBAST+MY-1)
+      write(u6,*) 'Work(ipDS+ (MY-1) * NBAST + NY-1) =',Work(ipDS+(MY-1)*NBAST+NY-1)
 #     endif
 94    continue
     end do
@@ -704,7 +709,7 @@ if (DoBond .and. (tNUC > 1) .and. (iCase >= 1)) then
   end do
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Bond order vector'
+  write(u6,*) 'Bond order vector'
   call TriPrt('Bonds','(10F10.5)',Work(ipBonds),tNUC-1)
 # endif
 
@@ -732,27 +737,27 @@ end if
 if ((iCase == 1) .and. (iPL >= 2)) then
   ! second call, make a real print out
   if (FullMlk) then
-    write(6,'(6X,A)') 'Mulliken charges per centre and basis function type'
-    write(6,'(6X,A)') '---------------------------------------------------'
+    write(u6,'(6X,A)') 'Mulliken charges per centre and basis function type'
+    write(u6,'(6X,A)') '---------------------------------------------------'
   else
-    write(6,'(6X,A)') 'Mulliken charges per centre'
-    write(6,'(6X,A)') '---------------------------'
+    write(u6,'(6X,A)') 'Mulliken charges per centre'
+    write(u6,'(6X,A)') '---------------------------'
   end if
   IEND = 0
   ik = 0
   ikk = 0
   do IST=1,nNuc,6
     IEND = min(IEND+6,nNuc)
-    write(6,*)
-    write(6,'(14X,6(14X,A,4X))') (CNAME(I),I=IST,IEND)
-    write(6,'(14X,6(A12,A12))') (' alpha','  beta',I=IST,IEND)
+    write(u6,*)
+    write(u6,'(14X,6(14X,A,4X))') (CNAME(I),I=IST,IEND)
+    write(u6,'(14X,6(A12,A12))') (' alpha','  beta',I=IST,IEND)
     do IT=1,NXTYP
       do J=IST,IEND
         Q2(J) = Work(ipqSwap+NNUC+ik)
         ik = ik+1
       end do
       if (FullMlk) then
-        write(6,'(5X,A8,12F12.4)') Clean_BName(TNAME(IT),0),(Fac(j)*Q2(J),Fac(j)*QQ(IT,J),J=IST,IEND)
+        write(u6,'(5X,A8,12F12.4)') Clean_BName(TNAME(IT),0),(Fac(j)*Q2(J),Fac(j)*QQ(IT,J),J=IST,IEND)
       end if
     end do
 
@@ -761,15 +766,15 @@ if ((iCase == 1) .and. (iPL >= 2)) then
       ikk = ikk+1
     end do
 
-    write(6,'(6X,A,12F12.4)') 'Total  ',(Fac(i)*Q2(I),Fac(i)*QSUM(I),I=IST,IEND)
-    write(6,'(6X,A,6(6X,F12.4,6X))') 'Total  ',(Fac(i)*(Q2(I)+QSUM(I)),I=IST,IEND)
-    write(6,*)
-    write(6,'(6X,A,6(5X,F12.4,7X))') 'Charge ',(Fac(i)*Work(ip_Charge+I-1),I=IST,IEND)
+    write(u6,'(6X,A,12F12.4)') 'Total  ',(Fac(i)*Q2(I),Fac(i)*QSUM(I),I=IST,IEND)
+    write(u6,'(6X,A,6(6X,F12.4,6X))') 'Total  ',(Fac(i)*(Q2(I)+QSUM(I)),I=IST,IEND)
+    write(u6,*)
+    write(u6,'(6X,A,6(5X,F12.4,7X))') 'Charge ',(Fac(i)*Work(ip_Charge+I-1),I=IST,IEND)
   end do
-  write(6,*)
-  write(6,'(6X,A,F12.6)') 'Total electronic charge=',DDot_(nNuc,[One],0,QSum_TOT,1)
-  write(6,*)
-  write(6,'(6X,A,F12.6)') 'Total            charge=',DDot_(nNuc,[One],0,Work(ip_Charge),1)
+  write(u6,*)
+  write(u6,'(6X,A,F12.6)') 'Total electronic charge=',DDot_(nNuc,[One],0,QSum_TOT,1)
+  write(u6,*)
+  write(u6,'(6X,A,F12.6)') 'Total            charge=',DDot_(nNuc,[One],0,Work(ip_Charge),1)
 
 end if
 if (iCase == 1) then
@@ -782,45 +787,45 @@ if (((iCase == 2) .and. (iPL >= 2)) .or. ((iCase == 3) .and. (iPL >= 2))) then
 
   if (FullMlk) then
     if (iCase == 2) then
-      write(6,'(6X,A)') 'Mulliken charges per centre and basis function type'
+      write(u6,'(6X,A)') 'Mulliken charges per centre and basis function type'
     else
-      write(6,'(6X,A)') 'Mulliken spin population per centre and basis function type'
+      write(u6,'(6X,A)') 'Mulliken spin population per centre and basis function type'
     end if
-    write(6,'(6X,A)') '---------------------------------------------------'
+    write(u6,'(6X,A)') '---------------------------------------------------'
   else
     if (iCase == 2) then
-      write(6,'(6X,A)') 'Mulliken charges per centre'
+      write(u6,'(6X,A)') 'Mulliken charges per centre'
     else
-      write(6,'(6X,A)') 'Mulliken spin population per centre'
+      write(u6,'(6X,A)') 'Mulliken spin population per centre'
     end if
-    write(6,'(6X,A)') '---------------------------'
+    write(u6,'(6X,A)') '---------------------------'
   end if
 
   IEND = 0
   do IST=1,nNuc,12
     IEND = min(IEND+12,nNuc)
-    write(6,*)
-    write(6,'(14X,12(2X,A))') (CNAME(I),I=IST,IEND)
+    write(u6,*)
+    write(u6,'(14X,12(2X,A))') (CNAME(I),I=IST,IEND)
     if (FullMlk) then
       do IT=1,NXTYP
-        write(6,'(5X,A8,12F8.4)') Clean_BName(TNAME(IT),0),(Fac(j)*QQ(IT,J),J=IST,IEND)
+        write(u6,'(5X,A8,12F8.4)') Clean_BName(TNAME(IT),0),(Fac(j)*QQ(IT,J),J=IST,IEND)
       end do
     end if
-    write(6,'(6X,A,12F8.4)') 'Total  ',(Fac(i)*QSUM(I),I=IST,IEND)
+    write(u6,'(6X,A,12F8.4)') 'Total  ',(Fac(i)*QSUM(I),I=IST,IEND)
     if (iCase /= 3) then
-      write(6,*)
-      write(6,'(6X,A,12F8.4)') 'N-E    ',(Fac(i)*Work(ip_Charge+I-1),I=IST,IEND)
+      write(u6,*)
+      write(u6,'(6X,A,12F8.4)') 'N-E    ',(Fac(i)*Work(ip_Charge+I-1),I=IST,IEND)
     end if
   end do
   if (iCase == 3) then
-    write(6,*)
-    write(6,'(6X,A,F12.6)') 'Total electronic spin=',DDot_(nNuc,[One],0,QSum,1)
+    write(u6,*)
+    write(u6,'(6X,A,F12.6)') 'Total electronic spin=',DDot_(nNuc,[One],0,QSum,1)
   else
-    write(6,*)
-    write(6,'(6X,A,F12.6)') 'Total electronic charge=',DDot_(nNuc,[One],0,QSum,1)
-    write(6,*)
+    write(u6,*)
+    write(u6,'(6X,A,F12.6)') 'Total electronic charge=',DDot_(nNuc,[One],0,QSum,1)
+    write(u6,*)
     TCh = DDot_(nNuc,[One],0,Work(ip_Charge),1)
-    write(6,'(6X,A,F12.6)') 'Total            charge=',DDot_(nNuc,[One],0,Work(ip_Charge),1)
+    write(u6,'(6X,A,F12.6)') 'Total            charge=',DDot_(nNuc,[One],0,Work(ip_Charge),1)
     call xml_dDump('FormalCharge','Total charge','a.u',0,[TCh],1,1)
   end if
 end if
@@ -832,26 +837,26 @@ end if
 
 if (iPL <= 2) Go To 9999
 if ((iCase >= 1) .and. (iCase <= 2) .and. (tNUC > 1) .and. DoBond) then
-  write(6,*)
-  write(6,'(6X,A)') 'Mulliken Bond Order analysis'
-  write(6,'(6X,A)') '----------------------------'
-  write(6,'(6X,A,F5.3,A)') 'Only bonds with order larger than ',BOThrs,' are printed'
-  write(6,*)
+  write(u6,*)
+  write(u6,'(6X,A)') 'Mulliken Bond Order analysis'
+  write(u6,'(6X,A)') '----------------------------'
+  write(u6,'(6X,A,F5.3,A)') 'Only bonds with order larger than ',BOThrs,' are printed'
+  write(u6,*)
   if (nSym > 1) then
-    write(6,'(8X,A)') 'Atom A:Gen.   Atom B:Gen.   Bond Order'
+    write(u6,'(8X,A)') 'Atom A:Gen.   Atom B:Gen.   Bond Order'
   else
-    write(6,'(8X,A)') 'Atom A        Atom B        Bond Order'
+    write(u6,'(8X,A)') 'Atom A        Atom B        Bond Order'
   end if
   do I=1,tNUC-1
     do J=I+1,tNUC
       iPair = (J-1)*(J-2)/2+I
       BO = Work(ipBonds-1+iPair)
       if (BO >= BOThrs) then
-        write(6,'(8X,2(A,4X),F7.3)') LblCnt4(I),LblCnt4(J),BO
+        write(u6,'(8X,2(A,4X),F7.3)') LblCnt4(I),LblCnt4(J),BO
       end if
     end do
   end do
-  write(6,*)
+  write(u6,*)
 end if
 
 9999 continue
@@ -878,9 +883,9 @@ return
 !----------------------------------------------------------------------*
 
 991 continue
-write(6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
+write(u6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
 call Abend()
-!write(6,'(/6X,A)') 'Warning: Total charge is not equal to number of electrons'
+!write(u6,'(/6X,A)') 'Warning: Total charge is not equal to number of electrons'
 !call Abend()
 
 end subroutine CHARGE_
