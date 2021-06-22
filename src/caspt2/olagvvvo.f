@@ -300,6 +300,7 @@ C       call abend
 C       Call DaClos(LuGamma)
         Call Free_iSD()
 C       write(6,*) "end2"
+        call clssew
       End If
 C
       !! 5) L_{ai} = sum_{mu} C_{mu a} L_{mu i}
