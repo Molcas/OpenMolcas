@@ -105,7 +105,10 @@ subroutine Prpt_old_Internal(Scr)
   nscr = nblock+nfblock
   iscr = nscr+76
 
-  if (iscr > maxscr) Go To 999
+  if (iscr > maxscr) then
+    call Error()
+    return
+  end if
 
   iadDen = 1
 
@@ -149,7 +152,10 @@ subroutine Prpt_old_Internal(Scr)
     iadEl = iadNuc+nComp
     iadLab = iadEl+nComp
     iscr = nscr+10+4*nComp
-    if (iscr > maxscr) Go To 999
+    if (iscr > maxscr) then
+      call Error()
+      return
+    end if
 
     call dcopy_(nComp,[Zero],0,Scr(iadNuc),1)
     call dcopy_(nComp,[Zero],0,Scr(iadEl),1)
@@ -160,13 +166,13 @@ subroutine Prpt_old_Internal(Scr)
       iopt = 1
       call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
       if (irc == 0) n_Int = idum(1)
-      if (irc /= 0) go to 101
+      if (irc /= 0) cycle
       NxtOpr = .true.
       irc = -1
       iopt = 0
       iadOpr = iadLab+2*nComp
       call RdOne(irc,iopt,label,iComp,scr(iadOpr),iSmLbl)
-      if (irc /= 0) go to 101
+      if (irc /= 0) cycle
       if (n_Int /= 0) call CmpInt(scr(iadOpr),n_Int,nBas,nIrrep,iSmLbl)
       scr(iadNuc+icomp-1) = scr(iadOpr+n_Int+3)
       if (iComp == 1) then
@@ -175,16 +181,18 @@ subroutine Prpt_old_Internal(Scr)
           scr(iadC2+k) = scr(iadOpr+n_Int+k)
         end do
       end if
-      if (n_Int == 0) Go To 101
+      if (n_Int == 0) cycle
       call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,nblock,Scr(iadOpr),Scr(iadEl+iComp-1))
-  101 continue
     end do
-    if (.not. NxtOpr) Go To 199
+    if (.not. NxtOpr) exit
     iadTmt = iadOpr+nblock
     if (i <= 4) then
       iadTmp = iadTmt+nComp**2
       iscr = iadTmp+nComp
-      if (iscr > maxscr) Go To 999
+      if (iscr > maxscr) then
+        call Error()
+        return
+      end if
     else
       iadTmp = iadTmt
     end if
@@ -199,8 +207,6 @@ subroutine Prpt_old_Internal(Scr)
   !                                                                    *
   ! Scan 'ONEINT' for electric field integrals
 
-  199 continue
-
   !write(u6,*) ' Starting scan of ONEINT for various elec. field integrals'
 
   do iEF=0,2
@@ -209,7 +215,7 @@ subroutine Prpt_old_Internal(Scr)
     iadEl = iadNuc+nComp
     iadLab = iadEl+nComp
 
-    ! loop over differnt operator origins (max.9999)
+    ! loop over different operator origins (max. 9999)
 
     maxCen = 9999
     do i=1,maxCen
@@ -223,13 +229,13 @@ subroutine Prpt_old_Internal(Scr)
         iopt = 1
         call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
         if (irc == 0) n_Int = idum(1)
-        if (irc /= 0) go to 201
+        if (irc /= 0) cycle
         NxtOpr = .true.
         irc = -1
         iopt = 0
         iadOpr = iadLab+2*nComp
         call RdOne(irc,iopt,label,iComp,scr(iadOpr),iSmLbl)
-        if (irc /= 0) go to 201
+        if (irc /= 0) cycle
         if (n_Int /= 0) call CmpInt(scr(iadOpr),n_Int,nBas,nIrrep,iSmLbl)
         scr(iadNuc+icomp-1) = scr(iadOpr+n_Int+3)
         if (iComp == 1) then
@@ -238,11 +244,10 @@ subroutine Prpt_old_Internal(Scr)
             scr(iadC2+k) = scr(iadOpr+n_Int+k)
           end do
         end if
-        if (n_Int == 0) Go To 201
+        if (n_Int == 0) cycle
         call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,nblock,Scr(iadOpr),Scr(iadEl+iComp-1))
-  201   continue
       end do
-      if (.not. NxtOpr) go to 299
+      if (.not. NxtOpr) exit
 
       call c_f_pointer(c_loc(Scr(iadLab)),cScr,[1])
       call prop(short,label,scr(iadC1),scr(iadC2),nirrep,nBas,mDim,occ,dummy,scr(iadEl),scr(iadNuc),i,cScr,scr(iadTmt), &
@@ -250,7 +255,6 @@ subroutine Prpt_old_Internal(Scr)
       nullify(cScr)
     end do
 
-  299 continue
   end do
   !                                                                    *
   !*********************************************************************
@@ -279,13 +283,13 @@ subroutine Prpt_old_Internal(Scr)
         iopt = 1
         call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
         if (irc == 0) n_Int = idum(1)
-        if (irc /= 0) go to 402
+        if (irc /= 0) cycle
         NxtOpr = .true.
         irc = -1
         iopt = 0
         iadOpr = iadLab+2*nComp
         call RdOne(irc,iopt,label,iComp,scr(iadOpr),iSmLbl)
-        if (irc /= 0) go to 402
+        if (irc /= 0) cycle
         if (n_Int /= 0) call CmpInt(scr(iadOpr),n_Int,nBas,nIrrep,iSmLbl)
         scr(iadNuc+icomp-1) = scr(iadOpr+n_Int+3)
         if (iComp == 1) then
@@ -298,11 +302,10 @@ subroutine Prpt_old_Internal(Scr)
             scr(iadC2+k) = scr(iadOpr+n_Int+k)
           end do
         end if
-        if (n_Int == 0) Go To 402
+        if (n_Int == 0) cycle
         call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,nblock,Scr(iadOpr),Scr(iadEl+iComp-1))
-  402   continue
       end do
-      if (.not. NxtOpr) Go To 4000
+      if (.not. NxtOpr) exit
 
       call c_f_pointer(c_loc(Scr(iadLab)),cScr,[1])
       call prop(short,label,scr(iadC1),scr(iadC2),nirrep,nBas,mDim,occ,dummy,scr(iadEl),scr(iadNuc),i,cScr,scr(iadTmt), &
@@ -310,27 +313,23 @@ subroutine Prpt_old_Internal(Scr)
       nullify(cScr)
       jRC = 1
     end do
-  4000 continue
-    if (jRC == 0) Go To 499
+    if (jRC == 0) exit
   end do
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  499 continue
 
   call CollapseOutput(0,'   Molecular properties:')
   write(u6,*)
-  return
-
-  999 continue
-  write(u6,'(//1x,a/1x,a/1x,a,i8,a,i8)') ' Warrning:',' Not enough scratch area to perform calculations',' Needed at least:',iscr, &
-                                        '   available:',maxscr
-
-  call CollapseOutput(0,'   Molecular properties:')
-  write(u6,*)
-
   return
 
 end subroutine Prpt_old_Internal
+
+subroutine Error()
+  write(u6,'(//1x,a/1x,a/1x,a,i8,a,i8)') ' Warrning:',' Not enough scratch area to perform calculations',' Needed at least:',iscr, &
+                                         '   available:',maxscr
+  call CollapseOutput(0,'   Molecular properties:')
+  write(u6,*)
+end subroutine Error
 
 end subroutine Prpt_old

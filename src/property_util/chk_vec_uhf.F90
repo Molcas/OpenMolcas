@@ -20,7 +20,7 @@ implicit none
 character(len=*), intent(in) :: FName
 integer(kind=iwp), intent(inout) :: Lu
 integer(kind=iwp), intent(out) :: isUHF
-integer(kind=iwp) :: iVer, jVer
+integer(kind=iwp) :: istatus, iVer, jVer
 character(len=80) :: LINE
 logical(kind=iwp) :: Exists
 character(len=*), parameter :: Location = 'Chk_vec_UHF'
@@ -35,7 +35,8 @@ if (.not. Exists) then
 end if
 rewind(LU)
 ! Check version!
-read(LU,'(A80)',end=999,ERR=999) Line
+read(LU,'(A80)',iostat=istatus) Line
+if (istatus /= 0) call Error()
 iVer = 0
 do jVer=1,mxVer
   if (Magic(jVer) == Line(1:len(Magic(jVer)))) iVer = jVer
@@ -48,18 +49,25 @@ if (iVer == 0) then
   close(Lu)
   return
 end if
-50 continue
-read(LU,'(A80)',end=999,ERR=999) Line
-if (Line(1:5) /= '#INFO') goto 50
+do
+  read(LU,'(A80)',iostat=istatus) Line
+  if (istatus /= 0) call Error()
+  if (Line(1:5) == '#INFO') exit
+end do
 ! Now Do the real job
-read(Lu,'(a)',end=999,err=999) Line
-read(Lu,*,end=999,err=999) isUHF
+read(Lu,'(a)',iostat=istatus) Line
+if (istatus /= 0) call Error()
+read(Lu,*,iostat=istatus) isUHF
+if (istatus /= 0) call Error()
 close(Lu)
 
 return
 
-999 continue
-call SysWarnFileMsg(Location,FName,'Error during reading INPORB\n',Line)
-call Abend()
+contains
+
+subroutine Error()
+  call SysWarnFileMsg(Location,FName,'Error during reading INPORB\n',Line)
+  call Abend()
+end subroutine Error
 
 end subroutine Chk_vec_UHF

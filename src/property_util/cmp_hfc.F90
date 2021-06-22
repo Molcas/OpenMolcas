@@ -67,7 +67,7 @@ call allocate_work(isr,nb2+4)
 irc = -1
 write(label,'(A,I3)') 'DEBUG',0
 call opnone(irc,iopt,'ONEINT',lu_one)
-if (irc /= 0) goto 999
+if (irc /= 0) call Error()
 
 do iat=1,nat
   icomp = 0
@@ -78,7 +78,7 @@ do iat=1,nat
       write(label,'(A,I3)') 'MAGXP',iat
       irc = -1
       call rdone(irc,iopt,label,icomp,work(ita),toper)
-      if (irc /= 0) goto 999
+      if (irc /= 0) call Error()
       call square(Work(ita),Work(isa),nb,1,nb)
       call dgemm_('N','N',nb,nb,nb,One,Work(isd),nb,Work(isa),nb,Zero,Work(isr),nb)
       do kdir=1,nb
@@ -119,9 +119,12 @@ call clsone(irc,iopt)
 
 return
 
-999 continue
-write(u6,*) ' *** Error in subroutine cmp_hfc ***'
-write(u6,'(A,A)') '     Label = ',Label
-call Abend()
+contains
+
+subroutine Error()
+  write(u6,*) ' *** Error in subroutine cmp_hfc ***'
+  write(u6,'(A,A)') '     Label = ',Label
+  call Abend()
+end subroutine Error
 
 end subroutine cmp_hfc

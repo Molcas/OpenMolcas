@@ -33,7 +33,7 @@ integer(kind=iwp), intent(in) :: LU_, IUHF, NSYM, NBAS(NSYM), NORB(NSYM), INDT(*
 real(kind=wp), intent(in) :: CMO(*), CMO_ab(*), OCC(*), OCC_ab(*), EORB(*), EORB_ab(*)
 character(len=*), intent(inout) :: TITLE
 integer(kind=iwp) :: I, iAppend, iB, IBAS, IBASEND, iBasis, iBB, iBuff(0:7), iCMO, iDefault, iEne, iExtras, iInd, iKoor, iLab, &
-                     iOCC, IORB, IORBEND, Ip, iShift, isIndex, ISYM, iTwoE, iVer = 0, jVer, KCMO, KOCC, lin, Lu, NDIV, nDNA
+                     iOCC, IORB, IORBEND, Ip, iShift, isIndex, istatus, ISYM, iTwoE, iVer = 0, jVer, KCMO, KOCC, lin, Lu, NDIV, nDNA
 logical(kind=iwp) :: Exists, IsBorn
 !-SVC: variable to hold birth certificate
 character(len=256) :: cDNA
@@ -72,19 +72,21 @@ call OpnFl(FName,Lu,Exists)
 rewind(Lu)
 if (iAppend == 1) then
   iInd = 1
-50 continue
-  read(Lu,'(A)',end=102,err=102) Line
-  if (Line == '#INDEX') then
-    isIndex = 1
-    goto 100
-  end if
-  goto 50
-102 continue
+  do
+    read(Lu,'(A)',iostat=istatus) Line
+    if (istatus /= 0) exit
+    if (Line == '#INDEX') then
+      isIndex = 1
+      call WrInd()
+      return
+    end if
+  end do
   call Append_file(LU)
 !# ifdef NAGFOR
 !  backspace(LU)
 !# endif
-  goto 100
+  call WrInd()
+  return
 end if
 
 ! Get version
@@ -264,72 +266,81 @@ if ((iKoor == 1) .and. (iBasis == 1)) then
   lin = 16
   lin = isfreeunit(lin)
   call molcas_open(lin,'ORB.std')
-765 continue
-  read(lin,'(a)',end=766,err=766) str
-  write(Lu,'(a)') trim(str)
-  goto 765
-766 continue
+  do
+    read(lin,'(a)',iostat=istatus) str
+    if (istatus /= 0) exit
+    write(Lu,'(a)') trim(str)
+  end do
   close(lin)
 end if
-! INDEX section. NOTE THIS SECTION SHOULD ALWAYS BE LAST (Gv constraint)
-100 continue
-if (iInd == 1) then
-  if ((iAppend == 0) .or. ((iAppend == 1) .and. (isIndex == 0))) then
-    write(Lu,'(A)') '#INDEX'
-  end if
-  iShift = 0
-  nDiv = nDivInd(iVer)
 
-  iBuff(0) = 1
-  !do i=1,7
-  i = 1
-601 continue
-  iBuff(i) = iBuff(i-1)+IndT(i+iShift)
-  i = i+1
-  if (i <= 7) goto 601
+call WrInd()
 
-  !end do
+return
 
-  do ISYM=1,NSYM
-    if (nSkpInd(iVer) > 0) write(Lu,'(A)') '* 1234567890'
-    iLab = 0
+contains
+
+subroutine WrInd()
+
+  ! INDEX section. NOTE THIS SECTION SHOULD ALWAYS BE LAST (Gv constraint)
+  if (iInd == 1) then
+    if ((iAppend == 0) .or. ((iAppend == 1) .and. (isIndex == 0))) then
+      write(Lu,'(A)') '#INDEX'
+    end if
+    iShift = 0
+    nDiv = nDivInd(iVer)
+
     iBuff(0) = 1
     !do i=1,7
     i = 1
-600 continue
-    iBuff(i) = iBuff(i-1)+IndT(i+iShift)
-    i = i+1
-    if (i <= 7) goto 600
-
-    !end do
-    Ip = 1
-    do IORB=1,NORB(ISYM),nDiv
-      Buff = '          '
-      do i=1,nDiv
-        iBB = 1
-        do iB=1,7
-          if (Ip >= iBuff(iB)) iBB = iBB+1
-        end do
-        if (iBB == 8) then
-          Buff(i:i) = ' '
-        else
-          Buff(i:i) = Crypt(iBB:iBB)
-        end if
-        Ip = Ip+1
-      end do
-      write(lBuff,FMTIND(iVer)) Buff
-      if (index(FMTIND(iVer),'X') > 0) write(lBuff(1:1),'(i1)') iLab
-      write(LU,'(A)') trim(lBuff)
-      iLab = iLab+1
-      if (iLab > 9) iLab = 0
+    do
+      iBuff(i) = iBuff(i-1)+IndT(i+iShift)
+      i = i+1
+      if (i > 7) exit
     end do
-    iShift = iShift+7
-  end do
+    !end do
 
-end if  ! iInd
+    do ISYM=1,NSYM
+      if (nSkpInd(iVer) > 0) write(Lu,'(A)') '* 1234567890'
+      iLab = 0
+      iBuff(0) = 1
+      !do i=1,7
+      i = 1
+      do
+        iBuff(i) = iBuff(i-1)+IndT(i+iShift)
+        i = i+1
+        if (i > 7) exit
+      end do
+      !end do
 
-close(Lu)
+      Ip = 1
+      do IORB=1,NORB(ISYM),nDiv
+        Buff = '          '
+        do i=1,nDiv
+          iBB = 1
+          do iB=1,7
+            if (Ip >= iBuff(iB)) iBB = iBB+1
+          end do
+          if (iBB == 8) then
+            Buff(i:i) = ' '
+          else
+            Buff(i:i) = Crypt(iBB:iBB)
+          end if
+          Ip = Ip+1
+        end do
+        write(lBuff,FMTIND(iVer)) Buff
+        if (index(FMTIND(iVer),'X') > 0) write(lBuff(1:1),'(i1)') iLab
+        write(LU,'(A)') trim(lBuff)
+        iLab = iLab+1
+        if (iLab > 9) iLab = 0
+      end do
+      iShift = iShift+7
+    end do
 
-return
+  end if  ! iInd
+
+  close(Lu)
+
+end subroutine WrInd
 
 end subroutine WRVEC_

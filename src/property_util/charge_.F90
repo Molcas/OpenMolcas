@@ -86,11 +86,10 @@ ProgName = Get_ProgName()
 call Upcase(ProgName)
 call LeftAd(ProgName)
 iEnd = 1
-93 continue
-if (ProgName(iEnd:iEnd) /= ' ') then
+do
+  if (ProgName(iEnd:iEnd) == ' ') exit
   iEnd = iEnd+1
-  Go To 93
-end if
+end do
 
 DoBond = .true.
 if (ProgName(1:iEnd) == 'CPF') DoBond = .false.
@@ -109,7 +108,10 @@ NBAST = 0
 do I=1,NSYM
   NBAST = NBAST+NBAS(I)
 end do
-if (NBAST > MXBAS) goto 991
+if (NBAST > MXBAS) then
+  write(u6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
+  call Abend()
+end if
 
 !----------------------------------------------------------------------*
 ! Find the list of unique center labels                                *
@@ -136,8 +138,8 @@ end do
 
 NXTYP = 0
 call ICopy(nBAST,[0],0,ITYP,1)
-do I=1,NBAST
-  if (ICNT(I) < 0) Go To 99  ! skip pseudo center
+outer: do I=1,NBAST
+  if (ICNT(I) < 0) cycle outer  ! skip pseudo center
   do J=1,NXTYP
     if (J > MxTyp) then
       write(u6,*) 'Charge: J.gt.MxTyp'
@@ -148,15 +150,14 @@ do I=1,NBAST
     end if
     if (BNAME(I)(LenIn1:LenIn8) == TNAME(J)) then
       ITYP(I) = J
-      Go To 99
+      cycle outer
     end if
   end do
   NXTYP = NXTYP+1
   TNAME(NXTYP) = BNAME(I)(LenIn1:LenIn8)
 
   ITYP(I) = NXTYP
-99 continue
-end do
+end do outer
 
 lqSwap = NNUC+NNUC*NXTYP
 
@@ -205,106 +206,104 @@ end do
 iAng = 0
 jAng = 0
 ix = 1
-666 continue
-iix = ichar(tName(ix)(1:1))
-iixx = ichar(tName(ix)(2:2))
-jx = ix
-do i=min(ix+1,NxTyp),NxTyp
-  if ((ichar(tName(i)(1:1)) == iix) .and. (ichar(tName(i)(2:2)) == iixx)) jx = i
-end do
-
-do i=ix,jx-1
-  do k=0,iTabMx
-    if (AngTp(k) == tName(i)(3:3)) iAng = k
+do
+  iix = ichar(tName(ix)(1:1))
+  iixx = ichar(tName(ix)(2:2))
+  jx = ix
+  do i=min(ix+1,NxTyp),NxTyp
+    if ((ichar(tName(i)(1:1)) == iix) .and. (ichar(tName(i)(2:2)) == iixx)) jx = i
   end do
-  do j=i+1,jx
-    do l=0,iTabMx
-      if (AngTp(l) == tName(j)(3:3)) jAng = l
+
+  do i=ix,jx-1
+    do k=0,iTabMx
+      if (AngTp(k) == tName(i)(3:3)) iAng = k
     end do
-    if (iAng > jAng) then
-      iSwap = iAng
-      iAng = jAng
-      jAng = iSwap
-      TMP = TNAME(i)
-      TNAME(i) = TNAME(j)
-      TNAME(j) = TMP
+    do j=i+1,jx
+      do l=0,iTabMx
+        if (AngTp(l) == tName(j)(3:3)) jAng = l
+      end do
+      if (iAng > jAng) then
+        iSwap = iAng
+        iAng = jAng
+        jAng = iSwap
+        TMP = TNAME(i)
+        TNAME(i) = TNAME(j)
+        TNAME(j) = TMP
+      end if
+    end do
+  end do
+  !write(u6,*) ' Sorted n subrange'
+  !do i=ix,jx
+  !  write(u6,*) TName(i)
+  !end do
+
+  ! Now sort with respect to the magnetic index
+
+  iEnd = jx
+  iStart = ix
+  do
+    do k=0,iTabMx
+      if (AngTp(k) == tName(iStart)(3:3)) iAng = k
+    end do
+    jEnd = iStart
+    do i=min(iStart+1,iEnd),iEnd
+      if (tName(i)(3:3) == AngTp(iAng)) jEnd = i
+    end do
+    if (jEnd > mxtyp) then
+      call abend()
     end if
+
+    i0 = ichar('1')-1
+
+    iM = 0
+    jM = 0
+    if (iAng == 1) then
+      do i=iStart,jEnd-1
+        if (tName(i)(4:4) == 'x') iM = 1
+        if (tName(i)(4:4) == 'z') iM = 0
+        if (tName(i)(4:4) == 'y') iM = -1
+        do j=i+1,jEnd
+          if (tName(j)(4:4) == 'x') jM = 1
+          if (tName(j)(4:4) == 'z') jM = 0
+          if (tName(j)(4:4) == 'y') jM = -1
+          if (jM > iM) then
+            iSwap = iM
+            iM = jM
+            jM = iSwap
+            TMP = TNAME(i)
+            TNAME(i) = TNAME(j)
+            TNAME(j) = TMP
+          end if
+        end do
+      end do
+    else if (iAng >= 2) then
+      do i=iStart,jEnd-1
+        iM = ichar(tName(i)(4:4))-i0
+        iM = 10*iM+ichar(tName(i)(5:5))-i0
+        if (tName(i)(6:6) == '-') iM = -iM
+        do j=i+1,jEnd
+          jM = ichar(tName(j)(4:4))-i0
+          jM = 10*jM+ichar(tName(j)(5:5))-i0
+          if (tName(j)(6:6) == '-') jM = -jM
+          if (jM > iM) then
+            iSwap = iM
+            iM = jM
+            jM = iSwap
+            TMP = TNAME(i)
+            TNAME(i) = TNAME(j)
+            TNAME(j) = TMP
+          end if
+        end do
+      end do
+    end if
+
+    if (jEnd == iEnd) exit
+    iStart = jEnd+1
   end do
-end do
-!write(u6,*) ' Sorted n subrange'
-!do i=ix,jx
-!  write(u6,*) TName(i)
-!end do
 
-! Now sort with respect to the magnetic index
-
-iEnd = jx
-iStart = ix
-777 continue
-do k=0,iTabMx
-  if (AngTp(k) == tName(iStart)(3:3)) iAng = k
-end do
-jEnd = iStart
-do i=min(iStart+1,iEnd),iEnd
-  if (tName(i)(3:3) == AngTp(iAng)) jEnd = i
-end do
-if (jEnd > mxtyp) then
-  call abend()
-end if
-
-i0 = ichar('1')-1
-
-iM = 0
-jM = 0
-if (iAng == 1) then
-  do i=iStart,jEnd-1
-    if (tName(i)(4:4) == 'x') iM = 1
-    if (tName(i)(4:4) == 'z') iM = 0
-    if (tName(i)(4:4) == 'y') iM = -1
-    do j=i+1,jEnd
-      if (tName(j)(4:4) == 'x') jM = 1
-      if (tName(j)(4:4) == 'z') jM = 0
-      if (tName(j)(4:4) == 'y') jM = -1
-      if (jM > iM) then
-        iSwap = iM
-        iM = jM
-        jM = iSwap
-        TMP = TNAME(i)
-        TNAME(i) = TNAME(j)
-        TNAME(j) = TMP
-      end if
-    end do
-  end do
-else if (iAng >= 2) then
-  do i=iStart,jEnd-1
-    iM = ichar(tName(i)(4:4))-i0
-    iM = 10*iM+ichar(tName(i)(5:5))-i0
-    if (tName(i)(6:6) == '-') iM = -iM
-    do j=i+1,jEnd
-      jM = ichar(tName(j)(4:4))-i0
-      jM = 10*jM+ichar(tName(j)(5:5))-i0
-      if (tName(j)(6:6) == '-') jM = -jM
-      if (jM > iM) then
-        iSwap = iM
-        iM = jM
-        jM = iSwap
-        TMP = TNAME(i)
-        TNAME(i) = TNAME(j)
-        TNAME(j) = TMP
-      end if
-    end do
-  end do
-end if
-
-if (jEnd /= iEnd) then
-  iStart = jEnd+1
-  Go To 777
-end if
-
-if (jx /= NxTyp) then
+  if (jx == NxTyp) exit
   ix = jx+1
-  Go To 666
-end if
+end do
 
 ! Sort according to AufBau
 
@@ -330,14 +329,13 @@ do i=1,NxTyp
 end do
 
 do I=1,NBAST
-  if (ICNT(I) < 0) Go To 98  ! skip pseudo center
+  if (ICNT(I) < 0) cycle  ! skip pseudo center
   do J=1,NXTYP
     if (BNAME(I)(LenIn1:LenIn8) == TNAME(J)) then
       ITYP(I) = J
-      Go To 98
+      exit
     end if
   end do
-98 continue
 end do
 
 !----------------------------------------------------------------------*
@@ -679,11 +677,11 @@ if (DoBond .and. (tNUC > 1) .and. (iCase >= 1)) then
 # endif
   do MY=1,NBAST
     AtomA = iWork(ip_center+MY-1)
-    if (ICNT(MY) <= 0) Go To 95    ! skip pseudo center
+    if (ICNT(MY) <= 0) cycle    ! skip pseudo center
     do NY=1,MY
       AtomB = iWork(ip_center+NY-1)
-      if (ICNT(NY) <= 0) Go To 94  ! skip pseudo center
-      if (AtomA == AtomB) Go To 94 ! same atom
+      if (ICNT(NY) <= 0) cycle  ! skip pseudo center
+      if (AtomA == AtomB) cycle ! same atom
 
       iPair = (max(AtomA,AtomB)-1)*(max(AtomA,AtomB)-2)/2+min(AtomA,AtomB)
       jPair = ipBonds-1+iPair
@@ -697,9 +695,7 @@ if (DoBond .and. (tNUC > 1) .and. (iCase >= 1)) then
       write(u6,*) 'Work(ipDS+ (NY-1) * NBAST + MY-1) =',Work(ipDS+(NY-1)*NBAST+MY-1)
       write(u6,*) 'Work(ipDS+ (MY-1) * NBAST + NY-1) =',Work(ipDS+(MY-1)*NBAST+NY-1)
 #     endif
-94    continue
     end do
-95  continue
   end do
 
   ! distant atoms could have negative bond order, set to zero
@@ -835,31 +831,31 @@ end if
 
 ! Mulliken bond order print
 
-if (iPL <= 2) Go To 9999
-if ((iCase >= 1) .and. (iCase <= 2) .and. (tNUC > 1) .and. DoBond) then
-  write(u6,*)
-  write(u6,'(6X,A)') 'Mulliken Bond Order analysis'
-  write(u6,'(6X,A)') '----------------------------'
-  write(u6,'(6X,A,F5.3,A)') 'Only bonds with order larger than ',BOThrs,' are printed'
-  write(u6,*)
-  if (nSym > 1) then
-    write(u6,'(8X,A)') 'Atom A:Gen.   Atom B:Gen.   Bond Order'
-  else
-    write(u6,'(8X,A)') 'Atom A        Atom B        Bond Order'
-  end if
-  do I=1,tNUC-1
-    do J=I+1,tNUC
-      iPair = (J-1)*(J-2)/2+I
-      BO = Work(ipBonds-1+iPair)
-      if (BO >= BOThrs) then
-        write(u6,'(8X,2(A,4X),F7.3)') LblCnt4(I),LblCnt4(J),BO
-      end if
+if (iPL > 2) then
+  if ((iCase >= 1) .and. (iCase <= 2) .and. (tNUC > 1) .and. DoBond) then
+    write(u6,*)
+    write(u6,'(6X,A)') 'Mulliken Bond Order analysis'
+    write(u6,'(6X,A)') '----------------------------'
+    write(u6,'(6X,A,F5.3,A)') 'Only bonds with order larger than ',BOThrs,' are printed'
+    write(u6,*)
+    if (nSym > 1) then
+      write(u6,'(8X,A)') 'Atom A:Gen.   Atom B:Gen.   Bond Order'
+    else
+      write(u6,'(8X,A)') 'Atom A        Atom B        Bond Order'
+    end if
+    do I=1,tNUC-1
+      do J=I+1,tNUC
+        iPair = (J-1)*(J-2)/2+I
+        BO = Work(ipBonds-1+iPair)
+        if (BO >= BOThrs) then
+          write(u6,'(8X,2(A,4X),F7.3)') LblCnt4(I),LblCnt4(J),BO
+        end if
+      end do
     end do
-  end do
-  write(u6,*)
+    write(u6,*)
+  end if
 end if
 
-9999 continue
 if (DoBond) then
   if (nSym > 1) then
     call Free_Work(ipP)
@@ -877,15 +873,5 @@ if (DoBond) then
 end if
 
 return
-
-!----------------------------------------------------------------------*
-! Error Exits                                                          *
-!----------------------------------------------------------------------*
-
-991 continue
-write(u6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
-call Abend()
-!write(u6,'(/6X,A)') 'Warning: Total charge is not equal to number of electrons'
-!call Abend()
 
 end subroutine CHARGE_

@@ -139,7 +139,10 @@ subroutine Prpt_Internal(Scr)
   nscr = nblock+nfblock
   iscr = nscr+76
 
-  if (iscr > maxscr) Go To 999
+  if (iscr > maxscr) then
+    call Error()
+    return
+  end if
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -199,7 +202,8 @@ subroutine Prpt_Internal(Scr)
     iscr = nscr+10+4*nComp
     if (iscr > maxscr) then
       if (.not. Short) call Free_Work(iadEl_Work)
-      Go To 999
+      call Error()
+      return
     end if
 
     call dcopy_(nComp,[Zero],0,Scr(iadNuc),1)
@@ -211,13 +215,13 @@ subroutine Prpt_Internal(Scr)
       iopt = 1
       call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
       if (irc == 0) mInt = idum(1)
-      if (irc /= 0) go to 101
+      if (irc /= 0) cycle
       NxtOpr = .true.
       irc = -1
       iopt = 0
       iadOpr = iadLab+2*nComp
       call RdOne(irc,iopt,label,iComp,scr(iadOpr),iSmLbl)
-      if (irc /= 0) go to 101
+      if (irc /= 0) cycle
       if (mInt /= 0) call CmpInt(scr(iadOpr),mInt,nBas,nIrrep,iSmLbl)
       scr(iadNuc+icomp-1) = scr(iadOpr+mInt+3)
       if (iComp == 1) then
@@ -226,15 +230,14 @@ subroutine Prpt_Internal(Scr)
           scr(iadC2+k) = scr(iadOpr+mInt+k)
         end do
       end if
-      if (mInt == 0) Go To 101
+      if (mInt == 0) cycle
       call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
       if ((.not. Short) .and. (iUHF == 1)) call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),nblock, &
                                                       Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim+nDim))
-  101 continue
     end do
     if (.not. NxtOpr) then
       if (.not. Short) call Free_Work(iadEl_Work)
-      Go To 195
+      exit
     end if
     iadTmt = iadOpr+nblock
     if (i <= 4) then
@@ -242,7 +245,8 @@ subroutine Prpt_Internal(Scr)
       iscr = iadTmp+nComp
       if (iscr > maxscr) then
         if (.not. Short) call Free_Work(iadEl_Work)
-        Go To 999
+        call Error()
+        return
       end if
     else
       iadTmp = iadTmt
@@ -257,7 +261,6 @@ subroutine Prpt_Internal(Scr)
 
   ! Scan 'ONEINT' for magnetic hyperfine integrals
 
-  195 continue
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -274,29 +277,25 @@ subroutine Prpt_Internal(Scr)
   call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
   if (irc == 0) then
     MAG_X2C = .true.
-  else
-    Go to 199
-  end if
-
-  !if (Method == 'UHF-SCF ') then
-  if (iUHF == 1) then
-    if (UHF_HFC) then
-      if (nIrrep == 1) then
-        tNUC = 0
-        nbast = nbas(0)
-        call Get_iScalar('LP_nCenter',tNUC)
-        call cmp_hfc(nbast,tNUC)
+    !if (Method == 'UHF-SCF ') then
+    if (iUHF == 1) then
+      if (UHF_HFC) then
+        if (nIrrep == 1) then
+          tNUC = 0
+          nbast = nbas(0)
+          call Get_iScalar('LP_nCenter',tNUC)
+          call cmp_hfc(nbast,tNUC)
+        else
+          write(u6,'(/,/,6X,A)') 'Skipping Hyperfine tensor matrix for UHF with symmetry'
+        end if
       else
-        write(u6,'(/,/,6X,A)') 'Skipping Hyperfine tensor matrix for UHF with symmetry'
+        write(u6,'(/,/,6X,A)') 'Skipping Hyperfine tensor matrix'
       end if
-    else
-      write(u6,'(/,/,6X,A)') 'Skipping Hyperfine tensor matrix'
     end if
   end if
 
   ! Scan 'ONEINT' for electric field integrals
 
-  199 continue
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -319,7 +318,7 @@ subroutine Prpt_Internal(Scr)
     call DZero(Work(iadElSum),nComp)
     call DZero(Work(iadNucSum),nComp)
 
-    ! loop over different operator origins (max.99999)
+    ! loop over different operator origins (max. 99999)
 
     maxCen = 99999
     nCen = 0
@@ -334,13 +333,13 @@ subroutine Prpt_Internal(Scr)
         iopt = 1
         call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
         if (irc == 0) mInt = idum(1)
-        if (irc /= 0) go to 201
+        if (irc /= 0) cycle
         NxtOpr = .true.
         irc = -1
         iopt = 0
         iadOpr = iadLab+2*nComp
         call RdOne(irc,iopt,label,iComp,scr(iadOpr),iSmLbl)
-        if (irc /= 0) Go To 201
+        if (irc /= 0) cycle
         if (mInt /= 0) call CmpInt(scr(iadOpr),mInt,nBas,nIrrep,iSmLbl)
         scr(iadNuc+icomp-1) = scr(iadOpr+mInt+3)
         if (iComp == 1) then
@@ -349,16 +348,12 @@ subroutine Prpt_Internal(Scr)
             scr(iadC2+k) = scr(iadOpr+mInt+k)
           end do
         end if
-        if (mInt == 0) Go To 201
+        if (mInt == 0) cycle
         call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
         if ((.not. Short) .and. (iUHF == 1)) call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),nblock, &
                                                         Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim+nDim))
-  201   continue
       end do
-      if (.not. NxtOpr) then
-        if (.not. Short) call Free_Work(iadEl_Work)
-        Go to 299
-      end if
+      if (.not. NxtOpr) exit
 
       call c_f_pointer(c_loc(scr(iadLab)),cScr,[1])
       call Prop(short,label,scr(iadC1),scr(iadC2),nirrep,mBas,mDim,occ,Thrs,scr(iadEl),scr(iadNuc),iEF,cScr,scr(iadTmt), &
@@ -376,7 +371,6 @@ subroutine Prpt_Internal(Scr)
     end do
     if (.not. Short) call Free_Work(iadEl_Work)
 
-  299 continue
     if (nCen > 0) then
       ! set the tolerance according to the total number of centers
       ! (assuming error scales with sqrt(ncen))
@@ -416,7 +410,7 @@ subroutine Prpt_Internal(Scr)
   call DZero(Work(iadElSum),nComp)
   call DZero(Work(iadNucSum),nComp)
 
-  ! loop over different operator origins (max.99999)
+  ! loop over different operator origins (max. 99999)
 
   maxCen = 99999
   nCen = 0
@@ -432,28 +426,27 @@ subroutine Prpt_Internal(Scr)
     iopt = 1
     call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
     if (irc == 0) mInt = idum(1)
-    if (irc /= 0) go to 301
-    NxtOpr = .true.
-    irc = -1
-    iopt = 0
-    iadOpr = iadLab+2*nComp
-    call RdOne(irc,iopt,label,iComp,scr(iadOpr),iSmLbl)
-    if (irc /= 0) Go To 301
-    if (mInt /= 0) call CmpInt(scr(iadOpr),mInt,nBas,nIrrep,iSmLbl)
-    scr(iadNuc+icomp-1) = scr(iadOpr+mInt+3)
-    do k=0,2
-      scr(iadC1+k) = scr(iadOpr+mInt+k)
-      scr(iadC2+k) = scr(iadOpr+mInt+k)
-    end do
-    if (mInt == 0) Go To 301
-    call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
-    if ((.not. Short) .and. (iUHF == 1)) call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),nblock, &
-                                                    Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim+nDim))
-  301 continue
-    if (.not. NxtOpr) then
-      if (.not. Short) call Free_Work(iadEl_Work)
-      Go To 399
+    if (irc == 0) then
+      NxtOpr = .true.
+      irc = -1
+      iopt = 0
+      iadOpr = iadLab+2*nComp
+      call RdOne(irc,iopt,label,iComp,scr(iadOpr),iSmLbl)
+      if (irc == 0) then
+        if (mInt /= 0) call CmpInt(scr(iadOpr),mInt,nBas,nIrrep,iSmLbl)
+        scr(iadNuc+icomp-1) = scr(iadOpr+mInt+3)
+        do k=0,2
+          scr(iadC1+k) = scr(iadOpr+mInt+k)
+          scr(iadC2+k) = scr(iadOpr+mInt+k)
+        end do
+        if (mInt /= 0) then
+          call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
+          if ((.not. Short) .and. (iUHF == 1)) call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab), &
+                                                          nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim+nDim))
+        end if
+      end if
     end if
+    if (.not. NxtOpr) exit
 
     call c_f_pointer(c_loc(scr(iadLab)),cScr,[1])
     call Prop(short,label,scr(iadC1),scr(iadC2),nirrep,mBas,mDim,occ,Thrs,scr(iadEl),scr(iadNuc),iEF,cScr,scr(iadTmt),scr(iadTmp), &
@@ -472,7 +465,6 @@ subroutine Prpt_Internal(Scr)
   end do
   if (.not. Short) call Free_Work(iadEl_Work)
 
-  399 continue
   if (nCen > 0) then
     ! set the tolerance according to the total number of centers
     ! (assuming error scales with sqrt(ncen))
@@ -520,13 +512,13 @@ subroutine Prpt_Internal(Scr)
         iopt = 1
         call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
         if (irc == 0) mInt = idum(1)
-        if (irc /= 0) go to 402
+        if (irc /= 0) cycle
         NxtOpr = .true.
         irc = -1
         iopt = 0
         iadOpr = iadLab+2*nComp
         call RdOne(irc,iopt,label,iComp,scr(iadOpr),iSmLbl)
-        if (irc /= 0) go to 402
+        if (irc /= 0) cycle
         if (mInt /= 0) call CmpInt(scr(iadOpr),mInt,nBas,nIrrep,iSmLbl)
         scr(iadNuc+icomp-1) = scr(iadOpr+mInt+3)
         if (iComp == 1) then
@@ -539,13 +531,12 @@ subroutine Prpt_Internal(Scr)
             scr(iadC2+k) = scr(iadOpr+mInt+k)
           end do
         end if
-        if (mInt == 0) Go To 402
+        if (mInt == 0) cycle
         call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
         if ((.not. Short) .and. (iUHF == 1)) call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),nblock, &
                                                         Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim+nDim))
-  402   continue
       end do
-      if (.not. NxtOpr) Go To 4000
+      if (.not. NxtOpr) exit
 
       call c_f_pointer(c_loc(scr(iadLab)),cScr,[1])
       call prop(short,label,scr(iadC1),scr(iadC2),nirrep,mBas,mDim,occ,Thrs,scr(iadEl),scr(iadNuc),lpole,cScr,scr(iadTmt), &
@@ -553,36 +544,27 @@ subroutine Prpt_Internal(Scr)
       nullify(cScr)
       jRC = 1
     end do
-  4000 continue
-    if (jRC == 0) then
-      if (.not. Short) call Free_Work(iadEl_Work)
-      Go To 499
-    end if
+    if (jRC == 0) exit
   end do
   if (.not. Short) call Free_Work(iadEl_Work)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  499 continue
   if (iPL >= 2) then
     call CollapseOutput(0,'   Molecular properties:')
     write(u6,*)
   end if
   return
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  999 continue
+
+end subroutine Prpt_Internal
+
+subroutine Error()
   write(u6,'(//1x,a/1x,a/1x,a,i8,a,i8)') ' Warning:',' Not enough scratch area to perform calculations',' Needed at least:',iscr, &
-                                        '   available:',maxscr
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
+                                         '   available:',maxscr
   if (iPL >= 2) then
     call CollapseOutput(0,'   Molecular properties:')
     write(u6,*)
   end if
-
-end subroutine Prpt_Internal
+end subroutine Error
 
 end subroutine Prpt_

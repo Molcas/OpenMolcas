@@ -84,7 +84,7 @@ write(u6,*)
 do i=1,mAtoms
 
   if (i > 1) then
-    if (EQ(Coord(1,i),Coord(1,i-1))) Go To 94
+    if (EQ(Coord(1,i),Coord(1,i-1))) cycle
   end if
 
   AtNum = iNuclearChargeFromSymbol(Element(i))
@@ -127,7 +127,6 @@ do i=1,mAtoms
   end do
   ! Put back the original mass
   Mass(i) = dMass
-94 continue
 end do
 !                                                                      *
 !***********************************************************************

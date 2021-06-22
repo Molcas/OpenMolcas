@@ -19,7 +19,7 @@ implicit none
 character(len=*), intent(in) :: OrbFileName
 integer(kind=iwp), intent(out) :: iVer, NSYM_L, NBAS_L(8), NORB_L(8), iRc
 character(len=8), intent(out) :: InfoLbl
-integer(kind=iwp) :: I, iIND, iOCC, iONE, iORB, ip, IUHF, jVer, LU
+integer(kind=iwp) :: I, iIND, iOCC, iONE, iORB, ip, istatus, IUHF, jVer, LU
 logical(kind=iwp) :: lExists
 character(len=80) :: line
 integer(kind=iwp), external :: isFreeUnit
@@ -27,12 +27,19 @@ integer(kind=iwp), external :: isFreeUnit
 #include "inporbfmt.fh"
 
 call f_Inquire(OrbFileName,lExists)
-if (.not. lExists) Go To 921
+if (.not. lExists) then
+  iRC = _RC_IO_ERROR_READ_
+  return
+end if
 LU = 99
 LU = IsFreeUnit(LU)
 call Molcas_Open(LU,OrbFileName)
 ! Check version!
-read(LU,'(A80)',ERR=920,end=920) Line
+read(LU,'(A80)',iostat=istatus) Line
+if (istatus /= 0) then
+  call Error()
+  return
+end if
 iVer = 0
 do jVer=1,mxVer
   if (Magic(jVer) == Line(1:len(Magic(jVer)))) iVer = jVer
@@ -41,20 +48,40 @@ iRc = _RC_IO_ERROR_READ_
 if (iVer == 0) return
 
 ! Find and read information section:
-10 continue
-read(LU,'(A80)',ERR=920) LINE
-if (LINE /= '#INFO') goto 10
-11 continue
-read(LU,'(A80)',ERR=920) LINE
-if (LINE(1:1) == '*') goto 11
+do
+  read(LU,'(A80)',iostat=istatus) LINE
+  if (istatus > 0) then
+    call Error()
+    return
+  end if
+  if (LINE == '#INFO') exit
+end do
+do
+  read(LU,'(A80)',iostat=istatus) LINE
+  if (istatus > 0) then
+    call Error()
+    return
+  end if
+  if (LINE(1:1) /= '*') exit
+end do
 read(LINE,*) IUHF,NSYM_L
-12 continue
-read(LU,'(A80)',ERR=920) LINE
-if (LINE(1:1) == '*') goto 12
+do
+  read(LU,'(A80)',iostat=istatus) LINE
+  if (istatus > 0) then
+    call Error()
+    return
+  end if
+  if (LINE(1:1) /= '*') exit
+end do
 read(LINE,*) (NBAS_L(I),I=1,NSYM_L)
-13 continue
-read(LU,'(A80)',ERR=920) LINE
-if (LINE(1:1) == '*') goto 13
+do
+  read(LU,'(A80)',iostat=istatus) LINE
+  if (istatus > 0) then
+    call Error()
+    return
+  end if
+  if (LINE(1:1) /= '*') exit
+end do
 read(LINE,*) (NORB_L(I),I=1,NSYM_L)
 
 ! Create a InfoLbl telling what data sets are available:
@@ -64,25 +91,26 @@ iONE = 0
 iIND = 0
 ! Find section InfoLbls:
 if (IUHF == 0) then
-21 continue
-  read(LU,'(A80)',end=900,ERR=900) LINE
-  if (LINE(1:4) == '#ORB') iORB = 1
-  if (LINE(1:4) == '#OCC') iOCC = 1
-  if (LINE(1:4) == '#ONE') iONE = 1
-  if (LINE(1:4) == '#IND') iIND = 1
-  goto 21
+  do
+    read(LU,'(A80)',iostat=istatus) LINE
+    if (istatus /= 0) exit
+    if (LINE(1:4) == '#ORB') iORB = 1
+    if (LINE(1:4) == '#OCC') iOCC = 1
+    if (LINE(1:4) == '#ONE') iONE = 1
+    if (LINE(1:4) == '#IND') iIND = 1
+  end do
 else
-22 continue
-  read(LU,'(A80)',end=900,ERR=900) LINE
-  if (LINE(1:5) == '#UORB') iORB = 1
-  if (LINE(1:5) == '#UOCC') iOCC = 1
-  if (LINE(1:5) == '#UONE') iONE = 1
-  if (LINE(1:4) == '#IND') iIND = 1
-  goto 22
+  do
+    read(LU,'(A80)',iostat=istatus) LINE
+    if (istatus /= 0) exit
+    if (LINE(1:5) == '#UORB') iORB = 1
+    if (LINE(1:5) == '#UOCC') iOCC = 1
+    if (LINE(1:5) == '#UONE') iONE = 1
+    if (LINE(1:4) == '#IND') iIND = 1
+  end do
 end if
 
 ! Intentionally reached end of file:
-900 continue
 InfoLbl = ' '
 ip = 0
 ip = ip+iorb
@@ -99,11 +127,11 @@ iRC = _RC_ALL_IS_WELL_
 
 return
 
-920 continue
-close(LU)
-921 continue
-iRC = _RC_IO_ERROR_READ_
+contains
 
-return
+subroutine Error()
+  close(LU)
+  iRC = _RC_IO_ERROR_READ_
+end subroutine Error
 
 end subroutine ChkVec

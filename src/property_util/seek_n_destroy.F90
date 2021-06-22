@@ -59,7 +59,10 @@ end do
 
 if ((TotElecAvail > 2*ThrsD) .and. (iWhat == 1) .and. (Thrs >= 1.999_wp)) iStHas2bFnd = 1
 
-if (TotElecAvail < Zero) goto 666
+if (TotElecAvail < Zero) then
+  call End1()
+  return
+end if
 
 #ifdef _DEBUGPRINT_
 write(u6,*)
@@ -72,7 +75,10 @@ do K=1,NBAST
   E = E+Work(ipDS+(K-1)*NBAST+K-1)
 end do
 
-if (E < Zero) goto 666
+if (E < Zero) then
+  call End1()
+  return
+endif
 
 #ifdef _DEBUGPRINT_
 write(u6,*)
@@ -80,52 +86,53 @@ write(u6,*) 'Number of electrons as sum of the DS diagonal = ',E
 #endif
 
 !----------------------------------------------------------------------*
-777 continue
-!----------------------------------------------------------------------*
+do
 
-do I=1,nBasAtoms
-  if ((Work(ipSubVal+I-1) > Thrs) .and. (Work(ipSubVal+I-1) <= ThrsD)) then
+  do I=1,nBasAtoms
+    if ((Work(ipSubVal+I-1) > Thrs) .and. (Work(ipSubVal+I-1) <= ThrsD)) then
 
-    ! One good orbital found
-    ! iFoundOrb: number of Good orbitals found
-    ! iWork(ipGood): which of the eigenvectors corresponds to the big eigenvalue
-    ! Work(ipEiVal): the big eigenvalue
+      ! One good orbital found
+      ! iFoundOrb: number of Good orbitals found
+      ! iWork(ipGood): which of the eigenvectors corresponds to the big eigenvalue
+      ! Work(ipEiVal): the big eigenvalue
 
-    iFoundOrb = iFoundOrb+1
-    iWork(ipGood+iFoundOrb-1) = I
-    Work(ipEiVal+iFoundOrb-1) = Work(ipSubVal+I-1)
+      iFoundOrb = iFoundOrb+1
+      iWork(ipGood+iFoundOrb-1) = I
+      Work(ipEiVal+iFoundOrb-1) = Work(ipSubVal+I-1)
 
-    ! It shouldn't be necessary, but in some cases (like radicals) a bit
-    ! more than 2 electrons are found in core or lone pair orbitals. This
-    ! way everything comes out cleaner. Possibly I'll try to remove this
-    ! later.
+      ! It shouldn't be necessary, but in some cases (like radicals) a bit
+      ! more than 2 electrons are found in core or lone pair orbitals. This
+      ! way everything comes out cleaner. Possibly I'll try to remove this
+      ! later.
 
-    if (Work(ipEiVal+iFoundOrb-1) > 2) Work(ipEiVal+iFoundOrb-1) = 2
+      if (Work(ipEiVal+iFoundOrb-1) > 2) Work(ipEiVal+iFoundOrb-1) = 2
 
-    TotElecFound = TotElecFound+Work(ipEiVal+iFoundOrb-1)
+      TotElecFound = TotElecFound+Work(ipEiVal+iFoundOrb-1)
+    end if
+  end do
+
+# ifdef _DEBUGPRINT_
+  if (TotElecFound > TotElecAvail) then
+    write(u6,*)
+    write(u6,*) 'Something fishy is going on'
+    write(u6,*) 'iFoundOrb     = ',iFoundOrb
+    write(u6,*) 'TotElecFound  = ',TotElecFound
+    write(u6,*) 'TotElecAvail  = ',TotElecAvail
+  end if
+# endif
+
+  ! If we didn't find any bond, and something had to be found anyway,
+  ! we give it another try, with lower threshold, just once
+
+  if ((iFoundOrb == 0) .and. (iStHas2bFnd == 1)) then
+    iStHas2bFnd = 0
+    !Thrs = Thrs-0.05_wp
+    !Thrs = Thrs-0.01_wp
+    Thrs = Thrs-0.005_wp
+  else
+    exit
   end if
 end do
-
-#ifdef _DEBUGPRINT_
-if (TotElecFound > TotElecAvail) then
-  write(u6,*)
-  write(u6,*) 'Something fishy is going on'
-  write(u6,*) 'iFoundOrb     = ',iFoundOrb
-  write(u6,*) 'TotElecFound  = ',TotElecFound
-  write(u6,*) 'TotElecAvail  = ',TotElecAvail
-end if
-#endif
-
-! If we didn't find any bond, and something had to be found anyway,
-! we give it another try, with lower threshold, just once
-
-if ((iFoundOrb == 0) .and. (iStHas2bFnd == 1)) then
-  iStHas2bFnd = 0
-  !Thrs = Thrs-0.05_wp
-  !Thrs = Thrs-0.01_wp
-  Thrs = Thrs-0.005_wp
-  goto 777
-end if
 
 Thrs = Thrs_Original
 
@@ -266,10 +273,15 @@ if ((iFoundOrb > 0) .and. (TotElecCount <= 0.1_wp)) then
   end do
 end if
 
-666 continue
-call Free_iWork(ipGood)
-call Free_Work(ipEiVal)
+call End1()
 
 return
+
+contains
+
+subroutine End1()
+  call Free_iWork(ipGood)
+  call Free_Work(ipEiVal)
+end subroutine End1
 
 end subroutine Seek_n_Destroy

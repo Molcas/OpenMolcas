@@ -18,7 +18,6 @@ subroutine Molden_Interface(iUHF,FName,filename)
 !                                                                      *
 !     Object: to generate MOLDEN input file                            *
 !                                                                      *
-!                                                                      *
 !     Authors: Coen de Graaf, Anders Bernardsson and R. Lindh, 1999    *
 !                                                                      *
 !***********************************************************************
@@ -168,7 +167,8 @@ if (iAngMx_Valence > 4) then
     write(u6,*) 'Sorry, Molden does not know how to handle'
     write(u6,*) 'functions with angular momentum larger than g'
   end if
-  Go To 999
+  call End1()
+  return
 end if
 !                                                                      *
 !***********************************************************************
@@ -183,7 +183,8 @@ do iCnttp=1,nCnttp
         if (jPL >= 2) then
           write(u6,*) 'Sorry, Molden does not support contaminants'
         end if
-        Go To 999
+        call End1()
+        return
       end if
       call Unnrmlz(Shells(ishell)%Exp,Shells(ishell)%nExp,Shells(ishell)%pCff,Shells(ishell)%nBasis,l)
     end do
@@ -228,7 +229,7 @@ call molcas_open(MF,filename)
 y_cart = .false.
 y_sphere = .false.
 do iCnttp=1,nCnttp
-  if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag) Go To 995
+  if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag) cycle
   do iCntr=1,dbsc(iCnttp)%nCntr
     do l=0,dbsc(iCnttp)%nVal-1
       ! Test for the appearance of cartesian functions with l=2,3,4
@@ -245,11 +246,11 @@ do iCnttp=1,nCnttp
           write(u6,*) 'Failed to generate input file to MOLDEN'
           write(u6,*) 'No mixing allowed of spherical and cartesian d, f, g-functions'
         end if
-        Go to 991
+        call End2()
+        return
       end if
     end do
   end do
-995 continue
 end do
 write(MF,'(A)') '[Molden Format]'
 !                                                                      *
@@ -262,7 +263,6 @@ write(MF,*) natom
 write(MF,'(A)') '[Atoms] (AU)'
 do iatom=1,natom
   write(MF,99) AtomLabel(iatom),iatom,int(Znuc(iatom)),(coor(i,iatom),i=1,3)
-99  format(A,2(3x,I4),5x,3F16.8,3I4)
 end do
 if (.not. y_cart) then
   if (S%iAngMx > 1) write(MF,'(A)') '[5D]'
@@ -283,7 +283,7 @@ if (Found) then
   iData = 0
   jData = 0
   do iCnttp=1,nCnttp
-    if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag .or. dbsc(iCnttp)%pChrg) Go To 775
+    if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag .or. dbsc(iCnttp)%pChrg) cycle
     do iCntr=1,dbsc(iCnttp)%nCntr
       iData = iData+1
       mdc = iCntr+dbsc(iCnttp)%mdci
@@ -293,7 +293,6 @@ if (Found) then
         write(MF,*) Work(ipMull+iData-1)
       end do
     end do
-775 continue
   end do
   call Free_Work(ipMull)
   if (iData /= nData) then
@@ -329,7 +328,7 @@ mdc = 0
 kk = 0
 
 do iCnttp=1,nCnttp             ! loop over unique basis sets
-  if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag) Go To 996
+  if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag) cycle
 
   do iCntr=1,dbsc(iCnttp)%nCntr  ! loop over sym. unique centers
     mdc = mdc+1
@@ -622,7 +621,6 @@ do iCnttp=1,nCnttp             ! loop over unique basis sets
       write(MF,'(A)') ' '
     end do
   end do
-996 continue
 end do
 kk_Max = kk
 if (nB > kk_max) then
@@ -630,7 +628,8 @@ if (nB > kk_max) then
     write(u6,*) 'Molden_Interface: nB.gt.kk_max'
     write(u6,*) 'nB,kk_Max=',nB,kk_Max
   end if
-  Go To 991
+  call End2()
+  return
 end if
 !                                                                      *
 !***********************************************************************
@@ -741,7 +740,8 @@ do iIrrep=0,nIrrep-1
       do iD=1,nB
         write(u6,'(A)') Label(i)
       end do
-      Go To 997
+      call End3()
+      return
     end if
 
     write(MO_Label(i),'(I5,A3)') iB,lirrep(iIrrep)
@@ -845,33 +845,45 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-997 continue
-call GetMem('Eor','Free','Real',mAdEor,nTot)
-call GetMem('Occ','Free','Real',mAdOcc,nTot)
-if (iUHF == 1) then
-  call GetMem('Eor','Free','Real',mAdEor_ab,nTot)
-  call GetMem('Occ','Free','Real',mAdOcc_ab,nTot)
-end if
-991 continue
-call GetMem('ICENT','FREE','INTE',ipCent,8*nB)
-call GetMem('IPHASE','FREE','INTE',ipPhase,8*nB)
-call GetMem('nCENT','FREE','INTE',ipCent2,nB)
-call GetMem('ICENTER','FREE','INTE',ipCent3,nB)
-if (iUHF == 1) then
-  call GetMem('CMO2','FREE','REAL',ipC2_ab,nB**2)
-  call GetMem('VECTOR','FREE','REAL',ipV_ab,nB**2)
-end if
-call GetMem('CMO2','FREE','REAL',ipC2,nB**2)
-call GetMem('VECTOR','FREE','REAL',ipV,nB**2)
-close(MF)
-999 continue
-call ClsSew()
+call End3()
+
+return
 
 ! -------------FORMATS-------------
+99  format(A,2(3x,I4),5x,3F16.8,3I4)
 100 format(I4,3x,F16.8)
 103 format('Ene= ',F10.4)
 104 format('Occup= ',F10.5)
 
-return
+contains
+
+subroutine End1()
+  call ClsSew()
+end subroutine End1
+
+subroutine End2()
+  call GetMem('ICENT','FREE','INTE',ipCent,8*nB)
+  call GetMem('IPHASE','FREE','INTE',ipPhase,8*nB)
+  call GetMem('nCENT','FREE','INTE',ipCent2,nB)
+  call GetMem('ICENTER','FREE','INTE',ipCent3,nB)
+  if (iUHF == 1) then
+    call GetMem('CMO2','FREE','REAL',ipC2_ab,nB**2)
+    call GetMem('VECTOR','FREE','REAL',ipV_ab,nB**2)
+  end if
+  call GetMem('CMO2','FREE','REAL',ipC2,nB**2)
+  call GetMem('VECTOR','FREE','REAL',ipV,nB**2)
+  close(MF)
+  call End1()
+end subroutine End2
+
+subroutine End3()
+  call GetMem('Eor','Free','Real',mAdEor,nTot)
+  call GetMem('Occ','Free','Real',mAdOcc,nTot)
+  if (iUHF == 1) then
+    call GetMem('Eor','Free','Real',mAdEor_ab,nTot)
+    call GetMem('Occ','Free','Real',mAdOcc_ab,nTot)
+  end if
+  call End2()
+end subroutine End3
 
 end subroutine Molden_Interface

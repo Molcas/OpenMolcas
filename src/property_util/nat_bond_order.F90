@@ -158,7 +158,10 @@ NBAST = 0
 do I=1,NSYM
   NBAST = NBAST+NBAS(I)
 end do
-if (NBAST > MXBAS) goto 991
+if (NBAST > MXBAS) then
+  write(u6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
+  call Abend()
+end if
 
 NBAST2 = NBAST**2
 
@@ -399,17 +402,15 @@ do ISYM=1,NSYM
   if (NB /= 0) then
     IMN = 0
     do MY=1,NB
-      !if (ICNT(IB+MY) <= 0) Go To 97    ! skip pseudo center
+      !if (ICNT(IB+MY) <= 0) cycle    ! skip pseudo center
       do NY=1,MY
-        !if (ICNT(IB+NY) <= 0) Go To 96  ! skip pseudo center
+        !if (ICNT(IB+NY) <= 0) cycle  ! skip pseudo center
         IMN = IMN+1
         !  Save the Overlap matrix element (my.ny) and (ny,my) in work(ipS_orig)
         Work(ipS_tmp+(NY+IB-1)*NBAST+MY+IB-1) = Work(ipS_orig+IMN+IS-1)
         Work(ipS_tmp+(MY+IB-1)*NBAST+NY+IB-1) = Work(ipS_orig+IMN+IS-1)
 
-        !96 continue
       end do
-      !97 continue
     end do
     IB = IB+NB
     IS = IS+(NB+NB**2)/2
@@ -593,222 +594,41 @@ end do
 isThereAtLeastABond = 0
 
 !----------------------------------------------------------------------*
-888 continue
-!----------------------------------------------------------------------*
+do
 
-TotCoreElec = Zero
-TotLoneElec = Zero
-TotBondElec = Zero
-TotSingleElec = Zero
-TotTriplBondElec = Zero
-iBondNumb = 0
-iSingNumb = 0
-iTriplBondNumb = 0
+  TotCoreElec = Zero
+  TotLoneElec = Zero
+  TotBondElec = Zero
+  TotSingleElec = Zero
+  TotTriplBondElec = Zero
+  iBondNumb = 0
+  iSingNumb = 0
+  iTriplBondNumb = 0
 
-!----------------------------------------------------------------------*
-! How many electrons we have                                           *
-!----------------------------------------------------------------------*
+  !--------------------------------------------------------------------*
+  ! How many electrons we have                                         *
+  !--------------------------------------------------------------------*
 
-TotEl = Zero
-do I=1,NBAST
-  TotEl = TotEl+Work(ipDS+(I-1)*NBAST+I-1)
-end do
-
-#ifdef _DEBUGPRINT_
-write(u6,*)
-write(u6,*) 'Number of electrons = ',TotEl
-#endif
-
-!----------------------------------------------------------------------*
-! Depletion of core orbitals. First we build and diagonalize           *
-! a one center matrix of pre-NBO from the DS matrix and then           *
-! we eliminate those contributions with eigenvalues > thr_CO from      *
-! the DNAO density matrix. DS = DS - eival * eivect * eivect T         *
-!----------------------------------------------------------------------*
-
-do IAtom=1,tRealNUC
-
-  nBasAtoms = iWork(ipNBFpA+IAtom-1)
-  nDimSubD = nBasAtoms*nBasAtoms
-
-
-  ! extraction of sub matrix from DNAO
-  ! ipSubDNAO -> sub matrix
-  ! ipSubVec  -> will contain eigen vectors
-  ! ipSubVal  -> will contain eigen values, real part
-  ! ipSubIVal -> will contain eigen values, imaginary part
-
-  call Allocate_Work(ipSubDNAO,nDimSubD)
-  call Allocate_iWork(ipSubDNAOindex,nDimSubD)
-  call Allocate_Work(ipSubVec,nDimSubD)
-  call Allocate_Work(ipSubVal,nBasAtoms)
-  call Allocate_Work(ipSubIVal,nBasAtoms)
-
-  call FZero(Work(ipSubDNAO),nDimSubD)
-  call IZero(iWork(ipSubDNAOindex),nDimSubD)
-  call FZero(Work(ipSubVec),nDimSubD)
-  call FZero(Work(ipSubVal),nBasAtoms)
-  call FZero(Work(ipSubIVal),nBasAtoms)
-
-  iSubD = 0
-
-  do MY=1,NBAST
-    AtomA = iWork(ip_center+MY-1)
-    !if (ICNT(MY) <= 0) Go To 93 ! skip pseudo center
-    if (AtomA /= IAtom) Go To 93 ! we want just one atom a time
-    do NY=1,NBAST
-      AtomB = iWork(ip_center+NY-1)
-      !if (ICNT(NY) <= 0) Go To 92 ! skip pseudo center
-      if (AtomA /= AtomB) Go To 92 ! they have to be the same atom
-
-      Work(ipSubDNAO+iSubD) = Work(ipDS+(MY-1)*NBAST+NY-1)
-      iWork(ipSubDNAOindex+iSubD) = (MY-1)*NBAST+NY-1
-      iSubD = iSubD+1
-
-92    continue
-    end do
-93  continue
+  TotEl = Zero
+  do I=1,NBAST
+    TotEl = TotEl+Work(ipDS+(I-1)*NBAST+I-1)
   end do
 
 # ifdef _DEBUGPRINT_
   write(u6,*)
-  call RecPrt('SubDNAO Matrix = ',' ',Work(ipSubDNAO),nBasAtoms,nBasAtoms)
-  write(u6,*)
-  call iVcPrt('SubDNAO index Matrix = ',' ',iWork(ipSubDNAOindex),nDimSubD)
-  write(u6,*) 'SubDNAO diagonal elements'
-  do I=1,nBasAtoms
-    write(u6,*) Work(ipSubDNAO+(I-1)*nBasAtoms+I-1)
-  end do
-
-  !write(u6,*)
-  !write(u6,*) 'SubDS=',DDot_(nDimSubD,Work(ipSubDNAO),1,Work(ipSubDNAO),1),DDot_(nDimSubD,Work(ipSubDNAO),1,One,0)
+  write(u6,*) 'Number of electrons = ',TotEl
 # endif
 
-  ! Diagonalization
+  !--------------------------------------------------------------------*
+  ! Depletion of core orbitals. First we build and diagonalize         *
+  ! a one center matrix of pre-NBO from the DS matrix and then         *
+  ! we eliminate those contributions with eigenvalues > thr_CO from    *
+  ! the DNAO density matrix. DS = DS - eival * eivect * eivect T       *
+  !--------------------------------------------------------------------*
 
-  call xEigen(1,nBasAtoms,nBasAtoms,work(ipSubDNAO),Work(ipSubVal),Work(ipSubIVal),Work(ipSubVec),iErr)
+  do IAtom=1,tRealNUC
 
-  if (iErr /= 0) then
-    write(u6,*) 'Something went wrong when diagonalizing.'
-    write(u6,*) 'NBO analysis cannot be finished, sorry.'
-    return
-  end if
-
-# ifdef _DEBUGPRINT_
-  write(u6,*)
-  write(u6,*) 'One atom submatrix diagonalization'
-  call RecPrt('Eigen vectors Matrix = ',' ',Work(ipSubVec),nBasAtoms,nBasAtoms)
-  write(u6,*)
-  call RecPrt('Eigen values, real = ',' ',Work(ipSubVal),nBasAtoms,1)
-  write(u6,*)
-  call RecPrt('Eigen values, imaginary = ',' ',Work(ipSubIVal),nBasAtoms,1)
-
-# endif
-
-  call Seek_n_Destroy(nBasAtoms,nDimSubD,ipSubVal,ipSubVec,nBast,thr_CO,thr_Dummy,TotCoreElec,ipSubDNAOindex,ipDS,0,ipDummy, &
-                      ipDummy,0,IAtom,IAtom,ipDummy,ipDummy,IAtom)
-
-!----------------------------------------------------------------------*
-! Depletion of lone pair orbitals. We use the already diagonalized     *
-! one center matrix of pre-NBO from the DS matrix and then we          *
-! eliminate those contributions with thr_LP <= eigenval <= thr_CO      *
-! from the DNAO density matrix. DS =DS - eival * eivect * eivect T     *
-!----------------------------------------------------------------------*
-
-  call Seek_n_Destroy(nBasAtoms,nDimSubD,ipSubVal,ipSubVec,nBast,thr_LP,thr_CO,TotLoneElec,ipSubDNAOindex,ipDS,0,ipDummy,ipDummy, &
-                      0,IAtom,IAtom,ipDummy,ipDummy,IAtom)
-
-  call Free_Work(ipSubDNAO)
-  call Free_iWork(ipSubDNAOindex)
-  call Free_Work(ipSubVec)
-
-  call Free_Work(ipSubVal)
-
-  call Free_Work(ipSubIVal)
-
-end do
-
-#ifdef _DEBUGPRINT_
-E = Zero
-do I=1,NBAST
-  E = E+Work(ipDS+(I-1)*NBAST+I-1)
-end do
-write(u6,*)
-write(u6,*) 'Number of electrons as sum of the DS diagonal = ',E
-#endif
-
-!----------------------------------------------------------------------*
-! Now for the real thing: NBO generation                               *
-!----------------------------------------------------------------------*
-
-!----------------------------------------------------------------------*
-999 continue
-!----------------------------------------------------------------------*
-
-!----------------------------------------------------------------------*
-! Copy of DS matrix for the depletion                                  *
-!----------------------------------------------------------------------*
-
-call Allocate_Work(ipDS_tmp,(NBAST2))
-call FZero(Work(ipDS_tmp),(NBAST2))
-do I=1,(NBAST2)
-  Work(ipDS_tmp+I-1) = Work(ipDS+I-1)
-end do
-
-!----------------------------------------------------------------------*
-! 2 atoms loop                                                         *
-!----------------------------------------------------------------------*
-
-do IAtom=1,tRealNUC-1
-  do JAtom=IAtom+1,tRealNUC
-
-    ! If the two atoms are far from each other we do not consider them.
-    ! Distance checked against covalent radius. The threshold is used
-    ! to tune the acceptance coefficient
-
-    x = Work(ipAll+(IAtom-1)*3)-Work(ipAll+(JAtom-1)*3)
-    y = Work(ipAll+(IAtom-1)*3+1)-Work(ipAll+(JAtom-1)*3+1)
-    z = Work(ipAll+(IAtom-1)*3+2)-Work(ipAll+(JAtom-1)*3+2)
-    rij2 = x**2+y**2+z**2
-    rij = sqrt(rij2)
-
-    ! To avoid warnings for Atomic Nr > 86
-
-    iANr = iWork(ipANr+IAtom-1)
-    if (iANr > 86) then
-      Covrad1 = 2.70_wp
-    else
-      Covrad1 = Covrad(iANr)
-    end if
-
-    jANr = iWork(ipANr+JAtom-1)
-    if (jANr > 86) then
-      Covrad2 = 2.70_wp
-    else
-      Covrad2 = Covrad(jANr)
-    end if
-
-    covij = Covrad1+Covrad2
-
-    thr_Diff = thr_Orig-thr_BO
-    coeff = 1.25_wp+thr_Diff
-
-    if (rij > (coeff*covij)) then
-      goto 91
-    else
-      isThereAtLeastABond = 1
-    end if
-
-#   ifdef _DEBUGPRINT_
-    write(u6,*)
-    write(u6,*) 'Good rij = ',rij
-    write(u6,*) 'covalent = ',covij
-#   endif
-
-    nBasAtomsA = iWork(ipNBFpA+IAtom-1)
-    nBasAtomsB = iWork(ipNBFpA+JAtom-1)
-
-    nBasAtoms = nBasAtomsA+nBasAtomsB
+    nBasAtoms = iWork(ipNBFpA+IAtom-1)
     nDimSubD = nBasAtoms*nBasAtoms
 
     ! extraction of sub matrix from DNAO
@@ -833,28 +653,32 @@ do IAtom=1,tRealNUC-1
 
     do MY=1,NBAST
       AtomA = iWork(ip_center+MY-1)
-      !if (ICNT(MY) <= 0) Go To 95   ! skip pseudo center
+      !if (ICNT(MY) <= 0) cycle ! skip pseudo center
+      if (AtomA /= IAtom) cycle ! we want just one atom a time
       do NY=1,NBAST
         AtomB = iWork(ip_center+NY-1)
-        !if (ICNT(NY) <= 0) Go To 94 ! skip pseudo center
+        !if (ICNT(NY) <= 0) cycle ! skip pseudo center
+        if (AtomA /= AtomB) cycle ! they have to be the same atom
 
-        if (((AtomA == IAtom) .or. (AtomA == JAtom)) .and. &
-            ((AtomB == IAtom) .or. (AtomB == JAtom))) then
+        Work(ipSubDNAO+iSubD) = Work(ipDS+(MY-1)*NBAST+NY-1)
+        iWork(ipSubDNAOindex+iSubD) = (MY-1)*NBAST+NY-1
+        iSubD = iSubD+1
 
-          Work(ipSubDNAO+iSubD) = Work(ipDS+(MY-1)*NBAST+NY-1)
-          iWork(ipSubDNAOindex+iSubD) = (MY-1)*NBAST+NY-1
-          iSubD = iSubD+1
-
-        end if
-
-        !94 continue
       end do
-      !95 continue
     end do
 
 #   ifdef _DEBUGPRINT_
     write(u6,*)
     call RecPrt('SubDNAO Matrix = ',' ',Work(ipSubDNAO),nBasAtoms,nBasAtoms)
+    write(u6,*)
+    call iVcPrt('SubDNAO index Matrix = ',' ',iWork(ipSubDNAOindex),nDimSubD)
+    write(u6,*) 'SubDNAO diagonal elements'
+    do I=1,nBasAtoms
+      write(u6,*) Work(ipSubDNAO+(I-1)*nBasAtoms+I-1)
+    end do
+
+    !write(u6,*)
+    !write(u6,*) 'SubDS=',DDot_(nDimSubD,Work(ipSubDNAO),1,Work(ipSubDNAO),1),DDot_(nDimSubD,Work(ipSubDNAO),1,One,0)
 #   endif
 
     ! Diagonalization
@@ -869,128 +693,116 @@ do IAtom=1,tRealNUC-1
 
 #   ifdef _DEBUGPRINT_
     write(u6,*)
-    write(u6,*) 'Two atoms submatrix diagonalization'
+    write(u6,*) 'One atom submatrix diagonalization'
     call RecPrt('Eigen vectors Matrix = ',' ',Work(ipSubVec),nBasAtoms,nBasAtoms)
     write(u6,*)
     call RecPrt('Eigen values, real = ',' ',Work(ipSubVal),nBasAtoms,1)
     write(u6,*)
     call RecPrt('Eigen values, imaginary = ',' ',Work(ipSubIVal),nBasAtoms,1)
+
 #   endif
 
-    call Seek_n_Destroy(nBasAtoms,nDimSubD,ipSubVal,ipSubVec,nBast,thr_BO,thr_Dummy1+thr_Diff,TotBondElec,ipSubDNAOindex,ipDS_tmp, &
-                        1,ipBondAtomA,ipBondAtomB,iBondNumb,IAtom,JAtom,ipBonds,ipDummy,IAtom)
+    call Seek_n_Destroy(nBasAtoms,nDimSubD,ipSubVal,ipSubVec,nBast,thr_CO,thr_Dummy,TotCoreElec,ipSubDNAOindex,ipDS,0,ipDummy, &
+                        ipDummy,0,IAtom,IAtom,ipDummy,ipDummy,IAtom)
+
+    !------------------------------------------------------------------*
+    ! Depletion of lone pair orbitals. We use the already diagonalized *
+    ! one center matrix of pre-NBO from the DS matrix and then we      *
+    ! eliminate those contributions with thr_LP <= eigenval <= thr_CO  *
+    ! from the DNAO density matrix. DS =DS - eival * eivect * eivect T *
+    !------------------------------------------------------------------*
+
+    call Seek_n_Destroy(nBasAtoms,nDimSubD,ipSubVal,ipSubVec,nBast,thr_LP,thr_CO,TotLoneElec,ipSubDNAOindex,ipDS,0,ipDummy, &
+                        ipDummy,0,IAtom,IAtom,ipDummy,ipDummy,IAtom)
 
     call Free_Work(ipSubDNAO)
     call Free_iWork(ipSubDNAOindex)
     call Free_Work(ipSubVec)
+
     call Free_Work(ipSubVal)
+
     call Free_Work(ipSubIVal)
 
-91  continue
   end do
 
-end do
-
-!----------------------------------------------------------------------*
-! Copy of DS matrix                                                    *
-!----------------------------------------------------------------------*
-
-do I=1,(NBAST2)
-  Work(ipDS+I-1) = Work(ipDS_tmp+I-1)
-end do
-call Free_Work(ipDS_tmp)
-
-#ifdef _DEBUGPRINT_
-call RecPrt('DS-NAO depleted Matrix = ',' ',Work(ipDS),NBAST,NBAST)
-E = Zero
-do K=1,NBAST
-  E = E+Work(ipDS+(K-1)*NBAST+K-1)
-end do
-write(u6,*)
-write(u6,*) 'Number of electrons as sum of the DS diagonal = ',E
-#endif
-
-!----------------------------------------------------------------------*
-! Search for non assigned electrons                                    *
-!----------------------------------------------------------------------*
-
-ElecNonAssgn = TotEl-TotCoreElec-TotLoneElec-TotBondElec
-
-#ifdef _DEBUGPRINT_
-write(u6,*)
-write(u6,*) 'Number of non assigned electrons = ',ElecNonAssgn
-#endif
-
-!----------------------------------------------------------------------*
-! First we decrease the bond threshold and do the NBO again            *
-!----------------------------------------------------------------------*
-
-if (ElecNonAssgn >= 2*thr_NA) then
-  thr_Decr = thr_Decr+thr_DecrStep
-  thr_BO = thr_BO-thr_Decr
-  if (thr_BO >= thr_MIN) goto 999
-end if
-
-!----------------------------------------------------------------------*
-! Second: we search for three centre bonds. This part of the code      *
-! is quite experimental. If the result is inconsistent, it will be     *
-! ignored.                                                             *
-!----------------------------------------------------------------------*
-
-if ((ElecNonAssgn >= 2*thr_NA) .and. (tNUC > 2)) then
-
-  !--------------------------------------------------------------------*
-  ! Copy of DS matrix for the depletion                                *
-  !--------------------------------------------------------------------*
-
-  call Allocate_Work(ipDS_tmp,(NBAST2))
-  call FZero(Work(ipDS_tmp),(NBAST2))
-  do I=1,(NBAST2)
-    Work(ipDS_tmp+I-1) = Work(ipDS+I-1)
+# ifdef _DEBUGPRINT_
+  E = Zero
+  do I=1,NBAST
+    E = E+Work(ipDS+(I-1)*NBAST+I-1)
   end do
+  write(u6,*)
+  write(u6,*) 'Number of electrons as sum of the DS diagonal = ',E
+# endif
 
   !--------------------------------------------------------------------*
-  ! Creation of the three centre bond vector and other memory stuff    *
-  ! + 100 added to stay on the safe side to avoid memory problems      *
+  ! Now for the real thing: NBO generation                             *
   !--------------------------------------------------------------------*
 
-  iElToAsgn = int(ElecNonAssgn+Half)+100
-
-  if (ix_Triple < iElToAsgn) then
-    if (SearchedTriple) then
-      call Free_Work(ipTripl)
-      call Free_iWork(ipTriplAtomA)
-      call Free_iWork(ipTriplAtomB)
-      call Free_iWork(ipTriplAtomC)
-    end if
-    SearchedTriple = .true.
-    ix_Triple = iElToAsgn
-    call Allocate_Work(ipTripl,iElToAsgn)
-    call Allocate_iWork(ipTriplAtomA,iElToAsgn)
-    call Allocate_iWork(ipTriplAtomB,iElToAsgn)
-    call Allocate_iWork(ipTriplAtomC,iElToAsgn)
-  end if
-
-  call FZero(Work(ipTripl),iElToAsgn)
-  call IZero(iWork(ipTriplAtomA),iElToAsgn)
-  call IZero(iWork(ipTriplAtomB),iElToAsgn)
-  call IZero(iWork(ipTriplAtomC),iElToAsgn)
-
-  ! Reset the bond threshold to the original value
-  thr_BO = thr_Orig
-
   !--------------------------------------------------------------------*
-  ! 3 atoms loop                                                       *
-  !--------------------------------------------------------------------*
-  do IAtom=1,tRealNUC-2
-    do JAtom=IAtom+1,tRealNUC-1
-      do KAtom=JAtom+1,tRealNUC
+  do
+
+    !------------------------------------------------------------------*
+    ! Copy of DS matrix for the depletion                              *
+    !------------------------------------------------------------------*
+
+    call Allocate_Work(ipDS_tmp,(NBAST2))
+    call FZero(Work(ipDS_tmp),(NBAST2))
+    do I=1,(NBAST2)
+      Work(ipDS_tmp+I-1) = Work(ipDS+I-1)
+    end do
+
+    !------------------------------------------------------------------*
+    ! 2 atoms loop                                                     *
+    !------------------------------------------------------------------*
+
+    do IAtom=1,tRealNUC-1
+      do JAtom=IAtom+1,tRealNUC
+
+        ! If the two atoms are far from each other we do not consider them.
+        ! Distance checked against covalent radius. The threshold is used
+        ! to tune the acceptance coefficient
+
+        x = Work(ipAll+(IAtom-1)*3)-Work(ipAll+(JAtom-1)*3)
+        y = Work(ipAll+(IAtom-1)*3+1)-Work(ipAll+(JAtom-1)*3+1)
+        z = Work(ipAll+(IAtom-1)*3+2)-Work(ipAll+(JAtom-1)*3+2)
+        rij2 = x**2+y**2+z**2
+        rij = sqrt(rij2)
+
+        ! To avoid warnings for Atomic Nr > 86
+
+        iANr = iWork(ipANr+IAtom-1)
+        if (iANr > 86) then
+          Covrad1 = 2.70_wp
+        else
+          Covrad1 = Covrad(iANr)
+        end if
+
+        jANr = iWork(ipANr+JAtom-1)
+        if (jANr > 86) then
+          Covrad2 = 2.70_wp
+        else
+          Covrad2 = Covrad(jANr)
+        end if
+
+        covij = Covrad1+Covrad2
+
+        thr_Diff = thr_Orig-thr_BO
+        coeff = 1.25_wp+thr_Diff
+
+        if (rij > (coeff*covij)) cycle
+
+        isThereAtLeastABond = 1
+
+#       ifdef _DEBUGPRINT_
+        write(u6,*)
+        write(u6,*) 'Good rij = ',rij
+        write(u6,*) 'covalent = ',covij
+#       endif
 
         nBasAtomsA = iWork(ipNBFpA+IAtom-1)
         nBasAtomsB = iWork(ipNBFpA+JAtom-1)
-        nBasAtomsC = iWork(ipNBFpA+KAtom-1)
 
-        nBasAtoms = nBasAtomsA+nBasAtomsB+nBasAtomsC
+        nBasAtoms = nBasAtomsA+nBasAtomsB
         nDimSubD = nBasAtoms*nBasAtoms
 
         ! extraction of sub matrix from DNAO
@@ -1015,13 +827,13 @@ if ((ElecNonAssgn >= 2*thr_NA) .and. (tNUC > 2)) then
 
         do MY=1,NBAST
           AtomA = iWork(ip_center+MY-1)
-          !if (ICNT(MY) <= 0) Go To 85   ! skip pseudo center
+          !if (ICNT(MY) <= 0) cycle   ! skip pseudo center
           do NY=1,NBAST
             AtomB = iWork(ip_center+NY-1)
-            !if (ICNT(NY) <= 0) Go To 84 ! skip pseudo center
+            !if (ICNT(NY) <= 0) cycle ! skip pseudo center
 
-            if (((AtomA == IAtom) .or. (AtomA == JAtom) .or. (AtomA == KAtom)) .and. &
-                ((AtomB == IAtom) .or. (AtomB == JAtom) .or. (AtomB == KAtom))) then
+            if (((AtomA == IAtom) .or. (AtomA == JAtom)) .and. &
+                ((AtomB == IAtom) .or. (AtomB == JAtom))) then
 
               Work(ipSubDNAO+iSubD) = Work(ipDS+(MY-1)*NBAST+NY-1)
               iWork(ipSubDNAOindex+iSubD) = (MY-1)*NBAST+NY-1
@@ -1029,9 +841,7 @@ if ((ElecNonAssgn >= 2*thr_NA) .and. (tNUC > 2)) then
 
             end if
 
-            !84 continue
           end do
-          !85 continue
         end do
 
 #       ifdef _DEBUGPRINT_
@@ -1051,6 +861,7 @@ if ((ElecNonAssgn >= 2*thr_NA) .and. (tNUC > 2)) then
 
 #       ifdef _DEBUGPRINT_
         write(u6,*)
+        write(u6,*) 'Two atoms submatrix diagonalization'
         call RecPrt('Eigen vectors Matrix = ',' ',Work(ipSubVec),nBasAtoms,nBasAtoms)
         write(u6,*)
         call RecPrt('Eigen values, real = ',' ',Work(ipSubVal),nBasAtoms,1)
@@ -1058,28 +869,18 @@ if ((ElecNonAssgn >= 2*thr_NA) .and. (tNUC > 2)) then
         call RecPrt('Eigen values, imaginary = ',' ',Work(ipSubIVal),nBasAtoms,1)
 #       endif
 
+        call Seek_n_Destroy(nBasAtoms,nDimSubD,ipSubVal,ipSubVec,nBast,thr_BO,thr_Dummy1+thr_Diff,TotBondElec,ipSubDNAOindex, &
+                            ipDS_tmp,1,ipBondAtomA,ipBondAtomB,iBondNumb,IAtom,JAtom,ipBonds,ipDummy,IAtom)
+
         call Free_Work(ipSubDNAO)
-
-        call Seek_n_Destroy(nBasAtoms,nDimSubD,ipSubVal,ipSubVec,nBast,thr_LP,thr_Dummy1,TotTriplBondElec,ipSubDNAOindex,ipDS_tmp, &
-                            3,ipTriplAtomA,ipTriplAtomB,iTriplBondNumb,IAtom,JAtom,ipTripl,ipTriplAtomC,KAtom)
-
         call Free_iWork(ipSubDNAOindex)
         call Free_Work(ipSubVec)
         call Free_Work(ipSubVal)
         call Free_Work(ipSubIVal)
 
       end do
+
     end do
-  end do
-
-  if (TotTriplBondElec > ElecNonAssgn) then
-
-    iTriplBondNumb = 0
-
-  else
-
-    ElecNonAssgn = ElecNonAssgn-TotTriplBondElec
-    TotBondElec = TotBondElec+TotTriplBondElec
 
     !------------------------------------------------------------------*
     ! Copy of DS matrix                                                *
@@ -1088,6 +889,7 @@ if ((ElecNonAssgn >= 2*thr_NA) .and. (tNUC > 2)) then
     do I=1,(NBAST2)
       Work(ipDS+I-1) = Work(ipDS_tmp+I-1)
     end do
+    call Free_Work(ipDS_tmp)
 
 #   ifdef _DEBUGPRINT_
     call RecPrt('DS-NAO depleted Matrix = ',' ',Work(ipDS),NBAST,NBAST)
@@ -1099,24 +901,213 @@ if ((ElecNonAssgn >= 2*thr_NA) .and. (tNUC > 2)) then
     write(u6,*) 'Number of electrons as sum of the DS diagonal = ',E
 #   endif
 
-  end if
-  call Free_Work(ipDS_tmp)
+    !------------------------------------------------------------------*
+    ! Search for non assigned electrons                                *
+    !------------------------------------------------------------------*
 
-end if
+    ElecNonAssgn = TotEl-TotCoreElec-TotLoneElec-TotBondElec
 
-!----------------------------------------------------------------------*
-! Third: if no bond has been found, but it should, we do               *
-! EVERYTHING from the beginning, with a lower threshold for lone       *
-! pairs.                                                               *
-!----------------------------------------------------------------------*
+#   ifdef _DEBUGPRINT_
+    write(u6,*)
+    write(u6,*) 'Number of non assigned electrons = ',ElecNonAssgn
+#   endif
 
-if ((isThereAtLeastABond /= 0) .and. (TotBondElec < 0.1_wp) .and. (thr_LP == thr_LP_Orig)) then
-  thr_LP = thr_LP+0.1_wp
-  do I=1,(NBAST2)
-    Work(ipDS+I-1) = Work(ipDS_Orig+I-1)
+    !------------------------------------------------------------------*
+    ! First we decrease the bond threshold and do the NBO again        *
+    !------------------------------------------------------------------*
+
+    if (ElecNonAssgn < 2*thr_NA) exit
+    thr_Decr = thr_Decr+thr_DecrStep
+    thr_BO = thr_BO-thr_Decr
+    if (thr_BO < thr_MIN) exit
   end do
-  goto 888
-end if
+
+  !--------------------------------------------------------------------*
+  ! Second: we search for three centre bonds. This part of the code    *
+  ! is quite experimental. If the result is inconsistent, it will be   *
+  ! ignored.                                                           *
+  !--------------------------------------------------------------------*
+
+  if ((ElecNonAssgn >= 2*thr_NA) .and. (tNUC > 2)) then
+
+    !------------------------------------------------------------------*
+    ! Copy of DS matrix for the depletion                              *
+    !------------------------------------------------------------------*
+
+    call Allocate_Work(ipDS_tmp,(NBAST2))
+    call FZero(Work(ipDS_tmp),(NBAST2))
+    do I=1,(NBAST2)
+      Work(ipDS_tmp+I-1) = Work(ipDS+I-1)
+    end do
+
+    !------------------------------------------------------------------*
+    ! Creation of the three centre bond vector and other memory stuff  *
+    ! + 100 added to stay on the safe side to avoid memory problems    *
+    !------------------------------------------------------------------*
+
+    iElToAsgn = int(ElecNonAssgn+Half)+100
+
+    if (ix_Triple < iElToAsgn) then
+      if (SearchedTriple) then
+        call Free_Work(ipTripl)
+        call Free_iWork(ipTriplAtomA)
+        call Free_iWork(ipTriplAtomB)
+        call Free_iWork(ipTriplAtomC)
+      end if
+      SearchedTriple = .true.
+      ix_Triple = iElToAsgn
+      call Allocate_Work(ipTripl,iElToAsgn)
+      call Allocate_iWork(ipTriplAtomA,iElToAsgn)
+      call Allocate_iWork(ipTriplAtomB,iElToAsgn)
+      call Allocate_iWork(ipTriplAtomC,iElToAsgn)
+    end if
+
+    call FZero(Work(ipTripl),iElToAsgn)
+    call IZero(iWork(ipTriplAtomA),iElToAsgn)
+    call IZero(iWork(ipTriplAtomB),iElToAsgn)
+    call IZero(iWork(ipTriplAtomC),iElToAsgn)
+
+    ! Reset the bond threshold to the original value
+    thr_BO = thr_Orig
+
+    !------------------------------------------------------------------*
+    ! 3 atoms loop                                                     *
+    !------------------------------------------------------------------*
+    do IAtom=1,tRealNUC-2
+      do JAtom=IAtom+1,tRealNUC-1
+        do KAtom=JAtom+1,tRealNUC
+
+          nBasAtomsA = iWork(ipNBFpA+IAtom-1)
+          nBasAtomsB = iWork(ipNBFpA+JAtom-1)
+          nBasAtomsC = iWork(ipNBFpA+KAtom-1)
+
+          nBasAtoms = nBasAtomsA+nBasAtomsB+nBasAtomsC
+          nDimSubD = nBasAtoms*nBasAtoms
+
+          ! extraction of sub matrix from DNAO
+          ! ipSubDNAO -> sub matrix
+          ! ipSubVec  -> will contain eigen vectors
+          ! ipSubVal  -> will contain eigen values, real part
+          ! ipSubIVal -> will contain eigen values, imaginary part
+
+          call Allocate_Work(ipSubDNAO,nDimSubD)
+          call Allocate_iWork(ipSubDNAOindex,nDimSubD)
+          call Allocate_Work(ipSubVec,nDimSubD)
+          call Allocate_Work(ipSubVal,nBasAtoms)
+          call Allocate_Work(ipSubIVal,nBasAtoms)
+
+          call FZero(Work(ipSubDNAO),nDimSubD)
+          call IZero(iWork(ipSubDNAOindex),nDimSubD)
+          call FZero(Work(ipSubVec),nDimSubD)
+          call FZero(Work(ipSubVal),nBasAtoms)
+          call FZero(Work(ipSubIVal),nBasAtoms)
+
+          iSubD = 0
+
+          do MY=1,NBAST
+            AtomA = iWork(ip_center+MY-1)
+            !if (ICNT(MY) <= 0) cycle   ! skip pseudo center
+            do NY=1,NBAST
+              AtomB = iWork(ip_center+NY-1)
+              !if (ICNT(NY) <= 0) cycle ! skip pseudo center
+
+              if (((AtomA == IAtom) .or. (AtomA == JAtom) .or. (AtomA == KAtom)) .and. &
+                  ((AtomB == IAtom) .or. (AtomB == JAtom) .or. (AtomB == KAtom))) then
+
+                Work(ipSubDNAO+iSubD) = Work(ipDS+(MY-1)*NBAST+NY-1)
+                iWork(ipSubDNAOindex+iSubD) = (MY-1)*NBAST+NY-1
+                iSubD = iSubD+1
+
+              end if
+
+            end do
+          end do
+
+#         ifdef _DEBUGPRINT_
+          write(u6,*)
+          call RecPrt('SubDNAO Matrix = ',' ',Work(ipSubDNAO),nBasAtoms,nBasAtoms)
+#         endif
+
+          ! Diagonalization
+
+          call xEigen(1,nBasAtoms,nBasAtoms,work(ipSubDNAO),Work(ipSubVal),Work(ipSubIVal),Work(ipSubVec),iErr)
+
+          if (iErr /= 0) then
+            write(u6,*) 'Something went wrong when diagonalizing.'
+            write(u6,*) 'NBO analysis cannot be finished, sorry.'
+            return
+          end if
+
+#         ifdef _DEBUGPRINT_
+          write(u6,*)
+          call RecPrt('Eigen vectors Matrix = ',' ',Work(ipSubVec),nBasAtoms,nBasAtoms)
+          write(u6,*)
+          call RecPrt('Eigen values, real = ',' ',Work(ipSubVal),nBasAtoms,1)
+          write(u6,*)
+          call RecPrt('Eigen values, imaginary = ',' ',Work(ipSubIVal),nBasAtoms,1)
+#         endif
+
+          call Free_Work(ipSubDNAO)
+
+          call Seek_n_Destroy(nBasAtoms,nDimSubD,ipSubVal,ipSubVec,nBast,thr_LP,thr_Dummy1,TotTriplBondElec,ipSubDNAOindex, &
+                              ipDS_tmp,3,ipTriplAtomA,ipTriplAtomB,iTriplBondNumb,IAtom,JAtom,ipTripl,ipTriplAtomC,KAtom)
+
+          call Free_iWork(ipSubDNAOindex)
+          call Free_Work(ipSubVec)
+          call Free_Work(ipSubVal)
+          call Free_Work(ipSubIVal)
+
+        end do
+      end do
+    end do
+
+    if (TotTriplBondElec > ElecNonAssgn) then
+
+      iTriplBondNumb = 0
+
+    else
+
+      ElecNonAssgn = ElecNonAssgn-TotTriplBondElec
+      TotBondElec = TotBondElec+TotTriplBondElec
+
+      !----------------------------------------------------------------*
+      ! Copy of DS matrix                                              *
+      !----------------------------------------------------------------*
+
+      do I=1,(NBAST2)
+        Work(ipDS+I-1) = Work(ipDS_tmp+I-1)
+      end do
+
+#     ifdef _DEBUGPRINT_
+      call RecPrt('DS-NAO depleted Matrix = ',' ',Work(ipDS),NBAST,NBAST)
+      E = Zero
+      do K=1,NBAST
+        E = E+Work(ipDS+(K-1)*NBAST+K-1)
+      end do
+      write(u6,*)
+      write(u6,*) 'Number of electrons as sum of the DS diagonal = ',E
+#     endif
+
+    end if
+    call Free_Work(ipDS_tmp)
+
+  end if
+
+  !--------------------------------------------------------------------*
+  ! Third: if no bond has been found, but it should, we do             *
+  ! EVERYTHING from the beginning, with a lower threshold for lone     *
+  ! pairs.                                                             *
+  !--------------------------------------------------------------------*
+
+  if ((isThereAtLeastABond /= 0) .and. (TotBondElec < 0.1_wp) .and. (thr_LP == thr_LP_Orig)) then
+    thr_LP = thr_LP+0.1_wp
+    do I=1,(NBAST2)
+      Work(ipDS+I-1) = Work(ipDS_Orig+I-1)
+    end do
+  else
+    exit
+  end if
+end do
 
 call Free_Work(ipDS_Orig)
 
@@ -1173,20 +1164,18 @@ if (ElecNonAssgn >= thr_NA) then
 
     do MY=1,NBAST
       AtomA = iWork(ip_center+MY-1)
-      !if (ICNT(MY) <= 0) Go To 73 ! skip pseudo center
-      if (AtomA /= IAtom) Go To 73 ! we want just one atom a time
+      !if (ICNT(MY) <= 0) cycle ! skip pseudo center
+      if (AtomA /= IAtom) cycle ! we want just one atom a time
       do NY=1,NBAST
         AtomB = iWork(ip_center+NY-1)
-        !if (ICNT(NY) <= 0) Go To 72 ! skip pseudo center
-        if (AtomA /= AtomB) Go To 72 ! they have to be the same atom
+        !if (ICNT(NY) <= 0) cycle ! skip pseudo center
+        if (AtomA /= AtomB) cycle ! they have to be the same atom
 
         Work(ipSubDNAO+iSubD) = Work(ipDS+(MY-1)*NBAST+NY-1)
         iWork(ipSubDNAOindex+iSubD) = (MY-1)*NBAST+NY-1
         iSubD = iSubD+1
 
-72      continue
       end do
-73    continue
     end do
 
 #   ifdef _DEBUGPRINT_
@@ -1375,13 +1364,5 @@ end if
 !----------------------------------------------------------------------*
 
 return
-
-!----------------------------------------------------------------------*
-! Error Exits                                                          *
-!----------------------------------------------------------------------*
-
-991 continue
-write(u6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
-call Abend()
 
 end subroutine NAT_BOND_ORDER

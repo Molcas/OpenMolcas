@@ -165,7 +165,8 @@ if (iAngMx_Valence > 4) then
     write(u6,*) 'Sorry, Molden does not know how to handle'
     write(u6,*) 'functions with angular momentum larger than g'
   end if
-  Go To 999
+  call End1()
+  return
 end if
 !                                                                      *
 !***********************************************************************
@@ -219,7 +220,7 @@ call molcas_open(MF,filename)
 y_cart = .false.
 y_sphere = .false.
 do iCnttp=1,nCnttp
-  if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag) Go To 995
+  if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag) cycle
   do iCntr=1,dbsc(iCnttp)%nCntr
     do l=0,dbsc(iCnttp)%nVal-1
       ! Test for the appearance of cartesian functions with l=2,3,4
@@ -236,11 +237,11 @@ do iCnttp=1,nCnttp
           write(u6,*) 'Failed to generate input file to MOLDEN'
           write(u6,*) 'No mixing allowed of spherical and cartesian d, f, g-functions'
         end if
-        Go to 991
+        call End3()
+        return
       end if
     end do
   end do
-995 continue
 end do
 write(MF,'(A)') '[Molden Format]'
 !                                                                      *
@@ -253,7 +254,6 @@ write(MF,*) natom
 write(MF,'(A)') '[Atoms] (AU)'
 do iatom=1,natom
   write(MF,99) AtomLabel(iatom),iatom,int(Znuc(iatom)),(coor(i,iatom),i=1,3)
-99 format(A,2(3x,I4),5x,3F16.8,3I4)
 end do
 if (.not. y_cart) then
   if (S%iAngMx > 1) write(MF,'(A)') '[5D]'
@@ -280,7 +280,7 @@ mdc = 0
 kk = 0
 
 do iCnttp=1,nCnttp             ! loop over unique basis sets
-  if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag) Go To 996
+  if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag) cycle
 
   do iCntr=1,dbsc(iCnttp)%nCntr   ! loop over sym. unique centers
     mdc = mdc+1
@@ -573,7 +573,6 @@ do iCnttp=1,nCnttp             ! loop over unique basis sets
       write(MF,'(A)') ' '
     end do
   end do
-996 continue
 end do
 kk_Max = kk
 if (nB > kk_max) then
@@ -581,7 +580,8 @@ if (nB > kk_max) then
     write(u6,*) 'Molden_Interface: nB.gt.kk_max'
     write(u6,*) 'nB,kk_Max=',nB,kk_Max
   end if
-  Go To 998
+  call End2()
+  return
 end if
 !                                                                      *
 !***********************************************************************
@@ -700,34 +700,45 @@ do I=1,NDO
     end do
     write(MF,100) iGTO,COEF
   end do
-  continue
 
 end do ! I=1,NDO (i.e. Dyson orbitals)
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-991 continue
-call GetMem('ICENT','FREE','INTE',ipCent,8*nB)
-call GetMem('IPHASE','FREE','INTE',ipPhase,8*nB)
-call GetMem('nCENT','FREE','INTE',ipCent2,nB)
-call GetMem('ICENTER','FREE','INTE',ipCent3,nB)
-if (iUHF == 1) then
-  call GetMem('CMO2','FREE','REAL',ipC2_ab,nB**2)
-  call GetMem('VECTOR','FREE','REAL',ipV_ab,nB**2)
-end if
-call GetMem('CMO2','FREE','REAL',ipC2,nB**2)
-call GetMem('VECTOR','FREE','REAL',ipV,nB**2)
-998 continue
-close(MF)
-999 continue
-call ClsSew()
+call End3()
+
+return
 
 ! -------------FORMATS-------------
+99  format(A,2(3x,I4),5x,3F16.8,3I4)
 100 format(I4,3x,F16.8)
 103 format('Ene= ',F10.4)
 104 format('Occup= ',F10.5)
 
-return
+contains
+
+subroutine End1()
+  call ClsSew()
+end subroutine End1
+
+subroutine End2()
+  close(MF)
+  call End1()
+end subroutine End2
+
+subroutine End3()
+  call GetMem('ICENT','FREE','INTE',ipCent,8*nB)
+  call GetMem('IPHASE','FREE','INTE',ipPhase,8*nB)
+  call GetMem('nCENT','FREE','INTE',ipCent2,nB)
+  call GetMem('ICENTER','FREE','INTE',ipCent3,nB)
+  if (iUHF == 1) then
+    call GetMem('CMO2','FREE','REAL',ipC2_ab,nB**2)
+    call GetMem('VECTOR','FREE','REAL',ipV_ab,nB**2)
+  end if
+  call GetMem('CMO2','FREE','REAL',ipC2,nB**2)
+  call GetMem('VECTOR','FREE','REAL',ipV,nB**2)
+  call End2()
+end subroutine End3
 
 end subroutine Molden_DysOrb

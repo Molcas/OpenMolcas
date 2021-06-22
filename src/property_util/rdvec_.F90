@@ -37,8 +37,8 @@ real(kind=wp), intent(_OUT_) :: CMO(*), CMO_ab(*), OCC(*), OCC_ab(*), EORB(*), E
 integer(kind=iwp), intent(_OUT_) :: INDT(*)
 character(len=*), intent(out) :: TITLE
 integer(kind=iwp), intent(out) :: iErr, iWFType
-integer(kind=iwp) :: i, iA, iB, IBAS, IBASEND, iBeta, iCMO, iEne, iInd, imyNBAS, imyNORB, IND, iOcc, IORB, IORBEND, iShift, ISYM, &
-                     iVer, jVer, KCMO, KOCC, Lu, myiUHF, myNSYM, nDiv
+integer(kind=iwp) :: i, iA, iB, IBAS, IBASEND, iBeta, iCMO, iEne, iInd, imyNBAS, imyNORB, IND, iOcc, IORB, IORBEND, iShift, &
+                     istatus, ISYM, iVer, jVer, KCMO, KOCC, Lu, myiUHF, myNSYM, nDiv
 logical(kind=iwp) :: Exists
 character(len=256) :: LINE
 character(len=40) :: FRMT
@@ -79,7 +79,8 @@ rewind(LU)
 !----------------------------------------------------------------------*
 ! Check version!                                                       *
 !----------------------------------------------------------------------*
-read(LU,'(A256)',end=999,ERR=999) Line
+read(LU,'(A256)',iostat=istatus) Line
+if (istatus /= 0) call Error()
 iVer = 0
 do jVer=1,mxVer
   if (Magic(jVer) == Line(1:len(Magic(jVer)))) iVer = jVer
@@ -92,14 +93,19 @@ end if
 !----------------------------------------------------------------------*
 ! INFO section, read it unconditionally                                *
 !----------------------------------------------------------------------*
-50 continue
-read(LU,'(A256)',end=999,ERR=999) Line
-if (Line(1:5) /= '#INFO') goto 50
-read(Lu,'(a)',end=999,err=999) Title
-read(Lu,'(a)',end=999,Err=999) Line
+do
+  read(LU,'(A256)',iostat=istatus) Line
+  if (istatus /= 0) call Error()
+  if (Line(1:5) == '#INFO') exit
+end do
+read(Lu,'(a)',iostat=istatus) Title
+if (istatus /= 0) call Error()
+read(Lu,'(a)',iostat=istatus) Line
+if (istatus /= 0) call Error()
 Line(76:80) = '0 0 0'
 read(Line,*) myiUHF,myNSYM,iWFtype
-!read(Lu,*,end=999,err=999) myiUHF,myNSYM
+!read(Lu,*,iostat=istatus) myiUHF,myNSYM
+!if (istatus /= 0) call Error()
 ! In case of UHF mismatch:
 if (myiUHF /= iUHF) then
   ! Stop if UHF requested, but the INPORB is not UHF
@@ -120,8 +126,10 @@ if (myNSYM /= NSYM) then
 end if
 call GetMem('MYNBAS','Allo','Inte',imyNBAS,NSYM)
 call GetMem('MYNORB','Allo','Inte',imyNORB,NSYM)
-read(Lu,*,end=999,err=999) (iWork(imyNBAS+i-1),i=1,NSYM)
-read(Lu,*,end=999,err=999) (iWork(imyNORB+i-1),i=1,NSYM)
+read(Lu,*,iostat=istatus) (iWork(imyNBAS+i-1),i=1,NSYM)
+if (istatus /= 0) call Error()
+read(Lu,*,iostat=istatus) (iWork(imyNORB+i-1),i=1,NSYM)
+if (istatus /= 0) call Error()
 !----------------------------------------------------------------------*
 ! Do checks                                                            *
 !----------------------------------------------------------------------*
@@ -157,41 +165,52 @@ if (iCMO == 1) then
   nDiv = nDivOrb(iVer)
   FRMT = FmtOrb(iVer)
   rewind(LU)
-51 continue
-  read(LU,'(A256)',end=999,ERR=999) Line
-  if (Line(1:4) /= '#ORB') goto 51
+  do
+    read(LU,'(A256)',iostat=istatus) Line
+    if (istatus /= 0) call Error()
+    if (Line(1:4) == '#ORB') exit
+  end do
   KCMO = 0
   do ISYM=1,NSYM
     do IORB=1,iWork(imyNORB+ISYM-1)
       do IBAS=1,NBAS(ISYM),NDIV
         IBASEND = min(IBAS+NDIV-1,NBAS(ISYM))
-111     continue
-        read(LU,'(A256)',end=999,ERR=999) LINE
-        if (LINE(1:1) == '*') goto 111
+        do
+          read(LU,'(A256)',iostat=istatus) LINE
+          if (istatus /= 0) call Error()
+          if (LINE(1:1) /= '*') exit
+        end do
         if (iOrb <= nOrb(iSym)) then
-          read(LINE,FRMT,err=888,end=888) (CMO(I+KCMO),I=IBAS,IBASEND)
+          read(LINE,FRMT,iostat=istatus) (CMO(I+KCMO),I=IBAS,IBASEND)
+          if (istatus /= 0) call Error()
         end if
       end do
       if (iOrb <= nOrb(iSym)) KCMO = KCMO+NBAS(ISYM)
     end do
   end do
   if ((iUHF == 1) .or. (iBeta == 1)) then
-52  continue
-    read(LU,'(A256)',end=999,ERR=999) Line
-    if (Line(1:5) /= '#UORB') goto 52
+    do
+      read(LU,'(A256)',iostat=istatus) Line
+      if (istatus /= 0) call Error()
+      if (Line(1:5) == '#UORB') exit
+    end do
     KCMO = 0
     do ISYM=1,NSYM
       do IORB=1,iWork(imyNORB+ISYM-1)
         do IBAS=1,NBAS(ISYM),NDIV
           IBASEND = min(IBAS+NDIV-1,NBAS(ISYM))
-112       continue
-          read(LU,'(A256)',end=999,ERR=999) LINE
-          if (LINE(1:1) == '*') goto 112
+          do
+            read(LU,'(A256)',iostat=istatus) LINE
+            if (istatus /= 0) call Error()
+            if (LINE(1:1) /= '*') exit
+          end do
           if (iOrb <= nOrb(iSym)) then
             if (iBeta == 1) then
-              read(LINE,FRMT,err=888,end=888) (CMO(I+KCMO),I=IBAS,IBASEND)
+              read(LINE,FRMT,iostat=istatus) (CMO(I+KCMO),I=IBAS,IBASEND)
+              if (istatus /= 0) call Error()
             else
-              read(LINE,FRMT,err=888,end=888) (CMO_ab(I+KCMO),I=IBAS,IBASEND)
+              read(LINE,FRMT,iostat=istatus) (CMO_ab(I+KCMO),I=IBAS,IBASEND)
+              if (istatus /= 0) call Error()
             end if
           end if
         end do
@@ -207,36 +226,47 @@ if (iOcc == 1) then
   nDiv = nDivOcc(iVer)
   FRMT = FmtOcc(iVer)
   rewind(LU)
-53 continue
-  read(LU,'(A256)',end=999,ERR=999) Line
-  if (Line(1:4) /= '#OCC') goto 53
+  do
+    read(LU,'(A256)',iostat=istatus) Line
+    if (istatus /= 0) call Error()
+    if (Line(1:4) == '#OCC') exit
+  end do
   KOCC = 0
   do ISYM=1,NSYM
     do IORB=1,iWork(imyNORB+ISYM-1),NDIV
       IORBEND = min(IORB+NDIV-1,iWork(imyNORB+ISYM-1))
-113   continue
-      read(LU,'(A256)',end=999,ERR=999) LINE
-      if (LINE(1:1) == '*') goto 113
-      read(LINE,FRMT,err=888,end=888) (OCC(I+KOCC),I=IORB,IORBEND)
+      do
+        read(LU,'(A256)',iostat=istatus) LINE
+        if (istatus /= 0) call Error()
+        if (LINE(1:1) /= '*') exit
+      end do
+      read(LINE,FRMT,iostat=istatus) (OCC(I+KOCC),I=IORB,IORBEND)
+      if (istatus /= 0) call Error()
     end do
     !KOCC = KOCC+iWork(imyNORB+ISYM-1)
     KOCC = KOCC+nOrb(iSym)
   end do
   if ((iUHF == 1) .or. (iBeta == 1)) then
-54  continue
-    read(LU,'(A256)',end=999,ERR=999) Line
-    if (Line(1:5) /= '#UOCC') goto 54
+    do
+      read(LU,'(A256)',iostat=istatus) Line
+      if (istatus /= 0) call Error()
+      if (Line(1:5) == '#UOCC') exit
+    end do
     KOCC = 0
     do ISYM=1,NSYM
       do IORB=1,iWork(imyNORB+ISYM-1),NDIV
         IORBEND = min(IORB+NDIV-1,iWork(imyNORB+ISYM-1))
-114     continue
-        read(LU,'(A256)',end=999,ERR=999) LINE
-        if (LINE(1:1) == '*') goto 114
+        do
+          read(LU,'(A256)',iostat=istatus) LINE
+          if (istatus /= 0) call Error()
+          if (LINE(1:1) /= '*') exit
+        end do
         if (iBeta == 1) then
-          read(LINE,FRMT,err=888,end=888) (OCC(I+KOCC),I=IORB,IORBEND)
+          read(LINE,FRMT,iostat=istatus) (OCC(I+KOCC),I=IORB,IORBEND)
+          if (istatus /= 0) call Error()
         else
-          read(LINE,FRMT,err=888,end=888) (OCC_ab(I+KOCC),I=IORB,IORBEND)
+          read(LINE,FRMT,iostat=istatus) (OCC_ab(I+KOCC),I=IORB,IORBEND)
+          if (istatus /= 0) call Error()
         end if
       end do
       !KOCC = KOCC+iWork(imyNORB+ISYM-1)
@@ -251,36 +281,50 @@ if (iEne == 1) then
   nDiv = nDivEne(iVer)
   FRMT = FmtEne(iVer)
   rewind(LU)
-55 continue
-  read(LU,'(A256)',end=666,ERR=666) Line
-  if (Line(1:4) /= '#ONE') goto 55
+  do
+    read(LU,'(A256)',iostat=istatus) Line
+    if (istatus /= 0) then
+      call End2()
+      return
+    end if
+    if (Line(1:4) == '#ONE') exit
+  end do
   KOCC = 0
   do ISYM=1,NSYM
     do IORB=1,iWork(imyNORB+ISYM-1),NDIV
       IORBEND = min(IORB+NDIV-1,iWork(imyNORB+ISYM-1))
-115   continue
-      read(LU,'(A256)',end=999,ERR=999) LINE
-      if (LINE(1:1) == '*') goto 115
-      read(LINE,FRMT,err=888,end=888) (EORB(I+KOCC),I=IORB,IORBEND)
+      do
+        read(LU,'(A256)',iostat=istatus) LINE
+        if (istatus /= 0) call Error()
+        if (LINE(1:1) /= '*') exit
+      end do
+      read(LINE,FRMT,iostat=istatus) (EORB(I+KOCC),I=IORB,IORBEND)
+      if (istatus /= 0) call Error()
     end do
     !KOCC = KOCC+iWork(imyNORB+ISYM-1)
     KOCC = KOCC+nOrb(iSym)
   end do
   if ((iUHF == 1) .or. (iBeta == 1)) then
-56  continue
-    read(LU,'(A256)',end=999,ERR=999) Line
-    if (Line(1:5) /= '#UONE') goto 56
+    do
+      read(LU,'(A256)',iostat=istatus) Line
+      if (istatus /= 0) call Error()
+      if (Line(1:5) == '#UONE') exit
+    end do
     KOCC = 0
     do ISYM=1,NSYM
       do IORB=1,iWork(imyNORB+ISYM-1),NDIV
         IORBEND = min(IORB+NDIV-1,iWork(imyNORB+ISYM-1))
-116     continue
-        read(LU,'(A256)',end=999,ERR=999) LINE
-        if (LINE(1:1) == '*') goto 116
+        do
+          read(LU,'(A256)',iostat=istatus) LINE
+          if (istatus /= 0) call Error()
+          if (LINE(1:1) /= '*') exit
+        end do
         if (iBeta == 1) then
-          read(LINE,FRMT,err=888,end=888) (EORB(I+KOCC),I=IORB,IORBEND)
+          read(LINE,FRMT,iostat=istatus) (EORB(I+KOCC),I=IORB,IORBEND)
+          if (istatus /= 0) call Error()
         else
-          read(LINE,FRMT,err=888,end=888) (EORB_ab(I+KOCC),I=IORB,IORBEND)
+          read(LINE,FRMT,iostat=istatus) (EORB_ab(I+KOCC),I=IORB,IORBEND)
+          if (istatus /= 0) call Error()
         end if
       end do
       !KOCC = KOCC+iWork(imyNORB+ISYM-1)
@@ -293,9 +337,14 @@ end if ! iOne
 !----------------------------------------------------------------------*
 if (iInd == 1) then
   rewind(LU)
-57 continue
-  read(LU,'(A256)',end=666,ERR=666) Line
-  if (Line(1:6) /= '#INDEX') goto 57
+  do
+    read(LU,'(A256)',iostat=istatus) Line
+    if (istatus /= 0) then
+      call End2()
+      return
+    end if
+    if (Line(1:6) == '#INDEX') exit
+  end do
   FRMT = FMTIND(iVer)
   nDiv = nDivInd(iVer)
   iShift = 1
@@ -305,17 +354,19 @@ if (iInd == 1) then
       read(LU,*)
     end do
     do IORB=1,iWork(imyNORB+ISYM-1),nDiv
-      read(LU,FRMT,err=666,end=666) Buff
+      read(LU,FRMT,iostat=istatus) Buff
+      if (istatus /= 0) then
+        call End2()
+        return
+      end if
       do i=1,nDiv
         IND = index(Crypt,Buff(i:i))+index(CryptUp,Buff(i:i))
         if (Buff(i:i) /= ' ') then
           if (IND == 0) then
             write(u6,*) '* ERROR IN RDVEC WHILE READING TypeIndex'
             write(u6,'(3A)') '* Type=',Buff(i:i),' is UNKNOWN'
-            write(u6,*) '* TypeIndex information is IGNORED'
-            iErr = 1
-            close(Lu)
-            goto 777
+            call End2()
+            return
           end if
           IndT(iShift) = IND
           iShift = iShift+1
@@ -333,29 +384,29 @@ if (iInd == 1) then
   end do
 end if  ! Index
 close(Lu)
-goto 777
-!----------------------------------------------------------------------*
-! a special case - INDEX information is not found                      *
-!----------------------------------------------------------------------*
-666 continue
-iErr = 1
-write(u6,*) '* TypeIndex information is IGNORED *'
-close(Lu)
-!----------------------------------------------------------------------*
-!                                                                      *
-!----------------------------------------------------------------------*
-777 continue
-call GetMem('MYNORB','Free','Inte',imyNORB,NSYM)
+call End1()
 
 return
-!----------------------------------------------------------------------*
-!                                                                      *
-!----------------------------------------------------------------------*
-999 continue
-call SysWarnFileMsg(Location,FName,'Error during reading INPORB\n',Line)
-call Abend()
-888 continue
-call SysWarnFileMsg(Location,FName,'Error during reading INPORB\n',Line)
-call Abend()
+
+contains
+
+subroutine End1()
+  call GetMem('MYNORB','Free','Inte',imyNORB,NSYM)
+end subroutine End1
+
+subroutine End2()
+  !--------------------------------------------------------------------*
+  ! a special case - INDEX information is not found                    *
+  !--------------------------------------------------------------------*
+  iErr = 1
+  write(u6,*) '* TypeIndex information is IGNORED *'
+  close(Lu)
+  call End1()
+end subroutine End2
+
+subroutine Error()
+  call SysWarnFileMsg(Location,FName,'Error during reading INPORB\n',Line)
+  call Abend()
+end subroutine Error
 
 end subroutine RDVEC_

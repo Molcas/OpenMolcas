@@ -134,7 +134,7 @@ call Get_cArray('Irreps',IrrepName,24)
 do iSym=1,nSym
   nB = nBas(iSym)
   nO = nOrb(iSym)
-  if (nO == 0) Go To 100
+  if (nO == 0) cycle
 
   Header_Done = .false.
 
@@ -346,7 +346,6 @@ do iSym=1,nSym
   ! End of loop over all irreducible representations                   *
   !--------------------------------------------------------------------*
 
-100 continue
 end do
 
 call CollapseOutput(0,'   Molecular orbitals:')
