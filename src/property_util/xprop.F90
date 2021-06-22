@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Xprop(short,ifallorb,nirrep,nbas,ntotv,vec,ntoto,occ,thrs,ntotd,opel,dout)
+subroutine Xprop(short,ifallorb,nirrep,nbas,ntotv,vec,ntoto,occ,ntotd,opel,dout)
 !***********************************************************************
 !                                                                      *
 !     Purpose: the calculation of the average value of an operator,    *
@@ -24,10 +24,8 @@ subroutine Xprop(short,ifallorb,nirrep,nbas,ntotv,vec,ntoto,occ,thrs,ntotd,opel,
 !       ifallorb       logical, if (ifallorb) then print the property  *
 !                      of all orbitals (including virtuals) and none is*
 !                      weighted by occupation number (S.S.Dong, 2018)  *
-!                                                                      *
 !       nirrep         number of irreps                                *
 !       nbas(0:nirrep) dimension for each irrep                        *
-!                                                                      *
 !       ntotv          the total number of elemnts for all eigenvectors*
 !       vec            if (short) then vec stores all lower triangles  *
 !       (1:ntotv)      for all diagonal blocks of the density matrix   *
@@ -41,13 +39,6 @@ subroutine Xprop(short,ifallorb,nirrep,nbas,ntotv,vec,ntoto,occ,thrs,ntotd,opel,
 !       (1:ntoto)      else                                            *
 !                      occ stores the occupation numbers               *
 !                      size: sum(i,i=0,nirrep-1)(nbas(i))              *
-!       thrs           if (short) or (ifallorb) then this parameter is *
-!                      a dummy                                         *
-!                      else                                            *
-!                      if the orbital occupation number is .le.        *
-!                      thrs the orbital contribution will not be       *
-!                      printed out.                                    *
-!                                                                      *
 !       ntotd          the total number of elements in lower triangles *
 !                      of all diagonal blocks                          *
 !       opel           a storage area for transferring all lower       *
@@ -72,7 +63,7 @@ use Definitions, only: wp, iwp, r8
 implicit none
 logical(kind=iwp), intent(in) :: short, ifallorb
 integer(kind=iwp), intent(in) :: nirrep, nbas(0:nirrep-1), ntotv, ntoto, ntotd
-real(kind=wp), intent(in) :: vec(ntotv), occ(ntoto), thrs, opel(ntotd)
+real(kind=wp), intent(in) :: vec(ntotv), occ(ntoto), opel(ntotd)
 real(kind=wp), intent(inout) :: dout(ntoto)
 integer(kind=iwp) :: i, iado, iadout, iadv, icount, iv, iv1, iv2, jCount, nDim2
 real(kind=wp) :: dsum
@@ -154,7 +145,5 @@ end if
 !end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real(thrs)
 
 end subroutine Xprop

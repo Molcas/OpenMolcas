@@ -111,21 +111,20 @@ if (index(Label,'I') > 0) then
 end if
 
 #else
+
+#include "macros.fh"
+unused_var(fileid)
+unused_var(Label)
+unused_var(nSym)
+unused_var(nBas)
+unused_var(CMO)
+unused_var(Occ)
+unused_var(Ene)
+unused_var(Ind)
 call WarningMessage(2,'Calling RdVec_HDF5, but HDF5 is disabled')
 call AbEnd()
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(fileid)
-  call Unused_character(Label)
-  call Unused_integer(nSym)
-  call Unused_integer_array(nBas)
-  call Unused_real_array(CMO)
-  call Unused_real_array(Occ)
-  call Unused_real_array(Ene)
-  call Unused_integer_array(Ind)
-end if
 #endif
 
 end subroutine RdVec_HDF5

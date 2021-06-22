@@ -160,7 +160,7 @@
             If (nInt.ne.0)
      &      Call XProp(Short,ifallorb,
      &                 nIrrep,nBas,nVec,Vec,nOcc,Occ,
-     &                 Thrs,nDen,Array(ip(iComp)),
+     &                 nDen,Array(ip(iComp)),
      &                 Out(ipOut+(iComp-1)*mDim))
 *
             If (Label(1:3).eq.'PAM') Then

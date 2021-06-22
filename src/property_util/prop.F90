@@ -66,8 +66,8 @@ integer(kind=iwp), intent(in) :: nIrrep, nBas(0:nIrrep-1), nTot, lpole
 real(kind=wp), intent(in) :: cen1(3), cen2(3), Occ(nTot), ThrSV, PrEl(nTot,(lpole+1)*(lpole+2)/2), PrNu((lpole+1)*(lpole+2)/2)
 character(len=16), intent(out) :: labs((lpole+1)*(lpole+2)/2)
 real(kind=wp), intent(out) :: tmat((lpole+1)*(lpole+2)/2,(lpole+1)*(lpole+2)/2), temp((lpole+1)*(lpole+2)/2)
-integer(kind=iwp) :: i, icen, icen1, icen2, ilab, inp, iOcc, ip_, iPL, ipPrTot, iSt, iTol, iTol_E0, iTol_E1, ix, ixx, iy, iyy, iz, &
-                     izz, j, jMax, maxlab
+integer(kind=iwp) :: i, icen, icen1, ilab, inp, iOcc, ip_, iPL, ipPrTot, iSt, iTol, iTol_E0, iTol_E1, ix, ixx, iy, iyy, iz, izz, &
+                     j, jMax, maxlab
 real(kind=wp) :: Fact, Molecular_Charge = Zero, PrElAug(nTot,(lpole+1)*(lpole+2)/2+1), PrNuAug((lpole+1)*(lpole+2)/2+1), sig, tmp, &
                  X_Coor, Y_Coor, Z_Coor
 logical(kind=iwp) :: StoreInfo
@@ -459,7 +459,7 @@ Go To 999
 ! diamagnetic shielding section
 
 500 continue
-read(oplab,'(a4,i2,i2)') lab4,icen2,icen1
+read(oplab,'(a4,i2,i2)') lab4,i,icen1
 
 maxlab = 9
 call GetMem('PrTot','Allo','Real',ipPrTot,maxlab)
@@ -583,8 +583,5 @@ if (StoreInfo) call Add_Info(OpLab,Work(ipPrTot),maxlab,iTol)
 call GetMem('PrTot','Free','Real',ipPrTot,maxlab)
 
 return
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(icen2)
-#endif
 
 end subroutine Prop

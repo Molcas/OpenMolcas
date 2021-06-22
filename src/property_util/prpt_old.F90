@@ -176,7 +176,7 @@ subroutine Prpt_old_Internal(Scr)
         end do
       end if
       if (n_Int == 0) Go To 101
-      call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,dummy,nblock,Scr(iadOpr),Scr(iadEl+iComp-1))
+      call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,nblock,Scr(iadOpr),Scr(iadEl+iComp-1))
   101 continue
     end do
     if (.not. NxtOpr) Go To 199
@@ -239,7 +239,7 @@ subroutine Prpt_old_Internal(Scr)
           end do
         end if
         if (n_Int == 0) Go To 201
-        call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,dummy,nblock,Scr(iadOpr),Scr(iadEl+iComp-1))
+        call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,nblock,Scr(iadOpr),Scr(iadEl+iComp-1))
   201   continue
       end do
       if (.not. NxtOpr) go to 299
@@ -299,7 +299,7 @@ subroutine Prpt_old_Internal(Scr)
           end do
         end if
         if (n_Int == 0) Go To 402
-        call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,dummy,nblock,Scr(iadOpr),Scr(iadEl+iComp-1))
+        call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,nblock,Scr(iadOpr),Scr(iadEl+iComp-1))
   402   continue
       end do
       if (.not. NxtOpr) Go To 4000

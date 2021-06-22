@@ -24,7 +24,7 @@ subroutine Prpt()
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, iDummy(1), iError, ipOcc, ipOcc_ab, ipScr, ipVec, ipVec_ab, iSym, iUHF, iWFType, Lu, MaxScr, n2Dim, n2Tot, &
+integer(kind=iwp) :: i, iDummy(1), iError, ipOcc, ipOcc_ab, ipScr, ipVec, ipVec_ab, iSym, iUHF, iWFType, Lu, MaxScr, n2Tot, &
                      nBas(8), nDim, nIrrep, nTriDim
 real(kind=wp) :: Dummy(1)
 logical(kind=iwp) :: ifallorb, Short, var
@@ -56,7 +56,6 @@ call Get_iScalar('nSym',nIrrep)
 call Get_iArray('nBas',nBas,nIrrep)
 
 nDim = 0
-n2Dim = 0
 nTriDim = 0
 n2Tot = 0
 do iSym=1,nIrrep
@@ -147,7 +146,7 @@ MaxScr = nTriDim+nDim*(nDim+1)/2+10+480+4*10
 call GetMem('Scr','Allo','Real',ipScr,MaxScr)
 call FZero(Work(ipScr),MaxScr)
 
-call Prpt_(nIrrep,nBas,n2Dim,nDim,Work(ipOcc),n2Tot,Work(ipVec),MaxScr,Work(ipScr),var,Short,iUHF,ifallorb)
+call Prpt_(nIrrep,nBas,nDim,Work(ipOcc),n2Tot,Work(ipVec),MaxScr,Work(ipScr),var,Short,iUHF,ifallorb)
 
 call GetMem('Scr','Free','Real',ipScr,MaxScr)
 call GetMem('Occ','Free','Real',ipOcc,nDim)

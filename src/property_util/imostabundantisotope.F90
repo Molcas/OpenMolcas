@@ -9,44 +9,62 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2000, Per-Olof Widmark                                 *
+!               2017, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
 function iMostAbundantIsotope(Z)
 !***********************************************************************
 !                                                                      *
 ! Routine: iMostAbundantIsotope                                        *
-! Purpose: This is a wrapper for ixMostAbundantIsotope, to return the  *
-!          mass number for the most abundant isotope for atom with     *
-!          charge Z.                                                   *
+! Purpose: The mass number for the most abundant isotope of the atom   *
+!          with charge Z is returned. For radioactive atoms, the       *
+!          most stable isotope is returned.                            *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
 ! Author:  Per-Olof Widmark                                            *
 !          Lund University, Sweden.                                    *
 ! Written: March 2000                                                  *
-! History: none.                                                       *
+! History: March 2017, use isotopes module, Ignacio Fdez. Galvan       *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
-! Parameters:                                                          *
-! Z  - The nuclear charge for which the nuclear mass number is         *
-!      returned.                                                       *
+! Algorithm: The nuclear mass number is tabulated for most charges.    *
+!            For Z=0, A=1 is returned, corresponding to a neutron.     *
+!            For untabulated Z, A=176+Z.                               *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+! Arguments:                                                           *
+! Z   - The nuclear charge for which the nuclear mass number is        *
+!       returned.                                                      *
 !                                                                      *
 !***********************************************************************
 
-use Definitions, only: iwp
+use isotopes, only: Initialize_Isotopes, ElementList, MaxAtomNum
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: iMostAbundantIsotope
 integer(kind=iwp), intent(in) :: Z
-integer(kind=iwp) :: A, Opt, Rc
-integer(kind=iwp), external :: ixMostAbundantIsotope
+integer(kind=iwp) :: A
 
-Rc = 0
-Opt = 0
-A = ixMostAbundantIsotope(Z,Rc,Opt)
-if (Rc /= 0) then
-  call SysAbendMsg('imostabundantisotope','Fail to get mass',' ')
+!----------------------------------------------------------------------*
+! Compute A.                                                           *
+!----------------------------------------------------------------------*
+call Initialize_Isotopes()
+if (Z < 0) then
+  write(u6,'(a)') '***'
+  write(u6,'(a)') '*** iMostAbundantIsotope: error'
+  write(u6,'(a)') '***    Charge less than zero!'
+  write(u6,'(a)') '***'
+  A = 1
+else if (Z == 0) then
+  A = 1
+else if (Z > MaxAtomNum) then
+  A = 176+Z
+else
+  A = ElementList(Z)%Isotopes(1)%A
 end if
 !----------------------------------------------------------------------*
 ! Done.                                                                *

@@ -38,7 +38,7 @@ implicit none
 character(len=*), intent(in) :: Label
 integer(kind=iwp), intent(in) :: nArray
 real(kind=wp), intent(_IN_) :: Array(nArray)
-integer(kind=iwp), intent(inout) :: iTol
+integer(kind=iwp), intent(in) :: iTol
 integer(kind=iwp) :: i, ia, iArray, icomma, iDum(1), iGeoData, iGeoInfo(2), ik, isfound, iuGeoData, j, k, l, length, LuDispEn, n0, &
                      nIntCoord, nlabel, Num
 logical(kind=iwp) :: Found
@@ -62,7 +62,6 @@ if ((.not. King()) .and. (.not. Is_Real_Par())) return
 ! Num - is a number of exported variables from an array.
 Num = 20
 !File_Name = 'molcas_info'
-if (iTol == 0) iTol = 8
 
 !Lu_Info = 99
 
@@ -116,7 +115,7 @@ call open_molcas_info()
 !----------------------------------------------------------------------*
 ! Append new information                                               *
 !----------------------------------------------------------------------*
-write(Tol,'(i8)') iTol
+write(Tol,'(i8)') merge(8, iTol, iTol == 0)
 nlabel = len(label)
 Line = label
 n0 = nlabel

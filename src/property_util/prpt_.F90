@@ -12,7 +12,7 @@
 !               2018, Sijia S. Dong                                    *
 !***********************************************************************
 
-subroutine Prpt_(nIrrep,nBas,n2Dim,nDim,Occ,n2Tot,Vec,MaxScr,Scr,var,Short,iUHF,ifallorb)
+subroutine Prpt_(nIrrep,nBas,nDim,Occ,n2Tot,Vec,MaxScr,Scr,var,Short,iUHF,ifallorb)
 !***********************************************************************
 !                                                                      *
 ! Purpose: calculation of expectation values of different              *
@@ -64,7 +64,7 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nIrrep, nBas(0:nIrrep-1), n2Dim, nDim, n2Tot, MaxScr, iUHF
+integer(kind=iwp), intent(in) :: nIrrep, nBas(0:nIrrep-1), nDim, n2Tot, MaxScr, iUHF
 real(kind=wp), intent(in) :: Occ(nDim), Vec(n2Tot)
 real(kind=wp), intent(out) :: Scr(MaxScr)
 logical(kind=iwp), intent(in) :: var, Short, ifallorb
@@ -82,8 +82,6 @@ logical(kind=iwp), external :: Reduce_Prt
 call Prpt_Internal(Scr)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(n2Dim)
 
 ! This is to allow type punning without an explicit interface
 contains
@@ -229,9 +227,9 @@ subroutine Prpt_Internal(Scr)
         end do
       end if
       if (mInt == 0) Go To 101
-      call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,Thrs,nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
-      if ((.not. Short) .and. (iUHF == 1)) call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),Thrs, &
-                                                      nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim+nDim))
+      call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
+      if ((.not. Short) .and. (iUHF == 1)) call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),nblock, &
+                                                      Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim+nDim))
   101 continue
     end do
     if (.not. NxtOpr) then
@@ -352,9 +350,9 @@ subroutine Prpt_Internal(Scr)
           end do
         end if
         if (mInt == 0) Go To 201
-        call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,Thrs,nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
-        if ((.not. Short) .and. (iUHF == 1)) call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),Thrs, &
-                                                        nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim+nDim))
+        call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
+        if ((.not. Short) .and. (iUHF == 1)) call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),nblock, &
+                                                        Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim+nDim))
   201   continue
       end do
       if (.not. NxtOpr) then
@@ -448,9 +446,9 @@ subroutine Prpt_Internal(Scr)
       scr(iadC2+k) = scr(iadOpr+mInt+k)
     end do
     if (mInt == 0) Go To 301
-    call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,Thrs,nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
-    if ((.not. Short) .and. (iUHF == 1)) call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),Thrs, &
-                                                    nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim+nDim))
+    call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
+    if ((.not. Short) .and. (iUHF == 1)) call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),nblock, &
+                                                    Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim+nDim))
   301 continue
     if (.not. NxtOpr) then
       if (.not. Short) call Free_Work(iadEl_Work)
@@ -542,9 +540,9 @@ subroutine Prpt_Internal(Scr)
           end do
         end if
         if (mInt == 0) Go To 402
-        call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,Thrs,nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
-        if ((.not. Short) .and. (iUHF == 1)) call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),Thrs, &
-                                                        nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim+nDim))
+        call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen),nDim,Occ,nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
+        if ((.not. Short) .and. (iUHF == 1)) call Xprop(short,ifallorb,nIrrep,nBas,nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),nblock, &
+                                                        Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim+nDim))
   402   continue
       end do
       if (.not. NxtOpr) Go To 4000

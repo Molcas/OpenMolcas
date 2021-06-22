@@ -9,46 +9,57 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2000, Per-Olof Widmark                                 *
+!               2017, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
 function iNuclearChargeFromSymbol(Symbol)
 !***********************************************************************
 !                                                                      *
-! Routine: iNuclearChargeFromSymbol                                    *
-! Purpose: Wrapper for ixNuclearChargeFromSymbol, to give the nuclear  *
-!          charge for atom with symbol 'Symbol'.                       *
+! This function returns the nuclear charge of an atom based on the     *
+! chemical symbol.                                                     *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
 ! Author:  Per-Olof Widmark                                            *
-!          Lund University, Sweden.                                    *
-! Written: March 2000                                                  *
-! History: none.                                                       *
-!                                                                      *
-!----------------------------------------------------------------------*
-!                                                                      *
-! Parameters:                                                          *
+!          Lund University, Sweden                                     *
+! Written: Feb. 2000                                                   *
+! Modified: March 2017, Ignacio Fdez. Galvan (use periodic_table.fh)   *
 !                                                                      *
 !***********************************************************************
 
-use Definitions, only: iwp
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: iNuclearChargeFromSymbol
 character(len=*), intent(in) :: Symbol
-integer(kind=iwp) :: Opt, Rc, Z
-integer(kind=iwp), external :: ixNuclearChargeFromSymbol
+integer(kind=iwp) :: i, idx
+character(len=2) :: Sym1, Sym2
+#include "periodic_table.fh"
 
-Opt = 0
-Rc = 0
-Z = ixNuclearChargeFromSymbol(Symbol,Rc,Opt)
-if (Rc /= 0) then
-  call SysAbendMsg('inuclearchargefromsymbol','Fail to get nuclear charge',' ')
+!----------------------------------------------------------------------*
+! Locate symbol in table.                                              *
+!----------------------------------------------------------------------*
+idx = 0
+Sym1 = adjustl(Symbol)
+call UpCase(Sym1)
+do i=1,Num_Elem
+  Sym2 = adjustl(PTab(i))
+  call UpCase(Sym2)
+  if (Sym1 == Sym2) idx = i
+end do
+!----------------------------------------------------------------------*
+! Are we successful?                                                   *
+!----------------------------------------------------------------------*
+if (idx == 0) then
+  write(u6,'(a)') '***'
+  write(u6,'(a)') '*** iNuclearChargeFromSymbol: error'
+  write(u6,'(2a)') '***    unknown atom: ',Symbol
+  write(u6,'(a)') '***'
 end if
 !----------------------------------------------------------------------*
 ! Done                                                                 *
 !----------------------------------------------------------------------*
-iNuclearChargeFromSymbol = Z
+iNuclearChargeFromSymbol = idx
 
 return
 
