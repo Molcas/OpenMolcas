@@ -39,7 +39,6 @@
       Write (6,*) 'dBd=',dBd
       Write (6,*) 'Thr=',Thr
 #endif
-      tmp = Max(Abs(gd),dBd) / Min(Abs(gd),dBd)
       If (gd<0.0D0) Then
          Call MSP(B,Gamma,Delta,nDim)
       Else
