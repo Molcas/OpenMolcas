@@ -65,10 +65,6 @@ real(kind=r8), external :: DblFac
 logical(kind=iwp), external :: Reduce_Prt
 character(len=100), external :: Get_SuperName
 #include "WrkSpc.fh"
-! Statement function
-integer(kind=iwp) :: ix, iy, iz
-real(kind=wp) :: CC
-CC(ix,iy,iz) = sqrt(DblFac(2*ix-1)*DblFac(2*iy-1)*DblFac(2*iz-1))
 
 if (iRc == 1) return
 
@@ -717,6 +713,12 @@ return
 104 format('Occup= ',F10.5)
 
 contains
+
+function CC(ix,iy,iz)
+  real(kind=wp) :: CC
+  integer(kind=iwp), intent(in) :: ix, iy, iz
+  CC = sqrt(DblFac(2*ix-1)*DblFac(2*iy-1)*DblFac(2*iz-1))
+end function CC
 
 subroutine End1()
   call ClsSew()

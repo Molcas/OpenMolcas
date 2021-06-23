@@ -25,12 +25,12 @@ real(kind=wp), intent(in) :: CMO(*), OCCN(*), SMAT(*)
 logical(kind=iwp), intent(in) :: FullMlk, lSave
 real(kind=wp), intent(out) :: QQ(MXTYP,nNuc)
 integer(kind=iwp), save :: ipDSswap, ipqswap
-integer(kind=iwp) :: AtomA, AtomB, i0, iAB, iAng, iB, iBlo, ICNT(MXBAS), iEnd, iix, iixx, ik, ikk, iM, iMN, IMO, iNuc, IO, &
+integer(kind=iwp) :: AtomA, AtomB, i0, iAB, iAng, iB, iBlo, i, ICNT(MXBAS), iEnd, iix, iixx, ik, ikk, iM, iMN, IMO, iNuc, IO, &
                      ip_center, ip_Charge, iPair, ipBonds, ipD, ipD_blo, ipD_tmp, ipDS, iPL, ipP, ipPInv, ipS, ipS_blo, ipS_tmp, &
                      ipScr, IS, ISING, ISMO, IST, iStart, iSum, iSwap, iSyLbl, ISYM, IT, ITYP(MXBAS), ix, J, jAng, jEnd, jM, &
                      jPair, jx, k, l, lqSwap, MY, MYNUC, MYTYP, NB, nBas2, NBAST, NPBonds, nScr, nStab(MxAtom), NXTYP, NY, NYNUC, &
                      NYTYP, tNUC
-real(kind=wp) :: BO, BOThrs, DET, DMN, Q2(MXATOM), QSUM(MXATOM), QSUM_TOT(MXATOM), QSUMI, TCh, TERM, xsg
+real(kind=wp) :: BO, BOThrs, DET, DMN, Fac(MXATOM), Q2(MXATOM), QSUM(MXATOM), QSUM_TOT(MXATOM), QSUMI, TCh, TERM, xsg
 logical(kind=iwp) :: DMN_SpinAV, DoBond
 character(len=LenIn) :: CNAME(MXATOM)
 character(len=LenIn4) :: LblCnt4(MxAtom)
@@ -53,10 +53,6 @@ character(len=100), external :: Get_ProgName
 #include "angtp.fh"
 #include "spave.fh"
 #include "WrkSpc.fh"
-!---- Statement function
-integer(kind=iwp) :: i
-real(kind=wp) :: Fac
-Fac(i) = real(nStab(i),kind=wp)/real(nSym,kind=wp)
 
 !                                                                      *
 !***********************************************************************
@@ -714,6 +710,10 @@ end if
 !----------------------------------------------------------------------*
 ! Printout section                                                     *
 !----------------------------------------------------------------------*
+
+do i=1,nNuc
+  Fac(i) = real(nStab(i),kind=wp)/real(nSym,kind=wp)
+end do
 
 if (iCase == 0) then
   ! first call for UHF, so just dump numbers to swap
