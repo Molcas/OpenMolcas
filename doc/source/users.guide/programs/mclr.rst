@@ -275,16 +275,6 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
-:kword:`RESI`
-  Specify the convergence threshold for the CASPT2 residual, I think. Default is 1.0e-10.
-
-  .. xmldoc:: <KEYWORD MODULE="MCLR" NAME="RESI" APPEAR="CASPT2 residual" KIND="REAL" DEFAULT_VALUE="1.0D-10" LEVEL="BASIC">
-              %%Keyword: THREshold <advanced>
-              <HELP>
-              Specify the convergence threshold for the CASPT2 residual, I think. Default is 1.0e-4.
-              </HELP>
-              </KEYWORD>
-
 :kword:`DISOTOPE`
   Calculates frequencies modified for double isotopic substitution.
 
