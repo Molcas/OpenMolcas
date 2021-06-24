@@ -56,6 +56,7 @@ subroutine Prop(Short,qplab,cen1,cen2,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,lpole
 ! (including virtuals) and not weighted by occupation numbers          *
 !***********************************************************************
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Angstrom, Debye
 use Definitions, only: wp, iwp, u6
 
@@ -66,8 +67,8 @@ integer(kind=iwp), intent(in) :: nIrrep, nBas(0:nIrrep-1), nTot, lpole
 real(kind=wp), intent(in) :: cen1(3), cen2(3), Occ(nTot), ThrSV, PrEl(nTot,(lpole+1)*(lpole+2)/2), PrNu((lpole+1)*(lpole+2)/2)
 character(len=16), intent(out) :: labs((lpole+1)*(lpole+2)/2)
 real(kind=wp), intent(out) :: tmat((lpole+1)*(lpole+2)/2,(lpole+1)*(lpole+2)/2), temp((lpole+1)*(lpole+2)/2)
-integer(kind=iwp) :: i, icen, icen1, ilab, inp, iOcc, ip_, iPL, ipPrTot, iSt, iTol, iTol_E0, iTol_E1, ix, ixx, iy, iyy, iz, izz, &
-                     j, jMax, maxlab
+integer(kind=iwp) :: i, icen, icen1, ilab, inp, iOcc, ip_, iPL, iSt, iTol, iTol_E0, iTol_E1, ix, ixx, iy, iyy, iz, izz, j, jMax, &
+                     maxlab
 real(kind=wp) :: Fact, Molecular_Charge = Zero, PrElAug(nTot,(lpole+1)*(lpole+2)/2+1), PrNuAug((lpole+1)*(lpole+2)/2+1), sig, tmp, &
                  X_Coor, Y_Coor, Z_Coor
 logical(kind=iwp) :: StoreInfo
@@ -78,10 +79,10 @@ character(len=8) :: oplab
 character(len=5) :: lab5
 character(len=4) :: lab4
 character(len=3) :: lab3
+real(kind=wp), allocatable :: PrTot(:)
 integer(kind=iwp), external :: Cho_X_GetTol, iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt
 #include "hfc_logical.fh"
-#include "WrkSpc.fh"
 
 !                                                                      *
 !***********************************************************************
@@ -140,7 +141,7 @@ if (lab4 == 'MLTP') then
   end do
 
   maxlab = ilab
-  call GetMem('PrTot','Allo','Real',ipPrTot,maxlab)
+  call mma_allocate(PrTot,maxlab,label='PrTot')
 
   ! Print cartesian moments
 
@@ -148,9 +149,7 @@ if (lab4 == 'MLTP') then
   if ((iPL == 2) .and. Short) then
   !--------------------------------------------------------------------*
 
-    do i=1,MaxLab
-      Work(ipPrTot+i-1) = PrNu(i)-PrEl(1,i)
-    end do
+    PrTot(:) = PrNu(1:MaxLab)-PrEl(1,1:MaxLab)
 
     ! New style output
 
@@ -196,36 +195,34 @@ if (lab4 == 'MLTP') then
       write(u6,'(6X,A,3F10.4)') 'Origin of the operator (Ang)=',(cen1(i)*Angstrom,i=1,3)
     end if
     if (lPole == 0) then
-      tmp = Work(ipPrTot)
-      write(u6,'(6X,A,A,F10.4)') labs(1),'=',Work(ipPrTot)*Fact
-      Molecular_Charge = Work(ipPrTot)*Fact
+      write(u6,'(6X,A,A,F10.4)') labs(1),'=',PrTot(1)*Fact
+      Molecular_Charge = PrTot(1)*Fact
     else if (lPole == 1) then
-      tmp = sqrt(Work(ipPrTot)**2+Work(ipPrTot+1)**2+Work(ipPrTot+2)**2)
-      write(u6,'(4X,4(A,A,ES12.4))') labs(1),'=',Work(ipPrTot)*Fact,labs(2),'=',Work(ipPrTot+1)*Fact,labs(3),'=', &
-                                     Work(ipPrTot+2)*Fact,'           Total','=',tmp*Fact
+      tmp = sqrt(PrTot(1)**2+PrTot(2)**2+PrTot(3)**2)
+      write(u6,'(4X,4(A,A,ES12.4))') labs(1),'=',PrTot(1)*Fact,labs(2),'=',PrTot(2)*Fact,labs(3),'=',PrTot(3)*Fact, &
+                                     '           Total','=',tmp*Fact
       if (abs(Molecular_Charge) > 0.9_wp) then
         write(u6,'(6X,A)') 'Center of Charge (Ang)'
-        X_Coor = Angstrom*(Work(ipPrTot)/Molecular_Charge)
-        Y_Coor = Angstrom*(Work(ipPrTot+1)/Molecular_Charge)
-        Z_Coor = Angstrom*(Work(ipPrTot+2)/Molecular_Charge)
+        X_Coor = Angstrom*(PrTot(1)/Molecular_Charge)
+        Y_Coor = Angstrom*(PrTot(2)/Molecular_Charge)
+        Z_Coor = Angstrom*(PrTot(3)/Molecular_Charge)
         write(u6,'(6X,3(A,A,F14.8))') labs(1),'=',X_Coor,labs(2),'=',Y_Coor,labs(3),'=',Z_Coor
         Molecular_Charge = Zero
       end if
-      call Put_DArray('Dipole moment',Work(ipPrTot),3)
+      call Put_DArray('Dipole moment',PrTot,3)
       !call peek_iScalar('xml opened',isopen)
       !if (isopen == 1) then
-      call xml_dDump('dipole','Dipole moment','Debye',1,Work(ipPrTot),3,1)
+      call xml_dDump('dipole','Dipole moment','Debye',1,PrTot,3,1)
       !end if
     else if (lPole >= 2) then
-      ip_ = ipPrTot
       tmp = Zero
-      do i=0,Maxlab-1
-        tmp = max(tmp,abs(Work(ipPrTot+i)))
+      do i=1,Maxlab
+        tmp = max(tmp,abs(PrTot(i)))
       end do
-      ip_ = ipPrTot
+      ip_ = 1
       do i=1,maxlab,4
         jMax = min(maxlab-i,3)
-        write(u6,'(4X,4(A,A,ES12.4))') (labs(i+j),'=',Work(ip_+j)*Fact,j=0,jMax)
+        write(u6,'(4X,4(A,A,ES12.4))') (labs(i+j),'=',PrTot(ip_+j)*Fact,j=0,jMax)
         ip_ = ip_+4
       end do
     end if
@@ -237,19 +234,17 @@ if (lab4 == 'MLTP') then
       call Tmltpl(inp,lpole,maxlab,labs,1,PrNu,tmat,temp)
       inp = 1
       call Tmltpl(inp,lpole,maxlab,labs,nTot,PrEl,tmat,temp)
-      do i=1,MaxLab
-        Work(ipPrTot+i-1) = PrNu(i)-PrEl(1,i)
-      end do
+      PrTot(:) = PrNu(1:MaxLab)-PrEl(1,1:MaxLab)
 
       if (lPole >= 3) then
         write(u6,'(6X,A,I1,A)') 'In traceless form (Debye*Ang**',lPole-1,')'
       else
         write(u6,'(6X,A,I1,A)') 'In traceless form (Debye*Ang)'
       end if
-      ip_ = ipPrTot
+      ip_ = 1
       do i=1,maxlab,4
         jMax = min(maxlab-i,3)
-        write(u6,'(4X,4(A,A,ES12.4))') (labs(i+j),'=',Work(ip_+j)*Fact,j=0,jMax)
+        write(u6,'(4X,4(A,A,ES12.4))') (labs(i+j),'=',PrTot(ip_+j)*Fact,j=0,jMax)
         ip_ = ip_+4
       end do
 
@@ -272,11 +267,11 @@ if (lab4 == 'MLTP') then
     write(u6,'(//6x,a5,a,3(f12.8,a))') lab5,' cartesian moments: origin at (',cen1(1),',',cen1(2),',',cen1(3),')'
     write(u6,'(6x,76(''-''))')
     sig = -One
-    call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,Work(ipPrTot),iPL,0,ifallorb)
+    call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,PrTot,iPL,0,ifallorb)
     if (lpole == 1) then
       write(u6,'(6x,76(''-''))')
-      write(u6,'(6x,a,3f16.8,3x,a)') 'Total             ',(Work(ipPrTot+j)*Debye,j=0,2),'Debye'
-      call Put_DArray('Dipole moment',Work(ipPrTot),3)
+      write(u6,'(6x,a,3f16.8,3x,a)') 'Total             ',(PrTot(j)*Debye,j=1,3),'Debye'
+      call Put_DArray('Dipole moment',PrTot,3)
     end if
 
     if ((lpole >= 2) .and. (lpole <= 4)) then
@@ -293,16 +288,14 @@ if (lab4 == 'MLTP') then
       ! Print l-pole cartesian moments
 
       sig = -One
-      call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,Work(ipPrTot),iPL,0,ifallorb)
+      call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,PrTot,iPL,0,ifallorb)
     end if
 
   !--------------------------------------------------------------------*
   else
   !--------------------------------------------------------------------*
-    do i=1,MaxLab
-      Work(ipPrTot+i-1) = PrNu(i)-PrEl(1,i)
-    end do
-    if (lpole == 1) call Put_DArray('Dipole moment',Work(ipPrTot),3)
+    PrTot(:) = PrNu(1:MaxLab)-PrEl(1,1:MaxLab)
+    if (lpole == 1) call Put_DArray('Dipole moment',PrTot,3)
     if ((lpole >= 2) .and. (lpole <= 4)) then
 
       ! Transform cartesian moments to multipole moments
@@ -311,9 +304,7 @@ if (lab4 == 'MLTP') then
       call Tmltpl(inp,lpole,maxlab,labs,1,PrNu,tmat,temp)
       inp = 1
       call Tmltpl(inp,lpole,maxlab,labs,nTot,PrEl,tmat,temp)
-      do i=1,MaxLab
-        Work(ipPrTot+i-1) = PrNu(i)-PrEl(1,i)
-      end do
+      PrTot(:) = PrNu(1:MaxLab)-PrEl(1,1:MaxLab)
     end if
   !--------------------------------------------------------------------*
   end if ! iPL
@@ -410,26 +401,26 @@ else if (lab4(1:2) == 'EF') then
     end if
     sig = +One
   end if
-  call GetMem('PrTot','Allo','Real',ipPrTot,maxlab)
+  call mma_allocate(PrTot,maxlab,label='PrTot')
 
   ! Print the values using "augmented" arrays if needed
 
   if (Maxlab == 7) then
-    call Prout(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrElAug,PrNuAug,maxlab,labsAug,Work(ipPrTot),iPL,icen,ifallorb)
+    call Prout(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrElAug,PrNuAug,maxlab,labsAug,PrTot,iPL,icen,ifallorb)
     MaxLab = 6 ! Reset so call to Add_Info is correct!
 
   else
-    call Prout(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,Work(ipPrTot),iPL,icen,ifallorb)
+    call Prout(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,PrTot,iPL,icen,ifallorb)
   end if
 
   if (lab3 == 'EF2') then
-    Tmp = Work(ipPrTot+2)
-    Work(ipPrTot+2) = Work(ipPrTot+3)
-    Work(ipPrTot+3) = Tmp
-    if ((iPL >= 3) .or. ((.not. Short) .and. (iPL == 2))) call Print_EigenValues(Work(ipPrTot),3)
-    Tmp = Work(ipPrTot+2)
-    Work(ipPrTot+2) = Work(ipPrTot+3)
-    Work(ipPrTot+3) = Tmp
+    Tmp = PrTot(3)
+    PrTot(3) = PrTot(4)
+    PrTot(4) = Tmp
+    if ((iPL >= 3) .or. ((.not. Short) .and. (iPL == 2))) call Print_EigenValues(PrTot,3)
+    Tmp = PrTot(3)
+    PrTot(3) = PrTot(4)
+    PrTot(4) = Tmp
   end if
 
   ! do not write the different electric field components through Add_Info
@@ -444,7 +435,7 @@ else if ((lab4 == 'DMS ') .or. (lab4(1:3) == 'PAM') .or. (lab4(1:3) == 'CNT')) t
     read(oplab,'(a4,i2,i2)') lab4,i,icen1
 
     maxlab = 9
-    call GetMem('PrTot','Allo','Real',ipPrTot,maxlab)
+    call mma_allocate(PrTot,maxlab,label='PrTot')
 
     ! set labels
     labs(1) = '   (YO*YG+ZO*ZG)'
@@ -466,7 +457,7 @@ else if ((lab4 == 'DMS ') .or. (lab4(1:3) == 'PAM') .or. (lab4(1:3) == 'CNT')) t
                                                             ',',cen2(2),',',cen2(3),')'
     write(u6,'(6x,78(''-''))')
     sig = One
-    call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,Work(ipPrTot),iPL,0,ifallorb)
+    call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,PrTot,iPL,0,ifallorb)
   end if
   if ((lab4 == 'DMS ') .or. (lab4(1:3) == 'PAM')) then
     !                                                                  *
@@ -494,7 +485,7 @@ else if ((lab4 == 'DMS ') .or. (lab4(1:3) == 'PAM') .or. (lab4(1:3) == 'CNT')) t
     end do
 
     maxlab = ilab
-    call GetMem('PrTot','Allo','Real',ipPrTot,maxlab)
+    call mma_allocate(PrTot,maxlab,label='PrTot')
 
     ! Print cartesian moments
 
@@ -509,7 +500,7 @@ else if ((lab4 == 'DMS ') .or. (lab4(1:3) == 'PAM') .or. (lab4(1:3) == 'CNT')) t
     write(u6,'(//6x,a5,a,3(f12.8,a))') lab5,' cartesian moments: origin at (',cen1(1),',',cen1(2),',',cen1(3),')'
     write(u6,'(6x,76(''-''))')
     sig = One
-    call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,Work(ipPrTot),iPL,0,ifallorb)
+    call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,PrTot,iPL,0,ifallorb)
 
     if ((lpole >= 2) .and. (lpole <= 4)) then
       write(u6,'(//6x,a,i2,a,3(f12.8,a))') 'Cartesian ',lpole,'-pole moment: origin at (',cen1(1),',',cen1(2),',',cen1(3),')'
@@ -523,7 +514,7 @@ else if ((lab4 == 'DMS ') .or. (lab4(1:3) == 'PAM') .or. (lab4(1:3) == 'CNT')) t
       ! Print 0-pole PAM integrals (sig=1 in opposite multipole moments)
 
       sig = One
-      call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,Work(ipPrTot),iPL,0,ifallorb)
+      call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,PrTot,iPL,0,ifallorb)
     end if
   end if
   !                                                                    *
@@ -534,7 +525,7 @@ else if ((lab4 == 'DMS ') .or. (lab4(1:3) == 'PAM') .or. (lab4(1:3) == 'CNT')) t
   read(oplab,'(a3,i5)') lab3,icen
 
   maxlab = 1
-  call GetMem('PrTot','Allo','Real',ipPrTot,maxlab)
+  call mma_allocate(PrTot,maxlab,label='PrTot')
 
   ! set labels
   labs(1) = '      Delta(R-C)'
@@ -549,7 +540,7 @@ else if ((lab4 == 'DMS ') .or. (lab4(1:3) == 'PAM') .or. (lab4(1:3) == 'CNT')) t
     end if
   end if
   sig = +One
-  call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,Work(ipPrTot),iPL,icen,ifallorb)
+  call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,PrTot,iPL,icen,ifallorb)
 
   ! do not write the contact term through Add_Info
   StoreInfo = .false.
@@ -571,8 +562,8 @@ iTol = 5
 iTol_E0 = 8
 iTol_E1 = Cho_X_GetTol(iTol_E0)
 iTol = int(real(iTol*iTol_E1,kind=wp)/real(iTol_E0,kind=wp))
-if (StoreInfo) call Add_Info(OpLab,Work(ipPrTot),maxlab,iTol)
-call GetMem('PrTot','Free','Real',ipPrTot,maxlab)
+if (StoreInfo) call Add_Info(OpLab,PrTot,maxlab,iTol)
+call mma_deallocate(PrTot)
 
 return
 

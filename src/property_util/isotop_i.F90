@@ -12,6 +12,7 @@
 subroutine Isotop_i(n,Element,mAtoms,Temp,nTemp,Coord,double)
 
 use Isotopes, only: ElementList, Initialize_Isotopes, Isotope, MaxAtomNum, PTab
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: UtoAU
 use Definitions, only: wp, iwp, u6
 
@@ -22,15 +23,13 @@ character(len=2), intent(in) :: Element(mAtoms)
 real(kind=wp), intent(out) :: Temp(nTemp)
 real(kind=wp), intent(inout) :: Coord(3, mAtoms)
 logical(kind=iwp), intent(in) :: double
-integer(kind=iwp) :: AtNum, AtNum2, i, iElement, iMass, ineg, ip1, ip2, ipDefMass, ipH, ipH2, ipVal, ipVec, IsoNum, j, k, l, m, &
-                     nAt, Subs, Subs2
+integer(kind=iwp) :: AtNum, AtNum2, i, iElement, iMass, ineg, ip1, ip2, ipH, ipH2, ipVal, ipVec, IsoNum, j, k, l, m, nAt, Subs, &
+                     Subs2
 real(kind=wp) :: dMass, dMass1, dMass2, Mass(MxAtom), MassIso, umass(MxAtom)
 logical(kind=iwp) :: Changed, EQ, Found, lmass
 character(len=3) :: cmass(MxAtom)
-integer(kind=iwp) :: iNuclearChargeFromSymbol
-!#include "real.fh"
-!#include "constants2.fh"
-#include "WrkSpc.fh"
+real(kind=wp), allocatable :: DefMass(:)
+integer(kind=iwp), external :: iNuclearChargeFromSymbol
 
 !                                                                      *
 !***********************************************************************
@@ -53,8 +52,8 @@ call Get_dArray('FC-Matrix',Temp(ipH),n**2)
 ! Put in the initial masses and take backup copy
 
 call Get_Mass_All(Mass,mAtoms)
-call GetMem('DefaultMass','ALLO','REAL',ipDefMass,mAtoms)
-call dCopy_(mAtoms,Mass,1,Work(ipDefMass),1)
+call mma_allocate(DefMass,mAtoms,label='DefaultMass')
+DefMass(:) = Mass(1:mAtoms)
 
 do i=1,mAtoms
   Coord(1,i) = abs(Coord(1,i))
@@ -159,7 +158,7 @@ do iElement=1,MaxAtomNum
       Changed = .false.
       do i=1,mAtoms
         if (PTab(iElement) == Element(i)) then
-          if (IsoNum /= nint(Work(ipDefMass+i-1)/UtoAU)) Changed = .true.
+          if (IsoNum /= nint(DefMass(i)/UtoAU)) Changed = .true.
           Mass(i) = MassIso
         end if
       end do
@@ -181,7 +180,7 @@ do iElement=1,MaxAtomNum
 
     ! Restore the initial mass array
 
-    call dCopy_(mAtoms,Work(ipDefMass),1,Mass,1)
+    Mass(1:mAtoms) = DefMass(:)
 
   end if
 end do
@@ -267,7 +266,7 @@ if (double) then
 !***********************************************************************
 !                                                                      *
 end if
-call GetMem('DefaultMass','FREE','REAL',ipDefMass,mAtoms)
+call mma_deallocate(DefMass)
 
 return
 

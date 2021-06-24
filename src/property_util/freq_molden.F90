@@ -11,6 +11,8 @@
 
 subroutine Freq_Molden(Freq,nFreq,Vectors,nVectors,nSym,Intens,mDisp,RedMas)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -20,10 +22,10 @@ implicit none
 #include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nFreq, nVectors, nSym, mDisp(nSym)
 real(kind=wp), intent(in) :: Freq(nFreq), Vectors(nVectors), Intens(nFreq), RedMas(nFreq)
-integer(kind=iwp) :: i, iCoor, iCoord, iFreq, ipCoord, ipNMode, ipTemp, Lu_9, nAll_Atoms, nCoord, nUnique_Atoms
+integer(kind=iwp) :: iCoor, iCoord, iFreq, Lu_9, nAll_Atoms, nCoord, nUnique_Atoms
 character(len=2) :: Element(MxAtom*8)
+real(kind=wp), allocatable :: Coord(:,:), NMode(:,:,:)
 integer(kind=iwp), external :: isFreeUnit
-#include "WrkSpc.fh"
 
 !                                                                      *
 !***********************************************************************
@@ -67,22 +69,20 @@ end do
 ! Write coordinates of all centers
 
 call Get_nAtoms_All(nCoord)
-call Allocate_Work(ipCoord,3*nCoord)
-call Get_Coord_All(Work(ipCoord),nCoord)
+call mma_allocate(Coord,3,nCoord,label='Coord')
+call Get_Coord_All(Coord,nCoord)
 #ifdef _DEBUGPRINT_
-call RecPrt('Coord(all)',' ',Work(ipCoord),3,nCoord)
+call RecPrt('Coord(all)',' ',Coord,3,nCoord)
 #endif
 call Get_Name_All(Element)
-ipTemp = ipCoord
 write(Lu_9,*) '[NATOM]'
 write(Lu_9,*) nCoord
 
 write(Lu_9,*) '[FR-COORD]'
 do iCoord=1,nCoord
-  write(Lu_9,*) Element(iCoord),(Work(ipTemp+i),i=0,2)
-  ipTemp = ipTemp+3
+  write(Lu_9,*) Element(iCoord),Coord(:,iCoord)
 end do
-call Free_Work(ipCoord)
+call mma_deallocate(Coord)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -91,22 +91,20 @@ call Free_Work(ipCoord)
 
 call Get_iScalar('Unique atoms',nUnique_Atoms)
 call Get_nAtoms_All(nAll_Atoms)
-call GetMem('NMode','Allo','Real',ipNMode,3*nAll_Atoms*nFreq)
-call FZero(Work(ipNMode),3*nAll_Atoms*nFreq)
-call Get_NMode_All(Vectors,nVectors,nFreq,nUnique_Atoms,Work(ipNMode),nAll_Atoms,mDisp)
+call mma_allocate(NMode,3,nAll_Atoms,nFreq,label='NMode')
+NMode(:,:,:) = Zero
+call Get_NMode_All(Vectors,nVectors,nFreq,nUnique_Atoms,NMode,nAll_Atoms,mDisp)
 write(Lu_9,*) '[FR-NORM-COORD]'
 #ifdef _DEBUGPRINT_
-call RecPrt('Normal Modes',' ',Work(ipNMode),3*nAll_Atoms,nFreq)
+call RecPrt('Normal Modes',' ',NMode,3*nAll_Atoms,nFreq)
 #endif
-ipTemp = ipNMode
 do iFreq=1,nFreq
   write(Lu_9,*) 'vibration ',iFreq
   do iCoor=1,nAll_Atoms
-    write(Lu_9,*) (Work(ipTemp+i),i=0,2)
-    ipTemp = ipTemp+3
+    write(Lu_9,*) NMode(:,iCoor,iFreq)
   end do
 end do
-call GetMem('NMode','Free','Real',ipNMode,3*nAll_Atoms*nFreq)
+call mma_deallocate(NMode)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

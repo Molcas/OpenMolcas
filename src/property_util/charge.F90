@@ -47,6 +47,7 @@
 subroutine CHARGE(NSYM,NBAS,BNAME,CMO,OCCN,SMAT,iCase,FullMlk,lSave)
 ! a temporary clone for CHARGE util
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -55,10 +56,10 @@ integer(kind=iwp), intent(in) :: NSYM, NBAS(NSYM), iCase
 character(len=LenIn8), intent(in) :: BNAME(*)
 real(kind=wp), intent(in) :: CMO(*), OCCN(*), SMAT(*)
 logical(kind=iwp), intent(in) :: FullMlk, lSave
-integer(kind=iwp) :: iPL, ipQQ, iSym, MXTYP, nNuc
+integer(kind=iwp) :: iPL, iSym, MXTYP, nNuc
+real(kind=wp), allocatable :: QQ(:,:)
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt
-#include "WrkSpc.fh"
 
 iPL = iPrintLevel(-1)
 if (Reduce_Prt() .and. (iPL < 3)) iPL = 0
@@ -76,9 +77,9 @@ do iSym=1,nSym
   MxTyp = MxTyp+nBas(iSym)
 end do
 call Get_iScalar('Unique atoms',nNUC)
-call GetMem('QQ','ALLO','REAL',ipQQ,MXTYP*nNuc)
-call CHARGE_(NSYM,NBAS,BNAME,CMO,OCCN,SMAT,iCase,FullMlk,lSave,MXTYP,Work(ipQQ),nNuc)
-call GetMem('QQ','FREE','REAL',ipQQ,MXTYP*nNuc)
+call mma_allocate(QQ,MXTYP,nNuc,label='QQ')
+call CHARGE_(NSYM,NBAS,BNAME,CMO,OCCN,SMAT,iCase,FullMlk,lSave,MXTYP,QQ,nNuc)
+call mma_deallocate(QQ)
 
 if (iCase /= 0) then
   if (iPL >= 2) then

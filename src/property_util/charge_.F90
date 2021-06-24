@@ -14,6 +14,7 @@
 
 subroutine CHARGE_(NSYM,NBAS,BNAME,CMO,OCCN,SMAT,iCase,FullMlk,lSave,MXTYP,QQ,nNuc)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6, r8
 
@@ -24,18 +25,19 @@ character(len=LenIn8), intent(in) :: BNAME(*)
 real(kind=wp), intent(in) :: CMO(*), OCCN(*), SMAT(*)
 logical(kind=iwp), intent(in) :: FullMlk, lSave
 real(kind=wp), intent(out) :: QQ(MXTYP,nNuc)
-integer(kind=iwp), save :: ipDSswap, ipqswap
 integer(kind=iwp) :: AtomA, AtomB, i0, iAB, iAng, iB, iBlo, i, ICNT(MXBAS), iEnd, iix, iixx, ik, ikk, iM, iMN, IMO, iNuc, IO, &
-                     ip_center, ip_Charge, iPair, ipBonds, ipD, ipD_blo, ipD_tmp, ipDS, iPL, ipP, ipPInv, ipS, ipS_blo, ipS_tmp, &
-                     ipScr, IS, ISING, ISMO, IST, iStart, iSum, iSwap, iSyLbl, ISYM, IT, ITYP(MXBAS), ix, J, jAng, jEnd, jM, &
-                     jPair, jx, k, l, lqSwap, MY, MYNUC, MYTYP, NB, nBas2, NBAST, NPBonds, nScr, nStab(MxAtom), NXTYP, NY, NYNUC, &
-                     NYTYP, tNUC
+                     iPair, iPL, IS, ISING, ISMO, IST, iStart, iSum, iSwap, iSyLbl, ISYM, IT, ITYP(MXBAS), ix, J, jAng, jEnd, jM, &
+                     jx, k, l, lqSwap, MY, MYNUC, MYTYP, NB, nBas2, NBAST, NPBonds, nScr, nStab(MxAtom), NXTYP, NY, NYNUC, NYTYP, &
+                     tNUC
 real(kind=wp) :: BO, BOThrs, DET, DMN, Fac(MXATOM), Q2(MXATOM), QSUM(MXATOM), QSUM_TOT(MXATOM), QSUMI, TCh, TERM, xsg
 logical(kind=iwp) :: DMN_SpinAV, DoBond
 character(len=LenIn) :: CNAME(MXATOM)
 character(len=LenIn4) :: LblCnt4(MxAtom)
 character(len=100) :: ProgName
 character(len=8) :: TMP, TNAME(MXTYP), TSwap(MXTYP)
+integer(kind=iwp), allocatable :: center(:)
+real(kind=wp), allocatable, save :: Bonds(:), Charge(:), D(:,:), D_blo(:), D_tmp(:,:), DS(:,:), DSswap(:,:), P(:,:), PInv(:,:), &
+                                    qSwap(:), S(:,:), S_blo(:), S_tmp(:,:), Scr(:)
 character(len=*), parameter :: AufBau(19) = ['01s', &
                                              '02s','02p', &
                                              '03s','03p', &
@@ -161,10 +163,10 @@ if (iCase == 0) then
   ! instead of printing charges we dump everything into a memory
   ! same with DS matrix
 
-  call GetMem('CHRG_SWP','ALLO','REAL',ipqSwap,lqSwap)
+  call mma_allocate(qSwap,lqSwap,label='CHRG_SWP')
 
   if (DoBond) then
-    call Allocate_Work(ipDSswap,(NBAST*NBAST))
+    call mma_allocate(DSswap,NBAST,NBAST,label='DSswap')
   end if
 
 end if
@@ -353,24 +355,24 @@ if (DoBond) then
 
   if (nSym > 1) then
 
-    call Allocate_Work(ipP,NBAST**2)
-    call Allocate_Work(ipPInv,NBAST**2)
-    call Get_dArray('SM',Work(ipP),NBAST**2)
+    call mma_allocate(P,NBAST,NBAST,label='P')
+    call mma_allocate(PInv,NBAST,NBAST,label='PInv')
+    call Get_dArray('SM',P,NBAST**2)
 #ifdef _DEBUGPRINT_
-    call RecPrt('SM',' ',Work(ipP),NBAST,NBAST)
+    call RecPrt('SM',' ',P,NBAST,NBAST)
 #endif
-    call MINV(Work(ipP),Work(ipPInv),ISING,DET,NBAST)
+    call MINV(P,PInv,ISING,DET,NBAST)
 #ifdef _DEBUGPRINT_
-    call RecPrt('SMInv',' ',Work(ipPInv),NBAST,NBAST)
+    call RecPrt('SMInv',' ',PInv,NBAST,NBAST)
 #endif
-    call DGeTMi(Work(ipPInv),NBAST,NBAST)
+    call DGeTMi(PInv,NBAST,NBAST)
   end if
 
   ! Pick up index array of which center a basis function belongs to.
   ! If no symmetry, it is the same as ICNT(I).
 
-  call Allocate_iWork(ip_center,NBAST)
-  call Get_iArray('Center Index',iWork(ip_center),NBAST)
+  call mma_allocate(center,NBAST,label='center')
+  call Get_iArray('Center Index',center,NBAST)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -380,30 +382,26 @@ if (DoBond) then
   ! plus asymmetric D, S and DS matrices                               *
   !--------------------------------------------------------------------*
 
-  call Allocate_Work(ipD_tmp,(NBAST*NBAST))
-  call Allocate_Work(ipS_tmp,(NBAST*NBAST))
-  call Allocate_Work(ipD,(NBAST*NBAST))
-  call Allocate_Work(ipS,(NBAST*NBAST))
-  call Allocate_Work(ipDS,(NBAST*NBAST))
-  do I=1,(NBAST*NBAST)
-    Work(ipD_tmp+I-1) = Zero
-    Work(ipS_tmp+I-1) = Zero
-    Work(ipD+I-1) = Zero
-    Work(ipS+I-1) = Zero
-    Work(ipDS+I-1) = Zero
-  end do
+  call mma_allocate(D_tmp,NBAST,NBAST,label='D_tmp')
+  call mma_allocate(S_tmp,NBAST,NBAST,label='S_tmp')
+  call mma_allocate(D,NBAST,NBAST,label='D')
+  call mma_allocate(S,NBAST,NBAST,label='S')
+  call mma_allocate(DS,NBAST,NBAST,label='DS')
+  D_tmp(:,:) = Zero
+  S_tmp(:,:) = Zero
+  D(:,:) = Zero
+  S(:,:) = Zero
+  DS(:,:) = Zero
 
   if (nSym > 1) then
     nBas2 = 0
     do I=1,nsym
       nBas2 = nBas2+nBas(i)*nBas(i)
     end do
-    call Allocate_Work(ipD_blo,nBas2)
-    call Allocate_Work(ipS_blo,nBas2)
-    do I=1,nBas2
-      Work(ipD_blo+I-1) = Zero
-      Work(ipS_blo+I-1) = Zero
-    end do
+    call mma_allocate(D_blo,nBas2,label='D_blo')
+    call mma_allocate(S_blo,nBas2,label='S_blo')
+    D_blo(:) = Zero
+    S_blo(:) = Zero
   end if
 
   !--------------------------------------------------------------------*
@@ -427,8 +425,8 @@ if (DoBond) then
   !--------------------------------------------------------------------*
 
   NPBonds = tNUC*(tNUC-1)/2
-  call Allocate_Work(ipBonds,NPBonds)
-  call FZero(Work(ipBonds),nPBonds)
+  call mma_allocate(Bonds,NPBonds,label='Bonds')
+  Bonds(:) = Zero
 
   !--------------------------------------------------------------------*
   ! End of Bond analysis initialization                                *
@@ -464,12 +462,12 @@ do ISYM=1,NSYM
         end if
 
         if (DoBond) then
-          ! Save the Density matrix element (my.ny) and (ny,my) in work(ipD_tmp)
-          ! Save the Overlap matrix element (my.ny) and (ny,my) in work(ipS_tmp)
-          Work(ipD_tmp+(NY+IB-1)*NBAST+MY+IB-1) = DMN
-          Work(ipD_tmp+(MY+IB-1)*NBAST+NY+IB-1) = DMN
-          Work(ipS_tmp+(NY+IB-1)*NBAST+MY+IB-1) = SMAT(IMN+IS)
-          Work(ipS_tmp+(MY+IB-1)*NBAST+NY+IB-1) = SMAT(IMN+IS)
+          ! Save the Density matrix element (my,ny) and (ny,my) in D_tmp
+          ! Save the Overlap matrix element (my,ny) and (ny,my) in S_tmp
+          D_tmp(MY+IB,NY+IB) = DMN
+          D_tmp(NY+IB,MY+IB) = DMN
+          S_tmp(MY+IB,NY+IB) = SMAT(IMN+IS)
+          S_tmp(NY+IB,MY+IB) = SMAT(IMN+IS)
         end if
 
         if (MY /= NY) DMN = Two*DMN
@@ -500,12 +498,12 @@ end do
 if (DoBond) then
 
 # ifdef _DEBUGPRINT_
-  call RecPrt('Density Matrix = ',' ',Work(ipD_tmp),NBAST,NBAST)
-  call RecPrt('Overlap Matrix = ',' ',Work(ipS_tmp),NBAST,NBAST)
+  call RecPrt('Density Matrix = ',' ',D_tmp,NBAST,NBAST)
+  call RecPrt('Overlap Matrix = ',' ',S_tmp,NBAST,NBAST)
   E = Zero
   do I=1,NBAST
     do J=1,NBAST
-      E = E+Work(ipD_tmp+(J-1)*NBAST+I-1)*Work(ipS_tmp+(J-1)*NBAST+I-1)
+      E = E+D_tmp(I,J)*S_tmp(I,J)
     end do
   end do
   write(u6,*)
@@ -515,14 +513,14 @@ if (DoBond) then
   ! In case of symmetry, we desymmetrize D and S through D_blo and S_blo
 
   if (nSym > 1) then
-    iBlo = 0
+    iBlo = 1
     iSum = 0
     do i=1,NSYM
       if (nbas(i) /= 0) then
-        do j=0,nbas(i)-1
-          do k=0,nbas(i)-1
-            Work(ipD_blo+iBlo) = Work(ipD_tmp+(j+iSum)*NBAST+iSum+k)
-            Work(ipS_blo+iBlo) = Work(ipS_tmp+(j+iSum)*NBAST+iSum+k)
+        do j=1,nbas(i)
+          do k=1,nbas(i)
+            D_blo(iBlo) = D_tmp(iSum+k,iSum+j)
+            S_blo(iBlo) = S_tmp(iSum+k,iSum+j)
             iBlo = iBlo+1
           end do
         end do
@@ -533,11 +531,11 @@ if (DoBond) then
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'D_blo = '
     do i=1,nBas2
-      write(u6,*) (Work(ipD_blo+I-1))
+      write(u6,*) D_blo(I)
     end do
     write(u6,*) 'S_blo = '
     do i=1,nBas2
-      write(u6,*) (Work(ipS_blo+I-1))
+      write(u6,*) S_blo(I)
     end do
 #   endif
 
@@ -545,36 +543,29 @@ if (DoBond) then
     !nScr = MXBAS*NBAST
     nScr = NBAST**2
     iSyLbl = 1
-    call Allocate_Work(ipScr,nScr)
-    call Desymmetrize(Work(ipD_blo),nBas2,Work(ipScr),nScr,Work(ipD),nBas,NBAST,Work(ipP),nSym,iSyLbl)
-    call Free_Work(ipScr)
-
-    call Allocate_Work(ipScr,nScr)
-    call Desymmetrize(Work(ipS_blo),nBas2,Work(ipScr),nScr,Work(ipS),nBas,NBAST,Work(ipPInv),nSym,iSyLbl)
-    call Free_Work(ipScr)
+    call mma_allocate(Scr,nScr,label='Scr')
+    call Desymmetrize(D_blo,nBas2,Scr,nScr,D,nBas,NBAST,P,nSym,iSyLbl)
+    call Desymmetrize(S_blo,nBas2,Scr,nScr,S,nBas,NBAST,PInv,nSym,iSyLbl)
+    call mma_deallocate(Scr)
 
     ! Otherwise we simply copy D and S tmp into D and S
 
   else
-    call dcopy_(nBasT**2,Work(ipD_tmp),1,Work(ipD),1)
-    call dcopy_(nBasT**2,Work(ipS_tmp),1,Work(ipS),1)
-    !do I=1,NBAST*NBAST
-    !   Work(ipD+I-1) = Work(ipD_tmp+I-1)
-    !   Work(ipS+I-1) = Work(ipS_tmp+I-1)
-    !end do
+    D(:,:) = D_tmp(:,:)
+    S(:,:) = S_tmp(:,:)
   end if
 
 # ifdef _DEBUGPRINT_
   write(u6,*) 'After Desymmetrization'
-  !call RecPrt('Density Matrix = ',' ',Work(ipD),NBAST,NBAST)
-  !call RecPrt('Overlap Matrix = ',' ',Work(ipS),NBAST,NBAST)
-  write(u6,*) 'Dens=',DDot_(nBast**2,Work(ipD),1,Work(ipD),1),DDot_(nBast**2,Work(ipD),1,[One],0)
-  write(u6,*) 'Ovrl=',DDot_(nBast**2,Work(ipS),1,Work(ipS),1),DDot_(nBast**2,Work(ipS),1,[One],0)
-  write(u6,*) 'DO  =',DDot_(nBast**2,Work(ipS),1,Work(ipD),1)
+  !call RecPrt('Density Matrix = ',' ',D,NBAST,NBAST)
+  !call RecPrt('Overlap Matrix = ',' ',S,NBAST,NBAST)
+  write(u6,*) 'Dens=',DDot_(nBast**2,D,1,D,1),DDot_(nBast**2,D,1,[One],0)
+  write(u6,*) 'Ovrl=',DDot_(nBast**2,S,1,S,1),DDot_(nBast**2,S,1,[One],0)
+  write(u6,*) 'DO  =',DDot_(nBast**2,S,1,D,1)
   E = Zero
   do I=1,NBAST
     do J=1,NBAST
-      E = E+Work(ipD+(J-1)*NBAST+I-1)*Work(ipS+(J-1)*NBAST+I-1)
+      E = E+D(I,J)*S(I,J)
     end do
   end do
   write(u6,*)
@@ -583,13 +574,13 @@ if (DoBond) then
 
   ! Finally, we compute the DS matrix as product of D and S
 
-  call DGEMM_('N','N',NBAST,NBAST,NBAST,One,Work(ipD),NBAST,Work(ipS),NBAST,Zero,Work(ipDS),NBAST)
+  call DGEMM_('N','N',NBAST,NBAST,NBAST,One,D,NBAST,S,NBAST,Zero,DS,NBAST)
 
 # ifdef _DEBUGPRINT_
-  call RecPrt('DS Matrix = ',' ',Work(ipDS),NBAST,NBAST)
+  call RecPrt('DS Matrix = ',' ',DS,NBAST,NBAST)
   E = Zero
   do I=1,NBAST
-    E = E+Work(ipDS+(I-1)*NBAST+I-1)
+    E = E+DS(I,I)
   end do
   write(u6,*)
   write(u6,*) 'Number of electrons as sum of the DS diagonal = ',E
@@ -598,25 +589,21 @@ if (DoBond) then
   ! in case of first call for UHF we dump everything only
 
   if (iCase == 0) then
-    do I=1,NBAST
-      Work(ipDSswap+I-1) = Work(ipDS+I-1)
-    end do
+    DSswap(:,:) = DS(:,:)
   end if
 
   ! in case of second call for UHF we add what dumped before
   ! and release swap memory
 
   if (iCase == 1) then
-    do I=1,NBAST
-      Work(ipDS+I-1) = Work(ipDS+I-1)+Work(ipDSswap+I-1)
-    end do
-    call Free_Work(ipDSswap)
+    DS(:,:) = DS(:,:)+DSswap(:,:)
+    call mma_deallocate(DSswap)
 
 #   ifdef _DEBUGPRINT_
-    call RecPrt('DS Matrix = ',' ',Work(ipDS),NBAST,NBAST)
+    call RecPrt('DS Matrix = ',' ',DS,NBAST,NBAST)
     E = Zero
     do I=1,NBAST
-      E = E+Work(ipDS+(I-1)*NBAST+I-1)
+      E = E+DS(I,I)
     end do
     write(u6,*)
     write(u6,*) 'Number of electrons as sum of the DS diagonal = ',E
@@ -639,8 +626,8 @@ do I=1,NNUC
 end do
 ! if iCase=0, or 1 we need to put/get QSUM
 do i=1,NNUC
-  if (iCase == 0) Work(ipqSwap+i-1) = QSUM(I)
-  if (iCase == 1) QSUM_TOT(I) = QSUM(I)+Work(ipqSwap+i-1)
+  if (iCase == 0) qSwap(i) = QSUM(I)
+  if (iCase == 1) QSUM_TOT(I) = QSUM(I)+qSwap(i)
   if (iCase >= 2) QSUM_TOT(I) = QSUM(I)
 end do
 
@@ -649,13 +636,13 @@ end do
 !----------------------------------------------------------------------*
 
 if (iCase /= 0) then
-  call Allocate_Work(ip_Charge,nNuc)
-  call Get_dArray('Effective nuclear charge',Work(ip_Charge),nNuc)
-  do iNuc=0,nNuc-1
-    Work(ip_Charge+iNuc) = Work(ip_Charge+iNuc)*real(nSym/nStab(iNuc+1),kind=wp)
+  call mma_allocate(Charge,nNuc,label='Charge')
+  call Get_dArray('Effective nuclear charge',Charge,nNuc)
+  do iNuc=1,nNuc
+    Charge(iNuc) = Charge(iNuc)*real(nSym/nStab(iNuc+1),kind=wp)
   end do
-  call DaXpY_(nNuc,-One,QSUM_TOT,1,Work(ip_Charge),1)
-  if (lSave) call Put_dArray('Mulliken Charge',Work(ip_Charge),nNuc)
+  call DaXpY_(nNuc,-One,QSUM_TOT,1,Charge,1)
+  if (lSave) call Put_dArray('Mulliken Charge',Charge,nNuc)
 end if
 
 !----------------------------------------------------------------------*
@@ -667,29 +654,28 @@ if (DoBond .and. (tNUC > 1) .and. (iCase >= 1)) then
 # ifdef _DEBUGPRINT_
   write(u6,*) 'nPBonds,tNuc=',nPBonds,tNuc
   do MY=1,NBAST
-    AtomA = iWork(ip_center+MY-1)
+    AtomA = center(MY)
     write(u6,*) 'AtomA,My=',AtomA,My
   end do
 # endif
   do MY=1,NBAST
-    AtomA = iWork(ip_center+MY-1)
+    AtomA = center(MY)
     if (ICNT(MY) <= 0) cycle    ! skip pseudo center
     do NY=1,MY
-      AtomB = iWork(ip_center+NY-1)
+      AtomB = center(NY)
       if (ICNT(NY) <= 0) cycle  ! skip pseudo center
       if (AtomA == AtomB) cycle ! same atom
 
       iPair = (max(AtomA,AtomB)-1)*(max(AtomA,AtomB)-2)/2+min(AtomA,AtomB)
-      jPair = ipBonds-1+iPair
 
-      Work(jPair) = Work(jPair)+Work(ipDS+(NY-1)*NBAST+MY-1)*Work(ipDS+(MY-1)*NBAST+NY-1)
+      Bonds(iPair) = Bonds(iPair)+DS(MY,NY)*DS(NY,MY)
 
 #     ifdef _DEBUGPRINT_
       write(u6,*) 'Bond Number=',iPair
       write(u6,*) 'Atom numbers = ',AtomA,AtomB
-      write(u6,*) 'Bond number = ',iPair,'bond order = ',Work(jPair)
-      write(u6,*) 'Work(ipDS+ (NY-1) * NBAST + MY-1) =',Work(ipDS+(NY-1)*NBAST+MY-1)
-      write(u6,*) 'Work(ipDS+ (MY-1) * NBAST + NY-1) =',Work(ipDS+(MY-1)*NBAST+NY-1)
+      write(u6,*) 'Bond number = ',iPair,'bond order = ',Bonds(iPair)
+      write(u6,*) 'DS(MY,NY) =',DS(MY,NY)
+      write(u6,*) 'DS(NY,MY) =',DS(NY,MY)
 #     endif
     end do
   end do
@@ -697,12 +683,12 @@ if (DoBond .and. (tNUC > 1) .and. (iCase >= 1)) then
   ! distant atoms could have negative bond order, set to zero
 
   do I=1,NPBonds
-    if (Work(ipBonds+I-1) < Zero) Work(ipBonds+I-1) = Zero
+    if (Bonds(I) < Zero) Bonds(I) = Zero
   end do
 
 # ifdef _DEBUGPRINT_
   write(u6,*) 'Bond order vector'
-  call TriPrt('Bonds','(10F10.5)',Work(ipBonds),tNUC-1)
+  call TriPrt('Bonds','(10F10.5)',Bonds,tNUC-1)
 # endif
 
 end if
@@ -718,12 +704,12 @@ end do
 if (iCase == 0) then
   ! first call for UHF, so just dump numbers to swap
   IEND = 0
-  ik = 0
+  ik = 1
   do IST=1,NNUC,6
     IEND = min(IEND+6,NNUC)
     do IT=1,NXTYP
       do j=IST,IEND
-        Work(ipqSwap+NNUC+ik) = QQ(IT,J)
+        qSwap(NNUC+ik) = QQ(IT,J)
         ik = ik+1
       end do
     end do
@@ -740,8 +726,8 @@ if ((iCase == 1) .and. (iPL >= 2)) then
     write(u6,'(6X,A)') '---------------------------'
   end if
   IEND = 0
-  ik = 0
-  ikk = 0
+  ik = 1
+  ikk = 1
   do IST=1,nNuc,6
     IEND = min(IEND+6,nNuc)
     write(u6,*)
@@ -749,7 +735,7 @@ if ((iCase == 1) .and. (iPL >= 2)) then
     write(u6,'(14X,6(A12,A12))') (' alpha','  beta',I=IST,IEND)
     do IT=1,NXTYP
       do J=IST,IEND
-        Q2(J) = Work(ipqSwap+NNUC+ik)
+        Q2(J) = qSwap(NNUC+ik)
         ik = ik+1
       end do
       if (FullMlk) then
@@ -758,24 +744,24 @@ if ((iCase == 1) .and. (iPL >= 2)) then
     end do
 
     do J=IST,IEND
-      Q2(J) = Work(ipqSwap+ikk)
+      Q2(J) = qSwap(ikk)
       ikk = ikk+1
     end do
 
     write(u6,'(6X,A,12F12.4)') 'Total  ',(Fac(i)*Q2(I),Fac(i)*QSUM(I),I=IST,IEND)
     write(u6,'(6X,A,6(6X,F12.4,6X))') 'Total  ',(Fac(i)*(Q2(I)+QSUM(I)),I=IST,IEND)
     write(u6,*)
-    write(u6,'(6X,A,6(5X,F12.4,7X))') 'Charge ',(Fac(i)*Work(ip_Charge+I-1),I=IST,IEND)
+    write(u6,'(6X,A,6(5X,F12.4,7X))') 'Charge ',(Fac(i)*Charge(I),I=IST,IEND)
   end do
   write(u6,*)
   write(u6,'(6X,A,F12.6)') 'Total electronic charge=',DDot_(nNuc,[One],0,QSum_TOT,1)
   write(u6,*)
-  write(u6,'(6X,A,F12.6)') 'Total            charge=',DDot_(nNuc,[One],0,Work(ip_Charge),1)
+  write(u6,'(6X,A,F12.6)') 'Total            charge=',DDot_(nNuc,[One],0,Charge,1)
 
 end if
 if (iCase == 1) then
-  call Free_Work(ip_Charge)
-  call GetMem('CHRG_SWP','FREE','REAL',ipqSwap,lqSwap)
+  call mma_deallocate(Charge)
+  call mma_deallocate(qSwap)
 end if
 
 if (((iCase == 2) .and. (iPL >= 2)) .or. ((iCase == 3) .and. (iPL >= 2))) then
@@ -810,7 +796,7 @@ if (((iCase == 2) .and. (iPL >= 2)) .or. ((iCase == 3) .and. (iPL >= 2))) then
     write(u6,'(6X,A,12F8.4)') 'Total  ',(Fac(i)*QSUM(I),I=IST,IEND)
     if (iCase /= 3) then
       write(u6,*)
-      write(u6,'(6X,A,12F8.4)') 'N-E    ',(Fac(i)*Work(ip_Charge+I-1),I=IST,IEND)
+      write(u6,'(6X,A,12F8.4)') 'N-E    ',(Fac(i)*Charge(I),I=IST,IEND)
     end if
   end do
   if (iCase == 3) then
@@ -820,13 +806,13 @@ if (((iCase == 2) .and. (iPL >= 2)) .or. ((iCase == 3) .and. (iPL >= 2))) then
     write(u6,*)
     write(u6,'(6X,A,F12.6)') 'Total electronic charge=',DDot_(nNuc,[One],0,QSum,1)
     write(u6,*)
-    TCh = DDot_(nNuc,[One],0,Work(ip_Charge),1)
-    write(u6,'(6X,A,F12.6)') 'Total            charge=',DDot_(nNuc,[One],0,Work(ip_Charge),1)
+    TCh = DDot_(nNuc,[One],0,Charge,1)
+    write(u6,'(6X,A,F12.6)') 'Total            charge=',DDot_(nNuc,[One],0,Charge,1)
     call xml_dDump('FormalCharge','Total charge','a.u',0,[TCh],1,1)
   end if
 end if
 if (iCase >= 2) then
-  call Free_Work(ip_Charge)
+  call mma_deallocate(Charge)
 end if
 
 ! Mulliken bond order print
@@ -846,7 +832,7 @@ if (iPL > 2) then
     do I=1,tNUC-1
       do J=I+1,tNUC
         iPair = (J-1)*(J-2)/2+I
-        BO = Work(ipBonds-1+iPair)
+        BO = Bonds(iPair)
         if (BO >= BOThrs) then
           write(u6,'(8X,2(A,4X),F7.3)') LblCnt4(I),LblCnt4(J),BO
         end if
@@ -858,18 +844,18 @@ end if
 
 if (DoBond) then
   if (nSym > 1) then
-    call Free_Work(ipP)
-    call Free_Work(ipPInv)
-    call Free_Work(ipD_blo)
-    call Free_Work(ipS_blo)
+    call mma_deallocate(P)
+    call mma_deallocate(PInv)
+    call mma_deallocate(D_blo)
+    call mma_deallocate(S_blo)
   end if
-  call Free_iWork(ip_center)
-  call Free_Work(ipD_tmp)
-  call Free_Work(ipS_tmp)
-  call Free_Work(ipD)
-  call Free_Work(ipS)
-  call Free_Work(ipDS)
-  call Free_Work(ipBonds)
+  call mma_deallocate(center)
+  call mma_deallocate(D_tmp)
+  call mma_deallocate(S_tmp)
+  call mma_deallocate(D)
+  call mma_deallocate(S)
+  call mma_deallocate(DS)
+  call mma_deallocate(bonds)
 end if
 
 return

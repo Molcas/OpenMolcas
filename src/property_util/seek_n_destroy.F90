@@ -12,13 +12,14 @@
 !               Valera Veryazov                                        *
 !***********************************************************************
 
-subroutine Seek_n_Destroy(nBasAtoms,nDimSubD,ipSubVal,ipSubVec,nBast,Threshold,ThrsD,TotElec,ipSubDNAOindex,ipDS,iWhat,ipAtomA, &
-                          ipAtomB,iCounter,IAtom,JAtom,ipWhat,ipAtomC,KAtom)
+subroutine Seek_n_Destroy(nBasAtoms,ipSubVal,ipSubVec,nBast,Threshold,ThrsD,TotElec,ipSubDNAOindex,ipDS,iWhat,ipAtomA,ipAtomB, &
+                          iCounter,IAtom,JAtom,ipWhat,ipAtomC,KAtom)
 !----------------------------------------------------------------------*
 ! Seek n Destroy: search the sub matrix for eigen values >= Thrs and   *
 ! deplete the corresponding scaled eigenvector from the main matrix.   *
 !----------------------------------------------------------------------*
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -26,13 +27,15 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: nBasAtoms, nDimSubD, ipSubVal, ipSubVec, nBast, ipSubDNAOindex, ipDS, iWhat, ipAtomA, ipAtomB, &
-                                 IAtom, JAtom, ipWhat, ipAtomC, KAtom
+integer(kind=iwp), intent(in) :: nBasAtoms, ipSubVal, ipSubVec, nBast, ipSubDNAOindex, ipDS, iWhat, ipAtomA, ipAtomB, IAtom, &
+                                 JAtom, ipWhat, ipAtomC, KAtom
 real(kind=wp), intent(in) :: Threshold, ThrsD
 real(kind=wp), intent(inout) :: TotElec
 integer(kind=iwp), intent(inout) :: iCounter
-integer(kind=iwp) :: I, iCounterOld, iCounterTrue, iFound, iFoundOrb, ipEiVal, ipGood, ipScrM, ipScrV, iStHas2bFnd, J, K
+integer(kind=iwp) :: I, iCounterOld, iCounterTrue, iFound, iFoundOrb, iStHas2bFnd, J, K, L
 real(kind=wp) :: Accumulate, E, EigenNorm, Thrs, Thrs_Original, TotElecAvail, TotElecCount, TotElecFound
+integer(kind=iwp), allocatable :: Good(:)
+real(kind=wp), allocatable :: EiVal(:), ScrM(:,:), ScrV(:)
 real(kind=wp), external :: DNRM2_
 #include "WrkSpc.fh"
 
@@ -42,10 +45,10 @@ Thrs_Original = Threshold
 !----------------------------------------------------------------------*
 ! Now loop over the eigenvalues looking for orbitals >= Thrs
 
-call Allocate_iWork(ipGood,nBasAtoms)
-call Allocate_Work(ipEiVal,nBasAtoms)
-call IZero(iWork(ipGood),nBasAtoms)
-call FZero(Work(ipEiVal),nBasAtoms)
+call mma_allocate(Good,nBasAtoms,label='Good')
+call mma_allocate(EiVal,nBasAtoms,label='EiVal')
+Good(:) = 0
+EiVal(:) = Zero
 
 iFoundOrb = 0
 iStHas2bFnd = 0
@@ -93,21 +96,21 @@ do
 
       ! One good orbital found
       ! iFoundOrb: number of Good orbitals found
-      ! iWork(ipGood): which of the eigenvectors corresponds to the big eigenvalue
-      ! Work(ipEiVal): the big eigenvalue
+      ! Good: which of the eigenvectors corresponds to the big eigenvalue
+      ! EiVal: the big eigenvalue
 
       iFoundOrb = iFoundOrb+1
-      iWork(ipGood+iFoundOrb-1) = I
-      Work(ipEiVal+iFoundOrb-1) = Work(ipSubVal+I-1)
+      Good(iFoundOrb) = I
+      EiVal(iFoundOrb) = Work(ipSubVal+I-1)
 
       ! It shouldn't be necessary, but in some cases (like radicals) a bit
       ! more than 2 electrons are found in core or lone pair orbitals. This
       ! way everything comes out cleaner. Possibly I'll try to remove this
       ! later.
 
-      if (Work(ipEiVal+iFoundOrb-1) > 2) Work(ipEiVal+iFoundOrb-1) = 2
+      if (EiVal(iFoundOrb) > 2) EiVal(iFoundOrb) = 2
 
-      TotElecFound = TotElecFound+Work(ipEiVal+iFoundOrb-1)
+      TotElecFound = TotElecFound+EiVal(iFoundOrb)
     end if
   end do
 
@@ -163,7 +166,7 @@ if ((iFoundOrb > 0) .and. (TotElecCount <= 0.1_wp)) then
     iWork(ipAtomB+iCounterTrue) = JAtom
     Accumulate = Zero
     do I=1,iFoundOrb
-      Accumulate = Accumulate+Work(ipEiVal+I-1)
+      Accumulate = Accumulate+EiVal(I)
     end do
     Work(ipWhat+iCounterTrue) = Work(ipWhat+iCounterTrue)+(Accumulate/2)
 
@@ -179,11 +182,11 @@ if ((iFoundOrb > 0) .and. (TotElecCount <= 0.1_wp)) then
   if (iWhat == 2) then
     do I=1,iFoundOrb
       iWork(ipAtomA+iCounter) = IAtom
-      Work(ipWhat+iCounter) = Work(ipEiVal+I-1)
+      Work(ipWhat+iCounter) = EiVal(I)
 
 #     ifdef _DEBUGPRINT_
       write(u6,*)
-      write(u6,*) 'NBO located ',Work(ipEiVal+I-1),' electrons'
+      write(u6,*) 'NBO located ',EiVal(I),' electrons'
       write(u6,*) 'non bonding on atom ',iWork(ipAtomA+iCounter)
 #     endif
 
@@ -196,7 +199,7 @@ if ((iFoundOrb > 0) .and. (TotElecCount <= 0.1_wp)) then
       iWork(ipAtomA+iCounter) = IAtom
       iWork(ipAtomB+iCounter) = JAtom
       iWork(ipAtomC+iCounter) = KAtom
-      Work(ipWhat+iCounter) = Work(ipEiVal+I-1)/2
+      Work(ipWhat+iCounter) = EiVal(I)/2
 
 #     ifdef _DEBUGPRINT_
       write(u6,*)
@@ -209,53 +212,55 @@ if ((iFoundOrb > 0) .and. (TotElecCount <= 0.1_wp)) then
   end if
 
   do I=1,iFoundOrb
-    call Allocate_Work(ipScrM,nDimSubD)
-    call Allocate_Work(ipScrV,nBasAtoms)
+    call mma_allocate(ScrM,nBasAtoms,nBasAtoms,label='ScrM')
+    call mma_allocate(ScrV,nBasAtoms,label='ScrV')
 
-    call FZero(Work(ipScrM),nDimSubD)
-    call FZero(Work(ipScrV),nBasAtoms)
+    ScrM(:,:) = Zero
 
     do J=1,nBasAtoms
-      Work(ipScrV+J-1) = Work(ipSubVec+(iWork(ipGood+I-1)-1)*nBasAtoms+J-1)
+      ScrV(J) = Work(ipSubVec+(Good(I)-1)*nBasAtoms+J-1)
     end do
 
 #   ifdef _DEBUGPRINT_
-    call RecPrt('Good orbital eigenvector',' ',Work(ipScrV),nBasAtoms,1)
+    call RecPrt('Good orbital eigenvector',' ',ScrV,nBasAtoms,1)
 #   endif
 
-    EigenNorm = DNRM2_(nBasAtoms,Work(ipScrV),1)
+    EigenNorm = DNRM2_(nBasAtoms,ScrV,1)
 
 #   ifdef _DEBUGPRINT_
     write(u6,*)
     write(u6,*) 'Vector euclidean norm = ',EigenNorm
 #   endif
 
-    call DScal_(nBasAtoms,1/EigenNorm,Work(ipScrV),1)
+    call DScal_(nBasAtoms,1/EigenNorm,ScrV,1)
 
 #   ifdef _DEBUGPRINT_
     write(u6,*)
-    call RecPrt('Normalized orbital eigenvector',' ',Work(ipScrV),nBasAtoms,1)
+    call RecPrt('Normalized orbital eigenvector',' ',ScrV,nBasAtoms,1)
 #   endif
 
-    call DGEMM_('N','T',nBasAtoms,nBasAtoms,1,One,Work(ipScrV),nBasAtoms,Work(ipScrV),nBasAtoms,Zero,Work(ipScrM),nBasAtoms)
+    call DGEMM_('N','T',nBasAtoms,nBasAtoms,1,One,ScrV,nBasAtoms,ScrV,nBasAtoms,Zero,ScrM,nBasAtoms)
 
 #   ifdef _DEBUGPRINT_
-    call RecPrt('Multiplied Eigenvectors',' ',Work(ipScrM),nBasAtoms,nBasAtoms)
+    call RecPrt('Multiplied Eigenvectors',' ',ScrM,nBasAtoms,nBasAtoms)
 
-    write(u6,*) 'Eigen value to be multiplied = ',Work(ipEiVal+I-1)
+    write(u6,*) 'Eigen value to be multiplied = ',EiVal(I)
 #   endif
 
-    call DScal_(nDimSubD,Work(ipEiVal+I-1),Work(ipScrM),1)
+    call DScal_(nBasAtoms*nBasAtoms,EiVal(I),ScrM,1)
 
 #   ifdef _DEBUGPRINT_
-    call RecPrt('Scaled Mult eigenvector',' ',Work(ipScrM),nBasAtoms,nBasAtoms)
+    call RecPrt('Scaled Mult eigenvector',' ',ScrM,nBasAtoms,nBasAtoms)
 #   endif
 
     ! DS Matrix depletion not just along the diagonal
 
-    do J=0,nDimSubD-1
-      K = iWork(ipSubDNAOindex+J)
-      Work(ipDS+K) = Work(ipDS+K)-Work(ipScrM+J)
+    K = iWork(ipSubDNAOindex)
+    do J=1,nBasAtoms
+      do L=1,nBasAtoms
+        Work(ipDS+K) = Work(ipDS+K)-ScrM(L,J)
+        K = K+1
+      end do
     end do
 
 #   ifdef _DEBUGPRINT_
@@ -268,8 +273,8 @@ if ((iFoundOrb > 0) .and. (TotElecCount <= 0.1_wp)) then
     write(u6,*) 'Number of electrons as sum of the DS diagonal = ',E
 #   endif
 
-    call Free_Work(ipScrV)
-    call Free_Work(ipScrM)
+    call mma_deallocate(ScrV)
+    call mma_deallocate(ScrM)
   end do
 end if
 
@@ -280,8 +285,8 @@ return
 contains
 
 subroutine End1()
-  call Free_iWork(ipGood)
-  call Free_Work(ipEiVal)
+  call mma_deallocate(Good)
+  call mma_deallocate(EiVal)
 end subroutine End1
 
 end subroutine Seek_n_Destroy

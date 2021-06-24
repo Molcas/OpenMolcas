@@ -26,6 +26,7 @@ subroutine RDVEC_(FName,LU_,LABEL,IUHF,NSYM,NBAS,NORB,CMO,CMO_ab,OCC,OCC_ab,EORB
 !           8  --
 !-----------------------------------------------------------------------
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
@@ -37,16 +38,16 @@ real(kind=wp), intent(_OUT_) :: CMO(*), CMO_ab(*), OCC(*), OCC_ab(*), EORB(*), E
 integer(kind=iwp), intent(_OUT_) :: INDT(*)
 character(len=*), intent(out) :: TITLE
 integer(kind=iwp), intent(out) :: iErr, iWFType
-integer(kind=iwp) :: i, iA, iB, IBAS, IBASEND, iBeta, iCMO, iEne, iInd, imyNBAS, imyNORB, IND, iOcc, IORB, IORBEND, iShift, &
-                     istatus, ISYM, iVer, jVer, KCMO, KOCC, Lu, myiUHF, myNSYM, nDiv
+integer(kind=iwp) :: i, iA, iB, IBAS, IBASEND, iBeta, iCMO, iEne, iInd, IND, iOcc, IORB, IORBEND, iShift, istatus, ISYM, iVer, &
+                     jVer, KCMO, KOCC, Lu, myiUHF, myNSYM, nDiv
 logical(kind=iwp) :: Exists
 character(len=256) :: LINE
 character(len=40) :: FRMT
 character(len=10) :: Buff
+integer(kind=iwp), allocatable :: myNBAS(:), myNORB(:)
 character(len=*), parameter :: Crypt = 'fi123sd', &
                                CryptUP = 'FIXXXSD', &
                                Location = 'rdVec_'
-#include "WrkSpc.fh"
 ! Note! the size of Magic must be exact (thanks to MS formatted inporb!)
 #include "inporbfmt.fh"
 
@@ -124,17 +125,17 @@ if (myNSYM /= NSYM) then
   call SysWarnFileMsg(Location,FName,'NSYM does not match',' ')
   call Abend()
 end if
-call GetMem('MYNBAS','Allo','Inte',imyNBAS,NSYM)
-call GetMem('MYNORB','Allo','Inte',imyNORB,NSYM)
-read(Lu,*,iostat=istatus) (iWork(imyNBAS+i-1),i=1,NSYM)
+call mma_allocate(myNBAS,NSYM,label='myNBAS')
+call mma_allocate(myNORB,NSYM,label='myNORB')
+read(Lu,*,iostat=istatus) (myNBAS(i),i=1,NSYM)
 if (istatus /= 0) call Error()
-read(Lu,*,iostat=istatus) (iWork(imyNORB+i-1),i=1,NSYM)
+read(Lu,*,iostat=istatus) (myNORB(i),i=1,NSYM)
 if (istatus /= 0) call Error()
 !----------------------------------------------------------------------*
 ! Do checks                                                            *
 !----------------------------------------------------------------------*
 do i=1,NSYM
-  if (iWork(imyNBAS+i-1) /= NBAS(i)) then
+  if (myNBAS(i) /= NBAS(i)) then
     Line = 'NBAS does not match'
     if (iWarn == 1) then
       call SysWarnMsg(Location,Line,' ')
@@ -146,7 +147,7 @@ do i=1,NSYM
 end do
 if (iWarn > 0) then
   do i=1,NSYM
-    if (iWork(imyNORB+i-1) < NORB(i)) then
+    if (myNORB(i) < NORB(i)) then
       Line = 'NORB does not match'
       if (iWarn == 1) then
         call SysWarnMsg(Location,Line,' ')
@@ -157,7 +158,7 @@ if (iWarn > 0) then
     end if
   end do
 end if
-call GetMem('MYNBAS','Free','Inte',imyNBAS,NSYM)
+call mma_deallocate(myNBAS)
 !----------------------------------------------------------------------*
 ! ORB section                                                          *
 !----------------------------------------------------------------------*
@@ -172,7 +173,7 @@ if (iCMO == 1) then
   end do
   KCMO = 0
   do ISYM=1,NSYM
-    do IORB=1,iWork(imyNORB+ISYM-1)
+    do IORB=1,myNORB(ISYM)
       do IBAS=1,NBAS(ISYM),NDIV
         IBASEND = min(IBAS+NDIV-1,NBAS(ISYM))
         do
@@ -196,7 +197,7 @@ if (iCMO == 1) then
     end do
     KCMO = 0
     do ISYM=1,NSYM
-      do IORB=1,iWork(imyNORB+ISYM-1)
+      do IORB=1,NORB(ISYM)
         do IBAS=1,NBAS(ISYM),NDIV
           IBASEND = min(IBAS+NDIV-1,NBAS(ISYM))
           do
@@ -233,8 +234,8 @@ if (iOcc == 1) then
   end do
   KOCC = 0
   do ISYM=1,NSYM
-    do IORB=1,iWork(imyNORB+ISYM-1),NDIV
-      IORBEND = min(IORB+NDIV-1,iWork(imyNORB+ISYM-1))
+    do IORB=1,myNORB(ISYM),NDIV
+      IORBEND = min(IORB+NDIV-1,myNORB(ISYM))
       do
         read(LU,'(A256)',iostat=istatus) LINE
         if (istatus /= 0) call Error()
@@ -243,7 +244,7 @@ if (iOcc == 1) then
       read(LINE,FRMT,iostat=istatus) (OCC(I+KOCC),I=IORB,IORBEND)
       if (istatus /= 0) call Error()
     end do
-    !KOCC = KOCC+iWork(imyNORB+ISYM-1)
+    !KOCC = KOCC+myNORB(ISYM)
     KOCC = KOCC+nOrb(iSym)
   end do
   if ((iUHF == 1) .or. (iBeta == 1)) then
@@ -254,8 +255,8 @@ if (iOcc == 1) then
     end do
     KOCC = 0
     do ISYM=1,NSYM
-      do IORB=1,iWork(imyNORB+ISYM-1),NDIV
-        IORBEND = min(IORB+NDIV-1,iWork(imyNORB+ISYM-1))
+      do IORB=1,myNORB(ISYM),NDIV
+        IORBEND = min(IORB+NDIV-1,myNORB(ISYM))
         do
           read(LU,'(A256)',iostat=istatus) LINE
           if (istatus /= 0) call Error()
@@ -269,7 +270,7 @@ if (iOcc == 1) then
           if (istatus /= 0) call Error()
         end if
       end do
-      !KOCC = KOCC+iWork(imyNORB+ISYM-1)
+      !KOCC = KOCC+myNORB(ISYM)
       KOCC = KOCC+nOrb(iSym)
     end do
   end if ! iUHF
@@ -291,8 +292,8 @@ if (iEne == 1) then
   end do
   KOCC = 0
   do ISYM=1,NSYM
-    do IORB=1,iWork(imyNORB+ISYM-1),NDIV
-      IORBEND = min(IORB+NDIV-1,iWork(imyNORB+ISYM-1))
+    do IORB=1,myNORB(ISYM),NDIV
+      IORBEND = min(IORB+NDIV-1,myNORB(ISYM))
       do
         read(LU,'(A256)',iostat=istatus) LINE
         if (istatus /= 0) call Error()
@@ -301,7 +302,7 @@ if (iEne == 1) then
       read(LINE,FRMT,iostat=istatus) (EORB(I+KOCC),I=IORB,IORBEND)
       if (istatus /= 0) call Error()
     end do
-    !KOCC = KOCC+iWork(imyNORB+ISYM-1)
+    !KOCC = KOCC+myNORB(ISYM)
     KOCC = KOCC+nOrb(iSym)
   end do
   if ((iUHF == 1) .or. (iBeta == 1)) then
@@ -312,8 +313,8 @@ if (iEne == 1) then
     end do
     KOCC = 0
     do ISYM=1,NSYM
-      do IORB=1,iWork(imyNORB+ISYM-1),NDIV
-        IORBEND = min(IORB+NDIV-1,iWork(imyNORB+ISYM-1))
+      do IORB=1,myNORB(ISYM),NDIV
+        IORBEND = min(IORB+NDIV-1,myNORB(ISYM))
         do
           read(LU,'(A256)',iostat=istatus) LINE
           if (istatus /= 0) call Error()
@@ -327,7 +328,7 @@ if (iEne == 1) then
           if (istatus /= 0) call Error()
         end if
       end do
-      !KOCC = KOCC+iWork(imyNORB+ISYM-1)
+      !KOCC = KOCC+myNORB(ISYM)
       KOCC = KOCC+nOrb(iSym)
     end do
   end if ! iUHF
@@ -353,7 +354,7 @@ if (iInd == 1) then
     do i=1,nSkpInd(iVer)
       read(LU,*)
     end do
-    do IORB=1,iWork(imyNORB+ISYM-1),nDiv
+    do IORB=1,myNORB(ISYM),nDiv
       read(LU,FRMT,iostat=istatus) Buff
       if (istatus /= 0) then
         call End2()
@@ -391,7 +392,7 @@ return
 contains
 
 subroutine End1()
-  call GetMem('MYNORB','Free','Inte',imyNORB,NSYM)
+  call mma_deallocate(myNORB)
 end subroutine End1
 
 subroutine End2()

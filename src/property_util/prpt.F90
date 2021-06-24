@@ -21,19 +21,20 @@ subroutine Prpt()
 !                                                                      *
 !***********************************************************************
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, iDummy(1), iError, ipOcc, ipOcc_ab, ipScr, ipVec, ipVec_ab, iSym, iUHF, iWFType, Lu, MaxScr, n2Tot, &
-                     nBas(8), nDim, nIrrep, nTriDim
+integer(kind=iwp) :: iDummy(1), iError, iSym, iUHF, iWFType, Lu, MaxScr, n2Tot, nBas(8), nDim, nIrrep, nTriDim
 real(kind=wp) :: Dummy(1)
 logical(kind=iwp) :: ifallorb, Short, var
 character(len=81) :: note
 character(len=8) :: Method
 character(len=4) :: PrpLst
 character(len=2) :: lbl
+real(kind=wp), allocatable :: Occ(:,:), Scr(:), Vec(:,:)
 integer(kind=iwp), external :: isFreeUnit
-#include "WrkSpc.fh"
 
 call GetEnvf('MOLCAS_PROPERTIES',PrpLst)
 call UpCase(PrpLst)
@@ -64,11 +65,6 @@ do iSym=1,nIrrep
   n2Tot = n2Tot+nBas(iSym)**2
 end do
 
-ipOcc = ip_Dummy ! dummy initialization
-ipOcc_ab = ip_Dummy ! dummy initialization
-ipVec = ip_Dummy ! dummy initialization
-ipVec_ab = ip_Dummy ! dummy initialization
-
 if ((Method == 'RHF-SCF ') .or. &
     (Method == 'IVO-SCF ') .or. &
     (Method == 'KS-DFT  ') .or. &
@@ -79,21 +75,19 @@ else
 end if
 
 if ((iUHF == 1) .or. (Method == 'RASSCFSA')) then
-  call GetMem('Occ','Allo','Real',ipOcc,2*nDim)
-  ipOcc_ab = ipOcc+nDim
+  call mma_allocate(Occ,nDim,2,label='Occ')
 else
-  call GetMem('Occ','Allo','Real',ipOcc,nDim)
+  call mma_allocate(Occ,nDim,1,label='Occ')
 end if
 if (Short) then
-  ipVec = ip_Dummy
+  call mma_allocate(Vec,0,2,label='Vec')
   lbl = 'O '
-  n2Tot = 1
+  n2Tot = 0
 else
   if ((iUHF /= 1) .or. (Method == 'RASSCFSA')) then
-    call GetMem('Vec','Allo','Real',ipVec,n2Tot)
+    call mma_allocate(Vec,n2Tot,1,label='Vec')
   else
-    call GetMem('Vec','Allo','Real',ipVec,2*n2Tot)
-    ipVec_ab = ipVec+n2Tot
+    call mma_allocate(Vec,n2Tot,2,label='Vec')
   end if
   lbl = 'CO'
 end if
@@ -105,14 +99,12 @@ if ((Method == 'RHF-SCF ') .or. &
     (Method == 'KS-DFT  ') .or. &
     (Method == 'UHF-SCF ')) then
   if (iUHF /= 1) then
-    call RdVec('SCFORB',Lu,Lbl,nIrrep,nBas,nBas,Work(ipVec),Work(ipOcc),Dummy,iDummy,'',0,iError)
+    call RdVec('SCFORB',Lu,Lbl,nIrrep,nBas,nBas,Vec(:,1),Occ(:,1),Dummy,iDummy,'',0,iError)
   else
-    call RdVec_('UHFORB',Lu,Lbl,iUHF,nIrrep,nBas,nBas,Work(ipVec),Work(ipVec_ab),Work(ipOcc),Work(ipOcc_ab),Dummy,Dummy,iDummy,'', &
+    call RdVec_('UHFORB',Lu,Lbl,iUHF,nIrrep,nBas,nBas,Vec(:,1),Vec(:,2),Occ(:,1),Occ(:,2),Dummy,Dummy,iDummy,'', &
                 1,iError,iWFtype)
     if (Short) then
-      do i=0,nDim-1
-        Work(ipOcc+i) = Work(ipOcc+i)+Work(ipOcc_ab+i)
-      end do
+      Occ(:,1) = Occ(:,1)+Occ(:,2)
     end if
   end if
 else if ((Method == 'RASSCF  ') .or. &
@@ -122,35 +114,33 @@ else if ((Method == 'RASSCF  ') .or. &
          (Method == 'CASPT2  ') .or. &
          (Method == 'RASSCFSA')) then
   if (Method == 'RASSCFSA') then
-    call RdVec_('TMPORB',Lu,Lbl,iUHF,nIrrep,nBas,nBas,Work(ipVec),Work(ipVec_ab),Work(ipOcc),Work(ipOcc_ab),Dummy,Dummy,iDummy,'', &
+    call RdVec_('TMPORB',Lu,Lbl,iUHF,nIrrep,nBas,nBas,Vec(:,1),Vec(:,2),Occ(:,1),Occ(:,2),Dummy,Dummy,iDummy,'', &
                 1,iError,iWFtype)
     if (Short) then
-      do i=0,nDim-1
-        Work(ipOcc+i) = Work(ipOcc+i)+Work(ipOcc_ab+i)
-      end do
+      Occ(:,1) = Occ(:,1)+Occ(:,2)
     end if
     var = .false.
   else
-    call RdVec('TMPORB',Lu,Lbl,nIrrep,nBas,nBas,Work(ipVec),Work(ipOcc),Dummy,iDummy,note,0,iError)
+    call RdVec('TMPORB',Lu,Lbl,nIrrep,nBas,nBas,Vec(:,1),Occ(:,1),Dummy,iDummy,note,0,iError)
     if (Note(2:4) == 'var') var = .true.
   end if
 else if (Method == 'MBPT2   ') then
   ! MBPT2 has no occupation-numbers at the moment.
-  call FZero(Work(ipOcc),nDim)
+  Occ(:,:) = Zero
   var = .true.
 else
   write(u6,*) 'Properties not supported for ',Method
 end if
 
 MaxScr = nTriDim+nDim*(nDim+1)/2+10+480+4*10
-call GetMem('Scr','Allo','Real',ipScr,MaxScr)
-call FZero(Work(ipScr),MaxScr)
+call mma_allocate(Scr,MaxScr,label='Scr')
+Scr(:) = Zero
 
-call Prpt_(nIrrep,nBas,nDim,Work(ipOcc),n2Tot,Work(ipVec),MaxScr,Work(ipScr),var,Short,iUHF,ifallorb)
+call Prpt_(nIrrep,nBas,nDim,Occ(:,1),n2Tot,Vec(:,1),MaxScr,Scr,var,Short,iUHF,ifallorb)
 
-call GetMem('Scr','Free','Real',ipScr,MaxScr)
-call GetMem('Occ','Free','Real',ipOcc,nDim)
-if (.not. Short) call GetMem('Vec','Free','Real',ipVec,n2Tot)
+call mma_deallocate(Scr)
+call mma_deallocate(Occ)
+if (.not. Short) call mma_deallocate(Vec)
 
 return
 

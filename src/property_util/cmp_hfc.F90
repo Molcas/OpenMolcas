@@ -27,15 +27,16 @@
 
 subroutine cmp_hfc(nb,nat)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nb, nat
-integer(kind=iwp) :: iat, icomp, idir, iopt, ip, irc, isa, isd, isr, ita, itd, jdir, jp, kdir, lu_one, nb2, nbtri, stri, toper
+integer(kind=iwp) :: iat, icomp, idir, iopt, ip, irc, jdir, jp, kdir, lu_one, nb2, nbtri, toper
 real(kind=wp) :: amat(3,3), hfc(3,3), trace
 character(len=8) :: label
-#include "WrkSpc.fh"
+real(kind=wp), allocatable :: sa(:,:), sd(:,:), sr(:,:), ta(:), td(:)
 
 ! Sizes of the matrices
 nb2 = nb*nb
@@ -45,24 +46,22 @@ iopt = 0
 lu_one = 2
 toper = 255
 
-call allocate_work(itd,nbtri+4)
-call allocate_work(isd,nb2+4)
-call get_d1sao(Work(itd),nbtri)
-call square(Work(itd),Work(isd),nb,1,nb)
+call mma_allocate(td,nbtri,label='td')
+call mma_allocate(sd,nb,nb,label='sd')
+call get_d1sao(td,nbtri)
+call square(td,sd,nb,1,nb)
 
-stri = 0
-do ip=0,nb-1
-  stri = isd+ip*nb
-  do jp=0,nb-1
+do ip=1,nb
+  do jp=1,nb
     if (ip /= jp) then
-      Work(stri+jp) = Half*Work(stri+jp)
+      sd(jp,ip) = Half*sd(jp,ip)
     end if
   end do
 end do
 
-call allocate_work(ita,nbtri+4)
-call allocate_work(isa,nb2+4)
-call allocate_work(isr,nb2+4)
+call mma_allocate(ta,nbtri+4,label='ta')
+call mma_allocate(sa,nb,nb,label='sa')
+call mma_allocate(sr,nb,nb,label='sr')
 
 irc = -1
 write(label,'(A,I3)') 'DEBUG',0
@@ -77,12 +76,12 @@ do iat=1,nat
       trace = 0
       write(label,'(A,I3)') 'MAGXP',iat
       irc = -1
-      call rdone(irc,iopt,label,icomp,work(ita),toper)
+      call rdone(irc,iopt,label,icomp,ta,toper)
       if (irc /= 0) call Error()
-      call square(Work(ita),Work(isa),nb,1,nb)
-      call dgemm_('N','N',nb,nb,nb,One,Work(isd),nb,Work(isa),nb,Zero,Work(isr),nb)
+      call square(ta,sa,nb,1,nb)
+      call dgemm_('N','N',nb,nb,nb,One,sd,nb,sa,nb,Zero,sr,nb)
       do kdir=1,nb
-        trace = trace+Work(isr+nb*(kdir-1)+kdir-1)
+        trace = trace+sr(kdir,kdir)
       end do
       hfc(idir,jdir) = trace
     end do
@@ -110,11 +109,11 @@ do iat=1,nat
 end do
 call Add_Info('AMAT',AMAT,9,5)
 
-call free_work(itd)
-call free_work(isd)
-call free_work(ita)
-call free_work(isa)
-call free_work(isr)
+call mma_deallocate(td)
+call mma_deallocate(sd)
+call mma_deallocate(ta)
+call mma_deallocate(sa)
+call mma_deallocate(sr)
 call clsone(irc,iopt)
 
 return

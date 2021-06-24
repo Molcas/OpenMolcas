@@ -18,6 +18,7 @@ subroutine Dens_IF(i_root,CA,CB,OCCA,OCCB)
 !
 ! EAW 990118
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
@@ -26,21 +27,20 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: i_root
 real(kind=wp), intent(_OUT_) :: CA(*), CB(*), OCCA(*), OCCB(*)
-integer(kind=iwp) :: i, iA, iAC, iAC2, iad15, ii, IMO, IOCC, ip, ip1, ip2, ipAM1, ipAM2, ipC, ipDA, ipDB, ipDS, ipDT, ipUnity, &
-                     ipVB, iS, J, nAct
+integer(kind=iwp) :: i, iA, iAC, iAC2, iad15, ii, IMO, IOCC, ip, ip1, ip2, iS, J, nAct
 real(kind=wp) :: Dum(1), OCCNO
+real(kind=wp), allocatable :: AM1(:,:), AM2(:,:), C(:), DA(:), DB(:), DS(:), DT(:), Unity(:), VB(:,:)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "casvb.fh"
-#include "WrkSpc.fh"
 
-call GetMem('DS','ALLO','REAL',ipDS,NACPAR)
-call GetMem('DT','ALLO','REAL',ipDT,NACPAR)
-call GetMem('DA','ALLO','REAL',ipDA,NACPAR)
-call GetMem('DB','ALLO','REAL',ipDB,NACPAR)
-call GetMem('CMO','ALLO','REAL',ipC,NTOT2)
-call GetMem('UNITY','ALLO','REAL',ipUnity,NAC**2)
+call mma_allocate(DS,NACPAR,label='DS')
+call mma_allocate(DT,NACPAR,label='DT')
+call mma_allocate(DA,NACPAR,label='DA')
+call mma_allocate(DB,NACPAR,label='DB')
+call mma_allocate(C,NTOT2,label='C')
+call mma_allocate(Unity,NAC*NAC,label='UNITY')
 
 ! READ IN ORBITALS
 ! Averaged...
@@ -49,17 +49,17 @@ if (iOrbTyp /= 2) iad15 = IADR15(2)
 if (iOrbTyp == 2) iad15 = IADR15(9)
 
 ! Read-in orbitals from Jobiph following instructions from previous lines...
-call DDAFile(JOBIPH,2,Work(ipC),NTOT2,IAD15)
+call DDAFile(JOBIPH,2,C,NTOT2,IAD15)
 
 ! COEN WANTED IT AS A BLOCKED MATRIX, SO HERE THEY COME...
-ip1 = ipC
+ip1 = 1
 ip2 = 1
 call dcopy_(nTOT**2,[Zero],0,CA,1)
 call dcopy_(nTOT**2,[Zero],0,CB,1)
 do iS=1,nSym
   do i=1,nbas(is)
-    call dcopy_(nbas(is),Work(ip1),1,CA(ip2),1)
-    call dcopy_(nbas(is),Work(ip1),1,CB(ip2),1)
+    call dcopy_(nbas(is),C(ip1),1,CA(ip2),1)
+    call dcopy_(nbas(is),C(ip1),1,CB(ip2),1)
     ip1 = ip1+nbas(is)
     ip2 = ip2+NTOT
   end do
@@ -85,47 +85,47 @@ if (i_root == 0) then
   end if
 
   if (IFVB /= 0) then
-    call GetMem('VB','ALLO','REAL',ipVB,NAC*NAC)
-    call getvb2mo_cvb(Work(ipVB))
-    call GetMem('ACTMO1','ALLO','REAL',ipAM1,NTOT*NAC)
-    call GetMem('ACTMO2','ALLO','REAL',ipAM2,NTOT*NAC)
+    call mma_allocate(VB,NAC,NAC,label='VB')
+    call getvb2mo_cvb(VB)
+    call mma_allocate(AM1,NTOT,NAC,label='ACTMO1')
+    call mma_allocate(AM2,NTOT,NAC,label='ACTMO2')
     ! Gather active MOs ...
     ! Also count no of active electrons ...
-    iAC = 0
+    iAC = 1
     IMO = 1
     IOCC = 1
     OCCNO = Zero
     nAct = 0
     do iS=1,nSym
-      call dcopy_(nTOT*nash(is),CA((NISH(iS)+NFRO(IS))*NTOT+IMO),1,Work(IAC+ipAM1),1)
+      call dcopy_(nTOT*nash(is),CA((NISH(iS)+NFRO(IS))*NTOT+IMO),1,AM1(:,IAC:IAC+NASH(iS)-1),1)
       do J=0,NASH(IS)-1
         OCCNO = OCCNO+OCCA(J+NISH(IS)+NFRO(IS)+IOCC)
       end do
       nAct = nAct+NASH(iS)
-      IAC = IAC+NASH(iS)*NTOT
+      IAC = IAC+NASH(iS)
       IMO = IMO+nBas(is)*ntot
       IOCC = IOCC+NBAS(iS)
     end do
 
-    call DGEMM_('N','N',NTOT,NAC,NAC,One,Work(ipAM1),NTOT,Work(ipVB),NAC,Zero,Work(ipAM2),NTOT)
+    call DGEMM_('N','N',NTOT,NAC,NAC,One,AM1,NTOT,VB,NAC,Zero,AM2,NTOT)
 
     ! Scatter active MOs ...
     ! Also reset active occ nos - we choose nel/nact since that
     ! gives as much meaning as anything ...
 
-    iAC = 0
+    iAC = 1
     IMO = 1
     IOCC = 1
     do iS=1,nSym
-      call dcopy_(nTOT*nash(is),Work(IAC+ipAM2),1,CA((NISH(iS)+NFRO(IS))*NTOT+IMO),1)
+      call dcopy_(nTOT*nash(is),AM2(:,IAC:IAC+NASH(iS)-1),1,CA((NISH(iS)+NFRO(IS))*NTOT+IMO),1)
       call dcopy_(nash(is),[OCCNO/real(nAct,kind=wp)],0,OCCA(NISH(iS)+NFRO(IS)+IOCC),1)
-      IAC = IAC+NASH(iS)*NTOT
+      IAC = IAC+NASH(iS)
       IMO = IMO+nBas(is)*ntot
       IOCC = IOCC+NBAS(iS)
     end do
-    call GetMem('ACTMO1','FREE','REAL',ipAM1,NTOT*NAC)
-    call GetMem('ACTMO2','FREE','REAL',ipAM2,NTOT*NAC)
-    call GetMem('VB','FREE','REAL',ipVB,NAC*NAC)
+    call mma_deallocate(VB)
+    call mma_deallocate(AM1)
+    call mma_deallocate(AM2)
   end if
 
 else
@@ -139,39 +139,36 @@ else
   iad15 = IADR15(3)
   Dum(1) = Zero
   do i=1,i_root
-    call DDAFile(JOBIPH,2,Work(ipDS),NACPAR,IAD15)
-    call DDAFile(JOBIPH,2,Work(ipDT),NACPAR,IAD15)
+    call DDAFile(JOBIPH,2,DS,NACPAR,IAD15)
+    call DDAFile(JOBIPH,2,DT,NACPAR,IAD15)
     call DDAFile(JOBIPH,0,Dum,NACPR2,IAD15)
     call DDAFile(JOBIPH,0,Dum,NACPR2,IAD15)
   end do
 
   ! CREATE SPIN DENSITIES
 
-  do i=0,NACPAR-1
-    Work(ipDA+i) = Half*(Work(ipDS+i)+Work(ipDT+i))
-    Work(ipDB+i) = Half*(Work(ipDS+i)-Work(ipDT+i))
-  end do
+  DA(:) = Half*(DS(:)+DT(:))
+  DB(:) = Half*(DS(:)-DT(:))
 
 
   ! DIAGONALIZE THE SPIN DENSITIES
 
   ! FIRST ALPHA
 
-  call dcopy_(nac**2,[Zero],0,Work(ipUnity),1)
-  call dcopy_(nac,[One],0,Work(ipUnity),nac+1)
-  call Jacob(Work(ipDA),Work(ipUNITY),NAC,NAC)
+  Unity(:) = Zero
+  call dcopy_(nac,[One],0,Unity,nac+1)
+  call Jacob(DA,UNITY,NAC,NAC)
 
   ! TRANSFORM THE ACTIVE ORBITALS
 
-  iAC = 0
+  iAC = 1
   iAC2 = 1
-  ip = ipC
+  ip = 1
   do iS=1,nSym
     if (nBas(iS) /= 0) then
       ip = ip+nBas(iS)*nIsh(iS)
       iAC2 = iAC2+nish(is)*nTot
-      if (NASH(IS) > 0) call DGEMM_('N','N',NBAS(IS),NASH(IS),NASH(IS),One,Work(ip),NBAS(IS),WORK(IPUNITY+IAC),NAC,Zero,CA(iAC2), &
-                                    NTOT)
+      if (NASH(IS) > 0) call DGEMM_('N','N',NBAS(IS),NASH(IS),NASH(IS),One,C(ip),NBAS(IS),UNITY(IAC),NAC,Zero,CA(iAC2),NTOT)
       iAC = iAC+NASH(IS)*NAC+NASH(IS)
       iAC2 = iAC2+(nbas(is)-nish(is))*NTOT+nbas(is)
       ip = ip+nbas(is)*(nbas(is)-nish(is))
@@ -190,7 +187,7 @@ else
     do iA=1,nash(is)
       ii = ii+1
       i = i+ii
-      OCCA(ip) = Work(ipDA+i-1)
+      OCCA(ip) = DA(i)
       ip = ip+1
     end do
     ip = ip+nbas(is)-nFro(is)-nish(is)-nash(is)
@@ -198,20 +195,19 @@ else
 
   ! THEN ONCE AGAIN FOR BETA....
 
-  call dcopy_(nac**2,[Zero],0,Work(ipUnity),1)
-  call dcopy_(nac,[One],0,Work(ipUnity),nac+1)
+  Unity(:) = Zero
+  call dcopy_(nac,[One],0,Unity,nac+1)
 
-  call Jacob(Work(ipDB),Work(ipUNITY),NAC,NAC)
+  call Jacob(DB,UNITY,NAC,NAC)
 
-  iAC = 0
+  iAC = 1
   iAC2 = 1
-  ip = ipC
+  ip = 1
   do iS=1,nSym
     if (nbas(is) /= 0) then
       ip = ip+nBas(is)*nIsh(is)
       iAC2 = iAC2+nish(is)*NTOT
-      if (NASH(IS) > 0) call DGEMM_('N','N',NBAS(IS),NASH(IS),NASH(IS),One,Work(ip),NBAS(IS),WORK(IPUNITY+IAC),NAC,Zero,CB(iac2), &
-                                    NTOT)
+      if (NASH(IS) > 0) call DGEMM_('N','N',NBAS(IS),NASH(IS),NASH(IS),One,C(ip),NBAS(IS),UNITY(IAC),NAC,Zero,CB(iac2),NTOT)
       iAC = iAC+NASH(IS)*NAC+NASH(IS)
       iAC2 = iAC2+(nbas(is)-nish(is))*NTOT+nbas(is)
       ip = ip+nbas(is)*(nbas(is)-nish(is))
@@ -228,7 +224,7 @@ else
     do iA=1,nash(is)
       ii = ii+1
       i = i+ii
-      OCCB(ip) = Work(ipDB+i-1)
+      OCCB(ip) = DB(i)
       ip = ip+1
     end do
     ip = ip+nbas(is)-nFro(is)-nish(is)-nash(is)
@@ -237,12 +233,12 @@ end if
 
 ! OK, CLEAN UP
 
-call GetMem('DS','FREE','REAL',ipDS,NACPAR)
-call GetMem('DT','FREE','REAL',ipDT,NACPAR)
-call GetMem('DA','FREE','REAL',ipDA,NACPAR)
-call GetMem('DB','FREE','REAL',ipDB,NACPAR)
-call GetMem('CMO','FREE','REAL',ipC,NTOT2)
-call GetMem('UNITY','FREE','REAL',ipUnity,NAC**2)
+call mma_deallocate(DS)
+call mma_deallocate(DT)
+call mma_deallocate(DA)
+call mma_deallocate(DB)
+call mma_deallocate(C)
+call mma_deallocate(Unity)
 
 return
 

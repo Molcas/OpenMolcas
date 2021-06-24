@@ -16,19 +16,21 @@ subroutine Interf(i_root,Ene,isuseene,iscasvb)
 !                                                                      *
 !***********************************************************************
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: i_root, isuseene, iscasvb
 real(kind=wp), intent(in) :: Ene(*)
-integer(kind=iwp) :: i, iDum(7,8), ipCA, ipCB, ipEA, ipEB, ipOccA, ipOccB, iS, iUHF, LuTmp, mAdCMOA, mAdCMOB, nB, nB2
+integer(kind=iwp) :: iDum(7,8), iS, iUHF, LuTmp, nB, nB2
 character(len=80) :: Note
 character(len=10) :: Filename
+real(kind=wp), allocatable :: AdCMOA(:), AdCMOB(:), CA(:,:), CB(:,:), EAB(:,:), OccA(:), OccB(:)
 integer(kind=iwp), external :: isFreeUnit
 #include "rasdim.fh"
 #include "general.fh"
 #include "casvb.fh"
-#include "WrkSpc.fh"
 
 !                                                                      *
 !***********************************************************************
@@ -42,35 +44,32 @@ do iS=1,nSym
   nB2 = nB2+nBas(iS)**2
 end do
 
-call GetMem('OCCA','Allo','Real',ipOccA,nB)
-call GetMem('OCCB','Allo','Real',ipOccB,nB)
-call GetMem('ENERGY','Allo','Real',ipEA,2*nB)
-ipEB = ipEA+nB
-call GetMem('CMOA','Allo','Real',ipCA,nB**2)
-call GetMem('CMOB','Allo','Real',ipCB,nB**2)
-call GetMem('AdCMOA','Allo','Real',mAdCMOA,nB2)
-call GetMem('AdCMOB','Allo','Real',mAdCMOB,nB2)
+call mma_allocate(OccA,nB,label='OCCA')
+call mma_allocate(OccB,nB,label='OCCB')
+call mma_allocate(EAB,nB,2,label='ENERGY')
+call mma_allocate(CA,nB,nB,label='CMOA')
+call mma_allocate(CB,nB,nB,label='CMOB')
+call mma_allocate(AdCMOA,nB2,label='AdCMOA')
+call mma_allocate(AdCMOB,nB2,label='AdCMOB')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! For the moment: Orbital energies just zero
 if (isuseene /= 0) then
-  do i=1,nB
-    Work(ipEA+i-1) = Ene(i)
-    Work(ipEB+i-1) = Ene(i)
-  end do
+  EAB(:,1) = Ene(1:nB)
+  EAB(:,2) = Ene(1:nB)
 else
-  call FZero(Work(ipEA),2*nB)
+  EAB(:,:) = Zero
 end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Get the coeff. of sym adapted basis functions (ipCA, ipCB) and
-! the spin orbital occupations (ipOccA, ipOccB)
+! Get the coeff. of sym adapted basis functions (CA, CB) and
+! the spin orbital occupations (OccA, OccB)
 
-call Dens_IF(i_root,Work(ipCA),Work(ipCB),Work(ipOccA),Work(ipOccB))
-call Dens_IF_SCF(Work(ipCA),Work(mAdCMOA),'B')
-call Dens_IF_SCF(Work(ipCB),Work(mAdCMOB),'B')
+call Dens_IF(i_root,CA,CB,OccA,OccB)
+call Dens_IF_SCF(CA,AdCMOA,'B')
+call Dens_IF_SCF(CB,AdCMOB,'B')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -81,18 +80,17 @@ LuTmp = 50
 LuTmp = IsFreeUnit(LuTmp)
 iUHF = IFVB
 if (i_root /= 0) iUHF = 1
-call WrVec_('TMPORB',LuTmp,'COE',iUHF,nSym,nBas,nBas,Work(mAdCMOA),Work(mAdCMOB),Work(ipOccA),Work(ipOccB),Work(ipEA),Work(ipEB),&
-            iDum,Note,0)
+call WrVec_('TMPORB',LuTmp,'COE',iUHF,nSym,nBas,nBas,AdCMOA,AdCMOB,OccA,OccB,EAB(:,1),EAB(:,2),iDum,Note,0)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call GetMem('AdCMOB','Free','Real',mAdCMOB,nB2)
-call GetMem('AdCMOA','Free','Real',mAdCMOA,nB2)
-call GetMem('CMOA','Free','Real',ipCA,nB**2)
-call GetMem('CMOB','Free','Real',ipCB,nB**2)
-call GetMem('ENERGY','Free','Real',ipEA,nB)
-call GetMem('OCCA','Free','Real',ipOccA,nB)
-call GetMem('OCCB','Free','Real',ipOccB,nB)
+call mma_deallocate(OccA)
+call mma_deallocate(OccB)
+call mma_deallocate(EAB)
+call mma_deallocate(CA)
+call mma_deallocate(CB)
+call mma_deallocate(AdCMOA)
+call mma_deallocate(AdCMOB)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

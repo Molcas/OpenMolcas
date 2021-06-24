@@ -14,6 +14,7 @@
 subroutine VECSORT(NSYM,NBAS,NORB,CMO,OCC,INDT,NNWORD,NEWORD,iErr)
 ! Sorting routine: sort CMO, OCC according to INDT
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
@@ -30,15 +31,15 @@ integer(kind=iwp), intent(inout) :: INDT(*), iErr
 ! The mapping is (New orbital index)=NEWORD(Old orbital index).
 integer(kind=iwp), intent(out) :: NEWORD(NNWORD)
 ! PAM 2012: End of update
-integer(kind=iwp) :: i, ii, iii, ip, isfirst, ISYM, iTCMO, iType, j, kcmo, kocc, m, MBAS, NeedSort, nw
+integer(kind=iwp) :: i, ii, iii, ip, isfirst, ISYM, iType, j, kcmo, kocc, m, MBAS, NeedSort, nw
 real(kind=wp) :: q
-#include "WrkSpc.fh"
+real(kind=wp), allocatable :: TCMO(:)
 
 MBAS = NBAS(1)
 do i=2,nSym
   MBAS = max(MBAS,NBAS(i))
 end do
-call GetMem('TCMO','Allo','Real',iTCMO,MBAS)
+call mma_allocate(TCMO,MBAS,label='TCMO')
 
 kcmo = 0
 kocc = 0
@@ -101,7 +102,7 @@ do ISYM=1,NSYM
           if (NNWORD > 0) nw = NEWORD(i+KOCC)
           ! PAM 2012: End of update
           do ii=1,NBAS(ISYM)
-            Work(iTCMO+ii-1) = CMO((i-1)*NORB(ISYM)+KCMO+ii)
+            TCMO(ii) = CMO((i-1)*NORB(ISYM)+KCMO+ii)
           end do
           do j=i,ip+2,-1
             IndT(j+iii) = IndT(j-1+iii)
@@ -120,7 +121,7 @@ do ISYM=1,NSYM
           if (NNWORD > 0) NEWORD(ip+1+KOCC) = nw
           ! PAM 2012: End of update
           do ii=1,NBAS(ISYM)
-            CMO((ip)*NORB(ISYM)+KCMO+ii) = Work(iTCMO+ii-1)
+            CMO((ip)*NORB(ISYM)+KCMO+ii) = TCMO(ii)
           end do
 
           ip = ip+1
@@ -144,7 +145,7 @@ do ISYM=1,NSYM
   iii = iii+NORB(ISYM)
 
 end do
-call GetMem('TCMO','Free','Real',iTCMO,MBAS)
+call mma_deallocate(TCMO)
 
 return
 

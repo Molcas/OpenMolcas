@@ -60,6 +60,7 @@ subroutine Prpt_(nIrrep,nBas,nDim,Occ,n2Tot,Vec,MaxScr,Scr,var,Short,iUHF,ifallo
 !***********************************************************************
 
 use iso_c_binding, only: c_f_pointer, c_loc
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
@@ -68,16 +69,16 @@ integer(kind=iwp), intent(in) :: nIrrep, nBas(0:nIrrep-1), nDim, n2Tot, MaxScr, 
 real(kind=wp), intent(in) :: Occ(nDim), Vec(n2Tot)
 real(kind=wp), intent(out) :: Scr(MaxScr)
 logical(kind=iwp), intent(in) :: var, Short, ifallorb
-integer(kind=iwp) :: iadC1, iadC2, iadDen, iadDen_ab, iadEl, iadEl_Work, iadElSum, iadLab, iadNuc, iadNucSum, iadopr, iadtmp, &
-                     iadtmt, idum(1), iInd1, iInd2, iOcc_ab, iopt, ip_Scr, ipD1ao, iPL, ipScr, ipVec, irc, iscr, iSmLbl, iTol, &
-                     jRC, lpole, maxCen, maxGG, mBas(0:7), mDim, mInt, nbast, nblock, nCen, nComp, nfblock, nscr, tNUC
+integer(kind=iwp) :: iadC1, iadC2, iadDen, iadDen_ab, iadEl, iadLab, iadNuc, iadopr, iadtmp, iadtmt, idum(1), iOcc_ab, iopt, &
+                     ip_Scr, iPL, ipScr, ipVec, irc, iscr, iSmLbl, iTol, jRC, lpole, maxCen, maxGG, mBas(0:7), mDim, mInt, nbast, &
+                     nblock, nCen, nComp, nfblock, nscr, tNUC
 logical(kind=iwp) :: NxtOpr
 character(len=8) :: label
+real(kind=wp), allocatable :: D1ao(:), El_Work(:,:), ElSum(:), NucSum(:)
 real(kind=wp), parameter :: Thrs = 1.0e-6_wp
 integer(kind=iwp), external :: ip_of_Work, iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt
 #include "hfc_logical.fh"
-#include "WrkSpc.fh"
 
 call Prpt_Internal(Scr)
 
@@ -154,16 +155,14 @@ subroutine Prpt_Internal(Scr)
 
     !if (iUHF ==  0) then
     call dcopy_(nblock,[Zero],0,Scr(iadDen),1)
-    call GetMem('D1ao','Allo','Real',ipD1ao,nBlock)
+    call mma_allocate(D1ao,nBlock,label='D1ao')
     if (var) then
-      call Get_D1ao_Var(Work(ipD1ao),nBlock)
+      call Get_D1ao_Var(D1ao,nBlock)
     else
-      call Get_D1ao(Work(ipD1ao),nBlock)
+      call Get_D1ao(D1ao,nBlock)
     end if
-    do i=1,nBlock
-      SCR(i) = Work(ipD1ao+i-1)
-    end do
-    call GetMem('Dens','Free','Real',ipD1ao,nBlock)
+    Scr(1:nBlock) = D1ao(:)
+    call mma_deallocate(D1ao)
     !end if
     iadC1 = iadDen+nblock
 
@@ -195,13 +194,13 @@ subroutine Prpt_Internal(Scr)
     iadEl = iadNuc+nComp
     iadLab = iadEl+nComp
     if (.not. Short) then
-      call GetMem('iadEl1','Allo','Real',iadEl_Work,nComp*mDim)
+      call mma_allocate(El_Work,nDim,nComp,label='iadEl1')
       ip_Scr = ip_of_Work(Scr(1))
-      iadEl = iadEl_Work-(ip_Scr-1)
+      iadEl = ip_of_Work(El_Work(1,1))-(ip_Scr-1)
     end if
     iscr = nscr+10+4*nComp
     if (iscr > maxscr) then
-      if (.not. Short) call Free_Work(iadEl_Work)
+      if (.not. Short) call mma_deallocate(El_Work)
       call Error()
       return
     end if
@@ -236,7 +235,7 @@ subroutine Prpt_Internal(Scr)
                                                       Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim+nDim))
     end do
     if (.not. NxtOpr) then
-      if (.not. Short) call Free_Work(iadEl_Work)
+      if (.not. Short) call mma_deallocate(El_Work)
       exit
     end if
     iadTmt = iadOpr+nblock
@@ -244,7 +243,7 @@ subroutine Prpt_Internal(Scr)
       iadTmp = iadTmt+nComp**2
       iscr = iadTmp+nComp
       if (iscr > maxscr) then
-        if (.not. Short) call Free_Work(iadEl_Work)
+        if (.not. Short) call mma_deallocate(El_Work)
         call Error()
         return
       end if
@@ -256,7 +255,7 @@ subroutine Prpt_Internal(Scr)
     call prop(short,label,scr(iadC1),scr(iadC2),nirrep,mBas,mDim,occ,Thrs,scr(iadEl),scr(iadNuc),i,cScr,scr(iadTmt),scr(iadTmp), &
               ifallorb)
     nullify(cScr)
-    if (.not. Short) call Free_Work(iadEl_Work)
+    if (.not. Short) call mma_deallocate(El_Work)
   end do
 
   ! Scan 'ONEINT' for magnetic hyperfine integrals
@@ -308,15 +307,15 @@ subroutine Prpt_Internal(Scr)
     iadEl = iadNuc+nComp
     iadLab = iadEl+nComp
     if (.not. Short) then
-      call GetMem('iadEl2','Allo','Real',iadEl_Work,nComp*mDim)
+      call mma_allocate(El_Work,mDim,nComp,label='iadEl2')
       ip_Scr = ip_of_Work(Scr(1))
-      iadEl = iadEl_Work-(ip_Scr-1)
+      iadEl = ip_of_Work(El_Work(1,1))-(ip_Scr-1)
     end if
     ! create vectors to store the sums of electronic and nuclear components over all centers
-    call GetMem('ElSum','Allo','Real',iadElSum,nComp)
-    call GetMem('NucSum','Allo','Real',iadNucSum,nComp)
-    call DZero(Work(iadElSum),nComp)
-    call DZero(Work(iadNucSum),nComp)
+    call mma_allocate(ElSum,nComp,label='ElSum')
+    call mma_allocate(NucSum,nComp,label='NucSum')
+    ElSum(:) = Zero
+    NucSum(:) = Zero
 
     ! loop over different operator origins (max. 99999)
 
@@ -360,16 +359,15 @@ subroutine Prpt_Internal(Scr)
                 scr(iadTmp),ifallorb)
       nullify(cScr)
       ! add the components to the sums, and update the total number of centers
-      do iComp=0,nComp-1
-        iInd1 = iadElSum+iComp
-        do iOcc=0,mDim-1
-          Work(iInd1) = Work(iInd1)+Scr(iadEl+iComp*mDim+iOcc)
+      do iComp=1,nComp
+        do iOcc=1,mDim
+          ElSum(iComp) = ElSum(iComp)+Scr(iadEl+(iComp-1)*mDim+iOcc-1)
         end do
       end do
-      call DaXpY_(nComp,One,Scr(iadNuc),1,Work(iadNucSum),1)
+      call DaXpY_(nComp,One,Scr(iadNuc),1,NucSum,1)
       nCen = i
     end do
-    if (.not. Short) call Free_Work(iadEl_Work)
+    if (.not. Short) call mma_deallocate(El_Work)
 
     if (nCen > 0) then
       ! set the tolerance according to the total number of centers
@@ -381,13 +379,13 @@ subroutine Prpt_Internal(Scr)
       ! can kind of tell by reading MAG x2c integrals) This is a workaround.
       if (.not. MAG_X2C) then
         write(label,'(a,i1,a)') 'EF',iEF,'   el'
-        call Add_Info(label,Work(iadElSum),nComp,iTol)
+        call Add_Info(label,ElSum,nComp,iTol)
         write(label,'(a,i1,a)') 'EF',iEF,'  nuc'
-        call Add_Info(label,Work(iadNucSum),nComp,iTol)
+        call Add_Info(label,NucSum,nComp,iTol)
       end if
     end if
-    call GetMem('ElSum','Free','Real',iadElSum,nComp)
-    call GetMem('NucSum','Free','Real',iadNucSum,nComp)
+    call mma_deallocate(ElSum)
+    call mma_deallocate(NucSum)
   end do
   !                                                                    *
   !*********************************************************************
@@ -400,15 +398,15 @@ subroutine Prpt_Internal(Scr)
   iadEl = iadNuc+nComp
   iadLab = iadEl+nComp
   if (.not. Short) then
-    call GetMem('iadEl2','Allo','Real',iadEl_Work,nComp*mDim)
+    call mma_allocate(El_Work,mDim,nComp,label='iadEl2')
     ip_Scr = ip_of_Work(Scr(1))
-    iadEl = iadEl_Work-(ip_Scr-1)
+    iadEl = ip_of_Work(El_Work(1,1))-(ip_Scr-1)
   end if
   ! create vectors to store the sums of electronic and nuclear components over all centers
-  call GetMem('ElSum','Allo','Real',iadElSum,nComp)
-  call GetMem('NucSum','Allo','Real',iadNucSum,nComp)
-  call DZero(Work(iadElSum),nComp)
-  call DZero(Work(iadNucSum),nComp)
+  call mma_allocate(ElSum,nComp,label='ElSum')
+  call mma_allocate(NucSum,nComp,label='NucSum')
+  ElSum(:) = Zero
+  NucSum(:) = Zero
 
   ! loop over different operator origins (max. 99999)
 
@@ -453,17 +451,15 @@ subroutine Prpt_Internal(Scr)
               ifallorb)
     nullify(cScr)
     ! add the components to the sums, and update the total number of centers
-    do iComp=0,nComp-1
-      iInd1 = iadElSum+iComp
-      iInd2 = iadEl+iComp*mDim
-      do iOcc=0,mDim-1
-        Work(iInd1) = Work(iInd1)+Scr(iInd2+iOcc)
+    do iComp=1,nComp
+      do iOcc=1,mDim
+        ElSum(iComp) = ElSum(iComp)+Scr(iadEl+(iComp-1)*mDim+iOcc-1)
       end do
     end do
-    call DaXpY_(nComp,One,Scr(iadNuc),1,Work(iadNucSum),1)
+    call DaXpY_(nComp,One,Scr(iadNuc),1,NucSum,1)
     nCen = i
   end do
-  if (.not. Short) call Free_Work(iadEl_Work)
+  if (.not. Short) call mma_deallocate(El_Work)
 
   if (nCen > 0) then
     ! set the tolerance according to the total number of centers
@@ -472,13 +468,13 @@ subroutine Prpt_Internal(Scr)
     iTol = iTol-nint(Half*log10(real(nCen,kind=wp)))
     if (.not. MAG_X2C) then
       write(label,'(a,a)') 'CNT','   el'
-      call Add_Info(label,Work(iadElSum),nComp,iTol)
+      call Add_Info(label,ElSum,nComp,iTol)
       write(label,'(a,a)') 'CNT','  nuc'
-      call Add_Info(label,Work(iadNucSum),nComp,iTol)
+      call Add_Info(label,NucSum,nComp,iTol)
     end if
   end if
-  call GetMem('ElSum','Free','Real',iadElSum,nComp)
-  call GetMem('NucSum','Free','Real',iadNucSum,nComp)
+  call mma_deallocate(ElSum)
+  call mma_deallocate(NucSum)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -490,9 +486,9 @@ subroutine Prpt_Internal(Scr)
   iadEl = iadNuc+nComp
   iadLab = iadEl+nComp
   if (.not. Short) then
-    call GetMem('iadEl3','Allo','Real',iadEl_Work,nComp*mDim)
+    call mma_allocate(El_Work,mDim,nComp,label='iadEl3')
     ip_Scr = ip_of_Work(Scr(1))
-    iadEl = iadEl_Work-(ip_Scr-1)
+    iadEl = ip_of_Work(El_Work(1,1))-(ip_Scr-1)
   end if
 
   maxGG = 99
@@ -546,7 +542,7 @@ subroutine Prpt_Internal(Scr)
     end do
     if (jRC == 0) exit
   end do
-  if (.not. Short) call Free_Work(iadEl_Work)
+  if (.not. Short) call mma_deallocate(El_Work)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
