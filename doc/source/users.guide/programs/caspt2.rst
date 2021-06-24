@@ -595,6 +595,28 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`GRDT`
+  Enables the calculation of analytical nuclear gradients.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="GRDT" APPEAR="Gradient" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: Grdt <advanced>
+              <HELP>
+              Force analytical nuclear gradients calculation of the CASPT2 wave function.
+              </HELP>
+              </KEYWORD>
+
+:kword:`SADRef`
+  To be used in combination with :kword:`GRDT` to use the state-average density matrix for the
+  calculation of analytical nuclear gradients.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SADREF" APPEAR="State-average density" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: Sadref <advanced>
+              <HELP>
+              Use state-average density matrix for the calculation of analytical
+              nuclear gradients.
+              </HELP>
+              </KEYWORD>
+
 :kword:`RFPErt`
   This keyword makes the program add reaction field effects to the energy
   calculation. This is done by adding the reaction field effects to the
