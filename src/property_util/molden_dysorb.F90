@@ -40,17 +40,19 @@ implicit none
 integer(kind=iwp), intent(in) :: NDO, NZ
 character(len=*), intent(in) :: filename
 real(kind=wp), intent(in) :: ENE(NDO), OCC(NDO), CMO(NZ*NDO)
-integer(kind=iwp) :: i, iAngMx_Valence, iatom, iB, ibas_lab(MxAtom), iBtot, iCntr, iCnttp, icontr, iCount, iDeg, idx, iGTO, &
-                     iIrrep, iLabel, iPL, iprim, iRc = 0, iS, isegm, ishell, iSymcent, jPL, k, kk, kk_Max, l, mdc, MF, nAtom, nB, &
-                     nData, nDeg, nOrb(8), nTest, nTot, nTot2
-real(kind=wp) :: COEF, coeff, Coor(3,MxAtom), DESYM(NZ,NZ), prim, r_Norm(maxbfn), Znuc(MxAtom)
+integer(kind=iwp) :: i, iAngMx_Valence, iatom, iB, iBtot, iCntr, iCnttp, icontr, iCount, iDeg, idx, iGTO, iIrrep, iLabel, iPL, &
+                     iprim, iRc = 0, iS, isegm, ishell, iSymcent, jPL, k, kk, kk_Max, l, mdc, MF, nAtom, nB, nData, nDeg, nOrb(8), &
+                     nTest, nTot, nTot2
+real(kind=wp) :: COEF, coeff, prim
 logical(kind=iwp) :: Exists, Found, y_cart, y_sphere
-character(len=LenIn) :: AtomLabel(MxAtom)
-character(len=LenIn8+1) :: gtolabel(maxbfn)
 character(len=100) :: Supername
-character(len=8) :: Env, MO_Label(maxbfn)
-integer(kind=iwp), allocatable :: Cent(:,:), Cent2(:), Phase(:,:)
+character(len=8) :: Env
+integer(kind=iwp), allocatable :: Cent(:,:), Cent2(:), ibas_lab(:), Phase(:,:)
+real(kind=wp), allocatable :: Coor(:,:), DESYM(:,:), r_Norm(:), Znuc(:)
+character(len=LenIn8+1), allocatable :: gtolabel(:)
 character(len=LenIn8), allocatable :: label(:)
+character(len=LenIn), allocatable :: AtomLabel(:)
+character(len=8), allocatable :: MO_Label(:)
 real(kind=wp), parameter :: EorbThr = 50.0_wp
 character, parameter :: shelllabel(7) = ['s','p','d','f','g','h','i'], &
                         cNumber(61) = ['1','2','3','4','5','6','7','8','9','0', &
@@ -138,6 +140,10 @@ end if
 ! NOTICE!!!
 ! This call will also fill info.fh and the Basis_Info
 
+call mma_allocate(AtomLabel,MxAtom,label='AtomLabel')
+call mma_allocate(iBas_Lab,MxAtom,label='iBas_Lab')
+call mma_allocate(Coor,3,MxAtom,label='Coor')
+call mma_allocate(Znuc,MxAtom,label='Znuc')
 call Inter1(AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
 call Qpg_iArray('nOrb',Found,nData)
 if (Found) then
@@ -145,6 +151,7 @@ if (Found) then
 else
   call iCopy(nIrrep,nBas,1,nOrb,1)
 end if
+call mma_deallocate(iBas_Lab)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -185,6 +192,9 @@ nB = 0
 do iS=0,nirrep-1
   nB = nB+nBas(is)
 end do
+call mma_allocate(MO_Label,nB,label='MO_Label')
+call mma_allocate(gtolabel,nB,label='gtolabel')
+call mma_allocate(r_Norm,nB,label='r_Norm')
 call mma_allocate(Cent,8,nB,label='ICENT')
 call mma_allocate(Phase,8,nB,label='IPHASE')
 call mma_allocate(Cent2,nB,label='nCENT')
@@ -556,7 +566,8 @@ end do
 !  NOTE: Also necessary for no symmetry calculations
 !  to properly keep track of i.e. px vs py vs pz
 
-DESYM = Zero
+call mma_allocate(DESYM,NZ,NZ,label='DESYM')
+DESYM(:,:) = Zero
 iBtot = 0
 iCount = 0
 do iIrrep=0,nIrrep-1 ! For all the irreps of symmetrized functions
@@ -624,6 +635,7 @@ do I=1,NDO
   end do
 
 end do ! I=1,NDO (i.e. Dyson orbitals)
+call mma_deallocate(DESYM)
 
 !                                                                      *
 !***********************************************************************
@@ -647,6 +659,9 @@ function CC(ix,iy,iz)
 end function CC
 
 subroutine End1()
+  call mma_deallocate(AtomLabel)
+  call mma_deallocate(Coor)
+  call mma_deallocate(Znuc)
   call ClsSew()
 end subroutine End1
 
@@ -656,6 +671,9 @@ subroutine End2()
 end subroutine End2
 
 subroutine End3()
+  call mma_deallocate(MO_Label)
+  call mma_deallocate(gtolabel)
+  call mma_deallocate(r_Norm)
   call mma_deallocate(Cent)
   call mma_deallocate(Phase)
   call mma_deallocate(Cent2)

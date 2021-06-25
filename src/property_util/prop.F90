@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Prop(Short,qplab,cen1,cen2,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,lpole,labs,tmat,temp,ifallorb)
+subroutine Prop(Short,qplab,cen1,cen2,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,lpole,ifallorb)
 !***********************************************************************
 !                                                                      *
 !     purpose: preprocessing of tables for different tensor            *
@@ -39,8 +39,6 @@ subroutine Prop(Short,qplab,cen1,cen2,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,lpole
 !          1:maxlab)  maxlab, nTot entries for each component          *
 !                     maxlab=(lpole+1)*(lpole+2)/2                     *
 !     PrNu(1:maxlab)  nuclear contributions for each component         *
-!     labs(1:maxlab)  labels for each component                        *
-!     temp(1:maxlab)  auxiliary storage area                           *
 !     ifallorb        logical option for whether the property of       *
 !                     all orbitals are printed (and not weighted by    *
 !                     occupation number)in property calculation when   *
@@ -65,21 +63,18 @@ logical(kind=iwp), intent(in) :: Short, ifallorb
 character(len=8), intent(in) :: qplab
 integer(kind=iwp), intent(in) :: nIrrep, nBas(0:nIrrep-1), nTot, lpole
 real(kind=wp), intent(in) :: cen1(3), cen2(3), Occ(nTot), ThrSV, PrEl(nTot,(lpole+1)*(lpole+2)/2), PrNu((lpole+1)*(lpole+2)/2)
-character(len=16), intent(out) :: labs((lpole+1)*(lpole+2)/2)
-real(kind=wp), intent(out) :: tmat((lpole+1)*(lpole+2)/2,(lpole+1)*(lpole+2)/2), temp((lpole+1)*(lpole+2)/2)
-integer(kind=iwp) :: i, icen, icen1, ilab, inp, iOcc, ip_, iPL, iSt, iTol, iTol_E0, iTol_E1, ix, ixx, iy, iyy, iz, izz, j, jMax, &
-                     maxlab
-real(kind=wp) :: Fact, Molecular_Charge = Zero, PrElAug(nTot,(lpole+1)*(lpole+2)/2+1), PrNuAug((lpole+1)*(lpole+2)/2+1), sig, tmp, &
-                 X_Coor, Y_Coor, Z_Coor
+integer(kind=iwp) :: i, icen, icen1, ilab, inp, ip_, iPL, iSt, iTol, iTol_E0, iTol_E1, ix, ixx, iy, iyy, iz, izz, j, jMax, maxlab
+real(kind=wp) :: Fact, Molecular_Charge = Zero, sig, tmp, X_Coor, Y_Coor, Z_Coor
 logical(kind=iwp) :: StoreInfo
 integer(kind=iwp), parameter :: lmax = 16
-character(len=lmax) :: lab, labsAug((lpole+1)*(lpole+2)/2+1)
+character(len=lmax) :: lab
 character(len=80) :: Line
 character(len=8) :: oplab
 character(len=5) :: lab5
 character(len=4) :: lab4
 character(len=3) :: lab3
-real(kind=wp), allocatable :: PrTot(:)
+real(kind=wp), allocatable :: PrElAug(:,:), PrNuAug(:), PrTot(:), tmat(:,:), temp(:)
+character(len=lmax), allocatable :: labs(:), labsAug(:)
 integer(kind=iwp), external :: Cho_X_GetTol, iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt
 #include "hfc_logical.fh"
@@ -104,12 +99,23 @@ StoreInfo = .true.
 !***********************************************************************
 !                                                                      *
 
+maxlab = (lpole+1)*(lpole+2)/2
+call mma_allocate(labs,maxlab,label='labs')
+call mma_allocate(tmat,maxlab,maxlab,label='tmat')
+call mma_allocate(temp,maxlab,label='temp')
+call mma_allocate(PrElAug,nTot,maxlab+1,label='PrElAug')
+call mma_allocate(PrNuAug,maxlab+1,label='PrNuAug')
+call mma_allocate(labsAug,maxlab+1,label='labsAug')
+
 ! decipher the operator label:oplab
 oplab = qplab
 call UpCase(oplab)
 lab4 = oplab(1:4)
 if (lab4 == 'MLTP') then
-  if (lpole < 0) return
+  if (lpole < 0) then
+    call End1()
+    return
+  end if
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -371,17 +377,13 @@ else if (lab4(1:2) == 'EF') then
     ! Actually, r*r is already stored as the 6th component
     ! we now move it to the 7th using the "augmented" arrays
     do j=1,5
-      do iOcc=1,nTot
-        PrElAug(iOcc,j) = PrEl(iOcc,j)
-      end do
+      PrElAug(:,j) = PrEl(:,j)
       PrNuAug(j) = PrNu(j)
       labsAug(j) = labs(j)
     end do
-    do iOcc=1,nTot
-      ! Generate the actual value of the 6th component
-      PrElAug(iOcc,6) = -PrEl(iOcc,1)-PrEl(iOcc,4)
-      PrElAug(iOcc,7) = PrEl(iOcc,6)
-    end do
+    ! Generate the actual value of the 6th component
+    PrElAug(:,6) = -PrEl(:,1)-PrEl(:,4)
+    PrElAug(:,7) = PrEl(:,6)
     PrNuAug(6) = PrNu(6)
     PrNuAug(7) = Zero
     labsAug(6) = labs(6)
@@ -545,8 +547,10 @@ else if ((lab4 == 'DMS ') .or. (lab4(1:3) == 'PAM') .or. (lab4(1:3) == 'CNT')) t
   ! do not write the contact term through Add_Info
   StoreInfo = .false.
 else if (lab4 == 'VELO') then
+  call End1()
   return
 else if (lab4 == 'ANGM') then
+  call End1()
   return
 else
 
@@ -564,7 +568,19 @@ iTol_E1 = Cho_X_GetTol(iTol_E0)
 iTol = int(real(iTol*iTol_E1,kind=wp)/real(iTol_E0,kind=wp))
 if (StoreInfo) call Add_Info(OpLab,PrTot,maxlab,iTol)
 call mma_deallocate(PrTot)
+call End1()
 
 return
+
+contains
+
+subroutine End1()
+  call mma_deallocate(labs)
+  call mma_deallocate(tmat)
+  call mma_deallocate(temp)
+  call mma_deallocate(PrElAug)
+  call mma_deallocate(PrNuAug)
+  call mma_deallocate(labsAug)
+end subroutine End1
 
 end subroutine Prop

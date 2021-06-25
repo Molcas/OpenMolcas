@@ -19,12 +19,11 @@ use Definitions, only: u6
 #endif
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nFreq, nVectors, nSym, mDisp(nSym)
 real(kind=wp), intent(in) :: Freq(nFreq), Vectors(nVectors), Intens(nFreq), RedMas(nFreq)
 integer(kind=iwp) :: iCoor, iCoord, iFreq, Lu_9, nAll_Atoms, nCoord, nUnique_Atoms
-character(len=2) :: Element(MxAtom*8)
 real(kind=wp), allocatable :: Coord(:,:), NMode(:,:,:)
+character(len=2), allocatable :: Element(:)
 integer(kind=iwp), external :: isFreeUnit
 
 !                                                                      *
@@ -74,7 +73,7 @@ call Get_Coord_All(Coord,nCoord)
 #ifdef _DEBUGPRINT_
 call RecPrt('Coord(all)',' ',Coord,3,nCoord)
 #endif
-call Get_Name_All(Element)
+call mma_allocate(Element,nCoord,label='Element')
 write(Lu_9,*) '[NATOM]'
 write(Lu_9,*) nCoord
 
@@ -83,6 +82,7 @@ do iCoord=1,nCoord
   write(Lu_9,*) Element(iCoord),Coord(:,iCoord)
 end do
 call mma_deallocate(Coord)
+call mma_deallocate(Element)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

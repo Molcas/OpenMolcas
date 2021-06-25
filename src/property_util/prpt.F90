@@ -26,14 +26,14 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iDummy(1), iError, iSym, iUHF, iWFType, Lu, MaxScr, n2Tot, nBas(8), nDim, nIrrep, nTriDim
+integer(kind=iwp) :: iDummy(1), iError, iSym, iUHF, iWFType, Lu, n2Tot, nBas(8), nDim, nIrrep, nTriDim
 real(kind=wp) :: Dummy(1)
 logical(kind=iwp) :: ifallorb, Short, var
 character(len=81) :: note
 character(len=8) :: Method
 character(len=4) :: PrpLst
 character(len=2) :: lbl
-real(kind=wp), allocatable :: Occ(:,:), Scr(:), Vec(:,:)
+real(kind=wp), allocatable :: Occ(:,:), Vec(:,:)
 integer(kind=iwp), external :: isFreeUnit
 
 call GetEnvf('MOLCAS_PROPERTIES',PrpLst)
@@ -132,15 +132,10 @@ else
   write(u6,*) 'Properties not supported for ',Method
 end if
 
-MaxScr = nTriDim+nDim*(nDim+1)/2+10+480+4*10
-call mma_allocate(Scr,MaxScr,label='Scr')
-Scr(:) = Zero
+call Prpt_(nIrrep,nBas,nDim,Occ,n2Tot,Vec,var,Short,iUHF,ifallorb)
 
-call Prpt_(nIrrep,nBas,nDim,Occ(:,1),n2Tot,Vec(:,1),MaxScr,Scr,var,Short,iUHF,ifallorb)
-
-call mma_deallocate(Scr)
 call mma_deallocate(Occ)
-if (.not. Short) call mma_deallocate(Vec)
+call mma_deallocate(Vec)
 
 return
 

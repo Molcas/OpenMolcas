@@ -27,22 +27,22 @@ subroutine Xprop(short,ifallorb,nirrep,nbas,ntotv,vec,ntoto,occ,ntotd,opel,dout)
 !       nirrep         number of irreps                                *
 !       nbas(0:nirrep) dimension for each irrep                        *
 !       ntotv          the total number of elemnts for all eigenvectors*
-!       vec            if (short) then vec stores all lower triangles  *
-!       (1:ntotv)      for all diagonal blocks of the density matrix   *
+!       vec(ntotv)     if (short) then vec stores all lower triangles  *
+!                      for all diagonal blocks of the density matrix   *
 !                      size: sum(i,i=0,nirrep-1)(nbas(i)*(nbas(i)+1)/2)*
 !                      else                                            *
 !                      vec stores the eigenvectors                     *
 !                      size: sum(i,i=0,nirrep-1)(nbas(i)*nbas(i))      *
 !       ntoto          the total number of vectors for all represen-   *
 !                      tations=the number of basis functions           *
-!       occ            if (short) the occ array is a dummy             *
-!       (1:ntoto)      else                                            *
+!       occ(ntoto)     if (short) the occ array is a dummy             *
+!                      else                                            *
 !                      occ stores the occupation numbers               *
 !                      size: sum(i,i=0,nirrep-1)(nbas(i))              *
 !       ntotd          the total number of elements in lower triangles *
 !                      of all diagonal blocks                          *
-!       opel           a storage area for transferring all lower       *
-!       (1:ntotd)      triangles of diagonal blocks of the operator    *
+!       opel(ntotd)    a storage area for transferring all lower       *
+!                      triangles of diagonal blocks of the operator    *
 !                      matrix                                          *
 !                      size: sum(i,i=0,nirrep-1)(nbas(i)*(nbas(i)+1)/2)*
 !       dout           on return if (short) dout(1) contains the total *

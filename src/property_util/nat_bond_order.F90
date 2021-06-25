@@ -76,27 +76,28 @@ implicit none
 #include "Molcas.fh"
 integer(kind=iwp), intent(in) :: NSYM, NBAS(*), iCase
 character(len=LenIn8), intent(in) :: BNAME(*)
-integer(kind=iwp) :: AtomA, AtomB, I, i_Component, i_Opt, i_Rc, i_SymLbl, iANr, IAtom, IB, iBlo, iBondNumb, ICNT(MXBAS), &
-                     iElToAsgn, iErr, iHalf, IMN, iNoNuc, iOdd, ipDummy, iPL, IS, isAtom, iSElem, ISING, iSingNumb, &
-                     isThereAtLeastABond, iSum, iSyLbl, ISYM, iTriplBondNumb, iTry, ix_Single, ix_Triple, J, jANr, JAtom, k, &
-                     KAtom, mSub, MY, NB, nBas2, nBasAtoms, nBasAtomsA, nBasAtomsB, nBasAtomsC, nBasMax, NBAST, nDens, nDimSubD, &
-                     nNUC, NPBonds, nScr, nStab(MxAtom), nSub, NY, tNUC, tRealNUC
+integer(kind=iwp) :: AtomA, AtomB, I, i_Component, i_Opt, i_Rc, i_SymLbl, iANr, IAtom, IB, iBlo, iBondNumb, ICNT, iDummy(1), &
+                     iElToAsgn, iErr, iHalf, IMN, iNoNuc, iOdd, iPL, IS, isAtom, iSElem, ISING, iSingNumb, isThereAtLeastABond, &
+                     iSum, iSyLbl, ISYM, iTriplBondNumb, iTry, ix_Single, ix_Triple, J, jANr, JAtom, k, KAtom, mSub, MY, NB, &
+                     nBas2, nBasAtoms, nBasAtomsA, nBasAtomsB, nBasAtomsC, nBasMax, NBAST, nDens, nDimSubD, nNUC, NPBonds, nScr, &
+                     nSub, NY, tNUC, tRealNUC
 real(kind=wp) :: coeff, covij, Covrad1, Covrad2, DET, ElecNonAssgn, rij, rij2, thr_BO, thr_CO, thr_Decr, thr_DecrStep, thr_Diff, &
                  thr_Dummy, thr_Dummy1, thr_Dummy2, thr_LP, thr_LP_Orig, thr_MIN, thr_NA, thr_Orig, thr_SO, TotBondElec, &
                  TotCoreElec, TotEl, TotLoneElec, TotSingleElec, TotTriplBondElec, x, y, z
 logical(kind=iwp) :: Exists, SearchedSingle, SearchedTriple
-character(len=LenIn4) :: Atom_A, Atom_B, Atom_C, Atom_D, LblCnt4(MxAtom)
-character(len=LenIn) :: CNAME(MXATOM), TLbl(MXATOM) !, LblCnt(MxAtom)
+character(len=LenIn4) :: Atom_A, Atom_B, Atom_C, Atom_D
 character(len=49) :: Label3ANoSym, Label3ASym
 character(len=36) :: LabelNoSym, LabelSym
 character(len=16) :: Label
-integer(kind=iwp), allocatable :: ANr(:), BondAtomA(:), BondAtomB(:), center(:), NBFpA(:), SingElAtom(:), &
-                                  SubDNAOindex(:,:), TriplAtomA(:), TriplAtomB(:), TriplAtomC(:)
+integer(kind=iwp), allocatable :: ANr(:), BondAtomA(:), BondAtomB(:), center(:), NBFpA(:), SingElAtom(:), SubDNAOindex(:,:,:), &
+                                  TriplAtomA(:), TriplAtomB(:), TriplAtomC(:)
 real(kind=wp), allocatable :: Allc(:,:), Bonds(:), CM(:), DNAO(:,:), DS(:,:), DS_orig(:,:), DS_tmp(:,:), P(:,:), PInv(:,:), &
                               S(:,:), S_blo(:), S_orig(:), S_tmp(:,:), Scr(:), SingEl(:), SubDNAO(:,:), SubIVal(:), SubVal(:), &
                               SubVec(:,:), Tmp(:), Tripl(:)
+character(len=LenIn4), allocatable :: LblCnt4(:)
+character(len=LenIn), allocatable :: CNAME(:), TLbl(:) !, LblCnt(:)
 character, parameter :: cSign = '-'
-integer(kind=iwp), external :: ip_of_iWork, ip_of_Work, iPrintLevel
+integer(kind=iwp), external :: iPrintLevel
 real(kind=wp), external :: Covrad
 logical(kind=iwp), external :: Reduce_Prt
 
@@ -141,7 +142,6 @@ thr_SO = 0.90_wp
 thr_Dummy = 4.0_wp
 thr_Dummy1 = 2.02_wp
 thr_Dummy2 = 1.02_wp
-ipDummy = 1
 
 ! Decreasing threshold and decrease step
 thr_DecrStep = 0.01_wp
@@ -160,33 +160,30 @@ NBAST = 0
 do I=1,NSYM
   NBAST = NBAST+NBAS(I)
 end do
-if (NBAST > MXBAS) then
-  write(u6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
-  call Abend()
-end if
 
 !----------------------------------------------------------------------*
 ! Find the list of unique center labels                                *
 !----------------------------------------------------------------------*
 
-call Get_iScalar('Unique atoms',nNUC)
+call Get_iScalar('Unique atoms',nNuc)
+call mma_allocate(CNAME,nNuc,label='CNAME')
 call Get_cArray('Unique Atom Names',CNAME,LenIn*nNuc)
-call Get_iArray('nStab',nStab,nNuc)
 
 !----------------------------------------------------------------------*
 ! Find the center label for each basis function                        *
 !----------------------------------------------------------------------*
 
 do I=1,NBAST
-  ICNT(I) = -1
+  ICNT = -1
   do J=1,NNUC
-    if (BNAME(I)(1:LenIn) == CNAME(J)) ICNT(I) = J
+    if (BNAME(I)(1:LenIn) == CNAME(J)) ICNT = J
   end do
-  if (ICNT(I) < 0) then
+  if (ICNT < 0) then
     write(u6,*)
     write(u6,*) 'NBO analysis not implemented with pseudo atoms'
     write(u6,*) '(yet). Continuing normal execution.'
     write(u6,*)
+    call mma_deallocate(CNAME)
     return
   end if
 end do
@@ -196,7 +193,10 @@ end do
 !----------------------------------------------------------------------*
 
 call Get_iScalar('LP_nCenter',tNUC)
-if (tNUC == 1) return
+if (tNUC == 1) then
+  call mma_deallocate(CNAME)
+  return
+end if
 
 !----------------------------------------------------------------------*
 ! Find the center label for each atom, regardless of symmetry          *
@@ -205,10 +205,12 @@ if (tNUC == 1) return
 ! Just atom label. It's a double of the next one,
 ! but someone could find it usefull in the future
 
+call mma_allocate(TLbl,tNUC,label='Tlbl')
 call Get_LblCnt_All(TLbl)
 
 ! Atom label plus symmetry generator
 
+call mma_allocate(LblCnt4,tNUC,label='LblCnt4')
 call Get_cArray('LP_L',LblCnt4,LenIn4*tNUC)
 !do i=1,tNUC
 !  LblCnt(i)(1:LenIn) = LblCnt4(i)(1:LenIn)
@@ -230,6 +232,9 @@ if (tNUC > NNUC) then
   end do
   tRealNUC = tNUC-iNoNuc
 end if
+
+call mma_deallocate(TLbl)
+call mma_deallocate(CNAME)
 
 !----------------------------------------------------------------------*
 ! Get the coordinates of the atoms                                     *
@@ -596,7 +601,7 @@ do
     ! SubIVal -> will contain eigen values, imaginary part
 
     call mma_allocate(SubDNAO,nBasAtoms,nBasAtoms,label='SubDNAO')
-    call mma_allocate(SubDNAOindex,nBasAtoms,nBasAtoms,label='SubDNAOindex')
+    call mma_allocate(SubDNAOindex,2,nBasAtoms,nBasAtoms,label='SubDNAOindex')
     call mma_allocate(SubVec,nBasAtoms,nBasAtoms,label='SubVec')
     call mma_allocate(SubVal,nBasAtoms,label='SubVal')
     call mma_allocate(SubIVal,nBasAtoms,label='SubIVal')
@@ -616,7 +621,7 @@ do
         nSub = nSub+1
 
         SubDNAO(nSub,mSub) = DS(NY,MY)
-        SubDNAOindex(nSub,mSub) = (MY-1)*NBAST+NY-1
+        SubDNAOindex(:,nSub,mSub) = [NY,MY]
       end do
     end do
 
@@ -624,7 +629,7 @@ do
     write(u6,*)
     call RecPrt('SubDNAO Matrix = ',' ',SubDNAO,nBasAtoms,nBasAtoms)
     write(u6,*)
-    call iVcPrt('SubDNAO index Matrix = ',' ',SubDNAOindex,nDimSubD)
+    call iVcPrt('SubDNAO index Matrix = ',' ',SubDNAOindex,2*nDimSubD)
     write(u6,*) 'SubDNAO diagonal elements'
     do I=1,nBasAtoms
       write(u6,*) SubDNAO(I,I)
@@ -639,8 +644,7 @@ do
     call xEigen(1,nBasAtoms,nBasAtoms,SubDNAO,SubVal,SubIVal,SubVec,iErr)
 
     if (iErr /= 0) then
-      write(u6,*) 'Something went wrong when diagonalizing.'
-      write(u6,*) 'NBO analysis cannot be finished, sorry.'
+      call Error()
       return
     end if
 
@@ -655,8 +659,8 @@ do
 
 #   endif
 
-    call Seek_n_Destroy(nBasAtoms,ip_of_Work(SubVal(1)),ip_of_Work(SubVec(1,1)),nBast,thr_CO,thr_Dummy,TotCoreElec, &
-                        ip_of_iWork(SubDNAOindex(1,1)),ip_of_Work(DS(1,1)),0,ipDummy,ipDummy,0,IAtom,IAtom,ipDummy,ipDummy,IAtom)
+    call Seek_n_Destroy(nBasAtoms,SubVal,SubVec,nBast,thr_CO,thr_Dummy,TotCoreElec,SubDNAOindex,DS,0,iDummy,iDummy,0,IAtom,IAtom, &
+                        iDummy,iDummy,IAtom)
 
     !------------------------------------------------------------------*
     ! Depletion of lone pair orbitals. We use the already diagonalized *
@@ -665,15 +669,14 @@ do
     ! from the DNAO density matrix. DS =DS - eival * eivect * eivect T *
     !------------------------------------------------------------------*
 
-    call Seek_n_Destroy(nBasAtoms,ip_of_Work(SubVal(1)),ip_of_Work(SubVec(1,1)),nBast,thr_LP,thr_CO,TotLoneElec, &
-                        ip_of_iWork(SubDNAOindex(1,1)),ip_of_Work(DS(1,1)),0,ipDummy,ipDummy,0,IAtom,IAtom,ipDummy,ipDummy,IAtom)
+    call Seek_n_Destroy(nBasAtoms,SubVal,SubVec,nBast,thr_LP,thr_CO,TotLoneElec,SubDNAOindex,DS,0,iDummy,iDummy,0,IAtom,IAtom, &
+                        iDummy,iDummy,IAtom)
 
     call mma_deallocate(SubDNAO)
     call mma_deallocate(SubDNAOindex)
     call mma_deallocate(SubVec)
     call mma_deallocate(SubVal)
     call mma_deallocate(SubIVal)
-
   end do
 
 # ifdef _DEBUGPRINT_
@@ -760,7 +763,7 @@ do
         ! SubIVal -> will contain eigen values, imaginary part
 
         call mma_allocate(SubDNAO,nBasAtoms,nBasAtoms,label='SubDNAO')
-        call mma_allocate(SubDNAOindex,nBasAtoms,nBasAtoms,label='SubDNAOindex')
+        call mma_allocate(SubDNAOindex,2,nBasAtoms,nBasAtoms,label='SubDNAOindex')
         call mma_allocate(SubVec,nBasAtoms,nBasAtoms,label='SubVec')
         call mma_allocate(SubVal,nBasAtoms,label='SubVal')
         call mma_allocate(SubIVal,nBasAtoms,label='SubIVal')
@@ -779,7 +782,7 @@ do
             nSub = nSub+1
 
             SubDNAO(nSub,mSub) = DS(NY,MY)
-            SubDNAOindex(nSub,mSub) = (MY-1)*NBAST+NY-1
+            SubDNAOindex(:,nSub,mSub) = [NY,MY]
           end do
         end do
 
@@ -793,8 +796,7 @@ do
         call xEigen(1,nBasAtoms,nBasAtoms,SubDNAO,SubVal,SubIVal,SubVec,iErr)
 
         if (iErr /= 0) then
-          write(u6,*) 'Something went wrong when diagonalizing.'
-          write(u6,*) 'NBO analysis cannot be finished, sorry.'
+          call Error()
           return
         end if
 
@@ -808,16 +810,14 @@ do
         call RecPrt('Eigen values, imaginary = ',' ',SubIVal,nBasAtoms,1)
 #       endif
 
-        call Seek_n_Destroy(nBasAtoms,ip_of_Work(SubVal(1)),ip_of_Work(SubVec(1,1)),nBast,thr_BO,thr_Dummy1+thr_Diff,TotBondElec, &
-                            ip_of_iWork(SubDNAOindex(1,1)),ip_of_Work(DS_tmp(1,1)),1,ip_of_iWork(BondAtomA(1)), &
-                            ip_of_iWork(BondAtomB(1)),iBondNumb,IAtom,JAtom,ip_of_Work(Bonds(1)),ipDummy,IAtom)
+        call Seek_n_Destroy(nBasAtoms,SubVal,SubVec,nBast,thr_BO,thr_Dummy1+thr_Diff,TotBondElec,SubDNAOindex,DS_tmp,1,BondAtomA, &
+                            BondAtomB,iBondNumb,IAtom,JAtom,Bonds,iDummy,IAtom)
 
         call mma_deallocate(SubDNAO)
         call mma_deallocate(SubDNAOindex)
         call mma_deallocate(SubVec)
         call mma_deallocate(SubVal)
         call mma_deallocate(SubIVal)
-
       end do
 
     end do
@@ -926,7 +926,7 @@ do
           ! SubIVal -> will contain eigen values, imaginary part
 
           call mma_allocate(SubDNAO,nBasAtoms,nBasAtoms,label='SubDNAO')
-          call mma_allocate(SubDNAOindex,nBasAtoms,nBasAtoms,label='SubDNAOindex')
+          call mma_allocate(SubDNAOindex,2,nBasAtoms,nBasAtoms,label='SubDNAOindex')
           call mma_allocate(SubVec,nBasAtoms,nBasAtoms,label='SubVec')
           call mma_allocate(SubVal,nBasAtoms,label='SubVal')
           call mma_allocate(SubIVal,nBasAtoms,label='SubIVal')
@@ -945,7 +945,7 @@ do
               nSub = nSub+1
 
               SubDNAO(nSub,mSub) = DS(NY,MY)
-              SubDNAOindex(nSub,mSub) = (MY-1)*NBAST+NY-1
+              SubDNAOindex(:,nSub,mSub) = [NY,MY]
             end do
           end do
 
@@ -959,8 +959,7 @@ do
           call xEigen(1,nBasAtoms,nBasAtoms,SubDNAO,SubVal,SubIVal,SubVec,iErr)
 
           if (iErr /= 0) then
-            write(u6,*) 'Something went wrong when diagonalizing.'
-            write(u6,*) 'NBO analysis cannot be finished, sorry.'
+            call Error()
             return
           end if
 
@@ -973,17 +972,14 @@ do
           call RecPrt('Eigen values, imaginary = ',' ',SubIVal,nBasAtoms,1)
 #         endif
 
-          call Seek_n_Destroy(nBasAtoms,ip_of_Work(SubVal(1)),ip_of_Work(SubVec(1,1)),nBast,thr_LP,thr_Dummy1,TotTriplBondElec, &
-                              ip_of_iWork(SubDNAOindex(1,1)),ip_of_Work(DS_tmp(1,1)),3,ip_of_iWork(TriplAtomA(1)), &
-                              ip_of_iWork(TriplAtomB(1)),iTriplBondNumb,IAtom,JAtom,ip_of_Work(Tripl(1)), &
-                              ip_of_iWork(TriplAtomC(1)),KAtom)
+          call Seek_n_Destroy(nBasAtoms,SubVal,SubVec,nBast,thr_LP,thr_Dummy1,TotTriplBondElec, SubDNAOindex,DS_tmp,3,TriplAtomA, &
+                              TriplAtomB,iTriplBondNumb,IAtom,JAtom,Tripl,TriplAtomC,KAtom)
 
           call mma_deallocate(SubDNAO)
           call mma_deallocate(SubDNAOindex)
           call mma_deallocate(SubVec)
           call mma_deallocate(SubVal)
           call mma_deallocate(SubIVal)
-
         end do
       end do
     end do
@@ -1072,7 +1068,7 @@ if (ElecNonAssgn >= thr_NA) then
     ! SubIVal -> will contain eigen values, imaginary part
 
     call mma_allocate(SubDNAO,nBasAtoms,nBasAtoms,label='SubDNAO')
-    call mma_allocate(SubDNAOindex,nBasAtoms,nBasAtoms,label='SubDNAOindex')
+    call mma_allocate(SubDNAOindex,2,nBasAtoms,nBasAtoms,label='SubDNAOindex')
     call mma_allocate(SubVec,nBasAtoms,nBasAtoms,label='SubVec')
     call mma_allocate(SubVal,nBasAtoms,label='SubVal')
     call mma_allocate(SubIVal,nBasAtoms,label='SubIVal')
@@ -1091,7 +1087,7 @@ if (ElecNonAssgn >= thr_NA) then
         nSub = nSub+1
 
         SubDNAO(nSub,mSub) = DS(NY,MY)
-        SubDNAOindex(nSub,mSub) = (MY-1)*NBAST+NY-1
+        SubDNAOindex(:,nSub,mSub) = [NY,MY]
       end do
     end do
 
@@ -1105,8 +1101,7 @@ if (ElecNonAssgn >= thr_NA) then
     call xEigen(1,nBasAtoms,nBasAtoms,SubDNAO,SubVal,SubIVal,SubVec,iErr)
 
     if (iErr /= 0) then
-      write(u6,*) 'Something went wrong when diagonalizing.'
-      write(u6,*) 'NBO analysis cannot be finished, sorry.'
+      call Error()
       return
     end if
 
@@ -1119,9 +1114,8 @@ if (ElecNonAssgn >= thr_NA) then
     call RecPrt('Eigen values, imaginary = ',' ',SubIVal,nBasAtoms,1)
 #   endif
 
-    call Seek_n_Destroy(nBasAtoms,ip_of_Work(SubVal(1)),ip_of_Work(SubVec(1,1)),nBast,thr_SO,thr_Dummy2,TotSingleElec, &
-                        ip_of_iWork(SubDNAOindex(1,1)),ip_of_Work(DS(1,1)),2,ip_of_iWork(SingElAtom(1)),ipDummy,iSingNumb,IAtom, &
-                        IAtom,ip_of_Work(SingEl(1)),ipDummy,IAtom)
+    call Seek_n_Destroy(nBasAtoms,SubVal,SubVec,nBast,thr_SO,thr_Dummy2,TotSingleElec,SubDNAOindex,DS,2,SingElAtom,iDummy, &
+                        iSingNumb,IAtom,IAtom,SingEl,iDummy,IAtom)
 
     call mma_deallocate(SubDNAO)
     call mma_deallocate(SubDNAOindex)
@@ -1252,6 +1246,8 @@ write(u6,*)
 ! Deallocation                                                         *
 !----------------------------------------------------------------------*
 
+call mma_deallocate(LblCnt4)
+
 call mma_deallocate(DS)
 call mma_deallocate(center)
 call mma_deallocate(NBFpA)
@@ -1278,5 +1274,13 @@ end if
 !----------------------------------------------------------------------*
 
 return
+
+contains
+
+subroutine Error()
+  write(u6,*) 'Something went wrong when diagonalizing.'
+  write(u6,*) 'NBO analysis cannot be finished, sorry.'
+  call mma_deallocate(LblCnt4)
+end subroutine Error
 
 end subroutine NAT_BOND_ORDER

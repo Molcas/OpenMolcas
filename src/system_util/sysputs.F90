@@ -31,13 +31,13 @@ use Definitions, only: iwp
 implicit none
 character(len=*), intent(in) :: str, str1, str2
 integer(kind=iwp) :: i, icr, icr1, ii, iii, ij, iLongEnough, ipos, iTooLong, j, mlen, mleni
-character(len=512) :: Junk
+character(len=len(str)+len(str1)+len(str2)) :: Junk
 
 ! because of bug in g77 we can't just concatenate strings and
 ! had to have limited length of the string
 iTooLong = 60
 iLongEnough = 50
-Junk = trim(str)//trim(str1)//trim(str2)
+Junk = str//trim(str1)//trim(str2)
 mlen = len_trim(Junk)
 mleni = mlen
 ipos = 1

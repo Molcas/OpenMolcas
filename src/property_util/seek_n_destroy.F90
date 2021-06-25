@@ -12,8 +12,8 @@
 !               Valera Veryazov                                        *
 !***********************************************************************
 
-subroutine Seek_n_Destroy(nBasAtoms,ipSubVal,ipSubVec,nBast,Threshold,ThrsD,TotElec,ipSubDNAOindex,ipDS,iWhat,ipAtomA,ipAtomB, &
-                          iCounter,IAtom,JAtom,ipWhat,ipAtomC,KAtom)
+subroutine Seek_n_Destroy(nBasAtoms,SubVal,SubVec,nBast,Threshold,ThrsD,TotElec,SubDNAOindex,DS,iWhat,AtomA,AtomB,iCounter,IAtom, &
+                          JAtom,What,AtomC,KAtom)
 !----------------------------------------------------------------------*
 ! Seek n Destroy: search the sub matrix for eigen values >= Thrs and   *
 ! deplete the corresponding scaled eigenvector from the main matrix.   *
@@ -27,17 +27,15 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: nBasAtoms, ipSubVal, ipSubVec, nBast, ipSubDNAOindex, ipDS, iWhat, ipAtomA, ipAtomB, IAtom, &
-                                 JAtom, ipWhat, ipAtomC, KAtom
-real(kind=wp), intent(in) :: Threshold, ThrsD
-real(kind=wp), intent(inout) :: TotElec
-integer(kind=iwp), intent(inout) :: iCounter
-integer(kind=iwp) :: I, iCounterOld, iCounterTrue, iFound, iFoundOrb, iStHas2bFnd, J, K, L
+integer(kind=iwp), intent(in) :: nBasAtoms, nBast, SubDNAOindex(2,nBasAtoms,nBasAtoms), iWhat, IAtom, JAtom, KAtom
+real(kind=wp), intent(in) :: SubVal(nBasAtoms), SubVec(nBasAtoms,nBasAtoms), Threshold, ThrsD
+real(kind=wp), intent(inout) :: TotElec, DS(nBasAtoms,nBasAtoms), What(*)
+integer(kind=iwp), intent(inout) :: AtomA(*), AtomB(*), iCounter, AtomC(*)
+integer(kind=iwp) :: I, iCounterOld, iCounterTrue, iFound, iFoundOrb, iStHas2bFnd, J, JJ, K, KK
 real(kind=wp) :: Accumulate, E, EigenNorm, Thrs, Thrs_Original, TotElecAvail, TotElecCount, TotElecFound
 integer(kind=iwp), allocatable :: Good(:)
 real(kind=wp), allocatable :: EiVal(:), ScrM(:,:), ScrV(:)
 real(kind=wp), external :: DNRM2_
-#include "WrkSpc.fh"
 
 Thrs = Threshold
 Thrs_Original = Threshold
@@ -57,7 +55,7 @@ TotElecAvail = Zero
 TotElecFound = Zero
 
 do I=1,nBasAtoms
-  TotElecAvail = TotElecAvail+Work(ipSubVal+I-1)
+  TotElecAvail = TotElecAvail+SubVal(I)
 end do
 
 if ((TotElecAvail > 2*ThrsD) .and. (iWhat == 1) .and. (Thrs >= 1.999_wp)) iStHas2bFnd = 1
@@ -75,7 +73,7 @@ write(u6,*) 'Something has to be found = ',iStHas2bFnd
 
 E = Zero
 do K=1,NBAST
-  E = E+Work(ipDS+(K-1)*NBAST+K-1)
+  E = E+DS(K,K)
 end do
 
 if (E < Zero) then
@@ -92,7 +90,7 @@ write(u6,*) 'Number of electrons as sum of the DS diagonal = ',E
 do
 
   do I=1,nBasAtoms
-    if ((Work(ipSubVal+I-1) > Thrs) .and. (Work(ipSubVal+I-1) <= ThrsD)) then
+    if ((SubVal(I) > Thrs) .and. (SubVal(I) <= ThrsD)) then
 
       ! One good orbital found
       ! iFoundOrb: number of Good orbitals found
@@ -101,7 +99,7 @@ do
 
       iFoundOrb = iFoundOrb+1
       Good(iFoundOrb) = I
-      EiVal(iFoundOrb) = Work(ipSubVal+I-1)
+      EiVal(iFoundOrb) = SubVal(I)
 
       ! It shouldn't be necessary, but in some cases (like radicals) a bit
       ! more than 2 electrons are found in core or lone pair orbitals. This
@@ -147,12 +145,12 @@ if ((iFoundOrb > 0) .and. (TotElecCount <= 0.1_wp)) then
 
   if (iWhat == 1) then
     iCounterOld = iCounter
-    iCounterTrue = iCounter
+    iCounterTrue = iCounter+1
 
     if (iCounter > 0) then
       iFound = -1
-      do I=0,iCounter-1
-        if ((iWork(ipAtomA+I) == IAtom) .and. (iWork(ipAtomB+I) == JAtom)) then
+      do I=1,iCounter
+        if ((AtomA(I) == IAtom) .and. (AtomB(I) == JAtom)) then
           iFound = I
         end if
       end do
@@ -162,18 +160,17 @@ if ((iFoundOrb > 0) .and. (TotElecCount <= 0.1_wp)) then
       end if
     end if
 
-    iWork(ipAtomA+iCounterTrue) = IAtom
-    iWork(ipAtomB+iCounterTrue) = JAtom
+    AtomA(iCounterTrue) = IAtom
+    AtomB(iCounterTrue) = JAtom
     Accumulate = Zero
     do I=1,iFoundOrb
       Accumulate = Accumulate+EiVal(I)
     end do
-    Work(ipWhat+iCounterTrue) = Work(ipWhat+iCounterTrue)+(Accumulate/2)
+    What(iCounterTrue) = What(iCounterTrue)+(Accumulate/2)
 
 #   ifdef _DEBUGPRINT_
     write(u6,*)
-    write(u6,*) 'NBO bond order between Atom ',iWork(ipAtomA+iCounterTrue),' and Atom ',iWork(ipAtomB+iCounterTrue),' is ', &
-                Work(ipWhat+iCounterTrue)
+    write(u6,*) 'NBO bond order between Atom ',AtomA(iCounterTrue),' and Atom ',AtomB(iCounterTrue),' is ',What(iCounterTrue)
 #   endif
 
     iCounter = iCounterOld+1
@@ -181,33 +178,33 @@ if ((iFoundOrb > 0) .and. (TotElecCount <= 0.1_wp)) then
 
   if (iWhat == 2) then
     do I=1,iFoundOrb
-      iWork(ipAtomA+iCounter) = IAtom
-      Work(ipWhat+iCounter) = EiVal(I)
+      iCounter = iCounter+1
+
+      AtomA(iCounter) = IAtom
+      What(iCounter) = EiVal(I)
 
 #     ifdef _DEBUGPRINT_
       write(u6,*)
       write(u6,*) 'NBO located ',EiVal(I),' electrons'
-      write(u6,*) 'non bonding on atom ',iWork(ipAtomA+iCounter)
+      write(u6,*) 'non bonding on atom ',AtomA(iCounter)
 #     endif
-
-      iCounter = iCounter+1
     end do
   end if
 
   if (iWhat == 3) then
     do I=1,iFoundOrb
-      iWork(ipAtomA+iCounter) = IAtom
-      iWork(ipAtomB+iCounter) = JAtom
-      iWork(ipAtomC+iCounter) = KAtom
-      Work(ipWhat+iCounter) = EiVal(I)/2
+      iCounter = iCounter+1
+
+      AtomA(iCounter) = IAtom
+      AtomB(iCounter) = JAtom
+      AtomC(iCounter) = KAtom
+      What(iCounter) = EiVal(I)/2
 
 #     ifdef _DEBUGPRINT_
       write(u6,*)
-      write(u6,*) 'NBO tricenter bond order between Atom ',iWork(ipAtomA+iCounter),' and Atom ',iWork(ipAtomB+iCounter), &
-                  ' and Atom ',iWork(ipAtomC+iCounter),' is ',Work(ipWhat+iCounter)
+      write(u6,*) 'NBO tricenter bond order between Atom ',AtomA(iCounter),' and Atom ',AtomB(iCounter),' and Atom ', &
+                  AtomC(iCounter),' is ',What(iCounter)
 #     endif
-
-      iCounter = iCounter+1
     end do
   end if
 
@@ -217,9 +214,7 @@ if ((iFoundOrb > 0) .and. (TotElecCount <= 0.1_wp)) then
 
     ScrM(:,:) = Zero
 
-    do J=1,nBasAtoms
-      ScrV(J) = Work(ipSubVec+(Good(I)-1)*nBasAtoms+J-1)
-    end do
+    ScrV(:) = SubVec(:,Good(I))
 
 #   ifdef _DEBUGPRINT_
     call RecPrt('Good orbital eigenvector',' ',ScrV,nBasAtoms,1)
@@ -255,19 +250,19 @@ if ((iFoundOrb > 0) .and. (TotElecCount <= 0.1_wp)) then
 
     ! DS Matrix depletion not just along the diagonal
 
-    K = iWork(ipSubDNAOindex)
     do J=1,nBasAtoms
-      do L=1,nBasAtoms
-        Work(ipDS+K) = Work(ipDS+K)-ScrM(L,J)
-        K = K+1
+      do K=1,nBasAtoms
+        KK = SubDNAOindex(1,K,J)
+        JJ = SubDNAOindex(2,K,J)
+        DS(KK,JJ) = DS(KK,JJ)-ScrM(K,J)
       end do
     end do
 
 #   ifdef _DEBUGPRINT_
-    call RecPrt('DS-NAO depleted Matrix = ',' ',Work(ipDS),NBAST,NBAST)
+    call RecPrt('DS-NAO depleted Matrix = ',' ',DS,NBAST,NBAST)
     E = Zero
     do K=1,NBAST
-      E = E+Work(ipDS+(K-1)*NBAST+K-1)
+      E = E+DS(K,K)
     end do
     write(u6,*)
     write(u6,*) 'Number of electrons as sum of the DS diagonal = ',E

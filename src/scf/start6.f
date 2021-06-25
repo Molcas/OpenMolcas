@@ -32,7 +32,7 @@
 #include "dcscf.fh"
 #include "spave.fh"
 * Pam 2012 Changed VECSORT arg list, need dummy array:
-      Integer NewOrd(2)
+      Integer iDummy(1)
       Real*8 CMO(mBB,nD), EOrb(mmB,nD), OccNo(mmB,nD)
       Integer, Dimension(:), Allocatable:: IndT, ID_vir
       Real*8, Dimension(:,:), Allocatable:: Da
@@ -134,7 +134,7 @@
      &               IndT,VTitle,1,iErr,iWFtype)
       End If
       Call RdTwoEnrg(Lu_,E_nondyn)
-      Call VecSort(nSym,nBas,nBas,CMO,OccNo,IndT,0,NewOrd,iErr)
+      Call VecSort(nSym,nBas,nBas,CMO,OccNo,IndT,0,iDummy,iErr)
       indx=1
       Do iSym=1,nSym
          nZero(iSym)=0

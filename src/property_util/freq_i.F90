@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine FREQ_i(nX,H,mass,Tmp1,Tmp2,EVec,EVal,iNeg)
+subroutine FREQ_i(nX,H,mass,EVec,EVal,iNeg)
 
 use Constants, only: Zero, One, autocm
 use Definitions, only: wp, iwp, r8
@@ -18,14 +18,13 @@ implicit none
 integer(kind=iwp), intent(in) :: nX
 real(kind=wp), intent(inout) :: H(nX,nX)
 real(kind=wp), intent(in) :: mass(*)
-real(kind=wp), intent(out) :: Tmp1(nX, nX), Tmp2(nX,nX), EVec(2*nX,nX), EVal(2*nX)
+real(kind=wp), intent(out) :: EVec(2*nX,nX), EVal(2*nX)
 integer(kind=iwp), intent(out) :: iNeg
 integer(kind=iwp) :: i, iHarm, ii, iOpt, iprint, j, jHarm
 real(kind=wp) :: r2, rlow, temp
 real(kind=r8), external :: DDot_
 
 iprint = 0
-call dcopy_(nX**2,[Zero],0,Tmp1,1)
 do i=1,nX
   ii = (i-1)/3+1
   do j=1,nX
@@ -37,7 +36,7 @@ end do
 
 iOpt = 1
 if (nX > 0) then
-  call Not_DGeEv(iOpt,H,nX,EVal,EVec,nX,nX,Tmp2)
+  call Not_DGeEv(iOpt,H,nX,EVal,EVec,nX,nX)
 end if
 
 ! Compute the harmonic frequencies

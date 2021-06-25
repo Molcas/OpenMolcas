@@ -8,9 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine FREQ(nX,H,nDeg,nrvec,TmpAux,Tmp3,EVec,EVal,RedM,iNeg)
+      Subroutine FREQ(nX,H,nDeg,nrvec,Tmp3,EVec,EVal,RedM,iNeg)
       Implicit Real*8 (a-h,o-z)
-      Real*8 H(*), TmpAux(*),Tmp3(nX,nX),
+      Real*8 H(*), Tmp3(nX,nX),
      &       EVec(2*nX,nX),
      &       EVal(2*nX),
      &       RedM(nX)
@@ -52,7 +52,7 @@
       If ( nX.gt.0 ) then
         Call Not_DGeEv(iOpt,Tmp3,nX,
      &             EVal,EVec,nX,
-     &             nX,TmpAux)
+     &             nX)
       End If
 *
 *-----Compute the harmonic frequencies
