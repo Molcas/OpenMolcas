@@ -138,7 +138,7 @@ integer(kind=iwp), parameter :: nAtoms = 106, &
                                                                    6,5,3,2, &
                                                                    6,5,3,2, &
                                                                    6,5,3,2  &
-                                                                  ], [4,nAtoms+1])
+                                                                  ],[4,nAtoms+1])
 
 if ((iANr < 0) .or. (iANr > nAtoms)) then
   write(u6,*) 'Freeze_Defaults: iAnr is out of range!'
@@ -146,8 +146,7 @@ if ((iANr < 0) .or. (iANr > nAtoms)) then
   call Abend()
 end if
 
-call iCopy(lMax+1,[0],0,nShell,1)
-
+nShell(:) = 0
 do i=0,min(lMax,3)
   nShell(i) = iDefaults(i,iAnr)
 end do

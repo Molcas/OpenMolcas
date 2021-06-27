@@ -13,6 +13,7 @@ subroutine ChkVec(OrbFileName,iVer,NSYM_L,NBAS_L,NORB_L,InfoLbl,iRc)
 ! Purpose: To check if OrbFileName is a valid orbital file, and which
 ! information it contains.
 
+use InpOrbFmt, only: Magic, mxVer
 use Definitions, only: iwp
 
 implicit none
@@ -24,7 +25,6 @@ logical(kind=iwp) :: lExists
 character(len=80) :: line
 integer(kind=iwp), external :: isFreeUnit
 #include "warnings.h"
-#include "inporbfmt.fh"
 
 call f_Inquire(OrbFileName,lExists)
 if (.not. lExists) then

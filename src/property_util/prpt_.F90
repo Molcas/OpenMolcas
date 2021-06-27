@@ -39,7 +39,7 @@ subroutine Prpt_(nIrrep,nBas,nDim,Occ,n2Tot,Vec,var,Short,iUHF,ifallorb)
 !***********************************************************************
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Half
+use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -53,7 +53,7 @@ logical(kind=iwp) :: NxtOpr
 character(len=8) :: label
 real(kind=wp), allocatable :: Den(:), El(:,:,:), ElSum(:), Nuc(:), NucSum(:), Opr(:)
 real(kind=wp), parameter :: Thrs = 1.0e-6_wp
-integer(kind=iwp), external :: ip_of_Work, iPrintLevel
+integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt
 #include "hfc_logical.fh"
 

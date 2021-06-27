@@ -79,10 +79,10 @@ character(len=LenIn8), intent(in) :: BNAME(*)
 integer(kind=iwp) :: AtomA, AtomB, I, i_Component, i_Opt, i_Rc, i_SymLbl, iANr, IAtom, IB, iBlo, iBondNumb, ICNT, iDummy(1), &
                      iElToAsgn, iErr, iHalf, IMN, iNoNuc, iOdd, iPL, IS, isAtom, iSElem, ISING, iSingNumb, isThereAtLeastABond, &
                      iSum, iSyLbl, ISYM, iTriplBondNumb, iTry, ix_Single, ix_Triple, J, jANr, JAtom, k, KAtom, mSub, MY, NB, &
-                     nBas2, nBasAtoms, nBasAtomsA, nBasAtomsB, nBasAtomsC, nBasMax, NBAST, nDens, nDimSubD, nNUC, NPBonds, nScr, &
-                     nSub, NY, tNUC, tRealNUC
-real(kind=wp) :: coeff, covij, Covrad1, Covrad2, DET, ElecNonAssgn, rij, rij2, thr_BO, thr_CO, thr_Decr, thr_DecrStep, thr_Diff, &
-                 thr_Dummy, thr_Dummy1, thr_Dummy2, thr_LP, thr_LP_Orig, thr_MIN, thr_NA, thr_Orig, thr_SO, TotBondElec, &
+                     nBas2, nBasAtoms, nBasAtomsA, nBasAtomsB, nBasAtomsC, nBasMax, NBAST, nDens, nNUC, NPBonds, nScr, nSub, NY, &
+                     tNUC, tRealNUC
+real(kind=wp) :: coeff, covij, Covrad1, Covrad2, DET, Dummy(1), ElecNonAssgn, rij, rij2, thr_BO, thr_CO, thr_Decr, thr_DecrStep, &
+                 thr_Diff, thr_Dummy, thr_Dummy1, thr_Dummy2, thr_LP, thr_LP_Orig, thr_MIN, thr_NA, thr_Orig, thr_SO, TotBondElec, &
                  TotCoreElec, TotEl, TotLoneElec, TotSingleElec, TotTriplBondElec, x, y, z
 logical(kind=iwp) :: Exists, SearchedSingle, SearchedTriple
 character(len=LenIn4) :: Atom_A, Atom_B, Atom_C, Atom_D
@@ -592,7 +592,6 @@ do
   do IAtom=1,tRealNUC
 
     nBasAtoms = NBFpA(IAtom)
-    nDimSubD = nBasAtoms*nBasAtoms
 
     ! extraction of sub matrix from DNAO
     ! SubDNAO -> sub matrix
@@ -605,7 +604,6 @@ do
     call mma_allocate(SubVec,nBasAtoms,nBasAtoms,label='SubVec')
     call mma_allocate(SubVal,nBasAtoms,label='SubVal')
     call mma_allocate(SubIVal,nBasAtoms,label='SubIVal')
-
 
     mSub = 0
     do MY=1,NBAST
@@ -629,14 +627,14 @@ do
     write(u6,*)
     call RecPrt('SubDNAO Matrix = ',' ',SubDNAO,nBasAtoms,nBasAtoms)
     write(u6,*)
-    call iVcPrt('SubDNAO index Matrix = ',' ',SubDNAOindex,2*nDimSubD)
+    call iVcPrt('SubDNAO index Matrix = ',' ',SubDNAOindex,2*nBasAtoms*nBasAtoms)
     write(u6,*) 'SubDNAO diagonal elements'
     do I=1,nBasAtoms
       write(u6,*) SubDNAO(I,I)
     end do
 
     !write(u6,*)
-    !write(u6,*) 'SubDS=',DDot_(nDimSubD,SubDNAO,1,SubDNAO,1),DDot_(nDimSubD,SubDNAO,1,One,0)
+    !write(u6,*) 'SubDS=',DDot_(nBasAtoms*nBasAtoms,SubDNAO,1,SubDNAO,1),DDot_(nBasAtoms*nBasAtoms,SubDNAO,1,One,0)
 #   endif
 
     ! Diagonalization
@@ -659,8 +657,8 @@ do
 
 #   endif
 
-    call Seek_n_Destroy(nBasAtoms,SubVal,SubVec,nBast,thr_CO,thr_Dummy,TotCoreElec,SubDNAOindex,DS,0,iDummy,iDummy,0,IAtom,IAtom, &
-                        iDummy,iDummy,IAtom)
+    call Seek_n_Destroy(nBasAtoms,SubVal,SubVec,nBast,thr_CO,thr_Dummy,TotCoreElec,SubDNAOindex,DS,0,iDummy,iDummy,iDummy(1), &
+                        IAtom,IAtom,Dummy,iDummy,IAtom)
 
     !------------------------------------------------------------------*
     ! Depletion of lone pair orbitals. We use the already diagonalized *
@@ -669,8 +667,8 @@ do
     ! from the DNAO density matrix. DS =DS - eival * eivect * eivect T *
     !------------------------------------------------------------------*
 
-    call Seek_n_Destroy(nBasAtoms,SubVal,SubVec,nBast,thr_LP,thr_CO,TotLoneElec,SubDNAOindex,DS,0,iDummy,iDummy,0,IAtom,IAtom, &
-                        iDummy,iDummy,IAtom)
+    call Seek_n_Destroy(nBasAtoms,SubVal,SubVec,nBast,thr_LP,thr_CO,TotLoneElec,SubDNAOindex,DS,0,iDummy,iDummy,iDummy(1),IAtom, &
+                        IAtom,Dummy,iDummy,IAtom)
 
     call mma_deallocate(SubDNAO)
     call mma_deallocate(SubDNAOindex)
@@ -754,7 +752,6 @@ do
         nBasAtomsB = NBFpA(JAtom)
 
         nBasAtoms = nBasAtomsA+nBasAtomsB
-        nDimSubD = nBasAtoms*nBasAtoms
 
         ! extraction of sub matrix from DNAO
         ! SubDNAO -> sub matrix
@@ -917,7 +914,6 @@ do
           nBasAtomsC = NBFpA(KAtom)
 
           nBasAtoms = nBasAtomsA+nBasAtomsB+nBasAtomsC
-          nDimSubD = nBasAtoms*nBasAtoms
 
           ! extraction of sub matrix from DNAO
           ! SubDNAO -> sub matrix
@@ -972,7 +968,7 @@ do
           call RecPrt('Eigen values, imaginary = ',' ',SubIVal,nBasAtoms,1)
 #         endif
 
-          call Seek_n_Destroy(nBasAtoms,SubVal,SubVec,nBast,thr_LP,thr_Dummy1,TotTriplBondElec, SubDNAOindex,DS_tmp,3,TriplAtomA, &
+          call Seek_n_Destroy(nBasAtoms,SubVal,SubVec,nBast,thr_LP,thr_Dummy1,TotTriplBondElec,SubDNAOindex,DS_tmp,3,TriplAtomA, &
                               TriplAtomB,iTriplBondNumb,IAtom,JAtom,Tripl,TriplAtomC,KAtom)
 
           call mma_deallocate(SubDNAO)
@@ -1059,7 +1055,6 @@ if (ElecNonAssgn >= thr_NA) then
   do IAtom=1,tRealNUC
 
     nBasAtoms = NBFpA(IAtom)
-    nDimSubD = nBasAtoms*nBasAtoms
 
     ! extraction of sub matrix from DNAO
     ! SubDNAO -> sub matrix

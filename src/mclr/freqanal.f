@@ -69,7 +69,6 @@
             Write(6,*)
 *
             If (converged(isym))  Then
-               naux=Max(nx*2,nX**2)
                Call mma_allocate(Tmp3,nX**2,Label='Tmp3')
                Call FREQ(nX,H(i3),nDeg(i1),nrvec(i1),
      &                   Tmp3,EVec,EVal(i1),RedMas,iNeg)

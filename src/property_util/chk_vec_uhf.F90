@@ -14,6 +14,7 @@
 subroutine Chk_vec_UHF(FName,Lu,isUHF)
 ! routine returns isUHF based on information in INPORB
 
+use InpOrbFmt, only: Magic, mxVer
 use Definitions, only: iwp, u6
 
 implicit none
@@ -24,7 +25,6 @@ integer(kind=iwp) :: istatus, iVer, jVer
 character(len=80) :: LINE
 logical(kind=iwp) :: Exists
 character(len=*), parameter :: Location = 'Chk_vec_UHF'
-#include "inporbfmt.fh"
 
 Line = 'not defined yet'
 

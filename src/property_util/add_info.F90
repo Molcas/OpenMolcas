@@ -32,15 +32,14 @@ use Para_Info, only: Is_Real_Par, King
 #endif
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
 character(len=*), intent(in) :: Label
 integer(kind=iwp), intent(in) :: nArray
-real(kind=wp), intent(_IN_) :: Array(nArray)
+real(kind=wp), intent(in) :: Array(nArray)
 integer(kind=iwp), intent(in) :: iTol
 integer(kind=iwp) :: i, ia, iArray, icomma, iDum(1), iGeoData, iGeoInfo(2), ik, isfound, iuGeoData, j, k, l, length, LuDispEn, n0, &
                      nIntCoord, nlabel, Num
+real(kind=wp) :: Aux(1)
 logical(kind=iwp) :: Found
 character(len=256) :: Collect, STMP, STRING, STRING2
 character(len=120) :: Line
@@ -115,7 +114,7 @@ call open_molcas_info()
 !----------------------------------------------------------------------*
 ! Append new information                                               *
 !----------------------------------------------------------------------*
-write(Tol,'(i8)') merge(8, iTol, iTol == 0)
+write(Tol,'(i8)') merge(8,iTol,iTol == 0)
 nlabel = len(label)
 Line = label
 n0 = nlabel
@@ -135,7 +134,7 @@ if (Found) then
     LuDispEn = 1
     LuDispEn = isfreeunit(LuDispEn)
     call Molcas_Open(LuDispEn,Energy_File)
-    write(LuDispEn,'(F16.8)') Array(nArray)
+    write(LuDispEn,'(F16.8)') Array(1)
     close(LuDispEn)
     iGeoData = 0
     iuGeoData = 10
@@ -144,7 +143,8 @@ if (Found) then
     call iDaFile(iuGeoData,2,iDum,1,iGeoData)
     nIntCoord = iDum(1)
     iGeoData = iGeoInfo(2)*(nIntCoord+1)+1
-    call dDaFile(iuGeoData,1,Array(nArray),1,iGeoData)
+    Aux(1) = Array(1) ! because the argument is inout in dDaFile
+    call dDaFile(iuGeoData,1,Aux,1,iGeoData)
     call DaClos(iuGeoData)
   end if
 end if

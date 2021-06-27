@@ -33,13 +33,12 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nb, nat
-integer(kind=iwp) :: iat, icomp, idir, iopt, ip, irc, jdir, jp, kdir, lu_one, nb2, nbtri, toper
+integer(kind=iwp) :: iat, icomp, idir, iopt, ip, irc, jdir, jp, kdir, lu_one, nbtri, toper
 real(kind=wp) :: amat(3,3), hfc(3,3), trace
 character(len=8) :: label
 real(kind=wp), allocatable :: sa(:,:), sd(:,:), sr(:,:), ta(:), td(:)
 
 ! Sizes of the matrices
-nb2 = nb*nb
 nbtri = nb*(nb+1)/2
 irc = -1
 iopt = 0

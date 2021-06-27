@@ -24,10 +24,10 @@ integer(kind=iwp), intent(in) :: NSYM, NBAS(NSYM), iCase
 character(len=LenIn8), intent(in) :: BNAME(*)
 real(kind=wp), intent(in) :: CMO(*), OCCN(*), SMAT(*)
 logical(kind=iwp), intent(in) :: FullMlk, lSave
-integer(kind=iwp) :: AtomA, AtomB, i0, iAB, iAng, iB, iBlo, i, iEnd, iix, iixx, ik, ikk, iM, iMN, IMO, iNuc, IO, iPair, iPL, IS, &
-                     ISING, ISMO, IST, iStart, iSum, iSwap, iSyLbl, ISYM, IT, ix, J, jAng, jEnd, jM, jx, k, l, lqSwap, MY, MYNUC, &
-                     MYTYP, NB, nBas2, NBAST, nNuc, NPBonds, nScr, NXTYP, NY, NYNUC, NYTYP, tNUC
-real(kind=wp) :: BO, BOThrs, DET, DMN, QSUMI, TCh, TERM, xsg
+integer(kind=iwp) :: AtomA, AtomB, i0, iAB, iAng, iB, iBlo, i, iEnd, iix, iixx, ik, ikk, iM, iMN, IMO, IO, iPair, iPL, IS, ISING, &
+                     ISMO, IST, iStart, iSum, iSwap, iSyLbl, ISYM, IT, ix, J, jAng, jEnd, jM, jx, k, l, lqSwap, MY, MYNUC, MYTYP, &
+                     NB, nBas2, NBAST, nNuc, NPBonds, nScr, NXTYP, NY, NYNUC, NYTYP, tNUC
+real(kind=wp) :: BO, BOThrs, DET, DMN, TCh, TERM, xsg
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: E
 #endif
@@ -626,19 +626,20 @@ end if
 
 call mma_allocate(QSUM,nNuc,label='QSUM')
 call mma_allocate(QSUM_TOT,nNuc,label='QSUM_TOT')
+QSUM(:) = Zero
 do I=1,NNUC
-  QSUMI = Zero
   do J=1,NXTYP
-    QSUMI = QSUMI+QQ(J,I)
+    QSUM(I) = QSUM(I)+QQ(J,I)
   end do
-  QSUM(I) = QSUMI
 end do
 ! if iCase=0, or 1 we need to put/get QSUM
-do i=1,NNUC
-  if (iCase == 0) qSwap(i) = QSUM(I)
-  if (iCase == 1) QSUM_TOT(I) = QSUM(I)+qSwap(i)
-  if (iCase >= 2) QSUM_TOT(I) = QSUM(I)
-end do
+if (iCase == 0) then
+  qSwap(1:NNUC) = QSUM(:)
+else if (iCase == 1) then
+  QSUM_TOT(:) = QSUM(:)+qSwap(1:NNUC)
+else if (iCase >= 2) then
+  QSUM_TOT(:) = QSUM(:)
+end if
 
 !----------------------------------------------------------------------*
 ! Pick up the nuclear charge                                           *
@@ -647,10 +648,7 @@ end do
 if (iCase /= 0) then
   call mma_allocate(Chrg,nNuc,label='Chrg')
   call Get_dArray('Effective nuclear charge',Chrg,nNuc)
-  do iNuc=1,nNuc
-    Chrg(iNuc) = Chrg(iNuc)*real(nSym/nStab(iNuc),kind=wp)
-  end do
-  call DaXpY_(nNuc,-One,QSUM_TOT,1,Chrg,1)
+  Chrg(:) = Chrg(:)*real(nSym/nStab(:),kind=wp)-QSUM_TOT(:)
   if (lSave) call Put_dArray('Mulliken Charge',Chrg,nNuc)
 end if
 

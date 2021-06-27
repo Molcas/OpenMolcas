@@ -16,12 +16,12 @@ use Definitions, only: iwp, u6
 implicit none
 #include "itmax.fh"
 integer(kind=iwp), intent(in) :: iAtmNr
-integer(kind=iwp), intent(out) ::  List(0:iTabMx)
+integer(kind=iwp), intent(out) :: List(0:iTabMx)
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call ICopy(iTabMx+1,[0],0,List,1)
+List(:) = 0
 !                                                                      *
 !***********************************************************************
 !                                                                      *

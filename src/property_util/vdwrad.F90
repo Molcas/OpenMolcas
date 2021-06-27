@@ -37,7 +37,7 @@ real(kind=wp), parameter :: Radii(102) = [ &
                   1.96_wp,2.02_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,                                                         & ! 54-86
   0.00_wp,0.00_wp,                                                                                                         &
           0.00_wp,0.00_wp,0.00_wp,1.86_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp,0.00_wp  & ! 87-102
-                                         ]
+]
 
 if (iAtmNr > size(Radii)) then
   write(u6,*) 'vdWRad: Too high atom number!'

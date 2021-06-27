@@ -26,6 +26,7 @@ subroutine RDVEC_(FName,LU_,LABEL,IUHF,NSYM,NBAS,NORB,CMO,CMO_ab,OCC,OCC_ab,EORB
 !           8  --
 !-----------------------------------------------------------------------
 
+use InpOrbFmt, only: FmtEne, FmtInd, FmtOcc, FmtOrb, mxVer, Magic, nDivEne, nDivInd, nDivOcc, nDivOrb, nSkpInd
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -48,8 +49,6 @@ integer(kind=iwp), allocatable :: myNBAS(:), myNORB(:)
 character(len=*), parameter :: Crypt = 'fi123sd', &
                                CryptUP = 'FIXXXSD', &
                                Location = 'rdVec_'
-! Note! the size of Magic must be exact (thanks to MS formatted inporb!)
-#include "inporbfmt.fh"
 
 Line = 'not defined yet'
 
@@ -379,7 +378,7 @@ if (iInd == 1) then
   iA = 1
   iB = 1
   do iSym=1,nSym
-    call iCopy(nOrb(iSym),IndT(iA),1,IndT(iB),1)
+    IndT(iB:iB+nOrb(iSym)-1) = IndT(iA:iA+nOrb(iSym)-1)
     iA = iA+nBas(iSym)
     iB = iB+nOrb(iSym)
   end do

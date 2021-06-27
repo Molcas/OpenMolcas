@@ -52,7 +52,7 @@ implicit none
 character(len=*), intent(in) :: FName, LABEL
 integer(kind=iwp), intent(in) :: LU_, NSYM, NBAS(NSYM), NORB(NSYM), INDT(7,8)
 real(kind=wp), intent(in) :: CMO(*), OCC(*), EORB(*)
-character(len=*), intent(inout) :: TITLE
+character(len=*), intent(in) :: TITLE
 real(kind=wp) :: vDum(2)
 
 call WrVec_(FName,LU_,LABEL,0,NSYM,NBAS,NORB,CMO,vDum,OCC,vDum,EORB,vDum,INDT,TITLE,0)

@@ -25,15 +25,17 @@ subroutine WRVEC_(FName,LU_,LABEL,IUHF,NSYM,NBAS,NORB,CMO,CMO_ab,OCC,OCC_ab,EORB
 !           8  --
 !-----------------------------------------------------------------------
 
+use InpOrbFmt, only: FmtEne, FmtInd, FmtOcc, FmtOccHR, FmtOrb, iVer22, Magic, mxVer, nDivEne, nDivInd, nDivOcc, nDivOccHR, &
+                     nDivOrb, nSkpInd
 use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=*), intent(in) :: FName, LABEL
 integer(kind=iwp), intent(in) :: LU_, IUHF, NSYM, NBAS(NSYM), NORB(NSYM), INDT(*), iWFtype
 real(kind=wp), intent(in) :: CMO(*), CMO_ab(*), OCC(*), OCC_ab(*), EORB(*), EORB_ab(*)
-character(len=*), intent(inout) :: TITLE
-integer(kind=iwp) :: I, iAppend, iB, IBAS, IBASEND, iBasis, iBB, iBuff(0:7), iCMO, iDefault, iEne, iExtras, iInd, iKoor, iLab, &
-                     iOCC, IORB, IORBEND, Ip, iShift, isIndex, istatus, ISYM, iTwoE, iVer = 0, jVer, KCMO, KOCC, lin, Lu, NDIV, nDNA
+character(len=*), intent(in) :: TITLE
+integer(kind=iwp) :: I, iAppend, IBAS, IBASEND, iBasis, iBB, iBuff(0:7), iCMO, iDefault, iEne, iExtras, iInd, iKoor, iLab, iOCC, &
+                     IORB, IORBEND, Ip, iShift, isIndex, istatus, ISYM, iTwoE, iVer = 0, jVer, KCMO, KOCC, lin, Lu, NDIV, nDNA
 logical(kind=iwp) :: Exists, IsBorn
 !-SVC: variable to hold birth certificate
 character(len=256) :: cDNA
@@ -45,7 +47,6 @@ character(len=10) :: Buff
 character(len=8) :: Line
 character(len=*), parameter :: Crypt = 'fi123sd'
 integer(kind=iwp) :: isFreeUnit
-#include "inporbfmt.fh"
 
 ! Analyze Label
 iCMO = 0
@@ -112,8 +113,11 @@ write(LU,'(A)') Magic(iVer)
 write(Lu,'(A)') '#INFO'
 
 KCMO = 0
-if (TITLE(1:1) /= '*') TITLE = '*'//TITLE(:len(TITLE)-1)
-write(LU,'(A)') trim(TITLE)
+if (TITLE(1:1) /= '*') then
+  write(LU,'(A)') '*'//trim(TITLE)
+else
+  write(LU,'(A)') trim(TITLE)
+end if
 write(LU,'(3i8)') IUHF,NSYM,iWFtype
 write(LU,'(8i8)') (NBAS(I),I=1,NSYM)
 write(LU,'(8i8)') (NORB(I),I=1,NSYM)
@@ -281,6 +285,7 @@ return
 contains
 
 subroutine WrInd()
+  integer(kind=iwp) :: I, IB, IORB, ISYM
 
   ! INDEX section. NOTE THIS SECTION SHOULD ALWAYS BE LAST (Gv constraint)
   if (iInd == 1) then

@@ -99,10 +99,9 @@ if ((Method == 'RHF-SCF ') .or. &
     (Method == 'KS-DFT  ') .or. &
     (Method == 'UHF-SCF ')) then
   if (iUHF /= 1) then
-    call RdVec('SCFORB',Lu,Lbl,nIrrep,nBas,nBas,Vec(:,1),Occ(:,1),Dummy,iDummy,'',0,iError)
+    call RdVec('SCFORB',Lu,Lbl,nIrrep,nBas,nBas,Vec(:,1),Occ(:,1),Dummy,iDummy,note,0,iError)
   else
-    call RdVec_('UHFORB',Lu,Lbl,iUHF,nIrrep,nBas,nBas,Vec(:,1),Vec(:,2),Occ(:,1),Occ(:,2),Dummy,Dummy,iDummy,'', &
-                1,iError,iWFtype)
+    call RdVec_('UHFORB',Lu,Lbl,iUHF,nIrrep,nBas,nBas,Vec(:,1),Vec(:,2),Occ(:,1),Occ(:,2),Dummy,Dummy,iDummy,note,1,iError,iWFtype)
     if (Short) then
       Occ(:,1) = Occ(:,1)+Occ(:,2)
     end if
@@ -114,8 +113,7 @@ else if ((Method == 'RASSCF  ') .or. &
          (Method == 'CASPT2  ') .or. &
          (Method == 'RASSCFSA')) then
   if (Method == 'RASSCFSA') then
-    call RdVec_('TMPORB',Lu,Lbl,iUHF,nIrrep,nBas,nBas,Vec(:,1),Vec(:,2),Occ(:,1),Occ(:,2),Dummy,Dummy,iDummy,'', &
-                1,iError,iWFtype)
+    call RdVec_('TMPORB',Lu,Lbl,iUHF,nIrrep,nBas,nBas,Vec(:,1),Vec(:,2),Occ(:,1),Occ(:,2),Dummy,Dummy,iDummy,note,1,iError,iWFtype)
     if (Short) then
       Occ(:,1) = Occ(:,1)+Occ(:,2)
     end if

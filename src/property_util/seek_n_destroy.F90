@@ -79,7 +79,7 @@ end do
 if (E < Zero) then
   call End1()
   return
-endif
+end if
 
 #ifdef _DEBUGPRINT_
 write(u6,*)

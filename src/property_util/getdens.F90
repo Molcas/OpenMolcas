@@ -78,7 +78,7 @@ if (Density) then
 
   ! Build the density matrix.
 
-  call dcopy_(nDen,[Zero],0,Den,1)
+  Den(:) = Zero
 
   ictv = iadVec
   icto = iadOcc

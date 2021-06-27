@@ -74,7 +74,7 @@ interface Isotope
 end interface Isotope
 
 protected :: ElementList
-public :: MaxAtomNum, Isotope, ElementList, Initialize_Isotopes,Free_Isotopes, NuclideMass, PTab
+public :: MaxAtomNum, Isotope, ElementList, Initialize_Isotopes, Free_Isotopes, NuclideMass, PTab
 
 ! Private extensions to mma interfaces
 

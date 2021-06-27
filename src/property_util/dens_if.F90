@@ -54,8 +54,8 @@ call DDAFile(JOBIPH,2,C,NTOT2,IAD15)
 ! COEN WANTED IT AS A BLOCKED MATRIX, SO HERE THEY COME...
 ip1 = 1
 ip2 = 1
-call dcopy_(nTOT**2,[Zero],0,CA,1)
-call dcopy_(nTOT**2,[Zero],0,CB,1)
+CA(:nTOT**2) = Zero
+CB(:nTOT**2) = Zero
 do iS=1,nSym
   do i=1,nbas(is)
     call dcopy_(nbas(is),C(ip1),1,CA(ip2),1)
@@ -75,13 +75,13 @@ if (i_root == 0) then
     Dum(1) = Zero
     call DDAFile(JOBIPH,0,Dum,NTOT2,IAD15)
     call DDAFILE(JOBIPH,2,OCCA,NTOT,IAD15)
-    call dcopy_(nTOT,[Zero],0,OCCB,1)
+    OCCB(:nTOT) = Zero
   end if
   ! Canonical...
   if (iOrbTyp == 2) then
     ! SIMPLY ZERO ALPHA and BETA OCC NOS
-    call dcopy_(nTOT,[Zero],0,OCCA,1)
-    call dcopy_(nTOT,[Zero],0,OCCB,1)
+    OCCA(:nTOT) = Zero
+    OCCB(:nTOT) = Zero
   end if
 
   if (IFVB /= 0) then
@@ -150,7 +150,6 @@ else
   DA(:) = Half*(DS(:)+DT(:))
   DB(:) = Half*(DS(:)-DT(:))
 
-
   ! DIAGONALIZE THE SPIN DENSITIES
 
   ! FIRST ALPHA
@@ -181,7 +180,7 @@ else
   i = 0
   ii = 0
   do iS=1,nSYM
-    call dcopy_(nBAS(is),[Zero],0,OCCA(ip),1)
+    OCCA(ip:ip+nBAS(is)-1) = Zero
     call dcopy_((nFro(is)+nish(is)),[One],0,OCCA(ip),1)
     ip = ip+nFro(is)+nish(is)
     do iA=1,nash(is)
@@ -218,7 +217,7 @@ else
   i = 0
   ii = 0
   do iS=1,nSYM
-    call dcopy_(nBAS(is),[Zero],0,OCCB(ip),1)
+    OCCB(ip:ip+nBAS(is)-1) = Zero
     call dcopy_((nFro(is)+nish(is)),[One],0,OCCB(ip),1)
     ip = ip+nFro(is)+nish(is)
     do iA=1,nash(is)

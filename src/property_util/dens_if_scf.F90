@@ -46,10 +46,10 @@ end do
 
 ip1 = 1
 ip2 = 1
-if (Mode == 'F') call dcopy_(nTot**2,[Zero],0,COEFF,1)
+if (Mode == 'F') COEFF(:nTot**2) = Zero
 !call RecPrt('COEFF',' ',Coeff,nTot,nTot)
 do iS=0,nIrrep-1
-  if (Mode == 'B') call dcopy_(nbas(is)**2,[Zero],0,CMO(ip1),1)
+  if (Mode == 'B') CMO(ip1:ip1+nbas(is)**2-1) = Zero
   !call RecPrt('CMO',' ',CMO(ip1),nbas(is),nbas(is))
   do i=1,nbas(is)
     if (Mode == 'F') call dcopy_(nbas(is),CMO(ip1),1,COEFF(ip2),1)

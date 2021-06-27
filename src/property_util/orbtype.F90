@@ -231,32 +231,32 @@ end if
 !----------------------------------------------------------------------*
 ! Fill up the list to be returned                                      *
 !----------------------------------------------------------------------*
-if (iand(opt,1) /= 0) then
+if (btest(opt,0)) then
   do i=1,4
     List(i) = List(i)+DeepCore(i)
   end do
 end if
-if (iand(opt,2) /= 0) then
+if (btest(opt,1)) then
   do i=1,4
     List(i) = List(i)+Core(i)
   end do
 end if
-if (iand(opt,4) /= 0) then
+if (btest(opt,2)) then
   do i=1,4
     List(i) = List(i)+SoftCore(i)
   end do
 end if
-if (iand(opt,8) /= 0) then
+if (btest(opt,3)) then
   do i=1,4
     List(i) = List(i)+DeepValence(i)
   end do
 end if
-if (iand(opt,16) /= 0) then
+if (btest(opt,4)) then
   do i=1,4
     List(i) = List(i)+Valence(i)
   end do
 end if
-if (iand(opt,32) /= 0) then
+if (btest(opt,5)) then
   do i=1,4
     List(i) = List(i)+ExtraValence(i)
   end do
