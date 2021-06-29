@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Cho_MOtra(CMO,nCMOs,Do_int,ihdf5)
       Implicit None
       Integer nCMOs, ihdf5
@@ -32,23 +32,23 @@
       Call Get_iArray('nAsh',nAsh,nSym)
       Call Get_iArray('nDel',nDel,nSym)
       Do iSym=1,nSym
-         nSsh(iSym)=nBas(iSym)-nDel(iSym)-nAsh(iSym)
+         nSsh(iSym)=nBas(iSym)-nDel(iSym)-nAsh(iSym)                    &
      &             -nIsh(iSym)-nFro(iSym)
       End Do
       BName='_CHMOT'
       InitChoEnv=.true.
-      Call Cho_MOTra_Internal(CMO,nCMOs,nSym,nBas,nOrb,nFro,nIsh,nAsh,
+      Call Cho_MOTra_Internal(CMO,nCMOs,nSym,nBas,nOrb,nFro,nIsh,nAsh,  &
      &                          nSsh,nDel,BName,Do_Int,ihdf5,InitChoEnv)
 
       End
-************************************************************************
-      Subroutine Cho_MOTra_Internal(CMO,nCMOs,nSym,nBas,nOrb,
-     &                              nFro,nIsh,nAsh,nSsh,nDel,
+!***********************************************************************
+      Subroutine Cho_MOTra_Internal(CMO,nCMOs,nSym,nBas,nOrb,           &
+     &                              nFro,nIsh,nAsh,nSsh,nDel,           &
      &                              BName,Do_int,ihdf5,Do_ChoInit)
-C
-C     Note: frozen and deleted orbitals are not included in the
-C           transformation.
-C
+!
+!     Note: frozen and deleted orbitals are not included in the
+!           transformation.
+!
       use Data_Structures, only: DSBA_Type, Deallocate_DSBA
       use Data_Structures, only: Allocate_DSBA
       Implicit Real*8 (a-h,o-z)
@@ -68,9 +68,9 @@ C
 
 #include "chotime.fh"
 #include "stdalloc.fh"
-**************************************************
+!*************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-**************************************************
+!*************************************************
 
       n=nBas(1)**2
       Do iSym=2,nSym
@@ -100,9 +100,9 @@ C
       Call Allocate_DSBA(CMOT,nAux,nBas,nSym)
 
       Call Transp_MOs(CMO,CMOT%A0,nSym,nFro,nIsh,nAsh,nSsh,nBas)
-c
+!
         timings=.True.
-c
+!
         If (Do_int) Then
           Lu_Xint = 80
           Lu_Xint = isfreeunit(Lu_Xint)
@@ -125,30 +125,30 @@ c
           lXint=1
           Call mma_allocate(xInt,lXint,Label='xInt')
         EndIf
-c
+!
         If (Do_ChoInit) Then
            FracMem=0.0d0 ! in a parallel run set it to a sensible value
            irc=0
            Call Cho_X_Init(irc,FracMem) ! initialize cholesky info
            If (irc.ne.0) Then
-              Call WarningMessage(2,
+              Call WarningMessage(2,                                    &
      &                        'Cho_MOTra_: non-zero rc from Cho_X_Init')
               Write(6,*) 'rc=',irc
               Call Abend()
            End If
         End If
-        call CHO_TR_drv(irc,nIsh,nAsh,nSsh,CMOT,BName,
+        call CHO_TR_drv(irc,nIsh,nAsh,nSsh,CMOT,BName,                  &
      &                      Do_int,ihdf5,xInt,lXint)
         If (Do_ChoInit) Then
            Call Cho_X_final(irc)
            If (irc.ne.0) Then
-              Call WarningMessage(2,
+              Call WarningMessage(2,                                    &
      &                       'Cho_MOTra_: non-zero rc from Cho_X_Final')
               Write(6,*) 'rc=',irc
               Call Abend()
            End If
         End If
-c
+!
         If (Do_int) Then
            Call GADSum(xInt,lXint)
            kdisk=0
@@ -157,23 +157,23 @@ c
         EndIf
         Call mma_deallocate(XInt)
         Call Deallocate_DSBA(CMOT)
-c
+!
         return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
         If (.False.) Then
            Call Unused_integer_array(nOrb)
            Call Unused_integer_array(nDel)
         End If
         end
-************************************************************************
-      SUBROUTINE CHO_TR_drv(rc,nIsh,nAsh,nSsh,Porb,BName,Do_int,ihdf5,
+!***********************************************************************
+      SUBROUTINE CHO_TR_drv(rc,nIsh,nAsh,nSsh,Porb,BName,Do_int,ihdf5,  &
      &                      Xint,lXint)
-**********************************************************************
-C
-C      a,b,g,d:  AO-index
-C      p,q,r,s:  MO-indeces belonging to all (fro and del excluded)
-C
-**********************************************************************
+!*********************************************************************
+!
+!      a,b,g,d:  AO-index
+!      p,q,r,s:  MO-indeces belonging to all (fro and del excluded)
+!
+!*********************************************************************
 #ifdef _HDF5_QCM_
       use hdf5_utils
 #endif
@@ -223,9 +223,9 @@ C
 
       Integer IsFreeUnit
 
-************************************************************************
+!***********************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-************************************************************************
+!***********************************************************************
 
 #ifdef _HDF5_QCM_
       ! Leon 13.6.2017: Avoid opening a regular file if HDF5 is used
@@ -253,20 +253,20 @@ C
 
       If (Do_int) Call Fzero(Xint(0),lXint)
 
-c --- Define MO space used
-c -----------------------------------
+! --- Define MO space used
+! -----------------------------------
       do i=1,nSym
          nPorb(i) = nIsh(i) + nAsh(i) + nSsh(i)
       end do
 
 
-C ==================================================================
+! ==================================================================
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
-C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
-c
-c
+! *************** BIG LOOP OVER VECTORS SYMMETRY *******************
+!
+!
       Mpq=0
 
       DO jSym=1,nSym
@@ -278,15 +278,15 @@ c
            ! max(nPorb)*(max(nPorb)+1)/2
            ! probably this can be chosen more efficiently,
            ! but would matter only if we use symmetry
-           call hdf5_init_wr_cholesky(file_id(1), JSym,
-     &       maxval(nPorb(1:nSym))*(maxval(nPorb(1:nSym))+1)/2,
+           call hdf5_init_wr_cholesky(file_id(1), JSym,                 &
+     &       maxval(nPorb(1:nSym))*(maxval(nPorb(1:nSym))+1)/2,         &
      &       NumCho(JSym), choset_id, space_id)
          end if
 #endif
          If (NumCho(jSym).lt.1) GOTO 1000
 
-C --- Set up the skipping flags + some initializations --------
-C -------------------------------------------------------------
+! --- Set up the skipping flags + some initializations --------
+! -------------------------------------------------------------
          Do i=1,nSym
             k=Muld2h(i,JSYM)
             If (i.lt.k) Then
@@ -302,7 +302,7 @@ C -------------------------------------------------------------
             EndIf
             iOffB(i)=0
          End Do
-*
+!
          Do i=2,nSym
             iOffB(i)=iOffB(i-1)+nOB(i-1)
          End Do
@@ -313,14 +313,14 @@ C -------------------------------------------------------------
                kOff(i)=kOff(k)
             EndIf
          End Do
-C -------------------------------------------------------------
+! -------------------------------------------------------------
 
 
-C ****************     MEMORY MANAGEMENT SECTION    *****************
-C ------------------------------------------------------------------
-C --- compute memory needed to store at least 1 vector of JSYM
-C --- and do all the subsequent calculations
-C ------------------------------------------------------------------
+! ****************     MEMORY MANAGEMENT SECTION    *****************
+! ------------------------------------------------------------------
+! --- compute memory needed to store at least 1 vector of JSYM
+! --- and do all the subsequent calculations
+! ------------------------------------------------------------------
          mTvec  = 0  ! mem for storing half-transformed vec Laq,J
          mTTvec = 0  ! mem for storing transformed vec Lpq,J
 
@@ -332,8 +332,8 @@ C ------------------------------------------------------------------
 
          mvec = mTvec + mTTvec
 
-C ------------------------------------------------------------------
-C ------------------------------------------------------------------
+! ------------------------------------------------------------------
+! ------------------------------------------------------------------
 
          JRED1 = InfVec(1,2,jSym)  ! red set of the 1st vec
          JRED2 = InfVec(NumCho(jSym),2,jSym) !red set of the last vec
@@ -351,7 +351,7 @@ C ------------------------------------------------------------------
 
             Call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
             if(irc.ne.0)then
-              Write(6,*)SECNAM//'cho_X_setred non-zero return code.',
+              Write(6,*)SECNAM//'cho_X_setred non-zero return code.',   &
      &                         ' rc= ',irc
               call abend()
             endif
@@ -384,7 +384,7 @@ C ------------------------------------------------------------------
             Call Allocate_SBA(ChoT(1),nPorb,nBas,nVec,JSYM,nSym,iSwap)
             ChoT(1)%A0(:)=0.0D0
 
-C --- BATCH over the vectors ----------------------------
+! --- BATCH over the vectors ----------------------------
 
             nBatch = (nVrs-1)/nVec + 1
 
@@ -401,7 +401,7 @@ C --- BATCH over the vectors ----------------------------
 
                CALL CWTIME(TCR1,TWR1)
 
-               CALL CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,
+               CALL CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,                &
      &                        NUMV,IREDC,MUSED)
 
                If (NUMV.le.0 .or.NUMV.ne.JNUM) then
@@ -413,17 +413,17 @@ C --- BATCH over the vectors ----------------------------
                tread(1) = tread(1) + (TCR2 - TCR1)
                tread(2) = tread(2) + (TWR2 - TWR1)
 
-C --------------------------------------------------------------------
-C --- First half MO transformation  Lpb,J = sum_a  C(p,a) * Lab,J
-C --------------------------------------------------------------------
+! --------------------------------------------------------------------
+! --- First half MO transformation  Lpb,J = sum_a  C(p,a) * Lab,J
+! --------------------------------------------------------------------
 
                CALL CWTIME(TCM1,TWM1)
 
                kMOs = 1
                nMOs = 1
 
-               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
-     &                           jSym,iSwap,IREDC,nMOs,kMOs,POrb,
+               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,              &
+     &                           jSym,iSwap,IREDC,nMOs,kMOs,POrb,       &
      &                           ChoT(1),DoRead)
 
                if (irc.ne.0) then
@@ -435,9 +435,9 @@ C --------------------------------------------------------------------
                tmotr1(1) = tmotr1(1) + (TCM2 - TCM1)
                tmotr1(2) = tmotr1(2) + (TWM2 - TWM1)
 
-C --------------------------------------------------------------------
-C --- 2nd half of MO transformation  Lpq,J = sum_b  Lpb,J * C(q,b)
-C --------------------------------------------------------------------
+! --------------------------------------------------------------------
+! --- 2nd half of MO transformation  Lpq,J = sum_b  Lpb,J * C(q,b)
+! --------------------------------------------------------------------
 
                IF (JSYM.eq.1) THEN   !  Lpq,J in LT-storage
 
@@ -454,9 +454,9 @@ C --------------------------------------------------------------------
 
                      Do JVC=1,JNUM
 
-                      CALL DGEMM_Tri('N','T',NAp,NAp,nBas(iSymb),
-     &                           One,ChoT(1)%SB(iSymb)%A3(:,:,JVC),NAp,
-     &                               Porb%SB(iSymb)%A2,NAp,
+                      CALL DGEMM_Tri('N','T',NAp,NAp,nBas(iSymb),       &
+     &                           One,ChoT(1)%SB(iSymb)%A3(:,:,JVC),NAp, &
+     &                               Porb%SB(iSymb)%A2,NAp,             &
      &                          Zero,Lpq(:,jVC),NAp)
 
                      End Do
@@ -471,14 +471,14 @@ C --------------------------------------------------------------------
 #ifdef _HDF5_QCM_
                       if (ihdf5/=1) then
 #endif
-                          Call ddafile(LunChVF(jSym),1,Lpq,
-     &                                               NApq*JNUM,
+                          Call ddafile(LunChVF(jSym),1,Lpq,             &
+     &                                               NApq*JNUM,         &
      &                                               iOffB(iSymb))
 #ifdef _HDF5_QCM_
                       else
                          ! this should never happen, this case should be caught in motra.f
-                         Write(6,*)' Writing of Cholesky vectors'//
-     &                   'in HDF5 format as (pq,k) is not'//
+                         Write(6,*)' Writing of Cholesky vectors'//     &
+     &                   'in HDF5 format as (pq,k) is not'//            &
      &                   'supported.'
                          call Abend()
                       end if
@@ -486,8 +486,8 @@ C --------------------------------------------------------------------
                       If (Do_int) Then
                          Do ipq=1,NApq
                             kt=kOff(iSymb)+ipq-1
-                            Xint(kt)=Xint(kt)
-     &                              +ddot_(JNUM,Lpq(ipq,:),NApq,
+                            Xint(kt)=Xint(kt)                           &
+     &                              +ddot_(JNUM,Lpq(ipq,:),NApq,        &
      &                                          Lpq(ipq,:),NApq)
                          End Do
                       EndIf
@@ -496,7 +496,7 @@ C --------------------------------------------------------------------
                          Lpq_J(1:JNUM) = Lpq(ipq,1:JNUM)
                          If (Do_int) Then
                             kt=kOff(iSymb)+ipq-1
-                            Xint(kt)=Xint(kt)
+                            Xint(kt)=Xint(kt)                           &
      &                              +ddot_(JNUM,Lpq_J,1,Lpq_J,1)
                          EndIf
                          idisk=iOffB(iSymb)+NumCho(jSym)*(ipq-1)
@@ -506,7 +506,7 @@ C --------------------------------------------------------------------
                          ! the same content twice for large basis sets
                          if (ihdf5/=1) then
 #endif
-                            Call ddafile(LunChVF(jSym),1,Lpq_J,JNUM,
+                            Call ddafile(LunChVF(jSym),1,Lpq_J,JNUM,    &
      &                                   idisk)
 
 #ifdef _HDF5_QCM_
@@ -521,8 +521,8 @@ C --------------------------------------------------------------------
                             ! Leon 22.4.2016 -- modified the write_cholesky call below to
                             ! account for multiple reduced sets
                          else
-                            call hdf5_write_cholesky(choset_id,
-     &                           space_id,ipq-1,nVec*(iBatch-1)+iVrs-1,
+                            call hdf5_write_cholesky(choset_id,         &
+     &                           space_id,ipq-1,nVec*(iBatch-1)+iVrs-1, &
      &                                                       JNUM,Lpq_J)
                          end if
 #endif
@@ -557,9 +557,9 @@ C --------------------------------------------------------------------
                      If (iSymp.lt.iSymb)Then
                        Do JVC=1,JNUM
 
-                        CALL DGEMM_('N','T',NAp,NAq,nBas(iSymb),
-     &                            One,ChoT(1)%SB(iSymp)%A3(:,:,JVC),NAp,
-     &                                 Porb%SB(iSymb)%A2,NAq,
+                        CALL DGEMM_('N','T',NAp,NAq,nBas(iSymb),        &
+     &                            One,ChoT(1)%SB(iSymp)%A3(:,:,JVC),NAp,&
+     &                                 Porb%SB(iSymb)%A2,NAq,           &
      &                            Zero,Lpq(:,JVC),NAp)
 
                        End Do
@@ -576,14 +576,14 @@ C --------------------------------------------------------------------
                      If (iSymp.lt.iSymb) Then
 
                         If (tv2disk.eq.'PQK') Then
-                           Call ddafile(LunChVF(jSym),1,Lpq,
-     &                                                NApq*JNUM,
+                           Call ddafile(LunChVF(jSym),1,Lpq,            &
+     &                                                NApq*JNUM,        &
      &                                                iOffB(iSymp))
                            If (Do_int) Then
                               Do ipq=1,NApq
                                  kt=kOff(iSymp)+ipq-1
-                                 Xint(kt)=Xint(kt)
-     &                                   +ddot_(JNUM,Lpq(ipq,:),NApq,
+                                 Xint(kt)=Xint(kt)                      &
+     &                                   +ddot_(JNUM,Lpq(ipq,:),NApq,   &
      &                                               Lpq(ipq,:),NApq)
                               End Do
                            EndIf
@@ -593,7 +593,7 @@ C --------------------------------------------------------------------
                               Lpq_J(1:JNUM) = Lpq(ipq,1:JNUM)
                               If (Do_int) Then
                                  kt=kOff(iSymp)+ipq-1
-                                 Xint(kt)=Xint(kt)+ddot_(JNUM,Lpq_J,1,
+                                 Xint(kt)=Xint(kt)+ddot_(JNUM,Lpq_J,1,  &
      &                                                        Lpq_J,1)
                               EndIf
                               idisk=iOffB(iSymp)+NumCho(jSym)*(ipq-1)
@@ -603,14 +603,14 @@ C --------------------------------------------------------------------
                              ! the 'Kpq' storage
                              ! See above for more explanation
                              if (ihdf5==1) then
-                               call hdf5_write_cholesky(choset_id,
-     &                                                  space_id,ipq-1,
-     &                                                  nVec*(iBatch-1),
+                               call hdf5_write_cholesky(choset_id,      &
+     &                                                  space_id,ipq-1, &
+     &                                                  nVec*(iBatch-1),&
      &                                                  JNUM,Lpq_J)
                              end if
 #endif
 
-                              Call ddafile(LunChVF(jSym),1,Lpq_J,JNUM,
+                              Call ddafile(LunChVF(jSym),1,Lpq_J,JNUM,  &
      &                                     idisk)
                            End Do
                            iOffB(iSymp)=iOffB(iSymp)+JNUM
@@ -628,12 +628,12 @@ C --------------------------------------------------------------------
 
                EndIf
 
-C --------------------------------------------------------------------
-C --------------------------------------------------------------------
+! --------------------------------------------------------------------
+! --------------------------------------------------------------------
 
             END DO  ! end batch loop
 
-C --- free memory
+! --- free memory
             Call mma_deallocate(Lpq_J)
             Call Deallocate_SBA(ChoT(1))
             Call mma_deallocate(Lrs)
@@ -660,8 +660,8 @@ C --- free memory
       CALL CWTIME(TOTCPU2,TOTWALL2)
       TOTCPU = TOTCPU2 - TOTCPU1
       TOTWALL= TOTWALL2 - TOTWALL1
-*
-*---- Write out timing information
+!
+!---- Write out timing information
       if(timings)then
 
       CFmt='(6x,A)'
@@ -671,18 +671,18 @@ C --- free memory
       Write(6,CFmt)'- - - - - - - - - - - - - - - - - - - - - - - - -'
 
       If (Do_int) Then
-         Write(6,'(6x,A28,2f10.2)')'I/O vectors + diag ERIs step     '
+         Write(6,'(6x,A28,2f10.2)')'I/O vectors + diag ERIs step     '  &
      &                           //'         ',tread(1),tread(2)
       Else
-         Write(6,'(6x,A28,2f10.2)')'I/O vectors                      '
+         Write(6,'(6x,A28,2f10.2)')'I/O vectors                      '  &
      &                           //'         ',tread(1),tread(2)
       EndIf
-         Write(6,'(6x,A28,2f10.2)')'1st half-transf.                 '
+         Write(6,'(6x,A28,2f10.2)')'1st half-transf.                 '  &
      &                           //'         ',tmotr1(1),tmotr1(2)
-         Write(6,'(6x,A28,2f10.2)')'2nd half-transf.                 '
+         Write(6,'(6x,A28,2f10.2)')'2nd half-transf.                 '  &
      &                           //'         ',tmotr2(1),tmotr2(2)
          Write(6,*)
-         Write(6,'(6x,A28,2f10.2)')'TOTAL                            '
+         Write(6,'(6x,A28,2f10.2)')'TOTAL                            '  &
      &                           //'         ',TOTCPU,TOTWALL
       Write(6,CFmt)'- - - - - - - - - - - - - - - - - - - - - - - - -'
       Write(6,*)
@@ -694,11 +694,11 @@ C --- free memory
       write(6,*)
       If (tv2disk.eq.'PQK') Then
          tv2disk(1:2)='pq'
-         write(6,*)'     Transformed Cholesky vectors stored as L(',
+         write(6,*)'     Transformed Cholesky vectors stored as L(',    &
      &                                tv2disk(1:2),',',tv2disk(3:3),')'
       Else
          tv2disk(2:3)='pq'
-         write(6,*)'     Transformed Cholesky vectors stored as L(',
+         write(6,*)'     Transformed Cholesky vectors stored as L(',    &
      &                                tv2disk(1:1),',',tv2disk(2:3),')'
       EndIf
       write(6,*)
@@ -706,7 +706,7 @@ C --- free memory
 
       Return
 #ifndef _HDF5_QCM_
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer(ihdf5)
 #endif
       END

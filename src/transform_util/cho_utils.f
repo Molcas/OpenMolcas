@@ -1,38 +1,38 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Per Ake Malmqvist                                *
-*               2004,2005, Giovanni Ghigo                              *
-************************************************************************
-*  Mem_Est
-*
-*> @brief
-*>   The routine makes an estimation of the optimal memory allocation and defines the
-*>   maximum number of Cholesky vectors to transform both for the main (\p nVec) and
-*>   the inner (\p nFVec) batch procedures
-*> @author Giovanni Ghigo
-*>
-*> @param[in]  iSymL Symmetry of the Cholesky vector
-*> @param[out] nVec  Number of Cholesky vectors to transform in the batch procedure
-*> @param[out] nFVec Number of Cholesky vectors to transform in the inner batch procedure
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
+!               2004,2005, Giovanni Ghigo                              *
+!***********************************************************************
+!  Mem_Est
+!
+!> @brief
+!>   The routine makes an estimation of the optimal memory allocation and defines the
+!>   maximum number of Cholesky vectors to transform both for the main (\p nVec) and
+!>   the inner (\p nFVec) batch procedures
+!> @author Giovanni Ghigo
+!>
+!> @param[in]  iSymL Symmetry of the Cholesky vector
+!> @param[out] nVec  Number of Cholesky vectors to transform in the batch procedure
+!> @param[out] nFVec Number of Cholesky vectors to transform in the inner batch procedure
+!***********************************************************************
       Subroutine Mem_Est(iSymL,nVec,nFVec)
-************************************************************************
-* Author :  Giovanni Ghigo                                             *
-*           Torino University, Italy                                   *
-*           January-February, July 2005                                *
-*----------------------------------------------------------------------*
-* Routine for the estimation of the memory usage and the number (nVec) *
-* of Cholesky Vectors transformable.                                   *
-* The routine also define (calling Def_TCVx) which TCVx create.        *
-************************************************************************
+!***********************************************************************
+! Author :  Giovanni Ghigo                                             *
+!           Torino University, Italy                                   *
+!           January-February, July 2005                                *
+!----------------------------------------------------------------------*
+! Routine for the estimation of the memory usage and the number (nVec) *
+! of Cholesky Vectors transformable.                                   *
+! The routine also define (calling Def_TCVx) which TCVx create.        *
+!***********************************************************************
       use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
@@ -45,16 +45,16 @@
       nVec  = 0 ! Nr. of transformable vectors for batch.
       nFVec = 0 ! Nr. of full vectors for inner transformation batch
 
-*   Memory for Reading (will change when reading reduced set)
+!   Memory for Reading (will change when reading reduced set)
       LenCHFV = 0     ! Mem for Full Vectors (p.v. = per vector)
-*   Memory for Transformation
+!   Memory for Transformation
       LenTCVx   = 0   ! Mem for TCVx (p.v.)
       LenTmpTra = 0   ! Mem for First-half Transformation
-*   Memory for Generation
+!   Memory for Generation
       MaxInt   = 0    ! Mem for integrals
       MaxSlice = 0    ! Mem for Lx (p.v.)
 
-* --- Memory for Transformation
+! --- Memory for Transformation
       Nij = 0  ! A
       Nji = 0  ! A"
       Ntj = 0  ! B
@@ -88,34 +88,34 @@
 
           If (iSym.EQ.jSym) then
 
-* TCV-A :
+! TCV-A :
            If (TCVXist(1,iSym,jSym)) Then
              Len_YAj = nBas(iSym) * nIsh(jSym)
              Nij = Nij + nIsh(iSym) * nIsh(jSym)
            EndIf
-* TCV-B :
+! TCV-B :
            If (TCVXist(2,iSym,jSym)) Then
              Len_YAj = nBas(iSym) * nIsh(jSym)
              Ntj = Ntj + ( nAsh(iSym) * nIsh(jSym) )
-* TCV-G :
+! TCV-G :
              Njt = Njt + ( nIsh(jSym) * nAsh(iSym) )
            EndIf
-* TCV-C :
+! TCV-C :
            If (TCVXist(3,iSym,jSym)) Then
              Len_YAj = nBas(iSym) * nIsh(jSym)
              Naj = Naj + nSsh(iSym) * nIsh(jSym)
            EndIf
-* TCV-D :
+! TCV-D :
            If (TCVXist(4,iSym,jSym)) Then
              Len_YAu = nBas(iSym) * nAsh(jSym)
              Ntu = Ntu + nAsh(iSym) * nAsh(jSym)
            EndIf
-* TCV-E :
+! TCV-E :
            If (TCVXist(5,iSym,jSym)) Then
              Len_YAu = nBas(iSym) * nAsh(jSym)
              Nau = Nau + nSsh(iSym) * nAsh(jSym)
            EndIf
-* TCV-F :
+! TCV-F :
            If (TCVXist(6,iSym,jSym)) Then
              Len_YAb = nBas(iSym) * nSsh(jSym)
              Nab = Nab + nSsh(iSym) * nssh(jSym)
@@ -123,31 +123,31 @@
 
            LenCHFV = LenCHFV + ( nBas(iSym) * ( nBas(jSym) + 1 ) / 2 )
            Len_ABSq = nBas(iSym) * nBas(jSym)
-           LenTmpTra = Max( LenTmpTra ,
+           LenTmpTra = Max( LenTmpTra ,                                 &
      &                      ( Len_ABSq + Len_YAj + Len_YAu + Len_YAb ) )
 
           else
 
-* TCV-A :
+! TCV-A :
            If (TCVXist(1,iSym,jSym)) Then
              Len_XAj = nBas(iSym) * nIsh(jSym)
              Nij = Nij + ( nIsh(iSym) * nIsh(jSym) )
              Nji = Nji + ( nIsh(jSym) * nIsh(iSym) )
            EndIf
-* TCV-B :
+! TCV-B :
            If (TCVXist(2,iSym,jSym)) Then
              Len_XAj = nBas(iSym) * nIsh(jSym)
              Ntj = Ntj + ( nAsh(iSym) * nIsh(jSym) )
-* TCV-G :
+! TCV-G :
              Njt = Njt + ( nIsh(jSym) * nAsh(iSym) )
            EndIf
            If (TCVXist(2,jSym,iSym)) Then
              Len_XBi = nBas(jSym) * nIsh(iSym)
              Nui = Nui + ( nAsh(jSym) * nIsh(iSym) )
-* TCV-G :
+! TCV-G :
              Niu = Niu + ( nIsh(iSym) * nAsh(jSym) )
            EndIf
-* TCV-C :
+! TCV-C :
            If (TCVXist(3,iSym,jSym)) Then
              Len_XAj = nBas(iSym) * nIsh(jSym)
              Naj = Naj + nSsh(iSym) * nIsh(jSym)
@@ -156,13 +156,13 @@
              Len_XBi = nBas(jSym) * nIsh(iSym)
              Nbi = Nbi + nSsh(jSym) * nIsh(iSym)
            EndIf
-* TCV-D :
+! TCV-D :
            If (TCVXist(4,iSym,jSym)) Then
              Len_XAu = nBas(iSym) * nAsh(jSym)
              Ntu = Ntu + ( nAsh(iSym) * nAsh(jSym) )
              Nut = Nut + ( nAsh(jSym) * nAsh(iSym) )
            EndIf
-* TCV-E :
+! TCV-E :
            If (TCVXist(5,iSym,jSym)) Then
              Len_XAu = nBas(iSym) * nAsh(jSym)
              Nau = Nau + nSsh(iSym) * nAsh(jSym)
@@ -171,14 +171,14 @@
              Len_XBt = nBas(jSym) * nAsh(iSym)
              Nbt = Nbt + nSsh(jSym) * nAsh(iSym)
            EndIf
-* TCV-F :
+! TCV-F :
            If (TCVXist(6,iSym,jSym)) Then
              Len_XAb = nBas(iSym) * nSsh(jSym)
              Nab = Nab + nSsh(iSym) * nSsh(jSym)
            EndIf
 
            LenCHFV = LenCHFV + ( nBas(iSym) * nBas(jSym) )
-           LenTmpTra = Max ( LenTmpTra ,
+           LenTmpTra = Max ( LenTmpTra ,                                &
      &             ( Len_XAj + Len_XAu + Len_XAb + Len_XBi + Len_XBt ) )
 
           EndIf
@@ -188,10 +188,10 @@
        EndIf
       EndDo ! iSym
 
-      LenTCVx = Nij+Nji + Ntj+Nui + Naj+Nbi + Ntu+Nut + Nau+Nbt +
+      LenTCVx = Nij+Nji + Ntj+Nui + Naj+Nbi + Ntu+Nut + Nau+Nbt +       &
      &                                                     Nab + Niu+Njt
 
-* --- Memory for Generation
+! --- Memory for Generation
       Do iSymI = 1, nSym
        Do iSymJ = 1, iSymI
         Do iSymA = 1, nSym
@@ -199,7 +199,7 @@
           iSymAI = MulD2h(iSymA,iSymI)
           iSymBJ = MulD2h(iSymB,iSymJ)
           Call LenInt(iSymI,iSymJ,iSymA,iSymB,nN_IJ,nN_AB,nN_Ex1,nN_Ex2)
-          If (iSymAI.EQ.iSymL.and.iSymBJ.EQ.iSymL. and.
+          If (iSymAI.EQ.iSymL.and.iSymBJ.EQ.iSymL.and.                  &
      &                                        nN_IJ*nN_AB.GT.0) then
             MaxInt    = Max(MaxInt, Max(nN_AB, Max(nN_Ex1, 2*nN_Ex2) ) )
             MaxSlice  = Max(MaxSlice, nOrb(iSymA)+nOrb(iSymB) )
@@ -243,13 +243,13 @@
       Write(6,Frmt1)
       Write(6,Frmt1)' TOTAL AVAILABLE MEMORY         :',MemFree0
       Write(6,Frmt1)' Minimal Memory required        :',MemMin
-      Write(6,Frmt1)' Memory Required by generation  :',
+      Write(6,Frmt1)' Memory Required by generation  :',                &
      & (nVec-1)*MemPerVec2
       Write(6,Frmt1)' Memory Available for transform.:',MemFree
-      Write(6,Frmt1)' Memory Required by transform.  :',
+      Write(6,Frmt1)' Memory Required by transform.  :',                &
      & (nFVec-1)*LenCHFV
       Write(6,Frmt1)' TOTAL ALLOCATED MEMORY         :',MemAlloc
-      Write(6,Frmt1)' Unemployed memory              :',
+      Write(6,Frmt1)' Unemployed memory              :',                &
      & MemFree0-MemAlloc
       Write(6,*)
       Write(6,20)' Max nr. of Transformed vectors  :',nVec
@@ -258,9 +258,9 @@
       Write(6,*)
       Write(6,*) 'ESTIMATED MEMORY REQUIREMENTS'
       Write(6,Frmt3)'  Minimum:',2+MemMin / 119000,' MB'
-      Write(6,Frmt3)'  Normal :',2+
+      Write(6,Frmt3)'  Normal :',2+                                     &
      & (MemMin+MemPerVec2 * (NumCho(iSymL)-1) ) / 119000,' MB'
-      Write(6,Frmt3)'  Maximum:',2+
+      Write(6,Frmt3)'  Maximum:',2+                                     &
      & (MemMin+(MemPerVec2+LenCHFV) * (NumCho(iSymL)-1)) / 119000,' MB'
       Write(6,'(20A3)')('---',I=1,20)
       Write(6,*)
@@ -276,37 +276,37 @@
 
       Return
       End
-************************************************************************
-*  Def_TCVx
-*
-*> @brief
-*>   The routine defines which Transformed Cholesky (TCVx) to generate
-*>   setting ``.True.`` the logical matrix \c TCVXist(iType,iSym,jSym)
-*> @author Giovanni Ghigo
-*>
-*> @details
-*> - \c iType = ``1``: TCVA
-*> - \c iType = ``2``: TCVB
-*> - \c iType = ``3``: TCVC
-*> - \c iType = ``4``: TCVD
-*> - \c iType = ``5``: TCVE
-*> - \c iType = ``6``: TCVF
-*> - \c iType = ``7``: TCVG
-*>
-*> @param[in] iSym Symmetry(``i``) of the Cholesky Full Vector
-*> @param[in] jSym Symmetry(``j``) of the Cholesky Full Vector
-************************************************************************
+!***********************************************************************
+!  Def_TCVx
+!
+!> @brief
+!>   The routine defines which Transformed Cholesky (TCVx) to generate
+!>   setting ``.True.`` the logical matrix \c TCVXist(iType,iSym,jSym)
+!> @author Giovanni Ghigo
+!>
+!> @details
+!> - \c iType = ``1``: TCVA
+!> - \c iType = ``2``: TCVB
+!> - \c iType = ``3``: TCVC
+!> - \c iType = ``4``: TCVD
+!> - \c iType = ``5``: TCVE
+!> - \c iType = ``6``: TCVF
+!> - \c iType = ``7``: TCVG
+!>
+!> @param[in] iSym Symmetry(``i``) of the Cholesky Full Vector
+!> @param[in] jSym Symmetry(``j``) of the Cholesky Full Vector
+!***********************************************************************
       Subroutine Def_TCVx(iSym,jSym)
-************************************************************************
-* Author  :  Giovanni Ghigo                                            *
-*            Lund University, Sweden                                   *
-* Written :  October 2004                                              *
-* Modified:  January 2005                                              *
-*----------------------------------------------------------------------*
-* Define which Transformed Cholesky Full Vectors (TCVx) to generate.   *
-* TCVXist(iType,iSym,jSym) is .True. if the TCVx must be generated.    *
-* iType(x):  1=A, 2=B, 3=C, 4=D, 5=E, 6=F, 7=G                         *
-************************************************************************
+!***********************************************************************
+! Author  :  Giovanni Ghigo                                            *
+!            Lund University, Sweden                                   *
+! Written :  October 2004                                              *
+! Modified:  January 2005                                              *
+!----------------------------------------------------------------------*
+! Define which Transformed Cholesky Full Vectors (TCVx) to generate.   *
+! TCVXist(iType,iSym,jSym) is .True. if the TCVx must be generated.    *
+! iType(x):  1=A, 2=B, 3=C, 4=D, 5=E, 6=F, 7=G                         *
+!***********************************************************************
       use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
@@ -355,16 +355,16 @@
       Return
       End
 
-      Subroutine LenInt(iSymI,iSymJ,iSymA,iSymB,nProdIJ,
+      Subroutine LenInt(iSymI,iSymJ,iSymA,iSymB,nProdIJ,                &
      &                                          nProdAB,nProdE1,nProdE2)
-************************************************************************
-* Author  :  Giovanni Ghigo                                            *
-*            Lund University, Sweden                                   *
-*----------------------------------------------------------------------*
-* Return the Length of Coulomb (nProdAB), Exchanges (nProdE1 and       *
-* nProdE2) matrices for each i,j and the length (nProdIJ) of the i,j   *
-* matrix for each Symmetry Block (iSymI,iSymJ,iSymA,iSymB)             *
-************************************************************************
+!***********************************************************************
+! Author  :  Giovanni Ghigo                                            *
+!            Lund University, Sweden                                   *
+!----------------------------------------------------------------------*
+! Return the Length of Coulomb (nProdAB), Exchanges (nProdE1 and       *
+! nProdE2) matrices for each i,j and the length (nProdIJ) of the i,j   *
+! matrix for each Symmetry Block (iSymI,iSymJ,iSymA,iSymB)             *
+!***********************************************************************
       use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
@@ -411,12 +411,12 @@
       End
 
       Subroutine Def_SubBlockE(iSymA,iSymB)
-************************************************************************
-* Author  :  Giovanni Ghigo                                            *
-*            Lund University, Sweden                                   *
-*----------------------------------------------------------------------*
-* Define the SubBlocks to calculate in the Exchange matrix.            *
-************************************************************************
+!***********************************************************************
+! Author  :  Giovanni Ghigo                                            *
+!            Lund University, Sweden                                   *
+!----------------------------------------------------------------------*
+! Define the SubBlocks to calculate in the Exchange matrix.            *
+!***********************************************************************
       use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
@@ -444,18 +444,18 @@
       End
 
       Subroutine Local_Triang(nRow,A)
-C This routine is a modification of the Per-AAke's Triang routine
-C found in src/caspt2/triang.f
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+! This routine is a modification of the Per-AAke's Triang routine
+! found in src/caspt2/triang.f
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
       Dimension A(nRow**2)
-c Convert a square matrix to triangular in-place.
+! Convert a square matrix to triangular in-place.
       iFrom=1+nRow
       iTo=2
       Do i=2,nRow
@@ -467,7 +467,7 @@ c Convert a square matrix to triangular in-place.
       End
 
       Subroutine PrintSquareMat(nRow,A)
-* Prints a square matrix A(nRow,nRow)
+! Prints a square matrix A(nRow,nRow)
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
       Dimension A(nRow**2)
@@ -488,7 +488,7 @@ c Convert a square matrix to triangular in-place.
       End
 
       Subroutine PrintDiagMat(nRow,A)
-* Prints a diagonal matrix A(nRow,nRow)
+! Prints a diagonal matrix A(nRow,nRow)
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
       Dimension A(nRow*(nRow+1))

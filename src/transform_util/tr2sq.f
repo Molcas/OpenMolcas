@@ -1,45 +1,45 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1987, Bjorn O. Roos                                    *
-*               1992, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1987  B. O. ROOS                           *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND, SWEDEN                 *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1987, Bjorn O. Roos                                    *
+!               1992, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1987  B. O. ROOS                           *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND, SWEDEN                 *
+!--------------------------------------------*
       SUBROUTINE TR2Sq(CMO,X1,X2,X3,URPQ,RUPQ,TUPQ,lBuf)
-C
-C SECOND ORDER TWO-ELECTRON TRANSFORMATION ROUTINE
-C
-C THIS ROUTINE IS CALLED FOR EACH SYMMETRY BLOCK OF INTEGRALS
-C (ISP,ISQ,ISR,ISS) WITH ISP.GE.ISQ AND ISR.GE.ISS.
-C P,Q,R,S are SO indices.
-C A,B are MO indices, counting only non-frozen and non-deleted.
-C T,U are occupied MO indices, only non-frozen and non-deleted.
-C INTEGRALS (AB/TU) ARE ALWAYS GENERATED
-C EXCHANGE INTEGRALS (AT/BU) ARE GENERATED AS FOLLOWS:
-C (AT/BU) IF ISP.GE.ISR
-C (AT/UB) IF ISP.GT.ISS AND ISP.NE.ISQ
-C (TA/BU) IF ISQ.GT.ISR AND ISP.NE.ISQ
-C (TA/UB) IF ISQ.GE.ISS AND ISP.NE.ISQ
-C
-C     ********** IBM-3090 RELEASE 87 09 14 **********
-C     Replace MXMA with DGEMM. P-AA Malmqvist 1992-05-06.
-C
+!
+! SECOND ORDER TWO-ELECTRON TRANSFORMATION ROUTINE
+!
+! THIS ROUTINE IS CALLED FOR EACH SYMMETRY BLOCK OF INTEGRALS
+! (ISP,ISQ,ISR,ISS) WITH ISP.GE.ISQ AND ISR.GE.ISS.
+! P,Q,R,S are SO indices.
+! A,B are MO indices, counting only non-frozen and non-deleted.
+! T,U are occupied MO indices, only non-frozen and non-deleted.
+! INTEGRALS (AB/TU) ARE ALWAYS GENERATED
+! EXCHANGE INTEGRALS (AT/BU) ARE GENERATED AS FOLLOWS:
+! (AT/BU) IF ISP.GE.ISR
+! (AT/UB) IF ISP.GT.ISS AND ISP.NE.ISQ
+! (TA/BU) IF ISQ.GT.ISR AND ISP.NE.ISQ
+! (TA/UB) IF ISQ.GE.ISS AND ISP.NE.ISQ
+!
+!     ********** IBM-3090 RELEASE 87 09 14 **********
+!     Replace MXMA with DGEMM. P-AA Malmqvist 1992-05-06.
+!
       IMPLICIT REAL*8 (A-H,O-Z)
-CPAM98      COMMON/INTTRA/ISP,ISQ,ISR,ISS,NBP,NBQ,NBR,NBS,NBPQ,NBRS,IRRST,
-CPAM98     &              NOCP,NOCQ,NOCR,NOCS,NPQ,LADX,LRUPQ,LURPQ,LTUPQ,
-CPAM98     &              NOP,NOQ,NOR,NOS,LMOP,LMOQ,LMOR,LMOS,LMOP2,LMOQ2,
-CPAM98     &              LMOR2,LMOS2,IAD13,ITP,ITQ,ITR,ITS
+!PAM98      COMMON/INTTRA/ISP,ISQ,ISR,ISS,NBP,NBQ,NBR,NBS,NBPQ,NBRS,IRRST,
+!PAM98     &              NOCP,NOCQ,NOCR,NOCS,NPQ,LADX,LRUPQ,LURPQ,LTUPQ,
+!PAM98     &              NOP,NOQ,NOR,NOS,LMOP,LMOQ,LMOR,LMOS,LMOP2,LMOQ2,
+!PAM98     &              LMOR2,LMOS2,IAD13,ITP,ITQ,ITR,ITS
 
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -55,42 +55,42 @@ CPAM98     &              LMOR2,LMOS2,IAD13,ITP,ITQ,ITR,ITS
       NOUR=NBS*NOCR
       NOTU=NOCR*NOCS
       IF(ISR.EQ.ISS) NOTU=(NOCR**2+NOCR)/2
-C
-C     CHECK FOR IN CORE OR OUT OF CORE TRANSFORMATION
-C
-C     1. SORT OF PARTIALLY TRANSFORMED INTEGRALS (RU/PQ) ON UNIT LUHLF1
+!
+!     CHECK FOR IN CORE OR OUT OF CORE TRANSFORMATION
+!
+!     1. SORT OF PARTIALLY TRANSFORMED INTEGRALS (RU/PQ) ON UNIT LUHLF1
       IPQMX1=NBPQ
       IF(NBPQ*NORU.GT.LRUPQ) THEN
        IPQMX1=LRUPQ/NORU
-c      WRITE(*,*) 'OUT OF CORE SORT FOR INTEGRALS (RU/PQ)',IPQMX1
+!      WRITE(*,*) 'OUT OF CORE SORT FOR INTEGRALS (RU/PQ)',IPQMX1
        IAD1S=0
        CALL dDAFILE(LUHLF1,0,RUPQ,IPQMX1,IAD1S)
       ENDIF
       IAD1=0
       IOUT1=0
-C     2. SORT OF PARTIALLY TRANSFORMED INTEGRALS (UR/PQ) ON UNIT LUHLF2
+!     2. SORT OF PARTIALLY TRANSFORMED INTEGRALS (UR/PQ) ON UNIT LUHLF2
       IPQMX2=NBPQ
       IF(NBPQ*NOUR.GT.LURPQ) THEN
        IPQMX2=LURPQ/NOUR
-c      WRITE(*,*) 'OUT OF CORE SORT FOR INTEGRALS (UR/PQ)',IPQMX2
+!      WRITE(*,*) 'OUT OF CORE SORT FOR INTEGRALS (UR/PQ)',IPQMX2
        IAD2S=0
        CALL dDAFILE(LUHLF2,0,URPQ,IPQMX2,IAD2S)
       ENDIF
       IAD2=0
       IOUT2=0
-C     3. SORT OF PARTIALLY TRANSFORMED INTEGRALS (TU/PQ) ON UNIT LUHLF3
+!     3. SORT OF PARTIALLY TRANSFORMED INTEGRALS (TU/PQ) ON UNIT LUHLF3
       IPQMX3=NBPQ
       IF(NBPQ*NOTU.GT.LTUPQ) THEN
        IPQMX3=LTUPQ/NOTU
-c      WRITE(*,*) 'OUT OF CORE SORT FOR INTEGRALS (TU/PQ)',IPQMX3
+!      WRITE(*,*) 'OUT OF CORE SORT FOR INTEGRALS (TU/PQ)',IPQMX3
        IAD3S=0
        CALL dDAFILE(LUHLF3,0,TUPQ,IPQMX3,IAD3S)
       ENDIF
       IAD3=0
       IOUT3=0
-C
-C     START LOOP OVER SORTED AO-INTEGRALS: NPQ PQ-PAIRS IN EACH BUFFER
-C
+!
+!     START LOOP OVER SORTED AO-INTEGRALS: NPQ PQ-PAIRS IN EACH BUFFER
+!
       IPQ=0
       LPQ=0
       NPQ=0
@@ -105,9 +105,9 @@ C
         IOUT1=IOUT1+1
         IOUT2=IOUT2+1
         IOUT3=IOUT3+1
-C
-C        READ IN A BLOCK OF INTEGRALS FOR NPQ PQ-VALUES
-C
+!
+!        READ IN A BLOCK OF INTEGRALS FOR NPQ PQ-VALUES
+!
         IF(LPQ.EQ.NPQ) THEN
          Call RdOrd(iRc,iOpt,isP,isQ,isR,isS,X1,lBuf,nPQ)
          IF(IRC.GT.1) THEN
@@ -121,128 +121,128 @@ C
         ENDIF
         LPQ=LPQ+1
         IRSST=IRSST+NBRS
-C
-C       START TRANFORMATION OF THIS PQ PAIR
-C
+!
+!       START TRANFORMATION OF THIS PQ PAIR
+!
         IF(ISR.EQ.ISS) THEN
          CALL SQUARE(X1(IRSST),X2,1,NBS,NBS)
         ELSE
          CALL DCOPY_(NBRS,X1(IRSST),1,X2,1)
         ENDIF
-C
-C       INTEGRALS (PQ/UR)
-C
+!
+!       INTEGRALS (PQ/UR)
+!
         IF((ISP.NE.ISQ.AND.ISP.GT.ISS).AND.NOCR.NE.0) THEN
-         CALL DGEMM_('N','N',
-     &               NBS,NOCR,NBR,
-     &               1.0d0,X2,NBS,
-     &               CMO(LMOR2),NBR,
+         CALL DGEMM_('N','N',                                           &
+     &               NBS,NOCR,NBR,                                      &
+     &               1.0d0,X2,NBS,                                      &
+     &               CMO(LMOR2),NBR,                                    &
      &               0.0d0,X3,NBS)
-C
-C        SORT THESE INTEGRALS AS (UR/PQ)
-C
+!
+!        SORT THESE INTEGRALS AS (UR/PQ)
+!
          IF(IOUT2.GT.IPQMX2) THEN
           IOUT2=1
-cvv          DO 2 I=1,NOUR
-cvv           CALL dDAFILE(LUHLF2,1,URPQ(1+IPQMX2*(I-1)),IPQMX2,IAD2)
-cvv    2     CONTINUE
+!vv          DO 2 I=1,NOUR
+!vv           CALL dDAFILE(LUHLF2,1,URPQ(1+IPQMX2*(I-1)),IPQMX2,IAD2)
+!vv    2     CONTINUE
          CALL dDAFILE(LUHLF2,1,URPQ,IPQMX2*NOUR,IAD2)
          ENDIF
          CALL DCOPY_(NOUR,X3,1,URPQ(IOUT2),IPQMX2)
         ENDIF
-C
-C       INTEGRALS (PQ/RU)
-C
+!
+!       INTEGRALS (PQ/RU)
+!
         IF(NOCS.NE.0) THEN
-         CALL DGEMM_('T','N',
-     &               NBR,NOCS,NBS,
-     &               1.0d0,X2,NBS,
-     &               CMO(LMOS2),NBS,
+         CALL DGEMM_('T','N',                                           &
+     &               NBR,NOCS,NBS,                                      &
+     &               1.0d0,X2,NBS,                                      &
+     &               CMO(LMOS2),NBS,                                    &
      &               0.0d0,X3,NBR)
-C
-C        SORT THESE INTEGRALS AS (RU/PQ)
-C
+!
+!        SORT THESE INTEGRALS AS (RU/PQ)
+!
          IF(ISP.GE.ISR) THEN
           IF(IOUT1.GT.IPQMX1) THEN
            IOUT1=1
-cvv           DO 4 I=1,NORU
-cvv            CALL dDAFILE(LUHLF1,1,RUPQ(1+IPQMX1*(I-1)),IPQMX1,IAD1)
-cvv    4      CONTINUE
+!vv           DO 4 I=1,NORU
+!vv            CALL dDAFILE(LUHLF1,1,RUPQ(1+IPQMX1*(I-1)),IPQMX1,IAD1)
+!vv    4      CONTINUE
         CALL dDAFILE(LUHLF1,1,RUPQ,IPQMX1*NORU,IAD1)
           ENDIF
           CALL DCOPY_(NORU,X3,1,RUPQ(IOUT1),IPQMX1)
          ENDIF
         ENDIF
-C
-C       INTEGRALS (PQ/TU)
-C
+!
+!       INTEGRALS (PQ/TU)
+!
         IF(NOCR*NOCS.NE.0) THEN
          IF(ISR.EQ.ISS) THEN
-          CALL MXMT(X3,        NBR,1,
-     &              CMO(LMOR2),1,NBR,
-     &              X2,
+          CALL MXMT(X3,        NBR,1,                                   &
+     &              CMO(LMOR2),1,NBR,                                   &
+     &              X2,                                                 &
      &              NOCR,NBR)
          ELSE
-          CALL DGEMM_('T','N',
-     &                NOCS,NOCR,NBR,
-     &                1.0d0,X3,NBR,
-     &                CMO(LMOR2),NBR,
+          CALL DGEMM_('T','N',                                          &
+     &                NOCS,NOCR,NBR,                                    &
+     &                1.0d0,X3,NBR,                                     &
+     &                CMO(LMOR2),NBR,                                   &
      &                0.0d0,X2,NOCS)
          ENDIF
-C
-C        SORT INTEGRALS (PQ/TU) INTO TUPQ (SORT AFTER PQ INSTEAD OF TU)
-C
+!
+!        SORT INTEGRALS (PQ/TU) INTO TUPQ (SORT AFTER PQ INSTEAD OF TU)
+!
          IF(IOUT3.GT.IPQMX3) THEN
           IOUT3=1
-cvv          DO 6 I=1,NOTU
-cvv           CALL dDAFILE(LUHLF3,1,TUPQ(1+IPQMX3*(I-1)),IPQMX3,IAD3)
-cvv    6     CONTINUE
+!vv          DO 6 I=1,NOTU
+!vv           CALL dDAFILE(LUHLF3,1,TUPQ(1+IPQMX3*(I-1)),IPQMX3,IAD3)
+!vv    6     CONTINUE
         CALL dDAFILE(LUHLF3,1,TUPQ,IPQMX3*NOTU,IAD3)
 
          ENDIF
          CALL DCOPY_(NOTU,X2,1,TUPQ(IOUT3),IPQMX3)
         ENDIF
-C
-C       WE NOW HAVE THREE SETS OF PARTIALLY TRANSFORMED INTEGRALS
-C       IN TUPQ: (TU/PQ)   TRIANGULAR FOR ISR.EQ.ISS
-C       IN RUPQ: (RU/PQ)   IF ISP.GE.ISR
-C       IN URPQ: (UR/PQ)   IF ISP.GT.ISQ.AND.ISP.GT.ISS
-C
+!
+!       WE NOW HAVE THREE SETS OF PARTIALLY TRANSFORMED INTEGRALS
+!       IN TUPQ: (TU/PQ)   TRIANGULAR FOR ISR.EQ.ISS
+!       IN RUPQ: (RU/PQ)   IF ISP.GE.ISR
+!       IN URPQ: (UR/PQ)   IF ISP.GT.ISQ.AND.ISP.GT.ISS
+!
    10  CONTINUE
    11 CONTINUE
-C
-C     EMPTY LAST BUFFERS
-C
+!
+!     EMPTY LAST BUFFERS
+!
       IF(IPQMX1.LT.NBPQ) THEN
-cvv       DO 12 I=1,NORU
-cvv        CALL dDAFILE(LUHLF1,1,RUPQ(1+IPQMX1*(I-1)),IPQMX1,IAD1)
-cvv   12  CONTINUE
+!vv       DO 12 I=1,NORU
+!vv        CALL dDAFILE(LUHLF1,1,RUPQ(1+IPQMX1*(I-1)),IPQMX1,IAD1)
+!vv   12  CONTINUE
       CALL dDAFILE(LUHLF1,1,RUPQ,IPQMX1*NORU,IAD1)
       ENDIF
       IF(IPQMX2.LT.NBPQ) THEN
-cvv       DO 13 I=1,NOUR
-cvv        CALL dDAFILE(LUHLF2,1,URPQ(1+IPQMX2*(I-1)),IPQMX2,IAD2)
-cvv   13  CONTINUE
+!vv       DO 13 I=1,NOUR
+!vv        CALL dDAFILE(LUHLF2,1,URPQ(1+IPQMX2*(I-1)),IPQMX2,IAD2)
+!vv   13  CONTINUE
       CALL dDAFILE(LUHLF2,1,URPQ,IPQMX2*NOUR,IAD2)
       ENDIF
       IF(IPQMX3.LT.NBPQ) THEN
-cvv       DO 14 I=1,NOTU
-cvv        CALL dDAFILE(LUHLF3,1,TUPQ(1+IPQMX3*(I-1)),IPQMX3,IAD3)
-cvv   14  CONTINUE
+!vv       DO 14 I=1,NOTU
+!vv        CALL dDAFILE(LUHLF3,1,TUPQ(1+IPQMX3*(I-1)),IPQMX3,IAD3)
+!vv   14  CONTINUE
       CALL dDAFILE(LUHLF3,1,TUPQ,IPQMX3*NOTU,IAD3)
 
       ENDIF
-C
-C     FIRST PARTIAL TRANSFORMATION FINISHED
-C     SORTED INTEGRALS ARE ON UNITS LUHLF1 (RUPQ), LUHLF2 (URPQ),
-C     AND LUHLF3 (TUPQ), CONTROLLED BY THE ADRESSES IAD1,IAD2, AND IAD3,
-C     OR IN CORE (RUPQ, URPQ, AND TUPQ)
-C
-C     SECOND HALF TRANSFORMATION FOR INTEGRALS (PQ/TU)
-C     FIRST SAVE THE START ADDRESS ON LUINTM FOR THIS BLOCK OF INTEGRALS
-C     NOTE THAT THE SYMMETRY LABEL ISPQRS ASSUMES THAT SYMMETRY LOOPS
-C     IN THE ORDER T,U,A,B FOR ALL INTEGRAL TYPES.
-C
+!
+!     FIRST PARTIAL TRANSFORMATION FINISHED
+!     SORTED INTEGRALS ARE ON UNITS LUHLF1 (RUPQ), LUHLF2 (URPQ),
+!     AND LUHLF3 (TUPQ), CONTROLLED BY THE ADRESSES IAD1,IAD2, AND IAD3,
+!     OR IN CORE (RUPQ, URPQ, AND TUPQ)
+!
+!     SECOND HALF TRANSFORMATION FOR INTEGRALS (PQ/TU)
+!     FIRST SAVE THE START ADDRESS ON LUINTM FOR THIS BLOCK OF INTEGRALS
+!     NOTE THAT THE SYMMETRY LABEL ISPQRS ASSUMES THAT SYMMETRY LOOPS
+!     IN THE ORDER T,U,A,B FOR ALL INTEGRAL TYPES.
+!
       IF(NOCR*NOCS.EQ.0) GO TO 22
       ISPQRS=((ISR**2-ISR)/2+ISS-1)*NSYMP+(ISP**2-ISP)/2+ISQ
       IAD2M(1,ISPQRS)=IAD13
@@ -253,62 +253,62 @@ C
       DO 21 NU=1,NUM
        IPQST=1+NBPQ*ITU
        ITU=ITU+1
-C
-C      READ ONE BUFFER OF INTEGRALS BACK INTO CORE
-C
+!
+!      READ ONE BUFFER OF INTEGRALS BACK INTO CORE
+!
        IF(IPQMX3.LT.NBPQ) THEN
-**sta0830
+!*sta0830
           Call RBuf_tra2(LUHLF3,TUPQ,NBPQ,IPQMX3,NOTU,ITU,IPQST,IAD3S)
-**end0830
+!*end0830
        ENDIF
-C
+!
        IF(ISP.EQ.ISQ) THEN
         CALL SQUARE(TUPQ(IPQST),X2,1,NBQ,NBQ)
-        CALL DGEMM_('N','N',
-     &              NBQ,NOP,NBP,
-     &              1.0d0,X2,NBQ,
-     &              CMO(LMOP),NBP,
+        CALL DGEMM_('N','N',                                            &
+     &              NBQ,NOP,NBP,                                        &
+     &              1.0d0,X2,NBQ,                                       &
+     &              CMO(LMOP),NBP,                                      &
      &              0.0d0,X1,NBP)
-        CALL MXMT(X1,       NBQ,1,
-     &            CMO(LMOQ),1,NBQ,
-     &            X2,
+        CALL MXMT(X1,       NBQ,1,                                      &
+     &            CMO(LMOQ),1,NBQ,                                      &
+     &            X2,                                                   &
      &            NOP,NBQ)
         IX2=(NOP+NOP**2)/2
        ELSE
-        CALL DGEMM_('N','N',
-     &              NBQ,NOP,NBP,
-     &              1.0d0,TUPQ(IPQST),NBQ,
-     &              CMO(LMOP),NBP,
+        CALL DGEMM_('N','N',                                            &
+     &              NBQ,NOP,NBP,                                        &
+     &              1.0d0,TUPQ(IPQST),NBQ,                              &
+     &              CMO(LMOP),NBP,                                      &
      &              0.0d0,X1,NBQ)
-        CALL DGEMM_('T','N',
-     &              NOQ,NOP,NBQ,
-     &              1.0d0,CMO(LMOQ),NBQ,
-     &              X1,NBQ,
+        CALL DGEMM_('T','N',                                            &
+     &              NOQ,NOP,NBQ,                                        &
+     &              1.0d0,CMO(LMOQ),NBQ,                                &
+     &              X1,NBQ,                                             &
      &              0.0d0,X2,NOQ)
         IX2=NOP*NOQ
        ENDIF
-C
-C      WRITE INTEGRALS (AB/TU) ON OUTPUT UNIT LUINTM
-C      INTEGRALS FOR SYMMETRY BLOCK (ISP,ISQ,ISR,ISS) ARE STORED
-C      ONE BLOCK FOR EACH TU STARTING AT ADDRESS IAD2M(1,ISPQRS).
-C      TRIANGULAR IN AB AND TU IF ISP.EQ.ISQ ( AND ISR.EQ.ISS)
-C
+!
+!      WRITE INTEGRALS (AB/TU) ON OUTPUT UNIT LUINTM
+!      INTEGRALS FOR SYMMETRY BLOCK (ISP,ISQ,ISR,ISS) ARE STORED
+!      ONE BLOCK FOR EACH TU STARTING AT ADDRESS IAD2M(1,ISPQRS).
+!      TRIANGULAR IN AB AND TU IF ISP.EQ.ISQ ( AND ISR.EQ.ISS)
+!
        Call GADSum(X2,IX2)
        CALL dDAFILE(LUINTM,1,X2,IX2,IAD13)
-C
-C      EXTRACT INTEGRALS WITH ALL INDICES ACTIVE INTO TUVX
-C      Not used with caspt2. If wanted, TUVX must be declared.
-C
-C      IF(ISP.GE.ISR.AND.NASH(ISP)*NASH(ISQ).NE.0)
-C    & CALL GTUVX(X2,TUVX,NT,NU,ITP,ITQ,ITR,ITS,ISP,ISQ)
+!
+!      EXTRACT INTEGRALS WITH ALL INDICES ACTIVE INTO TUVX
+!      Not used with caspt2. If wanted, TUVX must be declared.
+!
+!      IF(ISP.GE.ISR.AND.NASH(ISP)*NASH(ISQ).NE.0)
+!    & CALL GTUVX(X2,TUVX,NT,NU,ITP,ITQ,ITR,ITS,ISP,ISQ)
 
    21 CONTINUE
    20 CONTINUE
    22 CONTINUE
-C
-C     SECOND PARTIAL TRANSFORMATION FOR INTEGRALS (PQ/RU)-> (AT/BU)
-C     IF ISP.EQ.ISR THEN T.GE.U BUT ALWAYS ALL A AND B
-C
+!
+!     SECOND PARTIAL TRANSFORMATION FOR INTEGRALS (PQ/RU)-> (AT/BU)
+!     IF ISP.EQ.ISR THEN T.GE.U BUT ALWAYS ALL A AND B
+!
       NOTU=NOCQ*NOCS
       IF(ISQ.EQ.ISS) NOTU=(NOCQ**2+NOCQ)/2
       IF(ISP.GE.ISR.AND.NOTU.NE.0) THEN
@@ -325,13 +325,13 @@ C
        DO 31 NU=1,NOCS
         IRU=NBR*(NU-1)+NR
         IPQST=1+NBPQ*(IRU-1)
-C
-C       READ ONE BUFFER OF INTEGRALS BACK INTO CORE
-C
+!
+!       READ ONE BUFFER OF INTEGRALS BACK INTO CORE
+!
         IF(IPQMX1.LT.NBPQ) THEN
-**sta0830
+!*sta0830
           Call RBuf_tra2(LUHLF1,RUPQ,NBPQ,IPQMX1,NORU,IRU,IPQST,IAD1S)
-**end0830
+!*end0830
         ENDIF
         IF(ISP.EQ.ISQ) THEN
          CALL SQUARE(RUPQ(IPQST),X2,1,NBQ,NBQ)
@@ -339,41 +339,41 @@ C
          CALL DCOPY_(NBPQ,RUPQ(IPQST),1,X2,1)
         ENDIF
         IF(ISQ.EQ.ISS) THEN
-         CALL DGEMM_('T','N',
-     &               NBP,NOCQ-NU+1,NBQ,
-     &               1.0d0,X2,NBQ,
-     &               CMO(LMOQ2+NBQ*(NU-1)),NBQ,
+         CALL DGEMM_('T','N',                                           &
+     &               NBP,NOCQ-NU+1,NBQ,                                 &
+     &               1.0d0,X2,NBQ,                                      &
+     &               CMO(LMOQ2+NBQ*(NU-1)),NBQ,                         &
      &               0.0d0,X1,NBP)
-         CALL DGEMM_('T','N',
-     &               NOCQ-NU+1,NOP,NBP,
-     &               1.0d0,X1,NBP,
-     &               CMO(LMOP),NBP,
+         CALL DGEMM_('T','N',                                           &
+     &               NOCQ-NU+1,NOP,NBP,                                 &
+     &               1.0d0,X1,NBP,                                      &
+     &               CMO(LMOP),NBP,                                     &
      &               0.0d0,X2,NOCQ-NU+1)
         ELSE
-         CALL DGEMM_('T','N',
-     &               NBP,NOCQ,NBQ,
-     &               1.0d0,X2,NBQ,
-     &               CMO(LMOQ2),NBQ,
+         CALL DGEMM_('T','N',                                           &
+     &               NBP,NOCQ,NBQ,                                      &
+     &               1.0d0,X2,NBQ,                                      &
+     &               CMO(LMOQ2),NBQ,                                    &
      &               0.0d0,X1,NBP)
-         CALL DGEMM_('T','N',
-     &               NOCQ,NOP,NBP,
-     &               1.0d0,X1,NBP,
-     &               CMO(LMOP),NBP,
+         CALL DGEMM_('T','N',                                           &
+     &               NOCQ,NOP,NBP,                                      &
+     &               1.0d0,X1,NBP,                                      &
+     &               CMO(LMOP),NBP,                                     &
      &               0.0d0,X2,NOCQ)
          ENDIF
-C
-C       INTEGRALS (AT/RU) ARE NOW IN X2 FOR ONE VALUE OF R,U AND ALL
-C       VALUES OF A,T(T.GE.U IF ISQ.EQ.ISS)
-C
-C       SORT THESE INTEGRALS AFTER PAIR INDEX TU, IN CORE IF POSSIBLE
-C       OTHERWISE USE LUHLF3 FOR TEMPORARY STORAGE (SAME POSITION AS FOR
-C       INTEGRALS (TU/PQ)
-C
+!
+!       INTEGRALS (AT/RU) ARE NOW IN X2 FOR ONE VALUE OF R,U AND ALL
+!       VALUES OF A,T(T.GE.U IF ISQ.EQ.ISS)
+!
+!       SORT THESE INTEGRALS AFTER PAIR INDEX TU, IN CORE IF POSSIBLE
+!       OTHERWISE USE LUHLF3 FOR TEMPORARY STORAGE (SAME POSITION AS FOR
+!       INTEGRALS (TU/PQ)
+!
         IF(IR.GT.LR) THEN
          IR=1
-cvv         DO 24 I=1,NOTU
-cvv          CALL dDAFILE(LUHLF3,1,TUPQ(1+LAR*(I-1)),LAR,IAD3)
-cvv   24    CONTINUE
+!vv         DO 24 I=1,NOTU
+!vv          CALL dDAFILE(LUHLF3,1,TUPQ(1+LAR*(I-1)),LAR,IAD3)
+!vv   24    CONTINUE
         CALL dDAFILE(LUHLF3,1,TUPQ,LAR*NOTU,IAD3)
         ENDIF
         NAT=0
@@ -390,20 +390,20 @@ cvv   24    CONTINUE
    26   CONTINUE
    31  CONTINUE
    30  CONTINUE
-C
-C      EMPTY LAST BUFFER IF LR.LT.NBR
-C
+!
+!      EMPTY LAST BUFFER IF LR.LT.NBR
+!
        IF(LR.LT.NBR) THEN
-cvv        DO 32 I=1,NOTU
-cvv         CALL dDAFILE(LUHLF3,1,TUPQ(1+LAR*(I-1)),LAR,IAD3)
-cvv   32   CONTINUE
+!vv        DO 32 I=1,NOTU
+!vv         CALL dDAFILE(LUHLF3,1,TUPQ(1+LAR*(I-1)),LAR,IAD3)
+!vv   32   CONTINUE
        CALL dDAFILE(LUHLF3,1,TUPQ,LAR*NOTU,IAD3)
        ENDIF
-C
-C      NOW TRANSFORM INDEX R TO B
-C
-C      FIRST COMPUTE AND SAVE START ADDRESS FOR THIS SYMMETRY BLOCK
-C
+!
+!      NOW TRANSFORM INDEX R TO B
+!
+!      FIRST COMPUTE AND SAVE START ADDRESS FOR THIS SYMMETRY BLOCK
+!
        IF(ISQ.GE.ISS) THEN
         ISPQRS=((ISQ**2-ISQ)/2+ISS-1)*NSYMP+(ISP**2-ISP)/2+ISR
         IAD2M(2,ISPQRS)=IAD13
@@ -424,26 +424,26 @@ C
         KKTU=KKTU+1
         IST=IST+NOP*NBR
         IF(LR.LT.NBR)THEN
-**sta0830
+!*sta0830
           Call RBuf_tra2(LUHLF3,TUPQ,NBR*NOP,LAR,NOTU,KKTU,IST,IAD3S)
-**end0830
+!*end0830
         ENDIF
-        CALL DGEMM_('T','T',
-     &              NOR,NOP,NBR,
-     &              1.0d0,CMO(LMOR),NBR,
-     &              TUPQ(IST),NOP,
+        CALL DGEMM_('T','T',                                            &
+     &              NOR,NOP,NBR,                                        &
+     &              1.0d0,CMO(LMOR),NBR,                                &
+     &              TUPQ(IST),NOP,                                      &
      &              0.0d0,X2,NOR)
-C
-C       WRITE THESE BLOCK OF INTEGRALS ON LUINTM
-C
+!
+!       WRITE THESE BLOCK OF INTEGRALS ON LUINTM
+!
         Call GADSum(X2,NOP*NOR)
         CALL dDAFILE(LUINTM,1,X2,NOP*NOR,IAD13)
    41  CONTINUE
    40  CONTINUE
       ENDIF
-C
-C     SECOND PARTIAL TRANSFORMATION FOR INTEGRALS (PQ/RU)-> (TA/BU)
-C
+!
+!     SECOND PARTIAL TRANSFORMATION FOR INTEGRALS (PQ/RU)-> (TA/BU)
+!
       NOTU=NOCP*NOCS
       IF((ISP.NE.ISQ.AND.ISQ.GT.ISR).AND.NOTU.NE.0) THEN
        LAR=LTUPQ/NOTU
@@ -460,38 +460,38 @@ C
        DO 51 NU=1,NOCS
         IRU=NBR*(NU-1)+NR
         IPQST=1+NBPQ*(IRU-1)
-C
-C       READ ONE BUFFER OF INTEGRALS BACK INTO CORE
-C
+!
+!       READ ONE BUFFER OF INTEGRALS BACK INTO CORE
+!
         IF(IPQMX1.LT.NBPQ) THEN
-**sta0830
+!*sta0830
           Call RBuf_tra2(LUHLF1,RUPQ,NBPQ,IPQMX1,NORU,IRU,IPQST,IAD1S)
-**end0830
+!*end0830
         ENDIF
-        CALL DGEMM_('N','N',
-     &              NBQ,NOCP,NBP,
-     &              1.0d0,RUPQ(IPQST),NBQ,
-     &              CMO(LMOP2),NBP,
+        CALL DGEMM_('N','N',                                            &
+     &              NBQ,NOCP,NBP,                                       &
+     &              1.0d0,RUPQ(IPQST),NBQ,                              &
+     &              CMO(LMOP2),NBP,                                     &
      &              0.0d0,X1,NBQ)
-        CALL DGEMM_('T','N',
-     &              NOCP,NOQ,NBQ,
-     &              1.0d0,X1,NBQ,
-     &              CMO(LMOQ),NBQ,
+        CALL DGEMM_('T','N',                                            &
+     &              NOCP,NOQ,NBQ,                                       &
+     &              1.0d0,X1,NBQ,                                       &
+     &              CMO(LMOQ),NBQ,                                      &
      &              0.0d0,X2,NOCP)
-C
-C       INTEGRALS (TA/RU) ARE NOW IN X2 FOR ONE VALUE OF R,U AND ALL
-C       VALUES OF T,A . NOTE THAT T AND U HERE ALWAYS ARE OF DIFFERENT
-C       SYMMETRIES
-C
-C       SORT THESE INTEGRALS AFTER PAIR INDEX TU, IN CORE IF POSSIBLE
-C       OTHERWISE USE LUHLF3 FOR TEMPORARY STORAGE (SAME POSITION AS FOR
-C       INTEGRALS (TU/PQ)
-C
+!
+!       INTEGRALS (TA/RU) ARE NOW IN X2 FOR ONE VALUE OF R,U AND ALL
+!       VALUES OF T,A . NOTE THAT T AND U HERE ALWAYS ARE OF DIFFERENT
+!       SYMMETRIES
+!
+!       SORT THESE INTEGRALS AFTER PAIR INDEX TU, IN CORE IF POSSIBLE
+!       OTHERWISE USE LUHLF3 FOR TEMPORARY STORAGE (SAME POSITION AS FOR
+!       INTEGRALS (TU/PQ)
+!
         IF(IR.GT.LR) THEN
          IR=1
-cvv         DO 44 I=1,NOTU
-cvv          CALL dDAFILE(LUHLF3,1,TUPQ(1+LAR*(I-1)),LAR,IAD3)
-cvv   44    CONTINUE
+!vv         DO 44 I=1,NOTU
+!vv          CALL dDAFILE(LUHLF3,1,TUPQ(1+LAR*(I-1)),LAR,IAD3)
+!vv   44    CONTINUE
         CALL dDAFILE(LUHLF3,1,TUPQ,LAR*NOTU,IAD3)
 
         ENDIF
@@ -505,20 +505,20 @@ cvv   44    CONTINUE
    46   CONTINUE
    51  CONTINUE
    50  CONTINUE
-C
-C      EMPTY LAST BUFFER IF LR.LT.NBR
-C
+!
+!      EMPTY LAST BUFFER IF LR.LT.NBR
+!
        IF(LR.LT.NBR) THEN
-cvv        DO 52 I=1,NOTU
-cvv         CALL dDAFILE(LUHLF3,1,TUPQ(1+LAR*(I-1)),LAR,IAD3)
-cvv   52   CONTINUE
+!vv        DO 52 I=1,NOTU
+!vv         CALL dDAFILE(LUHLF3,1,TUPQ(1+LAR*(I-1)),LAR,IAD3)
+!vv   52   CONTINUE
        CALL dDAFILE(LUHLF3,1,TUPQ,LAR*NOTU,IAD3)
        ENDIF
-C
-C      NOW TRANSFORM INDEX R TO B
-C
-C      FIRST COMPUTE AND SAVE START ADDRESS FOR THIS SYMMETRY BLOCK
-C
+!
+!      NOW TRANSFORM INDEX R TO B
+!
+!      FIRST COMPUTE AND SAVE START ADDRESS FOR THIS SYMMETRY BLOCK
+!
        ISPQRS=((ISP**2-ISP)/2+ISS-1)*NSYMP+(ISQ**2-ISQ)/2+ISR
        IAD2M(2,ISPQRS)=IAD13
        KKTU=0
@@ -528,26 +528,26 @@ C
         KKTU=KKTU+1
         IST=IST+NOQ*NBR
         IF(LR.LT.NBR)THEN
-**sta0830
+!*sta0830
           Call RBuf_tra2(LUHLF3,TUPQ,NBR*NOQ,LAR,NOTU,KKTU,IST,IAD3S)
-**end0830
+!*end0830
         ENDIF
-        CALL DGEMM_('T','T',
-     &              NOR,NOQ,NBR,
-     &              1.0d0,CMO(LMOR),NBR,
-     &              TUPQ(IST),NOQ,
+        CALL DGEMM_('T','T',                                            &
+     &              NOR,NOQ,NBR,                                        &
+     &              1.0d0,CMO(LMOR),NBR,                                &
+     &              TUPQ(IST),NOQ,                                      &
      &              0.0d0,X2,NOR)
-C
-C       WRITE THESE BLOCK OF INTEGRALS ON LUINTM
-C
+!
+!       WRITE THESE BLOCK OF INTEGRALS ON LUINTM
+!
         Call GADSum(X2,NOR*NOQ)
         CALL dDAFILE(LUINTM,1,X2,NOR*NOQ,IAD13)
    61  CONTINUE
    60  CONTINUE
       ENDIF
-C
-C     SECOND PARTIAL TRANSFORMATION FOR INTEGRALS (PQ/UR)-> (AT/UB)
-C
+!
+!     SECOND PARTIAL TRANSFORMATION FOR INTEGRALS (PQ/UR)-> (AT/UB)
+!
       NOTU=NOCQ*NOCR
       IF((ISP.NE.ISQ.AND.ISP.GT.ISS).AND.NOTU.NE.0) THEN
        LAR=(LRUPQ+LTUPQ)/NOTU
@@ -564,37 +564,37 @@ C
        DO 71 NU=1,NOCR
         IRU=NBS*(NU-1)+NR
         IPQST=1+NBPQ*(IRU-1)
-C
-C       READ ONE BUFFER OF INTEGRALS BACK INTO CORE
-C
+!
+!       READ ONE BUFFER OF INTEGRALS BACK INTO CORE
+!
         IF(IPQMX2.LT.NBPQ) THEN
-**sta0830
+!*sta0830
           Call RBuf_tra2(LUHLF2,URPQ,NBPQ,IPQMX2,NOUR,IRU,IPQST,IAD2S)
-**end0830
+!*end0830
         ENDIF
-        CALL DGEMM_('T','N',
-     &              NBP,NOCQ,NBQ,
-     &              1.0d0,URPQ(IPQST),NBQ,
-     &              CMO(LMOQ2),NBQ,
+        CALL DGEMM_('T','N',                                            &
+     &              NBP,NOCQ,NBQ,                                       &
+     &              1.0d0,URPQ(IPQST),NBQ,                              &
+     &              CMO(LMOQ2),NBQ,                                     &
      &              0.0d0,X1,NBP)
-        CALL DGEMM_('T','N',
-     &              NOCQ,NOP,NBP,
-     &              1.0d0,X1,NBP,
-     &              CMO(LMOP),NBP,
+        CALL DGEMM_('T','N',                                            &
+     &              NOCQ,NOP,NBP,                                       &
+     &              1.0d0,X1,NBP,                                       &
+     &              CMO(LMOP),NBP,                                      &
      &              0.0d0,X2,NOCQ)
-C
-C       INTEGRALS (AT/UR) ARE NOW IN X2 FOR ONE VALUE OF R,U AND ALL
-C       VALUES OF A,T. NOTE THAT T AND U HAVE DIFFERENT SYMMETRIES.
-C
-C       SORT THESE INTEGRALS AFTER PAIR INDEX TU, IN CORE IF POSSIBLE
-C       OTHERWISE USE LUHLF3 FOR TEMPORARY STORAGE (SAME POSITION AS FOR
-C       INTEGRALS (TU/PQ)
-C
+!
+!       INTEGRALS (AT/UR) ARE NOW IN X2 FOR ONE VALUE OF R,U AND ALL
+!       VALUES OF A,T. NOTE THAT T AND U HAVE DIFFERENT SYMMETRIES.
+!
+!       SORT THESE INTEGRALS AFTER PAIR INDEX TU, IN CORE IF POSSIBLE
+!       OTHERWISE USE LUHLF3 FOR TEMPORARY STORAGE (SAME POSITION AS FOR
+!       INTEGRALS (TU/PQ)
+!
         IF(IR.GT.LR) THEN
          IR=1
-cvv         DO 64 I=1,NOTU
-cvv          CALL dDAFILE(LUHLF3,1,RUPQ(1+LAR*(I-1)),LAR,IAD3)
-cvv   64    CONTINUE
+!vv         DO 64 I=1,NOTU
+!vv          CALL dDAFILE(LUHLF3,1,RUPQ(1+LAR*(I-1)),LAR,IAD3)
+!vv   64    CONTINUE
         CALL dDAFILE(LUHLF3,1,RUPQ,LAR*NOTU,IAD3)
         ENDIF
         NAT=0
@@ -608,20 +608,20 @@ cvv   64    CONTINUE
    66   CONTINUE
    71  CONTINUE
    70  CONTINUE
-C
-C      EMPTY LAST BUFFER IF LR.LT.NBS
-C
+!
+!      EMPTY LAST BUFFER IF LR.LT.NBS
+!
        IF(LR.LT.NBS) THEN
-cvv        DO 72 I=1,NOTU
-cvv         CALL dDAFILE(LUHLF3,1,RUPQ(1+LAR*(I-1)),LAR,IAD3)
-cvv   72   CONTINUE
+!vv        DO 72 I=1,NOTU
+!vv         CALL dDAFILE(LUHLF3,1,RUPQ(1+LAR*(I-1)),LAR,IAD3)
+!vv   72   CONTINUE
        CALL dDAFILE(LUHLF3,1,RUPQ,LAR*NOTU,IAD3)
        ENDIF
-C
-C      NOW TRANSFORM INDEX R TO B
-C
-C      FIRST COMPUTE AND SAVE START ADDRESS FOR THIS SYMMETRY BLOCK
-C
+!
+!      NOW TRANSFORM INDEX R TO B
+!
+!      FIRST COMPUTE AND SAVE START ADDRESS FOR THIS SYMMETRY BLOCK
+!
        IF(ISQ.GE.ISR) THEN
         ISPQRS=((ISQ**2-ISQ)/2+ISR-1)*NSYMP+(ISP**2-ISP)/2+ISS
         IAD2M(2,ISPQRS)=IAD13
@@ -640,26 +640,26 @@ C
         KKTU=KKTU+1
         IST=IST+NBS*NOP
         IF(LR.LT.NBS)THEN
-**sta0830
+!*sta0830
           Call RBuf_tra2(LUHLF3,RUPQ,NBS*NOP,LAR,NOTU,KKTU,IST,IAD3S)
-**end0830
+!*end0830
         ENDIF
-        CALL DGEMM_('T','T',
-     &              NOS,NOP,NBS,
-     &              1.0d0,CMO(LMOS),NBS,
-     &              RUPQ(IST),NOP,
+        CALL DGEMM_('T','T',                                            &
+     &              NOS,NOP,NBS,                                        &
+     &              1.0d0,CMO(LMOS),NBS,                                &
+     &              RUPQ(IST),NOP,                                      &
      &              0.0d0,X2,NOS)
-C
-C       WRITE THESE BLOCK OF INTEGRALS ON LUINTM
-C
+!
+!       WRITE THESE BLOCK OF INTEGRALS ON LUINTM
+!
         CAll GADSum(X2,NOS*NOP)
         CALL dDAFILE(LUINTM,1,X2,NOS*NOP,IAD13)
    81  CONTINUE
    80  CONTINUE
       ENDIF
-C
-C     SECOND PARTIAL TRANSFORMATION FOR INTEGRALS (PQ/UR)-> (TA/UB)
-C
+!
+!     SECOND PARTIAL TRANSFORMATION FOR INTEGRALS (PQ/UR)-> (TA/UB)
+!
       NOTU=NOCP*NOCR
       IF((ISP.NE.ISQ.AND.ISQ.GE.ISS).AND.NOTU.NE.0) THEN
        IF(ISP.EQ.ISR) NOTU=(NOCP**2+NOCP)/2
@@ -677,50 +677,50 @@ C
        DO 91 NU=1,NOCR
         IRU=NBS*(NU-1)+NR
         IPQST=1+NBPQ*(IRU-1)
-C
-C       READ ONE BUFFER OF INTEGRALS BACK INTO CORE
-C
+!
+!       READ ONE BUFFER OF INTEGRALS BACK INTO CORE
+!
         IF(IPQMX2.LT.NBPQ) THEN
-**sta0830
+!*sta0830
           Call RBuf_tra2(LUHLF2,URPQ,NBPQ,IPQMX2,NOUR,IRU,IPQST,IAD2S)
-**end0830
+!*end0830
         ENDIF
         IF(ISP.EQ.ISR) THEN
-         CALL DGEMM_('N','N',
-     &               NBQ,NOCP-NU+1,NBP,
-     &               1.0d0,URPQ(IPQST),NBQ,
-     &               CMO(LMOP2+NBP*(NU-1)),NBP,
+         CALL DGEMM_('N','N',                                           &
+     &               NBQ,NOCP-NU+1,NBP,                                 &
+     &               1.0d0,URPQ(IPQST),NBQ,                             &
+     &               CMO(LMOP2+NBP*(NU-1)),NBP,                         &
      &               0.0d0,X1,NBQ)
-         CALL DGEMM_('T','N',
-     &               NOCP-NU+1,NOQ,NBQ,
-     &               1.0d0,X1,NBQ,
-     &               CMO(LMOQ),NBQ,
+         CALL DGEMM_('T','N',                                           &
+     &               NOCP-NU+1,NOQ,NBQ,                                 &
+     &               1.0d0,X1,NBQ,                                      &
+     &               CMO(LMOQ),NBQ,                                     &
      &               0.0d0,X2,NOCP-NU+1)
         ELSE
-         CALL DGEMM_('N','N',
-     &               NBQ,NOCP,NBP,
-     &               1.0d0,URPQ(IPQST),NBQ,
-     &               CMO(LMOP2),NBP,
+         CALL DGEMM_('N','N',                                           &
+     &               NBQ,NOCP,NBP,                                      &
+     &               1.0d0,URPQ(IPQST),NBQ,                             &
+     &               CMO(LMOP2),NBP,                                    &
      &               0.0d0,X1,NBQ)
-         CALL DGEMM_('T','N',
-     &               NOCP,NOQ,NBQ,
-     &               1.0d0,X1,NBQ,
-     &               CMO(LMOQ),NBQ,
+         CALL DGEMM_('T','N',                                           &
+     &               NOCP,NOQ,NBQ,                                      &
+     &               1.0d0,X1,NBQ,                                      &
+     &               CMO(LMOQ),NBQ,                                     &
      &               0.0d0,X2,NOCP)
         ENDIF
-C
-C       INTEGRALS (TA/UR) ARE NOW IN X2 FOR ONE VALUE OF R,U AND ALL
-C       VALUES OF A,T
-C
-C       SORT THESE INTEGRALS AFTER PAIR INDEX TU, IN CORE IF POSSIBLE
-C       OTHERWISE USE LUHLF3 FOR TEMPORARY STORAGE (SAME POSITION AS FOR
-C       INTEGRALS (TU/PQ)
-C
+!
+!       INTEGRALS (TA/UR) ARE NOW IN X2 FOR ONE VALUE OF R,U AND ALL
+!       VALUES OF A,T
+!
+!       SORT THESE INTEGRALS AFTER PAIR INDEX TU, IN CORE IF POSSIBLE
+!       OTHERWISE USE LUHLF3 FOR TEMPORARY STORAGE (SAME POSITION AS FOR
+!       INTEGRALS (TU/PQ)
+!
         IF(IR.GT.LR) THEN
          IR=1
-cvv         DO 84 I=1,NOTU
-cvv          CALL dDAFILE(LUHLF3,1,RUPQ(1+LAR*(I-1)),LAR,IAD3)
-cvv   84    CONTINUE
+!vv         DO 84 I=1,NOTU
+!vv          CALL dDAFILE(LUHLF3,1,RUPQ(1+LAR*(I-1)),LAR,IAD3)
+!vv   84    CONTINUE
         CALL dDAFILE(LUHLF3,1,RUPQ,LAR*NOTU,IAD3)
         ENDIF
         NAT=0
@@ -737,20 +737,20 @@ cvv   84    CONTINUE
    86   CONTINUE
    91  CONTINUE
    90  CONTINUE
-C
-C      EMPTY LAST BUFFER IF LR.LT.NBS
-C
+!
+!      EMPTY LAST BUFFER IF LR.LT.NBS
+!
        IF(LR.LT.NBS) THEN
-cvv        DO 92 I=1,NOTU
-cvv         CALL dDAFILE(LUHLF3,1,RUPQ(1+LAR*(I-1)),LAR,IAD3)
-cvv   92   CONTINUE
+!vv        DO 92 I=1,NOTU
+!vv         CALL dDAFILE(LUHLF3,1,RUPQ(1+LAR*(I-1)),LAR,IAD3)
+!vv   92   CONTINUE
        CALL dDAFILE(LUHLF3,1,RUPQ,LAR*NOTU,IAD3)
        ENDIF
-C
-C      NOW TRANSFORM INDEX R TO B
-C
-C       FIRST COMPUTE AND SAVE START ADDRESS FOR THIS SYMMETRY BLOCK
-C
+!
+!      NOW TRANSFORM INDEX R TO B
+!
+!       FIRST COMPUTE AND SAVE START ADDRESS FOR THIS SYMMETRY BLOCK
+!
        IF(ISP.GE.ISR) THEN
         ISPQRS=((ISP**2-ISP)/2+ISR-1)*NSYMP+(ISQ**2-ISQ)/2+ISS
         IAD2M(2,ISPQRS)=IAD13
@@ -771,33 +771,33 @@ C
         KKTU=KKTU+1
         IST=IST+NOQ*NBS
         IF(LR.LT.NBS)THEN
-**sta0830
+!*sta0830
           Call RBuf_tra2(LUHLF3,RUPQ,NBS*NOQ,LAR,NOTU,KKTU,IST,IAD3S)
-**end0830
+!*end0830
         ENDIF
-        CALL DGEMM_('T','T',
-     &              NOS,NOQ,NBS,
-     &              1.0d0,CMO(LMOS),NBS,
-     &              RUPQ(IST),NOQ,
+        CALL DGEMM_('T','T',                                            &
+     &              NOS,NOQ,NBS,                                        &
+     &              1.0d0,CMO(LMOS),NBS,                                &
+     &              RUPQ(IST),NOQ,                                      &
      &              0.0d0,X2,NOS)
-C
-C       WRITE THESE BLOCK OF INTEGRALS ON LUINTM
-C
+!
+!       WRITE THESE BLOCK OF INTEGRALS ON LUINTM
+!
         Call GADSum(X2,NOS*NOQ)
         CALL dDAFILE(LUINTM,1,X2,NOS*NOQ,IAD13)
   101  CONTINUE
   100  CONTINUE
       ENDIF
-C
-C     END OF TRANSFORMATION FOR THIS SYMMETRY BLOCK
-C
-C     IAD2M CONTAINS START ADRESS FOR EACH TYPE OF INTEGRALS:
-C     IAD2M(1,ISPQRS)   COULOMB INTEGRALS (AB|TU)
-C     IAD2M(2,ISPQRS)   EXCHANGE INTEGRALS <AB|TU> FOR SYM T > SYM U
-C     IAD2M(3,ISPQRS)     EXCHANGE INTEGRALS <AB|TU> FOR SYM T < SYM U
-C     THE LAST ADRESS IS ZERO IF SYM T = SYM U
-C     TO SEE HOW THE INTEGRALS ARE USED LOOK IN RDINT2
-C
+!
+!     END OF TRANSFORMATION FOR THIS SYMMETRY BLOCK
+!
+!     IAD2M CONTAINS START ADRESS FOR EACH TYPE OF INTEGRALS:
+!     IAD2M(1,ISPQRS)   COULOMB INTEGRALS (AB|TU)
+!     IAD2M(2,ISPQRS)   EXCHANGE INTEGRALS <AB|TU> FOR SYM T > SYM U
+!     IAD2M(3,ISPQRS)     EXCHANGE INTEGRALS <AB|TU> FOR SYM T < SYM U
+!     THE LAST ADRESS IS ZERO IF SYM T = SYM U
+!     TO SEE HOW THE INTEGRALS ARE USED LOOK IN RDINT2
+!
 
 
       RETURN

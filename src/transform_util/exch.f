@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE EXCH(ISYP,ISYI,ISYQ,ISYJ,II,IJ,ERI,SCR)
 
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -44,9 +44,9 @@
         TRANSP=.FALSE.
       END IF
 
-C We are going for an EXCH1 or EXCH2 integral of symmetry
-C block ISY1,ISY3,ISY2,ISY4.
-C Disk address to symmetry block, and record nr:
+! We are going for an EXCH1 or EXCH2 integral of symmetry
+! block ISY1,ISY3,ISY2,ISY4.
+! Disk address to symmetry block, and record nr:
 
       IS12=(ISY1*(ISY1-1))/2+ISY2
       IF(ISY3.GT.ISY4) THEN
@@ -69,16 +69,16 @@ C Disk address to symmetry block, and record nr:
         IREC=I3+NOSHZ(ISY3)*(I4-1)
       END IF
 
-C Buffer size:
+! Buffer size:
       NO1=NORBZ(ISY1)
       NO2=NORBZ(ISY2)
       NBUF=NO1*NO2
       IF(NBUF.EQ.0) RETURN
 
-C Address update for earlier records, then read:
-* PAM07 * Eliminate unsafe IPOSFILE call
-*      IDISK=IDISK+iPosFile(NBUF)*(IREC-1)
-* Replace with dummy i/o operations: Is this efficience issue??
+! Address update for earlier records, then read:
+! PAM07 * Eliminate unsafe IPOSFILE call
+!      IDISK=IDISK+iPosFile(NBUF)*(IREC-1)
+! Replace with dummy i/o operations: Is this efficience issue??
       DO I=1,IREC-1
         CALL dDAFILE(LUINTMZ,0,SCR,NBUF,IDISK)
       END DO

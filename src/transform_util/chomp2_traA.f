@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004,2005, Giovanni Ghigo                              *
-************************************************************************
-      Subroutine ChoMP2_TraA(iSymL, iSym,jSym, NumV, CMO,NCMO,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004,2005, Giovanni Ghigo                              *
+!***********************************************************************
+      Subroutine ChoMP2_TraA(iSymL, iSym,jSym, NumV, CMO,NCMO,          &
      &                               lUCHFV, iStrtVec_AB, nFVec)
-************************************************************************
-* Author :  Giovanni Ghigo                                             *
-*           Lund University, Sweden                                    *
-* Written:  October 2004                                               *
-* Modified for Cholesky-MP2 May 2005                                   *
-************************************************************************
+!***********************************************************************
+! Author :  Giovanni Ghigo                                             *
+!           Lund University, Sweden                                    *
+! Written:  October 2004                                               *
+! Modified for Cholesky-MP2 May 2005                                   *
+!***********************************************************************
       use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
@@ -30,8 +30,8 @@
 
       Real*8, Allocatable:: XAj(:), XBi(:), FAB(:,:)
 
-* --- Memory to allocate & Nr. of Cholesky vectors transformable
-*     A=Alpha(AO);  B=Beta(AO)
+! --- Memory to allocate & Nr. of Cholesky vectors transformable
+!     A=Alpha(AO);  B=Beta(AO)
       TCVC = .False.
       TCVCt= .False.
 
@@ -42,8 +42,8 @@
       Len_XBi = 0   ! C"
       NFAB = nBas(iSym) * nBas(jSym)
 
-*     Allocate memory for Transformed Cholesky Vectors - TCVx
-* TCV-C :
+!     Allocate memory for Transformed Cholesky Vectors - TCVx
+! TCV-C :
       If (TCVXist(3,iSym,jSym)) Then
         TCVC = .True.
         Len_XAj = nBas(iSym) * nIsh(jSym)
@@ -51,7 +51,7 @@
 
         Call mma_allocate(TCVX(3,iSym,jSym)%A,Naj,NumV,Label='TCVX')
       EndIf
-* TCV-Ct:
+! TCV-Ct:
       If (TCVXist(3,jSym,iSym)) Then
         TCVCt= .True.
         Len_XBi = nBas(jSym) * nIsh(iSym)
@@ -70,68 +70,68 @@
          jStrt = jStrt + nBas(j) * nBas(j)
       EndDo
 
-* --- START LOOP iiVec   -----------------------------------------------
+! --- START LOOP iiVec   -----------------------------------------------
       DO iiVec = 1, NumV, nFVec
         NumFV=Max(nFVec,NumV-iiVec+1)
         iFBatch = (iiVec+nFVec-1)/nFVec
 
-*       Allocate memory & Load Full Cholesky Vectors - CHFV
+!       Allocate memory & Load Full Cholesky Vectors - CHFV
 
         iStrtVec_FAB = iStrtVec_AB + nFVec * (iFBatch-1)
 
         Call mma_allocate(FAB,nFAB,NumFV,Label='FAB')
         Call RdChoVec(FAB,NFAB,NumFV,iStrtVec_FAB,lUCHFV)
 
-*  ---  Start Loop  jVec  ---
+!  ---  Start Loop  jVec  ---
         Do jVec=iiVec,iiVec+NumFV-1   ! Loop  jVec
           iVec = jVec - iiVec + 1
 
-*     --- 1st Half-Transformation  iBeta(AO) -> q(MO) only occupied
-C         From CHFV A(Alpha,Beta) to XAj(Alpha,jMO)
+!     --- 1st Half-Transformation  iBeta(AO) -> q(MO) only occupied
+!         From CHFV A(Alpha,Beta) to XAj(Alpha,jMO)
           If ( TCVC ) then
             jStrt0MO = jStrt + nFro(jSym) * nBas(jSym)
             Call mma_allocate(XAj,Len_XAj,Label='XAj')
-            Call ProdsA_2(FAB(:,iVec), nBas(iSym),nBas(jSym),
+            Call ProdsA_2(FAB(:,iVec), nBas(iSym),nBas(jSym),           &
      &                  CMO(jStrt0MO),nIsh(jSym), XAj)
           EndIf
-C         From CHFV A(Alpha,Beta) to XBi(Beta,iMO)
+!         From CHFV A(Alpha,Beta) to XBi(Beta,iMO)
           If ( TCVCt ) then
             iStrt0MO = iStrt + nFro(iSym) * nBas(iSym)
             Call mma_allocate(XBi,Len_XBi,Label='XBi')
-            Call ProdsA_2t(FAB(:,iVec), nBas(iSym),nBas(jSym),
+            Call ProdsA_2t(FAB(:,iVec), nBas(iSym),nBas(jSym),          &
      &                  CMO(iStrt0MO),nIsh(iSym), XBi)
           EndIf
 
-*     --- 2nd Half-Transformation  iAlpha(AO) -> p(MO)
-C         From XAj(Alpha,jMO) to aj(a,j)
+!     --- 2nd Half-Transformation  iAlpha(AO) -> p(MO)
+!         From XAj(Alpha,jMO) to aj(a,j)
           If ( TCVC ) then
             iStrt0MO = iStrt + (nFro(iSym)+nIsh(iSym)) * nBas(iSym)
-            Call ProdsA_1(XAj, nBas(iSym),nIsh(jSym),
-     &                  CMO(iStrt0MO),nSsh(iSym),
+            Call ProdsA_1(XAj, nBas(iSym),nIsh(jSym),                   &
+     &                  CMO(iStrt0MO),nSsh(iSym),                       &
      &                  TCVX(3,iSym,jSym)%A(:,jVec))
           EndIf
 
-C         From XBi(Beta,jMO) to bi(b,i)
+!         From XBi(Beta,jMO) to bi(b,i)
           If ( TCVCt ) then
             jStrt0MO = jStrt + (nFro(jSym)+nIsh(jSym)) * nBas(jSym)
-            Call ProdsA_1(XBi, nBas(jSym),nIsh(iSym),
-     &                  CMO(jStrt0MO),nSsh(jSym),
+            Call ProdsA_1(XBi, nBas(jSym),nIsh(iSym),                   &
+     &                  CMO(jStrt0MO),nSsh(jSym),                       &
      &                  TCVX(3,jSym,iSym)%A(:,jVec))
           EndIf
 
-*     --- End of Transformations
+!     --- End of Transformations
 
           If (Allocated(XAj)) Call mma_deallocate(XAj)
           If (Allocated(XBi)) Call mma_deallocate(XBi)
 
         EndDo
-*  ---  End Loop  jVec  ---
+!  ---  End Loop  jVec  ---
 
         Call mma_deallocate(FAB)
       ENDDO
-* --- END LOOP iiVec   -------------------------------------------------
+! --- END LOOP iiVec   -------------------------------------------------
 
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer(iSymL)
       End

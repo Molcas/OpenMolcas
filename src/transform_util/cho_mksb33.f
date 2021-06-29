@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2005, Giovanni Ghigo                                   *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2005, Giovanni Ghigo                                   *
+!***********************************************************************
       Subroutine MkExSB33(AddSB,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
-************************************************************************
-* Author :  Giovanni Ghigo                                             *
-*           Lund University, Sweden & Torino University, Italy         *
-*           Jannuary February 2005                                     *
-*----------------------------------------------------------------------*
-* Purpuse:  Generation of the SubBlock(3,3) (p,q secondary) of the     *
-*           two-electron integral matrix for each i,j occupied couple. *
-************************************************************************
+!***********************************************************************
+! Author :  Giovanni Ghigo                                             *
+!           Lund University, Sweden & Torino University, Italy         *
+!           Jannuary February 2005                                     *
+!----------------------------------------------------------------------*
+! Purpuse:  Generation of the SubBlock(3,3) (p,q secondary) of the     *
+!           two-electron integral matrix for each i,j occupied couple. *
+!***********************************************************************
       use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
@@ -31,32 +31,32 @@
 
       Real*8, Allocatable:: Lx0(:), Ly0(:)
 
-*   - SubBlock 3 3
+!   - SubBlock 3 3
       LenSB = nSsh(iSymA) * nSsh(iSymB)
       Call mma_allocate(AddSB,LenSB,Label='AddSB')
 
-*     Build Lx
+!     Build Lx
       Call mma_allocate(Lx0,nSsh(iSymA)*numV,Label='Lx0')
       LxType=0
       iIx=0
       SameLx=.False.
       Call MkL3(iSymA,iSymI,iI,numV, LxType,iIx, Lx0,SameLx)
 
-*     Build Ly
+!     Build Ly
       Call mma_allocate(Ly0,nSsh(iSymB)*numV,Label='Ly0')
       If(iSymA.EQ.iSymB) SameLx=.True.
       Call MkL3(iSymB,iSymJ,iJ,numV, LxType,iIx, Ly0,SameLx)
 
-*     Generate the SubBlock
+!     Generate the SubBlock
       If (.NOT.SameLx) then
-        Call DGEMM_('N','T',nSsh(iSymB),nSsh(iSymA),numV,
-     &              1.0d0,Ly0,nSsh(iSymB),
-     &                    Lx0,nSsh(iSymA),
+        Call DGEMM_('N','T',nSsh(iSymB),nSsh(iSymA),numV,               &
+     &              1.0d0,Ly0,nSsh(iSymB),                              &
+     &                    Lx0,nSsh(iSymA),                              &
      &              0.0d0,AddSB,nSsh(iSymB) )
       else
-        Call DGEMM_('N','T',nSsh(iSymA),nSsh(iSymA),numV,
-     &              1.0d0,Lx0,nSsh(iSymA),
-     &                    Lx0,nSsh(iSymA),
+        Call DGEMM_('N','T',nSsh(iSymA),nSsh(iSymA),numV,               &
+     &              1.0d0,Lx0,nSsh(iSymA),                              &
+     &                    Lx0,nSsh(iSymA),                              &
      &              0.0d0,AddSB,nSsh(iSymA) )
       EndIf
 
@@ -67,14 +67,14 @@
       End
 
       Subroutine MkCouSB33(AddSB,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
-************************************************************************
-* Author :  Giovanni Ghigo                                             *
-*           Lund University, Sweden & Torino University, Italy         *
-*           July 2005                                                  *
-*----------------------------------------------------------------------*
-* Purpuse:  Generation of the SubBlock(3,3) (p,q secondary) of the     *
-*           two-electron integral matrix for each i,j occupied couple. *
-************************************************************************
+!***********************************************************************
+! Author :  Giovanni Ghigo                                             *
+!           Lund University, Sweden & Torino University, Italy         *
+!           July 2005                                                  *
+!----------------------------------------------------------------------*
+! Purpuse:  Generation of the SubBlock(3,3) (p,q secondary) of the     *
+!           two-electron integral matrix for each i,j occupied couple. *
+!***********************************************************************
       use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
@@ -85,28 +85,28 @@
 
       Real*8, Allocatable:: Lij(:)
 
-*   - SubBlock 3 3
+!   - SubBlock 3 3
       LenSB = nSsh(iSymA) * nSsh(iSymB)
       Call mma_allocate(AddSB,LenSB,Label='AddSB')
 
-*     Define Lab
+!     Define Lab
       LenAB  = LenSB
-CGG   ------------------------------------------------------------------
-c      If(IfTest) then
-c      Write(6,*)'     MkCouSB33: TCVF(',iSymA,',',iSymB,')'
-c      Write(6,'(8F10.6)') TCVX(6,iSymA,iSymB)%A(:,:)
-c      Call XFlush(6)
-c      EndIf
-CGG   ------------------------------------------------------------------
+!GG   ------------------------------------------------------------------
+!      If(IfTest) then
+!      Write(6,*)'     MkCouSB33: TCVF(',iSymA,',',iSymB,')'
+!      Write(6,'(8F10.6)') TCVX(6,iSymA,iSymB)%A(:,:)
+!      Call XFlush(6)
+!      EndIf
+!GG   ------------------------------------------------------------------
 
-*     Build Lij
+!     Build Lij
       Call mma_allocate(Lij,NumV,Label='Lij')
       Call MkLij(iSymI,iSymJ,iI,iJ,numV,Lij)
 
-*     Generate the SubBlock
-      Call DGEMM_('N','N',LenAB,1,numV,
-     &            1.0d0,TCVX(6,iSymA,iSymB)%A,LenAB,
-     &                  Lij,NumV,
+!     Generate the SubBlock
+      Call DGEMM_('N','N',LenAB,1,numV,                                 &
+     &            1.0d0,TCVX(6,iSymA,iSymB)%A,LenAB,                    &
+     &                  Lij,NumV,                                       &
      &            0.0d0,AddSB,LenSB )
 
       Call mma_deallocate(Lij)
