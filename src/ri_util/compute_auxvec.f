@@ -109,7 +109,7 @@
             If (DoCAS.and.lSA) Then
                nSA=5
                Do i=1,nSA
-                 Call Allocate_DSBA(DMLT(i),nBas,nBas,nSym,Case='TRI')
+                 Call Allocate_DSBA(DMLT(i),nBas,nBas,nSym,aCase='TRI')
                  DMLT(i)%A0(:) = D0(:,i)
                End Do
 *Refold some density matrices
@@ -129,16 +129,16 @@
                  EndDo
                EndDo
             Else
-               Call Allocate_DSBA(DMLT(1),nBas,nBas,nSym,Case='TRI')
+               Call Allocate_DSBA(DMLT(1),nBas,nBas,nSym,aCase='TRI')
                Call Get_D1AO_Var(DMLT(1)%A0,nDens)
             EndIf
          Else
-            Call Allocate_DSBA(DMLT(1),nBas,nBas,nSym,Case='TRI')
+            Call Allocate_DSBA(DMLT(1),nBas,nBas,nSym,aCase='TRI')
             Call Get_D1AO(DMLT(1)%A0,nDens)
          End If
 *
          If (nKdens.eq.2) Then
-            Call Allocate_DSBA(DMLT(2),nBas,nBas,nSym,Case='TRI')
+            Call Allocate_DSBA(DMLT(2),nBas,nBas,nSym,aCase='TRI')
 !           spin-density matrix
             Call Get_D1SAO_Var(DMLT(2)%A0,nDens)
             Call daxpy_(nDens,-One,DMLT(1)%A0,1,
@@ -152,7 +152,7 @@
             Call Abend()
          EndIf
          If(iMp2prpt.eq.2) Then
-            Call Allocate_DSBA(DLT2,nBas,nBas,nSym,Case='TRI')
+            Call Allocate_DSBA(DLT2,nBas,nBas,nSym,aCase='TRI')
             Call Get_D1AO_Var(DLT2%A0,nDens)
             Call daxpy_(nDens,-One,DMLT(1)%A0,1,DLT2%A0,1)
          Else

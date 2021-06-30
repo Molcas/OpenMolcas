@@ -32,7 +32,7 @@ character(len=5) :: IntegralID
 integer(kind=iwp) :: AB, CD, A, B, C, D, nAB, nCD, l_Int, iD, ipD, ipF
 real(kind=wp) :: r, t
 real(kind=wp), allocatable :: FTstInt(:)
-character(len=8), parameter :: SecNam = 'LDF_FTst'
+character(len=*), parameter :: SecNam = 'LDF_FTst'
 integer(kind=iwp), parameter :: PrintLevel = 2
 real(kind=wp), parameter :: TolNeg = -1.0e-8_wp
 integer(kind=iwp), external :: LDF_nBas_Atom

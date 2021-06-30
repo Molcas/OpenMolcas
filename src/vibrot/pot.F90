@@ -24,7 +24,7 @@ character(len=8) :: FILENAME
 real(kind=wp) :: Eeq, Ree, Ue, Re, Eminx, Escale, alpha, Einf, Einfp
 integer(kind=iwp) :: Vibplt, iPrint, next, nplot, i, imin
 character(len=80) :: Title
-character(len=12), parameter :: tp(3) = [character(len=12) :: 'Max point','Saddle point','Min point']
+character(len=*), parameter :: tp(3) = [character(len=12) :: 'Max point','Saddle point','Min point']
 integer(kind=iwp), parameter :: lext = 100, ipldim = 1000
 real(kind=wp) :: Rext(lext), Eext(lext), Eextp(lext), Rplot(ipldim), Eplot(ipldim), Eplotp(ipldim)
 integer(kind=iwp) :: iext(lext)

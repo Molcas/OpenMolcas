@@ -245,7 +245,7 @@ integer(kind=iwp) :: i, nBas, iD, ip0, l, l_DBlocks, l_FBlocks, l_VP, l_DNorm, l
 real(kind=wp) :: tTotC1, tTotC2, tTotW1, tTotW2
 integer(kind=iwp), allocatable :: DBlocks(:), FBlocks(:), VP(:)
 real(kind=wp), allocatable :: DNorm(:), CNorm(:), VNorm(:), FactCBak(:)
-character(len=20), parameter :: SecNam = 'LDF_Fock_CoulombOnly'
+character(len=*), parameter :: SecNam = 'LDF_Fock_CoulombOnly'
 logical(kind=iwp), external :: LDF_IntegralPrescreeningInfoIsSet
 integer(kind=iwp), external :: LDF_nAtom
 #ifdef _DEBUGPRINT_

@@ -32,7 +32,7 @@
 #include "dcscf.fh"
 #include "spave.fh"
 * Pam 2012 Changed VECSORT arg list, need dummy array:
-      Integer NewOrd(2)
+      Integer iDummy(1)
       Real*8 CMO(mBB,nD), EOrb(mmB,nD), OccNo(mmB,nD)
       Integer, Dimension(:), Allocatable:: IndT, ID_vir
       Real*8, Dimension(:,:), Allocatable:: Da
@@ -134,7 +134,7 @@
      &               IndT,VTitle,1,iErr,iWFtype)
       End If
       Call RdTwoEnrg(Lu_,E_nondyn)
-      Call VecSort(nSym,nBas,nBas,CMO,OccNo,IndT,0,NewOrd,iErr)
+      Call VecSort(nSym,nBas,nBas,CMO,OccNo,IndT,0,iDummy,iErr)
       indx=1
       Do iSym=1,nSym
          nZero(iSym)=0
@@ -507,8 +507,9 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          FactXI=One
       EndIf
 *
-      Call Allocate_DSBA(PLT(1),nBas,nBas,nSym,Case='TRI')
-      Call Allocate_DSBA(PLT(2),nBas,nBas,nSym,Case='TRI',Ref=PLT(1)%A0)
+      Call Allocate_DSBA(PLT(1),nBas,nBas,nSym,aCase='TRI')
+      Call Allocate_DSBA(PLT(2),nBas,nBas,nSym,aCase='TRI',
+     &                   Ref=PLT(1)%A0)
       If (DFTX) Then
          PLT(1)%A0(:)=Zero
       Else
@@ -551,13 +552,13 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          iOff=iOff+nBas(i)**2
       End Do
 *
-      Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI')
-      Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI')
+      Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,aCase='TRI')
+      Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,aCase='TRI')
       FLT(1)%A0(:)=Zero
       FLT(2)%A0(:)=Zero
 
-      Call Allocate_DSBA(KLT(1),nBas,nBas,nSym,Case='TRI')
-      Call Allocate_DSBA(KLT(2),nBas,nBas,nSym,Case='TRI')
+      Call Allocate_DSBA(KLT(1),nBas,nBas,nSym,aCase='TRI')
+      Call Allocate_DSBA(KLT(2),nBas,nBas,nSym,aCase='TRI')
       KLT(1)%A0(:)=Zero
       KLT(2)%A0(:)=Zero
 *
@@ -624,6 +625,7 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
 
       Close(LU)
       Return
- 888  Call SysAbendFileMsg('RdTwoEnrg','INPORB',
+ 888  Call SysWarnFileMsg('RdTwoEnrg','INPORB',
      &   'Error during reading INPORB\n','Field not there')
+      Call Abend()
       End

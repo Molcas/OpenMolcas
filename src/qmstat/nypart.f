@@ -12,7 +12,7 @@
       Implicit Real*8 (a-h,o-z)
 
 #include "maxi.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       DIMENSION COORD(MxCen*MxPut,3)
       External Ranf

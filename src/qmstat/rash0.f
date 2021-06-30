@@ -20,7 +20,7 @@
 #include "qminp.fh"
 #include "qm2.fh"
 #include "WrkSpc.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Dimension DiagH0(MxState)
 

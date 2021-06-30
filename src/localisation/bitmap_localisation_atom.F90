@@ -22,7 +22,7 @@ logical(kind=iwp) :: Debug
 character(len=12) :: BasNam
 integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:)
 real(kind=wp), allocatable :: Coord(:,:), CAt(:), DAt(:), Den(:), XAt(:)
-character(len=24), parameter :: SecNam = 'BitMap_Localisation_Atom'
+character(len=*), parameter :: SecNam = 'BitMap_Localisation_Atom'
 
 Debug = .false.
 

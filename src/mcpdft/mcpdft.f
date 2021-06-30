@@ -57,7 +57,7 @@
 #include "WrkSpc.fh"
 #include "wadr.fh"
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "input_ras_mcpdft.fh"
 #include "rasscf.fh"
 #include "rasrc.fh"

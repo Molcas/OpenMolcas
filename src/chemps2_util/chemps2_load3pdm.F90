@@ -18,9 +18,6 @@ subroutine chemps2_load3pdm(NAC,idxG3,NG3,storage,doG3,EPSA,F2,chemroot)
 
 #include "intent.fh"
 
-#ifdef _MOLCAS_MPP_
-use MPI
-#endif
 use mh5, only: mh5_open_file_r, mh5_open_group, mh5_fetch_dset, mh5_close_group, mh5_close_file
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

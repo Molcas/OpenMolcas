@@ -18,7 +18,7 @@
 #include "maxi.fh"
 #include "qminp.fh"
 #include "files_qmstat.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Character*180 Key
       Character*20 Kword

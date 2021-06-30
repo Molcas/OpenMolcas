@@ -49,7 +49,7 @@
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "Molcas.fh"
-#include "warnings.fh"
+#include "warnings.h"
 *
       Dimension nBas(0:7),nSkip(0:7)
 *

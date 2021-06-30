@@ -12,6 +12,8 @@
 subroutine dkh_ham(n,dkord,xord,vord,EL,ES,OL,OS,Ep,E0,dkcof,cc,wr,rw,t1,t2,t3,t4,or,ro,e,rer,or_,ro_,e_,rer_,s1,s2,wsav)
 ! Evaluate DKH Hamiltonian in moment space
 
+#include "intent.fh"
+
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -31,8 +33,9 @@ implicit none
 integer(kind=iwp), intent(in) :: n, dkord, xord, vord
 real(kind=wp), intent(inout) :: EL(n,n)
 real(kind=wp), intent(in) :: ES(n,n), OL(n,n), OS(n,n), Ep(n), E0(n), dkcof(*)
-real(kind=wp), intent(out) :: cc(*), wr(n,n), rw(n,n), t1(n,n), t2(n,n), t3(n,n), t4(n,n), or(n,n,*), ro(n,n,*), e(n,n,*), &
-                              rer(n,n,*), or_(n,n,*), ro_(n,n,*), e_(n,n,*), rer_(n,n,*), s1(n,n,*), s2(n,n,*), wsav(n,n,*)
+real(kind=wp), intent(_OUT_) :: cc(*), or(n,n,*), ro(n,n,*), e(n,n,*), rer(n,n,*), or_(n,n,*), ro_(n,n,*), e_(n,n,*), rer_(n,n,*), &
+                                s1(n,n,*), s2(n,n,*), wsav(n,n,*)
+real(kind=wp), intent(out) :: wr(n,n), rw(n,n), t1(n,n), t2(n,n), t3(n,n), t4(n,n)
 integer(kind=iwp) :: i, j, k, ord, cou, ks, ioe
 logical(kind=iwp) :: ifodd
 

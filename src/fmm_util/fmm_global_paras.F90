@@ -155,7 +155,7 @@ integer(INTK), parameter :: SORT_BY_SCALE = 1, &
                             SORT_BY_RHS_MMS = 2
 
 ! Named parameters for memory management
-character(len=7), parameter :: NSPACE(5) = ['raw_qlm', &
+character(len=*), parameter :: NSPACE(5) = ['raw_qlm', &
                                             'raw_Vff', &
                                             'box_Vff', &
                                             'Vff_tmp', &

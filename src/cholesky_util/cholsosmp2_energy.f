@@ -59,9 +59,7 @@ C====================
 C     Initializations
 C====================
 
-      ! for now, this code is restricted to usage by the author
-      Call ThisIsRestrictedCode('Thomas Bondo Pedersen',
-     &                          'Laplace-SOS-MP2',.false.)
+      Call Untested('Laplace-SOS-MP2')
 
       ! init return code
       irc=0

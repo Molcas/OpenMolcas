@@ -53,7 +53,7 @@ C
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
       Implicit Real*8 (a-h,o-z)
-#include "warnings.fh"
+#include "warnings.h"
 
       Real*8 G2(*), MO_Int(*)
       Integer   kOff(8),kaOff(8)
@@ -121,7 +121,7 @@ C
 #endif
 
       ! Allow LT-format access to JA although it is in SQ-format
-      Call Allocate_DSBA(JALT,nBas,nBas,nSym,Case='TRI',Ref=JA%A0)
+      Call Allocate_DSBA(JALT,nBas,nBas,nSym,aCase='TRI',Ref=JA%A0)
       timings=.false.
 *
 *

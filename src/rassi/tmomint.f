@@ -44,7 +44,7 @@
 #include "wldata.fh"
 #include "property_label.fh"
 #include "oneswi.fh"
-#include "warnings.fh"
+#include "warnings.h"
       Character*8 Label
       Dimension dum(1),idum(1)
 *

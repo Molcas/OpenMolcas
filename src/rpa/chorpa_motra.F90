@@ -38,7 +38,7 @@ character(len=6) BName(2)
 integer(kind=iwp), allocatable :: loc(:,:)
 real(kind=wp), allocatable :: lCMO(:)
 integer(kind=iwp), external :: RPA_iUHF
-character(len=12), parameter :: SecNam = 'ChoRPA_MOTra'
+character(len=*), parameter :: SecNam = 'ChoRPA_MOTra'
 
 nSpin = RPA_iUHF()
 if (nSpin == 1) then

@@ -18,7 +18,7 @@
 * Also form the active two-electron integrals 'TUVX'.
 * ================================================================
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"

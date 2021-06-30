@@ -221,7 +221,7 @@ C as this is how they are used to compute the integrals for RHS.
 ************************************************************************
       Implicit real*8 (a-h,o-z)
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "chocaspt2.fh"
@@ -252,7 +252,7 @@ C always write the chunks to LUDRA, both for serial and parallel
 ************************************************************************
       Implicit real*8 (a-h,o-z)
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "chocaspt2.fh"
@@ -288,7 +288,7 @@ C always write the chunks to LUDRA, both for serial and parallel
 #endif
       IMPLICIT NONE
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "chocaspt2.fh"

@@ -46,7 +46,7 @@ integer(kind=iwp), allocatable :: DoIt(:), DoIt_ab(:), GRef(:), GRef_ab(:), iCut
 real(kind=wp), allocatable :: C(:,:), CMO(:), CMO_ab(:), ddNo(:,:), E(:), E_ab(:), MO(:), SLine(:,:), Occ(:), Occ_ab(:), Ooo(:), &
                               DOut(:), Pab(:), SphrColor(:), SphrDist(:)
 character, allocatable :: cMoBlock(:)
-character(len=7), parameter :: Crypt = 'fi123sd'
+character(len=*), parameter :: Crypt = 'fi123sd'
 !---- Set size of batches
 integer(kind=iwp), parameter :: nIncPack = 18*1024
 integer(kind=iwp), external :: isFreeUnit

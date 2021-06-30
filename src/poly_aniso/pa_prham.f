@@ -18,7 +18,7 @@ c it does not compute any new infromation
       Implicit None
       Integer, parameter        :: wp=kind(0.d0)
 #include "stdalloc.fh"
-#include "warnings.fh"
+#include "warnings.h"
       Integer, intent(in)          :: exch
       Integer, intent(in)          :: npair
       Integer, intent(in)          :: i_pair(npair,2)

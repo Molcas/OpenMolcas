@@ -53,7 +53,7 @@
       Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "output_ras.fh"
 *
       Integer  nCMO, nEOrb, nSym

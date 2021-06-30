@@ -21,7 +21,7 @@
 #include "numbers.fh"
 #include "tratoc.fh"
 #include "WrkSpc.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Dimension nBasM(MxSym),nOrbM(MxSym),nDelM(MxSym),nFroM(MxSym)
       Dimension nBas(MxSym)

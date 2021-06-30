@@ -12,7 +12,7 @@
       SUBROUTINE READIN_MRCI()
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "mrci.fh"
 #include "WrkSpc.fh"
 #include "niocr.fh"
@@ -257,7 +257,7 @@
      &        '*',(' ',i=1,56),'Title:',(' ',i=1,56),'*'
       CALL XFLUSH(6)
       Do i=1,nTit
-         Call Center(Title(i))
+         Call Center_Text(Title(i))
          WRITE(6,'(6X,24A1,A72,24A1)')
      &        '*',(' ',j=1,23),Title(i),(' ',j=1,23),'*'
       CALL XFLUSH(6)

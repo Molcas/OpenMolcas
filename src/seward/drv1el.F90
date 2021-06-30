@@ -49,7 +49,7 @@ implicit none
 #include "wldata.fh"
 #include "property_label.fh"
 #include "oneswi.fh"
-#include "warnings.fh"
+#include "warnings.h"
 integer(kind=iwp) :: i, i2, i3, iAddr, iAtom_Number, iB, iC, iChO, iChO1, iChO2, iChOx, iChOxx, iChOxy, iChOxz, iChOy, iChOyx, &
                      iChOyy, iChOyz, iChOz, iChOzx, iChOzy, iChOzz, iCnt, iCnttp, iComp, iD, iDisk, iDMS, idum(1), iEF, iLow, &
                      iMltpl, iOpt, iPAMBas, iPAMf, iPAMltpl, iPrint, iRC, iRout, iSym, iSymBx, iSymBy, iSymBz, iSymC, iSymCX, &

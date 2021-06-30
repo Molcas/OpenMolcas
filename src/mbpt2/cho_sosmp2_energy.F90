@@ -32,7 +32,7 @@ integer(kind=iwp) :: ia, iAdr, iaiS, iaS, iaSoff(8), iaSym, iaT, iBat, ii, iiSof
 real(kind=wp) :: Dmax
 integer(kind=iwp), allocatable :: iD_bj(:)
 real(kind=wp), allocatable :: W(:), Wrk(:), Y(:,:)
-character(len=17), parameter :: SecNam = 'Cho_SOSmp2_Energy'
+character(len=*), parameter :: SecNam = 'Cho_SOSmp2_Energy'
 real(kind=r8), external :: ddot_
 #include "cholesky.fh"
 #include "chomp2.fh"

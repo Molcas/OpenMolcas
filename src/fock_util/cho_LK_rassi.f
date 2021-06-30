@@ -52,7 +52,7 @@ C
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
       Implicit Real*8 (a-h,o-z)
-#include "warnings.fh"
+#include "warnings.h"
       Integer   kOff(8), nAux(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
@@ -126,7 +126,7 @@ C
       DoReord = .false.
       IREDC = -1  ! unknown reduced set in core
       ! Temporary use of FSQ
-      Call Allocate_DSBA(KLT,nBas,nBas,nSym,Case='TRI',Ref=FSQ%A0)
+      Call Allocate_DSBA(KLT,nBas,nBas,nSym,aCase='TRI',Ref=FSQ%A0)
 
       nDen = 2  ! the two bi-orthonormal sets of orbitals
       If (Fake_CMO2) nDen = 1  ! MO1 = MO2

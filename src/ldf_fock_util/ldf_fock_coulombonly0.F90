@@ -150,7 +150,7 @@ logical(kind=iwp) :: UsePartPermSym
 integer(kind=iwp) :: nBas, iD, l, l_DBlocks, l_FBlocks, l_VBlocks, l_FactC
 integer(kind=iwp), allocatable :: DBlocks(:), FBlocks(:), VBlocks(:)
 real(kind=wp), allocatable :: FactCBak(:)
-character(len=21), parameter :: SecNam = 'LDF_Fock_CoulombOnly0'
+character(len=*), parameter :: SecNam = 'LDF_Fock_CoulombOnly0'
 #ifdef _DEBUGPRINT_
 logical(kind=iwp) :: DoTest
 real(kind=wp) :: x, y

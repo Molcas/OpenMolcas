@@ -70,7 +70,7 @@ if (nTit > 0) then
     if ((i >= 4) .and. (i <= nLine-2)) then
       Line = Title(i-3)
     end if
-    call Center(Line)
+    call Center_Text(Line)
     write(u6,Fmt1) '*'//Line//'*'
   end do
   write(u6,*)
@@ -179,7 +179,7 @@ if ((iTst == 0) .and. (iPL >= 2)) then
     XLine = ''
     if ((i == 1) .or. (i == nLine)) XLine = trim(StLine)
     if (i == 2) XLine = 'Results'
-    call Center(XLine)
+    call Center_Text(XLine)
     write(u6,Fmt1) '*'//XLine//'*'
   end do
   write(u6,*)

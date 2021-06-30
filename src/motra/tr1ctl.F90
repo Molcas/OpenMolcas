@@ -14,6 +14,8 @@ subroutine TR1CTL(Ovlp,HOne,Kine,CMO)
 !            integrals (effective one electron Hamiltonian and
 !            kinetic energy )
 
+#include "intent.fh"
+
 #ifdef _HDF5_QCM_
 use hdf5_utils, only: datadim, datadim_bound, file_id, hdf5_put_data
 use motra_global, only: ihdf5
@@ -24,7 +26,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), intent(in) :: Ovlp(*), HOne(*), Kine(*), CMO(*)
+real(kind=wp), intent(in) :: Ovlp(*), HOne(*), Kine(*)
+real(kind=wp), intent(_IN_) :: CMO(*)
 integer(kind=iwp) :: IDISK, ISTLT, ISYM, TCONEMO(64)
 real(kind=wp) :: ECOR
 real(kind=wp), allocatable :: DLT(:), DSQ(:), FLT(:), FMO(:), FSQ(:), KAO(:), KMO(:), OVP(:), TMP(:)

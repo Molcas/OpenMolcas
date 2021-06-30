@@ -20,7 +20,7 @@
 #include "integral.fh"
 #include "numbers.fh"
 #include "WrkSpc.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "constants.fh"
 
       Parameter (Conver1=1.0d10*CONST_BOHR_RADIUS_IN_SI_)
@@ -132,7 +132,8 @@
         Call DaName(iLuSaUt,SaFilUt)
         iDisk=0 !Put some dummy on the sampfile so we have space for
                 !the real number later.
-        Call iDaFile(iLuSaUt,1,[iHowMSampUT],1,iDisk)
+        iDum(1)=iHowMSampUT
+        Call iDaFile(iLuSaUt,1,iDum,1,iDisk)
         !Below we make a check for extreme cases. Our algorithm to
         !select sampling configurations sets this limit.
         iProdMax=(2**30-1)*2
@@ -618,7 +619,8 @@ c          write(6,*)'ipAOSum',ipAOSum
 58887 Continue
       If(QmProd.and.iRead.ne.9) then
         iDisk=0
-        Call iDaFile(iLuSaUt,1,[iHowMSampUT],1,iDisk)
+        iDum(1)=iHowMSampUT
+        Call iDaFile(iLuSaUt,1,iDum,1,iDisk)
         Call DaClos(iLuSaUt)
       Endif
 *--------------------------------------------------------------------------*

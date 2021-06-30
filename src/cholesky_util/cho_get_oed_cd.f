@@ -38,7 +38,7 @@
       Integer nOV, NVec, JVec, ID_bj(*)
       Real*8  W(*), Y(*), R(*)
 
-#include "warnings.fh"
+#include "warnings.h"
 *******************************************************************
 
       If (NVec.lt.1) Then

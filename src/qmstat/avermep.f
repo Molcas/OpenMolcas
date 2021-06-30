@@ -21,7 +21,7 @@
 #include "qmcom.fh"
 #include "files_qmstat.fh"
 #include "WrkSpc.fh"
-#include "warnings.fh"
+#include "warnings.h"
       Dimension Eint(MxQCen,10),Poli(MxQCen,10)
       Dimension SumElcPot(MxQCen,10)
       Dimension PertElcInt(MxBas*(MxBas+1)/2),SumOld(MxQCen,10)

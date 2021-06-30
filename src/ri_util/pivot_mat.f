@@ -19,7 +19,7 @@
       Implicit Real*8 (a-h,o-z)
       Integer n, m, lu_A0, lu_A, iD_A(n), lScr
       Real*8  Scr(lScr)
-#include "warnings.fh"
+#include "warnings.h"
 
       lmax=lScr-n
       If (lmax .lt. n) Then

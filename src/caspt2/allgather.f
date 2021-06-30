@@ -29,7 +29,7 @@
 *            each process into a buffer RECV of size NRECV.
 *            The receiving buffer is allocated by this subroutine.
 ************************************************************************
-#include "warnings.fh"
+#include "warnings.h"
 #include "WrkSpc.fh"
 
 #include "global.fh"
@@ -105,7 +105,7 @@
 *            each process into a buffer RECV of size NRECV.
 *            The receiving buffer is allocated by this subroutine.
 ************************************************************************
-#include "warnings.fh"
+#include "warnings.h"
 #include "WrkSpc.fh"
 
 #include "global.fh"

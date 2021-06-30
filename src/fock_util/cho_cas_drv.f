@@ -61,8 +61,8 @@
 *                                                                      *
       rc=0
 
-      Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=FI)
-      Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI',Ref=FA)
+      Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=FI)
+      Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,aCase='TRI',Ref=FA)
       Call Allocate_DSBA(CMO,nBas,nBas,nSym,Ref=W_CMO)
 
 *                                                                      *
@@ -76,8 +76,8 @@
 *                                                                      *
 *        Let us construct a second pointer structure based on nOrb
 
-         Call Allocate_DSBA(FLT_MO(1),nOrb,nOrb,nSym,Case='TRI',Ref=FI)
-         Call Allocate_DSBA(FLT_MO(2),nOrb,nOrb,nSym,Case='TRI',Ref=FA)
+         Call Allocate_DSBA(FLT_MO(1),nOrb,nOrb,nSym,aCase='TRI',Ref=FI)
+         Call Allocate_DSBA(FLT_MO(2),nOrb,nOrb,nSym,aCase='TRI',Ref=FA)
 c
 c ------ It only performs the MO transformation of FI and FA
 c ----------------------------------------------------------
@@ -127,8 +127,8 @@ c --- and v refers to the active orbitals only
 
 
 C --- Build the packed densities from the Squared ones
-      Call Allocate_DSBA(DLT(1),nBas,nBas,nSym,Case='TRI')
-      Call Allocate_DSBA(DLT(2),nBas,nBas,nSym,Case='TRI')
+      Call Allocate_DSBA(DLT(1),nBas,nBas,nSym,aCase='TRI')
+      Call Allocate_DSBA(DLT(2),nBas,nBas,nSym,aCase='TRI')
 
       Call Fold(nSym,nBas,DI, DLT(1)%A0)
       Call Fold(nSym,nBas,DA1,DLT(2)%A0)

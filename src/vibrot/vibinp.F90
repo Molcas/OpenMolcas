@@ -42,7 +42,7 @@ character(len=8) :: IntCh
 character(len=80) :: Title1(10), Title2(10)
 character(len=180) :: Line, l84, l84x
 integer(kind=iwp), parameter :: ntab = 19
-character(len=4), parameter :: tabinp(ntab) = ['TITL','ATOM','GRID','RANG','VIBR','ROTA','ORBI','NOSP','OBSE','STEP', &
+character(len=*), parameter :: tabinp(ntab) = ['TITL','ATOM','GRID','RANG','VIBR','ROTA','ORBI','NOSP','OBSE','STEP', &
                                                'POTE','ROVI','TRAN','ASYM','PRWF','SCAL','TEMP','ALLR','END ']
 integer(kind=iwp), external :: IsFreeUnit, iNuclearChargeFromSymbol, iMostAbundantIsotope
 real(kind=r8), external :: dNuclearMass

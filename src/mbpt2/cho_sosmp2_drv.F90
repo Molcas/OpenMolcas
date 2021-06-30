@@ -43,7 +43,7 @@ real(kind=wp), allocatable :: Diag(:)
 integer(kind=iwp), parameter :: iFmt = 0
 real(kind=wp), parameter :: Chk_Mem_ChoMP2 = 0.123456789_wp, Tol = 1.0e-15_wp
 logical(kind=iwp), parameter :: Delete_def = .true.
-character(len=14), parameter :: SecNam = 'Cho_SOSmp2_Drv'
+character(len=*), parameter :: SecNam = 'Cho_SOSmp2_Drv'
 real(kind=r8), external :: ddot_
 #include "cholesky.fh"
 #include "chomp2.fh"

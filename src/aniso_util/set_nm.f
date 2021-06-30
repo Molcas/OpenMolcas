@@ -13,7 +13,7 @@
      &                   nM, EM, dbg )
 
       Implicit None
-#include "warnings.fh"
+#include "warnings.h"
 c input data:
       Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)        :: exch, ncut, encut_definition, nk,

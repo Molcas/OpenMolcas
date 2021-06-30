@@ -42,8 +42,8 @@ if (irc /= 0) then
   call AbEnd()
 end if
 
-Call Allocate_DSBA(DLT,nBas,nBas,nSym,Case='TRI',Ref=W_DLT)
-Call Allocate_DSBA(DSQ,nBas,nBas,nSym,Case='REC',Ref=W_DSQ)
+Call Allocate_DSBA(DLT,nBas,nBas,nSym,aCase='TRI',Ref=W_DLT)
+Call Allocate_DSBA(DSQ,nBas,nBas,nSym,aCase='REC',Ref=W_DSQ)
 Call Allocate_DSBA(MOs,nBas,nBas,nSym)
 
 do i=1,nSym
@@ -70,8 +70,8 @@ do i=1,nSym
 end do
 
 nDen = 1
-Call Allocate_DSBA(FLT,nBas,nBas,nSym,Case='TRI',Ref=W_FLT)
-Call Allocate_DSBA(KLT,nBas,nBas,nSym,Case='TRI',Ref=W_FSQ) ! not needed on exit
+Call Allocate_DSBA(FLT,nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
+Call Allocate_DSBA(KLT,nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ) ! not needed on exit
 
 call CHO_LK_SCF(irc,nDen,[FLT],[KLT],nXorb,nFro,[MOs],[DLT],Half*ExFac,NScreen,dmpk,dFKmat)
 

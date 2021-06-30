@@ -80,7 +80,7 @@
      &     Line='Project:'
            If ( i.ge.4 .and. i.le.nLine-2 )
      &     Write(Line,'(A72)')Title(i-3)
-           Call Center(Line)
+           Call Center_Text(Line)
            Write(LF,Fmt1) '*'//Line//'*'
          End Do
        Write(LF,*)
@@ -95,10 +95,10 @@
        Write(LF,Fmt1) '--------------------------'
        Write(Line,'(36A2)') (Header(i),i=1,36)
        Call LeftAd(Line)
-       Write(LF,Fmt1)  Line(:mylen(Line))
+       Write(LF,Fmt1)  trim(Line)
        Write(Line,'(36A2)') (Header(i),i=37,72)
        Call LeftAd(Line)
-       Write(LF,Fmt1)  Line(:mylen(Line))
+       Write(LF,Fmt1)  trim(Line)
        Write(LF,*)
 *----------------------------------------------------------------------*
 *     Print the status of ORDINT                                       *

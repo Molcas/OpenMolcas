@@ -71,7 +71,7 @@
 ! If at least one orbital was found, export it/them
         IF(ORBNUM.GT.0) THEN
          Write(filename,'(A16,I0)') 'Dyson.SF.molden.',JSTATE
-         Call Molden_DysOrb(0,filename,DYSEN,AMPS,CMO,ORBNUM,NZ)
+         Call Molden_DysOrb(filename,DYSEN,AMPS,CMO,ORBNUM,NZ)
         END IF
 
       END DO ! JSTATE

@@ -44,7 +44,7 @@ logical(kind=iwp) :: hybrid, qmmm
 real(kind=wp), allocatable :: Coord(:), vel(:), xyz(:), force(:), Mass(:), tstxyz(:), force2(:), xyz2(:)
 character(len=2), allocatable :: atom(:), atom2(:)
 integer(kind=iwp), external :: IsFreeUnit
-#include "warnings.fh"
+#include "warnings.h"
 
 if (IPRINT == INSANE) write(u6,*) ' Entering VelVer_First'
 

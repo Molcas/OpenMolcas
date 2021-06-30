@@ -12,7 +12,7 @@
      *              CSECT,RSECT,XI1,XI2,CNEW,SCR,ICI)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "mrci.fh"
 #include "WrkSpc.fh"
       DIMENSION CI(NCONF),SGM(NCONF)

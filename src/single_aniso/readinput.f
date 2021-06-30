@@ -25,7 +25,7 @@ C
 C
       Implicit None
       Integer, Parameter            :: wp=kind(0.d0)
-#include "warnings.fh"
+#include "warnings.h"
 #include "mgrid.fh"
 
 c----------------------------------------------------------------

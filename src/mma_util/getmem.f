@@ -61,7 +61,7 @@
 ************************************************************************
 
 #include "SysCtl.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "WrkSpc.fh"
 #include "mama.fh"
 *

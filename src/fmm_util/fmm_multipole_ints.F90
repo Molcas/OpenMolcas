@@ -100,7 +100,7 @@ subroutine fmm_build_multipoles(basis,MaxMul,sh_pairs)
   type(fmm_sh_pairs), intent(in) :: sh_pairs(:)
 
   !fixme
-  character(len=10), parameter :: FName = 'multipoles'
+  character(len=*), parameter :: FName = 'multipoles'
 
   type(fmm_prim_batch) :: batch(basis%MaxSgm2)
   character(len=255) :: FBuf

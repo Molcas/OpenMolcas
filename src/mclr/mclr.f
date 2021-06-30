@@ -48,12 +48,11 @@
       use negpre, only: SS
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "stdalloc.fh"
 #include "machine.fh"
 #include "SysDef.fh"
 
-#include "blksize.fh"
 #include "sa.fh"
 #include "Pointers.fh"
 #include "detdim.fh"
@@ -64,6 +63,8 @@
 
       Logical Reduce_Prt
       External Reduce_Prt
+      Integer get_MBl_wa
+      External get_MBl_wa
 *
 *     first a few things for making Markus Happy
       logical converged(8)
@@ -83,7 +84,7 @@
 *                                                                      *
       iAllo=0
 c      idp=rtoi
-      nrec=MBl_wa/rtob
+      nrec=get_MBl_wa()/rtob
 *
       Call DecideOnCholesky(DoCholesky)
       Call get_iScalar('nSym',nSymX)

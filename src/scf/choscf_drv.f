@@ -129,12 +129,12 @@ C  **************************************************
 
          xFac = ExFac
 
-         Call Allocate_DSBA(DLT,nBas,nBas,nSym,Case='TRI',Ref=W_DLT)
+         Call Allocate_DSBA(DLT,nBas,nBas,nSym,aCase='TRI',Ref=W_DLT)
          Call Allocate_DSBA(DSQ(1),nBas,nBas,nSym,Ref=W_DSQ)
-         Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=W_FLT)
+         Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
          ! trick to use already allocated memory
-         Call Allocate_DSBA(KLT(1),nBas,nBas,nSym,Case='TRI',Ref=W_FSQ)
-         Call Allocate_DSBA(FSQ(1),nBas,nBas,nSym,           Ref=W_FSQ)
+         Call Allocate_DSBA(KLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ)
+         Call Allocate_DSBA(FSQ(1),nBas,nBas,nSym,            Ref=W_FSQ)
 
          If (ExFac.eq.0.0d0) Then
             CALL CHO_FOCK_DFT_RED(rc,DLT,FLT(1))
@@ -363,16 +363,16 @@ c      call get_iarray('nIsh beta',nOcc_ab,nSym)
 C Compute the total density Dalpha + Dbeta
       CALL DAXPY_(nFLT,1.0D0,W_DLT(1),1,W_DLT_ab(1),1)
 
-      Call Allocate_DSBA(DLT,nBas,nBas,nSym,Case='TRI',Ref=W_DLT_ab)
+      Call Allocate_DSBA(DLT,nBas,nBas,nSym,aCase='TRI',Ref=W_DLT_ab)
       ! alpha density SQ
       Call Allocate_DSBA(DSQ(2),nBas,nBas,nSym,Ref=W_DSQ)
       ! beta  density SQ
       Call Allocate_DSBA(DSQ(3),nBas,nBas,nSym,Ref=W_DSQ_ab)
 
       ! Coulomb (... Falpha LT)
-      Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI',Ref=W_FLT)
+      Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
       ! (... Fbeta LT)
-      Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI',Ref=W_FLT_ab)
+      Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,aCase='TRI',Ref=W_FLT_ab)
 
       ! alpha exchange (... Falpha SQ)
       Call Allocate_DSBA(FSQ(2),nBas,nBas,nSym,Ref=W_FSQ)
@@ -380,8 +380,8 @@ C Compute the total density Dalpha + Dbeta
       Call Allocate_DSBA(FSQ(3),nBas,nBas,nSym,Ref=W_FSQ_ab)
 
       ! trick to use already allocated work
-      Call Allocate_DSBA(KLT(1),nBas,nBas,nSym,Case='TRI',Ref=W_FSQ)
-      Call Allocate_DSBA(KLT(2),nBas,nBas,nSym,Case='TRI',Ref=W_FSQ_ab)
+      Call Allocate_DSBA(KLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ)
+      Call Allocate_DSBA(KLT(2),nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ_ab)
 
       FactX(2) = 1.0D0*ExFac ! UHF SQ-density is not scaled
       FactX(3) = 1.0D0*ExFac

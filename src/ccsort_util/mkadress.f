@@ -64,6 +64,7 @@ c
        integer IND,INDT,ISPQRS,NINT,NSLM,idistemp,idishelp
        integer jlow,ilow,iup,jup,kup,lup,iold,jold,kold,lold
        integer norbp,nsi,nsj,nsk,nsl,nsij,nsijk
+       real*8 dum(1)
 
 CFUE   - pick the start addresses of each symmetry allowed integral
 CFUE     block from the tranformed two electron integral file
@@ -306,7 +307,8 @@ C
        if (idishelp.gt.INDMAX) then
 CFUE     - all integrals in the reord were processed, hence
 CFUE       update the disk address by a dummy I/O
-         Call dDaFile(LUINTM,0,[0.0d0],INDMAX,idistemp)
+         dum(1)=0.0d0
+         Call dDaFile(LUINTM,0,dum,INDMAX,idistemp)
 CFUE     idistemp=idistemp+idisadd
          idishelp=1
        end if
@@ -321,7 +323,8 @@ C
        if (idishelp.gt.0) then
 CFUE     - all integrals in the reord were processed, hence
 CFUE       update the disk address by a dummy I/O
-         Call dDaFile(LUINTM,0,[0.0d0],INDMAX,idistemp)
+         dum(1)=0.0d0
+         Call dDaFile(LUINTM,0,dum,INDMAX,idistemp)
 CFUE   idistemp=idistemp+idisadd
        end if
 C

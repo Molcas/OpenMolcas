@@ -24,7 +24,6 @@
       LOGICAL TRANSP
 #include "intgrl.fh"
 #include "SysDef.fh"
-#include "blksize.fh"
 
       NDIM2M=(NSYMZ*(NSYMZ+1))/2
       IF(ISYP.GE.ISYQ) THEN

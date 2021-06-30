@@ -15,14 +15,13 @@
 
 subroutine surfacehop(rc)
 
-use Tully_variables
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: rc
-#include "warnings.fh"
+#include "warnings.h"
 
 integer(kind=iwp) :: NSTATE, LUIPH, IAD, ITOC15(15), NCI, IDISK, I
 real(kind=wp), allocatable :: CIBigArray(:)

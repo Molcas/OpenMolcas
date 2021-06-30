@@ -23,3 +23,11 @@
 ! assumed-size arguments.
 
 #define _OUT_ inout
+
+! And this macro is for arguments that should be intent(in) in a subroutine,
+! but are passed to another subroutine where they're formally intent(inout),
+! although for that specific call they're not modified.
+! For example, this happens with read/write-to-file subroutines when
+! they're used in write mode
+
+#define _IN_ inout

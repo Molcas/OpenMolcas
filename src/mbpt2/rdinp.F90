@@ -32,6 +32,8 @@ subroutine RdInp(CMO,Eall,Eocc,Eext,iTst,ESCF)
 !                                                                      *
 !***********************************************************************
 
+#include "intent.fh"
+
 use MBPT2_Global, only: DelGhost, DoCholesky, DoDF, DoLDF, iDel, iFro, iPL, NamAct, nBas, nDel1, nDel2, nFro1, nFro2, nTit, &
                         Thr_ghs, Title
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -39,8 +41,9 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), intent(out) :: CMO(*), Eall(*), Eocc(*), Eext(*), ESCF
+real(kind=wp), intent(_OUT_) :: CMO(*), Eall(*), Eocc(*), Eext(*)
 integer(kind=iwp), intent(out) :: iTst
+real(kind=wp), intent(out) :: ESCF
 integer(kind=iwp) :: i, iCom, iCount, iDNG, iDummy(1), iErr, iExt, iLow, iOrb, ip, iostatus, iPrt, iSym, iUpp, j, jCom, jDel, &
                      jFro, jOcc, l_Occup, LC, LEE, LEO, LSQ, Lu_orb, LuSpool, nExtT, nFre, nOccT
 logical(kind=iwp) :: FrePrt, ERef_UsrDef, DecoMP2_UsrDef, DNG, NoGrdt, lTit, lFro, lFre, lDel, lSFro, lSDel, lExt, lPrt, LumOrb, &
@@ -52,7 +55,7 @@ character(len=100) :: ProgName
 character(len=180) :: Line
 integer(kind=iwp), allocatable :: SQ(:)
 real(kind=wp), allocatable :: C(:), EE(:), EO(:), Occup(:)
-character(len=4), parameter :: ComTab(39) = ['TITL','FROZ','DELE','SFRO','SDEL','EXTR','PRIN','TEST','PRPT','LUMO', &
+character(len=*), parameter :: ComTab(39) = ['TITL','FROZ','DELE','SFRO','SDEL','EXTR','PRIN','TEST','PRPT','LUMO', &
                                              'EREF','VIRA','T1AM','GRDT','LAPL','GRID','BLOC','CHOA','DECO','NODE', &
                                              'THRC','SPAN','MXQU','PRES','CHKI','FORC','VERB','NOVE','FREE','PREC', &
                                              'SOSM','OEDT','OSFA','LOVM','DOMP','FNOM','GHOS','NOGR','END ']
@@ -62,7 +65,7 @@ character(len=100), external :: Get_SuperName
 character(len=180), external :: Get_Ln
 #include "chomp2_cfg.fh"
 #include "corbinf.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "Molcas.fh"
 
 !----------------------------------------------------------------------*

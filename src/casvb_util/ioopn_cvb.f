@@ -14,9 +14,10 @@
       subroutine ioopn_cvb(fn,lu)
       implicit real*8(a-h,o-z)
       character*(*) fn
-#include "fio.fh"
+      logical isopen
 
 c  Close first in case file is 'hanging' from previous session:
-      if(isOpen(lu).ne.0)call daclos(lu)
+      inquire(lu,opened=isopen)
+      if(isopen)call daclos(lu)
       call daname_wa(lu,fn)
       end

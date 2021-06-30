@@ -14,7 +14,7 @@
       Implicit real*8 (a-h,o-z)
 
 #include "WrkSpc.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Dimension Coo(3),A(2),B(2),dMullig((lMax*(lMax**2+6*lMax+11)+6)/6)
       Dimension AlfMat(4),AlfMatI(4),rStore(nPick),rinvStore(nPick)
@@ -286,7 +286,7 @@ c Avoid unused argument warnings
       Implicit real*8 (a-h,o-z)
 
 #include "WrkSpc.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Dimension A(2),dMullig((lMax*(lMax**2+6*lMax+11)+6)/6)
       Dimension dL2(6),dL3(10),dL4(15),dL5(21)

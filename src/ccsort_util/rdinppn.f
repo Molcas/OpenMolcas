@@ -82,6 +82,7 @@ c
        lunt3=26
        lunda1=9
        lunda2=10
+       lunpublic=29
 c
 *---  Open JOBIPH and LUONEM files ------------------------------------*
 *
