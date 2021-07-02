@@ -9,20 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Filler(N,M,A)
+subroutine ProdsS_1(AB,iAB,CMO,nMO,Y)
 
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
-dimension A(N,M)
+#include "stdalloc.fh"
+real*8 AB(iAB*(iAB+1)/2), CMO(iAB,nMO), Y(iAB,nMO)
+real*8, allocatable :: ABSq(:)
 
-k = 0
-do i=1,N
-  do j=1,M
-    k = k+1
-    A(i,j) = 1.000d0*j+0.100d0*i+0.001d0*k
-  end do
-end do
+call mma_allocate(ABSq,iAB*iAB,Label='ABSq')
+call SQUARE(AB,ABSq,1,iAB,iAB)
+call DGEMM_('N','N',iAB,nMO,iAB,1.0d0,ABSq,iAB,CMO,iAB,0.0d0,Y,iAB)
+call mma_deallocate(ABSq)
 
 return
 
-end subroutine Filler
+end subroutine ProdsS_1

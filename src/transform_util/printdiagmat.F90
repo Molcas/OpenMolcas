@@ -9,20 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Filler(N,M,A)
+subroutine PrintDiagMat(nRow,A)
+! Prints a diagonal matrix A(nRow,nRow)
 
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
-dimension A(N,M)
+dimension A(nRow*(nRow+1))
 
-k = 0
-do i=1,N
-  do j=1,M
-    k = k+1
-    A(i,j) = 1.000d0*j+0.100d0*i+0.001d0*k
-  end do
+if (nRow > 8) return
+iCount = 0
+do i=1,nRow
+  write(6,'(8F10.6)')(A(iCount+k),k=1,i)
+  iCount = iCount+i
 end do
 
 return
 
-end subroutine Filler
+end subroutine PrintDiagMat

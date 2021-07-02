@@ -10,113 +10,109 @@
 !                                                                      *
 ! Copyright (C) 2004,2005, Giovanni Ghigo                              *
 !***********************************************************************
-      Subroutine ChoMP2_TwoEl(iBatch,nBatch,numV, LUINTM,iAddrIAD2M,    &
-     &                                   iSymI,iSymJ,iSymA,iSymB, iSymL)
+
+subroutine ChoMP2_TwoEl(iBatch,nBatch,numV,LUINTM,iAddrIAD2M,iSymI,iSymJ,iSymA,iSymB,iSymL)
 !***********************************************************************
 ! Author :  Giovanni Ghigo                                             *
 !           Lund University, Sweden                                    *
 ! Written:  October-November 2004                                      *
 ! Modified for Cholesky-MP2 May 2005                                   *
 !***********************************************************************
-      use Cho_Tra
-      Implicit Real*8 (a-h,o-z)
-      Implicit Integer (i-n)
+
+use Cho_Tra
+implicit real*8(a-h,o-z)
+implicit integer(i-n)
 #include "rasdim.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
+real*8, allocatable :: AddEx1(:), AddEx2(:), AddEx2t(:)
 
-      Real*8, Allocatable:: AddEx1(:), AddEx2(:), AddEx2t(:)
+nSymP = (nSym**2+nSym)/2
+call LenInt(iSymI,iSymJ,iSymA,iSymB,nN_IJ,nN_AB,nN_Ex1,nN_Ex2)
 
-      nSymP=(nSym**2+nSym)/2
-      Call LenInt(iSymI,iSymJ,iSymA,iSymB,nN_IJ,nN_AB,nN_Ex1,nN_Ex2)
+!**** START GENERATION of EXCHANGE-1 INTEGRALS *************************
+if (nN_IJ*nN_Ex1 > 0) then
+  iIJAB = ((iSymI**2-iSymI)/2+iSymJ-1)*nSymP+(iSymA**2-iSymA)/2+iSymB
+  SubBlocks(3,3) = .true.
+  if (iBatch == 1) then
+    IAD2M(2,iIJAB) = iAddrIAD2M
+  else
+    iAddrIAD2M = IAD2M(2,iIJAB)
+  end if
+  ! Start Loop on i, j
+  iAddrIAD2Mij = iAddrIAD2M
+  do iI=1,nOsh(iSymI)
+    if (iSymI == iSymJ) then
+      iEndJ = iI
+    else
+      iEndJ = nOsh(iSymJ)
+    end if
+    do iJ=1,iEndJ
+      call mma_allocate(AddEx1,nN_Ex1,Label='AddEx1')
+      if (iBatch > 1) then
+        ! Reload Int
+        call dDaFile(LUINTM,2,AddEx1,nN_Ex1,iAddrIAD2Mij)
+        iAddrIAD2Mij = iAddrIAD2Mij-nN_Ex1
+      else
+        AddEx1(:) = 0.0d0
+      end if
+      call ChoMP2_GenE(iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddEx1,nN_Ex1)
+      call dDaFile(LUINTM,1,AddEx1,nN_Ex1,iAddrIAD2Mij)
+      call mma_deallocate(AddEx1)
+    end do
+  end do
+  ! End Loop on i, j
+  iAddrIAD2M = iAddrIAD2Mij
+end if
+!**** END GENERATION of EXCHANGE-1 INTEGRALS ***************************
 
-! *** START GENERATION of EXCHANGE-1 INTEGRALS  **********************
-      IF (nN_IJ*nN_Ex1.GT.0) THEN
-        iIJAB = ( (iSymI**2-iSymI)/2 + iSymJ-1 ) * nSymP +              &
-     &                 (iSymA**2-iSymA)/2 + iSymB
-        SubBlocks(3,3)=.True.
-        If (iBatch.EQ.1) then
-          IAD2M(2,iIJAB)=iAddrIAD2M
-        else
-          iAddrIAD2M=IAD2M(2,iIJAB)
-        EndIf
-!  ---  Start Loop on i, j
-        iAddrIAD2Mij=iAddrIAD2M
-        Do iI=1,nOsh(iSymI)
-          If(iSymI.EQ.iSymJ) then
-            iEndJ=iI
-          else
-            iEndJ=nOsh(iSymJ)
-          EndIf
-          Do iJ=1,iEndJ
-            Call mma_allocate(AddEx1,nN_Ex1,Label='AddEx1')
-            If (iBatch.GT.1) then
-              ! Reload Int
-              Call dDaFile(LUINTM,2,AddEx1,nN_Ex1,iAddrIAD2Mij)
-              iAddrIAD2Mij=iAddrIAD2Mij-nN_Ex1
-            else
-              AddEx1(:)=0.0D0
-            EndIf
-            Call ChoMP2_GenE(iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV,      &
-     &                                            AddEx1,nN_Ex1 )
-            Call dDaFile(LUINTM,1,AddEx1,nN_Ex1,iAddrIAD2Mij)
-            Call mma_deallocate(AddEx1)
-          EndDo
-        EndDo
-!  ---  End Loop on i, j
-        iAddrIAD2M=iAddrIAD2Mij
-      ENDIF
-! *** END GENERATION of EXCHANGE-1 INTEGRALS  ************************
+!**** START GENERATION of EXCHANGE-2 INTEGRALS *************************
+if (nN_IJ*nN_Ex2 > 0) then
+  iIJAB = ((iSymI**2-iSymI)/2+iSymJ-1)*nSymP+(iSymB**2-iSymB)/2+iSymA
+  SubBlocks(3,3) = .true.
+  if (iBatch == 1) then
+    IAD2M(3,iIJAB) = iAddrIAD2M
+  else
+    iAddrIAD2M = IAD2M(3,iIJAB)
+  end if
+  ! Start Loop on i, j
+  iAddrIAD2Mij = iAddrIAD2M
+  do iI=1,nOsh(iSymI)
+    if (iSymI == iSymJ) then
+      iEndJ = iI
+    else
+      iEndJ = nOsh(iSymJ)
+    end if
+    do iJ=1,iEndJ
+      nA = nSsh(iSymA)
+      nB = nSsh(iSymB)
+      call mma_allocate(AddEx2,nN_Ex2,Label='AddEx2')
+      call mma_allocate(AddEx2t,nN_Ex2,Label='AddEx2t')
+      if (iBatch > 1) then
+        ! Reload Int
+        call dDaFile(LUINTM,2,AddEx2,nN_Ex2,iAddrIAD2Mij)
+        iAddrIAD2Mij = iAddrIAD2Mij-nN_Ex2
+        call Trnsps(nA,nB,AddEx2,AddEx2t)
+      else
+        AddEx2t(:) = 0.0d0
+      end if
+      call ChoMP2_GenE(iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddEx2t,nN_Ex2)
+      call Trnsps(nB,nA,AddEx2t,AddEx2)
+      call dDaFile(LUINTM,1,AddEx2,nN_Ex2,iAddrIAD2Mij)
+      call mma_deallocate(AddEx2t)
+      call mma_deallocate(AddEx2)
+    end do
+  end do
+  ! End Loop on i, j
+  iAddrIAD2M = iAddrIAD2Mij
+end if
+!**** END GENERATION of EXCHANGE-2 INTEGRALS ***************************
 
-
-! *** START GENERATION of EXCHANGE-2 INTEGRALS  **********************
-      IF (nN_IJ*nN_Ex2.GT.0) THEN
-        iIJAB = ( (iSymI**2-iSymI)/2 + iSymJ-1 ) * nSymP +              &
-     &                 (iSymB**2-iSymB)/2 + iSymA
-        SubBlocks(3,3)=.True.
-        If (iBatch.EQ.1) then
-          IAD2M(3,iIJAB)=iAddrIAD2M
-        else
-          iAddrIAD2M=IAD2M(3,iIJAB)
-        EndIf
-!  ---  Start Loop on i, j
-        iAddrIAD2Mij=iAddrIAD2M
-        Do iI=1,nOsh(iSymI)
-          If(iSymI.EQ.iSymJ) then
-            iEndJ=iI
-          else
-            iEndJ=nOsh(iSymJ)
-          EndIf
-          Do iJ=1,iEndJ
-            nA=nSsh(iSymA)
-            nB=nSsh(iSymB)
-            Call mma_allocate(AddEx2,nN_Ex2,Label='AddEx2')
-            Call mma_allocate(AddEx2t,nN_Ex2,Label='AddEx2t')
-            If (iBatch.GT.1) then
-              ! Reload Int
-              Call dDaFile(LUINTM,2,AddEx2,nN_Ex2,iAddrIAD2Mij)
-              iAddrIAD2Mij=iAddrIAD2Mij-nN_Ex2
-              Call Trnsps(nA,nB,AddEx2,AddEx2t)
-            else
-              AddEx2t(:)=0.0D0
-            EndIf
-            Call ChoMP2_GenE(iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV,      &
-     &                                           AddEx2t,nN_Ex2 )
-            Call Trnsps(nB,nA,AddEx2t,AddEx2)
-            Call dDaFile(LUINTM,1,AddEx2,nN_Ex2,iAddrIAD2Mij)
-            Call mma_deallocate(AddEx2t)
-            Call mma_deallocate(AddEx2)
-          EndDo
-        EndDo
-!  ---  End Loop on i, j
-        iAddrIAD2M=iAddrIAD2Mij
-      ENDIF
-! *** END GENERATION of EXCHANGE-2 INTEGRALS  ************************
-
-      Return
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(nBatch)
-         Call Unused_integer(iSymL)
-      End If
-      End
+if (.false.) then
+  call Unused_integer(nBatch)
+  call Unused_integer(iSymL)
+end if
+
+end subroutine ChoMP2_TwoEl

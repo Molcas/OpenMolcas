@@ -31,7 +31,8 @@
 !> @param[in] CMO    MO coefficients
 !> @param[in] NCMO   Total number of MO coefficients
 !***********************************************************************
-      Subroutine ChoMP2_TraCtl(LUINTM,CMO,NCMO)
+
+subroutine ChoMP2_TraCtl(LUINTM,CMO,NCMO)
 !***********************************************************************
 ! Author :  Giovanni Ghigo                                             *
 !           Lund University, Sweden                                    *
@@ -47,198 +48,194 @@
 ! THIS CODE IS ONLY FOR MBPT2 AND IT IS SPLIT FROM THE GENERAL CODE    *
 ! BUT IT IS STILL INTEGRATED AND DEPENDENT ON THE GENERAL CODE         *
 !***********************************************************************
-      use Cho_Tra
-      Implicit Real*8 (a-h,o-z)
-      Implicit Integer (i-n)
+
+use Cho_Tra
+
+implicit real*8(a-h,o-z)
+implicit integer(i-n)
 #include "rasdim.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
-      Dimension CMO(NCMO)
-      Character*4 CHNm
-      Character*6 CHName
-      Parameter (CHNm='CHFV')
-      Logical Found
+dimension CMO(NCMO)
+character*4 CHNm
+character*6 CHName
+parameter(CHNm='CHFV')
+logical Found
+! statement function
+MulD2h(i,j) = ieor(i-1,j-1)+1
 
-      MulD2h(i,j) = iEor(i-1,j-1)+1
+IfTest = .false.
 
-      IfTest=.False.
+call Timing(CPU0,CPE,TIO0,TIOE)
 
-      Call Timing(CPU0,CPE,TIO0,TIOE)
+!**** INITIALIZATION ***************************************************
 
-!**   INIZIALIZATION   *************************************************
+! Define what has to be calculated.
+!  DoTCVA flag for the generation of TCVA
+!  DoFull flag for the generation of TCVF
+!  DoCoul flag for the generation of coulomb integrals
 
-! --- Define what has to be calculated. ---
-!      DoTCVA flag for the generation of TCVA
-!      DoFull flag for the generation of TCVF
-!      DoCoul flag for the generation of coulomb integrals
+! MBPT2
+DoTCVA = .false.
+DoFull = .false.
+DoCoul = .false.
 
-!     MBPT2
-        DoTCVA = .False.
-        DoFull = .False.
-        DoCoul = .False.
-
-! --- Get Informations from RunFile. ---
-!      The following informations must be passed to the Cholesky
-!      transformation routine through RunFile. COMMON blocks could
-!      not be used due to several conflicts.
-      Call Get_iScalar('nSym',nSym)
-      Call Get_iArray('nBas',nBas,nSym)
-      Call Get_iArray('nFroPT',nFro,nSym)
-      Call Get_iArray('nDelPT',nDel,nSym)
-      Call Get_iArray('nIsh',nIsh,nSym)
-!PAM07      Call Get_iArray('nAsh',nAsh,nSym)
+! Get Informations from RunFile.
+!  The following informations must be passed to the Cholesky
+!  transformation routine through RunFile. COMMON blocks could
+!  not be used due to several conflicts.
+call Get_iScalar('nSym',nSym)
+call Get_iArray('nBas',nBas,nSym)
+call Get_iArray('nFroPT',nFro,nSym)
+call Get_iArray('nDelPT',nDel,nSym)
+call Get_iArray('nIsh',nIsh,nSym)
+!PAM07 call Get_iArray('nAsh',nAsh,nSym)
 ! Replaced by:
-      Do i=1,nSym
-        nAsh(i)=0
-      End Do
-      Call qpg_iArray('nAsh',Found,nData)
-      If(Found .and. nData.eq.nSym) Then
-        Call Get_iArray('nAsh',nAsh,nSym)
-      End If
+do i=1,nSym
+  nAsh(i) = 0
+end do
+call qpg_iArray('nAsh',Found,nData)
+if (Found .and. (nData == nSym)) then
+  call Get_iArray('nAsh',nAsh,nSym)
+end if
 ! End of replacement
-      Call Get_iArray('NumCho',NumCho,nSym)
-      nBasT=0
-      Do i=1,nSym
-        nBasT   = nBasT + nBas(i)
-        nOrb(i) = nBas(i) - nFro(i) - nDel(i)
-        nIsh(i) = nIsh(i) - nFro(i)
-        nOsh(i) = nIsh(i) + nAsh(i)
-        nSsh(i) = nOrb(i) - nOsh(i)
-      EndDo
+call Get_iArray('NumCho',NumCho,nSym)
+nBasT = 0
+do i=1,nSym
+  nBasT = nBasT+nBas(i)
+  nOrb(i) = nBas(i)-nFro(i)-nDel(i)
+  nIsh(i) = nIsh(i)-nFro(i)
+  nOsh(i) = nIsh(i)+nAsh(i)
+  nSsh(i) = nOrb(i)-nOsh(i)
+end do
 
-! --- Inizialize information arrays. ---
+! Initialize information arrays.
 
-      TCVXist(:,:,:)=.False. ! TCVx existing flag.
+TCVXist(:,:,:) = .false. ! TCVx existing flag.
 
-!     The Address Field for MOLINT:
-      LenIAD2M=3*36*36
-      Do i=1,36*36
-       IAD2M(1,i)=0
-       IAD2M(2,i)=0
-       IAD2M(3,i)=0
-      EndDo
-      iAddrIAD2M=0
-      Call iDaFile(LUINTM,1,IAD2M,LenIAD2M,iAddrIAD2M)
+! The Address Field for MOLINT:
+LenIAD2M = 3*36*36
+do i=1,36*36
+  IAD2M(1,i) = 0
+  IAD2M(2,i) = 0
+  IAD2M(3,i) = 0
+end do
+iAddrIAD2M = 0
+call iDaFile(LUINTM,1,IAD2M,LenIAD2M,iAddrIAD2M)
 
-!     The Timing:
-      CPU_Tra=0.0d0
-      TIO_Tra=0.0d0
-      CPU_Gen=0.0d0
-      TIO_Gen=0.0d0
+! The Timing:
+CPU_Tra = 0.0d0
+TIO_Tra = 0.0d0
+CPU_Gen = 0.0d0
+TIO_Gen = 0.0d0
 
-! *** START LOOP iSymL on TOTAL SYMMETRY of L (iSym * jSym)   **********
-      DO iSymL=1,nSym
+!**** START LOOP iSymL on TOTAL SYMMETRY of L (iSym * jSym) ************
+do iSymL=1,nSym
 
-!       Re-Inizialize the TCVx
-        TCVXist(:,:,:)=.False. ! TCVx existing flag.
+  ! Re-Initialize the TCVx
+  TCVXist(:,:,:) = .false. ! TCVx existing flag.
 
-        Call Mem_Est(iSymL,nVec,nFVec)
-        If (nVec.GT.0 .and. nFVec.GT.0) then
-          nBatch =(NumCho(iSymL)-1)/nVec + 1
-        else
-          Write(6,*)
-          Write(6,*) ' ************************************'
-          Write(6,*) ' *  Insufficient memory for batch ! *'
-          Write(6,*) ' ************************************'
-          Write(6,*)
-          Call XFlush(6)
-          Call Abend()
-        EndIf
+  call Mem_Est(iSymL,nVec,nFVec)
+  if ((nVec > 0) .and. (nFVec > 0)) then
+    nBatch = (NumCho(iSymL)-1)/nVec+1
+  else
+    write(6,*)
+    write(6,*) ' ************************************'
+    write(6,*) ' *  Insufficient memory for batch ! *'
+    write(6,*) ' ************************************'
+    write(6,*)
+    call XFlush(6)
+    call Abend()
+  end if
 
-!  ---  START LOOP iBatch  ---------------------------------------------
-        DO iBatch=1,nBatch
-          If (iBatch.EQ.nBatch) then
-            NumV = NumCho(iSymL) -nVec * (nBatch-1)
-          else
-            NumV = nVec
-          EndIf
+  ! START LOOP iBatch
+  do iBatch=1,nBatch
+    if (iBatch == nBatch) then
+      NumV = NumCho(iSymL)-nVec*(nBatch-1)
+    else
+      NumV = nVec
+    end if
 
-!   ---   Start Transformation of Cholesy Vectors  CHFV -> TCVx
-          Call Timing(CPU1,CPE,TIO1,TIOE)
+    ! Start Transformation of Cholesy Vectors  CHFV -> TCVx
+    call Timing(CPU1,CPE,TIO1,TIOE)
 
-!         Start Loop on CHFV-iSym-jSym
-          Do iSym=1,nSym
+    ! Start Loop on CHFV-iSym-jSym
+    do iSym=1,nSym
+      lUCHFV = -1
+      if (nBas(iSym) > 0) then
+        do jSym=1,iSym
           lUCHFV = -1
-           If(nBas(iSym).GT.0) then
-            Do jSym=1,iSym
-            lUCHFV = -1
-             If(nBas(jSym).GT.0 .and. MulD2h(iSym,jSym).EQ.iSymL) then
-              lUCHFV=7
-              iStrtVec_AB = nVec * (iBatch-1) + 1
-              Write(CHName,'(A4,I1,I1)') CHNm,iSym,jSym
-              Call dAName_MF_WA(lUCHFV,CHName)
-              If (iSym.EQ.jSym) then
-               Call ChoMP2_TraS(iSymL, iSym,jSym, NumV, CMO,NCMO,       &
-     &                      lUCHFV, iStrtVec_AB, nFVec)
-              Else
-               Call ChoMP2_TraA(iSymL, iSym,jSym ,NumV, CMO,NCMO,       &
-     &                      lUCHFV, iStrtVec_AB, nFVec)
-              EndIf
-              Call dAClos(lUCHFV)
-             EndIf
-            EndDo
-           EndIf
-          EndDo
-!         End Loop on CHFV-iSym-jSym
+          if ((nBas(jSym) > 0) .and. (MulD2h(iSym,jSym) == iSymL)) then
+            lUCHFV = 7
+            iStrtVec_AB = nVec*(iBatch-1)+1
+            write(CHName,'(A4,I1,I1)') CHNm,iSym,jSym
+            call dAName_MF_WA(lUCHFV,CHName)
+            if (iSym == jSym) then
+              call ChoMP2_TraS(iSymL,iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
+            else
+              call ChoMP2_TraA(iSymL,iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
+            end if
+            call dAClos(lUCHFV)
+          end if
+        end do
+      end if
+    end do
+    ! End Loop on CHFV-iSym-jSym
 
-          Call Timing(CPU2,CPE,TIO2,TIOE)
-          CPU_Tra=CPU_Tra+CPU2-CPU1
-          TIO_Tra=TIO_Tra+TIO2-TIO1
-!   ---   End Transformation of Cholesky Vectors  CHFV -> TCVx
+    call Timing(CPU2,CPE,TIO2,TIOE)
+    CPU_Tra = CPU_Tra+CPU2-CPU1
+    TIO_Tra = TIO_Tra+TIO2-TIO1
+    ! End Transformation of Cholesky Vectors  CHFV -> TCVx
 
-!   ---   Start Generation of Integrals files  TCVx -> MOLINT
+    ! Start Generation of Integrals files  TCVx -> MOLINT
 
-!         Start Loop on I, J, A, B Symmetries
-          Do iSymI = 1, nSym
-            Do iSymJ = 1, iSymI
-              Do iSymA = 1, nSym
-                Do iSymB = 1, nSym
-                  iSymAI = MulD2h(iSymA,iSymI)
-                  iSymBJ = MulD2h(iSymB,iSymJ)
+    ! Start Loop on I, J, A, B Symmetries
+    do iSymI=1,nSym
+      do iSymJ=1,iSymI
+        do iSymA=1,nSym
+          do iSymB=1,nSym
+            iSymAI = MulD2h(iSymA,iSymI)
+            iSymBJ = MulD2h(iSymB,iSymJ)
 
-                  If (iSymAI.EQ.iSymL .and. iSymBJ.EQ.iSymL)            &
-     &              Call ChoMP2_TwoEl(iBatch,nBatch,NumV,LUINTM,        &
-     &                        iAddrIAD2M,iSymI,iSymJ,iSymA,iSymB, iSymL)
+            if ((iSymAI == iSymL) .and. (iSymBJ == iSymL))  &
+              call ChoMP2_TwoEl(iBatch,nBatch,NumV,LUINTM,iAddrIAD2M,iSymI,iSymJ,iSymA,iSymB,iSymL)
 
-                EndDo
-              EndDo
-            EndDo
-          EndDo
-!         End Loop on I, J, A, B Symmetries
+          end do
+        end do
+      end do
+    end do
+    ! End Loop on I, J, A, B Symmetries
 
-          Do iSym=1,MaxSym
-           Do jSym=1,MaxSym
+    do iSym=1,MaxSym
+      do jSym=1,MaxSym
 
-            If (Allocated(TCVX(3,iSym,jSym)%A))                         &
-     &         Call mma_deallocate(TCVX(3,iSym,jSym)%A)
+        if (allocated(TCVX(3,iSym,jSym)%A)) call mma_deallocate(TCVX(3,iSym,jSym)%A)
 
-           EndDo
-          EndDo
-          Call Timing(CPU3,CPE,TIO3,TIOE)
-          CPU_Gen=CPU_Gen+CPU3-CPU2
-          TIO_Gen=TIO_Gen+TIO3-TIO2
-!   ---   End Generation of Two-Electrons Integrals files
+      end do
+    end do
+    call Timing(CPU3,CPE,TIO3,TIOE)
+    CPU_Gen = CPU_Gen+CPU3-CPU2
+    TIO_Gen = TIO_Gen+TIO3-TIO2
+    ! End Generation of Two-Electrons Integrals files
 
-        ENDDO
-!  ---  END LOOP iBatch  -----------------------------------------------
+  end do
+  ! END LOOP iBatch
 
-      ENDDO
-! *** END MAIN LOOP iSymL on TOTAL SYMMETRY of L (iSym * jSym)   *******
+end do
+!**** END MAIN LOOP iSymL on TOTAL SYMMETRY of L (iSym * jSym) *********
 
-      iAddrIAD2M=0
-      Call iDaFile(LUINTM,1,IAD2M,LenIAD2M,iAddrIAD2M)
+iAddrIAD2M = 0
+call iDaFile(LUINTM,1,IAD2M,LenIAD2M,iAddrIAD2M)
 
-      Write(6,*)'TIMING INFORMATION:   CPU(s)   %CPU   Elapsed(s)'
-      Write(6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Transformation     ',      &
-     & CPU_Tra, 1.0d2*(CPU_Tra+5.0d-5)/(TIO_Tra+5.0d-5), TIO_Tra
-      Write(6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Generation         ',      &
-     & CPU_Gen, 1.0d2*(CPU_Gen+5.0d-5)/(TIO_Gen+5.0d-5), TIO_Gen
-      Call Timing(CPU4,CPE,TIO4,TIOE)
-      CPU_Tot=CPU4-CPU0
-      TIO_Tot=TIO4-TIO0
-      Write(6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' TOTAL              ',      &
-     & CPU_Tot, 1.0d2*(CPU_Tot+5.0d-5)/(TIO_Tot+5.0d-5), TIO_Tot
-      Call XFlush(6)
+write(6,*) 'TIMING INFORMATION:   CPU(s)   %CPU   Elapsed(s)'
+write(6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Transformation     ',CPU_Tra,1.0d2*(CPU_Tra+5.0d-5)/(TIO_Tra+5.0d-5),TIO_Tra
+write(6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Generation         ',CPU_Gen,1.0d2*(CPU_Gen+5.0d-5)/(TIO_Gen+5.0d-5),TIO_Gen
+call Timing(CPU4,CPE,TIO4,TIOE)
+CPU_Tot = CPU4-CPU0
+TIO_Tot = TIO4-TIO0
+write(6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' TOTAL              ',CPU_Tot,1.0d2*(CPU_Tot+5.0d-5)/(TIO_Tot+5.0d-5),TIO_Tot
+call XFlush(6)
 
-      Return
-      End
+return
+
+end subroutine ChoMP2_TraCtl

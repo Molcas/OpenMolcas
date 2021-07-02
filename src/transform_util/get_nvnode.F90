@@ -9,20 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Filler(N,M,A)
+subroutine Get_NVnode(NVEC)
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-dimension A(N,M)
+integer NVEC(*)
+#include "cholesky.fh"
 
-k = 0
-do i=1,N
-  do j=1,M
-    k = k+1
-    A(i,j) = 1.000d0*j+0.100d0*i+0.001d0*k
-  end do
+do i=1,nSym
+  NVEC(i) = NumCho(i)
 end do
 
 return
 
-end subroutine Filler
+end subroutine Get_NVnode

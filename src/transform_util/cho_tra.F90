@@ -14,26 +14,27 @@
 !         MODULE for TRANSFORMATION of CHOLESKY VECTORS                *
 !              and GENERATION of TWO-ELECTRONS INTEGRALS               *
 !***********************************************************************
-Module Cho_Tra
 
-Private:: v2
+module Cho_Tra
 
-Integer, Parameter:: MaxSym=8, MxTCVx=7
-Integer IAD2M(3,36*36)
-Integer NSYMZ,NORBZ(MaxSym),NOSHZ(MaxSym),LUINTMZ
-Integer nSym, nBas(MaxSym), nFro(MaxSym), nDel(MaxSym)
-Integer nOrb(MaxSym),nIsh(MaxSym),nAsh(MaxSym),nOsh(MaxSym), nSsh(MaxSym)
-Integer NumCho(MaxSym)
-Logical DoTCVA, DoFull, DoCoul, DoExc2
-Logical SubBlocks(3,3)
-Logical IfTest
+private :: v2
 
-Logical  TCVXist(MxTCVx,MaxSym,MaxSym)
+integer, parameter :: MaxSym = 8, MxTCVx = 7
+integer IAD2M(3,36*36)
+integer NSYMZ, NORBZ(MaxSym), NOSHZ(MaxSym), LUINTMZ
+integer nSym, nBas(MaxSym), nFro(MaxSym), nDel(MaxSym)
+integer nOrb(MaxSym), nIsh(MaxSym), nAsh(MaxSym), nOsh(MaxSym), nSsh(MaxSym)
+integer NumCho(MaxSym)
+logical DoTCVA, DoFull, DoCoul, DoExc2
+logical SubBlocks(3,3)
+logical IfTest
 
-Type v2
-  Real*8, Allocatable:: A(:,:)
-End Type v2
+logical TCVXist(MxTCVx,MaxSym,MaxSym)
 
-Type (v2):: TCVX(MxTCVx,MaxSym,MaxSym)
+type v2
+  real*8, allocatable :: A(:,:)
+end type v2
 
-End Module Cho_Tra
+type(v2) :: TCVX(MxTCVx,MaxSym,MaxSym)
+
+end module Cho_Tra

@@ -8,213 +8,191 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine tr2NsA1(CMO,X1,nX1,X2,nX2,X3,nX3,                      &
-     &      pqUS,npqUS, pqRU,npqRU, pqTU,npqTU, lBuf)
-!
+
+subroutine tr2NsA1(CMO,X1,nX1,X2,nX2,X3,nX3,pqUS,npqUS,pqRU,npqRU,pqTU,npqTU,lBuf)
 ! SECOND ORDER TWO-ELECTRON TRANSFORMATION ROUTINE
 !
 ! THIS ROUTINE IS CALLED FOR EACH SYMMETRY BLOCK OF INTEGRALS
-! (ISP,ISQ,ISR,ISS) WITH ISP.GE.ISQ AND ISR.GE.ISS.
+! (ISP,ISQ,ISR,ISS) WITH ISP >= ISQ AND ISR >= ISS.
 ! P,Q,R,S are SO indices.
 ! A,B are MO indices, counting only non-frozen and non-deleted.
 ! T,U are occupied MO indices, only non-frozen and non-deleted.
 ! INTEGRALS (AB/TU) ARE ALWAYS GENERATED
 ! EXCHANGE INTEGRALS (AT/BU) ARE GENERATED AS FOLLOWS:
-! (AT/BU) IF ISP.GE.ISR
-! (AT/UB) IF ISP.GT.ISS AND ISP.NE.ISQ
-! (TA/BU) IF ISQ.GT.ISR AND ISP.NE.ISQ
-! (TA/UB) IF ISQ.GE.ISS AND ISP.NE.ISQ
-!
-!
-      Implicit real*8(a-h,o-z)
-!PAM98      COMMON/INTTRA/ISP,ISQ,ISR,ISS,NBP,NBQ,NBR,NBS,NBPQ,NBRS,IRRST,
-!PAM98     &              NOCP,NOCQ,NOCR,NOCS,NPQ,LADX,LRUPQ,LURPQ,LTUPQ,
-!PAM98     &              NOP,NOQ,NOR,NOS,LMOP,LMOQ,LMOR,LMOS,LMOP2,LMOQ2,
-!PAM98     &              LMOR2,LMOS2,IAD13,ITP,ITQ,ITR,ITS
+! (AT/BU) IF ISP >= ISR
+! (AT/UB) IF ISP > ISS AND ISP /= ISQ
+! (TA/BU) IF ISQ > ISR AND ISP /= ISQ
+! (TA/UB) IF ISQ >= ISS AND ISP /= ISQ
 
+implicit real*8(a-h,o-z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "trafo.fh"
 #include "intgrl.fh"
-
 #include "SysDef.fh"
-      DIMENSION CMO(NCMO)
-      Dimension X1(nX1),X2(nX2),X3(nX3)
-      Dimension PQTU(nPQTU),pqRU(npqRU),pqUS(npqUS)
+dimension CMO(NCMO)
+dimension X1(nX1), X2(nX2), X3(nX3)
+dimension PQTU(nPQTU), pqRU(npqRU), pqUS(npqUS)
 
-      NOTU=NOCR*NOCS
-      IF(ISR.EQ.ISS) NOTU=(NOCR**2+NOCR)/2
-      NOUS=NOCR*NBS
-      NORU=NBR*NOCS
-      icc  =NOP*NOQ*NOCR*NOCS
-      icxc1=NOP*NOCQ*NOR*NOCS
-      icxc3=NOP*NOCQ*NOCR*NOS
-      icxc5=NOCP*NOQ*NOR*NOCS
-      icxc7=NOCP*NOQ*NOCR*NOS
-!
+NOTU = NOCR*NOCS
+if (ISR == ISS) NOTU = (NOCR**2+NOCR)/2
+NOUS = NOCR*NBS
+NORU = NBR*NOCS
+icc = NOP*NOQ*NOCR*NOCS
+icxc1 = NOP*NOCQ*NOR*NOCS
+icxc3 = NOP*NOCQ*NOCR*NOS
+icxc5 = NOCP*NOQ*NOR*NOCS
+icxc7 = NOCP*NOQ*NOCR*NOS
+
 ! Check for in core or out of core transformation
-!
-!     1. SORT OF PARTIALLY TRANSFORMED INTEGRALS (PQ|US) ON UNIT LUHLF1
-      IPQMX1=NBPQ
+
+! 1. SORT OF PARTIALLY TRANSFORMED INTEGRALS (PQ|US) ON UNIT LUHLF1
+IPQMX1 = NBPQ
 !vv prevent integer overflow
-      IF(1.0d0*NBPQ*NOUS.GT.LURPQ) THEN
-       IPQMX1=LURPQ/NOUS
-!      WRITE(*,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|US)',IPQMX1
-       IAD1S=0
-       CALL dDAFILE(LUHLF1,0,pqUS,IPQMX1,IAD1S)
-      ENDIF
-      IAD1=0
-      IOUT1=0
-!     2. SORT OF PARTIALLY TRANSFORMED INTEGRALS (PQ|RU) ON UNIT LUHLF2
-      IPQMX2=NBPQ
+if (1.0d0*NBPQ*NOUS > LURPQ) then
+  IPQMX1 = LURPQ/NOUS
+  !write(6,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|US)',IPQMX1
+  IAD1S = 0
+  call dDAFILE(LUHLF1,0,pqUS,IPQMX1,IAD1S)
+end if
+IAD1 = 0
+IOUT1 = 0
+! 2. SORT OF PARTIALLY TRANSFORMED INTEGRALS (PQ|RU) ON UNIT LUHLF2
+IPQMX2 = NBPQ
 !vv prevent integer overflow
-      IF(1.0d0*NBPQ*NORU.GT.LRUPQ) THEN
-       IPQMX2=LRUPQ/NORU
-!      WRITE(*,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|RU)',IPQMX2
-       IAD2S=0
-       CALL dDAFILE(LUHLF2,0,pqRU,IPQMX2,IAD2S)
-      ENDIF
-      IAD2=0
-      IOUT2=0
-!     3. SORT OF PARTIALLY TRANSFORMED INTEGRALS (PQ|TU) ON UNIT LUHLF3
-      IPQMX3=NBPQ
+if (1.0d0*NBPQ*NORU > LRUPQ) then
+  IPQMX2 = LRUPQ/NORU
+  !write(6,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|RU)',IPQMX2
+  IAD2S = 0
+  call dDAFILE(LUHLF2,0,pqRU,IPQMX2,IAD2S)
+end if
+IAD2 = 0
+IOUT2 = 0
+! 3. SORT OF PARTIALLY TRANSFORMED INTEGRALS (PQ|TU) ON UNIT LUHLF3
+IPQMX3 = NBPQ
 !vv prevent integer overflow
-      IF(1.0d0*NBPQ*NOTU.GT.LTUPQ) THEN
-       IPQMX3=LTUPQ/NOTU
-!      WRITE(*,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|TU)',IPQMX3
-       IAD3S=0
-       CALL dDAFILE(LUHLF3,0,PQTU,IPQMX3,IAD3S)
-      ENDIF
-      IAD3=0
-      IOUT3=0
-!
+if (1.0d0*NBPQ*NOTU > LTUPQ) then
+  IPQMX3 = LTUPQ/NOTU
+  !write(6,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|TU)',IPQMX3
+  IAD3S = 0
+  call dDAFILE(LUHLF3,0,PQTU,IPQMX3,IAD3S)
+end if
+IAD3 = 0
+IOUT3 = 0
+
 ! First half transformation
-!
-      LPQ=0
-      NPQ=0
-      iRc=0
-      iOpt=1
-      IRSST=1-NBRS
-! Loop over p,q symmetry pair, if(ISP.eq.ISQ) loop should be triangle
-      Do IP=1,NBP
-       Num=NBQ
-       if(ISP.eq.ISQ) Num=IP
-       Do IQ=1,Num
-        IOUT1=IOUT1+1
-        IOUT2=IOUT2+1
-        IOUT3=IOUT3+1
-!  Read integrals (pq,rs)
-        If(LPQ.eq.NPQ) then
-         Call Rdord(iRc,iOpt,ISP,ISQ,ISR,ISS,X1,lBuf,nPQ)
-         IF(IRC.GT.1) THEN
-           WRITE(6,*)' ERROR RETURN CODE IRC=',IRC
-           WRITE(6,*)' FROM RDORD, CALLED FROM TRA2.'
-           CALL Abend
-         END IF
-         iOpt=2
-         LPQ=0
-         IRSST=1-NBRS
-        Endif
-        LPQ=LPQ+1
-        IRSST=IRSST+NBRS
-!  Square if necessary
-        If(ISR.eq.ISS)then
-         Call Square(X1(IRSST),X2,1,NBS,NBS)
-        Else
-         call dcopy_(NBRS,X1(IRSST),1,X2,1)
-        Endif
 
-!====================================================
-!  First half transformation to (pq,Us), if ISR.ne.ISS
-!  For exchange case3,4 (AT,UB), case7,8 (TA,UB)
-!====================================================
-        If(icxc3.ne.0.or.icxc7.ne.0)then
-         If(ISR.ne.ISS)then
-!  (pq,rs) -> (pq,Us)
-          CALL DGEMM_('N','N',                                          &
-     &                NBS,NOCR,NBR,                                     &
-     &                1.0d0,X2,NBS,                                     &
-     &                CMO(LMOR2),NBR,                                   &
-     &                0.0d0,X3,NBS)
-!  (pq,Us) Sorting
-          IF(IOUT1.GT.IPQMX1) THEN
-           IOUT1=1
-!vv           DO I=1,NOUS
-!vv            CALL dDAFILE(LUHLF1,1,pqUS(1+IPQMX1*(I-1)),IPQMX1,IAD1)
-!vv           Enddo
-         CALL dDAFILE(LUHLF1,1,pqUS,IPQMX1*NOUS,IAD1)
-          ENDIF
-          CALL DCOPY_(NOUS,X3,1,pqUS(IOUT1),IPQMX1)
-         Endif
-        Endif
-!
-!  First half transformation to (pq,rU)
-!  For coulomb (AB,TU), exchange case1,2 (AT,BU), case5,6 (TA,BU)
-!
-        If(icc.ne.0.or.icxc1.ne.0.or.icxc5.ne.0)then
-!  (pq,rs) -> (pq,rU)
-         CALL DGEMM_('T','N',                                           &
-     &               NBR,NOCS,NBS,                                      &
-     &               1.0d0,X2,NBS,                                      &
-     &               CMO(LMOS2),NBS,                                    &
-     &               0.0d0,X3,NBR)
-!  (pq,rU) Sorting
-         IF(IOUT2.GT.IPQMX2) THEN
-          IOUT2=1
-!vv          DO I=1,NORU
-!vv           CALL dDAFILE(LUHLF2,1,pqRU(1+IPQMX2*(I-1)),IPQMX2,IAD2)
-!vv          Enddo
-        CALL dDAFILE(LUHLF2,1,pqRU,IPQMX2*NORU,IAD2)
-         ENDIF
-         CALL DCOPY_(NORU,X3,1,pqRU(IOUT2),IPQMX2)
+LPQ = 0
+NPQ = 0
+iRc = 0
+iOpt = 1
+IRSST = 1-NBRS
+! Loop over p,q symmetry pair, if(ISP == ISQ) loop should be triangle
+do IP=1,NBP
+  Num = NBQ
+  if (ISP == ISQ) Num = IP
+  do IQ=1,Num
+    IOUT1 = IOUT1+1
+    IOUT2 = IOUT2+1
+    IOUT3 = IOUT3+1
+    ! Read integrals (pq,rs)
+    if (LPQ == NPQ) then
+      call Rdord(iRc,iOpt,ISP,ISQ,ISR,ISS,X1,lBuf,nPQ)
+      if (IRC > 1) then
+        write(6,*) ' ERROR RETURN CODE IRC=',IRC
+        write(6,*) ' FROM RDORD, CALLED FROM TRA2.'
+        call Abend
+      end if
+      iOpt = 2
+      LPQ = 0
+      IRSST = 1-NBRS
+    end if
+    LPQ = LPQ+1
+    IRSST = IRSST+NBRS
+    ! Square if necessary
+    if (ISR == ISS) then
+      call Square(X1(IRSST),X2,1,NBS,NBS)
+    else
+      call dcopy_(NBRS,X1(IRSST),1,X2,1)
+    end if
 
-!  First half transformation to (pq,TU), if(ISR.eq.ISS)then triangle
-!  (pq,rU) -> (pq,TU)
-         If(icc.ne.0)then
-          If(ISR.eq.ISS)then
-           CALL MXMT(X3,        NBR,1,                                  &
-     &               CMO(LMOR2),1,NBR,                                  &
-     &               X2,                                                &
-     &               NOCR,NBR)
-          Else
-           CALL DGEMM_('T','N',                                         &
-     &                 NOCS,NOCR,NBR,                                   &
-     &                 1.0d0,X3,NBR,                                    &
-     &                 CMO(LMOR2),NBR,                                  &
-     &                 0.0d0,X2,NOCS)
-          Endif
-!  (pq,TU) Sorting
-          IF(IOUT3.GT.IPQMX3) THEN
-           IOUT3=1
-!vv           DO I=1,NOTU
-!vv            CALL dDAFILE(LUHLF3,1,PQTU(1+IPQMX3*(I-1)),IPQMX3,IAD3)
-!vv           Enddo
-         CALL dDAFILE(LUHLF3,1,PQTU,IPQMX3*NOTU,IAD3)
-          ENDIF
-          CALL DCOPY_(NOTU,X2,1,PQTU(IOUT3),IPQMX3)
-         Endif
-        Endif
-       Enddo
-      Enddo
+    !====================================================
+    ! First half transformation to (pq,Us), if ISR /= ISS
+    ! For exchange case3,4 (AT,UB), case7,8 (TA,UB)
+    !====================================================
+    if ((icxc3 /= 0) .or. (icxc7 /= 0)) then
+      if (ISR /= ISS) then
+        !  (pq,rs) -> (pq,Us)
+        call DGEMM_('N','N',NBS,NOCR,NBR,1.0d0,X2,NBS,CMO(LMOR2),NBR,0.0d0,X3,NBS)
+        !  (pq,Us) Sorting
+        if (IOUT1 > IPQMX1) then
+          IOUT1 = 1
+          !vv dO I=1,NOUS
+          !vv   call dDAFILE(LUHLF1,1,pqUS(1+IPQMX1*(I-1)),IPQMX1,IAD1)
+          !vv end do
+          call dDAFILE(LUHLF1,1,pqUS,IPQMX1*NOUS,IAD1)
+        end if
+        call DCOPY_(NOUS,X3,1,pqUS(IOUT1),IPQMX1)
+      end if
+    end if
+
+    ! First half transformation to (pq,rU)
+    ! For coulomb (AB,TU), exchange case1,2 (AT,BU), case5,6 (TA,BU)
+
+    if ((icc /= 0) .or. (icxc1 /= 0) .or. (icxc5 /= 0)) then
+      ! (pq,rs) -> (pq,rU)
+      call DGEMM_('T','N',NBR,NOCS,NBS,1.0d0,X2,NBS,CMO(LMOS2),NBS,0.0d0,X3,NBR)
+      ! (pq,rU) Sorting
+      if (IOUT2 > IPQMX2) then
+        IOUT2 = 1
+        !vv do I=1,NORU
+        !vv   call dDAFILE(LUHLF2,1,pqRU(1+IPQMX2*(I-1)),IPQMX2,IAD2)
+        !vv end do
+        call dDAFILE(LUHLF2,1,pqRU,IPQMX2*NORU,IAD2)
+      end if
+      call DCOPY_(NORU,X3,1,pqRU(IOUT2),IPQMX2)
+
+      ! First half transformation to (pq,TU), if(ISR == ISS) then triangle
+      ! (pq,rU) -> (pq,TU)
+      if (icc /= 0) then
+        if (ISR == ISS) then
+          call MXMT(X3,NBR,1,CMO(LMOR2),1,NBR,X2,NOCR,NBR)
+        else
+          call DGEMM_('T','N',NOCS,NOCR,NBR,1.0d0,X3,NBR,CMO(LMOR2),NBR,0.0d0,X2,NOCS)
+        end if
+        ! (pq,TU) Sorting
+        if (IOUT3 > IPQMX3) then
+          IOUT3 = 1
+          !vv do I=1,NOTU
+          !vv   call dDAFILE(LUHLF3,1,PQTU(1+IPQMX3*(I-1)),IPQMX3,IAD3)
+          !vv enddo
+          call dDAFILE(LUHLF3,1,PQTU,IPQMX3*NOTU,IAD3)
+        end if
+        call DCOPY_(NOTU,X2,1,PQTU(IOUT3),IPQMX3)
+      end if
+    end if
+  end do
+end do
 !  Store last buffer
-      IF(IPQMX1.LT.NBPQ) THEN
-!vv       DO I=1,NOUS
-!vv        CALL dDAFILE(LUHLF1,1,pqUS(1+IPQMX1*(I-1)),IPQMX1,IAD1)
-!vv       Enddo
-      CALL dDAFILE(LUHLF1,1,pqUS,IPQMX1*NOUS,IAD1)
-      ENDIF
-      IF(IPQMX2.LT.NBPQ) THEN
-!vv       DO I=1,NORU
-!vv        CALL dDAFILE(LUHLF2,1,pqRU(1+IPQMX2*(I-1)),IPQMX2,IAD2)
-!vv       Enddo
-      CALL dDAFILE(LUHLF2,1,pqRU,IPQMX2*NORU,IAD2)
-      ENDIF
-      IF(IPQMX3.LT.NBPQ) THEN
-!vv       DO I=1,NOTU
-!vv        CALL dDAFILE(LUHLF3,1,PQTU(1+IPQMX3*(I-1)),IPQMX3,IAD3)
-!vv       Enddo
-      CALL dDAFILE(LUHLF3,1,PQTU,IPQMX3*NOTU,IAD3)
-      ENDIF
+if (IPQMX1 < NBPQ) then
+  !vv do i=1,NOUS
+  !vv   call dDAFILE(LUHLF1,1,pqUS(1+IPQMX1*(I-1)),IPQMX1,IAD1)
+  !vv end do
+  call dDAFILE(LUHLF1,1,pqUS,IPQMX1*NOUS,IAD1)
+end if
+if (IPQMX2 < NBPQ) then
+  !vv do i=1,NORU
+  !vv   call dDAFILE(LUHLF2,1,pqRU(1+IPQMX2*(I-1)),IPQMX2,IAD2)
+  !vv end do
+  call dDAFILE(LUHLF2,1,pqRU,IPQMX2*NORU,IAD2)
+end if
+if (IPQMX3 < NBPQ) then
+  !vv do i=1,NOTU
+  !vv   call dDAFILE(LUHLF3,1,PQTU(1+IPQMX3*(I-1)),IPQMX3,IAD3)
+  !vv end do
+  call dDAFILE(LUHLF3,1,PQTU,IPQMX3*NOTU,IAD3)
+end if
 
-      Return
-      End
+return
+
+end subroutine tr2NsA1

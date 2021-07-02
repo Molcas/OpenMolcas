@@ -15,238 +15,201 @@
 ! DEPARTMENT OF THEORETICAL CHEMISTRY        *
 ! UNIVERSITY OF LUND, SWEDEN                 *
 !--------------------------------------------*
-      Subroutine tr2NsB(CMO,X1,X2,pqrs,TUrs,lBuf,MAXRS)
-!
+
+subroutine tr2NsB(CMO,X1,X2,pqrs,TUrs,lBuf,MAXRS)
 ! SECOND ORDER TWO-ELECTRON TRANSFORMATION ROUTINE
 !
 ! THIS ROUTINE IS CALLED FOR EACH SYMMETRY BLOCK OF INTEGRALS
-! (ISP,ISQ,ISR,ISS) WITH ISP.GE.ISQ AND ISR.GE.ISS.
+! (ISP,ISQ,ISR,ISS) WITH ISP >= ISQ AND ISR >= ISS.
 ! P,Q,R,S are SO indices.
 ! A,B are MO indices, counting only non-frozen and non-deleted.
 ! T,U are occupied MO indices, only non-frozen and non-deleted.
 ! INTEGRALS (AB/TU) ARE ALWAYS GENERATED
 ! EXCHANGE INTEGRALS (AT/BU) ARE GENERATED AS FOLLOWS:
-! (AT/BU) IF ISP.GE.ISR
-! (AT/UB) IF ISP.GT.ISS AND ISP.NE.ISQ
-! (TA/BU) IF ISQ.GT.ISR AND ISP.NE.ISQ
-! (TA/UB) IF ISQ.GE.ISS AND ISP.NE.ISQ
+! (AT/BU) IF ISP >= ISR
+! (AT/UB) IF ISP > ISS AND ISP /= ISQ
+! (TA/BU) IF ISQ > ISR AND ISP /= ISQ
+! (TA/UB) IF ISQ >= ISS AND ISP /= ISQ
 !
-!     ********** IBM-3090 RELEASE 87 09 14 **********
-!     Replace MXMA with DGEMM P-AA Malmqvist 1992-05-06.
+! ********** IBM-3090 RELEASE 87 09 14 **********
+! Replace MXMA with DGEMM P-AA Malmqvist 1992-05-06.
 !
 !
-!     This and tr2NsB routines trasform non-squared AO integrals. The
-!     transformed MO integrals are stored as the same as Tr2Sq
-!     subroutine does.
-!
-      Implicit real*8(a-h,o-z)
-!PAM98      COMMON/INTTRA/ISP,ISQ,ISR,ISS,NBP,NBQ,NBR,NBS,NBPQ,NBRS,IRRST,
-!PAM98     &              NOCP,NOCQ,NOCR,NOCS,NPQ,LADX,LRUPQ,LURPQ,LTUPQ,
-!PAM98     &              NOP,NOQ,NOR,NOS,LMOP,LMOQ,LMOR,LMOS,LMOP2,LMOQ2,
-!PAM98     &              LMOR2,LMOS2,IAD13,ITP,ITQ,ITR,ITS
+! This and tr2NsB routines trasform non-squared AO integrals. The
+! transformed MO integrals are stored as the same as Tr2Sq
+! subroutine does.
 
+implicit real*8(a-h,o-z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "trafo.fh"
 #include "intgrl.fh"
-
 #include "SysDef.fh"
-      DIMENSION CMO(NCMO)
-      Dimension X1(*),X2(*)
-      Dimension PQRS(*),TURS(*)
+dimension CMO(NCMO)
+dimension X1(*), X2(*)
+dimension PQRS(*), TURS(*)
 
-      icc=NOCP*NOCQ*NOR*NOS
+icc = NOCP*NOCQ*NOR*NOS
 
-      If(ISP.gt.ISR)then
+if (ISP > ISR) then
 
+  NSYMP = NSYM*(NSYM+1)/2
+  NOTU = NOCP*NOCQ
+  if (ISP == ISQ) NOTU = (NOCP**2+NOCP)/2
 
-      NSYMP=NSYM*(NSYM+1)/2
-      NOTU=NOCP*NOCQ
-      IF(ISP.EQ.ISQ) NOTU=(NOCP**2+NOCP)/2
+  ! SORT OF PARTIALLY TRANSFORMED INTEGRALS (TU/RS) ON UNIT LUHLF3
+  IPQMX3 = NBRS
+  if (NBRS*NOTU > LTUPQ) then
+    IPQMX3 = LTUPQ/NOTU
+    !write(6,*)'OUT OF CORE SORT FOR INTEGRALS (TU/RS)',IPQMX3,nbrs
+    IAD3S = 0
+    call dDAFILE(LUHLF3,0,TURS,IPQMX3,IAD3S)
+  end if
+  IAD3 = 0
 
-! SORT OF PARTIALLY TRANSFORMED INTEGRALS (TU/RS) ON UNIT LUHLF3
-      IPQMX3=NBRS
-      IF(NBRS*NOTU.GT.LTUPQ) THEN
-       IPQMX3=LTUPQ/NOTU
-!      WRITE(*,*)'OUT OF CORE SORT FOR INTEGRALS (TU/RS)',IPQMX3,nbrs
-       IAD3S=0
-       CALL dDAFILE(LUHLF3,0,TURS,IPQMX3,IAD3S)
-      ENDIF
-      IAD3=0
+  ! MaxRS should be given
+  IRS = 0
+  LRS = 0
+  NRS = 0
+  Kread = 0
+  Nread = NBRS/MaxRS
+  Nrest = mod(NBRS,MaxRS)
+  if (Nrest == 0) then
+    Nrest = MaxRS
+  else
+    Nread = Nread+1
+  end if
 
-! MaxRS should be given
-      IRS=0
-      LRS=0
-      NRS=0
-      Kread=0
-      Nread=NBRS/MaxRS
-      Nrest=mod(NBRS,MaxRS)
-      If(Nrest.eq.0)then
-       Nrest=MaxRS
-      Else
-       Nread=Nread+1
-      Endif
+  if (icc /= 0) then
 
-       If(icc.ne.0)then
+    ! Loop over r,s pair
+    do NR=1,NBR
+      NumRS = NBS
+      if (ISR == ISS) NumRS = NR
+      do NS=1,NumRS
+        IRS = IRS+1
 
-! Loop over r,s pair
-        Do NR=1,NBR
-         NumRS=NBS
-         If(ISR.eq.ISS)NumRS=NR
-         Do NS=1,NumRS
-          IRS=IRS+1
+        ! Loop over p,q pair
+        if (LRS == NRS) then
+          Kread = Kread+1
+          IPQ = 0
+          LPQ = 0
+          NPQ = 0
+          iRc = 0
+          iOpt = 1
+          IRSST = 1-NBRS
+          do NP=1,NBP
+            NumPQ = NBQ
+            if (ISP == ISQ) NumPQ = NP
+            do NQ=1,NumPQ
+              IPQ = IPQ+1
 
-! Loop over p,q pair
-          If(LRS.eq.NRS)then
-           Kread=Kread+1
-           IPQ=0
-           LPQ=0
-           NPQ=0
-           iRc=0
-           iOpt=1
-           IRSST=1-NBRS
-           Do NP=1,NBP
-            NumPQ=NBQ
-            If(ISP.eq.ISQ)NumPQ=NP
-            Do NQ=1,NumPQ
-             IPQ=IPQ+1
+              ! Read integrals (pq,rs)
+              if (LPQ == NPQ) then
+                call Rdord(iRc,iOpt,ISP,ISQ,ISR,ISS,X1,lBuf,nPQ)
+                if (IRC > 1) then
+                  write(6,*) ' ERROR RETURN CODE IRC=',IRC
+                  write(6,*) ' FROM RDORD, CALLED FROM TRA2.'
+                  call Abend
+                end if
+                iOpt = 2
+                LPQ = 0
+                IRSST = 1-NBRS
+              end if
+              LPQ = LPQ+1
+              IRSST = IRSST+NBRS
+              ! Here, we have all the (pq,rs) for this p,q pair
+              ! Copy X1 and construct (pq,rs) for this p,q pair
+              Length = MaxRS
+              if (Kread == Nread) Length = Nrest
+              call dcopy_(Length,X1(IRSST+MaxRS*(Kread-1)),1,PQRS(IPQ),NBPQ)
+              ! End of loop over p,q pair
+            end do
+          end do
+          LRS = 0
+          NRS = Length
+        end if
+        LRS = LRS+1
 
-!  Read integrals (pq,rs)
-             If(LPQ.eq.NPQ) then
-              Call Rdord(iRc,iOpt,ISP,ISQ,ISR,ISS,X1,lBuf,nPQ)
-              IF(IRC.GT.1) THEN
-                WRITE(6,*)' ERROR RETURN CODE IRC=',IRC
-                WRITE(6,*)' FROM RDORD, CALLED FROM TRA2.'
-                CALL Abend
-              END IF
-              iOpt=2
-              LPQ=0
-              IRSST=1-NBRS
-             Endif
-             LPQ=LPQ+1
-             IRSST=IRSST+NBRS
-! Here, we have all the (pq,rs) for this p,q pair
-! Copy X1 and construct (pq,rs) for this p,q pair
-             Length=MaxRS
-             If(Kread.eq.Nread)Length=Nrest
-             call dcopy_(Length,X1(IRSST+MaxRS*(Kread-1)),1,            &
-     &                         PQRS(IPQ),NBPQ)
-! End of loop over p,q pair
-            Enddo
-           Enddo
-           LRS=0
-           NRS=Length
-          Endif
-          LRS=LRS+1
+        ! Transfer for this r,s pair
+        if (ISP == ISQ) then
+          call Square(PQRS(NBPQ*(LRS-1)+1),X2,1,NBP,NBP)
+          ! (pq,rs) -> (pU,rs)
+          call DGEMM_('T','N',NBP,NOCQ,NBQ,1.0d0,X2,NBQ,CMO(LMOQ2),NBQ,0.0d0,X1,NBP)
+          ! (pU,rs) -> (TU,rs)
+          call MXMT(X1,NBP,1,CMO(LMOP2),1,NBP,X2,NOCP,NBP)
+        else
+          call dcopy_(NBPQ,PQRS(NBPQ*(LRS-1)+1),1,X2,1)
+          ! (pq,rs) -> (pU,rs)
+          call DGEMM_('T','N',NBP,NOCQ,NBQ,1.0d0,X2,NBQ,CMO(LMOQ2),NBQ,0.0d0,X1,NBP)
+          ! (pU,rs) -> (TU,rs)
+          call DGEMM_('T','N',NOCQ,NOCP,NBP,1.0d0,X1,NBP,CMO(LMOP2),NBP,0.0d0,X2,NOCQ)
+        end if
+        ! Store buffer
+        if (IRS > IPQMX3) then
+          IRS = 1
+          !vv do I=1,NOTU
+          !vv   call dDAFILE(LUHLF3,1,TURS(1+IPQMX3*(I-1)),IPQMX3,IAD3)
+          !vv end do
+          call dDAFILE(LUHLF3,1,TURS,IPQMX3*NOTU,IAD3)
+        end if
+        ! Sorting
+        call dcopy_(NOTU,X2,1,TURS(IRS),IPQMX3)
+        ! End of loop over r,s pair
+      end do
+    end do
+    ! Store the last buffer
+    if (IPQMX3 < NBRS) then
+      !vv do I=1,NOTU
+      !vv   calL dDAFILE(LUHLF3,1,TURS(1+IPQMX3*(I-1)),IPQMX3,IAD3)
+      !vv end do
+      call dDAFILE(LUHLF3,1,TURS,IPQMX3*NOTU,IAD3)
+    end if
+  end if
 
-! Transfer for this r,s pair
-          If(ISP.eq.ISQ)then
-           Call Square(PQRS(NBPQ*(LRS-1)+1),X2,1,NBP,NBP)
-! (pq,rs) -> (pU,rs)
-           CALL DGEMM_('T','N',                                         &
-     &                 NBP,NOCQ,NBQ,                                    &
-     &                 1.0d0,X2,NBQ,                                    &
-     &                 CMO(LMOQ2),NBQ,                                  &
-     &                 0.0d0,X1,NBP)
-! (pU,rs) -> (TU,rs)
-           CALL MXMT(X1,       NBP,1,                                   &
-     &               CMO(LMOP2),1,NBP,                                  &
-     &               X2,                                                &
-     &               NOCP,NBP)
-          Else
-           call dcopy_(NBPQ,PQRS(NBPQ*(LRS-1)+1),1,X2,1)
-! (pq,rs) -> (pU,rs)
-           CALL DGEMM_('T','N',                                         &
-     &                 NBP,NOCQ,NBQ,                                    &
-     &                 1.0d0,X2,NBQ,                                    &
-     &                 CMO(LMOQ2),NBQ,                                  &
-     &                 0.0d0,X1,NBP)
-! (pU,rs) -> (TU,rs)
-           CALL DGEMM_('T','N',                                         &
-     &                 NOCQ,NOCP,NBP,                                   &
-     &                 1.0d0,X1,NBP,                                    &
-     &                 CMO(LMOP2),NBP,                                  &
-     &                 0.0d0,X2,NOCQ)
-          Endif
-! Store buffer
-          IF(IRS.GT.IPQMX3) THEN
-           IRS=1
-!vv           DO I=1,NOTU
-!vv            CALL dDAFILE(LUHLF3,1,TURS(1+IPQMX3*(I-1)),IPQMX3,IAD3)
-!vv           Enddo
-         CALL dDAFILE(LUHLF3,1,TURS,IPQMX3*NOTU,IAD3)
-          ENDIF
-! Sorting
-          call dcopy_(NOTU,X2,1,TURS(IRS),IPQMX3)
-! End of loop over r,s pair
-         Enddo
-        Enddo
-! Store the last buffer
-        IF(IPQMX3.LT.NBRS) THEN
-!vv         DO I=1,NOTU
-!vv          CALL dDAFILE(LUHLF3,1,TURS(1+IPQMX3*(I-1)),IPQMX3,IAD3)
-!vv         Enddo
-        CALL dDAFILE(LUHLF3,1,TURS,IPQMX3*NOTU,IAD3)
-        ENDIF
-       Endif
+  if (icc /= 0) then
+    ISPQRS = ((ISP**2-ISP)/2+ISQ-1)*NSYMP+(ISR**2-ISR)/2+ISS
+    IAD2M(1,ISPQRS) = IAD13
+    ITU = 0
+    ! Loop over t,u pair
+    do NT=1,NOCP
+      Num = NOCQ
+      if (ISP == ISQ) Num = NT
+      do NU=1,Num
+        IPQST = 1+NBRS*ITU
+        ITU = ITU+1
+        ! Read buffer
+        if (IPQMX3 < NBRS) then
+          call RBuf_tra2(LUHLF3,TURS,NBRS,IPQMX3,NOTU,ITU,IPQST,IAD3S)
+        end if
+        if (ISR == ISS) then
+          ! Square
+          call Square(TURS(IPQST),X2,1,NBR,NBR)
+          ! (TU,rs) -> (TU,sB)
+          call DGEMM_('T','N',NBR,NOS,NBS,1.0d0,X2,NBS,CMO(LMOS2),NBS,0.0d0,X1,NBR)
+          ! (TU,sB) -> (TU,AB)
+          call MXMT(X1,NBR,1,CMO(LMOR2),1,NBR,X2,NOR,NBR)
+          IX2 = (NOR*NOR+NOR)/2
+        else
+          call dcopy_(NBRS,TURS(IPQST),1,X2,1)
+          ! (TU,rs) -> (TU,As)
+          call DGEMM_('T','N',NBR,NOS,NBS,1.0d0,X2,NBS,CMO(LMOS2),NBS,0.0d0,X1,NBR)
+          ! (TU,As) -> (TU,AB)
+          call DGEMM_('T','N',NOS,NOR,NBR,1.0d0,X1,NBR,CMO(LMOR2),NBR,0.0d0,X2,NOS)
+          IX2 = NOR*NOS
+        end if
+        ! Store (TU,AB) of this t,u pair
 
-       If(icc.ne.0)then
-        ISPQRS=((ISP**2-ISP)/2+ISQ-1)*NSYMP+(ISR**2-ISR)/2+ISS
-        IAD2M(1,ISPQRS)=IAD13
-        ITU=0
-! Loop over t,u pair
-        Do NT=1,NOCP
-         Num=NOCQ
-         If(ISP.eq.ISQ)Num=NT
-         Do NU=1,Num
-          IPQST=1+NBRS*ITU
-          ITU=ITU+1
-! Read buffer
-          IF(IPQMX3.LT.NBRS) THEN
-           Call RBuf_tra2(LUHLF3,TURS,NBRS,IPQMX3,NOTU,ITU,IPQST,IAD3S)
-          ENDIF
-          If(ISR.eq.ISS)then
-!  Square
-           Call Square(TURS(IPQST),X2,1,NBR,NBR)
-!  (TU,rs) -> (TU,sB)
-           CALL DGEMM_('T','N',                                         &
-     &                 NBR,NOS,NBS,                                     &
-     &                 1.0d0,X2,NBS,                                    &
-     &                 CMO(LMOS2),NBS,                                  &
-     &                 0.0d0,X1,NBR)
-!  (TU,sB) -> (TU,AB)
-           CALL MXMT(X1,       NBR,1,                                   &
-     &               CMO(LMOR2),1,NBR,                                  &
-     &               X2,                                                &
-     &               NOR,NBR)
-           IX2=(NOR*NOR+NOR)/2
-          Else
-           call dcopy_(NBRS,TURS(IPQST),1,X2,1)
-!  (TU,rs) -> (TU,As)
-           CALL DGEMM_('T','N',                                         &
-     &                 NBR,NOS,NBS,                                     &
-     &                 1.0d0,X2,NBS,                                    &
-     &                 CMO(LMOS2),NBS,                                  &
-     &                 0.0d0,X1,NBR)
-!  (TU,As) -> (TU,AB)
-           CALL DGEMM_('T','N',                                         &
-     &                 NOS,NOR,NBR,                                     &
-     &                 1.0d0,X1,NBR,                                    &
-     &                 CMO(LMOR2),NBR,                                  &
-     &                 0.0d0,X2,NOS)
-           IX2=NOR*NOS
-          Endif
-!  Store (TU,AB) of this t,u pair
-!
-!       WRITE THESE BLOCK OF INTEGRALS ON LUINTM
-!
-          CALL GADSum(X2,IX2)
-          CALL dDAFILE(LUINTM,1,X2,IX2,IAD13)
-! End of Loop over t,u pair
-         Enddo
-        Enddo
-       Endif
-      Endif
+        ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
-      Return
-      End
+        call GADSum(X2,IX2)
+        call dDAFILE(LUINTM,1,X2,IX2,IAD13)
+        ! End of Loop over t,u pair
+      end do
+    end do
+  end if
+end if
+
+return
+
+end subroutine tr2NsB

@@ -7,22 +7,33 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
 !***********************************************************************
 
-subroutine Filler(N,M,A)
+subroutine Local_Triang(nRow,A)
+! This routine is a modification of the Per-AAke's Triang routine
+! found in src/caspt2/triang.f
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
 
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
-dimension A(N,M)
+dimension A(nRow**2)
 
-k = 0
-do i=1,N
-  do j=1,M
-    k = k+1
-    A(i,j) = 1.000d0*j+0.100d0*i+0.001d0*k
-  end do
+! Convert a square matrix to triangular in-place.
+iFrom = 1+nRow
+iTo = 2
+do i=2,nRow
+  call dCopy_(i,A(iFrom),1,A(iTo),1)
+  iFrom = iFrom+nRow
+  iTo = iTo+i
 end do
 
 return
 
-end subroutine Filler
+end subroutine Local_Triang

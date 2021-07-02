@@ -9,20 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Filler(N,M,A)
+subroutine ProdsA_2(AB,iA,iB,CMO,nMO,Y)
 
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
-dimension A(N,M)
+real*8 AB(iA,iB), CMO(iB,nMO), Y(iA,nMO)
 
-k = 0
-do i=1,N
-  do j=1,M
-    k = k+1
-    A(i,j) = 1.000d0*j+0.100d0*i+0.001d0*k
-  end do
-end do
+call DGEMM_('N','N',iA,nMO,iB,1.0d0,AB,iA,CMO,iB,0.0d0,Y,iA)
 
 return
 
-end subroutine Filler
+end subroutine ProdsA_2

@@ -8,23 +8,27 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine RBuf_tra2(LUHLFX,W,LL,LBuf,NOTU,KKTU,IST,IADXS)
-      Implicit real*8(a-h,o-z)
-!     Integer  MEMX,KBUF,BLKSZ,NBLCK,NPASS,DLNGTH
 
+subroutine RBuf_tra2(LUHLFX,W,LL,LBuf,NOTU,KKTU,IST,IADXS)
+
+implicit real*8(a-h,o-z)
+!integer MEMX,KBUF,BLKSZ,NBLCK,NPASS,DLNGTH
 #include "SysDef.fh"
 !#include "stdalloc.fh"
-      Dimension W(*)
-!      Call mma_maxDBLE(MEMX)
-!      BLKSZ=(NOTU-1)*IADXS
-!      NBLCK=(MEMX)/BLKSZ
+dimension W(*)
 
-      IST=1
-!      if(NBLCK.gt.1.and.LBuf.lt.256) Then
-!      Call RBufF_tra2(LUHLFX,W,LL,LBuf,NOTU,KKTU,IST,IADXS,MEMX)
-!      Else
-      Call RBufO_tra2(LUHLFX,W,LL,LBuf,NOTU,KKTU,IST,IADXS)
-!      End If
-      IST=1
-      Return
-      End
+!call mma_maxDBLE(MEMX)
+!BLKSZ = (NOTU-1)*IADXS
+!NBLCK = MEMX/BLKSZ
+
+IST = 1
+!if ((NBLCK > 1) .and. (LBuf < 256)) then
+!  call RBufF_tra2(LUHLFX,W,LL,LBuf,NOTU,KKTU,IST,IADXS,MEMX)
+!else
+call RBufO_tra2(LUHLFX,W,LL,LBuf,NOTU,KKTU,IST,IADXS)
+!end if
+IST = 1
+
+return
+
+end subroutine RBuf_tra2

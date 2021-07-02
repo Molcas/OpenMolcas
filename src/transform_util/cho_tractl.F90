@@ -85,7 +85,8 @@
 !> @param[in] NCMO     Total number of MO coefficients
 !> @param[in] DoExch2  Flag for the generation of Exch-2 integrals
 !***********************************************************************
-      Subroutine Cho_TraCtl(iTraType,LUINTM,CMO,NCMO,DoExch2)
+
+subroutine Cho_TraCtl(iTraType,LUINTM,CMO,NCMO,DoExch2)
 !***********************************************************************
 ! Author :  Giovanni Ghigo                                             *
 !           Lund University, Sweden                                    *
@@ -99,374 +100,331 @@
 !  <p,q|k,l>  where p,q: All MO; k,l: Occupied                         *
 ! If DoFull=.True also <p,q|r,s> where p,q,r,s: All MO (for CC)        *
 !***********************************************************************
-      use Cho_Tra
-      Implicit Real*8 (a-h,o-z)
-      Implicit Integer (i-n)
+
+use Cho_Tra
+
+implicit real*8(a-h,o-z)
+implicit integer(i-n)
 #include "rasdim.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
-      Dimension CMO(NCMO)
-      Character*4 CHNm
-      Character*6 CHName
-      Parameter (CHNm='CHFV')
-      Logical DoExch2
-      Logical Found
+dimension CMO(NCMO)
+character*4 CHNm
+character*6 CHName
+parameter(CHNm='CHFV')
+logical DoExch2
+logical Found
+! statement function
+MulD2h(i,j) = ieor(i-1,j-1)+1
 
-      MulD2h(i,j) = iEor(i-1,j-1)+1
+!-----------------------------------------------------------------------
+IfTest = .false.
+!IfTest = .true.
+!DoExch2 = .true.
+!-----------------------------------------------------------------------
 
-!GG   ------------------------------------------------------------------
-      IfTest=.False.
-!      IfTest=.True.
-!      DoExch2=.True.
-!GG   ------------------------------------------------------------------
+call Timing(CPU0,CPE,TIO0,TIOE)
 
-      Call Timing(CPU0,CPE,TIO0,TIOE)
+!**** INITIALIZATION ***************************************************
 
-!**   INIZIALIZATION   *************************************************
+call CWTIME(TCR1,TWR1)
+call Cho_X_init(irc,0.0)
+if (irc /= 0) then
+  write(6,*) ' In Cho_TraCtl: Cho_X_Init returned non-zero rc = ',irc
+  call Abend()
+end if
+call Cho_X_ReoVec(irc) ! get (if not there) CD vects in full stor
+if (irc /= 0) then
+  write(6,*) ' In Cho_TraCtl: Cho_X_ReoVec returned non-zero rc = ',irc
+  call Abend()
+end if
+call Cho_X_final(irc)
+call CWTIME(TCR2,TWR2)
+tcpu_reo = (TCR2-TCR1)
+write(6,*) ' Reordering of the Cholesky vectors to full storage. '
+write(6,*) ' Elapsed time for the reordering section: ',tcpu_reo
+write(6,*) ' CPU time for the reordering section: ',tcpu_reo
+write(6,*)
 
-      CALL CWTIME(TCR1,TWR1)
-      Call Cho_X_init(irc,0.0)
-      If (irc.ne.0) Then
-        write(6,*) ' In Cho_TraCtl: Cho_X_Init returned non-zero'//     &
-     &             ' rc = ',irc
-        Call Abend()
-      EndIf
-      Call Cho_X_ReoVec(irc) ! get (if not there) CD vects in full stor
-      If (irc.ne.0) Then
-        write(6,*) ' In Cho_TraCtl: Cho_X_ReoVec returned non-zero'//   &
-     &             ' rc = ',irc
-        Call Abend()
-      EndIf
-      Call Cho_X_final(irc)
-      CALL CWTIME(TCR2,TWR2)
-      tcpu_reo=(TCR2-TCR1)
-      write(6,*) ' Reordering of the Cholesky vectors to full storage. '
-      write(6,*) ' Elapsed time for the reordering section: ',tcpu_reo
-      write(6,*) ' CPU time for the reordering section: ',tcpu_reo
-      write(6,*)
+! Define what has to be calculated.
+!  DoExc2 flag for the generation of Exch-2 integrals
+!  DoTCVA flag for the generation of TCVA
+!  DoFull flag for the generation of TCVF
+!  DoCoul flag for the generation of coulomb integrals
 
-! --- Define what has to be calculated. ---
-!      DoExc2 flag for the generation of Exch-2 integrals
-!      DoTCVA flag for the generation of TCVA
-!      DoFull flag for the generation of TCVF
-!      DoCoul flag for the generation of coulomb integrals
+DoExc2 = DoExch2
 
-      DoExc2=DoExch2
+! MBPT2
+if (iTraType == 1) then
+  DoTCVA = .false.
+  DoFull = .false.
+  DoCoul = .false.
+end if
 
-!     MBPT2
-      If (iTraType.EQ.1) then
-        DoTCVA = .False.
-        DoFull = .False.
-        DoCoul = .False.
-      EndIf
+! CASPT2
+if (iTraType == 2) then
+  DoTCVA = .true.
+  DoFull = .false.
+  DoCoul = .true.
+end if
 
-!     CASPT2
-      If (iTraType.EQ.2) then
-        DoTCVA = .True.
-        DoFull = .False.
-        DoCoul = .True.
-      EndIf
+! MCLR
+if (iTraType == 3) then
+  DoTCVA = .true.
+  DoFull = .false.
+  DoCoul = .true.
+end if
 
-!     MCLR
-      If (iTraType.EQ.3) then
-        DoTCVA = .True.
-        DoFull = .False.
-        DoCoul = .True.
-      EndIf
+! CC
+if (iTraType == 4) then
+  DoTCVA = .true.
+  DoFull = .true.
+  DoCoul = .true.
+end if
 
-!     CC
-      If (iTraType.EQ.4) then
-        DoTCVA = .True.
-        DoFull = .True.
-        DoCoul = .True.
-      EndIf
+! If Tra is not recognized it is assumed is CASPT2 type.
+if (iTraType >= 5) then
+  DoTCVA = .true.
+  DoFull = .false.
+  DoCoul = .true.
+end if
 
-!     If Tra is not recognized it is assumed is CASPT2 type.
-      If (iTraType.GE.5) then
-        DoTCVA = .True.
-        DoFull = .False.
-        DoCoul = .True.
-      EndIf
-
-! --- Get Informations from RunFile. ---
-!      The following informations must be passed to the Cholesky
-!      transformation routine through RunFile. COMMON blocks could
-!      not be used due to several conflicts.
-      Call Get_iScalar('nSym',nSym)
-      Call Get_iArray('nBas',nBas,nSym)
-      Call Get_iArray('nFroPT',nFro,nSym)
-      Call Get_iArray('nDelPT',nDel,nSym)
-      Call Get_iArray('nIsh',nIsh,nSym)
-! PAM 2007      Call Get_iArray('nAsh',nAsh,nSym)
+! Get Informations from RunFile.
+!  The following informations must be passed to the Cholesky
+!  transformation routine through RunFile. COMMON blocks could
+!  not be used due to several conflicts.
+call Get_iScalar('nSym',nSym)
+call Get_iArray('nBas',nBas,nSym)
+call Get_iArray('nFroPT',nFro,nSym)
+call Get_iArray('nDelPT',nDel,nSym)
+call Get_iArray('nIsh',nIsh,nSym)
+! PAM 2007 call Get_iArray('nAsh',nAsh,nSym)
 ! Replaced by:
-      Do i=1,nSym
-        nAsh(i)=0
-      End Do
-      Call qpg_iArray('nAsh',Found,nData)
-      If(Found .and. nData.eq.nSym) Then
-        Call Get_iArray('nAsh',nAsh,nSym)
-      End If
+do i=1,nSym
+  nAsh(i) = 0
+end do
+call qpg_iArray('nAsh',Found,nData)
+if (Found .and. (nData == nSym)) then
+  call Get_iArray('nAsh',nAsh,nSym)
+end if
 ! End of replacement
-      Call Get_NVnode(NumCho)
-      nBasT=0
-      Do i=1,nSym
-        nBasT   = nBasT + nBas(i)
-        nOrb(i) = nBas(i) - nFro(i) - nDel(i)
-        nOsh(i) = nIsh(i) + nAsh(i)
-        nSsh(i) = nOrb(i) - nOsh(i)
-      EndDo
+call Get_NVnode(NumCho)
+nBasT = 0
+do i=1,nSym
+  nBasT = nBasT+nBas(i)
+  nOrb(i) = nBas(i)-nFro(i)-nDel(i)
+  nOsh(i) = nIsh(i)+nAsh(i)
+  nSsh(i) = nOrb(i)-nOsh(i)
+end do
 
-! --- Copy data to common ERI. ---
-      NSYMZ=NSYM
-      LUINTMZ=LUINTM
-      DO I=1,NSYM
-        NORBZ(I)=NORB(I)
-        NOSHZ(I)=NOSH(I)
-      END DO
+! Copy data to common ERI.
+NSYMZ = NSYM
+LUINTMZ = LUINTM
+do I=1,NSYM
+  NORBZ(I) = NORB(I)
+  NOSHZ(I) = NOSH(I)
+end do
 
-! --- Inizialize information arrays. ---
+! Initialize information arrays.
 
-      TCVXist(:,:,:)=.False. ! TCVx existing flag.
+TCVXist(:,:,:) = .false. ! TCVx existing flag.
 
-!     The Address Field for MOLINT:
-      LenIAD2M=3*36*36
-      Do i=1,36*36
-       IAD2M(1,i)=0
-       IAD2M(2,i)=0
-       IAD2M(3,i)=0
-      EndDo
-      iAddrIAD2M=0
-      Call iDaFile(LUINTM,1,IAD2M,LenIAD2M,iAddrIAD2M)
+! The Address Field for MOLINT:
+LenIAD2M = 3*36*36
+do i=1,36*36
+  IAD2M(1,i) = 0
+  IAD2M(2,i) = 0
+  IAD2M(3,i) = 0
+end do
+iAddrIAD2M = 0
+call iDaFile(LUINTM,1,IAD2M,LenIAD2M,iAddrIAD2M)
 
-!     The Timing:
-      CPU_Tra=0.0d0
-      TIO_Tra=0.0d0
-      CPU_Gen=0.0d0
-      TIO_Gen=0.0d0
+! The Timing:
+CPU_Tra = 0.0d0
+TIO_Tra = 0.0d0
+CPU_Gen = 0.0d0
+TIO_Gen = 0.0d0
 
-!GG   ------------------------------------------------------------------
-      If(IfTest) then
-      Write(6,*)
-      Write(6,'(A,8I5)')'           Symmetries :',(i,i=1,nSym)
-      Write(6,*)
-      Write(6,'(A,8I5)')'               Frozen :',(nFro(i),i=1,nSym)
-      Write(6,'(A,8I5)')'         Inactive (I) :',(nIsh(i),i=1,nSym)
-      Write(6,'(A,8I5)')'           Active (A) :',(nAsh(i),i=1,nSym)
-      Write(6,'(A,8I5)')'        Secondary (S) :',(nSsh(i),i=1,nSym)
-      Write(6,'(A,8I5)')'              Deleted :',(nDel(i),i=1,nSym)
-      Write(6,*)
-      Write(6,'(A,8I5)')'      Total correlated:',(nOrb(i),i=1,nSym)
-      Write(6,*)
-      Call XFlush(6)
-      EndIf
-!GG   ------------------------------------------------------------------
+!-----------------------------------------------------------------------
+if (IfTest) then
+  write(6,*)
+  write(6,'(A,8I5)') '           Symmetries :',(i,i=1,nSym)
+  write(6,*)
+  write(6,'(A,8I5)') '               Frozen :',(nFro(i),i=1,nSym)
+  write(6,'(A,8I5)') '         Inactive (I) :',(nIsh(i),i=1,nSym)
+  write(6,'(A,8I5)') '           Active (A) :',(nAsh(i),i=1,nSym)
+  write(6,'(A,8I5)') '        Secondary (S) :',(nSsh(i),i=1,nSym)
+  write(6,'(A,8I5)') '              Deleted :',(nDel(i),i=1,nSym)
+  write(6,*)
+  write(6,'(A,8I5)') '      Total correlated:',(nOrb(i),i=1,nSym)
+  write(6,*)
+  call XFlush(6)
+end if
+!-----------------------------------------------------------------------
 
+!**** START LOOP iSymL on TOTAL SYMMETRY of L (iSym * jSym) ************
+do iSymL=1,nSym
 
-! *** START LOOP iSymL on TOTAL SYMMETRY of L (iSym * jSym)   **********
-      DO iSymL=1,nSym
+  TCVXist(:,:,:) = .false. ! TCVx existing flag.
+  call Mem_Est(iSymL,nVec,nFVec)
+  !---------------------------------------------------------------------
+  if (IfTest) then
+    write(6,*)
+    write(6,*) ' TCVx generated in Symmetry',iSymL
+    do i=1,nSym
+      do j=1,nSym
+        do k=1,6
+          if (TCVXist(k,i,j)) write(6,*) ' Type=',k,' Symmetries:',i,j
+        end do
+      end do
+    end do
+    call XFlush(6)
+  end if
+  !---------------------------------------------------------------------
+  if ((nVec > 0) .and. (nFVec > 0)) then
+    nBatch = (NumCho(iSymL)-1)/nVec+1
+  else
+    write(6,*)
+    write(6,*) ' ************************************'
+    write(6,*) ' *  Insufficient memory for batch ! *'
+    write(6,*) ' ************************************'
+    write(6,*)
+    call XFlush(6)
+    call Abend()
+  end if
 
-        TCVXist(:,:,:)=.False. ! TCVx existing flag.
-        Call Mem_Est(iSymL,nVec,nFVec)
-!GG   ------------------------------------------------------------------
-      If(IfTest) then
-      Write(6,*)
-      Write(6,*)' TCVx generated in Symmetry',iSymL
-      Do i=1,nSym
-      Do j=1,nSym
-      Do k=1,6
-      If (TCVXist(k,i,j)) Write(6,*)' Type=',k,' Symmetries:',i,j
-      EndDo
-      EndDo
-      EndDo
-      Call XFlush(6)
-      EndIf
-!GG   ------------------------------------------------------------------
-        If (nVec.GT.0 .and. nFVec.GT.0) then
-          nBatch =(NumCho(iSymL)-1)/nVec + 1
-        else
-          Write(6,*)
-          Write(6,*) ' ************************************'
-          Write(6,*) ' *  Insufficient memory for batch ! *'
-          Write(6,*) ' ************************************'
-          Write(6,*)
-          Call XFlush(6)
-          Call Abend()
-        EndIf
+  ! START LOOP iBatch
+  do iBatch=1,nBatch
 
-!  ---  START LOOP iBatch  ---------------------------------------------
-        DO iBatch=1,nBatch
+    if (iBatch == nBatch) then
+      NumV = NumCho(iSymL)-nVec*(nBatch-1)
+    else
+      NumV = nVec
+    end if
+    !-------------------------------------------------------------------
+    !if (IfTest) then
+    !  nFBatch = (NumV-1) / nFVec + 1
+    !  write(6,*)
+    !  write(6,*)' iBatch=',iBatch,' of',nBatch,' - NumV=',NumV,' - nFBatch=',nFBatch
+    !  call XFlush(6)
+    !end if
+    !-------------------------------------------------------------------
 
-          If (iBatch.EQ.nBatch) then
-            NumV = NumCho(iSymL) -nVec * (nBatch-1)
-          else
-            NumV = nVec
-          EndIf
-!GG   ------------------------------------------------------------------
-!      If(IfTest) then
-!      nFBatch = (NumV-1) / nFVec + 1
-!      Write(6,*)
-!      Write(6,*)' iBatch=',iBatch,' of',nBatch,' - NumV=',NumV,
-!     &                                             ' - nFBatch=',nFBatch
-!      Call XFlush(6)
-!      EndIf
-!GG   ------------------------------------------------------------------
+    ! Start Transformation of Cholesy Vectors  CHFV -> TCVx
+    call Timing(CPU1,CPE,TIO1,TIOE)
 
-!   ---   Start Transformation of Cholesy Vectors  CHFV -> TCVx
-          Call Timing(CPU1,CPE,TIO1,TIOE)
-
-!         Start Loop on CHFV-iSym-jSym
-          Do iSym=1,nSym
+    ! Start Loop on CHFV-iSym-jSym
+    do iSym=1,nSym
+      lUCHFV = -1
+      if (nBas(iSym) > 0) then
+        do jSym=1,iSym
           lUCHFV = -1
-           If(nBas(iSym).GT.0) then
-            Do jSym=1,iSym
-            lUCHFV = -1
-             If(nBas(jSym).GT.0 .and. MulD2h(iSym,jSym).EQ.iSymL) then
-              lUCHFV=7
-              iStrtVec_AB = nVec * (iBatch-1) + 1
-              Write(CHName,'(A4,I1,I1)') CHNm,iSym,jSym
-              Call dAName_MF_WA(lUCHFV,CHName)
-!GG   ------------------------------------------------------------------
-!      If(IfTest) then
-!      Write(6,*) ' - Open ',CHName,' unit=',lUCHFV,' Vect=',iStrtVec_AB
-!      Call XFlush(6)
-!      EndIf
-!GG   ------------------------------------------------------------------
+          if ((nBas(jSym) > 0) .and. (MulD2h(iSym,jSym) == iSymL)) then
+            lUCHFV = 7
+            iStrtVec_AB = nVec*(iBatch-1)+1
+            write(CHName,'(A4,I1,I1)') CHNm,iSym,jSym
+            call dAName_MF_WA(lUCHFV,CHName)
+            !-----------------------------------------------------------
+            !if (IfTest) then
+            !  write(6,*) ' - Open ',CHName,' unit=',lUCHFV,' Vect=',iStrtVec_AB
+            !  call XFlush(6)
+            !end if
+            !-----------------------------------------------------------
 
-              If (iSym.EQ.jSym) then
-               Call Cho_TraS(iSymL, iSym,jSym, NumV, CMO,NCMO,          &
-     &                      lUCHFV, iStrtVec_AB, nFVec)
-              Else
-               Call Cho_TraA(iSymL, iSym,jSym ,NumV, CMO,NCMO,          &
-     &                      lUCHFV, iStrtVec_AB, nFVec)
-              EndIf
+            if (iSym == jSym) then
+              call Cho_TraS(iSymL,iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
+            else
+              call Cho_TraA(iSymL,iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
+            end if
 
-              Call dAClos(lUCHFV)
-!GG   ------------------------------------------------------------------
-!      If(IfTest) then
-!      Write(6,*) ' - Closed ',CHName
-!      Call XFlush(6)
-!      EndIf
-!GG   ------------------------------------------------------------------
-             EndIf
-            EndDo
-           EndIf
-          EndDo
-!         End Loop on CHFV-iSym-jSym
+            call dAClos(lUCHFV)
+            !-----------------------------------------------------------
+            !if (IfTest) then
+            !  write(6,*) ' - Closed ',CHName
+            !  call XFlush(6)
+            !end if
+            !-----------------------------------------------------------
+          end if
+        end do
+      end if
+    end do
+    ! End Loop on CHFV-iSym-jSym
 
-          Call Timing(CPU2,CPE,TIO2,TIOE)
-          CPU_Tra=CPU_Tra+CPU2-CPU1
-          TIO_Tra=TIO_Tra+TIO2-TIO1
-!   ---   End Transformation of Cholesky Vectors  CHFV -> TCVx
+    call Timing(CPU2,CPE,TIO2,TIOE)
+    CPU_Tra = CPU_Tra+CPU2-CPU1
+    TIO_Tra = TIO_Tra+TIO2-TIO1
+    ! End Transformation of Cholesky Vectors  CHFV -> TCVx
 
-!   ---   Start Generation of Integrals files  TCVx -> MOLINT
-!GG   ------------------------------------------------------------------
-      If(IfTest) then
-      Write(6,*) ' - Generation of Integrals:'
-      Call XFlush(6)
-      EndIf
-!GG   ------------------------------------------------------------------
+    ! Start Generation of Integrals files  TCVx -> MOLINT
+    !-------------------------------------------------------------------
+    if (IfTest) then
+      write(6,*) ' - Generation of Integrals:'
+      call XFlush(6)
+    end if
+    !-------------------------------------------------------------------
 
-!         Start Loop on I, J, A, B Symmetries
-          Do iSymI = 1, nSym
-            Do iSymJ = 1, iSymI
-              Do iSymA = 1, nSym
-                Do iSymB = 1, nSym
-                  iSymAI = MulD2h(iSymA,iSymI)
-                  iSymBJ = MulD2h(iSymB,iSymJ)
+    ! Start Loop on I, J, A, B Symmetries
+    do iSymI=1,nSym
+      do iSymJ=1,iSymI
+        do iSymA=1,nSym
+          do iSymB=1,nSym
+            iSymAI = MulD2h(iSymA,iSymI)
+            iSymBJ = MulD2h(iSymB,iSymJ)
 
-                  If (iSymAI.EQ.iSymL .and. iSymBJ.EQ.iSymL)            &
-     &              Call Cho_TwoEl(iBatch,nBatch,NumV,LUINTM,iAddrIAD2M,&
-     &                                 iSymI,iSymJ,iSymA,iSymB, iSymL)
+            if ((iSymAI == iSymL) .and. (iSymBJ == iSymL)) &
+              call Cho_TwoEl(iBatch,nBatch,NumV,LUINTM,iAddrIAD2M,iSymI,iSymJ,iSymA,iSymB,iSymL)
 
-                EndDo
-              EndDo
-            EndDo
-          EndDo
-!         End Loop on I, J, A, B Symmetries
+          end do
+        end do
+      end do
+    end do
+    ! End Loop on I, J, A, B Symmetries
 
-          Do iType=1,MxTCVx
-           Do iSym=1,MaxSym
-            Do jSym=1,MaxSym
+    do iType=1,MxTCVx
+      do iSym=1,MaxSym
+        do jSym=1,MaxSym
 
-             If (Allocated(TCVX(iType,iSym,jSym)%A))                    &
-     &          Call mma_deallocate(TCVX(iType,iSym,jSym)%A)
+          if (allocated(TCVX(iType,iSym,jSym)%A)) call mma_deallocate(TCVX(iType,iSym,jSym)%A)
 
-            EndDo
-           EndDo
-          EndDo
+        end do
+      end do
+    end do
 
-          Call Timing(CPU3,CPE,TIO3,TIOE)
-          CPU_Gen=CPU_Gen+CPU3-CPU2
-          TIO_Gen=TIO_Gen+TIO3-TIO2
-!   ---   End Generation of Two-Electrons Integrals files
+    call Timing(CPU3,CPE,TIO3,TIOE)
+    CPU_Gen = CPU_Gen+CPU3-CPU2
+    TIO_Gen = TIO_Gen+TIO3-TIO2
+    ! End Generation of Two-Electrons Integrals files
 
-        ENDDO
-!  ---  END LOOP iBatch  -----------------------------------------------
+  end do
+  ! END LOOP iBatchD -----------------------------------------------
 
-      ENDDO
-! *** END MAIN LOOP iSymL on TOTAL SYMMETRY of L (iSym * jSym)   *******
+end do
+!**** END MAIN LOOP iSymL on TOTAL SYMMETRY of L (iSym * jSym) *********
 
-      iAddrIAD2M=0
-      Call iDaFile(LUINTM,1,IAD2M,LenIAD2M,iAddrIAD2M)
+iAddrIAD2M = 0
+call iDaFile(LUINTM,1,IAD2M,LenIAD2M,iAddrIAD2M)
 
-      Write(6,*)'TIMING INFORMATION:   CPU(s)   %CPU   Elapsed(s)'
-      Write(6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Transformation     ',      &
-     & CPU_Tra, 1.0d2*CPU_Tra/Max(1.0d0,TIO_Tra), TIO_Tra
-      Write(6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Generation         ',      &
-     & CPU_Gen, 1.0d2*CPU_Gen/Max(1.0d0,TIO_Gen), TIO_Gen
-      Call Timing(CPU4,CPE,TIO4,TIOE)
-      CPU_Tot=CPU4-CPU0
-      TIO_Tot=TIO4-TIO0
-      Write(6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' TOTAL              ',      &
-     & CPU_Tot, 1.0d2*CPU_Tot/Max(1.0d0,TIO_Tot), TIO_Tot
-      write(6,*)
-      Call XFlush(6)
-!GG   ------------------------------------------------------------------
-      If(IfTest) then
-!      IPRX=0    ! Do not print Coulomb nor Exchange Integrals
-      IPRX=1    ! Print only Coulomb Integrals
-!      IPRX=2    ! Print all Integrals
-!      IPRX=3    ! Print only Exchange Integrals
-       Call RdInt2(IPRX,DoTCVA)
-      EndIf
-!GG   ------------------------------------------------------------------
+write(6,*) 'TIMING INFORMATION:   CPU(s)   %CPU   Elapsed(s)'
+write(6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Transformation     ',CPU_Tra,1.0d2*CPU_Tra/max(1.0d0,TIO_Tra),TIO_Tra
+write(6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Generation         ',CPU_Gen,1.0d2*CPU_Gen/max(1.0d0,TIO_Gen),TIO_Gen
+call Timing(CPU4,CPE,TIO4,TIOE)
+CPU_Tot = CPU4-CPU0
+TIO_Tot = TIO4-TIO0
+write(6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' TOTAL              ',CPU_Tot,1.0d2*CPU_Tot/max(1.0d0,TIO_Tot),TIO_Tot
+write(6,*)
+call XFlush(6)
+!-----------------------------------------------------------------------
+if (IfTest) then
+  !IPRX=0    ! Do not print Coulomb nor Exchange Integrals
+  IPRX = 1  ! Print only Coulomb Integrals
+  !IPRX=2    ! Print all Integrals
+  !IPRX=3    ! Print only Exchange Integrals
+  call RdInt2(IPRX,DoTCVA)
+end if
+!-----------------------------------------------------------------------
 
-      Call put_tra_comm(IAD2M,NSYMZ,NORBZ,NOSHZ,LUINTMZ)
+call put_tra_comm(IAD2M,NSYMZ,NORBZ,NOSHZ,LUINTMZ)
 
-      Return
-      End
+return
 
-!***********************************************************************
-      Subroutine put_tra_comm(IBD2M,NSYMX,NORBX,NOSHX,LUINTMX)
-
-      Implicit Real*8 (a-h,o-z)
-      Integer IBD2M(3,36*36),NSYMX,NORBX(8),NOSHX(8),LUINTMX
-#include "intgrl.fh"
-
-      Do j=1,36*36
-         Do i=1,3
-            IAD2M(i,j) = IBD2M(i,j)
-         End Do
-      End Do
-      NSYMZ = NSYMX
-      Do i=1,8
-         NORBZ(i) = NORBX(i)
-         NOSHZ(i) = NOSHX(i)
-      End Do
-      LUINTMZ = LUINTMX
-
-      Return
-      End
-
-!***********************************************************************
-      Subroutine Get_NVnode(NVEC)
-
-      Integer NVEC(*)
-#include "cholesky.fh"
-
-      Do i=1,nSym
-         NVEC(i) =  NumCho(i)
-      End Do
-
-      Return
-      End
+end subroutine Cho_TraCtl

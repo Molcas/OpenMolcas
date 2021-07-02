@@ -9,20 +9,27 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Filler(N,M,A)
+subroutine PrintSquareMat(nRow,A)
+! Prints a square matrix A(nRow,nRow)
 
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
-dimension A(N,M)
+dimension A(nRow**2)
 
-k = 0
-do i=1,N
-  do j=1,M
-    k = k+1
-    A(i,j) = 1.000d0*j+0.100d0*i+0.001d0*k
-  end do
+if (nRow > 8) return
+iCount = 0
+do i=1,nRow
+  if (nRow == 1) write(6,'(1F10.6)')(A(iCount+k),k=1,nRow)
+  if (nRow == 2) write(6,'(2F10.6)')(A(iCount+k),k=1,nRow)
+  if (nRow == 3) write(6,'(3F10.6)')(A(iCount+k),k=1,nRow)
+  if (nRow == 4) write(6,'(4F10.6)')(A(iCount+k),k=1,nRow)
+  if (nRow == 5) write(6,'(5F10.6)')(A(iCount+k),k=1,nRow)
+  if (nRow == 6) write(6,'(6F10.6)')(A(iCount+k),k=1,nRow)
+  if (nRow == 7) write(6,'(7F10.6)')(A(iCount+k),k=1,nRow)
+  if (nRow == 8) write(6,'(8F10.6)')(A(iCount+k),k=1,nRow)
+  iCount = iCount+nRow
 end do
 
 return
 
-end subroutine Filler
+end subroutine PrintSquareMat

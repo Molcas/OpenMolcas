@@ -18,7 +18,8 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE TRACTL(iPart)
+
+subroutine TRACTL(iPart)
 !  SECOND ORDER TWO-ELECTRON TRANFORMATION PROGRAM. CONTROL SECTION
 !
 !  THIS SUBROUTINE SETS UP THE MEMORY ALLOCATIONS FOR TRA2 AND LOOPS
@@ -37,8 +38,9 @@
 ! Also transforms 1-el integrals. -> Actually that part is commented out
 !
 ! 98-09-02 J.Hasegawa Modified for non-squared integrals.
-      IMPLICIT REAL*8 (A-H,O-Z)
-      LOGICAL IFTEST
+
+implicit real*8(A-H,O-Z)
+logical IFTEST
 #include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
@@ -47,328 +49,315 @@
 #include "intgrl.fh"
 #include "SysDef.fh"
 #include "trafo.fh"
-      DIMENSION nBasXX(8),Keep(8)
-      Logical iSquar
-      Logical DoCholesky
+dimension nBasXX(8), Keep(8)
+logical iSquar
+logical DoCholesky
+real*8, allocatable :: W1(:)
 
-      Real*8, Allocatable:: W1(:)
-      IFTEST=.FALSE.
+IFTEST = .false.
 #ifdef _DEBUGPRINT_
-      IfTest=.True.
+IfTest = .true.
 #endif
 
 ! Copy data to common ERI.
-      NSYMZ=NSYM
-      DO I=1,NSYM
-        NORBZ(I)=NORB(I)
-        NOSHZ(I)=NOSH(I)
-        LUINTMZ=LUINTM
-      END DO
+NSYMZ = NSYM
+do I=1,NSYM
+  NORBZ(I) = NORB(I)
+  NOSHZ(I) = NOSH(I)
+  LUINTMZ = LUINTM
+end do
 
 ! Open temporary files for half-transformed integrals.
 ! They are closed at end of TRACTL.
 
 ! The MO coefficients were allocated and read in STINI. They are
 ! available at WORK(LCMO).
-!
-!     RETRIEVE BASE DATA FROM UNIT LUINTA
-!
+
+! RETRIEVE BASE DATA FROM UNIT LUINTA
+
 !*JHsta
-      Call GetOrd(IRC,iSquar,nSymXX,nBasXX,Keep)
-      IF ( OUTFMT.EQ.'LONG    ' ) THEN
-        If(iSquar)      write(6,*)'TRACTL OrdInt status: squared'
-        If(.not.iSquar) write(6,*)'TRACTL OrdInt status: non-squared'
-      ENDIF
+call GetOrd(IRC,iSquar,nSymXX,nBasXX,Keep)
+if (OUTFMT == 'LONG    ') then
+  if (iSquar) write(6,*) 'TRACTL OrdInt status: squared'
+  if (.not. iSquar) write(6,*) 'TRACTL OrdInt status: non-squared'
+end if
 !*JHend
-      IF(IRC.NE.0) THEN
-        WRITE(6,*)' TRACTL, called to transform the two-electron'
-        WRITE(6,*)' integrals, got non-zero return code from'
-        WRITE(6,*)' subroutine GETORD. The return code is IRC=',IRC
-        WRITE(6,*)' Do you have a valid ORDINT file? If you do,'
-        WRITE(6,*)' please inform the MOLCAS group -- this may be'
-        WRITE(6,*)' a bug. Anyway, the calculations must stop, sorry.'
-        CALL QUIT(_RC_IO_ERROR_READ_)
-      END IF
+if (IRC /= 0) then
+  write(6,*) ' TRACTL, called to transform the two-electron'
+  write(6,*) ' integrals, got non-zero return code from'
+  write(6,*) ' subroutine GETORD. The return code is IRC=',IRC
+  write(6,*) ' Do you have a valid ORDINT file? If you do,'
+  write(6,*) ' please inform the MOLCAS group -- this may be'
+  write(6,*) ' a bug. Anyway, the calculations must stop, sorry.'
+  call QUIT(_RC_IO_ERROR_READ_)
+end if
 !* PAM2007: For unknown reasons, one extra word is needed.
 !      lBuf = 1+MAX(255*255,NBMX**2)
 ! but note that tractl, being a utility, can be called from other
 ! programs and should not take the value NBMX from caspt2.fh...
 ! hence correction by AJS below.
-!
-!     Correction by AJS, Jan. 12, 2009. Defines the value
-!     of NBMX
-!     ---------------------------------------------------
-!
-      NBMX=1
-      DO I=1,NSYM
-!        WRITE(6,'(a,i2,a,i5)') 'ISYM=',I,'   nBas(ISYM)=',nBasXX(I)
-        NBMX=MAX(NBMX,nBasXX(i))
-      ENDDO
-!     ---------------------------------------------------
-!      lBuf = MAX(255*255,NBMX**2)
-      lBuf = 1+NBMX**2
-!      write(6,'(2(A,I10))') 'NBMX=',NBMX,'   lBuf=',lBuf
+
+! Correction by AJS, Jan. 12, 2009. Defines the value of NBMX
+! -----------------------------------------------------------
+
+NBMX = 1
+do I=1,NSYM
+  !write(6,'(a,i2,a,i5)') 'ISYM=',I,'   nBas(ISYM)=',nBasXX(I)
+  NBMX = max(NBMX,nBasXX(i))
+end do
+
+!lBuf = MAX(255*255,NBMX**2)
+lBuf = 1+NBMX**2
+!write(6,'(2(A,I10))') 'NBMX=',NBMX,'   lBuf=',lBuf
 !
 ! COMPARE CONTENT OF 1EL and 2EL INTEGRAL FILE
-      IERR=0
-      IF ( NSYMXX.NE.NSYM ) THEN
-        IERR=1
-      ELSE
-        DO ISYM=1,NSYM
-          IF (NBAS(ISYM).NE.NBASXX(ISYM)) IERR=1
-        END DO
-      END IF
-      IF(IERR.NE.0) THEN
-        WRITE(6,*)'     *** ERROR IN SUBROUTINE TRACTL ***'
-        WRITE(6,*)'          INCOMPATIBLE BASIS DATA'
-        WRITE(6,*)
-        WRITE(6,*)' JOBIPH NR OF SYMM:', NSYM
-        WRITE(6,*)' JOBIPH NR OF BASIS FUNCTIONS/SYMM:'
-        WRITE(6,'(1x,8I5)')(NBAS(I),I=1,NSYM)
-        WRITE(6,*)
-        WRITE(6,*)' ORDINT NR OF SYMM:', NSYMXX
-        WRITE(6,*)' ORDINT NR OF BASIS FUNCTIONS/SYMM:'
-        WRITE(6,'(1x,8I5)')(NBASXX(I),I=1,NSYMXX)
-        CALL ERRTRA
-        CALL SYSHALT('TRACTL')
-      END IF
-!
-!     SET ADDRESS FIELD FOR OUTPUT INTEGRAL FILE
-!
-      LIADUT=3*36*36
-      DO I=1,36*36
-       IAD2M(1,I)=0
-       IAD2M(2,I)=0
-       IAD2M(3,I)=0
-      END DO
-      IAD13=0
-      CALL iDAFILE(LUINTM,1,IAD2M,LIADUT,IAD13)
-!
-!     LOOP OVER QUADRUPLES OF SYMMETRIES (NSP,NSQ,NSR,NSS)
-!     NOTE THAT THE INTEGRALS ON LUINTA HAVE TO BE SORTED IN THE SAME
-!     ORDER AS THE LOOP STRUCTURE BELOW (USE PROGRAM INTSORT)
-!
+IERR = 0
+if (NSYMXX /= NSYM) then
+  IERR = 1
+else
+  do ISYM=1,NSYM
+    if (NBAS(ISYM) /= NBASXX(ISYM)) IERR = 1
+  end do
+end if
+if (IERR /= 0) then
+  write(6,*) '     *** ERROR IN SUBROUTINE TRACTL ***'
+  write(6,*) '          INCOMPATIBLE BASIS DATA'
+  write(6,*)
+  write(6,*) ' JOBIPH NR OF SYMM:',NSYM
+  write(6,*) ' JOBIPH NR OF BASIS FUNCTIONS/SYMM:'
+  write(6,'(1x,8I5)')(NBAS(I),I=1,NSYM)
+  write(6,*)
+  write(6,*) ' ORDINT NR OF SYMM:',NSYMXX
+  write(6,*) ' ORDINT NR OF BASIS FUNCTIONS/SYMM:'
+  write(6,'(1x,8I5)')(NBASXX(I),I=1,NSYMXX)
+  call ERRTRA
+  call SYSHALT('TRACTL')
+end if
+
+! SET ADDRESS FIELD FOR OUTPUT INTEGRAL FILE
+
+LIADUT = 3*36*36
+do I=1,36*36
+  IAD2M(1,I) = 0
+  IAD2M(2,I) = 0
+  IAD2M(3,I) = 0
+end do
+IAD13 = 0
+call iDAFILE(LUINTM,1,IAD2M,LIADUT,IAD13)
+
+! LOOP OVER QUADRUPLES OF SYMMETRIES (NSP,NSQ,NSR,NSS)
+! NOTE THAT THE INTEGRALS ON LUINTA HAVE TO BE SORTED IN THE SAME
+! ORDER AS THE LOOP STRUCTURE BELOW (USE PROGRAM INTSORT)
+
 ! Allocate largest possible array as work space:
-      If ( IFTEST ) then
-        Write(6,*)                                                      &
-     &  ' Symmetry  Basis functions   total orbitals    active orbitals'
-        Write(6,*)                                                      &
-     &  ' -------------------------------------------------------------'
-      End If
-      Call mma_maxDBLE(MEMX)
-      MEMX=MAX(MEMX-1*MEMX/6,0)
+if (IFTEST) then
+  write(6,*) ' Symmetry  Basis functions   total orbitals    active orbitals'
+  write(6,*) ' -------------------------------------------------------------'
+end if
+call mma_maxDBLE(MEMX)
+MEMX = max(MEMX-1*MEMX/6,0)
 
-! --- Reserve space for Integral generation from Cholesky vectors
-      Call DecideOnCholesky(DoCholesky)
-      If (DoCholesky) then
-         MEMX = MAX(MEMX-MEMX/10,0)
-         write(6,*)'Memx= ',MEMX
-      End If
-! -----------------------------------------------------------------
-      Call mma_allocate(W1,MEMX,Label='W1')
-      LW1=1
-      NCHAIN=0
-      LMOP1=1
-      ITP=0
-      DO NSP=1,NSYM
-       IF(NSP.NE.1) ITP=ITP+NASH(NSP-1)
-       NBP=NBAS(NSP)
-       IF(NSP.NE.1) LMOP1=LMOP1+NBAS(NSP-1)**2
-       LMOP=LMOP1+NBP*NFRO(NSP)
-       LMOP2=LMOP
-       NOP=NORB(NSP)
-       NOCP=NOSH(NSP)
-       KEEPP=KEEP(NSP)
-       ISP=NSP
-       LMOQ1=1
-       ITQ=0
-       DO NSQ=1,NSP
-        IF(NSQ.NE.1) ITQ=ITQ+NASH(NSQ-1)
-        NBQ=NBAS(NSQ)
-        IF(NSQ.NE.1) LMOQ1=LMOQ1+NBAS(NSQ-1)**2
-        LMOQ=LMOQ1+NBQ*NFRO(NSQ)
-        LMOQ2=LMOQ
-        KEEPQ=KEEP(NSQ)
-        NOQ=NORB(NSQ)
-        NOCQ=NOSH(NSQ)
-        ISQ=NSQ
-        NSPQ=MUL(NSP,NSQ)
-        LMOR1=1
-        ITR=0
-!*JHsta
-        NSymR=NSP
-        If(iSquar)NSymR=NSYM
-        DO NSR=1,NSymR
-!*JHend
-         IF(NSR.NE.1) ITR=ITR+NASH(NSR-1)
-         NBR=NBAS(NSR)
-         IF(NSR.NE.1) LMOR1=LMOR1+NBAS(NSR-1)**2
-         LMOR=LMOR1+NBR*NFRO(NSR)
-         LMOR2=LMOR
-         KEEPR=KEEP(NSR)
-         NOR=NORB(NSR)
-         NOCR=NOSH(NSR)
-         NSPQR=MUL(NSPQ,NSR)
-         ISR=NSR
-         LMOS1=1
-         ITS=0
-!*JHsta
-         NSymS=NSR
-         If(NSP.eq.NSR)NSymS=NSQ
-         If(iSquar)NSymS=NSR
-         DO NSS=1,NSymS
-!*JHend
-          IF(NSS.NE.1) ITS=ITS+NASH(NSS-1)
-          NBS=NBAS(NSS)
-          IF(NSS.NE.1) LMOS1=LMOS1+NBAS(NSS-1)**2
-          LMOS=LMOS1+NBS*NFRO(NSS)
-          LMOS2=LMOS
-          IF(NSPQR.NE.NSS) GO TO 101
-          NOS=NORB(NSS)
-          NOCS=NOSH(NSS)
-          KEEPS=KEEP(NSS)
-          ISS=NSS
+! Reserve space for Integral generation from Cholesky vectors
+call DecideOnCholesky(DoCholesky)
+if (DoCholesky) then
+  MEMX = max(MEMX-MEMX/10,0)
+  write(6,*) 'Memx= ',MEMX
+end if
+
+call mma_allocate(W1,MEMX,Label='W1')
+LW1 = 1
+NCHAIN = 0
+LMOP1 = 1
+ITP = 0
+do NSP=1,NSYM
+  if (NSP /= 1) ITP = ITP+NASH(NSP-1)
+  NBP = NBAS(NSP)
+  if (NSP /= 1) LMOP1 = LMOP1+NBAS(NSP-1)**2
+  LMOP = LMOP1+NBP*NFRO(NSP)
+  LMOP2 = LMOP
+  NOP = NORB(NSP)
+  NOCP = NOSH(NSP)
+  KEEPP = KEEP(NSP)
+  ISP = NSP
+  LMOQ1 = 1
+  ITQ = 0
+  do NSQ=1,NSP
+    if (NSQ /= 1) ITQ = ITQ+NASH(NSQ-1)
+    NBQ = NBAS(NSQ)
+    if (NSQ /= 1) LMOQ1 = LMOQ1+NBAS(NSQ-1)**2
+    LMOQ = LMOQ1+NBQ*NFRO(NSQ)
+    LMOQ2 = LMOQ
+    KEEPQ = KEEP(NSQ)
+    NOQ = NORB(NSQ)
+    NOCQ = NOSH(NSQ)
+    ISQ = NSQ
+    NSPQ = MUL(NSP,NSQ)
+    LMOR1 = 1
+    ITR = 0
+    !*JHsta
+    NSymR = NSP
+    if (iSquar) NSymR = NSYM
+    do NSR=1,NSymR
+    !*JHend
+      if (NSR /= 1) ITR = ITR+NASH(NSR-1)
+      NBR = NBAS(NSR)
+      if (NSR /= 1) LMOR1 = LMOR1+NBAS(NSR-1)**2
+      LMOR = LMOR1+NBR*NFRO(NSR)
+      LMOR2 = LMOR
+      KEEPR = KEEP(NSR)
+      NOR = NORB(NSR)
+      NOCR = NOSH(NSR)
+      NSPQR = MUL(NSPQ,NSR)
+      ISR = NSR
+      LMOS1 = 1
+      ITS = 0
+      !*JHsta
+      NSymS = NSR
+      if (NSP == NSR) NSymS = NSQ
+      if (iSquar) NSymS = NSR
+      do NSS=1,NSymS
+      !*JHend
+        if (NSS /= 1) ITS = ITS+NASH(NSS-1)
+        NBS = NBAS(NSS)
+        if (NSS /= 1) LMOS1 = LMOS1+NBAS(NSS-1)**2
+        LMOS = LMOS1+NBS*NFRO(NSS)
+        LMOS2 = LMOS
+        if (NSPQR /= NSS) GO TO 101
+        NOS = NORB(NSS)
+        NOCS = NOSH(NSS)
+        KEEPS = KEEP(NSS)
+        ISS = NSS
 !
-          KEEPT=KEEPP+KEEPQ+KEEPR+KEEPS
-          NOCCT=NOCP*NOCQ*NOCR*NOCS
-          IF(NOCCT.NE.0.AND.KEEPT.NE.0) GO TO 901
-          IF(KEEPT.EQ.0) NCHAIN=NCHAIN+1
-          IF(NOP*NOQ*NOR*NOS.EQ.0) GO TO 101
-!
-!         CALLING SEQUENCE FOR SECOND ORDER TRANSFORMATION TRA2
-!         FIRST ALLOCATE AND CHECK MEMORY
-!
-          NBPQ=NBP*NBQ
-          IF(ISP.EQ.ISQ) NBPQ=(NBP**2+NBP)/2
-          NBRS=NBR*NBS
-          IF(ISR.EQ.ISS) NBRS=(NBR**2+NBR)/2
-          NOTU=NOCR*NOCS
-          IF(ISR.EQ.ISS) NOTU=(NOCR**2+NOCR)/2
+        KEEPT = KEEPP+KEEPQ+KEEPR+KEEPS
+        NOCCT = NOCP*NOCQ*NOCR*NOCS
+        if ((NOCCT /= 0) .and. (KEEPT /= 0)) GO TO 901
+        if (KEEPT == 0) NCHAIN = NCHAIN+1
+        if (NOP*NOQ*NOR*NOS == 0) GO TO 101
 
-          If ( IFTEST ) then
-             Write(6,'(1X,4I2,2X,4I4,2X,4I4,2X,4I4)')                   &
-     &            NSP,NSQ,NSR,NSS,                                      &
-     &            NBP,NBQ,NBR,NBS,                                      &
-     &            NOP,NOQ,NOR,NOS,                                      &
-     &            NOCP,NOCQ,NOCR,NOCS
-          End If
+        ! CALLING SEQUENCE FOR SECOND ORDER TRANSFORMATION TRA2
+        ! FIRST ALLOCATE AND CHECK MEMORY
 
-!JHsta
-          Mxx1=max(lBuf,NOP*NBQ,NBP*NOCQ,NOCP*NBQ)
-          Mxx2=max(NBR*NBS,NBP*NBQ,NOP*NOR,NOP*NOS,NOQ*NOR,NOQ*NOS)
-          Mxx3=max(NOCR*NBS,NBR*NOCS)
-          LW2=LW1+Mxx1
-          LW3=LW2+Mxx2
-          LW4=LW3+Mxx3
-          LRUPQ=NBP*NBQ*NBR*NOCS
-          LURPQ=NBP*NBQ*NOCR*NBS
-          MEMLFT=MEMX-LW4+LW1
-! I.E. MEMLFT=MEMX-MXX1-MXX2-MXX3, possibly negative...
-          LPQTU=NBP*NBQ*NOCR*NOCS
-          LATRU=NOP*NOCQ*NBR*NOCS
-          LTARU=NOCP*NOQ*NBR*NOCS
-          LATUS=NOP*NOCQ*NOCR*NBS
-          LTAUS=NOCP*NOQ*NOCR*NBS
-          LTUPQ=max(LPQTU,LATRU,LTARU)
-          MEMT=LRUPQ+LURPQ+LTUPQ
-          L2=max(LATUS,LTAUS)
+        NBPQ = NBP*NBQ
+        if (ISP == ISQ) NBPQ = (NBP**2+NBP)/2
+        NBRS = NBR*NBS
+        if (ISR == ISS) NBRS = (NBR**2+NBR)/2
+        NOTU = NOCR*NOCS
+        if (ISR == ISS) NOTU = (NOCR**2+NOCR)/2
 
-          LRUPQM=NBR*NOCS
-          If(LRUPQM.ne.0)LRUPQM=max(NBR*NOCS,NBPQ)
-          LURPQM=NBS*NOCR
-          If(LURPQM.ne.0)LURPQM=max(NBS*NOCR,NBPQ)
-          LTUPQM=MAX(NOTU,NOCQ*NOCS*NOP,NOCP*NOCS*NOQ)
-          If(LTUPQM.ne.0)  LTUPQM=max(LTUPQM,NBPQ,NBR*NOP,NBR*NOQ)
-          L2M=MAX(NOCQ*NOCR*NOP,NOCP*NOCR*NOQ)
-          If(L2M.ne.0)L2M=max(NOP*NBS,NOQ*NBS)
+        if (IFTEST) then
+          write(6,'(1X,4I2,2X,4I4,2X,4I4,2X,4I4)') NSP,NSQ,NSR,NSS,NBP,NBQ,NBR,NBS,NOP,NOQ,NOR,NOS,NOCP,NOCQ,NOCR,NOCS
+        end if
 
-          IF(MEMT.GT.MEMLFT.OR.L2.GT.MEMLFT-LURPQ) THEN
-!           LRUPQ=INT((1.0D0*MEMLFT*LRUPQ+MEMT-1)/MEMT)
-!           LURPQ=INT((1.0D0*MEMLFT*LURPQ+MEMT-1)/MEMT)
-            NX=MEMLFT/(LRUPQM+LURPQM+LTUPQM)
-            iiPart=1
-            if(iPart.gt.0) then
-            iiPart=iPart
-            endif
-            LRUPQ=NX*LRUPQM*iiPart
-            LURPQ=NX*LURPQM*iiPart
-          ENDIF
-          LTUPQ=MAX(0,MEMLFT-LRUPQ-LURPQ)
-!          print *,'LRUPQ=',LRUPQ
-!          print *,'LURPQ=',LURPQ
-!          print *,'LTUPQ=',LTUPQ
+        !JHsta
+        Mxx1 = max(lBuf,NOP*NBQ,NBP*NOCQ,NOCP*NBQ)
+        Mxx2 = max(NBR*NBS,NBP*NBQ,NOP*NOR,NOP*NOS,NOQ*NOR,NOQ*NOS)
+        Mxx3 = max(NOCR*NBS,NBR*NOCS)
+        LW2 = LW1+Mxx1
+        LW3 = LW2+Mxx2
+        LW4 = LW3+Mxx3
+        LRUPQ = NBP*NBQ*NBR*NOCS
+        LURPQ = NBP*NBQ*NOCR*NBS
+        MEMLFT = MEMX-LW4+LW1
+        ! I.E. MEMLFT = MEMX-MXX1-MXX2-MXX3, possibly negative...
+        LPQTU = NBP*NBQ*NOCR*NOCS
+        LATRU = NOP*NOCQ*NBR*NOCS
+        LTARU = NOCP*NOQ*NBR*NOCS
+        LATUS = NOP*NOCQ*NOCR*NBS
+        LTAUS = NOCP*NOQ*NOCR*NBS
+        LTUPQ = max(LPQTU,LATRU,LTARU)
+        MEMT = LRUPQ+LURPQ+LTUPQ
+        L2 = max(LATUS,LTAUS)
 
-          IF(LRUPQ.LT.LRUPQM) GO TO 902
-          IF(LURPQ.LT.LURPQM) GO TO 902
-          IF(LTUPQ.LT.LTUPQM) GO TO 902
-          IF(LRUPQ+LTUPQ.LT.L2M) GO TO 902
-          LW5=LW4+LURPQ
-          LW6=LW5+LRUPQ
+        LRUPQM = NBR*NOCS
+        if (LRUPQM /= 0) LRUPQM = max(NBR*NOCS,NBPQ)
+        LURPQM = NBS*NOCR
+        if (LURPQM /= 0) LURPQM = max(NBS*NOCR,NBPQ)
+        LTUPQM = max(NOTU,NOCQ*NOCS*NOP,NOCP*NOCS*NOQ)
+        if (LTUPQM /= 0) LTUPQM = max(LTUPQM,NBPQ,NBR*NOP,NBR*NOQ)
+        L2M = max(NOCQ*NOCR*NOP,NOCP*NOCR*NOQ)
+        if (L2M /= 0) L2M = max(NOP*NBS,NOQ*NBS)
 
-          If(.not.iSquar)then
-! Keep addresses LW2, LW3, LW4, and save LTUPQ (in common /TRAFO/),
-! for use in the calls to tr2Sq or to tr2NsA.
-           LTUPQX=LTUPQ
+        if ((MEMT > MEMLFT) .or. (L2 > MEMLFT-LURPQ)) then
+          !LRUPQ = INT((1.0D0*MEMLFT*LRUPQ+MEMT-1)/MEMT)
+          !LURPQ = INT((1.0D0*MEMLFT*LURPQ+MEMT-1)/MEMT)
+          NX = MEMLFT/(LRUPQM+LURPQM+LTUPQM)
+          iiPart = 1
+          if (iPart > 0) then
+            iiPart = iPart
+          end if
+          LRUPQ = NX*LRUPQM*iiPart
+          LURPQ = NX*LURPQM*iiPart
+        end if
+        LTUPQ = max(0,MEMLFT-LRUPQ-LURPQ)
+        !write(6,*) 'LRUPQ=',LRUPQ
+        !write(6,*) 'LURPQ=',LURPQ
+        !write(6,*) 'LTUPQ=',LTUPQ
 
-! Recompute memory requirements, now for the tr2NsB call.
-           Mxx1=max(lBuf,NBP*NOCQ,NBR*NOS,NOR*NBS)
-           Mxx2=max(NBP*NBQ,NBR*NBS)
-! LPQRS, MEMT integers, changed to Re*8. Defined and used in the
-! following section only. Named XLPQRS, XMEMT, +small local changes.
-           XLPQRS=DBLE(NBRS)
-           XLPQRS=XLPQRS*DBLE(NBP*NBQ)
-           LTURS=NOCP*NOCQ*NBR*NBS
-! Mxx1 words needed...
-           LW2B=LW1+Mxx1
-! Another Mxx2 words needed...
-           LW3B=LW2B+Mxx2
-! The next line can also be written ''MEMLFT = MEMX-MXX1-MXX2''
-! This could possibly be small or negative.
-           MEMLFT=MAX(0,MEMX-LW3+LW1)
-           XMEMT=XLPQRS+DBLE(LTURS)
-! XMEMT is NBRS*NBP*NBQ + NOCP*NOCQ*NBR*NBS
-           IF(XMEMT.GT.DBLE(MEMLFT)) THEN
-            LPQRS=INT((DBLE(MEMLFT)*XLPQRS)/XMEMT+0.5d0)
-           ELSE
-            LPQRS=INT(XLPQRS)
-           ENDIF
-! XLPQRS, XMEMT not used after this.
-           LRSmx=LPQRS/NBPQ
-           If(LRSmx.gt.NBRS)LRSmx=NBRS
-           Nread=NBRS/LRSmx
-           Nrest=mod(NBRS,LRSmx)
-           If(Nrest.ne.0)Nread=Nread+1
-           LRS=NBRS/Nread
-           Nrest=mod(NBRS,Nread)
-           If(Nrest.ne.0)LRS=LRS+1
-           LPQRS=LRS*NBPQ
-           MaxRS=LRS
-           LTURS=MEMLFT-LPQRS
-           IF(LPQRS.LT.NBPQ) GO TO 903
-           LTURSM=NOCP*NOCQ
-           If(LTURSM.ne.0) LTURSM=max(LTURSM,NBRS)
-           IF(LTURS.LT.LTURSM) GO TO 903
-           LW4B=LW3B+LPQRS
-           LTUPQ=LTURS
-          Endif
-          If (iSquar)then
-!            TR2Sq(CMO,X1,X2,X3,URPQ,RUPQ,TUPQ,lBuf)
-             Call tr2Sq(Work(LCMO),                                     &
-     &                  W1(LW1),                                        &
-     &                  W1(LW2),                                        &
-     &                  W1(LW3),                                        &
-     &                  W1(LW4),                                        &
-     &                  W1(LW5),                                        &
-     &                  W1(LW6),lBuf)
-          Else
-!            tr2NsA(CMO,X1,X2,X3,pqUs,pqrU,pqTU,lBuf)
-!          LW2=LW1+Mxx1
-!          LW3=LW2+Mxx2
-!          LW4=LW3+Mxx3
-!          LW5=LW4+LURPQ
-!          LW6=LW5+LRUPQ
+        if (LRUPQ < LRUPQM) GO TO 902
+        if (LURPQ < LURPQM) GO TO 902
+        if (LTUPQ < LTUPQM) GO TO 902
+        if (LRUPQ+LTUPQ < L2M) GO TO 902
+        LW5 = LW4+LURPQ
+        LW6 = LW5+LRUPQ
 
-           If (IFTEST) then
+        if (.not. iSquar) then
+          ! Keep addresses LW2, LW3, LW4, and save LTUPQ (in common /TRAFO/),
+          ! for use in the calls to tr2Sq or to tr2NsA.
+          LTUPQX = LTUPQ
+
+          ! Recompute memory requirements, now for the tr2NsB call.
+          Mxx1 = max(lBuf,NBP*NOCQ,NBR*NOS,NOR*NBS)
+          Mxx2 = max(NBP*NBQ,NBR*NBS)
+          ! LPQRS, MEMT integers, changed to Re*8. Defined and used in the
+          ! following section only. Named XLPQRS, XMEMT, +small local changes.
+          XLPQRS = dble(NBRS)
+          XLPQRS = XLPQRS*dble(NBP*NBQ)
+          LTURS = NOCP*NOCQ*NBR*NBS
+          ! Mxx1 words needed...
+          LW2B = LW1+Mxx1
+          ! Another Mxx2 words needed...
+          LW3B = LW2B+Mxx2
+          ! The next line can also be written ''MEMLFT = MEMX-MXX1-MXX2''
+          ! This could possibly be small or negative.
+          MEMLFT = max(0,MEMX-LW3+LW1)
+          XMEMT = XLPQRS+dble(LTURS)
+          ! XMEMT is NBRS*NBP*NBQ + NOCP*NOCQ*NBR*NBS
+          if (XMEMT > dble(MEMLFT)) then
+            LPQRS = int((dble(MEMLFT)*XLPQRS)/XMEMT+0.5d0)
+          else
+            LPQRS = int(XLPQRS)
+          end if
+          ! XLPQRS, XMEMT not used after this.
+          LRSmx = LPQRS/NBPQ
+          if (LRSmx > NBRS) LRSmx = NBRS
+          Nread = NBRS/LRSmx
+          Nrest = mod(NBRS,LRSmx)
+          if (Nrest /= 0) Nread = Nread+1
+          LRS = NBRS/Nread
+          Nrest = mod(NBRS,Nread)
+          if (Nrest /= 0) LRS = LRS+1
+          LPQRS = LRS*NBPQ
+          MaxRS = LRS
+          LTURS = MEMLFT-LPQRS
+          if (LPQRS < NBPQ) GO TO 903
+          LTURSM = NOCP*NOCQ
+          if (LTURSM /= 0) LTURSM = max(LTURSM,NBRS)
+          if (LTURS < LTURSM) GO TO 903
+          LW4B = LW3B+LPQRS
+          LTUPQ = LTURS
+        end if
+        if (iSquar) then
+          ! TR2Sq(CMO,X1,X2,X3,URPQ,RUPQ,TUPQ,lBuf)
+          call tr2Sq(Work(LCMO),W1(LW1),W1(LW2),W1(LW3),W1(LW4),W1(LW5),W1(LW6),lBuf)
+        else
+          ! tr2NsA(CMO,X1,X2,X3,pqUs,pqrU,pqTU,lBuf)
+          !LW2 = LW1+Mxx1
+          !LW3 = LW2+Mxx2
+          !LW4 = LW3+Mxx3
+          !LW5 = LW4+LURPQ
+          !LW6 = LW5+LRUPQ
+
+          if (IFTEST) then
             write(6,*) 'Calling tr2Nsa'
             write(6,*) 'MEMX=',MEMX
             write(6,*) 'lLW1=',LW2-LW1
@@ -378,87 +367,63 @@
             write(6,*) 'lLW5=',LW6-LW5
             write(6,*) 'lLW6=',MEMX-(LW6-LW1)
             write(6,*)
-           End If
+          end if
 
-             LTUPQ=LTUPQX
-             Call tr2NsA1(Work(LCMO),                                   &
-     &                   W1(LW1),LW2-LW1,                               &
-     &                   W1(LW2),LW3-LW2,                               &
-     &                   W1(LW3),LW4-LW3,                               &
-     &                   W1(LW4),LW5-LW4,                               &
-     &                   W1(LW5),LW6-LW5,                               &
-     &                   W1(LW6),MEMX-(LW6-LW1),lBuf)
-             Call tr2NsA2(Work(LCMO),                                   &
-     &                   W1(LW1),LW2-LW1,                               &
-     &                   W1(LW2),LW3-LW2,                               &
-     &                   W1(LW5),LW6-LW5,                               &
-     &                   W1(LW6),MEMX-(LW6-LW1))
-             Call tr2NsA3(Work(LCMO),                                   &
-     &                   W1(LW1),LW2-LW1,                               &
-     &                   W1(LW2),LW3-LW2,                               &
-     &                   W1(LW4),LW5-LW4,                               &
-     &                   W1(LW5),MEMX-(LW5-LW1))
-!            tr2NsB(CMO,X1,X2,pqrs,TUrs,lBuf,MAXRS)
-             LTUPQ=LTURS
-             Call tr2NsB(Work(LCMO),                                    &
-     &                   W1(LW1),                                       &
-     &                   W1(LW2B),                                      &
-     &                   W1(LW3B),                                      &
-     &                   W1(LW4B),lBuf,MaxRS)
-          End If
-  101     CONTINUE
-         END DO
-        END DO
-       END DO
-      END DO
-      If ( IFTEST ) then
-       Write(6,*)                                                       &
-     & ' --------------------------------------------------------------'
-      End If
-      Call mma_deallocate(W1)
-!
-!     FINALLY WRITE OUT THE DAFILE ADDRESS LIST ON UNIT 13
-!
-      IAD13=0
-      CALL iDAFILE(LUINTM,1,IAD2M,LIADUT,IAD13)
-!
+          LTUPQ = LTUPQX
+          call tr2NsA1(Work(LCMO),W1(LW1),LW2-LW1,W1(LW2),LW3-LW2,W1(LW3),LW4-LW3,W1(LW4),LW5-LW4,W1(LW5),LW6-LW5,W1(LW6), &
+                       MEMX-(LW6-LW1),lBuf)
+          call tr2NsA2(Work(LCMO),W1(LW1),LW2-LW1,W1(LW2),LW3-LW2,W1(LW5),LW6-LW5,W1(LW6),MEMX-(LW6-LW1))
+          call tr2NsA3(Work(LCMO),W1(LW1),LW2-LW1,W1(LW2),LW3-LW2,W1(LW4),LW5-LW4,W1(LW5),MEMX-(LW5-LW1))
+          LTUPQ = LTURS
+          ! tr2NsB(CMO,X1,X2,pqrs,TUrs,lBuf,MAXRS)
+          call tr2NsB(Work(LCMO),W1(LW1),W1(LW2B),W1(LW3B),W1(LW4B),lBuf,MaxRS)
+        end if
+101     continue
+      end do
+    end do
+  end do
+end do
+if (IFTEST) then
+  write(6,*) ' --------------------------------------------------------------'
+end if
+call mma_deallocate(W1)
+
+! FINALLY WRITE OUT THE DAFILE ADDRESS LIST ON UNIT 13
+
+IAD13 = 0
+call iDAFILE(LUINTM,1,IAD2M,LIADUT,IAD13)
+
 !PAM01 Also transform 1-electron integrals, and put CMOs on LUONEM.
-!PAM01      CALL TRAONE(WORK(LCMO),KEEP)
+!PAM01 call TRAONE(WORK(LCMO),KEEP)
 
-      RETURN
-!
-!     HERE IF INTERPHASE FROM SORT IN ERROR
-!
-  901 CONTINUE
-      WRITE(6,'(/5X,A,8I6)')                                            &
-     & 'ERROR IN KEEP PARAMETER FROM INTSORT FILE:  ',(KEEP(I),I=1,NSYM)
-      WRITE(6,'(/5X,A,8I6)')                                            &
-     & 'NOT CONSISTENT WITH OCCUPIED ORBITAL SPACE: ',(NOSH(I),I=1,NSYM)
-      WRITE(6,'(/5X,A)') 'PROGRAM STOP IN SUBROUTINE TRACTL'
-      GOTO 999
-!
-!     HERE IF NOT ENOUGH CORE SPACE
-!
-  902 CONTINUE
-      WRITE(6,'(/1X,A)')'NOT ENOUGH CORE SPACE FOR SORTING IN TRA2'
-      WRITE(6,'(/1X,A,I12)')'TOTAL SORTING SPACE IS',MEMLFT
-      WRITE(6,'(/1X,A,I12,A,I12)')'STEP1: AVAILABLE IS',LRUPQ,          &
-     &                                    '  NEEDED IS',LRUPQM
-      WRITE(6,'(/1X,A,I12,A,I12)')'STEP2:    ''''         ',            &
-     &                               LTUPQ,'  NEEDED IS',LTUPQM
-      WRITE(6,'(/1X,A,I12,A,I12)')'STEP3:    ''''         ',            &
-     &                            LRUPQ+LTUPQ,'  NEEDED IS',L2M
-      GOTO 999
+return
 
-  903 CONTINUE
-      WRITE(6,'(/1X,A)')'NOT ENOUGH CORE SPACE FOR SORTING IN TRATWO2'
-      WRITE(6,'(/1X,A,I12)')'TOTAL SORTING SPACE IS',MEMLFT
-      WRITE(6,'(/1X,A,I12,A,I12)')'STEP1: AVAILABLE IS',LPQRS,          &
-     &                                    '  NEEDED IS',NBPQ
-      WRITE(6,'(/1X,A,I12,A,I12)')'STEP1:     ''''        ',LTURS,      &
-     &                                    '   ''''        ',LTURSM
-      GOTO 999
+! HERE IF INTERPHASE FROM SORT IN ERROR
 
- 999  CONTINUE
-      CALL Abend
-      END
+901 continue
+write(6,'(/5X,A,8I6)') 'ERROR IN KEEP PARAMETER FROM INTSORT FILE:  ',(KEEP(I),I=1,NSYM)
+write(6,'(/5X,A,8I6)') 'NOT CONSISTENT WITH OCCUPIED ORBITAL SPACE: ',(NOSH(I),I=1,NSYM)
+write(6,'(/5X,A)') 'PROGRAM STOP IN SUBROUTINE TRACTL'
+goto 999
+
+! HERE IF NOT ENOUGH CORE SPACE
+
+902 continue
+write(6,'(/1X,A)') 'NOT ENOUGH CORE SPACE FOR SORTING IN TRA2'
+write(6,'(/1X,A,I12)') 'TOTAL SORTING SPACE IS',MEMLFT
+write(6,'(/1X,A,I12,A,I12)') 'STEP1: AVAILABLE IS',LRUPQ,'  NEEDED IS',LRUPQM
+write(6,'(/1X,A,I12,A,I12)') 'STEP2:    ''''         ',LTUPQ,'  NEEDED IS',LTUPQM
+write(6,'(/1X,A,I12,A,I12)') 'STEP3:    ''''         ',LRUPQ+LTUPQ,'  NEEDED IS',L2M
+goto 999
+
+903 continue
+write(6,'(/1X,A)') 'NOT ENOUGH CORE SPACE FOR SORTING IN TRATWO2'
+write(6,'(/1X,A,I12)') 'TOTAL SORTING SPACE IS',MEMLFT
+write(6,'(/1X,A,I12,A,I12)') 'STEP1: AVAILABLE IS',LPQRS,'  NEEDED IS',NBPQ
+write(6,'(/1X,A,I12,A,I12)') 'STEP1:     ''''        ',LTURS,'   ''''        ',LTURSM
+goto 999
+
+999 continue
+call Abend
+
+end subroutine TRACTL

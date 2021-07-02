@@ -16,13 +16,14 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE COUL(ISYP,ISYQ,ISYI,ISYJ,II,IJ,ERI,SCR)
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "standard_iounits.fh"
-      DIMENSION ERI(*), SCR(*)
-      LOGICAL TRANSP
-      LOGICAL TRIANG
 
+subroutine COUL(ISYP,ISYQ,ISYI,ISYJ,II,IJ,ERI,SCR)
+
+implicit real*8(A-H,O-Z)
+#include "standard_iounits.fh"
+dimension ERI(*), SCR(*)
+logical TRANSP
+logical TRIANG
 #include "intgrl.fh"
 #include "SysDef.fh"
 
@@ -30,69 +31,70 @@
 ! IP=1..NORB(ISYP), IQ=1..NORB(ISYQ),1<=II<=NOSH(ISYI),
 ! 1<=IJ<=NOSH(ISYJ). Normal Fortran storage order.
 
-      NDIM2M=(NSYMZ*(NSYMZ+1))/2
-        TRANSP=.false.
-        TRIANG=.false.
-      IF(ISYP.GE.ISYQ) THEN
-        ISY1=ISYP
-        ISY2=ISYQ
-        TRANSP=.true.
-!        TYPE='TRANSPOS'
-        IF(ISYP.EQ.ISYQ) then
-        TRIANG=.true.
-        endif
-!        IF(ISYP.EQ.ISYQ) TYPE='TRIANGUL'
-      ELSE
-        ISY1=ISYQ
-        ISY2=ISYP
-!        TYPE='NORMAL  '
-      END IF
-      IF(ISYI.GE.ISYJ) THEN
-        ISY3=ISYI
-        ISY4=ISYJ
-        I3=II
-        I4=IJ
-        IF(ISYI.EQ.ISYJ .AND. II.LT.IJ) THEN
-          I3=IJ
-          I4=II
-        END IF
-      ELSE
-        ISY3=ISYJ
-        ISY4=ISYI
-        I3=IJ
-        I4=II
-      END IF
+NDIM2M = (NSYMZ*(NSYMZ+1))/2
+TRANSP = .false.
+TRIANG = .false.
+if (ISYP >= ISYQ) then
+  ISY1 = ISYP
+  ISY2 = ISYQ
+  TRANSP = .true.
+  !TYPE = 'TRANSPOS'
+  if (ISYP == ISYQ) then
+    TRIANG = .true.
+  end if
+  !if (ISYP == ISYQ) TYPE = 'TRIANGUL'
+else
+  ISY1 = ISYQ
+  ISY2 = ISYP
+  !TYPE = 'NORMAL  '
+end if
+if (ISYI >= ISYJ) then
+  ISY3 = ISYI
+  ISY4 = ISYJ
+  I3 = II
+  I4 = IJ
+  if ((ISYI == ISYJ) .and. (II < IJ)) then
+    I3 = IJ
+    I4 = II
+  end if
+else
+  ISY3 = ISYJ
+  ISY4 = ISYI
+  I3 = IJ
+  I4 = II
+end if
 
 ! Disk address to symmetry block:
-      IS12=(ISY1*(ISY1-1))/2+ISY2
-      IS34=(ISY3*(ISY3-1))/2+ISY4
-      IDISK=IAD2M(1,IS12+NDIM2M*(IS34-1))
+IS12 = (ISY1*(ISY1-1))/2+ISY2
+IS34 = (ISY3*(ISY3-1))/2+ISY4
+IDISK = IAD2M(1,IS12+NDIM2M*(IS34-1))
 
 ! Record number, in symmetry block:
-      I34=I4+NOSHZ(ISY4)*(I3-1)
-      IF(ISY3.EQ.ISY4) I34=(I3*(I3-1))/2+I4
+I34 = I4+NOSHZ(ISY4)*(I3-1)
+if (ISY3 == ISY4) I34 = (I3*(I3-1))/2+I4
 
 ! Buffer sizes:
-      NO1=NORBZ(ISY1)
-      NO2=NORBZ(ISY2)
-      NBUF=NO1*NO2
-      IF(TRIANG) NBUF=(NBUF+NO1)/2
-      IF(NBUF.EQ.0) RETURN
+NO1 = NORBZ(ISY1)
+NO2 = NORBZ(ISY2)
+NBUF = NO1*NO2
+if (TRIANG) NBUF = (NBUF+NO1)/2
+if (NBUF == 0) return
 
 ! Address update for earlier records, then read:
-      IDISK=IDISK+NBUF*(I34-1)
-!
-      IF(.not.TRANSP) THEN
-        CALL dDAFILE(LUINTMZ,2,ERI,NBUF,IDISK)
-      ELSE
-        CALL dDAFILE(LUINTMZ,2,SCR,NBUF,IDISK)
-!
-        IF(.not.TRIANG) THEN
-          CALL TRNSPS(NO2,NO1,SCR,ERI)
-        ELSE
-          CALL SQUARE(SCR,ERI,NO1,1,NO1)
-        END IF
-      END IF
-!
-      RETURN
-      END
+IDISK = IDISK+NBUF*(I34-1)
+
+if (.not. TRANSP) then
+  call dDAFILE(LUINTMZ,2,ERI,NBUF,IDISK)
+else
+  call dDAFILE(LUINTMZ,2,SCR,NBUF,IDISK)
+
+  if (.not. TRIANG) then
+    call TRNSPS(NO2,NO1,SCR,ERI)
+  else
+    call SQUARE(SCR,ERI,NO1,1,NO1)
+  end if
+end if
+
+return
+
+end subroutine COUL

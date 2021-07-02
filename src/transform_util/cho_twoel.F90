@@ -31,8 +31,8 @@
 !> @param[in]     iSymI,iSymJ,iSymA,iSymB Symmetry block of the two-electrons integrals
 !> @param[in]     iSymL                   Symmetry of the Cholesky vector
 !***********************************************************************
-      Subroutine Cho_TwoEl(iBatch,nBatch,numV, LUINTM,iAddrIAD2M,       &
-     &                                   iSymI,iSymJ,iSymA,iSymB, iSymL)
+
+subroutine Cho_TwoEl(iBatch,nBatch,numV,LUINTM,iAddrIAD2M,iSymI,iSymJ,iSymA,iSymB,iSymL)
 !***********************************************************************
 ! Author :  Giovanni Ghigo                                             *
 !           Lund University, Sweden                                    *
@@ -44,10 +44,10 @@
 ! A,B are MO indices, counting only non-frozen and non-deleted.        *
 ! I,J are occupied MO indices, only non-frozen and non-deleted.        *
 ! (AB/IJ) ARE ALWAYS GENERATED                                         *
-! (AI/BJ) IF ISP.GE.ISR                                                *
-! (AI/JB) IF ISP.GT.ISS AND ISP.NE.ISQ                                 *
-! (IA/BJ) IF ISQ.GT.ISR AND ISP.NE.ISQ                                 *
-! (IA/JB) IF ISQ.GE.ISS AND ISP.NE.ISQ                                 *
+! (AI/BJ) IF ISP >= ISR                                                *
+! (AI/JB) IF ISP > ISS AND ISP /= ISQ                                  *
+! (IA/BJ) IF ISQ > ISR AND ISP /= ISQ                                  *
+! (IA/JB) IF ISQ >= ISS AND ISP /= ISQ                                 *
 !                                                                      *
 !   IAD2M CONTAINS START ADRESS FOR EACH TYPE OF INTEGRALS:            *
 !    IAD2M(1,ISPQRS)   COULOMB INTEGRALS <AB|IJ>                       *
@@ -56,260 +56,243 @@
 !   THE LAST ADRESS IS ZERO IF iSymI = iSymJ                           *
 !                                                                      *
 !***********************************************************************
-      use Cho_Tra
-      Implicit Real*8 (a-h,o-z)
-      Implicit Integer (i-n)
+
+use Cho_Tra
+
+implicit real*8(a-h,o-z)
+implicit integer(i-n)
 #include "rasdim.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
+real*8, allocatable :: AddCou(:), AddEx1(:)
+real*8, allocatable :: AddEx2(:), AddEx2t(:)
 
-      Real*8, Allocatable:: AddCou(:), AddEx1(:)
-      Real*8, Allocatable:: AddEx2(:), AddEx2t(:)
+nSymP = (nSym**2+nSym)/2
+call LenInt(iSymI,iSymJ,iSymA,iSymB,nN_IJ,nN_AB,nN_Ex1,nN_Ex2)
+!-----------------------------------------------------------------------
+if (IfTest) then
+  write(6,*)
+  write(6,'(A,4I3,A,I8,A,I9,A,I9)') '    * [CGG:Cho_TwoEl]: SYMMETRY BLOCK < A B | I J >',iSymA,iSymB,iSymI,iSymJ,': nN_AB=', &
+                                    nN_AB,', nN_Ex1=',nN_Ex1,', nN_Ex2=',nN_Ex2
+  if (nN_IJ*(nN_AB+nN_Ex1+nN_Ex2) == 0) write(6,*) '                      Nothing to do!'
+  call XFlush(6)
+end if
+!-----------------------------------------------------------------------
+if (nN_IJ*(nN_AB+nN_Ex1+nN_Ex2) > 0) then
+  iIJAB = ((iSymI**2-iSymI)/2+iSymJ-1)*nSymP+(iSymA**2-iSymA)/2+iSymB
 
-      nSymP=(nSym**2+nSym)/2
-      Call LenInt(iSymI,iSymJ,iSymA,iSymB,nN_IJ,nN_AB,nN_Ex1,nN_Ex2)
-!GG   ------------------------------------------------------------------
-      If(IfTest) then
-      Write(6,*)
-      Write(6,'(A,4I3,A,I8,A,I9,A,I9)')                                 &
-     &'    * [CGG:Cho_TwoEl]: SYMMETRY BLOCK < A B | I J >',iSymA,iSymB,&
-     &iSymI,iSymJ,': nN_AB=',nN_AB,', nN_Ex1=',nN_Ex1,', nN_Ex2=',nN_Ex2
-      If(nN_IJ*(nN_AB+nN_Ex1+nN_Ex2).EQ.0)                              &
-     &Write(6,*)'                      Nothing to do!'
-      Call XFlush(6)
-      EndIf
-!GG   ------------------------------------------------------------------
-      If (nN_IJ*(nN_AB+nN_Ex1+nN_Ex2).GT.0) then                  ! If !
-        iIJAB = ( (iSymI**2-iSymI)/2 + iSymJ-1 ) * nSymP +              &
-     &                 (iSymA**2-iSymA)/2 + iSymB
+  !**** START GENERATION of COULOMB INTEGRALS **************************
+  if (DoCoul .and. (nN_AB > 0)) then
+    !call Def_SubBlockC(iSymA,iSymB)
+    call Def_SubBlockE(iSymA,iSymB)
+    !-------------------------------------------------------------------
+    if (IfTest) then
+      write(6,*)
+      write(6,*) '    Generation of Coulomb Integrals'
+      write(6,*) '       Available TCVx for Cou: '
+      do iType=1,6
+        if (TCVXist(iType,iSymA,iSymI)) write(6,*) '       -TCV x=',iType,' Sym=',iSymA,iSymI
+        if (TCVXist(iType,iSymB,iSymJ) .and. (iSymA /= iSymB)) write(6,*) '       -TCV x=',iType,' Sym=',iSymB,iSymJ
+      end do
+      write(6,*)
+      write(6,*) '       SubBlocks to create for Cou: '
+      do i=1,3
+        do j=1,3
+          if (SubBlocks(i,j)) write(6,*) '       -SB(',i,',',j,')'
+        end do
+      end do
+      call XFlush(6)
+    end if
+    !-------------------------------------------------------------------
+    if (iBatch == 1) then
+      IAD2M(1,iIJAB) = iAddrIAD2M
+    else
+      iAddrIAD2M = IAD2M(1,iIJAB)
+    end if
+    ! Start Loop on i, j
+    iAddrIAD2Mij = iAddrIAD2M
+    do iI=1,nOsh(iSymI)
+      if (iSymI == iSymJ) then
+        iEndJ = iI
+      else
+        iEndJ = nOsh(iSymJ)
+      end if
+      do iJ=1,iEndJ
+        !---------------------------------------------------------------
+        if (IfTest) then
+          write(6,*)
+          write(6,*) '   Coulomb Integrals for |ij> pair',iI,iJ,'  iAddrIAD2Mij=',iAddrIAD2Mij
+          call XFlush(6)
+        end if
+        !---------------------------------------------------------------
+        call mma_allocate(AddCou,nN_AB,Label='AddCou')
+        if (iBatch > 1) then
+          call dDaFile(LUINTM,2,AddCou,nN_AB,iAddrIAD2Mij)
+          ! Reload Int
+          iAddrIAD2Mij = iAddrIAD2Mij-nN_AB
+        else
+          AddCou(:) = 0.0d0
+        end if
+        call Cho_GenC(iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddCou,nN_AB,nN_Ex1)
+        call GAdSum(AddCou,nN_AB)
+        call dDaFile(LUINTM,1,AddCou,nN_AB,iAddrIAD2Mij)
+        call mma_deallocate(AddCou)
+      end do
+    end do
+    ! End Loop on i, j
+    iAddrIAD2M = iAddrIAD2Mij ! Last written+1 in iAddrIAD2M
+  end if
+  !**** END GENERATION of COULOMB INTEGRALS ****************************
 
-!  ***  START GENERATION of COULOMB INTEGRALS  *************************
-        IF (DoCoul .and. nN_AB.GT.0) THEN
-!          Call Def_SubBlockC(iSymA,iSymB)
-          Call Def_SubBlockE(iSymA,iSymB)
-!GG   ------------------------------------------------------------------
-      If(IfTest) then
-      Write(6,*)
-      Write(6,*) '    Generation of Coulomb Integrals'
-      Call XFlush(6)
-      Write(6,*)'       Available TCVx for Cou: '
-      Do iType=1,6
-      If(TCVXist(iType,iSymA,iSymI))                                    &
-     &Write(6,*)'       -TCV x=',iType,' Sym=',iSymA,iSymI
-      If(TCVXist(iType,iSymB,iSymJ) .and. iSymA.NE.iSymB)               &
-     &Write(6,*)'       -TCV x=',iType,' Sym=',iSymB,iSymJ
-      EndDo
-      Write(6,*)
-      Write(6,*)'       SubBlocks to create for Cou: '
-      Do i = 1, 3
-      Do j = 1, 3
-      If(SubBlocks(i,j)) Write(6,*) '       -SB(',i,',',j,')'
-      EndDo
-      EndDo
-      Call XFlush(6)
-      EndIf
-!GG   ------------------------------------------------------------------
-          If (iBatch.EQ.1) then
-            IAD2M(1,iIJAB)=iAddrIAD2M
-          else
-            iAddrIAD2M=IAD2M(1,iIJAB)
-          EndIf
-!   ---   Start Loop on i, j
-          iAddrIAD2Mij=iAddrIAD2M
-          Do iI=1,nOsh(iSymI)
-            If(iSymI.EQ.iSymJ) then
-              iEndJ=iI
-            else
-              iEndJ=nOsh(iSymJ)
-            EndIf
-            Do iJ=1,iEndJ
-!GG   ------------------------------------------------------------------
-      If(IfTest) then
-      Write(6,*)
-      Write(6,*) '   Coulomb Integrals for |ij> pair',                  &
-     &  iI,iJ,'  iAddrIAD2Mij=',iAddrIAD2Mij
-      Call XFlush(6)
-      EndIf
-!GG   ------------------------------------------------------------------
-              Call mma_allocate(AddCou,nN_AB,Label='AddCou')
-              If (iBatch.GT.1) then
-                Call dDaFile(LUINTM,2,AddCou,nN_AB,iAddrIAD2Mij)
-                ! Reload Int
-                iAddrIAD2Mij=iAddrIAD2Mij-nN_AB
-              else
-                AddCou(:)=0.0d0
-              EndIf
-              Call Cho_GenC(iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV,       &
-     &                      AddCou,nN_AB, nN_Ex1 )
-              Call GAdSum(AddCou,nN_AB)
-              Call dDaFile(LUINTM,1,AddCou,nN_AB,iAddrIAD2Mij)
-              Call mma_deallocate(AddCou)
-            EndDo
-          EndDo
-!   ---   End Loop on i, j
-          iAddrIAD2M=iAddrIAD2Mij ! Last written+1 in iAddrIAD2M
-        ENDIF
-!  ***  END GENERATION of COULOMB INTEGRALS  ***************************
+  !**** START GENERATION of EXCHANGE-1 INTEGRALS ***********************
+  if (nN_Ex1 > 0) then
+    call Def_SubBlockE(iSymA,iSymB)
+    !-------------------------------------------------------------------
+    !If(IfTest) then
+    !  write(6,*)
+    !  write(6,*) '    Generation of Exchange-1 Integrals'
+    !  write(6,*) '       Available TCVx for Ex-1: '
+    !  do iType=1,MxTCVx
+    !    if (TCVXist(iType,iSymA,iSymI)) write(6,*) '       -TCV x=',iType,' Sym=',iSymA,iSymI
+    !    if (TCVXist(iType,iSymB,iSymJ) .and. (iSymA /= iSymB)) write(6,*) '       -TCV x=',iType,' Sym=',iSymB,iSymJ
+    !  end do
+    !  write(6,*)
+    !  write(6,*) '       SubBlocks to create for Ex-1: '
+    !  do i=1,3
+    !    do j=1,3
+    !      if (SubBlocks(i,j)) write(6,*) '       -SB(',i,',',j,')'
+    !    end do
+    !  end do
+    !  call XFlush(6)
+    !end if
+    !-------------------------------------------------------------------
+    if (iBatch == 1) then
+      IAD2M(2,iIJAB) = iAddrIAD2M
+    else
+      iAddrIAD2M = IAD2M(2,iIJAB)
+    end if
+    ! Start Loop on i, j
+    iAddrIAD2Mij = iAddrIAD2M
+    do iI=1,nOsh(iSymI)
+      if (iSymI == iSymJ) then
+        iEndJ = iI
+      else
+        iEndJ = nOsh(iSymJ)
+      end if
+      do iJ=1,iEndJ
+        !---------------------------------------------------------------
+        !if (IfTest) then
+        !  write(6,*)
+        !  write(6,*) '   Excha-1 Integrals for |ij> pair',iI,iJ,'  iAddrIAD2Mij=',iAddrIAD2Mij,'   #'
+        !  call XFlush(6)
+        !end if
+        !---------------------------------------------------------------
+        call mma_allocate(AddEx1,nN_Ex1,Label='AddEx1')
+        if (iBatch > 1) then
+          ! Reload Int
+          call dDaFile(LUINTM,2,AddEx1,nN_Ex1,iAddrIAD2Mij)
+          iAddrIAD2Mij = iAddrIAD2Mij-nN_Ex1
+        else
+          AddEx1(:) = 0.0d0
+        end if
+        call Cho_GenE(iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddEx1,nN_Ex1)
+        call GAdSum(AddEx1,nN_Ex1)
+        call dDaFile(LUINTM,1,AddEx1,nN_Ex1,iAddrIAD2Mij)
+        call mma_deallocate(AddEx1)
+      end do
+    end do
+    ! End Loop on i, j
+    iAddrIAD2M = iAddrIAD2Mij
+  end if
+  !**** END GENERATION of EXCHANGE-1 INTEGRALS *************************
 
+  !**** START GENERATION of EXCHANGE-2 INTEGRALS ***********************
+  if ((nN_Ex2 > 0) .and. DoExc2) then
+    iIJAB = ((iSymI**2-iSymI)/2+iSymJ-1)*nSymP+(iSymB**2-iSymB)/2+iSymA
+    call Def_SubBlockE(iSymA,iSymB)
+    ! ------------------------------------------------------------------
+    !if (IfTest) then
+    !  write(6,*)
+    !  write(6,*) '    Generation of Exchange-2 Integrals'
+    !  write(6,*) '       Available TCVx for Ex-2: '
+    !  do iType=1,MxTCVx
+    !    if (TCVXist(iType,iSymA,iSymI)) write(6,*) '       -TCV x=',iType,' Sym=',iSymA,iSymI
+    !    if (TCVXist(iType,iSymB,iSymJ) .and. (iSymA /= iSymB)) write(6,*) '       -TCV x=',iType,' Sym=',iSymB,iSymJ
+    !  end do
+    !  write(6,*)
+    !  write(6,*) '       SubBlocks to create for Ex-2: '
+    !  do i = 1, 3
+    !    do j = 1, 3
+    !      if (SubBlocks(i,j)) write(6,*) '       -SB(',i,',',j,')'
+    !    end do
+    !  end do
+    !  call XFlush(6)
+    !end if
+    ! ------------------------------------------------------------------
+    if (iBatch == 1) then
+      IAD2M(3,iIJAB) = iAddrIAD2M
+    else
+      iAddrIAD2M = IAD2M(3,iIJAB)
+    end if
+    ! Start Loop on i, j
+    iAddrIAD2Mij = iAddrIAD2M
+    do iI=1,nOsh(iSymI)
+      if (iSymI == iSymJ) then
+        iEndJ = iI
+      else
+        iEndJ = nOsh(iSymJ)
+      end if
+      do iJ=1,iEndJ
+        !---------------------------------------------------------------
+        !if (IfTest) then
+        !  write(6,*)
+        !  write(6,*) '   Excha-2 Integrals for |ij> pair',iI,iJ,'  iAddrIAD2Mij=',iAddrIAD2Mij,'   #'
+        !  call XFlush(6)
+        !end if
+        !---------------------------------------------------------------
+        if (DoTCVA) then
+          nA = nOrb(iSymA)
+          nB = nOrb(iSymB)
+        else
+          nA = nSsh(iSymA)
+          nB = nSsh(iSymB)
+        end if
+        call mma_allocate(AddEx2,nN_Ex2,Label='AddEx2')
+        call mma_allocate(AddEx2t,nN_Ex2,Label='AddEx2t')
+        if (iBatch > 1) then
+          ! Reload Int
+          call dDaFile(LUINTM,2,AddEx2,nN_Ex2,iAddrIAD2Mij)
+          iAddrIAD2Mij = iAddrIAD2Mij-nN_Ex2
+          call Trnsps(nA,nB,AddEx2,AddEx2t)
+        else
+          AddEx2t(:) = 0.0d0
+        end if
+        call Cho_GenE(iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddEx2t,nN_Ex2)
+        call Trnsps(nB,nA,AddEx2t,AddEx2)
+        !---------------------------------------------------------------
+        !if (IfTest) then
+        !  write(6,*) '    Integrals from Production code:'
+        !  write(6,'(8F10.6)') (AddEx2(i),i=1,nN_Ex2)
+        !  call XFlush(6)
+        !end if
+        !---------------------------------------------------------------
+        call GAdSum(AddEx2,nN_Ex2)
+        call dDaFile(LUINTM,1,AddEx2,nN_Ex2,iAddrIAD2Mij)
+        call mma_deallocate(AddEx2t)
+        call mma_deallocate(AddEx2)
+      end do
+    end do
+    ! End Loop on i, j
+    iAddrIAD2M = iAddrIAD2Mij
+  end if
+  !**** END GENERATION of EXCHANGE-2 INTEGRALS *************************
+end if
 
-!  ***  START GENERATION of EXCHANGE-1 INTEGRALS  **********************
-        IF (nN_Ex1.GT.0) THEN
-          Call Def_SubBlockE(iSymA,iSymB)
-!GG   ------------------------------------------------------------------
-!      If(IfTest) then
-!      Write(6,*)
-!      Write(6,*) '    Generation of Exchange-1 Integrals'
-!      Write(6,*)'       Available TCVx for Ex-1: '
-!      Do iType=1,MxTCVx
-!      If(TCVXist(iType,iSymA,iSymI))
-!     &Write(6,*)'       -TCV x=',iType,' Sym=',iSymA,iSymI
-!      If(TCVXist(iType,iSymB,iSymJ) .and. iSymA.NE.iSymB)
-!     &Write(6,*)'       -TCV x=',iType,' Sym=',iSymB,iSymJ
-!      EndDo
-!      Write(6,*)
-!      Write(6,*)'       SubBlocks to create for Ex-1: '
-!      Do i = 1, 3
-!      Do j = 1, 3
-!      If(SubBlocks(i,j)) Write(6,*) '       -SB(',i,',',j,')'
-!      EndDo
-!      EndDo
-!      Call XFlush(6)
-!      EndIf
-!GG   ------------------------------------------------------------------
-          If (iBatch.EQ.1) then
-            IAD2M(2,iIJAB)=iAddrIAD2M
-          else
-            iAddrIAD2M=IAD2M(2,iIJAB)
-          EndIf
-!   ---   Start Loop on i, j
-          iAddrIAD2Mij=iAddrIAD2M
-          Do iI=1,nOsh(iSymI)
-            If(iSymI.EQ.iSymJ) then
-              iEndJ=iI
-            else
-              iEndJ=nOsh(iSymJ)
-            EndIf
-            Do iJ=1,iEndJ
-!GG   ------------------------------------------------------------------
-!      If(IfTest) then
-!      Write(6,*)
-!      Write(6,*) '   Excha-1 Integrals for |ij> pair',iI,iJ,
-!     &  '  iAddrIAD2Mij=',iAddrIAD2Mij,'   #'
-!      Call XFlush(6)
-!      EndIf
-!GG   ------------------------------------------------------------------
-              Call mma_allocate(AddEx1,nN_Ex1,Label='AddEx1')
-              If (iBatch.GT.1) then
-                ! Reload Int
-                Call dDaFile(LUINTM,2,AddEx1,nN_Ex1,iAddrIAD2Mij)
-                iAddrIAD2Mij=iAddrIAD2Mij-nN_Ex1
-              else
-                AddEx1(:)=0.0D0
-              EndIf
-              Call Cho_GenE(iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV,       &
-     &                                             AddEx1,nN_Ex1 )
-              Call GAdSum(AddEx1,nN_Ex1)
-              Call dDaFile(LUINTM,1,AddEx1,nN_Ex1,iAddrIAD2Mij)
-              Call mma_deallocate(AddEx1)
-            EndDo
-          EndDo
-!   ---   End Loop on i, j
-          iAddrIAD2M=iAddrIAD2Mij
-        ENDIF
-!  ***  END GENERATION of EXCHANGE-1 INTEGRALS  ************************
-
-
-!  ***  START GENERATION of EXCHANGE-2 INTEGRALS  **********************
-        IF (nN_Ex2.GT.0 .and. DoExc2) THEN
-          iIJAB = ( (iSymI**2-iSymI)/2 + iSymJ-1 ) * nSymP +            &
-     &                 (iSymB**2-iSymB)/2 + iSymA
-          Call Def_SubBlockE(iSymA,iSymB)
-!GG   ------------------------------------------------------------------
-!      If(IfTest) then
-!      Write(6,*)
-!      Write(6,*) '    Generation of Exchange-2 Integrals'
-!      Write(6,*)'       Available TCVx for Ex-2: '
-!      Do iType=1,MxTCVx
-!      If(TCVXist(iType,iSymA,iSymI))
-!     &Write(6,*)'       -TCV x=',iType,' Sym=',iSymA,iSymI
-!      If(TCVXist(iType,iSymB,iSymJ) .and. iSymA.NE.iSymB)
-!     &Write(6,*)'       -TCV x=',iType,' Sym=',iSymB,iSymJ
-!      EndDo
-!      Write(6,*)
-!      Write(6,*)'       SubBlocks to create for Ex-2: '
-!      Do i = 1, 3
-!      Do j = 1, 3
-!      If(SubBlocks(i,j)) Write(6,*) '       -SB(',i,',',j,')'
-!      EndDo
-!      EndDo
-!      Call XFlush(6)
-!      EndIf
-!GG   ------------------------------------------------------------------
-          If (iBatch.EQ.1) then
-            IAD2M(3,iIJAB)=iAddrIAD2M
-          else
-            iAddrIAD2M=IAD2M(3,iIJAB)
-          EndIf
-!   ---   Start Loop on i, j
-          iAddrIAD2Mij=iAddrIAD2M
-          Do iI=1,nOsh(iSymI)
-            If(iSymI.EQ.iSymJ) then
-              iEndJ=iI
-            else
-              iEndJ=nOsh(iSymJ)
-            EndIf
-            Do iJ=1,iEndJ
-!GG   ------------------------------------------------------------------
-!      If(IfTest) then
-!      Write(6,*)
-!      Write(6,*) '   Excha-2 Integrals for |ij> pair',iI,iJ,
-!     &  '  iAddrIAD2Mij=',iAddrIAD2Mij,'   #'
-!      Call XFlush(6)
-!      EndIf
-!GG   ------------------------------------------------------------------
-              If (DoTCVA) then
-                nA=nOrb(iSymA)
-                nB=nOrb(iSymB)
-              else
-                nA=nSsh(iSymA)
-                nB=nSsh(iSymB)
-              EndIf
-              Call mma_allocate(AddEx2,nN_Ex2,Label='AddEx2')
-              Call mma_allocate(AddEx2t,nN_Ex2,Label='AddEx2t')
-              If (iBatch.GT.1) then
-                ! Reload Int
-                Call dDaFile(LUINTM,2,AddEx2,nN_Ex2,iAddrIAD2Mij)
-                iAddrIAD2Mij=iAddrIAD2Mij-nN_Ex2
-                Call Trnsps(nA,nB,AddEx2,AddEx2t)
-              else
-                AddEx2t(:)=0.0D0
-              EndIf
-              Call Cho_GenE(iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV,       &
-     &                                            AddEx2t,nN_Ex2 )
-              Call Trnsps(nB,nA,AddEx2t,AddEx2)
-!GG   ------------------------------------------------------------------
-!      If(IfTest) then
-!      Write(6,*) '    Integrals from Production code:'
-!      Write(6,'(8F10.6)') (AddEx2(i),i=1,nN_Ex2)
-!      Call XFlush(6)
-!      EndIf
-!GG   ------------------------------------------------------------------
-              Call GAdSum(AddEx2,nN_Ex2)
-              Call dDaFile(LUINTM,1,AddEx2,nN_Ex2,iAddrIAD2Mij)
-              Call mma_deallocate(AddEx2t)
-              Call mma_deallocate(AddEx2)
-            EndDo
-          EndDo
-!   ---   End Loop on i, j
-          iAddrIAD2M=iAddrIAD2Mij
-        ENDIF
-!  ***  END GENERATION of EXCHANGE-2 INTEGRALS  ************************
-      EndIf                                                       ! If !
-
-      Return
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(nBatch)
-         Call Unused_integer(iSymL)
-      End If
-      End
+if (.false.) then
+  call Unused_integer(nBatch)
+  call Unused_integer(iSymL)
+end if
+
+end subroutine Cho_TwoEl

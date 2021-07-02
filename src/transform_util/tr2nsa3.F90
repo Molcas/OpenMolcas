@@ -15,336 +15,294 @@
 ! DEPARTMENT OF THEORETICAL CHEMISTRY        *
 ! UNIVERSITY OF LUND, SWEDEN                 *
 !--------------------------------------------*
-      Subroutine tr2nsa3(CMO,X1,nX1,X2,nX2,pqUs,npqUS,                  &
-     &                   pqrU,npqrU)
-!
+
+subroutine tr2nsa3(CMO,X1,nX1,X2,nX2,pqUs,npqUS,pqrU,npqrU)
 ! SECOND ORDER TWO-ELECTRON TRANSFORMATION ROUTINE
 !
 ! THIS ROUTINE IS CALLED FOR EACH SYMMETRY BLOCK OF INTEGRALS
-! (ISP,ISQ,ISR,ISS) WITH ISP.GE.ISQ AND ISR.GE.ISS.
+! (ISP,ISQ,ISR,ISS) WITH ISP >= ISQ AND ISR >= ISS.
 ! P,Q,R,S are SO indices.
 ! A,B are MO indices, counting only non-frozen and non-deleted.
 ! T,U are occupied MO indices, only non-frozen and non-deleted.
 ! INTEGRALS (AB/TU) ARE ALWAYS GENERATED
 ! EXCHANGE INTEGRALS (AT/BU) ARE GENERATED AS FOLLOWS:
-! (AT/BU) IF ISP.GE.ISR
-! (AT/UB) IF ISP.GT.ISS AND ISP.NE.ISQ
-! (TA/BU) IF ISQ.GT.ISR AND ISP.NE.ISQ
-! (TA/UB) IF ISQ.GE.ISS AND ISP.NE.ISQ
+! (AT/BU) IF ISP >= ISR
+! (AT/UB) IF ISP > ISS AND ISP /= ISQ
+! (TA/BU) IF ISQ > ISR AND ISP /= ISQ
+! (TA/UB) IF ISQ >= ISS AND ISP /= ISQ
 !
-!     This and tr2NsB routines transform non-squared AO integrals. The
-!     transformed MO integrals are stored as the same as Tr2Sq
-!     subroutine does.
-!
-      Implicit real*8(a-h,o-z)
-!PAM98      COMMON/INTTRA/ISP,ISQ,ISR,ISS,NBP,NBQ,NBR,NBS,NBPQ,NBRS,IRRST,
-!PAM98     &              NOCP,NOCQ,NOCR,NOCS,NPQ,LADX,LRUPQ,LURPQ,LTUPQ,
-!PAM98     &              NOP,NOQ,NOR,NOS,LMOP,LMOQ,LMOR,LMOS,LMOP2,LMOQ2,
-!PAM98     &              LMOR2,LMOS2,IAD13,ITP,ITQ,ITR,ITS
+! This and tr2NsB routines transform non-squared AO integrals. The
+! transformed MO integrals are stored as the same as Tr2Sq
+! subroutine does.
 
+implicit real*8(a-h,o-z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "trafo.fh"
 #include "intgrl.fh"
-
 #include "SysDef.fh"
-      DIMENSION CMO(NCMO)
-      Dimension X1(nX1),X2(nX2)
-      Dimension PQRU(nPQRU),PQUS(nPQUS)
+dimension CMO(NCMO)
+dimension X1(nX1), X2(nX2)
+dimension PQRU(nPQRU), PQUS(nPQUS)
 
-      NSYMP=NSYM*(NSYM+1)/2
-      NOTU=NOCR*NOCS
-      IF(ISR.EQ.ISS) NOTU=(NOCR**2+NOCR)/2
-      NOUS=NOCR*NBS
-      NORU=NBR*NOCS
-      icxc3=NOP*NOCQ*NOCR*NOS
-      icxc7=NOCP*NOQ*NOCR*NOS
-!
+NSYMP = NSYM*(NSYM+1)/2
+NOTU = NOCR*NOCS
+if (ISR == ISS) NOTU = (NOCR**2+NOCR)/2
+NOUS = NOCR*NBS
+NORU = NBR*NOCS
+icxc3 = NOP*NOCQ*NOCR*NOS
+icxc7 = NOCP*NOQ*NOCR*NOS
+
 ! Check for in core or out of core transformation
-!
-!     1. SORT OF PARTIALLY TRANSFORMED INTEGRALS (PQ|US) ON UNIT LUHLF1
-      IPQMX1=NBPQ
-      IF(NBPQ*NOUS.GT.LURPQ) THEN
-       IPQMX1=LURPQ/NOUS
-!      WRITE(*,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|US)',IPQMX1
-       IAD1S=0
-       CALL dDAFILE(LUHLF1,0,PQUS,IPQMX1,IAD1S)
-      ENDIF
-!     2. SORT OF PARTIALLY TRANSFORMED INTEGRALS (PQ|RU) ON UNIT LUHLF2
-      IPQMX2=NBPQ
-      IF(NBPQ*NORU.GT.LRUPQ) THEN
-       IPQMX2=LRUPQ/NORU
-!      WRITE(*,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|RU)',IPQMX2
-       IAD2S=0
-       CALL dDAFILE(LUHLF2,0,PQRU,IPQMX2,IAD2S)
-      ENDIF
-      IAD2=0
-!C     3. SORT OF PARTIALLY TRANSFORMED INTEGRALS (PQ|TU) ON UNIT LUHLF3
-!      IPQMX3=NBPQ
-!      IF(NBPQ*NOTU.GT.LTUPQ) THEN
-!       IPQMX3=LTUPQ/NOTU
-!c      WRITE(*,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|TU)',IPQMX3
-!       IAD3S=0
-!       CALL dDAFILE(LUHLF3,0,PQTU,IPQMX3,IAD3S)
-!      ENDIF
-!      IAD3=0
-!      IOUT3=0
-!
+
+! 1. SORT OF PARTIALLY TRANSFORMED INTEGRALS (PQ|US) ON UNIT LUHLF1
+IPQMX1 = NBPQ
+if (NBPQ*NOUS > LURPQ) then
+  IPQMX1 = LURPQ/NOUS
+  !write(6,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|US)',IPQMX1
+  IAD1S = 0
+  call dDAFILE(LUHLF1,0,PQUS,IPQMX1,IAD1S)
+end if
+! 2. SORT OF PARTIALLY TRANSFORMED INTEGRALS (PQ|RU) ON UNIT LUHLF2
+IPQMX2 = NBPQ
+if (NBPQ*NORU > LRUPQ) then
+  IPQMX2 = LRUPQ/NORU
+  !write(6,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|RU)',IPQMX2
+  IAD2S = 0
+  call dDAFILE(LUHLF2,0,PQRU,IPQMX2,IAD2S)
+end if
+IAD2 = 0
+! 3. SORT OF PARTIALLY TRANSFORMED INTEGRALS (PQ|TU) ON UNIT LUHLF3
+!IPQMX3 = NBPQ
+!if (NBPQ*NOTU > LTUPQ) then
+!  IPQMX3 = LTUPQ/NOTU
+!  !write(6,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|TU)',IPQMX3
+!  IAD3S = 0
+!  call dDAFILE(LUHLF3,0,PQTU,IPQMX3,IAD3S)
+!end if
+!IAD3 = 0
+!IOUT3 = 0
+
 !-----------------------------------------------------------------------
 ! Second half transformation Case 3 (AT,UB)
-!  Calculated if ISR.ne.ISS. Both type 1 and 2. ISQ.ne.ISR, since
+!  Calculated if ISR /= ISS. Both type 1 and 2. ISQ /= ISR, since
 !  equality makes integral to be zero symmetrically.
-!  Case 4 (BU,TA) need not be calculated, since always ISP.gt.ISS.
+!  Case 4 (BU,TA) need not be calculated, since always ISP > ISS.
 !-----------------------------------------------------------------------
-      NOTU=NOCQ*NOCR
-      If(ISR.ne.ISS.and.icxc3.ne.0)then
-       LAS=(LRUPQ+LTUPQ)/NOTU
-       LS=LAS/NOP
-       IF(LS.GT.NBS) LS=NBS
-       LAS=NOP*LS
-       IAD2S=0
-       CALL dDAFILE(LUHLF2,0,PQRU,LAS,IAD2S)
-       IAD2=0
-! Loop over u,s pair
-       IS=0
-       Do NS=1,NBS
-        IS=IS+1
-        Do NU=1,NOCR
-!  Square if necessary
-         IUS=NBS*(NU-1)+NS
-         IPQST=1+NBPQ*(IUS-1)
-         IF(IPQMX1.LT.NBPQ) THEN
-          Call RBuf_tra2(LUHLF1,PQUS,NBPQ,IPQMX1,NOUS,IUS,IPQST,IAD1S)
-         ENDIF
-         If(ISP.eq.ISQ)then
-          Call Square(PQUS(IPQST),X2,1,NBP,NBP)
-         Else
-          call dcopy_(NBPQ,PQUS(IPQST),1,X2,1)
-         Endif
-! Always ISQ.ne.ISR  i.e. s(T).ne.s(U)
-!  (pq,Us) -> (pT,Us)
-          CALL DGEMM_('T','N',                                          &
-     &                NBP,NOCQ,NBQ,                                     &
-     &                1.0d0,X2,NBQ,                                     &
-     &                CMO(LMOQ2),NBQ,                                   &
-     &                0.0d0,X1,NBP)
-!  (pT,Us) -> (AT,Us)
-          CALL DGEMM_('T','N',                                          &
-     &                NOCQ,NOP,NBP,                                     &
-     &                1.0d0,X1,NBP,                                     &
-     &                CMO(LMOP),NBP,                                    &
-     &                0.0d0,X2,NOCQ)
-!  Store buffer
-        IF(IS.GT.LS) THEN
-         IS=1
-!vv         DO I=1,NOTU
-!vv          CALL dDAFILE(LUHLF2,1,PQRU(1+LAS*(I-1)),LAS,IAD2)
-!vv         Enddo
-        CALL dDAFILE(LUHLF2,1,PQRU,LAS*NOTU,IAD2)
-        ENDIF
-!  Sort
-         NAT=0
-         DO NA=1,NOP
-          DO NT=1,NOCQ
-           ITU=NOCR*(NT-1)+NU-1
-           IF(ISQ.LT.ISR) ITU=NOCQ*(NU-1)+NT-1
-           NAT=NAT+1
-           PQRU(LAS*ITU+NOP*(IS-1)+NA)=X2(NAT)
-          Enddo
-         Enddo
-! End of loop over u,s pair
-        Enddo
-       Enddo
-! Store last buffer
-       IF(LS.LT.NBS) THEN
-!vv        DO I=1,NOTU
-!vv         CALL dDAFILE(LUHLF2,1,PQRU(1+LAS*(I-1)),LAS,IAD2)
-!vv        Enddo
-       CALL dDAFILE(LUHLF2,1,PQRU,LAS*NOTU,IAD2)
-       ENDIF
-!
-!  Trasform last index
-!
-       If(ISQ.ge.ISR)then
-!  Store(type 1)
-        ISPQRS=((ISQ**2-ISQ)/2+ISR-1)*NSYMP+(ISP**2-ISP)/2+ISS
-        IAD2M(2,ISPQRS)=IAD13
-        NTMAX=NOCQ
-        NUMAX=NOCR
-       Else
-!  Store(type 2)
-        ISPQRS=((ISR**2-ISR)/2+ISQ-1)*NSYMP+(ISP**2-ISP)/2+ISS
-        IAD2M(3,ISPQRS)=IAD13
-        NTMAX=NOCR
-        NUMAX=NOCQ
-       Endif
-! Loop over t,u pair, always ISQ.ne.ISR
-       IST=1-NBS*NOP
-       KKTU=0
-       Do NT=1,NTMAX
-        Do NU=1,NUMAX
-         IST=IST+NBS*NOP
-         KKTU=KKTU+1
-         IF(LS.LT.NBS)THEN
-          Call RBuf_tra2(LUHLF2,PQRU,NBS*NOP,LAS,NOTU,KKTU,IST,IAD2S)
-         ENDIF
-!  (AT,Us) -> (AT,UB)
-         CALL DGEMM_('T','T',                                           &
-     &               NOS,NOP,NBS,                                       &
-     &               1.0d0,CMO(LMOS2),NBS,                              &
-     &               PQRU(IST),NOP,                                     &
-     &               0.0d0,X2,NOS)
-!
-!       WRITE THESE BLOCK OF INTEGRALS ON LUINTM
-!
-         CALL GADSum(X2,NOP*NOS)
-         Call dDAFILE(LUINTM,1,X2,NOP*NOS,IAD13)
-        Enddo
-       Enddo
-! End of loop over t,u pair
-      Endif
+NOTU = NOCQ*NOCR
+if ((ISR /= ISS) .and. (icxc3 /= 0)) then
+  LAS = (LRUPQ+LTUPQ)/NOTU
+  LS = LAS/NOP
+  if (LS > NBS) LS = NBS
+  LAS = NOP*LS
+  IAD2S = 0
+  call dDAFILE(LUHLF2,0,PQRU,LAS,IAD2S)
+  IAD2 = 0
+  ! Loop over u,s pair
+  IS = 0
+  do NS=1,NBS
+    IS = IS+1
+    do NU=1,NOCR
+      ! Square if necessary
+      IUS = NBS*(NU-1)+NS
+      IPQST = 1+NBPQ*(IUS-1)
+      if (IPQMX1 < NBPQ) then
+        call RBuf_tra2(LUHLF1,PQUS,NBPQ,IPQMX1,NOUS,IUS,IPQST,IAD1S)
+      end if
+      if (ISP == ISQ) then
+        call Square(PQUS(IPQST),X2,1,NBP,NBP)
+      else
+        call dcopy_(NBPQ,PQUS(IPQST),1,X2,1)
+      end if
+      ! Always ISQ /= ISR  i.e. s(T) /= s(U)
+      ! (pq,Us) -> (pT,Us)
+      call DGEMM_('T','N',NBP,NOCQ,NBQ,1.0d0,X2,NBQ,CMO(LMOQ2),NBQ,0.0d0,X1,NBP)
+      ! (pT,Us) -> (AT,Us)
+      call DGEMM_('T','N',NOCQ,NOP,NBP,1.0d0,X1,NBP,CMO(LMOP),NBP,0.0d0,X2,NOCQ)
+      ! Store buffer
+      if (IS > LS) then
+        IS = 1
+        !vv do I=1,NOTU
+        !vv   call dDAFILE(LUHLF2,1,PQRU(1+LAS*(I-1)),LAS,IAD2)
+        !vv end do
+        call dDAFILE(LUHLF2,1,PQRU,LAS*NOTU,IAD2)
+      end if
+      ! Sort
+      NAT = 0
+      do NA=1,NOP
+        do NT=1,NOCQ
+          ITU = NOCR*(NT-1)+NU-1
+          if (ISQ < ISR) ITU = NOCQ*(NU-1)+NT-1
+          NAT = NAT+1
+          PQRU(LAS*ITU+NOP*(IS-1)+NA) = X2(NAT)
+        end do
+      end do
+      ! End of loop over u,s pair
+    end do
+  end do
+  ! Store last buffer
+  if (LS < NBS) then
+    !vv do I=1,NOTU
+    !vv   call dDAFILE(LUHLF2,1,PQRU(1+LAS*(I-1)),LAS,IAD2)
+    !vv end do
+    call dDAFILE(LUHLF2,1,PQRU,LAS*NOTU,IAD2)
+  end if
+
+  ! Trasform last index
+
+  if (ISQ >= ISR) then
+    ! Store(type 1)
+    ISPQRS = ((ISQ**2-ISQ)/2+ISR-1)*NSYMP+(ISP**2-ISP)/2+ISS
+    IAD2M(2,ISPQRS) = IAD13
+    NTMAX = NOCQ
+    NUMAX = NOCR
+  else
+    ! Store(type 2)
+    ISPQRS = ((ISR**2-ISR)/2+ISQ-1)*NSYMP+(ISP**2-ISP)/2+ISS
+    IAD2M(3,ISPQRS) = IAD13
+    NTMAX = NOCR
+    NUMAX = NOCQ
+  end if
+  ! Loop over t,u pair, always ISQ /= ISR
+  IST = 1-NBS*NOP
+  KKTU = 0
+  do NT=1,NTMAX
+    do NU=1,NUMAX
+      IST = IST+NBS*NOP
+      KKTU = KKTU+1
+      if (LS < NBS) then
+        call RBuf_tra2(LUHLF2,PQRU,NBS*NOP,LAS,NOTU,KKTU,IST,IAD2S)
+      end if
+      ! (AT,Us) -> (AT,UB)
+      call DGEMM_('T','T',NOS,NOP,NBS,1.0d0,CMO(LMOS2),NBS,PQRU(IST),NOP,0.0d0,X2,NOS)
+
+      ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
+
+      call GADSum(X2,NOP*NOS)
+      call dDAFILE(LUINTM,1,X2,NOP*NOS,IAD13)
+    end do
+  end do
+  ! End of loop over t,u pair
+end if
 !-----------------------------------------------------------------------
 ! Case 7 (TA,UB) and 8 (UB,TA)
-!  Calculated if ISP.ne.ISQ.and.ISR.ne.ISS
-!   Case 7, if ISQ.ge.ISS, always type 1
-!   Case 8, if ISQ.lt.ISS.and.ISP.ne.ISR, always type 2
+!  Calculated if (ISP /= ISQ) .and. (ISR /= ISS)
+!   Case 7, if ISQ >= ISS, always type 1
+!   Case 8, if (ISQ < ISS) .and. (ISP /= ISR), always type 2
 !-----------------------------------------------------------------------
-      NOTU=NOCP*NOCR
-      If(ISS.gt.ISQ.and.ISP.eq.ISR)goto 200
-      If(ISP.ne.ISQ.and.ISR.ne.ISS.and.icxc7.ne.0)then
-       LAS=(LRUPQ+LTUPQ)/NOTU
-       LS=LAS/NOQ
-       IF(LS.GT.NBS) LS=NBS
-       LAS=NOQ*LS
-       IAD2S=0
-       CALL dDAFILE(LUHLF2,0,PQRU,LAS,IAD2S)
-       IAD2=0
-       IRU=0
-! Loop over u,s pair
-       IS=0
-       Do NS=1,NBS
-        IS=IS+1
-        Do NU=1,NOCR
-         IRU=NBS*(NU-1)+NS
-         IPQST=1+NBPQ*(IRU-1)
-         IF(IPQMX1.LT.NBPQ) THEN
-          Call RBuf_tra2(LUHLF1,PQUS,NBPQ,IPQMX1,NOUS,IRU,IPQST,IAD1S)
-         ENDIF
-! Always ISP.gt.ISQ
-! Square unnecessary
-         If(ISP.eq.ISR)then
-! (pq,Us) -> (Tq,Us)
-          CALL DGEMM_('N','N',                                          &
-     &                NBQ,NOCP-NU+1,NBP,                                &
-     &                1.0d0,PQUS(IPQST),NBQ,                            &
-     &                CMO(LMOP2+NBP*(NU-1)),NBP,                        &
-     &                0.0d0,X1,NBQ)
-! (Tq,Us) -> (TA,Us)
-          CALL DGEMM_('T','N',                                          &
-     &                NOCP-NU+1,NOQ,NBQ,                                &
-     &                1.0d0,X1,NBQ,                                     &
-     &                CMO(LMOQ),NBQ,                                    &
-     &                0.0d0,X2,NOCP-NU+1)
-         Else
-! (pq,Us) -> (Tq,Us)
-          CALL DGEMM_('N','N',                                          &
-     &                NBQ,NOCP,NBP,                                     &
-     &                1.0d0,PQUS(IPQST),NBQ,                            &
-     &                CMO(LMOP2),NBP,                                   &
-     &                0.0d0,X1,NBQ)
-! (Tq,Us) -> (TA,Us)
-          CALL DGEMM_('T','N',                                          &
-     &                NOCP,NOQ,NBQ,                                     &
-     &                1.0d0,X1,NBQ,                                     &
-     &                CMO(LMOQ),NBQ,                                    &
-     &                0.0d0,X2,NOCP)
-         Endif
-! Store buffer
-         IF(IS.GT.LS) THEN
-          IS=1
-!vv          DO I=1,NOTU
-!vv           CALL dDAFILE(LUHLF2,1,PQRU(1+LAS*(I-1)),LAS,IAD2)
-!vv          ENDDO
-         CALL dDAFILE(LUHLF2,1,PQRU,LAS*NOTU,IAD2)
-         ENDIF
-! Sorting
-! Note: LAS is supposed to be small enough that (NOCP*NOCR)*LAS is
-! at most = (LRUPQ+LTUPQ). NU can be as large as NOCR, so ITU
-! can become NOCR*NOCP-1.
-! Thus (LAS*ITU+NOQ*(IS-1)+NA can become as large as:
-! LAS*(NOCP*NOCR-1)+NOQ*(NBS-1)+NOQ=LAS*(NOCP*NOCR-1)+NOQ*NBS
-! which may become nearly as large as (LRUPQ+LTUPQ)+NOQ*NBS.
-! But when called, only the size LRUPQ has been reserved for
-! use (tractl:LW6=LW5+LRUPQ) by the array PQRU!
-! This may be deliberate, if it is intended that PQRU is
-! overlaying i.e. extended above the LW6 address which is
-! then assumed not to be used any longer....
-         NAT=0
-         DO NA=1,NOQ
-          NTM=1
-          IF(ISP.EQ.ISR) NTM=NU
-          DO NT=NTM,NOCP
-           ITU=NOCR*(NT-1)+NU-1
-           If(ISP.eq.ISR)ITU=(NT*NT-NT)/2+NU-1
-           NAT=NAT+1
-           PQRU(LAS*ITU+NOQ*(IS-1)+NA)=X2(NAT)
-          Enddo
-         Enddo
-! End of Loop over u,s pair
-        Enddo
-       Enddo
-! Store the last buffer
-       IF(LS.LT.NBS) THEN
-!vv        DO I=1,NOTU
-!vv         CALL dDAFILE(LUHLF2,1,PQRU(1+LAS*(I-1)),LAS,IAD2)
-!vv        Enddo
-       CALL dDAFILE(LUHLF2,1,PQRU,LAS*NOTU,IAD2)
-       ENDIF
-       If(ISQ.ge.ISS) then
-!   Store(Only type1)
-        ISPQRS=((ISP**2-ISP)/2+ISR-1)*NSYMP+(ISQ**2-ISQ)/2+ISS
-        IAD2M(2,ISPQRS)=IAD13
-       Elseif(ISP.ne.ISR.and.ISQ.lt.ISS) then
-!   Store(Only type2)
-        ISPQRS=((ISP**2-ISP)/2+ISR-1)*NSYMP+(ISS**2-ISS)/2+ISQ
-        IAD2M(3,ISPQRS)=IAD13
-       Endif
-       IST=1-NOQ*NBS
-       KKTU=0
-! Loop over t,u pair, If(ISP.eq.ISR)then loop should be triangle
-       Do NT=1,NOCP
-        Num=NOCR
-        If(ISP.eq.ISR)Num=NT
-        Do NU=1,Num
-!  (TA,Us) -> (TA,UB)
-         IST=IST+NOQ*NBS
-         KKTU=KKTU+1
-         IF(LS.LT.NBS)THEN
-          Call RBuf_tra2(LUHLF2,PQRU,NBS*NOQ,LAS,NOTU,KKTU,IST,IAD2S)
-         ENDIF
-         If(ISQ.ge.ISS)then
-          CALL DGEMM_('T','T',                                          &
-     &                NOS,NOQ,NBS,                                      &
-     &                1.0d0,CMO(LMOS),NBS,                              &
-     &                PQRU(IST),NOQ,                                    &
-     &                0.0d0,X2,NOS)
-         Else if(ISP.ne.ISR.and.ISS.gt.ISQ) then
-          CALL DGEMM_('N','N',                                          &
-     &                NOQ,NOS,NBS,                                      &
-     &                1.0d0,PQRU(IST),NOQ,                              &
-     &                CMO(LMOS),NBS,                                    &
-     &                0.0d0,X2,NOQ)
-         Endif
-!
-!       WRITE THESE BLOCK OF INTEGRALS ON LUINTM
-!
-         Call GADSum(X2,NOQ*NOS)
-         CALL dDAFILE(LUINTM,1,X2,NOQ*NOS,IAD13)
-        Enddo
-       Enddo
-! End of Loop over t,u pair
-      Endif
-  200 Continue
+NOTU = NOCP*NOCR
+if ((ISS > ISQ) .and. (ISP == ISR)) goto 200
+if ((ISP /= ISQ) .and. (ISR /= ISS) .and. (icxc7 /= 0)) then
+  LAS = (LRUPQ+LTUPQ)/NOTU
+  LS = LAS/NOQ
+  if (LS > NBS) LS = NBS
+  LAS = NOQ*LS
+  IAD2S = 0
+  call dDAFILE(LUHLF2,0,PQRU,LAS,IAD2S)
+  IAD2 = 0
+  IRU = 0
+  ! Loop over u,s pair
+  IS = 0
+  do NS=1,NBS
+    IS = IS+1
+    do NU=1,NOCR
+      IRU = NBS*(NU-1)+NS
+      IPQST = 1+NBPQ*(IRU-1)
+      if (IPQMX1 < NBPQ) then
+        call RBuf_tra2(LUHLF1,PQUS,NBPQ,IPQMX1,NOUS,IRU,IPQST,IAD1S)
+      end if
+      ! Always ISP > ISQ
+      ! Square unnecessary
+      if (ISP == ISR) then
+        ! (pq,Us) -> (Tq,Us)
+        call DGEMM_('N','N',NBQ,NOCP-NU+1,NBP,1.0d0,PQUS(IPQST),NBQ,CMO(LMOP2+NBP*(NU-1)),NBP,0.0d0,X1,NBQ)
+        ! (Tq,Us) -> (TA,Us)
+        call DGEMM_('T','N',NOCP-NU+1,NOQ,NBQ,1.0d0,X1,NBQ,CMO(LMOQ),NBQ,0.0d0,X2,NOCP-NU+1)
+      else
+        ! (pq,Us) -> (Tq,Us)
+        call DGEMM_('N','N',NBQ,NOCP,NBP,1.0d0,PQUS(IPQST),NBQ,CMO(LMOP2),NBP,0.0d0,X1,NBQ)
+        ! (Tq,Us) -> (TA,Us)
+        call DGEMM_('T','N',NOCP,NOQ,NBQ,1.0d0,X1,NBQ,CMO(LMOQ),NBQ,0.0d0,X2,NOCP)
+      end if
+      ! Store buffer
+      if (IS > LS) then
+        IS = 1
+        !vv do I=1,NOTU
+        !vv   call dDAFILE(LUHLF2,1,PQRU(1+LAS*(I-1)),LAS,IAD2)
+        !vv end do
+        call dDAFILE(LUHLF2,1,PQRU,LAS*NOTU,IAD2)
+      end if
+      ! Sorting
+      ! Note: LAS is supposed to be small enough that (NOCP*NOCR)*LAS is
+      ! at most = (LRUPQ+LTUPQ). NU can be as large as NOCR, so ITU
+      ! can become NOCR*NOCP-1.
+      ! Thus (LAS*ITU+NOQ*(IS-1)+NA can become as large as:
+      ! LAS*(NOCP*NOCR-1)+NOQ*(NBS-1)+NOQ=LAS*(NOCP*NOCR-1)+NOQ*NBS
+      ! which may become nearly as large as (LRUPQ+LTUPQ)+NOQ*NBS.
+      ! But when called, only the size LRUPQ has been reserved for
+      ! use (tractl:LW6=LW5+LRUPQ) by the array PQRU!
+      ! This may be deliberate, if it is intended that PQRU is
+      ! overlaying i.e. extended above the LW6 address which is
+      ! then assumed not to be used any longer....
+      NAT = 0
+      do NA=1,NOQ
+        NTM = 1
+        if (ISP == ISR) NTM = NU
+        do NT=NTM,NOCP
+          ITU = NOCR*(NT-1)+NU-1
+          if (ISP == ISR) ITU = (NT*NT-NT)/2+NU-1
+          NAT = NAT+1
+          PQRU(LAS*ITU+NOQ*(IS-1)+NA) = X2(NAT)
+        end do
+      end do
+      ! End of Loop over u,s pair
+    end do
+  end do
+  ! Store the last buffer
+  if (LS < NBS) then
+    !vv do I=1,NOTU
+    !vv   call dDAFILE(LUHLF2,1,PQRU(1+LAS*(I-1)),LAS,IAD2)
+    !vv end do
+    call dDAFILE(LUHLF2,1,PQRU,LAS*NOTU,IAD2)
+  end if
+  if (ISQ >= ISS) then
+    ! Store(Only type1)
+    ISPQRS = ((ISP**2-ISP)/2+ISR-1)*NSYMP+(ISQ**2-ISQ)/2+ISS
+    IAD2M(2,ISPQRS) = IAD13
+  elseif ((ISP /= ISR) .and. (ISQ < ISS)) then
+    ! Store(Only type2)
+    ISPQRS = ((ISP**2-ISP)/2+ISR-1)*NSYMP+(ISS**2-ISS)/2+ISQ
+    IAD2M(3,ISPQRS) = IAD13
+  end if
+  IST = 1-NOQ*NBS
+  KKTU = 0
+  ! Loop over t,u pair, If (ISP == ISR) then loop should be triangle
+  do NT=1,NOCP
+    Num = NOCR
+    if (ISP == ISR) Num = NT
+    do NU=1,Num
+      ! (TA,Us) -> (TA,UB)
+      IST = IST+NOQ*NBS
+      KKTU = KKTU+1
+      if (LS < NBS) then
+        call RBuf_tra2(LUHLF2,PQRU,NBS*NOQ,LAS,NOTU,KKTU,IST,IAD2S)
+      end if
+      if (ISQ >= ISS) then
+        call DGEMM_('T','T',NOS,NOQ,NBS,1.0d0,CMO(LMOS),NBS,PQRU(IST),NOQ,0.0d0,X2,NOS)
+      else if ((ISP /= ISR) .and. (ISS > ISQ)) then
+        call DGEMM_('N','N',NOQ,NOS,NBS,1.0d0,PQRU(IST),NOQ,CMO(LMOS),NBS,0.0d0,X2,NOQ)
+      end if
 
-      Return
-      End
+      ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
+
+      call GADSum(X2,NOQ*NOS)
+      call dDAFILE(LUINTM,1,X2,NOQ*NOS,IAD13)
+    end do
+  end do
+  ! End of Loop over t,u pair
+end if
+200 continue
+
+return
+
+end subroutine tr2nsa3
