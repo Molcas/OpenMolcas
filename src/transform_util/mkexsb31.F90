@@ -11,27 +11,37 @@
 ! Copyright (C) 2005, Giovanni Ghigo                                   *
 !***********************************************************************
 
-subroutine ChoMP2_GenE(iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddEx,LenE)
+subroutine MkExSB31(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddSBt)
 !***********************************************************************
 ! Author :  Giovanni Ghigo                                             *
 !           Lund University, Sweden & Torino University, Italy         *
-!           January-February 2005                                      *
-! Modified for Cholesky-MP2 May 2005                                   *
+!           February 2005                                              *
+!----------------------------------------------------------------------*
+! Purpuse:  Generation of the SubBlock(3,1) (p,q secondary,inactive)   *
+!           two-electron integral matrix for each i,j occupied couple. *
 !***********************************************************************
 
-use Cho_Tra, only: nSsh
+use Cho_Tra, only: nIsh, nSsh
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV, LenE
-real(kind=wp), intent(inout) :: AddEx(LenE)
-integer(kind=iwp) :: iIx, LxType
+real(kind=wp), allocatable, intent(out) :: AddSB(:)
+integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
+real(kind=wp), intent(in) :: AddSBt(*)
+integer(kind=iwp) :: iIx, LenSB, LxType
 logical(kind=iwp) :: SameLx
 real(kind=wp), allocatable :: Lx0(:), Ly0(:)
 
-! SubBlock 3 3
+! SubBlock 3 1
+LenSB = nSsh(iSymA)*nIsh(iSymB)
+call mma_allocate(AddSB,LenSB,Label='AddSB')
+if ((iSymA == iSymB) .and. (iSymI == iSymJ) .and. (iI == iJ)) then
+  ! SB 3,1 = (SB 1,3)+
+  call Trnsps(nSsh(iSymB),nIsh(iSymA),AddSBt,AddSB)
+  return
+end if
 
 ! Build Lx
 call mma_allocate(Lx0,nSsh(iSymA)*numV,Label='Lx0')
@@ -41,22 +51,15 @@ SameLx = .false.
 call MkL3(iSymA,iSymI,iI,numV,LxType,iIx,Lx0,SameLx)
 
 ! Build Ly
-call mma_allocate(Ly0,nSsh(iSymB)*numV,Label='Ly0')
-if (iSymA == iSymB) SameLx = .true.
-call MkL3(iSymB,iSymJ,iJ,numV,LxType,iIx,Ly0,SameLx)
+call mma_allocate(Ly0,nIsh(iSymB)*numV,Label='Ly0')
+call MkL1(iSymB,iSymJ,iJ,numV,LxType,iIx,Ly0,SameLx)
 
 ! Generate the SubBlock
-if (.not. SameLx) then
-  call DGEMM_('N','T',nSsh(iSymB),nSsh(iSymA),numV,One,Ly0,nSsh(iSymB),Lx0,nSsh(iSymA),One,AddEx,nSsh(iSymB))
-else
-  call DGEMM_('N','T',nSsh(iSymA),nSsh(iSymA),numV,One,Lx0,nSsh(iSymA),Lx0,nSsh(iSymA),One,AddEx,nSsh(iSymA))
-end if
+call DGEMM_('N','T',nIsh(iSymB),nSsh(iSymA),numV,One,Ly0,nIsh(iSymB),Lx0,nSsh(iSymA),Zero,AddSB,nIsh(iSymB))
 
 call mma_deallocate(Ly0)
 call mma_deallocate(Lx0)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(LenE)
 
-end subroutine ChoMP2_GenE
+end subroutine MkExSB31

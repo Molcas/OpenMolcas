@@ -11,25 +11,28 @@
 
 subroutine SetUp_CASPT2_Tra(nSym_,nBas_,nOrb_,nIsh_,nAsh_,nFro_,nDel_,CMO,lthCMO,LuIntM_,LuHlf1_,LuHlf2_,LuHlf3_)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nSym_, nBas_(8), nOrb_(8), nIsh_(8), nAsh_(8), nFro_(8), nDel_(8), lthCMO, LuIntM_
+integer(kind=iwp), intent(inout) :: LuHlf1_, LuHlf2_, LuHlf3_
+integer(kind=iwp) :: i, j
+real(kind=wp), intent(in) :: CMO(lthCMO)
+integer(kind=iwp), external :: ip_of_Work
 #include "rasdim.fh"
 #include "caspt2.fh"
-real*8 CMO(lthCMO)
-integer nBas_(8), nOrb_(8), nAsh_(8), nIsh_(8), nFro_(8), nDel_(8)
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 nSym = nSym_
-do i=1,nSym
-  nBas(i) = nBas_(i)
-  nOrb(i) = nOrb_(i)
-  nFro(i) = nFro_(i)
-  nDel(i) = nDel_(i)
-  nAsh(i) = nAsh_(i)
-  nIsh(i) = nIsh_(i)
-  nOsh(i) = nAsh_(i)+nIsh_(i)
-end do
+nBas(1:nSym) = nBas_(1:nSym)
+nOrb(1:nSym) = nOrb_(1:nSym)
+nFro(1:nSym) = nFro_(1:nSym)
+nDel(1:nSym) = nDel_(1:nSym)
+nAsh(1:nSym) = nAsh_(1:nSym)
+nIsh(1:nSym) = nIsh_(1:nSym)
+nOsh(1:nSym) = nAsh_(1:nSym)+nIsh_(1:nSym)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -56,7 +59,7 @@ LuHlf1 = LuHlf1_
 LuHlf2 = LuHlf2_
 LuHlf3 = LuHlf3_
 
-! Observe that LuIntM should be opened prior to this call!
+! Observe that LuIntM_ should be opened prior to this call!
 
 LuIntM = LuIntM_
 !                                                                      *

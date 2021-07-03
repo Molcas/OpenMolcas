@@ -21,10 +21,13 @@ subroutine LenInt(iSymI,iSymJ,iSymA,iSymB,nProdIJ,nProdAB,nProdE1,nProdE2)
 ! matrix for each Symmetry Block (iSymI,iSymJ,iSymA,iSymB)             *
 !***********************************************************************
 
-use Cho_Tra
+use Cho_Tra, only: DoTCVA, nOrb, nOsh, nSsh
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
+implicit none
+integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB
+integer(kind=iwp), intent(out) :: nProdIJ, nProdAB, nProdE1, nProdE2
+integer(kind=iwp) :: nExtA, nExtB, nOccI, nOccJ, nOrbA, nOrbB
 
 nProdIJ = 0
 nProdAB = 0

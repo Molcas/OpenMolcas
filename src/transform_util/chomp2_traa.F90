@@ -19,17 +19,17 @@ subroutine ChoMP2_TraA(iSymL,iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
 ! Modified for Cholesky-MP2 May 2005                                   *
 !***********************************************************************
 
-use Cho_Tra
+use Cho_Tra, only: nBas, nFro, nIsh, nSsh, TCVX, TCVXist
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-integer NCMO
-real*8 CMO(NCMO)
-#include "rasdim.fh"
-#include "stdalloc.fh"
-#include "SysDef.fh"
-logical TCVC, TCVCt
-real*8, allocatable :: XAj(:), XBi(:), FAB(:,:)
+implicit none
+integer(kind=iwp), intent(in) :: iSymL, iSym, jSym, NumV, NCMO, lUCHFV, iStrtVec_AB, nFVec
+real(kind=wp), intent(in) :: CMO(NCMO)
+integer(kind=iwp) :: i, iFBatch, iiVec, iStrt, iStrt0MO, iStrtVec_FAB, iVec, j, jStrt, jStrt0MO, jVec, Len_XAj, Len_XBi, Naj, Nbi, &
+                     NFAB, NumFV
+logical(kind=iwp) :: TCVC, TCVCt
+real(kind=wp), allocatable :: XAj(:), XBi(:), FAB(:,:)
 
 ! Memory to allocate & Nr. of Cholesky vectors transformable
 ! A=Alpha(AO);  B=Beta(AO)

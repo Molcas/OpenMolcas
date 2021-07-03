@@ -11,13 +11,17 @@
 
 subroutine RBufF_tra2(LUHLFX,W,LL,LBuf,NOTU,KKTU,IST,IADXS,MEMX)
 
-implicit real*8(a-h,o-z)
-integer MEMX, BLKSZ, NBLCK, NPASS, BPASS, NRST
-integer i, j
-#include "SysDef.fh"
-#include "stdalloc.fh"
-real*8 W(*)
-real*8, allocatable :: BUF(:,:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(in) :: LUHLFX, LL, LBuf, NOTU, KKTU, IADXS, MEMX
+real(kind=wp), intent(_OUT_) :: W(*)
+integer(kind=iwp), intent(out) :: IST
+integer(kind=iwp) :: BLKSZ, BPASS, I, IADX, J, NBLCK, NPASS, NRST
+real(kind=wp), allocatable :: BUF(:,:)
 
 BLKSZ = (NOTU-1)*IADXS+LBuf
 NBLCK = MEMX/BLKSZ
@@ -27,13 +31,13 @@ call mma_allocate(BUF,BLKSZ,NBLCK,LABEL='BUF')
 BPASS = (LL+LBuf-1)/Lbuf
 NPASS = (BPASS+NBLCK-1)/NBLCK
 
-!write(6,*) 'LL=',LL
-!write(6,*) 'LBUF=',LBUF
-!write(6,*) 'MEMX=',MEMX
-!write(6,*) 'BLKSZ=',BLKSZ
-!write(6,*) 'NBLCK=',NBLCK
-!write(6,*) 'BPASS=',BPASS
-!write(6,*) 'NPASS=',NPASS
+!write(u6,*) 'LL=',LL
+!write(u6,*) 'LBUF=',LBUF
+!write(u6,*) 'MEMX=',MEMX
+!write(u6,*) 'BLKSZ=',BLKSZ
+!write(u6,*) 'NBLCK=',NBLCK
+!write(u6,*) 'BPASS=',BPASS
+!write(u6,*) 'NPASS=',NPASS
 
 IADX = (KKTU-1)*IADXS
 IST = 1

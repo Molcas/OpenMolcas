@@ -24,7 +24,7 @@
 !>
 !> @param[in] iSymI,iSymJ,iSymA,iSymB Symmetry block of the two-electrons integrals
 !> @param[in] NumV                    Number of Cholesky vectors to transform in the current batch
-!> @param[in] iAddEx                  Memory pointer of the ``A,B`` integrals block
+!> @param[in,out] AddEx               Array of the ``A,B`` integrals block
 !> @param[in] LenEx                   Length of the ``A,B`` integrals block
 !***********************************************************************
 
@@ -32,7 +32,7 @@ subroutine Cho_GenE(iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddEx,LenEx)
 !***********************************************************************
 ! Author :  Giovanni Ghigo                                             *
 !           Lund University, Sweden & Torino University, Italy         *
-!           Jannuary-June 2005                                         *
+!           January-June 2005                                          *
 !----------------------------------------------------------------------*
 ! This is the routine that really generates the A,B block of exchange  *
 ! integrals (in symmetries iSymA,iSymB) for occupied MO iI,iJ in       *
@@ -41,64 +41,71 @@ subroutine Cho_GenE(iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddEx,LenEx)
 ! A,B MO                                                               *
 !***********************************************************************
 
-use Cho_Tra
+use Cho_Tra, only: DoTCVA, nAsh, nIsh, nSsh, SubBlocks
+use Data_Structures, only: Alloc1DArray_Type
+use stdalloc, only: mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-integer iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV, LenEx
-real*8 AddEx(LenEx)
-#include "rasdim.fh"
-#include "stdalloc.fh"
-#include "SysDef.fh"
-type V1
-  real*8, allocatable :: A(:)
-end type V1
-type(V1) :: AddSB(3,3)
-integer LenA(3), LenB(3)
+implicit none
+integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV, LenEx
+real(kind=wp), intent(inout) :: AddEx(LenEx)
+integer(kind=iwp) :: iA, iAddExSB, iAddSBi, iB, iLenA, iLenAa, iLenB, iLenBb, iSB_A, iSB_B, LenA(3), LenB(3)
+type(Alloc1DArray_Type) :: AddSB(3,3)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
-  subroutine MkExSB11(A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    real*8, allocatable :: A(:)
-    integer iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
+  subroutine MkExSB11(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
+    import :: wp, iwp
+    real(kind=wp), allocatable, intent(out) :: AddSB(:)
+    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
   end subroutine MkExSB11
-  subroutine MkExSB12(A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    real*8, allocatable :: A(:)
-    integer iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
+  subroutine MkExSB12(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
+    import :: wp, iwp
+    real(kind=wp), allocatable, intent(out) :: AddSB(:)
+    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
   end subroutine MkExSB12
-  subroutine MkExSB13(A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    real*8, allocatable :: A(:)
-    integer iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
+  subroutine MkExSB13(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
+    import :: wp, iwp
+    real(kind=wp), allocatable, intent(out) :: AddSB(:)
+    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
   end subroutine MkExSB13
-  subroutine MkExSB21(A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,B)
-    real*8, allocatable :: A(:)
-    integer iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
-    real*8 B(*)
+  subroutine MkExSB21(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddSBt)
+    import :: wp, iwp
+    real(kind=wp), allocatable, intent(out) :: AddSB(:)
+    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
+    real(kind=wp), intent(in) :: AddSBt(*)
   end subroutine MkExSB21
-  subroutine MkExSB22(A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    real*8, allocatable :: A(:)
-    integer iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
+  subroutine MkExSB22(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
+    import :: wp, iwp
+    real(kind=wp), allocatable, intent(out) :: AddSB(:)
+    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
   end subroutine MkExSB22
-  subroutine MkExSB23(A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    real*8, allocatable :: A(:)
-    integer iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
+  subroutine MkExSB23(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
+    import :: wp, iwp
+    real(kind=wp), allocatable, intent(out) :: AddSB(:)
+    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
   end subroutine MkExSB23
-  subroutine MkExSB31(A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,B)
-    real*8, allocatable :: A(:)
-    integer iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
-    real*8 B(*)
+  subroutine MkExSB31(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddSBt)
+    import :: wp, iwp
+    real(kind=wp), allocatable, intent(out) :: AddSB(:)
+    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
+    real(kind=wp), intent(in) :: AddSBt(*)
   end subroutine MkExSB31
-  subroutine MkExSB32(A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,B)
-    real*8, allocatable :: A(:)
-    integer iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
-    real*8 B(*)
+  subroutine MkExSB32(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddSBt)
+    import :: wp, iwp
+    real(kind=wp), allocatable, intent(out) :: AddSB(:)
+    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
+    real(kind=wp), intent(in) :: AddSBt(*)
   end subroutine MkExSB32
-  subroutine MkExSB33(A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    real*8, allocatable :: A(:)
-    integer iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
+  subroutine MkExSB33(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
+    import :: wp, iwp
+    real(kind=wp), allocatable, intent(out) :: AddSB(:)
+    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
   end subroutine MkExSB33
 end interface
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -132,7 +139,7 @@ if (DoTCVA) then
           if (LenB(iSB_B) == 0) cycle ! SB(1,iSB_A)
 
           iAddSBi = 1+LenB(iSB_B)*(iA-1)
-          call daxpy_(LenB(iSB_B),1.0d0,AddSB(iSB_A,iSB_B)%A(iAddSBi),1,AddEx(iAddExSB),1)
+          call daxpy_(LenB(iSB_B),One,AddSB(iSB_A,iSB_B)%A(iAddSBi),1,AddEx(iAddExSB),1)
           iAddExSB = iAddExSB+LenB(iSB_B)
         end do
       end do  ! iA
@@ -146,7 +153,7 @@ if (DoTCVA) then
           if (LenA(iSB_A) == 0) cycle ! SB(1,iSB_B)
 
           iAddSBi = 1+LenA(iSB_A)*(iB-1)
-          call daxpy_(LenA(iSB_A),1.0d0,AddSB(iSB_B,iSB_A)%A(iAddSBi),1,AddEx(iAddExSB),1)
+          call daxpy_(LenA(iSB_A),One,AddSB(iSB_B,iSB_A)%A(iAddSBi),1,AddEx(iAddExSB),1)
           iAddExSB = iAddExSB+LenA(iSB_A)
         end do  ! iSB_A
 
@@ -163,7 +170,7 @@ else
       iLenA = nSsh(iSymA)
       do iA=1,iLenA
         iAddSBi = 1+iLenBb*(iA-1)
-        call daxpy_(iLenBb,1.0d0,AddSB(3,3)%A(iAddSBi),1,AddEx(iAddExSB),1)
+        call daxpy_(iLenBb,One,AddSB(3,3)%A(iAddSBi),1,AddEx(iAddExSB),1)
         iAddExSB = iAddExSB+iLenBb
       end do  ! iA
     end if
@@ -173,7 +180,7 @@ else
       iLenB = nSsh(iSymB)
       do iB=1,iLenB
         iAddSBi = 1+iLenAa*(iB-1)
-        call daxpy_(iLenAa,1.0d0,AddSB(3,3)%A(iAddSBi),1,AddEx(iAddExSB),1)
+        call daxpy_(iLenAa,One,AddSB(3,3)%A(iAddSBi),1,AddEx(iAddExSB),1)
         iAddExSB = iAddExSB+iLenAa
       end do  ! iB
     end if

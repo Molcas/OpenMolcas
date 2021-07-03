@@ -24,15 +24,19 @@ subroutine tr2NsA1(CMO,X1,nX1,X2,nX2,X3,nX3,pqUS,npqUS,pqRU,npqRU,pqTU,npqTU,lBu
 ! (TA/BU) IF ISQ > ISR AND ISP /= ISQ
 ! (TA/UB) IF ISQ >= ISS AND ISP /= ISQ
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "rasdim.fh"
 #include "caspt2.fh"
+integer(kind=iwp), intent(in) :: nX1, nX2, nX3, npqUS, npqRU, npqTU, lBuf
+real(kind=wp), intent(in) :: CMO(NCMO)
+real(kind=wp), intent(out) :: X1(nX1), X2(nX2), X3(nX3)
+real(kind=wp), intent(inout) :: pqUS(npqUS), pqRU(npqRU), pqTU(npqTU)
+integer(kind=iwp) :: IAD1, IAD1S, IAD2, IAD2S, IAD3, IAD3S, icc, icxc1, icxc3, icxc5, icxc7, iOpt, IOUT1, IOUT2, IOUT3, IP, &
+                     IPQMX1, IPQMX2, IPQMX3, IQ, iRc, IRSST, LPQ, NORU, NOTU, NOUS, Num
 #include "trafo.fh"
-#include "intgrl.fh"
-#include "SysDef.fh"
-dimension CMO(NCMO)
-dimension X1(nX1), X2(nX2), X3(nX3)
-dimension PQTU(nPQTU), pqRU(npqRU), pqUS(npqUS)
 
 NOTU = NOCR*NOCS
 if (ISR == ISS) NOTU = (NOCR**2+NOCR)/2
@@ -49,9 +53,9 @@ icxc7 = NOCP*NOQ*NOCR*NOS
 ! 1. SORT OF PARTIALLY TRANSFORMED INTEGRALS (PQ|US) ON UNIT LUHLF1
 IPQMX1 = NBPQ
 !vv prevent integer overflow
-if (1.0d0*NBPQ*NOUS > LURPQ) then
+if (One*NBPQ*NOUS > LURPQ) then
   IPQMX1 = LURPQ/NOUS
-  !write(6,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|US)',IPQMX1
+  !write(u6,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|US)',IPQMX1
   IAD1S = 0
   call dDAFILE(LUHLF1,0,pqUS,IPQMX1,IAD1S)
 end if
@@ -60,9 +64,9 @@ IOUT1 = 0
 ! 2. SORT OF PARTIALLY TRANSFORMED INTEGRALS (PQ|RU) ON UNIT LUHLF2
 IPQMX2 = NBPQ
 !vv prevent integer overflow
-if (1.0d0*NBPQ*NORU > LRUPQ) then
+if (One*NBPQ*NORU > LRUPQ) then
   IPQMX2 = LRUPQ/NORU
-  !write(6,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|RU)',IPQMX2
+  !write(u6,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|RU)',IPQMX2
   IAD2S = 0
   call dDAFILE(LUHLF2,0,pqRU,IPQMX2,IAD2S)
 end if
@@ -71,9 +75,9 @@ IOUT2 = 0
 ! 3. SORT OF PARTIALLY TRANSFORMED INTEGRALS (PQ|TU) ON UNIT LUHLF3
 IPQMX3 = NBPQ
 !vv prevent integer overflow
-if (1.0d0*NBPQ*NOTU > LTUPQ) then
+if (One*NBPQ*NOTU > LTUPQ) then
   IPQMX3 = LTUPQ/NOTU
-  !write(6,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|TU)',IPQMX3
+  !write(u6,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|TU)',IPQMX3
   IAD3S = 0
   call dDAFILE(LUHLF3,0,PQTU,IPQMX3,IAD3S)
 end if
@@ -99,9 +103,9 @@ do IP=1,NBP
     if (LPQ == NPQ) then
       call Rdord(iRc,iOpt,ISP,ISQ,ISR,ISS,X1,lBuf,nPQ)
       if (IRC > 1) then
-        write(6,*) ' ERROR RETURN CODE IRC=',IRC
-        write(6,*) ' FROM RDORD, CALLED FROM TRA2.'
-        call Abend
+        write(u6,*) ' ERROR RETURN CODE IRC=',IRC
+        write(u6,*) ' FROM RDORD, CALLED FROM TRA2.'
+        call Abend()
       end if
       iOpt = 2
       LPQ = 0
@@ -123,7 +127,7 @@ do IP=1,NBP
     if ((icxc3 /= 0) .or. (icxc7 /= 0)) then
       if (ISR /= ISS) then
         !  (pq,rs) -> (pq,Us)
-        call DGEMM_('N','N',NBS,NOCR,NBR,1.0d0,X2,NBS,CMO(LMOR2),NBR,0.0d0,X3,NBS)
+        call DGEMM_('N','N',NBS,NOCR,NBR,One,X2,NBS,CMO(LMOR2),NBR,Zero,X3,NBS)
         !  (pq,Us) Sorting
         if (IOUT1 > IPQMX1) then
           IOUT1 = 1
@@ -141,7 +145,7 @@ do IP=1,NBP
 
     if ((icc /= 0) .or. (icxc1 /= 0) .or. (icxc5 /= 0)) then
       ! (pq,rs) -> (pq,rU)
-      call DGEMM_('T','N',NBR,NOCS,NBS,1.0d0,X2,NBS,CMO(LMOS2),NBS,0.0d0,X3,NBR)
+      call DGEMM_('T','N',NBR,NOCS,NBS,One,X2,NBS,CMO(LMOS2),NBS,Zero,X3,NBR)
       ! (pq,rU) Sorting
       if (IOUT2 > IPQMX2) then
         IOUT2 = 1
@@ -158,7 +162,7 @@ do IP=1,NBP
         if (ISR == ISS) then
           call MXMT(X3,NBR,1,CMO(LMOR2),1,NBR,X2,NOCR,NBR)
         else
-          call DGEMM_('T','N',NOCS,NOCR,NBR,1.0d0,X3,NBR,CMO(LMOR2),NBR,0.0d0,X2,NOCS)
+          call DGEMM_('T','N',NOCS,NOCR,NBR,One,X3,NBR,CMO(LMOR2),NBR,Zero,X2,NOCS)
         end if
         ! (pq,TU) Sorting
         if (IOUT3 > IPQMX3) then

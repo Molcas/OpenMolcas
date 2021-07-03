@@ -11,32 +11,34 @@
 ! Copyright (C) 2005, Giovanni Ghigo                                   *
 !***********************************************************************
 
-subroutine MkL2(iSymA,iSymI,iI,numV,LyType,iJy,AddLx0,SameLx)
+subroutine MkL3(iSymA,iSymI,iI,numV,LyType,iJy,AddLx0,SameLx)
 !***********************************************************************
 ! Author :  Giovanni Ghigo                                             *
 !           Lund University, Sweden & Torino University, Italy         *
 !           February 2005                                              *
 !----------------------------------------------------------------------*
-! Purpuse:  Generation of the Cholesky matrix of Active(iSymA) for     *
+! Purpuse:  Generation of the Cholesky matrix of Secondary(iSymA) for  *
 !           occupied iI(iSymI) for numV vectors.                       *
 !***********************************************************************
 
-use Cho_Tra
+use Cho_Tra, only: nIsh, nSsh, TCVX
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-integer iSymA, iSymI, iI, numV, LyType, iJy
-real*8 AddLx0(*)
-logical SameLx
-#include "rasdim.fh"
-#include "SysDef.fh"
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(in) :: iSymA, iSymI, iI, numV
+integer(kind=iwp), intent(inout) :: LyType, iJy
+real(kind=wp), intent(_OUT_) :: AddLx0(*)
+logical(kind=iwp), intent(inout) :: SameLx
+integer(kind=iwp) :: iAddLx, iAddTCVX, iIx, iV, LxType
 
 ! Build Lx
 if (iI <= nIsh(iSymI)) then
-  LxType = 2
+  LxType = 3
   iIx = iI
 else
-  LxType = 4
+  LxType = 5
   iIx = iI-nIsh(iSymI)
 end if
 
@@ -52,12 +54,12 @@ else
 end if
 
 iAddLx = 1
-iAddTCVX = 1+nAsh(iSymA)*(iIx-1)
+iAddTCVX = 1+nSsh(iSymA)*(iIx-1)
 do iV=1,numV
-  call dCopy_(nAsh(iSymA),TCVX(LxType,iSymA,iSymI)%A(iAddTCVX,iV),1,AddLx0(iAddLx),1)
-  iAddLx = iAddLx+nAsh(iSymA)
+  call dCopy_(nSsh(iSymA),TCVX(LxType,iSymA,iSymI)%A(iAddTCVX,iV),1,AddLx0(iAddLx),1)
+  iAddLx = iAddLx+nSsh(iSymA)
 end do
 
 return
 
-end subroutine MkL2
+end subroutine MkL3

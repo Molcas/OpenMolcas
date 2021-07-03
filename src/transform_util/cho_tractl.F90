@@ -101,20 +101,25 @@ subroutine Cho_TraCtl(iTraType,LUINTM,CMO,NCMO,DoExch2)
 ! If DoFull=.True also <p,q|r,s> where p,q,r,s: All MO (for CC)        *
 !***********************************************************************
 
-use Cho_Tra
+use Cho_Tra, only: DoCoul, DoExc2, DoFull, DoTCVA, IAD2M, IfTest, nAsh, nBas, nDel, nFro, nIsh, nOrb, nOsh, nSsh, nSym, NumCho, &
+                   TCVX, TCVXist
+use stdalloc, only: mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-#include "rasdim.fh"
-#include "stdalloc.fh"
-#include "SysDef.fh"
-dimension CMO(NCMO)
-character*4 CHNm
-character*6 CHName
-parameter(CHNm='CHFV')
-logical DoExch2
-logical Found
+implicit none
+integer(kind=iwp), intent(in) :: iTraType, LUINTM, NCMO
+real(kind=wp), intent(in) :: CMO(NCMO)
+logical(kind=iwp), intent(in) :: DoExch2
+integer(kind=iwp) :: iAddrIAD2M, iBatch, IPRX, irc, iStrtVec_AB, iSym, iSymA, iSymAI, iSymB, iSymBJ, iSymI, iSymJ, iSymL, iType, &
+                     jSym, k, LenIAD2M, lUCHFV, nBasT, nBatch, nData, nFVec, NumV, nVec
+real(kind=wp) :: CPE, CPU0, CPU1, CPU2, CPU3, CPU4, CPU_Gen, CPU_Tot, CPU_Tra, tcpu_reo, TCR1, TCR2, TIO0, TIO1, TIO2, TIO3, TIO4, &
+                 TIO_Gen, TIO_Tot, TIO_Tra, TIOE, TWR1, TWR2
+logical(kind=iwp) :: Found
+character(len=6) :: CHName
+character(len=4), parameter :: CHNm = 'CHFV'
 ! statement function
+integer(kind=iwp) :: i, j, MulD2h
 MulD2h(i,j) = ieor(i-1,j-1)+1
 
 !-----------------------------------------------------------------------
@@ -128,23 +133,23 @@ call Timing(CPU0,CPE,TIO0,TIOE)
 !**** INITIALIZATION ***************************************************
 
 call CWTIME(TCR1,TWR1)
-call Cho_X_init(irc,0.0)
+call Cho_X_init(irc,Zero)
 if (irc /= 0) then
-  write(6,*) ' In Cho_TraCtl: Cho_X_Init returned non-zero rc = ',irc
+  write(u6,*) ' In Cho_TraCtl: Cho_X_Init returned non-zero rc = ',irc
   call Abend()
 end if
 call Cho_X_ReoVec(irc) ! get (if not there) CD vects in full stor
 if (irc /= 0) then
-  write(6,*) ' In Cho_TraCtl: Cho_X_ReoVec returned non-zero rc = ',irc
+  write(u6,*) ' In Cho_TraCtl: Cho_X_ReoVec returned non-zero rc = ',irc
   call Abend()
 end if
 call Cho_X_final(irc)
 call CWTIME(TCR2,TWR2)
 tcpu_reo = (TCR2-TCR1)
-write(6,*) ' Reordering of the Cholesky vectors to full storage. '
-write(6,*) ' Elapsed time for the reordering section: ',tcpu_reo
-write(6,*) ' CPU time for the reordering section: ',tcpu_reo
-write(6,*)
+write(u6,*) ' Reordering of the Cholesky vectors to full storage. '
+write(u6,*) ' Elapsed time for the reordering section: ',tcpu_reo
+write(u6,*) ' CPU time for the reordering section: ',tcpu_reo
+write(u6,*)
 
 ! Define what has to be calculated.
 !  DoExc2 flag for the generation of Exch-2 integrals
@@ -217,14 +222,6 @@ do i=1,nSym
   nSsh(i) = nOrb(i)-nOsh(i)
 end do
 
-! Copy data to common ERI.
-NSYMZ = NSYM
-LUINTMZ = LUINTM
-do I=1,NSYM
-  NORBZ(I) = NORB(I)
-  NOSHZ(I) = NOSH(I)
-end do
-
 ! Initialize information arrays.
 
 TCVXist(:,:,:) = .false. ! TCVx existing flag.
@@ -240,25 +237,25 @@ iAddrIAD2M = 0
 call iDaFile(LUINTM,1,IAD2M,LenIAD2M,iAddrIAD2M)
 
 ! The Timing:
-CPU_Tra = 0.0d0
-TIO_Tra = 0.0d0
-CPU_Gen = 0.0d0
-TIO_Gen = 0.0d0
+CPU_Tra = Zero
+TIO_Tra = Zero
+CPU_Gen = Zero
+TIO_Gen = Zero
 
 !-----------------------------------------------------------------------
 if (IfTest) then
-  write(6,*)
-  write(6,'(A,8I5)') '           Symmetries :',(i,i=1,nSym)
-  write(6,*)
-  write(6,'(A,8I5)') '               Frozen :',(nFro(i),i=1,nSym)
-  write(6,'(A,8I5)') '         Inactive (I) :',(nIsh(i),i=1,nSym)
-  write(6,'(A,8I5)') '           Active (A) :',(nAsh(i),i=1,nSym)
-  write(6,'(A,8I5)') '        Secondary (S) :',(nSsh(i),i=1,nSym)
-  write(6,'(A,8I5)') '              Deleted :',(nDel(i),i=1,nSym)
-  write(6,*)
-  write(6,'(A,8I5)') '      Total correlated:',(nOrb(i),i=1,nSym)
-  write(6,*)
-  call XFlush(6)
+  write(u6,*)
+  write(u6,'(A,8I5)') '           Symmetries :',(i,i=1,nSym)
+  write(u6,*)
+  write(u6,'(A,8I5)') '               Frozen :',(nFro(i),i=1,nSym)
+  write(u6,'(A,8I5)') '         Inactive (I) :',(nIsh(i),i=1,nSym)
+  write(u6,'(A,8I5)') '           Active (A) :',(nAsh(i),i=1,nSym)
+  write(u6,'(A,8I5)') '        Secondary (S) :',(nSsh(i),i=1,nSym)
+  write(u6,'(A,8I5)') '              Deleted :',(nDel(i),i=1,nSym)
+  write(u6,*)
+  write(u6,'(A,8I5)') '      Total correlated:',(nOrb(i),i=1,nSym)
+  write(u6,*)
+  call XFlush(u6)
 end if
 !-----------------------------------------------------------------------
 
@@ -269,29 +266,28 @@ do iSymL=1,nSym
   call Mem_Est(iSymL,nVec,nFVec)
   !---------------------------------------------------------------------
   if (IfTest) then
-    write(6,*)
-    write(6,*) ' TCVx generated in Symmetry',iSymL
+    write(u6,*)
+    write(u6,*) ' TCVx generated in Symmetry',iSymL
     do i=1,nSym
       do j=1,nSym
         do k=1,6
-          if (TCVXist(k,i,j)) write(6,*) ' Type=',k,' Symmetries:',i,j
+          if (TCVXist(k,i,j)) write(u6,*) ' Type=',k,' Symmetries:',i,j
         end do
       end do
     end do
-    call XFlush(6)
+    call XFlush(u6)
   end if
   !---------------------------------------------------------------------
-  if ((nVec > 0) .and. (nFVec > 0)) then
-    nBatch = (NumCho(iSymL)-1)/nVec+1
-  else
-    write(6,*)
-    write(6,*) ' ************************************'
-    write(6,*) ' *  Insufficient memory for batch ! *'
-    write(6,*) ' ************************************'
-    write(6,*)
-    call XFlush(6)
+  if ((nVec <= 0) .or. (nFVec <= 0)) then
+    write(u6,*)
+    write(u6,*) ' ************************************'
+    write(u6,*) ' *  Insufficient memory for batch ! *'
+    write(u6,*) ' ************************************'
+    write(u6,*)
+    call XFlush(u6)
     call Abend()
   end if
+  nBatch = (NumCho(iSymL)-1)/nVec+1
 
   ! START LOOP iBatch
   do iBatch=1,nBatch
@@ -304,9 +300,9 @@ do iSymL=1,nSym
     !-------------------------------------------------------------------
     !if (IfTest) then
     !  nFBatch = (NumV-1) / nFVec + 1
-    !  write(6,*)
-    !  write(6,*)' iBatch=',iBatch,' of',nBatch,' - NumV=',NumV,' - nFBatch=',nFBatch
-    !  call XFlush(6)
+    !  write(u6,*)
+    !  write(u6,*)' iBatch=',iBatch,' of',nBatch,' - NumV=',NumV,' - nFBatch=',nFBatch
+    !  call XFlush(u6)
     !end if
     !-------------------------------------------------------------------
 
@@ -326,8 +322,8 @@ do iSymL=1,nSym
             call dAName_MF_WA(lUCHFV,CHName)
             !-----------------------------------------------------------
             !if (IfTest) then
-            !  write(6,*) ' - Open ',CHName,' unit=',lUCHFV,' Vect=',iStrtVec_AB
-            !  call XFlush(6)
+            !  write(u6,*) ' - Open ',CHName,' unit=',lUCHFV,' Vect=',iStrtVec_AB
+            !  call XFlush(u6)
             !end if
             !-----------------------------------------------------------
 
@@ -340,8 +336,8 @@ do iSymL=1,nSym
             call dAClos(lUCHFV)
             !-----------------------------------------------------------
             !if (IfTest) then
-            !  write(6,*) ' - Closed ',CHName
-            !  call XFlush(6)
+            !  write(u6,*) ' - Closed ',CHName
+            !  call XFlush(u6)
             !end if
             !-----------------------------------------------------------
           end if
@@ -358,8 +354,8 @@ do iSymL=1,nSym
     ! Start Generation of Integrals files  TCVx -> MOLINT
     !-------------------------------------------------------------------
     if (IfTest) then
-      write(6,*) ' - Generation of Integrals:'
-      call XFlush(6)
+      write(u6,*) ' - Generation of Integrals:'
+      call XFlush(u6)
     end if
     !-------------------------------------------------------------------
 
@@ -380,9 +376,9 @@ do iSymL=1,nSym
     end do
     ! End Loop on I, J, A, B Symmetries
 
-    do iType=1,MxTCVx
-      do iSym=1,MaxSym
-        do jSym=1,MaxSym
+    do iType=1,size(TCVX,1)
+      do iSym=1,size(TCVX,2)
+        do jSym=1,size(TCVX,3)
 
           if (allocated(TCVX(iType,iSym,jSym)%A)) call mma_deallocate(TCVX(iType,iSym,jSym)%A)
 
@@ -404,15 +400,15 @@ end do
 iAddrIAD2M = 0
 call iDaFile(LUINTM,1,IAD2M,LenIAD2M,iAddrIAD2M)
 
-write(6,*) 'TIMING INFORMATION:   CPU(s)   %CPU   Elapsed(s)'
-write(6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Transformation     ',CPU_Tra,1.0d2*CPU_Tra/max(1.0d0,TIO_Tra),TIO_Tra
-write(6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Generation         ',CPU_Gen,1.0d2*CPU_Gen/max(1.0d0,TIO_Gen),TIO_Gen
+write(u6,*) 'TIMING INFORMATION:   CPU(s)   %CPU   Elapsed(s)'
+write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Transformation     ',CPU_Tra,1.0e2_wp*CPU_Tra/max(One,TIO_Tra),TIO_Tra
+write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Generation         ',CPU_Gen,1.0e2_wp*CPU_Gen/max(One,TIO_Gen),TIO_Gen
 call Timing(CPU4,CPE,TIO4,TIOE)
 CPU_Tot = CPU4-CPU0
 TIO_Tot = TIO4-TIO0
-write(6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' TOTAL              ',CPU_Tot,1.0d2*CPU_Tot/max(1.0d0,TIO_Tot),TIO_Tot
-write(6,*)
-call XFlush(6)
+write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' TOTAL              ',CPU_Tot,1.0e2_wp*CPU_Tot/max(One,TIO_Tot),TIO_Tot
+write(u6,*)
+call XFlush(u6)
 !-----------------------------------------------------------------------
 if (IfTest) then
   !IPRX=0    ! Do not print Coulomb nor Exchange Integrals
@@ -423,7 +419,7 @@ if (IfTest) then
 end if
 !-----------------------------------------------------------------------
 
-call put_tra_comm(IAD2M,NSYMZ,NORBZ,NOSHZ,LUINTMZ)
+call put_tra_comm(IAD2M,NSYM,NORB,NOSH,LUINTM)
 
 return
 

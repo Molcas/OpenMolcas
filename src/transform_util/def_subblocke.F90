@@ -19,31 +19,30 @@ subroutine Def_SubBlockE(iSymA,iSymB)
 ! Define the SubBlocks to calculate in the Exchange matrix.            *
 !***********************************************************************
 
-use Cho_Tra
+use Cho_Tra, only: DoTCVA, nAsh, nIsh, nSsh, SubBlocks
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
+implicit none
+integer(kind=iwp), intent(in) :: iSymA, iSymB
 
-do i=1,3
-  do j=1,3
-    SubBlocks(i,j) = .false.
-  end do
-end do
-if (DoTCVA .and. (nIsh(iSymA) > 0)) then
-  if (nIsh(iSymB) > 0) SubBlocks(1,1) = .true.
-  if (nAsh(iSymB) > 0) SubBlocks(1,2) = .true.
-  if (nSsh(iSymB) > 0) SubBlocks(1,3) = .true.
+SubBlocks(:,:) = .false.
+if (DoTCVA) then
+  if (nIsh(iSymA) > 0) then
+    if (nIsh(iSymB) > 0) SubBlocks(1,1) = .true.
+    if (nAsh(iSymB) > 0) SubBlocks(1,2) = .true.
+    if (nSsh(iSymB) > 0) SubBlocks(1,3) = .true.
+  end if
+  if (nAsh(iSymA) > 0) then
+    if (nIsh(iSymB) > 0) SubBlocks(2,1) = .true.
+    if (nAsh(iSymB) > 0) SubBlocks(2,2) = .true.
+    if (nSsh(iSymB) > 0) SubBlocks(2,3) = .true.
+  end if
+  if (nSsh(iSymA) > 0) then
+    if (nIsh(iSymB) > 0) SubBlocks(3,1) = .true.
+    if (nAsh(iSymB) > 0) SubBlocks(3,2) = .true.
+  end if
 end if
-if (DoTCVA .and. (nAsh(iSymA) > 0)) then
-  if (nIsh(iSymB) > 0) SubBlocks(2,1) = .true.
-  if (nAsh(iSymB) > 0) SubBlocks(2,2) = .true.
-  if (nSsh(iSymB) > 0) SubBlocks(2,3) = .true.
-end if
-if (DoTCVA .and. (nSsh(iSymA) > 0)) then
-  if (nIsh(iSymB) > 0) SubBlocks(3,1) = .true.
-  if (nAsh(iSymB) > 0) SubBlocks(3,2) = .true.
-end if
-if ((nSsh(iSymA)*nSsh(iSymB)) > 0) SubBlocks(3,3) = .true.
+if ((nSsh(iSymA) > 0) .and. (nSsh(iSymB) > 0)) SubBlocks(3,3) = .true.
 
 return
 

@@ -11,29 +11,29 @@
 ! Copyright (C) 2005, Giovanni Ghigo                                   *
 !***********************************************************************
 
-subroutine MkCouSB21(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
+subroutine MkCouSB32(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
 !***********************************************************************
 ! Author :  Giovanni Ghigo                                             *
 !           Lund University, Sweden & Torino University, Italy         *
 !           July 2005                                                  *
 !----------------------------------------------------------------------*
-! Purpuse:  Generation of the SubBlock(2,1) (p active, q inactive) of  *
+! Purpuse:  Generation of the SubBlock(3,2) (p secondary, q active) of *
 !           two-electron integral matrix for each i,j occupied couple. *
 !***********************************************************************
 
-use Cho_Tra
+use Cho_Tra, only: nAsh, nSsh, TCVX
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-real*8, allocatable :: AddSB(:)
-#include "rasdim.fh"
-#include "stdalloc.fh"
-#include "SysDef.fh"
-real*8, allocatable :: Lij(:)
-real*8, allocatable :: AddSBt(:)
+implicit none
+real(kind=wp), allocatable, intent(out) :: AddSB(:)
+integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
+integer(kind=iwp) :: LenAB, LenSB
+real(kind=wp), allocatable :: AddSBt(:), Lij(:)
 
-! SubBlock 2 1
-LenSB = nAsh(iSymA)*nIsh(iSymB)
+! SubBlock 3 2
+LenSB = nSsh(iSymA)*nAsh(iSymB)
 call mma_allocate(AddSB,LenSB,Label='AddSB')
 
 call mma_allocate(AddSBt,LenSB,Label='AddSBt')
@@ -42,9 +42,9 @@ call mma_allocate(AddSBt,LenSB,Label='AddSBt')
 LenAB = LenSB
 !-----------------------------------------------------------------------
 !if (IfTest) then
-!  write(6,*) '     MkCouSB21: TCVB(',iSymA,',',iSymB,')'
-!  write(6,'(8F10.6)') TCVX(2,iSymA,iSymB)%A(:,:)
-!  call XFlush(6)
+!  write(u6,*) '     MkCouSB32: TCVE(',iSymA,',',iSymB,')'
+!  write(u6,'(8F10.6)') TCVX(5,iSymA,iSymB)%A(:,:)
+!  call XFlush(u6)
 !end if
 !-----------------------------------------------------------------------
 
@@ -53,12 +53,12 @@ call mma_allocate(Lij,NumV,Label='Lij')
 call MkLij(iSymI,iSymJ,iI,iJ,numV,Lij)
 
 ! Generate the SubBlock
-call DGEMM_('N','N',LenAB,1,numV,1.0d0,TCVX(2,iSymA,iSymB)%A,LenAB,Lij,NumV,0.0d0,AddSBt,LenSB)
-call Trnsps(nAsh(iSymA),nIsh(iSymB),AddSBt,AddSB)
+call DGEMM_('N','N',LenAB,1,numV,One,TCVX(5,iSymA,iSymB)%A,LenAB,Lij,NumV,Zero,AddSBt,LenSB)
+call Trnsps(nSsh(iSymA),nAsh(iSymB),AddSBt,AddSB)
 
 call mma_deallocate(Lij)
 call mma_deallocate(AddSBt)
 
 return
 
-end subroutine MkCouSB21
+end subroutine MkCouSB32

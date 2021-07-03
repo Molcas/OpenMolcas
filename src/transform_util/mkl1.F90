@@ -11,49 +11,56 @@
 ! Copyright (C) 2005, Giovanni Ghigo                                   *
 !***********************************************************************
 
-subroutine MkCouSB11(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
+subroutine MkL1(iSymA,iSymI,iI,numV,LyType,iJy,AddLx0,SameLx)
 !***********************************************************************
 ! Author :  Giovanni Ghigo                                             *
 !           Lund University, Sweden & Torino University, Italy         *
-!           July 2005                                                  *
+!           February 2005                                              *
 !----------------------------------------------------------------------*
-! Purpuse:  Generation of the SubBlock(1,1) (p,q inactive) of the      *
-!           two-electron integral matrix for each i,j occupied couple. *
+! Purpuse:  Generation of the Cholesky matrix of Inactive(iSymA) for   *
+!           occupied iI(iSymI) for numV vectors.                       *
 !***********************************************************************
 
-use Cho_Tra
+use Cho_Tra, only: nIsh, TCVX
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-real*8, allocatable :: AddSB(:)
-#include "rasdim.fh"
-#include "stdalloc.fh"
-#include "SysDef.fh"
-real*8, allocatable :: Lij(:)
+#include "intent.fh"
 
-! SubBlock 1 1
-LenSB = nIsh(iSymA)*nIsh(iSymB)
-call mma_allocate(AddSB,LenSB,Label='AddSB')
+implicit none
+integer(kind=iwp), intent(in) :: iSymA, iSymI, iI, numV
+integer(kind=iwp), intent(inout) :: LyType, iJy
+real(kind=wp), intent(_OUT_) :: AddLx0(*)
+logical(kind=iwp), intent(inout) :: SameLx
+integer(kind=iwp) :: iAddLx, iAddTCVX, iIx, iV, LxType
 
-! Define Lab
-LenAB = LenSB
-!-----------------------------------------------------------------------
-!if (IfTest) then
-!  write(6,*) '     MkCouSB11: TCVA(',iSymA,',',iSymB,')'
-!  write(6,'(8F10.6)') TCVX(1,iSymA,iSymB)%A(:,:)
-!  call XFlush(6)
-!end if
-!-----------------------------------------------------------------------
+! Build Lx
+if (iI <= nIsh(iSymI)) then
+  LxType = 1
+  iIx = iI
+else
+  LxType = 7
+  iIx = iI-nIsh(iSymI)
+end if
 
-! Build Lij
-call mma_allocate(Lij,NumV,Label='Lij')
-call MkLij(iSymI,iSymJ,iI,iJ,numV,Lij)
+if (.not. SameLx) then
+  LyType = LxType
+  iJy = iIx
+else
+  if ((LyType == LxType) .and. (iIx == iJy)) then
+    return
+  else
+    SameLx = .false.
+  end if
+end if
 
-! Generate the SubBlock
-call DGEMM_('N','N',LenAB,1,numV,1.0d0,TCVX(1,iSymA,iSymB)%A,LenAB,Lij,numV,0.0d0,AddSB,LenSB)
+iAddTCVX = 1+nIsh(iSymA)*(iIx-1)
 
-call mma_deallocate(Lij)
+iAddLx = 1
+do iV=1,numV
+  call dCopy_(nIsh(iSymA),TCVX(LxType,iSymA,iSymI)%A(iAddTCVX,iV),1,AddLx0(iAddLx),1)
+  iAddLx = iAddLx+nIsh(iSymA)
+end do
 
 return
 
-end subroutine MkCouSB11
+end subroutine MkL1

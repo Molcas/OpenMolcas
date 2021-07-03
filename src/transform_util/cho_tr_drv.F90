@@ -12,49 +12,49 @@
 subroutine CHO_TR_drv(rc,nIsh,nAsh,nSsh,Porb,BName,Do_int,ihdf5,Xint,lXint)
 !*********************************************************************
 !  a,b,g,d:  AO-index
-!  p,q,r,s:  MO-indeces belonging to all (fro and del excluded)
+!  p,q,r,s:  MO-indices belonging to all (fro and del excluded)
 !*********************************************************************
 
 #ifdef _HDF5_QCM_
-use hdf5_utils
+use hdf5_utils, only: file_id, hdf5_close_cholesky, hdf5_init_wr_cholesky, hdf5_write_cholesky, HID_T
 #endif
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
-use Data_Structures, only: DSBA_Type
-use Data_Structures, only: SBA_Type
-use Data_Structures, only: Allocate_SBA, Deallocate_SBA
+use Data_Structures, only: Allocate_SBA, Deallocate_SBA, DSBA_Type, SBA_Type
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
 
-implicit real*8(a-h,o-z)
-integer rc, nIsh(*), nAsh(*), nSsh(*), lXint, ihdf5
-real*8 Xint(0:lXint-1)
-character*6 BName
-type(DSBA_Type) Porb
+implicit none
+integer(kind=iwp), intent(out) :: rc
+integer(kind=iwp), intent(in) :: nIsh(*), nAsh(*), nSsh(*), ihdf5, lXint
+type(DSBA_Type), intent(in) :: Porb(1)
+character(len=6), intent(in) :: BName
+logical(kind=iwp), intent(in) :: Do_int
+real(kind=wp), intent(out) :: Xint(0:lXint-1)
+integer(kind=iwp) :: iBatch, idisk, iLoc, iOffB(8), ipq, irc, IREDC, iSwap, iSymb, iSymp, IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, &
+                     jSym, JVC, JVEC, k, kMOs, kt, l, LREAD, LunChVF(8), LWORK, kOff(8), Mpq, mTTvec, mTvec, MUSED, mvec, NAp, &
+                     nApq, nAq, nBatch, nMOs, nOB(8), nPorb(8), nRS, NUMV, nVec, nVrs
+#ifdef _HDF5_QCM_
+integer(kind=HID_T) :: choset_id, space_id
+#endif
+real(kind=wp) :: TCM1, TCM2, TCM3, TCM4, TCR1, TCR2, TCR3, TCR4, TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, TWM1, &
+                 TWM2, TWM3, TWM4, TWR1, TWR2, TWR3, TWR4, tmotr1(2), tmotr2(2), tread(2)
+character(len=50) :: CFmt
+character(len=7) :: Fnam
 type(SBA_Type), target :: ChoT(1)
-real*8 tread(2), tmotr1(2), tmotr2(2)
-logical, parameter :: DoRead = .false.
-logical Do_int
-integer nPorb(8)
-integer LunChVF(8), kOff(8), iOffB(8), nOB(8)
-character*7 Fnam
-character*50 CFmt
-character*10 SECNAM
-parameter(SECNAM='CHO_TR_drv')
+real(kind=wp), allocatable :: Lpq(:,:), Lpq_J(:), Lrs(:)
+logical(kind=iwp), parameter :: DoRead = .false.
+character(len=10), parameter :: SECNAM = 'CHO_TR_drv'
+integer(kind=iwp), external :: IsFreeUnit
+real(kind=r8), external :: ddot_
 #include "chotime.fh"
 #include "chotraw.fh"
-parameter(zero=0.0d0,one=1.0d0)
-#ifdef _HDF5_QCM_
-integer(HID_T) :: choset_id
-integer(HID_T) :: space_id
-#endif
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
-real*8, allocatable :: Lrs(:)
-real*8, allocatable :: Lpq(:,:)
-real*8, allocatable :: Lpq_J(:)
-integer IsFreeUnit
 !***********************************************************************
 ! statement function
+integer(kind=iwp) :: i, j, MulD2h
 MulD2h(i,j) = ieor(i-1,j-1)+1
 !***********************************************************************
 
@@ -170,13 +170,13 @@ do jSym=1,nSym
     if (nVrs == 0) goto 999  ! no vectors in that (jred,jsym)
 
     if (nVrs < 0) then
-      write(6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
+      write(u6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
       call abend()
     end if
 
     call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
     if (irc /= 0) then
-      write(6,*) SECNAM//'cho_X_setred non-zero return code. rc= ',irc
+      write(u6,*) SECNAM//': Cho_X_SetRed non-zero return code. rc= ',irc
       call abend()
     end if
 
@@ -189,11 +189,11 @@ do jSym=1,nSym
     nVec = min(LWORK/(nRS+mvec+1),nVrs)
 
     if (nVec < 1) then
-      write(6,*) SECNAM//': Insufficient memory for batch'
-      write(6,*) 'LWORK= ',LWORK
-      write(6,*) 'Min. mem. need= ',nRS+mvec+1
-      write(6,*) 'Reading ',nRS,' and then MO-transform.'
-      write(6,*) 'In jsym= ',jsym,' and JRED= ',JRED
+      write(u6,*) SECNAM//': Insufficient memory for batch'
+      write(u6,*) 'LWORK= ',LWORK
+      write(u6,*) 'Min. mem. need= ',nRS+mvec+1
+      write(u6,*) 'Reading ',nRS,' and then MO-transform.'
+      write(u6,*) 'In jsym= ',jsym,' and JRED= ',JRED
       rc = 33
       call Abend()
       nBatch = -9999  ! dummy assignment
@@ -206,7 +206,7 @@ do jSym=1,nSym
 
     iSwap = 0  ! Lpb,J are returned by cho_x_getVtra
     call Allocate_SBA(ChoT(1),nPorb,nBas,nVec,JSYM,nSym,iSwap)
-    ChoT(1)%A0(:) = 0.0d0
+    ChoT(1)%A0(:) = Zero
 
     ! BATCH over the vectors
 
@@ -275,7 +275,7 @@ do jSym=1,nSym
 
           do JVC=1,JNUM
 
-            call DGEMM_Tri('N','T',NAp,NAp,nBas(iSymb),One,ChoT(1)%SB(iSymb)%A3(:,:,JVC),NAp,Porb%SB(iSymb)%A2,NAp,Zero, &
+            call DGEMM_Tri('N','T',NAp,NAp,nBas(iSymb),One,ChoT(1)%SB(iSymb)%A3(:,:,JVC),NAp,Porb(1)%SB(iSymb)%A2,NAp,Zero, &
                            Lpq(:,jVC),NAp)
 
           end do
@@ -294,7 +294,7 @@ do jSym=1,nSym
 #           ifdef _HDF5_QCM_
             else
               ! this should never happen, this case should be caught in motra.f
-              write(6,*) ' Writing of Cholesky vectors in HDF5 format as (pq,k) is not supported.'
+              write(u6,*) ' Writing of Cholesky vectors in HDF5 format as (pq,k) is not supported.'
               call Abend()
             end if
 #           endif
@@ -366,7 +366,7 @@ do jSym=1,nSym
           if (iSymp < iSymb) then
             do JVC=1,JNUM
 
-              call DGEMM_('N','T',NAp,NAq,nBas(iSymb),One,ChoT(1)%SB(iSymp)%A3(:,:,JVC),NAp,Porb%SB(iSymb)%A2,NAq,Zero, &
+              call DGEMM_('N','T',NAp,NAq,nBas(iSymb),One,ChoT(1)%SB(iSymp)%A3(:,:,JVC),NAp,Porb(1)%SB(iSymb)%A2,NAq,Zero, &
                            Lpq(:,JVC),NAp)
 
             end do
@@ -462,36 +462,36 @@ TOTWALL = TOTWALL2-TOTWALL1
 if (timings) then
 
   CFmt = '(6x,A)'
-  write(6,*)
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,CFmt) 'Cholesky-MOTRA timings            CPU       WALL '
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,CFmt) 'Cholesky-MOTRA timings            CPU       WALL '
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
 
   if (Do_int) then
-    write(6,'(6x,A28,2f10.2)') 'I/O vectors + diag ERIs step',tread(1),tread(2)
+    write(u6,'(6x,A28,2f10.2)') 'I/O vectors + diag ERIs step',tread(1),tread(2)
   else
-    write(6,'(6x,A28,2f10.2)') 'I/O vectors',tread(1),tread(2)
+    write(u6,'(6x,A28,2f10.2)') 'I/O vectors',tread(1),tread(2)
   end if
-  write(6,'(6x,A28,2f10.2)') '1st half-transf.',tmotr1(1),tmotr1(2)
-  write(6,'(6x,A28,2f10.2)') '2nd half-transf.',tmotr2(1),tmotr2(2)
-  write(6,*)
-  write(6,'(6x,A28,2f10.2)') 'TOTAL',TOTCPU,TOTWALL
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,*)
+  write(u6,'(6x,A28,2f10.2)') '1st half-transf.',tmotr1(1),tmotr1(2)
+  write(u6,'(6x,A28,2f10.2)') '2nd half-transf.',tmotr2(1),tmotr2(2)
+  write(u6,*)
+  write(u6,'(6x,A28,2f10.2)') 'TOTAL',TOTCPU,TOTWALL
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
 
 end if
 
 rc = 0
 
-write(6,*)
+write(u6,*)
 if (tv2disk == 'PQK') then
   tv2disk(1:2) = 'pq'
-  write(6,*) '     Transformed Cholesky vectors stored as L(',tv2disk(1:2),',',tv2disk(3:3),')'
+  write(u6,*) '     Transformed Cholesky vectors stored as L(',tv2disk(1:2),',',tv2disk(3:3),')'
 else
   tv2disk(2:3) = 'pq'
-  write(6,*) '     Transformed Cholesky vectors stored as L(',tv2disk(1:1),',',tv2disk(2:3),')'
+  write(u6,*) '     Transformed Cholesky vectors stored as L(',tv2disk(1:1),',',tv2disk(2:3),')'
 end if
-write(6,*)
+write(u6,*)
 
 return
 #ifndef _HDF5_QCM_

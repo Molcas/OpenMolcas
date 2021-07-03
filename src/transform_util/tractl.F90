@@ -39,20 +39,25 @@ subroutine TRACTL(iPart)
 !
 ! 98-09-02 J.Hasegawa Modified for non-squared integrals.
 
-implicit real*8(A-H,O-Z)
-logical IFTEST
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: iPart
+integer(kind=iwp) :: I, IERR, iiPart, IRC, ISYM, Keep(8), KEEPP, KEEPQ, KEEPR, KEEPS, KEEPT, L2, L2M, LATRU, LATUS, lBuf, LIADUT, &
+                     LMOP1, LMOQ1, LMOR1, LMOS1, LPQRS, LPQTU, LRS, LRSmx, LRUPQM, LTARU, LTAUS, LTUPQM, LTUPQX, LTURS, LTURSM, &
+                     LURPQM, LW1, LW2, LW2B, LW3, LW3B, LW4, LW4B, LW5, LW6, MaxRS, MEMLFT, MEMT, MEMX, Mxx1, Mxx2, Mxx3, &
+                     nBasXX(8), NCHAIN, NOCCT, NOTU, Nread, Nrest, NSP, NSPQ, NSPQR, NSQ, NSR, NSS, NSymR, NSymS, nSymXX, NX
+real(kind=wp) :: XLPQRS, XMEMT
+logical(kind=iwp) :: DoCholesky, IFTEST, iSquar
+real(kind=wp), allocatable :: W1(:)
 #include "rasdim.fh"
-#include "warnings.h"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
 #include "intgrl.fh"
-#include "SysDef.fh"
 #include "trafo.fh"
-dimension nBasXX(8), Keep(8)
-logical iSquar
-logical DoCholesky
-real*8, allocatable :: W1(:)
+#include "WrkSpc.fh"
+#include "warnings.h"
 
 IFTEST = .false.
 #ifdef _DEBUGPRINT_
@@ -78,17 +83,17 @@ end do
 !*JHsta
 call GetOrd(IRC,iSquar,nSymXX,nBasXX,Keep)
 if (OUTFMT == 'LONG    ') then
-  if (iSquar) write(6,*) 'TRACTL OrdInt status: squared'
-  if (.not. iSquar) write(6,*) 'TRACTL OrdInt status: non-squared'
+  if (iSquar) write(u6,*) 'TRACTL OrdInt status: squared'
+  if (.not. iSquar) write(u6,*) 'TRACTL OrdInt status: non-squared'
 end if
 !*JHend
 if (IRC /= 0) then
-  write(6,*) ' TRACTL, called to transform the two-electron'
-  write(6,*) ' integrals, got non-zero return code from'
-  write(6,*) ' subroutine GETORD. The return code is IRC=',IRC
-  write(6,*) ' Do you have a valid ORDINT file? If you do,'
-  write(6,*) ' please inform the MOLCAS group -- this may be'
-  write(6,*) ' a bug. Anyway, the calculations must stop, sorry.'
+  write(u6,*) ' TRACTL, called to transform the two-electron'
+  write(u6,*) ' integrals, got non-zero return code from'
+  write(u6,*) ' subroutine GETORD. The return code is IRC=',IRC
+  write(u6,*) ' Do you have a valid ORDINT file? If you do,'
+  write(u6,*) ' please inform the MOLCAS group -- this may be'
+  write(u6,*) ' a bug. Anyway, the calculations must stop, sorry.'
   call QUIT(_RC_IO_ERROR_READ_)
 end if
 !* PAM2007: For unknown reasons, one extra word is needed.
@@ -102,13 +107,13 @@ end if
 
 NBMX = 1
 do I=1,NSYM
-  !write(6,'(a,i2,a,i5)') 'ISYM=',I,'   nBas(ISYM)=',nBasXX(I)
+  !write(u6,'(a,i2,a,i5)') 'ISYM=',I,'   nBas(ISYM)=',nBasXX(I)
   NBMX = max(NBMX,nBasXX(i))
 end do
 
 !lBuf = MAX(255*255,NBMX**2)
 lBuf = 1+NBMX**2
-!write(6,'(2(A,I10))') 'NBMX=',NBMX,'   lBuf=',lBuf
+!write(u6,'(2(A,I10))') 'NBMX=',NBMX,'   lBuf=',lBuf
 !
 ! COMPARE CONTENT OF 1EL and 2EL INTEGRAL FILE
 IERR = 0
@@ -120,17 +125,17 @@ else
   end do
 end if
 if (IERR /= 0) then
-  write(6,*) '     *** ERROR IN SUBROUTINE TRACTL ***'
-  write(6,*) '          INCOMPATIBLE BASIS DATA'
-  write(6,*)
-  write(6,*) ' JOBIPH NR OF SYMM:',NSYM
-  write(6,*) ' JOBIPH NR OF BASIS FUNCTIONS/SYMM:'
-  write(6,'(1x,8I5)')(NBAS(I),I=1,NSYM)
-  write(6,*)
-  write(6,*) ' ORDINT NR OF SYMM:',NSYMXX
-  write(6,*) ' ORDINT NR OF BASIS FUNCTIONS/SYMM:'
-  write(6,'(1x,8I5)')(NBASXX(I),I=1,NSYMXX)
-  call ERRTRA
+  write(u6,*) '     *** ERROR IN SUBROUTINE TRACTL ***'
+  write(u6,*) '          INCOMPATIBLE BASIS DATA'
+  write(u6,*)
+  write(u6,*) ' JOBIPH NR OF SYMM:',NSYM
+  write(u6,*) ' JOBIPH NR OF BASIS FUNCTIONS/SYMM:'
+  write(u6,'(1x,8I5)') (NBAS(I),I=1,NSYM)
+  write(u6,*)
+  write(u6,*) ' ORDINT NR OF SYMM:',NSYMXX
+  write(u6,*) ' ORDINT NR OF BASIS FUNCTIONS/SYMM:'
+  write(u6,'(1x,8I5)') (NBASXX(I),I=1,NSYMXX)
+  call ERRTRA()
   call SYSHALT('TRACTL')
 end if
 
@@ -151,8 +156,8 @@ call iDAFILE(LUINTM,1,IAD2M,LIADUT,IAD13)
 
 ! Allocate largest possible array as work space:
 if (IFTEST) then
-  write(6,*) ' Symmetry  Basis functions   total orbitals    active orbitals'
-  write(6,*) ' -------------------------------------------------------------'
+  write(u6,*) ' Symmetry  Basis functions   total orbitals    active orbitals'
+  write(u6,*) ' -------------------------------------------------------------'
 end if
 call mma_maxDBLE(MEMX)
 MEMX = max(MEMX-1*MEMX/6,0)
@@ -245,7 +250,7 @@ do NSP=1,NSYM
         if (ISR == ISS) NOTU = (NOCR**2+NOCR)/2
 
         if (IFTEST) then
-          write(6,'(1X,4I2,2X,4I4,2X,4I4,2X,4I4)') NSP,NSQ,NSR,NSS,NBP,NBQ,NBR,NBS,NOP,NOQ,NOR,NOS,NOCP,NOCQ,NOCR,NOCS
+          write(u6,'(1X,4I2,2X,4I4,2X,4I4,2X,4I4)') NSP,NSQ,NSR,NSS,NBP,NBQ,NBR,NBS,NOP,NOQ,NOR,NOS,NOCP,NOCQ,NOCR,NOCS
         end if
 
         !JHsta
@@ -278,8 +283,8 @@ do NSP=1,NSYM
         if (L2M /= 0) L2M = max(NOP*NBS,NOQ*NBS)
 
         if ((MEMT > MEMLFT) .or. (L2 > MEMLFT-LURPQ)) then
-          !LRUPQ = INT((1.0D0*MEMLFT*LRUPQ+MEMT-1)/MEMT)
-          !LURPQ = INT((1.0D0*MEMLFT*LURPQ+MEMT-1)/MEMT)
+          !LRUPQ = INT((One*MEMLFT*LRUPQ+MEMT-1)/MEMT)
+          !LURPQ = INT((One*MEMLFT*LURPQ+MEMT-1)/MEMT)
           NX = MEMLFT/(LRUPQM+LURPQM+LTUPQM)
           iiPart = 1
           if (iPart > 0) then
@@ -289,9 +294,9 @@ do NSP=1,NSYM
           LURPQ = NX*LURPQM*iiPart
         end if
         LTUPQ = max(0,MEMLFT-LRUPQ-LURPQ)
-        !write(6,*) 'LRUPQ=',LRUPQ
-        !write(6,*) 'LURPQ=',LURPQ
-        !write(6,*) 'LTUPQ=',LTUPQ
+        !write(u6,*) 'LRUPQ=',LRUPQ
+        !write(u6,*) 'LURPQ=',LURPQ
+        !write(u6,*) 'LTUPQ=',LTUPQ
 
         if (LRUPQ < LRUPQM) GO TO 902
         if (LURPQ < LURPQM) GO TO 902
@@ -310,8 +315,8 @@ do NSP=1,NSYM
           Mxx2 = max(NBP*NBQ,NBR*NBS)
           ! LPQRS, MEMT integers, changed to Re*8. Defined and used in the
           ! following section only. Named XLPQRS, XMEMT, +small local changes.
-          XLPQRS = dble(NBRS)
-          XLPQRS = XLPQRS*dble(NBP*NBQ)
+          XLPQRS = real(NBRS,kind=wp)
+          XLPQRS = XLPQRS*real(NBP*NBQ,kind=wp)
           LTURS = NOCP*NOCQ*NBR*NBS
           ! Mxx1 words needed...
           LW2B = LW1+Mxx1
@@ -320,10 +325,10 @@ do NSP=1,NSYM
           ! The next line can also be written ''MEMLFT = MEMX-MXX1-MXX2''
           ! This could possibly be small or negative.
           MEMLFT = max(0,MEMX-LW3+LW1)
-          XMEMT = XLPQRS+dble(LTURS)
+          XMEMT = XLPQRS+real(LTURS,kind=wp)
           ! XMEMT is NBRS*NBP*NBQ + NOCP*NOCQ*NBR*NBS
-          if (XMEMT > dble(MEMLFT)) then
-            LPQRS = int((dble(MEMLFT)*XLPQRS)/XMEMT+0.5d0)
+          if (XMEMT > real(MEMLFT,kind=wp)) then
+            LPQRS = int((real(MEMLFT,kind=wp)*XLPQRS)/XMEMT+Half)
           else
             LPQRS = int(XLPQRS)
           end if
@@ -358,15 +363,15 @@ do NSP=1,NSYM
           !LW6 = LW5+LRUPQ
 
           if (IFTEST) then
-            write(6,*) 'Calling tr2Nsa'
-            write(6,*) 'MEMX=',MEMX
-            write(6,*) 'lLW1=',LW2-LW1
-            write(6,*) 'lLW2=',LW3-LW2
-            write(6,*) 'lLW3=',LW4-LW3
-            write(6,*) 'lLW4=',LW5-LW4
-            write(6,*) 'lLW5=',LW6-LW5
-            write(6,*) 'lLW6=',MEMX-(LW6-LW1)
-            write(6,*)
+            write(u6,*) 'Calling tr2Nsa'
+            write(u6,*) 'MEMX=',MEMX
+            write(u6,*) 'lLW1=',LW2-LW1
+            write(u6,*) 'lLW2=',LW3-LW2
+            write(u6,*) 'lLW3=',LW4-LW3
+            write(u6,*) 'lLW4=',LW5-LW4
+            write(u6,*) 'lLW5=',LW6-LW5
+            write(u6,*) 'lLW6=',MEMX-(LW6-LW1)
+            write(u6,*)
           end if
 
           LTUPQ = LTUPQX
@@ -384,7 +389,7 @@ do NSP=1,NSYM
   end do
 end do
 if (IFTEST) then
-  write(6,*) ' --------------------------------------------------------------'
+  write(u6,*) ' --------------------------------------------------------------'
 end if
 call mma_deallocate(W1)
 
@@ -401,29 +406,29 @@ return
 ! HERE IF INTERPHASE FROM SORT IN ERROR
 
 901 continue
-write(6,'(/5X,A,8I6)') 'ERROR IN KEEP PARAMETER FROM INTSORT FILE:  ',(KEEP(I),I=1,NSYM)
-write(6,'(/5X,A,8I6)') 'NOT CONSISTENT WITH OCCUPIED ORBITAL SPACE: ',(NOSH(I),I=1,NSYM)
-write(6,'(/5X,A)') 'PROGRAM STOP IN SUBROUTINE TRACTL'
+write(u6,'(/5X,A,8I6)') 'ERROR IN KEEP PARAMETER FROM INTSORT FILE:  ',(KEEP(I),I=1,NSYM)
+write(u6,'(/5X,A,8I6)') 'NOT CONSISTENT WITH OCCUPIED ORBITAL SPACE: ',(NOSH(I),I=1,NSYM)
+write(u6,'(/5X,A)') 'PROGRAM STOP IN SUBROUTINE TRACTL'
 goto 999
 
 ! HERE IF NOT ENOUGH CORE SPACE
 
 902 continue
-write(6,'(/1X,A)') 'NOT ENOUGH CORE SPACE FOR SORTING IN TRA2'
-write(6,'(/1X,A,I12)') 'TOTAL SORTING SPACE IS',MEMLFT
-write(6,'(/1X,A,I12,A,I12)') 'STEP1: AVAILABLE IS',LRUPQ,'  NEEDED IS',LRUPQM
-write(6,'(/1X,A,I12,A,I12)') 'STEP2:    ''''         ',LTUPQ,'  NEEDED IS',LTUPQM
-write(6,'(/1X,A,I12,A,I12)') 'STEP3:    ''''         ',LRUPQ+LTUPQ,'  NEEDED IS',L2M
+write(u6,'(/1X,A)') 'NOT ENOUGH CORE SPACE FOR SORTING IN TRA2'
+write(u6,'(/1X,A,I12)') 'TOTAL SORTING SPACE IS',MEMLFT
+write(u6,'(/1X,A,I12,A,I12)') 'STEP1: AVAILABLE IS',LRUPQ,'  NEEDED IS',LRUPQM
+write(u6,'(/1X,A,I12,A,I12)') 'STEP2:    ''''         ',LTUPQ,'  NEEDED IS',LTUPQM
+write(u6,'(/1X,A,I12,A,I12)') 'STEP3:    ''''         ',LRUPQ+LTUPQ,'  NEEDED IS',L2M
 goto 999
 
 903 continue
-write(6,'(/1X,A)') 'NOT ENOUGH CORE SPACE FOR SORTING IN TRATWO2'
-write(6,'(/1X,A,I12)') 'TOTAL SORTING SPACE IS',MEMLFT
-write(6,'(/1X,A,I12,A,I12)') 'STEP1: AVAILABLE IS',LPQRS,'  NEEDED IS',NBPQ
-write(6,'(/1X,A,I12,A,I12)') 'STEP1:     ''''        ',LTURS,'   ''''        ',LTURSM
+write(u6,'(/1X,A)') 'NOT ENOUGH CORE SPACE FOR SORTING IN TRATWO2'
+write(u6,'(/1X,A,I12)') 'TOTAL SORTING SPACE IS',MEMLFT
+write(u6,'(/1X,A,I12,A,I12)') 'STEP1: AVAILABLE IS',LPQRS,'  NEEDED IS',NBPQ
+write(u6,'(/1X,A,I12,A,I12)') 'STEP1:     ''''        ',LTURS,'   ''''        ',LTURSM
 goto 999
 
 999 continue
-call Abend
+call Abend()
 
 end subroutine TRACTL

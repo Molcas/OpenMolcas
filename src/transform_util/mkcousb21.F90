@@ -11,60 +11,54 @@
 ! Copyright (C) 2005, Giovanni Ghigo                                   *
 !***********************************************************************
 
-subroutine MkLij(iSymI,iSymJ,iI,iJ,numV,Lij)
+subroutine MkCouSB21(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
 !***********************************************************************
 ! Author :  Giovanni Ghigo                                             *
-!           Torino University, Italy                                   *
+!           Lund University, Sweden & Torino University, Italy         *
 !           July 2005                                                  *
 !----------------------------------------------------------------------*
-! Purpuse:  Generation of the Cholesky vector for occupied iI(iSymI),  *
-!           iJ(iSymJ) for numV vectors.                                *
+! Purpuse:  Generation of the SubBlock(2,1) (p active, q inactive) of  *
+!           two-electron integral matrix for each i,j occupied couple. *
 !***********************************************************************
 
-use Cho_Tra
+use Cho_Tra, only: nAsh, nIsh, TCVX
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-integer iSymI, iSymJ, iI, iJ, numV
-real*8 Lij(NumV)
-#include "rasdim.fh"
-#include "SysDef.fh"
+implicit none
+real(kind=wp), allocatable, intent(out) :: AddSB(:)
+integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
+integer(kind=iwp) :: LenAB, LenSB
+real(kind=wp), allocatable :: AddSBt(:), Lij(:)
 
-if (iI <= nIsh(iSymI)) then
-  iIx = iI
-  nIx = nIsh(iSymI)
-  if (iJ <= nIsh(iSymJ)) then
-    LijType = 1
-    iJy = iJ
-    nJy = nIsh(iSymJ)
-  else
-    LijType = 7
-    iJy = iJ-nIsh(iSymJ)
-    nJy = nAsh(iSymJ)
-  end if
-else
-  iIx = iI-nIsh(iSymI)
-  nIx = nAsh(iSymI)
-  if (iJ <= nIsh(iSymJ)) then
-    LijType = 2
-    iJy = iJ
-    nJy = nIsh(iSymJ)
-  else
-    LijType = 4
-    iJy = iJ-nIsh(iSymJ)
-    nJy = nAsh(iSymJ)
-  end if
-end if
+! SubBlock 2 1
+LenSB = nAsh(iSymA)*nIsh(iSymB)
+call mma_allocate(AddSB,LenSB,Label='AddSB')
 
+call mma_allocate(AddSBt,LenSB,Label='AddSBt')
+
+! Define Lab
+LenAB = LenSB
 !-----------------------------------------------------------------------
-if (IfTest) then
-  write(6,*) '     Cho_MkLij: TCVx(',LijType,': ',iSymI,',',iSymJ,')'
-  call XFlush(6)
-end if
+!if (IfTest) then
+!  write(u6,*) '     MkCouSB21: TCVB(',iSymA,',',iSymB,')'
+!  write(u6,'(8F10.6)') TCVX(2,iSymA,iSymB)%A(:,:)
+!  call XFlush(u6)
+!end if
 !-----------------------------------------------------------------------
-iAddTCVX = iIx+nIx*(iJy-1)
-call dCopy_(numV,TCVX(LijType,iSymI,iSymJ)%A(iAddTCVX,1),nIx*nJy,Lij,1)
+
+! Build Lij
+call mma_allocate(Lij,NumV,Label='Lij')
+call MkLij(iSymI,iSymJ,iI,iJ,numV,Lij)
+
+! Generate the SubBlock
+call DGEMM_('N','N',LenAB,1,numV,One,TCVX(2,iSymA,iSymB)%A,LenAB,Lij,NumV,Zero,AddSBt,LenSB)
+call Trnsps(nAsh(iSymA),nIsh(iSymB),AddSBt,AddSB)
+
+call mma_deallocate(Lij)
+call mma_deallocate(AddSBt)
 
 return
 
-end subroutine MkLij
+end subroutine MkCouSB21

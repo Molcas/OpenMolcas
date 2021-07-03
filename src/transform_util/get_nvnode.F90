@@ -11,7 +11,13 @@
 
 subroutine Get_NVnode(NVEC)
 
-integer NVEC(*)
+use Definitions, only: iwp
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(_OUT_) :: NVEC(*)
+integer(kind=iwp) :: i
 #include "cholesky.fh"
 
 do i=1,nSym

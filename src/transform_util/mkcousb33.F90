@@ -21,15 +21,16 @@ subroutine MkCouSB33(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
 !           two-electron integral matrix for each i,j occupied couple. *
 !***********************************************************************
 
-use Cho_Tra
+use Cho_Tra, only: nSsh, TCVX
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-real*8, allocatable :: AddSB(:)
-#include "rasdim.fh"
-#include "stdalloc.fh"
-#include "SysDef.fh"
-real*8, allocatable :: Lij(:)
+implicit none
+real(kind=wp), allocatable, intent(out) :: AddSB(:)
+integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
+integer(kind=iwp) :: LenAB, LenSB
+real(kind=wp), allocatable :: Lij(:)
 
 ! SubBlock 3 3
 LenSB = nSsh(iSymA)*nSsh(iSymB)
@@ -39,9 +40,9 @@ call mma_allocate(AddSB,LenSB,Label='AddSB')
 LenAB = LenSB
 !-----------------------------------------------------------------------
 !if (IfTest) then
-!  write(6,*) '     MkCouSB33: TCVF(',iSymA,',',iSymB,')'
-!  write(6,'(8F10.6)') TCVX(6,iSymA,iSymB)%A(:,:)
-!  call XFlush(6)
+!  write(u6,*) '     MkCouSB33: TCVF(',iSymA,',',iSymB,')'
+!  write(u6,'(8F10.6)') TCVX(6,iSymA,iSymB)%A(:,:)
+!  call XFlush(u6)
 !end if
 !-----------------------------------------------------------------------
 
@@ -50,7 +51,7 @@ call mma_allocate(Lij,NumV,Label='Lij')
 call MkLij(iSymI,iSymJ,iI,iJ,numV,Lij)
 
 ! Generate the SubBlock
-call DGEMM_('N','N',LenAB,1,numV,1.0d0,TCVX(6,iSymA,iSymB)%A,LenAB,Lij,NumV,0.0d0,AddSB,LenSB)
+call DGEMM_('N','N',LenAB,1,numV,One,TCVX(6,iSymA,iSymB)%A,LenAB,Lij,NumV,Zero,AddSB,LenSB)
 
 call mma_deallocate(Lij)
 

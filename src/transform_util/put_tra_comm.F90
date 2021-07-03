@@ -13,20 +13,16 @@
 
 subroutine put_tra_comm(IBD2M,NSYMX,NORBX,NOSHX,LUINTMX)
 
-implicit real*8(a-h,o-z)
-integer IBD2M(3,36*36), NSYMX, NORBX(8), NOSHX(8), LUINTMX
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: IBD2M(3,36*36), NSYMX, NORBX(8), NOSHX(8), LUINTMX
 #include "intgrl.fh"
 
-do j=1,36*36
-  do i=1,3
-    IAD2M(i,j) = IBD2M(i,j)
-  end do
-end do
+IAD2M(:,:) = IBD2M(:,:)
 NSYMZ = NSYMX
-do i=1,8
-  NORBZ(i) = NORBX(i)
-  NOSHZ(i) = NOSHX(i)
-end do
+NORBZ(:) = NORBX(:)
+NOSHZ(:) = NOSHX(:)
 LUINTMZ = LUINTMX
 
 return

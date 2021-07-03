@@ -11,55 +11,55 @@
 ! Copyright (C) 2005, Giovanni Ghigo                                   *
 !***********************************************************************
 
-subroutine MkExSB21(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddSBt)
+subroutine MkL2(iSymA,iSymI,iI,numV,LyType,iJy,AddLx0,SameLx)
 !***********************************************************************
 ! Author :  Giovanni Ghigo                                             *
 !           Lund University, Sweden & Torino University, Italy         *
 !           February 2005                                              *
 !----------------------------------------------------------------------*
-! Purpuse:  Generation of the SubBlock(2,1) (p,q active,inactive) of   *
-!           two-electron integral matrix for each i,j occupied couple. *
+! Purpuse:  Generation of the Cholesky matrix of Active(iSymA) for     *
+!           occupied iI(iSymI) for numV vectors.                       *
 !***********************************************************************
 
-use Cho_Tra
+use Cho_Tra, only: nAsh, nIsh, TCVX
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-real*8, allocatable :: AddSB(:)
-integer iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
-real*8 AddSBt(*)
-#include "rasdim.fh"
-#include "stdalloc.fh"
-#include "SysDef.fh"
-logical SameLx
-real*8, allocatable :: Lx0(:), Ly0(:)
+#include "intent.fh"
 
-! SubBlock 2 1
-LenSB = nAsh(iSymA)*nIsh(iSymB)
-call mma_allocate(AddSB,LenSB,Label='AddSB')
-if ((iSymA == iSymB) .and. (iSymI == iSymJ) .and. (iI == iJ)) then
-  ! SB 2,1 = (SB 1,2)+
-  call Trnsps(nAsh(iSymB),nIsh(iSymA),AddSBt,AddSB)
-  return
-end if
+implicit none
+integer(kind=iwp), intent(in) :: iSymA, iSymI, iI, numV
+integer(kind=iwp), intent(inout) :: LyType, iJy
+real(kind=wp), intent(_OUT_) :: AddLx0(*)
+logical(kind=iwp), intent(inout) :: SameLx
+integer(kind=iwp) :: iAddLx, iAddTCVX, iIx, iV, LxType
 
 ! Build Lx
-call mma_allocate(Lx0,nAsh(iSymA)*numV,Label='Lx0')
-LxType = 0
-iIx = 0
-SameLx = .false.
-call MkL2(iSymA,iSymI,iI,numV,LxType,iIx,Lx0,SameLx)
+if (iI <= nIsh(iSymI)) then
+  LxType = 2
+  iIx = iI
+else
+  LxType = 4
+  iIx = iI-nIsh(iSymI)
+end if
 
-! Build Ly
-call mma_allocate(Ly0,nIsh(iSymB)*numV,Label='Ly0')
-call MkL1(iSymB,iSymJ,iJ,numV,LxType,iIx,Ly0,SameLx)
+if (.not. SameLx) then
+  LyType = LxType
+  iJy = iIx
+else
+  if ((LyType == LxType) .and. (iIx == iJy)) then
+    return
+  else
+    SameLx = .false.
+  end if
+end if
 
-! Generate the SubBlock
-call DGEMM_('N','T',nIsh(iSymB),nAsh(iSymA),numV,1.0d0,Ly0,nIsh(iSymB),Lx0,nAsh(iSymA),0.0d0,AddSB,nIsh(iSymB))
-
-call mma_deallocate(Ly0)
-call mma_deallocate(Lx0)
+iAddLx = 1
+iAddTCVX = 1+nAsh(iSymA)*(iIx-1)
+do iV=1,numV
+  call dCopy_(nAsh(iSymA),TCVX(LxType,iSymA,iSymI)%A(iAddTCVX,iV),1,AddLx0(iAddLx),1)
+  iAddLx = iAddLx+nAsh(iSymA)
+end do
 
 return
 
-end subroutine MkExSB21
+end subroutine MkL2

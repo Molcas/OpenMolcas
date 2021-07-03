@@ -9,33 +9,38 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine RBufO_tra2(LUHLFX,W,LL,LBuf,NOTU,KKTU,IST,IADXS)
+subroutine Transp_MOs(CMO1,CMO2,nSym,nFro,nIsh,nAsh,nSsh,nBas)
+!        CMO1(alpha,p) -> CMO2(p,alpha)
+!
+!        At the same time, exclude Fro and Del orbitals
 
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: LUHLFX, LL, LBuf, NOTU, KKTU, IADXS
-real(kind=wp), intent(_OUT_) :: W(*)
-integer(kind=iwp), intent(out) :: IST
-integer(kind=iwp) :: IADX, IEnd, Length, MEMX
+real(kind=wp), intent(in) :: CMO1(*)
+real(kind=wp), intent(_OUT_) :: CMO2(*)
+integer(kind=iwp), intent(in) :: nSym, nFro(nSym), nIsh(nSym), nAsh(nSym), nSsh(nSym), nBas(nSym)
+integer(kind=iwp) :: i, iCount, iSym, jCount, kOff1, kOff2, lCount, nOrb
 
-call mma_maxDBLE(MEMX)
-IADX = (KKTU-1)*IADXS
-IST = 1
-Length = LBuf
-IEnd = LBuf
+iCount = 0
+lCount = 0
+do iSym=1,nSym
 
-52 continue
-call dDAFILE(LUHLFX,2,W(IST),Length,IADX)
-IST = IST+LBuf
-IEnd = IEnd+LBuf
-if (IEnd > LL) Length = mod(LL,LBuf)
-IADX = IADX+(NOTU-1)*IADXS
-if (IST <= LL) GO TO 52
+  jCount = iCount+nBas(iSym)*nFro(iSym)
 
-IST = 1
-return
+  nOrb = nIsh(iSym)+nAsh(iSym)+nSsh(iSym)
 
-end subroutine RBufO_tra2
+  do i=1,nOrb
+    kOff1 = jCount+nBas(iSym)*(i-1)+1
+    kOff2 = lCount+i
+    call dCopy_(nBas(iSym),CMO1(kOff1),1,CMO2(kOff2),nOrb)
+  end do
+
+  lCount = lCount+nOrb*nBas(iSym)
+  iCount = iCount+nBas(iSym)**2
+
+end do
+
+end subroutine Transp_MOs

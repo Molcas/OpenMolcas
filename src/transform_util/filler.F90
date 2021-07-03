@@ -11,15 +11,19 @@
 
 subroutine Filler(N,M,A)
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-dimension A(N,M)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: N, M
+real(kind=wp), intent(out) :: A(N,M)
+integer(kind=iwp) :: i, j, k
 
 k = 0
 do i=1,N
   do j=1,M
     k = k+1
-    A(i,j) = 1.000d0*j+0.100d0*i+0.001d0*k
+    A(i,j) = One*j+0.1_wp*i+0.001_wp*k
   end do
 end do
 

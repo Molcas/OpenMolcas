@@ -19,13 +19,16 @@
 
 subroutine COUL(ISYP,ISYQ,ISYI,ISYJ,II,IJ,ERI,SCR)
 
-implicit real*8(A-H,O-Z)
-#include "standard_iounits.fh"
-dimension ERI(*), SCR(*)
-logical TRANSP
-logical TRIANG
+use Definitions, only: wp, iwp
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(in) :: ISYP, ISYQ, ISYI, ISYJ, II, IJ
+real(kind=wp), intent(_OUT_) :: ERI(*), SCR(*)
+integer(kind=iwp) :: I3, I34, I4, IDISK, IS12, IS34, ISY1, ISY2, ISY3, ISY4, NBUF, NDIM2M, NO1, NO2
+logical(kind=iwp) :: TRANSP, TRIANG
 #include "intgrl.fh"
-#include "SysDef.fh"
 
 ! Return a matrix ERI(IP,IQ) of two-electron integrals (pq,ij).
 ! IP=1..NORB(ISYP), IQ=1..NORB(ISYQ),1<=II<=NOSH(ISYI),

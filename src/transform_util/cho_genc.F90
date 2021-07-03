@@ -24,7 +24,7 @@
 !>
 !> @param[in] iSymI,iSymJ,iSymA,iSymB Symmetry block of the two-electrons integrals
 !> @param[in] NumV                    Number of Cholesky vectors to transform in the current batch
-!> @param[in] AddCou                  Array of the ``A,B`` integrals block
+!> @param[in,out] AddCou              Array of the ``A,B`` integrals block
 !> @param[in] LenCou                  Length of the ``A,B`` integrals block
 !***********************************************************************
 
@@ -42,67 +42,57 @@ subroutine Cho_GenC(iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddCou,LenCou,LenEx)
 ! OBS !!!!!  By now, it works only for iSymA == iSymB  !!!             *
 !***********************************************************************
 
-use Cho_Tra
+use Cho_Tra, only: IfTest, nAsh, nIsh, nOrb, nSsh, SubBlocks
+use Data_Structures, only: Alloc1DArray_Type
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-integer iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
-integer LenCou, LenEx
-real*8 AddCou(LenCou)
-#include "rasdim.fh"
-#include "stdalloc.fh"
-#include "SysDef.fh"
-integer LenA(3), LenB(3)
-type V1
-  real*8, allocatable :: A(:)
-end type V1
-type(V1) :: AddSB(3,3)
-real*8, allocatable :: AddSq(:)
+implicit none
+integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV, LenCou, LenEx
+real(kind=wp), intent(inout) :: AddCou(LenCou)
+integer(kind=iwp) :: iAddCouSB, iAddSBi, iB, iSB_A, iSB_B, LenA(3), LenB(3), LenSB, nOrbA
+type(Alloc1DArray_Type) :: AddSB(3,3)
+real(kind=wp), allocatable :: AddSq(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
-  subroutine MkCouSB11(A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    real*8, allocatable :: A(:)
-    integer iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
+  subroutine MkCouSB11(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
+    import :: wp, iwp
+    real(kind=wp), allocatable, intent(out) :: AddSB(:)
+    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
   end subroutine MkCouSB11
-  !Subroutine MkCouSB12(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
-  !Real*8, Allocatable:: A(:)
-  !Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
-  !End Subroutine MkCouSB12
-  !Subroutine MkCouSB13(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
-  !Real*8, Allocatable:: A(:)
-  !Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
-  !End Subroutine MkCouSB13
-  subroutine MkCouSB21(A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    real*8, allocatable :: A(:)
-    integer iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
+  subroutine MkCouSB21(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
+    import :: wp, iwp
+    real(kind=wp), allocatable, intent(out) :: AddSB(:)
+    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
   end subroutine MkCouSB21
-  subroutine MkCouSB22(A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    real*8, allocatable :: A(:)
-    integer iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
+  subroutine MkCouSB22(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
+    import :: wp, iwp
+    real(kind=wp), allocatable, intent(out) :: AddSB(:)
+    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
   end subroutine MkCouSB22
-  !Subroutine MkCouSB23(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
-  !Real*8, Allocatable:: A(:)
-  !Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
-  !End Subroutine MkCouSB23
-  subroutine MkCouSB31(A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    real*8, allocatable :: A(:)
-    integer iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
+  subroutine MkCouSB31(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
+    import :: wp, iwp
+    real(kind=wp), allocatable, intent(out) :: AddSB(:)
+    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
   end subroutine MkCouSB31
-  subroutine MkCouSB32(A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    real*8, allocatable :: A(:)
-    integer iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
+  subroutine MkCouSB32(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
+    import :: wp, iwp
+    real(kind=wp), allocatable, intent(out) :: AddSB(:)
+    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
   end subroutine MkCouSB32
-  subroutine MkCouSB33(A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    real*8, allocatable :: A(:)
-    integer iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
+  subroutine MkCouSB33(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
+    import :: wp, iwp
+    real(kind=wp), allocatable, intent(out) :: AddSB(:)
+    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
   end subroutine MkCouSB33
 end interface
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-
 !-----------------------------------------------------------------------
 !IfTest = .true.
 !-----------------------------------------------------------------------
@@ -119,9 +109,9 @@ LenB(3) = nSsh(iSymB)
 if (SubBlocks(1,1)) call MkCouSB11(AddSB(1,1)%A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
 !-----------------------------------------------------------------------
 if (IfTest .and. allocated(AddSB(1,1)%A)) then
-  write(6,*) '       SB_11 :',nIsh(iSymA),' x',nIsh(iSymB)
-  write(6,'(8F10.6)') AddSB(1,1)%A(:)
-  call XFlush(6)
+  write(u6,*) '       SB_11 :',nIsh(iSymA),' x',nIsh(iSymB)
+  write(u6,'(8F10.6)') AddSB(1,1)%A(:)
+  call XFlush(u6)
 end if
 !-----------------------------------------------------------------------
 
@@ -132,15 +122,15 @@ if (SubBlocks(1,2)) then
     !call MkCouSB12(AddSB(1,2)%A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
   else
     LenSB = nIsh(iSymA)*nAsh(iSymB)
-    call mma_Allocate(AddSB(1,2)%A,LenSB,Label='AddSB')
-    AddSB(1,2)%A(:) = 0.0d0
+    call mma_Allocate(AddSB(1,2)%A,LenSB,Label='AddSB12')
+    AddSB(1,2)%A(:) = Zero
   end if
 end if
 !-----------------------------------------------------------------------
 if (IfTest .and. allocated(AddSB(1,2)%A)) then
-  write(6,*) '       SB_12 :',nIsh(iSymA),' x',nAsh(iSymB)
-  write(6,'(8F10.6)') AddSB(1,2)%A(:)
-  call XFlush(6)
+  write(u6,*) '       SB_12 :',nIsh(iSymA),' x',nAsh(iSymB)
+  write(u6,'(8F10.6)') AddSB(1,2)%A(:)
+  call XFlush(u6)
 end if
 !-----------------------------------------------------------------------
 
@@ -151,15 +141,15 @@ if (SubBlocks(1,3)) then
     !call MkCouSB13(AddSB(1,3)%A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
   else
     LenSB = nIsh(iSymA)*nSsh(iSymB)
-    call mma_allocate(AddSB(1,3)%A,LenSB,Label='AddSB')
-    AddSB(1,3)%A(:) = 0.0d0
+    call mma_allocate(AddSB(1,3)%A,LenSB,Label='AddSB13')
+    AddSB(1,3)%A(:) = Zero
   end if
 end if
 !-----------------------------------------------------------------------
 if (IfTest .and. allocated(AddSB(1,3)%A)) then
-  write(6,*) '       SB_13 :',nIsh(iSymA),' x',nSsh(iSymB)
-  write(6,'(8F10.6)') AddSB(1,3)%A(:)
-  call XFlush(6)
+  write(u6,*) '       SB_13 :',nIsh(iSymA),' x',nSsh(iSymB)
+  write(u6,'(8F10.6)') AddSB(1,3)%A(:)
+  call XFlush(u6)
 end if
 !-----------------------------------------------------------------------
 
@@ -167,9 +157,9 @@ end if
 if (SubBlocks(2,1)) call MkCouSB21(AddSB(2,1)%A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
 !-----------------------------------------------------------------------
 if (IfTest .and. allocated(AddSB(2,1)%A)) then
-  write(6,*) '       SB_21 :',nAsh(iSymA),' x',nIsh(iSymB)
-  write(6,'(8F10.6)') AddSB(2,1)%A(:)
-  call XFlush(6)
+  write(u6,*) '       SB_21 :',nAsh(iSymA),' x',nIsh(iSymB)
+  write(u6,'(8F10.6)') AddSB(2,1)%A(:)
+  call XFlush(u6)
 end if
 !-----------------------------------------------------------------------
 
@@ -177,9 +167,9 @@ end if
 if (SubBlocks(2,2)) call MkCouSB22(AddSB(2,2)%A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
 !-----------------------------------------------------------------------
 if (IfTest .and. allocated(AddSB(2,2)%A)) then
-  write(6,*) '       SB_22 :',nAsh(iSymA),' x',nAsh(iSymB)
-  write(6,'(8F10.6)') AddSB(2,2)%A(:)
-  call XFlush(6)
+  write(u6,*) '       SB_22 :',nAsh(iSymA),' x',nAsh(iSymB)
+  write(u6,'(8F10.6)') AddSB(2,2)%A(:)
+  call XFlush(u6)
 end if
 !-----------------------------------------------------------------------
 
@@ -190,15 +180,15 @@ if (SubBlocks(2,3)) then
     !call MkCouSB23(AddSB(2,3)%A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
   else
     LenSB = nAsh(iSymA)*nSsh(iSymB)
-    call mma_allocate(AddSB(2,3)%A,LenSB,Label='AddSB')
-    AddSB(2,3)%A(:) = 0.0d0
+    call mma_allocate(AddSB(2,3)%A,LenSB,Label='AddSB23')
+    AddSB(2,3)%A(:) = Zero
   end if
 end if
 !-----------------------------------------------------------------------
 if (IfTest .and. allocated(AddSB(2,3)%A)) then
-  write(6,*) '       SB_23 :',nAsh(iSymA),' x',nSsh(iSymB)
-  write(6,'(8F10.6)') AddSB(2,3)%A(:)
-  call XFlush(6)
+  write(u6,*) '       SB_23 :',nAsh(iSymA),' x',nSsh(iSymB)
+  write(u6,'(8F10.6)') AddSB(2,3)%A(:)
+  call XFlush(u6)
 end if
 !-----------------------------------------------------------------------
 
@@ -206,9 +196,9 @@ end if
 if (SubBlocks(3,1)) call MkCouSB31(AddSB(3,1)%A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
 !-----------------------------------------------------------------------
 if (IfTest .and. allocated(AddSB(3,1)%A)) then
-  write(6,*) '       SB_31 :',nSsh(iSymA),' x',nIsh(iSymB)
-  write(6,'(8F10.6)') AddSB(3,1)%A(:)
-  call XFlush(6)
+  write(u6,*) '       SB_31 :',nSsh(iSymA),' x',nIsh(iSymB)
+  write(u6,'(8F10.6)') AddSB(3,1)%A(:)
+  call XFlush(u6)
 end if
 !-----------------------------------------------------------------------
 
@@ -216,9 +206,9 @@ end if
 if (SubBlocks(3,2)) call MkCouSB32(AddSB(3,2)%A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
 !-----------------------------------------------------------------------
 if (IfTest .and. allocated(AddSB(3,2)%A)) then
-  write(6,*) '       SB_32 :',nSsh(iSymA),' x',nAsh(iSymB)
-  write(6,'(8F10.6)') AddSB(3,2)%A(:)
-  call XFlush(6)
+  write(u6,*) '       SB_32 :',nSsh(iSymA),' x',nAsh(iSymB)
+  write(u6,'(8F10.6)') AddSB(3,2)%A(:)
+  call XFlush(u6)
 end if
 !-----------------------------------------------------------------------
 
@@ -226,16 +216,16 @@ end if
 if (SubBlocks(3,3)) call MkCouSB33(AddSB(3,3)%A,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
 !-----------------------------------------------------------------------
 if (IfTest .and. allocated(AddSB(3,3)%A)) then
-  write(6,*) '       SB_33 :',nSsh(iSymA),' x',nSsh(iSymB)
-  write(6,'(8F10.6)') AddSB(3,3)%A(:)
-  call XFlush(6)
+  write(u6,*) '       SB_33 :',nSsh(iSymA),' x',nSsh(iSymB)
+  write(u6,'(8F10.6)') AddSB(3,3)%A(:)
+  call XFlush(u6)
 end if
 !-----------------------------------------------------------------------
 
 !-----------------------------------------------------------------------
 if (IfTest) then
-  write(6,*) '     END GENERATION of SubBlocks'
-  call XFlush(6)
+  write(u6,*) '     END GENERATION of SubBlocks'
+  call XFlush(u6)
 end if
 !-----------------------------------------------------------------------
 ! END GENERATION of SubBlocks
@@ -262,23 +252,22 @@ end do ! iSB_B
 nOrbA = nOrb(iSymA)
 !-----------------------------------------------------------------------
 if (IfTest) then
-  write(6,*)
-  write(6,*) '        The Square Gatered matrix'
+  write(u6,*)
+  write(u6,*) '        The Square Gatered matrix'
   call PrintSquareMat(nOrbA,AddSq)
-  call XFlush(6)
+  call XFlush(u6)
 end if
 !-----------------------------------------------------------------------
 
 call Local_Triang(nOrbA,AddSq)
-call daxpy_(LenCou,1.0d0,AddSq,1,AddCou,1)
+call daxpy_(LenCou,One,AddSq,1,AddCou,1)
 call mma_deallocate(AddSq)
 !-----------------------------------------------------------------------
 if (IfTest) then
-  write(6,*)
-  call XFlush(6)
-  write(6,*) '        The Triangular Integrals matrix'
-  call PrintDiagMat(nOrbA,AddCou)
-  call XFlush(6)
+  write(u6,*)
+  write(u6,*) '        The Triangular Integrals matrix'
+  call PrintTriangMat(nOrbA,AddCou)
+  call XFlush(u6)
 end if
 !-----------------------------------------------------------------------
 ! END GATHERING of SubBlocks

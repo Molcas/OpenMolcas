@@ -41,15 +41,15 @@
 !> @note
 !> The logical matrix \c TCVXist must be defined.
 !>
-!> @param[in]     iSymL       Symmetry of the Cholesky vector
-!> @param[in]     iSym        Symmetry(``i``) of the Cholesky Full Vector
-!> @param[in]     jSym        Symmetry(``j``) of the Cholesky Full Vector
-!> @param[in]     NumV        Number of Cholesky vectors to transform in the current batch
-!> @param[in]     CMO         MO coefficients
-!> @param[in]     NCMO        Total number of MO coefficients
-!> @param[in]     lUCHFV      Unit number of the Cholesky Full Vector to transform (``CHFV``)
-!> @param[in,out] iStrtVec_AB Current initial disk pointer of the Cholesky Full Vector to transform (``CHFV``)
-!> @param[in]     nFVec       Number of Cholesky vectors to transform in the inner batch procedure
+!> @param[in] iSymL       Symmetry of the Cholesky vector
+!> @param[in] iSym        Symmetry(``i``) of the Cholesky Full Vector
+!> @param[in] jSym        Symmetry(``j``) of the Cholesky Full Vector
+!> @param[in] NumV        Number of Cholesky vectors to transform in the current batch
+!> @param[in] CMO         MO coefficients
+!> @param[in] NCMO        Total number of MO coefficients
+!> @param[in] lUCHFV      Unit number of the Cholesky Full Vector to transform (``CHFV``)
+!> @param[in] iStrtVec_AB Current initial disk pointer of the Cholesky Full Vector to transform (``CHFV``)
+!> @param[in] nFVec       Number of Cholesky vectors to transform in the inner batch procedure
 !***********************************************************************
 
 subroutine Cho_TraA(iSymL,iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
@@ -76,16 +76,17 @@ subroutine Cho_TraA(iSymL,iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
 !  Modified:  July 2005                                                *
 !***********************************************************************
 
-use Cho_Tra
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-#include "rasdim.fh"
-#include "stdalloc.fh"
-#include "SysDef.fh"
-dimension CMO(NCMO)
-logical TCVA, TCVB, TCVBt, TCVC, TCVCt, TCVD, TCVE, TCVEt, TCVF
-real*8, allocatable :: XAj(:), XAu(:), XAb(:), XBi(:), XBt(:)
-real*8, allocatable :: FAB(:,:)
+use Cho_Tra, only: nAsh, nBas, nFro, nIsh, nSsh, TCVX, TCVXist
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: iSymL, iSym, jSym, NumV, NCMO, lUCHFV, iStrtVec_AB, nFVec
+real(kind=wp), intent(in) :: CMO(NCMO)
+integer(kind=iwp) :: i, iFBatch, iiVec, iStrt, iStrt0MO, iStrtVec_FAB, iVec, j, jStrt, jStrt0MO, jVec, Len_XAb, Len_XAj, Len_XAu, &
+                     Len_XBi, Len_XBt, Nab, Naj, Nau, Nbi, Nbt, NFAB, Nij, Niu, Nji, Njt, Ntj, Ntu, Nui, NumFV, Nut
+logical(kind=iwp) :: TCVA, TCVB, TCVBt, TCVC, TCVCt, TCVD, TCVE, TCVEt, TCVF
+real(kind=wp), allocatable :: FAB(:,:), XAb(:), XAj(:), XAu(:), XBi(:), XBt(:)
 
 ! Memory to allocate & Nr. of Cholesky vectors transformable
 ! A=Alpha(AO);  B=Beta(AO)

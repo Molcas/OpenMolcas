@@ -35,19 +35,26 @@ subroutine tr2NsB(CMO,X1,X2,pqrs,TUrs,lBuf,MAXRS)
 ! Replace MXMA with DGEMM P-AA Malmqvist 1992-05-06.
 !
 !
-! This and tr2NsB routines trasform non-squared AO integrals. The
+! This and tr2NsB routines transform non-squared AO integrals. The
 ! transformed MO integrals are stored as the same as Tr2Sq
 ! subroutine does.
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+#include "intent.fh"
+
+implicit none
 #include "rasdim.fh"
 #include "caspt2.fh"
+real(kind=wp), intent(in) :: CMO(NCMO)
+real(kind=wp), intent(_OUT_) :: X1(*), X2(*)
+real(kind=wp), intent(inout) :: PQRS(*), TURS(*)
+integer(kind=iwp), intent(in) :: lBuf, MAXRS
+integer(kind=iwp) :: IAD3, IAD3S, icc, iOpt, IPQ, IPQMX3, IPQST, iRc, IRS, IRSST, ISPQRS, ITU, IX2, Kread, Length, LPQ, LRS, NOTU, &
+                     NP, NQ, NR, Nread, Nrest, NRS, NS, NSYMP, NT, NU, Num, NumPQ, NumRS
 #include "trafo.fh"
 #include "intgrl.fh"
-#include "SysDef.fh"
-dimension CMO(NCMO)
-dimension X1(*), X2(*)
-dimension PQRS(*), TURS(*)
 
 icc = NOCP*NOCQ*NOR*NOS
 
@@ -61,7 +68,7 @@ if (ISP > ISR) then
   IPQMX3 = NBRS
   if (NBRS*NOTU > LTUPQ) then
     IPQMX3 = LTUPQ/NOTU
-    !write(6,*)'OUT OF CORE SORT FOR INTEGRALS (TU/RS)',IPQMX3,nbrs
+    !write(u6,*)'OUT OF CORE SORT FOR INTEGRALS (TU/RS)',IPQMX3,nbrs
     IAD3S = 0
     call dDAFILE(LUHLF3,0,TURS,IPQMX3,IAD3S)
   end if
@@ -108,9 +115,9 @@ if (ISP > ISR) then
               if (LPQ == NPQ) then
                 call Rdord(iRc,iOpt,ISP,ISQ,ISR,ISS,X1,lBuf,nPQ)
                 if (IRC > 1) then
-                  write(6,*) ' ERROR RETURN CODE IRC=',IRC
-                  write(6,*) ' FROM RDORD, CALLED FROM TRA2.'
-                  call Abend
+                  write(u6,*) ' ERROR RETURN CODE IRC=',IRC
+                  write(u6,*) ' FROM RDORD, CALLED FROM TRA2.'
+                  call Abend()
                 end if
                 iOpt = 2
                 LPQ = 0
@@ -135,15 +142,15 @@ if (ISP > ISR) then
         if (ISP == ISQ) then
           call Square(PQRS(NBPQ*(LRS-1)+1),X2,1,NBP,NBP)
           ! (pq,rs) -> (pU,rs)
-          call DGEMM_('T','N',NBP,NOCQ,NBQ,1.0d0,X2,NBQ,CMO(LMOQ2),NBQ,0.0d0,X1,NBP)
+          call DGEMM_('T','N',NBP,NOCQ,NBQ,One,X2,NBQ,CMO(LMOQ2),NBQ,Zero,X1,NBP)
           ! (pU,rs) -> (TU,rs)
           call MXMT(X1,NBP,1,CMO(LMOP2),1,NBP,X2,NOCP,NBP)
         else
           call dcopy_(NBPQ,PQRS(NBPQ*(LRS-1)+1),1,X2,1)
           ! (pq,rs) -> (pU,rs)
-          call DGEMM_('T','N',NBP,NOCQ,NBQ,1.0d0,X2,NBQ,CMO(LMOQ2),NBQ,0.0d0,X1,NBP)
+          call DGEMM_('T','N',NBP,NOCQ,NBQ,One,X2,NBQ,CMO(LMOQ2),NBQ,Zero,X1,NBP)
           ! (pU,rs) -> (TU,rs)
-          call DGEMM_('T','N',NOCQ,NOCP,NBP,1.0d0,X1,NBP,CMO(LMOP2),NBP,0.0d0,X2,NOCQ)
+          call DGEMM_('T','N',NOCQ,NOCP,NBP,One,X1,NBP,CMO(LMOP2),NBP,Zero,X2,NOCQ)
         end if
         ! Store buffer
         if (IRS > IPQMX3) then
@@ -186,16 +193,16 @@ if (ISP > ISR) then
           ! Square
           call Square(TURS(IPQST),X2,1,NBR,NBR)
           ! (TU,rs) -> (TU,sB)
-          call DGEMM_('T','N',NBR,NOS,NBS,1.0d0,X2,NBS,CMO(LMOS2),NBS,0.0d0,X1,NBR)
+          call DGEMM_('T','N',NBR,NOS,NBS,One,X2,NBS,CMO(LMOS2),NBS,Zero,X1,NBR)
           ! (TU,sB) -> (TU,AB)
           call MXMT(X1,NBR,1,CMO(LMOR2),1,NBR,X2,NOR,NBR)
           IX2 = (NOR*NOR+NOR)/2
         else
           call dcopy_(NBRS,TURS(IPQST),1,X2,1)
           ! (TU,rs) -> (TU,As)
-          call DGEMM_('T','N',NBR,NOS,NBS,1.0d0,X2,NBS,CMO(LMOS2),NBS,0.0d0,X1,NBR)
+          call DGEMM_('T','N',NBR,NOS,NBS,One,X2,NBS,CMO(LMOS2),NBS,Zero,X1,NBR)
           ! (TU,As) -> (TU,AB)
-          call DGEMM_('T','N',NOS,NOR,NBR,1.0d0,X1,NBR,CMO(LMOR2),NBR,0.0d0,X2,NOS)
+          call DGEMM_('T','N',NOS,NOR,NBR,One,X1,NBR,CMO(LMOR2),NBR,Zero,X2,NOS)
           IX2 = NOR*NOS
         end if
         ! Store (TU,AB) of this t,u pair

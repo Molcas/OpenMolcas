@@ -35,14 +35,23 @@ subroutine TR2Sq(CMO,X1,X2,X3,URPQ,RUPQ,TUPQ,lBuf)
 ! ********** IBM-3090 RELEASE 87 09 14 **********
 ! Replace MXMA with DGEMM. P-AA Malmqvist 1992-05-06.
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(in) :: lBuf
 #include "rasdim.fh"
 #include "caspt2.fh"
+real(kind=wp), intent(in) :: CMO(NCMO)
+real(kind=wp), intent(_OUT_) :: X1(*), X2(*), X3(*)
+real(kind=wp), intent(inout) :: URPQ(*), RUPQ(*), TUPQ(*)
+integer(kind=iwp) :: IAD1, IAD1S, IAD2, IAD2S, IAD3, IAD3S, iOpt, IOUT1, IOUT2, IOUT3, IPQ, IPQMX1, IPQMX2, IPQMX3, IPQST, IR, &
+                     iRc, IRSST, IRU, ISPQRS, IST, ITU, IX2, KKTU, LAR, LPQ, LR, NA, NAT, NORU, NOTU, NOUR, NP, NQ, NQM, NR, &
+                     NSYMP, NT, NTM, NTMAX, NU, NUM, NUMAX
 #include "intgrl.fh"
-#include "SysDef.fh"
 #include "trafo.fh"
-dimension CMO(NCMO)
-dimension X1(*), X2(*), X3(*), RUPQ(*), URPQ(*), TUPQ(*)
 
 NSYMP = (NSYM**2+NSYM)/2
 NORU = NBR*NOCS
@@ -56,7 +65,7 @@ if (ISR == ISS) NOTU = (NOCR**2+NOCR)/2
 IPQMX1 = NBPQ
 if (NBPQ*NORU > LRUPQ) then
   IPQMX1 = LRUPQ/NORU
-  !write(6,*) 'OUT OF CORE SORT FOR INTEGRALS (RU/PQ)',IPQMX1
+  !write(u6,*) 'OUT OF CORE SORT FOR INTEGRALS (RU/PQ)',IPQMX1
   IAD1S = 0
   call dDAFILE(LUHLF1,0,RUPQ,IPQMX1,IAD1S)
 end if
@@ -66,7 +75,7 @@ IOUT1 = 0
 IPQMX2 = NBPQ
 if (NBPQ*NOUR > LURPQ) then
   IPQMX2 = LURPQ/NOUR
-  !write(6,*) 'OUT OF CORE SORT FOR INTEGRALS (UR/PQ)',IPQMX2
+  !write(u6,*) 'OUT OF CORE SORT FOR INTEGRALS (UR/PQ)',IPQMX2
   IAD2S = 0
   call dDAFILE(LUHLF2,0,URPQ,IPQMX2,IAD2S)
 end if
@@ -76,7 +85,7 @@ IOUT2 = 0
 IPQMX3 = NBPQ
 if (NBPQ*NOTU > LTUPQ) then
   IPQMX3 = LTUPQ/NOTU
-  !write(6,*) 'OUT OF CORE SORT FOR INTEGRALS (TU/PQ)',IPQMX3
+  !write(u6,*) 'OUT OF CORE SORT FOR INTEGRALS (TU/PQ)',IPQMX3
   IAD3S = 0
   call dDAFILE(LUHLF3,0,TUPQ,IPQMX3,IAD3S)
 end if
@@ -105,9 +114,9 @@ do NP=1,NBP
     if (LPQ == NPQ) then
       call RdOrd(iRc,iOpt,isP,isQ,isR,isS,X1,lBuf,nPQ)
       if (IRC > 1) then
-        write(6,*) ' ERROR RETURN CODE IRC=',IRC
-        write(6,*) ' FROM RDORD, CALLED FROM TRA2.'
-        call Abend
+        write(u6,*) ' ERROR RETURN CODE IRC=',IRC
+        write(u6,*) ' FROM RDORD, CALLED FROM TRA2.'
+        call Abend()
       end if
       iOpt = 2
       LPQ = 0
@@ -127,7 +136,7 @@ do NP=1,NBP
     ! INTEGRALS (PQ/UR)
 
     if (((ISP /= ISQ) .and. (ISP > ISS)) .and. (NOCR /= 0)) then
-      call DGEMM_('N','N',NBS,NOCR,NBR,1.0d0,X2,NBS,CMO(LMOR2),NBR,0.0d0,X3,NBS)
+      call DGEMM_('N','N',NBS,NOCR,NBR,One,X2,NBS,CMO(LMOR2),NBR,Zero,X3,NBS)
 
       ! SORT THESE INTEGRALS AS (UR/PQ)
 
@@ -144,7 +153,7 @@ do NP=1,NBP
     ! INTEGRALS (PQ/RU)
 
     if (NOCS /= 0) then
-      call DGEMM_('T','N',NBR,NOCS,NBS,1.0d0,X2,NBS,CMO(LMOS2),NBS,0.0d0,X3,NBR)
+      call DGEMM_('T','N',NBR,NOCS,NBS,One,X2,NBS,CMO(LMOS2),NBS,Zero,X3,NBR)
 
       ! SORT THESE INTEGRALS AS (RU/PQ)
 
@@ -166,7 +175,7 @@ do NP=1,NBP
       if (ISR == ISS) then
         call MXMT(X3,NBR,1,CMO(LMOR2),1,NBR,X2,NOCR,NBR)
       else
-        call DGEMM_('T','N',NOCS,NOCR,NBR,1.0d0,X3,NBR,CMO(LMOR2),NBR,0.0d0,X2,NOCS)
+        call DGEMM_('T','N',NOCS,NOCR,NBR,One,X3,NBR,CMO(LMOR2),NBR,Zero,X2,NOCS)
       end if
 
       ! SORT INTEGRALS (PQ/TU) INTO TUPQ (SORT AFTER PQ INSTEAD OF TU)
@@ -243,12 +252,12 @@ do NT=1,NOCR
 
     if (ISP == ISQ) then
       call SQUARE(TUPQ(IPQST),X2,1,NBQ,NBQ)
-      call DGEMM_('N','N',NBQ,NOP,NBP,1.0d0,X2,NBQ,CMO(LMOP),NBP,0.0d0,X1,NBP)
+      call DGEMM_('N','N',NBQ,NOP,NBP,One,X2,NBQ,CMO(LMOP),NBP,Zero,X1,NBP)
       call MXMT(X1,NBQ,1,CMO(LMOQ),1,NBQ,X2,NOP,NBQ)
       IX2 = (NOP+NOP**2)/2
     else
-      call DGEMM_('N','N',NBQ,NOP,NBP,1.0d0,TUPQ(IPQST),NBQ,CMO(LMOP),NBP,0.0d0,X1,NBQ)
-      call DGEMM_('T','N',NOQ,NOP,NBQ,1.0d0,CMO(LMOQ),NBQ,X1,NBQ,0.0d0,X2,NOQ)
+      call DGEMM_('N','N',NBQ,NOP,NBP,One,TUPQ(IPQST),NBQ,CMO(LMOP),NBP,Zero,X1,NBQ)
+      call DGEMM_('T','N',NOQ,NOP,NBQ,One,CMO(LMOQ),NBQ,X1,NBQ,Zero,X2,NOQ)
       IX2 = NOP*NOQ
     end if
 
@@ -302,11 +311,11 @@ if ((ISP >= ISR) .and. (NOTU /= 0)) then
         call DCOPY_(NBPQ,RUPQ(IPQST),1,X2,1)
       end if
       if (ISQ == ISS) then
-        call DGEMM_('T','N',NBP,NOCQ-NU+1,NBQ,1.0d0,X2,NBQ,CMO(LMOQ2+NBQ*(NU-1)),NBQ,0.0d0,X1,NBP)
-        call DGEMM_('T','N',NOCQ-NU+1,NOP,NBP,1.0d0,X1,NBP,CMO(LMOP),NBP,0.0d0,X2,NOCQ-NU+1)
+        call DGEMM_('T','N',NBP,NOCQ-NU+1,NBQ,One,X2,NBQ,CMO(LMOQ2+NBQ*(NU-1)),NBQ,Zero,X1,NBP)
+        call DGEMM_('T','N',NOCQ-NU+1,NOP,NBP,One,X1,NBP,CMO(LMOP),NBP,Zero,X2,NOCQ-NU+1)
       else
-        call DGEMM_('T','N',NBP,NOCQ,NBQ,1.0d0,X2,NBQ,CMO(LMOQ2),NBQ,0.0d0,X1,NBP)
-        call DGEMM_('T','N',NOCQ,NOP,NBP,1.0d0,X1,NBP,CMO(LMOP),NBP,0.0d0,X2,NOCQ)
+        call DGEMM_('T','N',NBP,NOCQ,NBQ,One,X2,NBQ,CMO(LMOQ2),NBQ,Zero,X1,NBP)
+        call DGEMM_('T','N',NOCQ,NOP,NBP,One,X1,NBP,CMO(LMOP),NBP,Zero,X2,NOCQ)
       end if
 
       ! INTEGRALS (AT/RU) ARE NOW IN X2 FOR ONE VALUE OF R,U AND ALL
@@ -375,7 +384,7 @@ if ((ISP >= ISR) .and. (NOTU /= 0)) then
         call RBuf_tra2(LUHLF3,TUPQ,NBR*NOP,LAR,NOTU,KKTU,IST,IAD3S)
         !*end0830
       end if
-      call DGEMM_('T','T',NOR,NOP,NBR,1.0d0,CMO(LMOR),NBR,TUPQ(IST),NOP,0.0d0,X2,NOR)
+      call DGEMM_('T','T',NOR,NOP,NBR,One,CMO(LMOR),NBR,TUPQ(IST),NOP,Zero,X2,NOR)
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
@@ -411,8 +420,8 @@ if (((ISP /= ISQ) .and. (ISQ > ISR)) .and. (NOTU /= 0)) then
         call RBuf_tra2(LUHLF1,RUPQ,NBPQ,IPQMX1,NORU,IRU,IPQST,IAD1S)
         !*end0830
       end if
-      call DGEMM_('N','N',NBQ,NOCP,NBP,1.0d0,RUPQ(IPQST),NBQ,CMO(LMOP2),NBP,0.0d0,X1,NBQ)
-      call DGEMM_('T','N',NOCP,NOQ,NBQ,1.0d0,X1,NBQ,CMO(LMOQ),NBQ,0.0d0,X2,NOCP)
+      call DGEMM_('N','N',NBQ,NOCP,NBP,One,RUPQ(IPQST),NBQ,CMO(LMOP2),NBP,Zero,X1,NBQ)
+      call DGEMM_('T','N',NOCP,NOQ,NBQ,One,X1,NBQ,CMO(LMOQ),NBQ,Zero,X2,NOCP)
 
       ! INTEGRALS (TA/RU) ARE NOW IN X2 FOR ONE VALUE OF R,U AND ALL
       ! VALUES OF T,A . NOTE THAT T AND U HERE ALWAYS ARE OF DIFFERENT
@@ -467,7 +476,7 @@ if (((ISP /= ISQ) .and. (ISQ > ISR)) .and. (NOTU /= 0)) then
         call RBuf_tra2(LUHLF3,TUPQ,NBR*NOQ,LAR,NOTU,KKTU,IST,IAD3S)
         !*end0830
       end if
-      call DGEMM_('T','T',NOR,NOQ,NBR,1.0d0,CMO(LMOR),NBR,TUPQ(IST),NOQ,0.0d0,X2,NOR)
+      call DGEMM_('T','T',NOR,NOQ,NBR,One,CMO(LMOR),NBR,TUPQ(IST),NOQ,Zero,X2,NOR)
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
@@ -503,8 +512,8 @@ if (((ISP /= ISQ) .and. (ISP > ISS)) .and. (NOTU /= 0)) then
         call RBuf_tra2(LUHLF2,URPQ,NBPQ,IPQMX2,NOUR,IRU,IPQST,IAD2S)
         !*end0830
       end if
-      call DGEMM_('T','N',NBP,NOCQ,NBQ,1.0d0,URPQ(IPQST),NBQ,CMO(LMOQ2),NBQ,0.0d0,X1,NBP)
-      call DGEMM_('T','N',NOCQ,NOP,NBP,1.0d0,X1,NBP,CMO(LMOP),NBP,0.0d0,X2,NOCQ)
+      call DGEMM_('T','N',NBP,NOCQ,NBQ,One,URPQ(IPQST),NBQ,CMO(LMOQ2),NBQ,Zero,X1,NBP)
+      call DGEMM_('T','N',NOCQ,NOP,NBP,One,X1,NBP,CMO(LMOP),NBP,Zero,X2,NOCQ)
 
       ! INTEGRALS (AT/UR) ARE NOW IN X2 FOR ONE VALUE OF R,U AND ALL
       ! VALUES OF A,T. NOTE THAT T AND U HAVE DIFFERENT SYMMETRIES.
@@ -567,7 +576,7 @@ if (((ISP /= ISQ) .and. (ISP > ISS)) .and. (NOTU /= 0)) then
         call RBuf_tra2(LUHLF3,RUPQ,NBS*NOP,LAR,NOTU,KKTU,IST,IAD3S)
         !*end0830
       end if
-      call DGEMM_('T','T',NOS,NOP,NBS,1.0d0,CMO(LMOS),NBS,RUPQ(IST),NOP,0.0d0,X2,NOS)
+      call DGEMM_('T','T',NOS,NOP,NBS,One,CMO(LMOS),NBS,RUPQ(IST),NOP,Zero,X2,NOS)
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
@@ -605,11 +614,11 @@ if (((ISP /= ISQ) .and. (ISQ >= ISS)) .and. (NOTU /= 0)) then
         !*end0830
       end if
       if (ISP == ISR) then
-        call DGEMM_('N','N',NBQ,NOCP-NU+1,NBP,1.0d0,URPQ(IPQST),NBQ,CMO(LMOP2+NBP*(NU-1)),NBP,0.0d0,X1,NBQ)
-        call DGEMM_('T','N',NOCP-NU+1,NOQ,NBQ,1.0d0,X1,NBQ,CMO(LMOQ),NBQ,0.0d0,X2,NOCP-NU+1)
+        call DGEMM_('N','N',NBQ,NOCP-NU+1,NBP,One,URPQ(IPQST),NBQ,CMO(LMOP2+NBP*(NU-1)),NBP,Zero,X1,NBQ)
+        call DGEMM_('T','N',NOCP-NU+1,NOQ,NBQ,One,X1,NBQ,CMO(LMOQ),NBQ,Zero,X2,NOCP-NU+1)
       else
-        call DGEMM_('N','N',NBQ,NOCP,NBP,1.0d0,URPQ(IPQST),NBQ,CMO(LMOP2),NBP,0.0d0,X1,NBQ)
-        call DGEMM_('T','N',NOCP,NOQ,NBQ,1.0d0,X1,NBQ,CMO(LMOQ),NBQ,0.0d0,X2,NOCP)
+        call DGEMM_('N','N',NBQ,NOCP,NBP,One,URPQ(IPQST),NBQ,CMO(LMOP2),NBP,Zero,X1,NBQ)
+        call DGEMM_('T','N',NOCP,NOQ,NBQ,One,X1,NBQ,CMO(LMOQ),NBQ,Zero,X2,NOCP)
       end if
 
       ! INTEGRALS (TA/UR) ARE NOW IN X2 FOR ONE VALUE OF R,U AND ALL
@@ -678,7 +687,7 @@ if (((ISP /= ISQ) .and. (ISQ >= ISS)) .and. (NOTU /= 0)) then
         call RBuf_tra2(LUHLF3,RUPQ,NBS*NOQ,LAR,NOTU,KKTU,IST,IAD3S)
         !*end0830
       end if
-      call DGEMM_('T','T',NOS,NOQ,NBS,1.0d0,CMO(LMOS),NBS,RUPQ(IST),NOQ,0.0d0,X2,NOS)
+      call DGEMM_('T','T',NOS,NOQ,NBS,One,CMO(LMOS),NBS,RUPQ(IST),NOQ,Zero,X2,NOS)
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 

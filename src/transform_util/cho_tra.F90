@@ -17,24 +17,19 @@
 
 module Cho_Tra
 
-private :: v2
+use Data_Structures, only: Alloc2DArray_Type
+use Definitions, only: iwp
 
-integer, parameter :: MaxSym = 8, MxTCVx = 7
-integer IAD2M(3,36*36)
-integer NSYMZ, NORBZ(MaxSym), NOSHZ(MaxSym), LUINTMZ
-integer nSym, nBas(MaxSym), nFro(MaxSym), nDel(MaxSym)
-integer nOrb(MaxSym), nIsh(MaxSym), nAsh(MaxSym), nOsh(MaxSym), nSsh(MaxSym)
-integer NumCho(MaxSym)
-logical DoTCVA, DoFull, DoCoul, DoExc2
-logical SubBlocks(3,3)
-logical IfTest
+implicit none
+private
 
-logical TCVXist(MxTCVx,MaxSym,MaxSym)
+integer(kind=iwp), parameter :: MaxSym = 8, MxTCVx = 7
+integer(kind=iwp) :: IAD2M(3,36*36), nAsh(MaxSym), nBas(MaxSym), nDel(MaxSym), nFro(MaxSym), nIsh(MaxSym), nOrb(MaxSym), &
+                     nOsh(MaxSym), nSsh(MaxSym), nSym, NumCho(MaxSym)
+logical(kind=iwp) :: DoCoul, DoExc2, DoFull, DoTCVA, IfTest, SubBlocks(3,3), TCVXist(MxTCVx,MaxSym,MaxSym)
+type(Alloc2DArray_Type) :: TCVX(MxTCVx,MaxSym,MaxSym)
 
-type v2
-  real*8, allocatable :: A(:,:)
-end type v2
-
-type(v2) :: TCVX(MxTCVx,MaxSym,MaxSym)
+public :: DoCoul, DoExc2, DoFull, DoTCVA, IAD2M, IfTest, nAsh, nBas, nDel, nFro, nIsh, nOrb, nOsh, nSsh, nSym, NumCho, SubBlocks, &
+          TCVX, TCVXist
 
 end module Cho_Tra

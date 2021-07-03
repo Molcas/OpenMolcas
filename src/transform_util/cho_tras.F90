@@ -41,15 +41,15 @@
 !> @note
 !> The logical matrix \c TCVXist must be defined.
 !>
-!> @param[in]     iSymL       Symmetry of the Cholesky vector
-!> @param[in]     iSym        Symmetry(``i``) of the Cholesky Full Vector
-!> @param[in]     jSym        Symmetry(``j``) of the Cholesky Full Vector
-!> @param[in]     NumV        Number of Cholesky vectors to transform in the current batch
-!> @param[in]     CMO         MO coefficients
-!> @param[in]     NCMO        Total number of MO coefficients
-!> @param[in]     lUCHFV      Unit number of the Cholesky Full Vector to transform (``CHFV``)
-!> @param[in,out] iStrtVec_AB Current initial disk pointer of the Cholesky Full Vector to transform (``CHFV``)
-!> @param[in]     nFVec       Number of Cholesky vectors to transform in the inner batch procedure
+!> @param[in] iSymL       Symmetry of the Cholesky vector
+!> @param[in] iSym        Symmetry(``i``) of the Cholesky Full Vector
+!> @param[in] jSym        Symmetry(``j``) of the Cholesky Full Vector
+!> @param[in] NumV        Number of Cholesky vectors to transform in the current batch
+!> @param[in] CMO         MO coefficients
+!> @param[in] NCMO        Total number of MO coefficients
+!> @param[in] lUCHFV      Unit number of the Cholesky Full Vector to transform (``CHFV``)
+!> @param[in] iStrtVec_AB Current initial disk pointer of the Cholesky Full Vector to transform (``CHFV``)
+!> @param[in] nFVec       Number of Cholesky vectors to transform in the inner batch procedure
 !***********************************************************************
 
 subroutine Cho_TraS(iSymL,iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
@@ -75,17 +75,17 @@ subroutine Cho_TraS(iSymL,iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
 !  Modified:  July 2005                                                *
 !***********************************************************************
 
-use Cho_Tra
+use Cho_Tra, only: nAsh, nBas, nFro, nIsh, nSsh, TCVX, TCVXist
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-integer NCMO
-real*8 CMO(NCMO)
-#include "rasdim.fh"
-#include "stdalloc.fh"
-#include "SysDef.fh"
-logical TCVA, TCVB, TCVC, TCVD, TCVE, TCVF
-real*8, allocatable :: XAj(:), XAu(:), XAb(:), FAB(:,:)
+implicit none
+integer(kind=iwp), intent(in) :: iSymL, iSym, jSym, NumV, NCMO, lUCHFV, iStrtVec_AB, nFVec
+real(kind=wp), intent(in) :: CMO(NCMO)
+integer(kind=iwp) :: i, iFBatch, iiVec, iStrt, iStrt0MO, iStrtVec_FAB, iVec, j, jStrt, jStrt0MO, jVec, Len_XAb, Len_XAj, Len_XAu, &
+                     Nab, Naj, Nau, NFAB, Nij, Njt, Ntj, Ntu, NumFV
+logical(kind=iwp) :: TCVA, TCVB, TCVC, TCVD, TCVE, TCVF
+real(kind=wp), allocatable :: FAB(:,:), XAb(:), XAj(:), XAu(:)
 
 ! Memory to allocate & Nr. of Cholesky vectors transformable
 ! A=Alpha(AO);  B=Beta(AO)
@@ -216,35 +216,35 @@ do iiVec=1,NumV,nFVec
 
     ! From XAj(Alpha,jMO) to ij(i,j)
     if (TCVA) then
-      call ProdsS_2(XAj,nBas(iSym),nIsh(jSym),CMO(iStrt0MO),nIsh(iSym),TCVX(1,iSym,jSym)%A(:,jVec))
+      call ProdsA_1(XAj,nBas(iSym),nIsh(jSym),CMO(iStrt0MO),nIsh(iSym),TCVX(1,iSym,jSym)%A(:,jVec))
     end if
     iStrt0MO = iStrt0MO+nIsh(iSym)*nBas(iSym)
 
     ! From XAj(Alpha,jMO) to tj(t,j) & jt(j,t)
     if (TCVB) then
-      call ProdsS_2(XAj,nBas(iSym),nIsh(jSym),CMO(iStrt0MO),nAsh(iSym),TCVX(2,iSym,jSym)%A(:,jVec))
+      call ProdsA_1(XAj,nBas(iSym),nIsh(jSym),CMO(iStrt0MO),nAsh(iSym),TCVX(2,iSym,jSym)%A(:,jVec))
       call Trnsps(nAsh(iSym),nIsh(jSym),TCVX(2,iSym,jSym)%A(:,jVec),TCVX(7,jSym,iSym)%A(:,jVec))
     end if
 
     ! From XAu(Alpha,uMO) to tu(t,u)
     if (TCVD) then
-      call ProdsS_2(XAu,nBas(iSym),nAsh(jSym),CMO(iStrt0MO),nAsh(iSym),TCVX(4,iSym,JSym)%A(:,jVec))
+      call ProdsA_1(XAu,nBas(iSym),nAsh(jSym),CMO(iStrt0MO),nAsh(iSym),TCVX(4,iSym,JSym)%A(:,jVec))
     end if
     iStrt0MO = iStrt0MO+nAsh(iSym)*nBas(iSym)
 
     ! From XAj(Alpha,jMO) to aj(a,j)
     if (TCVC) then
-      call ProdsS_2(XAj,nBas(iSym),nIsh(jSym),CMO(iStrt0MO),nSsh(iSym),TCVX(3,iSym,JSym)%A(:,jVec))
+      call ProdsA_1(XAj,nBas(iSym),nIsh(jSym),CMO(iStrt0MO),nSsh(iSym),TCVX(3,iSym,JSym)%A(:,jVec))
     end if
 
     ! From XAu(Alpha,uMO) to au(a,u)
     if (TCVE) then
-      call ProdsS_2(XAu,nBas(iSym),nAsh(jSym),CMO(iStrt0MO),nSsh(iSym),TCVX(5,iSym,jSym)%A(:,jVec))
+      call ProdsA_1(XAu,nBas(iSym),nAsh(jSym),CMO(iStrt0MO),nSsh(iSym),TCVX(5,iSym,jSym)%A(:,jVec))
     end if
 
     ! From XAb(Alpha,bMO) to ab(a,b)
     if (TCVF) then
-      call ProdsS_2(XAb,nBas(iSym),nSsh(jSym),CMO(iStrt0MO),nSsh(iSym),TCVX(6,iSym,jSym)%A(:,jVec))
+      call ProdsA_1(XAb,nBas(iSym),nSsh(jSym),CMO(iStrt0MO),nSsh(iSym),TCVX(6,iSym,jSym)%A(:,jVec))
     end if
 
     ! End of Transformations

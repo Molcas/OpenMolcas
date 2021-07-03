@@ -49,19 +49,24 @@ subroutine ChoMP2_TraCtl(LUINTM,CMO,NCMO)
 ! BUT IT IS STILL INTEGRATED AND DEPENDENT ON THE GENERAL CODE         *
 !***********************************************************************
 
-use Cho_Tra
+use Cho_Tra, only: DoCoul, DoFull, DoTCVA, IAD2M, IfTest, nAsh, nBas, nDel, nFro, nIsh, nOrb, nOsh, NumCho, nSsh, nSym, TCVX, &
+                   TCVXist
+use stdalloc, only: mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-#include "rasdim.fh"
-#include "stdalloc.fh"
-#include "SysDef.fh"
-dimension CMO(NCMO)
-character*4 CHNm
-character*6 CHName
-parameter(CHNm='CHFV')
-logical Found
+implicit none
+integer(kind=iwp), intent(in) :: LUINTM, NCMO
+real(kind=wp), intent(in) :: CMO(NCMO)
+integer(kind=iwp) :: iAddrIAD2M, iBatch, iStrtVec_AB, iSym, iSymA, iSymAI, iSymB, iSymBJ, iSymI, iSymJ, iSymL, jSym, LenIAD2M, &
+                     lUCHFV, nBasT, nBatch, nData, nFVec, NumV, nVec
+real(kind=wp) :: CPE, CPU0, CPU1, CPU2, CPU3, CPU4, CPU_Gen, CPU_Tot, CPU_Tra, TIO0, TIO1, TIO2, TIO3, TIO4, TIO_Gen, TIO_Tot, &
+                     TIO_Tra, TIOE
+logical(kind=iwp) :: Found
+character(len=6) :: CHName
+character(len=4), parameter :: CHNm = 'CHFV'
 ! statement function
+integer(kind=iwp) :: i, j, MulD2h
 MulD2h(i,j) = ieor(i-1,j-1)+1
 
 IfTest = .false.
@@ -124,10 +129,10 @@ iAddrIAD2M = 0
 call iDaFile(LUINTM,1,IAD2M,LenIAD2M,iAddrIAD2M)
 
 ! The Timing:
-CPU_Tra = 0.0d0
-TIO_Tra = 0.0d0
-CPU_Gen = 0.0d0
-TIO_Gen = 0.0d0
+CPU_Tra = Zero
+TIO_Tra = Zero
+CPU_Gen = Zero
+TIO_Gen = Zero
 
 !**** START LOOP iSymL on TOTAL SYMMETRY of L (iSym * jSym) ************
 do iSymL=1,nSym
@@ -136,17 +141,15 @@ do iSymL=1,nSym
   TCVXist(:,:,:) = .false. ! TCVx existing flag.
 
   call Mem_Est(iSymL,nVec,nFVec)
-  if ((nVec > 0) .and. (nFVec > 0)) then
-    nBatch = (NumCho(iSymL)-1)/nVec+1
-  else
-    write(6,*)
-    write(6,*) ' ************************************'
-    write(6,*) ' *  Insufficient memory for batch ! *'
-    write(6,*) ' ************************************'
-    write(6,*)
-    call XFlush(6)
+  if ((nVec <= 0) .or. (nFVec <= 0)) then
+    write(u6,*)
+    write(u6,*) ' ************************************'
+    write(u6,*) ' *  Insufficient memory for batch ! *'
+    write(u6,*) ' ************************************'
+    write(u6,*)
     call Abend()
   end if
+  nBatch = (NumCho(iSymL)-1)/nVec+1
 
   ! START LOOP iBatch
   do iBatch=1,nBatch
@@ -206,8 +209,8 @@ do iSymL=1,nSym
     end do
     ! End Loop on I, J, A, B Symmetries
 
-    do iSym=1,MaxSym
-      do jSym=1,MaxSym
+    do iSym=1,size(TCVX,2)
+      do jSym=1,size(TCVX,3)
 
         if (allocated(TCVX(3,iSym,jSym)%A)) call mma_deallocate(TCVX(3,iSym,jSym)%A)
 
@@ -227,14 +230,14 @@ end do
 iAddrIAD2M = 0
 call iDaFile(LUINTM,1,IAD2M,LenIAD2M,iAddrIAD2M)
 
-write(6,*) 'TIMING INFORMATION:   CPU(s)   %CPU   Elapsed(s)'
-write(6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Transformation     ',CPU_Tra,1.0d2*(CPU_Tra+5.0d-5)/(TIO_Tra+5.0d-5),TIO_Tra
-write(6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Generation         ',CPU_Gen,1.0d2*(CPU_Gen+5.0d-5)/(TIO_Gen+5.0d-5),TIO_Gen
+write(u6,*) 'TIMING INFORMATION:   CPU(s)   %CPU   Elapsed(s)'
+write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Transformation     ',CPU_Tra,1.0e2_wp*(CPU_Tra+5.0e-5_wp)/(TIO_Tra+5.0e-5_wp),TIO_Tra
+write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Generation         ',CPU_Gen,1.0e2_wp*(CPU_Gen+5.0e-5_wp)/(TIO_Gen+5.0e-5_wp),TIO_Gen
 call Timing(CPU4,CPE,TIO4,TIOE)
 CPU_Tot = CPU4-CPU0
 TIO_Tot = TIO4-TIO0
-write(6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' TOTAL              ',CPU_Tot,1.0d2*(CPU_Tot+5.0d-5)/(TIO_Tot+5.0d-5),TIO_Tot
-call XFlush(6)
+write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' TOTAL              ',CPU_Tot,1.0e2_wp*(CPU_Tot+5.0e-5_wp)/(TIO_Tot+5.0e-5_wp),TIO_Tot
+call XFlush(u6)
 
 return
 

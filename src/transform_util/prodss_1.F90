@@ -11,15 +11,19 @@
 
 subroutine ProdsS_1(AB,iAB,CMO,nMO,Y)
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-#include "stdalloc.fh"
-real*8 AB(iAB*(iAB+1)/2), CMO(iAB,nMO), Y(iAB,nMO)
-real*8, allocatable :: ABSq(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-call mma_allocate(ABSq,iAB*iAB,Label='ABSq')
+implicit none
+integer(kind=iwp), intent(in) :: iAB, nMO
+real(kind=wp), intent(in) :: AB(iAB*(iAB+1)/2), CMO(iAB,nMO)
+real(kind=wp), intent(out) :: Y(iAB,nMO)
+real(kind=wp), allocatable :: ABSq(:,:)
+
+call mma_allocate(ABSq,iAB,iAB,Label='ABSq')
 call SQUARE(AB,ABSq,1,iAB,iAB)
-call DGEMM_('N','N',iAB,nMO,iAB,1.0d0,ABSq,iAB,CMO,iAB,0.0d0,Y,iAB)
+call DGEMM_('N','N',iAB,nMO,iAB,One,ABSq,iAB,CMO,iAB,Zero,Y,iAB)
 call mma_deallocate(ABSq)
 
 return

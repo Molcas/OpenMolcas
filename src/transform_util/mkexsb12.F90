@@ -11,54 +11,49 @@
 ! Copyright (C) 2005, Giovanni Ghigo                                   *
 !***********************************************************************
 
-subroutine MkCouSB31(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
+subroutine MkExSB12(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
 !***********************************************************************
 ! Author :  Giovanni Ghigo                                             *
 !           Lund University, Sweden & Torino University, Italy         *
-!           July 2005                                                  *
+!           February 2005                                              *
 !----------------------------------------------------------------------*
-! Purpuse:  Generation of the SubBlock(3,1) (p secondary, q inactive)  *
+! Purpuse:  Generation of the SubBlock(1,2) (p,q inactive,active) of   *
 !           two-electron integral matrix for each i,j occupied couple. *
 !***********************************************************************
 
-use Cho_Tra
+use Cho_Tra, only: nAsh, nIsh
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-real*8, allocatable :: AddSB(:)
-#include "rasdim.fh"
-#include "stdalloc.fh"
-#include "SysDef.fh"
-real*8, allocatable :: Lij(:)
-real*8, allocatable :: AddSBt(:)
+implicit none
+real(kind=wp), allocatable, intent(out):: AddSB(:)
+integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
+integer(kind=iwp) :: iIx, LenSB, LxType
+logical(kind=iwp) :: SameLx
+real(kind=wp), allocatable :: Lx0(:), Ly0(:)
 
-! SubBlock 3 1
-LenSB = nSsh(iSymA)*nIsh(iSymB)
+! SubBlock 1 2
+LenSB = nIsh(iSymA)*nAsh(iSymB)
 call mma_allocate(AddSB,LenSB,Label='AddSB')
 
-call mma_allocate(AddSBt,LenSB,Label='AddSBt')
+! Build Lx
+call mma_allocate(Lx0,nIsh(iSymA)*numV,Label='Lx0')
+LxType = 0
+iIx = 0
+SameLx = .false.
+call MkL1(iSymA,iSymI,iI,numV,LxType,iIx,Lx0,SameLx)
 
-! Define Lab
-LenAB = LenSB
-!-----------------------------------------------------------------------
-!if (IfTest) then
-!  write(6,*) '     MkCouSB31: TCVB(',iSymA,',',iSymB,')'
-!  write(6,'(8F10.6)') TCVX(3,iSymA,iSymB)%A(:,:)
-!  call XFlush(6)
-!end if
-!-----------------------------------------------------------------------
-
-! Build Lij
-call mma_allocate(Lij,NumV,Label='Lij')
-call MkLij(iSymI,iSymJ,iI,iJ,numV,Lij)
+! Build Ly
+call mma_allocate(Ly0,nAsh(iSymB)*numV,Label='Ly0')
+call MkL2(iSymB,iSymJ,iJ,numV,LxType,iIx,Ly0,SameLx)
 
 ! Generate the SubBlock
-call DGEMM_('N','N',LenAB,1,numV,1.0d0,TCVX(3,iSymA,iSymB)%A,LenAB,Lij,NumV,0.0d0,AddSBt,LenSB)
-call Trnsps(nSsh(iSymA),nIsh(iSymB),AddSBt,AddSB)
+call DGEMM_('N','T',nAsh(iSymB),nIsh(iSymA),numV,One,Ly0,nAsh(iSymB),Lx0,nIsh(iSymA),Zero,AddSB,nAsh(iSymB))
 
-call mma_deallocate(Lij)
-call mma_deallocate(AddSBt)
+call mma_deallocate(Ly0)
+call mma_deallocate(Lx0)
 
 return
 
-end subroutine MkCouSB31
+end subroutine MkExSB12

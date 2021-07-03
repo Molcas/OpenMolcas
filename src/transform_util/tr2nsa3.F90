@@ -35,15 +35,20 @@ subroutine tr2nsa3(CMO,X1,nX1,X2,nX2,pqUs,npqUS,pqrU,npqrU)
 ! transformed MO integrals are stored as the same as Tr2Sq
 ! subroutine does.
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
 #include "rasdim.fh"
 #include "caspt2.fh"
+integer(kind=iwp), intent(in) :: nX1, nX2, npqUS, npqrU
+real(kind=wp), intent(in) :: CMO(NCMO)
+real(kind=wp), intent(out) :: X1(nX1), X2(nX2)
+real(kind=wp), intent(inout) :: pqUS(npqUS), pqrU(npqrU)
+integer(kind=iwp) :: IAD1S, IAD2, IAD2S, icxc3, icxc7, IPQMX1, IPQMX2, IPQST, IRU, IS, ISPQRS, IST, ITU, IUS, KKTU, LAS, LS, NA, &
+                     NAT, NORU, NOTU, NOUS, NS, NSYMP, NT, NTM, NTMAX, NU, Num, NUMAX
 #include "trafo.fh"
 #include "intgrl.fh"
-#include "SysDef.fh"
-dimension CMO(NCMO)
-dimension X1(nX1), X2(nX2)
-dimension PQRU(nPQRU), PQUS(nPQUS)
 
 NSYMP = NSYM*(NSYM+1)/2
 NOTU = NOCR*NOCS
@@ -59,7 +64,7 @@ icxc7 = NOCP*NOQ*NOCR*NOS
 IPQMX1 = NBPQ
 if (NBPQ*NOUS > LURPQ) then
   IPQMX1 = LURPQ/NOUS
-  !write(6,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|US)',IPQMX1
+  !write(u6,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|US)',IPQMX1
   IAD1S = 0
   call dDAFILE(LUHLF1,0,PQUS,IPQMX1,IAD1S)
 end if
@@ -67,7 +72,7 @@ end if
 IPQMX2 = NBPQ
 if (NBPQ*NORU > LRUPQ) then
   IPQMX2 = LRUPQ/NORU
-  !write(6,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|RU)',IPQMX2
+  !write(u6,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|RU)',IPQMX2
   IAD2S = 0
   call dDAFILE(LUHLF2,0,PQRU,IPQMX2,IAD2S)
 end if
@@ -76,7 +81,7 @@ IAD2 = 0
 !IPQMX3 = NBPQ
 !if (NBPQ*NOTU > LTUPQ) then
 !  IPQMX3 = LTUPQ/NOTU
-!  !write(6,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|TU)',IPQMX3
+!  !write(u6,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|TU)',IPQMX3
 !  IAD3S = 0
 !  call dDAFILE(LUHLF3,0,PQTU,IPQMX3,IAD3S)
 !end if
@@ -116,9 +121,9 @@ if ((ISR /= ISS) .and. (icxc3 /= 0)) then
       end if
       ! Always ISQ /= ISR  i.e. s(T) /= s(U)
       ! (pq,Us) -> (pT,Us)
-      call DGEMM_('T','N',NBP,NOCQ,NBQ,1.0d0,X2,NBQ,CMO(LMOQ2),NBQ,0.0d0,X1,NBP)
+      call DGEMM_('T','N',NBP,NOCQ,NBQ,One,X2,NBQ,CMO(LMOQ2),NBQ,Zero,X1,NBP)
       ! (pT,Us) -> (AT,Us)
-      call DGEMM_('T','N',NOCQ,NOP,NBP,1.0d0,X1,NBP,CMO(LMOP),NBP,0.0d0,X2,NOCQ)
+      call DGEMM_('T','N',NOCQ,NOP,NBP,One,X1,NBP,CMO(LMOP),NBP,Zero,X2,NOCQ)
       ! Store buffer
       if (IS > LS) then
         IS = 1
@@ -174,7 +179,7 @@ if ((ISR /= ISS) .and. (icxc3 /= 0)) then
         call RBuf_tra2(LUHLF2,PQRU,NBS*NOP,LAS,NOTU,KKTU,IST,IAD2S)
       end if
       ! (AT,Us) -> (AT,UB)
-      call DGEMM_('T','T',NOS,NOP,NBS,1.0d0,CMO(LMOS2),NBS,PQRU(IST),NOP,0.0d0,X2,NOS)
+      call DGEMM_('T','T',NOS,NOP,NBS,One,CMO(LMOS2),NBS,PQRU(IST),NOP,Zero,X2,NOS)
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
@@ -215,14 +220,14 @@ if ((ISP /= ISQ) .and. (ISR /= ISS) .and. (icxc7 /= 0)) then
       ! Square unnecessary
       if (ISP == ISR) then
         ! (pq,Us) -> (Tq,Us)
-        call DGEMM_('N','N',NBQ,NOCP-NU+1,NBP,1.0d0,PQUS(IPQST),NBQ,CMO(LMOP2+NBP*(NU-1)),NBP,0.0d0,X1,NBQ)
+        call DGEMM_('N','N',NBQ,NOCP-NU+1,NBP,One,PQUS(IPQST),NBQ,CMO(LMOP2+NBP*(NU-1)),NBP,Zero,X1,NBQ)
         ! (Tq,Us) -> (TA,Us)
-        call DGEMM_('T','N',NOCP-NU+1,NOQ,NBQ,1.0d0,X1,NBQ,CMO(LMOQ),NBQ,0.0d0,X2,NOCP-NU+1)
+        call DGEMM_('T','N',NOCP-NU+1,NOQ,NBQ,One,X1,NBQ,CMO(LMOQ),NBQ,Zero,X2,NOCP-NU+1)
       else
         ! (pq,Us) -> (Tq,Us)
-        call DGEMM_('N','N',NBQ,NOCP,NBP,1.0d0,PQUS(IPQST),NBQ,CMO(LMOP2),NBP,0.0d0,X1,NBQ)
+        call DGEMM_('N','N',NBQ,NOCP,NBP,One,PQUS(IPQST),NBQ,CMO(LMOP2),NBP,Zero,X1,NBQ)
         ! (Tq,Us) -> (TA,Us)
-        call DGEMM_('T','N',NOCP,NOQ,NBQ,1.0d0,X1,NBQ,CMO(LMOQ),NBQ,0.0d0,X2,NOCP)
+        call DGEMM_('T','N',NOCP,NOQ,NBQ,One,X1,NBQ,CMO(LMOQ),NBQ,Zero,X2,NOCP)
       end if
       ! Store buffer
       if (IS > LS) then
@@ -288,9 +293,9 @@ if ((ISP /= ISQ) .and. (ISR /= ISS) .and. (icxc7 /= 0)) then
         call RBuf_tra2(LUHLF2,PQRU,NBS*NOQ,LAS,NOTU,KKTU,IST,IAD2S)
       end if
       if (ISQ >= ISS) then
-        call DGEMM_('T','T',NOS,NOQ,NBS,1.0d0,CMO(LMOS),NBS,PQRU(IST),NOQ,0.0d0,X2,NOS)
+        call DGEMM_('T','T',NOS,NOQ,NBS,One,CMO(LMOS),NBS,PQRU(IST),NOQ,Zero,X2,NOS)
       else if ((ISP /= ISR) .and. (ISS > ISQ)) then
-        call DGEMM_('N','N',NOQ,NOS,NBS,1.0d0,PQRU(IST),NOQ,CMO(LMOS),NBS,0.0d0,X2,NOQ)
+        call DGEMM_('N','N',NOQ,NOS,NBS,One,PQRU(IST),NOQ,CMO(LMOS),NBS,Zero,X2,NOQ)
       end if
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM

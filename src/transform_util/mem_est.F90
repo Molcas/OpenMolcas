@@ -34,27 +34,32 @@ subroutine Mem_Est(iSymL,nVec,nFVec)
 ! The routine also define (calling Def_TCVx) which TCVx create.        *
 !***********************************************************************
 
-use Cho_Tra
+use Cho_Tra, only: IfTest, nAsh, nBas, nIsh, nOrb, nSsh, nSym, NumCho, TCVXist
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-#include "rasdim.fh"
-#include "SysDef.fh"
-character*16 Frmt1, Frmt3
+implicit none
+integer(kind=iwp), intent(in) :: iSymL
+integer(kind=iwp), intent(out) :: nVec, nFVec
+integer(kind=iwp) :: iSym, iSymA, iSymAI, iSymB, iSymBJ, iSymI, iSymJ, jSym, Len_ABSq, Len_XAb, Len_XAj, Len_XAu, Len_XBi, &
+                     Len_XBt, Len_YAb, Len_YAj, Len_YAu, LenCHFV, LenTCVx, LenTmpTra, MaxInt, MaxNum, MaxSize, MaxSlice, MemAlloc, &
+                     MemFree, MemFree0, MemMin, MemPerVec2, MEMX, Nab, Naj, Nau, Nbi, Nbt, Nij, Niu, Nji, Njt, nN_AB, nN_Ex1, &
+                     nN_Ex2, nN_IJ, Ntj, Ntu, Nui, Nut
+character(len=16) :: Frmt1, Frmt3
 ! statement function
+integer(kind=iwp) :: i, j, MulD2h
 MulD2h(i,j) = ieor(i-1,j-1)+1
 
-nVec = 0 ! Nr. of transformable vectors for batch.
+nVec = 0  ! Nr. of transformable vectors for batch.
 nFVec = 0 ! Nr. of full vectors for inner transformation batch
 
 ! Memory for Reading (will change when reading reduced set)
-LenCHFV = 0     ! Mem for Full Vectors (p.v. = per vector)
+LenCHFV = 0   ! Mem for Full Vectors (p.v. = per vector)
 ! Memory for Transformation
 LenTCVx = 0   ! Mem for TCVx (p.v.)
-LenTmpTra = 0   ! Mem for First-half Transformation
+LenTmpTra = 0 ! Mem for First-half Transformation
 ! Memory for Generation
 MaxInt = 0    ! Mem for integrals
-MaxSlice = 0    ! Mem for Lx (p.v.)
+MaxSlice = 0  ! Mem for Lx (p.v.)
 
 ! Memory for Transformation
 Nij = 0  ! A
@@ -223,46 +228,46 @@ MemAlloc = MemMin+(nVec-1)*MemPerVec2+(nFVec-1)*LenCHFV
 if ((.not. IfTest) .and. (nVec == NumCho(iSymL)) .and. (nFVec > 0)) return
 
 MaxNum = max(MemFree0,MemAlloc)
-MaxSize = max(9,int(log10(dble(MaxNum)))+1)
+MaxSize = max(9,int(log10(real(MaxNum,kind=wp)))+1)
 write(Frmt1,'(I16)') MaxSize
 Frmt1 = '(A,1X,I'//trim(adjustl(Frmt1))//')'
 write(Frmt3,'(I16)') MaxSize-5
 Frmt3 = '(A,1X,I'//trim(adjustl(Frmt3))//',A)'
 
-write(6,*)
-write(6,'(20A3)')('---',I=1,20)
-write(6,05) ' MEM for TRANSF/GENER of VECTORS in Sym:',iSymL
-write(6,*)
-write(6,Frmt1) ' Mem (p.v.) for CHFV            :',LenCHFV
-write(6,Frmt1) ' Tmp Mem for transformation     :',LenTmpTra
-write(6,Frmt1) ' Mem (p.v.) for TCVx            :',LenTCVx
-write(6,Frmt1) ' Max Tmp Mem (p.v.) for generat.:',MaxSlice
-write(6,Frmt1) ' Max Mem for Integrals (twice)  :',2*MaxInt
-write(6,Frmt1)
-write(6,Frmt1) ' TOTAL AVAILABLE MEMORY         :',MemFree0
-write(6,Frmt1) ' Minimal Memory required        :',MemMin
-write(6,Frmt1) ' Memory Required by generation  :',(nVec-1)*MemPerVec2
-write(6,Frmt1) ' Memory Available for transform.:',MemFree
-write(6,Frmt1) ' Memory Required by transform.  :',(nFVec-1)*LenCHFV
-write(6,Frmt1) ' TOTAL ALLOCATED MEMORY         :',MemAlloc
-write(6,Frmt1) ' Unemployed memory              :',MemFree0-MemAlloc
-write(6,*)
-write(6,20) ' Max nr. of Transformed vectors  :',nVec
-write(6,20) ' Max nr. of vectors in sub-batch :',nFVec
-write(6,20) ' Total Number of Cholesky vectors:',NumCho(iSymL)
-write(6,*)
-write(6,*) 'ESTIMATED MEMORY REQUIREMENTS'
-write(6,Frmt3) '  Minimum:',2+MemMin/119000,' MB'
-write(6,Frmt3) '  Normal :',2+(MemMin+MemPerVec2*(NumCho(iSymL)-1))/119000,' MB'
-write(6,Frmt3) '  Maximum:',2+(MemMin+(MemPerVec2+LenCHFV)*(NumCho(iSymL)-1))/119000,' MB'
-write(6,'(20A3)')('---',I=1,20)
-write(6,*)
-call XFlush(6)
+write(u6,*)
+write(u6,'(20A3)') ('---',I=1,20)
+write(u6,05) ' MEM for TRANSF/GENER of VECTORS in Sym:',iSymL
+write(u6,*)
+write(u6,Frmt1) ' Mem (p.v.) for CHFV            :',LenCHFV
+write(u6,Frmt1) ' Tmp Mem for transformation     :',LenTmpTra
+write(u6,Frmt1) ' Mem (p.v.) for TCVx            :',LenTCVx
+write(u6,Frmt1) ' Max Tmp Mem (p.v.) for generat.:',MaxSlice
+write(u6,Frmt1) ' Max Mem for Integrals (twice)  :',2*MaxInt
+write(u6,Frmt1)
+write(u6,Frmt1) ' TOTAL AVAILABLE MEMORY         :',MemFree0
+write(u6,Frmt1) ' Minimal Memory required        :',MemMin
+write(u6,Frmt1) ' Memory Required by generation  :',(nVec-1)*MemPerVec2
+write(u6,Frmt1) ' Memory Available for transform.:',MemFree
+write(u6,Frmt1) ' Memory Required by transform.  :',(nFVec-1)*LenCHFV
+write(u6,Frmt1) ' TOTAL ALLOCATED MEMORY         :',MemAlloc
+write(u6,Frmt1) ' Unemployed memory              :',MemFree0-MemAlloc
+write(u6,*)
+write(u6,20) ' Max nr. of Transformed vectors  :',nVec
+write(u6,20) ' Max nr. of vectors in sub-batch :',nFVec
+write(u6,20) ' Total Number of Cholesky vectors:',NumCho(iSymL)
+write(u6,*)
+write(u6,*) 'ESTIMATED MEMORY REQUIREMENTS'
+write(u6,Frmt3) '  Minimum:',2+MemMin/119000,' MB'
+write(u6,Frmt3) '  Normal :',2+(MemMin+MemPerVec2*(NumCho(iSymL)-1))/119000,' MB'
+write(u6,Frmt3) '  Maximum:',2+(MemMin+(MemPerVec2+LenCHFV)*(NumCho(iSymL)-1))/119000,' MB'
+write(u6,'(20A3)') ('---',I=1,20)
+write(u6,*)
+call XFlush(u6)
 if (nVec < NumCho(iSymL)) then
-  write(6,*) ' Batch procedure used. Increase memory if possible!'
-  write(6,*)
-  write(6,'(20A3)')('---',I=1,20)
-  call XFlush(6)
+  write(u6,*) ' Batch procedure used. Increase memory if possible!'
+  write(u6,*)
+  write(u6,'(20A3)') ('---',I=1,20)
+  call XFlush(u6)
 end if
 
 return

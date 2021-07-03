@@ -11,11 +11,15 @@
 
 subroutine ProdsA_2(AB,iA,iB,CMO,nMO,Y)
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-real*8 AB(iA,iB), CMO(iB,nMO), Y(iA,nMO)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-call DGEMM_('N','N',iA,nMO,iB,1.0d0,AB,iA,CMO,iB,0.0d0,Y,iA)
+implicit none
+integer(kind=iwp), intent(in) :: iA, iB, nMO
+real(kind=wp), intent(in) :: AB(iA,iB), CMO(iB,nMO)
+real(kind=wp), intent(out) :: Y(iA,nMO)
+
+call DGEMM_('N','N',iA,nMO,iB,One,AB,iA,CMO,iB,Zero,Y,iA)
 
 return
 

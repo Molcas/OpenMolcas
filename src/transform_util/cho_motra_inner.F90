@@ -13,23 +13,25 @@ subroutine Cho_MOTra_Inner(CMO,nCMOs,nSym,nBas,nOrb,nFro,nIsh,nAsh,nSsh,nDel,BNa
 ! Note: frozen and deleted orbitals are not included in the transformation.
 
 use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-integer nCMOs, ihdf5
-real*8 CMO(nCMOs)
-integer nSym
-integer nBas(nSym), nOrb(nSym)
-integer nFro(nSym), nIsh(nSym), nAsh(nSym)
-integer nSsh(nSym), nDel(nSym), nAux(8)
-character*6 BName
-logical Do_int
-logical Do_ChoInit
-real*8, allocatable :: xInt(:)
-type(DSBA_Type), target :: CMOT
+implicit none
+integer(kind=iwp), intent(in) :: nCMOs, nSym, nBas(nSym), nOrb(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym), nSsh(nSym), nDel(nSym), &
+                                 ihdf5
+real(kind=wp), intent(in) :: CMO(nCMOs)
+character(len=6), intent(in) :: BName
+logical(kind=iwp), intent(in) :: Do_int, Do_ChoInit
+integer(kind=iwp) :: irc, iSym, iSymp, iSymq, jSym, kdisk, Lu_Xint, lXint, n, nAux(8), nOrbp, nOrbq
+real(kind=wp) :: FracMem
+type(DSBA_Type), target :: CMOT(1)
+real(kind=wp), allocatable :: xInt(:)
+integer(kind=iwp), external :: isFreeUnit
 #include "chotime.fh"
-#include "stdalloc.fh"
 !*************************************************
 ! statement function
+integer(kind=iwp) :: i, j, MulD2h
 MulD2h(i,j) = ieor(i-1,j-1)+1
 !*************************************************
 
@@ -53,14 +55,14 @@ if (n /= nCMOs) then
   ! This is only a potential problem if orbitals were removed
   ! due to linear dependence (not deleted virtual orbitals)
   call WarningMessage(2,'Cho_MOTra_: n != nCMOs')
-  write(6,*) 'n,nCMOs=',n,nCMOs
+  write(u6,*) 'n,nCMOs=',n,nCMOs
   call Abend()
 end if
 
 nAux(1:nSym) = nBas(1:nSym)-nFro(1:nSym)-nDel(1:nSym)
-call Allocate_DSBA(CMOT,nAux,nBas,nSym)
+call Allocate_DSBA(CMOT(1),nAux,nBas,nSym)
 
-call Transp_MOs(CMO,CMOT%A0,nSym,nFro,nIsh,nAsh,nSsh,nBas)
+call Transp_MOs(CMO,CMOT(1)%A0,nSym,nFro,nIsh,nAsh,nSsh,nBas)
 
 timings = .true.
 
@@ -88,12 +90,12 @@ else
 end if
 
 if (Do_ChoInit) then
-  FracMem = 0.0d0 ! in a parallel run set it to a sensible value
+  FracMem = Zero ! in a parallel run set it to a sensible value
   irc = 0
   call Cho_X_Init(irc,FracMem) ! initialize cholesky info
   if (irc /= 0) then
     call WarningMessage(2,'Cho_MOTra_: non-zero rc from Cho_X_Init')
-    write(6,*) 'rc=',irc
+    write(u6,*) 'rc=',irc
     call Abend()
   end if
 end if
@@ -102,7 +104,7 @@ if (Do_ChoInit) then
   call Cho_X_final(irc)
   if (irc /= 0) then
     call WarningMessage(2,'Cho_MOTra_: non-zero rc from Cho_X_Final')
-    write(6,*) 'rc=',irc
+    write(u6,*) 'rc=',irc
     call Abend()
   end if
 end if
@@ -114,7 +116,7 @@ if (Do_int) then
   call daclos(Lu_Xint)
 end if
 call mma_deallocate(XInt)
-call Deallocate_DSBA(CMOT)
+call Deallocate_DSBA(CMOT(1))
 
 return
 ! Avoid unused argument warnings

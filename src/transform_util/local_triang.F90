@@ -21,15 +21,18 @@ subroutine Local_Triang(nRow,A)
 ! SWEDEN                                     *
 !--------------------------------------------*
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-dimension A(nRow**2)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nRow
+real(kind=wp), intent(inout) :: A(nRow**2)
+integer(kind=iwp) :: i, iFrom, iTo
 
 ! Convert a square matrix to triangular in-place.
 iFrom = 1+nRow
 iTo = 2
 do i=2,nRow
-  call dCopy_(i,A(iFrom),1,A(iTo),1)
+  A(iTo:iTo+i-1) = A(iFrom:iFrom+i-1)
   iFrom = iFrom+nRow
   iTo = iTo+i
 end do

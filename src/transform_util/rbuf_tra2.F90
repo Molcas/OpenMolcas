@@ -11,11 +11,15 @@
 
 subroutine RBuf_tra2(LUHLFX,W,LL,LBuf,NOTU,KKTU,IST,IADXS)
 
-implicit real*8(a-h,o-z)
-!integer MEMX,KBUF,BLKSZ,NBLCK,NPASS,DLNGTH
-#include "SysDef.fh"
-!#include "stdalloc.fh"
-dimension W(*)
+use Definitions, only: wp, iwp
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(in) :: LUHLFX, LL, LBuf, NOTU, KKTU, IADXS
+real(kind=wp), intent(_OUT_) :: W(*)
+integer(kind=iwp), intent(out) :: IST
+!integer(kind=iwp) :: BLKSZ, MEMX, NBLCK
 
 !call mma_maxDBLE(MEMX)
 !BLKSZ = (NOTU-1)*IADXS

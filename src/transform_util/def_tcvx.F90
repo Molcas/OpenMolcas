@@ -42,18 +42,22 @@ subroutine Def_TCVx(iSym,jSym)
 ! iType(x):  1=A, 2=B, 3=C, 4=D, 5=E, 6=F, 7=G                         *
 !***********************************************************************
 
-use Cho_Tra
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
+use Cho_Tra, only: DoTCVA, nAsh, nIsh, nSsh, TCVXist
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: iSym, jSym
 
 if (nIsh(jSym) > 0) then
-  if ((nIsh(iSym) > 0) .and. DoTCVA) then
-    TCVXist(1,iSym,jSym) = .true.
-    TCVXist(1,jSym,iSym) = .true.  ! Aji = T(Aij) !
-  end if
-  if ((nAsh(iSym) > 0) .and. DoTCVA) then
-    TCVXist(2,iSym,jSym) = .true.
-    TCVXist(7,jSym,iSym) = .true.
+  if (DoTCVA) then
+    if (nIsh(iSym) > 0) then
+      TCVXist(1,iSym,jSym) = .true.
+      TCVXist(1,jSym,iSym) = .true.  ! Aji = T(Aij) !
+    end if
+    if (nAsh(iSym) > 0) then
+      TCVXist(2,iSym,jSym) = .true.
+      TCVXist(7,jSym,iSym) = .true.
+    end if
   end if
   if (nSsh(iSym) > 0) then
     TCVXist(3,iSym,jSym) = .true.
@@ -61,7 +65,7 @@ if (nIsh(jSym) > 0) then
 end if
 
 if ((nAsh(jSym) > 0) .and. DoTCVA) then
-  if ((nIsh(iSym) > 0) .and. iSym /= jSym) then
+  if ((nIsh(iSym) > 0) .and. (iSym /= jSym)) then
     TCVXist(2,jSym,iSym) = .true.
     TCVXist(7,iSym,jSym) = .true.
   end if
@@ -74,7 +78,7 @@ if ((nAsh(jSym) > 0) .and. DoTCVA) then
   end if
 end if
 
-if ((nSsh(jSym) > 0) .and. iSym /= jSym) then
+if ((nSsh(jSym) > 0) .and. (iSym /= jSym)) then
   if (nIsh(iSym) > 0) then
     TCVXist(3,jSym,iSym) = .true.
   end if

@@ -19,13 +19,16 @@ subroutine ChoMP2_TwoEl(iBatch,nBatch,numV,LUINTM,iAddrIAD2M,iSymI,iSymJ,iSymA,i
 ! Modified for Cholesky-MP2 May 2005                                   *
 !***********************************************************************
 
-use Cho_Tra
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-#include "rasdim.fh"
-#include "stdalloc.fh"
-#include "SysDef.fh"
-real*8, allocatable :: AddEx1(:), AddEx2(:), AddEx2t(:)
+use Cho_Tra, only: IAD2M, nOsh, nSsh, nSym, SubBlocks
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: iBatch, nBatch, numV, LUINTM, iSymI, iSymJ, iSymA, iSymB, iSymL
+integer(kind=iwp), intent(inout) :: iAddrIAD2M
+integer(kind=iwp) :: iAddrIAD2Mij, iEndJ, iI, iIJAB, iJ, nA, nB, nN_AB, nN_Ex1, nN_Ex2, nN_IJ, nSymP
+real(kind=wp), allocatable :: AddEx1(:), AddEx2(:), AddEx2t(:)
 
 nSymP = (nSym**2+nSym)/2
 call LenInt(iSymI,iSymJ,iSymA,iSymB,nN_IJ,nN_AB,nN_Ex1,nN_Ex2)
@@ -54,7 +57,7 @@ if (nN_IJ*nN_Ex1 > 0) then
         call dDaFile(LUINTM,2,AddEx1,nN_Ex1,iAddrIAD2Mij)
         iAddrIAD2Mij = iAddrIAD2Mij-nN_Ex1
       else
-        AddEx1(:) = 0.0d0
+        AddEx1(:) = Zero
       end if
       call ChoMP2_GenE(iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddEx1,nN_Ex1)
       call dDaFile(LUINTM,1,AddEx1,nN_Ex1,iAddrIAD2Mij)
@@ -94,7 +97,7 @@ if (nN_IJ*nN_Ex2 > 0) then
         iAddrIAD2Mij = iAddrIAD2Mij-nN_Ex2
         call Trnsps(nA,nB,AddEx2,AddEx2t)
       else
-        AddEx2t(:) = 0.0d0
+        AddEx2t(:) = Zero
       end if
       call ChoMP2_GenE(iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddEx2t,nN_Ex2)
       call Trnsps(nB,nA,AddEx2t,AddEx2)
