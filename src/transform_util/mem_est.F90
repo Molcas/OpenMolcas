@@ -35,19 +35,17 @@ subroutine Mem_Est(iSymL,nVec,nFVec)
 !***********************************************************************
 
 use Cho_Tra, only: IfTest, nAsh, nBas, nIsh, nOrb, nSsh, nSym, NumCho, TCVXist
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iSymL
 integer(kind=iwp), intent(out) :: nVec, nFVec
-integer(kind=iwp) :: iSym, iSymA, iSymAI, iSymB, iSymBJ, iSymI, iSymJ, jSym, Len_ABSq, Len_XAb, Len_XAj, Len_XAu, Len_XBi, &
+integer(kind=iwp) :: I, iSym, iSymA, iSymAI, iSymB, iSymBJ, iSymI, iSymJ, jSym, Len_ABSq, Len_XAb, Len_XAj, Len_XAu, Len_XBi, &
                      Len_XBt, Len_YAb, Len_YAj, Len_YAu, LenCHFV, LenTCVx, LenTmpTra, MaxInt, MaxNum, MaxSize, MaxSlice, MemAlloc, &
                      MemFree, MemFree0, MemMin, MemPerVec2, MEMX, Nab, Naj, Nau, Nbi, Nbt, Nij, Niu, Nji, Njt, nN_AB, nN_Ex1, &
                      nN_Ex2, nN_IJ, Ntj, Ntu, Nui, Nut
 character(len=16) :: Frmt1, Frmt3
-! statement function
-integer(kind=iwp) :: i, j, MulD2h
-MulD2h(i,j) = ieor(i-1,j-1)+1
 
 nVec = 0  ! Nr. of transformable vectors for batch.
 nFVec = 0 ! Nr. of full vectors for inner transformation batch
@@ -79,7 +77,7 @@ Niu = 0  ! G"
 do iSym=1,nSym
   if (nBas(iSym) > 0) then
     do jSym=1,iSym
-      if ((nBas(jSym) > 0) .and. (MulD2h(iSym,jSym) == iSymL)) then
+      if ((nBas(jSym) > 0) .and. (Mul(iSym,jSym) == iSymL)) then
 
         Len_YAj = 0  ! iSym=jSym: A, B, C
         Len_YAu = 0  ! iSym=jSym: D, E
@@ -200,8 +198,8 @@ do iSymI=1,nSym
   do iSymJ=1,iSymI
     do iSymA=1,nSym
       do iSymB=1,iSymA
-        iSymAI = MulD2h(iSymA,iSymI)
-        iSymBJ = MulD2h(iSymB,iSymJ)
+        iSymAI = Mul(iSymA,iSymI)
+        iSymBJ = Mul(iSymB,iSymJ)
         call LenInt(iSymI,iSymJ,iSymA,iSymB,nN_IJ,nN_AB,nN_Ex1,nN_Ex2)
         if ((iSymAI == iSymL) .and. (iSymBJ == iSymL) .and. (nN_IJ*nN_AB > 0)) then
           MaxInt = max(MaxInt,max(nN_AB,max(nN_Ex1,2*nN_Ex2)))

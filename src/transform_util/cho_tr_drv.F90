@@ -20,6 +20,7 @@ use hdf5_utils, only: file_id, hdf5_close_cholesky, hdf5_init_wr_cholesky, hdf5_
 #endif
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
+use Symmetry_Info, only: Mul
 use Data_Structures, only: Allocate_SBA, Deallocate_SBA, DSBA_Type, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -32,9 +33,9 @@ type(DSBA_Type), intent(in) :: Porb(1)
 character(len=6), intent(in) :: BName
 logical(kind=iwp), intent(in) :: Do_int
 real(kind=wp), intent(out) :: Xint(0:lXint-1)
-integer(kind=iwp) :: iBatch, idisk, iLoc, iOffB(8), ipq, irc, IREDC, iSwap, iSymb, iSymp, IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, &
-                     jSym, JVC, JVEC, k, kMOs, kt, l, LREAD, LunChVF(8), LWORK, kOff(8), Mpq, mTTvec, mTvec, MUSED, mvec, NAp, &
-                     nApq, nAq, nBatch, nMOs, nOB(8), nPorb(8), nRS, NUMV, nVec, nVrs
+integer(kind=iwp) :: i, iBatch, idisk, iLoc, iOffB(8), ipq, irc, IREDC, iSwap, iSymb, iSymp, IVEC2, iVrs, JNUM, JRED, JRED1, &
+                     JRED2, jSym, JVC, JVEC, k, kMOs, kt, l, LREAD, LunChVF(8), LWORK, kOff(8), Mpq, mTTvec, mTvec, MUSED, mvec, &
+                     NAp, nApq, nAq, nBatch, nMOs, nOB(8), nPorb(8), nRS, NUMV, nVec, nVrs
 #ifdef _HDF5_QCM_
 integer(kind=HID_T) :: choset_id, space_id
 #endif
@@ -52,11 +53,6 @@ real(kind=r8), external :: ddot_
 #include "chotraw.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-!***********************************************************************
-! statement function
-integer(kind=iwp) :: i, j, MulD2h
-MulD2h(i,j) = ieor(i-1,j-1)+1
-!***********************************************************************
 
 #ifndef _HDF5_QCM_
 #include "macros.fh"
@@ -119,7 +115,7 @@ do jSym=1,nSym
   ! Set up the skipping flags + some initializations
   !-------------------------------------------------
   do i=1,nSym
-    k = Muld2h(i,JSYM)
+    k = Mul(i,JSYM)
     if (i < k) then
       kOff(i) = Mpq
       nOB(i) = nPorb(i)*nPorb(k)*NumCho(jSym)
@@ -139,12 +135,11 @@ do jSym=1,nSym
   end do
   do i=1,nSym
     if (nOB(i) == 0) then
-      k = Muld2h(i,JSYM)
+      k = Mul(i,JSYM)
       iOffB(i) = iOffB(k)
       kOff(i) = kOff(k)
     end if
   end do
-
 
   !********************* MEMORY MANAGEMENT SECTION *********************
   !---------------------------------------------------------------------
@@ -155,7 +150,7 @@ do jSym=1,nSym
   mTTvec = 0  ! mem for storing transformed vec Lpq,J
 
   do l=1,nSym
-    k = Muld2h(l,JSYM)
+    k = Mul(l,JSYM)
     mTvec = mTvec+nPorb(k)*nBas(l)
     mTTvec = max(mTTvec,nPorb(k)*nPorb(l))
   end do
@@ -357,7 +352,7 @@ do jSym=1,nSym
 
         do iSymb=1,nSym
 
-          iSymp = MulD2h(JSYM,iSymb)
+          iSymp = Mul(JSYM,iSymb)
           NAp = nPorb(iSymp)
           NAq = nPorb(iSymb) ! iSymb=iSymq
           NApq = NAp*NAq
@@ -372,7 +367,7 @@ do jSym=1,nSym
             do JVC=1,JNUM
 
               call DGEMM_('N','T',NAp,NAq,nBas(iSymb),One,ChoT(1)%SB(iSymp)%A3(:,:,JVC),NAp,Porb(1)%SB(iSymb)%A2,NAq,Zero, &
-                           Lpq(:,JVC),NAp)
+                          Lpq(:,JVC),NAp)
 
             end do
           else

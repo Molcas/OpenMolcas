@@ -11,12 +11,12 @@
 
 subroutine SetUp_CASPT2_Tra(nSym_,nBas_,nOrb_,nIsh_,nAsh_,nFro_,nDel_,CMO,lthCMO,LuIntM_,LuHlf1_,LuHlf2_,LuHlf3_)
 
+use Symmetry_Info, only: Mul_SI => Mul
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nSym_, nBas_(8), nOrb_(8), nIsh_(8), nAsh_(8), nFro_(8), nDel_(8), lthCMO, LuIntM_
 integer(kind=iwp), intent(inout) :: LuHlf1_, LuHlf2_, LuHlf3_
-integer(kind=iwp) :: i, j
 real(kind=wp), intent(in) :: CMO(lthCMO)
 integer(kind=iwp), external :: ip_of_Work
 #include "rasdim.fh"
@@ -36,11 +36,7 @@ nOsh(1:nSym) = nAsh_(1:nSym)+nIsh_(1:nSym)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-do i=1,8
-  do j=1,8
-    Mul(i,j) = ieor(i-1,j-1)+1
-  end do
-end do
+Mul(:,:) = Mul_SI(:,:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

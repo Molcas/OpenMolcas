@@ -42,6 +42,7 @@
      &    IAD1M,IEOF1M,NELE3,NHOLE1,IFQCAN,                             &
      &    NLYROOT,NLYGROUP,                                             &
      &    DWTYPE
+! Note: MUL(8,8) is just a copy of Mul in the Symmetry_Info module
       COMMON/INPI/MAXIT,NTIT,NACTEL,ISPIN,NSYM,STSYM,NCONF,NUNIQAT,     &
      &    NFRO(8),NFROT,NISH(8),NIES(8),NISHT,NRAS1(8),NRAS1T,          &
      &    NRAS2(8),NRAS2T,NRAS3(8),NRAS3T,NASH(8),NAES(8),NASHT,        &

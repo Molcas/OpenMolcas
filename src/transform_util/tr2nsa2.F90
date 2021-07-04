@@ -166,7 +166,7 @@ if (icxc1 /= 0) then
         ! (pT,rU) -> (AT,rU)
         call DGEMM_('T','N',NOCQ,NOP,NBP,One,X1,NBP,CMO(LMOP),NBP,Zero,X2,NOCQ)
       end if
-        ! Store buffer
+      ! Store buffer
       if (IR > LR) then
         IR = 1
         !vv do I=1,NOTU

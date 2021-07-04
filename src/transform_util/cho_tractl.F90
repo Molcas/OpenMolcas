@@ -103,6 +103,7 @@ subroutine Cho_TraCtl(iTraType,LUINTM,CMO,NCMO,DoExch2)
 
 use Cho_Tra, only: DoCoul, DoExc2, DoFull, DoTCVA, IAD2M, IfTest, nAsh, nBas, nDel, nFro, nIsh, nOrb, nOsh, nSsh, nSym, NumCho, &
                    TCVX, TCVXist
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -111,16 +112,13 @@ implicit none
 integer(kind=iwp), intent(in) :: iTraType, LUINTM, NCMO
 real(kind=wp), intent(in) :: CMO(NCMO)
 logical(kind=iwp), intent(in) :: DoExch2
-integer(kind=iwp) :: iAddrIAD2M, iBatch, IPRX, irc, iStrtVec_AB, iSym, iSymA, iSymAI, iSymB, iSymBJ, iSymI, iSymJ, iSymL, iType, &
-                     jSym, k, LenIAD2M, lUCHFV, nBasT, nBatch, nData, nFVec, NumV, nVec
+integer(kind=iwp) :: i, iAddrIAD2M, iBatch, IPRX, irc, iStrtVec_AB, iSym, iSymA, iSymAI, iSymB, iSymBJ, iSymI, iSymJ, iSymL, &
+                     iType, j, jSym, k, LenIAD2M, lUCHFV, nBasT, nBatch, nData, nFVec, NumV, nVec
 real(kind=wp) :: CPE, CPU0, CPU1, CPU2, CPU3, CPU4, CPU_Gen, CPU_Tot, CPU_Tra, tcpu_reo, TCR1, TCR2, TIO0, TIO1, TIO2, TIO3, TIO4, &
                  TIO_Gen, TIO_Tot, TIO_Tra, TIOE, TWR1, TWR2
 logical(kind=iwp) :: Found
 character(len=6) :: CHName
 character(len=4), parameter :: CHNm = 'CHFV'
-! statement function
-integer(kind=iwp) :: i, j, MulD2h
-MulD2h(i,j) = ieor(i-1,j-1)+1
 
 !-----------------------------------------------------------------------
 IfTest = .false.
@@ -315,7 +313,7 @@ do iSymL=1,nSym
       if (nBas(iSym) > 0) then
         do jSym=1,iSym
           lUCHFV = -1
-          if ((nBas(jSym) > 0) .and. (MulD2h(iSym,jSym) == iSymL)) then
+          if ((nBas(jSym) > 0) .and. (Mul(iSym,jSym) == iSymL)) then
             lUCHFV = 7
             iStrtVec_AB = nVec*(iBatch-1)+1
             write(CHName,'(A4,I1,I1)') CHNm,iSym,jSym
@@ -364,8 +362,8 @@ do iSymL=1,nSym
       do iSymJ=1,iSymI
         do iSymA=1,nSym
           do iSymB=1,nSym
-            iSymAI = MulD2h(iSymA,iSymI)
-            iSymBJ = MulD2h(iSymB,iSymJ)
+            iSymAI = Mul(iSymA,iSymI)
+            iSymBJ = Mul(iSymB,iSymJ)
 
             if ((iSymAI == iSymL) .and. (iSymBJ == iSymL)) call Cho_TwoEl(iBatch,NumV,LUINTM,iAddrIAD2M,iSymI,iSymJ,iSymA,iSymB)
 

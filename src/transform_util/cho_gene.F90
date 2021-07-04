@@ -42,6 +42,7 @@ subroutine Cho_GenE(iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddEx,LenEx)
 !***********************************************************************
 
 use Cho_Tra, only: DoTCVA, nAsh, nIsh, nSsh, SubBlocks
+use MkSubs, only: MkExSB11, MkExSB12, MkExSB13, MkExSB21, MkExSB22, MkExSB23, MkExSB31, MkExSB32, MkExSB33
 use Data_Structures, only: Alloc1DArray_Type
 use stdalloc, only: mma_deallocate
 use Constants, only: One
@@ -52,59 +53,6 @@ integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV, LenEx
 real(kind=wp), intent(inout) :: AddEx(LenEx)
 integer(kind=iwp) :: iA, iAddExSB, iAddSBi, iB, iLenA, iLenAa, iLenB, iLenBb, iSB_A, iSB_B, LenA(3), LenB(3)
 type(Alloc1DArray_Type) :: AddSB(3,3)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine MkExSB11(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    import :: wp, iwp
-    real(kind=wp), allocatable, intent(out) :: AddSB(:)
-    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
-  end subroutine MkExSB11
-  subroutine MkExSB12(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    import :: wp, iwp
-    real(kind=wp), allocatable, intent(out) :: AddSB(:)
-    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
-  end subroutine MkExSB12
-  subroutine MkExSB13(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    import :: wp, iwp
-    real(kind=wp), allocatable, intent(out) :: AddSB(:)
-    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
-  end subroutine MkExSB13
-  subroutine MkExSB21(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddSBt)
-    import :: wp, iwp
-    real(kind=wp), allocatable, intent(out) :: AddSB(:)
-    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
-    real(kind=wp), intent(in) :: AddSBt(*)
-  end subroutine MkExSB21
-  subroutine MkExSB22(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    import :: wp, iwp
-    real(kind=wp), allocatable, intent(out) :: AddSB(:)
-    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
-  end subroutine MkExSB22
-  subroutine MkExSB23(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    import :: wp, iwp
-    real(kind=wp), allocatable, intent(out) :: AddSB(:)
-    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
-  end subroutine MkExSB23
-  subroutine MkExSB31(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddSBt)
-    import :: wp, iwp
-    real(kind=wp), allocatable, intent(out) :: AddSB(:)
-    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
-    real(kind=wp), intent(in) :: AddSBt(*)
-  end subroutine MkExSB31
-  subroutine MkExSB32(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddSBt)
-    import :: wp, iwp
-    real(kind=wp), allocatable, intent(out) :: AddSB(:)
-    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
-    real(kind=wp), intent(in) :: AddSBt(*)
-  end subroutine MkExSB32
-  subroutine MkExSB33(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    import :: wp, iwp
-    real(kind=wp), allocatable, intent(out) :: AddSB(:)
-    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
-  end subroutine MkExSB33
-end interface
 
 !                                                                      *
 !***********************************************************************

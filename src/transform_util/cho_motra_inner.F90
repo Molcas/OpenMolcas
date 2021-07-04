@@ -12,6 +12,7 @@
 subroutine Cho_MOTra_Inner(CMO,nCMOs,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,BName,Do_int,ihdf5,Do_ChoInit)
 ! Note: frozen and deleted orbitals are not included in the transformation.
 
+use Symmetry_Info, only: Mul
 use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -28,11 +29,6 @@ type(DSBA_Type), target :: CMOT(1)
 real(kind=wp), allocatable :: xInt(:)
 integer(kind=iwp), external :: isFreeUnit
 #include "chotime.fh"
-!*************************************************
-! statement function
-integer(kind=iwp) :: i, j, MulD2h
-MulD2h(i,j) = ieor(i-1,j-1)+1
-!*************************************************
 
 n = nBas(1)**2
 do iSym=2,nSym
@@ -73,7 +69,7 @@ if (Do_int) then
   do jSym=1,nSym
     do iSymq=1,nSym
       nOrbq = nIsh(iSymq)+nAsh(iSymq)+nSsh(iSymq)
-      iSymp = MulD2h(iSymq,jSym)
+      iSymp = Mul(iSymq,jSym)
       if (iSymp == iSymq) then
         lXint = lXint+nOrbq*(nOrbq+1)/2
       elseif (iSymp < iSymq) then

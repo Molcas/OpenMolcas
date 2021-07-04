@@ -43,6 +43,7 @@ subroutine Cho_GenC(iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddCou,LenCou,LenEx)
 !***********************************************************************
 
 use Cho_Tra, only: IfTest, nAsh, nIsh, nOrb, nSsh, SubBlocks
+use MkSubs, only: MkCouSB11, MkCouSB21, MkCouSB22, MkCouSB31, MkCouSB32, MkCouSB33
 use Data_Structures, only: Alloc1DArray_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -54,41 +55,6 @@ real(kind=wp), intent(inout) :: AddCou(LenCou)
 integer(kind=iwp) :: iAddCouSB, iAddSBi, iB, iSB_A, iSB_B, LenA(3), LenB(3), LenSB, nOrbA
 type(Alloc1DArray_Type) :: AddSB(3,3)
 real(kind=wp), allocatable :: AddSq(:)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine MkCouSB11(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    import :: wp, iwp
-    real(kind=wp), allocatable, intent(out) :: AddSB(:)
-    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
-  end subroutine MkCouSB11
-  subroutine MkCouSB21(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    import :: wp, iwp
-    real(kind=wp), allocatable, intent(out) :: AddSB(:)
-    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
-  end subroutine MkCouSB21
-  subroutine MkCouSB22(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    import :: wp, iwp
-    real(kind=wp), allocatable, intent(out) :: AddSB(:)
-    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
-  end subroutine MkCouSB22
-  subroutine MkCouSB31(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    import :: wp, iwp
-    real(kind=wp), allocatable, intent(out) :: AddSB(:)
-    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
-  end subroutine MkCouSB31
-  subroutine MkCouSB32(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    import :: wp, iwp
-    real(kind=wp), allocatable, intent(out) :: AddSB(:)
-    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
-  end subroutine MkCouSB32
-  subroutine MkCouSB33(AddSB,iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV)
-    import :: wp, iwp
-    real(kind=wp), allocatable, intent(out) :: AddSB(:)
-    integer(kind=iwp), intent(in) :: iSymI, iSymJ, iSymA, iSymB, iI, iJ, numV
-  end subroutine MkCouSB33
-end interface
 
 !                                                                      *
 !***********************************************************************
