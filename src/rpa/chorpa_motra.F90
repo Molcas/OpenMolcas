@@ -90,7 +90,7 @@ do iSpin=1,nSpin
   call ChoRPA_MOTra_ReorderCMO(nSym,nBas,nOrb,CMO(:,iSpin),lCMO)
   ! Set base name for MO files
   ! Transform Cholesky vectors
-  call Cho_MOTra_Inner(lCMO,l_lCMO,nSym,nBas,nOrb,loc(:,lnFro),loc(:,lnOcc),loc(:,Zeros),loc(:,lnVir),loc(:,lnDel),BName(iSpin), &
+  call Cho_MOTra_Inner(lCMO,l_lCMO,nSym,nBas,loc(:,lnFro),loc(:,lnOcc),loc(:,Zeros),loc(:,lnVir),loc(:,lnDel),BName(iSpin), &
                        .false.,0,.false.)
 
 end do

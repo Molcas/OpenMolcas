@@ -231,52 +231,52 @@ end if
 ! NOTE THAT THE SYMMETRY LABEL ISPQRS ASSUMES THAT SYMMETRY LOOPS
 ! IN THE ORDER T,U,A,B FOR ALL INTEGRAL TYPES.
 
-if (NOCR*NOCS == 0) GO TO 22
-ISPQRS = ((ISR**2-ISR)/2+ISS-1)*NSYMP+(ISP**2-ISP)/2+ISQ
-IAD2M(1,ISPQRS) = IAD13
-ITU = 0
-do NT=1,NOCR
-  NUM = NT
-  if (ISS /= ISR) NUM = NOCS
-  do NU=1,NUM
-    IPQST = 1+NBPQ*ITU
-    ITU = ITU+1
+if (NOCR*NOCS /= 0) then
+  ISPQRS = ((ISR**2-ISR)/2+ISS-1)*NSYMP+(ISP**2-ISP)/2+ISQ
+  IAD2M(1,ISPQRS) = IAD13
+  ITU = 0
+  do NT=1,NOCR
+    NUM = NT
+    if (ISS /= ISR) NUM = NOCS
+    do NU=1,NUM
+      IPQST = 1+NBPQ*ITU
+      ITU = ITU+1
 
-    ! READ ONE BUFFER OF INTEGRALS BACK INTO CORE
+      ! READ ONE BUFFER OF INTEGRALS BACK INTO CORE
 
-    if (IPQMX3 < NBPQ) then
-      !*sta0830
-      call RBuf_tra2(LUHLF3,TUPQ,NBPQ,IPQMX3,NOTU,ITU,IPQST,IAD3S)
-      !*end0830
-    end if
+      if (IPQMX3 < NBPQ) then
+        !*sta0830
+        call RBuf_tra2(LUHLF3,TUPQ,NBPQ,IPQMX3,NOTU,ITU,IPQST,IAD3S)
+        !*end0830
+      end if
 
-    if (ISP == ISQ) then
-      call SQUARE(TUPQ(IPQST),X2,1,NBQ,NBQ)
-      call DGEMM_('N','N',NBQ,NOP,NBP,One,X2,NBQ,CMO(LMOP),NBP,Zero,X1,NBP)
-      call MXMT(X1,NBQ,1,CMO(LMOQ),1,NBQ,X2,NOP,NBQ)
-      IX2 = (NOP+NOP**2)/2
-    else
-      call DGEMM_('N','N',NBQ,NOP,NBP,One,TUPQ(IPQST),NBQ,CMO(LMOP),NBP,Zero,X1,NBQ)
-      call DGEMM_('T','N',NOQ,NOP,NBQ,One,CMO(LMOQ),NBQ,X1,NBQ,Zero,X2,NOQ)
-      IX2 = NOP*NOQ
-    end if
+      if (ISP == ISQ) then
+        call SQUARE(TUPQ(IPQST),X2,1,NBQ,NBQ)
+        call DGEMM_('N','N',NBQ,NOP,NBP,One,X2,NBQ,CMO(LMOP),NBP,Zero,X1,NBP)
+        call MXMT(X1,NBQ,1,CMO(LMOQ),1,NBQ,X2,NOP,NBQ)
+        IX2 = (NOP+NOP**2)/2
+      else
+        call DGEMM_('N','N',NBQ,NOP,NBP,One,TUPQ(IPQST),NBQ,CMO(LMOP),NBP,Zero,X1,NBQ)
+        call DGEMM_('T','N',NOQ,NOP,NBQ,One,CMO(LMOQ),NBQ,X1,NBQ,Zero,X2,NOQ)
+        IX2 = NOP*NOQ
+      end if
 
-    ! WRITE INTEGRALS (AB/TU) ON OUTPUT UNIT LUINTM
-    ! INTEGRALS FOR SYMMETRY BLOCK (ISP,ISQ,ISR,ISS) ARE STORED
-    ! ONE BLOCK FOR EACH TU STARTING AT ADDRESS IAD2M(1,ISPQRS).
-    ! TRIANGULAR IN AB AND TU IF ISP == ISQ ( AND ISR == ISS)
+      ! WRITE INTEGRALS (AB/TU) ON OUTPUT UNIT LUINTM
+      ! INTEGRALS FOR SYMMETRY BLOCK (ISP,ISQ,ISR,ISS) ARE STORED
+      ! ONE BLOCK FOR EACH TU STARTING AT ADDRESS IAD2M(1,ISPQRS).
+      ! TRIANGULAR IN AB AND TU IF ISP == ISQ ( AND ISR == ISS)
 
-    call GADSum(X2,IX2)
-    call dDAFILE(LUINTM,1,X2,IX2,IAD13)
+      call GADSum(X2,IX2)
+      call dDAFILE(LUINTM,1,X2,IX2,IAD13)
 
-    ! EXTRACT INTEGRALS WITH ALL INDICES ACTIVE INTO TUVX
-    ! Not used with caspt2. If wanted, TUVX must be declared.
+      ! EXTRACT INTEGRALS WITH ALL INDICES ACTIVE INTO TUVX
+      ! Not used with caspt2. If wanted, TUVX must be declared.
 
-    !if ((ISP >= ISR) .and. (NASH(ISP)*NASH(ISQ) /= 0)) call GTUVX(X2,TUVX,NT,NU,ITP,ITQ,ITR,ITS,ISP,ISQ)
+      !if ((ISP >= ISR) .and. (NASH(ISP)*NASH(ISQ) /= 0)) call GTUVX(X2,TUVX,NT,NU,ITP,ITQ,ITR,ITS,ISP,ISQ)
 
+    end do
   end do
-end do
-22 continue
+end if
 
 ! SECOND PARTIAL TRANSFORMATION FOR INTEGRALS (PQ/RU)-> (AT/BU)
 ! IF ISP == ISR THEN T >= U BUT ALWAYS ALL A AND B

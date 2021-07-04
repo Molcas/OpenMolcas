@@ -328,9 +328,9 @@ do iSymL=1,nSym
             !-----------------------------------------------------------
 
             if (iSym == jSym) then
-              call Cho_TraS(iSymL,iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
+              call Cho_TraS(iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
             else
-              call Cho_TraA(iSymL,iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
+              call Cho_TraA(iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
             end if
 
             call dAClos(lUCHFV)
@@ -367,8 +367,7 @@ do iSymL=1,nSym
             iSymAI = MulD2h(iSymA,iSymI)
             iSymBJ = MulD2h(iSymB,iSymJ)
 
-            if ((iSymAI == iSymL) .and. (iSymBJ == iSymL)) &
-              call Cho_TwoEl(iBatch,nBatch,NumV,LUINTM,iAddrIAD2M,iSymI,iSymJ,iSymA,iSymB,iSymL)
+            if ((iSymAI == iSymL) .and. (iSymBJ == iSymL)) call Cho_TwoEl(iBatch,NumV,LUINTM,iAddrIAD2M,iSymI,iSymJ,iSymA,iSymB)
 
           end do
         end do

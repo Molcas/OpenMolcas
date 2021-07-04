@@ -236,7 +236,7 @@ Frmt3 = '(A,1X,I'//trim(adjustl(Frmt3))//',A)'
 
 write(u6,*)
 write(u6,'(20A3)') ('---',I=1,20)
-write(u6,05) ' MEM for TRANSF/GENER of VECTORS in Sym:',iSymL
+write(u6,105) ' MEM for TRANSF/GENER of VECTORS in Sym:',iSymL
 write(u6,*)
 write(u6,Frmt1) ' Mem (p.v.) for CHFV            :',LenCHFV
 write(u6,Frmt1) ' Tmp Mem for transformation     :',LenTmpTra
@@ -252,9 +252,9 @@ write(u6,Frmt1) ' Memory Required by transform.  :',(nFVec-1)*LenCHFV
 write(u6,Frmt1) ' TOTAL ALLOCATED MEMORY         :',MemAlloc
 write(u6,Frmt1) ' Unemployed memory              :',MemFree0-MemAlloc
 write(u6,*)
-write(u6,20) ' Max nr. of Transformed vectors  :',nVec
-write(u6,20) ' Max nr. of vectors in sub-batch :',nFVec
-write(u6,20) ' Total Number of Cholesky vectors:',NumCho(iSymL)
+write(u6,120) ' Max nr. of Transformed vectors  :',nVec
+write(u6,120) ' Max nr. of vectors in sub-batch :',nFVec
+write(u6,120) ' Total Number of Cholesky vectors:',NumCho(iSymL)
 write(u6,*)
 write(u6,*) 'ESTIMATED MEMORY REQUIREMENTS'
 write(u6,Frmt3) '  Minimum:',2+MemMin/119000,' MB'
@@ -272,7 +272,7 @@ end if
 
 return
 
-05 format(A,1X,I1)
-20 format(A,1X,I6)
+105 format(A,1X,I1)
+120 format(A,1X,I6)
 
 end subroutine Mem_Est

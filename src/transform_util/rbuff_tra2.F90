@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine RBufF_tra2(LUHLFX,W,LL,LBuf,NOTU,KKTU,IST,IADXS,MEMX)
+subroutine RBufF_tra2(LUHLFX,W,LL,LBuf,NOTU,KKTU,IADXS,MEMX)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -19,8 +19,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: LUHLFX, LL, LBuf, NOTU, KKTU, IADXS, MEMX
 real(kind=wp), intent(_OUT_) :: W(*)
-integer(kind=iwp), intent(out) :: IST
-integer(kind=iwp) :: BLKSZ, BPASS, I, IADX, J, NBLCK, NPASS, NRST
+integer(kind=iwp) :: BLKSZ, BPASS, I, IADX, IST, J, NBLCK, NPASS, NRST
 real(kind=wp), allocatable :: BUF(:,:)
 
 BLKSZ = (NOTU-1)*IADXS+LBuf
@@ -64,8 +63,6 @@ end do
 NRST = mod(LL,LBuf)
 
 call dcopy_(NRST,BUF(:,BPASS),1,W(IST),1)
-
-IST = 1
 
 call mma_deallocate(BUF)
 

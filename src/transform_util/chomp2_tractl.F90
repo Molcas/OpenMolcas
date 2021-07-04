@@ -174,9 +174,9 @@ do iSymL=1,nSym
             write(CHName,'(A4,I1,I1)') CHNm,iSym,jSym
             call dAName_MF_WA(lUCHFV,CHName)
             if (iSym == jSym) then
-              call ChoMP2_TraS(iSymL,iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
+              call ChoMP2_TraS(iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
             else
-              call ChoMP2_TraA(iSymL,iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
+              call ChoMP2_TraA(iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
             end if
             call dAClos(lUCHFV)
           end if
@@ -200,8 +200,7 @@ do iSymL=1,nSym
             iSymAI = MulD2h(iSymA,iSymI)
             iSymBJ = MulD2h(iSymB,iSymJ)
 
-            if ((iSymAI == iSymL) .and. (iSymBJ == iSymL))  &
-              call ChoMP2_TwoEl(iBatch,nBatch,NumV,LUINTM,iAddrIAD2M,iSymI,iSymJ,iSymA,iSymB,iSymL)
+            if ((iSymAI == iSymL) .and. (iSymBJ == iSymL)) call ChoMP2_TwoEl(iBatch,NumV,LUINTM,iAddrIAD2M,iSymI,iSymJ,iSymA,iSymB)
 
           end do
         end do

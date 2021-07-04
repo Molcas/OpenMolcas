@@ -244,8 +244,7 @@ end if
 !-----------------------------------------------------------------------
 NOTU = NOCP*NOCS
 ! ISP == ISR in Case 6 should be skipped.
-if ((ISQ < ISR) .and. (ISP == ISR)) goto 100
-if ((ISP /= ISQ) .and. (icxc5 /= 0)) then
+if (((ISQ >= ISR) .or. (ISP /= ISR)) .and. (ISP /= ISQ) .and. (icxc5 /= 0)) then
   LAR = LTUPQ/NOTU
   LR = LAR/NOQ
   if (LR > NBR) LR = NBR
@@ -331,7 +330,6 @@ if ((ISP /= ISQ) .and. (icxc5 /= 0)) then
   end do
   ! End of loop over t,u pair
 end if
-100 continue
 
 return
 

@@ -196,7 +196,5 @@ do iSB_A=1,3
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(LenEx)
 
 end subroutine Cho_GenE

@@ -25,11 +25,10 @@ integer(kind=iwp), intent(out) :: IST
 !BLKSZ = (NOTU-1)*IADXS
 !NBLCK = MEMX/BLKSZ
 
-IST = 1
 !if ((NBLCK > 1) .and. (LBuf < 256)) then
-!  call RBufF_tra2(LUHLFX,W,LL,LBuf,NOTU,KKTU,IST,IADXS,MEMX)
+!  call RBufF_tra2(LUHLFX,W,LL,LBuf,NOTU,KKTU,IADXS,MEMX)
 !else
-call RBufO_tra2(LUHLFX,W,LL,LBuf,NOTU,KKTU,IST,IADXS)
+call RBufO_tra2(LUHLFX,W,LL,LBuf,NOTU,KKTU,IADXS)
 !end if
 IST = 1
 

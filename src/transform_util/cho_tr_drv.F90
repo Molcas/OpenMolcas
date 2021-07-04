@@ -58,6 +58,11 @@ integer(kind=iwp) :: i, j, MulD2h
 MulD2h(i,j) = ieor(i-1,j-1)+1
 !***********************************************************************
 
+#ifndef _HDF5_QCM_
+#include "macros.fh"
+unused_var(ihdf5)
+#endif
+
 #ifdef _HDF5_QCM_
 ! Leon 13.6.2017: Avoid opening a regular file if HDF5 is used
 if (ihdf5 /= 1) then
@@ -109,7 +114,7 @@ do jSym=1,nSym
     call hdf5_init_wr_cholesky(file_id(1),JSym,maxval(nPorb(1:nSym))*(maxval(nPorb(1:nSym))+1)/2,NumCho(JSym),choset_id,space_id)
   end if
 #endif
-  if (NumCho(jSym) < 1) goto 1000
+  if (NumCho(jSym) < 1) cycle
 
   ! Set up the skipping flags + some initializations
   !-------------------------------------------------
@@ -167,7 +172,7 @@ do jSym=1,nSym
 
     call Cho_X_nVecRS(JRED,JSYM,iVrs,nVrs)
 
-    if (nVrs == 0) goto 999  ! no vectors in that (jred,jsym)
+    if (nVrs == 0) cycle  ! no vectors in that (jred,jsym)
 
     if (nVrs < 0) then
       write(u6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
@@ -436,8 +441,6 @@ do jSym=1,nSym
     call Deallocate_SBA(ChoT(1))
     call mma_deallocate(Lrs)
 
-999 continue
-
   end do   ! loop over red sets
 
 # ifdef _HDF5_QCM_
@@ -450,7 +453,6 @@ do jSym=1,nSym
 # ifdef _HDF5_QCM_
   end if
 # endif
-1000 continue
 
 end do   !loop over JSYM
 
@@ -494,9 +496,5 @@ end if
 write(u6,*)
 
 return
-#ifndef _HDF5_QCM_
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(ihdf5)
-#endif
 
 end subroutine CHO_TR_drv

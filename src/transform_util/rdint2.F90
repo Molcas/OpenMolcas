@@ -138,9 +138,9 @@ do iSymI=1,NSYM
         nOccB = nOsh(iSymB)
         iSymIJAB = iSymIJAB+1
 
-        if (iSymIJA /= iSymB) GO TO 101
-        if ((nOccI*nOccJ) == 0) GO TO 101
-        if (nOrbI*nOrbJ*nOrbA*nOrbB == 0) GO TO 101
+        if (iSymIJA /= iSymB) cycle
+        if ((nOccI*nOccJ) == 0) cycle
+        if (nOrbI*nOrbJ*nOrbA*nOrbB == 0) cycle
 
         ! FIND ADDRESSES FOR THIS SYMMETRY BLOCK
 
@@ -148,33 +148,26 @@ do iSymI=1,NSYM
         IADX1 = IAD2M(2,iSymIJAB)
         IADX2 = IAD2M(3,iSymIJAB)
         write(u6,1000) iSymA,iSymB,iSymI,iSymJ
-1000    format(/1X,'SYMMETRY BLOCK < A B | I J >',4I4)
 
         if (IADC == 0) then
           !write(u6,*)
-          write(u6,1100)
-1100      format(1X,'NO COULOMB INTEGRALS FOR THIS SYMMETRY BLOCK')
+          write(u6,*) 'NO COULOMB INTEGRALS FOR THIS SYMMETRY BLOCK'
         else
-          write(u6,1200) IADC
-1200      format(1X,'ADDRESS FOR COULOMB INTEGRALS',I8)
+          write(u6,1200) 'ADDRESS FOR COULOMB INTEGRALS',IADC
           IAD13C = IADC
         end if
         if (IADX1 == 0) then
           !write(u6,*)
-          write(u6,1110)
-1110      format(1X,'NO EXCHAN1 INTEGRALS FOR THIS SYMMETRY BLOCK')
+          write(u6,*) 'NO EXCHAN1 INTEGRALS FOR THIS SYMMETRY BLOCK'
         else
-          write(u6,1210) IADX1
-1210      format(1X,'ADDRESS FOR EXCHAN1 INTEGRALS',I8)
+          write(u6,1200) 'ADDRESS FOR EXCHAN1 INTEGRALS',IADX1
           IAD131 = IADX1
         end if
         if (IADX2 == 0) then
           !write(u6,*)
-          write(u6,1120)
-1120      format(1X,'NO EXCHAN2 INTEGRALS FOR THIS SYMMETRY BLOCK')
+          write(u6,*) 'NO EXCHAN2 INTEGRALS FOR THIS SYMMETRY BLOCK'
         else
-          write(u6,1220) IADX2
-1220      format(1X,'ADDRESS FOR EXCHAN2 INTEGRALS',I8)
+          write(u6,1200) 'ADDRESS FOR EXCHAN2 INTEGRALS',IADX2
           IAD132 = IADX2
         end if
         LREC = nOrbA*nOrbB
@@ -198,9 +191,8 @@ do iSymI=1,NSYM
               if ((IPRX > 0) .and. (IPRX < 3)) then
                 call mma_allocate(Tmp,LREC,Label='Tmp')
                 call dDAFILE(LUINTM,2,Tmp,LREC,IAD13C)
-                write(u6,1300) NI,NJ,IAD13C-LREC,(Tmp(I),I=1,LREC)
+                write(u6,1300) '<AB|IJ> COULOMB INTEGRALS FOR |ij> PAIR',NI,NJ,IAD13C-LREC,(Tmp(I),I=1,LREC)
                 call mma_deallocate(Tmp)
-1300            format(/1X,'<AB|IJ> COULOMB INTEGR.S FOR |ij> PAIR',2I3,'  DiskAdd=',I8/(8F10.6))
               end if
             end if
 
@@ -215,9 +207,8 @@ do iSymI=1,NSYM
               if (IPRX > 1) then
                 call mma_allocate(Tmp,LRECX,Label='Tmp')
                 call dDAFILE(LUINTM,2,Tmp,LRECX,IAD131)
-                write(u6,1310) NI,NJ,IAD131-LRECX,(Tmp(I),I=1,LRECX)
+                write(u6,1300) 'EXCHAN1 INTEGRALS FOR |ij> PAIR',NI,NJ,IAD131-LRECX,(Tmp(I),I=1,LRECX)
                 call mma_deallocate(Tmp)
-1310            format(/1X,'EXCHAN1 INTEGRALS FOR |ij> PAIR',2I3,'  DiskAdd=',I8/(8F10.6))
               end if
             end if
 
@@ -226,34 +217,36 @@ do iSymI=1,NSYM
               if (IPRX > 1) then
                 call mma_allocate(Tmp,LRECX,Label='Tmp')
                 call dDAFILE(LUINTM,2,Tmp,LRECX,IAD132)
-                write(u6,1320) NI,NJ,IAD132-LRECX,(Tmp(I),I=1,LRECX)
+                write(u6,1300) 'EXCHAN2 INTEGRALS FOR |ij> PAIR',NI,NJ,IAD132-LRECX,(Tmp(I),I=1,LRECX)
                 call mma_deallocate(Tmp)
-1320            format(/1X,'EXCHAN2 INTEGRALS FOR |ij> PAIR',2I3,'  DiskAdd=',I8/(8F10.6))
               end if
             end if
           end do
         end do
 
         write(u6,*)
-        write(u6,1010) LInt,LEx1,LEx2
-1010    format(3X,'LCou=',I8,' , LEx1=',I8,' , LEx2=',I8)
+        write(u6,2000) LInt,LEx1,LEx2
         LTotInt = LTotInt+LInt
         LTotEx1 = LTotEx1+LEx1
         LTotEx2 = LTotEx2+LEx2
 
         ! ALL INTEGRALS FOR SYMMETRY BLOCK iSymI,iSymJ,iSymA,iSymB ARE READ
 
-101     continue
       end do
     end do
   end do
 end do
 write(u6,*)
-write(u6,2000) LTotInt,LTotEx1,LTotEx2
-2000 format(3X,'LTotCou=',I8,' , LTotEx1=',I8,' , LTotEx2=',I8)
+write(u6,2010) LTotInt,LTotEx1,LTotEx2
 write(u6,*) '   LTotTot=',LTotInt+LTotEx1+LTotEx2
 write(u6,*)
 
 return
+
+1000 format(/1X,'SYMMETRY BLOCK < A B | I J >',4I4)
+1200 format(1X,A,I8)
+1300 format(/1X,A,2I3,'  DiskAdd=',I8/(8F10.6))
+2000 format(3X,'LCou=',I8,' , LEx1=',I8,' , LEx2=',I8)
+2010 format(3X,'LTotCou=',I8,' , LTotEx1=',I8,' , LTotEx2=',I8)
 
 end subroutine RDINT2

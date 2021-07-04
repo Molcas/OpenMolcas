@@ -56,7 +56,5 @@ call mma_deallocate(Ly0)
 call mma_deallocate(Lx0)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(LenE)
 
 end subroutine ChoMP2_GenE

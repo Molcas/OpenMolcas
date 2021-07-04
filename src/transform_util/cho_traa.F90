@@ -41,7 +41,6 @@
 !> @note
 !> The logical matrix \c TCVXist must be defined.
 !>
-!> @param[in] iSymL       Symmetry of the Cholesky vector
 !> @param[in] iSym        Symmetry(``i``) of the Cholesky Full Vector
 !> @param[in] jSym        Symmetry(``j``) of the Cholesky Full Vector
 !> @param[in] NumV        Number of Cholesky vectors to transform in the current batch
@@ -52,7 +51,7 @@
 !> @param[in] nFVec       Number of Cholesky vectors to transform in the inner batch procedure
 !***********************************************************************
 
-subroutine Cho_TraA(iSymL,iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
+subroutine Cho_TraA(iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
 !***********************************************************************
 !  This is the routine for the transformation from AO basis to MO      *
 !  basis of the Cholesky Full Vectors when  iSym /= jSym.              *
@@ -81,7 +80,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: iSymL, iSym, jSym, NumV, NCMO, lUCHFV, iStrtVec_AB, nFVec
+integer(kind=iwp), intent(in) :: iSym, jSym, NumV, NCMO, lUCHFV, iStrtVec_AB, nFVec
 real(kind=wp), intent(in) :: CMO(NCMO)
 integer(kind=iwp) :: i, iFBatch, iiVec, iStrt, iStrt0MO, iStrtVec_FAB, iVec, j, jStrt, jStrt0MO, jVec, Len_XAb, Len_XAj, Len_XAu, &
                      Len_XBi, Len_XBt, Nab, Naj, Nau, Nbi, Nbt, NFAB, Nij, Niu, Nji, Njt, Ntj, Ntu, Nui, NumFV, Nut
@@ -335,7 +334,5 @@ end do
 ! END LOOP iiVec
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(iSymL)
 
 end subroutine Cho_TraA

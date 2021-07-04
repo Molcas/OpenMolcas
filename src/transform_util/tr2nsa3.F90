@@ -196,8 +196,7 @@ end if
 !   Case 8, if (ISQ < ISS) .and. (ISP /= ISR), always type 2
 !-----------------------------------------------------------------------
 NOTU = NOCP*NOCR
-if ((ISS > ISQ) .and. (ISP == ISR)) goto 200
-if ((ISP /= ISQ) .and. (ISR /= ISS) .and. (icxc7 /= 0)) then
+if (((ISS <= ISQ) .or. (ISP /= ISR)) .and. (ISP /= ISQ) .and. (ISR /= ISS) .and. (icxc7 /= 0)) then
   LAS = (LRUPQ+LTUPQ)/NOTU
   LS = LAS/NOQ
   if (LS > NBS) LS = NBS
@@ -306,7 +305,6 @@ if ((ISP /= ISQ) .and. (ISR /= ISS) .and. (icxc7 /= 0)) then
   end do
   ! End of Loop over t,u pair
 end if
-200 continue
 
 return
 

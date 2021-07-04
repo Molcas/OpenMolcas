@@ -11,7 +11,7 @@
 ! Copyright (C) 2004,2005, Giovanni Ghigo                              *
 !***********************************************************************
 
-subroutine ChoMP2_TwoEl(iBatch,nBatch,numV,LUINTM,iAddrIAD2M,iSymI,iSymJ,iSymA,iSymB,iSymL)
+subroutine ChoMP2_TwoEl(iBatch,numV,LUINTM,iAddrIAD2M,iSymI,iSymJ,iSymA,iSymB)
 !***********************************************************************
 ! Author :  Giovanni Ghigo                                             *
 !           Lund University, Sweden                                    *
@@ -25,7 +25,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: iBatch, nBatch, numV, LUINTM, iSymI, iSymJ, iSymA, iSymB, iSymL
+integer(kind=iwp), intent(in) :: iBatch, numV, LUINTM, iSymI, iSymJ, iSymA, iSymB
 integer(kind=iwp), intent(inout) :: iAddrIAD2M
 integer(kind=iwp) :: iAddrIAD2Mij, iEndJ, iI, iIJAB, iJ, nA, nB, nN_AB, nN_Ex1, nN_Ex2, nN_IJ, nSymP
 real(kind=wp), allocatable :: AddEx1(:), AddEx2(:), AddEx2t(:)
@@ -112,10 +112,5 @@ end if
 !**** END GENERATION of EXCHANGE-2 INTEGRALS ***************************
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(nBatch)
-  call Unused_integer(iSymL)
-end if
 
 end subroutine ChoMP2_TwoEl

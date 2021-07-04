@@ -227,17 +227,17 @@ do NSP=1,NSYM
         if (NSS /= 1) LMOS1 = LMOS1+NBAS(NSS-1)**2
         LMOS = LMOS1+NBS*NFRO(NSS)
         LMOS2 = LMOS
-        if (NSPQR /= NSS) GO TO 101
+        if (NSPQR /= NSS) cycle
         NOS = NORB(NSS)
         NOCS = NOSH(NSS)
         KEEPS = KEEP(NSS)
         ISS = NSS
-!
+
         KEEPT = KEEPP+KEEPQ+KEEPR+KEEPS
         NOCCT = NOCP*NOCQ*NOCR*NOCS
-        if ((NOCCT /= 0) .and. (KEEPT /= 0)) GO TO 901
+        if ((NOCCT /= 0) .and. (KEEPT /= 0)) call Error(1)
         if (KEEPT == 0) NCHAIN = NCHAIN+1
-        if (NOP*NOQ*NOR*NOS == 0) GO TO 101
+        if (NOP*NOQ*NOR*NOS == 0) cycle
 
         ! CALLING SEQUENCE FOR SECOND ORDER TRANSFORMATION TRA2
         ! FIRST ALLOCATE AND CHECK MEMORY
@@ -298,10 +298,10 @@ do NSP=1,NSYM
         !write(u6,*) 'LURPQ=',LURPQ
         !write(u6,*) 'LTUPQ=',LTUPQ
 
-        if (LRUPQ < LRUPQM) GO TO 902
-        if (LURPQ < LURPQM) GO TO 902
-        if (LTUPQ < LTUPQM) GO TO 902
-        if (LRUPQ+LTUPQ < L2M) GO TO 902
+        if (LRUPQ < LRUPQM) call Error(2)
+        if (LURPQ < LURPQM) call Error(2)
+        if (LTUPQ < LTUPQM) call Error(2)
+        if (LRUPQ+LTUPQ < L2M) call Error(2)
         LW5 = LW4+LURPQ
         LW6 = LW5+LRUPQ
 
@@ -344,10 +344,10 @@ do NSP=1,NSYM
           LPQRS = LRS*NBPQ
           MaxRS = LRS
           LTURS = MEMLFT-LPQRS
-          if (LPQRS < NBPQ) GO TO 903
+          if (LPQRS < NBPQ) call Error(3)
           LTURSM = NOCP*NOCQ
           if (LTURSM /= 0) LTURSM = max(LTURSM,NBRS)
-          if (LTURS < LTURSM) GO TO 903
+          if (LTURS < LTURSM) call Error(3)
           LW4B = LW3B+LPQRS
           LTUPQ = LTURS
         end if
@@ -383,7 +383,6 @@ do NSP=1,NSYM
           ! tr2NsB(CMO,X1,X2,pqrs,TUrs,lBuf,MAXRS)
           call tr2NsB(Work(LCMO),W1(LW1),W1(LW2B),W1(LW3B),W1(LW4B),lBuf,MaxRS)
         end if
-101     continue
       end do
     end do
   end do
@@ -403,32 +402,30 @@ call iDAFILE(LUINTM,1,IAD2M,LIADUT,IAD13)
 
 return
 
-! HERE IF INTERPHASE FROM SORT IN ERROR
+contains
 
-901 continue
-write(u6,'(/5X,A,8I6)') 'ERROR IN KEEP PARAMETER FROM INTSORT FILE:  ',(KEEP(I),I=1,NSYM)
-write(u6,'(/5X,A,8I6)') 'NOT CONSISTENT WITH OCCUPIED ORBITAL SPACE: ',(NOSH(I),I=1,NSYM)
-write(u6,'(/5X,A)') 'PROGRAM STOP IN SUBROUTINE TRACTL'
-goto 999
-
-! HERE IF NOT ENOUGH CORE SPACE
-
-902 continue
-write(u6,'(/1X,A)') 'NOT ENOUGH CORE SPACE FOR SORTING IN TRA2'
-write(u6,'(/1X,A,I12)') 'TOTAL SORTING SPACE IS',MEMLFT
-write(u6,'(/1X,A,I12,A,I12)') 'STEP1: AVAILABLE IS',LRUPQ,'  NEEDED IS',LRUPQM
-write(u6,'(/1X,A,I12,A,I12)') 'STEP2:    ''''         ',LTUPQ,'  NEEDED IS',LTUPQM
-write(u6,'(/1X,A,I12,A,I12)') 'STEP3:    ''''         ',LRUPQ+LTUPQ,'  NEEDED IS',L2M
-goto 999
-
-903 continue
-write(u6,'(/1X,A)') 'NOT ENOUGH CORE SPACE FOR SORTING IN TRATWO2'
-write(u6,'(/1X,A,I12)') 'TOTAL SORTING SPACE IS',MEMLFT
-write(u6,'(/1X,A,I12,A,I12)') 'STEP1: AVAILABLE IS',LPQRS,'  NEEDED IS',NBPQ
-write(u6,'(/1X,A,I12,A,I12)') 'STEP1:     ''''        ',LTURS,'   ''''        ',LTURSM
-goto 999
-
-999 continue
-call Abend()
+subroutine Error(code)
+  integer(kind=iwp) :: code
+  select case (code)
+    case (1)
+      ! HERE IF INTERPHASE FROM SORT IN ERROR
+      write(u6,'(/5X,A,8I6)') 'ERROR IN KEEP PARAMETER FROM INTSORT FILE:  ',KEEP(1:NSYM)
+      write(u6,'(/5X,A,8I6)') 'NOT CONSISTENT WITH OCCUPIED ORBITAL SPACE: ',NOSH(1:NSYM)
+      write(u6,'(/5X,A)') 'PROGRAM STOP IN SUBROUTINE TRACTL'
+    case (2)
+      ! HERE IF NOT ENOUGH CORE SPACE
+      write(u6,'(/1X,A)') 'NOT ENOUGH CORE SPACE FOR SORTING IN TRA2'
+      write(u6,'(/1X,A,I12)') 'TOTAL SORTING SPACE IS',MEMLFT
+      write(u6,'(/1X,A,I12,A,I12)') 'STEP1: AVAILABLE IS',LRUPQ,'  NEEDED IS',LRUPQM
+      write(u6,'(/1X,A,I12,A,I12)') 'STEP2:    ''''         ',LTUPQ,'  NEEDED IS',LTUPQM
+      write(u6,'(/1X,A,I12,A,I12)') 'STEP3:    ''''         ',LRUPQ+LTUPQ,'  NEEDED IS',L2M
+    case (3)
+      write(u6,'(/1X,A)') 'NOT ENOUGH CORE SPACE FOR SORTING IN TRATWO2'
+      write(u6,'(/1X,A,I12)') 'TOTAL SORTING SPACE IS',MEMLFT
+      write(u6,'(/1X,A,I12,A,I12)') 'STEP1: AVAILABLE IS',LPQRS,'  NEEDED IS',NBPQ
+      write(u6,'(/1X,A,I12,A,I12)') 'STEP1:     ''''        ',LTURS,'   ''''        ',LTURSM
+  end select
+  call Abend()
+end subroutine Error
 
 end subroutine TRACTL

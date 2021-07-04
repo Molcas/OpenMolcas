@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Cho_MOTra_Inner(CMO,nCMOs,nSym,nBas,nOrb,nFro,nIsh,nAsh,nSsh,nDel,BName,Do_int,ihdf5,Do_ChoInit)
+subroutine Cho_MOTra_Inner(CMO,nCMOs,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,BName,Do_int,ihdf5,Do_ChoInit)
 ! Note: frozen and deleted orbitals are not included in the transformation.
 
 use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
@@ -18,8 +18,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nCMOs, nSym, nBas(nSym), nOrb(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym), nSsh(nSym), nDel(nSym), &
-                                 ihdf5
+integer(kind=iwp), intent(in) :: nCMOs, nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym), nSsh(nSym), nDel(nSym), ihdf5
 real(kind=wp), intent(in) :: CMO(nCMOs)
 character(len=6), intent(in) :: BName
 logical(kind=iwp), intent(in) :: Do_int, Do_ChoInit
@@ -119,10 +118,5 @@ call mma_deallocate(XInt)
 call Deallocate_DSBA(CMOT(1))
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(nOrb)
-  call Unused_integer_array(nDel)
-end if
 
 end subroutine Cho_MOTra_Inner

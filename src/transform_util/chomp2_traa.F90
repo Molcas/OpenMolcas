@@ -11,7 +11,7 @@
 ! Copyright (C) 2004,2005, Giovanni Ghigo                              *
 !***********************************************************************
 
-subroutine ChoMP2_TraA(iSymL,iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
+subroutine ChoMP2_TraA(iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
 !***********************************************************************
 ! Author :  Giovanni Ghigo                                             *
 !           Lund University, Sweden                                    *
@@ -24,7 +24,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: iSymL, iSym, jSym, NumV, NCMO, lUCHFV, iStrtVec_AB, nFVec
+integer(kind=iwp), intent(in) :: iSym, jSym, NumV, NCMO, lUCHFV, iStrtVec_AB, nFVec
 real(kind=wp), intent(in) :: CMO(NCMO)
 integer(kind=iwp) :: i, iFBatch, iiVec, iStrt, iStrt0MO, iStrtVec_FAB, iVec, j, jStrt, jStrt0MO, jVec, Len_XAj, Len_XBi, Naj, Nbi, &
                      NFAB, NumFV
@@ -127,7 +127,5 @@ end do
 ! END LOOP iiVec
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(iSymL)
 
 end subroutine ChoMP2_TraA

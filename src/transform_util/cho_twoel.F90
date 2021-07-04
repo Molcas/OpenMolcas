@@ -17,22 +17,20 @@
 !> @author Giovanni Ghigo
 !>
 !> @details
-!> Within the symmetry \p iSymL, the routine generates the symmetry
+!> The routine generates the symmetry
 !> block \p iSymI, \p iSymJ, \p iSymA, \p iSymB of two-electrons integrals. The
 !> number of integrals to generate for each  \p iSymI, \p iSymJ couple is
 !> defined by \c LenInt. The exch-1 and exch-2 integrals are then
 !> generated for the occupied MO calling ::Cho_GenE.
 !>
 !> @param[in]     iBatch                  Main batch current number
-!> @param[in]     nBatch                  Main batch total number
 !> @param[in]     NumV                    Number of Cholesky vectors to transform in the current batch
 !> @param[in]     LUINTM                  Unit number of two-electrons integrals file (``MOLINT``)
 !> @param[in,out] iAddrIAD2M              Current disk address in ``MOLINT``
 !> @param[in]     iSymI,iSymJ,iSymA,iSymB Symmetry block of the two-electrons integrals
-!> @param[in]     iSymL                   Symmetry of the Cholesky vector
 !***********************************************************************
 
-subroutine Cho_TwoEl(iBatch,nBatch,numV,LUINTM,iAddrIAD2M,iSymI,iSymJ,iSymA,iSymB,iSymL)
+subroutine Cho_TwoEl(iBatch,numV,LUINTM,iAddrIAD2M,iSymI,iSymJ,iSymA,iSymB)
 !***********************************************************************
 ! Author :  Giovanni Ghigo                                             *
 !           Lund University, Sweden                                    *
@@ -63,7 +61,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iBatch, nBatch, numV, LUINTM, iSymI, iSymJ, iSymA, iSymB, iSymL
+integer(kind=iwp), intent(in) :: iBatch, numV, LUINTM, iSymI, iSymJ, iSymA, iSymB
 integer(kind=iwp), intent(inout) :: iAddrIAD2M
 integer(kind=iwp) :: i, iAddrIAD2Mij, iEndJ, iI, iIJAB, iJ, iType, j, nA, nB, nN_AB, nN_Ex1, nN_Ex2, nN_IJ, nSymP
 real(kind=wp), allocatable :: AddCou(:), AddEx1(:), AddEx2(:), AddEx2t(:)
@@ -290,10 +288,5 @@ if (nN_IJ*(nN_AB+nN_Ex1+nN_Ex2) > 0) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(nBatch)
-  call Unused_integer(iSymL)
-end if
 
 end subroutine Cho_TwoEl
