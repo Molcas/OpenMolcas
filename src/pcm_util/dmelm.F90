@@ -8,9 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Function DMElm(nTs,i,j,DM)
-      Implicit Real*8(a-h,o-z)
-      Dimension DM(nTs,*)
-      DMElm = DM(i,j)
-      Return
-      End
+
+function DMElm(nTs,i,j,DM)
+
+implicit real*8(a-h,o-z)
+dimension DM(nTs,*)
+
+DMElm = DM(i,j)
+
+return
+
+end function DMElm

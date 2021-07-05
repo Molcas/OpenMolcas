@@ -20,15 +20,15 @@
 !     IntSph: sphere intersecated by each tessera edge (MxVert,*)      *
 !     NewSph: parent spheres for each added sphere (2,*)               *
 !***********************************************************************
-      Module PCM_arrays
-      Integer nTiles
-      Real*8, Allocatable:: C_Tessera(:,:), Q_Tessera(:)
-      Real*8, Allocatable:: dTes(:,:,:), dPnt(:,:,:,:), dRad(:,:,:),    &
-     &                      dCntr(:,:,:,:)
-      Real*8, Allocatable:: PCM_SQ(:,:)   ! PCM solvation charges
-      Real*8, Allocatable:: PCMSph(:,:), PCMTess(:,:), Vert(:,:,:),     &
-     &                      Centr(:,:,:), SSph(:), PCMDM(:,:)
-      Integer, Allocatable:: PCM_N(:), PCMiSph(:), nVert(:),            &
-     &                       IntSph(:,:), NewSph(:,:)
-      Real*8, Allocatable:: MM(:,:)
-      End Module PCM_arrays
+
+module PCM_arrays
+
+integer nTiles
+real*8, allocatable :: C_Tessera(:,:), Q_Tessera(:)
+real*8, allocatable :: dTes(:,:,:), dPnt(:,:,:,:), dRad(:,:,:), dCntr(:,:,:,:)
+real*8, allocatable :: PCM_SQ(:,:)   ! PCM solvation charges
+real*8, allocatable :: PCMSph(:,:), PCMTess(:,:), Vert(:,:,:), Centr(:,:,:), SSph(:), PCMDM(:,:)
+integer, allocatable :: PCM_N(:), PCMiSph(:), nVert(:), IntSph(:,:), NewSph(:,:)
+real*8, allocatable :: MM(:,:)
+
+end module PCM_arrays

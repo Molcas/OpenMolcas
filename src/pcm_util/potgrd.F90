@@ -8,11 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine PotGrd(Temp,nGrad)
-      use Basis_Info, only: nBas
-      use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
-      External PCMGrd1,PCMMmg
+
+subroutine PotGrd(Temp,nGrad)
+
+use Basis_Info, only: nBas
+use Symmetry_Info, only: nIrrep
+
+implicit real*8(A-H,O-Z)
+external PCMGrd1, PCMMmg
 #include "Molcas.fh"
 #include "print.fh"
 #include "real.fh"
@@ -21,79 +24,75 @@
 #include "disp.fh"
 #include "wldata.fh"
 #include "rctfld.fh"
-      Character Method*8, Label*80
-      Real*8 Temp(nGrad)
-      Logical DiffOp
-      Real*8, Allocatable:: D_Var(:)
-!
-!-----Statement function
-!
-      nElem(i) = (i+1)*(i+2)/2
-!
-!...  Prologue
-      iRout = 131
-      iPrint = nPrint(iRout)
-      Call CWTime(TCpu1,TWall1)
-!
-!---- Allocate memory for density
-!
-      nDens = 0
-      Do iIrrep = 0, nIrrep - 1
-         nDens = nDens + nBas(iIrrep)*(nBas(iIrrep)+1)/2
-      End Do
-!
-!...  Get the method label
-!     print *,' Read Method label'
-      Call Get_cArray('Relax Method',Method,8)
-!
-!...  Read the variational 1st order density matrix
-!...  density matrix in AO/SO basis
-!     print *,' Read density matrix'
-      Call mma_allocate(D_Var,nDens,Label='D_Var')
-      Call Get_D1ao_Var(D_var,nDens)
-!
-      If (iPrint.ge.99) then
-         Write(6,*) 'variational 1st order density matrix'
-         ii=1
-         Do iIrrep = 0, nIrrep - 1
-            Write(6,*) 'symmetry block',iIrrep
-            Call TriPrt(' ',' ',D_Var(ii),nBas(iIrrep))
-            ii = ii + nBas(iIrrep)*(nBas(iIrrep)+1)/2
-         End Do
-      End If
+character Method*8, Label*80
+real*8 Temp(nGrad)
+logical DiffOp
+real*8, allocatable :: D_Var(:)
+! Statement function
+nElem(i) = (i+1)*(i+2)/2
+
+! Prologue
+iRout = 131
+iPrint = nPrint(iRout)
+call CWTime(TCpu1,TWall1)
+
+! Allocate memory for density
+
+nDens = 0
+do iIrrep=0,nIrrep-1
+  nDens = nDens+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+end do
+
+! Get the method label
+!write(6,*) ' Read Method label'
+call Get_cArray('Relax Method',Method,8)
+
+! Read the variational 1st order density matrix
+! density matrix in AO/SO basis
+!write(6,*) ' Read density matrix'
+call mma_allocate(D_Var,nDens,Label='D_Var')
+call Get_D1ao_Var(D_var,nDens)
+
+if (iPrint >= 99) then
+  write(6,*) 'variational 1st order density matrix'
+  ii = 1
+  do iIrrep=0,nIrrep-1
+    write(6,*) 'symmetry block',iIrrep
+    call TriPrt(' ',' ',D_Var(ii),nBas(iIrrep))
+    ii = ii+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+  end do
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     nOrdOp: order/rank of the operator
-!     Work(ip1): lOper of each component of the operator
-!
-      nOrdOp=0
-      nComp = nElem(nOrdOp)
-      Call GetMem('Coor','Allo','Real',ipC,3*nComp)
-      Call GetMem('lOper','Allo','Inte',ip1,nComp)
-      call dcopy_(nComp*3,[Zero],0,Work(ipC),1)
-      iWork(ip1) = 1
-      DiffOp = .True.
-      Call dZero(Temp,nGrad)
-      Call OneEl_g_mck(PCMGrd1,PCMMmG,Temp,nGrad,DiffOp,Work(ipC),      &
-     &                 D_Var,nDens,iWork(ip1),nComp,nOrdOp,             &
-     &             Label)
-      Call PrGrad_mck(' TEST '                                          &
-     &   //'(PCM) contribution',Temp,nGrad,ChDisp,5)
+! nOrdOp: order/rank of the operator
+! Work(ip1): lOper of each component of the operator
+
+nOrdOp = 0
+nComp = nElem(nOrdOp)
+call GetMem('Coor','Allo','Real',ipC,3*nComp)
+call GetMem('lOper','Allo','Inte',ip1,nComp)
+call dcopy_(nComp*3,[Zero],0,Work(ipC),1)
+iWork(ip1) = 1
+DiffOp = .true.
+call dZero(Temp,nGrad)
+call OneEl_g_mck(PCMGrd1,PCMMmG,Temp,nGrad,DiffOp,Work(ipC),D_Var,nDens,iWork(ip1),nComp,nOrdOp,Label)
+call PrGrad_mck(' TEST (PCM) contribution',Temp,nGrad,ChDisp,5)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call GetMem('lOper','Free','Inte',ip1,nComp)
-      Call GetMem('Coor','Free','Real',ipC,3*nComp)
+call GetMem('lOper','Free','Inte',ip1,nComp)
+call GetMem('Coor','Free','Real',ipC,3*nComp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!...  Epilogue, end
-!
-!
-      Call mma_deallocate(D_Var)
-!
-      Call CWTime(TCpu2,TWall2)
-      Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
-      Return
-      End
+! Epilogue, end
+
+call mma_deallocate(D_Var)
+
+call CWTime(TCpu2,TWall2)
+call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
+
+return
+
+end subroutine PotGrd

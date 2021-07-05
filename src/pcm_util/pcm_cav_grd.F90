@@ -8,33 +8,36 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine PCM_Cav_grd(Grad,nGrad)
-      use PCM_arrays
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 Grad(nGrad)
+
+subroutine PCM_Cav_grd(Grad,nGrad)
+
+use PCM_arrays
+
+implicit real*8(A-H,O-Z)
+real*8 Grad(nGrad)
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
 #include "WrkSpc.fh"
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Compute the geometric contributions to
-!     derivatives in solution
-!
-      Call GetMem('DerDM','Allo','Real',ip_DerDM,nTs*nTs)
-      Call Get_nAtoms_All(MaxAto)
-      Call GetMem('PCMGrd','Allo','Real',ip_PCMGrd,3*MaxAto)
-      LcNAtm = ISlPar(42)
-      Call GeoDer(LcNAtm,Conductor,nTs,nS,Eps,PCMSph,PCMiSph,PCM_N,     &
-     &            PCMTess,PCM_SQ,Work(ip_DerDM),Work(ip_PCMGrd),        &
-     &            dTes,dPnt,dRad,dCntr)
-!     Call RecPrt('PCM_Cav_Grd','(5G20.10)',Work(ip_PCMGrd),3,MaxAto)
-      Call GrdTr_Alaska(Work(ip_PCMGrd),MaxAto,Grad,nGrad)
-      Call GetMem('PCMGrd','Free','Real',ip_PCMGrd,3*MaxAto)
-      Call GetMem('DerDM','Free','Real',ip_DerDM,nTs*nTs)
+! Compute the geometric contributions to
+! derivatives in solution
+
+call GetMem('DerDM','Allo','Real',ip_DerDM,nTs*nTs)
+call Get_nAtoms_All(MaxAto)
+call GetMem('PCMGrd','Allo','Real',ip_PCMGrd,3*MaxAto)
+LcNAtm = ISlPar(42)
+call GeoDer(LcNAtm,Conductor,nTs,nS,Eps,PCMSph,PCMiSph,PCM_N,PCMTess,PCM_SQ,Work(ip_DerDM),Work(ip_PCMGrd),dTes,dPnt,dRad,dCntr)
+!call RecPrt('PCM_Cav_Grd','(5G20.10)',Work(ip_PCMGrd),3,MaxAto)
+call GrdTr_Alaska(Work(ip_PCMGrd),MaxAto,Grad,nGrad)
+call GetMem('PCMGrd','Free','Real',ip_PCMGrd,3*MaxAto)
+call GetMem('DerDM','Free','Real',ip_DerDM,nTs*nTs)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+return
+
+end subroutine PCM_Cav_grd

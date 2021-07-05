@@ -8,66 +8,65 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine PCM_Cav_Hss(ToAng,nAt,nAt3,nTs,nS,Eps,IAtm,AtmC,AtmChg,&
-     &           EF_n,EF_e,Sphere,ISphe,nOrd,Tessera,Q,Qtot,DM,HssPCM,  &
-     &           DerMat,DerTes,DerPunt,DerRad,DerCentr,QDer,Der1,Der2,  &
-     &           VDer)
-      Implicit real*8 (a-h,o-z)
-      Integer IAtm(nAt)
-      Dimension EF_n(3,*),EF_e(3,*)
-      Dimension AtmC(3,nAt),AtmChg(nAt)
-      Dimension Sphere(4,*),ISphe(*),nOrd(*)
-      Dimension Tessera(4,*),Q(2,*),DM(nTs,*),Qtot(*),QDer(3,nAt,*)
-      Dimension HssPCM(nAt3,*),DerMat(nTs,*),Der1(*),Der2(*),VDer(nTs,*)
-      Dimension DerTes(nTs,NAt,3),DerPunt(nTs,NAt,3,3)
-      Dimension DerRad(nS,NAt,3),DerCentr(nS,NAt,3,3)
-      Logical DoPot, DoFld
+
+subroutine PCM_Cav_Hss(ToAng,nAt,nAt3,nTs,nS,Eps,IAtm,AtmC,AtmChg,EF_n,EF_e,Sphere,ISphe,nOrd,Tessera,Q,Qtot,DM,HssPCM,DerMat, &
+                       DerTes,DerPunt,DerRad,DerCentr,QDer,Der1,Der2,VDer)
+
+implicit real*8(a-h,o-z)
+integer IAtm(nAt)
+dimension EF_n(3,*), EF_e(3,*)
+dimension AtmC(3,nAt), AtmChg(nAt)
+dimension Sphere(4,*), ISphe(*), nOrd(*)
+dimension Tessera(4,*), Q(2,*), DM(nTs,*), Qtot(*), QDer(3,nAt,*)
+dimension HssPCM(nAt3,*), DerMat(nTs,*), Der1(*), Der2(*), VDer(nTs,*)
+dimension DerTes(nTs,NAt,3), DerPunt(nTs,NAt,3,3)
+dimension DerRad(nS,NAt,3), DerCentr(nS,NAt,3,3)
+logical DoPot, DoFld
 #include "real.fh"
-!
+
 !***********************************************************
 !
-!     Compute the PCM geometric contribution to gradients
+! Compute the PCM geometric contribution to gradients
 !
 !***********************************************************
-!
-      Call FZero(HssPCM,nAt3*nAt3)
-!
-!     Compute the electric field on tesserae
-      DoPot = .False.
-      DoFld = .True.
-      Call V_EF_PCM(nAt,nTs,DoPot,DoFld,AtmC,Tessera,                   &
-     &     Der2,EF_n,EF_e)
-!
-!---- Compute the derivative of the potential integrals
-!     (they should be passed to VDer_PCM below: presently
-!      not working, this quantity is temporarily read
-!      from a file in VDer_PCM).
-!
-      Call PotGrd(Der1,nAt3)
-!
-!---- Derivatives of the total electrostatic potential on tiles
-!
-      Call VDer_PCM(nAt,nTs,nS,AtmC,AtmChg,EF_n,EF_e,                   &
-     &     Tessera,iSphe,DerTes,DerPunt,DerRad,DerCentr,VDer)
-!
-!---- Derivatives of solvation charges
-!
-      Call DerChg(nAt,nAt3,nTs,nS,Eps,IAtm,AtmC,AtmChg,                 &
-     &  DM,DerMat,Tessera,Q,Qtot,QDer,                                  &
-     &  DerTes,DerPunt,DerCentr,DerRad,Der1,Der2,VDer,Sphere,ISphe)
-!pcm_solvent
-!     write(6,'(''Charge derivative wrt. atom and coord.'')')
-!     do 1123 iat = 1, nat
-!       do 1123 ic = 1, 3
-!         do 1123 its = 1, nts
-!           write(6,'(3i5,f20.12)')iat,ic,its,QDer(ic,iat,its)
-!1123 continue
-!pcm_solvent end
-!
-!---- Derivative of the cavity term
-!
-      Call DerCav(ToAng,nTs,nAt,nS,nAt3,Eps,Tessera,Q,Qtot,Der1,        &
-     &  Dertes,DerPunt,DerCentr,DerRad,QDer,Sphere,iSphe,               &
-     &  nOrd)
-      Return
-      End
+
+call FZero(HssPCM,nAt3*nAt3)
+
+! Compute the electric field on tesserae
+DoPot = .false.
+DoFld = .true.
+call V_EF_PCM(nAt,nTs,DoPot,DoFld,AtmC,Tessera,Der2,EF_n,EF_e)
+
+! Compute the derivative of the potential integrals
+! (they should be passed to VDer_PCM below: presently
+! not working, this quantity is temporarily read
+! from a file in VDer_PCM).
+
+call PotGrd(Der1,nAt3)
+
+! Derivatives of the total electrostatic potential on tiles
+
+call VDer_PCM(nAt,nTs,nS,AtmC,AtmChg,EF_n,EF_e,Tessera,iSphe,DerTes,DerPunt,DerRad,DerCentr,VDer)
+
+! Derivatives of solvation charges
+
+call DerChg(nAt,nAt3,nTs,nS,Eps,IAtm,AtmC,AtmChg,DM,DerMat,Tessera,Q,Qtot,QDer,DerTes,DerPunt,DerCentr,DerRad,Der1,Der2,VDer, &
+            Sphere,ISphe)
+! pcm_solvent
+!write(6,'(a)') 'Charge derivative wrt. atom and coord.'
+!do iat=1,nat
+!  do ic=1,3
+!    do its=1,nts
+!      write(6,'(3i5,f20.12)') iat,ic,its,QDer(ic,iat,its)
+!    end do
+!  end do
+!end do
+! pcm_solvent end
+
+! Derivative of the cavity term
+
+call DerCav(ToAng,nTs,nAt,nS,nAt3,Eps,Tessera,Q,Qtot,Der1,Dertes,DerPunt,DerCentr,DerRad,QDer,Sphere,iSphe,nOrd)
+
+return
+
+end subroutine PCM_Cav_Hss

@@ -11,50 +11,53 @@
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !               2002, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine GrdTr_Alaska(GradIn,MxAto,GradOut,nGrad)
+
+subroutine GrdTr_Alaska(GradIn,MxAto,GradOut,nGrad)
 !*******************************************************************
 !                                                                  *
-!      The inverse of                                              *
-!      Transforms a symmetry adapted gradient to unsymmetric  form *
+!  The inverse of                                                  *
+!  Transforms a symmetry adapted gradient to unsymmetric  form     *
 !                                                                  *
-!       Written by Anders Bernhardsson                             *
-!       960427                                                     *
-!       Modified by Roland Lindh                                   *
-!       020115                                                     *
+!   Written by Anders Bernhardsson                                 *
+!   960427                                                         *
+!   Modified by Roland Lindh                                       *
+!   020115                                                         *
 !                                                                  *
 !*******************************************************************
-      Use Basis_Info
-      use Center_Info
-      use Symmetry_Info, only: nIrrep
-      Implicit Real*8(a-h,o-z)
-      parameter (tol=1d-8)
+
+use Basis_Info
+use Center_Info
+use Symmetry_Info, only: nIrrep
+implicit real*8(a-h,o-z)
+parameter(tol=1d-8)
 #include "Molcas.fh"
 #include "disp.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-      Real*8 GradIn(3,MxAto), GradOut(nGrad)
-      Logical, External :: TF
-!
-      iIrrep=0
-!
-      mdc=0
-      iCen=1
-      Do iCnttp=1,nCnttp
-         If (dbsc(iCnttp)%Aux) Return
-         Do iCnt=1,dbsc(iCnttp)%nCntr
-            mdc=mdc+1
-            nDispS = IndDsp(mdc,iIrrep)
+real*8 GradIn(3,MxAto), GradOut(nGrad)
+logical, external :: TF
 
-            Do iCar=0,2
-               iComp = 2**iCar
-               If ( TF(mdc,iIrrep,iComp)) Then
-                  nDispS = nDispS + 1
-                  GradOut(nDispS)=GradIn(iCar+1,iCen)
-               End If
-            End Do
-            iCen = iCen + nIrrep/dc(mdc)%nStab
-         End Do
-      End Do
-!
-      Return
-      End
+iIrrep = 0
+
+mdc = 0
+iCen = 1
+do iCnttp=1,nCnttp
+  if (dbsc(iCnttp)%Aux) return
+  do iCnt=1,dbsc(iCnttp)%nCntr
+    mdc = mdc+1
+    nDispS = IndDsp(mdc,iIrrep)
+
+    do iCar=0,2
+      iComp = 2**iCar
+      if (TF(mdc,iIrrep,iComp)) then
+        nDispS = nDispS+1
+        GradOut(nDispS) = GradIn(iCar+1,iCen)
+      end if
+    end do
+    iCen = iCen+nIrrep/dc(mdc)%nStab
+  end do
+end do
+
+return
+
+end subroutine GrdTr_Alaska
