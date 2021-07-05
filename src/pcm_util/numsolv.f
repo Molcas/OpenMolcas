@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Integer Function NumSolv(Solvent)
       Implicit Real*8 (a-h,o-z)
       Character*30 Solvent, Solvent_
@@ -40,14 +40,14 @@
       If(Solvent_.eq.'XENON')               IdSolv =24
 
       If(IdSolv.eq.0) then
-*       Call ErrTra
+!       Call ErrTra
         Write (6,*) ' Unrecognized solvent: ',Solvent
-        Write (6,10)'WATER', 'ACETONITRILE', 'METHANOL',
-     &  'ETHANOL', 'ISOQUINOLINE', 'QUINOLINE', 'CHLOROFORM',
-     &  'ETHYLETHER', 'METHYLENECHLORIDE', 'DICHLOROETHANE',
-     &  'CARBONTETRACHLORIDE', 'BENZENE', 'TOLUENE',
-     &  'CHLOROBENZENE', 'NITROMETHANE' , 'HEPTANE', 'CYCLOHEXANE',
-     &  'ANILINE', 'ACETONE', 'TETRAHYDROFURAN', 'DIMETHYLSULFOXIDE',
+        Write (6,10)'WATER', 'ACETONITRILE', 'METHANOL',                &
+     &  'ETHANOL', 'ISOQUINOLINE', 'QUINOLINE', 'CHLOROFORM',           &
+     &  'ETHYLETHER', 'METHYLENECHLORIDE', 'DICHLOROETHANE',            &
+     &  'CARBONTETRACHLORIDE', 'BENZENE', 'TOLUENE',                    &
+     &  'CHLOROBENZENE', 'NITROMETHANE' , 'HEPTANE', 'CYCLOHEXANE',     &
+     &  'ANILINE', 'ACETONE', 'TETRAHYDROFURAN', 'DIMETHYLSULFOXIDE',   &
      &  'ARGON', 'KRYPTON', 'XENON'
   10    format(' Allowed solvents are:',/,24(A30,/))
         Call Abend()

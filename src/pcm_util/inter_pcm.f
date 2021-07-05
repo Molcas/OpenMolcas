@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine Inter_PCM(XE,YE,ZE,RE,P1,P2,P3,P4,NS,I,
-     +                 IPRINT)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine Inter_PCM(XE,YE,ZE,RE,P1,P2,P3,P4,NS,I,                &
+     &                 IPRINT)
       IMPLICIT REAL*8 (A-H,O-Z)
 
       Dimension XE(*),YE(*),ZE(*),RE(*)
       DIMENSION P1(3),P2(3),P3(3),P4(3)
-C
-C     Trova il punto P4, sull`arco P1-P2 sotteso dal centro P3, che
-C     si trova sulla superficie della sfera NS
-C     P4 e' definito come combinazioe lineare di P1 e P2, con
-C     il parametro ALPHA ottimizzato per tentativi.
-C
+!
+!     Trova il punto P4, sull`arco P1-P2 sotteso dal centro P3, che
+!     si trova sulla superficie della sfera NS
+!     P4 e' definito come combinazioe lineare di P1 e P2, con
+!     il parametro ALPHA ottimizzato per tentativi.
+!
 
       R2 = (P1(1)-P3(1))**2+(P1(2)-P3(2))**2+(P1(3)-P3(3))**2
       R = sqrt(R2)
@@ -29,8 +29,8 @@ C
       M = 1
   10  CONTINUE
       IF(M.GT.100) then
-        IF(IPRINT.GT.0)
-     +  Write(6,'(/,10X,'' INTER: too many iterations'')')
+        IF(IPRINT.GT.0)                                                 &
+     &  Write(6,'(/,10X,'' INTER: too many iterations'')')
         Return
       EndIf
       ALPHA = ALPHA + DELTA

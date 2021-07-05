@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine PCM_Init(iPrint,ICharg,NAtm,ToAng,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine PCM_Init(iPrint,ICharg,NAtm,ToAng,                     &
      &                    AtmC,IAtm,LcAtmC,LcIAtm,nIrrep,NonEq)
       use PCM_arrays
       Implicit Real*8 (a-h,o-z)
@@ -22,12 +22,12 @@
       Dimension RJunk(1)
       Real*8, Allocatable:: Xs(:), Ys(:), Zs(:), Rs(:)
       Integer, Allocatable:: pNs(:), VTS(:)
-*
-*     Build the cavity.
-*     Write the input file for GeomView.
-*     Form the PCM matrix.
-*
-*     Possibly print parameter values
+!
+!     Build the cavity.
+!     Write the input file for GeomView.
+!     Form the PCM matrix.
+!
+!     Possibly print parameter values
       If(iPrint.ge.99) Then
         write(6,'(''PCM parameters'')')
         Do 10 I = 1, 100
@@ -37,15 +37,15 @@
           write(6,'(''RSlpar('',i3,'') ='',F8.3)')I, RSlPar(I)
    20   Continue
       EndIf
-*
-*---- Recover solvent data
-*
+!
+!---- Recover solvent data
+!
       Call DataSol(ISlPar(15))
-*
-*     It is necessary to avoid spurious "atoms" which can cause errors
-*     in UATM: then let's copy only the real atoms on local arrays
-*     of coordinates and atomic numbers.
-*
+!
+!     It is necessary to avoid spurious "atoms" which can cause errors
+!     in UATM: then let's copy only the real atoms on local arrays
+!     of coordinates and atomic numbers.
+!
       LcI = 0
       Do 30 I = 1, NAtm
         If(IAtm(I).gt.0) then
@@ -58,58 +58,58 @@
    30 Continue
       LcNAtm = LcI
       ISlPar(42) = LcNAtm
-*
-*---- Define atomic/group spheres
-*     Allocate space for X, Y, Z, Radius and NOrd for MxSph spheres
-*
+!
+!---- Define atomic/group spheres
+!     Allocate space for X, Y, Z, Radius and NOrd for MxSph spheres
+!
       Call mma_allocate(Xs,MxSph,Label='Xs')
       Call mma_allocate(Ys,MxSph,Label='Ys')
       Call mma_allocate(Zs,MxSph,Label='Zs')
       Call mma_allocate(Rs,MxSph,Label='Rs')
       Call mma_allocate(pNs,MxSph,Label='pNs')
       pNs(:)=0
-*
+!
       NSinit = 0
-      Call FndSph(LcNAtm,ICharg,ToAng,LcAtmC,LcIAtm,ISlPar(9),
+      Call FndSph(LcNAtm,ICharg,ToAng,LcAtmC,LcIAtm,ISlPar(9),          &
      &            ISlPar(14),RSlPar(9),Xs,Ys,Zs,Rs,pNs,iPrint)
-*
-*---- Define surface tesserae
-*
+!
+!---- Define surface tesserae
+!
       Call FndTess(iPrint,ToAng,LcNAtm,Xs,Ys,Zs,Rs,pNs,MxSph)
-*
+!
       Call mma_deallocate(pNs)
       Call mma_deallocate(Rs)
       Call mma_deallocate(Zs)
       Call mma_deallocate(Ys)
       Call mma_deallocate(Xs)
-*
-*---- Prepare an input file for GeomView visualization tool
-*
+!
+!---- Prepare an input file for GeomView visualization tool
+!
       Call mma_allocate(VTS,MxVert*nTs,Label='VTS')
-      Call GVWrite(1,nTs,NSinit,LcNAtm,LcAtmC,LcIAtm,PCMSph,
+      Call GVWrite(1,nTs,NSinit,LcNAtm,LcAtmC,LcIAtm,PCMSph,            &
      &             PCMTess,NVert,Vert,PCMiSph,RJunk,VTS,MxVert)
       Call mma_deallocate(VTS)
 
-*
-*---- If needed compute the geometrical derivatives
-*
+!
+!---- If needed compute the geometrical derivatives
+!
       If(DoDeriv) then
         RSolv = RSlPar(19)
-        Call Deriva(0,ToAng,LcNAtm,nTs,nS,nSInit,RSolv,PCMTess,Vert,
-     &              Centr,PCMSph,PCMiSph,IntSph,PCM_N,NVert,
+        Call Deriva(0,ToAng,LcNAtm,nTs,nS,nSInit,RSolv,PCMTess,Vert,    &
+     &              Centr,PCMSph,PCMiSph,IntSph,PCM_N,NVert,            &
      &              NewSph,DTes,dPnt,dRad,dCntr)
       EndIf
-*
-*---- Compute cavitation energy
-*
+!
+!---- Compute cavitation energy
+!
       TAbs = RSlPar(16)
-      Call Cavitation(DoDeriv,ToAng,LcNAtm,NS,nTs,RSlPar(46),VMol,TAbs,
+      Call Cavitation(DoDeriv,ToAng,LcNAtm,NS,nTs,RSlPar(46),VMol,TAbs, &
      &                RSolv,PCMSph,PCMTess,PCMiSph)
-*
-*---- Define PCM matrix: the inverse is stored in PCMDM
-*
+!
+!---- Define PCM matrix: the inverse is stored in PCMDM
+!
       nTs2 = nTs * nTs
-c     LenScr = 2 * nTs
+!     LenScr = 2 * nTs
       Call GetMem('SMat','Allo','Real',ip_SM,nTs2)
       Call GetMem('SDMat','Allo','Real',ip_SDM,nTs2)
       Call GetMem('TMat','Allo','Real',ip_TM,nTs2)
@@ -119,15 +119,15 @@ c     LenScr = 2 * nTs
       Else
          Eps_=Eps
       End If
-      Call MatPCM(nTs,Eps_,Conductor,PCMiSph,PCMSph, PCMTess,PCMDM,
+      Call MatPCM(nTs,Eps_,Conductor,PCMiSph,PCMSph, PCMTess,PCMDM,     &
      &            Work(ip_SM),Work(ip_SDM),Work(ip_TM),Work(ip_RM))
       Call GetMem('RMat','Free','Real',ip_RM,nTs2)
       Call GetMem('TMat','Free','Real',ip_TM,nTs2)
       Call GetMem('SDMat','Free','Real',ip_SDM,nTs2)
       Call GetMem('SMat','Free','Real',ip_SM,nTs2)
-*
+!
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(nIrrep)
       End If

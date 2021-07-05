@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine PotGrd(Temp,nGrad)
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
@@ -25,33 +25,33 @@
       Real*8 Temp(nGrad)
       Logical DiffOp
       Real*8, Allocatable:: D_Var(:)
-*
-*-----Statement function
-*
+!
+!-----Statement function
+!
       nElem(i) = (i+1)*(i+2)/2
-*
-*...  Prologue
+!
+!...  Prologue
       iRout = 131
       iPrint = nPrint(iRout)
       Call CWTime(TCpu1,TWall1)
-*
-*---- Allocate memory for density
-*
+!
+!---- Allocate memory for density
+!
       nDens = 0
       Do iIrrep = 0, nIrrep - 1
          nDens = nDens + nBas(iIrrep)*(nBas(iIrrep)+1)/2
       End Do
-*
-*...  Get the method label
-*     print *,' Read Method label'
+!
+!...  Get the method label
+!     print *,' Read Method label'
       Call Get_cArray('Relax Method',Method,8)
-*
-*...  Read the variational 1st order density matrix
-*...  density matrix in AO/SO basis
-*     print *,' Read density matrix'
+!
+!...  Read the variational 1st order density matrix
+!...  density matrix in AO/SO basis
+!     print *,' Read density matrix'
       Call mma_allocate(D_Var,nDens,Label='D_Var')
       Call Get_D1ao_Var(D_var,nDens)
-*
+!
       If (iPrint.ge.99) then
          Write(6,*) 'variational 1st order density matrix'
          ii=1
@@ -61,12 +61,12 @@
             ii = ii + nBas(iIrrep)*(nBas(iIrrep)+1)/2
          End Do
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     nOrdOp: order/rank of the operator
-*     Work(ip1): lOper of each component of the operator
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     nOrdOp: order/rank of the operator
+!     Work(ip1): lOper of each component of the operator
+!
       nOrdOp=0
       nComp = nElem(nOrdOp)
       Call GetMem('Coor','Allo','Real',ipC,3*nComp)
@@ -75,24 +75,24 @@
       iWork(ip1) = 1
       DiffOp = .True.
       Call dZero(Temp,nGrad)
-      Call OneEl_g_mck(PCMGrd1,PCMMmG,Temp,nGrad,DiffOp,Work(ipC),
-     &                 D_Var,nDens,iWork(ip1),nComp,nOrdOp,
+      Call OneEl_g_mck(PCMGrd1,PCMMmG,Temp,nGrad,DiffOp,Work(ipC),      &
+     &                 D_Var,nDens,iWork(ip1),nComp,nOrdOp,             &
      &             Label)
-      Call PrGrad_mck(' TEST '
+      Call PrGrad_mck(' TEST '                                          &
      &   //'(PCM) contribution',Temp,nGrad,ChDisp,5)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call GetMem('lOper','Free','Inte',ip1,nComp)
       Call GetMem('Coor','Free','Real',ipC,3*nComp)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*...  Epilogue, end
-*
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!...  Epilogue, end
+!
+!
       Call mma_deallocate(D_Var)
-*
+!
       Call CWTime(TCpu2,TWall2)
       Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
       Return

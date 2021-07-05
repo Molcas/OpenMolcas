@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine PCMDef(ISlPar,RSlPar,iPrint)
       Implicit Real*8 (A-H,O-Z)
-*
-*     Set PCM defaults.
-*
+!
+!     Set PCM defaults.
+!
       Integer ISlPar(100)
       Real*8 RSlPar(100)
-*
-*     Initialize the integer array.
-*
+!
+!     Initialize the integer array.
+!
       Do 10 I = 1, 100
         ISlPar(I) = 0
   10  Continue
-*
+!
       ISlPar(  1) =  0      ! SCRF flag
       ISlPar(  2) =  0      ! derivative level
       ISlPar(  3) =  0      ! 0-3=invqsep/invqtot/iterqsep/iterqtot
@@ -66,12 +66,12 @@
       ISlPar( 41) =  0      ! vacuum SCF flag
       ISlPar( 42) =  0      ! number of solute atoms
 
-**     Initialize the real array.
-*
+!*     Initialize the real array.
+!
       Do 20 I = 1, 100
         RSlPar(I) = 0.0d0
   20  Continue
-*
+!
       RSlPar(  1) =   0.0d0     ! XCosmo
       RSlPar(  2) =   4.0d+1    ! Omega
       RSlPar(  3) =   2.0d-1    ! Ret, minimum radius of added sphere
@@ -124,6 +124,6 @@
       RSlPar( 50) =   0.0d0     ! GRep
       RSlPar( 51) =   0.0d0     ! Total Cavity surface (SCav)
       RSlPar( 52) =   0.0d0     ! Total Cavity volume (VCav)
-*
+!
       Return
       End
