@@ -11,19 +11,22 @@
 
 subroutine PCM_Hss(Hess,nHss)
 
-use PCM_arrays
-implicit real*8(a-h,o-z)
+use PCM_arrays, only: dCntr, dPnt, dRad, dTes, PCM_N, PCM_SQ, PCMDM, PCMiSph, PCMSph, PCMTess
+use isotopes, only: PTab
+use Constants, only: Angstrom
+use Definitions, only: wp, iwp
+
+implicit none
 #include "Molcas.fh"
-#include "angstr.fh"
-#include "print.fh"
-#include "real.fh"
+integer(kind=iwp), intent(in) :: nHss
+real(kind=wp), intent(in) :: Hess(nHss)
+integer(kind=iwp) :: i, ip_Der1, ip_Der2, ip_DerMat, ip_EF_e, ip_EF_n, ip_HssPCM, ip_Qder, ip_Qtot, ip_VDer, ipANr, ipChrg, &
+                     ipCoor, j, nAt3, nAtoms, nComp
+character(len=2) :: Elements(MxAtom*8)
 #include "WrkSpc.fh"
 #include "rctfld.fh"
-#include "periodic_table.fh"
-dimension Hess(nHss)
-character*2 Elements(MxAtom*8)
 
-!
+!                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Compute the PCM cavity contributions to Hessian in solution
@@ -35,7 +38,7 @@ call Get_Coord_All(Work(ipCoor),nAtoms)
 call Get_Name_All(Elements)
 call GetMem('ANr','Allo','Inte',ipANr,nAtoms)
 do i=1,nAtoms
-  do j=0,Num_Elem
+  do j=0,size(PTab)
     if (PTab(j) == Elements(i)) iWork(ipANr+i-1) = j
   end do
 end do
@@ -61,9 +64,9 @@ call GetMem('Der2','Allo','Real',ip_Der2,nTs)
 call GetMem('VDer','Allo','Real',ip_VDer,nAt3*nTs)
 call GetMem('HssPCM','Allo','Real',ip_HssPCM,nAt3*nAt3)
 
-call PCM_Cav_Hss(Angstr,nAtoms,nAt3,nTs,nS,Eps,iWork(ipANr),Work(ipCoor),Work(ipChrg),Work(ip_EF_n),Work(ip_EF_e),PCMSph,PCMiSph, &
-                 PCM_N,PCMTess,PCM_SQ,Work(ip_Qtot),PCMDM,Work(ip_HssPCM),Work(ip_DerMat),dTes,dPnt,dRad,dCntr,Work(ip_QDer), &
-                 Work(ip_Der1),Work(ip_Der2),Work(ip_VDer))
+call PCM_Cav_Hss(Angstrom,nAtoms,nAt3,nTs,nS,Eps,iWork(ipANr),Work(ipCoor),Work(ipChrg),Work(ip_EF_n),Work(ip_EF_e),PCMSph, &
+                 PCMiSph,PCM_N,PCMTess,PCM_SQ,Work(ip_Qtot),PCMDM,Work(ip_HssPCM),Work(ip_DerMat),dTes,dPnt,dRad,dCntr, &
+                 Work(ip_QDer),Work(ip_Der1),Work(ip_Der2),Work(ip_VDer))
 call GetMem('HssPCM','Free','Real',ip_HssPCM,nHss)
 call GetMem('DerMat','Free','Real',ip_DerMat,nTs*nTs)
 call GetMem('Qtot','Free','Real',ip_Qtot,nTs)

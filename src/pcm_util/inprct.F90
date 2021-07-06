@@ -19,20 +19,27 @@ subroutine InpRct(LuSpool)
 !             Modified for Langevin polarizabilities, March 2000 (RL)  *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+use Constants, only: Zero, One, Two, Three, Four, Ten, Half, Pi, auTokJ, kBoltzmann
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+integer(kind=iwp), intent(in) :: LuSpool
+integer(kind=iwp) :: i, I_Sph, i_sph_inp, iChrct, ii, iPrint, iRout, ITypRad, jRout,Last, n
+real(kind=wp) :: aArea, epscm, poltot, r_min_Sphere, Radius, tal, Temp, val
+character(len=180) :: KWord, Key
+integer(kind=iwp), external :: iCLast, nToken, NumSolv
+real(kind=r8), external :: Anal_Gitt
+character(len=180), external :: Get_Ln
 #include "print.fh"
 #include "rctfld.fh"
 #include "covradt_data.fh"
-character*180 KWord, Key, Get_Ln
-external Get_Ln
 
 iRout = 1
 iPrint = nPrint(iRout)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Initiate data for dielectric medium
+! Initialize data for dielectric medium
 
 Eps = One
 EpsInf = One
@@ -46,7 +53,7 @@ RF_Basis = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Initiate data for PCM
+! Initialize data for PCM
 
 PCM = .false.
 i_sph_inp = 0
@@ -114,20 +121,20 @@ scal14 = One
 LGridAverage = .false.
 
 ! diedel: controls deletion of gitter polarizabilities
-diedel = 0.01d0
+diedel = 0.01_wp
 
 ! tK: Boltzman factor
-tK = 0.001
+tK = 0.001_wp
 
 ! clim: convergence threshold for solver
-clim = 1.0D-15
+clim = 1.0e-15_wp
 
 ! afac: controls equation solver (valid values 0.3-0.97)
 afac = Half
 
 ! iterDamp: controls update of dipoles in equation solver
 !newDip = oldDip*iterDamp + estimatedDip*(1-iterDamp)
-dampIter = 0.4d0
+dampIter = 0.4_wp
 lDiprestart = .false.
 
 ! nexpo: exponent of the potential with which the QM system kills
@@ -188,7 +195,7 @@ if (KWord(1:4) == 'DRES') Go To 941
 if (KWord(1:4) == 'END ') Go To 997
 iChrct = len(KWord)
 Last = iCLast(KWord,iChrct)
-write(6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
+write(u6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
 call WarningMessage(2,'InpRct: Error in keyword.')
 call Quit_OnUserError()
 !                                                                      *
@@ -370,7 +377,7 @@ Go To 998
 929 continue
 KWord = Get_Ln(LuSpool)
 call Get_F1(1,Temp)
-tK = 3.1668D-6*Temp
+tK = kBoltzmann/auTokJ*1.0e-3_wp*Temp
 Go To 998
 !                                                                      *
 !***** RSCA ************************************************************
@@ -390,9 +397,9 @@ call Get_F1(1,rotAlpha)
 call Get_F1(2,rotBeta)
 call Get_F1(3,rotGamma)
 
-rotAlpha = rotAlpha/180.0d0*3.1415926535897932d0
-rotBeta = rotBeta/180.0d0*3.1415926535897932d0
-rotGamma = rotGamma/180.0d0*3.1415926535897932d0
+rotAlpha = rotAlpha/180.0_wp*Pi
+rotBeta = rotBeta/180.0_wp*Pi
+rotGamma = rotGamma/180.0_wp*Pi
 Go To 998
 !                                                                      *
 !***** SPAR ************************************************************
@@ -460,7 +467,7 @@ if (KWord == '') Go To 938
 if (KWord(1:3) == 'END') Go To 998
 read(KWord,*,err=988) ii,val
 CovRadT_(ii) = val
-!write(6,*) 'COVR',ii,val
+!write(u6,*) 'COVR',ii,val
 Go To 938
 !                                                                      *
 !***** AMBE ************************************************************

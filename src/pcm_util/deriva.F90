@@ -12,17 +12,20 @@
 subroutine Deriva(IPrint,ToAng,NAt,nTs,NEsf,NEsfP,RSolv,Tessera,Vert,Centr,Sphere,ISphe,IntSph,NOrd,NVert,NewSph,DerTes,DerPunt, &
                   DerRad,DerCentr)
 
-implicit real*8(a-h,o-z)
-parameter(MxVert=20)
-integer AlGe(63), Casca(MxVert)
-dimension DISTKI(3), DERP(3), DERPT(3)
-dimension Tessera(4,*), Vert(3,MxVert,*), Centr(3,MxVert,*)
-dimension Sphere(4,*), ISphe(*)
-dimension IntSph(MxVert,*), NewSph(2,NEsf), NOrd(*), NVert(*)
-dimension DerTes(nTs,NAt,3), DerPunt(nTs,NAt,3,3)
-dimension DerRad(NEsf,NAt,3), DerCentr(NEsf,NAt,3,3)
-save Zero, One
-data ZERO,One/0.0d0,1.0d0/
+use Constants, only: Zero, One, Two, Ten, Half
+use Definitions, only: wp, iwp, u6
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), parameter :: MxVert = 20
+integer(kind=iwp), intent(in) :: IPrint, NAt, nTs, NEsf, NEsfP, ISphe(*), IntSph(MxVert,*), NOrd(*), NVert(*), NewSph(2,NEsf)
+real(kind=wp), intent(in) :: ToAng, RSolv
+real(kind=wp), intent(inout) :: Tessera(4,*), Vert(3,MxVert,*), Centr(3,MxVert,*), Sphere(4,*)
+real(kind=wp), intent(_OUT_) :: DerTes(nTs,NAt,3), DerPunt(nTs,NAt,3,3), DerRad(NEsf,NAt,3), DerCentr(NEsf,NAt,3,3)
+integer(kind=iwp) :: AlGe(63), Casca(MxVert), I, ICONT, ICoord, idx, II, IJunk, IMAX, IMIN, ITS, JJ, K, LIVEL, LL, N, NDeg, NESFJ, &
+                     NS1, NS2, NSA, NSFE, NSI, NSJ, NSK, NSUB, NUM, NV
+real(kind=wp) :: DDR, DDX, DDY, DDZ, DER, DERP(3), DERPT(3), DERS, DERTS, DISTKI(3), DR, DX, DY, DZ, FAC, FACT, ToBohr
 
 ! Compute the derivatives of area and of representative point position
 ! for each tessera
@@ -87,7 +90,7 @@ do NSJ=1,NAt
         DERCENTR(NSFE,NSJ,ICOORD,JJ) = ZERO
       end do
     end do
-    if (NESFJ /= 0) DERCENTR(NESFJ,NSJ,ICOORD,ICOORD) = 1.0d0
+    if (NESFJ /= 0) DERCENTR(NESFJ,NSJ,ICOORD,ICOORD) = One
 
     ! Se non c'e' nessuna sfera attorno all'atomo NSJ ...
     if (NESFJ == 0) goto 1000
@@ -156,42 +159,42 @@ do NSJ=1,NAt
       ALGE(2) = abs(NEWSPH(1,NSA))
       ALGE(3) = abs(NEWSPH(2,NSA))
       LIVEL = 3
-      NUMBER = 2
+      NUM = 2
 510   continue
       NSUB = 1
-      do II=LIVEL-NUMBER+1,LIVEL
+      do II=LIVEL-NUM+1,LIVEL
         if (ALGE(II) > NESFP) then
           ALGE(LIVEL+NSUB) = abs(NEWSPH(1,ALGE(II)))
           ALGE(LIVEL+NSUB+1) = abs(NEWSPH(2,ALGE(II)))
         end if
         NSUB = NSUB+2
       end do
-      NUMBER = NUMBER*2
-      LIVEL = LIVEL+NUMBER
-      if (NUMBER < 32) goto 510
+      NUM = NUM*2
+      LIVEL = LIVEL+NUM
+      if (NUM < 32) goto 510
       ! Si accerta che nell'ultimo livello ci siano solo sfere originarie
       do II=34,63
         if (ALGE(II) > NESFP) then
-          write(6,10) NSA,ALGE(II)
+          write(u6,10) NSA,ALGE(II)
         end if
       end do
       ! Quando un elemento di ALGE e' = NESFJ, costruisce la corrispondente
       ! "cascata" di sfere aggiunte che collega NESFJ a NSA
       do LIVEL=2,6
-        MIN = 2**(LIVEL-1)
-        MAX = 2**(LIVEL)-1
-        do II=MIN,MAX
+        IMIN = 2**(LIVEL-1)
+        IMAX = 2**(LIVEL)-1
+        do II=IMIN,IMAX
           if (ALGE(II) /= NESFJ) goto 700
           do K=1,MxVert
             CASCA(K) = 0
           end do
           CASCA(1) = NESFJ
-          INDEX = II
+          idx = II
           K = 2
           do LL=LIVEL,2,-1
-            FACT = (INDEX-2**(LL-1))/2.d0
-            INDEX = 2**(LL-2)+iRToInt(FACT)
-            CASCA(K) = ALGE(INDEX)
+            FACT = (idx-2**(LL-1))*Half
+            idx = 2**(LL-2)+int(FACT)
+            CASCA(K) = ALGE(idx)
             K = K+1
           end do
           ! Contiamo gli elementi diversi da 0 in CASCA
@@ -286,7 +289,7 @@ do NSJ=1,NAt
             ! Derivate delle tessere appartenenti a NSA
             if (NSI == NSA) then
               ! Derivate relative al raggio di NSI: 1) scaling
-              DERTS = 2.d0*Tessera(4,ITS)*DR/Sphere(4,NSI)
+              DERTS = Two*Tessera(4,ITS)*DR/Sphere(4,NSI)
               DERPT(1) = (Tessera(1,ITS)-Sphere(1,NSI))*DR/Sphere(4,NSI)
               DERPT(2) = (Tessera(2,ITS)-Sphere(2,NSI))*DR/Sphere(4,NSI)
               DERPT(3) = (Tessera(3,ITS)-Sphere(3,NSI))*DR/Sphere(4,NSI)
@@ -384,12 +387,12 @@ do NSJ=1,NAt
 
     ! Controlla che nessuna derivata sia eccessiva (per imprecisioni numeriche)
     do ITS=1,NTS
-      if (abs(DERTES(ITS,NSJ,ICOORD)) > 10.d0) then
+      if (abs(DERTES(ITS,NSJ,ICOORD)) > Ten) then
         if (IPrint >= 2) then
-          write(6,*) 'DERIVATA GEOMETRICA ECCESSIVA TRASCURATA'
-          write(6,*) 'TESSERA, SFERA, COORDINATA',ITS,NESFJ,ICOORD
+          write(u6,*) 'DERIVATA GEOMETRICA ECCESSIVA TRASCURATA'
+          write(u6,*) 'TESSERA, SFERA, COORDINATA',ITS,NESFJ,ICOORD
         end if
-        DERTES(ITS,NSJ,ICOORD) = 0.d0
+        DERTES(ITS,NSJ,ICOORD) = Zero
       end if
     end do
 
@@ -412,11 +415,17 @@ return
 
 end subroutine Deriva
 !====
-subroutine DCDC(JJ,NSI,ICOORD,NESFJ,DC,Sphere,NewSph)
+subroutine dCdC(JJ,NSI,ICOORD,NESFJ,DC,Sphere,NewSph)
 
-implicit real*8(A-H,O-Z)
-dimension Sphere(4,*), NewSph(2,*)
-dimension COORDJ(3), COORDK(3)
+use Constants, only: One, Two, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: JJ, NSI, ICOORD, NESFJ, NewSph(2,*)
+real(kind=wp), intent(out) :: DC
+real(kind=wp), intent(in) :: Sphere(4,*)
+integer(kind=iwp) :: K, NSK
+real(kind=wp) :: COORDJ(3), COORDK(3), D, D2
 
 ! Trova la derivata della coordinata JJ del centro della sfera
 ! NSI rispetto alla coordinata ICOORD di NSJ, che interseca NSI.
@@ -439,8 +448,8 @@ COORDK(2) = Sphere(2,K)
 COORDK(3) = Sphere(3,K)
 D2 = (Sphere(1,NESFJ)-Sphere(1,K))**2+(Sphere(2,NESFJ)-Sphere(2,K))**2+(Sphere(3,NESFJ)-Sphere(3,K))**2
 D = sqrt(D2)
-DC = (Sphere(4,NESFJ)-Sphere(4,K))*(COORDJ(ICOORD)-COORDK(ICOORD))*(COORDJ(JJ)-COORDK(JJ))/(2.d0*D**3)
-if (JJ == ICOORD) DC = DC+0.5d0-(Sphere(4,NESFJ)-Sphere(4,K))/(2.d0*D)
+DC = (Sphere(4,NESFJ)-Sphere(4,K))*(COORDJ(ICOORD)-COORDK(ICOORD))*(COORDJ(JJ)-COORDK(JJ))/(Two*D**3)
+if (JJ == ICOORD) DC = DC+Half-(Sphere(4,NESFJ)-Sphere(4,K))/(Two*D)
 goto 200
 
 100 continue
@@ -456,7 +465,7 @@ D2 = (COORDJ(1)-COORDK(1))**2+(COORDJ(2)-COORDK(2))**2+(COORDJ(3)-COORDK(3))**2
 D = sqrt(D2)
 if (NSK > 0) then
   DC = Sphere(4,NESFJ)*(COORDJ(JJ)-COORDK(JJ))*(COORDJ(ICOORD)-COORDK(ICOORD))/D**3
-  if (ICOORD == JJ) DC = DC+1.d0-Sphere(4,NESFJ)/D
+  if (ICOORD == JJ) DC = DC+One-Sphere(4,NESFJ)/D
 else
   DC = -Sphere(4,abs(NSK))*(COORDK(JJ)-COORDJ(JJ))*(COORDK(ICOORD)-COORDJ(ICOORD))/D**3
   if (ICOORD == JJ) DC = DC+Sphere(4,abs(NSK))/D
@@ -466,14 +475,19 @@ end if
 
 return
 
-end subroutine DCDC
+end subroutine dCdC
 !====
 subroutine dCdR(JJ,NSI,NESFJ,DC,Sphere,NewSph)
 
-implicit real*8(A-H,O-Z)
-dimension Sphere(4,*), NewSph(2,*)
-dimension COORDJ(3), COORDK(3)
-data ZERO/0.0d0/
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: JJ, NSI, NESFJ, NewSph(2,*)
+real(kind=wp), intent(out) :: DC
+real(kind=wp), intent(in) :: Sphere(4,*)
+integer(kind=iwp) :: NSK
+real(kind=wp) :: COORDJ(3), COORDK(3), D, D2
 
 ! Trova la derivata della coordinata JJ del centro della sfera
 ! NSI rispetto al raggio dellla sfera NSJ.
@@ -496,7 +510,7 @@ COORDK(2) = Sphere(2,NSK)
 COORDK(3) = Sphere(3,NSK)
 D2 = (Sphere(1,NESFJ)-Sphere(1,NSK))**2+(Sphere(2,NESFJ)-Sphere(2,NSK))**2+(Sphere(3,NESFJ)-Sphere(3,NSK))**2
 D = sqrt(D2)
-DC = -(COORDJ(JJ)-COORDK(JJ))/(2.d0*D)
+DC = -(COORDJ(JJ)-COORDK(JJ))/(Two*D)
 goto 200
 
 100 continue
@@ -522,9 +536,15 @@ end subroutine dCdR
 !====
 subroutine dRdC(NSI,ICOORD,NESFJ,DR,RSolv,Sphere,NewSph)
 
-implicit real*8(A-H,O-Z)
-dimension Sphere(4,*), NewSph(2,*)
-dimension COORDJ(3), COORDK(3)
+use Constants, only: Two, Four, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: NSI, ICOORD, NESFJ, NewSph(2,*)
+real(kind=wp), intent(out) :: DR
+real(kind=wp), intent(in) :: RSolv, Sphere(4,*)
+integer(kind=iwp) :: K, NSK
+real(kind=wp) :: A, B, COORDJ(3), COORDK(3), D, D2, DIFF, FAC, RI, RJ, RK, RS
 
 ! Trova la derivata del raggio della sfera NSI rispetto alla
 ! coordinata ICOORD (1=X, 2=Y, 3=Z) della sfera NSJ, che interseca
@@ -548,10 +568,10 @@ COORDK(2) = Sphere(2,K)
 COORDK(3) = Sphere(3,K)
 D2 = (Sphere(1,NESFJ)-Sphere(1,K))**2+(Sphere(2,NESFJ)-Sphere(2,K))**2+(Sphere(3,NESFJ)-Sphere(3,K))**2
 D = sqrt(D2)
-B = 0.5d0*(D+Sphere(4,NESFJ)-Sphere(4,K))
+B = Half*(D+Sphere(4,NESFJ)-Sphere(4,K))
 RS = RSOLV
 A = ((Sphere(4,NESFJ)+RS)**2+D2-(Sphere(4,K)+RS)**2)/D
-DR = (2.d0*A*B-2.d0*B*D-A*D)*(COORDJ(ICOORD)-COORDK(ICOORD))/(4.d0*D2*(Sphere(4,NSI)+RS))
+DR = (Two*A*B-Two*B*D-A*D)*(COORDJ(ICOORD)-COORDK(ICOORD))/(Four*D2*(Sphere(4,NSI)+RS))
 goto 200
 
 100 continue
@@ -571,7 +591,7 @@ D2 = (COORDJ(1)-COORDK(1))**2+(COORDJ(2)-COORDK(2))**2+(COORDJ(3)-COORDK(3))**2
 D = sqrt(D2)
 FAC = Sphere(4,NESFJ)*(RJ*RJ-D*D-RK*RK)
 if (NSK < 0) FAC = Sphere(4,abs(NSK))*(RK*RK-D*D-RJ*RJ)
-DR = DIFF*FAC/(2.d0*D**3*RI)
+DR = DIFF*FAC/(Two*D**3*RI)
 
 200 continue
 
@@ -581,8 +601,15 @@ end subroutine dRdC
 !====
 subroutine dRdR(NSI,NESFJ,DR,RSolv,Sphere,NewSph)
 
-implicit real*8(A-H,O-Z)
-dimension Sphere(4,*), NewSph(2,*)
+use Constants, only: Two, Three, Four
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: NSI, NESFJ, NewSph(2,*)
+real(kind=wp), intent(out) :: DR
+real(kind=wp), intent(in) :: RSolv, Sphere(4,*)
+integer(kind=iwp) :: NSK
+real(kind=wp) :: D, D2, RI, RJ, RK, RS
 
 ! Trova la derivata del raggio della sfera NSI rispetto al raggio
 ! della sfera NSJ.
@@ -602,7 +629,7 @@ RK = Sphere(4,NSK)+RS
 RI = Sphere(4,NSI)+RS
 D2 = (Sphere(1,NESFJ)-Sphere(1,NSK))**2+(Sphere(2,NESFJ)-Sphere(2,NSK))**2+(Sphere(3,NESFJ)-Sphere(3,NSK))**2
 D = sqrt(D2)
-DR = (-3.d0*RJ*RJ+RK*RK+2.d0*RJ*RK+3.d0*D*RJ-D*RK)/(4.d0*D*RI)
+DR = (-Three*RJ*RJ+RK*RK+Two*RJ*RK+Three*D*RJ-D*RK)/(Four*D*RI)
 goto 200
 
 100 continue
@@ -616,7 +643,7 @@ if (NSK > 0) then
   RI = Sphere(4,NSI)+RS
   D2 = (Sphere(1,NESFJ)-Sphere(1,NSK))**2+(Sphere(2,NESFJ)-Sphere(2,NSK))**2+(Sphere(3,NESFJ)-Sphere(3,NSK))**2
   D = sqrt(D2)
-  DR = (2.d0*D*RJ+2.d0*D*Sphere(4,NESFJ)-2.d0*RJ*Sphere(4,NESFJ)+D*D-RJ*RJ-RK*RK)/(2.d0*D*RI)
+  DR = (Two*D*RJ+Two*D*Sphere(4,NESFJ)-Two*RJ*Sphere(4,NESFJ)+D*D-RJ*RJ-RK*RK)/(Two*D*RI)
 else
   RS = RSOLV
   RJ = Sphere(4,NESFJ)+RS
@@ -633,13 +660,16 @@ end subroutine dRdR
 !====
 subroutine dSd(IOpt,ITS,ICOORD,NESFJ,DERS,DERP,Tessera,Vert,Centr,nTs,Sphere,ISphe,IntSph,NewSph,NVert)
 
-implicit real*8(A-H,O-Z)
-parameter(MxVert=20)
-dimension Sphere(4,*), ISphe(*), NewSph(2,*)
-dimension IntSph(MxVert,*), NVert(*)
-dimension Tessera(4,*), Vert(3,MxVert,*), Centr(3,MxVert,*)
-dimension DP(MxVert,3), DERP(3), SUMDER(3), SUMVERT(3), PT(3)
-data ZERO/0.0d0/
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), parameter :: MxVert = 20
+integer(kind=iwp), intent(in) :: IOpt, ITS, ICOORD, NESFJ, nTs, ISphe(*), IntSph(MxVert,*), NewSph(2,*), NVert(*)
+real(kind=wp), intent(out) :: DERS, DERP(3)
+real(kind=wp), intent(in) :: Tessera(4,*), Vert(3,MxVert,*), Centr(3,MxVert,*), Sphere(4,*)
+integer(kind=iwp) :: JJ, L, L0, L1, L2, L3, NSI, NV
+real(kind=wp) :: DA, DERTS, DP(MxVert,3), PROD, PT(3), RSUM, SUMDER(3), SUMVERT(3)
 
 ! Trova le derivate dell'area e del punto rappresentativo della
 ! tessera ITS rispetto
@@ -713,11 +743,11 @@ do L=1,NV
   SUMVERT(2) = SUMVERT(2)+(VERT(2,L,ITs)-Sphere(2,NSI))
   SUMVERT(3) = SUMVERT(3)+(VERT(3,L,ITs)-Sphere(3,NSI))
 end do
-SUM = ZERO
+RSUM = ZERO
 do JJ=1,3
-  SUM = SUM+SUMVERT(JJ)*SUMVERT(JJ)
+  RSUM = RSUM+SUMVERT(JJ)*SUMVERT(JJ)
 end do
-SUM = sqrt(SUM)
+RSUM = sqrt(RSUM)
 ! Trova la somma delle derivate dei vertici
 do JJ=1,3
   SUMDER(JJ) = DP(L1,JJ)+DP(L2,JJ)
@@ -728,7 +758,7 @@ do JJ=1,3
   PROD = PROD+PT(JJ)*SUMDER(JJ)
 end do
 do JJ=1,3
-  DERP(JJ) = (SUMDER(JJ)*Sphere(4,NSI)/SUM)-(PT(JJ)*PROD/(Sphere(4,NSI)*SUM))
+  DERP(JJ) = (SUMDER(JJ)*Sphere(4,NSI)/RSUM)-(PT(JJ)*PROD/(Sphere(4,NSI)*RSUM))
 end do
 
 return
@@ -739,11 +769,16 @@ end subroutine dSd
 !====
 subroutine DVer(IOpt,IC,ITS,L0,L,L2,DX,DY,DZ,Vert,Centr,nTs,Sphere,IntSph)
 
-implicit real*8(A-H,O-Z)
-parameter(MxVert=20)
-dimension Sphere(4,*), IntSph(MxVert,*)
-dimension Vert(3,MxVert,*), Centr(3,MxVert,*)
-dimension P(3), P1(3), P2(3), P3(3)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), parameter :: MxVert = 20
+integer(kind=iwp), intent(in) :: IOpt, IC, ITS, L0, L, L2, nTs, IntSph(MxVert,*)
+real(kind=wp), intent(out) :: DX, DY, DZ
+real(kind=wp), intent(in) :: Vert(3,MxVert,*), Centr(3,MxVert,*), Sphere(4,*)
+integer(kind=iwp) :: JJ, L1, NSJ
+real(kind=wp) :: DNORM3, FACT, P(3), P1(3), P2(3), P3(3), PROD
 
 ! Trova la derivata della posizione del vertice L della tessera ITS
 !
@@ -760,7 +795,6 @@ dimension P(3), P1(3), P2(3), P3(3)
 ! il lato che si muove e' L0-L, e il vettore derivata e' tangente
 ! al lato seguente (L-L2).
 
-ZERO = 0.d0
 if (L > 0) then
   L1 = L
   NSJ = INTSPH(L1,ITs)
@@ -800,20 +834,20 @@ end do
 PROD = P(1)*P3(1)+P(2)*P3(2)+P(3)*P3(3)
 if (IOpt == 0) then
   if ((PROD == ZERO) .and. (P(IC) /= ZERO)) then
-    write(6,'(a)') 'Stop in DVer.'
+    write(u6,'(a)') 'Stop in DVer.'
     call Abend()
   end if
-  if (PROD == ZERO) PROD = 1.d0
+  if (PROD == ZERO) PROD = One
   FACT = P(IC)/PROD
 else if (IOpt == 1) then
   if (PROD == ZERO) then
-    write(6,'(a)') 'Stop in DVer.'
+    write(u6,'(a)') 'Stop in DVer.'
     call Abend()
   end if
   FACT = Sphere(4,NSJ)/PROD
 else
-  FACT = 0.0d0
-  write(6,'(a)') 'Illegal IOpt in DVer.'
+  FACT = Zero
+  write(u6,'(a)') 'Illegal IOpt in DVer.'
   call Abend()
 end if
 DX = FACT*P3(1)
@@ -828,14 +862,18 @@ end subroutine DVer
 !====
 subroutine DerPhi(IOpt,IC,NESFJ,ITS,L1,L2,DP,DA,Vert,Centr,nTs,Sphere,IntSph,ISphe)
 
-implicit real*8(A-H,O-Z)
-parameter(MxVert=20)
-dimension Sphere(4,*), ISphe(*), IntSph(MxVert,*)
-dimension Vert(3,MxVert,*), Centr(3,MxVert,*)
-dimension DP(MxVert,3), V1(3), V2(3), T12(3)
-dimension VEC1(3), VEC2(3), VEC3(3), VEC4(3)
-save Zero, One, Small1
-data Zero/0.0d0/,One/1.0d0/,Small1/1.d-6/
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), parameter :: MxVert = 20
+integer(kind=iwp), intent(in) :: IOpt, IC, NESFJ, ITS, L1, L2, nTs, IntSph(MxVert,*), ISphe(*)
+real(kind=wp), intent(in) :: DP(MxVert,3), Vert(3,MxVert,*), Centr(3,MxVert,*), Sphere(4,*)
+real(kind=wp), intent(out) :: DA
+integer(kind=iwp) :: JJ, NS1, NS2
+real(kind=wp) :: COSPHI, COSTH, D_COS, Delta, Dist2, DNORM1, DNORM2, DPHI, FACT, PROD, RC2, SENPHI, V1(3), V2(3), T12(3), VEC1(3), &
+                 VEC2(3), VEC3(3), VEC4(3)
+real(kind=wp), parameter :: Small1 = 1.0e-6_wp, Small = 1.0e-12_wp
 
 ! Find the derivative of: Phi(L1) Cos[Theta(L1)]
 !
@@ -849,7 +887,6 @@ data Zero/0.0d0/,One/1.0d0/,Small1/1.d-6/
 ! NS1 is the sphere to which the tessera belongs, NS2 is the sphere that
 ! creates the side L1 by intersecting NS1
 
-Small = 1.0d-12
 NS1 = ISPHE(ITS)
 NS2 = INTSPH(L1,ITs)
 
@@ -867,7 +904,7 @@ COSPHI = PROD/RC2
 ! If the tessera is intersected very near its vertex the numerical
 ! approximation could lead to PROD>RC2 and COSPHI>1. Avoid this by:
 
-Delta = 1.d-12
+Delta = 1.0e-12_wp
 if (abs(CosPhi) > One) CosPhi = sign(One-Delta,CosPhi)
 SENPHI = sqrt(One-COSPHI*COSPHI)
 
@@ -891,7 +928,7 @@ if (NS2 == NESFJ) then
   T12(3) = Sphere(3,NESFJ)-Sphere(3,NS1)
   DIST2 = T12(1)*T12(1)+T12(2)*T12(2)+T12(3)*T12(3)
   if (IOpt == 0) then
-    FACT = (Sphere(4,NS1)**2-Sphere(4,NESFJ)**2+DIST2)/(2.d0*DIST2)
+    FACT = (Sphere(4,NS1)**2-Sphere(4,NESFJ)**2+DIST2)/(Two*DIST2)
     VEC2(IC) = VEC2(IC)-FACT
     VEC4(IC) = VEC4(IC)-FACT
   else if (IOpt == 1) then
@@ -900,18 +937,18 @@ if (NS2 == NESFJ) then
       VEC4(JJ) = VEC4(JJ)+Sphere(4,NESFJ)*T12(JJ)/DIST2
     end do
   else
-    write(6,'(a)') 'Illegal IOpt in DerPhi.'
+    write(u6,'(a)') 'Illegal IOpt in DerPhi.'
     call Abend()
   end if
 end if
 
-DPHI = 0.d0
+DPHI = Zero
 do JJ=1,3
   DPHI = DPHI-(VEC1(JJ)*VEC2(JJ)+VEC3(JJ)*VEC4(JJ))
 end do
 if (abs(SenPhi) < Small) then
   if (abs(DPhi) > Small1) then
-    write(6,'(a)') 'SenPhi small but not DPhi in DerPhi.'
+    write(u6,'(a)') 'SenPhi small but not DPhi in DerPhi.'
     call Abend()
   end if
   DPhi = Zero
@@ -921,8 +958,8 @@ end if
 
 ! Compute the cosine of the polar angle
 
-DNORM1 = 0.d0
-DNORM2 = 0.d0
+DNORM1 = Zero
+DNORM2 = Zero
 V1(1) = VERT(1,L1,ITs)-Sphere(1,NS1)
 V1(2) = VERT(2,L1,ITs)-Sphere(2,NS1)
 V1(3) = VERT(3,L1,ITs)-Sphere(3,NS1)
@@ -940,18 +977,18 @@ COSTH = (V1(1)*V2(1)+V1(2)*V2(2)+V1(3)*V2(3))/(DNORM1*DNORM2)
 ! If the side is not that formed by the moving sphere the derivative of
 ! the polar angle vanishes
 
-DCOS = 0.d0
+D_COS = Zero
 if (NS2 /= NESFJ) goto 100
 
 ! Otherwise:
 
 do JJ=1,3
-  DCOS = DCOS+V2(JJ)*DP(L1,JJ)
+  D_COS = D_COS+V2(JJ)*DP(L1,JJ)
 end do
-if (IOpt == 0) DCOS = DCOS+V1(IC)-Sphere(4,NS1)*COSTH*V2(IC)/DNORM2
-DCOS = DCOS/(Sphere(4,NS1)*DNORM2)
+if (IOpt == 0) D_COS = D_COS+V1(IC)-Sphere(4,NS1)*COSTH*V2(IC)/DNORM2
+D_COS = D_COS/(Sphere(4,NS1)*DNORM2)
 100 continue
-DA = COSTH*DPHI+acos(COSPHI)*DCOS
+DA = COSTH*DPHI+acos(COSPHI)*D_COS
 DA = Sphere(4,NS1)*Sphere(4,NS1)*DA
 
 return
@@ -962,13 +999,17 @@ end subroutine DerPhi
 !====
 subroutine DerBet(IOpt,IC,NSFE,ITS,L0,L1,L2,DP,DA,Vert,Centr,nTs,Sphere,IntSph,ISphe)
 
-implicit real*8(A-H,O-Z)
-parameter(MxVert=20)
-dimension Sphere(4,*), ISphe(*), IntSph(MxVert,*)
-dimension Vert(3,MxVert,*), Centr(3,MxVert,*)
-dimension DP(MxVert,3)
-dimension V1(3), V2(3), V3(3), V4(3), DV1(3), DV2(3), DV3(3), DV4(3)
-dimension P1(3), P2(3), P3(3), T0(3), T1(3), T12(3), DT0(3), DT1(3)
+use Constants, only: Zero, Two, Pi
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), parameter :: MxVert = 20
+integer(kind=iwp), intent(in) :: IOpt, IC, NSFE, ITS, L0, L1, L2, nTs, IntSph(MxVert,*), ISphe(*)
+real(kind=wp), intent(in) :: DP(MxVert,3), Vert(3,MxVert,*), Centr(3,MxVert,*), Sphere(4,*)
+real(kind=wp), intent(out) :: DA
+integer(kind=iwp) :: IDX, JJ, NS1, NS2, NS3
+real(kind=wp) :: BETA, COSBETA, DBETA, DIST2, DNORM3, dnxxt0, dnxxt1, DT0(3), DT1(3), DV1(3), DV2(3), DV3(3), DV4(3), FACT, P1(3), &
+                 P2(3), P3(3), PROD, SENBETA, T0(3), T1(3), T12(3), V1(3), V2(3), V3(3), V4(3)
 
 ! Trova la derivata dell'angolo esterno del vertice L1 della tessera
 ! ITS, formato dai lati L0-L1 e L1-L2,
@@ -978,7 +1019,6 @@ dimension P1(3), P2(3), P3(3), T0(3), T1(3), T12(3), DT0(3), DT1(3)
 !
 ! della sfera NSFE, conoscendo la derivata della posizione del vertice P1.
 
-PI = 4.0d0*atan(1.0d0)
 NS1 = ISPHE(ITS)
 NS2 = INTSPH(L0,ITs)
 NS3 = INTSPH(L1,ITs)
@@ -1002,10 +1042,10 @@ end do
 ! Corregge la derivata dei vettori posizione se il lato considerato
 ! appartiene alla sfera che si muove (distinguendo se ITS appartiene
 ! o no alla sfera che si muove)
-INDEX = 0
-if ((NS1 == NSFE) .and. (NS2 /= NSFE)) INDEX = 1
-if ((NS1 /= NSFE) .and. (NS2 == NSFE)) INDEX = 1
-if (INDEX == 1) then
+IDX = 0
+if ((NS1 == NSFE) .and. (NS2 /= NSFE)) IDX = 1
+if ((NS1 /= NSFE) .and. (NS2 == NSFE)) IDX = 1
+if (IDX == 1) then
   T12(1) = Sphere(1,NS2)-Sphere(1,NS1)
   T12(2) = Sphere(2,NS2)-Sphere(2,NS1)
   T12(3) = Sphere(3,NS2)-Sphere(3,NS1)
@@ -1015,7 +1055,7 @@ if (INDEX == 1) then
       DV1(JJ) = DV1(JJ)+(Sphere(4,NS1)**2-Sphere(4,NS2)**2)*T12(IC)*T12(JJ)/(DIST2*DIST2)
       DV2(JJ) = DV2(JJ)+(Sphere(4,NS1)**2-Sphere(4,NS2)**2)*T12(IC)*T12(JJ)/(DIST2*DIST2)
     end do
-    FACT = (Sphere(4,NS1)**2-Sphere(4,NS2)**2+DIST2)/(2.d0*DIST2)
+    FACT = (Sphere(4,NS1)**2-Sphere(4,NS2)**2+DIST2)/(Two*DIST2)
     DV1(IC) = DV1(IC)-FACT
     DV2(IC) = DV2(IC)-FACT
   else if (IOpt == 1) then
@@ -1024,15 +1064,15 @@ if (INDEX == 1) then
       DV2(JJ) = DV2(JJ)+Sphere(4,NS2)*T12(JJ)/DIST2
     end do
   else
-    write(6,'(a)') 'Illegal IOpt in DerBet.'
+    write(u6,'(a)') 'Illegal IOpt in DerBet.'
     call Abend()
   end if
 end if
 
-INDEX = 0
-if ((NS1 == NSFE) .and. (NS3 /= NSFE)) INDEX = 1
-if ((NS1 /= NSFE) .and. (NS3 == NSFE)) INDEX = 1
-if (INDEX == 1) then
+IDX = 0
+if ((NS1 == NSFE) .and. (NS3 /= NSFE)) IDX = 1
+if ((NS1 /= NSFE) .and. (NS3 == NSFE)) IDX = 1
+if (IDX == 1) then
   T12(1) = Sphere(1,NS3)-Sphere(1,NS1)
   T12(2) = Sphere(2,NS3)-Sphere(2,NS1)
   T12(3) = Sphere(3,NS3)-Sphere(3,NS1)
@@ -1042,7 +1082,7 @@ if (INDEX == 1) then
       DV3(JJ) = DV3(JJ)+(Sphere(4,NS1)**2-Sphere(4,NS3)**2)*T12(IC)*T12(JJ)/(DIST2*DIST2)
       DV4(JJ) = DV4(JJ)+(Sphere(4,NS1)**2-Sphere(4,NS3)**2)*T12(IC)*T12(JJ)/(DIST2*DIST2)
     end do
-    FACT = (Sphere(4,NS1)**2-Sphere(4,NS3)**2+DIST2)/(2.d0*DIST2)
+    FACT = (Sphere(4,NS1)**2-Sphere(4,NS3)**2+DIST2)/(Two*DIST2)
     DV3(IC) = DV3(IC)-FACT
     DV4(IC) = DV4(IC)-FACT
   else if (IOpt == 1) then
@@ -1051,7 +1091,7 @@ if (INDEX == 1) then
       DV4(JJ) = DV4(JJ)+Sphere(4,NS3)*T12(JJ)/DIST2
     end do
   else
-    write(6,'(a)') 'Illegal IOpt in DerBet.'
+    write(u6,'(a)') 'Illegal IOpt in DerBet.'
     call Abend()
   end if
 end if
@@ -1095,7 +1135,7 @@ SENBETA = sin(BETA)
 ! DT0 = DV2 x (V2 x V1) + V2 x (DV2 x V1) + V2 x (V2 x DV1)
 
 do JJ=1,3
-  DT0(JJ) = 0.d0
+  DT0(JJ) = Zero
 end do
 
 do JJ=1,3
@@ -1144,7 +1184,7 @@ end do
 ! DT1 = DV3 x (V3 x V4) + V3 x (DV3 x V4) + V3 x (V3 x DV4)
 
 do JJ=1,3
-  DT1(JJ) = 0.d0
+  DT1(JJ) = Zero
 end do
 
 do JJ=1,3
@@ -1195,7 +1235,7 @@ do JJ=1,3
   P2(JJ) = T0(JJ)+COSBETA*dnxxt0*T1(JJ)/dnxxt1
 end do
 do JJ=1,3
-  DBETA = 0.d0
+  DBETA = Zero
 end do
 do JJ=1,3
   DBETA = DBETA+(P1(JJ)*DT0(JJ)+P2(JJ)*DT1(JJ))
@@ -1208,15 +1248,3 @@ return
 if (.false.) call Unused_integer(nTs)
 
 end subroutine DerBet
-!====
-function iRToInt(r)
-
-implicit real*8(a-h,o-z)
-
-! floating to integer conversion.
-
-iRToInt = int(r)
-
-return
-
-end function iRToInt

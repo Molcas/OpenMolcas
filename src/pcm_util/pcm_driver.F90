@@ -11,9 +11,16 @@
 
 subroutine PCM_Driver(iPrint,DMat,V,Q,nTs)
 
-implicit real*8(A-H,O-Z)
-real*8 V(2,nTs), Q(2,nTs), DMat(nTs,nTs)
-data Zero,Half/0.0d0,0.5d0/
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: iPrint, nTs
+real(kind=wp), intent(inout) :: DMat(nTs,nTs)
+real(kind=wp), intent(in) :: V(2,nTs)
+real(kind=wp), intent(out) :: Q(2,nTs)
+integer(kind=iwp) :: iTs, jTs
+real(kind=wp) :: tmp
 
 ! Computes PCM solvation charges given the nuclear and electronic electrostatic
 ! potential on each tessera.
@@ -40,7 +47,7 @@ do iTs=1,nTs
 end do
 
 !do i=1,nTs   ! yma delete later
-!  write(6,*) ' == V(2,iTs) diff == ',i,V(2,i)
+!  write(u6,*) ' == V(2,iTs) diff == ',i,V(2,i)
 !end do
 
 return

@@ -11,24 +11,26 @@
 
 subroutine PCM_EF_grd(Grad,nGrad)
 
-use Basis_Info
-use Center_Info
-use PCM_arrays
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
+use PCM_arrays, only: dCntr, dPnt, PCM_SQ, PCMiSph, PCMTess
 use Temporary_Parameters, only: PrPrt
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-real*8 Grad(nGrad)
-#include "print.fh"
-#include "real.fh"
+implicit none
+integer(kind=iwp), intent(in) :: nGrad
+real(kind=wp), intent(inout) :: Grad(nGrad)
+integer(kind=iwp) :: i, ip_EF, ip_EF_e, ip_EF_electronic, ip_EF_n, ip_EF_nuclear, iTile, jCnt, jCnttp, MaxAto, mCnt, nc, nComp, &
+                     ndc, nDens, nOrdOp
+real(kind=wp) :: EF_Temp(3), Z
+logical(kind=iwp) :: Save_tmp, Found
+integer(kind=iwp), allocatable :: lOper(:)
+real(kind=wp), allocatable :: Chrg(:), Cord(:,:), D1ao(:), FactOp(:)
 #include "rctfld.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
-logical Save_tmp, Found
-real*8 EF_Temp(3)
-real*8, allocatable :: Cord(:,:), Chrg(:), FactOp(:)
-integer, allocatable :: lOper(:)
-real*8, allocatable :: D1ao(:)
 
 !                                                                      *
 !***********************************************************************
@@ -100,7 +102,7 @@ call Qpg_dArray('D1ao',Found,nDens)
 if (Found .and. (nDens /= 0)) then
   call mma_allocate(D1ao,nDens,Label='D1ao')
 else
-  write(6,*) 'pcm_ef_grd: D1ao not found.'
+  write(u6,*) 'pcm_ef_grd: D1ao not found.'
   call Abend()
 end if
 call Get_D1ao(D1ao,nDens)

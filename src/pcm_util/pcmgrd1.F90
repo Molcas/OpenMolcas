@@ -11,8 +11,10 @@
 ! Copyright (C) 1995,2001, Roland Lindh                                *
 !***********************************************************************
 
-subroutine PCMgrd1(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,la,lb,A,RB,nRys,Array,nArr,Ccoor,nOrdOp,Grad,nGrad, &
-                   IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,iStabM,nStabM)
+subroutine PCMgrd1( &
+#                  define _CALLING_
+#                  include "grd_interface.fh"
+                  )
 !***********************************************************************
 !                                                                      *
 ! Object: kernel routine for the computation of nuclear attraction     *
@@ -26,28 +28,24 @@ subroutine PCMgrd1(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,la,lb,
 !***********************************************************************
 
 use PCM_arrays, only: PCMTess
-use Center_Info
+use Center_Info, only: dc
+use Constants, only: Zero, One, Two, Pi
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external TNAI1, Fake, XCff2D
-#include "real.fh"
-#include "Molcas.fh"
-#include "WrkSpc.fh"
+implicit none
+#define _USE_WP_
+#include "grd_interface.fh"
+integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ii, ipA, ipAOff, ipB, ipBOff, ipDAO, iPrint, iRout, &
+                     iStb(0:7), iTs, iuvwx(4), iZeta, j, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, &
+                     nDiff, nip, nStb, nT
+real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, Q, TC(3)
+logical(kind=iwp) :: NoLoop, JfGrad(3,4)
+character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
+integer(kind=iwp), external :: NrOpr
+external :: Fake, TNAI1, XCff2D
 #include "print.fh"
-#include "disp.fh"
-#include "rctfld.fh"
-integer IndGrd(3,2), kOp(2), lOper(nComp), iStabM(0:nStabM-1), iDCRT(0:7)
-real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta), rKappa(nZeta), &
-       P(nZeta,3), A(3), RB(3), CCoor(3,nComp), Array(nZeta*nArr), Grad(nGrad), DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-logical IfGrad(3,2)
-! Local arrys
-
-real*8 C(3), TC(3), Coori(3,4), CoorAC(3,2)
-logical NoLoop, JfGrad(3,4)
-integer iAnga(4), iStb(0:7), JndGrd(3,4), lOp(4), iuvwx(4)
-character ChOper(0:7)*3
-data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 ! Statement function for Cartesian index
+integer(kind=iwp) :: ixyz, nElem
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 iRout = 151
@@ -72,7 +70,7 @@ nip = nip+nAlpha*nBeta
 ipDAO = nip
 nip = nip+nAlpha*nBeta*nElem(la)*nElem(lb)*nElem(nOrdOp)
 if (nip-1 > nZeta*nArr) then
-  write(6,*) 'nip-1 > nZeta*nArr'
+  write(u6,*) 'nip-1 > nZeta*nArr'
   call ErrTra()
   call AbEnd()
 end if
@@ -134,19 +132,19 @@ do iTs=1,1
   ! Find the DCR for M and S
 
   call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
-  Fact = -dble(nStabM)/dble(LmbdT)
+  Fact = -real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
   if (iPrint >= 99) then
-    write(6,*) ' Q=',Q
-    write(6,*) ' Fact=',Fact
+    write(u6,*) ' Q=',Q
+    write(u6,*) ' Fact=',Fact
     call RecPrt('DAO*Fact*Q',' ',Array(ipDAO),nZeta*nDAO,nElem(nOrdOp))
-    write(6,*) ' m      =',nStabM
-    write(6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
-    write(6,*) ' s      =',nStb
-    write(6,'(9A)') '(S)=',(ChOper(iStb(ii)),ii=0,nStb-1)
-    write(6,*) ' LambdaT=',LmbdT
-    write(6,*) ' t      =',nDCRT
-    write(6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
+    write(u6,*) ' m      =',nStabM
+    write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+    write(u6,*) ' s      =',nStb
+    write(u6,'(9A)') '(S)=',(ChOper(iStb(ii)),ii=0,nStb-1)
+    write(u6,*) ' LambdaT=',LmbdT
+    write(u6,*) ' t      =',nDCRT
+    write(u6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
   end if
   iuvwx(3) = nStb
   iuvwx(4) = nStb
@@ -174,7 +172,7 @@ do iTs=1,1
       if (JfGrad(iCar,i)) mGrad = mGrad+1
     end do
   end do
-  if (iPrint >= 99) write(6,*) ' mGrad=',mGrad
+  if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
   if (mGrad == 0) Go To 111
 
   do lDCRT=0,nDCRT-1
@@ -206,7 +204,7 @@ return
 ! Avoid unused argument warnings
 if (.false.) then
   call Unused_real_array(final)
-  call Unused_integer(nRys)
+  call Unused_integer(nHer)
   call Unused_real_array(Ccoor)
   call Unused_integer_array(lOper)
 end if

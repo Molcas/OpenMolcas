@@ -11,19 +11,22 @@
 
 subroutine PCM_Init(iPrint,ICharg,NAtm,ToAng,AtmC,IAtm,LcAtmC,LcIAtm,nIrrep,NonEq)
 
-use PCM_arrays
+use PCM_arrays, only: Centr, dCntr, dPnt, dRad, dTes, IntSph, NewSph, nVert, PCM_N, PCMDM, PCMiSph, PCMSph, PCMTess, Vert
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp), intent(in) :: iPrint, ICharg, NAtm, IAtm(NAtm), nIrrep
+real(kind=wp), intent(in) :: ToAng, AtmC(3,NAtm)
+real(kind=wp), intent(out) :: LcAtmC(3,NAtm)
+integer(kind=iwp), intent(out) :: LcIAtm(NAtm)
+logical(kind=iwp), intent(in) :: NonEq
+integer(kind=iwp) :: I, ip_RM, ip_SDM, ip_SM, ip_TM, LcI, LcNAtm, nTs2
+real(kind=wp) :: Eps_, RJunk(1), TAbs
+integer(kind=iwp), allocatable :: pNs(:), VTS(:)
+real(kind=wp), allocatable :: Xs(:), Ys(:), Zs(:), Rs(:)
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
 #include "rctfld.fh"
-#include "status.fh"
-real*8 AtmC(3,NAtm), LcAtmC(3,NAtm)
-integer IAtm(NAtm), LcIAtm(NAtm)
-logical NonEq
-dimension RJunk(1)
-real*8, allocatable :: Xs(:), Ys(:), Zs(:), Rs(:)
-integer, allocatable :: pNs(:), VTS(:)
 
 ! Build the cavity.
 ! Write the input file for GeomView.
@@ -31,12 +34,12 @@ integer, allocatable :: pNs(:), VTS(:)
 
 ! Possibly print parameter values
 if (iPrint >= 99) then
-  write(6,'(a)') 'PCM parameters'
+  write(u6,'(a)') 'PCM parameters'
   do I=1,100
-    write(6,'("ISlpar(",i3,") =",i6)') I,ISlPar(I)
+    write(u6,'("ISlpar(",i3,") =",i6)') I,ISlPar(I)
   end do
   do I=1,100
-    write(6,'("RSlpar(",i3,") =",F8.3)') I,RSlPar(I)
+    write(u6,'("RSlpar(",i3,") =",F8.3)') I,RSlPar(I)
   end do
 end if
 

@@ -11,15 +11,20 @@
 
 subroutine PCMDFck(nFck,PCMFck)
 
-use PCM_arrays
-implicit real*8(a-h,o-z)
-#include "WrkSpc.fh"
+use PCM_arrays, only: dCntr, dPnt, dRad, dTes, PCM_N, PCM_SQ, PCMDM, PCMiSph, PCMSph, PCMTess
+use Isotopes, only: PTab
+use Definitions, only: wp, iwp
+
+implicit none
 #include "Molcas.fh"
+integer(kind=iwp), intent(in) :: nFck
+real(kind=wp), intent(out) :: PCMFck(nFck,*)
+integer(kind=iwp) :: i, ip_DerMat, ip_EF_e, ip_EF_n, ip_Qtot, ip_Temp1, ip_Temp2, ip_V, ip_VDer, ip_VDerMN, ip_VMN, ipANr, ipChrg, &
+                     ipCoor, j, nAt3, nAtoms, nComp
+logical(kind=iwp) :: DoPot, DoFld
+character(len=2) :: Elements(MxAtom*8)
+#include "WrkSpc.fh"
 #include "rctfld.fh"
-#include "periodic_table.fh"
-dimension PCMFck(nFck,*)
-character*2 Elements(MxAtom*8)
-logical DoPot, DoFld
 
 !
 !***********************************************************************
@@ -34,7 +39,7 @@ call Get_Coord_All(Work(ipCoor),nAtoms)
 call Get_Name_All(Elements)
 call GetMem('ANr','Allo','Inte',ipANr,nAtoms)
 do i=1,nAtoms
-  do j=0,Num_Elem
+  do j=0,size(PTab)
     if (PTab(j) == Elements(i)) iWork(ipANr+i-1) = j
   end do
 end do
@@ -103,17 +108,22 @@ end subroutine PCMDFck
 subroutine PCM_Der_Fock(nFck,nAt,nTs,nS,Eps,Sphere,ISphe,nOrd,Tessera,Q,Qtot,DM,DerDM,DerTes,DerPunt,DerCentr,V,VMN,VDer,VDerMN, &
                         Temp1,Temp2,PCMFck)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-dimension Sphere(4,*), ISphe(*), nOrd(*), Temp1(*), Temp2(*)
-dimension Tessera(4,*), Q(2,*), Qtot(*), DM(nTs,*), DerDM(nTs,*)
-dimension V(*), VMN(nTs,*)
-dimension VDer(nTs,*), VDerMN(nTs,nFck,*), PCMFck(nFck,*)
-dimension DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3)
-dimension DerCentr(nS,nAt,3,3)
+use Constants, only: Zero, One, Two, Four, Pi
+use Definitions, only: wp, iwp
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(in) :: nFck, nAt, nTs, nS, ISphe(*), nOrd(*)
+real(kind=wp), intent(in) :: Eps, Sphere(4,*), Tessera(4,*), Q(2,*), DM(nTs,*), DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3), &
+                             DerCentr(nS,nAt,3,3), V(*), VMN(nTs,*), VDer(nTs,*), VDerMN(nTs,nFck,*)
+real(kind=wp), intent(_OUT_) :: Qtot(*), DerDM(nTs,*), Temp1(*), Temp2(*)
+real(kind=wp), intent(inout) :: PCMFck(nFck,*)
+integer(kind=iwp) :: iAt, iC, iFck, idx, iTs, jTs
+real(kind=wp) :: Diag, FPI, rSum
 
 FPI = Four*PI
-Diag = -1.0694d0*sqrt(FPI)/Two
+Diag = -1.0694_wp*sqrt(FPI)/Two
 
 do iTs=1,nTs
   Qtot(iTs) = Q(1,iTs)+Q(2,iTs)
@@ -122,51 +132,51 @@ end do
 ! Loop over the degrees of freedom
 do iAt=1,nAt
   do iC=1,3
-    Index = 3*(iAt-1)+iC
+    idx = 3*(iAt-1)+iC
 
     ! Derivative of the PCM matrix for the conductor-like case
     call DMat_CPCM(iAt,iC,Eps,nTs,nS,nAt,Diag,Tessera,DerDM,DerTes,DerPunt,DerCentr,iSphe)
 
     ! Solvation charges (weights) times the derivative of the PCM matrix
-    call PrMatVec(.true.,.true.,DerDM,-1.d0,nTs,nTs,QTot,Temp1)
+    call PrMatVec(.true.,.true.,DerDM,-One,nTs,nTs,QTot,Temp1)
 
     ! The previous vector times the inverted PCM matrix
-    call PrMatVec(.true.,.true.,DM,1.d0,nTs,nTs,Temp1,Temp2)
+    call PrMatVec(.true.,.true.,DM,One,nTs,nTs,Temp1,Temp2)
 
     ! Derivative of the potential times the inverted PCM matrix
-    call PrMatVec(.true.,.true.,DM,1.d0,nTs,nTs,VDer(1,Index),Temp1)
+    call PrMatVec(.true.,.true.,DM,One,nTs,nTs,VDer(1,idx),Temp1)
 
     ! Loop over the Fock elements
     do iFck=1,nFck
 
       ! First contribution: charges times the derivative of the
       ! (uncontracted) electronic potential: Sum_i q_i V_mn^(i,x)
-      Sum = Zero
+      rSum = Zero
       do iTs=1,nTs
-        Sum = Sum+Qtot(iTs)*VDerMN(iTs,iFck,Index)
+        rSum = rSum+Qtot(iTs)*VDerMN(iTs,iFck,idx)
       end do
-      PCMFck(iFck,Index) = PCMFck(iFck,Index)+Sum
+      PCMFck(iFck,idx) = PCMFck(iFck,idx)+rSum
 
       ! Second contribution: derivative of the potential times the
       ! (symmetrized) PCM matrix times the uncontracted potential:
       ! Sum_ij V_i^x Q_ij V_mn^j
-      Sum = Zero
+      rSum = Zero
       do iTs=1,nTs
-        Sum = Sum+Temp1(iTs)*VMN(iTs,iFck)
+        rSum = rSum+Temp1(iTs)*VMN(iTs,iFck)
       end do
-      PCMFck(iFck,Index) = PCMFck(iFck,Index)+Sum
+      PCMFck(iFck,idx) = PCMFck(iFck,idx)+rSum
 
       ! Third contribution: potential times the derivative of
       ! the inverted PCM matrix times the uncontracted potential:
       ! Sum_ij V_i Q_ij^x V_mn^j = Sum_ij V_i [-S^-1 S^x S^-1]_ij V_mn^j =
       ! Sum_ij q_i [S^x S^-1]_ij V_mn^j
-      Sum = Zero
+      rSum = Zero
       do iTs=1,nTs
         do jTs=1,nTs
-          Sum = Sum+Temp2(iTs)*VMN(jTs,iFck)
+          rSum = rSum+Temp2(iTs)*VMN(jTs,iFck)
         end do
       end do
-      PCMFck(iFck,Index) = PCMFck(iFck,Index)+Sum
+      PCMFck(iFck,idx) = PCMFck(iFck,idx)+rSum
     end do
   end do
 end do

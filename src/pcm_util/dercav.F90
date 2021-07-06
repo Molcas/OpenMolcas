@@ -9,17 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DerCav(ToAng,nTs,nAt,nS,nAt3,Eps,Tessera,Q,Qtot,Der1,Dertes,DerPunt,DerCentr,DerRad,QDer,Sphere,iSphe,nOrd)
+subroutine DerCav(ToAng,nTs,nAt,nS,nAt3,Eps,Tessera,Q,Qtot,Der1,DerTes,DerPunt,DerCentr,DerRad,QDer,Sphere,iSphe,nOrd)
 
-implicit real*8(a-h,o-z)
-dimension Sphere(4,*), iSphe(*), nOrd(*)
-dimension Tessera(4,*), Q(2,*), Qtot(*)
-dimension Der1(*)
-dimension DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3)
-dimension DerRad(nS,nAt,3), DerCentr(nS,nAt,3,3)
-dimension QDer(3,nAt,*)
-save Zero, Two
-data Zero/0.0d0/,Two/2.0d0/
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(in) :: nTs, nAt, nS, nAt3, iSphe(*), nOrd(*)
+real(kind=wp), intent(in) :: ToAng, Eps, Tessera(4,*), Q(2,*), QTot(*), DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3), &
+                             DerCentr(nS,nAt,3,3), DerRad(nS,nAt,3), QDer(3,nAt,*), Sphere(4,*)
+real(kind=wp), intent(_OUT_) :: Der1(*)
+integer(kind=iwp) :: iAt1, iAt2, iAt2_S, iCoord1, iCoord2, Index1, Index2, iS, iTs, L
+real(kind=wp) :: dCent, DerQ, dN, Sum1, Sum2, XN, YN, ZN
 
 ! Derivative of the cavity factor U_x(q)=2 Pi Eps/(Eps-1) sum_i [Qtot**2 * n_x]
 
@@ -61,9 +64,9 @@ do Index1=1,nAt3
   end do
 end do
 ! pcm_solvent
-!write(6,'(a)') 'In DerCav tesserae coord., area, qnuc and qel'
+!write(u6,'(a)') 'In DerCav tesserae coord., area, qnuc and qel'
 !do Its=1,nTs
-!  write(6,'(6f12.6)') (Tessera(j,iTs),j=1,4),q(1,iTs),q(2,iTs)
+!  write(u6,'(6f12.6)') (Tessera(j,iTs),j=1,4),q(1,iTs),q(2,iTs)
 !end do
 ! pcm_solvent end
 
@@ -76,13 +79,19 @@ end if
 
 end subroutine DerCav
 !====
-subroutine Der_Norm(ToAng,iAt1,iCoord1,iAt2,iCOord2,nTs,nAt,nS,Tessera,Der1,DerRad,DerTes,DerPunt,Sphere,iSphe,nOrd)
+subroutine Der_Norm(ToAng,iAt1,iCoord1,iAt2,iCoord2,nTs,nAt,nS,Tessera,Der1,DerRad,DerTes,DerPunt,Sphere,iSphe,nOrd)
 
-implicit real*8(A-H,O-Z)
-dimension Der1(*), Sphere(4,*), iSphe(*), nOrd(*), Tessera(4,*)
-dimension DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3)
-dimension DerRad(nS,nAt,3)
-data Zero,One/0.0d0,1.0d0/
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(in) :: iAt1, iCoord1, iAt2, iCoord2, nTs, nAt, nS, iSphe(*), nOrd(*)
+real(kind=wp), intent(in) :: ToAng, Tessera(4,*), DerRad(nS,nAt,3), DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3), Sphere(4,*)
+real(kind=wp), intent(_OUT_) :: Der1(*)
+integer(kind=iwp) :: iAt1_S, iS, iTs, L
+real(kind=wp) :: AnToAU, Der_1, dN, dN_Its, SqArea
 
 AnToAU = One/ToAng
 ! Find out if atom iAt1 has a sphere around

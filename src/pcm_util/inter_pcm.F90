@@ -11,28 +11,34 @@
 
 subroutine Inter_PCM(XE,YE,ZE,RE,P1,P2,P3,P4,NS,I,IPRINT)
 
-implicit real*8(A-H,O-Z)
-dimension XE(*), YE(*), ZE(*), RE(*)
-dimension P1(3), P2(3), P3(3), P4(3)
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
-! Trova il punto P4, sull`arco P1-P2 sotteso dal centro P3, che
+implicit none
+real(kind=wp), intent(in) :: XE(*), YE(*), ZE(*), RE(*), P1(3), P2(3), P3(3)
+real(kind=wp), intent(out) :: P4(3)
+integer(kind=iwp), intent(in) :: NS, I, IPRINT
+integer(kind=iwp) :: JJ, M
+real(kind=wp) :: ALPHA, DELTA, DIFF, DIFF2, DNORM, R, R2
+real(kind=wp), parameter :: TOL = 1.0e-12_wp
+
+! Trova il punto P4, sull'arco P1-P2 sotteso dal centro P3, che
 ! si trova sulla superficie della sfera NS
 ! P4 e' definito come combinazioe lineare di P1 e P2, con
 ! il parametro ALPHA ottimizzato per tentativi.
 
 R2 = (P1(1)-P3(1))**2+(P1(2)-P3(2))**2+(P1(3)-P3(3))**2
 R = sqrt(R2)
-TOL = 1.D-12
-ALPHA = 0.5d0
-DELTA = 0.d0
+ALPHA = Half
+DELTA = Zero
 M = 1
 10 continue
 if (M > 100) then
-  if (IPRINT > 0) write(6,'(/,10X," INTER: too many iterations")')
+  if (IPRINT > 0) write(u6,'(/,10X," INTER: too many iterations")')
   return
 end if
 ALPHA = ALPHA+DELTA
-DNORM = 0.d0
+DNORM = Zero
 do JJ=1,3
   P4(JJ) = P1(JJ)+ALPHA*(P2(JJ)-P1(JJ))-P3(JJ)
   DNORM = DNORM+P4(JJ)**2
@@ -45,14 +51,14 @@ DIFF2 = (P4(1)-XE(NS))**2+(P4(2)-YE(NS))**2+(P4(3)-ZE(NS))**2
 DIFF = sqrt(DIFF2)-RE(NS)
 if (abs(DIFF) < TOL) return
 if (I == 0) then
-  if (DIFF > 0.d0) DELTA = 1.d0/(2.d0**(M+1))
-  if (DIFF < 0.d0) DELTA = -1.d0/(2.d0**(M+1))
+  if (DIFF > Zero) DELTA = One/(Two**(M+1))
+  if (DIFF < Zero) DELTA = -One/(Two**(M+1))
   M = M+1
   goto 10
 end if
 if (I == 1) then
-  if (DIFF > 0.d0) DELTA = -1.d0/(2.d0**(M+1))
-  if (DIFF < 0.d0) DELTA = 1.d0/(2.d0**(M+1))
+  if (DIFF > Zero) DELTA = -One/(Two**(M+1))
+  if (DIFF < Zero) DELTA = One/(Two**(M+1))
   M = M+1
   goto 10
 end if

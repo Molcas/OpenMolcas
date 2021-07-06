@@ -12,8 +12,11 @@
 subroutine VECP(P1,P2,P3,DNORM3)
 ! Esegue il prodotto vettoriale P3 = P1 x P2
 
-implicit real*8(A-H,O-Z)
-dimension P1(3), P2(3), P3(3)
+use Definitions, only: wp
+
+implicit none
+real(kind=wp), intent(in) :: P1(3), P2(3)
+real(kind=wp), intent(out) :: P3(3), DNORM3
 
 P3(1) = P1(2)*P2(3)-P1(3)*P2(2)
 P3(2) = P1(3)*P2(1)-P1(1)*P2(3)

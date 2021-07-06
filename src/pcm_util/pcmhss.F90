@@ -30,24 +30,23 @@ subroutine PCMHss( &
 !***********************************************************************
 
 use PCM_arrays, only: PCM_SQ, PCMTess
-use Center_Info
-implicit real*8(A-H,O-Z)
-external TNAI1, Fake, XCff2D
-#include "real.fh"
-#include "Molcas.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
-#include "disp.fh"
-#include "disp2.fh"
-#include "rctfld.fh"
-#include "hss_interface.fh"
-! Local variables
-integer iDCRT(0:7), index(3,4)
-real*8 Coori(3,4), CoorAC(3,2), C(3), TC(3)
-logical NoLoop, JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), IfG(0:3), Tr(0:3)
-integer iAnga(4), iStb(0:7), JndGrd(0:2,0:3,0:7), JndHss(0:3,0:2,0:3,0:2,0:7), mOp(4), iuvwx(4)
-! Statement functions
+use Center_Info, only: dc
+use Constants, only: Zero, One, Two, Pi
+use Definitions, only: wp, iwp, u6
 
+implicit none
+#define _USE_WP_
+#include "hss_interface.fh"
+integer(kind=iwp) :: iAlpha, iAnga(4), iAtom, iBeta, iCar, iDAO, iDCRT(0:7), iIrrep, idx(3,4), ipA, ipAOff, ipB, ipBOff, ipDAO, &
+                     iPrint, iRout, iStb(0:7), iTs, iuvwx(4), iZeta, jAtom, jCar, JndGrd(0:2,0:3,0:7), &
+                     JndHss(0:3,0:2,0:3,0:2,0:7), lDCRT, LmbdT, mOp(4), mRys, nArray, nDAO, nDCRT, nDiff, nFinal, nip, nStb
+real(kind=wp) :: Coori(3,4), CoorAC(3,2), C(3), EInv, Eta, Fact, TC(3), q_i
+logical(kind=iwp) :: IfG(0:3), JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), NoLoop, Tr(0:3)
+integer(kind=iwp), external :: NrOpr
+external :: Fake, TNAI1, XCff2D
+#include "print.fh"
+#include "rctfld.fh"
+integer(kind=iwp) :: ixyz, nElem
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 !                                                                      *
@@ -71,7 +70,7 @@ nip = nip+nAlpha*nBeta
 ipDAO = nip
 nip = nip+nAlpha*nBeta*nElem(la)*nElem(lb)*nElem(nOrdOp)
 if (nip-1 > nZeta*nArr) then
-  write(6,*) 'nip-1 > nZeta*nArr'
+  write(u6,*) 'nip-1 > nZeta*nArr'
   call ErrTra()
   call Abend()
 end if
@@ -132,7 +131,7 @@ do iTs=1,nTs
 
   if (iPrint >= 99) call RecPrt('C',' ',C,1,3)
   call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
-  Fact = -q_i*dble(nStabM)/dble(LmbdT)
+  Fact = -q_i*real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
   call DYaX(nZeta*nDAO,Fact,DAO,1,Array(ipDAO),1)
 
@@ -201,7 +200,7 @@ do iTs=1,nTs
     nFinal = 0
     call Rysg2(iAnga,mRys,nZeta,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,Coori,Coori,CoorAC, &
                Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nElem(nOrdOp),Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,mOp,iuvwx, &
-               IfG,nFinal,Index,.false.,.true.,Tr)
+               IfG,nFinal,idx,.false.,.true.,Tr)
 
     !call RecPrt(' In PCMHss:Hess',' ',Hess,nHess,1)
   end do  ! End loop over DCRs

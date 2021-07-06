@@ -14,19 +14,26 @@ subroutine FndBnd(IOut,IPrint,AlBond,ToAng,MxBond,NAtoms,IAn,C,Nbond,IBond,IBTyp
 ! are contained in routine IPBO.
 ! Cartesian coords. are in Angstroms
 
-implicit real*8(A-H,O-Z)
-logical AlBond
-!character AtSymb*2,AppNum*3
-dimension IAn(NAtoms), C(3,NAtoms), NBond(NAtoms), Re(*), IBond(MxBond,NAtoms), IBType(MxBond,NAtoms), PBo(MxBond,NAtoms)
-!data AtSymb, AppNum /'XX','XXX'/
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-do I=1,12
+implicit none
+integer(kind=iwp), intent(in) :: IOut, IPrint, MxBond, NAtoms, IAn(NAtoms)
+logical(kind=iwp), intent(in) :: AlBond
+integer(kind=iwp), intent(out) :: Nbond(NAtoms), IBond(MxBond,NAtoms), IBType(MxBond,NAtoms)
+real(kind=wp), intent(in) :: ToAng, C(3,NAtoms), Re(*)
+real(kind=wp), intent(out) :: PBO(MxBond,NAtoms)
+integer(kind=iwp) :: I, IbondO, J
+real(kind=wp) :: BondOr, RIJ
+integer(kind=iwp), external :: IPBO
+
+do I=1,MxBond
   do J=1,NAtoms
     IBond(I,J) = 0
     IBType(I,J) = 0
   end do
 end do
-BondOr = dble(0)
+BondOr = Zero
 do I=1,NAtoms
   NBond(I) = 0
   do J=1,NAtoms

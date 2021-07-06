@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      Integer mxpert,nmethod,nmem
       Parameter(mxpert=100)
       Logical PreScr,sirrep,lPert(mxpert),lGrd,lHss,Nona
       integer nfck(0:7),icntrl, SCF, RASSCF

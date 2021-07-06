@@ -11,19 +11,27 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine PCMMmh(nRys,MnPCMG,la,lb,lr)
+subroutine PCMMmh( &
+#                 define _CALLING_
+#                 include "mem_interface.fh"
+                 )
 
-integer iAng(4)
+use Definitions, only: iwp
+
+implicit none
+#define _USE_WP_
+#include "mem_interface.fh"
+integer(kind=iwp) :: iAng(4), MemTmp
 ! statement function
+integer(kind=iwp) :: ixyz, nElem
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
-nOrdOp = lr
 iAng(1) = la
 iAng(2) = lb
-iAng(3) = nOrdOp
+iAng(3) = lr
 iAng(4) = 0
-call MemRg2(iAng,nRys,MemTmp,2)
-MnPCMG = MemTmp+2+nElem(la)*nElem(lb)*nElem(nOrdOp)
+call MemRg2(iAng,nHer,MemTmp,2)
+Mem = MemTmp+2+nElem(la)*nElem(lb)*nElem(lr)
 
 return
 

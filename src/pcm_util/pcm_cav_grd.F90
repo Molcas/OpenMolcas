@@ -11,10 +11,13 @@
 
 subroutine PCM_Cav_grd(Grad,nGrad)
 
-use PCM_arrays
+use PCM_arrays, only: dCntr, dPnt, dRad, dTes, PCM_N, PCM_SQ, PCMiSph, PCMSph, PCMTess
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-real*8 Grad(nGrad)
+implicit none
+integer(kind=iwp), intent(in) :: nGrad
+real(kind=wp), intent(out) :: Grad(nGrad)
+integer(kind=iwp) :: ip_DerDM, ip_PCMGrd, LcNAtm, MaxAto
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"

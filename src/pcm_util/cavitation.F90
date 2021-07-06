@@ -12,10 +12,18 @@
 subroutine Cavitation(DoDeriv,ToAng,nAt,nS,nTs,GCavP,VMol,TAbs,RSolv,Sphere,Tessera,iSphe)
 ! Compute cavitation energy given the cavity.
 
-implicit real*8(A-H,O-Z)
-logical DoDeriv
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+logical(kind=iwp), intent(in) :: DoDeriv
+real(kind=wp), intent(in) :: ToAng, VMol, TAbs, RSolv
+integer(kind=iwp), intent(in) :: nAt, nS, nTs, iSphe(nTs)
+real(kind=wp), intent(out) :: GCavP
+real(kind=wp), intent(inout) :: Sphere(4,nS), Tessera(4,nTs)
+integer(kind=iwp) :: ip_CavS, ip_dCav, ip_dEA, ip_EA, iS, iTs
+real(kind=wp) :: ToAU
 #include "WrkSpc.fh"
-dimension Sphere(4,*), Tessera(4,*), iSphe(*)
 
 call GetMem('CavSph','Allo','Real',ip_CavS,nS)
 call GetMem('dCav','Allo','Real',ip_dCav,3*nAt)
@@ -39,7 +47,7 @@ end do
 call Cavitation_(nAt,nS,VMol,TAbs,RSolv,GCavP,Work(ip_CavS),Work(ip_dCav),Sphere,Work(ip_EA),Work(ip_dEA),DoDeriv)
 
 ! Revert to a.u.
-ToAU = 1.0d0/ToAng
+ToAU = One/ToAng
 call DScal_(nS,ToAU,Sphere(4,1),4)
 call DScal_(nTs,ToAU*ToAU,Tessera(4,1),4)
 
@@ -55,14 +63,19 @@ end subroutine Cavitation
 subroutine Cavitation_(NAtoms,NSph,VMol,TAbs,RSolv,GCavP,PCvSph,dCav,Sphere,Ae,dAe,DoDeriv)
 ! Compute cavitation energy given the cavity.
 
-implicit real*8(A-H,O-Z)
-logical DoDeriv
-real*8 Sphere(4,*), Ae(*), dAe(3,NAtoms,*), PCvSph(*), dCav(3,*)
-save Zero, One, Two, Three, Four, F4Pt5, F1000, GC, Avgdr
-data Zero,One,Two,Three,Four,F4Pt5,F1000/0.0d0,1.0d0,2.0d0,3.0d0,4.0d0,4.5d0,1.0d3/
-data GC,Avgdr/1.9865d0,0.60228d0/
+use Constants, only: Zero, One, Two, Three, Pi, rNAVO, Rgas, cal_to_J
+use Definitions, only: wp, iwp
 
-PI = Four*atan(One)
+implicit none
+integer(kind=iwp), intent(in) :: NAtoms, NSph
+real(kind=wp), intent(in) :: VMol, TAbs, RSolv, Sphere(4,NSph), Ae(NSph), dAe(3,NAtoms,NSph)
+real(kind=wp), intent(out) :: GCavP, PCvSph(NSph)
+real(kind=wp), intent(inout) :: dCav(3,NAtoms)
+logical(kind=iwp), intent(in) :: DoDeriv
+integer(kind=iwp) :: IAtom, ISph, Ixyz
+real(kind=wp) :: AExpsd, ATotal, DENum, Fact, FPI, Frac, G, R, RSph, RT, TPI, YM, YP
+real(kind=wp), parameter :: Avgdr = rNAVO*1.0e-24_wp, GC = Rgas/cal_to_J
+
 TPI = Two*PI
 FPI = Two*TPI
 
@@ -76,7 +89,7 @@ FPI = Two*TPI
 ! each sphere is stored in the array PCvSph(ISph).
 
 DENum = Avgdr/VMol
-RT = GC*TAbs/F1000
+RT = GC*TAbs*0.001_wp
 YP = DENum*FPI*RSolv**3/Three
 YM = YP/(One-YP)
 
@@ -89,7 +102,7 @@ do ISph=1,NSph
 
   ! Pierotti's cavitation free energy for the single sphere.
 
-  G = -log(One-YP)+F4Pt5*YM**2*R**2+Three*YM*R*(R+One)
+  G = -log(One-YP)+4.5_wp*YM**2*R**2+Three*YM*R*(R+One)
   G = RT*G
   PCvSph(ISph) = G
   AExpsd = Ae(ISph)

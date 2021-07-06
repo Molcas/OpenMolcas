@@ -8,27 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!     PCMSph: coordinates and radii of spheres                         *
-!     PCMTess: coordinates and area of tesserae                        *
-!     Vert: coordinates of tesserae vertices (3,*)                     *
-!     Centr: coordinates of tesserae centers (3,*)                     *
-!     SSph: exposed surface of each sphere                             *
-!     PCMDM: PCM matrix                                                *
-!     PCM_N: atoms where the spheres are centered                      *
-!     PCMiSph: sphere to which each tessera belongs                    *
-!     NVert: number of vertices of each tessera                        *
-!     IntSph: sphere intersecated by each tessera edge (MxVert,*)      *
-!     NewSph: parent spheres for each added sphere (2,*)               *
+! PCMSph: coordinates and radii of spheres                             *
+! PCMTess: coordinates and area of tesserae                            *
+! Vert: coordinates of tesserae vertices (3,*)                         *
+! Centr: coordinates of tesserae centers (3,*)                         *
+! SSph: exposed surface of each sphere                                 *
+! PCMDM: PCM matrix                                                    *
+! PCM_N: atoms where the spheres are centered                          *
+! PCMiSph: sphere to which each tessera belongs                        *
+! NVert: number of vertices of each tessera                            *
+! IntSph: sphere intersected by each tessera edge (MxVert,*)           *
+! NewSph: parent spheres for each added sphere (2,*)                   *
+! PCM_SQ: PCM solvation charges                                        *
 !***********************************************************************
 
 module PCM_arrays
 
-integer nTiles
-real*8, allocatable :: C_Tessera(:,:), Q_Tessera(:)
-real*8, allocatable :: dTes(:,:,:), dPnt(:,:,:,:), dRad(:,:,:), dCntr(:,:,:,:)
-real*8, allocatable :: PCM_SQ(:,:)   ! PCM solvation charges
-real*8, allocatable :: PCMSph(:,:), PCMTess(:,:), Vert(:,:,:), Centr(:,:,:), SSph(:), PCMDM(:,:)
-integer, allocatable :: PCM_N(:), PCMiSph(:), nVert(:), IntSph(:,:), NewSph(:,:)
-real*8, allocatable :: MM(:,:)
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: nTiles
+integer(kind=iwp), allocatable :: IntSph(:,:), NewSph(:,:), nVert(:), PCM_N(:), PCMiSph(:)
+real(kind=wp), allocatable :: C_Tessera(:,:), Centr(:,:,:), dCntr(:,:,:,:), dPnt(:,:,:,:), dRad(:,:,:), dTes(:,:,:), MM(:,:), &
+                              PCM_SQ(:,:), PCMDM(:,:), PCMSph(:,:), PCMTess(:,:), Q_Tessera(:), SSph(:), Vert(:,:,:)
+
+public :: C_Tessera, Centr, dCntr, dPnt, dRad, dTes, IntSph, MM, NewSph, nTiles, nVert, PCM_N, PCM_SQ, PCMiSph, PCMDM, PCMSph, &
+          PCMTess, Q_Tessera, SSph, Vert
 
 end module PCM_arrays

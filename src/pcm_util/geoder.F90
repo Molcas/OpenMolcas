@@ -11,14 +11,19 @@
 
 subroutine GeoDer(nAt,Cond,nTs,nS,Eps,Sphere,ISphe,NOrd,Tessera,Q,DerDM,Grd,DerTes,DerPunt,DerRad,DerCentr)
 
-implicit real*8(a-h,o-z)
-dimension Sphere(4,*), ISphe(*), NOrd(*)
-dimension Tessera(4,*), Q(2,*), DerDM(nTs,*), Grd(3,*)
-dimension DerTes(nTs,NAt,3), DerPunt(nTs,NAt,3,3)
-dimension DerRad(nS,NAt,3), DerCentr(nS,NAt,3,3)
-logical Cond
-data ToAng/0.52917721067d0/
-data Zero,Two/0.0d0,2.0d0/
+use Constants, only: Zero, Half, Angstrom
+use Definitions, only: wp, iwp
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(in) :: nAt, nTs, nS, ISphe(*), NOrd(*)
+logical(kind=iwp), intent(in) :: Cond
+real(kind=wp), intent(in) :: Eps, Sphere(4,*), Tessera(4,*), Q(2,*), DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3), DerRad(nS,nAt,3), &
+                             DerCentr(nS,nAt,3,3)
+real(kind=wp), intent(_OUT_) :: DerDM(nTs,*), Grd(3,*)
+integer(kind=iwp) :: IAtom, iTs, IXYZ, jTs
+real(kind=wp) :: GeoGrd, Qi, Qj
 
 ! Compute the PCM geometric contribution to gradients
 
@@ -32,7 +37,7 @@ do IAtom=1,nAt
     ! Conductor model
     elseif (Cond) then
       GeoGrd = Zero
-      call DerD(ToAng,IAtom,IXYZ,Tessera,ISphe,DerDM,DerTes,DerPunt,DerCentr,nTs,nAt,nS)
+      call DerD(Angstrom,IAtom,IXYZ,Tessera,ISphe,DerDM,DerTes,DerPunt,DerCentr,nTs,nAt,nS)
       do iTs=1,nTs
         Qi = Q(1,iTs)+Q(2,iTs)
         do jTs=1,nTs
@@ -41,7 +46,7 @@ do IAtom=1,nAt
         end do
       end do
     end if
-    Grd(IXYZ,IAtom) = GeoGrd/Two
+    Grd(IXYZ,IAtom) = GeoGrd*Half
   end do
 end do
 
@@ -51,15 +56,18 @@ end subroutine GeoDer
 !====
 subroutine DERD(ToAng,NSJ,ICOORD,Tessera,ISphe,DerDM,DerTes,DerPunt,DerCentr,NTs,NAt,NEsf)
 
-implicit real*8(A-H,O-Z)
-dimension Tessera(4,*), ISphe(*)
-dimension DerDM(NTs,*)
-dimension DerTes(NTs,NAt,3), DerPunt(NTs,NAt,3,3)
-dimension DerCentr(NEsf,NAt,3,3)
-data One,Two,Four/1.0d0,2.0d0,4.0d0/
+use Constants, only: One, Pi
+use Definitions, only: wp, iwp
 
-PI = Four*atan(One)
-FPI = Four*PI
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(in) :: NSJ, ICOORD, ISphe(*), NTs, NAt, NEsf
+real(kind=wp), intent(in) :: ToAng, Tessera(4,*), DerTes(NTs,NAt,*), DerPunt(NTs,NAt,3,3), DerCentr(NEsf,NAt,3,3)
+real(kind=wp), intent(_OUT_) :: DerDM(NTs,*)
+integer(kind=iwp) :: ITS, JTS, L, LJ
+real(kind=wp) :: ANTOAU, DIJ, DXIJ, DYIJ, DZIJ, FAC, PROD, XIJ, YIJ, ZIJ
+
 ANTOAU = One/ToAng
 
 ! Calcola la matrice DERDM, derivata di DMAT (secondo COSMO)
@@ -72,7 +80,7 @@ do ITS=1,NTS
     LJ = ISPHE(JTS)
     ! Elementi diagonali di DMAT(x)
     if (ITS == JTS) then
-      FAC = -1.07d0*sqrt(FPI)/Two
+      FAC = -1.0694_wp*sqrt(PI)
       DERDM(ITS,ITS) = FAC*DERTES(ITS,NSJ,ICOORD)*ANTOAU/(Tessera(4,ITS)*sqrt(Tessera(4,ITS)))
     else
       ! Elementi fuori diagonale di DMAT(x)
@@ -95,10 +103,15 @@ end subroutine DERD
 !====
 subroutine Over(NSJ,ICOORD,GeoGrd,NAt,NTs,NEsf,Eps,Sphere,ISphe,NOrd,Tessera,Q,DerRad,DerCentr)
 
-implicit real*8(A-H,O-Z)
-dimension Sphere(4,*), ISphe(*), Tessera(4,*), Q(2,*), NOrd(*)
-dimension DerRad(NEsf,NAt,3), DerCentr(NEsf,NAt,3,3)
-data Zero,One,Two,Four/0.0d0,1.0d0,2.0d0,4.0d0/
+use Constants, only: Zero, One, Two, Four, Pi
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: NSJ, ICOORD, NAt, NTs, NEsf, ISphe(*), NOrd(*)
+real(kind=wp), intent(out) :: GeoGrd
+real(kind=wp), intent(in) :: Eps, Sphere(4,*), Tessera(4,*), Q(2,*), DerRad(NEsf,NAt,3), DerCentr(NEsf,NAt,3,3)
+integer(kind=iwp) :: I, ITS, L, NESFJ
+real(kind=wp) :: DCENTN, DN, Fact, SESE, SESN, SNSN, XNI, YNI, ZNI
 
 ! Calcola la sovrapposizione delle densita' superficiali sulla
 ! porzione di superficie che appartiene alla sfera
@@ -135,7 +148,6 @@ do ITS=1,NTS
   SESE = SESE+DN*Q(2,ITS)**2/Tessera(4,ITS)
   SESN = SESN+DN*Q(1,ITS)*Q(2,ITS)/Tessera(4,ITS)
 end do
-PI = Four*atan(One)
 Fact = Four*PI*Eps/(Eps-One)
 GeoGrd = Fact*(SESE+SNSN+Two*SESN)
 

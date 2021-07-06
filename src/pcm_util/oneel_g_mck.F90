@@ -36,30 +36,38 @@ subroutine OneEl_g_mck(Kernel,KrnlMm,Grad,nGrad,DiffOp,CCoor,FD,nFD,lOper,nComp,
 !             Modified for gradients October '91                       *
 !***********************************************************************
 
-use Real_Spherical
-use iSD_data
-use Basis_Info
-use Center_Info
+use Real_Spherical, only: ipSph, RSph
+use iSD_data, only: iSD
+use Basis_Info, only: dbsc, MolWgh, Shells
+use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external Kernel, KrnlMm
+implicit none
+external :: Kernel, KrnlMm
+integer(kind=iwp), intent(in) :: nGrad, nFD, nComp, lOper(nComp), nOrdOp
+real(kind=wp), intent(out) :: Grad(nGrad)
+logical(kind=iwp), intent(in) :: DiffOp
+real(kind=wp), intent(in) :: CCoor(3), FD(nFD)
+character(len=80), intent(in) :: Label
+integer(kind=iwp) :: i, iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ijS, iKappa, iKern, IndGrd(3,2), &
+                     iPCoor, ipDAO, ipDSO, ipDSOp, ipFnl, iPrim, iPrint, ipZI, iRout, iS, iScrt1, iScrt2, iShell, iShll, iSmLbl, &
+                     iStabM(0:7), iStabO(0:7), iuv, iZeta, jAng, jAO, jBas, jCmp, jCnt, jCnttp, jPrim, jS, jShell, jShll, kk, &
+                     lDCRR, lFinal, llOper, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nDCRR, nDCRT, nOp(2), nOrder, nScr1, nScr2, &
+                     nSkal, nSO, nStabM, nStabO, nTasks
+real(kind=wp) :: A(3), B(3), FactNd, RB(3)
+logical(kind=iwp) :: AeqB, EQ, IfGrad(3,3)
+character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
+integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 #include "angtp.fh"
 #include "Molcas.fh"
-#include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
-#include "nsd.fh"
-#include "setup.fh"
-!NIKO      Real*8 A(3), B(3), Ccoor(3,nComp), FD(nFD),
-real*8 A(3), B(3), Ccoor(*), FD(nFD), RB(3), Grad(nGrad)
-character ChOper(0:7)*3, Label*80
-integer iDCRR(0:7), iDCRT(0:7), iStabM(0:7), IndGrd(3,2), nOp(2), iStabO(0:7), lOper(nComp)
-logical AeqB, EQ, DiffOp, IfGrad(3,3)
-data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
-!     Statement functions
+! Statement function
+integer(kind=iwp) :: ixyz, nElem
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 iRout = 112
@@ -127,9 +135,9 @@ do ijS=1,nTasks
 
   call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
   if ((.not. DiffOp) .and. (nDCRR == 1) .and. EQ(A,B)) Go To 131
-  if (iPrint >= 49) write(6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
+  if (iPrint >= 49) write(u6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
 
-  if (iPrint >= 19) write(6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+  if (iPrint >= 19) write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
 
   ! Call kernel routine to get memory requirement.
 
@@ -194,9 +202,9 @@ do ijS=1,nTasks
   end if
 
   ! Transform IJ,AB to J,ABi
-  call DGEMM_('T','T',jBas*nSO,iPrim,iBas,1.0d0,Work(ipDSO),iBas,Shells(iShll)%pCff,iPrim,0.0d0,Work(ipDSOp),jBas*nSO)
+  call DGEMM_('T','T',jBas*nSO,iPrim,iBas,One,Work(ipDSO),iBas,Shells(iShll)%pCff,iPrim,Zero,Work(ipDSOp),jBas*nSO)
   ! Transform J,ABi to AB,ij
-  call DGEMM_('T','T',nSO*iPrim,jPrim,jBas,1.0d0,Work(ipDSOp),jBas,Shells(jShll)%pCff,jPrim,0.0d0,Work(ipDSO),nSO*iPrim)
+  call DGEMM_('T','T',nSO*iPrim,jPrim,jBas,One,Work(ipDSOp),jBas,Shells(jShll)%pCff,jPrim,Zero,Work(ipDSO),nSO*iPrim)
   ! Transpose to ij,AB
   call DGeTmO(Work(ipDSO),nSO,nSO,iPrim*jPrim,Work(ipDSOp),iPrim*jPrim)
   call GetMem('DSO ','Free','Real',ipDSO,nSO*iBas*jBas)
@@ -224,7 +232,7 @@ do ijS=1,nTasks
       end if
 
       if (iPrint >= 49) then
-        write(6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),i=0,nStabM-1),')'
+        write(u6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),i=0,nStabM-1),')'
       end if
 
       llOper = lOper(1)
@@ -238,15 +246,15 @@ do ijS=1,nTasks
       ! of the two basis functions and the operator.
 
       iuv = dc(mdci)%nStab*dc(mdcj)%nStab
-      FactNd = dble(iuv*nStabO)/dble(nIrrep**2*LmbdT)
+      FactNd = real(iuv*nStabO,kind=wp)/real(nIrrep**2*LmbdT,kind=wp)
       if (MolWgh == 1) then
-        FactNd = FactNd*dble(nIrrep)**2/dble(iuv)
+        FactNd = FactNd*real(nIrrep**2,kind=wp)/real(iuv,kind=wp)
       else if (MolWgh == 2) then
-        FactNd = sqrt(dble(iuv))*dble(nStabO)/dble(nIrrep*LmbdT)
+        FactNd = sqrt(real(iuv,kind=wp))*real(nStabO,kind=wp)/real(nIrrep*LmbdT,kind=wp)
       end if
 
       if (iPrint >= 49) then
-        write(6,'(A,/,2(3F6.2,2X))') ' *** Centers A, RB ***',(A(i),i=1,3),(RB(i),i=1,3)
+        write(u6,'(A,/,2(3F6.2,2X))') ' *** Centers A, RB ***',(A(i),i=1,3),(RB(i),i=1,3)
       end if
 
       ! Desymmetrize the matrix with which we will

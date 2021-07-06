@@ -12,9 +12,14 @@
 subroutine PCMDef(ISlPar,RSlPar,iPrint)
 ! Set PCM defaults.
 
-implicit real*8(A-H,O-Z)
-integer ISlPar(100)
-real*8 RSlPar(100)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(out) :: ISlPar(100)
+real(kind=wp), intent(out) :: RSlPar(100)
+integer(kind=iwp), intent(in) :: iPrint
+integer(kind=iwp) :: I
 
 ! Initialize the integer array.
 
@@ -68,61 +73,61 @@ ISlPar(42) = 0      ! number of solute atoms
 ! Initialize the real array.
 
 do I=1,100
-  RSlPar(I) = 0.0d0
+  RSlPar(I) = Zero
 end do
 
-RSlPar(1) = 0.0d0      ! XCosmo
-RSlPar(2) = 4.0d+1     ! Omega
-RSlPar(3) = 2.0d-1     ! Ret, minimum radius of added sphere
-RSlPar(4) = 7.0d-1     ! Fro
-RSlPar(5) = 1.0d-4     ! DR
-RSlPar(6) = 1.0d-6     ! accuracy for PCM
-RSlPar(7) = 4.0d-1     ! average tesserae area
-RSlPar(8) = 78.39d0    ! dielectric constant
-RSlPar(9) = 1.2d0      ! Alpha scaling of radii
-RSlPar(10) = 78.39d0   ! Exx
-RSlPar(11) = 0.0d0     ! Exy
-RSlPar(12) = 0.0d0     ! Exz
-RSlPar(13) = 0.0d0     ! Eyy
-RSlPar(14) = 0.0d0     ! Eyz
-RSlPar(15) = 0.0d0     ! Ezz
-RSlPar(16) = 298.15d0  ! absolute temperature
-RSlPar(17) = 1.776d0   ! limiting dielectric constant
-RSlPar(18) = -0.3562d0 ! derivative of eps wrt T
-RSlPar(19) = 1.385d0   ! RSolv
-RSlPar(20) = 2.57d-4   ! TCE
-RSlPar(21) = 78.39d0   ! dielectric constant for shell  1
-RSlPar(22) = 1.0d0     ! dielectric constant for shell  2
-RSlPar(23) = 1.0d0     ! dielectric constant for shell  3
-RSlPar(24) = 1.0d0     ! dielectric constant for shell  4
-RSlPar(25) = 1.0d0     ! dielectric constant for shell  5
-RSlPar(26) = 1.0d0     ! dielectric constant for shell  6
-RSlPar(27) = 1.0d0     ! dielectric constant for shell  7
-RSlPar(28) = 1.0d0     ! dielectric constant for shell  8
-RSlPar(29) = 1.0d0     ! dielectric constant for shell  9
-RSlPar(30) = 1.0d0     ! dielectric constant for shell 10
-RSlPar(31) = 1.2d0     ! scaling factor for neutrals
-RSlPar(32) = 1.0d0     ! scaling factor for acidic hydrogens
-RSlPar(33) = 1.1d0     ! scaling factor for charged
-RSlPar(34) = 18.07d0   ! solvent molecular volume
-RSlPar(35) = 71.81d0   ! Sten
-RSlPar(36) = 0.650d0   ! DSten
-RSlPar(37) = 1.277d0   ! CMF
-RSlPar(38) = 3.348d-2  ! solvent density
-RSlPar(39) = 0.0d0     ! DK2
-RSlPar(40) = 0.0d0     ! DAlp
-RSlPar(41) = 0.0d0     ! DetEps
-RSlPar(42) = 30.0d0    ! hard cutoff for iterative PCM
-RSlPar(43) = 15.0d0    ! multiplier cutoff for iterative PCM
-RSlPar(44) = 0.8d0     ! overlap factor for GePol
-RSlPar(45) = 0.5d0     ! min radius for added spheres by GePol
-RSlPar(46) = 0.0d0     ! GCavP
-RSlPar(47) = 0.0d0     ! SCavP
-RSlPar(48) = 0.0d0     ! HCavP
-RSlPar(49) = 0.0d0     ! GDisp
-RSlPar(50) = 0.0d0     ! GRep
-RSlPar(51) = 0.0d0     ! Total Cavity surface (SCav)
-RSlPar(52) = 0.0d0     ! Total Cavity volume (VCav)
+RSlPar(1) = Zero        ! XCosmo
+RSlPar(2) = 40.0_wp     ! Omega
+RSlPar(3) = 0.2_wp      ! Ret, minimum radius of added sphere
+RSlPar(4) = 0.7_wp      ! Fro
+RSlPar(5) = 1.0e-4_wp   ! DR
+RSlPar(6) = 1.0e-6_wp   ! accuracy for PCM
+RSlPar(7) = 0.4_wp      ! average tesserae area
+RSlPar(8) = 78.39_wp    ! dielectric constant
+RSlPar(9) = 1.2_wp      ! Alpha scaling of radii
+RSlPar(10) = 78.39_wp   ! Exx
+RSlPar(11) = Zero       ! Exy
+RSlPar(12) = Zero       ! Exz
+RSlPar(13) = Zero       ! Eyy
+RSlPar(14) = Zero       ! Eyz
+RSlPar(15) = Zero       ! Ezz
+RSlPar(16) = 298.15_wp  ! absolute temperature
+RSlPar(17) = 1.776_wp   ! limiting dielectric constant
+RSlPar(18) = -0.3562_wp ! derivative of eps wrt T
+RSlPar(19) = 1.385_wp   ! RSolv
+RSlPar(20) = 2.57e-4_wp ! TCE
+RSlPar(21) = 78.39_wp   ! dielectric constant for shell  1
+RSlPar(22) = One        ! dielectric constant for shell  2
+RSlPar(23) = One        ! dielectric constant for shell  3
+RSlPar(24) = One        ! dielectric constant for shell  4
+RSlPar(25) = One        ! dielectric constant for shell  5
+RSlPar(26) = One        ! dielectric constant for shell  6
+RSlPar(27) = One        ! dielectric constant for shell  7
+RSlPar(28) = One        ! dielectric constant for shell  8
+RSlPar(29) = One        ! dielectric constant for shell  9
+RSlPar(30) = One        ! dielectric constant for shell 10
+RSlPar(31) = 1.2_wp     ! scaling factor for neutrals
+RSlPar(32) = One        ! scaling factor for acidic hydrogens
+RSlPar(33) = 1.1_wp     ! scaling factor for charged
+RSlPar(34) = 18.07_wp   ! solvent molecular volume
+RSlPar(35) = 71.81_wp   ! Sten
+RSlPar(36) = 0.650_wp   ! DSten
+RSlPar(37) = 1.277_wp   ! CMF
+RSlPar(38) = 3.348e-2_wp! solvent density
+RSlPar(39) = One        ! DK2
+RSlPar(40) = One        ! DAlp
+RSlPar(41) = One        ! DetEps
+RSlPar(42) = 30.0_wp    ! hard cutoff for iterative PCM
+RSlPar(43) = 15.0_wp    ! multiplier cutoff for iterative PCM
+RSlPar(44) = 0.8_wp     ! overlap factor for GePol
+RSlPar(45) = 0.5_wp     ! min radius for added spheres by GePol
+RSlPar(46) = Zero       ! GCavP
+RSlPar(47) = Zero       ! SCavP
+RSlPar(48) = Zero       ! HCavP
+RSlPar(49) = Zero       ! GDisp
+RSlPar(50) = Zero       ! GRep
+RSlPar(51) = Zero       ! Total Cavity surface (SCav)
+RSlPar(52) = Zero       ! Total Cavity volume (VCav)
 
 return
 

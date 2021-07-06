@@ -13,29 +13,32 @@
 !***********************************************************************
 
 subroutine GrdTr_Alaska(GradIn,MxAto,GradOut,nGrad)
-!*******************************************************************
-!                                                                  *
-!  The inverse of                                                  *
-!  Transforms a symmetry adapted gradient to unsymmetric  form     *
-!                                                                  *
-!   Written by Anders Bernhardsson                                 *
-!   960427                                                         *
-!   Modified by Roland Lindh                                       *
-!   020115                                                         *
-!                                                                  *
-!*******************************************************************
+!***********************************************************************
+!                                                                      *
+!  The inverse of                                                      *
+!  Transforms a symmetry adapted gradient to unsymmetric  form         *
+!                                                                      *
+!   Written by Anders Bernhardsson                                     *
+!   960427                                                             *
+!   Modified by Roland Lindh                                           *
+!   020115                                                             *
+!                                                                      *
+!***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
-implicit real*8(a-h,o-z)
-parameter(tol=1d-8)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: MxAto, nGrad
+real(kind=wp), intent(in) :: GradIn(3,MxAto)
+real(kind=wp), intent(out) :: GradOut(nGrad)
+integer(kind=iwp) :: iCar, iCen, iCnt, iCnttp, iComp, iIrrep, mdc, nDispS
+real(kind=wp), parameter :: tol = 1.0e-8_wp
+logical(kind=iwp), external :: TF
 #include "Molcas.fh"
 #include "disp.fh"
-#include "real.fh"
-#include "WrkSpc.fh"
-real*8 GradIn(3,MxAto), GradOut(nGrad)
-logical, external :: TF
 
 iIrrep = 0
 

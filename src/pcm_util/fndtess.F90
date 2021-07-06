@@ -12,16 +12,19 @@
 subroutine FndTess(iPrint,ToAng,LcNAtm,Xs,Ys,Zs,Rs,pNs,nn)
 
 use PCM_arrays, only: PCMSph, PCMTess, Vert, Centr, SSph, PCMDM, PCM_N, PCMiSph, NVert, IntSph, NewSph
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "stdalloc.fh"
-#include "WrkSpc.fh"
+implicit none
+integer(kind=iwp), intent(in) :: iPrint, LcNAtm, nn, pNs(nn)
+real(kind=wp), intent(in) :: ToAng
+real(kind=wp), intent(inout) :: Xs(nn), Ys(nn), Zs(nn), Rs(nn)
+integer(kind=iwp) :: iS, iTs, iTsNum, nPCM_info_i, nPCM_info_r
+real(kind=wp) :: Fro, Omega, Ret, TsAre
+integer(kind=iwp), allocatable :: JTR(:), pIntS(:), pISph(:), pNewS(:), pNVert(:)
+real(kind=wp), allocatable :: At(:), CV(:), pCentr(:), pSSph(:), pVert(:), Xt(:), Yt(:), Zt(:)
 #include "rctfld.fh"
 #include "status.fh"
-real*8 Xs(nn), Ys(nn), Zs(nn), Rs(nn)
-integer pNs(nn)
-real*8, allocatable :: Xt(:), Yt(:), Zt(:), At(:), pVert(:), pCentr(:), pSSph(:), CV(:)
-integer, allocatable :: pNewS(:), pIntS(:), pNVert(:), pISph(:), JTR(:)
 
 ! Definition of solute cavity and computation of vertices,
 ! representative points and surfaces of the tesserae by the
@@ -60,7 +63,8 @@ call FndTess_(iPrint,ToAng,LcNAtm,MxSph,MxTs,Xs,Ys,Zs,Rs,Ret,Omega,Fro,RSolv,NSi
               pVert,pCentr,pIntS,pNewS,pSSph,JTR,CV)
 !                                                                      *
 !***********************************************************************
-!     Re-allocate with actual dimensioning                             *
+!                                                                      *
+! Re-allocate with actual dimensioning
 if (RctFld_Status /= Active) then
 
   ! Allocate PCM arrays
@@ -152,18 +156,26 @@ subroutine FndTess_(IPrint,ToAng,NAT,MxSph,MxTs,XE,YE,ZE,RE,RET,Omega,FRO,RSolv,
 ! representative points and surfaces of the tesserae by the
 ! Gauss-Bonnet Theorem.
 
-implicit real*8(A-H,O-Z)
-parameter(MxVert=20)
-dimension XCTs(*), YCTs(*), ZCTs(*), AS(*)
-dimension ISphe(*)
-dimension XE(*), YE(*), ZE(*), RE(*)
-dimension SSFE(*), IntSph(MxVert,*), NVert(*)
-dimension NewSph(2,*)
-dimension Vert(3,MxVert,*), Centr(3,MxVert,*)
-dimension JTR(3,*), CV(3,*)
-dimension PP(3), PTS(3,MxVert), CCC(3,MxVert)
-save Zero, First
-data ZERO,FIRST/0.0d0,0.0174533d0/
+use Constants, only: Zero, One, Three, Half, Pi
+use Definitions, only: wp, iwp, u6
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), parameter :: MxVert = 20
+integer(kind=iwp), intent(in) :: IPrint, NAT, MxSph, MxTs, NEsfP
+real(kind=wp), intent(in) :: ToAng, RET, FRO, RSolv, TSAre
+real(kind=wp), intent(inout) :: XE(*), YE(*), ZE(*), RE(*), Omega
+integer(kind=iwp), intent(out) :: NEsf, NTS
+integer(kind=iwp), intent(inout) :: ITsNum, NewSph(2,*)
+real(kind=wp), intent(_OUT_) :: XCTs(*), YCTs(*), ZCTs(*), AS(*), Vert(3,MxVert,*), Centr(3,MxVert,*), SSfe(*), CV(3,*)
+integer(kind=iwp), intent(_OUT_) :: ISphe(*), NVert(*), IntSph(MxVert,*), JTR(3,*)
+integer(kind=iwp) :: I, IC, II, IPFlag, IPtype, ISFE, ITS, ITsEff, ITYPC, IV, J,JJ, K, KG, KP, L, N, N1, N2, N3, NE, NES, NET, &
+                     NEV, NN, NN1, NSFE, NV
+real(kind=wp) :: AREA, CCC(3,MxVert), COSOM2, FC, FC1, HH, PP(3), PROD, PTS(3,MxVert), R2GN, REG, REG2, REGD2, REN, REND2, REO, &
+                 REO2, REP, REP2, REPD2, RGN, RIJ, RIJ2, RIK, RIK2, RJD, RJK, RJK2, RTDD, RTDD2, Scav, SENOM, SP, TEST, TEST1, &
+                 TEST2, TEST3, TEST7, TEST8, VCav, XEN, XI, XJ, XN, YEN, YI, YJ, YN, ZEN, ZI, ZJ, ZN
+real(kind=wp), parameter :: FIRST = Pi/180.0_wp
 
 ! PEDRA works with Angstroms
 do ISFE=1,NESFP
@@ -172,7 +184,7 @@ do ISFE=1,NESFP
   ZE(ISFE) = ZE(ISFE)*ToAng
 end do
 NESF = NESFP
-if (IPRINT == 2) write(6,800)
+if (IPRINT == 2) write(u6,800)
 
 ! creation of new spheres
 
@@ -195,7 +207,7 @@ GO TO 100
 NN = NE+1
 NE = NET
 if (NE > MxSph) then
-  write(6,1111)
+  write(u6,1111)
   call Abend()
 end if
 100 continue
@@ -224,10 +236,10 @@ do I=NN,NE
       if (RIK2 >= RIJ2) GO TO 140
       RJK = sqrt(RJK2)
       RIK = sqrt(RIK2)
-      SP = (RIJ+RJK+RIK)/2.0d0
+      SP = (RIJ+RJK+RIK)*Half
       HH = 4*(SP*(SP-RIJ)*(SP-RIK)*(SP-RJK))/RIJ2
       REO = RE(K)*FRO
-      if (K >= NE) REO = 0.0002d0
+      if (K >= NE) REO = 2.0e-4_wp
       REO2 = REO*REO
       if (HH < REO2) GO TO 130
 140   continue
@@ -242,11 +254,11 @@ do I=NN,NE
     TEST7 = REG-RE(I)
     KG = I
     KP = J
-    if (TEST7 <= 0.000000001d0) GO TO 160
+    if (TEST7 <= 1.0e-9_wp) GO TO 160
     KG = J
     KP = I
 160 continue
-    FC1 = FC+1.0d0
+    FC1 = FC+One
     XEN = (XE(KG)+FC*XE(KP))/FC1
     YEN = (YE(KG)+FC*YE(KP))/FC1
     ZEN = (ZE(KG)+FC*ZE(KP))/FC1
@@ -254,13 +266,13 @@ do I=NN,NE
     GO TO 170
 150 continue
     R2GN = RIJ-REP+REG
-    RGN = R2GN/2.0d0
+    RGN = R2GN*Half
     FC = R2GN/(RIJ+REP-REG)
-    FC1 = FC+1.0d0
+    FC1 = FC+One
     TEST7 = REG-RE(I)
     KG = I
     KP = J
-    if (TEST7 <= 0.000000001d0) GO TO 180
+    if (TEST7 <= 1.0e-9_wp) GO TO 180
     KG = J
     KP = I
 180 continue
@@ -309,13 +321,13 @@ do NSFE=1,NESF
   YEN = YE(NSFE)
   ZEN = ZE(NSFE)
   REN = RE(NSFE)
-  if ((ITsNum == 0) .and. (TsAre == 0.d0)) then
+  if ((ITsNum == 0) .and. (TsAre == Zero)) then
     IPtype = 2
     IPFlag = 0
     ITsNum = 60
-  elseif ((ITsNum > 0) .and. (TsAre == 0.d0)) then
+  elseif ((ITsNum > 0) .and. (TsAre == Zero)) then
     IPFlag = 0
-  elseif (TsAre > 0.d0) then
+  elseif (TsAre > Zero) then
     IPFlag = 1
   end if
   call PolyGen(MxTs,IPtype,IPflag,TsAre,ITsNum,XEN,YEN,ZEN,REN,ITsEff,CV,JTR)
@@ -348,7 +360,7 @@ do NSFE=1,NESF
     ! sfere a cui appartengono i lati delle tessere.
 
     call TESSERA(iPrint,MxTs,Nesf,NSFE,NV,XE,YE,ZE,RE,IntSph,PTS,CCC,PP,AREA)
-    if (AREA == 0.d0) goto 310
+    if (AREA == Zero) goto 310
     NN1 = NN1+1
     NN = min(NN1,MxTs)
     XCTS(NN) = PP(1)
@@ -373,7 +385,7 @@ end do
 NTS = NN
 
 ! Verifica se due tessere sono troppo vicine
-TEST = 0.02d0
+TEST = 0.02_wp
 TEST2 = TEST*TEST
 do I=1,NTS-1
   if (AS(I) == ZERO) goto 400
@@ -395,7 +407,7 @@ do I=1,NTS-1
     ! e i centri degli archi vengono memorizzati ed e' impossibile sostituirli
     ! nello stesso modo: percio' l'area della tessera piu' piccola verra'
     ! trascurata per evitare problemi nella autopolarizzazione.
-    if (IPRINT == 2) write(6,1000) I,J,TEST2
+    if (IPRINT == 2) write(u6,1000) I,J,TEST2
     if (AS(I) < AS(J)) AS(I) = ZERO
     if (AS(I) >= AS(J)) AS(J) = ZERO
 410 continue
@@ -413,7 +425,7 @@ end do
 ITS = 0
 450 continue
 ITS = ITS+1
-if (AS(ITS) < 1.D-10) then
+if (AS(ITS) < 1.0e-10_wp) then
   do I=ITS,NTS-1
     AS(I) = AS(I+1)
     XCTS(I) = XCTS(I+1)
@@ -449,7 +461,7 @@ do ITS=1,NTS
   ZN = (ZCTS(ITS)-ZE(NSFE))/RE(NSFE)
   ! Trova il prodotto scalare
   PROD = XCTS(ITS)*XN+YCTS(ITS)*YN+ZCTS(ITS)*ZN
-  VCav = VCav+AS(ITS)*PROD/3.d0
+  VCav = VCav+AS(ITS)*PROD/Three
 end do
 !***********************************************************************
 ! Stampa la geometria della cavita'
@@ -462,12 +474,12 @@ do I=1,NTS
   SSFE(K) = SSFE(K)+AS(I)
 end do
 OMEGA = OMEGA/FIRST
-if (IPRINT == 2) write(6,1100) OMEGA,RSOLV,RET,FRO,NESF
+if (IPRINT == 2) write(u6,1100) OMEGA,RSOLV,RET,FRO,NESF
 do I=1,NESF
-  if (IPRINT == 2) write(6,1200) I,XE(I),YE(I),ZE(I),RE(I),SSFE(I)
+  if (IPRINT == 2) write(u6,1200) I,XE(I),YE(I),ZE(I),RE(I),SSFE(I)
   Scav = Scav+SSFE(I)
 end do
-if (IPRINT == 2) write(6,1300) NTS,Scav,VCav
+if (IPRINT == 2) write(u6,1300) NTS,Scav,VCav
 
 ! Trasforma i risultati in bohr
 do I=1,NESF
@@ -491,13 +503,13 @@ do I=1,NTS
   ZCTS(I) = ZCTS(I)/ToAng
 end do
 if (IPRINT == 3) then
-  write(6,1500)
-  write(6,1600)
-  write(6,1700) (I,ISPHE(I),AS(I),XCTS(I),YCTS(I),ZCTS(I),I=1,NTS)
+  write(u6,1500)
+  write(u6,1600)
+  write(u6,1700) (I,ISPHE(I),AS(I),XCTS(I),YCTS(I),ZCTS(I),I=1,NTS)
 end if
 if (NN1 > MxTs) then
-  write(6,1240) NN1,MxTs
-  write(6,1112)
+  write(u6,1240) NN1,MxTs
+  write(u6,1112)
   call Abend()
 end if
 

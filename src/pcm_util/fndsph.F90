@@ -11,27 +11,35 @@
 
 subroutine FndSph(NAt,ICharg,ToAng,C,IAt,ITypRad,NSphInp,Alpha,XSph,YSph,ZSph,Rad,NOrd,iPrint)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(in) :: NAt, ICharg, IAt(*), ITypRad, NSphInp, iPrint
+real(kind=wp), intent(in) :: ToAng, C(3,*)
+real(kind=wp), intent(inout) :: Alpha
+real(kind=wp), intent(_OUT_) :: XSph(*), YSph(*), ZSph(*), Rad(*)
+integer(kind=iwp), intent(_OUT_) :: NOrd(*)
+integer(kind=iwp) :: I, ip_Chg
+real(kind=wp), external :: Pauling
 #include "WrkSpc.fh"
 #include "rctfld.fh"
-parameter(ISAX=1000)
-dimension C(3,*), IAt(*)
-dimension XSph(*), YSph(*), ZSph(*), Rad(*), NOrd(*)
-data IOut/6/,Zero/0.0d0/
 
 ! Assign GEPOL sphere positions and radii according to solute atoms nature
 if (ITypRad == 1) then
   ! United Atom Topological Model (UATM) radii:
   call GetMem('Chg','Allo','Real',ip_Chg,NAt)
   call dcopy_(NAt,[Zero],0,Work(ip_chg),1)
-  call UATM(IOut,ICharg,NAt,NSinit,ToAng,Rad,Alpha,C,IAt,NOrd,Work(ip_Chg),iPrint)
+  call UATM(u6,ICharg,NAt,NSinit,ToAng,Rad,Alpha,C,IAt,NOrd,Work(ip_Chg),iPrint)
   call GetMem('Chg','Free','Real',ip_Chg,NAt)
 elseif (ITypRad == 2) then
   ! Pauling radii on each atom:
   do I=1,NAt
     NOrd(I) = I
     Rad(I) = Pauling(IAt(I))
-    Alpha = 1.2
+    Alpha = 1.2_wp
     NSinit = NAt
   end do
 elseif (ITypRad == 3) then
@@ -39,14 +47,14 @@ elseif (ITypRad == 3) then
   do I=1,NSphInp
     NOrd(I) = NOrdInp(I)
     Rad(I) = RadInp(I)
-    Alpha = 1.2
+    Alpha = 1.2_wp
     NSinit = NSphInp
   end do
 else
-  write(6,'(a)') 'Unrecognized radii type !'
+  write(u6,'(a)') 'Unrecognized radii type !'
   call Abend()
 end if
-if (((ITypRad == 2) .or. (ITypRad == 3)) .and. (iPrint > 5)) call PrtCav(IOut,ITypRad,NSinit,NOrd,Alpha,Rad)
+if (((ITypRad == 2) .or. (ITypRad == 3)) .and. (iPrint > 5)) call PrtCav(u6,ITypRad,NSinit,NOrd,Alpha,Rad)
 
 do I=1,NSinit
   XSph(I) = C(1,NOrd(I))
@@ -62,8 +70,12 @@ end subroutine FndSph
 subroutine PrtCav(IOut,ITyp,NS,NOrd,Alpha,Rad)
 ! Print out sphere radii for Pauling or input cavitites
 
-implicit real*8(A-H,O-Z)
-dimension NOrd(*), Rad(*)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: IOut, ITyp, NS, NOrd(*)
+real(kind=wp) :: Alpha, Rad(*)
+integer(kind=iwp) :: IS
 
 write(iOut,*)
 write(iOut,*)
@@ -72,7 +84,7 @@ write(iOut,'(6X,A)') '================================'
 if (ITyp == 2) write(iOut,'(6X,A)') 'Pauling radii'
 if (ITyp == 3) write(iOut,'(6X,A)') 'Sphere radii from input'
 write(iOut,*)
-write(IOut,'(6X,A)') ' Nord  Alpha  Radius'
+write(IOut,'(6X,A)') ' NOrd  Alpha  Radius'
 do IS=1,NS
   write(IOut,'(6X,1X,I3,3X,F4.2,3X,F5.3)') NOrd(IS),Alpha,Rad(IS)
 end do

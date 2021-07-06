@@ -11,21 +11,30 @@
 
 subroutine Tessera(IPRINT,MaxT,Nesf,NS,NV,XE,YE,ZE,RE,IntSph,PTS,CCC,PP,AREA)
 
-implicit real*8(A-H,O-Z)
-parameter(MxVert=20)
-dimension XE(*), YE(*), ZE(*), RE(*), IntSph(MxVert,*)
-dimension CCC(3,MxVert), P1(3), P2(3), P3(3), P4(3), PP(3), PTS(3,MxVert)
-dimension PSCR(3,MxVert), CCCP(3,MxVert), IND(MxVert)
-dimension LTYP(MxVert), POINT(3), POINTL(3,MxVert)
-dimension INTSCR(MxVert)
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, u6
 
-! Coord. del centro che sottende l`arco tra i vertici
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), parameter :: MxVert = 20
+integer(kind=iwp), intent(in) :: IPRINT, MaxT, Nesf, NS
+integer(kind=iwp), intent(inout) :: NV
+real(kind=wp), intent(in) :: XE(*), YE(*), ZE(*), RE(*)
+integer(kind=iwp), intent(_OUT_) :: IntSph(MxVert,*)
+real(kind=wp), intent(inout) :: PTS(3,MxVert)
+real(kind=wp), intent(out) :: CCC(3,MxVert), PP(3), AREA
+integer(kind=iwp) :: I, ICOP, ICUT, IND(MxVert), INTSCR(MxVerT), II, IV1, IV2, J, JJ, L, LTYP(MxVert), N, NSFE1
+real(kind=wp) :: CCCP(3,MxVert), DE2, DELR, DELR2, DIST, DNORM, P1(3), P2(3), P3(3), P4(3), POINT(3), POINTL(3,MxVert), &
+                 PSCR(3,MxVert), RC, RC2
+real(kind=wp), parameter :: Small = 1.0e-12_wp, TOL = -1.0e-10_wp
+
+! Coord. del centro che sottende l'arco tra i vertici
 ! n e n+1 (per i primi tre vertici e' sicuramente il centro della
 ! sfera) e sfera alla cui intersezione con NS appartiene l'arco (se
 ! appartiene alla sfera originaria INTSPH(N,MxTs)=NS)
 
-Small = 1.0d-12
-AREA = 0.d0
+AREA = Zero
 do J=1,3
   CCC(1,J) = XE(NS)
   CCC(2,J) = YE(NS)
@@ -83,7 +92,6 @@ do NSFE1=1,NESF
       RC = sqrt(RC2)
       ! Su ogni lato si definiscono 11 punti equispaziati, che vengono
       ! controllati
-      TOL = -1.D-10
       do II=1,11
         POINT(1) = PTS(1,IV1)+II*(PTS(1,IV2)-PTS(1,IV1))/11
         POINT(2) = PTS(2,IV1)+II*(PTS(2,IV2)-PTS(2,IV1))/11
@@ -138,7 +146,7 @@ do NSFE1=1,NESF
       !
       ! P1 = coord. del primo vertice
       ! P2 = coord. del secondo vertice
-      ! P3 = coord. del centro dell`arco sotteso
+      ! P3 = coord. del centro dell'arco sotteso
       ! P4 = coord. dell'intersezione
 
       do JJ=1,3
@@ -159,9 +167,9 @@ do NSFE1=1,NESF
       ! e la sfera NSFE1.
 
       DE2 = (XE(NSFE1)-XE(NS))**2+(YE(NSFE1)-YE(NS))**2+(ZE(NSFE1)-ZE(NS))**2
-      CCC(1,N) = XE(NS)+(XE(NSFE1)-XE(NS))*(RE(NS)**2-RE(NSFE1)**2+DE2)/(2.d0*DE2)
-      CCC(2,N) = YE(NS)+(YE(NSFE1)-YE(NS))*(RE(NS)**2-RE(NSFE1)**2+DE2)/(2.d0*DE2)
-      CCC(3,N) = ZE(NS)+(ZE(NSFE1)-ZE(NS))*(RE(NS)**2-RE(NSFE1)**2+DE2)/(2.d0*DE2)
+      CCC(1,N) = XE(NS)+(XE(NSFE1)-XE(NS))*(RE(NS)**2-RE(NSFE1)**2+DE2)/(Two*DE2)
+      CCC(2,N) = YE(NS)+(YE(NSFE1)-YE(NS))*(RE(NS)**2-RE(NSFE1)**2+DE2)/(Two*DE2)
+      CCC(3,N) = ZE(NS)+(ZE(NSFE1)-ZE(NS))*(RE(NS)**2-RE(NSFE1)**2+DE2)/(Two*DE2)
       INTSPH(N,MaxT) = NSFE1
       N = N+1
     end if
@@ -172,7 +180,7 @@ do NSFE1=1,NESF
       !
       ! P1 = coord. del primo vertice
       ! P2 = coord. del secondo vertice
-      ! P3 = coord. del centro dell`arco sotteso
+      ! P3 = coord. del centro dell'arco sotteso
       ! P4 = coord. dell'intersezione
 
       do JJ=1,3
@@ -204,7 +212,7 @@ do NSFE1=1,NESF
       !
       ! P1 = coord. del primo vertice
       ! P2 = coord. del secondo vertice
-      ! P3 = coord. del centro dell`arco sotteso
+      ! P3 = coord. del centro dell'arco sotteso
       ! P4 = coord. dell'intersezione
 
       do JJ=1,3
@@ -224,9 +232,9 @@ do NSFE1=1,NESF
       ! e la sfera NSFE1.
 
       DE2 = (XE(NSFE1)-XE(NS))**2+(YE(NSFE1)-YE(NS))**2+(ZE(NSFE1)-ZE(NS))**2
-      CCC(1,N) = XE(NS)+(XE(NSFE1)-XE(NS))*(RE(NS)**2-RE(NSFE1)**2+DE2)/(2.d0*DE2)
-      CCC(2,N) = YE(NS)+(YE(NSFE1)-YE(NS))*(RE(NS)**2-RE(NSFE1)**2+DE2)/(2.d0*DE2)
-      CCC(3,N) = ZE(NS)+(ZE(NSFE1)-ZE(NS))*(RE(NS)**2-RE(NSFE1)**2+DE2)/(2.d0*DE2)
+      CCC(1,N) = XE(NS)+(XE(NSFE1)-XE(NS))*(RE(NS)**2-RE(NSFE1)**2+DE2)/(Two*DE2)
+      CCC(2,N) = YE(NS)+(YE(NSFE1)-YE(NS))*(RE(NS)**2-RE(NSFE1)**2+DE2)/(Two*DE2)
+      CCC(3,N) = ZE(NS)+(ZE(NSFE1)-ZE(NS))*(RE(NS)**2-RE(NSFE1)**2+DE2)/(Two*DE2)
       INTSPH(N,MaxT) = NSFE1
       N = N+1
 
@@ -235,7 +243,7 @@ do NSFE1=1,NESF
       !
       ! P1 = coord. del primo vertice
       ! P2 = coord. del secondo vertice
-      ! P3 = coord. del centro dell`arco sotteso
+      ! P3 = coord. del centro dell'arco sotteso
       ! P4 = coord. dell'intersezione
 
       do JJ=1,3
@@ -266,7 +274,7 @@ do NSFE1=1,NESF
     end if
     ! Controlla che il numero di vertici creati non sia eccessivo
     if (N > 11) then
-      write(6,'(/,a)') ' TESSERA: too many vertices in a tessera'
+      write(u6,'(/,a)') ' TESSERA: too many vertices in a tessera'
       call Abend()
     end if
 300 continue

@@ -13,10 +13,16 @@
 
 subroutine V_EF_PCM(nAt,nTs,DoPot,DoFld,AtmC,Tessera,V,EF_n,EF_e)
 
-implicit real*8(a-h,o-z)
-dimension AtmC(3,nAt)
-dimension V(*), EF_n(3,*), EF_e(3,*), Tessera(4,*)
-logical DoPot, DoFld
+use Definitions, only: wp, iwp
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(in) :: nAt, nTs
+logical(kind=iwp), intent(in) :: DoPot, DoFld
+real(kind=wp), intent(in) :: AtmC(3,nAt), Tessera(4,*)
+real(kind=wp), intent(_OUT_) :: V(*), EF_n(3,*), EF_e(3,*)
+integer(kind=iwp) :: nOrdOp
 
 ! Compute potential on tesserae
 
@@ -41,18 +47,22 @@ end subroutine V_EF_PCM
 !====
 subroutine Mlt_PCM(nAt,nTs,nOrdOp,Tessera,AtmC,V,EF_n,EF_e)
 
-implicit real*8(A-H,O-Z)
-dimension V(*), EF_n(3,*), EF_e(3,*)
-dimension Tessera(4,*)
-dimension AtmC(3,*)
-#include "real.fh"
-#include "print.fh"
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(in) :: nAt, nTs, nOrdOp
+real(kind=wp), intent(in) :: Tessera(4,*), AtmC(3,*)
+real(kind=wp), intent(_OUT_) :: V(*), EF_n(3,*)
+real(kind=wp), intent(inout) :: EF_e(3,*)
+integer(kind=iwp) :: ipFactOp, iplOper, iTs, nDens
+real(kind=wp) :: Temp(3)
+logical(kind=iwp) :: Found
+real(kind=wp), allocatable :: Chrg(:), D1ao(:)
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
-real*8 Temp(3)
-real*8, allocatable :: Chrg(:)
-logical Found
-real*8, allocatable :: D1ao(:)
 
 call mma_allocate(Chrg,nat)
 call Get_dArray('Nuclear charge',Chrg,nAt)
@@ -84,7 +94,7 @@ call Qpg_dArray('D1ao',Found,nDens)
 if (Found .and. (nDens /= 0)) then
   call mma_allocate(D1ao,nDens,Label='D1ao')
 else
-  write(6,*) 'Mlt_pcm: D1ao not found.'
+  write(u6,*) 'Mlt_pcm: D1ao not found.'
   call Abend()
 end if
 call Get_D1ao(D1ao,nDens)
@@ -137,20 +147,30 @@ use Basis_Info
 use Center_Info
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use Definitions, only: wp, iwp, u6, r8
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp), intent(in) :: nTs, nFD, lOper(nTs), nOrdOp
+real(kind=wp), intent(in) :: FactOp(nTs), FD(nFD), CCoor(4,nTs)
+real(kind=wp), intent(inout) :: VTessera(3,nTs)
 #include "angtp.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
-real*8 A(3), B(3), C(3), FD(nFD), FactOp(nTs), CCoor(4,nTs), RB(3), TRB(3), TA(3), VTessera(3,nTs)
-character ChOper(0:7)*3
-integer lOper(nTs), iStabO(0:7), iDCRR(0:7), iDCRT(0:7), iStabM(0:7), nOp(3)
-logical AeqB
-data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
+integer(kind=iwp) :: i, iAng, iAO, iBas, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), iKappa, iKern, iPCoor, ipDAO, ipDSO, &
+                     ipDSOp, ipFnl, ipFnlc, iPrim, iPrint, ipZI, iRout, iS, iScrt1, iScrt2, iShell, iShll, iSmLbl, iStabM(0:7), &
+                     iStabO(0:7), iTile, iuv, iZeta, jAng, jAO, jBas, jCmp, jCnt, jCnttp, jPrim, jS, jShell, jShll, kk, lDCRR, &
+                     lDCRT, lFinal, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nComp, nDAO, nDCRR, nDCRT, nOp(3), nOrder, nScr1, &
+                     nScr2, nSkal, nSO, nStabM, nStabO
+real(kind=wp) ::  A(3), B(3), C(3), FactNd, RB(3), TA(3), TRB(3)
+logical(kind=iwp) :: AeqB
+character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
+integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
+real(kind=r8), external :: DDot_
 ! Statement functions
+integer(kind=iwp) :: ixyz, nElem
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 iRout = 112
@@ -199,12 +219,12 @@ do iS=1,nSkal
     iSmLbl = 1
     nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
     if (nSO == 0) Go To 131
-    if (iPrint >= 19) write(6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+    if (iPrint >= 19) write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
 
     ! Call kernel routine to get memory requirement.
 
     call EFMmP(nOrder,MemKer,iAng,jAng,nOrdOp)
-    !write(6,*) nOrder,MemKer,iAng,jAng,nOrdOp
+    !write(u6,*) nOrder,MemKer,iAng,jAng,nOrdOp
     MemKrn = MemKer*S%m2Max
     call GetMem('Kernel','ALLO','REAL',iKern,MemKrn)
 
@@ -237,7 +257,7 @@ do iS=1,nSkal
     ! Find the DCR for A and B
 
     call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
-    if (iPrint >= 49) write(6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
+    if (iPrint >= 49) write(u6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
 
     ! Find the stabilizer for A and B
 
@@ -263,9 +283,9 @@ do iS=1,nSkal
     end if
 
     ! Transform IJ,AB to J,ABi
-    call DGEMM_('T','T',jBas*nSO,iPrim,iBas,1.0d0,Work(ipDSO),iBas,Shells(iShll)%pCff,iPrim,0.0d0,Work(ipDSOp),jBas*nSO)
+    call DGEMM_('T','T',jBas*nSO,iPrim,iBas,One,Work(ipDSO),iBas,Shells(iShll)%pCff,iPrim,Zero,Work(ipDSOp),jBas*nSO)
     ! Transform J,ABi to AB,ij
-    call DGEMM_('T','T',nSO*iPrim,jPrim,jBas,1.0d0,Work(ipDSOp),jBas,Shells(jShll)%pCff,jPrim,0.0d0,Work(ipDSO),nSO*iPrim)
+    call DGEMM_('T','T',nSO*iPrim,jPrim,jBas,One,Work(ipDSOp),jBas,Shells(jShll)%pCff,jPrim,Zero,Work(ipDSO),nSO*iPrim)
     ! Transpose to ij,AB
     call DGeTmO(Work(ipDSO),nSO,nSO,iPrim*jPrim,Work(ipDSOp),iPrim*jPrim)
     call GetMem('DSO ','Free','Real',ipDSO,nSO*iBas*jBas)
@@ -291,20 +311,20 @@ do iS=1,nSkal
 
         call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
         if (iPrint >= 49) then
-          write(6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),i=0,nStabM-1),')'
-          write(6,'(10A)') ' {O}=(',(ChOper(iStabO(i)),i=0,nStabO-1),')'
-          write(6,'(10A)') ' {T}=(',(ChOper(iDCRT(i)),i=0,nDCRT-1),')'
+          write(u6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),i=0,nStabM-1),')'
+          write(u6,'(10A)') ' {O}=(',(ChOper(iStabO(i)),i=0,nStabO-1),')'
+          write(u6,'(10A)') ' {T}=(',(ChOper(iDCRT(i)),i=0,nDCRT-1),')'
         end if
 
         ! Compute normalization factor due the DCR symmetrization
         ! of the two basis functions and the operator.
 
         iuv = dc(mdci)%nStab*dc(mdcj)%nStab
-        FactNd = dble(iuv*nStabO)/dble(nIrrep**2*LmbdT)
+        FactNd = real(iuv*nStabO,kind=wp)/real(nIrrep**2*LmbdT,kind=wp)
         if (MolWgh == 1) then
-          FactNd = FactNd*dble(nIrrep)**2/dble(iuv)
+          FactNd = FactNd*real(nIrrep,kind=wp)**2/real(iuv,kind=wp)
         else if (MolWgh == 2) then
-          FactNd = sqrt(dble(iuv))*dble(nStabO)/dble(nIrrep*LmbdT)
+          FactNd = sqrt(real(iuv,kind=wp))*real(nStabO,kind=wp)/real(nIrrep*LmbdT,kind=wp)
         end if
         FactNd = FactNd*FactOp(iTile)
 
@@ -316,8 +336,8 @@ do iS=1,nSkal
           call OA(iDCRT(lDCRT),A,TA)
           call OA(iDCRT(lDCRT),RB,TRB)
           if (iPrint >= 49) then
-            write(6,'(A,/,3(3F6.2,2X))') ' *** Centers A, B, C ***',(TA(i),i=1,3),(TRB(i),i=1,3),(C(i),i=1,3)
-            write(6,*) ' nOp=',nOp
+            write(u6,'(A,/,3(3F6.2,2X))') ' *** Centers A, B, C ***',(TA(i),i=1,3),(TRB(i),i=1,3),(C(i),i=1,3)
+            write(u6,*) ' nOp=',nOp
           end if
 
           ! Desymmetrize the matrix with which we will contract the trace.
@@ -345,12 +365,12 @@ do iS=1,nSkal
           ! Compute the potential at a tessera.
 
           ! pcm_solvent
-          !write(6,*) 'Work(iExp),iPrim,Work(jExp),jPrim'
-          !write(6,*) Shells(iShll)%Exp(1),iPrim,Shells(jShll)%Exp(1),jPrim
-          !write(6,*) 'Work(iZeta),Work(ipZI),Work(iKappa),Work(iPcoor)'
-          !write(6,*) Work(iZeta),Work(ipZI),Work(iKappa),Work(iPcoor)
-          !write(6,*) 'Work(ipFnl),iPrim*jPrim,nComp,iAng,jAng,norder'
-          !write(6,*) Work(ipFnl),iPrim*jPrim,nComp,iAng,jAng,norder
+          !write(u6,*) 'Work(iExp),iPrim,Work(jExp),jPrim'
+          !write(u6,*) Shells(iShll)%Exp(1),iPrim,Shells(jShll)%Exp(1),jPrim
+          !write(u6,*) 'Work(iZeta),Work(ipZI),Work(iKappa),Work(iPcoor)'
+          !write(u6,*) Work(iZeta),Work(ipZI),Work(iKappa),Work(iPcoor)
+          !write(u6,*) 'Work(ipFnl),iPrim*jPrim,nComp,iAng,jAng,norder'
+          !write(u6,*) Work(ipFnl),iPrim*jPrim,nComp,iAng,jAng,norder
           ! pcm_solvent end
           call EFPrm(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Work(iZeta),Work(ipZI),Work(iKappa),Work(iPcoor),Work(ipFnl), &
                      iPrim*jPrim,nComp,iAng,jAng,TA,TRB,nOrder,Work(iKern),MemKer,C,nOrdOp)

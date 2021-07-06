@@ -18,16 +18,20 @@ subroutine MatPCM(NTs,Eps,Conductor,ISphe,Coor_Sph,Tessera,DMat,SMat,SDMat,TMat,
 ! where V is the solute electrostatic potential. Here T^-1*R is computed
 ! and finally returned in DMat.
 
-implicit real*8(A-H,O-Z)
-logical Conductor
-dimension ISphe(*), Tessera(4,nTs)
-dimension Coor_Sph(4,*)
-dimension SMat(NTs,*), TMat(NTs,*), RMat(NTs,*), DMat(NTs,*)
-dimension SDMat(NTs,*)
-data Zero,One,Two,Four/0.0d0,1.0d0,2.0d0,4.0d0/
-data PotFac/1.0694d0/
+use Constants, only: Zero, One, Two, Pi
+use Definitions, only: wp, iwp
 
-PI = Four*atan(One)
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(in) :: NTs, ISPhe(*)
+real(kind=wp), intent(in) :: Eps, Coor_Sph(4,*), Tessera(4,NTs)
+real(kind=wp), intent(_OUT_) :: DMat(NTs,*), SMat(NTs,*), SDMat(NTs,*), TMat(NTs,*), RMat(NTs,*)
+logical(kind=iwp), intent(in) :: Conductor
+integer(kind=iwp) :: ITs, JTs, KTs, LI
+real(kind=wp) :: EpsFac, Fac, FPI, Prod, RIJ, TPI, XI, XJ, XNI, YI, YJ, YNI, ZI, ZJ, ZNI
+real(kind=wp), parameter :: PotFac = 1.0694_wp
+
 TPI = Two*PI
 FPI = Two*TPI
 if (Conductor) goto 100
@@ -96,7 +100,7 @@ end if
 
 ! Form T^-1 * R and store it in D
 
-call DGEMM_('N','N',nTs,nTs,nTs,1.0d0,TMat,nTs,RMat,nTs,0.0d0,DMat,nTs)
+call DGEMM_('N','N',nTs,nTs,nTs,One,TMat,nTs,RMat,nTs,Zero,DMat,nTs)
 return
 100 continue
 

@@ -9,10 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function NumSolv(Solvent)
+function NumSolv(Solvent)
 
-implicit real*8(a-h,o-z)
-character*30 Solvent, Solvent_
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: NumSolv
+character(len=*), intent(in) :: Solvent
+integer(kind=iwp) :: IdSolv
+character(len=len(Solvent)) :: Solvent_
 
 IdSolv = 0
 Solvent_ = Solvent
@@ -44,10 +49,10 @@ if (Solvent_ == 'XENON') IdSolv = 24
 
 if (IdSolv == 0) then
   !call ErrTra()
-  write(6,*) ' Unrecognized solvent: ',Solvent
-  write(6,10) 'WATER','ACETONITRILE','METHANOL','ETHANOL','ISOQUINOLINE','QUINOLINE','CHLOROFORM','ETHYLETHER', &
-              'METHYLENECHLORIDE','DICHLOROETHANE','CARBONTETRACHLORIDE','BENZENE','TOLUENE','CHLOROBENZENE','NITROMETHANE', &
-              'HEPTANE','CYCLOHEXANE','ANILINE','ACETONE','TETRAHYDROFURAN','DIMETHYLSULFOXIDE','ARGON','KRYPTON','XENON'
+  write(u6,*) ' Unrecognized solvent: ',Solvent
+  write(u6,10) 'WATER','ACETONITRILE','METHANOL','ETHANOL','ISOQUINOLINE','QUINOLINE','CHLOROFORM','ETHYLETHER', &
+               'METHYLENECHLORIDE','DICHLOROETHANE','CARBONTETRACHLORIDE','BENZENE','TOLUENE','CHLOROBENZENE','NITROMETHANE', &
+               'HEPTANE','CYCLOHEXANE','ANILINE','ACETONE','TETRAHYDROFURAN','DIMETHYLSULFOXIDE','ARGON','KRYPTON','XENON'
   call Abend()
 end if
 NumSolv = IdSolv

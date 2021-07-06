@@ -11,21 +11,23 @@
 
 subroutine Cav_Hss(nAt,nAt3,nTs,nS,Eps,Sphere,iSphe,nOrd,Tessera,Q,DM,Der1,DerDM,Temp,DerTes,DerPunt,DerRad,DerCentr,Hess,nHess)
 
-implicit real*8(a-h,o-z)
-dimension Sphere(4,*), iSphe(*), nOrd(*)
-dimension Tessera(4,*), Q(2,*), Der1(*)
-dimension DM(nTs,*), DerDM(nTs,*), Temp(nTs,*)
-dimension DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3)
-dimension DerRad(nS,nAt,3), DerCentr(nS,nAt,3,3)
-dimension Hess(nAt3,*)
-#include "angstr.fh"
-#include "real.fh"
+use Constants, only: Zero, One, Two, Pi, Angstrom
+use Definitions, only: wp, iwp
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(in) :: nAt, nAt3, nTs, nS, iSphe(*), nOrd(*), nHess
+real(kind=wp), intent(in) :: Eps, Sphere(4,*), Tessera(4,*), Q(2,*), DM(nTs,*), DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3), &
+                             DerRad(nS,nAt,3), DerCentr(nS,nAt,3,3)
+real(kind=wp), intent(_OUT_) :: Der1(*), DerDM(nTs,*), Temp(nTs,*), Hess(nAt3,*)
+integer(kind=iwp) :: iAt1, iAt2, iAt2_S, iCoord1, iCoord2, Index1, Index2, iS, iTs, jTs, L
+real(kind=wp) :: dCent, Diag, dN, dNI, Fact, QtotI, QtotJ, Sum1, Sum2, XN, YN, ZN
 
 ! Derivative of the cavity factor U_x(q)=2 Pi Eps/(Eps-1) sum_i [Qtot**2 * n_x]
 
 Fact = Two*PI*Eps/(Eps-One)
-FPI = Four*PI
-Diag = -1.0694d0*sqrt(FPI)/Two
+Diag = -1.0694_wp*sqrt(PI)
 dN = Zero
 ! Double loop on atoms and coordinates
 do Index1=1,nAt3
@@ -40,7 +42,7 @@ do Index1=1,nAt3
     iAt2 = int((Index2-1)/3)+1
     iCoord2 = Index2-3*(iAt2-1)
     ! Derivative of the normal factor n_x
-    call Der_Norm(Angstr,iAt1,iCoord1,iAt2,iCOord2,nTs,nAt,nS,Tessera,Der1,DerRad,DerTes,DerPunt,Sphere,iSphe,nOrd)
+    call Der_Norm(Angstrom,iAt1,iCoord1,iAt2,iCOord2,nTs,nAt,nS,Tessera,Der1,DerRad,DerTes,DerPunt,Sphere,iSphe,nOrd)
     ! Find out if atom iAt2 has a sphere around
     iAt2_S = 0
     do iS=1,nS

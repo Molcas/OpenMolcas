@@ -11,24 +11,28 @@
 
 subroutine VDer_PCM(nAt,nTs,nS,AtmC,AtmChg,EF_n,EF_e,Tessera,iSphe,DerTes,DerPunt,DerRad,DerCentr,VDer)
 
-implicit real*8(a-h,o-z)
-dimension AtmC(3,nAt), AtmChg(nAt)
-dimension EF_n(3,*), EF_e(3,*), VDer(nTs,*)
-dimension Tessera(4,*), iSphe(*)
-dimension DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3)
-dimension DerRad(nS,nAt,3), DerCentr(nS,nAt,3,3)
-integer Lu
+use Definitions, only: wp, iwp, u6
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(in) :: nAt, nTs, nS, iSphe(*)
+real(kind=wp), intent(in) :: AtmC(3,nAt), AtmChg(nAt), EF_n(3,*), EF_e(3,*), Tessera(4,*), DerTes(nTs,nAt,3), &
+                             DerPunt(nTs,nAt,3,3), DerRad(nS,nAt,3), DerCentr(nS,nAt,3,3)
+real(kind=wp), intent(_OUT_) :: VDer(nTs,*)
+integer(kind=iwp) :: iAt, iCoord, idx, iTs, L, Lu
+real(kind=wp) :: dCoord, DTessNuc, DVNuc, dX, dY, dZ, Fld_e, Fld_n
+integer(kind=iwp), external :: IsFreeUnit
 
 ! pcm_solvent very temporary! read the potential derivatives from file
-Lu = 1
-Lu = IsFreeUnit(Lu)
+Lu = IsFreeUnit(10)
 call Molcas_Open(Lu,'DerPot.dat')
 !open(1,file='DerPot.dat',status='old',form='formatted')
 do iAt=1,nAt
   do iCoord=1,3
-    Index = 3*(iAt-1)+iCoord
+    idx = 3*(iAt-1)+iCoord
     do iTs=1,nTs
-      read(1,*) VDer(iTs,Index)
+      read(1,*) VDer(iTs,idx)
     end do
   end do
 end do
@@ -37,7 +41,7 @@ close(1)
 ! Loop on atoms and coordinates
 do iAt=1,nAt
   do iCoord=1,3
-    Index = 3*(iAt-1)+iCoord
+    idx = 3*(iAt-1)+iCoord
 
     ! (Total) derivative of the electronic + nuclear potential
 
@@ -57,26 +61,26 @@ do iAt=1,nAt
       Fld_e = EF_e(1,iTs)*dX+EF_e(2,iTs)*dY+EF_e(3,iTs)*dZ
       Fld_n = EF_n(1,iTs)*dX+EF_n(2,iTs)*dY+EF_n(3,iTs)*dZ
       ! Total deriv. of the potential
-      VDer(iTs,Index) = VDer(iTs,Index)-Fld_e+DVNuc+Fld_n
+      VDer(iTs,idx) = VDer(iTs,idx)-Fld_e+DVNuc+Fld_n
       ! pcm_solvent
       ! In MCLR the electron electric field is not computed, probably because of
       ! DoRys set to False in mclr. Setting DoRys to True causes the program
       ! to stop because the abdata.ascii file is not found.
       if ((iat == 1) .and. (icoord == 1) .and. (its == 1)) &
-        write(6,'("In the loop VDer,Fld_e,DVNuc,Fld_n",4f12.6)') VDer(1,Index),Fld_e,DVNuc,Fld_n
+        write(u6,'("In the loop VDer,Fld_e,DVNuc,Fld_n",4f12.6)') VDer(1,idx),Fld_e,DVNuc,Fld_n
       if ((iat == nat) .and. (icoord == 3) .and. (its == 1)) &
-        write(6,'("In the loop VDer,Fld_e,DVNuc,Fld_n",4f12.6)') VDer(1,Index),Fld_e,DVNuc,Fld_n
+        write(u6,'("In the loop VDer,Fld_e,DVNuc,Fld_n",4f12.6)') VDer(1,idx),Fld_e,DVNuc,Fld_n
       ! pcm_solvent end
 
     end do
   end do
 end do
 ! pcm_solvent
-write(6,'(a)') 'At the end of DerPot,VDer(1,ind),VDer(nTs,ind)'
+write(u6,'(a)') 'At the end of DerPot,VDer(1,ind),VDer(nTs,ind)'
 do iAt=1,nAt
   do iCoord=1,3
-    Index = 3*(iAt-1)+iCoord
-    write(6,'(2f12.6)') VDer(1,Index),VDer(nTs,Index)
+    idx = 3*(iAt-1)+iCoord
+    write(u6,'(2f12.6)') VDer(1,idx),VDer(nTs,idx)
   end do
 end do
 ! pcm_solvent end

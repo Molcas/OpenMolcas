@@ -11,13 +11,18 @@
 
 subroutine GauBon(MaxT,XE,YE,ZE,RE,IntSph,NV,NS,PTS,CCC,PP,AREA,IPRINT)
 
-implicit real*8(A-H,O-Z)
-parameter(MxVert=20)
-dimension XE(*), YE(*), ZE(*), RE(*), IntSph(MxVert,*)
-dimension P1(3), P2(3), P3(3), U1(3), U2(3)
-dimension PTS(3,MxVert), CCC(3,MxVert), PP(3)
-save Zero, One
-data ZERO/0.00d0/,One/1.0d0/
+use Constants, only: Zero, One, Pi
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), parameter :: MxVert = 20
+integer(kind=iwp), intent(in) :: MaxT, IntSph(MxVert,*), NV, NS, IPRINT
+real(kind=wp), intent(in) :: XE(*), YE(*), ZE(*), RE(*), PTS(3,MxVert), CCC(3,MxVert)
+real(kind=wp), intent(out) :: PP(3), AREA
+integer(kind=iwp) :: I, JJ, N, N0, N1, N2, NSFE1
+real(kind=wp) :: BETAN, COSPHIN, COSTN, DNORM, DNORM1, DNORM2, DNORM3, P1(3), P2(3), P3(3), PHIN, RR2, SCAL, SUM1, SUM2, TPI, &
+                 U1(3), U2(3), X1, X2, Y1, Y2, Z1, Z2
+real(kind=wp), parameter :: Small = 1.0e-35_wp
 
 ! Sfrutta il teorema di Gauss-Bonnet per calcolare l'area
 ! della tessera con vertici PTS(3,NV). Consideriamo sempre
@@ -37,14 +42,12 @@ data ZERO/0.00d0/,One/1.0d0/
 ! coincidenti con il centro di carica) sono in CCC e il punto
 ! rappresentativo e' in PP. La cosa piu' importante e' che NS < 0.
 
-PI = 4.0D+00*atan(1.0D+00)
-Small = 1.d-35
 TPI = 2*PI
 N0 = 0 ! dummy initialize
 N2 = 0 ! dummy initialize
 
 ! Calcola la prima sommatoria
-SUM1 = 0.d0
+SUM1 = Zero
 do N=1,NV
   X1 = PTS(1,N)-CCC(1,N)
   Y1 = PTS(2,N)-CCC(2,N)
@@ -62,7 +65,7 @@ do N=1,NV
   DNORM2 = X2*X2+Y2*Y2+Z2*Z2
   SCAL = X1*X2+Y1*Y2+Z1*Z2
   COSPHIN = SCAL/(sqrt(DNORM1*DNORM2))
-  if (COSPHIN > 1.d0) COSPHIN = 1.d0
+  if (COSPHIN > One) COSPHIN = One
   PHIN = acos(COSPHIN)
 
   ! Normalmente NS>0, ma se GAUBON e' stata chiamata da VOLCHG NS<0
@@ -79,7 +82,7 @@ do N=1,NV
     Z1 = 0
   end if
   DNORM1 = sqrt(X1*X1+Y1*Y1+Z1*Z1)
-  if (DNORM1 == ZERO) DNORM1 = 1.d0
+  if (DNORM1 == ZERO) DNORM1 = One
   if (NS > 0) then
     X2 = PTS(1,N)-XE(NS)
     Y2 = PTS(2,N)-YE(NS)
@@ -103,13 +106,13 @@ end do
 ! dove V(I) e' il vettore posizione del vertice I RISPETTO AL
 ! CENTRO DELL'ARCO CHE SI STA CONSIDERANDO.
 
-SUM2 = 0.d0
+SUM2 = Zero
 ! Loop sui vertici
 do N=1,NV
   do JJ=1,3
-    P1(JJ) = 0.d0
-    P2(JJ) = 0.d0
-    P3(JJ) = 0.d0
+    P1(JJ) = Zero
+    P2(JJ) = Zero
+    P3(JJ) = Zero
   end do
   N1 = N
   if (N > 1) N0 = N-1
@@ -164,14 +167,14 @@ end if
 if (NS > 0) then
   ! Trova il punto rappresentativo (come media dei vertici)
   do JJ=1,3
-    PP(JJ) = 0.d0
+    PP(JJ) = Zero
   end do
   do I=1,NV
     PP(1) = PP(1)+(PTS(1,I)-XE(NS))
     PP(2) = PP(2)+(PTS(2,I)-YE(NS))
     PP(3) = PP(3)+(PTS(3,I)-ZE(NS))
   end do
-  DNORM = 0.d0
+  DNORM = Zero
   do JJ=1,3
     DNORM = DNORM+PP(JJ)*PP(JJ)
   end do
@@ -182,9 +185,9 @@ end if
 
 ! A causa delle approssimazioni numeriche, l'area di alcune piccole
 ! tessere puo' risultare negativa, e viene in questo caso trascurata
-if (AREA < 0.d0) then
-  AREA = 0.d0
-  if (IPRINT >= 1) write(6,1000) NS
+if (AREA < Zero) then
+  AREA = Zero
+  if (IPRINT >= 1) write(u6,1000) NS
 end if
 
 return

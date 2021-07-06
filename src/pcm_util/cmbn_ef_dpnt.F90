@@ -12,28 +12,30 @@
 !***********************************************************************
 
 subroutine Cmbn_EF_DPnt(EF,nTs,DPnt,MxAto,DCntr,nS,iSph,Q,Grad,nGrad)
-!*******************************************************************
-!                                                                  *
-!      Combine EF with DPnt array.                                 *
-!                                                                  *
-!      Roland Lindh                                                *
-!      020117                                                      *
-!                                                                  *
-!*******************************************************************
+!***********************************************************************
+!                                                                      *
+!  Combine EF with DPnt array.                                         *
+!                                                                      *
+!  Roland Lindh                                                        *
+!  020117                                                              *
+!                                                                      *
+!***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-parameter(tol=1d-8)
+implicit none
+integer(kind=iwp), intent(in) :: nTs, MxAto, nS, iSph(nTs), nGrad
+real(kind=wp), intent(in) :: EF(3,2,nTs), DPnt(nTs,MxAto,3,3), DCntr(nS,MxAto,3,3), Q(2,nTs)
+real(kind=wp), intent(inout) :: Grad(nGrad)
+integer(kind=iwp) :: iCar, iCen, iCnt, iCnttp, iComp, iIrrep, iTs, jSph, mdc, nDispS
+real(kind=wp) :: QTot
+real(kind=wp), parameter :: tol = 1.0e-8_wp
+logical(kind=iwp), external :: TF
 #include "Molcas.fh"
 #include "disp.fh"
-#include "real.fh"
-#include "WrkSpc.fh"
-real*8 EF(3,2,nTs), DPnt(nTs,MxAto,3,3), Grad(nGrad), DCntr(nS,MxAto,3,3), Q(2,nTs)
-integer iSph(nTs)
-logical, external :: TF
 
 iIrrep = 0
 

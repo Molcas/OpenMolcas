@@ -9,26 +9,30 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PotGrd(Temp,nGrad)
+subroutine PotGrd(Grad,nGrad)
 
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external PCMGrd1, PCMMmg
+implicit none
+integer(kind=iwp), intent(in) :: nGrad
+real(kind=wp), intent(out) :: Grad(nGrad)
+integer(kind=iwp) :: ii, iIrrep, ip1, ipC, iPrint, iRout, nComp, nDens, nOrdOp
+real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2
+logical(kind=iwp) :: DiffOp
+character(len=80) :: Label
+character(len=8) :: Method
+real(kind=wp), allocatable :: D_Var(:)
+external :: PCMGrd1, PCMMmg
 #include "Molcas.fh"
-#include "print.fh"
-#include "real.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
 #include "disp.fh"
-#include "wldata.fh"
-#include "rctfld.fh"
-character Method*8, Label*80
-real*8 Temp(nGrad)
-logical DiffOp
-real*8, allocatable :: D_Var(:)
+#include "print.fh"
+#include "WrkSpc.fh"
 ! Statement function
+integer(kind=iwp) :: i, nElem
 nElem(i) = (i+1)*(i+2)/2
 
 ! Prologue
@@ -44,20 +48,20 @@ do iIrrep=0,nIrrep-1
 end do
 
 ! Get the method label
-!write(6,*) ' Read Method label'
+!write(u6,*) ' Read Method label'
 call Get_cArray('Relax Method',Method,8)
 
 ! Read the variational 1st order density matrix
 ! density matrix in AO/SO basis
-!write(6,*) ' Read density matrix'
+!write(u6,*) ' Read density matrix'
 call mma_allocate(D_Var,nDens,Label='D_Var')
 call Get_D1ao_Var(D_var,nDens)
 
 if (iPrint >= 99) then
-  write(6,*) 'variational 1st order density matrix'
+  write(u6,*) 'variational 1st order density matrix'
   ii = 1
   do iIrrep=0,nIrrep-1
-    write(6,*) 'symmetry block',iIrrep
+    write(u6,*) 'symmetry block',iIrrep
     call TriPrt(' ',' ',D_Var(ii),nBas(iIrrep))
     ii = ii+nBas(iIrrep)*(nBas(iIrrep)+1)/2
   end do
@@ -70,14 +74,13 @@ end if
 
 nOrdOp = 0
 nComp = nElem(nOrdOp)
-call GetMem('Coor','Allo','Real',ipC,3*nComp)
+call GetMem('Coor','Allo','Real',ipC,3)
 call GetMem('lOper','Allo','Inte',ip1,nComp)
-call dcopy_(nComp*3,[Zero],0,Work(ipC),1)
+call dcopy_(3,[Zero],0,Work(ipC),1)
 iWork(ip1) = 1
 DiffOp = .true.
-call dZero(Temp,nGrad)
-call OneEl_g_mck(PCMGrd1,PCMMmG,Temp,nGrad,DiffOp,Work(ipC),D_Var,nDens,iWork(ip1),nComp,nOrdOp,Label)
-call PrGrad_mck(' TEST (PCM) contribution',Temp,nGrad,ChDisp,5)
+call OneEl_g_mck(PCMGrd1,PCMMmG,Grad,nGrad,DiffOp,Work(ipC),D_Var,nDens,iWork(ip1),nComp,nOrdOp,Label)
+call PrGrad_mck(' TEST (PCM) contribution',Grad,nGrad,ChDisp,5)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

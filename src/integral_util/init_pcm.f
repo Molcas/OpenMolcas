@@ -17,6 +17,7 @@
 *                                                                      *
 *             Modified for Langevin polarizabilities, March 2000 (RL)  *
 ************************************************************************
+      Use Iso_C_Binding
       use PCM_arrays
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
@@ -171,7 +172,6 @@ cpcm_solvent end
 *     This is to allow type punning without an explicit interface
       Contains
       SubRoutine Save_PCM_Info(cRFStrt,iRFStrt,lRFStrt,rRFStrt)
-      Use Iso_C_Binding
       Integer, Target :: cRFStrt,iRFStrt,lRFStrt
       Real*8, Target :: rRFStrt
       Integer, Pointer :: p_cRF(:),p_iRF(:),p_lRF(:)

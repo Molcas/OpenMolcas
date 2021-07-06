@@ -511,7 +511,7 @@ c     iPrint = nPrint(iRout)
       Do jTs = 1, iTs
          Fact=Two
          If (jTs.eq.iTs) Fact=One
-         Q_ij = DMElm(nTs,iTs,jTs,PCMDM)
+         Q_ij = PCMDM(iTs,jTs)
          NoLoop = Q_ij.eq.Zero
          If (NoLoop) Go To 122
          C(1:3) = PCMTess(1:3,jTs)

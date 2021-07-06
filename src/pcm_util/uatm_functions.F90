@@ -11,12 +11,20 @@
 
 function AtNear(IAt,IAn,NBond,IBond,DH,DId,DAr,Chg)
 
-implicit real*8(A-H,O-Z)
-!logical AddH
-parameter(MxBond=12)
-dimension IAn(*), NBond(*), IBond(MxBond,*), Chg(*)
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
 
-AtNear = 0.0D+00
+implicit none
+real(kind=wp) :: AtNear
+integer(kind=iwp), parameter :: MxBond = 12
+integer(kind=iwp), intent(in) :: IAt, IAn(*), NBond(*), IBond(MxBond,*)
+real(kind=wp), intent(out) :: DH, DId, DAr
+real(kind=wp), intent(in) :: Chg(*)
+integer(kind=iwp) :: IAnI, IAnJ, j, Jat, NAr, NbI, NbJ, NCSP, NCSP2, NCSP3, NearAt, NF, NH, NId, NNit, NOX, NX
+real(kind=wp) :: ChgJ, DX
+integer(kind=iwp), external :: NAlPAr, NCAlph
+
+AtNear = Zero
 NearAt = 0
 NH = 0
 NNit = 0
@@ -26,7 +34,7 @@ NId = 0
 NCSP3 = 0
 NCSP2 = 0
 NCSP = 0
-DX = 0.0D+00
+DX = Zero
 IAnI = IAn(IAt)
 NbI = NBond(IAt)
 do j=1,NbI
@@ -55,12 +63,12 @@ do j=1,NbI
   ! Oxygen
   if (IAnJ == 8) then
     NOX = 1
-    if ((IAnI == IAnJ) .and. (abs(ChgJ) < 1.0D-01)) NId = NId+1
-    if (CHGJ > 4.0D-01) then
+    if ((IAnI == IAnJ) .and. (abs(ChgJ) < 0.1_wp)) NId = NId+1
+    if (CHGJ > 0.4_wp) then
       NOX = 0
-      DX = 5.0D-01
+      DX = Half
     end if
-    if (CHGJ < -4.0D-01) NOX = 3
+    if (CHGJ < -0.4_wp) NOX = 3
     NX = NX+NOX
   end if
   ! Fluorine
@@ -69,22 +77,22 @@ do j=1,NbI
     NF = NF+1
   end if
   ! Positive Phosphorus
-  if ((IAnJ == 15) .and. (NBJ == 4)) DX = DX-1.5d0
+  if ((IAnJ == 15) .and. (NBJ == 4)) DX = DX-1.5_wp
   ! Positive Sulfur
-  if ((IAnJ == 16) .and. (NBJ == 3)) DX = DX-2.7d0
+  if ((IAnJ == 16) .and. (NBJ == 3)) DX = DX-2.7_wp
 end do
 NearAt = NH
 NAr = 0
-if ((IAn(IAt) == 6) .and. (abs(Chg(IAt)) < 4.0D-01)) NearAt = NearAt+NH
+if ((IAn(IAt) == 6) .and. (abs(Chg(IAt)) < 0.4_wp)) NearAt = NearAt+NH
 if ((IAn(IAt) == 6) .and. (NBond(IAt) == 3) .and. (NCSP2 >= 1)) then
   if ((NH+NCSP3) /= 2) NAR = NAlpAr(IAt,IAn,NBond,IBond,Chg)
 end if
 if ((IAn(IAt) == 6) .and. (NBond(IAt) == 4)) NearAt = NearAt-NX-NCSP2-NNit+NF+NCAlph(IAt,NH,NCSP3,IAn,NBond,IBond,Chg)
 if (NH > 3) NearAt = NearAt-1
-AtNear = dble(NearAt)-DX
-DH = dble(NH)
-DAr = 5.0D-01*dble(NAr)
-DId = 5.0D-01*dble(NId)
+AtNear = real(NearAt,kind=wp)-DX
+DH = real(NH,kind=wp)
+DAr = Half*real(NAr,kind=wp)
+DId = Half*real(NId,kind=wp)
 
 return
 
@@ -92,40 +100,50 @@ end function AtNear
 !====
 function Hybnew(OKUAH,OKCHG,IAt,IAn,NBond,IBond,IBType,PBO,Chg)
 
-implicit real*8(A-H,O-Z)
-logical PIAT, OKUAH, OKChg
-parameter(MxBond=12)
-dimension NBond(*), IBond(MxBond,*), IBtype(MxBond,*), IAn(*)
-dimension PBO(MxBond,*)
+use Constants, only: Zero, One, Two, Three, Half
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: Hybnew
+integer(kind=iwp), parameter :: MxBond = 12
+logical(kind=iwp), intent(in) :: OKUAH, OKCHG
+integer(kind=iwp), intent(in) :: IAt, IAN(*), NBond(*), IBond(MxBond,*), IBtype(MxBond,*)
+real(kind=wp), intent(in) :: PBO(MxBond,*)
+real(kind=wp), intent(inout) :: Chg
+integer(kind=iwp) :: ICARB, ICC, ICN, ii, IQQ, ISP2, JAt, jj, JSP2, K, KAt, kk, NBIA, NBII, NBJ, NBK, NBTot, NumatI, NumII, NumJ, &
+                     NumK
+real(kind=wp) :: PBtot
+logical(kind=iwp) :: PIAT
+integer(kind=iwp), external :: IColAt
 
 NumatI = IAn(IAt)
-HybNew = 3.0D+00
-!Chg = 0.0D+00
+HybNew = Three
+!Chg = Zero
 IQQ = 0
 if (.not. OKUAH) then
-  HybNew = 0.0D+00
+  HybNew = Zero
   return
 end if
 
 ! Hydrogen
 
 if (IAn(IAt) == 1) then
-  HybNew = 0.0D+00
-  if ((NBond(IAT) == 0) .and. (.not. OKCHG)) Chg = 1.0D+00
+  HybNew = Zero
+  if ((NBond(IAT) == 0) .and. (.not. OKCHG)) Chg = One
 end if
 
 ! Carbon
 
 if (IAN(IAt) == 6) then
   NBTot = 0
-  PBtot = 0.0D+00
+  PBtot = Zero
   do jj=1,NBond(IAt)
     NBtot = NBTot+IBType(jj,IAt)
     PBTot = PBTot+PBO(jj,IAt)
   end do
-  if ((NBond(IAt) == 3) .and. (NBTot >= 4)) HybNew = 2.0D+00
-  if ((NBond(IAt) == 3) .and. (PBtot > 3.7d+0)) Hybnew = 2.0d+00
-  if (NBond(IAt) == 2) HybNew = 1.0D+00
+  if ((NBond(IAt) == 3) .and. (NBTot >= 4)) HybNew = Two
+  if ((NBond(IAt) == 3) .and. (PBtot > 3.7_wp)) Hybnew = Two
+  if (NBond(IAt) == 2) HybNew = One
 end if
 
 ! Nitrogen, Phosphorus, Arsenic, Antimony
@@ -134,20 +152,20 @@ if (IColAt(NumAtI) == 5) then
   NBIA = NBond(IAt)
   goto(10,20,30,40) NBIA
 10 continue
-  HybNew = 1.0D+00
+  HybNew = One
   ICC = IBond(1,IAt)
   ICN = IAn(IBond(1,IAt))
-  if ((ICN == 6) .and. (NBond(ICC) == 1) .and. (.not. OKCHG)) Chg = -1.0D+00
+  if ((ICN == 6) .and. (NBond(ICC) == 1) .and. (.not. OKCHG)) Chg = -One
   goto 50
 20 continue
   if (PIAT(IAt,IAn,NBond,IBond)) then
-    HybNew = 2.0D+00
+    HybNew = Two
   else
-    if (.not. OKCHG) Chg = -1.0D+00
+    if (.not. OKCHG) Chg = -One
   end if
   goto 50
 30 continue
-  if (PIAT(IAt,IAn,NBond,IBond)) HybNew = 2.0D+00
+  if (PIAT(IAt,IAn,NBond,IBond)) HybNew = Two
   goto 50
 40 continue
   NBII = 0
@@ -155,7 +173,7 @@ if (IColAt(NumAtI) == 5) then
     NumII = IAn(IBond(II,IAt))
     if ((NumII == 6) .or. (NumII == 1)) NBII = NBII+1
   end do
-  if ((NBII > 3) .and. (.not. OKCHG)) Chg = 1.0D+00
+  if ((NBII > 3) .and. (.not. OKCHG)) Chg = One
 50 continue
 end if
 
@@ -172,16 +190,16 @@ if (IColAt(NumAtI) == 6) then
       if ((NumII == 1) .or. (NumII == 6)) NBII = NBII+1
     end do
     if (NBII == 3) then
-      if (.not. OKCHG) Chg = 1.0D+00
-      HybNew = 3.0D+00
+      if (.not. OKCHG) Chg = One
+      HybNew = Three
     end if
   end if
 
   ! bicoordinated
 
   if (NBond(IAt) == 2) then
-    if (.not. OKCHG) Chg = 0.0D+00
-    HybNew = 3.0D+00
+    if (.not. OKCHG) Chg = Zero
+    HybNew = Three
 
     ! test for protonated aldehydes, ketones and similar for S
 
@@ -200,22 +218,22 @@ if (IColAt(NumAtI) == 6) then
       end if
     end do
     if (IQQ >= 2) then
-      if (.not. OKCHG) Chg = 1.0D+00
-      HybNew = 2.0D+00
+      if (.not. OKCHG) Chg = One
+      HybNew = Two
     end if
   end if
   if (NBond(IAt) == 1) then
-    HybNew = 2.0D+00
+    HybNew = Two
     Jat = IBond(1,IAt)
     icc = IAn(JAt)
     if (icc == 1) then
-      HybNew = 3.0D+00
-      if (.not. OKCHG) Chg = -1.0D+00
+      HybNew = Three
+      if (.not. OKCHG) Chg = -One
     end if
     if (icc == 6) then
       if (NBond(JAt) == 4) then
-        if (.not. OKCHG) CHg = -1.0D+00
-        HybNew = 3.0D+00
+        if (.not. OKCHG) CHg = -One
+        HybNew = Three
       end if
       ISP2 = 0
       JSP2 = 0
@@ -227,12 +245,12 @@ if (IColAt(NumAtI) == 6) then
         if ((IAN(KAT) == 8) .and. (NBond(KAt) == 1)) ICARB = ICARB+1
       end do
       if (ISP2 > 1) then
-        if (.not. OKCHG) Chg = -1.0D+00
-        HybNew = 3.0D+00
+        if (.not. OKCHG) Chg = -One
+        HybNew = Three
       end if
       if ((JSp2 == 1) .and. (ICARB == 2)) then
-        if (.not. OKCHG) Chg = -5.0D-01
-        HybNew = 3.0D+00
+        if (.not. OKCHG) Chg = -Half
+        HybNew = Three
       end if
     end if
   end if
@@ -241,19 +259,25 @@ end if
 ! Halogens
 
 if ((IColAt(NumAtI) == 7) .and. (NBond(IAt) == 0)) then
-  if (.not. OKCHG) Chg = -1.0D+00
+  if (.not. OKCHG) Chg = -One
 end if
 
 !write(IOut,'(I3,2F3.1)') IAn(IAt),HybNew,Chg
+
 return
 
 end function Hybnew
 !====
-integer function NCAlph(IAt,NHI,NCSP3I,IAn,NBond,IBond,Chg)
+function NCAlph(IAt,NHI,NCSP3I,IAn,NBond,IBond,Chg)
 
-implicit real*8(A-H,O-Z)
-parameter(MxBond=12)
-dimension NBond(*), IBond(MxBond,*), IAn(*), chg(*)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: NCAlph
+integer(kind=iwp), parameter :: MxBond = 12
+integer(kind=iwp), intent(in) :: IAt, NHI, NCSP3I, IAn(*), NBond(*), IBond(MxBond,*)
+real(kind=wp), intent(in) :: Chg(*)
+integer(kind=iwp) :: ianj, iank, iplj, jat, jj, kat, kk, nbj, nbk, NCM1, NCP1, ncsp3j, NHetI, nhetj, nhj
 
 NHetI = 4-NHI-NCSP3I
 NCP1 = 0
@@ -274,7 +298,7 @@ do jj=1,4
       nbk = nbond(kat)
       if (iank == 1) NHJ = NHJ+1
       if ((iank == 6) .and. (nbk == 4)) NCSP3J = NCSP3J+1
-      if (chg(kat) > 4.0d-01) iplj = 1
+      if (chg(kat) > 0.4_wp) iplj = 1
     end do
     NHETJ = 4-NHJ-NCSP3J
     if ((NHetI >= 0) .and. (NHetJ == 0)) NCP1 = NCP1+1
@@ -288,11 +312,17 @@ return
 
 end function NCAlph
 !====
-integer function NAlPar(IAt,IAn,NBond,IBond,Chg)
+function NAlPar(IAt,IAn,NBond,IBond,Chg)
 
-implicit real*8(A-H,O-Z)
-parameter(MxBond=12)
-dimension NBond(*), IBond(MxBond,*), IAn(*), Chg(*)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: NAlPar
+integer(kind=iwp), parameter :: MxBond = 12
+integer(kind=iwp), intent(in) :: IAt, IAn(*), NBond(*), IBond(MxBond,*)
+real(kind=wp), intent(in) :: Chg(*)
+integer(kind=iwp) :: ianj, iank, jat, jj, kat, kk, NArI, nbj, nbk, NCSP2J, NHetJ
+real(kind=wp) :: chgk
 
 NAlPar = -1
 NArI = 0
@@ -309,7 +339,7 @@ do jj=1,3
       iank = ian(KAt)
       nbk = nbond(Kat)
       chgk = chg(KAt)
-      if (chgk < 4.0D-01) then
+      if (chgk < 0.4_wp) then
         if ((iank == 6) .and. (nbk == 3)) NCSP2J = NCSP2J+1
         if ((iank == 8) .or. (iank == 9)) NHetJ = NHetJ+1
         if ((iank == 17) .or. (iank == 35) .or. (iank == 53)) NHetJ = NHetJ+1
@@ -332,7 +362,17 @@ function IPBO(ToAng,IA,JA,RIJ,BondOr)
 ! Return the order of the bond between atoms of atomic numbers IA
 ! and JA, separated by RIJ, or 0 if there is no bond.
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: IPBO
+real(kind=wp), intent(in) :: ToAng, RIJ
+integer(kind=iwp), intent(in) :: IA, JA
+real(kind=wp), intent(out) :: BondOr
+integer(kind=iwp) :: IBondO
+real(kind=wp) :: R0IJ, R1IJ
+real(kind=wp), external :: RCov97
 
 ! Generate connectivity based on bond distances alone.  The criteria
 ! is whether the distances is no more than 30% longer than the sum of
@@ -344,10 +384,10 @@ implicit real*8(A-H,O-Z)
 IPBO = 0
 R1IJ = RIJ*ToAng
 R0IJ = RCov97(IA,JA)
-!if (R1IJ > R0IJ*1.3d0) return
-BondOr = exp((R0IJ-R1IJ)/0.3d0)
-if (BondOr < 2.0D-01) return
-IBondO = int(Sngl(BondOr+0.5d0))
+!if (R1IJ > R0IJ*1.3_wp) return
+BondOr = exp((R0IJ-R1IJ)/0.3_wp)
+if (BondOr < 0.2_wp) return
+IBondO = int(BondOr+Half)
 IBondO = max(IBondO,1)
 IBondO = min(IBondO,3)
 IPBO = IBondO
@@ -356,22 +396,32 @@ return
 
 end function IPBO
 !====
-integer function IColAt(NumAt)
+function IColAt(NumAt)
 
-dimension ICol(0:108)
-save ICol
-data ICol/0, &
-          1,2, &
-          1,2,3,4,5,6,7,8, &
-          1,2,3,4,5,6,7,8, &
-          1,2, &
-            9,9,9,9,9,9,9,9,9,9, &
-              3,4,5,6,7,8, &
-          1,2, &
-            9,9,9,9,9,9,9,9,9,9, &
-              3,4,5,6,7,8, &
-          1,2, &
-            52*9/
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: IColAt
+integer(kind=iwp), intent(in) :: NumAt
+integer(kind=iwp), parameter :: ICol(0:108) = [ &
+  0, &
+  1,2, &
+  1,2,3,4,5,6,7,8, &
+  1,2,3,4,5,6,7,8, &
+  1,2, &
+    9,9,9,9,9,9,9,9,9,9, &
+      3,4,5,6,7,8, &
+  1,2, &
+    9,9,9,9,9,9,9,9,9,9, &
+      3,4,5,6,7,8, &
+  1,2, &
+    9,9,9,9,9,9,9,9,9,9,9,9,9,9, &
+    9,9,9,9,9,9,9,9,9,9, &
+      9,9,9,9,9,9, &
+  9,9, &
+    9,9,9,9,9,9,9,9,9,9,9,9,9,9, &
+    9,9,9,9,9,9 &
+]
 
 IcolAt = ICol(NumAt)
 
@@ -379,10 +429,16 @@ return
 
 end function IColAt
 !====
-logical function PiAt(IAt,IAn,NBond,IBond)
+function PiAt(IAt,IAn,NBond,IBond)
 
-parameter(MxBond=12)
-dimension IAn(*), NBond(*), IBond(MxBond,*)
+use Definitions, only: iwp
+
+implicit none
+logical(kind=iwp) :: PiAt
+integer(kind=iwp), parameter :: MxBond = 12
+integer(kind=iwp), intent(in) :: IAt, IAn(*), NBond(*), IBond(MxBond,*)
+integer(kind=iwp) :: IAnJ, ISPI, ITpJ, J, JAt, K, KAt, NBnJ, NPiJ
+integer(kind=iwp), external :: IColAt
 
 PiAt = .false.
 ISPI = -1
@@ -412,11 +468,23 @@ return
 
 end function PiAt
 !====
-integer function IRowAt(NumAt)
+function IRowAt(NumAt)
 
-dimension IRow(0:108)
-save IRow
-data IROW/0,2*1,8*2,8*3,18*4,18*5,32*6,22*7/
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: IRowAt
+integer(kind=iwp), intent(in) :: NumAt
+integer(kind=iwp), parameter :: IRow(0:108) = [ &
+  0, &
+  1,1, &
+  2,2,2,2,2,2,2,2, &
+  3,3,3,3,3,3,3,3, &
+  4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4, &
+  5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5, &
+  6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6, &
+  7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7 &
+]
 
 IRowAt = IRow(NumAt)
 
@@ -429,8 +497,13 @@ function AtSymb(I)
 ! if I=0  Atsymb=Bq
 ! if I=-1 Atsymb=X
 
-character*2 AtSymb
-#include "periodic_table.fh"
+use Definitions, only: iwp
+
+use isotopes, only: PTab
+
+implicit none
+character(len=2) :: AtSymb
+integer(kind=iwp), intent(in) :: I
 
 if (I > 0) then
   AtSymb = PTab(i)
