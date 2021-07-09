@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DMat_CPCM(iAt,iC,Eps,nTs,nS,nAt,fact,Tessera,DerMat,DerTes,DerPunt,DerCentr,iSphe)
+subroutine DMat_CPCM(iAt,iC,nTs,nS,nAt,fact,Tessera,DerMat,DerTes,DerPunt,DerCentr,iSphe)
 
 use Definitions, only: wp, iwp
 
@@ -17,7 +17,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iAt, iC, nTs, nS, nAt, iSphe(*)
-real(kind=wp), intent(in) :: Eps, fact, Tessera(4,*), DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3), DerCentr(nS,nAt,3,3)
+real(kind=wp), intent(in) :: fact, Tessera(4,*), DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3), DerCentr(nS,nAt,3,3)
 real(kind=wp), intent(_OUT_) :: DerMat(nTs,*)
 integer(kind=iwp) :: ITs, JTs, L, LJ
 real(kind=wp) :: DIJ, DXIJ, DYIJ, DZIJ, PROD, XIJ, YIJ, ZIJ
@@ -48,7 +48,5 @@ do ITs=1,NTs
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real(Eps)
 
 end subroutine DMat_CPCM

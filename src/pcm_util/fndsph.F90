@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine FndSph(NAt,ICharg,ToAng,C,IAt,ITypRad,NSphInp,Alpha,XSph,YSph,ZSph,Rad,NOrd,iPrint)
+subroutine FndSph(NAt,ICharg,C,IAt,ITypRad,NSphInp,Alpha,XSph,YSph,ZSph,Rad,NOrd,iPrint)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -19,7 +19,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NAt, ICharg, IAt(*), ITypRad, NSphInp, iPrint
-real(kind=wp), intent(in) :: ToAng, C(3,*)
+real(kind=wp), intent(in) :: C(3,*)
 real(kind=wp), intent(inout) :: Alpha
 real(kind=wp), intent(_OUT_) :: XSph(*), YSph(*), ZSph(*), Rad(*)
 integer(kind=iwp), intent(_OUT_) :: NOrd(*)
@@ -33,7 +33,7 @@ if (ITypRad == 1) then
   ! United Atom Topological Model (UATM) radii:
   call mma_allocate(Chg,NAt,label='Chg')
   Chg(:) = Zero
-  call UATM(u6,ICharg,NAt,NSinit,ToAng,Rad,Alpha,C,IAt,NOrd,Chg,iPrint)
+  call UATM(u6,ICharg,NAt,NSinit,Rad,Alpha,C,IAt,NOrd,Chg,iPrint)
   call mma_deallocate(Chg)
 elseif (ITypRad == 2) then
   ! Pauling radii on each atom:

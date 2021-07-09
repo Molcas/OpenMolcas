@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine UATM(IOut,ICharg,NAt,NSfe,ToAng,Re,Alpha,C,IAn,NOrd,Chg,iPrint)
+subroutine UATM(IOut,ICharg,NAt,NSfe,Re,Alpha,C,IAn,NOrd,Chg,iPrint)
 ! New settings of radii for electrostatic cavity
 ! for HF/6-31(+)G* and ICOMP=4
 ! explicit values for C,N,O,F,S,Cl,Br,I, otherwise modified UFF radii
@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: IOut, ICharg, NAt, IAn(*), iPrint
 integer(kind=iwp), intent(inout) :: NSfe, NOrd(*)
-real(kind=wp), intent(in) :: ToAng, Alpha, C(3,NAt)
+real(kind=wp), intent(in) :: Alpha, C(3,NAt)
 real(kind=wp), intent(inout) :: Re(*), Chg(NAt)
 integer(kind=iwp), parameter :: ISAX = 1000, MxBond = 12
 logical(kind=iwp) :: AlBond, OKCHG, OKUAH
@@ -48,7 +48,7 @@ NUAH = size(NOKUAH)
 
 OkChg = .false.
 AlBond = .false.
-call FndBnd(IOut,0,AlBond,ToAng,MxBond,NAt,IAn,C,NBond,IBond,IBtype,PBO,Re)
+call FndBnd(IOut,AlBond,MxBond,NAt,IAn,C,NBond,IBond,IBtype,PBO)
 NTotH = 0
 do IAt=1,NAt
   if (IAn(IAt) == 1) NTotH = NTotH+1

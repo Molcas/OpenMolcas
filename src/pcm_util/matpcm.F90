@@ -18,6 +18,7 @@ subroutine MatPCM(NTs,Eps,Conductor,ISphe,Coor_Sph,Tessera,DMat,SMat,SDMat,TMat,
 ! where V is the solute electrostatic potential. Here T^-1*R is computed
 ! and finally returned in DMat.
 
+use PCM_Arrays, only: DiagScale
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp
 
@@ -30,7 +31,6 @@ real(kind=wp), intent(_OUT_) :: DMat(NTs,*), SMat(NTs,*), SDMat(NTs,*), TMat(NTs
 logical(kind=iwp), intent(in) :: Conductor
 integer(kind=iwp) :: ITs, JTs, KTs, LI
 real(kind=wp) :: EpsFac, Fac, FPI, Prod, RIJ, TPI, XI, XJ, XNI, YI, YJ, YNI, ZI, ZJ, ZNI
-real(kind=wp), parameter :: PotFac = 1.0694_wp
 
 TPI = Two*PI
 FPI = Two*TPI
@@ -45,7 +45,7 @@ if (Conductor) then
     XI = Tessera(1,iTs)
     YI = Tessera(2,iTs)
     ZI = Tessera(3,iTs)
-    SMat(ITs,ITs) = -PotFac*EpsFac*sqrt(FPI/Tessera(4,ITs))
+    SMat(ITs,ITs) = -DiagScale*EpsFac*sqrt(FPI/Tessera(4,ITs))
     do JTs=1,ITs-1
       XJ = Tessera(1,jTs)
       YJ = Tessera(2,jTs)
@@ -79,7 +79,7 @@ else
     XNI = (XI-Coor_Sph(1,LI))/Coor_Sph(4,LI)
     YNI = (YI-Coor_Sph(2,LI))/Coor_Sph(4,LI)
     ZNI = (ZI-Coor_Sph(3,LI))/Coor_Sph(4,LI)
-    SMat(ITs,ITs) = PotFac*sqrt(FPI/Tessera(4,ITs))
+    SMat(ITs,ITs) = DiagScale*sqrt(FPI/Tessera(4,ITs))
     DMat(ITs,ITs) = DMat(ITs,ITs)-TPI/Tessera(4,ITs)
     do JTs=1,NTs
       if (JTs == ITs) cycle

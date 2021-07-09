@@ -54,7 +54,7 @@ do i=1,NTs
   if (N /= Last) write(Lu,1500) N
   Last = N
   if (idx == 1) call Colour(NEsfP,NAt,AtmC,IAt,Coor_Sph,N,C1,C2,C3)
-  if (idx == 2) call Colchg(i,qt,qmax,qmin,C1,C2,C3)
+  if (idx == 2) call Colchg(qt,qmax,qmin,C1,C2,C3)
   do j=1,NVert(i)
     IVTS(j,i) = K
     K = K+1

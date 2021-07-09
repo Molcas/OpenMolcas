@@ -9,16 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-function IPBO(ToAng,IA,JA,RIJ,BondOr)
+function IPBO(IA,JA,RIJ,BondOr)
 ! Return the order of the bond between atoms of atomic numbers IA
 ! and JA, separated by RIJ, or 0 if there is no bond.
 
-use Constants, only: Half
+use Constants, only: Half, Angstrom
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: IPBO
-real(kind=wp), intent(in) :: ToAng, RIJ
+real(kind=wp), intent(in) :: RIJ
 integer(kind=iwp), intent(in) :: IA, JA
 real(kind=wp), intent(out) :: BondOr
 integer(kind=iwp) :: IBondO
@@ -29,11 +29,10 @@ real(kind=wp), external :: RCov97
 ! is whether the distances is no more than 30% longer than the sum of
 ! covalent radii of involved atoms. For the moment all bond types are
 ! determined using Pauling bond orders.
-! Note that RIJ is multiplied by ToAng, i.e. if it is already in Ang.
-! ToAng must be set = 1
+! Note that RIJ is multiplied by Angstrom
 
 IPBO = 0
-R1IJ = RIJ*ToAng
+R1IJ = RIJ*Angstrom
 R0IJ = RCov97(IA,JA)
 !if (R1IJ > R0IJ*1.3_wp) return
 BondOr = exp((R0IJ-R1IJ)/0.3_wp)
@@ -42,7 +41,5 @@ IBondO = int(BondOr+Half)
 IBondO = max(IBondO,1)
 IBondO = min(IBondO,3)
 IPBO = IBondO
-
-return
 
 end function IPBO

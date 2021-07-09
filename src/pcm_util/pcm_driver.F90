@@ -9,13 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PCM_Driver(iPrint,DMat,V,Q,nTs)
+subroutine PCM_Driver(DMat,V,Q,nTs)
 
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: iPrint, nTs
+integer(kind=iwp), intent(in) :: nTs
 real(kind=wp), intent(inout) :: DMat(nTs,nTs)
 real(kind=wp), intent(in) :: V(2,nTs)
 real(kind=wp), intent(out) :: Q(2,nTs)
@@ -51,7 +51,5 @@ end do
 !end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(iPrint)
 
 end subroutine PCM_Driver

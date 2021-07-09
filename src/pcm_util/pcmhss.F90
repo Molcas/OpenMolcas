@@ -39,15 +39,20 @@ implicit none
 #include "hss_interface.fh"
 integer(kind=iwp) :: iAlpha, iAnga(4), iAtom, iBeta, iCar, iDAO, iDCRT(0:7), iIrrep, idx(3,4), ipA, ipAOff, ipB, ipBOff, ipDAO, &
                      iPrint, iRout, iStb(0:7), iTs, iuvwx(4), iZeta, jAtom, jCar, JndGrd(0:2,0:3,0:7), &
-                     JndHss(0:3,0:2,0:3,0:2,0:7), lDCRT, LmbdT, mOp(4), mRys, nArray, nDAO, nDCRT, nDiff, nFinal, nip, nStb
+                     JndHss(0:3,0:2,0:3,0:2,0:7), lDCRT, LmbdT, mOp(4), mRys, nArray, nDAO, nDCRT, nDiff, nFinal, nip, nla, nlb, &
+                     nOOp, nStb
 real(kind=wp) :: Coori(3,4), CoorAC(3,2), C(3), EInv, Eta, Fact, TC(3), q_i
 logical(kind=iwp) :: IfG(0:3), JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), NoLoop, Tr(0:3)
 integer(kind=iwp), external :: NrOpr
 external :: Fake, TNAI1, XCff2D
 #include "print.fh"
 #include "rctfld.fh"
-integer(kind=iwp) :: ixyz, nElem
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+
+#include "macros.fh"
+unused_var(Final)
+unused_var(nHer)
+unused_var(Ccoor)
+unused_var(lOper)
 
 !                                                                      *
 !***********************************************************************
@@ -62,13 +67,17 @@ nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 iRout = 151
 iPrint = nPrint(iRout)
 
+nla = (la+1)*(la+2)/2
+nlb = (lb+1)*(lb+2)/2
+nOOp = (nOrdOp+1)*(nOrdOp+2)/2
+
 nip = 1
 ipA = nip
 nip = nip+nAlpha*nBeta
 ipB = nip
 nip = nip+nAlpha*nBeta
 ipDAO = nip
-nip = nip+nAlpha*nBeta*nElem(la)*nElem(lb)*nElem(nOrdOp)
+nip = nip+nAlpha*nBeta*nla*nlb*nOOp
 if (nip-1 > nZeta*nArr) then
   write(u6,*) 'nip-1 > nZeta*nArr'
   call ErrTra()
@@ -106,7 +115,7 @@ end do
 
 ! Modify the density matrix with the prefactor
 
-nDAO = nElem(la)*nElem(lb)
+nDAO = nla*nlb
 do iDAO=1,nDAO
   do iZeta=1,nZeta
     Fact = Two*rKappa(iZeta)*Pi*ZInv(iZeta)
@@ -199,8 +208,8 @@ do iTs=1,nTs
     EInv = One
     nFinal = 0
     call Rysg2(iAnga,mRys,nZeta,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,Coori,Coori,CoorAC, &
-               Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nElem(nOrdOp),Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,mOp,iuvwx, &
-               IfG,nFinal,idx,.false.,.true.,Tr)
+               Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nOOp,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,mOp,iuvwx,IfG, &
+               nFinal,idx,.false.,.true.,Tr)
 
     !call RecPrt(' In PCMHss:Hess',' ',Hess,nHess,1)
   end do  ! End loop over DCRs
@@ -208,12 +217,5 @@ do iTs=1,nTs
 end do    ! End loop over centers in the external field
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(final)
-  call Unused_integer(nHer)
-  call Unused_real_array(Ccoor)
-  call Unused_integer_array(lOper)
-end if
 
 end subroutine PCMHss

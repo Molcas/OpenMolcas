@@ -9,16 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine FndTess(iPrint,ToAng,LcNAtm,Xs,Ys,Zs,Rs,pNs,m)
+subroutine FndTess(iPrint,Xs,Ys,Zs,Rs,pNs,m)
 
 use PCM_arrays, only: PCMSph, PCMTess, Vert, Centr, SSph, PCMDM, PCM_N, PCMiSph, NVert, IntSph, NewSph
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Three, Half, Pi
+use Constants, only: Zero, One, Three, Half, Pi, Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iPrint, LcNAtm, m, pNs(m)
-real(kind=wp), intent(in) :: ToAng
+integer(kind=iwp), intent(in) :: iPrint, m, pNs(m)
 real(kind=wp), intent(inout) :: Xs(m), Ys(m), Zs(m), Rs(m)
 integer(kind=iwp) :: I, IC, II, IPFlag, IPtype, iS, ISFE, iTs, iTsNum, ITsEff, ITYPC, IV, J,JJ, K, KG, KP, L, N, N1, N2, N3, NE, &
                      NES, NET, NEV, NN, NN1, nPCM_info_i, nPCM_info_r, NSFE, NV
@@ -67,9 +66,9 @@ ITsNum = ISlPar(11)
 
 ! PEDRA works with Angstroms
 do ISFE=1,NSinit
-  Xs(ISFE) = Xs(ISFE)*ToAng
-  Ys(ISFE) = Ys(ISFE)*ToAng
-  Zs(ISFE) = Zs(ISFE)*ToAng
+  Xs(ISFE) = Xs(ISFE)*Angstrom
+  Ys(ISFE) = Ys(ISFE)*Angstrom
+  Zs(ISFE) = Zs(ISFE)*Angstrom
 end do
 NS = NSinit
 if (IPRINT == 2) write(u6,800)
@@ -377,24 +376,24 @@ if (IPRINT == 2) write(u6,1300) NTS,Scav,VCav
 
 ! Trasforma i risultati in bohr
 do I=1,NS
-  Rs(I) = Rs(I)/ToAng
-  Xs(I) = Xs(I)/ToAng
-  Ys(I) = Ys(I)/ToAng
-  Zs(I) = Zs(I)/ToAng
+  Rs(I) = Rs(I)/Angstrom
+  Xs(I) = Xs(I)/Angstrom
+  Ys(I) = Ys(I)/Angstrom
+  Zs(I) = Zs(I)/Angstrom
 end do
 do I=1,NTS
   do J=1,pNVERT(I)
     do L=1,3
-      pVERT(L,J,I) = pVERT(L,J,I)/ToAng
-      pCENTR(L,J,I) = pCENTR(L,J,I)/ToAng
+      pVERT(L,J,I) = pVERT(L,J,I)/Angstrom
+      pCENTR(L,J,I) = pCENTR(L,J,I)/Angstrom
     end do
   end do
 end do
 do I=1,NTS
-  At(I) = At(I)/(ToAng*ToAng)
-  Xt(I) = Xt(I)/ToAng
-  Yt(I) = Yt(I)/ToAng
-  Zt(I) = Zt(I)/ToAng
+  At(I) = At(I)/(Angstrom*Angstrom)
+  Xt(I) = Xt(I)/Angstrom
+  Yt(I) = Yt(I)/Angstrom
+  Zt(I) = Zt(I)/Angstrom
 end do
 if (IPRINT == 3) then
   write(u6,1500)
@@ -492,7 +491,6 @@ call mma_deallocate(Xt)
 !***********************************************************************
 !                                                                      *
 return
-call Unused_integer(LcNAtm)
 
 800 format(/,'**** POLARISABLE CONTINUUM MODEL - UNIVERSITIES OF NAPLES AND PISA *****')
 1000 format(/,'ATTENZIONE: I CENTRI DELLE TESSERE ',I4,',',I4,' DISTANO MENO DI',F8.6,' A',/)

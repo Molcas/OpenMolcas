@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine FndBnd(IOut,IPrint,AlBond,ToAng,MxBond,NAtoms,IAn,C,Nbond,IBond,IBType,PBO,Re)
+subroutine FndBnd(IOut,AlBond,MxBond,NAtoms,IAn,C,Nbond,IBond,IBType,PBO)
 ! Generate connectivity based on bond distances alone.  The criteria
 ! are contained in routine IPBO.
 ! Cartesian coords. are in Angstroms
@@ -18,10 +18,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: IOut, IPrint, MxBond, NAtoms, IAn(NAtoms)
+integer(kind=iwp), intent(in) :: IOut, MxBond, NAtoms, IAn(NAtoms)
 logical(kind=iwp), intent(in) :: AlBond
 integer(kind=iwp), intent(out) :: Nbond(NAtoms), IBond(MxBond,NAtoms), IBType(MxBond,NAtoms)
-real(kind=wp), intent(in) :: ToAng, C(3,NAtoms), Re(*)
+real(kind=wp), intent(in) :: C(3,NAtoms)
 real(kind=wp), intent(out) :: PBO(MxBond,NAtoms)
 integer(kind=iwp) :: I, IbondO, J
 real(kind=wp) :: BondOr, RIJ
@@ -39,7 +39,7 @@ do I=1,NAtoms
   do J=1,NAtoms
     if (J == I) cycle
     RIJ = sqrt((C(1,I)-C(1,J))**2+(C(2,I)-C(2,J))**2+(C(3,I)-C(3,J))**2)
-    IBondO = IPBO(ToAng,IAn(I),IAn(J),RIJ,BondOr)
+    IBondO = IPBO(IAn(I),IAn(J),RIJ,BondOr)
     if ((IBondO > 0) .or. AlBond) then
       NBond(I) = NBond(I)+1
       if (NBond(I) > MxBond) then
@@ -54,11 +54,6 @@ do I=1,NAtoms
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(IPrint)
-  call Unused_real_array(Re)
-end if
 
 1000 format(' Maximum number of bonds=',I3,' exceeded for atom',I4,'.')
 

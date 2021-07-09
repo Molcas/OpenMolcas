@@ -9,14 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine dSd(IOpt,ITS,ICOORD,NESFJ,DERS,DERP,Tessera,Vert,Centr,nTs,Sphere,ISphe,IntSph,NewSph,NVert)
+subroutine dSd(IOpt,ITS,ICOORD,NESFJ,DERS,DERP,Tessera,Vert,Centr,Sphere,ISphe,IntSph,NVert)
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), parameter :: MxVert = 20
-integer(kind=iwp), intent(in) :: IOpt, ITS, ICOORD, NESFJ, nTs, ISphe(*), IntSph(MxVert,*), NewSph(2,*), NVert(*)
+integer(kind=iwp), intent(in) :: IOpt, ITS, ICOORD, NESFJ, ISphe(*), IntSph(MxVert,*), NVert(*)
 real(kind=wp), intent(out) :: DERS, DERP(3)
 real(kind=wp), intent(in) :: Tessera(4,*), Vert(3,MxVert,*), Centr(3,MxVert,*), Sphere(4,*)
 integer(kind=iwp) :: JJ, L, L0, L1, L2, L3, NSI, NV
@@ -52,28 +52,28 @@ do L=1,NV
   L3 = L2+1
   if (L2 == NV) L3 = 1
   ! Trova la derivata del vertice L1: DP(L1)
-  call DVer(IOpt,ICOORD,ITS,L0,L1,L2,DP(L1,1),DP(L1,2),DP(L1,3),Vert,Centr,nTs,Sphere,IntSph)
+  call DVer(IOpt,ICOORD,ITS,L0,L1,L2,DP(L1,1),DP(L1,2),DP(L1,3),Vert,Centr,Sphere,IntSph)
   ! Trova la derivata del vertice L2: DP(L2)
-  call DVer(IOpt,ICOORD,ITS,L1,-L2,L3,DP(L2,1),DP(L2,2),DP(L2,3),Vert,Centr,nTs,Sphere,IntSph)
+  call DVer(IOpt,ICOORD,ITS,L1,-L2,L3,DP(L2,1),DP(L2,2),DP(L2,3),Vert,Centr,Sphere,IntSph)
 
   ! 1) Derivata dell'area della tessera.
 
   ! Calcola i contributi dovuti ai lati L0-L1, L1-L2, L2-L3
   if (INTSPH(L0,ITs) /= NSI) then
-    call DerPhi(IOpt,ICOORD,NESFJ,ITS,L0,L1,DP,DA,Vert,Centr,nTs,Sphere,IntSph,ISphe)
+    call DerPhi(IOpt,ICOORD,NESFJ,ITS,L0,L1,DP,DA,Vert,Centr,Sphere,IntSph,ISphe)
     DERTS = DERTS+DA
   end if
-  call DerPhi(IOpt,ICOORD,NESFJ,ITS,L1,L2,DP,DA,Vert,Centr,nTs,Sphere,IntSph,ISphe)
+  call DerPhi(IOpt,ICOORD,NESFJ,ITS,L1,L2,DP,DA,Vert,Centr,Sphere,IntSph,ISphe)
   DERTS = DERTS+DA
   if (INTSPH(L2,ITs) /= ISPHE(ITS)) then
-    call DerPhi(IOpt,ICOORD,NESFJ,ITS,L2,L3,DP,DA,Vert,Centr,nTs,Sphere,IntSph,ISphe)
+    call DerPhi(IOpt,ICOORD,NESFJ,ITS,L2,L3,DP,DA,Vert,Centr,Sphere,IntSph,ISphe)
     DERTS = DERTS+DA
   end if
 
   ! Calcola i contributi dovuti ai vertici L1 e L2
-  call DerBet(IOpt,ICOORD,NESFJ,ITS,L0,L1,L2,DP,DA,Vert,Centr,nTs,Sphere,IntSph,ISphe)
+  call DerBet(IOpt,ICOORD,NESFJ,ITS,L0,L1,L2,DP,DA,Vert,Centr,Sphere,IntSph,ISphe)
   DERTS = DERTS-DA
-  call DerBet(IOpt,ICOORD,NESFJ,ITS,L1,L2,L3,DP,DA,Vert,Centr,nTs,Sphere,IntSph,ISphe)
+  call DerBet(IOpt,ICOORD,NESFJ,ITS,L1,L2,L3,DP,DA,Vert,Centr,Sphere,IntSph,ISphe)
   DERTS = DERTS-DA
 end do
 DERS = DERTS
@@ -112,7 +112,5 @@ do JJ=1,3
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(NewSph)
 
 end subroutine dSd

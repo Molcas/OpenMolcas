@@ -9,13 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ColChg(i,q,QMAX,QMIN,C1,C2,C3)
+subroutine ColChg(q,QMAX,QMIN,C1,C2,C3)
 
 use Constants, only: Zero, Half
 use Definitions, only: wp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: i
 real(kind=wp), intent(in) :: q, QMAX, QMIN
 real(kind=wp), intent(out) :: C1, C2, C3
 real(kind=wp) :: DNeg, DPos
@@ -39,7 +38,5 @@ end if
 call ColTss(u6,Colour,C1,C2,C3)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(i)
 
 end subroutine ColChg

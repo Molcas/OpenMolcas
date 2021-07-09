@@ -9,15 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PCM_Init(iPrint,ICharg,NAtm,ToAng,AtmC,IAtm,LcAtmC,LcIAtm,nIrrep,NonEq)
+subroutine PCM_Init(iPrint,ICharg,NAtm,AtmC,IAtm,LcAtmC,LcIAtm,NonEq)
 
 use PCM_arrays, only: Centr, dCntr, dPnt, dRad, dTes, IntSph, NewSph, nVert, PCM_N, PCMDM, PCMiSph, PCMSph, PCMTess, Vert
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iPrint, ICharg, NAtm, IAtm(NAtm), nIrrep
-real(kind=wp), intent(in) :: ToAng, AtmC(3,NAtm)
+integer(kind=iwp), intent(in) :: iPrint, ICharg, NAtm, IAtm(NAtm)
+real(kind=wp), intent(in) :: AtmC(3,NAtm)
 real(kind=wp), intent(out) :: LcAtmC(3,NAtm)
 integer(kind=iwp), intent(out) :: LcIAtm(NAtm)
 logical(kind=iwp), intent(in) :: NonEq
@@ -74,11 +74,11 @@ call mma_allocate(pNs,MxSph,Label='pNs')
 pNs(:) = 0
 
 NSinit = 0
-call FndSph(LcNAtm,ICharg,ToAng,LcAtmC,LcIAtm,ISlPar(9),ISlPar(14),RSlPar(9),Xs,Ys,Zs,Rs,pNs,iPrint)
+call FndSph(LcNAtm,ICharg,LcAtmC,LcIAtm,ISlPar(9),ISlPar(14),RSlPar(9),Xs,Ys,Zs,Rs,pNs,iPrint)
 
 ! Define surface tesserae
 
-call FndTess(iPrint,ToAng,LcNAtm,Xs,Ys,Zs,Rs,pNs,MxSph)
+call FndTess(iPrint,Xs,Ys,Zs,Rs,pNs,MxSph)
 
 call mma_deallocate(pNs)
 call mma_deallocate(Rs)
@@ -96,13 +96,13 @@ call mma_deallocate(VTS)
 
 if (DoDeriv) then
   RSolv = RSlPar(19)
-  call Deriva(0,ToAng,LcNAtm,nTs,nS,nSInit,RSolv,PCMTess,Vert,Centr,PCMSph,PCMiSph,IntSph,PCM_N,NVert,NewSph,DTes,dPnt,dRad,dCntr)
+  call Deriva(0,LcNAtm,nTs,nS,nSInit,RSolv,PCMTess,Vert,Centr,PCMSph,PCMiSph,IntSph,PCM_N,NVert,NewSph,DTes,dPnt,dRad,dCntr)
 end if
 
 ! Compute cavitation energy
 
 TAbs = RSlPar(16)
-call Cavitation(DoDeriv,ToAng,LcNAtm,NS,nTs,RSlPar(46),VMol,TAbs,RSolv,PCMSph,PCMTess,PCMiSph)
+call Cavitation(DoDeriv,LcNAtm,NS,nTs,RSlPar(46),VMol,TAbs,RSolv,PCMSph,PCMTess,PCMiSph)
 
 ! Define PCM matrix: the inverse is stored in PCMDM
 
@@ -122,9 +122,5 @@ call mma_deallocate(TM)
 call mma_deallocate(RM)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(nIrrep)
-end if
 
 end subroutine PCM_Init

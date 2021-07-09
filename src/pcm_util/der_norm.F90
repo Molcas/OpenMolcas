@@ -9,21 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Der_Norm(ToAng,iAt1,iCoord1,iAt2,iCoord2,nTs,nAt,nS,Tessera,Der1,DerRad,DerTes,DerPunt,Sphere,iSphe,nOrd)
+subroutine Der_Norm(iAt1,iCoord1,iAt2,iCoord2,nTs,nAt,nS,Tessera,Der1,DerRad,DerTes,DerPunt,Sphere,iSphe,nOrd)
 
-use Constants, only: Zero, One
+use Constants, only: Zero, One, Angstrom
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
 
 implicit none
 integer(kind=iwp), intent(in) :: iAt1, iCoord1, iAt2, iCoord2, nTs, nAt, nS, iSphe(*), nOrd(*)
-real(kind=wp), intent(in) :: ToAng, Tessera(4,*), DerRad(nS,nAt,3), DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3), Sphere(4,*)
+real(kind=wp), intent(in) :: Tessera(4,*), DerRad(nS,nAt,3), DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3), Sphere(4,*)
 real(kind=wp), intent(_OUT_) :: Der1(*)
 integer(kind=iwp) :: iAt1_S, iS, iTs, L
 real(kind=wp) :: AnToAU, Der_1, dN, dN_Its, SqArea
 
-AnToAU = One/ToAng
+AnToAU = One/Angstrom
 ! Find out if atom iAt1 has a sphere around
 iAt1_S = 0
 do iS=1,nS

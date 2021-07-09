@@ -9,21 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DERD(ToAng,NSJ,ICOORD,Tessera,ISphe,DerDM,DerTes,DerPunt,DerCentr,NTs,NAt,NEsf)
+subroutine DERD(NSJ,ICOORD,Tessera,ISphe,DerDM,DerTes,DerPunt,DerCentr,NTs,NAt,NEsf)
 
-use Constants, only: One, Pi
+use PCM_Arrays, only: DiagScale
+use Constants, only: One, Pi, Angstrom
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
 
 implicit none
 integer(kind=iwp), intent(in) :: NSJ, ICOORD, ISphe(*), NTs, NAt, NEsf
-real(kind=wp), intent(in) :: ToAng, Tessera(4,*), DerTes(NTs,NAt,*), DerPunt(NTs,NAt,3,3), DerCentr(NEsf,NAt,3,3)
+real(kind=wp), intent(in) :: Tessera(4,*), DerTes(NTs,NAt,*), DerPunt(NTs,NAt,3,3), DerCentr(NEsf,NAt,3,3)
 real(kind=wp), intent(_OUT_) :: DerDM(NTs,*)
 integer(kind=iwp) :: ITS, JTS, L, LJ
 real(kind=wp) :: ANTOAU, DIJ, DXIJ, DYIJ, DZIJ, FAC, PROD, XIJ, YIJ, ZIJ
 
-ANTOAU = One/ToAng
+ANTOAU = One/Angstrom
 
 ! Calcola la matrice DERDM, derivata di DMAT (secondo COSMO)
 ! rispetto alla coordinata ICOORD della sfera NSJ
@@ -35,7 +36,7 @@ do ITS=1,NTS
     LJ = ISPHE(JTS)
     ! Elementi diagonali di DMAT(x)
     if (ITS == JTS) then
-      FAC = -1.0694_wp*sqrt(PI)
+      FAC = -DiagScale*sqrt(PI)
       DERDM(ITS,ITS) = FAC*DERTES(ITS,NSJ,ICOORD)*ANTOAU/(Tessera(4,ITS)*sqrt(Tessera(4,ITS)))
     else
       ! Elementi fuori diagonale di DMAT(x)

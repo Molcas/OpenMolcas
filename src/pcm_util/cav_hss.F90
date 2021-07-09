@@ -9,15 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Cav_Hss(nAt,nAt3,nTs,nS,Eps,Sphere,iSphe,nOrd,Tessera,Q,DM,Der1,DerDM,Temp,DerTes,DerPunt,DerRad,DerCentr,Hess,nHess)
+subroutine Cav_Hss(nAt,nAt3,nTs,nS,Eps,Sphere,iSphe,nOrd,Tessera,Q,DM,Der1,DerDM,Temp,DerTes,DerPunt,DerRad,DerCentr,Hess)
 
-use Constants, only: Zero, One, Two, Pi, Angstrom
+use PCM_Arrays, only: DiagScale
+use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: nAt, nAt3, nTs, nS, iSphe(*), nOrd(*), nHess
+integer(kind=iwp), intent(in) :: nAt, nAt3, nTs, nS, iSphe(*), nOrd(*)
 real(kind=wp), intent(in) :: Eps, Sphere(4,*), Tessera(4,*), Q(2,*), DM(nTs,*), DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3), &
                              DerRad(nS,nAt,3), DerCentr(nS,nAt,3,3)
 real(kind=wp), intent(_OUT_) :: Der1(*), DerDM(nTs,*), Temp(nTs,*), Hess(nAt3,*)
@@ -27,14 +28,14 @@ real(kind=wp) :: dCent, Diag, dN, dNI, Fact, QtotI, QtotJ, Sum1, Sum2, XN, YN, Z
 ! Derivative of the cavity factor U_x(q)=2 Pi Eps/(Eps-1) sum_i [Qtot**2 * n_x]
 
 Fact = Two*PI*Eps/(Eps-One)
-Diag = -1.0694_wp*sqrt(PI)
+Diag = -DiagScale*sqrt(PI)
 dN = Zero
 ! Double loop on atoms and coordinates
 do Index1=1,nAt3
   iAt1 = int((Index1-1)/3)+1
   iCoord1 = Index1-3*(iAt1-1)
   ! Derivative of the PCM matrix
-  call DMat_CPCM(iAt1,iCoord1,Eps,nTs,nS,nAt,Diag,Tessera,DerDM,DerTes,DerPunt,DerCentr,iSphe)
+  call DMat_CPCM(iAt1,iCoord1,nTs,nS,nAt,Diag,Tessera,DerDM,DerTes,DerPunt,DerCentr,iSphe)
   ! Matrix product: derivative of PCM matrix times the inverted matrix
   call DGEMM_('N','N',nTs,nTs,nTs,One,DerDM,nTs,DM,nTs,Zero,Temp,nTs)
 
@@ -42,7 +43,7 @@ do Index1=1,nAt3
     iAt2 = int((Index2-1)/3)+1
     iCoord2 = Index2-3*(iAt2-1)
     ! Derivative of the normal factor n_x
-    call Der_Norm(Angstrom,iAt1,iCoord1,iAt2,iCOord2,nTs,nAt,nS,Tessera,Der1,DerRad,DerTes,DerPunt,Sphere,iSphe,nOrd)
+    call Der_Norm(iAt1,iCoord1,iAt2,iCOord2,nTs,nAt,nS,Tessera,Der1,DerRad,DerTes,DerPunt,Sphere,iSphe,nOrd)
     ! Find out if atom iAt2 has a sphere around
     iAt2_S = 0
     do iS=1,nS
@@ -77,7 +78,5 @@ do Index1=1,nAt3
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nHess)
 
 end subroutine Cav_Hss

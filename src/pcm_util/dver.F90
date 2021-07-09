@@ -9,14 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DVer(IOpt,IC,ITS,L0,L,L2,DX,DY,DZ,Vert,Centr,nTs,Sphere,IntSph)
+subroutine DVer(IOpt,IC,ITS,L0,L,L2,DX,DY,DZ,Vert,Centr,Sphere,IntSph)
 
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), parameter :: MxVert = 20
-integer(kind=iwp), intent(in) :: IOpt, IC, ITS, L0, L, L2, nTs, IntSph(MxVert,*)
+integer(kind=iwp), intent(in) :: IOpt, IC, ITS, L0, L, L2, IntSph(MxVert,*)
 real(kind=wp), intent(out) :: DX, DY, DZ
 real(kind=wp), intent(in) :: Vert(3,MxVert,*), Centr(3,MxVert,*), Sphere(4,*)
 integer(kind=iwp) :: JJ, L1, NSJ
@@ -97,7 +97,5 @@ DY = FACT*P3(2)
 DZ = FACT*P3(3)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nTs)
 
 end subroutine DVer

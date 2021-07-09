@@ -11,7 +11,7 @@
 
 subroutine GeoDer(nAt,Cond,nTs,nS,Eps,Sphere,ISphe,NOrd,Tessera,Q,DerDM,Grd,DerTes,DerPunt,DerRad,DerCentr)
 
-use Constants, only: Zero, Half, Angstrom
+use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
@@ -37,7 +37,7 @@ do IAtom=1,nAt
     ! Conductor model
     elseif (Cond) then
       GeoGrd = Zero
-      call DerD(Angstrom,IAtom,IXYZ,Tessera,ISphe,DerDM,DerTes,DerPunt,DerCentr,nTs,nAt,nS)
+      call DerD(IAtom,IXYZ,Tessera,ISphe,DerDM,DerTes,DerPunt,DerCentr,nTs,nAt,nS)
       do iTs=1,nTs
         Qi = Q(1,iTs)+Q(2,iTs)
         do jTs=1,nTs

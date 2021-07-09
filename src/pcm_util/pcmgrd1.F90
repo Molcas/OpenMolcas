@@ -37,7 +37,7 @@ implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ii, ipA, ipAOff, ipB, ipBOff, ipDAO, iPrint, iRout, &
                      iStb(0:7), iTs, iuvwx(4), iZeta, j, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, &
-                     nDiff, nip, nla, nlb, nOp, nStb, nT
+                     nDiff, nip, nla, nlb, nOOp, nStb, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, Q, TC(3)
 logical(kind=iwp) :: NoLoop, JfGrad(3,4)
 character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
@@ -45,14 +45,20 @@ integer(kind=iwp), external :: NrOpr
 external :: Fake, TNAI1, XCff2D
 #include "print.fh"
 
+#include "macros.fh"
+unused_var(Final)
+unused_var(nHer)
+unused_var(Ccoor)
+unused_var(lOper)
+
 iRout = 151
 iPrint = nPrint(iRout)
 
-! Modify the density matrix with the prefactor
-
 nla = (la+1)*(la+2)/2
 nlb = (lb+1)*(lb+2)/2
-nOp = (nOrdOp+1)*(nOrdOp+2)/2
+nOOp = (nOrdOp+1)*(nOrdOp+2)/2
+
+! Modify the density matrix with the prefactor
 
 nDAO = nla*nlb
 do iDAO=1,nDAO
@@ -69,7 +75,7 @@ nip = nip+nAlpha*nBeta
 ipB = nip
 nip = nip+nAlpha*nBeta
 ipDAO = nip
-nip = nip+nAlpha*nBeta*nla*nlb*nOp
+nip = nip+nAlpha*nBeta*nla*nlb*nOOp
 if (nip-1 > nZeta*nArr) then
   write(u6,*) 'nip-1 > nZeta*nArr'
   call ErrTra()
@@ -138,7 +144,7 @@ do iTs=1,1
   if (iPrint >= 99) then
     write(u6,*) ' Q=',Q
     write(u6,*) ' Fact=',Fact
-    call RecPrt('DAO*Fact*Q',' ',Array(ipDAO),nZeta*nDAO,nOp)
+    call RecPrt('DAO*Fact*Q',' ',Array(ipDAO),nZeta*nDAO,nOOp)
     write(u6,*) ' m      =',nStabM
     write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
     write(u6,*) ' s      =',nStb
@@ -192,7 +198,7 @@ do iTs=1,1
     nDiff = 1
     mRys = (la+lb+2+nDiff+nOrdOp)/2
     call Rysg1(iAnga,mRys,nT,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,Coori,Coori,CoorAC, &
-               Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nOp,Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
+               Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nOOp,Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
 
     !call RecPrt(' In PCMgrd:Grad',' ',Grad,nGrad,1)
   end do  ! End loop over DCRs
@@ -200,12 +206,5 @@ do iTs=1,1
 end do     ! End loop over centers in the external field
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(final)
-  call Unused_integer(nHer)
-  call Unused_real_array(Ccoor)
-  call Unused_integer_array(lOper)
-end if
 
 end subroutine PCMgrd1

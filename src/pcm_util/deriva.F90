@@ -9,10 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Deriva(IPrint,ToAng,NAt,nTs,NEsf,NEsfP,RSolv,Tessera,Vert,Centr,Sphere,ISphe,IntSph,NOrd,NVert,NewSph,DerTes,DerPunt, &
-                  DerRad,DerCentr)
+subroutine Deriva(IPrint,NAt,nTs,NEsf,NEsfP,RSolv,Tessera,Vert,Centr,Sphere,ISphe,IntSph,NOrd,NVert,NewSph,DerTes,DerPunt,DerRad, &
+                  DerCentr)
 
-use Constants, only: Zero, One, Two, Ten, Half
+use Constants, only: Zero, One, Two, Ten, Half, Angstrom
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), parameter :: MxVert = 20
 integer(kind=iwp), intent(in) :: IPrint, NAt, nTs, NEsf, NEsfP, ISphe(*), IntSph(MxVert,*), NOrd(*), NVert(*), NewSph(2,NEsf)
-real(kind=wp), intent(in) :: ToAng, RSolv
+real(kind=wp), intent(in) :: RSolv
 real(kind=wp), intent(inout) :: Tessera(4,*), Vert(3,MxVert,*), Centr(3,MxVert,*), Sphere(4,*)
 real(kind=wp), intent(_OUT_) :: DerTes(nTs,NAt,3), DerPunt(nTs,NAt,3,3), DerRad(NEsf,NAt,3), DerCentr(NEsf,NAt,3,3)
 integer(kind=iwp) :: AlGe(63), Casca(MxVert), I, ICONT, ICoord, idx, II, IJunk, IMAX, IMIN, ITS, JJ, K, LIVEL, LL, N, NDeg, NESFJ, &
@@ -62,11 +62,11 @@ call FZero(DerPunt(1,1,1,1),3*nTs*NDeg)
 call FZero(DerRad(1,1,1),NEsf*NDeg)
 call FZero(DerCentr(1,1,1,1),3*NEsf*NDeg)
 ! The geometric quantities are expected to be in Angstrom
-call DScal_(4*nTs,ToAng,Tessera(1,1),1)
-call DScal_(nTs,ToAng,Tessera(4,1),4)
-call DScal_(4*NEsf,ToAng,Sphere(1,1),1)
-call DScal_(3*MxVert*nTs,ToAng,Vert(1,1,1),1)
-call DScal_(3*MxVert*nTs,ToAng,Centr(1,1,1),1)
+call DScal_(4*nTs,Angstrom,Tessera(1,1),1)
+call DScal_(nTs,Angstrom,Tessera(4,1),4)
+call DScal_(4*NEsf,Angstrom,Sphere(1,1),1)
+call DScal_(3*MxVert*nTs,Angstrom,Vert(1,1,1),1)
+call DScal_(3*MxVert*nTs,Angstrom,Centr(1,1,1),1)
 
 outer: do NSJ=1,NAt
   do ICoord=1,3
@@ -116,7 +116,7 @@ outer: do NSJ=1,NAt
             if (INTSPH(N,ITs) == NSK) ICONT = ICONT+1
           end do
           if (ICONT == 0) cycle
-          call dSd(0,ITS,ICOORD,NSK,DERS,DERP,Tessera,Vert,Centr,nTs,Sphere,ISphe,IntSph,NewSph,NVert)
+          call dSd(0,ITS,ICOORD,NSK,DERS,DERP,Tessera,Vert,Centr,Sphere,ISphe,IntSph,NVert)
           DERTS = DERTS-DERS
           do JJ=1,3
             DERPT(JJ) = DERPT(JJ)-DERP(JJ)
@@ -132,7 +132,7 @@ outer: do NSJ=1,NAt
           if (INTSPH(N,ITs) == NESFJ) ICONT = ICONT+1
         end do
         if (ICONT >= 1) then
-          call dSd(0,ITS,ICOORD,NESFJ,DERS,DERP,Tessera,Vert,Centr,nTs,Sphere,ISphe,IntSph,NewSph,NVert)
+          call dSd(0,ITS,ICOORD,NESFJ,DERS,DERP,Tessera,Vert,Centr,Sphere,ISphe,IntSph,NVert)
           DERTS = DERTS+DERS
           do JJ=1,3
             DERPT(JJ) = DERPT(JJ)+DERP(JJ)
@@ -299,7 +299,7 @@ outer: do NSJ=1,NAt
                 end do
                 if (ICONT == 0) cycle
                 ! Derivate relative al raggio di NSI: 2) raggio delle altre sfere
-                call dSd(1,ITS,IJunk,NSK,DERS,DERP,Tessera,Vert,Centr,nTs,Sphere,ISphe,IntSph,NewSph,NVert)
+                call dSd(1,ITS,IJunk,NSK,DERS,DERP,Tessera,Vert,Centr,Sphere,ISphe,IntSph,NVert)
                 DERTS = DERTS-DERS*Sphere(4,NSK)*DR/Sphere(4,NSI)
                 do JJ=1,3
                   DERPT(JJ) = DERPT(JJ)-DERP(JJ)*Sphere(4,NSK)*DR/Sphere(4,NSI)
@@ -310,7 +310,7 @@ outer: do NSJ=1,NAt
                 DISTKI(3) = Sphere(3,NSK)-Sphere(3,NSI)
                 FAC = DR/Sphere(4,NSI)
                 do JJ=1,3
-                  call dSd(0,ITS,JJ,NSK,DERS,DERP,Tessera,Vert,Centr,nTs,Sphere,ISphe,IntSph,NewSph,NVert)
+                  call dSd(0,ITS,JJ,NSK,DERS,DERP,Tessera,Vert,Centr,Sphere,ISphe,IntSph,NVert)
                   if (DISTKI(JJ) /= ZERO) then
                     DERTS = DERTS-FAC*DERS*DISTKI(JJ)
                     do LL=1,3
@@ -319,17 +319,17 @@ outer: do NSJ=1,NAt
                   end if
                 end do
                 ! Derivate relative alle coordinate di NSI
-                call dSd(0,ITS,1,NSK,DERS,DERP,Tessera,Vert,Centr,nTs,Sphere,ISphe,IntSph,NewSph,NVert)
+                call dSd(0,ITS,1,NSK,DERS,DERP,Tessera,Vert,Centr,Sphere,ISphe,IntSph,NVert)
                 DERTS = DERTS-DX*DERS
                 do JJ=1,3
                   DERPT(JJ) = DERPT(JJ)-DX*DERP(JJ)
                 end do
-                call dSd(0,ITS,2,NSK,DERS,DERP,Tessera,Vert,Centr,nTs,Sphere,ISphe,IntSph,NewSph,NVert)
+                call dSd(0,ITS,2,NSK,DERS,DERP,Tessera,Vert,Centr,Sphere,ISphe,IntSph,NVert)
                 DERTS = DERTS-DY*DERS
                 do JJ=1,3
                   DERPT(JJ) = DERPT(JJ)-DY*DERP(JJ)
                 end do
-                call dSd(0,ITS,3,NSK,DERS,DERP,Tessera,Vert,Centr,nTs,Sphere,ISphe,IntSph,NewSph,NVert)
+                call dSd(0,ITS,3,NSK,DERS,DERP,Tessera,Vert,Centr,Sphere,ISphe,IntSph,NVert)
                 DERTS = DERTS-DZ*DERS
                 do JJ=1,3
                   DERPT(JJ) = DERPT(JJ)-DZ*DERP(JJ)
@@ -347,23 +347,23 @@ outer: do NSJ=1,NAt
               end do
               if (ICONT == 0) cycle
               ! Derivate relative al raggio di NSA
-              call dSd(1,ITS,IJunk,NSA,DERS,DERP,Tessera,Vert,Centr,nTs,Sphere,ISphe,IntSph,NewSph,NVert)
+              call dSd(1,ITS,IJunk,NSA,DERS,DERP,Tessera,Vert,Centr,Sphere,ISphe,IntSph,NVert)
               DERTS = DERS*DR
               do JJ=1,3
                 DERPT(JJ) = DERP(JJ)*DR
               end do
               ! Derivate relative alle coordinate di NSA
-              call dSd(0,ITS,1,NSA,DERS,DERP,Tessera,Vert,Centr,nTs,Sphere,ISphe,IntSph,NewSph,NVert)
+              call dSd(0,ITS,1,NSA,DERS,DERP,Tessera,Vert,Centr,Sphere,ISphe,IntSph,NVert)
               DERTS = DERTS+DX*DERS
               do JJ=1,3
                 DERPT(JJ) = DERPT(JJ)+DX*DERP(JJ)
               end do
-              call dSd(0,ITS,2,NSA,DERS,DERP,Tessera,Vert,Centr,nTs,Sphere,ISphe,IntSph,NewSph,NVert)
+              call dSd(0,ITS,2,NSA,DERS,DERP,Tessera,Vert,Centr,Sphere,ISphe,IntSph,NVert)
               DERTS = DERTS+DY*DERS
               do JJ=1,3
                 DERPT(JJ) = DERPT(JJ)+DY*DERP(JJ)
               end do
-              call dSd(0,ITS,3,NSA,DERS,DERP,Tessera,Vert,Centr,nTs,Sphere,ISphe,IntSph,NewSph,NVert)
+              call dSd(0,ITS,3,NSA,DERS,DERP,Tessera,Vert,Centr,Sphere,ISphe,IntSph,NVert)
               DERTS = DERTS+DZ*DERS
               do JJ=1,3
                 DERPT(JJ) = DERPT(JJ)+DZ*DERP(JJ)
@@ -395,7 +395,7 @@ outer: do NSJ=1,NAt
   end do
 end do outer
 ! Put the geometric quantities in Bohr again
-ToBohr = One/ToAng
+ToBohr = One/Angstrom
 call DScal_(4*nTs,ToBohr,Tessera(1,1),1)
 call DScal_(nTs,ToBohr,Tessera(4,1),4)
 call DScal_(4*NEsf,ToBohr,Sphere(1,1),1)

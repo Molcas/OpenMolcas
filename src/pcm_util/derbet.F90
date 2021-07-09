@@ -9,14 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DerBet(IOpt,IC,NSFE,ITS,L0,L1,L2,DP,DA,Vert,Centr,nTs,Sphere,IntSph,ISphe)
+subroutine DerBet(IOpt,IC,NSFE,ITS,L0,L1,L2,DP,DA,Vert,Centr,Sphere,IntSph,ISphe)
 
 use Constants, only: Zero, Two, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), parameter :: MxVert = 20
-integer(kind=iwp), intent(in) :: IOpt, IC, NSFE, ITS, L0, L1, L2, nTs, IntSph(MxVert,*), ISphe(*)
+integer(kind=iwp), intent(in) :: IOpt, IC, NSFE, ITS, L0, L1, L2, IntSph(MxVert,*), ISphe(*)
 real(kind=wp), intent(in) :: DP(MxVert,3), Vert(3,MxVert,*), Centr(3,MxVert,*), Sphere(4,*)
 real(kind=wp), intent(out) :: DA
 integer(kind=iwp) :: IDX, JJ, NS1, NS2, NS3
@@ -256,7 +256,5 @@ DBETA = DBETA/(SENBETA*dnxxt0*dnxxt1)
 DA = Sphere(4,NS1)*Sphere(4,NS1)*DBETA
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nTs)
 
 end subroutine DerBet
