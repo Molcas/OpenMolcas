@@ -47,7 +47,7 @@ do N=1,3
 end do
 ! Loop sulle altre sfere
 do NSFE1=1,NESF
-  if (NSFE1 == NS) goto 150
+  if (NSFE1 == NS) cycle
   ! Memorizza i vertici e i centri che sottendono gli archi
   do J=1,NV
     INTSCR(J) = INTSPH(J,MaxT)
@@ -110,11 +110,10 @@ do NSFE1=1,NESF
           do JJ=1,3
             POINTL(JJ,L) = POINT(JJ)
           end do
-          goto 160
+          exit
         end if
       end do
     end if
-160 continue
   end do
   ! Se la tessera e' spezzata in due o piu' tronconi, la trascura
   ICUT = 0
@@ -129,7 +128,7 @@ do NSFE1=1,NESF
   N = 1
   do L=1,NV
     ! Se il lato L e' coperto:
-    if (LTYP(L) == 0) goto 300
+    if (LTYP(L) == 0) cycle
     IV1 = L
     IV2 = L+1
     if (L == NV) IV2 = 1
@@ -277,11 +276,9 @@ do NSFE1=1,NESF
       write(u6,'(/,a)') ' TESSERA: too many vertices in a tessera'
       call Abend()
     end if
-300 continue
   end do
 
   NV = N-1
-150 continue
 end do
 
 ! Se la tessera non e' stata scartata, a questo punto ne troviamo

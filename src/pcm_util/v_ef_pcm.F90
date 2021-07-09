@@ -162,16 +162,13 @@ real(kind=wp), intent(inout) :: VTessera(3,nTs)
 integer(kind=iwp) :: i, iAng, iAO, iBas, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), iKappa, iKern, iPCoor, ipDAO, ipDSO, &
                      ipDSOp, ipFnl, ipFnlc, iPrim, iPrint, ipZI, iRout, iS, iScrt1, iScrt2, iShell, iShll, iSmLbl, iStabM(0:7), &
                      iStabO(0:7), iTile, iuv, iZeta, jAng, jAO, jBas, jCmp, jCnt, jCnttp, jPrim, jS, jShell, jShll, kk, lDCRR, &
-                     lDCRT, lFinal, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nComp, nDAO, nDCRR, nDCRT, nOp(3), nOrder, nScr1, &
-                     nScr2, nSkal, nSO, nStabM, nStabO
+                     lDCRT, lFinal, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nComp, nDAO, nDCRR, nDCRT, niAng, njAng, nOp(3), &
+                     nOrder, nScr1, nScr2, nSkal, nSO, nStabM, nStabO
 real(kind=wp) ::  A(3), B(3), C(3), FactNd, RB(3), TA(3), TRB(3)
 logical(kind=iwp) :: AeqB
 character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 real(kind=r8), external :: DDot_
-! Statement functions
-integer(kind=iwp) :: ixyz, nElem
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 iRout = 112
 iPrint = nPrint(iRout)
@@ -203,6 +200,7 @@ do iS=1,nSkal
   iCnttp = iSD(13,iS)
   iCnt = iSD(14,iS)
   A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
+  niAng = (iAng+1)*(iAng+2)/2
   do jS=1,iS
     jShll = iSD(0,jS)
     jAng = iSD(1,jS)
@@ -215,10 +213,11 @@ do iS=1,nSkal
     jCnttp = iSD(13,jS)
     jCnt = iSD(14,jS)
     B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
+    njAng = (jAng+1)*(jAng+2)/2
 
     iSmLbl = 1
     nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
-    if (nSO == 0) Go To 131
+    if (nSO == 0) cycle
     if (iPrint >= 19) write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
 
     ! Call kernel routine to get memory requirement.
@@ -232,20 +231,20 @@ do iS=1,nSkal
     ! primitive basis.
 
     nComp = (nOrdOp+1)*(nOrdOp+2)/2
-    lFinal = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)*nComp
+    lFinal = S%MaxPrm(iAng)*S%MaxPrm(jAng)*niAng*njAng*nComp
     call GetMem('Final','ALLO','REAL',ipFnl,lFinal)
 
     ! Scratch area for contraction step
 
-    nScr1 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+    nScr1 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*niAng*njAng
     call GetMem('Scrtch','ALLO','REAL',iScrt1,nScr1)
 
     ! Scratch area for the transformation to spherical gaussians
 
-    nScr2 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+    nScr2 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*niAng*njAng
     call GetMem('ScrSph','Allo','Real',iScrt2,nScr2)
 
-    nDAO = iPrim*jPrim*nElem(iAng)*nElem(jAng)
+    nDAO = iPrim*jPrim*niAng*njAng
     call GetMem(' DAO ','Allo','Real',ipDAO,nDAO)
 
     ! At this point we can compute Zeta.
@@ -300,7 +299,7 @@ do iS=1,nSkal
       ! Loop over operators
 
       do iTile=1,nTs
-        if (FactOp(iTile) == Zero) Go To 5000
+        if (FactOp(iTile) == Zero) cycle
         call dcopy_(3,Ccoor(1,iTile),1,C,1)
 
         ! Generate stabilizer of the operator.
@@ -347,7 +346,7 @@ do iS=1,nSkal
 
           ! Project the spherical harmonic space onto the cartesian space.
 
-          kk = nElem(iAng)*nElem(jAng)
+          kk = niAng*njAng
           if (Shells(iShll)%Transf .or. Shells(jShll)%Transf) then
 
             ! ij,AB --> AB,ij
@@ -389,17 +388,15 @@ do iS=1,nSkal
           end do
 
         end do
-5000    continue
       end do
     end do
 
     call GetMem('DSOpr ','Free','REAL',ipDSOp,nSO*iPrim*jPrim)
-    call GetMem(' DAO ','Free','Real',ipDAO,iPrim*jPrim*nElem(iAng)*nElem(jAng))
+    call GetMem(' DAO ','Free','Real',ipDAO,iPrim*jPrim*niAng*njAng)
     call GetMem('ScrSph','Free','Real',iScrt2,nScr2)
     call GetMem('Scrtch','Free','Real',iScrt1,nScr1)
     call GetMem('Final','Free','Real',ipFnl,lFinal)
     call GetMem('Kernel','Free','Real',iKern,MemKrn)
-131 continue
   end do
 end do
 

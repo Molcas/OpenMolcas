@@ -150,31 +150,28 @@ end if
 
 if (IColAt(NumAtI) == 5) then
   NBIA = NBond(IAt)
-  goto(10,20,30,40) NBIA
-10 continue
-  HybNew = One
-  ICC = IBond(1,IAt)
-  ICN = IAn(IBond(1,IAt))
-  if ((ICN == 6) .and. (NBond(ICC) == 1) .and. (.not. OKCHG)) Chg = -One
-  goto 50
-20 continue
-  if (PIAT(IAt,IAn,NBond,IBond)) then
-    HybNew = Two
-  else
-    if (.not. OKCHG) Chg = -One
-  end if
-  goto 50
-30 continue
-  if (PIAT(IAt,IAn,NBond,IBond)) HybNew = Two
-  goto 50
-40 continue
-  NBII = 0
-  do ii=1,NBIA
-    NumII = IAn(IBond(II,IAt))
-    if ((NumII == 6) .or. (NumII == 1)) NBII = NBII+1
-  end do
-  if ((NBII > 3) .and. (.not. OKCHG)) Chg = One
-50 continue
+  select case (NBIA)
+    case (1)
+      HybNew = One
+      ICC = IBond(1,IAt)
+      ICN = IAn(IBond(1,IAt))
+      if ((ICN == 6) .and. (NBond(ICC) == 1) .and. (.not. OKCHG)) Chg = -One
+    case (2)
+      if (PIAT(IAt,IAn,NBond,IBond)) then
+        HybNew = Two
+      else
+        if (.not. OKCHG) Chg = -One
+      end if
+    case (3)
+      if (PIAT(IAt,IAn,NBond,IBond)) HybNew = Two
+    case (4)
+      NBII = 0
+      do ii=1,NBIA
+        NumII = IAn(IBond(II,IAt))
+        if ((NumII == 6) .or. (NumII == 1)) NBII = NBII+1
+      end do
+      if ((NBII > 3) .and. (.not. OKCHG)) Chg = One
+  end select
 end if
 
 ! Oxygen, Sulfur, Selenium, Tellurium

@@ -31,9 +31,6 @@ external :: PCMGrd1, PCMMmg
 #include "disp.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
-! Statement function
-integer(kind=iwp) :: i, nElem
-nElem(i) = (i+1)*(i+2)/2
 
 ! Prologue
 iRout = 131
@@ -73,7 +70,7 @@ end if
 ! Work(ip1): lOper of each component of the operator
 
 nOrdOp = 0
-nComp = nElem(nOrdOp)
+nComp = (nOrdOp+1)*(nOrdOp+2)/2
 call GetMem('Coor','Allo','Real',ipC,3)
 call GetMem('lOper','Allo','Inte',ip1,nComp)
 call dcopy_(3,[Zero],0,Work(ipC),1)

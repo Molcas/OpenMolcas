@@ -175,7 +175,8 @@ integer(kind=iwp) :: I, IC, II, IPFlag, IPtype, ISFE, ITS, ITsEff, ITYPC, IV, J,
 real(kind=wp) :: AREA, CCC(3,MxVert), COSOM2, FC, FC1, HH, PP(3), PROD, PTS(3,MxVert), R2GN, REG, REG2, REGD2, REN, REND2, REO, &
                  REO2, REP, REP2, REPD2, RGN, RIJ, RIJ2, RIK, RIK2, RJD, RJK, RJK2, RTDD, RTDD2, Scav, SENOM, SP, TEST, TEST1, &
                  TEST2, TEST3, TEST7, TEST8, VCav, XEN, XI, XJ, XN, YEN, YI, YJ, YN, ZEN, ZI, ZJ, ZN
-real(kind=wp), parameter :: FIRST = Pi/180.0_wp
+logical(kind=iwp) :: FIRST
+real(kind=wp), parameter :: DEGREE = Pi/180.0_wp
 
 ! PEDRA works with Angstroms
 do ISFE=1,NESFP
@@ -193,7 +194,7 @@ do N=1,NESF
   NEWSPH(2,N) = 0
 end do
 ITYPC = 0
-OMEGA = OMEGA*FIRST
+OMEGA = OMEGA*DEGREE
 SENOM = sin(OMEGA)
 COSOM2 = (cos(OMEGA))**2
 RTDD = RET+RSOLV
@@ -202,110 +203,113 @@ NET = NESF
 NN = 2
 NE = NESF
 NEV = NESF
-GO TO 100
-110 continue
-NN = NE+1
-NE = NET
-if (NE > MxSph) then
-  write(u6,1111)
-  call Abend()
-end if
-100 continue
-do I=NN,NE
-  NES = I-1
-  do J=1,NES
-    RIJ2 = (XE(I)-XE(J))**2+(YE(I)-YE(J))**2+(ZE(I)-ZE(J))**2
-    RIJ = sqrt(RIJ2)
-    RJD = RE(J)+RSOLV
-    TEST1 = RE(I)+RJD+RSOLV
-    if (RIJ >= TEST1) GO TO 130
-    REG = max(RE(I),RE(J))
-    REP = min(RE(I),RE(J))
-    REG2 = REG*REG
-    REP2 = REP*REP
-    TEST2 = REP*SENOM+sqrt(REG2-REP2*COSOM2)
-    if (RIJ <= TEST2) GO TO 130
-    REGD2 = (REG+RSOLV)*(REG+RSOLV)
-    TEST3 = (REGD2+REG2-RTDD2)/REG
-    if (RIJ >= TEST3) GO TO 130
-    do K=1,NEV
-      if ((K == J) .or. (K == I)) GO TO 140
-      RJK2 = (XE(J)-XE(K))**2+(YE(J)-YE(K))**2+(ZE(J)-ZE(K))**2
-      if (RJK2 >= RIJ2) GO TO 140
-      RIK2 = (XE(I)-XE(K))**2+(YE(I)-YE(K))**2+(ZE(I)-ZE(K))**2
-      if (RIK2 >= RIJ2) GO TO 140
-      RJK = sqrt(RJK2)
-      RIK = sqrt(RIK2)
-      SP = (RIJ+RJK+RIK)*Half
-      HH = 4*(SP*(SP-RIJ)*(SP-RIK)*(SP-RJK))/RIJ2
-      REO = RE(K)*FRO
-      if (K >= NE) REO = 2.0e-4_wp
-      REO2 = REO*REO
-      if (HH < REO2) GO TO 130
-140   continue
-    end do
-    REPD2 = (REP+RSOLV)**2
-    TEST8 = sqrt(REPD2-RTDD2)+sqrt(REGD2-RTDD2)
-    if (RIJ <= TEST8) GO TO 150
-    REND2 = REGD2+REG2-(REG/RIJ)*(REGD2+RIJ2-REPD2)
-    if (REND2 <= RTDD2) GO TO 130
-    REN = sqrt(REND2)-RSOLV
-    FC = REG/(RIJ-REG)
-    TEST7 = REG-RE(I)
-    KG = I
-    KP = J
-    if (TEST7 <= 1.0e-9_wp) GO TO 160
-    KG = J
-    KP = I
-160 continue
-    FC1 = FC+One
-    XEN = (XE(KG)+FC*XE(KP))/FC1
-    YEN = (YE(KG)+FC*YE(KP))/FC1
-    ZEN = (ZE(KG)+FC*ZE(KP))/FC1
-    ITYPC = 1
-    GO TO 170
-150 continue
-    R2GN = RIJ-REP+REG
-    RGN = R2GN*Half
-    FC = R2GN/(RIJ+REP-REG)
-    FC1 = FC+One
-    TEST7 = REG-RE(I)
-    KG = I
-    KP = J
-    if (TEST7 <= 1.0e-9_wp) GO TO 180
-    KG = J
-    KP = I
-180 continue
-    XEN = (XE(KG)+FC*XE(KP))/FC1
-    YEN = (YE(KG)+FC*YE(KP))/FC1
-    ZEN = (ZE(KG)+FC*ZE(KP))/FC1
-    REN = sqrt(REGD2+RGN*(RGN-(REGD2+RIJ2-REPD2)/RIJ))-RSOLV
-170 continue
-    NET = NET+1
-    XE(NET) = XEN
-    YE(NET) = YEN
-    ZE(NET) = ZEN
-    RE(NET) = REN
-
-    ! Nella matrice NEWSPH(2,NESF) sono memorizzati i numeri delle
-    ! sfere "generatrici" della nuova sfera NET: se la nuova sfera e'
-    ! del tipo A o B entrambi i numeri sono positivi, se e' di tipo
-    ! C il numero della sfera "principale" e' negativo
-    ! (per la definizione del tipo si veda JCC 11, 1047 (1990))
-
-    if (ITYPC == 0) then
-      NEWSPH(1,NET) = KG
-      NEWSPH(2,NET) = KP
-    elseif (ITYPC == 1) then
-      NEWSPH(1,NET) = -KG
-      NEWSPH(2,NET) = KP
+FIRST = .true.
+do
+  if (FIRST) then
+    FIRST = .false.
+  else
+    NN = NE+1
+    NE = NET
+    if (NE > MxSph) then
+      write(u6,1111)
+      call Abend()
     end if
+  end if
+  do I=NN,NE
+    NES = I-1
+    middle: do J=1,NES
+      RIJ2 = (XE(I)-XE(J))**2+(YE(I)-YE(J))**2+(ZE(I)-ZE(J))**2
+      RIJ = sqrt(RIJ2)
+      RJD = RE(J)+RSOLV
+      TEST1 = RE(I)+RJD+RSOLV
+      if (RIJ >= TEST1) cycle
+      REG = max(RE(I),RE(J))
+      REP = min(RE(I),RE(J))
+      REG2 = REG*REG
+      REP2 = REP*REP
+      TEST2 = REP*SENOM+sqrt(REG2-REP2*COSOM2)
+      if (RIJ <= TEST2) cycle
+      REGD2 = (REG+RSOLV)*(REG+RSOLV)
+      TEST3 = (REGD2+REG2-RTDD2)/REG
+      if (RIJ >= TEST3) cycle
+      do K=1,NEV
+        if ((K == J) .or. (K == I)) cycle
+        RJK2 = (XE(J)-XE(K))**2+(YE(J)-YE(K))**2+(ZE(J)-ZE(K))**2
+        if (RJK2 >= RIJ2) cycle
+        RIK2 = (XE(I)-XE(K))**2+(YE(I)-YE(K))**2+(ZE(I)-ZE(K))**2
+        if (RIK2 >= RIJ2) cycle
+        RJK = sqrt(RJK2)
+        RIK = sqrt(RIK2)
+        SP = (RIJ+RJK+RIK)*Half
+        HH = 4*(SP*(SP-RIJ)*(SP-RIK)*(SP-RJK))/RIJ2
+        REO = RE(K)*FRO
+        if (K >= NE) REO = 2.0e-4_wp
+        REO2 = REO*REO
+        if (HH < REO2) cycle middle
+      end do
+      REPD2 = (REP+RSOLV)**2
+      TEST8 = sqrt(REPD2-RTDD2)+sqrt(REGD2-RTDD2)
+      if (RIJ <= TEST8) then
+        R2GN = RIJ-REP+REG
+        RGN = R2GN*Half
+        FC = R2GN/(RIJ+REP-REG)
+        FC1 = FC+One
+        TEST7 = REG-RE(I)
+        if (TEST7 <= 1.0e-9_wp) then
+          KG = I
+          KP = J
+          XEN = (XE(KG)+FC*XE(KP))/FC1
+          YEN = (YE(KG)+FC*YE(KP))/FC1
+          ZEN = (ZE(KG)+FC*ZE(KP))/FC1
+          REN = sqrt(REGD2+RGN*(RGN-(REGD2+RIJ2-REPD2)/RIJ))-RSOLV
+        else
+          KG = J
+          KP = I
+        end if
+      else
+        REND2 = REGD2+REG2-(REG/RIJ)*(REGD2+RIJ2-REPD2)
+        if (REND2 <= RTDD2) cycle
+        REN = sqrt(REND2)-RSOLV
+        FC = REG/(RIJ-REG)
+        TEST7 = REG-RE(I)
+        if (TEST7 <= 1.0e-9_wp) then
+          KG = I
+          KP = J
+          FC1 = FC+One
+          XEN = (XE(KG)+FC*XE(KP))/FC1
+          YEN = (YE(KG)+FC*YE(KP))/FC1
+          ZEN = (ZE(KG)+FC*ZE(KP))/FC1
+          ITYPC = 1
+        else
+          KG = J
+          KP = I
+        end if
+      end if
+      NET = NET+1
+      XE(NET) = XEN
+      YE(NET) = YEN
+      ZE(NET) = ZEN
+      RE(NET) = REN
 
-130 continue
+      ! Nella matrice NEWSPH(2,NESF) sono memorizzati i numeri delle
+      ! sfere "generatrici" della nuova sfera NET: se la nuova sfera e'
+      ! del tipo A o B entrambi i numeri sono positivi, se e' di tipo
+      ! C il numero della sfera "principale" e' negativo
+      ! (per la definizione del tipo si veda JCC 11, 1047 (1990))
+
+      if (ITYPC == 0) then
+        NEWSPH(1,NET) = KG
+        NEWSPH(2,NET) = KP
+      elseif (ITYPC == 1) then
+        NEWSPH(1,NET) = -KG
+        NEWSPH(2,NET) = KP
+      end if
+
+    end do middle
+    NEV = NET
   end do
-  NEV = NET
+  if (NET == NE) exit
 end do
-if (NET /= NE) GO TO 110
 NESF = NET
 
 ! Division of the surface into tesserae
@@ -360,7 +364,7 @@ do NSFE=1,NESF
     ! sfere a cui appartengono i lati delle tessere.
 
     call TESSERA(iPrint,MxTs,Nesf,NSFE,NV,XE,YE,ZE,RE,IntSph,PTS,CCC,PP,AREA)
-    if (AREA == Zero) goto 310
+    if (AREA == Zero) cycle
     NN1 = NN1+1
     NN = min(NN1,MxTs)
     XCTS(NN) = PP(1)
@@ -379,7 +383,6 @@ do NSFE=1,NESF
     do IV=1,NV
       INTSPH(IV,NN) = INTSPH(IV,MxTs)
     end do
-310 continue
   end do
 end do
 NTS = NN
@@ -388,19 +391,19 @@ NTS = NN
 TEST = 0.02_wp
 TEST2 = TEST*TEST
 do I=1,NTS-1
-  if (AS(I) == ZERO) goto 400
+  if (AS(I) == ZERO) cycle
   XI = XCTS(I)
   YI = YCTS(I)
   ZI = ZCTS(I)
   II = I+1
   do J=II,NTS
-    if (ISPHE(I) == ISPHE(J)) goto 410
-    if (AS(J) == ZERO) goto 410
+    if (ISPHE(I) == ISPHE(J)) cycle
+    if (AS(J) == ZERO) cycle
     XJ = XCTS(J)
     YJ = YCTS(J)
     ZJ = ZCTS(J)
     RIJ = (XI-XJ)**2+(YI-YJ)**2+(ZI-ZJ)**2
-    if (RIJ > TEST2) goto 410
+    if (RIJ > TEST2) cycle
 
     ! La routine originaria sostituiva le due tessere troppo vicine con una
     ! sola tessera. Nel caso Gauss-Bonnet, anche i vertici delle tessere
@@ -410,9 +413,7 @@ do I=1,NTS-1
     if (IPRINT == 2) write(u6,1000) I,J,TEST2
     if (AS(I) < AS(J)) AS(I) = ZERO
     if (AS(I) >= AS(J)) AS(J) = ZERO
-410 continue
   end do
-400 continue
 end do
 
 ! E' preferibile eliminare del tutto le tessere che per
@@ -423,28 +424,28 @@ end do
 ! Define here the number of tesserae in electrostatic calculations
 ! to avoid problems in successive calcn.
 ITS = 0
-450 continue
-ITS = ITS+1
-if (AS(ITS) < 1.0e-10_wp) then
-  do I=ITS,NTS-1
-    AS(I) = AS(I+1)
-    XCTS(I) = XCTS(I+1)
-    YCTS(I) = YCTS(I+1)
-    ZCTS(I) = ZCTS(I+1)
-    ISPHE(I) = ISPHE(I+1)
-    NVERT(I) = NVERT(I+1)
-    do IV=1,MxVert
-      INTSPH(IV,I) = INTSPH(IV,I+1)
-      do IC=1,3
-        VERT(IC,IV,I) = VERT(IC,IV,I+1)
-        CENTR(IC,IV,I) = CENTR(IC,IV,I+1)
+do while (ITS < NTS)
+  ITS = ITS+1
+  if (AS(ITS) < 1.0e-10_wp) then
+    do I=ITS,NTS-1
+      AS(I) = AS(I+1)
+      XCTS(I) = XCTS(I+1)
+      YCTS(I) = YCTS(I+1)
+      ZCTS(I) = ZCTS(I+1)
+      ISPHE(I) = ISPHE(I+1)
+      NVERT(I) = NVERT(I+1)
+      do IV=1,MxVert
+        INTSPH(IV,I) = INTSPH(IV,I+1)
+        do IC=1,3
+          VERT(IC,IV,I) = VERT(IC,IV,I+1)
+          CENTR(IC,IV,I) = CENTR(IC,IV,I+1)
+        end do
       end do
     end do
-  end do
-  NTS = NTS-1
-  ITS = ITS-1
-end if
-if (ITS < NTS) goto 450
+    NTS = NTS-1
+    ITS = ITS-1
+  end if
+end do
 !***********************************************************************
 ! Calcola il volume della cavita' con la formula (t. di Gauss):
 !            V=SOMMAsulleTESSERE{A r*n}/3
@@ -473,7 +474,7 @@ do I=1,NTS
   K = ISPHE(I)
   SSFE(K) = SSFE(K)+AS(I)
 end do
-OMEGA = OMEGA/FIRST
+OMEGA = OMEGA/DEGREE
 if (IPRINT == 2) write(u6,1100) OMEGA,RSOLV,RET,FRO,NESF
 do I=1,NESF
   if (IPRINT == 2) write(u6,1200) I,XE(I),YE(I),ZE(I),RE(I),SSFE(I)

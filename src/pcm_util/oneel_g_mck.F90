@@ -55,8 +55,8 @@ character(len=80), intent(in) :: Label
 integer(kind=iwp) :: i, iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ijS, iKappa, iKern, IndGrd(3,2), &
                      iPCoor, ipDAO, ipDSO, ipDSOp, ipFnl, iPrim, iPrint, ipZI, iRout, iS, iScrt1, iScrt2, iShell, iShll, iSmLbl, &
                      iStabM(0:7), iStabO(0:7), iuv, iZeta, jAng, jAO, jBas, jCmp, jCnt, jCnttp, jPrim, jS, jShell, jShll, kk, &
-                     lDCRR, lFinal, llOper, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nDCRR, nDCRT, nOp(2), nOrder, nScr1, nScr2, &
-                     nSkal, nSO, nStabM, nStabO, nTasks
+                     lDCRR, lFinal, llOper, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nDCRR, nDCRT, niAng, njAng, nOp(2), nOrder, &
+                     nScr1, nScr2, nSkal, nSO, nStabM, nStabO, nTasks
 real(kind=wp) :: A(3), B(3), FactNd, RB(3)
 logical(kind=iwp) :: AeqB, EQ, IfGrad(3,3)
 character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
@@ -66,9 +66,6 @@ integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
-! Statement function
-integer(kind=iwp) :: ixyz, nElem
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 iRout = 112
 iPrint = nPrint(iRout)
@@ -113,6 +110,7 @@ do ijS=1,nTasks
   iCnttp = iSD(13,iS)
   iCnt = iSD(14,iS)
   A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
+  niAng = (iAng+1)*(iAng+2)/2
 
   !do jS=1,iS
   jShll = iSD(0,jS)
@@ -126,15 +124,16 @@ do ijS=1,nTasks
   jCnttp = iSD(13,jS)
   jCnt = iSD(14,jS)
   B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
+  njAng = (jAng+1)*(jAng+2)/2
 
   iSmLbl = 1
   nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
-  if (nSO == 0) Go To 131
+  if (nSO == 0) cycle
 
   ! Find the DCR for A and B
 
   call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
-  if ((.not. DiffOp) .and. (nDCRR == 1) .and. EQ(A,B)) Go To 131
+  if ((.not. DiffOp) .and. (nDCRR == 1) .and. EQ(A,B)) cycle
   if (iPrint >= 49) write(u6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
 
   if (iPrint >= 19) write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
@@ -147,20 +146,20 @@ do ijS=1,nTasks
 
   ! Allocate memory for the final integrals, all in the primitive basis.
 
-  lFinal = 6*S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)*nComp
+  lFinal = 6*S%MaxPrm(iAng)*S%MaxPrm(jAng)*niAng*njAng*nComp
   call GetMem('Final','ALLO','REAL',ipFnl,lFinal)
 
   ! Scratch area for contraction step
 
-  nScr1 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+  nScr1 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*niAng*njAng
   call GetMem('Scrtch','ALLO','REAL',iScrt1,nScr1)
 
   ! Scratch area for the transformation to spherical gaussians
 
-  nScr2 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+  nScr2 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*niAng*njAng
   call GetMem('ScrSph','Allo','Real',iScrt2,nScr2)
 
-  call GetMem(' DAO ','Allo','Real',ipDAO,iPrim*jPrim*nElem(iAng)*nElem(jAng))
+  call GetMem(' DAO ','Allo','Real',ipDAO,iPrim*jPrim*niAng*njAng)
 
   ! At this point we can compute Zeta.
 
@@ -219,7 +218,7 @@ do ijS=1,nTasks
     do lDCRR=0,nDCRR-1
       call OA(iDCRR(lDCRR),B,RB)
       nOp(2) = NrOpr(iDCRR(lDCRR))
-      if (EQ(A,RB) .and. (.not. DiffOp)) Go To 140
+      if (EQ(A,RB) .and. (.not. DiffOp)) cycle
       if (.not. DiffOp) then
         ! Use the translational invariance to reduce the set of
         ! gradients to compute
@@ -265,7 +264,7 @@ do ijS=1,nTasks
       ! Project the spherical harmonic space onto the
       ! cartesian space.
 
-      kk = nElem(iAng)*nElem(jAng)
+      kk = niAng*njAng
       if (Shells(iShll)%Transf .or. Shells(jShll)%Transf) then
 
         ! ---ij,AB --> AB,ij
@@ -288,16 +287,14 @@ do ijS=1,nTasks
                   mdcj,nOp,lOper,nComp,iStabM,nStabM)
       if (iPrint >= 49) call PrGrad_mck(' In Oneel',Grad,nGrad,ChDisp,5)
 
-140   continue
     end do
   end if
   call GetMem('DSOpr ','Free','REAL',ipDSOp,nSO*iPrim*jPrim)
-  call GetMem(' DAO ','Free','Real',ipDAO,iPrim*jPrim*nElem(iAng)*nElem(jAng))
+  call GetMem(' DAO ','Free','Real',ipDAO,iPrim*jPrim*niAng*njAng)
   call GetMem('ScrSph','Free','Real',iScrt2,nScr2)
   call GetMem('Scrtch','Free','Real',iScrt1,nScr1)
   call GetMem('Final','Free','Real',ipFnl,lFinal)
   call GetMem('Kernel','Free','Real',iKern,MemKrn)
-131 continue
   !end do
   !end do
 end do

@@ -148,39 +148,39 @@ do IAt=1,NAt
     do iverif=1,NUAH
       if (IAN(IAT) == NOKUAH(IVerif)) OKUAH = .true.
     end do
-    if (.not. okuah) goto 10
-    if (Chg(IAt) < -1.0e-2_wp) then
-      DRQ = CHg(IAt)*DrQM
-      if (IAn(IAt) == 7) DrQ = Chg(IAT)*0.2_wp
+    if (okuah) then
+      if (Chg(IAt) < -1.0e-2_wp) then
+        DRQ = CHg(IAt)*DrQM
+        if (IAn(IAt) == 7) DrQ = Chg(IAT)*0.2_wp
+      end if
+      if (Chg(IAt) > 0.4_wp) then
+        if (IAn(IAt) == 8) DRQ = -Chg(IAt)*0.26_wp
+        if (IAn(IAt) == 15) DRQ = -Chg(IAt)*0.45_wp
+        if (IAn(IAt) == 16) DRQ = -Chg(IAt)*0.55_wp
+      end if
+      NHI = int(DHyb(IAt))+1
+      if (NHI < 4) then
+        DDHyb = (Four-DHyb(IAt))*GX
+        if (IAn(IAt) /= 6) DDHyb = DDHyb/Two
+      end if
+      DDX = GX*(DX(IAT)+DAl(IAt))
+      Re(I1) = RX+DDX+DDHyb+DRQ
+      ! protect for too small C atoms
+      if ((IAn(IAT) == 6) .and. (Re(I1) < 1.5_wp)) Re(I1) = 1.5_wp
     end if
-    if (Chg(IAt) > 0.4_wp) then
-      if (IAn(IAt) == 8) DRQ = -Chg(IAt)*0.26_wp
-      if (IAn(IAt) == 15) DRQ = -Chg(IAt)*0.45_wp
-      if (IAn(IAt) == 16) DRQ = -Chg(IAt)*0.55_wp
-    end if
-    NHI = int(DHyb(IAt))+1
-    if (NHI < 4) then
-      DDHyb = (Four-DHyb(IAt))*GX
-      if (IAn(IAt) /= 6) DDHyb = DDHyb/Two
-    end if
-    DDX = GX*(DX(IAT)+DAl(IAt))
-    Re(I1) = RX+DDX+DDHyb+DRQ
-    ! protect for too small C atoms
-    if ((IAn(IAT) == 6) .and. (Re(I1) < 1.5_wp)) Re(I1) = 1.5_wp
-10  continue
     NH = IHNum(IAt)+1
     JE = min(4,NTrBnd(IAt))
-    if (iPrint > 5) write(IOut,'(6X,1X,I3,2X,A2,2A1,3X,3A1,2X,F5.2,3X,F4.2,2X,F5.3,3X,6(1X,A2,A3,"[",A1,"]"))') &
-      IAt,AtSymb(IAn(IAt)),HH1(NH),HH2(NH),HY1(NHI),HY2(NHI),HY3(NHI),Chg(IAt),Alpha,Re(I1),(AtSymb(IAn(ITrBnd(J,IAt))),'   ', &
-      BCH(ITrBtp(J,IAt)),J=1,JE)
-    if (NTrBnd(IAt) <= 4) goto 20
-    JE = min(8,NTrBnd(IAt))
-    if (iPrint > 5) write(IOut,'(6X,40X,4(1X,A2,A3,"[",A1,"]"))') (AtSymb(IAn(ITRBnd(JJ,IAt))),'   ',BCH(ITrBtp(JJ,IAt)),JJ=5,JE)
+    if (iPrint > 5) write(IOut,100) IAt,AtSymb(IAn(IAt)),HH1(NH),HH2(NH),HY1(NHI),HY2(NHI),HY3(NHI),Chg(IAt),Alpha,Re(I1), &
+                                    (AtSymb(IAn(ITrBnd(J,IAt))),BCH(ITrBtp(J,IAt)),J=1,JE)
+    if (NTrBnd(IAt) > 4) then
+      JE = min(8,NTrBnd(IAt))
+      if (iPrint > 5) write(IOut,101) (AtSymb(IAn(ITRBnd(JJ,IAt))),BCH(ITrBtp(JJ,IAt)),JJ=5,JE)
 
-    if (NTrBnd(IAt) <= 8) goto 20
-    JE = NTrBnd(IAt)
-    if (iPrint > 5) write(IOut,'(6X,40X,4(1X,A2,A3,"[",A1,"]"))') (AtSymb(IAn(ITRBnd(JJ,IAt))),'   ',BCH(ITrBtp(JJ,IAt)),JJ=9,JE)
-20  continue
+      if (NTrBnd(IAt) > 8) then
+        JE = NTrBnd(IAt)
+        if (iPrint > 5) write(IOut,101) (AtSymb(IAn(ITRBnd(JJ,IAt))),BCH(ITrBtp(JJ,IAt)),JJ=9,JE)
+      end if
+    end if
   end if
 end do
 if (iPrint > 5) then
@@ -189,5 +189,8 @@ if (iPrint > 5) then
 end if
 
 return
+
+100 format (6X,1X,I3,2X,A2,2A1,3X,3A1,2X,F5.2,3X,F4.2,2X,F5.3,3X,6(1X,A2,3X,'[',A1,']'))
+101 format (6X,40X,4(1X,A2,3X,'[',A1,']'))
 
 end subroutine UATM

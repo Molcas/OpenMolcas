@@ -21,17 +21,17 @@ use Definitions, only: iwp
 implicit none
 #define _USE_WP_
 #include "mem_interface.fh"
-integer(kind=iwp) :: iAng(4), MemTmp
-! statement function
-integer(kind=iwp) :: ixyz, nElem
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+integer(kind=iwp) :: iAng(4), MemTmp, nla, nlb, nlr
 
 iAng(1) = la
 iAng(2) = lb
 iAng(3) = lr
 iAng(4) = 0
 call MemRg2(iAng,nHer,MemTmp,2)
-Mem = MemTmp+2+nElem(la)*nElem(lb)*nElem(lr)
+nla = (la+1)*(la+2)/2
+nlb = (lb+1)*(lb+2)/2
+nlr = (lr+1)*(lr+2)/2
+Mem = MemTmp+2+nla*nlb*nlr
 
 return
 

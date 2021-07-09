@@ -125,7 +125,7 @@ iStb(0) = 0
 do iTs=1,nTs
   q_i = PCM_SQ(1,iTs)+PCM_SQ(2,iTs)
   NoLoop = q_i == Zero
-  if (NoLoop) Go To 111
+  if (NoLoop) cycle
   ! Pick up the tile coordinates
   C(1:3) = PCMTess(1:3,iTs)
 
@@ -205,8 +205,7 @@ do iTs=1,nTs
     !call RecPrt(' In PCMHss:Hess',' ',Hess,nHess,1)
   end do  ! End loop over DCRs
 
-111 continue
-end do     ! End loop over centers in the external field
+end do    ! End loop over centers in the external field
 
 return
 ! Avoid unused argument warnings

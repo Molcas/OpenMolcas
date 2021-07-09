@@ -37,7 +37,7 @@ BondOr = Zero
 do I=1,NAtoms
   NBond(I) = 0
   do J=1,NAtoms
-    if (J == I) goto 90
+    if (J == I) cycle
     RIJ = sqrt((C(1,I)-C(1,J))**2+(C(2,I)-C(2,J))**2+(C(3,I)-C(3,J))**2)
     IBondO = IPBO(ToAng,IAn(I),IAn(J),RIJ,BondOr)
     if ((IBondO > 0) .or. AlBond) then
@@ -50,7 +50,6 @@ do I=1,NAtoms
       IBType(NBond(I),I) = IBondO
       PBO(NBond(I),I) = BondOr
     end if
-90  continue
   end do
 end do
 

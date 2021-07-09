@@ -24,7 +24,7 @@ use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
-integer(kind=iwp) :: i, I_Sph, i_sph_inp, iChrct, ii, iPrint, iRout, ITypRad, jRout,Last, n
+integer(kind=iwp) :: i, I_Sph, i_sph_inp, iChrct, ii, iPrint, iRout, istatus, ITypRad, jRout, Last, n
 real(kind=wp) :: aArea, epscm, poltot, r_min_Sphere, Radius, tal, Temp, val
 character(len=180) :: KWord, Key
 integer(kind=iwp), external :: iCLast, nToken, NumSolv
@@ -154,350 +154,289 @@ iPrint = 5
 !                                                                      *
 ! Process the input
 
-998 continue
-read(LuSpool,'(A72)',end=977,ERR=988) Key
-KWord = Key
-call UpCase(KWord)
-if (KWord(1:1) == '*') Go To 998
-if (KWord == '') Go To 998
-if (KWord(1:4) == 'REAC') Go To 900
-if (KWord(1:4) == 'PRIN') Go To 910
-if (KWord(1:4) == 'LANG') Go To 911
-if (KWord(1:4) == 'GITT') Go To 912
-if (KWord(1:4) == 'POLA') Go To 913
-if (KWord(1:4) == 'DIPO') Go To 914
-if (KWord(1:4) == 'OSCA') Go To 915
-if (KWord(1:4) == 'DIED') Go To 916
-if (KWord(1:4) == 'MXLX') Go To 917
-if (KWord(1:4) == 'AFAC') Go To 918
-if (KWord(1:4) == 'RFBA') Go To 919
-if (KWord(1:4) == 'PCM-') Go To 920
-if (KWord(1:4) == 'SOLV') Go To 921
-if (KWord(1:4) == 'DIEL') Go To 922
-if (KWord(1:4) == 'COND') Go To 923
-if (KWord(1:4) == 'AARE') Go To 925
-if (KWord(1:4) == 'R-MI') Go To 926
-if (KWord(1:4) == 'PAUL') Go To 927
-if (KWord(1:4) == 'SPHE') Go To 928
-if (KWord(1:4) == 'TEMP') Go To 929
-if (KWord(1:4) == 'RSCA') Go To 930
-if (KWord(1:4) == 'ROTA') Go To 931
-if (KWord(1:4) == 'SPAR') Go To 932
-if (KWord(1:4) == 'IDAM') Go To 933
-if (KWord(1:4) == 'AVER') Go To 934
-if (KWord(1:4) == 'CONV') Go To 935
-if (KWord(1:4) == 'SKIP') Go To 936
-if (KWord(1:4) == 'NODA') Go To 937
-if (KWord(1:4) == 'LRAD') Go To 938
-if (KWord(1:4) == 'AMBE') Go To 939
-if (KWord(1:4) == 'SC14') Go To 940
-if (KWord(1:4) == 'DRES') Go To 941
-if (KWord(1:4) == 'END ') Go To 997
-iChrct = len(KWord)
-Last = iCLast(KWord,iChrct)
-write(u6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
-call WarningMessage(2,'InpRct: Error in keyword.')
-call Quit_OnUserError()
-!                                                                      *
-!***** REAC ************************************************************
-!                                                                      *
-! Read reaction field parameters
-
-900 continue
-KWord = Get_Ln(LuSpool)
-call Get_F1(1,Eps)
-call Get_F1(2,rds)
-call Get_I1(3,lmax)
-if (nToken(KWord) > 3) call Get_F1(4,EpsInf)
-
-lRF = .true.
-lRFCav = .true.
-write(KWord,'(A,F10.5,A,F10.5,A,I4)') 'eps=',Eps,' radius=',rds,' higest moment=',lMax
-Go To 998
-!                                                                      *
-!***** PRIN ************************************************************
-!                                                                      *
-! Print level
-
-910 continue
-KWord = Get_Ln(LuSpool)
-call Get_I1(1,n)
-do i=1,n
-  KWord = Get_Ln(LuSpool)
-  call Get_I1(1,jRout)
-  call Get_I1(2,iPrint)
-  nPrint(jRout) = iPrint
+do
+  read(LuSpool,'(A72)',iostat=istatus) Key
+  if (istatus < 0) call Error(1)
+  if (istatus > 0) call Error(2)
+  KWord = Key
+  call UpCase(KWord)
+  if ((KWord(1:1) == '*') .or. (KWord == '')) cycle
+  select case (KWord(1:4))
+    case ('REAC')
+      !                                                                *
+      !***** REAC ******************************************************
+      !                                                                *
+      ! Read reaction field parameters
+      KWord = Get_Ln(LuSpool)
+      call Get_F1(1,Eps)
+      call Get_F1(2,rds)
+      call Get_I1(3,lmax)
+      if (nToken(KWord) > 3) call Get_F1(4,EpsInf)
+      lRF = .true.
+      lRFCav = .true.
+      write(KWord,'(A,F10.5,A,F10.5,A,I4)') 'eps=',Eps,' radius=',rds,' higest moment=',lMax
+    case ('PRIN')
+      !                                                                *
+      !***** PRIN ******************************************************
+      !                                                                *
+      ! Print level
+      KWord = Get_Ln(LuSpool)
+      call Get_I1(1,n)
+      do i=1,n
+        KWord = Get_Ln(LuSpool)
+        call Get_I1(1,jRout)
+        call Get_I1(2,iPrint)
+        nPrint(jRout) = iPrint
+      end do
+    case ('LANG')
+      !                                                                *
+      !***** LANG ******************************************************
+      !                                                                *
+      KWord = Get_Ln(LuSpool)
+      call Get_F1(1,scala)
+      call Get_F1(2,scalb)
+      call Get_F1(3,scalc)
+      lLangevin = .true.
+      lRF = .true.
+    case ('GITT')
+      !                                                                *
+      !***** GITT ******************************************************
+      !                                                                *
+      KWord = Get_Ln(LuSpool)
+      call Get_I1(1,latato)
+      do i=1,latato
+        KWord = Get_Ln(LuSpool)
+        call Get_F(1,Cordsi(1,i),3)
+      end do
+    case ('POLA')
+      !                                                                *
+      !***** POLA ******************************************************
+      !                                                                *
+      KWord = Get_Ln(LuSpool)
+      call Get_F1(1,polsi)
+    case ('DIPO')
+      !                                                                *
+      !***** DIPO ******************************************************
+      !                                                                *
+      KWord = Get_Ln(LuSpool)
+      call Get_F1(1,dipsi)
+    case ('OSCA')
+      !                                                                *
+      !***** OSCA ******************************************************
+      !                                                                *
+      KWord = Get_Ln(LuSpool)
+      call Get_F1(1,scaaa)
+    case ('DIED')
+      !                                                                *
+      !***** DIED ******************************************************
+      !                                                                *
+      KWord = Get_Ln(LuSpool)
+      call Get_F1(1,diedel)
+    case ('MXLX')
+      !                                                                *
+      !***** MXLX ******************************************************
+      !                                                                *
+      KWord = Get_Ln(LuSpool)
+      call Get_F1(1,radlat)
+    case ('AFAC')
+      !                                                                *
+      !***** AFAC ******************************************************
+      !                                                                *
+      KWord = Get_Ln(LuSpool)
+      call Get_F1(1,afac)
+      if (afac >= One) then
+        call WarningMessage(2,'InpRct: afac invalid value!;        afac >= 1.0 !')
+        call Quit_OnUserError()
+      end if
+    case ('RFBA')
+      !                                                                *
+      !***** RFBA ******************************************************
+      !                                                                *
+      !RF_Basis = .true.
+    case ('PCM-')
+      !                                                                *
+      !***** PCM- ******************************************************
+      !                                                                *
+      PCM = .true.
+      lRF = .true.
+      lLangevin = .false.
+    case ('SOLV')
+      !                                                                *
+      !***** SOLV ******************************************************
+      !                                                                *
+      Solvent = trim(Get_Ln(LuSpool))
+      ISlPar(15) = NumSolv(Solvent)
+    case ('DIEL')
+      !                                                                *
+      !***** DIEL ******************************************************
+      !                                                                *
+      KWord = Get_Ln(LuSpool)
+      call Get_F1(1,Eps_User)
+      if (nToken(KWord) > 1) call Get_F1(2,EpsInf_User)
+    case ('COND')
+      !                                                                *
+      !***** COND ******************************************************
+      !                                                                *
+      Conductor = .true.
+      ISlPar(16) = 2
+    case ('AARE')
+      !                                                                *
+      !***** AARE ******************************************************
+      !                                                                *
+      KWord = Get_Ln(LuSpool)
+      call Get_F1(1,aArea)
+      RSlPar(7) = aArea
+    case ('R-MI')
+      !                                                                *
+      !***** RMIN ******************************************************
+      !                                                                *
+      KWord = Get_Ln(LuSpool)
+      call Get_F1(1,r_min_Sphere)
+      RSlPar(3) = r_min_Sphere
+    case ('PAUL')
+      !                                                                *
+      !***** PAUL ******************************************************
+      !                                                                *
+      ITypRad = 2
+      ISlPar(9) = ITypRad
+    case ('SPHE')
+      !                                                                *
+      !***** SPHE ******************************************************
+      !                                                                *
+      KWord = Get_Ln(LuSpool)
+      call Get_I1(1,I_Sph)
+      call Get_F1(2,Radius)
+      ITypRad = 3
+      ISlPar(9) = ITypRad
+      i_sph_inp = i_sph_inp+1
+      NOrdInp(i_sph_inp) = I_Sph
+      RadInp(i_sph_inp) = Radius
+      ISlPar(14) = i_sph_inp
+    case ('TEMP')
+      !                                                                *
+      !***** TEMP ******************************************************
+      !                                                                *
+      ! Temperature for Langevin model
+      KWord = Get_Ln(LuSpool)
+      call Get_F1(1,Temp)
+      tK = kBoltzmann/auTokJ*1.0e-3_wp*Temp
+    case ('RSCA')
+      !                                                                *
+      !***** RSCA ******************************************************
+      !                                                                *
+      ! Simultaneous scaling of all radii
+      KWord = Get_Ln(LuSpool)
+      call Get_F1(1,rsca)
+    case ('ROTA')
+      !                                                                *
+      !***** ROTA ******************************************************
+      !                                                                *
+      ! Rotation of the grid with Euler angles alpha, beta, gamma (degrees)
+      KWord = Get_Ln(LuSpool)
+      call Get_F1(1,rotAlpha)
+      call Get_F1(2,rotBeta)
+      call Get_F1(3,rotGamma)
+      rotAlpha = rotAlpha/180.0_wp*Pi
+      rotBeta = rotBeta/180.0_wp*Pi
+      rotGamma = rotGamma/180.0_wp*Pi
+    case ('SPAR')
+      !                                                                *
+      !***** SPAR ******************************************************
+      !                                                                *
+      ! Use sparse grid outside a distance distSparse from all atoms
+      KWord = Get_Ln(LuSpool)
+      LSparse = .true.
+      call Get_I1(1,nSparse)
+      call Get_F1(2,distSparse)
+    case ('IDAM')
+      !                                                                *
+      !***** IDAM ******************************************************
+      !                                                                *
+      ! change dampIter
+      KWord = Get_Ln(LuSpool)
+      call Get_F1(1,dampIter)
+    case ('AVER')
+      !                                                                *
+      !***** AVER ******************************************************
+      !                                                                *
+      ! requests average among a number of random grids in the Langevin
+      ! routine. Note: Average is taken for each SCF iteration and only
+      ! the last grid is used for updating the density
+      ! nGridSeed is RNG seed, 0=no seed, -1=system timer
+      KWord = Get_Ln(LuSpool)
+      LGridAverage = .true.
+      call Get_I1(1,nGridAverage)
+      call Get_I1(2,nGridSeed)
+    case ('CONV')
+      !                                                                *
+      !***** CONV ******************************************************
+      !                                                                *
+      ! Change convergence threshold
+      KWord = Get_Ln(LuSpool)
+      call Get_F1(1,clim)
+    case ('SKIP')
+      !                                                                *
+      !***** SKIP ******************************************************
+      !                                                                *
+      ! Set minimal distance for dipole-dipole interactions
+      KWord = Get_Ln(LuSpool)
+      call Get_F1(1,dipCutoff)
+    case ('NODA')
+      !                                                                *
+      !***** NODA ******************************************************
+      !                                                                *
+      ! Turn off damping of dipole-dipole interactions
+      lDamping = .false.
+    case ('LRAD')
+      !                                                                *
+      !***** LRAD ******************************************************
+      !                                                                *
+      ! Input non-standard Langevin radii
+      do
+        Kword = Get_Ln(LuSpool)
+        call UpCase(KWord)
+        if (KWord(1:1) == '*') cycle
+        if (KWord == '') cycle
+        if (KWord(1:3) == 'END') exit
+        read(KWord,*,iostat=istatus) ii,val
+        if (istatus > 0) call Error(2)
+        CovRadT_(ii) = val
+        !write(u6,*) 'COVR',ii,val
+      end do
+    case ('AMBE')
+      !                                                                *
+      !***** AMBE ******************************************************
+      !                                                                *
+      ! Use dipole-dipole cutoff of AMBER type
+      lAmberPol = .true.
+    case ('SC14')
+      !                                                                *
+      !***** SC14 ******************************************************
+      !                                                                *
+      ! Scaling of negative entries in exclusion list
+      KWord = Get_Ln(LuSpool)
+      call Get_F1(1,scal14)
+    case ('DRES')
+      !                                                                *
+      !***** DRES ******************************************************
+      !                                                                *
+      ! Restart dipoles from scratch in each QM iteration
+      ! This sometimes gives better convergence.
+      lDiprestart = .true.
+    case ('END ')
+      !                                                                *
+      !***** END  ******************************************************
+      !                                                                *
+      ! End of input
+      exit
+    case default
+      iChrct = len(KWord)
+      Last = iCLast(KWord,iChrct)
+      write(u6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
+      call WarningMessage(2,'InpRct: Error in keyword.')
+      call Quit_OnUserError()
+  end select
 end do
-Go To 998
-!                                                                      *
-!***** LANG ************************************************************
-!                                                                      *
-911 continue
-KWord = Get_Ln(LuSpool)
-call Get_F1(1,scala)
-call Get_F1(2,scalb)
-call Get_F1(3,scalc)
-lLangevin = .true.
-lRF = .true.
-Go To 998
-!                                                                      *
-!***** GITT ************************************************************
-!                                                                      *
-912 continue
-KWord = Get_Ln(LuSpool)
-call Get_I1(1,latato)
-do i=1,latato
-  KWord = Get_Ln(LuSpool)
-  call Get_F(1,Cordsi(1,i),3)
-end do
-Go To 998
-!                                                                      *
-!***** POLA ************************************************************
-!                                                                      *
-913 continue
-KWord = Get_Ln(LuSpool)
-call Get_F1(1,polsi)
-Go To 998
-!                                                                      *
-!***** DIPO ************************************************************
-!                                                                      *
-914 continue
-KWord = Get_Ln(LuSpool)
-call Get_F1(1,dipsi)
-Go To 998
-!                                                                      *
-!***** OSCA ************************************************************
-!                                                                      *
-915 continue
-KWord = Get_Ln(LuSpool)
-call Get_F1(1,scaaa)
-Go To 998
-!                                                                      *
-!***** DIED ************************************************************
-!                                                                      *
-916 continue
-KWord = Get_Ln(LuSpool)
-call Get_F1(1,diedel)
-Go To 998
-!                                                                      *
-!***** MXLX ************************************************************
-!                                                                      *
-917 continue
-KWord = Get_Ln(LuSpool)
-call Get_F1(1,radlat)
-Go To 998
-!                                                                      *
-!***** AFAC ************************************************************
-!                                                                      *
-918 continue
-KWord = Get_Ln(LuSpool)
-call Get_F1(1,afac)
-if (afac >= One) then
-  call WarningMessage(2,'InpRct: afac invalid value!;        afac >= 1.0 !')
-  call Quit_OnUserError()
-end if
-Go To 998
-!                                                                      *
-!***** RFBA ************************************************************
-!                                                                      *
-919 continue
-!RF_Basis = .true.
-Go To 998
-!                                                                      *
-!***** PCM- ************************************************************
-!                                                                      *
-920 continue
-PCM = .true.
-lRF = .true.
-lLangevin = .false.
-Go To 998
-!                                                                      *
-!***** SOLV ************************************************************
-!                                                                      *
-921 continue
-Solvent = trim(Get_Ln(LuSpool))
-ISlPar(15) = NumSolv(Solvent)
-Go To 998
-!                                                                      *
-!***** DIEL ************************************************************
-!                                                                      *
-922 continue
-KWord = Get_Ln(LuSpool)
-call Get_F1(1,Eps_User)
-if (nToken(KWord) > 1) call Get_F1(2,EpsInf_User)
-Go To 998
-!                                                                      *
-!***** COND ************************************************************
-!                                                                      *
-923 continue
-Conductor = .true.
-ISlPar(16) = 2
-Go To 998
-!                                                                      *
-!***** AARE ************************************************************
-!                                                                      *
-925 continue
-KWord = Get_Ln(LuSpool)
-call Get_F1(1,aArea)
-RSlPar(7) = aArea
-Go To 998
-!                                                                      *
-!***** RMIN ************************************************************
-!                                                                      *
-926 continue
-KWord = Get_Ln(LuSpool)
-call Get_F1(1,r_min_Sphere)
-RSlPar(3) = r_min_Sphere
-Go To 998
-!                                                                      *
-!***** PAUL ************************************************************
-!                                                                      *
-927 continue
-ITypRad = 2
-ISlPar(9) = ITypRad
-Go To 998
-!                                                                      *
-!***** SPHE ************************************************************
-!                                                                      *
-928 continue
-KWord = Get_Ln(LuSpool)
-call Get_I1(1,I_Sph)
-call Get_F1(2,Radius)
-ITypRad = 3
-ISlPar(9) = ITypRad
-i_sph_inp = i_sph_inp+1
-NOrdInp(i_sph_inp) = I_Sph
-RadInp(i_sph_inp) = Radius
-ISlPar(14) = i_sph_inp
-Go To 998
-!                                                                      *
-!***** TEMP ************************************************************
-!                                                                      *
-! Temperature for Langevin model
-929 continue
-KWord = Get_Ln(LuSpool)
-call Get_F1(1,Temp)
-tK = kBoltzmann/auTokJ*1.0e-3_wp*Temp
-Go To 998
-!                                                                      *
-!***** RSCA ************************************************************
-!                                                                      *
-! Simultaneous scaling of all radii
-930 continue
-KWord = Get_Ln(LuSpool)
-call Get_F1(1,rsca)
-Go To 998
-!                                                                      *
-!***** ROTA ************************************************************
-!                                                                      *
-! Rotation of the grid with Euler angles alpha, beta, gamma (degrees)
-931 continue
-KWord = Get_Ln(LuSpool)
-call Get_F1(1,rotAlpha)
-call Get_F1(2,rotBeta)
-call Get_F1(3,rotGamma)
-
-rotAlpha = rotAlpha/180.0_wp*Pi
-rotBeta = rotBeta/180.0_wp*Pi
-rotGamma = rotGamma/180.0_wp*Pi
-Go To 998
-!                                                                      *
-!***** SPAR ************************************************************
-!                                                                      *
-! Use sparse grid outside a distance distSparse from all atoms
-932 continue
-KWord = Get_Ln(LuSpool)
-LSparse = .true.
-call Get_I1(1,nSparse)
-call Get_F1(2,distSparse)
-Go To 998
-!                                                                      *
-!***** IDAM ************************************************************
-!                                                                      *
-! change dampIter
-933 continue
-KWord = Get_Ln(LuSpool)
-call Get_F1(1,dampIter)
-Go To 998
-!                                                                      *
-!***** AVER ************************************************************
-!                                                                      *
-! requests average among a number of random grids in the Langevin
-! routine. Note: Average is taken for each SCF iteration and only
-! the last grid is used for updating the density
-! nGridSeed is RNG seed, 0=no seed, -1=system timer
-934 continue
-KWord = Get_Ln(LuSpool)
-LGridAverage = .true.
-call Get_I1(1,nGridAverage)
-call Get_I1(2,nGridSeed)
-Go To 998
-!                                                                      *
-!***** CONV ************************************************************
-!                                                                      *
-! Change convergence threshold
-935 continue
-KWord = Get_Ln(LuSpool)
-call Get_F1(1,clim)
-Go To 998
-!                                                                      *
-!***** SKIP ************************************************************
-!                                                                      *
-! Set minimal distance for dipole-dipole interactions
-936 continue
-KWord = Get_Ln(LuSpool)
-call Get_F1(1,dipCutoff)
-Go To 998
-!                                                                      *
-!***** NODA ************************************************************
-!                                                                      *
-! Turn off damping of dipole-dipole interactions
-937 continue
-lDamping = .false.
-Go To 998
-!                                                                      *
-!***** LRAD ************************************************************
-!                                                                      *
-! Input non-standard Langevin radii
-938 continue
-Kword = Get_Ln(LuSpool)
-call UpCase(KWord)
-if (KWord(1:1) == '*') Go To 938
-if (KWord == '') Go To 938
-if (KWord(1:3) == 'END') Go To 998
-read(KWord,*,err=988) ii,val
-CovRadT_(ii) = val
-!write(u6,*) 'COVR',ii,val
-Go To 938
-!                                                                      *
-!***** AMBE ************************************************************
-!                                                                      *
-! Use dipole-dipole cutoff of AMBER type
-939 continue
-lAmberPol = .true.
-Go To 998
-!                                                                      *
-!***** SC14 ************************************************************
-!                                                                      *
-! Scaling of negative entries in exclusion list
-940 continue
-KWord = Get_Ln(LuSpool)
-call Get_F1(1,scal14)
-Go To 998
-!                                                                      *
-!***** DRES ************************************************************
-!                                                                      *
-! Restart dipoles from scratch in each QM iteration
-! This sometimes gives better convergence.
-941 continue
-lDiprestart = .true.
-Go To 998
-!                                                                      *
-!***** END  ************************************************************
-!                                                                      *
-! End of input
-
-997 continue
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -544,16 +483,18 @@ end if
 !***********************************************************************
 !                                                                      *
 return
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Error handling
 
-977 continue
-call WarningMessage(2,'InpRct: Premature end of input file.')
-call Quit_OnUserError()
-988 continue
-call WarningMessage(2,'InpRct: Error while reading input file.')
-call Quit_OnUserError()
+contains
+
+subroutine Error(code)
+  integer(kind=iwp), intent(in) :: code
+  select case (code)
+    case (1)
+      call WarningMessage(2,'InpRct: Premature end of input file.')
+    case (2)
+      call WarningMessage(2,'InpRct: Error while reading input file.')
+  end select
+  call Quit_OnUserError()
+end subroutine
 
 end subroutine InpRct

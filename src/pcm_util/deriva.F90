@@ -68,7 +68,7 @@ call DScal_(4*NEsf,ToAng,Sphere(1,1),1)
 call DScal_(3*MxVert*nTs,ToAng,Vert(1,1,1),1)
 call DScal_(3*MxVert*nTs,ToAng,Centr(1,1,1),1)
 
-do NSJ=1,NAt
+outer: do NSJ=1,NAt
   do ICoord=1,3
 
     NESFJ = 0
@@ -93,7 +93,7 @@ do NSJ=1,NAt
     if (NESFJ /= 0) DERCENTR(NESFJ,NSJ,ICOORD,ICOORD) = One
 
     ! Se non c'e' nessuna sfera attorno all'atomo NSJ ...
-    if (NESFJ == 0) goto 1000
+    if (NESFJ == 0) cycle outer
 
     ! 1) Effetti diretti.
     ! Loop sulle tessere.
@@ -104,44 +104,41 @@ do NSJ=1,NAt
       end do
       NV = NVERT(ITS)
       NSI = ISPHE(ITS)
-      if (NSI == NESFJ) goto 200
+      if (NSI == NESFJ) then
+        ! Derivate nel caso I = J
 
-      ! Derivate nel caso I non = J
-      !
-      !           dS/dx(J), dQ/dx(J)
-      ! ITS ha un lato su J ?
-      ICONT = 0
-      do N=1,NV
-        if (INTSPH(N,ITs) == NESFJ) ICONT = ICONT+1
-      end do
-      if (ICONT >= 1) then
-        call dSd(0,ITS,ICOORD,NESFJ,DERS,DERP,Tessera,Vert,Centr,nTs,Sphere,ISphe,IntSph,NewSph,NVert)
-        DERTS = DERTS+DERS
-        do JJ=1,3
-          DERPT(JJ) = DERPT(JJ)+DERP(JJ)
+        ! Loop sulle sfere K che intersecano I
+        do NSK=1,NESF
+          if (NSK == NSI) cycle
+          ! ITS ha un lato su K ?
+          ICONT = 0
+          do N=1,NV
+            if (INTSPH(N,ITs) == NSK) ICONT = ICONT+1
+          end do
+          if (ICONT == 0) cycle
+          call dSd(0,ITS,ICOORD,NSK,DERS,DERP,Tessera,Vert,Centr,nTs,Sphere,ISphe,IntSph,NewSph,NVert)
+          DERTS = DERTS-DERS
+          do JJ=1,3
+            DERPT(JJ) = DERPT(JJ)-DERP(JJ)
+          end do
         end do
-      end if
-      goto 150
-200   continue
-      ! Derivate nel caso I = J
-
-      ! Loop sulle sfere K che intersecano I
-      do NSK=1,NESF
-        if (NSK == NSI) goto 300
-        ! ITS ha un lato su K ?
+      else
+        ! Derivate nel caso I non = J
+        !
+        !           dS/dx(J), dQ/dx(J)
+        ! ITS ha un lato su J ?
         ICONT = 0
         do N=1,NV
-          if (INTSPH(N,ITs) == NSK) ICONT = ICONT+1
+          if (INTSPH(N,ITs) == NESFJ) ICONT = ICONT+1
         end do
-        if (ICONT == 0) goto 300
-        call dSd(0,ITS,ICOORD,NSK,DERS,DERP,Tessera,Vert,Centr,nTs,Sphere,ISphe,IntSph,NewSph,NVert)
-        DERTS = DERTS-DERS
-        do JJ=1,3
-          DERPT(JJ) = DERPT(JJ)-DERP(JJ)
-        end do
-300     continue
-      end do
-150   continue
+        if (ICONT >= 1) then
+          call dSd(0,ITS,ICOORD,NESFJ,DERS,DERP,Tessera,Vert,Centr,nTs,Sphere,ISphe,IntSph,NewSph,NVert)
+          DERTS = DERTS+DERS
+          do JJ=1,3
+            DERPT(JJ) = DERPT(JJ)+DERP(JJ)
+          end do
+        end if
+      end if
       DERTES(ITS,NSJ,ICOORD) = DERTS
       do JJ=1,3
         DERPUNT(ITS,NSJ,ICOORD,JJ) = DERPT(JJ)
@@ -160,18 +157,18 @@ do NSJ=1,NAt
       ALGE(3) = abs(NEWSPH(2,NSA))
       LIVEL = 3
       NUM = 2
-510   continue
-      NSUB = 1
-      do II=LIVEL-NUM+1,LIVEL
-        if (ALGE(II) > NESFP) then
-          ALGE(LIVEL+NSUB) = abs(NEWSPH(1,ALGE(II)))
-          ALGE(LIVEL+NSUB+1) = abs(NEWSPH(2,ALGE(II)))
-        end if
-        NSUB = NSUB+2
+      do while (NUM < 32)
+        NSUB = 1
+        do II=LIVEL-NUM+1,LIVEL
+          if (ALGE(II) > NESFP) then
+            ALGE(LIVEL+NSUB) = abs(NEWSPH(1,ALGE(II)))
+            ALGE(LIVEL+NSUB+1) = abs(NEWSPH(2,ALGE(II)))
+          end if
+          NSUB = NSUB+2
+        end do
+        NUM = NUM*2
+        LIVEL = LIVEL+NUM
       end do
-      NUM = NUM*2
-      LIVEL = LIVEL+NUM
-      if (NUM < 32) goto 510
       ! Si accerta che nell'ultimo livello ci siano solo sfere originarie
       do II=34,63
         if (ALGE(II) > NESFP) then
@@ -184,7 +181,7 @@ do NSJ=1,NAt
         IMIN = 2**(LIVEL-1)
         IMAX = 2**(LIVEL)-1
         do II=IMIN,IMAX
-          if (ALGE(II) /= NESFJ) goto 700
+          if (ALGE(II) /= NESFJ) cycle
           do K=1,MxVert
             CASCA(K) = 0
           end do
@@ -295,12 +292,12 @@ do NSJ=1,NAt
               DERPT(3) = (Tessera(3,ITS)-Sphere(3,NSI))*DR/Sphere(4,NSI)
               ! Loop sulle altre sfere K che tagliano ITS
               do NSK=1,NESF
-                if (NSK == NSI) goto 950
+                if (NSK == NSI) cycle
                 ICONT = 0
                 do N=1,NV
                   if (INTSPH(N,ITs) == NSK) ICONT = ICONT+1
                 end do
-                if (ICONT == 0) goto 950
+                if (ICONT == 0) cycle
                 ! Derivate relative al raggio di NSI: 2) raggio delle altre sfere
                 call dSd(1,ITS,IJunk,NSK,DERS,DERP,Tessera,Vert,Centr,nTs,Sphere,ISphe,IntSph,NewSph,NVert)
                 DERTS = DERTS-DERS*Sphere(4,NSK)*DR/Sphere(4,NSI)
@@ -337,7 +334,6 @@ do NSJ=1,NAt
                 do JJ=1,3
                   DERPT(JJ) = DERPT(JJ)-DZ*DERP(JJ)
                 end do
-950             continue
               end do
               DERTES(ITS,NSJ,ICOORD) = DERTES(ITS,NSJ,ICOORD)+DERTS
               do JJ=1,3
@@ -349,7 +345,7 @@ do NSJ=1,NAt
               do N=1,NV
                 if (INTSPH(N,ITs) == NSA) ICONT = ICONT+1
               end do
-              if (ICONT == 0) goto 900
+              if (ICONT == 0) cycle
               ! Derivate relative al raggio di NSA
               call dSd(1,ITS,IJunk,NSA,DERS,DERP,Tessera,Vert,Centr,nTs,Sphere,ISphe,IntSph,NewSph,NVert)
               DERTS = DERS*DR
@@ -378,9 +374,7 @@ do NSJ=1,NAt
                 DERPUNT(ITS,NSJ,ICOORD,JJ) = DERPUNT(ITS,NSJ,ICOORD,JJ)+DERPT(JJ)
               end do
             end if
-900         continue
           end do
-700       continue
         end do
       end do
     end do
@@ -399,8 +393,7 @@ do NSJ=1,NAt
     ! End of loop on atoms and coordinates
 
   end do
-1000 continue
-end do
+end do outer
 ! Put the geometric quantities in Bohr again
 ToBohr = One/ToAng
 call DScal_(4*nTs,ToBohr,Tessera(1,1),1)
@@ -437,41 +430,38 @@ real(kind=wp) :: COORDJ(3), COORDK(3), D, D2
 ! e la generatrice "principale" corrisponde al label negativo
 ! (cfr. JCC 11, 1047 (1990))
 
-if ((NEWSPH(1,NSI) < 0) .or. (NEWSPH(2,NSI) < 0)) goto 100
-K = NEWSPH(1,NSI)
-if (K == NESFJ) K = NEWSPH(2,NSI)
-COORDJ(1) = Sphere(1,NESFJ)
-COORDJ(2) = Sphere(2,NESFJ)
-COORDJ(3) = Sphere(3,NESFJ)
-COORDK(1) = Sphere(1,K)
-COORDK(2) = Sphere(2,K)
-COORDK(3) = Sphere(3,K)
-D2 = (Sphere(1,NESFJ)-Sphere(1,K))**2+(Sphere(2,NESFJ)-Sphere(2,K))**2+(Sphere(3,NESFJ)-Sphere(3,K))**2
-D = sqrt(D2)
-DC = (Sphere(4,NESFJ)-Sphere(4,K))*(COORDJ(ICOORD)-COORDK(ICOORD))*(COORDJ(JJ)-COORDK(JJ))/(Two*D**3)
-if (JJ == ICOORD) DC = DC+Half-(Sphere(4,NESFJ)-Sphere(4,K))/(Two*D)
-goto 200
-
-100 continue
-NSK = NEWSPH(1,NSI)
-if (abs(NSK) == NESFJ) NSK = NEWSPH(2,NSI)
-COORDJ(1) = Sphere(1,NESFJ)
-COORDJ(2) = Sphere(2,NESFJ)
-COORDJ(3) = Sphere(3,NESFJ)
-COORDK(1) = Sphere(1,abs(NSK))
-COORDK(2) = Sphere(2,abs(NSK))
-COORDK(3) = Sphere(3,abs(NSK))
-D2 = (COORDJ(1)-COORDK(1))**2+(COORDJ(2)-COORDK(2))**2+(COORDJ(3)-COORDK(3))**2
-D = sqrt(D2)
-if (NSK > 0) then
-  DC = Sphere(4,NESFJ)*(COORDJ(JJ)-COORDK(JJ))*(COORDJ(ICOORD)-COORDK(ICOORD))/D**3
-  if (ICOORD == JJ) DC = DC+One-Sphere(4,NESFJ)/D
+if ((NEWSPH(1,NSI) < 0) .or. (NEWSPH(2,NSI) < 0)) then
+  NSK = NEWSPH(1,NSI)
+  if (abs(NSK) == NESFJ) NSK = NEWSPH(2,NSI)
+  COORDJ(1) = Sphere(1,NESFJ)
+  COORDJ(2) = Sphere(2,NESFJ)
+  COORDJ(3) = Sphere(3,NESFJ)
+  COORDK(1) = Sphere(1,abs(NSK))
+  COORDK(2) = Sphere(2,abs(NSK))
+  COORDK(3) = Sphere(3,abs(NSK))
+  D2 = (COORDJ(1)-COORDK(1))**2+(COORDJ(2)-COORDK(2))**2+(COORDJ(3)-COORDK(3))**2
+  D = sqrt(D2)
+  if (NSK > 0) then
+    DC = Sphere(4,NESFJ)*(COORDJ(JJ)-COORDK(JJ))*(COORDJ(ICOORD)-COORDK(ICOORD))/D**3
+    if (ICOORD == JJ) DC = DC+One-Sphere(4,NESFJ)/D
+  else
+    DC = -Sphere(4,abs(NSK))*(COORDK(JJ)-COORDJ(JJ))*(COORDK(ICOORD)-COORDJ(ICOORD))/D**3
+    if (ICOORD == JJ) DC = DC+Sphere(4,abs(NSK))/D
+  end if
 else
-  DC = -Sphere(4,abs(NSK))*(COORDK(JJ)-COORDJ(JJ))*(COORDK(ICOORD)-COORDJ(ICOORD))/D**3
-  if (ICOORD == JJ) DC = DC+Sphere(4,abs(NSK))/D
+  K = NEWSPH(1,NSI)
+  if (K == NESFJ) K = NEWSPH(2,NSI)
+  COORDJ(1) = Sphere(1,NESFJ)
+  COORDJ(2) = Sphere(2,NESFJ)
+  COORDJ(3) = Sphere(3,NESFJ)
+  COORDK(1) = Sphere(1,K)
+  COORDK(2) = Sphere(2,K)
+  COORDK(3) = Sphere(3,K)
+  D2 = (Sphere(1,NESFJ)-Sphere(1,K))**2+(Sphere(2,NESFJ)-Sphere(2,K))**2+(Sphere(3,NESFJ)-Sphere(3,K))**2
+  D = sqrt(D2)
+  DC = (Sphere(4,NESFJ)-Sphere(4,K))*(COORDJ(ICOORD)-COORDK(ICOORD))*(COORDJ(JJ)-COORDK(JJ))/(Two*D**3)
+  if (JJ == ICOORD) DC = DC+Half-(Sphere(4,NESFJ)-Sphere(4,K))/(Two*D)
 end if
-
-200 continue
 
 return
 
@@ -499,36 +489,34 @@ real(kind=wp) :: COORDJ(3), COORDK(3), D, D2
 ! e la generatrice "principale" corrisponde al label negativo
 ! (cfr. JCC 11, 1047 (1990))
 
-if ((NEWSPH(1,NSI) < 0) .or. (NEWSPH(2,NSI) < 0)) goto 100
-NSK = NEWSPH(1,NSI)
-if (NSK == NESFJ) NSK = NEWSPH(2,NSI)
-COORDJ(1) = Sphere(1,NESFJ)
-COORDJ(2) = Sphere(2,NESFJ)
-COORDJ(3) = Sphere(3,NESFJ)
-COORDK(1) = Sphere(1,NSK)
-COORDK(2) = Sphere(2,NSK)
-COORDK(3) = Sphere(3,NSK)
-D2 = (Sphere(1,NESFJ)-Sphere(1,NSK))**2+(Sphere(2,NESFJ)-Sphere(2,NSK))**2+(Sphere(3,NESFJ)-Sphere(3,NSK))**2
-D = sqrt(D2)
-DC = -(COORDJ(JJ)-COORDK(JJ))/(Two*D)
-goto 200
-
-100 continue
-NSK = NEWSPH(1,NSI)
-if (abs(NSK) == NESFJ) NSK = NEWSPH(2,NSI)
-DC = ZERO
-if (NSK < ZERO) goto 200
-COORDJ(1) = Sphere(1,NESFJ)
-COORDJ(2) = Sphere(2,NESFJ)
-COORDJ(3) = Sphere(3,NESFJ)
-COORDK(1) = Sphere(1,NSK)
-COORDK(2) = Sphere(2,NSK)
-COORDK(3) = Sphere(3,NSK)
-D2 = (Sphere(1,NESFJ)-Sphere(1,NSK))**2+(Sphere(2,NESFJ)-Sphere(2,NSK))**2+(Sphere(3,NESFJ)-Sphere(3,NSK))**2
-D = sqrt(D2)
-DC = -(COORDJ(JJ)-COORDK(JJ))/D
-
-200 continue
+if ((NEWSPH(1,NSI) < 0) .or. (NEWSPH(2,NSI) < 0)) then
+  NSK = NEWSPH(1,NSI)
+  if (abs(NSK) == NESFJ) NSK = NEWSPH(2,NSI)
+  DC = Zero
+  if (NSK >= 0) then
+    COORDJ(1) = Sphere(1,NESFJ)
+    COORDJ(2) = Sphere(2,NESFJ)
+    COORDJ(3) = Sphere(3,NESFJ)
+    COORDK(1) = Sphere(1,NSK)
+    COORDK(2) = Sphere(2,NSK)
+    COORDK(3) = Sphere(3,NSK)
+    D2 = (Sphere(1,NESFJ)-Sphere(1,NSK))**2+(Sphere(2,NESFJ)-Sphere(2,NSK))**2+(Sphere(3,NESFJ)-Sphere(3,NSK))**2
+    D = sqrt(D2)
+    DC = -(COORDJ(JJ)-COORDK(JJ))/D
+  end if
+else
+  NSK = NEWSPH(1,NSI)
+  if (NSK == NESFJ) NSK = NEWSPH(2,NSI)
+  COORDJ(1) = Sphere(1,NESFJ)
+  COORDJ(2) = Sphere(2,NESFJ)
+  COORDJ(3) = Sphere(3,NESFJ)
+  COORDK(1) = Sphere(1,NSK)
+  COORDK(2) = Sphere(2,NSK)
+  COORDK(3) = Sphere(3,NSK)
+  D2 = (Sphere(1,NESFJ)-Sphere(1,NSK))**2+(Sphere(2,NESFJ)-Sphere(2,NSK))**2+(Sphere(3,NESFJ)-Sphere(3,NSK))**2
+  D = sqrt(D2)
+  DC = -(COORDJ(JJ)-COORDK(JJ))/(Two*D)
+end if
 
 return
 
@@ -557,43 +545,40 @@ real(kind=wp) :: A, B, COORDJ(3), COORDK(3), D, D2, DIFF, FAC, RI, RJ, RK, RS
 ! e la generatrice "principale" corrisponde al label negativo
 ! (cfr. JCC 11, 1047 (1990))
 
-if ((NEWSPH(1,NSI) < 0) .or. (NEWSPH(2,NSI) < 0)) goto 100
-K = NEWSPH(1,NSI)
-if (K == NESFJ) K = NEWSPH(2,NSI)
-COORDJ(1) = Sphere(1,NESFJ)
-COORDJ(2) = Sphere(2,NESFJ)
-COORDJ(3) = Sphere(3,NESFJ)
-COORDK(1) = Sphere(1,K)
-COORDK(2) = Sphere(2,K)
-COORDK(3) = Sphere(3,K)
-D2 = (Sphere(1,NESFJ)-Sphere(1,K))**2+(Sphere(2,NESFJ)-Sphere(2,K))**2+(Sphere(3,NESFJ)-Sphere(3,K))**2
-D = sqrt(D2)
-B = Half*(D+Sphere(4,NESFJ)-Sphere(4,K))
-RS = RSOLV
-A = ((Sphere(4,NESFJ)+RS)**2+D2-(Sphere(4,K)+RS)**2)/D
-DR = (Two*A*B-Two*B*D-A*D)*(COORDJ(ICOORD)-COORDK(ICOORD))/(Four*D2*(Sphere(4,NSI)+RS))
-goto 200
-
-100 continue
-NSK = NEWSPH(1,NSI)
-if (abs(NSK) == NESFJ) NSK = NEWSPH(2,NSI)
-COORDJ(1) = Sphere(1,NESFJ)
-COORDJ(2) = Sphere(2,NESFJ)
-COORDJ(3) = Sphere(3,NESFJ)
-COORDK(1) = Sphere(1,abs(NSK))
-COORDK(2) = Sphere(2,abs(NSK))
-COORDK(3) = Sphere(3,abs(NSK))
-RI = Sphere(4,NSI)+RSOLV
-RJ = Sphere(4,NESFJ)+RSOLV
-RK = Sphere(4,abs(NSK))+RSOLV
-DIFF = COORDJ(ICOORD)-COORDK(ICOORD)
-D2 = (COORDJ(1)-COORDK(1))**2+(COORDJ(2)-COORDK(2))**2+(COORDJ(3)-COORDK(3))**2
-D = sqrt(D2)
-FAC = Sphere(4,NESFJ)*(RJ*RJ-D*D-RK*RK)
-if (NSK < 0) FAC = Sphere(4,abs(NSK))*(RK*RK-D*D-RJ*RJ)
-DR = DIFF*FAC/(Two*D**3*RI)
-
-200 continue
+if ((NEWSPH(1,NSI) < 0) .or. (NEWSPH(2,NSI) < 0)) then
+  NSK = NEWSPH(1,NSI)
+  if (abs(NSK) == NESFJ) NSK = NEWSPH(2,NSI)
+  COORDJ(1) = Sphere(1,NESFJ)
+  COORDJ(2) = Sphere(2,NESFJ)
+  COORDJ(3) = Sphere(3,NESFJ)
+  COORDK(1) = Sphere(1,abs(NSK))
+  COORDK(2) = Sphere(2,abs(NSK))
+  COORDK(3) = Sphere(3,abs(NSK))
+  RI = Sphere(4,NSI)+RSOLV
+  RJ = Sphere(4,NESFJ)+RSOLV
+  RK = Sphere(4,abs(NSK))+RSOLV
+  DIFF = COORDJ(ICOORD)-COORDK(ICOORD)
+  D2 = (COORDJ(1)-COORDK(1))**2+(COORDJ(2)-COORDK(2))**2+(COORDJ(3)-COORDK(3))**2
+  D = sqrt(D2)
+  FAC = Sphere(4,NESFJ)*(RJ*RJ-D*D-RK*RK)
+  if (NSK < 0) FAC = Sphere(4,abs(NSK))*(RK*RK-D*D-RJ*RJ)
+  DR = DIFF*FAC/(Two*D**3*RI)
+else
+  K = NEWSPH(1,NSI)
+  if (K == NESFJ) K = NEWSPH(2,NSI)
+  COORDJ(1) = Sphere(1,NESFJ)
+  COORDJ(2) = Sphere(2,NESFJ)
+  COORDJ(3) = Sphere(3,NESFJ)
+  COORDK(1) = Sphere(1,K)
+  COORDK(2) = Sphere(2,K)
+  COORDK(3) = Sphere(3,K)
+  D2 = (Sphere(1,NESFJ)-Sphere(1,K))**2+(Sphere(2,NESFJ)-Sphere(2,K))**2+(Sphere(3,NESFJ)-Sphere(3,K))**2
+  D = sqrt(D2)
+  B = Half*(D+Sphere(4,NESFJ)-Sphere(4,K))
+  RS = RSOLV
+  A = ((Sphere(4,NESFJ)+RS)**2+D2-(Sphere(4,K)+RS)**2)/D
+  DR = (Two*A*B-Two*B*D-A*D)*(COORDJ(ICOORD)-COORDK(ICOORD))/(Four*D2*(Sphere(4,NSI)+RS))
+end if
 
 return
 
@@ -620,39 +605,36 @@ real(kind=wp) :: D, D2, RI, RJ, RK, RS
 ! e la generatrice "principale" corrisponde al label negativo
 ! (cfr. JCC 11, 1047 (1990))
 
-if ((NEWSPH(1,NSI) < 0) .or. (NEWSPH(2,NSI) < 0)) goto 100
-NSK = NEWSPH(1,NSI)
-if (NSK == NESFJ) NSK = NEWSPH(2,NSI)
-RS = RSOLV
-RJ = Sphere(4,NESFJ)+RS
-RK = Sphere(4,NSK)+RS
-RI = Sphere(4,NSI)+RS
-D2 = (Sphere(1,NESFJ)-Sphere(1,NSK))**2+(Sphere(2,NESFJ)-Sphere(2,NSK))**2+(Sphere(3,NESFJ)-Sphere(3,NSK))**2
-D = sqrt(D2)
-DR = (-Three*RJ*RJ+RK*RK+Two*RJ*RK+Three*D*RJ-D*RK)/(Four*D*RI)
-goto 200
-
-100 continue
-NSK = NEWSPH(1,NSI)
-if (abs(NSK) == NESFJ) NSK = NEWSPH(2,NSI)
-
-if (NSK > 0) then
+if ((NEWSPH(1,NSI) < 0) .or. (NEWSPH(2,NSI) < 0)) then
+  NSK = NEWSPH(1,NSI)
+  if (abs(NSK) == NESFJ) NSK = NEWSPH(2,NSI)
+  if (NSK > 0) then
+    RS = RSOLV
+    RJ = Sphere(4,NESFJ)+RS
+    RK = Sphere(4,NSK)+RS
+    RI = Sphere(4,NSI)+RS
+    D2 = (Sphere(1,NESFJ)-Sphere(1,NSK))**2+(Sphere(2,NESFJ)-Sphere(2,NSK))**2+(Sphere(3,NESFJ)-Sphere(3,NSK))**2
+    D = sqrt(D2)
+    DR = (Two*D*RJ+Two*D*Sphere(4,NESFJ)-Two*RJ*Sphere(4,NESFJ)+D*D-RJ*RJ-RK*RK)/(Two*D*RI)
+  else
+    RS = RSOLV
+    RJ = Sphere(4,NESFJ)+RS
+    RI = Sphere(4,NSI)+RS
+    D2 = (Sphere(1,NESFJ)-Sphere(1,abs(NSK)))**2+(Sphere(2,NESFJ)-Sphere(2,abs(NSK)))**2+(Sphere(3,NESFJ)-Sphere(3,abs(NSK)))**2
+    D = sqrt(D2)
+    DR = (Sphere(4,abs(NSK))*RJ)/(D*RI)
+  end if
+else
+  NSK = NEWSPH(1,NSI)
+  if (NSK == NESFJ) NSK = NEWSPH(2,NSI)
   RS = RSOLV
   RJ = Sphere(4,NESFJ)+RS
   RK = Sphere(4,NSK)+RS
   RI = Sphere(4,NSI)+RS
   D2 = (Sphere(1,NESFJ)-Sphere(1,NSK))**2+(Sphere(2,NESFJ)-Sphere(2,NSK))**2+(Sphere(3,NESFJ)-Sphere(3,NSK))**2
   D = sqrt(D2)
-  DR = (Two*D*RJ+Two*D*Sphere(4,NESFJ)-Two*RJ*Sphere(4,NESFJ)+D*D-RJ*RJ-RK*RK)/(Two*D*RI)
-else
-  RS = RSOLV
-  RJ = Sphere(4,NESFJ)+RS
-  RI = Sphere(4,NSI)+RS
-  D2 = (Sphere(1,NESFJ)-Sphere(1,abs(NSK)))**2+(Sphere(2,NESFJ)-Sphere(2,abs(NSK)))**2+(Sphere(3,NESFJ)-Sphere(3,abs(NSK)))**2
-  D = sqrt(D2)
-  DR = (Sphere(4,abs(NSK))*RJ)/(D*RI)
+  DR = (-Three*RJ*RJ+RK*RK+Two*RJ*RK+Three*D*RJ-D*RK)/(Four*D*RI)
 end if
-200 continue
 
 return
 
@@ -691,7 +673,7 @@ do L=1,NV
   DP(L,3) = ZERO
 end do
 do L=1,NV
-  if (INTSPH(L,ITs) /= NESFJ) goto 100
+  if (INTSPH(L,ITs) /= NESFJ) cycle
   ! L1 e' il lato di ITS che sta sulla sfera NESFJ
   L1 = L
   L0 = L-1
@@ -724,7 +706,6 @@ do L=1,NV
   DERTS = DERTS-DA
   call DerBet(IOpt,ICOORD,NESFJ,ITS,L1,L2,L3,DP,DA,Vert,Centr,nTs,Sphere,IntSph,ISphe)
   DERTS = DERTS-DA
-100 continue
 end do
 DERS = DERTS
 
@@ -978,16 +959,16 @@ COSTH = (V1(1)*V2(1)+V1(2)*V2(2)+V1(3)*V2(3))/(DNORM1*DNORM2)
 ! the polar angle vanishes
 
 D_COS = Zero
-if (NS2 /= NESFJ) goto 100
 
 ! Otherwise:
 
-do JJ=1,3
-  D_COS = D_COS+V2(JJ)*DP(L1,JJ)
-end do
-if (IOpt == 0) D_COS = D_COS+V1(IC)-Sphere(4,NS1)*COSTH*V2(IC)/DNORM2
-D_COS = D_COS/(Sphere(4,NS1)*DNORM2)
-100 continue
+if (NS2 == NESFJ) then
+  do JJ=1,3
+    D_COS = D_COS+V2(JJ)*DP(L1,JJ)
+  end do
+  if (IOpt == 0) D_COS = D_COS+V1(IC)-Sphere(4,NS1)*COSTH*V2(IC)/DNORM2
+  D_COS = D_COS/(Sphere(4,NS1)*DNORM2)
+end if
 DA = COSTH*DPHI+acos(COSPHI)*D_COS
 DA = Sphere(4,NS1)*Sphere(4,NS1)*DA
 

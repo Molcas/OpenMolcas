@@ -37,23 +37,24 @@ implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ii, ipA, ipAOff, ipB, ipBOff, ipDAO, iPrint, iRout, &
                      iStb(0:7), iTs, iuvwx(4), iZeta, j, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, &
-                     nDiff, nip, nStb, nT
+                     nDiff, nip, nla, nlb, nOp, nStb, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, Q, TC(3)
 logical(kind=iwp) :: NoLoop, JfGrad(3,4)
 character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: NrOpr
 external :: Fake, TNAI1, XCff2D
 #include "print.fh"
-! Statement function for Cartesian index
-integer(kind=iwp) :: ixyz, nElem
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 iRout = 151
 iPrint = nPrint(iRout)
 
 ! Modify the density matrix with the prefactor
 
-nDAO = nElem(la)*nElem(lb)
+nla = (la+1)*(la+2)/2
+nlb = (lb+1)*(lb+2)/2
+nOp = (nOrdOp+1)*(nOrdOp+2)/2
+
+nDAO = nla*nlb
 do iDAO=1,nDAO
   do iZeta=1,nZeta
     Fact = Two*rKappa(iZeta)*Pi*ZInv(iZeta)
@@ -68,7 +69,7 @@ nip = nip+nAlpha*nBeta
 ipB = nip
 nip = nip+nAlpha*nBeta
 ipDAO = nip
-nip = nip+nAlpha*nBeta*nElem(la)*nElem(lb)*nElem(nOrdOp)
+nip = nip+nAlpha*nBeta*nla*nlb*nOp
 if (nip-1 > nZeta*nArr) then
   write(u6,*) 'nip-1 > nZeta*nArr'
   call ErrTra()
@@ -118,7 +119,7 @@ do iTs=1,1
   Q = One
   ! pcm_solvent end
   NoLoop = Q == Zero
-  if (NoLoop) Go To 111
+  if (NoLoop) cycle
   ! Pick up the tile coordinates
   C(1:3) = PCMTess(1:3,iTs)
 
@@ -137,7 +138,7 @@ do iTs=1,1
   if (iPrint >= 99) then
     write(u6,*) ' Q=',Q
     write(u6,*) ' Fact=',Fact
-    call RecPrt('DAO*Fact*Q',' ',Array(ipDAO),nZeta*nDAO,nElem(nOrdOp))
+    call RecPrt('DAO*Fact*Q',' ',Array(ipDAO),nZeta*nDAO,nOp)
     write(u6,*) ' m      =',nStabM
     write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
     write(u6,*) ' s      =',nStb
@@ -173,7 +174,7 @@ do iTs=1,1
     end do
   end do
   if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
-  if (mGrad == 0) Go To 111
+  if (mGrad == 0) cycle
 
   do lDCRT=0,nDCRT-1
     lOp(3) = NrOpr(iDCRT(lDCRT))
@@ -191,12 +192,11 @@ do iTs=1,1
     nDiff = 1
     mRys = (la+lb+2+nDiff+nOrdOp)/2
     call Rysg1(iAnga,mRys,nT,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,Coori,Coori,CoorAC, &
-               Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nElem(nOrdOp),Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
+               Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nOp,Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
 
     !call RecPrt(' In PCMgrd:Grad',' ',Grad,nGrad,1)
   end do  ! End loop over DCRs
 
-111 continue
 end do     ! End loop over centers in the external field
 
 !call GetMem(' Exit PCMgrd','LIST','REAL',iDum,iDum)

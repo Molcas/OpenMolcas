@@ -32,35 +32,35 @@ R = sqrt(R2)
 ALPHA = Half
 DELTA = Zero
 M = 1
-10 continue
-if (M > 100) then
-  if (IPRINT > 0) write(u6,'(/,10X," INTER: too many iterations")')
-  return
-end if
-ALPHA = ALPHA+DELTA
-DNORM = Zero
-do JJ=1,3
-  P4(JJ) = P1(JJ)+ALPHA*(P2(JJ)-P1(JJ))-P3(JJ)
-  DNORM = DNORM+P4(JJ)**2
+do
+  if (M > 100) then
+    if (IPRINT > 0) write(u6,'(/,10X," INTER: too many iterations")')
+    return
+  end if
+  ALPHA = ALPHA+DELTA
+  DNORM = Zero
+  do JJ=1,3
+    P4(JJ) = P1(JJ)+ALPHA*(P2(JJ)-P1(JJ))-P3(JJ)
+    DNORM = DNORM+P4(JJ)**2
+  end do
+  DNORM = sqrt(DNORM)
+  do JJ=1,3
+    P4(JJ) = P4(JJ)*R/DNORM+P3(JJ)
+  end do
+  DIFF2 = (P4(1)-XE(NS))**2+(P4(2)-YE(NS))**2+(P4(3)-ZE(NS))**2
+  DIFF = sqrt(DIFF2)-RE(NS)
+  if (abs(DIFF) < TOL) exit
+  if (I == 0) then
+    if (DIFF > Zero) DELTA = One/(Two**(M+1))
+    if (DIFF < Zero) DELTA = -One/(Two**(M+1))
+    M = M+1
+  else
+    if (DIFF > Zero) DELTA = -One/(Two**(M+1))
+    if (DIFF < Zero) DELTA = One/(Two**(M+1))
+    M = M+1
+  end if
 end do
-DNORM = sqrt(DNORM)
-do JJ=1,3
-  P4(JJ) = P4(JJ)*R/DNORM+P3(JJ)
-end do
-DIFF2 = (P4(1)-XE(NS))**2+(P4(2)-YE(NS))**2+(P4(3)-ZE(NS))**2
-DIFF = sqrt(DIFF2)-RE(NS)
-if (abs(DIFF) < TOL) return
-if (I == 0) then
-  if (DIFF > Zero) DELTA = One/(Two**(M+1))
-  if (DIFF < Zero) DELTA = -One/(Two**(M+1))
-  M = M+1
-  goto 10
-end if
-if (I == 1) then
-  if (DIFF > Zero) DELTA = -One/(Two**(M+1))
-  if (DIFF < Zero) DELTA = One/(Two**(M+1))
-  M = M+1
-  goto 10
-end if
+
+return
 
 end subroutine Inter_PCM
