@@ -67,31 +67,3 @@ end do
 return
 
 end subroutine FndSph
-!====
-subroutine PrtCav(IOut,ITyp,NS,NOrd,Alpha,Rad)
-! Print out sphere radii for Pauling or input cavitites
-
-use Definitions, only: wp, iwp
-
-implicit none
-integer(kind=iwp), intent(in) :: IOut, ITyp, NS, NOrd(*)
-real(kind=wp) :: Alpha, Rad(*)
-integer(kind=iwp) :: IS
-
-write(iOut,*)
-write(iOut,*)
-write(iOut,'(6X,A)') 'Polarized Continuum Model Cavity'
-write(iOut,'(6X,A)') '================================'
-if (ITyp == 2) write(iOut,'(6X,A)') 'Pauling radii'
-if (ITyp == 3) write(iOut,'(6X,A)') 'Sphere radii from input'
-write(iOut,*)
-write(IOut,'(6X,A)') ' NOrd  Alpha  Radius'
-do IS=1,NS
-  write(IOut,'(6X,1X,I3,3X,F4.2,3X,F5.3)') NOrd(IS),Alpha,Rad(IS)
-end do
-write(IOut,'(6X,1X,78("-"))')
-write(IOut,*)
-
-return
-
-end subroutine PrtCav

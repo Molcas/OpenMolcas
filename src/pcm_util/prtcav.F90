@@ -9,36 +9,30 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine V_EF_PCM(nAt,nTs,DoPot,DoFld,AtmC,Tessera,V,EF_n,EF_e)
+subroutine PrtCav(IOut,ITyp,NS,NOrd,Alpha,Rad)
+! Print out sphere radii for Pauling or input cavitites
 
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
-integer(kind=iwp), intent(in) :: nAt, nTs
-logical(kind=iwp), intent(in) :: DoPot, DoFld
-real(kind=wp), intent(in) :: AtmC(3,nAt), Tessera(4,*)
-real(kind=wp), intent(_OUT_) :: V(*), EF_n(3,*), EF_e(3,*)
-integer(kind=iwp) :: nOrdOp
+integer(kind=iwp), intent(in) :: IOut, ITyp, NS, NOrd(*)
+real(kind=wp) :: Alpha, Rad(*)
+integer(kind=iwp) :: IS
 
-! Compute potential on tesserae
-
-if (DoPot) then
-  call FZero(V,nTs)
-  nOrdOp = 0
-  call Mlt_PCM(nAt,nTs,nOrdOp,Tessera,AtmC,V,EF_n,EF_e)
-end if
-
-! Compute electric field on tesserae
-
-if (DoFld) then
-  call FZero(EF_n,3*nTs)
-  call FZero(EF_e,3*nTs)
-  nOrdOp = 1
-  call Mlt_PCM(nAt,nTs,nOrdOp,Tessera,AtmC,V,EF_n,EF_e)
-end if
+write(iOut,*)
+write(iOut,*)
+write(iOut,'(6X,A)') 'Polarized Continuum Model Cavity'
+write(iOut,'(6X,A)') '================================'
+if (ITyp == 2) write(iOut,'(6X,A)') 'Pauling radii'
+if (ITyp == 3) write(iOut,'(6X,A)') 'Sphere radii from input'
+write(iOut,*)
+write(IOut,'(6X,A)') ' NOrd  Alpha  Radius'
+do IS=1,NS
+  write(IOut,'(6X,1X,I3,3X,F4.2,3X,F5.3)') NOrd(IS),Alpha,Rad(IS)
+end do
+write(IOut,'(6X,1X,78("-"))')
+write(IOut,*)
 
 return
 
-end subroutine V_EF_PCM
+end subroutine PrtCav

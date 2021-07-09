@@ -9,36 +9,37 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine V_EF_PCM(nAt,nTs,DoPot,DoFld,AtmC,Tessera,V,EF_n,EF_e)
+subroutine ColChg(i,q,QMAX,QMIN,C1,C2,C3)
 
-use Definitions, only: wp, iwp
-
-#include "intent.fh"
+use Constants, only: Zero, Half
+use Definitions, only: wp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nAt, nTs
-logical(kind=iwp), intent(in) :: DoPot, DoFld
-real(kind=wp), intent(in) :: AtmC(3,nAt), Tessera(4,*)
-real(kind=wp), intent(_OUT_) :: V(*), EF_n(3,*), EF_e(3,*)
-integer(kind=iwp) :: nOrdOp
+integer(kind=iwp), intent(in) :: i
+real(kind=wp), intent(in) :: q, QMAX, QMIN
+real(kind=wp), intent(out) :: C1, C2, C3
+real(kind=wp) :: DNeg, DPos
+character(len=20) :: Colour
 
-! Compute potential on tesserae
+! Assign tesserae colours for GeomView:
 
-if (DoPot) then
-  call FZero(V,nTs)
-  nOrdOp = 0
-  call Mlt_PCM(nAt,nTs,nOrdOp,Tessera,AtmC,V,EF_n,EF_e)
+DPos = QMax*Half
+DNeg = QMin*Half
+! Total charge density < 0
+if (q < DNeg) then
+  Colour = 'Dark Blue'
+else if (q < Zero) then
+  Colour = 'Light Blue'
+! Total charge density > 0
+else if (q < DPos) then
+  Colour = 'Pink'
+else
+  Colour = 'Red'
 end if
-
-! Compute electric field on tesserae
-
-if (DoFld) then
-  call FZero(EF_n,3*nTs)
-  call FZero(EF_e,3*nTs)
-  nOrdOp = 1
-  call Mlt_PCM(nAt,nTs,nOrdOp,Tessera,AtmC,V,EF_n,EF_e)
-end if
+call ColTss(u6,Colour,C1,C2,C3)
 
 return
+! Avoid unused argument warnings
+if (.false.) call Unused_integer(i)
 
-end subroutine V_EF_PCM
+end subroutine ColChg

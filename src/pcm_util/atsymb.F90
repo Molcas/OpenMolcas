@@ -9,36 +9,26 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine V_EF_PCM(nAt,nTs,DoPot,DoFld,AtmC,Tessera,V,EF_n,EF_e)
+function AtSymb(I)
+! ATSYMB(I) is the Atomic Symbol corresponding to the Atomic number I
+! if I=0  Atsymb=Bq
+! if I=-1 Atsymb=X
 
-use Definitions, only: wp, iwp
+use Definitions, only: iwp
 
-#include "intent.fh"
+use isotopes, only: PTab
 
 implicit none
-integer(kind=iwp), intent(in) :: nAt, nTs
-logical(kind=iwp), intent(in) :: DoPot, DoFld
-real(kind=wp), intent(in) :: AtmC(3,nAt), Tessera(4,*)
-real(kind=wp), intent(_OUT_) :: V(*), EF_n(3,*), EF_e(3,*)
-integer(kind=iwp) :: nOrdOp
+character(len=2) :: AtSymb
+integer(kind=iwp), intent(in) :: I
 
-! Compute potential on tesserae
-
-if (DoPot) then
-  call FZero(V,nTs)
-  nOrdOp = 0
-  call Mlt_PCM(nAt,nTs,nOrdOp,Tessera,AtmC,V,EF_n,EF_e)
+if (I > 0) then
+  AtSymb = PTab(i)
+  return
 end if
-
-! Compute electric field on tesserae
-
-if (DoFld) then
-  call FZero(EF_n,3*nTs)
-  call FZero(EF_e,3*nTs)
-  nOrdOp = 1
-  call Mlt_PCM(nAt,nTs,nOrdOp,Tessera,AtmC,V,EF_n,EF_e)
-end if
+if (I == -1) AtSymb = ' X'
+if (I == 0) AtSymb = 'Bq'
 
 return
 
-end subroutine V_EF_PCM
+end function AtSymb

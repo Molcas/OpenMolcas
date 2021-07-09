@@ -9,20 +9,26 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine FndTess(iPrint,ToAng,LcNAtm,Xs,Ys,Zs,Rs,pNs,nn)
+subroutine FndTess(iPrint,ToAng,LcNAtm,Xs,Ys,Zs,Rs,pNs,m)
 
 use PCM_arrays, only: PCMSph, PCMTess, Vert, Centr, SSph, PCMDM, PCM_N, PCMiSph, NVert, IntSph, NewSph
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp
+use Constants, only: Zero, One, Three, Half, Pi
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iPrint, LcNAtm, nn, pNs(nn)
+integer(kind=iwp), intent(in) :: iPrint, LcNAtm, m, pNs(m)
 real(kind=wp), intent(in) :: ToAng
-real(kind=wp), intent(inout) :: Xs(nn), Ys(nn), Zs(nn), Rs(nn)
-integer(kind=iwp) :: iS, iTs, iTsNum, nPCM_info_i, nPCM_info_r
-real(kind=wp) :: Fro, Omega, Ret, TsAre
-integer(kind=iwp), allocatable :: JTR(:), pIntS(:), pISph(:), pNewS(:), pNVert(:)
-real(kind=wp), allocatable :: At(:), CV(:), pCentr(:), pSSph(:), pVert(:), Xt(:), Yt(:), Zt(:)
+real(kind=wp), intent(inout) :: Xs(m), Ys(m), Zs(m), Rs(m)
+integer(kind=iwp) :: I, IC, II, IPFlag, IPtype, iS, ISFE, iTs, iTsNum, ITsEff, ITYPC, IV, J,JJ, K, KG, KP, L, N, N1, N2, N3, NE, &
+                     NES, NET, NEV, NN, NN1, nPCM_info_i, nPCM_info_r, NSFE, NV
+real(kind=wp) :: AREA, COSOM2, FC, FC1, Fro, HH, Omega, PP(3), PROD, R2GN, REG, REG2, REGD2, REN, REND2, REO, REO2, REP, REP2, &
+                 REPD2, Ret, RGN, RIJ, RIJ2, RIK, RIK2, RJD, RJK, RJK2, RTDD, RTDD2, Scav, SENOM, SP, TEST, TEST1, TEST2, TEST3, &
+                 TEST7, TEST8, TsAre, VCav, XEN, XI, XJ, XN, YEN, YI, YJ, YN, ZEN, ZI, ZJ, ZN
+logical(kind=iwp) :: FIRST
+integer(kind=iwp), allocatable :: JTR(:,:), pIntS(:,:), pISph(:), pNewS(:,:), pNVert(:)
+real(kind=wp), allocatable :: At(:), CCC(:,:), CV(:,:), pCentr(:,:,:), pSSph(:), PTS(:,:), pVert(:,:,:), Xt(:), Yt(:), Zt(:)
+real(kind=wp), parameter :: DEGREE = Pi/180.0_wp
 #include "rctfld.fh"
 #include "status.fh"
 
@@ -30,9 +36,9 @@ real(kind=wp), allocatable :: At(:), CV(:), pCentr(:), pSSph(:), pVert(:), Xt(:)
 ! representative points and surfaces of the tesserae by the
 ! Gauss-Bonnet Theorem.
 
-! Allocate space for X, Y, Z, Area, ISPHE (index of sphere to which
+! Allocate space for X, Y, Z, Area, pISph (index of sphere to which
 ! tessera belongs); then allocate space for IntSph (indices of spheres
-! cutting the tessera), NewSph (indices of spheres creating new smoothing
+! cutting the tessera), pNewS (indices of spheres creating new smoothing
 ! spheres), SSph (surface of each sphere exposed to the solvent),
 ! Finally, allocate temporary space for NVert (number of vertices for
 ! any tessera), Vert (coordinates of vertices), Centr (center of arcs).
@@ -41,16 +47,16 @@ call mma_allocate(Xt,MxTs,Label='Xt')
 call mma_allocate(Yt,MxTs,Label='Yt')
 call mma_allocate(Zt,MxTs,Label='Zt')
 call mma_allocate(At,MxTs,Label='At')
-call mma_allocate(pVert,3*MxVert*MxTs,Label='pVert')
-call mma_allocate(pCentr,3*MxVert*MxTs,Label='pCentr')
+call mma_allocate(pVert,3,MxVert,MxTs,Label='pVert')
+call mma_allocate(pCentr,3,MxVert,MxTs,Label='pCentr')
 call mma_allocate(pSSph,MxSph,Label='pSSph')
-call mma_allocate(CV,3000,Label='CV')
+call mma_allocate(CV,3,1000,Label='CV')
 
-call mma_allocate(JTR,3*MxTs,Label='JTR')
+call mma_allocate(JTR,3,MxTs,Label='JTR')
 call mma_allocate(pISph,MxTs,Label='pIShp')
 call mma_allocate(pNVert,MxTs,Label='pNVert')
-call mma_allocate(pIntS,MxVert*MxTs,Label='pIntS')
-call mma_allocate(pNewS,2*MxSph,Label='pNewS')
+call mma_allocate(pIntS,MxVert,MxTs,Label='pIntS')
+call mma_allocate(pNewS,2,MxSph,Label='pNewS')
 
 Omega = RSlPar(2)
 Ret = RSlPar(3)
@@ -59,8 +65,347 @@ TsAre = RSlPar(7)
 RSolv = RSlPar(19)
 ITsNum = ISlPar(11)
 
-call FndTess_(iPrint,ToAng,LcNAtm,MxSph,MxTs,Xs,Ys,Zs,Rs,Ret,Omega,Fro,RSolv,NSinit,NS,ITsNum,TsAre,nTs,Xt,Yt,Zt,At,pISph,pNVert, &
-              pVert,pCentr,pIntS,pNewS,pSSph,JTR,CV)
+! PEDRA works with Angstroms
+do ISFE=1,NSinit
+  Xs(ISFE) = Xs(ISFE)*ToAng
+  Ys(ISFE) = Ys(ISFE)*ToAng
+  Zs(ISFE) = Zs(ISFE)*ToAng
+end do
+NS = NSinit
+if (IPRINT == 2) write(u6,800)
+
+! creation of new spheres
+
+do N=1,NS
+  pNewS(1,N) = 0
+  pNewS(2,N) = 0
+end do
+ITYPC = 0
+OMEGA = OMEGA*DEGREE
+SENOM = sin(OMEGA)
+COSOM2 = (cos(OMEGA))**2
+RTDD = RET+RSOLV
+RTDD2 = RTDD*RTDD
+NET = NS
+NN = 2
+NE = NS
+NEV = NS
+FIRST = .true.
+do
+  if (FIRST) then
+    FIRST = .false.
+  else
+    NN = NE+1
+    NE = NET
+    if (NE > MxSph) then
+      write(u6,1111)
+      call Abend()
+    end if
+  end if
+  do I=NN,NE
+    NES = I-1
+    middle: do J=1,NES
+      RIJ2 = (Xs(I)-Xs(J))**2+(Ys(I)-Ys(J))**2+(Zs(I)-Zs(J))**2
+      RIJ = sqrt(RIJ2)
+      RJD = Rs(J)+RSOLV
+      TEST1 = Rs(I)+RJD+RSOLV
+      if (RIJ >= TEST1) cycle
+      REG = max(Rs(I),Rs(J))
+      REP = min(Rs(I),Rs(J))
+      REG2 = REG*REG
+      REP2 = REP*REP
+      TEST2 = REP*SENOM+sqrt(REG2-REP2*COSOM2)
+      if (RIJ <= TEST2) cycle
+      REGD2 = (REG+RSOLV)*(REG+RSOLV)
+      TEST3 = (REGD2+REG2-RTDD2)/REG
+      if (RIJ >= TEST3) cycle
+      do K=1,NEV
+        if ((K == J) .or. (K == I)) cycle
+        RJK2 = (Xs(J)-Xs(K))**2+(Ys(J)-Ys(K))**2+(Zs(J)-Zs(K))**2
+        if (RJK2 >= RIJ2) cycle
+        RIK2 = (Xs(I)-Xs(K))**2+(Ys(I)-Ys(K))**2+(Zs(I)-Zs(K))**2
+        if (RIK2 >= RIJ2) cycle
+        RJK = sqrt(RJK2)
+        RIK = sqrt(RIK2)
+        SP = (RIJ+RJK+RIK)*Half
+        HH = 4*(SP*(SP-RIJ)*(SP-RIK)*(SP-RJK))/RIJ2
+        REO = Rs(K)*FRO
+        if (K >= NE) REO = 2.0e-4_wp
+        REO2 = REO*REO
+        if (HH < REO2) cycle middle
+      end do
+      REPD2 = (REP+RSOLV)**2
+      TEST8 = sqrt(REPD2-RTDD2)+sqrt(REGD2-RTDD2)
+      if (RIJ <= TEST8) then
+        R2GN = RIJ-REP+REG
+        RGN = R2GN*Half
+        FC = R2GN/(RIJ+REP-REG)
+        FC1 = FC+One
+        TEST7 = REG-Rs(I)
+        if (TEST7 <= 1.0e-9_wp) then
+          KG = I
+          KP = J
+          XEN = (Xs(KG)+FC*Xs(KP))/FC1
+          YEN = (Ys(KG)+FC*Ys(KP))/FC1
+          ZEN = (Zs(KG)+FC*Zs(KP))/FC1
+          REN = sqrt(REGD2+RGN*(RGN-(REGD2+RIJ2-REPD2)/RIJ))-RSOLV
+        else
+          KG = J
+          KP = I
+        end if
+      else
+        REND2 = REGD2+REG2-(REG/RIJ)*(REGD2+RIJ2-REPD2)
+        if (REND2 <= RTDD2) cycle
+        REN = sqrt(REND2)-RSOLV
+        FC = REG/(RIJ-REG)
+        TEST7 = REG-Rs(I)
+        if (TEST7 <= 1.0e-9_wp) then
+          KG = I
+          KP = J
+          FC1 = FC+One
+          XEN = (Xs(KG)+FC*Xs(KP))/FC1
+          YEN = (Ys(KG)+FC*Ys(KP))/FC1
+          ZEN = (Zs(KG)+FC*Zs(KP))/FC1
+          ITYPC = 1
+        else
+          KG = J
+          KP = I
+        end if
+      end if
+      NET = NET+1
+      Xs(NET) = XEN
+      Ys(NET) = YEN
+      Zs(NET) = ZEN
+      Rs(NET) = REN
+
+      ! Nella matrice pNewS(2,NS) sono memorizzati i numeri delle
+      ! sfere "generatrici" della nuova sfera NET: se la nuova sfera e'
+      ! del tipo A o B entrambi i numeri sono positivi, se e' di tipo
+      ! C il numero della sfera "principale" e' negativo
+      ! (per la definizione del tipo si veda JCC 11, 1047 (1990))
+
+      if (ITYPC == 0) then
+        pNewS(1,NET) = KG
+        pNewS(2,NET) = KP
+      elseif (ITYPC == 1) then
+        pNewS(1,NET) = -KG
+        pNewS(2,NET) = KP
+      end if
+
+    end do middle
+    NEV = NET
+  end do
+  if (NET == NE) exit
+end do
+NS = NET
+
+! Division of the surface into tesserae
+
+VCav = ZERO
+Scav = ZERO
+
+! Controlla se ciascuna tessera e' scoperta o va tagliata
+
+call mma_allocate(CCC,3,MxVert,Label='CCC')
+call mma_allocate(PTS,3,MxVert,Label='PTS')
+
+NN1 = 0
+do NSFE=1,NS
+  XEN = Xs(NSFE)
+  YEN = Ys(NSFE)
+  ZEN = Zs(NSFE)
+  REN = Rs(NSFE)
+  if ((ITsNum == 0) .and. (TsAre == Zero)) then
+    IPtype = 2
+    IPFlag = 0
+    ITsNum = 60
+  elseif ((ITsNum > 0) .and. (TsAre == Zero)) then
+    IPFlag = 0
+  elseif (TsAre > Zero) then
+    IPFlag = 1
+  end if
+  call PolyGen(MxTs,IPtype,IPflag,TsAre,ITsNum,XEN,YEN,ZEN,REN,ITsEff,CV,JTR)
+  do ITS=1,ITsEff
+    N1 = JTR(1,ITS)
+    N2 = JTR(2,ITS)
+    N3 = JTR(3,ITS)
+    PTS(1,1) = CV(1,N1)
+    PTS(2,1) = CV(2,N1)
+    PTS(3,1) = CV(3,N1)
+    PTS(1,2) = CV(1,N2)
+    PTS(2,2) = CV(2,N2)
+    PTS(3,2) = CV(3,N2)
+    PTS(1,3) = CV(1,N3)
+    PTS(2,3) = CV(2,N3)
+    PTS(3,3) = CV(3,N3)
+    NV = 3
+    do JJ=1,3
+      PP(JJ) = ZERO
+    end do
+
+    ! Per ciascuna tessera, trova la porzione scoperta e ne
+    ! calcola l'area con il teorema di Gauss-Bonnet; il punto
+    ! rappresentativo e' definito come media dei vertici della porzione
+    ! scoperta di tessera e passato in PP.
+    ! I vertici di ciascuna tessera sono conservati in
+    ! pVERT(3,MxVert,MxTs), il numero di vertici di ciascuna tessera e'
+    ! in pNVERT(MxTs), e i centri dei cerchi di ciascun lato sono in
+    ! pCENTR(3,MxVert,MxTs). In pIntS(MxVert,MxTs) sono registrate le
+    ! sfere a cui appartengono i lati delle tessere.
+
+    call TESSERA(iPrint,MxTs,NS,NSFE,NV,Xs,Ys,Zs,Rs,pIntS,PTS,CCC,PP,AREA)
+    if (AREA == Zero) cycle
+    NN1 = NN1+1
+    NN = min(NN1,MxTs)
+    Xt(NN) = PP(1)
+    Yt(NN) = PP(2)
+    Zt(NN) = PP(3)
+    At(NN) = AREA
+
+    pISph(NN) = NSFE
+    pNVERT(NN) = NV
+    do IV=1,NV
+      do JJ=1,3
+        pVERT(JJ,IV,NN) = PTS(JJ,IV)
+        pCENTR(JJ,IV,NN) = CCC(JJ,IV)
+      end do
+    end do
+    do IV=1,NV
+      pIntS(IV,NN) = pIntS(IV,MxTs)
+    end do
+  end do
+end do
+NTS = NN
+
+call mma_deallocate(CCC)
+call mma_deallocate(PTS)
+
+! Verifica se due tessere sono troppo vicine
+TEST = 0.02_wp
+TEST2 = TEST*TEST
+do I=1,NTS-1
+  if (At(I) == ZERO) cycle
+  XI = Xt(I)
+  YI = Yt(I)
+  ZI = Zt(I)
+  II = I+1
+  do J=II,NTS
+    if (pISph(I) == pISph(J)) cycle
+    if (At(J) == ZERO) cycle
+    XJ = Xt(J)
+    YJ = Yt(J)
+    ZJ = Zt(J)
+    RIJ = (XI-XJ)**2+(YI-YJ)**2+(ZI-ZJ)**2
+    if (RIJ > TEST2) cycle
+
+    ! La routine originaria sostituiva le due tessere troppo vicine con una
+    ! sola tessera. Nel caso Gauss-Bonnet, anche i vertici delle tessere
+    ! e i centri degli archi vengono memorizzati ed e' impossibile sostituirli
+    ! nello stesso modo: percio' l'area della tessera piu' piccola verra'
+    ! trascurata per evitare problemi nella autopolarizzazione.
+    if (IPRINT == 2) write(u6,1000) I,J,TEST2
+    if (At(I) < At(J)) At(I) = ZERO
+    if (At(I) >= At(J)) At(J) = ZERO
+  end do
+end do
+
+! E' preferibile eliminare del tutto le tessere che per
+! qualche motivo hanno AREA = 0, ridefinendo tutti gli
+! indici: l'errore numerico cosi' introdotto e' in genere
+! trascurabile e si evitano problemi di convergenza
+
+! Define here the number of tesserae in electrostatic calculations
+! to avoid problems in successive calcn.
+ITS = 0
+do while (ITS < NTS)
+  ITS = ITS+1
+  if (At(ITS) < 1.0e-10_wp) then
+    do I=ITS,NTS-1
+      At(I) = At(I+1)
+      Xt(I) = Xt(I+1)
+      Yt(I) = Yt(I+1)
+      Zt(I) = Zt(I+1)
+      pISph(I) = pISph(I+1)
+      pNVERT(I) = pNVERT(I+1)
+      do IV=1,MxVert
+        pIntS(IV,I) = pIntS(IV,I+1)
+        do IC=1,3
+          pVERT(IC,IV,I) = pVERT(IC,IV,I+1)
+          pCENTR(IC,IV,I) = pCENTR(IC,IV,I+1)
+        end do
+      end do
+    end do
+    NTS = NTS-1
+    ITS = ITS-1
+  end if
+end do
+!***********************************************************************
+! Calcola il volume della cavita' con la formula (t. di Gauss):
+!            V=SOMMAsulleTESSERE{A r*n}/3
+! dove r e' la distanza del punto rappresentativo dall'origine,
+! n e' il versore normale alla tessera, A l'area della tessera,
+! e * indica il prodotto scalare.
+!***********************************************************************
+VCav = ZERO
+do ITS=1,NTS
+  NSFE = pISph(ITS)
+  ! Trova il versore normale
+  XN = (Xt(ITS)-Xs(NSFE))/Rs(NSFE)
+  YN = (Yt(ITS)-Ys(NSFE))/Rs(NSFE)
+  ZN = (Zt(ITS)-Zs(NSFE))/Rs(NSFE)
+  ! Trova il prodotto scalare
+  PROD = Xt(ITS)*XN+Yt(ITS)*YN+Zt(ITS)*ZN
+  VCav = VCav+At(ITS)*PROD/Three
+end do
+!***********************************************************************
+! Stampa la geometria della cavita'
+Scav = ZERO
+do I=1,NS
+  pSSph(I) = ZERO
+end do
+do I=1,NTS
+  K = pISph(I)
+  pSSph(K) = pSSph(K)+At(I)
+end do
+OMEGA = OMEGA/DEGREE
+if (IPRINT == 2) write(u6,1100) OMEGA,RSOLV,RET,FRO,NS
+do I=1,NS
+  if (IPRINT == 2) write(u6,1200) I,Xs(I),Ys(I),Zs(I),Rs(I),pSSph(I)
+  Scav = Scav+pSSph(I)
+end do
+if (IPRINT == 2) write(u6,1300) NTS,Scav,VCav
+
+! Trasforma i risultati in bohr
+do I=1,NS
+  Rs(I) = Rs(I)/ToAng
+  Xs(I) = Xs(I)/ToAng
+  Ys(I) = Ys(I)/ToAng
+  Zs(I) = Zs(I)/ToAng
+end do
+do I=1,NTS
+  do J=1,pNVERT(I)
+    do L=1,3
+      pVERT(L,J,I) = pVERT(L,J,I)/ToAng
+      pCENTR(L,J,I) = pCENTR(L,J,I)/ToAng
+    end do
+  end do
+end do
+do I=1,NTS
+  At(I) = At(I)/(ToAng*ToAng)
+  Xt(I) = Xt(I)/ToAng
+  Yt(I) = Yt(I)/ToAng
+  Zt(I) = Zt(I)/ToAng
+end do
+if (IPRINT == 3) then
+  write(u6,1500)
+  write(u6,1600)
+  write(u6,1700) (I,pISph(I),At(I),Xt(I),Yt(I),Zt(I),I=1,NTS)
+end if
+if (NN1 > MxTs) then
+  write(u6,1240) NN1,MxTs
+  write(u6,1112)
+  call Abend()
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -147,374 +492,7 @@ call mma_deallocate(Xt)
 !***********************************************************************
 !                                                                      *
 return
-
-end subroutine FndTess
-!====
-subroutine FndTess_(IPrint,ToAng,NAT,MxSph,MxTs,XE,YE,ZE,RE,RET,Omega,FRO,RSolv,NEsfP,NEsf,ITsNum,TSAre,NTS,XCTs,YCTs,ZCTs,AS, &
-                    ISphe,Nvert,Vert,Centr,IntSph,NewSph,SSfe,JTR,CV)
-! Definition of solute cavity and computation of vertices,
-! representative points and surfaces of the tesserae by the
-! Gauss-Bonnet Theorem.
-
-use Constants, only: Zero, One, Three, Half, Pi
-use Definitions, only: wp, iwp, u6
-
-#include "intent.fh"
-
-implicit none
-integer(kind=iwp), parameter :: MxVert = 20
-integer(kind=iwp), intent(in) :: IPrint, NAT, MxSph, MxTs, NEsfP
-real(kind=wp), intent(in) :: ToAng, RET, FRO, RSolv, TSAre
-real(kind=wp), intent(inout) :: XE(*), YE(*), ZE(*), RE(*), Omega
-integer(kind=iwp), intent(out) :: NEsf, NTS
-integer(kind=iwp), intent(inout) :: ITsNum, NewSph(2,*)
-real(kind=wp), intent(_OUT_) :: XCTs(*), YCTs(*), ZCTs(*), AS(*), Vert(3,MxVert,*), Centr(3,MxVert,*), SSfe(*), CV(3,*)
-integer(kind=iwp), intent(_OUT_) :: ISphe(*), NVert(*), IntSph(MxVert,*), JTR(3,*)
-integer(kind=iwp) :: I, IC, II, IPFlag, IPtype, ISFE, ITS, ITsEff, ITYPC, IV, J,JJ, K, KG, KP, L, N, N1, N2, N3, NE, NES, NET, &
-                     NEV, NN, NN1, NSFE, NV
-real(kind=wp) :: AREA, CCC(3,MxVert), COSOM2, FC, FC1, HH, PP(3), PROD, PTS(3,MxVert), R2GN, REG, REG2, REGD2, REN, REND2, REO, &
-                 REO2, REP, REP2, REPD2, RGN, RIJ, RIJ2, RIK, RIK2, RJD, RJK, RJK2, RTDD, RTDD2, Scav, SENOM, SP, TEST, TEST1, &
-                 TEST2, TEST3, TEST7, TEST8, VCav, XEN, XI, XJ, XN, YEN, YI, YJ, YN, ZEN, ZI, ZJ, ZN
-logical(kind=iwp) :: FIRST
-real(kind=wp), parameter :: DEGREE = Pi/180.0_wp
-
-! PEDRA works with Angstroms
-do ISFE=1,NESFP
-  XE(ISFE) = XE(ISFE)*ToAng
-  YE(ISFE) = YE(ISFE)*ToAng
-  ZE(ISFE) = ZE(ISFE)*ToAng
-end do
-NESF = NESFP
-if (IPRINT == 2) write(u6,800)
-
-! creation of new spheres
-
-do N=1,NESF
-  NEWSPH(1,N) = 0
-  NEWSPH(2,N) = 0
-end do
-ITYPC = 0
-OMEGA = OMEGA*DEGREE
-SENOM = sin(OMEGA)
-COSOM2 = (cos(OMEGA))**2
-RTDD = RET+RSOLV
-RTDD2 = RTDD*RTDD
-NET = NESF
-NN = 2
-NE = NESF
-NEV = NESF
-FIRST = .true.
-do
-  if (FIRST) then
-    FIRST = .false.
-  else
-    NN = NE+1
-    NE = NET
-    if (NE > MxSph) then
-      write(u6,1111)
-      call Abend()
-    end if
-  end if
-  do I=NN,NE
-    NES = I-1
-    middle: do J=1,NES
-      RIJ2 = (XE(I)-XE(J))**2+(YE(I)-YE(J))**2+(ZE(I)-ZE(J))**2
-      RIJ = sqrt(RIJ2)
-      RJD = RE(J)+RSOLV
-      TEST1 = RE(I)+RJD+RSOLV
-      if (RIJ >= TEST1) cycle
-      REG = max(RE(I),RE(J))
-      REP = min(RE(I),RE(J))
-      REG2 = REG*REG
-      REP2 = REP*REP
-      TEST2 = REP*SENOM+sqrt(REG2-REP2*COSOM2)
-      if (RIJ <= TEST2) cycle
-      REGD2 = (REG+RSOLV)*(REG+RSOLV)
-      TEST3 = (REGD2+REG2-RTDD2)/REG
-      if (RIJ >= TEST3) cycle
-      do K=1,NEV
-        if ((K == J) .or. (K == I)) cycle
-        RJK2 = (XE(J)-XE(K))**2+(YE(J)-YE(K))**2+(ZE(J)-ZE(K))**2
-        if (RJK2 >= RIJ2) cycle
-        RIK2 = (XE(I)-XE(K))**2+(YE(I)-YE(K))**2+(ZE(I)-ZE(K))**2
-        if (RIK2 >= RIJ2) cycle
-        RJK = sqrt(RJK2)
-        RIK = sqrt(RIK2)
-        SP = (RIJ+RJK+RIK)*Half
-        HH = 4*(SP*(SP-RIJ)*(SP-RIK)*(SP-RJK))/RIJ2
-        REO = RE(K)*FRO
-        if (K >= NE) REO = 2.0e-4_wp
-        REO2 = REO*REO
-        if (HH < REO2) cycle middle
-      end do
-      REPD2 = (REP+RSOLV)**2
-      TEST8 = sqrt(REPD2-RTDD2)+sqrt(REGD2-RTDD2)
-      if (RIJ <= TEST8) then
-        R2GN = RIJ-REP+REG
-        RGN = R2GN*Half
-        FC = R2GN/(RIJ+REP-REG)
-        FC1 = FC+One
-        TEST7 = REG-RE(I)
-        if (TEST7 <= 1.0e-9_wp) then
-          KG = I
-          KP = J
-          XEN = (XE(KG)+FC*XE(KP))/FC1
-          YEN = (YE(KG)+FC*YE(KP))/FC1
-          ZEN = (ZE(KG)+FC*ZE(KP))/FC1
-          REN = sqrt(REGD2+RGN*(RGN-(REGD2+RIJ2-REPD2)/RIJ))-RSOLV
-        else
-          KG = J
-          KP = I
-        end if
-      else
-        REND2 = REGD2+REG2-(REG/RIJ)*(REGD2+RIJ2-REPD2)
-        if (REND2 <= RTDD2) cycle
-        REN = sqrt(REND2)-RSOLV
-        FC = REG/(RIJ-REG)
-        TEST7 = REG-RE(I)
-        if (TEST7 <= 1.0e-9_wp) then
-          KG = I
-          KP = J
-          FC1 = FC+One
-          XEN = (XE(KG)+FC*XE(KP))/FC1
-          YEN = (YE(KG)+FC*YE(KP))/FC1
-          ZEN = (ZE(KG)+FC*ZE(KP))/FC1
-          ITYPC = 1
-        else
-          KG = J
-          KP = I
-        end if
-      end if
-      NET = NET+1
-      XE(NET) = XEN
-      YE(NET) = YEN
-      ZE(NET) = ZEN
-      RE(NET) = REN
-
-      ! Nella matrice NEWSPH(2,NESF) sono memorizzati i numeri delle
-      ! sfere "generatrici" della nuova sfera NET: se la nuova sfera e'
-      ! del tipo A o B entrambi i numeri sono positivi, se e' di tipo
-      ! C il numero della sfera "principale" e' negativo
-      ! (per la definizione del tipo si veda JCC 11, 1047 (1990))
-
-      if (ITYPC == 0) then
-        NEWSPH(1,NET) = KG
-        NEWSPH(2,NET) = KP
-      elseif (ITYPC == 1) then
-        NEWSPH(1,NET) = -KG
-        NEWSPH(2,NET) = KP
-      end if
-
-    end do middle
-    NEV = NET
-  end do
-  if (NET == NE) exit
-end do
-NESF = NET
-
-! Division of the surface into tesserae
-
-VCav = ZERO
-Scav = ZERO
-
-! Controlla se ciascuna tessera e' scoperta o va tagliata
-
-NN1 = 0
-do NSFE=1,NESF
-  XEN = XE(NSFE)
-  YEN = YE(NSFE)
-  ZEN = ZE(NSFE)
-  REN = RE(NSFE)
-  if ((ITsNum == 0) .and. (TsAre == Zero)) then
-    IPtype = 2
-    IPFlag = 0
-    ITsNum = 60
-  elseif ((ITsNum > 0) .and. (TsAre == Zero)) then
-    IPFlag = 0
-  elseif (TsAre > Zero) then
-    IPFlag = 1
-  end if
-  call PolyGen(MxTs,IPtype,IPflag,TsAre,ITsNum,XEN,YEN,ZEN,REN,ITsEff,CV,JTR)
-  do ITS=1,ITsEff
-    N1 = JTR(1,ITS)
-    N2 = JTR(2,ITS)
-    N3 = JTR(3,ITS)
-    PTS(1,1) = CV(1,N1)
-    PTS(2,1) = CV(2,N1)
-    PTS(3,1) = CV(3,N1)
-    PTS(1,2) = CV(1,N2)
-    PTS(2,2) = CV(2,N2)
-    PTS(3,2) = CV(3,N2)
-    PTS(1,3) = CV(1,N3)
-    PTS(2,3) = CV(2,N3)
-    PTS(3,3) = CV(3,N3)
-    NV = 3
-    do JJ=1,3
-      PP(JJ) = ZERO
-    end do
-
-    ! Per ciascuna tessera, trova la porzione scoperta e ne
-    ! calcola l'area con il teorema di Gauss-Bonnet; il punto
-    ! rappresentativo e' definito come media dei vertici della porzione
-    ! scoperta di tessera e passato in PP.
-    ! I vertici di ciascuna tessera sono conservati in
-    ! VERT(3,MxVert,MxTs), il numero di vertici di ciascuna tessera e'
-    ! in NVERT(MxTs), e i centri dei cerchi di ciascun lato sono in
-    ! CENTR(3,MxVert,MxTs). In INTSPH(MxVert,MxTs) sono registrate le
-    ! sfere a cui appartengono i lati delle tessere.
-
-    call TESSERA(iPrint,MxTs,Nesf,NSFE,NV,XE,YE,ZE,RE,IntSph,PTS,CCC,PP,AREA)
-    if (AREA == Zero) cycle
-    NN1 = NN1+1
-    NN = min(NN1,MxTs)
-    XCTS(NN) = PP(1)
-    YCTS(NN) = PP(2)
-    ZCTS(NN) = PP(3)
-    AS(NN) = AREA
-
-    ISPHE(NN) = NSFE
-    NVERT(NN) = NV
-    do IV=1,NV
-      do JJ=1,3
-        VERT(JJ,IV,NN) = PTS(JJ,IV)
-        CENTR(JJ,IV,NN) = CCC(JJ,IV)
-      end do
-    end do
-    do IV=1,NV
-      INTSPH(IV,NN) = INTSPH(IV,MxTs)
-    end do
-  end do
-end do
-NTS = NN
-
-! Verifica se due tessere sono troppo vicine
-TEST = 0.02_wp
-TEST2 = TEST*TEST
-do I=1,NTS-1
-  if (AS(I) == ZERO) cycle
-  XI = XCTS(I)
-  YI = YCTS(I)
-  ZI = ZCTS(I)
-  II = I+1
-  do J=II,NTS
-    if (ISPHE(I) == ISPHE(J)) cycle
-    if (AS(J) == ZERO) cycle
-    XJ = XCTS(J)
-    YJ = YCTS(J)
-    ZJ = ZCTS(J)
-    RIJ = (XI-XJ)**2+(YI-YJ)**2+(ZI-ZJ)**2
-    if (RIJ > TEST2) cycle
-
-    ! La routine originaria sostituiva le due tessere troppo vicine con una
-    ! sola tessera. Nel caso Gauss-Bonnet, anche i vertici delle tessere
-    ! e i centri degli archi vengono memorizzati ed e' impossibile sostituirli
-    ! nello stesso modo: percio' l'area della tessera piu' piccola verra'
-    ! trascurata per evitare problemi nella autopolarizzazione.
-    if (IPRINT == 2) write(u6,1000) I,J,TEST2
-    if (AS(I) < AS(J)) AS(I) = ZERO
-    if (AS(I) >= AS(J)) AS(J) = ZERO
-  end do
-end do
-
-! E' preferibile eliminare del tutto le tessere che per
-! qualche motivo hanno AREA = 0, ridefinendo tutti gli
-! indici: l'errore numerico cosi' introdotto e' in genere
-! trascurabile e si evitano problemi di convergenza
-
-! Define here the number of tesserae in electrostatic calculations
-! to avoid problems in successive calcn.
-ITS = 0
-do while (ITS < NTS)
-  ITS = ITS+1
-  if (AS(ITS) < 1.0e-10_wp) then
-    do I=ITS,NTS-1
-      AS(I) = AS(I+1)
-      XCTS(I) = XCTS(I+1)
-      YCTS(I) = YCTS(I+1)
-      ZCTS(I) = ZCTS(I+1)
-      ISPHE(I) = ISPHE(I+1)
-      NVERT(I) = NVERT(I+1)
-      do IV=1,MxVert
-        INTSPH(IV,I) = INTSPH(IV,I+1)
-        do IC=1,3
-          VERT(IC,IV,I) = VERT(IC,IV,I+1)
-          CENTR(IC,IV,I) = CENTR(IC,IV,I+1)
-        end do
-      end do
-    end do
-    NTS = NTS-1
-    ITS = ITS-1
-  end if
-end do
-!***********************************************************************
-! Calcola il volume della cavita' con la formula (t. di Gauss):
-!            V=SOMMAsulleTESSERE{A r*n}/3
-! dove r e' la distanza del punto rappresentativo dall'origine,
-! n e' il versore normale alla tessera, A l'area della tessera,
-! e * indica il prodotto scalare.
-!***********************************************************************
-VCav = ZERO
-do ITS=1,NTS
-  NSFE = ISPHE(ITS)
-  ! Trova il versore normale
-  XN = (XCTS(ITS)-XE(NSFE))/RE(NSFE)
-  YN = (YCTS(ITS)-YE(NSFE))/RE(NSFE)
-  ZN = (ZCTS(ITS)-ZE(NSFE))/RE(NSFE)
-  ! Trova il prodotto scalare
-  PROD = XCTS(ITS)*XN+YCTS(ITS)*YN+ZCTS(ITS)*ZN
-  VCav = VCav+AS(ITS)*PROD/Three
-end do
-!***********************************************************************
-! Stampa la geometria della cavita'
-Scav = ZERO
-do I=1,NESF
-  SSFE(I) = ZERO
-end do
-do I=1,NTS
-  K = ISPHE(I)
-  SSFE(K) = SSFE(K)+AS(I)
-end do
-OMEGA = OMEGA/DEGREE
-if (IPRINT == 2) write(u6,1100) OMEGA,RSOLV,RET,FRO,NESF
-do I=1,NESF
-  if (IPRINT == 2) write(u6,1200) I,XE(I),YE(I),ZE(I),RE(I),SSFE(I)
-  Scav = Scav+SSFE(I)
-end do
-if (IPRINT == 2) write(u6,1300) NTS,Scav,VCav
-
-! Trasforma i risultati in bohr
-do I=1,NESF
-  RE(I) = RE(I)/ToAng
-  XE(I) = XE(I)/ToAng
-  YE(I) = YE(I)/ToAng
-  ZE(I) = ZE(I)/ToAng
-end do
-do I=1,NTS
-  do J=1,NVERT(I)
-    do L=1,3
-      VERT(L,J,I) = VERT(L,J,I)/ToAng
-      CENTR(L,J,I) = CENTR(L,J,I)/ToAng
-    end do
-  end do
-end do
-do I=1,NTS
-  AS(I) = AS(I)/(ToAng*ToAng)
-  XCTS(I) = XCTS(I)/ToAng
-  YCTS(I) = YCTS(I)/ToAng
-  ZCTS(I) = ZCTS(I)/ToAng
-end do
-if (IPRINT == 3) then
-  write(u6,1500)
-  write(u6,1600)
-  write(u6,1700) (I,ISPHE(I),AS(I),XCTS(I),YCTS(I),ZCTS(I),I=1,NTS)
-end if
-if (NN1 > MxTs) then
-  write(u6,1240) NN1,MxTs
-  write(u6,1112)
-  call Abend()
-end if
-
-return
+call Unused_integer(LcNAtm)
 
 800 format(/,'**** POLARISABLE CONTINUUM MODEL - UNIVERSITIES OF NAPLES AND PISA *****')
 1000 format(/,'ATTENZIONE: I CENTRI DELLE TESSERE ',I4,',',I4,' DISTANO MENO DI',F8.6,' A',/)
@@ -532,7 +510,5 @@ return
 1600 format(' TESSERA  SFERA   AREA   X Y Z CENTRO TESSERA  X Y Z PUNTO NORMALE')
 1700 format(2I4,7F12.7)
 !1800 format(/,'**** END OF CAVITY DEFINITION ****',/)
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(NAT)
 
-end subroutine FndTess_
+end subroutine FndTess

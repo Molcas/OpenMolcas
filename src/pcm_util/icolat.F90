@@ -9,36 +9,35 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine V_EF_PCM(nAt,nTs,DoPot,DoFld,AtmC,Tessera,V,EF_n,EF_e)
+function IColAt(NumAt)
 
-use Definitions, only: wp, iwp
-
-#include "intent.fh"
+use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nAt, nTs
-logical(kind=iwp), intent(in) :: DoPot, DoFld
-real(kind=wp), intent(in) :: AtmC(3,nAt), Tessera(4,*)
-real(kind=wp), intent(_OUT_) :: V(*), EF_n(3,*), EF_e(3,*)
-integer(kind=iwp) :: nOrdOp
+integer(kind=iwp) :: IColAt
+integer(kind=iwp), intent(in) :: NumAt
+integer(kind=iwp), parameter :: ICol(0:108) = [ &
+  0, &
+  1,2, &
+  1,2,3,4,5,6,7,8, &
+  1,2,3,4,5,6,7,8, &
+  1,2, &
+    9,9,9,9,9,9,9,9,9,9, &
+      3,4,5,6,7,8, &
+  1,2, &
+    9,9,9,9,9,9,9,9,9,9, &
+      3,4,5,6,7,8, &
+  1,2, &
+    9,9,9,9,9,9,9,9,9,9,9,9,9,9, &
+    9,9,9,9,9,9,9,9,9,9, &
+      9,9,9,9,9,9, &
+  9,9, &
+    9,9,9,9,9,9,9,9,9,9,9,9,9,9, &
+    9,9,9,9,9,9 &
+]
 
-! Compute potential on tesserae
-
-if (DoPot) then
-  call FZero(V,nTs)
-  nOrdOp = 0
-  call Mlt_PCM(nAt,nTs,nOrdOp,Tessera,AtmC,V,EF_n,EF_e)
-end if
-
-! Compute electric field on tesserae
-
-if (DoFld) then
-  call FZero(EF_n,3*nTs)
-  call FZero(EF_e,3*nTs)
-  nOrdOp = 1
-  call Mlt_PCM(nAt,nTs,nOrdOp,Tessera,AtmC,V,EF_n,EF_e)
-end if
+IcolAt = ICol(NumAt)
 
 return
 
-end subroutine V_EF_PCM
+end function IColAt

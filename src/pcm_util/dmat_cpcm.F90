@@ -1,0 +1,54 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+subroutine DMat_CPCM(iAt,iC,Eps,nTs,nS,nAt,fact,Tessera,DerMat,DerTes,DerPunt,DerCentr,iSphe)
+
+use Definitions, only: wp, iwp
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(in) :: iAt, iC, nTs, nS, nAt, iSphe(*)
+real(kind=wp), intent(in) :: Eps, fact, Tessera(4,*), DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3), DerCentr(nS,nAt,3,3)
+real(kind=wp), intent(_OUT_) :: DerMat(nTs,*)
+integer(kind=iwp) :: ITs, JTs, L, LJ
+real(kind=wp) :: DIJ, DXIJ, DYIJ, DZIJ, PROD, XIJ, YIJ, ZIJ
+
+! Compute the derivative of the CPCM matrix wrt atom iat, coord. ic
+
+! Loop on tesserae
+do ITs=1,NTs
+  L = ISPHE(ITs)
+  do JTs=1,NTs
+    LJ = ISPHE(JTs)
+    ! Diagonal elements
+    if (ITs == JTs) then
+      DerMat(ITs,ITs) = fact*DERTES(ITs,iAt,IC)/(Tessera(4,ITs)*sqrt(Tessera(4,ITs)))
+    else
+      ! Off diagonal elements
+      XIJ = Tessera(1,ITs)-Tessera(1,JTs)
+      YIJ = Tessera(2,ITs)-Tessera(2,JTs)
+      ZIJ = Tessera(3,ITs)-Tessera(3,JTs)
+      DIJ = sqrt(XIJ*XIJ+YIJ*YIJ+ZIJ*ZIJ)
+      DXIJ = DERPUNT(ITs,iAt,IC,1)+DERCENTR(L,iAt,IC,1)-DERPUNT(JTs,iAt,IC,1)-DERCENTR(LJ,iAt,IC,1)
+      DYIJ = DERPUNT(ITs,iAt,IC,2)+DERCENTR(L,iAt,IC,2)-DERPUNT(JTs,iAt,IC,2)-DERCENTR(LJ,iAt,IC,2)
+      DZIJ = DERPUNT(ITs,iAt,IC,3)+DERCENTR(L,iAt,IC,3)-DERPUNT(JTs,iAt,IC,3)-DERCENTR(LJ,iAt,IC,3)
+      PROD = (XIJ*DXIJ+YIJ*DYIJ+ZIJ*DZIJ)/DIJ**3
+      DerMat(ITs,JTs) = -PROD
+    end if
+  end do
+end do
+
+return
+! Avoid unused argument warnings
+if (.false.) call Unused_real(Eps)
+
+end subroutine DMat_CPCM
