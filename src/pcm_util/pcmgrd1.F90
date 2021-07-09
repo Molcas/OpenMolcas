@@ -199,7 +199,6 @@ do iTs=1,1
 
 end do     ! End loop over centers in the external field
 
-!call GetMem(' Exit PCMgrd','LIST','REAL',iDum,iDum)
 return
 ! Avoid unused argument warnings
 if (.false.) then

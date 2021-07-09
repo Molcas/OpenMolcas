@@ -16,6 +16,7 @@ subroutine PolyGen(MaxT,Ptype,Pflag,TsAre,TsNum,XEN,YEN,ZEN,REN,TsEff,CV,JTR)
 ! faces by C.S. Pomelli (cris@ibm550.icqem.cnr.it)
 ! An equilateral division algorithm is used.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Four, Half, Pi
 use Definitions, only: wp, iwp, u6
 
@@ -27,11 +28,11 @@ real(kind=wp), intent(in) :: TsAre, XEN, YEN, ZEN, REN
 integer(kind=iwp), intent(inout) :: TsNum
 integer(kind=iwp), intent(out) :: Ptype, TsEff, JTR(3,*)
 real(kind=wp), intent(_OUT_) :: CV(3,*)
-integer(kind=iwp) :: edo(90,2), ednew(90,100), i, ii, ipTrNew, ixx, j, jj, jxx, k, kj, kji, kxx, l, m, n, NDI, NDP, NDT, NE0, NF, &
-                     NFI, NFP, NFT, NT0, NTPT, nTrNew, NV, NVPT, oldtr(100,100), treo(60,3), trvo(60,3)
+integer(kind=iwp) :: edo(90,2), ednew(90,100), i, ii, j, jj, k, l, m, n, NDI, NDP, NDT, NE0, NF, NFI, NFP, NFT, NT0, NTPT, NV, &
+                     NVPT, oldtr(100,100), treo(60,3), trvo(60,3)
 real(kind=wp) :: alpha, beta, cos1, cos2, costheta, dnorm, sintheta, theta, v1(3), v2(3), v3(3)
+integer(kind=iwp), allocatable :: TrNew(:,:,:)
 integer(kind=iwp), parameter :: Icosa = 1, Pentakis = 2, Tetra = 3
-#include "WrkSpc.fh"
 ! Data for original polyhedra
 ! 1) Tetrahedron
 integer(kind=iwp), parameter :: NET = 6, NTT = 4, NVT = 4, &
@@ -320,10 +321,9 @@ end do
 ! trnew(triangolo,fila,n ordine)=nvertice
 
 ! Allocate TrNew. Note that we change the order from NT0*NF*NF
-! to NF*NF*NT0, (ixx,jxx,kxx) to (kxx,jxx,ixx)
+! to NF*NF*NT0, (i,j,k) to (k,j,i)
 
-nTrNew = NT0*NF*NF
-call GetMem('TrNew','Allo','Real',ipTrNew,nTrNew)
+call mma_allocate(TrNew,NF,NF,NT0,label='TrNew')
 
 do j=1,NT0
   ii = treo(j,1)
@@ -352,14 +352,9 @@ do j=1,NT0
         CV(k,NVPT) = v3(k)
       end do
 
-      ! trnew(j,l,n+1) = NVPT ! Old code
+      !trnew(j,l,n+1) = NVPT ! Old code
 
-      ixx = j
-      jxx = l
-      kxx = n+1
-      kj = (jxx-1)*NF+kxx
-      kji = (ixx-1)*NF**2+kj
-      Work(ipTrNew+kji-1) = NVPT
+      TrNew(n+1,l,j) = NVPT
 
       NVPT = NVPT+1
       if (NVPT > 1000) then
@@ -413,12 +408,7 @@ do n=1,NT0
 
       !oldtr(l,m) = trnew(n,l,m) ! old code
 
-      ixx = n
-      jxx = l
-      kxx = m
-      kj = (jxx-1)*NF+kxx
-      kji = (ixx-1)*NF**2+kj
-      oldtr(l,m) = int(Work(ipTrNew-1+kji))
+      oldtr(l,m) = TrNew(m,l,n)
 
     end do
   end do
@@ -442,7 +432,7 @@ do n=1,NT0
     end do
   end do
 end do
-call GetMem('TrNew','Free','Real',ipTrNew,nTrNew)
+call mma_deallocate(TrNew)
 
 ! scrittura della JVT
 

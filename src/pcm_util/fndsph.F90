@@ -11,6 +11,7 @@
 
 subroutine FndSph(NAt,ICharg,ToAng,C,IAt,ITypRad,NSphInp,Alpha,XSph,YSph,ZSph,Rad,NOrd,iPrint)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -22,18 +23,18 @@ real(kind=wp), intent(in) :: ToAng, C(3,*)
 real(kind=wp), intent(inout) :: Alpha
 real(kind=wp), intent(_OUT_) :: XSph(*), YSph(*), ZSph(*), Rad(*)
 integer(kind=iwp), intent(_OUT_) :: NOrd(*)
-integer(kind=iwp) :: I, ip_Chg
+integer(kind=iwp) :: I
+real(kind=wp), allocatable :: Chg(:)
 real(kind=wp), external :: Pauling
-#include "WrkSpc.fh"
 #include "rctfld.fh"
 
 ! Assign GEPOL sphere positions and radii according to solute atoms nature
 if (ITypRad == 1) then
   ! United Atom Topological Model (UATM) radii:
-  call GetMem('Chg','Allo','Real',ip_Chg,NAt)
-  call dcopy_(NAt,[Zero],0,Work(ip_chg),1)
-  call UATM(u6,ICharg,NAt,NSinit,ToAng,Rad,Alpha,C,IAt,NOrd,Work(ip_Chg),iPrint)
-  call GetMem('Chg','Free','Real',ip_Chg,NAt)
+  call mma_allocate(Chg,NAt,label='Chg')
+  Chg(:) = Zero
+  call UATM(u6,ICharg,NAt,NSinit,ToAng,Rad,Alpha,C,IAt,NOrd,Chg,iPrint)
+  call mma_deallocate(Chg)
 elseif (ITypRad == 2) then
   ! Pauling radii on each atom:
   do I=1,NAt

@@ -20,8 +20,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(out) :: Grad(nGrad)
-integer(kind=iwp) :: ii, iIrrep, ip1, ipC, iPrint, iRout, nComp, nDens, nOrdOp
-real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2
+integer(kind=iwp) :: ii, iIrrep, iPrint, iRout, lOper(1), nComp, nDens, nOrdOp
+real(kind=wp) :: C(3), TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: DiffOp
 character(len=80) :: Label
 character(len=8) :: Method
@@ -30,7 +30,6 @@ external :: PCMGrd1, PCMMmg
 #include "Molcas.fh"
 #include "disp.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
 
 ! Prologue
 iRout = 131
@@ -67,22 +66,15 @@ end if
 !***********************************************************************
 !                                                                      *
 ! nOrdOp: order/rank of the operator
-! Work(ip1): lOper of each component of the operator
+! lOper: lOper of each component of the operator
 
 nOrdOp = 0
 nComp = (nOrdOp+1)*(nOrdOp+2)/2
-call GetMem('Coor','Allo','Real',ipC,3)
-call GetMem('lOper','Allo','Inte',ip1,nComp)
-call dcopy_(3,[Zero],0,Work(ipC),1)
-iWork(ip1) = 1
+C(:) = Zero
+lOper(1) = 1
 DiffOp = .true.
-call OneEl_g_mck(PCMGrd1,PCMMmG,Grad,nGrad,DiffOp,Work(ipC),D_Var,nDens,iWork(ip1),nComp,nOrdOp,Label)
+call OneEl_g_mck(PCMGrd1,PCMMmG,Grad,nGrad,DiffOp,C,D_Var,nDens,lOper,nComp,nOrdOp,Label)
 call PrGrad_mck(' TEST (PCM) contribution',Grad,nGrad,ChDisp,5)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-call GetMem('lOper','Free','Inte',ip1,nComp)
-call GetMem('Coor','Free','Real',ipC,3*nComp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -23,14 +23,12 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
-integer(kind=iwp) :: i, ip_EF, ip_EF_e, ip_EF_electronic, ip_EF_n, ip_EF_nuclear, iTile, jCnt, jCnttp, MaxAto, mCnt, nc, nComp, &
-                     ndc, nDens, nOrdOp
+integer(kind=iwp) :: i, iTile, jCnt, jCnttp, MaxAto, mCnt, nc, nComp, ndc, nDens, nOrdOp
 real(kind=wp) :: EF_Temp(3), Z
 logical(kind=iwp) :: Save_tmp, Found
 integer(kind=iwp), allocatable :: lOper(:)
-real(kind=wp), allocatable :: Chrg(:), Cord(:,:), D1ao(:), FactOp(:)
+real(kind=wp), allocatable :: Chrg(:), Cord(:,:), D1ao(:), EF(:,:,:), FactOp(:)
 #include "rctfld.fh"
-#include "WrkSpc.fh"
 
 !                                                                      *
 !***********************************************************************
@@ -44,9 +42,7 @@ Save_tmp = PrPrt
 PrPrt = .true.
 nOrdOp = 1
 nComp = (nOrdOp+1)*(nOrdOp+2)/2
-call GetMem('EF','Allo','Real',ip_EF,nComp*2*nTs)
-ip_EF_nuclear = ip_EF
-ip_EF_electronic = ip_EF+nComp
+call mma_allocate(EF,nComp,2,nTs,label='EF')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -77,18 +73,10 @@ end do
 
 ! 1) The nuclear contribution
 
-ip_EF_n = ip_EF_nuclear
-ip_EF_e = ip_EF_electronic
 do iTile=1,nTs
   call EFNuc(PCMTess(1,iTile),Chrg,Cord,MaxAto,EF_temp,nOrdOp)
-  Work(ip_EF_n) = EF_Temp(1)
-  Work(ip_EF_n+1) = EF_Temp(2)
-  Work(ip_EF_n+2) = EF_Temp(3)
-  Work(ip_EF_e) = Zero
-  Work(ip_EF_e+1) = Zero
-  Work(ip_EF_e+2) = Zero
-  ip_EF_n = ip_EF_n+2*nComp
-  ip_EF_e = ip_EF_e+2*nComp
+  EF(:,1,iTile) = EF_Temp(:)
+  EF(:,2,iTile) = Zero
 end do
 
 call mma_deallocate(Cord)
@@ -112,7 +100,7 @@ call mma_allocate(lOper,nTs)
 call DCopy_(nTs,[One],0,FactOp,1)
 call ICopy(nTs,[255],0,lOper,1)
 
-call Drv1_PCM(FactOp,nTs,D1ao,nDens,PCMTess,lOper,Work(ip_EF),nOrdOp)
+call Drv1_PCM(FactOp,nTs,D1ao,nDens,PCMTess,lOper,EF,nOrdOp)
 
 call mma_deallocate(lOper)
 call mma_deallocate(FactOp)
@@ -122,12 +110,12 @@ call mma_deallocate(D1ao)
 !                                                                      *
 ! Now form the correct combinations
 
-call Cmbn_EF_DPnt(Work(ip_EF),nTs,dPnt,MaxAto,dCntr,nS,PCMiSph,PCM_SQ,Grad,nGrad)
+call Cmbn_EF_DPnt(EF,nTs,dPnt,MaxAto,dCntr,nS,PCMiSph,PCM_SQ,Grad,nGrad)
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call GetMem('EF','Free','Real',ip_EF,nComp*2*nTs)
+call mma_deallocate(EF)
 PrPrt = Save_tmp
 call Free_iSD()
 !                                                                      *

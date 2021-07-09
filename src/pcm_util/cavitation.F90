@@ -12,7 +12,8 @@
 subroutine Cavitation(DoDeriv,ToAng,nAt,nS,nTs,GCavP,VMol,TAbs,RSolv,Sphere,Tessera,iSphe)
 ! Compute cavitation energy given the cavity.
 
-use Constants, only: One
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -21,40 +22,40 @@ real(kind=wp), intent(in) :: ToAng, VMol, TAbs, RSolv
 integer(kind=iwp), intent(in) :: nAt, nS, nTs, iSphe(nTs)
 real(kind=wp), intent(out) :: GCavP
 real(kind=wp), intent(inout) :: Sphere(4,nS), Tessera(4,nTs)
-integer(kind=iwp) :: ip_CavS, ip_dCav, ip_dEA, ip_EA, iS, iTs
+integer(kind=iwp) :: iS, iTs
 real(kind=wp) :: ToAU
-#include "WrkSpc.fh"
+real(kind=wp), allocatable :: CavS(:), dCav(:,:), dEA(:,:,:), EA(:)
 
-call GetMem('CavSph','Allo','Real',ip_CavS,nS)
-call GetMem('dCav','Allo','Real',ip_dCav,3*nAt)
-call GetMem('ExpArea','Allo','Real',ip_EA,nS)
-call GetMem('dExpArea','Allo','Real',ip_dEA,3*nAt*nS)
-call FZero(Work(ip_CavS),nS)
-call FZero(Work(ip_dCav),3*nAt)
-call FZero(Work(ip_EA),nS)
-call FZero(Work(ip_dEA),3*nAt*nS)
+call mma_allocate(CavS,nS,label='CavSph')
+call mma_allocate(dCav,3,nAt,label='dCav')
+call mma_allocate(EA,nS,label='ExpArea')
+call mma_allocate(dEA,3,nAt,nS,label='dExpArea')
+CavS(:) = Zero
+dCav(:,:) = Zero
+EA(:) = Zero
+dEA(:,:,:) = Zero
 
-! Put some quantity in Angstrom
+! Put some quantities in angstrom
 call DScal_(nS,ToAng,Sphere(4,1),4)
 call DScal_(nTs,ToAng*ToAng,Tessera(4,1),4)
 
 ! Compute the exposed area for each sphere
 do iTs=1,nTs
   iS = iSphe(iTs)
-  Work(ip_EA-1+iS) = Work(ip_EA-1+iS)+Tessera(4,iTs)
+  EA(iS) = EA(iS)+Tessera(4,iTs)
 end do
 
-call Cavitation_(nAt,nS,VMol,TAbs,RSolv,GCavP,Work(ip_CavS),Work(ip_dCav),Sphere,Work(ip_EA),Work(ip_dEA),DoDeriv)
+call Cavitation_(nAt,nS,VMol,TAbs,RSolv,GCavP,CavS,dCav,Sphere,EA,dEA,DoDeriv)
 
 ! Revert to a.u.
 ToAU = One/ToAng
 call DScal_(nS,ToAU,Sphere(4,1),4)
 call DScal_(nTs,ToAU*ToAU,Tessera(4,1),4)
 
-call GetMem('dExpArea','Free','Real',ip_dEA,3*nAt*nS)
-call GetMem('ExpArea','Free','Real',ip_EA,nS)
-call GetMem('dCav','Free','Real',ip_dCav,3*nAt)
-call GetMem('CavSph','Free','Real',ip_CavS,nS)
+call mma_deallocate(CavS)
+call mma_deallocate(dCav)
+call mma_deallocate(EA)
+call mma_deallocate(dEA)
 
 return
 

@@ -12,16 +12,17 @@
 subroutine PCM_Cav_grd(Grad,nGrad)
 
 use PCM_arrays, only: dCntr, dPnt, dRad, dTes, PCM_N, PCM_SQ, PCMiSph, PCMSph, PCMTess
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(out) :: Grad(nGrad)
-integer(kind=iwp) :: ip_DerDM, ip_PCMGrd, LcNAtm, MaxAto
+integer(kind=iwp) :: LcNAtm, MaxAto
+real(kind=wp), allocatable :: DerDM(:,:), PCMGrd(:,:)
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
-#include "WrkSpc.fh"
 
 !                                                                      *
 !***********************************************************************
@@ -29,15 +30,15 @@ integer(kind=iwp) :: ip_DerDM, ip_PCMGrd, LcNAtm, MaxAto
 ! Compute the geometric contributions to
 ! derivatives in solution
 
-call GetMem('DerDM','Allo','Real',ip_DerDM,nTs*nTs)
+call mma_allocate(DerDM,nTs,nTs,label='DerDM')
 call Get_nAtoms_All(MaxAto)
-call GetMem('PCMGrd','Allo','Real',ip_PCMGrd,3*MaxAto)
+call mma_allocate(PCMGrd,3,MaxAto,label='PCMGrd')
 LcNAtm = ISlPar(42)
-call GeoDer(LcNAtm,Conductor,nTs,nS,Eps,PCMSph,PCMiSph,PCM_N,PCMTess,PCM_SQ,Work(ip_DerDM),Work(ip_PCMGrd),dTes,dPnt,dRad,dCntr)
-!call RecPrt('PCM_Cav_Grd','(5G20.10)',Work(ip_PCMGrd),3,MaxAto)
-call GrdTr_Alaska(Work(ip_PCMGrd),MaxAto,Grad,nGrad)
-call GetMem('PCMGrd','Free','Real',ip_PCMGrd,3*MaxAto)
-call GetMem('DerDM','Free','Real',ip_DerDM,nTs*nTs)
+call GeoDer(LcNAtm,Conductor,nTs,nS,Eps,PCMSph,PCMiSph,PCM_N,PCMTess,PCM_SQ,DerDM,PCMGrd,dTes,dPnt,dRad,dCntr)
+!call RecPrt('PCM_Cav_Grd','(5G20.10)',PCMGrd,3,MaxAto)
+call GrdTr_Alaska(PCMGrd,MaxAto,Grad,nGrad)
+call mma_deallocate(DerDM)
+call mma_deallocate(PCMGrd)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

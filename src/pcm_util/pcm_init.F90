@@ -21,11 +21,10 @@ real(kind=wp), intent(in) :: ToAng, AtmC(3,NAtm)
 real(kind=wp), intent(out) :: LcAtmC(3,NAtm)
 integer(kind=iwp), intent(out) :: LcIAtm(NAtm)
 logical(kind=iwp), intent(in) :: NonEq
-integer(kind=iwp) :: I, ip_RM, ip_SDM, ip_SM, ip_TM, LcI, LcNAtm, nTs2
+integer(kind=iwp) :: I, LcI, LcNAtm
 real(kind=wp) :: Eps_, RJunk(1), TAbs
 integer(kind=iwp), allocatable :: pNs(:), VTS(:)
-real(kind=wp), allocatable :: Xs(:), Ys(:), Zs(:), Rs(:)
-#include "WrkSpc.fh"
+real(kind=wp), allocatable :: Xs(:), Ys(:), Zs(:), RM(:,:), Rs(:), SDM(:,:), SM(:,:), TM(:,:)
 #include "rctfld.fh"
 
 ! Build the cavity.
@@ -107,21 +106,20 @@ call Cavitation(DoDeriv,ToAng,LcNAtm,NS,nTs,RSlPar(46),VMol,TAbs,RSolv,PCMSph,PC
 
 ! Define PCM matrix: the inverse is stored in PCMDM
 
-nTs2 = nTs*nTs
-call GetMem('SMat','Allo','Real',ip_SM,nTs2)
-call GetMem('SDMat','Allo','Real',ip_SDM,nTs2)
-call GetMem('TMat','Allo','Real',ip_TM,nTs2)
-call GetMem('RMat','Allo','Real',ip_RM,nTs2)
+call mma_allocate(SM,nTs,nTs,label='SMat')
+call mma_allocate(SDM,nTs,nTs,label='SDMat')
+call mma_allocate(TM,nTs,nTs,label='TMat')
+call mma_allocate(RM,nTs,nTs,label='RMat')
 if (NonEq) then
   Eps_ = EpsInf
 else
   Eps_ = Eps
 end if
-call MatPCM(nTs,Eps_,Conductor,PCMiSph,PCMSph,PCMTess,PCMDM,Work(ip_SM),Work(ip_SDM),Work(ip_TM),Work(ip_RM))
-call GetMem('RMat','Free','Real',ip_RM,nTs2)
-call GetMem('TMat','Free','Real',ip_TM,nTs2)
-call GetMem('SDMat','Free','Real',ip_SDM,nTs2)
-call GetMem('SMat','Free','Real',ip_SM,nTs2)
+call MatPCM(nTs,Eps_,Conductor,PCMiSph,PCMSph,PCMTess,PCMDM,SM,SDM,TM,RM)
+call mma_deallocate(SM)
+call mma_deallocate(SDM)
+call mma_deallocate(TM)
+call mma_deallocate(RM)
 
 return
 ! Avoid unused argument warnings

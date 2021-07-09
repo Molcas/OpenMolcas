@@ -42,6 +42,7 @@ use Basis_Info, only: dbsc, MolWgh, Shells
 use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -52,18 +53,17 @@ real(kind=wp), intent(out) :: Grad(nGrad)
 logical(kind=iwp), intent(in) :: DiffOp
 real(kind=wp), intent(in) :: CCoor(3), FD(nFD)
 character(len=80), intent(in) :: Label
-integer(kind=iwp) :: i, iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ijS, iKappa, iKern, IndGrd(3,2), &
-                     iPCoor, ipDAO, ipDSO, ipDSOp, ipFnl, iPrim, iPrint, ipZI, iRout, iS, iScrt1, iScrt2, iShell, iShll, iSmLbl, &
-                     iStabM(0:7), iStabO(0:7), iuv, iZeta, jAng, jAO, jBas, jCmp, jCnt, jCnttp, jPrim, jS, jShell, jShll, kk, &
-                     lDCRR, lFinal, llOper, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nDCRR, nDCRT, niAng, njAng, nOp(2), nOrder, &
-                     nScr1, nScr2, nSkal, nSO, nStabM, nStabO, nTasks
+integer(kind=iwp) :: i, iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ijS, IndGrd(3,2), iPrim, iPrint, &
+                     iRout, iS, iShell, iShll, iSmLbl, iStabM(0:7), iStabO(0:7), iuv, jAng, jAO, jBas, jCmp, jCnt, jCnttp, jPrim, &
+                     jS, jShell, jShll, kk, lDCRR, lFinal, llOper, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nDCRR, nDCRT, niAng, &
+                     njAng, nOp(2), nOrder, nScr1, nScr2, nSkal, nSO, nStabM, nStabO, nTasks
 real(kind=wp) :: A(3), B(3), FactNd, RB(3)
 logical(kind=iwp) :: AeqB, EQ, IfGrad(3,3)
+real(kind=wp), allocatable :: DAO(:), DSO(:), DSOp(:), Fnl(:), Kappa(:), Kern(:), PCoor(:), Scrt1(:), Scrt2(:), Zeta(:), ZI(:)
 character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 #include "angtp.fh"
 #include "Molcas.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
 
@@ -73,10 +73,10 @@ call dcopy_(nGrad,[Zero],0,Grad,1)
 
 ! Auxiliary memory allocation.
 
-call GetMem('Zeta','ALLO','REAL',iZeta,S%m2Max)
-call GetMem('Zeta','ALLO','REAL',ipZI,S%m2Max)
-call GetMem('Kappa','ALLO','REAL',iKappa,S%m2Max)
-call GetMem('PCoor','ALLO','REAL',iPCoor,S%m2Max*3)
+call mma_allocate(Zeta,S%m2Max,label='Zeta')
+call mma_allocate(ZI,S%m2Max,label='ZI')
+call mma_allocate(Kappa,S%m2Max,label='Kappa')
+call mma_allocate(PCoor,3*S%m2Max,label='PCoor')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -142,28 +142,28 @@ do ijS=1,nTasks
 
   call KrnlMm(nOrder,MemKer,iAng,jAng,nOrdOp)
   MemKrn = MemKer*S%m2Max
-  call GetMem('Kernel','ALLO','REAL',iKern,MemKrn)
+  call mma_allocate(Kern,MemKrn,label='Kernel')
 
   ! Allocate memory for the final integrals, all in the primitive basis.
 
   lFinal = 6*S%MaxPrm(iAng)*S%MaxPrm(jAng)*niAng*njAng*nComp
-  call GetMem('Final','ALLO','REAL',ipFnl,lFinal)
+  call mma_allocate(Fnl,lFinal,label='Final')
 
   ! Scratch area for contraction step
 
   nScr1 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*niAng*njAng
-  call GetMem('Scrtch','ALLO','REAL',iScrt1,nScr1)
+  call mma_allocate(Scrt1,nScr1,label='Scrtch')
 
   ! Scratch area for the transformation to spherical gaussians
 
   nScr2 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*niAng*njAng
-  call GetMem('ScrSph','Allo','Real',iScrt2,nScr2)
+  call mma_allocate(Scrt2,nScr2,label='ScrSph')
 
-  call GetMem(' DAO ','Allo','Real',ipDAO,iPrim*jPrim*niAng*njAng)
+  call mma_allocate(DAO,iPrim*jPrim*niAng*njAng,label='DAO')
 
   ! At this point we can compute Zeta.
 
-  call ZXia(Work(iZeta),Work(ipZI),iPrim,jPrim,Shells(iShll)%Exp,Shells(jShll)%Exp)
+  call ZXia(Zeta,ZI,iPrim,jPrim,Shells(iShll)%Exp,Shells(jShll)%Exp)
 
   do iCar=0,2
     IndGrd(iCar+1,1) = iSD(iCar+16,iS)
@@ -185,12 +185,12 @@ do ijS=1,nTasks
   ! denisty matrix which are associated with the current shell
   ! pair.
 
-  call GetMem('DSOpr ','ALLO','REAL',ipDSOp,nSO*iPrim*jPrim)
-  call GetMem('DSO ','ALLO','REAL',ipDSO,nSO*iPrim*jPrim)
+  call mma_allocate(DSOp,nSO*iPrim*jPrim,label='DSOpr')
+  call mma_allocate(DSO,nSO*iPrim*jPrim,label='DSO')
 
   ! Gather the elements from 1st order density / Fock matrix.
 
-  call SOGthr(Work(ipDSO),iBas,jBas,nSO,FD,n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
+  call SOGthr(DSO,iBas,jBas,nSO,FD,n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
 
   ! Project the Fock/1st order density matrix in AO
   ! basis on to the primitive basis.
@@ -201,14 +201,14 @@ do ijS=1,nTasks
   end if
 
   ! Transform IJ,AB to J,ABi
-  call DGEMM_('T','T',jBas*nSO,iPrim,iBas,One,Work(ipDSO),iBas,Shells(iShll)%pCff,iPrim,Zero,Work(ipDSOp),jBas*nSO)
+  call DGEMM_('T','T',jBas*nSO,iPrim,iBas,One,DSO,iBas,Shells(iShll)%pCff,iPrim,Zero,DSOp,jBas*nSO)
   ! Transform J,ABi to AB,ij
-  call DGEMM_('T','T',nSO*iPrim,jPrim,jBas,One,Work(ipDSOp),jBas,Shells(jShll)%pCff,jPrim,Zero,Work(ipDSO),nSO*iPrim)
+  call DGEMM_('T','T',nSO*iPrim,jPrim,jBas,One,DSOp,jBas,Shells(jShll)%pCff,jPrim,Zero,DSO,nSO*iPrim)
   ! Transpose to ij,AB
-  call DGeTmO(Work(ipDSO),nSO,nSO,iPrim*jPrim,Work(ipDSOp),iPrim*jPrim)
-  call GetMem('DSO ','Free','Real',ipDSO,nSO*iBas*jBas)
+  call DGeTmO(DSO,nSO,nSO,iPrim*jPrim,DSOp,iPrim*jPrim)
+  call mma_deallocate(DSO)
 
-  if (iPrint >= 99) call RecPrt(' Decontracted 1st order density/Fock matrix',' ',Work(ipDSOp),iPrim*jPrim,nSO)
+  if (iPrint >= 99) call RecPrt(' Decontracted 1st order density/Fock matrix',' ',DSOp,iPrim*jPrim,nSO)
 
   ! Loops over symmetry operations.
 
@@ -259,7 +259,7 @@ do ijS=1,nTasks
       ! Desymmetrize the matrix with which we will
       ! contracte the trace.
 
-      call DesymD(iSmLbl,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,iAO,jAO,Work(ipDAO),iPrim,jPrim,Work(ipDSOp),nSO,nOp,FactNd)
+      call DesymD(iSmLbl,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,iAO,jAO,DAO,iPrim,jPrim,DSOp,nSO,nOp,FactNd)
 
       ! Project the spherical harmonic space onto the
       ! cartesian space.
@@ -268,42 +268,41 @@ do ijS=1,nTasks
       if (Shells(iShll)%Transf .or. Shells(jShll)%Transf) then
 
         ! ---ij,AB --> AB,ij
-        call DGeTmO(Work(ipDAO),iPrim*jPrim,iPrim*jPrim,iCmp*jCmp,Work(iScrt1),iCmp*jCmp)
+        call DGeTmO(DAO,iPrim*jPrim,iPrim*jPrim,iCmp*jCmp,Scrt1,iCmp*jCmp)
         ! ---AB,ij --> ij,ab
-        call SphCar(Work(iScrt1),iCmp*jCmp,iPrim*jPrim,Work(iScrt2),nScr2,RSph(ipSph(iAng)),iAng,Shells(iShll)%Transf, &
-                    Shells(iShll)%Prjct,RSph(ipSph(jAng)),jAng,Shells(jShll)%Transf,Shells(jShll)%Prjct,Work(ipDAO),kk)
+        call SphCar(Scrt1,iCmp*jCmp,iPrim*jPrim,Scrt2,nScr2,RSph(ipSph(iAng)),iAng,Shells(iShll)%Transf,Shells(iShll)%Prjct, &
+                    RSph(ipSph(jAng)),jAng,Shells(jShll)%Transf,Shells(jShll)%Prjct,DAO,kk)
       end if
-      if (iPrint >= 99) call RecPrt(' Decontracted FD in the cartesian space',' ',Work(ipDAO),iPrim*jPrim,kk)
+      if (iPrint >= 99) call RecPrt(' Decontracted FD in the cartesian space',' ',DAO,iPrim*jPrim,kk)
 
       ! Compute kappa and P.
 
-      call Setup1(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,A,RB,Work(iKappa),Work(iPCoor),Work(ipZI))
+      call Setup1(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,A,RB,Kappa,PCoor,ZI)
 
       ! Compute gradients of the primitive integrals and
       ! trace the result.
 
-      call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Work(iZeta),Work(ipZI),Work(iKappa),Work(iPcoor),Work(ipFnl), &
-                  iPrim*jPrim,iAng,jAng,A,RB,nOrder,Work(iKern),MemKer,Ccoor,nOrdOp,Grad,nGrad,IfGrad,IndGrd,Work(ipDAO),mdci, &
-                  mdcj,nOp,lOper,nComp,iStabM,nStabM)
+      call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,Pcoor,Fnl,iPrim*jPrim,iAng,jAng,A,RB,nOrder,Kern, &
+                  MemKer,Ccoor,nOrdOp,Grad,nGrad,IfGrad,IndGrd,DAO,mdci,mdcj,nOp,lOper,nComp,iStabM,nStabM)
       if (iPrint >= 49) call PrGrad_mck(' In Oneel',Grad,nGrad,ChDisp,5)
 
     end do
   end if
-  call GetMem('DSOpr ','Free','REAL',ipDSOp,nSO*iPrim*jPrim)
-  call GetMem(' DAO ','Free','Real',ipDAO,iPrim*jPrim*niAng*njAng)
-  call GetMem('ScrSph','Free','Real',iScrt2,nScr2)
-  call GetMem('Scrtch','Free','Real',iScrt1,nScr1)
-  call GetMem('Final','Free','Real',ipFnl,lFinal)
-  call GetMem('Kernel','Free','Real',iKern,MemKrn)
+  call mma_deallocate(Kern)
+  call mma_deallocate(Fnl)
+  call mma_deallocate(Scrt1)
+  call mma_deallocate(Scrt2)
+  call mma_deallocate(DAO)
+  call mma_deallocate(DSOp)
   !end do
   !end do
 end do
 
 call Free_iSD()
-call GetMem('Kappa','FREE','REAL',iKappa,S%m2Max)
-call GetMem('PCoor','FREE','REAL',iPCoor,S%m2Max*3)
-call GetMem('Zeta','FREE','REAL',ipZI,S%m2Max)
-call GetMem('Zeta','FREE','REAL',iZeta,S%m2Max)
+call mma_deallocate(Zeta)
+call mma_deallocate(ZI)
+call mma_deallocate(Kappa)
+call mma_deallocate(PCoor)
 
 if (iPrint >= 15) call PrGrad_mck(Label,Grad,nGrad,ChDisp,5)
 
