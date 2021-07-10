@@ -13,6 +13,7 @@
 subroutine transform_V
   use rhodyn_data
   use rhodyn_utils, only: transform, dashes
+  use definitions, only: wp, iwp, u6
   use stdalloc, only: mma_allocate, mma_deallocate
   use mh5
   implicit none
@@ -27,11 +28,11 @@ subroutine transform_V
 ! REV_CSF : U_CI*REV_SO*U_CI**T
 ! IMV_CSF : U_CI*IMV_SO*U_CI**T
 !
-  real(8),dimension(:,:),allocatable:: REV,IMV
-  real(8),dimension(:,:),allocatable::REV_SO,REV_CSF,IMV_SO,IMV_CSF
-  integer :: fileid
+  real(kind=wp),dimension(:,:),allocatable::REV_SO,REV_CSF, &
+                                            IMV_SO,IMV_CSF
+  integer(kind=iwp) :: fileid
 
-  if (ipglob>3) write(*,*) 'Begin of transform_V'
+  if (ipglob>3) write(u6,*) 'Begin of transform_V'
   if (ipglob>3) call dashes()
 
   call mma_allocate(REV_SO,lrootstot,lrootstot)
@@ -40,41 +41,41 @@ subroutine transform_V
   call mma_allocate(IMV_CSF,nconftot,nconftot)
 
   fileid = mh5_open_file_r('RASSISD')
-  call mh5_fetch_dset_array_real(fileid,'V_SO_REAL',REV_SO)
-  call mh5_fetch_dset_array_real(fileid,'V_SO_IMAG',IMV_SO)
+  call mh5_fetch_dset(fileid,'V_SO_REAL',REV_SO)
+  call mh5_fetch_dset(fileid,'V_SO_IMAG',IMV_SO)
   call mh5_close_file(fileid)
 
   ! check whether V_SO in SF basis is hermitain.
   if (ipglob>3) then
     call dashes()
-    write(*,*) 'Check if Spin-orbit coupling V_SO is hermitain'
+    write(u6,*) 'Check if Spin-orbit coupling V_SO is hermitain'
     call dashes()
     do i=1,lrootstot
       do j=1,i
         if ((abs(REV_SO(i,j)-REV_SO(j,i))>=threshold) &
             .or.(abs(IMV_SO(i,j)+IMV_SO(j,i))>=threshold)) then
-          write(*,*) 'ERROR: V_SO is not Hermitian; check element', &
+          write(u6,*) 'ERROR: V_SO is not Hermitian; check element', &
              i,j,REV_SO(i,j),REV_SO(j,i),IMV_SO(i,j),IMV_SO(j,i), &
              (REV_SO(i,j)-REV_SO(j,i)),(IMV_SO(i,j)+IMV_SO(j,i))
         endif
       enddo
     enddo
     call dashes()
-    write(*,*)'If there is no error printout, V_SO is hermitain!'
+    write(u6,*)'If there is no error printout, V_SO is hermitain!'
     call dashes()
   endif
 
   V_SO = dcmplx(REV_SO,IMV_SO)
   if (ipglob>3) then
     call dashes()
-    print *, 'Printout the Spin-orbit Hamiltonian in SF basis'
+    write(u6,*) 'Printout the Spin-orbit Hamiltonian in SF basis'
     call dashes()
     do i=1,6
-      write(*,*)(V_SO(i,j),j=1,6)
+      write(u6,*)(V_SO(i,j),j=1,6)
     enddo
   endif
 
-  write(*,*) 'Begin transform the SO-Hamiltonian'
+  write(u6,*) 'Begin transform the SO-Hamiltonian'
 ! Transform the SO-Hamiltonian from SF states to CSFs
   call transform(REV_SO,U_CI,REV_CSF,.False.)
   call transform(IMV_SO,U_CI,IMV_CSF,.False.)
@@ -82,22 +83,22 @@ subroutine transform_V
 ! Check whether V_CSF is hermitian
   if (ipglob>3) then
     call dashes()
-    write(*,*)'Check whether SO-Hamiltonian in CSF is hermitian'
+    write(u6,*)'Check whether SO-Hamiltonian in CSF is hermitian'
     call dashes()
     do i=1,nconftot
       do j=i+1,nconftot
         if (abs(REV_CSF(i,j)-REV_CSF(j,i))>=threshold) then
-          write(*,int2real)'WARNING!!!: REV_CSF is not hermitian:', &
+          write(u6,int2real)'WARNING!!!: REV_CSF is not hermitian:', &
                            i,j,REV_CSF(i,j),REV_CSF(j,i)
         elseif (abs(IMV_CSF(i,j)+IMV_CSF(j,i))>=threshold) then
-          write(*,int2real)'WARNING!!!: IMV_CSF is not hermitian:', &
+          write(u6,int2real)'WARNING!!!: IMV_CSF is not hermitian:', &
                            i,j,IMV_CSF(i,j),IMV_CSF(j,i)
         endif
       enddo
     enddo
     call dashes()
-    write(*,*)'If there is no WARNING!!! printout'
-    write(*,*)'SO-Hamiltonian in CSF basis is hermitian'
+    write(u6,*)'If there is no WARNING!!! printout'
+    write(u6,*)'SO-Hamiltonian in CSF basis is hermitian'
     call dashes()
   endif
 
@@ -111,6 +112,6 @@ subroutine transform_V
   if (allocated(REV_CSF)) call mma_deallocate(REV_CSF)
   if (allocated(IMV_CSF)) call mma_deallocate(IMV_CSF)
 
-  if (ipglob>3) write(*,*) 'End of transform_V'
+  if (ipglob>3) write(u6,*) 'End of transform_V'
 
 end

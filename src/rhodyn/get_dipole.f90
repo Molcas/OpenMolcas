@@ -1,42 +1,68 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Vladislav Kochetov                               *
+!***********************************************************************
 subroutine get_dipole
 !
 ! Purpose :  Read in the dipole matrix from the MOLCAS output (SO)
 !
   use rhodyn_data
   use rhodyn_utils, only: transform, dashes
+  use definitions, only: wp, iwp, u6
   use mh5
-  use stdalloc
+  use stdalloc, only: mma_allocate, mma_deallocate
   implicit none
-  integer :: fileid
-  real(8),allocatable,dimension(:,:,:) :: DIPR, DIPI
+  integer(kind=iwp) :: fileid
+  real(kind=wp),allocatable,dimension(:,:,:) :: DIPR, DIPI
 
   call dashes()
-  write(*,*) 'Begin get_dipole'
+  write(u6,*) 'Begin get_dipole'
   call dashes()
 
   call mma_allocate (DIPR,lrootstot,lrootstot,3)
   call mma_allocate (DIPI,lrootstot,lrootstot,3)
 
 ! Read in the components dipole matrix (X,Y,Z) from the MOLCAS output
+! probably better move that to read_rassisd.f90
   fileid = mh5_open_file_r('RASSISD')
-  write(*,*) 'dipole real read'
-  if (mh5_exists_dset(fileid,'SOS_EDIPMOM_REAL').and. &
+  write(u6,*) 'dipole real read'
+  if (flag_so) then
+    if (mh5_exists_dset(fileid,'SOS_EDIPMOM_REAL').and. &
       mh5_exists_dset(fileid,'SOS_EDIPMOM_IMAG')) then
-    call mh5_fetch_dset_array_real(fileid,'SOS_EDIPMOM_REAL',DIPR)
-    call mh5_fetch_dset_array_real(fileid,'SOS_EDIPMOM_IMAG',DIPI)
-  else
-! vk: add possibility to read SFS_EDIPMOM (flag_so = off)
-    write(*,*) 'Error in reading RASSISD file, no dipole matrix'
-    call abend()
+      call mh5_fetch_dset(fileid,'SOS_EDIPMOM_REAL',DIPR)
+      call mh5_fetch_dset(fileid,'SOS_EDIPMOM_IMAG',DIPI)
+    else
+      write(u6,*) 'Error in reading RASSISD file, no dipole matrix in SO basis'
+      call abend()
+    endif
+  else ! to read SFS_EDIPMOM (flag_so = off)
+    if (mh5_exists_dset(fileid,'SFS_EDIPMOM')) then
+      call mh5_fetch_dset(fileid,'SFS_EDIPMOM',DIPR)
+      DIPI=0d0
+    else
+      write(u6,*) 'Error in reading RASSISD file, no dipole matrix in SF basis'
+      call abend()
+    endif
   endif
-  !write(*,*) 'dysorb read'
+  !write(u6,*) 'dysorb read'
   if (mh5_exists_dset(fileid,'DYSORB').and.flag_dyson) then
-    call mh5_fetch_dset_array_real(fileid,'DYSORB',dysamp)
+    call mh5_fetch_dset(fileid,'DYSORB',dysamp)
+  else if (mh5_exists_dset(fileid,'DYSAMP').and.flag_dyson) then
+    call mh5_fetch_dset(fileid,'DYSAMP',dysamp)
   else
-    write(*,*) 'Ionization is not taken into account'
+    write(u6,*) 'Ionization is not taken into account (set flag DYSO) and/or'
+    write(u6,*) 'RASSI file does not contain Dyson amplitudes'
     flag_dyson=.False.
   endif
-  !write(*,*) 'dysorb has been read'
+  !write(u6,*) 'dysorb has been read'
   call mh5_close_file(fileid)
   dipole = dcmplx(DIPR,DIPI)
 
@@ -70,18 +96,18 @@ subroutine get_dipole
     dysamp_bas = dysamp
   endif
   if (flag_dyson) dysamp_bas=abs(dysamp_bas**2)
-  write(*,*) 'dysorb processing has been successfully finished'
-	  
+  write(u6,*)'dysorb processing has been successfully finished'
+
 ! calculate matrix of Einstein coefficient A if emission spectrum needed
 !      if ((DM_basis/='SO').and.(DM_basis/='CSF_SO').and.
-!	 &    (DM_basis/='SF_SO')) then
-!	    flag_emiss=.False.
-!		write(*,*) 'Emission spectra can be calculated only if SOC'//
-!	 &             'density matrix available. Set DMBasis keyword' //
-!	 &             'to SO, CSF_SO, or SF_SO'
-!	  endif
+!  &    (DM_basis/='SF_SO')) then
+!     flag_emiss=.False.
+!   write(u6,*) 'Emission spectra can be calculated only if SOC'//
+!  &             'density matrix available. Set DMBasis keyword' //
+!  &             'to SO, CSF_SO, or SF_SO'
+!  endif
   if (flag_emiss) then
-	  a_einstein = 0d0
+    a_einstein = 0d0
     emiss = 0d0
     ii = 1
     do j=1,(lrootstot-1)
@@ -99,16 +125,16 @@ subroutine get_dipole
 
   if (preparation/=4) then
     ! not CM case
-    call mh5_put_dset_array_real(prep_dipoler, dble(dipole))
-    call mh5_put_dset_array_real(prep_dipolei, aimag(dipole))
+    call mh5_put_dset(prep_dipoler, dble(dipole))
+    call mh5_put_dset(prep_dipolei, aimag(dipole))
     if (flag_dyson) then
-      call mh5_put_dset_array_real(prep_do, dble(dysamp_bas))
+      call mh5_put_dset(prep_do, dble(dysamp_bas))
     endif
   endif
 
   call mma_deallocate (DIPR)
   call mma_deallocate (DIPI)
 
-  write(*,*) 'End get_dipole'
+  write(u6,*) 'End get_dipole'
 
 end

@@ -13,6 +13,7 @@
 subroutine kab
   use rhodyn_data
   use rhodyn_utils, only: transform, dashes
+  use definitions, only: wp, iwp, u6
   use stdalloc, only: mma_allocate, mma_deallocate
   implicit none
 !***********************************************************************
@@ -21,63 +22,66 @@ subroutine kab
 !
 !***********************************************************************
 
-  integer :: max_i, max_j, iii, jjj, n_sf
-  real(8) ::  max_k
-  real(8), dimension(:,:), allocatable :: G,G_SF,omega_ab,n_w,J_w,r_ab_SO
-  real(8), dimension(:), allocatable :: freq, temp_gk
-  complex(8), dimension(:,:),allocatable ::k_ab,gamma_pd,gamma_pd_basis
-  complex(8), dimension(:,:,:),allocatable :: G_SO
+  integer(kind=iwp) :: max_i, max_j, iii, jjj, n_sf, lu
+  integer(kind=iwp), external :: isFreeUnit
+  real(kind=wp) ::  max_k
+  real(kind=wp), dimension(:,:), allocatable :: G,G_SF,omega_ab,n_w,&
+                                                J_w,r_ab_SO
+  real(kind=wp), dimension(:), allocatable :: freq, temp_gk
+  complex(kind=wp), dimension(:,:),allocatable ::k_ab,gamma_pd,&
+                                                 gamma_pd_basis
+  complex(kind=wp), dimension(:,:,:),allocatable :: G_SO
   character(len=256):: format1
 
   format1='(2(I8),4(G15.8,X))'
   n_sf = sum(nconf)
 
-  write(*,*) 'N_SF=', n_sf
-  write(*,*) 'Nmode=', Nmode
-  write(*,*) 'Nconftot=', nconftot
-  write(*,*) 'Nstate=', Nstate
+  write(u6,*) 'N_SF=', n_sf
+  write(u6,*) 'Nmode=', Nmode
+  write(u6,*) 'Nconftot=', nconftot
+  write(u6,*) 'Nstate=', Nstate
 
   call mma_allocate(G,Nmode,n_sf)
   call mma_allocate(G_SF,Nmode,Nstate)
   call mma_allocate(G_SO,Nmode,Nstate,Nstate)
   call mma_allocate(freq,Nmode)
-	call mma_allocate(temp_gk,Nstate)
+  call mma_allocate(temp_gk,Nstate)
   call mma_allocate(r_ab_SO,Nstate,Nstate)
 
 ! reading quintets and triplets
 
   call dashes()
-  write(*,*) ' Begin reading HR-factors data '
+  write(u6,*) ' Begin reading HR-factors data '
   call dashes()
 
   jj=0
   iii=0
 
-  open(11,file='HRFACT',status='old',iostat=error)
-  if (error/=0) write(*,*) 'reading file HRFACT failed!'
-  read(11,*)
+  lu = isFreeUnit(11)
+  call molcas_open(lu,'HRFACT')
+  read(lu,*)
   do k=1,Nmode
-    read(11,*) freq(k)
+    read(lu,*) freq(k)
   enddo
-  read(11,*)
+  read(lu,*)
   if (HRSO) then
     do i=1,NState
-      read(11,*)
+      read(lu,*)
       do k=1,Nmode
-        write(*,*) 'k=', k
-			  do j=1,Nstate
-          read(11,'(E16.8)',advance='no') temp_gk(j)
-			    write(*,*) temp_gk(j)
-			    G_SO(k,i,j) = cmplx(temp_gk(j))
-			  enddo
-			  read(11,*)
+        write(u6,*) 'k=', k
+        do j=1,Nstate
+          read(lu,'(E16.8)',advance='no') temp_gk(j)
+          write(u6,*) temp_gk(j)
+          G_SO(k,i,j) = dcmplx(temp_gk(j))
+        enddo
+        read(lu,*)
       enddo
     enddo
   else
     do k=1,Nmode
-      read(11,*)(G(k,j),j=2,n_sf)
+      read(lu,*)(G(k,j),j=2,n_sf)
       G(k,1)=0d0
-      write(*,*) k, (G(k,j),j=2,n_sf)
+      write(u6,*) k, (G(k,j),j=2,n_sf)
     enddo
 !!!!
 ! the gradient for each SF states is calculated using RASSCF while
@@ -103,7 +107,7 @@ subroutine kab
     enddo
     call dashes(72)
     do i=1,Nmode
-      write(*,*)(G_SF(i,j),j=1,nconftot)
+      write(u6,*)(G_SF(i,j),j=1,nconftot)
     enddo
 ! contruct the G_SO matrix
     do i=1,NState
@@ -116,14 +120,14 @@ subroutine kab
         enddo
       enddo
     enddo
-	endif !HRSO
-  close(11)
+  endif !HRSO
+  close(lu) ! close HRFACT file
 
 ! change the unit to au
   Freq=Freq*cmtoau
 
   call dashes()
-  write(*,*)' End read data '
+  write(u6,*)' End read data '
   call dashes()
 
 ! Spectrum density
@@ -133,14 +137,15 @@ subroutine kab
   call mma_allocate(J_w,Nstate,Nstate)
   call mma_allocate(omega_ab,Nstate,Nstate)
 
-  write(*,*) 'Gamma=',gamma, 'Hartree',gamma/cmtoau, 'cm-1'
+  write(u6,*) 'Gamma=',gamma, 'Hartree',gamma/cmtoau, 'cm-1'
 
-  open (20,file='kab_out.dat',status='replace')
+  lu = isFreeUnit(20)
+  call molcas_open(lu,'kab_out.dat')
   J_w=0d0
   do i=1,Nstate
 ! let us cut the spectral density (no), if yes then j=1,i
     do j=1,Nstate
-      omega_ab(i,j)=E_SO(i)-E_SO(j)
+      omega_ab(i,j)=dble(E_SO(i)-E_SO(j))
       do k=1,Nmode
         J_w(i,j)=J_w(i,j)+abs(G_SO(k,i,j))**2*Freq(k)**2*&
                   (abs(omega_ab(i,j))*Freq(k)*gamma/&
@@ -161,48 +166,49 @@ subroutine kab
       endif
       if(real(k_ab(i,j))>=(0.01/autoeV))then
         if(omega_ab(i,j)>=0d0)then
-          write (20,format1) i,j,dble(k_ab(i,j))*autoev, &
+          write (lu,format1) i,j,dble(k_ab(i,j))*autoev, &
                 omega_ab(i,j)**2,(1.0+n_w(i,j)),J_w(i,j)
         else
-            write (20,format1) i,j,dble(k_ab(i,j))*autoev, &
+            write (lu,format1) i,j,dble(k_ab(i,j))*autoev, &
                  omega_ab(i,j)**2,n_w(i,j),J_w(i,j)
-          endif
         endif
+      endif
 
-      enddo
     enddo
+  enddo
 
-    close(20)
+  close(lu) ! close kab_out.dat
 
 ! for this  spectral density the pure decay matrix gamma_pd equal
 ! to 0.0d0 always because when the frequency equal
 ! to 0d0, J_w(0d0)=0d0 so gamma_pd=0
-        call mma_allocate(gamma_pd,Nstate,Nstate)
-        gamma_pd=0d0
+  call mma_allocate(gamma_pd,Nstate,Nstate)
+  gamma_pd=0d0
 
-        if (ipglob>3) then
-          call dashes()
-          write(*,*)' Print matrix K_ab '
-          call dashes()
+  if (ipglob>3) then
+    call dashes()
+    write(u6,*)' Print matrix K_ab '
+    call dashes()
 
-          open(13,file='Kab_matrix_eV.dat',status='replace')
+    lu = isFreeUnit(13)
+    call molcas_open(lu,'Kab_matrix_eV.dat')
 !!vk!! write procedure for printing matrices
     do i=1,Nstate
-      write(13,*)(dble(k_ab(i,j))*autoev,j=1,Nstate)
+      write(lu,*)(dble(k_ab(i,j))*autoev,j=1,Nstate)
     enddo
+    close(lu)
     max_k=0d0
     do i=1,Nstate
       do j=1,Nstate
         if (real(k_ab(i,j))>=max_k) then
-          max_k=k_ab(i,j)
+          max_k=dble(k_ab(i,j))
           max_i=i
           max_j=j
         endif
       enddo
     enddo
-    write(*,*) Max_I,Max_J,Max_K*autoev,' eV', &
+    write(u6,*) Max_I,Max_J,Max_K*autoev,' eV', &
       omega_ab(max_i,max_j),1+n_w(Max_I,Max_J),J_w(Max_I,Max_J)
-    close(13)
   endif
 
 
@@ -229,7 +235,8 @@ subroutine kab
 
 ! print out the bigger kab_basis
 
-  open (22,file='max_Kab_basis.dat',status='replace')
+  lu = isFreeUnit(22)
+  call molcas_open (lu,'max_Kab_basis.dat')
 
   max_k=0d0
   do i=1,d
@@ -242,13 +249,13 @@ subroutine kab
     enddo
   enddo
 
-  write(22,*)'the maximum of Kab in ', basis
-  write(22,'(2(I8),G15.8,A)') max_i,max_j,max_k*autoev,' eV'
+  write(lu,*)'the maximum of Kab in ', basis
+  write(lu,'(2(I8),G15.8,A)') max_i,max_j,max_k*autoev,' eV'
 
   do i=1,d
     do j=1,d
       if(abs(kab_basis(i,j))>=(0.01/autoeV))then
-        write(22,'(2(I8),3(G15.8,X))')i,j,abs(kab_basis(i,j)), &
+        write(lu,'(2(I8),3(G15.8,X))')i,j,abs(kab_basis(i,j)), &
         dble(kab_basis(I,J))*autoev,aimag(kab_basis(I,J))*autoev
       endif
     enddo
@@ -267,14 +274,14 @@ subroutine kab
 !            enddo
 !          enddo
 
-!          write(22,*)'Maximum of Kab in core states in basis of ', Basis
-!          write(22,'(2(I8),G15.8,A)')Max_I,Max_J,Max_K*autoev,' eV'
+!          write(lu,*)'Maximum of Kab in core states in basis of ', Basis
+!          write(lu,'(2(I8),G15.8,A)')Max_I,Max_J,Max_K*autoev,' eV'
 
 !          do i=1,Nstate
 !            do j=1,Nstate
 !              if(abs(Kab_basis(i,j))<=(0.01/autoeV).and.&
 !               abs(Kab_basis(i,j))>=(0.005/autoeV))then
-!              write(22,'(2(I8),3(G15.8,X))')I,J,abs(Kab_basis(i,j)),&
+!              write(lu,'(2(I8),3(G15.8,X))')I,J,abs(Kab_basis(i,j)),&
 !              dble(Kab_basis(i,j))*autoev,aimag(Kab_basis(i,j))*autoev
 !              endif
 !            enddo
@@ -293,9 +300,9 @@ subroutine kab
 !          Enddo
 !        Enddo
 
-!        write(22,*) 'Maximum of Kab in quintet core states'//&
+!        write(lu,*) 'Maximum of Kab in quintet core states'//&
 !                    ' in basis of ', basis
-!        write(22,'(2(I8),G15.8,A)') Max_I,Max_J,Max_K*autoev,' eV'
+!        write(lu,'(2(I8),G15.8,A)') Max_I,Max_J,Max_K*autoev,' eV'
 
 !        Max_k=0d0
 !        do i=311,Nstate
@@ -308,22 +315,22 @@ subroutine kab
 !          Enddo
 !        Enddo
 
-!        write(22,*)'Maximum of Kab in triplets core states'//&
+!        write(lu,*)'Maximum of Kab in triplets core states'//&
 !                   ' in basis of ', Basis
-!        write(22,'(2(I8),G15.8,A)')Max_i,Max_j,Max_k*autoev,' eV'
+!        write(lu,'(2(I8),G15.8,A)')Max_i,Max_j,Max_k*autoev,' eV'
 
 !        do i=1,Nstate
 !          do j=1,Nstate
 !            if(abs(Kab_basis(i,J))<=(0.01/autoeV).and.&
 !               abs(Kab_basis(I,J))>=(0.005/autoeV)) then
-!              write(22,'(2(I8),3(G15.8,X))')I,J,abs(Kab_basis(I,J)),&
+!              write(lu,'(2(I8),3(G15.8,X))')I,J,abs(Kab_basis(I,J)),&
 !              dble(Kab_basis(I,J))*autoev,aimag(Kab_basis(I,J))*autoev
 !            endif
 !          enddo
 !        enddo
 !      endif
 
-  close(22)
+  close(lu) ! close file max_Kab_basis.dat
 
 ! contruct the matrix (k_bar)_ij=0.5*sum_k[(kab_basis)_ik+(kab_basis)_jk]
 
@@ -337,7 +344,8 @@ subroutine kab
   enddo
 
   K_bar_basis=K_bar_basis+gamma_pd_basis
-  open (23,file='r_ab_SO.dat',status='replace')
+  lu = isFreeUnit(23)
+  call molcas_open (lu,'r_ab_SO.dat')
 
 ! check whether coherence dephasing r_ab=0.5*[sum_e(K_ae+K_be)]>0 in SO basis
   do i=1,Nstate
@@ -352,24 +360,24 @@ subroutine kab
   do i=1,Nstate
     do j=1,Nstate
       if (r_ab_SO(i,j)<=0d0) then
-        write(23,*)'R_ab_SO<0', i, j,r_ab_SO(i,j)
+        write(lu,*)'R_ab_SO<0', i, j,r_ab_SO(i,j)
       endif
     enddo
   enddo
-  close(23)
-  write(*,*) 'End k_ab'
+  close(lu) ! close file r_ab_SO.dat
+  write(u6,*) 'End k_ab'
 
-  call mma_deallocate(G)
-  call mma_deallocate(G_SF)
-  call mma_deallocate(G_SO)
-  call mma_deallocate(Freq)
-  call mma_deallocate(temp_gk)
-  call mma_deallocate(r_ab_SO)
-  call mma_deallocate(k_ab)
-  call mma_deallocate(n_w)
-  call mma_deallocate(J_w)
-  call mma_deallocate(omega_ab)
-  call mma_deallocate(gamma_pd)
-  call mma_deallocate(gamma_pd_basis)
+  if (allocated(G)) call mma_deallocate(G)
+  if (allocated(G_SF)) call mma_deallocate(G_SF)
+  if (allocated(G_SO)) call mma_deallocate(G_SO)
+  if (allocated(Freq)) call mma_deallocate(Freq)
+  if (allocated(temp_gk)) call mma_deallocate(temp_gk)
+  if (allocated(r_ab_SO)) call mma_deallocate(r_ab_SO)
+  if (allocated(k_ab)) call mma_deallocate(k_ab)
+  if (allocated(n_w)) call mma_deallocate(n_w)
+  if (allocated(J_w)) call mma_deallocate(J_w)
+  if (allocated(omega_ab)) call mma_deallocate(omega_ab)
+  if (allocated(gamma_pd)) call mma_deallocate(gamma_pd)
+  if (allocated(gamma_pd_basis)) call mma_deallocate(gamma_pd_basis)
 
 end

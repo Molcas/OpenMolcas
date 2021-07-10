@@ -18,7 +18,7 @@ subroutine pulse(H0,Ht,time,count)
 !
 !***********************************************************************
   use rhodyn_data
-  use mh5
+  use mh5, only: mh5_put_dset
   implicit none
   complex(8),dimension(:,:) :: H0,Ht
   real(8)                   :: time

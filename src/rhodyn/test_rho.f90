@@ -10,44 +10,35 @@
 !                                                                      *
 ! Copyright (C) 2021, Vladislav Kochetov                               *
 !***********************************************************************
-subroutine equation (time,rhot,res)
+subroutine test_rho (densityt_time, time)
   use rhodyn_data
   implicit none
 !
 !***********************************************************************
-! Purpose : Liouville equation is solved here
+! Purpose: test density matrix on hermicity and positivity (?)
 !
 !***********************************************************************
 !
-!  time   : current time
-!
-  real(8) :: time
-  complex(8),dimension(:,:) :: rhot, res
-  procedure(pulse_func) :: pulse
+  complex(8), dimension(:,:) :: densityt_time
+  real(8) :: time,abserror
 
-! if pulse in enableb, modify hamiltonian at time t:
-  if (flag_pulse) call pulse(hamiltonian,hamiltoniant,time)
-
-! obtaining right part of Liouville equation
-  call ZGEMM('N','N',d,d,d,-onei,hamiltoniant,d,rhot,d,zero,res,d)
-  call ZGEMM('N','N',d,d,d, onei,rhot,d,hamiltoniant,d, one,res,d)
-
-! auger decay part
-  if (flag_decay.or.ion_diss/=0d0) then
-    call ZGEMM('N','N',d,d,d,one,decay,d,rhot,d,one,res,d)
-  endif
-
-! if dissipation (nuclear bath) is considered
-  if (flag_diss) then
-    do i=1,d
-      do j=1,d
-        if (i/=j) then
-          res(i,j) = res(i,j) - K_bar_basis(i,j) * rhot(i,j)
-        endif
-        res(i,i) = res(i,i) - Kab_basis(i,j) * rhot(i,i) + &
-                              Kab_basis(j,i) * rhot(j,j)
-      enddo
+  abserror=0d0
+  do i=1,Nstate
+    do j=(i+1),Nstate
+      if ((abs(dble(densityt_time(i,j))-dble(densityt_time(j,i)))>=&
+                      threshold).and.(abs(dble(densityt_time(i,j))-&
+                      dble(densityt_time(j,i)))>=abserror)) then
+        abserror = abs(dble(densityt_time(i,j))-&
+                       dble(densityt_time(j,i)))
+      endif
+      if ((abs(aimag(densityt_time(i,j))+aimag(densityt_time(j,i)))>=&
+          threshold).and.(abs(aimag(densityt_time(i,j))+&
+          aimag(densityt_time(j,i)))>=abserror)) then
+        abserror = abs(aimag(densityt_time(i,j)) + aimag(densityt_time(j,i)))
+      endif
     enddo
+  enddo
+  if (abserror>=threshold) then
+    write(6,'(2(A,X,G28.16,X))')'time=',time/fstoau,'error=',abserror
   endif
-
 end

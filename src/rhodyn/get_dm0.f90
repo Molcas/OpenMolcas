@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2021, Vladislav Kochetov                               *
-!***********************************************************************  
+!***********************************************************************
 subroutine get_dm0()
 !***********************************************************************
 !
@@ -19,15 +19,16 @@ subroutine get_dm0()
 !***********************************************************************
   use rhodyn_data
   use rhodyn_utils, only: transform, dashes
+  use definitions, only: wp, u6
   use stdalloc, only: mma_allocate, mma_deallocate
-  use mh5
+  use mh5, only: mh5_put_dset
   implicit none
 
-  complex(8),dimension(:,:),allocatable:: DET2CSF, DM0_bas
-  complex(8),dimension(lrootstot) :: E_SF
-  complex(8) :: Z
+  complex(kind=wp),dimension(:,:),allocatable:: DET2CSF, DM0_bas
+  complex(kind=wp),dimension(lrootstot) :: E_SF
+  complex(kind=wp) :: Z
 
-  if (ipglob>3) write(*,*) 'Begin get_dm0'
+  if (ipglob>3) write(u6,*) 'Begin get_dm0'
 
       if (preparation/=4) then
         call mma_allocate(DM0,nconftot, nconftot)
@@ -66,7 +67,7 @@ subroutine get_dm0()
     case ('CSF')
       if ((N_Populated>nconftot).or.(N_populated<=0)) then
         call dashes()
-        write(*,*)'WARNING!!! Nr of the populated states', &
+        write(u6,*)'WARNING!!! Nr of the populated states', &
                 N_populated,' read from the input file is wrong'
         call dashes()
         call abend()
@@ -77,7 +78,7 @@ subroutine get_dm0()
         call mma_allocate(DM0_bas,nconftot,nconftot)
         DM0_bas=zero
         DM0_bas(N_Populated,N_Populated)=one
-        write(*,*) 'DM element ',N_populated,' set to 1'
+        write(u6,*) 'DM element ',N_populated,' set to 1'
         call transform(DM0_bas,CSF2SO,DM0)
       endif
 
@@ -86,7 +87,7 @@ subroutine get_dm0()
       DM0_bas=zero
       if ((N_Populated>ndet_tot).or.(N_populated<=0)) then
         call dashes()
-        write(*,*)'WARNING!!! Nr of the populated states', &
+        write(u6,*)'WARNING!!! Nr of the populated states', &
                 N_populated,' read from the input file is wrong'
         call dashes()
         call abend()
@@ -100,7 +101,7 @@ subroutine get_dm0()
       DM0_bas=zero
       if ((N_Populated>lrootstot).or.(N_populated<=0)) then
         call dashes()
-        write (*,*) 'WARNING!!! Nr of the populated is wrong'
+        write (u6,*) 'WARNING!!! Nr of the populated is wrong'
         call dashes()
         call abend()
       endif
@@ -112,7 +113,7 @@ subroutine get_dm0()
       DM0_bas=zero
       if ((N_Populated>lrootstot).or.(N_populated<=0)) then
         call dashes()
-        write(*,*)'WARNING!!! Nr of the populated states', &
+        write(u6,*)'WARNING!!! Nr of the populated states', &
                   N_populated,' read from the input file is wrong'
         call dashes()
         call abend()
@@ -123,11 +124,11 @@ subroutine get_dm0()
     case ('SO_THERMAL')
       if (ipglob>3) then
         call dashes()
-        print*,'Printout the SO eigenvalues'
-        write(*,sint)'Number of the SO states:', lrootstot
+        write(u6,*) 'Printout the SO eigenvalues'
+        write(u6,sint)'Number of the SO states:', lrootstot
         call dashes()
         do i=1,10
-          write(*,*) E_SO(i)
+          write(u6,*) E_SO(i)
         enddo
       endif
       Z=zero
@@ -138,12 +139,12 @@ subroutine get_dm0()
       DM0_bas=zero
       if (ipglob>3) then
         call dashes()
-        write(*,*) 'I            E_SO(I)-E_SO(1)               '// &
+        write(u6,*) 'I            E_SO(I)-E_SO(1)               '// &
                    'exp(-(E_SO(I)-E_SO(1))/(k_B*T)),   '// &
                    'exp(-(E_SO(I)-E_SO(1))/(k_B*T))/Z'
         call dashes()
         do i=1,20
-          write(*,*) i,E_SO(i)-E_SO(1), &
+          write(u6,*) i,E_SO(i)-E_SO(1), &
                    exp(-(E_SO(i)-E_SO(1))/(k_B*T)), &
                    exp(-(E_SO(i)-E_SO(1))/(k_B*T))/Z
         enddo
@@ -168,20 +169,20 @@ subroutine get_dm0()
     case ('CSF')
       if ((N_Populated>nconftot).or.(N_populated<=0)) then
         call dashes()
-        write(*,*)'WARNING!!! Nr of the populated states', &
+        write(u6,*)'WARNING!!! Nr of the populated states', &
                  N_populated,'read from the input file is wrong'
         call dashes()
         call abend()
       endif
       DM0(N_Populated,N_Populated)=one
-      write(*,*) 'DM element ',N_populated,' set to 1'
+      write(u6,*) 'DM element ',N_populated,' set to 1'
 
     case ('DET')
       call mma_allocate(DM0_bas,ndet_tot,ndet_tot)
       DM0_bas=zero
       if ((N_Populated>NDET_TOT).or.(N_populated<=0)) then
         call dashes()
-        write(*,*)'WARNING!!! Nr of the populated states', &
+        write(u6,*)'WARNING!!! Nr of the populated states', &
                   N_populated,' read from the input file is wrong'
         call dashes()
         call abend()
@@ -195,7 +196,7 @@ subroutine get_dm0()
       DM0_bas=zero
       if ((N_Populated>lrootstot).or.(N_populated<=0)) then
         call dashes()
-        write(*,*)'WARNING!!! Nr of the populated states', &
+        write(u6,*)'WARNING!!! Nr of the populated states', &
                 N_populated,' read from the input file is wrong'
         call dashes()
         call abend()
@@ -205,7 +206,7 @@ subroutine get_dm0()
 
     case ('SO')
       call dashes()
-      write(*,*) 'WARNING! IF IFSO=OFF, CAN NOT POPULATE SO STATE'
+      write(u6,*) 'WARNING! IF IFSO=OFF, CAN NOT POPULATE SO STATE'
       call dashes()
       call abend()
 
@@ -225,13 +226,13 @@ subroutine get_dm0()
       call mma_allocate(DM0_bas,lrootstot,lrootstot)
       DM0_bas=zero
       call dashes()
-      write(*,*) ' I               '// &
+      write(u6,*)' I               '// &
                  '(E_SF(I)-E_SF(1))/(k_B*T)              '// &
                  'exp(-(E_SF(I)-E_SF(1))/(k_B*T))  '// &
                  'exp(-(E_SF(I)-E_SF(1))/(k_B*T))/Z'
       call dashes()
       do i=1,nconftot
-        write(*,*) i,(E_SF(i)-E_SF(1))/(k_B*T), &
+        write(u6,*)i,(E_SF(i)-E_SF(1))/(k_B*T), &
                    exp(-(E_SF(i)-E_SF(1))/(k_B*T)), &
                    exp(-(E_SF(i)-E_SF(1))/(k_B*T))/Z
         DM0_bas(i,i)=exp(-(E_SF(i)-E_SF(1))/(k_B*T))/Z
@@ -247,16 +248,16 @@ subroutine get_dm0()
 
 ! Printout the initial density matrix to SDPREP in CSF basis
   ! not CM case
-  if (preparation/=4) then 
+  if (preparation/=4) then
     if (ipglob>3) then
       call dashes()
-      write(*,*) 'The initial density matrix is saved in SDPREP'
+      write(u6,*) 'The initial density matrix is saved in SDPREP'
       call dashes()
     endif
-    call mh5_put_dset_array_real(prep_dm_r, dble(DM0))
-    call mh5_put_dset_array_real(prep_dm_i, aimag(DM0))
+    call mh5_put_dset(prep_dm_r, dble(DM0))
+    call mh5_put_dset(prep_dm_i, aimag(DM0))
   endif
 
-  if (ipglob>3) write(*,*) 'End get_dm0'
+  if (ipglob>3) write(u6,*) 'End get_dm0'
 
 end

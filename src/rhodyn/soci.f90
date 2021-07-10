@@ -13,6 +13,7 @@
 subroutine soci
     use rhodyn_data
     use rhodyn_utils, only: transform, mult, dashes
+    use definitions, only: wp, iwp, u6
     use stdalloc, only: mma_allocate, mma_deallocate
     use mh5
     implicit none
@@ -29,13 +30,14 @@ subroutine soci
 !  SO_eig   : SO_CI^T*CH_SO*SO_CI, diagnolize the Hamiltonian
 !  Hfull    : HTOT_CSF hamiltonian diagonalized
 !
-  complex(8),dimension(:,:),allocatable:: SO_CI2,Hfull,hdiag, Hfull2
-  real(8),dimension(lrootstot,lrootstot) :: SO_CI_R,  SO_CI_I
-  integer::INFO,LWORK,fileid
-  complex(8),dimension(:),allocatable::WORK
-  real(8)::RWORK(3*nconftot-2),W(nconftot)
+  complex(kind=wp),dimension(:,:),allocatable:: SO_CI2,Hfull,hdiag, &
+                                                Hfull2
+  real(kind=wp),dimension(lrootstot,lrootstot) :: SO_CI_R,  SO_CI_I
+  integer(kind=iwp)::INFO,LWORK,fileid
+  complex(kind=wp),dimension(:),allocatable::WORK
+  real(kind=wp)::RWORK(3*nconftot-2),W(nconftot)
 
-  write(*,*) 'Begin of soci'
+  write(u6,*) 'Begin of soci'
 
   call mma_allocate(Hfull, nconftot,nconftot)
   call mma_allocate(Hfull2,nconftot,nconftot)
@@ -47,16 +49,16 @@ subroutine soci
   Hfull=HTOT_CSF
   if (ipglob>4) then
     call dashes()
-    write(*,*) 'Printout Hfull matrix'
+    write(u6,*) 'Printout Hfull matrix'
     call dashes()
-    write(*,sint)'Number of the CSFs:',nconftot
+    write(u6,sint)'Number of the CSFs:',nconftot
     call dashes()
     do i=1,10
-      write(*,*) (Hfull(i,j),j=1,10)
+      write(u6,*) (Hfull(i,j),j=1,10)
     enddo
   endif
   call dashes()
-  write(*,*) 'diagonalize the full Hamiltonian HTOT_CSF and'// &
+  write(u6,*) 'diagonalize the full Hamiltonian HTOT_CSF and'// &
                             ' ascending sorted eigenvalues'
   call dashes()
   LWORK=-1
@@ -68,23 +70,23 @@ subroutine soci
     call mma_deallocate(WORK)
     call mma_allocate(WORK,LWORK)
   else
-    stop
+    call abend()
   endif
 
   call zheev('V','L',nconftot,Hfull,nconftot,W,WORK,LWORK,RWORK,INFO)
 
   if (ipglob>4) then
     call dashes(72)
-    write(*,*) 'printout the eigenvectors after diagnolize'
+    write(u6,*) 'printout the eigenvectors after diagnolize'
     call dashes(72)
     do i=1,nconftot
-      write(*,*) (Hfull(i,j),j=1,nconftot)
+      write(u6,*) (Hfull(i,j),j=1,nconftot)
     enddo
     call dashes(72)
-    write(*,*) 'printout the eigenvalues'
+    write(u6,*) 'printout the eigenvalues'
     call dashes(72)
     do i=1,nconftot
-      write(*,*) W(i)
+      write(u6,*) W(i)
     enddo
   endif
 
@@ -95,34 +97,34 @@ subroutine soci
 
   if (ipglob>4) then
     call dashes(72)
-    write(*,*) 'Printout the overlap of eigenvector'
+    write(u6,*) 'Printout the overlap of eigenvector'
     call dashes(72)
     do i=1,nconftot
-      write(*,*) (Hfull2(i,j),j=1,nconftot)
+      write(u6,*) (Hfull2(i,j),j=1,nconftot)
     enddo
   endif
 
   if (ipglob>3) then
     call dashes(72)
-    write(*,*) 'Check whether the eigenvectors of '// &
+    write(u6,*) 'Check whether the eigenvectors of '// &
                'the full Hamiltonian are orthonormalized'
     call dashes(72)
     do i=1,nconftot
       do j=1,nconftot
         if (i==j.and.((dble(Hfull2(I,J))-1)>=threshold).or. &
                         aimag(Hfull2(I,J))>=threshold) then
-          write(*,*)'ERROR INFO!!!: Hfull is not orthonomalized:', &
+          write(u6,*)'ERROR INFO!!!: Hfull is not orthonomalized:', &
                         I,J,Hfull2(I,J)
         elseif (i/=j.and.(dble(Hfull2(i,j))>=threshold.or. &
                            aimag(Hfull2(i,j))>=threshold)) then
-          write(*,*)'ERROR INFO!!!: Hfull is not orhtonomalized:', &
+          write(u6,*)'ERROR INFO!!!: Hfull is not orhtonomalized:', &
                         i,j,Hfull2(i,j)
         endif
       enddo
     enddo
     call dashes(72)
-    print *,'If there is no error info printout'
-    print *,'Hfull coeffs are orthonormalized'
+    write(u6,*) 'If there is no error info printout'
+    write(u6,*) 'Hfull coeffs are orthonormalized'
     call dashes(72)
   endif
 
@@ -132,27 +134,33 @@ subroutine soci
 
   if (ipglob>4) then
     call dashes(72)
-    print*,'printout the Hdiag'
+    write(u6,*) 'printout the Hdiag'
     call dashes(72)
     do i=1,nconftot
-      write(*,*)(Hdiag(i,j),j=1,nconftot)
+      write(u6,*)(Hdiag(i,j),j=1,nconftot)
     enddo
     call dashes(72)
   endif
 
-  write(*,*)'Begin read SO Coeffs to SO_CI'
-  call dashes(72)
+  write(u6,*)'Begin read SO Coeffs to SO_CI'
+  call dashes()
 ! write(*,sint)'Nr of Spin-free States (spin-degeneracy):',Nstate
-  write(*,sint)'Nr of Spin-orbit States:',lrootstot
-  call dashes(72)
+  write(u6,sint)'Nr of Spin-orbit States:',lrootstot
+  call dashes()
 
+  ! reading SO coefficients (probably better move to read_rassisd.f90)
   fileid = mh5_open_file_r('RASSISD')
   if (mh5_exists_dset(fileid,'SOCOEFF_REAL').and. &
         mh5_exists_dset(fileid,'SOCOEFF_IMAG')) then
-    call mh5_fetch_dset_array_real(fileid,'SOCOEFF_REAL',SO_CI_R)
-    call mh5_fetch_dset_array_real(fileid,'SOCOEFF_IMAG',SO_CI_I)
+    call mh5_fetch_dset(fileid,'SOCOEFF_REAL',SO_CI_R)
+    call mh5_fetch_dset(fileid,'SOCOEFF_IMAG',SO_CI_I)
+  else if &! if using standard rassi dsets of rassi.h5
+     (mh5_exists_dset(fileid,'SOS_COEFFICIENTS_REAL').and.&
+      mh5_exists_dset(fileid,'SOS_COEFFICIENTS_IMAG')) then
+    call mh5_fetch_dset(fileid,'SOS_COEFFICIENTS_REAL',SO_CI_R)
+    call mh5_fetch_dset(fileid,'SOS_COEFFICIENTS_IMAG',SO_CI_I)
   else
-    write(*,*) 'Error in reading RASSISD file, no SOCOEFF matrix'
+    write(u6,*) 'Error in reading RASSISD file, no SOCOEFF matrix'
     call abend()
   endif
   call mh5_close_file(fileid)
@@ -161,10 +169,10 @@ subroutine soci
 
   if (ipglob>4) then
     call dashes(72)
-    write(*,*)'Printout the SO Coefficient matrix'
+    write(u6,*)'Printout the SO Coefficient matrix'
     call dashes(72)
     do i=1,lrootstot
-      write(*,*)(SO_CI(i,j),j=1,lrootstot)
+      write(u6,*)(SO_CI(i,j),j=1,lrootstot)
     enddo
   endif
 
@@ -173,27 +181,27 @@ subroutine soci
 ! check whether SO_CI2=(SO_CI*T)*SO_CI equal to unity matric I, overlap
   if (ipglob>4) then
     call dashes()
-    write(*,*) 'check whether SO_CI2=(SO_CI*T)*SO_CI equal to unity'
+    write(u6,*) 'check whether SO_CI2=(SO_CI*T)*SO_CI equal to unity'
     call dashes()
     do i=1,lrootstot
       do j=1,lrootstot
         if (i/=j) then
           if ((abs(dble(SO_CI2(i,j)))>=threshold).or. &
               (abs(aimag(SO_CI2(i,j)))>=threshold)) then
-            write(*,*)'ERROR! SO_CI is not orthonormal:', &
+            write(u6,*)'ERROR! SO_CI is not orthonormal:', &
                        i,j,SO_CI2(i,j)
           endif
         elseif (i==j) then
           if ((abs(dble(SO_CI2(i,j))-1d0))>=threshold.or. &
              (abs(aimag(SO_CI2(i,j)))>=threshold)) then
-            write(*,*)'ERROR! SO_CI is not orthonormal', &
+            write(u6,*)'ERROR! SO_CI is not orthonormal', &
                        i,j,SO_CI2(i,j)
           endif
         endif
       enddo
     enddo
     call dashes()
-    write(*,*)'IF THERE IS NOT ANY ERROR INFO PRINTOUT,'// &
+    write(u6,*)'IF THERE IS NOT ANY ERROR INFO PRINTOUT,'// &
               ' SO_CI is orthonomalized'
     call dashes()
   endif
@@ -206,14 +214,14 @@ subroutine soci
 
   if (ipglob>4) then
     call dashes()
-    write(*,*) 'Printout the transformation matrix CSF2SO'
+    write(u6,*) 'Printout the transformation matrix CSF2SO'
     call dashes()
     do i=1,10
-      write(*,*) (CSF2SO(i,j),j=1,10)
+      write(u6,*) (CSF2SO(i,j),j=1,10)
     enddo
 ! Check
     call dashes()
-    write(*,*)'Check if CSF2SO coincides with eigenvector Hfull'
+    write(u6,*)'Check if CSF2SO coincides with eigenvector Hfull'
 ! vk: attention that Hfull is of nconftot size
 !     probably code is correct as nconftot>=lrootstot
     call dashes()
@@ -225,7 +233,7 @@ subroutine soci
           if (((dble(CSF2SO(i,j))**2)+(aimag(CSF2SO(i,j))**2))- &
              ((dble(Hfull(i,j)))**2+(aimag(Hfull(i,j)))**2)>= &
              threshold) then
-            write(*,*)'WARNING! CSF2SO does not concide with Hfull:' &
+            write(u6,*)'WARNING! CSF2SO does not concide with Hfull:'&
                       ,i,j,dble(CSF2SO(i,j)),aimag(CSF2SO(i,j)), &
                       dble(Hfull(i,j)),aimag(Hfull(i,j)), &
                       dble(CSF2SO(i,j))**2+aimag(CSF2SO(i,j))**2, &
@@ -235,7 +243,7 @@ subroutine soci
       enddo
     enddo
     call dashes()
-    write(*,*) 'IF THERE IS NO ANY WARNING INFO,'// &
+    write(u6,*) 'IF THERE IS NO ANY WARNING INFO,'// &
                ' CSF2SO IS COINCIDED WITH EIGENVECTOR sortVR!'
     call dashes()
   endif
@@ -243,13 +251,12 @@ subroutine soci
   call mh5_put_dset(prep_csfsor,dble(CSF2SO))
   call mh5_put_dset(prep_csfsoi,aimag(CSF2SO))
 
-  write(*,*) 'End of soci'
+  write(u6,*) 'End of soci'
 
-! vk: add here allocation condition
-  call mma_deallocate(Hfull)
-  call mma_deallocate(Hfull2)
-  call mma_deallocate(Hdiag)
-  call mma_deallocate(SO_CI2)
-  call mma_deallocate(WORK)
+  if (allocated(Hfull)) call mma_deallocate(Hfull)
+  if (allocated(Hfull2)) call mma_deallocate(Hfull2)
+  if (allocated(Hdiag)) call mma_deallocate(Hdiag)
+  if (allocated(SO_CI2)) call mma_deallocate(SO_CI2)
+  if (allocated(WORK)) call mma_deallocate(WORK)
 
 end

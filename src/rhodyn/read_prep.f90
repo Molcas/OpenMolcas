@@ -14,77 +14,78 @@ subroutine read_prep()
 
   use rhodyn_data
   use rhodyn_utils, only: dashes
+  use definitions, only: wp, u6
   use stdalloc, only: mma_allocate, mma_deallocate
   use mh5
   implicit none
-  real(8),allocatable,dimension(:,:,:) :: DIPR, DIPI
-  real(8),dimension(:,:),allocatable :: tmpr, tmpi
+  real(kind=wp),allocatable,dimension(:,:,:) :: DIPR, DIPI
+  real(kind=wp),dimension(:,:),allocatable :: tmpr, tmpi
 
   if (mh5_is_hdf5('RDPREP')) then
     call dashes()
-    write(*,*) 'reading RDPREP file, opening'
+    write(u6,*) 'reading RDPREP file, opening'
     call dashes()
     prep_id=mh5_open_file_r('RDPREP')
-    write(*,*) 'RDPREP file opened'
+    write(u6,*) 'RDPREP file opened'
   else
-    write(*,*) 'RDPREP file is not of hdf5 format or not found'
+    write(u6,*) 'RDPREP file is not of hdf5 format or not found'
     call abend()
   endif
 
   call mma_allocate(tmpr,Nstate,Nstate)
   call mma_allocate(tmpi,Nstate,Nstate)
 
-  write(*,*)'hamiltonian extraction'
+  write(u6,*)'hamiltonian extraction'
   if (mh5_exists_dset(prep_id,'FULL_H_R').and. &
       mh5_exists_dset(prep_id,'FULL_H_I')) then
-    call mh5_fetch_dset_array_real(prep_id,'FULL_H_R',tmpr)
-    call mh5_fetch_dset_array_real(prep_id,'FULL_H_I',tmpi)
+    call mh5_fetch_dset(prep_id,'FULL_H_R',tmpr)
+    call mh5_fetch_dset(prep_id,'FULL_H_I',tmpi)
     HTOT_CSF=dcmplx(tmpr,tmpi)
   else
-    write(*,*) 'RDPREP does not contain Hamiltonian'
+    write(u6,*) 'RDPREP does not contain Hamiltonian'
     call abend()
   endif
 
-  write(*,*)'dm extraction'
+  write(u6,*)'dm extraction'
   if (mh5_exists_dset(prep_id,'DM0_R').and. &
         mh5_exists_dset(prep_id,'DM0_I')) then
-    call mh5_fetch_dset_array_real(prep_id, 'DM0_R',tmpr)
-    call mh5_fetch_dset_array_real(prep_id,'DM0_I',tmpi)
+    call mh5_fetch_dset(prep_id, 'DM0_R',tmpr)
+    call mh5_fetch_dset(prep_id,'DM0_I',tmpi)
     DM0=dcmplx(tmpr,tmpi)
   else
-    write(*,*) 'RDPREP does not contain density matrix'
+    write(u6,*) 'RDPREP does not contain density matrix'
     call abend()
   endif
 
-  write(*,*)'csfso extraction'
+  write(u6,*)'csfso extraction'
   if (mh5_exists_dset(prep_id,'CSF2SO_R').and. &
         mh5_exists_dset(prep_id,'CSF2SO_I')) then
-    call mh5_fetch_dset_array_real(prep_id, 'CSF2SO_R',tmpr)
-    call mh5_fetch_dset_array_real(prep_id,'CSF2SO_I',tmpi)
+    call mh5_fetch_dset(prep_id, 'CSF2SO_R',tmpr)
+    call mh5_fetch_dset(prep_id,'CSF2SO_I',tmpi)
     CSF2SO=dcmplx(tmpr,tmpi)
   else
-    write(*,*) 'RDPREP does not contain CSF2SO matrix'
-    write(*,*) 'Propagation will be performed in the given basis!'
+    write(u6,*) 'RDPREP does not contain CSF2SO matrix'
+    write(u6,*) 'Propagation will be performed in the given basis!'
     flag_test=.True.
     flag_pulse=.False.
   endif
-	  
-	write(*,*) 'dipole real'
+
+  write(u6,*) 'dipole real'
   if (mh5_exists_dset(prep_id,'SOS_EDIPMOM_REAL').and. &
       mh5_exists_dset(prep_id,'SOS_EDIPMOM_IMAG')) then
-	  call mma_allocate (DIPR,Nstate,Nstate,3)
+    call mma_allocate (DIPR,Nstate,Nstate,3)
     call mma_allocate (DIPI,Nstate,Nstate,3)
-    call mh5_fetch_dset_array_real(prep_id,'SOS_EDIPMOM_REAL',DIPR)
-    call mh5_fetch_dset_array_real(prep_id,'SOS_EDIPMOM_IMAG',DIPI)
-	  dipole = dcmplx(DIPR,DIPI)
-	  call mma_deallocate (DIPR)
+    call mh5_fetch_dset(prep_id,'SOS_EDIPMOM_REAL',DIPR)
+    call mh5_fetch_dset(prep_id,'SOS_EDIPMOM_IMAG',DIPI)
+    dipole = dcmplx(DIPR,DIPI)
+    call mma_deallocate (DIPR)
     call mma_deallocate (DIPI)
-	  flag_pulse=.True.
+    flag_pulse=.True.
   endif
 
-  write(*,*)'u_ci extraction'
+  write(u6,*)'u_ci extraction'
   if (mh5_exists_dset(prep_id,'U_CI')) then
-    call mh5_fetch_dset_array_real(prep_id,'U_CI',U_CI)
+    call mh5_fetch_dset(prep_id,'U_CI',U_CI)
   endif
 
   call mh5_close_file(prep_id)
@@ -93,7 +94,7 @@ subroutine read_prep()
   call mma_deallocate(tmpi)
 
   call dashes()
-  write(*,*) 'reading RDPREP has been finished'
+  write(u6,*) 'reading RDPREP has been finished'
   call dashes()
 
 end

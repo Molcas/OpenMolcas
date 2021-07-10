@@ -267,6 +267,27 @@
      $        'giving a matrix of size [nVec,nIJ,nQuad,nData]')
       end if
 
+* VKochetov 2021 create additional dsets required for module rhodyn
+      if (rhodyn) then
+* V_SOC
+            wfn_sos_vsor = mh5_create_dset_real(wfn_fileid,
+     $         'V_SO_REAL',2,[NSS,NSS])
+            call mh5_init_attr(wfn_sos_vsor,'description',
+     $          'real part of matrix V_SOC')
+            wfn_sos_vsoi = mh5_create_dset_real(wfn_fileid,
+     $         'V_SO_IMAG',2,[NSS,NSS])
+            call mh5_init_attr(wfn_sos_vsoi,'description',
+     $          'imaginary part of matrix V_SOC')
+* Dyson amplitudes
+            if (DYSO) then
+                  wfn_sos_dys = mh5_create_dset_real(wfn_fileid,
+     $          'DYSAMP',2,[NSS,NSS])
+                  call mh5_init_attr(wfn_sos_dys,'description',
+     $          'Dyson amplitudes matrix (not square!)')
+            end if
+      end if
+
+* endif ifso
       end if
 #endif
       end

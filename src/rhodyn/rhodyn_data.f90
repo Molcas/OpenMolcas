@@ -1,5 +1,21 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Vladislav Kochetov                               *
+!***********************************************************************
 module rhodyn_data
+  use definitions, only: wp, iwp
   implicit none
+!***********************************************************************
+! Purpose: declaration of variables used between different subroutines *
+!***********************************************************************
 ! i_rasscf         integer key used inside program (private):
 !                  = 0 - nothing has been read from RASSCF
 !                  = 1 - from RASSCF the spin-free H obtained
@@ -52,65 +68,71 @@ module rhodyn_data
 !  dysamp_bas      same as above in required basis
 
 ! out_fmt,out1_fmt:formats for output writing declared in propagate.f
+!***********************************************************************
+! some abstract interfaces, which fit to several subroutines
   abstract interface
     subroutine rk_fixed_step(t0,y)
-      real(8) :: t0
-      complex(8),dimension(:,:) :: y
+      real(kind=wp) :: t0
+      complex(kind=wp),dimension(:,:) :: y
     end subroutine
     subroutine rk_adapt_step(t0,y,err)
-      real(8) :: t0,err
-      complex(8),dimension(:,:) :: y
+      real(kind=wp) :: t0,err
+      complex(kind=wp),dimension(:,:) :: y
     end subroutine
     subroutine pulse_func(h0,ht,time,count)
-      complex(8),dimension(:,:) :: h0,ht
-      real(8) :: time
-      integer,optional :: count
+      complex(kind=wp),dimension(:,:) :: h0,ht
+      real(kind=wp) :: time
+      integer(kind=iwp),optional :: count
     end subroutine pulse_func
     subroutine equation_func(time,rho_t,res)
-      real(8) :: time
-      complex(8),dimension(:,:) :: rho_t, res
+      real(kind=wp) :: time
+      complex(kind=wp),dimension(:,:) :: rho_t, res
     end subroutine
   end interface
-  integer :: i,j,k,l,ii,jj,kk,ll
-  real(8), parameter  :: autoev    = 27.211396132      ,&
+  ! list of dummy integers
+  integer(kind=iwp) :: i,j,k,l,ii,jj,kk,ll
+  ! list of constants
+  real(kind=wp), parameter :: autoev = 27.211396132    ,&
                          k_B       = 3.1668114d-6      ,& !Hartree/K
                          cmtoau    = 4.5563d-6         ,&
-                         fstoau    = 41.3393964d0    ,&
+                         fstoau    = 41.3393964d0      ,&
                          pi        = 4.0d0*ATAN(1.0d0) ,&
                          Debyetoau = 0.393456          ,&
                          threshold = 1.0d-06           ,&
                          tiny      = 1.0d-20
-  complex(8),parameter:: zero      = (0.0d0,0.0d0)     ,&
-                         one       = (1.0d0,0.0d0)     ,&
-                         onei      = (0.0d0,1.0d0)
-  integer :: ireturn, ipglob, error, i_rasscf, preparation ,&
-             N, Nstate, d, n_freq                          ,&
-             ndet_tot, nconftot, lrootstot, maxnum, maxnconf, maxlroots
-  integer, dimension(:), allocatable :: ndet,nconf,lroots,ispin,istates
-  real(8),    dimension(:,:,:),allocatable :: H_CSF,CI,DTOC
-  real(8),    dimension(:,:),  allocatable :: E, U_CI, HTOTRE_CSF,&
-                                              dysamp,a_einstein
+  complex(kind=wp),parameter:: zero = (0.0d0,0.0d0)    ,&
+                               one  = (1.0d0,0.0d0)    ,&
+                               onei = (0.0d0,1.0d0)
+  integer(kind=iwp) :: ireturn, ipglob, error, i_rasscf ,&
+                       preparation ,N, Nstate, d, n_freq,&
+                       ndet_tot, nconftot, lrootstot    ,&
+                       maxnum, maxnconf, maxlroots
+  integer(kind=iwp), dimension(:), allocatable :: ndet,nconf,lroots,&
+                                                  ispin,istates
+  real(kind=wp), dimension(:,:,:), allocatable :: H_CSF,CI,DTOC
+  real(kind=wp), dimension(:,:),  allocatable :: E, U_CI, HTOTRE_CSF,&
+                                                 dysamp,a_einstein
   complex(8), dimension(:,:,:),allocatable :: dipole,dipole_basis
   complex(8), dimension(:,:),  allocatable :: V_SO,V_CSF,tmp,&
                                               HTOT_CSF,CSF2SO,DM0,&
                                               U_SO,SO_CI,HSOCX,&
-                                              U_CI_compl,dysamp_bas        
-  complex(8), dimension(:),    allocatable :: E_SO
-! -------------------------------------------------------------------
+                                              U_CI_compl,dysamp_bas
+  complex(kind=wp), dimension(:), allocatable :: E_SO
+! ---------------------------------------------------------------------
   logical :: flag_so, flag_pulse, flag_decay, flag_diss, flag_fdm, &
              flag_dyson, flag_emiss, flag_test, flag_dipole
-  character(256) :: pulse_type, dm_basis, p_style, method, basis
-  character(6),dimension(:),allocatable:: rassd_list, hr_list
-  character(*), parameter :: sint='(x,a,t45,i8)'              ,&
-                             scha='(x,a,t52,a)'               ,&
-                             sdbl='(x,a,t45,f9.3)'            ,&
-                             scmp='(x,a,t45,f5.2,sp,f5.2,"i")',&
-                             slog='(x,a,t45,l8)'              ,&
-                             int2real='(a,2i5,2f16.8)'
+  character(len=256) :: pulse_type, dm_basis, p_style, method, basis
+  character(len=6),dimension(:),allocatable:: rassd_list, hr_list
+  character(len=*),parameter :: sint='(x,a,t45,i8)'              ,&
+                                scha='(x,a,t52,a)'               ,&
+                                sdbl='(x,a,t45,f9.3)'            ,&
+                                scmp='(x,a,t45,f5.2,sp,f5.2,"i")',&
+                                slog='(x,a,t45,l8)'              ,&
+                                int2real='(a,2i5,2f16.8)'
   character(len=32) :: out_fmt, out1_fmt, out_fmt_csf, out1_fmt_csf
-! -------------------------------------------------------------------
+! ---------------------------------------------------------------------
 ! prep, out hdf5 files (description in cre_prep.f, cre_out.f)
-  integer        :: prep_id, &
+  integer(kind=iwp) :: prep_id, &
                     prep_ci,  prep_dipoler, prep_dm_r,  &
                     prep_uci, prep_dipolei, prep_dm_i,  &
                     prep_utu, prep_fullh,   prep_vcsfr, &
@@ -123,15 +145,16 @@ module rhodyn_data
                     out_decay_r, out_decay_i, out_ham_r,&
                     out_ham_i, out_freq, out_emiss,     &
                     out_tfdm
-  integer        :: lu_so =30, &
-                    lu_sf =31, &
-                    lu_csf=32, &
-                    lu_pls=33, &
-                    lu_dip=34
-! -------------------------------------------------------------------
-! variables used for dm propagation
-  integer              :: N_Populated,Ntime_tmp_dm,N_pulse,Nstep,Npop
-  integer              :: Nval,N_L3,N_L2,Nmode
+! predefined units for writing output, think of more clever choice:
+  integer(kind=iwp):: lu_so =30, &
+                      lu_sf =31, &
+                      lu_csf=32, &
+                      lu_pls=33, &
+                      lu_dip=34
+! ---------------------------------------------------------------------
+! variables used for density matrix propagation
+  integer(kind=iwp)    :: N_Populated,Ntime_tmp_dm,N_pulse,Nstep,Npop
+  integer(kind=iwp)    :: Nval,N_L3,N_L2,Nmode
   logical              :: HRSO, kext
   logical,dimension(5) :: ion_blocks
   real(8) :: T,tau_L3,tau_L2,gamma,sin_tstar,sin_tend,sin_scal,&

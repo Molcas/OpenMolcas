@@ -18,15 +18,15 @@ subroutine rhodyn_init()
 !
 !***********************************************************************
   use rhodyn_data
-  implicit none
   use stdalloc, only: mma_allocate, mma_deallocate
+  implicit none
 
 ! preparation 1 means standard program workflow (see rhodyn_data)
   preparation   = 1
   flag_test     = .False.
   p_style       = 'SF'
   N_Populated   = 1
-! temperature T needed if p_style includes 'thermal' 
+! temperature T needed if p_style includes 'thermal'
   T             = 300
   Nmode         = 51
 ! be default propagation basis is spin free states

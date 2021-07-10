@@ -1,13 +1,26 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Vladislav Kochetov                               *
+!***********************************************************************
 subroutine hamdens()
   use rhodyn_data
   use rhodyn_utils, only: transform, mult, dashes
+  use definitions, only: u6
   implicit none
 !
 ! Purpose : Read in the Hamiltonian (time-independent)
 ! and the initial density matrix for propagation
 !
   call dashes()
-  write(*,*) 'Begin get_hamiltonian'
+  write(u6,*) 'Begin get_hamiltonian'
   call dashes()
 
   if (.not.flag_test) then
@@ -18,7 +31,7 @@ subroutine hamdens()
 
 ! construct the initial hamiltonian and density matrix
 
-  write(*,*) 'Basis: ', basis
+  write(u6,*) 'Basis: ', basis
   if (initialtime==0d0) then
     if (basis=='CSF') then
       hamiltonian = HTOT_CSF
@@ -60,7 +73,7 @@ subroutine hamdens()
 
   if (ipglob>3) then
     call dashes()
-    write(*,*) 'End get_hamiltonian'
+    write(u6,*) 'End get_hamiltonian'
     call dashes()
   endif
 
@@ -68,7 +81,7 @@ subroutine hamdens()
   if (.not.flag_test) then
 
     call dashes()
-    write(*,*) 'Begin get_dipole'
+    write(u6,*) 'Begin get_dipole'
     call dashes()
 
 ! contrust the dipole matrix in required basis (with dyson matrix)
@@ -99,52 +112,52 @@ subroutine hamdens()
     if (ipglob>3) then
       ii=10
       if (Nstate<10) ii=Nstate
-      write(*,*) 'hamiltonian'
+      write(u6,*) 'hamiltonian'
       do i=1,ii
-        write(*,*) (hamiltonian(i,j),j=1,ii)
+        write(u6,*) (hamiltonian(i,j),j=1,ii)
       enddo
-      write(*,*) 'density0'
+      write(u6,*) 'density0'
       do i=1,ii
-        write(*,*) (density0(i,j),j=1,ii)
+        write(u6,*) (density0(i,j),j=1,ii)
       enddo
-      write(*,*) 'End get_dipole'
+      write(u6,*) 'End get_dipole'
       call dashes()
     endif
     if (ipglob>4) then
       do i=1,3
         call dashes()
-        write(*,*) 'Dipole Matrix in', basis, 'basis'
-        if(i==1)write(*,*)'Printout the components dipole matrix dx'
-        if(i==2)write(*,*)'Printout the components dipole matrix dy'
-        if(i==3)write(*,*)'Printout the components dipole matrix dz'
+        write(u6,*) 'Dipole Matrix in', basis, 'basis'
+        if(i==1)write(u6,*)'Printout the components dipole matrix dx'
+        if(i==2)write(u6,*)'Printout the components dipole matrix dy'
+        if(i==3)write(u6,*)'Printout the components dipole matrix dz'
         call dashes()
         do k=1,d
-          write(*,*) (dipole_basis(k,j,i),j=1,d)
+          write(u6,*) (dipole_basis(k,j,i),j=1,d)
         enddo
-        write(*,*)
+        write(u6,*)
         call dashes()
       enddo
     endif
-!!!!!!!!!!!!!!!!!!!
+!
   endif
-	  
-	if (flag_test .and. flag_pulse) then
-	  dipole_basis=dipole
-		if (ipglob>4) then
+
+  if (flag_test .and. flag_pulse) then
+    dipole_basis=dipole
+    if (ipglob>4) then
       do i=1,3
         call dashes()
-        write(*,*) 'Dipole Matrix in', basis, 'basis'
-        if(i==1)write(*,*)'Printout the components dipole matrix dx'
-        if(i==2)write(*,*)'Printout the components dipole matrix dy'
-        if(i==3)write(*,*)'Printout the components dipole matrix dz'
+        write(u6,*) 'Dipole Matrix in', basis, 'basis'
+        if(i==1)write(u6,*)'Printout the components dipole matrix dx'
+        if(i==2)write(u6,*)'Printout the components dipole matrix dy'
+        if(i==3)write(u6,*)'Printout the components dipole matrix dz'
         call dashes()
         do k=1,d
-          write(*,*) (dipole_basis(k,j,i),j=1,d)
+          write(u6,*) (dipole_basis(k,j,i),j=1,d)
         enddo
-        write(*,*)
+        write(u6,*)
         call dashes()
       enddo
     endif
-	endif
+  endif
 
 end

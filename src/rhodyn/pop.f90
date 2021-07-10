@@ -13,7 +13,8 @@
 subroutine pop(time,popcount)
   use rhodyn_data
   use rhodyn_utils, only: mult, transform
-  use mh5
+  use definitions, only: wp
+  use mh5, only: mh5_put_dset
   implicit none
 !***********************************************************************
 !
@@ -22,17 +23,17 @@ subroutine pop(time,popcount)
 !
 !***********************************************************************
   integer :: popcount
-  real(8) :: time, norm
-  real(8), dimension(nconftot) :: dgl_csf
-  complex(8),dimension(nconftot,nconftot) :: density_csf
-  character(64) :: sline
+  real(kind=wp) :: time, norm
+  real(kind=wp), dimension(nconftot) :: dgl_csf
+  complex(kind=wp),dimension(nconftot,nconftot) :: density_csf
+  character(len=64) :: sline
 !     here notation d is dimension of all the basis matrices
 !!!   density0 (can't be) used as a temporary storage for dm in required basis
 
   write(sline,"(f10.3)") time/fstoau
   call StatusLine('SpinDyn current time: ',trim(sline))
 
-  call mh5_put_dset_array_real(out_tout,[time/fstoau],[1],[popcount-1])
+  call mh5_put_dset(out_tout,[time/fstoau],[1],[popcount-1])
 
   if (basis=='CSF') then
 
@@ -42,8 +43,7 @@ subroutine pop(time,popcount)
       dgl_csf = dble((/(densityt(i,i),i=1,d)/))
       norm=sum(dgl_csf)
       write(lu_csf,out_fmt)time/fstoau,(dgl_csf(i),i=1,d),norm
-      call mh5_put_dset_array_real(out_dm_csf, &
-                dgl_csf, [1,d], [popcount-1,0])
+      call mh5_put_dset(out_dm_csf, dgl_csf, [1,d], [popcount-1,0])
     endif
 
     if ((DM_basis=='SF').or.(DM_basis=='CSF_SF').or. &
@@ -53,8 +53,7 @@ subroutine pop(time,popcount)
       dgl = dble((/(density0(i,i),i=1,d)/))
       norm= sum(dgl)
       write(lu_sf,out_fmt) time/fstoau,(dgl(i),i=1,d),norm
-      call mh5_put_dset_array_real(out_dm_sf, &
-                dgl, [1,d], [popcount-1,0])
+      call mh5_put_dset(out_dm_sf, dgl, [1,d], [popcount-1,0])
     endif
 
     if ((DM_basis=='SO').or.(DM_basis=='CSF_SO').or. &
@@ -64,8 +63,7 @@ subroutine pop(time,popcount)
       dgl = dble((/(density0(i,i),i=1,d)/))
       norm= sum(dgl)
       write(lu_so,out_fmt) time/fstoau,(dgl(i),i=1,d),norm
-      call mh5_put_dset_array_real(out_dm_so, &
-             dgl,[1,d],[popcount-1,0])
+      call mh5_put_dset(out_dm_so, dgl,[1,d],[popcount-1,0])
     endif
 
   elseif (basis=='SF') then
@@ -77,8 +75,7 @@ subroutine pop(time,popcount)
       dgl_csf = dble((/(density_csf(i,i),i=1,d)/))
       norm= sum(dgl_csf)
       write(lu_csf,out_fmt) time/fstoau,(dgl_csf(i),i=1,d),norm
-      call mh5_put_dset_array_real(out_dm_csf, &
-             dgl_csf,[1,d],[popcount-1,0])
+      call mh5_put_dset(out_dm_csf, dgl_csf,[1,d],[popcount-1,0])
     endif
 
     if ((DM_basis=='SF').or.(DM_basis=='CSF_SF').or. &
@@ -87,8 +84,7 @@ subroutine pop(time,popcount)
       dgl = dble((/(densityt(i,i),i=1,d)/))
       norm= sum(dgl)
       write(lu_sf,out_fmt) time/fstoau,(dgl(i),i=1,d),norm
-      call mh5_put_dset_array_real(out_dm_sf, &
-             dgl, [1,d],[popcount-1,0])
+      call mh5_put_dset(out_dm_sf, dgl, [1,d],[popcount-1,0])
     endif
 
     if ((DM_basis=='SO').or.(DM_basis=='CSF_SO').or. &
@@ -98,8 +94,7 @@ subroutine pop(time,popcount)
       dgl = dble((/(density0(i,i),i=1,d)/))
       norm =sum(dgl)
       write(lu_so,out_fmt) time/fstoau,(dgl(i),i=1,d),norm
-      call mh5_put_dset_array_real(out_dm_so, &
-                dgl, [1,d],[popcount-1,0])
+      call mh5_put_dset(out_dm_so, dgl, [1,d],[popcount-1,0])
     endif
 
   elseif (basis=='SO') then
@@ -112,7 +107,7 @@ subroutine pop(time,popcount)
       norm = sum(dgl_csf)
       write(lu_csf,out_fmt_csf) time/fstoau, &
             (dgl_csf(i),i=1,nconftot), norm
-      call mh5_put_dset_array_real(out_dm_csf, &
+      call mh5_put_dset(out_dm_csf, &
              dgl_csf, [1,nconftot],[popcount-1,0])
     endif
 
@@ -123,8 +118,7 @@ subroutine pop(time,popcount)
       dgl = dble((/(density0(i,i),i=1,d)/))
       norm= sum(dgl)
       write(lu_sf,out_fmt) time/fstoau,(dgl(i),i=1,d),norm
-      call mh5_put_dset_array_real(out_dm_sf, &
-                dgl, [1,d],[popcount-1,0])
+      call mh5_put_dset(out_dm_sf, dgl, [1,d], [popcount-1,0])
     endif
 
     if ((DM_basis=='SO').or.(DM_basis=='CSF_SO').or. &
@@ -133,36 +127,34 @@ subroutine pop(time,popcount)
       dgl = dble((/(densityt(i,i),i=1,d)/))
       norm= sum(dgl)
       write(lu_so,out_fmt) time/fstoau,(dgl(i),i=1,d),norm
-      call mh5_put_dset_array_real(out_dm_so, &
-                dgl, [1,d],[popcount-1,0])
+      call mh5_put_dset(out_dm_so, dgl, [1,d], [popcount-1,0])
     endif
   endif
-	  
+
 ! time-dependent dipole moment
 ! pulse_vec is used as storage for tr(rho d)
   if (flag_dipole) then
     do i=1,3
       call mult(densityt,dipole_basis(:,:,i),tmp)
-      dgl = (/(tmp(i,i),i=1,d)/)
+      dgl = dble((/(tmp(i,i),i=1,d)/))
       pulse_vec(i) = sum(dgl)
     enddo
     write(lu_dip,'(7(G25.15E3,2X))') time/fstoau, &
          (dble(pulse_vec(i)),aimag(pulse_vec(i)), i=1,3)
   endif
-	  
+
 ! emission spectra
   if (flag_emiss) then
 ! in dgl the SOC populations are left
     l = 1
-	 emiss=0d0
+    emiss=0d0
     do j=1,(Nstate-1)
       do i=(j+1),Nstate
         emiss(l) = a_einstein(i,j) * dgl(i)
         l = l + 1
       enddo
     enddo
-    call mh5_put_dset_array_real(out_emiss,emiss, &
-         [1,n_freq],[popcount-1,0])
+    call mh5_put_dset(out_emiss,emiss,[1,n_freq],[popcount-1,0])
   endif
 
 end

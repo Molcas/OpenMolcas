@@ -1,4 +1,23 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Vladislav Kochetov                               *
+!***********************************************************************
+! set of routines implementing different integrators, mainly of
+! Runge Kutta family. Probably there is a sense to make a module out of
+! these functions
+
 subroutine classic_rk4(t0,y)
+!***********************************************************************
+!     convenient Runge Kutta method of 4th order
+!***********************************************************************
   use rhodyn_data
   implicit none
   real(8) :: t0

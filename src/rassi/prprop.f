@@ -2825,7 +2825,7 @@ C printing threshold
 ! VKochetov 2021 put SO Dyson amplitudes to hdf5
 #ifdef _HDF5_
         if (rhodyn) then
-            mh5_put_dset(wfn_sos_dys, SODYSAMPS)
+            call mh5_put_dset(wfn_sos_dys, SODYSAMPS)
         endif
 #endif
        END IF

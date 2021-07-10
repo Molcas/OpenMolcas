@@ -16,24 +16,27 @@ subroutine rhodyn()
 !     and also comments on their meaning
 !***********************************************************************
   use rhodyn_data
-  use rhodyn_utils, only: mult, dashes
+  use rhodyn_utils, only: mult, dashes, sortci
+  use definitions, only: wp, iwp, u6
   use stdalloc, only: mma_allocate, mma_deallocate
-  use mh5
+  use mh5, only: mh5_put_dset, mh5_close_file
   implicit none
-  integer, external :: iPrintLevel
-  real(8), dimension(:,:), allocatable :: Ham ! auxiliary matrix
+  integer(kind=iwp) :: lu !temporary io unit
+  integer(kind=iwp), external :: iPrintLevel, isFreeUnit
+  real(kind=wp), dimension(:,:), allocatable :: Ham ! auxiliary matrix
 
-  call qEnter('RHODYN')
+!  call qEnter('RHODYN') !deprecated
   ireturn = 20
   ipglob  = iPrintLevel(-1)
 
   call StatusLine('RHODYN:','Starting calculation')
 
-! initializitation of default values
+! initializitation of default values and printing main parameters
   call rhodyn_init()
+! reading input file
   call read_input()
 
-! calculation of integer parameters needed for allocation 
+! calculation of integer parameters needed for allocation
   maxnum   = maxval(ndet)
   maxnconf = maxval(nconf)
   maxlroots= maxval(lroots)
@@ -87,9 +90,9 @@ subroutine rhodyn()
     call mma_allocate(rassd_list,N)
     do i=1,N
       write(rassd_list(i),"(A5,I1)") "RASSD", i
-      write(*,*) rassd_list(i)
+      write(u6,*) rassd_list(i)
 ! c
-      write(*,*) 'entering read_rassd: ', i
+      write(u6,*) 'entering read_rassd: ', i
       call read_rassd(i)
     enddo
     call mma_deallocate(rassd_list)
@@ -100,17 +103,17 @@ subroutine rhodyn()
 ! corresponding eigenvector (CI coefficients) to matrix CI(:,:,N)
       do i=1,N
         if (ipglob>3) then
-          write(*,sint)'H(RASSCF) in CSF basis of spin manifold:',i
+          write(u6,sint)'H(RASSCF) in CSF basis of spin manifold:',i
           call dashes()
           do k=1,15
-            write(*,*)(H_CSF(k,j,i),j=1,15)
+            write(u6,*)(H_CSF(k,j,i),j=1,15)
           enddo
           call dashes()
         endif
         call mma_allocate(Ham,lroots(i),lroots(i))
         Ham(:,:)=H_CSF(1:nconf(i),1:nconf(i),i)
         call sortci(nconf(i), Ham, E(1:nconf(i),i), &
-                            CI(1:nconf(i),1:lroots(i),i) )
+                            CI(1:nconf(i),1:lroots(i),i),ipglob)
         call mma_deallocate(Ham)
       enddo
     else if (i_rasscf==2.or.i_rasscf==3) then
@@ -146,7 +149,7 @@ subroutine rhodyn()
 
     call dashes()
     call dashes()
-    write(*,*) 'Preparation finished successfully'
+    write(u6,*) 'Preparation finished successfully'
     call dashes()
     call dashes()
 
@@ -178,9 +181,9 @@ subroutine rhodyn()
       call mma_allocate(rassd_list,N)
       do i=1,N
         write(rassd_list(i),"(A5,I1)") "RASSD", i
-        write(*,*) rassd_list(i)
+        write(u6,*) rassd_list(i)
         ! c
-        write(*,*) 'entering read_rassd: ', i
+        write(u6,*) 'entering read_rassd: ', i
         call read_rassd(i)
       enddo
       call mma_deallocate(rassd_list)
@@ -215,7 +218,7 @@ subroutine rhodyn()
     call mma_allocate(U_CI_compl,  nconftot,lrootstot)
 
 ! prepare density and hamiltonian in required basis to propagate with
-    if (preparation/=4) then 
+    if (preparation/=4) then
       call hamdens()
     else
     ! charge migration case
@@ -246,23 +249,25 @@ subroutine rhodyn()
     if (flag_diss) then
       call mma_allocate(kab_basis,d,d)
       call mma_allocate(k_bar_basis,d,d)
-		  if (kext) then
-		    call k_external()
-		  else
+      if (kext) then
+        call k_external()
+      else
         call kab()
-		  endif
-		  if (ipglob>3) then
-		    open(19,file='Kab_basis_eV.dat',status='replace')
+      endif
+      if (ipglob>3) then
+        lu = isFreeUnit(19)
+        call molcas_open(lu,'Kab_basis_eV.dat')
         do i=1,d
-          write(19,*)(kab_basis(i,j)*autoev,j=1,d)
+          write(lu,*)(kab_basis(i,j)*autoev,j=1,d)
         enddo
-		    close(19)
-			  open(20,file='K_bar_basis_eV.dat',status='replace')
+        close(lu)
+        lu = isFreeUnit(20)
+        call molcas_open(lu,'K_bar_basis_eV.dat')
         do i=1,d
-          write(20,*)(k_bar_basis(i,j)*autoev,j=1,d)
+          write(lu,*)(k_bar_basis(i,j)*autoev,j=1,d)
         enddo
-		    close(20)
-		  endif
+        close(lu)
+      endif
     endif
 
     if (flag_decay.or.flag_dyson) call prepare_decay()
@@ -327,6 +332,6 @@ subroutine rhodyn()
 
   call StatusLine('RhoDyn:','Finished')
   ireturn = 0
-  call qExit('RHODYN')
+!  call qExit('RHODYN') ! deprecated
   return
 end

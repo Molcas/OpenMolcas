@@ -20,11 +20,12 @@ subroutine get_hcsf()
 !***********************************************************************
   use rhodyn_data
   use rhodyn_utils, only: dashes
-  use mh5
+  use definitions, only: u6
+  use mh5, only: mh5_put_dset
   implicit none
 
   call dashes()
-  write(*,*) 'Begin get_Hcsf'
+  write(u6,*) 'Begin get_Hcsf'
 
 ! Construct the Hamiltonian matrix H(RASSCF) in CSF basis include all
 ! spin manifolds to ! HTOTRE_CSF
@@ -59,9 +60,9 @@ subroutine get_hcsf()
     enddo
   endif
 
-  write(*,*) 'Construct the full Hamiltonian!'
+  write(u6,*) 'Construct the full Hamiltonian!'
   call dashes()
-  write(*,sint)'number of NCSF:',nconftot
+  write(u6,sint)'number of NCSF:',nconftot
   call dashes()
   HTOT_CSF=(0d0,0d0)
 
@@ -73,33 +74,33 @@ subroutine get_hcsf()
   else
     HTOT_CSF = HTOTRE_CSF + V_CSF
   endif
-  write(*,*) 'end contructing full Hamiltonian'
+  write(u6,*) 'end contructing full Hamiltonian'
 
 ! Check whether total Hamiltonian is Hermitian
   if (ipglob>3) then
     call dashes()
-    print*,'Check whether total Hamiltonian HTOT_CSF is Hermitian'
+    write(u6,*)'Check whether total Hamiltonian HTOT_CSF is Hermitian'
     call dashes()
     do  i=1,nconftot
       do j=1,nconftot
         if (abs(dble(HTOT_CSF(i,j)-HTOT_CSF(j,i)))>=threshold)then
-        write(*,int2real) 'WARNING!!!: HTOT_CSF matrix is not'// &
+        write(u6,int2real) 'WARNING!!!: HTOT_CSF matrix is not'// &
                           ' hermitian in real part:',i,j, &
                           dble(HTOT_CSF(i,j)),dble(HTOT_CSF(j,i))
         endif
         if(abs(aimag(HTOT_CSF(i,j)+HTOT_CSF(j,i)))>=threshold)then
-        write(*,int2real) 'WARNING!!!: HTOT_CSF matrix is not'// &
+        write(u6,int2real) 'WARNING!!!: HTOT_CSF matrix is not'// &
                           ' hermitian in imag part:',i,j, &
                           aimag(HTOT_CSF(i,j)),aimag(HTOT_CSF(j,i))
         endif
       enddo
     enddo
 
-    write(*,*) 'If there is no warning info, total'// &
+    write(u6,*) 'If there is no warning info, total'// &
               ' Hamiltonian matrix HTOT_CSF is hermitian!'
   endif
 
-  call mh5_put_dset_array_real(prep_fhr, dble(HTOT_CSF))
-  call mh5_put_dset_array_real(prep_fhi, aimag(HTOT_CSF))
+  call mh5_put_dset(prep_fhr, dble(HTOT_CSF))
+  call mh5_put_dset(prep_fhi, aimag(HTOT_CSF))
 
 end

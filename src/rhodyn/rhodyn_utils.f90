@@ -1,3 +1,15 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Vladislav Kochetov                               *
+!***********************************************************************
 module rhodyn_utils
   implicit none
 !
@@ -19,6 +31,8 @@ module rhodyn_utils
 contains
 
   subroutine dashes(length)
+!   print the line of dashes of length 'length'
+!   to the standard output fileunit 6
     integer :: i, l, fileunit
     integer, intent(in), optional :: length
     if (present(length)) then
@@ -299,5 +313,35 @@ contains
     endif
     deallocate(temp)
   end
+
+  subroutine sortci(N1,A,WR,C,print_level)
+    !use rhodyn_data
+    !use rhodyn_utils, only: dashes, transform
+    implicit none
+    integer::N1,INFO,LWORK
+    integer,intent(in) :: print_level
+    real(8), dimension(N1,N1) :: A, C, diag, B
+    real(8), dimension(N1) :: WR
+    real(8), dimension (2*N1)::WORK
+    integer :: k, l
+    B=A
+    LWORK=2*N1
+    call dsyev_('V', 'U', N1, A, N1, WR, WORK, LWORK, INFO)
+    if (INFO/=0) then
+      write(6,*) 'ERROR in sortci'
+      call Abend()
+    endif
+    call dsyev_('V', 'U', N1, A, N1, WR, WORK, LWORK, INFO)
+    C=A
+    if (print_level>3) then
+      call transform(B,C,diag)
+      call dashes()
+      write(6,*) 'Printout the diagonalized matrix:'
+      call dashes()
+      do k=1,10
+        write(6,*) (diag(k,l),l=1,10)
+      enddo
+    endif
+  end subroutine sortci
 
 end module rhodyn_utils

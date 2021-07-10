@@ -1,15 +1,28 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Vladislav Kochetov                               *
+!***********************************************************************
 subroutine read_input()
   use rhodyn_data
   use rhodyn_utils, only: dashes
+  use definitions, only: iwp, u6
   implicit none
 !
 !
 !
-  integer              :: luin
+  integer(kind=iwp)    :: luin
   character(len=8)     :: input_id = '&RHODYN', tryname
   character(len=256)   :: line
 
-  call qEnter('read_input')
+!  call qEnter('read_input') ! deprecated
 
   call SpoolInp(luin)
 ! Find beginning of input:
@@ -107,8 +120,8 @@ subroutine read_input()
         gamma=gamma*cmtoau
       case ('HRSO')
         HRSO=.True.
-			case ('KEXT')
-			  kext=.True.
+      case ('KEXT')
+        kext=.True.
       case ('IFPU')
         flag_pulse=.False.
       case ('TFDM')
@@ -117,7 +130,7 @@ subroutine read_input()
         flag_fdm = .True.
       case ('DMBA')
         read(luin,'(A)') dm_basis
-		  case ('DIPO')
+      case ('DIPO')
         flag_dipole=.True.
       case ('EMIS')
         flag_emiss=.True.
@@ -179,71 +192,71 @@ subroutine read_input()
       case('END ')
         exit
       case default
-        print*,'The corresponding keyword: ',line,' is unknown!'
-        stop
+        write(u6,*) 'The corresponding keyword: ',line,' is unknown!'
+        call abend()
     end select
   enddo
 300   continue
 
   if (ipglob>1) then
     call dashes()
-    write(6,*)        'Input variables '
+    write(u6,*)        'Input variables '
     call dashes()
-    write(6,sint)     'Number of spin manifolds:', N
+    write(u6,sint)     'Number of spin manifolds:', N
     call dashes()
-    write(6,*) '      N       DET      CSF     STATES     SPIN'
+    write(u6,*) '      N       DET      CSF     STATES     SPIN'
     do i=1,N
-      write(6,'(5(i8,x))') i,ndet(i),nconf(i),lroots(i),ispin(i)
+      write(u6,'(5(i8,x))') i,ndet(i),nconf(i),lroots(i),ispin(i)
     enddo
     call dashes()
-    write(6,scha) 'State basis to be populated:', trim(p_style)
-    write(6,sint) 'Number of populated states:', n_populated
+    write(u6,scha) 'State basis to be populated:', trim(p_style)
+    write(u6,sint) 'Number of populated states:', n_populated
     if (p_style=='SO_THERMAL'.or.p_style=='SF_THERMAL') then
-      write(6,sdbl)   'Temperature:',    T
+      write(u6,sdbl)   'Temperature:',    T
     endif
-    write(6,scha)     'Basis for propagation:',trim(basis)
-    write(6,sint)     'Number of states:',Nstate
-    write(6,sdbl)     'Initial time:',   initialtime/fstoau
-    write(6,sdbl)     'Final time:',     finaltime/fstoau
-    write(6,slog)     'Auger Decay:',    flag_decay
-    write(6,slog)     'Dissipation:',    flag_diss
-    write(6,slog)     'Ionization: ',    flag_dyson
-    write(6,slog)     'Pulse:',          flag_pulse
+    write(u6,scha)     'Basis for propagation:',trim(basis)
+    write(u6,sint)     'Number of states:',Nstate
+    write(u6,sdbl)     'Initial time:',   initialtime/fstoau
+    write(u6,sdbl)     'Final time:',     finaltime/fstoau
+    write(u6,slog)     'Auger Decay:',    flag_decay
+    write(u6,slog)     'Dissipation:',    flag_diss
+    write(u6,slog)     'Ionization: ',    flag_dyson
+    write(u6,slog)     'Pulse:',          flag_pulse
     if (flag_diss) then
 !          write(6,sdbl)   'DeltaE:',         deltaE
 !          write(6,sdbl)   'Coupling (cm-1):',V
-      write(6,sdbl)   'Gamma (Hartree):', gamma
+      write(u6,sdbl)   'Gamma (Hartree):', gamma
     endif
     call dashes()
-    write(6,*)        'Pulse characteristics:'
+    write(u6,*)        'Pulse characteristics:'
     call dashes()
     if (flag_pulse.and.amp(1)/=0d0) then
-      write(6,scha)   'Pulse type:',     trim(pulse_type)
+      write(u6,scha)   'Pulse type:',     trim(pulse_type)
       if (pulse_type=='sine_square') then
-        write(6,sdbl) 'sin_tstar',       sin_tstar
-        write(6,sdbl) 'sin_tend',        sin_tend
-        write(6,sdbl) 'sin_scal',        sin_scal
+        write(u6,sdbl) 'sin_tstar',       sin_tstar
+        write(u6,sdbl) 'sin_tend',        sin_tend
+        write(u6,sdbl) 'sin_scal',        sin_scal
       elseif (pulse_type=='Gaussian') then
-        write(6,sdbl) 'Amp:',            amp(1)
-        write(6,sdbl) 'Tau:',            tau/fstoau
-        write(6,scmp) 'Polarization x:', pulse_vector(1,1)
-        write(6,scmp) 'Polarization y:', pulse_vector(1,2)
-        write(6,scmp) 'Polarization z:', pulse_vector(1,3)
+        write(u6,sdbl) 'Amp:',            amp(1)
+        write(u6,sdbl) 'Tau:',            tau/fstoau
+        write(u6,scmp) 'Polarization x:', pulse_vector(1,1)
+        write(u6,scmp) 'Polarization y:', pulse_vector(1,2)
+        write(u6,scmp) 'Polarization z:', pulse_vector(1,3)
       elseif (pulse_type=='Train_Diff'.or.pulse_type=='Train_Same') then
-        write(6,sint) '# of pulses:',    N_pulse
+        write(u6,sint) '# of pulses:',    N_pulse
         do i=1,N_pulse
-          write(6,sint) 'Pulse # ',        i
-          write(6,sdbl) 'Amp:',            amp(i)
-          write(6,sdbl) 'Center:',      (tau+(i-1)*shift(i))/fstoau
-          write(6,scmp) 'Polarization x:', pulse_vector(i,1)
-          write(6,scmp) 'Polarization y:', pulse_vector(i,2)
-          write(6,scmp) 'Polarization z:', pulse_vector(i,3)
+          write(u6,sint) 'Pulse # ',        i
+          write(u6,sdbl) 'Amp:',            amp(i)
+          write(u6,sdbl) 'Center:',      (tau+(i-1)*shift(i))/fstoau
+          write(u6,scmp) 'Polarization x:', pulse_vector(i,1)
+          write(u6,scmp) 'Polarization y:', pulse_vector(i,2)
+          write(u6,scmp) 'Polarization z:', pulse_vector(i,3)
         enddo
       endif
     endif
     call dashes()
   endif
   call close_luSpool(luin)
-  call qExit('read_input')
+!  call qExit('read_input')! deprecated
   return
 end
