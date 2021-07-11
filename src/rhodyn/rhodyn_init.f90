@@ -28,7 +28,7 @@ subroutine rhodyn_init()
   N_Populated   = 1
 ! temperature T needed if p_style includes 'thermal'
   T             = 300
-  Nmode         = 51
+  Nmode         = 0
 ! be default propagation basis is spin free states
   basis         = 'SF'
   tout          = 0.05d0*fstoau
@@ -50,10 +50,11 @@ subroutine rhodyn_init()
   ion_diss      = 0d0
   ion_blocks    = (/.True.,.False.,.True.,.False.,.True./)
   flag_diss     = .False.
-  gamma         = 500*cmtoau
+  gamma         = 300*cmtoau
   HRSO          = .False.
   kext          = .False.
   DM_basis      = 'SF_SO'
+! full density matrix saving time step
   time_fdm      = 1.0d0*fstoau
 ! general idea is that additional features are disabled by default
 ! except for pulse flag
