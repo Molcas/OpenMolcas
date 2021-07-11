@@ -26,12 +26,12 @@ real(kind=wp) :: tmp
 ! potential on each tessera.
 ! Modifies nuclear repulsion, one-electron and two electron terms.
 
-call dcopy_(2*nTs,[Zero],0,Q,1)
+Q(:,:) = Zero
 do iTs=1,nTs
   do jTs=1,nTs
-    tmp = DMat(iTs,jTs)+DMat(jTs,iTs)
-    DMat(iTs,jTs) = Half*tmp
-    DMat(jTs,iTs) = Half*tmp
+    tmp = Half*(DMat(iTs,jTs)+DMat(jTs,iTs))
+    DMat(iTs,jTs) = tmp
+    DMat(jTs,iTs) = tmp
   end do
 end do
 

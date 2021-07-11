@@ -14,12 +14,10 @@ subroutine GVWrite(idx,nTs,NEsfP,nAt,AtmC,IAt,Coor_Sph,Tessera,NVert,Vert,ISphe,
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
-integer(kind=iwp), intent(in) :: idx, nTs, NEsfP, nAt, IAt(nAt), NVert(*), ISphe(nTs), MxVert
-real(kind=wp), intent(in) :: AtmC(3,nAt), Coor_Sph(4,*), Tessera(4,nTs), Vert(3,MxVert,*), Q(*)
-integer(kind=iwp), intent(_OUT_) :: ivts(MxVert,*)
+integer(kind=iwp), intent(in) :: idx, nTs, NEsfP, nAt, IAt(nAt), NVert(nTs), ISphe(nTs), MxVert
+real(kind=wp), intent(in) :: AtmC(3,nAt), Coor_Sph(4,NEsfP), Tessera(4,nTs), Vert(3,MxVert,nTs), Q(nTs)
+integer(kind=iwp), intent(out) :: ivts(MxVert,nTs)
 integer(kind=iwp) :: i, j, jcord, K, Last, Lu, N, NumV
 real(kind=wp) :: C1, C2, C3, qmax, qmin, qt
 integer(kind=iwp), external :: IsFreeUnit

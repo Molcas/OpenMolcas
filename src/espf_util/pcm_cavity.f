@@ -76,7 +76,7 @@
 *
       NSinit = 0
       Call FndSph(LcNAtm,ICharg,LcAtmC,LcIAtm,ISlPar(9),
-     &            ISlPar(14),RSlPar(9),Xs,Ys,Zs,Rs,pNs,iPrint)
+     &            ISlPar(14),RSlPar(9),Xs,Ys,Zs,Rs,pNs,MxSph,iPrint)
 *
 *---- Define surface tesserae
 *

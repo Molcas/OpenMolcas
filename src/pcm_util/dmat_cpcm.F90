@@ -13,12 +13,10 @@ subroutine DMat_CPCM(iAt,iC,nTs,nS,nAt,fact,Tessera,DerMat,DerTes,DerPunt,DerCen
 
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
-integer(kind=iwp), intent(in) :: iAt, iC, nTs, nS, nAt, iSphe(*)
-real(kind=wp), intent(in) :: fact, Tessera(4,*), DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3), DerCentr(nS,nAt,3,3)
-real(kind=wp), intent(_OUT_) :: DerMat(nTs,*)
+integer(kind=iwp), intent(in) :: iAt, iC, nTs, nS, nAt, iSphe(nTs)
+real(kind=wp), intent(in) :: fact, Tessera(4,nTs), DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3), DerCentr(nS,nAt,3,3)
+real(kind=wp), intent(out) :: DerMat(nTs,nTs)
 integer(kind=iwp) :: ITs, JTs, L, LJ
 real(kind=wp) :: DIJ, DXIJ, DYIJ, DZIJ, PROD, XIJ, YIJ, ZIJ
 

@@ -23,6 +23,7 @@ subroutine PrGrad_mck(Label,Grad,nGrad,Names,iPrint)
 !***********************************************************************
 
 use Symmetry_Info, only: lIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -33,13 +34,17 @@ integer(kind=iwp), intent(in) :: nGrad, iPrint
 character(len=LenIn6), intent(in) :: Names(nGrad)
 real(kind=wp), intent(in) :: Grad(nGrad)
 integer(kind=iwp) :: iCen, iGrad, mGrad
-real(kind=wp) :: CGrad(3,MxAtom), Temp, TempX, TempY, TempZ
-character(len=LenIn5) :: CNames(MxAtom), Namei
+real(kind=wp) :: Temp, TempX, TempY, TempZ
+character(len=LenIn5) :: Namei
+real(kind=wp), allocatable :: CGrad(:,:)
+character(len=LenIn5), allocatable :: CNames(:)
 
 write(u6,*)
 call Banner(Label,1,len(Label)+30)
 write(u6,*)
 if (iPrint == 4) then
+  call mma_allocate(CGrad,3,MxAtom,label='CGrad')
+  call mma_allocate(CNames,MxAtom,label='CNames')
   call TrGrd_Alaska_(CGrad,CNames,Grad,nGrad,iCen)
   write(u6,'(1x,A,A)') ' Irreducible representation: ',lIrrep(0)
   write(u6,'(1x,A)') '--------------------------------------------------'
@@ -53,6 +58,8 @@ if (iPrint == 4) then
     write(u6,'(2X,A,3X,3F12.6)') Namei,TempX,TempY,TempZ
   end do
   write(u6,'(1x,A)') '--------------------------------------------------'
+  call mma_deallocate(CGrad)
+  call mma_deallocate(CNames)
 else
 
   ! Modified by Luca De Vico november 2005 Teokem

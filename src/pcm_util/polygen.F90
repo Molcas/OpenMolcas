@@ -11,7 +11,7 @@
 ! Copyright (C) Christian Pomelli                                      *
 !***********************************************************************
 
-subroutine PolyGen(MaxT,Ptype,Pflag,TsAre,TsNum,XEN,YEN,ZEN,REN,TsEff,CV,JTR)
+subroutine PolyGen(MaxT,MxSph,Ptype,Pflag,TsAre,TsNum,XEN,YEN,ZEN,REN,TsEff,CV,JTR)
 ! Polygen: a program to generate spherical polyhedra with triangular
 ! faces by C.S. Pomelli (cris@ibm550.icqem.cnr.it)
 ! An equilateral division algorithm is used.
@@ -20,16 +20,14 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Four, Half, Pi
 use Definitions, only: wp, iwp, u6
 
-#include "intent.fh"
-
 implicit none
-integer(kind=iwp), intent(in) :: MaxT, Pflag
+integer(kind=iwp), intent(in) :: MaxT, MxSph, Pflag
 real(kind=wp), intent(in) :: TsAre, XEN, YEN, ZEN, REN
 integer(kind=iwp), intent(inout) :: TsNum
-integer(kind=iwp), intent(out) :: Ptype, TsEff, JTR(3,*)
-real(kind=wp), intent(_OUT_) :: CV(3,*)
-integer(kind=iwp) :: edo(90,2), ednew(90,100), i, ii, j, jj, k, l, m, n, NDI, NDP, NDT, NE0, NF, NFI, NFP, NFT, NT0, NTPT, NV, &
-                     NVPT, oldtr(100,100), treo(60,3), trvo(60,3)
+integer(kind=iwp), intent(out) :: Ptype, TsEff, JTR(3,MaxT)
+real(kind=wp), intent(out) :: CV(3,MxSph)
+integer(kind=iwp) :: ednew(90,100), i, ii, j, jj, l, m, n, NDI, NDP, NDT, NE0, NF, NFI, NFP, NFT, NT0, NTPT, NV, NVPT, &
+                     oldtr(100,100)
 real(kind=wp) :: alpha, beta, cos1, cos2, costheta, dnorm, sintheta, theta, v1(3), v2(3), v3(3)
 integer(kind=iwp), allocatable :: TrNew(:,:,:)
 integer(kind=iwp), parameter :: Icosa = 1, Pentakis = 2, Tetra = 3
@@ -142,6 +140,7 @@ real(kind=wp), parameter :: penve(3,NVP) = reshape([ 0.000000000_wp, 0.000000000
                                                     -0.491123473_wp,-0.356822090_wp,-0.794654472_wp, &
                                                      0.187592474_wp,-0.577350269_wp,-0.794654472_wp, &
                                                      0.000000000_wp, 0.000000000_wp,-1.000000000_wp],[3,NVP])
+integer(kind=iwp) :: edo(max(NET,NEI,NEP),2), treo(max(NTT,NTI,NTP),3), trvo(max(NTT,NTI,NTP),3)
 
 NT0 = 0 ! dummy initialize
 NV = 0 ! dummy initialize
@@ -209,20 +208,14 @@ if (Ptype == Icosa) then
   NV = NVI
   NE0 = NEI
   do i=1,NT0
-    do k=1,3
-      trvo(i,k) = icotrv(k,i)
-      treo(i,k) = icotre(k,i)
-    end do
+    trvo(i,:) = icotrv(:,i)
+    treo(i,:) = icotre(:,i)
   end do
   do i=1,NV
-    do k=1,3
-      CV(k,i) = icove(k,i)
-    end do
+    CV(:,i) = icove(:,i)
   end do
   do i=1,NE0
-    do k=1,2
-      edo(i,k) = icoed(k,i)
-    end do
+    edo(i,:) = icoed(:,i)
   end do
 elseif (Ptype == Pentakis) then
 
@@ -232,20 +225,14 @@ elseif (Ptype == Pentakis) then
   NV = NVP
   NE0 = NEP
   do i=1,NT0
-    do k=1,3
-      trvo(i,k) = pentrv(k,i)
-      treo(i,k) = pentre(k,i)
-    end do
+    trvo(i,:) = pentrv(:,i)
+    treo(i,:) = pentre(:,i)
   end do
   do i=1,NV
-    do k=1,3
-      CV(k,i) = penve(k,i)
-    end do
+    CV(:,i) = penve(:,i)
   end do
   do i=1,NE0
-    do k=1,2
-      edo(i,k) = pened(k,i)
-    end do
+    edo(i,:) = pened(:,i)
   end do
 elseif (Ptype == Tetra) then
 
@@ -255,20 +242,14 @@ elseif (Ptype == Tetra) then
   NV = NVT
   NE0 = NET
   do i=1,NT0
-    do k=1,3
-      trvo(i,k) = tettrv(k,i)
-      treo(i,k) = tettre(k,i)
-    end do
+    trvo(i,:) = tettrv(:,i)
+    treo(i,:) = tettre(:,i)
   end do
   do i=1,NV
-    do k=1,3
-      CV(k,i) = tetve(k,i)
-    end do
+    CV(:,i) = tetve(:,i)
   end do
   do i=1,NE0
-    do k=1,2
-      edo(i,k) = teted(k,i)
-    end do
+    edo(i,:) = teted(:,i)
   end do
 end if
 NVPT = NV+1
@@ -283,10 +264,8 @@ end if
 ! tramite ednew al vertice di appartenenza
 
 do j=1,NE0
-  do k=1,3
-    v1(k) = CV(k,edo(j,1))
-    v2(k) = CV(k,edo(j,2))
-  end do
+  v1(:) = CV(:,edo(j,1))
+  v2(:) = CV(:,edo(j,2))
   costheta = (v1(1)*v2(1)+v1(2)*v2(2)+v1(3)*v2(3))/(sqrt(v1(1)**2+v1(2)**2+v1(3)**2)*sqrt(v2(1)**2+v2(2)**2+v2(3)**2))
   theta = acos(costheta)
   sintheta = sin(theta)
@@ -296,16 +275,10 @@ do j=1,NE0
     cos2 = cos(theta*(NF-l)/NF)
     alpha = (cos1-costheta*cos2)/sintheta**2
     beta = (cos2-costheta*cos1)/sintheta**2
-    do k=1,3
-      v3(k) = alpha*v1(k)+beta*v2(k)
-    end do
+    v3(:) = alpha*v1(:)+beta*v2(:)
     dnorm = sqrt(v3(1)**2+v3(2)**2+v3(3)**2)
-    do k=1,3
-      v3(k) = v3(k)/dnorm
-    end do
-    do k=1,3
-      CV(k,NVPT) = v3(k)
-    end do
+    v3(:) = v3(:)/dnorm
+    CV(:,NVPT) = v3(:)
     ednew(j,l+1) = NVPT
     NVPT = NVPT+1
     if (NVPT > 1000) then
@@ -329,10 +302,8 @@ do j=1,NT0
   ii = treo(j,1)
   jj = treo(j,3)
   do l=3,NF
-    do k=1,3
-      v1(k) = CV(k,ednew(ii,l))
-      v2(k) = CV(k,ednew(jj,l))
-    end do
+    v1(:) = CV(:,ednew(ii,l))
+    v2(:) = CV(:,ednew(jj,l))
     costheta = (v1(1)*v2(1)+v1(2)*v2(2)+v1(3)*v2(3))/(sqrt(v1(1)**2+v1(2)**2+v1(3)**2)*sqrt(v2(1)**2+v2(2)**2+v2(3)**2))
     theta = acos(costheta)
     sintheta = sin(theta)
@@ -341,16 +312,10 @@ do j=1,NT0
       cos2 = cos(theta*(l-1-n)/(l-1))
       alpha = (cos1-costheta*cos2)/sintheta**2
       beta = (cos2-costheta*cos1)/sintheta**2
-      do k=1,3
-        v3(k) = alpha*v1(k)+beta*v2(k)
-      end do
+      v3(:) = alpha*v1(:)+beta*v2(:)
       dnorm = sqrt(v3(1)**2+v3(2)**2+v3(3)**2)
-      do k=1,3
-        v3(k) = v3(k)/dnorm
-      end do
-      do k=1,3
-        CV(k,NVPT) = v3(k)
-      end do
+      v3(:) = v3(:)/dnorm
+      CV(:,NVPT) = v3(:)
 
       !trnew(j,l,n+1) = NVPT ! Old code
 

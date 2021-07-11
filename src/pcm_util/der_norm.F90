@@ -14,12 +14,10 @@ subroutine Der_Norm(iAt1,iCoord1,iAt2,iCoord2,nTs,nAt,nS,Tessera,Der1,DerRad,Der
 use Constants, only: Zero, One, Angstrom
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
-integer(kind=iwp), intent(in) :: iAt1, iCoord1, iAt2, iCoord2, nTs, nAt, nS, iSphe(*), nOrd(*)
-real(kind=wp), intent(in) :: Tessera(4,*), DerRad(nS,nAt,3), DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3), Sphere(4,*)
-real(kind=wp), intent(_OUT_) :: Der1(*)
+integer(kind=iwp), intent(in) :: iAt1, iCoord1, iAt2, iCoord2, nTs, nAt, nS, iSphe(nTs), nOrd(nS)
+real(kind=wp), intent(in) :: Tessera(4,nTs), DerRad(nS,nAt,3), DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3), Sphere(4,nS)
+real(kind=wp), intent(out) :: Der1(nTs)
 integer(kind=iwp) :: iAt1_S, iS, iTs, L
 real(kind=wp) :: AnToAU, Der_1, dN, dN_Its, SqArea
 
@@ -34,9 +32,9 @@ end do
 
 ! Loop on tiles
 dN = Zero ! Dummy initialization.
+Der1(:) = Zero
 do iTs=1,nTs
   L = iSphe(iTs)
-  Der1(iTs) = Zero
   if (L == iAt1_S) then
     if (iCoord1 == 1) dN = (Sphere(1,L)-Tessera(1,iTs))/Sphere(4,L)
     if (iCoord1 == 2) dN = (Sphere(2,L)-Tessera(2,iTs))/Sphere(4,L)
@@ -49,7 +47,7 @@ do iTs=1,nTs
   end if
   SqArea = Tessera(4,iTs)*Tessera(4,iTs)
   Der_1 = -dN*DerTes(iTs,iAt2,iCoord2)*AnToAU/SqArea
-  Der1(its) = -dN_Its/Tessera(4,iTs)-Der_1
+  Der1(iTs) = -dN_Its/Tessera(4,iTs)-Der_1
 end do
 
 return

@@ -11,21 +11,20 @@
 
 subroutine V_EF_PCM(nAt,nTs,DoPot,DoFld,AtmC,Tessera,V,EF_n,EF_e)
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp
-
-#include "intent.fh"
 
 implicit none
 integer(kind=iwp), intent(in) :: nAt, nTs
 logical(kind=iwp), intent(in) :: DoPot, DoFld
-real(kind=wp), intent(in) :: AtmC(3,nAt), Tessera(4,*)
-real(kind=wp), intent(_OUT_) :: V(*), EF_n(3,*), EF_e(3,*)
+real(kind=wp), intent(in) :: AtmC(3,nAt), Tessera(4,nTs)
+real(kind=wp), intent(out) :: V(nTs), EF_n(3,nTs), EF_e(3,nTs)
 integer(kind=iwp) :: nOrdOp
 
 ! Compute potential on tesserae
 
 if (DoPot) then
-  call FZero(V,nTs)
+  V(:) = Zero
   nOrdOp = 0
   call Mlt_PCM(nAt,nTs,nOrdOp,Tessera,AtmC,V,EF_n,EF_e)
 end if
@@ -33,8 +32,8 @@ end if
 ! Compute electric field on tesserae
 
 if (DoFld) then
-  call FZero(EF_n,3*nTs)
-  call FZero(EF_e,3*nTs)
+  EF_n(:,:) = Zero
+  EF_e(:,:) = Zero
   nOrdOp = 1
   call Mlt_PCM(nAt,nTs,nOrdOp,Tessera,AtmC,V,EF_n,EF_e)
 end if

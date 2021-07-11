@@ -9,15 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-function AtNear(IAt,IAn,NBond,IBond,DH,DId,DAr,Chg)
+function AtNear(MxBond,IAt,IAn,NBond,IBond,DH,DId,DAr,Chg)
 
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: AtNear
-integer(kind=iwp), parameter :: MxBond = 12
-integer(kind=iwp), intent(in) :: IAt, IAn(*), NBond(*), IBond(MxBond,*)
+integer(kind=iwp), intent(in) :: MxBond, IAt, IAn(*), NBond(*), IBond(MxBond,*)
 real(kind=wp), intent(out) :: DH, DId, DAr
 real(kind=wp), intent(in) :: Chg(*)
 integer(kind=iwp) :: IAnI, IAnJ, j, Jat, NAr, NbI, NbJ, NCSP, NCSP2, NCSP3, NearAt, NF, NH, NId, NNit, NOX, NX
@@ -38,7 +37,7 @@ DX = Zero
 IAnI = IAn(IAt)
 NbI = NBond(IAt)
 do j=1,NbI
-  Jat = ibond(j,IAt)
+  JAt = IBond(j,IAt)
   IAnJ = Ian(JAt)
   NbJ = NBond(JAt)
   ChgJ = Chg(JAt)
@@ -85,9 +84,9 @@ NearAt = NH
 NAr = 0
 if ((IAn(IAt) == 6) .and. (abs(Chg(IAt)) < 0.4_wp)) NearAt = NearAt+NH
 if ((IAn(IAt) == 6) .and. (NBond(IAt) == 3) .and. (NCSP2 >= 1)) then
-  if ((NH+NCSP3) /= 2) NAR = NAlpAr(IAt,IAn,NBond,IBond,Chg)
+  if ((NH+NCSP3) /= 2) NAR = NAlpAr(MxBond,IAt,IAn,NBond,IBond,Chg)
 end if
-if ((IAn(IAt) == 6) .and. (NBond(IAt) == 4)) NearAt = NearAt-NX-NCSP2-NNit+NF+NCAlph(IAt,NH,NCSP3,IAn,NBond,IBond,Chg)
+if ((IAn(IAt) == 6) .and. (NBond(IAt) == 4)) NearAt = NearAt-NX-NCSP2-NNit+NF+NCAlph(MxBond,IAt,NH,NCSP3,IAn,NBond,IBond,Chg)
 if (NH > 3) NearAt = NearAt-1
 AtNear = real(NearAt,kind=wp)-DX
 DH = real(NH,kind=wp)

@@ -69,7 +69,7 @@ integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 
 iRout = 112
 iPrint = nPrint(iRout)
-call dcopy_(nGrad,[Zero],0,Grad,1)
+Grad(:) = Zero
 
 ! Auxiliary memory allocation.
 

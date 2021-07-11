@@ -11,7 +11,8 @@
 
 subroutine PCM_Init(iPrint,ICharg,NAtm,AtmC,IAtm,LcAtmC,LcIAtm,NonEq)
 
-use PCM_arrays, only: Centr, dCntr, dPnt, dRad, dTes, IntSph, NewSph, nVert, PCM_N, PCMDM, PCMiSph, PCMSph, PCMTess, Vert
+use PCM_arrays, only: Centr, dCntr, dPnt, dRad, dTes, IntSph, MxSph, MxVert, NewSph, nVert, PCM_N, PCMDM, PCMiSph, PCMSph, &
+                      PCMTess, Vert
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -54,9 +55,7 @@ LcI = 0
 do I=1,NAtm
   if (IAtm(I) > 0) then
     LcI = LcI+1
-    LcAtmC(1,LcI) = AtmC(1,I)
-    LcAtmC(2,LcI) = AtmC(2,I)
-    LcAtmC(3,LcI) = AtmC(3,I)
+    LcAtmC(:,LcI) = AtmC(:,I)
     LcIAtm(LcI) = IAtm(I)
   end if
 end do
@@ -74,7 +73,7 @@ call mma_allocate(pNs,MxSph,Label='pNs')
 pNs(:) = 0
 
 NSinit = 0
-call FndSph(LcNAtm,ICharg,LcAtmC,LcIAtm,ISlPar(9),ISlPar(14),RSlPar(9),Xs,Ys,Zs,Rs,pNs,iPrint)
+call FndSph(LcNAtm,ICharg,LcAtmC,LcIAtm,ISlPar(9),ISlPar(14),RSlPar(9),Xs,Ys,Zs,Rs,pNs,MxSph,iPrint)
 
 ! Define surface tesserae
 

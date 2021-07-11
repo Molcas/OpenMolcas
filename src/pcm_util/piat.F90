@@ -9,14 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-function PiAt(IAt,IAn,NBond,IBond)
+function PiAt(MxBond,IAt,IAn,NBond,IBond)
 
 use Definitions, only: iwp
 
 implicit none
 logical(kind=iwp) :: PiAt
-integer(kind=iwp), parameter :: MxBond = 12
-integer(kind=iwp), intent(in) :: IAt, IAn(*), NBond(*), IBond(MxBond,*)
+integer(kind=iwp), intent(in) :: MxBond, IAt, IAn(*), NBond(*), IBond(MxBond,*)
 integer(kind=iwp) :: IAnJ, ISPI, ITpJ, J, JAt, K, KAt, NBnJ, NPiJ
 integer(kind=iwp), external :: IColAt
 
@@ -26,7 +25,7 @@ do J=1,NBond(IAT)
   JAt = IBond(J,IAt)
   IAnJ = IAn(JAt)
   ITpJ = IColAt(IAnJ)
-  NBnJ = NBond(JAT)
+  NBnJ = NBond(JAt)
   NPiJ = 0
   do K=1,NBnJ
     KAt = IBond(K,JAt)

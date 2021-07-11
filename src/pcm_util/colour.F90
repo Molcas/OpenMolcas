@@ -14,10 +14,10 @@ subroutine Colour(NesfP,NAt,AtmC,IAt,Coor_Sph,N,C1,C2,C3)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: NesfP, NAt, IAt(*), N
-real(kind=wp), intent(in) :: AtmC(3,*), Coor_Sph(4,*)
+integer(kind=iwp), intent(in) :: NesfP, NAt, IAt(NAt), N
+real(kind=wp), intent(in) :: AtmC(3,NAt), Coor_Sph(4,NesfP)
 real(kind=wp), intent(out) :: C1, C2, C3
-integer(kind=iwp) :: I, J
+integer(kind=iwp) :: I
 real(kind=wp) :: Diff
 character(len=20) :: Col
 real(kind=wp), parameter :: Delta = 1.0e-3_wp
@@ -32,10 +32,8 @@ if (N > NESFP) then
   call ColTss(u6,Col,C1,C2,C3)
   return
 end if
-I = 0
-do J=1,NAt
-  I = I+1
-  Diff = sqrt((AtmC(1,J)-Coor_Sph(1,N))**2+(AtmC(2,J)-Coor_Sph(2,N))**2+(AtmC(3,J)-Coor_Sph(3,N))**2)
+do I=1,NAt
+  Diff = sqrt((AtmC(1,I)-Coor_Sph(1,N))**2+(AtmC(2,I)-Coor_Sph(2,N))**2+(AtmC(3,I)-Coor_Sph(3,N))**2)
   if (Diff < Delta) then
     if (IAt(I) == 6) then
       Col = 'Green'

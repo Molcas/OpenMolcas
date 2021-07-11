@@ -11,7 +11,7 @@
 
 subroutine FndTess(iPrint,Xs,Ys,Zs,Rs,pNs,m)
 
-use PCM_arrays, only: PCMSph, PCMTess, Vert, Centr, SSph, PCMDM, PCM_N, PCMiSph, NVert, IntSph, NewSph
+use PCM_arrays, only: Centr, IntSph, MxSph, MxTs, MxVert, NewSph, NVert, PCM_N, PCMDM, PCMiSph, PCMSph, PCMTess, PCMTess, SSph, Vert
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Half, Pi, Angstrom
 use Definitions, only: wp, iwp, u6
@@ -19,8 +19,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: iPrint, m, pNs(m)
 real(kind=wp), intent(inout) :: Xs(m), Ys(m), Zs(m), Rs(m)
-integer(kind=iwp) :: I, IC, II, IPFlag, IPtype, iS, ISFE, iTs, iTsNum, ITsEff, ITYPC, IV, J,JJ, K, KG, KP, L, N, N1, N2, N3, NE, &
-                     NES, NET, NEV, NN, NN1, nPCM_info_i, nPCM_info_r, NSFE, NV
+integer(kind=iwp) :: I, II, IPFlag, IPtype, iTs, iTsNum, ITsEff, ITYPC, J, K, KG, KP, N1, N2, N3, NE, NES, NET, NEV, NN, NN1, &
+                     nPCM_info_i, nPCM_info_r, NSFE, NV
 real(kind=wp) :: AREA, COSOM2, FC, FC1, Fro, HH, Omega, PP(3), PROD, R2GN, REG, REG2, REGD2, REN, REND2, REO, REO2, REP, REP2, &
                  REPD2, Ret, RGN, RIJ, RIJ2, RIK, RIK2, RJD, RJK, RJK2, RTDD, RTDD2, Scav, SENOM, SP, TEST, TEST1, TEST2, TEST3, &
                  TEST7, TEST8, TsAre, VCav, XEN, XI, XJ, XN, YEN, YI, YJ, YN, ZEN, ZI, ZJ, ZN
@@ -49,7 +49,7 @@ call mma_allocate(At,MxTs,Label='At')
 call mma_allocate(pVert,3,MxVert,MxTs,Label='pVert')
 call mma_allocate(pCentr,3,MxVert,MxTs,Label='pCentr')
 call mma_allocate(pSSph,MxSph,Label='pSSph')
-call mma_allocate(CV,3,1000,Label='CV')
+call mma_allocate(CV,3,MxSph,Label='CV')
 
 call mma_allocate(JTR,3,MxTs,Label='JTR')
 call mma_allocate(pISph,MxTs,Label='pIShp')
@@ -65,20 +65,15 @@ RSolv = RSlPar(19)
 ITsNum = ISlPar(11)
 
 ! PEDRA works with Angstroms
-do ISFE=1,NSinit
-  Xs(ISFE) = Xs(ISFE)*Angstrom
-  Ys(ISFE) = Ys(ISFE)*Angstrom
-  Zs(ISFE) = Zs(ISFE)*Angstrom
-end do
 NS = NSinit
+Xs(1:NS) = Xs(1:NS)*Angstrom
+Ys(1:NS) = Ys(1:NS)*Angstrom
+Zs(1:NS) = Zs(1:NS)*Angstrom
 if (IPRINT == 2) write(u6,800)
 
 ! creation of new spheres
 
-do N=1,NS
-  pNewS(1,N) = 0
-  pNewS(2,N) = 0
-end do
+pNewS(:,1:NS) = 0
 ITYPC = 0
 OMEGA = OMEGA*DEGREE
 SENOM = sin(OMEGA)
@@ -223,24 +218,16 @@ do NSFE=1,NS
   elseif (TsAre > Zero) then
     IPFlag = 1
   end if
-  call PolyGen(MxTs,IPtype,IPflag,TsAre,ITsNum,XEN,YEN,ZEN,REN,ITsEff,CV,JTR)
+  call PolyGen(MxTs,MxSph,IPtype,IPflag,TsAre,ITsNum,XEN,YEN,ZEN,REN,ITsEff,CV,JTR)
   do ITS=1,ITsEff
     N1 = JTR(1,ITS)
     N2 = JTR(2,ITS)
     N3 = JTR(3,ITS)
-    PTS(1,1) = CV(1,N1)
-    PTS(2,1) = CV(2,N1)
-    PTS(3,1) = CV(3,N1)
-    PTS(1,2) = CV(1,N2)
-    PTS(2,2) = CV(2,N2)
-    PTS(3,2) = CV(3,N2)
-    PTS(1,3) = CV(1,N3)
-    PTS(2,3) = CV(2,N3)
-    PTS(3,3) = CV(3,N3)
+    PTS(:,1) = CV(:,N1)
+    PTS(:,2) = CV(:,N2)
+    PTS(:,3) = CV(:,N3)
     NV = 3
-    do JJ=1,3
-      PP(JJ) = ZERO
-    end do
+    PP(:) = ZERO
 
     ! Per ciascuna tessera, trova la porzione scoperta e ne
     ! calcola l'area con il teorema di Gauss-Bonnet; il punto
@@ -252,7 +239,7 @@ do NSFE=1,NS
     ! pCENTR(3,MxVert,MxTs). In pIntS(MxVert,MxTs) sono registrate le
     ! sfere a cui appartengono i lati delle tessere.
 
-    call TESSERA(iPrint,MxTs,NS,NSFE,NV,Xs,Ys,Zs,Rs,pIntS,PTS,CCC,PP,AREA)
+    call TESSERA(iPrint,NS,NSFE,NV,Xs,Ys,Zs,Rs,pIntS(:,MxTs),PTS,CCC,PP,AREA)
     if (AREA == Zero) cycle
     NN1 = NN1+1
     NN = min(NN1,MxTs)
@@ -263,15 +250,9 @@ do NSFE=1,NS
 
     pISph(NN) = NSFE
     pNVERT(NN) = NV
-    do IV=1,NV
-      do JJ=1,3
-        pVERT(JJ,IV,NN) = PTS(JJ,IV)
-        pCENTR(JJ,IV,NN) = CCC(JJ,IV)
-      end do
-    end do
-    do IV=1,NV
-      pIntS(IV,NN) = pIntS(IV,MxTs)
-    end do
+    pVERT(:,1:NV,NN) = PTS(:,1:NV)
+    pCENTR(:,1:NV,NN) = CCC(:,1:NV)
+    pIntS(1:NV,NN) = pIntS(1:NV,MxTs)
   end do
 end do
 NTS = NN
@@ -326,13 +307,9 @@ do while (ITS < NTS)
       Zt(I) = Zt(I+1)
       pISph(I) = pISph(I+1)
       pNVERT(I) = pNVERT(I+1)
-      do IV=1,MxVert
-        pIntS(IV,I) = pIntS(IV,I+1)
-        do IC=1,3
-          pVERT(IC,IV,I) = pVERT(IC,IV,I+1)
-          pCENTR(IC,IV,I) = pCENTR(IC,IV,I+1)
-        end do
-      end do
+      pVERT(:,:,I) = pVERT(:,:,I+1)
+      pCENTR(:,:,I) = pCENTR(:,:,I+1)
+      pIntS(:,I) = pIntS(:,I+1)
     end do
     NTS = NTS-1
     ITS = ITS-1
@@ -359,9 +336,7 @@ end do
 !***********************************************************************
 ! Stampa la geometria della cavita'
 Scav = ZERO
-do I=1,NS
-  pSSph(I) = ZERO
-end do
+pSSph(1:NS) = ZERO
 do I=1,NTS
   K = pISph(I)
   pSSph(K) = pSSph(K)+At(I)
@@ -375,26 +350,18 @@ end do
 if (IPRINT == 2) write(u6,1300) NTS,Scav,VCav
 
 ! Trasforma i risultati in bohr
-do I=1,NS
-  Rs(I) = Rs(I)/Angstrom
-  Xs(I) = Xs(I)/Angstrom
-  Ys(I) = Ys(I)/Angstrom
-  Zs(I) = Zs(I)/Angstrom
-end do
+Rs(1:NS) = Rs(1:NS)/Angstrom
+Xs(1:NS) = Xs(1:NS)/Angstrom
+Ys(1:NS) = Ys(1:NS)/Angstrom
+Zs(1:NS) = Zs(1:NS)/Angstrom
 do I=1,NTS
-  do J=1,pNVERT(I)
-    do L=1,3
-      pVERT(L,J,I) = pVERT(L,J,I)/Angstrom
-      pCENTR(L,J,I) = pCENTR(L,J,I)/Angstrom
-    end do
-  end do
+  pVERT(:,1:pNVERT(I),I) = pVERT(:,1:pNVERT(I),I)/Angstrom
+  pCENTR(:,1:pNVERT(I),I) = pCENTR(:,1:pNVERT(I),I)/Angstrom
 end do
-do I=1,NTS
-  At(I) = At(I)/(Angstrom*Angstrom)
-  Xt(I) = Xt(I)/Angstrom
-  Yt(I) = Yt(I)/Angstrom
-  Zt(I) = Zt(I)/Angstrom
-end do
+At(1:NTS) = At(1:NTS)/(Angstrom*Angstrom)
+Xt(1:NTS) = Xt(1:NTS)/Angstrom
+Yt(1:NTS) = Yt(1:NTS)/Angstrom
+Zt(1:NTS) = Zt(1:NTS)/Angstrom
 if (IPRINT == 3) then
   write(u6,1500)
   write(u6,1600)
@@ -431,44 +398,40 @@ if (RctFld_Status /= Active) then
 end if
 
 ! PCMSph
-do iS=1,NS
-  PCMSph(1,iS) = Xs(iS)
-  PCMSph(2,iS) = Ys(iS)
-  PCMSph(3,iS) = Zs(iS)
-  PCMSph(4,iS) = Rs(iS)
-end do
+PCMSph(1,:) = Xs(1:NS)
+PCMSph(2,:) = Ys(1:NS)
+PCMSph(3,:) = Zs(1:NS)
+PCMSph(4,:) = Rs(1:NS)
 
 ! PCMTess
-do iTs=1,nTs
-  PCMTess(1,iTs) = Xt(iTs)
-  PCMTess(2,iTs) = Yt(iTs)
-  PCMTess(3,iTs) = Zt(iTs)
-  PCMTess(4,iTs) = At(iTs)
-end do
+PCMTess(1,:) = Xt(1:nTs)
+PCMTess(2,:) = Yt(1:nTs)
+PCMTess(3,:) = Zt(1:nTs)
+PCMTess(4,:) = At(1:nTs)
 
 ! Vert
-call dcopy_(3*MxVert*nTs,pVert,1,Vert,1)
+Vert(:,:,:) = pVert(:,:,1:nTs)
 
 ! Centr
-call dcopy_(3*MxVert*nTs,pCentr,1,Centr,1)
+Centr(:,:,:) = pCentr(:,:,1:nTs)
 
 ! SSph
-call dcopy_(nS,pSSph,1,SSph,1)
+SSph(:) = pSSph(1:NS)
 
 ! nOrd
-call ICopy(nS,pNs,1,PCM_N,1)
+PCM_N(:) = pNs(1:NS)
 
 ! ISph
-call ICopy(nTs,pISph,1,PCMiSph,1)
+PCMiSph(:) = pISph(1:nTs)
 
 ! NVert
-call ICopy(nTs,pNVert,1,NVert,1)
+NVert(:) = pNVert(1:nTs)
 
 ! IntSph
-call ICopy(MxVert*nTs,pIntS,1,IntSph,1)
+IntSph(:,:) = pIntS(:,1:nTs)
 
 ! NewSph
-call ICopy(2*NS,pNewS,1,NewSph,1)
+NewSph(:,:) = pNewS(:,1:NS)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

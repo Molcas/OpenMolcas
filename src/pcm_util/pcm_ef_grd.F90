@@ -97,8 +97,8 @@ call Get_D1ao(D1ao,nDens)
 
 call mma_allocate(FactOp,nTs)
 call mma_allocate(lOper,nTs)
-call DCopy_(nTs,[One],0,FactOp,1)
-call ICopy(nTs,[255],0,lOper,1)
+FactOp(:) = One
+lOper(:) = 255
 
 call Drv1_PCM(FactOp,nTs,D1ao,nDens,PCMTess,lOper,EF,nOrdOp)
 

@@ -9,37 +9,33 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine dCdC(JJ,NSI,ICOORD,NESFJ,DC,Sphere,NewSph)
+subroutine dCdC(JJ,ICOORD,NESFJ,DC,Sphere,NewSph)
 
 use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: JJ, NSI, ICOORD, NESFJ, NewSph(2,*)
+integer(kind=iwp), intent(in) :: JJ, ICOORD, NESFJ, NewSph(2)
 real(kind=wp), intent(out) :: DC
 real(kind=wp), intent(in) :: Sphere(4,*)
 integer(kind=iwp) :: K, NSK
 real(kind=wp) :: COORDJ(3), COORDK(3), D, D2
 
 ! Trova la derivata della coordinata JJ del centro della sfera
-! NSI rispetto alla coordinata ICOORD di NSJ, che interseca NSI.
+! NewSph rispetto alla coordinata ICOORD di NSJ, che interseca NewSph.
 !
-! La sfera NSI (che appartiene alle sfere "aggiunte" da PEDRA)
+! La sfera NewSph (che appartiene alle sfere "aggiunte" da PEDRA)
 ! dipende dalle due sfere "precedenti" NESFJ e NSK
 !
 ! Se NESFJ o NSK sono negativi, la sfera aggiunta e' di tipo C
 ! e la generatrice "principale" corrisponde al label negativo
 ! (cfr. JCC 11, 1047 (1990))
 
-if ((NEWSPH(1,NSI) < 0) .or. (NEWSPH(2,NSI) < 0)) then
-  NSK = NEWSPH(1,NSI)
-  if (abs(NSK) == NESFJ) NSK = NEWSPH(2,NSI)
-  COORDJ(1) = Sphere(1,NESFJ)
-  COORDJ(2) = Sphere(2,NESFJ)
-  COORDJ(3) = Sphere(3,NESFJ)
-  COORDK(1) = Sphere(1,abs(NSK))
-  COORDK(2) = Sphere(2,abs(NSK))
-  COORDK(3) = Sphere(3,abs(NSK))
+if ((NEWSPH(1) < 0) .or. (NEWSPH(2) < 0)) then
+  NSK = NEWSPH(1)
+  if (abs(NSK) == NESFJ) NSK = NEWSPH(2)
+  COORDJ(:) = Sphere(1:3,NESFJ)
+  COORDK(:) = Sphere(1:3,abs(NSK))
   D2 = (COORDJ(1)-COORDK(1))**2+(COORDJ(2)-COORDK(2))**2+(COORDJ(3)-COORDK(3))**2
   D = sqrt(D2)
   if (NSK > 0) then
@@ -50,15 +46,11 @@ if ((NEWSPH(1,NSI) < 0) .or. (NEWSPH(2,NSI) < 0)) then
     if (ICOORD == JJ) DC = DC+Sphere(4,abs(NSK))/D
   end if
 else
-  K = NEWSPH(1,NSI)
-  if (K == NESFJ) K = NEWSPH(2,NSI)
-  COORDJ(1) = Sphere(1,NESFJ)
-  COORDJ(2) = Sphere(2,NESFJ)
-  COORDJ(3) = Sphere(3,NESFJ)
-  COORDK(1) = Sphere(1,K)
-  COORDK(2) = Sphere(2,K)
-  COORDK(3) = Sphere(3,K)
-  D2 = (Sphere(1,NESFJ)-Sphere(1,K))**2+(Sphere(2,NESFJ)-Sphere(2,K))**2+(Sphere(3,NESFJ)-Sphere(3,K))**2
+  K = NEWSPH(1)
+  if (K == NESFJ) K = NEWSPH(2)
+  COORDJ(:) = Sphere(1:3,NESFJ)
+  COORDK(:) = Sphere(1:3,K)
+  D2 = (COORDJ(1)-COORDK(1))**2+(COORDJ(2)-COORDK(2))**2+(COORDJ(3)-COORDK(3))**2
   D = sqrt(D2)
   DC = (Sphere(4,NESFJ)-Sphere(4,K))*(COORDJ(ICOORD)-COORDK(ICOORD))*(COORDJ(JJ)-COORDK(JJ))/(Two*D**3)
   if (JJ == ICOORD) DC = DC+Half-(Sphere(4,NESFJ)-Sphere(4,K))/(Two*D)

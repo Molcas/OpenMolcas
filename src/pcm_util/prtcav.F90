@@ -15,8 +15,8 @@ subroutine PrtCav(IOut,ITyp,NS,NOrd,Alpha,Rad)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: IOut, ITyp, NS, NOrd(*)
-real(kind=wp) :: Alpha, Rad(*)
+integer(kind=iwp), intent(in) :: IOut, ITyp, NS, NOrd(NS)
+real(kind=wp) :: Alpha, Rad(NS)
 integer(kind=iwp) :: IS
 
 write(iOut,*)

@@ -19,28 +19,25 @@ subroutine MatPCM(NTs,Eps,Conductor,ISphe,Coor_Sph,Tessera,DMat,SMat,SDMat,TMat,
 ! and finally returned in DMat.
 
 use PCM_Arrays, only: DiagScale
-use Constants, only: Zero, One, Two, Pi
+use Constants, only: Zero, One, Two, Four, Pi
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
-integer(kind=iwp), intent(in) :: NTs, ISPhe(*)
+integer(kind=iwp), intent(in) :: NTs, ISPhe(NTs)
 real(kind=wp), intent(in) :: Eps, Coor_Sph(4,*), Tessera(4,NTs)
-real(kind=wp), intent(_OUT_) :: DMat(NTs,*), SMat(NTs,*), SDMat(NTs,*), TMat(NTs,*), RMat(NTs,*)
+real(kind=wp), intent(out) :: DMat(NTs,NTs), SMat(NTs,NTs), SDMat(NTs,NTs), TMat(NTs,NTs), RMat(NTs,NTs)
 logical(kind=iwp), intent(in) :: Conductor
 integer(kind=iwp) :: ITs, JTs, KTs, LI
-real(kind=wp) :: EpsFac, Fac, FPI, Prod, RIJ, TPI, XI, XJ, XNI, YI, YJ, YNI, ZI, ZJ, ZNI
+real(kind=wp) :: EpsFac, Fac, Prod, RIJ, XI, XJ, XNI, YI, YJ, YNI, ZI, ZJ, ZNI
+real(kind=wp), parameter :: FPI = Four*Pi, TPI = Two*Pi
 
-TPI = Two*PI
-FPI = Two*TPI
 if (Conductor) then
 
   ! Conductor model
 
   ! S matrix
   EpsFac = Eps/(Eps-One)
-  call dcopy_(nTs*nTs,[Zero],0,SMat,1)
+  SMat(:,:) = Zero
   do ITs=1,NTs
     XI = Tessera(1,iTs)
     YI = Tessera(2,iTs)
@@ -60,9 +57,9 @@ if (Conductor) then
 
   if (Eps > One) then
     call MatInvert(SMat,nTs)
-    call dcopy_(nTs*nTs,SMat,1,DMat,1)
+    DMat(:,:) = SMat(:,:)
   else
-    call FZero(DMat,nTs**2)
+    DMat(:,:) = Zero
   end if
 
 else
@@ -70,7 +67,7 @@ else
   ! Dielectric model:
 
   ! S and D* matrices
-  call dcopy_(nTs*nTs,[Zero],0,DMat,1)
+  DMat(:,:) = Zero
   do ITs=1,NTs
     XI = Tessera(1,iTs)
     YI = Tessera(2,iTs)
@@ -95,7 +92,7 @@ else
   end do
 
   ! S*A*D matrix
-  call dcopy_(nTs*nTs,[Zero],0,SDMat,1)
+  SDMat(:,:) = Zero
   do ITs=1,NTs
     do JTs=1,NTs
       do KTs=1,NTs
@@ -109,14 +106,12 @@ else
 
   ! T and R matrices
   Fac = (Eps+One)/(Eps-One)
+  TMat(:,:) = Fac*SMat(:,:)-SDMat(:,:)/TPI
   do ITs=1,NTs
-    TMat(ITs,ITs) = Fac*SMat(ITs,ITs)-SDMat(ITs,ITs)/TPI
-    RMat(ITs,ITs) = -One+DMat(ITs,ITs)*Tessera(4,ITs)/TPI
     do JTs=1,NTs
-      if (JTs == ITs) cycle
-      TMat(ITs,JTs) = Fac*SMat(ITs,JTs)-SDMat(ITs,JTs)/TPI
-      RMat(ITs,JTs) = Tessera(4,JTs)*DMat(JTs,ITs)/TPI
+      RMat(ITs,JTs) = DMat(JTs,ITs)*Tessera(4,JTs)/TPI
     end do
+    RMat(ITs,ITs) = RMat(ITs,ITs)-One
   end do
 
   ! Invert T matrix
@@ -124,7 +119,7 @@ else
   if (Eps > One) then
     call MatInvert(TMat,nTs)
   else
-    call FZero(TMat,nTs**2)
+    TMat(:,:) = Zero
   end if
 
   ! Form T^-1 * R and store it in D

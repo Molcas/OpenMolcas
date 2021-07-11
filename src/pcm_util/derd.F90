@@ -15,12 +15,10 @@ use PCM_Arrays, only: DiagScale
 use Constants, only: One, Pi, Angstrom
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
-integer(kind=iwp), intent(in) :: NSJ, ICOORD, ISphe(*), NTs, NAt, NEsf
-real(kind=wp), intent(in) :: Tessera(4,*), DerTes(NTs,NAt,*), DerPunt(NTs,NAt,3,3), DerCentr(NEsf,NAt,3,3)
-real(kind=wp), intent(_OUT_) :: DerDM(NTs,*)
+integer(kind=iwp), intent(in) :: NSJ, ICOORD, NTs, ISphe(NTs), NAt, NEsf
+real(kind=wp), intent(in) :: Tessera(4,NTs), DerTes(NTs,NAt,3), DerPunt(NTs,NAt,3,3), DerCentr(NEsf,NAt,3,3)
+real(kind=wp), intent(out) :: DerDM(NTs,NTs)
 integer(kind=iwp) :: ITS, JTS, L, LJ
 real(kind=wp) :: ANTOAU, DIJ, DXIJ, DYIJ, DZIJ, FAC, PROD, XIJ, YIJ, ZIJ
 

@@ -67,9 +67,7 @@ call PCMDef(ISlPar,RSlPar,iPrint)
 
 ! latato: Gitter type (1 or 4)
 latato = 1
-Cordsi(1,latato) = Half
-Cordsi(2,latato) = Half
-Cordsi(3,latato) = Half
+Cordsi(:,latato) = Half
 
 ! polsi: site polarizability
 polsi = Zero

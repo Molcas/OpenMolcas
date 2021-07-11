@@ -9,30 +9,30 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine UATM(IOut,ICharg,NAt,NSfe,Re,Alpha,C,IAn,NOrd,Chg,iPrint)
+subroutine UATM(IOut,ICharg,NAt,NSfe,m,Re,Alpha,C,IAn,NOrd,Chg,iPrint)
 ! New settings of radii for electrostatic cavity
 ! for HF/6-31(+)G* and ICOMP=4
 ! explicit values for C,N,O,F,S,Cl,Br,I, otherwise modified UFF radii
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Four, Pi
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: IOut, ICharg, NAt, IAn(*), iPrint
-integer(kind=iwp), intent(inout) :: NSfe, NOrd(*)
+integer(kind=iwp), intent(in) :: IOut, ICharg, NAt, m, IAn(NAt), iPrint
+integer(kind=iwp), intent(inout) :: NSfe, NOrd(m)
 real(kind=wp), intent(in) :: Alpha, C(3,NAt)
-real(kind=wp), intent(inout) :: Re(*), Chg(NAt)
-integer(kind=iwp), parameter :: ISAX = 1000, MxBond = 12
+real(kind=wp), intent(inout) :: Re(m), Chg(NAt)
 logical(kind=iwp) :: AlBond, OKCHG, OKUAH
 character(len=2) :: AtSymb
-integer(kind=iwp) :: i1, IAddH, IAt, IBond(MxBond,ISAX), IBtype(MxBond,ISAX), IEffbn, IHNum(ISAX), IQTot, IRX, &
-                     ITrBnd(MxBond,ISAX), ItrBtp(MxBond,ISAX), IUSE, iverif, J, JE, JHAT, JJ, NBond(ISAX), NH, NHI, NTotH, &
-                     NTrBnd(ISAX), NUAH
-real(kind=wp) :: area, DAl(ISAX), DAr, DDHYb, DDX, DH, DHyb(ISAX), DId, DRQ, DX(ISAX), FrQ, GX, PBO(MxBond,ISAX), QTot, RX, surf
-integer(kind=iwp), parameter :: NOKUAH(9) = [6,7,8,9,15,16,17,35,53]
+integer(kind=iwp) :: i1, IAddH, IAt, IEffbn, IQTot, IRX, IUSE, iverif, J, JE, JHAT, JJ, NH, NHI, NTotH, NUAH
+real(kind=wp) :: area, DAr, DDHYb, DDX, DH, DId, DRQ, FrQ, GX, QTot, RX, surf
+integer(kind=iwp), allocatable :: IBond(:,:), IBtype(:,:), IHNum(:), ITrBnd(:,:), ItrBtp(:,:), NBond(:), NTrBnd(:)
+real(kind=wp), allocatable :: DAl(:), DHyb(:), DX(:), PBO(:,:)
+integer(kind=iwp), parameter :: MxBond = 12, NOKUAH(9) = [6,7,8,9,15,16,17,35,53]
 real(kind=wp), parameter :: Coeff(0:5) = [1.0_wp,0.9_wp,0.6_wp,0.3_wp,0.1_wp,0.0_wp], DRQM = 0.3_wp, &
-                            R0(0:7) = [0.00_wp,1.00_wp,1.50_wp,1.98_wp,2.08_wp,2.35_wp,2.35_wp,2.35_wp], &
-                            Gamma(0:7) = [0.00_wp,0.00_wp,0.09_wp,0.13_wp,0.15_wp,0.15_wp,0.15_wp,0.15_wp]
+                            Gmm(0:7) = [0.00_wp,0.00_wp,0.09_wp,0.13_wp,0.15_wp,0.15_wp,0.15_wp,0.15_wp], &
+                            R0(0:7) = [0.00_wp,1.00_wp,1.50_wp,1.98_wp,2.08_wp,2.35_wp,2.35_wp,2.35_wp]
 character, parameter :: BCH(3) = ['s','d','t'], HH1(10) = [' ','H','H','H','H','H','H','H','H','H'], &
                         HH2(10) = [' ',' ','2','3','4','5','6','7','8','9'], HY1(4) = ['*','s','s','s'], &
                         HY2(4) = [' ','p','p','p'], HY3(4) = [' ',' ','2','3']
@@ -46,14 +46,22 @@ NUAH = size(NOKUAH)
 
 ! find bonds
 
+call mma_allocate(NBond,NAt,label='NBond')
+call mma_allocate(IBond,MxBond,NAt,label='IBond')
+call mma_allocate(IBtype,MxBond,NAt,label='IBtype')
+call mma_allocate(PBO,MxBond,NAt,label='PBO')
+call mma_allocate(IHNum,NAt,label='IHNum')
+call mma_allocate(NTrBnd,NAt,label='NTrBnd')
+call mma_allocate(ITrBnd,MxBond,NAt,label='ITrBnd')
+call mma_allocate(ITrBtp,MxBond,NAt,label='ITrBtp')
 OkChg = .false.
 AlBond = .false.
 call FndBnd(IOut,AlBond,MxBond,NAt,IAn,C,NBond,IBond,IBtype,PBO)
 NTotH = 0
+IHNum(:) = 0
+NTrBnd(:) = 0
 do IAt=1,NAt
   if (IAn(IAt) == 1) NTotH = NTotH+1
-  IHNum(IAt) = 0
-  NTrBnd(IAt) = 0
   do JJ=1,NBond(IAt)
     JHAT = IBond(JJ,IAT)
     if (IAn(JHAT) == 1) then
@@ -84,15 +92,18 @@ end if
 
 ! Assign Charge and Hybridization to atoms
 
+call mma_allocate(DHyb,NAt,label='DHyb')
 QTot = Zero
 do IAt=1,NAt
   OKUAH = .false.
   do iverif=1,NUAH
     if (IAN(IAT) == NOKUAH(IVerif)) OKUAH = .true.
   end do
-  DHYB(IAt) = HybNew(OKUAH,OKCHG,IAt,IAn,NBond,IBond,IBtype,PBO,Chg(IAt))
+  DHYB(IAt) = HybNew(OKUAH,OKCHG,MxBond,IAt,IAn,NBond,IBond,IBtype,PBO,Chg(IAt))
   QTot = QTot+Chg(IAt)
 end do
+call mma_deallocate(IBtype)
+call mma_deallocate(PBO)
 
 ! Verify and possibly correct charges
 
@@ -110,6 +121,9 @@ if (IQTot /= ICharg) then
   end do
 end if
 ! Determine Re, Alpha
+call mma_allocate(DAl,NAt,label='DAl')
+call mma_allocate(DX,NAt,label='DX')
+DX(:) = Zero
 NSfe = 0
 do IAt=1,NAt
   DDHYb = Zero
@@ -117,17 +131,16 @@ do IAt=1,NAt
   DDX = Zero
   IRX = IRowAt(IAn(IAt))
   RX = R0(IRX)
-  GX = gamma(IRX)
+  GX = Gmm(IRX)
   NHI = 1
   DH = Zero
   DAr = Zero
   DId = Zero
-  DX(IAt) = Zero
   OKUAH = .false.
   do iverif=1,NUAH
     if (IAN(IAT) == NOKUAH(IVerif)) then
       OKUAH = .true.
-      DX(IAt) = AtNear(IAt,IAn,NBond,IBond,DH,DId,DAr,Chg)
+      DX(IAt) = AtNear(MxBond,IAt,IAn,NBond,IBond,DH,DId,DAr,Chg)
     end if
   end do
   DAl(IAt) = DAr-DId
@@ -183,6 +196,15 @@ do IAt=1,NAt
     end if
   end if
 end do
+call mma_deallocate(NBond)
+call mma_deallocate(IBond)
+call mma_deallocate(IHNum)
+call mma_deallocate(NTrBnd)
+call mma_deallocate(ITrBnd)
+call mma_deallocate(ITrBtp)
+call mma_deallocate(DHyb)
+call mma_deallocate(DAl)
+call mma_deallocate(DX)
 if (iPrint > 5) then
   write(IOut,'(6X,1X,78("-"))')
   write(IOut,*)

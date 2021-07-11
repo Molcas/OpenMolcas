@@ -14,21 +14,19 @@ subroutine GeoDer(nAt,Cond,nTs,nS,Eps,Sphere,ISphe,NOrd,Tessera,Q,DerDM,Grd,DerT
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
-integer(kind=iwp), intent(in) :: nAt, nTs, nS, ISphe(*), NOrd(*)
+integer(kind=iwp), intent(in) :: nAt, nTs, nS, ISphe(nTs), NOrd(nS)
 logical(kind=iwp), intent(in) :: Cond
-real(kind=wp), intent(in) :: Eps, Sphere(4,*), Tessera(4,*), Q(2,*), DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3), DerRad(nS,nAt,3), &
-                             DerCentr(nS,nAt,3,3)
-real(kind=wp), intent(_OUT_) :: DerDM(nTs,*), Grd(3,*)
+real(kind=wp), intent(in) :: Eps, Sphere(4,nS), Tessera(4,nTs), Q(2,nTs), DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3), &
+                             DerRad(nS,nAt,3), DerCentr(nS,nAt,3,3)
+real(kind=wp), intent(out) :: DerDM(nTs,nTs), Grd(3,nAt)
 integer(kind=iwp) :: IAtom, iTs, IXYZ, jTs
 real(kind=wp) :: GeoGrd, Qi, Qj
 
 ! Compute the PCM geometric contribution to gradients
 
-call FZero(Grd,3*nAt)
-call FZero(DerDM,nTs*nTs)
+Grd(:,:) = Zero
+DerDM(:,:) = Zero
 do IAtom=1,nAt
   do IXYZ=1,3
     ! Dielectric model

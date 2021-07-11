@@ -27,15 +27,11 @@ integer(kind=iwp) :: I, IbondO, J
 real(kind=wp) :: BondOr, RIJ
 integer(kind=iwp), external :: IPBO
 
-do I=1,MxBond
-  do J=1,NAtoms
-    IBond(I,J) = 0
-    IBType(I,J) = 0
-  end do
-end do
+IBond(:,:) = 0
+IBType(:,:) = 0
 BondOr = Zero
+NBond(:) = 0
 do I=1,NAtoms
-  NBond(I) = 0
   do J=1,NAtoms
     if (J == I) cycle
     RIJ = sqrt((C(1,I)-C(1,J))**2+(C(2,I)-C(2,J))**2+(C(3,I)-C(3,J))**2)

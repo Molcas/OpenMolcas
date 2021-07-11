@@ -9,15 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DerPhi(IOpt,IC,NESFJ,ITS,L1,L2,DP,DA,Vert,Centr,Sphere,IntSph,ISphe)
+subroutine DerPhi(IOpt,IC,NESFJ,L1,L2,DP,DA,Vert,Centr,Sphere,IntSph,ISphe)
 
+use PCM_Arrays, only: MxVert
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), parameter :: MxVert = 20
-integer(kind=iwp), intent(in) :: IOpt, IC, NESFJ, ITS, L1, L2, IntSph(MxVert,*), ISphe(*)
-real(kind=wp), intent(in) :: DP(MxVert,3), Vert(3,MxVert,*), Centr(3,MxVert,*), Sphere(4,*)
+integer(kind=iwp), intent(in) :: IOpt, IC, NESFJ, L1, L2, IntSph(MxVert), ISphe
+real(kind=wp), intent(in) :: DP(MxVert,3), Vert(3,MxVert), Centr(3,MxVert), Sphere(4,*)
 real(kind=wp), intent(out) :: DA
 integer(kind=iwp) :: JJ, NS1, NS2
 real(kind=wp) :: COSPHI, COSTH, D_COS, Delta, Dist2, DNORM1, DNORM2, DPHI, FACT, PROD, RC2, SENPHI, V1(3), V2(3), T12(3), VEC1(3), &
@@ -36,16 +36,14 @@ real(kind=wp), parameter :: Small1 = 1.0e-6_wp, Small = 1.0e-12_wp
 ! NS1 is the sphere to which the tessera belongs, NS2 is the sphere that
 ! creates the side L1 by intersecting NS1
 
-NS1 = ISPHE(ITS)
-NS2 = INTSPH(L1,ITs)
+NS1 = ISPHE
+NS2 = INTSPH(L1)
 
 ! Finds the coordinates of the vertices wrt the center of the circle on
 ! which is the arc L1 and the radius of the circle
 
-do JJ=1,3
-  V1(JJ) = VERT(JJ,L1,ITs)-CENTR(JJ,L1,ITs)
-  V2(JJ) = VERT(JJ,L2,ITs)-CENTR(JJ,L1,ITs)
-end do
+V1(:) = VERT(:,L1)-CENTR(:,L1)
+V2(:) = VERT(:,L2)-CENTR(:,L1)
 RC2 = V1(1)**2+V1(2)**2+V1(3)**2
 PROD = V1(1)*V2(1)+V1(2)*V2(2)+V1(3)*V2(3)
 COSPHI = PROD/RC2
@@ -59,12 +57,10 @@ SENPHI = sqrt(One-COSPHI*COSPHI)
 
 ! Compute the derivative of Phi(L1)
 
-do JJ=1,3
-  VEC1(JJ) = V1(JJ)-COSPHI*V2(JJ)
-  VEC2(JJ) = DP(L2,JJ)
-  VEC3(JJ) = V2(JJ)-COSPHI*V1(JJ)
-  VEC4(JJ) = DP(L1,JJ)
-end do
+VEC1(:) = V1(:)-COSPHI*V2(:)
+VEC2(:) = DP(L2,:)
+VEC3(:) = V2(:)-COSPHI*V1(:)
+VEC4(:) = DP(L1,:)
 
 ! If the side is just that created by the moving sphere some components
 ! are corrected
@@ -72,19 +68,15 @@ end do
 ! IOpt = 1: due to the derivative of the radius of sphere NESFJ
 
 if (NS2 == NESFJ) then
-  T12(1) = Sphere(1,NESFJ)-Sphere(1,NS1)
-  T12(2) = Sphere(2,NESFJ)-Sphere(2,NS1)
-  T12(3) = Sphere(3,NESFJ)-Sphere(3,NS1)
+  T12(:) = Sphere(1:3,NESFJ)-Sphere(1:3,NS1)
   DIST2 = T12(1)*T12(1)+T12(2)*T12(2)+T12(3)*T12(3)
   if (IOpt == 0) then
     FACT = (Sphere(4,NS1)**2-Sphere(4,NESFJ)**2+DIST2)/(Two*DIST2)
     VEC2(IC) = VEC2(IC)-FACT
     VEC4(IC) = VEC4(IC)-FACT
   else if (IOpt == 1) then
-    do JJ=1,3
-      VEC2(JJ) = VEC2(JJ)+Sphere(4,NESFJ)*T12(JJ)/DIST2
-      VEC4(JJ) = VEC4(JJ)+Sphere(4,NESFJ)*T12(JJ)/DIST2
-    end do
+    VEC2(:) = VEC2(:)+Sphere(4,NESFJ)*T12(:)/DIST2
+    VEC4(:) = VEC4(:)+Sphere(4,NESFJ)*T12(:)/DIST2
   else
     write(u6,'(a)') 'Illegal IOpt in DerPhi.'
     call Abend()
@@ -109,12 +101,8 @@ end if
 
 DNORM1 = Zero
 DNORM2 = Zero
-V1(1) = VERT(1,L1,ITs)-Sphere(1,NS1)
-V1(2) = VERT(2,L1,ITs)-Sphere(2,NS1)
-V1(3) = VERT(3,L1,ITs)-Sphere(3,NS1)
-V2(1) = Sphere(1,NS2)-Sphere(1,NS1)
-V2(2) = Sphere(2,NS2)-Sphere(2,NS1)
-V2(3) = Sphere(3,NS2)-Sphere(3,NS1)
+V1(:) = VERT(:,L1)-Sphere(1:3,NS1)
+V2(:) = Sphere(1:3,NS2)-Sphere(1:3,NS1)
 do JJ=1,3
   DNORM1 = DNORM1+V1(JJ)*V1(JJ)
   DNORM2 = DNORM2+V2(JJ)*V2(JJ)

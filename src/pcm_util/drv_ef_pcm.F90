@@ -192,7 +192,7 @@ do iS=1,nSkal
 
       do iTile=1,nTs
         if (FactOp(iTile) == Zero) cycle
-        call dcopy_(3,Ccoor(1,iTile),1,C,1)
+        C = Ccoor(1:3,iTile)
 
         ! Generate stabilizer of the operator.
 

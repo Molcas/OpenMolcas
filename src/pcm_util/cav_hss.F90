@@ -15,13 +15,11 @@ use PCM_Arrays, only: DiagScale
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
-integer(kind=iwp), intent(in) :: nAt, nAt3, nTs, nS, iSphe(*), nOrd(*)
-real(kind=wp), intent(in) :: Eps, Sphere(4,*), Tessera(4,*), Q(2,*), DM(nTs,*), DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3), &
+integer(kind=iwp), intent(in) :: nAt, nAt3, nTs, nS, iSphe(nTs), nOrd(nS)
+real(kind=wp), intent(in) :: Eps, Sphere(4,nS), Tessera(4,nTs), Q(2,nTs), DM(nTs,nTs), DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3), &
                              DerRad(nS,nAt,3), DerCentr(nS,nAt,3,3)
-real(kind=wp), intent(_OUT_) :: Der1(*), DerDM(nTs,*), Temp(nTs,*), Hess(nAt3,*)
+real(kind=wp), intent(out) :: Der1(nTs), DerDM(nTs,nTs), Temp(nTs,nTs), Hess(nAt3,nAt3)
 integer(kind=iwp) :: iAt1, iAt2, iAt2_S, iCoord1, iCoord2, Index1, Index2, iS, iTs, jTs, L
 real(kind=wp) :: dCent, Diag, dN, dNI, Fact, QtotI, QtotJ, Sum1, Sum2, XN, YN, ZN
 

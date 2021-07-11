@@ -9,16 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-function Hybnew(OKUAH,OKCHG,IAt,IAn,NBond,IBond,IBType,PBO,Chg)
+function Hybnew(OKUAH,OKCHG,MxBond,IAt,IAn,NBond,IBond,IBType,PBO,Chg)
 
 use Constants, only: Zero, One, Two, Three, Half
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Hybnew
-integer(kind=iwp), parameter :: MxBond = 12
 logical(kind=iwp), intent(in) :: OKUAH, OKCHG
-integer(kind=iwp), intent(in) :: IAt, IAN(*), NBond(*), IBond(MxBond,*), IBtype(MxBond,*)
+integer(kind=iwp), intent(in) :: MxBond, IAt, IAN(*), NBond(*), IBond(MxBond,*), IBtype(MxBond,*)
 real(kind=wp), intent(in) :: PBO(MxBond,*)
 real(kind=wp), intent(inout) :: Chg
 integer(kind=iwp) :: ICARB, ICC, ICN, ii, IQQ, ISP2, JAt, jj, JSP2, K, KAt, kk, NBIA, NBII, NBJ, NBK, NBTot, NumatI, NumII, NumJ, &
@@ -68,13 +67,13 @@ if (IColAt(NumAtI) == 5) then
       ICN = IAn(IBond(1,IAt))
       if ((ICN == 6) .and. (NBond(ICC) == 1) .and. (.not. OKCHG)) Chg = -One
     case (2)
-      if (PIAT(IAt,IAn,NBond,IBond)) then
+      if (PIAT(MxBond,IAt,IAn,NBond,IBond)) then
         HybNew = Two
       else
         if (.not. OKCHG) Chg = -One
       end if
     case (3)
-      if (PIAT(IAt,IAn,NBond,IBond)) HybNew = Two
+      if (PIAT(MxBond,IAt,IAn,NBond,IBond)) HybNew = Two
     case (4)
       NBII = 0
       do ii=1,NBIA

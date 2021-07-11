@@ -9,16 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-function NAlPar(IAt,IAn,NBond,IBond,Chg)
+function NAlPar(MxBond,IAt,IAn,NBond,IBond,Chg)
 
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: NAlPar
-integer(kind=iwp), parameter :: MxBond = 12
-integer(kind=iwp), intent(in) :: IAt, IAn(*), NBond(*), IBond(MxBond,*)
+integer(kind=iwp), intent(in) :: MxBond, IAt, IAn(*), NBond(*), IBond(MxBond,*)
 real(kind=wp), intent(in) :: Chg(*)
-integer(kind=iwp) :: ianj, iank, jat, jj, kat, kk, NArI, nbj, nbk, NCSP2J, NHetJ
+integer(kind=iwp) :: ianj, iank, JAt, jj, KAt, kk, NArI, nbj, nbk, NCSP2J, NHetJ
 real(kind=wp) :: chgk
 
 NAlPar = -1
@@ -26,15 +25,15 @@ NArI = 0
 do jj=1,3
   NCSP2J = 0
   NHetJ = 0
-  jat = IBond(jj,iat)
-  ianj = ian(jat)
-  nbj = nbond(jat)
+  JAt = IBond(jj,IAt)
+  ianj = ian(JAt)
+  nbj = nbond(JAt)
   if ((ianj == 7) .and. (nbj >= 3)) NCSP2J = 2
   if ((ianj == 6) .and. (nbj == 3)) then
     do kk=1,3
-      kat = IBond(kk,JAt)
+      KAt = IBond(kk,JAt)
       iank = ian(KAt)
-      nbk = nbond(Kat)
+      nbk = nbond(KAt)
       chgk = chg(KAt)
       if (chgk < 0.4_wp) then
         if ((iank == 6) .and. (nbk == 3)) NCSP2J = NCSP2J+1

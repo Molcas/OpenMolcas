@@ -9,20 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine GauBon(MaxT,XE,YE,ZE,RE,IntSph,NV,NS,PTS,CCC,PP,AREA,IPRINT)
+subroutine GauBon(XE,YE,ZE,RE,IntSph,NV,NS,PTS,CCC,PP,AREA,IPRINT)
 
-use Constants, only: Zero, One, Pi
+use PCM_Arrays, only: MxVert
+use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), parameter :: MxVert = 20
-integer(kind=iwp), intent(in) :: MaxT, IntSph(MxVert,*), NV, NS, IPRINT
+integer(kind=iwp), intent(in) :: IntSph(MxVert), NV, NS, IPRINT
 real(kind=wp), intent(in) :: XE(*), YE(*), ZE(*), RE(*), PTS(3,MxVert), CCC(3,MxVert)
 real(kind=wp), intent(out) :: PP(3), AREA
 integer(kind=iwp) :: I, JJ, N, N0, N1, N2, NSFE1
-real(kind=wp) :: BETAN, COSPHIN, COSTN, DNORM, DNORM1, DNORM2, DNORM3, P1(3), P2(3), P3(3), PHIN, RR2, SCAL, SUM1, SUM2, TPI, &
-                 U1(3), U2(3), X1, X2, Y1, Y2, Z1, Z2
-real(kind=wp), parameter :: Small = 1.0e-35_wp
+real(kind=wp) :: BETAN, COSPHIN, COSTN, DNORM, DNORM1, DNORM2, DNORM3, P1(3), P2(3), P3(3), PHIN, RR2, SCAL, SUM1, SUM2, U1(3), &
+                 U2(3)
+real(kind=wp), parameter :: Small = 1.0e-35_wp, TPI = Two*Pi
 
 ! Sfrutta il teorema di Gauss-Bonnet per calcolare l'area
 ! della tessera con vertici PTS(3,NV). Consideriamo sempre
@@ -42,28 +42,21 @@ real(kind=wp), parameter :: Small = 1.0e-35_wp
 ! coincidenti con il centro di carica) sono in CCC e il punto
 ! rappresentativo e' in PP. La cosa piu' importante e' che NS < 0.
 
-TPI = 2*PI
 N0 = 0 ! dummy initialize
 N2 = 0 ! dummy initialize
 
 ! Calcola la prima sommatoria
 SUM1 = Zero
 do N=1,NV
-  X1 = PTS(1,N)-CCC(1,N)
-  Y1 = PTS(2,N)-CCC(2,N)
-  Z1 = PTS(3,N)-CCC(3,N)
+  U1(:) = PTS(:,N)-CCC(:,N)
   if (N < NV) then
-    X2 = PTS(1,N+1)-CCC(1,N)
-    Y2 = PTS(2,N+1)-CCC(2,N)
-    Z2 = PTS(3,N+1)-CCC(3,N)
+    U2(:) = PTS(:,N+1)-CCC(:,N)
   else
-    X2 = PTS(1,1)-CCC(1,N)
-    Y2 = PTS(2,1)-CCC(2,N)
-    Z2 = PTS(3,1)-CCC(3,N)
+    U2(:) = PTS(:,1)-CCC(:,N)
   end if
-  DNORM1 = X1*X1+Y1*Y1+Z1*Z1
-  DNORM2 = X2*X2+Y2*Y2+Z2*Z2
-  SCAL = X1*X2+Y1*Y2+Z1*Z2
+  DNORM1 = U1(1)*U1(1)+U1(2)*U1(2)+U1(3)*U1(3)
+  DNORM2 = U2(1)*U2(1)+U2(2)*U2(2)+U2(3)*U2(3)
+  SCAL = U1(1)*U2(1)+U1(2)*U2(2)+U1(3)*U2(3)
   COSPHIN = SCAL/(sqrt(DNORM1*DNORM2))
   if (COSPHIN > One) COSPHIN = One
   PHIN = acos(COSPHIN)
@@ -72,28 +65,24 @@ do N=1,NV
 
   if (NS > 0) then
     ! NSFE1 e' la sfera con cui la sfera NS si interseca (eventualmente)
-    NSFE1 = INTSPH(N,MaxT)
-    X1 = XE(NSFE1)-XE(NS)
-    Y1 = YE(NSFE1)-YE(NS)
-    Z1 = ZE(NSFE1)-ZE(NS)
+    NSFE1 = INTSPH(N)
+    U1(1) = XE(NSFE1)-XE(NS)
+    U1(2) = YE(NSFE1)-YE(NS)
+    U1(3) = ZE(NSFE1)-ZE(NS)
   else
-    X1 = 0
-    Y1 = 0
-    Z1 = 0
+    U1(:) = ZERO
   end if
-  DNORM1 = sqrt(X1*X1+Y1*Y1+Z1*Z1)
+  DNORM1 = sqrt(U1(1)*U1(1)+U1(2)*U1(2)+U1(3)*U1(3))
   if (DNORM1 == ZERO) DNORM1 = One
   if (NS > 0) then
-    X2 = PTS(1,N)-XE(NS)
-    Y2 = PTS(2,N)-YE(NS)
-    Z2 = PTS(3,N)-ZE(NS)
+    U2(1) = PTS(1,N)-XE(NS)
+    U2(2) = PTS(2,N)-YE(NS)
+    U2(3) = PTS(3,N)-ZE(NS)
   else
-    X2 = PTS(1,N)-CCC(1,1)
-    Y2 = PTS(2,N)-CCC(2,1)
-    Z2 = PTS(3,N)-CCC(3,1)
+    U2(:) = PTS(:,N)-CCC(:,1)
   end if
-  DNORM2 = sqrt(X2*X2+Y2*Y2+Z2*Z2)
-  COSTN = (X1*X2+Y1*Y2+Z1*Z2)/(DNORM1*DNORM2)
+  DNORM2 = sqrt(U2(1)*U2(1)+U2(2)*U2(2)+U2(3)*U2(3))
+  COSTN = (U1(1)*U2(1)+U1(2)*U2(2)+U1(3)*U2(3))/(DNORM1*DNORM2)
   SUM1 = SUM1+PHIN*COSTN
 end do
 
@@ -109,11 +98,7 @@ end do
 SUM2 = Zero
 ! Loop sui vertici
 do N=1,NV
-  do JJ=1,3
-    P1(JJ) = Zero
-    P2(JJ) = Zero
-    P3(JJ) = Zero
-  end do
+  P1(:) = Zero
   N1 = N
   if (N > 1) N0 = N-1
   if (N == 1) N0 = NV
@@ -123,36 +108,26 @@ do N=1,NV
   ! e i versori tangenti
 
   ! Lato N0-N1:
-  do JJ=1,3
-    P1(JJ) = PTS(JJ,N1)-CCC(JJ,N0)
-    P2(JJ) = PTS(JJ,N0)-CCC(JJ,N0)
-  end do
+  P1(:) = PTS(:,N1)-CCC(:,N0)
+  P2(:) = PTS(:,N0)-CCC(:,N0)
 
-  call VECP(P1,P2,P3,DNORM3)
-  do JJ=1,3
-    P2(JJ) = P3(JJ)
-  end do
-  call VECP(P1,P2,P3,DNORM3)
+  call crprod(P1,P2,P3)
+  P2(:) = P3(:)
+  call crprod(P1,P2,P3)
+  DNORM3 = sqrt(P3(1)*P3(1)+P3(2)*P3(2)+P3(3)*P3(3))
   if (DNorm3 < Small) DNorm3 = One
-  do JJ=1,3
-    U1(JJ) = P3(JJ)/DNORM3
-  end do
+  U1(:) = P3(:)/DNORM3
 
   ! Lato N1-N2:
-  do JJ=1,3
-    P1(JJ) = PTS(JJ,N1)-CCC(JJ,N1)
-    P2(JJ) = PTS(JJ,N2)-CCC(JJ,N1)
-  end do
+  P1(:) = PTS(:,N1)-CCC(:,N1)
+  P2(:) = PTS(:,N2)-CCC(:,N1)
 
-  call VECP(P1,P2,P3,DNORM3)
-  do JJ=1,3
-    P2(JJ) = P3(JJ)
-  end do
-  call VECP(P1,P2,P3,DNORM3)
+  call crprod(P1,P2,P3)
+  P2(:) = P3(:)
+  call crprod(P1,P2,P3)
+  DNORM3 = sqrt(P3(1)*P3(1)+P3(2)*P3(2)+P3(3)*P3(3))
   if (DNorm3 < Small) DNorm3 = One
-  do JJ=1,3
-    U2(JJ) = P3(JJ)/DNORM3
-  end do
+  U2(:) = P3(:)/DNORM3
 
   BETAN = acos(U1(1)*U2(1)+U1(2)*U2(2)+U1(3)*U2(3))
   SUM2 = SUM2+(PI-BETAN)
@@ -166,9 +141,7 @@ else
 end if
 if (NS > 0) then
   ! Trova il punto rappresentativo (come media dei vertici)
-  do JJ=1,3
-    PP(JJ) = Zero
-  end do
+  PP(:) = Zero
   do I=1,NV
     PP(1) = PP(1)+(PTS(1,I)-XE(NS))
     PP(2) = PP(2)+(PTS(2,I)-YE(NS))

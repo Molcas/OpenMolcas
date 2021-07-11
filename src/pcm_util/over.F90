@@ -15,9 +15,9 @@ use Constants, only: Zero, One, Two, Four, Pi
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: NSJ, ICOORD, NAt, NTs, NEsf, ISphe(*), NOrd(*)
+integer(kind=iwp), intent(in) :: NSJ, ICOORD, NAt, NTs, NEsf, ISphe(NTs), NOrd(NEsf)
 real(kind=wp), intent(out) :: GeoGrd
-real(kind=wp), intent(in) :: Eps, Sphere(4,*), Tessera(4,*), Q(2,*), DerRad(NEsf,NAt,3), DerCentr(NEsf,NAt,3,3)
+real(kind=wp), intent(in) :: Eps, Sphere(4,NEsf), Tessera(4,NTs), Q(2,NTs), DerRad(NEsf,NAt,3), DerCentr(NEsf,NAt,3,3)
 integer(kind=iwp) :: I, ITS, L, NESFJ
 real(kind=wp) :: DCENTN, DN, Fact, SESE, SESN, SNSN, XNI, YNI, ZNI
 

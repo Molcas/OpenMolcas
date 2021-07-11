@@ -15,13 +15,11 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: nAt, nTs, nOrdOp
-real(kind=wp), intent(in) :: Tessera(4,*), AtmC(3,*)
-real(kind=wp), intent(_OUT_) :: V(*), EF_n(3,*)
-real(kind=wp), intent(inout) :: EF_e(3,*)
+real(kind=wp), intent(in) :: Tessera(4,nTs), AtmC(3,nAt)
+real(kind=wp), intent(out) :: V(nTs), EF_n(3,nTs)
+real(kind=wp), intent(inout) :: EF_e(3,nTs)
 integer(kind=iwp) :: iTs, nDens
 real(kind=wp) :: Temp(3)
 logical(kind=iwp) :: Found
@@ -42,9 +40,7 @@ do iTs=1,nTs
   if (nOrdOp == 0) then
     V(iTs) = Temp(1)
   elseif (nOrdOp == 1) then
-    EF_n(1,iTs) = Temp(1)
-    EF_n(2,iTs) = Temp(2)
-    EF_n(3,iTs) = Temp(3)
+    EF_n(:,iTs) = Temp(:)
   end if
 end do
 

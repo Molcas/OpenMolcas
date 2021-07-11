@@ -9,20 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine FndSph(NAt,ICharg,C,IAt,ITypRad,NSphInp,Alpha,XSph,YSph,ZSph,Rad,NOrd,iPrint)
+subroutine FndSph(NAt,ICharg,C,IAt,ITypRad,NSphInp,Alpha,XSph,YSph,ZSph,Rad,NOrd,m,iPrint)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
-#include "intent.fh"
-
 implicit none
-integer(kind=iwp), intent(in) :: NAt, ICharg, IAt(*), ITypRad, NSphInp, iPrint
-real(kind=wp), intent(in) :: C(3,*)
+integer(kind=iwp), intent(in) :: NAt, ICharg, IAt(NAt), ITypRad, NSphInp, m, iPrint
+real(kind=wp), intent(in) :: C(3,NAt)
 real(kind=wp), intent(inout) :: Alpha
-real(kind=wp), intent(_OUT_) :: XSph(*), YSph(*), ZSph(*), Rad(*)
-integer(kind=iwp), intent(_OUT_) :: NOrd(*)
+real(kind=wp), intent(out) :: XSph(m), YSph(m), ZSph(m), Rad(m)
+integer(kind=iwp), intent(out) :: NOrd(m)
 integer(kind=iwp) :: I
 real(kind=wp), allocatable :: Chg(:)
 real(kind=wp), external :: Pauling
@@ -33,24 +31,22 @@ if (ITypRad == 1) then
   ! United Atom Topological Model (UATM) radii:
   call mma_allocate(Chg,NAt,label='Chg')
   Chg(:) = Zero
-  call UATM(u6,ICharg,NAt,NSinit,Rad,Alpha,C,IAt,NOrd,Chg,iPrint)
+  call UATM(u6,ICharg,NAt,NSinit,m,Rad,Alpha,C,IAt,NOrd,Chg,iPrint)
   call mma_deallocate(Chg)
 elseif (ITypRad == 2) then
   ! Pauling radii on each atom:
   do I=1,NAt
     NOrd(I) = I
     Rad(I) = Pauling(IAt(I))
-    Alpha = 1.2_wp
-    NSinit = NAt
   end do
+  Alpha = 1.2_wp
+  NSinit = NAt
 elseif (ITypRad == 3) then
   ! Sphere radii given in the input
-  do I=1,NSphInp
-    NOrd(I) = NOrdInp(I)
-    Rad(I) = RadInp(I)
-    Alpha = 1.2_wp
-    NSinit = NSphInp
-  end do
+  NOrd(1:NSphInp) = NOrdInp(1:NSphInp)
+  Rad(1:NSphInp) = RadInp(1:NSphInp)
+  Alpha = 1.2_wp
+  NSinit = NSphInp
 else
   write(u6,'(a)') 'Unrecognized radii type !'
   call Abend()
@@ -61,8 +57,8 @@ do I=1,NSinit
   XSph(I) = C(1,NOrd(I))
   YSph(I) = C(2,NOrd(I))
   ZSph(I) = C(3,NOrd(I))
-  Rad(I) = Rad(I)*Alpha
 end do
+Rad(1:NSinit) = Rad(1:NSinit)*Alpha
 
 return
 

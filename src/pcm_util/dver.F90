@@ -9,23 +9,23 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DVer(IOpt,IC,ITS,L0,L,L2,DX,DY,DZ,Vert,Centr,Sphere,IntSph)
+subroutine DVer(IOpt,IC,L0,L,L2,DX,DY,DZ,Vert,Centr,Sphere,IntSph)
 
+use PCM_Arrays, only: MxVert
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), parameter :: MxVert = 20
-integer(kind=iwp), intent(in) :: IOpt, IC, ITS, L0, L, L2, IntSph(MxVert,*)
+integer(kind=iwp), intent(in) :: IOpt, IC, L0, L, L2, IntSph(MxVert)
 real(kind=wp), intent(out) :: DX, DY, DZ
-real(kind=wp), intent(in) :: Vert(3,MxVert,*), Centr(3,MxVert,*), Sphere(4,*)
-integer(kind=iwp) :: JJ, L1, NSJ
+real(kind=wp), intent(in) :: Vert(3,MxVert), Centr(3,MxVert), Sphere(4,*)
+integer(kind=iwp) :: L1, NSJ
 real(kind=wp) :: DNORM3, FACT, P(3), P1(3), P2(3), P3(3), PROD
 
 ! Trova la derivata della posizione del vertice L della tessera ITS
 !
 ! IOpt = 0 : rispetto alla coordinata IC della sfera che, intersecando
-!            ISPHE(ITS), forma il lato in esame. (ex derver)
+!            ISPHE, forma il lato in esame. (ex derver)
 ! IOpt = 1 : rispetto al raggio della sfera aggiunta NSJ che,
 !            intersecando la tessera ITS, crea il lato considerato.
 !            (ex derver1, IC not referenced)
@@ -39,39 +39,30 @@ real(kind=wp) :: DNORM3, FACT, P(3), P1(3), P2(3), P3(3), PROD
 
 if (L > 0) then
   L1 = L
-  NSJ = INTSPH(L1,ITs)
+  NSJ = INTSPH(L1)
 else
   L1 = -L
-  NSJ = INTSPH(L0,ITs)
+  NSJ = INTSPH(L0)
 end if
 
 ! Il vettore P indica la posizione del vertice rispetto al centro
 ! della sfera NSJ
-P(1) = VERT(1,L1,ITs)-Sphere(1,NSJ)
-P(2) = VERT(2,L1,ITs)-Sphere(2,NSJ)
-P(3) = VERT(3,L1,ITs)-Sphere(3,NSJ)
+P(:) = VERT(:,L1)-Sphere(1:3,NSJ)
 
 ! Trova il versore tangente al lato L0-L1 se stiamo considerando il
 ! primo vertice, L2-L1 se consideriamo il secondo
 if (L > 0) then
-  do JJ=1,3
-    P1(JJ) = VERT(JJ,L1,ITs)-CENTR(JJ,L0,ITs)
-    P2(JJ) = VERT(JJ,L0,ITs)-CENTR(JJ,L0,ITs)
-  end do
+  P1(:) = VERT(:,L1)-CENTR(:,L0)
+  P2(:) = VERT(:,L0)-CENTR(:,L0)
 else
-  do JJ=1,3
-    P1(JJ) = VERT(JJ,L1,ITs)-CENTR(JJ,L1,ITs)
-    P2(JJ) = VERT(JJ,L2,ITs)-CENTR(JJ,L1,ITs)
-  end do
+  P1(:) = VERT(:,L1)-CENTR(:,L1)
+  P2(:) = VERT(:,L2)-CENTR(:,L1)
 end if
-call VECP(P1,P2,P3,DNORM3)
-do JJ=1,3
-  P2(JJ) = P3(JJ)
-end do
-call VECP(P1,P2,P3,DNORM3)
-do JJ=1,3
-  P3(JJ) = P3(JJ)/DNORM3
-end do
+call crprod(P1,P2,P3)
+P2(:) = P3(:)
+call crprod(P1,P2,P3)
+DNORM3 = sqrt(P3(1)*P3(1)+P3(2)*P3(2)+P3(3)*P3(3))
+P3(:) = P3(:)/DNORM3
 ! Trova la derivata
 PROD = P(1)*P3(1)+P(2)*P3(2)+P(3)*P3(3)
 if (IOpt == 0) then

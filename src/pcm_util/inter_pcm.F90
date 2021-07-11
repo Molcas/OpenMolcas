@@ -9,21 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Inter_PCM(XE,YE,ZE,RE,P1,P2,P3,P4,NS,I,IPRINT)
+subroutine Inter_PCM(XE,YE,ZE,RE,P1,P2,P3,P4,I,IPRINT)
 
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), intent(in) :: XE(*), YE(*), ZE(*), RE(*), P1(3), P2(3), P3(3)
+real(kind=wp), intent(in) :: XE, YE, ZE, RE, P1(3), P2(3), P3(3)
 real(kind=wp), intent(out) :: P4(3)
-integer(kind=iwp), intent(in) :: NS, I, IPRINT
-integer(kind=iwp) :: JJ, M
+integer(kind=iwp), intent(in) :: I, IPRINT
+integer(kind=iwp) :: M
 real(kind=wp) :: ALPHA, DELTA, DIFF, DIFF2, DNORM, R, R2
 real(kind=wp), parameter :: TOL = 1.0e-12_wp
 
 ! Trova il punto P4, sull'arco P1-P2 sotteso dal centro P3, che
-! si trova sulla superficie della sfera NS
+! si trova sulla superficie della sfera XE,YE,ZE,RE
 ! P4 e' definito come combinazioe lineare di P1 e P2, con
 ! il parametro ALPHA ottimizzato per tentativi.
 
@@ -39,16 +39,12 @@ do
   end if
   ALPHA = ALPHA+DELTA
   DNORM = Zero
-  do JJ=1,3
-    P4(JJ) = P1(JJ)+ALPHA*(P2(JJ)-P1(JJ))-P3(JJ)
-    DNORM = DNORM+P4(JJ)**2
-  end do
+  P4(:) = P1(:)+ALPHA*(P2(:)-P1(:))-P3(:)
+  DNORM = DNORM+P4(1)*P4(1)+P4(2)*P4(2)+P4(3)*P4(3)
   DNORM = sqrt(DNORM)
-  do JJ=1,3
-    P4(JJ) = P4(JJ)*R/DNORM+P3(JJ)
-  end do
-  DIFF2 = (P4(1)-XE(NS))**2+(P4(2)-YE(NS))**2+(P4(3)-ZE(NS))**2
-  DIFF = sqrt(DIFF2)-RE(NS)
+  P4(:) = P4(:)*R/DNORM+P3(:)
+  DIFF2 = (P4(1)-XE)**2+(P4(2)-YE)**2+(P4(3)-ZE)**2
+  DIFF = sqrt(DIFF2)-RE
   if (abs(DIFF) < TOL) exit
   if (I == 0) then
     if (DIFF > Zero) DELTA = One/(Two**(M+1))

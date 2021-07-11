@@ -15,7 +15,7 @@ use Constants, only: Two, Three, Four
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: NSI, NESFJ, NewSph(2,*)
+integer(kind=iwp), intent(in) :: NSI, NESFJ, NewSph(2)
 real(kind=wp), intent(out) :: DR
 real(kind=wp), intent(in) :: RSolv, Sphere(4,*)
 integer(kind=iwp) :: NSK
@@ -30,9 +30,9 @@ real(kind=wp) :: D, D2, RI, RJ, RK, RS
 ! e la generatrice "principale" corrisponde al label negativo
 ! (cfr. JCC 11, 1047 (1990))
 
-if ((NEWSPH(1,NSI) < 0) .or. (NEWSPH(2,NSI) < 0)) then
-  NSK = NEWSPH(1,NSI)
-  if (abs(NSK) == NESFJ) NSK = NEWSPH(2,NSI)
+if ((NEWSPH(1) < 0) .or. (NEWSPH(2) < 0)) then
+  NSK = NEWSPH(1)
+  if (abs(NSK) == NESFJ) NSK = NEWSPH(2)
   if (NSK > 0) then
     RS = RSOLV
     RJ = Sphere(4,NESFJ)+RS
@@ -50,8 +50,8 @@ if ((NEWSPH(1,NSI) < 0) .or. (NEWSPH(2,NSI) < 0)) then
     DR = (Sphere(4,abs(NSK))*RJ)/(D*RI)
   end if
 else
-  NSK = NEWSPH(1,NSI)
-  if (NSK == NESFJ) NSK = NEWSPH(2,NSI)
+  NSK = NEWSPH(1)
+  if (NSK == NESFJ) NSK = NEWSPH(2)
   RS = RSOLV
   RJ = Sphere(4,NESFJ)+RS
   RK = Sphere(4,NSK)+RS

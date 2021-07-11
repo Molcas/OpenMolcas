@@ -22,7 +22,7 @@ real(kind=wp), intent(in) :: VMol, TAbs, RSolv
 integer(kind=iwp), intent(in) :: nAt, nS, nTs, iSphe(nTs)
 real(kind=wp), intent(out) :: GCavP
 real(kind=wp), intent(in) :: Sphere(4,nS), Tessera(4,nTs)
-integer(kind=iwp) :: IAtom, iS, ISph, iTs, Ixyz
+integer(kind=iwp) :: iS, ISph, iTs
 real(kind=wp) :: AExpsd, ATotal, DENum, Fact, Frac, G, R, RSph, RT, YM, YP
 real(kind=wp), allocatable :: CavS(:), dCav(:,:), dEA(:,:,:), EA(:)
 real(kind=wp), parameter :: Avgdr = rNAVO*1.0e-24_wp, FPI = Four*Pi, GC = Rgas/cal_to_J
@@ -83,11 +83,7 @@ if (DoDeriv) then
   do ISph=1,nS
     RSph = Angstrom*Sphere(4,ISph)
     Fact = CavS(ISph)/(FPI*RSph*RSph)
-    do IAtom=1,nAt
-      do Ixyz=1,3
-        dCav(Ixyz,IAtom) = dCav(Ixyz,IAtom)+Fact*dEA(Ixyz,IAtom,ISph)
-      end do
-    end do
+    dCav(:,:) = dCav(:,:)+Fact*dEA(:,:,ISph)
   end do
 end if
 
