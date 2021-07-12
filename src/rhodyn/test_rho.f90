@@ -11,7 +11,8 @@
 ! Copyright (C) 2021, Vladislav Kochetov                               *
 !***********************************************************************
 subroutine test_rho (densityt_time, time)
-  use rhodyn_data
+  use rhodyn_data, only: Nstate, threshold, i, j
+  use constants, only: auToFs
   implicit none
 !
 !***********************************************************************
@@ -20,7 +21,7 @@ subroutine test_rho (densityt_time, time)
 !***********************************************************************
 !
   complex(8), dimension(:,:) :: densityt_time
-  real(8) :: time,abserror
+  real(8) :: time, abserror
 
   abserror=0d0
   do i=1,Nstate
@@ -39,6 +40,6 @@ subroutine test_rho (densityt_time, time)
     enddo
   enddo
   if (abserror>=threshold) then
-    write(6,'(2(A,X,G28.16,X))')'time=',time/fstoau,'error=',abserror
+    write(6,'(2(A,X,G28.16,X))')'time=',time*auToFs,'error=',abserror
   endif
 end

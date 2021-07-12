@@ -12,6 +12,7 @@
 !***********************************************************************
 module rhodyn_data
   use definitions, only: wp, iwp
+  use constants, only: kBoltzmann, auTokJ
   implicit none
 !***********************************************************************
 ! Purpose: declaration of variables used between different subroutines *
@@ -80,9 +81,10 @@ module rhodyn_data
       complex(8),dimension(:,:) :: y
     end subroutine
     subroutine pulse_func(h0,ht,time,count)
-      complex(8),dimension(:,:) :: h0,ht
-      real(8) :: time
-      integer,optional :: count
+      complex(8), dimension(:,:), intent(in) :: h0
+      complex(8), dimension(:,:), intent(out) ::ht
+      real(8), intent(in) :: time
+      integer, intent(in), optional :: count
     end subroutine pulse_func
     subroutine equation_func(time,rho_t,res)
       real(8) :: time
@@ -92,14 +94,15 @@ module rhodyn_data
   ! list of dummy integers
   integer(kind=iwp) :: i,j,k,l,ii,jj,kk,ll
   ! list of constants
-  real(kind=wp), parameter :: autoev = 27.211396132    ,&
-                         k_B       = 3.1668114d-6      ,& !Hartree/K
-                         cmtoau    = 4.5563d-6         ,&
-                         fstoau    = 41.3393964d0      ,&
-                         pi        = 4.0d0*ATAN(1.0d0) ,&
-                         Debyetoau = 0.393456          ,&
-                         threshold = 1.0d-06           ,&
-                         tiny      = 1.0d-20
+  real(kind=wp), parameter :: k_B = kBoltzmann/(auTokJ*1.0e3_wp) ,&
+                              threshold = 1.0d-06                ,&
+                              tiny      = 1.0d-20
+!                        k_B  = 3.1668114d-6 Hartree/K
+!                        Debyetoau = 0.393456
+!                        autoev = 27.211396132
+!                        cmtoau    = 4.5563d-6
+!                        pi        = 4.0d0*ATAN(1.0d0)
+!                        fstoau    = 41.3393964d0
   complex(kind=wp),parameter:: zero = (0.0d0,0.0d0)    ,&
                                one  = (1.0d0,0.0d0)    ,&
                                onei = (0.0d0,1.0d0)
@@ -112,8 +115,8 @@ module rhodyn_data
   real(kind=wp), dimension(:,:,:), allocatable :: H_CSF,CI,DTOC
   real(kind=wp), dimension(:,:),  allocatable :: E, U_CI, HTOTRE_CSF,&
                                                  dysamp,a_einstein
-  complex(8), dimension(:,:,:),allocatable :: dipole,dipole_basis
-  complex(8), dimension(:,:),  allocatable :: V_SO,V_CSF,tmp,&
+  complex(kind=wp), dimension(:,:,:),allocatable:: dipole,dipole_basis
+  complex(kind=wp), dimension(:,:),  allocatable:: V_SO,V_CSF,tmp,&
                                               HTOT_CSF,CSF2SO,DM0,&
                                               U_SO,SO_CI,HSOCX,&
                                               U_CI_compl,dysamp_bas
@@ -153,21 +156,24 @@ module rhodyn_data
                       lu_dip=34
 ! ---------------------------------------------------------------------
 ! variables used for density matrix propagation
-  integer(kind=iwp)    :: N_Populated,Ntime_tmp_dm,N_pulse,Nstep,Npop
+  integer(kind=iwp)    :: N_Populated,Ntime_tmp_dm,Nstep,Npop
   integer(kind=iwp)    :: Nval,N_L3,N_L2,Nmode
   logical              :: HRSO, kext
-  logical,dimension(5) :: ion_blocks
-  real(8) :: T,tau_L3,tau_L2,gamma,sin_tstar,sin_tend,sin_scal,&
-             initialtime,finaltime,timestep,dt,deltaE,V,tout, tau, &
-             time_fdm, errorthreshold, alpha, safety, ion_diss
-  real(8),dimension(:),allocatable   :: amp, omega, sigma ,&
-                                        phi, shift, dgl, emiss
-  real(8),dimension(6)               :: temp_vec
-  complex(8),dimension(3)            :: pulse_vec, E_field
+  logical,dimension(5) :: ion_blocks ! need for processing Dyson matrix
+  real(kind=wp)        :: T,tau_L3,tau_L2,gamma,&
+              initialtime,finaltime,timestep,dt,deltaE,V,tout,&
+              time_fdm, errorthreshold, alpha, safety, ion_diss
+  real(kind=wp),dimension(:),allocatable :: dgl, emiss
+  real(kind=wp),dimension(6) :: temp_vec
   complex(8),dimension(:,:),allocatable :: decay, pulse_vector,&
                                  density0,densityt            ,&
                                  hamiltonian,hamiltoniant     ,&
                                  kab_basis, k_bar_basis
 ! Runge-Kutta midpoints
   complex(8),dimension(:,:),allocatable::ak1,ak2,ak3,ak4,ak5,ak6,y5
+! pulse characteristics
+  integer(kind=iwp) :: N_pulse, power_shape
+  real(kind=wp), dimension(:), allocatable :: amp, omega, sigma ,&
+                                              phi, taushift
+  complex(kind=wp), dimension(3) :: pulse_vec, E_field
 end module rhodyn_data

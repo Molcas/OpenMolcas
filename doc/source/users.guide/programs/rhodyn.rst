@@ -173,7 +173,7 @@ General keywords
               </KEYWORD>
 
 :kword:`POPUlation style`
-  State basis to be populated.
+  State basis to be populated. Available options: CSF, SF, SF_THERMAL, SO, SO_THERMAL.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="POPU" APPEAR="State basis to be populated." KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: DTime <advanced>
@@ -265,7 +265,8 @@ General keywords
 
 :kword:`METHod`
   Method of integration: Runge-Kutta method of 4th order (*classic_RK4*) is set by default. *RKCK* (Runge-Kutta-Cash-Karp) 
-  with variable time step sometimes is better.
+  with variable time step sometimes is better. Other available integrators are
+  *RK4*, *RK5*, *RK45*.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="METH" APPEAR="Method of integration" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: DTime <advanced>
@@ -309,7 +310,7 @@ General keywords
 
 :kword:`PROPbasis`
   Basis used for propagation, spin-free basis by default. For some features such as dipole moment calc or emission SO basis 
-  is preferrable.
+  is preferrable. Available options: *CSF*, *SF*, *SO*.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="PROP" APPEAR="Propagation basis" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: PROPbasis <advanced>
@@ -321,7 +322,8 @@ General keywords
 :kword:`DMBAsis`
   Basis used for the output of density matrix diagonal elements (populations), 'SF_SO' by default means that density matrix
   is printed in two basis sets: spin-free and spin-orbit. To reduce time a little bit one can change it either to SF or SO.
-  Transformation matrices are taken from :program:`RASSI`
+  Transformation matrices are taken from :program:`RASSI`. Available options: *CSF*, *SF*, *SO*,
+  *CSF_SF*, *SF_SO*, *CSF_SO*, *ALL*.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="DMBA" APPEAR="DM basis" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: DMBAsis <advanced>
@@ -423,33 +425,36 @@ General keywords
               </HELP>
               </KEYWORD>
 
-:kword:`PTYPe`
-  Pulse type is 'Gaussian' by default
-
-  .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="PTYP" APPEAR="Pulse type" KIND="CUSTOM" LEVEL="BASIC">
-              %%Keyword: PTYPe <advanced>
-              <HELP>
-              Pulse type.
-              </HELP>
-              </KEYWORD>
-
-:kword:`IFPUlse`
-  Flag switching the pulse off. Activated by default.
-
-  .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="IFPU" APPEAR="Disable pulse" KIND="SINGLE" LEVEL="BASIC">
-              %%Keyword: IFPUlse <advanced>
-              <HELP>
-              Flag switching the pulse off.
-              </HELP>
-              </KEYWORD>
-
 :kword:`NPULses`
-  Number of incoming electric fields. 1 by default.
+  Number of incoming electric fields, 1 by default. Set it to *0* if no pulse is needed.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="NPUL" APPEAR="Incoming pulses" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: NPULses <advanced>
               <HELP>
               Number of incoming electric fields.
+              </HELP>
+              </KEYWORD>
+:kword:`PTYPe`
+  PTYPE defines form of the shape function for each pulse. 
+  Available options are 
+
+  .. container:: list
+
+    **Gauss** --- gaussian shape. Set by default.
+
+    **sinX**, **cosX** --- here *X* is power, to which sine or cosine functions raise.
+                           For example, *sin16* describes :math:`sin^{16}` shape function.
+
+    **Mono** --- monochromatic pulse without shape function.
+
+    **TYPE_X_CIRCLE** --- explicitely circularly polirized light, where *X* can be *L* or 
+                          *R* for left and right direction, and *TYPE* replaces *Mono* or
+                          *Gauss*.
+
+  .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="PTYP" APPEAR="Pulse type" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: PTYPe <advanced>
+              <HELP>
+              Pulse type.
               </HELP>
               </KEYWORD>
 

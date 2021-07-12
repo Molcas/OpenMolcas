@@ -14,6 +14,7 @@ subroutine kab
   use rhodyn_data
   use rhodyn_utils, only: transform, dashes
   use definitions, only: wp, iwp, u6
+  use constants, only: auToCm, auToeV
   use stdalloc, only: mma_allocate, mma_deallocate
   implicit none
 !***********************************************************************
@@ -124,7 +125,7 @@ subroutine kab
   close(lu) ! close HRFACT file
 
 ! change the unit to au
-  Freq=Freq*cmtoau
+  Freq=Freq/auToCm
 
   call dashes()
   write(u6,*)' End read data '
@@ -137,7 +138,7 @@ subroutine kab
   call mma_allocate(J_w,Nstate,Nstate)
   call mma_allocate(omega_ab,Nstate,Nstate)
 
-  write(u6,*) 'Gamma=',gamma, 'Hartree',gamma/cmtoau, 'cm-1'
+  write(u6,*) 'Gamma=',gamma, 'Hartree',gamma*auToCm, 'cm-1'
 
   lu = isFreeUnit(20)
   call molcas_open(lu,'kab_out.dat')

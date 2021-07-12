@@ -17,107 +17,116 @@ subroutine pulse(H0,Ht,time,count)
 !                                       H_field=dipole*E_field
 !
 !***********************************************************************
-  use rhodyn_data
+  use rhodyn_data, only: zero, i, E_field, N_pulse, pulse_type,&
+                         pulse_vec, pulse_vector, amp, taushift,&
+                         sigma, power_shape, omega, phi,&
+                         lu_pls, temp_vec, out_t, out_pulse,&
+                         dipole_basis
   use mh5, only: mh5_put_dset
+  use constants, only: pi, auToFs
   implicit none
-  complex(8),dimension(:,:) :: H0,Ht
-  real(8)                   :: time
-  integer,optional          :: count
+  complex(8), dimension(:,:), intent(in) :: H0
+  complex(8), dimension(:,:), intent(out) :: Ht
+  real(8), intent(in)       :: time
+  integer, intent(in), optional :: count
 
-  Ht = zero
   E_field=zero
 
-  if (pulse_type=='Sin2') then
-    pulse_vec(:)=pulse_vector(1,:)
-! the time scale only vaild for sigma=5.0
-    if (abs(time-tau)<=sigma(1)) then
-      E_field = Amp(1)*pulse_vec*(sin(pi*time/ &
-              Sigma(1)/2))**2*sin(omega(1)*time+phi(1))
-    else
-      E_field=0d0
+  do i=1,N_pulse
+!
+! sine^N pulse
+! add description here
+    if (pulse_type(1:3)=='SIN') then
+      pulse_vec(:)=pulse_vector(i,:)
+      if (abs(time-taushift(i))<=sigma(i)) then
+        E_field = amp(i)*pulse_vec &
+        *sin( pi*(time-taushift(i)) / (2.d0*sigma(i)) )**power_shape &
+        *sin(omega(i) * (time-taushift(i)) + phi(i))
+! add correction here
+      else
+        E_field=0d0
+      endif
+!
+! cosine^N pulse
+! add description here
+    elseif (pulse_type(1:3)=='COS') then
+      pulse_vec(:)=pulse_vector(i,:)
+      if (abs(time-taushift(i))<=sigma(i)) then
+        E_field = amp(i)*pulse_vec &
+        *cos( pi*(time-taushift(i)) / (2.d0*sigma(i)) )**power_shape &
+        *sin(omega(i) * (time-taushift(i)) + phi(i))
+! add correction here
+      else
+        E_field=0d0
+      endif
+!
+! gaussian pulse
+! add description here
+    elseif (pulse_type=='GAUSS') then
+      pulse_vec(:)=pulse_vector(i,:)
+      E_field = amp(i)*pulse_vec &
+      *exp(-(time-taushift(i))**2 / (2*sigma(i)**2)) &
+      *sin(omega(i) * (time-taushift(i)) + phi(i))
+      ! add correction here
+!
+! monochromatic pulse
+! add description here
+    elseif (pulse_type=='MONO') then
+      pulse_vec(:)=pulse_vector(i,:)
+      E_field = amp(i)*pulse_vec &
+      *sin(omega(i) * (time-taushift(i)) + phi(i))
+!
+! train of gaussian pulses
+! elseif (pulse_type=='Train_Diff') then
+!   E_field = E_field+amp(i)*pulse_vector(i,:)* &
+!             exp(-(time-(tau+(i-1)*shift(i)))**2/ &
+!             (2*sigma(i)**2))*sin(omega(i)*time+phi(i))
+!
+! explicitely polarized pulses
+! think of more clever definition
+    elseif (pulse_type=='MONO_R_CIRCLE') then
+      E_field(1) = amp(i)*sin(omega(i)*time+phi(i))
+      E_field(2) = Amp(1)*cos(omega(i)*time+phi(i))
+      E_field(3) = 0d0
+!
+    elseif (pulse_type=='MONO_L_CIRCLE') then
+      E_field(1) = amp(i)*cos(omega(i)*time+phi(i))
+      E_field(2) = amp(i)*sin(omega(i)*time+phi(i))
+      E_field(3) = 0d0
+!
+    elseif (pulse_type=='GAUSS_R_CIRCLE') then
+      E_field(1) = amp(i)*sin(omega(i)*time+phi(i))* &
+                   exp(-(time-taushift(i))**2/(2*sigma(i)**2))
+      E_field(2) = amp(i)*cos(omega(i)*time+phi(i))* &
+                   exp(-(time-taushift(i))**2/(2*sigma(i)**2))
+      E_field(3)=0d0
+!
+    elseif (pulse_type=='GAUSS_L_CIRCLE')then
+      E_field(1) = amp(i)*cos(omega(i)*time+phi(i))* &
+                   exp(-(time-taushift(i))**2/(2*sigma(i)**2))
+      E_field(2) = amp(i)*sin(omega(i)*time+phi(i))* &
+                   exp(-(time-taushift(i))**2/(2*sigma(i)**2))
+      E_field(3) = 0d0
     endif
-
-  elseif (pulse_type=='Cos2') then
-    pulse_vec(:)=pulse_vector(1,:)
-    if (abs(time-tau)<=sigma(1)*pi/2.d0) then
-      E_field = amp(1)*pulse_vec &
-                *cos((time-tau)/sigma(1))**2 &
-                *cos(omega(1)*(time-tau)+phi(1))
-    else
-      E_field=0d0
-    endif
-
-  elseif (pulse_type=='Gaussian') then
-    pulse_vec(:)=pulse_vector(1,:)
-    E_field = amp(1)*pulse_vec &
-              *exp(-(time-tau)**2/(2*sigma(1)**2)) &
-              *sin(omega(1)*(time-tau)+phi(1))
-
-  elseif (Pulse_type=='Continue') then
-    pulse_vec(:)=Pulse_vector(1,:)
-    E_field=Amp(1)*pulse_vec*sin(omega(1)*time+phi(1))
-
-  elseif (pulse_type=='Train_Same') then
-! in this case the lights are same,
-! so we chose the data in the first dimension
-    pulse_vec(:)=pulse_vector(1,:)
-    do i=1,N_pulse
-      E_field = E_field+amp(1)*pulse_vec*exp(-(time-(tau+i* &
-                shift(2)-shift(2)))**2/(2*Sigma(1)**2))* &
-                sin(omega(1)*time+phi(1))
-    enddo
-
-  elseif (pulse_type=='Train_Diff') then
-    do i=1,N_pulse
-      E_field = E_field+amp(i)*pulse_vector(i,:)* &
-                exp(-(time-(tau+(i-1)*shift(i)))**2/ &
-                (2*sigma(i)**2))*sin(omega(i)*time+phi(i))
-    enddo
-
-  elseif (pulse_type=='R_Circle_Continue') then
-        E_field(1) = Amp(1)*sin(omega(1)*time+phi(1))
-        E_field(2) = Amp(1)*cos(omega(1)*time+phi(1))
-        E_field(3) = 0d0
-
-  elseif (pulse_type=='L_Circle_Continue') then
-        E_field(1) = Amp(1)*cos(omega(1)*time+phi(1))
-        E_field(2) = Amp(1)*sin(omega(1)*time+phi(1))
-        E_field(3) = 0d0
-
-  elseif (pulse_type=='R_Circle_Gaussian') then
-        E_field(1) = Amp(1)*sin(omega(1)*time+phi(1))* &
-                 exp(-(time-tau)**2/(2*Sigma(1)**2))
-        E_field(2) = Amp(1)*cos(omega(1)*time+phi(1))* &
-                 exp(-(time-tau)**2/(2*Sigma(1)**2))
-        E_field(3)=0d0
-
-  elseif (pulse_type=='L_Circle_Gaussian')then
-        E_field(1) = Amp(1)*cos(omega(1)*time+phi(1))* &
-                 exp(-(time-tau)**2/(2*Sigma(1)**2))
-        E_field(2) = Amp(1)*sin(omega(1)*time+phi(1))* &
-                 exp(-(time-tau)**2/(2*Sigma(1)**2))
-        E_field(3) = 0d0
-
-  elseif (pulse_type=='newL_Circle_Continue') then
-        E_field(1)=Amp(1)*sin(omega(1)*time+phi(1))
-        E_field(2)=-Amp(1)*cos(omega(1)*time+phi(1))
-        E_field(3)=0d0
-  endif
-
+  enddo
+!
+! saving pulse to files
   if (present(count)) then
-    write(lu_pls,'(7(G25.15E3,2X))') time/fstoau, &
+    write(lu_pls,'(7(G25.15E3,2X))') time*auToFs, &
                   (dble(E_field(i)),aimag(E_field(i)), i=1,3)
     do i=1,3
       temp_vec(2*i-1) = dble (E_field(i))
       temp_vec(2*i)   = aimag(E_field(i))
     enddo
     call mh5_put_dset(out_pulse,temp_vec, [1,6],[count-1,0])
-    call mh5_put_dset(out_t, [time/fstoau], [1], [count-1])
+    call mh5_put_dset(out_t, [time*auToFs], [1], [count-1])
   endif
-
+!
+! update Hamiltonian H0 to Ht adding
+! scalar product of E_field and dipole moment
+  Ht = H0
   do i=1,3
-    Ht(:,:)=Ht(:,:)+dipole_basis(:,:,i)*E_field(i)
+    Ht(:,:) = Ht(:,:) + dipole_basis(:,:,i)*E_field(i)
   enddo
-  Ht = H0 + Ht
-
+!
 end

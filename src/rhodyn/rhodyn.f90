@@ -18,6 +18,7 @@ subroutine rhodyn()
   use rhodyn_data
   use rhodyn_utils, only: mult, dashes, sortci
   use definitions, only: wp, iwp, u6
+  use constants, only: auToeV
   use stdalloc, only: mma_allocate, mma_deallocate
   use mh5, only: mh5_put_dset, mh5_close_file
   implicit none
@@ -286,7 +287,7 @@ subroutine rhodyn()
   if (allocated(lroots)) call mma_deallocate(lroots)
   if (allocated(ispin)) call mma_deallocate(ispin)
   if (allocated(istates)) call mma_deallocate(istates)
-  if (allocated(shift)) call mma_deallocate(shift)
+  if (allocated(taushift)) call mma_deallocate(taushift)
   if (allocated(amp)) call mma_deallocate(amp)
   if (allocated(sigma)) call mma_deallocate(sigma)
   if (allocated(omega)) call mma_deallocate(omega)

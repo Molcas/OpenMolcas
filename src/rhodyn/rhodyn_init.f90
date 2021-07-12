@@ -19,6 +19,7 @@ subroutine rhodyn_init()
 !***********************************************************************
   use rhodyn_data
   use stdalloc, only: mma_allocate, mma_deallocate
+  use constants, only: auToFs, auToCm, auToeV
   implicit none
 
 ! preparation 1 means standard program workflow (see rhodyn_data)
@@ -31,15 +32,15 @@ subroutine rhodyn_init()
   Nmode         = 0
 ! be default propagation basis is spin free states
   basis         = 'SF'
-  tout          = 0.05d0*fstoau
-  initialtime   = 0.0d0*fstoau
-  finaltime     = 10.0d0*fstoau
-  timestep      = 0.0005d0*fstoau
+  tout          = 0.05d0/auToFs
+  initialtime   = 0.0d0/auToFs
+  finaltime     = 10.0d0/auToFs
+  timestep      = 0.0005d0/auToFs
   Method        = 'classic_RK4'
   errorthreshold= 1.0d-06
   safety        = 0.9
-  deltaE        = 50d0*cmtoau
-  V             = 100d0*cmtoau
+  deltaE        = 50d0/auToCm
+  V             = 100d0/auToCm
   Nval          = 160
   N_L3          = 175
   tau_L3        = 0.4d0/autoev
@@ -50,12 +51,12 @@ subroutine rhodyn_init()
   ion_diss      = 0d0
   ion_blocks    = (/.True.,.False.,.True.,.False.,.True./)
   flag_diss     = .False.
-  gamma         = 300*cmtoau
+  gamma         = 300/auToCm
   HRSO          = .False.
   kext          = .False.
   DM_basis      = 'SF_SO'
 ! full density matrix saving time step
-  time_fdm      = 1.0d0*fstoau
+  time_fdm      = 1.0d0/auToFs
 ! general idea is that additional features are disabled by default
 ! except for pulse flag
   flag_so       = .False.
@@ -65,26 +66,23 @@ subroutine rhodyn_init()
   flag_emiss    = .False.
   flag_pulse    = .True.
   Pulse_type    = 'Gaussian'
-! number of incoming pulses supposed to be 1 by default
+! number of incoming pulses N_pulse supposed to be 1 by default
 ! later when reading input it can be changed with
 ! reallocation of all corresponding arrays
   N_pulse       = 1
-  call mma_allocate(shift,N_pulse)
   call mma_allocate(amp,N_pulse)
+  call mma_allocate(taushift,N_pulse)
   call mma_allocate(pulse_vector,N_pulse,3)
   call mma_allocate(sigma,N_pulse)
   call mma_allocate(omega,N_pulse)
   call mma_allocate(phi,N_pulse)
-  amp              = 2.5d0
-  tau              = 2.0d0*fstoau
+  amp(1)           = 2.5d0
+  taushift(1)      = 3.0d0/auToFs
   pulse_vector(1,1)= one
   pulse_vector(1,2)= zero
   pulse_vector(1,3)= zero
-  sigma            = autoev/5d0
-  omega            = 710d0/autoev
-  phi              = 0d0*pi
-  sin_tstar        = 1.5495d0
-  sin_tend         = 3.1005d0
-  sin_scal         = 5.8870d0
+  sigma(1)         = 1.0d0/auToFs
+  omega(1)         = 710d0/autoev
+  phi(1)           = 0d0
 
 end

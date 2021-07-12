@@ -19,6 +19,7 @@ subroutine propagate
   use rhodyn_data
   use rhodyn_utils, only: dashes
   use definitions, only: wp, iwp, u6
+  use constants, only: auToFs
   use stdalloc, only: mma_allocate, mma_deallocate
   use mh5, only: mh5_put_dset
   implicit none
@@ -108,7 +109,7 @@ subroutine propagate
   call mma_allocate(dgl,d)
   call pop(time,ii)
   if (flag_fdm) then
-    call mh5_put_dset(out_tfdm, [time/fstoau], [1], [0])
+    call mh5_put_dset(out_tfdm, [time*auToFs], [1], [0])
     call mh5_put_dset(out_fdm,abs(density0),[1,d,d],[0,0,0])
   endif
   call mma_allocate(ak1,d,d)
@@ -161,7 +162,7 @@ subroutine propagate
 !        call dcopy_(d**2,density0,1,densityt,1)
         t_temp=safety*dt*(errorthreshold/error_rk)**0.25
         dt=max(t_temp,0.2*dt)
-        if (ipglob>3) write(u6,*) ' ------',error_rk,dt/fstoau
+        if (ipglob>3) write(u6,*) ' ------',error_rk,dt*auToFs
       enddo loopstep
 ! step succeeded
       time=time+dt
@@ -174,7 +175,7 @@ subroutine propagate
       endif
       if (flag_fdm.and.time>=time_fdm*jj) then
         ! should be moved to procedure pop
-        call mh5_put_dset(out_tfdm,[time/fstoau],[1],[jj])
+        call mh5_put_dset(out_tfdm,[time*auToFs],[1],[jj])
         call mh5_put_dset(out_fdm,abs(densityt), &
                                   [1,d,d],[jj,0,0])
             jj = jj + 1
@@ -184,7 +185,7 @@ subroutine propagate
 !      ihh=int(Rolex_3/3600)
 !      imm=int(Rolex_3-ihh*3600)/60
 !      iss=int(Rolex_3-ihh*3600-imm*60)
-      if (ipglob>3) write(u6,out3_fmt)time/fstoau,error_rk,dt/fstoau
+      if (ipglob>3) write(u6,out3_fmt) time*auToFs,error_rk,dt*auToFs
 !                            , ihh,':',imm,':',iss
 !      next step size
       if (method=='RKCK') then
@@ -211,13 +212,14 @@ subroutine propagate
         hamiltoniant=hamiltonian
       endif
       select case (method)
-      case ('classic_RK4')
+      case ('CLASSIC_RK4')
         call classic_rk4(time,densityt)
       case ('RK4')
         call rk4(time,densityt)
       case ('RK5')
         call rk5(time,densityt)
       case default
+        ! check has already been done in read_input.f90
         write(6,*)'Integration method ',method, ' is not included'
         call abend()
       end select

@@ -19,6 +19,7 @@ subroutine k_external
   use rhodyn_data
   use rhodyn_utils, only: transform, dashes
   use definitions, only: wp, iwp, u6
+  use constants, only: auToeV
   use stdalloc, only: mma_allocate, mma_deallocate
   implicit none
 

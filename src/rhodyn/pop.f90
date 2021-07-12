@@ -14,6 +14,7 @@ subroutine pop(time,popcount)
   use rhodyn_data
   use rhodyn_utils, only: mult, transform
   use definitions, only: wp
+  use constants, only: auToFs
   use mh5, only: mh5_put_dset
   implicit none
 !***********************************************************************
@@ -30,10 +31,10 @@ subroutine pop(time,popcount)
 !     here notation d is dimension of all the basis matrices
 !!!   density0 (can't be) used as a temporary storage for dm in required basis
 
-  write(sline,"(f10.3)") time/fstoau
+  write(sline,"(f10.3)") time*auToFs
   call StatusLine('SpinDyn current time: ',trim(sline))
 
-  call mh5_put_dset(out_tout,[time/fstoau],[1],[popcount-1])
+  call mh5_put_dset(out_tout,[time*auToFs],[1],[popcount-1])
 
   if (basis=='CSF') then
 
@@ -42,7 +43,7 @@ subroutine pop(time,popcount)
 ! the density in CSF basis
       dgl_csf = dble((/(densityt(i,i),i=1,d)/))
       norm=sum(dgl_csf)
-      write(lu_csf,out_fmt)time/fstoau,(dgl_csf(i),i=1,d),norm
+      write(lu_csf,out_fmt)time*auToFs,(dgl_csf(i),i=1,d),norm
       call mh5_put_dset(out_dm_csf, dgl_csf, [1,d], [popcount-1,0])
     endif
 
@@ -52,7 +53,7 @@ subroutine pop(time,popcount)
       call transform(densityt,U_CI_compl,density0)
       dgl = dble((/(density0(i,i),i=1,d)/))
       norm= sum(dgl)
-      write(lu_sf,out_fmt) time/fstoau,(dgl(i),i=1,d),norm
+      write(lu_sf,out_fmt) time*auToFs,(dgl(i),i=1,d),norm
       call mh5_put_dset(out_dm_sf, dgl, [1,d], [popcount-1,0])
     endif
 
@@ -62,7 +63,7 @@ subroutine pop(time,popcount)
       call transform(densityt,CSF2SO,density0)
       dgl = dble((/(density0(i,i),i=1,d)/))
       norm= sum(dgl)
-      write(lu_so,out_fmt) time/fstoau,(dgl(i),i=1,d),norm
+      write(lu_so,out_fmt) time*auToFs,(dgl(i),i=1,d),norm
       call mh5_put_dset(out_dm_so, dgl,[1,d],[popcount-1,0])
     endif
 
@@ -74,7 +75,7 @@ subroutine pop(time,popcount)
       call transform(densityt,U_CI_compl,density_csf,.False.)
       dgl_csf = dble((/(density_csf(i,i),i=1,d)/))
       norm= sum(dgl_csf)
-      write(lu_csf,out_fmt) time/fstoau,(dgl_csf(i),i=1,d),norm
+      write(lu_csf,out_fmt) time*auToFs,(dgl_csf(i),i=1,d),norm
       call mh5_put_dset(out_dm_csf, dgl_csf,[1,d],[popcount-1,0])
     endif
 
@@ -83,7 +84,7 @@ subroutine pop(time,popcount)
 ! the density in SF basis
       dgl = dble((/(densityt(i,i),i=1,d)/))
       norm= sum(dgl)
-      write(lu_sf,out_fmt) time/fstoau,(dgl(i),i=1,d),norm
+      write(lu_sf,out_fmt) time*auToFs,(dgl(i),i=1,d),norm
       call mh5_put_dset(out_dm_sf, dgl, [1,d],[popcount-1,0])
     endif
 
@@ -93,7 +94,7 @@ subroutine pop(time,popcount)
       call transform(densityt,SO_CI,density0)
       dgl = dble((/(density0(i,i),i=1,d)/))
       norm =sum(dgl)
-      write(lu_so,out_fmt) time/fstoau,(dgl(i),i=1,d),norm
+      write(lu_so,out_fmt) time*auToFs,(dgl(i),i=1,d),norm
       call mh5_put_dset(out_dm_so, dgl, [1,d],[popcount-1,0])
     endif
 
@@ -105,7 +106,7 @@ subroutine pop(time,popcount)
       call transform(densityt,CSF2SO,density_csf,.False.)
       dgl_csf = dble((/(density_csf(i,i),i=1,nconftot)/))
       norm = sum(dgl_csf)
-      write(lu_csf,out_fmt_csf) time/fstoau, &
+      write(lu_csf,out_fmt_csf) time*auToFs, &
             (dgl_csf(i),i=1,nconftot), norm
       call mh5_put_dset(out_dm_csf, &
              dgl_csf, [1,nconftot],[popcount-1,0])
@@ -117,7 +118,7 @@ subroutine pop(time,popcount)
       call transform(densityt,SO_CI,density0,.False.)
       dgl = dble((/(density0(i,i),i=1,d)/))
       norm= sum(dgl)
-      write(lu_sf,out_fmt) time/fstoau,(dgl(i),i=1,d),norm
+      write(lu_sf,out_fmt) time*auToFs,(dgl(i),i=1,d),norm
       call mh5_put_dset(out_dm_sf, dgl, [1,d], [popcount-1,0])
     endif
 
@@ -126,7 +127,7 @@ subroutine pop(time,popcount)
 ! the density in SO basis
       dgl = dble((/(densityt(i,i),i=1,d)/))
       norm= sum(dgl)
-      write(lu_so,out_fmt) time/fstoau,(dgl(i),i=1,d),norm
+      write(lu_so,out_fmt) time*auToFs,(dgl(i),i=1,d),norm
       call mh5_put_dset(out_dm_so, dgl, [1,d], [popcount-1,0])
     endif
   endif
@@ -139,7 +140,7 @@ subroutine pop(time,popcount)
       dgl = dble((/(tmp(i,i),i=1,d)/))
       pulse_vec(i) = sum(dgl)
     enddo
-    write(lu_dip,'(7(G25.15E3,2X))') time/fstoau, &
+    write(lu_dip,'(7(G25.15E3,2X))') time*auToFs, &
          (dble(pulse_vec(i)),aimag(pulse_vec(i)), i=1,3)
   endif
 
