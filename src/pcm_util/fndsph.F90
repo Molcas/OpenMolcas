@@ -11,6 +11,7 @@
 
 subroutine FndSph(NAt,ICharg,C,IAt,ITypRad,NSphInp,Alpha,XSph,YSph,ZSph,Rad,NOrd,m,iPrint)
 
+use Solvent_Data, only: Pauling
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -23,7 +24,6 @@ real(kind=wp), intent(out) :: XSph(m), YSph(m), ZSph(m), Rad(m)
 integer(kind=iwp), intent(out) :: NOrd(m)
 integer(kind=iwp) :: I
 real(kind=wp), allocatable :: Chg(:)
-real(kind=wp), external :: Pauling
 #include "rctfld.fh"
 
 ! Assign GEPOL sphere positions and radii according to solute atoms nature

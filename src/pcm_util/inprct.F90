@@ -143,6 +143,10 @@ nexpo = 12
 prefac = One
 
 lLangevin = .false.
+
+! default solvent
+Solvent = 'WATER'
+ISlPar(15) = NumSolv(Solvent)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

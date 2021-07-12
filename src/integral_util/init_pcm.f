@@ -44,7 +44,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*---- Reinitiate always for gradient calculations
+*---- Reinitialize always for gradient calculations
 *
       DoDeriv=.False.
 cpcm_solvent
@@ -130,7 +130,7 @@ cpcm_solvent end
 *     ICharg: Molecular charge
 *     nAtoms: total number of atoms
 *     Coor: Coordinates of atoms
-*    MxVert*nTs ANr: atomic numbers
+*     MxVert*nTs ANr: atomic numbers
 *     LcCoor: local array for atomic coordinates
 *     LcANr: local array for atomic numbers
 *     Solvent: string with explicit solvent name

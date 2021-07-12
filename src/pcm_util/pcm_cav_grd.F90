@@ -21,7 +21,6 @@ real(kind=wp), intent(out) :: Grad(nGrad)
 integer(kind=iwp) :: LcNAtm, MaxAto
 real(kind=wp), allocatable :: DerDM(:,:), PCMGrd(:,:)
 #include "print.fh"
-#include "real.fh"
 #include "rctfld.fh"
 
 !                                                                      *

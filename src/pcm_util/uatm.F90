@@ -14,6 +14,7 @@ subroutine UATM(IOut,ICharg,NAt,NSfe,m,Re,Alpha,C,IAn,NOrd,Chg,iPrint)
 ! for HF/6-31(+)G* and ICOMP=4
 ! explicit values for C,N,O,F,S,Cl,Br,I, otherwise modified UFF radii
 
+use Solvent_Data, only: Pauling
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Four, Pi
 use Definitions, only: wp, iwp
@@ -37,7 +38,7 @@ character, parameter :: BCH(3) = ['s','d','t'], HH1(10) = [' ','H','H','H','H','
                         HH2(10) = [' ',' ','2','3','4','5','6','7','8','9'], HY1(4) = ['*','s','s','s'], &
                         HY2(4) = [' ','p','p','p'], HY3(4) = [' ',' ','2','3']
 integer(kind=iwp), external :: IRowAt
-real(kind=wp), external :: AtNear, HybNew, Pauling
+real(kind=wp), external :: AtNear, HybNew
 
 ! The number of explicitly parametrized atoms is NUAH and their atomic
 ! numbers are in NOKUAH
@@ -212,7 +213,7 @@ end if
 
 return
 
-100 format (6X,1X,I3,2X,A2,2A1,3X,3A1,2X,F5.2,3X,F4.2,2X,F5.3,3X,6(1X,A2,3X,'[',A1,']'))
-101 format (6X,40X,4(1X,A2,3X,'[',A1,']'))
+100 format(6X,1X,I3,2X,A2,2A1,3X,3A1,2X,F5.2,3X,F4.2,2X,F5.3,3X,6(1X,A2,3X,'[',A1,']'))
+101 format(6X,40X,4(1X,A2,3X,'[',A1,']'))
 
 end subroutine UATM

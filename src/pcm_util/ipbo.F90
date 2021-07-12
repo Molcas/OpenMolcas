@@ -13,6 +13,7 @@ function IPBO(IA,JA,RIJ,BondOr)
 ! Return the order of the bond between atoms of atomic numbers IA
 ! and JA, separated by RIJ, or 0 if there is no bond.
 
+use Solvent_Data, only: RCov97
 use Constants, only: Half, Angstrom
 use Definitions, only: wp, iwp
 
@@ -23,7 +24,6 @@ integer(kind=iwp), intent(in) :: IA, JA
 real(kind=wp), intent(out) :: BondOr
 integer(kind=iwp) :: IBondO
 real(kind=wp) :: R0IJ, R1IJ
-real(kind=wp), external :: RCov97
 
 ! Generate connectivity based on bond distances alone.  The criteria
 ! is whether the distances is no more than 30% longer than the sum of
