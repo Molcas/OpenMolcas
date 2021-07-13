@@ -40,12 +40,19 @@ subroutine transform_V
   call mma_allocate(REV_CSF,nconftot,nconftot)
   call mma_allocate(IMV_CSF,nconftot,nconftot)
 
+! reading V_SO matrix
   fileid = mh5_open_file_r('RASSISD')
-  call mh5_fetch_dset(fileid,'V_SO_REAL',REV_SO)
-  call mh5_fetch_dset(fileid,'V_SO_IMAG',IMV_SO)
+  if (mh5_exists_dset(fileid,'V_SO_REAL').and. &
+      mh5_exists_dset(fileid,'V_SO_IMAG')) then
+    call mh5_fetch_dset(fileid,'V_SO_REAL',REV_SO)
+    call mh5_fetch_dset(fileid,'V_SO_IMAG',IMV_SO)
+  else
+    write(u6,*) 'Error in reading RASSISD file, no V_SO matrix'
+    call abend()
+  endif
   call mh5_close_file(fileid)
 
-  ! check whether V_SO in SF basis is hermitain.
+! check whether V_SO in SF basis is hermitain.
   if (ipglob>3) then
     call dashes()
     write(u6,*) 'Check if Spin-orbit coupling V_SO is hermitain'
@@ -104,6 +111,7 @@ subroutine transform_V
 
   V_CSF = dcmplx(REV_CSF,IMV_CSF)
 
+! Store pure SOC matrix in CSF basis to PREP file
   call mh5_put_dset(prep_vcsfr, REV_CSF)
   call mh5_put_dset(prep_vcsfi, IMV_CSF)
 

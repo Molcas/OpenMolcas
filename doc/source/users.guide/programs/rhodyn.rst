@@ -94,6 +94,10 @@ Input files
   File with Huang-Ruyis factors. If keyword :kword:`KEXT` is active 
   then this file has to contain dissipation rate :variable:`k` matrix.
 
+:file:`INDENS`
+  File with initial density matrix. When keyword :kword:`POPU`lation style set to "``FROMFILE``",
+  then this file should be present.
+
 .. _UG\:sec\:rhodyn_output_files:
 
 Output files
@@ -163,7 +167,8 @@ General keywords
 
 :kword:`NRDEt,CSF,STATES,SPIN`
   Here should be *n* lines, each with four numbers:
-  ndet nr of the DETs
+  number of determinants, number of CSFs, number of roots, and spin multiplicity for each spin manifold.
+  See examples below.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="NRDE" APPEAR="Determinants, CSFs, roots, and spin" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: DTime <advanced>
@@ -173,7 +178,8 @@ General keywords
               </KEYWORD>
 
 :kword:`POPUlation style`
-  State basis to be populated. Available options: CSF, SF, SF_THERMAL, SO, SO_THERMAL.
+  State basis to be populated. Available options: ``CSF``, ``SF``, ``SF_THERMAL``, ``SO``, ``SO_THERMAL``,
+  ``FROMFILE``.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="POPU" APPEAR="State basis to be populated." KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: DTime <advanced>
@@ -183,7 +189,7 @@ General keywords
               </KEYWORD>
 
 :kword:`NRPO`
-  Number of states to be populated.
+  Numbers of states to be populated.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="NRPO" APPEAR="Populated states" KIND="INT" LEVEL="BASIC" DEFAULT_VALUE="1" MIN_VALUE="0">
               %%Keyword: NRPO <advanced>
@@ -264,9 +270,9 @@ General keywords
               </KEYWORD>
 
 :kword:`METHod`
-  Method of integration: Runge-Kutta method of 4th order (*classic_RK4*) is set by default. *RKCK* (Runge-Kutta-Cash-Karp) 
+  Method of integration: Runge-Kutta method of 4th order (``classic_RK4``) is set by default. ``RKCK`` (Runge-Kutta-Cash-Karp) 
   with variable time step sometimes is better. Other available integrators are
-  *RK4*, *RK5*, *RK45*.
+  ``RK4``, ``RK5``, ``RK45``.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="METH" APPEAR="Method of integration" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: DTime <advanced>
@@ -310,7 +316,7 @@ General keywords
 
 :kword:`PROPbasis`
   Basis used for propagation, spin-free basis by default. For some features such as dipole moment calc or emission SO basis 
-  is preferrable. Available options: *CSF*, *SF*, *SO*.
+  is preferrable. Available options: ``CSF``, ``SF``, ``SO``.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="PROP" APPEAR="Propagation basis" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: PROPbasis <advanced>
@@ -320,10 +326,10 @@ General keywords
               </KEYWORD>
 
 :kword:`DMBAsis`
-  Basis used for the output of density matrix diagonal elements (populations), 'SF_SO' by default means that density matrix
-  is printed in two basis sets: spin-free and spin-orbit. To reduce time a little bit one can change it either to SF or SO.
-  Transformation matrices are taken from :program:`RASSI`. Available options: *CSF*, *SF*, *SO*,
-  *CSF_SF*, *SF_SO*, *CSF_SO*, *ALL*.
+  Basis used for the output of density matrix diagonal elements (populations), ``SF_SO`` by default means that density matrix
+  is printed in two basis sets: spin-free and spin-orbit. To reduce time a little bit one can change it either to ``SF`` or ``SO``.
+  Transformation matrices are taken from :program:`RASSI`. Available options: ``CSF``, ``SF``, ``SO``,
+  ``CSF_SF``, ``SF_SO``, ``CSF_SO``, ``ALL``.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="DMBA" APPEAR="DM basis" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: DMBAsis <advanced>
@@ -394,7 +400,7 @@ General keywords
               </KEYWORD>
 
 :kword:`GAMMa`
-  Electronic - nuclear bath coupling in :math:`\text{cm}^{-1}`
+  Electronic - nuclear bath coupling in :math:`\text{cm}^{-1}`.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="GAMM" APPEAR="Electronic - nuclear bath coupling" KIND="REAL" LEVEL="BASIC" DEFAULT_VALUE="300.0" MIN_VALUE="0.0">
               %%Keyword: GAMMa <advanced>
@@ -406,7 +412,7 @@ General keywords
 :kword:`HRSO`
   Enables reading of Huang-Ruyis factors in spin-orbit coupling basis.
   By default these are supposed to be in spin-free basis only for
-  ground state. See file :file:`HR-FACT`
+  ground state. See file :file:`HR-FACT`.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="HRSO" APPEAR="Enable reading Huang-Ruyis factors" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: HRSO <advanced>
@@ -426,7 +432,7 @@ General keywords
               </KEYWORD>
 
 :kword:`NPULses`
-  Number of incoming electric fields, 1 by default. Set it to *0* if no pulse is needed.
+  Number of incoming electric fields, ``1`` by default. Set it to ``0`` if no pulse is needed.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="NPUL" APPEAR="Incoming pulses" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: NPULses <advanced>
@@ -442,17 +448,16 @@ General keywords
 
   .. container:: list
 
-    **Gauss** --- gaussian shape :math:`\exp{-(t-t_0)^2/(2\sigma^2)}`. Set by default.
+    **Gauss** --- gaussian shape :math:`\exp (-(t-t_0)^2/(2\sigma^2))`. Set by default.
 
-    **sinX**, **cosX** --- :math:`\cos^X(\pi(t-t_0)/(2\sigma))`.
-                           Here *X* is power, to which sine or cosine functions raise.
-                           For example, *sin16* describes :math:`sin^{16}` shape function.
+    **sinX**, **cosX** --- more localized shape :math:`\cos^X(\pi(t-t_0)/(2\sigma))`.
+    Here **X** is power, to which sine or cosine functions raise. For example, **sin16** describes 
+    :math:`sin^{16}` shape function.
 
     **Mono** --- monochromatic pulse without shape function.
 
     **TYPE_X_CIRCLE** --- explicitely circularly polirized light, where *X* can be *L* or 
-                          *R* for left and right direction, and *TYPE* replaces *Mono* or
-                          *Gauss*.
+    *R* for left and right direction, and *TYPE* replaces *Mono* or *Gauss*.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="PTYP" APPEAR="Pulse type" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: PTYPe <advanced>

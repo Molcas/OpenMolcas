@@ -54,7 +54,7 @@ subroutine read_input()
         call upCase(p_style)
         if (p_style/='DET'.and.p_style/='CSF'.and.p_style/='SF'.and.&
             p_style/='SO'.and.p_style/='SO_THERMAL'.and.&
-            p_style/='SF_THERMAL') then
+            p_style/='SF_THERMAL'.and.p_style/='FROMFILE') then
           call WarningMessage(2,'Unknown option for POPUlation style')
           call abend()
         endif

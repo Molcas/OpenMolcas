@@ -15,7 +15,8 @@ subroutine soci
     use rhodyn_utils, only: transform, mult, dashes
     use definitions, only: wp, iwp, u6
     use stdalloc, only: mma_allocate, mma_deallocate
-    use mh5
+    use mh5, only: mh5_open_file_r, mh5_exists_dset, mh5_fetch_dset, &
+                   mh5_close_file, mh5_put_dset
     implicit none
 !
 ! Purpose: Read in the SO Coefficient from MOLCAS output, The prepare

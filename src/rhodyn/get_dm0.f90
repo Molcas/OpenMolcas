@@ -27,15 +27,16 @@ subroutine get_dm0()
   complex(kind=wp),dimension(:,:),allocatable:: DET2CSF, DM0_bas
   complex(kind=wp),dimension(lrootstot) :: E_SF
   complex(kind=wp) :: Z
+!  integer(kind=iwp) :: lu !temporary io unit
 
   if (ipglob>3) write(u6,*) 'Begin get_dm0'
 
-      if (preparation/=4) then
-        call mma_allocate(DM0,nconftot, nconftot)
-      else ! in charge migration case prepare DM in SF/SO basis
-        call mma_allocate(DM0,lrootstot,lrootstot)
-      endif
-      DM0=zero
+  if (preparation/=4) then
+    call mma_allocate(DM0,nconftot, nconftot)
+  else ! in charge migration case prepare DM in SF/SO basis
+    call mma_allocate(DM0,lrootstot,lrootstot)
+  endif
+  DM0=zero
 
 ! If populate DET, read the transform matrix from DET to CSF to DET2CSF
   if (p_style=='DET') then
@@ -242,7 +243,20 @@ subroutine get_dm0()
       write(6,*)'Population style ',p_style, ' is not recognized'
       call abend()
     end select
-  endif
+  endif !ifso
+
+! ADD HERE DENSITY MATRIX READING FROM FILE, think of transformations
+! if (p_style=='FROMFILE') then
+!   lu = isFreeUnit(11)
+!   call molcas_open(lu,'INDENS')
+!   do i=1,NState
+!     do j=1,Nstate
+!       read(lu,'(E16.8)',advance='no') temp(j)
+!       DM0(i,j) = dcmplx(temp(j))
+!     enddo
+!   enddo
+!   close(lu) ! close INDENS file
+! endif
 
   if (allocated(DM0_bas)) call mma_deallocate(DM0_bas)
 

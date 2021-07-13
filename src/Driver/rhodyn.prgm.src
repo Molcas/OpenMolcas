@@ -17,6 +17,7 @@
  (file)  RASSD6   "$WorkDir/$Project."rassd6.h5      ro
  (file)  RASSISD  "$WorkDir/$Project."rassisd.h5     ro
  (file)  HRFACT   "$WorkDir/$Project."hrfact.dat     ro
+ (file)  INDENS   "$WorkDir/$Project."indens.dat     ro
  (file)  PULSE    "$WorkDir/$Project."pulse.dat      rws
  (file)  SODENS   "$WorkDir/$Project."so_den.dat     rws
  (file)  SFDENS   "$WorkDir/$Project."sf_den.dat     rws

@@ -137,8 +137,9 @@ subroutine rhodyn()
     call mh5_put_dset(prep_ci, CI)
     call mh5_put_dset(prep_hcsf, H_CSF)
 
+    ! construct CI transformation matrix U_CI
     call uci()
-    if (flag_so) call transform_V()
+    if (flag_so) call get_vsoc()
     call get_hcsf()
     if (flag_so) then
       call soci()
@@ -146,6 +147,7 @@ subroutine rhodyn()
     endif
     call get_dm0()
 
+    ! close file PREP
     call mh5_close_file(prep_id)
 
     call dashes()
@@ -155,7 +157,7 @@ subroutine rhodyn()
     call dashes()
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! start from intermadiate preparation file PREP
+! start from intermediate preparation file PREP
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   else if (preparation==2) then
     call mma_allocate(HTOT_CSF, nconftot, nconftot)
@@ -176,7 +178,7 @@ subroutine rhodyn()
       call mma_allocate(E, maxlroots, N)
       call mma_allocate(U_CI, nconftot, lrootstot)
       call mma_allocate(CSF2SO, nconftot, lrootstot)
-      CI=0d0
+      CI=0.0d0
       ! Determine file names
       ! Expected N rassd files and 1 rassisd file
       call mma_allocate(rassd_list,N)
@@ -190,6 +192,7 @@ subroutine rhodyn()
       call mma_deallocate(rassd_list)
       ! construct CI transformation matrix
       call uci()
+      ! SO hamiltonian from RASSI is read
       call read_rassisd()
       ! construct the transformation matrix CSF2SO from SO to CSF
       call mult(dcmplx(U_CI),SO_CI,CSF2SO)
@@ -202,6 +205,7 @@ subroutine rhodyn()
 ! dynamics part starts
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   if (preparation/=3) then
+    ! determine dimension d of propagated matrices
     select case (basis)
     case ('CSF')
       d = nconftot
@@ -218,8 +222,9 @@ subroutine rhodyn()
     call mma_allocate(decay,       Nstate,Nstate)
     call mma_allocate(U_CI_compl,  nconftot,lrootstot)
 
-! prepare density and hamiltonian in required basis to propagate with
     if (preparation/=4) then
+      ! prepare density and hamiltonian in required basis to propagate with.
+      ! here supposed that these matrices are prepared in CSF basis
       call hamdens()
     else
     ! charge migration case
@@ -333,6 +338,6 @@ subroutine rhodyn()
 
   call StatusLine('RhoDyn:','Finished')
   ireturn = 0
-!  call qExit('RHODYN') ! deprecated
+
   return
 end

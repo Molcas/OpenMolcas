@@ -17,7 +17,8 @@ subroutine get_dipole
   use rhodyn_data
   use rhodyn_utils, only: transform, dashes
   use definitions, only: wp, iwp, u6
-  use mh5
+  use mh5, only: mh5_open_file_r, mh5_exists_dset, mh5_fetch_dset, &
+                 mh5_close_file, mh5_put_dset
   use stdalloc, only: mma_allocate, mma_deallocate
   implicit none
   integer(kind=iwp) :: fileid
