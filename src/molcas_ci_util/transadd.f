@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine transadd(n,a,lda)
       ! Add the transpose to a square matrix, A := A + A^T
 
@@ -33,7 +33,7 @@
         ! add transposed upper to lower triangular part
         do i = 1,nblksz
           do j = 1,i
-            a(ista+i-1,ista+j-1) = a(ista+i-1,ista+j-1) +
+            a(ista+i-1,ista+j-1) = a(ista+i-1,ista+j-1) +               &
      &       a(ista+j-1,ista+i-1)
           end do
         end do
@@ -49,7 +49,7 @@
       ! add transposed upper to lower triangular part
       do i = 1,nrem
         do j = 1,i
-          a(ista+i-1,ista+j-1) = a(ista+i-1,ista+j-1) +
+          a(ista+i-1,ista+j-1) = a(ista+i-1,ista+j-1) +                 &
      &     a(ista+j-1,ista+i-1)
         end do
       end do
@@ -68,7 +68,7 @@
           ! add transposed upper to lower triangular block
           do j = 1,nblksz
             do i = 1,nblksz
-              a(ista+i-1,jsta+j-1) = a(ista+i-1,jsta+j-1) +
+              a(ista+i-1,jsta+j-1) = a(ista+i-1,jsta+j-1) +             &
      &         a(jsta+j-1,ista+i-1)
             end do
           end do
@@ -87,7 +87,7 @@
         ! add transposed upper to lower triangular block
         do j = 1,nblksz
           do i = 1,nrem
-            a(ista+i-1,jsta+j-1) = a(ista+i-1,jsta+j-1) +
+            a(ista+i-1,jsta+j-1) = a(ista+i-1,jsta+j-1) +               &
      &       a(jsta+j-1,ista+i-1)
           end do
         end do

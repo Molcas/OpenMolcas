@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2013, Steven Vancoillie                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2013, Steven Vancoillie                                *
+!***********************************************************************
       module second_quantization
 !     Implements determinants of k electrons in n (spin)orbitals as combinations
 !     (k,n) represented as bitstrings, using 32-bit integers.  Combinations are
@@ -189,9 +189,9 @@
       ones(1) = onebits(byte(1))
       ones(2) = onebits(byte(2)) + ones(1)
       ones(3) = onebits(byte(3)) + ones(2)
-      lexrank = 1 + ranktbl(byte(1), 1) +
-     & ranktbl(byte(2), 2+ones(1)) +
-     & ranktbl(byte(3),11+ones(2)) +
+      lexrank = 1 + ranktbl(byte(1), 1) +                               &
+     & ranktbl(byte(2), 2+ones(1)) +                                    &
+     & ranktbl(byte(3),11+ones(2)) +                                    &
      & ranktbl(byte(4),28+ones(3))
       end function lexrank
 

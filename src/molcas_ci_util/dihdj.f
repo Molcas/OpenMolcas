@@ -1,43 +1,43 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1989,2003, Jeppe Olsen                                 *
-************************************************************************
-      SUBROUTINE DIHDJ_MOLCAS(IASTR,IBSTR,NIDET,JASTR,JBSTR,NJDET,
-     &     NAEL,NBEL,
-     &     IWORK,NORB,ONEBOD,HAMIL,ISYM,NINOB,ECORE,ICOMBI,PSIGN,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1989,2003, Jeppe Olsen                                 *
+!***********************************************************************
+      SUBROUTINE DIHDJ_MOLCAS(IASTR,IBSTR,NIDET,JASTR,JBSTR,NJDET,      &
+     &     NAEL,NBEL,                                                   &
+     &     IWORK,NORB,ONEBOD,HAMIL,ISYM,NINOB,ECORE,ICOMBI,PSIGN,       &
      &     IPRINT,TUVX,ExFac,IREOTS)
-C
-C A SET OF DETERMINANTS IA DEFINED BY ALPHA AND BETASTRINGS
-C IASTR,IBSTR AND ANOTHER SET OF DETERMINATS DEFINED BY STRINGS
-C JASTR AND JBSTR ARE GIVEN . OBTAIN CORRESPONDING HAMILTONIAN MATRIX
-C
-C IF ICOMBI .NE. 0 COMBINATIONS ARE USED FOR ALPHA AND BETA STRING
-C THAT DIFFERS :
-C   1/SQRT(2) * ( |I1A I2B| + PSIGN * |I2A I1B| )
-C
-C IF ISYM .EQ. 0 FULL HAMILTONIAN IS CONSTRUCTED
-C IF ISYM .NE. 0 LOWER HALF OF HAMILTONIAN IS CONSTRUCTED
-C
-C JEPPE OLSEN JANUARY 1989
-*             IREOTS added for new Molcas compatibility, August 2003
-C
+!
+! A SET OF DETERMINANTS IA DEFINED BY ALPHA AND BETASTRINGS
+! IASTR,IBSTR AND ANOTHER SET OF DETERMINATS DEFINED BY STRINGS
+! JASTR AND JBSTR ARE GIVEN . OBTAIN CORRESPONDING HAMILTONIAN MATRIX
+!
+! IF ICOMBI .NE. 0 COMBINATIONS ARE USED FOR ALPHA AND BETA STRING
+! THAT DIFFERS :
+!   1/SQRT(2) * ( |I1A I2B| + PSIGN * |I2A I1B| )
+!
+! IF ISYM .EQ. 0 FULL HAMILTONIAN IS CONSTRUCTED
+! IF ISYM .NE. 0 LOWER HALF OF HAMILTONIAN IS CONSTRUCTED
+!
+! JEPPE OLSEN JANUARY 1989
+!             IREOTS added for new Molcas compatibility, August 2003
+!
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION IASTR(NAEL,*),IBSTR(NBEL,*)
       DIMENSION JASTR(NAEL,*),JBSTR(NBEL,*)
-C
+!
       DIMENSION IWORK(*), HAMIL(*), ONEBOD(NORB,NORB)
       DIMENSION TUVX(*), IREOTS(*)
-C
+!
       NTEST = 0
-C  Initialization
+!  Initialization
       KLIAB = 0
       IAEQIB = 0
       JAEQJB = 0
@@ -58,16 +58,16 @@ C  Initialization
       I2     = 0
       J1     = 0
       J2     = 0
-C SCATCH SPACE
-C
-C .. 1 : EXPANSION OF ALPHA AND BETA STRINGS OF TYPE I
-C
+! SCATCH SPACE
+!
+! .. 1 : EXPANSION OF ALPHA AND BETA STRINGS OF TYPE I
+!
       KLFREE = 1
       KLIAE  = KLFREE
       KLFREE = KLIAE + NORB
       KLIBE  = KLFREE
       KLFREE = KLIBE + NORB
-C
+!
       KLJAE = KLFREE
       KLFREE = KLJAE + NORB
       KLJBE = KLFREE
@@ -76,9 +76,9 @@ C
         KLIAB  = KLFREE
         KLFREE = KLFREE + NIDET
       END IF
-C
+!
       IF( ICOMBI .NE. 0 ) THEN
-C SET UP ARRAY COMBARING ALPHA AND BETA STRINGS IN IDET LIST
+! SET UP ARRAY COMBARING ALPHA AND BETA STRINGS IN IDET LIST
         DO 13 IDET = 1, NIDET
           IAEQIB = 1
           DO 14 IEL = 1, NAEL
@@ -87,41 +87,41 @@ C SET UP ARRAY COMBARING ALPHA AND BETA STRINGS IN IDET LIST
           IWORK(KLIAB-1+IDET) = IAEQIB
 13      CONTINUE
       END IF
-C
+!
       IF( ISYM .EQ. 0 ) THEN
         LHAMIL = NIDET*NJDET
       ELSE
         LHAMIL = NIDET*(NIDET+1) / 2
       END IF
       CALL DCOPY_(LHAMIL,[0.0D0],0,HAMIL,1)
-C
+!
       NTERMS= 0
       NDIF0 = 0
       NDIF1 = 0
       NDIF2 = 0
-C.. LOOP OVER J DETERMINANTS
-C
+!.. LOOP OVER J DETERMINANTS
+!
       DO 1000 JDET = 1,NJDET
-C
-C EXPAND JDET
+!
+! EXPAND JDET
         CALL ICOPY(NORB,[0],0,IWORK(KLJAE),1)
         CALL ICOPY(NORB,[0],0,IWORK(KLJBE),1)
-C
+!
         IF( ICOMBI .NE. 0 ) THEN
           JAEQJB = 1
           DO 32 IEL = 1, NAEL
             IF(JASTR(IEL,JDET) .NE. JBSTR(IEL,JDET))JAEQJB = 0
 32        CONTINUE
         END IF
-C
+!
         DO 40 IAEL = 1, NAEL
           IWORK(KLJAE-1+JASTR(IAEL,JDET) ) = 1
 40      CONTINUE
-C
+!
         DO 50 IBEL = 1, NBEL
           IWORK(KLJBE-1+JBSTR(IBEL,JDET) ) = 1
 50      CONTINUE
-C
+!
         IF( NTEST .GE. 10 ) THEN
           WRITE(6,*) ' LOOP 1000 JDET =  ',JDET
           WRITE(6,*) ' JASTR AND JBSTR '
@@ -131,7 +131,7 @@ C
           CALL IWRTMA(IWORK(KLJAE),1,NORB,1,NORB)
           CALL IWRTMA(IWORK(KLJBE),1,NORB,1,NORB)
         END IF
-C
+!
         IF( ISYM .EQ. 0 ) THEN
           MINI = 1
         ELSE
@@ -148,13 +148,13 @@ C
             NLOOP = 1
           END IF
         END IF
-C
+!
         DO 899 ILOOP = 1, NLOOP
          NTERMS = NTERMS + 1
-C
-C.. COMPARE DETERMINANTS
-C
-C SWAP IA AND IB FOR SECOND PART OF COMBINATIONS
+!
+!.. COMPARE DETERMINANTS
+!
+! SWAP IA AND IB FOR SECOND PART OF COMBINATIONS
         If ( ILOOP.eq.2 ) then
           Do iii = 1,NAEL
             jjj = IASTR(iii,IDET)
@@ -162,28 +162,28 @@ C SWAP IA AND IB FOR SECOND PART OF COMBINATIONS
             IBSTR(iii,IDET) = jjj
           End Do
         End If
-C
+!
         NACM = 0
         DO 61 IAEL = 1, NAEL
           NACM = NACM + IWORK(KLJAE-1+IASTR(IAEL,IDET))
 61      CONTINUE
-C
+!
         NBCM = 0
         DO 62 IBEL = 1, NBEL
           NBCM = NBCM + IWORK(KLJBE-1+IBSTR(IBEL,IDET))
 62      CONTINUE
-C
+!
         NADIF = NAEL-NACM
         NBDIF = NBEL-NBCM
         IF( NTEST .GE. 10 ) THEN
           WRITE(6,*) '  LOOP 900 IDET ',IDET
           WRITE(6,*) ' COMPARISON , NADIF , NBDIF ', NADIF,NBDIF
         END IF
-C
+!
         IF(NADIF+NBDIF .GT. 2 ) GOTO 899
-C
-C
-C  FACTOR FOR COMBINATIONS
+!
+!
+!  FACTOR FOR COMBINATIONS
        IF( ICOMBI .EQ. 0 ) THEN
          CONST = 1.0D0
        ELSE
@@ -199,21 +199,21 @@ C  FACTOR FOR COMBINATIONS
            END IF
           END IF
         END IF
-C
-C.. FIND DIFFERING ORBITALS AND SIGN FOR PERMUTATION
-C
-C EXPAND IDET
+!
+!.. FIND DIFFERING ORBITALS AND SIGN FOR PERMUTATION
+!
+! EXPAND IDET
         CALL ICOPY(NORB,[0],0,IWORK(KLIAE),1)
         CALL ICOPY(NORB,[0],0,IWORK(KLIBE),1)
-C
+!
           DO 42 IAEL = 1, NAEL
             IWORK(KLIAE-1+IASTR(IAEL,IDET) ) = 1
 42        CONTINUE
-C
+!
           DO 52 IBEL = 1, NBEL
             IWORK(KLIBE-1+IBSTR(IBEL,IDET) ) = 1
 52        CONTINUE
-C
+!
         IF(NADIF .EQ. 1 ) THEN
           DO 120 IAEL = 1,NAEL
             IF(IWORK(KLJAE-1+IASTR(IAEL,IDET)).EQ.0) THEN
@@ -223,7 +223,7 @@ C
              END IF
 120       CONTINUE
 121       CONTINUE
-C
+!
           DO 130 JAEL = 1,NAEL
             IF(IWORK(KLIAE-1+JASTR(JAEL,JDET)).EQ.0) THEN
               JA = JASTR(JAEL,JDET)
@@ -243,7 +243,7 @@ C
              END IF
 220       CONTINUE
 221       CONTINUE
-C
+!
           DO 230 JBEL = 1,NBEL
             IF(IWORK(KLIBE-1+JBSTR(JBEL,JDET)).EQ.0) THEN
               JB = JBSTR(JBEL,JDET)
@@ -270,7 +270,7 @@ C
             END IF
 320       CONTINUE
 321       CONTINUE
-C
+!
           JDIFF = 0
           DO 330 JAEL = 1,NAEL
             IF(IWORK(KLIAE-1+JASTR(JAEL,JDET)).EQ.0) THEN
@@ -288,7 +288,7 @@ C
 331       CONTINUE
           SIGN = DBLE((-1)**(IPERM+JPERM))
         END IF
-C
+!
         IF(NBDIF .EQ. 2 ) THEN
           IDIFF = 0
           DO 420 IBEL = 1,NBEL
@@ -305,7 +305,7 @@ C
             END IF
 420       CONTINUE
 421       CONTINUE
-C
+!
           JDIFF = 0
           DO 430 JBEL = 1,NBEL
             IF(IWORK(KLIBE-1+JBSTR(JBEL,JDET)).EQ.0) THEN
@@ -323,43 +323,43 @@ C
 431       CONTINUE
           SIGN = DBLE((-1)**(IPERM+JPERM))
         END IF
-C
-C OBTAIN VALUE OF HAMILTONIAN ELEMENT
-C
+!
+! OBTAIN VALUE OF HAMILTONIAN ELEMENT
+!
         IF( NADIF .EQ. 2 .OR. NBDIF .EQ. 2 ) THEN
           NDIF2 = NDIF2 + 1
-C SIGN * (I1 J1 | I2 J2 ) - ( I1 J2 | I2 J1 )
+! SIGN * (I1 J1 | I2 J2 ) - ( I1 J2 | I2 J1 )
           I1 = I1 + NINOB
           I2 = I2 + NINOB
           J1 = J1 + NINOB
           J2 = J2 + NINOB
-*. Well, there is no reordering in integrals any more. so
+!. Well, there is no reordering in integrals any more. so
           I1_REO = IREOTS(I1)
           J1_REO = IREOTS(J1)
           I2_REO = IREOTS(I2)
           J2_REO = IREOTS(J2)
-          XVAL = SIGN*( GETH2A(I1_REO,J1_REO,I2_REO,J2_REO,TUVX)
-     *                 -GETH2A(I1_REO,J2_REO,I2_REO,J1_REO,TUVX) )
+          XVAL = SIGN*( GETH2A(I1_REO,J1_REO,I2_REO,J2_REO,TUVX)        &
+     &                 -GETH2A(I1_REO,J2_REO,I2_REO,J1_REO,TUVX) )
         ELSE IF( NADIF .EQ. 1 .AND. NBDIF .EQ. 1 ) THEN
           NDIF2 = NDIF2 + 1
-C SIGN * (IA JA | IB JB )
+! SIGN * (IA JA | IB JB )
           IA = IA + NINOB
           IB = IB + NINOB
           JA = JA + NINOB
           JB = JB + NINOB
-*
+!
           IA_REO = IREOTS(IA)
           IB_REO = IREOTS(IB)
           JA_REO = IREOTS(JA)
           JB_REO = IREOTS(JB)
           XVAL = SIGNA*SIGNB* GETH2A(IA_REO,JA_REO,IB_REO,JB_REO,TUVX)
-        ELSE IF( NADIF .EQ. 1 .AND. NBDIF .EQ. 0 .OR.
-     *           NADIF .EQ. 0 .AND. NBDIF .EQ. 1 )THEN
+        ELSE IF( NADIF .EQ. 1 .AND. NBDIF .EQ. 0 .OR.                   &
+     &           NADIF .EQ. 0 .AND. NBDIF .EQ. 1 )THEN
           NDIF1 = NDIF1 + 1
-C SIGN *
-C(  H(I1 J1 ) +
-C  (SUM OVER ORBITALS OF BOTH      SPIN TYPES  ( I1 J1 | JORB JORB )
-C -(SUM OVER ORBITALS OF DIFFERING SPIN TYPE   ( I1 JORB | JORB J1 ) )
+! SIGN *
+!(  H(I1 J1 ) +
+!  (SUM OVER ORBITALS OF BOTH      SPIN TYPES  ( I1 J1 | JORB JORB )
+! -(SUM OVER ORBITALS OF DIFFERING SPIN TYPE   ( I1 JORB | JORB J1 ) )
           IF( NADIF .EQ. 1 ) THEN
             I1 = IA + NINOB
             J1 = JA + NINOB
@@ -369,7 +369,7 @@ C -(SUM OVER ORBITALS OF DIFFERING SPIN TYPE   ( I1 JORB | JORB J1 ) )
             J1 = JB + NINOB
             SIGN = SIGNB
           END IF
-C
+!
           I1_REO = IREOTS(I1)
           J1_REO = IREOTS(J1)
           XVAL = ONEBOD(IREOTS(I1-NINOB),IREOTS(J1-NINOB))
@@ -399,8 +399,8 @@ C
           XVAL = XVAL * SIGN
         ELSE IF( NADIF .EQ. 0 .AND. NBDIF .EQ. 0 ) THEN
           NDIF0 = NDIF0 + 1
-C SUM(I,J OF JDET) H(I,J) + (I I | J J ) - (I J | J I )
-C
+! SUM(I,J OF JDET) H(I,J) + (I I | J J ) - (I J | J I )
+!
           XVAL = ECORE
           DO 650 IAB = 1, 2
             IF(IAB .EQ. 1 ) THEN
@@ -430,25 +430,25 @@ C
                     JORB = IBSTR(JEL,IDET)+NINOB
                   END IF
                   JORB_REO = IREOTS(JORB)
-                  XVAL = XVAL
+                  XVAL = XVAL                                           &
      &          + 0.5D0*GETH2A(IORB_REO,IORB_REO,JORB_REO,JORB_REO,TUVX)
-                  IF ( IAB . EQ. JAB ) XVAL =
-     &               XVAL - ExFac * 0.5D0 *
+                  IF ( IAB .EQ. JAB ) XVAL =                            &
+     &               XVAL - ExFac * 0.5D0 *                             &
      &               GETH2A(IORB_REO,JORB_REO,JORB_REO,IORB_REO,TUVX)
 620             CONTINUE
 630           CONTINUE
 640         CONTINUE
 650       CONTINUE
         END IF
-C
+!
         IF( ISYM .EQ. 0 ) THEN
-          HAMIL((JDET-1)*NIDET+IDET) =
-     *    HAMIL((JDET-1)*NIDET+IDET) + CONST * XVAL
+          HAMIL((JDET-1)*NIDET+IDET) =                                  &
+     &    HAMIL((JDET-1)*NIDET+IDET) + CONST * XVAL
         ELSE
-          HAMIL((IDET-1)*IDET/2 + JDET ) =
-     *    HAMIL((IDET-1)*IDET/2 + JDET ) + CONST * XVAL
+          HAMIL((IDET-1)*IDET/2 + JDET ) =                              &
+     &    HAMIL((IDET-1)*IDET/2 + JDET ) + CONST * XVAL
         END IF
-C RESTORE ORDER |||
+! RESTORE ORDER |||
         If ( ILOOP.eq.2 ) then
           Do iii = 1,NAEL
             jjj = IASTR(iii,IDET)
@@ -459,7 +459,7 @@ C RESTORE ORDER |||
 899   CONTINUE
 900   CONTINUE
 1000  CONTINUE
-C
+!
       IF( IPRINT .GE. 2 ) THEN
         WRITE(6,*) '  HAMILTONIAN MATRIX '
         IF( ISYM .EQ. 0 ) THEN
@@ -468,6 +468,6 @@ C
           CALL PRSYM(HAMIL,NIDET)
         END IF
       END IF
-C
+!
       RETURN
       END

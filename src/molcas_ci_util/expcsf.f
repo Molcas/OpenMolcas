@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-C     Expand IMS component of ICS(NLEV) in determinants using the
-C     procedure from Shavitt in "The Unitary Group", "Lecture Notes in
-C     Chemistry" Vol. 22, pp. 55.
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!     Expand IMS component of ICS(NLEV) in determinants using the
+!     procedure from Shavitt in "The Unitary Group", "Lecture Notes in
+!     Chemistry" Vol. 22, pp. 55.
       SUBROUTINE EXPCSF (ICS, NLEV, IMS, LEX)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION ICS(NLEV), LEX(NLEV)
@@ -18,14 +18,14 @@ C     Chemistry" Vol. 22, pp. 55.
       CHARACTER(LEN=6) STRING
       DIMENSION ICOEF(2)
       LOGICAL LPHASE, LAST
-C     find number of singly occupied orbitals
+!     find number of singly occupied orbitals
       NSOMO = 0
       DO I=1,NLEV
         IF (ICS(I).EQ.1.OR.ICS(I).EQ.2) NSOMO=NSOMO+1
       ENDDO
       NALPHA=(NSOMO+IMS)/2
       CALL INIT_LEX (NSOMO, NALPHA, LEX)
-C     Loop over possible determinants
+!     Loop over possible determinants
       LAST = .FALSE.
       DO WHILE (.NOT.LAST)
         ICOEF(1)=1
@@ -88,7 +88,7 @@ C     Loop over possible determinants
           IF (ICOEF(1).EQ.0) EXIT
         ENDDO
         IF (ICOEF(1).NE.0) THEN
-C     If non-zero coefficient, print the thing
+!     If non-zero coefficient, print the thing
           CALL SIMPLIFY(ICOEF)
           IF (LPHASE) THEN
             WRITE (LINE(1:9),'(2X,A7)') '+ sqrt('
@@ -106,9 +106,9 @@ C     If non-zero coefficient, print the thing
           ENDDO
           WRITE(LINE(23:23),'(A1)') ')'
           WRITE(6,*) LINE(1:K+1)
-C     End of print-out
+!     End of print-out
         ENDIF
-C     Get the next determinant
+!     Get the next determinant
         CALL LEX_ITER (NSOMO, NALPHA, LEX, LAST)
       ENDDO
       END
@@ -119,7 +119,7 @@ C     Get the next determinant
       DO I=1,K
         LEX(I)=I
       ENDDO
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(N)
       END
 
@@ -128,18 +128,18 @@ c Avoid unused argument warnings
       DIMENSION LEX(K)
       LOGICAL LAST
       I = K
-C     Get the first position to be updated
+!     Get the first position to be updated
       DO WHILE ((I.GT.0).AND.(LEX(I).EQ.N-K+I))
         I=I-1
       ENDDO
-C     If still remaining combinations, update and
-C     reset all higher positions to lexicographic order
+!     If still remaining combinations, update and
+!     reset all higher positions to lexicographic order
       IF (I.GT.0) THEN
         LEX(I)=LEX(I)+1
         DO J=1,K-I
           LEX(I+J)=LEX(I)+J
         ENDDO
-C     Else, quit finding combinations
+!     Else, quit finding combinations
       ELSE
         LAST = .TRUE.
       ENDIF
@@ -150,7 +150,7 @@ C     Else, quit finding combinations
       INTEGER A, B, FRAC
       DIMENSION FRAC(2)
       IF (FRAC(1).EQ.0) RETURN
-C     Find GCD of numerator and denominator
+!     Find GCD of numerator and denominator
       A=FRAC(1)
       B=FRAC(2)
  60   IF (B.NE.0) THEN

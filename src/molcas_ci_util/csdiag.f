@@ -1,36 +1,36 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SUBROUTINE CSDIAG_CI_UTIL(CSFDIA,DETDIA,NCNFTP,NTYP,
-     *                  ICTSDT,NDTFTP,NCSFTP,IPRINT)
-C
-C     PURPOSE: OBTAIN AVERAGE CI DIAGONAL ELEMENTS AND STORE IN CSFDIA
-C
-C     CALLS TO SUBROUTINES AND EXTERNAL FUNCTIONS:
-C     DCOPY,WRTMAT
-C
-C     CALLING PARAMETERS.
-C     CSFDIA  : CI DIAGONAL IN SCF BASIS
-C     DETDIA  : CI DIAGONAL IN DETERMINENT BASIS
-C     NCNFTP  :
-C     NTYP    :
-C     ICTSDT  :
-C     NDTFTP  :
-C     NCSFTP  :
-C
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SUBROUTINE CSDIAG_CI_UTIL(CSFDIA,DETDIA,NCNFTP,NTYP,              &
+     &                  ICTSDT,NDTFTP,NCSFTP,IPRINT)
+!
+!     PURPOSE: OBTAIN AVERAGE CI DIAGONAL ELEMENTS AND STORE IN CSFDIA
+!
+!     CALLS TO SUBROUTINES AND EXTERNAL FUNCTIONS:
+!     DCOPY,WRTMAT
+!
+!     CALLING PARAMETERS.
+!     CSFDIA  : CI DIAGONAL IN SCF BASIS
+!     DETDIA  : CI DIAGONAL IN DETERMINENT BASIS
+!     NCNFTP  :
+!     NTYP    :
+!     ICTSDT  :
+!     NDTFTP  :
+!     NCSFTP  :
+!
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
       DIMENSION CSFDIA(*),DETDIA(*)
       DIMENSION NCNFTP(NTYP),NDTFTP(NTYP),NCSFTP(NTYP)
       DIMENSION ICTSDT(*)
-C
+!
       ICSOFF = 1
       IDTOFF = 1
       JCNABS = 0
@@ -50,7 +50,7 @@ C
           IDTOFF = IDTOFF + IDET
 80      CONTINUE
 100   CONTINUE
-C
+!
       IF( IPRINT.GE.40 ) THEN
         NCSTOT = ICSOFF-1
         NDTTOT = IDTOFF-1
@@ -61,6 +61,6 @@ C
         WRITE(6,*) ' CIDIAGONAL IN CSF BASIS '
         CALL WRTMAT(CSFDIA,1,NCSTOT,1,NCSTOT)
       END IF
-C
+!
       RETURN
       END

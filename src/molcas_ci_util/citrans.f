@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2014, Steven Vancoillie                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2014, Steven Vancoillie                                *
+!***********************************************************************
       module citrans
 !     written by Steven Vancoillie, summer 2014.
 !
@@ -137,7 +137,7 @@
       ncsf = 0
       do ido = ndo_min, ndo_max
 #ifdef _DEBUGPRINT_
-        write(6,'(5(1x,i4))') ido, ndoc_group(ido), nsoc_group(ido),
+        write(6,'(5(1x,i4))') ido, ndoc_group(ido), nsoc_group(ido),    &
      &    ndet_group(ido), ncsf_group(ido)
 #endif
         ndoc = ndoc_group(ido)
@@ -207,13 +207,13 @@
         rankso = lexrank(sing)
         ndoc = ndoc_group(ido)
         nsoc = nsoc_group(ido)
-        ioff_csf = csf_offset(ido) +
+        ioff_csf = csf_offset(ido) +                                    &
      &   (nsoc*(rankdo-1) + rankso - 1) * ncsf_group(ido)
 
 !       CSF offset within this configuration, use per-ake's magical wtab
 !       to get the rank of a ud string within its set.
         do idown=1,ndown
-          ioff_csf = ioff_csf +
+          ioff_csf = ioff_csf +                                         &
      &     nint(wtab(downvector(idown)-2*idown,idown))
         end do
 
@@ -264,9 +264,9 @@
         allocate(tmp(ndet,nconf))
 
 !       Compute the determinant coefficients from the CSF coefficients.
-        call dgemm_('N','N',ndet,nconf,ncsf,
-     &              1.0d0,spintabs(ido)%coef,ndet,
-     &                    ci(ioff_csf+1),    ncsf,
+        call dgemm_('N','N',ndet,nconf,ncsf,                            &
+     &              1.0d0,spintabs(ido)%coef,ndet,                      &
+     &                    ci(ioff_csf+1),    ncsf,                      &
      &              0.0d0,tmp,               ndet)
 
 !       Store the determinant coefficients with the right phase factor in
@@ -360,9 +360,9 @@
         end do
 
 !       Compute the determinant coefficients from the CSF coefficients.
-        call dgemm_('T','N',ncsf,nconf,ndet,
-     &              1.0d0,spintabs(ido)%coef,ndet,
-     &                    tmp,               ndet,
+        call dgemm_('T','N',ncsf,nconf,ndet,                            &
+     &              1.0d0,spintabs(ido)%coef,ndet,                      &
+     &                    tmp,               ndet,                      &
      &              0.0d0,ci(ioff_csf+1),    ncsf)
 
         deallocate(tmp)
@@ -504,7 +504,7 @@
             iso = iso + 1
             den = den * (ib+2)
           case default
-            write(6,'(1x,a)')
+            write(6,'(1x,a)')                                           &
      &       'ud2det: udvec element /= 1 or 2, fatal...'
             call AbEnd()
           end select
@@ -519,7 +519,7 @@
       end do
       end subroutine
 
-      integer function ds2ab(doub,sing,alfa,beta,deta,detb)
+      integer function ds2ab(doub,sing,alfa,beta,deta,detb)             &
      & result(phase)
 !     convert a determinant characterized by a doubly occupied, singly
 !     occupied, and alpha/beta substrings to an alpha and beta string.
@@ -620,7 +620,7 @@
       do i=1,k
         lex(i)=i
       end do
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) call Unused_integer(n)
       end subroutine
 
@@ -672,7 +672,7 @@ c Avoid unused argument warnings
           return
         end if
       end do
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) call Unused_integer(nso)
       end subroutine
 
@@ -685,7 +685,7 @@ c Avoid unused argument warnings
 
       do n1=0,mxn1
         do n2=1,mxn2
-          wtab(n1,n2) = dble(binom_coef(n1+n2,n1+2*n2))
+          wtab(n1,n2) = dble(binom_coef(n1+n2,n1+2*n2))                 &
      &     * dble(n1) / dble(n1+2*n2)
         end do
       end do

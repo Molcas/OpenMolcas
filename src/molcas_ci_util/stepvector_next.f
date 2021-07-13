@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SUBROUTINE STEPVECTOR_NEXT(MV,IDWN,IUP,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SUBROUTINE STEPVECTOR_NEXT(MV,IDWN,IUP,                           &
      &                           STEPVECTOR)
       IMPLICIT NONE
       INTEGER :: MV, IDWN, IUP, STEPVECTOR(*)
@@ -19,22 +19,22 @@
 #include "gugx.fh"
 #include "WrkSpc.fh"
 
-C stop when MV is zero
+! stop when MV is zero
       IF (MV.EQ.0) THEN
         WRITE(6,'(1X,A)') 'stepvector_next has been depleted'
       END IF
 
-      CALL GETSTEPVECTOR(IWORK(LNOW),IWORK(LIOW),
-     &                   MV,IDWN,IUP,
+      CALL GETSTEPVECTOR(IWORK(LNOW),IWORK(LIOW),                       &
+     &                   MV,IDWN,IUP,                                   &
      &                   STEPVECTOR)
 
       END
 
-      SUBROUTINE GETSTEPVECTOR(NOW,IOW,
-     &                         MV,IDWN,IUP,
+      SUBROUTINE GETSTEPVECTOR(NOW,IOW,                                 &
+     &                         MV,IDWN,IUP,                             &
      &                         ICS)
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -45,32 +45,32 @@ C
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
 
       DIMENSION ICS(mxact)
-C
-C     RECONSTRUCT THE CASE LIST
-C
+!
+!     RECONSTRUCT THE CASE LIST
+!
       NICASE=NWALK*NIPWLK
-*     NSCR=3*(NLEV+1)
-*     CALL GETMEM('SCR1','ALLO','INTEG',LSCR,NSCR)
-*     CALL GETMEM('CASE','ALLO','INTEG',LICASE,NICASE)
-*     CALL MKCLIST(NSM,IWORK(LDOWN),IWORK(LNOW),IWORK(LIOW),
-*    &             IWORK(LICASE),IWORK(LSCR))
-*     CALL GETMEM('SCR1','FREE','INTEG',LSCR,NSCR)
+!     NSCR=3*(NLEV+1)
+!     CALL GETMEM('SCR1','ALLO','INTEG',LSCR,NSCR)
+!     CALL GETMEM('CASE','ALLO','INTEG',LICASE,NICASE)
+!     CALL MKCLIST(NSM,IWORK(LDOWN),IWORK(LNOW),IWORK(LIOW),
+!    &             IWORK(LICASE),IWORK(LSCR))
+!     CALL GETMEM('SCR1','FREE','INTEG',LSCR,NSCR)
 
-C
-C     ENTER THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
-C     WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
-C
+!
+!     ENTER THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
+!     WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
+!
 !     DO MV=1,NMIDV
 !       DO ISYUP=1,NSYM
           NUP=NOW(1,1,MV)
           NDWN=NOW(2,1,MV)
           IUW0=LICASE-NIPWLK+IOW(1,1,MV)
           IDW0=LICASE-NIPWLK+IOW(2,1,MV)
-*         IDWNSV=0
+!         IDWNSV=0
 !         DO IDWN=1,NDWN
 !           DO IUP=1,NUP
               ! determine the stepvector
-*             IF(IDWNSV.NE.IDWN) THEN
+!             IF(IDWNSV.NE.IDWN) THEN
                 ICDPOS=IDW0+IDWN*NIPWLK
                 ICDWN=IWORK(ICDPOS)
                 ! unpack lower walk
@@ -86,8 +86,8 @@ C
                   ICS(LEV)=ICDWN-4*IC1
                   ICDWN=IC1
                 END DO
-*               IDWNSV=IDWN
-*             END IF
+!               IDWNSV=IDWN
+!             END IF
               ICUPOS=IUW0+NIPWLK*IUP
               ICUP=IWORK(ICUPOS)
               ! unpack upper walk
@@ -108,7 +108,7 @@ C
 !       END DO
 !     END DO
 
-C compute the next set of indices
+! compute the next set of indices
       IF (IUP.EQ.NUP) THEN
         IF (IDWN.EQ.NDWN) THEN
           IF (MV.EQ.NMIDV) THEN
@@ -125,6 +125,6 @@ C compute the next set of indices
         IUP=IUP+1
       END IF
 
-*     CALL GETMEM('CASE','FREE','INTEG',LICASE,NICASE)
+!     CALL GETMEM('CASE','FREE','INTEG',LICASE,NICASE)
       RETURN
       END SUBROUTINE

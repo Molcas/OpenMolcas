@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE STEPVEC(ICL,IOP,NCL,NOP,ISPIN,NORB,IWALK)
-C
-C     PURPOSE: A SPIN-COUPLED CSF IS SPECIFIED BY NCL CLOSED SHELL
-C              AND NOP OPEN SHELL AND OCCUPATION VECTORS ICL AND IOP,
-C              RESPECTIVELY. THE SPIN COUPLING IS STORED IN THE
-C              VECTOR ISPIN. TRANSLATE THESE DATA INTO THE
-C              CORRESPONDING STEP VECTOR.
-C
+!
+!     PURPOSE: A SPIN-COUPLED CSF IS SPECIFIED BY NCL CLOSED SHELL
+!              AND NOP OPEN SHELL AND OCCUPATION VECTORS ICL AND IOP,
+!              RESPECTIVELY. THE SPIN COUPLING IS STORED IN THE
+!              VECTOR ISPIN. TRANSLATE THESE DATA INTO THE
+!              CORRESPONDING STEP VECTOR.
+!
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
       DIMENSION ICL(*),IOP(*),ISPIN(*)
       DIMENSION IWALK(*)
       Logical Test
-C
+!
       NXTCL = 1
       NXTOP = 1
       DO IORB = 1,NORB
@@ -55,8 +55,8 @@ C
         END IF
 
       END DO
-C
-C     EXIT
-C
+!
+!     EXIT
+!
       RETURN
       END

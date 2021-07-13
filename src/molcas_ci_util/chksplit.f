@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Giovanni Li Manni                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Giovanni Li Manni                                *
+!***********************************************************************
 
       Subroutine ChkSplit()
-************************************************************************
-*     SplitCAS Check for obvious errors or violation  of limits        *
-*----------------------------------------------------------------------*
-*     written by:                                                      *
-*     Giovanni Li Manni (GLMJ)                                         *
-*     University of Geneva, Switzerland, 2010                          *
-*----------------------------------------------------------------------*
-*     history: none                                                    *
-************************************************************************
+!***********************************************************************
+!     SplitCAS Check for obvious errors or violation  of limits        *
+!----------------------------------------------------------------------*
+!     written by:                                                      *
+!     Giovanni Li Manni (GLMJ)                                         *
+!     University of Geneva, Switzerland, 2010                          *
+!----------------------------------------------------------------------*
+!     history: none                                                    *
+!***********************************************************************
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -30,7 +30,7 @@
 #include "splitcas.fh"
 #include "warnings.h"
 
-*      IF(DoSplitCAS) THEN
+!      IF(DoSplitCAS) THEN
         IERR=0
         If (lRootSplit.gt.nConf) IERR=1
         If (IERR.eq.1) then
@@ -46,7 +46,7 @@
           Call Quit(_RC_INPUT_ERROR_)
         End If
 
-*       If ( NumSplit ) then
+!       If ( NumSplit ) then
         IERR=0
         If ( iDimBlockA.lt.lRootSplit) IERR=1
         If (IERR.eq.1) then
@@ -61,10 +61,10 @@
           write(LF,*) 'In a PESP calculation increase the percentage'
           Write(LF,*)'*************************************************'
           Call Quit(_RC_INPUT_ERROR_)
-*          iDimBlockA=lRootSplit
-*          ircWar = 1
-*          Write(LF,'(1X,A,I8)')
-*     &    'iDimBlockA has been reset to =',iDimBlockA
+!          iDimBlockA=lRootSplit
+!          ircWar = 1
+!          Write(LF,'(1X,A,I8)')
+!     &    'iDimBlockA has been reset to =',iDimBlockA
         End If
 
         IERR=0
@@ -72,20 +72,20 @@
         If (IERR.eq.1) then
           Write(LF,*)
           Write(LF,*) '***************** ERROR *****************'
-          Write(LF,'(1X,A,I6)')'Input Error: Max dim. BlockA exceeded',
+          Write(LF,'(1X,A,I6)')'Input Error: Max dim. BlockA exceeded', &
      &                        mxDimBlockA
           write(LF,*) 'iDimBlockA selected by user = ', iDimBlockA
-          write(LF,*) 'If you are running a NUSP calculation, ',
+          write(LF,*) 'If you are running a NUSP calculation, ',        &
      &    'please, decrease the value of iDimBlockA!'
-          write(LF,*) 'If you are running a ENSP calculation, ',
+          write(LF,*) 'If you are running a ENSP calculation, ',        &
      &    'please, decrease the energy-gap!'
-          write(LF,*) 'If you are running a PESP calculation, ',
+          write(LF,*) 'If you are running a PESP calculation, ',        &
      &    'please, decrease the percentage!'
           Write(LF,*)'************************************************'
           Call Quit(_RC_INPUT_ERROR_)
         End If
-*       End If
-*       ^ End chk over NumSplit
+!       End If
+!       ^ End chk over NumSplit
 
       IERR=0
       If (ThrSplit.lt.min_ThrSplit) IERR = 1
@@ -99,7 +99,7 @@
         Call Quit(_RC_INPUT_ERROR_)
       End If
 
-*      END IF
+!      END IF
 
       Return
       End

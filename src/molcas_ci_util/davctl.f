@@ -1,51 +1,51 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1989, Bjorn O. Roos                                    *
-*               1989, Per Ake Malmqvist                                *
-*               1991, Jeppe Olsen                                      *
-*               1991,1996, Markus P. Fuelscher                         *
-*               2000, Thorstein Thorsteinsson                          *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1989, Bjorn O. Roos                                    *
+!               1989, Per Ake Malmqvist                                *
+!               1991, Jeppe Olsen                                      *
+!               1991,1996, Markus P. Fuelscher                         *
+!               2000, Thorstein Thorsteinsson                          *
+!***********************************************************************
       Subroutine DavCtl(LW1, TUVX, IFINAL)
-************************************************************************
-*                                                                      *
-*     CI control section                                               *
-*                                                                      *
-*     calling arguments:                                               *
-*     LW1     : active Fock matrix                                     *
-*               array of real*8                                        *
-*     TUVX    : array of real*8                                        *
-*               two-electron integrals (tu!vx)                         *
-*     IFINAL  : integer                                                *
-*               termination flag                                       *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     B.O. Roos and P.Aa. Malmqvist                                    *
-*     University of Lund, Sweden, 1989                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history:                                                         *
-*     - updated to use determinant based CI-procedures                 *
-*       J. Olsen and M.P. Fuelscher, University of Lund, Sweden, 1991  *
-*     - updated for MOLCAS version 3                                   *
-*       J. Olsen and M.P. Fuelscher, University of Lund, Sweden, 1991  *
-*     - updated for integral direct and reaction field calculations    *
-*       M.P. Fuelscher, University of Lund, Sweden, 1996               *
-*     - various modifications                                          *
-*       T. Thorsteinsson, University of Lund, Sweden, 2000             *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     CI control section                                               *
+!                                                                      *
+!     calling arguments:                                               *
+!     LW1     : active Fock matrix                                     *
+!               array of real*8                                        *
+!     TUVX    : array of real*8                                        *
+!               two-electron integrals (tu!vx)                         *
+!     IFINAL  : integer                                                *
+!               termination flag                                       *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     B.O. Roos and P.Aa. Malmqvist                                    *
+!     University of Lund, Sweden, 1989                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history:                                                         *
+!     - updated to use determinant based CI-procedures                 *
+!       J. Olsen and M.P. Fuelscher, University of Lund, Sweden, 1991  *
+!     - updated for MOLCAS version 3                                   *
+!       J. Olsen and M.P. Fuelscher, University of Lund, Sweden, 1991  *
+!     - updated for integral direct and reaction field calculations    *
+!       M.P. Fuelscher, University of Lund, Sweden, 1996               *
+!     - various modifications                                          *
+!       T. Thorsteinsson, University of Lund, Sweden, 2000             *
+!                                                                      *
+!***********************************************************************
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -59,33 +59,33 @@
 #include "WrkSpc.fh"
 #include "output_ras.fh"
 #include "lucia_ini.fh"
-C
-C -------------------------------------------------------------------- C
-C -- INITIALIZE THE DAVIDSON DIAGONALIZATION
-C -------------------------------------------------------------------- C
-C
+!
+! -------------------------------------------------------------------- C
+! -- INITIALIZE THE DAVIDSON DIAGONALIZATION
+! -------------------------------------------------------------------- C
+!
       lRoots=lRoots+hroots
       Call Ini_David(lRoots,nConf,nDet,nSel,n_keep,nAc,LuDavid)
 
       IPRLEV=IPRLOC(3)
-C
-C -------------------------------------------------------------------- C
-C --  COMPUTE THE DIAGONAL ELEMENTS OF THE HAMILTONIAN
-C -------------------------------------------------------------------- C
-C
-C     LW4: TEMPORARY CI VECTOR IN CSF BASIS
-C
+!
+! -------------------------------------------------------------------- C
+! --  COMPUTE THE DIAGONAL ELEMENTS OF THE HAMILTONIAN
+! -------------------------------------------------------------------- C
+!
+!     LW4: TEMPORARY CI VECTOR IN CSF BASIS
+!
       IF (IPRLEV.GE.20) WRITE(6,1100) 'INI_DAVID'
       CALL GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
       IF (IPRLEV.GE.20) WRITE(6,1100) 'CIDIA',LW4
-      IF (NAC. GT. 0)
-     &       CALL CIDIA_CI_UTIL(NAC,NCONF,STSYM,WORK(LW4),LW1,TUVX,
+      IF (NAC .GT. 0)                                                   &
+     &       CALL CIDIA_CI_UTIL(NAC,NCONF,STSYM,WORK(LW4),LW1,TUVX,     &
      &                          LUDAVID)
-C
-C -------------------------------------------------------------------- C
-C -- OBTAIN STARTING VECTORS
-C -------------------------------------------------------------------- C
-C
+!
+! -------------------------------------------------------------------- C
+! -- OBTAIN STARTING VECTORS
+! -------------------------------------------------------------------- C
+!
       mSel=nSel
       IF (NAC .NE. 0) THEN
          Call GetMem('iSel','Allo','Integer',lSel,mSel)
@@ -99,20 +99,20 @@ C
       nMaxSel=nConf
       If (N_ELIMINATED_GAS_MOLCAS.gt.0) nmaxSel=nCSF_HEXS
 
-      IF (IPRLEV.GE.20 .AND. NAC .NE. 0)
+      IF (IPRLEV.GE.20 .AND. NAC .NE. 0)                                &
      &        WRITE(6,1100) 'CSTART',LW4,lSel,lExplE,lExplV
-      Call CStart_CI_Util(WORK(LW4),LW1,TUVX,
+      Call CStart_CI_Util(WORK(LW4),LW1,TUVX,                           &
      &     iWork(lSel),Work(lExplE),Work(lExplV),nMaxSel,IFINAL)
 
       CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
-C
-C -------------------------------------------------------------------- C
-C -- DIAGONALIZATION SECTION
-C -------------------------------------------------------------------- C
+!
+! -------------------------------------------------------------------- C
+! -- DIAGONALIZATION SECTION
+! -------------------------------------------------------------------- C
 
-* PAM Jun 2006: Gradual lowering of threshold in first 3 iterations
-*      If ( Iter.gt.1 ) Threshold=THFACT*ABS(CONV(4,ITER-1))
-C Energy threshold for CI convergence criterion:
+! PAM Jun 2006: Gradual lowering of threshold in first 3 iterations
+!      If ( Iter.gt.1 ) Threshold=THFACT*ABS(CONV(4,ITER-1))
+! Energy threshold for CI convergence criterion:
       If ( Iter.eq.1 ) THEN
         Threshold=THREN
       ELSE IF (ITER.gt.1 .and. ITER.le.3) THEN
@@ -121,7 +121,7 @@ C Energy threshold for CI convergence criterion:
       ELSE
         Threshold=THFACT*ABS(CONV(4,ITER-1))
       END IF
-* End of new rule, PAM Jun 2006
+! End of new rule, PAM Jun 2006
       Threshold=Max(Threshold,1.0D-9)
       If(NAC.eq.0) then
         ESize=ABS(EMY)
@@ -130,41 +130,41 @@ C Energy threshold for CI convergence criterion:
       end if
       Threshold=Max(Threshold,ESize*1.0D-14)
 
-C     LW5: CONVERGENCE PARAMETERS
+!     LW5: CONVERGENCE PARAMETERS
       Call GetMem('CI_conv','Allo','Real',LW5,2*lRoots*MAXJT)
-      IF (IPRLEV.GE.20 .AND. NAC .NE. 0)
+      IF (IPRLEV.GE.20 .AND. NAC .NE. 0)                                &
      &        WRITE(6,1100) 'DAVID',LW5,lSel,lExplE,lExplV
       ITERCI=1
       If ( NAC.eq.0 ) then
         ENER(1,ITER)=EMY
       Else
-        If (( nSel.eq.nConf ).or.
+        If (( nSel.eq.nConf ).or.                                       &
      &     (N_ELIMINATED_GAS_MOLCAS.gt.0.and.nSel.eq.nCSF_HEXS)) then
           Do jRoot = 1,lRoots-hRoots
             ENER(jRoot,ITER) = Work(lExplE+jRoot-1)
           End Do
         Else
-* PAM Jun 2006: Limit the number of CI iterations in the
-* first few macroiterations:
+! PAM Jun 2006: Limit the number of CI iterations in the
+! first few macroiterations:
           If(KTIGHT.eq.0) ItLimit=min(12*ITER,MAXJT)
           If(KTIGHT.eq.1) ItLimit=MAXJT
-* PAM Oct 2006: Full precision if this is final CI.
+! PAM Oct 2006: Full precision if this is final CI.
           IF (ICIONLY.eq.1 .or. IFINAL.eq.2) THEN
             Threshold=Max(1.0D-9,ESize*1.0D-14)
             ITLIMIT=MAXJT
           END IF
-* PAM Feb 2009: New code in david5.
-*           Call David5(nAc,stSym,nDet,MAXJT,ITERCI,
-*          Call David5(nAc,stSym,nDet,ItLimit,ITERCI,
-*     &      Work(LW5),Threshold,LW1, TUVX,
-*     &      iWork(lSel),Work(lExplE),Work(lExplV))
-*
-           Call David5(nDet,ItLimit,IterCI,Work(LW5),Threshold,
-     &                 iWork(lSel),Work(lExplE),Work(lExplV),
+! PAM Feb 2009: New code in david5.
+!           Call David5(nAc,stSym,nDet,MAXJT,ITERCI,
+!          Call David5(nAc,stSym,nDet,ItLimit,ITERCI,
+!     &      Work(LW5),Threshold,LW1, TUVX,
+!     &      iWork(lSel),Work(lExplE),Work(lExplV))
+!
+           Call David5(nDet,ItLimit,IterCI,Work(LW5),Threshold,         &
+     &                 iWork(lSel),Work(lExplE),Work(lExplV),           &
      &                 LW1,TUVX)
 
           Do jRoot = 1,lRoots-hRoots
-            ENER(jRoot,ITER) = Work(LW5+2*(jRoot-1)+
+            ENER(jRoot,ITER) = Work(LW5+2*(jRoot-1)+                    &
      &        2*(ITERCI-1)*lRoots)
           End Do
         End If
@@ -177,61 +177,61 @@ C     LW5: CONVERGENCE PARAMETERS
       ENDIF
       nSel = mSel
       lRoots=lRoots-hroots
-*
-C
-C -------------------------------------------------------------------- C
-C -- CLEANUP AFTER THE DAVIDSON DIAGONALIZATION
-C -------------------------------------------------------------------- C
-C
-C     LW4: TEMPORARY CI VECTOR IN CSF BASIS
-C
+!
+!
+! -------------------------------------------------------------------- C
+! -- CLEANUP AFTER THE DAVIDSON DIAGONALIZATION
+! -------------------------------------------------------------------- C
+!
+!     LW4: TEMPORARY CI VECTOR IN CSF BASIS
+!
       CALL GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
       IF (IPRLEV.GE.20) WRITE(6,1100) 'TERM_DAVID',LW4
       iDisk = IADR15(4)
-      Call Term_David(ICICH,ITERCI,lRoots,nConf,Work(LW4),
+      Call Term_David(ICICH,ITERCI,lRoots,nConf,Work(LW4),              &
      &                JOBIPH,LuDavid,iDisk)
       CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
 
 
       Return
 
-1100  FORMAT(1X,/,1X,'WORK SPACE VARIABLES IN SUBR. CICTL: ',/,
+1100  FORMAT(1X,/,1X,'WORK SPACE VARIABLES IN SUBR. CICTL: ',/,         &
      &       1X,'SUBSECTION: ',A,/,(1X,12I10,/))
       End
       Subroutine Ini_David(nRoots,nConf,nDet,nSel,n_keep,ntAsh,LuDavid)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Prepare address tables for further use by the Davidson           *
-*     diagonalization scheme which is written in such a way that       *
-*     the mechanism by which I/O is done is hidden in the subroutines  *
-*     call load_xxx and save_xxx, where xxx stands may be one of       *
-*     the following choices: H_diag, CI_vec, Sig_vec or Tmp_vec.       *
-*     If possible (there is enough memory) a write through cache       *
-*     mechanism is applied, that is to say all accessible memory is    *
-*     used as a RAM-disk and dumped to physical disk in a FIFO mode.   *
-*                                                                      *
-*     calling arguments:                                               *
-*     lRoots  : integer                                                *
-*               number of roots to be optimized                        *
-*     nConf   : integer                                                *
-*               length of the CI vector in the CSF basis               *
-*     nDet    : integer                                                *
-*               length of the CI vector in the determinant basis       *
-*     ntAsh   : integer                                                *
-*               total number of active orbitals                        *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Prepare address tables for further use by the Davidson           *
+!     diagonalization scheme which is written in such a way that       *
+!     the mechanism by which I/O is done is hidden in the subroutines  *
+!     call load_xxx and save_xxx, where xxx stands may be one of       *
+!     the following choices: H_diag, CI_vec, Sig_vec or Tmp_vec.       *
+!     If possible (there is enough memory) a write through cache       *
+!     mechanism is applied, that is to say all accessible memory is    *
+!     used as a RAM-disk and dumped to physical disk in a FIFO mode.   *
+!                                                                      *
+!     calling arguments:                                               *
+!     lRoots  : integer                                                *
+!               number of roots to be optimized                        *
+!     nConf   : integer                                                *
+!               length of the CI vector in the CSF basis               *
+!     nDet    : integer                                                *
+!               length of the CI vector in the determinant basis       *
+!     ntAsh   : integer                                                *
+!               total number of active orbitals                        *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
       Implicit Integer (A-Z)
 
@@ -247,7 +247,7 @@ C
       Real*8 Dum(1)
 
 
-*     check input arguments
+!     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Ini_David: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
@@ -280,23 +280,23 @@ C
       Endif
       n_Roots=nRoots
       nkeep=n_keep
-*     If unitialized, determine a reasonable nkeep
+!     If unitialized, determine a reasonable nkeep
       If (nkeep.eq.0) then
         nkeep=mxKeep*nRoots
         nkeep=min(nkeep,400)
         nkeep=max(nkeep,3*nRoots)
         nkeep=min(nkeep,mxkeep)
       else if (nkeep.gt.mxkeep) Then
-        Call WarningMessage(2,'nkeep .gt. mxkeep. Reduce nkeep'//
+        Call WarningMessage(2,'nkeep .gt. mxkeep. Reduce nkeep'//       &
      &      ' or increase mxkeep in src/Include/davctl.fh')
         Call Quit(_RC_INPUT_ERROR_)
       EndIf
-*
+!
       istart=0
       nvec=nkeep
 
-*     check the amount of available memory and decide which algorithm
-*     is to be used to save intermediate results
+!     check the amount of available memory and decide which algorithm
+!     is to be used to save intermediate results
       MxMemStk  = 0
       MxDiskStk = 0
       Call GetMem(' ','Max ','Real',Max_free_Mem,Max_free_Mem)
@@ -305,25 +305,25 @@ C
       Max_free_Mem = Max_free_Mem - 2*(ntAsh**3+4)
       Max_free_Mem = Max_free_Mem - 5*(ntAsh**2+4)
       Max_used_Mem = (1 + 2*nKeep+2*nRoots)*(nConf+4)
-* Calculate how much memory is needed in the rest of the Davidson
+! Calculate how much memory is needed in the rest of the Davidson
       Memory_Needed = 0
       If (ntAsh .EQ. 0) Then
          Memory_Needed = 0
       Else If (nSel .EQ. nConf) Then
          Memory_Needed = 2*nSel + nSel*nSel
       Else
-* First: davctl
+! First: davctl
          Memory_Needed = 2*nSel + nSel*nSel
-* Now: david5
+! Now: david5
          lTmp1 = nKeep
          lTmp2 = lTmp1*lTmp1
          lTmp3 = (lTmp2+lTmp1)/2
-         Memory_Needed = Memory_Needed + 5*nDet + lTmp1 +
+         Memory_Needed = Memory_Needed + 5*nDet + lTmp1 +               &
      &                   3*lTmp2 + 2*lTmp3 + 3*nRoots*nSel
-* Then: lucia_util
+! Then: lucia_util
          Memory_Needed = Memory_Needed + Memory_Needed_Lucia
       End If
-*
+!
       If ( Max_free_Mem.lt.(nConf+4+Memory_Needed) ) then
         MxMemStk  = 0
         MxDiskStk = 1 + 2*nkeep + 2*nRoots
@@ -338,19 +338,19 @@ C
         save_mode = mixed_mode_2
         If ( mxMemStk.lt.(nkeep+1) ) save_mode = mixed_mode_1
       End If
-CFUE  Call GetMem(' ','nFld',' ',nMemStk,nMemStk)
-CFUE  nMemStk = nMemStk - 30
-CFUE  If ( MxMemStk.gt.nMemStk ) then
-CFUE    MxMemStk  = nMemStk
-CFUE    MxDiskStk = 1 + 2*mxKeep*nRoots + 2*nRoots - mxMemStk
-CFUE    save_mode = mixed_mode_2
-CFUE    If ( mxMemStk.lt.(mxKeep*nRoots+1) ) save_mode = mixed_mode_1
-CFUE  End If
+!FUE  Call GetMem(' ','nFld',' ',nMemStk,nMemStk)
+!FUE  nMemStk = nMemStk - 30
+!FUE  If ( MxMemStk.gt.nMemStk ) then
+!FUE    MxMemStk  = nMemStk
+!FUE    MxDiskStk = 1 + 2*mxKeep*nRoots + 2*nRoots - mxMemStk
+!FUE    save_mode = mixed_mode_2
+!FUE    If ( mxMemStk.lt.(mxKeep*nRoots+1) ) save_mode = mixed_mode_1
+!FUE  End If
       nMemStk = 0
       nDiskStk = 0
 
-*     the diagonalization can be run in core:
-*     allocate memory for all vectors that will be needed
+!     the diagonalization can be run in core:
+!     allocate memory for all vectors that will be needed
       If ( save_mode.eq.in_core ) then
         H_diag_RecNo = RecNo((1),(1))
         Write(Label,'(A,I3.3)') 'HvRcN',H_diag_RecNo
@@ -384,8 +384,8 @@ CFUE  End If
         End Do
       End If
 
-*     the diagonalization must be run out of core:
-*     allocate disk space for all vectors that will be needed
+!     the diagonalization must be run out of core:
+!     allocate disk space for all vectors that will be needed
       If ( save_mode.eq.on_disk ) then
         iDisk  = 0
         H_diag_RecNo = RecNo((1),(1))
@@ -414,9 +414,9 @@ CFUE  End If
         End Do
       End If
 
-*     the diagonalization may be run in mixed mode:
-*     allocate memory and disk space for all vectors that will be needed
-      If ( save_mode.eq.mixed_mode_1 .or.
+!     the diagonalization may be run in mixed mode:
+!     allocate memory and disk space for all vectors that will be needed
+      If ( save_mode.eq.mixed_mode_1 .or.                               &
      &     save_mode.eq.mixed_mode_2      ) then
         Do nStk = 1,mxMemStk
           Write(Label,'(A,I4.4)') 'RAMD',nStk
@@ -438,38 +438,38 @@ CFUE  End If
 
       Return
       End
-      Subroutine Term_David(ICICH,iter,lRoots,nConf,Vector,
+      Subroutine Term_David(ICICH,iter,lRoots,nConf,Vector,             &
      &                      JOBIPH,LuDavid,iDisk)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Terminate the Davidson diagonalization                           *
-*                                                                      *
-*     calling arguments:                                               *
-*     ICICH   : integer                                                *
-*               switch enabling root selection                         *
-*     JOBIPH  : integer                                                *
-*               logical unit number of the JOBIPH file                 *
-*     iDisk   : integer                                                *
-*               disk address of the first CI vector on JOBIPH          *
-*     iter    : integer                                                *
-*               iteration count of the final result                    *
-*     nConf   : integer                                                *
-*               length of the CI vector in the CSF basis               *
-*     Vector  : array of real*8                                        *
-*               temporary vector of length nConf                       *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Terminate the Davidson diagonalization                           *
+!                                                                      *
+!     calling arguments:                                               *
+!     ICICH   : integer                                                *
+!               switch enabling root selection                         *
+!     JOBIPH  : integer                                                *
+!               logical unit number of the JOBIPH file                 *
+!     iDisk   : integer                                                *
+!               disk address of the first CI vector on JOBIPH          *
+!     iter    : integer                                                *
+!               iteration count of the final result                    *
+!     nConf   : integer                                                *
+!               length of the CI vector in the CSF basis               *
+!     Vector  : array of real*8                                        *
+!               temporary vector of length nConf                       *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
       Implicit Integer (A-Z)
 
@@ -481,7 +481,7 @@ CFUE  End If
 #include "WrkSpc.fh"
 
 
-*     check input arguments
+!     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Term_David: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
@@ -498,9 +498,9 @@ CFUE  End If
          Call Abend
       Endif
 
-*     Restore the final CI vectors and save them for further use.
-*     If the root selectioning option has been enabled calculate
-*     also the overlap elemtents with the test vectors
+!     Restore the final CI vectors and save them for further use.
+!     If the root selectioning option has been enabled calculate
+!     also the overlap elemtents with the test vectors
       If ( ICICH.eq.1 ) then
         Call GetMem('CIovlp1','Allo','Real',lOvlp1,lRoots*lRoots)
         Call dCopy_(lRoots*lRoots,[0.0d0], 0,Work(lOvlp1),(1))
@@ -515,15 +515,15 @@ CFUE  End If
         End if
       End Do
 
-*     If the root selectioning option has been enabled
-*     make a new choice of the current roots
+!     If the root selectioning option has been enabled
+!     make a new choice of the current roots
       If ( ICICH.eq.1 ) then
         Call CIselect(Work(lOvlp1),Work(lOvlp2))
         Call GetMem('CIovlp2','Free','Real',lOvlp2,lRoots*lRoots)
         Call GetMem('CIovlp1','Free','Real',lOvlp1,lRoots*lRoots)
       End If
 
-*     deallocate memory which was used as records of the RAM disk
+!     deallocate memory which was used as records of the RAM disk
       If ( save_mode.ne.on_disk ) then
         Do iRecNo = 1,MxMemStk
           iMem = memory_address(iRecNo)
@@ -535,29 +535,29 @@ CFUE  End If
       Return
       End
       Subroutine Load_H_diag(nConf,H_diag,LuDavid)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Load the diagonal approximation of the CI Hamiltonian for        *
-*     further use by the Davidson diagonalization scheme               *
-*                                                                      *
-*     calling arguments:                                               *
-*     nConf   : integer                                                *
-*               length of the vector H_diag                            *
-*     H_diag  : array of real*8                                        *
-*               diagonal approximation of the CI Hamiltonian           *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Load the diagonal approximation of the CI Hamiltonian for        *
+!     further use by the Davidson diagonalization scheme               *
+!                                                                      *
+!     calling arguments:                                               *
+!     nConf   : integer                                                *
+!               length of the vector H_diag                            *
+!     H_diag  : array of real*8                                        *
+!               diagonal approximation of the CI Hamiltonian           *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
       Implicit Integer (A-Z)
 
@@ -574,32 +574,32 @@ CFUE  End If
 
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
-*     check input arguments
+!     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Load_H_diag: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
          Call Abend
       Endif
 
-*     the diagonalization can be run in core:
-*     copy H_diag to new memory location
+!     the diagonalization can be run in core:
+!     copy H_diag to new memory location
       If ( save_mode.eq.in_core ) then
         H_diag_RecNo = RecNo((1),(1))
         iMem = memory_address(H_diag_RecNo)
         Call dCopy_(nConf,Work(iMem),1,H_diag,1)
       End If
 
-*     the diagonalization must be run out of core:
-*     load H_diag from disk
+!     the diagonalization must be run out of core:
+!     load H_diag from disk
       If ( save_mode.eq.on_disk ) then
         H_diag_RecNo = RecNo((1),(1))
         iDisk = disk_address(H_diag_RecNo)
         Call DDaFile(LuDavid,2,H_diag,nConf,iDisk)
       End If
 
-*     the diagonalization may be run in mixed mode:
-*     use the write through cache mechanism to load and save H_diag
-      If ( save_mode.eq.mixed_mode_1 .or.
+!     the diagonalization may be run in mixed mode:
+!     use the write through cache mechanism to load and save H_diag
+      If ( save_mode.eq.mixed_mode_1 .or.                               &
      &     save_mode.eq.mixed_mode_2      ) then
         KeyWord = '                '
         Write(KeyWord,'(A)') 'H_diag'
@@ -613,29 +613,29 @@ CFUE  End If
       Return
       End
       Subroutine Save_H_diag(nConf,H_diag,LuDavid)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Save the diagonal approximation of the CI Hamiltonian for        *
-*     further use by the Davidson diagonalization scheme               *
-*                                                                      *
-*     calling arguments:                                               *
-*     nConf   : integer                                                *
-*               length of the vector H_diag                            *
-*     H_diag  : array of real*8                                        *
-*               diagonal approximation of the CI Hamiltonian           *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Save the diagonal approximation of the CI Hamiltonian for        *
+!     further use by the Davidson diagonalization scheme               *
+!                                                                      *
+!     calling arguments:                                               *
+!     nConf   : integer                                                *
+!               length of the vector H_diag                            *
+!     H_diag  : array of real*8                                        *
+!               diagonal approximation of the CI Hamiltonian           *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
       Implicit Integer (A-Z)
 
@@ -652,32 +652,32 @@ CFUE  End If
 
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
-*     check input arguments
+!     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Save_H_diag: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
          Call Abend
       Endif
 
-*     the diagonalization can be run in core:
-*     copy vector to new memory location
+!     the diagonalization can be run in core:
+!     copy vector to new memory location
       If ( save_mode.eq.in_core ) then
         H_diag_RecNo = RecNo((1),(1))
         iMem = memory_address(H_diag_RecNo)
         Call dCopy_(nConf,H_diag,1,Work(iMem),1)
       End If
 
-*     the diagonalization must be run out of core:
-*     save H_diag on disk
+!     the diagonalization must be run out of core:
+!     save H_diag on disk
       If ( save_mode.eq.on_disk ) then
         H_diag_RecNo = RecNo((1),(1))
         iDisk = disk_address(H_diag_RecNo)
         Call DDaFile(LuDavid,1,H_diag,nConf,iDisk)
       End If
 
-*     the diagonalization may be run in mixed mode:
-*     use the write through cache mechanism to load and save H_diag
-      If ( save_mode.eq.mixed_mode_1 .or.
+!     the diagonalization may be run in mixed mode:
+!     use the write through cache mechanism to load and save H_diag
+      If ( save_mode.eq.mixed_mode_1 .or.                               &
      &     save_mode.eq.mixed_mode_2      ) then
         KeyWord = '                '
         Write(KeyWord,'(A)') 'H_diag'
@@ -691,31 +691,31 @@ CFUE  End If
       Return
       End
       Subroutine Load_CI_vec(iRoot,nConf,CI_vec,LuDavid)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Load a CI vector                                                 *
-*     further use by the Davidson diagonalization scheme               *
-*                                                                      *
-*     calling arguments:                                               *
-*     iRoot   : integer                                                *
-*               root number                                            *
-*     nConf   : integer                                                *
-*               length of the vector H_diag                            *
-*     CI_vec  : array of real*8                                        *
-*               CI vector                                              *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Load a CI vector                                                 *
+!     further use by the Davidson diagonalization scheme               *
+!                                                                      *
+!     calling arguments:                                               *
+!     iRoot   : integer                                                *
+!               root number                                            *
+!     nConf   : integer                                                *
+!               length of the vector H_diag                            *
+!     CI_vec  : array of real*8                                        *
+!               CI vector                                              *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
       Implicit Integer (A-Z)
 
@@ -732,7 +732,7 @@ CFUE  End If
 
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
-*     check input arguments
+!     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Load_CI_vec: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
@@ -749,26 +749,26 @@ CFUE  End If
          Call Abend
       Endif
 
-*     the diagonalization can be run in core:
-*     copy the CI vector to new memory location
+!     the diagonalization can be run in core:
+!     copy the CI vector to new memory location
       If ( save_mode.eq.in_core ) then
         CI_vec_RecNo = RecNo((2),iRoot)
         iMem = memory_address(CI_vec_RecNo)
         Call dCopy_(nConf,Work(iMem),1,CI_vec,1)
       End If
 
-*     the diagonalization must be run out of core:
-*     load the CI vector from disk
+!     the diagonalization must be run out of core:
+!     load the CI vector from disk
       If ( save_mode.eq.on_disk ) then
         CI_vec_RecNo = RecNo((2),iRoot)
         iDisk = disk_address(CI_vec_RecNo)
         Call DDaFile(LuDavid,2,CI_vec,nConf,iDisk)
       End If
 
-*     the diagonalization may be run in mixed mode:
-*     use the write through cache mechanism to load and save
-*     the CI vector
-      If ( save_mode.eq.mixed_mode_1 .or.
+!     the diagonalization may be run in mixed mode:
+!     use the write through cache mechanism to load and save
+!     the CI vector
+      If ( save_mode.eq.mixed_mode_1 .or.                               &
      &     save_mode.eq.mixed_mode_2      ) then
         CI_vec_PageNo = PageNo(iRoot)
         KeyWord = '                '
@@ -783,31 +783,31 @@ CFUE  End If
       Return
       End
       Subroutine Save_CI_vec(iRoot,nConf,CI_vec,LuDavid)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Save a CI vector                                                 *
-*     further use by the Davidson diagonalization scheme               *
-*                                                                      *
-*     calling arguments:                                               *
-*     iRoot   : integer                                                *
-*               root number                                            *
-*     nConf   : integer                                                *
-*               length of the vector H_diag                            *
-*     CI_vec  : array of real*8                                        *
-*               CI vector                                              *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Save a CI vector                                                 *
+!     further use by the Davidson diagonalization scheme               *
+!                                                                      *
+!     calling arguments:                                               *
+!     iRoot   : integer                                                *
+!               root number                                            *
+!     nConf   : integer                                                *
+!               length of the vector H_diag                            *
+!     CI_vec  : array of real*8                                        *
+!               CI vector                                              *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
       Implicit Integer (A-Z)
 
@@ -824,7 +824,7 @@ CFUE  End If
 
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
-*     check input arguments
+!     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Save_CI_vec: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
@@ -841,26 +841,26 @@ CFUE  End If
          Call Abend
       Endif
 
-*     the diagonalization can be run in core:
-*     copy the CI vector to new memory location
+!     the diagonalization can be run in core:
+!     copy the CI vector to new memory location
       If ( save_mode.eq.in_core ) then
         CI_vec_RecNo = RecNo((2),iRoot)
         iMem = memory_address(CI_vec_RecNo)
         Call dCopy_(nConf,CI_vec,1,Work(iMem),1)
       End If
 
-*     the diagonalization must be run out of core:
-*     save the CI vector on disk
+!     the diagonalization must be run out of core:
+!     save the CI vector on disk
       If ( save_mode.eq.on_disk ) then
         CI_vec_RecNo = RecNo((2),iRoot)
         iDisk = disk_address(CI_vec_RecNo)
         Call DDaFile(LuDavid,1,CI_vec,nConf,iDisk)
       End If
 
-*     the diagonalization may be run in mixed mode:
-*     use the write through cache mechanism to load and save
-*     the CI vector
-      If ( save_mode.eq.mixed_mode_1 .or.
+!     the diagonalization may be run in mixed mode:
+!     use the write through cache mechanism to load and save
+!     the CI vector
+      If ( save_mode.eq.mixed_mode_1 .or.                               &
      &     save_mode.eq.mixed_mode_2      ) then
         CI_vec_PageNo = PageNo(iRoot)
         KeyWord = '                '
@@ -875,31 +875,31 @@ CFUE  End If
       Return
       End
       Subroutine Load_Sig_vec(iRoot,nConf,Sig_vec,LuDavid)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Load a sigma vector                                              *
-*     further use by the Davidson diagonalization scheme               *
-*                                                                      *
-*     calling arguments:                                               *
-*     iRoot   : integer                                                *
-*               root number                                            *
-*     nConf   : integer                                                *
-*               length of the vector H_diag                            *
-*     Sig_vec : array of real*8                                        *
-*               sigma vector                                           *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Load a sigma vector                                              *
+!     further use by the Davidson diagonalization scheme               *
+!                                                                      *
+!     calling arguments:                                               *
+!     iRoot   : integer                                                *
+!               root number                                            *
+!     nConf   : integer                                                *
+!               length of the vector H_diag                            *
+!     Sig_vec : array of real*8                                        *
+!               sigma vector                                           *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
       Implicit Integer (A-Z)
 
@@ -916,7 +916,7 @@ CFUE  End If
 
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
-*     check input arguments
+!     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Load_Sig_vec: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
@@ -933,26 +933,26 @@ CFUE  End If
          Call Abend
       Endif
 
-*     the diagonalization can be run in core:
-*     copy the sigma vector to new memory location
+!     the diagonalization can be run in core:
+!     copy the sigma vector to new memory location
       If ( save_mode.eq.in_core ) then
         Sig_vec_RecNo = RecNo((3),iRoot)
         iMem = memory_address(Sig_vec_RecNo)
         Call dCopy_(nConf,Work(iMem),1,Sig_vec,1)
       End If
 
-*     the diagonalization must be run out of core:
-*     load the sigma vector from disk
+!     the diagonalization must be run out of core:
+!     load the sigma vector from disk
       If ( save_mode.eq.on_disk ) then
         Sig_vec_RecNo = RecNo((3),iRoot)
         iDisk = disk_address(Sig_vec_RecNo)
         Call DDaFile(LuDavid,2,Sig_vec,nConf,iDisk)
       End If
 
-*     the diagonalization may be run in mixed mode:
-*     use the write through cache mechanism to load and save
-*     the sigma vector
-      If ( save_mode.eq.mixed_mode_1 .or.
+!     the diagonalization may be run in mixed mode:
+!     use the write through cache mechanism to load and save
+!     the sigma vector
+      If ( save_mode.eq.mixed_mode_1 .or.                               &
      &     save_mode.eq.mixed_mode_2      ) then
         Sig_vec_PageNo = PageNo(iRoot)
         KeyWord = '                '
@@ -967,31 +967,31 @@ CFUE  End If
       Return
       End
       Subroutine Save_Sig_vec(iRoot,nConf,Sig_vec,LuDavid)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Save a sigma vector                                              *
-*     further use by the Davidson diagonalization scheme               *
-*                                                                      *
-*     calling arguments:                                               *
-*     iRoot   : integer                                                *
-*               root number                                            *
-*     nConf   : integer                                                *
-*               length of the vector H_diag                            *
-*     Sig_vec : array of real*8                                        *
-*               sigma vector                                           *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Save a sigma vector                                              *
+!     further use by the Davidson diagonalization scheme               *
+!                                                                      *
+!     calling arguments:                                               *
+!     iRoot   : integer                                                *
+!               root number                                            *
+!     nConf   : integer                                                *
+!               length of the vector H_diag                            *
+!     Sig_vec : array of real*8                                        *
+!               sigma vector                                           *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
       Implicit Integer (A-Z)
 
@@ -1008,7 +1008,7 @@ CFUE  End If
 
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
-*     check input arguments
+!     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Save_Sig_vec: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
@@ -1025,26 +1025,26 @@ CFUE  End If
          Call Abend
       Endif
 
-*     the diagonalization can be run in core:
-*     copy the sigma vector to new memory location
+!     the diagonalization can be run in core:
+!     copy the sigma vector to new memory location
       If ( save_mode.eq.in_core ) then
         Sig_vec_RecNo = RecNo((3),iRoot)
         iMem = memory_address(Sig_vec_RecNo)
         Call dCopy_(nConf,Sig_vec,1,Work(iMem),1)
       End If
 
-*     the diagonalization must be run out of core:
-*     save the sigma vector on disk
+!     the diagonalization must be run out of core:
+!     save the sigma vector on disk
       If ( save_mode.eq.on_disk ) then
         Sig_vec_RecNo = RecNo((3),iRoot)
         iDisk = disk_address(Sig_vec_RecNo)
         Call DDaFile(LuDavid,1,Sig_vec,nConf,iDisk)
       End If
 
-*     the diagonalization may be run in mixed mode:
-*     use the write through cache mechanism to load and save
-*     the sigma vector
-      If ( save_mode.eq.mixed_mode_1 .or.
+!     the diagonalization may be run in mixed mode:
+!     use the write through cache mechanism to load and save
+!     the sigma vector
+      If ( save_mode.eq.mixed_mode_1 .or.                               &
      &     save_mode.eq.mixed_mode_2      ) then
         Sig_vec_PageNo = PageNo(iRoot)
         KeyWord = '                '
@@ -1059,31 +1059,31 @@ CFUE  End If
       Return
       End
       Subroutine Load_tmp_CI_vec(iRoot,nConf,CI_vec,LuDavid)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Load a temporary CI vector                                       *
-*     further use by the Davidson diagonalization scheme               *
-*                                                                      *
-*     calling arguments:                                               *
-*     iRoot   : integer                                                *
-*               root number                                            *
-*     nConf   : integer                                                *
-*               length of the vector H_diag                            *
-*     CI_vec  : array of real*8                                        *
-*               CI vector                                              *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Load a temporary CI vector                                       *
+!     further use by the Davidson diagonalization scheme               *
+!                                                                      *
+!     calling arguments:                                               *
+!     iRoot   : integer                                                *
+!               root number                                            *
+!     nConf   : integer                                                *
+!               length of the vector H_diag                            *
+!     CI_vec  : array of real*8                                        *
+!               CI vector                                              *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
       Implicit Integer (A-Z)
 
@@ -1100,7 +1100,7 @@ CFUE  End If
 
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
-*     check input arguments
+!     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Load_tmp_CI_vec: nConf less than'
          Write(6,*) 'nConf = ',nConf
@@ -1117,26 +1117,26 @@ CFUE  End If
          Call Abend
       Endif
 
-*     the diagonalization can be run in core:
-*     copy the CI vector to new memory location
+!     the diagonalization can be run in core:
+!     copy the CI vector to new memory location
       If ( save_mode.eq.in_core ) then
         tmp_CI_vec_RecNo = RecNo((4),iRoot)
         iMem = memory_address(tmp_CI_vec_RecNo)
         Call dCopy_(nConf,Work(iMem),1,CI_vec,1)
       End If
 
-*     the diagonalization must be run out of core:
-*     load the CI vector from disk
+!     the diagonalization must be run out of core:
+!     load the CI vector from disk
       If ( save_mode.eq.on_disk ) then
         tmp_CI_vec_RecNo = RecNo((4),iRoot)
         iDisk = disk_address(tmp_CI_vec_RecNo)
         Call DDaFile(LuDavid,2,CI_vec,nConf,iDisk)
       End If
 
-*     the diagonalization may be run in mixed mode:
-*     use the write through cache mechanism to load and save
-*     the CI vector
-      If ( save_mode.eq.mixed_mode_1 .or.
+!     the diagonalization may be run in mixed mode:
+!     use the write through cache mechanism to load and save
+!     the CI vector
+      If ( save_mode.eq.mixed_mode_1 .or.                               &
      &     save_mode.eq.mixed_mode_2      ) then
         KeyWord = '                '
         Write(KeyWord,'(A,I4.4)') 'tmp_CI_vec',iRoot
@@ -1150,31 +1150,31 @@ CFUE  End If
       Return
       End
       Subroutine Save_tmp_CI_vec(iRoot,nConf,CI_vec,LuDavid)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Save a temporary CI vector                                       *
-*     further use by the Davidson diagonalization scheme               *
-*                                                                      *
-*     calling arguments:                                               *
-*     iRoot   : integer                                                *
-*               root number                                            *
-*     nConf   : integer                                                *
-*               length of the vector H_diag                            *
-*     CI_vec  : array of real*8                                        *
-*               CI vector                                              *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Save a temporary CI vector                                       *
+!     further use by the Davidson diagonalization scheme               *
+!                                                                      *
+!     calling arguments:                                               *
+!     iRoot   : integer                                                *
+!               root number                                            *
+!     nConf   : integer                                                *
+!               length of the vector H_diag                            *
+!     CI_vec  : array of real*8                                        *
+!               CI vector                                              *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
       Implicit Integer (A-Z)
 
@@ -1191,7 +1191,7 @@ CFUE  End If
 
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
-*     check input arguments
+!     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Save_tmp_CI_vec: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
@@ -1208,26 +1208,26 @@ CFUE  End If
          Call Abend
       Endif
 
-*     the diagonalization can be run in core:
-*     copy the CI vector to new memory location
+!     the diagonalization can be run in core:
+!     copy the CI vector to new memory location
       If ( save_mode.eq.in_core ) then
         tmp_CI_vec_RecNo = RecNo((4),iRoot)
         iMem = memory_address(tmp_CI_vec_RecNo)
         Call dCopy_(nConf,CI_vec,1,Work(iMem),1)
       End If
 
-*     the diagonalization must be run out of core:
-*     save the CI vector on disk
+!     the diagonalization must be run out of core:
+!     save the CI vector on disk
       If ( save_mode.eq.on_disk ) then
         tmp_CI_vec_RecNo = RecNo((4),iRoot)
         iDisk = disk_address(tmp_CI_vec_RecNo)
         Call DDaFile(LuDavid,1,CI_vec,nConf,iDisk)
       End If
 
-*     the diagonalization may be run in mixed mode:
-*     use the write through cache mechanism to load and save
-*     the CI vector
-      If ( save_mode.eq.mixed_mode_1 .or.
+!     the diagonalization may be run in mixed mode:
+!     use the write through cache mechanism to load and save
+!     the CI vector
+      If ( save_mode.eq.mixed_mode_1 .or.                               &
      &     save_mode.eq.mixed_mode_2      ) then
         KeyWord = '                '
         Write(KeyWord,'(A,I4.4)') 'tmp_CI_vec',iRoot
@@ -1241,31 +1241,31 @@ CFUE  End If
       Return
       End
       Subroutine Load_tmp_Sig_vec(iRoot,nConf,Sig_vec,LuDavid)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Load a temporary sigma vector                                    *
-*     further use by the Davidson diagonalization scheme               *
-*                                                                      *
-*     calling arguments:                                               *
-*     iRoot   : integer                                                *
-*               root number                                            *
-*     nConf   : integer                                                *
-*               length of the vector H_diag                            *
-*     Sig_vec : array of real*8                                        *
-*               sigma vector                                           *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Load a temporary sigma vector                                    *
+!     further use by the Davidson diagonalization scheme               *
+!                                                                      *
+!     calling arguments:                                               *
+!     iRoot   : integer                                                *
+!               root number                                            *
+!     nConf   : integer                                                *
+!               length of the vector H_diag                            *
+!     Sig_vec : array of real*8                                        *
+!               sigma vector                                           *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
       Implicit Integer (A-Z)
 
@@ -1282,7 +1282,7 @@ CFUE  End If
 
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
-*     check input arguments
+!     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Load_tmp_Sig_vec: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
@@ -1299,26 +1299,26 @@ CFUE  End If
          Call Abend
       Endif
 
-*     the diagonalization can be run in core:
-*     copy the sigma vector to new memory location
+!     the diagonalization can be run in core:
+!     copy the sigma vector to new memory location
       If ( save_mode.eq.in_core ) then
         tmp_Sig_vec_RecNo = RecNo((5),iRoot)
         iMem = memory_address(tmp_Sig_vec_RecNo)
         Call dCopy_(nConf,Work(iMem),1,Sig_vec,1)
       End If
 
-*     the diagonalization must be run out of core:
-*     load the sigma vector from disk
+!     the diagonalization must be run out of core:
+!     load the sigma vector from disk
       If ( save_mode.eq.on_disk ) then
         tmp_Sig_vec_RecNo = RecNo((5),iRoot)
         iDisk = disk_address(tmp_Sig_vec_RecNo)
         Call DDaFile(LuDavid,2,Sig_vec,nConf,iDisk)
       End If
 
-*     the diagonalization may be run in mixed mode:
-*     use the write through cache mechanism to load and save
-*     the sigma vector
-      If ( save_mode.eq.mixed_mode_1 .or.
+!     the diagonalization may be run in mixed mode:
+!     use the write through cache mechanism to load and save
+!     the sigma vector
+      If ( save_mode.eq.mixed_mode_1 .or.                               &
      &     save_mode.eq.mixed_mode_2      ) then
         KeyWord = '                '
         Write(KeyWord,'(A,I4.4)') 'tmp_Sig_vec',iRoot
@@ -1332,31 +1332,31 @@ CFUE  End If
       Return
       End
       Subroutine Save_tmp_Sig_vec(iRoot,nConf,Sig_vec,LuDavid)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Save a temporary sigma vector                                    *
-*     further use by the Davidson diagonalization scheme               *
-*                                                                      *
-*     calling arguments:                                               *
-*     iRoot   : integer                                                *
-*               root number                                            *
-*     nConf   : integer                                                *
-*               length of the vector H_diag                            *
-*     Sig_vec : array of real*8                                        *
-*               sigma vector                                           *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Save a temporary sigma vector                                    *
+!     further use by the Davidson diagonalization scheme               *
+!                                                                      *
+!     calling arguments:                                               *
+!     iRoot   : integer                                                *
+!               root number                                            *
+!     nConf   : integer                                                *
+!               length of the vector H_diag                            *
+!     Sig_vec : array of real*8                                        *
+!               sigma vector                                           *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
       Implicit Integer (A-Z)
 
@@ -1373,7 +1373,7 @@ CFUE  End If
 
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
-*     check input arguments
+!     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Save_tmp_Sig_vec: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
@@ -1390,26 +1390,26 @@ CFUE  End If
          Call Abend
       Endif
 
-*     the diagonalization can be run in core:
-*     copy the sigma vector to new memory location
+!     the diagonalization can be run in core:
+!     copy the sigma vector to new memory location
       If ( save_mode.eq.in_core ) then
         tmp_Sig_vec_RecNo = RecNo((5),iRoot)
         iMem = memory_address(tmp_Sig_vec_RecNo)
         Call dCopy_(nConf,Sig_vec,1,Work(iMem),1)
       End If
 
-*     the diagonalization must be run out of core:
-*     save the sigma vector on disk
+!     the diagonalization must be run out of core:
+!     save the sigma vector on disk
       If ( save_mode.eq.on_disk ) then
         tmp_Sig_vec_RecNo = RecNo((5),iRoot)
         iDisk = disk_address(tmp_Sig_vec_RecNo)
         Call DDaFile(LuDavid,1,Sig_vec,nConf,iDisk)
       End If
 
-*     the diagonalization may be run in mixed mode:
-*     use the write through cache mechanism to load and save
-*     the sigma vector
-      If ( save_mode.eq.mixed_mode_1 .or.
+!     the diagonalization may be run in mixed mode:
+!     use the write through cache mechanism to load and save
+!     the sigma vector
+      If ( save_mode.eq.mixed_mode_1 .or.                               &
      &     save_mode.eq.mixed_mode_2      ) then
         KeyWord = '                '
         Write(KeyWord,'(A,I4.4)') 'tmp_Sig_vec',iRoot
@@ -1423,32 +1423,32 @@ CFUE  End If
       Return
       End
       Subroutine page_out(KeyWord,nConf,Vector,LuDavid)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Save any vector for further use by the Davidson diagonalization  *
-*     Labels identifying the vectors are kept in a stack and to        *
-*     minimize a write through cache strategy is applied               *
-*                                                                      *
-*     calling arguments:                                               *
-*     KeyWord : character*16                                           *
-*               record identifier                                      *
-*     nConf   : integer                                                *
-*               length of the vector H_diag                            *
-*     Vector  : array of real*8                                        *
-*               any vector of length nConf                             *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Save any vector for further use by the Davidson diagonalization  *
+!     Labels identifying the vectors are kept in a stack and to        *
+!     minimize a write through cache strategy is applied               *
+!                                                                      *
+!     calling arguments:                                               *
+!     KeyWord : character*16                                           *
+!               record identifier                                      *
+!     nConf   : integer                                                *
+!               length of the vector H_diag                            *
+!     Vector  : array of real*8                                        *
+!               any vector of length nConf                             *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
       Implicit Integer (A-Z)
 
@@ -1462,21 +1462,21 @@ CFUE  End If
 #include "WrkSpc.fh"
 
 
-*     check input arguments
+!     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'page_out: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
          Call Abend
       Endif
 
-*     serach for a matching record identifier
+!     serach for a matching record identifier
       nStk = 0
       Do iStk = 1,(mxMemStk+mxDiskStk)
         If ( LblStk(iStk).eq.KeyWord ) nStk = iStk
       End Do
 
-*     there is a matching record identifier:
-*     overwrite the current record
+!     there is a matching record identifier:
+!     overwrite the current record
       If ( nStk.ne.0 ) then
         If ( nStk.le.mxMemStk ) then
           iMem = memory_address(nStk)
@@ -1487,8 +1487,8 @@ CFUE  End If
         End If
       End if
 
-*     there is no matching record identifier:
-*     create a new record
+!     there is no matching record identifier:
+!     create a new record
       If ( nStk.eq.0 ) then
         If ( save_mode.eq.mixed_mode_1 ) then
           If ( KeyWord(1:6).eq.'CI_vec' ) then
@@ -1544,31 +1544,31 @@ CFUE  End If
       Return
       End
       Subroutine page_in(KeyWord,nConf,Vector,LuDavid)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Load any vector for further use by the Davidson diagonalization  *
-*     which has been saved by the write through cache mechanism        *
-*                                                                      *
-*     calling arguments:                                               *
-*     KeyWord : character*16                                           *
-*               record identifier                                      *
-*     nConf   : integer                                                *
-*               length of the vector H_diag                            *
-*     Vector  : array of real*8                                        *
-*               any vector of length nConf                             *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Load any vector for further use by the Davidson diagonalization  *
+!     which has been saved by the write through cache mechanism        *
+!                                                                      *
+!     calling arguments:                                               *
+!     KeyWord : character*16                                           *
+!               record identifier                                      *
+!     nConf   : integer                                                *
+!               length of the vector H_diag                            *
+!     Vector  : array of real*8                                        *
+!               any vector of length nConf                             *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
       Implicit Integer (A-Z)
 
@@ -1582,14 +1582,14 @@ CFUE  End If
 #include "WrkSpc.fh"
 
 
-*     check input arguments
+!     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'page_in: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
          Call Abend
       Endif
 
-*     serach for a metching record identifier
+!     serach for a metching record identifier
       nStk = 0
       Do iStk = 1,(mxMemStk+mxDiskStk)
         If ( LblStk(iStk).eq.KeyWord ) nStk = iStk
@@ -1612,26 +1612,26 @@ CFUE  End If
       Return
       End
       Integer Function PageNo(iRoot)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Compute the page number of a vector                              *
-*                                                                      *
-*     calling arguments:                                               *
-*     iRoot   : integer                                                *
-*               root number                                            *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Compute the page number of a vector                              *
+!                                                                      *
+!     calling arguments:                                               *
+!     iRoot   : integer                                                *
+!               root number                                            *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
       Implicit Integer (A-Z)
 
@@ -1649,30 +1649,30 @@ CFUE  End If
       Return
       End
       Integer Function RecNo(itype,iRoot)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Compute the Record number of a vector                            *
-*                                                                      *
-*     calling arguments:                                               *
-*     itype   : integer                                                *
-*               vector type: 1 = H_diag                                *
-*                            2 = CI_vec                                *
-*                            3 = Sig_vec                               *
-*     iRoot   : integer                                                *
-*               root number                                            *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Compute the Record number of a vector                            *
+!                                                                      *
+!     calling arguments:                                               *
+!     itype   : integer                                                *
+!               vector type: 1 = H_diag                                *
+!                            2 = CI_vec                                *
+!                            3 = Sig_vec                               *
+!     iRoot   : integer                                                *
+!               root number                                            *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
       Implicit Integer (A-Z)
 

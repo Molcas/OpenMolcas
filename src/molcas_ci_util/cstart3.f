@@ -1,51 +1,51 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996, Markus P. Fuelscher                              *
-************************************************************************
-      Subroutine CStart_CI_Util(C,h0,TUVX,iSel,ExplE,ExplV,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996, Markus P. Fuelscher                              *
+!***********************************************************************
+      Subroutine CStart_CI_Util(C,h0,TUVX,iSel,ExplE,ExplV,             &
      &                          nMaxSel,iFinal)
-************************************************************************
-*                                                                      *
-*     Find initial CI-vectors                                          *
-*                                                                      *
-*     calling arguments:                                               *
-*     C       : array of real*8                                        *
-*               CI vector                                              *
-*     h0      : array of real*8                                        *
-*               one-electron integrals                                 *
-*     TUVX    : array of real*8                                        *
-*               two-electron integrals                                 *
-*     iSel    : array of integer                                       *
-*               list of configuration included in the explicit Hamilt. *
-*     ExplE   : array of real*8                                        *
-*               eigenvalues of the explicit Hamiltonian                *
-*     ExplV   : array of real*8                                        *
-*               eigenvectors of the explicit Hamiltonian               *
-*     iFinal  : integer                                                *
-*               status of optimization process                         *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Find initial CI-vectors                                          *
+!                                                                      *
+!     calling arguments:                                               *
+!     C       : array of real*8                                        *
+!               CI vector                                              *
+!     h0      : array of real*8                                        *
+!               one-electron integrals                                 *
+!     TUVX    : array of real*8                                        *
+!               two-electron integrals                                 *
+!     iSel    : array of integer                                       *
+!               list of configuration included in the explicit Hamilt. *
+!     ExplE   : array of real*8                                        *
+!               eigenvalues of the explicit Hamiltonian                *
+!     ExplV   : array of real*8                                        *
+!               eigenvectors of the explicit Hamiltonian               *
+!     iFinal  : integer                                                *
+!               status of optimization process                         *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
 #ifdef _HDF5_
-      Use mh5, Only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset,
+      Use mh5, Only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset,      &
      &               mh5_close_file
 #endif
 
@@ -61,34 +61,34 @@
 #include "output_ras.fh"
 #include "SysDef.fh"
 
-c      Dimension iToc(15)
+!      Dimension iToc(15)
       Character*80 String
       Logical Exist
 
       IPRLEV=IPRLOC(3)
 
-* special case: nConf=1
+! special case: nConf=1
 
       If ( nConf.eq.1 .and. nAc.eq.0 ) then
         iDisk = IADR15(4)
-C$$$        ExplE(1) = C(1)  ! Commented out by Jesper
-C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
+!$$$        ExplE(1) = C(1)  ! Commented out by Jesper
+!$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
         C(1) = 1.0d0
         Call Save_tmp_CI_vec(1,nConf,C,LuDavid)
         Return
       End If
 
-* compute the explicit Hamiltonian
-* (needs to be out here as we want to redetermine
-*  dynamically the selection vector)
+! compute the explicit Hamiltonian
+! (needs to be out here as we want to redetermine
+!  dynamically the selection vector)
 
       Call ExplH2(C,h0,TUVX,iSel,ExplE,ExplV)
 
-* special case: nSel=nConf
+! special case: nSel=nConf
 
       If ( nSel.eq.nMaxSel ) then
-        If ( IPRLEV.ge. DEBUG ) Write (6,*)
-     &                  ' Initial CI-vectors are obtained by',
+        If ( IPRLEV.ge. DEBUG ) Write (6,*)                             &
+     &                  ' Initial CI-vectors are obtained by',          &
      &                  ' diagonalizing the explicit Hamiltonian'
         iDisk = IADR15(4)
         Do i = 1,lRoots
@@ -116,18 +116,18 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
           if (Exist) then
             if (mh5_is_hdf5(StartOrbFile)) then
               If (IPRLEV.ge.TERSE) Then
-                write (6,'(1x,a)')
-     $                  'reading initial CI vectors from '//StartOrbFile
+                write (6,'(1x,a)')                                      &
+     &                  'reading initial CI vectors from '//StartOrbFile
               End If
               mh5id = mh5_open_file_r(StartOrbFile)
 
               Call GetMem('Scr1','Allo','Real',iTmp1,nConf)
               call GetMem('kcnf','allo','inte',ivkcnf,nactel)
               Do i = 1,lRoots
-                call mh5_fetch_dset(mh5id,'CI_VECTORS',
-     $                  Work(iTmp1:iTmp1+nconf-1),[nconf,1],[0,i-1])
-                Call Reord2(NAC,NACTEL,STSYM,1,
-     &                  iWork(KICONF(1)),iWork(KCFTP),
+                call mh5_fetch_dset(mh5id,'CI_VECTORS',                 &
+     &                  Work(iTmp1:iTmp1+nconf-1),[nconf,1],[0,i-1])
+                Call Reord2(NAC,NACTEL,STSYM,1,                         &
+     &                  iWork(KICONF(1)),iWork(KCFTP),                  &
      &                  Work(iTmp1),C,iwork(ivkcnf))
                 Call Save_CI_vec(i,nConf,C,LuDavid)
               End Do
@@ -141,14 +141,14 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
           end if
           If (.not.Exist) Then
 #endif
-* get start vectors by reading JOBOLD
+! get start vectors by reading JOBOLD
           iJOB=0
           Call f_Inquire('JOBOLD',Exist)
           If (Exist) iJOB=1
           If (iJOB.eq.1) Then
             If (IPRLEV.ge.TERSE) Then
-              write (6,'(1x,a)')
-     $                'reading initial CI vectors from JOBOLD'
+              write (6,'(1x,a)')                                        &
+     &                'reading initial CI vectors from JOBOLD'
             End If
             If (JOBOLD.le.0) Then
               JOBOLD=20
@@ -156,8 +156,8 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
             End If
           Else
             If (IPRLEV.ge.TERSE) Then
-              write (6,'(1x,a)')
-     $                'reading initial CI vectors from JOBIPH'
+              write (6,'(1x,a)')                                        &
+     &                'reading initial CI vectors from JOBIPH'
             End If
             JOBOLD=JOBIPH
           End If
@@ -169,8 +169,8 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
           Do i = 1,lRoots
             Call DDafile(JOBOLD,2,Work(iTmp1),nConf,iDisk)
             call GetMem('kcnf','allo','inte',ivkcnf,nactel)
-            Call Reord2(NAC,NACTEL,STSYM,1,
-     &              iWork(KICONF(1)),iWork(KCFTP),
+            Call Reord2(NAC,NACTEL,STSYM,1,                             &
+     &              iWork(KICONF(1)),iWork(KCFTP),                      &
      &              Work(iTmp1),C,iwork(ivkcnf))
             call GetMem('kcnf','free','inte',ivkcnf,nactel)
             Call Save_CI_vec(i,nConf,C,LuDavid)
@@ -195,9 +195,9 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
 #endif
 
         Else
-* no CI restart, get start vectors by diagonalizing the explicit Hamiltonian
-          If ( IPRLEV.ge. DEBUG ) Write (6,*)
-     &            ' Initial CI-vectors are obtained by',
+! no CI restart, get start vectors by diagonalizing the explicit Hamiltonian
+          If ( IPRLEV.ge. DEBUG ) Write (6,*)                           &
+     &            ' Initial CI-vectors are obtained by',                &
      &            ' diagonalizing the explicit Hamiltonian'
           Do i = 1,lRoots
             Call dCopy_(nConf,[0.0d0],0,C,1)
@@ -217,15 +217,15 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
         End If
 
       Else
-* no external start vector needed, get start vectors by reading JOBIPH
+! no external start vector needed, get start vectors by reading JOBIPH
         If ( iFinal.eq.2 ) then
-          If ( IPRLEV.ge. DEBUG ) Write (6,*)
-     &            ' Initial CI-vectors are identical to the',
-     &            ' transformed CI-vectors of the previous ',
+          If ( IPRLEV.ge. DEBUG ) Write (6,*)                           &
+     &            ' Initial CI-vectors are identical to the',           &
+     &            ' transformed CI-vectors of the previous ',           &
      &            ' RASSCF iteration'
         Else
-          If ( IPRLEV.ge.DEBUG ) Write (6,*)
-     &            ' Initial CI-vectors are identical to the',
+          If ( IPRLEV.ge.DEBUG ) Write (6,*)                            &
+     &            ' Initial CI-vectors are identical to the',           &
      &            ' CI-vectors of the previous RASSCF iteration'
         End If
         iDisk = IADR15(4)
@@ -239,8 +239,8 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
             Call dVcPrt(String,' ',C,l)
           End If
         End Do
-*MGD simple guess for missing ones : explV
-*dangerous if linear dependence with converged states
+!MGD simple guess for missing ones : explV
+!dangerous if linear dependence with converged states
         Do i= lRoots-hRoots+1,lRoots
            Call dCopy_(nConf,[0.0d0],0,C,1)
            Do j = 1,nSel

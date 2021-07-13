@@ -1,40 +1,40 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1999, Markus P. Fuelscher                              *
-*               2012, Giovanni Li Manni                                *
-************************************************************************
-      SUBROUTINE CSDTVC(CSFVEC,DETVEC,IWAY,DTOCMT,ICTSDT,
-     *                  IREFSM,ICOPY)
-C
-C     PURPOSE: TRANSFORM FROM DETERMINANT TO CSF BASIS AND VICE VERSA
-C              IWAY = 1 : CSF TO DETERMINANT TRANSFORMATION
-C              IWAY = 2 : DETERMINANT TO CSF TRANSFORMATION
-C
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1999, Markus P. Fuelscher                              *
+!               2012, Giovanni Li Manni                                *
+!***********************************************************************
+      SUBROUTINE CSDTVC(CSFVEC,DETVEC,IWAY,DTOCMT,ICTSDT,               &
+     &                  IREFSM,ICOPY)
+!
+!     PURPOSE: TRANSFORM FROM DETERMINANT TO CSF BASIS AND VICE VERSA
+!              IWAY = 1 : CSF TO DETERMINANT TRANSFORMATION
+!              IWAY = 2 : DETERMINANT TO CSF TRANSFORMATION
+!
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
 #include "ciinfo.fh"
 #include "spinfo.fh"
-C
+!
       DIMENSION CSFVEC(*),DETVEC(*)
       DIMENSION DTOCMT(*),ICTSDT(*)
 
-C
-C     To avoid compiler complaints
-C
+!
+!     To avoid compiler complaints
+!
       IOFFCS = 0
       IOFFDT = 0
       IOFFCD = 0
-C
+!
       NTEST = 00
-C
+!
       NDET = NDTASM(IREFSM)
       NCSF = NCSASM(IREFSM)
       IF (NTEST .GE. 100) THEN
@@ -51,9 +51,9 @@ C
          WRITE(6,*) '  NCSF                  = ',NCSF
          WRITE(6,*)
       END IF
-C
-C     CSF ==> DET TRANSFORMATION
-C
+!
+!     CSF ==> DET TRANSFORMATION
+!
       IF( IWAY.EQ.1 ) THEN
         IF (NTEST .GE. 100) THEN
           WRITE(6,*) '   INPUT CSF VECTOR:'
@@ -74,8 +74,8 @@ C
             IOFFDT = IOFFDT+NCNFTP(ITYP-1,IREFSM)*NDTFTP(ITYP-1)
             IOFFCD = IOFFCD + NDTFTP(ITYP-1)*NCSFTP(ITYP-1)
           END IF
-          IF( (IDET*ICNF*ICSF).GT.0 )
-     &         CALL MATML4(DETVEC(IOFFDT),DTOCMT(IOFFCD),
+          IF( (IDET*ICNF*ICSF).GT.0 )                                   &
+     &         CALL MATML4(DETVEC(IOFFDT),DTOCMT(IOFFCD),               &
      &         CSFVEC(IOFFCS), IDET,ICNF,IDET,ICSF,ICSF,ICNF,0)
         END DO
         Call Sort_Cdet(nDet,ICTSDT,DetVec)
@@ -87,9 +87,9 @@ C
         END IF
 
       ELSE
-C
-C     DET ==> CSF TRANSFORMATION
-C
+!
+!     DET ==> CSF TRANSFORMATION
+!
         IF (NTEST .GE. 100) THEN
           WRITE(6,*) '   INPUT DET VECTOR:'
           CALL WRTMAT(DETVEC,1,NDET,1,NDET)
@@ -114,8 +114,8 @@ C
             IOFFDT = IOFFDT+NCNFTP(ITYP-1,IREFSM)*NDTFTP(ITYP-1)
             IOFFCD = IOFFCD + NDTFTP(ITYP-1)*NCSFTP(ITYP-1)
           END IF
-          IF( (IDET*ICNF*ICSF).GT.0 )
-     &         CALL MATML4(CSFVEC(IOFFCS),DTOCMT(IOFFCD),
+          IF( (IDET*ICNF*ICSF).GT.0 )                                   &
+     &         CALL MATML4(CSFVEC(IOFFCS),DTOCMT(IOFFCD),               &
      &         DETVEC(IOFFDT), ICSF,ICNF,IDET,ICSF,IDET,ICNF,1)
         END DO
         IF( ICOPY.NE.0 ) CALL DCOPY_(NCSF,CSFVEC,1,DETVEC,1)
@@ -125,64 +125,64 @@ C
           WRITE(6,*)
         END IF
        END IF
-C
+!
       RETURN
       END
 
       Subroutine Sort_Cdet(N,Index,X)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Sort CI-coefficients in determinant basis and change phase       *
-*                                                                      *
-*     calling arguments:                                               *
-*     N       : integer                                                *
-*               dimension of the CI-vector                             *
-*     Index   : integer                                                *
-*               reordering indices                                     *
-*     X       : real*8                                                 *
-*               CI-vector                                              *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     G. Li Manni on 03 Feb 2012 on a desperate situation for saving   *
-*     time!                                                            *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history:                                                         *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1999                                 *
-*                                                                      *
-* It was a great piece of code for those times when memory was a very  *
-* big issue! Nowadays only time is important!                          *
-************************************************************************
-*      Do i = 1,N                                                      *
-*        i_old = i                                                     *
-*        i_new = ABS(Index(i_old))                                     *
-*        Do while ( i_new.gt.i )                                       *
-*          i_old = i_new                                               *
-*          i_new = ABS(Index(i_old))                                   *
-*        End Do                                                        *
-*        If ( i_new.eq.i ) then                                        *
-*          i_old = i                                                   *
-*          X_old = X(i_old)                                            *
-*          i_new = ABS(Index(i_old))                                   *
-*          X_new = X(i_new)                                            *
-*          alpha = DBLE(SIGN(1,Index(i_old)))                          *
-*          Do while ( i_new.gt.i )                                     *
-*            X(i_new) = alpha*X_old                                    *
-*            i_old = i_new                                             *
-*            X_old = X_new                                             *
-*            i_new = ABS(Index(i_old))                                 *
-*            X_new = X(i_new)                                          *
-*            alpha = DBLE(SIGN(1,Index(i_old)))                        *
-*          End Do                                                      *
-*          X(i) = alpha*X_old                                          *
-*        End If                                                        *
-*      End Do                                                          *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Sort CI-coefficients in determinant basis and change phase       *
+!                                                                      *
+!     calling arguments:                                               *
+!     N       : integer                                                *
+!               dimension of the CI-vector                             *
+!     Index   : integer                                                *
+!               reordering indices                                     *
+!     X       : real*8                                                 *
+!               CI-vector                                              *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     G. Li Manni on 03 Feb 2012 on a desperate situation for saving   *
+!     time!                                                            *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history:                                                         *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1999                                 *
+!                                                                      *
+! It was a great piece of code for those times when memory was a very  *
+! big issue! Nowadays only time is important!                          *
+!***********************************************************************
+!      Do i = 1,N                                                      *
+!        i_old = i                                                     *
+!        i_new = ABS(Index(i_old))                                     *
+!        Do while ( i_new.gt.i )                                       *
+!          i_old = i_new                                               *
+!          i_new = ABS(Index(i_old))                                   *
+!        End Do                                                        *
+!        If ( i_new.eq.i ) then                                        *
+!          i_old = i                                                   *
+!          X_old = X(i_old)                                            *
+!          i_new = ABS(Index(i_old))                                   *
+!          X_new = X(i_new)                                            *
+!          alpha = DBLE(SIGN(1,Index(i_old)))                          *
+!          Do while ( i_new.gt.i )                                     *
+!            X(i_new) = alpha*X_old                                    *
+!            i_old = i_new                                             *
+!            X_old = X_new                                             *
+!            i_new = ABS(Index(i_old))                                 *
+!            X_new = X(i_new)                                          *
+!            alpha = DBLE(SIGN(1,Index(i_old)))                        *
+!          End Do                                                      *
+!          X(i) = alpha*X_old                                          *
+!        End If                                                        *
+!      End Do                                                          *
+!***********************************************************************
 
       Implicit Real*8 (A-H,O-Z)
 
