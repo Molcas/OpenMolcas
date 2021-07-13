@@ -122,7 +122,7 @@ module rhodyn_data
                                               U_CI_compl,dysamp_bas
   complex(kind=wp), dimension(:), allocatable :: E_SO
 ! ---------------------------------------------------------------------
-  logical :: flag_so, flag_pulse, flag_decay, flag_diss, flag_fdm, &
+  logical :: flag_so, flag_decay, flag_diss, flag_fdm, &
              flag_dyson, flag_emiss, flag_test, flag_dipole
   character(len=256) :: pulse_type, dm_basis, p_style, method, basis
   character(len=6),dimension(:),allocatable:: rassd_list, hr_list
@@ -172,7 +172,9 @@ module rhodyn_data
 ! Runge-Kutta midpoints
   complex(8),dimension(:,:),allocatable::ak1,ak2,ak3,ak4,ak5,ak6,y5
 ! pulse characteristics
+  logical :: flag_pulse, flag_acorrection
   integer(kind=iwp) :: N_pulse, power_shape
+  real(kind=wp) :: linear_chirp, t_local, omega_local
   real(kind=wp), dimension(:), allocatable :: amp, omega, sigma ,&
                                               phi, taushift
   complex(kind=wp), dimension(3) :: pulse_vec, E_field

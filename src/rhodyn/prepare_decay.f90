@@ -14,6 +14,7 @@ subroutine prepare_decay
   use rhodyn_data
   use rhodyn_utils, only: transform, mult, dashes
   use definitions, only: u6
+  use constants, only: pi
   implicit none
 ! energy and time should fullfill relation delta_E*delta_t=h
 ! construct the decay in SOC states basis sets

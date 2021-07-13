@@ -222,12 +222,17 @@ subroutine read_input()
       case ('SIGM')
         read(luin,*) (sigma(i),i=1,N_pulse)
         sigma=sigma/auToFs
+        ! old value of sigma was underestimated by factor of pi/2
       case ('OMEG')
         read(luin,*) (omega(i),i=1,N_pulse)
         omega=omega/autoev
       case ('PHAS')
         read(luin,*) (phi(i),i=1,N_pulse)
         phi=phi*pi
+      case ('CHIR')
+        read(luin,*) linear_chirp
+      case ('ACOR')
+        flag_acorrection = .True.
       case('END ')
         exit
       case default

@@ -21,7 +21,8 @@ subroutine pulse(H0,Ht,time,count)
                          pulse_vec, pulse_vector, amp, taushift,&
                          sigma, power_shape, omega, phi,&
                          lu_pls, temp_vec, out_t, out_pulse,&
-                         dipole_basis
+                         dipole_basis, t_local, omega_local,&
+                         linear_chirp, flag_acorrection
   use mh5, only: mh5_put_dset
   use constants, only: pi, auToFs
   implicit none
@@ -33,54 +34,79 @@ subroutine pulse(H0,Ht,time,count)
   E_field=zero
 
   do i=1,N_pulse
+    t_local = time-taushift(i)
+    omega_local = omega(i) + linear_chirp * t_local
 !
 ! sine^N pulse
-! add description here
+! A\vec{e}\sin^n(\pi(t-t_0)/(2\sigma))\sin{(\Omega(t-t_0)+\varphi_0)}
+! duration of the pulse equals 2\sigma
     if (pulse_type(1:3)=='SIN') then
       pulse_vec(:)=pulse_vector(i,:)
-      if (abs(time-taushift(i))<=sigma(i)) then
+      if (abs(t_local)<=sigma(i)) then
         E_field = amp(i)*pulse_vec &
-        *sin( pi*(time-taushift(i)) / (2.d0*sigma(i)) )**power_shape &
-        *sin(omega(i) * (time-taushift(i)) + phi(i))
-! add correction here
+        *sin( pi*t_local / (2.d0*sigma(i)) )**power_shape &
+        *sin(omega_local * t_local + phi(i))
+! correction due to vector potential derivative [Paramonov_JPCA_2012]:
+! -A\vec{e}\pi/(2\sigma\Omega)
+!     \sin(\pi(t-t_0)/(\sigma))\cos{(\Omega(t-t_0)+\varphi_0)}
+! only for sine square shape form
+        if (flag_acorrection.and.power_shape==2) then
+          E_field = E_field - amp(i)*pulse_vec*pi &
+          /(2*sigma(i)*omega_local) &
+          *sin( pi*t_local / sigma(i) ) &
+          *cos(omega_local * t_local + phi(i))
+        endif
       else
         E_field=0d0
       endif
 !
-! cosine^N pulse
-! add description here
+! cos^N pulse:
+! A\vec{e}\cos^n(\pi(t-t_0)/(2\sigma))\sin{(\Omega(t-t_0)+\varphi_0)}
+! duration of the pulse equals 2\sigma
     elseif (pulse_type(1:3)=='COS') then
       pulse_vec(:)=pulse_vector(i,:)
-      if (abs(time-taushift(i))<=sigma(i)) then
+      if (abs(t_local)<=sigma(i)) then
         E_field = amp(i)*pulse_vec &
-        *cos( pi*(time-taushift(i)) / (2.d0*sigma(i)) )**power_shape &
-        *sin(omega(i) * (time-taushift(i)) + phi(i))
-! add correction here
+        *cos( pi*t_local / (2.d0*sigma(i)) )**power_shape &
+        *sin(omega_local * t_local + phi(i))
+! correction is the same as in sine case, but with different choice of
+! vector potential, here vector potential is given:
+! -\vec{e}\frac{A}{\Omega} \cos^2(\pi(t-t_0)/(2\sigma))
+!     \cos{(\Omega(t-t_0)+\varphi_0)}
+! only for cosine square shape form
+        if (flag_acorrection.and.power_shape==2) then
+          E_field = E_field - amp(i)*pulse_vec*pi &
+          /(2*sigma(i)*omega_local) &
+          *sin( pi*t_local / sigma(i) ) &
+          *cos(omega_local * t_local + phi(i))
+        endif
       else
         E_field=0d0
       endif
 !
 ! gaussian pulse
-! add description here
+! A\vec{e}exp{-(t-t_0)^2/(2\sigma^2)}\sin{(\Omega(t-t_0)+\varphi_0)}
     elseif (pulse_type=='GAUSS') then
       pulse_vec(:)=pulse_vector(i,:)
       E_field = amp(i)*pulse_vec &
-      *exp(-(time-taushift(i))**2 / (2*sigma(i)**2)) &
-      *sin(omega(i) * (time-taushift(i)) + phi(i))
-      ! add correction here
+      *exp(-t_local**2 / (2*sigma(i)**2)) &
+      *sin(omega_local * t_local + phi(i))
+! correction due to vector potential derivative:
+! \vec{e}\frac{A(t-t_0)}{\sigma^2\Omega}
+!     \exp{-(t-t_0)^2/(2\sigma)^2}\cos{(\Omega(t-t_0) + \varphi_0)}
+      if (flag_acorrection) then
+        E_field = E_field + amp(i)*pulse_vec*t_local &
+        /(sigma(i)**2*omega_local) &
+        *exp(-t_local**2 / (2*sigma(i)**2)) &
+        *cos(omega_local * t_local + phi(i))
+      endif
 !
 ! monochromatic pulse
-! add description here
+! A\vec{e}\sin{(\Omega(t-t_0)+\varphi_0)}
     elseif (pulse_type=='MONO') then
       pulse_vec(:)=pulse_vector(i,:)
       E_field = amp(i)*pulse_vec &
-      *sin(omega(i) * (time-taushift(i)) + phi(i))
-!
-! train of gaussian pulses
-! elseif (pulse_type=='Train_Diff') then
-!   E_field = E_field+amp(i)*pulse_vector(i,:)* &
-!             exp(-(time-(tau+(i-1)*shift(i)))**2/ &
-!             (2*sigma(i)**2))*sin(omega(i)*time+phi(i))
+      *sin(omega_local * (time-taushift(i)) + phi(i))
 !
 ! explicitely polarized pulses
 ! think of more clever definition

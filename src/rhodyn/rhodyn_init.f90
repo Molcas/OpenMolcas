@@ -32,6 +32,7 @@ subroutine rhodyn_init()
   Nmode         = 0
 ! be default propagation basis is spin free states
   basis         = 'SF'
+  DM_basis      = 'SF_SO'
   tout          = 0.05d0/auToFs
   initialtime   = 0.0d0/auToFs
   finaltime     = 10.0d0/auToFs
@@ -54,7 +55,6 @@ subroutine rhodyn_init()
   gamma         = 300/auToCm
   HRSO          = .False.
   kext          = .False.
-  DM_basis      = 'SF_SO'
 ! full density matrix saving time step
   time_fdm      = 1.0d0/auToFs
 ! general idea is that additional features are disabled by default
@@ -64,11 +64,12 @@ subroutine rhodyn_init()
   flag_fdm      = .False.
   flag_dipole   = .False.
   flag_emiss    = .False.
-  flag_pulse    = .True.
-  Pulse_type    = 'Gaussian'
 ! number of incoming pulses N_pulse supposed to be 1 by default
 ! later when reading input it can be changed with
 ! reallocation of all corresponding arrays
+  flag_pulse    = .True.
+  flag_acorrection=.False.
+  pulse_type    = 'GAUSSIAN'
   N_pulse       = 1
   call mma_allocate(amp,N_pulse)
   call mma_allocate(taushift,N_pulse)
@@ -82,7 +83,8 @@ subroutine rhodyn_init()
   pulse_vector(1,2)= zero
   pulse_vector(1,3)= zero
   sigma(1)         = 1.0d0/auToFs
-  omega(1)         = 710d0/autoev
-  phi(1)           = 0d0
+  omega(1)         = 10d0/autoev
+  phi(1)           = 0.0d0
+  linear_chirp     = 0.0d0
 
 end

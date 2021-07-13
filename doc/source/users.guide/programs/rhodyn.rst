@@ -434,15 +434,18 @@ General keywords
               Number of incoming electric fields.
               </HELP>
               </KEYWORD>
+
 :kword:`PTYPe`
-  PTYPE defines form of the shape function for each pulse. 
-  Available options are 
+  PTYPE defines form of the shape function for each pulse.
+  Electric field is supposed to be in the form :math:`A\vec{e}s(t)\sin{(\Omega(t-t_0)+\varphi_0)}`,
+  where :math:`s(t)` is a shape function. Available options are 
 
   .. container:: list
 
-    **Gauss** --- gaussian shape. Set by default.
+    **Gauss** --- gaussian shape :math:`\exp{-(t-t_0)^2/(2\sigma^2)}`. Set by default.
 
-    **sinX**, **cosX** --- here *X* is power, to which sine or cosine functions raise.
+    **sinX**, **cosX** --- :math:`\cos^X(\pi(t-t_0)/(2\sigma))`.
+                           Here *X* is power, to which sine or cosine functions raise.
                            For example, *sin16* describes :math:`sin^{16}` shape function.
 
     **Mono** --- monochromatic pulse without shape function.
@@ -459,8 +462,7 @@ General keywords
               </KEYWORD>
 
 :kword:`AMPLitude`
-  On one line define as many amplitude values as many pulses you ask 
-  for.
+  On one line define as many amplitude values :math:`A` as many pulses you ask for.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="AMPL" APPEAR="Amplitudes" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: AMPLitude <advanced>
@@ -470,7 +472,7 @@ General keywords
               </KEYWORD>
 
 :kword:`TAUShift`
-  Here should be shifts in fs for each pulse in respect to 
+  Here should be shifts :math:`t_0` in fs for each pulse in respect to 
   the initial time point.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="TAUS" APPEAR="Shifts of pulse centers" KIND="CUSTOM" LEVEL="BASIC">
@@ -481,7 +483,7 @@ General keywords
               </KEYWORD>
 
 :kword:`POLArization`
-  Three complex numbers defining polarization. By default, electric 
+  Three complex numbers defining polarization :math:`\vec{e}`. By default, electric 
   field is considered to be linear polarized along x-direction. If 
   number of pulses more than one the polarization vector should be 
   given for each on a separate line.
@@ -494,17 +496,17 @@ General keywords
               </KEYWORD>
 
 :kword:`SIGMa`
-  Pulse width in fs inverse to dispersion for each pulse.
+  Pulse dispersion :math:`\sigma` in fs for each pulse. See keyword *PTYPe* for definition.
 
-  .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="SIGM" APPEAR="Inverse widths of pulses" KIND="CUSTOM" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="SIGM" APPEAR="Widths of pulses" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: SIGMa <advanced>
               <HELP>
-              Pulse width in fs inverse to dispersion.
+              Pulse width in fs.
               </HELP>
               </KEYWORD>
 
 :kword:`OMEGa`
-  Carrier frequency in eV for each pulse.
+  Carrier frequency :math:`\Omega` in eV for each pulse.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="OMEG" APPEAR="Frequencies of pulses" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: OMEGa <advanced>
@@ -514,12 +516,36 @@ General keywords
               </KEYWORD>
 
 :kword:`PHASe`
-  Phase in radians for each pulse.
+  Phase :math:`\varphi_0` in radians for each pulse.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="PHAS" APPEAR="Phases for each pulse" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: PHASe <advanced>
               <HELP>
               Phase in radians for each pulse.
+              </HELP>
+              </KEYWORD>
+
+:kword:`CHIRp`
+  Enable correction to carrier frequency simulating experimental linear frequency chirp.
+  Due to time-dependent phase, the carrier frequency gets additional linear term
+  :math:`\Omega \rightarrow \Omega + a (t - t_0)`. 
+  Constant :math:`a` should be specified.
+
+  .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="CHIR" APPEAR="Linear chirp constant" KIND="REAL" LEVEL="BASIC">
+              %%Keyword: CHIRp <advanced>
+              <HELP>
+              Linear chirp constant.
+              </HELP>
+              </KEYWORD>
+
+:kword:`ACORrection`
+  Enable correction to electromagnetic pulse as if is given as time derivative of
+  a vector potential.
+
+  .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="ACOR" APPEAR="Vector potential correction" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: ACORrection <advanced>
+              <HELP>
+              Vector potential correction.
               </HELP>
               </KEYWORD>
 
@@ -564,7 +590,7 @@ Input examples
   IFSO
   AMPLitude             = 9.0
   TAUShift              = 1.
-  SIGMa                 = 5.0
+  SIGMa                 = 0.3
   OMEGa                 = 875
   IfDissipation
   KEXTernal
@@ -591,7 +617,7 @@ Input examples
   AMPLitude             = 9.0
   TAUShift              = 1.
   POLArization          = (1.0,0.0) (0.0,0.0) (0.0,0.0)
-  SIGMa                 = 5.0
+  SIGMa                 = 0.3
   OMEGa                 = 875
   PHASe                 = 0
   Dipole
