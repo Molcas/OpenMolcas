@@ -273,7 +273,7 @@ if (((ISS <= ISQ) .or. (ISP /= ISR)) .and. (ISP /= ISQ) .and. (ISR /= ISS) .and.
     ! Store(Only type1)
     ISPQRS = ((ISP**2-ISP)/2+ISR-1)*NSYMP+(ISQ**2-ISQ)/2+ISS
     IAD2M(2,ISPQRS) = IAD13
-  elseif ((ISP /= ISR) .and. (ISQ < ISS)) then
+  else if ((ISP /= ISR) .and. (ISQ < ISS)) then
     ! Store(Only type2)
     ISPQRS = ((ISP**2-ISP)/2+ISR-1)*NSYMP+(ISS**2-ISS)/2+ISQ
     IAD2M(3,ISPQRS) = IAD13

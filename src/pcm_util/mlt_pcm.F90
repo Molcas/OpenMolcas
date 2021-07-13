@@ -39,7 +39,7 @@ do iTs=1,nTs
   call EFNuc(Tessera(1,iTs),Chrg,AtmC,nAt,Temp,nOrdOp)
   if (nOrdOp == 0) then
     V(iTs) = Temp(1)
-  elseif (nOrdOp == 1) then
+  else if (nOrdOp == 1) then
     EF_n(:,iTs) = Temp(:)
   end if
 end do

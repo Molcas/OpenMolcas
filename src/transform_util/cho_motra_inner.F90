@@ -72,7 +72,7 @@ if (Do_int) then
       iSymp = Mul(iSymq,jSym)
       if (iSymp == iSymq) then
         lXint = lXint+nOrbq*(nOrbq+1)/2
-      elseif (iSymp < iSymq) then
+      else if (iSymp < iSymq) then
         nOrbp = nIsh(iSymp)+nAsh(iSymp)+nSsh(iSymp)
         lXint = lXint+nOrbp*nOrbq
       end if

@@ -70,11 +70,11 @@ do NSFE1=1,NESF
     if (L == NV) IV2 = 1
     if ((IND(IV1) == 1) .and. (IND(IV2) == 1)) then
       LTYP(L) = 0
-    elseif ((IND(IV1) == 0) .and. (IND(IV2) == 1)) then
+    else if ((IND(IV1) == 0) .and. (IND(IV2) == 1)) then
       LTYP(L) = 1
-    elseif ((IND(IV1) == 1) .and. (IND(IV2) == 0)) then
+    else if ((IND(IV1) == 1) .and. (IND(IV2) == 0)) then
       LTYP(L) = 2
-    elseif ((IND(IV1) == 0) .and. (IND(IV2) == 0)) then
+    else if ((IND(IV1) == 0) .and. (IND(IV2) == 0)) then
       LTYP(L) = 4
       RC2 = (CCC(1,L)-PTS(1,L))**2+(CCC(2,L)-PTS(2,L))**2+(CCC(3,L)-PTS(3,L))**2
       RC = sqrt(RC2)

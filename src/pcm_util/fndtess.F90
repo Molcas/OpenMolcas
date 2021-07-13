@@ -181,7 +181,7 @@ do
       if (ITYPC == 0) then
         pNewS(1,NET) = KG
         pNewS(2,NET) = KP
-      elseif (ITYPC == 1) then
+      else if (ITYPC == 1) then
         pNewS(1,NET) = -KG
         pNewS(2,NET) = KP
       end if
@@ -213,9 +213,9 @@ do NSFE=1,NS
     IPtype = 2
     IPFlag = 0
     ITsNum = 60
-  elseif ((ITsNum > 0) .and. (TsAre == Zero)) then
+  else if ((ITsNum > 0) .and. (TsAre == Zero)) then
     IPFlag = 0
-  elseif (TsAre > Zero) then
+  else if (TsAre > Zero) then
     IPFlag = 1
   end if
   call PolyGen(MxTs,MxSph,IPtype,IPflag,TsAre,ITsNum,XEN,YEN,ZEN,REN,ITsEff,CV,JTR)

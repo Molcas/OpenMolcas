@@ -217,7 +217,7 @@ if (Ptype == Icosa) then
   do i=1,NE0
     edo(i,:) = icoed(:,i)
   end do
-elseif (Ptype == Pentakis) then
+else if (Ptype == Pentakis) then
 
   ! pentakisdodecaedro
 
@@ -234,7 +234,7 @@ elseif (Ptype == Pentakis) then
   do i=1,NE0
     edo(i,:) = pened(:,i)
   end do
-elseif (Ptype == Tetra) then
+else if (Ptype == Tetra) then
 
   ! tetraedro
 

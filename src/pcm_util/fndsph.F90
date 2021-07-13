@@ -33,7 +33,7 @@ if (ITypRad == 1) then
   Chg(:) = Zero
   call UATM(u6,ICharg,NAt,NSinit,m,Rad,Alpha,C,IAt,NOrd,Chg,iPrint)
   call mma_deallocate(Chg)
-elseif (ITypRad == 2) then
+else if (ITypRad == 2) then
   ! Pauling radii on each atom:
   do I=1,NAt
     NOrd(I) = I
@@ -41,7 +41,7 @@ elseif (ITypRad == 2) then
   end do
   Alpha = 1.2_wp
   NSinit = NAt
-elseif (ITypRad == 3) then
+else if (ITypRad == 3) then
   ! Sphere radii given in the input
   NOrd(1:NSphInp) = NOrdInp(1:NSphInp)
   Rad(1:NSphInp) = RadInp(1:NSphInp)

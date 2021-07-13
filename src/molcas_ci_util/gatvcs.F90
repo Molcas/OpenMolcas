@@ -9,34 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-      SUBROUTINE GATVCS(VECO,VECI,INDEX,NDIM)
+subroutine GATVCS(VECO,VECI,INDEX,NDIM)
 ! Gather vector allowing for sign change
 !
 ! VECO(I) = VECI(INDEX(I))
-!
-      IMPLICIT REAL*8           (A-H,O-Z)
-      DIMENSION VECI(*),VECO(*),INDEX(*)
-      INTRINSIC SIGN
-!
-      DO 100 I = 1, NDIM
-      VECO(I) = VECI(ABS(INDEX(I)))*DBLE(SIGN(1,INDEX(I)))
-  100 CONTINUE
-!
-      RETURN
-      END
-      SUBROUTINE SCAVCS(VECO,VECI,INDEX,NDIM)
-!
-! Scatter vector with sign change
-!
-! vecO(abs(index(i))) = veci(i)*sign(index(i))
-!
-      IMPLICIT REAL*8           (A-H,O-Z)
-      DIMENSION VECI(*),VECO(*),INDEX(*)
-      INTRINSIC SIGN
-!
-      DO 100 I = 1, NDIM
-      VECO(ABS(INDEX(I))) = VECI(I)*DBLE(SIGN(1,INDEX(I)))
-  100 CONTINUE
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+dimension VECI(*), VECO(*), index(*)
+intrinsic SIGN
+
+do I=1,NDIM
+  VECO(I) = VECI(abs(index(I)))*dble(sign(1,index(I)))
+end do
+
+return
+
+end subroutine GATVCS

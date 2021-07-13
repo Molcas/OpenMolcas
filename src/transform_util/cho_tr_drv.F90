@@ -120,7 +120,7 @@ do jSym=1,nSym
       kOff(i) = Mpq
       nOB(i) = nPorb(i)*nPorb(k)*NumCho(jSym)
       Mpq = Mpq+nPorb(i)*nPorb(k)
-    elseif (k == i) then
+    else if (k == i) then
       kOff(i) = Mpq
       nOB(i) = nPorb(i)*(nPorb(i)+1)/2*NumCho(jSym)
       Mpq = Mpq+nPorb(i)*(nPorb(i)+1)/2

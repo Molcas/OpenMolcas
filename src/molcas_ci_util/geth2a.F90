@@ -8,18 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      FUNCTION GETH2A(I,J,K,L,TUVX)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION TUVX(*)
-      NI=MAX(I,J)
-      NJ=MIN(I,J)
-      IJ=NJ+NI*(NI-1)/2
-      NK=MAX(K,L)
-      NL=MIN(K,L)
-      KL=NL+NK*(NK-1)/2
-      NIJ=MAX(IJ,KL)
-      NKL=MIN(IJ,KL)
-      NIJKL=NKL+NIJ*(NIJ-1)/2
-      GETH2A=TUVX(NIJKL)
-      RETURN
-      END
+
+function GETH2A(I,J,K,L,TUVX)
+
+implicit real*8(A-H,O-Z)
+dimension TUVX(*)
+
+NI = max(I,J)
+NJ = min(I,J)
+IJ = NJ+NI*(NI-1)/2
+NK = max(K,L)
+NL = min(K,L)
+KL = NL+NK*(NK-1)/2
+NIJ = max(IJ,KL)
+NKL = min(IJ,KL)
+NIJKL = NKL+NIJ*(NIJ-1)/2
+GETH2A = TUVX(NIJKL)
+
+return
+
+end function GETH2A

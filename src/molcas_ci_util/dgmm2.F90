@@ -8,44 +8,45 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE DGMM2_MOLCAS (AOUT,AIN,DIAG,IWAY,NRDIM,NCDIM)
+
+subroutine DGMM2_MOLCAS(AOUT,AIN,DIAG,IWAY,NRDIM,NCDIM)
+! PRODUCT OF DIAGONAL MATRIX AND MATRIX :
 !
-!     PRODUCT OF DIAGONAL MATRIX AND MATRIX :
-!
-!     IWAY = 1 : AOUT(I,J) = DIAG(I)*AIN(I,J)
-!     IWAY = 2 : AOUT(I,J) = DIAG(J)*AIN(I,J)
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-      DIMENSION AIN(NRDIM,NCDIM),DIAG(*)
-      DIMENSION AOUT(NRDIM,NCDIM)
-!
-      IF ( IWAY .EQ. 1 ) THEN
-         DO 100 J = 1, NCDIM
-           DO 110 K = 1, NRDIM
-             AOUT(K,J) = AIN(K,J)*DIAG(K)
-110        CONTINUE
-100      CONTINUE
-      END IF
-!
-      IF( IWAY .EQ. 2 ) THEN
-        DO 200 J = 1, NCDIM
-          FACTOR = DIAG(J)
-          CALL DCOPY_(NRDIM,AIN(1,J),1,AOUT(1,J),1)
-          CALL DSCAL_(NRDIM,FACTOR,AOUT(1,J),1)
-200     CONTINUE
-      END IF
-!
-      NTEST = 0
-      IF( NTEST .NE. 0 ) THEN
-        WRITE(6,*) ' AIN DIAG AOUT  FROM DGMTMT '
-        CALL WRTMAT(AIN ,NRDIM,NCDIM,NRDIM,NCDIM)
-        IF(IWAY.EQ.1) THEN
-        CALL WRTMAT(DIAG,1   ,NRDIM,1,NRDIM)
-        ELSE
-        CALL WRTMAT(DIAG,1   ,NCDIM,1,NCDIM)
-        END IF
-        CALL WRTMAT(AOUT,NRDIM,NCDIM,NRDIM,NCDIM)
-      END IF
-!
-      RETURN
-      END
+! IWAY = 1 : AOUT(I,J) = DIAG(I)*AIN(I,J)
+! IWAY = 2 : AOUT(I,J) = DIAG(J)*AIN(I,J)
+
+implicit real*8(A-H,O-Z)
+dimension AIN(NRDIM,NCDIM), DIAG(*)
+dimension AOUT(NRDIM,NCDIM)
+
+if (IWAY == 1) then
+  do J=1,NCDIM
+    do K=1,NRDIM
+      AOUT(K,J) = AIN(K,J)*DIAG(K)
+    end do
+  end do
+end if
+
+if (IWAY == 2) then
+  do J=1,NCDIM
+    FACTOR = DIAG(J)
+    call DCOPY_(NRDIM,AIN(1,J),1,AOUT(1,J),1)
+    call DSCAL_(NRDIM,FACTOR,AOUT(1,J),1)
+  end do
+end if
+
+NTEST = 0
+if (NTEST /= 0) then
+  write(6,*) ' AIN DIAG AOUT  FROM DGMTMT '
+  call WRTMAT(AIN,NRDIM,NCDIM,NRDIM,NCDIM)
+  if (IWAY == 1) then
+    call WRTMAT(DIAG,1,NRDIM,1,NRDIM)
+  else
+    call WRTMAT(DIAG,1,NCDIM,1,NCDIM)
+  end if
+  call WRTMAT(AOUT,NRDIM,NCDIM,NRDIM,NCDIM)
+end if
+
+return
+
+end subroutine DGMM2_MOLCAS

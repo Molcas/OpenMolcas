@@ -37,11 +37,11 @@ do I=1,NAt
   if (Diff < Delta) then
     if (IAt(I) == 6) then
       Col = 'Green'
-    elseif (IAt(I) == 7) then
+    else if (IAt(I) == 7) then
       Col = 'Blue'
-    elseif (IAt(I) == 8) then
+    else if (IAt(I) == 8) then
       Col = 'Red'
-    elseif (IAt(I) == 1) then
+    else if (IAt(I) == 1) then
       Col = 'Light Blue'
     else
       Col = 'Fuchsia'

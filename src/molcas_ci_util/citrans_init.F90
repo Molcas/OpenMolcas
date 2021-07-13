@@ -8,47 +8,48 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine citrans_init(nel,norb,mult)
-      use second_quantization
-      use citrans
-      implicit none
 
-      integer, intent(in) :: nel, norb, mult
-      integer :: nela, nelb
+subroutine citrans_init(nel,norb,mult)
 
-      integer :: ido, iso
+use second_quantization
+use citrans
 
-      ! compute alpha/beta subsets
-      nela = (nel+(mult-1))/2
-      nelb = (nel-(mult-1))/2
+implicit none
+integer, intent(in) :: nel, norb, mult
+integer :: nela, nelb
+integer :: ido, iso
 
-      ! determine the range of the configuration groups
-      if (nel.gt.norb) then
-        ndo_min = nel - norb
-      else
-        ndo_min = 0
-      end if
-      ndo_max = nelb
+! compute alpha/beta subsets
+nela = (nel+(mult-1))/2
+nelb = (nel-(mult-1))/2
 
-      ! compute the various sizes per group
-      allocate (ndoc_group(ndo_min:ndo_max))
-      allocate (nsoc_group(ndo_min:ndo_max))
-      allocate (ndet_group(ndo_min:ndo_max))
-      allocate (ncsf_group(ndo_min:ndo_max))
+! determine the range of the configuration groups
+if (nel > norb) then
+  ndo_min = nel-norb
+else
+  ndo_min = 0
+end if
+ndo_max = nelb
 
-      allocate (spintabs(ndo_min:ndo_max))
-      ! loop over configurations
-      do ido = ndo_min, ndo_max
-        iso = nel - 2 * ido
-        ! compute different block sizes
-        ndoc_group(ido) = binom_coef(ido,norb)
-        nsoc_group(ido) = binom_coef(iso,norb-ido)
-        ndet_group(ido) = binom_coef(nela-ido,iso)
-        ncsf_group(ido) = ndet_group(ido) - binom_coef(nela-ido+1,iso)
-        ! compute+store spin table for this configuration
-        spintabs(ido)%ndet = ndet_group(ido)
-        spintabs(ido)%ncsf = ncsf_group(ido)
-        call spintable_create(iso,nelb-ido,spintabs(ido))
-      end do
+! compute the various sizes per group
+allocate(ndoc_group(ndo_min:ndo_max))
+allocate(nsoc_group(ndo_min:ndo_max))
+allocate(ndet_group(ndo_min:ndo_max))
+allocate(ncsf_group(ndo_min:ndo_max))
 
-      end subroutine
+allocate(spintabs(ndo_min:ndo_max))
+! loop over configurations
+do ido=ndo_min,ndo_max
+  iso = nel-2*ido
+  ! compute different block sizes
+  ndoc_group(ido) = binom_coef(ido,norb)
+  nsoc_group(ido) = binom_coef(iso,norb-ido)
+  ndet_group(ido) = binom_coef(nela-ido,iso)
+  ncsf_group(ido) = ndet_group(ido)-binom_coef(nela-ido+1,iso)
+  ! compute+store spin table for this configuration
+  spintabs(ido)%ndet = ndet_group(ido)
+  spintabs(ido)%ncsf = ncsf_group(ido)
+  call spintable_create(iso,nelb-ido,spintabs(ido))
+end do
+
+end subroutine citrans_init

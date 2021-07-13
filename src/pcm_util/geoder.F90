@@ -33,7 +33,7 @@ do IAtom=1,nAt
     if (.not. Cond) then
       call Over(IAtom,IXYZ,GeoGrd,nAt,nTs,nS,Eps,Sphere,ISphe,NOrd,Tessera,Q,DerRad,DerCentr)
     ! Conductor model
-    elseif (Cond) then
+    else if (Cond) then
       GeoGrd = Zero
       call DerD(IAtom,IXYZ,Tessera,ISphe,DerDM,DerTes,DerPunt,DerCentr,nTs,nAt,nS)
       do iTs=1,nTs

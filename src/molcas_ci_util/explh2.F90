@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1990,1996, Markus P. Fuelscher                         *
 !***********************************************************************
-      SUBROUTINE EXPLH2(DIAG,ONEINT,TUVX,ISEL,EXPLE,EXPLV)
+
+subroutine EXPLH2(DIAG,ONEINT,TUVX,ISEL,EXPLE,EXPLV)
 !***********************************************************************
 !                                                                      *
 !     Compute and diagonalize the explicit Hamiltonian in a            *
@@ -46,8 +47,7 @@
 !                                                                      *
 !***********************************************************************
 
-      IMPLICIT REAL*8 (A-H,O-Z)
-
+implicit real*8(A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -58,98 +58,87 @@
 #include "WrkSpc.fh"
 #include "timers.fh"
 #include "output_ras.fh"
-      DIMENSION DIAG(*)
-      DIMENSION ONEINT(*)
-      DIMENSION TUVX(*)
-      DIMENSION EXPLE(*)
-      DIMENSION EXPLV(*)
-      DIMENSION ISEL(*)
-!
-      Call Timing(Omega_1,Swatch,Swatch,Swatch)
-      IPRLEV=IPRLOC(3)
+dimension DIAG(*)
+dimension ONEINT(*)
+dimension TUVX(*)
+dimension EXPLE(*)
+dimension EXPLV(*)
+dimension ISEL(*)
 
-      ECORE=0.0D0
-      MXXSEL=NSEL
-      NHEX=NSEL*(NSEL+1)/2
-!
+call Timing(Omega_1,Swatch,Swatch,Swatch)
+IPRLEV = IPRLOC(3)
+
+ECORE = 0.0d0
+MXXSEL = NSEL
+NHEX = NSEL*(NSEL+1)/2
+
 ! ALLOCATE LOCAL MEMORY
-!
-      CALL GETMEM('IPCNF','ALLO','INTE',LW1,NCNASM(STSYM))
-      CALL GETMEM('HONE','ALLO','REAL',LOCONE,NAC**2)
-      CALL GETMEM('EXHAM','ALLO','REAL',LEXHAM,NHEX)
-!
-! EXPAND ONE-INTS FROM TRIANGULAR PACKING TO FULL STORAGE MODE
-!
-      CALL TRIEXP(ONEINT,Work(LOCONE),NAC)
-!
-! Load the diagonal approximation of the CI Hamiltonian
-!
-      Call Load_H_diag(nConf,DIAG,LuDavid)
-!
-! CONSTRUCT THE EXPLICIT HAMILTONIAN
-!
-      IPRINT=0
-      IF(IPRLEV.EQ.INSANE) IPRINT=40
-      CALL GETMEM('IREOTS','ALLO','INTEGER',IREOTS,NAC)
-      CALL GETMEM('EXHSCR','MAX','REAL',LW2,MXXWS)
-      CALL GETMEM('EXHSCR','ALLO','REAL',LW2,MXXWS)
-      CALL GET_IREOTS(IWORK(IREOTS),NAC)
-      CALL PHPCSF(Work(LEXHAM),ISEL,iWork(LW1),                         &
-     &            MXXSEL,Work(KDTOC),                                   &
-     &            iWork(KDFTP),iWork(KICONF(1)),                        &
-     &            STSYM,Work(LOCONE),ECORE,NAC,                         &
-     &            Work(LW2),NCNASM(STSYM),                              &
-     &            (NAEL+NBEL),NAEL,NBEL,                                &
-     &            NSEL,NPCNF,DIAG,TUVX,IPRINT,ExFac,IWORK(IREOTS))
-      IF ( IPRLEV.EQ.INSANE) then
-        Call Square(Work(LEXHAM),EXPLV,1,NSEL,NSEL)
-        CALL RECPRT('Square Explicit Hamiltonian',' ',EXPLV,NSEL,NSEL)
-      END IF
-      CALL GETMEM('EXHSCR','FREE','REAL',LW2,MXXWS)
-      CALL GETMEM('IREOTS','FREE','INTEGER',IREOTS,NAC)
-      CALL GETMEM('HONE','FREE','REAL',LOCONE,NAC**2)
-      CALL GETMEM('IPCNF','FREE','INTE',LW1,NCNASM(STSYM))
-!
-! DIAGONALIZE THE EXPLICIT HAMILTONIAN.
-!
-!     If ( nSel.eq.nConf ) then
-      If ( .true. ) then
-        CALL DCOPY_(MXXSEL*MXXSEL,[0.0D0],0,EXPLV,1)
-        DO 10 I=1,NSEL
-          II=I+NSEL*(I-1)
-          EXPLV(II)=1.0D00
-10      CONTINUE
-!       CALL Jacob(Work(LEXHAM),EXPLV,NSEL,NSEL)
-!#ifdef _DEBUGPRINT_
-!        CALL NIdiag(Work(LEXHAM),EXPLV,NSEL,NSEL)
-!#else
-        CALL NIdiag_new(Work(LEXHAM),EXPLV,NSEL,NSEL)
-!#endif
-        CALL JACORD(Work(LEXHAM),EXPLV,NSEL,NSEL)
-        DO 15 I=1,NSEL
-          EXPLE(I)=Work(LEXHAM-1+I*(I+1)/2)
-15      CONTINUE
-      Else
-        Call GetMem('ExHscr','Allo','Real',lwscr,nSel)
-        Call Square(Work(LEXHAM),EXPLV,1,NSEL,NSEL)
-        Call Eigen_Molcas(NSEL,EXPLV,EXPLE,Work(lwscr))
-        Call GetMem('ExHscr','Free','Real',lwscr,nSel)
-      End If
-      CALL GETMEM('EXHAM','FREE','REAL',LEXHAM,NHEX)
-      IF( IPRLEV.GE.INSANE)                                             &
-     &  CALL IVCPRT                                                     &
-     &    ('Configurations included in the explicit Hamiltonian',' ',   &
-     &      ISEL,NSEL)
-      IF( IPRLEV.GE.INSANE)                                             &
-     &  CALL DVCPRT('Eigenvalues of the explicit Hamiltonian',' ',      &
-     &               EXPLE,NSEL)
-      IF( IPRLEV.GE.INSANE)                                             &
-     &  CALL RECPRT('Eigenvectors of the explicit Hamiltonian',' ',     &
-     &               EXPLV,NSEL,NSEL)
-!
-      Call Timing(Omega_2,Swatch,Swatch,Swatch)
-      Omega_2 = Omega_2 - Omega_1
-      Omega_3 = Omega_3 + Omega_2
 
-      RETURN
-      END
+call GETMEM('IPCNF','ALLO','INTE',LW1,NCNASM(STSYM))
+call GETMEM('HONE','ALLO','REAL',LOCONE,NAC**2)
+call GETMEM('EXHAM','ALLO','REAL',LEXHAM,NHEX)
+
+! EXPAND ONE-INTS FROM TRIANGULAR PACKING TO FULL STORAGE MODE
+
+call TRIEXP(ONEINT,Work(LOCONE),NAC)
+
+! Load the diagonal approximation of the CI Hamiltonian
+
+call Load_H_diag(nConf,DIAG,LuDavid)
+
+! CONSTRUCT THE EXPLICIT HAMILTONIAN
+
+IPRINT = 0
+if (IPRLEV == INSANE) IPRINT = 40
+call GETMEM('IREOTS','ALLO','INTEGER',IREOTS,NAC)
+call GETMEM('EXHSCR','MAX','REAL',LW2,MXXWS)
+call GETMEM('EXHSCR','ALLO','REAL',LW2,MXXWS)
+call GET_IREOTS(IWORK(IREOTS),NAC)
+call PHPCSF(Work(LEXHAM),ISEL,iWork(LW1),MXXSEL,Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),STSYM,Work(LOCONE),ECORE,NAC,Work(LW2), &
+            NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,NSEL,NPCNF,DIAG,TUVX,IPRINT,ExFac,IWORK(IREOTS))
+if (IPRLEV == INSANE) then
+  call Square(Work(LEXHAM),EXPLV,1,NSEL,NSEL)
+  call RECPRT('Square Explicit Hamiltonian',' ',EXPLV,NSEL,NSEL)
+end if
+call GETMEM('EXHSCR','FREE','REAL',LW2,MXXWS)
+call GETMEM('IREOTS','FREE','INTEGER',IREOTS,NAC)
+call GETMEM('HONE','FREE','REAL',LOCONE,NAC**2)
+call GETMEM('IPCNF','FREE','INTE',LW1,NCNASM(STSYM))
+
+! DIAGONALIZE THE EXPLICIT HAMILTONIAN.
+
+!if (nSel == nConf) then
+if (.true.) then
+  call DCOPY_(MXXSEL*MXXSEL,[0.0d0],0,EXPLV,1)
+  do I=1,NSEL
+    II = I+NSEL*(I-1)
+    EXPLV(II) = 1.0d00
+  end do
+  !call Jacob(Work(LEXHAM),EXPLV,NSEL,NSEL)
+  !# ifdef _DEBUGPRINT_
+  !call NIdiag(Work(LEXHAM),EXPLV,NSEL,NSEL)
+  !# else
+  call NIdiag_new(Work(LEXHAM),EXPLV,NSEL,NSEL)
+  !# endif
+  call JACORD(Work(LEXHAM),EXPLV,NSEL,NSEL)
+  do I=1,NSEL
+    EXPLE(I) = Work(LEXHAM-1+I*(I+1)/2)
+  end do
+else
+  call GetMem('ExHscr','Allo','Real',lwscr,nSel)
+  call Square(Work(LEXHAM),EXPLV,1,NSEL,NSEL)
+  call Eigen_Molcas(NSEL,EXPLV,EXPLE,Work(lwscr))
+  call GetMem('ExHscr','Free','Real',lwscr,nSel)
+end if
+call GETMEM('EXHAM','FREE','REAL',LEXHAM,NHEX)
+if (IPRLEV >= INSANE) call IVCPRT('Configurations included in the explicit Hamiltonian',' ',ISEL,NSEL)
+if (IPRLEV >= INSANE) call DVCPRT('Eigenvalues of the explicit Hamiltonian',' ',EXPLE,NSEL)
+if (IPRLEV >= INSANE) call RECPRT('Eigenvectors of the explicit Hamiltonian',' ',EXPLV,NSEL,NSEL)
+
+call Timing(Omega_2,Swatch,Swatch,Swatch)
+Omega_2 = Omega_2-Omega_1
+Omega_3 = Omega_3+Omega_2
+
+return
+
+end subroutine EXPLH2

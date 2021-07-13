@@ -8,55 +8,55 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE STEPVEC(ICL,IOP,NCL,NOP,ISPIN,NORB,IWALK)
-!
-!     PURPOSE: A SPIN-COUPLED CSF IS SPECIFIED BY NCL CLOSED SHELL
-!              AND NOP OPEN SHELL AND OCCUPATION VECTORS ICL AND IOP,
-!              RESPECTIVELY. THE SPIN COUPLING IS STORED IN THE
-!              VECTOR ISPIN. TRANSLATE THESE DATA INTO THE
-!              CORRESPONDING STEP VECTOR.
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-!
-      DIMENSION ICL(*),IOP(*),ISPIN(*)
-      DIMENSION IWALK(*)
-      Logical Test
-!
-      NXTCL = 1
-      NXTOP = 1
-      DO IORB = 1,NORB
 
-        Test=NXTOP.LE.NOP
-        If (Test) Test=IORB.EQ.IOP(NXTOP)
+subroutine STEPVEC(ICL,IOP,NCL,NOP,ISPIN,NORB,IWALK)
+! PURPOSE: A SPIN-COUPLED CSF IS SPECIFIED BY NCL CLOSED SHELL
+!          AND NOP OPEN SHELL AND OCCUPATION VECTORS ICL AND IOP,
+!          RESPECTIVELY. THE SPIN COUPLING IS STORED IN THE
+!          VECTOR ISPIN. TRANSLATE THESE DATA INTO THE
+!          CORRESPONDING STEP VECTOR.
 
-        IF(NXTCL.LE.NCL.AND.IORB.EQ.ICL(NXTCL) ) THEN
+implicit real*8(A-H,O-Z)
+dimension ICL(*), IOP(*), ISPIN(*)
+dimension IWALK(*)
+logical Test
 
-          IWALK(IORB) = 3
-          NXTCL =NXTCL + 1
+NXTCL = 1
+NXTOP = 1
+do IORB=1,NORB
 
-        ELSE IF( Test ) THEN
+  Test = NXTOP <= NOP
+  if (Test) Test = IORB == IOP(NXTOP)
 
-          IF(ISPIN(NXTOP).EQ.1) THEN
-            IDELSP = 1
-          ELSE
-            IDELSP = -1
-          END IF
-          IF(IDELSP.EQ.1) THEN
-             IWALK(IORB) = 1
-          ELSE IF(IDELSP.EQ.-1) THEN
-             IWALK(IORB) = 2
-          END IF
-          NXTOP = NXTOP + 1
+  if ((NXTCL <= NCL) .and. (IORB == ICL(NXTCL))) then
 
-        ELSE
+    IWALK(IORB) = 3
+    NXTCL = NXTCL+1
 
-          IWALK(IORB) = 0
+  else if (Test) then
 
-        END IF
+    if (ISPIN(NXTOP) == 1) then
+      IDELSP = 1
+    else
+      IDELSP = -1
+    end if
+    if (IDELSP == 1) then
+      IWALK(IORB) = 1
+    else if (IDELSP == -1) then
+      IWALK(IORB) = 2
+    end if
+    NXTOP = NXTOP+1
 
-      END DO
-!
-!     EXIT
-!
-      RETURN
-      END
+  else
+
+    IWALK(IORB) = 0
+
+  end if
+
+end do
+
+! EXIT
+
+return
+
+end subroutine STEPVEC
