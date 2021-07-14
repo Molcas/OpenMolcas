@@ -15,11 +15,13 @@ subroutine faroald_init(nactel,nasht,ispin)
 ! It fills in the necessary global data in the module,
 ! in preparation for the sigma_update routine.
 
-use faroald
-use second_quantization
+use faroald, only: ex1_a, ex1_b, ex1_init, max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs, mult, my_ndet, my_nel, my_norb, ndeta, &
+                   ndetb, nela, nelb, nhoa, nhob
+use second_quantization, only: binom_coef, rank_init
+use Definitions, only: iwp
 
 implicit none
-integer, intent(in) :: nactel, nasht, ispin
+integer(kind=iwp), intent(in) :: nactel, nasht, ispin
 
 my_nel = nactel
 my_norb = nasht

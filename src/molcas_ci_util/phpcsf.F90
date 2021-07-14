@@ -40,15 +40,21 @@ subroutine PHPCSF(PHP,IPCSF,IPCNF,MXPDIM,DTOC,IPRODT,ICONF,IREFSM,ONEBOD,ECORE,N
 ! IREOTS : Type => symmetry reordering array
 !
 ! Jeppe Olsen , Summer of '89
-! adapted to DETRAS by M.P. Fuelscher, Oktober 1989
+! adapted to DETRAS by M.P. Fuelscher, October 1989
 
-implicit real*8(A-H,O-Z)
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: PHP(*), DTOC(*), ONEBOD(*), ECORE, SCR(*), DIAG(*), TUVX(*), ExFac
+integer(kind=iwp) :: IPCSF(*), IPCNF(*), MXPDIM, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, NPCSF, NPCNF, NTEST, &
+                     IREOTS(*)
+integer(kind=iwp) :: ICSFMN, IFINIT, IICNF, IICSF, IILACT, IILB, IIRACT, IIRB, IIRMAX, ILRI, ILRO, ILTYP, IMIN, IRTYP, KLCONF, &
+                     KLFREE, KLPHPS, KRCONF, MXCSFC, NCSFL, NCSFMN, NCSFR, NIRREP, NJCNF
+real(kind=wp) :: Acc, XMAX, XMIN
+real(kind=wp), external :: FNDMNX
 #include "spinfo.fh"
-#include "warnings.h"
-dimension PHP(*), IPCSF(*), IPCNF(*), DIAG(*)
-dimension DTOC(*), IPRODT(*), ICONF(*)
-dimension ONEBOD(*), SCR(*)
-dimension TUVX(*), IREOTS(*)
 
 call PHPCSF_INTERNAL(SCR)
 
@@ -57,14 +63,13 @@ contains
 
 subroutine PHPCSF_INTERNAL(SCR)
 
-  use iso_c_binding
-
-  real*8, target :: SCR(*)
-  integer, pointer :: iSCRl(:), iSCRr(:)
+  real(kind=wp), target :: SCR(*)
+  integer(kind=iwp), pointer :: iSCRl(:), iSCRr(:)
+  integer(kind=iwp) :: ICNF, ICNL, ICNR, IIL, IIR, ITYP
 
   ! Assumed machine accuray (give and take)
 
-  Acc = 1.0D-13
+  Acc = 1.0e-13_wp
 
   ! construct the diagonal of the Hamilton matrix in CNF basis
   ICSFMN = 0
@@ -89,7 +94,7 @@ subroutine PHPCSF_INTERNAL(SCR)
   NPCNF = 0
   IFINIT = 0
 400 continue
-  XMIN = XMAX+1.0d0
+  XMIN = XMAX+One
   IMIN = 0
   IICNF = 1
   IICSF = 1
@@ -113,7 +118,7 @@ subroutine PHPCSF_INTERNAL(SCR)
     IPCNF(NPCNF) = IMIN
     call ISTVC2(IPCSF(NPCSF+1),ICSFMN-1,1,NCSFMN)
     NPCSF = NPCSF+NCSFMN
-    SCR(IMIN) = XMAX+1.0d0
+    SCR(IMIN) = XMAX+One
   else
     ! No space for this configuration , remove previous
     ! configurations with the same diagonal value
@@ -123,7 +128,7 @@ subroutine PHPCSF_INTERNAL(SCR)
     !600 continue
     !IICNF = IICNF-1
     !DIAVAL = SCR(IPCNF(IICNF))
-    !if (abs(DIAVAL-XMIN) <= 1.0D-10) then
+    !if (abs(DIAVAL-XMIN) <= 1.0e-10_wp) then
     !  NPCNF = NPCNF-1
     !  call GETCNF_LUCIA(SCR(NCONF+1),ITYP,IPCNF(IICNF),ICONF,IREFSM,NEL)
     !  NPCSF = NPCSF-NCSFTP(ITYP)
@@ -134,25 +139,25 @@ subroutine PHPCSF_INTERNAL(SCR)
 
   if (NPCNF == 0) then
     call WarningMessage(2,'Making explicit Hamiltonian failed.')
-    write(6,*) ' An unforeseen catastrophic failure occurred'
-    write(6,*) ' in the CI solver. The size of the explicit'
-    write(6,*) ' part of the CI Hamiltonian matrix was not'
-    write(6,*) ' sufficient. Suggested fix: Change the size'
-    write(6,*) ' by adding ''SDAV=XXXXX'' to the rasscf input.'
-    write(6,*) ' XXXXX is some integer at least ',MXPDIM+NCSFMN
-    write(6,*) ' Sorry about this. Consider telling the'
-    write(6,*) ' Molcas group about this failure.'
-    call Quit(_RC_INTERNAL_ERROR_)
+    write(u6,*) ' An unforeseen catastrophic failure occurred'
+    write(u6,*) ' in the CI solver. The size of the explicit'
+    write(u6,*) ' part of the CI Hamiltonian matrix was not'
+    write(u6,*) ' sufficient. Suggested fix: Change the size'
+    write(u6,*) ' by adding ''SDAV=XXXXX'' to the rasscf input.'
+    write(u6,*) ' XXXXX is some integer at least ',MXPDIM+NCSFMN
+    write(u6,*) ' Sorry about this. Consider telling the'
+    write(u6,*) ' Molcas group about this failure.'
+    call Abend()
   end if
 
   if (NTEST >= 30) then
-    write(6,*) ' Output from PHPCSF '
-    write(6,*) ' ================== '
-    write(6,*) ' Number of Configurations in primary subspace ',NPCNF
-    write(6,*) ' Number of CSFs in primary subspace ',NPCSF
-    write(6,*) ' Configurations included : '
+    write(u6,*) ' Output from PHPCSF '
+    write(u6,*) ' ================== '
+    write(u6,*) ' Number of Configurations in primary subspace ',NPCNF
+    write(u6,*) ' Number of CSFs in primary subspace ',NPCSF
+    write(u6,*) ' Configurations included : '
     call IWRTMA(IPCNF,1,NPCNF,1,NPCNF)
-    write(6,*) ' CSFs included : '
+    write(u6,*) ' CSFs included : '
     call IWRTMA(IPCSF,1,NPCSF,1,NPCSF)
   end if
 

@@ -27,27 +27,34 @@ subroutine DIHDJ_MOLCAS(IASTR,IBSTR,NIDET,JASTR,JBSTR,NJDET,NAEL,NBEL,IWORK,NORB
 ! JEPPE OLSEN JANUARY 1989
 !             IREOTS added for new Molcas compatibility, August 2003
 
-implicit real*8(A-H,O-Z)
-dimension IASTR(NAEL,*), IBSTR(NBEL,*)
-dimension JASTR(NAEL,*), JBSTR(NBEL,*)
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
-dimension IWORK(*), HAMIL(*), ONEBOD(NORB,NORB)
-dimension TUVX(*), IREOTS(*)
+implicit none
+integer(kind=iwp) :: NAEL, NBEL, IASTR(NAEL,*), IBSTR(NBEL,*), NIDET, JASTR(NAEL,*), JBSTR(NBEL,*), NJDET, IWORK(*), NORB, ISYM, &
+                     NINOB, ICOMBI, IPRINT, IREOTS(*)
+real(kind=wp) :: ONEBOD(NORB,NORB), HAMIL(*), ECORE, PSIGN, TUVX(*), ExFac
+integer(kind=iwp) :: I1, I1_REO, I2, I2_REO, IA, IA_REO, IAB, IAEL, IAEQIB, IB, IB_REO, IBEL, IDET, IDIFF, IEL, IEL1, iii, ILOOP, &
+                     IORB, IORB_REO, IPERM, J1, J1_REO, J2, J2_REO, JA, JA_REO, JAB, JAEL, JAEQJB, JB, JB_REO, JBEL, JDET, JDIFF, &
+                     JEL, JEL1, jjj, JORB, JORB_REO, JPERM, KLFREE, KLIAB, KLIAE, KLIBE, KLJAE, KLJBE, LHAMIL, MINI, NACM, NADIF, &
+                     NBCM, NBDIF, NDIF0, NDIF1, NDIF2, NIABEL, NJABEL, NLOOP, NTERMS, NTEST
+real(kind=wp) :: CONST, SGN, SIGNA, SIGNB, XVAL
+real(kind=wp), external :: GETH2A
 
 NTEST = 0
 ! Initialization
 KLIAB = 0
 IAEQIB = 0
 JAEQJB = 0
-CONST = 0.0d0
+CONST = Zero
 IEL1 = 0
 JEL1 = 0
 IPERM = 0
 JPERM = 0
-SIGN = 0.0d0
-SIGNA = 0.0d0
-SIGNB = 0.0d0
-XVAL = 0.0d0
+SGN = Zero
+SIGNA = Zero
+SIGNB = Zero
+XVAL = Zero
 IA = 0
 IB = 0
 JA = 0
@@ -91,7 +98,7 @@ if (ISYM == 0) then
 else
   LHAMIL = NIDET*(NIDET+1)/2
 end if
-call DCOPY_(LHAMIL,[0.0d0],0,HAMIL,1)
+call DCOPY_(LHAMIL,[Zero],0,HAMIL,1)
 
 NTERMS = 0
 NDIF0 = 0
@@ -121,11 +128,11 @@ do JDET=1,NJDET
   end do
 
   if (NTEST >= 10) then
-    write(6,*) ' LOOP 1000 JDET =  ',JDET
-    write(6,*) ' JASTR AND JBSTR '
+    write(u6,*) ' LOOP 1000 JDET =  ',JDET
+    write(u6,*) ' JASTR AND JBSTR '
     call IWRTMA(JASTR(1,JDET),1,NAEL,1,NAEL)
     call IWRTMA(JBSTR(1,JDET),1,NBEL,1,NBEL)
-    write(6,*) ' EXPANDED ALPHA AND BETA STRING '
+    write(u6,*) ' EXPANDED ALPHA AND BETA STRING '
     call IWRTMA(IWORK(KLJAE),1,NORB,1,NORB)
     call IWRTMA(IWORK(KLJBE),1,NORB,1,NORB)
   end if
@@ -174,23 +181,23 @@ do JDET=1,NJDET
       NADIF = NAEL-NACM
       NBDIF = NBEL-NBCM
       if (NTEST >= 10) then
-        write(6,*) '  LOOP 900 IDET ',IDET
-        write(6,*) ' COMPARISON , NADIF , NBDIF ',NADIF,NBDIF
+        write(u6,*) '  LOOP 900 IDET ',IDET
+        write(u6,*) ' COMPARISON , NADIF , NBDIF ',NADIF,NBDIF
       end if
 
       if (NADIF+NBDIF > 2) goto 899
 
       ! FACTOR FOR COMBINATIONS
       if (ICOMBI == 0) then
-        CONST = 1.0d0
+        CONST = One
       else
         if ((JAEQJB+IAEQIB) == 2) then
-          CONST = 1.0d0
+          CONST = One
         else if ((JAEQJB+IAEQIB) == 1) then
-          CONST = 1.0d0/sqrt(2.0d0)*(1.0d0+PSIGN)
+          CONST = One/sqrt(Two)*(One+PSIGN)
         else if ((JAEQJB+IAEQIB) == 0) then
           if (ILOOP == 1) then
-            CONST = 1.0d0
+            CONST = One
           else
             CONST = PSIGN
           end if
@@ -229,7 +236,7 @@ do JDET=1,NJDET
           end if
         end do
 131     continue
-        SIGNA = dble((-1)**(JEL1+IEL1))
+        SIGNA = real((-1)**(JEL1+IEL1),kind=wp)
       end if
       if (NBDIF == 1) then
         do IBEL=1,NBEL
@@ -249,7 +256,7 @@ do JDET=1,NJDET
           end if
         end do
 231     continue
-        SIGNB = dble((-1)**(JEL1+IEL1))
+        SIGNB = real((-1)**(JEL1+IEL1),kind=wp)
       end if
       if (NADIF == 2) then
         IDIFF = 0
@@ -283,7 +290,7 @@ do JDET=1,NJDET
           end if
         end do
 331     continue
-        SIGN = dble((-1)**(IPERM+JPERM))
+        SGN = real((-1)**(IPERM+JPERM),kind=wp)
       end if
 
       if (NBDIF == 2) then
@@ -318,14 +325,14 @@ do JDET=1,NJDET
           end if
         end do
 431     continue
-        SIGN = dble((-1)**(IPERM+JPERM))
+        SGN = real((-1)**(IPERM+JPERM),kind=wp)
       end if
 
       ! OBTAIN VALUE OF HAMILTONIAN ELEMENT
 
       if ((NADIF == 2) .or. (NBDIF == 2)) then
         NDIF2 = NDIF2+1
-        ! SIGN * (I1 J1 | I2 J2 ) - ( I1 J2 | I2 J1 )
+        ! SGN * (I1 J1 | I2 J2 ) - ( I1 J2 | I2 J1 )
         I1 = I1+NINOB
         I2 = I2+NINOB
         J1 = J1+NINOB
@@ -335,10 +342,10 @@ do JDET=1,NJDET
         J1_REO = IREOTS(J1)
         I2_REO = IREOTS(I2)
         J2_REO = IREOTS(J2)
-        XVAL = SIGN*(GETH2A(I1_REO,J1_REO,I2_REO,J2_REO,TUVX)-GETH2A(I1_REO,J2_REO,I2_REO,J1_REO,TUVX))
+        XVAL = SGN*(GETH2A(I1_REO,J1_REO,I2_REO,J2_REO,TUVX)-GETH2A(I1_REO,J2_REO,I2_REO,J1_REO,TUVX))
       else if ((NADIF == 1) .and. (NBDIF == 1)) then
         NDIF2 = NDIF2+1
-        ! SIGN * (IA JA | IB JB )
+        ! SGN * (IA JA | IB JB )
         IA = IA+NINOB
         IB = IB+NINOB
         JA = JA+NINOB
@@ -351,17 +358,17 @@ do JDET=1,NJDET
         XVAL = SIGNA*SIGNB*GETH2A(IA_REO,JA_REO,IB_REO,JB_REO,TUVX)
       else if (((NADIF == 1) .and. (NBDIF == 0)) .or. ((NADIF == 0) .and. (NBDIF == 1))) then
         NDIF1 = NDIF1+1
-        ! SIGN * (  H(I1 J1 ) +
+        ! SGN * (  H(I1 J1 ) +
         !  (SUM OVER ORBITALS OF BOTH      SPIN TYPES  ( I1 J1 | JORB JORB )
         ! -(SUM OVER ORBITALS OF DIFFERING SPIN TYPE   ( I1 JORB | JORB J1 ) )
         if (NADIF == 1) then
           I1 = IA+NINOB
           J1 = JA+NINOB
-          SIGN = SIGNA
+          SGN = SIGNA
         else
           I1 = IB+NINOB
           J1 = JB+NINOB
-          SIGN = SIGNB
+          SGN = SIGNB
         end if
 
         I1_REO = IREOTS(I1)
@@ -390,7 +397,7 @@ do JDET=1,NJDET
             XVAL = XVAL-GETH2A(I1_REO,JORB_REO,JORB_REO,J1_REO,TUVX)
           end do
         end if
-        XVAL = XVAL*SIGN
+        XVAL = XVAL*SGN
       else if ((NADIF == 0) .and. (NBDIF == 0)) then
         NDIF0 = NDIF0+1
         ! SUM(I,J OF JDET) H(I,J) + (I I | J J ) - (I J | J I )
@@ -424,8 +431,8 @@ do JDET=1,NJDET
                   JORB = IBSTR(JEL,IDET)+NINOB
                 end if
                 JORB_REO = IREOTS(JORB)
-                XVAL = XVAL+0.5d0*GETH2A(IORB_REO,IORB_REO,JORB_REO,JORB_REO,TUVX)
-                if (IAB == JAB) XVAL = XVAL-ExFac*0.5d0*GETH2A(IORB_REO,JORB_REO,JORB_REO,IORB_REO,TUVX)
+                XVAL = XVAL+Half*GETH2A(IORB_REO,IORB_REO,JORB_REO,JORB_REO,TUVX)
+                if (IAB == JAB) XVAL = XVAL-ExFac*Half*GETH2A(IORB_REO,JORB_REO,JORB_REO,IORB_REO,TUVX)
               end do
             end do
           end do
@@ -451,7 +458,7 @@ do JDET=1,NJDET
 end do
 
 if (IPRINT >= 2) then
-  write(6,*) '  HAMILTONIAN MATRIX '
+  write(u6,*) '  HAMILTONIAN MATRIX '
   if (ISYM == 0) then
     call WRTMAT(HAMIL,NIDET,NJDET,NIDET,NJDET)
   else

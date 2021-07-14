@@ -15,15 +15,15 @@ subroutine MKCLIST(ISM,IDOWN,NOW,IOW,ICASE,ISCR)
 !          IN THE ARRAY ICASE. GROUPS OF 15 CASES ARE PACKED
 !          INTO ONE INTEGER WORD.
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp
+
+implicit none
 #include "rasdim.fh"
 #include "general.fh"
 #include "gugx.fh"
-dimension ISM(NLEV), IDOWN(NVERT,0:3)
-dimension NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV)
-dimension ICASE(NICASE)
-dimension ISCR(3,0:NLEV)
-parameter(IVERT=1,ISYM=2,ISTEP=3)
+integer(kind=iwp) :: ISM(NLEV), IDOWN(NVERT,0:3), NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV), ICASE(NICASE), ISCR(3,0:NLEV)
+integer(kind=iwp) :: IC, IHALF, ILND, IPOS, IS, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, L, LEV, LEV1, LEV2, LL, MV
+integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
 
 ! CLEAR ARRAY NOW. IT WILL BE RESTORED FINALLY
 

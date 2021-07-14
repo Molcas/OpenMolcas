@@ -39,17 +39,21 @@ subroutine page_out(KeyWord,nConf,Vector,LuDavid)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
-real*8 Vector(nConf)
-character*16 KeyWord
+use Definitions, only: wp, iwp, u6
+
+implicit none
+character(len=16) :: KeyWord
+integer(kind=iwp) :: nConf, LuDavid
+real(kind=wp) :: Vector(nConf)
+integer(kind=iwp) :: iDisk, iMem, iStk, nStk
 #include "rasdim.fh"
 #include "davctl.fh"
 #include "WrkSpc.fh"
 
 ! check input arguments
 if (nConf < 0) then
-  write(6,*) 'page_out: nConf less than 0'
-  write(6,*) 'nConf = ',nConf
+  write(u6,*) 'page_out: nConf less than 0'
+  write(u6,*) 'nConf = ',nConf
   call Abend()
 end if
 

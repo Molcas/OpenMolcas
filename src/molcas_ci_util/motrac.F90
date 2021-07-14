@@ -21,11 +21,15 @@ subroutine MOTRAC(CMO,F,X1,X2)
 !
 ! ********** IBM-3090 RELEASE 86 12 05 **********
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: CMO(*), F(*), X1(*), X2(*)
+integer(kind=iwp) :: ISTFA, ISTFP, ISYM, LMOP, LMOP1, NA, NB
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-dimension CMO(*), F(*), X1(*), X2(*)
 
 LMOP = 1
 ISTFA = 1
@@ -38,7 +42,7 @@ do ISYM=1,NSYM
 
   call SQUARE(F(ISTFP),X1,1,NB,NB)
   !call MXMA(X1,1,NB,CMO(LMOP1),1,NB,X2,1,NB,NB,NB,NA)
-  call DGEMM_('N','N',NB,NA,NB,1.0d0,X1,NB,CMO(LMOP1),NB,0.0d0,X2,NB)
+  call DGEMM_('N','N',NB,NA,NB,One,X1,NB,CMO(LMOP1),NB,Zero,X2,NB)
   call MXMT(X2,NB,1,CMO(LMOP1),1,NB,F(ISTFA),NA,NB)
 
   ISTFA = ISTFA+ITRI(NA+1)

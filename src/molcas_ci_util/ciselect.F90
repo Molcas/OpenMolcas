@@ -35,13 +35,15 @@ subroutine CiSelect(S1,S2)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "rasdim.fh"
-#include "general.fh"
 #include "rasscf.fh"
-dimension S1(lRoots,lRoots)
-dimension S2(lRoots,lRoots)
-dimension iTemp(mxRoot)
+real(kind=wp) :: S1(lRoots,lRoots), S2(lRoots,lRoots)
+integer(kind=iwp) :: i, istop, iTemp(mxRoot), jRoot, kRoot, maxS1
+real(kind=wp) :: S1jk, S1max, S2jk
 
 if (ITER == 1) return
 
@@ -63,24 +65,24 @@ do kRoot=1,nRoots
   iTemp(kRoot) = maxS1
   ! cleanup,to ensure that we don't pick the same root twice
   do jRoot=1,nRoots
-    S1(maxS1,jRoot) = S1(maxS1,jRoot)-999999.0d0
+    S1(maxS1,jRoot) = S1(maxS1,jRoot)-999999.0_wp
   end do
 end do
 
 ! Restore S1
 do kRoot=1,nRoots
   do jRoot=1,nRoots
-    S1(iTemp(kRoot),jRoot) = S1(iTemp(kRoot),jRoot)+999999.0d0
+    S1(iTemp(kRoot),jRoot) = S1(iTemp(kRoot),jRoot)+999999.0_wp
   end do
 end do
 
 ! print
 if (nRoots == 1) then
-  write(6,'(6X,A,T45,10I6)') 'new root selected:',(iTemp(kRoot),kRoot=1,nRoots)
-  write(6,'(6X,A,T45,10F6.3)') 'overlap           ',(S1(iTemp(kRoot),kRoot),kRoot=1,nRoots)
+  write(u6,'(6X,A,T45,10I6)') 'new root selected:',(iTemp(kRoot),kRoot=1,nRoots)
+  write(u6,'(6X,A,T45,10F6.3)') 'overlap           ',(S1(iTemp(kRoot),kRoot),kRoot=1,nRoots)
 else
-  write(6,'(6X,A,T45,10I6)') 'new roots selected:',(iTemp(kRoot),kRoot=1,nRoots)
-  write(6,'(6X,A,T45,10F6.3)') 'overlap           ',(S1(iTemp(kRoot),kRoot),kRoot=1,nRoots)
+  write(u6,'(6X,A,T45,10I6)') 'new roots selected:',(iTemp(kRoot),kRoot=1,nRoots)
+  write(u6,'(6X,A,T45,10F6.3)') 'overlap           ',(S1(iTemp(kRoot),kRoot),kRoot=1,nRoots)
 end if
 
 ! Compare the overlap elemets <1|2> and <1|1> where
@@ -93,31 +95,31 @@ istop = 0
 do kRoot=1,nRoots
   S1jk = S1(iTemp(kRoot),kRoot)
   S2jk = S2(iTemp(kRoot),kRoot)
-  if (S1jk < 0.5d0*S2jk) istop = ibset(istop,0)
-  if (sqrt(S1jk) < 0.316d0) istop = ibset(istop,1)
-  if (sqrt(S2jk) < 0.3d0) istop = ibset(istop,2)
+  if (S1jk < Half*S2jk) istop = ibset(istop,0)
+  if (sqrt(S1jk) < 0.316_wp) istop = ibset(istop,1)
+  if (sqrt(S2jk) < 0.3_wp) istop = ibset(istop,2)
 end do
 
 ! If the stop flag has been set write an approriate message
 ! and to stop execution change the iteration counter.
 if (istop >= 1) then
-  write(6,*)
-  write(6,'(6X,120A1)') ('=',i=1,120)
+  write(u6,*)
+  write(u6,'(6X,120A1)') ('=',i=1,120)
   if (btest(istop,0)) then
-    write(6,'(6X,A)') 'The projection of the CI vector(s) onto the model vector(s)'
-    write(6,'(6X,A)') 'is smaller than half the norm of the subspace.'
+    write(u6,'(6X,A)') 'The projection of the CI vector(s) onto the model vector(s)'
+    write(u6,'(6X,A)') 'is smaller than half the norm of the subspace.'
   end if
   if (btest(istop,1)) then
-    write(6,'(6X,A)') 'The overlap of the projected CI vector(s) and the model vector(s) is smaller than 0.1'
+    write(u6,'(6X,A)') 'The overlap of the projected CI vector(s) and the model vector(s) is smaller than 0.1'
   end if
   if (btest(istop,2)) then
-    write(6,'(6X,A)') 'The weight(s) of the subspace is(are) smaller than 30% of the total wave function(s)'
+    write(u6,'(6X,A)') 'The weight(s) of the subspace is(are) smaller than 30% of the total wave function(s)'
   end if
-  write(6,'(6X,A)') 'Please, check your model space'
-  write(6,'(6X,A)') 'The program stops after the next iteration'
-  write(6,'(6X,120A1)') ('=',i=1,120)
-  write(6,*)
-  write(6,*)
+  write(u6,'(6X,A)') 'Please, check your model space'
+  write(u6,'(6X,A)') 'The program stops after the next iteration'
+  write(u6,'(6X,120A1)') ('=',i=1,120)
+  write(u6,*)
+  write(u6,*)
   MAXIT = ITER
 else
   call iCopy(nRoots,iTemp,1,iRoot,1)

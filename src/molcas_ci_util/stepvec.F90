@@ -16,10 +16,12 @@ subroutine STEPVEC(ICL,IOP,NCL,NOP,ISPIN,NORB,IWALK)
 !          VECTOR ISPIN. TRANSLATE THESE DATA INTO THE
 !          CORRESPONDING STEP VECTOR.
 
-implicit real*8(A-H,O-Z)
-dimension ICL(*), IOP(*), ISPIN(*)
-dimension IWALK(*)
-logical Test
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: ICL(*), IOP(*), NCL, NOP, ISPIN(*), NORB, IWALK(*)
+integer(kind=iwp) :: IDELSP, IORB, NXTCL, NXTOP
+logical(kind=iwp) :: Test
 
 NXTCL = 1
 NXTOP = 1

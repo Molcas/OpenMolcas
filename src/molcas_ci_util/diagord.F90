@@ -45,17 +45,22 @@ subroutine DiagOrd(PHPCSF,PHPCNF,IPORDCSF,IPORDCNF,MXPDIM,condition,iter,DTOC,IP
 !*********** Author: GLMJ ****************
 !   history:
 !     Jeppe Olsen , Summer of '89
-!     adapted to DETRAS by M.P. Fuelscher, Oktober 1989
+!     adapted to DETRAS by M.P. Fuelscher, October 1989
 
-implicit real*8(A-H,O-Z)
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: PHPCSF(*), PHPCNF(*), condition, DTOC(*), ONEBOD(*), ECORE, SCR(*), TUVX(*), ExFac
+integer(kind=iwp) :: IPORDCSF(*), IPORDCNF(*), MXPDIM, iter, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, NTEST, &
+                     IREOTS(*)
+integer(kind=iwp) :: ICSFMN, IICNF, IICSF, IILACT, IILB, ILRI, ILTYP, IMIN, iTmpDimBlockA, iTmpDimBlockACNF, KLCNFO, KLCONF, &
+                     KLCSFO, KLFREE, KLPHPS, KLSCRS, MXCSFC, NCSFL, NCSFMN, NIRREP, NJCNF, NPCNF, NPCSF
+real(kind=wp) :: Acc, RefSplit, XMAX, XMIN
+real(kind=wp), external :: FNDMNX
 #include "spinfo.fh"
 #include "splitcas.fh"
-dimension PHPCSF(*), PHPCNF(*)
-!dimension IPCSF(*),IPCNF(*)
-dimension IPORDCSF(*), IPORDCNF(*)
-dimension DTOC(*), IPRODT(*), ICONF(*)
-dimension ONEBOD(*), SCR(*)
-dimension TUVX(*), IREOTS(*)
 
 call DIAGORD_INTERNAL(SCR)
 
@@ -64,10 +69,9 @@ contains
 
 subroutine DIAGORD_INTERNAL(SCR)
 
-  use iso_c_binding
-
-  real*8, target :: SCR(*)
-  integer, pointer :: iSCR(:)
+  real(kind=wp), target :: SCR(*)
+  integer(kind=iwp), pointer :: iSCR(:)
+  integer(kind=iwp) :: i, ICNF, ICNL, IIL, ITYP
 
   ICSFMN = 0 ! dummy initialize to avoid warning
 
@@ -93,14 +97,14 @@ subroutine DIAGORD_INTERNAL(SCR)
 
   IILB = 1
   do ICNL=1,NCONF
-    !write(6,*) 'IILB',IILB
+    !write(u6,*) 'IILB',IILB
     call c_f_pointer(c_loc(SCR(KLCONF)),iSCR,[1])
     call GETCNF_LUCIA(iSCR,ILTYP,ICNL,ICONF,IREFSM,NEL)
     nullify(iSCR)
     !call GETCNF_LUCIA(SCR(KLCONF),ILTYP,IPCNF(ICNL),ICONF,IREFSM,NEL)
     NCSFL = NCSFTP(ILTYP)
-    !write(6,*) 'NCSFL = ',NCSFL
-    !call xflush(6)
+    !write(u6,*) 'NCSFL = ',NCSFL
+    !call xflush(u6)
     call c_f_pointer(c_loc(SCR(KLCONF)),iSCR,[1])
     call CNHCN(iSCR,ILTYP,iSCR,ILTYP,SCR(KLPHPS),SCR(KLFREE),NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,ExFac,IREOTS)
     nullify(iSCR)
@@ -108,19 +112,19 @@ subroutine DIAGORD_INTERNAL(SCR)
       IILACT = IILB-1+IIL
       ILRI = IIL*IIL
       PHPCSF(IILACT) = SCR(KLPHPS-1+ILRI)
-      !write(6,*) 'IILACT, ILRI = ',IILACT,ILRI
-      !write(6,*) 'PHPCSF(IILACT)',PHPCSF(IILACT)
-      !call xflush(6)
+      !write(u6,*) 'IILACT, ILRI = ',IILACT,ILRI
+      !write(u6,*) 'PHPCSF(IILACT)',PHPCSF(IILACT)
+      !call xflush(u6)
       SCR(KLSCRS-1+IIL) = SCR(KLPHPS-1+ILRI)
     end do
     XMAX = -FNDMNX(SCR(KLSCRS),NCSFL,2)
     PHPCNF(ICNL) = XMAX
-    !write(6,*) 'PHPCNF(IILACT)',PHPCNF(ICNL)
-    !call xflush(6)
+    !write(u6,*) 'PHPCNF(IILACT)',PHPCNF(ICNL)
+    !call xflush(u6)
     IILB = IILB+NCSFL
   end do
   !*********************** ORDERING ***************************
-  Acc = 1.0d-13
+  Acc = 1.0e-13_wp
   XMAX = FNDMNX(PHPCNF,NCONF,2)
   RefSplit = -XMAX
   NPCSF = 0
@@ -131,7 +135,7 @@ subroutine DIAGORD_INTERNAL(SCR)
 
   !IFINIT = 0
 400 continue
-  XMIN = XMAX+1.0d0
+  XMIN = XMAX+One
   IMIN = 0
   IICNF = 1
   IICSF = 1
@@ -142,7 +146,7 @@ subroutine DIAGORD_INTERNAL(SCR)
       if (PHPCNF(IICNF)+Acc < XMIN) then
         XMIN = PHPCNF(IICNF)
         IMIN = IICNF
-        !write(6,*) 'IMIN         :',IMIN
+        !write(u6,*) 'IMIN         :',IMIN
         ICSFMN = IICSF
         NCSFMN = NIRREP
       end if
@@ -150,15 +154,15 @@ subroutine DIAGORD_INTERNAL(SCR)
       IICSF = IICSF+NIRREP
     end do
   end do
-  !write(6,*) 'XMIN         :',XMIN
-  !write(6,*) 'NPCSF+NCSFMN :',NPCSF+NCSFMN
+  !write(u6,*) 'XMIN         :',XMIN
+  !write(u6,*) 'NPCSF+NCSFMN :',NPCSF+NCSFMN
   !if ((NPCSF+NCSFMN) <= MXPDIM) then
   SCR(KLCNFO+NPCNF) = PHPCNF(IMIN)
   NPCNF = NPCNF+1
   IPORDCNF(NPCNF) = IMIN
-  !write(6,*)'NPCNF, IPORDCNF(NPCNF) :', NPCNF,IPORDCNF(NPCNF)
+  !write(u6,*)'NPCNF, IPORDCNF(NPCNF) :', NPCNF,IPORDCNF(NPCNF)
   call ISTVC2(IPORDCSF(NPCSF+1),ICSFMN-1,1,NCSFMN)
-  !write(6,*) 'IPORDCSF(NPCSF) :',(IPORDCSF(NPCSF+i),i=1,NCSFMN)
+  !write(u6,*) 'IPORDCSF(NPCSF) :',(IPORDCSF(NPCSF+i),i=1,NCSFMN)
   !call IVCPRT('IPORDCSF(NPCSF) :',' ', IPORDCSF(NPCSF+1),NCSFMN)
   NPCSF = NPCSF+NCSFMN
 
@@ -169,7 +173,7 @@ subroutine DIAGORD_INTERNAL(SCR)
         iDimBlockA = NPCSF
       end if
     else if (PerSplit) then
-      if ((real(NPCSF)/real(MXPDIM))*1.0d2 <= condition+Acc) then
+      if ((real(NPCSF)/real(MXPDIM))*1.0e2_wp <= condition+Acc) then
         iDimBlockACNF = NPCNF
         iDimBlockA = NPCSF
       end if
@@ -181,13 +185,13 @@ subroutine DIAGORD_INTERNAL(SCR)
     end if
   end if
 
-  PHPCNF(IMIN) = XMAX+1.0d0
+  PHPCNF(IMIN) = XMAX+One
   if ((NPCNF < NCONF)) goto 400
 
   if (iter /= 1) then
     iDimBlockACNF = iTmpDimBlockACNF
     iDimBlockA = iTmpDimBlockA
-    !write(6,*) 'iDimBlockACNF, iDimBlockACSF',iDimBlockACNF,iDimBlockA
+    !write(u6,*) 'iDimBlockACNF, iDimBlockACSF',iDimBlockACNF,iDimBlockA
   end if
   !else
   !  ! No space for this configuration , remove previous
@@ -197,7 +201,7 @@ subroutine DIAGORD_INTERNAL(SCR)
   !  600 continue
   !  IICNF = IICNF - 1
   !  DIAVAL = PHPCNF(IPORDCNF(IICNF))
-  !  if (abs(DIAVAL-XMIN) <= 1.0D-10) then
+  !  if (abs(DIAVAL-XMIN) <= 1.0e-10_wp) then
   !    NPCNF = NPCNF -1
   !    call GETCNF_LUCIA(SCR(KLFREE),ITYP,IPCNF(IICNF),ICONF,IREFSM,NEL)
   !    call GETCNF_LUCIA(PHPCNF(NCONF+1),ITYP,IPCNF(IICNF),ICONF,IREFSM,NEL)
@@ -214,22 +218,22 @@ subroutine DIAGORD_INTERNAL(SCR)
   call dcopy_(NCONF,SCR(KLCNFO),1,PHPCNF,1)
   call dcopy_(MXPDIM,SCR(KLCSFO),1,PHPCSF,1)
 
-  !write(6,*) ' OUTPUT from DiagOrd'
-  !write(6,*) ' =================='
-  !write(6,*) ' Number of Configurations in primary subspace ',NCONF
-  !write(6,*) ' Number of CSFs in primary subspace ',MXPDIM
-  !write(6,*) ' Configurations included :'
+  !write(u6,*) ' OUTPUT from DiagOrd'
+  !write(u6,*) ' =================='
+  !write(u6,*) ' Number of Configurations in primary subspace ',NCONF
+  !write(u6,*) ' Number of CSFs in primary subspace ',MXPDIM
+  !write(u6,*) ' Configurations included :'
   !call IWRTMA(IPORDCNF,1,NCONF,1,NCONF)
-  !write(6,*) ' CSFs included :'
+  !write(u6,*) ' CSFs included :'
   !CALL IWRTMA(IPORDCSF,1,MXPDIM,1,MXPDIM)
-  !write(6,*) 'Ordered Diagonal array in CSF basis :'
+  !write(u6,*) 'Ordered Diagonal array in CSF basis :'
   !do i=1,MXPDIM
-  !  write(6,*) PHPCSF(IPORDCSF(i))
-  !  write(6,*) PHPCSF(i)
+  !  write(u6,*) PHPCSF(IPORDCSF(i))
+  !  write(u6,*) PHPCSF(i)
   !end do
-  !write(6,*) 'Ordered Diagonal array in CNF basis :'
+  !write(u6,*) 'Ordered Diagonal array in CNF basis :'
   !do i=1,NCONF
-  !  write(6,*) PHPCNF(i)
+  !  write(u6,*) PHPCNF(i)
   !end do
 
   return

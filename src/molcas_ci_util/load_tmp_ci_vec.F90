@@ -38,37 +38,42 @@ subroutine Load_tmp_CI_vec(iRoot,nConf,CI_vec,LuDavid)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
-real*8 CI_vec(nConf)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: iRoot, nConf, LuDavid
+real(kind=wp) :: CI_vec(nConf)
+integer(kind=iwp) :: iDisk, iMem, tmp_CI_vec_RecNo
+character(len=16) :: KeyWord
+integer(kind=iwp), external :: RecNo
 #include "rasdim.fh"
 #include "davctl.fh"
 #include "WrkSpc.fh"
 #include "timers.fh"
-character*16 KeyWord
 
 call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 ! check input arguments
 if (nConf < 0) then
-  write(6,*) 'Load_tmp_CI_vec: nConf less than'
-  write(6,*) 'nConf = ',nConf
+  write(u6,*) 'Load_tmp_CI_vec: nConf less than'
+  write(u6,*) 'nConf = ',nConf
   call Abend()
 end if
 if (iRoot < 0) then
-  write(6,*) 'Load_tmp_CI_vec: iRoot less than 0'
-  write(6,*) 'iRoot = ',iRoot
+  write(u6,*) 'Load_tmp_CI_vec: iRoot less than 0'
+  write(u6,*) 'iRoot = ',iRoot
   call Abend()
 end if
 if (iRoot > n_Roots) then
-  write(6,*) 'Load_tmp_CI_vec: iRoot greater than nRoots'
-  write(6,*) 'iRoot, nRoots = ',iRoot,n_Roots
+  write(u6,*) 'Load_tmp_CI_vec: iRoot greater than nRoots'
+  write(u6,*) 'iRoot, nRoots = ',iRoot,n_Roots
   call Abend()
 end if
 
 ! the diagonalization can be run in core:
 ! copy the CI vector to new memory location
 if (save_mode == in_core) then
-  tmp_CI_vec_RecNo = RecNo((4),iRoot)
+  tmp_CI_vec_RecNo = RecNo(4,iRoot)
   iMem = memory_address(tmp_CI_vec_RecNo)
   call dCopy_(nConf,Work(iMem),1,CI_vec,1)
 end if
@@ -76,7 +81,7 @@ end if
 ! the diagonalization must be run out of core:
 ! load the CI vector from disk
 if (save_mode == on_disk) then
-  tmp_CI_vec_RecNo = RecNo((4),iRoot)
+  tmp_CI_vec_RecNo = RecNo(4,iRoot)
   iDisk = disk_address(tmp_CI_vec_RecNo)
   call DDaFile(LuDavid,2,CI_vec,nConf,iDisk)
 end if

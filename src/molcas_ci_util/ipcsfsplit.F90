@@ -37,20 +37,27 @@ subroutine ipcsfsplit(PHPCSF,IPCSF,IPCNF,MXPDIM,MXSPLI,DTOC,IPRODT,ICONF,IREFSM,
 ! NPCNF  : Number of primary configurations obtained (output)
 ! NPCSF  : Number of primary CSF's obtained  (OUTPUT)
 ! TUVX   : Two-electron integrals (MO space)
-! DIAG   : Hamilton diagonal over CSF's (INPUT)
+! DIAG   : Hamiltonian diagonal over CSF's (INPUT)
 !
 ! IREOTS : Type => symmetry reordering array
 !
 ! Jeppe Olsen , Summer of '89
-! adapted to DETRAS by M.P. Fuelscher, Oktober 1989
+! adapted to DETRAS by M.P. Fuelscher, October 1989
 
-implicit real*8(A-H,O-Z)
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: PHPCSF(*), DTOC(*), ONEBOD(*), ECORE, SCR(*), DIAG(*), TUVX(*), ExFac
+integer(kind=iwp) :: IPCSF(*), IPCNF(*), MXPDIM, MXSPLI, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, NTEST, &
+                     IREOTS(*)
+integer(kind=iwp) :: ICSFMN, IICNF, IICSF, IILACT, IILB, ILRI, ILTYP, IMIN, KLCONF, KLFREE, KLPHPS, MXCSFC, NCSFL, NCSFMN, NIRREP, &
+                     NJCNF, NPCNF, NPCSF
+real(kind=wp) :: Acc, XMAX, XMIN
+real(kind=wp), external :: FNDMNX
 #include "spinfo.fh"
 #include "splitcas.fh"
-dimension IPCSF(*), IPCNF(*), DIAG(*), PHPCSF(*)
-dimension DTOC(*), IPRODT(*), ICONF(*)
-dimension ONEBOD(*), SCR(*)
-dimension TUVX(*), IREOTS(*)
 
 call IPCSFSPLIT_INTERNAL(SCR)
 
@@ -59,14 +66,13 @@ contains
 
 subroutine IPCSFSPLIT_INTERNAL(SCR)
 
-  use iso_c_binding
-
-  real*8, target :: SCR(*)
-  integer, pointer :: iSCR(:)
+  real(kind=wp), target :: SCR(*)
+  integer(kind=iwp), pointer :: iSCR(:)
+  integer(kind=iwp) :: ICNF, ICNL, IIL, ITYP
 
   ! Assumed machine accuracy (give and take)
 
-  Acc = 1.0D-13
+  Acc = 1.0e-13_wp
   ! construct the diagonal of the Hamilton matrix in CNF basis
   ICSFMN = 0
   IICNF = 1
@@ -92,7 +98,7 @@ subroutine IPCSFSPLIT_INTERNAL(SCR)
   NPCNF = 0
   !IFINIT = 0
 400 continue
-  XMIN = XMAX+1.0d0
+  XMIN = XMAX+One
   IMIN = 0
   IICNF = 1
   IICSF = 1
@@ -120,7 +126,7 @@ subroutine IPCSFSPLIT_INTERNAL(SCR)
     iDimBlockACNF = NPCNF
   end if
   NPCSF = NPCSF+NCSFMN
-  SCR(IMIN) = XMAX+1.0d0
+  SCR(IMIN) = XMAX+One
   !else
   !  ! No space for this configuration , remove previous
   !  ! configurations with the same diagonal value
@@ -129,7 +135,7 @@ subroutine IPCSFSPLIT_INTERNAL(SCR)
   !  600 continue
   !  IICNF = IICNF-1
   !  DIAVAL = SCR(IPCNF(IICNF))
-  !  if (abs(DIAVAL-XMIN) <= 1.0D-10) then
+  !  if (abs(DIAVAL-XMIN) <= 1.0e-10_wp) then
   !    NPCNF = NPCNF-1
   !    call GETCNF_LUCIA(SCR(NCONF+1),ITYP,IPCNF(IICNF),ICONF,IREFSM,NEL)
   !    NPCSF = NPCSF-NCSFTP(ITYP)
@@ -140,13 +146,13 @@ subroutine IPCSFSPLIT_INTERNAL(SCR)
   if (NPCNF < NCONF) goto 400
 
   if (NTEST >= 30) then
-    write(6,*) ' Output from ipCSFSplit '
-    write(6,*) ' ================== '
-    write(6,*) ' Number of Configurations in primary subspace ',NPCNF
-    write(6,*) ' Number of CSFs in primary subspace ',NPCSF
-    write(6,*) ' Configurations included : '
+    write(u6,*) ' Output from ipCSFSplit '
+    write(u6,*) ' ================== '
+    write(u6,*) ' Number of Configurations in primary subspace ',NPCNF
+    write(u6,*) ' Number of CSFs in primary subspace ',NPCSF
+    write(u6,*) ' Configurations included : '
     call IWRTMA(IPCNF,1,NPCNF,1,NPCNF)
-    write(6,*) ' CSFs included : '
+    write(u6,*) ' CSFs included : '
     call IWRTMA(IPCSF,1,NPCSF,1,NPCSF)
   end if
 
@@ -168,12 +174,12 @@ subroutine IPCSFSPLIT_INTERNAL(SCR)
 
   IILB = 1
   do ICNL=1,NCONF
-    !write(6,*) 'IILB',IILB
+    !write(u6,*) 'IILB',IILB
     call c_f_pointer(c_loc(SCR(KLCONF)),iSCR,[1])
     call GETCNF_LUCIA(iSCR,ILTYP,IPCNF(ICNL),ICONF,IREFSM,NEL)
     nullify(iSCR)
     NCSFL = NCSFTP(ILTYP)
-    !write(6,*) 'NCSFL = ',NCSFL
+    !write(u6,*) 'NCSFL = ',NCSFL
     call c_f_pointer(c_loc(SCR(KLCONF)),iSCR,[1])
     call CNHCN(iSCR,ILTYP,iSCR,ILTYP,SCR(KLPHPS),SCR(KLFREE),NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,ExFac,IREOTS)
     nullify(iSCR)
@@ -181,13 +187,13 @@ subroutine IPCSFSPLIT_INTERNAL(SCR)
       IILACT = IILB-1+IIL
       ILRI = IIL*IIL
       PHPCSF(IILACT) = SCR(KLPHPS-1+ILRI)
-      !write(6,*) 'IILACT, ILRI = ',IILACT,ILRI
-      !write(6,*) 'PHPCSF(IILACT)',PHPCSF(IILACT)
+      !write(u6,*) 'IILACT, ILRI = ',IILACT,ILRI
+      !write(u6,*) 'PHPCSF(IILACT)',PHPCSF(IILACT)
       !SCR(KLSCRS-1+IIL) = SCR(KLPHPS-1+ILRI)
     end do
     !XMAX = -FNDMNX(SCR(KLSCRS),NCSFL,2)
     !PHPCNF(ICNL) = XMAX
-    !write(6,*) 'PHPCNF(IILACT)',PHPCNF(ICNL)
+    !write(u6,*) 'PHPCNF(IILACT)',PHPCNF(ICNL)
     IILB = IILB+NCSFL
   end do
 

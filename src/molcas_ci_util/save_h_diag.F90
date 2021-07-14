@@ -36,27 +36,32 @@ subroutine Save_H_diag(nConf,H_diag,LuDavid)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
-real*8 H_diag(nConf)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nConf, LuDavid
+real(kind=wp) :: H_diag(nConf)
+integer(kind=iwp) :: H_diag_RecNo, iDisk, iMem
+character(len=16) :: KeyWord
+integer(kind=iwp), external :: RecNo
 #include "rasdim.fh"
 #include "davctl.fh"
 #include "WrkSpc.fh"
 #include "timers.fh"
-character*16 KeyWord
 
 call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 ! check input arguments
 if (nConf < 0) then
-  write(6,*) 'Save_H_diag: nConf less than 0'
-  write(6,*) 'nConf = ',nConf
+  write(u6,*) 'Save_H_diag: nConf less than 0'
+  write(u6,*) 'nConf = ',nConf
   call Abend()
 end if
 
 ! the diagonalization can be run in core:
 ! copy vector to new memory location
 if (save_mode == in_core) then
-  H_diag_RecNo = RecNo((1),(1))
+  H_diag_RecNo = RecNo(1,1)
   iMem = memory_address(H_diag_RecNo)
   call dCopy_(nConf,H_diag,1,Work(iMem),1)
 end if
@@ -64,7 +69,7 @@ end if
 ! the diagonalization must be run out of core:
 ! save H_diag on disk
 if (save_mode == on_disk) then
-  H_diag_RecNo = RecNo((1),(1))
+  H_diag_RecNo = RecNo(1,1)
   iDisk = disk_address(H_diag_RecNo)
   call DDaFile(LuDavid,1,H_diag,nConf,iDisk)
 end if

@@ -8,11 +8,12 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 1987, Jeppe Olsen                                      *
+! Copyright (C) Joseph Golab                                           *
+!               1987, Jeppe Olsen                                      *
 !               1989, Markus P. Fuelscher                              *
 !***********************************************************************
 
-subroutine ORDSTR(IINST,IOUTST,NELMNT,ISIGN,IPRINT)
+subroutine ORDSTR(IINST,IOUTST,NELMNT,ISGN,IPRINT)
 ! AUTHOR:        J. OLSEN, UNIV. OF LUND, SWEDEN, APRIL 1987
 ! MODIFICATIONS: INCLUSION INTO THE RASSCF METHOD
 !                M.P. FUELSCHER, UNIV. OF LUND, SWEDEN, MAY 1989
@@ -23,20 +24,22 @@ subroutine ORDSTR(IINST,IOUTST,NELMNT,ISIGN,IPRINT)
 ! IINST : INPUT STRING IS IINST
 ! IOUTST : OUTPUT STRING IS IOUTST
 ! NELMNT : NUMBER OF INTEGERS IN STRING
-! ISIGN :  SIGN OF PERMUTATION : + 1 : EVEN PERMUTATIONN
-!                                    - 1 : ODD  PERMUTATION
+! ISGN : SIGN OF PERMUTATION : +1 : EVEN PERMUTATION
+!                              -1 : ODD  PERMUTATION
 !
 ! THIS CODE CONTAINS THE OLD ORDER CODE OF JOE GOLAB
 ! ( HE IS HEREBY AKNOWLEDGED , AND I AM EXCUSED )
 
-implicit real*8(A-H,O-Z)
-dimension IINST(NELMNT), IOUTST(NELMNT)
-integer SWAP
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: NELMNT, IINST(NELMNT), IOUTST(NELMNT), ISGN, IPRINT
+integer(kind=iwp) :: I, JOE, SWAP
 
 if (NELMNT == 0) return
 
 call ICOPY(NELMNT,IINST,1,IOUTST,1)
-ISIGN = 1
+ISGN = 1
 
 ! BEGIN TO ORDER
 
@@ -49,7 +52,7 @@ if (IOUTST(I) <= IOUTST(I+1)) GO TO 40
 JOE = I+1
 30 continue
 SWAP = IOUTST(I)
-ISIGN = -ISIGN
+ISGN = -ISGN
 IOUTST(I) = IOUTST(I+1)
 IOUTST(I+1) = SWAP
 if (I == 1) GO TO 10
@@ -64,10 +67,10 @@ GO TO 20
 
 50 continue
 if (IPRINT > 30) then
-  write(6,*) ' INPUT STRING ORDERED STRING ISIGN '
+  write(6,*) ' INPUT STRING ORDERED STRING ISGN '
   call IWRTMA(IINST,1,NELMNT,1,NELMNT)
   call IWRTMA(IOUTST,1,NELMNT,1,NELMNT)
-  write(6,*) ' ISIGN : ',ISIGN
+  write(6,*) ' ISGN : ',ISGN
 end if
 
 return

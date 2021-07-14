@@ -12,15 +12,15 @@
 subroutine transadd(n,a,lda)
 ! Add the transpose to a square matrix, A := A + A^T
 
+use Definitions, only: wp, iwp
+
 implicit none
-! dummy arguments
-integer, intent(in) :: n, lda
-real*8, intent(inout) :: a(lda,*)
-! small buffer block
-integer, parameter :: nblksz = 8
+integer(kind=iwp), intent(in) :: n, lda
+real(kind=wp), intent(inout) :: a(lda,*)
 ! number of blocks, remaining elements
-integer :: nblk, nrem
-integer :: iblk, jblk, ista, jsta, i, j
+integer(kind=iwp) :: nblk, nrem, iblk, jblk, ista, jsta, i, j
+! small buffer block
+integer(kind=iwp), parameter :: nblksz = 8
 
 nblk = n/nblksz
 nrem = n-nblk*nblksz

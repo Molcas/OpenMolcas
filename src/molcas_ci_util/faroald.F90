@@ -21,27 +21,27 @@ module faroald
 ! The implementation follows the minimum operation count algorithm
 ! published by Olsen & Co in J. Chem. Phys. 89, 2185 (1988).
 
+#ifdef _PROF_
+use, intrinsic :: iso_fortran_env, only: int64
+#endif
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp, u6
+
 implicit none
 
 ! wavefunction info
-integer :: my_nel, my_norb, mult
-integer :: nela, nelb, nhoa, nhob
-integer :: ndeta, ndetb, my_ndet
+integer(kind=iwp) :: my_nel, my_norb, mult, nela, nelb, nhoa, nhob, ndeta, ndetb, my_ndet
 
 ! excitation tables
 type ex1_struct
-  integer :: p, q
-  integer :: sgn
-  integer :: rank
+  integer(kind=iwp) :: p, q, sgn, rank
 end type
 
 type(ex1_struct), allocatable :: ex1_a(:,:), ex1_b(:,:)
-integer :: max_ex1a, max_ex1b
-integer :: max_ex2a, max_ex2b
-integer :: max_LRs
+integer(kind=iwp) :: max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs
 
 #ifdef _PROF_
-integer*8 :: nflop
+integer(kind=int64) :: nflop
 #endif
 
 contains
@@ -51,27 +51,20 @@ subroutine sigma_update(h,g,sgm,psi)
 ! |sgm> = H |psi>, with the hamiltonian defined by
 ! H = sum_tu h(t,u) E_tu + sum_tuvx g(t,u,v,x) E_tuvx.
 
-  use second_quantization
-
   ! integrals
-  real*8, intent(in) :: h(my_norb,my_norb)
-  real*8, intent(in) :: g(my_norb,my_norb,my_norb,my_norb)
-  real*8, allocatable :: k(:,:)
+  real(kind=wp), intent(in) :: h(my_norb,my_norb), g(my_norb,my_norb,my_norb,my_norb)
+  real(kind=wp), allocatable :: k(:,:)
   ! wavefunctions
-  real*8, intent(in) :: psi(:,:)
-  real*8, intent(inout) :: sgm(:,:)
-  real*8, allocatable :: psiT(:,:)
-  real*8, allocatable :: sgmT(:,:)
+  real(kind=wp), intent(in) :: psi(:,:)
+  real(kind=wp), intent(out) :: sgm(:,:)
+  real(kind=wp), allocatable :: psiT(:,:), sgmT(:,:)
   ! orbital indices
-  integer :: t, u, v
+  integer(kind=iwp) :: t, u, v
   ! determinant index ranges
-  integer :: iasta, iaend, ibsta, ibend
-  integer :: ierr
-  ! profiling
+  integer(kind=iwp) :: iasta, iaend, ibsta, ibend, ierr
 # ifdef _PROF_
-  real*8 :: t1_cpu, t2_cpu, tot_cpu
-  real*8 :: t1_wall, t2_wall, tot_wall
-  real*8 :: walltime, flops
+  ! profiling
+  real(kind=wp) :: t1_cpu, t2_cpu, tot_cpu, t1_wall, t2_wall, tot_wall, walltime, flops
 # endif
 
   ! Distributes a dimension over processes
@@ -87,7 +80,7 @@ subroutine sigma_update(h,g,sgm,psi)
 # endif
 
   ! Set the sigma vector to 0
-  sgm = 0.0d0
+  sgm = Zero
 
   ! First, construct a new effective one-electron integral matrix:
   ! k_tu = h_tu - 1/2 sum_v g_tvvu, to be used with sigma1/sigma2.
@@ -95,11 +88,11 @@ subroutine sigma_update(h,g,sgm,psi)
   do u=1,my_norb
     do t=1,my_norb
       ! g_tvvu = g_vtvu
-      k(t,u) = 0.0d0
+      k(t,u) = Zero
       do v=1,my_norb
         k(t,u) = k(t,u)+g(v,t,v,u)
       end do
-      k(t,u) = h(t,u)-0.5d0*k(t,u)
+      k(t,u) = h(t,u)-Half*k(t,u)
     end do
   end do
 
@@ -148,9 +141,9 @@ subroutine sigma_update(h,g,sgm,psi)
 
   walltime = t2_wall-t1_wall
 
-  if (walltime /= 0.0d0) then
+  if (walltime /= Zero) then
     flops = nflop/walltime
-    write(6,'(1x,a,2(f10.3,a))') 'sigma update: ',walltime,' s, ',flops*1.0d-9,' Gflops.'
+    write(u6,'(1x,a,2(f10.3,a))') 'sigma update: ',walltime,' s, ',flops*1.0d-9,' Gflops.'
   end if
 # endif
 
@@ -161,25 +154,20 @@ subroutine sigma1(k,g,sgm,psi,ibsta,ibend)
 !    + 1/2 sum_jb sum_tuvx <jb|E_tu E_vx|ib> g_tuvx C(ia,jb)
 
   ! integrals
-  real*8, intent(in) :: k(my_norb,my_norb)
-  real*8, intent(in) :: g(my_norb,my_norb,my_norb,my_norb)
+  real(kind=wp), intent(in) :: k(my_norb,my_norb), g(my_norb,my_norb,my_norb,my_norb)
   ! wavefunctions
-  real*8, intent(in) :: psi(:,:)
-  real*8, intent(inout) :: sgm(:,:)
+  real(kind=wp), intent(in) :: psi(:,:)
+  real(kind=wp), intent(inout) :: sgm(:,:)
   ! local variables
-  integer :: ib, jb, kb
-  integer :: ibsta, ibend
-  integer :: t, u, v, x, tu, vx
-  integer :: sgn_tu, sgn_vx
-  integer :: ierr
-  real*8, allocatable :: f(:)
+  integer(kind=iwp) :: ib, jb, kb, ibsta, ibend, t, u, v, x, tu, vx, sgn_tu, sgn_vx, ierr
+  real(kind=wp), allocatable :: f(:)
 
   allocate(f(ndetb),stat=ierr)
   if (ierr /= 0) stop 'could not allocate f'
 
   do ib=ibsta,ibend
     ! f array construction
-    f = 0.0d0
+    f = Zero
     do tu=1,max_ex1b
       t = ex1_b(tu,ib)%p
       u = ex1_b(tu,ib)%q
@@ -191,13 +179,13 @@ subroutine sigma1(k,g,sgm,psi,ibsta,ibend)
         x = ex1_b(vx,kb)%q
         sgn_vx = ex1_b(vx,kb)%sgn
         jb = ex1_b(vx,kb)%rank
-        f(jb) = f(jb)+0.5d0*sgn_tu*sgn_vx*g(v,x,t,u)
+        f(jb) = f(jb)+Half*sgn_tu*sgn_vx*g(v,x,t,u)
       end do
     end do
     ! sigma addition
     kb = 0
     do jb=1,ndetb
-      if (f(jb) /= 0.0d0) then
+      if (f(jb) /= Zero) then
         kb = kb+1
 #       ifdef _PROF_
         nflop = nflop+2*ndeta
@@ -217,25 +205,20 @@ subroutine sigma2(k,g,sgm,psi,iasta,iaend)
 !    + 1/2 sum_ja sum_tuvx <ja|E_tu E_vx|ia> g_tuvx C(ja,ib)
 
   ! integrals
-  real*8, intent(in) :: k(my_norb,my_norb)
-  real*8, intent(in) :: g(my_norb,my_norb,my_norb,my_norb)
+  real(kind=wp), intent(in) :: k(my_norb,my_norb), g(my_norb,my_norb,my_norb,my_norb)
   ! wavefunctions
-  real*8, intent(in) :: psi(:,:)
-  real*8, intent(inout) :: sgm(:,:)
+  real(kind=wp), intent(in) :: psi(:,:)
+  real(kind=wp), intent(inout) :: sgm(:,:)
   ! local variables
-  integer :: ia, ja, ka
-  integer :: iasta, iaend
-  integer :: t, u, v, x, tu, vx
-  integer :: sgn_tu, sgn_vx
-  integer :: ierr
-  real*8, allocatable :: f(:)
+  integer(kind=iwp) :: ia, ja, ka, iasta, iaend, t, u, v, x, tu, vx, sgn_tu, sgn_vx, ierr
+  real(kind=wp), allocatable :: f(:)
 
   allocate(f(ndeta),stat=ierr)
   if (ierr /= 0) stop 'could not allocate f'
 
   do ia=iasta,iaend
     ! f array construction
-    f = 0.0d0
+    f = Zero
     do tu=1,max_ex1a
       t = ex1_a(tu,ia)%p
       u = ex1_a(tu,ia)%q
@@ -247,13 +230,13 @@ subroutine sigma2(k,g,sgm,psi,iasta,iaend)
         x = ex1_a(vx,ka)%q
         sgn_vx = ex1_a(vx,ka)%sgn
         ja = ex1_a(vx,ka)%rank
-        f(ja) = f(ja)+0.5d0*sgn_tu*sgn_vx*g(v,x,t,u)
+        f(ja) = f(ja)+Half*sgn_tu*sgn_vx*g(v,x,t,u)
       end do
     end do
     ! sigma addition
     ka = 0
     do ja=1,ndeta
-      if (f(ja) /= 0.0d0) then
+      if (f(ja) /= Zero) then
         ka = ka+1
 #       ifdef _PROF_
         nflop = nflop+2*ndeta
@@ -272,22 +255,17 @@ subroutine sigma3(g,sgm,psi,ibsta,ibend)
 ! sigma3(ia,ib) = sum_ja,jb sum_tu,vx <jb|E_tu|ib> <ja|E_vx|ia> g_tuvx C(ja,jb)
 
   ! integrals
-  real*8, intent(in) :: g(my_norb,my_norb,my_norb,my_norb)
+  real(kind=wp), intent(in) :: g(my_norb,my_norb,my_norb,my_norb)
   ! wavefunctions
-  real*8, intent(in) :: psi(:,:)
-  real*8, intent(inout) :: sgm(:,:)
+  real(kind=wp), intent(in) :: psi(:,:)
+  real(kind=wp), intent(inout) :: sgm(:,:)
   ! determinant indices
-  integer, allocatable :: ia(:), ja(:)
-  integer :: i, n_couples
-  integer :: ib, jb, kb
-  integer :: ibsta, ibend
+  integer(kind=iwp), allocatable :: ia(:), ja(:)
+  integer(kind=iwp) :: i, n_couples, ib, jb, kb, ibsta, ibend
   ! orbital indices
-  integer :: t, u, v, x, tu
-  integer, allocatable :: sgn_vx(:)
-  integer :: sgn_tu
-  real*8, allocatable :: f(:)
-  real*8, allocatable :: Ctmp(:,:), Vtmp(:)
-  integer :: ierr
+  integer(kind=iwp) :: t, u, v, x, tu, sgn_tu, ierr
+  integer(kind=iwp), allocatable :: sgn_vx(:)
+  real(kind=wp), allocatable :: f(:), Ctmp(:,:), Vtmp(:)
 
   allocate(ja(max_LRs),ia(max_LRs),sgn_vx(max_LRs),stat=ierr)
   if (ierr /= 0) stop 'could not allocate L/R/sgn'
@@ -306,7 +284,7 @@ subroutine sigma3(g,sgm,psi,ibsta,ibend)
         Ctmp(i,:) = psi(:,ja(i))*sgn_vx(i)
       end do
       do ib=ibsta,ibend
-        f = 0.0d0
+        f = Zero
         do tu=1,max_ex1b
           t = ex1_b(tu,ib)%p
           u = ex1_b(tu,ib)%q
@@ -317,19 +295,19 @@ subroutine sigma3(g,sgm,psi,ibsta,ibend)
             if (t < v) cycle
             if ((t == v) .and. (u < x)) cycle
             if ((t == v) .and. (u == x)) then
-              f(jb) = f(jb)+sgn_tu*0.5d0*g(t,u,v,x)
+              f(jb) = f(jb)+sgn_tu*Half*g(t,u,v,x)
               cycle
             end if
           end if
           f(jb) = f(jb)+sgn_tu*g(t,u,v,x)
         end do
         ! V(ia) = sum_jb f(jb) C'(ia,jb) for all ia
-        Vtmp = 0.0d0
+        Vtmp = Zero
         kb = 0
         ! loop over non-identical excitations
         do tu=1,max_ex1b
           jb = ex1_b(tu,ib)%rank
-          if ((jb /= ib) .and. (f(jb) /= 0.0d0)) then
+          if ((jb /= ib) .and. (f(jb) /= Zero)) then
             kb = kb+1
 #           ifdef _PROF_
             nflop = nflop+2*n_couples
@@ -338,7 +316,7 @@ subroutine sigma3(g,sgm,psi,ibsta,ibend)
           end if
         end do
         ! contribution from the identical excitations
-        if (f(ib) /= 0.0d0) then
+        if (f(ib) /= Zero) then
 #         ifdef _PROF_
           nflop = nflop+2*n_couples
 #         endif
@@ -357,17 +335,14 @@ end subroutine sigma3
 
 subroutine ex1_init(k,n,ex1_table)
 
-  use second_quantization
+  use second_quantization, only: binom_coef, ex1, fase, lex_init, lex_next, lexrank
 
-  integer, intent(in) :: k, n
+  integer(kind=iwp), intent(in) :: k, n
   type(ex1_struct), intent(out) :: ex1_table(:,:)
-  integer :: my_ndet, idet
-  integer :: det, tmp
-  integer :: p, q, pq
-  integer :: counter
+  integer(kind=iwp) :: my_ndet, idet, det, tmp, p, q, pq, counter
 
-  !write(6,'(1x,a)') 'excitation table'
-  !write(6,'(1x,a)') 'p   q   I   J'
+  !write(u6,'(1x,a)') 'excitation table'
+  !write(u6,'(1x,a)') 'p   q   I   J'
   my_ndet = binom_coef(k,n)
   det = lex_init(k,n)
   counter = 0
@@ -383,7 +358,7 @@ subroutine ex1_init(k,n,ex1_table)
           ex1_table(pq,idet)%sgn = fase(tmp)
           ex1_table(pq,idet)%rank = lexrank(tmp)
           counter = counter+1
-          !write(6,'(1x,4i4)') p,q,idet,fase(tmp)*lexrank(tmp)
+          !write(u6,'(1x,4i4)') p,q,idet,fase(tmp)*lexrank(tmp)
         end if
       end do
     end do
@@ -393,20 +368,19 @@ subroutine ex1_init(k,n,ex1_table)
 end subroutine ex1_init
 
 subroutine LRs_init(p,q,my_nel,my_norb,L,R,sgn,counter)
-  ! for a pair of orbitals p and q, and determinants
-  ! generated by my_nel electrons in my_norb spin orbitals,
-  ! re-enumerate all non-vanishing couples connected
-  ! through: jdet = E_pq idet. The number of couples
-  ! is given by n_det, L(i) = jdet and R(i) = idet,
-  ! where i is a counter from 1 to n_det. The sign of
-  ! jdet is stored in the sgn array.
-  use second_quantization
-  implicit none
-  integer, intent(in) :: p, q, my_nel, my_norb
-  integer, intent(out) :: L(:), R(:), sgn(:), counter
+! for a pair of orbitals p and q, and determinants
+! generated by my_nel electrons in my_norb spin orbitals,
+! re-enumerate all non-vanishing couples connected
+! through: jdet = E_pq idet. The number of couples
+! is given by n_det, L(i) = jdet and R(i) = idet,
+! where i is a counter from 1 to n_det. The sign of
+! jdet is stored in the sgn array.
 
-  integer :: my_ndet, idet
-  integer :: det, tmp
+  use second_quantization, only: binom_coef, ex1, fase, lex_init, lex_next, lexrank
+
+  integer(kind=iwp), intent(in) :: p, q, my_nel, my_norb
+  integer(kind=iwp), intent(out) :: L(:), R(:), sgn(:), counter
+  integer(kind=iwp) :: my_ndet, idet, det, tmp
 
   my_ndet = binom_coef(my_nel,my_norb)
   det = lex_init(my_nel,my_norb)
@@ -421,6 +395,7 @@ subroutine LRs_init(p,q,my_nel,my_norb,L,R,sgn,counter)
     end if
     det = lex_next(det)
   end do
-end subroutine
 
-end module
+end subroutine LRs_init
+
+end module faroald

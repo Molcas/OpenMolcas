@@ -38,17 +38,21 @@ subroutine page_in(KeyWord,nConf,Vector,LuDavid)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
-real*8 Vector(nConf)
-character*16 KeyWord
+use Definitions, only: wp, iwp, u6
+
+implicit none
+character(len=16) :: KeyWord
+integer(kind=iwp) :: nConf, LuDavid
+real(kind=wp) :: Vector(nConf)
+integer(kind=iwp) :: iDisk, iMem, iStk, nStk
 #include "rasdim.fh"
 #include "davctl.fh"
 #include "WrkSpc.fh"
 
 ! check input arguments
 if (nConf < 0) then
-  write(6,*) 'page_in: nConf less than 0'
-  write(6,*) 'nConf = ',nConf
+  write(u6,*) 'page_in: nConf less than 0'
+  write(u6,*) 'nConf = ',nConf
   call Abend()
 end if
 
@@ -58,8 +62,8 @@ do iStk=1,(mxMemStk+mxDiskStk)
   if (LblStk(iStk) == KeyWord) nStk = iStk
 end do
 if (nStk == 0) then
-  write(6,*) 'page_in: nStk equal 0'
-  write(6,*) 'nStk = ',nStk
+  write(u6,*) 'page_in: nStk equal 0'
+  write(u6,*) 'nStk = ',nStk
   call Abend()
 end if
 

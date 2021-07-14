@@ -38,37 +38,42 @@ subroutine Save_tmp_Sig_vec(iRoot,nConf,Sig_vec,LuDavid)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
-real*8 Sig_vec(nConf)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: iRoot, nConf, LuDavid
+real(kind=wp) :: Sig_vec(nConf)
+integer(kind=iwp) :: iDisk, iMem, tmp_Sig_vec_RecNo
+character(len=16) :: KeyWord
+integer(kind=iwp), external :: RecNo
 #include "rasdim.fh"
 #include "davctl.fh"
 #include "WrkSpc.fh"
 #include "timers.fh"
-character*16 KeyWord
 
 call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 ! check input arguments
 if (nConf < 0) then
-  write(6,*) 'Save_tmp_Sig_vec: nConf less than 0'
-  write(6,*) 'nConf = ',nConf
+  write(u6,*) 'Save_tmp_Sig_vec: nConf less than 0'
+  write(u6,*) 'nConf = ',nConf
   call Abend()
 end if
 if (iRoot < 0) then
-  write(6,*) 'Save_tmp_Sig_vec: iRoot less than 0'
-  write(6,*) 'iRoot = ',iRoot
+  write(u6,*) 'Save_tmp_Sig_vec: iRoot less than 0'
+  write(u6,*) 'iRoot = ',iRoot
   call Abend()
 end if
 if (iRoot > n_Roots) then
-  write(6,*) 'Save_tmp_Sig_vec: iRoot greater than nRoots'
-  write(6,*) 'iRoot, nRoots = ',iRoot,n_Roots
+  write(u6,*) 'Save_tmp_Sig_vec: iRoot greater than nRoots'
+  write(u6,*) 'iRoot, nRoots = ',iRoot,n_Roots
   call Abend()
 end if
 
 ! the diagonalization can be run in core:
 ! copy the sigma vector to new memory location
 if (save_mode == in_core) then
-  tmp_Sig_vec_RecNo = RecNo((5),iRoot)
+  tmp_Sig_vec_RecNo = RecNo(5,iRoot)
   iMem = memory_address(tmp_Sig_vec_RecNo)
   call dCopy_(nConf,Sig_vec,1,Work(iMem),1)
 end if
@@ -76,7 +81,7 @@ end if
 ! the diagonalization must be run out of core:
 ! save the sigma vector on disk
 if (save_mode == on_disk) then
-  tmp_Sig_vec_RecNo = RecNo((5),iRoot)
+  tmp_Sig_vec_RecNo = RecNo(5,iRoot)
   iDisk = disk_address(tmp_Sig_vec_RecNo)
   call DDaFile(LuDavid,1,Sig_vec,nConf,iDisk)
 end if

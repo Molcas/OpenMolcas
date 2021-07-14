@@ -9,30 +9,37 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-real*8 function FNDMNX(VECTOR,NDIM,MINMAX)
+function FNDMNX(VECTOR,NDIM,MINMAX)
 ! FIND SMALLEST(MINMAX=1) OR LARGEST(MINMAX=2)
 ! ABSOLUTE VALUE OF ELEMENTS IN VECTOR
 
-implicit real*8(A-H,O-Z)
-dimension VECTOR(*)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: FNDMNX
+real(kind=wp) :: VECTOR(*)
+integer(kind=iwp) :: NDIM, MINMAX
+integer(kind=iwp) :: I
+real(kind=wp) :: res
 
 ! jwk-cleanup
-result = 0.0d0
+res = Zero
 if (MINMAX == 1) then
-  result = abs(VECTOR(1))
+  res = abs(VECTOR(1))
   do I=2,NDIM
-    result = min(result,abs(VECTOR(I)))
+    res = min(res,abs(VECTOR(I)))
   end do
 end if
 
 if (MINMAX == 2) then
-  result = abs(VECTOR(1))
+  res = abs(VECTOR(1))
   do I=2,NDIM
-    result = max(result,abs(VECTOR(I)))
+    res = max(res,abs(VECTOR(I)))
   end do
 end if
 
-FNDMNX = result
+FNDMNX = res
 
 return
 

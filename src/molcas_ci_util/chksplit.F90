@@ -22,8 +22,10 @@ subroutine ChkSplit()
 !     history: none                                                    *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp
 
+implicit none
+integer(kind=iwp) :: IERR
 #include "rasdim.fh"
 #include "output_ras.fh"
 #include "general.fh"

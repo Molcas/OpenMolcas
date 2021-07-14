@@ -67,25 +67,29 @@ module citrans
 ! nsoc*(rankdo-1)+rankso, with nsoc the number of singly occupied
 ! strings per doubly occupied string in a group, i.e., n-dCs.
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
 implicit none
-save
+private
 
 ! global module variables
 
-integer :: ndo_min, ndo_max
+integer(kind=iwp) :: ndo_min, ndo_max
 ! number of doubly/singly occupied configurations per group
-integer, allocatable :: ndoc_group(:)
-integer, allocatable :: nsoc_group(:)
+integer(kind=iwp), allocatable :: ndoc_group(:), nsoc_group(:)
 ! number of determinants/CSFs per group
-integer, allocatable :: ndet_group(:)
-integer, allocatable :: ncsf_group(:)
+integer(kind=iwp), allocatable :: ndet_group(:), ncsf_group(:)
 
 type spintable
-  integer :: ndet, ncsf
-  real*8, allocatable :: coef(:,:)
-end type
+  integer(kind=iwp) :: ndet, ncsf
+  real(kind=wp), allocatable :: coef(:,:)
+end type spintable
 
 type(spintable), allocatable :: spintabs(:)
+
+public :: citrans_csf2sd, citrans_sd2csf, citrans_sort, comb_init, comb_iter, ncsf_group, ndet_group, ndo_max, ndo_min, &
+          ndoc_group, nsoc_group, spintable_create, spintabs
 
 contains
 
@@ -93,44 +97,33 @@ subroutine citrans_sort(mode,ciold,cinew)
 ! sort CSFs such that they are grouped by configurations
 ! and fill in the transformation matrices to determinants
 
-  use second_quantization
-  use faroald
+  use second_quantization, only: lexrank
+  use faroald, only: my_norb
 
-  real*8, intent(in) :: ciold(*)
-  real*8, intent(out) :: cinew(*)
   ! 'C' for configuration order, 'O' for original order
-  character :: mode
+  character, intent(in) :: mode
+  real(kind=wp), intent(in) :: ciold(*)
+  real(kind=wp), intent(out) :: cinew(*)
   ! array with coupling coefficients
-  !real*8, intent(out) :: coef(*)
-  integer :: ido, iso
-  integer :: ndoc, nsoc
-  integer :: ncsf
-  integer :: icsf
-  integer :: ioff_csf
-  ! offsets
-  integer, allocatable :: csf_offset(:)
-  integer, allocatable :: stepvector(:)
-  integer, allocatable :: downvector(:)
-  integer :: mv, idwn, iup
-  integer :: doub, sing
-  integer :: rankdo, rankso
-  integer :: iorb, iphase
-  real*8, allocatable :: coef(:)
-  integer, parameter :: maxorb = 32, maxdown = 16
-  integer :: idown, ndown
-  real*8 :: wtab(0:maxorb,maxdown)
+  !real(kind=wp), intent(out) :: coef(*)
+  integer(kind=iwp) :: doub, icsf, ido, idown, idwn, ioff_csf, iorb, iphase, iso, iup, mv, ncsf, ndoc, ndown, nsoc, rankdo, &
+                       rankso, sing
+  integer(kind=iwp), parameter :: maxorb = 32, maxdown = 16
+  real(kind=wp) :: wtab(0:maxorb,maxdown)
+  integer, allocatable :: csf_offset(:), downvector(:), stepvector(:)
+  real(kind=wp), allocatable :: coef(:)
 
   ! Compute offsets for addressing into the reordering and coefficient arrays.
   allocate(csf_offset(ndo_min:ndo_max))
 
 # ifdef _DEBUGPRINT_
-  write(6,'(5(1x,a4))') 'ido','ndoc','nsoc','ndet','ncsf'
+  write(u6,'(5(1x,a4))') 'ido','ndoc','nsoc','ndet','ncsf'
 # endif
 
   ncsf = 0
   do ido=ndo_min,ndo_max
 #   ifdef _DEBUGPRINT_
-    write(6,'(5(1x,i4))') ido,ndoc_group(ido),nsoc_group(ido),ndet_group(ido),ncsf_group(ido)
+    write(u6,'(5(1x,i4))') ido,ndoc_group(ido),nsoc_group(ido),ndet_group(ido),ncsf_group(ido)
 #   endif
     ndoc = ndoc_group(ido)
     nsoc = nsoc_group(ido)
@@ -220,17 +213,16 @@ end subroutine citrans_sort
 
 subroutine citrans_csf2sd(ci,det)
 
-  use second_quantization
-  use faroald
+  use second_quantization, only: lex_init, lex_next, lexrank
+  use faroald, only: my_nel, my_norb, ndeta, ndetb, nela
 
-  real*8, intent(in) :: ci(*)
-  real*8, intent(out) :: det(ndeta,ndetb)
+  real(kind=wp), intent(in) :: ci(*)
+  real(kind=wp), intent(out) :: det(ndeta,ndetb)
+  integer(kind=iwp) :: ido, iso, isoa, idoc, isoc, iconf, idet, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf, &
+                       doub, sing, alfa, beta, & ! occupation substrings
+                       deta, detb, phase         ! determinant strings
+  integer(kind=iwp), allocatable :: stepvector(:)
   real*8, allocatable :: tmp(:,:)
-  integer :: ido, iso, isoa, idoc, isoc, iconf, idet
-  integer :: ndoc, nsoc, ndet, ncsf, nconf, ioff_csf
-  integer :: doub, sing, alfa, beta ! occupation substrings
-  integer :: deta, detb, phase ! determinant strings
-  integer, allocatable :: stepvector(:)
 
   ! Loop through the do,so configuration groups. For each group, load
   ! the spin table. Loop through the configurations and perform a matrix
@@ -251,7 +243,7 @@ subroutine citrans_csf2sd(ci,det)
     allocate(tmp(ndet,nconf))
 
     ! Compute the determinant coefficients from the CSF coefficients.
-    call dgemm_('N','N',ndet,nconf,ncsf,1.0d0,spintabs(ido)%coef,ndet,ci(ioff_csf+1),ncsf,0.0d0,tmp,ndet)
+    call dgemm_('N','N',ndet,nconf,ncsf,One,spintabs(ido)%coef,ndet,ci(ioff_csf+1),ncsf,Zero,tmp,ndet)
 
     ! Store the determinant coefficients with the right phase factor in
     ! the correct place in the determinant matrix. The loops runs over
@@ -286,17 +278,16 @@ end subroutine citrans_csf2sd
 
 subroutine citrans_sd2csf(det,ci)
 
-  use second_quantization
-  use faroald
+  use second_quantization, only: lex_init, lex_next, lexrank
+  use faroald, only: my_nel, my_norb, ndeta, ndetb, nela
 
-  real*8, intent(in) :: det(ndeta,ndetb)
-  real*8, intent(out) :: ci(*)
-  real*8, allocatable :: tmp(:,:)
-  integer :: ido, iso, isoa, idoc, isoc, iconf, idet
-  integer :: ndoc, nsoc, ndet, ncsf, nconf, ioff_csf
-  integer :: doub, sing, alfa, beta ! occupation substrings
-  integer :: deta, detb, phase ! determinant strings
-  integer, allocatable :: stepvector(:)
+  real(kind=wp), intent(in) :: det(ndeta,ndetb)
+  real(kind=wp), intent(out) :: ci(*)
+  integer(kind=iwp) :: ido, iso, isoa, idoc, isoc, iconf, idet, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf, &
+                       doub, sing, alfa, beta, & ! occupation substrings
+                       deta, detb, phase         ! determinant strings
+  integer(kind=iwp), allocatable :: stepvector(:)
+  real(kind=wp), allocatable :: tmp(:,:)
 
   ! Loop through the do,so configuration groups. For each group, load
   ! the spin table. Loop through the configurations and perform a matrix
@@ -342,7 +333,7 @@ subroutine citrans_sd2csf(det,ci)
     end do
 
     ! Compute the determinant coefficients from the CSF coefficients.
-    call dgemm_('T','N',ncsf,nconf,ndet,1.0d0,spintabs(ido)%coef,ndet,tmp,ndet,0.0d0,ci(ioff_csf+1),ncsf)
+    call dgemm_('T','N',ncsf,nconf,ndet,One,spintabs(ido)%coef,ndet,tmp,ndet,Zero,ci(ioff_csf+1),ncsf)
 
     deallocate(tmp)
     ioff_csf = ioff_csf+ncsf*nconf
@@ -362,11 +353,10 @@ subroutine spintable_create(nso,ndown,spintab)
 ! for now, just print the matrix for testing, later put it in some
 ! memory location to be used by the conversion routine
 
-  use second_quantization
-
-  integer :: nso, idown, ndown, icsf, ncsf, ndet
-  integer, allocatable :: down_orb(:), udvec(:)
+  integer(kind=iwp) :: nso, ndown
   type(spintable) :: spintab
+  integer(kind=iwp) :: idown, icsf, ncsf, ndet
+  integer(kind=iwp), allocatable :: down_orb(:), udvec(:)
 
   ndet = spintab%ndet
   ncsf = spintab%ncsf
@@ -405,22 +395,16 @@ subroutine ud2det(udvec,coef)
 ! The determinants are traversed in lexicographic order, with all alpha
 ! orbitals the lowest orbitals.
 
-  use second_quantization
+  use second_quantization, only: binom_coef, lex_init, lex_next
 
-  ! arguments
-  integer, intent(in) :: udvec(:)
-  real*8, intent(out) :: coef(:)
-  ! lex keeps track of alpha orbitals
-  integer, parameter :: maxorb = 64
+  integer(kind=iwp), intent(in) :: udvec(:)
+  real(kind=wp), intent(out) :: coef(:)
   ! the coupling coefficient
-  integer :: phase ! phase factor
-  real*8 :: nom, den ! fraction holding the coefficient
-  integer :: iso, nso, nsoa, nsob
-  integer :: ialfa, ibeta
-  integer :: ia, ib
-  integer :: idet, ndet
-  integer :: deta
-  integer :: ilev, nlev
+  integer(kind=iwp) :: phase, & ! phase factor
+                       iso, nso, nsoa, nsob, ialfa, ibeta, ia, ib, idet, ndet, deta, ilev, nlev
+  real(kind=wp) :: nom, den ! fraction holding the coefficient
+  ! lex keeps track of alpha orbitals
+  integer(kind=iwp), parameter :: maxorb = 64
 
   ! find number of singly occupied orbitals
   nsoa = 0
@@ -440,8 +424,8 @@ subroutine ud2det(udvec,coef)
   ! loop over possible determinants
   deta = lex_init(nsoa,nso)
   do idet=1,ndet
-    nom = 1.0d0
-    den = 1.0d0
+    nom = One
+    den = One
     phase = 1
     ialfa = 0
     ibeta = 0
@@ -476,7 +460,7 @@ subroutine ud2det(udvec,coef)
           iso = iso+1
           den = den*(ib+2)
         case default
-          write(6,'(1x,a)') 'ud2det: udvec element /= 1 or 2, fatal...'
+          write(u6,'(1x,a)') 'ud2det: udvec element /= 1 or 2, fatal...'
           call AbEnd()
       end select
     end do
@@ -491,7 +475,7 @@ subroutine ud2det(udvec,coef)
 
 end subroutine ud2det
 
-integer function ds2ab(doub,sing,alfa,beta,deta,detb) result(phase)
+function ds2ab(doub,sing,alfa,beta,deta,detb) result(phase)
 ! convert a determinant characterized by a doubly occupied, singly
 ! occupied, and alpha/beta substrings to an alpha and beta string.
 !
@@ -506,16 +490,13 @@ integer function ds2ab(doub,sing,alfa,beta,deta,detb) result(phase)
 ! 000101, 1101, 101 (dsa) and as 100111, 010101 (ab)
 ! as usual counting orbitals from the right with bits (lower-most bit)
 
-  use second_quantization
-  use faroald
+  use faroald, only: my_norb
 
-# include "compiler_features.h"
-
-  integer, intent(in) :: doub, sing, alfa, beta
-  integer, intent(out) :: deta, detb
-  integer :: not_doub
-  integer :: mask, pos
-  logical :: switch
+  integer(kind=iwp) :: phase
+  integer(kind=iwp), intent(in) :: doub, sing, alfa, beta
+  integer(kind=iwp), intent(out) :: deta, detb
+  integer(kind=iwp) :: mask, not_doub, pos
+  logical(kind=iwp) :: switch
 
   ! First, we have to get the a/b singly occupied orbitals. This can be
   ! easily done using successive bit scattering operations on the alpha
@@ -555,12 +536,11 @@ integer function ds2ab(doub,sing,alfa,beta,deta,detb) result(phase)
 
 end function ds2ab
 
-integer function pdep(val,mask) result(res)
+function pdep(val,mask) result(res)
 
-  integer, intent(in) :: val, mask
-  integer :: tmp_mask, tmp_val
-  integer :: mask_bit, val_bit
-  integer :: pos
+  integer(kind=iwp) :: res
+  integer(kind=iwp), intent(in) :: val, mask
+  integer(kind=iwp) :: mask_bit, pos, tmp_mask, tmp_val, val_bit
 
   tmp_val = val
   tmp_mask = mask
@@ -584,23 +564,23 @@ end function pdep
 
 subroutine comb_init(n,k,lex)
 
-  integer :: n, k
-  integer :: lex(k)
-  integer :: i
+  integer(kind=iwp), intent(in) :: n, k
+  integer(kind=iwp), intent(out) :: lex(k)
+  integer(kind=iwp) :: i
 
   do i=1,k
     lex(i) = i
   end do
-! Avoid unused argument warnings
+  ! Avoid unused argument warnings
   if (.false.) call Unused_integer(n)
 
 end subroutine comb_init
 
 subroutine comb_iter(n,k,lex)
 
-  integer :: n, k
-  integer :: lex(k)
-  integer :: i, j
+  integer(kind=iwp), intent(in) :: n, k
+  integer(kind=iwp), intent(inout) :: lex(k)
+  integer(kind=iwp) :: i, j
 
   i = k
   ! get the first position to be updated
@@ -623,9 +603,10 @@ end subroutine comb_iter
 
 subroutine csf_init(nso,ndown,down_orb)
 
-  integer :: nso, ndown
-  integer :: down_orb(ndown+1)
-  integer :: i
+  integer(kind=iwp), intent(in) :: nso, ndown
+  integer(kind=iwp), intent(out) :: down_orb(ndown+1)
+  integer(kind=iwp) :: i
+
   do i=1,ndown
     down_orb(i) = 2*i
   end do
@@ -635,9 +616,10 @@ end subroutine csf_init
 
 subroutine csf_next(nso,ndown,down_orb)
 
-  integer :: nso, ndown
-  integer :: down_orb(ndown+1)
-  integer :: i, j
+  integer(kind=iwp), intent(in) :: nso, ndown
+  integer(kind=iwp), intent(inout) :: down_orb(ndown+1)
+  integer(kind=iwp) :: i, j
+
   do i=1,ndown
     if (down_orb(i) < down_orb(i+1)-1) then
       down_orb(i) = down_orb(i)+1
@@ -654,15 +636,15 @@ end subroutine csf_next
 
 subroutine mkwtab(mxn1,mxn2,wtab)
 
-  use second_quantization
+  use second_quantization, only: binom_coef
 
-  integer :: mxn1, mxn2
-  real*8 :: wtab(0:mxn1,mxn2)
-  integer :: n1, n2
+  integer(kind=iwp), intent(in) :: mxn1, mxn2
+  real(kind=wp), intent(out) :: wtab(0:mxn1,mxn2)
+  integer(kind=iwp) :: n1, n2
 
   do n1=0,mxn1
     do n2=1,mxn2
-      wtab(n1,n2) = dble(binom_coef(n1+n2,n1+2*n2))*dble(n1)/dble(n1+2*n2)
+      wtab(n1,n2) = real(binom_coef(n1+n2,n1+2*n2),kind=wp)*real(n1,kind=wp)/real(n1+2*n2,kind=wp)
     end do
   end do
 

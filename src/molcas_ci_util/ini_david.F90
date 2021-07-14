@@ -46,44 +46,50 @@ subroutine Ini_David(nRoots,nConf,nDet,nSel,n_keep,ntAsh,LuDavid)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nRoots, nConf, nDet, nSel, n_keep, ntAsh, LuDavid
+integer(kind=iwp) :: CI_vec_RecNo, H_diag_RecNo, iDisk, iMem, iRoot, lTmp1, lTmp2, lTmp3, Max_free_Mem, Max_used_Mem, &
+                     Memory_Needed, nStk, Sig_vec_RecNo, tmp_CI_vec_RecNo, tmp_Sig_vec_RecNo
+real(kind=wp) :: Dum(1)
+character(len=8) :: Label
+integer(kind=iwp), external :: RecNo
 #include "rasdim.fh"
 #include "warnings.h"
 #include "davctl.fh"
-#include "WrkSpc.fh"
 #include "rasscf_lucia.fh"
-character*8 Label
-real*8 Dum(1)
 
 ! check input arguments
 if (nConf < 0) then
-  write(6,*) 'Ini_David: nConf less than 0'
-  write(6,*) 'nConf = ',nConf
+  write(u6,*) 'Ini_David: nConf less than 0'
+  write(u6,*) 'nConf = ',nConf
   call Abend()
 end if
 if (nRoots < 0) then
-  write(6,*) 'Ini_David: nRoots less than zero'
-  write(6,*) 'nRoots = ',nRoots
+  write(u6,*) 'Ini_David: nRoots less than zero'
+  write(u6,*) 'nRoots = ',nRoots
   call Abend()
 end if
 if (nRoots > mxRoot) then
-  write(6,*) 'Ini_David: nRoots greater than mxRoot'
-  write(6,*) 'nRoots, mxRoot = ',nRoots,mxRoot
+  write(u6,*) 'Ini_David: nRoots greater than mxRoot'
+  write(u6,*) 'nRoots, mxRoot = ',nRoots,mxRoot
   call Abend()
 end if
 if (nDet < 0) then
-  write(6,*) 'Ini_David: nDet less than zero'
-  write(6,*) 'nDet = ',nDet
+  write(u6,*) 'Ini_David: nDet less than zero'
+  write(u6,*) 'nDet = ',nDet
   call Abend()
 end if
 if (ntAsh < 0) then
-  write(6,*) 'Ini_David: ntAsh less than 0'
-  write(6,*) 'ntAsh = ',ntAsh
+  write(u6,*) 'Ini_David: ntAsh less than 0'
+  write(u6,*) 'ntAsh = ',ntAsh
   call Abend()
 end if
 if (ntAsh > mxAct) then
-  write(6,*) 'Ini_David: ntAsh greater than mxAct'
-  write(6,*) 'ntAsh, mxAct = ',ntAsh,mxAct
+  write(u6,*) 'Ini_David: ntAsh greater than mxAct'
+  write(u6,*) 'ntAsh, mxAct = ',ntAsh,mxAct
   call Abend()
 end if
 n_Roots = nRoots
@@ -158,32 +164,32 @@ nDiskStk = 0
 ! the diagonalization can be run in core:
 ! allocate memory for all vectors that will be needed
 if (save_mode == in_core) then
-  H_diag_RecNo = RecNo((1),(1))
+  H_diag_RecNo = RecNo(1,1)
   write(Label,'(A,I3.3)') 'HvRcN',H_diag_RecNo
   call GetMem(Label,'Allo','Real',iMem,nConf)
   memory_address(H_diag_RecNo) = iMem
   CI_vec_RecNo = 0
   do iRoot=1,nkeep
-    CI_vec_RecNo = RecNo((2),iRoot)
+    CI_vec_RecNo = RecNo(2,iRoot)
     write(Label,'(A,I3.3)') 'CvRcN',CI_vec_RecNo
     call GetMem(Label,'Allo','Real',iMem,nConf)
     memory_address(CI_vec_RecNo) = iMem
   end do
   Sig_vec_RecNo = 0
   do iRoot=1,nKeep
-    Sig_vec_RecNo = RecNo((3),iRoot)
+    Sig_vec_RecNo = RecNo(3,iRoot)
     write(Label,'(A,I3.3)') 'SvRcN',Sig_vec_RecNo
     call GetMem(Label,'Allo','Real',iMem,nConf)
     memory_address(Sig_vec_RecNo) = iMem
   end do
   do iRoot=1,nRoots
-    tmp_CI_vec_RecNo = RecNo((4),iRoot)
+    tmp_CI_vec_RecNo = RecNo(4,iRoot)
     write(Label,'(A,I3.3)') 'TmpCv',iRoot
     call GetMem(Label,'Allo','Real',iMem,nConf)
     memory_address(tmp_CI_vec_RecNo) = iMem
   end do
   do iRoot=1,nRoots
-    tmp_Sig_vec_RecNo = RecNo((5),iRoot)
+    tmp_Sig_vec_RecNo = RecNo(5,iRoot)
     write(Label,'(A,I3.3)') 'TmpSv',iRoot
     call GetMem(Label,'Allo','Real',iMem,nConf)
     memory_address(tmp_Sig_vec_RecNo) = iMem
@@ -194,27 +200,27 @@ end if
 ! allocate disk space for all vectors that will be needed
 if (save_mode == on_disk) then
   iDisk = 0
-  H_diag_RecNo = RecNo((1),(1))
+  H_diag_RecNo = RecNo(1,1)
   disk_address(H_diag_RecNo) = iDisk
-  Dum(1) = 0.0d0
+  Dum(1) = Zero
   call DDafile(LuDavid,0,Dum,nConf,iDisk)
   do iRoot=1,nkeep
-    CI_vec_RecNo = RecNo((2),iRoot)
+    CI_vec_RecNo = RecNo(2,iRoot)
     disk_address(CI_vec_RecNo) = iDisk
     call DDafile(LuDavid,0,Dum,nConf,iDisk)
   end do
   do iRoot=1,nKeep
-    Sig_vec_RecNo = RecNo((3),iRoot)
+    Sig_vec_RecNo = RecNo(3,iRoot)
     disk_address(Sig_vec_RecNo) = iDisk
     call DDaFile(LuDavid,0,Dum,nConf,iDisk)
   end do
   do iRoot=1,nRoots
-    tmp_CI_vec_RecNo = RecNo((4),iRoot)
+    tmp_CI_vec_RecNo = RecNo(4,iRoot)
     disk_address(tmp_CI_vec_RecNo) = iDisk
     call DDaFile(LuDavid,0,Dum,nConf,iDisk)
   end do
   do iRoot=1,nRoots
-    tmp_Sig_vec_RecNo = RecNo((5),iRoot)
+    tmp_Sig_vec_RecNo = RecNo(5,iRoot)
     disk_address(tmp_Sig_vec_RecNo) = iDisk
     call DDaFile(LuDavid,0,Dum,nConf,iDisk)
   end do
@@ -229,7 +235,7 @@ if ((save_mode == mixed_mode_1) .or. (save_mode == mixed_mode_2)) then
     memory_address(nStk) = iMem
   end do
   iDisk = 0
-  Dum(1) = 0.0d0
+  Dum(1) = Zero
   do nStk=1,mxDiskStk
     disk_address(nStk) = iDisk
     call DDaFile(LuDavid,0,Dum,nConf,iDisk)

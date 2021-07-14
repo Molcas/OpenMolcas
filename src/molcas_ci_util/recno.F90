@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Markus P. Fuelscher                              *
 !***********************************************************************
 
-integer function RecNo(itype,iRoot)
+function RecNo(itype,iRoot)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -37,7 +37,13 @@ integer function RecNo(itype,iRoot)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: RecNo
+integer(kind=iwp) :: itype, iRoot
+integer(kind=iwp) :: CI_vec_RecNo, H_diag_RecNo, Sig_vec_RecNo, tmp_CI_vec_RecNo, tmp_Sig_vec_RecNo
+integer(kind=iwp), external :: PageNo
 #include "rasdim.fh"
 #include "davctl.fh"
 
@@ -58,8 +64,8 @@ else if (itype == 5) then
   tmp_Sig_vec_RecNo = 1+2*nKeep+n_Roots+iRoot
   RecNo = tmp_Sig_vec_RecNo
 else
-  write(6,*) 'RecNo: itype does not match'
-  write(6,*) 'itype = ',itype
+  write(u6,*) 'RecNo: itype does not match'
+  write(u6,*) 'itype = ',itype
   call Abend()
 end if
 

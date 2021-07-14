@@ -16,17 +16,22 @@ subroutine MATML4(C,A,B,NCROW,NCCOL,NAROW,NACOL,NBROW,NBCOL,ITRNSP)
 ! C = A(TRANSPOSED) * B FOR ITRNSP = 1
 ! C = A * B(TRANSPOSED) FOR ITRNSP = 2
 
-implicit real*8(A-H,O-Z)
-dimension A(NAROW,NACOL)
-dimension B(NBROW,NBCOL)
-dimension C(NCROW,NCCOL)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, r8
+
+implicit none
+integer(kind=iwp) :: NCROW, NCCOL, NAROW, NACOL, NBROW, NBCOL, ITRNSP
+real(kind=wp) :: A(NAROW,NACOL), B(NBROW,NBCOL), C(NCROW,NCCOL)
+real(kind=wp) :: BJK, BKJ
+integer(kind=iwp) :: I, IZERO, J, K
+real(kind=r8), external :: DDOT_
 
 IZERO = 0
-if ((NAROW*NACOL*NBROW*NBCOL*NCROW*NCCOL) == 0) IZERO = 1
+if ((NAROW*NACOL == 0) .or. (NBROW*NBCOL == 0) .or. (NCROW*NCCOL == 0)) IZERO = 1
 
 if (ITRNSP == 0) then
   if (IZERO == 1) then
-    call DCOPY_(NCROW*NCCOL,[0.0d0],0,C,1)
+    call DCOPY_(NCROW*NCCOL,[Zero],0,C,1)
     do J=1,NCCOL
       do K=1,NBROW
         BKJ = B(K,J)
@@ -34,7 +39,7 @@ if (ITRNSP == 0) then
       end do
     end do
   else
-    call DGEMM_('N','N',NCROW,NCCOL,NACOL,1.0d0,A,NAROW,B,NBROW,0.0d0,C,NCROW)
+    call DGEMM_('N','N',NCROW,NCCOL,NACOL,One,A,NAROW,B,NBROW,Zero,C,NCROW)
   end if
 end if
 
@@ -46,13 +51,13 @@ if (ITRNSP == 1) then
       end do
     end do
   else
-    call DGEMM_('T','N',NCROW,NCCOL,NAROW,1.0d0,A,NAROW,B,NBROW,0.0d0,C,NCROW)
+    call DGEMM_('T','N',NCROW,NCCOL,NAROW,One,A,NAROW,B,NBROW,Zero,C,NCROW)
   end if
 end if
 
 if (ITRNSP == 2) then
   if (IZERO == 1) then
-    call DCOPY_(NCROW*NCCOL,[0.0d0],0,C,1)
+    call DCOPY_(NCROW*NCCOL,[Zero],0,C,1)
     do J=1,NCCOL
       do K=1,NBCOL
         BJK = B(J,K)
@@ -60,7 +65,7 @@ if (ITRNSP == 2) then
       end do
     end do
   else
-    call DGEMM_('N','T',NCROW,NCCOL,NACOL,1.0d0,A,NAROW,B,NBROW,0.0d0,C,NCROW)
+    call DGEMM_('N','T',NCROW,NCCOL,NACOL,One,A,NAROW,B,NBROW,Zero,C,NCROW)
   end if
 end if
 

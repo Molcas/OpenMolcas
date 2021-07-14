@@ -13,14 +13,14 @@ function ISGNUM(IDOWN,IUP,IDAW,IRAW,IUSGNUM,ILSGNUM,IWALK)
 ! PURPOSE: FOR ANY GIVEN WALK (STEP VECTOR) COMPUTE THE
 !          LEXICAL NUMBER IN THE SPLIT GUGA REPRESENTATION
 
-implicit real*8(A-H,O-Z)
-#include "rasdim.fh"
-#include "general.fh"
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) ::ISGNUM
 #include "gugx.fh"
-dimension IDOWN(NVERT,0:3), IUP(NVERT,0:3)
-dimension IDAW(NVERT,0:4), IRAW(NVERT,0:4)
-dimension IUSGNUM(MXUP,NMIDV), ILSGNUM(MXDWN,NMIDV)
-dimension IWALK(NLEV)
+integer(kind=iwp) :: IDOWN(NVERT,0:3), IUP(NVERT,0:3), IDAW(NVERT,0:4), IRAW(NVERT,0:4), IUSGNUM(MXUP,NMIDV), &
+                     ILSGNUM(MXDWN,NMIDV), IWALK(NLEV)
+integer(kind=iwp) :: IC, ICASE, ICONF, IDAWSUM, IRAWSUM, IUW, LEV, LV, MIDV
 
 ! FIND THE MIDVERTEX AND THE COMBINED WALK SYMMETRY
 

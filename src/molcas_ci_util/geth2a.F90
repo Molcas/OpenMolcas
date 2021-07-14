@@ -11,8 +11,13 @@
 
 function GETH2A(I,J,K,L,TUVX)
 
-implicit real*8(A-H,O-Z)
-dimension TUVX(*)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: GETH2A
+integer(kind=iwp) :: I, J, K, L
+real(kind=wp) :: TUVX(*)
+integer(kind=iwp) :: IJ, KL, NI, NIJ, NIJKL, NJ, NK, NKL, NL
 
 NI = max(I,J)
 NJ = min(I,J)

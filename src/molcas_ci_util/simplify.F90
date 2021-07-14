@@ -11,9 +11,11 @@
 
 subroutine SIMPLIFY(FRAC)
 
-implicit real*8(A-H,O-Z)
-integer A, B, FRAC
-dimension FRAC(2)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: FRAC(2)
+integer(kind=iwp) :: A, B, ITEMP
 
 if (FRAC(1) == 0) return
 ! Find GCD of numerator and denominator

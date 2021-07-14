@@ -40,20 +40,23 @@ subroutine CiOvlp(jRoot,S1,S2,CI_vec)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
+implicit none
+integer(kind=iwp) :: jRoot
 #include "rasdim.fh"
 #include "general.fh"
 #include "rasscf.fh"
-dimension S1(lRoots,lRoots)
-dimension S2(lRoots,lRoots)
-dimension CI_vec(nConf)
+real(kind=wp) :: S1(lRoots,lRoots), S2(lRoots,lRoots), CI_vec(nConf)
+integer(kind=iwp) :: iConf, kRef, kRoot
+real(kind=wp) :: Sum1, Sum2
 
 if (ITER == 1) return
 
 do kRoot=1,nRoots
-  Sum1 = 0.0d0
-  Sum2 = 0.0d0
+  Sum1 = Zero
+  Sum2 = Zero
   do kRef=1,mxRef
     iConf = jCj(kRoot,kRef)
     if (iConf /= 0) then

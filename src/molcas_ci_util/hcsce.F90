@@ -50,12 +50,17 @@ subroutine HCSCE(N,H,S,C,E,M)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-dimension H(N*(N+1)/2), S(N*(N+1)/2), C(N,N), E(N)
-dimension WGronk(2)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N, M
+real(kind=wp) :: H(N*(N+1)/2), S(N*(N+1)/2), C(N,N), E(N)
+integer(kind=iwp) :: INFO, LSCRATCH, lw1, lw2, lw3, lw4, MMAX, NSCRATCH
+real(kind=wp) :: WGronk(2)
+!character(len=12) :: method
 #include "WrkSpc.fh"
 #include "timers.fh"
-!character*12 method
 
 call Timing(Longines_1,Swatch,Swatch,Swatch)
 
@@ -74,28 +79,28 @@ call Square(S,Work(lw1),1,N,N)
 call Square(H,Work(lw2),1,N,N)
 
 ! Schmidt orthogonalization
-call dcopy_(N*N,[0.0d0],0,C,1)
-call dcopy_(N,[1.0d0],0,C,N+1)
+call dcopy_(N*N,[Zero],0,C,1)
+call dcopy_(N,[One],0,C,N+1)
 
-!write(6,*) ' HCSCE calling Schmidt.'
+!write(u6,*) ' HCSCE calling Schmidt.'
 !call Schmidt(N,Work(lw1),C,Work(lw4),M)
-!write(6,*) ' HCSCE back from Schmidt. M=',M
+!write(u6,*) ' HCSCE back from Schmidt. M=',M
 ! PAM 2009: It seems that no provision is made for the case that
 ! the returned M, = nr of ON vectors produced, is smaller than N?!
 ! Also, the whole thing looks very inefficient. But I just make
 ! some provisional changes now (090216).
-!write(6,*) ' HCSCE check eigenvalues. N=',N
+!write(u6,*) ' HCSCE check eigenvalues. N=',N
 !call eigv(N,Work(lw1))
-!write(6,*) ' HCSCE calling NewGS.'
+!write(u6,*) ' HCSCE calling NewGS.'
 call NewGS(N,Work(lw1),C,Work(lw4),M)
-!write(6,*) ' HCSCE back from NewGS. M=',M
+!write(u6,*) ' HCSCE back from NewGS. M=',M
 ! Possibly in very difficult cases, NewGS produced too many vectors:
 M = min(M,MMAX)
 
 ! transform H to an orthogonal basis
 ! PAM 2009: Rewritten, use only M orthogonal vectors
-call DGEMM_('N','N',N,M,N,1.0d0,Work(lw2),N,C,N,0.0d0,Work(lw3),N)
-call DGEMM_('T','N',M,M,N,1.0d0,C,N,Work(lw3),N,0.0d0,Work(lw2),M)
+call DGEMM_('N','N',N,M,N,One,Work(lw2),N,C,N,Zero,Work(lw3),N)
+call DGEMM_('T','N',M,M,N,One,C,N,Work(lw3),N,Zero,Work(lw2),M)
 
 ! PAM 2009: Replace by DSYEV call.
 !method = 'Householder'
@@ -115,7 +120,7 @@ call DGEMM_('T','N',M,M,N,1.0d0,C,N,Work(lw3),N,0.0d0,Work(lw2),M)
 !  end do
 !else if (method == 'Householder') then
 !  call Eigen_Molcas(N,Work(lw2),E,Work(lw4))
-!  call DGEMM_('N','N',N,N,N,1.0d0,C,N,Work(lw2),N,0.0d0,Work(lw3),N)
+!  call DGEMM_('N','N',N,N,N,One,C,N,Work(lw2),N,Zero,Work(lw3),N)
 !  call dcopy_(N*N,Work(lw3),1,C,1)
 !end if
 ! PAM 2009 Equivalent, DSYEV, note now use just M, not all N:
@@ -125,7 +130,7 @@ NSCRATCH = int(WGRONK(1))
 call GETMEM('SCRATCH','ALLO','REAL',LSCRATCH,NSCRATCH)
 call dsyev_('V','L',M,WORK(lw2),M,E,WORK(LSCRATCH),NSCRATCH,INFO)
 call GETMEM('SCRATCH','FREE','REAL',LSCRATCH,NSCRATCH)
-call DGEMM_('N','N',N,M,M,1.0d0,C,N,Work(lw2),M,0.0d0,Work(lw3),N)
+call DGEMM_('N','N',N,M,M,One,C,N,Work(lw2),M,Zero,Work(lw3),N)
 call dcopy_(N*M,Work(lw3),1,C,1)
 
 ! deallocate temporary work space

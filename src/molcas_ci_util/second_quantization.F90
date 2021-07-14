@@ -15,7 +15,7 @@ module second_quantization
 ! Implements determinants of k electrons in n (spin)orbitals as combinations
 ! (k,n) represented as bitstrings, using 32-bit integers.  Combinations are
 ! represented in lexicographic ordering, and their rank can be computed using
-! a binomial table. The 32st bit is used for to indicate sign. all-one-bits
+! a binomial table. The 32nd bit is used for to indicate sign. all-one-bits
 ! are used to indicate annihilation (destroyed state). Excitation operators
 ! can be applied to the determinants and return the resulting determinant.
 !
@@ -25,14 +25,52 @@ module second_quantization
 !
 ! Steven Vancoillie, November 2013, Lund
 
+use Definitions, only: iwp
+
 implicit none
-integer :: onebits(0:255), ranktbl(0:255,64)
+integer(kind=iwp) :: onebits(0:255), ranktbl(0:255,64)
+integer(kind=iwp), parameter :: b_1111 = int(b'1111',kind=iwp), z_6996 = int(z'6996',kind=iwp)
 
 contains
 
-recursive integer function gcd(i,j) result(k)
+#include "compiler_features.h"
 
-  integer, intent(in) :: i, j
+#ifndef TRAILING_ZEROS
+#define trailz trailz_
+function trailz_(c) result(d)
+! simple trailing zero computation, only used when the trailz intrinsic is not supported.
+
+  integer(kind=iwp) :: d
+  integer(kind=iwp), intent(in) :: c
+  integer(kind=iwp) :: t
+
+  d = 0
+  do t=0,bit_size(c)-1
+    if (btest(c,t)) exit
+    d = d+1
+  end do
+
+end function trailz_
+#endif
+
+#ifndef IBITS_LEN_ZERO
+#define ibits ibits_
+function ibits_(c,pos,len) result(d)
+! Workaround for ibits not working with zero length
+
+  integer(kind=iwp) :: d
+  integer(kind=iwp), intent(in) :: c, pos, len
+
+  d = ishft(not(0),-(bit_size(d)-len))
+  d = iand(ishft(c,-pos),d)
+
+end function ibits_
+#endif
+
+recursive function gcd(i,j) result(k)
+
+  integer(kind=iwp) :: k
+  integer(kind=iwp), intent(in) :: i, j
 
   if (j == 0) then
     k = i
@@ -42,12 +80,13 @@ recursive integer function gcd(i,j) result(k)
 
 end function gcd
 
-integer function binom_coef(k,n)
+function binom_coef(k,n)
 ! compute binomial coefficient
 ! returns #k-subsets out of n choices
 
-  integer, intent(in) :: k, n
-  integer :: i, frac(2), div
+  integer(kind=iwp) :: binom_coef
+  integer(kind=iwp), intent(in) :: k, n
+  integer(kind=iwp) :: i, frac(2), div
 
   if (k > n) then
     binom_coef = 0
@@ -66,10 +105,11 @@ integer function binom_coef(k,n)
 
 end function binom_coef
 
-integer function lex_init(k,n) result(c)
+function lex_init(k,n) result(c)
 ! initialize the first combination
 
-  integer, intent(in) :: k, n
+  integer(kind=iwp) :: c
+  integer(kind=iwp), intent(in) :: k, n
 
   if (k > n) then
     c = 0
@@ -79,57 +119,20 @@ integer function lex_init(k,n) result(c)
 
 end function lex_init
 
-integer function lex_next(c) result(d)
+function lex_next(c) result(d)
 ! generate the next lexicographic bit combination
 
-  integer, intent(in) :: c
-  integer :: t, s
+  integer(kind=iwp) :: d
+  integer(kind=iwp), intent(in) :: c
+  integer(kind=iwp) :: t, s
 
   t = ior(c,c-1)+1
   s = iand(not(t-1),t)-1
-  d = ior(t,ishft(s,-(trailz_(c)+1)))
+  d = ior(t,ishft(s,-(trailz(c)+1)))
 
 end function lex_next
 
-integer function trailz_(c)
-
-  integer, intent(in) :: c
-
-# include "compiler_features.h"
-# ifdef TRAILING_ZEROS
-  trailz_ = trailz(c)
-# else
-  ! simple trailing zero computation, only used when the trailz
-  ! intrinsic is not supported.
-  integer :: t
-  t = c
-  trailz_ = 0
-  if (iand(t,z'FFFF') == 0) then
-    t = ishft(t,-16)
-    trailz_ = trailz_+16
-  end if
-  if (iand(t,z'FF') == 0) then
-    t = ishft(t,-8)
-    trailz_ = trailz_+8
-  end if
-  if (iand(t,z'F') == 0) then
-    t = ishft(t,-4)
-    trailz_ = trailz_+4
-  end if
-  if (iand(t,z'3') == 0) then
-    t = ishft(t,-2)
-    trailz_ = trailz_+2
-  end if
-  if (iand(t,z'1') == 0) then
-    t = ishft(t,-1)
-    trailz_ = trailz_+1
-  end if
-  trailz_ = trailz_+iand(not(t),1)
-# endif
-
-end function trailz_
-
-subroutine rank_init
+subroutine rank_init()
 ! initializes a rank table indexed as:
 !      1 2   3    4        8
 !      1 1-8 1-16 1-24 ... 1-56
@@ -143,9 +146,7 @@ subroutine rank_init
 ! a byte section and the number of possible
 ! preceding one-bits
 
-  integer :: irow, icol, ibyte, ioffset
-  integer :: ibit, ipos
-  integer :: irank
+  integer(kind=iwp) :: irow, icol, ibyte, ioffset, ibit, ipos, irank
 
   do irow=0,255
     onebits(irow) = 0
@@ -190,10 +191,11 @@ subroutine rank_init
 
 end subroutine rank_init
 
-integer function lexrank(c)
+function lexrank(c)
 
-  integer, intent(in) :: c
-  integer :: byte(4), ones(4)
+  integer(kind=iwp) :: lexrank
+  integer(kind=iwp), intent(in) :: c
+  integer(kind=iwp) :: byte(4), ones(4)
 
   lexrank = 0
   if (c == -1) return
@@ -208,9 +210,10 @@ integer function lexrank(c)
 
 end function lexrank
 
-integer function fase(c)
+function fase(c)
 
-  integer, intent(in) :: c
+  integer(kind=iwp) :: fase
+  integer(kind=iwp), intent(in) :: c
 
   if (btest(c,31)) then
     fase = -1
@@ -220,10 +223,11 @@ integer function fase(c)
 
 end function fase
 
-integer function ex1(p,q,c) result(d)
+function ex1(p,q,c) result(d)
 
-  integer, intent(in) :: p, q, c
-  integer :: t
+  integer(kind=iwp) :: d
+  integer(kind=iwp), intent(in) :: p, q, c
+  integer(kind=iwp) :: t
 
   d = c
   if (.not. btest(d,q-1)) then
@@ -250,15 +254,14 @@ integer function ex1(p,q,c) result(d)
 
 end function ex1
 
-integer function ann(p,c) result(d)
+function ann(p,c) result(d)
 ! operates on determinant c with (a_p)
 ! and returns the resulting determinant with
 ! the sign in the highest bit (1 = negative)
 
-  integer, intent(in) :: p, c
-  integer :: t, b_1111, z_6996
-  data b_1111/b'1111'/
-  data z_6996/z'6996'/
+  integer(kind=iwp) :: d
+  integer(kind=iwp), intent(in) :: p, c
+  integer(kind=iwp) :: t
 
   if (.not. btest(c,p-1)) then
     d = -1
@@ -275,15 +278,14 @@ integer function ann(p,c) result(d)
 
 end function ann
 
-integer function cre(p,c) result(d)
+function cre(p,c) result(d)
 ! operates on determinant c with (a+_p)
 ! and returns the resulting determinant with
 ! the sign in the highest bit (1 = negative)
 
-  integer, intent(in) :: p, c
-  integer :: t, b_1111, z_6996
-  data b_1111/b'1111'/
-  data z_6996/z'6996'/
+  integer(kind=iwp) :: d
+  integer(kind=iwp), intent(in) :: p, c
+  integer(kind=iwp) :: t
 
   if (btest(c,p-1)) then
     d = -1
@@ -300,15 +302,14 @@ integer function cre(p,c) result(d)
 
 end function cre
 
-integer function ann2(p,q,c) result(d)
+function ann2(p,q,c) result(d)
 ! operates on determinant c with (a_p a_q)
 ! and returns the resulting determinant with
 ! the sign in the highest bit (1 = negative)
 
-  integer, intent(in) :: p, q, c
-  integer :: t, b_1111, z_6996
-  data b_1111/b'1111'/
-  data z_6996/z'6996'/
+  integer(kind=iwp) :: d
+  integer(kind=iwp), intent(in) :: p, q, c
+  integer(kind=iwp) :: t
 
   if (.not. (btest(c,q-1) .and. btest(c,p-1))) then
     d = -1
@@ -334,15 +335,14 @@ integer function ann2(p,q,c) result(d)
 
 end function ann2
 
-integer function cre2(p,q,c) result(d)
+function cre2(p,q,c) result(d)
 ! operates on determinant c with (a+_p a+_q)
 ! and returns the resulting determinant with
 ! the sign in the highest bit (1 = negative)
 
-  integer, intent(in) :: p, q, c
-  integer :: t, b_1111, z_6996
-  data b_1111/b'1111'/
-  data z_6996/z'6996'/
+  integer(kind=iwp) :: d
+  integer(kind=iwp), intent(in) :: p, q, c
+  integer(kind=iwp) :: t
 
   if ((btest(c,q-1) .or. btest(c,p-1))) then
     d = -1
@@ -367,18 +367,5 @@ integer function cre2(p,q,c) result(d)
   d = ieor(ishft(t,31),d)
 
 end function cre2
-
-#ifdef __PGI
-! PGI Fortran compiler version of ibits does not work correctly when
-! LEN == 0
-integer function ibits(c,pos,len) result(d)
-
-  integer, intent(in) :: c, pos, len
-
-  d = ishft(not(0),-(bit_size(d)-len))
-  d = iand(ishft(c,-pos),d)
-
-end function ibits
-#endif
 
 end module second_quantization

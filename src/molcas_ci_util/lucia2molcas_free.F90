@@ -9,18 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine INIT_LEX(N,K,LEX)
+subroutine LUCIA2MOLCAS_FREE()
 
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: N, K, LEX(K)
-integer(kind=iwp) :: I
+integer(kind=iwp) :: LCONF, LDET
+#include "csfbas.fh"
 
-do I=1,K
-  LEX(I) = I
-end do
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(N)
+! fake values
+LCONF = 1
+LDET = 1
 
-end subroutine INIT_LEX
+call GetMem('KICONF','Free','Integer',KICONF(1),LCONF)
+call GetMem('KICTS','Free','Integer',KICTS(1),LDET)
+
+end subroutine LUCIA2MOLCAS_FREE

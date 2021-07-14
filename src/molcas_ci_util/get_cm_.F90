@@ -40,27 +40,37 @@ subroutine get_Cm_(IPCSF,IPCNF,MXPDIM,NCONF,NPCSF,NPCNF,Cn,lrootSplit,EnFin,DTOC
 ! IREOTS     : Type => symmetry reordering array
 ! Ctot       : Vector of all nConf CI-coeff for a single root (Output)
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+integer(kind=iwp) :: MXPDIM, NCONF, IPCSF(MXPDIM), IPCNF(NCONF), NPCSF, NPCNF, lrootSplit, IPRODT(*), ICONF(*), IREFSM, NACTOB, &
+                     NEL, NAEL, NBEL, NTEST, IREOTS(*)
+real(kind=wp) :: Cn(NPCSF), EnFin, DTOC(*), ONEBOD(*), ECORE, DIAG(*), TUVX(*), ExFac, Ctot(MXPDIM)
+integer(kind=iwp) :: iAlpha, IATYP, IBblockV, IIA, IIAACT, IIAB, IIL, IILACT, IILB, iKACONF, iKLCONF, ILAI, ILAOV, ILTYP, ipAuxBB, &
+                     ipAuxD, ipAuxGa, ipAuxGaTi, ipAuxV, ITYP, KACONF, KLAUXD, KLCONF, KLFREE, LW2, Mindex, MXCSFC, MXXWS, NCSFA, &
+                     NCSFL
+real(kind=wp) :: C_AlphaLoop1, C_AlphaLoop2, C_computeH_AB, C_computeH_AB1, C_computeH_AB2, C_ComputeH_BB, C_computeH_BB1, &
+                 C_computeH_BB2, C_last1, C_last2, C_Oper, C_oper1, C_oper2, W_AlphaLoop1, W_AlphaLoop2, W_ComputeH_AB, &
+                 W_computeH_AB1, W_computeH_AB2, W_ComputeH_BB, W_computeH_BB1, W_computeH_BB2, W_last1, W_last2, W_Oper, W_oper1, &
+                 W_oper2, xmaxGaTi
+integer(kind=iwp), external :: ip_of_iWork_d
+real(kind=r8), external :: ddot_
 #include "spinfo.fh"
 #include "WrkSpc.fh"
-dimension Ctot(MXPDIM), Cn(NPCSF), IPCSF(MXPDIM), IPCNF(NCONF)
-dimension DIAG(*)
-dimension DTOC(*), IPRODT(*), ICONF(*)
-dimension ONEBOD(*)
-dimension TUVX(*), IREOTS(*)
 
 if (NTEST >= 30) then
-  write(6,*) ' Input in get_Cm '
-  write(6,*) ' ================== '
-  write(6,*) ' Total Number of CNFs ',NCONF
-  write(6,*) ' Total Number of CSFs ',MXPDIM
-  write(6,*) ' CNFs included : '
+  write(u6,*) ' Input in get_Cm '
+  write(u6,*) ' ================== '
+  write(u6,*) ' Total Number of CNFs ',NCONF
+  write(u6,*) ' Total Number of CSFs ',MXPDIM
+  write(u6,*) ' CNFs included : '
   call IWRTMA(IPCNF,1,NCONF,1,NCONF)
-  write(6,*) ' CSFs included : '
+  write(u6,*) ' CSFs included : '
   call IWRTMA(IPCSF,1,MXPDIM,1,MXPDIM)
-  write(6,*) ' Number of CNFs in AA block:',NPCNF
-  write(6,*) ' Number of CSFs in AA block:',NPCSF
-  write(6,*) 'Cn Coefficients'
+  write(u6,*) ' Number of CNFs in AA block:',NPCNF
+  write(u6,*) ' Number of CSFs in AA block:',NPCSF
+  write(u6,*) 'Cn Coefficients'
   call wrtmat(Cn,NPCSF,1,NPCSF,1)
 end if
 
@@ -107,22 +117,22 @@ KLFREE = KLAUXD+MXCSFC*MXCSFC
 !          |
 
 call cwtime(C_AlphaLoop1,W_AlphaLoop1)
-C_ComputeH_AB = 0.0d0
-W_ComputeH_AB = 0.0d0
-C_ComputeH_BB = 0.0d0
-W_ComputeH_BB = 0.0d0
-C_Oper = 0.0d0
-W_Oper = 0.0d0
+C_ComputeH_AB = Zero
+W_ComputeH_AB = Zero
+C_ComputeH_BB = Zero
+W_ComputeH_BB = Zero
+C_Oper = Zero
+W_Oper = Zero
 
 IIAB = 1
 do iAlpha=NPCNF+1,NCONF
   !call FZero(Work(KLAUXD),MXCSFC*MXCSFC)
   call cwtime(C_computeH_AB1,W_computeH_AB1)
-  if (NTEST >= 30) write(6,*) 'iAlpha = ',iAlpha
+  if (NTEST >= 30) write(u6,*) 'iAlpha = ',iAlpha
   iKACONF = ip_of_iWork_d(Work(KACONF))
   call GETCNF_LUCIA(iWork(iKACONF),IATYP,IPCNF(iAlpha),ICONF,IREFSM,NEL)
   NCSFA = NCSFTP(IATYP)
-  if (NTEST >= 30) write(6,*) 'NCSFA = ',NCSFA
+  if (NTEST >= 30) write(u6,*) 'NCSFA = ',NCSFA
   !*********************************************************************
   !                      BB-Block DIAGONAL Elements                    *
   !*********************************************************************
@@ -130,15 +140,15 @@ do iAlpha=NPCNF+1,NCONF
   call CNHCN(iWork(iKACONF),IATYP,iWork(iKACONF),IATYP,Work(KLAUXD),Work(KLFREE),NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX, &
              NTEST,ExFac,IREOTS)
   if (NTEST >= 30) then
-    write(6,*) 'Alpha_Alpha elements in BB-block'
+    write(u6,*) 'Alpha_Alpha elements in BB-block'
     call wrtmat(Work(KLAUXD),MXCSFC,MXCSFC,MXCSFC,MXCSFC)
   end if
   do IIA=1,NCSFA
     ILAI = IIA*IIA
     Work(ipAuxD+IIA-1) = Work(KLAUXD+ILAI-1)
-    !write(6,*) 'ILAI =',ILAI
+    !write(u6,*) 'ILAI =',ILAI
     if (NTEST >= 30) then
-      write(6,*) 'Work(ipAuxD+IIA-1)',Work(ipAuxD+IIA-1)
+      write(u6,*) 'Work(ipAuxD+IIA-1)',Work(ipAuxD+IIA-1)
     end if
   end do
 
@@ -146,18 +156,18 @@ do iAlpha=NPCNF+1,NCONF
   do Mindex=1,NPCNF ! Loop over AB-Block
     !call FZero(Work(KLAUXD),MXCSFC*MXCSFC)
     if (NTEST >= 30) then
-      write(6,*) 'Mindex in AB-Block',Mindex
+      write(u6,*) 'Mindex in AB-Block',Mindex
     end if
     iKLCONF = ip_of_iWork_d(Work(KLCONF))
     call GETCNF_LUCIA(iWork(iKLCONF),ILTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
     NCSFL = NCSFTP(ILTYP)
-    if (NTEST >= 30) write(6,*) 'NCSFL = ',NCSFL
+    if (NTEST >= 30) write(u6,*) 'NCSFL = ',NCSFL
     iKACONF = ip_of_iWork_d(Work(KACONF))
     iKLCONF = ip_of_iWork_d(Work(KLCONF))
     call CNHCN(iWork(iKACONF),IATYP,iWork(iKLCONF),ILTYP,Work(KLAUXD),Work(KLFREE),NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX, &
                NTEST,ExFac,IREOTS)
     if (NTEST >= 30) then
-      write(6,*) 'M_Alpha elements'
+      write(u6,*) 'M_Alpha elements'
       call wrtmat(Work(KLAUXD),MXCSFC,MXCSFC,MXCSFC,MXCSFC)
     end if
     do IIA=1,NCSFA
@@ -169,8 +179,8 @@ do iAlpha=NPCNF+1,NCONF
         ILAOV = IILACT+IIAACT
         Work(ipAuxV+ILAOV-1) = Work(KLAUXD+ILAI-1)
         if (NTEST >= 30) then
-          write(6,*) 'ILAI, ILAOV =',ILAI,ILAOV
-          write(6,*) 'Work(ipAuxV+ILAOV-1)',Work(ipAuxV+ILAOV-1)
+          write(u6,*) 'ILAI, ILAOV =',ILAI,ILAOV
+          write(u6,*) 'Work(ipAuxV+ILAOV-1)',Work(ipAuxV+ILAOV-1)
         end if
       end do
     end do
@@ -181,7 +191,7 @@ do iAlpha=NPCNF+1,NCONF
   W_ComputeH_AB = W_ComputeH_AB+W_computeH_AB2-W_computeH_AB1
 
   if (NTEST >= 30) then
-    write(6,*) 'AB-Block Vertical Vector'
+    write(u6,*) 'AB-Block Vertical Vector'
     call wrtmat(Work(ipAuxV),NPCSF,NCSFA,NPCSF,NCSFA)
   end if
 
@@ -195,8 +205,8 @@ do iAlpha=NPCNF+1,NCONF
     Work(ipAuxGaTi+IIA-1) = ddot_(NPCSF,Work(ipAuxV+(IIA-1)*NPCSF),1,Cn,1)
     Work(ipAuxGa+IIA-1) = Work(ipAuxGaTi+IIA-1)/(EnFin-Work(ipAuxD+IIA-1))
     if (NTEST >= 30) then
-      write(6,*) 'Work(ipAuxGaTi+IIA-1)',Work(ipAuxGaTi+IIA-1)
-      write(6,*) 'Work(ipAuxGa  +IIA-1)',Work(ipAuxGa+IIA-1)
+      write(u6,*) 'Work(ipAuxGaTi+IIA-1)',Work(ipAuxGaTi+IIA-1)
+      write(u6,*) 'Work(ipAuxGa  +IIA-1)',Work(ipAuxGa+IIA-1)
     end if
   end do
   call cwtime(C_oper2,W_oper2)
@@ -208,27 +218,27 @@ do iAlpha=NPCNF+1,NCONF
   ! If not required by the USER (with a keyword) it will be skipped!   *
   !*********************************************************************
 
-  xmaxGaTi = 0.0d0
+  xmaxGaTi = Zero
   do IIA=1,NCSFA
     xmaxGaTi = max(xmaxGaTi,abs(Work(ipAuxGaTi+IIA-1)))
   end do
-  if (xmaxGaTi >= 1.0d-12) then ! let's try this trick to make SplitCAS faster!
+  if (xmaxGaTi >= 1.0e-12_wp) then ! let's try this trick to make SplitCAS faster!
     call cwtime(C_computeH_BB1,W_computeH_BB1)
     call Fzero(Work(ipAuxBB),MXCSFC*IBblockV)
     IILB = 1
     do Mindex=NPCNF+1,NCONF ! Loop over BB-Block
       !call FZero(Work(KLAUXD),MXCSFC*MXCSFC)
-      !if (NTEST >= 30) write(6,*) 'Mindex in BB-Block',Mindex
+      !if (NTEST >= 30) write(u6,*) 'Mindex in BB-Block',Mindex
       iKLCONF = ip_of_iWork_d(Work(KLCONF))
       call GETCNF_LUCIA(iWork(iKLCONF),ILTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
       NCSFL = NCSFTP(ILTYP)
-      !if (NTEST >= 30) write(6,*) 'NCSFL = ',NCSFL
+      !if (NTEST >= 30) write(u6,*) 'NCSFL = ',NCSFL
       iKACONF = ip_of_iWork_d(Work(KACONF))
       iKLCONF = ip_of_iWork_d(Work(KLCONF))
       call CNHCN(iWork(iKACONF),IATYP,iWork(iKLCONF),ILTYP,Work(KLAUXD),Work(KLFREE),NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB, &
                  TUVX,NTEST,ExFac,IREOTS)
       !if (NTEST >= 30) then
-      !  write(6,*) 'M_Alpha elements in BB-block'
+      !  write(u6,*) 'M_Alpha elements in BB-block'
       !  call wrtmat(Work(KLAUXD),MXCSFC,MXCSFC,MXCSFC,MXCSFC)
       !end if
       do IIA=1,NCSFA
@@ -241,19 +251,19 @@ do iAlpha=NPCNF+1,NCONF
           ILAOV = IILACT+IIAACT
           Work(ipAuxBB+ILAOV-1) = Work(KLAUXD+ILAI-1)
           if ((iAlpha == Mindex) .and. (IIA == IIL)) then
-            !write(6,*) 'iAlpha, IIAB',iAlpha,IIAB
-            Work(ipAuxBB+ILAOV-1) = 0.0d0
+            !write(u6,*) 'iAlpha, IIAB',iAlpha,IIAB
+            Work(ipAuxBB+ILAOV-1) = Zero
           end if
-          !Write(6,*) 'ILAI, ILAOV =',ILAI,ILAOV
+          !Write(u6,*) 'ILAI, ILAOV =',ILAI,ILAOV
           !if (NTEST >= 30) then
-          !  write(6,*) 'Work(ipAuxBB+ILAOV-1)',Work(ipAuxBB+ILAOV-1)
+          !  write(u6,*) 'Work(ipAuxBB+ILAOV-1)',Work(ipAuxBB+ILAOV-1)
           !end if
         end do
       end do
       IILB = IILB+NCSFL
     end do ! End Loop over BB-Block
     !if (NTEST >= 30) then
-    !  write(6,*) 'BB-Block Vertical Vector'
+    !  write(u6,*) 'BB-Block Vertical Vector'
     !  call wrtmat(Work(ipAuxBB),iBblockV,NCSFA,iBblockV,NCSFA)
     !end if
     call cwtime(C_computeH_BB2,W_computeH_BB2)
@@ -264,12 +274,12 @@ do iAlpha=NPCNF+1,NCONF
     do IIA=1,NCSFA
       call dscal_(iBblockV,Work(ipAuxGa+IIA-1),Work(ipAuxBB+(IIA-1)*iBblockV),1)
       if (NTEST >= 30) then
-        write(6,*) 'BB-Block Vertical Vector times Ga'
+        write(u6,*) 'BB-Block Vertical Vector times Ga'
         call wrtmat(Work(ipAuxBB),iBblockV,NCSFA,iBblockV,NCSFA)
       end if
-      call daxpy_(iBblockV,1.0d0,Work(ipAuxBB+(IIA-1)*iBblockV),1,Ctot(NPCSF+1),1)
+      call daxpy_(iBblockV,One,Work(ipAuxBB+(IIA-1)*iBblockV),1,Ctot(NPCSF+1),1)
       if (NTEST >= 30) then
-        write(6,*) 'Ctot correction'
+        write(u6,*) 'Ctot correction'
         call wrtmat(Ctot,MXPDIM,1,MXPDIM,1)
       end if
     end do
@@ -278,7 +288,7 @@ do iAlpha=NPCNF+1,NCONF
   do IIA=1,NCSFA
     Ctot(NPCSF+IIAB+IIA-1) = Ctot(NPCSF+IIAB+IIA-1)+Work(ipAuxGaTi+IIA-1)
     if (NTEST >= 30) then
-      write(6,*) 'Ctot '
+      write(u6,*) 'Ctot '
       call wrtmat(Ctot,MXPDIM,1,MXPDIM,1)
     end if
   end do
@@ -290,60 +300,60 @@ do iAlpha=NPCNF+1,NCONF
 end do ! End of the loop over iAlpha
 if (NTEST >= 30) then
   call cwtime(C_AlphaLoop2,W_AlphaLoop2)
-  write(6,*) 'Total time needed to get_Cm in Alpha Loop'
-  write(6,*) 'CPU timing : ',C_AlphaLoop2-C_AlphaLoop1
-  write(6,*) 'W. timing  : ',W_AlphaLoop2-W_AlphaLoop1
+  write(u6,*) 'Total time needed to get_Cm in Alpha Loop'
+  write(u6,*) 'CPU timing : ',C_AlphaLoop2-C_AlphaLoop1
+  write(u6,*) 'W. timing  : ',W_AlphaLoop2-W_AlphaLoop1
 
-  write(6,*) 'Total time to read H_AB :'
-  write(6,*) 'CPU timing : ',C_ComputeH_AB
-  write(6,*) 'W. timing  : ',W_ComputeH_AB
+  write(u6,*) 'Total time to read H_AB :'
+  write(u6,*) 'CPU timing : ',C_ComputeH_AB
+  write(u6,*) 'W. timing  : ',W_ComputeH_AB
 
-  write(6,*) 'Total time to read H_BB :'
-  write(6,*) 'CPU timing : ',C_ComputeH_BB
-  write(6,*) 'W. timing  : ',W_ComputeH_BB
+  write(u6,*) 'Total time to read H_BB :'
+  write(u6,*) 'CPU timing : ',C_ComputeH_BB
+  write(u6,*) 'W. timing  : ',W_ComputeH_BB
 
-  write(6,*) 'Total time to calculate (ddot+dscal+daxpy) :'
-  write(6,*) 'CPU timing : ',C_Oper
-  write(6,*) 'W. timing  : ',W_Oper
+  write(u6,*) 'Total time to calculate (ddot+dscal+daxpy) :'
+  write(u6,*) 'CPU timing : ',C_Oper
+  write(u6,*) 'W. timing  : ',W_Oper
 end if
 
 call cwtime(C_last1,W_last1)
 IIAB = 1
 do Mindex=NPCNF+1,NCONF
   !call FZero(Work(KLAUXD),MXCSFC*MXCSFC)
-  if (NTEST >= 30) write(6,*) 'Mindex last do loop = ',Mindex
+  if (NTEST >= 30) write(u6,*) 'Mindex last do loop = ',Mindex
   iKACONF = ip_of_iWork_d(Work(KACONF))
   call GETCNF_LUCIA(iWork(iKACONF),IATYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
   NCSFA = NCSFTP(IATYP)
-  if (NTEST >= 30) write(6,*) 'NCSFA = ',NCSFA
+  if (NTEST >= 30) write(u6,*) 'NCSFA = ',NCSFA
   iKACONF = ip_of_iWork_d(Work(KACONF))
   call CNHCN(iWork(iKACONF),IATYP,iWork(iKACONF),IATYP,Work(KLAUXD),Work(KLFREE),NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX, &
              NTEST,ExFac,IREOTS)
   if (NTEST >= 30) then
-    write(6,*) 'Alpha_Alpha elements in BB-block'
+    write(u6,*) 'Alpha_Alpha elements in BB-block'
     call wrtmat(Work(KLAUXD),MXCSFC,MXCSFC,MXCSFC,MXCSFC)
   end if
   do IIA=1,NCSFA
     ILAI = IIA*IIA
     !Work(ipAuxD+IIA-1) = Work(KLAUXD+ILAI-1)
     if (NTEST >= 30) then
-      write(6,*) 'Work(KLAUXD+ILAI-1)',Work(KLAUXD+ILAI-1)
+      write(u6,*) 'Work(KLAUXD+ILAI-1)',Work(KLAUXD+ILAI-1)
     end if
-    !Work(ipAuxD+IIA-1) = 1.0d0/(EnFin-Work(KLAUXD+ILAI-1))
+    !Work(ipAuxD+IIA-1) = One/(EnFin-Work(KLAUXD+ILAI-1))
     Ctot(NPCSF+IIAB+IIA-1) = Ctot(NPCSF+IIAB+IIA-1)/(EnFin-Work(KLAUXD+ILAI-1))
   end do
   IIAB = IIAB+NCSFA
 end do
 if (NTEST >= 30) then
   call cwtime(C_last2,W_last2)
-  write(6,*) 'Time last iteration over Hbb :'
-  write(6,*) 'CPU timing : ',C_last2-C_last1
-  write(6,*) 'W. timing  : ',W_last2-W_last1
+  write(u6,*) 'Time last iteration over Hbb :'
+  write(u6,*) 'CPU timing : ',C_last2-C_last1
+  write(u6,*) 'W. timing  : ',W_last2-W_last1
 end if
 
 call dcopy_(NPCSF,Cn,1,Ctot,1)
 if (NTEST >= 30) then
-  write(6,*) 'final Ctot vector'
+  write(u6,*) 'final Ctot vector'
   call wrtmat(Ctot,MXPDIM,1,MXPDIM,1)
 end if
 call GETMEM('EXHSCR','FREE','REAL',LW2,MXXWS)

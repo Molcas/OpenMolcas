@@ -15,9 +15,13 @@ subroutine DGMM2_MOLCAS(AOUT,AIN,DIAG,IWAY,NRDIM,NCDIM)
 ! IWAY = 1 : AOUT(I,J) = DIAG(I)*AIN(I,J)
 ! IWAY = 2 : AOUT(I,J) = DIAG(J)*AIN(I,J)
 
-implicit real*8(A-H,O-Z)
-dimension AIN(NRDIM,NCDIM), DIAG(*)
-dimension AOUT(NRDIM,NCDIM)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: IWAY, NRDIM, NCDIM
+real(kind=wp) :: AOUT(NRDIM,NCDIM), AIN(NRDIM,NCDIM), DIAG(*)
+integer(kind=iwp) :: J, K, NTEST
+real(kind=wp) :: FACTOR
 
 if (IWAY == 1) then
   do J=1,NCDIM
@@ -37,7 +41,7 @@ end if
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) ' AIN DIAG AOUT  FROM DGMTMT '
+  write(u6,*) ' AIN DIAG AOUT  FROM DGMTMT '
   call WRTMAT(AIN,NRDIM,NCDIM,NRDIM,NCDIM)
   if (IWAY == 1) then
     call WRTMAT(DIAG,1,NRDIM,1,NRDIM)

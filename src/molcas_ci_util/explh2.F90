@@ -47,28 +47,28 @@ subroutine EXPLH2(DIAG,ONEINT,TUVX,ISEL,EXPLE,EXPLV)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: DIAG(*), ONEINT(*), TUVX(*), EXPLE(*), EXPLV(*)
+integer(kind=iwp) :: ISEL(*)
+integer(kind=iwp) :: I, II, IPRLEV, IREOTS, LEXHAM, LOCONE, LW1, LW2, lwscr, MXXSEL, MXXWS, NHEX, NPCNF
+real(kind=wp) :: ECORE
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "ciinfo.fh"
-#include "spinfo.fh"
 #include "csfbas.fh"
 #include "strnum.fh"
 #include "WrkSpc.fh"
 #include "timers.fh"
 #include "output_ras.fh"
-dimension DIAG(*)
-dimension ONEINT(*)
-dimension TUVX(*)
-dimension EXPLE(*)
-dimension EXPLV(*)
-dimension ISEL(*)
 
 call Timing(Omega_1,Swatch,Swatch,Swatch)
 IPRLEV = IPRLOC(3)
 
-ECORE = 0.0d0
+ECORE = Zero
 MXXSEL = NSEL
 NHEX = NSEL*(NSEL+1)/2
 
@@ -109,10 +109,10 @@ call GETMEM('IPCNF','FREE','INTE',LW1,NCNASM(STSYM))
 
 !if (nSel == nConf) then
 if (.true.) then
-  call DCOPY_(MXXSEL*MXXSEL,[0.0d0],0,EXPLV,1)
+  call DCOPY_(MXXSEL*MXXSEL,[Zero],0,EXPLV,1)
   do I=1,NSEL
     II = I+NSEL*(I-1)
-    EXPLV(II) = 1.0d00
+    EXPLV(II) = One
   end do
   !call Jacob(Work(LEXHAM),EXPLV,NSEL,NSEL)
   !# ifdef _DEBUGPRINT_

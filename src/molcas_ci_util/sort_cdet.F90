@@ -12,7 +12,7 @@
 !               2012, Giovanni Li Manni                                *
 !***********************************************************************
 
-subroutine Sort_Cdet(N,Index,X)
+subroutine Sort_Cdet(N,Idx,X)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -21,7 +21,7 @@ subroutine Sort_Cdet(N,Index,X)
 !     calling arguments:                                               *
 !     N       : integer                                                *
 !               dimension of the CI-vector                             *
-!     Index   : integer                                                *
+!     Idx     : integer                                                *
 !               reordering indices                                     *
 !     X       : real*8                                                 *
 !               CI-vector                                              *
@@ -43,39 +43,43 @@ subroutine Sort_Cdet(N,Index,X)
 !***********************************************************************
 !do i=1,N                                                              *
 !  i_old = i                                                           *
-!  i_new = abs(Index(i_old))                                           *
+!  i_new = abs(Idx(i_old))                                             *
 !  do while (i_new > i)                                                *
 !    i_old = i_new                                                     *
-!    i_new = abs(Index(i_old))                                         *
+!    i_new = abs(Idx(i_old))                                           *
 !  end do                                                              *
 !  if (i_new == i) then                                                *
 !    i_old = i                                                         *
 !    X_old = X(i_old)                                                  *
-!    i_new = abs(Index(i_old))                                         *
+!    i_new = abs(Idx(i_old))                                           *
 !    X_new = X(i_new)                                                  *
-!    alpha = dble(sign(1,Index(i_old)))                                *
+!    alpha = real(sign(1,Idx(i_old)),kind=wp)                          *
 !    do while (i_new > i)                                              *
 !      X(i_new) = alpha*X_old                                          *
 !      i_old = i_new                                                   *
 !      X_old = X_new                                                   *
-!      i_new = abs(Index(i_old))                                       *
+!      i_new = abs(Idx(i_old))                                         *
 !      X_new = X(i_new)                                                *
-!      alpha = dble(sign(1,Index(i_old)))                              *
+!      alpha = real(sign(1,Idx(i_old)),kind=wp)                        *
 !    end do                                                            *
 !    X(i) = alpha*X_old                                                *
 !  end if                                                              *
 !end do                                                                *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-dimension index(N), X(N)
-intrinsic sign
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N, Idx(N)
+real(kind=wp) :: X(N)
+integer(kind=iwp) :: i, i_new, iReoSDs
+real(kind=wp) :: alpha
 #include "WrkSpc.fh"
 
 call getmem('ReordSDs','Allo','Real',iReoSDs,N)
 do i=1,N
-  i_new = abs(index(i))
-  alpha = dble(sign(1,index(i)))
+  i_new = abs(Idx(i))
+  alpha = real(sign(1,Idx(i)),kind=wp)
   Work(iReoSDs+i_new-1) = alpha*X(i)
 end do
 call dcopy_(N,Work(iReoSDs),1,X,1)

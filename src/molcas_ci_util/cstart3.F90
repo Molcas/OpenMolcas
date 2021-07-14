@@ -47,19 +47,24 @@ subroutine CStart_CI_Util(C,h0,TUVX,iSel,ExplE,ExplV,nMaxSel,iFinal)
 #ifdef _HDF5_
 use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset,mh5_close_file
 #endif
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-dimension C(*), h0(*), TUVX(*), iSel(*), ExplE(*), ExplV(*)
+implicit none
+real(kind=wp) :: C(*), h0(*), TUVX(*), ExplE(*), ExplV(*)
+integer(kind=iwp) :: iSel(*), nMaxSel, iFinal
+integer(kind=iwp) :: i, iDisk, iJOB, IPRLEV, iTmp1, ivkcnf, j, k, l
+#ifdef _HDF5_
+integer(kind=iwp) :: mh5id
+#endif
+logical(kind=iwp) :: Exists
+character(len=80) :: String
 #include "rasdim.fh"
 #include "general.fh"
 #include "rasscf.fh"
 #include "csfbas.fh"
 #include "WrkSpc.fh"
 #include "output_ras.fh"
-#include "SysDef.fh"
-!dimension iToc(15)
-character*80 String
-logical Exist
 
 IPRLEV = IPRLOC(3)
 
@@ -68,8 +73,8 @@ IPRLEV = IPRLOC(3)
 if ((nConf == 1) .and. (nAc == 0)) then
   iDisk = IADR15(4)
   !ExplE(1) = C(1)  ! Commented out by Jesper
-  !ExplV(1) = 1.0d0 ! Commented out by Jesper
-  C(1) = 1.0d0
+  !ExplV(1) = One   ! Commented out by Jesper
+  C(1) = One
   call Save_tmp_CI_vec(1,nConf,C,LuDavid)
   return
 end if
@@ -82,10 +87,10 @@ call ExplH2(C,h0,TUVX,iSel,ExplE,ExplV)
 ! special case: nSel=nConf
 
 if (nSel == nMaxSel) then
-  if (IPRLEV >= DEBUG) write(6,*) ' Initial CI-vectors are obtained by diagonalizing the explicit Hamiltonian'
+  if (IPRLEV >= DEBUG) write(u6,*) ' Initial CI-vectors are obtained by diagonalizing the explicit Hamiltonian'
   iDisk = IADR15(4)
   do i=1,lRoots
-    call dCopy_(nConf,[0.0d0],0,C,1)
+    call dCopy_(nConf,[Zero],0,C,1)
     do j=1,nSel
       k = iSel(j)
       C(k) = ExplV(j+(i-1)*nSel)
@@ -105,11 +110,11 @@ if (Start_Vectors) then
   Start_Vectors = .false.
   if (ICIRST /= 0) then
 #   ifdef _HDF5_
-    call f_Inquire(StartOrbFile,Exist)
-    if (Exist) then
+    call f_Inquire(StartOrbFile,Exists)
+    if (Exists) then
       if (mh5_is_hdf5(StartOrbFile)) then
         if (IPRLEV >= TERSE) then
-          write(6,'(1x,a)') 'reading initial CI vectors from '//StartOrbFile
+          write(u6,'(1x,a)') 'reading initial CI vectors from '//StartOrbFile
         end if
         mh5id = mh5_open_file_r(StartOrbFile)
 
@@ -125,18 +130,18 @@ if (Start_Vectors) then
 
         call mh5_close_file(mh5id)
       else
-        Exist = .false.
+        Exists = .false.
       end if
     end if
-    if (.not. Exist) then
+    if (.not. Exists) then
 #   endif
       ! get start vectors by reading JOBOLD
       iJOB = 0
-      call f_Inquire('JOBOLD',Exist)
-      if (Exist) iJOB = 1
+      call f_Inquire('JOBOLD',Exists)
+      if (Exists) iJOB = 1
       if (iJOB == 1) then
         if (IPRLEV >= TERSE) then
-          write(6,'(1x,a)') 'reading initial CI vectors from JOBOLD'
+          write(u6,'(1x,a)') 'reading initial CI vectors from JOBOLD'
         end if
         if (JOBOLD <= 0) then
           JOBOLD = 20
@@ -144,7 +149,7 @@ if (Start_Vectors) then
         end if
       else
         if (IPRLEV >= TERSE) then
-          write(6,'(1x,a)') 'reading initial CI vectors from JOBIPH'
+          write(u6,'(1x,a)') 'reading initial CI vectors from JOBIPH'
         end if
         JOBOLD = JOBIPH
       end if
@@ -181,9 +186,9 @@ if (Start_Vectors) then
 
   else
     ! no CI restart, get start vectors by diagonalizing the explicit Hamiltonian
-    if (IPRLEV >= DEBUG) write(6,*) ' Initial CI-vectors are obtained by diagonalizing the explicit Hamiltonian'
+    if (IPRLEV >= DEBUG) write(u6,*) ' Initial CI-vectors are obtained by diagonalizing the explicit Hamiltonian'
     do i=1,lRoots
-      call dCopy_(nConf,[0.0d0],0,C,1)
+      call dCopy_(nConf,[Zero],0,C,1)
       do j=1,nSel
         k = iSel(j)
         C(k) = ExplV(j+(i-1)*nSel)
@@ -202,10 +207,10 @@ if (Start_Vectors) then
 else
   ! no external start vector needed, get start vectors by reading JOBIPH
   if (iFinal == 2) then
-    if (IPRLEV >= DEBUG) write(6,*) ' Initial CI-vectors are identical to the transformed CI-vectors of the previous RASSCF &
-                                    &iteration'
+    if (IPRLEV >= DEBUG) write(u6,*) ' Initial CI-vectors are identical to the transformed CI-vectors of the previous RASSCF &
+                                     &iteration'
   else
-    if (IPRLEV >= DEBUG) write(6,*) ' Initial CI-vectors are identical to the CI-vectors of the previous RASSCF iteration'
+    if (IPRLEV >= DEBUG) write(u6,*) ' Initial CI-vectors are identical to the CI-vectors of the previous RASSCF iteration'
   end if
   iDisk = IADR15(4)
   do i=1,lRoots-hRoots
@@ -221,7 +226,7 @@ else
   ! MGD simple guess for missing ones : explV
   ! dangerous if linear dependence with converged states
   do i=lRoots-hRoots+1,lRoots
-    call dCopy_(nConf,[0.0d0],0,C,1)
+    call dCopy_(nConf,[Zero],0,C,1)
     do j=1,nSel
       k = iSel(j)
       C(k) = ExplV(j+(i-1)*nSel)

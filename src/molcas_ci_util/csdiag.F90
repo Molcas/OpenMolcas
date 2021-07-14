@@ -21,11 +21,14 @@ subroutine CSDIAG_CI_UTIL(CSFDIA,DETDIA,NCNFTP,NTYP,ICTSDT,NDTFTP,NCSFTP,IPRINT)
 ! NDTFTP  :
 ! NCSFTP  :
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp,u6
 
-dimension CSFDIA(*), DETDIA(*)
-dimension NCNFTP(NTYP), NDTFTP(NTYP), NCSFTP(NTYP)
-dimension ICTSDT(*)
+implicit none
+real(kind=wp) :: CSFDIA(*), DETDIA(*)
+integer(kind=iwp) :: NTYP, NCNFTP(NTYP), ICTSDT(*), NDTFTP(NTYP), NCSFTP(NTYP), IPRINT
+real(kind=wp) :: EAVER
+integer(kind=iwp) :: ICNF, ICSF, ICSOFF, IDET, IDTOFF, ITYP, JCNABS, JCNF, JDET, NCSTOT, NDTTOT
 
 ICSOFF = 1
 IDTOFF = 1
@@ -36,11 +39,11 @@ do ITYP=1,NTYP
   ICNF = NCNFTP(ITYP)
   do JCNF=1,ICNF
     JCNABS = JCNABS+1
-    EAVER = 0.0d0
+    EAVER = Zero
     do JDET=1,IDET
       EAVER = EAVER+DETDIA(abs(ICTSDT(IDTOFF-1+JDET)))
     end do
-    if (IDET /= 0) EAVER = EAVER/dble(IDET)
+    if (IDET /= 0) EAVER = EAVER/real(IDET,kind=wp)
     call DCOPY_(ICSF,[EAVER],0,CSFDIA(ICSOFF),1)
     ICSOFF = ICSOFF+ICSF
     IDTOFF = IDTOFF+IDET
@@ -50,11 +53,11 @@ end do
 if (IPRINT >= 40) then
   NCSTOT = ICSOFF-1
   NDTTOT = IDTOFF-1
-  write(6,*) ' '
-  write(6,*) ' CIDIAGONAL IN DET BASIS '
+  write(u6,*) ' '
+  write(u6,*) ' CIDIAGONAL IN DET BASIS '
   call WRTMAT(DETDIA,1,NDTTOT,1,NDTTOT)
-  write(6,*) ' '
-  write(6,*) ' CIDIAGONAL IN CSF BASIS '
+  write(u6,*) ' '
+  write(u6,*) ' CIDIAGONAL IN CSF BASIS '
   call WRTMAT(CSFDIA,1,NCSTOT,1,NCSTOT)
 end if
 

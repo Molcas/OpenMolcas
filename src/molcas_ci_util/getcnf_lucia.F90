@@ -18,10 +18,12 @@ subroutine GETCNF_LUCIA(KCNF,KTYP,K,ICONF,IREFSM,NEL)
 !
 ! Adapted for LUCIA Jeppe Olsen, summer of 02
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: KCNF(*), KTYP, K, ICONF(*), IREFSM, NEL
+integer(kind=iwp) :: ICNFB1, ICNFB2, IIBCL, IIBOP, JCL, JOCC, JOP, JTYP, KADD, KOCC, KORB, KREL, NJCNF, NOCC, NTEST
 #include "spinfo.fh"
-#include "ciinfo.fh"
-dimension KCNF(*), ICONF(*)
 ! Configuration list is assumed to be in the form used
 ! in LUCIA, i.e. doubly occupied orbitals are flagged by
 ! a minus
@@ -65,11 +67,11 @@ end do
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) ' Output from GETCNF '
-  write(6,*) ' ================== '
-  write(6,*) ' Input configuration number : ',K
-  write(6,*) ' Corresponding type : ',KTYP
-  write(6,*) ' Occupation : '
+  write(u6,*) ' Output from GETCNF '
+  write(u6,*) ' ================== '
+  write(u6,*) ' Input configuration number : ',K
+  write(u6,*) ' Corresponding type : ',KTYP
+  write(u6,*) ' Occupation : '
   NOCC = (NEL+KTYP-1+MINOP)/2
   call IWRTMA(KCNF,1,NOCC,1,NOCC)
 end if

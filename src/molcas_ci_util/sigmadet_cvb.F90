@@ -11,12 +11,16 @@
 
 subroutine SIGMADET_CVB(C,HC,IREFSM,PERMS2,NCI)
 
-implicit real*8(A-H,O-Z)
-logical PERMS2
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: IREFSM, NCI
+real(kind=wp) :: C(NCI), HC(NCI)
+logical(kind=iwp) :: PERMS2
+integer(kind=iwp) IDUMMY
+real(kind=wp) DUMMY(1)
 #include "WrkSpc.fh"
 #include "rasscf_lucia.fh"
-dimension C(NCI), HC(NCI)
-dimension DUMMY(1)
 
 ! Export arguments to be used in sigma_master_cvb
 

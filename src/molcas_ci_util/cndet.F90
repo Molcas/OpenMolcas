@@ -22,33 +22,30 @@ subroutine CNDET(ICONF,IPDET,NDET,NEL,NORB,NOP,NCL,IDET,IPRINT)
 !     A CONFIGURATION ICONF IN COMPRESSED FORM AND A SET OF
 !     PROTOTYPE DETERMINANTS ,IPDET, ARE GIVEN .
 !     CONSTRUCT THE CORRESPONDING DETERMINANTS IN CONTRACTED  FORM .
-!
-!     SUBROUTINE CALLS:
-!
-!     IWRTMA
 
-implicit real*8(A-H,O-Z)
-dimension ICONF(*)
-dimension IPDET(*)
-dimension IDET(NEL,*)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: ICONF(*), IPDET(*), NDET, NEL, NORB, NOP, NCL, IDET(NEL,*), IPRINT
+integer(kind=iwp) :: IADD, IADR, IBASE, ICL, IOP, JDET
 
 ! POSITIVE NUMBER  : ALPHA ORBITAL
 ! NEGATIVE NUMBER  : BETA  ORBITAL
 !
 !IPRINT = 40
-!write(6,*) 'iprint == 40 in CNDET, nclosed, nopen',iprint, ncl,nop
-!write(6,*) 'iconf, nclosed, nopen',iconf(1:1+ncl-1)
+!write(u6,*) 'iprint == 40 in CNDET, nclosed, nopen',iprint, ncl,nop
+!write(u6,*) 'iconf, nclosed, nopen',iconf(1:1+ncl-1)
 !if (nop /= 0) then
-!  write(6,*) 'opened orbitals',iconf(1+ncl:ncl+nop)
+!  write(u6,*) 'opened orbitals',iconf(1+ncl:ncl+nop)
 !end if
 
 if (IPRINT == 40) then
   if (NCL /= 0) then
-    write(6,*) ' DOUBLE OCCUPIED ORBITALS '
+    write(u6,*) ' DOUBLE OCCUPIED ORBITALS '
     call IWRTMA(ICONF,1,NCL,1,NCL)
   end if
   if (NOP /= 0) then
-    write(6,*) ' OPEN ORBITALS '
+    write(u6,*) ' OPEN ORBITALS '
     call IWRTMA(ICONF(1+NCL),1,NOP,1,NOP)
   end if
 end if
@@ -77,12 +74,12 @@ do JDET=1,NDET
 end do
 
 if (IPRINT == 40) then
-  write(6,*) ' CONFIGURATION FROM DETCON '
+  write(u6,*) ' CONFIGURATION FROM DETCON '
   call IWRTMA(ICONF,1,NORB,1,NORB)
-  write(6,*) ' PROTO TYPE DETERMINANTS '
+  write(u6,*) ' PROTO TYPE DETERMINANTS '
   if (NOP*NDET > 0) call IWRTMA(IPDET,NOP,NDET,NOP,NDET)
 
-  if (NEL*NDET > 0) write(6,*) ' CORRESPONDING DETERMINANTS '
+  if (NEL*NDET > 0) write(u6,*) ' CORRESPONDING DETERMINANTS '
   call IWRTMA(IDET,NEL,NDET,NEL,NDET)
 
 end if

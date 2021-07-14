@@ -9,7 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       LOGICAL EQUAL
+      INTEGER MXOTYP
       PARAMETER (MXOTYP=100)
+      INTEGER               MAXSYM,NORB1,NORB2,NORB3,                   &
+     &                NAEL,NBEL,NAEXCI,NBEXCI,NASTR,NBSTR,              &
+     &                NOCTPA,NOCTPB,NL1MNA,NL1MNB,                      &
+     &                IOCPTA        ,IOCPTB        ,                    &
+     &                NSTAOA        ,NSTAOB
       COMMON/STRNUM/  EQUAL,MAXSYM,NORB1,NORB2,NORB3,                   &
      &                NAEL,NBEL,NAEXCI,NBEXCI,NASTR,NBSTR,              &
      &                NOCTPA,NOCTPB,NL1MNA,NL1MNB,                      &

@@ -14,12 +14,14 @@ subroutine EXPCSF(ICS,NLEV,IMS,LEX)
 ! procedure from Shavitt in "The Unitary Group", "Lecture Notes in
 ! Chemistry" Vol. 22, pp. 55.
 
-implicit real*8(A-H,O-Z)
-dimension ICS(NLEV), LEX(NLEV)
-character(LEN=256) LINE
-character(LEN=6) STRING
-dimension ICOEF(2)
-logical LPHASE, LAST
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: NLEV, ICS(NLEV), IMS, LEX(NLEV)
+integer(kind=iwp) :: I, IA, IALPHA, IB, IBETA, ICOEF(2), ILEX, ISOMO, J, K, NALPHA, NSOMO
+character(len=256) :: LINE
+character(len=6) :: STRING
+logical(kind=iwp) :: LAST, LPHASE
 
 ! find number of singly occupied orbitals
 NSOMO = 0
@@ -108,7 +110,7 @@ do while (.not. LAST)
       end if
     end do
     write(LINE(23:23),'(A1)') ')'
-    write(6,*) LINE(1:K+1)
+    write(u6,*) LINE(1:K+1)
     ! End of print-out
   end if
   ! Get the next determinant

@@ -53,19 +53,19 @@ subroutine Reord2(NORB,NEL,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,kcnf)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp, u6
 
+implicit none
+integer(kind=iwp) :: NORB, NEL, IREFSM, IMODE, ICONF(*), ISPIN(*), KCNF(NEL)
+real(kind=wp) :: CIOLD(*), CINEW(*)
 #include "rasdim.fh"
-#include "strnum.fh"
-#include "ciinfo.fh"
 #include "spinfo.fh"
 #include "gugx.fh"
 #include "WrkSpc.fh"
 #include "output_ras.fh"
-dimension ICONF(*), ISPIN(*)
-dimension CIOLD(*), CINEW(*)
-dimension KCNF(NEL)
-dimension IWALK(mxAct)
+integer(kind=iwp) :: i, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, IPRLEV, ISG, ITYP, &
+                     IWALK(mxAct), JOCC, KOCC, KORB, LPRINT
+integer(kind=iwp), external :: IPHASE, ISGNUM
 
 IPRLEV = IPRLOC(3)
 ! LOOP OVER CONFIGURATIONS TYPES
@@ -133,12 +133,12 @@ end do
 
 if (IPRLEV >= DEBUG) then
   LPRINT = min(200,ICSFJP)
-  write(6,*)
-  write(6,*) ' OLD CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
-  write(6,'(10F12.8)') (CIOLD(I),I=1,LPRINT)
-  write(6,*) ' NEW CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
-  write(6,'(10F12.8)') (CINEW(I),I=1,LPRINT)
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' OLD CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
+  write(u6,'(10F12.8)') (CIOLD(I),I=1,LPRINT)
+  write(u6,*) ' NEW CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
+  write(u6,'(10F12.8)') (CINEW(I),I=1,LPRINT)
+  write(u6,*)
 end if
 
 return

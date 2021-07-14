@@ -31,11 +31,20 @@ subroutine splitCTL(LW1,TUVX,IFINAL,iErrSplit)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-character*80 String
-logical DBG, Exist
-real*8 LW1
-dimension LW1(*), TUVX(*)
+use Constants, only: Zero, One, auToeV
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+real(kind=wp) :: LW1(*), TUVX(*)
+integer(kind=iwp) :: IFINAL, iErrSplit
+integer(kind=iwp) :: i, iCaseSplit, iDimBlockTri, iDisk, idx, ii, iJOB, ipAABlock, ipCNFtot, ipCSFtot, ipDHAM, ipDiag, ipDiagCNF, &
+                     IPRLEV, ipSplitE, ipSplitV, ipTotSplitV, IREOTS, iTmp1, iTmp2, ivkcnf, j, k, LG1, LOCONE, lSel, LW2, LW4, &
+                     MXSpli, MXXWS, nAAblock
+real(kind=wp) :: C_ABlockDim_Sel1, C_ABlockDim_sel2, condition, CSplitTot1, CSplitTot2, diffSplit, ECORE, EnFinSplit, SpliNor, &
+                 SqSpliNor, W_ABlockDim_sel1, W_ABlockDim_sel2, WSplitTot1, WSplitTot2
+character(len=80) :: String
+logical(kind=iwp) :: DBG, Exists
+real(kind=r8), external :: ddot_
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "splitcas.fh"
@@ -44,13 +53,11 @@ dimension LW1(*), TUVX(*)
 #include "WrkSpc.fh"
 #include "output_ras.fh"
 #include "csfbas.fh"
-#include "spinfo.fh"
 #include "strnum.fh"
 #include "timers.fh"
 
 IPRLEV = IPRLOC(3)
 
-DBG = .false.
 DBG = IPRLEV >= DEBUG
 
 iErrSplit = 0
@@ -80,12 +87,12 @@ call GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
 
 goto 29555
 if (IFINAL == 2) then ! to avoid last diagonalization
-  call dCopy_(nConf,[0.0d0],0,Work(LW4),1)
+  call dCopy_(nConf,[Zero],0,Work(LW4),1)
   !call Load_tmp_CI_vec(1,1,nConf,Work(LW4),LuDavid)
   call Load_CI_vec(1,nConf,Work(LW4),LuDavid)
   !call dDaFile(JOBIPH,2,Work(LW4),nConf,LuDavid)
   if (DBG) then
-    write(6,*) 'LuDavid',LuDavid
+    write(u6,*) 'LuDavid',LuDavid
     write(String,'(A)') 'Final=2 : CI-coeff in SplitCAS'
     call dVcPrt(String,' ',Work(LW4),nConf)
   end if
@@ -95,9 +102,9 @@ if (IFINAL == 2) then ! to avoid last diagonalization
   else
     !ENER(lRootSplit,ITER) = ENER(lRootSplit,ITER-1)
     if (DBG) then
-      write(6,*) 'lRootSplit :',lRootSplit
-      write(6,*) 'ITER :',ITER
-      write(6,*) 'ENER(lRootSplit,ITER)',ENER(lRootSplit,ITER)
+      write(u6,*) 'lRootSplit :',lRootSplit
+      write(u6,*) 'ITER :',ITER
+      write(u6,*) 'ENER(lRootSplit,ITER)',ENER(lRootSplit,ITER)
     end if
   end if
   call GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
@@ -125,7 +132,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     !call GETMEM('IPCNF','ALLO','INTE',LG1,NCNASM(STSYM))
 
     call cwtime(C_ABlockDim_sel1,W_ABlockDim_sel1)
-    ECORE = 0.0d0
+    ECORE = Zero
     if (NumSplit) then
       !*****************************************************************
       ! In such case the splitting is done according to a NUMERICAL    *
@@ -165,7 +172,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       ! 'GapSpli' comes from the input in eV
       ! 'condition' goes to DiagOrd in Hartree if EnerSplit
       ! 'condition' goes to DiagOrd as a percentage if PerSplit
-      if (EnerSplit) condition = gapSpli/27.2114
+      if (EnerSplit) condition = gapSpli/auToeV
       if (PerSplit) condition = percSpli
       call DiagOrd(Work(ipDiag),Work(ipDiagCNF),iWork(ipCSFtot),iWork(ipCNFtot),nConf,condition,ITER,Work(KDTOC),iWork(KDFTP), &
                    iWork(KICONF(1)),STSYM,Work(LOCONE),ECORE,NAC,Work(LW2),NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,TUVX,IPRINT,ExFac, &
@@ -175,10 +182,10 @@ if (iCaseSplit == 1) then ! There is NO CIRST
         call DVCPRT('Diagonal elements of Hamilt. matrix in CNF',' ',Work(ipDiagCNF),NCNASM(STSYM))
         call IVCPRT('Index Array in CSF',' ',iWork(ipCSFtot),nConf)
         call IVCPRT('Index Array in CNF',' ',iWork(ipCNFtot),NCNASM(STSYM))
-        write(6,*) 'iDimBlockACNF from DiagOrd : ',iDimBlockACNF
-        write(6,*) 'iDimBlockA from DiagOrd : ',iDimBlockA
+        write(u6,*) 'iDimBlockACNF from DiagOrd : ',iDimBlockACNF
+        write(u6,*) 'iDimBlockA from DiagOrd : ',iDimBlockA
       end if
-      call xflush(6)
+      call xflush(u6)
       call GETMEM('EXHSCR','FREE','REAL',LW2,MXXWS)
       call GETMEM('DiagCNF','free','REAL',ipDiagCNF,NCNASM(STSYM))
       !call GETMEM('DiagCSF','free','REAL',ipDiag,nConf)
@@ -187,9 +194,9 @@ if (iCaseSplit == 1) then ! There is NO CIRST
 
     if (DBG) then
       call cwtime(C_ABlockDim_sel2,W_ABlockDim_sel2)
-      write(6,*) 'Time needed to select CSFs in A-Block:'
-      write(6,*) 'CPU timing : ',C_ABlockDim_sel2-C_ABlockDim_sel1
-      write(6,*) 'W. timing  : ',W_ABlockDim_sel2-W_ABlockDim_sel1
+      write(u6,*) 'Time needed to select CSFs in A-Block:'
+      write(u6,*) 'CPU timing : ',C_ABlockDim_sel2-C_ABlockDim_sel1
+      write(u6,*) 'W. timing  : ',W_ABlockDim_sel2-W_ABlockDim_sel1
     end if
     !*******************************************************************
     ! Let's start with SPLITCAS code                                   *
@@ -198,8 +205,8 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     call chksplit()
     !*******************************************************************
     if (DBG) then
-      write(6,*) 'iDimBlockA after selection : ',iDimBlockA
-      write(6,*) 'iDimBlockACNF after selection : ',iDimBlockACNF
+      write(u6,*) 'iDimBlockA after selection : ',iDimBlockA
+      write(u6,*) 'iDimBlockACNF after selection : ',iDimBlockACNF
     end if
     ! calculate the dressed HAMILTONIAN matrix (STEP 2)
     iDimBlockTri = iDimBlockA*(iDimBlockA+1)/2
@@ -214,9 +221,9 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       EnInSplit = Work(ipDiag+lrootSplit-1)
     end if
     if (DBG) then
-      write(6,*) 'Initial Energy in SplitCAS : ',EnInSplit
+      write(u6,*) 'Initial Energy in SplitCAS : ',EnInSplit
     end if
-    diffSplit = ThrSplit+1.0d0
+    diffSplit = ThrSplit+One
 
     iterSplit = 0
     call cwtime(C_Dress_1,W_Dress_1)
@@ -225,27 +232,27 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     do while ((diffSplit > ThrSplit) .and. (iterSplit < MxIterSplit))
       iterSplit = iterSplit+1
       if (DBG) then
-        write(6,*) '*************** Iteration SplitCAS =',iterSplit
+        write(u6,*) '*************** Iteration SplitCAS =',iterSplit
       end if
       !call Compute_Umn(Work(ipBVEC),NPCNF,NCNASM(STSYM),EnInSplit,NPCNF+1,1,Work(ipDHAM))
       !call SPLITCSF(Work(ipAABlock),EnInSplit,Work(ipDHAM),
       call get_Umn(Work(ipAABlock),EnInSplit,Work(ipDHAM),iWork(ipCSFtot),iWork(ipCNFtot),nconf,Work(KDTOC),iWork(KDFTP), &
                    iWork(KICONF(1)),STSYM,Work(LOCONE),ECORE,NAC,NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,iDimBlockA,iDimBlockACNF, &
                    Work(LW4),TUVX,iterSplit,ITER,IPRINT,ExFac,IWORK(IREOTS))
-      call xflush(6)
+      call xflush(u6)
       if (DBG) then
         call TRIPRT('AA block of the Hamiltonian Matrix',' ',Work(ipAABLOCK),iDimBlockA)
         call TRIPRT('Dressed AA block Hamiltonian Matrix',' ',Work(ipDHAM),iDimBlockA)
-        call xflush(6)
+        call xflush(u6)
       end if
       !call GETMEM('BVEC','FREE','REAL',ipBVEC,iBMAX)
       !*****************************************************************
       ! Dressed Hamiltonian DIAGONALIZATION                            *
       !*****************************************************************
-      call dcopy_(iDimBlockA*iDimBlockA,[0.0d0],0,Work(ipSplitV),1)
+      call dcopy_(iDimBlockA*iDimBlockA,[Zero],0,Work(ipSplitV),1)
       do i=1,iDimBlockA
         ii = i+iDimBlockA*(i-1)
-        Work(ipSplitV+ii-1) = 1.0d00
+        Work(ipSplitV+ii-1) = One
       end do
       call NIdiag(Work(ipDHAM),Work(ipSplitV),iDimBlockA,iDimBlockA)
       call JACORD(Work(ipDHAM),Work(ipSplitV),iDimBlockA,iDimBlockA)
@@ -259,19 +266,19 @@ if (iCaseSplit == 1) then ! There is NO CIRST
         call DVCPRT('Eigenval. of dressed Hamiltonian',' ',Work(ipSplitE),iDimBlockA)
       end if
       diffSplit = abs(EnFinSplit-EnInSplit)
-      if (DBG) write(6,*) 'Energy diff in SplitCAS :',diffSplit
+      if (DBG) write(u6,*) 'Energy diff in SplitCAS :',diffSplit
       if (DBG) then
-        if (iterSplit == 1) write(6,*) 'IterSplit   Final Energy in SplitCAS '
-        write(6,*) IterSplit,EnFinSplit
+        if (iterSplit == 1) write(u6,*) 'IterSplit   Final Energy in SplitCAS '
+        write(u6,*) IterSplit,EnFinSplit
       end if
       EnInSplit = EnFinSplit
     end do
     call cwtime(C_Dress_2,W_Dress_2)
     C_Dress_3 = C_Dress_3+C_Dress_2-C_Dress_1
     W_Dress_3 = W_Dress_3+W_Dress_2-W_Dress_1
-    !write(6,*) 'CPU timing in UAA diag.: ',C_Dress_2-C_Dress_1
-    !if (DBG) write(6,*) 'CPU timing in UAA diag.: ',C_Dress_2-C_Dress_1
-    if (DBG) write(6,*) 'W. timing  in UAA diag: ',W_Dress_2-W_Dress_1
+    !write(u6,*) 'CPU timing in UAA diag.: ',C_Dress_2-C_Dress_1
+    !if (DBG) write(u6,*) 'CPU timing in UAA diag.: ',C_Dress_2-C_Dress_1
+    if (DBG) write(u6,*) 'W. timing  in UAA diag: ',W_Dress_2-W_Dress_1
 
     if ((iterSplit == MxIterSplit) .and. (diffSplit > ThrSplit)) then
       if (ICIONLY == 0) then ! Hopefully the optimization will solve the convergence problem
@@ -282,10 +289,10 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     end if
     if (iErrSplit /= 2) then
       if (DBG) then
-        write(6,*) 'After iteration :',iterSplit
-        write(6,*) 'In Root ',lrootSplit,' SplitCAS Energy :',EnInSplit
-        write(6,*) 'iDimBlockACNF from DiagOrd : ',iDimBlockACNF
-        write(6,*) 'iDimBlockA from DiagOrd : ',iDimBlockA
+        write(u6,*) 'After iteration :',iterSplit
+        write(u6,*) 'In Root ',lrootSplit,' SplitCAS Energy :',EnInSplit
+        write(u6,*) 'iDimBlockACNF from DiagOrd : ',iDimBlockACNF
+        write(u6,*) 'iDimBlockA from DiagOrd : ',iDimBlockA
       end if
       !*****************************************************************
       ! coeffs c_m belonging to class (B)                              *
@@ -308,9 +315,9 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       C_get_Cm3 = C_get_Cm3+C_get_Cm2-C_get_Cm1
       W_get_Cm3 = W_get_Cm3+W_get_Cm2-W_get_Cm1
       if (DBG) then
-        write(6,*) 'Get_Cm :'
-        write(6,*) 'CPU timing : ',C_get_Cm2-C_get_Cm1
-        write(6,*) 'W. timing  : ',W_get_Cm2-W_get_Cm1
+        write(u6,*) 'Get_Cm :'
+        write(u6,*) 'CPU timing : ',C_get_Cm2-C_get_Cm1
+        write(u6,*) 'W. timing  : ',W_get_Cm2-W_get_Cm1
       end if
       !call getmem('UmnCnnew','Free','real',ipUCnew,iBBlockDim)
       !call getmem('UmnCnold','Free','real',ipUCOld,iBBlockDim)
@@ -319,8 +326,8 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       ! Normalization of the CI-Coefficients                           *
       !*****************************************************************
       SpliNor = ddot_(nConf,Work(ipTotSplitV),1,Work(ipTotSplitV),1)
-      !write(6,*) 'SpliNor',SpliNor
-      SqSpliNor = 1.0d0/sqrt(SpliNor)
+      !write(u6,*) 'SpliNor',SpliNor
+      SqSpliNor = One/sqrt(SpliNor)
       call dscal_(nConf,SqSpliNor,Work(ipTotSplitV),1)
       if (DBG) then
         call dVcPrt('Normalized...',' ',Work(ipTotSplitV),nConf)
@@ -330,7 +337,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       !*****************************************************************
       ! penso che in SplitCAS si debba usare sempre save_tmp_CI_vec.
       ! Ma nel dubbio lo copio anche con save_CI_vec:
-      call dCopy_(nConf,[0.0d0],0,Work(LW4),1)
+      call dCopy_(nConf,[Zero],0,Work(LW4),1)
       do j=1,nConf
         k = iWork(ipCSFtot+j-1)
         Work(LW4+k-1) = Work(ipTotSplitV+j-1)
@@ -347,19 +354,19 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       else
         !do jRoot=1,lRootSplit
         !  ENER(jRoot,ITER) = Work(ipSplitE+jRoot-1)
-        !  write(6,*) 'ENER(jRoot,ITER)',ENER(jRoot,ITER)
+        !  write(u6,*) 'ENER(jRoot,ITER)',ENER(jRoot,ITER)
         !end do
         ENER(lRootSplit,ITER) = Work(ipSplitE+lRootSplit-1)
         if (DBG) then
-          write(6,*) 'lRootSplit :',lRootSplit
-          write(6,*) 'ITER :',ITER
-          write(6,*) 'ENER(lRootSplit,ITER)',ENER(lRootSplit,ITER)
+          write(u6,*) 'lRootSplit :',lRootSplit
+          write(u6,*) 'ITER :',ITER
+          write(u6,*) 'ENER(lRootSplit,ITER)',ENER(lRootSplit,ITER)
         end if
       end if
     else
-      write(6,*) 'SplitCAS has to stop because it didn''t converge.'
+      write(u6,*) 'SplitCAS has to stop because it didn''t converge.'
     end if
-    call xflush(6)
+    call xflush(u6)
     call getmem('totSplitVec','free','real',ipTotSplitV,nConf)
     !call GetMem('indOrdCSF','free','Integer',ipCSFtot,nConf)
     call GetMem('IPCSFtot','FREE','Integer',ipCSFtot,nconf)
@@ -381,7 +388,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     !*******************************************************************
     ! Native Hamiltonian DIAGONALIZATION                               *
     !*******************************************************************
-    ECORE = 0.0d0
+    ECORE = Zero
     MXSpli = iDimBlockA
     nAAblock = MXSpli*(MXSpli+1)/2
     call GETMEM('HONE','ALLO','REAL',LOCONE,NAC**2)
@@ -403,21 +410,21 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     if (DBG) then
       call TRIPRT('AA block of the Hamiltonian Matrix',' ',Work(ipAABLOCK),iDimBlockA)
     end if
-    write(6,*) '####################################################'
-    write(6,*) '# Dimension of AA block is equal to total nconf:   #'
-    write(6,*) '#            SplitCAS will not be used!            #'
-    write(6,*) '####################################################'
+    write(u6,*) '####################################################'
+    write(u6,*) '# Dimension of AA block is equal to total nconf:   #'
+    write(u6,*) '#            SplitCAS will not be used!            #'
+    write(u6,*) '####################################################'
     iDimBlockTri = iDimBlockA*(iDimBlockA+1)/2
     call GETMEM('DHAM','ALLO','REAL',ipDHAM,iDimBlockTri)
     call dcopy_(iDimBlockTri,Work(ipAABlock),1,Work(ipDHAM),1)
 
     call getmem('SplitE','Allo','Real',ipSplitE,iDimBlockA)
     call getmem('SplitV','Allo','Real',ipSplitV,iDimBlockA*iDimBlockA)
-    call dcopy_(iDimBlockA*iDimBlockA,[0.0d0],0,Work(ipSplitV),1)
+    call dcopy_(iDimBlockA*iDimBlockA,[Zero],0,Work(ipSplitV),1)
     !call icopy(iDimBlockA,iWork(lSel),1,iWork(ipCSFtot),1)
     do i=1,iDimBlockA
       ii = i+iDimBlockA*(i-1)
-      Work(ipSplitV+ii-1) = 1.0d00
+      Work(ipSplitV+ii-1) = One
     end do
     call NIdiag(Work(ipDHAM),Work(ipSplitV),iDimBlockA,iDimBlockA)
     call JACORD(Work(ipDHAM),Work(ipSplitV),iDimBlockA,iDimBlockA)
@@ -432,9 +439,9 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     !*******************************************************************
     ! SAVE CI VECTORS  after native Diagonalization                    *
     !*******************************************************************
-    !write(6,*) 'Root : ',lRootSplit
+    !write(u6,*) 'Root : ',lRootSplit
     !do i=1,lRootSplit
-    call dCopy_(nConf,[0.0d0],0,Work(LW4),1)
+    call dCopy_(nConf,[Zero],0,Work(LW4),1)
     do j=1,nConf
       k = iWork(lSel+j-1)
       Work(LW4+k-1) = Work(ipSplitV+(lRootSplit-1)*nconf+j-1)
@@ -443,8 +450,8 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     !call Save_tmp_CI_vec(1,lRootSplit,nConf,Work(LW4),LuDavid)
     call Save_tmp_CI_vec(1,nConf,Work(LW4),LuDavid)
     !if (IPRLEV == INSANE) then
-    !  write(6,'(A,I2)') 'Start vector of root',i
-    !  write(6,*) 'LuDavid',LuDavid
+    !  write(u6,'(A,I2)') 'Start vector of root',i
+    !  write(u6,*) 'LuDavid',LuDavid
     !  write(String,'(A)') ' CI-coefficients in SplitCAS native'
     !  call dVcPrt(String,' ',Work(LW4),nConf)
     !end if
@@ -454,12 +461,12 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     else
       !do jRoot = 1,lRootSplit
       !  ENER(jRoot,ITER) = Work(ipSplitE+jRoot-1)
-      !  write(6,*) 'ENER(jRoot,ITER)',ENER(jRoot,ITER)
+      !  write(u6,*) 'ENER(jRoot,ITER)',ENER(jRoot,ITER)
       !end do
       ENER(lRootSplit,ITER) = Work(ipSplitE+lRootSplit-1)
       if (DBG) then
-        write(6,*) 'ITER :',ITER
-        write(6,*) 'ENER(lRootSplit,ITER)',ENER(lRootSplit,ITER)
+        write(u6,*) 'ITER :',ITER
+        write(u6,*) 'ENER(lRootSplit,ITER)',ENER(lRootSplit,ITER)
       end if
     end if
     !*******************************************************************
@@ -477,10 +484,10 @@ if (iCaseSplit == 1) then ! There is NO CIRST
 
 else ! Do it IF there is CIRESTART
   iJOB = 0
-  call f_Inquire('JOBOLD',Exist)
-  if (Exist) iJOB = 1
-  if (iJOB == 1) write(6,*) ' Initial CI-vectors are read from JOBOLD'
-  if (iJOB == 0) write(6,*) ' Initial CI-vectors are read from JOBIPH'
+  call f_Inquire('JOBOLD',Exists)
+  if (Exists) iJOB = 1
+  if (iJOB == 1) write(u6,*) ' Initial CI-vectors are read from JOBOLD'
+  if (iJOB == 0) write(u6,*) ' Initial CI-vectors are read from JOBIPH'
   if (iJOB == 1) then
     if (JOBOLD <= 0) then
       JOBOLD = 20
@@ -500,9 +507,9 @@ else ! Do it IF there is CIRESTART
   call Reord2(NAC,NACTEL,STSYM,1,iWork(KICONF(1)),iWork(KCFTP),Work(iTmp1),Work(iTmp2),iwork(ivkcnf))
   call GetMem('kcnf','free','inte',ivkcnf,nactel)
   call Save_CI_vec(1,nConf,Work(iTmp2),LuDavid)
-  !write(6,'(A,I2)') 'Start vector of root',i
+  !write(u6,'(A,I2)') 'Start vector of root',i
   !if (DBG) then
-  write(6,*) 'LuDavid',LuDavid
+  write(u6,*) 'LuDavid',LuDavid
   write(String,'(A)') '(CI coefficient in CIRST)'
   call dVcPrt(String,' ',Work(iTmp2),nConf)
   !end if
@@ -528,18 +535,18 @@ end if ! End of do it IF there (is)/(isn't) CIRESTART
 
 call GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
 call GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
-if (IPRLEV >= 20) write(6,1100) 'TERM_DAVID',LW4
+if (IPRLEV >= 20) write(u6,1100) 'TERM_DAVID',LW4
 iDisk = IADR15(4)
 !call Term_David(ICICH,ITERCI,lRootSplit,nConf,Work(LW4),JOBIPH,LuDavid,iDisk)
-!write(6,*) 'ITERCI :',ITERCI
+!write(u6,*) 'ITERCI :',ITERCI
 call Term_David(ICICH,ITERCI,1,nConf,Work(LW4),JOBIPH,LuDavid,iDisk)
 call GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
 
 if (DBG) then
   call cwtime(CSplitTot2,WSplitTot2)
-  write(6,*) 'Total Time in SplitCAS:'
-  write(6,*) 'CPU timing : ',CSplitTot2-CSplitTot1
-  write(6,*) 'W. timing  : ',WSplitTot2-WSplitTot1
+  write(u6,*) 'Total Time in SplitCAS:'
+  write(u6,*) 'CPU timing : ',CSplitTot2-CSplitTot1
+  write(u6,*) 'W. timing  : ',WSplitTot2-WSplitTot1
 end if
 
 return

@@ -17,14 +17,17 @@ subroutine CNHCN(ICNL,ITPL,ICNR,ITPR,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DT
 ! Jeppe Olsen , Summer of '89
 !               IREOTS added August 2003
 
-implicit real*8(A-H,O-Z)
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: ICNL(*), ITPL, ICNR(*), ITPR, NAEL, NBEL, IPRODT(*), NORB, IPREXH, IREOTS(*)
+real(kind=wp) :: CNHCNM(*), SCR(*), ECORE, ONEBOD(*), DTOC(*), TUVX(*), ExFac
+integer(kind=iwp) :: IPL, IPR, JCSF, JDET, KLCHD, KLDHD, KLDTLA, KLDTLB, KLDTRA, KLDTRB, KLFREE, KLISL, KLISR, NCSFL, NCSFR, &
+                     NDETL, NDETR, NTEST
+real(kind=wp) :: PSIGN
 #include "spinfo.fh"
 #include "ciinfo.fh"
-dimension ICNL(*), ICNR(*), SCR(*)
-dimension IPRODT(*), DTOC(*), ONEBOD(*)
-dimension CNHCNM(*)
-dimension TUVX(*)
-integer IREOTS(*)
 
 call CNHCN_INTERNAL(SCR)
 
@@ -33,10 +36,9 @@ contains
 
 subroutine CNHCN_INTERNAL(SCR)
 
-  use iso_c_binding
-
-  real*8, target :: SCR(*)
-  integer, pointer :: iSCRla(:), iSCRlb(:), iSCRra(:), iSCRrb(:), iSCRf(:)
+  real(kind=wp), target :: SCR(*)
+  integer(kind=iwp), pointer :: iSCRla(:), iSCRlb(:), iSCRra(:), iSCRrb(:), iSCRf(:)
+  integer(kind=iwp) :: JTYP
 
   NTEST = 0
 
@@ -121,7 +123,7 @@ subroutine CNHCN_INTERNAL(SCR)
   call MATML4(CNHCNM,SCR(KLCHD),DTOC(IPR),NCSFL,NCSFR,NCSFL,NDETR,NDETR,NCSFR,0)
 
   if (NTEST >= 20) then
-    write(6,*) ' CSF-Hamiltonian matrix between two configurations'
+    write(u6,*) ' CSF-Hamiltonian matrix between two configurations'
     call WRTMAT(CNHCNM,NCSFL,NCSFR,NCSFL,NCSFR)
   end if
 

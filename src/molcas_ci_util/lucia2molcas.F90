@@ -14,25 +14,23 @@ subroutine LUCIA2MOLCAS(KDFTP_LUCIA,KCFTP_LUCIA,KDTOC_LUCIA,KICONF_OCC_LUCIA,KSD
                         nCSF_HEXS_LUCIA)
 ! Transfer arguments to the common blocks used by MOLCAS.
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: MXPCSM, MXPORB, KDFTP_LUCIA, KCFTP_LUCIA, KDTOC_LUCIA, KICONF_OCC_LUCIA(*), KSDREO_I(*), NDET_LUCIA, &
+                     NCSASM_LUCIA(MXPCSM), NDTASM_LUCIA(MXPCSM), NCNASM_LUCIA(MXPCSM), NCONF_PER_OPEN(MXPORB+1,MXPCSM), &
+                     NPDTCNF(MXPORB+1), NPCSCNF(MXPORB+1), MULTS_LUCIA, NSSOA(*), NSSOB(*), KICTS_POINTER, nCSF_HEXS_LUCIA
+integer(kind=iwp) :: I, ICL, IOPEN, IORB2F, IORB2L, ISYM, ITYP, J, LCONF, LDET, LLCONF, LUCIA_TYPE, NEL1MNA, NEL1MNB, NEL2MN, NEL2MX
 #include "rasdim.fh"
 #include "csfbas.fh"
 #include "ciinfo.fh"
 #include "spinfo.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "gas.fh"
 #include "splitcas.fh"
 #include "strnum.fh"
-#include "detbas.fh"
 #include "lucia_ini.fh"
 #include "WrkSpc.fh"
-dimension NCSASM_LUCIA(MXPCSM), KICONF_OCC_LUCIA(*)
-dimension KSDREO_I(*)
-dimension NDTASM_LUCIA(MXPCSM), NCNASM_LUCIA(MXPCSM)
-dimension NCONF_PER_OPEN(MXPORB+1,MXPCSM)
-dimension NPDTCNF(MXPORB+1), NPCSCNF(MXPORB+1)
-dimension NSSOA(*), NSSOB(*)
 
 do I=1,MXCISM
   NDTASM(I) = NDTASM_LUCIA(I)
@@ -47,19 +45,19 @@ if ((N_ELIMINATED_GAS_MOLCAS > 0) .and. (NSEL > nCSF_HEXS)) then
 end if
 
 if (iDimBlockA > NCSASM(STSYM)) then
-  write(6,*) ''
-  write(6,*) '******************** WARNING *********************'
-  write(6,*) ' AA-Block dimension selected is bigger than the '
-  write(6,*) ' number  of CSFs reachable  within the selected '
-  write(6,*) ' Active Space. The code automatically  reset it '
-  write(6,*) ' to the number  of  CSFs. You  are  allowed  to '
-  write(6,*) ' decrease  this  number  in  your input and run '
-  write(6,*) ' again the calculation.'
-  write(6,'(1X,A,I5)') ' AA-Block dimension selected:',iDimBlockA
+  write(u6,*) ''
+  write(u6,*) '******************** WARNING *********************'
+  write(u6,*) ' AA-Block dimension selected is bigger than the '
+  write(u6,*) ' number  of CSFs reachable  within the selected '
+  write(u6,*) ' Active Space. The code automatically  reset it '
+  write(u6,*) ' to the number  of  CSFs. You  are  allowed  to '
+  write(u6,*) ' decrease  this  number  in  your input and run '
+  write(u6,*) ' again the calculation.'
+  write(u6,'(1X,A,I5)') ' AA-Block dimension selected:',iDimBlockA
   iDimBlockA = NCSASM(STSYM)
-  write(6,'(1X,A,I5)') ' AA-Block dimension reset:',iDimBlockA
-  write(6,*) '**************************************************'
-  write(6,*) ''
+  write(u6,'(1X,A,I5)') ' AA-Block dimension reset:',iDimBlockA
+  write(u6,*) '**************************************************'
+  write(u6,*) ''
 end if
 
 ! SET INITIAL VALUES FOR LOOP COUNTERS AND ARRAY SIZES
@@ -161,38 +159,3 @@ if (.false.) then
 end if
 
 end subroutine LUCIA2MOLCAS
-
-subroutine LUCIA2MOLCAS_FREE
-
-implicit real*8(A-H,O-Z)
-#include "rasdim.fh"
-#include "csfbas.fh"
-#include "ciinfo.fh"
-#include "spinfo.fh"
-#include "rasscf.fh"
-#include "general.fh"
-#include "gas.fh"
-#include "splitcas.fh"
-#include "strnum.fh"
-#include "detbas.fh"
-#include "lucia_ini.fh"
-#include "WrkSpc.fh"
-
-! Memory needed to store ICONF array
-LCONF = 0
-LDET = 0
-do ISYM=1,NSYM
-  LLCONF = 0
-  LDET = max(LDET,NDTASM(ISYM))
-  do ITYP=1,NTYP
-    IOPEN = ITYP+MINOP-1
-    ICL = (NACTEL-IOPEN)/2
-    LLCONF = LLCONF+NCNFTP(ITYP,ISYM)*(IOPEN+ICL)
-  end do
-  LCONF = max(LCONF,LLCONF)
-end do
-
-call GetMem('KICONF','Free','Integer',KICONF(1),LCONF)
-call GetMem('KICTS','Free','Integer',KICTS(1),LDET)
-
-end subroutine LUCIA2MOLCAS_FREE

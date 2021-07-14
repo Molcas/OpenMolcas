@@ -48,9 +48,14 @@ subroutine DavCtl(LW1,TUVX,IFINAL)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-real*8 LW1
-dimension LW1(*), TUVX(*)
+use Constants, only: Quart
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: LW1(*), TUVX(*)
+integer(kind=iwp) :: IFINAL
+integer(kind=iwp) :: iDisk, IPRLEV, ItLimit, jRoot, lExplE, lExplV, lSel, LW4, LW5, mSel, nMaxSel
+real(kind=wp) :: ESize, Threshold, ThrRule
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -74,9 +79,9 @@ IPRLEV = IPRLOC(3)
 
 ! LW4: TEMPORARY CI VECTOR IN CSF BASIS
 
-if (IPRLEV >= 20) write(6,1100) 'INI_DAVID'
+if (IPRLEV >= 20) write(u6,1100) 'INI_DAVID'
 call GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
-if (IPRLEV >= 20) write(6,1100) 'CIDIA',LW4
+if (IPRLEV >= 20) write(u6,1100) 'CIDIA',LW4
 if (NAC > 0) call CIDIA_CI_UTIL(NAC,NCONF,STSYM,WORK(LW4),LW1,TUVX,LUDAVID)
 
 !-----------------------------------------------------------------------
@@ -96,7 +101,7 @@ end if
 nMaxSel = nConf
 if (N_ELIMINATED_GAS_MOLCAS > 0) nmaxSel = nCSF_HEXS
 
-if ((IPRLEV >= 20) .and. (NAC /= 0)) write(6,1100) 'CSTART',LW4,lSel,lExplE,lExplV
+if ((IPRLEV >= 20) .and. (NAC /= 0)) write(u6,1100) 'CSTART',LW4,lSel,lExplE,lExplV
 call CStart_CI_Util(WORK(LW4),LW1,TUVX,iWork(lSel),Work(lExplE),Work(lExplV),nMaxSel,IFINAL)
 
 call GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
@@ -112,22 +117,22 @@ if (Iter == 1) then
   Threshold = THREN
 else if ((ITER > 1) .and. (ITER <= 3)) then
   ThrRule = THFACT*abs(CONV(4,ITER-1))
-  Threshold = (dble(4-ITER)*THREN+dble(ITER)*ThrRule)*0.25d0
+  Threshold = (real(4-ITER,kind=wp)*THREN+real(ITER,kind=wp)*ThrRule)*Quart
 else
   Threshold = THFACT*abs(CONV(4,ITER-1))
 end if
 ! End of new rule, PAM Jun 2006
-Threshold = max(Threshold,1.0D-9)
+Threshold = max(Threshold,1.0e-9_wp)
 if (NAC == 0) then
   ESize = abs(EMY)
 else
   ESize = abs(Work(lExplE))
 end if
-Threshold = max(Threshold,ESize*1.0D-14)
+Threshold = max(Threshold,ESize*1.0e-14_wp)
 
 ! LW5: CONVERGENCE PARAMETERS
 call GetMem('CI_conv','Allo','Real',LW5,2*lRoots*MAXJT)
-if ((IPRLEV >= 20) .and. (NAC /= 0)) write(6,1100) 'DAVID',LW5,lSel,lExplE,lExplV
+if ((IPRLEV >= 20) .and. (NAC /= 0)) write(u6,1100) 'DAVID',LW5,lSel,lExplE,lExplV
 ITERCI = 1
 if (NAC == 0) then
   ENER(1,ITER) = EMY
@@ -143,7 +148,7 @@ else
     if (KTIGHT == 1) ItLimit = MAXJT
     ! PAM Oct 2006: Full precision if this is final CI.
     if ((ICIONLY == 1) .or. (IFINAL == 2)) then
-      Threshold = max(1.0D-9,ESize*1.0D-14)
+      Threshold = max(1.0e-9_wp,ESize*1.0e-14_wp)
       ITLIMIT = MAXJT
     end if
     ! PAM Feb 2009: New code in david5.
@@ -173,7 +178,7 @@ lRoots = lRoots-hroots
 ! LW4: TEMPORARY CI VECTOR IN CSF BASIS
 
 call GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
-if (IPRLEV >= 20) write(6,1100) 'TERM_DAVID',LW4
+if (IPRLEV >= 20) write(u6,1100) 'TERM_DAVID',LW4
 iDisk = IADR15(4)
 call Term_David(ICICH,ITERCI,lRoots,nConf,Work(LW4),JOBIPH,LuDavid,iDisk)
 call GETMEM('CIVEC','FREE','REAL',LW4,NCONF)

@@ -44,19 +44,22 @@ subroutine Schmidt(N,S,C,Temp,M)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-dimension S(N,N), C(N,N), Temp(N)
-logical forward, backward
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-forward = .true.
-backward = .not. forward
+implicit none
+integer(kind=iwp) :: N, M
+real(kind=wp) :: S(N,N), C(N,N), Temp(N)
+integer(kind=iwp) :: i, j, k
+real(kind=wp) :: Alpha, rSum
+logical(kind=iwp), parameter :: forward = .true.
 
 M = 0
 do i=1,N
   do j=1,N
-    C(j,i) = 0.0d0
+    C(j,i) = Zero
   end do
-  C(i,i) = 1.0d0/sqrt(S(i,i))
+  C(i,i) = One/sqrt(S(i,i))
 end do
 
 ! forward orthonormalization
@@ -68,27 +71,27 @@ if (forward) then
       Temp(j) = S(j,i)*Alpha
     end do
     do j=1,i-1
-      Sum = 0.0d0
+      rSum = Zero
       do k=1,i
-        Sum = Sum+C(k,j)*Temp(k)
+        rSum = rSum+C(k,j)*Temp(k)
       end do
       do k=1,i
-        C(k,i) = C(k,i)-Sum*C(k,j)
+        C(k,i) = C(k,i)-rSum*C(k,j)
       end do
     end do
-    Sum = 0.0d0
+    rSum = Zero
     do k=1,i
-      Sum = Sum+C(k,i)*Temp(k)
+      rSum = rSum+C(k,i)*Temp(k)
     end do
-    if (Sum > 1.0d-9) then
+    if (rSum > 1.0e-9_wp) then
       M = M+1
-      Alpha = 1.0d0/sqrt(Sum)
+      Alpha = One/sqrt(rSum)
       do k=1,i
         C(k,i) = C(k,i)*Alpha
       end do
     else
       do k=1,i
-        C(k,i) = 0.0d0
+        C(k,i) = Zero
       end do
     end if
   end do
@@ -96,34 +99,34 @@ end if
 
 ! backward orthonormalization
 ! (vectors N remains unchanged)
-if (backward) then
+if (.not. forward) then
   do i=N,1,-1
     Alpha = C(i,i)
     do j=1,N
       Temp(j) = S(j,i)*Alpha
     end do
     do j=N,i+1,-1
-      Sum = 0.0d0
+      rSum = Zero
       do k=j,N
-        Sum = Sum+C(k,j)*Temp(k)
+        rSum = rSum+C(k,j)*Temp(k)
       end do
       do k=j,N
-        C(k,i) = C(k,i)-Sum*C(k,j)
+        C(k,i) = C(k,i)-rSum*C(k,j)
       end do
     end do
-    Sum = 0.0d0
+    rSum = Zero
     do k=i,N
-      Sum = Sum+C(k,i)*Temp(k)
+      rSum = rSum+C(k,i)*Temp(k)
     end do
-    if (Sum > 1.0d-9) then
+    if (rSum > 1.0e-9_wp) then
       M = M+1
-      Alpha = 1.0d0/sqrt(Sum)
+      Alpha = One/sqrt(rSum)
       do k=i,N
         C(k,i) = C(k,i)*Alpha
       end do
     else
       do k=i,N
-        C(k,i) = 0.0d0
+        C(k,i) = Zero
       end do
     end if
   end do

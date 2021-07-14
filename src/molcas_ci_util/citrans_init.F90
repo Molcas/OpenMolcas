@@ -11,13 +11,13 @@
 
 subroutine citrans_init(nel,norb,mult)
 
-use second_quantization
-use citrans
+use second_quantization, only: binom_coef
+use citrans, only: ndet_group, ncsf_group, ndo_max, ndo_min, ndoc_group, nsoc_group, spintable_create, spintabs
+use Definitions, only: iwp
 
 implicit none
-integer, intent(in) :: nel, norb, mult
-integer :: nela, nelb
-integer :: ido, iso
+integer(kind=iwp), intent(in) :: nel, norb, mult
+integer(kind=iwp) :: ido, iso, nela, nelb
 
 ! compute alpha/beta subsets
 nela = (nel+(mult-1))/2

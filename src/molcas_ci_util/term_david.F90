@@ -43,26 +43,31 @@ subroutine Term_David(ICICH,iter,lRoots,nConf,Vector,JOBIPH,LuDavid,iDisk)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
-real*8 Vector(nConf)
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: ICICH, iter, lRoots, nConf, JOBIPH, LuDavid, iDisk
+real(kind=wp) :: Vector(nConf)
+integer(kind=iwp) :: iMem, iRecNo, iRoot, lOvlp1, lOvlp2
 #include "rasdim.fh"
 #include "davctl.fh"
 #include "WrkSpc.fh"
 
 ! check input arguments
 if (nConf < 0) then
-  write(6,*) 'Term_David: nConf less than 0'
-  write(6,*) 'nConf = ',nConf
+  write(u6,*) 'Term_David: nConf less than 0'
+  write(u6,*) 'nConf = ',nConf
   call Abend()
 end if
 if (iter < 0) then
-  write(6,*) 'Term_David: iter less than 0'
-  write(6,*) 'iter = ',iter
+  write(u6,*) 'Term_David: iter less than 0'
+  write(u6,*) 'iter = ',iter
   call Abend()
 end if
 if (iter > mxCiIt) then
-  write(6,*) 'Term_David: iter greater than mxCiIt'
-  write(6,*) 'iter, mxCiIt = ',iter,mxCiIt
+  write(u6,*) 'Term_David: iter greater than mxCiIt'
+  write(u6,*) 'iter, mxCiIt = ',iter,mxCiIt
   call Abend()
 end if
 
@@ -71,9 +76,9 @@ end if
 ! also the overlap elemtents with the test vectors
 if (ICICH == 1) then
   call GetMem('CIovlp1','Allo','Real',lOvlp1,lRoots*lRoots)
-  call dCopy_(lRoots*lRoots,[0.0d0],0,Work(lOvlp1),(1))
+  call dCopy_(lRoots*lRoots,[Zero],0,Work(lOvlp1),(1))
   call GetMem('CIovlp2','Allo','Real',lOvlp2,lRoots*lRoots)
-  call dCopy_(lRoots*lRoots,[0.0d0],0,Work(lOvlp2),(1))
+  call dCopy_(lRoots*lRoots,[Zero],0,Work(lOvlp2),(1))
 end if
 do iRoot=1,lRoots
   call Load_tmp_CI_vec(iRoot,nConf,Vector,LuDavid)

@@ -11,15 +11,16 @@
 
 subroutine GETSTEPVECTOR(NOW,IOW,MV,IDWN,IUP,ICS)
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp
+
+implicit none
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
 #include "gugx.fh"
 #include "WrkSpc.fh"
-dimension NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV)
-dimension ICS(mxact)
+integer(kind=iwp) :: NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV), MV, IDWN, IUP, ICS(mxact)
+integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICUP, ICUPOS, IDW0, IUW0, LEV, NDWN, NNN
 
 ! RECONSTRUCT THE CASE LIST
 

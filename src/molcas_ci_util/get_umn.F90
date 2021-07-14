@@ -38,26 +38,31 @@ subroutine get_Umn(PHP,EnIn,DHAM,IPCSF,IPCNF,MXPDIM,DTOC,IPRODT,ICONF,IREFSM,ONE
 ! ExFac  :
 ! IREOTS : Type => symmetry reordering array
 
-implicit real*8(A-H,O-Z)
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: IPCSF(*), IPCNF(*), MXPDIM, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, NPCSF, NPCNF, &
+                     iterSplit, ITER, NTEST, IREOTS(*)
+real(kind=wp) :: PHP(NPCSF*(NPCSF+1)/2), EnIn, DHAM(NPCSF*(NPCSF+1)/2), DTOC(*), ONEBOD(*), ECORE, DIAG(*), TUVX(*), ExFac
+integer(kind=iwp) :: iAlpha, IATYP, IIA, IIAACT, IIAB, IIL, IILACT, IILB, IIR, IIRACT, IIRB, IIRMAX, iKACONF, iKLCONF, iKRCONF, &
+                     ILAI, ILAOV, ILRI, ILRO, ILTYP, ipAuxC, ipAuxD, ipAuxV, IRTYP, ITYP, KACONF, KLAUXD, KLCONF, KLFREE, KLPHPS, &
+                     KRCONF, LW2, Mindex, MXCSFC, MXXWS, NCSFA, NCSFL, NCSFR, Nindex
+integer(kind=iwp), external :: ip_of_iWork_d
 #include "spinfo.fh"
 #include "WrkSpc.fh"
-dimension PHP(NPCSF*(NPCSF+1)/2), DHAM(NPCSF*(NPCSF+1)/2)
-dimension IPCSF(*), IPCNF(*), DIAG(*)
-dimension DTOC(*), IPRODT(*), ICONF(*)
-dimension ONEBOD(*)
-dimension TUVX(*), IREOTS(*)
 
 if (NTEST >= 30) then
-  write(6,*) ' Input in get_Umn '
-  write(6,*) ' ================== '
-  write(6,*) ' Number of CNFs ',NCONF
-  write(6,*) ' Number of CSFs ',MXPDIM
-  write(6,*) ' Configurations included : '
+  write(u6,*) ' Input in get_Umn '
+  write(u6,*) ' ================== '
+  write(u6,*) ' Number of CNFs ',NCONF
+  write(u6,*) ' Number of CSFs ',MXPDIM
+  write(u6,*) ' Configurations included : '
   call IWRTMA(IPCNF,1,NCONF,1,NCONF)
-  write(6,*) ' CSFs included : '
+  write(u6,*) ' CSFs included : '
   call IWRTMA(IPCSF,1,MXPDIM,1,MXPDIM)
-  write(6,*) ' Number of CNFs in AA block:',NPCNF
-  write(6,*) ' Number of CSFs in AA block:',NPCSF
+  write(u6,*) ' Number of CNFs in AA block:',NPCNF
+  write(u6,*) ' Number of CSFs in AA block:',NPCSF
 end if
 
 call FZero(DHAM,NPCSF*(NPCSF+1)/2)
@@ -66,7 +71,7 @@ MXCSFC = 0
 do ITYP=1,NTYP
   MXCSFC = max(MXCSFC,NCSFTP(ITYP))
 end do
-!write(6,*) 'MXCSFC = ',MXCSFC
+!write(u6,*) 'MXCSFC = ',MXCSFC
 call getmem('AuxDia','ALLO','REAL',ipAuxD,MXCSFC)
 call getmem('AuxVer','ALLO','REAL',ipAuxV,MXCSFC*NPCSF)
 call getmem('AuxCopy','ALLO','REAL',ipAuxC,MXCSFC*NPCSF)
@@ -103,37 +108,37 @@ if ((ITER == 1) .and. (iterSplit == 1)) goto 29555
 IIAB = 1
 do iAlpha=NPCNF+1,NCONF ! Loop over alpha
   call FZero(Work(KLAUXD),MXCSFC*MXCSFC)
-  !write(6,*) 'iAlpha = ',iAlpha
+  !write(u6,*) 'iAlpha = ',iAlpha
   iKACONF = ip_of_iWork_d(Work(KACONF))
   call GETCNF_LUCIA(iWork(iKACONF),IATYP,IPCNF(iAlpha),ICONF,IREFSM,NEL)
   NCSFA = NCSFTP(IATYP)
-  !write(6,*) 'NCSFA = ',NCSFA
+  !write(u6,*) 'NCSFA = ',NCSFA
   iKACONF = ip_of_iWork_d(Work(KACONF))
   call CNHCN(iWork(iKACONF),IATYP,iWork(iKACONF),IATYP,Work(KLAUXD),Work(KLFREE),NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX, &
              NTEST,ExFac,IREOTS)
   do IIA=1,NCSFA
     ILAI = IIA*IIA
-    if (NTEST >= 30) write(6,*) 'ILAI =',ILAI
+    if (NTEST >= 30) write(u6,*) 'ILAI =',ILAI
     !Work(ipAuxD+IIA-1) = Work(KLAUXD+ILAI-1)
-    !write(6,*) 'Work(ipAuxD+IIA-1)',Work(ipAuxD+IIA-1)
-    Work(ipAuxD+IIA-1) = 1.0d0/(EnIn-Work(KLAUXD+ILAI-1))
-    if (NTEST >= 30) write(6,*) 'Work(ipAuxD+IIA-1)',Work(ipAuxD+IIA-1)
+    !write(u6,*) 'Work(ipAuxD+IIA-1)',Work(ipAuxD+IIA-1)
+    Work(ipAuxD+IIA-1) = One/(EnIn-Work(KLAUXD+ILAI-1))
+    if (NTEST >= 30) write(u6,*) 'Work(ipAuxD+IIA-1)',Work(ipAuxD+IIA-1)
   end do
   !*************** 2) AB-Block Array (alpha Column) ********************
   IILB = 1
   do Mindex=1,NPCNF ! Loop over AB-Block
     call FZero(Work(KLAUXD),MXCSFC*MXCSFC)
-    !write(6,*) 'Mindex',Mindex
+    !write(u6,*) 'Mindex',Mindex
     iKLCONF = ip_of_iWork_d(Work(KLCONF))
     call GETCNF_LUCIA(iWork(iKLCONF),ILTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
     NCSFL = NCSFTP(ILTYP)
-    !write(6,*) 'NCSFL = ',NCSFL
+    !write(u6,*) 'NCSFL = ',NCSFL
     iKACONF = ip_of_iWork_d(Work(KACONF))
     iKLCONF = ip_of_iWork_d(Work(KLCONF))
     call CNHCN(iWork(iKACONF),IATYP,iWork(iKLCONF),ILTYP,Work(KLAUXD),Work(KLFREE),NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX, &
                NTEST,ExFac,IREOTS)
     if (NTEST >= 30) then
-      write(6,*) 'M_Alpha elements'
+      write(u6,*) 'M_Alpha elements'
       call wrtmat(Work(KLAUXD),MXCSFC,MXCSFC,MXCSFC,MXCSFC)
     end if
     do IIL=1,NCSFL
@@ -145,22 +150,22 @@ do iAlpha=NPCNF+1,NCONF ! Loop over alpha
         !ILAI = (IIL-1)*MXCSFC+IIA
         ILAOV = IILACT+IIAACT
         Work(ipAuxV+ILAOV-1) = Work(KLAUXD+ILAI-1)
-        !write(6,*) 'ILAI, ILAOV = ',ILAI,ILAOV
-        if (NTEST >= 30) write(6,*) 'Work(ipAuxV+ILAOV-1)',Work(ipAuxV+ILAOV-1)
+        !write(u6,*) 'ILAI, ILAOV = ',ILAI,ILAOV
+        if (NTEST >= 30) write(u6,*) 'Work(ipAuxV+ILAOV-1)',Work(ipAuxV+ILAOV-1)
         Work(ipAuxC+ILAOV-1) = Work(ipAuxV+ILAOV-1)*Work(ipAuxD+IIA-1)
-        if (NTEST >= 30) write(6,*) 'Work(ipAuxC+ILAOV-1)',Work(ipAuxC+ILAOV-1)
+        if (NTEST >= 30) write(u6,*) 'Work(ipAuxC+ILAOV-1)',Work(ipAuxC+ILAOV-1)
       end do
     end do
     IILB = IILB+NCSFL
   end do ! End loop over AB-Block
   if (NTEST >= 30) then
-    write(6,*) 'AB-Block Vertical Vector'
+    write(u6,*) 'AB-Block Vertical Vector'
     call wrtmat(Work(ipAuxV),NPCSF,NCSFA,NPCSF,NCSFA)
-    write(6,*) 'AB-Block Vertical Vector times Daa'
+    write(u6,*) 'AB-Block Vertical Vector times Daa'
     call wrtmat(Work(ipAuxC),NPCSF,NCSFA,NPCSF,NCSFA)
   end if
   !*********************************************************************
-  call dGeMM_Tri('N','T',NPCSF,NPCSF,NCSFA,1.0d0,Work(ipAuxC),NPCSF,Work(ipAuxV),NPCSF,1.0d0,DHAM,NPCSF)
+  call dGeMM_Tri('N','T',NPCSF,NPCSF,NCSFA,One,Work(ipAuxC),NPCSF,Work(ipAuxV),NPCSF,One,DHAM,NPCSF)
   if (NTEST >= 30) call TRIPRT('correction to the AA block',' ',DHAM,NPCSF)
   IIAB = IIAB+NCSFA
 end do ! End of the loop over iAlpha
@@ -170,27 +175,27 @@ end do ! End of the loop over iAlpha
 29555 continue
 IILB = 1
 do Nindex=1,NPCNF ! Loop over the AA-block (vertical index)
-  if (NTEST >= 30) write(6,*) 'Nindex',Nindex
-  !write(6,*) 'IILB',IILB
+  if (NTEST >= 30) write(u6,*) 'Nindex',Nindex
+  !write(u6,*) 'IILB',IILB
   iKLCONF = ip_of_iWork_d(Work(KLCONF))
   call GETCNF_LUCIA(iWork(iKLCONF),ILTYP,IPCNF(Nindex),ICONF,IREFSM,NEL)
   NCSFL = NCSFTP(ILTYP)
-  !write(6,*) 'NCSFL = ',NCSFL
+  !write(u6,*) 'NCSFL = ',NCSFL
 
   IIRB = 1
   do Mindex=1,Nindex ! Loop over the AA-block (horizontal index)
     call FZero(Work(KLPHPS),MXCSFC*MXCSFC)
-    !write(6,*) 'Nindex,Mindex',Nindex,Mindex
+    !write(u6,*) 'Nindex,Mindex',Nindex,Mindex
     iKRCONF = ip_of_iWork_d(Work(KRCONF))
     call GETCNF_LUCIA(iWork(iKRCONF),IRTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
     NCSFR = NCSFTP(IRTYP)
-    !write(6,*) 'NCSFR = ',NCSFR
+    !write(u6,*) 'NCSFR = ',NCSFR
     iKLCONF = ip_of_iWork_d(Work(KLCONF))
     iKRCONF = ip_of_iWork_d(Work(KRCONF))
     call CNHCN(iWork(iKLCONF),ILTYP,iWork(iKRCONF),IRTYP,Work(KLPHPS),Work(KLFREE),NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX, &
                NTEST,ExFac,IREOTS)
     if (NTEST >= 30) then
-      write(6,*) 'AA block elements'
+      write(u6,*) 'AA block elements'
       call wrtmat(Work(KLPHPS),MXCSFC,MXCSFC,MXCSFC,MXCSFC)
     end if
     do IIL=1,NCSFL
@@ -208,8 +213,8 @@ do Nindex=1,NPCNF ! Loop over the AA-block (vertical index)
         !  potrebbe essere fonte di BUGS! Vedremo!
         ILRO = ((IILACT*IILACT-IILACT)/2)+IIRACT
         PHP(ILRO) = Work(KLPHPS+ILRI-1)
-        !write(6,*) 'ILRI, ILRO = ',ILRI,ILRO
-        !write(6,*) 'PHP(ILRO)',PHP(ILRO)
+        !write(u6,*) 'ILRI, ILRO = ',ILRI,ILRO
+        !write(u6,*) 'PHP(ILRO)',PHP(ILRO)
       end do
     end do
     IIRB = IIRB+NCSFR
@@ -219,12 +224,12 @@ end do ! End loop over the AA-block (vertical index)
 
 !***********************************************************************
 ! Let's add Hmn (PHP) to the correction (DHAM)
-call daxpy_(NPCSF*(NPCSF+1)/2,1.0d0,PHP,1,DHAM,1)
+call daxpy_(NPCSF*(NPCSF+1)/2,One,PHP,1,DHAM,1)
 !***********************************************************************
 if (NTEST >= 30) then
-  write(6,*) 'AA-Block matrix un-dressed'
+  write(u6,*) 'AA-Block matrix un-dressed'
   call wrtmat(PHP,NPCSF*(NPCSF+1)/2,1,NPCSF*(NPCSF+1)/2,1)
-  write(6,*) 'AA-Block matrix dressed'
+  write(u6,*) 'AA-Block matrix dressed'
   call wrtmat(DHAM,NPCSF*(NPCSF+1)/2,1,NPCSF*(NPCSF+1)/2,1)
 end if
 

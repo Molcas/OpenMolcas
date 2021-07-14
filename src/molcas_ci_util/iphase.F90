@@ -14,9 +14,13 @@ function IPHASE(IDRT,IUP,IWALK)
 !          APPROACH DIFFER IN THE PHASE CONVENTION. FIND THE
 !          PHASE FACTOR RELATING THE CSFS IN EITHER BASIS.
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: IPHASE
 #include "gugx.fh"
-dimension IDRT(NVERT,5), IUP(NVERT,0:3), IWALK(NLEV)
+integer(kind=iwp) :: IDRT(NVERT,5), IUP(NVERT,0:3), IWALK(NLEV)
+integer(kind=iwp) :: ICASE, ISGN, IVERT, LEV
 
 ! FIND THE MIDVERTEX AND THE COMBINED WALK SYMMETRY
 
@@ -26,8 +30,8 @@ do LEV=1,NLEV
   ICASE = IWALK(LEV)
   IVERT = IUP(IVERT,ICASE)
   if ((ICASE == 2) .or. (ICASE == 3)) then
-    ISIGN = (-1)**IDRT(IVERT,4)
-    IPHASE = IPHASE*ISIGN
+    ISGN = (-1)**IDRT(IVERT,4)
+    IPHASE = IPHASE*ISGN
   end if
 end do
 

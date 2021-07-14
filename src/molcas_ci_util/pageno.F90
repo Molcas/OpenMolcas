@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Markus P. Fuelscher                              *
 !***********************************************************************
 
-integer function PageNo(iRoot)
+function PageNo(iRoot)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -33,7 +33,12 @@ integer function PageNo(iRoot)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: PageNo
+integer(kind=iwp) :: iRoot
+integer(kind=iwp) :: itmp1
 #include "rasdim.fh"
 #include "davctl.fh"
 

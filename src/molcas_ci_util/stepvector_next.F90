@@ -11,18 +11,16 @@
 
 subroutine STEPVECTOR_NEXT(MV,IDWN,IUP,STEPVECTOR)
 
+use Definitions, only: iwp, u6
+
 implicit none
-integer :: MV, IDWN, IUP, STEPVECTOR(*)
-#include "rasdim.fh"
-#include "rasscf.fh"
-#include "general.fh"
-#include "output_ras.fh"
+integer(kind=iwp) :: MV, IDWN, IUP, STEPVECTOR(*)
 #include "gugx.fh"
 #include "WrkSpc.fh"
 
 ! stop when MV is zero
 if (MV == 0) then
-  write(6,'(1X,A)') 'stepvector_next has been depleted'
+  write(u6,'(1X,A)') 'stepvector_next has been depleted'
 end if
 
 call GETSTEPVECTOR(IWORK(LNOW),IWORK(LIOW),MV,IDWN,IUP,STEPVECTOR)

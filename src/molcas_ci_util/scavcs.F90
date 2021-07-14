@@ -9,17 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SCAVCS(VECO,VECI,INDEX,NDIM)
+subroutine SCAVCS(VECO,VECI,IDX,NDIM)
 ! Scatter vector with sign change
 !
-! vecO(abs(index(i))) = veci(i)*sign(index(i))
+! vecO(abs(idx(i))) = veci(i)*sign(idx(i))
 
-implicit real*8(A-H,O-Z)
-dimension VECI(*), VECO(*), index(*)
-intrinsic SIGN
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: VECI(*), VECO(*)
+integer(kind=iwp) :: IDX(*), NDIM
+integer(kind=iwp) :: I
 
 do I=1,NDIM
-  VECO(abs(index(I))) = VECI(I)*dble(sign(1,index(I)))
+  VECO(abs(IDX(I))) = VECI(I)*real(sign(1,IDX(I)),kind=wp)
 end do
 
 return

@@ -22,21 +22,21 @@ subroutine CIDIA_CI_UTIL(NORB,NCONF,IREFSM,CSFDIA,G,TUVX,LUDAVID)
 !     G     :  MODIFIED ONE ELECTRON HAMILTONIAN INCLUDING CORE ELECTR.
 !     TUVX  :  TWO-ELECTRON INTEGRALS
 
-implicit real*8(A-H,O-Z)
+use Constants, only: One
+use Definitions, only: wp, iwp, r8
 
+implicit none
+integer(kind=iwp) :: NORB, NCONF, IREFSM, LUDAVID
+real(kind=wp) :: CSFDIA(*), G(*), TUVX(*)
+integer(kind=iwp) :: I, iDummy, II, IPRINT, IPRL, IPRLEV, KDDIA, KH1DIA, KSCR, KX
+real(kind=wp) :: Dummy(1), eCore_Hex
+real(kind=r8), external :: Get_eCore
 #include "ciinfo.fh"
 #include "spinfo.fh"
-#include "detbas.fh"
 #include "csfbas.fh"
-#include "strnum.fh"
 #include "WrkSpc.fh"
 #include "timers.fh"
-#include "rasscf_lucia.fh"
 #include "output_ras.fh"
-dimension CSFDIA(*)
-dimension G(*)
-dimension TUVX(*)
-dimension Dummy(1)
 
 call Timing(Tissot_1,Swatch,Swatch,Swatch)
 IPRLEV = IPRLOC(3)
@@ -67,7 +67,6 @@ call get_diag(work(kddia),ndet)
 IPRINT = 0
 if (IPRLEV == INSANE) IPRINT = 40
 call CSDIAG_CI_UTIL(CSFDIA,Work(KDDIA),NCNFTP(1,IREFSM),NTYP,iWork(KICTS(1)),NDTFTP,NCSFTP,IPRINT)
-One = 1.0d0
 eCore_Hex = Get_eCore()
 call DAXPY_(NCONF,eCore_Hex,[One],0,CSFDIA,1)
 

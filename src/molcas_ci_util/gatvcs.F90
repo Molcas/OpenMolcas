@@ -9,17 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine GATVCS(VECO,VECI,INDEX,NDIM)
+subroutine GATVCS(VECO,VECI,IDX,NDIM)
 ! Gather vector allowing for sign change
 !
-! VECO(I) = VECI(INDEX(I))
+! VECO(I) = VECI(IDX(I))
 
-implicit real*8(A-H,O-Z)
-dimension VECI(*), VECO(*), index(*)
-intrinsic SIGN
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: VECI(*), VECO(*)
+integer(kind=iwp) :: IDX(*), NDIM
+integer(kind=iwp) :: I
 
 do I=1,NDIM
-  VECO(I) = VECI(abs(index(I)))*dble(sign(1,index(I)))
+  VECO(I) = VECI(abs(IDX(I)))*real(sign(1,IDX(I)),kind=wp)
 end do
 
 return

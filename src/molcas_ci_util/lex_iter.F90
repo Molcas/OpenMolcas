@@ -11,9 +11,12 @@
 
 subroutine LEX_ITER(N,K,LEX,LAST)
 
-implicit real*8(A-H,O-Z)
-dimension LEX(K)
-logical LAST
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: N, K, LEX(K)
+logical(kind=iwp) :: LAST
+integer(kind=iwp) :: I, J
 
 I = K
 ! Get the first position to be updated

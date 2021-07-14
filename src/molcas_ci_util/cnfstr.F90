@@ -11,19 +11,22 @@
 ! Copyright (C) 1989, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine CNFSTR(ICONF,ITYP,IASTR,IBSTR,NORB,NAEL,NBEL,IDET,IPRODT,ISCR,SIGN,IPREXH)
+subroutine CNFSTR(ICONF,ITYP,IASTR,IBSTR,NORB,NAEL,NBEL,IDET,IPRODT,ISCR,SGN,IPREXH)
 ! An orbital configuration ICONF is given,
 ! Obtain the corresponding alpha strings,IASTR
 !        the corresponding beta  strings,IBSTR
-!        the corresponding sign array   ,ISIGN
+!        the corresponding sign array   ,ISGN
 !
 ! Jeppe Olsen , Summer of '89
 
-implicit real*8(A-H,O-Z)
-dimension ICONF(*), ISCR(*), IPRODT(*)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: ICONF(*), ITYP, IASTR(*), IBSTR(*), NORB, NAEL, NBEL, IDET, IPRODT(*), ISCR(*), IPREXH
+real(kind=wp) :: SGN(*)
+integer(kind=iwp) :: ICLOS, IOCC, IOPEN, IP, ISGN, JDET, JTYP, KLDETS, KLFREE, NEL, NTEST
 !PAM06 NOTE: NAEL and NBEL can legally be=0.
-!PAM06      DIMENSION IASTR(NAEL,*),IBSTR(NBEL,*), SIGN(*)
-dimension IASTR(*), IBSTR(*), sign(*)
+!PAM06 ... IASTR(NAEL,*), IBSTR(NBEL,*) ...
 #include "spinfo.fh"
 #include "ciinfo.fh"
 
@@ -47,22 +50,22 @@ call CNDET(ICONF,IPRODT(IP),IDET,NAEL+NBEL,NORB,IOPEN,ICLOS,ISCR(KLDETS),IPREXH)
 ! Separate determinants into strings and determine sign change
 
 do JDET=1,IDET
-  call DETSTR2(ISCR(KLDETS+(JDET-1)*NEL),IASTR(1+NAEL*(JDET-1)),IBSTR(1+NBEL*(JDET-1)),NEL,NAEL,NBEL,ISIGN,ISCR(KLFREE),IPREXH)
+  call DETSTR2(ISCR(KLDETS+(JDET-1)*NEL),IASTR(1+NAEL*(JDET-1)),IBSTR(1+NBEL*(JDET-1)),NEL,NAEL,NBEL,ISGN,ISCR(KLFREE),IPREXH)
   !PAM06 ... ,IASTR(1,JDET),IBSTR(1,JDET), ...
-  sign(JDET) = dble(ISIGN)
+  SGN(JDET) = real(ISGN,kind=wp)
 end do
 
 NTEST = 0
 if (NTEST >= 1) then
-  write(6,*) ' Output from CNFSTR '
-  write(6,*) ' ================== '
-  write(6,*) ' Input configuration '
+  write(u6,*) ' Output from CNFSTR '
+  write(u6,*) ' ================== '
+  write(u6,*) ' Input configuration '
   call IWRTMA(ICONF,1,IOCC,1,IOCC)
-  write(6,*) ' Corresponding alpha and beta strings'
+  write(u6,*) ' Corresponding alpha and beta strings'
   call IWRTMA(IASTR,NAEL,IDET,NAEL,IDET)
   call IWRTMA(IBSTR,NBEL,IDET,NBEL,IDET)
-  write(6,*) ' SIGN ARRAY '
-  call WRTMAT(SIGN,1,IDET,1,IDET)
+  write(u6,*) ' SIGN ARRAY '
+  call WRTMAT(SGN,1,IDET,1,IDET)
 end if
 
 return
