@@ -1355,7 +1355,11 @@ C-SVC: get the local vertical stripes of the lg_W vector
         DELTA=SHIFT+DIN(I)+DIS(J)
         ! regularized CASPT2
         if (reg.gt.0.0d0) then
-          DELTA = DELTA/(1.0 - exp(-reg * DELTA**2))
+          if (DELTA.lt.0.0d0) then
+            DELTA = 0.0d0
+          else
+            DELTA = DELTA/(1.0 - exp(-reg * DELTA**2))
+          end if
         end if
         ! write(6,'(1x,i3,2x,i3,2x,5f16.8)') I,J,DELTA
         ! imaginary denominator shift
@@ -1382,7 +1386,11 @@ C-SVC: get the local vertical stripes of the lg_W vector
         DELTA=SHIFT+DIN(I)+DIS(J)
         ! regularized CASPT2
         if (reg.gt.0.0d0) then
-          DELTA = DELTA/(1.0 - exp(-reg * DELTA**2))
+          if (DELTA.lt.0.0d0) then
+            DELTA = 0.0d0
+          else
+            DELTA = DELTA/(1.0d0 - exp(-reg * DELTA**2))
+          end if
         end if
         ! write(6,'(1x,i3,2x,i3,2x,5f16.8)') I,J,DELTA
         ! imaginary denominator shift

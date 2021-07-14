@@ -199,7 +199,11 @@ C positioning.
             DNOM = WORK(LVAL+0+4*(IBUF-1))
             ! compute regularized denominator
             if (regularizer.gt.0.0d0) then
-              DNOMR = DNOM/(1.0 - exp(-regularizer * DNOM**2))
+              if (DNOM.lt.0.0d0) then
+                DNOMR = 0.0d0
+              else
+                DNOMR = DNOM/(1.0 - exp(-regularizer * DNOM**2))
+              end if
             else
               DNOMR = DNOM
             end if
@@ -224,7 +228,11 @@ C positioning.
             END IF
 
             ! if a denominator has changed significantly
-            if (abs(DNOMR - DNOM).gt.0.5d0) then
+            if (DNOM.lt.0.0d0) then
+              write(6,'(A)')'------------------------------'//
+     &        ' negative denominator ------------------'//
+     &        '----------------------------------------'
+            else if (abs(DNOMR - DNOM).gt.0.5d0) then
               ! compute unregularized contribution
               ECNTD = -RHS**2/DNOM
               ! if the energy contribution has changed a lot
