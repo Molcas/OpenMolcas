@@ -26,9 +26,8 @@ subroutine rhodyn()
   integer(kind=iwp), external :: iPrintLevel, isFreeUnit
   real(kind=wp), dimension(:,:), allocatable :: Ham ! auxiliary matrix
 
-!  call qEnter('RHODYN') !deprecated
   ireturn = 20
-  ipglob  = iPrintLevel(-1)
+  ipglob  = iPrintLevel(-1) ! MOLCAS_PRINT variable
 
   call StatusLine('RHODYN:','Starting calculation')
 
@@ -57,7 +56,7 @@ subroutine rhodyn()
   call mma_allocate(dipole, lrootstot, lrootstot,3)
   call mma_allocate(dysamp, lrootstot, lrootstot)
   call mma_allocate(dysamp_bas, lrootstot, lrootstot)
-  call mma_allocate(tmp,       Nstate,   Nstate     )
+  call mma_allocate(tmp, Nstate, Nstate)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !     start from rassf/rassi output
@@ -81,23 +80,22 @@ subroutine rhodyn()
     call mma_allocate(a_einstein, lrootstot, lrootstot)
     call mma_allocate(emiss, n_freq)
 
+! Create PREP file for storing intermediate data
     call cre_prep()
 
+! reading wavefunction expansion from rasscf files
     H_CSF=0d0
     CI=0d0
-
 ! Determine file names
 ! Expected N rassd files and 1 rassisd file
     call mma_allocate(rassd_list,N)
     do i=1,N
       write(rassd_list(i),"(A5,I1)") "RASSD", i
-      write(u6,*) rassd_list(i)
-! c
-      write(u6,*) 'entering read_rassd: ', i
+      if (ipglob>2) write(u6,*) 'reading ', rassd_list(i)
       call read_rassd(i)
     enddo
     call mma_deallocate(rassd_list)
-
+!
     if (i_rasscf==1) then
 ! currently disabled
 ! Diagonalize H(RASSCF) and sort ascending the eigenvalue get the
@@ -137,24 +135,30 @@ subroutine rhodyn()
     call mh5_put_dset(prep_ci, CI)
     call mh5_put_dset(prep_hcsf, H_CSF)
 
-    ! construct CI transformation matrix U_CI
+! construct CI transformation matrix U_CI
     call uci()
+! obtain pure SOC contribution to Hamiltonian
     if (flag_so) call get_vsoc()
     call get_hcsf()
     if (flag_so) then
+! construct transformation matrices between bases
       call soci()
+! read dipole moment
       call get_dipole()
     endif
+! construct initial density matrix
     call get_dm0()
 
     ! close file PREP
     call mh5_close_file(prep_id)
 
-    call dashes()
-    call dashes()
-    write(u6,*) 'Preparation finished successfully'
-    call dashes()
-    call dashes()
+    if (ipglob>1) then
+      call dashes()
+      call dashes()
+      write(u6,*) 'Preparation finished successfully'
+      call dashes()
+      call dashes()
+    endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! start from intermediate preparation file PREP
@@ -247,6 +251,7 @@ subroutine rhodyn()
       if (Nstate==lrootstot) then
         d = lrootstot
       elseif (Nstate<lrootstot) then
+        ! not all states were requested for dynamics
         d = Nstate
         call cut_matrices()
       endif

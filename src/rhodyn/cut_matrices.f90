@@ -11,19 +11,23 @@
 ! Copyright (C) 2021, Vladislav Kochetov                               *
 !***********************************************************************
 subroutine cut_matrices()
-  use rhodyn_data
+  use rhodyn_data, only: istates, hamiltonian, density0, dipole_basis, &
+                         flag_dyson, dysamp_bas, &
+                         ipglob, lrootstot, d, &
+                         U_CI, CSF2SO, SO_CI
   use rhodyn_utils, only: dashes, removeLineAndColumn, removeColumn
   use stdalloc, only: mma_allocate, mma_deallocate
   use definitions, only: wp, u6
   implicit none
-!
+!***********************************************************************
 ! cut dynamics matrices from size (lrootstot,lrootstot) to size (d,d)
-! not checked yet
+!***********************************************************************
   complex(kind=wp), dimension(:,:), allocatable :: d1, d2, d3
 
+  if (ipglob>2) then
   call dashes()
   write(u6,*) 'Begin cut_matrices'
-  call dashes()
+  endif
 
   ! cut dynamics matrices
   call removeLineAndColumn(hamiltonian, istates)
@@ -52,4 +56,10 @@ subroutine cut_matrices()
   call removeColumn(U_CI,istates)
   call removeColumn(CSF2SO,istates)
   call removeLineAndColumn(SO_CI,istates)
+
+  if (ipglob>2) then
+    write(u6,*) 'End cut_matrices'
+    call dashes()
+  endif
+
 end subroutine cut_matrices

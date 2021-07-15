@@ -11,7 +11,9 @@
 ! Copyright (C) 2021, Vladislav Kochetov                               *
 !***********************************************************************
 subroutine read_rassd(nfile)
-
+!***********************************************************************
+! Purpose: reading input RASSCF file RASSDX, where X = nfile
+!***********************************************************************
   use rhodyn_data
   use definitions, only: iwp, u6
   use mh5
@@ -20,15 +22,15 @@ subroutine read_rassd(nfile)
   integer(kind=iwp) :: fileid
   character(len=16) :: molcas_module
 
-  write(u6,*) 'read_rassd entered'
-!  if (ipglob>3) then
-!  call dashes(72)
-!  write(u6,*) 'Reading file: ', rassd_list(nfile)
-!  endif
-
   fileid = mh5_open_file_r(rassd_list(nfile))
 
   i_rasscf = 0
+! if i_rasscf = 0 at the end of the file, that is sign of error
+! if            1 - spin-free H obtained (dset 'HCSF' is found)
+! if            2 - CIs and Es obtained (dsets 'CI_VECTORS' and
+!                   'ROOT_ENERGIES' in RASSCF)
+! if            3 - CIs and Es (dsets 'CI_VECTORS' and
+!                   'STATE_PT2_ENERGIES' from CASPT2)
 
 ! reading ci vectors and energies
   if (mh5_exists_attr(fileid,'MOLCAS_MODULE')) then
@@ -36,14 +38,13 @@ subroutine read_rassd(nfile)
 ! rasscf input file:
     if (trim(molcas_module(1:6))=='RASSCF') then
       i_rasscf=2
-      write(u6,*) 'reading CI_VECTORS'
+      if (ipglob>2) write(u6,*) 'reading CI_VECTORS'
       call mh5_fetch_dset(fileid,'CI_VECTORS', &
                   CI(1:nconf(nfile),1:lroots(nfile),nfile), &
                   [nconf(nfile),lroots(nfile)],[0,0])
-      write(u6,*) 'reading ROOT_ENERGIES'
+      if (ipglob>2) write(u6,*) 'reading ROOT_ENERGIES'
       call mh5_fetch_dset(fileid,'ROOT_ENERGIES', &
                   E(1:lroots(nfile),nfile))
-      write(u6,*) 'reading finished'
 ! caspt2 input file:
     elseif (trim(molcas_module(1:6))=='CASPT2') then
       i_rasscf=3
@@ -68,11 +69,12 @@ subroutine read_rassd(nfile)
                   DTOC(1:NDET(nfile),1:nconf(nfile),nfile))
   endif
 
+  call mh5_close_file(fileid)
+
   if (i_rasscf==0) then
-    write(u6,*) 'Error in reading RASSCF outputs'
+    write(u6,*) 'Error in reading RASSCF file ', rassd_list(nfile)
+    write(u6,*) 'Required dsets has not been found in RASSD file'
     call abend()
   endif
-
-  call mh5_close_file(fileid)
 
 end

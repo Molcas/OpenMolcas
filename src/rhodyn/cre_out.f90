@@ -17,9 +17,9 @@ subroutine cre_out
   implicit none
 
 ! creating main output file of rhodyn
-  out_id = mh5_create_file('RDOUT')  
+  out_id = mh5_create_file('RDOUT')
 
-  call mh5_init_attr (out_id,'MOLCAS_MODULE','RHODYN')  
+  call mh5_init_attr (out_id,'MOLCAS_MODULE','RHODYN')
 ! PULSE
   out_pulse = mh5_create_dset_real (out_id,'PULSE',2,[Nstep,6])
   call mh5_init_attr(out_pulse,'description','Pulse')

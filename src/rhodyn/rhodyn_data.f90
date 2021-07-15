@@ -73,12 +73,13 @@ module rhodyn_data
 ! some abstract interfaces, which fit to several subroutines
   abstract interface
     subroutine rk_fixed_step(t0,y)
-      real(8) :: t0
-      complex(8),dimension(:,:) :: y
+      real(8), intent(in) :: t0
+      complex(8), dimension(:,:), intent(inout) :: y
     end subroutine
     subroutine rk_adapt_step(t0,y,err)
-      real(8) :: t0,err
-      complex(8),dimension(:,:) :: y
+      real(8), intent(in) :: t0
+      real(8), intent(out) :: err
+      complex(8), dimension(:,:), intent(inout) :: y
     end subroutine
     subroutine pulse_func(h0,ht,time,count)
       complex(8), dimension(:,:), intent(in) :: h0
@@ -87,8 +88,9 @@ module rhodyn_data
       integer, intent(in), optional :: count
     end subroutine pulse_func
     subroutine equation_func(time,rho_t,res)
-      real(8) :: time
-      complex(8),dimension(:,:) :: rho_t, res
+      real(8), intent(in) :: time
+      complex(8), dimension(:,:), intent(in) :: rho_t
+      complex(8), dimension(:,:), intent(out) :: res
     end subroutine
   end interface
   ! list of dummy integers
@@ -159,7 +161,7 @@ module rhodyn_data
   integer(kind=iwp)    :: N_Populated,Ntime_tmp_dm,Nstep,Npop
   integer(kind=iwp)    :: Nval,N_L3,N_L2,Nmode
   logical              :: HRSO, kext
-  logical,dimension(5) :: ion_blocks ! need for processing Dyson matrix
+  logical,dimension(5) :: ion_blocks ! for processing Dyson matrix
   real(kind=wp)        :: T,tau_L3,tau_L2,gamma,&
               initialtime,finaltime,timestep,dt,deltaE,V,tout,&
               time_fdm, errorthreshold, alpha, safety, ion_diss

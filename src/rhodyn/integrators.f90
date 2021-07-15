@@ -15,13 +15,13 @@
 ! these functions
 
 subroutine classic_rk4(t0,y)
+  use rhodyn_data, only: equation_func, timestep, ak1, ak2, ak3, ak4
+  implicit none
 !***********************************************************************
 !     convenient Runge Kutta method of 4th order
 !***********************************************************************
-  use rhodyn_data
-  implicit none
-  real(8) :: t0
-  complex(8),dimension(:,:) :: y
+  real(8), intent(in) :: t0
+  complex(8), dimension(:,:), intent(inout) :: y
   procedure(equation_func)  :: equation
   call equation(t0,y,ak1)
   call equation(t0+0.5*timestep,y+0.5*timestep*ak1,ak2)
@@ -31,10 +31,14 @@ subroutine classic_rk4(t0,y)
 end
 
 subroutine rk4(t0,y)
-  use rhodyn_data
+  use rhodyn_data, only: equation_func,timestep,ak1,ak2,ak3,ak4,ak5
   implicit none
-  real(8) :: t0, x
-  complex(8),dimension(:,:) :: y
+!***********************************************************************
+! Runge Kutta method of 4th order with proper adjusted midpoints
+!***********************************************************************
+  real(8), intent(in) :: t0
+  real(8) :: x
+  complex(8),dimension(:,:), intent(inout) :: y
   procedure(equation_func)  :: equation
   real(8),parameter :: a2  = 0.25,&
                        a3  = 0.375d0,&
@@ -67,11 +71,15 @@ subroutine rk4(t0,y)
 end
 
 subroutine rk5(t0,y)
-  use rhodyn_data
+  use rhodyn_data, only: equation_func,timestep,ak1,ak2,ak3,ak4,ak5,ak6
   implicit none
-  real(8) :: t0, x
-  complex(8),dimension(:,:) :: y
-  procedure(equation_func)  :: equation
+!***********************************************************************
+! Runge Kutta method of 5th order
+!***********************************************************************
+  real(8), intent(in) :: t0
+  complex(8),dimension(:,:), intent(inout) :: y
+  real(8) :: x
+  procedure(equation_func) :: equation
   real(8),parameter :: a2  = 0.25d0,&
                       a3  = 0.375d0,&
                       a4  = 0.92307692307692313d0,&
@@ -112,13 +120,15 @@ subroutine rk5(t0,y)
 end
 
 subroutine rk45(t0,y,err)
-  use rhodyn_data
+  use rhodyn_data, only: equation_func,dt,ak1,ak2,ak3,ak4,ak5,ak6
   implicit none
-!
+!***********************************************************************
 ! Runge-Kutta-Fehlberg 4(5) integration algorithm
-!
-  real(8) :: t0,err,x
-  complex(8),dimension(:,:) :: y
+!***********************************************************************
+  real(8), intent(in) :: t0
+  real(8), intent(out):: err
+  complex(8),dimension(:,:), intent(inout) :: y
+  real(8) :: x
   procedure(equation_func)  :: equation
   real(8), parameter ::a2  = 0.25,&
                        a3  = 3.0/8.0,&
@@ -148,42 +158,44 @@ subroutine rk45(t0,y,err)
                        dc3 = c3-1408.0/2565.0,&
                        dc4 = c4-2197.0/4104.0,&
                        dc5 = c5+0.2
-!     1st step
+! 1st step
   x=t0
   call equation(x,y,ak1)
-!     2nd step
+! 2nd step
   x=t0+a2*dt
   call equation(x,y+dt*c21*ak1,ak2)
-!     3rd step
+! 3rd step
   x=t0+a3*dt
   call equation(x,y+dt*(c31*ak1+c32*ak2),ak3)
-!     4th step
+! 4th step
   x=t0+a4*dt
   call equation(x,y+dt*(c41*ak1+c42*ak2+c43*ak3),ak4)
-!     5th step
+! 5th step
   x=t0+dt
   call equation(x,y+dt*(c51*ak1+c52*ak2+c53*ak3+c54*ak4),ak5)
-!     6th step
+! 6th step
   x=t0+a6*dt
   call equation(x,y+dt*(c61*ak1+c62*ak2+c63*ak3+&
                                 c64*ak4+c65*ak5),ak6)
-!     Accumulate increments with proper weights
+! Accumulate increments with proper weights
   y = y + dt*(c1*ak1+c3*ak3+c4*ak4+c5*ak5+c6*ak6)
   err = maxval(abs(dt*(dc1*ak1+dc3*ak3+dc4*ak4+dc5*ak5+c6*ak6)))
 end
 
 subroutine rkck(t0,y,err)
-  use rhodyn_data
+  use rhodyn_data, only: equation_func,dt,ak1,ak2,ak3,ak4,ak5,ak6
   implicit none
-!
+!***********************************************************************
 !     Runge-Kutta-Cash-Karp integration algorithm
 !     implementated following the Numerical Recipes in Fortran 90
 !     by W.H. Press, S.A. Teukolsky et al. (1997).
 !     Also, a clear ansatz can be found in the book
 !     Numerical computations with GPUs by V. Kindratenko
-!
-  real(8) :: err, t0, x
-  complex(8),dimension(:,:) :: y
+!***********************************************************************
+  real(8), intent(in) :: t0
+  real(8), intent(out):: err
+  complex(8),dimension(:,:), intent(inout) :: y
+  real(8) :: x
   procedure(equation_func)  :: equation
   real(8), parameter :: a2  = 0.2,&
                         a3  = 0.3,&

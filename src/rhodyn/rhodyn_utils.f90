@@ -76,179 +76,179 @@ contains
                     0.d0, c, size(c, 1))
   end subroutine mult_2D
 
-    subroutine multZ_2D(a,b,c,transpA, transpB)
-        complex(8), intent(in) :: a(:,:), b(:,:)
-        complex(8), intent(out):: c(:,:)
-        logical, intent(in), optional :: transpA, transpB
-        logical :: transpA_, transpB_
-        integer :: m, n, k, k1, k2
-        if (present(transpA)) then
-            transpA_ = transpA
-        else
-            transpA_ = .false.
-        end if
-        if (present(transpB)) then
-            transpB_ = transpB
-        else
-            transpB_ = .false.
-        end if
-        m = size(a, merge(1, 2, .not. transpA_))
-        call assert(m == size(c, 1))
-        n = size(b, merge(2, 1, .not. transpB_))
-        call assert(n == size(c, 2))
-        k1 = size(a, merge(2, 1, .not. transpA_))
-        k2 = size(b, merge(1, 2, .not. transpB_))
-        call assert(k1 == k2)
-        k = k1
-        call zgemm_(merge('C', 'N', transpA_), merge('C', 'N', transpB_), &
-                        m, n, k, (1.0d0,0.0d0), a, size(a, 1), b, size(b, 1), &
-                        (0.0d0,0.0d0), c, size(c, 1))
-    end subroutine multZ_2D
+  subroutine multZ_2D(a,b,c,transpA, transpB)
+      complex(8), intent(in) :: a(:,:), b(:,:)
+      complex(8), intent(out):: c(:,:)
+      logical, intent(in), optional :: transpA, transpB
+      logical :: transpA_, transpB_
+      integer :: m, n, k, k1, k2
+      if (present(transpA)) then
+          transpA_ = transpA
+      else
+          transpA_ = .false.
+      end if
+      if (present(transpB)) then
+          transpB_ = transpB
+      else
+          transpB_ = .false.
+      end if
+      m = size(a, merge(1, 2, .not. transpA_))
+      call assert(m == size(c, 1))
+      n = size(b, merge(2, 1, .not. transpB_))
+      call assert(n == size(c, 2))
+      k1 = size(a, merge(2, 1, .not. transpA_))
+      k2 = size(b, merge(1, 2, .not. transpB_))
+      call assert(k1 == k2)
+      k = k1
+      call zgemm_(merge('C', 'N', transpA_), merge('C', 'N', transpB_), &
+                      m, n, k, (1.0d0,0.0d0), a, size(a, 1), b, size(b, 1), &
+                      (0.0d0,0.0d0), c, size(c, 1))
+  end subroutine multZ_2D
 
-    subroutine assert(x)
-      implicit none
-      logical, intent(in):: x
-      if (.not.x) then
-        write(6,*) 'assertion ', x, ' failed'
-        call abend()
+  subroutine assert(x)
+    implicit none
+    logical, intent(in):: x
+    if (.not.x) then
+      write(6,*) 'assertion ', x, ' failed'
+      call abend()
+    endif
+  end subroutine assert
+
+  subroutine removeLineAndColumnZ(a,remLCarray)
+    implicit none
+    complex(8), dimension(:,:), allocatable, intent(inout) :: a
+    integer, dimension(:), intent(in) :: remLCarray
+  ! temp variables
+    complex(8), dimension(:), allocatable :: b
+    logical, dimension(:,:), allocatable :: mask
+    integer :: i, j, l, m, n, k
+  ! sizes
+    n = size(a,1)
+    m = size(a,2)
+    k = size(remLCarray)
+    allocate(mask(n,m))
+  ! mask creation
+    l = 0
+    mask=.False.
+    do i=1,n
+      do j=1,m
+        if (any(remLCarray==i).and.any(remLCarray==j)) then
+          mask(i,j) = .True.
+          l = l + 1
+        endif
+      enddo
+    enddo
+    allocate(b(l))
+  ! copy remaining elements into temp b
+    b = pack(a,mask)
+    deallocate(a)
+    allocate(a(k,k))
+  ! copy back
+    a = reshape(b,(/k,k/))
+    deallocate(b)
+    deallocate(mask)
+  end
+
+  subroutine removeLineAndColumnR(a,remLCarray)
+    implicit none
+    real(8), dimension(:,:), allocatable, intent(inout) :: a
+    integer, dimension(:), intent(in) :: remLCarray
+    ! temp variables
+    real(8), dimension(:), allocatable :: b
+    logical, dimension(:,:), allocatable :: mask
+    integer :: i, j, l, m, n, k
+    ! sizes
+    n = size(a,1)
+    m = size(a,2)
+    k = size(remLCarray)
+    allocate(mask(n,m))
+    ! mask creation
+    l = 0
+    mask=.False.
+    do i=1,n
+      do j=1,m
+        if (any(remLCarray==i).and.any(remLCarray==j)) then
+          mask(i,j) = .True.
+          l = l + 1
+        endif
+      enddo
+    enddo
+    allocate(b(l))
+    ! copy remaining elements into temp b
+    b = pack(a,mask)
+    deallocate(a)
+    allocate(a(k,k))
+    ! copy back
+    a = reshape(b,(/k,k/))
+    deallocate(b)
+    deallocate(mask)
+  end
+
+  subroutine removeColumnZ(a,remCarray)
+    implicit none
+    complex(8), dimension(:,:), allocatable, intent(inout) :: a
+    integer, dimension(:), intent(in) :: remCarray
+    ! temp variables
+    complex(8), dimension(:), allocatable :: b
+    logical, dimension(:,:), allocatable :: mask
+    integer :: j, l, m, n, k
+    ! sizes
+    n = size(a,1)
+    m = size(a,2)
+    k = size(remCarray)
+    allocate(mask(n,m))
+    ! mask creation
+    l = 0
+    mask=.False.
+    do j=1,m
+      if (any(remCarray==j)) then
+        mask(:,j) = .True.
+        l = l + n
       endif
-    end subroutine assert
-
-    subroutine removeLineAndColumnZ(a,remLCarray)
-      implicit none
-      complex(8), dimension(:,:), allocatable, intent(inout) :: a
-      integer, dimension(:), intent(in) :: remLCarray
-    ! temp variables
-      complex(8), dimension(:), allocatable :: b
-      logical, dimension(:,:), allocatable :: mask
-      integer :: i, j, l, m, n, k
-    ! sizes
-      n = size(a,1)
-      m = size(a,2)
-      k = size(remLCarray)
-      allocate(mask(n,m))
-    ! mask creation
-      l = 0
-      mask=.False.
-      do i=1,n
-        do j=1,m
-          if (any(remLCarray==i).and.any(remLCarray==j)) then
-            mask(i,j) = .True.
-            l = l + 1
-          endif
-        enddo
-      enddo
-      allocate(b(l))
+    enddo
+    allocate(b(l))
     ! copy remaining elements into temp b
-      b = pack(a,mask)
-      deallocate(a)
-      allocate(a(k,k))
+    b = pack(a,mask)
+    deallocate(a)
+    allocate(a(n,k))
     ! copy back
-      a = reshape(b,(/k,k/))
-      deallocate(b)
-      deallocate(mask)
-    end
+    a = reshape(b,(/n,k/))
+    deallocate(b)
+    deallocate(mask)
+  end
 
-    subroutine removeLineAndColumnR(a,remLCarray)
-      implicit none
-      real(8), dimension(:,:), allocatable, intent(inout) :: a
-      integer, dimension(:), intent(in) :: remLCarray
+  subroutine removeColumnR(a,remCarray)
+    implicit none
+    real(8), dimension(:,:), allocatable, intent(inout) :: a
+    integer, dimension(:), intent(in) :: remCarray
     ! temp variables
-      real(8), dimension(:), allocatable :: b
-      logical, dimension(:,:), allocatable :: mask
-      integer :: i, j, l, m, n, k
+    real(8), dimension(:), allocatable :: b
+    logical, dimension(:,:), allocatable :: mask
+    integer :: j, l, m, n, k
     ! sizes
-      n = size(a,1)
-      m = size(a,2)
-      k = size(remLCarray)
-      allocate(mask(n,m))
+    n = size(a,1)
+    m = size(a,2)
+    k = size(remCarray)
+    allocate(mask(n,m))
     ! mask creation
-      l = 0
-      mask=.False.
-      do i=1,n
-        do j=1,m
-          if (any(remLCarray==i).and.any(remLCarray==j)) then
-            mask(i,j) = .True.
-            l = l + 1
-          endif
-        enddo
-      enddo
-      allocate(b(l))
+    l = 0
+    mask=.False.
+    do j=1,m
+      if (any(remCarray==j)) then
+        mask(:,j) = .True.
+        l = l + n
+      endif
+    enddo
+    allocate(b(l))
     ! copy remaining elements into temp b
-      b = pack(a,mask)
-      deallocate(a)
-      allocate(a(k,k))
+    b = pack(a,mask)
+    deallocate(a)
+    allocate(a(n,k))
     ! copy back
-      a = reshape(b,(/k,k/))
-      deallocate(b)
-      deallocate(mask)
-    end
-
-    subroutine removeColumnZ(a,remCarray)
-      implicit none
-      complex(8), dimension(:,:), allocatable, intent(inout) :: a
-      integer, dimension(:), intent(in) :: remCarray
-    ! temp variables
-      complex(8), dimension(:), allocatable :: b
-      logical, dimension(:,:), allocatable :: mask
-      integer :: j, l, m, n, k
-    ! sizes
-      n = size(a,1)
-      m = size(a,2)
-      k = size(remCarray)
-      allocate(mask(n,m))
-    ! mask creation
-      l = 0
-      mask=.False.
-      do j=1,m
-        if (any(remCarray==j)) then
-          mask(:,j) = .True.
-          l = l + n
-        endif
-      enddo
-      allocate(b(l))
-    ! copy remaining elements into temp b
-      b = pack(a,mask)
-      deallocate(a)
-      allocate(a(n,k))
-    ! copy back
-      a = reshape(b,(/n,k/))
-      deallocate(b)
-      deallocate(mask)
-    end
-
-    subroutine removeColumnR(a,remCarray)
-      implicit none
-      real(8), dimension(:,:), allocatable, intent(inout) :: a
-      integer, dimension(:), intent(in) :: remCarray
-    ! temp variables
-      real(8), dimension(:), allocatable :: b
-      logical, dimension(:,:), allocatable :: mask
-      integer :: j, l, m, n, k
-    ! sizes
-      n = size(a,1)
-      m = size(a,2)
-      k = size(remCarray)
-      allocate(mask(n,m))
-    ! mask creation
-      l = 0
-      mask=.False.
-      do j=1,m
-        if (any(remCarray==j)) then
-          mask(:,j) = .True.
-          l = l + n
-        endif
-      enddo
-      allocate(b(l))
-    ! copy remaining elements into temp b
-      b = pack(a,mask)
-      deallocate(a)
-      allocate(a(n,k))
-    ! copy back
-      a = reshape(b,(/n,k/))
-      deallocate(b)
-      deallocate(mask)
-    end
+    a = reshape(b,(/n,k/))
+    deallocate(b)
+    deallocate(mask)
+  end
 
   subroutine transformZ(a,u,b,order)
     implicit none

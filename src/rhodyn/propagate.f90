@@ -10,12 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2021, Vladislav Kochetov                               *
 !***********************************************************************
-subroutine propagate
-!***********************************************************************
-!
-!
-!
-!***********************************************************************
+subroutine propagate()
   use rhodyn_data
   use rhodyn_utils, only: dashes
   use definitions, only: wp, iwp, u6
@@ -23,7 +18,11 @@ subroutine propagate
   use stdalloc, only: mma_allocate, mma_deallocate
   use mh5, only: mh5_put_dset
   implicit none
-
+!***********************************************************************
+!
+!
+!
+!***********************************************************************
   integer(kind=iwp) :: Ntime,Noutstep
 ! timers are commented out now, should be again switched on, once it is
 ! transferred to f90 standard
@@ -109,6 +108,7 @@ subroutine propagate
   call mma_allocate(dgl,d)
   call pop(time,ii)
   if (flag_fdm) then
+    ! store full density matrix
     call mh5_put_dset(out_tfdm, [time*auToFs], [1], [0])
     call mh5_put_dset(out_fdm,abs(density0),[1,d,d],[0,0,0])
   endif
@@ -126,11 +126,11 @@ subroutine propagate
     kk=1 ! counts initial steps by timestep
     ! initialize time step as 1/10 of interval:
     dt=(finaltime-initialtime)/10.
-    if (ipglob>3) then
+    if (ipglob>2) then
       call dashes()
       write(u6,*) 'Propagation with ',trim(method),' method'
       write(u6,*) 'Integration values at each step:'
-      write(u6,out2_fmt) 'Time','Error','Timestep','Walltime'
+      write(u6,out2_fmt) 'Time','Error','Timestep'
     endif
     ! main loop loopprop:
     loopprop: do while (time<=finaltime)
@@ -162,7 +162,7 @@ subroutine propagate
 !        call dcopy_(d**2,density0,1,densityt,1)
         t_temp=safety*dt*(errorthreshold/error_rk)**0.25
         dt=max(t_temp,0.2*dt)
-        if (ipglob>3) write(u6,*) ' ------',error_rk,dt*auToFs
+        if (ipglob>2) write(u6,*) ' ------',error_rk,dt*auToFs
       enddo loopstep
 ! step succeeded
       time=time+dt
@@ -185,7 +185,7 @@ subroutine propagate
 !      ihh=int(Rolex_3/3600)
 !      imm=int(Rolex_3-ihh*3600)/60
 !      iss=int(Rolex_3-ihh*3600-imm*60)
-      if (ipglob>3) write(u6,out3_fmt) time*auToFs,error_rk,dt*auToFs
+      if (ipglob>2) write(u6,out3_fmt) time*auToFs,error_rk,dt*auToFs
 !                            , ihh,':',imm,':',iss
 !      next step size
       if (method=='RKCK') then

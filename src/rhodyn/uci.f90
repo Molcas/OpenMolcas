@@ -15,7 +15,7 @@ subroutine uci
   use rhodyn_utils, only: mult, dashes
   use definitions, only: wp, u6
   use stdalloc, only: mma_allocate, mma_deallocate
-  use mh5
+  use mh5, only: mh5_put_dset, mh5_create_dset_real, mh5_init_attr
   implicit none
 !
 !***********************************************************************
@@ -28,21 +28,24 @@ subroutine uci
 !
   real(kind=wp),dimension(:,:),allocatable :: UTU
 
-  call dashes()
-  write(u6,*) 'Begin of uci'
+  if (ipglob>2) then
+    call dashes()
+    write(u6,*) 'Begin of uci'
 
-  write(u6,*)'Dimensions of transformation matrix accounting'// &
+    write(u6,*)'Dimensions of transformation matrix accounting'// &
                                       ' for spin-degeneracy'
-  call dashes()
-  write(u6,sint)'Number of total CSFs:', nconftot
-  write(u6,sint)'Number of total states (roots):', lrootstot
-  call dashes()
+    call dashes()
+    write(u6,sint)'Number of total CSFs:', nconftot
+    write(u6,sint)'Number of total states (roots):', lrootstot
+    call dashes()
+  endif
 
   U_CI=0d0
   ii=0
   jj=0
   kk=0
   if (.not.flag_so) then
+    if(ipglob>2) write(u6,*)'Construct matrix U_CI'
     do k=1,N
       if (k/=1) then
         kk=kk+lroots(k-1)
@@ -55,7 +58,7 @@ subroutine uci
       enddo
     enddo
   else
-    write(u6,*) 'Construct transformation matrix U_CI'
+    if(ipglob>2) write(u6,*)'Construct matrix U_CI with SO accounting'
     ll=0
     do l=1,N
       if (l/=1) then
@@ -77,8 +80,8 @@ subroutine uci
   if (preparation/=2.and.preparation/=4) &
      call mh5_put_dset(prep_uci, U_CI)
 
-! Check whether the trafo matrix U_CI is orthonormalized
-  if (ipglob>2) then
+! Check whether the transformation matrix U_CI is orthonormalized
+  if (ipglob>3) then
     call mma_allocate(UTU,lrootstot,lrootstot)
     call mult(U_CI,U_CI,UTU,.True.,.False.)
     call dashes()
@@ -116,6 +119,6 @@ subroutine uci
     if (allocated(UTU)) call mma_deallocate(UTU)
   endif
 
-  write(u6,*) 'End of uci'
+  if (ipglob>2) write(u6,*) 'End of uci'
 
 end

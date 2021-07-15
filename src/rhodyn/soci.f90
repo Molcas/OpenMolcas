@@ -38,7 +38,7 @@ subroutine soci
   complex(kind=wp),dimension(:),allocatable::WORK
   real(kind=wp)::RWORK(3*nconftot-2),W(nconftot)
 
-  write(u6,*) 'Begin of soci'
+  if (ipglob>2) write(u6,*) 'Begin of soci'
 
   call mma_allocate(Hfull, nconftot,nconftot)
   call mma_allocate(Hfull2,nconftot,nconftot)
@@ -58,10 +58,13 @@ subroutine soci
       write(u6,*) (Hfull(i,j),j=1,10)
     enddo
   endif
-  call dashes()
-  write(u6,*) 'diagonalize the full Hamiltonian HTOT_CSF and'// &
+
+  if (ipglob>2) then
+    call dashes()
+    write(u6,*) 'diagonalize the full Hamiltonian HTOT_CSF and'// &
                             ' ascending sorted eigenvalues'
-  call dashes()
+    call dashes()
+  endif
   LWORK=-1
 
   call zheev('V','L',nconftot,Hfull,nconftot,W,WORK,LWORK,RWORK,INFO)
@@ -77,15 +80,15 @@ subroutine soci
   call zheev('V','L',nconftot,Hfull,nconftot,W,WORK,LWORK,RWORK,INFO)
 
   if (ipglob>4) then
-    call dashes(72)
+    call dashes()
     write(u6,*) 'printout the eigenvectors after diagnolize'
-    call dashes(72)
+    call dashes()
     do i=1,nconftot
       write(u6,*) (Hfull(i,j),j=1,nconftot)
     enddo
-    call dashes(72)
+    call dashes()
     write(u6,*) 'printout the eigenvalues'
-    call dashes(72)
+    call dashes()
     do i=1,nconftot
       write(u6,*) W(i)
     enddo
@@ -97,19 +100,19 @@ subroutine soci
   call mult(Hfull,Hfull,Hfull2,.True.,.False.)
 
   if (ipglob>4) then
-    call dashes(72)
+    call dashes()
     write(u6,*) 'Printout the overlap of eigenvector'
-    call dashes(72)
+    call dashes()
     do i=1,nconftot
       write(u6,*) (Hfull2(i,j),j=1,nconftot)
     enddo
   endif
 
   if (ipglob>3) then
-    call dashes(72)
+    call dashes()
     write(u6,*) 'Check whether the eigenvectors of '// &
                'the full Hamiltonian are orthonormalized'
-    call dashes(72)
+    call dashes()
     do i=1,nconftot
       do j=1,nconftot
         if (i==j.and.((dble(Hfull2(I,J))-1)>=threshold).or. &
@@ -123,10 +126,10 @@ subroutine soci
         endif
       enddo
     enddo
-    call dashes(72)
+    call dashes()
     write(u6,*) 'If there is no error info printout'
     write(u6,*) 'Hfull coeffs are orthonormalized'
-    call dashes(72)
+    call dashes()
   endif
 
   Hdiag=0d0
@@ -134,20 +137,22 @@ subroutine soci
   call transform(HTOT_CSF,Hfull,Hdiag)
 
   if (ipglob>4) then
-    call dashes(72)
+    call dashes()
     write(u6,*) 'printout the Hdiag'
-    call dashes(72)
+    call dashes()
     do i=1,nconftot
       write(u6,*)(Hdiag(i,j),j=1,nconftot)
     enddo
-    call dashes(72)
+    call dashes()
   endif
 
-  write(u6,*)'Begin read SO Coeffs to SO_CI'
-  call dashes()
-! write(*,sint)'Nr of Spin-free States (spin-degeneracy):',Nstate
-  write(u6,sint)'Nr of Spin-orbit States:',lrootstot
-  call dashes()
+  if (ipglob>2) then
+    write(u6,*)'Begin read SO Coeffs to SO_CI'
+    call dashes()
+!   write(*,sint)'Nr of Spin-free States (spin-degeneracy):',Nstate
+    write(u6,sint)'Nr of Spin-orbit States:',lrootstot
+    call dashes()
+  endif
 
   ! reading SO coefficients (probably better move to read_rassisd.f90)
   fileid = mh5_open_file_r('RASSISD')
@@ -252,7 +257,7 @@ subroutine soci
   call mh5_put_dset(prep_csfsor,dble(CSF2SO))
   call mh5_put_dset(prep_csfsoi,aimag(CSF2SO))
 
-  write(u6,*) 'End of soci'
+  if (ipglob>2) write(u6,*) 'End of soci'
 
   if (allocated(Hfull)) call mma_deallocate(Hfull)
   if (allocated(Hfull2)) call mma_deallocate(Hfull2)

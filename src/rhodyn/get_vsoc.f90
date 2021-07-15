@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2021, Vladislav Kochetov                               *
 !***********************************************************************
-subroutine transform_V
+subroutine get_vsoc
   use rhodyn_data
   use rhodyn_utils, only: transform, dashes
   use definitions, only: wp, iwp, u6
@@ -19,8 +19,8 @@ subroutine transform_V
   implicit none
 !
 !***********************************************************************
-! Purpose:  transformation of H(SO) from the basis of
-!           spin-free states to the basis of CSFs
+! Purpose:  reading and transformation of V(SOC) matrix from the basis
+!           of spin-free states to the basis of CSFs
 !***********************************************************************
 ! V_SO    : SO-Hamiltonian matrix
 ! REV_SO  : Real part of V_SO
@@ -32,8 +32,8 @@ subroutine transform_V
                                             IMV_SO,IMV_CSF
   integer(kind=iwp) :: fileid
 
-  if (ipglob>3) write(u6,*) 'Begin of transform_V'
-  if (ipglob>3) call dashes()
+  if (ipglob>2) write(u6,*) 'Begin of get_vsoc'
+  if (ipglob>2) call dashes()
 
   call mma_allocate(REV_SO,lrootstot,lrootstot)
   call mma_allocate(IMV_SO,lrootstot,lrootstot)
@@ -52,7 +52,7 @@ subroutine transform_V
   endif
   call mh5_close_file(fileid)
 
-! check whether V_SO in SF basis is hermitain.
+! check whether V_SO in SF basis is hermitian.
   if (ipglob>3) then
     call dashes()
     write(u6,*) 'Check if Spin-orbit coupling V_SO is hermitain'
@@ -82,7 +82,7 @@ subroutine transform_V
     enddo
   endif
 
-  write(u6,*) 'Begin transform the SO-Hamiltonian'
+  if (ipglob>2) write(u6,*) 'Begin transform the SO-Hamiltonian'
 ! Transform the SO-Hamiltonian from SF states to CSFs
   call transform(REV_SO,U_CI,REV_CSF,.False.)
   call transform(IMV_SO,U_CI,IMV_CSF,.False.)
@@ -120,6 +120,6 @@ subroutine transform_V
   if (allocated(REV_CSF)) call mma_deallocate(REV_CSF)
   if (allocated(IMV_CSF)) call mma_deallocate(IMV_CSF)
 
-  if (ipglob>3) write(u6,*) 'End of transform_V'
+  if (ipglob>2) write(u6,*) 'End of get_vsoc'
 
 end

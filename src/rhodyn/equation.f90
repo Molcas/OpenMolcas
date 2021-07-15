@@ -11,7 +11,10 @@
 ! Copyright (C) 2021, Vladislav Kochetov                               *
 !***********************************************************************
 subroutine equation (time,rhot,res)
-  use rhodyn_data
+  use rhodyn_data, only: pulse_func, flag_pulse, d, onei, zero, one, &
+                         flag_decay, ion_diss, flag_diss, decay, &
+                         hamiltonian, hamiltoniant, &
+                         K_bar_basis, kab_basis, i, j
   implicit none
 !
 !***********************************************************************
@@ -20,21 +23,24 @@ subroutine equation (time,rhot,res)
 !***********************************************************************
 !
 !  time   : current time
+!  rhot   : density matrix at current time
+!  res    : obtained left part of Liouville equation d(rhot)/d(time)
 !
-  real(8) :: time
-  complex(8),dimension(:,:) :: rhot, res
+  real(8), intent(in) :: time
+  complex(8), dimension(:,:), intent(in) :: rhot
+  complex(8), dimension(:,:), intent(out):: res
   procedure(pulse_func) :: pulse
 
 ! if pulse in enableb, modify hamiltonian at time t:
   if (flag_pulse) call pulse(hamiltonian,hamiltoniant,time)
 
-! obtaining right part of Liouville equation
-  call ZGEMM('N','N',d,d,d,-onei,hamiltoniant,d,rhot,d,zero,res,d)
-  call ZGEMM('N','N',d,d,d, onei,rhot,d,hamiltoniant,d, one,res,d)
+! get right part of Liouville equation
+  call zgemm_('N','N',d,d,d,-onei,hamiltoniant,d,rhot,d,zero,res,d)
+  call zgemm_('N','N',d,d,d, onei,rhot,d,hamiltoniant,d, one,res,d)
 
 ! auger decay part
   if (flag_decay.or.ion_diss/=0d0) then
-    call ZGEMM('N','N',d,d,d,one,decay,d,rhot,d,one,res,d)
+    call zgemm_('N','N',d,d,d,one,decay,d,rhot,d,one,res,d)
   endif
 
 ! if dissipation (nuclear bath) is considered

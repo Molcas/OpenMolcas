@@ -24,8 +24,11 @@ subroutine get_hcsf()
   use mh5, only: mh5_put_dset
   implicit none
 
-  call dashes()
-  write(u6,*) 'Begin get_Hcsf'
+  if (ipglob>2) then
+    call dashes()
+    write(u6,*) 'Begin get_Hcsf'
+    call dashes()
+  endif
 
 ! Construct the Hamiltonian matrix H(RASSCF) in CSF basis include all
 ! spin manifolds to ! HTOTRE_CSF
@@ -60,10 +63,12 @@ subroutine get_hcsf()
     enddo
   endif
 
-  write(u6,*) 'Construct the full Hamiltonian!'
-  call dashes()
-  write(u6,sint)'number of NCSF:',nconftot
-  call dashes()
+  if (ipglob>2) then
+    write(u6,*) 'Construct the full Hamiltonian with (possibly) SOC!'
+    call dashes()
+    write(u6,sint)'number of NCSF:',nconftot
+    call dashes()
+  endif
   HTOT_CSF=(0d0,0d0)
 
 ! If consider the spin-orbit coupling
@@ -74,9 +79,9 @@ subroutine get_hcsf()
   else
     HTOT_CSF = HTOTRE_CSF + V_CSF
   endif
-  write(u6,*) 'end contructing full Hamiltonian'
+  if (ipglob>2) write(u6,*) 'end contructing full Hamiltonian'
 
-! Check whether total Hamiltonian is Hermitian
+! Check whether total Hamiltonian is hermitian
   if (ipglob>3) then
     call dashes()
     write(u6,*)'Check whether total Hamiltonian HTOT_CSF is Hermitian'
@@ -102,5 +107,7 @@ subroutine get_hcsf()
 
   call mh5_put_dset(prep_fhr, dble(HTOT_CSF))
   call mh5_put_dset(prep_fhi, aimag(HTOT_CSF))
+
+  if (ipglob>2) write(u6,*) 'end get_Hcsf'
 
 end

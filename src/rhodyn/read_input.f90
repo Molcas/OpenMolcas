@@ -41,10 +41,10 @@ subroutine read_input()
     select case (line(1:4))
     case('NRSM')
       read(luin,*)N
-      allocate(ndet(N))
-      allocate(nconf(N))
-      allocate(lroots(N))
-      allocate(ispin(N))
+      call mma_allocate(ndet,N)
+      call mma_allocate(nconf,N)
+      call mma_allocate(lroots,N)
+      call mma_allocate(ispin,N)
       case('NRDE')
         do i=1,N
           read(luin,*) ndet(i),nconf(i),lroots(i),ispin(i)
@@ -76,12 +76,12 @@ subroutine read_input()
         endif
       case('NSTA')
         read(luin,*) Nstate,tryname
+        call mma_allocate(istates,Nstate)
         call UpCase(tryname)
         if (tryname=='ALL') then
           istates=(/(i,i=1,Nstate)/)
         else
           backspace(luin)
-          allocate(istates(Nstate))
           read(luin,*) Nstate, (istates(i),i=1,Nstate)
         endif
       case('PREP')

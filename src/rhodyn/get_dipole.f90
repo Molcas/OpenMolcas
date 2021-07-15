@@ -24,9 +24,11 @@ subroutine get_dipole
   integer(kind=iwp) :: fileid
   real(kind=wp),allocatable,dimension(:,:,:) :: DIPR, DIPI
 
-  call dashes()
-  write(u6,*) 'Begin get_dipole'
-  call dashes()
+  if (ipglob>2) then
+    call dashes()
+    write(u6,*) 'Begin get_dipole'
+    call dashes()
+  endif
 
   call mma_allocate (DIPR,lrootstot,lrootstot,3)
   call mma_allocate (DIPI,lrootstot,lrootstot,3)
@@ -34,7 +36,6 @@ subroutine get_dipole
 ! Read in the components dipole matrix (X,Y,Z) from the MOLCAS output
 ! probably better move that to read_rassisd.f90
   fileid = mh5_open_file_r('RASSISD')
-  write(u6,*) 'dipole real read'
   if (flag_so) then
     if (mh5_exists_dset(fileid,'SOS_EDIPMOM_REAL').and. &
       mh5_exists_dset(fileid,'SOS_EDIPMOM_IMAG')) then
@@ -59,9 +60,11 @@ subroutine get_dipole
   else if (mh5_exists_dset(fileid,'DYSAMP').and.flag_dyson) then
     call mh5_fetch_dset(fileid,'DYSAMP',dysamp)
   else
-    write(u6,*) 'Ionization is not taken into account (set flag DYSO) and/or'
-    write(u6,*) 'RASSI file does not contain Dyson amplitudes'
-    flag_dyson=.False.
+    if (ipglob>2) then
+      write(u6,*)'Ionization is not taken into account (set flag DYSO)'
+      write(u6,*)' and/or RASSI file does not contain Dyson amplitudes'
+      flag_dyson=.False.
+    endif
   endif
   !write(u6,*) 'dysorb has been read'
   call mh5_close_file(fileid)
@@ -93,11 +96,13 @@ subroutine get_dipole
       ii=ii+lroots(k)*ispin(k)
       jj=0
     enddo
-  else
+  else if (flag_dyson) then
     dysamp_bas = dysamp
   endif
-  if (flag_dyson) dysamp_bas=abs(dysamp_bas**2)
-  write(u6,*)'dysorb processing has been successfully finished'
+  if (flag_dyson) then
+    dysamp_bas=abs(dysamp_bas**2)
+    if (ipglob>2) write(u6,*)'dysamp processing successfully finished'
+  endif
 
 ! calculate matrix of Einstein coefficient A if emission spectrum needed
 !      if ((DM_basis/='SO').and.(DM_basis/='CSF_SO').and.
@@ -136,6 +141,6 @@ subroutine get_dipole
   call mma_deallocate (DIPR)
   call mma_deallocate (DIPI)
 
-  write(u6,*) 'End get_dipole'
+  if (ipglob>2) write(u6,*) 'End get_dipole'
 
 end

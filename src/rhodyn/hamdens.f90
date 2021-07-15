@@ -16,12 +16,14 @@ subroutine hamdens()
   use definitions, only: u6
   implicit none
 !
-! Purpose : Read in the Hamiltonian (time-independent)
-! and the initial density matrix for propagation
+! Purpose : Get the initial Hamiltonian in required basis as well as
+! the initial density matrix for dynamics
 !
-  call dashes()
-  write(u6,*) 'Begin get_hamiltonian'
-  call dashes()
+  if (ipglob>2) then
+    call dashes()
+    write(u6,*) 'Begin get_hamiltonian'
+    call dashes()
+  endif
 
   if (.not.flag_test) then
     U_CI_compl =dcmplx(U_CI,0d0)
@@ -71,7 +73,7 @@ subroutine hamdens()
     endif
   endif
 
-  if (ipglob>3) then
+  if (ipglob>2) then
     call dashes()
     write(u6,*) 'End get_hamiltonian'
     call dashes()
@@ -80,9 +82,11 @@ subroutine hamdens()
 
   if (.not.flag_test) then
 
+    if (ipglob>2) then
     call dashes()
     write(u6,*) 'Begin get_dipole'
     call dashes()
+    endif
 
 ! contrust the dipole matrix in required basis (with dyson matrix)
 

@@ -11,9 +11,16 @@
 ! Copyright (C) 2021, Vladislav Kochetov                               *
 !***********************************************************************
 subroutine pop(time,popcount)
-  use rhodyn_data
+  use rhodyn_data, only: basis, DM_basis, density0, densityt, d, dgl, &
+                         out_fmt_csf, out_fmt, &
+                         out_tout, out_dm_csf, out_dm_sf, out_dm_so, &
+                         out_emiss, emiss, n_freq, a_einstein, &
+                         lu_csf, lu_sf, lu_so, lu_dip, tmp, pulse_vec, &
+                         flag_emiss, flag_dipole, dipole_basis, &
+                         SO_CI, CSF2SO, U_CI_compl, &
+                         i, j, l, Nstate, nconftot
   use rhodyn_utils, only: mult, transform
-  use definitions, only: wp
+  use definitions, only: wp, iwp
   use constants, only: auToFs
   use mh5, only: mh5_put_dset
   implicit none
@@ -23,8 +30,9 @@ subroutine pop(time,popcount)
 !     at the current time
 !
 !***********************************************************************
-  integer :: popcount
-  real(kind=wp) :: time, norm
+  integer(kind=iwp), intent(in) :: popcount
+  real(kind=wp), intent(in) :: time
+  real(kind=wp) :: norm
   real(kind=wp), dimension(nconftot) :: dgl_csf
   complex(kind=wp),dimension(nconftot,nconftot) :: density_csf
   character(len=64) :: sline
