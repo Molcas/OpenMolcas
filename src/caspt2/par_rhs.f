@@ -1346,30 +1346,22 @@ C-SVC: get the local vertical stripes of the lg_W vector
 
       DIMENSION W(LDW,*),DIN(*),DIS(*)
 
-      ! write(6,*)
-      ! WRITE(6,*)' I     J     DELTA in RESDIA'
       DOVL=0.0D0
       DO J=1,NCOL
         DO I=1,NROW
         ! real denominator shift
         DELTA=SHIFT+DIN(I)+DIS(J)
-        ! regularized CASPT2
-        if (reg.gt.0.0d0) then
-          if (DELTA.lt.0.0d0) then
-            DELTA = 0.0d0
-          else
-            DELTA = DELTA/(1.0 - exp(-reg * DELTA**2))
-          end if
-        end if
-        ! write(6,'(1x,i3,2x,i3,2x,5f16.8)') I,J,DELTA
         ! imaginary denominator shift
         DELINV=DELTA/(DELTA**2+SHIFTI**2)
+        ! regularized CASPT2
+        if (reg.gt.0.0d0) then
+          DELINV = DELINV*(1.0 - exp(-reg * DELTA**2))
+        end if
         TMP=DELINV*W(I,J)
         DOVL=DOVL+TMP*W(I,J)
         W(I,J)=TMP
         END DO
       END DO
-      ! write(6,*)
       END
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
@@ -1378,25 +1370,18 @@ C-SVC: get the local vertical stripes of the lg_W vector
 
       DIMENSION W(LDW,*),DIN(*),DIS(*)
 
-      ! write(6,*)
-      ! WRITE(6,*)' I     J     DELTA in SGMDIA'
       DO J=1,NCOL
         DO I=1,NROW
         ! real denominator shift
         DELTA=SHIFT+DIN(I)+DIS(J)
-        ! regularized CASPT2
-        if (reg.gt.0.0d0) then
-          if (DELTA.lt.0.0d0) then
-            DELTA = 0.0d0
-          else
-            DELTA = DELTA/(1.0d0 - exp(-reg * DELTA**2))
-          end if
-        end if
-        ! write(6,'(1x,i3,2x,i3,2x,5f16.8)') I,J,DELTA
         ! imaginary denominator shift
         DELINV=DELTA+SHIFTI**2/DELTA
+        ! regularized CASPT2
+        ! WARNING: if delta is very close to zero numerical problems!
+        if (reg.gt.0.0d0) then
+          DELINV = DELINV/(1.0d0 - exp(-reg * DELTA**2))
+        end if
         W(I,J)=DELINV*W(I,J)
         END DO
       END DO
-      ! write(6,*)
       END
