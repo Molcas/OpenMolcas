@@ -47,8 +47,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ICICH, iter, lRoots, nConf, JOBIPH, LuDavid, iDisk
-real(kind=wp) :: Vector(nConf)
+integer(kind=iwp), intent(in) :: ICICH, iter, lRoots, nConf, JOBIPH, LuDavid
+integer(kind=iwp), intent(inout) :: iDisk
+real(kind=wp), intent(out) :: Vector(nConf)
 integer(kind=iwp) :: iMem, iRecNo, iRoot, lOvlp1, lOvlp2
 #include "rasdim.fh"
 #include "davctl.fh"

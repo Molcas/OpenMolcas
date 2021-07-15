@@ -40,9 +40,11 @@ subroutine Save_CI_vec(iRoot,nConf,CI_vec,LuDavid)
 
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iRoot, nConf, LuDavid
-real(kind=wp) :: CI_vec(nConf)
+integer(kind=iwp), intent(in) :: iRoot, nConf, LuDavid
+real(kind=wp), intent(_IN_) :: CI_vec(nConf)
 integer(kind=iwp) :: CI_vec_PageNo, CI_vec_RecNo, iDisk, iMem
 character(len=16) :: KeyWord
 integer(kind=iwp), external :: PageNo, RecNo

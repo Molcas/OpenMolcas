@@ -25,16 +25,16 @@ subroutine get_Cm_(IPCSF,IPCNF,MXPDIM,NCONF,NPCSF,NPCNF,Cn,lrootSplit,EnFin,DTOC
 ! Cn         : AA Block CI-Coefficients for root selected     (Input)
 ! lRootSplit : computed root                                  (Input)
 ! EnFin      : Final Energy for the root selected             (Input)
-! DTOC       : Transformation matrix between CSF's and DET's  (input)
-! IPRODT     : Prototype determinants                         (input)
-! ICONF      : List of configurations                         (input)
-! IREFSM     : symmetry of considered CI space                (input)
-! Onebod     : one body hamilton matrix in rectangular form   (input)
-! ECORE      : Core energy                                    (input)
-! NACTOB     : Number of active orbitals                      (input)
-! NEL        : total number of active electrons               (input)
-! NAEL       : number of alpha active electron                (input)
-! NBEL       : number of beta active electron                 (input)
+! DTOC       : Transformation matrix between CSF's and DET's  (Input)
+! IPRODT     : Prototype determinants                         (Input)
+! ICONF      : List of configurations                         (Input)
+! IREFSM     : symmetry of considered CI space                (Input)
+! Onebod     : one body hamilton matrix in rectangular form   (Input)
+! ECORE      : Core energy                                    (Input)
+! NACTOB     : Number of active orbitals                      (Input)
+! NEL        : total number of active electrons               (Input)
+! NAEL       : number of alpha active electron                (Input)
+! NBEL       : number of beta active electron                 (Input)
 ! DIAG       : Hamilton diagonal over CSFs                    (Input)
 ! TUVX       : Two-electron integrals (MO space)
 ! IREOTS     : Type => symmetry reordering array
@@ -44,9 +44,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: MXPDIM, NCONF, IPCSF(MXPDIM), IPCNF(NCONF), NPCSF, NPCNF, lrootSplit, IPRODT(*), ICONF(*), IREFSM, NACTOB, &
-                     NEL, NAEL, NBEL, NTEST, IREOTS(*)
-real(kind=wp) :: Cn(NPCSF), EnFin, DTOC(*), ONEBOD(*), ECORE, DIAG(*), TUVX(*), ExFac, Ctot(MXPDIM)
+integer(kind=iwp), intent(in) :: MXPDIM, NCONF, IPCSF(MXPDIM), IPCNF(NCONF), NPCSF, NPCNF, lrootSplit, IPRODT(*), ICONF(*), &
+                                 IREFSM, NACTOB, NEL, NAEL, NBEL, IREOTS(*)
+real(kind=wp), intent(in) :: Cn(NPCSF), EnFin, DTOC(*), ONEBOD(*), ECORE, DIAG(*), TUVX(*), ExFac
+integer(kind=iwp), intent(inout) :: NTEST
+real(kind=wp), intent(out) :: Ctot(MXPDIM)
 integer(kind=iwp) :: iAlpha, IATYP, IBblockV, IIA, IIAACT, IIAB, IIL, IILACT, IILB, iKACONF, iKLCONF, ILAI, ILAOV, ILTYP, ipAuxBB, &
                      ipAuxD, ipAuxGa, ipAuxGaTi, ipAuxV, ITYP, KACONF, KLAUXD, KLCONF, KLFREE, LW2, Mindex, MXCSFC, MXXWS, NCSFA, &
                      NCSFL
@@ -74,7 +76,7 @@ if (NTEST >= 30) then
   call wrtmat(Cn,NPCSF,1,NPCSF,1)
 end if
 
-call Fzero(Ctot,MXPDIM)
+Ctot(:) = Zero
 
 MXCSFC = 0
 do ITYP=1,NTYP

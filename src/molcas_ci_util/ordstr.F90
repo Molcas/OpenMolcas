@@ -33,7 +33,8 @@ subroutine ORDSTR(IINST,IOUTST,NELMNT,ISGN,IPRINT)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: NELMNT, IINST(NELMNT), IOUTST(NELMNT), ISGN, IPRINT
+integer(kind=iwp), intent(in) :: NELMNT, IINST(NELMNT), IPRINT
+integer(kind=iwp), intent(out) :: IOUTST(NELMNT), ISGN
 integer(kind=iwp) :: I, JOE, SWAP
 
 if (NELMNT == 0) return

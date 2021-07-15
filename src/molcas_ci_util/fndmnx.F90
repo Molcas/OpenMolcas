@@ -18,25 +18,25 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: FNDMNX
-real(kind=wp) :: VECTOR(*)
-integer(kind=iwp) :: NDIM, MINMAX
+integer(kind=iwp), intent(in) :: NDIM, MINMAX
+real(kind=wp), intent(in) :: VECTOR(NDIM)
 integer(kind=iwp) :: I
 real(kind=wp) :: res
 
-! jwk-cleanup
 res = Zero
-if (MINMAX == 1) then
-  res = abs(VECTOR(1))
-  do I=2,NDIM
-    res = min(res,abs(VECTOR(I)))
-  end do
-end if
+if (NDIM > 0) then
 
-if (MINMAX == 2) then
-  res = abs(VECTOR(1))
-  do I=2,NDIM
-    res = max(res,abs(VECTOR(I)))
-  end do
+  if (MINMAX == 1) then
+    res = huge(res)
+    do I=1,NDIM
+      res = min(res,abs(VECTOR(I)))
+    end do
+  else if (MINMAX == 2) then
+    do I=1,NDIM
+      res = max(res,abs(VECTOR(I)))
+    end do
+  end if
+
 end if
 
 FNDMNX = res

@@ -24,9 +24,12 @@ subroutine CSDIAG_CI_UTIL(CSFDIA,DETDIA,NCNFTP,NTYP,ICTSDT,NDTFTP,NCSFTP,IPRINT)
 use Constants, only: Zero
 use Definitions, only: wp, iwp,u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: CSFDIA(*), DETDIA(*)
-integer(kind=iwp) :: NTYP, NCNFTP(NTYP), ICTSDT(*), NDTFTP(NTYP), NCSFTP(NTYP), IPRINT
+real(kind=wp), intent(_OUT_) :: CSFDIA(*)
+real(kind=wp), intent(in) :: DETDIA(*)
+integer(kind=iwp), intent(in) :: NTYP, NCNFTP(NTYP), ICTSDT(*), NDTFTP(NTYP), NCSFTP(NTYP), IPRINT
 real(kind=wp) :: EAVER
 integer(kind=iwp) :: ICNF, ICSF, ICSOFF, IDET, IDTOFF, ITYP, JCNABS, JCNF, JDET, NCSTOT, NDTTOT
 

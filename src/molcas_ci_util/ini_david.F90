@@ -50,7 +50,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nRoots, nConf, nDet, nSel, n_keep, ntAsh, LuDavid
+integer(kind=iwp), intent(in) :: nRoots, nConf, nDet, nSel, n_keep, ntAsh, LuDavid
 integer(kind=iwp) :: CI_vec_RecNo, H_diag_RecNo, iDisk, iMem, iRoot, lTmp1, lTmp2, lTmp3, Max_free_Mem, Max_used_Mem, &
                      Memory_Needed, nStk, Sig_vec_RecNo, tmp_CI_vec_RecNo, tmp_Sig_vec_RecNo
 real(kind=wp) :: Dum(1)

@@ -48,17 +48,17 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N, M
-real(kind=wp) :: S(N,N), C(N,N), Temp(N)
+integer(kind=iwp), intent(in) :: N
+integer(kind=iwp), intent(out) :: M
+real(kind=wp), intent(in) :: S(N,N)
+real(kind=wp), intent(out) :: C(N,N), Temp(N)
 integer(kind=iwp) :: i, j, k
 real(kind=wp) :: Alpha, rSum
 logical(kind=iwp), parameter :: forward = .true.
 
 M = 0
+C(:,:) = Zero
 do i=1,N
-  do j=1,N
-    C(j,i) = Zero
-  end do
   C(i,i) = One/sqrt(S(i,i))
 end do
 

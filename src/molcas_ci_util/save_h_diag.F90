@@ -38,9 +38,11 @@ subroutine Save_H_diag(nConf,H_diag,LuDavid)
 
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nConf, LuDavid
-real(kind=wp) :: H_diag(nConf)
+integer(kind=iwp), intent(in) :: nConf, LuDavid
+real(kind=wp), intent(_IN_) :: H_diag(nConf)
 integer(kind=iwp) :: H_diag_RecNo, iDisk, iMem
 character(len=16) :: KeyWord
 integer(kind=iwp), external :: RecNo

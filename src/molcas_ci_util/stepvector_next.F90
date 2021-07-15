@@ -13,8 +13,11 @@ subroutine STEPVECTOR_NEXT(MV,IDWN,IUP,STEPVECTOR)
 
 use Definitions, only: iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: MV, IDWN, IUP, STEPVECTOR(*)
+integer(kind=iwp), intent(inout) :: MV, IDWN, IUP
+integer(kind=iwp), intent(_OUT_) :: STEPVECTOR(*)
 #include "gugx.fh"
 #include "WrkSpc.fh"
 

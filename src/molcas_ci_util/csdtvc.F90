@@ -18,8 +18,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: CSFVEC(*), DETVEC(*), DTOCMT(*)
-integer(kind=iwp) :: IWAY, ICTSDT(*), IREFSM, ICOPY
+real(kind=wp), intent(inout) :: CSFVEC(*), DETVEC(*)
+real(kind=wp), intent(in) :: DTOCMT(*)
+integer(kind=iwp), intent(in) :: IWAY, ICTSDT(*), IREFSM, ICOPY
 integer(kind=iwp) :: ICNF, ICSF, IDET, IOFFCD, IOFFCS, IOFFDT, ITYP, NCSF, NTEST
 #include "ciinfo.fh"
 #include "spinfo.fh"

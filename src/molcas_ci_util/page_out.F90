@@ -41,10 +41,12 @@ subroutine page_out(KeyWord,nConf,Vector,LuDavid)
 
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-character(len=16) :: KeyWord
-integer(kind=iwp) :: nConf, LuDavid
-real(kind=wp) :: Vector(nConf)
+character(len=16), intent(in) :: KeyWord
+integer(kind=iwp), intent(in) :: nConf, LuDavid
+real(kind=wp), intent(_IN_) :: Vector(nConf)
 integer(kind=iwp) :: iDisk, iMem, iStk, nStk
 #include "rasdim.fh"
 #include "davctl.fh"

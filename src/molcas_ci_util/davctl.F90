@@ -52,8 +52,8 @@ use Constants, only: Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: LW1(*), TUVX(*)
-integer(kind=iwp) :: IFINAL
+real(kind=wp), intent(in) :: LW1(*), TUVX(*)
+integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp) :: iDisk, IPRLEV, ItLimit, jRoot, lExplE, lExplV, lSel, LW4, LW5, mSel, nMaxSel
 real(kind=wp) :: ESize, Threshold, ThrRule
 #include "rasdim.fh"

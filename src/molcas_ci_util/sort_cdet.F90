@@ -70,8 +70,8 @@ subroutine Sort_Cdet(N,Idx,X)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N, Idx(N)
-real(kind=wp) :: X(N)
+integer(kind=iwp), intent(in) :: N, Idx(N)
+real(kind=wp), intent(inout) :: X(N)
 integer(kind=iwp) :: i, i_new, iReoSDs
 real(kind=wp) :: alpha
 #include "WrkSpc.fh"

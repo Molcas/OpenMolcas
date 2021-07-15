@@ -14,7 +14,8 @@ subroutine INIT_LEX(N,K,LEX)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: N, K, LEX(K)
+integer(kind=iwp), intent(in) :: N, K
+integer(kind=iwp), intent(out) :: LEX(K)
 integer(kind=iwp) :: I
 
 do I=1,K

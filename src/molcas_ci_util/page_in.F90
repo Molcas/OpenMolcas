@@ -41,9 +41,9 @@ subroutine page_in(KeyWord,nConf,Vector,LuDavid)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=16) :: KeyWord
-integer(kind=iwp) :: nConf, LuDavid
-real(kind=wp) :: Vector(nConf)
+character(len=16), intent(in) :: KeyWord
+integer(kind=iwp), intent(in) :: nConf, LuDavid
+real(kind=wp), intent(out) :: Vector(nConf)
 integer(kind=iwp) :: iDisk, iMem, iStk, nStk
 #include "rasdim.fh"
 #include "davctl.fh"

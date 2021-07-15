@@ -21,13 +21,15 @@ module faroald
 ! The implementation follows the minimum operation count algorithm
 ! published by Olsen & Co in J. Chem. Phys. 89, 2185 (1988).
 
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
 #ifdef _PROF_
 use, intrinsic :: iso_fortran_env, only: int64
+use Definitions, only: u6
 #endif
-use Constants, only: Zero, Half
-use Definitions, only: wp, iwp, u6
 
 implicit none
+private
 
 ! wavefunction info
 integer(kind=iwp) :: my_nel, my_norb, mult, nela, nelb, nhoa, nhob, ndeta, ndetb, my_ndet
@@ -44,6 +46,9 @@ integer(kind=iwp) :: max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs
 integer(kind=int64) :: nflop
 #endif
 
+public :: ex1_a, ex1_b, ex1_init, max_LRs, max_ex1a, max_ex1b, max_ex2a, max_ex2b, mult, my_ndet, my_nel, my_norb, ndeta, ndetb, &
+          nela, nelb, nhoa, nhob, sigma_update
+
 contains
 
 subroutine sigma_update(h,g,sgm,psi)
@@ -53,15 +58,13 @@ subroutine sigma_update(h,g,sgm,psi)
 
   ! integrals
   real(kind=wp), intent(in) :: h(my_norb,my_norb), g(my_norb,my_norb,my_norb,my_norb)
-  real(kind=wp), allocatable :: k(:,:)
   ! wavefunctions
-  real(kind=wp), intent(in) :: psi(:,:)
   real(kind=wp), intent(out) :: sgm(:,:)
-  real(kind=wp), allocatable :: psiT(:,:), sgmT(:,:)
-  ! orbital indices
-  integer(kind=iwp) :: t, u, v
-  ! determinant index ranges
-  integer(kind=iwp) :: iasta, iaend, ibsta, ibend, ierr
+  real(kind=wp), intent(in) :: psi(:,:)
+  integer(kind=iwp) :: t, u, v, & ! orbital indices
+                       iasta, iaend, ibsta, ibend, & ! determinant index ranges
+                       ierr
+  real(kind=wp), allocatable :: k(:,:), psiT(:,:), sgmT(:,:)
 # ifdef _PROF_
   ! profiling
   real(kind=wp) :: t1_cpu, t2_cpu, tot_cpu, t1_wall, t2_wall, tot_wall, walltime, flops
@@ -156,10 +159,11 @@ subroutine sigma1(k,g,sgm,psi,ibsta,ibend)
   ! integrals
   real(kind=wp), intent(in) :: k(my_norb,my_norb), g(my_norb,my_norb,my_norb,my_norb)
   ! wavefunctions
-  real(kind=wp), intent(in) :: psi(:,:)
   real(kind=wp), intent(inout) :: sgm(:,:)
+  real(kind=wp), intent(in) :: psi(:,:)
+  integer(kind=iwp), intent(in) :: ibsta, ibend
   ! local variables
-  integer(kind=iwp) :: ib, jb, kb, ibsta, ibend, t, u, v, x, tu, vx, sgn_tu, sgn_vx, ierr
+  integer(kind=iwp) :: ib, jb, kb, t, u, v, x, tu, vx, sgn_tu, sgn_vx, ierr
   real(kind=wp), allocatable :: f(:)
 
   allocate(f(ndetb),stat=ierr)
@@ -207,10 +211,11 @@ subroutine sigma2(k,g,sgm,psi,iasta,iaend)
   ! integrals
   real(kind=wp), intent(in) :: k(my_norb,my_norb), g(my_norb,my_norb,my_norb,my_norb)
   ! wavefunctions
-  real(kind=wp), intent(in) :: psi(:,:)
   real(kind=wp), intent(inout) :: sgm(:,:)
+  real(kind=wp), intent(in) :: psi(:,:)
+  integer(kind=iwp), intent(in) :: iasta, iaend
   ! local variables
-  integer(kind=iwp) :: ia, ja, ka, iasta, iaend, t, u, v, x, tu, vx, sgn_tu, sgn_vx, ierr
+  integer(kind=iwp) :: ia, ja, ka, t, u, v, x, tu, vx, sgn_tu, sgn_vx, ierr
   real(kind=wp), allocatable :: f(:)
 
   allocate(f(ndeta),stat=ierr)
@@ -257,14 +262,14 @@ subroutine sigma3(g,sgm,psi,ibsta,ibend)
   ! integrals
   real(kind=wp), intent(in) :: g(my_norb,my_norb,my_norb,my_norb)
   ! wavefunctions
-  real(kind=wp), intent(in) :: psi(:,:)
   real(kind=wp), intent(inout) :: sgm(:,:)
+  real(kind=wp), intent(in) :: psi(:,:)
   ! determinant indices
-  integer(kind=iwp), allocatable :: ia(:), ja(:)
-  integer(kind=iwp) :: i, n_couples, ib, jb, kb, ibsta, ibend
-  ! orbital indices
-  integer(kind=iwp) :: t, u, v, x, tu, sgn_tu, ierr
-  integer(kind=iwp), allocatable :: sgn_vx(:)
+  integer(kind=iwp), intent(in) :: ibsta, ibend
+  integer(kind=iwp) :: i, n_couples, ib, jb, kb,  &
+                       t, u, v, x, & !orbital indices
+                       tu, sgn_tu, ierr
+  integer(kind=iwp), allocatable :: ia(:), ja(:), sgn_vx(:)
   real(kind=wp), allocatable :: f(:), Ctmp(:,:), Vtmp(:)
 
   allocate(ja(max_LRs),ia(max_LRs),sgn_vx(max_LRs),stat=ierr)

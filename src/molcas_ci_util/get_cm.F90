@@ -45,10 +45,12 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: MXPDIM, NCONF, IPCSF(MXPDIM), IPCNF(NCONF), NPCSF, NPCNF, lrootSplit, IPRODT(*), ICONF(*), IREFSM, NACTOB, &
-                     NEL, NAEL, NBEL, NTEST, IREOTS(*)
-real(kind=wp) :: Cn(NPCSF), EnFin, DTOC(*), ONEBOD(*), ECORE, DIAG(*), TUVX(*), ExFac, Ctot(MXPDIM)
-logical(kind=iwp) :: FordSplit
+integer(kind=iwp), intent(in) :: MXPDIM, NCONF, IPCSF(MXPDIM), IPCNF(NCONF), NPCSF, NPCNF, lrootSplit, IPRODT(*), ICONF(*), &
+                                 IREFSM, NACTOB, NEL, NAEL, NBEL, IREOTS(*)
+real(kind=wp), intent(in) :: Cn(NPCSF), EnFin, DTOC(*), ONEBOD(*), ECORE, DIAG(*), TUVX(*), ExFac
+integer(kind=iwp), intent(inout) :: NTEST
+logical(kind=iwp), intent(in) :: FordSplit
+real(kind=wp), intent(out) :: Ctot(MXPDIM)
 integer(kind=iwp) :: iAlpha, IATYP, IIA, IIAACT, IIAB, IIL, IILACT, IILB, iKACONF, iKLCONF, ILAI, ILAOV, ILTYP, ipAuxD, ipAuxGa, &
                      ipAuxGaTi, ipAuxV, ITYP, KACONF, KLAUXD, KLCONF, KLFREE, LW2, Mindex, MXCSFC, MXXWS, NCSFA, NCSFL
 real(kind=wp) :: C_AlphaLoop1, C_AlphaLoop2, C_ComputeH_AB, C_computeH_AB1, C_computeH_AB2, C_Oper, C_oper1, C_oper2, &
@@ -86,7 +88,7 @@ end if
 ! get Cm coefficients corrected to the zeroth order                    *
 ! according to Lowdin's equations                                      *
 !***********************************************************************
-call Fzero(Ctot,MXPDIM)
+Ctot(:) = Zero
 
 MXCSFC = 0
 do ITYP=1,NTYP

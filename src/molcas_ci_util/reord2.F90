@@ -12,7 +12,7 @@
 !               1990, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine Reord2(NORB,NEL,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,kcnf)
+subroutine Reord2(NORB,NEL,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,KCNF)
 !***********************************************************************
 !                                                                      *
 !     Rearrange CI-vectors                                             *
@@ -55,9 +55,13 @@ subroutine Reord2(NORB,NEL,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,kcnf)
 
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NORB, NEL, IREFSM, IMODE, ICONF(*), ISPIN(*), KCNF(NEL)
-real(kind=wp) :: CIOLD(*), CINEW(*)
+integer(kind=iwp), intent(in) :: NORB, NEL, IREFSM, IMODE, ICONF(*), ISPIN(*)
+real(kind=wp), intent(in) :: CIOLD(*)
+real(kind=wp), intent(_OUT_) :: CINEW(*)
+integer(kind=iwp), intent(out) :: KCNF(NEL)
 #include "rasdim.fh"
 #include "spinfo.fh"
 #include "gugx.fh"

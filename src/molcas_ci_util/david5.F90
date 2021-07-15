@@ -11,8 +11,9 @@
 
 subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,GTUVXTRI)
 
-use citrans
-use faroald
+use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
+
+use faroald, only: my_norb, ndeta, ndetb, sigma_update
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
@@ -29,8 +30,11 @@ implicit none
 #include "output_ras.fh"
 ! lroots, maxjt in rasscf.fh
 ! nsel in general.fh
-integer(kind=iwp) :: nDet, mxItr, nItr, iSel(nSel)
-real(kind=wp) :: CI_Conv(2,lRoots,MAXJT), ThrEne, ExplE(nSel), ExplV(nSel,nSel), HTUTRI(*), GTUVXTRI(*)
+integer(kind=iwp), intent(in) :: nDet, iSel(nSel)
+integer(kind=iwp), intent(inout) :: mxItr
+integer(kind=iwp), intent(out) :: nItr
+real(kind=wp), intent(out) :: CI_Conv(2,lRoots,MAXJT)
+real(kind=wp) :: ThrEne, ExplE(nSel), ExplV(nSel,nSel), HTUTRI(*), GTUVXTRI(*)
 integer(kind=iwp) :: i, iConf, iConv, iCs, idelta, iDummy, iEs, iHs, ij, iOff, IPRLEV, iScr1, iScr2, iScr3, iScr4, iScr5, &
                      iskipconv, iSs, it, it_ci, itu, ituvx, iu, iv, iVec1, iVec2, iVec3, IVECSVC, ivkcnf, ix, ixmax, jRoot, &
                      kctemp, kRoot, ksigtemp, l1, l2, l3, lPrint, mRoot, nBasVec, nconverged, nleft, nnew, ntrial

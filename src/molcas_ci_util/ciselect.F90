@@ -20,7 +20,7 @@ subroutine CiSelect(S1,S2)
 !     calling arguments:                                               *
 !     S1      : array of real*8, input/output                          *
 !               overlap matrix with test vectors                       *
-!     S2      : array of real*8, input/output                          *
+!     S2      : array of real*8, input                                 *
 !               norm of the test configurations in the CI vector       *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -41,7 +41,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "rasdim.fh"
 #include "rasscf.fh"
-real(kind=wp) :: S1(lRoots,lRoots), S2(lRoots,lRoots)
+real(kind=wp), intent(inout) :: S1(lRoots,lRoots)
+real(kind=wp), intent(in) :: S2(lRoots,lRoots)
 integer(kind=iwp) :: i, istop, iTemp(mxRoot), jRoot, kRoot, maxS1
 real(kind=wp) :: S1jk, S1max, S2jk
 

@@ -28,8 +28,12 @@ module second_quantization
 use Definitions, only: iwp
 
 implicit none
+private
+
 integer(kind=iwp) :: onebits(0:255), ranktbl(0:255,64)
 integer(kind=iwp), parameter :: b_1111 = int(b'1111',kind=iwp), z_6996 = int(z'6996',kind=iwp)
+
+public :: ann, ann2, binom_coef, cre, cre2, ex1, fase, lex_init, lex_next, lexrank, rank_init
 
 contains
 

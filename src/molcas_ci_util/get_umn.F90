@@ -38,13 +38,15 @@ subroutine get_Umn(PHP,EnIn,DHAM,IPCSF,IPCNF,MXPDIM,DTOC,IPRODT,ICONF,IREFSM,ONE
 ! ExFac  :
 ! IREOTS : Type => symmetry reordering array
 
-use Constants, only: One
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: IPCSF(*), IPCNF(*), MXPDIM, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, NPCSF, NPCNF, &
-                     iterSplit, ITER, NTEST, IREOTS(*)
-real(kind=wp) :: PHP(NPCSF*(NPCSF+1)/2), EnIn, DHAM(NPCSF*(NPCSF+1)/2), DTOC(*), ONEBOD(*), ECORE, DIAG(*), TUVX(*), ExFac
+real(kind=wp), intent(in) :: EnIn, DTOC(*), ONEBOD(*), ECORE, DIAG(*), TUVX(*), ExFac
+integer(kind=iwp), intent(in) :: IPCSF(*), IPCNF(*), MXPDIM, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, NPCSF, &
+                                 NPCNF, iterSplit, ITER, IREOTS(*)
+real(kind=wp), intent(out) :: PHP(NPCSF*(NPCSF+1)/2), DHAM(NPCSF*(NPCSF+1)/2)
+integer(kind=iwp), intent(inout) :: NTEST
 integer(kind=iwp) :: iAlpha, IATYP, IIA, IIAACT, IIAB, IIL, IILACT, IILB, IIR, IIRACT, IIRB, IIRMAX, iKACONF, iKLCONF, iKRCONF, &
                      ILAI, ILAOV, ILRI, ILRO, ILTYP, ipAuxC, ipAuxD, ipAuxV, IRTYP, ITYP, KACONF, KLAUXD, KLCONF, KLFREE, KLPHPS, &
                      KRCONF, LW2, Mindex, MXCSFC, MXXWS, NCSFA, NCSFL, NCSFR, Nindex
@@ -65,7 +67,7 @@ if (NTEST >= 30) then
   write(u6,*) ' Number of CSFs in AA block:',NPCSF
 end if
 
-call FZero(DHAM,NPCSF*(NPCSF+1)/2)
+DHAM(:) = Zero
 ! construct the Dressed Hamiltonian matrix
 MXCSFC = 0
 do ITYP=1,NTYP

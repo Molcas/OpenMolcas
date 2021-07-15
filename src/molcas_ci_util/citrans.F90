@@ -353,8 +353,8 @@ subroutine spintable_create(nso,ndown,spintab)
 ! for now, just print the matrix for testing, later put it in some
 ! memory location to be used by the conversion routine
 
-  integer(kind=iwp) :: nso, ndown
-  type(spintable) :: spintab
+  integer(kind=iwp), intent(in) :: nso, ndown
+  type(spintable), intent(inout) :: spintab
   integer(kind=iwp) :: idown, icsf, ncsf, ndet
   integer(kind=iwp), allocatable :: down_orb(:), udvec(:)
 

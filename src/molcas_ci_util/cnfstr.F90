@@ -12,18 +12,22 @@
 !***********************************************************************
 
 subroutine CNFSTR(ICONF,ITYP,IASTR,IBSTR,NORB,NAEL,NBEL,IDET,IPRODT,ISCR,SGN,IPREXH)
-! An orbital configuration ICONF is given,
-! Obtain the corresponding alpha strings,IASTR
-!        the corresponding beta  strings,IBSTR
-!        the corresponding sign array   ,ISGN
+! An orbital configuration ICONF is given
+! Obtain the corresponding alpha strings, IASTR
+!        the corresponding beta  strings, IBSTR
+!        the corresponding sign  array  , SGN
 !
-! Jeppe Olsen , Summer of '89
+! Jeppe Olsen, Summer of '89
 
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ICONF(*), ITYP, IASTR(*), IBSTR(*), NORB, NAEL, NBEL, IDET, IPRODT(*), ISCR(*), IPREXH
-real(kind=wp) :: SGN(*)
+integer(kind=iwp), intent(in) :: ICONF(*), ITYP, NORB, NAEL, NBEL, IDET, IPRODT(*)
+integer(kind=iwp), intent(inout) :: IPREXH
+integer(kind=iwp), intent(_OUT_) :: IASTR(*), IBSTR(*), ISCR(*)
+real(kind=wp), intent(out) :: SGN(IDET)
 integer(kind=iwp) :: ICLOS, IOCC, IOPEN, IP, ISGN, JDET, JTYP, KLDETS, KLFREE, NEL, NTEST
 !PAM06 NOTE: NAEL and NBEL can legally be=0.
 !PAM06 ... IASTR(NAEL,*), IBSTR(NBEL,*) ...

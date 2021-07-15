@@ -19,7 +19,7 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: IPHASE
 #include "gugx.fh"
-integer(kind=iwp) :: IDRT(NVERT,5), IUP(NVERT,0:3), IWALK(NLEV)
+integer(kind=iwp), intent(in) :: IDRT(NVERT,5), IUP(NVERT,0:3), IWALK(NLEV)
 integer(kind=iwp) :: ICASE, ISGN, IVERT, LEV
 
 ! FIND THE MIDVERTEX AND THE COMBINED WALK SYMMETRY

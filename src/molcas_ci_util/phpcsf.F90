@@ -22,7 +22,7 @@ subroutine PHPCSF(PHP,IPCSF,IPCNF,MXPDIM,DTOC,IPRODT,ICONF,IREFSM,ONEBOD,ECORE,N
 ! PHP    : hamilton matrix in subspace (output)
 ! IPCSF  : CSF's defining subspace (output)
 ! IPCNF  : Configurations defining subspace (output)
-! MXPDIM : Largest allowed dimension of subspace (Input)
+! MXPDIM : Largest allowed dimension of subspace (input)
 ! DTOC   : Transformation matrix between CSF's and DET's (input)
 ! IPRODT : Prototype determinants (input)
 ! ICONF  : List of configurations  (input)
@@ -46,10 +46,15 @@ use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: PHP(*), DTOC(*), ONEBOD(*), ECORE, SCR(*), DIAG(*), TUVX(*), ExFac
-integer(kind=iwp) :: IPCSF(*), IPCNF(*), MXPDIM, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, NPCSF, NPCNF, NTEST, &
-                     IREOTS(*)
+real(kind=wp), intent(_OUT_) :: PHP(*), SCR(*)
+integer(kind=iwp), intent(_OUT_) :: IPCSF(*), IPCNF(*)
+integer(kind=iwp), intent(in) :: MXPDIM, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, IREOTS(*)
+real(kind=wp), intent(in) :: DTOC(*), ONEBOD(*), ECORE, DIAG(*), TUVX(*), ExFac
+integer(kind=iwp), intent(out) :: NPCSF, NPCNF
+integer(kind=iwp), intent(inout) :: NTEST
 integer(kind=iwp) :: ICSFMN, IFINIT, IICNF, IICSF, IILACT, IILB, IIRACT, IIRB, IIRMAX, ILRI, ILRO, ILTYP, IMIN, IRTYP, KLCONF, &
                      KLFREE, KLPHPS, KRCONF, MXCSFC, NCSFL, NCSFMN, NCSFR, NIRREP, NJCNF
 real(kind=wp) :: Acc, XMAX, XMIN

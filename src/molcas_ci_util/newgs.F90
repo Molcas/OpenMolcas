@@ -18,8 +18,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: N, M
-real(kind=wp) :: S(N,N), C(N,N), Temp(N)
+integer(kind=iwp), intent(in) :: N
+integer(kind=iwp), intent(out) :: M
+real(kind=wp), intent(in) :: S(N,N)
+real(kind=wp), intent(inout) :: C(N,N)
+real(kind=wp), intent(out) :: Temp(N)
 integer(kind=iwp) :: i, isfail, k, Loop
 real(kind=wp) :: ovl, X, xn2, Y
 real(kind=r8), external :: DDOT_

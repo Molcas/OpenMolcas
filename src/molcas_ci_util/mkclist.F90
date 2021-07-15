@@ -21,19 +21,14 @@ implicit none
 #include "rasdim.fh"
 #include "general.fh"
 #include "gugx.fh"
-integer(kind=iwp) :: ISM(NLEV), IDOWN(NVERT,0:3), NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV), ICASE(NICASE), ISCR(3,0:NLEV)
-integer(kind=iwp) :: IC, IHALF, ILND, IPOS, IS, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, L, LEV, LEV1, LEV2, LL, MV
+integer(kind=iwp), intent(in) :: ISM(NLEV), IDOWN(NVERT,0:3), IOW(2,NSYM,NMIDV)
+integer(kind=iwp), intent(out) :: NOW(2,NSYM,NMIDV), ICASE(NICASE), ISCR(3,0:NLEV)
+integer(kind=iwp) :: IC, IHALF, ILND, IPOS, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, L, LEV, LEV1, LEV2, LL, MV
 integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
 
 ! CLEAR ARRAY NOW. IT WILL BE RESTORED FINALLY
 
-do IHALF=1,2
-  do MV=1,NMIDV
-    do IS=1,NSYM
-      NOW(IHALF,IS,MV) = 0
-    end do
-  end do
-end do
+NOW(:,:,:) = 0
 
 ! START MAIN LOOP OVER UPPER AND LOWER WALKS, RESPECTIVELY.
 

@@ -35,8 +35,9 @@ use Constants, only: Zero, One, auToeV
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-real(kind=wp) :: LW1(*), TUVX(*)
-integer(kind=iwp) :: IFINAL, iErrSplit
+real(kind=wp), intent(in) :: LW1(*), TUVX(*)
+integer(kind=iwp), intent(in) :: IFINAL
+integer(kind=iwp), intent(out) :: iErrSplit
 integer(kind=iwp) :: i, iCaseSplit, iDimBlockTri, iDisk, idx, ii, iJOB, ipAABlock, ipCNFtot, ipCSFtot, ipDHAM, ipDiag, ipDiagCNF, &
                      IPRLEV, ipSplitE, ipSplitV, ipTotSplitV, IREOTS, iTmp1, iTmp2, ivkcnf, j, k, LG1, LOCONE, lSel, LW2, LW4, &
                      MXSpli, MXXWS, nAAblock

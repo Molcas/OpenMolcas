@@ -50,9 +50,12 @@ subroutine EXPLH2(DIAG,ONEINT,TUVX,ISEL,EXPLE,EXPLV)
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: DIAG(*), ONEINT(*), TUVX(*), EXPLE(*), EXPLV(*)
-integer(kind=iwp) :: ISEL(*)
+real(kind=wp), intent(_OUT_) :: DIAG(*), EXPLE(*), EXPLV(*)
+real(kind=wp), intent(in) :: ONEINT(*), TUVX(*)
+integer(kind=iwp), intent(_OUT_) :: ISEL(*)
 integer(kind=iwp) :: I, II, IPRLEV, IREOTS, LEXHAM, LOCONE, LW1, LW2, lwscr, MXXSEL, MXXWS, NHEX, NPCNF
 real(kind=wp) :: ECORE
 #include "rasdim.fh"
@@ -95,7 +98,7 @@ call GETMEM('EXHSCR','MAX','REAL',LW2,MXXWS)
 call GETMEM('EXHSCR','ALLO','REAL',LW2,MXXWS)
 call GET_IREOTS(IWORK(IREOTS),NAC)
 call PHPCSF(Work(LEXHAM),ISEL,iWork(LW1),MXXSEL,Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),STSYM,Work(LOCONE),ECORE,NAC,Work(LW2), &
-            NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,NSEL,NPCNF,DIAG,TUVX,IPRINT,ExFac,IWORK(IREOTS))
+            NCNASM(STSYM),NAEL+NBEL,NAEL,NBEL,NSEL,NPCNF,DIAG,TUVX,IPRINT,ExFac,IWORK(IREOTS))
 if (IPRLEV == INSANE) then
   call Square(Work(LEXHAM),EXPLV,1,NSEL,NSEL)
   call RECPRT('Square Explicit Hamiltonian',' ',EXPLV,NSEL,NSEL)

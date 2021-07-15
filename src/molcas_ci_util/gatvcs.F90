@@ -17,8 +17,9 @@ subroutine GATVCS(VECO,VECI,IDX,NDIM)
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: VECI(*), VECO(*)
-integer(kind=iwp) :: IDX(*), NDIM
+integer(kind=iwp), intent(in) :: NDIM, IDX(NDIM)
+real(kind=wp), intent(out) :: VECO(NDIM)
+real(kind=wp), intent(in) :: VECI(*)
 integer(kind=iwp) :: I
 
 do I=1,NDIM

@@ -20,8 +20,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: NCROW, NCCOL, NAROW, NACOL, NBROW, NBCOL, ITRNSP
-real(kind=wp) :: A(NAROW,NACOL), B(NBROW,NBCOL), C(NCROW,NCCOL)
+integer(kind=iwp), intent(in) :: NCROW, NCCOL, NAROW, NACOL, NBROW, NBCOL, ITRNSP
+real(kind=wp), intent(out) :: C(NCROW,NCCOL)
+real(kind=wp), intent(in) :: A(NAROW,NACOL), B(NBROW,NBCOL)
 real(kind=wp) :: BJK, BKJ
 integer(kind=iwp) :: I, IZERO, J, K
 real(kind=r8), external :: DDOT_

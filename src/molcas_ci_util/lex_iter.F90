@@ -14,8 +14,9 @@ subroutine LEX_ITER(N,K,LEX,LAST)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: N, K, LEX(K)
-logical(kind=iwp) :: LAST
+integer(kind=iwp), intent(in) :: N, K
+integer(kind=iwp), intent(out) :: LEX(K)
+logical(kind=iwp), intent(inout) :: LAST
 integer(kind=iwp) :: I, J
 
 I = K

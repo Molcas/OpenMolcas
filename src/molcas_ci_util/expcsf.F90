@@ -17,7 +17,8 @@ subroutine EXPCSF(ICS,NLEV,IMS,LEX)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NLEV, ICS(NLEV), IMS, LEX(NLEV)
+integer(kind=iwp), intent(in) :: NLEV, ICS(NLEV), IMS
+integer(kind=iwp), intent(out) :: LEX(NLEV)
 integer(kind=iwp) :: I, IA, IALPHA, IB, IBETA, ICOEF(2), ILEX, ISOMO, J, K, NALPHA, NSOMO
 character(len=256) :: LINE
 character(len=6) :: STRING

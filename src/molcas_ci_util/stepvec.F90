@@ -19,23 +19,27 @@ subroutine STEPVEC(ICL,IOP,NCL,NOP,ISPIN,NORB,IWALK)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ICL(*), IOP(*), NCL, NOP, ISPIN(*), NORB, IWALK(*)
+integer(kind=iwp), intent(in) :: NCL, NOP, ICL(NCL), IOP(NOP), ISPIN(NOP), NORB
+integer(kind=iwp), intent(out) :: IWALK(NORB)
 integer(kind=iwp) :: IDELSP, IORB, NXTCL, NXTOP
-logical(kind=iwp) :: Test
+logical(kind=iwp) :: Test1, Test2
 
 NXTCL = 1
 NXTOP = 1
 do IORB=1,NORB
 
-  Test = NXTOP <= NOP
-  if (Test) Test = IORB == IOP(NXTOP)
+  Test1 = NXTCL <= NCL
+  if (Test1) Test1 = IORB == ICL(NXTCL)
 
-  if ((NXTCL <= NCL) .and. (IORB == ICL(NXTCL))) then
+  Test2 = NXTOP <= NOP
+  if (Test2) Test2 = IORB == IOP(NXTOP)
+
+  if (Test1) then
 
     IWALK(IORB) = 3
     NXTCL = NXTCL+1
 
-  else if (Test) then
+  else if (Test2) then
 
     if (ISPIN(NXTOP) == 1) then
       IDELSP = 1

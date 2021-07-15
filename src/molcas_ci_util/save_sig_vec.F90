@@ -40,9 +40,11 @@ subroutine Save_Sig_vec(iRoot,nConf,Sig_vec,LuDavid)
 
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iRoot, nConf, LuDavid
-real(kind=wp) :: Sig_vec(nConf)
+integer(kind=iwp), intent(in) :: iRoot, nConf, LuDavid
+real(kind=wp), intent(_IN_) :: Sig_vec(nConf)
 integer(kind=iwp) :: iDisk, iMem, Sig_vec_PageNo, Sig_vec_RecNo
 character(len=16) :: KeyWord
 integer(kind=iwp), external :: PageNo, RecNo

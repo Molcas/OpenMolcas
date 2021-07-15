@@ -24,7 +24,7 @@ subroutine ipcsfsplit(PHPCSF,IPCSF,IPCNF,MXPDIM,MXSPLI,DTOC,IPRODT,ICONF,IREFSM,
 ! ===========
 ! IPCSF  : CSF's defining subspace (output)
 ! IPCNF  : Configurations defining subspace (output )
-! MXPDIM : Largest allowed dimension of subspace (Input)
+! MXPDIM : Largest allowed dimension of subspace (input)
 ! DTOC   : Transformation matrix between CSF's and DET's (input)
 ! IPRODT : Prototype determinants (input)
 ! ICONF  : List of configurations  (input)
@@ -34,10 +34,8 @@ subroutine ipcsfsplit(PHPCSF,IPCSF,IPCNF,MXPDIM,MXSPLI,DTOC,IPRODT,ICONF,IREFSM,
 ! NACTOB : Number of active orbitals (input)
 ! SCR    : Scratch array of length ????
 ! NCONF  : Number of configurations of symmetry IREFSM
-! NPCNF  : Number of primary configurations obtained (output)
-! NPCSF  : Number of primary CSF's obtained  (OUTPUT)
 ! TUVX   : Two-electron integrals (MO space)
-! DIAG   : Hamiltonian diagonal over CSF's (INPUT)
+! DIAG   : Hamiltonian diagonal over CSF's (input)
 !
 ! IREOTS : Type => symmetry reordering array
 !
@@ -48,10 +46,14 @@ use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: PHPCSF(*), DTOC(*), ONEBOD(*), ECORE, SCR(*), DIAG(*), TUVX(*), ExFac
-integer(kind=iwp) :: IPCSF(*), IPCNF(*), MXPDIM, MXSPLI, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, NTEST, &
-                     IREOTS(*)
+real(kind=wp), intent(_OUT_) :: PHPCSF(*), SCR(*)
+integer(kind=iwp), intent(_OUT_) :: IPCSF(*), IPCNF(*)
+integer(kind=iwp), intent(in) :: MXPDIM, MXSPLI, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, IREOTS(*)
+real(kind=wp), intent(in) :: DTOC(*), ONEBOD(*), ECORE, DIAG(*), TUVX(*), ExFac
+integer(kind=iwp), intent(inout) :: NTEST
 integer(kind=iwp) :: ICSFMN, IICNF, IICSF, IILACT, IILB, ILRI, ILTYP, IMIN, KLCONF, KLFREE, KLPHPS, MXCSFC, NCSFL, NCSFMN, NIRREP, &
                      NJCNF, NPCNF, NPCSF
 real(kind=wp) :: Acc, XMAX, XMIN

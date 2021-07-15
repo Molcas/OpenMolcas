@@ -14,9 +14,10 @@ subroutine SIGMADET_CVB(C,HC,IREFSM,PERMS2,NCI)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: IREFSM, NCI
-real(kind=wp) :: C(NCI), HC(NCI)
-logical(kind=iwp) :: PERMS2
+integer(kind=iwp), intent(in) :: IREFSM, NCI
+real(kind=wp), intent(in) :: C(NCI)
+real(kind=wp), intent(out) :: HC(NCI)
+logical(kind=iwp), intent(in) :: PERMS2
 integer(kind=iwp) IDUMMY
 real(kind=wp) DUMMY(1)
 #include "WrkSpc.fh"

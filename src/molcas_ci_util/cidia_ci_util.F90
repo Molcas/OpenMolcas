@@ -10,24 +10,25 @@
 !***********************************************************************
 
 subroutine CIDIA_CI_UTIL(NORB,NCONF,IREFSM,CSFDIA,G,TUVX,LUDAVID)
-!     PURPOSE: - COMPUTE DIAGONAL ELEMENTS OF THE CI-MATRIX
-!                THE DETERMINANT BASIS
-!              - TRANSLATE FORM DET => CSF BASIS
+! PURPOSE: - COMPUTE DIAGONAL ELEMENTS OF THE CI-MATRIX
+!            THE DETERMINANT BASIS
+!          - TRANSLATE FORM DET => CSF BASIS
 !
-!     CALLING PARAMETERS:
-!     NORB  :  NO. OF ACTIVE ORBITALS
-!     NCONF :  NO. OF CSF
-!     IREFSM:  REFERENCE SYMMETRY
-!     CSFDIA:  DIAGONAL OF CI MATRIX IN CSF BASIS
-!     G     :  MODIFIED ONE ELECTRON HAMILTONIAN INCLUDING CORE ELECTR.
-!     TUVX  :  TWO-ELECTRON INTEGRALS
+! CALLING PARAMETERS:
+! NORB  :  NO. OF ACTIVE ORBITALS
+! NCONF :  NO. OF CSF
+! IREFSM:  REFERENCE SYMMETRY
+! CSFDIA:  DIAGONAL OF CI MATRIX IN CSF BASIS
+! G     :  MODIFIED ONE ELECTRON HAMILTONIAN INCLUDING CORE ELECTR.
+! TUVX  :  TWO-ELECTRON INTEGRALS
 
 use Constants, only: One
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: NORB, NCONF, IREFSM, LUDAVID
-real(kind=wp) :: CSFDIA(*), G(*), TUVX(*)
+integer(kind=iwp), intent(in) :: NORB, NCONF, IREFSM, LUDAVID
+real(kind=wp), intent(out) :: CSFDIA(*)
+real(kind=wp), intent(in) :: G(*), TUVX(*)
 integer(kind=iwp) :: I, iDummy, II, IPRINT, IPRL, IPRLEV, KDDIA, KH1DIA, KSCR, KX
 real(kind=wp) :: Dummy(1), eCore_Hex
 real(kind=r8), external :: Get_eCore

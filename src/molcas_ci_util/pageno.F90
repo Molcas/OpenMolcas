@@ -37,7 +37,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: PageNo
-integer(kind=iwp) :: iRoot
+integer(kind=iwp), intent(in) :: iRoot
 integer(kind=iwp) :: itmp1
 #include "rasdim.fh"
 #include "davctl.fh"

@@ -51,10 +51,14 @@ use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Constants, only: One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: PHPCSF(*), PHPCNF(*), condition, DTOC(*), ONEBOD(*), ECORE, SCR(*), TUVX(*), ExFac
-integer(kind=iwp) :: IPORDCSF(*), IPORDCNF(*), MXPDIM, iter, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, NTEST, &
-                     IREOTS(*)
+real(kind=wp), intent(_OUT_) :: PHPCSF(*), PHPCNF(*)
+integer(kind=iwp), intent(_OUT_) :: IPORDCSF(*), IPORDCNF(*)
+integer(kind=iwp), intent(in) :: MXPDIM, iter, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, IREOTS(*)
+real(kind=wp), intent(in) :: condition, DTOC(*), ONEBOD(*), ECORE, SCR(*), TUVX(*), ExFac
+integer(kind=iwp), intent(inout) :: NTEST
 integer(kind=iwp) :: ICSFMN, IICNF, IICSF, IILACT, IILB, ILRI, ILTYP, IMIN, iTmpDimBlockA, iTmpDimBlockACNF, KLCNFO, KLCONF, &
                      KLCSFO, KLFREE, KLPHPS, KLSCRS, MXCSFC, NCSFL, NCSFMN, NIRREP, NJCNF, NPCNF, NPCSF
 real(kind=wp) :: Acc, RefSplit, XMAX, XMIN

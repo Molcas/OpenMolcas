@@ -54,9 +54,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N, M
-real(kind=wp) :: H(N*(N+1)/2), S(N*(N+1)/2), C(N,N), E(N)
-integer(kind=iwp) :: INFO, LSCRATCH, lw1, lw2, lw3, lw4, MMAX, NSCRATCH
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: H(N*(N+1)/2), S(N*(N+1)/2), E(N)
+real(kind=wp), intent(out) :: C(N,N)
+integer(kind=iwp), intent(inout) :: M
+integer(kind=iwp) :: i, INFO, LSCRATCH, lw1, lw2, lw3, lw4, MMAX, NSCRATCH
 real(kind=wp) :: WGronk(2)
 !character(len=12) :: method
 #include "WrkSpc.fh"
@@ -79,8 +81,10 @@ call Square(S,Work(lw1),1,N,N)
 call Square(H,Work(lw2),1,N,N)
 
 ! Schmidt orthogonalization
-call dcopy_(N*N,[Zero],0,C,1)
-call dcopy_(N,[One],0,C,N+1)
+C(:,:) = Zero
+do i=1,N
+  C(i,i) = One
+end do
 
 !write(u6,*) ' HCSCE calling Schmidt.'
 !call Schmidt(N,Work(lw1),C,Work(lw4),M)

@@ -12,17 +12,21 @@
 !***********************************************************************
 
 subroutine CNHCN(ICNL,ITPL,ICNR,ITPR,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NORB,TUVX,IPREXH,ExFac,IREOTS)
-! Obtain Hamilton matrix over CSF's of configurations ICNL,ICNR
+! Obtain Hamiltonian matrix over CSF's of configurations ICNL,ICNR
 !
-! Jeppe Olsen , Summer of '89
-!               IREOTS added August 2003
+! Jeppe Olsen, Summer of '89
+!              IREOTS added August 2003
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ICNL(*), ITPL, ICNR(*), ITPR, NAEL, NBEL, IPRODT(*), NORB, IPREXH, IREOTS(*)
-real(kind=wp) :: CNHCNM(*), SCR(*), ECORE, ONEBOD(*), DTOC(*), TUVX(*), ExFac
+integer(kind=iwp), intent(in) :: ICNL(*), ITPL, ICNR(*), ITPR, NAEL, NBEL, IPRODT(*), NORB, IREOTS(*)
+real(kind=wp), intent(_OUT_) :: CNHCNM(*), SCR(*)
+real(kind=wp), intent(in) :: ECORE, ONEBOD(*), DTOC(*), TUVX(*), ExFac
+integer(kind=iwp), intent(inout) :: IPREXH
 integer(kind=iwp) :: IPL, IPR, JCSF, JDET, KLCHD, KLDHD, KLDTLA, KLDTLB, KLDTRA, KLDTRB, KLFREE, KLISL, KLISR, NCSFL, NCSFR, &
                      NDETL, NDETR, NTEST
 real(kind=wp) :: PSIGN
@@ -98,8 +102,8 @@ subroutine CNHCN_INTERNAL(SCR)
   ! Transform matrix to CSF basis
 
   ! : sign changes
-  call DGMM2_MOLCAS(SCR(KLDHD),SCR(KLDHD),SCR(KLISL),1,NDETL,NDETR)
-  call DGMM2_MOLCAS(SCR(KLDHD),SCR(KLDHD),SCR(KLISR),2,NDETL,NDETR)
+  call DGMM2_MOLCAS(SCR(KLDHD),SCR(KLISL),1,NDETL,NDETR)
+  call DGMM2_MOLCAS(SCR(KLDHD),SCR(KLISR),2,NDETL,NDETR)
   IPL = 1
   do JTYP=1,ITPL-1
     JCSF = NCSFTP(JTYP)

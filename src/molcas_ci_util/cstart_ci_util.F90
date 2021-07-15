@@ -50,9 +50,13 @@ use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset,mh5_close_file
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: C(*), h0(*), TUVX(*), ExplE(*), ExplV(*)
-integer(kind=iwp) :: iSel(*), nMaxSel, iFinal
+real(kind=wp), intent(_OUT_) :: C(*), ExplE(*), ExplV(*)
+real(kind=wp), intent(in) :: h0(*), TUVX(*)
+integer(kind=iwp), intent(_OUT_) :: iSel(*)
+integer(kind=iwp), intent(in) :: nMaxSel, iFinal
 integer(kind=iwp) :: i, iDisk, iJOB, IPRLEV, iTmp1, ivkcnf, j, k, l
 #ifdef _HDF5_
 integer(kind=iwp) :: mh5id
