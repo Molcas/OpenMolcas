@@ -109,6 +109,22 @@ subroutine ProcInp_Caspt2
   SHIFT = Input%Shift
   SHIFTI = Input%ShiftI
   regularizer = Input%regularizer
+  if (Input%Shift.gt.0.0d0) then
+    if ((Input%ShiftI.gt.0.0d0).or.(Input%regularizer.gt.0.0d0)) then
+      call WarningMessage(2,'Keyword SHIFT cannot be used with neither IMAG nor REGU.')
+      call Quit_OnUserError
+    end if
+  else if (Input%ShiftI.gt.0.0d0) then
+    if ((Input%Shift.gt.0.0d0).or.(Input%regularizer.gt.0.0d0)) then
+      call WarningMessage(2,'Keyword IMAG cannot be used with neither SHIFT nor REGU.')
+      call Quit_OnUserError
+    end if
+  else if (Input%regularizer.gt.0.0d0) then
+    if ((Input%Shift.gt.0.0d0).or.(Input%ShiftI.gt.0.0d0)) then
+      call WarningMessage(2,'Keyword REGU cannot be used with neither SHIFT nor IMAG.')
+      call Quit_OnUserError
+    end if
+  end if
 
 ! RHS algorithm selection
 #ifdef _MOLCAS_MPP_
