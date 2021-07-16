@@ -12,7 +12,8 @@
 subroutine citrans_init(nel,norb,mult)
 
 use second_quantization, only: binom_coef
-use citrans, only: ndet_group, ncsf_group, ndo_max, ndo_min, ndoc_group, nsoc_group, spintable_create, spintabs
+use citrans, only: ndet_group, ncsf_group, ndo_max, ndo_min, ndoc_group, nsoc_group, spintable_create, spintabs, spintabs_allocate
+use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none
@@ -32,12 +33,12 @@ end if
 ndo_max = nelb
 
 ! compute the various sizes per group
-allocate(ndoc_group(ndo_min:ndo_max))
-allocate(nsoc_group(ndo_min:ndo_max))
-allocate(ndet_group(ndo_min:ndo_max))
-allocate(ncsf_group(ndo_min:ndo_max))
+call mma_allocate(ndoc_group,[ndo_min,ndo_max],label='ndoc_group')
+call mma_allocate(nsoc_group,[ndo_min,ndo_max],label='nsoc_group')
+call mma_allocate(ndet_group,[ndo_min,ndo_max],label='ndet_group')
+call mma_allocate(ncsf_group,[ndo_min,ndo_max],label='ncsf_group')
 
-allocate(spintabs(ndo_min:ndo_max))
+call spintabs_allocate()
 ! loop over configurations
 do ido=ndo_min,ndo_max
   iso = nel-2*ido

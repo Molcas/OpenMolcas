@@ -52,8 +52,6 @@
 !                   (binary, temporary)
 !     LUDAVID: Intermediate results of the diagonalization
 !                   (binary, temporary)
-!                   Note: unit number is set as a parameter in
-!                   the file davctl.fh
 !
       Character(128)  StartOrbFile
       COMMON/STRINGS/ StartOrbFile

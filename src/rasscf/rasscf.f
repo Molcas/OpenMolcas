@@ -92,7 +92,6 @@
 #include "csfbas.fh"
 #include "gugx.fh"
 #include "pamint.fh"
-#include "davctl.fh"
 #include "qnctl.fh"
 #include "orthonormalize.fh"
 #include "ciinfo.fh"
@@ -2012,6 +2011,11 @@ c      End If
       if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG
      &          .or. allocated(CI_solver) .or. DumpOnly)) then
         Call MKGUGA_FREE
+      end if
+
+      if (DoFaro) then
+         call faroald_free()
+         call citrans_free()
       end if
 
       if (allocated(CI_solver)) then

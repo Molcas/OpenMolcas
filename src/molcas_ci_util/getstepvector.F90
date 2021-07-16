@@ -21,17 +21,17 @@ implicit none
 #include "WrkSpc.fh"
 integer(kind=iwp), intent(in) :: NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV)
 integer(kind=iwp), intent(inout) :: MV, IDWN, IUP
-integer(kind=iwp), intent(out) :: ICS(mxact)
+integer(kind=iwp), intent(out) :: ICS(NLEV)
 integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICUP, ICUPOS, IDW0, IUW0, LEV, NDWN, NNN
 
 ! RECONSTRUCT THE CASE LIST
 
 NICASE = NWALK*NIPWLK
 !NSCR = 3*(NLEV+1)
-!call GETMEM('SCR1','ALLO','INTEG',LSCR,NSCR)
-!call GETMEM('CASE','ALLO','INTEG',LICASE,NICASE)
-!call MKCLIST(NSM,IWORK(LDOWN),IWORK(LNOW),IWORK(LIOW),IWORK(LICASE),IWORK(LSCR))
-!call GETMEM('SCR1','FREE','INTEG',LSCR,NSCR)
+!call mma_allocate(SCR,NSCR,label='SCR1')
+!call mma_allocate(ICASE,NICASE,label='CASE')
+!call MKCLIST(NSM,IWORK(LDOWN),IWORK(LNOW),IWORK(LIOW),ICASE,LSCR)
+!call mma_deallocate(SCR)
 
 ! ENTER THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
 ! WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
@@ -101,7 +101,7 @@ else
   IUP = IUP+1
 end if
 
-!call GETMEM('CASE','FREE','INTEG',LICASE,NICASE)
+!call mma_deallocate(ICASE)
 return
 
 end subroutine GETSTEPVECTOR

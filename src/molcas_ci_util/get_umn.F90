@@ -37,6 +37,7 @@ subroutine get_Umn(PHP,EnIn,DHAM,IPCSF,IPCNF,MXPDIM,DTOC,IPRODT,ICONF,IREFSM,ONE
 ! ExFac  :
 ! IREOTS : Type => symmetry reordering array
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -46,10 +47,11 @@ integer(kind=iwp), intent(in) :: IPCSF(*), IPCNF(*), MXPDIM, IPRODT(*), ICONF(*)
                                  NPCNF, iterSplit, ITER, IREOTS(*)
 real(kind=wp), intent(out) :: PHP(NPCSF*(NPCSF+1)/2), DHAM(NPCSF*(NPCSF+1)/2)
 integer(kind=iwp), intent(inout) :: NTEST
-integer(kind=iwp) :: iAlpha, IATYP, IIA, IIAACT, IIAB, IIL, IILACT, IILB, IIR, IIRACT, IIRB, IIRMAX, iKACONF, iKLCONF, iKRCONF, &
-                     ILAI, ILAOV, ILRI, ILRO, ILTYP, ipAuxC, ipAuxD, ipAuxV, IRTYP, ITYP, KACONF, KLAUXD, KLCONF, KLFREE, KLPHPS, &
-                     KRCONF, LW2, Mindex, MXCSFC, MXXWS, NCSFA, NCSFL, NCSFR, Nindex
-integer(kind=iwp), external :: ip_of_iWork_d
+integer(kind=iwp) :: iAlpha, IATYP, IIA, IIAB, IIL, IILACT, IILB, IIR, IIRACT, IIRB, IIRMAX, iKACONF, iKLCONF, iKRCONF, ILAI, &
+                     ILRI, ILRO, ILTYP, IRTYP, ITYP, KACONF, KLAUXD, KLCONF, KLFREE, KLPHPS, KRCONF, Mindex, MXCSFC, MXXWS, NCSFA, &
+                     NCSFL, NCSFR, Nindex
+real(kind=wp), allocatable :: AuxC(:,:), AuxD(:), AuxV(:,:), Scr(:)
+integer(kind=iwp), external :: ip_of_iWork_d, ip_of_Work
 #include "spinfo.fh"
 #include "WrkSpc.fh"
 
@@ -73,14 +75,14 @@ do ITYP=1,NTYP
   MXCSFC = max(MXCSFC,NCSFTP(ITYP))
 end do
 !write(u6,*) 'MXCSFC = ',MXCSFC
-call getmem('AuxDia','ALLO','REAL',ipAuxD,MXCSFC)
-call getmem('AuxVer','ALLO','REAL',ipAuxV,MXCSFC*NPCSF)
-call getmem('AuxCopy','ALLO','REAL',ipAuxC,MXCSFC*NPCSF)
-call GETMEM('EXHSCR','MAX','REAL',LW2,MXXWS)
+call mma_allocate(AuxD,MXCSFC,label='AuxDia')
+call mma_allocate(AuxV,NPCSF,MXCSFC,label='AuxVer')
+call mma_allocate(AuxC,NPCSF,MXCSFC,label='AuxCopy')
+call mma_maxDBLE(MXXWS)
 MXXWS = MXXWS/2
-call GETMEM('EXHSCR','ALLO','REAL',LW2,MXXWS)
+call mma_allocate(Scr,MXXWS,label='EXHSCR')
 
-KACONF = LW2
+KACONF = ip_of_Work(Scr(1))
 KLCONF = KACONF+NEL
 KRCONF = KLCONF+NEL
 KLAUXD = KRCONF+NEL
@@ -120,10 +122,10 @@ if ((ITER /= 1) .or. (iterSplit /= 1)) then
     do IIA=1,NCSFA
       ILAI = IIA*IIA
       if (NTEST >= 30) write(u6,*) 'ILAI =',ILAI
-      !Work(ipAuxD+IIA-1) = Work(KLAUXD+ILAI-1)
-      !write(u6,*) 'Work(ipAuxD+IIA-1)',Work(ipAuxD+IIA-1)
-      Work(ipAuxD+IIA-1) = One/(EnIn-Work(KLAUXD+ILAI-1))
-      if (NTEST >= 30) write(u6,*) 'Work(ipAuxD+IIA-1)',Work(ipAuxD+IIA-1)
+      !AuxD(IIA) = Work(KLAUXD+ILAI-1)
+      !write(u6,*) 'AuxD(IIA)',AuxD(IIA)
+      AuxD(IIA) = One/(EnIn-Work(KLAUXD+ILAI-1))
+      if (NTEST >= 30) write(u6,*) 'AuxD(IIA)',AuxD(IIA)
     end do
     !*************** 2) AB-Block Array (alpha Column) ********************
     IILB = 1
@@ -145,28 +147,26 @@ if ((ITER /= 1) .or. (iterSplit /= 1)) then
       do IIL=1,NCSFL
         do IIA=1,NCSFA
           IILACT = IILB-1+IIL
-          IIAACT = NPCSF*(IIA-1)
           ILAI = (IIL-1)*NCSFA+IIA
           !ILAI = (IIA-1)*MXCSFC+IIL
           !ILAI = (IIL-1)*MXCSFC+IIA
-          ILAOV = IILACT+IIAACT
-          Work(ipAuxV+ILAOV-1) = Work(KLAUXD+ILAI-1)
-          !write(u6,*) 'ILAI, ILAOV = ',ILAI,ILAOV
-          if (NTEST >= 30) write(u6,*) 'Work(ipAuxV+ILAOV-1)',Work(ipAuxV+ILAOV-1)
-          Work(ipAuxC+ILAOV-1) = Work(ipAuxV+ILAOV-1)*Work(ipAuxD+IIA-1)
-          if (NTEST >= 30) write(u6,*) 'Work(ipAuxC+ILAOV-1)',Work(ipAuxC+ILAOV-1)
+          AuxV(IILACT,IIA) = Work(KLAUXD+ILAI-1)
+          !write(u6,*) 'ILAI, ILACT, IIA = ',ILAI,ILACT,IIA
+          if (NTEST >= 30) write(u6,*) 'AuxV(IILACT,IIA)',AuxV(IILACT,IIA)
+          AuxC(IILACT,IIA) = AuxV(IILACT,IIA)*AuxD(IIA)
+          if (NTEST >= 30) write(u6,*) 'AuxC(IILACT,IIA)',AuxC(IILACT,IIA)
         end do
       end do
       IILB = IILB+NCSFL
     end do ! End loop over AB-Block
     if (NTEST >= 30) then
       write(u6,*) 'AB-Block Vertical Vector'
-      call wrtmat(Work(ipAuxV),NPCSF,NCSFA,NPCSF,NCSFA)
+      call wrtmat(AuxV,NPCSF,NCSFA,NPCSF,NCSFA)
       write(u6,*) 'AB-Block Vertical Vector times Daa'
-      call wrtmat(Work(ipAuxC),NPCSF,NCSFA,NPCSF,NCSFA)
+      call wrtmat(AuxC,NPCSF,NCSFA,NPCSF,NCSFA)
     end if
     !*********************************************************************
-    call dGeMM_Tri('N','T',NPCSF,NPCSF,NCSFA,One,Work(ipAuxC),NPCSF,Work(ipAuxV),NPCSF,One,DHAM,NPCSF)
+    call dGeMM_Tri('N','T',NPCSF,NPCSF,NCSFA,One,AuxC,NPCSF,AuxV,NPCSF,One,DHAM,NPCSF)
     if (NTEST >= 30) call TRIPRT('correction to the AA block',' ',DHAM,NPCSF)
     IIAB = IIAB+NCSFA
   end do ! End of the loop over iAlpha
@@ -238,10 +238,10 @@ if (NTEST >= 30) then
   call TRIPRT('AA block Hamiltonian Matrix un-dressed',' ',PHP,NPCSF)
   call TRIPRT('Dressed AA block Hamiltonian Matrix',' ',DHAM,NPCSF)
 end if
-call GETMEM('EXHSCR','FREE','REAL',LW2,MXXWS)
-call getmem('AuxCopy','FREE','REAL',ipAuxC,MXCSFC*NPCSF)
-call getmem('AuxVer','FREE','REAL',ipAuxV,MXCSFC*NPCSF)
-call getmem('AuxDia','FREE','REAL',ipAuxD,MXCSFC)
+call mma_deallocate(AuxD)
+call mma_deallocate(AuxV)
+call mma_deallocate(AuxC)
+call mma_deallocate(Scr)
 
 return
 

@@ -36,7 +36,6 @@
 #include "general.fh"
 #include "output_ras.fh"
 
-#include "davctl.fh"
 #include "qnctl.fh"
 #include "raswfn.fh"
 *----------------------------------------------------------------------*

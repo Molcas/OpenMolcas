@@ -67,6 +67,7 @@ module citrans
 ! nsoc*(rankdo-1)+rankso, with nsoc the number of singly occupied
 ! strings per doubly occupied string in a group, i.e., n-dCs.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -89,7 +90,19 @@ end type spintable
 type(spintable), allocatable :: spintabs(:)
 
 public :: citrans_csf2sd, citrans_sd2csf, citrans_sort, ncsf_group, ndet_group, ndo_max, ndo_min, ndoc_group, nsoc_group, &
-          spintable_create, spintabs
+          spintable_create, spintabs, spintabs_allocate, spintabs_free
+
+! Private extensions to mma interfaces
+
+interface cptr2loff
+  module procedure spt_cptr2loff
+end interface
+interface mma_allocate
+  module procedure spt_mma_allo_1D, spt_mma_allo_1D_lim
+end interface
+interface mma_deallocate
+  module procedure spt_mma_free_1D
+end interface
 
 contains
 
@@ -111,10 +124,9 @@ subroutine citrans_sort(mode,ciold,cinew)
   integer(kind=iwp), parameter :: maxorb = 32, maxdown = 16
   real(kind=wp) :: wtab(0:maxorb,maxdown)
   integer, allocatable :: csf_offset(:), downvector(:), stepvector(:)
-  real(kind=wp), allocatable :: coef(:)
 
   ! Compute offsets for addressing into the reordering and coefficient arrays.
-  allocate(csf_offset(ndo_min:ndo_max))
+  call mma_allocate(csf_offset,[ndo_min,ndo_max],label='csf_offset')
 
 # ifdef _DEBUGPRINT_
   write(u6,'(5(1x,a4))') 'ido','ndoc','nsoc','ndet','ncsf'
@@ -149,9 +161,8 @@ subroutine citrans_sort(mode,ciold,cinew)
   ! set up table to compute CSF ranks
   call mkwtab(maxorb,maxdown,wtab)
 
-  allocate(stepvector(my_norb))
-  allocate(downvector(my_norb))
-  allocate(coef(my_norb))
+  call mma_allocate(stepvector,my_norb,label='stepvector')
+  call mma_allocate(downvector,my_norb,label='downvector')
   ! initialize variables that track the stepvector
   mv = 1
   idwn = 1
@@ -209,6 +220,10 @@ subroutine citrans_sort(mode,ciold,cinew)
 
   end do
 
+  call mma_deallocate(csf_offset)
+  call mma_deallocate(stepvector)
+  call mma_deallocate(downvector)
+
 end subroutine citrans_sort
 
 subroutine citrans_csf2sd(ci,det)
@@ -230,7 +245,7 @@ subroutine citrans_csf2sd(ci,det)
   ! the determinant coefficients. Then, loop through each configuration
   ! and put the determinants in the correct place with the right phase.
 
-  allocate(stepvector(my_norb))
+  call mma_allocate(stepvector,my_norb,label='stepvector')
 
   ioff_csf = 0
   do ido=ndo_min,ndo_max
@@ -240,7 +255,7 @@ subroutine citrans_csf2sd(ci,det)
     ndet = ndet_group(ido)
     ncsf = ncsf_group(ido)
 
-    allocate(tmp(ndet,nconf))
+    call mma_allocate(tmp,ndet,nconf,label='tmp')
 
     ! Compute the determinant coefficients from the CSF coefficients.
     call dgemm_('N','N',ndet,nconf,ncsf,One,spintabs(ido)%coef,ndet,ci(ioff_csf+1),ncsf,Zero,tmp,ndet)
@@ -270,9 +285,11 @@ subroutine citrans_csf2sd(ci,det)
       doub = lex_next(doub)
     end do
 
-    deallocate(tmp)
+    call mma_deallocate(tmp)
     ioff_csf = ioff_csf+ncsf*nconf
   end do
+
+  call mma_deallocate(stepvector)
 
 end subroutine citrans_csf2sd
 
@@ -295,7 +312,7 @@ subroutine citrans_sd2csf(det,ci)
   ! the determinant coefficients. Then, loop through each configuration
   ! and put the determinants in the correct place with the right phase.
 
-  allocate(stepvector(my_norb))
+  call mma_allocate(stepvector,my_norb,label='stepvector')
 
   ioff_csf = 0
   do ido=ndo_min,ndo_max
@@ -305,7 +322,7 @@ subroutine citrans_sd2csf(det,ci)
     ndet = ndet_group(ido)
     ncsf = ncsf_group(ido)
 
-    allocate(tmp(ndet,nconf))
+    call mma_allocate(tmp,ndet,nconf,label='tmp')
 
     ! Collect the determinant coefficients with the right phase factor
     ! from the correct place in the determinant matrix. The loops runs
@@ -335,11 +352,45 @@ subroutine citrans_sd2csf(det,ci)
     ! Compute the determinant coefficients from the CSF coefficients.
     call dgemm_('T','N',ncsf,nconf,ndet,One,spintabs(ido)%coef,ndet,tmp,ndet,Zero,ci(ioff_csf+1),ncsf)
 
-    deallocate(tmp)
+    call mma_deallocate(tmp)
     ioff_csf = ioff_csf+ncsf*nconf
   end do
 
+  call mma_deallocate(stepvector)
+
 end subroutine citrans_sd2csf
+
+subroutine spintabs_allocate()
+
+# ifdef _GARBLE_
+  interface
+    subroutine c_null_alloc(A)
+      import :: wp
+      real(kind=wp), allocatable :: A(:,:)
+    end subroutine c_null_alloc
+  end interface
+  integer(kind=iwp) :: i
+# endif
+
+  call mma_allocate(spintabs,[ndo_min,ndo_max],label='spintabs')
+
+# ifdef _GARBLE_
+  ! Garbling corrupts the allocation status of allocatable components, use a hack to reset it
+  do i=ndo_min,ndo_max
+    call c_null_alloc(spintabs(i)%coef)
+  end do
+# endif
+
+# include "macros.fh"
+  unused_proc(mma_allocate(spintabs,0))
+
+end subroutine spintabs_allocate
+
+subroutine spintabs_free()
+
+  call mma_deallocate(spintabs)
+
+end subroutine spintabs_free
 
 subroutine spintable_create(nso,ndown,spintab)
 ! given a number of singly occupied orbitals and down couplings,
@@ -361,10 +412,10 @@ subroutine spintable_create(nso,ndown,spintab)
   ndet = spintab%ndet
   ncsf = spintab%ncsf
 
-  allocate(down_orb(ndown+1))
-  allocate(udvec(nso))
+  call mma_allocate(down_orb,ndown+1,label='down_orb')
+  call mma_allocate(udvec,nso,label='udvec')
 
-  allocate(spintab%coef(ndet,ncsf))
+  call mma_allocate(spintab%coef,ndet,ncsf,label='spintab%coef')
 
   ! The CSFs here are generated in order of ascending rank that matches
   ! wtab, the ranking table used to sort the CSFs. The most alternating
@@ -381,6 +432,9 @@ subroutine spintable_create(nso,ndown,spintab)
     call ud2det(udvec,spintab%coef(:,icsf))
     call csf_next(ndown,down_orb)
   end do
+
+  call mma_deallocate(down_orb)
+  call mma_deallocate(udvec)
 
 end subroutine spintable_create
 
@@ -611,5 +665,22 @@ subroutine mkwtab(mxn1,mxn2,wtab)
   end do
 
 end subroutine mkwtab
+
+! Extensions to mma_interfaces, using preprocessor templates
+! (see src/mma_util/stdalloc.f)
+
+! Define spt_cptr2loff, spt_mma_allo_1D, spt_mma_allo_1D_lim, spt_mma_free_1D
+#define _TYPE_ type(spintable)
+#  define _FUNC_NAME_ spt_cptr2loff
+#  include "cptr2loff_template.fh"
+#  undef _FUNC_NAME_
+#  define _SUBR_NAME_ spt_mma
+#  define _DIMENSIONS_ 1
+#  define _DEF_LABEL_ 'spt_mma'
+#  include "mma_allo_template.fh"
+#  undef _SUBR_NAME_
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+#undef _TYPE_
 
 end module citrans

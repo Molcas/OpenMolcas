@@ -9,27 +9,26 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CIDIA_CI_UTIL(NORB,NCONF,IREFSM,CSFDIA,G,LUDAVID)
+subroutine CIDIA_CI_UTIL(NCONF,IREFSM,CSFDIA,LUDAVID)
 ! PURPOSE: - COMPUTE DIAGONAL ELEMENTS OF THE CI-MATRIX
 !            THE DETERMINANT BASIS
 !          - TRANSLATE FORM DET => CSF BASIS
 !
 ! CALLING PARAMETERS:
-! NORB  :  NO. OF ACTIVE ORBITALS
 ! NCONF :  NO. OF CSF
 ! IREFSM:  REFERENCE SYMMETRY
 ! CSFDIA:  DIAGONAL OF CI MATRIX IN CSF BASIS
-! G     :  MODIFIED ONE ELECTRON HAMILTONIAN INCLUDING CORE ELECTR.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp), intent(in) :: NORB, NCONF, IREFSM, LUDAVID
+integer(kind=iwp), intent(in) :: NCONF, IREFSM, LUDAVID
 real(kind=wp), intent(out) :: CSFDIA(*)
-real(kind=wp), intent(in) :: G(*)
-integer(kind=iwp) :: I, iDummy, II, IPRINT, IPRL, IPRLEV, KDDIA, KH1DIA, KSCR, KX
+integer(kind=iwp) :: iDummy, IPRINT, IPRL, IPRLEV
 real(kind=wp) :: Dummy(1), eCore_Hex
+real(kind=wp), allocatable :: DDIA(:)
 real(kind=r8), external :: Get_eCore
 #include "ciinfo.fh"
 #include "spinfo.fh"
@@ -41,41 +40,24 @@ real(kind=r8), external :: Get_eCore
 call Timing(Tissot_1,Swatch,Swatch,Swatch)
 IPRLEV = IPRLOC(3)
 
-! ALLOCATE LOCAL MEMORY
-
-call GETMEM('XA','ALLO','REAL',KX,NORB)
-call GETMEM('SCR','ALLO','REAL',KSCR,2*NORB)
-call GETMEM('H1DIA','ALLO','REAL',KH1DIA,NORB)
-
-! SELECT DIAGONAL ONEBODY INTEGRALS
-
-II = 0
-do I=1,NORB
-  II = II+I
-  Work(KH1DIA-1+I) = G(II)
-end do
-
 ! COMPUTE CI DIAGONAL IN DETERMINANT BASIS
 
 call Lucia_Util('Diag',iDummy,iDummy,Dummy)
 
-call GETMEM('DETDIA','ALLO','REAL',KDDIA,NDET)
-call get_diag(work(kddia),ndet)
+call mma_allocate(DDIA,NDET,label='DETDIA')
+call get_diag(DDIA,ndet)
 
 ! TRANSFORM CI DIAGONAL FROM DET TO CSF BASIS
 
 IPRINT = 0
 if (IPRLEV == INSANE) IPRINT = 40
-call CSDIAG_CI_UTIL(CSFDIA,Work(KDDIA),NCNFTP(1,IREFSM),NTYP,iWork(KICTS(1)),NDTFTP,NCSFTP,IPRINT)
+call CSDIAG_CI_UTIL(CSFDIA,DDIA,NCNFTP(1,IREFSM),NTYP,iWork(KICTS(1)),NDTFTP,NCSFTP,IPRINT)
 eCore_Hex = Get_eCore()
 call DAXPY_(NCONF,eCore_Hex,[One],0,CSFDIA,1)
 
 ! DEALLOCATE LOCAL MEMORY
 
-call GETMEM('XA','FREE','REAL',KX,NORB)
-call GETMEM('SCR','FREE','REAL',KSCR,2*NORB)
-call GETMEM('H1DIA','FREE','REAL',KH1DIA,NORB)
-call GETMEM('DETDIA','FREE','REAL',KDDIA,NDET)
+call mma_deallocate(DDIA)
 
 ! PRINT CI-DIAGONAL
 

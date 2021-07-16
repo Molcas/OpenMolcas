@@ -47,6 +47,7 @@ subroutine CStart_CI_Util(C,h0,TUVX,iSel,ExplE,ExplV,nMaxSel,iFinal)
 #ifdef _HDF5_
 use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset,mh5_close_file
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -57,12 +58,14 @@ real(kind=wp), intent(_OUT_) :: C(*), ExplE(*), ExplV(*)
 real(kind=wp), intent(in) :: h0(*), TUVX(*)
 integer(kind=iwp), intent(_OUT_) :: iSel(*)
 integer(kind=iwp), intent(in) :: nMaxSel, iFinal
-integer(kind=iwp) :: i, iDisk, iJOB, IPRLEV, iTmp1, ivkcnf, j, k, l
+integer(kind=iwp) :: i, iDisk, iJOB, IPRLEV, j, k, l
 #ifdef _HDF5_
 integer(kind=iwp) :: mh5id
 #endif
 logical(kind=iwp) :: Exists
 character(len=80) :: String
+integer(kind=iwp), allocatable :: vkcnf(:)
+real(kind=wp), allocatable :: Tmp1(:)
 #include "rasdim.fh"
 #include "general.fh"
 #include "rasscf.fh"
@@ -122,15 +125,15 @@ if (Start_Vectors) then
         end if
         mh5id = mh5_open_file_r(StartOrbFile)
 
-        call GetMem('Scr1','Allo','Real',iTmp1,nConf)
-        call GetMem('kcnf','allo','inte',ivkcnf,nactel)
+        call mma_allocate(Tmp1,nConf,label='Scr1')
+        call mma_allocate(vkcnf,nactel,label='kcnf')
         do i=1,lRoots
-          call mh5_fetch_dset(mh5id,'CI_VECTORS',Work(iTmp1:iTmp1+nconf-1),[nconf,1],[0,i-1])
-          call Reord2(NAC,NACTEL,STSYM,1,iWork(KICONF(1)),iWork(KCFTP),Work(iTmp1),C,iwork(ivkcnf))
+          call mh5_fetch_dset(mh5id,'CI_VECTORS',Tmp1,[nconf,1],[0,i-1])
+          call Reord2(NAC,NACTEL,STSYM,1,iWork(KICONF(1)),iWork(KCFTP),Tmp1,C,vkcnf)
           call Save_CI_vec(i,nConf,C,LuDavid)
         end do
-        call GetMem('kcnf','free','inte',ivkcnf,nactel)
-        call GetMem('Scr1','Free','Real',iTmp1,nConf)
+        call mma_deallocate(Tmp1)
+        call mma_deallocate(vkcnf)
 
         call mh5_close_file(mh5id)
       else
@@ -161,12 +164,11 @@ if (Start_Vectors) then
       iDisk = 0
       call IDafile(JOBOLD,2,iToc,15,iDisk)
       iDisk = iToc(4)
-      call GetMem('Scr1','Allo','Real',iTmp1,nConf)
+      call mma_allocate(Tmp1,nConf,label='Scr1')
+      call mma_allocate(vkcnf,nactel,label='kcnf')
       do i=1,lRoots
-        call DDafile(JOBOLD,2,Work(iTmp1),nConf,iDisk)
-        call GetMem('kcnf','allo','inte',ivkcnf,nactel)
-        call Reord2(NAC,NACTEL,STSYM,1,iWork(KICONF(1)),iWork(KCFTP),Work(iTmp1),C,iwork(ivkcnf))
-        call GetMem('kcnf','free','inte',ivkcnf,nactel)
+        call DDafile(JOBOLD,2,Tmp1,nConf,iDisk)
+        call Reord2(NAC,NACTEL,STSYM,1,iWork(KICONF(1)),iWork(KCFTP),Tmp1,C,vkcnf)
         call Save_CI_vec(i,nConf,C,LuDavid)
         if (IPRLEV >= INSANE) then
           write(String,'(A,I2)') 'Start vector of root',i
@@ -175,7 +177,8 @@ if (Start_Vectors) then
           call dVcPrt(String,' ',C,l)
         end if
       end do
-      call GetMem('Scr1','Free','Real',iTmp1,nConf)
+      call mma_deallocate(Tmp1)
+      call mma_deallocate(vkcnf)
       if (iJOB == 1) then
         if ((JOBOLD > 0) .and. (JOBOLD /= JOBIPH)) then
           call DaClos(JOBOLD)

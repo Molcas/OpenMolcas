@@ -50,6 +50,7 @@ subroutine HCSCE(N,H,S,C,E,M)
 !                                                                      *
 !***********************************************************************
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -58,8 +59,9 @@ integer(kind=iwp), intent(in) :: N
 real(kind=wp), intent(in) :: H(N*(N+1)/2), S(N*(N+1)/2), E(N)
 real(kind=wp), intent(out) :: C(N,N)
 integer(kind=iwp), intent(inout) :: M
-integer(kind=iwp) :: i, INFO, LSCRATCH, lw1, lw2, lw3, lw4, MMAX, NSCRATCH
+integer(kind=iwp) :: i, INFO, MMAX, NSCRATCH
 real(kind=wp) :: WGronk(2)
+real(kind=wp), allocatable :: Scratch(:), Temp1(:,:), Temp2(:,:), Temp3(:,:), Temp4(:)
 !character(len=12) :: method
 #include "WrkSpc.fh"
 #include "timers.fh"
@@ -71,14 +73,14 @@ call Timing(Longines_1,Swatch,Swatch,Swatch)
 MMAX = M
 
 ! allocate temporary work space
-call GetMem('Temp1','Allo','Real',lw1,N*N)
-call GetMem('Temp2','Allo','Real',lw2,N*N)
-call GetMem('Temp3','Allo','Real',lw3,N*N)
-call GetMem('Temp4','Allo','Real',lw4,N)
+call mma_allocate(Temp1,N,N,label='Temp1')
+call mma_allocate(Temp2,N,N,label='Temp2')
+call mma_allocate(Temp3,N,N,label='Temp3')
+call mma_allocate(Temp4,N,label='Temp4')
 
 ! make local copies of H and S
-call Square(S,Work(lw1),1,N,N)
-call Square(H,Work(lw2),1,N,N)
+call Square(S,Temp1,1,N,N)
+call Square(H,Temp2,1,N,N)
 
 ! Schmidt orthogonalization
 C(:,:) = Zero
@@ -87,24 +89,25 @@ do i=1,N
 end do
 
 !write(u6,*) ' HCSCE calling Schmidt.'
-!call Schmidt(N,Work(lw1),C,Work(lw4),M)
+!call Schmidt(N,Temp1,C,Temp4,M)
 !write(u6,*) ' HCSCE back from Schmidt. M=',M
 ! PAM 2009: It seems that no provision is made for the case that
 ! the returned M, = nr of ON vectors produced, is smaller than N?!
 ! Also, the whole thing looks very inefficient. But I just make
 ! some provisional changes now (090216).
 !write(u6,*) ' HCSCE check eigenvalues. N=',N
-!call eigv(N,Work(lw1))
+!call eigv(N,Temp1)
 !write(u6,*) ' HCSCE calling NewGS.'
-call NewGS(N,Work(lw1),C,Work(lw4),M)
+call NewGS(N,Temp1,C,Temp4,M)
+call mma_deallocate(Temp1)
 !write(u6,*) ' HCSCE back from NewGS. M=',M
 ! Possibly in very difficult cases, NewGS produced too many vectors:
 M = min(M,MMAX)
 
 ! transform H to an orthogonal basis
 ! PAM 2009: Rewritten, use only M orthogonal vectors
-call DGEMM_('N','N',N,M,N,One,Work(lw2),N,C,N,Zero,Work(lw3),N)
-call DGEMM_('T','N',M,M,N,One,C,N,Work(lw3),N,Zero,Work(lw2),M)
+call DGEMM_('N','N',N,M,N,One,Temp2,N,C,N,Zero,Temp3,N)
+call DGEMM_('T','N',M,M,N,One,C,N,Temp3,N,Zero,Temp2,M)
 
 ! PAM 2009: Replace by DSYEV call.
 !method = 'Householder'
@@ -112,36 +115,37 @@ call DGEMM_('T','N',M,M,N,One,C,N,Work(lw3),N,Zero,Work(lw2),M)
 
 ! diagonalize and extract eigenvalues
 !if (method == 'Jacobi') then
+!  call mma_allocate(Temp1,N*(N+1)/2,label='Temp1')
 !  do i=1,N
 !    do j=1,i
-!      Work(j+i*(i-1)/2+lw2-1) = Work(j+(i-1)*N+lw2-1)
+!      Temp1(j+i*(i-1)/2) = Temp2(j,i)
 !    end do
 !  end do
-!  call Jacob(Work(lw2),C,N,N)
-!  call JacOrd(Work(lw2),C,N,N)
+!  call Jacob(Temp1,C,N,N)
+!  call JacOrd(Temp1,C,N,N)
 !  do i=1,N
-!    E(i) = Work(i*(i+1)/2+lw2-1)
+!    E(i) = Temp1(i*(i+1)/2)
 !  end do
+!  call mma_deallocate(Temp1)
 !else if (method == 'Householder') then
-!  call Eigen_Molcas(N,Work(lw2),E,Work(lw4))
-!  call DGEMM_('N','N',N,N,N,One,C,N,Work(lw2),N,Zero,Work(lw3),N)
-!  call dcopy_(N*N,Work(lw3),1,C,1)
+!  call Eigen_Molcas(N,Temp2,E,Temp4)
+!  call DGEMM_('N','N',N,N,N,One,C,N,Temp2,N,Zero,Temp3,N)
+!  call dcopy_(N*N,Temp3,1,C,1)
 !end if
 ! PAM 2009 Equivalent, DSYEV, note now use just M, not all N:
 INFO = 0
-call dsyev_('V','L',M,Work(lw2),M,E,WGRONK,-1,INFO)
+call dsyev_('V','L',M,Temp2,M,E,WGRONK,-1,INFO)
 NSCRATCH = int(WGRONK(1))
-call GETMEM('SCRATCH','ALLO','REAL',LSCRATCH,NSCRATCH)
-call dsyev_('V','L',M,WORK(lw2),M,E,WORK(LSCRATCH),NSCRATCH,INFO)
-call GETMEM('SCRATCH','FREE','REAL',LSCRATCH,NSCRATCH)
-call DGEMM_('N','N',N,M,M,One,C,N,Work(lw2),M,Zero,Work(lw3),N)
-call dcopy_(N*M,Work(lw3),1,C,1)
+call mma_allocate(Scratch,NSCRATCH,label='SCRATCH')
+call dsyev_('V','L',M,Temp2,M,E,Scratch,NSCRATCH,INFO)
+call mma_deallocate(Scratch)
+call DGEMM_('N','N',N,M,M,One,C,N,Temp2,M,Zero,Temp3,N)
+call dcopy_(N*M,Temp3,1,C,1)
 
 ! deallocate temporary work space
-call GetMem('Temp4','Free','Real',lw4,N)
-call GetMem('Temp3','Free','Real',lw3,N*N)
-call GetMem('Temp2','Free','Real',lw2,N*N)
-call GetMem('Temp1','Free','Real',lw1,N*N)
+call mma_deallocate(Temp2)
+call mma_deallocate(Temp3)
+call mma_deallocate(Temp4)
 
 call Timing(Longines_2,Swatch,Swatch,Swatch)
 Longines_2 = Longines_2-Longines_1

@@ -9,21 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine STEPVECTOR_NEXT(MV,IDWN,IUP,STEPVECTOR)
+subroutine faroald_free()
+! The finalization subroutine lives outside of the
+! faroald module so that it can be called separately.
 
-use Definitions, only: iwp, u6
+use faroald, only: ex1_a, ex1_b, mma_deallocate
 
 implicit none
-#include "gugx.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp), intent(inout) :: MV, IDWN, IUP
-integer(kind=iwp), intent(out) :: STEPVECTOR(NLEV)
 
-! stop when MV is zero
-if (MV == 0) then
-  write(u6,'(1X,A)') 'stepvector_next has been depleted'
-end if
+if (allocated(ex1_a)) call mma_deallocate(ex1_a)
+if (allocated(ex1_b)) call mma_deallocate(ex1_b)
 
-call GETSTEPVECTOR(IWORK(LNOW),IWORK(LIOW),MV,IDWN,IUP,STEPVECTOR)
-
-end subroutine STEPVECTOR_NEXT
+end subroutine faroald_free

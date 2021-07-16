@@ -43,6 +43,7 @@ subroutine Term_David(ICICH,iter,lRoots,nConf,Vector,JOBIPH,LuDavid,iDisk)
 !                                                                      *
 !***********************************************************************
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -50,10 +51,10 @@ implicit none
 integer(kind=iwp), intent(in) :: ICICH, iter, lRoots, nConf, JOBIPH, LuDavid
 integer(kind=iwp), intent(inout) :: iDisk
 real(kind=wp), intent(out) :: Vector(nConf)
-integer(kind=iwp) :: iMem, iRecNo, iRoot, lOvlp1, lOvlp2
+integer(kind=iwp) :: iMem, iRecNo, iRoot
+real(kind=wp), allocatable :: Ovlp1(:,:), Ovlp2(:,:)
 #include "rasdim.fh"
 #include "davctl.fh"
-#include "WrkSpc.fh"
 
 ! check input arguments
 if (nConf < 0) then
@@ -76,25 +77,25 @@ end if
 ! If the root selectioning option has been enabled calculate
 ! also the overlap elemtents with the test vectors
 if (ICICH == 1) then
-  call GetMem('CIovlp1','Allo','Real',lOvlp1,lRoots*lRoots)
-  call dCopy_(lRoots*lRoots,[Zero],0,Work(lOvlp1),(1))
-  call GetMem('CIovlp2','Allo','Real',lOvlp2,lRoots*lRoots)
-  call dCopy_(lRoots*lRoots,[Zero],0,Work(lOvlp2),(1))
+  call mma_allocate(Ovlp1,lRoots,lRoots,label='CIovlp1')
+  call mma_allocate(Ovlp2,lRoots,lRoots,label='CIovlp2')
+  Ovlp1(:,:) = Zero
+  Ovlp2(:,:) = Zero
 end if
 do iRoot=1,lRoots
   call Load_tmp_CI_vec(iRoot,nConf,Vector,LuDavid)
   call DDaFile(JOBIPH,1,Vector,nConf,iDisk)
   if (ICICH == 1) then
-    call CIovlp(iRoot,Work(lOvlp1),Work(lOvlp2),Vector)
+    call CIovlp(iRoot,Ovlp1,Ovlp2,Vector)
   end if
 end do
 
 ! If the root selectioning option has been enabled
 ! make a new choice of the current roots
 if (ICICH == 1) then
-  call CIselect(Work(lOvlp1),Work(lOvlp2))
-  call GetMem('CIovlp2','Free','Real',lOvlp2,lRoots*lRoots)
-  call GetMem('CIovlp1','Free','Real',lOvlp1,lRoots*lRoots)
+  call CIselect(Ovlp1,Ovlp2)
+  call mma_deallocate(Ovlp1)
+  call mma_deallocate(Ovlp2)
 end if
 
 ! deallocate memory which was used as records of the RAM disk

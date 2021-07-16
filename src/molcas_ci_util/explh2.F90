@@ -47,6 +47,7 @@ subroutine EXPLH2(DIAG,ONEINT,TUVX,ISEL,EXPLE,EXPLV)
 !                                                                      *
 !***********************************************************************
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -56,8 +57,10 @@ implicit none
 real(kind=wp), intent(_OUT_) :: DIAG(*), EXPLE(*), EXPLV(*)
 real(kind=wp), intent(in) :: ONEINT(*), TUVX(*)
 integer(kind=iwp), intent(_OUT_) :: ISEL(*)
-integer(kind=iwp) :: I, II, IPRLEV, IREOTS, LEXHAM, LOCONE, LW1, LW2, lwscr, MXXSEL, MXXWS, NHEX, NPCNF
+integer(kind=iwp) :: I, II, IPRLEV, MXXSEL, MXXWS, NHEX, NPCNF
 real(kind=wp) :: ECORE
+integer(kind=iwp), allocatable :: CNF(:), IREOTS(:)
+real(kind=wp), allocatable :: EXHAM(:), HONE(:,:), Scr(:)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -77,13 +80,13 @@ NHEX = NSEL*(NSEL+1)/2
 
 ! ALLOCATE LOCAL MEMORY
 
-call GETMEM('IPCNF','ALLO','INTE',LW1,NCNASM(STSYM))
-call GETMEM('HONE','ALLO','REAL',LOCONE,NAC**2)
-call GETMEM('EXHAM','ALLO','REAL',LEXHAM,NHEX)
+call mma_allocate(CNF,NCNASM(STSYM),label='IPCNF')
+call mma_allocate(HONE,NAC,NAC,label='HONE')
+call mma_allocate(EXHAM,NHEX,label='EXHAM')
 
 ! EXPAND ONE-INTS FROM TRIANGULAR PACKING TO FULL STORAGE MODE
 
-call TRIEXP(ONEINT,Work(LOCONE),NAC)
+call TRIEXP(ONEINT,HONE,NAC)
 
 ! Load the diagonal approximation of the CI Hamiltonian
 
@@ -93,20 +96,20 @@ call Load_H_diag(nConf,DIAG,LuDavid)
 
 IPRINT = 0
 if (IPRLEV == INSANE) IPRINT = 40
-call GETMEM('IREOTS','ALLO','INTEGER',IREOTS,NAC)
-call GETMEM('EXHSCR','MAX','REAL',LW2,MXXWS)
-call GETMEM('EXHSCR','ALLO','REAL',LW2,MXXWS)
-call GET_IREOTS(IWORK(IREOTS),NAC)
-call PHPCSF(Work(LEXHAM),ISEL,iWork(LW1),MXXSEL,Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),STSYM,Work(LOCONE),ECORE,NAC,Work(LW2), &
-            NCNASM(STSYM),NAEL+NBEL,NAEL,NBEL,NSEL,NPCNF,DIAG,TUVX,IPRINT,ExFac,IWORK(IREOTS))
+call mma_allocate(IREOTS,NAC,label='IREOTS')
+call mma_maxDBLE(MXXWS)
+call mma_allocate(Scr,MXXWS,label='EXHSCR')
+call GET_IREOTS(IREOTS,NAC)
+call PHPCSF(EXHAM,ISEL,CNF,MXXSEL,Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),STSYM,HONE,ECORE,NAC,Scr,NCNASM(STSYM),NAEL+NBEL,NAEL, &
+            NBEL,NSEL,NPCNF,DIAG,TUVX,IPRINT,ExFac,IREOTS)
 if (IPRLEV == INSANE) then
-  call Square(Work(LEXHAM),EXPLV,1,NSEL,NSEL)
+  call Square(EXHAM,EXPLV,1,NSEL,NSEL)
   call RECPRT('Square Explicit Hamiltonian',' ',EXPLV,NSEL,NSEL)
 end if
-call GETMEM('EXHSCR','FREE','REAL',LW2,MXXWS)
-call GETMEM('IREOTS','FREE','INTEGER',IREOTS,NAC)
-call GETMEM('HONE','FREE','REAL',LOCONE,NAC**2)
-call GETMEM('IPCNF','FREE','INTE',LW1,NCNASM(STSYM))
+call mma_deallocate(IREOTS)
+call mma_deallocate(Scr)
+call mma_deallocate(CNF)
+call mma_deallocate(HONE)
 
 ! DIAGONALIZE THE EXPLICIT HAMILTONIAN.
 
@@ -117,23 +120,23 @@ if (.true.) then
     II = I+NSEL*(I-1)
     EXPLV(II) = One
   end do
-  !call Jacob(Work(LEXHAM),EXPLV,NSEL,NSEL)
+  !call Jacob(EXHAM,EXPLV,NSEL,NSEL)
   !# ifdef _DEBUGPRINT_
-  !call NIdiag(Work(LEXHAM),EXPLV,NSEL,NSEL)
+  !call NIdiag(EXHAM,EXPLV,NSEL,NSEL)
   !# else
-  call NIdiag_new(Work(LEXHAM),EXPLV,NSEL,NSEL)
+  call NIdiag_new(EXHAM,EXPLV,NSEL,NSEL)
   !# endif
-  call JACORD(Work(LEXHAM),EXPLV,NSEL,NSEL)
+  call JACORD(EXHAM,EXPLV,NSEL,NSEL)
   do I=1,NSEL
-    EXPLE(I) = Work(LEXHAM-1+I*(I+1)/2)
+    EXPLE(I) = EXHAM(I*(I+1)/2)
   end do
 else
-  call GetMem('ExHscr','Allo','Real',lwscr,nSel)
-  call Square(Work(LEXHAM),EXPLV,1,NSEL,NSEL)
-  call Eigen_Molcas(NSEL,EXPLV,EXPLE,Work(lwscr))
-  call GetMem('ExHscr','Free','Real',lwscr,nSel)
+  call mma_allocate(Scr,nSel,label='ExHscr')
+  call Square(EXHAM,EXPLV,1,NSEL,NSEL)
+  call Eigen_Molcas(NSEL,EXPLV,EXPLE,Scr)
+  call mma_deallocate(Scr)
 end if
-call GETMEM('EXHAM','FREE','REAL',LEXHAM,NHEX)
+call mma_deallocate(EXHAM)
 if (IPRLEV >= INSANE) call IVCPRT('Configurations included in the explicit Hamiltonian',' ',ISEL,NSEL)
 if (IPRLEV >= INSANE) call DVCPRT('Eigenvalues of the explicit Hamiltonian',' ',EXPLE,NSEL)
 if (IPRLEV >= INSANE) call RECPRT('Eigenvectors of the explicit Hamiltonian',' ',EXPLV,NSEL,NSEL)

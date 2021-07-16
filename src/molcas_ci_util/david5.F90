@@ -14,6 +14,7 @@ subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,GTUVXTR
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 
 use faroald, only: my_norb, ndeta, ndetb, sigma_update
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
@@ -35,12 +36,16 @@ integer(kind=iwp), intent(inout) :: mxItr
 integer(kind=iwp), intent(out) :: nItr
 real(kind=wp), intent(out) :: CI_Conv(2,lRoots,MAXJT)
 real(kind=wp) :: ThrEne, ExplE(nSel), ExplV(nSel,nSel), HTUTRI(*), GTUVXTRI(*)
-integer(kind=iwp) :: i, iConf, iConv, iCs, idelta, iDummy, iEs, iHs, ij, iOff, IPRLEV, iScr1, iScr2, iScr3, iScr4, iScr5, &
-                     iskipconv, iSs, it, it_ci, itu, ituvx, iu, iv, iVec1, iVec2, iVec3, IVECSVC, ivkcnf, ix, ixmax, jRoot, &
-                     kctemp, kRoot, ksigtemp, l1, l2, l3, lPrint, mRoot, nBasVec, nconverged, nleft, nnew, ntrial
+integer(kind=iwp) :: i, iConf, iConv, idelta, iDummy, ij, IPRLEV, iskipconv, it, it_ci, itu, ituvx, iu, iv, ix, ixmax, jRoot, &
+                     kRoot, l1, l2, l3, lPrint, mRoot, nBasVec, nconverged, nleft, nnew, ntrial
 real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, Dummy(1), E0, E1, ECORE_HEX, FP, Hji, ovl, R, RR, scl, Sji, ThrRes, updsiz, Z
 logical(kind=iwp) :: Skip
-real(kind=wp), allocatable :: gtuvx(:,:,:,:), htu(:,:), sgm(:,:), psi(:,:)
+integer(kind=iwp), allocatable :: vkcnf(:)
+real(kind=wp), allocatable :: Cs(:), ctemp(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), psi(:,:), Scr1(:,:), Scr2(:,:), Scr3(:,:), &
+                              sigtemp(:), sgm(:,:), Ss(:), Vec1(:), Vec3(:), VECSVC(:)
+real(kind=wp), allocatable, target :: Tmp(:)
+real(kind=wp), pointer, contiguous :: Vec2(:)
+integer(kind=iwp), external :: ip_of_Work
 real(kind=r8), external :: dDot_, dnrm2_, GET_ECORE
 
 !-----------------------------------------------------------------------
@@ -50,10 +55,10 @@ real(kind=r8), external :: dDot_, dnrm2_, GET_ECORE
 
 if (DoFaro) then
   ! fill in the integrals from their triangular storage
-  allocate(htu(my_norb,my_norb))
-  allocate(gtuvx(my_norb,my_norb,my_norb,my_norb))
-  htu = Zero
-  gtuvx = Zero
+  call mma_allocate(htu,my_norb,my_norb,label='htu')
+  call mma_allocate(gtuvx,my_norb,my_norb,my_norb,my_norb,label='gtuvx')
+  htu(:,:) = Zero
+  gtuvx(:,:,:,:) = Zero
   itu = 0
   ituvx = 0
   do it=1,my_norb
@@ -84,8 +89,8 @@ if (DoFaro) then
   ! non-specified SYG to GUGA format befor converting to
   ! determinants. This is because for Lucia, CSFs have been
   ! converted to SYG format somewhere up in cistart.
-  call GetMem('CIVEC','Allo','Real',IVECSVC,nconf)
-  call getmem('kcnf','allo','inte',ivkcnf,nactel)
+  call mma_allocate(VECSVC,nconf,label='CIVEC')
+  call mma_allocate(vkcnf,nactel,label='kcnf')
 end if
 
 call Timing(Alfex_1,Swatch,Swatch,Swatch)
@@ -97,20 +102,21 @@ l1 = nKeep
 l2 = l1*l1
 l3 = (l2+l1)/2
 ! Trying to avoid writing out of bounds in CSDTVC :::: JESPER :::: CHEAT
-call GetMem('Vector1','Allo','Real',iVec1,ndet)
-call GetMem('Vector2','Allo','Real',iVec2,ndet)
-call GetMem('Vector3','Allo','Real',iVec3,ndet)
-call GetMem('Esmall','Allo','Real',iEs,l1)
-call GetMem('Hsmall','Allo','Real',iHs,l3)
-call GetMem('Ssmall','Allo','Real',iSs,l3)
-call GetMem('Csmall','Allo','Real',iCs,l2)
-call GetMem('Scr1','Allo','Real',iScr1,l2)
-call GetMem('Scr2','Allo','Real',iScr2,l2)
-call GetMem('Scr3','Allo','Real',iScr3,lRoots*nSel)
-call GetMem('Scr4','Allo','Real',iScr4,lRoots*nSel)
-call GetMem('Scr5','Allo','Real',iScr5,lRoots*nSel)
-call GetMem('CTEMP','ALLO','REAL',kctemp,ndet)
-call GetMem('SIGTEM','ALLO','REAL',ksigtemp,ndet)
+call mma_allocate(Vec1,nConf,label='Vector1')
+call mma_allocate(Tmp,ndet,label='Vector2')
+Vec2(1:nConf) => Tmp(1:nConf)
+call mma_allocate(Vec3,nConf,label='Vector3')
+call mma_allocate(Es,l1,label='Esmall')
+call mma_allocate(Hs,l3,label='Hsmall')
+call mma_allocate(Ss,l3,label='Ssmall')
+call mma_allocate(Cs,l2,label='Csmall')
+call mma_allocate(Scr1,nSel,lRoots,label='Scr1')
+call mma_allocate(Scr2,nSel,lRoots,label='Scr2')
+call mma_allocate(Scr3,nSel,lRoots,label='Scr3')
+if (.not. DoFaro) then
+  call mma_allocate(ctemp,ndet,label='CTEMP')
+  call mma_allocate(sigtemp,ndet,label='SIGTEM')
+end if
 !-----------------------------------------------------------------------
 
 ! Print convergence thresholds in ITERFILE
@@ -137,62 +143,62 @@ do it_ci=1,mxItr
   do mRoot=lRoots*idelta+1,lRoots+nnew
     ! New CI vectors (it_ci,mroot) are available.
     ! compute new sigma vectors
-    call Load_CI_vec(mRoot,nConf,Work(iVec1),LuDavid)
+    call Load_CI_vec(mRoot,nConf,Vec1,LuDavid)
     if (iprlev >= DEBUG) then
       lPrint = min(nConf,200)
       write(u6,'(1X,A,I2,A,I2)') 'CI vector, iter =',it_ci,' mRoot =',mRoot
       write(u6,'(1X,A)') '(max. 200 elements)'
       write(u6,'(1X,A)') '-----------------------------'
-      call dVcPrt(' ',' ',Work(iVec1),lPrint)
+      call dVcPrt(' ',' ',Vec1,lPrint)
     end if
 
     call Timing(Rolex_1,Swatch,Swatch,Swatch)
     if (DOFARO) then
       ! determinant wavefunctions
-      allocate(sgm(ndeta,ndetb))
-      allocate(psi(ndeta,ndetb))
+      call mma_allocate(sgm,ndeta,ndetb,label='sgm')
+      call mma_allocate(psi,ndeta,ndetb,label='psi')
 
-      call DCOPY_(NCONF,[Zero],0,WORK(IVECSVC),1)
-      call REORD2(MY_NORB,NACTEL,1,0,IWORK(KICONF(1)),IWORK(KCFTP),WORK(IVEC1),WORK(IVECSVC),IWORK(IVKCNF))
-      call CITRANS_SORT('C',WORK(IVECSVC),WORK(IVEC2))
+      VECSVC(:) = Zero
+      call REORD2(MY_NORB,NACTEL,1,0,IWORK(KICONF(1)),IWORK(KCFTP),VEC1,VECSVC,VKCNF)
+      call CITRANS_SORT('C',VECSVC,VEC2)
       PSI = Zero
-      call CITRANS_CSF2SD(WORK(IVEC2),PSI)
+      call CITRANS_CSF2SD(VEC2,PSI)
       SGM = Zero
       call SIGMA_UPDATE(HTU,GTUVX,SGM,PSI)
-      call CITRANS_SD2CSF(SGM,WORK(IVEC2))
-      call CITRANS_SORT('O',WORK(IVEC2),WORK(IVECSVC))
-      call Reord2(my_norb,NACTEL,1,1,iWork(KICONF(1)),iWork(KCFTP),Work(IVECSVC),Work(IVEC2),iWork(ivkcnf))
+      call CITRANS_SD2CSF(SGM,VEC2)
+      call CITRANS_SORT('O',VEC2,VECSVC)
+      call Reord2(my_norb,NACTEL,1,1,iWork(KICONF(1)),iWork(KCFTP),VECSVC,VEC2,VKCNF)
 
       if (iprlev >= DEBUG) then
-        FP = DNRM2_(NCONF,WORK(IVEC2),1)
+        FP = DNRM2_(NCONF,VEC2,1)
         write(u6,'(1X,A,F21.14)') 'sigma dnrm2_(faroald): ',FP
       end if
 
       ! free the arrays
-      deallocate(sgm,psi)
+      call mma_deallocate(sgm)
+      call mma_deallocate(psi)
     else
       ! Convert the CI-vector from CSF to Det. basis
-      call dcopy_(nconf,work(ivec1),1,work(kctemp),1)
-      call dcopy_(ndet,[Zero],0,work(ksigtemp),1)
-      call csdtvc(work(kctemp),work(ksigtemp),1,work(kdtoc),iwork(kicts(1)),stSym,1)
-      call dcopy_(ndet,[Zero],0,work(ksigtemp),1)
-      c_pointer = kctemp
+      ctemp(1:nConf) = Vec1(:)
+      sigtemp(:) = Zero
+      call csdtvc(ctemp,sigtemp,1,work(kdtoc),iwork(kicts(1)),stSym,1)
+      c_pointer = ip_of_Work(ctemp(1))
       ! Calling Lucia to determine the sigma vector
       call Lucia_Util('Sigma',iDummy,iDummy,Dummy)
       ! Set mark so densi_master knows that the Sigma-vector exists on disk.
       iSigma_on_disk = 1
-      call CSDTVC(work(iVec2),work(kctemp),2,work(kdtoc),iWork(kicts(1)),stSym,1)
+      call CSDTVC(Tmp,ctemp,2,work(kdtoc),iWork(kicts(1)),stSym,1)
 
       if (iprlev >= DEBUG) then
-        FP = DNRM2_(NCONF,WORK(IVEC2),1)
+        FP = DNRM2_(NCONF,VEC2,1)
         write(u6,'(1X,A,F21.14)') 'sigma dnrm2_(lucia):   ',FP
       end if
     end if
 
     ! Add ECORE_HEX (different from zero when particle-hole formalism used)
     ECORE_HEX = GET_ECORE()
-    call daxpy_(nconf,ecore_hex,work(iVec1),1,work(iVec2),1)
-    ! imings on generation of the sigma vector
+    Vec1(:) = Vec1(:)+ecore_hex*Vec2(:)
+    ! Timings on generation of the sigma vector
     call Timing(Rolex_2,Swatch,Swatch,Swatch)
     Rolex_2 = Rolex_2-Rolex_1
     Rolex_3 = Rolex_3+Rolex_2
@@ -203,9 +209,9 @@ do it_ci=1,mxItr
       write(u6,'(1X,A,I2,A,I2)') 'sigma vector, iter =',it_ci,' mRoot =',mRoot
       write(u6,'(1X,A)') '(max. 200 elements)'
       write(u6,'(1X,A)') '--------------------------------'
-      call dVcPrt(' ',' ',Work(iVec2),lPrint)
+      call dVcPrt(' ',' ',Vec2,lPrint)
     end if
-    call Save_Sig_vec(mRoot,nConf,Work(iVec2),LuDavid)
+    call Save_Sig_vec(mRoot,nConf,Vec2,LuDavid)
   end do
   ! Sigma vectors (it_ci,mroot) have been computed, for mroot=1..lroots
   !---------------------------------------------------------------------
@@ -216,21 +222,21 @@ do it_ci=1,mxItr
   ! (Fewer, at the beginning)
 
   do jRoot=1,nvec
-    call Load_CI_vec(jRoot,nConf,Work(iVec1),LuDavid)
-    call Load_Sig_vec(jRoot,nConf,Work(iVec2),LuDavid)
+    call Load_CI_vec(jRoot,nConf,Vec1,LuDavid)
+    call Load_Sig_vec(jRoot,nConf,Vec2,LuDavid)
     do kRoot=1,jRoot
-      call Load_CI_vec(kRoot,nConf,Work(iVec3),LuDavid)
+      call Load_CI_vec(kRoot,nConf,Vec3,LuDavid)
       ij = kRoot+(jRoot*jRoot-jRoot)/2
-      Sji = dDot_(nConf,Work(iVec1),1,Work(iVec3),1)
-      Hji = dDot_(nConf,Work(iVec2),1,Work(iVec3),1)
-      Work(iSs+ij-1) = Sji
-      Work(iHs+ij-1) = Hji
+      Sji = dDot_(nConf,Vec1,1,Vec3,1)
+      Hji = dDot_(nConf,Vec2,1,Vec3,1)
+      Ss(ij) = Sji
+      Hs(ij) = Hji
     end do
   end do
   ntrial = nvec
   if (iprlev >= DEBUG) then
-    call TriPrt('Hsmall',' ',Work(iHs),ntrial)
-    call TriPrt('Ssmall',' ',Work(iSs),ntrial)
+    call TriPrt('Hsmall',' ',Hs,ntrial)
+    call TriPrt('Ssmall',' ',Ss,ntrial)
   end if
   ! Hsmall and Ssmall have been computed (ntrial x ntrial, in triangular
   ! storage.)
@@ -241,7 +247,7 @@ do it_ci=1,mxItr
   ! PAM2009 nBasVec on input = min(ntrial,nconf)
   ! nBasVec returned as nr of orthonormal solutions to HC=SCE
   nBasVec = nConf
-  call HCSCE(ntrial,Work(iHs),Work(iSs),Work(iCs),Work(iEs),nBasVec)
+  call HCSCE(ntrial,Hs,Ss,Cs,Es,nBasVec)
   if (nBasVec < lRoots) then
     write(u6,*) 'David: nBasVec less than lRoots'
     write(u6,*) 'nBasvec, lRoots = ',nBasVec,lRoots
@@ -249,39 +255,38 @@ do it_ci=1,mxItr
     call Abend()
   end if
   if (iprlev >= DEBUG) then
-    call dVcPrt('Eigenvalues of Hsmall',' ',Work(iEs),ntrial)
-    call RecPrt('Eigenvectors of Hsmall',' ',Work(iCs),ntrial,ntrial)
+    call dVcPrt('Eigenvalues of Hsmall',' ',Es,ntrial)
+    call RecPrt('Eigenvectors of Hsmall',' ',Cs,ntrial,ntrial)
   end if
   !---------------------------------------------------------------------
   ! compute the current 'best' CI, sigma and residual vector
 
-  ! CI vector is Work(iVec1)
-  ! sigma vector is saved in Work(iVec2)
-  ! residual vector is saved in Work(iVec3)
+  ! CI vector is Vec1
+  ! sigma vector is saved in Vec2
+  ! residual vector is saved in Vec3
   do mRoot=1,lRoots
     ! initialize 'best' CI and sigma vector
-    call dCopy_(nConf,[Zero],0,Work(iVec1),1)
-    call dCopy_(nConf,[Zero],0,Work(iVec2),1)
+    Vec1(:) = Zero
+    Vec2(:) = Zero
     ! accumulate contributions
     do jRoot=1,nvec
-      Cik = Work(iCs-1+jRoot+(mRoot-1)*ntrial)
-      call Load_CI_vec(jRoot,nConf,Work(iVec3),LuDavid)
-      call Daxpy_(nConf,Cik,Work(iVec3),1,Work(iVec1),1)
-      call Load_Sig_vec(jRoot,nConf,Work(iVec3),LuDavid)
-      call Daxpy_(nConf,Cik,Work(iVec3),1,Work(iVec2),1)
+      Cik = Cs(jRoot+(mRoot-1)*ntrial)
+      call Load_CI_vec(jRoot,nConf,Vec3,LuDavid)
+      Vec1(:) = Vec1(:)+Cik*Vec3(:)
+      call Load_Sig_vec(jRoot,nConf,Vec3,LuDavid)
+      Vec2(:) = Vec2(:)+Cik*Vec3(:)
     end do
-    RR = dDot_(nConf,Work(iVec1),1,Work(iVec1),1)
+    RR = dDot_(nConf,Vec1,1,Vec1,1)
     scl = One/sqrt(RR)
-    call DScal_(nConf,scl,Work(iVec1),1)
-    call DScal_(nConf,scl,Work(iVec2),1)
-    call Save_tmp_CI_vec(mRoot,nConf,Work(iVec1),LuDavid)
-    call Save_tmp_Sig_vec(mRoot,nConf,Work(iVec2),LuDavid)
+    Vec1(:) = scl*Vec1(:)
+    Vec2(:) = scl*Vec2(:)
+    call Save_tmp_CI_vec(mRoot,nConf,Vec1,LuDavid)
+    call Save_tmp_Sig_vec(mRoot,nConf,Vec2,LuDavid)
     ! compute residual vector
-    E0 = Work(iEs+mRoot-1)
-    call dCopy_(nConf,Work(iVec2),1,Work(iVec3),1)
-    call daxpy_(nConf,-E0,Work(iVec1),1,Work(iVec3),1)
+    E0 = Es(mRoot)
+    Vec3(:) = Vec2(:)-E0*Vec1(:)
     ! save current best energy and residual
-    RR = dDot_(nConf,Work(iVec3),1,Work(iVec3),1)
+    RR = dDot_(nConf,Vec3,1,Vec3,1)
     CI_conv(1,mroot,it_ci) = E0
     CI_conv(2,mroot,it_ci) = sqrt(RR)
     ! print vectors
@@ -290,31 +295,30 @@ do it_ci=1,mxItr
       write(u6,'(1X,A,I2,A,I2)') 'new best CI vector, iter =',it_ci,' mRoot =',mRoot
       write(u6,'(1X,A)') '(max. 200 elements)'
       write(u6,'(1X,A)') '--------------------------------------'
-      call dVcPrt(' ',' ',Work(iVec1),lPrint)
+      call dVcPrt(' ',' ',Vec1,lPrint)
       write(u6,'(1X,A,I2,A,I2)') 'new best sigma vector, iter =',it_ci,' mRoot =',mRoot
       write(u6,'(1X,A)') '(max. 200 elements)'
       write(u6,'(1X,A)') '-----------------------------------------'
-      call dVcPrt(' ',' ',Work(iVec2),lPrint)
+      call dVcPrt(' ',' ',Vec2,lPrint)
       write(u6,'(1X,A,I2,A,I2)') 'new residual vector, iter =',it_ci,' mRoot =',mRoot
       write(u6,'(1X,A)') '(max. 200 elements)'
       write(u6,'(1X,A)') '-----------------------------------------'
-      call dVcPrt(' ',' ',Work(iVec3),lPrint)
+      call dVcPrt(' ',' ',Vec3,lPrint)
     end if
     ! to improve the preconditioner select all elements in the
     ! subspace of the explicit Hamiltonian
     if (nSel > 1) then
-      iOff = (mRoot-1)*nSel
       do i=1,nSel
         iConf = iSel(i)
-        Work(iScr3+iOff+i-1) = Work(iVec3+iConf-1)
-        Work(iScr4+iOff+i-1) = Work(iVec1+iConf-1)
+        Scr1(i,mRoot) = Vec3(iConf)
+        Scr2(i,mRoot) = Vec1(iConf)
       end do
     end if
   end do
   ! Current best CI & Sigma vectors have been stored in a temporary place
   ! for mroot=1..lroots.
   ! Also, the selected elements of the CI and Sigma vectors have been
-  ! saved at Work(iScr3)(Sigma)  and Work(iScr4)(CI)
+  ! saved at Scr1 (Sigma) and Scr2 (CI)
   !---------------------------------------------------------------------
 
   ! check for convergence
@@ -378,96 +382,87 @@ do it_ci=1,mxItr
 
   nleft = lRoots-nconverged
   if (nSel > 1) then
-    ioff = nconverged*nSel
-    call DGEMM_('T','N',nSel,nleft,nSel,One,ExplV,nSel,Work(iScr3+ioff),nSel,Zero,Work(iScr5),nSel)
+    call DGEMM_('T','N',nSel,nleft,nSel,One,ExplV,nSel,Scr1(:,nconverged+1),nSel,Zero,Scr3,nSel)
     do mRoot=nconverged+1,lRoots
-      E0 = Work(iEs+mRoot-1)
-      iOff = (mRoot-nconverged-1)*nSel
+      E0 = Es(mRoot)
       do i=1,nSel
         Z = E0-ExplE(i)
         if (abs(Z) < 0.001_wp) Z = 0.001_wp
-        Work(iScr5+iOff+i-1) = Work(iScr5+iOff+i-1)/Z
+        Scr3(i,mRoot-nconverged) = Scr3(i,mRoot-nconverged)/Z
       end do
     end do
-    call DGEMM_('N','N',nSel,nleft,nSel,One,ExplV,nSel,Work(iScr5),nSel,Zero,Work(iScr3),nSel)
-    ioff = nconverged*nSel
-    call DGEMM_('T','N',nSel,nleft,nSel,One,ExplV,nSel,Work(iScr4+ioff),nSel,Zero,Work(iScr5),nSel)
+    call DGEMM_('N','N',nSel,nleft,nSel,One,ExplV,nSel,Scr3,nSel,Zero,Scr1,nSel)
+    call DGEMM_('T','N',nSel,nleft,nSel,One,ExplV,nSel,Scr2(:,nconverged+1),nSel,Zero,Scr3,nSel)
     do mRoot=nconverged+1,lRoots
-      E0 = Work(iEs+mRoot-1)
-      iOff = (mRoot-nconverged-1)*nSel
+      E0 = Es(mRoot)
       do i=1,nSel
         Z = E0-ExplE(i)
         if (abs(Z) < 0.001_wp) Z = 0.001_wp
-        Work(iScr5+iOff+i-1) = Work(iScr5+iOff+i-1)/Z
+        Scr3(i,mRoot-nconverged) = Scr3(i,mRoot-nconverged)/Z
       end do
     end do
-    call DGEMM_('N','N',nSel,nleft,nSel,One,ExplV,nSel,Work(iScr5),nSel,Zero,Work(iScr4),nSel)
+    call DGEMM_('N','N',nSel,nleft,nSel,One,ExplV,nSel,Scr3,nSel,Zero,Scr2,nSel)
   end if
   !---------------------------------------------------------------------
   do mRoot=nconverged+1,lRoots
-    E0 = -Work(iEs+mRoot-1)
-    call Load_tmp_Sig_vec(mRoot,nConf,Work(iVec1),LuDavid)
-    call Load_tmp_CI_vec(mRoot,nConf,Work(iVec2),LuDavid)
-    call daxpy_(nConf,E0,Work(iVec2),1,Work(iVec1),1)
-    call Load_H_diag(nConf,Work(iVec3),LuDavid)
-    E0 = Work(iEs+mRoot-1)
-    do i=0,nConf-1
-      Z = E0-Work(iVec3+i)
+    E0 = -Es(mRoot)
+    call Load_tmp_Sig_vec(mRoot,nConf,Vec1,LuDavid)
+    call Load_tmp_CI_vec(mRoot,nConf,Vec2,LuDavid)
+    Vec1(:) = Vec1(:)+E0*Vec2(:)
+    call Load_H_diag(nConf,Vec3,LuDavid)
+    E0 = Es(mRoot)
+    do i=1,nConf
+      Z = E0-Vec3(i)
       if (abs(Z) < 1.0e-4_wp) Z = 1.0e-4_wp
-      Work(iVec3+i) = Work(iVec1+i)/Z
+      Vec3(i) = Vec1(i)/Z
     end do
     if (nSel > 1) then
-      iOff = (mRoot-nconverged-1)*nSel
       do i=1,nSel
         iConf = iSel(i)
-        Work(iVec3+iConf-1) = Work(iScr3+iOff+i-1)
+        Vec3(iConf) = Scr1(i,mRoot-nconverged)
       end do
     end if
-    Alpha(mRoot) = dDot_(nConf,Work(iVec3),1,Work(iVec2),1)
-    call Load_H_diag(nConf,Work(iVec3),LuDavid)
-    E0 = Work(iEs+mRoot-1)
-    do i=0,nConf-1
-      Z = E0-Work(iVec3+i)
+    Alpha(mRoot) = dDot_(nConf,Vec3,1,Vec2,1)
+    call Load_H_diag(nConf,Vec3,LuDavid)
+    E0 = Es(mRoot)
+    do i=1,nConf
+      Z = E0-Vec3(i)
       if (abs(Z) < 1.0e-4_wp) Z = 1.0e-4_wp
-      Work(iVec3+i) = Work(iVec2+i)/Z
+      Vec3(i) = Vec2(i)/Z
     end do
     if (nSel > 1) then
-      iOff = (mRoot-nconverged-1)*nSel
       do i=1,nSel
         iConf = iSel(i)
-        Work(iVec3+iConf-1) = Work(iScr4+iOff+i-1)
+        Vec3(iConf) = Scr2(i,mRoot-nconverged)
       end do
     end if
-    Beta(mRoot) = dDot_(nConf,Work(iVec3),1,Work(iVec2),1)
+    Beta(mRoot) = dDot_(nConf,Vec3,1,Vec2,1)
   end do
   !---------------------------------------------------------------------
 
   ! compute correction vectors q3 = (r-E1*q2)/(E0-H)
   if (nSel > 1) then
     do mRoot=nconverged+1,lRoots
-      call Load_tmp_Sig_vec(mRoot,nConf,Work(iVec1),LuDavid)
-      call Load_tmp_CI_vec(mRoot,nConf,Work(iVec2),LuDavid)
-      E0 = -Work(iEs+mRoot-1)
-      call daxpy_(nConf,E0,Work(iVec2),1,Work(iVec1),1)
+      call Load_tmp_Sig_vec(mRoot,nConf,Vec1,LuDavid)
+      call Load_tmp_CI_vec(mRoot,nConf,Vec2,LuDavid)
+      E0 = -Es(mRoot)
       E1 = -Alpha(mRoot)/Beta(mRoot)
-      call daxpy_(nConf,E1,Work(iVec2),1,Work(iVec1),1)
-      iOff = (mRoot-nconverged-1)*nSel
+      Vec1(:) = Vec1(:)+(E0+E1)*Vec2(:)
       do i=1,nSel
         iConf = iSel(i)
-        Work(iScr3+iOff+i-1) = Work(iVec1+iConf-1)
+        Scr1(i,mRoot-nconverged) = Vec1(iConf)
       end do
     end do
-    call DGEMM_('T','N',nSel,nleft,nSel,One,ExplV,nSel,Work(iScr3),nSel,Zero,Work(iScr5),nSel)
+    call DGEMM_('T','N',nSel,nleft,nSel,One,ExplV,nSel,Scr1,nSel,Zero,Scr3,nSel)
     do mRoot=nconverged+1,lRoots
-      E0 = Work(iEs+mRoot-1)
-      iOff = (mRoot-nconverged-1)*nSel
+      E0 = Es(mRoot)
       do i=1,nSel
         Z = E0-ExplE(i)
         if (abs(Z) < 0.001_wp) Z = 0.001_wp
-        Work(iScr5+iOff+i-1) = Work(iScr5+iOff+i-1)/Z
+        Scr3(i,mRoot-nconverged) = Scr3(i,mRoot-nconverged)/Z
       end do
     end do
-    call DGEMM_('N','N',nSel,nleft,nSel,One,ExplV,nSel,Work(iScr5),nSel,Zero,Work(iScr3),nSel)
+    call DGEMM_('N','N',nSel,nleft,nSel,One,ExplV,nSel,Scr3,nSel,Zero,Scr1,nSel)
   end if
   ! move the index of CI_vec
   istart = istart+nnew
@@ -475,53 +470,50 @@ do it_ci=1,mxItr
 
   nnew = 0
   do mRoot=nconverged+1,lRoots
-    call Load_tmp_Sig_vec(mRoot,nConf,Work(iVec1),LuDavid)
-    call Load_tmp_CI_vec(mRoot,nConf,Work(iVec2),LuDavid)
-    E0 = -Work(iEs+mRoot-1)
-    call daxpy_(nConf,E0,Work(iVec2),1,Work(iVec1),1)
+    call Load_tmp_Sig_vec(mRoot,nConf,Vec1,LuDavid)
+    call Load_tmp_CI_vec(mRoot,nConf,Vec2,LuDavid)
+    E0 = -Es(mRoot)
     E1 = -Alpha(mRoot)/Beta(mRoot)
-    call daxpy_(nConf,E1,Work(iVec2),1,Work(iVec1),1)
-    call Load_H_diag(nConf,Work(iVec3),LuDavid)
-    E0 = Work(iEs+mRoot-1)
-    do i=0,nConf-1
-      Z = E0-Work(iVec3+i)
+    Vec1(:) = Vec1(:)+(E0+E1)*Vec2(:)
+    call Load_H_diag(nConf,Vec3,LuDavid)
+    E0 = Es(mRoot)
+    do i=1,nConf
+      Z = E0-Vec3(i)
       if (abs(Z) < 1.0e-4_wp) Z = 1.0e-4_wp
-      Work(iVec3+i) = Work(iVec1+i)/Z
+      Vec3(i) = Vec1(i)/Z
     end do
     if (nSel > 1) then
-      iOff = (mRoot-nconverged-1)*nSel
       do i=1,nSel
         iConf = iSel(i)
-        Work(iVec3+iConf-1) = Work(iScr3+iOff+i-1)
+        Vec3(iConf) = Scr1(i,mRoot-nconverged)
       end do
     end if
     ! Orthonormalize wrt previous vectors
-    updsiz = dnrm2_(nconf,Work(iVec3),1)
-    scl = One/updsiz
-    call DScal_(nConf,scl,Work(iVec3),1)
+    updsiz = dnrm2_(nconf,Vec3,1)
+    Vec3(:) = Vec3(:)/updsiz
     do jRoot=lRoots+1,min(nvec,nkeep-nconverged)
-      call Load_CI_vec(jRoot,nConf,Work(iVec2),LuDavid)
-      ovl = dDot_(nConf,Work(iVec3),1,Work(iVec2),1)
-      call daxpy_(nConf,-ovl,Work(iVec2),1,Work(iVec3),1)
+      call Load_CI_vec(jRoot,nConf,Vec2,LuDavid)
+      ovl = dDot_(nConf,Vec3,1,Vec2,1)
+      Vec3(:) = Vec3(:)-ovl*Vec2(:)
     end do
-    updsiz = dnrm2_(nconf,Work(iVec3),1)
+    updsiz = dnrm2_(nconf,Vec3,1)
     if (updsiz > 1.0e-6_wp) then
-      scl = One/updsiz
-      call DScal_(nConf,scl,Work(iVec3),1)
+      call DScal_(nConf,scl,Vec3,1)
+      Vec3(:) = Vec3(:)/updsiz
       nnew = nnew+1
       nvec = nvec+1
       nvec = min(nvec,nkeep)
-      call Save_CI_vec(lRoots+mRoot-nconverged,nConf,Work(iVec3),LuDavid)
+      call Save_CI_vec(lRoots+mRoot-nconverged,nConf,Vec3,LuDavid)
     end if
   end do
   !---------------------------------------------------------------------
   ! move the current best CI and sigma vectors to the first place
   ! in the list of retained CI vectors
   do mRoot=1,lRoots
-    call Load_tmp_CI_vec(mRoot,nConf,Work(iVec1),LuDavid)
-    call Save_CI_vec(mRoot,nConf,Work(iVec1),LuDavid)
-    call Load_tmp_Sig_vec(mRoot,nConf,Work(iVec1),LuDavid)
-    call Save_Sig_vec(mRoot,nConf,Work(iVec1),LuDavid)
+    call Load_tmp_CI_vec(mRoot,nConf,Vec1,LuDavid)
+    call Save_CI_vec(mRoot,nConf,Vec1,LuDavid)
+    call Load_tmp_Sig_vec(mRoot,nConf,Vec1,LuDavid)
+    call Save_Sig_vec(mRoot,nConf,Vec1,LuDavid)
   end do
 
 ! end of the long loop over iterations
@@ -538,23 +530,25 @@ if (.not. Skip) then
 end if
 
 ! deallocate local temporary vectors
-call GetMem('CTEMP','Free','REAL',kctemp,ndet)
-call GetMem('SIGTEM','Free','REAL',ksigtemp,ndet)
-call GetMem('Vector1','Free','Real',iVec1,ndet)
-call GetMem('Vector2','Free','Real',iVec2,ndet)
-call GetMem('Vector3','Free','Real',iVec3,ndet)
-call GetMem('Esmall','Free','Real',iEs,l1)
-call GetMem('Hsmall','Free','Real',iHs,l3)
-call GetMem('Ssmall','Free','Real',iSs,l3)
-call GetMem('Csmall','Free','Real',iCs,l2)
-call GetMem('Scr1','Free','Real',iScr1,l2)
-call GetMem('Scr2','Free','Real',iScr2,l2)
-call GetMem('Scr3','Free','Real',iScr3,lRoots*nSel)
-call GetMem('Scr4','Free','Real',iScr4,lRoots*nSel)
-call GetMem('Scr5','Free','Real',iScr5,lRoots*nSel)
+call mma_deallocate(Vec1)
+nullify(Vec2)
+call mma_deallocate(Tmp)
+call mma_deallocate(Vec3)
+call mma_deallocate(Es)
+call mma_deallocate(Hs)
+call mma_deallocate(Ss)
+call mma_deallocate(Cs)
+call mma_deallocate(Scr1)
+call mma_deallocate(Scr2)
+call mma_deallocate(Scr3)
 if (DoFaro) then
-  call GetMem('CIVEC','Free','Real',IVECSVC,nconf)
-  call getmem('kcnf','free','inte',ivkcnf,nactel)
+  call mma_deallocate(htu)
+  call mma_deallocate(gtuvx)
+  call mma_deallocate(VECSVC)
+  call mma_deallocate(vkcnf)
+else
+  call mma_deallocate(ctemp)
+  call mma_deallocate(sigtemp)
 end if
 
 call Timing(Alfex_2,Swatch,Swatch,Swatch)

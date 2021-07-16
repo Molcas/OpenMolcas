@@ -9,21 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine STEPVECTOR_NEXT(MV,IDWN,IUP,STEPVECTOR)
+subroutine citrans_free
 
-use Definitions, only: iwp, u6
+use citrans, only: ndet_group, ncsf_group, ndoc_group, nsoc_group, spintabs, spintabs_free
+use stdalloc, only: mma_deallocate
+use Definitions, only: iwp
 
 implicit none
-#include "gugx.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp), intent(inout) :: MV, IDWN, IUP
-integer(kind=iwp), intent(out) :: STEPVECTOR(NLEV)
+integer(kind=iwp) :: i
 
-! stop when MV is zero
-if (MV == 0) then
-  write(u6,'(1X,A)') 'stepvector_next has been depleted'
-end if
+call mma_deallocate(ndoc_group)
+call mma_deallocate(nsoc_group)
+call mma_deallocate(ndet_group)
+call mma_deallocate(ncsf_group)
+do i=lbound(spintabs,1),ubound(spintabs,1)
+  call mma_deallocate(spintabs(i)%coef)
+end do
+call spintabs_free()
 
-call GETSTEPVECTOR(IWORK(LNOW),IWORK(LIOW),MV,IDWN,IUP,STEPVECTOR)
-
-end subroutine STEPVECTOR_NEXT
+end subroutine citrans_free

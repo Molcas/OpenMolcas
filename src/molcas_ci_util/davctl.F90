@@ -48,66 +48,60 @@ subroutine DavCtl(LW1,TUVX,IFINAL)
 !                                                                      *
 !***********************************************************************
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Quart
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: LW1(*), TUVX(*)
 integer(kind=iwp), intent(in) :: IFINAL
-integer(kind=iwp) :: iDisk, IPRLEV, ItLimit, jRoot, lExplE, lExplV, lSel, LW4, LW5, mSel, nMaxSel
+integer(kind=iwp) :: iDisk, ItLimit, jRoot, mSel, nMaxSel
 real(kind=wp) :: ESize, Threshold, ThrRule
+integer(kind=iwp), allocatable :: iSel(:)
+real(kind=wp), allocatable :: CI_conv(:,:,:), CIVEC(:), ExplE(:), ExplV(:,:)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "ciinfo.fh"
-#include "WrkSpc.fh"
-#include "output_ras.fh"
 #include "lucia_ini.fh"
 
 !-----------------------------------------------------------------------
-!    INITIALIZE THE DAVIDSON DIAGONALIZATION
+! INITIALIZE THE DAVIDSON DIAGONALIZATION
 !-----------------------------------------------------------------------
 
 lRoots = lRoots+hroots
 call Ini_David(lRoots,nConf,nDet,nSel,n_keep,nAc,LuDavid)
 
-IPRLEV = IPRLOC(3)
+!-----------------------------------------------------------------------
+! COMPUTE THE DIAGONAL ELEMENTS OF THE HAMILTONIAN
+!-------------------------------------------------------------------
+
+! CIVEC: TEMPORARY CI VECTOR IN CSF BASIS
+
+call mma_allocate(CIVEC,NCONF,label='CIVEC')
+if (NAC > 0) call CIDIA_CI_UTIL(NCONF,STSYM,CIVEC,LUDAVID)
 
 !-----------------------------------------------------------------------
-!     COMPUTE THE DIAGONAL ELEMENTS OF THE HAMILTONIAN
-!-----------------------------------------------------------------------
-
-! LW4: TEMPORARY CI VECTOR IN CSF BASIS
-
-if (IPRLEV >= 20) write(u6,1100) 'INI_DAVID'
-call GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
-if (IPRLEV >= 20) write(u6,1100) 'CIDIA',LW4
-if (NAC > 0) call CIDIA_CI_UTIL(NAC,NCONF,STSYM,WORK(LW4),LW1,TUVX,LUDAVID)
-
-!-----------------------------------------------------------------------
-!    OBTAIN STARTING VECTORS
+! OBTAIN STARTING VECTORS
 !-----------------------------------------------------------------------
 
 mSel = nSel
 if (NAC /= 0) then
-  call GetMem('iSel','Allo','Integer',lSel,mSel)
-  call GetMem('ExplE','Allo','Real',lExplE,mSel)
-  call GetMem('ExplV','Allo','Real',lExplV,mSel*mSel)
+  call mma_allocate(iSel,mSel,label='iSel')
+  call mma_allocate(ExplE,mSel,label='ExplE')
+  call mma_allocate(ExplV,mSel,mSel,label='ExplV')
 else
-  lSel = 1
-  lExplE = 1
-  lExplV = 1
+  call mma_allocate(iSel,0,label='iSel')
+  call mma_allocate(ExplE,0,label='ExplE')
+  call mma_allocate(ExplV,0,0,label='ExplV')
 end if
 nMaxSel = nConf
 if (N_ELIMINATED_GAS_MOLCAS > 0) nmaxSel = nCSF_HEXS
 
-if ((IPRLEV >= 20) .and. (NAC /= 0)) write(u6,1100) 'CSTART',LW4,lSel,lExplE,lExplV
-call CStart_CI_Util(WORK(LW4),LW1,TUVX,iWork(lSel),Work(lExplE),Work(lExplV),nMaxSel,IFINAL)
-
-call GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
+call CStart_CI_Util(CIVEC,LW1,TUVX,iSel,ExplE,ExplV,nMaxSel,IFINAL)
 
 !-----------------------------------------------------------------------
-!    DIAGONALIZATION SECTION
+! DIAGONALIZATION SECTION
 !-----------------------------------------------------------------------
 
 ! PAM Jun 2006: Gradual lowering of threshold in first 3 iterations
@@ -126,20 +120,19 @@ Threshold = max(Threshold,1.0e-9_wp)
 if (NAC == 0) then
   ESize = abs(EMY)
 else
-  ESize = abs(Work(lExplE))
+  ESize = abs(ExplE(1))
 end if
 Threshold = max(Threshold,ESize*1.0e-14_wp)
 
-! LW5: CONVERGENCE PARAMETERS
-call GetMem('CI_conv','Allo','Real',LW5,2*lRoots*MAXJT)
-if ((IPRLEV >= 20) .and. (NAC /= 0)) write(u6,1100) 'DAVID',LW5,lSel,lExplE,lExplV
+! CI_conv: CONVERGENCE PARAMETERS
+call mma_allocate(CI_conv,2,lRoots,MAXJT,label='CI_conv')
 ITERCI = 1
 if (NAC == 0) then
   ENER(1,ITER) = EMY
 else
   if ((nSel == nConf) .or. ((N_ELIMINATED_GAS_MOLCAS > 0) .and. (nSel == nCSF_HEXS))) then
     do jRoot=1,lRoots-hRoots
-      ENER(jRoot,ITER) = Work(lExplE+jRoot-1)
+      ENER(jRoot,ITER) = ExplE(jRoot)
     end do
   else
     ! PAM Jun 2006: Limit the number of CI iterations in the
@@ -153,38 +146,30 @@ else
     end if
     ! PAM Feb 2009: New code in david5.
     !call David5(nAc,stSym,nDet,MAXJT,ITERCI,
-    !call David5(nAc,stSym,nDet,ItLimit,ITERCI,Work(LW5),Threshold,LW1,TUVX,iWork(lSel),Work(lExplE),Work(lExplV))
+    !call David5(nAc,stSym,nDet,ItLimit,ITERCI,CI_conv,Threshold,LW1,TUVX,iSel,ExplE,ExplV)
 
-    call David5(nDet,ItLimit,IterCI,Work(LW5),Threshold,iWork(lSel),Work(lExplE),Work(lExplV),LW1,TUVX)
+    call David5(nDet,ItLimit,IterCI,CI_conv,Threshold,iSel,ExplE,ExplV,LW1,TUVX)
 
     do jRoot=1,lRoots-hRoots
-      ENER(jRoot,ITER) = Work(LW5+2*(jRoot-1)+2*(ITERCI-1)*lRoots)
+      ENER(jRoot,ITER) = CI_conv(1,jRoot,ITERCI)
     end do
   end if
 end if
-call GetMem('CI_conv','Free','Real',LW5,2*lRoots*MAXJT)
-if (NAC /= 0) then
-  call GetMem('ExplV','Free','Real',lExplV,mSel*mSel)
-  call GetMem('ExplE','Free','Real',lExplE,mSel)
-  call GetMem('iSel','Free','Integer',lSel,mSel)
-end if
+call mma_deallocate(CI_conv)
+call mma_deallocate(iSel)
+call mma_deallocate(ExplE)
+call mma_deallocate(ExplV)
 nSel = mSel
 lRoots = lRoots-hroots
 
 !-----------------------------------------------------------------------
-!    CLEANUP AFTER THE DAVIDSON DIAGONALIZATION
+! CLEANUP AFTER THE DAVIDSON DIAGONALIZATION
 !-----------------------------------------------------------------------
 
-! LW4: TEMPORARY CI VECTOR IN CSF BASIS
-
-call GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
-if (IPRLEV >= 20) write(u6,1100) 'TERM_DAVID',LW4
 iDisk = IADR15(4)
-call Term_David(ICICH,ITERCI,lRoots,nConf,Work(LW4),JOBIPH,LuDavid,iDisk)
-call GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
+call Term_David(ICICH,ITERCI,lRoots,nConf,CIVEC,JOBIPH,LuDavid,iDisk)
+call mma_deallocate(CIVEC)
 
 return
-
-1100 format(1X,/,1X,'WORK SPACE VARIABLES IN SUBR. CICTL: ',/,1X,'SUBSECTION: ',A,/,(1X,12I10,/))
 
 end subroutine DavCtl

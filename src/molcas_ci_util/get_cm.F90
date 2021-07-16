@@ -39,6 +39,7 @@ subroutine get_Cm(IPCSF,IPCNF,MXPDIM,NCONF,NPCSF,NPCNF,Cn,EnFin,DTOC,IPRODT,ICON
 ! IREOTS     : Type => symmetry reordering array
 ! Ctot       : Vector of all nConf CI-coeff for a single root (Output)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -49,11 +50,12 @@ real(kind=wp), intent(in) :: Cn(NPCSF), EnFin, DTOC(*), ONEBOD(*), ECORE, TUVX(*
 integer(kind=iwp), intent(inout) :: NTEST
 logical(kind=iwp), intent(in) :: FordSplit
 real(kind=wp), intent(out) :: Ctot(MXPDIM)
-integer(kind=iwp) :: iAlpha, IATYP, IIA, IIAACT, IIAB, IIL, IILACT, IILB, iKACONF, iKLCONF, ILAI, ILAOV, ILTYP, ipAuxD, ipAuxGa, &
-                     ipAuxGaTi, ipAuxV, ITYP, KACONF, KLAUXD, KLCONF, KLFREE, LW2, Mindex, MXCSFC, MXXWS, NCSFA, NCSFL
+integer(kind=iwp) :: iAlpha, IATYP, IIA, IIAB, IIL, IILACT, IILB, iKACONF, iKLCONF, ILAI, ILTYP, ITYP, KACONF, KLAUXD, KLCONF, &
+                     KLFREE, Mindex, MXCSFC, MXXWS, NCSFA, NCSFL
 real(kind=wp) :: C_AlphaLoop1, C_AlphaLoop2, C_ComputeH_AB, C_computeH_AB1, C_computeH_AB2, C_Oper, C_oper1, C_oper2, &
                  W_AlphaLoop1, W_AlphaLoop2, W_ComputeH_AB, W_computeH_AB1, W_computeH_AB2, W_Oper, W_oper1, W_oper2
-integer(kind=iwp), external :: ip_of_iWork_d
+real(kind=wp), allocatable :: AuxD(:), AuxGa(:), AuxGaTi(:), AuxV(:,:), Scr(:)
+integer(kind=iwp), external :: ip_of_iWork_d, ip_of_Work
 real(kind=wp), external :: ddot_
 #include "spinfo.fh"
 #include "WrkSpc.fh"
@@ -93,14 +95,14 @@ do ITYP=1,NTYP
   MXCSFC = max(MXCSFC,NCSFTP(ITYP))
 end do
 
-call getmem('AuxDia','ALLO','REAL',ipAuxD,MXCSFC)
-call getmem('AuxGa','ALLO','REAL',ipAuxGa,MXCSFC)
-call getmem('AuxGaTi','ALLO','REAL',ipAuxGaTi,MXCSFC)
-call getmem('AuxVer','ALLO','REAL',ipAuxV,MXCSFC*NPCSF)
-call GETMEM('EXHSCR','MAX','REAL',LW2,MXXWS)
-call GETMEM('EXHSCR','ALLO','REAL',LW2,MXXWS)
+call mma_allocate(AuxD,MXCSFC,label='AuxDia')
+call mma_allocate(AuxGa,MXCSFC,label='AuxGa')
+call mma_allocate(AuxGaTi,MXCSFC,label='AuxGaTi')
+call mma_allocate(AuxV,NPCSF,MXCSFC,label='AuxVer')
+call mma_maxDBLE(MXXWS)
+call mma_allocate(Scr,MXXWS,label='EXHSCR')
 
-KACONF = LW2
+KACONF = ip_of_Work(Scr(1))
 KLCONF = KACONF+NEL
 KLAUXD = KLCONF+NEL
 KLFREE = KLAUXD+MXCSFC*MXCSFC
@@ -153,10 +155,10 @@ do iAlpha=NPCNF+1,NCONF
   end if
   do IIA=1,NCSFA
     ILAI = IIA*IIA
-    Work(ipAuxD+IIA-1) = Work(KLAUXD+ILAI-1)
+    AuxD(IIA) = Work(KLAUXD+ILAI-1)
     !write(u6,*) 'ILAI =',ILAI
     if (NTEST >= 30) then
-      write(u6,*) 'Work(ipAuxD+IIA-1)',Work(ipAuxD+IIA-1)
+      write(u6,*) 'AuxD(IIA)',AuxD(IIA)
     end if
   end do
 
@@ -181,14 +183,12 @@ do iAlpha=NPCNF+1,NCONF
     do IIA=1,NCSFA
       do IIL=1,NCSFL
         IILACT = IILB-1+IIL
-        IIAACT = NPCSF*(IIA-1)
         ILAI = (IIL-1)*NCSFA+IIA
         !ILAI = (IIA-1)*MXCSFC+IIL
-        ILAOV = IILACT+IIAACT
-        Work(ipAuxV+ILAOV-1) = Work(KLAUXD+ILAI-1)
+        AuxV(IILACT,IIA) = Work(KLAUXD+ILAI-1)
         if (NTEST >= 30) then
-          write(u6,*) 'ILAI, ILAOV =',ILAI,ILAOV
-          write(u6,*) 'Work(ipAuxV+ILAOV-1)',Work(ipAuxV+ILAOV-1)
+          write(u6,*) 'ILAI, IILACT, IIA =',ILAI,IILACT,IIA
+          write(u6,*) 'AuxV(IILACT,IIA)',AuxV(IILACT,IIA)
         end if
       end do
     end do
@@ -200,7 +200,7 @@ do iAlpha=NPCNF+1,NCONF
 
   if (NTEST >= 30) then
     write(u6,*) 'AB-Block Vertical Vector'
-    call wrtmat(Work(ipAuxV),NPCSF,NCSFA,NPCSF,NCSFA)
+    call wrtmat(AuxV,NPCSF,NCSFA,NPCSF,NCSFA)
   end if
 
   !*********************************************************************
@@ -210,11 +210,11 @@ do iAlpha=NPCNF+1,NCONF
   !*********************************************************************
   call cwtime(C_oper1,W_oper1)
   do IIA=1,NCSFA
-    Work(ipAuxGaTi+IIA-1) = ddot_(NPCSF,Work(ipAuxV+(IIA-1)*NPCSF),1,Cn,1)
-    Work(ipAuxGa+IIA-1) = Work(ipAuxGaTi+IIA-1)/(EnFin-Work(ipAuxD+IIA-1))
+    AuxGaTi(IIA) = ddot_(NPCSF,AuxV(:,IIA),1,Cn,1)
+    AuxGa(IIA) = AuxGaTi(IIA)/(EnFin-AuxD(IIA))
     if (NTEST >= 30) then
-      write(u6,*) 'Work(ipAuxGaTi+IIA-1)',Work(ipAuxGaTi+IIA-1)
-      write(u6,*) 'Work(ipAuxGa  +IIA-1)',Work(ipAuxGa+IIA-1)
+      write(u6,*) 'AuxGaTi(IIA)',AuxGaTi(IIA)
+      write(u6,*) 'AuxGa(IIA)  ',AuxGa(IIA)
     end if
   end do
   call cwtime(C_oper2,W_oper2)
@@ -222,7 +222,7 @@ do iAlpha=NPCNF+1,NCONF
   W_oper = W_oper+W_oper2-W_oper1
 
   do IIA=1,NCSFA
-    Ctot(NPCSF+IIAB+IIA-1) = Ctot(NPCSF+IIAB+IIA-1)+Work(ipAuxGa+IIA-1)
+    Ctot(NPCSF+IIAB+IIA-1) = Ctot(NPCSF+IIAB+IIA-1)+AuxGa(IIA)
     if (NTEST >= 30) then
       write(u6,*) 'Ctot'
       call wrtmat(Ctot,MXPDIM,1,MXPDIM,1)
@@ -253,11 +253,11 @@ if (NTEST >= 30) then
   write(u6,*) 'final Ctot vector'
   call wrtmat(Ctot,MXPDIM,1,MXPDIM,1)
 end if
-call GETMEM('EXHSCR','FREE','REAL',LW2,MXXWS)
-call getmem('AuxVer','FREE','REAL',ipAuxV,MXCSFC*NPCSF)
-call getmem('AuxGaTi','FREE','REAL',ipAuxGaTi,MXCSFC)
-call getmem('AuxGa','FREE','REAL',ipAuxGa,MXCSFC)
-call getmem('AuxDia','FREE','REAL',ipAuxD,MXCSFC)
+call mma_deallocate(AuxD)
+call mma_deallocate(AuxGa)
+call mma_deallocate(AuxGaTi)
+call mma_deallocate(AuxV)
+call mma_deallocate(Scr)
 
 return
 

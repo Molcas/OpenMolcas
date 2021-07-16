@@ -31,6 +31,7 @@ subroutine splitCTL(LW1,TUVX,IFINAL,iErrSplit)
 !                                                                      *
 !***********************************************************************
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, auToeV
 use Definitions, only: wp, iwp, u6, r8
 
@@ -38,13 +39,14 @@ implicit none
 real(kind=wp), intent(in) :: LW1(*), TUVX(*)
 integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp), intent(out) :: iErrSplit
-integer(kind=iwp) :: i, iCaseSplit, iDimBlockTri, iDisk, idx, ii, iJOB, ipAABlock, ipCNFtot, ipCSFtot, ipDHAM, ipDiag, ipDiagCNF, &
-                     IPRLEV, ipSplitE, ipSplitV, ipTotSplitV, IREOTS, iTmp1, iTmp2, ivkcnf, j, k, LG1, LOCONE, lSel, LW2, LW4, &
-                     MXSpli, MXXWS, nAAblock
+integer(kind=iwp) :: i, iCaseSplit, iDimBlockTri, iDisk, idx, iJOB, IPRLEV, j, k, MXSpli, MXXWS, nAAblock
 real(kind=wp) :: C_ABlockDim_Sel1, C_ABlockDim_sel2, condition, CSplitTot1, CSplitTot2, diffSplit, ECORE, EnFinSplit, SpliNor, &
-                 SqSpliNor, W_ABlockDim_sel1, W_ABlockDim_sel2, WSplitTot1, WSplitTot2
+                 W_ABlockDim_sel1, W_ABlockDim_sel2, WSplitTot1, WSplitTot2
 character(len=80) :: String
 logical(kind=iwp) :: DBG, Exists
+integer(kind=iwp), allocatable :: IPCNF(:), IPCNFtot(:), IPCSFtot(:), IREOTS(:), iSel(:), vkcnf(:)
+real(kind=wp), allocatable :: AABlock(:), CIVEC(:), DHAM(:), Diag(:), DiagCNF(:), HONE(:,:), Scr(:), SplitE(:), SplitV(:,:), &
+                              Tmp1(:), Tmp2(:), TotSplitV(:)
 real(kind=r8), external :: ddot_
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -86,18 +88,18 @@ call Ini_David(1,nConf,nDet,nconf,n_keep,nAc,LuDavid)
 !-----------------------------------------------------------------------
 !     COMPUTE THE DIAGONAL ELEMENTS OF THE COMPLETE HAMILTONIAN
 !-----------------------------------------------------------------------
-! LW4: TEMPORARY CI VECTOR IN CSF BASIS
-call GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
+! CIVEC: TEMPORARY CI VECTOR IN CSF BASIS
+call mma_allocate(CIVEC,NCONF,label='CIVEC')
 
 !if (IFINAL == 2) then ! to avoid last diagonalization
-!  call dCopy_(nConf,[Zero],0,Work(LW4),1)
-!  !call Load_tmp_CI_vec(1,1,nConf,Work(LW4),LuDavid)
-!  call Load_CI_vec(1,nConf,Work(LW4),LuDavid)
-!  !call dDaFile(JOBIPH,2,Work(LW4),nConf,LuDavid)
+!  CIVEC(:) = Zero
+!  !call Load_tmp_CI_vec(1,1,nConf,CIVEC,LuDavid)
+!  call Load_CI_vec(1,nConf,CIVEC,LuDavid)
+!  !call dDaFile(JOBIPH,2,CIVEC,nConf,LuDavid)
 !  if (DBG) then
 !    write(u6,*) 'LuDavid',LuDavid
 !    write(String,'(A)') 'Final=2 : CI-coeff in SplitCAS'
-!    call dVcPrt(String,' ',Work(LW4),nConf)
+!    call dVcPrt(String,' ',CIVEC,nConf)
 !  end if
 !
 !  if (NAC == 0) then
@@ -110,11 +112,11 @@ call GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
 !      write(u6,*) 'ENER(lRootSplit,ITER)',ENER(lRootSplit,ITER)
 !    end if
 !  end if
-!  call GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
+!  call mma_deallocate(CIVEC)
 !  return
 !end if
 
-if (NAC > 0) call CIDIA_CI_UTIL(NAC,NCONF,STSYM,WORK(LW4),LW1,LUDAVID)
+if (NAC > 0) call CIDIA_CI_UTIL(NCONF,STSYM,CIVEC,LUDAVID)
 !***********************************************************************
 ! iCaseSplit = 1  : there is NOT CI-RESTART.
 ! iCaseSplit = 2  : there is CIRESTART. The code will read the CI
@@ -126,12 +128,12 @@ if (ICIRST /= 0) iCaseSplit = 2
 if (iCaseSplit == 1) then ! There is NO CIRST
   if (iDimBlockA /= nconf) then ! AA Block is smaller than the full Hamiltonian matrix, then SplitCAS will be performed.
 
-    call GETMEM('HONE','ALLO','REAL',LOCONE,NAC**2)
+    call mma_allocate(HONE,NAC,NAC,label='HONE')
     ! EXPAND ONE-INTS FROM TRIANGULAR PACKING TO FULL STORAGE MODE
-    call TRIEXP(LW1,Work(LOCONE),NAC)
-    call GETMEM('IREOTS','ALLO','INTEGER',IREOTS,NAC)
-    call GET_IREOTS(IWORK(IREOTS),NAC)
-    !call GETMEM('IPCNF','ALLO','INTE',LG1,NCNASM(STSYM))
+    call TRIEXP(LW1,HONE,NAC)
+    call mma_allocate(IREOTS,NAC,label='IREOTS')
+    call GET_IREOTS(IREOTS,NAC)
+    !call mma_allocate(IPCNF,NCNASM(STSYM),label='IPCNF')
 
     call cwtime(C_ABlockDim_sel1,W_ABlockDim_sel1)
     ECORE = Zero
@@ -144,19 +146,18 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       !    2) The final values of iDimBlockA and iDimBlockACNF         *
       !    3) The diagonal array of the Hamiltonian matrix             *
       !*****************************************************************
-      call GETMEM('DiagCSF','ALLO','REAL',ipDiag,nConf)
-      call GetMem('IPCSFtot','Allo','Integer',ipCSFtot,nconf)
-      call GetMem('IPCNFtot','Allo','Integer',ipCNFtot,NCNASM(STSYM))
-      call GETMEM('EXHSCR','MAX','REAL',LW2,MXXWS)
-      call GETMEM('EXHSCR','ALLO','REAL',LW2,MXXWS)
+      call mma_allocate(Diag,nConf,label='DiagCSF')
+      call mma_allocate(IPCSFtot,nConf,label='IPCSFtot')
+      call mma_allocate(IPCNFtot,NCNASM(STSYM),label='IPCNFtot')
+      call mma_maxDBLE(MXXWS)
+      call mma_allocate(Scr,MXXWS,label='EXHSCR')
       MXSpli = iDimBlockA
       !nAAblock = MXSpli*(MXSpli+1)/2
-      call ipCSFSplit(Work(ipDiag),iWork(ipCSFtot),iWork(ipCNFtot),nConf,MXSpli,Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),STSYM, &
-                      Work(LOCONE),ECORE,NAC,Work(LW2),NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,Work(LW4),TUVX,IPRINT,ExFac, &
-                      IWORK(IREOTS))
-      !call DVCPRT('Diagonal elements of Hamilt. matrix in CSF',' ',Work(ipDiag),nConf)
-      call GETMEM('EXHSCR','FREE','REAL',LW2,MXXWS)
-      !call GETMEM('DiagCSF','FREE','REAL',ipDiag,nConf)
+      call ipCSFSplit(Diag,IPCSFtot,IPCNFtot,nConf,MXSpli,Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),STSYM,HONE,ECORE,NAC,Scr, &
+                      NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,CIVEC,TUVX,IPRINT,ExFac,IREOTS)
+      !call DVCPRT('Diagonal elements of Hamilt. matrix in CSF',' ',Diag,nConf)
+      call mma_deallocate(Scr)
+      !call mma_deallocate(Diag)
       !nAAblock = iDimBlockA*(iDimBlockA+1)/2
     end if
 
@@ -165,33 +166,32 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       ! COMPUTE the index array for THE DIAGONAL ELEMENTS OF THE       *
       ! COMPLETE HAMILTONIAN in energetic order.                       *
       !*****************************************************************
-      call GETMEM('DiagCSF','ALLO','REAL',ipDiag,nConf)
-      call GETMEM('DiagCNF','ALLO','REAL',ipDiagCNF,NCNASM(STSYM))
-      call GetMem('ipCSFtot','Allo','Integer',ipCSFtot,nConf)
-      call GETMEM('ipCNFtot','ALLO','Integer',ipCNFtot,NCNASM(STSYM))
-      call GETMEM('EXHSCR','MAX','REAL',LW2,MXXWS)
-      call GETMEM('EXHSCR','ALLO','REAL',LW2,MXXWS)
+      call mma_allocate(Diag,nConf,label='DiagCSF')
+      call mma_allocate(DiagCNF,NCNASM(STSYM),label='DiagCNF')
+      call mma_allocate(IPCSFtot,nConf,label='IPCSFtot')
+      call mma_allocate(IPCNFtot,NCNASM(STSYM),label='IPCNFtot')
+      call mma_maxDBLE(MXXWS)
+      call mma_allocate(Scr,MXXWS,label='EXHSCR')
       ! 'GapSpli' comes from the input in eV
       ! 'condition' goes to DiagOrd in Hartree if EnerSplit
       ! 'condition' goes to DiagOrd as a percentage if PerSplit
       if (EnerSplit) condition = gapSpli/auToeV
       if (PerSplit) condition = percSpli
-      call DiagOrd(Work(ipDiag),Work(ipDiagCNF),iWork(ipCSFtot),iWork(ipCNFtot),nConf,condition,ITER,Work(KDTOC),iWork(KDFTP), &
-                   iWork(KICONF(1)),STSYM,Work(LOCONE),ECORE,NAC,Work(LW2),NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,TUVX,IPRINT,ExFac, &
-                   IWORK(IREOTS))
+      call DiagOrd(Diag,DiagCNF,IPCSFtot,IPCNFtot,nConf,condition,ITER,Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),STSYM,HONE,ECORE, &
+                   NAC,Scr,NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,TUVX,IPRINT,ExFac,IREOTS)
       if (DBG) then
-        call DVCPRT('Diagonal elements of Hamilt. matrix in CSF',' ',Work(ipDiag),nConf)
-        call DVCPRT('Diagonal elements of Hamilt. matrix in CNF',' ',Work(ipDiagCNF),NCNASM(STSYM))
-        call IVCPRT('Index Array in CSF',' ',iWork(ipCSFtot),nConf)
-        call IVCPRT('Index Array in CNF',' ',iWork(ipCNFtot),NCNASM(STSYM))
+        call DVCPRT('Diagonal elements of Hamilt. matrix in CSF',' ',Diag,nConf)
+        call DVCPRT('Diagonal elements of Hamilt. matrix in CNF',' ',DiagCNF,NCNASM(STSYM))
+        call IVCPRT('Index Array in CSF',' ',IPCSFtot,nConf)
+        call IVCPRT('Index Array in CNF',' ',IPCNFtot,NCNASM(STSYM))
         write(u6,*) 'iDimBlockACNF from DiagOrd : ',iDimBlockACNF
         write(u6,*) 'iDimBlockA from DiagOrd : ',iDimBlockA
+        call xflush(u6)
       end if
-      call xflush(u6)
-      call GETMEM('EXHSCR','FREE','REAL',LW2,MXXWS)
-      call GETMEM('DiagCNF','free','REAL',ipDiagCNF,NCNASM(STSYM))
-      !call GETMEM('DiagCSF','free','REAL',ipDiag,nConf)
-      !call GETMEM('indOrdCNF','free','Integer',ipCNFtot,NCNASM(STSYM))
+      call mma_deallocate(Scr)
+      !call mma_deallocate(Diag)
+      call mma_deallocate(DiagCNF)
+      !call mma_deallocate(IPCNFtot)
     end if
 
     if (DBG) then
@@ -215,12 +215,12 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     !iBCSF = nConf-iDimBlockA
     !iBCNF = NCNASM(STSYM)-NPCNF
     !iBMAX = MAX(iBCSF,iDimBlockA)
-    call GETMEM('AAblock','ALLO','REAL',ipAABlock,iDimBlockTri)
-    call GETMEM('DHAM','ALLO','REAL',ipDHAM,iDimBlockTri)
-    !call GETMEM('BVEC','ALLO','REAL',ipBVEC,iBMAX)
-    call Fzero(Work(ipAABlock),iDimBlockTri)
+    call mma_allocate(AABlock,iDimBlockTri,label='AAblock')
+    call mma_allocate(DHAM,iDimBlockTri,label='DHAM')
+    !call mma_allocate(BVEC,iBMAX,label='BVEC')
+    AABlock(:) = Zero
     if (iter == 1) then
-      EnInSplit = Work(ipDiag+lrootSplit-1)
+      EnInSplit = Diag(lrootSplit)
     end if
     if (DBG) then
       write(u6,*) 'Initial Energy in SplitCAS : ',EnInSplit
@@ -229,43 +229,41 @@ if (iCaseSplit == 1) then ! There is NO CIRST
 
     iterSplit = 0
     call cwtime(C_Dress_1,W_Dress_1)
-    call getmem('SplitE','Allo','Real',ipSplitE,iDimBlockA)
-    call getmem('SplitV','Allo','Real',ipSplitV,iDimBlockA*iDimBlockA)
+    call mma_allocate(SplitE,iDimBlockA,label='SplitE')
+    call mma_allocate(SplitV,iDimBlockA,iDimBlockA,label='SplitV')
     do while ((diffSplit > ThrSplit) .and. (iterSplit < MxIterSplit))
       iterSplit = iterSplit+1
       if (DBG) then
         write(u6,*) '*************** Iteration SplitCAS =',iterSplit
       end if
-      !call Compute_Umn(Work(ipBVEC),NPCNF,NCNASM(STSYM),EnInSplit,NPCNF+1,1,Work(ipDHAM))
-      !call SPLITCSF(Work(ipAABlock),EnInSplit,Work(ipDHAM),
-      call get_Umn(Work(ipAABlock),EnInSplit,Work(ipDHAM),iWork(ipCSFtot),iWork(ipCNFtot),nconf,Work(KDTOC),iWork(KDFTP), &
-                   iWork(KICONF(1)),STSYM,Work(LOCONE),ECORE,NAC,NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,iDimBlockA,iDimBlockACNF, &
-                   TUVX,iterSplit,ITER,IPRINT,ExFac,IWORK(IREOTS))
+      !call Compute_Umn(BVEC,NPCNF,NCNASM(STSYM),EnInSplit,NPCNF+1,1,DHAM)
+      !call SPLITCSF(AABlock,EnInSplit,DHAM,
+      call get_Umn(AABlock,EnInSplit,DHAM,IPCSFtot,IPCNFtot,nconf,Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),STSYM,HONE,ECORE,NAC, &
+                   NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,iDimBlockA,iDimBlockACNF,TUVX,iterSplit,ITER,IPRINT,ExFac,IREOTS)
       call xflush(u6)
       if (DBG) then
-        call TRIPRT('AA block of the Hamiltonian Matrix',' ',Work(ipAABLOCK),iDimBlockA)
-        call TRIPRT('Dressed AA block Hamiltonian Matrix',' ',Work(ipDHAM),iDimBlockA)
+        call TRIPRT('AA block of the Hamiltonian Matrix',' ',AABlock,iDimBlockA)
+        call TRIPRT('Dressed AA block Hamiltonian Matrix',' ',DHAM,iDimBlockA)
         call xflush(u6)
       end if
-      !call GETMEM('BVEC','FREE','REAL',ipBVEC,iBMAX)
+      !call mma_deallocate(BVEC)
       !*****************************************************************
       ! Dressed Hamiltonian DIAGONALIZATION                            *
       !*****************************************************************
-      call dcopy_(iDimBlockA*iDimBlockA,[Zero],0,Work(ipSplitV),1)
+      SplitV(:,:) = Zero
       do i=1,iDimBlockA
-        ii = i+iDimBlockA*(i-1)
-        Work(ipSplitV+ii-1) = One
+        SplitV(i,i) = One
       end do
-      call NIdiag(Work(ipDHAM),Work(ipSplitV),iDimBlockA,iDimBlockA)
-      call JACORD(Work(ipDHAM),Work(ipSplitV),iDimBlockA,iDimBlockA)
+      call NIdiag(DHAM,SplitV,iDimBlockA,iDimBlockA)
+      call JACORD(DHAM,SplitV,iDimBlockA,iDimBlockA)
       do idx=1,iDimBlockA
-        Work(ipSplitE+idx-1) = Work(ipDHAM-1+idx*(idx+1)/2)
+        SplitE(idx) = DHAM(idx*(idx+1)/2)
       end do
-      EnFinSplit = Work(ipSplitE+lrootSplit-1)
+      EnFinSplit = SplitE(lrootSplit)
       if (DBG) then
-        call IVCPRT('CSFs included ',' ',iWork(ipCSFtot),iDimBlockA)
-        call RECPRT('Eigenvec. of dressed Hamiltonian',' ',Work(ipSplitV),iDimBlockA,iDimBlockA)
-        call DVCPRT('Eigenval. of dressed Hamiltonian',' ',Work(ipSplitE),iDimBlockA)
+        call IVCPRT('CSFs included ',' ',IPCSFtot,iDimBlockA)
+        call RECPRT('Eigenvec. of dressed Hamiltonian',' ',SplitV,iDimBlockA,iDimBlockA)
+        call DVCPRT('Eigenval. of dressed Hamiltonian',' ',SplitE,iDimBlockA)
       end if
       diffSplit = abs(EnFinSplit-EnInSplit)
       if (DBG) write(u6,*) 'Energy diff in SplitCAS :',diffSplit
@@ -299,20 +297,15 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       !*****************************************************************
       ! coeffs c_m belonging to class (B)                              *
       !*****************************************************************
-      !iBBlockDim = nconf-iDimBlockA
-      !call getmem('HmmDen','allo','real',ipHmmD,iBBlockDim)
-      !call getmem('UmnCnold','allo','real',ipUCOld,iBBlockDim)
-      !call getmem('UmnCnnew','allo','real',ipUCnew,iBBlockDim)
-      ! Work(ipTotSplitV) will contain all the nConf coeff. for a single root.
+      ! TotSplitV will contain all the nConf coeff. for a single root.
       ! For a multi-root procedure the code should iterate over the roots.
-      call getmem('totSplitVec','allo','real',ipTotSplitV,nConf)
-      !call Fzero(Work(ipTotSplitV),nConf)
-      !call CmSplit(iWork(ipCSFtot),iWork(ipCNFtot),
+      call mma_allocate(TotSplitV,nConf,label='totSplitVec')
+      !TotSplitV(:) = Zero
+      !call CmSplit(IPCSFtot,IPCNFtot,
       call cwtime(C_get_Cm1,W_get_Cm1)
-      call get_Cm(iWork(ipCSFtot),iWork(ipCNFtot),nConf,NCNASM(STSYM),iDimBlockA,iDimBlockACNF, &
-                  Work(ipSplitV+(lRootSplit-1)*iDimBlockA),lrootSplit,EnFinSplit,Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),STSYM, &
-                  Work(LOCONE),ECORE,NAC,(NAEL+NBEL),NAEL,NBEL,Work(LW4),TUVX,IPRINT,ExFac,IWORK(IREOTS),FordSplit, &
-                  Work(ipTotSplitV))
+      call get_Cm(IPCSFtot,IPCNFtot,nConf,NCNASM(STSYM),iDimBlockA,iDimBlockACNF,SplitV(:,lRootSplit),EnFinSplit,Work(KDTOC), &
+                  iWork(KDFTP),iWork(KICONF(1)),STSYM,HONE,ECORE,NAC,(NAEL+NBEL),NAEL,NBEL,TUVX,IPRINT,ExFac,IREOTS,FordSplit, &
+                  TotSplitV)
       call cwtime(C_get_Cm2,W_get_Cm2)
       C_get_Cm3 = C_get_Cm3+C_get_Cm2-C_get_Cm1
       W_get_Cm3 = W_get_Cm3+W_get_Cm2-W_get_Cm1
@@ -321,44 +314,40 @@ if (iCaseSplit == 1) then ! There is NO CIRST
         write(u6,*) 'CPU timing : ',C_get_Cm2-C_get_Cm1
         write(u6,*) 'W. timing  : ',W_get_Cm2-W_get_Cm1
       end if
-      !call getmem('UmnCnnew','Free','real',ipUCnew,iBBlockDim)
-      !call getmem('UmnCnold','Free','real',ipUCOld,iBBlockDim)
-      !call getmem('HmmDen','Free','real',ipHmmD,iBBlockDim)
       !*****************************************************************
       ! Normalization of the CI-Coefficients                           *
       !*****************************************************************
-      SpliNor = ddot_(nConf,Work(ipTotSplitV),1,Work(ipTotSplitV),1)
+      SpliNor = ddot_(nConf,TotSplitV,1,TotSplitV,1)
       !write(u6,*) 'SpliNor',SpliNor
-      SqSpliNor = One/sqrt(SpliNor)
-      call dscal_(nConf,SqSpliNor,Work(ipTotSplitV),1)
+      TotSplitV(:) = TotSplitV(:)/sqrt(SpliNor)
       if (DBG) then
-        call dVcPrt('Normalized...',' ',Work(ipTotSplitV),nConf)
+        call dVcPrt('Normalized...',' ',TotSplitV,nConf)
       end if
       !*****************************************************************
       ! SAVE CI VECTORS                                                *
       !*****************************************************************
       ! penso che in SplitCAS si debba usare sempre save_tmp_CI_vec.
       ! Ma nel dubbio lo copio anche con save_CI_vec:
-      call dCopy_(nConf,[Zero],0,Work(LW4),1)
+      CIVEC(:) = Zero
       do j=1,nConf
-        k = iWork(ipCSFtot+j-1)
-        Work(LW4+k-1) = Work(ipTotSplitV+j-1)
+        k = IPCSFtot(j)
+        CIVEC(k) = TotSplitV(j)
       end do
-      call Save_CI_vec(1,nConf,Work(LW4),LuDavid)
-      call Save_tmp_CI_vec(1,nConf,Work(LW4),LuDavid)
+      call Save_CI_vec(1,nConf,CIVEC,LuDavid)
+      call Save_tmp_CI_vec(1,nConf,CIVEC,LuDavid)
       if (DBG) then
         write(String,'(A)') 'CI-diag in SplitCTL'
-        call dVcPrt(String,' ',Work(LW4),nConf)
+        call dVcPrt(String,' ',CIVEC,nConf)
       end if
 
       if (NAC == 0) then
         ENER(1,ITER) = EMY
       else
         !do jRoot=1,lRootSplit
-        !  ENER(jRoot,ITER) = Work(ipSplitE+jRoot-1)
+        !  ENER(jRoot,ITER) = SplitE(jRoot)
         !  write(u6,*) 'ENER(jRoot,ITER)',ENER(jRoot,ITER)
         !end do
-        ENER(lRootSplit,ITER) = Work(ipSplitE+lRootSplit-1)
+        ENER(lRootSplit,ITER) = SplitE(lRootSplit)
         if (DBG) then
           write(u6,*) 'lRootSplit :',lRootSplit
           write(u6,*) 'ITER :',ITER
@@ -369,22 +358,21 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       write(u6,*) 'SplitCAS has to stop because it didn''t converge.'
     end if
     call xflush(u6)
-    call getmem('totSplitVec','free','real',ipTotSplitV,nConf)
-    !call GetMem('indOrdCSF','free','Integer',ipCSFtot,nConf)
-    call GetMem('IPCSFtot','FREE','Integer',ipCSFtot,nconf)
-    call GetMem('IPCNFtot','FREE','Integer',ipCNFtot,NCNASM(STSYM))
-    call GetMem('DiagCSF','FREE','REAL',ipDiag,nConf)
+    call mma_deallocate(TotSplitV)
+    call mma_deallocate(Diag)
+    call mma_deallocate(IPCSFtot)
+    call mma_deallocate(IPCNFtot)
     !*******************************************************************
     ! CLEANUP AFTER SPLITCAS                                           *
     !*******************************************************************
-    call getmem('SplitE','FREE','Real',ipSplitE,iDimBlockA)
-    call getmem('SplitV','FREE','Real',ipSplitV,iDimBlockA*iDimBlockA)
-    call GETMEM('DHAM','FREE','REAL',ipDHAM,iDimBlockTri)
-    call GETMEM('AAblock','FREE','REAL',ipAABlock,iDimBlockTri)
-    call GETMEM('IREOTS','FREE','INTEGER',IREOTS,NAC)
-    call GETMEM('HONE','FREE','REAL',LOCONE,NAC**2)
-    !call GETMEM('IPCNF','FREE','INTE',LG1,NCNASM(STSYM))
-    !call GetMem('iSel','Free','Integer',lSel,MxSpli)
+    call mma_deallocate(AABlock)
+    call mma_deallocate(DHAM)
+    call mma_deallocate(SplitE)
+    call mma_deallocate(SplitV)
+    call mma_deallocate(HONE)
+    call mma_deallocate(IREOTS)
+    call mma_deallocate(IPCNF)
+    !call mma_deallocate(iSel)
 
   else
     !*******************************************************************
@@ -393,79 +381,77 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     ECORE = Zero
     MXSpli = iDimBlockA
     nAAblock = MXSpli*(MXSpli+1)/2
-    call GETMEM('HONE','ALLO','REAL',LOCONE,NAC**2)
-    call GetMem('iSel','Allo','Integer',lSel,MxSpli)
-    call GETMEM('IPCNF','ALLO','INTE',LG1,NCNASM(STSYM))
-    call GETMEM('AAblock','ALLO','REAL',ipAABlock,nAAblock)
+    call mma_allocate(HONE,NAC,NAC,label='HONE')
+    call mma_allocate(iSel,MXSpli,label='iSel')
+    call mma_allocate(IPCNF,NCNASM(STSYM),label='IPCNF')
+    call mma_allocate(AABlock,nAAblock,label='AAblock')
     ! EXPAND ONE-INTS FROM TRIANGULAR PACKING TO FULL STORAGE MODE
-    call TRIEXP(LW1,Work(LOCONE),NAC)
+    call TRIEXP(LW1,HONE,NAC)
 
     ! Calculate the AA Block of the Hamiltonian Matrix
-    call GETMEM('IREOTS','ALLO','INTEGER',IREOTS,NAC)
-    call GETMEM('EXHSCR','MAX','REAL',LW2,MXXWS)
-    call GETMEM('EXHSCR','ALLO','REAL',LW2,MXXWS)
-    call GET_IREOTS(IWORK(IREOTS),NAC)
-    call PHPCSF(Work(ipAABlock),iWork(lSel),iWork(LG1),MXSpli,Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),STSYM,Work(LOCONE),ECORE, &
-                NAC,Work(LW2),NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,iDimBlockA,iDimBlockACNF,Work(LW4),TUVX,IPRINT,ExFac, &
-                IWORK(IREOTS))
-    call GETMEM('EXHSCR','FREE','REAL',LW2,MXXWS)
+    call mma_allocate(IREOTS,NAC,label='IREOTS')
+    call mma_maxDBLE(MXXWS)
+    call mma_allocate(Scr,MXXWS,label='EXHSCR')
+    call GET_IREOTS(IREOTS,NAC)
+    call PHPCSF(AABlock,iSel,IPCNF,MXSpli,Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),STSYM,HONE,ECORE,NAC,Scr,NCNASM(STSYM), &
+                NAEL+NBEL,NAEL,NBEL,iDimBlockA,iDimBlockACNF,CIVEC,TUVX,IPRINT,ExFac,IREOTS)
+    call mma_deallocate(Scr)
     if (DBG) then
-      call TRIPRT('AA block of the Hamiltonian Matrix',' ',Work(ipAABLOCK),iDimBlockA)
+      call TRIPRT('AA block of the Hamiltonian Matrix',' ',AABlock,iDimBlockA)
     end if
     write(u6,*) '####################################################'
     write(u6,*) '# Dimension of AA block is equal to total nconf:   #'
     write(u6,*) '#            SplitCAS will not be used!            #'
     write(u6,*) '####################################################'
     iDimBlockTri = iDimBlockA*(iDimBlockA+1)/2
-    call GETMEM('DHAM','ALLO','REAL',ipDHAM,iDimBlockTri)
-    call dcopy_(iDimBlockTri,Work(ipAABlock),1,Work(ipDHAM),1)
+    call mma_allocate(DHAM,iDimBlockTri,label='DHAM')
+    DHAM(:) = AABlock(:)
 
-    call getmem('SplitE','Allo','Real',ipSplitE,iDimBlockA)
-    call getmem('SplitV','Allo','Real',ipSplitV,iDimBlockA*iDimBlockA)
-    call dcopy_(iDimBlockA*iDimBlockA,[Zero],0,Work(ipSplitV),1)
-    !call icopy(iDimBlockA,iWork(lSel),1,iWork(ipCSFtot),1)
+    call mma_allocate(SplitE,iDimBlockA,label='SplitE')
+    call mma_allocate(SplitV,iDimBlockA,iDimBlockA,label='SplitV')
+    !IPCSFtot(:) = iSel(:)
+    SplitV(:,:) = Zero
     do i=1,iDimBlockA
-      ii = i+iDimBlockA*(i-1)
-      Work(ipSplitV+ii-1) = One
+      SplitV(i,i) = One
     end do
-    call NIdiag(Work(ipDHAM),Work(ipSplitV),iDimBlockA,iDimBlockA)
-    call JACORD(Work(ipDHAM),Work(ipSplitV),iDimBlockA,iDimBlockA)
+    call NIdiag(DHAM,SplitV,iDimBlockA,iDimBlockA)
+    call JACORD(DHAM,SplitV,iDimBlockA,iDimBlockA)
     do idx=1,iDimBlockA
-      Work(ipSplitE+idx-1) = Work(ipDHAM-1+idx*(idx+1)/2)
+      SplitE(idx) = DHAM(idx*(idx+1)/2)
     end do
     if (DBG) then
-      call IVCPRT('Configurations included ',' ',iWork(lSel),iDimBlockA)
-      call DVCPRT('Eigenval. of the explicit Hamiltonian',' ',Work(ipSplitE),iDimBlockA)
-      call RECPRT('Eigenvec. of the explicit Hamiltonian',' ',Work(ipSplitV),iDimBlockA,iDimBlockA)
+      call IVCPRT('Configurations included ',' ',iSel,iDimBlockA)
+      call DVCPRT('Eigenval. of the explicit Hamiltonian',' ',SplitE,iDimBlockA)
+      call RECPRT('Eigenvec. of the explicit Hamiltonian',' ',SplitV,iDimBlockA,iDimBlockA)
     end if
     !*******************************************************************
     ! SAVE CI VECTORS  after native Diagonalization                    *
     !*******************************************************************
     !write(u6,*) 'Root : ',lRootSplit
     !do i=1,lRootSplit
-    call dCopy_(nConf,[Zero],0,Work(LW4),1)
+    CIVEC(:) = Zero
     do j=1,nConf
-      k = iWork(lSel+j-1)
-      Work(LW4+k-1) = Work(ipSplitV+(lRootSplit-1)*nconf+j-1)
+      k = iSel(j)
+      CIVEC(k) = SplitV(j,lRootSplit)
     end do
-    !call Save_tmp_CI_vec(i,lRootSplit,nConf,Work(LW4),LuDavid)
-    !call Save_tmp_CI_vec(1,lRootSplit,nConf,Work(LW4),LuDavid)
-    call Save_tmp_CI_vec(1,nConf,Work(LW4),LuDavid)
+    !call Save_tmp_CI_vec(i,lRootSplit,nConf,CIVEC,LuDavid)
+    !call Save_tmp_CI_vec(1,lRootSplit,nConf,CIVEC,LuDavid)
+    call Save_tmp_CI_vec(1,nConf,CIVEC,LuDavid)
     !if (IPRLEV == INSANE) then
     !  write(u6,'(A,I2)') 'Start vector of root',i
     !  write(u6,*) 'LuDavid',LuDavid
     !  write(String,'(A)') ' CI-coefficients in SplitCAS native'
-    !  call dVcPrt(String,' ',Work(LW4),nConf)
+    !  call dVcPrt(String,' ',CIVEC,nConf)
     !end if
     !end do
     if (NAC == 0) then
       ENER(1,ITER) = EMY
     else
       !do jRoot = 1,lRootSplit
-      !  ENER(jRoot,ITER) = Work(ipSplitE+jRoot-1)
+      !  ENER(jRoot,ITER) = SplitE(jRoot)
       !  write(u6,*) 'ENER(jRoot,ITER)',ENER(jRoot,ITER)
       !end do
-      ENER(lRootSplit,ITER) = Work(ipSplitE+lRootSplit-1)
+      ENER(lRootSplit,ITER) = SplitE(lRootSplit)
       if (DBG) then
         write(u6,*) 'ITER :',ITER
         write(u6,*) 'ENER(lRootSplit,ITER)',ENER(lRootSplit,ITER)
@@ -474,14 +460,14 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     !*******************************************************************
     ! CLEANUP AFTER native DIAGONALIZATION                             *
     !*******************************************************************
-    call getmem('SplitV','FREE','Real',ipSplitV,iDimBlockA*iDimBlockA)
-    call getmem('SplitE','FREE','Real',ipSplitE,iDimBlockA)
-    call GETMEM('DHAM','FREE','REAL',ipDHAM,iDimBlockTri)
-    call GETMEM('IREOTS','FREE','INTEGER',IREOTS,NAC)
-    call GETMEM('AAblock','FREE','REAL',ipAABlock,nAAblock)
-    call GETMEM('HONE','FREE','REAL',LOCONE,NAC**2)
-    call GETMEM('IPCNF','FREE','INTE',LG1,NCNASM(STSYM))
-    call GetMem('iSel','Free','Integer',lSel,MxSpli)
+    call mma_deallocate(HONE)
+    call mma_deallocate(IPCNF)
+    call mma_deallocate(IREOTS)
+    call mma_deallocate(iSel)
+    call mma_deallocate(AABlock)
+    call mma_deallocate(DHAM)
+    call mma_deallocate(SplitV)
+    call mma_deallocate(SplitE)
   end if ! End of SplitCas/Native Hamiltonian diagonalization
 
 else ! Do it IF there is CIRESTART
@@ -501,23 +487,23 @@ else ! Do it IF there is CIRESTART
   iDisk = 0
   call IDafile(JOBOLD,2,iToc,15,iDisk)
   iDisk = iToc(4)
-  call GetMem('Scr1','Allo','Real',iTmp1,nConf)
-  call GetMem('Scr2','Allo','Real',iTmp2,nConf)
+  call mma_allocate(Tmp1,nConf,label='Scr1')
+  call mma_allocate(Tmp2,nConf,label='Scr2')
+  call mma_allocate(vkcnf,nactel,label='kcnf')
   !do i=1,lRootSplit
-  call DDafile(JOBOLD,2,Work(iTmp1),nConf,iDisk)
-  call GetMem('kcnf','allo','inte',ivkcnf,nactel)
-  call Reord2(NAC,NACTEL,STSYM,1,iWork(KICONF(1)),iWork(KCFTP),Work(iTmp1),Work(iTmp2),iwork(ivkcnf))
-  call GetMem('kcnf','free','inte',ivkcnf,nactel)
-  call Save_CI_vec(1,nConf,Work(iTmp2),LuDavid)
+  call DDafile(JOBOLD,2,Tmp1,nConf,iDisk)
+  call Reord2(NAC,NACTEL,STSYM,1,iWork(KICONF(1)),iWork(KCFTP),Tmp1,Tmp2,vkcnf)
+  call Save_CI_vec(1,nConf,Tmp2,LuDavid)
   !write(u6,'(A,I2)') 'Start vector of root',i
   !if (DBG) then
   write(u6,*) 'LuDavid',LuDavid
   write(String,'(A)') '(CI coefficient in CIRST)'
-  call dVcPrt(String,' ',Work(iTmp2),nConf)
+  call dVcPrt(String,' ',Tmp2,nConf)
   !end if
   !end do
-  call GetMem('Scr2','Free','Real',iTmp2,nConf)
-  call GetMem('Scr1','Free','Real',iTmp1,nConf)
+  call mma_deallocate(Tmp1)
+  call mma_deallocate(Tmp2)
+  call mma_deallocate(vkcnf)
   if (iJOB == 1) then
     if ((JOBOLD > 0) .and. (JOBOLD /= JOBIPH)) then
       call DaClos(JOBOLD)
@@ -533,16 +519,13 @@ end if ! End of do it IF there (is)/(isn't) CIRESTART
 !    CLEANUP AFTER SPLITCAS and DAVIDSON DIAGONALIZATION
 !-----------------------------------------------------------------------
 
-! LW4: TEMPORARY CI VECTOR IN CSF BASIS
+! CIVEC: TEMPORARY CI VECTOR IN CSF BASIS
 
-call GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
-call GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
-if (IPRLEV >= 20) write(u6,1100) 'TERM_DAVID',LW4
 iDisk = IADR15(4)
-!call Term_David(ICICH,ITERCI,lRootSplit,nConf,Work(LW4),JOBIPH,LuDavid,iDisk)
+!call Term_David(ICICH,ITERCI,lRootSplit,nConf,CIVEC,JOBIPH,LuDavid,iDisk)
 !write(u6,*) 'ITERCI :',ITERCI
-call Term_David(ICICH,ITERCI,1,nConf,Work(LW4),JOBIPH,LuDavid,iDisk)
-call GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
+call Term_David(ICICH,ITERCI,1,nConf,CIVEC,JOBIPH,LuDavid,iDisk)
+call mma_deallocate(CIVEC)
 
 if (DBG) then
   call cwtime(CSplitTot2,WSplitTot2)
@@ -552,7 +535,5 @@ if (DBG) then
 end if
 
 return
-
-1100 format(1X,/,1X,'WORK SPACE VARIABLES IN SUBR. CICTL: ',/,1X,'SUBSECTION: ',A,/,(1X,12I10,/))
 
 end subroutine splitCTL

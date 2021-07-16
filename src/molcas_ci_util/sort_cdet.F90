@@ -67,23 +67,24 @@ subroutine Sort_Cdet(N,Idx,X)
 !end do                                                                *
 !***********************************************************************
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: N, Idx(N)
 real(kind=wp), intent(inout) :: X(N)
-integer(kind=iwp) :: i, i_new, iReoSDs
+integer(kind=iwp) :: i, i_new
 real(kind=wp) :: alpha
-#include "WrkSpc.fh"
+real(kind=wp), allocatable :: ReoSDs(:)
 
-call getmem('ReordSDs','Allo','Real',iReoSDs,N)
+call mma_allocate(ReoSDs,N,label='ReordSDs')
 do i=1,N
   i_new = abs(Idx(i))
   alpha = real(sign(1,Idx(i)),kind=wp)
-  Work(iReoSDs+i_new-1) = alpha*X(i)
+  ReoSDs(i_new) = alpha*X(i)
 end do
-call dcopy_(N,Work(iReoSDs),1,X,1)
-call getmem('ReordSDs','Free','Real',iReoSDs,N)
+X(:) = ReoSDs(:)
+call mma_deallocate(ReoSDs)
 
 return
 

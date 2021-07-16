@@ -17,6 +17,7 @@ subroutine faroald_init(nactel,nasht,ispin)
 
 use faroald, only: ex1_a, ex1_b, ex1_init, max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs, mult, my_ndet, my_nel, my_norb, ndeta, &
                    ndetb, nela, nelb, nhoa, nhob
+use faroald, only: mma_allocate ! with extensions for ex1_struct
 use second_quantization, only: binom_coef, rank_init
 use Definitions, only: iwp
 
@@ -51,14 +52,14 @@ max_ex2a = (nela*(nela-1)*(nhoa)*(nhoa-1))/4+nela*nhoa+1
 max_ex2b = (nelb*(nelb-1)*(nhob)*(nhob-1))/4+nelb*nhob+1
 
 ! For sigma1, we use an excitation table for the beta strings.
-allocate(ex1_b(max_ex1b,ndetb))
+call mma_allocate(ex1_b,max_ex1b,ndetb,label='ex1_b')
 call ex1_init(nelb,my_norb,ex1_b)
 
 ! For sigma2, we use an excitation table for the alpha strings, unless
 ! Ms = 0 (mult = 1), as for singlet spins sigma2 is not computed and
 ! just taken as the transpose of sigma1.
 if (mult /= 1) then
-  allocate(ex1_a(max_ex1a,ndeta))
+  call mma_allocate(ex1_a,max_ex1a,ndeta,label='ex1_a')
   call ex1_init(nela,my_norb,ex1_a)
 end if
 

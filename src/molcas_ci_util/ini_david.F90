@@ -112,7 +112,7 @@ nvec = nkeep
 ! is to be used to save intermediate results
 MxMemStk = 0
 MxDiskStk = 0
-call GetMem(' ','Max ','Real',Max_free_Mem,Max_free_Mem)
+call mma_maxDBLE(Max_free_Mem)
 Max_free_Mem = Max_free_Mem-3*(nDet+4)
 Max_free_Mem = Max_free_Mem-3*(nConf+4)
 Max_free_Mem = Max_free_Mem-2*(ntAsh**3+4)

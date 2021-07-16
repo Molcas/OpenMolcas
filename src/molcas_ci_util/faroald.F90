@@ -21,6 +21,7 @@ module faroald
 ! The implementation follows the minimum operation count algorithm
 ! published by Olsen & Co in J. Chem. Phys. 89, 2185 (1988).
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 #ifdef _PROF_
@@ -49,6 +50,20 @@ integer(kind=int64) :: nflop
 public :: ex1_a, ex1_b, ex1_init, max_LRs, max_ex1a, max_ex1b, max_ex2a, max_ex2b, mult, my_ndet, my_nel, my_norb, ndeta, ndetb, &
           nela, nelb, nhoa, nhob, sigma_update
 
+! Extensions to mma interfaces
+
+interface cptr2loff
+  module procedure ex1_cptr2loff
+end interface
+interface mma_allocate
+  module procedure ex1_mma_allo_2D, ex1_mma_allo_2D_lim
+end interface
+interface mma_deallocate
+  module procedure ex1_mma_free_2D
+end interface
+
+public :: mma_allocate, mma_deallocate
+
 contains
 
 subroutine sigma_update(h,g,sgm,psi)
@@ -62,8 +77,7 @@ subroutine sigma_update(h,g,sgm,psi)
   real(kind=wp), intent(out) :: sgm(:,:)
   real(kind=wp), intent(in) :: psi(:,:)
   integer(kind=iwp) :: t, u, v, & ! orbital indices
-                       iasta, iaend, ibsta, ibend, & ! determinant index ranges
-                       ierr
+                       iasta, iaend, ibsta, ibend ! determinant index ranges
   real(kind=wp), allocatable :: k(:,:), psiT(:,:), sgmT(:,:)
 # ifdef _PROF_
   ! profiling
@@ -87,7 +101,7 @@ subroutine sigma_update(h,g,sgm,psi)
 
   ! First, construct a new effective one-electron integral matrix:
   ! k_tu = h_tu - 1/2 sum_v g_tvvu, to be used with sigma1/sigma2.
-  allocate(k(my_norb,my_norb))
+  call mma_allocate(k,my_norb,my_norb,label='k')
   do u=1,my_norb
     do t=1,my_norb
       ! g_tvvu = g_vtvu
@@ -101,8 +115,7 @@ subroutine sigma_update(h,g,sgm,psi)
 
   ! Second, for sigma2 and sigma3, we are better off with the transpose
   ! of sgm and/or psi, so allocate and assign them here.
-  allocate(psiT(ndetb,ndeta),stat=ierr)
-  if (ierr /= 0) stop 'sigma_update: could not allocate psiT'
+  call mma_allocate(psiT,ndetb,ndeta,label='psiT')
   call dtrans(ndeta,ndetb,psi,ndeta,psiT,ndetb)
 
   ! Now the actual contributions to sigma are computed. For a singlet
@@ -116,14 +129,13 @@ subroutine sigma_update(h,g,sgm,psi)
 
   if (mult /= 1) then
     ! we need efficient access to sgm by using the transpose
-    allocate(sgmT(ndetb,ndeta),stat=ierr)
-    if (ierr /= 0) stop 'sigma_update: could not allocate sgmT'
+    call mma_allocate(sgmT,ndetb,ndeta,label='sgmT')
     call dtrans(ndeta,ndetb,sgm,ndeta,sgmT,ndetb)
 
     call sigma2(k,g,sgmT,psiT,iasta,iaend)
 
     call dtrans(ndetb,ndeta,sgmT,ndetb,sgm,ndeta)
-    deallocate(sgmT)
+    call mma_deallocate(sgmT)
   end if
 
   call sigma3(g,sgm,psiT,ibsta,ibend)
@@ -136,8 +148,8 @@ subroutine sigma_update(h,g,sgm,psi)
     call transadd(ndeta,sgm,ndeta)
   end if
 
-  deallocate(psiT)
-  deallocate(k)
+  call mma_deallocate(psiT)
+  call mma_deallocate(k)
 
 # ifdef _PROF_
   call timing(t2_cpu,tot_cpu,t2_wall,tot_wall)
@@ -163,11 +175,10 @@ subroutine sigma1(k,g,sgm,psi,ibsta,ibend)
   real(kind=wp), intent(in) :: psi(:,:)
   integer(kind=iwp), intent(in) :: ibsta, ibend
   ! local variables
-  integer(kind=iwp) :: ib, jb, kb, t, u, v, x, tu, vx, sgn_tu, sgn_vx, ierr
+  integer(kind=iwp) :: ib, jb, kb, t, u, v, x, tu, vx, sgn_tu, sgn_vx
   real(kind=wp), allocatable :: f(:)
 
-  allocate(f(ndetb),stat=ierr)
-  if (ierr /= 0) stop 'could not allocate f'
+  call mma_allocate(f,ndetb,label='f')
 
   do ib=ibsta,ibend
     ! f array construction
@@ -200,7 +211,7 @@ subroutine sigma1(k,g,sgm,psi,ibsta,ibend)
     if (kb > max_ex2b) stop 'exceeded max double excitations'
   end do
 
-  deallocate(f)
+  call mma_deallocate(f)
 
 end subroutine sigma1
 
@@ -215,11 +226,10 @@ subroutine sigma2(k,g,sgm,psi,iasta,iaend)
   real(kind=wp), intent(in) :: psi(:,:)
   integer(kind=iwp), intent(in) :: iasta, iaend
   ! local variables
-  integer(kind=iwp) :: ia, ja, ka, t, u, v, x, tu, vx, sgn_tu, sgn_vx, ierr
+  integer(kind=iwp) :: ia, ja, ka, t, u, v, x, tu, vx, sgn_tu, sgn_vx
   real(kind=wp), allocatable :: f(:)
 
-  allocate(f(ndeta),stat=ierr)
-  if (ierr /= 0) stop 'could not allocate f'
+  call mma_allocate(f,ndeta,label='f')
 
   do ia=iasta,iaend
     ! f array construction
@@ -252,7 +262,7 @@ subroutine sigma2(k,g,sgm,psi,iasta,iaend)
     if (ka > max_ex2a) stop 'exceeded max double excitations'
   end do
 
-  deallocate(f)
+  call mma_deallocate(f)
 
 end subroutine sigma2
 
@@ -268,18 +278,16 @@ subroutine sigma3(g,sgm,psi,ibsta,ibend)
   integer(kind=iwp), intent(in) :: ibsta, ibend
   integer(kind=iwp) :: i, n_couples, ib, jb, kb,  &
                        t, u, v, x, & !orbital indices
-                       tu, sgn_tu, ierr
+                       tu, sgn_tu
   integer(kind=iwp), allocatable :: ia(:), ja(:), sgn_vx(:)
   real(kind=wp), allocatable :: f(:), Ctmp(:,:), Vtmp(:)
 
-  allocate(ja(max_LRs),ia(max_LRs),sgn_vx(max_LRs),stat=ierr)
-  if (ierr /= 0) stop 'could not allocate L/R/sgn'
-
-  allocate(Ctmp(max_LRs,ndetb),Vtmp(max_LRs),stat=ierr)
-  if (ierr /= 0) stop 'could not allocate Ctmp/Vtmp'
-
-  allocate(f(ndetb),stat=ierr)
-  if (ierr /= 0) stop 'could not allocate f'
+  call mma_allocate(ja,max_LRs,label='ja')
+  call mma_allocate(ia,max_LRs,label='ia')
+  call mma_allocate(sgn_vx,max_LRs,label='sgn_vx')
+  call mma_allocate(Ctmp,max_LRs,ndetb,label='Ctmp')
+  call mma_allocate(Vtmp,max_LRs,label='Vtmp')
+  call mma_allocate(f,ndetb,label='f')
 
   do v=1,my_norb
     do x=1,my_norb
@@ -335,6 +343,13 @@ subroutine sigma3(g,sgm,psi,ibsta,ibend)
       end do
     end do
   end do
+
+  call mma_deallocate(ja)
+  call mma_deallocate(ia)
+  call mma_deallocate(sgn_vx)
+  call mma_deallocate(Ctmp)
+  call mma_deallocate(Vtmp)
+  call mma_deallocate(f)
 
 end subroutine sigma3
 
@@ -402,5 +417,22 @@ subroutine LRs_init(p,q,my_nel,my_norb,L,R,sgn,counter)
   end do
 
 end subroutine LRs_init
+
+! Extensions to mma_interfaces, using preprocessor templates
+! (see src/mma_util/stdalloc.f)
+
+! Define ex1_cptr2loff, ex1_mma_allo_2D, ex1_mma_allo_2D_lim, ex1_mma_free_2D
+#define _TYPE_ type(ex1_struct)
+#  define _FUNC_NAME_ ex1_cptr2loff
+#  include "cptr2loff_template.fh"
+#  undef _FUNC_NAME_
+#  define _SUBR_NAME_ ex1_mma
+#  define _DIMENSIONS_ 2
+#  define _DEF_LABEL_ 'ex1_mma'
+#  include "mma_allo_template.fh"
+#  undef _SUBR_NAME_
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+#undef _TYPE_
 
 end module faroald
