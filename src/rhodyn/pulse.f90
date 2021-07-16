@@ -31,19 +31,19 @@ subroutine pulse(H0,Ht,time,count)
   real(8), intent(in)       :: time
   integer, intent(in), optional :: count
 
-  E_field=zero
+  E_field = zero
 
   do i=1,N_pulse
     t_local = time-taushift(i)
     omega_local = omega(i) + linear_chirp * t_local
+    pulse_vec(:) = pulse_vector(i,:)
 !
 ! sine^N pulse
 ! A\vec{e}\sin^n(\pi(t-t_0)/(2\sigma))\sin{(\Omega(t-t_0)+\varphi_0)}
 ! duration of the pulse equals 2\sigma
     if (pulse_type(1:3)=='SIN') then
-      pulse_vec(:)=pulse_vector(i,:)
       if (abs(t_local)<=sigma(i)) then
-        E_field = amp(i)*pulse_vec &
+        E_field = E_field + amp(i)*pulse_vec &
         *sin( pi*t_local / (2.d0*sigma(i)) )**power_shape &
         *sin(omega_local * t_local + phi(i))
 ! correction due to vector potential derivative [Paramonov_JPCA_2012]:
@@ -56,17 +56,16 @@ subroutine pulse(H0,Ht,time,count)
           *sin( pi*t_local / sigma(i) ) &
           *cos(omega_local * t_local + phi(i))
         endif
-      else
-        E_field=0d0
+!      else
+!        E_field=0d0
       endif
 !
 ! cos^N pulse:
 ! A\vec{e}\cos^n(\pi(t-t_0)/(2\sigma))\sin{(\Omega(t-t_0)+\varphi_0)}
 ! duration of the pulse equals 2\sigma
     elseif (pulse_type(1:3)=='COS') then
-      pulse_vec(:)=pulse_vector(i,:)
       if (abs(t_local)<=sigma(i)) then
-        E_field = amp(i)*pulse_vec &
+        E_field = E_field + amp(i)*pulse_vec &
         *cos( pi*t_local / (2.d0*sigma(i)) )**power_shape &
         *sin(omega_local * t_local + phi(i))
 ! correction is the same as in sine case, but with different choice of
@@ -80,15 +79,14 @@ subroutine pulse(H0,Ht,time,count)
           *sin( pi*t_local / sigma(i) ) &
           *cos(omega_local * t_local + phi(i))
         endif
-      else
-        E_field=0d0
+!      else
+!        E_field=0d0
       endif
 !
 ! gaussian pulse
 ! A\vec{e}exp{-(t-t_0)^2/(2\sigma^2)}\sin{(\Omega(t-t_0)+\varphi_0)}
     elseif (pulse_type=='GAUSS') then
-      pulse_vec(:)=pulse_vector(i,:)
-      E_field = amp(i)*pulse_vec &
+      E_field = E_field + amp(i)*pulse_vec &
       *exp(-t_local**2 / (2*sigma(i)**2)) &
       *sin(omega_local * t_local + phi(i))
 ! correction due to vector potential derivative:
@@ -104,7 +102,6 @@ subroutine pulse(H0,Ht,time,count)
 ! monochromatic pulse
 ! A\vec{e}\sin{(\Omega(t-t_0)+\varphi_0)}
     elseif (pulse_type=='MONO') then
-      pulse_vec(:)=pulse_vector(i,:)
       E_field = amp(i)*pulse_vec &
       *sin(omega_local * (time-taushift(i)) + phi(i))
 !
