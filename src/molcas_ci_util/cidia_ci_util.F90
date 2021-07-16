@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CIDIA_CI_UTIL(NORB,NCONF,IREFSM,CSFDIA,G,TUVX,LUDAVID)
+subroutine CIDIA_CI_UTIL(NORB,NCONF,IREFSM,CSFDIA,G,LUDAVID)
 ! PURPOSE: - COMPUTE DIAGONAL ELEMENTS OF THE CI-MATRIX
 !            THE DETERMINANT BASIS
 !          - TRANSLATE FORM DET => CSF BASIS
@@ -20,7 +20,6 @@ subroutine CIDIA_CI_UTIL(NORB,NCONF,IREFSM,CSFDIA,G,TUVX,LUDAVID)
 ! IREFSM:  REFERENCE SYMMETRY
 ! CSFDIA:  DIAGONAL OF CI MATRIX IN CSF BASIS
 ! G     :  MODIFIED ONE ELECTRON HAMILTONIAN INCLUDING CORE ELECTR.
-! TUVX  :  TWO-ELECTRON INTEGRALS
 
 use Constants, only: One
 use Definitions, only: wp, iwp, r8
@@ -28,7 +27,7 @@ use Definitions, only: wp, iwp, r8
 implicit none
 integer(kind=iwp), intent(in) :: NORB, NCONF, IREFSM, LUDAVID
 real(kind=wp), intent(out) :: CSFDIA(*)
-real(kind=wp), intent(in) :: G(*), TUVX(*)
+real(kind=wp), intent(in) :: G(*)
 integer(kind=iwp) :: I, iDummy, II, IPRINT, IPRL, IPRLEV, KDDIA, KH1DIA, KSCR, KX
 real(kind=wp) :: Dummy(1), eCore_Hex
 real(kind=r8), external :: Get_eCore
@@ -95,7 +94,5 @@ Tissot_2 = Tissot_2-Tissot_1
 Tissot_3 = Tissot_3+Tissot_2
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(TUVX)
 
 end subroutine CIDIA_CI_UTIL

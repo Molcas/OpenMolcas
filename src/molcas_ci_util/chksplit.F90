@@ -38,7 +38,7 @@ if (lRootSplit > nConf) IERR = 1
 if (IERR == 1) then
   write(LF,*)
   write(LF,*) '******************** ERROR *********************'
-  write(LF,'(1X,A)') 'Input Error: '
+  write(LF,'(1X,A)') 'Input Error:'
   write(LF,*) ' Root you are looking for is not reachable within'
   write(LF,*) ' the selected active space.'
   write(LF,*) ' Try to select a bigger active space!'

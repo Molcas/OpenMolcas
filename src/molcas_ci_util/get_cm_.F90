@@ -9,9 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine get_Cm_(IPCSF,IPCNF,MXPDIM,NCONF,NPCSF,NPCNF,Cn,lrootSplit,EnFin,DTOC,IPRODT,ICONF,IREFSM,ONEBOD,ECORE,NACTOB,NEL,NAEL, &
-                   NBEL,DIAG,TUVX,NTEST,ExFac,IREOTS,Ctot)
-! Obtain Cm coefficients out of the AA Block for root = lrootSplit
+subroutine get_Cm_(IPCSF,IPCNF,MXPDIM,NCONF,NPCSF,NPCNF,Cn,EnFin,DTOC,IPRODT,ICONF,IREFSM,ONEBOD,ECORE,NACTOB,NEL,NAEL,NBEL,TUVX, &
+                   NTEST,ExFac,IREOTS,Ctot)
+! Obtain Cm coefficients out of the AA Block
 ! to the first order in Lowdin equation
 !
 ! ARGUMENTS :
@@ -23,7 +23,6 @@ subroutine get_Cm_(IPCSF,IPCNF,MXPDIM,NCONF,NPCSF,NPCNF,Cn,lrootSplit,EnFin,DTOC
 ! NPCSF      : Number of CSFs in AA block                     (Input)
 ! NPCNF      : Number of CNFs in AA block                     (Input)
 ! Cn         : AA Block CI-Coefficients for root selected     (Input)
-! lRootSplit : computed root                                  (Input)
 ! EnFin      : Final Energy for the root selected             (Input)
 ! DTOC       : Transformation matrix between CSF's and DET's  (Input)
 ! IPRODT     : Prototype determinants                         (Input)
@@ -35,7 +34,6 @@ subroutine get_Cm_(IPCSF,IPCNF,MXPDIM,NCONF,NPCSF,NPCNF,Cn,lrootSplit,EnFin,DTOC
 ! NEL        : total number of active electrons               (Input)
 ! NAEL       : number of alpha active electron                (Input)
 ! NBEL       : number of beta active electron                 (Input)
-! DIAG       : Hamilton diagonal over CSFs                    (Input)
 ! TUVX       : Two-electron integrals (MO space)
 ! IREOTS     : Type => symmetry reordering array
 ! Ctot       : Vector of all nConf CI-coeff for a single root (Output)
@@ -44,9 +42,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp), intent(in) :: MXPDIM, NCONF, IPCSF(MXPDIM), IPCNF(NCONF), NPCSF, NPCNF, lrootSplit, IPRODT(*), ICONF(*), &
-                                 IREFSM, NACTOB, NEL, NAEL, NBEL, IREOTS(*)
-real(kind=wp), intent(in) :: Cn(NPCSF), EnFin, DTOC(*), ONEBOD(*), ECORE, DIAG(*), TUVX(*), ExFac
+integer(kind=iwp), intent(in) :: MXPDIM, NCONF, IPCSF(MXPDIM), IPCNF(NCONF), NPCSF, NPCNF, IPRODT(*), ICONF(*), IREFSM, NACTOB, &
+                                 NEL, NAEL, NBEL, IREOTS(*)
+real(kind=wp), intent(in) :: Cn(NPCSF), EnFin, DTOC(*), ONEBOD(*), ECORE, TUVX(*), ExFac
 integer(kind=iwp), intent(inout) :: NTEST
 real(kind=wp), intent(out) :: Ctot(MXPDIM)
 integer(kind=iwp) :: iAlpha, IATYP, IBblockV, IIA, IIAACT, IIAB, IIL, IILACT, IILB, iKACONF, iKLCONF, ILAI, ILAOV, ILTYP, ipAuxBB, &
@@ -62,13 +60,13 @@ real(kind=r8), external :: ddot_
 #include "WrkSpc.fh"
 
 if (NTEST >= 30) then
-  write(u6,*) ' Input in get_Cm '
-  write(u6,*) ' ================== '
+  write(u6,*) ' Input in get_Cm_'
+  write(u6,*) ' =================='
   write(u6,*) ' Total Number of CNFs ',NCONF
   write(u6,*) ' Total Number of CSFs ',MXPDIM
-  write(u6,*) ' CNFs included : '
+  write(u6,*) ' CNFs included :'
   call IWRTMA(IPCNF,1,NCONF,1,NCONF)
-  write(u6,*) ' CSFs included : '
+  write(u6,*) ' CSFs included :'
   call IWRTMA(IPCSF,1,MXPDIM,1,MXPDIM)
   write(u6,*) ' Number of CNFs in AA block:',NPCNF
   write(u6,*) ' Number of CSFs in AA block:',NPCSF
@@ -290,7 +288,7 @@ do iAlpha=NPCNF+1,NCONF
   do IIA=1,NCSFA
     Ctot(NPCSF+IIAB+IIA-1) = Ctot(NPCSF+IIAB+IIA-1)+Work(ipAuxGaTi+IIA-1)
     if (NTEST >= 30) then
-      write(u6,*) 'Ctot '
+      write(u6,*) 'Ctot'
       call wrtmat(Ctot,MXPDIM,1,MXPDIM,1)
     end if
   end do
@@ -302,7 +300,7 @@ do iAlpha=NPCNF+1,NCONF
 end do ! End of the loop over iAlpha
 if (NTEST >= 30) then
   call cwtime(C_AlphaLoop2,W_AlphaLoop2)
-  write(u6,*) 'Total time needed to get_Cm in Alpha Loop'
+  write(u6,*) 'Total time needed to get_Cm_ in Alpha Loop'
   write(u6,*) 'CPU timing : ',C_AlphaLoop2-C_AlphaLoop1
   write(u6,*) 'W. timing  : ',W_AlphaLoop2-W_AlphaLoop1
 
@@ -366,10 +364,5 @@ call getmem('AuxGa','FREE','REAL',ipAuxGa,MXCSFC)
 call getmem('AuxDia','FREE','REAL',ipAuxD,MXCSFC)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(lrootsPlit)
-  call Unused_real_array(DIAG)
-end if
 
 end subroutine get_Cm_

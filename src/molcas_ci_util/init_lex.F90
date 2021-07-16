@@ -9,19 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine INIT_LEX(N,K,LEX)
+subroutine INIT_LEX(K,LEX)
 
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: N, K
+integer(kind=iwp), intent(in) :: K
 integer(kind=iwp), intent(out) :: LEX(K)
 integer(kind=iwp) :: I
 
 do I=1,K
   LEX(I) = I
 end do
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(N)
 
 end subroutine INIT_LEX

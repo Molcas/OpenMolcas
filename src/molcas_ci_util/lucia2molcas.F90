@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine LUCIA2MOLCAS(KDFTP_LUCIA,KCFTP_LUCIA,KDTOC_LUCIA,KICONF_OCC_LUCIA,KSDREO_I,NDET_LUCIA,NCSASM_LUCIA,NDTASM_LUCIA, &
-                        NCNASM_LUCIA,MXPCSM,MXPORB,NCONF_PER_OPEN,NPDTCNF,NPCSCNF,MULTS_LUCIA,NSSOA,NSSOB,KICTS_POINTER, &
+                        NCNASM_LUCIA,MXPCSM,MXPORB,NCONF_PER_OPEN,NPDTCNF,NPCSCNF,MULTS_LUCIA,KICTS_POINTER, &
                         nCSF_HEXS_LUCIA)
 ! Transfer arguments to the common blocks used by MOLCAS.
 
@@ -19,8 +19,7 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: MXPCSM, MXPORB, KDFTP_LUCIA, KCFTP_LUCIA, KDTOC_LUCIA, KICONF_OCC_LUCIA(*), KSDREO_I(*), &
                                  NDET_LUCIA, NCSASM_LUCIA(MXPCSM), NDTASM_LUCIA(MXPCSM), NCNASM_LUCIA(MXPCSM), &
-                                 NCONF_PER_OPEN(MXPORB+1,MXPCSM), NPDTCNF(MXPORB+1), NPCSCNF(MXPORB+1), MULTS_LUCIA, NSSOA(*), &
-                                 NSSOB(*), nCSF_HEXS_LUCIA
+                                 NCONF_PER_OPEN(MXPORB+1,MXPCSM), NPDTCNF(MXPORB+1), NPCSCNF(MXPORB+1), MULTS_LUCIA, nCSF_HEXS_LUCIA
 integer(kind=iwp), intent(out) :: KICTS_POINTER
 integer(kind=iwp) :: I, ICL, IOPEN, IORB2F, IORB2L, ISYM, ITYP, J, LCONF, LDET, LLCONF, LUCIA_TYPE, NEL1MNA, NEL1MNB, NEL2MN, NEL2MX
 #include "rasdim.fh"
@@ -49,11 +48,11 @@ end if
 if (iDimBlockA > NCSASM(STSYM)) then
   write(u6,*) ''
   write(u6,*) '******************** WARNING *********************'
-  write(u6,*) ' AA-Block dimension selected is bigger than the '
-  write(u6,*) ' number  of CSFs reachable  within the selected '
-  write(u6,*) ' Active Space. The code automatically  reset it '
-  write(u6,*) ' to the number  of  CSFs. You  are  allowed  to '
-  write(u6,*) ' decrease  this  number  in  your input and run '
+  write(u6,*) ' AA-Block dimension selected is bigger than the'
+  write(u6,*) ' number  of CSFs reachable  within the selected'
+  write(u6,*) ' Active Space. The code automatically  reset it'
+  write(u6,*) ' to the number  of  CSFs. You  are  allowed  to'
+  write(u6,*) ' decrease  this  number  in  your input and run'
   write(u6,*) ' again the calculation.'
   write(u6,'(1X,A,I5)') ' AA-Block dimension selected:',iDimBlockA
   iDimBlockA = NCSASM(STSYM)
@@ -154,10 +153,5 @@ KCFTP = KCFTP_LUCIA
 KDTOC = KDTOC_LUCIA
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(NSSOA)
-  call Unused_integer_array(NSSOB)
-end if
 
 end subroutine LUCIA2MOLCAS

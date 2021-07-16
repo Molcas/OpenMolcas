@@ -28,9 +28,9 @@ real(kind=wp) :: ovl, X, xn2, Y
 real(kind=r8), external :: DDOT_
 
 M = 0
-do i=1,N
+outer: do i=1,N
   X = S(i,i)
-  if (X < 1.0e-6_wp) goto 90
+  if (X < 1.0e-6_wp) cycle
   Y = One/sqrt(X)
   call dcopy_(N,[Zero],0,C(1,M+1),1)
   C(i,M+1) = Y
@@ -38,21 +38,22 @@ do i=1,N
   call DSCAL_(N,Y,Temp,1)
 
   Loop = 0
-10 continue
-  Loop = Loop+1
-  do k=1,M
-    ovl = DDOT_(N,Temp,1,C(1,k),1)
-    call daxpy_(N,-ovl,C(1,k),1,C(1,M+1),1)
+  do
+    Loop = Loop+1
+    do k=1,M
+      ovl = DDOT_(N,Temp,1,C(1,k),1)
+      call daxpy_(N,-ovl,C(1,k),1,C(1,M+1),1)
+    end do
+    call dGeMV_('N',N,N,One,S,N,C(1,M+1),1,Zero,Temp,1)
+    xn2 = DDOT_(N,Temp,1,C(1,M+1),1)
+
+    if (xn2 < 1.0e-6_wp) cycle outer
+
+    Y = One/sqrt(xn2)
+    call DSCAL_(N,Y,C(1,M+1),1)
+    call dGeMV_('N',N,N,One,S,N,C(1,M+1),1,Zero,Temp,1)
+    if ((Loop /= 1) .or. (Y <= 100.0_wp)) exit
   end do
-  call dGeMV_('N',N,N,One,S,N,C(1,M+1),1,Zero,Temp,1)
-  xn2 = DDOT_(N,Temp,1,C(1,M+1),1)
-
-  if (xn2 < 1.0e-6_wp) goto 90
-
-  Y = One/sqrt(xn2)
-  call DSCAL_(N,Y,C(1,M+1),1)
-  call dGeMV_('N',N,N,One,S,N,C(1,M+1),1,Zero,Temp,1)
-  if ((Loop == 1) .and. (Y > 100.0_wp)) goto 10
   ! MGD issues with many states : to be very safe, test the result
   isfail = 0
   do k=1,M
@@ -61,8 +62,7 @@ do i=1,N
   end do
   if (isfail == 0) M = M+1
 
-90 continue
-end do
+end do outer
 
 return
 

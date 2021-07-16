@@ -30,7 +30,7 @@ do I=1,NLEV
   if ((ICS(I) == 1) .or. (ICS(I) == 2)) NSOMO = NSOMO+1
 end do
 NALPHA = (NSOMO+IMS)/2
-call INIT_LEX(NSOMO,NALPHA,LEX)
+call INIT_LEX(NALPHA,LEX)
 ! Loop over possible determinants
 LAST = .false.
 do while (.not. LAST)

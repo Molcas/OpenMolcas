@@ -40,15 +40,14 @@ do ISYM=1,NSYM
   NB = NBAS(ISYM)
   NA = NASH(ISYM)
   LMOP1 = LMOP+NB*(NISH(ISYM)+NFRO(ISYM))
-  if (NA == 0) GO TO 99
+  if (NA /= 0) then
+    call SQUARE(F(ISTFP),X1,1,NB,NB)
+    !call MXMA(X1,1,NB,CMO(LMOP1),1,NB,X2,1,NB,NB,NB,NA)
+    call DGEMM_('N','N',NB,NA,NB,One,X1,NB,CMO(LMOP1),NB,Zero,X2,NB)
+    call MXMT(X2,NB,1,CMO(LMOP1),1,NB,F(ISTFA),NA,NB)
 
-  call SQUARE(F(ISTFP),X1,1,NB,NB)
-  !call MXMA(X1,1,NB,CMO(LMOP1),1,NB,X2,1,NB,NB,NB,NA)
-  call DGEMM_('N','N',NB,NA,NB,One,X1,NB,CMO(LMOP1),NB,Zero,X2,NB)
-  call MXMT(X2,NB,1,CMO(LMOP1),1,NB,F(ISTFA),NA,NB)
-
-  ISTFA = ISTFA+ITRI(NA+1)
-99 continue
+    ISTFA = ISTFA+ITRI(NA+1)
+  end if
   LMOP = LMOP+NB**2
   ISTFP = ISTFP+ITRI(NB+1)
 end do

@@ -9,11 +9,11 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine get_Cm(IPCSF,IPCNF,MXPDIM,NCONF,NPCSF,NPCNF,Cn,lrootSplit,EnFin,DTOC,IPRODT,ICONF,IREFSM,ONEBOD,ECORE,NACTOB,NEL,NAEL, &
-                  NBEL,DIAG,TUVX,NTEST,ExFac,IREOTS,FordSplit,Ctot)
+subroutine get_Cm(IPCSF,IPCNF,MXPDIM,NCONF,NPCSF,NPCNF,Cn,EnFin,DTOC,IPRODT,ICONF,IREFSM,ONEBOD,ECORE,NACTOB,NEL,NAEL,NBEL,TUVX, &
+                  NTEST,ExFac,IREOTS,FordSplit,Ctot)
 !************* Author : GLMJ *****************
 !
-! Obtain Cm coefficients out of the AA Block for root = lrootSplit
+! Obtain Cm coefficients out of the AA Block
 !
 ! ARGUMENTS :
 ! ===========
@@ -24,19 +24,17 @@ subroutine get_Cm(IPCSF,IPCNF,MXPDIM,NCONF,NPCSF,NPCNF,Cn,lrootSplit,EnFin,DTOC,
 ! NPCSF      : Number of CSFs in AA block                     (Input)
 ! NPCNF      : Number of CNFs in AA block                     (Input)
 ! Cn         : AA Block CI-Coefficients for root selected     (Input)
-! lRootSplit : computed root                                  (Input)
 ! EnFin      : Final Energy for the root selected             (Input)
-! DTOC       : Transformation matrix between CSF's and DET's  (input)
-! IPRODT     : Prototype determinants                         (input)
-! ICONF      : List of configurations                         (input)
-! IREFSM     : symmetry of considered CI space                (input)
-! Onebod     : one body hamilton matrix in rectangular form   (input)
-! ECORE      : Core energy                                    (input)
-! NACTOB     : Number of active orbitals                      (input)
-! NEL        : total number of active electrons               (input)
-! NAEL       : number of alpha active electron                (input)
-! NBEL       : number of beta active electron                 (input)
-! DIAG       : Hamilton diagonal over CSFs                    (Input)
+! DTOC       : Transformation matrix between CSF's and DET's  (Input)
+! IPRODT     : Prototype determinants                         (Input)
+! ICONF      : List of configurations                         (Input)
+! IREFSM     : symmetry of considered CI space                (Input)
+! Onebod     : one body hamilton matrix in rectangular form   (Input)
+! ECORE      : Core energy                                    (Input)
+! NACTOB     : Number of active orbitals                      (Input)
+! NEL        : total number of active electrons               (Input)
+! NAEL       : number of alpha active electron                (Input)
+! NBEL       : number of beta active electron                 (Input)
 ! TUVX       : Two-electron integrals (MO space)
 ! IREOTS     : Type => symmetry reordering array
 ! Ctot       : Vector of all nConf CI-coeff for a single root (Output)
@@ -45,9 +43,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: MXPDIM, NCONF, IPCSF(MXPDIM), IPCNF(NCONF), NPCSF, NPCNF, lrootSplit, IPRODT(*), ICONF(*), &
-                                 IREFSM, NACTOB, NEL, NAEL, NBEL, IREOTS(*)
-real(kind=wp), intent(in) :: Cn(NPCSF), EnFin, DTOC(*), ONEBOD(*), ECORE, DIAG(*), TUVX(*), ExFac
+integer(kind=iwp), intent(in) :: MXPDIM, NCONF, IPCSF(MXPDIM), IPCNF(NCONF), NPCSF, NPCNF, IPRODT(*), ICONF(*), IREFSM, NACTOB, &
+                                 NEL, NAEL, NBEL, IREOTS(*)
+real(kind=wp), intent(in) :: Cn(NPCSF), EnFin, DTOC(*), ONEBOD(*), ECORE, TUVX(*), ExFac
 integer(kind=iwp), intent(inout) :: NTEST
 logical(kind=iwp), intent(in) :: FordSplit
 real(kind=wp), intent(out) :: Ctot(MXPDIM)
@@ -61,13 +59,13 @@ real(kind=wp), external :: ddot_
 #include "WrkSpc.fh"
 
 if (NTEST >= 30) then
-  write(u6,*) ' Input in get_Cm '
-  write(u6,*) ' ================== '
+  write(u6,*) ' Input in get_Cm'
+  write(u6,*) ' =================='
   write(u6,*) ' Total Number of CNFs ',NCONF
   write(u6,*) ' Total Number of CSFs ',MXPDIM
-  write(u6,*) ' CNFs included : '
+  write(u6,*) ' CNFs included :'
   call IWRTMA(IPCNF,1,NCONF,1,NCONF)
-  write(u6,*) ' CSFs included : '
+  write(u6,*) ' CSFs included :'
   call IWRTMA(IPCSF,1,MXPDIM,1,MXPDIM)
   write(u6,*) ' Number of CNFs in AA block:',NPCNF
   write(u6,*) ' Number of CSFs in AA block:',NPCSF
@@ -79,8 +77,8 @@ end if
 ! according to Lowdin's equations                                      *
 !***********************************************************************
 if (FOrdSplit) then
-  call get_Cm_(IPCSF,IPCNF,MXPDIM,NCONF,NPCSF,NPCNF,Cn,lrootSplit,EnFin,DTOC,IPRODT,ICONF,IREFSM,ONEBOD,ECORE,NACTOB,NEL,NAEL, &
-               NBEL,DIAG,TUVX,NTEST,ExFac,IREOTS,Ctot)
+  call get_Cm_(IPCSF,IPCNF,MXPDIM,NCONF,NPCSF,NPCNF,Cn,EnFin,DTOC,IPRODT,ICONF,IREFSM,ONEBOD,ECORE,NACTOB,NEL,NAEL,NBEL,TUVX, &
+               NTEST,ExFac,IREOTS,Ctot)
   return
 end if
 
@@ -226,7 +224,7 @@ do iAlpha=NPCNF+1,NCONF
   do IIA=1,NCSFA
     Ctot(NPCSF+IIAB+IIA-1) = Ctot(NPCSF+IIAB+IIA-1)+Work(ipAuxGa+IIA-1)
     if (NTEST >= 30) then
-      write(u6,*) 'Ctot '
+      write(u6,*) 'Ctot'
       call wrtmat(Ctot,MXPDIM,1,MXPDIM,1)
     end if
   end do

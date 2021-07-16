@@ -61,14 +61,14 @@ end do
 
 NTEST = 0
 if (NTEST >= 1) then
-  write(u6,*) ' Output from CNFSTR '
-  write(u6,*) ' ================== '
-  write(u6,*) ' Input configuration '
+  write(u6,*) ' Output from CNFSTR'
+  write(u6,*) ' =================='
+  write(u6,*) ' Input configuration'
   call IWRTMA(ICONF,1,IOCC,1,IOCC)
   write(u6,*) ' Corresponding alpha and beta strings'
   call IWRTMA(IASTR,NAEL,IDET,NAEL,IDET)
   call IWRTMA(IBSTR,NBEL,IDET,NBEL,IDET)
-  write(u6,*) ' SIGN ARRAY '
+  write(u6,*) ' SIGN ARRAY'
   call WRTMAT(SGN,1,IDET,1,IDET)
 end if
 

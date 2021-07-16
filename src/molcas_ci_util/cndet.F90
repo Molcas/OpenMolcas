@@ -43,11 +43,11 @@ integer(kind=iwp) :: IADD, IADR, IBASE, ICL, IOP, JDET
 
 if (IPRINT == 40) then
   if (NCL /= 0) then
-    write(u6,*) ' DOUBLE OCCUPIED ORBITALS '
+    write(u6,*) ' DOUBLE OCCUPIED ORBITALS'
     call IWRTMA(ICONF,1,NCL,1,NCL)
   end if
   if (NOP /= 0) then
-    write(u6,*) ' OPEN ORBITALS '
+    write(u6,*) ' OPEN ORBITALS'
     call IWRTMA(ICONF(1+NCL),1,NOP,1,NOP)
   end if
 end if
@@ -76,12 +76,12 @@ do JDET=1,NDET
 end do
 
 if (IPRINT == 40) then
-  write(u6,*) ' CONFIGURATION FROM DETCON '
+  write(u6,*) ' CONFIGURATION FROM DETCON'
   call IWRTMA(ICONF,1,NORB,1,NORB)
-  write(u6,*) ' PROTO TYPE DETERMINANTS '
+  write(u6,*) ' PROTO TYPE DETERMINANTS'
   if (NOP*NDET > 0) call IWRTMA(IPDET,NOP,NDET,NOP,NDET)
 
-  if (NEL*NDET > 0) write(u6,*) ' CORRESPONDING DETERMINANTS '
+  if (NEL*NDET > 0) write(u6,*) ' CORRESPONDING DETERMINANTS'
   call IWRTMA(IDET,NEL,NDET,NEL,NDET)
 
 end if

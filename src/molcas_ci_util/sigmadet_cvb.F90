@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SIGMADET_CVB(C,HC,IREFSM,PERMS2,NCI)
+subroutine SIGMADET_CVB(C,HC,IREFSM,NCI)
 
 use Definitions, only: wp, iwp
 
@@ -17,7 +17,6 @@ implicit none
 integer(kind=iwp), intent(in) :: IREFSM, NCI
 real(kind=wp), intent(in) :: C(NCI)
 real(kind=wp), intent(out) :: HC(NCI)
-logical(kind=iwp), intent(in) :: PERMS2
 integer(kind=iwp) IDUMMY
 real(kind=wp) DUMMY(1)
 #include "WrkSpc.fh"
@@ -32,7 +31,5 @@ call LUCIA_UTIL('SIGMA_CVB',IREFSM,IDUMMY,DUMMY)
 call DCOPY_(NCI,WORK(KSIGMA_POINTER),1,HC,1)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_logical(PERMS2)
 
 end subroutine SIGMADET_CVB

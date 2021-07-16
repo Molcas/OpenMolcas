@@ -93,7 +93,7 @@ else
   end if
   call GATVCS(CSFVEC,DETVEC,ICTSDT,NDET)
   if (NTEST >= 100) then
-    write(u6,*) ' ICTSDT reorder array '
+    write(u6,*) ' ICTSDT reorder array'
     call IWRTMA(ICTSDT,1,100,1,100)
   end if
   call DCOPY_(NDET,CSFVEC,1,DETVEC,1)

@@ -21,13 +21,11 @@ if (FRAC(1) == 0) return
 ! Find GCD of numerator and denominator
 A = FRAC(1)
 B = FRAC(2)
-60 continue
-if (B /= 0) then
+do while (B /= 0)
   ITEMP = B
   B = mod(A,B)
   A = ITEMP
-  goto 60
-end if
+end do
 FRAC(1) = FRAC(1)/A
 FRAC(2) = FRAC(2)/A
 

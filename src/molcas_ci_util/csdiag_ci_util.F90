@@ -56,11 +56,11 @@ end do
 if (IPRINT >= 40) then
   NCSTOT = ICSOFF-1
   NDTTOT = IDTOFF-1
-  write(u6,*) ' '
-  write(u6,*) ' CIDIAGONAL IN DET BASIS '
+  write(u6,*)
+  write(u6,*) ' CIDIAGONAL IN DET BASIS'
   call WRTMAT(DETDIA,1,NDTTOT,1,NDTTOT)
-  write(u6,*) ' '
-  write(u6,*) ' CIDIAGONAL IN CSF BASIS '
+  write(u6,*)
+  write(u6,*) ' CIDIAGONAL IN CSF BASIS'
   call WRTMAT(CSFDIA,1,NCSTOT,1,NCSTOT)
 end if
 

@@ -57,6 +57,9 @@ real(kind=r8), external :: ddot_
 #include "strnum.fh"
 #include "timers.fh"
 
+#include "macros.fh"
+unused_var(IFINAL)
+
 IPRLEV = IPRLOC(3)
 
 DBG = IPRLEV >= DEBUG
@@ -86,34 +89,32 @@ call Ini_David(1,nConf,nDet,nconf,n_keep,nAc,LuDavid)
 ! LW4: TEMPORARY CI VECTOR IN CSF BASIS
 call GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
 
-goto 29555
-if (IFINAL == 2) then ! to avoid last diagonalization
-  call dCopy_(nConf,[Zero],0,Work(LW4),1)
-  !call Load_tmp_CI_vec(1,1,nConf,Work(LW4),LuDavid)
-  call Load_CI_vec(1,nConf,Work(LW4),LuDavid)
-  !call dDaFile(JOBIPH,2,Work(LW4),nConf,LuDavid)
-  if (DBG) then
-    write(u6,*) 'LuDavid',LuDavid
-    write(String,'(A)') 'Final=2 : CI-coeff in SplitCAS'
-    call dVcPrt(String,' ',Work(LW4),nConf)
-  end if
+!if (IFINAL == 2) then ! to avoid last diagonalization
+!  call dCopy_(nConf,[Zero],0,Work(LW4),1)
+!  !call Load_tmp_CI_vec(1,1,nConf,Work(LW4),LuDavid)
+!  call Load_CI_vec(1,nConf,Work(LW4),LuDavid)
+!  !call dDaFile(JOBIPH,2,Work(LW4),nConf,LuDavid)
+!  if (DBG) then
+!    write(u6,*) 'LuDavid',LuDavid
+!    write(String,'(A)') 'Final=2 : CI-coeff in SplitCAS'
+!    call dVcPrt(String,' ',Work(LW4),nConf)
+!  end if
+!
+!  if (NAC == 0) then
+!    ENER(1,ITER) = EMY
+!  else
+!    !ENER(lRootSplit,ITER) = ENER(lRootSplit,ITER-1)
+!    if (DBG) then
+!      write(u6,*) 'lRootSplit :',lRootSplit
+!      write(u6,*) 'ITER :',ITER
+!      write(u6,*) 'ENER(lRootSplit,ITER)',ENER(lRootSplit,ITER)
+!    end if
+!  end if
+!  call GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
+!  return
+!end if
 
-  if (NAC == 0) then
-    ENER(1,ITER) = EMY
-  else
-    !ENER(lRootSplit,ITER) = ENER(lRootSplit,ITER-1)
-    if (DBG) then
-      write(u6,*) 'lRootSplit :',lRootSplit
-      write(u6,*) 'ITER :',ITER
-      write(u6,*) 'ENER(lRootSplit,ITER)',ENER(lRootSplit,ITER)
-    end if
-  end if
-  call GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
-  return
-end if
-29555 continue
-
-if (NAC > 0) call CIDIA_CI_UTIL(NAC,NCONF,STSYM,WORK(LW4),LW1,TUVX,LUDAVID)
+if (NAC > 0) call CIDIA_CI_UTIL(NAC,NCONF,STSYM,WORK(LW4),LW1,LUDAVID)
 !***********************************************************************
 ! iCaseSplit = 1  : there is NOT CI-RESTART.
 ! iCaseSplit = 2  : there is CIRESTART. The code will read the CI
@@ -239,7 +240,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       !call SPLITCSF(Work(ipAABlock),EnInSplit,Work(ipDHAM),
       call get_Umn(Work(ipAABlock),EnInSplit,Work(ipDHAM),iWork(ipCSFtot),iWork(ipCNFtot),nconf,Work(KDTOC),iWork(KDFTP), &
                    iWork(KICONF(1)),STSYM,Work(LOCONE),ECORE,NAC,NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,iDimBlockA,iDimBlockACNF, &
-                   Work(LW4),TUVX,iterSplit,ITER,IPRINT,ExFac,IWORK(IREOTS))
+                   TUVX,iterSplit,ITER,IPRINT,ExFac,IWORK(IREOTS))
       call xflush(u6)
       if (DBG) then
         call TRIPRT('AA block of the Hamiltonian Matrix',' ',Work(ipAABLOCK),iDimBlockA)
@@ -269,7 +270,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       diffSplit = abs(EnFinSplit-EnInSplit)
       if (DBG) write(u6,*) 'Energy diff in SplitCAS :',diffSplit
       if (DBG) then
-        if (iterSplit == 1) write(u6,*) 'IterSplit   Final Energy in SplitCAS '
+        if (iterSplit == 1) write(u6,*) 'IterSplit   Final Energy in SplitCAS'
         write(u6,*) IterSplit,EnFinSplit
       end if
       EnInSplit = EnFinSplit

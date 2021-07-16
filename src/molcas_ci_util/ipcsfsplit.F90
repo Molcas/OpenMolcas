@@ -39,7 +39,7 @@ subroutine ipcsfsplit(PHPCSF,IPCSF,IPCNF,MXPDIM,MXSPLI,DTOC,IPRODT,ICONF,IREFSM,
 !
 ! IREOTS : Type => symmetry reordering array
 !
-! Jeppe Olsen , Summer of '89
+! Jeppe Olsen, Summer of '89
 ! adapted to DETRAS by M.P. Fuelscher, October 1989
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
@@ -60,6 +60,9 @@ real(kind=wp) :: Acc, XMAX, XMIN
 real(kind=wp), external :: FNDMNX
 #include "spinfo.fh"
 #include "splitcas.fh"
+
+#include "macros.fh"
+unused_var(MXPDIM)
 
 call IPCSFSPLIT_INTERNAL(SCR)
 
@@ -99,62 +102,62 @@ subroutine IPCSFSPLIT_INTERNAL(SCR)
   NPCSF = 0
   NPCNF = 0
   !IFINIT = 0
-400 continue
-  XMIN = XMAX+One
-  IMIN = 0
-  IICNF = 1
-  IICSF = 1
-  do ITYP=1,NTYP
-    NJCNF = NCNFTP(ITYP,IREFSM)
-    NIRREP = NCSFTP(ITYP)
-    do ICNF=1,NJCNF
-      if (SCR(IICNF)+Acc < XMIN) then
-        XMIN = SCR(IICNF)
-        IMIN = IICNF
-        ICSFMN = IICSF
-        NCSFMN = NIRREP
-      end if
-      IICNF = IICNF+1
-      IICSF = IICSF+NIRREP
+  do
+    XMIN = XMAX+One
+    IMIN = 0
+    IICNF = 1
+    IICSF = 1
+    do ITYP=1,NTYP
+      NJCNF = NCNFTP(ITYP,IREFSM)
+      NIRREP = NCSFTP(ITYP)
+      do ICNF=1,NJCNF
+        if (SCR(IICNF)+Acc < XMIN) then
+          XMIN = SCR(IICNF)
+          IMIN = IICNF
+          ICSFMN = IICSF
+          NCSFMN = NIRREP
+        end if
+        IICNF = IICNF+1
+        IICSF = IICSF+NIRREP
+      end do
     end do
+    !if ((NPCSF+NCSFMN) <= MXPDIM) then
+    ! add new configuration
+    NPCNF = NPCNF+1
+    IPCNF(NPCNF) = IMIN
+    call ISTVC2(IPCSF(NPCSF+1),ICSFMN-1,1,NCSFMN)
+    if ((NPCSF+NCSFMN) <= MXSPLI) then
+      iDimBlockA = NPCSF+NCSFMN
+      iDimBlockACNF = NPCNF
+    end if
+    NPCSF = NPCSF+NCSFMN
+    SCR(IMIN) = XMAX+One
+    !else
+    !  ! No space for this configuration, remove previous
+    !  ! configurations with the same diagonal value
+    !  IFINIT = 1
+    !  IICNF = NPCNF+1
+    !  do
+    !    IICNF = IICNF-1
+    !    DIAVAL = SCR(IPCNF(IICNF))
+    !    if (abs(DIAVAL-XMIN) > 1.0e-10_wp) exit
+    !    NPCNF = NPCNF-1
+    !    call GETCNF_LUCIA(SCR(NCONF+1),ITYP,IPCNF(IICNF),ICONF,IREFSM,NEL)
+    !    NPCSF = NPCSF-NCSFTP(ITYP)
+    !  end do
+    !end if
+    !if ((IFINIT /= 0) .or. (NPCNF > NCONF)) exit
+    if (NPCNF >= NCONF) exit
   end do
-  !if ((NPCSF+NCSFMN) <= MXPDIM) then
-  ! add new configuration
-  NPCNF = NPCNF+1
-  IPCNF(NPCNF) = IMIN
-  call ISTVC2(IPCSF(NPCSF+1),ICSFMN-1,1,NCSFMN)
-  if ((NPCSF+NCSFMN) <= MXSPLI) then
-    iDimBlockA = NPCSF+NCSFMN
-    iDimBlockACNF = NPCNF
-  end if
-  NPCSF = NPCSF+NCSFMN
-  SCR(IMIN) = XMAX+One
-  !else
-  !  ! No space for this configuration , remove previous
-  !  ! configurations with the same diagonal value
-  !  IFINIT = 1
-  !  IICNF = NPCNF+1
-  !  600 continue
-  !  IICNF = IICNF-1
-  !  DIAVAL = SCR(IPCNF(IICNF))
-  !  if (abs(DIAVAL-XMIN) <= 1.0e-10_wp) then
-  !    NPCNF = NPCNF-1
-  !    call GETCNF_LUCIA(SCR(NCONF+1),ITYP,IPCNF(IICNF),ICONF,IREFSM,NEL)
-  !    NPCSF = NPCSF-NCSFTP(ITYP)
-  !    goto 600
-  !  end if
-  !end if
-  !if ((IFINIT == 0) .and. (NPCNF <= NCONF)) goto 400
-  if (NPCNF < NCONF) goto 400
 
   if (NTEST >= 30) then
-    write(u6,*) ' Output from ipCSFSplit '
-    write(u6,*) ' ================== '
+    write(u6,*) ' Output from ipCSFSplit'
+    write(u6,*) ' =================='
     write(u6,*) ' Number of Configurations in primary subspace ',NPCNF
     write(u6,*) ' Number of CSFs in primary subspace ',NPCSF
-    write(u6,*) ' Configurations included : '
+    write(u6,*) ' Configurations included :'
     call IWRTMA(IPCNF,1,NPCNF,1,NPCNF)
-    write(u6,*) ' CSFs included : '
+    write(u6,*) ' CSFs included :'
     call IWRTMA(IPCSF,1,NPCSF,1,NPCSF)
   end if
 
@@ -200,8 +203,6 @@ subroutine IPCSFSPLIT_INTERNAL(SCR)
   end do
 
   return
-  ! Avoid unused argument warnings
-  if (.false.) call Unused_integer(MXPDIM)
 
 end subroutine IPCSFSPLIT_INTERNAL
 

@@ -51,7 +51,7 @@ c  If only one irrep present keep down memory requirements:
         cnrm=ddot_(nci,w(lcim),1,w(lcim),1)
 c  If anything there, apply Hamiltonian to vector of this symmetry :
         if(cnrm.gt.thr2)then
-          call sigmadet_cvb(w(lcim),w(lcim2),isyml,absym(5),nci)
+          call sigmadet_cvb(w(lcim),w(lcim2),isyml,nci)
           if(c_daxpy.ne.zero)
      >      call daxpy_(nci,c_daxpy,w(lcim),1,w(lcim2),1)
         else
@@ -66,8 +66,7 @@ c  If anything there, apply Hamiltonian to vector of this symmetry :
 c  If anything there, apply Hamiltonian to vector of this symmetry :
         if(cnrm.gt.thr2)then
           call fzero(w(iaddr_ci(icivec)),nci)
-          call sigmadet_cvb(w(lcim),w(iaddr_ci(icivec)),isyml,absym(5),
-     &       nci)
+          call sigmadet_cvb(w(lcim),w(iaddr_ci(icivec)),isyml,nci)
           if(c_daxpy.ne.zero)
      >      call daxpy_(nci,c_daxpy,w(lcim),1,w(iaddr_ci(icivec)),1)
           call fmove_cvb(w(iaddr_ci(icivec)),w(lcim),nci)

@@ -71,11 +71,11 @@ end do
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(u6,*) ' Output from GETCNF '
-  write(u6,*) ' ================== '
+  write(u6,*) ' Output from GETCNF'
+  write(u6,*) ' =================='
   write(u6,*) ' Input configuration number : ',K
   write(u6,*) ' Corresponding type : ',KTYP
-  write(u6,*) ' Occupation : '
+  write(u6,*) ' Occupation :'
   NOCC = (NEL+KTYP-1+MINOP)/2
   call IWRTMA(KCNF,1,NOCC,1,NOCC)
 end if

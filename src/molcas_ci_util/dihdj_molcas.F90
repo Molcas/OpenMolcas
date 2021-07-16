@@ -134,10 +134,10 @@ do JDET=1,NJDET
 
   if (NTEST >= 10) then
     write(u6,*) ' LOOP 1000 JDET =  ',JDET
-    write(u6,*) ' JASTR AND JBSTR '
+    write(u6,*) ' JASTR AND JBSTR'
     call IWRTMA(JASTR(1,JDET),1,NAEL,1,NAEL)
     call IWRTMA(JBSTR(1,JDET),1,NBEL,1,NBEL)
-    write(u6,*) ' EXPANDED ALPHA AND BETA STRING '
+    write(u6,*) ' EXPANDED ALPHA AND BETA STRING'
     call IWRTMA(IWORK(KLJAE),1,NORB,1,NORB)
     call IWRTMA(IWORK(KLJBE),1,NORB,1,NORB)
   end if
@@ -187,10 +187,10 @@ do JDET=1,NJDET
       NBDIF = NBEL-NBCM
       if (NTEST >= 10) then
         write(u6,*) '  LOOP 900 IDET ',IDET
-        write(u6,*) ' COMPARISON , NADIF , NBDIF ',NADIF,NBDIF
+        write(u6,*) ' COMPARISON, NADIF, NBDIF ',NADIF,NBDIF
       end if
 
-      if (NADIF+NBDIF > 2) goto 899
+      if (NADIF+NBDIF > 2) cycle
 
       ! FACTOR FOR COMBINATIONS
       if (ICOMBI == 0) then
@@ -228,19 +228,17 @@ do JDET=1,NJDET
           if (IWORK(KLJAE-1+IASTR(IAEL,IDET)) == 0) then
             IA = IASTR(IAEL,IDET)
             IEL1 = IAEL
-            goto 121
+            exit
           end if
         end do
-121     continue
 
         do JAEL=1,NAEL
           if (IWORK(KLIAE-1+JASTR(JAEL,JDET)) == 0) then
             JA = JASTR(JAEL,JDET)
             JEL1 = JAEL
-            goto 131
+            exit
           end if
         end do
-131     continue
         SIGNA = real((-1)**(JEL1+IEL1),kind=wp)
       end if
       if (NBDIF == 1) then
@@ -248,19 +246,17 @@ do JDET=1,NJDET
           if (IWORK(KLJBE-1+IBSTR(IBEL,IDET)) == 0) then
             IB = IBSTR(IBEL,IDET)
             IEL1 = IBEL
-            goto 221
+            exit
           end if
         end do
-221     continue
 
         do JBEL=1,NBEL
           if (IWORK(KLIBE-1+JBSTR(JBEL,JDET)) == 0) then
             JB = JBSTR(JBEL,JDET)
             JEL1 = JBEL
-            goto 231
+            exit
           end if
         end do
-231     continue
         SIGNB = real((-1)**(JEL1+IEL1),kind=wp)
       end if
       if (NADIF == 2) then
@@ -274,11 +270,10 @@ do JDET=1,NJDET
             else
               I2 = IASTR(IAEL,IDET)
               IPERM = IAEL+IPERM
-              goto 321
+              exit
             end if
           end if
         end do
-321     continue
 
         JDIFF = 0
         do JAEL=1,NAEL
@@ -290,11 +285,10 @@ do JDET=1,NJDET
             else
               J2 = JASTR(JAEL,JDET)
               JPERM = JAEL+JPERM
-              goto 331
+              exit
             end if
           end if
         end do
-331     continue
         SGN = real((-1)**(IPERM+JPERM),kind=wp)
       end if
 
@@ -309,11 +303,10 @@ do JDET=1,NJDET
             else
               I2 = IBSTR(IBEL,IDET)
               IPERM = IBEL+IPERM
-              goto 421
+              exit
             end if
           end if
         end do
-421     continue
 
         JDIFF = 0
         do JBEL=1,NBEL
@@ -325,11 +318,10 @@ do JDET=1,NJDET
             else
               J2 = JBSTR(JBEL,JDET)
               JPERM = JBEL+JPERM
-              goto 431
+              exit
             end if
           end if
         end do
-431     continue
         SGN = real((-1)**(IPERM+JPERM),kind=wp)
       end if
 
@@ -457,13 +449,12 @@ do JDET=1,NJDET
           IBSTR(iii,IDET) = jjj
         end do
       end if
-899   continue
     end do
   end do
 end do
 
 if (IPRINT >= 2) then
-  write(u6,*) '  HAMILTONIAN MATRIX '
+  write(u6,*) '  HAMILTONIAN MATRIX'
   if (ISYM == 0) then
     call WRTMAT(HAMIL,NIDET,NJDET,NIDET,NJDET)
   else

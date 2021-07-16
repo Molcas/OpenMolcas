@@ -88,8 +88,8 @@ end type spintable
 
 type(spintable), allocatable :: spintabs(:)
 
-public :: citrans_csf2sd, citrans_sd2csf, citrans_sort, comb_init, comb_iter, ncsf_group, ndet_group, ndo_max, ndo_min, &
-          ndoc_group, nsoc_group, spintable_create, spintabs
+public :: citrans_csf2sd, citrans_sd2csf, citrans_sort, ncsf_group, ndet_group, ndo_max, ndo_min, ndoc_group, nsoc_group, &
+          spintable_create, spintabs
 
 contains
 
@@ -379,7 +379,7 @@ subroutine spintable_create(nso,ndown,spintab)
     end do
     ! expand into determinants, store coefficients
     call ud2det(udvec,spintab%coef(:,icsf))
-    call csf_next(nso,ndown,down_orb)
+    call csf_next(ndown,down_orb)
   end do
 
 end subroutine spintable_create
@@ -562,42 +562,6 @@ function pdep(val,mask) result(res)
 
 end function pdep
 
-subroutine comb_init(n,k,lex)
-
-  integer(kind=iwp), intent(in) :: n, k
-  integer(kind=iwp), intent(out) :: lex(k)
-  integer(kind=iwp) :: i
-
-  do i=1,k
-    lex(i) = i
-  end do
-  ! Avoid unused argument warnings
-  if (.false.) call Unused_integer(n)
-
-end subroutine comb_init
-
-subroutine comb_iter(n,k,lex)
-
-  integer(kind=iwp), intent(in) :: n, k
-  integer(kind=iwp), intent(inout) :: lex(k)
-  integer(kind=iwp) :: i, j
-
-  i = k
-  ! get the first position to be updated
-  do while ((i > 0) .and. (lex(i) == n-k+i))
-    i = i-1
-  end do
-  ! if still remaining combinations, update and
-  ! reset all higher positions to lexicographic order
-  if (i > 0) then
-    lex(i) = lex(i)+1
-    do j=1,k-i
-      lex(i+j) = lex(i)+j
-    end do
-  end if
-
-end subroutine comb_iter
-
 ! a CSF is a CSF consisting of singly occupied orbitals and is given
 ! by its down_orb string, that is the orbitals which are down coupled.
 
@@ -614,9 +578,9 @@ subroutine csf_init(nso,ndown,down_orb)
 
 end subroutine csf_init
 
-subroutine csf_next(nso,ndown,down_orb)
+subroutine csf_next(ndown,down_orb)
 
-  integer(kind=iwp), intent(in) :: nso, ndown
+  integer(kind=iwp), intent(in) :: ndown
   integer(kind=iwp), intent(inout) :: down_orb(ndown+1)
   integer(kind=iwp) :: i, j
 
@@ -629,8 +593,6 @@ subroutine csf_next(nso,ndown,down_orb)
       return
     end if
   end do
-  ! Avoid unused argument warnings
-  if (.false.) call Unused_integer(nso)
 
 end subroutine csf_next
 

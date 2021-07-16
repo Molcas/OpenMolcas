@@ -44,7 +44,7 @@ subroutine DiagOrd(PHPCSF,PHPCNF,IPORDCSF,IPORDCNF,MXPDIM,condition,iter,DTOC,IP
 !
 !*********** Author: GLMJ ****************
 !   history:
-!     Jeppe Olsen , Summer of '89
+!     Jeppe Olsen, Summer of '89
 !     adapted to DETRAS by M.P. Fuelscher, October 1989
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
@@ -138,82 +138,82 @@ subroutine DIAGORD_INTERNAL(SCR)
   iTmpDimBlockA = 0
 
   !IFINIT = 0
-400 continue
-  XMIN = XMAX+One
-  IMIN = 0
-  IICNF = 1
-  IICSF = 1
-  do ITYP=1,NTYP
-    NJCNF = NCNFTP(ITYP,IREFSM)
-    NIRREP = NCSFTP(ITYP)
-    do ICNF=1,NJCNF
-      if (PHPCNF(IICNF)+Acc < XMIN) then
-        XMIN = PHPCNF(IICNF)
-        IMIN = IICNF
-        !write(u6,*) 'IMIN         :',IMIN
-        ICSFMN = IICSF
-        NCSFMN = NIRREP
-      end if
-      IICNF = IICNF+1
-      IICSF = IICSF+NIRREP
+  do
+    XMIN = XMAX+One
+    IMIN = 0
+    IICNF = 1
+    IICSF = 1
+    do ITYP=1,NTYP
+      NJCNF = NCNFTP(ITYP,IREFSM)
+      NIRREP = NCSFTP(ITYP)
+      do ICNF=1,NJCNF
+        if (PHPCNF(IICNF)+Acc < XMIN) then
+          XMIN = PHPCNF(IICNF)
+          IMIN = IICNF
+          !write(u6,*) 'IMIN         :',IMIN
+          ICSFMN = IICSF
+          NCSFMN = NIRREP
+        end if
+        IICNF = IICNF+1
+        IICSF = IICSF+NIRREP
+      end do
     end do
+    !write(u6,*) 'XMIN         :',XMIN
+    !write(u6,*) 'NPCSF+NCSFMN :',NPCSF+NCSFMN
+    !if ((NPCSF+NCSFMN) <= MXPDIM) then
+    SCR(KLCNFO+NPCNF) = PHPCNF(IMIN)
+    NPCNF = NPCNF+1
+    IPORDCNF(NPCNF) = IMIN
+    !write(u6,*)'NPCNF, IPORDCNF(NPCNF) :', NPCNF,IPORDCNF(NPCNF)
+    call ISTVC2(IPORDCSF(NPCSF+1),ICSFMN-1,1,NCSFMN)
+    !write(u6,*) 'IPORDCSF(NPCSF) :',(IPORDCSF(NPCSF+i),i=1,NCSFMN)
+    !call IVCPRT('IPORDCSF(NPCSF) :',' ', IPORDCSF(NPCSF+1),NCSFMN)
+    NPCSF = NPCSF+NCSFMN
+
+    if (iter == 1) then
+      if (EnerSplit) then
+        if ((PHPCNF(IMIN)-RefSplit) <= condition) then
+          iDimBlockACNF = NPCNF
+          iDimBlockA = NPCSF
+        end if
+      else if (PerSplit) then
+        if ((real(NPCSF)/real(MXPDIM))*1.0e2_wp <= condition+Acc) then
+          iDimBlockACNF = NPCNF
+          iDimBlockA = NPCSF
+        end if
+      end if
+    else
+      if (NPCNF <= iDimBlockACNF) then
+        iTmpDimBlockACNF = NPCNF
+        iTmpDimBlockA = NPCSF
+      end if
+    end if
+
+    PHPCNF(IMIN) = XMAX+One
+    !else
+    !  ! No space for this configuration, remove previous
+    !  ! configurations with the same diagonal value
+    !  IFINIT = 1
+    !  IICNF = NPCNF+1
+    !  do
+    !    IICNF = IICNF-1
+    !    DIAVAL = PHPCNF(IPORDCNF(IICNF))
+    !    if (abs(DIAVAL-XMIN) > 1.0e-10_wp) exit
+    !    NPCNF = NPCNF-1
+    !    call GETCNF_LUCIA(SCR(KLFREE),ITYP,IPCNF(IICNF),ICONF,IREFSM,NEL)
+    !    call GETCNF_LUCIA(PHPCNF(NCONF+1),ITYP,IPCNF(IICNF),ICONF,IREFSM,NEL)
+    !    NPCSF = NPCSF-NCSFTP(ITYP)
+    !  end do
+    !end if
+    !if ((IFINIT /= 0) .or. (NPCNF >= NCONF)) exit
+    if (NPCNF >= NCONF) exit
   end do
-  !write(u6,*) 'XMIN         :',XMIN
-  !write(u6,*) 'NPCSF+NCSFMN :',NPCSF+NCSFMN
-  !if ((NPCSF+NCSFMN) <= MXPDIM) then
-  SCR(KLCNFO+NPCNF) = PHPCNF(IMIN)
-  NPCNF = NPCNF+1
-  IPORDCNF(NPCNF) = IMIN
-  !write(u6,*)'NPCNF, IPORDCNF(NPCNF) :', NPCNF,IPORDCNF(NPCNF)
-  call ISTVC2(IPORDCSF(NPCSF+1),ICSFMN-1,1,NCSFMN)
-  !write(u6,*) 'IPORDCSF(NPCSF) :',(IPORDCSF(NPCSF+i),i=1,NCSFMN)
-  !call IVCPRT('IPORDCSF(NPCSF) :',' ', IPORDCSF(NPCSF+1),NCSFMN)
-  NPCSF = NPCSF+NCSFMN
-
-  if (iter == 1) then
-    if (EnerSplit) then
-      if ((PHPCNF(IMIN)-RefSplit) <= condition) then
-        iDimBlockACNF = NPCNF
-        iDimBlockA = NPCSF
-      end if
-    else if (PerSplit) then
-      if ((real(NPCSF)/real(MXPDIM))*1.0e2_wp <= condition+Acc) then
-        iDimBlockACNF = NPCNF
-        iDimBlockA = NPCSF
-      end if
-    end if
-  else
-    if (NPCNF <= iDimBlockACNF) then
-      iTmpDimBlockACNF = NPCNF
-      iTmpDimBlockA = NPCSF
-    end if
-  end if
-
-  PHPCNF(IMIN) = XMAX+One
-  if ((NPCNF < NCONF)) goto 400
 
   if (iter /= 1) then
     iDimBlockACNF = iTmpDimBlockACNF
     iDimBlockA = iTmpDimBlockA
     !write(u6,*) 'iDimBlockACNF, iDimBlockACSF',iDimBlockACNF,iDimBlockA
   end if
-  !else
-  !  ! No space for this configuration , remove previous
-  !  ! configurations with the same diagonal value
-  !  IFINIT = 1
-  !  IICNF = NPCNF+1
-  !  600 continue
-  !  IICNF = IICNF - 1
-  !  DIAVAL = PHPCNF(IPORDCNF(IICNF))
-  !  if (abs(DIAVAL-XMIN) <= 1.0e-10_wp) then
-  !    NPCNF = NPCNF -1
-  !    call GETCNF_LUCIA(SCR(KLFREE),ITYP,IPCNF(IICNF),ICONF,IREFSM,NEL)
-  !    call GETCNF_LUCIA(PHPCNF(NCONF+1),ITYP,IPCNF(IICNF),ICONF,IREFSM,NEL)
-  !    NPCSF = NPCSF - NCSFTP(ITYP)
-  !    goto 600
-  !  end if
-  !end if
-  !if ((IFINIT == 0) .and. (NPCNF < NCONF)) goto 400
 
   do i=0,MXPDIM-1
     SCR(KLCSFO+i) = PHPCSF(IPORDCSF(i+1))

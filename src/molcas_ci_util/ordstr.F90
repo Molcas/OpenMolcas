@@ -28,7 +28,7 @@ subroutine ORDSTR(IINST,IOUTST,NELMNT,ISGN,IPRINT)
 !                              -1 : ODD  PERMUTATION
 !
 ! THIS CODE CONTAINS THE OLD ORDER CODE OF JOE GOLAB
-! ( HE IS HEREBY AKNOWLEDGED , AND I AM EXCUSED )
+! (HE IS HEREBY AKNOWLEDGED, AND I AM EXCUSED)
 
 use Definitions, only: iwp
 
@@ -45,30 +45,29 @@ ISGN = 1
 ! BEGIN TO ORDER
 
 JOE = 1
-10 continue
-I = JOE
-20 continue
-if (I == NELMNT) GO TO 50
-if (IOUTST(I) <= IOUTST(I+1)) GO TO 40
-JOE = I+1
-30 continue
-SWAP = IOUTST(I)
-ISGN = -ISGN
-IOUTST(I) = IOUTST(I+1)
-IOUTST(I+1) = SWAP
-if (I == 1) GO TO 10
-I = I-1
-if (IOUTST(I) > IOUTST(I+1)) GO TO 30
-GO TO 10
-40 continue
-I = I+1
-GO TO 20
+outer: do
+  I = JOE
+  do
+    if (I == NELMNT) exit outer
+    if (IOUTST(I) > IOUTST(I+1)) exit
+    I = I+1
+  end do
+  JOE = I+1
+  do
+    SWAP = IOUTST(I)
+    ISGN = -ISGN
+    IOUTST(I) = IOUTST(I+1)
+    IOUTST(I+1) = SWAP
+    if (I == 1) cycle outer
+    I = I-1
+    if (IOUTST(I) <= IOUTST(I+1)) exit
+  end do
+end do outer
 
 ! END ORDER
 
-50 continue
 if (IPRINT > 30) then
-  write(6,*) ' INPUT STRING ORDERED STRING ISGN '
+  write(6,*) ' INPUT STRING ORDERED STRING ISGN'
   call IWRTMA(IINST,1,NELMNT,1,NELMNT)
   call IWRTMA(IOUTST,1,NELMNT,1,NELMNT)
   write(6,*) ' ISGN : ',ISGN

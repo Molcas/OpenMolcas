@@ -39,6 +39,7 @@ integer(kind=iwp) :: i, iConf, iConv, iCs, idelta, iDummy, iEs, iHs, ij, iOff, I
                      iskipconv, iSs, it, it_ci, itu, ituvx, iu, iv, iVec1, iVec2, iVec3, IVECSVC, ivkcnf, ix, ixmax, jRoot, &
                      kctemp, kRoot, ksigtemp, l1, l2, l3, lPrint, mRoot, nBasVec, nconverged, nleft, nnew, ntrial
 real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, Dummy(1), E0, E1, ECORE_HEX, FP, Hji, ovl, R, RR, scl, Sji, ThrRes, updsiz, Z
+logical(kind=iwp) :: Skip
 real(kind=wp), allocatable :: gtuvx(:,:,:,:), htu(:,:), sgm(:,:), psi(:,:)
 real(kind=r8), external :: dDot_, dnrm2_, GET_ECORE
 
@@ -123,6 +124,7 @@ write(IterFile,'(72A1)') ('=',i=1,72)
 call xFlush(IterFile)
 !=======================================================================
 ! start long loop over iterations
+Skip = .false.
 nconverged = 0
 iskipconv = 1
 nnew = 0
@@ -197,7 +199,7 @@ do it_ci=1,mxItr
 
     if (iprlev >= DEBUG) then
       lPrint = min(nConf,200)
-      write(u6,*) ' '
+      write(u6,*)
       write(u6,'(1X,A,I2,A,I2)') 'sigma vector, iter =',it_ci,' mRoot =',mRoot
       write(u6,'(1X,A)') '(max. 200 elements)'
       write(u6,'(1X,A)') '--------------------------------'
@@ -367,7 +369,10 @@ do it_ci=1,mxItr
     end if
   end do
   if (iskipconv == 0) nconverged = 0
-  if (iConv >= lRoots-hroots) goto 100
+  if (iConv >= lRoots-hroots) then
+    Skip = .true.
+    exit
+  end if
   !---------------------------------------------------------------------
   ! compute correction vectors q1 = r/(E0-H) and q2 = c/(E0-H)
 
@@ -523,14 +528,16 @@ do it_ci=1,mxItr
 end do
 !=======================================================================
 
-mxItr = min(mxCiIt,mxItr+12)
-if (IPRLEV >= USUAL) then
-  write(u6,*) '       No convergence in the CI section: MAXJT will be increased to ',mxItr
+if (.not. Skip) then
+  mxItr = min(mxCiIt,mxItr+12)
+  if (IPRLEV >= USUAL) then
+    write(u6,*) '       No convergence in the CI section: MAXJT will be increased to ',mxItr
+  end if
+  Rc_CI = 16
+  nItr = nItr-1
 end if
-Rc_CI = 16
-nItr = nItr-1
+
 ! deallocate local temporary vectors
-100 continue
 call GetMem('CTEMP','Free','REAL',kctemp,ndet)
 call GetMem('SIGTEM','Free','REAL',ksigtemp,ndet)
 call GetMem('Vector1','Free','Real',iVec1,ndet)
