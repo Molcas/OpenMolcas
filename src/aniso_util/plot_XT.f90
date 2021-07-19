@@ -372,11 +372,11 @@
   REAL (wp), INTENT(in) :: XTcalc(nT)
   REAL (wp), INTENT(in) :: zJ
   ! local variables
-  REAL (wp) :: tmin, tmax, XTmin_calc, XTmax_calc, XTmin, XTmax, r
+  REAL (wp) :: tmin, tmax, XTmin_calc, XTmax_calc, XTmin, XTmax
   REAL (wp) :: gnuplot_version
-  INTEGER   :: file_number, iT, iTempMagn, LuPlt, LuData, ik, ic, file_size, StdOut
+  INTEGER   :: file_number, iT, LuPlt, LuData, file_size, StdOut
   LOGICAL   :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
-  CHARACTER(LEN=300)    :: line1, line2, fmtline, cdummy
+  CHARACTER(LEN=300)    :: line1, line2, cdummy
   CHARACTER(LEN=300)    :: datafile, plotfile, imagefile, epsfile
   INTEGER, EXTERNAL     :: AixRm
   INTEGER               :: Length
