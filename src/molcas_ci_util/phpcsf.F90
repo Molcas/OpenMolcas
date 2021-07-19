@@ -49,10 +49,10 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-real(kind=wp), intent(_OUT_) :: PHP(*), SCR(*)
-integer(kind=iwp), intent(_OUT_) :: IPCSF(*), IPCNF(*)
-integer(kind=iwp), intent(in) :: MXPDIM, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, IREOTS(*)
-real(kind=wp), intent(in) :: DTOC(*), ONEBOD(*), ECORE, DIAG(*), TUVX(*), ExFac
+real(kind=wp), intent(_OUT_) :: PHP(*), SCR(*) !IFG
+integer(kind=iwp), intent(_OUT_) :: IPCSF(*), IPCNF(*) !IFG
+integer(kind=iwp), intent(in) :: MXPDIM, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, IREOTS(*) !IFG
+real(kind=wp), intent(in) :: DTOC(*), ONEBOD(*), ECORE, DIAG(*), TUVX(*), ExFac !IFG
 integer(kind=iwp), intent(out) :: NPCSF, NPCNF
 integer(kind=iwp), intent(inout) :: NTEST
 integer(kind=iwp) :: ICSFMN, IFINIT, IICNF, IICSF, IILACT, IILB, IIRACT, IIRB, IIRMAX, ILRI, ILRO, ILTYP, IMIN, IRTYP, KLCONF, &
@@ -68,7 +68,7 @@ contains
 
 subroutine PHPCSF_INTERNAL(SCR)
 
-  real(kind=wp), target :: SCR(*)
+  real(kind=wp), target :: SCR(*) !IFG
   integer(kind=iwp), pointer :: iSCRl(:), iSCRr(:)
   integer(kind=iwp) :: ICNF, ICNL, ICNR, IIL, IIR, ITYP
 

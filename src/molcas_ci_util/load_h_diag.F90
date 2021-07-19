@@ -36,17 +36,16 @@ subroutine Load_H_diag(nConf,H_diag,LuDavid)
 !                                                                      *
 !***********************************************************************
 
+use davctl_mod, only: disk_address, in_core, llab, memory_vectors, mixed_mode_1, mixed_mode_2, on_disk, save_mode
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nConf, LuDavid
 real(kind=wp), intent(out) :: H_diag(nConf)
-integer(kind=iwp) :: H_diag_RecNo, iDisk, iMem
-character(len=16) :: KeyWord
+integer(kind=iwp) :: H_diag_RecNo, iDisk
+character(len=llab) :: KeyWord
 integer(kind=iwp), external :: RecNo
 #include "rasdim.fh"
-#include "davctl.fh"
-#include "WrkSpc.fh"
 #include "timers.fh"
 
 call Timing(WTC_1,Swatch,Swatch,Swatch)
@@ -62,8 +61,7 @@ end if
 ! copy H_diag to new memory location
 if (save_mode == in_core) then
   H_diag_RecNo = RecNo(1,1)
-  iMem = memory_address(H_diag_RecNo)
-  call dCopy_(nConf,Work(iMem),1,H_diag,1)
+  H_diag(:) = memory_vectors(:,H_diag_RecNo)
 end if
 
 ! the diagonalization must be run out of core:
@@ -77,8 +75,7 @@ end if
 ! the diagonalization may be run in mixed mode:
 ! use the write through cache mechanism to load and save H_diag
 if ((save_mode == mixed_mode_1) .or. (save_mode == mixed_mode_2)) then
-  KeyWord = ''
-  write(KeyWord,'(A)') 'H_diag'
+  KeyWord = 'H_diag'
   call page_in(KeyWord,nConf,H_diag,LuDavid)
 end if
 

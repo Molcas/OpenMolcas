@@ -27,9 +27,9 @@ use Definitions, only: wp, iwp,u6
 #include "intent.fh"
 
 implicit none
-real(kind=wp), intent(_OUT_) :: CSFDIA(*)
-real(kind=wp), intent(in) :: DETDIA(*)
-integer(kind=iwp), intent(in) :: NTYP, NCNFTP(NTYP), ICTSDT(*), NDTFTP(NTYP), NCSFTP(NTYP), IPRINT
+real(kind=wp), intent(_OUT_) :: CSFDIA(*) !IFG
+real(kind=wp), intent(in) :: DETDIA(*) !IFG
+integer(kind=iwp), intent(in) :: NTYP, NCNFTP(NTYP), ICTSDT(*), NDTFTP(NTYP), NCSFTP(NTYP), IPRINT !IFG
 real(kind=wp) :: EAVER
 integer(kind=iwp) :: ICNF, ICSF, ICSOFF, IDET, IDTOFF, ITYP, JCNABS, JCNF, JDET, NCSTOT, NDTTOT
 

@@ -43,7 +43,7 @@ implicit none
 #include "rasscf.fh"
 real(kind=wp), intent(inout) :: S1(lRoots,lRoots)
 real(kind=wp), intent(in) :: S2(lRoots,lRoots)
-integer(kind=iwp) :: i, istop, iTemp(mxRoot), jRoot, kRoot, maxS1
+nteger(kind=iwp) :: i, istop, iTemp(mxRoot), jRoot, kRoot, maxS1 !IFG
 real(kind=wp) :: S1jk, S1max, S2jk
 
 if (ITER == 1) return

@@ -46,19 +46,20 @@ subroutine Ini_David(nRoots,nConf,nDet,nSel,n_keep,ntAsh,LuDavid)
 !                                                                      *
 !***********************************************************************
 
+use davctl_mod, only: disk_address, in_core, istart, LblStk, memory_vectors, mixed_mode_1, mixed_mode_2, mxDiskStk, mxMemStk, &
+                      n_Roots, nDiskStk, nkeep, nMemStk, nvec, on_disk, save_in_memory, save_mode
+use stdalloc, only: mma_allocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nRoots, nConf, nDet, nSel, n_keep, ntAsh, LuDavid
-integer(kind=iwp) :: CI_vec_RecNo, H_diag_RecNo, iDisk, iMem, iRoot, lTmp1, lTmp2, lTmp3, Max_free_Mem, Max_used_Mem, &
-                     Memory_Needed, nStk, Sig_vec_RecNo, tmp_CI_vec_RecNo, tmp_Sig_vec_RecNo
+integer(kind=iwp) :: CI_vec_RecNo, H_diag_RecNo, iDisk, iRoot, lTmp1, lTmp2, lTmp3, Max_free_Mem, Max_used_Mem, Memory_Needed, &
+                     nStk, Sig_vec_RecNo, tmp_CI_vec_RecNo, tmp_Sig_vec_RecNo
 real(kind=wp) :: Dum(1)
-character(len=8) :: Label
 integer(kind=iwp), external :: RecNo
 #include "rasdim.fh"
 #include "warnings.h"
-#include "davctl.fh"
 #include "rasscf_lucia.fh"
 
 ! check input arguments
@@ -96,13 +97,10 @@ n_Roots = nRoots
 nkeep = n_keep
 ! If unitialized, determine a reasonable nkeep
 if (nkeep == 0) then
-  nkeep = mxKeep*nRoots
+  nkeep = (2*mxRoot)*nRoots
   nkeep = min(nkeep,400)
   nkeep = max(nkeep,3*nRoots)
-  nkeep = min(nkeep,mxkeep)
-else if (nkeep > mxkeep) then
-  call WarningMessage(2,'nkeep > mxkeep. Reduce nkeep or increase mxkeep in src/Include/davctl.fh')
-  call Quit(_RC_INPUT_ERROR_)
+  nkeep = min(nkeep,2*mxRoot)
 end if
 
 istart = 0
@@ -161,90 +159,57 @@ end if
 nMemStk = 0
 nDiskStk = 0
 
-! the diagonalization can be run in core:
-! allocate memory for all vectors that will be needed
-if (save_mode == in_core) then
-  H_diag_RecNo = RecNo(1,1)
-  write(Label,'(A,I3.3)') 'HvRcN',H_diag_RecNo
-  call GetMem(Label,'Allo','Real',iMem,nConf)
-  memory_address(H_diag_RecNo) = iMem
-  CI_vec_RecNo = 0
-  do iRoot=1,nkeep
-    CI_vec_RecNo = RecNo(2,iRoot)
-    write(Label,'(A,I3.3)') 'CvRcN',CI_vec_RecNo
-    call GetMem(Label,'Allo','Real',iMem,nConf)
-    memory_address(CI_vec_RecNo) = iMem
-  end do
-  Sig_vec_RecNo = 0
-  do iRoot=1,nKeep
-    Sig_vec_RecNo = RecNo(3,iRoot)
-    write(Label,'(A,I3.3)') 'SvRcN',Sig_vec_RecNo
-    call GetMem(Label,'Allo','Real',iMem,nConf)
-    memory_address(Sig_vec_RecNo) = iMem
-  end do
-  do iRoot=1,nRoots
-    tmp_CI_vec_RecNo = RecNo(4,iRoot)
-    write(Label,'(A,I3.3)') 'TmpCv',iRoot
-    call GetMem(Label,'Allo','Real',iMem,nConf)
-    memory_address(tmp_CI_vec_RecNo) = iMem
-  end do
-  do iRoot=1,nRoots
-    tmp_Sig_vec_RecNo = RecNo(5,iRoot)
-    write(Label,'(A,I3.3)') 'TmpSv',iRoot
-    call GetMem(Label,'Allo','Real',iMem,nConf)
-    memory_address(tmp_Sig_vec_RecNo) = iMem
-  end do
-end if
+call mma_allocate(disk_address,mxDiskStk,label='disk_address')
+call mma_allocate(memory_vectors,nConf,mxMemStk,label='memory_vectors')
 
-! the diagonalization must be run out of core:
-! allocate disk space for all vectors that will be needed
-if (save_mode == on_disk) then
-  iDisk = 0
-  H_diag_RecNo = RecNo(1,1)
-  disk_address(H_diag_RecNo) = iDisk
-  Dum(1) = Zero
-  call DDafile(LuDavid,0,Dum,nConf,iDisk)
-  do iRoot=1,nkeep
-    CI_vec_RecNo = RecNo(2,iRoot)
-    disk_address(CI_vec_RecNo) = iDisk
+select case (save_mode)
+  case (in_core)
+    ! the diagonalization can be run in core,
+    ! there's nothing to be done, everything is already allocated and indexed
+
+  case (on_disk)
+    ! the diagonalization must be run out of core:
+    ! allocate disk space for all vectors that will be needed
+    iDisk = 0
+    H_diag_RecNo = RecNo(1,1)
+    disk_address(H_diag_RecNo) = iDisk
+    Dum(1) = Zero
     call DDafile(LuDavid,0,Dum,nConf,iDisk)
-  end do
-  do iRoot=1,nKeep
-    Sig_vec_RecNo = RecNo(3,iRoot)
-    disk_address(Sig_vec_RecNo) = iDisk
-    call DDaFile(LuDavid,0,Dum,nConf,iDisk)
-  end do
-  do iRoot=1,nRoots
-    tmp_CI_vec_RecNo = RecNo(4,iRoot)
-    disk_address(tmp_CI_vec_RecNo) = iDisk
-    call DDaFile(LuDavid,0,Dum,nConf,iDisk)
-  end do
-  do iRoot=1,nRoots
-    tmp_Sig_vec_RecNo = RecNo(5,iRoot)
-    disk_address(tmp_Sig_vec_RecNo) = iDisk
-    call DDaFile(LuDavid,0,Dum,nConf,iDisk)
-  end do
-end if
-
-! the diagonalization may be run in mixed mode:
-! allocate memory and disk space for all vectors that will be needed
-if ((save_mode == mixed_mode_1) .or. (save_mode == mixed_mode_2)) then
-  do nStk=1,mxMemStk
-    write(Label,'(A,I4.4)') 'RAMD',nStk
-    call GetMem(Label,'Allo','Real',iMem,nConf)
-    memory_address(nStk) = iMem
-  end do
-  iDisk = 0
-  Dum(1) = Zero
-  do nStk=1,mxDiskStk
-    disk_address(nStk) = iDisk
-    call DDaFile(LuDavid,0,Dum,nConf,iDisk)
-  end do
-  do nStk=1,(mxMemStk+mxDiskStk)
-    LblStk(nStk) = ''
-  end do
-  save_in_memory = .true.
-end if
+    do iRoot=1,nkeep
+      CI_vec_RecNo = RecNo(2,iRoot)
+      disk_address(CI_vec_RecNo) = iDisk
+      call DDafile(LuDavid,0,Dum,nConf,iDisk)
+    end do
+    do iRoot=1,nKeep
+      Sig_vec_RecNo = RecNo(3,iRoot)
+      disk_address(Sig_vec_RecNo) = iDisk
+      call DDaFile(LuDavid,0,Dum,nConf,iDisk)
+    end do
+    do iRoot=1,nRoots
+      tmp_CI_vec_RecNo = RecNo(4,iRoot)
+      disk_address(tmp_CI_vec_RecNo) = iDisk
+      call DDaFile(LuDavid,0,Dum,nConf,iDisk)
+    end do
+    do iRoot=1,nRoots
+      tmp_Sig_vec_RecNo = RecNo(5,iRoot)
+      disk_address(tmp_Sig_vec_RecNo) = iDisk
+      call DDaFile(LuDavid,0,Dum,nConf,iDisk)
+    end do
+  case (mixed_mode_1,mixed_mode_2)
+    ! the diagonalization may be run in mixed mode:
+    ! allocate memory and disk space for all vectors that will be needed
+    iDisk = 0
+    Dum(1) = Zero
+    do nStk=1,mxDiskStk
+      disk_address(nStk) = iDisk
+      call DDaFile(LuDavid,0,Dum,nConf,iDisk)
+    end do
+    call mma_allocate(LblStk,mxDiskStk+mxMemStk,label='LblStk')
+    LblStk(:) = ''
+    save_in_memory = .true.
+  case default
+    call Abend()
+end select
 
 return
 

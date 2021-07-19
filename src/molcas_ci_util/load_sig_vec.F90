@@ -38,17 +38,16 @@ subroutine Load_Sig_vec(iRoot,nConf,Sig_vec,LuDavid)
 !                                                                      *
 !***********************************************************************
 
+use davctl_mod, only: disk_address, in_core, llab, memory_vectors, mixed_mode_1, mixed_mode_2, nkeep, on_disk, save_mode
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iRoot, nConf, LuDavid
 real(kind=wp), intent(out) :: Sig_vec(nConf)
-integer(kind=iwp) :: iDisk, iMem, Sig_vec_PageNo, Sig_vec_RecNo
-character(len=16) :: KeyWord
+integer(kind=iwp) :: iDisk, Sig_vec_PageNo, Sig_vec_RecNo
+character(len=llab) :: KeyWord
 integer(kind=iwp), external :: PageNo, RecNo
 #include "rasdim.fh"
-#include "davctl.fh"
-#include "WrkSpc.fh"
 #include "timers.fh"
 
 call Timing(WTC_1,Swatch,Swatch,Swatch)
@@ -74,8 +73,7 @@ end if
 ! copy the sigma vector to new memory location
 if (save_mode == in_core) then
   Sig_vec_RecNo = RecNo(3,iRoot)
-  iMem = memory_address(Sig_vec_RecNo)
-  call dCopy_(nConf,Work(iMem),1,Sig_vec,1)
+  Sig_vec(:) = memory_vectors(:,Sig_vec_RecNo)
 end if
 
 ! the diagonalization must be run out of core:
@@ -91,7 +89,6 @@ end if
 ! the sigma vector
 if ((save_mode == mixed_mode_1) .or. (save_mode == mixed_mode_2)) then
   Sig_vec_PageNo = PageNo(iRoot)
-  KeyWord = ''
   write(KeyWord,'(A,I4.4)') 'Sig_vec',Sig_vec_PageNo
   call page_in(KeyWord,nConf,Sig_vec,LuDavid)
 end if

@@ -33,6 +33,7 @@ function PageNo(iRoot)
 !                                                                      *
 !***********************************************************************
 
+use davctl_mod, only: istart, n_Roots, nvec
 use Definitions, only: iwp
 
 implicit none
@@ -40,7 +41,6 @@ integer(kind=iwp) :: PageNo
 integer(kind=iwp), intent(in) :: iRoot
 integer(kind=iwp) :: itmp1
 #include "rasdim.fh"
-#include "davctl.fh"
 
 itmp1 = iRoot
 if (iRoot > n_Roots) then

@@ -16,7 +16,7 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp) :: GETH2A
 integer(kind=iwp), intent(in) :: I, J, K, L
-real(kind=wp), intent(in) :: TUVX(*)
+real(kind=wp), intent(in) :: TUVX(*) !IFG
 integer(kind=iwp) :: IJ, KL, NI, NIJ, NIJKL, NJ, NK, NKL, NL
 
 NI = max(I,J)

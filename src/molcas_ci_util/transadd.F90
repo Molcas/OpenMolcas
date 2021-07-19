@@ -16,7 +16,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: n, lda
-real(kind=wp), intent(inout) :: a(lda,*)
+real(kind=wp), intent(inout) :: a(lda,*) !IFG
 ! number of blocks, remaining elements
 integer(kind=iwp) :: nblk, nrem, iblk, jblk, ista, jsta, i, j
 ! small buffer block

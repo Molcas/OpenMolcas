@@ -36,7 +36,7 @@ use Constants, only: Zero, One, auToeV
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-real(kind=wp), intent(in) :: LW1(*), TUVX(*)
+real(kind=wp), intent(in) :: LW1(*), TUVX(*) !IFG
 integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp), intent(out) :: iErrSplit
 integer(kind=iwp) :: i, iCaseSplit, iDimBlockTri, iDisk, idx, iJOB, IPRLEV, j, k, MXSpli, MXXWS, nAAblock

@@ -23,9 +23,9 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: ICNL(*), ITPL, ICNR(*), ITPR, NAEL, NBEL, IPRODT(*), NORB, IREOTS(*)
-real(kind=wp), intent(_OUT_) :: CNHCNM(*), SCR(*)
-real(kind=wp), intent(in) :: ECORE, ONEBOD(*), DTOC(*), TUVX(*), ExFac
+integer(kind=iwp), intent(in) :: ICNL(*), ITPL, ICNR(*), ITPR, NAEL, NBEL, IPRODT(*), NORB, IREOTS(*) !IFG
+real(kind=wp), intent(_OUT_) :: CNHCNM(*), SCR(*) !IFG
+real(kind=wp), intent(in) :: ECORE, ONEBOD(*), DTOC(*), TUVX(*), ExFac !IFG
 integer(kind=iwp), intent(inout) :: IPREXH
 integer(kind=iwp) :: IPL, IPR, JCSF, JDET, KLCHD, KLDHD, KLDTLA, KLDTLB, KLDTRA, KLDTRB, KLFREE, KLISL, KLISR, NCSFL, NCSFR, &
                      NDETL, NDETR, NTEST
@@ -40,7 +40,7 @@ contains
 
 subroutine CNHCN_INTERNAL(SCR)
 
-  real(kind=wp), target :: SCR(*)
+  real(kind=wp), target :: SCR(*) !IFG
   integer(kind=iwp), pointer :: iSCRla(:), iSCRlb(:), iSCRra(:), iSCRrb(:), iSCRf(:)
   integer(kind=iwp) :: JTYP
 

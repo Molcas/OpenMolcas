@@ -115,8 +115,8 @@ subroutine citrans_sort(mode,ciold,cinew)
 
   ! 'C' for configuration order, 'O' for original order
   character, intent(in) :: mode
-  real(kind=wp), intent(in) :: ciold(*)
-  real(kind=wp), intent(out) :: cinew(*)
+  real(kind=wp), intent(in) :: ciold(*) !IFG
+  real(kind=wp), intent(out) :: cinew(*) !IFG
   ! array with coupling coefficients
   !real(kind=wp), intent(out) :: coef(*)
   integer(kind=iwp) :: doub, icsf, ido, idown, idwn, ioff_csf, iorb, iphase, iso, iup, mv, ncsf, ndoc, ndown, nsoc, rankdo, &
@@ -231,13 +231,13 @@ subroutine citrans_csf2sd(ci,det)
   use second_quantization, only: lex_init, lex_next, lexrank
   use faroald, only: my_nel, my_norb, ndeta, ndetb, nela
 
-  real(kind=wp), intent(in) :: ci(*)
+  real(kind=wp), intent(in) :: ci(*) !IFG
   real(kind=wp), intent(out) :: det(ndeta,ndetb)
   integer(kind=iwp) :: ido, iso, isoa, idoc, isoc, iconf, idet, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf, &
                        doub, sing, alfa, beta, & ! occupation substrings
                        deta, detb, phase         ! determinant strings
   integer(kind=iwp), allocatable :: stepvector(:)
-  real*8, allocatable :: tmp(:,:)
+  real(kind=wp), allocatable :: tmp(:,:)
 
   ! Loop through the do,so configuration groups. For each group, load
   ! the spin table. Loop through the configurations and perform a matrix
@@ -299,7 +299,7 @@ subroutine citrans_sd2csf(det,ci)
   use faroald, only: my_nel, my_norb, ndeta, ndetb, nela
 
   real(kind=wp), intent(in) :: det(ndeta,ndetb)
-  real(kind=wp), intent(out) :: ci(*)
+  real(kind=wp), intent(out) :: ci(*) !IFG
   integer(kind=iwp) :: ido, iso, isoa, idoc, isoc, iconf, idet, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf, &
                        doub, sing, alfa, beta, & ! occupation substrings
                        deta, detb, phase         ! determinant strings

@@ -20,7 +20,7 @@ subroutine page_out(KeyWord,nConf,Vector,LuDavid)
 !     minimize a write through cache strategy is applied               *
 !                                                                      *
 !     calling arguments:                                               *
-!     KeyWord : character*16                                           *
+!     KeyWord : character(len=llab)                                    *
 !               record identifier                                      *
 !     nConf   : integer                                                *
 !               length of the vector H_diag                            *
@@ -39,18 +39,18 @@ subroutine page_out(KeyWord,nConf,Vector,LuDavid)
 !                                                                      *
 !***********************************************************************
 
+use davctl_mod, only: disk_address, LblStk, llab, memory_vectors, mixed_mode_1, mixed_mode_2, mxDiskStk, mxMemStk, nDiskStk, &
+                      nMemStk, save_in_memory, save_mode
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
 implicit none
-character(len=16), intent(in) :: KeyWord
+character(len=llab), intent(in) :: KeyWord
 integer(kind=iwp), intent(in) :: nConf, LuDavid
 real(kind=wp), intent(_IN_) :: Vector(nConf)
-integer(kind=iwp) :: iDisk, iMem, iStk, nStk
+integer(kind=iwp) :: iDisk, iStk, nStk
 #include "rasdim.fh"
-#include "davctl.fh"
-#include "WrkSpc.fh"
 
 ! check input arguments
 if (nConf < 0) then
@@ -62,15 +62,17 @@ end if
 ! search for a matching record identifier
 nStk = 0
 do iStk=1,(mxMemStk+mxDiskStk)
-  if (LblStk(iStk) == KeyWord) nStk = iStk
+  if (LblStk(iStk) == KeyWord) then
+    nStk = iStk
+    exit
+  end if
 end do
 
 ! there is a matching record identifier:
 ! overwrite the current record
 if (nStk /= 0) then
   if (nStk <= mxMemStk) then
-    iMem = memory_address(nStk)
-    call dCopy_(nConf,Vector,1,Work(iMem),1)
+    memory_vectors(:,nStk) = Vector(:)
   else
     iDisk = disk_address(nStk-mxMemStk)
     call DDaFile(LuDavid,1,Vector,nConf,iDisk)
@@ -84,19 +86,17 @@ if (nStk == 0) then
     if (KeyWord(1:6) == 'CI_vec') then
       if (save_in_memory) then
         nMemStk = nMemStk+1
-        iMem = memory_address(nMemStk)
-        call dCopy_(nConf,Vector,1,Work(iMem),1)
+        memory_vectors(:,nMemStk) = Vector(:)
         LblStk(nMemStk) = KeyWord
         if (nMemStk == mxMemStk) save_in_memory = .false.
       else
         nMemStk = nMemStk+1
         if (nMemStk > mxMemStk) nMemStk = 1
-        iMem = memory_address(nMemStk)
         nDiskStk = nDiskStk+1
         if (nDiskStk > mxDiskStk) nDiskStk = 1
         iDisk = disk_address(nDiskStk)
-        call DDaFile(LuDavid,1,Work(iMem),nConf,iDisk)
-        call dCopy_(nConf,Vector,1,Work(iMem),1)
+        call DDaFile(LuDavid,1,memory_vectors(:,nMemStk),nConf,iDisk)
+        memory_vectors(:,nMemStk) = Vector(:)
         LblStk(mxMemStk+nDiskStk) = LblStk(nMemStk)
         LblStk(nMemStk) = KeyWord
       end if
@@ -111,19 +111,17 @@ if (nStk == 0) then
   if (save_mode == mixed_mode_2) then
     if (save_in_memory) then
       nMemStk = nMemStk+1
-      iMem = memory_address(nMemStk)
-      call dCopy_(nConf,Vector,1,Work(iMem),1)
+      memory_vectors(:,nMemStk) = Vector(:)
       LblStk(nMemStk) = KeyWord
       if (nMemStk == mxMemStk) save_in_memory = .false.
     else
       nMemStk = nMemStk+1
       if (nMemStk > mxMemStk) nMemStk = 1
-      iMem = memory_address(nMemStk)
       nDiskStk = nDiskStk+1
       if (nDiskStk > mxDiskStk) nDiskStk = 1
       iDisk = disk_address(nDiskStk)
-      call DDaFile(LuDavid,1,Work(iMem),nConf,iDisk)
-      call dCopy_(nConf,Vector,1,Work(iMem),1)
+      call DDaFile(LuDavid,1,memory_vectors(:,nMemStk),nConf,iDisk)
+      memory_vectors(:,nMemStk) = Vector(:)
       LblStk(mxMemStk+nDiskStk) = LblStk(nMemStk)
       LblStk(nMemStk) = KeyWord
     end if

@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: IWAY, NRDIM, NCDIM
 real(kind=wp), intent(inout) :: A(NRDIM,NCDIM)
-real(kind=wp), intent(in) :: DIAG(*)
+real(kind=wp), intent(in) :: DIAG(*) !IFG
 integer(kind=iwp) :: I, J, NTEST
 
 if (IWAY == 1) then

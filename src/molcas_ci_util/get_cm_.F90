@@ -43,9 +43,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp), intent(in) :: MXPDIM, NCONF, IPCSF(MXPDIM), IPCNF(NCONF), NPCSF, NPCNF, IPRODT(*), ICONF(*), IREFSM, NACTOB, &
-                                 NEL, NAEL, NBEL, IREOTS(*)
-real(kind=wp), intent(in) :: Cn(NPCSF), EnFin, DTOC(*), ONEBOD(*), ECORE, TUVX(*), ExFac
+integer(kind=iwp), intent(in) :: MXPDIM, NCONF, IPCSF(MXPDIM), IPCNF(NCONF), NPCSF, NPCNF, IPRODT(*), ICONF(*), IREFSM, NACTOB, & !IFG
+                                 NEL, NAEL, NBEL, IREOTS(*) !IFG
+real(kind=wp), intent(in) :: Cn(NPCSF), EnFin, DTOC(*), ONEBOD(*), ECORE, TUVX(*), ExFac !IFG
 integer(kind=iwp), intent(inout) :: NTEST
 real(kind=wp), intent(out) :: Ctot(MXPDIM)
 integer(kind=iwp) :: iAlpha, IATYP, IBblockV, IIA, IIAB, IIL, IILACT, IILB, iKACONF, iKLCONF, ILAI, ILTYP, ITYP, KACONF, KLAUXD, &
@@ -251,7 +251,7 @@ do iAlpha=NPCNF+1,NCONF
             !write(u6,*) 'iAlpha, IIAB',iAlpha,IIAB
             AuxBB(IILACT,IIA) = Zero
           end if
-          !Write(u6,*) 'ILAI, IILACT, IIA =',ILAI,IILACT,IIA
+          !write(u6,*) 'ILAI, IILACT, IIA =',ILAI,IILACT,IIA
           !if (NTEST >= 30) then
           !  write(u6,*) 'AuxBB(IILACT,IIA)',AuxBB(IILACT,IIA)
           !end if

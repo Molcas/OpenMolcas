@@ -58,9 +58,9 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: NORB, NEL, IREFSM, IMODE, ICONF(*), ISPIN(*)
-real(kind=wp), intent(in) :: CIOLD(*)
-real(kind=wp), intent(_OUT_) :: CINEW(*)
+integer(kind=iwp), intent(in) :: NORB, NEL, IREFSM, IMODE, ICONF(*), ISPIN(*) !IFG
+real(kind=wp), intent(in) :: CIOLD(*) !IFG
+real(kind=wp), intent(_OUT_) :: CINEW(*) !IFG
 integer(kind=iwp), intent(out) :: KCNF(NEL)
 #include "rasdim.fh"
 #include "spinfo.fh"

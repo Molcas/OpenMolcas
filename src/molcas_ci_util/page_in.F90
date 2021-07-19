@@ -19,7 +19,7 @@ subroutine page_in(KeyWord,nConf,Vector,LuDavid)
 !     which has been saved by the write through cache mechanism        *
 !                                                                      *
 !     calling arguments:                                               *
-!     KeyWord : character*16                                           *
+!     KeyWord : character(len=llab)                                    *
 !               record identifier                                      *
 !     nConf   : integer                                                *
 !               length of the vector H_diag                            *
@@ -38,16 +38,15 @@ subroutine page_in(KeyWord,nConf,Vector,LuDavid)
 !                                                                      *
 !***********************************************************************
 
+use davctl_mod, only: disk_address, llab, LblStk, memory_vectors, mxDiskStk, mxMemStk
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=16), intent(in) :: KeyWord
+character(len=llab), intent(in) :: KeyWord
 integer(kind=iwp), intent(in) :: nConf, LuDavid
 real(kind=wp), intent(out) :: Vector(nConf)
-integer(kind=iwp) :: iDisk, iMem, iStk, nStk
+integer(kind=iwp) :: iDisk, iStk, nStk
 #include "rasdim.fh"
-#include "davctl.fh"
-#include "WrkSpc.fh"
 
 ! check input arguments
 if (nConf < 0) then
@@ -56,10 +55,13 @@ if (nConf < 0) then
   call Abend()
 end if
 
-! search for a metching record identifier
+! search for a matching record identifier
 nStk = 0
 do iStk=1,(mxMemStk+mxDiskStk)
-  if (LblStk(iStk) == KeyWord) nStk = iStk
+  if (LblStk(iStk) == KeyWord) then
+    nStk = iStk
+    exit
+  end if
 end do
 if (nStk == 0) then
   write(u6,*) 'page_in: nStk equal 0'
@@ -68,8 +70,7 @@ if (nStk == 0) then
 end if
 
 if (nStk <= mxMemStk) then
-  iMem = memory_address(nStk)
-  call dCopy_(nConf,Work(iMem),1,Vector,1)
+  Vector(:) = memory_vectors(:,nStk)
 else
   iDisk = disk_address(nStk-mxMemStk)
   call DDaFile(LuDavid,2,Vector,nConf,iDisk)

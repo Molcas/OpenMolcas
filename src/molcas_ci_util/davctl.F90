@@ -53,7 +53,7 @@ use Constants, only: Quart
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp), intent(in) :: LW1(*), TUVX(*)
+real(kind=wp), intent(in) :: LW1(*), TUVX(*) !IFG
 integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp) :: iDisk, ItLimit, jRoot, mSel, nMaxSel
 real(kind=wp) :: ESize, Threshold, ThrRule

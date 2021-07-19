@@ -54,10 +54,10 @@ use Definitions, only: wp, iwp
 #include "intent.fh"
 
 implicit none
-real(kind=wp), intent(_OUT_) :: PHPCSF(*), PHPCNF(*)
-integer(kind=iwp), intent(_OUT_) :: IPORDCSF(*), IPORDCNF(*)
-integer(kind=iwp), intent(in) :: MXPDIM, iter, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, IREOTS(*)
-real(kind=wp), intent(in) :: condition, DTOC(*), ONEBOD(*), ECORE, SCR(*), TUVX(*), ExFac
+real(kind=wp), intent(_OUT_) :: PHPCSF(*), PHPCNF(*) !IFG
+integer(kind=iwp), intent(_OUT_) :: IPORDCSF(*), IPORDCNF(*) !IFG
+integer(kind=iwp), intent(in) :: MXPDIM, iter, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, IREOTS(*) !IFG
+real(kind=wp), intent(in) :: condition, DTOC(*), ONEBOD(*), ECORE, SCR(*), TUVX(*), ExFac !IFG
 integer(kind=iwp), intent(inout) :: NTEST
 integer(kind=iwp) :: ICSFMN, IICNF, IICSF, IILACT, IILB, ILRI, ILTYP, IMIN, iTmpDimBlockA, iTmpDimBlockACNF, KLCNFO, KLCONF, &
                      KLCSFO, KLFREE, KLPHPS, KLSCRS, MXCSFC, NCSFL, NCSFMN, NIRREP, NJCNF, NPCNF, NPCSF
@@ -73,7 +73,7 @@ contains
 
 subroutine DIAGORD_INTERNAL(SCR)
 
-  real(kind=wp), target :: SCR(*)
+  real(kind=wp), target :: SCR(*) !IFG
   integer(kind=iwp), pointer :: iSCR(:)
   integer(kind=iwp) :: i, ICNF, ICNL, IIL, ITYP
 

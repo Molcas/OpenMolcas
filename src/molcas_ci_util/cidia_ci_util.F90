@@ -25,7 +25,7 @@ use Definitions, only: wp, iwp, r8
 
 implicit none
 integer(kind=iwp), intent(in) :: NCONF, IREFSM, LUDAVID
-real(kind=wp), intent(out) :: CSFDIA(*)
+real(kind=wp), intent(out) :: CSFDIA(*) !IFG
 integer(kind=iwp) :: iDummy, IPRINT, IPRL, IPRLEV
 real(kind=wp) :: Dummy(1), eCore_Hex
 real(kind=wp), allocatable :: DDIA(:)

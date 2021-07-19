@@ -43,6 +43,7 @@ subroutine Term_David(ICICH,iter,lRoots,nConf,Vector,JOBIPH,LuDavid,iDisk)
 !                                                                      *
 !***********************************************************************
 
+use davctl_mod, only: disk_address, LblStk, memory_vectors
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -51,10 +52,9 @@ implicit none
 integer(kind=iwp), intent(in) :: ICICH, iter, lRoots, nConf, JOBIPH, LuDavid
 integer(kind=iwp), intent(inout) :: iDisk
 real(kind=wp), intent(out) :: Vector(nConf)
-integer(kind=iwp) :: iMem, iRecNo, iRoot
+integer(kind=iwp) :: iRoot
 real(kind=wp), allocatable :: Ovlp1(:,:), Ovlp2(:,:)
 #include "rasdim.fh"
-#include "davctl.fh"
 
 ! check input arguments
 if (nConf < 0) then
@@ -98,13 +98,9 @@ if (ICICH == 1) then
   call mma_deallocate(Ovlp2)
 end if
 
-! deallocate memory which was used as records of the RAM disk
-if (save_mode /= on_disk) then
-  do iRecNo=1,MxMemStk
-    iMem = memory_address(iRecNo)
-    call GetMem(' ','Free','Real',iMem,nConf)
-  end do
-end if
+call mma_deallocate(disk_address)
+call mma_deallocate(memory_vectors)
+if (allocated(LblStk)) call mma_deallocate(LblStk)
 
 return
 

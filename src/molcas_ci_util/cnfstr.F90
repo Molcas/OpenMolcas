@@ -24,9 +24,9 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: ICONF(*), ITYP, NORB, NAEL, NBEL, IDET, IPRODT(*)
+integer(kind=iwp), intent(in) :: ICONF(*), ITYP, NORB, NAEL, NBEL, IDET, IPRODT(*) !IFG
 integer(kind=iwp), intent(inout) :: IPREXH
-integer(kind=iwp), intent(_OUT_) :: IASTR(*), IBSTR(*), ISCR(*)
+integer(kind=iwp), intent(_OUT_) :: IASTR(*), IBSTR(*), ISCR(*) !IFG
 real(kind=wp), intent(out) :: SGN(IDET)
 integer(kind=iwp) :: ICLOS, IOCC, IOPEN, IP, ISGN, JDET, JTYP, KLDETS, KLFREE, NEL, NTEST
 !PAM06 NOTE: NAEL and NBEL can legally be=0.

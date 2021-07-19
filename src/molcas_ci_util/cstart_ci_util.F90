@@ -54,9 +54,9 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-real(kind=wp), intent(_OUT_) :: C(*), ExplE(*), ExplV(*)
-real(kind=wp), intent(in) :: h0(*), TUVX(*)
-integer(kind=iwp), intent(_OUT_) :: iSel(*)
+real(kind=wp), intent(_OUT_) :: C(*), ExplE(*), ExplV(*) !IFG
+real(kind=wp), intent(in) :: h0(*), TUVX(*) !IFG
+integer(kind=iwp), intent(_OUT_) :: iSel(*) !IFG
 integer(kind=iwp), intent(in) :: nMaxSel, iFinal
 integer(kind=iwp) :: i, iDisk, iJOB, IPRLEV, j, k, l
 #ifdef _HDF5_

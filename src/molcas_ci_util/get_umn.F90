@@ -42,9 +42,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), intent(in) :: EnIn, DTOC(*), ONEBOD(*), ECORE, TUVX(*), ExFac
-integer(kind=iwp), intent(in) :: IPCSF(*), IPCNF(*), MXPDIM, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, NPCSF, &
-                                 NPCNF, iterSplit, ITER, IREOTS(*)
+real(kind=wp), intent(in) :: EnIn, DTOC(*), ONEBOD(*), ECORE, TUVX(*), ExFac !IFG
+integer(kind=iwp), intent(in) :: IPCSF(*), IPCNF(*), MXPDIM, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, NPCSF, & !IFG
+                                 NPCNF, iterSplit, ITER, IREOTS(*) !IFG
 real(kind=wp), intent(out) :: PHP(NPCSF*(NPCSF+1)/2), DHAM(NPCSF*(NPCSF+1)/2)
 integer(kind=iwp), intent(inout) :: NTEST
 integer(kind=iwp) :: iAlpha, IATYP, IIA, IIAB, IIL, IILACT, IILB, IIR, IIRACT, IIRB, IIRMAX, iKACONF, iKLCONF, iKRCONF, ILAI, &

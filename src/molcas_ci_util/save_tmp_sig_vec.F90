@@ -38,6 +38,7 @@ subroutine Save_tmp_Sig_vec(iRoot,nConf,Sig_vec,LuDavid)
 !                                                                      *
 !***********************************************************************
 
+use davctl_mod, only: disk_address, in_core, llab, memory_vectors, mixed_mode_1, mixed_mode_2, n_Roots, on_disk, save_mode
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
@@ -45,12 +46,10 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: iRoot, nConf, LuDavid
 real(kind=wp), intent(_IN_) :: Sig_vec(nConf)
-integer(kind=iwp) :: iDisk, iMem, tmp_Sig_vec_RecNo
-character(len=16) :: KeyWord
+integer(kind=iwp) :: iDisk, tmp_Sig_vec_RecNo
+character(len=llab) :: KeyWord
 integer(kind=iwp), external :: RecNo
 #include "rasdim.fh"
-#include "davctl.fh"
-#include "WrkSpc.fh"
 #include "timers.fh"
 
 call Timing(WTC_1,Swatch,Swatch,Swatch)
@@ -76,8 +75,7 @@ end if
 ! copy the sigma vector to new memory location
 if (save_mode == in_core) then
   tmp_Sig_vec_RecNo = RecNo(5,iRoot)
-  iMem = memory_address(tmp_Sig_vec_RecNo)
-  call dCopy_(nConf,Sig_vec,1,Work(iMem),1)
+  memory_vectors(:,tmp_Sig_vec_RecNo) = Sig_vec(:)
 end if
 
 ! the diagonalization must be run out of core:
@@ -92,7 +90,6 @@ end if
 ! use the write through cache mechanism to load and save
 ! the sigma vector
 if ((save_mode == mixed_mode_1) .or. (save_mode == mixed_mode_2)) then
-  KeyWord = ''
   write(KeyWord,'(A,I4.4)') 'tmp_Sig_vec',iRoot
   call page_out(KeyWord,nConf,Sig_vec,LuDavid)
 end if

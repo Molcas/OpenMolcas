@@ -38,6 +38,7 @@ subroutine Save_CI_vec(iRoot,nConf,CI_vec,LuDavid)
 !                                                                      *
 !***********************************************************************
 
+use davctl_mod, only: disk_address, in_core, llab, memory_vectors, mixed_mode_1, mixed_mode_2, nkeep, on_disk, save_mode
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
@@ -45,12 +46,10 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: iRoot, nConf, LuDavid
 real(kind=wp), intent(_IN_) :: CI_vec(nConf)
-integer(kind=iwp) :: CI_vec_PageNo, CI_vec_RecNo, iDisk, iMem
-character(len=16) :: KeyWord
+integer(kind=iwp) :: CI_vec_PageNo, CI_vec_RecNo, iDisk
+character(len=llab) :: KeyWord
 integer(kind=iwp), external :: PageNo, RecNo
 #include "rasdim.fh"
-#include "davctl.fh"
-#include "WrkSpc.fh"
 #include "timers.fh"
 
 call Timing(WTC_1,Swatch,Swatch,Swatch)
@@ -76,8 +75,7 @@ end if
 ! copy the CI vector to new memory location
 if (save_mode == in_core) then
   CI_vec_RecNo = RecNo(2,iRoot)
-  iMem = memory_address(CI_vec_RecNo)
-  call dCopy_(nConf,CI_vec,1,Work(iMem),1)
+  memory_vectors(:,CI_vec_RecNo) = CI_vec(:)
 end if
 
 ! the diagonalization must be run out of core:
@@ -93,7 +91,6 @@ end if
 ! the CI vector
 if ((save_mode == mixed_mode_1) .or. (save_mode == mixed_mode_2)) then
   CI_vec_PageNo = PageNo(iRoot)
-  KeyWord = ''
   write(KeyWord,'(A,I4.4)') 'CI_vec',CI_vec_PageNo
   call page_out(KeyWord,nConf,CI_vec,LuDavid)
 end if

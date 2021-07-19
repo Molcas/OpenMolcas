@@ -33,12 +33,12 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: NAEL, NBEL, NIDET, JASTR(NAEL,*), JBSTR(NBEL,*), NJDET, NORB, ISYM, NINOB, ICOMBI, IPRINT, &
-                                 IREOTS(*)
-integer(kind=iwp), intent(inout) :: IASTR(NAEL,*), IBSTR(NBEL,*)
-integer(kind=iwp), intent(_OUT_) :: IWORK(*)
-real(kind=wp), intent(in) :: ONEBOD(NORB,NORB), ECORE, PSIGN, TUVX(*), ExFac
-real(kind=wp), intent(_OUT_) :: HAMIL(*)
+integer(kind=iwp), intent(in) :: NAEL, NBEL, NIDET, JASTR(NAEL,*), JBSTR(NBEL,*), NJDET, NORB, ISYM, NINOB, ICOMBI, IPRINT, & !IFG
+                                 IREOTS(*) !IFG
+integer(kind=iwp), intent(inout) :: IASTR(NAEL,*), IBSTR(NBEL,*) !IFG
+integer(kind=iwp), intent(_OUT_) :: IWORK(*) !IFG
+real(kind=wp), intent(in) :: ONEBOD(NORB,NORB), ECORE, PSIGN, TUVX(*), ExFac !IFG
+real(kind=wp), intent(_OUT_) :: HAMIL(*) !IFG
 integer(kind=iwp) :: I1, I1_REO, I2, I2_REO, IA, IA_REO, IAB, IAEL, IAEQIB, IB, IB_REO, IBEL, IDET, IDIFF, IEL, IEL1, iii, ILOOP, &
                      IORB, IORB_REO, IPERM, J1, J1_REO, J2, J2_REO, JA, JA_REO, JAB, JAEL, JAEQJB, JB, JB_REO, JBEL, JDET, JDIFF, &
                      JEL, JEL1, jjj, JORB, JORB_REO, JPERM, KLFREE, KLIAB, KLIAE, KLIBE, KLJAE, KLJBE, LHAMIL, MINI, NACM, NADIF, &
