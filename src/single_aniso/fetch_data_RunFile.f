@@ -428,7 +428,7 @@ c----- expand the spin free basis to the spin-orbit basis:
 
 
       ! check the commutation rules of spin:
-      If (dbg) Call check_commutation(nss, MS(1:3,1:nss,1:nss), .true.)
+      Call check_commutation(nss, MS(1:3,1:nss,1:nss), .false.)
 
       Return
       End Subroutine fetch_data_RunFile_all
