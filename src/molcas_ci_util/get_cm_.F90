@@ -28,7 +28,7 @@ subroutine get_Cm_(IPCSF,IPCNF,MXPDIM,NCONF,NPCSF,NPCNF,Cn,EnFin,DTOC,IPRODT,ICO
 ! IPRODT     : Prototype determinants                         (Input)
 ! ICONF      : List of configurations                         (Input)
 ! IREFSM     : symmetry of considered CI space                (Input)
-! Onebod     : one body hamilton matrix in rectangular form   (Input)
+! Onebod     : one body Hamilton matrix in rectangular form   (Input)
 ! ECORE      : Core energy                                    (Input)
 ! NACTOB     : Number of active orbitals                      (Input)
 ! NEL        : total number of active electrons               (Input)
@@ -43,9 +43,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp), intent(in) :: MXPDIM, NCONF, IPCSF(MXPDIM), IPCNF(NCONF), NPCSF, NPCNF, IPRODT(*), ICONF(*), IREFSM, NACTOB, & !IFG
-                                 NEL, NAEL, NBEL, IREOTS(*) !IFG
-real(kind=wp), intent(in) :: Cn(NPCSF), EnFin, DTOC(*), ONEBOD(*), ECORE, TUVX(*), ExFac !IFG
+integer(kind=iwp), intent(in) :: MXPDIM, NCONF, IPCSF(MXPDIM), IPCNF(NCONF), NPCSF, NPCNF, IPRODT(*), ICONF(*), IREFSM, NACTOB, &
+                                 NEL, NAEL, NBEL, IREOTS(NACTOB)
+real(kind=wp), intent(in) :: Cn(NPCSF), EnFin, DTOC(*), ONEBOD(NACTOB,NACTOB), ECORE, TUVX(*), ExFac
 integer(kind=iwp), intent(inout) :: NTEST
 real(kind=wp), intent(out) :: Ctot(MXPDIM)
 integer(kind=iwp) :: iAlpha, IATYP, IBblockV, IIA, IIAB, IIL, IILACT, IILB, iKACONF, iKLCONF, ILAI, ILTYP, ITYP, KACONF, KLAUXD, &
@@ -269,7 +269,7 @@ do iAlpha=NPCNF+1,NCONF
 
     call cwtime(C_oper1,W_oper1)
     do IIA=1,NCSFA
-      call dscal_(iBblockV,AuxGa(IIA),AuxBB(:,IIA),1)
+      AuxBB(:,IIA) = AuxGa(IIA)*AuxBB(:,IIA)
       if (NTEST >= 30) then
         write(u6,*) 'BB-Block Vertical Vector times Ga'
         call wrtmat(AuxBB,iBblockV,NCSFA,iBblockV,NCSFA)
@@ -348,7 +348,7 @@ if (NTEST >= 30) then
   write(u6,*) 'W. timing  : ',W_last2-W_last1
 end if
 
-call dcopy_(NPCSF,Cn,1,Ctot,1)
+Ctot(1:NPCSF) = Cn(:)
 if (NTEST >= 30) then
   write(u6,*) 'final Ctot vector'
   call wrtmat(Ctot,MXPDIM,1,MXPDIM,1)

@@ -20,12 +20,11 @@ subroutine CIDIA_CI_UTIL(NCONF,IREFSM,CSFDIA,LUDAVID)
 ! CSFDIA:  DIAGONAL OF CI MATRIX IN CSF BASIS
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
 use Definitions, only: wp, iwp, r8
 
 implicit none
 integer(kind=iwp), intent(in) :: NCONF, IREFSM, LUDAVID
-real(kind=wp), intent(out) :: CSFDIA(*) !IFG
+real(kind=wp), intent(out) :: CSFDIA(NCONF)
 integer(kind=iwp) :: iDummy, IPRINT, IPRL, IPRLEV
 real(kind=wp) :: Dummy(1), eCore_Hex
 real(kind=wp), allocatable :: DDIA(:)
@@ -51,9 +50,9 @@ call get_diag(DDIA,ndet)
 
 IPRINT = 0
 if (IPRLEV == INSANE) IPRINT = 40
-call CSDIAG_CI_UTIL(CSFDIA,DDIA,NCNFTP(1,IREFSM),NTYP,iWork(KICTS(1)),NDTFTP,NCSFTP,IPRINT)
+call CSDIAG_CI_UTIL(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,IREFSM),NTYP,iWork(KICTS(1)),NDTFTP,NCSFTP,IPRINT)
 eCore_Hex = Get_eCore()
-call DAXPY_(NCONF,eCore_Hex,[One],0,CSFDIA,1)
+CSFDIA(:) = CSFDIA(:)+eCore_Hex
 
 ! DEALLOCATE LOCAL MEMORY
 

@@ -16,10 +16,12 @@ subroutine SCAVCS(VECO,VECI,IDX,NDIM)
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
 integer(kind=iwp), intent(in) :: NDIM, IDX(NDIM)
-real(kind=wp), intent(out) :: VECO(NDIM)
-real(kind=wp), intent(in) :: VECI(*) !IFG
+real(kind=wp), intent(_OUT_) :: VECO(*)
+real(kind=wp), intent(in) :: VECI(NDIM)
 integer(kind=iwp) :: I
 
 do I=1,NDIM

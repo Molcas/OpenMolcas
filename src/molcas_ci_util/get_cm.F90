@@ -44,9 +44,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: MXPDIM, NCONF, IPCSF(MXPDIM), IPCNF(NCONF), NPCSF, NPCNF, IPRODT(*), ICONF(*), IREFSM, NACTOB, & !IFG
-                                 NEL, NAEL, NBEL, IREOTS(*) !IFG
-real(kind=wp), intent(in) :: Cn(NPCSF), EnFin, DTOC(*), ONEBOD(*), ECORE, TUVX(*), ExFac !IFG
+integer(kind=iwp), intent(in) :: MXPDIM, NCONF, IPCSF(MXPDIM), IPCNF(NCONF), NPCSF, NPCNF, IPRODT(*), ICONF(*), IREFSM, NACTOB, &
+                                 NEL, NAEL, NBEL, IREOTS(NACTOB)
+real(kind=wp), intent(in) :: Cn(NPCSF), EnFin, DTOC(*), ONEBOD(NACTOB,NACTOB), ECORE, TUVX(*), ExFac
 integer(kind=iwp), intent(inout) :: NTEST
 logical(kind=iwp), intent(in) :: FordSplit
 real(kind=wp), intent(out) :: Ctot(MXPDIM)
@@ -248,7 +248,7 @@ if (NTEST >= 30) then
   write(u6,*) 'CPU timing : ',C_Oper
   write(u6,*) 'W. timing  : ',W_Oper
 end if
-call dcopy_(NPCSF,Cn,1,Ctot,1)
+Ctot(1:NPCSF) = Cn(:)
 if (NTEST >= 30) then
   write(u6,*) 'final Ctot vector'
   call wrtmat(Ctot,MXPDIM,1,MXPDIM,1)

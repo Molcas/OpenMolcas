@@ -32,11 +32,11 @@ if ((NAROW*NACOL == 0) .or. (NBROW*NBCOL == 0) .or. (NCROW*NCCOL == 0)) IZERO = 
 
 if (ITRNSP == 0) then
   if (IZERO == 1) then
-    call DCOPY_(NCROW*NCCOL,[Zero],0,C,1)
+    C(:,:) = Zero
     do J=1,NCCOL
       do K=1,NBROW
         BKJ = B(K,J)
-        call DAXPY_(NCROW,BKJ,A(1,K),1,C(1,J),1)
+        C(:,J) = C(:,J)+BKJ*A(:,K)
       end do
     end do
   else
@@ -58,11 +58,11 @@ end if
 
 if (ITRNSP == 2) then
   if (IZERO == 1) then
-    call DCOPY_(NCROW*NCCOL,[Zero],0,C,1)
+    C(:,:) = Zero
     do J=1,NCCOL
       do K=1,NBCOL
         BJK = B(J,K)
-        call DAXPY_(NCROW,BJK,A(1,K),1,C(1,J),1)
+        C(:,J) = C(:,J)+BJK*A(:,K)
       end do
     end do
   else

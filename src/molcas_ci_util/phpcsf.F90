@@ -49,15 +49,17 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-real(kind=wp), intent(_OUT_) :: PHP(*), SCR(*) !IFG
-integer(kind=iwp), intent(_OUT_) :: IPCSF(*), IPCNF(*) !IFG
-integer(kind=iwp), intent(in) :: MXPDIM, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, IREOTS(*) !IFG
-real(kind=wp), intent(in) :: DTOC(*), ONEBOD(*), ECORE, DIAG(*), TUVX(*), ExFac !IFG
+integer(kind=iwp), intent(in) :: MXPDIM, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, IREOTS(NACTOB)
+real(kind=wp), intent(out) :: PHP(MXPDIM*(MXPDIM+1)/2)
+integer(kind=iwp), intent(out) :: IPCSF(MXPDIM), IPCNF(NCONF)
+real(kind=wp), intent(in) :: DTOC(*), ONEBOD(NACTOB,NACTOB), ECORE, DIAG(*), TUVX(*), ExFac
+real(kind=wp), intent(_OUT_) :: SCR(*)
 integer(kind=iwp), intent(out) :: NPCSF, NPCNF
 integer(kind=iwp), intent(inout) :: NTEST
 integer(kind=iwp) :: ICSFMN, IFINIT, IICNF, IICSF, IILACT, IILB, IIRACT, IIRB, IIRMAX, ILRI, ILRO, ILTYP, IMIN, IRTYP, KLCONF, &
                      KLFREE, KLPHPS, KRCONF, MXCSFC, NCSFL, NCSFMN, NCSFR, NIRREP, NJCNF
-real(kind=wp) :: Acc, XMAX, XMIN
+real(kind=wp) :: XMAX, XMIN
+real(kind=wp), parameter :: Acc = 1.0e-13_wp ! Assumed machine accuray (give and take)
 real(kind=wp), external :: FNDMNX
 #include "spinfo.fh"
 
@@ -68,13 +70,9 @@ contains
 
 subroutine PHPCSF_INTERNAL(SCR)
 
-  real(kind=wp), target :: SCR(*) !IFG
+  real(kind=wp), target :: SCR(*)
   integer(kind=iwp), pointer :: iSCRl(:), iSCRr(:)
   integer(kind=iwp) :: ICNF, ICNL, ICNR, IIL, IIR, ITYP
-
-  ! Assumed machine accuray (give and take)
-
-  Acc = 1.0e-13_wp
 
   ! construct the diagonal of the Hamilton matrix in CNF basis
   ICSFMN = 0

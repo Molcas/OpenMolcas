@@ -54,9 +54,9 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-real(kind=wp), intent(_OUT_) :: C(*), ExplE(*), ExplV(*) !IFG
-real(kind=wp), intent(in) :: h0(*), TUVX(*) !IFG
-integer(kind=iwp), intent(_OUT_) :: iSel(*) !IFG
+real(kind=wp), intent(_OUT_) :: C(*), ExplE(*), ExplV(*)
+real(kind=wp), intent(in) :: h0(*), TUVX(*)
+integer(kind=iwp), intent(_OUT_) :: iSel(*)
 integer(kind=iwp), intent(in) :: nMaxSel, iFinal
 integer(kind=iwp) :: i, iDisk, iJOB, IPRLEV, j, k, l
 #ifdef _HDF5_
@@ -97,7 +97,7 @@ if (nSel == nMaxSel) then
   if (IPRLEV >= DEBUG) write(u6,*) ' Initial CI-vectors are obtained by diagonalizing the explicit Hamiltonian'
   iDisk = IADR15(4)
   do i=1,lRoots
-    call dCopy_(nConf,[Zero],0,C,1)
+    C(1:nConf) = Zero
     do j=1,nSel
       k = iSel(j)
       C(k) = ExplV(j+(i-1)*nSel)
@@ -195,7 +195,7 @@ if (Start_Vectors) then
     ! no CI restart, get start vectors by diagonalizing the explicit Hamiltonian
     if (IPRLEV >= DEBUG) write(u6,*) ' Initial CI-vectors are obtained by diagonalizing the explicit Hamiltonian'
     do i=1,lRoots
-      call dCopy_(nConf,[Zero],0,C,1)
+      C(1:nConf) = Zero
       do j=1,nSel
         k = iSel(j)
         C(k) = ExplV(j+(i-1)*nSel)
@@ -233,7 +233,7 @@ else
   ! MGD simple guess for missing ones : explV
   ! dangerous if linear dependence with converged states
   do i=lRoots-hRoots+1,lRoots
-    call dCopy_(nConf,[Zero],0,C,1)
+    C(1:nConf) = Zero
     do j=1,nSel
       k = iSel(j)
       C(k) = ExplV(j+(i-1)*nSel)

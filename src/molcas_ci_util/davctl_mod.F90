@@ -20,7 +20,7 @@ private
 ! flags indicating the storage mode used by the Davidson diagonalization scheme
 integer(kind=iwp), parameter :: in_core = 0 , on_disk = 2, mixed_mode_1 = 3, mixed_mode_2 = 4, &
                                 llab = 16 ! label length
-integer(kind=iwp) :: istart, mxDiskStk, mxMemStk, n_Roots, nDiskStk, nkeep, nMemStk, nvec, save_mode ! flag determining the storage handling
+integer(kind=iwp) :: istart, mxDiskStk, mxMemStk, n_Roots, nDiskStk, nkeep, nMemStk, nvec, save_mode ! flag for the storage handling
 logical(kind=iwp) :: save_in_memory
 integer(kind=iwp), allocatable :: disk_address(:) ! disk address table
 real(kind=wp), allocatable :: memory_vectors(:,:)

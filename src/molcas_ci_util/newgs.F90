@@ -32,17 +32,16 @@ outer: do i=1,N
   X = S(i,i)
   if (X < 1.0e-6_wp) cycle
   Y = One/sqrt(X)
-  call dcopy_(N,[Zero],0,C(1,M+1),1)
+  C(:,M+1) = Zero
   C(i,M+1) = Y
-  call dcopy_(N,S(1,i),1,Temp,1)
-  call DSCAL_(N,Y,Temp,1)
+  Temp(:) = Y*S(:,i)
 
   Loop = 0
   do
     Loop = Loop+1
     do k=1,M
       ovl = DDOT_(N,Temp,1,C(1,k),1)
-      call daxpy_(N,-ovl,C(1,k),1,C(1,M+1),1)
+      C(:,M+1) = C(:,M+1)-ovl*C(:,k)
     end do
     call dGeMV_('N',N,N,One,S,N,C(1,M+1),1,Zero,Temp,1)
     xn2 = DDOT_(N,Temp,1,C(1,M+1),1)
@@ -50,7 +49,7 @@ outer: do i=1,N
     if (xn2 < 1.0e-6_wp) cycle outer
 
     Y = One/sqrt(xn2)
-    call DSCAL_(N,Y,C(1,M+1),1)
+    C(:,M+1) = Y*C(:,M+1)
     call dGeMV_('N',N,N,One,S,N,C(1,M+1),1,Zero,Temp,1)
     if ((Loop /= 1) .or. (Y <= 100.0_wp)) exit
   end do

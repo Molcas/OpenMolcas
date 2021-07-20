@@ -54,9 +54,9 @@ use Definitions, only: wp, iwp
 #include "intent.fh"
 
 implicit none
-real(kind=wp), intent(_OUT_) :: DIAG(*), EXPLE(*), EXPLV(*) !IFG
-real(kind=wp), intent(in) :: ONEINT(*), TUVX(*) !IFG
-integer(kind=iwp), intent(_OUT_) :: ISEL(*) !IFG
+real(kind=wp), intent(_OUT_) :: DIAG(*), EXPLE(*), EXPLV(*)
+real(kind=wp), intent(in) :: ONEINT(*), TUVX(*)
+integer(kind=iwp), intent(_OUT_) :: ISEL(*)
 integer(kind=iwp) :: I, II, IPRLEV, MXXSEL, MXXWS, NHEX, NPCNF
 real(kind=wp) :: ECORE
 integer(kind=iwp), allocatable :: CNF(:), IREOTS(:)
@@ -115,7 +115,7 @@ call mma_deallocate(HONE)
 
 !if (nSel == nConf) then
 if (.true.) then
-  call DCOPY_(MXXSEL*MXXSEL,[Zero],0,EXPLV,1)
+  EXPLV(1:NSEL*NSEL) = Zero
   do I=1,NSEL
     II = I+NSEL*(I-1)
     EXPLV(II) = One

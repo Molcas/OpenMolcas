@@ -42,9 +42,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), intent(in) :: EnIn, DTOC(*), ONEBOD(*), ECORE, TUVX(*), ExFac !IFG
-integer(kind=iwp), intent(in) :: IPCSF(*), IPCNF(*), MXPDIM, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, NPCSF, & !IFG
-                                 NPCNF, iterSplit, ITER, IREOTS(*) !IFG
+integer(kind=iwp), intent(in) :: MXPDIM, NCONF, IPCSF(MXPDIM), IPCNF(NCONF), IPRODT(*), ICONF(*), IREFSM, NACTOB, NEL, NAEL, NBEL, &
+                                 NPCSF, NPCNF, iterSplit, ITER, IREOTS(NACTOB)
+real(kind=wp), intent(in) :: EnIn, DTOC(*), ONEBOD(NACTOB,NACTOB), ECORE, TUVX(*), ExFac
 real(kind=wp), intent(out) :: PHP(NPCSF*(NPCSF+1)/2), DHAM(NPCSF*(NPCSF+1)/2)
 integer(kind=iwp), intent(inout) :: NTEST
 integer(kind=iwp) :: iAlpha, IATYP, IIA, IIAB, IIL, IILACT, IILB, IIR, IIRACT, IIRB, IIRMAX, iKACONF, iKLCONF, iKRCONF, ILAI, &
@@ -225,7 +225,7 @@ end do ! End loop over the AA-block (vertical index)
 
 !***********************************************************************
 ! Let's add Hmn (PHP) to the correction (DHAM)
-call daxpy_(NPCSF*(NPCSF+1)/2,One,PHP,1,DHAM,1)
+DHAM(:) = DHAM(:)+PHP(:)
 !***********************************************************************
 if (NTEST >= 30) then
   write(u6,*) 'AA-Block matrix un-dressed'

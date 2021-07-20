@@ -24,7 +24,7 @@ subroutine DavCtl(LW1,TUVX,IFINAL)
 !     LW1     : active Fock matrix                                     *
 !               array of real*8                                        *
 !     TUVX    : array of real*8                                        *
-!               two-electron integrals (tu!vx)                         *
+!               two-electron integrals (tu|vx)                         *
 !     IFINAL  : integer                                                *
 !               termination flag                                       *
 !                                                                      *
@@ -53,9 +53,9 @@ use Constants, only: Quart
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp), intent(in) :: LW1(*), TUVX(*) !IFG
+real(kind=wp), intent(in) :: LW1(*), TUVX(*)
 integer(kind=iwp), intent(in) :: IFINAL
-integer(kind=iwp) :: iDisk, ItLimit, jRoot, mSel, nMaxSel
+integer(kind=iwp) :: iDisk, ItLimit, jRoot, m_Sel, mSel, nMaxSel
 real(kind=wp) :: ESize, Threshold, ThrRule
 integer(kind=iwp), allocatable :: iSel(:)
 real(kind=wp), allocatable :: CI_conv(:,:,:), CIVEC(:), ExplE(:), ExplV(:,:)
@@ -86,15 +86,11 @@ if (NAC > 0) call CIDIA_CI_UTIL(NCONF,STSYM,CIVEC,LUDAVID)
 !-----------------------------------------------------------------------
 
 mSel = nSel
-if (NAC /= 0) then
-  call mma_allocate(iSel,mSel,label='iSel')
-  call mma_allocate(ExplE,mSel,label='ExplE')
-  call mma_allocate(ExplV,mSel,mSel,label='ExplV')
-else
-  call mma_allocate(iSel,0,label='iSel')
-  call mma_allocate(ExplE,0,label='ExplE')
-  call mma_allocate(ExplV,0,0,label='ExplV')
-end if
+m_Sel = mSel
+if (NAC == 0) m_Sel = 0
+call mma_allocate(iSel,m_Sel,label='iSel')
+call mma_allocate(ExplE,m_Sel,label='ExplE')
+call mma_allocate(ExplV,m_Sel,mSel,label='ExplV')
 nMaxSel = nConf
 if (N_ELIMINATED_GAS_MOLCAS > 0) nmaxSel = nCSF_HEXS
 

@@ -130,7 +130,7 @@ call DGEMM_('T','N',M,M,N,One,C,N,Temp3,N,Zero,Temp2,M)
 !else if (method == 'Householder') then
 !  call Eigen_Molcas(N,Temp2,E,Temp4)
 !  call DGEMM_('N','N',N,N,N,One,C,N,Temp2,N,Zero,Temp3,N)
-!  call dcopy_(N*N,Temp3,1,C,1)
+!  call C(:,:) = Temp3(:,:)
 !end if
 ! PAM 2009 Equivalent, DSYEV, note now use just M, not all N:
 INFO = 0
@@ -140,7 +140,7 @@ call mma_allocate(Scratch,NSCRATCH,label='SCRATCH')
 call dsyev_('V','L',M,Temp2,M,E,Scratch,NSCRATCH,INFO)
 call mma_deallocate(Scratch)
 call DGEMM_('N','N',N,M,M,One,C,N,Temp2,M,Zero,Temp3,N)
-call dcopy_(N*M,Temp3,1,C,1)
+C(:,1:M) = Temp3(:,1:M)
 
 ! deallocate temporary work space
 call mma_deallocate(Temp2)

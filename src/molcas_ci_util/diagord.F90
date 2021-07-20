@@ -16,7 +16,7 @@
 subroutine DiagOrd(PHPCSF,PHPCNF,IPORDCSF,IPORDCNF,MXPDIM,condition,iter,DTOC,IPRODT,ICONF,IREFSM,ONEBOD,ECORE,NACTOB,SCR,NCONF, &
                    NEL,NAEL,NBEL,TUVX,NTEST,ExFac,IREOTS)
 ! Obtain primary subspace and obtain
-! explicit representation of hamilton matrix in subspace
+! explicit representation of Hamiltonian matrix in subspace
 !
 ! ARGUMENTS :
 ! ===========
@@ -54,10 +54,12 @@ use Definitions, only: wp, iwp
 #include "intent.fh"
 
 implicit none
-real(kind=wp), intent(_OUT_) :: PHPCSF(*), PHPCNF(*) !IFG
-integer(kind=iwp), intent(_OUT_) :: IPORDCSF(*), IPORDCNF(*) !IFG
-integer(kind=iwp), intent(in) :: MXPDIM, iter, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, IREOTS(*) !IFG
-real(kind=wp), intent(in) :: condition, DTOC(*), ONEBOD(*), ECORE, SCR(*), TUVX(*), ExFac !IFG
+integer(kind=iwp), intent(in) :: MXPDIM, IPORDCSF(MXPDIM), iter, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, &
+                                 IREOTS(NACTOB)
+real(kind=wp), intent(out) :: PHPCSF(MXPDIM), PHPCNF(NCONF)
+integer(kind=iwp), intent(out) :: IPORDCNF(NCONF)
+real(kind=wp), intent(in) :: condition, DTOC(*), ONEBOD(NACTOB,NACTOB), ECORE, TUVX(*), ExFac
+real(kind=wp), intent(_OUT_) :: SCR(*)
 integer(kind=iwp), intent(inout) :: NTEST
 integer(kind=iwp) :: ICSFMN, IICNF, IICSF, IILACT, IILB, ILRI, ILTYP, IMIN, iTmpDimBlockA, iTmpDimBlockACNF, KLCNFO, KLCONF, &
                      KLCSFO, KLFREE, KLPHPS, KLSCRS, MXCSFC, NCSFL, NCSFMN, NIRREP, NJCNF, NPCNF, NPCSF
@@ -73,7 +75,7 @@ contains
 
 subroutine DIAGORD_INTERNAL(SCR)
 
-  real(kind=wp), target :: SCR(*) !IFG
+  real(kind=wp), target :: SCR(*)
   integer(kind=iwp), pointer :: iSCR(:)
   integer(kind=iwp) :: i, ICNF, ICNL, IIL, ITYP
 
@@ -105,7 +107,7 @@ subroutine DIAGORD_INTERNAL(SCR)
     call c_f_pointer(c_loc(SCR(KLCONF)),iSCR,[1])
     call GETCNF_LUCIA(iSCR,ILTYP,ICNL,ICONF,IREFSM,NEL)
     nullify(iSCR)
-    !call GETCNF_LUCIA(SCR(KLCONF),ILTYP,IPCNF(ICNL),ICONF,IREFSM,NEL)
+    !call GETCNF_LUCIA(iSCR,ILTYP,IPCNF(ICNL),ICONF,IREFSM,NEL)
     NCSFL = NCSFTP(ILTYP)
     !write(u6,*) 'NCSFL = ',NCSFL
     !call xflush(u6)

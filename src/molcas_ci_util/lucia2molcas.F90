@@ -17,7 +17,7 @@ subroutine LUCIA2MOLCAS(KDFTP_LUCIA,KCFTP_LUCIA,KDTOC_LUCIA,KICONF_OCC_LUCIA,KSD
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: MXPCSM, MXPORB, KDFTP_LUCIA, KCFTP_LUCIA, KDTOC_LUCIA, KICONF_OCC_LUCIA(*), KSDREO_I(*), & !IFG
+integer(kind=iwp), intent(in) :: MXPCSM, MXPORB, KDFTP_LUCIA, KCFTP_LUCIA, KDTOC_LUCIA, KICONF_OCC_LUCIA(*), KSDREO_I(*), &
                                  NDET_LUCIA, NCSASM_LUCIA(MXPCSM), NDTASM_LUCIA(MXPCSM), NCNASM_LUCIA(MXPCSM), &
                                  NCONF_PER_OPEN(MXPORB+1,MXPCSM), NPDTCNF(MXPORB+1), NPCSCNF(MXPORB+1), MULTS_LUCIA, nCSF_HEXS_LUCIA
 integer(kind=iwp), intent(out) :: KICTS_POINTER
@@ -118,13 +118,13 @@ LCONF = 0
 LDET = 0
 do ISYM=1,NSYM
   LLCONF = 0
-  LDET = max(LDET,NDTASM(ISYM))
   do ITYP=1,NTYP
     IOPEN = ITYP+MINOP-1
     ICL = (NACTEL-IOPEN)/2
     LLCONF = LLCONF+NCNFTP(ITYP,ISYM)*(IOPEN+ICL)
   end do
   LCONF = max(LCONF,LLCONF)
+  LDET = max(LDET,NDTASM(ISYM))
 end do
 
 call GetMem('KICONF','Allo','Integer',KICONF(1),LCONF)

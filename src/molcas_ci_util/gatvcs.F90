@@ -19,7 +19,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: NDIM, IDX(NDIM)
 real(kind=wp), intent(out) :: VECO(NDIM)
-real(kind=wp), intent(in) :: VECI(*) !IFG
+real(kind=wp), intent(in) :: VECI(*)
 integer(kind=iwp) :: I
 
 do I=1,NDIM

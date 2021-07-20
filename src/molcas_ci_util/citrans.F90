@@ -115,10 +115,10 @@ subroutine citrans_sort(mode,ciold,cinew)
 
   ! 'C' for configuration order, 'O' for original order
   character, intent(in) :: mode
-  real(kind=wp), intent(in) :: ciold(*) !IFG
-  real(kind=wp), intent(out) :: cinew(*) !IFG
+  real(kind=wp), intent(in) :: ciold(:)
+  real(kind=wp), intent(out) :: cinew(:)
   ! array with coupling coefficients
-  !real(kind=wp), intent(out) :: coef(*)
+  !real(kind=wp), intent(out) :: coef(:)
   integer(kind=iwp) :: doub, icsf, ido, idown, idwn, ioff_csf, iorb, iphase, iso, iup, mv, ncsf, ndoc, ndown, nsoc, rankdo, &
                        rankso, sing
   integer(kind=iwp), parameter :: maxorb = 32, maxdown = 16
@@ -231,9 +231,9 @@ subroutine citrans_csf2sd(ci,det)
   use second_quantization, only: lex_init, lex_next, lexrank
   use faroald, only: my_nel, my_norb, ndeta, ndetb, nela
 
-  real(kind=wp), intent(in) :: ci(*) !IFG
+  real(kind=wp), intent(in) :: ci(:)
   real(kind=wp), intent(out) :: det(ndeta,ndetb)
-  integer(kind=iwp) :: ido, iso, isoa, idoc, isoc, iconf, idet, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf, &
+  integer(kind=iwp) :: ido, iso, isoa, idoc, isoc, iconf, idet, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
                        doub, sing, alfa, beta, & ! occupation substrings
                        deta, detb, phase         ! determinant strings
   integer(kind=iwp), allocatable :: stepvector(:)
@@ -247,18 +247,19 @@ subroutine citrans_csf2sd(ci,det)
 
   call mma_allocate(stepvector,my_norb,label='stepvector')
 
-  ioff_csf = 0
+  ioff_csf1 = 1
   do ido=ndo_min,ndo_max
     ndoc = ndoc_group(ido)
     nsoc = nsoc_group(ido)
     nconf = ndoc*nsoc
     ndet = ndet_group(ido)
     ncsf = ncsf_group(ido)
+    ioff_csf2 = ioff_csf1+ncsf*nconf-1
 
     call mma_allocate(tmp,ndet,nconf,label='tmp')
 
     ! Compute the determinant coefficients from the CSF coefficients.
-    call dgemm_('N','N',ndet,nconf,ncsf,One,spintabs(ido)%coef,ndet,ci(ioff_csf+1),ncsf,Zero,tmp,ndet)
+    call dgemm_('N','N',ndet,nconf,ncsf,One,spintabs(ido)%coef,ndet,ci(ioff_csf1:ioff_csf2),ncsf,Zero,tmp,ndet)
 
     ! Store the determinant coefficients with the right phase factor in
     ! the correct place in the determinant matrix. The loops runs over
@@ -286,7 +287,7 @@ subroutine citrans_csf2sd(ci,det)
     end do
 
     call mma_deallocate(tmp)
-    ioff_csf = ioff_csf+ncsf*nconf
+    ioff_csf1 = ioff_csf2+1
   end do
 
   call mma_deallocate(stepvector)
@@ -299,8 +300,8 @@ subroutine citrans_sd2csf(det,ci)
   use faroald, only: my_nel, my_norb, ndeta, ndetb, nela
 
   real(kind=wp), intent(in) :: det(ndeta,ndetb)
-  real(kind=wp), intent(out) :: ci(*) !IFG
-  integer(kind=iwp) :: ido, iso, isoa, idoc, isoc, iconf, idet, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf, &
+  real(kind=wp), intent(out) :: ci(:)
+  integer(kind=iwp) :: ido, iso, isoa, idoc, isoc, iconf, idet, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
                        doub, sing, alfa, beta, & ! occupation substrings
                        deta, detb, phase         ! determinant strings
   integer(kind=iwp), allocatable :: stepvector(:)
@@ -314,13 +315,14 @@ subroutine citrans_sd2csf(det,ci)
 
   call mma_allocate(stepvector,my_norb,label='stepvector')
 
-  ioff_csf = 0
+  ioff_csf1 = 1
   do ido=ndo_min,ndo_max
     ndoc = ndoc_group(ido)
     nsoc = nsoc_group(ido)
     nconf = ndoc*nsoc
     ndet = ndet_group(ido)
     ncsf = ncsf_group(ido)
+    ioff_csf2 = ioff_csf1+ncsf*nconf-1
 
     call mma_allocate(tmp,ndet,nconf,label='tmp')
 
@@ -350,10 +352,10 @@ subroutine citrans_sd2csf(det,ci)
     end do
 
     ! Compute the determinant coefficients from the CSF coefficients.
-    call dgemm_('T','N',ncsf,nconf,ndet,One,spintabs(ido)%coef,ndet,tmp,ndet,Zero,ci(ioff_csf+1),ncsf)
+    call dgemm_('T','N',ncsf,nconf,ndet,One,spintabs(ido)%coef,ndet,tmp,ndet,Zero,ci(ioff_csf1:ioff_csf2),ncsf)
 
     call mma_deallocate(tmp)
-    ioff_csf = ioff_csf+ncsf*nconf
+    ioff_csf1 = ioff_csf2+1
   end do
 
   call mma_deallocate(stepvector)

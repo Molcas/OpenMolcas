@@ -39,7 +39,7 @@ integer(kind=iwp) :: I, JOE, SWAP
 
 if (NELMNT == 0) return
 
-call ICOPY(NELMNT,IINST,1,IOUTST,1)
+IOUTST(:) = IINST(:)
 ISGN = 1
 
 ! BEGIN TO ORDER

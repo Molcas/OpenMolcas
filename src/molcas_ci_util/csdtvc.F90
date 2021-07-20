@@ -18,12 +18,12 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), intent(inout) :: CSFVEC(*), DETVEC(*) !IFG
-real(kind=wp), intent(in) :: DTOCMT(*) !IFG
-integer(kind=iwp), intent(in) :: IWAY, ICTSDT(*), IREFSM, ICOPY !IFG
-integer(kind=iwp) :: ICNF, ICSF, IDET, IOFFCD, IOFFCS, IOFFDT, ITYP, NCSF, NTEST
 #include "ciinfo.fh"
 #include "spinfo.fh"
+integer(kind=iwp), intent(in) :: IWAY, ICTSDT(*), IREFSM, ICOPY
+real(kind=wp), intent(inout) :: CSFVEC(NDTASM(IREFSM)), DETVEC(NDTASM(IREFSM))
+real(kind=wp), intent(in) :: DTOCMT(*)
+integer(kind=iwp) :: ICNF, ICSF, IDET, IOFFCD, IOFFCS, IOFFDT, ITYP, NCSF, NTEST
 
 ! To avoid compiler complaints
 
@@ -58,7 +58,7 @@ if (IWAY == 1) then
     call WRTMAT(CSFVEC,1,NCSF,1,NCSF)
     write(u6,*)
   end if
-  call DCOPY_(NDET,[Zero],0,DETVEC,1)
+  DETVEC(:) = Zero
   do ITYP=1,NTYP
     IDET = NDTFTP(ITYP)
     ICSF = NCSFTP(ITYP)
@@ -75,7 +75,7 @@ if (IWAY == 1) then
     if ((IDET*ICNF*ICSF) > 0) call MATML4(DETVEC(IOFFDT),DTOCMT(IOFFCD),CSFVEC(IOFFCS),IDET,ICNF,IDET,ICSF,ICSF,ICNF,0)
   end do
   call Sort_Cdet(nDet,ICTSDT,DetVec)
-  if (ICOPY /= 0) call DCOPY_(NDET,DETVEC,1,CSFVEC,1)
+  if (ICOPY /= 0) CSFVEC(:) = DETVEC(:)
   if (NTEST >= 100) then
     write(u6,*) '   OUTPUT DET VECTOR:'
     call WRTMAT(DETVEC,1,NDET,1,NDET)
@@ -96,7 +96,7 @@ else
     write(u6,*) ' ICTSDT reorder array'
     call IWRTMA(ICTSDT,1,100,1,100)
   end if
-  call DCOPY_(NDET,CSFVEC,1,DETVEC,1)
+  DETVEC(:) = CSFVEC(:)
   do ITYP=1,NTYP
     IDET = NDTFTP(ITYP)
     ICSF = NCSFTP(ITYP)
@@ -112,7 +112,7 @@ else
     end if
     if ((IDET*ICNF*ICSF) > 0) call MATML4(CSFVEC(IOFFCS),DTOCMT(IOFFCD),DETVEC(IOFFDT),ICSF,ICNF,IDET,ICSF,IDET,ICNF,1)
   end do
-  if (ICOPY /= 0) call DCOPY_(NCSF,CSFVEC,1,DETVEC,1)
+  if (ICOPY /= 0) DETVEC(1:NCSF) = CSFVEC(1:NCSF)
   if (NTEST >= 100) then
     write(u6,*) '   OUTPUT CSF VECTOR:'
     call WRTMAT(CSFVEC,1,NCSF,1,NCSF)

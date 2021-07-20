@@ -26,10 +26,10 @@ subroutine CNDET(ICONF,IPDET,NDET,NEL,NORB,NOP,NCL,IDET,IPRINT)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: ICONF(*), IPDET(*), NDET, NEL, NORB, NOP, NCL !IFG
+integer(kind=iwp), intent(in) :: NDET, NORB, NOP, ICONF(NORB), IPDET(NOP,NDET), NEL, NCL
 integer(kind=iwp), intent(out) :: IDET(NEL,NDET)
 integer(kind=iwp), intent(inout) :: IPRINT
-integer(kind=iwp) :: IADD, IADR, IBASE, ICL, IOP, JDET
+integer(kind=iwp) :: IADD, IBASE, ICL, IOP, JDET
 
 ! POSITIVE NUMBER  : ALPHA ORBITAL
 ! NEGATIVE NUMBER  : BETA  ORBITAL
@@ -67,11 +67,11 @@ end do
 IADD = 2*NCL
 do JDET=1,NDET
   do IOP=1,NOP
-    IADR = (JDET-1)*NOP+IOP
-    if (IPDET(IADR) == 1) IDET(IADD+IOP,JDET) = ICONF(NCL+IOP)
-
-    if (IPDET(IADR) == 0) IDET(IADD+IOP,JDET) = -ICONF(NCL+IOP)
-
+    if (IPDET(IOP,JDET) == 1) then
+      IDET(IADD+IOP,JDET) = ICONF(NCL+IOP)
+    else if (IPDET(IOP,JDET) == 0) then
+      IDET(IADD+IOP,JDET) = -ICONF(NCL+IOP)
+    end if
   end do
 end do
 

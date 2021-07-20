@@ -35,7 +35,7 @@ integer(kind=iwp), intent(in) :: nDet, iSel(nSel)
 integer(kind=iwp), intent(inout) :: mxItr
 integer(kind=iwp), intent(out) :: nItr
 real(kind=wp), intent(out) :: CI_Conv(2,lRoots,MAXJT)
-real(kind=wp), intent(in) :: ThrEne, ExplE(nSel), ExplV(nSel,nSel), HTUTRI(*), GTUVXTRI(*) !IFG
+real(kind=wp), intent(in) :: ThrEne, ExplE(nSel), ExplV(nSel,nSel), HTUTRI(*), GTUVXTRI(*)
 integer(kind=iwp) :: i, iConf, iConv, idelta, iDummy, ij, IPRLEV, iskipconv, it, it_ci, itu, ituvx, iu, iv, ix, ixmax, jRoot, &
                      kRoot, l1, l2, l3, lPrint, mRoot, nBasVec, nconverged, nleft, nnew, ntrial
 real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, Dummy(1), E0, E1, ECORE_HEX, FP, Hji, ovl, R, RR, scl, Sji, ThrRes, updsiz, Z
@@ -498,7 +498,6 @@ do it_ci=1,mxItr
     end do
     updsiz = dnrm2_(nconf,Vec3,1)
     if (updsiz > 1.0e-6_wp) then
-      call DScal_(nConf,scl,Vec3,1)
       Vec3(:) = Vec3(:)/updsiz
       nnew = nnew+1
       nvec = nvec+1

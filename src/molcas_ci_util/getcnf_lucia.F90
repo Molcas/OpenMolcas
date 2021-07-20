@@ -20,12 +20,9 @@ subroutine GETCNF_LUCIA(KCNF,KTYP,K,ICONF,IREFSM,NEL)
 
 use Definitions, only: iwp, u6
 
-#include "intent.fh"
-
 implicit none
-integer(kind=iwp), intent(_OUT_) :: KCNF(*) !IFG
-integer(kind=iwp), intent(out) :: KTYP
-integer(kind=iwp), intent(in) :: K, ICONF(*), IREFSM, NEL !IFG
+integer(kind=iwp), intent(in) :: K, ICONF(*), IREFSM, NEL
+integer(kind=iwp), intent(out) :: KCNF(NEL), KTYP
 integer(kind=iwp) :: ICNFB1, ICNFB2, IIBCL, IIBOP, JCL, JOCC, JOP, JTYP, KADD, KOCC, KORB, KREL, NJCNF, NOCC, NTEST
 #include "spinfo.fh"
 ! Configuration list is assumed to be in the form used

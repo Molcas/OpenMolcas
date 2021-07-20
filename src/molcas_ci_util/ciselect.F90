@@ -35,6 +35,7 @@ subroutine CiSelect(S1,S2)
 !                                                                      *
 !***********************************************************************
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
@@ -43,13 +44,15 @@ implicit none
 #include "rasscf.fh"
 real(kind=wp), intent(inout) :: S1(lRoots,lRoots)
 real(kind=wp), intent(in) :: S2(lRoots,lRoots)
-nteger(kind=iwp) :: i, istop, iTemp(mxRoot), jRoot, kRoot, maxS1 !IFG
+integer(kind=iwp) :: i, istop, jRoot, kRoot, maxS1
+integer(kind=iwp), allocatable :: iTemp(:)
 real(kind=wp) :: S1jk, S1max, S2jk
 
 if (ITER == 1) return
 
 ! make a local copy of the present selection vector of weights
-call iCopy(mxRoot,[0],1,iTemp,1)
+call mma_allocate(iTemp,mxRoot,label='iTemp')
+iTemp(:) = 0
 
 ! make a new choice using the overlap ov the etst vector with
 ! the CI vector in the subspace of the test vector
@@ -79,10 +82,10 @@ end do
 
 ! print
 if (nRoots == 1) then
-  write(u6,'(6X,A,T45,10I6)') 'new root selected:',(iTemp(kRoot),kRoot=1,nRoots)
+  write(u6,'(6X,A,T45,10I6)') 'new root selected:',iTemp(1:kRoot)
   write(u6,'(6X,A,T45,10F6.3)') 'overlap           ',(S1(iTemp(kRoot),kRoot),kRoot=1,nRoots)
 else
-  write(u6,'(6X,A,T45,10I6)') 'new roots selected:',(iTemp(kRoot),kRoot=1,nRoots)
+  write(u6,'(6X,A,T45,10I6)') 'new roots selected:',iTemp(1:kRoot)
   write(u6,'(6X,A,T45,10F6.3)') 'overlap           ',(S1(iTemp(kRoot),kRoot),kRoot=1,nRoots)
 end if
 
@@ -101,7 +104,7 @@ do kRoot=1,nRoots
   if (sqrt(S2jk) < 0.3_wp) istop = ibset(istop,2)
 end do
 
-! If the stop flag has been set write an approriate message
+! If the stop flag has been set write an appropriate message
 ! and to stop execution change the iteration counter.
 if (istop >= 1) then
   write(u6,*)
@@ -123,8 +126,10 @@ if (istop >= 1) then
   write(u6,*)
   MAXIT = ITER
 else
-  call iCopy(nRoots,iTemp,1,iRoot,1)
+  iRoot(:) = iTemp(:)
 end if
+
+call mma_deallocate(iTemp)
 
 return
 

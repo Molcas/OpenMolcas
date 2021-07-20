@@ -25,9 +25,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp), intent(in) :: CMO(*) !IFG
-real(kind=wp), intent(inout) :: F(*) !IFG
-real(kind=wp), intent(out) :: X1(*), X2(*) !IFG
+real(kind=wp), intent(in) :: CMO(*)
+real(kind=wp), intent(inout) :: F(*)
+real(kind=wp), intent(out) :: X1(*), X2(*)
 integer(kind=iwp) :: ISTFA, ISTFP, ISYM, LMOP, LMOP1, NA, NB
 #include "rasdim.fh"
 #include "rasscf.fh"
