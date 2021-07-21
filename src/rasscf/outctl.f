@@ -654,7 +654,7 @@ C Local print level (if any)
         End Do
         vNentropy = -vNentropy/log(2.0d0)
 *
-        Write(LF,'(6X,A,I2,A,F8.5)')
+        Write(LF,'(6X,A,I3,A,F8.5)')
      *  'Von Neumann Entropy (Root ',KROOT,') = ',vNentropy
         Write(LF,*)
 *
