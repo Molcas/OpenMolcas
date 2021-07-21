@@ -197,7 +197,7 @@ c      End If
 
       Do IM=1,AngPoints
          WRITE(STLNE1,'(A   )') 'SINGLE_ANISO:  torque:'
-         WRITE(STLNE2,'(A,I3)') 'Magnetization at point ',IM
+         WRITE(STLNE2,'(A,I3)') ' Magnetization at point ',IM
          Call StatusLine( trim(STLNE1), trim(STLNE2) )
          ZT=0.0_wp
          Call dcopy_(nM,[0.0_wp],0,W,1)
