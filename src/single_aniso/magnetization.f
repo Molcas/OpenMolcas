@@ -348,7 +348,7 @@ c         Entry into monitor: Status line
           WRITE(STLNE1,'(A)') 'SINGLE_ANISO:  powder magnetization:'
           WRITE(STLNE2,'(A,I4,A,I4,A,I4,A,I4)')
      &    'Field:',IH,'from ',nH,' at direction ',IM,'from ', NDIRTOT
-          Call StatusLine(STLNE1,STLNE2)
+          Call StatusLine( trim(STLNE1), trim(STLNE2) )
 c  actual calculation of the MT and ST, ZT
           Call MAGN( NSS, NM, dHX(iM),dHY(iM),dHZ(iM),H(iH),
      &               ESO, zJ, THRS,
