@@ -14,16 +14,17 @@
 subroutine Write_Data()
 
 use stdalloc, only: mma_Allocate, mma_Deallocate
-use False_Global, only: Will_Print
+use False_Global, only: Mode, Will_Print
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAtoms, nCart, nHess, nRoots, nRelax, i, j, LU, EOF
-real(kind=wp), allocatable :: Energies(:), Gradient(:), NAC(:), Hessian(:), Dipoles(:,:)
+integer(kind=iwp) :: nAtoms, nCart, nHess, nRoots, nRelax, mRoots, i, j, k, l, LU, EOF
+real(kind=wp), allocatable :: Energies(:), Gradient(:), NAC(:), Hessian(:), Dipoles(:,:), &
+                              mEnergies(:), mGradient(:), mHessian(:), mNAC(:), mDipoles(:,:)
 integer(kind=iwp), allocatable :: not_grad(:), not_nac(:,:)
 character(len=16) :: line
-logical(kind=iwp) :: Too_Late
-integer(kind=iwp), external :: IsFreeUnit
+logical(kind=iwp) :: Found, Too_Late
+integer(kind=iwp), external :: IsFreeUnit, Read_Grad
 
 call Get_nAtoms_All(nAtoms)
 nCart = 3*nAtoms
@@ -46,8 +47,13 @@ do
       nRelax = nRoots
       call Check_nRoots(nRoots)
       if (Will_Print) write(u6,200) nRoots
-      call Put_iScalar('Number of roots',nRoots)
-      call Put_iScalar('Relax CASSCF root',nRelax)
+      if (Mode == 'ADD') then
+        call Get_iScalar('Number of roots',mRoots)
+        call Check_nRoots(mRoots)
+      else
+        call Put_iScalar('Number of roots',nRoots)
+        call Put_iScalar('Relax CASSCF root',nRelax)
+      end if
       call mma_Allocate(not_grad,nRoots)
       call mma_Allocate(not_nac,nRoots,nRoots)
       not_grad(:) = 1
@@ -66,7 +72,19 @@ do
       read(LU,*) Energies(:)
       if (Will_Print) call RecPrt('Root energies','',Energies,nRoots,1)
       call Put_cArray('Relax Method','EXTERNAL',8)
-      call Store_Energies(nRoots,Energies,nRelax)
+      if (Mode == 'ADD') then
+        call mma_Allocate(mEnergies,mRoots,label='mEnergies')
+        call Get_dArray('Last energies',mEnergies,mRoots)
+        if (nRoots > 1) then
+          mEnergies(:) = mEnergies(:)+Energies(1)
+        else
+          mEnergies(:) = mEnergies(:)+Energies(:)
+        end if
+        call Store_Energies(mRoots,mEnergies,nRelax)
+        call mma_Deallocate(mEnergies)
+      else
+        call Store_Energies(nRoots,Energies,nRelax)
+      end if
       call mma_Deallocate(Energies)
     case ('[GRADIENT]')
       call Check_nRoots()
@@ -76,7 +94,27 @@ do
       read(LU,*) Gradient(:)
       if (Will_Print) write(u6,202) i
       not_grad(i) = 0
-      call Store_Grad(Gradient,nCart,i,0,0)
+      if (Mode == 'ADD') then
+        call mma_Allocate(mGradient,nCart,label='mGradient')
+        if (nRoots == 1) then
+          ! modify all existing gradients
+          do j=1,mRoots
+            if (Read_Grad(mGradient,nCart,j,0,0) == 1) then
+              mGradient(:) = mGradient(:)+Gradient(:)
+              call Store_Grad(mGradient,nCart,j,0,0)
+            end if
+          end do
+        else
+          ! modify only this gradient
+          if (Read_Grad(mGradient,nCart,i,0,0) == 1) then
+            mGradient(:) = mGradient(:)+Gradient(:)
+            call Store_Grad(mGradient,nCart,i,0,0)
+          end if
+        end if
+        call mma_Deallocate(mGradient)
+      else
+        call Store_Grad(Gradient,nCart,i,0,0)
+      end if
       call mma_Deallocate(Gradient)
     case ('[NAC]')
       call Check_nRoots()
@@ -87,7 +125,29 @@ do
       if (Will_Print) write(u6,203) i,j
       not_nac(i,j) = 0
       not_nac(j,i) = 0
-      call Store_Grad(NAC,nCart,0,i,j)
+      if (Mode == 'ADD') then
+        call mma_Allocate(mNAC,nCart,label='mNAC')
+        if (nRoots == 1) then
+          ! modify all existing couplings
+          do k=1,mRoots
+            do l=k+1,mRoots
+              if (Read_Grad(mNAC,nCart,0,k,l) == 1) then
+                mNAC(:) = mNAC(:)+NAC(:)
+                call Store_Grad(mNAC,nCart,0,k,l)
+              end if
+            end do
+          end do
+        else
+          ! modify only this coupling
+          if (Read_Grad(mNAC,nCart,0,i,j) == 1) then
+            mNAC(:) = mNAC(:)+NAC(:)
+            call Store_Grad(mNAC,nCart,0,i,j)
+          end if
+        end if
+        call mma_Deallocate(mNAC)
+      else
+        call Store_Grad(NAC,nCart,0,i,j)
+      end if
       call mma_Deallocate(NAC)
     case ('[HESSIAN]')
       call Check_nRoots()
@@ -97,7 +157,18 @@ do
       if (i == nRelax) then
         call mma_Allocate(Hessian,nHess,label='Hessian')
         read(LU,*) Hessian(:)
-        call Put_AnalHess(Hessian,nHess)
+        if (Mode == 'ADD') then
+          call mma_Allocate(mHessian,nHess,label='mHessian')
+          call Qpg_dArray('Analytic Hessian',Found,j)
+          if (Found) then
+            call Get_AnalHess(mHessian,nHess)
+            mHessian(:) = mHessian(:)+Hessian(:)
+            call Put_AnalHess(mHessian,nHess)
+          end if
+          call mma_Deallocate(mHessian)
+        else
+          call Put_AnalHess(Hessian,nHess)
+        end if
         call mma_Deallocate(Hessian)
       end if
       if (Will_Print) write(u6,204) i
@@ -108,7 +179,21 @@ do
         read(LU,*) Dipoles(:,i)
       end do
       if (Will_Print) write(u6,*) 'Found dipole moments'
-      call Put_dArray('Last dipole moments',Dipoles,3*nRoots)
+      if (Mode == 'ADD') then
+        call mma_Allocate(mDipoles,3,mRoots,label='mDipoles')
+        call Get_dArray('Last dipole momentes',mDipoles,3*mRoots)
+        if (nRoots > 1) then
+          do j=1,mRoots
+            mDipoles(:,j) = mDipoles(:,j)+Dipoles(:,1)
+          end do
+        else
+          mDipoles(:,:) = mDipoles(:,:)+Dipoles(:,:)
+        end if
+        call Put_dArray('Last dipole moments',mDipoles,3*nRoots)
+        call mma_Deallocate(mDipoles)
+      else
+        call Put_dArray('Last dipole moments',Dipoles,3*nRoots)
+      end if
       call mma_Deallocate(Dipoles)
     case default
   end select
@@ -117,12 +202,14 @@ close(LU)
 
 ! mark non-computable gradients
 if (allocated(not_grad)) then
-  do j=1,nRoots
-    if (not_grad(j) /= 0) call Store_Not_Grad(j,0,0)
-    do i=j+1,nRoots
-      if (not_nac(i,j) /= 0) call Store_Not_Grad(0,i,j)
+  if (Mode == 'REPLACE') then
+    do j=1,nRoots
+      if (not_grad(j) /= 0) call Store_Not_Grad(j,0,0)
+      do i=j+1,nRoots
+        if (not_nac(i,j) /= 0) call Store_Not_Grad(0,i,j)
+      end do
     end do
-  end do
+  end if
   call mma_Deallocate(not_grad)
   call mma_Deallocate(not_nac)
 end if
@@ -147,6 +234,12 @@ subroutine Check_nRoots(n)
       call WarningMessage(2,'[ROOTS] should be defined first.')
     end if
     call AbEnd()
+  else if ((Mode == 'ADD') .and. present(n)) then
+    ! if nRoots == 1 and mRoots /= 1, the same values will be added to all roots
+    if ((nRoots /= 1) .and. (nRoots /= n)) then
+      call WarningMessage(2,'The number of roots does not agree with the runfile')
+      call AbEnd()
+    end if
   end if
 end subroutine Check_nRoots
 
