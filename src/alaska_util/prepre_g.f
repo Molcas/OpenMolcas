@@ -1,49 +1,49 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1992, Roland Lindh                                     *
-************************************************************************
-      SubRoutine PrePre_g(nZeta,nEta,mZeta,mEta,lZeta,lEta,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1992, Roland Lindh                                     *
+!***********************************************************************
+      SubRoutine PrePre_g(nZeta,nEta,mZeta,mEta,lZeta,lEta,             &
      &                  Data1,Data2,PreScr,CutGrd)
-************************************************************************
-*                                                                      *
-* Object: to preprescreen the integral derivatives.                    *
-*                                                                      *
-*   nZeta, nEta : unpartioned length of primitives.                    *
-*                                                                      *
-*   mZeta, mEta : section length due to partioning. These are usually  *
-*                 equal to nZeta and nEta.                             *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-*             July '92.                                                *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: to preprescreen the integral derivatives.                    *
+!                                                                      *
+!   nZeta, nEta : unpartioned length of primitives.                    *
+!                                                                      *
+!   mZeta, mEta : section length due to partioning. These are usually  *
+!                 equal to nZeta and nEta.                             *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!             July '92.                                                *
+!***********************************************************************
       Implicit Real*8 (A-H,O-Z)
-      Real*8
+      Real*8                                                            &
      &       Data1(nZeta,8), Data2(nEta,8)
       Logical PreScr
 #include "print.fh"
 #include "real.fh"
-*
+!
       iRout = 180
       iPrint = nPrint(iRout)
-*     iQ = 0
+!     iQ = 0
       If (iPrint.ge.99) Then
          Call RecPrt(' Data1',' ',Data1,nZeta,8)
          Call RecPrt(' Data2',' ',Data2,nEta ,8)
       End If
-*
+!
       tOne = One
-*
-*-----Preprescanning
-*
+!
+!-----Preprescanning
+!
       lZeta=mZeta
       lEta =mEta
       rKabMx=Zero
@@ -82,6 +82,6 @@
          lZeta = 0
          lEta = 0
       End If
-*
+!
       Return
       End

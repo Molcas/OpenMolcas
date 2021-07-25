@@ -1,31 +1,31 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine Int_Parm_g(iSD4,nSD,iAnga,
-     &                    iCmpa,iShlla,iShela,
-     &                    iPrimi,jPrimj,kPrimk,lPriml,
-     &                    indij,k2ij,nDCRR,k2kl,nDCRS,
-     &                    mdci,mdcj,mdck,mdcl,AeqB,CeqD,
-     &                    nZeta,nEta,ipZeta,ipZI,ipP,
-     &                    ipEta, ipEI,ipQ,ipiZet,ipiEta,
-     &                    ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab,ncd,nHmcd,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine Int_Parm_g(iSD4,nSD,iAnga,                             &
+     &                    iCmpa,iShlla,iShela,                          &
+     &                    iPrimi,jPrimj,kPrimk,lPriml,                  &
+     &                    indij,k2ij,nDCRR,k2kl,nDCRS,                  &
+     &                    mdci,mdcj,mdck,mdcl,AeqB,CeqD,                &
+     &                    nZeta,nEta,ipZeta,ipZI,ipP,                   &
+     &                    ipEta, ipEI,ipQ,ipiZet,ipiEta,                &
+     &                    ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab,ncd,nHmcd, &
      &                    nIrrep)
       use k2_setup
       use Basis_Info, only: Shells
       Implicit Real*8 (a-h,o-z)
       Integer iAnga(4), iCmpa(4), iShlla(4), iShela(4), iSD4(0:nSD,4)
       Logical AeqB, CeqD, l2DI
-*
+!
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
-*
+!
       Call ICopy(4,iSD4( 1,1),nSD+1,iAnga,1)
       Call ICopy(4,iSD4( 2,1),nSD+1,iCmpa,1)
       Call ICopy(4,iSD4( 0,1),nSD+1,iShlla,1)
@@ -56,7 +56,7 @@
       jCmp=iSD4(2,2)
       kCmp=iSD4(2,3)
       lCmp=iSD4(2,4)
-*
+!
       nab = nElem(iAng)*nElem(jAng)
       ncd = nElem(kAng)*nElem(lAng)
       nHmab=iCmp*jCmp*(nabSz(iAng+jAng)-nabSz(Max(iAng,jAng)-1))
@@ -88,11 +88,11 @@
       ipQ   = ipEI   + nEta
       ipxG  = ipQ    + nEta*3
       ipxD  = ipxG   + nEta
-*
+!
       ipiEta= ipiZet + nZeta + 1
-*
+!
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(indij)
       End If

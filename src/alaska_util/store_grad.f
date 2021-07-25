@@ -1,31 +1,31 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2015, Ignacio Fdez. Galvan                             *
-************************************************************************
-*  Store_Grad
-*
-*> @brief Store a vector in the gradients file
-*> @author Ignacio Fdez. Galv&aacute;n
-*>
-*> @details
-*> Stores a gradient or coupling vector in the gradients file (GRADS).
-*> For a gradient use \p iNAC, \p jNAC = 0. For a coupling vector use
-*> \p iRoot = 0.
-*>
-*> @param[in] Grad  Gradient vector to store
-*> @param[in] nGrad Length of \p Grad
-*> @param[in] iRoot Root number to which the gradient belongs
-*> @param[in] iNAC  First root of a coupling vector
-*> @param[in] jNAC  Second root of a coupling vector
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2015, Ignacio Fdez. Galvan                             *
+!***********************************************************************
+!  Store_Grad
+!
+!> @brief Store a vector in the gradients file
+!> @author Ignacio Fdez. Galv&aacute;n
+!>
+!> @details
+!> Stores a gradient or coupling vector in the gradients file (GRADS).
+!> For a gradient use \p iNAC, \p jNAC = 0. For a coupling vector use
+!> \p iRoot = 0.
+!>
+!> @param[in] Grad  Gradient vector to store
+!> @param[in] nGrad Length of \p Grad
+!> @param[in] iRoot Root number to which the gradient belongs
+!> @param[in] iNAC  First root of a coupling vector
+!> @param[in] jNAC  Second root of a coupling vector
+!***********************************************************************
       Subroutine Store_Grad(Grad,nGrad,iRoot,iNAC,jNAC)
       Implicit None
 #include "real.fh"
@@ -39,19 +39,19 @@
       Integer, External :: AixRm
       Logical :: Found, BadFile
       Character(Len=5) :: Filename
-*
-*define _DEBUGPRINT_
-*
-* Create GRADS file if it does not exist
-*
+!
+!define _DEBUGPRINT_
+!
+! Create GRADS file if it does not exist
+!
       Call Get_iScalar('Number of roots',nRoots)
       Filename='GRADS'
       LuGrad=20
       Call f_Inquire(Filename,Found)
       If (.Not.Found) Call Create_Grads(Filename,nRoots,nGrad)
-*
-* Read the header
-*
+!
+! Read the header
+!
       BadFile=.False.
       Call DaName(LuGrad,Filename)
       iAd=0
@@ -65,7 +65,7 @@
       If (BadFile) Then
         Call DaClos(LuGrad)
         If (AixRm('GRADS').ne.0) Call Abend()
-        Call WarningMessage(1,'Number of roots and/or length of '//
+        Call WarningMessage(1,'Number of roots and/or length of '//     &
      &       'gradients do not match, re-creating GRADS file')
         Call Create_Grads(Filename,nRoots,nGrad)
         Call DaName(LuGrad,Filename)
@@ -79,9 +79,9 @@
       Call iDaFile(LuGrad,2,i_grad,nRoots,iAd)
       iAd=TOC(4)
       Call iDaFile(LuGrad,2,i_nac,nCoup,iAd)
-*
-* Write the gradient or NAC vector
-*
+!
+! Write the gradient or NAC vector
+!
       If (iRoot.eq.0) Then
         If ((iNAC.ne.0).and.(jNAC.ne.0)) Then
           iSt=Max(iNAC,jNAC)-1
@@ -113,7 +113,7 @@
           Call dDaFile(LuGrad,1,Grad,nGrad,iAd)
         End If
       End If
-*
+!
 #ifdef _DEBUGPRINT_
       write(6,*) 'iRoot, iNAC, jNAC:',iRoot,iNAC,jNAC
       write(6,*) 'grads:',i_grad
@@ -122,5 +122,5 @@
       Call DaClos(LuGrad)
       Call mma_Deallocate(i_grad)
       Call mma_Deallocate(i_nac)
-*
+!
       End Subroutine Store_Grad

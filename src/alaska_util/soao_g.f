@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine SOAO_g(iSD4,nSD,nSO, MemPrm, MemMax,
-     &                  iBsInc,jBsInc,kBsInc,lBsInc,
-     &                  iPrInc,jPrInc,kPrInc,lPrInc,
-     &                  ipMem1,ipMem2, Mem1,  Mem2,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine SOAO_g(iSD4,nSD,nSO, MemPrm, MemMax,                   &
+     &                  iBsInc,jBsInc,kBsInc,lBsInc,                    &
+     &                  iPrInc,jPrInc,kPrInc,lPrInc,                    &
+     &                  ipMem1,ipMem2, Mem1,  Mem2,                     &
      &                  iPrint,iFnc, MemPSO)
       use Basis_Info, only: Shells
       Implicit Real*8 (a-h,o-z)
-*
-      Integer iSD4(0:nSD,4), iAnga(4), iCmpa(4),
+!
+      Integer iSD4(0:nSD,4), iAnga(4), iCmpa(4),                        &
      &        iFnc(4), iAO(4)
-*
+!
       iPrimi   = Shells(iSD4( 0,1))%nExp
       jPrimj   = Shells(iSD4( 0,2))%nExp
       kPrimk   = Shells(iSD4( 0,3))%nExp
@@ -32,13 +32,13 @@
          iCmpa(iQuad)  = iSD4( 2,iQuad)
          iAO(iQuad)    = iSD4( 7,iQuad)
       End Do
-*
-                  Call PSOAO1(nSO,MemPrm, MemMax,
-     &                        iAnga, iCmpa, iAO  ,iFnc,
-     &                        iBasi,iBsInc, jBasj,jBsInc,
-     &                        kBask,kBsInc, lBasl,lBsInc,
-     &                        iPrimi,iPrInc,jPrimj,jPrInc,
-     &                        kPrimk,kPrInc,lPriml,lPrInc,
+!
+                  Call PSOAO1(nSO,MemPrm, MemMax,                       &
+     &                        iAnga, iCmpa, iAO  ,iFnc,                 &
+     &                        iBasi,iBsInc, jBasj,jBsInc,               &
+     &                        kBask,kBsInc, lBasl,lBsInc,               &
+     &                        iPrimi,iPrInc,jPrimj,jPrInc,              &
+     &                        kPrimk,kPrInc,lPriml,lPrInc,              &
      &                        ipMem1,ipMem2, Mem1,  Mem2, MemPSO)
 #ifdef _DEBUGPRINT_
          Write (6,*) ' ************** Memory partioning **************'
@@ -60,8 +60,8 @@
          Write (6,*) ' lPriml,lPrInc=',lPriml,lPrInc
          Write (6,*) ' ***********************************************'
 #endif
-*
+!
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer(iPrint)
       End

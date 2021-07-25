@@ -1,33 +1,33 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1993, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1993, Roland Lindh                                     *
+!***********************************************************************
       Subroutine PrjMmG(nHer,MmPrjG,la,lb,lr)
-************************************************************************
-*                                                                      *
-*  Object: to compute the number of real*8 the kernal routine will     *
-*          need for the computation of a matrix element between two    *
-*          cartesian Gaussin functions with the total angular momentum *
-*          of la and lb (la=0 s-function, la=1 p-function, etc.)       *
-*          lr is the order of the operator (this is only used when the *
-*          integrals are computed with the Hermite-Gauss quadrature).  *
-*                                                                      *
-*  Called from: OneEl                                                  *
-*                                                                      *
-************************************************************************
-*
+!***********************************************************************
+!                                                                      *
+!  Object: to compute the number of real*8 the kernal routine will     *
+!          need for the computation of a matrix element between two    *
+!          cartesian Gaussin functions with the total angular momentum *
+!          of la and lb (la=0 s-function, la=1 p-function, etc.)       *
+!          lr is the order of the operator (this is only used when the *
+!          integrals are computed with the Hermite-Gauss quadrature).  *
+!                                                                      *
+!  Called from: OneEl                                                  *
+!                                                                      *
+!***********************************************************************
+!
       Use Basis_Info, only: dbsc, nCnttp, Shells
-*
+!
       nElem(i) = (i+1)*(i+2)/2
-*
+!
       nOrder = 0
       MmPrjG = 0
       Do 1960 iCnttp = 1, nCnttp
@@ -37,7 +37,7 @@
             nExpi=Shells(iShll)%nExp
             nBasisi=Shells(iShll)%nBasis
             If (nExpi.eq.0 .or. nBasisi.eq.0) Go To 1966
-*
+!
             ip = 0
             nac = 4*nElem(la)*nElem(iAng)
             ip = ip + nExpi*nac
@@ -52,12 +52,12 @@
             ip = ip + nExpi*3*nHer*(lr+1)
             ip = ip + nExpi*3*nHer*(la+2)*(iAng+1)*(lr+1)
             ip = ip + nExpi
-*
+!
             MmPrjG = Max(MmPrjG,ip)
-            ip = ip - nExpi
-     &         * (6 + 3*nHer*((la+2) + (iAng+1) + (lr+1)
+            ip = ip - nExpi                                             &
+     &         * (6 + 3*nHer*((la+2) + (iAng+1) + (lr+1)                &
      &         +  (la+2)*(iAng+1)*(lr+1)) + 1)
-*
+!
             ncb = 4*nElem(iAng)*nElem(lb)
             ip = ip + nExpi*ncb
             ip = ip + 3 * nExpi
@@ -71,18 +71,18 @@
             ip = ip + nExpi*3*nHer*(lr+1)
             ip = ip + nExpi*3*nHer*(lb+2)*(iAng+1)*(lr+1)
             ip = ip + nExpi
-*
+!
             MmPrjG = Max(MmPrjG,ip)
-            ip = ip - nExpi
-     &         * (6 + 3*nHer*((lb+2) + (iAng+1) + (lr+1)
+            ip = ip - nExpi                                             &
+     &         * (6 + 3*nHer*((lb+2) + (iAng+1) + (lr+1)                &
      &         +  (lb+2)*(iAng+1)*(lr+1)) + 1)
-*
+!
             ip = ip + Max(nExpi*nac,ncb*nBasisi)
             MmPrjG = Max(MmPrjG,ip)
-*
+!
  1966    Continue
  1960 Continue
       nHer = nOrder
-*
+!
       Return
       End
