@@ -245,7 +245,7 @@ c      END IF
      &     iwork(kiconf_occ(jsym)),iwork(KSDREO_I(jsym)),
      &     ndet, ncsf_per_sym, nsd_per_sym, nconf_per_sym, mxpcsm,
      &     mxporb, nconf_per_open, npdtcnf, npcscnf, mults,
-     &     iwork(knstso(iatp)), iwork(knstso(ibtp)), KICTS_POINTER,
+     &     KICTS_POINTER,
      &     nCSF_HEXS)
 
       CALL GETMEM('CIOIO ','FREE','INTE',KLCIOIO,NOCTPA*NOCTPB)

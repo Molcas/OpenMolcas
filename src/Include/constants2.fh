@@ -11,7 +11,8 @@
 #include "constants.fh"
       Real*8 diel,rPi,UTOAU,elmass,ATOKG,elcharge,rNAVO,cLight,auTocm,  &
      &       rPlanck,rBohr,cm_s,Debye,Angstrom,RF,auToHz,auTofs,auToN,  &
-     &       auToeV,auTokJ,auTokcalmol,kBoltzmann,c_in_au
+     &       auToeV,auTokJ,auTokcalmol,kBoltzmann,c_in_au,cal_to_J,     &
+     &       Rgas
       Parameter (diel= CONST_DIELECTRIC_IN_SI_)
       Parameter (rPi = CONST_PI_)
       Parameter (UTOAU = CONV_AMU_TO_AU_)
@@ -38,3 +39,5 @@
       Parameter (auTokcalmol = CONV_AU_TO_KJ_PER_MOLE_                   &
      &                         /CONV_CAL_TO_J_)
       Parameter (c_in_au = CONST_C_IN_AU_)
+      Parameter (cal_to_J = CONV_CAL_TO_J_)
+      Parameter (Rgas = CONST_MOLAR_GAS_)

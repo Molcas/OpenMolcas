@@ -76,7 +76,7 @@ c
             Call GetMem('LcCoor','Allo','Real',ip_LcCoor,3*natom)
             Call GetMem('LcANr','Allo','Inte',ip_LcANr,natom)
             nPCM_info = 0
-            Call PCM_Cavity(iPrint,0,natom,Angstrom,Work(ipCord),
+            Call PCM_Cavity(iPrint,0,natom,Work(ipCord),
      &                      iWork(ipAN),iWork(ipIsMM),Work(ip_LcCoor),
      &                      iWork(ip_LcANr),J)
             Call GetMem('LcANr','Free','Inte',ip_LcANr,natom)

@@ -46,6 +46,13 @@ incomplete.
 #define TRAILING_ZEROS
 #endif
 
+/* Bit extraction (ibits) with zero length */
+#if ( __PGI )
+#undef IBITS_LEN_ZERO
+#else
+#define IBITS_LEN_ZERO
+#endif
+
 /* c_ptr binding */
 #if ( NAGFOR && __NAG_COMPILER_RELEASE < 61 )
 #undef C_PTR_BINDING

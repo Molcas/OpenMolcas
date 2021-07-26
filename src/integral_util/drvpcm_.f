@@ -72,7 +72,7 @@
           ZI=Tessera(3,iTile)
           Do jTile = 1, nTs
             If (jTile.eq.iTile) Then
-              Dij = 1.0694D0 * Two*Sqrt(Pi/Tessera(4,iTile))
+              Dij = DiagScale * Two*Sqrt(Pi/Tessera(4,iTile))
             Else
               XJ=Tessera(1,jTile)
               YJ=Tessera(2,jTile)
@@ -125,7 +125,7 @@
 *---- Evaluate the charges on the cavity boundary, nuclear and
 *     electronic.
 *
-      Call PCM_Driver(iPrint,DMat,VTessera,QTessera,nTs)
+      Call PCM_Driver(DMat,VTessera,QTessera,nTs)
 *
 *---- Make the slow charges (also called orientational charges or
 *     frozen charges). This is always done regardless if they ever
@@ -147,7 +147,7 @@
          ZI=Tessera(3,iTile)
          Do jTile = 1, nTs
            If (jTile.eq.iTile) Then
-             Dij = 1.0694D0 * Two*Sqrt(Pi/Tessera(4,iTile))
+             Dij = DiagScale * Two*Sqrt(Pi/Tessera(4,iTile))
            Else
              XJ=Tessera(1,jTile)
              YJ=Tessera(2,jTile)

@@ -3181,7 +3181,7 @@ if (SPHINX_EXECUTABLE)
   message ("-- Sphinx compiler: ${SPHINX_EXECUTABLE}")
 
   # Get the short version (not using REGEX_REPLACE for backwards compatibility)
-  string (REPLACE "v" "" tmp ${MOLCAS_VERSION})
+  string (REPLACE "v" "" tmp "${MOLCAS_VERSION}")
   string (FIND "${tmp}" "-" pos)
   string (SUBSTRING "${tmp}" 0 ${pos} SHORT_VERSION)
 

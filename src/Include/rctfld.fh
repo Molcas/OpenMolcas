@@ -40,9 +40,6 @@
 !            (defaulted and explained in pcmdef.f)                     *
 !     RSlPar: 100 reals to pass quickly PCM information                *
 !            (defaulted and explained in pcmdef.f)                     *
-!     MxSph: maximum number of spheres allowed                         *
-!     MxTs: maximum number of tesserae allowed                         *
-!     MxVert: maximum number of vertices per tessera                   *
 !     MxA: maximum number of atoms for the building of PCM cavity      *
 !     NSinit: initial number of atomic spheres                         *
 !     NS: actual number of spheres (initial+smoothing)                 *
@@ -51,13 +48,7 @@
 !     RadInp: radius of spheres explicitly given in the input          *
 !                                                                      *
 !***********************************************************************
-!     !!!!!!!!!!!!!!!!!!!!!!!
-!     Note that MxVert for practical reasons also is defined with
-!     explicit parameter statments in the code. Change those too if
-!     the value is changed!
-!     !!!!!!!!!!!!!!!!!!!!!!!
-      integer, parameter :: MxSph=1000,MxTs=6000,MxVert=20,             &
-     & MxPar=100,MxA=100
+      integer, parameter :: MxPar=100,MxA=100
       integer lRFStrt, lRFEnd
       logical lRF, lLangevin, RF_Basis, PCM, Conductor, NonEq_ref,      &
      &        DoDeriv,lRFCav,LSparse,LGridAverage,lDamping,lAmberPol,   &

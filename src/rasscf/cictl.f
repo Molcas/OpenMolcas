@@ -476,7 +476,7 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
            end if
          end if
          If (.not.DoSplitCAS) then
-           Call   DavCtl(Work(LW1),Work(ipTmpTUVX),IFINAL)
+           Call DavCtl(Work(LW1),Work(ipTmpTUVX),IFINAL)
            Call GetMem('TmpTUVX','Free','Real',ipTmpTUVX,NACPR2)
            Call GetMem('TmpPUVX','Free','Real',ipTmpPUVX,nTmpPUVX)
          end if
