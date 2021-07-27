@@ -29,82 +29,82 @@
 !> @return \p 0 if the vector was not found, \p 1 if the vector was
 !>         found, \p -1 if the vector was marked as non-computable
 !***********************************************************************
-      Function Read_Grad(Grad,nGrad,iRoot,iNAC,jNAC)
-      Implicit None
+
+function Read_Grad(Grad,nGrad,iRoot,iNAC,jNAC)
+
+implicit none
 #include "real.fh"
 #include "stdalloc.fh"
-      Integer :: Read_Grad,nGrad,iRoot,iNAC,jNAC
-      Real*8 :: Grad(nGrad)
-      Integer, Dimension(5) :: TOC
-      Integer, Dimension(1) :: iDum
-      Integer, Dimension(:), Allocatable :: i_grad,i_nac
-      Integer :: nRoots,nCoup,LuGrad,iAd,iSt,jSt,idx
-      Logical :: Found
-      Character(Len=5) :: Filename
-!
+integer :: Read_Grad, nGrad, iRoot, iNAC, jNAC
+real*8 :: Grad(nGrad)
+integer, dimension(5) :: TOC
+integer, dimension(1) :: iDum
+integer, dimension(:), allocatable :: i_grad, i_nac
+integer :: nRoots, nCoup, LuGrad, iAd, iSt, jSt, idx
+logical :: Found
+character(len=5) :: Filename
+
 ! If the GRADS file does not exist, there is no gradient
-!
-      Filename='GRADS'
-      Call f_Inquire(Filename,Found)
-      If (.Not.Found) Then
-        Read_Grad=0
-      Else
-!
-! Read the header
-!
-        LuGrad=20
-        Call DaName(LuGrad,Filename)
-        iAd=0
-        Call iDaFile(LuGrad,2,TOC,Size(TOC),iAd)
-        Call iDaFile(LuGrad,2,iDum,1,iAd)
-        nRoots=iDum(1)
-        If (Max(iRoot,iNAC,jNAC).gt.nRoots) Then
-          Call WarningMessage(2,'Bad number of roots in GRADS file')
-          Call Abend()
-        End If
-        Call iDaFile(LuGrad,2,iDum,1,iAd)
-        If (iDum(1).ne.nGrad) Then
-          Call WarningMessage(2,'Bad length in GRADS file')
-          Call Abend()
-        End If
-        nCoup=Max(1,nRoots*(nRoots-1)/2)
-        Call mma_Allocate(i_grad,nRoots)
-        Call mma_Allocate(i_nac,nCoup)
-        Call iDaFile(LuGrad,2,i_grad,nRoots,iAd)
-        Call iDaFile(LuGrad,2,i_nac,nCoup,iAd)
-!
-! Read the gradient or NAC vector
-!
-        If (iRoot.eq.0) Then
-          If ((iNAC.ne.0).and.(jNAC.ne.0)) Then
-            iSt=Max(iNAC,jNAC)-1
-            jSt=Min(iNAC,jNAC)
-            idx=iSt*(iSt-1)/2+jSt
-            iAd=i_nac(idx)
-          Else
-            iAd=-1
-          End If
-        Else
-          idx=iRoot
-          iAd=i_grad(idx)
-        End If
-!
-        If (iAd.eq.0) Then
-          Read_Grad=0
-        Else If (iAd.lt.0) Then
-          Read_Grad=-1
-        Else
-          Call dDaFile(LuGrad,2,Grad,nGrad,iAd)
-          Read_Grad=1
-        End If
-!
-        Call DaClos(LuGrad)
-        Call mma_Deallocate(i_grad)
-        Call mma_Deallocate(i_nac)
-!
-      End If
-      If (Read_Grad.le.0) Then
-        Call FZero(Grad,nGrad)
-      End If
-!
-      End Function Read_Grad
+
+Filename = 'GRADS'
+call f_Inquire(Filename,Found)
+if (.not. Found) then
+  Read_Grad = 0
+else
+
+  ! Read the header
+
+  LuGrad = 20
+  call DaName(LuGrad,Filename)
+  iAd = 0
+  call iDaFile(LuGrad,2,TOC,size(TOC),iAd)
+  call iDaFile(LuGrad,2,iDum,1,iAd)
+  nRoots = iDum(1)
+  if (max(iRoot,iNAC,jNAC) > nRoots) then
+    call WarningMessage(2,'Bad number of roots in GRADS file')
+    call Abend()
+  end if
+  call iDaFile(LuGrad,2,iDum,1,iAd)
+  if (iDum(1) /= nGrad) then
+    call WarningMessage(2,'Bad length in GRADS file')
+    call Abend()
+  end if
+  nCoup = max(1,nRoots*(nRoots-1)/2)
+  call mma_Allocate(i_grad,nRoots)
+  call mma_Allocate(i_nac,nCoup)
+  call iDaFile(LuGrad,2,i_grad,nRoots,iAd)
+  call iDaFile(LuGrad,2,i_nac,nCoup,iAd)
+
+  ! Read the gradient or NAC vector
+
+  if (iRoot == 0) then
+    if ((iNAC /= 0) .and. (jNAC /= 0)) then
+      iSt = max(iNAC,jNAC)-1
+      jSt = min(iNAC,jNAC)
+      idx = iSt*(iSt-1)/2+jSt
+      iAd = i_nac(idx)
+    else
+      iAd = -1
+    end if
+  else
+    idx = iRoot
+    iAd = i_grad(idx)
+  end if
+
+  if (iAd == 0) then
+    Read_Grad = 0
+  else if (iAd < 0) then
+    Read_Grad = -1
+  else
+    call dDaFile(LuGrad,2,Grad,nGrad,iAd)
+    Read_Grad = 1
+  end if
+
+  call DaClos(LuGrad)
+  call mma_Deallocate(i_grad)
+  call mma_Deallocate(i_nac)
+
+end if
+if (Read_Grad <= 0) call FZero(Grad,nGrad)
+
+end function Read_Grad

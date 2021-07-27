@@ -38,40 +38,42 @@
 !> @param[in] nRoots Number of roots to include in the file
 !> @param[in] nGrad  Length of each gradient vector
 !***********************************************************************
-      Subroutine Create_Grads(FN,nRoots,nGrad)
-      Implicit None
+
+subroutine Create_Grads(FN,nRoots,nGrad)
+
+implicit none
 #include "stdalloc.fh"
-      Integer :: nRoots,nGrad,Lu,TOC(5),nCoup,iAd,iDum(1)
-      Character(LEN=*) :: FN
-      Integer, Dimension(:), Allocatable:: i_grad, i_nac
-!
-      nCoup=Max(1,nRoots*(nRoots-1)/2)
-      Call mma_Allocate(i_grad,nRoots)
-      Call mma_Allocate(i_nac,nCoup)
-      Call iCopy(Size(TOC),[0],0,TOC,1)
-      Call iCopy(nRoots,[0],0,i_grad,1)
-      Call iCopy(nCoup,[0],0,i_nac,1)
-!
-      Lu=20
-      Call DaName(Lu,Trim(FN))
-      iAd=0
-      Call iDaFile(Lu,1,TOC,SIZE(TOC),iAd)
-      TOC(1)=iAd
-      iDum(1)=nRoots
-      Call iDaFile(Lu,1,iDum,1,iAd)
-      TOC(2)=iAd
-      iDum(1)=nGrad
-      Call iDaFile(Lu,1,iDum,1,iAd)
-      TOC(3)=iAd
-      Call iDaFile(Lu,1,i_grad,nRoots,iAd)
-      TOC(4)=iAd
-      Call iDaFile(Lu,1,i_nac,nCoup,iAd)
-      TOC(5)=iAd
-      iAd=0
-      Call iDaFile(Lu,1,TOC,Size(TOC),iAd)
-      Call DaClos(Lu)
-!
-      Call mma_Deallocate(i_grad)
-      Call mma_Deallocate(i_nac)
-!
-      End Subroutine Create_Grads
+integer :: nRoots, nGrad, Lu, TOC(5), nCoup, iAd, iDum(1)
+character(LEN=*) :: FN
+integer, dimension(:), allocatable :: i_grad, i_nac
+
+nCoup = max(1,nRoots*(nRoots-1)/2)
+call mma_Allocate(i_grad,nRoots)
+call mma_Allocate(i_nac,nCoup)
+call iCopy(size(TOC),[0],0,TOC,1)
+call iCopy(nRoots,[0],0,i_grad,1)
+call iCopy(nCoup,[0],0,i_nac,1)
+
+Lu = 20
+call DaName(Lu,trim(FN))
+iAd = 0
+call iDaFile(Lu,1,TOC,size(TOC),iAd)
+TOC(1) = iAd
+iDum(1) = nRoots
+call iDaFile(Lu,1,iDum,1,iAd)
+TOC(2) = iAd
+iDum(1) = nGrad
+call iDaFile(Lu,1,iDum,1,iAd)
+TOC(3) = iAd
+call iDaFile(Lu,1,i_grad,nRoots,iAd)
+TOC(4) = iAd
+call iDaFile(Lu,1,i_nac,nCoup,iAd)
+TOC(5) = iAd
+iAd = 0
+call iDaFile(Lu,1,TOC,size(TOC),iAd)
+call DaClos(Lu)
+
+call mma_Deallocate(i_grad)
+call mma_Deallocate(i_nac)
+
+end subroutine Create_Grads

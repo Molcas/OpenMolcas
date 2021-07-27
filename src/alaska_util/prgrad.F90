@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine PrGrad(Label,Grad,nGrad,Names,iPrint)
+
+subroutine PrGrad(Label,Grad,nGrad,Names,iPrint)
 !***********************************************************************
 !                                                                      *
 ! Object: to print set gradient with respect to the symmetrical dis-   *
@@ -20,64 +21,67 @@
 !             University of Lund, SWEDEN                               *
 !             October '91                                              *
 !***********************************************************************
-      use Symmetry_Info, only: lIrrep
-      Implicit Real*8 (A-H,O-Z)
+
+use Symmetry_Info, only: lIrrep
+
+implicit real*8(A-H,O-Z)
 #include "Molcas.fh"
 #include "real.fh"
-      Real*8 Grad(nGrad)
-      Real*8 CGrad(3,MxAtom)
-      Character CNames(MxAtom)*(LENIN5)
-      Character Label*(*), Names(nGrad)*(LENIN6)
-      Character Namei*(LENIN5)
-!
-      Write (6,*)
-      Call Banner(Label,1,Len(Label)+30)
-      Write (6,*)
-!     If (iPrint.EQ.4) then
-      If (.True.) then
-         Call TrGrd_Alaska_(CGrad,CNames,Grad,nGrad,iCen)
-         Write (6,'(1x,A,A)') ' Irreducible representation: ',lIrrep(0)
-         Write (6,'(1x,90A     )') ('-',i=1,90)
-         Write (6,'(7x,3(23x,A))')  'X','Y','Z'
-         Write (6,'(1x,90A     )') ('-',i=1,90)
-         Do iGrad = 1, iCen
-            TempX = CGrad(1,iGrad)
-            TempY = CGrad(2,iGrad)
-            TempZ = CGrad(3,iGrad)
-            Namei = CNames(iGrad)
-            Write (6,'(2X,A,3X,3ES24.14)') Namei, TempX, TempY, TempZ
-         End Do
-         Write (6,'(1x,90A     )') ('-',i=1,90)
-      else
-!
-!        Modified by Luca De Vico november 2005 Teokem
-!        I need to print the full gradient vector
-!        to use it for constrained optimizations
-!        with TRANSVERSE option in SLAPAF MODULE
-!
-!         mGrad=Min(21,nGrad)
-!
-         mGrad=nGrad
-         Write (6,'(15x,A,A)') ' Irreducible representation: ',lIrrep(0)
-         Write (6,*)
-         Do iGrad = 1, mGrad
-            Temp = Grad(iGrad)
-!           If (Abs(Temp).lt.1.0D-15) Temp = Zero
-            Write (6,'(16X,A,15X,ES15.7)') Names(iGrad), Temp
-         End Do
-!
-!         If (nGrad.gt.21) Then
-!            Write (6,*)
-!            Write (6,*) '   ... list is truncated ... '
-!            Write (6,*)
-!         End If
-!
-!        End of modifications
-!
-      EndIf
-      Write (6,*)
-!
-      Return
+real*8 Grad(nGrad)
+real*8 CGrad(3,MxAtom)
+character CNames(MxAtom)*(LENIN5)
+character Label*(*), Names(nGrad)*(LENIN6)
+character Namei*(LENIN5)
+
+write(6,*)
+call Banner(Label,1,len(Label)+30)
+write(6,*)
+!if (iPrint == 4) then
+if (.true.) then
+  call TrGrd_Alaska_(CGrad,CNames,Grad,nGrad,iCen)
+  write(6,'(1x,A,A)') ' Irreducible representation: ',lIrrep(0)
+  write(6,'(1x,90A     )') ('-',i=1,90)
+  write(6,'(7x,3(23x,A))') 'X','Y','Z'
+  write(6,'(1x,90A     )') ('-',i=1,90)
+  do iGrad=1,iCen
+    TempX = CGrad(1,iGrad)
+    TempY = CGrad(2,iGrad)
+    TempZ = CGrad(3,iGrad)
+    Namei = CNames(iGrad)
+    write(6,'(2X,A,3X,3ES24.14)') Namei,TempX,TempY,TempZ
+  end do
+  write(6,'(1x,90A     )') ('-',i=1,90)
+else
+
+  ! Modified by Luca De Vico november 2005 Teokem
+  ! I need to print the full gradient vector
+  ! to use it for constrained optimizations
+  ! with TRANSVERSE option in SLAPAF MODULE
+
+  !mGrad = min(21,nGrad)
+
+  mGrad = nGrad
+  write(6,'(15x,A,A)') ' Irreducible representation: ',lIrrep(0)
+  write(6,*)
+  do iGrad=1,mGrad
+    Temp = Grad(iGrad)
+    !if (abs(Temp) < 1.0D-15) Temp = Zero
+    write(6,'(16X,A,15X,ES15.7)') Names(iGrad),Temp
+  end do
+
+  !if (nGrad > 21) then
+  !  write(6,*)
+  !  write(6,*) '   ... list is truncated ...'
+  !  write(6,*)
+  !end if
+
+  ! End of modifications
+
+end if
+write(6,*)
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(iPrint)
-      End
+if (.false.) call Unused_integer(iPrint)
+
+end subroutine PrGrad

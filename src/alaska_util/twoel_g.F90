@@ -11,17 +11,10 @@
 ! Copyright (C) 1990,1992, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine TwoEl_g(Coor,iAnga,iCmp,iShell,iShll,iAO,              &
-     &                   iStb,jStb,kStb,lStb,nRys,                      &
-     &                   Data1,nab,nHmab,nData1,Data2,ncd,nHmcd,nData2, &
-     &                   Pren,Prem,                                     &
-     &                   nAlpha,iPrInc, nBeta,jPrInc,                   &
-     &                   nGamma,kPrInc,nDelta,lPrInc,                   &
-     &                   Coeff1,iBasi,Coeff2,jBasj,                     &
-     &                   Coeff3,kBask,Coeff4,lBasl,                     &
-     &                   Zeta,ZInv,P,nZeta,Eta,EInv,Q,nEta,             &
-     &                   xA,xB,xG,xD,Grad,nGrad,IfGrad,IndGrd,          &
-     &                   PSO,nPSO,Wrk2,nWrk2,Aux,nAux,Shijij)
+
+subroutine TwoEl_g(Coor,iAnga,iCmp,iShell,iShll,iAO,iStb,jStb,kStb,lStb,nRys,Data1,nab,nHmab,nData1,Data2,ncd,nHmcd,nData2,Pren, &
+                   Prem,nAlpha,iPrInc,nBeta,jPrInc,nGamma,kPrInc,nDelta,lPrInc,Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4, &
+                   lBasl,Zeta,ZInv,P,nZeta,Eta,EInv,Q,nEta,xA,xB,xG,xD,Grad,nGrad,IfGrad,IndGrd,PSO,nPSO,Wrk2,nWrk2,Aux,nAux,Shijij)
 !***********************************************************************
 !                                                                      *
 ! Object: to generate the SO integrals for four fixed centers and      *
@@ -33,573 +26,488 @@
 !          Roland Lindh, Dept. of Theoretical Chemistry, University of *
 !          Lund, SWEDEN. Modified to gradients, January '92.           *
 !***********************************************************************
-      use Real_Spherical
-      use Basis_Info
-      use Center_Info
-      use Phase_Info
-      use Real_Info, only: ChiI2
-      use Temporary_Parameters, only: IsChi
-      use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
-      External TERI1, ModU2, vCff2D
+
+use Real_Spherical
+use Basis_Info
+use Center_Info
+use Phase_Info
+use Real_Info, only: ChiI2
+use Temporary_Parameters, only: IsChi
+use Symmetry_Info, only: nIrrep
+
+implicit real*8(A-H,O-Z)
+external TERI1, ModU2, vCff2D
 #include "Molcas.fh"
 #include "ndarray.fh"
 #include "real.fh"
 #include "print.fh"
 #include "disp.fh"
-      Real*8 Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1),        &
-     &       Data2(nEta *(nDArray+2*ncd)+nDScalar+nHmcd,nData2)
-      Real*8 Coor(3,4), CoorM(3,4), CoorAC(3,2),                        &
-     &       xA(nZeta),xB(nZeta), xG(nEta), xD(nEta), Grad(nGrad),      &
-     &       Zeta(nZeta), ZInv(nZeta), P(nZeta,3),                      &
-     &       Eta (nEta),  EInv(nEta ), Q(nEta, 3),                      &
-     &       Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj),                 &
-     &       Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl),                &
-     &       PSO(iBasi*jBasj*kBask*lBasl,nPSO), Wrk2(nWrk2),            &
-     &       Aux(nAux)
-      Integer iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iStabN(0:7),          &
-     &        iStabM(0:7), IndGrd(3,4), iAO(4),                         &
-     &        iAnga(4), iCmp(4), iShell(4), iShll(4),                   &
-     &        nOp(4), kOp(4), JndGrd(3,4), iuvwx(4)
-      Logical Shijij, AeqB, CeqD, AeqC, ABeqCD,                         &
-     &        IfGrad(3,4), JfGrad(3,4), PreScr
+real*8 Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1), Data2(nEta*(nDArray+2*ncd)+nDScalar+nHmcd,nData2)
+real*8 Coor(3,4), CoorM(3,4), CoorAC(3,2), xA(nZeta), xB(nZeta), xG(nEta), xD(nEta), Grad(nGrad), Zeta(nZeta), ZInv(nZeta), &
+       P(nZeta,3), Eta(nEta), EInv(nEta), Q(nEta,3), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), &
+       Coeff4(nDelta,lBasl), PSO(iBasi*jBasj*kBask*lBasl,nPSO), Wrk2(nWrk2), Aux(nAux)
+integer iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iStabN(0:7), iStabM(0:7), IndGrd(3,4), iAO(4), iAnga(4), iCmp(4), iShell(4), iShll(4), &
+        nOp(4), kOp(4), JndGrd(3,4), iuvwx(4)
+logical Shijij, AeqB, CeqD, AeqC, ABeqCD, IfGrad(3,4), JfGrad(3,4), PreScr
 #ifdef _DEBUGPRINT_
-      Character ChOper(0:7)*3
-      Data ChOper/' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz'/
+character ChOper(0:7)*3
+data ChOper/' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz'/
 #endif
 
-      Call TwoEl_g_Internal(Data1,Data2)
+call TwoEl_g_Internal(Data1,Data2)
 
-      Contains
-      Subroutine TwoEl_g_Internal(Data1,Data2)
-      Use Iso_C_Binding
-      Real*8, Target ::                                                 &
-     &       Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1),        &
-     &       Data2(nEta *(nDArray+2*ncd)+nDScalar+nHmcd,nData2)
-      Integer, Pointer :: iData1(:), iData2(:)
-      Integer :: lZeta=0, lEta=0
-      Logical EQ, lEmpty
-      External EQ, lEmpty
-#ifdef _WARNING_WORKAROUND_
-!Bug in gcc 7: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94270
-      Interface
-      SubRoutine Rysg1(iAnga,nRys,nT,                                   &
-     &                 Alpha,Beta,Gamma,Delta,                          &
-     &                 Zeta,ZInv,nZeta,Eta,EInv,nEta,                   &
-     &                 P,lP,Q,lQ,Coori,Coora,CoorAC,                    &
-     &                 Array,nArray,                                    &
-     &                 Tvalue,ModU2,Cff2D,                              &
-     &                 PAO,nPAO,Grad,nGrad,IfGrad,IndGrd,kOp,iuvwx)
-      Integer :: iAnga(4),nRys,nT,nZeta,nEta,lP,lQ,nArray,nPAO,         &
-     &           nGrad,IndGrd(3,4),kOp(4),iuvwx(4)
-      Real*8 :: Alpha(nZeta),Beta(nZeta),Gamma(nEta),Delta(nEta),       &
-     &          Zeta(nZeta),ZInv(nZeta),Eta(nEta),EInv(nEta),P(lP,3),   &
-     &          Q(lQ,3),Coori(3,4),Coora(3,4),CoorAC(3,2),Array(nArray),&
-     &          PAO(nT,nPAO),Grad(nGrad)
-      Logical :: IfGrad(3,4)
-      External :: Tvalue, ModU2, Cff2D
-      End Subroutine Rysg1
-      End Interface
-#endif
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Statement function to compute canonical index
-!
-      nElem(i) = (i+1)*(i+2)/2
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-#ifdef _DEBUGPRINT_
-      iRout = 12
-      iPrint = nPrint(iRout)
-#endif
-      la = iAnga(1)
-      lb = iAnga(2)
-      lc = iAnga(3)
-      ld = iAnga(4)
-      iCmpa = iCmp(1)
-      jCmpb = iCmp(2)
-      kCmpc = iCmp(3)
-      lCmpd = iCmp(4)
-      iShlla = iShll(1)
-      jShllb = iShll(2)
-      kShllc = iShll(3)
-      lShlld = iShll(4)
-      IncZet=nAlpha*jPrInc
-      IncEta=nGamma*lPrInc
-      LmbdT=0
-      nijkl = iBasi*jBasj*kBask*lBasl
-      iuvwx(1) = dc(iStb)%nStab
-      iuvwx(2) = dc(jStb)%nStab
-      iuvwx(3) = dc(kStb)%nStab
-      iuvwx(4) = dc(lStb)%nStab
-      mab = nElem(la)*nElem(lb)
-      mcd = nElem(lc)*nElem(ld)
-      iW4 = 1
-      If (jPrInc.ne.nBeta .or. lPrInc.ne.nDelta) Then
-         iW2 = 1 + mab*mcd*nijkl
-      Else
-         iW2 = 1
-      End If
-!
-      If (l2DI) Then
-         iffab = ip_abG(nZeta,nHmab)-1
-         iffabG= ip_abG(nZeta,nHmab)+nab*nZeta-1
-         iffcd = ip_abG( nEta,nHmcd)-1
-         iffcdG= ip_abG( nEta,nHmcd) +ncd*nEta-1
-      Else
-!--------Dummy pointer to assure that we will not be out
-!        off bounds.
-         iffab = ip_abG(nZeta,nHmab)-nZeta-1
-         iffabG= ip_abG(nZeta,nHmab)-nZeta-1
-         iffcd = ip_abG( nEta,nHmcd)-nZeta-1
-         iffcdG= ip_abG( nEta,nHmcd)-nZeta-1
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!-----Find the Double Coset Representatives for center A and B
-!
-      If (nIrrep.eq.1) Then
-         nDCRR=1
-         iDCRR(0)=0
-         LmbdR=1
-      Else
-         Call DCR(LmbdR,dc(iStb)%iStab,dc(iStb)%nStab,                  &
-     &                  dc(jStb)%iStab,dc(jStb)%nStab,iDCRR,nDCRR)
-      End If
-#ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Write (6,'(20A)') ' {R}=(',                     &
-     &      (ChOper(iDCRR(i)),',',i=0,nDCRR-1),')'
-#endif
-      u = DBLE(dc(iStb)%nStab)
-      v = DBLE(dc(jStb)%nStab)
-!
-!-----Find stabilizer for center A and B
-!
-      If (nIrrep.eq.1) Then
-         lStabM=1
-         iStabM(0)=0
-      Else
-         Call Inter(dc(iStb)%iStab,dc(iStb)%nStab,                      &
-     &              dc(jStb)%iStab,dc(jStb)%nStab,iStabM,lStabM)
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!
-!-----Find the Double Coset Representatives for center C and D.
-!     Take care of redundancy if {f(aA)f(bB)}={f(cC)f(dD)}. Hence
-!     we will only use unique combinations of operators from the
-!     double coset representatives {R} and {S}.
-!
-      If (nIrrep.eq.1) Then
-         nDCRS=1
-         iDCRS(0)=0
-         LmbdS=1
-      Else
-         Call DCR(LmbdS,dc(kStb)%iStab,dc(kStb)%nStab,                  &
-     &                  dc(lStb)%iStab,dc(lStb)%nStab,                  &
-     &                               iDCRS,nDCRS)
-      End If
-#ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Write (6,'(20A)') ' {S}=(',                     &
-     &      (ChOper(iDCRS(i)),',',i=0,nDCRS-1),')'
-#endif
-      w = DBLE(dc(kStb)%nStab)
-      x = DBLE(dc(lStb)%nStab)
-!
-!-----Find stabilizer for center C and D
-!
-      If (nIrrep.eq.1) Then
-         lStabN=1
-         iStabN(0)=0
-      Else
-         Call Inter(dc(kStb)%iStab,dc(kStb)%nStab,                      &
-     &              dc(lStb)%iStab,dc(lStb)%nStab,iStabN,lStabN)
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!
-!-----Find the Double Coset Representatives for the two charge
-!     distributions.
-!
-      If (nIrrep.eq.1) Then
-         nDCRT=1
-         iDCRT(0)=0
-         LmbdT=1
-      Else
-         Call DCR(LmbdT,iStabM,lStabM,iStabN,lStabN,iDCRT,nDCRT)
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!-----------Factor due to summation over DCR
-!
-            If (MolWgh.eq.1) Then
-               Fact = DBLE(nIrrep) / DBLE(LmbdT)
-            Else If (MolWgh.eq.0) Then
-               Fact = u*v*w*x / DBLE(nIrrep**3 * LmbdT)
-            Else
-               Fact = Sqrt(u*v*w*x)/DBLE(nIrrep*LmbdT)
-            End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      nOp(1)=NrOpr(0)
-      CoorM(:,1)=Coor(:,1)
-      Do 100 lDCRR = 0, nDCRR-1
-         nOp(2)=NrOpr(iDCRR(lDCRR))
-         Call OA(iDCRR(lDCRR),Coor(:,2),CoorM(:,2))
-         AeqB = EQ(CoorM(:,1),CoorM(:,2))
-!
-         MxDCRS = nDCRS-1
-         Do 200 lDCRS = 0, MxDCRS
-            CoorM(:,3)=Coor(:,3)
-            Call OA(iDCRS(lDCRS),Coor(1:3,4),CoorM(1:3,4))
-            CeqD = EQ(Coor(:,3),CoorM(:,4))
-!
-            Do 300 lDCRT = nDCRT-1, 0, -1
-#ifdef _DEBUGPRINT_
-               If (iPrint.ge.99) Write (6,'(6A)')                       &
-     &         ' R=',ChOper(iDCRR(lDCRR)),                              &
-     &         ', S=',ChOper(iDCRS(lDCRS)),                             &
-     &         ', T=',ChOper(iDCRT(lDCRT))
-#endif
-!
-               nOp(3) = NrOpr(iDCRT(lDCRT))
-               iDCRTS=iEor(iDCRT(lDCRT),iDCRS(lDCRS))
-               nOp(4) = NrOpr(iDCRTS)
-!
-               Call OA(iDCRTS,Coor(:,4),CoorM(:,4))
-               Call OA(iDCRT(lDCRT),Coor(:,3),CoorM(:,3))
-!
-#ifdef _DEBUGPRINT_
-               If (iPrint.ge.59)                                        &
-     &            Call RecPrt(' CoorM in TwoEl',' ',CoorM,3,4)
-#endif
-               AeqC = EQ(CoorM(:,1),CoorM(:,3))
-               ABeqCD = AeqB .and. CeqD .and. AeqC
-!--------------No contribution to gradient from one-center integrals
-               If (ABeqCD) Go To 301
-!
-!--------------Modify which center we will differetiate with
-!              respect to using the translational invariance.
-!
-               mGrad = 0
-               Do 3333 iCar = 1, 3
-!-----------------Copy to temporary arrays
-                  JfGrad(iCar,:)=IfGrad(iCar,:)
-                  JndGrd(iCar,:)=IndGrd(iCar,:)
-!-----------------In case of four differentiations use
-!                 the translational invariance to remove
-!                 one or several of them.
-                  If (IfGrad(iCar,1) .and.                              &
-     &                IfGrad(iCar,2) .and.                              &
-     &                IfGrad(iCar,3) .and.                              &
-     &                IfGrad(iCar,4) ) Then
-!
-                     nIdent=0
-                     kCent=0
-                     lCent=0
-                     Do iCent = 1, 3
-                        Do jCent = iCent+1, 4
-                           If (EQ(CoorM(1,iCent),                       &
-     &                            CoorM(1,jCent))) Then
-                              nIdent=nIdent+1
-                              kCent=iCent
-                              lCent=jCent
-                           End If
-                        End Do
-                     End Do
-!
-!--------------------Remove a center which is unique and if possible
-!                    if it occurs several times.
-!
-                     If (nIdent.eq.0) Then
-!---------------------- Four center case, remove a center
-                        jCent=1
-                        Do iCent = 1, 4
-                           If (iAnga(iCent).ne.0) jCent=iCent
-                        End Do
-                        JndGrd(iCar,jCent) = -JndGrd(iCar,jCent)
-                        JfGrad(iCar,jCent) = .False.
-                     Else If (nIdent.eq.1) Then
-!---------------------- Three center case
-                        iiCent=kCent
-                        jjCent=lCent
-                        JndGrd(iCar,iiCent) = 0
-                        JfGrad(iCar,iiCent) = .False.
-                        JndGrd(iCar,jjCent) = -JndGrd(iCar,jjCent)
-                        JfGrad(iCar,jjCent) = .False.
-                     Else If (nIdent.eq.2) Then
-!---------------------- Two center case
-                        iiCent=kCent
-                        jjCent=lCent
-                        ikl=2**(kCent-1)+2**(lCent-1)
-                        Do iC = 1, 4
-                           If (iAnd(ikl,2**(iC-1)).eq.0) Then
-                              iCent=iC
-                           End If
-                        End Do
-                        ikl=ikl+2**(iCent-1)
-                        Do iC = 1, 4
-                           If (iAnd(ikl,2**(iC-1)).eq.0) Then
-                              jCent=iC
-                           End If
-                        End Do
-                        ijMax=Max(iAnga(iCent),iAnga(jCent))
-                        ijMin=Min(iAnga(iCent),iAnga(jCent))
-                        klMax=Max(iAnga(kCent),iAnga(lCent))
-                        klMin=Min(iAnga(kCent),iAnga(lCent))
-                        If (klMin.gt.0) Then
-                           iiCent=kCent
-                           jjCent=lCent
-                        Else If (ijMin.gt.0) Then
-                           iiCent=iCent
-                           jjCent=jCent
-                        Else If (klMax.gt.0) Then
-                           iiCent=kCent
-                           jjCent=lCent
-                        Else If (ijMax.gt.0) Then
-                           iiCent=iCent
-                           jjCent=jCent
-                        End If
-                        JndGrd(iCar,iiCent) = 0
-                        JfGrad(iCar,iiCent) = .False.
-                        JndGrd(iCar,jjCent) = -JndGrd(iCar,jjCent)
-                        JfGrad(iCar,jjCent) = .False.
-                     Else If (nIdent.eq.3) Then
-!---------------------- Two center case
-                        If (lCent.ne.4) Then
-                           mCent=1
-                        Else If (kCent.ne.3) Then
-                           mCent=1
-                        Else If (EQ(CoorM(1,1),CoorM(1,4))) Then
-                           mCent=1
-                        Else
-                           mCent=2
-                        End If
-                        JndGrd(iCar,mCent) = 0
-                        JfGrad(iCar,mCent) = .False.
-                        JndGrd(iCar,kCent) = 0
-                        JfGrad(iCar,kCent) = .False.
-                        JndGrd(iCar,lCent) = -JndGrd(iCar,lCent)
-                        JfGrad(iCar,lCent) = .False.
-                     Else
-                        Call WarningMessage(2,'Error in Twoel_g')
-                        Write (6,*) ' Twoel: nIdent too large!'
-                        Call Abend()
-                     End If
-                  End If
-                  Do 4444 ixSh = 1, 4
-                     If (JfGrad(iCar,ixSh)) mGrad=mGrad+1
- 4444             Continue
- 3333          Continue
-               If (mGrad.eq.0) Go To 301
-!
-!--------------Find the proper centers to start of with the angular
-!              momentum on. If la.eq.lb there will excist an
-!              ambiguity to which center that angular momentum should
-!              be accumulated on. In that case we will use A and C of
-!              the order as defined by the basis functions types.
-!
-               If (iAnga(1).ge.iAnga(2)) Then
-                  CoorAC(:,1)=CoorM(:,1)
-               Else
-                  CoorAC(:,1)=CoorM(:,2)
-               End If
-               If (iAnga(3).ge.iAnga(4)) Then
-                  CoorAC(:,2)=CoorM(:,3)
-               Else
-                  CoorAC(:,2)=CoorM(:,4)
-               End If
-               kOp(:) = nOp(:)
+contains
 
-!
-!--------------Desymmetrize the second order density matrix
-!
-!--------------(faA fbR(B) | fcT(C) fdTS(D))ijkl
-!
-               Call DesymP(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),       &
-     &                     Shijij,iShll,iShell,iAO,kOp,nijkl,           &
-     &                     Aux,nAux,Wrk2(iW2),PSO,nPSO)
-!
-               If (Fact.ne.One) Call DScal_(nijkl*                      &
-     &             iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4),                     &
-     &             Fact,Wrk2(iW2),1)
-!
-!--------------Backtransform 2nd order density matrix from spherical
-!              harmonic gaussians to cartesian gaussians.
-!
-               ijklab = nijkl * iCmp(1)*iCmp(2)
-               nW2 = ijklab*Max(kCmpc*lCmpd,mcd)
-               iW3_ = iW2 + nW2
-               nWrk3_ = nWrk2 - ((iW2-iW4) + nW2)
-               Call SphCr1(Wrk2(iW2),ijklab,                            &
-     &                     Wrk2(iW3_),nWrk3_,                           &
-     &                     RSph(ipSph(lc)),nElem(lc),kCmpc,             &
-     &                     Shells(kShllc)%Transf,                       &
-     &                     Shells(kShllc)%Prjct,                        &
-     &                     RSph(ipSph(ld)),nElem(ld),lCmpd,             &
-     &                     Shells(lShlld)%Transf,                       &
-     &                     Shells(lShlld)%Prjct,                        &
-     &                     Wrk2(iW2),mcd)
-               If (iW2.eq.iW4) Then
-                  nW2 = nijkl*mcd*Max(iCmpa*jCmpb,mab)
-                  nW4 = 0
-               Else
-                  nW2 = nijkl*mcd*iCmpa*jCmpb
-                  nW4 = nijkl*mcd*mab
-               End If
-               iW3_=iW2 + nW2
-               nWrk3_ = nWrk2 - (nW2 + nW4)
-               Call SphCr2(Wrk2(iW2),nijkl,mcd,                         &
-     &                     Wrk2(iW3_),nWrk3_,                           &
-     &                     RSph(ipSph(la)),nElem(la),iCmpa,             &
-     &                     Shells(iShlla)%Transf,                       &
-     &                     Shells(iShlla)%Prjct,                        &
-     &                     RSph(ipSph(lb)),nElem(lb),jCmpb,             &
-     &                     Shells(jShllb)%Transf,                       &
-     &                     Shells(jShllb)%Prjct,                        &
-     &                     Wrk2(iW4),mab)
-!
-!--------------Transpose the 2nd order density matrix
-!
-               If (mab*mcd.ne.1) Then
-                  iW3_ = iW4 + nijkl*mab*mcd
-                  Call DGetMO(Wrk2(iW4),nijkl,nijkl,mab*mcd,Wrk2(iW3_), &
-     &                        mab*mcd)
-                  call dcopy_(mab*mcd*nijkl,Wrk2(iW3_),1,Wrk2(iW4),1)
-               End If
-!
-               lDCR1=NrOpr(iDCRR(lDCRR))+1
-               lDCR2=NrOpr(iDCRS(lDCRS))+1
-               ix1 = 1
-               iy1 = 1
-               iz1 = 1
-               ix2 = iPhase(1,iDCRT(lDCRT))
-               iy2 = iPhase(2,iDCRT(lDCRT))
-               iz2 = iPhase(3,iDCRT(lDCRT))
-!
-               Call C_F_Pointer(C_Loc(Data1(ip_IndZ(1,nZeta),lDCR1)),   &
-     &                         iData1,[nZeta+1])
-               Call C_F_Pointer(C_Loc(Data2(ip_IndZ(1,nEta ),lDCR2)),   &
-     &                         iData2,[nEta +1])
-               nZeta_Tot=iData1(nZeta+1)
-               nEta_Tot =iData2(nEta +1)
-!
-!--------------Loops to partion the primitives
-!
-               Do 400 iZeta = 1, nZeta_Tot, IncZet
-                  mZeta=Min(IncZet,nZeta_Tot-iZeta+1)
-                  If (lEmpty(Coeff2,nBeta, nBeta ,jBasj)) Go To 400
-!
-               Do 410 iEta  = 1, nEta_Tot,  IncEta
-                  mEta=Min(IncEta,nEta_Tot-iEta+1)
-                  If (lEmpty(Coeff4,nDelta,nDelta,lBasl)) Go To 410
-!
-                  Pren = Pren + DBLE(mab*mcd*mZeta*mEta)
-!
-!-----------------Preprescreen
-!
-                  Call PrePre_g(nZeta,nEta,mZeta,mEta,lZeta,lEta,       &
-     &                          Data1(ip_Z   (iZeta,nZeta),lDCR1),      &
-     &                          Data2(ip_Z   (iEta, nEta), lDCR2),      &
-     &                          PreScr,CutGrd)
-                  If (lZeta*lEta.eq.0) Go To 410
-!
-!-----------------Decontract the 2nd order density matrix
-!
-                  If (iW4.eq.iW2) Then
-                     nW4=0
-                     nW2=Max(nijkl,mZeta*mEta)*mab*mcd
-                  Else
-                     nW4=nijkl*mab*mcd
-                     nW2=mZeta*mEta*mab*mcd
-                  End If
-                  iW3_ = iW2 + nW2
-                  nWrk3_ = nWrk2 - (nW4+nW2)
-                  Call Tcrtnc(Coeff1,nAlpha,iBasi,                      &
-     &                        Coeff2,nBeta,jBasj,                       &
-     &                        Coeff3,nGamma,kBask,                      &
-     &                        Coeff4,nDelta,lBasl,                      &
-     &                        Wrk2(iW4),mab*mcd,Wrk2(iW3_),nWrk3_,      &
-     &                        Wrk2(iW2),                                &
-     &                        iData1(iZeta:iZeta+mZeta-1),mZeta,        &
-     &                        iData2(iEta: iEta +mEta -1),mEta)
-!
-!-----------------Transfer k2 data and prescreen
-!
-                  iW3_ = iW2 + mZeta*mEta*mab*mcd
-                  nWrk3_ = nWrk2 - mZeta*mEta*mab*mcd
-                  Call Screen_g(Wrk2(iW2),Wrk2(iW3_),mab*mcd,nZeta,nEta,&
-     &                        mZeta,mEta,lZeta,lEta,                    &
-     &                        Zeta,ZInv,P,xA,xB,                        &
-     &                        Data1(iZeta,lDCR1),                       &
-     &                        nAlpha,jPrim,                             &
-     &                        iData1(iZeta:iZeta+mZeta-1),              &
-     &                        Eta, EInv,Q,xG,xD,                        &
-     &                        Data2(iEta ,lDCR2),                       &
-     &                        nGamma,lPrim,                             &
-     &                        iData2(iEta :iEta +mEta -1),              &
-     &                        ix1,iy1,iz1,ix2,iy2,iz2,                  &
-     &                        CutGrd,l2DI,                              &
-     &                        Data1(iZeta+iffab ,lDCR1),                &
-     &                        Data1(iZeta+iffabG,lDCR1),nab,            &
-     &                        Data2(iEta +iffcd ,lDCR2),                &
-     &                        Data2(iEta +iffcdG,lDCR2),ncd,            &
-     &                        PreScr,nWrk3_,IsChi,ChiI2)
-                  Prem = Prem + DBLE(mab*mcd*lZeta*lEta)
-!                 Write (*,*) 'Prem=',Prem
-                  If (lZeta*lEta.eq.0) Go To 410
-!
-!-----------------Compute integral derivative and accumulate
-!                 contribution to the molecular gradient. Note that
-!                 the PSO matrix now is stored in Wrk2(iW2).
-!
-                  iW3_ = iW2 + lZeta*lEta*mab*mcd
-                  Call Rysg1(iAnga,nRys,lZeta*lEta,                     &
-     &                       xA,xB,xG,xD,                               &
-     &                       Zeta,ZInv,lZeta,                           &
-     &                       Eta,EInv,lEta,                             &
-     &                       P,nZeta,Q,nEta,                            &
-     &                       CoorM,CoorM,CoorAC,Wrk2(iW3_),nWrk3_,      &
-     &                       TERI1,ModU2,vCff2D,                        &
-     &                       Wrk2(iW2),mab*mcd,                         &
-     &                       Grad,nGrad,JfGrad,JndGrd,kOp,iuvwx)
-                  Aha=Sqrt(DDot_(nGrad,Grad,1,Grad,1))
-                  If (Aha.gt.1.0D+5) Then
-                      Write (6,*)                                       &
-     &                      'Norm of gradient contribution is huge!'
-                      Write (6,*) 'Probably due to wrong coordinates.'
-                  End If
-!
- 410           Continue
- 400           Continue
-               Nullify(iData1,iData2)
-!
-#ifdef _DEBUGPRINT_
-               If (iPrint.ge.19) Call PrGrad(' In TwoEl',               &
-     &                     Grad,nGrad,ChDisp,5)
-#endif
-!
- 301          Continue
- 300        Continue
- 200     Continue
- 100  Continue
-!
-      Return
-! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer_array(iAO)
-         Call Unused_integer(iPrInc)
-         Call Unused_integer(kPrInc)
-      End If
-      End Subroutine TwoEl_g_Internal
-      End
+subroutine TwoEl_g_Internal(Data1,Data2)
+
+  use iso_c_binding
+  real*8, target :: Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1), Data2(nEta*(nDArray+2*ncd)+nDScalar+nHmcd,nData2)
+  integer, pointer :: iData1(:), iData2(:)
+  integer :: lZeta = 0, lEta = 0
+  logical EQ, lEmpty
+  external EQ, lEmpty
+
+# ifdef _WARNING_WORKAROUND_
+  !Bug in gcc 7: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94270
+  interface
+    subroutine Rysg1(iAnga,nRys,nT,Alpha,Beta,Gamma,Delta,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,Coori,Coora,CoorAC,Array,nArray, &
+                     Tvalue,ModU2,Cff2D,PAO,nPAO,Grad,nGrad,IfGrad,IndGrd,kOp,iuvwx)
+      integer :: iAnga(4), nRys, nT, nZeta, nEta, lP, lQ, nArray, nPAO, nGrad, IndGrd(3,4), kOp(4), iuvwx(4)
+      real*8 :: Alpha(nZeta), Beta(nZeta), Gamma(nEta), Delta(nEta), Zeta(nZeta), ZInv(nZeta), Eta(nEta), EInv(nEta), P(lP,3), &
+                Q(lQ,3), Coori(3,4), Coora(3,4), CoorAC(3,2), Array(nArray), PAO(nT,nPAO), Grad(nGrad)
+      logical :: IfGrad(3,4)
+      external :: Tvalue, ModU2, Cff2D
+    end subroutine Rysg1
+  end interface
+# endif
+  ! Statement function to compute canonical index
+  nElem(i) = (i+1)*(i+2)/2
+
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+# ifdef _DEBUGPRINT_
+  iRout = 12
+  iPrint = nPrint(iRout)
+# endif
+  la = iAnga(1)
+  lb = iAnga(2)
+  lc = iAnga(3)
+  ld = iAnga(4)
+  iCmpa = iCmp(1)
+  jCmpb = iCmp(2)
+  kCmpc = iCmp(3)
+  lCmpd = iCmp(4)
+  iShlla = iShll(1)
+  jShllb = iShll(2)
+  kShllc = iShll(3)
+  lShlld = iShll(4)
+  IncZet = nAlpha*jPrInc
+  IncEta = nGamma*lPrInc
+  LmbdT = 0
+  nijkl = iBasi*jBasj*kBask*lBasl
+  iuvwx(1) = dc(iStb)%nStab
+  iuvwx(2) = dc(jStb)%nStab
+  iuvwx(3) = dc(kStb)%nStab
+  iuvwx(4) = dc(lStb)%nStab
+  mab = nElem(la)*nElem(lb)
+  mcd = nElem(lc)*nElem(ld)
+  iW4 = 1
+  if ((jPrInc /= nBeta) .or. (lPrInc /= nDelta)) then
+    iW2 = 1+mab*mcd*nijkl
+  else
+    iW2 = 1
+  end if
+
+  if (l2DI) then
+    iffab = ip_abG(nZeta,nHmab)-1
+    iffabG = ip_abG(nZeta,nHmab)+nab*nZeta-1
+    iffcd = ip_abG(nEta,nHmcd)-1
+    iffcdG = ip_abG(nEta,nHmcd)+ncd*nEta-1
+  else
+    ! Dummy pointer to assure that we will not be out off bounds.
+    iffab = ip_abG(nZeta,nHmab)-nZeta-1
+    iffabG = ip_abG(nZeta,nHmab)-nZeta-1
+    iffcd = ip_abG(nEta,nHmcd)-nZeta-1
+    iffcdG = ip_abG(nEta,nHmcd)-nZeta-1
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Find the Double Coset Representatives for center A and B
+
+  if (nIrrep == 1) then
+    nDCRR = 1
+    iDCRR(0) = 0
+    LmbdR = 1
+  else
+    call DCR(LmbdR,dc(iStb)%iStab,dc(iStb)%nStab,dc(jStb)%iStab,dc(jStb)%nStab,iDCRR,nDCRR)
+  end if
+# ifdef _DEBUGPRINT_
+  if (iPrint >= 99) write(6,'(20A)') ' {R}=(',(ChOper(iDCRR(i)),',',i=0,nDCRR-1),')'
+# endif
+  u = dble(dc(iStb)%nStab)
+  v = dble(dc(jStb)%nStab)
+
+  ! Find stabilizer for center A and B
+
+  if (nIrrep == 1) then
+    lStabM = 1
+    iStabM(0) = 0
+  else
+    call Inter(dc(iStb)%iStab,dc(iStb)%nStab,dc(jStb)%iStab,dc(jStb)%nStab,iStabM,lStabM)
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Find the Double Coset Representatives for center C and D.
+  ! Take care of redundancy if {f(aA)f(bB)}={f(cC)f(dD)}. Hence
+  ! we will only use unique combinations of operators from the
+  ! double coset representatives {R} and {S}.
+
+  if (nIrrep == 1) then
+    nDCRS = 1
+    iDCRS(0) = 0
+    LmbdS = 1
+  else
+    call DCR(LmbdS,dc(kStb)%iStab,dc(kStb)%nStab,dc(lStb)%iStab,dc(lStb)%nStab,iDCRS,nDCRS)
+  end if
+# ifdef _DEBUGPRINT_
+  if (iPrint >= 99) write(6,'(20A)') ' {S}=(',(ChOper(iDCRS(i)),',',i=0,nDCRS-1),')'
+# endif
+  w = dble(dc(kStb)%nStab)
+  x = dble(dc(lStb)%nStab)
+
+  ! Find stabilizer for center C and D
+
+  if (nIrrep == 1) then
+    lStabN = 1
+    iStabN(0) = 0
+  else
+    call Inter(dc(kStb)%iStab,dc(kStb)%nStab,dc(lStb)%iStab,dc(lStb)%nStab,iStabN,lStabN)
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Find the Double Coset Representatives for the two charge
+  ! distributions.
+
+  if (nIrrep == 1) then
+    nDCRT = 1
+    iDCRT(0) = 0
+    LmbdT = 1
+  else
+    call DCR(LmbdT,iStabM,lStabM,iStabN,lStabN,iDCRT,nDCRT)
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Factor due to summation over DCR
+
+  if (MolWgh == 1) then
+    Fact = dble(nIrrep)/dble(LmbdT)
+  else if (MolWgh == 0) then
+    Fact = u*v*w*x/dble(nIrrep**3*LmbdT)
+  else
+    Fact = sqrt(u*v*w*x)/dble(nIrrep*LmbdT)
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  nOp(1) = NrOpr(0)
+  CoorM(:,1) = Coor(:,1)
+  do lDCRR=0,nDCRR-1
+    nOp(2) = NrOpr(iDCRR(lDCRR))
+    call OA(iDCRR(lDCRR),Coor(:,2),CoorM(:,2))
+    AeqB = EQ(CoorM(:,1),CoorM(:,2))
+
+    MxDCRS = nDCRS-1
+    do lDCRS=0,MxDCRS
+      CoorM(:,3) = Coor(:,3)
+      call OA(iDCRS(lDCRS),Coor(1:3,4),CoorM(1:3,4))
+      CeqD = EQ(Coor(:,3),CoorM(:,4))
+
+      do lDCRT=nDCRT-1,0,-1
+#       ifdef _DEBUGPRINT_
+        if (iPrint >= 99) write(6,'(6A)') ' R=',ChOper(iDCRR(lDCRR)),', S=',ChOper(iDCRS(lDCRS)),', T=',ChOper(iDCRT(lDCRT))
+#       endif
+
+        nOp(3) = NrOpr(iDCRT(lDCRT))
+        iDCRTS = ieor(iDCRT(lDCRT),iDCRS(lDCRS))
+        nOp(4) = NrOpr(iDCRTS)
+
+        call OA(iDCRTS,Coor(:,4),CoorM(:,4))
+        call OA(iDCRT(lDCRT),Coor(:,3),CoorM(:,3))
+
+#       ifdef _DEBUGPRINT_
+        if (iPrint >= 59) call RecPrt(' CoorM in TwoEl',' ',CoorM,3,4)
+#       endif
+        AeqC = EQ(CoorM(:,1),CoorM(:,3))
+        ABeqCD = AeqB .and. CeqD .and. AeqC
+        ! No contribution to gradient from one-center integrals
+        if (ABeqCD) Go To 301
+
+        ! Modify which center we will differetiate with
+        ! respect to using the translational invariance.
+
+        mGrad = 0
+        do iCar=1,3
+          ! Copy to temporary arrays
+          JfGrad(iCar,:) = IfGrad(iCar,:)
+          JndGrd(iCar,:) = IndGrd(iCar,:)
+          ! In case of four differentiations use
+          ! the translational invariance to remove
+          ! one or several of them.
+          if (IfGrad(iCar,1) .and. IfGrad(iCar,2) .and. IfGrad(iCar,3) .and. IfGrad(iCar,4)) then
+
+            nIdent = 0
+            kCent = 0
+            lCent = 0
+            do iCent=1,3
+              do jCent=iCent+1,4
+                if (EQ(CoorM(1,iCent),CoorM(1,jCent))) then
+                  nIdent = nIdent+1
+                  kCent = iCent
+                  lCent = jCent
+                end if
+              end do
+            end do
+
+            ! Remove a center which is unique and if possible
+            ! if it occurs several times.
+
+            if (nIdent == 0) then
+              ! Four center case, remove a center
+              jCent = 1
+              do iCent=1,4
+                if (iAnga(iCent) /= 0) jCent = iCent
+              end do
+              JndGrd(iCar,jCent) = -JndGrd(iCar,jCent)
+              JfGrad(iCar,jCent) = .false.
+            else if (nIdent == 1) then
+              ! Three center case
+              iiCent = kCent
+              jjCent = lCent
+              JndGrd(iCar,iiCent) = 0
+              JfGrad(iCar,iiCent) = .false.
+              JndGrd(iCar,jjCent) = -JndGrd(iCar,jjCent)
+              JfGrad(iCar,jjCent) = .false.
+            else if (nIdent == 2) then
+              ! Two center case
+              iiCent = kCent
+              jjCent = lCent
+              ikl = 2**(kCent-1)+2**(lCent-1)
+              do iC=1,4
+                if (iand(ikl,2**(iC-1)) == 0) then
+                  iCent = iC
+                end if
+              end do
+              ikl = ikl+2**(iCent-1)
+              do iC=1,4
+                if (iand(ikl,2**(iC-1)) == 0) then
+                  jCent = iC
+                end if
+              end do
+              ijMax = max(iAnga(iCent),iAnga(jCent))
+              ijMin = min(iAnga(iCent),iAnga(jCent))
+              klMax = max(iAnga(kCent),iAnga(lCent))
+              klMin = min(iAnga(kCent),iAnga(lCent))
+              if (klMin > 0) then
+                iiCent = kCent
+                jjCent = lCent
+              else if (ijMin > 0) then
+                iiCent = iCent
+                jjCent = jCent
+              else if (klMax > 0) then
+                iiCent = kCent
+                jjCent = lCent
+              else if (ijMax > 0) then
+                iiCent = iCent
+                jjCent = jCent
+              end if
+              JndGrd(iCar,iiCent) = 0
+              JfGrad(iCar,iiCent) = .false.
+              JndGrd(iCar,jjCent) = -JndGrd(iCar,jjCent)
+              JfGrad(iCar,jjCent) = .false.
+            else if (nIdent == 3) then
+              ! Two center case
+              if (lCent /= 4) then
+                mCent = 1
+              else if (kCent /= 3) then
+                mCent = 1
+              else if (EQ(CoorM(1,1),CoorM(1,4))) then
+                mCent = 1
+              else
+                mCent = 2
+              end if
+              JndGrd(iCar,mCent) = 0
+              JfGrad(iCar,mCent) = .false.
+              JndGrd(iCar,kCent) = 0
+              JfGrad(iCar,kCent) = .false.
+              JndGrd(iCar,lCent) = -JndGrd(iCar,lCent)
+              JfGrad(iCar,lCent) = .false.
+            else
+              call WarningMessage(2,'Error in Twoel_g')
+              write(6,*) ' Twoel: nIdent too large!'
+              call Abend()
+            end if
+          end if
+          do ixSh=1,4
+            if (JfGrad(iCar,ixSh)) mGrad = mGrad+1
+          end do
+        end do
+        if (mGrad == 0) Go To 301
+
+        ! Find the proper centers to start of with the angular
+        ! momentum on. If la == lb there will excist an
+        ! ambiguity to which center that angular momentum should
+        ! be accumulated on. In that case we will use A and C of
+        ! the order as defined by the basis functions types.
+
+        if (iAnga(1) >= iAnga(2)) then
+          CoorAC(:,1) = CoorM(:,1)
+        else
+          CoorAC(:,1) = CoorM(:,2)
+        end if
+        if (iAnga(3) >= iAnga(4)) then
+          CoorAC(:,2) = CoorM(:,3)
+        else
+          CoorAC(:,2) = CoorM(:,4)
+        end if
+        kOp(:) = nOp(:)
+
+        ! Desymmetrize the second order density matrix
+
+        ! (faA fbR(B) | fcT(C) fdTS(D))ijkl
+
+        call DesymP(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),Shijij,iShll,iShell,iAO,kOp,nijkl,Aux,nAux,Wrk2(iW2),PSO,nPSO)
+
+        if (Fact /= One) call DScal_(nijkl*iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4),Fact,Wrk2(iW2),1)
+
+        ! Backtransform 2nd order density matrix from spherical
+        ! harmonic gaussians to cartesian gaussians.
+
+        ijklab = nijkl*iCmp(1)*iCmp(2)
+        nW2 = ijklab*max(kCmpc*lCmpd,mcd)
+        iW3_ = iW2+nW2
+        nWrk3_ = nWrk2-((iW2-iW4)+nW2)
+        call SphCr1(Wrk2(iW2),ijklab,Wrk2(iW3_),nWrk3_,RSph(ipSph(lc)),nElem(lc),kCmpc,Shells(kShllc)%Transf,Shells(kShllc)%Prjct, &
+                    RSph(ipSph(ld)),nElem(ld),lCmpd,Shells(lShlld)%Transf,Shells(lShlld)%Prjct,Wrk2(iW2),mcd)
+        if (iW2 == iW4) then
+          nW2 = nijkl*mcd*max(iCmpa*jCmpb,mab)
+          nW4 = 0
+        else
+          nW2 = nijkl*mcd*iCmpa*jCmpb
+          nW4 = nijkl*mcd*mab
+        end if
+        iW3_ = iW2+nW2
+        nWrk3_ = nWrk2-(nW2+nW4)
+        call SphCr2(Wrk2(iW2),nijkl,mcd,Wrk2(iW3_),nWrk3_,RSph(ipSph(la)),nElem(la),iCmpa,Shells(iShlla)%Transf, &
+                    Shells(iShlla)%Prjct,RSph(ipSph(lb)),nElem(lb),jCmpb,Shells(jShllb)%Transf,Shells(jShllb)%Prjct,Wrk2(iW4),mab)
+
+        ! Transpose the 2nd order density matrix
+
+        if (mab*mcd /= 1) then
+          iW3_ = iW4+nijkl*mab*mcd
+          call DGetMO(Wrk2(iW4),nijkl,nijkl,mab*mcd,Wrk2(iW3_),mab*mcd)
+          call dcopy_(mab*mcd*nijkl,Wrk2(iW3_),1,Wrk2(iW4),1)
+        end if
+
+        lDCR1 = NrOpr(iDCRR(lDCRR))+1
+        lDCR2 = NrOpr(iDCRS(lDCRS))+1
+        ix1 = 1
+        iy1 = 1
+        iz1 = 1
+        ix2 = iPhase(1,iDCRT(lDCRT))
+        iy2 = iPhase(2,iDCRT(lDCRT))
+        iz2 = iPhase(3,iDCRT(lDCRT))
+
+        call c_f_pointer(c_loc(Data1(ip_IndZ(1,nZeta),lDCR1)),iData1,[nZeta+1])
+        call c_f_pointer(c_loc(Data2(ip_IndZ(1,nEta),lDCR2)),iData2,[nEta+1])
+        nZeta_Tot = iData1(nZeta+1)
+        nEta_Tot = iData2(nEta+1)
+
+        ! Loops to partion the primitives
+
+        do iZeta=1,nZeta_Tot,IncZet
+          mZeta = min(IncZet,nZeta_Tot-iZeta+1)
+          if (lEmpty(Coeff2,nBeta,nBeta,jBasj)) Go To 400
+
+          do iEta=1,nEta_Tot,IncEta
+            mEta = min(IncEta,nEta_Tot-iEta+1)
+            if (lEmpty(Coeff4,nDelta,nDelta,lBasl)) Go To 410
+
+            Pren = Pren+dble(mab*mcd*mZeta*mEta)
+
+            ! Preprescreen
+
+            call PrePre_g(nZeta,nEta,mZeta,mEta,lZeta,lEta,Data1(ip_Z(iZeta,nZeta),lDCR1),Data2(ip_Z(iEta,nEta),lDCR2),PreScr, &
+                          CutGrd)
+            if (lZeta*lEta == 0) Go To 410
+
+            ! Decontract the 2nd order density matrix
+
+            if (iW4 == iW2) then
+              nW4 = 0
+              nW2 = max(nijkl,mZeta*mEta)*mab*mcd
+            else
+              nW4 = nijkl*mab*mcd
+              nW2 = mZeta*mEta*mab*mcd
+            end if
+            iW3_ = iW2+nW2
+            nWrk3_ = nWrk2-(nW4+nW2)
+            call Tcrtnc(Coeff1,nAlpha,iBasi,Coeff2,nBeta,jBasj,Coeff3,nGamma,kBask,Coeff4,nDelta,lBasl,Wrk2(iW4),mab*mcd, &
+                        Wrk2(iW3_),nWrk3_,Wrk2(iW2),iData1(iZeta:iZeta+mZeta-1),mZeta,iData2(iEta:iEta+mEta-1),mEta)
+
+            ! Transfer k2 data and prescreen
+
+            iW3_ = iW2+mZeta*mEta*mab*mcd
+            nWrk3_ = nWrk2-mZeta*mEta*mab*mcd
+            call Screen_g(Wrk2(iW2),Wrk2(iW3_),mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB,Data1(iZeta,lDCR1), &
+                          nAlpha,jPrim,iData1(iZeta:iZeta+mZeta-1),Eta,EInv,Q,xG,xD,Data2(iEta,lDCR2),nGamma,lPrim, &
+                          iData2(iEta:iEta+mEta-1),ix1,iy1,iz1,ix2,iy2,iz2,CutGrd,l2DI,Data1(iZeta+iffab,lDCR1), &
+                          Data1(iZeta+iffabG,lDCR1),nab,Data2(iEta+iffcd,lDCR2),Data2(iEta+iffcdG,lDCR2),ncd,PreScr,nWrk3_,IsChi, &
+                          ChiI2)
+            Prem = Prem+dble(mab*mcd*lZeta*lEta)
+            !write(6,*) 'Prem=',Prem
+            if (lZeta*lEta == 0) Go To 410
+
+            ! Compute integral derivative and accumulate
+            ! contribution to the molecular gradient. Note that
+            ! the PSO matrix now is stored in Wrk2(iW2).
+
+            iW3_ = iW2+lZeta*lEta*mab*mcd
+            call Rysg1(iAnga,nRys,lZeta*lEta,xA,xB,xG,xD,Zeta,ZInv,lZeta,Eta,EInv,lEta,P,nZeta,Q,nEta,CoorM,CoorM,CoorAC, &
+                       Wrk2(iW3_),nWrk3_,TERI1,ModU2,vCff2D,Wrk2(iW2),mab*mcd,Grad,nGrad,JfGrad,JndGrd,kOp,iuvwx)
+            Aha = sqrt(DDot_(nGrad,Grad,1,Grad,1))
+            if (Aha > 1.0D+5) then
+              write(6,*) 'Norm of gradient contribution is huge!'
+              write(6,*) 'Probably due to wrong coordinates.'
+            end if
+
+410         continue
+          end do
+400       continue
+        end do
+        nullify(iData1,iData2)
+
+#       ifdef _DEBUGPRINT_
+        if (iPrint >= 19) call PrGrad(' In TwoEl',Grad,nGrad,ChDisp,5)
+#       endif
+
+301     continue
+      end do
+    end do
+  end do
+
+  return
+  ! Avoid unused argument warnings
+  if (.false.) then
+    call Unused_integer_array(iAO)
+    call Unused_integer(iPrInc)
+    call Unused_integer(kPrInc)
+  end if
+
+end subroutine TwoEl_g_Internal
+
+end subroutine TwoEl_g

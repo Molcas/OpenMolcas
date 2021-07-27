@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine PrePre_g(nZeta,nEta,mZeta,mEta,lZeta,lEta,             &
-     &                  Data1,Data2,PreScr,CutGrd)
+
+subroutine PrePre_g(nZeta,nEta,mZeta,mEta,lZeta,lEta,Data1,Data2,PreScr,CutGrd)
 !***********************************************************************
 !                                                                      *
 ! Object: to preprescreen the integral derivatives.                    *
@@ -25,63 +25,64 @@
 !             University of Lund, SWEDEN                               *
 !             July '92.                                                *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      Real*8                                                            &
-     &       Data1(nZeta,8), Data2(nEta,8)
-      Logical PreScr
+
+implicit real*8(A-H,O-Z)
+real*8 Data1(nZeta,8), Data2(nEta,8)
+logical PreScr
 #include "print.fh"
 #include "real.fh"
-!
-      iRout = 180
-      iPrint = nPrint(iRout)
-!     iQ = 0
-      If (iPrint.ge.99) Then
-         Call RecPrt(' Data1',' ',Data1,nZeta,8)
-         Call RecPrt(' Data2',' ',Data2,nEta ,8)
-      End If
-!
-      tOne = One
-!
-!-----Preprescanning
-!
-      lZeta=mZeta
-      lEta =mEta
-      rKabMx=Zero
-      ZetaMx=Zero
-      rKabMn=1.0D+72
-      ZetaMn=Zero
-      Do 700 iZeta = 1, mZeta
-         If (Data1(iZeta,2).gt.rKabMx) Then
-            rKabMx=Data1(iZeta,2)
-            ZetaMx=Data1(iZeta,1)
-         End If
-         If (Data1(iZeta,2).lt.rKabMn) Then
-            rKabMn=Data1(iZeta,2)
-            ZetaMn=Data1(iZeta,1)
-         End If
- 700  Continue
-      rKcdMx=Zero
-      EtaMx =Zero
-      rKcdMn=1.0D+72
-      EtaMn =Zero
-      Do 701 iEta = 1, mEta
-         If (Data2(iEta,2).gt.rKcdMx) Then
-            rKcdMx=Data2(iEta,2)
-            EtaMx =Data2(iEta,1)
-         End If
-         If (Data2(iEta,2).lt.rKcdMn) Then
-            rKcdMn=Data2(iEta,2)
-            EtaMn =Data2(iEta,1)
-         End If
- 701  Continue
-      PreScr=.True.
-      PreMax=rKabMx*rKcdMx*Sqrt(tOne/(ZetaMx+EtaMx))
-      PreMin=rKabMn*rKcdMn*Sqrt(tOne/(ZetaMn+EtaMn))
-      If (PreMin.gt.CutGrd) PreScr=.False.
-      If (PreMax.lt.1.0D-4*CutGrd) Then
-         lZeta = 0
-         lEta = 0
-      End If
-!
-      Return
-      End
+
+iRout = 180
+iPrint = nPrint(iRout)
+!iQ = 0
+if (iPrint >= 99) then
+  call RecPrt(' Data1',' ',Data1,nZeta,8)
+  call RecPrt(' Data2',' ',Data2,nEta,8)
+end if
+
+tOne = One
+
+! Preprescanning
+
+lZeta = mZeta
+lEta = mEta
+rKabMx = Zero
+ZetaMx = Zero
+rKabMn = 1.0D+72
+ZetaMn = Zero
+do iZeta=1,mZeta
+  if (Data1(iZeta,2) > rKabMx) then
+    rKabMx = Data1(iZeta,2)
+    ZetaMx = Data1(iZeta,1)
+  end if
+  if (Data1(iZeta,2) < rKabMn) then
+    rKabMn = Data1(iZeta,2)
+    ZetaMn = Data1(iZeta,1)
+  end if
+end do
+rKcdMx = Zero
+EtaMx = Zero
+rKcdMn = 1.0D+72
+EtaMn = Zero
+do iEta=1,mEta
+  if (Data2(iEta,2) > rKcdMx) then
+    rKcdMx = Data2(iEta,2)
+    EtaMx = Data2(iEta,1)
+  end if
+  if (Data2(iEta,2) < rKcdMn) then
+    rKcdMn = Data2(iEta,2)
+    EtaMn = Data2(iEta,1)
+  end if
+end do
+PreScr = .true.
+PreMax = rKabMx*rKcdMx*sqrt(tOne/(ZetaMx+EtaMx))
+PreMin = rKabMn*rKcdMn*sqrt(tOne/(ZetaMn+EtaMn))
+if (PreMin > CutGrd) PreScr = .false.
+if (PreMax < 1.0D-4*CutGrd) then
+  lZeta = 0
+  lEta = 0
+end if
+
+return
+
+end subroutine PrePre_g

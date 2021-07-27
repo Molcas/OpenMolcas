@@ -10,10 +10,11 @@
 !                                                                      *
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine M2MmG(nHer,MemM2,la,lb,lr)
+
+subroutine M2MmG(nHer,MemM2,la,lb,lr)
 !***********************************************************************
 !                                                                      *
-!  Object: to compute the number of real*8 the kernal routine will     *
+!  Object: to compute the number of real*8 the kernel routine will     *
 !          need for the computation of a matrix element between two    *
 !          cartesian Gaussian functions with the total angular momentum*
 !          of la and lb (la=0 s-function, la=1 p-function, etc.)       *
@@ -23,15 +24,16 @@
 !  Called from: OneEl                                                  *
 !                                                                      *
 !***********************************************************************
-!
-      nHer=(la+lb+2 +1)/2
-      MemM2 = 3*nHer*(la+2) +                                           &
-     &        3*nHer*(lb+2) +                                           &
-     &        3*nHer +                                                  &
-     &        3*(la+2)*(lb+2) +                                         &
-     &        7
-!
-      Return
+
+nHer = (la+lb+2+1)/2
+MemM2 = 3*nHer*(la+2)+ &
+        3*nHer*(lb+2)+ &
+        3*nHer+ &
+        3*(la+2)*(lb+2)+ &
+        7
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(lr)
-      End
+if (.false.) call Unused_integer(lr)
+
+end subroutine M2MmG

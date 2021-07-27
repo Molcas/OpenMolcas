@@ -23,33 +23,35 @@
 !> @param[out] nRoots Number of roots allowed in the gradients file
 !> @param[out] nGrad  Length of the vectors in the gradients file
 !***********************************************************************
-      Subroutine Query_Grads(Exists,nRoots,nGrad)
-      Implicit None
-      Logical :: Exists
-      Integer :: nRoots,nGrad
-      Integer, Dimension(5) :: TOC
-      Integer, Dimension(1) :: iDum
-      Integer :: LuGrad,iAd
-      Logical :: Found
-      Character(Len=5) :: Filename
-!
-      Filename='GRADS'
-      Call f_Inquire(Filename,Found)
-      If (.Not.Found) Then
-        Exists=.False.
-        nRoots=0
-        nGrad=0
-        Return
-      End If
-!
-      LuGrad=20
-      Call DaName(LuGrad,Filename)
-      iAd=0
-      Call iDaFile(LuGrad,2,TOC,Size(TOC),iAd)
-      Call iDaFile(LuGrad,2,iDum,1,iAd)
-      nRoots=iDum(1)
-      Call iDaFile(LuGrad,2,iDum,1,iAd)
-      nGrad=iDum(1)
-      Call DaClos(LuGrad)
-!
-      End Subroutine Query_Grads
+
+subroutine Query_Grads(Exists,nRoots,nGrad)
+
+implicit none
+logical :: Exists
+integer :: nRoots, nGrad
+integer, dimension(5) :: TOC
+integer, dimension(1) :: iDum
+integer :: LuGrad, iAd
+logical :: Found
+character(len=5) :: Filename
+
+Filename = 'GRADS'
+call f_Inquire(Filename,Found)
+if (.not. Found) then
+  Exists = .false.
+  nRoots = 0
+  nGrad = 0
+  return
+end if
+
+LuGrad = 20
+call DaName(LuGrad,Filename)
+iAd = 0
+call iDaFile(LuGrad,2,TOC,size(TOC),iAd)
+call iDaFile(LuGrad,2,iDum,1,iAd)
+nRoots = iDum(1)
+call iDaFile(LuGrad,2,iDum,1,iAd)
+nGrad = iDum(1)
+call DaClos(LuGrad)
+
+end subroutine Query_Grads

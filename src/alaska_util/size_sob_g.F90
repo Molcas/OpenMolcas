@@ -8,14 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Size_SO_block_g(iSD4,nSD,nSO,No_batch)
-      Implicit Real*8 (a-h,o-z)
-      Integer iSD4(0:nSD,4)
-      Logical No_batch
-!
-      nSO = MemSO2_P(iSD4( 2,1),iSD4( 2,2),iSD4( 2,3),iSD4( 2,4),       &
-     &               iSD4( 7,1),iSD4( 7,2),iSD4( 7,3),iSD4( 7,4))
-      No_batch=nSO.eq.0
-!
-      Return
-      End
+
+subroutine Size_SO_block_g(iSD4,nSD,nSO,No_batch)
+
+implicit real*8(a-h,o-z)
+integer iSD4(0:nSD,4)
+logical No_batch
+
+nSO = MemSO2_P(iSD4(2,1),iSD4(2,2),iSD4(2,3),iSD4(2,4),iSD4(7,1),iSD4(7,2),iSD4(7,3),iSD4(7,4))
+No_batch = nSO == 0
+
+return
+
+end subroutine Size_SO_block_g

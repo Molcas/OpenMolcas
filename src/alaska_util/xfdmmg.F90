@@ -10,23 +10,26 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine XFdMmg(nRys,MnXFdG,la,lb,lr)
-      Integer iAng(4)
-!
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-!
-      MnXFdG=0
-      Do iOrdOp = 0, 1
-         iAng(1) = la
-         iAng(2) = lb
-         iAng(3) = iOrdOp
-         iAng(4) = 0
-         Call MemRg1(iAng,nRys,MemTmp)
-         MemTmp = MemTmp + 2 + nElem(la)*nElem(lb)*nElem(iOrdOp)
-         MnXFdG = Max(MnXFdG,MemTmp)
-      End Do
-!
-      Return
+
+subroutine XFdMmg(nRys,MnXFdG,la,lb,lr)
+
+integer iAng(4)
+! Statement function
+nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+
+MnXFdG = 0
+do iOrdOp=0,1
+  iAng(1) = la
+  iAng(2) = lb
+  iAng(3) = iOrdOp
+  iAng(4) = 0
+  call MemRg1(iAng,nRys,MemTmp)
+  MemTmp = MemTmp+2+nElem(la)*nElem(lb)*nElem(iOrdOp)
+  MnXFdG = max(MnXFdG,MemTmp)
+end do
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(lr)
-      End
+if (.false.) call Unused_integer(lr)
+
+end subroutine XFdMmg

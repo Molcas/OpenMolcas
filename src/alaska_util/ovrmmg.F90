@@ -8,15 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine OvrMmG(nHer,MmOvrG,la,lb,lr)
-!
-      nHer=(la+lb+1+2)/2
-      MmOvrG = 3*nHer*(la+2) +                                          &
-     &        3*nHer*(lb+2) +                                           &
-     &        3*nHer +                                                  &
-     &        3*(la+2)*(lb+2) + 2
-!
-      Return
+
+subroutine OvrMmG(nHer,MmOvrG,la,lb,lr)
+
+nHer = (la+lb+1+2)/2
+MmOvrG = 3*nHer*(la+2)+ &
+         3*nHer*(lb+2)+ &
+         3*nHer+ &
+         3*(la+2)*(lb+2)+2
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(lr)
-      End
+if (.false.) call Unused_integer(lr)
+
+end subroutine OvrMmG

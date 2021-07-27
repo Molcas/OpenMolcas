@@ -8,7 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine CSFGRad(Grad,nGrad)
+
+subroutine CSFGRad(Grad,nGrad)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the CSF component of the non-adiabatic derivative *
@@ -18,40 +19,40 @@
 ! in the runfile                                                       *
 !                                                                      *
 !***********************************************************************
-!     use Basis_Info, only: nBas
-      Implicit None
+
+!use Basis_Info, only: nBas
+
+implicit none
 #include "stdalloc.fh"
 #include "real.fh"
 #include "nac.fh"
-      Integer nGrad
-      Real*8 Grad(nGrad)
-!
-      Integer nD,lOper(1)
-      Real*8 CCoor(3)
-      Real*8, Dimension(:), Allocatable :: aDAO
-      Logical Found
-      Character(Len=80) Label
-      External OvrGrd, OvrMmG
+integer nGrad
+real*8 Grad(nGrad)
+integer nD, lOper(1)
+real*8 CCoor(3)
+real*8, dimension(:), allocatable :: aDAO
+logical Found
+character(len=80) Label
+external OvrGrd, OvrMmG
 
-      Call DCopy_(nGrad,[Zero],0,Grad,1)
+call DCopy_(nGrad,[Zero],0,Grad,1)
 
-!     nB=nBas(0)
-      Call Qpg_dArray('D1ao-',Found,nD)
-      Call mma_allocate(aDAO,nD)
-      Call Get_dArray('D1ao-',aDAO,nD)
-!     Call TriPrt('DAO-','',aDAO,nB)
+!nB = nBas(0)
+call Qpg_dArray('D1ao-',Found,nD)
+call mma_allocate(aDAO,nD)
+call Get_dArray('D1ao-',aDAO,nD)
+!call TriPrt('DAO-','',aDAO,nB)
 
 !IFG Compute the CSF contribution to the coupling vector.
 !    Inner product of S[x] and D^A (antisymmetric component of transition density matrix)
 !    This is the same as the product of S[x]^A and D
-      isCSF=.True.
-      Call DCopy_(3,[Zero],0,CCoor,1)
-      lOper(1)=1
-      Label='The CSF Contribution'
-      Call OneEl_g(OvrGrd,OvrMmG,Grad,nGrad,.False.,CCoor,              &
-     &           aDAO,nD,lOper,1,0,Label)
-      isCSF=.False.
+isCSF = .true.
+call DCopy_(3,[Zero],0,CCoor,1)
+lOper(1) = 1
+Label = 'The CSF Contribution'
+call OneEl_g(OvrGrd,OvrMmG,Grad,nGrad,.false.,CCoor,aDAO,nD,lOper,1,0,Label)
+isCSF = .false.
 
-      Call mma_deallocate(aDAO)
+call mma_deallocate(aDAO)
 
-      End
+end subroutine CSFGRad

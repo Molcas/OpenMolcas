@@ -30,7 +30,7 @@ integer(kind=iwp) :: i, j, l
 ! Mutual information array
 !real(kind=wp) :: MI(nInter)
 real(kind=wp), allocatable :: MI(:)
-! universal kernal density estimators.
+! universal kernel density estimators.
 !real(kind=wp) :: px(nPoints,nInter), py(nPoints), pxy(nPoints,nInter)
 real(kind=wp), allocatable :: px(:,:), py(:), pxy(:,:)
 ! the 2 x 2 covariance matrix (used to compute the transformation variable in the bivariate case)

@@ -8,13 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine MltMmG(nHer,MmMltG,la,lb,lr)
-!
-      nHer=(la+lb+lr+3)/2
-      MmMltG = 3*nHer*(la+2) +                                          &
-     &        3*nHer*(lb+2) +                                           &
-     &        3*nHer*(lr+1) +                                           &
-     &        3*(la+2)*(lb+2)*(lr+1) + 2
-!
-      Return
-      End
+
+subroutine MltMmG(nHer,MmMltG,la,lb,lr)
+
+nHer = (la+lb+lr+3)/2
+MmMltG = 3*nHer*(la+2)+ &
+         3*nHer*(lb+2)+ &
+         3*nHer*(lr+1)+ &
+         3*(la+2)*(lb+2)*(lr+1)+2
+
+return
+
+end subroutine MltMmG

@@ -10,12 +10,13 @@
 !                                                                      *
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine M1MmG(nRys,MmM1g,la,lb,lr)
+
+subroutine M1MmG(nRys,MmM1g,la,lb,lr)
 !***********************************************************************
 !                                                                      *
-!  Object: to compute the number of real*8 the kernal routine will     *
+!  Object: to compute the number of real*8 the kernel routine will     *
 !          need for the computation of a matrix element between two    *
-!          cartesian Gaussin functions with the total angular momentum *
+!          cartesian Gaussian functions with the total angular momentum*
 !          of la and lb (la=0 s-function, la=1 p-function, etc.)       *
 !          lr is the order of the operator (this is only used when the *
 !          integrals are computed with the Hermite-Gauss quadrature).  *
@@ -23,19 +24,20 @@
 !  Called from: OneEl                                                  *
 !                                                                      *
 !***********************************************************************
-!
-      Integer iAng(4)
-!
-      nElem(i) = (i+1)*(i+2)/2
-!
-      iAng(1) = la
-      iAng(2) = lb
-      iAng(3) = 0
-      iAng(4) = 0
-      Call MemRg1(iAng,nRys,Mem)
-      MmM1g= 8 + Mem + nElem(la)*nElem(lb)
-!
-      Return
+
+integer iAng(4)
+! Statement function
+nElem(i) = (i+1)*(i+2)/2
+
+iAng(1) = la
+iAng(2) = lb
+iAng(3) = 0
+iAng(4) = 0
+call MemRg1(iAng,nRys,Mem)
+MmM1g = 8+Mem+nElem(la)*nElem(lb)
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(lr)
-      End
+if (.false.) call Unused_integer(lr)
+
+end subroutine M1MmG

@@ -10,18 +10,21 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine PCMMmg(nRys,MnPCMG,la,lb,lr)
-      Integer iAng(4)
-!
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-!
-      nOrdOp=lr
-      iAng(1) = la
-      iAng(2) = lb
-      iAng(3) = nOrdOp
-      iAng(4) = 0
-      Call MemRg1(iAng,nRys,MemTmp)
-      MnPCMG = MemTmp + 2 + nElem(la)*nElem(lb)*nElem(nOrdOp)
-!
-      Return
-      End
+
+subroutine PCMMmg(nRys,MnPCMG,la,lb,lr)
+
+integer iAng(4)
+! Statement function
+nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+
+nOrdOp = lr
+iAng(1) = la
+iAng(2) = lb
+iAng(3) = nOrdOp
+iAng(4) = 0
+call MemRg1(iAng,nRys,MemTmp)
+MnPCMG = MemTmp+2+nElem(la)*nElem(lb)*nElem(nOrdOp)
+
+return
+
+end subroutine PCMMmg

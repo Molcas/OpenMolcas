@@ -8,18 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine GetNextFfield(nextfld,fldname,nOrdOpf,ncmp,            &
-     &                         force,lforce)
-      Implicit Real*8 (A-H,O-Z)
-      Character*(*) fldname
-      Dimension force(lforce)
-      nextfld=0
-      Return
+
+subroutine GetNextFfield(nextfld,fldname,nOrdOpf,ncmp,force,lforce)
+
+implicit real*8(A-H,O-Z)
+character*(*) fldname
+dimension force(lforce)
+
+nextfld = 0
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_character(fldname)
-         Call Unused_integer(nOrdOpf)
-         Call Unused_integer(ncmp)
-         Call Unused_real_array(force)
-      End If
-      End
+if (.false.) then
+  call Unused_character(fldname)
+  call Unused_integer(nOrdOpf)
+  call Unused_integer(ncmp)
+  call Unused_real_array(force)
+end if
+
+end subroutine GetNextFfield

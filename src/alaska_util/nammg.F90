@@ -10,19 +10,22 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine NAMmG(nRys,MmNAG,la,lb,lr)
-      Integer iAng(4)
-!
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-!
-      iAng(1) = la
-      iAng(2) = lb
-      iAng(3) = 0
-      iAng(4) = 0
-      Call MemRg1(iAng,nRys,MmNAG)
-      MmNAG = MmNAG + 2 + nElem(la)*nElem(lb)
-!
-      Return
+
+subroutine NAMmG(nRys,MmNAG,la,lb,lr)
+
+integer iAng(4)
+! Statement function
+nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+
+iAng(1) = la
+iAng(2) = lb
+iAng(3) = 0
+iAng(4) = 0
+call MemRg1(iAng,nRys,MmNAG)
+MmNAG = MmNAG+2+nElem(la)*nElem(lb)
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(lr)
-      End
+if (.false.) call Unused_integer(lr)
+
+end subroutine NAMmG

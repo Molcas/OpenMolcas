@@ -8,16 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine KnEMmG(nHer,MmKnEG,la,lb,lr)
-!
-      nHer=((la+1)+(lb+1)+2+1)/2
-      MmKnEG =  3*nHer*(la+3) +                                         &
-     &         3*nHer*(lb+3) +                                          &
-     &         3*nHer +                                                 &
-     &         3*(la+3)*(lb+3) +                                        &
-     &         3*(la+2)*(lb+2) + 1 + 1
-!
-      Return
+
+subroutine KnEMmG(nHer,MmKnEG,la,lb,lr)
+
+nHer = ((la+1)+(lb+1)+2+1)/2
+MmKnEG = 3*nHer*(la+3)+ &
+         3*nHer*(lb+3)+ &
+         3*nHer+ &
+         3*(la+3)*(lb+3)+ &
+         3*(la+2)*(lb+2)+1+1
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(lr)
-      End
+if (.false.) call Unused_integer(lr)
+
+end subroutine KnEMmG
