@@ -31,17 +31,19 @@ subroutine RFGrd( &
 !             Modified to gradient calculations May '95                *
 !***********************************************************************
 
-use Her_RW
+use Her_RW, only: iHerR, iHerW, HerR, HerW
 use PCM_arrays, only: MM
-use Center_Info
+use Center_Info, only: dc
+use Constants, only: Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
-#include "rctfld.fh"
+implicit none
+#define _USE_WP_
 #include "grd_interface.fh"
-! Local variables
-logical ABeq(3)
+integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, iPrint, ipRnxyz, ipRxyz, ipTemp1, ipTemp2, ipTemp3, iRout, &
+                     iZeta, nip
+logical(kind=iwp) :: ABeq(3)
+#include "print.fh"
 
 iRout = 122
 iPrint = nPrint(iRout)
@@ -70,9 +72,9 @@ nip = nip+nZeta
 ipBeta = nip
 nip = nip+nZeta
 if (nip-1 > nArr*nZeta) then
-  write(6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
+  write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
   call ErrTra()
-  write(6,*) ' Abend in RFGrd'
+  write(u6,*) ' Abend in RFGrd'
   call Abend()
 end if
 
@@ -81,8 +83,8 @@ if (iPrint >= 49) then
   call RecPrt(' In RFGrd: RB',' ',RB,1,3)
   call RecPrt(' In RFGrd: CCoor',' ',CCoor,1,3)
   call RecPrt(' In RFGrd: P',' ',P,nZeta,3)
-  write(6,*) ' In RFGrd: la,lb=',la,lb
-  write(6,*) ' In RFGrd: nHer=',nHer
+  write(u6,*) ' In RFGrd: la,lb=',la,lb
+  write(u6,*) ' In RFGrd: nHer=',nHer
 end if
 
 ! Compute the cartesian values of the basis functions angular part

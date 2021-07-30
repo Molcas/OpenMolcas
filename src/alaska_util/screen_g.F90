@@ -31,19 +31,28 @@ subroutine Screen_g(PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P
 !             April '92 modified for gradient estimate                 *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
 #include "ndarray.fh"
+integer(kind=iwp) :: mPAO, nZeta, nEta, mZeta, mEta, lZeta, lEta, nAlpha, nBeta, IndZ(mZeta), nGamma, nDelta, IndE(mEta), iphX1, &
+                     iphY1, iphZ1, iphX2, iphY2, iphZ2, nab, ncd, nScrtch, IsChi
+real(kind=wp) :: PAO(mZeta*mEta*mPAO), Scrtch(nScrtch), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), xA(nZeta), xB(nZeta), &
+                 Data1(nZeta*(nDArray-1)), Eta(nEta), EInv(nEta), Q(nEta,3), xG(nEta), xD(nEta), Data2(nEta*(nDArray-1)), CutGrd, &
+                 ab(nZeta,nab), abg(nZeta,nab), cd(nEta,ncd), cdg(nEta,ncd), ChiI2
+logical(kind=iwp) :: l2DI, PreScr
+integer(kind=iwp) :: i, iab, iabcd, icd, iEP, iEta, ij, iMin, iOff, ip, ip1, ip2, iPAO, ipE, ipFac, ipOAP, ipP, ipPAO, iPrint, &
+                     ipZ, iRout, iZE, iZeta, jPAO, jPZ, l1, l2
+real(kind=wp) :: alpha, beta, Cut2, eMin, Et, Px, Py, Pz, qEta, Qx, Qy, Qz, qZeta, rEta, rKAB, rKCD, rqEta, rqZeta, rZeta, temp, &
+                 vMax, zMin, Zt
+logical(kind=iwp) :: ZPreScr, EPreScr
+integer(kind=iwp) :: iDMin, ip_Alpha, ip_Beta, ip_Kappa, ip_PCoor, ip_Z, ip_ZInv
+real(kind=r8), external :: DNrm2_
 #include "print.fh"
-#include "real.fh"
-real*8 PAO(mZeta*mEta*mPAO), Scrtch(nScrtch), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), Eta(nEta), EInv(nEta), Q(nEta,3), xA(nZeta), &
-       xB(nZeta), xG(nEta), xD(nEta), Data1(nZeta*(nDArray-1)), Data2(nEta*(nDArray-1)), ab(nZeta,nab), abg(nZeta,nab), &
-       cd(nEta,ncd), cdg(nEta,ncd), ChiI2
-logical l2DI, PreScr, ZPreScr, EPreScr
-integer IndZ(mZeta), IndE(mEta), IsChi
 
 iRout = 180
 iPrint = nPrint(iRout)
-LOut = 6
 if (iPrint >= 99) then
   call RecPrt(' Data1',' ',Data1,nZeta,nDArray-1)
   call RecPrt(' Data2',' ',Data2,nEta,nDArray-1)
@@ -56,14 +65,13 @@ if (iPrint >= 99) then
   call RecPrt('2nd order density matrix',' ',PAO,mZeta*mEta,mPAO)
 end if
 if (PreScr .and. (.not. l2DI)) then
-  write(LOut,*) ' Screen: .not.l2DI no activated  prescr=',prescr,'  l2di=',l2di
+  write(u6,*) ' Screen: .not.l2DI no activated  prescr=',prescr,'  l2di=',l2di
   call Abend()
 end if
 
 Cut2 = CutGrd
 lZeta = 0
 lEta = 0
-tOne = One
 ip = 1
 
 ! Compute the prefactor. There are
@@ -81,9 +89,9 @@ do iEta=1,mEta
     rKAB = Data1(ip_Kappa(iZeta,nZeta))
     ij = ij+1
     if (IsChi == 1) then
-      Scrtch(ij) = rKAB*rKCD*sqrt(tOne/(Zt+Et+(Zt*Et*ChiI2)*dble(IsChi)))
+      Scrtch(ij) = rKAB*rKCD*sqrt(One/(Zt+Et+(Zt*Et*ChiI2)*real(IsChi,kind=wp)))
     else
-      Scrtch(ij) = rKAB*rKCD*sqrt(tOne/(Zt+Et))
+      Scrtch(ij) = rKAB*rKCD*sqrt(One/(Zt+Et))
     end if
   end do
 end do
@@ -109,7 +117,7 @@ if (iPrint >= 49) call RecPrt(' Modified 2nd order density matrix',' ',PAO,mZeta
 
 vMax = DNrm2_(mZeta*mEta*mPAO,PAO,1)
 ! Skip prescreening if too low.
-if (PreScr .and. (abs(vMax) < 0.5D-4*CutGrd)) then
+if (PreScr .and. (abs(vMax) < 0.5e-4_wp*CutGrd)) then
   lZeta = 0
   lEta = 0
   Go To 999
@@ -151,14 +159,14 @@ else
 end if
 
 if (ip-1 > nScrtch) then
-  write(LOut,*) ' Screen: ip-1 > nScrtch'
-  write(LOut,*) 'ip-1=',ip-1
-  write(LOut,*) 'nScrtch=',nScrtch
+  write(u6,*) ' Screen: ip-1 > nScrtch'
+  write(u6,*) 'ip-1=',ip-1
+  write(u6,*) 'nScrtch=',nScrtch
   call Abend()
 end if
 
-rEta = dble(nEta*mPAO)
-qEta = dble(mEta*mPAO)
+rEta = real(nEta*mPAO,kind=wp)
+qEta = real(mEta*mPAO,kind=wp)
 rqEta = rEta/qEta
 ZPreScr = PreScr
 if (PreScr) then
@@ -170,8 +178,8 @@ if (PreScr) then
   if (iPrint >= 99) call RecPrt(' Screening array(Eta)',' ',Scrtch(ipZ),mZeta,1)
 end if
 
-rZeta = dble(nZeta*mPAO)
-qZeta = dble(mZeta*mPAO)
+rZeta = real(nZeta*mPAO,kind=wp)
+qZeta = real(mZeta*mPAO,kind=wp)
 rqZeta = rZeta/qZeta
 EPreScr = PreScr
 if (PreScr) then

@@ -8,5 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      Integer MaxReq,MinXtr,iTotal,MaxMem
+      Real*8 r1,r2,r3,r4,q1,q2,q3,q4
       Common /PStat/                                                    &
      &     r1,r2,r3,r4,q1,q2,q3,q4,MaxReq,MinXtr, iTotal, MaxMem

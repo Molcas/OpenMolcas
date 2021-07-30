@@ -27,32 +27,49 @@ subroutine TwoEl_g(Coor,iAnga,iCmp,iShell,iShll,iAO,iStb,jStb,kStb,lStb,nRys,Dat
 !          Lund, SWEDEN. Modified to gradients, January '92.           *
 !***********************************************************************
 
-use Real_Spherical
-use Basis_Info
-use Center_Info
-use Phase_Info
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Real_Spherical, only: ipSph, RSph
+use Basis_Info, only: MolWgh, Shells
+use Center_Info, only: dc
+use Phase_Info, only: iPhase
 use Real_Info, only: ChiI2
 use Temporary_Parameters, only: IsChi
 use Symmetry_Info, only: nIrrep
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external TERI1, ModU2, vCff2D
-#include "Molcas.fh"
+implicit none
 #include "ndarray.fh"
-#include "real.fh"
-#include "print.fh"
+integer(kind=iwp) :: iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iStb, jStb, kStb, lStb, nRys, nab, nHmab, nData1, ncd, &
+                     nHmcd, nData2, nAlpha, iPrInc, nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, iBasi, jBasj, kBask, lBasl, &
+                     nZeta, nEta, nGrad, IndGrd(3,4), nPSO, nWrk2, nAux
+real(kind=wp) :: Coor(3,4), Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1), Data2(nEta*(nDArray+2*ncd)+nDScalar+nHmcd,nData2), &
+                 Pren, Prem, Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), Zeta(nZeta), &
+                 ZInv(nZeta), P(nZeta,3), Eta(nEta), EInv(nEta), Q(nEta,3), xA(nZeta), xB(nZeta), xG(nEta), xD(nEta), Grad(nGrad), &
+                 PSO(iBasi*jBasj*kBask*lBasl,nPSO), Wrk2(nWrk2), Aux(nAux)
+logical(kind=iwp) :: IfGrad(3,4), Shijij
+integer(kind=iwp) :: iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iffab, iffabG, iffcd, iffcdG, iiCent, ijklab, ijMax, &
+                     ijMin, ikl, IncEta, IncZet, iShlla, iStabM(0:7), iStabN(0:7), iuvwx(4), iW2, iW3, iW4, ix1, ix2, iy1, iy2, &
+                     iz1, iz2, jCmpb, jjCent, JndGrd(3,4), jPrim, jShllb, kCent, kCmpc, klMax, klMin, kOp(4), kShllc, la, lb, lc, &
+                     lCent, lCmpd, ld, lDCR1, lDCR2, lEta, LmbdR, LmbdS, LmbdT, lPrim, lShlld, lStabM, lStabN, lZeta, mab, mcd, &
+                     mCent, mEta, mGrad, MxDCRS, mZeta, nDCRR, nDCRS, nDCRT, nEta_Tot, nIdent, nijkl, nOp(4), nW2, nW4, nWrk3, &
+                     nZeta_Tot
+real(kind=wp) :: Aha, CoorAC(3,2), CoorM(3,4), Fact, u, v, w, x
+logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, JfGrad(3,4), PreScr
+integer(kind=iwp), external :: ip_abG, ip_IndZ, ip_Z, NrOpr
+real(kind=wp), external :: DDot_
+logical(kind=iwp), external :: EQ, lEmpty
+external :: ModU2, TERI1, vCff2D
+#include "Molcas.fh"
 #include "disp.fh"
-real*8 Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1), Data2(nEta*(nDArray+2*ncd)+nDScalar+nHmcd,nData2)
-real*8 Coor(3,4), CoorM(3,4), CoorAC(3,2), xA(nZeta), xB(nZeta), xG(nEta), xD(nEta), Grad(nGrad), Zeta(nZeta), ZInv(nZeta), &
-       P(nZeta,3), Eta(nEta), EInv(nEta), Q(nEta,3), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), &
-       Coeff4(nDelta,lBasl), PSO(iBasi*jBasj*kBask*lBasl,nPSO), Wrk2(nWrk2), Aux(nAux)
-integer iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iStabN(0:7), iStabM(0:7), IndGrd(3,4), iAO(4), iAnga(4), iCmp(4), iShell(4), iShll(4), &
-        nOp(4), kOp(4), JndGrd(3,4), iuvwx(4)
-logical Shijij, AeqB, CeqD, AeqC, ABeqCD, IfGrad(3,4), JfGrad(3,4), PreScr
 #ifdef _DEBUGPRINT_
-character ChOper(0:7)*3
-data ChOper/' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz'/
+integer(kind=iwp) :: iPrint, iRout
+character(len=3), parameter :: ChOper(0:7) = [' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz']
+#include "print.fh"
 #endif
+! Statement function to compute canonical index
+integer(kind=iwp) :: nElem, i
+nElem(i) = (i+1)*(i+2)/2
 
 call TwoEl_g_Internal(Data1,Data2)
 
@@ -60,28 +77,23 @@ contains
 
 subroutine TwoEl_g_Internal(Data1,Data2)
 
-  use iso_c_binding
-  real*8, target :: Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1), Data2(nEta*(nDArray+2*ncd)+nDScalar+nHmcd,nData2)
-  integer, pointer :: iData1(:), iData2(:)
-  integer :: lZeta = 0, lEta = 0
-  logical EQ, lEmpty
-  external EQ, lEmpty
-
+  real(kind=wp), target :: Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1), Data2(nEta*(nDArray+2*ncd)+nDScalar+nHmcd,nData2)
+  integer(kind=iwp), pointer :: iData1(:), iData2(:)
+  integer(kind=iwp) :: iC, iCar, iCent, iEta, ixSh, iZeta, jCent, lDCRR, lDCRS, lDCRT
 # ifdef _WARNING_WORKAROUND_
-  !Bug in gcc 7: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94270
+  ! Bug in gcc 7: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94270
   interface
-    subroutine Rysg1(iAnga,nRys,nT,Alpha,Beta,Gamma,Delta,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,Coori,Coora,CoorAC,Array,nArray, &
+    subroutine Rysg1(iAnga,nRys,nT,Alpha,Beta,Gmma,Delta,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,Coori,Coora,CoorAC,Array,nArray, &
                      Tvalue,ModU2,Cff2D,PAO,nPAO,Grad,nGrad,IfGrad,IndGrd,kOp,iuvwx)
-      integer :: iAnga(4), nRys, nT, nZeta, nEta, lP, lQ, nArray, nPAO, nGrad, IndGrd(3,4), kOp(4), iuvwx(4)
-      real*8 :: Alpha(nZeta), Beta(nZeta), Gamma(nEta), Delta(nEta), Zeta(nZeta), ZInv(nZeta), Eta(nEta), EInv(nEta), P(lP,3), &
-                Q(lQ,3), Coori(3,4), Coora(3,4), CoorAC(3,2), Array(nArray), PAO(nT,nPAO), Grad(nGrad)
-      logical :: IfGrad(3,4)
+      import :: wp, iwp
+      integer(kind=iwp) :: iAnga(4), nRys, nT, nZeta, nEta, lP, lQ, nArray, nPAO, nGrad, IndGrd(3,4), kOp(4), iuvwx(4)
+      real(kind=wp) :: Alpha(nZeta), Beta(nZeta), Gmma(nEta), Delta(nEta), Zeta(nZeta), ZInv(nZeta), Eta(nEta), EInv(nEta), &
+                       P(lP,3), Q(lQ,3), Coori(3,4), Coora(3,4), CoorAC(3,2), Array(nArray), PAO(nT,nPAO), Grad(nGrad)
       external :: Tvalue, ModU2, Cff2D
+      logical(kind=iwp) :: IfGrad(3,4)
     end subroutine Rysg1
   end interface
 # endif
-  ! Statement function to compute canonical index
-  nElem(i) = (i+1)*(i+2)/2
 
   !                                                                    *
   !*********************************************************************
@@ -144,10 +156,10 @@ subroutine TwoEl_g_Internal(Data1,Data2)
     call DCR(LmbdR,dc(iStb)%iStab,dc(iStb)%nStab,dc(jStb)%iStab,dc(jStb)%nStab,iDCRR,nDCRR)
   end if
 # ifdef _DEBUGPRINT_
-  if (iPrint >= 99) write(6,'(20A)') ' {R}=(',(ChOper(iDCRR(i)),',',i=0,nDCRR-1),')'
+  if (iPrint >= 99) write(u6,'(20A)') ' {R}=(',(ChOper(iDCRR(i)),',',i=0,nDCRR-1),')'
 # endif
-  u = dble(dc(iStb)%nStab)
-  v = dble(dc(jStb)%nStab)
+  u = real(dc(iStb)%nStab,kind=wp)
+  v = real(dc(jStb)%nStab,kind=wp)
 
   ! Find stabilizer for center A and B
 
@@ -173,10 +185,10 @@ subroutine TwoEl_g_Internal(Data1,Data2)
     call DCR(LmbdS,dc(kStb)%iStab,dc(kStb)%nStab,dc(lStb)%iStab,dc(lStb)%nStab,iDCRS,nDCRS)
   end if
 # ifdef _DEBUGPRINT_
-  if (iPrint >= 99) write(6,'(20A)') ' {S}=(',(ChOper(iDCRS(i)),',',i=0,nDCRS-1),')'
+  if (iPrint >= 99) write(u6,'(20A)') ' {S}=(',(ChOper(iDCRS(i)),',',i=0,nDCRS-1),')'
 # endif
-  w = dble(dc(kStb)%nStab)
-  x = dble(dc(lStb)%nStab)
+  w = real(dc(kStb)%nStab,kind=wp)
+  x = real(dc(lStb)%nStab,kind=wp)
 
   ! Find stabilizer for center C and D
 
@@ -205,11 +217,11 @@ subroutine TwoEl_g_Internal(Data1,Data2)
   ! Factor due to summation over DCR
 
   if (MolWgh == 1) then
-    Fact = dble(nIrrep)/dble(LmbdT)
+    Fact = real(nIrrep,kind=wp)/real(LmbdT,kind=wp)
   else if (MolWgh == 0) then
-    Fact = u*v*w*x/dble(nIrrep**3*LmbdT)
+    Fact = u*v*w*x/real(nIrrep**3*LmbdT,kind=wp)
   else
-    Fact = sqrt(u*v*w*x)/dble(nIrrep*LmbdT)
+    Fact = sqrt(u*v*w*x)/real(nIrrep*LmbdT,kind=wp)
   end if
   !                                                                    *
   !*********************************************************************
@@ -229,7 +241,7 @@ subroutine TwoEl_g_Internal(Data1,Data2)
 
       do lDCRT=nDCRT-1,0,-1
 #       ifdef _DEBUGPRINT_
-        if (iPrint >= 99) write(6,'(6A)') ' R=',ChOper(iDCRR(lDCRR)),', S=',ChOper(iDCRS(lDCRS)),', T=',ChOper(iDCRT(lDCRT))
+        if (iPrint >= 99) write(u6,'(6A)') ' R=',ChOper(iDCRR(lDCRR)),', S=',ChOper(iDCRS(lDCRS)),', T=',ChOper(iDCRT(lDCRT))
 #       endif
 
         nOp(3) = NrOpr(iDCRT(lDCRT))
@@ -348,7 +360,7 @@ subroutine TwoEl_g_Internal(Data1,Data2)
               JfGrad(iCar,lCent) = .false.
             else
               call WarningMessage(2,'Error in Twoel_g')
-              write(6,*) ' Twoel: nIdent too large!'
+              write(u6,*) ' Twoel: nIdent too large!'
               call Abend()
             end if
           end if
@@ -389,9 +401,9 @@ subroutine TwoEl_g_Internal(Data1,Data2)
 
         ijklab = nijkl*iCmp(1)*iCmp(2)
         nW2 = ijklab*max(kCmpc*lCmpd,mcd)
-        iW3_ = iW2+nW2
-        nWrk3_ = nWrk2-((iW2-iW4)+nW2)
-        call SphCr1(Wrk2(iW2),ijklab,Wrk2(iW3_),nWrk3_,RSph(ipSph(lc)),nElem(lc),kCmpc,Shells(kShllc)%Transf,Shells(kShllc)%Prjct, &
+        iW3 = iW2+nW2
+        nWrk3 = nWrk2-((iW2-iW4)+nW2)
+        call SphCr1(Wrk2(iW2),ijklab,Wrk2(iW3),nWrk3,RSph(ipSph(lc)),nElem(lc),kCmpc,Shells(kShllc)%Transf,Shells(kShllc)%Prjct, &
                     RSph(ipSph(ld)),nElem(ld),lCmpd,Shells(lShlld)%Transf,Shells(lShlld)%Prjct,Wrk2(iW2),mcd)
         if (iW2 == iW4) then
           nW2 = nijkl*mcd*max(iCmpa*jCmpb,mab)
@@ -400,17 +412,17 @@ subroutine TwoEl_g_Internal(Data1,Data2)
           nW2 = nijkl*mcd*iCmpa*jCmpb
           nW4 = nijkl*mcd*mab
         end if
-        iW3_ = iW2+nW2
-        nWrk3_ = nWrk2-(nW2+nW4)
-        call SphCr2(Wrk2(iW2),nijkl,mcd,Wrk2(iW3_),nWrk3_,RSph(ipSph(la)),nElem(la),iCmpa,Shells(iShlla)%Transf, &
+        iW3 = iW2+nW2
+        nWrk3 = nWrk2-(nW2+nW4)
+        call SphCr2(Wrk2(iW2),nijkl,mcd,Wrk2(iW3),nWrk3,RSph(ipSph(la)),nElem(la),iCmpa,Shells(iShlla)%Transf, &
                     Shells(iShlla)%Prjct,RSph(ipSph(lb)),nElem(lb),jCmpb,Shells(jShllb)%Transf,Shells(jShllb)%Prjct,Wrk2(iW4),mab)
 
         ! Transpose the 2nd order density matrix
 
         if (mab*mcd /= 1) then
-          iW3_ = iW4+nijkl*mab*mcd
-          call DGetMO(Wrk2(iW4),nijkl,nijkl,mab*mcd,Wrk2(iW3_),mab*mcd)
-          call dcopy_(mab*mcd*nijkl,Wrk2(iW3_),1,Wrk2(iW4),1)
+          iW3 = iW4+nijkl*mab*mcd
+          call DGetMO(Wrk2(iW4),nijkl,nijkl,mab*mcd,Wrk2(iW3),mab*mcd)
+          call dcopy_(mab*mcd*nijkl,Wrk2(iW3),1,Wrk2(iW4),1)
         end if
 
         lDCR1 = NrOpr(iDCRR(lDCRR))+1
@@ -437,7 +449,7 @@ subroutine TwoEl_g_Internal(Data1,Data2)
             mEta = min(IncEta,nEta_Tot-iEta+1)
             if (lEmpty(Coeff4,nDelta,nDelta,lBasl)) Go To 410
 
-            Pren = Pren+dble(mab*mcd*mZeta*mEta)
+            Pren = Pren+real(mab*mcd*mZeta*mEta,kind=wp)
 
             ! Preprescreen
 
@@ -454,35 +466,35 @@ subroutine TwoEl_g_Internal(Data1,Data2)
               nW4 = nijkl*mab*mcd
               nW2 = mZeta*mEta*mab*mcd
             end if
-            iW3_ = iW2+nW2
-            nWrk3_ = nWrk2-(nW4+nW2)
+            iW3 = iW2+nW2
+            nWrk3 = nWrk2-(nW4+nW2)
             call Tcrtnc(Coeff1,nAlpha,iBasi,Coeff2,nBeta,jBasj,Coeff3,nGamma,kBask,Coeff4,nDelta,lBasl,Wrk2(iW4),mab*mcd, &
-                        Wrk2(iW3_),nWrk3_,Wrk2(iW2),iData1(iZeta:iZeta+mZeta-1),mZeta,iData2(iEta:iEta+mEta-1),mEta)
+                        Wrk2(iW3),nWrk3,Wrk2(iW2),iData1(iZeta:iZeta+mZeta-1),mZeta,iData2(iEta:iEta+mEta-1),mEta)
 
             ! Transfer k2 data and prescreen
 
-            iW3_ = iW2+mZeta*mEta*mab*mcd
-            nWrk3_ = nWrk2-mZeta*mEta*mab*mcd
-            call Screen_g(Wrk2(iW2),Wrk2(iW3_),mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB,Data1(iZeta,lDCR1), &
+            iW3 = iW2+mZeta*mEta*mab*mcd
+            nWrk3 = nWrk2-mZeta*mEta*mab*mcd
+            call Screen_g(Wrk2(iW2),Wrk2(iW3),mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB,Data1(iZeta,lDCR1), &
                           nAlpha,jPrim,iData1(iZeta:iZeta+mZeta-1),Eta,EInv,Q,xG,xD,Data2(iEta,lDCR2),nGamma,lPrim, &
                           iData2(iEta:iEta+mEta-1),ix1,iy1,iz1,ix2,iy2,iz2,CutGrd,l2DI,Data1(iZeta+iffab,lDCR1), &
-                          Data1(iZeta+iffabG,lDCR1),nab,Data2(iEta+iffcd,lDCR2),Data2(iEta+iffcdG,lDCR2),ncd,PreScr,nWrk3_,IsChi, &
+                          Data1(iZeta+iffabG,lDCR1),nab,Data2(iEta+iffcd,lDCR2),Data2(iEta+iffcdG,lDCR2),ncd,PreScr,nWrk3,IsChi, &
                           ChiI2)
-            Prem = Prem+dble(mab*mcd*lZeta*lEta)
-            !write(6,*) 'Prem=',Prem
+            Prem = Prem+real(mab*mcd*lZeta*lEta,kind=wp)
+            !write(u6,*) 'Prem=',Prem
             if (lZeta*lEta == 0) Go To 410
 
             ! Compute integral derivative and accumulate
             ! contribution to the molecular gradient. Note that
             ! the PSO matrix now is stored in Wrk2(iW2).
 
-            iW3_ = iW2+lZeta*lEta*mab*mcd
+            iW3 = iW2+lZeta*lEta*mab*mcd
             call Rysg1(iAnga,nRys,lZeta*lEta,xA,xB,xG,xD,Zeta,ZInv,lZeta,Eta,EInv,lEta,P,nZeta,Q,nEta,CoorM,CoorM,CoorAC, &
-                       Wrk2(iW3_),nWrk3_,TERI1,ModU2,vCff2D,Wrk2(iW2),mab*mcd,Grad,nGrad,JfGrad,JndGrd,kOp,iuvwx)
+                       Wrk2(iW3),nWrk3,TERI1,ModU2,vCff2D,Wrk2(iW2),mab*mcd,Grad,nGrad,JfGrad,JndGrd,kOp,iuvwx)
             Aha = sqrt(DDot_(nGrad,Grad,1,Grad,1))
-            if (Aha > 1.0D+5) then
-              write(6,*) 'Norm of gradient contribution is huge!'
-              write(6,*) 'Probably due to wrong coordinates.'
+            if (Aha > 1.0e5_wp) then
+              write(u6,*) 'Norm of gradient contribution is huge!'
+              write(u6,*) 'Probably due to wrong coordinates.'
             end if
 
 410         continue

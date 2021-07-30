@@ -11,13 +11,14 @@
 
 subroutine Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
 
-use Basis_Info
+use Basis_Info, only: dbsc
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer iSD4(0:nSD,4)
-real*8 Coor(3,4)
-integer iAOV(4), iStabs(4)
-logical Shijij
+implicit none
+integer(kind=iwp) :: nSD, iSD4(0:nSD,4), iAOV(4), iStabs(4)
+real(kind=wp) :: Coor(3,4)
+logical(kind=iwp) :: Shijij
+integer(kind=iwp) :: iCnt, iCnttp, iQuad, jCnt, jCnttp, kCnt, kCnttp, lCnt, lCnttp
 
 iCnttp = iSD4(13,1)
 iCnt = iSD4(14,1)

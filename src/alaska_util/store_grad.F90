@@ -29,20 +29,20 @@
 
 subroutine Store_Grad(Grad,nGrad,iRoot,iNAC,jNAC)
 
-implicit none
-#include "real.fh"
-#include "stdalloc.fh"
-integer :: nGrad, iRoot, iNAC, jNAC
-real*8 :: Grad(nGrad)
-integer, dimension(5) :: TOC
-integer, dimension(1) :: Length
-integer, dimension(:), allocatable :: i_grad, i_nac
-integer :: nRoots, nCoup, LuGrad, iAd, iSt, jSt, idx
-integer, external :: AixRm
-logical :: Found, BadFile
-character(len=5) :: Filename
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
-!#define _DEBUGPRINT_
+implicit none
+integer(kind=iwp) :: nGrad, iRoot, iNAC, jNAC
+real(kind=wp) :: Grad(nGrad)
+integer(kind=iwp) :: iAd, idx, iSt, jSt, Length(1), LuGrad, nCoup, nRoots, TOC(5)
+logical(kind=iwp) :: Found, BadFile
+integer, allocatable :: i_grad(:), i_nac(:)
+integer(kind=iwp), external :: AixRm
+character(len=5) :: Filename
 
 ! Create GRADS file if it does not exist
 
@@ -116,9 +116,9 @@ else
 end if
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'iRoot, iNAC, jNAC:',iRoot,iNAC,jNAC
-write(6,*) 'grads:',i_grad
-write(6,*) 'nacs:',i_nac
+write(u6,*) 'iRoot, iNAC, jNAC:',iRoot,iNAC,jNAC
+write(u6,*) 'grads:',i_grad
+write(u6,*) 'nacs:',i_nac
 #endif
 call DaClos(LuGrad)
 call mma_Deallocate(i_grad)

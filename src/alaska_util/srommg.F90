@@ -11,7 +11,10 @@
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine SROMmG(nHer,MmSROG,la,lb,lr)
+subroutine SROMmG( &
+#                 define _CALLING_
+#                 include "mem_interface.fh"
+                 )
 !***********************************************************************
 !                                                                      *
 !  Object: to compute the number of real*8 the kernel routine will     *
@@ -26,10 +29,17 @@ subroutine SROMmG(nHer,MmSROG,la,lb,lr)
 !***********************************************************************
 
 use Basis_Info, only: dbsc, nCnttp, Shells
+use Definitions, only: iwp
+
+implicit none
+#define _USE_WP_
+#include "mem_interface.fh"
+integer(kind=iwp) :: iAng, iCnttp, ip, iShll, nac, ncb, nExpi, nOrder
 ! Statement function
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
-MmSROG = 0
+Mem = 0
 nOrder = 0
 do iCnttp=1,nCnttp
   if (.not. dbsc(iCnttp)%ECP) Go To 1960
@@ -54,7 +64,7 @@ do iCnttp=1,nCnttp
     ip = ip+nExpi*3*nHer*(la+2)*(iAng+1)*(lr+1)
     ip = ip+nExpi
 
-    MmSROG = max(MmSROG,ip)
+    Mem = max(Mem,ip)
     ip = ip-nExpi*(6+3*nHer*((la+2)+(iAng+1)+(lr+1)+(la+2)*(iAng+1)*(lr+1))+1)
 
     ncb = 4*nElem(iAng)*nElem(lb)
@@ -71,11 +81,11 @@ do iCnttp=1,nCnttp
     ip = ip+nExpi*3*nHer*(lb+2)*(iAng+1)*(lr+1)
     ip = ip+nExpi
 
-    MmSROG = max(MmSROG,ip)
+    Mem = max(Mem,ip)
     ip = ip-nExpi*(6+3*nHer*((lb+2)+(iAng+1)+(lr+1)+(lb+2)*(iAng+1)*(lr+1))+1)
 
     ip = ip+max(nExpi*nac,ncb*nExpi)
-    MmSROG = max(MmSROG,ip)
+    Mem = max(Mem,ip)
 
 1966 continue
   end do

@@ -11,9 +11,12 @@
 
 subroutine GetNextFfield(nextfld,fldname,nOrdOpf,ncmp,force,lforce)
 
-implicit real*8(A-H,O-Z)
-character*(*) fldname
-dimension force(lforce)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nextfld, nOrdOpf, ncmp, lforce
+character(len=*) :: fldname
+real(kind=wp) :: force(lforce)
 
 nextfld = 0
 return

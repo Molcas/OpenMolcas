@@ -34,30 +34,36 @@ subroutine Drvh1(Grad,Temp,nGrad)
 !***********************************************************************
 
 use PCM_arrays, only: PCM_SQ
-use External_Centers
+use External_Centers, only: nWel, XF, Wel_Info
 use Basis_Info, only: nCnttp, dbsc, nBas
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external OvrGrd, KneGrd, NAGrd, PrjGrd, M1Grd, M2Grd, SROGrd, WelGrd, XFdGrd, RFGrd, PCMGrd, PPGrd, COSGrd, FragPGrd
-external OvrMmG, KneMmG, NAMmG, PrjMmG, M1MmG, M2MmG, SROMmG, WelMmg, XFdMmg, RFMmg, PCMMmg, PPMmG, FragPMmG
+implicit none
+integer(kind=iwp) :: nGrad
+real(kind=wp) :: Grad(nGrad), Temp(nGrad)
+integer(kind=iwp) :: iComp, iCOSMO, ii, iIrrep, iMltpl, iPrint, iRout, iWel, ix, iy, ncmp, nComp, nCompf, nDens, nextfld, nFock, &
+                     nOrdOp, nOrdOpf
+real(kind=wp) :: Fact, TCpu1, TCpu2, TWall1, TWall2
+character(len=80) :: Label
+character(len=30) :: fldname
+character(len=8) :: Method
+!AOM>
+logical(kind=iwp) :: DiffOp, lECP, lFAIEMP, lPP
+integer(kind=iwp), allocatable :: lOper(:), lOperf(:)
+real(kind=wp), allocatable :: Coor(:,:), D_Var(:), Fock(:)
+external :: COSGrd, FragPGrd, FragPMmG, KneGrd, KneMmG, M1Grd, M1MmG, M2Grd, M2MmG, MltGrd, MltMmG, NAGrd, NAMmG, OvrGrd, OvrMmG, &
+            PCMGrd, PCMMmg, PPGrd, PPMmG, PrjGrd, PrjMmG, RFGrd, RFMmg, SROGrd, SROMmG, WelGrd, WelMmg, XFdGrd, XFdMmg
 #include "Molcas.fh"
 #include "print.fh"
-#include "real.fh"
-#include "stdalloc.fh"
 #include "disp.fh"
 #include "wldata.fh"
 #include "rctfld.fh"
-character Method*8, Label*80
-real*8 Grad(nGrad), Temp(nGrad)
 #include "finfld.fh"
-character*30 fldname
-external MltGrd, MltMmG
-real*8, allocatable :: Coor(:,:), Fock(:), D_Var(:)
-integer, allocatable :: lOper(:), lOperf(:)
-!AOM>
-logical DiffOp, lECP, lPP, lFAIEMP
 ! Statement function
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 ! Prologue
@@ -84,17 +90,17 @@ do i=1,nCnttp
 end do
 
 ! Get the method label
-!write(6,*) ' Read Method label'
+!write(u6,*) ' Read Method label'
 call Get_cArray('Relax Method',Method,8)
 
 ! Read the variational 1st order density matrix
 ! density matrix in AO/SO basis
-!write(6,*) ' Read density matrix'
+!write(u6,*) ' Read density matrix'
 
 call mma_allocate(D_Var,nDens,Label='D_Var')
 call Get_D1ao_Var(D_Var,nDens)
 if (iPrint >= 99) then
-  write(6,*) 'variational 1st order density matrix'
+  write(u6,*) 'variational 1st order density matrix'
   ii = 1
   do iIrrep=0,nIrrep-1
     write(Label,*) 'symmetry block',iIrrep
@@ -105,12 +111,12 @@ end if
 
 ! Read the generalized Fock matrix
 ! Fock matrix in AO/SO basis
-!write(6,*) ' Read Fock matrix'
+!write(u6,*) ' Read Fock matrix'
 if (.not. HF_Force) then
   call mma_allocate(Fock,nDens,Label='Fock')
   call Get_Fock_Occ(Fock,nDens)
   if (iPrint >= 99) then
-    write(6,*) 'generalized Fock matrix'
+    write(u6,*) 'generalized Fock matrix'
     ii = 1
     do iIrrep=0,nIrrep-1
       write(Label,*) 'symmetry block',iIrrep
@@ -164,7 +170,7 @@ if (nextfld /= 0) then
   if (nOrdOpf == 0) then
     if (fldname(1:2) /= 'OV') then
       call WarningMessage(2,'Error in Drvh1')
-      write(6,*) 'Finite field gradients only for MLTP'
+      write(u6,*) 'Finite field gradients only for MLTP'
       call Quit_OnUserError()
     end if
   end if
@@ -172,7 +178,7 @@ if (nextfld /= 0) then
   Label = fldname
   if (ncompf /= ncmp) then
     call WarningMessage(2,'Error in Drvh1')
-    write(6,*) 'Wrong number of components in FF grad'
+    write(u6,*) 'Wrong number of components in FF grad'
     call Quit_OnUserError()
   end if
   call mma_allocate(lOperf,nCompf,Label='lOperf')
@@ -202,7 +208,7 @@ call DaXpY_(nGrad,One,Temp,1,Grad,1)
 if (HF_Force) then
   if (lECP .or. (nWel /= 0) .or. allocated(XF) .or. lRF) then
     call WarningMessage(2,'Error in Drvh1')
-    write(6,*) 'HF forces not implemented yet for this case!'
+    write(u6,*) 'HF forces not implemented yet for this case!'
     call Quit_OnUserError()
   end if
   Go To 1099
@@ -329,7 +335,7 @@ else if (lRF .and. PCM) then
 
   if (iCOSMO <= 0) then
     iPrint = 15
-    call DScal_(nTs*2,One/dble(nIrrep),PCM_SQ,1)
+    call DScal_(nTs*2,One/real(nIrrep,kind=wp),PCM_SQ,1)
   end if
   lOper(1) = 1
   DiffOp = .true.
@@ -351,7 +357,7 @@ else if (lRF .and. PCM) then
   end if
 
   call DaXpY_(nGrad,One,Temp,1,Grad,1)
-  if (iCOSMO == 0) call DScal_(nTs*2,dble(nIrrep),PCM_SQ,1)
+  if (iCOSMO == 0) call DScal_(nTs*2,real(nIrrep,kind=wp),PCM_SQ,1)
 
 end if
 

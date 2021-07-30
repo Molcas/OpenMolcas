@@ -36,44 +36,48 @@ subroutine OneEl_g(Kernel,KrnlMm,Grad,nGrad,DiffOp,CCoor,FD,nFD,lOper,nComp,nOrd
 !             Modified for gradients October '91                       *
 !***********************************************************************
 
-use Real_Spherical
-use iSD_data
-use Basis_Info
-use Center_Info
+use Real_Spherical, only: ipSph, RSph
+use iSD_data, only: iSD
+use Basis_Info, only: dbsc, MolWgh, Shells
+use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-!external Kernel, KrnlMm
-external KrnlMm
-#include "Molcas.fh"
-#include "angtp.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-#include "print.fh"
-#include "disp.fh"
-#include "nsd.fh"
-#include "nac.fh"
-#include "setup.fh"
-!NIKO real*8 A(3), B(3), Ccoor(3,nComp), FD(nFD),
-real*8 A(3), B(3), Ccoor(*), FD(nFD), RB(3), Grad(nGrad)
-character ChOper(0:7)*3, Label*80
-integer iDCRR(0:7), iDCRT(0:7), iStabM(0:7), IndGrd(3,2), nOp(2), iStabO(0:7), lOper(nComp)
-logical AeqB, EQ, DiffOp, IfGrad(3,3)
-logical FreeiSD
-real*8, allocatable :: Zeta(:), ZI(:), Kappa(:), PCoor(:,:)
-real*8, allocatable :: Krnl(:), Final(:), Scr1(:), Scr2(:)
-real*8, allocatable :: DAO(:), DSOpr(:), DSO(:)
-data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
+implicit none
 interface
   subroutine Kernel( &
 #                   define _CALLING_
 #                   include "grd_interface.fh"
                    )
+    import :: wp, iwp
+#   define _USE_WP_
 #   include "grd_interface.fh"
   end subroutine Kernel
 end interface
-! Statement functions
+external :: KrnlMm
+integer(kind=iwp) :: nGrad, nFD, nComp, lOper(nComp), nOrdOp
+real(kind=wp) :: Grad(nGrad), CCoor(3,nComp), FD(nFD)
+logical(kind=iwp) :: DiffOp
+character(len=80) :: Label
+integer(kind=iwp) :: i, iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ijS, IndGrd(3,2), iPrim, iPrint, &
+                     iRout, iS, iShell, iShll, iSmLbl, iStabM(0:7), iStabO(0:7), iuv, jAng, jAO, jBas, jCmp, jCnt, jCnttp, jPrim, &
+                     jS, jShell, jShll, kk, lDCRR, lFinal, llOper, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nDCRR, nDCRT, nOp(2), &
+                     nOrder, nScr1, nScr2, nSkal, nSO, nStabM, nStabO, nTasks
+real(kind=wp) :: A(3), B(3), FactND, RB(3)
+logical(kind=iwp) :: AeqB, EQ, FreeiSD, IfGrad(3,3)
+real(kind=wp), allocatable :: DAO(:), DSO(:), DSOpr(:), Kappa(:), Krnl(:), PCoor(:,:), rFinal(:), Scr1(:), Scr2(:), Zeta(:), ZI(:)
+character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
+integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
+#include "Molcas.fh"
+#include "angtp.fh"
+#include "print.fh"
+#include "disp.fh"
+#include "nac.fh"
+! Statement function
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 iRout = 112
@@ -151,9 +155,9 @@ do ijS=1,nTasks
   if (.not. isCSF) then
     if ((.not. DiffOp) .and. (nDCRR == 1) .and. EQ(A,B)) Go To 131
   end if
-  if (iPrint >= 49) write(6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
+  if (iPrint >= 49) write(u6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
 
-  if (iPrint >= 19) write(6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+  if (iPrint >= 19) write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
 
   ! Call kernel routine to get memory requirement.
 
@@ -165,7 +169,7 @@ do ijS=1,nTasks
   ! primitive basis.
 
   lFinal = 6*S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)*nComp
-  call mma_allocate(Final,lFinal,Label='Final')
+  call mma_allocate(rFinal,lFinal,Label='rFinal')
 
   ! Scratch area for contraction step
 
@@ -219,9 +223,9 @@ do ijS=1,nTasks
   end if
 
   ! Transform IJ,AB to J,ABi
-  call DGEMM_('T','T',jBas*nSO,iPrim,iBas,1.0d0,DSO,iBas,Shells(iShll)%pCff,iPrim,0.0d0,DSOpr,jBas*nSO)
+  call DGEMM_('T','T',jBas*nSO,iPrim,iBas,One,DSO,iBas,Shells(iShll)%pCff,iPrim,Zero,DSOpr,jBas*nSO)
   ! Transform J,ABi to AB,ij
-  call DGEMM_('T','T',nSO*iPrim,jPrim,jBas,1.0d0,DSOpr,jBas,Shells(jShll)%pCff,jPrim,0.0d0,DSO,nSO*iPrim)
+  call DGEMM_('T','T',nSO*iPrim,jPrim,jBas,One,DSOpr,jBas,Shells(jShll)%pCff,jPrim,Zero,DSO,nSO*iPrim)
   ! Transpose to ij,AB
   call DGeTmO(DSO,nSO,nSO,iPrim*jPrim,DSOpr,iPrim*jPrim)
   call mma_deallocate(DSO)
@@ -255,7 +259,7 @@ do ijS=1,nTasks
       end if
 
       if (iPrint >= 49) then
-        write(6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),i=0,nStabM-1),')'
+        write(u6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),i=0,nStabM-1),')'
       end if
 
       llOper = lOper(1)
@@ -269,15 +273,15 @@ do ijS=1,nTasks
       ! of the two basis functions and the operator.
 
       iuv = dc(mdci)%nStab*dc(mdcj)%nStab
-      FactNd = dble(iuv*nStabO)/dble(nIrrep**2*LmbdT)
+      FactNd = real(iuv*nStabO,kind=wp)/real(nIrrep**2*LmbdT,kind=wp)
       if (MolWgh == 1) then
-        FactNd = FactNd*dble(nIrrep)**2/dble(iuv)
+        FactNd = FactNd*real(nIrrep,kind=wp)**2/real(iuv,kind=wp)
       else if (MolWgh == 2) then
-        FactNd = sqrt(dble(iuv))*dble(nStabO)/dble(nIrrep*LmbdT)
+        FactNd = sqrt(real(iuv,kind=wp))*real(nStabO,kind=wp)/real(nIrrep*LmbdT,kind=wp)
       end if
 
       if (iPrint >= 49) then
-        write(6,'(A,/,2(3F6.2,2X))') ' *** Centers A, RB ***',(A(i),i=1,3),(RB(i),i=1,3)
+        write(u6,'(A,/,2(3F6.2,2X))') ' *** Centers A, RB ***',(A(i),i=1,3),(RB(i),i=1,3)
       end if
 
       ! Desymmetrize the matrix with which we will
@@ -306,7 +310,7 @@ do ijS=1,nTasks
       ! Compute gradients of the primitive integrals and
       ! trace the result.
 
-      call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,Pcoor,Final,iPrim*jPrim,iAng,jAng,A,RB,nOrder, &
+      call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,Pcoor,rFinal,iPrim*jPrim,iAng,jAng,A,RB,nOrder, &
                   Krnl,MemKer,Ccoor,nOrdOp,Grad,nGrad,IfGrad,IndGrd,DAO,mdci,mdcj,nOp,lOper,nComp,iStabM,nStabM)
       if (iPrint >= 49) call PrGrad(' In Oneel',Grad,nGrad,ChDisp,5)
 
@@ -317,7 +321,7 @@ do ijS=1,nTasks
   call mma_deallocate(DAO)
   call mma_deallocate(Scr2)
   call mma_deallocate(Scr1)
-  call mma_deallocate(Final)
+  call mma_deallocate(rFinal)
   call mma_deallocate(Krnl)
 131 continue
   !end do

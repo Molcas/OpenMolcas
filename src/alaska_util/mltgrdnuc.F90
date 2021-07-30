@@ -11,18 +11,21 @@
 
 subroutine MltGrdNuc(Grad,nGrad,nOrdOp)
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: nGrad, nOrdOp
+real(kind=wp) :: Grad(nGrad)
+integer(kind=iwp) :: iCar, icomp, iIrrep, ixop, iyop, izop, kCnt, kCnttp, kdc, ndc, nDisp
+real(kind=wp) :: C(3), Fact, ff, XGrad
+logical(kind=iwp), external :: TF
 #include "Molcas.fh"
-#include "print.fh"
-#include "real.fh"
 #include "disp.fh"
-real*8 Grad(nGrad), C(3)
 #include "finfld.fh"
-logical, external :: TF
 ! Statement function
+integer(kind=iwp) :: Ind, ixyz, ix, iz
 Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 iIrrep = 0
@@ -31,10 +34,10 @@ do ixop=0,nOrdOp
     izop = nOrdOp-ixop-iyop
     icomp = Ind(nOrdOp,ixop,izop)
     ff = Force(icomp)
-    if (ff == 0.d0) goto 801
+    if (ff == Zero) goto 801
     kdc = 0
     do kCnttp=1,nCnttp
-      if (dbsc(kCnttp)%Charge == 0.d0) Go To 411
+      if (dbsc(kCnttp)%Charge == Zero) Go To 411
       do kCnt=1,dbsc(kCnttp)%nCntr
         C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
         ndc = kdc+kCnt
@@ -45,13 +48,13 @@ do ixop=0,nOrdOp
           if (TF(ndc,iIrrep,iComp) .and. (.not. dbsc(kCnttp)%pChrg)) then
             nDisp = nDisp+1
             if (Direct(nDisp)) then
-              XGrad = 0.d0
+              XGrad = Zero
               if (iCar == 0) then
-                if (ixop > 0) XGrad = Fact*dble(ixop)*C(1)**(ixop-1)*C(2)**iyop*C(3)**izop
+                if (ixop > 0) XGrad = Fact*real(ixop,kind=wp)*C(1)**(ixop-1)*C(2)**iyop*C(3)**izop
               else if (iCar == 1) then
-                if (iyop > 0) XGrad = Fact*dble(iyop)*C(1)**ixop*C(2)**(iyop-1)*C(3)**izop
+                if (iyop > 0) XGrad = Fact*real(iyop,kind=wp)*C(1)**ixop*C(2)**(iyop-1)*C(3)**izop
               else
-                if (izop > 0) XGrad = Fact*dble(izop)*C(1)**ixop*C(2)**iyop*C(3)**(izop-1)
+                if (izop > 0) XGrad = Fact*real(izop,kind=wp)*C(1)**ixop*C(2)**iyop*C(3)**(izop-1)
               end if
               Grad(nDisp) = Grad(nDisp)+XGrad
             end if

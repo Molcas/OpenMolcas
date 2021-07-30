@@ -9,13 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MltMmG(nHer,MmMltG,la,lb,lr)
+subroutine MltMmG( &
+#                 define _CALLING_
+#                 include "mem_interface.fh"
+                 )
+
+use Definitions, only: iwp
+
+implicit none
+#define _USE_WP_
+#include "mem_interface.fh"
 
 nHer = (la+lb+lr+3)/2
-MmMltG = 3*nHer*(la+2)+ &
-         3*nHer*(lb+2)+ &
-         3*nHer*(lr+1)+ &
-         3*(la+2)*(lb+2)*(lr+1)+2
+Mem = 3*nHer*(la+2)+ &
+      3*nHer*(lb+2)+ &
+      3*nHer*(lr+1)+ &
+      3*(la+2)*(lb+2)*(lr+1)+2
 
 return
 

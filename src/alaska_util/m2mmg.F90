@@ -11,7 +11,10 @@
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine M2MmG(nHer,MemM2,la,lb,lr)
+subroutine M2MmG( &
+#                define _CALLING_
+#                include "mem_interface.fh"
+                )
 !***********************************************************************
 !                                                                      *
 !  Object: to compute the number of real*8 the kernel routine will     *
@@ -25,12 +28,18 @@ subroutine M2MmG(nHer,MemM2,la,lb,lr)
 !                                                                      *
 !***********************************************************************
 
+use Definitions, only: iwp
+
+implicit none
+#define _USE_WP_
+#include "mem_interface.fh"
+
 nHer = (la+lb+2+1)/2
-MemM2 = 3*nHer*(la+2)+ &
-        3*nHer*(lb+2)+ &
-        3*nHer+ &
-        3*(la+2)*(lb+2)+ &
-        7
+Mem = 3*nHer*(la+2)+ &
+      3*nHer*(lb+2)+ &
+      3*nHer+ &
+      3*(la+2)*(lb+2)+ &
+      7
 
 return
 ! Avoid unused argument warnings

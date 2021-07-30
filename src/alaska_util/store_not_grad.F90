@@ -30,14 +30,14 @@
 
 subroutine Store_Not_Grad(iRoot,iNAC,jNAC)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
+
 implicit none
-#include "stdalloc.fh"
-integer :: nGrad, iRoot, iNAC, jNAC
-integer, dimension(5) :: TOC
-integer, dimension(1) :: Length
-integer, dimension(:), allocatable :: i_grad, i_nac
-integer :: nRoots, nCoup, LuGrad, iAd, iSt, jSt, idx
-logical :: Found
+integer(kind=iwp) :: iRoot, iNAC, jNAC
+integer(kind=iwp) :: iAd, idx, iSt, jSt, Length(1), LuGrad, nCoup, nGrad, nRoots, TOC(5)
+logical(kind=iwp) :: Found
+integer(kind=iwp), allocatable :: i_grad(:), i_nac(:)
 character(len=5) :: Filename
 
 ! Create GRADS file if it does not exist

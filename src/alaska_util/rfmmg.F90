@@ -9,13 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine RFMmG(nHer,MmRFG,la,lb,lr)
+subroutine RFMmG( &
+#                define _CALLING_
+#                include "mem_interface.fh"
+                )
+
+use Definitions, only: iwp
+
+implicit none
+#define _USE_WP_
+#include "mem_interface.fh"
 
 nHer = (la+lb+lr+1+2)/2
-MmRFG = 3*nHer*(la+2)+ &
-        3*nHer*(lb+2)+ &
-        3*nHer*(lr+1)+ &
-        3*(la+2)*(lb+2)*(lr+1)+4+3*nHer
+Mem = 3*nHer*(la+2)+ &
+      3*nHer*(lb+2)+ &
+      3*nHer*(lr+1)+ &
+      3*(la+2)*(lb+2)*(lr+1)+4+3*nHer
 
 return
 

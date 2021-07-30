@@ -9,13 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine OvrMmG(nHer,MmOvrG,la,lb,lr)
+subroutine OvrMmG( &
+#                 define _CALLING_
+#                 include "mem_interface.fh"
+                 )
+
+use Definitions, only: iwp
+
+implicit none
+#define _USE_WP_
+#include "mem_interface.fh"
 
 nHer = (la+lb+1+2)/2
-MmOvrG = 3*nHer*(la+2)+ &
-         3*nHer*(lb+2)+ &
-         3*nHer+ &
-         3*(la+2)*(lb+2)+2
+Mem = 3*nHer*(la+2)+ &
+      3*nHer*(lb+2)+ &
+      3*nHer+ &
+      3*(la+2)*(lb+2)+2
 
 return
 ! Avoid unused argument warnings

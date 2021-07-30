@@ -21,19 +21,20 @@ subroutine CSFGRad(Grad,nGrad)
 !***********************************************************************
 
 !use Basis_Info, only: nBas
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-#include "stdalloc.fh"
-#include "real.fh"
+integer(kind=iwp) :: nGrad
+real(kind=wp) :: Grad(nGrad)
+integer(kind=iwp) :: nD, lOper(1)
+real(kind=wp) CCoor(3)
+logical(kind=iwp) :: Found
+character(len=80) :: Label
+real(kind=wp), allocatable :: aDAO(:)
+external :: OvrGrd, OvrMmG
 #include "nac.fh"
-integer nGrad
-real*8 Grad(nGrad)
-integer nD, lOper(1)
-real*8 CCoor(3)
-real*8, dimension(:), allocatable :: aDAO
-logical Found
-character(len=80) Label
-external OvrGrd, OvrMmG
 
 call DCopy_(nGrad,[Zero],0,Grad,1)
 

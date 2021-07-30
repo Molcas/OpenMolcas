@@ -30,19 +30,16 @@ subroutine KnEGrd( &
 !             Modified to gradients October '91.                       *
 !***********************************************************************
 
-use Her_RW
-use Center_Info
+use Her_RW, only: iHerR, iHerW, HerR, HerW
+use Center_Info, only: dc
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
+implicit none
+#define _USE_WP_
 #include "grd_interface.fh"
-! Local variables
-logical ABeq(3)
-! Statement function for Cartesian index
-!Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
-!iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
-!Index(ixyz,ix,iz) = Ind(ixyz,ix,iz)+iOff(ixyz)
+integer(kind=iwp) :: iAlpha, iBeta, ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, iPrint, ipRnxyz, ipRxyz, ipTxyz, iRout, nip
+logical(kind=iwp) :: ABeq(3)
+#include "print.fh"
 
 iRout = 150
 iPrint = nPrint(iRout)
@@ -66,9 +63,9 @@ nip = nip+nZeta
 ipB = nip
 nip = nip+nZeta
 if (nip-1 > nArr*nZeta) then
-  write(6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
+  write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
   call ErrTra()
-  write(6,*) ' Abend in KnEGrd'
+  write(u6,*) ' Abend in KnEGrd'
   call Abend()
 end if
 
@@ -77,7 +74,7 @@ if (iPrint >= 49) then
   call RecPrt(' In KnEGrd: RB',' ',RB,1,3)
   call RecPrt(' In KnEGrd: Ccoor',' ',Ccoor,1,3)
   call RecPrt(' In KnEGrd: P',' ',P,nZeta,3)
-  write(6,*) ' In KnEGrd: la,lb=',la,lb
+  write(u6,*) ' In KnEGrd: la,lb=',la,lb
 end if
 
 ! Compute the cartesian values of the basis functions angular part

@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine CmbnS1(Rnxyz,nZeta,la,lb,Zeta,rKappa,Final,Alpha,Beta,Grad,nGrad,DAO,IfGrad,IndGrd,iStab,jStab,kOp)
+subroutine CmbnS1(Rnxyz,nZeta,la,lb,Zeta,rKappa,rFinal,Alpha,Beta,Grad,nGrad,DAO,IfGrad,IndGrd,iStab,jStab,kOp)
 !***********************************************************************
 !                                                                      *
 ! Object: compute the gradient of the overlap matrix.                  *
@@ -22,16 +22,23 @@ subroutine CmbnS1(Rnxyz,nZeta,la,lb,Zeta,rKappa,Final,Alpha,Beta,Grad,nGrad,DAO,
 !***********************************************************************
 
 use Symmetry_Info, only: iChBas, nIrrep
+use Constants, only: Two, Three
+use Definitions, only: wp, iwp, r8
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: nZeta, la, lb, nGrad, IndGrd(3,2), iStab, jStab, kOp(2)
+real(kind=wp) :: Rnxyz(nZeta,3,0:la+1,0:lb+1), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), &
+                 Alpha(nZeta), Beta(nZeta), Grad(nGrad), DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
+logical(kind=iwp) :: IfGrad(3,2)
+integer(kind=iwp) :: i1, i2, iCar, iCn, iGrad, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta, nDAO
+real(kind=wp) :: Fact, ps, xa, xb, ya, yb, za, zb
+real(kind=wp), parameter :: exp32 = -Three/Two
+integer(kind=iwp), external :: iPrmt
+real(kind=r8), external :: DDot_
 #include "print.fh"
-#include "real.fh"
 #include "nac.fh"
-real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), Zeta(nZeta), rKappa(nZeta), Beta(nZeta), Rnxyz(nZeta,3,0:la+1,0:lb+1), &
-       Alpha(nZeta), Grad(nGrad), DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
-logical IfGrad(3,2)
-integer IndGrd(3,2), kOp(2)
 ! Statement function for Cartesian index
+integer(kind=iwp) :: Ind, ixyz, ix, iz
 Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 iRout = 134
@@ -39,7 +46,6 @@ iPrint = nPrint(iRout)
 
 !ii = la*(la+1)*(la+2)/6
 !jj = lb*(lb+1)*(lb+2)/6
-exp32 = -Three/Two
 do iZeta=1,nZeta
   rKappa(iZeta) = rKappa(iZeta)*Zeta(iZeta)**exp32
 end do
@@ -57,140 +63,139 @@ do ixa=0,la
       iza = la-ixa-iya
       ipa = Ind(la,ixa,iza)
       !iChBs = iChBas(ii+ipa)
-      !pa = dble(iPrmt(kOp(1),iChBs))
+      !pa = real(iPrmt(kOp(1),iChBs),kind=wp)
       do iyb=0,iybMax
         izb = lb-ixb-iyb
         ipb = Ind(lb,ixb,izb)
         !jChBs = iChBas(jj+ipb)
-        !papb = dble(iPrmt(kOp(2),jChBs))*pa
+        !papb = real(iPrmt(kOp(2),jChBs),kind=wp)*pa
 
         ! Combine overlap integrals
 
-        tTwo = Two
-        !write(6,*) ' papb=', papb
+        !write(u6,*) ' papb=', papb
         if (IfGrad(1,1)) then
           if (ixa > 0) then
-            xa = dble(-ixa)
+            xa = real(-ixa,kind=wp)
             do iZeta=1,nZeta
-              !Final(iZeta,ipa,ipb,1) = papb*rKappa(iZeta)* &
-              Final(iZeta,ipa,ipb,1) = rKappa(iZeta)* &
-                    (tTwo*Alpha(iZeta)*Rnxyz(iZeta,1,ixa+1,ixb)+ &
-                                    xa*Rnxyz(iZeta,1,ixa-1,ixb))* &
-                                       Rnxyz(iZeta,2,iya,iyb)* &
-                                       Rnxyz(iZeta,3,iza,izb)
+              !rFinal(iZeta,ipa,ipb,1) = papb*rKappa(iZeta)* &
+              rFinal(iZeta,ipa,ipb,1) = rKappa(iZeta)* &
+                      (Two*Alpha(iZeta)*Rnxyz(iZeta,1,ixa+1,ixb)+ &
+                                     xa*Rnxyz(iZeta,1,ixa-1,ixb))* &
+                                        Rnxyz(iZeta,2,iya,iyb)* &
+                                        Rnxyz(iZeta,3,iza,izb)
             end do
           else
             do iZeta=1,nZeta
-              !Final(iZeta,ipa,ipb,1) = papb*rKappa(iZeta)* &
-              Final(iZeta,ipa,ipb,1) = rKappa(iZeta)* &
-                     tTwo*Alpha(iZeta)*Rnxyz(iZeta,1,ixa+1,ixb)* &
-                                       Rnxyz(iZeta,2,iya,iyb)* &
-                                       Rnxyz(iZeta,3,iza,izb)
+              !rFinal(iZeta,ipa,ipb,1) = papb*rKappa(iZeta)* &
+              rFinal(iZeta,ipa,ipb,1) = rKappa(iZeta)* &
+                       Two*Alpha(iZeta)*Rnxyz(iZeta,1,ixa+1,ixb)* &
+                                        Rnxyz(iZeta,2,iya,iyb)* &
+                                        Rnxyz(iZeta,3,iza,izb)
             end do
           end if
         end if
         if (IfGrad(1,2)) then
           if (ixb > 0) then
-            xb = dble(-ixb)
+            xb = real(-ixb,kind=wp)
             do iZeta=1,nZeta
-              !Final(iZeta,ipa,ipb,4) = papb*rKappa(iZeta)* &
-              Final(iZeta,ipa,ipb,4) = rKappa(iZeta)* &
-                     (tTwo*Beta(iZeta)*Rnxyz(iZeta,1,ixa,ixb+1)+ &
-                                    xb*Rnxyz(iZeta,1,ixa,ixb-1))* &
-                                       Rnxyz(iZeta,2,iya,iyb)* &
-                                       Rnxyz(iZeta,3,iza,izb)
+              !rFinal(iZeta,ipa,ipb,4) = papb*rKappa(iZeta)* &
+              rFinal(iZeta,ipa,ipb,4) = rKappa(iZeta)* &
+                       (Two*Beta(iZeta)*Rnxyz(iZeta,1,ixa,ixb+1)+ &
+                                     xb*Rnxyz(iZeta,1,ixa,ixb-1))* &
+                                        Rnxyz(iZeta,2,iya,iyb)* &
+                                        Rnxyz(iZeta,3,iza,izb)
             end do
           else
             do iZeta=1,nZeta
-              !Final(iZeta,ipa,ipb,4) = papb*rKappa(iZeta)* &
-              Final(iZeta,ipa,ipb,4) = rKappa(iZeta)* &
-                      tTwo*Beta(iZeta)*Rnxyz(iZeta,1,ixa,ixb+1)* &
-                                       Rnxyz(iZeta,2,iya,iyb)* &
-                                       Rnxyz(iZeta,3,iza,izb)
+              !rFinal(iZeta,ipa,ipb,4) = papb*rKappa(iZeta)* &
+              rFinal(iZeta,ipa,ipb,4) = rKappa(iZeta)* &
+                        Two*Beta(iZeta)*Rnxyz(iZeta,1,ixa,ixb+1)* &
+                                        Rnxyz(iZeta,2,iya,iyb)* &
+                                        Rnxyz(iZeta,3,iza,izb)
             end do
           end if
         end if
         if (IfGrad(2,1)) then
           if (iya > 0) then
-            ya = dble(-iya)
+            ya = real(-iya,kind=wp)
             do iZeta=1,nZeta
-              !Final(iZeta,ipa,ipb,2) = papb*rKappa(iZeta)* &
-              Final(iZeta,ipa,ipb,2) = rKappa(iZeta)* &
-                                       Rnxyz(iZeta,1,ixa,ixb)* &
-                    (tTwo*Alpha(iZeta)*Rnxyz(iZeta,2,iya+1,iyb)+ &
-                                    ya*Rnxyz(iZeta,2,iya-1,iyb))* &
-                                       Rnxyz(iZeta,3,iza,izb)
+              !rFinal(iZeta,ipa,ipb,2) = papb*rKappa(iZeta)* &
+              rFinal(iZeta,ipa,ipb,2) = rKappa(iZeta)* &
+                                        Rnxyz(iZeta,1,ixa,ixb)* &
+                      (Two*Alpha(iZeta)*Rnxyz(iZeta,2,iya+1,iyb)+ &
+                                     ya*Rnxyz(iZeta,2,iya-1,iyb))* &
+                                        Rnxyz(iZeta,3,iza,izb)
             end do
           else
             do iZeta=1,nZeta
-              !Final(iZeta,ipa,ipb,2) = papb*rKappa(iZeta)* &
-              Final(iZeta,ipa,ipb,2) = rKappa(iZeta)* &
-                                       Rnxyz(iZeta,1,ixa,ixb)* &
-                     tTwo*Alpha(iZeta)*Rnxyz(iZeta,2,iya+1,iyb)* &
-                                       Rnxyz(iZeta,3,iza,izb)
+              !rFinal(iZeta,ipa,ipb,2) = papb*rKappa(iZeta)* &
+              rFinal(iZeta,ipa,ipb,2) = rKappa(iZeta)* &
+                                        Rnxyz(iZeta,1,ixa,ixb)* &
+                       Two*Alpha(iZeta)*Rnxyz(iZeta,2,iya+1,iyb)* &
+                                        Rnxyz(iZeta,3,iza,izb)
             end do
           end if
         end if
         if (IfGrad(2,2)) then
           if (iyb > 0) then
-            yb = dble(-iyb)
+            yb = real(-iyb,kind=wp)
             do iZeta=1,nZeta
-              !Final(iZeta,ipa,ipb,5) = papb*rKappa(iZeta)* &
-              Final(iZeta,ipa,ipb,5) = rKappa(iZeta)* &
-                                       Rnxyz(iZeta,1,ixa,ixb)* &
-                     (tTwo*Beta(iZeta)*Rnxyz(iZeta,2,iya,iyb+1)+ &
-                                    yb*Rnxyz(iZeta,2,iya,iyb-1))* &
-                                       Rnxyz(iZeta,3,iza,izb)
+              !rFinal(iZeta,ipa,ipb,5) = papb*rKappa(iZeta)* &
+              rFinal(iZeta,ipa,ipb,5) = rKappa(iZeta)* &
+                                        Rnxyz(iZeta,1,ixa,ixb)* &
+                       (Two*Beta(iZeta)*Rnxyz(iZeta,2,iya,iyb+1)+ &
+                                     yb*Rnxyz(iZeta,2,iya,iyb-1))* &
+                                        Rnxyz(iZeta,3,iza,izb)
             end do
           else
             do iZeta=1,nZeta
-              !Final(iZeta,ipa,ipb,5) = papb*rKappa(iZeta)* &
-              Final(iZeta,ipa,ipb,5) = rKappa(iZeta)* &
-                                       Rnxyz(iZeta,1,ixa,ixb)* &
-                      tTwo*Beta(iZeta)*Rnxyz(iZeta,2,iya,iyb+1)* &
-                                       Rnxyz(iZeta,3,iza,izb)
+              !rFinal(iZeta,ipa,ipb,5) = papb*rKappa(iZeta)* &
+              rFinal(iZeta,ipa,ipb,5) = rKappa(iZeta)* &
+                                        Rnxyz(iZeta,1,ixa,ixb)* &
+                        Two*Beta(iZeta)*Rnxyz(iZeta,2,iya,iyb+1)* &
+                                        Rnxyz(iZeta,3,iza,izb)
             end do
           end if
         end if
         if (IfGrad(3,1)) then
           if (iza > 0) then
-            za = dble(-iza)
+            za = real(-iza,kind=wp)
             do iZeta=1,nZeta
-              !Final(iZeta,ipa,ipb,3) = papb*rKappa(iZeta)* &
-              Final(iZeta,ipa,ipb,3) = rKappa(iZeta)* &
-                                       Rnxyz(iZeta,1,ixa,ixb)* &
-                                       Rnxyz(iZeta,2,iya,iyb)* &
-                    (tTwo*Alpha(iZeta)*Rnxyz(iZeta,3,iza+1,izb)+ &
-                                    za*Rnxyz(iZeta,3,iza-1,izb))
+              !rFinal(iZeta,ipa,ipb,3) = papb*rKappa(iZeta)* &
+              rFinal(iZeta,ipa,ipb,3) = rKappa(iZeta)* &
+                                        Rnxyz(iZeta,1,ixa,ixb)* &
+                                        Rnxyz(iZeta,2,iya,iyb)* &
+                      (Two*Alpha(iZeta)*Rnxyz(iZeta,3,iza+1,izb)+ &
+                                     za*Rnxyz(iZeta,3,iza-1,izb))
             end do
           else
             do iZeta=1,nZeta
-              !Final(iZeta,ipa,ipb,3) = papb*rKappa(iZeta)* &
-              Final(iZeta,ipa,ipb,3) = rKappa(iZeta)* &
-                                       Rnxyz(iZeta,1,ixa,ixb)* &
-                                       Rnxyz(iZeta,2,iya,iyb)* &
-                     tTwo*Alpha(iZeta)*Rnxyz(iZeta,3,iza+1,izb)
+              !rFinal(iZeta,ipa,ipb,3) = papb*rKappa(iZeta)* &
+              rFinal(iZeta,ipa,ipb,3) = rKappa(iZeta)* &
+                                        Rnxyz(iZeta,1,ixa,ixb)* &
+                                        Rnxyz(iZeta,2,iya,iyb)* &
+                       Two*Alpha(iZeta)*Rnxyz(iZeta,3,iza+1,izb)
             end do
           end if
         end if
         if (IfGrad(3,2)) then
           if (izb > 0) then
-            zb = dble(-izb)
+            zb = real(-izb,kind=wp)
             do iZeta=1,nZeta
-              !Final(iZeta,ipa,ipb,6) = papb*rKappa(iZeta)* &
-              Final(iZeta,ipa,ipb,6) = rKappa(iZeta)* &
-                                       Rnxyz(iZeta,1,ixa,ixb)* &
-                                       Rnxyz(iZeta,2,iya,iyb)* &
-                     (tTwo*Beta(iZeta)*Rnxyz(iZeta,3,iza,izb+1)+ &
-                                    zb*Rnxyz(iZeta,3,iza,izb-1))
+              !rFinal(iZeta,ipa,ipb,6) = papb*rKappa(iZeta)* &
+              rFinal(iZeta,ipa,ipb,6) = rKappa(iZeta)* &
+                                        Rnxyz(iZeta,1,ixa,ixb)* &
+                                        Rnxyz(iZeta,2,iya,iyb)* &
+                       (Two*Beta(iZeta)*Rnxyz(iZeta,3,iza,izb+1)+ &
+                                     zb*Rnxyz(iZeta,3,iza,izb-1))
             end do
           else
             do iZeta=1,nZeta
-              !Final(iZeta,ipa,ipb,6) = papb*rKappa(iZeta)* &
-              Final(iZeta,ipa,ipb,6) = rKappa(iZeta)* &
-                                       Rnxyz(iZeta,1,ixa,ixb)* &
-                                       Rnxyz(iZeta,2,iya,iyb)* &
-                      tTwo*Beta(iZeta)*Rnxyz(iZeta,3,iza,izb+1)
+              !rFinal(iZeta,ipa,ipb,6) = papb*rKappa(iZeta)* &
+              rFinal(iZeta,ipa,ipb,6) = rKappa(iZeta)* &
+                                        Rnxyz(iZeta,1,ixa,ixb)* &
+                                        Rnxyz(iZeta,2,iya,iyb)* &
+                        Two*Beta(iZeta)*Rnxyz(iZeta,3,iza,izb+1)
             end do
           end if
         end if
@@ -204,7 +209,7 @@ end do
 
 nDAO = nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
 if (iPrint >= 99) then
-  call RecPrt(' S(1)',' ',Final,nDAO,6)
+  call RecPrt(' S(1)',' ',rFinal,nDAO,6)
   call RecPrt('   D ',' ',DAO,nDAO,1)
 end if
 do iCn=1,2
@@ -215,26 +220,26 @@ do iCn=1,2
       if (iCn == 1) then
         i1 = iCar
         i2 = iCar+3
-        ps = dble(iPrmt(kOp(1),iChBas(1+iCar)))
-        Fact = dble(iStab)/dble(nIrrep)
+        ps = real(iPrmt(kOp(1),iChBas(1+iCar)),kind=wp)
+        Fact = real(iStab,kind=wp)/real(nIrrep,kind=wp)
       else
         i1 = iCar+3
         i2 = iCar
-        ps = dble(iPrmt(kOp(2),iChBas(1+iCar)))
-        Fact = ps*dble(jStab)/dble(nIrrep)
+        ps = real(iPrmt(kOp(2),iChBas(1+iCar)),kind=wp)
+        Fact = ps*real(jStab,kind=wp)/real(nIrrep,kind=wp)
       end if
-      !write(6,*) ' Fact=',Fact,ps
+      !write(u6,*) ' Fact=',Fact,ps
       if (IndGrd(iCar,iCn) < 0) then
         if (isCSF) then
           ! The CSF NADC component is not translation invariant,
           ! in fact, it is based on an antisymmetric matrix, so a + sign is needed here
-          Grad(iGrad) = Grad(iGrad)+Fact*DDot_(nDAO,DAO,1,Final(1,1,1,i2),1)
+          Grad(iGrad) = Grad(iGrad)+Fact*DDot_(nDAO,DAO,1,rFinal(1,1,1,i2),1)
         else
           ! Gradient via translational invariance.
-          Grad(iGrad) = Grad(iGrad)-Fact*DDot_(nDAO,DAO,1,Final(1,1,1,i2),1)
+          Grad(iGrad) = Grad(iGrad)-Fact*DDot_(nDAO,DAO,1,rFinal(1,1,1,i2),1)
         end if
       else
-        Grad(iGrad) = Grad(iGrad)+Fact*DDot_(nDAO,DAO,1,Final(1,1,1,i1),1)
+        Grad(iGrad) = Grad(iGrad)+Fact*DDot_(nDAO,DAO,1,rFinal(1,1,1,i1),1)
       end if
     end if
   end do

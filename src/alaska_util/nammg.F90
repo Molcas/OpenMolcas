@@ -11,18 +11,27 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine NAMmG(nRys,MmNAG,la,lb,lr)
+subroutine NAMmG( &
+#                define _CALLING_
+#                include "mem_interface.fh"
+                )
 
-integer iAng(4)
+use Definitions, only: iwp
+
+implicit none
+#define _USE_WP_
+#include "mem_interface.fh"
+integer(kind=iwp) :: iAng(4)
 ! Statement function
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 iAng(1) = la
 iAng(2) = lb
 iAng(3) = 0
 iAng(4) = 0
-call MemRg1(iAng,nRys,MmNAG)
-MmNAG = MmNAG+2+nElem(la)*nElem(lb)
+call MemRg1(iAng,nHer,Mem)
+Mem = Mem+2+nElem(la)*nElem(lb)
 
 return
 ! Avoid unused argument warnings

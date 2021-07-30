@@ -41,15 +41,18 @@
 
 subroutine Create_Grads(FN,nRoots,nGrad)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
+
 implicit none
-#include "stdalloc.fh"
-integer :: nRoots, nGrad, Lu, TOC(5), nCoup, iAd, iDum(1)
-character(LEN=*) :: FN
-integer, dimension(:), allocatable :: i_grad, i_nac
+character(len=*) :: FN
+integer(kind=iwp) :: nRoots, nGrad
+integer(kind=iwp) :: iAd, iDum(1), Lu, nCoup, TOC(5)
+integer(kind=iwp), allocatable :: i_grad(:), i_nac(:)
 
 nCoup = max(1,nRoots*(nRoots-1)/2)
-call mma_Allocate(i_grad,nRoots)
-call mma_Allocate(i_nac,nCoup)
+call mma_allocate(i_grad,nRoots)
+call mma_allocate(i_nac,nCoup)
 call iCopy(size(TOC),[0],0,TOC,1)
 call iCopy(nRoots,[0],0,i_grad,1)
 call iCopy(nCoup,[0],0,i_nac,1)
@@ -73,7 +76,7 @@ iAd = 0
 call iDaFile(Lu,1,TOC,size(TOC),iAd)
 call DaClos(Lu)
 
-call mma_Deallocate(i_grad)
-call mma_Deallocate(i_nac)
+call mma_deallocate(i_grad)
+call mma_deallocate(i_nac)
 
 end subroutine Create_Grads

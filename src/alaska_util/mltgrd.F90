@@ -30,18 +30,20 @@ subroutine MltGrd( &
 !             '91.                                                     *
 !***********************************************************************
 
-use Her_RW
-use Center_Info
+use Her_RW, only: iHerR, iHerW, HerR, HerW
+use Center_Info, only: dc
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+implicit none
+#define _USE_WP_
+#include "grd_interface.fh"
+integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipRnxyz, ipRxyz, nip
+logical(kind=iwp) :: ABeq(3)
+#include "finfld.fh"
 #ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iPrint, iRout
 #include "print.fh"
 #endif
-#include "grd_interface.fh"
-! Local variables
-logical ABeq(3)
-#include "finfld.fh"
 
 !                                                                      *
 !***********************************************************************
@@ -68,9 +70,9 @@ nip = nip+nZeta
 ipBeta = nip
 nip = nip+nZeta
 if (nip-1 > nArr*nZeta) then
-  write(6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
+  write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
   call ErrTra()
-  write(6,*) ' Abend in MltGrd'
+  write(u6,*) ' Abend in MltGrd'
   call Abend()
 end if
 
@@ -81,7 +83,7 @@ if (iPrint >= 49) then
   call RecPrt(' In MltGrd: RB',' ',RB,1,3)
   call RecPrt(' In MltGrd: Ccoor',' ',Ccoor,1,3)
   call RecPrt(' In MltGrd: P',' ',P,nZeta,3)
-  write(6,*) ' In MltGrd: la,lb=',la,lb
+  write(u6,*) ' In MltGrd: la,lb=',la,lb
 end if
 #endif
 

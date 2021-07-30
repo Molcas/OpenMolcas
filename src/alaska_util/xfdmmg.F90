@@ -11,21 +11,30 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine XFdMmg(nRys,MnXFdG,la,lb,lr)
+subroutine XFdMmg( &
+#                 define _CALLING_
+#                 include "mem_interface.fh"
+                 )
 
-integer iAng(4)
+use Definitions, only: iwp
+
+implicit none
+#define _USE_WP_
+#include "mem_interface.fh"
+integer(kind=iwp) :: iAng(4), iOrdOp, MemTmp
 ! Statement function
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
-MnXFdG = 0
+Mem = 0
 do iOrdOp=0,1
   iAng(1) = la
   iAng(2) = lb
   iAng(3) = iOrdOp
   iAng(4) = 0
-  call MemRg1(iAng,nRys,MemTmp)
+  call MemRg1(iAng,nHer,MemTmp)
   MemTmp = MemTmp+2+nElem(la)*nElem(lb)*nElem(iOrdOp)
-  MnXFdG = max(MnXFdG,MemTmp)
+  Mem = max(Mem,MemTmp)
 end do
 
 return

@@ -23,34 +23,36 @@ subroutine PrGrad(Label,Grad,nGrad,Names,iPrint)
 !***********************************************************************
 
 use Symmetry_Info, only: lIrrep
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
 #include "Molcas.fh"
-#include "real.fh"
-real*8 Grad(nGrad)
-real*8 CGrad(3,MxAtom)
-character CNames(MxAtom)*(LENIN5)
-character Label*(*), Names(nGrad)*(LENIN6)
-character Namei*(LENIN5)
+character(len=*) :: Label
+integer(kind=iwp) :: nGrad, iPrint
+real(kind=wp) :: Grad(nGrad)
+character(len=LenIn6) :: Names(nGrad)
+integer(kind=iwp) :: i, iCen, iGrad, mGrad
+real(kind=wp) :: CGrad(3,MxAtom), Temp, TempX, TempY, TempZ
+character(len=LenIn5) :: CNames(MxAtom), Namei
 
-write(6,*)
+write(u6,*)
 call Banner(Label,1,len(Label)+30)
-write(6,*)
+write(u6,*)
 !if (iPrint == 4) then
 if (.true.) then
   call TrGrd_Alaska_(CGrad,CNames,Grad,nGrad,iCen)
-  write(6,'(1x,A,A)') ' Irreducible representation: ',lIrrep(0)
-  write(6,'(1x,90A     )') ('-',i=1,90)
-  write(6,'(7x,3(23x,A))') 'X','Y','Z'
-  write(6,'(1x,90A     )') ('-',i=1,90)
+  write(u6,'(1x,A,A)') ' Irreducible representation: ',lIrrep(0)
+  write(u6,'(1x,90A     )') ('-',i=1,90)
+  write(u6,'(7x,3(23x,A))') 'X','Y','Z'
+  write(u6,'(1x,90A     )') ('-',i=1,90)
   do iGrad=1,iCen
     TempX = CGrad(1,iGrad)
     TempY = CGrad(2,iGrad)
     TempZ = CGrad(3,iGrad)
     Namei = CNames(iGrad)
-    write(6,'(2X,A,3X,3ES24.14)') Namei,TempX,TempY,TempZ
+    write(u6,'(2X,A,3X,3ES24.14)') Namei,TempX,TempY,TempZ
   end do
-  write(6,'(1x,90A     )') ('-',i=1,90)
+  write(u6,'(1x,90A     )') ('-',i=1,90)
 else
 
   ! Modified by Luca De Vico november 2005 Teokem
@@ -61,24 +63,24 @@ else
   !mGrad = min(21,nGrad)
 
   mGrad = nGrad
-  write(6,'(15x,A,A)') ' Irreducible representation: ',lIrrep(0)
-  write(6,*)
+  write(u6,'(15x,A,A)') ' Irreducible representation: ',lIrrep(0)
+  write(u6,*)
   do iGrad=1,mGrad
     Temp = Grad(iGrad)
-    !if (abs(Temp) < 1.0D-15) Temp = Zero
-    write(6,'(16X,A,15X,ES15.7)') Names(iGrad),Temp
+    !if (abs(Temp) < 1.0e-15_wp) Temp = Zero
+    write(u6,'(16X,A,15X,ES15.7)') Names(iGrad),Temp
   end do
 
   !if (nGrad > 21) then
-  !  write(6,*)
-  !  write(6,*) '   ... list is truncated ...'
-  !  write(6,*)
+  !  write(u6,*)
+  !  write(u6,*) '   ... list is truncated ...'
+  !  write(u6,*)
   !end if
 
   ! End of modifications
 
 end if
-write(6,*)
+write(u6,*)
 
 return
 ! Avoid unused argument warnings

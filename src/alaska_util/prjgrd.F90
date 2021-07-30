@@ -49,25 +49,31 @@ subroutine PrjGrd( &
 !             Physics, University of Stockholm, Sweden, October '93.   *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
-use Her_RW
-use Real_Spherical
+use Basis_Info, only: dbsc, nCnttp, Shells
+use Center_Info, only: dc
+use Her_RW, only: iHerR, iHerW, HerR, HerW
+use Real_Spherical, only: ipSph, RSph
 use Symmetry_Info, only: iOper
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
 
-implicit real*8(A-H,O-Z)
+implicit none
+#define _USE_WP_
+#include "grd_interface.fh"
+integer(kind=iwp) :: i, ia, iaC, iAng, ib, iBk, iC, iCar, iCb, iCent, iCmp, iDCRT(0:7), iGamma, iIrrep, ip, ipA, ipaC, ipAxyz, &
+                     ipB, ipBxyz, ipCb, ipCxyz, ipF1, ipF1a, ipF2, ipF2a, ipK1, ipK2, ipP1, ipP2, ipQ1, iPrint, ipRxyz, ipTmp, &
+                     ipZ1, ipZ2, ipZI1, ipZI2, iRout, iShll, iStrt, iuvwx(4), iVec, j, JndGrd(3,4), kCnt, kCnttp, kdc, ld, lDCRT, &
+                     LmbdT, lOp(4), mGrad, mVec, mVecAC, mVecCB, nac, nBasisi, ncb, nDAO, nDCRT, nDisp, nExpi, nRys, nVecAC, nVecCB
+real(kind=wp) :: C(3), Fact, TC(3)
+character(len=80) :: Label
+logical(kind=iwp) :: ABeq(3), JfGrad(3,4), EQ
+real(kind=r8) :: DNrm2_
+logical(kind=iwp), external :: TF
 #include "Molcas.fh"
-#include "real.fh"
 #include "print.fh"
 #include "disp.fh"
-#include "grd_interface.fh"
-! Local variables
-real*8 C(3), TC(3)
-integer iDCRT(0:7), iuvwx(4), lOp(4), JndGrd(3,4)
-character*80 Label
-logical JfGrad(3,4), ABeq(3), EQ
-logical, external :: TF
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 iRout = 192
@@ -81,7 +87,7 @@ if (iPrint >= 49) then
   call RecPrt(' In PrjGrd: P',' ',P,nZeta,3)
   call RecPrt(' In PrjGrd: Alpha',' ',Alpha,nAlpha,1)
   call RecPrt(' In PrjGrd: Beta',' ',Beta,nBeta,1)
-  write(6,*) ' In PrjGrd: la,lb=',' ',la,lb
+  write(u6,*) ' In PrjGrd: la,lb=',' ',la,lb
 end if
 
 nRys = nHer
@@ -101,7 +107,7 @@ do kCnttp=1,nCnttp
     if (iPrint >= 49) call RecPrt(' In PrjGrd: C',' ',C,1,3)
 
     call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-    Fact = dble(nStabM)/dble(LmbdT)
+    Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
     iuvwx(3) = dc(kdc+kCnt)%nStab
     iuvwx(4) = dc(kdc+kCnt)%nStab
@@ -141,7 +147,7 @@ do kCnttp=1,nCnttp
         if (JfGrad(iCar,i)) mGrad = mGrad+1
       end do
     end do
-    if (iPrint >= 99) write(6,*) ' mGrad=',mGrad
+    if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
     if (mGrad == 0) Go To 1965
 
     do lDCRT=0,nDCRT-1
@@ -154,9 +160,9 @@ do kCnttp=1,nCnttp
         nExpi = Shells(iShll)%nExp
         nBasisi = Shells(iShll)%nBasis
         if (iPrint >= 49) then
-          write(6,*) 'nExpi=',nExpi
-          write(6,*) 'nBasisi=',nBasisi
-          write(6,*) ' iAng=',iAng
+          write(u6,*) 'nExpi=',nExpi
+          write(u6,*) 'nBasisi=',nBasisi
+          write(u6,*) ' iAng=',iAng
           call RecPrt('TC',' ',TC,1,3)
         end if
         if ((nExpi == 0) .or. (nBasisi == 0)) Go To 1966
@@ -174,7 +180,7 @@ do kCnttp=1,nCnttp
         ipZI1 = ip
         ip = ip+nAlpha*nExpi
         if (ip-1 > nArr*nZeta) then
-          write(6,*) '  ip-1 > nArr*nZeta(1) in PrjGrd'
+          write(u6,*) '  ip-1 > nArr*nZeta(1) in PrjGrd'
           call Abend()
         end if
 
@@ -197,7 +203,7 @@ do kCnttp=1,nCnttp
         ipA = ip
         ip = ip+nAlpha*nExpi
         if (ip-1 > nArr*nZeta) then
-          write(6,*) '  ip-1 > nArr*nZeta(1b) in PrjGrd'
+          write(u6,*) '  ip-1 > nArr*nZeta(1b) in PrjGrd'
           call Abend()
         end if
         ABeq(1) = A(1) == TC(1)
@@ -210,9 +216,9 @@ do kCnttp=1,nCnttp
         ABeq(3) = .false.
         call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*nExpi,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
         if (iPrint >= 49) then
-          write(6,*) ' Array(ipAxyz)=',DNrm2_(nAlpha*nExpi*3*nHer*(la+2),Array(ipAxyz),1)
-          write(6,*) ' Array(ipCxyz)=',DNrm2_(nAlpha*nExpi*3*nHer*(iAng+1),Array(ipCxyz),1)
-          write(6,*) ' Array(ipRxyz)=',DNrm2_(nAlpha*nExpi*3*nHer*(nOrdOp+1),Array(ipRxyz),1)
+          write(u6,*) ' Array(ipAxyz)=',DNrm2_(nAlpha*nExpi*3*nHer*(la+2),Array(ipAxyz),1)
+          write(u6,*) ' Array(ipCxyz)=',DNrm2_(nAlpha*nExpi*3*nHer*(iAng+1),Array(ipCxyz),1)
+          write(u6,*) ' Array(ipRxyz)=',DNrm2_(nAlpha*nExpi*3*nHer*(nOrdOp+1),Array(ipRxyz),1)
         end if
         call Assmbl(Array(ipQ1),Array(ipAxyz),la+1,Array(ipRxyz),nOrdOp,Array(ipCxyz),iAng,nAlpha*nExpi,HerW(iHerW(nHer)),nHer)
         iStrt = ipA
@@ -221,14 +227,14 @@ do kCnttp=1,nCnttp
           iStrt = iStrt+nAlpha
         end do
         if (iPrint >= 49) then
-          write(6,*) ' Array(ipA)=',DNrm2_(nAlpha*nExpi,Array(ipA),1)
+          write(u6,*) ' Array(ipA)=',DNrm2_(nAlpha*nExpi,Array(ipA),1)
         end if
         call rKappa_Zeta(Array(ipK1),Array(ipZ1),nExpi*nAlpha)
         ld = 1
         call CmbnAC(Array(ipQ1),nAlpha*nExpi,la,iAng,Array(ipK1),Array(ipF1),Array(ipA),JfGrad(1,1),ld,nVecAC)
         if (iPrint >= 49) then
-          write(6,*) ' Array(ipQ1)=',DNrm2_(nAlpha*nExpi*3*(la+2)*(iAng+1)*(nOrdOp+1),Array(ipQ1),1)
-          write(6,*) ' Array(ipA)=',DNrm2_(nAlpha*nExpi,Array(ipA),1)
+          write(u6,*) ' Array(ipQ1)=',DNrm2_(nAlpha*nExpi*3*(la+2)*(iAng+1)*(nOrdOp+1),Array(ipQ1),1)
+          write(u6,*) ' Array(ipA)=',DNrm2_(nAlpha*nExpi,Array(ipA),1)
         end if
         ip = ip-nAlpha*nExpi*(6+3*nHer*(la+2)+3*nHer*(iAng+1)+3*nHer*(nOrdOp+1)+3*(la+2)*(iAng+1)*(nOrdOp+1)+1)
 
@@ -244,7 +250,7 @@ do kCnttp=1,nCnttp
         ipZI2 = ip
         ip = ip+nExpi*nBeta
         if (ip-1 > nArr*nZeta) then
-          write(6,*) '  ip-1 > nArr*nZeta(2) in PrjGrd'
+          write(u6,*) '  ip-1 > nArr*nZeta(2) in PrjGrd'
           call Abend()
         end if
 
@@ -267,7 +273,7 @@ do kCnttp=1,nCnttp
         ipB = ip
         ip = ip+nBeta*nExpi
         if (ip-1 > nArr*nZeta) then
-          write(6,*) '  ip-1 > nArr*nZeta(2b) in PrjGrd'
+          write(u6,*) '  ip-1 > nArr*nZeta(2b) in PrjGrd'
           call Abend()
         end if
         ABeq(1) = TC(1) == RB(1)
@@ -280,9 +286,9 @@ do kCnttp=1,nCnttp
         ABeq(3) = .false.
         call CrtCmp(Array(ipZ2),Array(ipP2),nExpi*nBeta,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
         if (iPrint >= 49) then
-          write(6,*) ' Array(ipCxyz)=',DNrm2_(nBeta*nExpi*3*nHer*(iAng+1),Array(ipCxyz),1)
-          write(6,*) ' Array(ipBxyz)=',DNrm2_(nBeta*nExpi*3*nHer*(lb+2),Array(ipBxyz),1)
-          write(6,*) ' Array(ipRxyz)=',DNrm2_(nBeta*nExpi*3*nHer*(nOrdOp+1),Array(ipRxyz),1)
+          write(u6,*) ' Array(ipCxyz)=',DNrm2_(nBeta*nExpi*3*nHer*(iAng+1),Array(ipCxyz),1)
+          write(u6,*) ' Array(ipBxyz)=',DNrm2_(nBeta*nExpi*3*nHer*(lb+2),Array(ipBxyz),1)
+          write(u6,*) ' Array(ipRxyz)=',DNrm2_(nBeta*nExpi*3*nHer*(nOrdOp+1),Array(ipRxyz),1)
         end if
         call Assmbl(Array(ipQ1),Array(ipCxyz),iAng,Array(ipRxyz),nOrdOp,Array(ipBxyz),lb+1,nExpi*nBeta,HerW(iHerW(nHer)),nHer)
         iStrt = ipB
@@ -291,14 +297,14 @@ do kCnttp=1,nCnttp
           iStrt = iStrt+1
         end do
         if (iPrint >= 49) then
-          write(6,*) ' Array(ipB)=',DNrm2_(nExpi*nBeta,Array(ipB),1)
+          write(u6,*) ' Array(ipB)=',DNrm2_(nExpi*nBeta,Array(ipB),1)
         end if
         call rKappa_Zeta(Array(ipK2),Array(ipZ2),nExpi*nBeta)
         ld = 1
         call CmbnCB(Array(ipQ1),nExpi*nBeta,iAng,lb,Array(ipK2),Array(ipF2),Array(ipB),JfGrad(1,2),ld,nVecCB)
         if (iPrint >= 49) then
-          write(6,*) ' Array(ipQ1)=',DNrm2_(nExpi*nBeta*3*(la+2)*(iAng+1)*(nOrdOp+1),Array(ipQ1),1)
-          write(6,*) ' Array(ipB)=',DNrm2_(nExpi*nBeta,Array(ipB),1)
+          write(u6,*) ' Array(ipQ1)=',DNrm2_(nExpi*nBeta*3*(la+2)*(iAng+1)*(nOrdOp+1),Array(ipQ1),1)
+          write(u6,*) ' Array(ipB)=',DNrm2_(nExpi*nBeta,Array(ipB),1)
         end if
         ip = ip-nBeta*nExpi*(6+3*nHer*(lb+2)+3*nHer*(iAng+1)+3*nHer*(nOrdOp+1)+3*(lb+2)*(iAng+1)*(nOrdOp+1)+1)
         nac = nElem(la)*nElem(iAng)*nVecAC
@@ -306,7 +312,7 @@ do kCnttp=1,nCnttp
         ipTmp = ip
         ip = ip+max(nAlpha*nExpi*nac,nBeta*ncb*nBasisi)
         if (ip-1 > nArr*nZeta) then
-          write(6,*) '  ip-1 > nArr*nZeta(3) in PrjGrd'
+          write(u6,*) '  ip-1 > nArr*nZeta(3) in PrjGrd'
           call Abend()
         end if
         nac = nElem(la)*nElem(iAng)
@@ -328,7 +334,7 @@ do kCnttp=1,nCnttp
 
         ! 2) aciK =  k,aci * k,K (Contract over core orbital)
 
-        call DGEMM_('T','N',nac*nVecAC*nAlpha,nBasisi,nExpi,1.0d0,Array(ipTmp),nExpi,Shells(iShll)%pCff,nExpi,0.0d0,Array(ipF1), &
+        call DGEMM_('T','N',nac*nVecAC*nAlpha,nBasisi,nExpi,One,Array(ipTmp),nExpi,Shells(iShll)%pCff,nExpi,Zero,Array(ipF1), &
                     nac*nVecAC*nAlpha)
 
         ! 3) Mult by shiftoperators aci,K -> Bk(K) * aci,K
@@ -345,8 +351,8 @@ do kCnttp=1,nCnttp
 
         ! 5) iKa,C = c,iKa * c,C
 
-        call DGEMM_('T','N',nVecAC*nAlpha*nBasisi*nElem(la),(2*iAng+1),nElem(iAng),1.0d0,Array(ipF1),nElem(iAng), &
-                    RSph(ipSph(iAng)),nElem(iAng),0.0d0,Array(ipTmp),nVecAC*nAlpha*nBasisi*nElem(la))
+        call DGEMM_('T','N',nVecAC*nAlpha*nBasisi*nElem(la),(2*iAng+1),nElem(iAng),One,Array(ipF1),nElem(iAng),RSph(ipSph(iAng)), &
+                    nElem(iAng),Zero,Array(ipTmp),nVecAC*nAlpha*nBasisi*nElem(la))
 
         call DgeTMo(Array(ipTmp),nVecAC,nVecAC,nAlpha*nBasisi*nElem(la)*(2*iAng+1),Array(ipF1),nAlpha*nBasisi*nElem(la)*(2*iAng+1))
 
@@ -354,7 +360,7 @@ do kCnttp=1,nCnttp
         ! KjCb from kjcb
         ! 1) jcb,K = k,jcb * k,K
 
-        call DGEMM_('T','N',nBeta*ncb*nVecCB,nBasisi,nExpi,1.0d0,Array(ipF2),nExpi,Shells(iShll)%pCff,nExpi,0.0d0,Array(ipTmp), &
+        call DGEMM_('T','N',nBeta*ncb*nVecCB,nBasisi,nExpi,One,Array(ipF2),nExpi,Shells(iShll)%pCff,nExpi,Zero,Array(ipTmp), &
                     nBeta*ncb*nVecCB)
 
         ! 2)  j,cbK -> cbK,j
@@ -363,8 +369,8 @@ do kCnttp=1,nCnttp
 
         ! 3) bKj,C = c,bKj * c,C
 
-        call DGEMM_('T','N',nElem(lb)*nVecCB*nBasisi*nBeta,(2*iAng+1),nElem(iAng),1.0d0,Array(ipF2),nElem(iAng),RSph(ipSph(iAng)), &
-                    nElem(iAng),0.0d0,Array(ipTmp),nElem(lb)*nVecCB*nBasisi*nBeta)
+        call DGEMM_('T','N',nElem(lb)*nVecCB*nBasisi*nBeta,(2*iAng+1),nElem(iAng),One,Array(ipF2),nElem(iAng),RSph(ipSph(iAng)), &
+                    nElem(iAng),Zero,Array(ipTmp),nElem(lb)*nVecCB*nBasisi*nBeta)
 
         ! 4) b,KjC -> KjC,b
 
@@ -420,11 +426,11 @@ do kCnttp=1,nCnttp
 
         if (iPrint >= 49) then
           do iVec=1,mVec
-            write(6,*) iVec,sqrt(DNrm2_(nZeta*nElem(la)*nElem(lb),Final(1,1,1,iVec),1))
+            write(u6,*) iVec,sqrt(DNrm2_(nZeta*nElem(la)*nElem(lb),Final(1,1,1,iVec),1))
           end do
         end if
         if (iPrint >= 99) then
-          write(6,*) ' Result in PrjGrd'
+          write(u6,*) ' Result in PrjGrd'
           do ia=1,nElem(la)
             do ib=1,nElem(lb)
               do iVec=1,mVec

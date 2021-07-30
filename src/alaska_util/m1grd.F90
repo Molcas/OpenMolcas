@@ -53,22 +53,27 @@ subroutine M1Grd( &
 !             Modified to gradients, December '93 (RL).                *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
+use Constants, only: One, Two, Pi
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external TNAI1, Fake, Cff2D
+implicit none
+#define _USE_WP_
+#include "grd_interface.fh"
+integer(kind=iwp) :: i, iAlpha, ianga(4), iBeta, iCar, iCmp, iDAO, iDCRT(0:7), iIrrep, iM1xp, ip, ipA, ipAOff, ipB, ipBOff, ipDAO, &
+                     ipDAOt, ipK, ipPx, ipPy, ipPz, iPrint, ipZ, ipZI, iRout, iuvwx(4), iZeta, j, JndGrd(3,4), kCnt, kCnttp, kdc, &
+                     lDCRT, LmbdT, lOp(4), mGrad, nArray, nDAO, nDCRT, nDisp, nRys
+real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), Fac, Fact, Gmma, PTC2, TC(3), Tmp0, Tmp1
+logical(kind=iwp) :: EQ, JfGrad(3,4)
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: TF
+external :: TNAI1, Fake, Cff2D
 #include "Molcas.fh"
-#include "real.fh"
 #include "print.fh"
 #include "disp.fh"
-#include "grd_interface.fh"
-! Local variables
-real*8 C(3), TC(3), CoorAC(3,2), Coori(3,4), Coora(3,4)
-integer iDCRT(0:7), iAnga(4), iuvwx(4), lOp(4), JndGrd(3,4)
-logical EQ, JfGrad(3,4)
-logical, external :: TF
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 iRout = 193
@@ -81,7 +86,7 @@ if (iPrint >= 49) then
   call RecPrt(' In M1Grd: RB',' ',RB,1,3)
   call RecPrt(' In M1Grd: Ccoor',' ',Ccoor,1,3)
   call RecPrt(' In M1Grd: P',' ',P,nZeta,3)
-  write(6,*) ' In M1Grd: la,lb=',' ',la,lb
+  write(u6,*) ' In M1Grd: la,lb=',' ',la,lb
 end if
 
 ! Allocate Scratch for primitives and work area for HRR
@@ -106,8 +111,8 @@ ip = ip+nZeta
 ipPz = ip
 ip = ip+nZeta
 if (ip-1 > nArr*nZeta) then
-  write(6,*) ' ip-1 > nArr*nZeta (M1 section)'
-  write(6,*) ' nArr,nZeta=',nArr,nZeta
+  write(u6,*) ' ip-1 > nArr*nZeta (M1 section)'
+  write(u6,*) ' nArr,nZeta=',nArr,nZeta
   call Abend()
 end if
 nArray = nArr*nZeta-ip+1
@@ -177,7 +182,7 @@ do kCnttp=1,nCnttp
       call dcopy_(3,TC,1,Coora(1,4),1)
 
       do iM1xp=1,dbsc(kCnttp)%nM1
-        Gamma = dbsc(kCnttp)%M1xp(iM1xp)
+        Gmma = dbsc(kCnttp)%M1xp(iM1xp)
 
         call ICopy(6,IndGrd,1,JndGrd,1)
         do i=1,3
@@ -249,7 +254,7 @@ do kCnttp=1,nCnttp
             if (JfGrad(iCar,i)) mGrad = mGrad+1
           end do
         end do
-        if (iPrint >= 99) write(6,*) ' mGrad=',mGrad
+        if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
         if (mGrad == 0) Go To 1011
 
         ! Modify the original basis. Observe that
@@ -258,19 +263,19 @@ do kCnttp=1,nCnttp
 
         do iZeta=1,nZeta
           PTC2 = (P(iZeta,1)-TC(1))**2+(P(iZeta,2)-TC(2))**2+(P(iZeta,3)-TC(3))**2
-          Tmp0 = Zeta(iZeta)+Gamma
-          Tmp1 = exp(-Zeta(iZeta)*Gamma*PTC2/Tmp0)
+          Tmp0 = Zeta(iZeta)+Gmma
+          Tmp1 = exp(-Zeta(iZeta)*Gmma*PTC2/Tmp0)
           Array(ipK+iZeta-1) = rKappa(iZeta)*Tmp1
           Array(ipZ+iZeta-1) = Tmp0
           Array(ipZI+iZeta-1) = One/Tmp0
-          Array(ipPx+iZeta-1) = (Zeta(iZeta)*P(iZeta,1)+Gamma*TC(1))/Tmp0
-          Array(ipPy+iZeta-1) = (Zeta(iZeta)*P(iZeta,2)+Gamma*TC(2))/Tmp0
-          Array(ipPz+iZeta-1) = (Zeta(iZeta)*P(iZeta,3)+Gamma*TC(3))/Tmp0
+          Array(ipPx+iZeta-1) = (Zeta(iZeta)*P(iZeta,1)+Gmma*TC(1))/Tmp0
+          Array(ipPy+iZeta-1) = (Zeta(iZeta)*P(iZeta,2)+Gmma*TC(2))/Tmp0
+          Array(ipPz+iZeta-1) = (Zeta(iZeta)*P(iZeta,3)+Gmma*TC(3))/Tmp0
         end do
 
         ! Modify the density matrix with the prefactor
 
-        Fact = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M1cf(iM1xp)*(dble(nStabM)/dble(LmbdT))*Two*Pi
+        Fact = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M1cf(iM1xp)*(real(nStabM,kind=wp)/real(LmbdT,kind=wp))*Two*Pi
         nDAO = nElem(la)*nElem(lb)
         do iDAO=1,nDAO
           do iZeta=1,nZeta
@@ -280,10 +285,10 @@ do kCnttp=1,nCnttp
           end do
         end do
         if (iPrint >= 99) then
-          write(6,*) ' Charge=',dbsc(kCnttp)%Charge
-          write(6,*) ' Fact=',Fact
-          write(6,*) ' IndGrd=',IndGrd
-          write(6,*) ' JndGrd=',JndGrd
+          write(u6,*) ' Charge=',dbsc(kCnttp)%Charge
+          write(u6,*) ' Fact=',Fact
+          write(u6,*) ' IndGrd=',IndGrd
+          write(u6,*) ' JndGrd=',JndGrd
           call RecPrt('DAO*Fact',' ',Array(ipDAO),nZeta,nDAO)
         end if
 

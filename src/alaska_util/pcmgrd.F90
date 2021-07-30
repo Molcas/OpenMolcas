@@ -28,24 +28,24 @@ subroutine PCMgrd( &
 !***********************************************************************
 
 use PCM_arrays, only: PCM_SQ, PCMTess
-use Center_Info
+use Center_Info, only: dc
+use Constants, only: Zero, One, Two, Pi
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external TNAI1, Fake, XCff2D
-#include "Molcas.fh"
-#include "real.fh"
-#include "print.fh"
-#include "disp.fh"
-#include "rctfld.fh"
+implicit none
+#define _USE_WP_
 #include "grd_interface.fh"
-! Local variables
-integer iDCRT(0:7)
-real*8 Coori(3,4), CoorAC(3,2), C(3), TC(3)
-logical NoLoop, JfGrad(3,4)
-integer iAnga(4), iStb(0:7), JndGrd(3,4), lOp(4), iuvwx(4)
-!character ChOper(0:7)*3
-!data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
-! Statement function for Cartesian index
+integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ipA, ipAOff, ipB, ipBOff, ipDAO, iPrint, iRout, &
+                     iStb(0:7), iTs, iuvwx(4), iZeta, j, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, &
+                     nDiff, nip, nRys, nStb
+real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, Q, TC(3)
+logical(kind=iwp) :: NoLoop, JfGrad(3,4)
+!character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
+integer(kind=iwp), external :: NrOpr
+external :: Fake, TNAI1, XCff2D
+#include "print.fh"
+#include "rctfld.fh"
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 iRout = 151
@@ -61,7 +61,7 @@ nip = nip+nAlpha*nBeta
 ipDAO = nip
 nip = nip+nAlpha*nBeta*nElem(la)*nElem(lb)*nElem(nOrdOp)
 if (nip-1 > nZeta*nArr) then
-  write(6,*) 'nip-1 > nZeta*nArr'
+  write(u6,*) 'nip-1 > nZeta*nArr'
   call ErrTra()
   call Abend()
 end if
@@ -122,7 +122,7 @@ do iTs=1,nTs
 
   if (iPrint >= 99) call RecPrt('C',' ',C,1,3)
   call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
-  Fact = -Q*dble(nStabM)/dble(LmbdT)
+  Fact = -Q*real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
   call DYaX(nZeta*nDAO,Fact,DAO,1,Array(ipDAO),1)
 
@@ -152,7 +152,7 @@ do iTs=1,nTs
       if (JfGrad(iCar,i)) mGrad = mGrad+1
     end do
   end do
-  if (iPrint >= 99) write(6,*) ' mGrad=',mGrad
+  if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
   if (mGrad == 0) Go To 111
 
   do lDCRT=0,nDCRT-1

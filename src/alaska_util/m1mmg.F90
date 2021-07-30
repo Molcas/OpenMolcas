@@ -11,7 +11,10 @@
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine M1MmG(nRys,MmM1g,la,lb,lr)
+subroutine M1MmG( &
+#                define _CALLING_
+#                include "mem_interface.fh"
+                )
 !***********************************************************************
 !                                                                      *
 !  Object: to compute the number of real*8 the kernel routine will     *
@@ -25,16 +28,22 @@ subroutine M1MmG(nRys,MmM1g,la,lb,lr)
 !                                                                      *
 !***********************************************************************
 
-integer iAng(4)
+use Definitions, only: iwp
+
+implicit none
+#define _USE_WP_
+#include "mem_interface.fh"
+integer(kind=iwp) :: iAng(4)
 ! Statement function
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 iAng(1) = la
 iAng(2) = lb
 iAng(3) = 0
 iAng(4) = 0
-call MemRg1(iAng,nRys,Mem)
-MmM1g = 8+Mem+nElem(la)*nElem(lb)
+call MemRg1(iAng,nHer,Mem)
+Mem = Mem+8+nElem(la)*nElem(lb)
 
 return
 ! Avoid unused argument warnings

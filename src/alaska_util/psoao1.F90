@@ -39,20 +39,25 @@ subroutine PSOAO1(nSO,MemPrm,MemMax,iAnga,iCmpa,iAO,iFnc,iBas,iBsInc,jBas,jBsInc
 !***********************************************************************
 
 use aces_stuff, only: nGamma, Gamma_On
-use PSO_Stuff
+use PSO_Stuff, only: lPSO
 use SOAO_Info, only: iAOtSO
 use Temporary_parameters, only: force_part_c, force_part_p
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
+implicit none
+integer(kind=iwp) :: nSO, MemPrm, MemMax, iAnga(4), iCmpa(4), iAO(4), iFnc(4), iBas, iBsInc, jBas, jBsInc, kBas, kBsInc, lBas, &
+                     lBsInc, iPrim, iPrInc, jPrim, jPrInc, kPrim, kPrInc, lPrim, lPrInc, ipMem1, ipMem2, Mem1, Mem2, MemPSO
+integer(kind=iwp) :: i1, iCmp, iFac, iiBas(4), IncVec, iTmp1, j, jCmp, jPam, kCmp, kSOInt, la, lb, lc, lCmp, ld, lSize, mabcd, &
+                     Mem0, Mem3, MemAux, MemAux0, MemDeP, MemRys, MemScr, MemSph, MemTrn, nA2, nA3, nabcd, nCache, nFac, &
+                     nPam(4,0:7), nTmp1, nTmp2, nVec1
+logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
+integer(kind=iwp), external :: MemTra
 #include "lCache.fh"
 #include "pstat.fh"
-integer iAnga(4), iCmpa(4), nPam(4,0:7), iiBas(4), iFnc(4), iAO(4)
-logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
 ! Statement function to compute canonical index
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 la = iAnga(1)
@@ -153,12 +158,12 @@ if (Mem1+1+MemAux0 > Mem0) then
   call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
               MaxReq,Fail)
   if (Fail) then
-    write(6,*) ' Memory allocation failed for Work1'
-    write(6,'(2I3,L1,2I3,L1)') iBas,iBsInc,QiBas,kBas,kBsInc,QkBas
-    write(6,'(2I3,L1,2I3,L1)') jBas,jBsInc,QjBas,lBas,lBsInc,QlBas
-    write(6,'(2I3,L1,2I3,L1)') jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim
-    write(6,*) MemMax,Mem0,Mem1,MemAux0+1
-    write(6,*) MemPSO,MemScr,4*S%nDim,nTmp2+4
+    write(u6,*) ' Memory allocation failed for Work1'
+    write(u6,'(2I3,L1,2I3,L1)') iBas,iBsInc,QiBas,kBas,kBsInc,QkBas
+    write(u6,'(2I3,L1,2I3,L1)') jBas,jBsInc,QjBas,lBas,lBsInc,QlBas
+    write(u6,'(2I3,L1,2I3,L1)') jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim
+    write(u6,*) MemMax,Mem0,Mem1,MemAux0+1
+    write(u6,*) MemPSO,MemScr,4*S%nDim,nTmp2+4
     call Abend()
   end if
   Go To 999
@@ -216,11 +221,11 @@ if (Mem2+1 > Mem0) then
   call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
               MaxReq,Fail)
   if (Fail) then
-    write(6,*) ' Memory allocation failed for Work2'
-    write(6,'(2I3,L1,2I3,L1)') iBas,iBsInc,QiBas,kBas,kBsInc,QkBas
-    write(6,'(2I3,L1,2I3,L1)') jBas,jBsInc,QjBas,lBas,lBsInc,QlBas
-    write(6,'(2I3,L1,2I3,L1)') jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim
-    write(6,*) MemMax,Mem0,Mem1,Mem2
+    write(u6,*) ' Memory allocation failed for Work2'
+    write(u6,'(2I3,L1,2I3,L1)') iBas,iBsInc,QiBas,kBas,kBsInc,QkBas
+    write(u6,'(2I3,L1,2I3,L1)') jBas,jBsInc,QjBas,lBas,lBsInc,QlBas
+    write(u6,'(2I3,L1,2I3,L1)') jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim
+    write(u6,*) MemMax,Mem0,Mem1,Mem2
     call Abend()
   end if
   Go To 999
@@ -284,12 +289,12 @@ if (Mem3+1 > Mem0) then
   call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
               MaxReq,Fail)
   if (Fail) then
-    write(6,*) ' Memory allocation failed for Work3'
-    write(6,'(2I3,L1,2I3,L1)') iBas,iBsInc,QiBas,kBas,kBsInc,QkBas
-    write(6,'(2I3,L1,2I3,L1)') jBas,jBsInc,QjBas,lBas,lBsInc,QlBas
-    write(6,'(2I3,L1,2I3,L1)') jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim
-    write(6,*) MemMax,Mem0,Mem1,Mem2,Mem3
-    write(6,*) MemTrn,MemRys,MemPrm
+    write(u6,*) ' Memory allocation failed for Work3'
+    write(u6,'(2I3,L1,2I3,L1)') iBas,iBsInc,QiBas,kBas,kBsInc,QkBas
+    write(u6,'(2I3,L1,2I3,L1)') jBas,jBsInc,QjBas,lBas,lBsInc,QlBas
+    write(u6,'(2I3,L1,2I3,L1)') jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim
+    write(u6,*) MemMax,Mem0,Mem1,Mem2,Mem3
+    write(u6,*) MemTrn,MemRys,MemPrm
     call Abend()
   end if
   Go To 999
@@ -302,14 +307,14 @@ Mem2 = Mem2+Mem3
 
 ipMem2 = ipMem1+Mem1
 
-r1 = r1+dble(iBsInc)/dble(iBas)
-r2 = r2+dble(jBsInc)/dble(jBas)
-r3 = r3+dble(kBsInc)/dble(kBas)
-r4 = r4+dble(lBsInc)/dble(lBas)
-q1 = q1+dble(iPrInc)/dble(iPrim)
-q2 = q2+dble(jPrInc)/dble(jPrim)
-q3 = q3+dble(kPrInc)/dble(kPrim)
-q4 = q4+dble(lPrInc)/dble(lPrim)
+r1 = r1+real(iBsInc,kind=wp)/real(iBas,kind=wp)
+r2 = r2+real(jBsInc,kind=wp)/real(jBas,kind=wp)
+r3 = r3+real(kBsInc,kind=wp)/real(kBas,kind=wp)
+r4 = r4+real(lBsInc,kind=wp)/real(lBas,kind=wp)
+q1 = q1+real(iPrInc,kind=wp)/real(iPrim,kind=wp)
+q2 = q2+real(jPrInc,kind=wp)/real(jPrim,kind=wp)
+q3 = q3+real(kPrInc,kind=wp)/real(kPrim,kind=wp)
+q4 = q4+real(lPrInc,kind=wp)/real(lPrim,kind=wp)
 
 return
 

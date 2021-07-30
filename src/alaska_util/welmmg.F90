@@ -9,9 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine WelMmG(nHer,MmWelG,la,lb,lr)
+subroutine WelMmG( &
+#                 define _CALLING_
+#                 include "mem_interface.fh"
+                 )
 
+use Definitions, only: iwp
+
+implicit none
+#define _USE_WP_
+#include "mem_interface.fh"
+integer(kind=iwp) :: jsum, k
 ! Statement function
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 k = la+lb+1
@@ -20,15 +30,15 @@ do i=1,k
   jsum = jsum+3**i
 end do
 nHer = 1
-MmWelG = 2*jsum+max((k+1)*(k/2+1)*(k/4+1)+1,9+3**k,5)
+Mem = 2*jsum+max((k+1)*(k/2+1)*(k/4+1)+1,9+3**k,5)
 
 ! Add memory for contributions to the derivative
 
-MmWelG = MmWelG+nElem(la+1)*nElem(lb)
-if (la >= 1) MmWelG = MmWelG+nElem(la-1)*nElem(lb)
-MmWelG = MmWelG+nElem(la)*nElem(lb+1)
-if (lb >= 1) MmWelG = MmWelG+nElem(la)*nElem(lb-1)
-MmWelG = MmWelG+2
+Mem = Mem+nElem(la+1)*nElem(lb)
+if (la >= 1) Mem = Mem+nElem(la-1)*nElem(lb)
+Mem = Mem+nElem(la)*nElem(lb+1)
+if (lb >= 1) Mem = Mem+nElem(la)*nElem(lb-1)
+Mem = Mem+2
 
 return
 ! Avoid unused argument warnings

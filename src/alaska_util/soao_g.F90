@@ -13,9 +13,15 @@ subroutine SOAO_g(iSD4,nSD,nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,
                   iPrint,iFnc,MemPSO)
 
 use Basis_Info, only: Shells
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
-implicit real*8(a-h,o-z)
-integer iSD4(0:nSD,4), iAnga(4), iCmpa(4), iFnc(4), iAO(4)
+implicit none
+integer(kind=iwp) :: nSD, iSD4(0:nSD,4), nSO, MemPrm, MemMax, iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, &
+                     ipMem1, ipMem2, Mem1, Mem2, iPrint, iFnc(4), MemPSO
+integer(kind=iwp) :: iAnga(4), iAO(4), iBasi, iCmpa(4), iPrimi, iQuad, jBasj, jPrimj, kBask, kPrimk, lBasl, lPriml
 
 iPrimi = Shells(iSD4(0,1))%nExp
 jPrimj = Shells(iSD4(0,2))%nExp
@@ -34,24 +40,24 @@ end do
 call PSOAO1(nSO,MemPrm,MemMax,iAnga,iCmpa,iAO,iFnc,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj, &
             jPrInc,kPrimk,kPrInc,lPriml,lPrInc,ipMem1,ipMem2,Mem1,Mem2,MemPSO)
 #ifdef _DEBUGPRINT_
-write(6,*) ' ************** Memory partioning **************'
-write(6,*) ' ipMem1=',ipMem1
-write(6,*) ' Mem1=',Mem1
-write(6,*) ' Mem2=',Mem2
-write(6,*) ' Mem3=',Mem3
-write(6,*) ' MemPSO=',MemPSO
-write(6,*) ' MemScr=',MemScr
-write(6,*) ' Mend=',Mend
+write(u6,*) ' ************** Memory partioning **************'
+write(u6,*) ' ipMem1=',ipMem1
+write(u6,*) ' Mem1=',Mem1
+write(u6,*) ' Mem2=',Mem2
+write(u6,*) ' Mem3=',Mem3
+write(u6,*) ' MemPSO=',MemPSO
+write(u6,*) ' MemScr=',MemScr
+write(u6,*) ' Mend=',Mend
 
-write(6,*) ' iBasi,iBsInc=',iBasi,iBsInc
-write(6,*) ' jBasj,jBsInc=',jBasj,jBsInc
-write(6,*) ' kBasi,kBsInc=',kBask,kBsInc
-write(6,*) ' lBasl,lBsInc=',lBasl,lBsInc
-write(6,*) ' iPrimi,iPrInc=',iPrimi,iPrInc
-write(6,*) ' jPrimj,jPrInc=',jPrimj,jPrInc
-write(6,*) ' kPrimk,kPrInc=',kPrimk,kPrInc
-write(6,*) ' lPriml,lPrInc=',lPriml,lPrInc
-write(6,*) ' ***********************************************'
+write(u6,*) ' iBasi,iBsInc=',iBasi,iBsInc
+write(u6,*) ' jBasj,jBsInc=',jBasj,jBsInc
+write(u6,*) ' kBasi,kBsInc=',kBask,kBsInc
+write(u6,*) ' lBasl,lBsInc=',lBasl,lBsInc
+write(u6,*) ' iPrimi,iPrInc=',iPrimi,iPrInc
+write(u6,*) ' jPrimj,jPrInc=',jPrimj,jPrInc
+write(u6,*) ' kPrimk,kPrInc=',kPrimk,kPrInc
+write(u6,*) ' lPriml,lPrInc=',lPriml,lPrInc
+write(u6,*) ' ***********************************************'
 #endif
 
 return

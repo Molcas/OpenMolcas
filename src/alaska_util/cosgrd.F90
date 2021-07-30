@@ -33,24 +33,27 @@ subroutine COSGrd( &
 !***********************************************************************
 
 use PCM_arrays, only: PCM_SQ, PCMTess
-use Center_Info
+use Center_Info, only: dc
+use Constants, only: Zero, One, Two, Pi
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external TNAI1, Fake, Cff2D
+implicit none
+#define _USE_WP_
+#include "grd_interface.fh"
+integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ii, iIrrep, ipA, ipAOff, ipB, ipBOff, ipDAO, iPrint, &
+                     iRout, iStb(0:7), iTs, iuvwx(4), iZeta, j, JndGrd(3,4), kat, lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, &
+                     nDCRT, nDisp, nip, nRys, nStb, nT
+real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, Q, TC(3)
+logical(kind=iwp) :: JfGrad(3,4), NoLoop
+character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
+integer(kind=iwp), external :: NrOpr
+external :: Cff2D, Fake, TNAI1
 #include "Molcas.fh"
-#include "real.fh"
 #include "print.fh"
 #include "disp.fh"
 #include "rctfld.fh"
-#include "grd_interface.fh"
-! Local variables
-integer iDCRT(0:7)
-real*8 C(3), TC(3), Coori(3,4), CoorAC(3,2)
-logical NoLoop, JfGrad(3,4)
-integer iAnga(4), iStb(0:7), JndGrd(3,4), lOp(4), iuvwx(4)
-character ChOper(0:7)*3
-data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 iRout = 151
@@ -78,7 +81,7 @@ ipDAO = nip
 nip = nip+nAlpha*nBeta*nElem(la)*nElem(lb)*nElem(nOrdOp)
 if (nip-1 > nZeta*nArr) then
   call WarningMessage(2,'Error in COSGrd')
-  write(6,*) 'nip-1 > nZeta*nArr'
+  write(u6,*) 'nip-1 > nZeta*nArr'
   call Abend()
 end if
 nArray = nZeta*nArr-nip+1
@@ -135,19 +138,19 @@ do iTs=1,nTs
   ! Find the DCR for M and S
 
   call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
-  Fact = -dble(nStabM)/dble(LmbdT)
+  Fact = -real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
   if (iPrint >= 99) then
-    write(6,*) ' Q=',Q
-    write(6,*) ' Fact=',Fact
+    write(u6,*) ' Q=',Q
+    write(u6,*) ' Fact=',Fact
     call RecPrt('DAO*Fact*Q',' ',Array(ipDAO),nZeta*nDAO,nElem(nOrdOp))
-    write(6,*) ' m      =',nStabM
-    write(6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
-    write(6,*) ' s      =',nStb
-    write(6,'(9A)') '(S)=',(ChOper(iStb(ii)),ii=0,nStb-1)
-    write(6,*) ' LambdaT=',LmbdT
-    write(6,*) ' t      =',nDCRT
-    write(6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
+    write(u6,*) ' m      =',nStabM
+    write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+    write(u6,*) ' s      =',nStb
+    write(u6,'(9A)') '(S)=',(ChOper(iStb(ii)),ii=0,nStb-1)
+    write(u6,*) ' LambdaT=',LmbdT
+    write(u6,*) ' t      =',nDCRT
+    write(u6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
   end if
   iuvwx(3) = nStb
   iuvwx(4) = nStb
@@ -195,7 +198,7 @@ do iTs=1,nTs
       if (JfGrad(iCar,i)) mGrad = mGrad+1
     end do
   end do
-  if (iPrint >= 99) write(6,*) ' mGrad=',mGrad
+  if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
   if (mGrad == 0) Go To 111
 
   do lDCRT=0,nDCRT-1

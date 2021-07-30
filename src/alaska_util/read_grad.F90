@@ -32,17 +32,17 @@
 
 function Read_Grad(Grad,nGrad,iRoot,iNAC,jNAC)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+
 implicit none
-#include "real.fh"
-#include "stdalloc.fh"
-integer :: Read_Grad, nGrad, iRoot, iNAC, jNAC
-real*8 :: Grad(nGrad)
-integer, dimension(5) :: TOC
-integer, dimension(1) :: iDum
-integer, dimension(:), allocatable :: i_grad, i_nac
-integer :: nRoots, nCoup, LuGrad, iAd, iSt, jSt, idx
-logical :: Found
+integer(kind=iwp) :: Read_Grad
+integer(kind=iwp) :: nGrad, iRoot, iNAC, jNAC
+real(kind=wp) :: Grad(nGrad)
+integer(kind=iwp) :: iAd, iDum(1), idx, iSt, jSt, LuGrad, nCoup, nRoots, TOC(5)
+logical(kind=iwp) :: Found
 character(len=5) :: Filename
+integer(kind=iwp), allocatable :: i_grad(:), i_nac(:)
 
 ! If the GRADS file does not exist, there is no gradient
 
@@ -70,8 +70,8 @@ else
     call Abend()
   end if
   nCoup = max(1,nRoots*(nRoots-1)/2)
-  call mma_Allocate(i_grad,nRoots)
-  call mma_Allocate(i_nac,nCoup)
+  call mma_allocate(i_grad,nRoots)
+  call mma_allocate(i_nac,nCoup)
   call iDaFile(LuGrad,2,i_grad,nRoots,iAd)
   call iDaFile(LuGrad,2,i_nac,nCoup,iAd)
 
@@ -101,8 +101,8 @@ else
   end if
 
   call DaClos(LuGrad)
-  call mma_Deallocate(i_grad)
-  call mma_Deallocate(i_nac)
+  call mma_deallocate(i_grad)
+  call mma_deallocate(i_nac)
 
 end if
 if (Read_Grad <= 0) call FZero(Grad,nGrad)

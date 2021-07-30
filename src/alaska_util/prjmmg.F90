@@ -11,7 +11,10 @@
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine PrjMmG(nHer,MmPrjG,la,lb,lr)
+subroutine PrjMmG( &
+#                define _CALLING_
+#                include "mem_interface.fh"
+                )
 !***********************************************************************
 !                                                                      *
 !  Object: to compute the number of real*8 the kernel routine will     *
@@ -26,11 +29,18 @@ subroutine PrjMmG(nHer,MmPrjG,la,lb,lr)
 !***********************************************************************
 
 use Basis_Info, only: dbsc, nCnttp, Shells
+use Definitions, only: iwp
+
+implicit none
+#define _USE_WP_
+#include "mem_interface.fh"
+integer(kind=iwp) :: iAng, iCnttp, ip, iShll, nac, nBasisi, ncb, nExpi, nOrder
 ! Statement function
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 nOrder = 0
-MmPrjG = 0
+Mem = 0
 do iCnttp=1,nCnttp
   if (.not. dbsc(iCnttp)%ECP) Go To 1960
   do iAng=0,dbsc(iCnttp)%nPrj-1
@@ -54,7 +64,7 @@ do iCnttp=1,nCnttp
     ip = ip+nExpi*3*nHer*(la+2)*(iAng+1)*(lr+1)
     ip = ip+nExpi
 
-    MmPrjG = max(MmPrjG,ip)
+    Mem = max(Mem,ip)
     ip = ip-nExpi*(6+3*nHer*((la+2)+(iAng+1)+(lr+1)+(la+2)*(iAng+1)*(lr+1))+1)
 
     ncb = 4*nElem(iAng)*nElem(lb)
@@ -71,11 +81,11 @@ do iCnttp=1,nCnttp
     ip = ip+nExpi*3*nHer*(lb+2)*(iAng+1)*(lr+1)
     ip = ip+nExpi
 
-    MmPrjG = max(MmPrjG,ip)
+    Mem = max(Mem,ip)
     ip = ip-nExpi*(6+3*nHer*((lb+2)+(iAng+1)+(lr+1)+(lb+2)*(iAng+1)*(lr+1))+1)
 
     ip = ip+max(nExpi*nac,ncb*nBasisi)
-    MmPrjG = max(MmPrjG,ip)
+    Mem = max(Mem,ip)
 
 1966 continue
   end do

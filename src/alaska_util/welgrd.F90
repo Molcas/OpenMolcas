@@ -26,27 +26,29 @@ subroutine WelGrd( &
 !             Modified to gradients, April '95. R. Lindh               *
 !***********************************************************************
 
-use Center_Info
+use Center_Info, only: dc
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "Molcas.fh"
-#include "real.fh"
+implicit none
+#define _USE_WP_
+#include "grd_interface.fh"
+integer(kind=iwp) :: iAlpha, iBeta, ik, iOff, ip, ip0m, ip0p, ip1, ip2, ip3, ip4, ip5, ipAlph, ipAMx, ipBeta, ipGri, ipGrin, ipm0, &
+                     ipp0, iPrint, ipScr, ipTGri, iPxyz, iRout, jp, jsumm, jsump, k, k0
 #include "wldata.fh"
 #include "print.fh"
-#include "disp.fh"
-#include "grd_interface.fh"
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 iRout = 122
 iPrint = nPrint(iRout)
 !iQ = 1
 if (iPrint >= 59) then
-  write(6,*) ' In WelGrd'
-  write(6,*) ' r0, ExpB=',r0,ExpB
-  write(6,*) ' la,lb=',la,lb
-  write(6,*) '  A=',A
-  write(6,*) ' RB=',RB
+  write(u6,*) ' In WelGrd'
+  write(u6,*) ' r0, ExpB=',r0,ExpB
+  write(u6,*) ' la,lb=',la,lb
+  write(u6,*) '  A=',A
+  write(u6,*) ' RB=',RB
 end if
 
 k = la+lb+1
@@ -70,8 +72,8 @@ ip = ip+nZeta*(k+1)*(k/2+1)*(k/4+1)
 iPxyz = ip
 ip = ip+nZeta
 if (ip-1 > nZeta*nArr) then
-  write(6,*) ' ip-1 > nZeta*nArr(pos.1)'
-  write(6,*) ip-1,'>',nZeta*nArr
+  write(u6,*) ' ip-1 > nZeta*nArr(pos.1)'
+  write(u6,*) ip-1,'>',nZeta*nArr
   call ErrTra()
   call Abend()
 end if
@@ -86,8 +88,8 @@ ip = ip+nZeta*9
 ipScr = ip
 ip = ip+nZeta*3**k
 if (ip-1 > nZeta*nArr) then
-  write(6,*) ' ip-1 > nZeta*nArr(pos.2)'
-  write(6,*) ip-1,'>',nZeta*nArr
+  write(u6,*) ' ip-1 > nZeta*nArr(pos.2)'
+  write(u6,*) ip-1,'>',nZeta*nArr
   call ErrTra()
   call Abend()
 end if
@@ -116,8 +118,8 @@ ip = ip+nZeta
 ip5 = ip
 ip = ip+nZeta
 if (ip-1 > nZeta*nArr) then
-  write(6,*) ' ip-1 > nZeta*nArr(pos.3)'
-  write(6,*) ip-1,'>',nZeta*nArr
+  write(u6,*) ' ip-1 > nZeta*nArr(pos.3)'
+  write(u6,*) ip-1,'>',nZeta*nArr
   call ErrTra()
   call Abend()
 end if

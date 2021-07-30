@@ -30,20 +30,21 @@ subroutine OvrGrd( &
 !             '91.                                                     *
 !***********************************************************************
 
-use Her_RW
-use Center_Info
+use Her_RW, only: iHerR, iHerW, HerR, HerW
+use Center_Info, only: dc
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
+implicit none
+#define _USE_WP_
 #include "grd_interface.fh"
-! Local variables
-logical ABeq(3)
+integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, iPrint, ipRnxyz, ipRxyz, iRout, nip
+logical(kind=iwp) :: ABeq(3)
+#include "print.fh"
 
 iRout = 122
 iPrint = nPrint(iRout)
-!write(6,*) ' IfGrad=',IfGrad
-!write(6,*) ' IndGrd=',IndGrd
+!write(u6,*) ' IfGrad=',IfGrad
+!write(u6,*) ' IndGrd=',IndGrd
 ABeq(1) = A(1) == RB(1)
 ABeq(2) = A(2) == RB(2)
 ABeq(3) = A(3) == RB(3)
@@ -62,9 +63,9 @@ nip = nip+nZeta
 ipBeta = nip
 nip = nip+nZeta
 if (nip-1 > nArr*nZeta) then
-  write(6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
+  write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
   call ErrTra()
-  write(6,*) ' Abend in OvrGrd'
+  write(u6,*) ' Abend in OvrGrd'
   call Abend()
 end if
 
@@ -73,7 +74,7 @@ if (iPrint >= 49) then
   call RecPrt(' In OvrGrd: RB',' ',RB,1,3)
   call RecPrt(' In OvrGrd: Ccoor',' ',Ccoor,1,3)
   call RecPrt(' In OvrGrd: P',' ',P,nZeta,3)
-  write(6,*) ' In OvrGrd: la,lb=',la,lb
+  write(u6,*) ' In OvrGrd: la,lb=',la,lb
 end if
 
 ! Compute the cartesian values of the basis functions angular part

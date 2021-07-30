@@ -26,11 +26,16 @@ subroutine PrePre_g(nZeta,nEta,mZeta,mEta,lZeta,lEta,Data1,Data2,PreScr,CutGrd)
 !             July '92.                                                *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-real*8 Data1(nZeta,8), Data2(nEta,8)
-logical PreScr
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nZeta, nEta, mZeta, mEta, lZeta, lEta
+real(kind=wp) :: Data1(nZeta,8), Data2(nEta,8), CutGrd
+logical(kind=iwp) :: PreScr
+integer(kind=iwp) :: iEta, iPrint, iRout, iZeta
+real(kind=wp) :: EtaMn, EtaMx, PreMax, PreMin, rKabMn, rKabMx, rKcdMn, rKcdMx, ZetaMn, ZetaMx
 #include "print.fh"
-#include "real.fh"
 
 iRout = 180
 iPrint = nPrint(iRout)
@@ -40,15 +45,13 @@ if (iPrint >= 99) then
   call RecPrt(' Data2',' ',Data2,nEta,8)
 end if
 
-tOne = One
-
 ! Preprescanning
 
 lZeta = mZeta
 lEta = mEta
 rKabMx = Zero
 ZetaMx = Zero
-rKabMn = 1.0D+72
+rKabMn = 1.0e72_wp
 ZetaMn = Zero
 do iZeta=1,mZeta
   if (Data1(iZeta,2) > rKabMx) then
@@ -62,7 +65,7 @@ do iZeta=1,mZeta
 end do
 rKcdMx = Zero
 EtaMx = Zero
-rKcdMn = 1.0D+72
+rKcdMn = 1.0e72_wp
 EtaMn = Zero
 do iEta=1,mEta
   if (Data2(iEta,2) > rKcdMx) then
@@ -75,10 +78,10 @@ do iEta=1,mEta
   end if
 end do
 PreScr = .true.
-PreMax = rKabMx*rKcdMx*sqrt(tOne/(ZetaMx+EtaMx))
-PreMin = rKabMn*rKcdMn*sqrt(tOne/(ZetaMn+EtaMn))
+PreMax = rKabMx*rKcdMx*sqrt(One/(ZetaMx+EtaMx))
+PreMin = rKabMn*rKcdMn*sqrt(One/(ZetaMn+EtaMn))
 if (PreMin > CutGrd) PreScr = .false.
-if (PreMax < 1.0D-4*CutGrd) then
+if (PreMax < 1.0e-4_wp*CutGrd) then
   lZeta = 0
   lEta = 0
 end if

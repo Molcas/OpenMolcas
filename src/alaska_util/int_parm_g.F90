@@ -13,13 +13,18 @@ subroutine Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lP
                       mdcl,AeqB,CeqD,nZeta,nEta,ipZeta,ipZI,ipP,ipEta,ipEI,ipQ,ipiZet,ipiEta,ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab, &
                       ncd,nHmcd,nIrrep)
 
-use k2_setup
+use k2_setup, only: Indk2
 use Basis_Info, only: Shells
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-integer iAnga(4), iCmpa(4), iShlla(4), iShela(4), iSD4(0:nSD,4)
-logical AeqB, CeqD, l2DI
+implicit none
+integer(kind=iwp) :: nSD, iSD4(0:nSD,4), iAnga(4), iCmpa(4), iShlla(4), iShela(4), iPrimi, jPrimj, kPrimk, lPriml, indij, k2ij, &
+                     nDCRR, k2kl, nDCRS, mdci, mdcj, mdck, mdcl, nZeta, nEta, ipZeta, ipZI, ipP, ipEta, ipEI, ipQ, ipiZet, ipiEta, &
+                     ipxA, ipxB, ipxG, ipxD, nab, nHmab, ncd, nHmcd, nIrrep
+logical(kind=iwp) :: AeqB, CeqD, l2DI
+integer(kind=iwp) :: iAng, iCmp, ijShll, iShell, jAng, jCmp, jShell, kAng, kCmp, klShll, kShell, lAng, lCmp, lShell
 ! Statement functions
+integer(kind=iwp) :: nElem, ixyz, nabSz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 

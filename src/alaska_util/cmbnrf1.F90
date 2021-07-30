@@ -11,8 +11,8 @@
 ! Copyright (C) 1991,1992,1995, Roland Lindh                           *
 !***********************************************************************
 
-subroutine CmbnRF1(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,Final,nComp,Fact,Temp,Alpha,Beta,Grad,nGrad,DAO,IfGrad,IndGrd,iStab,jStab,kOp, &
-                   EF)
+subroutine CmbnRF1(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,Fact,Temp,Alpha,Beta,Grad,nGrad,DAO,IfGrad,IndGrd,iStab,jStab, &
+                   kOp,EF)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute gradient integrals for SC Reaction Fields         *
@@ -24,16 +24,24 @@ subroutine CmbnRF1(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,Final,nComp,Fact,Temp,Alpha,
 !***********************************************************************
 
 use Symmetry_Info, only: nIrrep, iChBas
+use Constants, only: Two, Three
+use Definitions, only: wp, iwp, r8
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: nZeta, la, lb, lr, nComp, nGrad, IndGrd(3,2), iStab, jStab, kOp(2)
+real(kind=wp) :: Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), Zeta(nZeta), rKappa(nZeta), &
+                 rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp,6), Fact(nZeta), Temp(nZeta), Alpha(nZeta), Beta(nZeta), &
+                 Grad(nGrad), DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2), EF(nComp)
+logical(kind=iwp) :: IfGrad(3,2)
+integer(kind=iwp) :: i1, i2, iCar, iCn, iComp, iEF, iGrad, ipa, ipb, iPrint, ir, iRout, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, &
+                     iza, izb, iZeta, nDAO
+real(kind=wp) :: Fct, ps, xa, xb, ya, yb, za, zb
+real(kind=wp), parameter :: exp32 = -Three/Two
+integer(kind=iwp), external :: iPrmt
+real(kind=r8), external :: DDot_
 #include "print.fh"
-#include "real.fh"
-integer IndGrd(3,2), kOp(2)
-logical IfGrad(3,2)
-real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp,6), Zeta(nZeta), rKappa(nZeta), Fact(nZeta), Temp(nZeta), &
-       Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), Grad(nGrad), DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2), Alpha(nZeta), Beta(nZeta), &
-       EF(nComp)
 ! Statement function for Cartesian index
+integer(kind=iwp) :: Ind, ixyz, ix, iz, iOff, nElem, i
 Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 nElem(i) = (i+1)*(i+2)/2
@@ -44,10 +52,8 @@ if (iPrint >= 99) then
   call RecPrt(' In CmbnRF1: EF',' ',EF,nComp,1)
 end if
 
-tTwo = Two
-
 do iZeta=1,nZeta
-  Fact(iZeta) = rKappa(iZeta)*Zeta(iZeta)**(-Three/Two)
+  Fact(iZeta) = rKappa(iZeta)*Zeta(iZeta)**exp32
 end do
 
 ! Loop over angular components of the basis set
@@ -72,14 +78,14 @@ do ixa=0,la
                 xa = -ixa
                 do iZeta=1,nZeta
                   Temp(iZeta) = Fact(iZeta)* &
-             (tTwo*Alpha(iZeta)*Rnxyz(iZeta,1,ixa+1,ixb,ix)+ &
+              (Two*Alpha(iZeta)*Rnxyz(iZeta,1,ixa+1,ixb,ix)+ &
                              xa*Rnxyz(iZeta,1,ixa-1,ixb,ix))* &
                                 Rnxyz(iZeta,2,iya,iyb,iy)
                 end do
               else
                 do iZeta=1,nZeta
                   Temp(iZeta) = Fact(iZeta)* &
-              tTwo*Alpha(iZeta)*Rnxyz(iZeta,1,ixa+1,ixb,ix)* &
+               Two*Alpha(iZeta)*Rnxyz(iZeta,1,ixa+1,ixb,ix)* &
                                 Rnxyz(iZeta,2,iya,iyb,iy)
                 end do
               end if
@@ -88,7 +94,7 @@ do ixa=0,la
                 iz = ir-ix-iy
                 iComp = Ind(ir,ix,iz)+iOff(ir)
                 do iZeta=1,nZeta
-                  Final(iZeta,ipa,ipb,iComp,1) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
+                  rFinal(iZeta,ipa,ipb,iComp,1) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
                 end do
               end do
             end do
@@ -101,14 +107,14 @@ do ixa=0,la
                 xb = -ixb
                 do iZeta=1,nZeta
                   Temp(iZeta) = Fact(iZeta)* &
-              (tTwo*Beta(iZeta)*Rnxyz(iZeta,1,ixa,ixb+1,ix)+ &
+               (Two*Beta(iZeta)*Rnxyz(iZeta,1,ixa,ixb+1,ix)+ &
                              xb*Rnxyz(iZeta,1,ixa,ixb-1,ix))* &
                                 Rnxyz(iZeta,2,iya,iyb,iy)
                 end do
               else
                 do iZeta=1,nZeta
                   Temp(iZeta) = Fact(iZeta)* &
-               tTwo*Beta(iZeta)*Rnxyz(iZeta,1,ixa,ixb+1,ix)* &
+                Two*Beta(iZeta)*Rnxyz(iZeta,1,ixa,ixb+1,ix)* &
                                 Rnxyz(iZeta,2,iya,iyb,iy)
                 end do
               end if
@@ -117,7 +123,7 @@ do ixa=0,la
                 iz = ir-ix-iy
                 iComp = Ind(ir,ix,iz)+iOff(ir)
                 do iZeta=1,nZeta
-                  Final(iZeta,ipa,ipb,iComp,4) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
+                  rFinal(iZeta,ipa,ipb,iComp,4) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
                 end do
               end do
             end do
@@ -131,14 +137,14 @@ do ixa=0,la
                 do iZeta=1,nZeta
                   Temp(iZeta) = Fact(iZeta)* &
                                 Rnxyz(iZeta,1,ixa,ixb,ix)* &
-             (tTwo*Alpha(iZeta)*Rnxyz(iZeta,2,iya+1,iyb,iy)+ &
+              (Two*Alpha(iZeta)*Rnxyz(iZeta,2,iya+1,iyb,iy)+ &
                              ya*Rnxyz(iZeta,2,iya-1,iyb,iy))
                 end do
               else
                 do iZeta=1,nZeta
                   Temp(iZeta) = Fact(iZeta)* &
                                 Rnxyz(iZeta,1,ixa,ixb,ix)* &
-              tTwo*Alpha(iZeta)*Rnxyz(iZeta,2,iya+1,iyb,iy)
+               Two*Alpha(iZeta)*Rnxyz(iZeta,2,iya+1,iyb,iy)
                 end do
               end if
 
@@ -146,7 +152,7 @@ do ixa=0,la
                 iz = ir-ix-iy
                 iComp = Ind(ir,ix,iz)+iOff(ir)
                 do iZeta=1,nZeta
-                  Final(iZeta,ipa,ipb,iComp,2) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
+                  rFinal(iZeta,ipa,ipb,iComp,2) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
                 end do
               end do
             end do
@@ -160,14 +166,14 @@ do ixa=0,la
                 do iZeta=1,nZeta
                   Temp(iZeta) = Fact(iZeta)* &
                                 Rnxyz(iZeta,1,ixa,ixb,ix)* &
-              (tTwo*Beta(iZeta)*Rnxyz(iZeta,2,iya,iyb+1,iy)+ &
+               (Two*Beta(iZeta)*Rnxyz(iZeta,2,iya,iyb+1,iy)+ &
                              yb*Rnxyz(iZeta,2,iya,iyb-1,iy))
                 end do
               else
                 do iZeta=1,nZeta
                   Temp(iZeta) = Fact(iZeta)* &
                                 Rnxyz(iZeta,1,ixa,ixb,ix)* &
-               tTwo*Beta(iZeta)*Rnxyz(iZeta,2,iya,iyb+1,iy)
+                Two*Beta(iZeta)*Rnxyz(iZeta,2,iya,iyb+1,iy)
                 end do
               end if
 
@@ -175,7 +181,7 @@ do ixa=0,la
                 iz = ir-ix-iy
                 iComp = Ind(ir,ix,iz)+iOff(ir)
                 do iZeta=1,nZeta
-                  Final(iZeta,ipa,ipb,iComp,5) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
+                  rFinal(iZeta,ipa,ipb,iComp,5) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
                 end do
               end do
             end do
@@ -196,13 +202,13 @@ do ixa=0,la
                 if (iza > 0) then
                   za = -iza
                   do iZeta=1,nZeta
-                    Final(iZeta,ipa,ipb,iComp,3) = Temp(iZeta)* &
-                                (tTwo*Alpha(iZeta)*Rnxyz(iZeta,3,iza+1,izb,iz)+ &
-                                                za*Rnxyz(iZeta,3,iza-1,izb,iz))
+                    rFinal(iZeta,ipa,ipb,iComp,3) = Temp(iZeta)* &
+                                  (Two*Alpha(iZeta)*Rnxyz(iZeta,3,iza+1,izb,iz)+ &
+                                                 za*Rnxyz(iZeta,3,iza-1,izb,iz))
                   end do
                 else
                   do iZeta=1,nZeta
-                    Final(iZeta,ipa,ipb,iComp,3) = Temp(iZeta)*tTwo*Alpha(iZeta)*Rnxyz(iZeta,3,iza+1,izb,iz)
+                    rFinal(iZeta,ipa,ipb,iComp,3) = Temp(iZeta)*Two*Alpha(iZeta)*Rnxyz(iZeta,3,iza+1,izb,iz)
                   end do
                 end if
               end do
@@ -224,13 +230,13 @@ do ixa=0,la
                 if (izb > 0) then
                   zb = -izb
                   do iZeta=1,nZeta
-                    Final(iZeta,ipa,ipb,iComp,6) = Temp(iZeta)*&
-                                 (tTwo*Beta(iZeta)*Rnxyz(iZeta,3,iza,izb+1,iz)+ &
-                                                zb*Rnxyz(iZeta,3,iza,izb-1,iz))
+                    rFinal(iZeta,ipa,ipb,iComp,6) = Temp(iZeta)*&
+                                   (Two*Beta(iZeta)*Rnxyz(iZeta,3,iza,izb+1,iz)+ &
+                                                 zb*Rnxyz(iZeta,3,iza,izb-1,iz))
                   end do
                 else
                   do iZeta=1,nZeta
-                    Final(iZeta,ipa,ipb,iComp,6) = Temp(iZeta)*tTwo*Beta(iZeta)*Rnxyz(iZeta,3,iza,izb+1,iz)
+                    rFinal(iZeta,ipa,ipb,iComp,6) = Temp(iZeta)*Two*Beta(iZeta)*Rnxyz(iZeta,3,iza,izb+1,iz)
                   end do
                 end if
               end do
@@ -244,7 +250,7 @@ do ixa=0,la
 end do
 if (iPrint >= 99) then
   call RecPrt('In CmbnRF1: DAO',' ',DAO,nZeta,nElem(la)*nElem(lb))
-  call RecPrt('In CmbnRF1: Final',' ',Final,nZeta*nElem(la)*nElem(lb)*nComp,6)
+  call RecPrt('In CmbnRF1: rFinal',' ',rFinal,nZeta*nElem(la)*nElem(lb)*nComp,6)
 end if
 
 ! Trace the gradient integrals
@@ -259,19 +265,19 @@ do iEF=1,nComp
         if (iCn == 1) then
           i1 = iCar
           i2 = iCar+3
-          ps = dble(iPrmt(kOp(1),iChBas(1+iCar)))
-          Fct = dble(iStab)/dble(nIrrep)
+          ps = real(iPrmt(kOp(1),iChBas(1+iCar)),kind=wp)
+          Fct = real(iStab,kind=wp)/real(nIrrep,kind=wp)
         else
           i1 = iCar+3
           i2 = iCar
-          ps = dble(iPrmt(kOp(2),iChBas(1+iCar)))
-          Fct = ps*dble(jStab)/dble(nIrrep)
+          ps = real(iPrmt(kOp(2),iChBas(1+iCar)),kind=wp)
+          Fct = ps*real(jStab,kind=wp)/real(nIrrep,kind=wp)
         end if
         if (IndGrd(iCar,iCn) < 0) then
           ! Gradient via the translational invariance.
-          Grad(iGrad) = Grad(iGrad)-Fct*EF(iEF)*DDot_(nDAO,DAO,1,Final(1,1,1,iEF,i2),1)
+          Grad(iGrad) = Grad(iGrad)-Fct*EF(iEF)*DDot_(nDAO,DAO,1,rFinal(1,1,1,iEF,i2),1)
         else
-          Grad(iGrad) = Grad(iGrad)+Fct*EF(iEF)*DDot_(nDAO,DAO,1,Final(1,1,1,iEF,i1),1)
+          Grad(iGrad) = Grad(iGrad)+Fct*EF(iEF)*DDot_(nDAO,DAO,1,rFinal(1,1,1,iEF,i1),1)
         end if
       end if
     end do ! End loop over cartesian components, iCar

@@ -24,36 +24,40 @@ subroutine NAGrd( &
 !             October '91                                              *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, Gaussian_Type, iCnttp_Dummy, nCnttp, Nuclear_Model, Point_Charge
+use Center_Info, only: dc
+use Constants, only: Zero, One, Two, Three, Pi, TwoP54
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-! For normal nuclear attraction
-external TNAI1, Fake, Cff2D
-! Finite nuclei
-external TERI1, ModU2, vCff2D
-#include "Molcas.fh"
-#include "real.fh"
-#include "print.fh"
-#include "disp.fh"
+implicit none
+#define _USE_WP_
 #include "grd_interface.fh"
-! Local variables
-integer iDCRT(0:7)
-logical, external :: TF
-#ifdef _PATHSCALE_
-save Fact
+integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iComp, iDAO, iDCRT(0:7), iIrrep, ipA, ipAOff, ipB, ipBOff, ipDAO, iuvwx(4), &
+                     iZeta, j, JndGrd(3,4), jpDAO, kCnt, kCnttp, kdc, lDCRT, LmbdT, lOp(4), mGrad, nArray, nDAO, nDCRT, nDisp, &
+                     nip, nRys
+real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, rKappab, rKappcd, TC(3)
+logical(kind=iwp) :: JfGrad(3,4)
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: TF
+! For normal nuclear attraction
+external :: Cff2D, Fake, TNAI1
+! Finite nuclei
+external :: ModU2, TERI1, vCff2D
+#include "Molcas.fh"
+#include "disp.fh"
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iPrint, iRout
+#include "print.fh"
 #endif
-real*8 Coori(3,4), CoorAC(3,2), C(3), TC(3)
-integer iAnga(4), JndGrd(3,4), lOp(4), iuvwx(4)
-logical JfGrad(3,4)
 ! Statement function
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #ifdef _DEBUGPRINT_
 iRout = 150
 iPrint = nPrint(iRout)
 if (iPrint >= 99) then
-  write(6,*) ' In NAGrd: nArr=',nArr
+  write(u6,*) ' In NAGrd: nArr=',nArr
   nDAO = nElem(la)*nElem(lb)
   call RecPrt('DAO',' ',DAO,nZeta,nDAO)
 end if
@@ -69,7 +73,7 @@ nip = nip+nAlpha*nBeta
 ipDAO = nip
 nip = nip+nAlpha*nBeta*nElem(la)*nElem(lb)
 if (nip-1 > nZeta*nArr) then
-  write(6,*) ' nip-1 > nZeta*nArr'
+  write(u6,*) ' nip-1 > nZeta*nArr'
   call Abend()
 end if
 nArray = nZeta*nArr-nip+1
@@ -126,7 +130,7 @@ do kCnttp=1,nCnttp
     C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
     call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-    Fact = -dbsc(kCnttp)%Charge*dble(nStabM)/dble(LmbdT)
+    Fact = -dbsc(kCnttp)%Charge*real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
     ! Modify the density matrix with prefactors in case of finite nuclei
 
@@ -147,7 +151,7 @@ do kCnttp=1,nCnttp
     else if (Nuclear_Model == Point_Charge) then
       call DYaX(nZeta*nDAO,Fact,DAO,1,Array(ipDAO),1)
     else
-      write(6,*) 'NaGrd: Fermi type nuclear distribution not implemented yet!'
+      write(u6,*) 'NaGrd: Fermi type nuclear distribution not implemented yet!'
       call Abend()
     end if
     iuvwx(3) = dc(kdc+kCnt)%nStab
@@ -199,7 +203,7 @@ do kCnttp=1,nCnttp
         if (JfGrad(iCar,i)) mGrad = mGrad+1
       end do
     end do
-    !if (iPrint >= 99) write(6,*) ' mGrad=',mGrad
+    !if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
     if (mGrad == 0) Go To 101
 
     do lDCRT=0,nDCRT-1
@@ -233,7 +237,7 @@ end do
 return
 ! Avoid unused argument warnings
 if (.false.) then
-  call Unused_real_array(final)
+  call Unused_real_array(Final)
   call Unused_real_array(Ccoor)
   call Unused_integer(nOrdOp)
   call Unused_integer_array(lOper)

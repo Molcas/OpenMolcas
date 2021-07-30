@@ -26,13 +26,13 @@
 
 subroutine Query_Grads(Exists,nRoots,nGrad)
 
+use Definitions, only: iwp
+
 implicit none
-logical :: Exists
-integer :: nRoots, nGrad
-integer, dimension(5) :: TOC
-integer, dimension(1) :: iDum
-integer :: LuGrad, iAd
-logical :: Found
+logical(kind=iwp) :: Exists
+integer(kind=iwp) :: nRoots, nGrad
+integer(kind=iwp) :: iAd, iDum(1), LuGrad, TOC(5)
+logical(kind=iwp) :: Found
 character(len=5) :: Filename
 
 Filename = 'GRADS'
