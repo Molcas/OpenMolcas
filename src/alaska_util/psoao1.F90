@@ -47,8 +47,10 @@ use Symmetry_Info, only: nIrrep
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nSO, MemPrm, MemMax, iAnga(4), iCmpa(4), iAO(4), iFnc(4), iBas, iBsInc, jBas, jBsInc, kBas, kBsInc, lBas, &
-                     lBsInc, iPrim, iPrInc, jPrim, jPrInc, kPrim, kPrInc, lPrim, lPrInc, ipMem1, ipMem2, Mem1, Mem2, MemPSO
+integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, iAnga(4), iCmpa(4), iAO(4), iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, &
+                                 lPrim, ipMem1
+integer(kind=iwp), intent(out) :: iFnc(4), iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, Mem1, Mem2, &
+                                  MemPSO
 integer(kind=iwp) :: i1, iCmp, iFac, iiBas(4), IncVec, iTmp1, j, jCmp, jPam, kCmp, kSOInt, la, lb, lc, lCmp, ld, lSize, mabcd, &
                      Mem0, Mem3, MemAux, MemAux0, MemDeP, MemRys, MemScr, MemSph, MemTrn, nA2, nA3, nabcd, nCache, nFac, &
                      nPam(4,0:7), nTmp1, nTmp2, nVec1

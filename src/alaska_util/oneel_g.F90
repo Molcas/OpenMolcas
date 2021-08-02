@@ -58,10 +58,11 @@ interface
   end subroutine Kernel
 end interface
 external :: KrnlMm
-integer(kind=iwp) :: nGrad, nFD, nComp, lOper(nComp), nOrdOp
-real(kind=wp) :: Grad(nGrad), CCoor(3,nComp), FD(nFD)
-logical(kind=iwp) :: DiffOp
-character(len=80) :: Label
+integer(kind=iwp), intent(in) :: nGrad, nFD, nComp, lOper(nComp), nOrdOp
+real(kind=wp), intent(out) :: Grad(nGrad)
+real(kind=wp), intent(in) :: CCoor(3,nComp), FD(nFD)
+logical(kind=iwp), intent(in) :: DiffOp
+character(len=80), intent(in) :: Label
 integer(kind=iwp) :: i, iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ijS, IndGrd(3,2), iPrim, iPrint, &
                      iRout, iS, iShell, iShll, iSmLbl, iStabM(0:7), iStabO(0:7), iuv, jAng, jAO, jBas, jCmp, jCnt, jCnttp, jPrim, &
                      jS, jShell, jShll, kk, lDCRR, lFinal, llOper, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nDCRR, nDCRT, nOp(2), &

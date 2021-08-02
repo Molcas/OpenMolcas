@@ -34,18 +34,17 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iRoot, iNAC, jNAC
+integer(kind=iwp), intent(in) :: iRoot, iNAC, jNAC
 integer(kind=iwp) :: iAd, idx, iSt, jSt, Length(1), LuGrad, nCoup, nGrad, nRoots, TOC(5)
 logical(kind=iwp) :: Found
 integer(kind=iwp), allocatable :: i_grad(:), i_nac(:)
-character(len=5) :: Filename
+character(len=5), parameter :: Filename = 'GRADS'
 
 ! Create GRADS file if it does not exist
 
 call Get_iScalar('Number of roots',nRoots)
 call Get_iScalar('Unique atoms',nGrad)
 nGrad = 3*nGrad
-Filename = 'GRADS'
 LuGrad = 20
 call f_Inquire(Filename,Found)
 if (.not. Found) call Create_Grads(Filename,nRoots,nGrad)

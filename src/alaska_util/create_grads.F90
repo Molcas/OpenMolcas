@@ -45,8 +45,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-character(len=*) :: FN
-integer(kind=iwp) :: nRoots, nGrad
+character(len=*), intent(in) :: FN
+integer(kind=iwp), intent(in) :: nRoots, nGrad
 integer(kind=iwp) :: iAd, iDum(1), Lu, nCoup, TOC(5)
 integer(kind=iwp), allocatable :: i_grad(:), i_nac(:)
 

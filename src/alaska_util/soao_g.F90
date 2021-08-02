@@ -19,8 +19,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: nSD, iSD4(0:nSD,4), nSO, MemPrm, MemMax, iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, &
-                     ipMem1, ipMem2, Mem1, Mem2, iPrint, iFnc(4), MemPSO
+integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4), nSO, MemPrm, MemMax, ipMem1, iPrint
+integer(kind=iwp), intent(out) :: iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, Mem1, Mem2, iFnc(4), &
+                                  MemPSO
 integer(kind=iwp) :: iAnga(4), iAO(4), iBasi, iCmpa(4), iPrimi, iQuad, jBasj, jPrimj, kBask, kPrimk, lBasl, lPriml
 
 iPrimi = Shells(iSD4(0,1))%nExp

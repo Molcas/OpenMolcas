@@ -28,11 +28,12 @@ use Constants, only: Two, Three
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb, lr, nComp, nGrad, IndGrd(3,2), iStab, jStab, kOp(2)
-real(kind=wp) :: Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), Zeta(nZeta), rKappa(nZeta), &
-                 rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp,6), Fact(nZeta), Temp(nZeta), Alpha(nZeta), Beta(nZeta), &
-                 Grad(nGrad), DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2), EF(nComp)
-logical(kind=iwp) :: IfGrad(3,2)
+integer(kind=iwp), intent(in) :: nZeta, la, lb, lr, nComp, nGrad, IndGrd(3,2), iStab, jStab, kOp(2)
+real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), Zeta(nZeta), rKappa(nZeta), Alpha(nZeta), Beta(nZeta), &
+                             DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2), EF(nComp)
+real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp,6), Fact(nZeta), Temp(nZeta)
+real(kind=wp), intent(inout) :: Grad(nGrad)
+logical(kind=iwp), intent(in) :: IfGrad(3,2)
 integer(kind=iwp) :: i1, i2, iCar, iCn, iComp, iEF, iGrad, ipa, ipb, iPrint, ir, iRout, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, &
                      iza, izb, iZeta, nDAO
 real(kind=wp) :: Fct, ps, xa, xb, ya, yb, za, zb

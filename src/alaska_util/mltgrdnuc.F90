@@ -16,8 +16,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nGrad, nOrdOp
-real(kind=wp) :: Grad(nGrad)
+integer(kind=iwp), intent(in) :: nGrad, nOrdOp
+real(kind=wp), intent(inout) :: Grad(nGrad)
 integer(kind=iwp) :: iCar, icomp, iIrrep, ixop, iyop, izop, kCnt, kCnttp, kdc, ndc, nDisp
 real(kind=wp) :: C(3), Fact, ff, XGrad
 logical(kind=iwp), external :: TF

@@ -35,19 +35,20 @@ use Definitions, only: wp, iwp
 use Definitions, only: u6
 #endif
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nGrad, iRoot, iNAC, jNAC
-real(kind=wp) :: Grad(nGrad)
+integer(kind=iwp), intent(in) :: nGrad, iRoot, iNAC, jNAC
+real(kind=wp), intent(_IN_) :: Grad(nGrad)
 integer(kind=iwp) :: iAd, idx, iSt, jSt, Length(1), LuGrad, nCoup, nRoots, TOC(5)
 logical(kind=iwp) :: Found, BadFile
 integer, allocatable :: i_grad(:), i_nac(:)
 integer(kind=iwp), external :: AixRm
-character(len=5) :: Filename
+character(len=5), parameter :: Filename = 'GRADS'
 
 ! Create GRADS file if it does not exist
 
 call Get_iScalar('Number of roots',nRoots)
-Filename = 'GRADS'
 LuGrad = 20
 call f_Inquire(Filename,Found)
 if (.not. Found) call Create_Grads(Filename,nRoots,nGrad)
@@ -66,7 +67,7 @@ call iDaFile(LuGrad,2,Length,1,iAd)
 if (Length(1) /= nGrad) BadFile = .true.
 if (BadFile) then
   call DaClos(LuGrad)
-  if (AixRm('GRADS') /= 0) call Abend()
+  if (AixRm(Filename) /= 0) call Abend()
   call WarningMessage(1,'Number of roots and/or length of gradients do not match, re-creating GRADS file')
   call Create_Grads(Filename,nRoots,nGrad)
   call DaName(LuGrad,Filename)

@@ -23,10 +23,12 @@ use Constants, only: Two, Three
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb, nGrad, IndGrd(3,2), iStab, jStab, kOp(2)
-real(kind=wp) :: Rnxyz(nZeta,3,0:la+2,0:lb+2), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), &
-                 Txyz(nZeta,3,0:la+1,0:lb+1), Alpha(nZeta), Beta(nZeta), Grad(nGrad), DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
-logical(kind=iwp) :: IfGrad(3,2)
+integer(kind=iwp), intent(in) :: nZeta, la, lb, nGrad, IndGrd(3,2), iStab, jStab, kOp(2)
+real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la+2,0:lb+2), Zeta(nZeta), Txyz(nZeta,3,0:la+1,0:lb+1), Alpha(nZeta), Beta(nZeta), &
+                             DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
+real(kind=wp), intent(inout) :: rKappa(nZeta), Grad(nGrad)
+real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6)
+logical(kind=iwp), intent(in) :: IfGrad(3,2)
 integer(kind=iwp) :: i1, i2, iCar, iCn, iGrad, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta, nDAO
 real(kind=wp) :: Fact, ps, xa, xb, ya, yb, za, zb
 real(kind=wp), parameter :: exp32 = -Three/Two

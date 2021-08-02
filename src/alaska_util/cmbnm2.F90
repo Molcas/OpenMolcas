@@ -25,10 +25,12 @@ use Constants, only: Two, Three
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb, mVec
-logical(kind=iwp) :: IfGrad(3,2)
-real(kind=wp) :: Rnxyz(nZeta,3,0:la+1,0:lb+1), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), &
-                 Alpha(nZeta), Beta(nZeta), Fact
+integer(kind=iwp), intent(in) :: nZeta, la, lb
+integer(kind=iwp), intent(out) :: mVec
+logical(kind=iwp), intent(in) :: IfGrad(3,2)
+real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la+1,0:lb+1), Zeta(nZeta), Alpha(nZeta), Beta(nZeta), Fact
+real(kind=wp), intent(inout) :: rKappa(nZeta)
+real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6)
 integer(kind=iwp) :: ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
 real(kind=wp) :: xa, xb, ya, yb, za, zb
 real(kind=wp), parameter :: exp32 = -Three/Two

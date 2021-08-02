@@ -14,8 +14,9 @@ subroutine Size_SO_block_g(iSD4,nSD,nSO,No_batch)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nSD, iSD4(0:nSD,4), nSO
-logical(kind=iwp) :: No_batch
+integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
+integer(kind=iwp), intent(out) :: nSO
+logical(kind=iwp), intent(out) :: No_batch
 integer(kind=iwp), external :: MemSO2_P
 
 nSO = MemSO2_P(iSD4(2,1),iSD4(2,2),iSD4(2,3),iSD4(2,4),iSD4(7,1),iSD4(7,2),iSD4(7,3),iSD4(7,4))

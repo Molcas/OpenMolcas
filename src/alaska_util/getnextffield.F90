@@ -14,9 +14,10 @@ subroutine GetNextFfield(nextfld,fldname,nOrdOpf,ncmp,force,lforce)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nextfld, nOrdOpf, ncmp, lforce
-character(len=*) :: fldname
-real(kind=wp) :: force(lforce)
+integer(kind=iwp), intent(out) :: nextfld
+integer(kind=iwp), intent(in) :: nOrdOpf, ncmp, lforce
+character(len=*), intent(in) :: fldname
+real(kind=wp), intent(in) :: force(lforce)
 
 nextfld = 0
 return

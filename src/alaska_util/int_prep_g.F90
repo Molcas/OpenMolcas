@@ -15,9 +15,10 @@ use Basis_Info, only: dbsc
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nSD, iSD4(0:nSD,4), iAOV(4), iStabs(4)
-real(kind=wp) :: Coor(3,4)
-logical(kind=iwp) :: Shijij
+integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
+real(kind=wp), intent(out) :: Coor(3,4)
+logical(kind=iwp), intent(out) :: Shijij
+integer(kind=iwp), intent(out) :: iAOV(4), iStabs(4)
 integer(kind=iwp) :: iCnt, iCnttp, iQuad, jCnt, jCnttp, kCnt, kCnttp, lCnt, lCnttp
 
 iCnttp = iSD4(13,1)

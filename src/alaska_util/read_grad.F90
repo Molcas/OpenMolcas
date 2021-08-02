@@ -37,16 +37,15 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: Read_Grad
-integer(kind=iwp) :: nGrad, iRoot, iNAC, jNAC
-real(kind=wp) :: Grad(nGrad)
+integer(kind=iwp), intent(in) :: nGrad, iRoot, iNAC, jNAC
+real(kind=wp), intent(out) :: Grad(nGrad)
 integer(kind=iwp) :: iAd, iDum(1), idx, iSt, jSt, LuGrad, nCoup, nRoots, TOC(5)
 logical(kind=iwp) :: Found
-character(len=5) :: Filename
 integer(kind=iwp), allocatable :: i_grad(:), i_nac(:)
+character(len=5), parameter :: Filename = 'GRADS'
 
 ! If the GRADS file does not exist, there is no gradient
 
-Filename = 'GRADS'
 call f_Inquire(Filename,Found)
 if (.not. Found) then
   Read_Grad = 0

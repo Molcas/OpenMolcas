@@ -27,10 +27,10 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
-character(len=*) :: Label
-integer(kind=iwp) :: nGrad, iPrint
-real(kind=wp) :: Grad(nGrad)
-character(len=LenIn6) :: Names(nGrad)
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(in) :: nGrad, iPrint
+real(kind=wp), intent(in) :: Grad(nGrad)
+character(len=LenIn6), intent(in) :: Names(nGrad)
 integer(kind=iwp) :: i, iCen, iGrad, mGrad
 real(kind=wp) :: CGrad(3,MxAtom), Temp, TempX, TempY, TempZ
 character(len=LenIn5) :: CNames(MxAtom), Namei

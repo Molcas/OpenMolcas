@@ -18,10 +18,12 @@ use Basis_Info, only: Shells
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nSD, iSD4(0:nSD,4), iAnga(4), iCmpa(4), iShlla(4), iShela(4), iPrimi, jPrimj, kPrimk, lPriml, indij, k2ij, &
-                     nDCRR, k2kl, nDCRS, mdci, mdcj, mdck, mdcl, nZeta, nEta, ipZeta, ipZI, ipP, ipEta, ipEI, ipQ, ipiZet, ipiEta, &
-                     ipxA, ipxB, ipxG, ipxD, nab, nHmab, ncd, nHmcd, nIrrep
-logical(kind=iwp) :: AeqB, CeqD, l2DI
+integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4), indij, ipZeta, ipiZet, nIrrep
+integer(kind=iwp), intent(out) :: iAnga(4), iCmpa(4), iShlla(4), iShela(4), iPrimi, jPrimj, kPrimk, lPriml, k2ij, nDCRR, k2kl, &
+                                  nDCRS, mdci, mdcj, mdck, mdcl, nZeta, nEta, ipZI, ipP, ipEta, ipEI, ipQ, ipiEta, ipxA, ipxB, &
+                                  ipxG, ipxD, nab, nHmab, ncd, nHmcd
+logical(kind=iwp), intent(out) :: AeqB, CeqD
+logical(kind=iwp), intent(in) :: l2DI
 integer(kind=iwp) :: iAng, iCmp, ijShll, iShell, jAng, jCmp, jShell, kAng, kCmp, klShll, kShell, lAng, lCmp, lShell
 ! Statement functions
 integer(kind=iwp) :: nElem, ixyz, nabSz

@@ -42,8 +42,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nGrad
-real(kind=wp) :: Grad(nGrad), Temp(nGrad)
+integer(kind=iwp), intent(in) :: nGrad
+real(kind=wp), intent(inout) :: Grad(nGrad)
+real(kind=wp), intent(out) :: Temp(nGrad)
 integer(kind=iwp) :: iComp, iCOSMO, ii, iIrrep, iMltpl, iPrint, iRout, iWel, ix, iy, ncmp, nComp, nCompf, nDens, nextfld, nFock, &
                      nOrdOp, nOrdOpf
 real(kind=wp) :: Fact, TCpu1, TCpu2, TWall1, TWall2

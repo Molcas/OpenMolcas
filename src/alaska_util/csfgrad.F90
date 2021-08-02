@@ -26,8 +26,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nGrad
-real(kind=wp) :: Grad(nGrad)
+integer(kind=iwp), intent(in) :: nGrad
+real(kind=wp), intent(out) :: Grad(nGrad)
 integer(kind=iwp) :: nD, lOper(1)
 real(kind=wp) CCoor(3)
 logical(kind=iwp) :: Found

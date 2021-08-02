@@ -26,11 +26,12 @@ use Constants, only: Two
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb, nGrad, IndGrd(3,2), iStab, jStab, kOp(2)
-real(kind=wp) :: Welp0(nZeta,(la+2)*(la+3)/2,(lb+1)*(lb+2)/2), Welm0(nZeta,la*(la+1)/2,(lb+1)*(lb+2)/2), &
-                 Wel0p(nZeta,(la+1)*(la+2)/2,(lb+2)*(lb+3)/2), Wel0m(nZeta,(la+1)*(la+2)/2,lb*(lb+1)/2), Zeta(nZeta), &
-                 rKappa(nZeta), rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), Alpha(nZeta), Beta(nZeta), Grad(nGrad), &
-                 DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
+integer(kind=iwp), intent(in) :: nZeta, la, lb, nGrad, IndGrd(3,2), iStab, jStab, kOp(2)
+real(kind=wp), intent(in) :: Welp0(nZeta,(la+2)*(la+3)/2,(lb+1)*(lb+2)/2), Welm0(nZeta,la*(la+1)/2,(lb+1)*(lb+2)/2), &
+                             Wel0p(nZeta,(la+1)*(la+2)/2,(lb+2)*(lb+3)/2), Wel0m(nZeta,(la+1)*(la+2)/2,lb*(lb+1)/2), Zeta(nZeta), &
+                             rKappa(nZeta), Alpha(nZeta), Beta(nZeta), DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
+real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6)
+real(kind=wp), intent(inout) :: Grad(nGrad)
 logical(kind=iwp) :: IfGrad(3,2)
 integer(kind=iwp) :: i1, i2, iCar, iCn, iGrad, ip0m, ip0p, ipa, ipb, ipm0, ipp0, iPrint, iRout, ixa, ixb, iya, iyaMax, iyb, &
                      iybMax, iza, izb, iZeta, n0m, n0p, nDAO, nm0, np0

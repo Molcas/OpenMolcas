@@ -30,9 +30,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nZeta, nEta, mZeta, mEta, lZeta, lEta
-real(kind=wp) :: Data1(nZeta,8), Data2(nEta,8), CutGrd
-logical(kind=iwp) :: PreScr
+integer(kind=iwp), intent(in) :: nZeta, nEta, mZeta, mEta
+integer(kind=iwp), intent(out) :: lZeta, lEta
+real(kind=wp), intent(in) :: Data1(nZeta,8), Data2(nEta,8), CutGrd
+logical(kind=iwp), intent(out) :: PreScr
 integer(kind=iwp) :: iEta, iPrint, iRout, iZeta
 real(kind=wp) :: EtaMn, EtaMx, PreMax, PreMin, rKabMn, rKabMx, rKcdMn, rKcdMx, ZetaMn, ZetaMx
 #include "print.fh"

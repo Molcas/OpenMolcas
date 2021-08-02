@@ -40,14 +40,16 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "ndarray.fh"
-integer(kind=iwp) :: iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iStb, jStb, kStb, lStb, nRys, nab, nHmab, nData1, ncd, &
-                     nHmcd, nData2, nAlpha, iPrInc, nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, iBasi, jBasj, kBask, lBasl, &
-                     nZeta, nEta, nGrad, IndGrd(3,4), nPSO, nWrk2, nAux
-real(kind=wp) :: Coor(3,4), Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1), Data2(nEta*(nDArray+2*ncd)+nDScalar+nHmcd,nData2), &
-                 Pren, Prem, Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), Zeta(nZeta), &
-                 ZInv(nZeta), P(nZeta,3), Eta(nEta), EInv(nEta), Q(nEta,3), xA(nZeta), xB(nZeta), xG(nEta), xD(nEta), Grad(nGrad), &
-                 PSO(iBasi*jBasj*kBask*lBasl,nPSO), Wrk2(nWrk2), Aux(nAux)
-logical(kind=iwp) :: IfGrad(3,4), Shijij
+integer(kind=iwp), intent(in) :: iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iStb, jStb, kStb, lStb, nRys, nab, nHmab, nData1, &
+                                 ncd, nHmcd, nData2, nAlpha, iPrInc, nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, iBasi, jBasj, &
+                                 kBask, lBasl, nZeta, nEta, nGrad, IndGrd(3,4), nPSO, nWrk2, nAux
+real(kind=wp), intent(in) :: Coor(3,4), Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1), &
+                             Data2(nEta*(nDArray+2*ncd)+nDScalar+nHmcd,nData2), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), &
+                             Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), PSO(iBasi*jBasj*kBask*lBasl,nPSO)
+real(kind=wp), intent(inout) :: Pren, Prem, Grad(nGrad)
+real(kind=wp), intent(out) :: Zeta(nZeta), ZInv(nZeta), P(nZeta,3), Eta(nEta), EInv(nEta), Q(nEta,3), xA(nZeta), &
+                              xB(nZeta), xG(nEta), xD(nEta), Wrk2(nWrk2), Aux(nAux)
+logical(kind=iwp), intent(in) :: IfGrad(3,4), Shijij
 integer(kind=iwp) :: iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iffab, iffabG, iffcd, iffcdG, iiCent, ijklab, ijMax, &
                      ijMin, ikl, IncEta, IncZet, iShlla, iStabM(0:7), iStabN(0:7), iuvwx(4), iW2, iW3, iW4, ix1, ix2, iy1, iy2, &
                      iz1, iz2, jCmpb, jjCent, JndGrd(3,4), jPrim, jShllb, kCent, kCmpc, klMax, klMin, kOp(4), kShllc, la, lb, lc, &
@@ -71,18 +73,20 @@ character(len=3), parameter :: ChOper(0:7) = [' E ',' x ',' y ',' xy',' z ',' xz
 integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
-call TwoEl_g_Internal(Data1,Data2)
+call TwoEl_g_Internal(Data1,Data2,Wrk2)
 
 contains
 
-subroutine TwoEl_g_Internal(Data1,Data2)
+subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
 
-  real(kind=wp), target :: Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1), Data2(nEta*(nDArray+2*ncd)+nDScalar+nHmcd,nData2)
+  real(kind=wp), intent(in), target :: Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1), &
+                                       Data2(nEta*(nDArray+2*ncd)+nDScalar+nHmcd,nData2)
+  real(kind=wp), intent(out) :: Wrk2(nWrk2)
   integer(kind=iwp), pointer :: iData1(:), iData2(:)
   integer(kind=iwp) :: iC, iCar, iCent, iEta, ixSh, iZeta, jCent, lDCRR, lDCRS, lDCRT
 # ifdef _WARNING_WORKAROUND_
-  ! Bug in gcc 7: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94270
   interface
+    ! Bug in gcc 7: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94270
     subroutine Rysg1(iAnga,nRys,nT,Alpha,Beta,Gmma,Delta,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,Coori,Coora,CoorAC,Array,nArray, &
                      Tvalue,ModU2,Cff2D,PAO,nPAO,Grad,nGrad,IfGrad,IndGrd,kOp,iuvwx)
       import :: wp, iwp

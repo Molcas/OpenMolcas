@@ -36,12 +36,15 @@ use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 #include "ndarray.fh"
-integer(kind=iwp) :: mPAO, nZeta, nEta, mZeta, mEta, lZeta, lEta, nAlpha, nBeta, IndZ(mZeta), nGamma, nDelta, IndE(mEta), iphX1, &
-                     iphY1, iphZ1, iphX2, iphY2, iphZ2, nab, ncd, nScrtch, IsChi
-real(kind=wp) :: PAO(mZeta*mEta*mPAO), Scrtch(nScrtch), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), xA(nZeta), xB(nZeta), &
-                 Data1(nZeta*(nDArray-1)), Eta(nEta), EInv(nEta), Q(nEta,3), xG(nEta), xD(nEta), Data2(nEta*(nDArray-1)), CutGrd, &
-                 ab(nZeta,nab), abg(nZeta,nab), cd(nEta,ncd), cdg(nEta,ncd), ChiI2
-logical(kind=iwp) :: l2DI, PreScr
+integer(kind=iwp), intent(in) :: mPAO, nZeta, nEta, mZeta, mEta, nAlpha, nBeta, IndZ(mZeta), nGamma, nDelta, IndE(mEta), iphX1, &
+                                 iphY1, iphZ1, iphX2, iphY2, iphZ2, nab, ncd, nScrtch, IsChi
+real(kind=wp), intent(inout) :: PAO(mZeta*mEta*mPAO)
+real(kind=wp), intent(out) :: Scrtch(nScrtch), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), xA(nZeta), xB(nZeta), Eta(nEta), EInv(nEta), &
+                              Q(nEta,3), xG(nEta), xD(nEta)
+integer(kind=iwp), intent(out) :: lZeta, lEta
+real(kind=wp), intent(in) :: Data1(nZeta*(nDArray-1)), Data2(nEta*(nDArray-1)), CutGrd, ab(nZeta,nab), abg(nZeta,nab), &
+                             cd(nEta,ncd), cdg(nEta,ncd), ChiI2
+logical(kind=iwp), intent(in) :: l2DI, PreScr
 integer(kind=iwp) :: i, iab, iabcd, icd, iEP, iEta, ij, iMin, iOff, ip, ip1, ip2, iPAO, ipE, ipFac, ipOAP, ipP, ipPAO, iPrint, &
                      ipZ, iRout, iZE, iZeta, jPAO, jPZ, l1, l2
 real(kind=wp) :: alpha, beta, Cut2, eMin, Et, Px, Py, Pz, qEta, Qx, Qy, Qz, qZeta, rEta, rKAB, rKCD, rqEta, rqZeta, rZeta, temp, &
