@@ -34,37 +34,36 @@ do ixop=0,nOrdOp
     izop = nOrdOp-ixop-iyop
     icomp = Ind(nOrdOp,ixop,izop)
     ff = Force(icomp)
-    if (ff == Zero) goto 801
+    if (ff == Zero) cycle
     kdc = 0
     do kCnttp=1,nCnttp
-      if (dbsc(kCnttp)%Charge == Zero) Go To 411
-      do kCnt=1,dbsc(kCnttp)%nCntr
-        C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
-        ndc = kdc+kCnt
-        Fact = -dbsc(kCnttp)%Charge*ff
-        nDisp = IndDsp(ndc,iIrrep)
-        do iCar=0,2
-          iComp = 2**iCar
-          if (TF(ndc,iIrrep,iComp) .and. (.not. dbsc(kCnttp)%pChrg)) then
-            nDisp = nDisp+1
-            if (Direct(nDisp)) then
-              XGrad = Zero
-              if (iCar == 0) then
-                if (ixop > 0) XGrad = Fact*real(ixop,kind=wp)*C(1)**(ixop-1)*C(2)**iyop*C(3)**izop
-              else if (iCar == 1) then
-                if (iyop > 0) XGrad = Fact*real(iyop,kind=wp)*C(1)**ixop*C(2)**(iyop-1)*C(3)**izop
-              else
-                if (izop > 0) XGrad = Fact*real(izop,kind=wp)*C(1)**ixop*C(2)**iyop*C(3)**(izop-1)
+      if (dbsc(kCnttp)%Charge /= Zero) then
+        do kCnt=1,dbsc(kCnttp)%nCntr
+          C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
+          ndc = kdc+kCnt
+          Fact = -dbsc(kCnttp)%Charge*ff
+          nDisp = IndDsp(ndc,iIrrep)
+          do iCar=0,2
+            iComp = 2**iCar
+            if (TF(ndc,iIrrep,iComp) .and. (.not. dbsc(kCnttp)%pChrg)) then
+              nDisp = nDisp+1
+              if (Direct(nDisp)) then
+                XGrad = Zero
+                if (iCar == 0) then
+                  if (ixop > 0) XGrad = Fact*real(ixop,kind=wp)*C(1)**(ixop-1)*C(2)**iyop*C(3)**izop
+                else if (iCar == 1) then
+                  if (iyop > 0) XGrad = Fact*real(iyop,kind=wp)*C(1)**ixop*C(2)**(iyop-1)*C(3)**izop
+                else
+                  if (izop > 0) XGrad = Fact*real(izop,kind=wp)*C(1)**ixop*C(2)**iyop*C(3)**(izop-1)
+                end if
+                Grad(nDisp) = Grad(nDisp)+XGrad
               end if
-              Grad(nDisp) = Grad(nDisp)+XGrad
             end if
-          end if
+          end do
         end do
-      end do
-411   continue
+      end if
       kdc = kdc+dbsc(kCnttp)%nCntr
     end do
-801 continue
   end do
 end do
 

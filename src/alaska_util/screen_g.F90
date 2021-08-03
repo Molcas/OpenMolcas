@@ -123,7 +123,7 @@ vMax = DNrm2_(mZeta*mEta*mPAO,PAO,1)
 if (PreScr .and. (abs(vMax) < 0.5e-4_wp*CutGrd)) then
   lZeta = 0
   lEta = 0
-  Go To 999
+  return
 end if
 
 ! Assemble gradient estimate
@@ -233,7 +233,7 @@ else
   end do
   if (EPreScr) call DGeTMO(PAO,mZeta,mZeta,mEta*mPAO,Scrtch(ipOAP),mEta*mPAO)
 end if
-if (lZeta == 0) Go To 999
+if (lZeta == 0) return
 
 ! Prescreen Eta
 
@@ -280,7 +280,7 @@ else
   l1 = lEta*mPAO
   l2 = lZeta
 end if
-if (lEta == 0) Go To 999
+if (lEta == 0) return
 
 ! Pick up the screened two-particle density.
 ! .not. PreScr : density is already in PAO
@@ -294,7 +294,6 @@ if (PreScr) then
   end if
 end if
 
-999 continue
 if (iPrint >= 39) call RecPrt(' PAO',' ',PAO,lZeta*lEta,mPAO)
 
 return

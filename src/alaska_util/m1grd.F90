@@ -152,158 +152,155 @@ end do
 
 kdc = 0
 do kCnttp=1,nCnttp
-  if (.not. dbsc(kCnttp)%ECP) Go To 111
-  if (dbsc(kCnttp)%nM1 == 0) Go To 111
-  do kCnt=1,dbsc(kCnttp)%nCntr
-    C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
+  if (dbsc(kCnttp)%ECP .and. (dbsc(kCnttp)%nM1 /= 0)) then
+    do kCnt=1,dbsc(kCnttp)%nCntr
+      C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
-    call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-    iuvwx(3) = dc(kdc+kCnt)%nStab
-    iuvwx(4) = dc(kdc+kCnt)%nStab
+      call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
+      iuvwx(3) = dc(kdc+kCnt)%nStab
+      iuvwx(4) = dc(kdc+kCnt)%nStab
 
-    do lDCRT=0,nDCRT-1
-      lOp(3) = NrOpr(iDCRT(lDCRT))
-      lOp(4) = lOp(3)
-      call OA(iDCRT(lDCRT),C,TC)
-      ! Branch out if one-center integral
-      if (EQ(A,RB) .and. EQ(A,TC)) Go To 102
-      if (iPrint >= 99) call RecPrt(' In M1Grd: TC',' ',TC,1,3)
-      call dcopy_(3,A,1,Coora(1,1),1)
-      call dcopy_(3,RB,1,Coora(1,2),1)
-      call dcopy_(6,Coora(1,1),1,Coori(1,1),1)
-      if ((.not. EQ(A,RB)) .or. (.not. EQ(A,TC))) then
-        Coori(1,1) = Coori(1,1)+One
-        !Coora(1,1) = Coora(1,1)+One
-      end if
-      call dcopy_(3,TC,1,CoorAC(1,2),1)
-      call dcopy_(3,TC,1,Coori(1,3),1)
-      call dcopy_(3,TC,1,Coori(1,4),1)
-      call dcopy_(3,TC,1,Coora(1,3),1)
-      call dcopy_(3,TC,1,Coora(1,4),1)
+      do lDCRT=0,nDCRT-1
+        lOp(3) = NrOpr(iDCRT(lDCRT))
+        lOp(4) = lOp(3)
+        call OA(iDCRT(lDCRT),C,TC)
+        ! Branch out if one-center integral
+        if (EQ(A,RB) .and. EQ(A,TC)) cycle
+        if (iPrint >= 99) call RecPrt(' In M1Grd: TC',' ',TC,1,3)
+        call dcopy_(3,A,1,Coora(1,1),1)
+        call dcopy_(3,RB,1,Coora(1,2),1)
+        call dcopy_(6,Coora(1,1),1,Coori(1,1),1)
+        if ((.not. EQ(A,RB)) .or. (.not. EQ(A,TC))) then
+          Coori(1,1) = Coori(1,1)+One
+          !Coora(1,1) = Coora(1,1)+One
+        end if
+        call dcopy_(3,TC,1,CoorAC(1,2),1)
+        call dcopy_(3,TC,1,Coori(1,3),1)
+        call dcopy_(3,TC,1,Coori(1,4),1)
+        call dcopy_(3,TC,1,Coora(1,3),1)
+        call dcopy_(3,TC,1,Coora(1,4),1)
 
-      do iM1xp=1,dbsc(kCnttp)%nM1
-        Gmma = dbsc(kCnttp)%M1xp(iM1xp)
+        do iM1xp=1,dbsc(kCnttp)%nM1
+          Gmma = dbsc(kCnttp)%M1xp(iM1xp)
 
-        call ICopy(6,IndGrd,1,JndGrd,1)
-        do i=1,3
-          do j=1,2
-            JfGrad(i,j) = IfGrad(i,j)
+          call ICopy(6,IndGrd,1,JndGrd,1)
+          do i=1,3
+            do j=1,2
+              JfGrad(i,j) = IfGrad(i,j)
+            end do
           end do
-        end do
 
-        ! Derivatives with respect to the operator is computed
-        ! via the translational invariance.
-        ! Some extra care is needed here due to that Rys2Dg will
-        ! try to avoid some of the work.
+          ! Derivatives with respect to the operator is computed
+          ! via the translational invariance.
+          ! Some extra care is needed here due to that Rys2Dg will
+          ! try to avoid some of the work.
 
-        nDisp = IndDsp(kdc+kCnt,iIrrep)
-        do iCar=0,2
-          ! No direct assembly of contribution from the operat.
-          JfGrad(iCar+1,3) = .false.
-          JndGrd(iCar+1,3) = 0
-          iCmp = 2**iCar
-          if (TF(kdc+kCnt,iIrrep,iCmp) .and. (.not. dbsc(kCnttp)%pChrg)) then
-            ! Displacement is symmetric
-            nDisp = nDisp+1
-            if (Direct(nDisp)) then
-              ! Reset flags for the basis set centers so that
-              ! we will explicitly compute the derivatives
-              ! with respect to those centers. Activate flag
-              ! for the third center so that its derivative
-              ! will be computed by the translational
-              ! invariance.
-              JfGrad(iCar+1,1) = .true.
-              JfGrad(iCar+1,2) = .true.
-              if ((A(iCar+1) /= TC(iCar+1)) .and. (RB(iCar+1) /= TC(iCar+1))) then
-                ! Three center case
-                JndGrd(iCar+1,1) = abs(JndGrd(iCar+1,1))
-                JndGrd(iCar+1,2) = abs(JndGrd(iCar+1,2))
-                JndGrd(iCar+1,3) = -nDisp
+          nDisp = IndDsp(kdc+kCnt,iIrrep)
+          do iCar=0,2
+            ! No direct assembly of contribution from the operat.
+            JfGrad(iCar+1,3) = .false.
+            JndGrd(iCar+1,3) = 0
+            iCmp = 2**iCar
+            if (TF(kdc+kCnt,iIrrep,iCmp) .and. (.not. dbsc(kCnttp)%pChrg)) then
+              ! Displacement is symmetric
+              nDisp = nDisp+1
+              if (Direct(nDisp)) then
+                ! Reset flags for the basis set centers so that
+                ! we will explicitly compute the derivatives
+                ! with respect to those centers. Activate flag
+                ! for the third center so that its derivative
+                ! will be computed by the translational
+                ! invariance.
                 JfGrad(iCar+1,1) = .true.
                 JfGrad(iCar+1,2) = .true.
-              else if ((A(iCar+1) == TC(iCar+1)) .and. (RB(iCar+1) /= TC(iCar+1))) then
-                ! Two center case
-                JndGrd(iCar+1,1) = -abs(JndGrd(iCar+1,1))
-                JndGrd(iCar+1,2) = abs(JndGrd(iCar+1,2))
-                JfGrad(iCar+1,1) = .false.
-                JfGrad(iCar+1,2) = .true.
-              else if ((A(iCar+1) /= TC(iCar+1)) .and. (RB(iCar+1) == TC(iCar+1))) then
-                ! Two center case
-                JndGrd(iCar+1,1) = abs(JndGrd(iCar+1,1))
-                JndGrd(iCar+1,2) = -abs(JndGrd(iCar+1,2))
-                JfGrad(iCar+1,1) = .true.
-                JfGrad(iCar+1,2) = .false.
-              else
-                ! One center case
-                JndGrd(iCar+1,1) = 0
-                JndGrd(iCar+1,2) = 0
-                JfGrad(iCar+1,1) = .false.
-                JfGrad(iCar+1,2) = .false.
+                if ((A(iCar+1) /= TC(iCar+1)) .and. (RB(iCar+1) /= TC(iCar+1))) then
+                  ! Three center case
+                  JndGrd(iCar+1,1) = abs(JndGrd(iCar+1,1))
+                  JndGrd(iCar+1,2) = abs(JndGrd(iCar+1,2))
+                  JndGrd(iCar+1,3) = -nDisp
+                  JfGrad(iCar+1,1) = .true.
+                  JfGrad(iCar+1,2) = .true.
+                else if ((A(iCar+1) == TC(iCar+1)) .and. (RB(iCar+1) /= TC(iCar+1))) then
+                  ! Two center case
+                  JndGrd(iCar+1,1) = -abs(JndGrd(iCar+1,1))
+                  JndGrd(iCar+1,2) = abs(JndGrd(iCar+1,2))
+                  JfGrad(iCar+1,1) = .false.
+                  JfGrad(iCar+1,2) = .true.
+                else if ((A(iCar+1) /= TC(iCar+1)) .and. (RB(iCar+1) == TC(iCar+1))) then
+                  ! Two center case
+                  JndGrd(iCar+1,1) = abs(JndGrd(iCar+1,1))
+                  JndGrd(iCar+1,2) = -abs(JndGrd(iCar+1,2))
+                  JfGrad(iCar+1,1) = .true.
+                  JfGrad(iCar+1,2) = .false.
+                else
+                  ! One center case
+                  JndGrd(iCar+1,1) = 0
+                  JndGrd(iCar+1,2) = 0
+                  JfGrad(iCar+1,1) = .false.
+                  JfGrad(iCar+1,2) = .false.
+                end if
               end if
             end if
-          end if
-        end do
-        ! No derivatives with respect to the fourth center.
-        call ICopy(3,[0],0,JndGrd(1,4),1)
-        JfGrad(1,4) = .false.
-        JfGrad(2,4) = .false.
-        JfGrad(3,4) = .false.
-        mGrad = 0
-        do iCar=1,3
-          do i=1,2
-            if (JfGrad(iCar,i)) mGrad = mGrad+1
           end do
-        end do
-        if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
-        if (mGrad == 0) Go To 1011
+          ! No derivatives with respect to the fourth center.
+          call ICopy(3,[0],0,JndGrd(1,4),1)
+          JfGrad(1,4) = .false.
+          JfGrad(2,4) = .false.
+          JfGrad(3,4) = .false.
+          mGrad = 0
+          do iCar=1,3
+            do i=1,2
+              if (JfGrad(iCar,i)) mGrad = mGrad+1
+            end do
+          end do
+          if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
+          if (mGrad == 0) cycle
 
-        ! Modify the original basis. Observe that
-        ! simplification due to A=B are not valid for the
-        ! exponent index, eq. P-A=/=0.
+          ! Modify the original basis. Observe that
+          ! simplification due to A=B are not valid for the
+          ! exponent index, eq. P-A=/=0.
 
-        do iZeta=1,nZeta
-          PTC2 = (P(iZeta,1)-TC(1))**2+(P(iZeta,2)-TC(2))**2+(P(iZeta,3)-TC(3))**2
-          Tmp0 = Zeta(iZeta)+Gmma
-          Tmp1 = exp(-Zeta(iZeta)*Gmma*PTC2/Tmp0)
-          Array(ipK+iZeta-1) = rKappa(iZeta)*Tmp1
-          Array(ipZ+iZeta-1) = Tmp0
-          Array(ipZI+iZeta-1) = One/Tmp0
-          Array(ipPx+iZeta-1) = (Zeta(iZeta)*P(iZeta,1)+Gmma*TC(1))/Tmp0
-          Array(ipPy+iZeta-1) = (Zeta(iZeta)*P(iZeta,2)+Gmma*TC(2))/Tmp0
-          Array(ipPz+iZeta-1) = (Zeta(iZeta)*P(iZeta,3)+Gmma*TC(3))/Tmp0
-        end do
-
-        ! Modify the density matrix with the prefactor
-
-        Fact = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M1cf(iM1xp)*(real(nStabM,kind=wp)/real(LmbdT,kind=wp))*Two*Pi
-        nDAO = nElem(la)*nElem(lb)
-        do iDAO=1,nDAO
           do iZeta=1,nZeta
-            Fac = Fact*Array(ipK+iZeta-1)*Array(ipZI+iZeta-1)
-            ipDAOt = nZeta*(iDAO-1)+iZeta-1+ipDAO
-            Array(ipDAOt) = Fac*DAO(iZeta,iDAO)
+            PTC2 = (P(iZeta,1)-TC(1))**2+(P(iZeta,2)-TC(2))**2+(P(iZeta,3)-TC(3))**2
+            Tmp0 = Zeta(iZeta)+Gmma
+            Tmp1 = exp(-Zeta(iZeta)*Gmma*PTC2/Tmp0)
+            Array(ipK+iZeta-1) = rKappa(iZeta)*Tmp1
+            Array(ipZ+iZeta-1) = Tmp0
+            Array(ipZI+iZeta-1) = One/Tmp0
+            Array(ipPx+iZeta-1) = (Zeta(iZeta)*P(iZeta,1)+Gmma*TC(1))/Tmp0
+            Array(ipPy+iZeta-1) = (Zeta(iZeta)*P(iZeta,2)+Gmma*TC(2))/Tmp0
+            Array(ipPz+iZeta-1) = (Zeta(iZeta)*P(iZeta,3)+Gmma*TC(3))/Tmp0
           end do
+
+          ! Modify the density matrix with the prefactor
+
+          Fact = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M1cf(iM1xp)*(real(nStabM,kind=wp)/real(LmbdT,kind=wp))*Two*Pi
+          nDAO = nElem(la)*nElem(lb)
+          do iDAO=1,nDAO
+            do iZeta=1,nZeta
+              Fac = Fact*Array(ipK+iZeta-1)*Array(ipZI+iZeta-1)
+              ipDAOt = nZeta*(iDAO-1)+iZeta-1+ipDAO
+              Array(ipDAOt) = Fac*DAO(iZeta,iDAO)
+            end do
+          end do
+          if (iPrint >= 99) then
+            write(u6,*) ' Charge=',dbsc(kCnttp)%Charge
+            write(u6,*) ' Fact=',Fact
+            write(u6,*) ' IndGrd=',IndGrd
+            write(u6,*) ' JndGrd=',JndGrd
+            call RecPrt('DAO*Fact',' ',Array(ipDAO),nZeta,nDAO)
+          end if
+
+          ! Compute integrals with the Rys quadrature.
+
+          call Rysg1(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One],Array(ipZ),Array(ipZI),nZeta,[One],[One],1,Array(ipPx), &
+                     nZeta,TC,1,Coori,Coora,CoorAC,Array(ip),nArray,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO,Grad,nGrad,JfGrad,JndGrd, &
+                     lOp,iuvwx)
+
         end do
-        if (iPrint >= 99) then
-          write(u6,*) ' Charge=',dbsc(kCnttp)%Charge
-          write(u6,*) ' Fact=',Fact
-          write(u6,*) ' IndGrd=',IndGrd
-          write(u6,*) ' JndGrd=',JndGrd
-          call RecPrt('DAO*Fact',' ',Array(ipDAO),nZeta,nDAO)
-        end if
-
-        ! Compute integrals with the Rys quadrature.
-
-        call Rysg1(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One],Array(ipZ),Array(ipZI),nZeta,[One],[One],1,Array(ipPx), &
-                   nZeta,TC,1,Coori,Coora,CoorAC,Array(ip),nArray,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO,Grad,nGrad,JfGrad,JndGrd,lOp, &
-                   iuvwx)
-
-1011    continue
       end do
-102   continue
     end do
-  end do
-111 continue
+  end if
   kdc = kdc+dbsc(kCnttp)%nCntr
 end do
 
@@ -311,7 +308,7 @@ return
 ! Avoid unused argument warnings
 if (.false.) then
   call Unused_real_array(ZInv)
-  call Unused_real_array(final)
+  call Unused_real_array(Final)
   call Unused_integer(nOrdOp)
   call Unused_integer_array(lOper)
 end if

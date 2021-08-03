@@ -138,7 +138,6 @@ call mma_allocate(Coor,3,nComp,Label='Coor')
 call mma_allocate(lOper,nComp,Label='lOper')
 Coor(:,:) = Zero
 lOper(1) = 1
-if (HF_Force) Go To 1003
 !***********************************************************************
 !1)                                                                    *
 !     Trace the generalized Fock matrix with the gradient of the       *
@@ -146,10 +145,12 @@ if (HF_Force) Go To 1003
 !                                                                      *
 !***********************************************************************
 
-DiffOp = .false.
-Label = ' The Renormalization Contribution'
-call OneEl_g(OvrGrd,OvrMmG,Temp,nGrad,DiffOp,Coor,Fock,nFock,lOper,nComp,nOrdOp,Label)
-call DaXpY_(nGrad,-One,Temp,1,Grad,1)
+if (.not. HF_Force) then
+  DiffOp = .false.
+  Label = ' The Renormalization Contribution'
+  call OneEl_g(OvrGrd,OvrMmG,Temp,nGrad,DiffOp,Coor,Fock,nFock,lOper,nComp,nOrdOp,Label)
+  call DaXpY_(nGrad,-One,Temp,1,Grad,1)
+end if
 
 !***********************************************************************
 !2)                                                                    *
@@ -158,41 +159,42 @@ call DaXpY_(nGrad,-One,Temp,1,Grad,1)
 !                                                                      *
 !***********************************************************************
 
-DiffOp = .false.
-Label = ' The Kinetic Energy Contribution'
-call OneEl_g(KneGrd,KneMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-call DaXpY_(nGrad,One,Temp,1,Grad,1)
-!AOM<
-! Check finite field operators...
-nextfld = 0
-1100 continue
-call GetNextFfield(nextfld,fldname,nOrdOpf,ncmp,force,lforce)
-if (nextfld /= 0) then
-  if (nOrdOpf == 0) then
-    if (fldname(1:2) /= 'OV') then
+if (.not. HF_Force) then
+  DiffOp = .false.
+  Label = ' The Kinetic Energy Contribution'
+  call OneEl_g(KneGrd,KneMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+  call DaXpY_(nGrad,One,Temp,1,Grad,1)
+  !AOM<
+  ! Check finite field operators...
+  nextfld = 0
+  do
+    call GetNextFfield(nextfld,fldname,nOrdOpf,ncmp,force,lforce)
+    if (nextfld == 0) exit
+    if (nOrdOpf == 0) then
+      if (fldname(1:2) /= 'OV') then
+        call WarningMessage(2,'Error in Drvh1')
+        write(u6,*) 'Finite field gradients only for MLTP'
+        call Quit_OnUserError()
+      end if
+    end if
+    nCompf = nElem(nOrdOpf)
+    Label = fldname
+    if (ncompf /= ncmp) then
       call WarningMessage(2,'Error in Drvh1')
-      write(u6,*) 'Finite field gradients only for MLTP'
+      write(u6,*) 'Wrong number of components in FF grad'
       call Quit_OnUserError()
     end if
-  end if
-  nCompf = nElem(nOrdOpf)
-  Label = fldname
-  if (ncompf /= ncmp) then
-    call WarningMessage(2,'Error in Drvh1')
-    write(u6,*) 'Wrong number of components in FF grad'
-    call Quit_OnUserError()
-  end if
-  call mma_allocate(lOperf,nCompf,Label='lOperf')
-  lOperf(:) = 1
-  DiffOp = .false.
-  if (nOrdOpf > 0) DiffOp = .true.
-  call OneEl_g(MltGrd,MltMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOperf,nCompf,nOrdOpf,Label)
-  call MltGrdNuc(Temp,nGrad,nOrdOpf)
-  call mma_deallocate(lOperf)
-  call DaXpY_(nGrad,-One,Temp,1,Grad,1)
-  goto 1100
+    call mma_allocate(lOperf,nCompf,Label='lOperf')
+    lOperf(:) = 1
+    DiffOp = .false.
+    if (nOrdOpf > 0) DiffOp = .true.
+    call OneEl_g(MltGrd,MltMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOperf,nCompf,nOrdOpf,Label)
+    call MltGrdNuc(Temp,nGrad,nOrdOpf)
+    call mma_deallocate(lOperf)
+    call DaXpY_(nGrad,-One,Temp,1,Grad,1)
+  end do
+  !AOM>
 end if
-!AOM>
 
 !***********************************************************************
 !3)                                                                    *
@@ -201,7 +203,6 @@ end if
 !                                                                      *
 !***********************************************************************
 
-1003 continue
 DiffOp = .true.
 Label = ' The Nuclear Attraction Contribution'
 call OneEl_g(NAGrd,NAMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
@@ -212,7 +213,6 @@ if (HF_Force) then
     write(u6,*) 'HF forces not implemented yet for this case!'
     call Quit_OnUserError()
   end if
-  Go To 1099
 end if
 
 !***********************************************************************
@@ -222,28 +222,30 @@ end if
 !                                                                      *
 !***********************************************************************
 
-if (lECP) then
-  DiffOp = .true.
-  Label = ' The Projection Operator Contribution'
-  call OneEl_g(PrjGrd,PrjMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-  call DaXpY_(nGrad,One,Temp,1,Grad,1)
+if (.not. HF_Force) then
+  if (lECP) then
+    DiffOp = .true.
+    Label = ' The Projection Operator Contribution'
+    call OneEl_g(PrjGrd,PrjMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+    call DaXpY_(nGrad,One,Temp,1,Grad,1)
 
-  Label = ' The M1 Operator Contribution'
-  call OneEl_g(M1Grd,M1MmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-  call DaXpY_(nGrad,One,Temp,1,Grad,1)
+    Label = ' The M1 Operator Contribution'
+    call OneEl_g(M1Grd,M1MmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+    call DaXpY_(nGrad,One,Temp,1,Grad,1)
 
-  Label = ' The M2 Operator Contribution'
-  call OneEl_g(M2Grd,M2MmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-  call DaXpY_(nGrad,One,Temp,1,Grad,1)
+    Label = ' The M2 Operator Contribution'
+    call OneEl_g(M2Grd,M2MmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+    call DaXpY_(nGrad,One,Temp,1,Grad,1)
 
-  Label = ' The SR Operator Contribution'
-  call OneEl_g(SROGrd,SROMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-  call DaXpY_(nGrad,One,Temp,1,Grad,1)
-end if
-if (lPP) then
-  Label = ' The Pseudo Potential Contribution'
-  call OneEl_g(PPGrd,PPMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-  call DaXpY_(nGrad,One,Temp,1,Grad,1)
+    Label = ' The SR Operator Contribution'
+    call OneEl_g(SROGrd,SROMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+    call DaXpY_(nGrad,One,Temp,1,Grad,1)
+  end if
+  if (lPP) then
+    Label = ' The Pseudo Potential Contribution'
+    call OneEl_g(PPGrd,PPMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+    call DaXpY_(nGrad,One,Temp,1,Grad,1)
+  end if
 end if
 
 !***********************************************************************
@@ -252,26 +254,33 @@ end if
 !     gradient of the Spherical well integrals.                        *
 !                                                                      *
 !***********************************************************************
-DiffOp = .true.
-do iWel=1,nWel
-  r0 = Wel_Info(1,iWel)
-  ExpB = Wel_Info(2,iWel)
-  Label = ' The Spherical Well Contribution'
-  call OneEl_g(WelGrd,WelMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-  Fact = Wel_Info(3,iWel)
-  call DaXpY_(nGrad,Fact,Temp,1,Grad,1)
-end do
+
+if (.not. HF_Force) then
+  DiffOp = .true.
+  do iWel=1,nWel
+    r0 = Wel_Info(1,iWel)
+    ExpB = Wel_Info(2,iWel)
+    Label = ' The Spherical Well Contribution'
+    call OneEl_g(WelGrd,WelMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+    Fact = Wel_Info(3,iWel)
+    call DaXpY_(nGrad,Fact,Temp,1,Grad,1)
+  end do
+end if
+
 !***********************************************************************
 !6)                                                                    *
 !     Trace the "variational" first order density matrix with the      *
 !     gradient of the external field integrals.                        *
 !                                                                      *
 !***********************************************************************
-if (allocated(XF)) then
-  DiffOp = .true.
-  Label = ' The External Field Contribution'
-  call OneEl_g(XFdGrd,XFdMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-  call DaXpY_(nGrad,One,Temp,1,Grad,1)
+
+if (.not. HF_Force) then
+  if (allocated(XF)) then
+    DiffOp = .true.
+    Label = ' The External Field Contribution'
+    call OneEl_g(XFdGrd,XFdMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+    call DaXpY_(nGrad,One,Temp,1,Grad,1)
+  end if
 end if
 
 !***********************************************************************
@@ -281,85 +290,87 @@ end if
 !                                                                      *
 !***********************************************************************
 
-if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
-  call mma_deallocate(lOper)
-  call mma_deallocate(Coor)
+if (.not. HF_Force) then
+  if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
+    call mma_deallocate(lOper)
+    call mma_deallocate(Coor)
 
-  ! The Kirkwood model
+    ! The Kirkwood model
 
-  nOrdOp = lMax
-  nComp = (lMax+1)*(lMax+2)*(lMax+3)/6
-  call mma_allocate(lOper,nComp,Label='lOper')
+    nOrdOp = lMax
+    nComp = (lMax+1)*(lMax+2)*(lMax+3)/6
+    call mma_allocate(lOper,nComp,Label='lOper')
 
-  ! Store permutation symmetry of components of the EF
+    ! Store permutation symmetry of components of the EF
 
-  iComp = 1
-  do iMltpl=0,lMax
-    do ix=iMltpl,0,-1
-      !if (Mod(ix,2) == 0) then
-      !  iSymX = 1
-      !else
-      !  ixyz = 1
-      !  iSymX = 2**IrrFnc(ixyz)
-      !end if
-      do iy=iMltpl-ix,0,-1
-        !if (Mod(iy,2) == 0) then
-        !  iSymY = 1
+    iComp = 1
+    do iMltpl=0,lMax
+      do ix=iMltpl,0,-1
+        !if (Mod(ix,2) == 0) then
+        !  iSymX = 1
         !else
-        !  ixyz = 2
-        !  iSymY = 2**IrrFnc(ixyz)
+        !  ixyz = 1
+        !  iSymX = 2**IrrFnc(ixyz)
         !end if
-        !iz = iMltpl-ix-iy
-        !if (Mod(iz,2) == 0) then
-        !  iSymZ = 1
-        !else
-        !  ixyz = 4
-        !  iSymZ = 2**IrrFnc(ixyz)
-        !end if
-        !lOper(iComp) = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
-        ! Compute only total symmetric contributions
-        lOper(iComp) = 1
-        iComp = iComp+1
+        do iy=iMltpl-ix,0,-1
+          !if (Mod(iy,2) == 0) then
+          !  iSymY = 1
+          !else
+          !  ixyz = 2
+          !  iSymY = 2**IrrFnc(ixyz)
+          !end if
+          !iz = iMltpl-ix-iy
+          !if (Mod(iz,2) == 0) then
+          !  iSymZ = 1
+          !else
+          !  ixyz = 4
+          !  iSymZ = 2**IrrFnc(ixyz)
+          !end if
+          !lOper(iComp) = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
+          ! Compute only total symmetric contributions
+          lOper(iComp) = 1
+          iComp = iComp+1
+        end do
       end do
     end do
-  end do
-  call mma_allocate(Coor,3,nComp,Label='Coor')
-  Coor(:,:) = Zero
-  DiffOp = .true.
-  Label = ' The Electronic Reaction Field Contribution'
-  call OneEl_g(RFGrd,RFMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-  call DaXpY_(nGrad,One,Temp,1,Grad,1)
-!
-else if (lRF .and. PCM) then
-  iCOSMO = 0
-  ! The PCM / COSMO model
+    call mma_allocate(Coor,3,nComp,Label='Coor')
+    Coor(:,:) = Zero
+    DiffOp = .true.
+    Label = ' The Electronic Reaction Field Contribution'
+    call OneEl_g(RFGrd,RFMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+    call DaXpY_(nGrad,One,Temp,1,Grad,1)
 
-  if (iCOSMO <= 0) then
-    iPrint = 15
-    call DScal_(nTs*2,One/real(nIrrep,kind=wp),PCM_SQ,1)
-  end if
-  lOper(1) = 1
-  DiffOp = .true.
-  if (iCOSMO > 0) then
-    call dzero(Temp,ngrad)
-    Label = ' The Electronic Reaction Field Contribution (COSMO)'
-    call OneEl_g(COSGrd,PCMMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-    if (iPrint >= 15) then
-      Label = ' Reaction Field (COSMO) Contribution'
-      call PrGrad(Label,Temp,nGrad,ChDisp,5)
+  else if (lRF .and. PCM) then
+    iCOSMO = 0
+    ! The PCM / COSMO model
+
+    if (iCOSMO <= 0) then
+      iPrint = 15
+      call DScal_(nTs*2,One/real(nIrrep,kind=wp),PCM_SQ,1)
     end if
-  else
-    Label = ' The Electronic Reaction Field Contribution (PCM)'
-    call OneEl_g(PCMGrd,PCMMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-    if (iPrint >= 15) then
-      Label = ' Reaction Field (PCM) Contribution'
-      call PrGrad(Label,Temp,nGrad,ChDisp,5)
+    lOper(1) = 1
+    DiffOp = .true.
+    if (iCOSMO > 0) then
+      call dzero(Temp,ngrad)
+      Label = ' The Electronic Reaction Field Contribution (COSMO)'
+      call OneEl_g(COSGrd,PCMMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+      if (iPrint >= 15) then
+        Label = ' Reaction Field (COSMO) Contribution'
+        call PrGrad(Label,Temp,nGrad,ChDisp,5)
+      end if
+    else
+      Label = ' The Electronic Reaction Field Contribution (PCM)'
+      call OneEl_g(PCMGrd,PCMMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+      if (iPrint >= 15) then
+        Label = ' Reaction Field (PCM) Contribution'
+        call PrGrad(Label,Temp,nGrad,ChDisp,5)
+      end if
     end if
+
+    call DaXpY_(nGrad,One,Temp,1,Grad,1)
+    if (iCOSMO == 0) call DScal_(nTs*2,real(nIrrep,kind=wp),PCM_SQ,1)
+
   end if
-
-  call DaXpY_(nGrad,One,Temp,1,Grad,1)
-  if (iCOSMO == 0) call DScal_(nTs*2,real(nIrrep,kind=wp),PCM_SQ,1)
-
 end if
 
 !***********************************************************************
@@ -369,13 +380,16 @@ end if
 !                                                                      *
 !***********************************************************************
 
-if (lFAIEMP) then
-  DiffOp = .true.
-  Label = ' The FAIEMP Projection Operator Contribution'
-  call OneEl_g(FragPGrd,FragPMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-  call DaXpY_(nGrad,One,Temp,1,Grad,1)
-  call DrvG_FAIEMP(Grad,Temp,nGrad)
+if (.not. HF_Force) then
+  if (lFAIEMP) then
+    DiffOp = .true.
+    Label = ' The FAIEMP Projection Operator Contribution'
+    call OneEl_g(FragPGrd,FragPMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+    call DaXpY_(nGrad,One,Temp,1,Grad,1)
+    call DrvG_FAIEMP(Grad,Temp,nGrad)
+  end if
 end if
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -383,7 +397,6 @@ call mma_deallocate(lOper)
 call mma_deallocate(Coor)
 !                                                                      *
 !***********************************************************************
-1099 continue
 !                                                                      *
 ! Epilogue, end
 

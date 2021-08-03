@@ -261,7 +261,7 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
         AeqC = EQ(CoorM(:,1),CoorM(:,3))
         ABeqCD = AeqB .and. CeqD .and. AeqC
         ! No contribution to gradient from one-center integrals
-        if (ABeqCD) Go To 301
+        if (ABeqCD) cycle
 
         ! Modify which center we will differetiate with
         ! respect to using the translational invariance.
@@ -372,7 +372,7 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
             if (JfGrad(iCar,ixSh)) mGrad = mGrad+1
           end do
         end do
-        if (mGrad == 0) Go To 301
+        if (mGrad == 0) cycle
 
         ! Find the proper centers to start of with the angular
         ! momentum on. If la == lb there will excist an
@@ -447,11 +447,11 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
 
         do iZeta=1,nZeta_Tot,IncZet
           mZeta = min(IncZet,nZeta_Tot-iZeta+1)
-          if (lEmpty(Coeff2,nBeta,nBeta,jBasj)) Go To 400
+          if (lEmpty(Coeff2,nBeta,nBeta,jBasj)) cycle
 
           do iEta=1,nEta_Tot,IncEta
             mEta = min(IncEta,nEta_Tot-iEta+1)
-            if (lEmpty(Coeff4,nDelta,nDelta,lBasl)) Go To 410
+            if (lEmpty(Coeff4,nDelta,nDelta,lBasl)) cycle
 
             Pren = Pren+real(mab*mcd*mZeta*mEta,kind=wp)
 
@@ -459,7 +459,7 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
 
             call PrePre_g(nZeta,nEta,mZeta,mEta,lZeta,lEta,Data1(ip_Z(iZeta,nZeta),lDCR1),Data2(ip_Z(iEta,nEta),lDCR2),PreScr, &
                           CutGrd)
-            if (lZeta*lEta == 0) Go To 410
+            if (lZeta*lEta == 0) cycle
 
             ! Decontract the 2nd order density matrix
 
@@ -486,7 +486,7 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
                           ChiI2)
             Prem = Prem+real(mab*mcd*lZeta*lEta,kind=wp)
             !write(u6,*) 'Prem=',Prem
-            if (lZeta*lEta == 0) Go To 410
+            if (lZeta*lEta == 0) cycle
 
             ! Compute integral derivative and accumulate
             ! contribution to the molecular gradient. Note that
@@ -501,9 +501,7 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
               write(u6,*) 'Probably due to wrong coordinates.'
             end if
 
-410         continue
           end do
-400       continue
         end do
         nullify(iData1,iData2)
 
@@ -511,7 +509,6 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
         if (iPrint >= 19) call PrGrad(' In TwoEl',Grad,nGrad,ChDisp,5)
 #       endif
 
-301     continue
       end do
     end do
   end do

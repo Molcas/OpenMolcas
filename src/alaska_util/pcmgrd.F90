@@ -39,7 +39,7 @@ integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ipA, ip
                      iStb(0:7), iTs, iuvwx(4), iZeta, j, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, &
                      nDiff, nip, nRys, nStb
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, Q, TC(3)
-logical(kind=iwp) :: NoLoop, JfGrad(3,4)
+logical(kind=iwp) :: JfGrad(3,4)
 !character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: NrOpr
 external :: Fake, TNAI1, XCff2D
@@ -115,8 +115,7 @@ iStb(0) = 0
 
 do iTs=1,nTs
   Q = PCM_SQ(1,iTs)+PCM_SQ(2,iTs)
-  NoLoop = Q == Zero
-  if (NoLoop) Go To 111
+  if (Q == Zero) cycle
   ! Pick up the tile coordinates
   C(1:3) = PCMTess(1:3,iTs)
 
@@ -153,7 +152,7 @@ do iTs=1,nTs
     end do
   end do
   if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
-  if (mGrad == 0) Go To 111
+  if (mGrad == 0) cycle
 
   do lDCRT=0,nDCRT-1
     lOp(3) = NrOpr(iDCRT(lDCRT))
@@ -175,13 +174,12 @@ do iTs=1,nTs
     !call RecPrt(' In PCMgrd:Grad',' ',Grad,nGrad,1)
   end do  ! End loop over DCRs
 
-111 continue
 end do    ! End loop over centers in the external field
 
 return
 ! Avoid unused argument warnings
 if (.false.) then
-  call Unused_real_array(final)
+  call Unused_real_array(Final)
   call Unused_integer(nRys)
   call Unused_real_array(Ccoor)
   call Unused_integer_array(lOper)

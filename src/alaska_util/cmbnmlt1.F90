@@ -61,7 +61,7 @@ do ixop=0,nOrdOp
     izop = nOrdOp-ixop-iyop
     icomp = Ind(nOrdOp,ixop,izop)
     ff = Force(icomp)
-    if (ff == Zero) goto 801
+    if (ff == Zero) cycle
     do ixa=0,la
       iyaMax = la-ixa
       do ixb=0,lb
@@ -228,7 +228,6 @@ do ixop=0,nOrdOp
         end if
       end do
     end do
-801 continue
   end do
 end do
 

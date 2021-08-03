@@ -124,113 +124,111 @@ end if
 
 kdc = 0
 do kCnttp=1,nCnttp
-  if (kCnttp == iCnttp_Dummy) Go To 111
-  if (dbsc(kCnttp)%Charge == Zero) Go To 111
-  do kCnt=1,dbsc(kCnttp)%nCntr
-    C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
+  if ((kCnttp /= iCnttp_Dummy) .and. (dbsc(kCnttp)%Charge /= Zero)) then
+    do kCnt=1,dbsc(kCnttp)%nCntr
+      C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
-    call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-    Fact = -dbsc(kCnttp)%Charge*real(nStabM,kind=wp)/real(LmbdT,kind=wp)
+      call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
+      Fact = -dbsc(kCnttp)%Charge*real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
-    ! Modify the density matrix with prefactors in case of finite nuclei
+      ! Modify the density matrix with prefactors in case of finite nuclei
 
-    if (Nuclear_Model == Gaussian_Type) then
-      Eta = dbsc(kCnttp)%ExpNuc
-      rKappcd = TwoP54/Eta
-      ! Tag on the normalization factor of the nuclear Gaussian
-      Fact = Fact*(Eta/Pi)**(Three/Two)
-      jpDAO = ipDAO
-      do iDAO=1,nDAO
-        do iZeta=1,nZeta
-          ! On flight modification of Kappa
-          rKappab = TwoP54*rKappa(iZeta)/Zeta(iZeta)
-          Array(jpDAO) = Fact*DAO(iZeta,iDAO)*rKappab*rKappcd*sqrt(One/(Zeta(iZeta)+Eta))
-          jpDAO = jpDAO+1
+      if (Nuclear_Model == Gaussian_Type) then
+        Eta = dbsc(kCnttp)%ExpNuc
+        rKappcd = TwoP54/Eta
+        ! Tag on the normalization factor of the nuclear Gaussian
+        Fact = Fact*(Eta/Pi)**(Three/Two)
+        jpDAO = ipDAO
+        do iDAO=1,nDAO
+          do iZeta=1,nZeta
+            ! On flight modification of Kappa
+            rKappab = TwoP54*rKappa(iZeta)/Zeta(iZeta)
+            Array(jpDAO) = Fact*DAO(iZeta,iDAO)*rKappab*rKappcd*sqrt(One/(Zeta(iZeta)+Eta))
+            jpDAO = jpDAO+1
+          end do
+        end do
+      else if (Nuclear_Model == Point_Charge) then
+        call DYaX(nZeta*nDAO,Fact,DAO,1,Array(ipDAO),1)
+      else
+        write(u6,*) 'NaGrd: Fermi type nuclear distribution not implemented yet!'
+        call Abend()
+      end if
+      iuvwx(3) = dc(kdc+kCnt)%nStab
+      iuvwx(4) = dc(kdc+kCnt)%nStab
+      call ICopy(6,IndGrd,1,JndGrd,1)
+      do i=1,3
+        do j=1,2
+          JfGrad(i,j) = IfGrad(i,j)
         end do
       end do
-    else if (Nuclear_Model == Point_Charge) then
-      call DYaX(nZeta*nDAO,Fact,DAO,1,Array(ipDAO),1)
-    else
-      write(u6,*) 'NaGrd: Fermi type nuclear distribution not implemented yet!'
-      call Abend()
-    end if
-    iuvwx(3) = dc(kdc+kCnt)%nStab
-    iuvwx(4) = dc(kdc+kCnt)%nStab
-    call ICopy(6,IndGrd,1,JndGrd,1)
-    do i=1,3
-      do j=1,2
-        JfGrad(i,j) = IfGrad(i,j)
-      end do
-    end do
 
-    ! Derivatives with respect to the operator is computed via the
-    ! translational invariance.
+      ! Derivatives with respect to the operator is computed via the
+      ! translational invariance.
 
-    nDisp = IndDsp(kdc+kCnt,iIrrep)
-    do iCar=0,2
-      iComp = 2**iCar
-      if (TF(kdc+kCnt,iIrrep,iComp) .and. (.not. dbsc(kCnttp)%Frag) .and. (.not. dbsc(kCnttp)%pChrg)) then
-        nDisp = nDisp+1
-        if (Direct(nDisp)) then
-          ! Reset flags for the basis set centers so that we
-          ! will explicitly compute the derivatives with
-          ! respect to those centers. Activate flag for the
-          ! third center so that its derivative will be computed
-          ! by the translational invariance.
-          JndGrd(iCar+1,1) = abs(JndGrd(iCar+1,1))
-          JndGrd(iCar+1,2) = abs(JndGrd(iCar+1,2))
-          JndGrd(iCar+1,3) = -nDisp
-          JfGrad(iCar+1,1) = .true.
-          JfGrad(iCar+1,2) = .true.
-          JfGrad(iCar+1,3) = .false.
+      nDisp = IndDsp(kdc+kCnt,iIrrep)
+      do iCar=0,2
+        iComp = 2**iCar
+        if (TF(kdc+kCnt,iIrrep,iComp) .and. (.not. dbsc(kCnttp)%Frag) .and. (.not. dbsc(kCnttp)%pChrg)) then
+          nDisp = nDisp+1
+          if (Direct(nDisp)) then
+            ! Reset flags for the basis set centers so that we
+            ! will explicitly compute the derivatives with
+            ! respect to those centers. Activate flag for the
+            ! third center so that its derivative will be computed
+            ! by the translational invariance.
+            JndGrd(iCar+1,1) = abs(JndGrd(iCar+1,1))
+            JndGrd(iCar+1,2) = abs(JndGrd(iCar+1,2))
+            JndGrd(iCar+1,3) = -nDisp
+            JfGrad(iCar+1,1) = .true.
+            JfGrad(iCar+1,2) = .true.
+            JfGrad(iCar+1,3) = .false.
+          else
+            JndGrd(iCar+1,3) = 0
+            JfGrad(iCar+1,3) = .false.
+          end if
         else
           JndGrd(iCar+1,3) = 0
           JfGrad(iCar+1,3) = .false.
         end if
-      else
-        JndGrd(iCar+1,3) = 0
-        JfGrad(iCar+1,3) = .false.
-      end if
-    end do
-    ! No derivatives with respect to the fourth center.
-    call ICopy(3,[0],0,JndGrd(1,4),1)
-    JfGrad(1,4) = .false.
-    JfGrad(2,4) = .false.
-    JfGrad(3,4) = .false.
-    mGrad = 0
-    do iCar=1,3
-      do i=1,2
-        if (JfGrad(iCar,i)) mGrad = mGrad+1
+      end do
+      ! No derivatives with respect to the fourth center.
+      call ICopy(3,[0],0,JndGrd(1,4),1)
+      JfGrad(1,4) = .false.
+      JfGrad(2,4) = .false.
+      JfGrad(3,4) = .false.
+      mGrad = 0
+      do iCar=1,3
+        do i=1,2
+          if (JfGrad(iCar,i)) mGrad = mGrad+1
+        end do
+      end do
+      !if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
+      if (mGrad == 0) cycle
+
+      do lDCRT=0,nDCRT-1
+        lOp(3) = NrOpr(iDCRT(lDCRT))
+        lOp(4) = lOp(3)
+        call OA(iDCRT(lDCRT),C,TC)
+        call dcopy_(3,TC,1,CoorAC(1,2),1)
+        call dcopy_(3,TC,1,Coori(1,3),1)
+        call dcopy_(3,TC,1,Coori(1,4),1)
+
+        if (Nuclear_Model == Gaussian_Type) then
+          Eta = dbsc(kCnttp)%ExpNuc
+          EInv = One/Eta
+          call Rysg1(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,Coori,Coori, &
+                     CoorAC,Array(nip),nArray,TERI1,ModU2,vCff2D,Array(ipDAO),nDAO,Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
+        else if (Nuclear_Model == Point_Charge) then
+          call Rysg1(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,Coori,Coori, &
+                     CoorAC,Array(nip),nArray,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO,Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
+        else
+        ! more to come...
+        end if
+
+        !call RecPrt('In NaGrd: Grad',' ',Grad,nGrad,1)
       end do
     end do
-    !if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
-    if (mGrad == 0) Go To 101
-
-    do lDCRT=0,nDCRT-1
-      lOp(3) = NrOpr(iDCRT(lDCRT))
-      lOp(4) = lOp(3)
-      call OA(iDCRT(lDCRT),C,TC)
-      call dcopy_(3,TC,1,CoorAC(1,2),1)
-      call dcopy_(3,TC,1,Coori(1,3),1)
-      call dcopy_(3,TC,1,Coori(1,4),1)
-
-      if (Nuclear_Model == Gaussian_Type) then
-        Eta = dbsc(kCnttp)%ExpNuc
-        EInv = One/Eta
-        call Rysg1(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,Coori,Coori, &
-                   CoorAC,Array(nip),nArray,TERI1,ModU2,vCff2D,Array(ipDAO),nDAO,Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
-      else if (Nuclear_Model == Point_Charge) then
-        call Rysg1(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,Coori,Coori, &
-                   CoorAC,Array(nip),nArray,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO,Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
-      else
-      ! more to come...
-      end if
-
-      !call RecPrt('In NaGrd: Grad',' ',Grad,nGrad,1)
-    end do
-101 continue
-  end do
-111 continue
+  end if
   kdc = kdc+dbsc(kCnttp)%nCntr
 end do
 

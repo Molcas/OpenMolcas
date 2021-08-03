@@ -145,7 +145,7 @@ do ijS=1,nTasks
 
   iSmLbl = 1
   nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
-  if (nSO == 0) Go To 131
+  if (nSO == 0) cycle
 
   ! Find the DCR for A and B
 
@@ -154,7 +154,7 @@ do ijS=1,nTasks
   ! For the CSF contribution we cannot skip the A,A case
 
   if (.not. isCSF) then
-    if ((.not. DiffOp) .and. (nDCRR == 1) .and. EQ(A,B)) Go To 131
+    if ((.not. DiffOp) .and. (nDCRR == 1) .and. EQ(A,B)) cycle
   end if
   if (iPrint >= 49) write(u6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
 
@@ -246,7 +246,7 @@ do ijS=1,nTasks
       ! (lack of translational invariance is taken care of by CmbnS1)
 
       if (.not. isCSF) then
-        if (EQ(A,RB) .and. (.not. DiffOp)) Go To 140
+        if (EQ(A,RB) .and. (.not. DiffOp)) cycle
       end if
       if (.not. DiffOp) then
         ! Use the translational invariance to reduce the set of
@@ -315,7 +315,6 @@ do ijS=1,nTasks
                   Krnl,MemKer,Ccoor,nOrdOp,Grad,nGrad,IfGrad,IndGrd,DAO,mdci,mdcj,nOp,lOper,nComp,iStabM,nStabM)
       if (iPrint >= 49) call PrGrad(' In Oneel',Grad,nGrad,ChDisp,5)
 
-140   continue
     end do
   end if
   call mma_deallocate(DSOpr)
@@ -324,7 +323,6 @@ do ijS=1,nTasks
   call mma_deallocate(Scr1)
   call mma_deallocate(rFinal)
   call mma_deallocate(Krnl)
-131 continue
   !end do
   !end do
 end do

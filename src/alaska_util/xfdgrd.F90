@@ -128,7 +128,7 @@ do iOrdOp=0,nOrd_XF
       ZFd(1:3) = XF(5:7,iFd)
       NoLoop = (ZFd(1) == Zero) .and. (ZFd(2) == Zero) .and. (ZFd(3) == Zero)
     end if
-    if (NoLoop) Go To 111
+    if (NoLoop) cycle
     ! Pick up the center coordinates
     C(1:3) = XF(1:3,iFd)
 
@@ -183,7 +183,7 @@ do iOrdOp=0,nOrd_XF
       end do
     end do
     if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
-    if (mGrad == 0) Go To 111
+    if (mGrad == 0) cycle
 
     do lDCRT=0,nDCRT-1
       lOp(3) = NrOpr(iDCRT(lDCRT))
@@ -219,7 +219,6 @@ do iOrdOp=0,nOrd_XF
       !call RecPrt(' In XFdGrd:Grad',' ',Grad,nGrad,1)
     end do ! End loop over DCRs
 
-111 continue
   end do   ! End loop over centers in the external field
 
 end do     ! End loop over charges and dipole moments
@@ -227,7 +226,7 @@ end do     ! End loop over charges and dipole moments
 return
 ! Avoid unused argument warnings
 if (.false.) then
-  call Unused_real_array(final)
+  call Unused_real_array(Final)
   call Unused_integer(nRys)
   call Unused_real_array(Ccoor)
   call Unused_integer(nOrdOp)

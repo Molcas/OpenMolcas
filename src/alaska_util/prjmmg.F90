@@ -42,12 +42,12 @@ nElem(i) = (i+1)*(i+2)/2
 nOrder = 0
 Mem = 0
 do iCnttp=1,nCnttp
-  if (.not. dbsc(iCnttp)%ECP) Go To 1960
+  if (.not. dbsc(iCnttp)%ECP) cycle
   do iAng=0,dbsc(iCnttp)%nPrj-1
     iShll = dbsc(iCnttp)%iPrj+iAng
     nExpi = Shells(iShll)%nExp
     nBasisi = Shells(iShll)%nBasis
-    if ((nExpi == 0) .or. (nBasisi == 0)) Go To 1966
+    if ((nExpi == 0) .or. (nBasisi == 0)) cycle
 
     ip = 0
     nac = 4*nElem(la)*nElem(iAng)
@@ -87,9 +87,7 @@ do iCnttp=1,nCnttp
     ip = ip+max(nExpi*nac,ncb*nBasisi)
     Mem = max(Mem,ip)
 
-1966 continue
   end do
-1960 continue
 end do
 nHer = nOrder
 

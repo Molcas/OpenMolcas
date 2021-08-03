@@ -138,136 +138,132 @@ end do
 
 kdc = 0
 do kCnttp=1,nCnttp
-  if (.not. dbsc(kCnttp)%ECP) Go To 111
-  if (dbsc(kCnttp)%nM2 == 0) Go To 111
+  if (dbsc(kCnttp)%ECP .and. (dbsc(kCnttp)%nM2 /= 0)) then
+    do kCnt=1,dbsc(kCnttp)%nCntr
+      C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
-  do kCnt=1,dbsc(kCnttp)%nCntr
-    C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
+      call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
+      Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
+      iuvwx(3) = dc(kdc+kCnt)%nStab
+      iuvwx(4) = dc(kdc+kCnt)%nStab
 
-    call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-    Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
-    iuvwx(3) = dc(kdc+kCnt)%nStab
-    iuvwx(4) = dc(kdc+kCnt)%nStab
+      do lDCRT=0,nDCRT-1
+        lOp(3) = NrOpr(iDCRT(lDCRT))
+        lOp(4) = lOp(3)
+        call OA(iDCRT(lDCRT),C,TC)
+        if (EQ(A,RB) .and. EQ(A,TC)) cycle
 
-    do lDCRT=0,nDCRT-1
-      lOp(3) = NrOpr(iDCRT(lDCRT))
-      lOp(4) = lOp(3)
-      call OA(iDCRT(lDCRT),C,TC)
-      if (EQ(A,RB) .and. EQ(A,TC)) Go To 102
+        do iM2xp=1,dbsc(kCnttp)%nM2
+          Gmma = dbsc(kCnttp)%M2xp(iM2xp)
+          if (iPrint >= 99) write(u6,*) ' Gmma=',Gmma
 
-      do iM2xp=1,dbsc(kCnttp)%nM2
-        Gmma = dbsc(kCnttp)%M2xp(iM2xp)
-        if (iPrint >= 99) write(u6,*) ' Gmma=',Gmma
-
-        call ICopy(6,IndGrd,1,JndGrd,1)
-        do i=1,3
-          do j=1,2
-            JfGrad(i,j) = IfGrad(i,j)
+          call ICopy(6,IndGrd,1,JndGrd,1)
+          do i=1,3
+            do j=1,2
+              JfGrad(i,j) = IfGrad(i,j)
+            end do
           end do
-        end do
 
-        ! Derivatives with respect to the operator is computed
-        ! via the translational invariance.
+          ! Derivatives with respect to the operator is computed
+          ! via the translational invariance.
 
-        nDisp = IndDsp(kdc+kCnt,iIrrep)
-        do iCar=0,2
-          JfGrad(iCar+1,3) = .false.
-          iCmp = 2**iCar
-          if (TF(kdc+kCnt,iIrrep,iCmp) .and. (.not. dbsc(kCnttp)%pChrg)) then
-            nDisp = nDisp+1
-            if (Direct(nDisp)) then
-              ! Reset flags for the basis set centers so that
-              ! we will explicitly compute the derivatives
-              ! with respect to those centers. Activate flag
-              ! for the third center so that its derivative
-              ! will be computed by the translational
-              ! invariance.
-              JndGrd(iCar+1,1) = abs(JndGrd(iCar+1,1))
-              JndGrd(iCar+1,2) = abs(JndGrd(iCar+1,2))
-              JndGrd(iCar+1,3) = -nDisp
-              JfGrad(iCar+1,1) = .true.
-              JfGrad(iCar+1,2) = .true.
+          nDisp = IndDsp(kdc+kCnt,iIrrep)
+          do iCar=0,2
+            JfGrad(iCar+1,3) = .false.
+            iCmp = 2**iCar
+            if (TF(kdc+kCnt,iIrrep,iCmp) .and. (.not. dbsc(kCnttp)%pChrg)) then
+              nDisp = nDisp+1
+              if (Direct(nDisp)) then
+                ! Reset flags for the basis set centers so that
+                ! we will explicitly compute the derivatives
+                ! with respect to those centers. Activate flag
+                ! for the third center so that its derivative
+                ! will be computed by the translational
+                ! invariance.
+                JndGrd(iCar+1,1) = abs(JndGrd(iCar+1,1))
+                JndGrd(iCar+1,2) = abs(JndGrd(iCar+1,2))
+                JndGrd(iCar+1,3) = -nDisp
+                JfGrad(iCar+1,1) = .true.
+                JfGrad(iCar+1,2) = .true.
+              else
+                JndGrd(iCar+1,3) = 0
+              end if
             else
               JndGrd(iCar+1,3) = 0
             end if
-          else
-            JndGrd(iCar+1,3) = 0
-          end if
-        end do
-        ! No derivatives with respect to the fourth center.
-        call ICopy(3,[0],0,JndGrd(1,4),1)
-        JfGrad(1,4) = .false.
-        JfGrad(2,4) = .false.
-        JfGrad(3,4) = .false.
-        mGrad = 0
-        do iCar=1,3
-          do i=1,2
-            if (JfGrad(iCar,i)) mGrad = mGrad+1
           end do
+          ! No derivatives with respect to the fourth center.
+          call ICopy(3,[0],0,JndGrd(1,4),1)
+          JfGrad(1,4) = .false.
+          JfGrad(2,4) = .false.
+          JfGrad(3,4) = .false.
+          mGrad = 0
+          do iCar=1,3
+            do i=1,2
+              if (JfGrad(iCar,i)) mGrad = mGrad+1
+            end do
+          end do
+          if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
+          if (mGrad == 0) cycle
+
+          ! Modify the original basis.
+
+          do iZeta=1,nZeta
+            PTC2 = (P(iZeta,1)-TC(1))**2+(P(iZeta,2)-TC(2))**2+(P(iZeta,3)-TC(3))**2
+            Tmp0 = Zeta(iZeta)+Gmma
+            Tmp1 = exp(-Zeta(iZeta)*Gmma*PTC2/Tmp0)
+            Array(ipK+iZeta-1) = rKappa(iZeta)*Tmp1
+            Array(ipZ+iZeta-1) = Tmp0
+            Array(ipPx+iZeta-1) = (Zeta(iZeta)*P(iZeta,1)+Gmma*TC(1))/Tmp0
+            Array(ipPy+iZeta-1) = (Zeta(iZeta)*P(iZeta,2)+Gmma*TC(2))/Tmp0
+            Array(ipPz+iZeta-1) = (Zeta(iZeta)*P(iZeta,3)+Gmma*TC(3))/Tmp0
+          end do
+          if (iPrint >= 99) then
+            write(u6,*) ' The modified basis set'
+            call RecPrt(' In M2Grd: Kappa',' ',Array(ipK),nAlpha,nBeta)
+            call RecPrt(' In M2Grd: Zeta',' ',Array(ipZ),nAlpha,nBeta)
+            call RecPrt(' In M2Grd: P',' ',Array(ipPx),nZeta,3)
+            call RecPrt(' In M2Grd: TC',' ',TC,1,3)
+          end if
+
+          ! Compute the cartesian values of the basis functions
+          ! angular part
+
+          ABeq(1) = (A(1) == RB(1)) .and. (A(1) == TC(1))
+          ABeq(2) = (A(2) == RB(2)) .and. (A(2) == TC(2))
+          ABeq(3) = (A(3) == RB(3)) .and. (A(3) == TC(3))
+          call CrtCmp(Array(ipZ),Array(ipPx),nZeta,A,Array(ipAxyz),la+1,HerR(iHerR(nHer)),nHer,ABeq)
+          call CrtCmp(Array(ipZ),Array(ipPx),nZeta,RB,Array(ipBxyz),lb+1,HerR(iHerR(nHer)),nHer,ABeq)
+
+          ! Compute the contribution from the multipole moment operator
+
+          ABeq(1) = .false.
+          ABeq(2) = .false.
+          ABeq(3) = .false.
+          call CrtCmp(Array(ipZ),Array(ipPx),nZeta,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
+
+          ! Compute the cartesian components for the multipole
+          ! moment integrals. The integrals are factorized into
+          ! components.
+
+          call Assmbl(Array(ipQxyz),Array(ipAxyz),la+1,Array(ipRxyz),nOrdOp,Array(ipBxyz),lb+1,nZeta,HerW(iHerW(nHer)),nHer)
+
+          ! Combine the cartesian components to the full one
+          ! electron integral gradient.
+
+          Factor = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M2cf(iM2xp)*Fact
+          call CmbnM2(Array(ipQxyz),nZeta,la,lb,Array(ipZ),Array(ipK),Final,Array(ipA),Array(ipB),JfGrad,Factor,mVec)
+          if (iPrint >= 99) call RecPrt(' Final in M2Grd',' ',Final,nZeta*nElem(la)*nElem(lb),mVec)
+
+          ! Distribute the gradient contributions
+
+          call DistG1X(Final,DAO,nZeta,nDAO,mVec,Grad,nGrad,JfGrad,JndGrd,iuvwx,lOp)
+
         end do
-        if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
-        if (mGrad == 0) Go To 1011
 
-        ! Modify the original basis.
-
-        do iZeta=1,nZeta
-          PTC2 = (P(iZeta,1)-TC(1))**2+(P(iZeta,2)-TC(2))**2+(P(iZeta,3)-TC(3))**2
-          Tmp0 = Zeta(iZeta)+Gmma
-          Tmp1 = exp(-Zeta(iZeta)*Gmma*PTC2/Tmp0)
-          Array(ipK+iZeta-1) = rKappa(iZeta)*Tmp1
-          Array(ipZ+iZeta-1) = Tmp0
-          Array(ipPx+iZeta-1) = (Zeta(iZeta)*P(iZeta,1)+Gmma*TC(1))/Tmp0
-          Array(ipPy+iZeta-1) = (Zeta(iZeta)*P(iZeta,2)+Gmma*TC(2))/Tmp0
-          Array(ipPz+iZeta-1) = (Zeta(iZeta)*P(iZeta,3)+Gmma*TC(3))/Tmp0
-        end do
-        if (iPrint >= 99) then
-          write(u6,*) ' The modified basis set'
-          call RecPrt(' In M2Grd: Kappa',' ',Array(ipK),nAlpha,nBeta)
-          call RecPrt(' In M2Grd: Zeta',' ',Array(ipZ),nAlpha,nBeta)
-          call RecPrt(' In M2Grd: P',' ',Array(ipPx),nZeta,3)
-          call RecPrt(' In M2Grd: TC',' ',TC,1,3)
-        end if
-
-        ! Compute the cartesian values of the basis functions
-        ! angular part
-
-        ABeq(1) = (A(1) == RB(1)) .and. (A(1) == TC(1))
-        ABeq(2) = (A(2) == RB(2)) .and. (A(2) == TC(2))
-        ABeq(3) = (A(3) == RB(3)) .and. (A(3) == TC(3))
-        call CrtCmp(Array(ipZ),Array(ipPx),nZeta,A,Array(ipAxyz),la+1,HerR(iHerR(nHer)),nHer,ABeq)
-        call CrtCmp(Array(ipZ),Array(ipPx),nZeta,RB,Array(ipBxyz),lb+1,HerR(iHerR(nHer)),nHer,ABeq)
-
-        ! Compute the contribution from the multipole moment operator
-
-        ABeq(1) = .false.
-        ABeq(2) = .false.
-        ABeq(3) = .false.
-        call CrtCmp(Array(ipZ),Array(ipPx),nZeta,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
-
-        ! Compute the cartesian components for the multipole
-        ! moment integrals. The integrals are factorized into
-        ! components.
-
-        call Assmbl(Array(ipQxyz),Array(ipAxyz),la+1,Array(ipRxyz),nOrdOp,Array(ipBxyz),lb+1,nZeta,HerW(iHerW(nHer)),nHer)
-
-        ! Combine the cartesian components to the full one
-        ! electron integral gradient.
-
-        Factor = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M2cf(iM2xp)*Fact
-        call CmbnM2(Array(ipQxyz),nZeta,la,lb,Array(ipZ),Array(ipK),Final,Array(ipA),Array(ipB),JfGrad,Factor,mVec)
-        if (iPrint >= 99) call RecPrt(' Final in M2Grd',' ',Final,nZeta*nElem(la)*nElem(lb),mVec)
-
-        ! Distribute the gradient contributions
-
-        call DistG1X(Final,DAO,nZeta,nDAO,mVec,Grad,nGrad,JfGrad,JndGrd,iuvwx,lOp)
-
-1011    continue
       end do
-
-102   continue
     end do
-  end do
-111 continue
+  end if
   kdc = kdc+dbsc(kCnttp)%nCntr
 
 end do
