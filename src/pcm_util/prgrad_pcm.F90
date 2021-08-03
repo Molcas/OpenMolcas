@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine PrGrad_mck(Label,Grad,nGrad,Names,iPrint)
+subroutine PrGrad_pcm(Label,Grad,nGrad,Names,iPrint)
 !***********************************************************************
 !                                                                      *
 ! Object: to print set gradient with respect to the symmetrical dis-   *
@@ -91,4 +91,4 @@ write(u6,*)
 
 return
 
-end subroutine PrGrad_mck
+end subroutine PrGrad_pcm

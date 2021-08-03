@@ -14,15 +14,13 @@ subroutine WelMmG( &
 #                 include "mem_interface.fh"
                  )
 
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
 #define _USE_WP_
 #include "mem_interface.fh"
-integer(kind=iwp) :: jsum, k
-! Statement function
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
+integer(kind=iwp) :: i, jsum, k
 
 #include "macros.fh"
 unused_var(lr)
@@ -37,10 +35,10 @@ Mem = 2*jsum+max((k+1)*(k/2+1)*(k/4+1)+1,9+3**k,5)
 
 ! Add memory for contributions to the derivative
 
-Mem = Mem+nElem(la+1)*nElem(lb)
-if (la >= 1) Mem = Mem+nElem(la-1)*nElem(lb)
-Mem = Mem+nElem(la)*nElem(lb+1)
-if (lb >= 1) Mem = Mem+nElem(la)*nElem(lb-1)
+Mem = Mem+nTri_Elem1(la+1)*nTri_Elem1(lb)
+if (la >= 1) Mem = Mem+nTri_Elem1(la-1)*nTri_Elem1(lb)
+Mem = Mem+nTri_Elem1(la)*nTri_Elem1(lb+1)
+if (lb >= 1) Mem = Mem+nTri_Elem1(la)*nTri_Elem1(lb-1)
 Mem = Mem+2
 
 return

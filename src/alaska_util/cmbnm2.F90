@@ -21,6 +21,7 @@ subroutine CmbnM2(Rnxyz,nZeta,la,lb,Zeta,rKappa,rFinal,Alpha,Beta,IfGrad,Fact,mV
 !             October '91.                                             *
 !***********************************************************************
 
+use Index_Functions, only: C_Ind
 use Constants, only: Two, Three
 use Definitions, only: wp, iwp
 
@@ -35,9 +36,6 @@ integer(kind=iwp) :: ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyaMax, iyb, iybMax
 real(kind=wp) :: xa, xb, ya, yb, za, zb
 real(kind=wp), parameter :: exp32 = -Three/Two
 #include "print.fh"
-! Statement function for Cartesian index
-integer(kind=iwp) :: Ind, ixyz, ix, iz
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 iRout = 134
 iPrint = nPrint(iRout)
@@ -60,10 +58,10 @@ do ixa=0,la
     iybMax = lb-ixb
     do iya=0,iyaMax
       iza = la-ixa-iya
-      ipa = Ind(la,ixa,iza)
+      ipa = C_Ind(la,ixa,iza)
       do iyb=0,iybMax
         izb = lb-ixb-iyb
-        ipb = Ind(lb,ixb,izb)
+        ipb = C_Ind(lb,ixb,izb)
 
         ! Combine overlap integrals
 

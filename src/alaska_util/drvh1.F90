@@ -37,6 +37,7 @@ use PCM_arrays, only: PCM_SQ
 use External_Centers, only: nWel, XF, Wel_Info
 use Basis_Info, only: nCnttp, dbsc, nBas
 use Symmetry_Info, only: nIrrep
+use Index_Functions, only: nTri_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -45,7 +46,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-integer(kind=iwp) :: iComp, iCOSMO, ii, iIrrep, iMltpl, iPrint, iRout, iWel, ix, iy, nComp, nDens, nFock, nOrdOp
+integer(kind=iwp) :: i, iComp, iCOSMO, ii, iIrrep, iMltpl, iPrint, iRout, iWel, ix, iy, nComp, nDens, nFock, nOrdOp
 real(kind=wp) :: Fact, TCpu1, TCpu2, TWall1, TWall2
 character(len=80) :: Label
 character(len=8) :: Method
@@ -67,9 +68,6 @@ external :: COSGrd, FragPGrd, FragPMmG, KneGrd, KneMmG, M1Grd, M1MmG, M2Grd, M2M
 #include "wldata.fh"
 #include "rctfld.fh"
 #include "finfld.fh"
-! Statement function
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 ! Prologue
 iRout = 131
@@ -137,7 +135,7 @@ end if
 ! lOper: lOper of each component of the operator
 
 nOrdOp = 0
-nComp = nElem(nOrdOp)
+nComp = nTri_Elem1(nOrdOp)
 call mma_allocate(Coor,3,nComp,Label='Coor')
 call mma_allocate(lOper,nComp,Label='lOper')
 Coor(:,:) = Zero
@@ -183,7 +181,7 @@ if (.not. HF_Force) then
         call Quit_OnUserError()
       end if
     end if
-    nCompf = nElem(nOrdOpf)
+    nCompf = nTri_Elem1(nOrdOpf)
     Label = fldname
     if (ncompf /= ncmp) then
       call WarningMessage(2,'Error in Drvh1')

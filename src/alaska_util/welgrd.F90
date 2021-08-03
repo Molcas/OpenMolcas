@@ -27,17 +27,15 @@ subroutine WelGrd( &
 !***********************************************************************
 
 use Center_Info, only: dc
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_interface.fh"
-integer(kind=iwp) :: iAlpha, iBeta, ik, iOff, ip, ip0m, ip0p, ip1, ip2, ip3, ip4, ip5, ipAlph, ipAMx, ipBeta, ipGri, ipGrin, ipm0, &
-                     ipp0, iPrint, ipScr, ipTGri, iPxyz, iRout, jp, jsumm, jsump, k, k0
+integer(kind=iwp) :: i, iAlpha, iBeta, ik, iOff, ip, ip0m, ip0p, ip1, ip2, ip3, ip4, ip5, ipAlph, ipAMx, ipBeta, ipGri, ipGrin, &
+                     ipm0, ipp0, iPrint, ipScr, ipTGri, iPxyz, iRout, jp, jsumm, jsump, k, k0
 #include "wldata.fh"
 #include "print.fh"
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 #include "macros.fh"
 unused_var(ZInv)
@@ -134,14 +132,14 @@ end if
 ! Compute <a|O|b+1>
 
 ip0p = ip
-ip = ip+nZeta*nElem(la)*nElem(lb+1)
+ip = ip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb+1)
 call TraPAB(nZeta,la,lb+1,Array(ip0p),Array(ipgri),jSump,rKappa,Array(ip1),Array(ip2),Array(ip3),Array(ip4),Array(ip5),A,RB,P)
 
 ! Compute <a|O|b-1>
 
 if (lb >= 1) then
   ip0m = ip
-  ip = ip+nZeta*nElem(la)*nElem(lb-1)
+  ip = ip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb-1)
   call dcopy_(nZeta*jsumm,Array(ipTGri),1,Array(ipGri),1)
   call TraPAB(nZeta,la,lb-1,Array(ip0m),Array(ipgri),jSumm,rKappa,Array(ip1),Array(ip2),Array(ip3),Array(ip4),Array(ip5),A,RB,P)
 else
@@ -151,7 +149,7 @@ end if
 ! Compute <a+1|O|b>
 
 ipp0 = ip
-ip = ip+nZeta*nElem(la+1)*nElem(lb)
+ip = ip+nZeta*nTri_Elem1(la+1)*nTri_Elem1(lb)
 call dcopy_(nZeta*jsump,Array(ipTGri),1,Array(ipGri),1)
 call TraPAB(nZeta,la+1,lb,Array(ipp0),Array(ipgri),jSump,rKappa,Array(ip1),Array(ip2),Array(ip3),Array(ip4),Array(ip5),A,RB,P)
 
@@ -159,7 +157,7 @@ call TraPAB(nZeta,la+1,lb,Array(ipp0),Array(ipgri),jSump,rKappa,Array(ip1),Array
 
 if (la >= 1) then
   ipm0 = ip
-  ip = ip+nZeta*nElem(la-1)*nElem(lb)
+  ip = ip+nZeta*nTri_Elem1(la-1)*nTri_Elem1(lb)
   call dcopy_(nZeta*jsumm,Array(ipTGri),1,Array(ipGri),1)
   call TraPAB(nZeta,la-1,lb,Array(ipm0),Array(ipgri),jSumm,rKappa,Array(ip1),Array(ip2),Array(ip3),Array(ip4),Array(ip5),A,RB,P)
 else
@@ -189,10 +187,10 @@ call CmbnW1(Array(ipp0),Array(ipm0),Array(ip0p),Array(ip0m),nZeta,la,lb,Zeta,rKa
 
 ip = ip-5*nZeta
 ip = ip-2*nZeta
-if (la >= 1) ip = ip-nZeta*nElem(la-1)*nElem(lb)
-ip = ip-nZeta*nElem(la)*nElem(lb+1)
-if (lb >= 1) ip = ip-nZeta*nElem(la)*nElem(lb-1)
-ip = ip-nZeta*nElem(la+1)*nElem(lb)
+if (la >= 1) ip = ip-nZeta*nTri_Elem1(la-1)*nTri_Elem1(lb)
+ip = ip-nZeta*nTri_Elem1(la)*nTri_Elem1(lb+1)
+if (lb >= 1) ip = ip-nZeta*nTri_Elem1(la)*nTri_Elem1(lb-1)
+ip = ip-nZeta*nTri_Elem1(la+1)*nTri_Elem1(lb)
 ip = ip-2*nZeta*jsump
 
 return

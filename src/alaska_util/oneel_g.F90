@@ -42,6 +42,7 @@ use Basis_Info, only: dbsc, MolWgh, Shells
 use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use Index_Functions, only: nTri_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -76,9 +77,6 @@ integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 #include "print.fh"
 #include "disp.fh"
 #include "nac.fh"
-! Statement function
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 iRout = 112
 iPrint = nPrint(iRout)
@@ -168,20 +166,20 @@ do ijS=1,nTasks
   ! Allocate memory for the final integrals, all in the
   ! primitive basis.
 
-  lFinal = 6*S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)*nComp
+  lFinal = 6*S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)*nComp
   call mma_allocate(rFinal,lFinal,Label='rFinal')
 
   ! Scratch area for contraction step
 
-  nScr1 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+  nScr1 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)
   call mma_allocate(Scr1,nScr1,Label='Scr1')
 
   ! Scratch area for the transformation to spherical gaussians
 
-  nScr2 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+  nScr2 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)
   call mma_allocate(Scr2,nScr2,Label='Scr2')
 
-  call mma_allocate(DAO,iPrim*jPrim*nElem(iAng)*nElem(jAng),Label='DAO')
+  call mma_allocate(DAO,iPrim*jPrim*nTri_Elem1(iAng)*nTri_Elem1(jAng),Label='DAO')
 
   ! At this point we can compute Zeta.
 
@@ -292,7 +290,7 @@ do ijS=1,nTasks
       ! Project the spherical harmonic space onto the
       ! cartesian space.
 
-      kk = nElem(iAng)*nElem(jAng)
+      kk = nTri_Elem1(iAng)*nTri_Elem1(jAng)
       if (Shells(iShll)%Transf .or. Shells(jShll)%Transf) then
 
         ! ij,AB --> AB,ij

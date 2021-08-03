@@ -28,15 +28,13 @@ subroutine M1MmG( &
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
 #define _USE_WP_
 #include "mem_interface.fh"
 integer(kind=iwp) :: iAng(4)
-! Statement function
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 #include "macros.fh"
 unused_var(lr)
@@ -46,7 +44,7 @@ iAng(2) = lb
 iAng(3) = 0
 iAng(4) = 0
 call MemRg1(iAng,nHer,Mem)
-Mem = Mem+8+nElem(la)*nElem(lb)
+Mem = Mem+8+nTri_Elem1(la)*nTri_Elem1(lb)
 
 return
 

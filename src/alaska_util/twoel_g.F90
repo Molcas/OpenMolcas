@@ -35,6 +35,7 @@ use Phase_Info, only: iPhase
 use Real_Info, only: ChiI2
 use Temporary_Parameters, only: IsChi
 use Symmetry_Info, only: nIrrep
+use Index_Functions, only: nTri_Elem1
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
@@ -69,9 +70,6 @@ integer(kind=iwp) :: iPrint, iRout
 character(len=3), parameter :: ChOper(0:7) = [' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz']
 #include "print.fh"
 #endif
-! Statement function to compute canonical index
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 #include "macros.fh"
 unused_var(iPrInc)
@@ -130,8 +128,8 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
   iuvwx(2) = dc(jStb)%nStab
   iuvwx(3) = dc(kStb)%nStab
   iuvwx(4) = dc(lStb)%nStab
-  mab = nElem(la)*nElem(lb)
-  mcd = nElem(lc)*nElem(ld)
+  mab = nTri_Elem1(la)*nTri_Elem1(lb)
+  mcd = nTri_Elem1(lc)*nTri_Elem1(ld)
   iW4 = 1
   if ((jPrInc /= nBeta) .or. (lPrInc /= nDelta)) then
     iW2 = 1+mab*mcd*nijkl
@@ -316,16 +314,19 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
               ! Two center case
               iiCent = kCent
               jjCent = lCent
-              ikl = 2**(kCent-1)+2**(lCent-1)
-              do iC=1,4
-                if (iand(ikl,2**(iC-1)) == 0) then
+              ikl = ibset(0,kCent-1)
+              ikl = ibset(ikl,lCent-1)
+              do iC=4,1,-1
+                if (.not. btest(ikl,iC-1)) then
                   iCent = iC
+                  exit
                 end if
               end do
-              ikl = ikl+2**(iCent-1)
-              do iC=1,4
-                if (iand(ikl,2**(iC-1)) == 0) then
+              ikl = ibset(ikl,iCent-1)
+              do iC=4,1,-1
+                if (.not. btest(ikl,iC-1)) then
                   jCent = iC
+                  exit
                 end if
               end do
               ijMax = max(iAnga(iCent),iAnga(jCent))
@@ -411,8 +412,9 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
         nW2 = ijklab*max(kCmpc*lCmpd,mcd)
         iW3 = iW2+nW2
         nWrk3 = nWrk2-((iW2-iW4)+nW2)
-        call SphCr1(Wrk2(iW2),ijklab,Wrk2(iW3),nWrk3,RSph(ipSph(lc)),nElem(lc),kCmpc,Shells(kShllc)%Transf,Shells(kShllc)%Prjct, &
-                    RSph(ipSph(ld)),nElem(ld),lCmpd,Shells(lShlld)%Transf,Shells(lShlld)%Prjct,Wrk2(iW2),mcd)
+        call SphCr1(Wrk2(iW2),ijklab,Wrk2(iW3),nWrk3,RSph(ipSph(lc)),nTri_Elem1(lc),kCmpc,Shells(kShllc)%Transf, &
+                    Shells(kShllc)%Prjct,RSph(ipSph(ld)),nTri_Elem1(ld),lCmpd,Shells(lShlld)%Transf,Shells(lShlld)%Prjct, &
+                    Wrk2(iW2),mcd)
         if (iW2 == iW4) then
           nW2 = nijkl*mcd*max(iCmpa*jCmpb,mab)
           nW4 = 0
@@ -422,8 +424,9 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
         end if
         iW3 = iW2+nW2
         nWrk3 = nWrk2-(nW2+nW4)
-        call SphCr2(Wrk2(iW2),nijkl,mcd,Wrk2(iW3),nWrk3,RSph(ipSph(la)),nElem(la),iCmpa,Shells(iShlla)%Transf, &
-                    Shells(iShlla)%Prjct,RSph(ipSph(lb)),nElem(lb),jCmpb,Shells(jShllb)%Transf,Shells(jShllb)%Prjct,Wrk2(iW4),mab)
+        call SphCr2(Wrk2(iW2),nijkl,mcd,Wrk2(iW3),nWrk3,RSph(ipSph(la)),nTri_Elem1(la),iCmpa,Shells(iShlla)%Transf, &
+                    Shells(iShlla)%Prjct,RSph(ipSph(lb)),nTri_Elem1(lb),jCmpb,Shells(jShllb)%Transf,Shells(jShllb)%Prjct, &
+                    Wrk2(iW4),mab)
 
         ! Transpose the 2nd order density matrix
 

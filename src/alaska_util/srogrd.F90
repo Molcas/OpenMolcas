@@ -56,6 +56,7 @@ use Center_Info, only: dc
 use Her_RW, only: iHerR, iHerW, HerR, HerW
 use Real_Spherical, only: ipSph, RSph
 use Symmetry_Info, only: iOper
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
@@ -73,9 +74,6 @@ logical(kind=iwp), external :: TF
 #include "Molcas.fh"
 #include "print.fh"
 #include "disp.fh"
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
 unused_var(Zeta)
@@ -94,7 +92,7 @@ if (iPrint >= 49) then
   write(u6,*) ' In SROGrd: la,lb=',' ',la,lb
 end if
 
-nDAO = nElem(la)*nElem(lb)
+nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
 iIrrep = 0
 iuvwx(1) = dc(mdc)%nStab
 iuvwx(2) = dc(ndc)%nStab
@@ -172,7 +170,7 @@ do kCnttp=1,nCnttp
           end if
 
           ipF1 = ip
-          nac = nElem(la)*nElem(iAng)*4
+          nac = nTri_Elem1(la)*nTri_Elem1(iAng)*4
           ip = ip+nAlpha*nExpi*nac
           ipP1 = ip
           ip = ip+3*nAlpha*nExpi
@@ -245,7 +243,7 @@ do kCnttp=1,nCnttp
           ip = ip-nAlpha*nExpi*(6+3*nHer*(la+2)+3*nHer*(iAng+1)+3*nHer*(nOrdOp+1)+3*(la+2)*(iAng+1)*(nOrdOp+1)+1)
 
           ipF2 = ip
-          ncb = nElem(iAng)*nElem(lb)*4
+          ncb = nTri_Elem1(iAng)*nTri_Elem1(lb)*4
           ip = ip+nExpi*nBeta*ncb
           ipP2 = ip
           ip = ip+3*nExpi*nBeta
@@ -313,16 +311,16 @@ do kCnttp=1,nCnttp
             write(u6,*) ' Array(ipB)=',DNrm2_(nExpi*nBeta,Array(ipB),1)
           end if
           ip = ip-nBeta*nExpi*(6+3*nHer*(lb+2)+3*nHer*(iAng+1)+3*nHer*(nOrdOp+1)+3*(lb+2)*(iAng+1)*(nOrdOp+1)+1)
-          nac = nElem(la)*nElem(iAng)*nVecAC
-          ncb = nElem(iAng)*nElem(lb)*nVecCB
+          nac = nTri_Elem1(la)*nTri_Elem1(iAng)*nVecAC
+          ncb = nTri_Elem1(iAng)*nTri_Elem1(lb)*nVecCB
           ipTmp = ip
           ip = ip+max(nAlpha*nExpi*nac,nExpi*nBeta*ncb)
           if (ip-1 > nArr*nZeta) then
             write(u6,*) '  ip-1 > nArr*nZeta(3) in SROGrd'
             call Abend()
           end if
-          nac = nElem(la)*nElem(iAng)
-          ncb = nElem(iAng)*nElem(lb)
+          nac = nTri_Elem1(la)*nTri_Elem1(iAng)
+          ncb = nTri_Elem1(iAng)*nTri_Elem1(lb)
 
           ! Calculate Contraction over the spectral resolvent basis
           ! set of the type <A|alm>A(l;ab)<blm|B> where we now have in
@@ -335,17 +333,19 @@ do kCnttp=1,nCnttp
           ! From the lefthandside overlap, form ikaCx from ikacx by
           ! 1) ika,cx -> cx,ika
 
-          call DgeTMo(Array(ipF1),nAlpha*nExpi*nElem(la),nAlpha*nExpi*nElem(la),nElem(iAng)*nVecAC,Array(ipTmp),nElem(iAng)*nVecAC)
+          call DgeTMo(Array(ipF1),nAlpha*nExpi*nTri_Elem1(la),nAlpha*nExpi*nTri_Elem1(la),nTri_Elem1(iAng)*nVecAC,Array(ipTmp), &
+                      nTri_Elem1(iAng)*nVecAC)
 
           ! 2) xika,C = c,xika * c,C
 
-          call DGEMM_('T','N',nVecAC*nAlpha*nExpi*nElem(la),(2*iAng+1),nElem(iAng),One,Array(ipTmp),nElem(iAng),RSph(ipSph(iAng)), &
-                      nElem(iAng),Zero,Array(ipF1),nVecAC*nAlpha*nExpi*nElem(la))
+          call DGEMM_('T','N',nVecAC*nAlpha*nExpi*nTri_Elem1(la),(2*iAng+1),nTri_Elem1(iAng),One,Array(ipTmp),nTri_Elem1(iAng), &
+                      RSph(ipSph(iAng)),nTri_Elem1(iAng),Zero,Array(ipF1),nVecAC*nAlpha*nExpi*nTri_Elem1(la))
 
           ! 3) x,ikaC -> ikaC,x
 
-          call DGetMo(Array(ipF1),nVecAC,nVecAC,nAlpha*nExpi*nElem(la)*(2*iAng+1),Array(ipTmp),nAlpha*nExpi*nElem(la)*(2*iAng+1))
-          call dcopy_(nVecAC*nAlpha*nExpi*nElem(la)*(2*iAng+1),Array(ipTmp),1,Array(ipF1),1)
+          call DGetMo(Array(ipF1),nVecAC,nVecAC,nAlpha*nExpi*nTri_Elem1(la)*(2*iAng+1),Array(ipTmp), &
+                      nAlpha*nExpi*nTri_Elem1(la)*(2*iAng+1))
+          call dcopy_(nVecAC*nAlpha*nExpi*nTri_Elem1(la)*(2*iAng+1),Array(ipTmp),1,Array(ipF1),1)
 
           ! And (almost) the same thing for the righthand side, form
           ! kjCbx from kjcbx
@@ -355,13 +355,14 @@ do kCnttp=1,nCnttp
 
           ! 2) bxkj,C = c,bxkj * c,C
 
-          call DGEMM_('T','N',nElem(lb)*nVecCB*nExpi*nBeta,(2*iAng+1),nElem(iAng),One,Array(ipTmp),nElem(iAng),RSph(ipSph(iAng)), &
-                      nElem(iAng),Zero,Array(ipF2),nElem(lb)*nVecCB*nExpi*nBeta)
+          call DGEMM_('T','N',nTri_Elem1(lb)*nVecCB*nExpi*nBeta,(2*iAng+1),nTri_Elem1(iAng),One,Array(ipTmp),nTri_Elem1(iAng), &
+                      RSph(ipSph(iAng)),nTri_Elem1(iAng),Zero,Array(ipF2),nTri_Elem1(lb)*nVecCB*nExpi*nBeta)
 
           ! 3) bx,kjC -> kjC,bx
 
-          call DgeTMo(Array(ipF2),nElem(lb)*nVecCB,nElem(lb)*nVecCB,nExpi*nBeta*(2*iAng+1),Array(ipTmp),nExpi*nBeta*(2*iAng+1))
-          call dcopy_(nExpi*nBeta*(2*iAng+1)*nElem(lb)*nVecCB,Array(ipTmp),1,Array(ipF2),1)
+          call DgeTMo(Array(ipF2),nTri_Elem1(lb)*nVecCB,nTri_Elem1(lb)*nVecCB,nExpi*nBeta*(2*iAng+1),Array(ipTmp), &
+                      nExpi*nBeta*(2*iAng+1))
+          call dcopy_(nExpi*nBeta*(2*iAng+1)*nTri_Elem1(lb)*nVecCB,Array(ipTmp),1,Array(ipF2),1)
 
           ! Next Contract (ikaC)*(klC)*(ljCb) over k,l and C,
           ! producing ijab,
@@ -374,7 +375,7 @@ do kCnttp=1,nCnttp
           !   End loop C
           ! End Loop b and a
 
-          call dcopy_(nZeta*nElem(la)*nElem(lb)*6,[Zero],0,rFinal,1)
+          call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*6,[Zero],0,rFinal,1)
 
           mVec = 0
           mVecAC = 1
@@ -385,21 +386,21 @@ do kCnttp=1,nCnttp
                 mVec = mVec+1
                 if (iCent == 1) then
                   mVecAC = mVecAC+1
-                  ipF1a = ipF1+(mVecAC-1)*nAlpha*nExpi*nElem(la)*(2*iAng+1)
+                  ipF1a = ipF1+(mVecAC-1)*nAlpha*nExpi*nTri_Elem1(la)*(2*iAng+1)
                   ipF2a = ipF2
                 else
                   ipF1a = ipF1
                   mVecCB = mVecCB+1
-                  ipF2a = ipF2+(mVecCB-1)*nExpi*nBeta*(2*iAng+1)*nElem(lb)
+                  ipF2a = ipF2+(mVecCB-1)*nExpi*nBeta*(2*iAng+1)*nTri_Elem1(lb)
                 end if
 
-                do ib=1,nElem(lb)
-                  do ia=1,nElem(la)
+                do ib=1,nTri_Elem1(lb)
+                  do ia=1,nTri_Elem1(la)
                     if (iPrint >= 99) write(u6,*) ' ia,ib=',ia,ib
 
                     do iC=1,(2*iAng+1)
                       if (iPrint >= 99) write(u6,*) ' iC,=',iC
-                      iaC = (iC-1)*nElem(la)+ia
+                      iaC = (iC-1)*nTri_Elem1(la)+ia
                       ipaC = (iaC-1)*nAlpha*nExpi+ipF1a
                       iCb = (ib-1)*(2*iAng+1)+iC
                       ipCb = (iCb-1)*nExpi*nBeta+ipF2a
@@ -423,13 +424,13 @@ do kCnttp=1,nCnttp
 
           if (iPrint >= 49) then
             do iVec=1,mVec
-              write(u6,*) iVec,sqrt(DNrm2_(nZeta*nElem(la)*nElem(lb),rFinal(1,1,1,iVec),1))
+              write(u6,*) iVec,sqrt(DNrm2_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb),rFinal(1,1,1,iVec),1))
             end do
           end if
           if (iPrint >= 99) then
             write(u6,*) ' Result in PrjGrd'
-            do ia=1,nElem(la)
-              do ib=1,nElem(lb)
+            do ia=1,nTri_Elem1(la)
+              do ib=1,nTri_Elem1(lb)
                 do iVec=1,mVec
                   write(Label,'(A,I2,A,I2,A)')' rFinal(',ia,',',ib,')'
                   call RecPrt(Label,' ',rFinal(1,ia,ib,iVec),nAlpha,nBeta)

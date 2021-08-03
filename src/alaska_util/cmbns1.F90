@@ -22,6 +22,7 @@ subroutine CmbnS1(Rnxyz,nZeta,la,lb,Zeta,rKappa,rFinal,Alpha,Beta,Grad,nGrad,DAO
 !***********************************************************************
 
 use Symmetry_Info, only: iChBas, nIrrep
+use Index_Functions, only: C_Ind
 use Constants, only: Two, Three
 use Definitions, only: wp, iwp, r8
 
@@ -39,9 +40,6 @@ integer(kind=iwp), external :: iPrmt
 real(kind=r8), external :: DDot_
 #include "print.fh"
 #include "nac.fh"
-! Statement function for Cartesian index
-integer(kind=iwp) :: Ind, ixyz, ix, iz
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 iRout = 134
 iPrint = nPrint(iRout)
@@ -63,12 +61,12 @@ do ixa=0,la
     iybMax = lb-ixb
     do iya=0,iyaMax
       iza = la-ixa-iya
-      ipa = Ind(la,ixa,iza)
+      ipa = C_Ind(la,ixa,iza)
       !iChBs = iChBas(ii+ipa)
       !pa = real(iPrmt(kOp(1),iChBs),kind=wp)
       do iyb=0,iybMax
         izb = lb-ixb-iyb
-        ipb = Ind(lb,ixb,izb)
+        ipb = C_Ind(lb,ixb,izb)
         !jChBs = iChBas(jj+ipb)
         !papb = real(iPrmt(kOp(2),jChBs),kind=wp)*pa
 

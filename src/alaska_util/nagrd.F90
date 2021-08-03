@@ -26,6 +26,7 @@ subroutine NAGrd( &
 
 use Basis_Info, only: dbsc, Gaussian_Type, iCnttp_Dummy, nCnttp, Nuclear_Model, Point_Charge
 use Center_Info, only: dc
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One, Two, Three, Pi, TwoP54
 use Definitions, only: wp, iwp, u6
 
@@ -48,9 +49,6 @@ external :: ModU2, TERI1, vCff2D
 integer(kind=iwp) :: iPrint, iRout
 #include "print.fh"
 #endif
-! Statement function
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
 unused_var(rFinal)
@@ -63,7 +61,7 @@ iRout = 150
 iPrint = nPrint(iRout)
 if (iPrint >= 99) then
   write(u6,*) ' In NAGrd: nArr=',nArr
-  nDAO = nElem(la)*nElem(lb)
+  nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
   call RecPrt('DAO',' ',DAO,nZeta,nDAO)
 end if
 #endif
@@ -76,7 +74,7 @@ nip = nip+nAlpha*nBeta
 ipB = nip
 nip = nip+nAlpha*nBeta
 ipDAO = nip
-nip = nip+nAlpha*nBeta*nElem(la)*nElem(lb)
+nip = nip+nAlpha*nBeta*nTri_Elem1(la)*nTri_Elem1(lb)
 if (nip-1 > nZeta*nArr) then
   write(u6,*) ' nip-1 > nZeta*nArr'
   call Abend()
@@ -114,7 +112,7 @@ end do
 
 ! Modify the density matrix with the prefactor
 
-nDAO = nElem(la)*nElem(lb)
+nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
 if (Nuclear_Model == Point_Charge) then
   do iDAO=1,nDAO
     do iZeta=1,nZeta

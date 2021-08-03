@@ -55,6 +55,7 @@ subroutine M1Grd( &
 
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
+use Index_Functions, only: nTri_Elem1
 use Constants, only: One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
@@ -71,9 +72,6 @@ external :: TNAI1, Fake, Cff2D
 #include "Molcas.fh"
 #include "print.fh"
 #include "disp.fh"
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
 unused_var(ZInv)
@@ -102,7 +100,7 @@ ip = ip+nZeta
 ipB = ip
 ip = ip+nZeta
 ipDAO = ip
-ip = ip+nZeta*nElem(la)*nElem(lb)
+ip = ip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb)
 ipK = ip
 ip = ip+nZeta
 ipZ = ip
@@ -280,7 +278,7 @@ do kCnttp=1,nCnttp
           ! Modify the density matrix with the prefactor
 
           Fact = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M1cf(iM1xp)*(real(nStabM,kind=wp)/real(LmbdT,kind=wp))*Two*Pi
-          nDAO = nElem(la)*nElem(lb)
+          nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
           do iDAO=1,nDAO
             do iZeta=1,nZeta
               Fac = Fact*Array(ipK+iZeta-1)*Array(ipZI+iZeta-1)

@@ -15,6 +15,7 @@ subroutine Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lP
 
 use k2_setup, only: Indk2
 use Basis_Info, only: Shells
+use Index_Functions, only: nTri_Elem1, nTri3_Elem1
 use Definitions, only: iwp
 
 implicit none
@@ -25,10 +26,6 @@ integer(kind=iwp), intent(out) :: iAnga(4), iCmpa(4), iShlla(4), iShela(4), iPri
 logical(kind=iwp), intent(out) :: AeqB, CeqD
 logical(kind=iwp), intent(in) :: l2DI
 integer(kind=iwp) :: iAng, iCmp, ijShll, iShell, jAng, jCmp, jShell, kAng, kCmp, klShll, kShell, lAng, lCmp, lShell
-! Statement functions
-integer(kind=iwp) :: nElem, ixyz, nabSz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 call ICopy(4,iSD4(1,1),nSD+1,iAnga,1)
 call ICopy(4,iSD4(2,1),nSD+1,iCmpa,1)
@@ -61,11 +58,11 @@ jCmp = iSD4(2,2)
 kCmp = iSD4(2,3)
 lCmp = iSD4(2,4)
 
-nab = nElem(iAng)*nElem(jAng)
-ncd = nElem(kAng)*nElem(lAng)
-nHmab = iCmp*jCmp*(nabSz(iAng+jAng)-nabSz(max(iAng,jAng)-1))
+nab = nTri_Elem1(iAng)*nTri_Elem1(jAng)
+ncd = nTri_Elem1(kAng)*nTri_Elem1(lAng)
+nHmab = iCmp*jCmp*(nTri3_Elem1(iAng+jAng)-nTri3_Elem1(max(iAng,jAng)-1))
 nHmab = nHmab*nIrrep
-nHmcd = kCmp*lCmp*(nabSz(kAng+lAng)-nabSz(max(kAng,lAng)-1))
+nHmcd = kCmp*lCmp*(nTri3_Elem1(kAng+lAng)-nTri3_Elem1(max(kAng,lAng)-1))
 nHmcd = nHmcd*nIrrep
 if (.not. l2DI) then
   nab = 0

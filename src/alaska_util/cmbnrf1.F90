@@ -24,6 +24,7 @@ subroutine CmbnRF1(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,Fact,Temp,Alpha
 !***********************************************************************
 
 use Symmetry_Info, only: nIrrep, iChBas
+use Index_Functions, only: C_Ind, nTri_Elem1, nTri3_Elem
 use Constants, only: Two, Three
 use Definitions, only: wp, iwp, r8
 
@@ -34,18 +35,13 @@ real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), Zeta(nZeta), rKa
 real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp,6), Fact(nZeta), Temp(nZeta)
 real(kind=wp), intent(inout) :: Grad(nGrad)
 logical(kind=iwp), intent(in) :: IfGrad(3,2)
-integer(kind=iwp) :: i1, i2, iCar, iCn, iComp, iEF, iGrad, ipa, ipb, iPrint, ir, iRout, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, &
-                     iza, izb, iZeta, nDAO
+integer(kind=iwp) :: i1, i2, iCar, iCn, iComp, iEF, iGrad, ipa, ipb, iPrint, ir, iRout, ix, ixa, ixb, iy, iya, iyaMax, iyb, &
+                     iybMax, iz, iza, izb, iZeta, nDAO
 real(kind=wp) :: Fct, ps, xa, xb, ya, yb, za, zb
 real(kind=wp), parameter :: exp32 = -Three/Two
 integer(kind=iwp), external :: iPrmt
 real(kind=r8), external :: DDot_
 #include "print.fh"
-! Statement function for Cartesian index
-integer(kind=iwp) :: Ind, ixyz, ix, iz, iOff, nElem, i
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
-iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
-nElem(i) = (i+1)*(i+2)/2
 
 iRout = 134
 iPrint = nPrint(iRout)
@@ -65,10 +61,10 @@ do ixa=0,la
     iybMax = lb-ixb
     do iya=0,iyaMax
       iza = la-ixa-iya
-      ipa = Ind(la,ixa,iza)
+      ipa = C_Ind(la,ixa,iza)
       do iyb=0,iybMax
         izb = lb-ixb-iyb
-        ipb = Ind(lb,ixb,izb)
+        ipb = C_Ind(lb,ixb,izb)
 
         ! Combine multipole moment integrals
 
@@ -93,7 +89,7 @@ do ixa=0,la
 
               do ir=ix+iy,lr
                 iz = ir-ix-iy
-                iComp = Ind(ir,ix,iz)+iOff(ir)
+                iComp = C_Ind(ir,ix,iz)+nTri3_Elem(ir)
                 do iZeta=1,nZeta
                   rFinal(iZeta,ipa,ipb,iComp,1) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
                 end do
@@ -122,7 +118,7 @@ do ixa=0,la
 
               do ir=ix+iy,lr
                 iz = ir-ix-iy
-                iComp = Ind(ir,ix,iz)+iOff(ir)
+                iComp = C_Ind(ir,ix,iz)+nTri3_Elem(ir)
                 do iZeta=1,nZeta
                   rFinal(iZeta,ipa,ipb,iComp,4) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
                 end do
@@ -151,7 +147,7 @@ do ixa=0,la
 
               do ir=ix+iy,lr
                 iz = ir-ix-iy
-                iComp = Ind(ir,ix,iz)+iOff(ir)
+                iComp = C_Ind(ir,ix,iz)+nTri3_Elem(ir)
                 do iZeta=1,nZeta
                   rFinal(iZeta,ipa,ipb,iComp,2) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
                 end do
@@ -180,7 +176,7 @@ do ixa=0,la
 
               do ir=ix+iy,lr
                 iz = ir-ix-iy
-                iComp = Ind(ir,ix,iz)+iOff(ir)
+                iComp = C_Ind(ir,ix,iz)+nTri3_Elem(ir)
                 do iZeta=1,nZeta
                   rFinal(iZeta,ipa,ipb,iComp,5) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
                 end do
@@ -199,7 +195,7 @@ do ixa=0,la
 
               do ir=ix+iy,lr
                 iz = ir-ix-iy
-                iComp = Ind(ir,ix,iz)+iOff(ir)
+                iComp = C_Ind(ir,ix,iz)+nTri3_Elem(ir)
                 if (iza > 0) then
                   za = -iza
                   do iZeta=1,nZeta
@@ -227,7 +223,7 @@ do ixa=0,la
 
               do ir=ix+iy,lr
                 iz = ir-ix-iy
-                iComp = Ind(ir,ix,iz)+iOff(ir)
+                iComp = C_Ind(ir,ix,iz)+nTri3_Elem(ir)
                 if (izb > 0) then
                   zb = -izb
                   do iZeta=1,nZeta
@@ -250,8 +246,8 @@ do ixa=0,la
   end do
 end do
 if (iPrint >= 99) then
-  call RecPrt('In CmbnRF1: DAO',' ',DAO,nZeta,nElem(la)*nElem(lb))
-  call RecPrt('In CmbnRF1: rFinal',' ',rFinal,nZeta*nElem(la)*nElem(lb)*nComp,6)
+  call RecPrt('In CmbnRF1: DAO',' ',DAO,nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
+  call RecPrt('In CmbnRF1: rFinal',' ',rFinal,nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp,6)
 end if
 
 ! Trace the gradient integrals

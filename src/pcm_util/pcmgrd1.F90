@@ -29,6 +29,7 @@ subroutine PCMgrd1( &
 
 use PCM_arrays, only: PCMTess
 use Center_Info, only: dc
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
@@ -36,7 +37,7 @@ implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ii, ipA, ipAOff, ipB, ipBOff, ipDAO, iPrint, iRout, &
                      iStb(0:7), iTs, iuvwx(4), iZeta, j, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, &
-                     nDiff, nip, nla, nlb, nOOp, nStb, nT
+                     nDiff, nip, nStb, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, Q, TC(3)
 logical(kind=iwp) :: NoLoop, JfGrad(3,4)
 character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
@@ -53,13 +54,9 @@ unused_var(lOper)
 iRout = 151
 iPrint = nPrint(iRout)
 
-nla = (la+1)*(la+2)/2
-nlb = (lb+1)*(lb+2)/2
-nOOp = (nOrdOp+1)*(nOrdOp+2)/2
-
 ! Modify the density matrix with the prefactor
 
-nDAO = nla*nlb
+nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
 do iDAO=1,nDAO
   do iZeta=1,nZeta
     Fact = Two*rKappa(iZeta)*Pi*ZInv(iZeta)
@@ -74,7 +71,7 @@ nip = nip+nAlpha*nBeta
 ipB = nip
 nip = nip+nAlpha*nBeta
 ipDAO = nip
-nip = nip+nAlpha*nBeta*nla*nlb*nOOp
+nip = nip+nAlpha*nBeta*nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(nOrdOp)
 if (nip-1 > nZeta*nArr) then
   write(u6,*) 'nip-1 > nZeta*nArr'
   call ErrTra()
@@ -143,7 +140,7 @@ do iTs=1,1
   if (iPrint >= 99) then
     write(u6,*) ' Q=',Q
     write(u6,*) ' Fact=',Fact
-    call RecPrt('DAO*Fact*Q',' ',Array(ipDAO),nZeta*nDAO,nOOp)
+    call RecPrt('DAO*Fact*Q',' ',Array(ipDAO),nZeta*nDAO,nTri_Elem1(nOrdOp))
     write(u6,*) ' m      =',nStabM
     write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
     write(u6,*) ' s      =',nStb
@@ -197,7 +194,7 @@ do iTs=1,1
     nDiff = 1
     mRys = (la+lb+2+nDiff+nOrdOp)/2
     call Rysg1(iAnga,mRys,nT,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,Coori,Coori,CoorAC, &
-               Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nOOp,Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
+               Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nTri_Elem1(nOrdOp),Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
 
     !call RecPrt(' In PCMgrd:Grad',' ',Grad,nGrad,1)
   end do  ! End loop over DCRs

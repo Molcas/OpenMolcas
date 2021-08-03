@@ -53,6 +53,7 @@ subroutine M2Grd( &
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Her_RW, only: iHerR, iHerW, HerR, HerW
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -67,9 +68,6 @@ logical(kind=iwp), external :: TF
 #include "Molcas.fh"
 #include "print.fh"
 #include "disp.fh"
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, k
-nElem(k) = (k+1)*(k+2)/2
 
 #include "macros.fh"
 unused_var(ZInv)
@@ -83,7 +81,7 @@ iuvwx(1) = dc(mdc)%nStab
 iuvwx(2) = dc(ndc)%nStab
 lOp(1) = kOp(1)
 lOp(2) = kOp(2)
-nDAO = nElem(la)*nElem(lb)
+nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
 
 nip = 1
 ipA = nip
@@ -256,7 +254,7 @@ do kCnttp=1,nCnttp
 
           Factor = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M2cf(iM2xp)*Fact
           call CmbnM2(Array(ipQxyz),nZeta,la,lb,Array(ipZ),Array(ipK),rFinal,Array(ipA),Array(ipB),JfGrad,Factor,mVec)
-          if (iPrint >= 99) call RecPrt(' rFinal in M2Grd',' ',rFinal,nZeta*nElem(la)*nElem(lb),mVec)
+          if (iPrint >= 99) call RecPrt(' rFinal in M2Grd',' ',rFinal,nZeta*nTri_Elem1(la)*nTri_Elem1(lb),mVec)
 
           ! Distribute the gradient contributions
 

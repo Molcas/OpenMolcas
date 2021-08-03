@@ -22,6 +22,7 @@ subroutine CmbnMlt1(Rnxyz,nZeta,la,lb,Zeta,rKappa,rFinal,Alpha,Beta,Grad,nGrad,D
 !***********************************************************************
 
 use Symmetry_Info, only: nIrrep, iChBas
+use Index_Functions, only: C_Ind
 use Constants, only: Zero, Two, Three
 use Definitions, only: wp, iwp, r8
 
@@ -39,9 +40,6 @@ real(kind=wp), parameter :: exp32 = -Three/Two
 integer(kind=iwp), external :: iPrmt
 real(kind=r8), external :: DDot_
 #include "print.fh"
-! Statement function for Cartesian index
-integer(kind=iwp) :: Ind, ixyz, ix, iz
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 iRout = 134
 iPrint = nPrint(iRout)
@@ -59,7 +57,7 @@ end if
 do ixop=0,nOrdOp
   do iyop=0,nOrdOp-ixop
     izop = nOrdOp-ixop-iyop
-    icomp = Ind(nOrdOp,ixop,izop)
+    icomp = C_Ind(nOrdOp,ixop,izop)
     ff = Force(icomp)
     if (ff == Zero) cycle
     do ixa=0,la
@@ -68,10 +66,10 @@ do ixop=0,nOrdOp
         iybMax = lb-ixb
         do iya=0,iyaMax
           iza = la-ixa-iya
-          ipa = Ind(la,ixa,iza)
+          ipa = C_Ind(la,ixa,iza)
           do iyb=0,iybMax
             izb = lb-ixb-iyb
-            ipb = Ind(lb,ixb,izb)
+            ipb = C_Ind(lb,ixb,izb)
 
             ! Combine overlap integrals
 

@@ -29,15 +29,13 @@ subroutine SROMmG( &
 !***********************************************************************
 
 use Basis_Info, only: dbsc, nCnttp, Shells
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
 #define _USE_WP_
 #include "mem_interface.fh"
 integer(kind=iwp) :: iAng, iCnttp, ip, iShll, nac, ncb, nExpi, nOrder
-! Statement function
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 Mem = 0
 nOrder = 0
@@ -50,7 +48,7 @@ do iCnttp=1,nCnttp
 
     ip = 0
     ip = ip+nExpi**2
-    nac = 4*nElem(la)*nElem(iAng)
+    nac = 4*nTri_Elem1(la)*nTri_Elem1(iAng)
     ip = ip+nExpi*nac
     ip = ip+3*nExpi
     ip = ip+nExpi
@@ -67,7 +65,7 @@ do iCnttp=1,nCnttp
     Mem = max(Mem,ip)
     ip = ip-nExpi*(6+3*nHer*((la+2)+(iAng+1)+(lr+1)+(la+2)*(iAng+1)*(lr+1))+1)
 
-    ncb = 4*nElem(iAng)*nElem(lb)
+    ncb = 4*nTri_Elem1(iAng)*nTri_Elem1(lb)
     ip = ip+nExpi*ncb
     ip = ip+3*nExpi
     ip = ip+nExpi

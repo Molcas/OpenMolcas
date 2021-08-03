@@ -44,6 +44,7 @@ use SOAO_Info, only: iAOtSO
 use Temporary_parameters, only: force_part_c, force_part_p
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -58,9 +59,6 @@ logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 integer(kind=iwp), external :: MemTra
 #include "lCache.fh"
 #include "pstat.fh"
-! Statement function to compute canonical index
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 la = iAnga(1)
 lb = iAnga(2)
@@ -71,7 +69,7 @@ jCmp = iCmpa(2)
 kCmp = iCmpa(3)
 lCmp = iCmpa(4)
 iTotal = iTotal+1
-mabcd = nElem(la)*nElem(lb)*nElem(lc)*nElem(ld)
+mabcd = nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lc)*nTri_Elem1(ld)
 nabcd = iCmp*jCmp*kCmp*lCmp
 
 if (force_part_c) then
@@ -170,7 +168,7 @@ do
     end if
     cycle
   end if
-  ! Subtract one additional word for getmem's internal error check
+  ! Subtract one additional word for getmem's internal error check (?)
   Mem0 = Mem0-Mem1-1
 
   ! *** Work2 and Work4 ***
@@ -232,7 +230,7 @@ do
     end if
     cycle
   end if
-  ! Subtract one additional word for getmem's internal error check
+  ! Subtract one additional word for getmem's internal error check (?)
   Mem0 = Mem0-Mem2-1
 
   ! *** Work3 and Work5 ***
@@ -303,7 +301,7 @@ do
     exit
   end if
 end do
-! Subtract one additional word for getmem's internal error check
+! Subtract one additional word for getmem's internal error check (?)
 Mem0 = Mem0-Mem3-1
 MinXtr = min(MinXtr,Mem0)
 

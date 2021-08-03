@@ -12,6 +12,7 @@
 subroutine MltGrdNuc(Grad,nGrad,nOrdOp)
 
 use Basis_Info, only: dbsc, nCnttp
+use Index_Functions, only: C_Ind
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -24,15 +25,12 @@ logical(kind=iwp), external :: TF
 #include "Molcas.fh"
 #include "disp.fh"
 #include "finfld.fh"
-! Statement function
-integer(kind=iwp) :: Ind, ixyz, ix, iz
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 iIrrep = 0
 do ixop=0,nOrdOp
   do iyop=0,nOrdOp-ixop
     izop = nOrdOp-ixop-iyop
-    icomp = Ind(nOrdOp,ixop,izop)
+    icomp = C_Ind(nOrdOp,ixop,izop)
     ff = Force(icomp)
     if (ff == Zero) cycle
     kdc = 0

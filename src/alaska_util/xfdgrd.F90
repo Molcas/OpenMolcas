@@ -26,6 +26,7 @@ subroutine XFdGrd( &
 
 use external_centers, only: iXPolType, nOrd_XF, nXF, XF
 use Center_Info, only: dc
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
@@ -40,9 +41,6 @@ character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz 
 integer(kind=iwp), external :: iChAtm, NrOpr
 external :: Fake, TNAI1, XCff2D
 #include "print.fh"
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
 unused_var(rFinal)
@@ -58,7 +56,7 @@ nRys = nHer
 
 ! Modify the density matrix with the prefactor
 
-nDAO = nElem(la)*nElem(lb)
+nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
 do iDAO=1,nDAO
   do iZeta=1,nZeta
     Fact = Two*rKappa(iZeta)*Pi*ZInv(iZeta)
@@ -84,7 +82,7 @@ do iOrdOp=0,nOrd_XF
   ipB = nip
   nip = nip+nAlpha*nBeta
   ipDAO = nip
-  nip = nip+nAlpha*nBeta*nElem(la)*nElem(lb)*nElem(iOrdOp)
+  nip = nip+nAlpha*nBeta*nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(iOrdOp)
   if (nip-1 > nZeta*nArr) then
     call WarningMessage(2,'Error in xfdgrd')
     write(u6,*) 'nip-1 > nZeta*nArr'
@@ -151,9 +149,9 @@ do iOrdOp=0,nOrd_XF
     Fact = -real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
     if (iPrint >= 99) then
-      write(u6,*) ' ZFd=',(ZFd(i),i=1,nElem(iOrdOp))
+      write(u6,*) ' ZFd=',(ZFd(i),i=1,nTri_Elem1(iOrdOp))
       write(u6,*) ' Fact=',Fact
-      call RecPrt('DAO*Fact*ZFd()',' ',Array(ipDAO),nZeta*nDAO,nElem(iOrdOp))
+      call RecPrt('DAO*Fact*ZFd()',' ',Array(ipDAO),nZeta*nDAO,nTri_Elem1(iOrdOp))
       write(u6,*) ' m      =',nStabM
       write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
       write(u6,*) ' s      =',nStb
@@ -220,7 +218,7 @@ do iOrdOp=0,nOrd_XF
       nDiff = 1
       mRys = (la+lb+2+nDiff+iOrdOp)/2
       call Rysg1(iAnga,mRys,nT,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,Coori,Coori,CoorAC, &
-                 Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nElem(iOrdOp),Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
+                 Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nTri_Elem1(iOrdOp),Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
 
       !call RecPrt(' In XFdGrd:Grad',' ',Grad,nGrad,1)
     end do ! End loop over DCRs

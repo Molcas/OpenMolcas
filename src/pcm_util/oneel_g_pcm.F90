@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine OneEl_g_mck(Kernel,KrnlMm,Grad,nGrad,DiffOp,CCoor,FD,nFD,lOper,nComp,nOrdOp,Label)
+subroutine OneEl_g_pcm(Kernel,KrnlMm,Grad,nGrad,DiffOp,CCoor,FD,nFD,lOper,nComp,nOrdOp,Label)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute gradients of the one electron integrals.          *
@@ -42,6 +42,7 @@ use Basis_Info, only: dbsc, MolWgh, Shells
 use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use Index_Functions, only: nTri_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -110,7 +111,7 @@ do ijS=1,nTasks
   iCnttp = iSD(13,iS)
   iCnt = iSD(14,iS)
   A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
-  niAng = (iAng+1)*(iAng+2)/2
+  niAng = nTri_Elem1(iAng)
 
   !do jS=1,iS
   jShll = iSD(0,jS)
@@ -124,7 +125,7 @@ do ijS=1,nTasks
   jCnttp = iSD(13,jS)
   jCnt = iSD(14,jS)
   B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
-  njAng = (jAng+1)*(jAng+2)/2
+  njAng = nTri_Elem1(jAng)
 
   iSmLbl = 1
   nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
@@ -284,7 +285,7 @@ do ijS=1,nTasks
 
       call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,Pcoor,Fnl,iPrim*jPrim,iAng,jAng,A,RB,nOrder,Kern, &
                   MemKer,Ccoor,nOrdOp,Grad,nGrad,IfGrad,IndGrd,DAO,mdci,mdcj,nOp,lOper,nComp,iStabM,nStabM)
-      if (iPrint >= 49) call PrGrad_mck(' In Oneel',Grad,nGrad,ChDisp,5)
+      if (iPrint >= 49) call PrGrad_pcm(' In Oneel',Grad,nGrad,ChDisp,5)
 
     end do
   end if
@@ -304,8 +305,8 @@ call mma_deallocate(ZI)
 call mma_deallocate(Kappa)
 call mma_deallocate(PCoor)
 
-if (iPrint >= 15) call PrGrad_mck(Label,Grad,nGrad,ChDisp,5)
+if (iPrint >= 15) call PrGrad_pcm(Label,Grad,nGrad,ChDisp,5)
 
 return
 
-end subroutine OneEl_g_mck
+end subroutine OneEl_g_pcm

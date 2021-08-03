@@ -22,6 +22,7 @@ subroutine CmbnW1(Welp0,Welm0,Wel0p,Wel0m,nZeta,la,lb,Zeta,rKappa,rFinal,Alpha,B
 !***********************************************************************
 
 use Symmetry_Info, only: nIrrep, iChBas
+use Index_Functions, only: C_Ind3
 use Constants, only: Two
 use Definitions, only: wp, iwp, r8
 
@@ -39,9 +40,6 @@ real(kind=wp) :: Fact, ps, xa, xb, ya, yb, za, zb
 integer(kind=iwp), external :: iPrmt
 real(kind=r8), external :: DDot_
 #include "print.fh"
-! Statement function for Cartesian index
-integer(kind=iwp) :: Ind, ix, iy, iz
-Ind(ix,iy,iz) = ix*0+(iy+iz)*(iy+iz+1)/2+iz+1 ! ix*0 added to avoid compiler warning
 
 iRout = 134
 iPrint = nPrint(iRout)
@@ -68,18 +66,18 @@ do ixa=0,la
     iybMax = lb-ixb
     do iya=0,iyaMax
       iza = la-ixa-iya
-      ipa = Ind(ixa,iya,iza)
+      ipa = C_Ind3(ixa,iya,iza)
       do iyb=0,iybMax
         izb = lb-ixb-iyb
-        ipb = Ind(ixb,iyb,izb)
+        ipb = C_Ind3(ixb,iyb,izb)
 
         ! Combine Spherical Well integrals
 
         if (IfGrad(1,1)) then
-          ipp0 = Ind(ixa+1,iya,iza)
+          ipp0 = C_Ind3(ixa+1,iya,iza)
           if (ixa > 0) then
             xa = -ixa
-            ipm0 = Ind(ixa-1,iya,iza)
+            ipm0 = C_Ind3(ixa-1,iya,iza)
             do iZeta=1,nZeta
               rFinal(iZeta,ipa,ipb,1) = (Two*Alpha(iZeta)*Welp0(iZeta,ipp0,ipb)+ &
                                                        xa*Welm0(iZeta,ipm0,ipb))
@@ -91,10 +89,10 @@ do ixa=0,la
           end if
         end if
         if (IfGrad(1,2)) then
-          ip0p = Ind(ixb+1,iyb,izb)
+          ip0p = C_Ind3(ixb+1,iyb,izb)
           if (ixb > 0) then
             xb = -ixb
-            ip0m = Ind(ixb-1,iyb,izb)
+            ip0m = C_Ind3(ixb-1,iyb,izb)
             do iZeta=1,nZeta
               rFinal(iZeta,ipa,ipb,4) = (Two*Beta(iZeta)*Wel0p(iZeta,ipa,ip0p)+ &
                                                       xb*Wel0m(iZeta,ipa,ip0m))
@@ -106,10 +104,10 @@ do ixa=0,la
           end if
         end if
         if (IfGrad(2,1)) then
-          ipp0 = Ind(ixa,iya+1,iza)
+          ipp0 = C_Ind3(ixa,iya+1,iza)
           if (iya > 0) then
             ya = -iya
-            ipm0 = Ind(ixa,iya-1,iza)
+            ipm0 = C_Ind3(ixa,iya-1,iza)
             do iZeta=1,nZeta
               rFinal(iZeta,ipa,ipb,2) = (Two*Alpha(iZeta)*Welp0(iZeta,ipp0,ipb)+ &
                                                        ya*Welm0(iZeta,ipm0,ipb))
@@ -121,10 +119,10 @@ do ixa=0,la
           end if
         end if
         if (IfGrad(2,2)) then
-          ip0p = Ind(ixb,iyb+1,izb)
+          ip0p = C_Ind3(ixb,iyb+1,izb)
           if (iyb > 0) then
             yb = -iyb
-            ip0m = Ind(ixb,iyb-1,izb)
+            ip0m = C_Ind3(ixb,iyb-1,izb)
             do iZeta=1,nZeta
               rFinal(iZeta,ipa,ipb,5) = (Two*Beta(iZeta)*Wel0p(iZeta,ipa,ip0p)+ &
                                                       yb*Wel0m(iZeta,ipa,ip0m))
@@ -136,10 +134,10 @@ do ixa=0,la
           end if
         end if
         if (IfGrad(3,1)) then
-          ipp0 = Ind(ixa,iya,iza+1)
+          ipp0 = C_Ind3(ixa,iya,iza+1)
           if (iza > 0) then
             za = -iza
-            ipm0 = Ind(ixa,iya,iza-1)
+            ipm0 = C_Ind3(ixa,iya,iza-1)
             do iZeta=1,nZeta
               rFinal(iZeta,ipa,ipb,3) = (Two*Alpha(iZeta)*Welp0(iZeta,ipp0,ipb)+ &
                                                        za*Welm0(iZeta,ipm0,ipb))
@@ -151,10 +149,10 @@ do ixa=0,la
           end if
         end if
         if (IfGrad(3,2)) then
-          ip0p = Ind(ixb,iyb,izb+1)
+          ip0p = C_Ind3(ixb,iyb,izb+1)
           if (izb > 0) then
             zb = -izb
-            ip0m = Ind(ixb,iyb,izb-1)
+            ip0m = C_Ind3(ixb,iyb,izb-1)
             do iZeta=1,nZeta
               rFinal(iZeta,ipa,ipb,6) = (Two*Beta(iZeta)*Wel0p(iZeta,ipa,ip0p)+ &
                                                       zb*Wel0m(iZeta,ipa,ip0m))
