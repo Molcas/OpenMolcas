@@ -26,6 +26,9 @@ integer(kind=iwp) :: iAng(4), iOrdOp, MemTmp
 integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
+#include "macros.fh"
+unused_var(lr)
+
 Mem = 0
 do iOrdOp=0,1
   iAng(1) = la
@@ -38,7 +41,5 @@ do iOrdOp=0,1
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lr)
 
 end subroutine XFdMmg

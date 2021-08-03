@@ -20,6 +20,9 @@ implicit none
 #define _USE_WP_
 #include "mem_interface.fh"
 
+#include "macros.fh"
+unused_var(lr)
+
 nHer = ((la+1)+(lb+1)+2+1)/2
 Mem = 3*nHer*(la+3)+ &
       3*nHer*(lb+3)+ &
@@ -28,7 +31,5 @@ Mem = 3*nHer*(la+3)+ &
       3*(la+2)*(lb+2)+1+1
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lr)
 
 end subroutine KnEMmG

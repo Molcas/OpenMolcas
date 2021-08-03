@@ -33,7 +33,6 @@ use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#define _USE_WP_
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ii, ipA, ipAOff, ipB, ipBOff, ipDAO, iPrint, iRout, &
                      iStb(0:7), iTs, iuvwx(4), iZeta, j, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, &
@@ -46,7 +45,7 @@ external :: Fake, TNAI1, XCff2D
 #include "print.fh"
 
 #include "macros.fh"
-unused_var(Final)
+unused_var(rFinal)
 unused_var(nHer)
 unused_var(Ccoor)
 unused_var(lOper)

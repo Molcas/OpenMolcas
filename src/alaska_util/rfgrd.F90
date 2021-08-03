@@ -38,12 +38,16 @@ use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#define _USE_WP_
 #include "grd_interface.fh"
 integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, iPrint, ipRnxyz, ipRxyz, ipTemp1, ipTemp2, ipTemp3, iRout, &
                      iZeta, nip
 logical(kind=iwp) :: ABeq(3)
 #include "print.fh"
+
+#include "macros.fh"
+unused_var(ZInv)
+unused_var(lOper)
+unused_var(iStabM)
 
 iRout = 122
 iPrint = nPrint(iRout)
@@ -120,15 +124,9 @@ do iAlpha=1,nAlpha
   call dcopy_(nBeta,Beta,1,Array(ip),nAlpha)
   ip = ip+1
 end do
-call CmbnRF1(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,Final,nComp,Array(ipTemp1),Array(ipTemp2),Array(ipAlph),Array(ipBeta), &
+call CmbnRF1(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,rFinal,nComp,Array(ipTemp1),Array(ipTemp2),Array(ipAlph),Array(ipBeta), &
              Grad,nGrad,DAO,IfGrad,IndGrd,dc(mdc)%nStab,dc(ndc)%nStab,kOp,MM(1,2))
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(ZInv)
-  call Unused_integer_array(lOper)
-  call Unused_integer_array(iStabM)
-end if
 
 end subroutine RFGrd

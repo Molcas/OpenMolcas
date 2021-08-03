@@ -30,7 +30,6 @@ use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#define _USE_WP_
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iChxyz, iDAO, iDCRT(0:7), iDum, iFd, ii, iOrdOp, ipA, ipAOff, ipB, ipBOff, &
                      ipDAO, iPrint, iRout, iStb(0:7), iuvwx(4), iZeta, j, jCoSet(8,8), JndGrd(3,4), jpDAO, lDCRT, LmbdT, lOp(4), &
@@ -44,6 +43,13 @@ external :: Fake, TNAI1, XCff2D
 ! Statement function for Cartesian index
 integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+
+#include "macros.fh"
+unused_var(rFinal)
+unused_var(nRys)
+unused_var(Ccoor)
+unused_var(nOrdOp)
+unused_var(lOper)
 
 iRout = 151
 iPrint = nPrint(iRout)
@@ -224,13 +230,5 @@ do iOrdOp=0,nOrd_XF
 end do     ! End loop over charges and dipole moments
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Final)
-  call Unused_integer(nRys)
-  call Unused_real_array(Ccoor)
-  call Unused_integer(nOrdOp)
-  call Unused_integer_array(lOper)
-end if
 
 end subroutine XFdGrd

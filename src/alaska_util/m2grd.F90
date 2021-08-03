@@ -31,7 +31,7 @@ subroutine M2Grd( &
 !              gaussians.                                              *
 !      P     : center of new gaussian from the products of bra and ket *
 !              gaussians.                                              *
-!      Final : array for computed integrals                            *
+!      rFinal: array for computed integrals                            *
 !      nZeta : nAlpha x nBeta                                          *
 !      nComp : number of components in the operator (e.g. dipolmoment  *
 !              operator has three components)                          *
@@ -56,7 +56,6 @@ use Her_RW, only: iHerR, iHerW, HerR, HerW
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#define _USE_WP_
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iBeta, iCar, iCmp, iDCRT(0:7), iIrrep, iM2xp, ipA, ipAxyz, ipB, ipBxyz, ipK, ipPx, ipPy, ipPz, &
                      ipQxyz, iPrint, ipRxyz, ipZ, iRout, iStrt, iuvwx(4), iZeta, j, JndGrd(3,4), kCnt, kCnttp, kdc, lDCRT, LmbdT, &
@@ -71,6 +70,10 @@ logical(kind=iwp), external :: TF
 ! Statement function for Cartesian index
 integer(kind=iwp) :: nElem, k
 nElem(k) = (k+1)*(k+2)/2
+
+#include "macros.fh"
+unused_var(ZInv)
+unused_var(lOper)
 
 iRout = 122
 iPrint = nPrint(iRout)
@@ -252,12 +255,12 @@ do kCnttp=1,nCnttp
           ! electron integral gradient.
 
           Factor = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M2cf(iM2xp)*Fact
-          call CmbnM2(Array(ipQxyz),nZeta,la,lb,Array(ipZ),Array(ipK),Final,Array(ipA),Array(ipB),JfGrad,Factor,mVec)
-          if (iPrint >= 99) call RecPrt(' Final in M2Grd',' ',Final,nZeta*nElem(la)*nElem(lb),mVec)
+          call CmbnM2(Array(ipQxyz),nZeta,la,lb,Array(ipZ),Array(ipK),rFinal,Array(ipA),Array(ipB),JfGrad,Factor,mVec)
+          if (iPrint >= 99) call RecPrt(' rFinal in M2Grd',' ',rFinal,nZeta*nElem(la)*nElem(lb),mVec)
 
           ! Distribute the gradient contributions
 
-          call DistG1X(Final,DAO,nZeta,nDAO,mVec,Grad,nGrad,JfGrad,JndGrd,iuvwx,lOp)
+          call DistG1X(rFinal,DAO,nZeta,nDAO,mVec,Grad,nGrad,JfGrad,JndGrd,iuvwx,lOp)
 
         end do
 
@@ -269,10 +272,5 @@ do kCnttp=1,nCnttp
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(ZInv)
-  call Unused_integer_array(lOper)
-end if
 
 end subroutine M2Grd

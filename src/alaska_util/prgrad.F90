@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine PrGrad(Label,Grad,nGrad,Names,iPrint)
+subroutine PrGrad(Label,Grad,nGrad,Names)
 !***********************************************************************
 !                                                                      *
 ! Object: to print set gradient with respect to the symmetrical dis-   *
@@ -28,7 +28,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "Molcas.fh"
 character(len=*), intent(in) :: Label
-integer(kind=iwp), intent(in) :: nGrad, iPrint
+integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(in) :: Grad(nGrad)
 character(len=LenIn6), intent(in) :: Names(nGrad)
 integer(kind=iwp) :: i, iCen, iGrad, mGrad
@@ -38,7 +38,6 @@ character(len=LenIn5) :: CNames(MxAtom), Namei
 write(u6,*)
 call Banner(Label,1,len(Label)+30)
 write(u6,*)
-!if (iPrint == 4) then
 if (.true.) then
   call TrGrd_Alaska_(CGrad,CNames,Grad,nGrad,iCen)
   write(u6,'(1x,A,A)') ' Irreducible representation: ',lIrrep(0)
@@ -83,7 +82,5 @@ end if
 write(u6,*)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(iPrint)
 
 end subroutine PrGrad

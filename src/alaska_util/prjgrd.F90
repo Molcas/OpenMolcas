@@ -30,7 +30,7 @@ subroutine PrjGrd( &
 !              gaussians.                                              *
 !      P     : center of new gaussian from the products of bra and ket *
 !              gaussians.                                              *
-!      Final : array for computed integrals                            *
+!      rFinal: array for computed integrals                            *
 !      nZeta : nAlpha x nBeta                                          *
 !      nComp : number of components in the operator (e.g. dipolmoment  *
 !              operator has three components)                          *
@@ -58,7 +58,6 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-#define _USE_WP_
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, ia, iaC, iAng, ib, iBk, iC, iCar, iCb, iCent, iCmp, iDCRT(0:7), iGamma, iIrrep, ip, ipA, ipaC, ipAxyz, &
                      ipB, ipBxyz, ipCb, ipCxyz, ipF1, ipF1a, ipF2, ipF2a, ipK1, ipK2, ipP1, ipP2, ipQ1, iPrint, ipRxyz, ipTmp, &
@@ -75,6 +74,13 @@ logical(kind=iwp), external :: TF
 ! Statement function for Cartesian index
 integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+
+#include "macros.fh"
+unused_var(Zeta)
+unused_var(ZInv)
+unused_var(rKappa)
+unused_var(nRys)
+unused_var(lOper)
 
 iRout = 192
 iPrint = nPrint(iRout)
@@ -386,7 +392,7 @@ do kCnttp=1,nCnttp
           !   End loop C
           ! End Loop b and a
 
-          call dcopy_(nZeta*nElem(la)*nElem(lb)*6,[Zero],0,Final,1)
+          call dcopy_(nZeta*nElem(la)*nElem(lb)*6,[Zero],0,rFinal,1)
 
           mVec = 0
           mVecAC = 1
@@ -415,7 +421,7 @@ do kCnttp=1,nCnttp
                       ipCb = (iCb-1)*nBasisi*nBeta+ipF2a
 
                       call DGEMM_('N','N',nAlpha,nBeta,nBasisi,Fact,Array(ipaC),nAlpha,Array(ipCb),nBasisi,One, &
-                                  Final(1,ia,ib,mVec),nAlpha)
+                                  rFinal(1,ia,ib,mVec),nAlpha)
 
                     end do
                   end do
@@ -427,7 +433,7 @@ do kCnttp=1,nCnttp
 
           if (iPrint >= 49) then
             do iVec=1,mVec
-              write(u6,*) iVec,sqrt(DNrm2_(nZeta*nElem(la)*nElem(lb),Final(1,1,1,iVec),1))
+              write(u6,*) iVec,sqrt(DNrm2_(nZeta*nElem(la)*nElem(lb),rFinal(1,1,1,iVec),1))
             end do
           end if
           if (iPrint >= 99) then
@@ -435,8 +441,8 @@ do kCnttp=1,nCnttp
             do ia=1,nElem(la)
               do ib=1,nElem(lb)
                 do iVec=1,mVec
-                  write(Label,'(A,I2,A,I2,A)') ' Final(',ia,',',ib,')'
-                  call RecPrt(Label,' ',Final(1,ia,ib,iVec),nAlpha,nBeta)
+                  write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
+                  call RecPrt(Label,' ',rFinal(1,ia,ib,iVec),nAlpha,nBeta)
                 end do
               end do
             end do
@@ -444,7 +450,7 @@ do kCnttp=1,nCnttp
 
           ! Distribute contributions to the gradient
 
-          call Distg1X(Final,DAO,nZeta,nDAO,mVec,Grad,nGrad,JfGrad,JndGrd,iuvwx,lOp)
+          call Distg1X(rFinal,DAO,nZeta,nDAO,mVec,Grad,nGrad,JfGrad,JndGrd,iuvwx,lOp)
 
         end do
       end do
@@ -454,13 +460,5 @@ do kCnttp=1,nCnttp
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Zeta)
-  call Unused_real_array(ZInv)
-  call Unused_real_array(rKappa)
-  call Unused_integer(nRys)
-  call Unused_integer_array(lOper)
-end if
 
 end subroutine PrjGrd

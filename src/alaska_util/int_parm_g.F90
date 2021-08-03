@@ -9,16 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml,indij,k2ij,nDCRR,k2kl,nDCRS,mdci,mdcj,mdck, &
-                      mdcl,AeqB,CeqD,nZeta,nEta,ipZeta,ipZI,ipP,ipEta,ipEI,ipQ,ipiZet,ipiEta,ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab, &
-                      ncd,nHmcd,nIrrep)
+subroutine Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml,k2ij,nDCRR,k2kl,nDCRS,mdci,mdcj,mdck,mdcl, &
+                      AeqB,CeqD,nZeta,nEta,ipZeta,ipZI,ipP,ipEta,ipEI,ipQ,ipiZet,ipiEta,ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab,ncd, &
+                      nHmcd,nIrrep)
 
 use k2_setup, only: Indk2
 use Basis_Info, only: Shells
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4), indij, ipZeta, ipiZet, nIrrep
+integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4), ipZeta, ipiZet, nIrrep
 integer(kind=iwp), intent(out) :: iAnga(4), iCmpa(4), iShlla(4), iShela(4), iPrimi, jPrimj, kPrimk, lPriml, k2ij, nDCRR, k2kl, &
                                   nDCRS, mdci, mdcj, mdck, mdcl, nZeta, nEta, ipZI, ipP, ipEta, ipEI, ipQ, ipiEta, ipxA, ipxB, &
                                   ipxG, ipxD, nab, nHmab, ncd, nHmcd
@@ -96,9 +96,5 @@ ipxD = ipxG+nEta
 ipiEta = ipiZet+nZeta+1
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(indij)
-end if
 
 end subroutine Int_Parm_g

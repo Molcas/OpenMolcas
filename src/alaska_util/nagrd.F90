@@ -30,7 +30,6 @@ use Constants, only: Zero, One, Two, Three, Pi, TwoP54
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#define _USE_WP_
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iComp, iDAO, iDCRT(0:7), iIrrep, ipA, ipAOff, ipB, ipBOff, ipDAO, iuvwx(4), &
                      iZeta, j, JndGrd(3,4), jpDAO, kCnt, kCnttp, kdc, lDCRT, LmbdT, lOp(4), mGrad, nArray, nDAO, nDCRT, nDisp, &
@@ -52,6 +51,12 @@ integer(kind=iwp) :: iPrint, iRout
 ! Statement function
 integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+
+#include "macros.fh"
+unused_var(rFinal)
+unused_var(Ccoor)
+unused_var(nOrdOp)
+unused_var(lOper)
 
 #ifdef _DEBUGPRINT_
 iRout = 150
@@ -233,12 +238,5 @@ do kCnttp=1,nCnttp
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Final)
-  call Unused_real_array(Ccoor)
-  call Unused_integer(nOrdOp)
-  call Unused_integer_array(lOper)
-end if
 
 end subroutine NAGrd

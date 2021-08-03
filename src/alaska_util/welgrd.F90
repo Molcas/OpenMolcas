@@ -30,7 +30,6 @@ use Center_Info, only: dc
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#define _USE_WP_
 #include "grd_interface.fh"
 integer(kind=iwp) :: iAlpha, iBeta, ik, iOff, ip, ip0m, ip0p, ip1, ip2, ip3, ip4, ip5, ipAlph, ipAMx, ipBeta, ipGri, ipGrin, ipm0, &
                      ipp0, iPrint, ipScr, ipTGri, iPxyz, iRout, jp, jsumm, jsump, k, k0
@@ -39,6 +38,14 @@ integer(kind=iwp) :: iAlpha, iBeta, ik, iOff, ip, ip0m, ip0p, ip1, ip2, ip3, ip4
 ! Statement function for Cartesian index
 integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
+
+#include "macros.fh"
+unused_var(ZInv)
+unused_var(nHer)
+unused_var(Ccoor)
+unused_var(nOrdOp)
+unused_var(lOper)
+unused_var(iStabM)
 
 iRout = 122
 iPrint = nPrint(iRout)
@@ -177,7 +184,7 @@ end do
 
 ! Assemble the derivative integrals and distribute contributions.
 
-call CmbnW1(Array(ipp0),Array(ipm0),Array(ip0p),Array(ip0m),nZeta,la,lb,Zeta,rKappa,Final,Array(ipAlph),Array(ipBeta),Grad,nGrad, &
+call CmbnW1(Array(ipp0),Array(ipm0),Array(ip0p),Array(ip0m),nZeta,la,lb,Zeta,rKappa,rFinal,Array(ipAlph),Array(ipBeta),Grad,nGrad, &
             DAO,IfGrad,IndGrd,dc(mdc)%nStab,dc(ndc)%nStab,kOp)
 
 ip = ip-5*nZeta
@@ -189,14 +196,5 @@ ip = ip-nZeta*nElem(la+1)*nElem(lb)
 ip = ip-2*nZeta*jsump
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(ZInv)
-  call Unused_integer(nHer)
-  call Unused_real_array(Ccoor)
-  call Unused_integer(nOrdOp)
-  call Unused_integer_array(lOper)
-  call Unused_integer_array(iStabM)
-end if
 
 end subroutine WelGrd

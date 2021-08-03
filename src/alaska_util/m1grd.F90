@@ -32,7 +32,7 @@ subroutine M1Grd( &
 !              gaussians.                                              *
 !      P     : center of new gaussian from the products of bra and ket *
 !              gaussians.                                              *
-!      Final : array for computed integrals                            *
+!      rFinal: array for computed integrals                            *
 !      nZeta : nAlpha x nBeta                                          *
 !      nComp : number of components in the operator (e.g. dipolmoment  *
 !              operator has three components)                          *
@@ -59,7 +59,6 @@ use Constants, only: One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#define _USE_WP_
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, ianga(4), iBeta, iCar, iCmp, iDAO, iDCRT(0:7), iIrrep, iM1xp, ip, ipA, ipAOff, ipB, ipBOff, ipDAO, &
                      ipDAOt, ipK, ipPx, ipPy, ipPz, iPrint, ipZ, ipZI, iRout, iuvwx(4), iZeta, j, JndGrd(3,4), kCnt, kCnttp, kdc, &
@@ -75,6 +74,12 @@ external :: TNAI1, Fake, Cff2D
 ! Statement function for Cartesian index
 integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+
+#include "macros.fh"
+unused_var(ZInv)
+unused_var(rFinal)
+unused_var(nOrdOp)
+unused_var(lOper)
 
 iRout = 193
 iPrint = nPrint(iRout)
@@ -305,12 +310,5 @@ do kCnttp=1,nCnttp
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(ZInv)
-  call Unused_real_array(Final)
-  call Unused_integer(nOrdOp)
-  call Unused_integer_array(lOper)
-end if
 
 end subroutine M1Grd

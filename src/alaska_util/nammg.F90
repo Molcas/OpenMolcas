@@ -26,6 +26,9 @@ integer(kind=iwp) :: iAng(4)
 integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
+#include "macros.fh"
+unused_var(lr)
+
 iAng(1) = la
 iAng(2) = lb
 iAng(3) = 0
@@ -34,7 +37,5 @@ call MemRg1(iAng,nHer,Mem)
 Mem = Mem+2+nElem(la)*nElem(lb)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lr)
 
 end subroutine NAMmG

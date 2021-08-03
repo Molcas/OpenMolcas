@@ -35,11 +35,15 @@ use Center_Info, only: dc
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#define _USE_WP_
 #include "grd_interface.fh"
 integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, iPrint, ipRnxyz, ipRxyz, iRout, nip
 logical(kind=iwp) :: ABeq(3)
 #include "print.fh"
+
+#include "macros.fh"
+unused_var(ZInv)
+unused_var(lOper)
+unused_var(iStabM)
 
 iRout = 122
 iPrint = nPrint(iRout)
@@ -107,15 +111,9 @@ do iAlpha=1,nAlpha
   call dcopy_(nBeta,Beta,1,Array(ip),nAlpha)
   ip = ip+1
 end do
-call CmbnS1(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,Final,Array(ipAlph),Array(ipBeta),Grad,nGrad,DAO,IfGrad,IndGrd,dc(mdc)%nStab, &
+call CmbnS1(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,rFinal,Array(ipAlph),Array(ipBeta),Grad,nGrad,DAO,IfGrad,IndGrd,dc(mdc)%nStab, &
             dc(ndc)%nStab,kOp)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(ZInv)
-  call Unused_integer_array(lOper)
-  call Unused_integer_array(iStabM)
-end if
 
 end subroutine OvrGrd

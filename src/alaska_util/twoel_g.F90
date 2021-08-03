@@ -73,6 +73,10 @@ character(len=3), parameter :: ChOper(0:7) = [' E ',' x ',' y ',' xy',' z ',' xz
 integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
+#include "macros.fh"
+unused_var(iPrInc)
+unused_var(kPrInc)
+
 call TwoEl_g_Internal(Data1,Data2,Wrk2)
 
 contains
@@ -506,7 +510,7 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
         nullify(iData1,iData2)
 
 #       ifdef _DEBUGPRINT_
-        if (iPrint >= 19) call PrGrad(' In TwoEl',Grad,nGrad,ChDisp,5)
+        if (iPrint >= 19) call PrGrad(' In TwoEl',Grad,nGrad,ChDisp)
 #       endif
 
       end do
@@ -514,12 +518,6 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
   end do
 
   return
-  ! Avoid unused argument warnings
-  if (.false.) then
-    call Unused_integer_array(iAO)
-    call Unused_integer(iPrInc)
-    call Unused_integer(kPrInc)
-  end if
 
 end subroutine TwoEl_g_Internal
 

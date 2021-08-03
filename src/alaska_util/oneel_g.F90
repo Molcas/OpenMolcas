@@ -53,7 +53,6 @@ interface
 #                   include "grd_interface.fh"
                    )
     import :: wp, iwp
-#   define _USE_WP_
 #   include "grd_interface.fh"
   end subroutine Kernel
 end interface
@@ -313,7 +312,7 @@ do ijS=1,nTasks
 
       call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,Pcoor,rFinal,iPrim*jPrim,iAng,jAng,A,RB,nOrder, &
                   Krnl,MemKer,Ccoor,nOrdOp,Grad,nGrad,IfGrad,IndGrd,DAO,mdci,mdcj,nOp,lOper,nComp,iStabM,nStabM)
-      if (iPrint >= 49) call PrGrad(' In Oneel',Grad,nGrad,ChDisp,5)
+      if (iPrint >= 49) call PrGrad(' In Oneel',Grad,nGrad,ChDisp)
 
     end do
   end if
@@ -333,7 +332,7 @@ call mma_deallocate(Kappa)
 call mma_deallocate(ZI)
 call mma_deallocate(Zeta)
 
-if (iPrint >= 15) call PrGrad(Label,Grad,nGrad,ChDisp,5)
+if (iPrint >= 15) call PrGrad(Label,Grad,nGrad,ChDisp)
 
 return
 

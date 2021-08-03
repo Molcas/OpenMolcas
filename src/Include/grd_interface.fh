@@ -10,40 +10,17 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
+
 #ifdef _CALLING_
-     &         Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,              &
-     &         Final,nZeta,la,lb,A,RB,nHer,                             &
-     &         Array,nArr,Ccoor,nOrdOp,Grad,nGrad,                      &
-     &         IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,               &
-     &         iStabM,nStabM                                            &
-#elif defined (_USE_WP_)
-! TODO: unknown intents, probably all "in", except Final, Grad
+Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,la,lb,A,RB,nHer,Array,nArr,Ccoor,nOrdOp,Grad,nGrad,IfGrad,IndGrd,DAO,mdc, &
+ndc,kOp,lOper,nComp,iStabM,nStabM &
+#else
+! TODO: unknown intents, probably all "in", except rFinal, Grad
 integer(kind=iwp) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, nGrad, IndGrd(3,2), mdc, ndc, kOp(2), nComp, nStabM, &
                      lOper(nComp), iStabM(0:nStabM-1)
 real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), &
-                 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), A(3), RB(3), Array(nZeta*nArr), Ccoor(3), Grad(nGrad), &
+                 rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), A(3), RB(3), Array(nZeta*nArr), Ccoor(3), Grad(nGrad), &
                  DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
 logical(kind=iwp) :: IfGrad(3,2)
-#else
-      Integer nAlpha, nBeta
-      Real*8 Alpha(nAlpha), Beta(nBeta)
-      Integer nZeta, la, lb
-      Real*8 Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6)
-      Integer nHer
-      Real*8 A(3), RB(3)
-      Integer nArr
-      Real*8 Array(nZeta*nArr)
-      Real*8 Ccoor(3)
-      Integer nOrdOp
-      Integer nGrad
-      Real*8 Grad(nGrad)
-      Logical IfGrad(3,2)
-      Integer IndGrd(3,2)
-      Real*8 DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-      Integer mdc, ndc
-      Integer nComp, nStabM
-      Integer kOp(2), lOper(nComp), iStabM(0:nStabM-1)
 #endif
-#undef _USE_WP_
 #undef _CALLING_

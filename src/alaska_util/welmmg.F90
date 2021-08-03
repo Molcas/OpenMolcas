@@ -24,6 +24,9 @@ integer(kind=iwp) :: jsum, k
 integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
+#include "macros.fh"
+unused_var(lr)
+
 k = la+lb+1
 jsum = 1
 do i=1,k
@@ -41,7 +44,5 @@ if (lb >= 1) Mem = Mem+nElem(la)*nElem(lb-1)
 Mem = Mem+2
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lr)
 
 end subroutine WelMmG

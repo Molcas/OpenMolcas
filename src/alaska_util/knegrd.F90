@@ -35,11 +35,15 @@ use Center_Info, only: dc
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#define _USE_WP_
 #include "grd_interface.fh"
 integer(kind=iwp) :: iAlpha, iBeta, ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, iPrint, ipRnxyz, ipRxyz, ipTxyz, iRout, nip
 logical(kind=iwp) :: ABeq(3)
 #include "print.fh"
+
+#include "macros.fh"
+unused_var(ZInv)
+unused_var(lOper)
+unused_var(iStabM)
 
 iRout = 150
 iPrint = nPrint(iRout)
@@ -115,15 +119,9 @@ call Kntc(Array(ipTxyz),Array(ipRnxyz),la+1,lb+1,Array(ipA),Array(ipB),nZeta)
 ! Combine the cartesian components to the gradient of the kinetic
 ! energy integral and trace with the variational density matrix.
 
-call CmbnT1(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,Final,Array(ipTxyz),Array(ipA),Array(ipB),Grad,nGrad,DAO,IfGrad,IndGrd, &
+call CmbnT1(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,rFinal,Array(ipTxyz),Array(ipA),Array(ipB),Grad,nGrad,DAO,IfGrad,IndGrd, &
             dc(mdc)%nStab,dc(ndc)%nStab,kOp)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(ZInv)
-  call Unused_integer_array(lOper)
-  call Unused_integer_array(iStabM)
-end if
 
 end subroutine KnEGrd

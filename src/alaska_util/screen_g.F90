@@ -54,6 +54,14 @@ integer(kind=iwp) :: iDMin, ip_Alpha, ip_Beta, ip_Kappa, ip_PCoor, ip_Z, ip_ZInv
 real(kind=r8), external :: DNrm2_
 #include "print.fh"
 
+#include "macros.fh"
+unused_var(IndZ)
+unused_var(IndE)
+unused_var(nAlpha)
+unused_var(nBeta)
+unused_var(nGamma)
+unused_var(nDelta)
+
 iRout = 180
 iPrint = nPrint(iRout)
 if (iPrint >= 99) then
@@ -297,14 +305,5 @@ end if
 if (iPrint >= 39) call RecPrt(' PAO',' ',PAO,lZeta*lEta,mPAO)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(IndZ)
-  call Unused_integer_array(IndE)
-  call Unused_integer(nAlpha)
-  call Unused_integer(nBeta)
-  call Unused_integer(nGamma)
-  call Unused_integer(nDelta)
-end if
 
 end subroutine Screen_g

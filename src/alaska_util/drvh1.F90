@@ -45,16 +45,20 @@ implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-integer(kind=iwp) :: iComp, iCOSMO, ii, iIrrep, iMltpl, iPrint, iRout, iWel, ix, iy, ncmp, nComp, nCompf, nDens, nextfld, nFock, &
-                     nOrdOp, nOrdOpf
+integer(kind=iwp) :: iComp, iCOSMO, ii, iIrrep, iMltpl, iPrint, iRout, iWel, ix, iy, nComp, nDens, nFock, nOrdOp
 real(kind=wp) :: Fact, TCpu1, TCpu2, TWall1, TWall2
 character(len=80) :: Label
-character(len=30) :: fldname
 character(len=8) :: Method
-!AOM>
 logical(kind=iwp) :: DiffOp, lECP, lFAIEMP, lPP
-integer(kind=iwp), allocatable :: lOper(:), lOperf(:)
+integer(kind=iwp), allocatable :: lOper(:)
 real(kind=wp), allocatable :: Coor(:,:), D_Var(:), Fock(:)
+#ifdef _NEXTFFIELD_
+!AOM<
+integer(kind=iwp) :: ncmp, nCompf, nextfld, nOrdOpf
+character(len=30) :: fldname
+integer(kind=iwp), allocatable :: lOperf(:)
+!AOM>
+#endif
 external :: COSGrd, FragPGrd, FragPMmG, KneGrd, KneMmG, M1Grd, M1MmG, M2Grd, M2MmG, MltGrd, MltMmG, NAGrd, NAMmG, OvrGrd, OvrMmG, &
             PCMGrd, PCMMmg, PPGrd, PPMmG, PrjGrd, PrjMmG, RFGrd, RFMmg, SROGrd, SROMmG, WelGrd, WelMmg, XFdGrd, XFdMmg
 #include "Molcas.fh"
@@ -164,6 +168,8 @@ if (.not. HF_Force) then
   Label = ' The Kinetic Energy Contribution'
   call OneEl_g(KneGrd,KneMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
   call DaXpY_(nGrad,One,Temp,1,Grad,1)
+  ! This is either not implemented or disabled, so commenting it out
+# ifdef _NEXTFFIELD_
   !AOM<
   ! Check finite field operators...
   nextfld = 0
@@ -194,6 +200,7 @@ if (.not. HF_Force) then
     call DaXpY_(nGrad,-One,Temp,1,Grad,1)
   end do
   !AOM>
+# endif
 end if
 
 !***********************************************************************
@@ -356,14 +363,14 @@ if (.not. HF_Force) then
       call OneEl_g(COSGrd,PCMMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
       if (iPrint >= 15) then
         Label = ' Reaction Field (COSMO) Contribution'
-        call PrGrad(Label,Temp,nGrad,ChDisp,5)
+        call PrGrad(Label,Temp,nGrad,ChDisp)
       end if
     else
       Label = ' The Electronic Reaction Field Contribution (PCM)'
       call OneEl_g(PCMGrd,PCMMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
       if (iPrint >= 15) then
         Label = ' Reaction Field (PCM) Contribution'
-        call PrGrad(Label,Temp,nGrad,ChDisp,5)
+        call PrGrad(Label,Temp,nGrad,ChDisp)
       end if
     end if
 
