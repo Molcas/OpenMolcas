@@ -19,9 +19,10 @@
      >  xalf,xbet,mingrph,maxgrph,
      >  inewocc,iaccm)
       implicit real*8 (a-h,o-w,y-z),integer(x)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension idetavb(ndetvb),idetbvb(ndetvb)
       dimension iconfs(noe,nconf),nconfion(0:nel)
+      integer xalf,xbet
       dimension xalf(0:norb,0:nalf),xbet(0:norb,0:nbet)
       dimension mingrph(0:norb),maxgrph(0:norb)
       dimension inewocc(norb),iaccm(norb)
@@ -54,16 +55,19 @@ c  Generate alpha/beta strings for singly occupied electrons :
       call icomb_cvb(nelsing,nalfsing,nstring)
       iastr = mstacki_cvb(nalfsing*nstring)
       ibstr = mstacki_cvb(nbetsing*nstring)
-      call stringen_cvb(nelsing,nalfsing,iw(iastr),iw(ibstr),nstring)
+      call stringen_cvb(nelsing,nalfsing,iwork(iastr),iwork(ibstr),
+     >                  nstring)
       if(debug)then
         write(6,*)' ionicity=',ion,' nconf=',nconfion(ion)
         write(6,*)' check alpha strings :'
         do i=1,nstring
-        write(6,*)i,' => ',(iw(ii+iastr-1+(i-1)*nalfsing),ii=1,nalfsing)
+        write(6,*)i,' => ',(iwork(ii+iastr-1+(i-1)*nalfsing),ii=1,
+     >                      nalfsing)
         enddo
         write(6,*)' check beta strings :'
         do i=1,nstring
-        write(6,*)i,' => ',(iw(ii+ibstr-1+(i-1)*nbetsing),ii=1,nbetsing)
+        write(6,*)i,' => ',(iwork(ii+ibstr-1+(i-1)*nbetsing),ii=1,
+     >                      nbetsing)
         enddo
       endif
 
@@ -83,23 +87,23 @@ c  Spin string loop :
 
 c  Alpha index in full string space ...
       do 1400 i=1,nalfsing
-      iaocc=iaccm(iw(i+(index-1)*nalfsing+iastr-1))
+      iaocc=iaccm(iwork(i+(index-1)*nalfsing+iastr-1))
       inewocc(iaocc)=inewocc(iaocc)+1
 1400  continue
       iaind=indget_cvb(inewocc,nalf,norb,xalf)
       do 1500 i=1,nalfsing
-      iaocc=iaccm(iw(i+(index-1)*nalfsing+iastr-1))
+      iaocc=iaccm(iwork(i+(index-1)*nalfsing+iastr-1))
       inewocc(iaocc)=inewocc(iaocc)-1
 1500  continue
 
 c  Beta index in full string space ...
       do 1600 i=1,nbetsing
-      ibocc=iaccm(iw(i+(index-1)*nbetsing+ibstr-1))
+      ibocc=iaccm(iwork(i+(index-1)*nbetsing+ibstr-1))
       inewocc(ibocc)=inewocc(ibocc)+1
 1600  continue
       ibind=indget_cvb(inewocc,nbet,norb,xbet)
       do 1700 i=1,nbetsing
-      ibocc=iaccm(iw(i+(index-1)*nbetsing+ibstr-1))
+      ibocc=iaccm(iwork(i+(index-1)*nbetsing+ibstr-1))
       inewocc(ibocc)=inewocc(ibocc)-1
 1700  continue
 

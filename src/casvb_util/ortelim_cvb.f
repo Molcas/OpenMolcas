@@ -19,7 +19,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension trprm(npr1,npr1),iorts(2,nort),irots(2,ndrot)
       dimension sorbs(norb,norb)
       dimension dum(1)
@@ -27,7 +27,7 @@
       i1 = mstackrz_cvb(norbprm*max(nc+nort+ndrot,norbprm))
       i1ff=i1-1
       do 100 i=1,nc
-      call fmove_cvb(trprm(1,i),w(1+(i-1)*norbprm+i1ff),norbprm)
+      call fmove_cvb(trprm(1,i),work(1+(i-1)*norbprm+i1ff),norbprm)
 100   continue
       do 200 iort=1,nort
       iorb=iorts(1,iort)
@@ -37,8 +37,8 @@
       if(korb.gt.iorb)ki=ki-1
       kj=korb+(jorb-1)*(norb-1)
       if(korb.gt.jorb)kj=kj-1
-      if(korb.ne.iorb)w(ki+(iort+nc-1)*norbprm+i1ff)=sorbs(korb,jorb)
-      if(korb.ne.jorb)w(kj+(iort+nc-1)*norbprm+i1ff)=sorbs(korb,iorb)
+      if(korb.ne.iorb)work(ki+(iort+nc-1)*norbprm+i1ff)=sorbs(korb,jorb)
+      if(korb.ne.jorb)work(kj+(iort+nc-1)*norbprm+i1ff)=sorbs(korb,iorb)
 201   continue
 200   continue
       do 300 irot=1,ndrot
@@ -49,18 +49,18 @@
       if(korb.gt.iorb)ki=ki-1
       kj=korb+(jorb-1)*(norb-1)
       if(korb.gt.jorb)kj=kj-1
-      if(korb.ne.iorb)w(ki+(irot+nc+nort-1)*norbprm+i1ff)=
+      if(korb.ne.iorb)work(ki+(irot+nc+nort-1)*norbprm+i1ff)=
      >  sorbs(korb,jorb)
-      if(korb.ne.jorb)w(kj+(irot+nc+nort-1)*norbprm+i1ff)=
+      if(korb.ne.jorb)work(kj+(irot+nc+nort-1)*norbprm+i1ff)=
      >  -sorbs(korb,iorb)
 301   continue
 300   continue
-      call span_cvb(w(i1),nc+nort+ndrot,nrem,dum,norbprm,0)
-      call compl_cvb(w(i1),nrem,norbprm)
+      call span_cvb(work(i1),nc+nort+ndrot,nrem,dum,norbprm,0)
+      call compl_cvb(work(i1),nrem,norbprm)
 
       call fzero(trprm,npr1*npr1)
       do 400 i=1,norbprm
-      call fmove_cvb(w(1+(i-1)*norbprm+i1ff),trprm(1,i),norbprm)
+      call fmove_cvb(work(1+(i-1)*norbprm+i1ff),trprm(1,i),norbprm)
 400   continue
 
       call mfreer_cvb(i1)

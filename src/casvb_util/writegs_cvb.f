@@ -18,12 +18,12 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
       i1=mstacki_cvb(ndetvb)
-      call writegs2_cvb(w(lv(1)),w(lv(2)),
-     >  w(lw(9)),iw(ll(11)),iw(ll(12)),
-     >  iw(i1))
+      call writegs2_cvb(work(lv(1)),work(lv(2)),
+     >  work(lw(9)),iwork(ll(11)),iwork(ll(12)),
+     >  iwork(i1))
       call mfreei_cvb(i1)
       return
       end

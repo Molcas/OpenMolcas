@@ -30,41 +30,41 @@ c
       integer function mheaprz_cvb(nword)
       implicit real*8 (a-h,o-z)
 #include "memman_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
       if(memdebug)write(6,*)' mheaprz :'
       mheaprz_cvb=mheapr_cvb(nword)
-      call fzero(w(mheaprz_cvb),nword)
+      call fzero(work(mheaprz_cvb),nword)
       return
       end
       integer function mstackrz_cvb(nword)
       implicit real*8 (a-h,o-z)
 #include "memman_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
       if(memdebug)write(6,*)' mstackrz :'
       mstackrz_cvb=mstackr_cvb(nword)
-      call fzero(w(mstackrz_cvb),nword)
+      call fzero(work(mstackrz_cvb),nword)
       return
       end
       integer function mheapiz_cvb(nword)
       implicit real*8 (a-h,o-z)
 #include "memman_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
       if(memdebug)write(6,*)' mheapiz :'
       mheapiz_cvb=mheapi_cvb(nword)
-      call izero(iw(mheapiz_cvb),nword)
+      call izero(iwork(mheapiz_cvb),nword)
       return
       end
       integer function mstackiz_cvb(nword)
       implicit real*8 (a-h,o-z)
 #include "memman_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
       if(memdebug)write(6,*)' mstackiz :'
       mstackiz_cvb=mstacki_cvb(nword)
-      call izero(iw(mstackiz_cvb),nword)
+      call izero(iwork(mstackiz_cvb),nword)
       return
       end
 c  ****************************

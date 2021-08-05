@@ -18,8 +18,8 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
-      call mktrnspn2_cvb(w(lv(2)),w(lw(9)))
+      call mktrnspn2_cvb(work(lv(2)),work(lw(9)))
       return
       end

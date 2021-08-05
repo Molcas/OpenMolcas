@@ -52,13 +52,12 @@
       Character*(*) InLab
       Dimension Data(*)
 *
-      Character*8 TmpLab,Label
+      Character*8 Label
       Dimension LabTmp(2)
-*     Equivalence (TmpLab,LabTmp)
       Logical debug, Close
 *----------------------------------------------------------------------*
 *     Start procedure:                                                 *
-*     Define inline function (symmetry multiplication)                 *
+*     Define statement function (symmetry multiplication)              *
 *----------------------------------------------------------------------*
       MulTab(i,j)=iEor(i-1,j-1)+1
 *----------------------------------------------------------------------*
@@ -93,8 +92,8 @@
 *----------------------------------------------------------------------*
       Label=InLab
       Call UpCase(Label)
-      TmpLab=Label
-      Call ByteCopy(TmpLab,LabTmp,8)
+      Length = Len(Label)/ItoB
+      LabTmp(:Length) = Transfer(Label,LabTmp,Length)
 *----------------------------------------------------------------------*
 *     Print debugging information                                      *
 *----------------------------------------------------------------------*
@@ -142,20 +141,20 @@
             Write (6,*) 'k.eq.0'
             Call Abend()
          End If
-         Len=0
+         Length=0
          Do 510 i=1,nSym
          Do 511 j=1,i
             ij=MulTab(i,j)-1
             If(iAnd(2**ij,SymLab).ne.0) Then
                If(i.eq.j) Then
-                  Len=Len+nBas(i)*(nBas(i)+1)/2
+                  Length=Length+nBas(i)*(nBas(i)+1)/2
                Else
-                  Len=Len+nBas(i)*nBas(j)
+                  Length=Length+nBas(i)*nBas(j)
                End If
             End If
 511      Continue
 510      Continue
-         Len=RtoI*(Len+nAuxDt)
+         Length=RtoI*(Length+nAuxDt)
          TocOne(pOp+LenOp*(k-1)+oLabel  )=LabTmp(1)
 #ifndef _I8_
          TocOne(pOp+LenOp*(k-1)+oLabel+1)=LabTmp(2)
@@ -163,7 +162,7 @@
          TocOne(pOp+LenOp*(k-1)+oComp   )=Comp
          TocOne(pOp+LenOp*(k-1)+oSymLb  )=SymLab
          TocOne(pOp+LenOp*(k-1)+oAddr   )=iDisk
-         Call iDaFile(LuOne,1,Data,Len,iDisk)
+         Call iDaFile(LuOne,1,Data,Length,iDisk)
          TocOne(pNext)=Max(TocOne(pNext),iDisk)
 *----------------------------------------------------------------------*
 *     Finally copy the TocOne back to disk                             *

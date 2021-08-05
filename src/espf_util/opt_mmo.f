@@ -11,13 +11,15 @@
 #ifdef _GROMACS_
       SUBROUTINE Opt_MMO(nAtIn,Coord,nAtOut,CoordMMO,nAtGMX,AT,ipGMS)
 
+      USE, INTRINSIC :: iso_c_binding, only: c_loc, c_ptr
       IMPLICIT NONE
 
 #include "espf.fh"
 #include "opt_mmo.fh"
 #include "stdalloc.fh"
 
-      INTEGER, INTENT(IN) :: ipGMS,nAtGMX,nAtIn,nAtOut
+      INTEGER, INTENT(IN) :: nAtGMX,nAtIn,nAtOut
+      TYPE(c_ptr), INTENT(IN) :: ipGMS
       INTEGER, DIMENSION(nAtGMX), INTENT(IN) :: AT
       REAL*8, DIMENSION(3,nAtIn), INTENT(IN) :: Coord
       REAL*8, DIMENSION(3,nAtOut), INTENT(INOUT) :: CoordMMO
@@ -27,12 +29,11 @@
       REAL*8, PARAMETER :: TinyStep = 1.0D-50*AuToNm
       REAL*8, DIMENSION(:,:), ALLOCATABLE :: CoordGMX,FieldGMX,ForceGMX
       REAL*8, DIMENSION(:,:), ALLOCATABLE :: GradMMO,NewCoord,OldCoord
-      REAL*8, DIMENSION(:), ALLOCATABLE :: PotGMX
+      REAL*8 :: PotGMX(1)
       CHARACTER(LEN=256) :: Message
 
-      INTEGER, EXTERNAL :: iPL_espf,mmslave_calc_energy
+      INTEGER, EXTERNAL :: iPL_espf
       REAL*8, EXTERNAL :: ddot_
-
 
       iPL = iPL_espf()
 
@@ -46,7 +47,6 @@
       CALL mma_allocate(CoordGMX,3,nAtGMX)
       CALL mma_allocate(ForceGMX,3,nAtGMX)
       CALL mma_allocate(FieldGMX,3,nAtGMX)
-      CALL mma_allocate(PotGMX,nAtGMX)
       iAtIn = 1
       iAtOut = 1
       DO i = 1,nAtGMX
@@ -93,8 +93,8 @@
       DO WHILE ((MMIter<MMIterMax).AND.(MaxF>ConvF).AND.(Step>TinyStep))
          MMIter = MMIter+1
          ! Get gradient from Gromacs
-         iOk = mmslave_calc_energy(%val(ipGMS),CoordGMX,ForceGMX,
-     &                             FieldGMX,PotGMX,EnergyGMX)
+         iOk = mmslave_calc_energy_wrapper(ipGMS,CoordGMX,ForceGMX,
+     &                                     FieldGMX,PotGMX,EnergyGMX)
          IF (iOk/=1) THEN
             Message = 'Opt_MMO: mmslave_calc_energy is not ok'
             CALL WarningMessage(2,Message)
@@ -231,13 +231,32 @@
       CALL mma_deallocate(CoordGMX)
       CALL mma_deallocate(ForceGMX)
       CALL mma_deallocate(FieldGMX)
-      CALL mma_deallocate(PotGMX)
       CALL mma_deallocate(NewCoord)
       CALL mma_deallocate(OldCoord)
       CALL mma_deallocate(GradMMO)
 
-
       RETURN
+
+      CONTAINS
+
+      FUNCTION mmslave_calc_energy_wrapper(gms,x,f,A,phi,energy)
+      INTEGER :: mmslave_calc_energy_wrapper
+      TYPE(c_ptr) :: gms
+      REAL*8, TARGET :: x(*), f(*), A(*), phi(*)
+      REAL*8 :: energy
+      INTERFACE
+        FUNCTION mmslave_calc_energy(gms,x,f,A,phi,energy)
+     &           BIND(C,NAME='mmslave_calc_energy_')
+          USE, INTRINSIC :: iso_c_binding, ONLY: c_double, c_int, c_ptr
+          INTEGER(kind=c_int) :: mmslave_calc_energy
+          TYPE(c_ptr), VALUE :: gms, x, f, A, phi
+          REAL(kind=c_double) :: energy
+        END FUNCTION mmslave_calc_energy
+      END INTERFACE
+      mmslave_calc_energy_wrapper = mmslave_calc_energy(gms,c_loc(x(1)),
+     &  c_loc(f(1)),c_loc(A(1)),c_loc(phi(1)),energy)
+      END FUNCTION mmslave_calc_energy_wrapper
+
       END
 #elif defined (NAGFOR)
 ! Some compilers do not like empty files

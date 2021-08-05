@@ -69,7 +69,7 @@ With PGI 20 ( __PGIC__ >= 20 ) it compiles, but it appears to be buggy at runtim
 #endif
 
 /* Allows files with no compilable instructions */
-#if ( NAGFOR )
+#if (( NAGFOR ) || ( __PGI ))
 #undef EMPTY_FILES
 #else
 #define EMPTY_FILES

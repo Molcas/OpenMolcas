@@ -28,7 +28,7 @@
 
 #include "frag_cvb.fh"
 #include "fx_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension orbs(norb,norb)
       dimension civecp(ndet),civbs(ndet),civb(ndet),citmp(ndet)
       dimension orbinv(norb,norb),sorbs(norb,norb),owrk(norb,norb)
@@ -107,12 +107,12 @@ c  2nd-order term for structure coefficients
           call str2vbf_cvb(hessinp(1+nprorb),dvbdet)
           i1 = mstackr_cvb(ndetvb)
           i2 = mstackr_cvb(nvb)
-          call ci2ordr_cvb(civbs,dvbdet,w(i1))
-          call vb2strg_cvb(w(i1),w(i2))
-          call daxpy_(nvb,oaa2,w(i2),1,hessout(1+nprorb),1)
-          call ci2ordr_cvb(civecp,dvbdet,w(i1))
-          call vb2strg_cvb(w(i1),w(i2))
-          call daxpy_(nvb,aa1,w(i2),1,hessout(1+nprorb),1)
+          call ci2ordr_cvb(civbs,dvbdet,work(i1))
+          call vb2strg_cvb(work(i1),work(i2))
+          call daxpy_(nvb,oaa2,work(i2),1,hessout(1+nprorb),1)
+          call ci2ordr_cvb(civecp,dvbdet,work(i1))
+          call vb2strg_cvb(work(i1),work(i2))
+          call daxpy_(nvb,aa1,work(i2),1,hessout(1+nprorb),1)
           call mfreer_cvb(i1)
         endif
       elseif(proj.or.projcas)then

@@ -14,7 +14,7 @@
       subroutine hini_cvb()
       implicit real*8(a-h,o-z)
 #include "inpmod_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 #include "seth_cvb.fh"
 #include "loopcntr_cvb.fh"
 #include "files_cvb.fh"

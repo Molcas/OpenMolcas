@@ -16,7 +16,7 @@
       implicit real*8 (a-h,o-z)
 c ... Matrices (orthogonal/determinant) ...
       logical, external :: mxorth_cvb
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       parameter (nsymelm=5,nsign=2,ncmp=4)
       character*8 symelm(nsymelm),sign(nsign)
       character*3 tags(mxsyme)
@@ -47,7 +47,7 @@ c ... Matrices (orthogonal/determinant) ...
       endif
       call mreallocr_cvb(ip_symelm,mxorb*mxorb*nsyme)
       ishft=mxorb*mxorb*(nsyme-1)
-      call mxunit_cvb(w(ishft+ip_symelm),mxorb)
+      call mxunit_cvb(work(ishft+ip_symelm),mxorb)
 
 1000  call fstring_cvb(symelm,nsymelm,istr2,ncmp,2)
       if(istr2.eq.1)then
@@ -59,7 +59,7 @@ c    'IRREPS'
         if(irrep.ne.0)then
           do 1200 iorb=1,mxorb
           if(irrep.eq.ityp(iorb))
-     >      w(iorb+(iorb-1)*mxorb+ishft+ip_symelm-1)=-one
+     >      work(iorb+(iorb-1)*mxorb+ishft+ip_symelm-1)=-one
 1200      continue
         endif
 1100    continue
@@ -70,7 +70,7 @@ c    'COEFFS'
         call int_cvb(iaux,1,nread,0)
         iorb=iaux(1)
         if(iorb.ne.0)then
-          w(iorb+(iorb-1)*mxorb+ishft+ip_symelm-1)=-one
+          work(iorb+(iorb-1)*mxorb+ishft+ip_symelm-1)=-one
         else
           goto 1301
         endif
@@ -93,22 +93,22 @@ c    'TRANS'
           write(6,*)' Illegal orbital number in TRANS:',iorb
           call abend_cvb()
         endif
-        iw(i+itmp-1)=iorb
+        iwork(i+itmp-1)=iorb
 1400    continue
         do 1500 ior=1,idim
-        iorb=iw(ior+itmp-1)
+        iorb=iwork(ior+itmp-1)
         do 1501 jor=1,idim
-        jorb=iw(jor+itmp-1)
+        jorb=iwork(jor+itmp-1)
         daux=zero
         call real_cvb(daux(1),1,nread,0)
-        w(iorb+(jorb-1)*mxorb+ishft+ip_symelm-1)=daux(1)
+        work(iorb+(jorb-1)*mxorb+ishft+ip_symelm-1)=daux(1)
 1501    continue
 1500    continue
         call mfreei_cvb(itmp)
       endif
 c    'END' , 'ENDSYMEL' or unrecognized keyword -- end SYMELM input :
       if(.not.(istr2.eq.4.or.istr2.eq.5.or.istr2.eq.0))goto 1000
-      if(.not.mxorth_cvb(w(ishft+ip_symelm),mxorb))then
+      if(.not.mxorth_cvb(work(ishft+ip_symelm),mxorb))then
         write(6,*)' Symmetry element ',tags(nsyme),' not orthogonal!'
         write(6,*)' Check usage of TRANS keyword.'
         call abend_cvb()

@@ -15,15 +15,15 @@
 c  Orthogonalize nvec2 vectors in C2 on nvec1 vectors in C1.
 c  C1 vectors assumed to be orthonormal.
       implicit real*8 (a-h,o-z)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension c1(n,nvec1),c2(n,nvec2),sao(*)
 
       if(metr.eq.0)then
         call schmidtd2_cvb(c1,c1,nvec1,c2,nvec2,n)
       else
         i1 = mstackr_cvb(n*nvec1)
-        call saoon_cvb(c1,w(i1),nvec1,sao,n,metr)
-        call schmidtd2_cvb(c1,w(i1),nvec1,c2,nvec2,n)
+        call saoon_cvb(c1,work(i1),nvec1,sao,n,metr)
+        call schmidtd2_cvb(c1,work(i1),nvec1,c2,nvec2,n)
         call mfreer_cvb(i1)
       endif
       return

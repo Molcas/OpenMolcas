@@ -33,6 +33,9 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+#ifdef _MSYM_
+      Use, Intrinsic :: iso_c_binding, only: c_ptr
+#endif
 #ifdef _HDF5_
       Use mh5, Only: mh5_exists_dset
 #endif
@@ -50,7 +53,7 @@
       Integer iDummy(1)
       Integer, Dimension(:,:), Allocatable:: IndT
 #ifdef _MSYM_
-      Real*8 msym_ctx
+      Type(c_ptr) msym_ctx
 #endif
       Dimension Dummy(1),iDum(7,8)
 *

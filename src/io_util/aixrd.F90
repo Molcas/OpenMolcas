@@ -61,8 +61,15 @@ real(kind=wp) :: CPUA, CPUE, TIOA, TIOE
 character(len=80) :: ErrTxt
 character(len=64) :: Temp
 character(len=*), parameter :: TheName = 'AixRd'
-integer(kind=iwp), external :: AixErr, c_lseek, c_read
+integer(kind=iwp), external :: AixErr
 #include "warnings.h"
+interface
+  function c_lseek(FileDescriptor,Offset) bind(C,name='c_lseek_')
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: c_lseek
+    integer(kind=MOLCAS_C_INT) :: FileDescriptor, Offset
+  end function c_lseek
+end interface
 
 !----------------------------------------------------------------------*
 ! Entry to AixRd                                                       *
@@ -116,7 +123,7 @@ CtlBlk(pWhere,nFile) = pDisk
 !----------------------------------------------------------------------*
 ! Read from file                                                       *
 !----------------------------------------------------------------------*
-rc = c_read(desc,Buf,nBuf)
+rc = c_read_wrapper(desc,Buf,nBuf)
 if (rc < 0) then
   if (iErrSkip == 1) then
     AixRd = 99
@@ -146,5 +153,28 @@ ProfData(6,Lu) = ProfData(6,Lu)+TIOE
 ! Finished so return to caller                                         *
 !----------------------------------------------------------------------*
 return
+
+contains
+
+function c_read_wrapper(FileDescriptor,Buffer,nBytes)
+
+  use, intrinsic :: iso_c_binding, only: c_loc
+
+  integer(kind=iwp) :: c_read_wrapper
+  integer(kind=iwp), intent(in) :: FileDescriptor, nBytes
+  integer(kind=iwp), intent(_OUT_), target :: Buffer(*)
+  interface
+    function c_read(FileDescriptor,Buffer,nBytes) bind(C,name='c_read_')
+      use, intrinsic :: iso_c_binding, only: c_ptr
+      use Definitions, only: MOLCAS_C_INT
+      integer(kind=MOLCAS_C_INT) :: c_read
+      integer(kind=MOLCAS_C_INT) :: FileDescriptor, nBytes
+      type(c_ptr), value :: Buffer
+    end function c_read
+  end interface
+
+  c_read_wrapper = c_read(FileDescriptor,c_loc(Buffer(1)),nBytes)
+
+end function c_read_wrapper
 
 end function AixRd

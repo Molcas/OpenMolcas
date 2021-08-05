@@ -19,7 +19,7 @@ c  Calculate V1 EijEkl CFROM
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension hessorb(nprorb,nprorb),v1(*),cfrom(*)
 
       iv1=nint(v1(1))
@@ -30,11 +30,12 @@ c  Calculate V1 EijEkl CFROM
         call abend_cvb()
       endif
 
-      call dev2c_2_cvb(w(iaddr_ci(iv1)),w(iaddr_ci(icfrom)),
+      call dev2c_2_cvb(work(iaddr_ci(iv1)),work(iaddr_ci(icfrom)),
      >  hessorb,oaa2,nprorb,
-     >  iw(ll(1)),iw(ll(2)),iw(ll(3)),iw(ll(4)),iw(ll(5)),iw(ll(6)),
-     >  w(ll(9)),w(ll(10)),
-     >  iw(ll(11)),iw(ll(12)),iw(ll(13)),iw(ll(14)),npvb,
+     >  iwork(ll(1)),iwork(ll(2)),iwork(ll(3)),iwork(ll(4)),
+     >  iwork(ll(5)),iwork(ll(6)),
+     >  work(ll(9)),work(ll(10)),
+     >  iwork(ll(11)),iwork(ll(12)),iwork(ll(13)),iwork(ll(14)),npvb,
      >  nda,ndb,n1a,n1b,nam1,nbm1,norb,projcas,sc,absym(3))
       return
       end

@@ -645,6 +645,10 @@ If (Inv) Then
 
       Do i = 1, nIrrep
          If (iOper(i).eq.7) Then
+#ifdef _WARNING_WORKAROUND_
+            ! see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101827
+            i1 = min(i1,len(lIrrep))
+#endif
             If (iChTbl(iIrrep,i).eq.1) Then
                lIrrep(iIrrep-1)(i1:i1)='g'
             Else If (iChTbl(iIrrep,i).eq.-1) Then

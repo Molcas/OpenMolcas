@@ -18,8 +18,8 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
-      call mksymorbs2_cvb(w(lv(1)),w(lw(2)))
+      call mksymorbs2_cvb(work(lv(1)),work(lw(2)))
       return
       end

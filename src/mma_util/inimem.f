@@ -17,6 +17,7 @@
 *> Initialize memory for Molcas.
 ************************************************************************
       Subroutine IniMem
+      Use stdalloc, only: MxMem
       Implicit Real*8 (A-H,O-Z)
 *
 #include "SysCtl.fh"
@@ -24,7 +25,18 @@
 #include "mama.fh"
 #include "WrkSpc.fh"
 *
-      Integer allocmem
+      Interface
+        Function allocmem(ref,cref,intof,dblof,sglof,chrof,size_)
+     &           bind(C,name='allocmem_')
+          Use, Intrinsic :: iso_c_binding, only: c_char
+          Use Definitions, only: MOLCAS_C_INT, MOLCAS_C_REAL
+          Integer(kind=MOLCAS_C_INT) :: allocmem
+          Real(kind=MOLCAS_C_REAL) :: ref(*)
+          Character(kind=c_char) :: cref(*)
+          Integer(kind=MOLCAS_C_INT) :: intof, dblof, sglof, chrof,
+     &                                  size_
+        End Function allocmem
+      End Interface
 *----------------------------------------------------------------------*
 *     Initialize the Common / MemCtl / the first time it is referenced *
 *----------------------------------------------------------------------*

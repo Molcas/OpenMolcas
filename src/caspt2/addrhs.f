@@ -103,7 +103,6 @@ C Put W on disk:
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "eqsolv.fh"
 Case B:
 * t>v j>l WP(tv,jl)=add ((tj,vl))*(1/2)
@@ -293,7 +292,6 @@ C Put WBM on disk:
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION AUVX(NA,NU,NV,NX)
       DIMENSION Buff(nBuff)
@@ -385,7 +383,6 @@ C Put W on disk:
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION AJVX(NV,NX,*)
       DIMENSION Buff(nBuff)
@@ -513,7 +510,6 @@ C Put W on disk:
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION AUVL(NA,NU,NV,NL)
       DIMENSION Buff(nBuff)
@@ -617,7 +613,6 @@ C Put W on disk:
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "eqsolv.fh"
 
       DIMENSION AJVL(NV,NL,*)
@@ -829,7 +824,6 @@ C Read WM:
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION AUCX(NA,NU,NC,NX)
       DIMENSION Buff(nBuff)
@@ -1014,7 +1008,6 @@ C Put WFM on disk:
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "eqsolv.fh"
 
       DIMENSION AUCL(NA,NU,*)
@@ -1254,7 +1247,6 @@ C      NBXSZJ=NINABX
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION AJCL(NC*NL,*)
       DIMENSION Buff(nBuff)

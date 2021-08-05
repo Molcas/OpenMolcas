@@ -21,7 +21,7 @@ c ... Content of CI vectors ...
 #include "print_cvb.fh"
 
 #include "opt2_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
       call ddnewopt_cvb()
       have_solved_it=.false.
@@ -30,8 +30,8 @@ c  Find CIVBS & CIVBH :
       ivuse_s=0
       ivuse_h=0
       do 10 iv=1,nv
-      if(tstcnt_cvb(w(lc(iv)),4))ivuse_s=iv
-      if(tstcnt_cvb(w(lc(iv)),5))ivuse_h=iv
+      if(tstcnt_cvb(work(lc(iv)),4))ivuse_s=iv
+      if(tstcnt_cvb(work(lc(iv)),5))ivuse_h=iv
 10    continue
       ivuse2=3
       if(ivuse_h.eq.3.or.ivuse_s.eq.3)ivuse2=2
@@ -42,18 +42,18 @@ c  Find CIVBS & CIVBH :
         i2 = mstackr_cvb(nparm1)
         i3 = mstackr_cvb(nparm1)
         i4 = mstackr_cvb(nvb+nprorb)
-        call o12ea2_cvb(w(i1),w(i2),w(i3),nparm1,
-     >    w(lc(ivuse2)),w(lc(ivuse_s)),w(lc(ivuse_h)),
-     >    w(lw(9)),w(lv(2)),w(i4))
+        call o12ea2_cvb(work(i1),work(i2),work(i3),nparm1,
+     >    work(lc(ivuse2)),work(lc(ivuse_s)),work(lc(ivuse_h)),
+     >    work(lw(9)),work(lv(2)),work(i4))
         call mfreer_cvb(i1)
       else
         if(strucopt)then
-          call ddguess_cvb(w(lv(2)),nvb,nprorb)
+          call ddguess_cvb(work(lv(2)),nvb,nprorb)
         else
           call ddguess_cvb([one],1,0)
         endif
       endif
-      call str2vbc_cvb(w(lv(2)),w(lw(9)))
-      call vb2cic_cvb(w(lw(9)),w(lc(3)))
+      call str2vbc_cvb(work(lv(2)),work(lw(9)))
+      call vb2cic_cvb(work(lw(9)),work(lc(3)))
       return
       end

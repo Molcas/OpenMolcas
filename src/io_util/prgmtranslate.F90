@@ -27,6 +27,17 @@ integer(kind=iwp) :: lin
 character(len=*), parameter :: LL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz /.-_*'
 #endif
 integer(kind=iwp), external :: Strnln
+interface
+  subroutine PrgmTranslateC(InStr,l1,OutStr,l2,Par) bind(C,name='prgmtranslatec_')
+  use, intrinsic :: iso_c_binding, only: c_char
+  use Definitions, only: MOLCAS_C_INT
+# include "intent.fh"
+  character(kind=c_char), intent(in) :: InStr(*)
+  integer(kind=MOLCAS_C_INT), intent(in) :: l1, Par
+  character(kind=c_char), intent(_OUT_) :: OutStr(*)
+  integer(kind=MOLCAS_C_INT), intent(out) :: l2
+  end subroutine
+end interface
 
 lin = Strnln(namein)
 nameout = ' '

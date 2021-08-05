@@ -14,9 +14,9 @@ c  ********************************************************
 c  **********************
 c  ** LINPACK ROUTINES **
 c  **********************
-      SUBROUTINE DGEDI(A,LDA,N,IPVT,DET,WORK,JOB)
+      SUBROUTINE DGEDI(A,LDA,N,IPVT,DET,W,JOB)
       INTEGER LDA,N,IPVT(N),JOB
-      REAL*8 A(LDA,N),DET(2),WORK(*)
+      REAL*8 A(LDA,N),DET(2),W(*)
 C
 C     DGEDI COMPUTES THE DETERMINANT AND INVERSE OF A MATRIX
 C     USING THE FACTORS COMPUTED BY DGECO OR DGEFA.
@@ -35,7 +35,7 @@ C
 C        IPVT    INTEGER(N)
 C                THE PIVOT VECTOR FROM DGECO OR DGEFA.
 C
-C        WORK    real*8(N)
+C        W       real*8(N)
 C                WORK VECTOR.  CONTENTS DESTROYED.
 C
 C        JOB     INTEGER
@@ -128,11 +128,11 @@ C
             K = N - KB
             KP1 = K + 1
             DO 110 I = KP1, N
-               WORK(I) = A(I,K)
+               W(I) = A(I,K)
                A(I,K) = 0.0D0
   110       CONTINUE
             DO 120 J = KP1, N
-               T = WORK(J)
+               T = W(J)
                CALL DAXPY_(N,T,A(1,J),1,A(1,K),1)
   120       CONTINUE
             L = IPVT(K)

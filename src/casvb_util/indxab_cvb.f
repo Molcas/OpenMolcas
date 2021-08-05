@@ -18,13 +18,13 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension indxa(nsa),indxb(nsb),nstra(mxirrep),nstrb(mxirrep)
 
       i1 = mstacki_cvb(norb+1)
 
       call indxab2_cvb(indxa,indxb,nstra,nstrb,
-     >  iw(i1),nsa,nsb)
+     >  iwork(i1),nsa,nsb)
       call mfreei_cvb(i1)
       return
       end

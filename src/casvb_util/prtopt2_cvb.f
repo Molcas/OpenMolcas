@@ -20,7 +20,7 @@
 #include "print_cvb.fh"
 
 #include "spinb_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       parameter(nmeth=12)
       character*3 ayn
       character*8 methkw(nmeth)
@@ -80,11 +80,11 @@
             do 700 i=1,norb
             if(ifxorb(i).ge.0.and.ifxorb(i).le.norb)then
               ifx=ifx+1
-              iw(ifx+itmp-1)=i
+              iwork(ifx+itmp-1)=i
             endif
 700         continue
             nfxorb=ifx
-            write(6,'(14i3)')(iw(ii+itmp-1),ii=1,nfxorb)
+            write(6,'(14i3)')(iwork(ii+itmp-1),ii=1,nfxorb)
             call mfreei_cvb(itmp)
           endif
           if(nfxvb.gt.0.and.lfxvb.eq.0)then

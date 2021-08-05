@@ -38,6 +38,7 @@
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
       Integer iChMolpro(8)
+      Character*3 Label
 #endif
 
 

@@ -89,7 +89,7 @@
             if (mdc.gt.MxAtom) then
                Call WarningMessage(2,'MxAtom too small')
                write(LuWr,*) 'MxAtom=',MxAtom
-               write(LuWr,*) 'Increase MxAtom in info.fh and',
+               write(LuWr,*) 'Increase MxAtom in Molcas.fh and',
      &                       ' recompile the code!'
                Call Abend()
             end if
@@ -124,7 +124,7 @@
                End If
                If (iShell.gt.MxShll) Then
                   Call WarningMessage(2,'iShell.gt.MxShll')
-                  Write (LuWr,*) ' Change MxShll in info.fh and re'
+                  Write (LuWr,*) ' Change MxShll in Molcas.fh and re'
      &                      //'compile the code!'
                   Call Abend()
                End If

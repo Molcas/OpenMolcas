@@ -54,7 +54,7 @@ integer(kind=iwp) :: desc, Lu, n, nFile, pDisk, rc
 real(kind=wp) :: CPUA, CPUE, TIOA, TIOE
 character(len=80) :: ErrTxt
 character(len=*), parameter :: TheName = 'AixPWr'
-integer(kind=iwp), external :: AixErr, c_pwrite
+integer(kind=iwp), external :: AixErr
 #include "warnings.h"
 
 !----------------------------------------------------------------------*
@@ -89,7 +89,7 @@ end if
 ! Write to file                                                        *
 !----------------------------------------------------------------------*
 CtlBlk(pWhere,nFile) = pDisk+nBuf
-if (nBuf > 0) rc = c_pwrite(desc,Buf,nBuf,pDisk)
+if (nBuf > 0) rc = c_pwrite_wrapper(desc,Buf,nBuf,pDisk)
 if (rc < 0) then
   call FASTIO('STATUS')
   AixPWr = AixErr(ErrTxt)
@@ -107,5 +107,28 @@ ProfData(3,Lu) = ProfData(3,Lu)+TIOE
 ! Finished so return to caller                                         *
 !----------------------------------------------------------------------*
 return
+
+contains
+
+function c_pwrite_wrapper(FileDescriptor,Buffer,nBytes,Offset)
+
+  use, intrinsic :: iso_c_binding, only: c_loc
+
+  integer(kind=iwp) :: c_pwrite_wrapper
+  integer(kind=iwp), intent(in) :: FileDescriptor, nBytes, Offset
+  integer(kind=iwp), intent(in), target :: Buffer(*)
+  interface
+    function c_pwrite(FileDescriptor,Buffer,nBytes,Offset) bind(C,name='c_pwrite_')
+      use, intrinsic :: iso_c_binding, only: c_ptr
+      use Definitions, only: MOLCAS_C_INT
+      integer(kind=MOLCAS_C_INT) :: c_pwrite
+      type(c_ptr), value :: Buffer
+      integer(kind=MOLCAS_C_INT) :: FileDescriptor, nBytes, Offset
+    end function c_pwrite
+  end interface
+
+  c_pwrite_wrapper = c_pwrite(FileDescriptor,c_loc(Buffer(1)),nBytes,Offset)
+
+end function c_pwrite_wrapper
 
 end function AixPWr

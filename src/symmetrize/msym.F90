@@ -13,11 +13,12 @@
 
 subroutine fmsym(rc)
 
-use Definitions, only: wp, iwp
+use, intrinsic :: iso_c_binding, only: c_ptr
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: rc
-real(kind=wp) :: ctx
+type(c_ptr) :: ctx
 
 call fmsym_create_context(ctx)
 call fmsym_set_elements(ctx)

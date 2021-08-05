@@ -151,6 +151,12 @@
 #include "angstr.fh"
       Data DefNm/'basis_library'/
       Data IfTest/.False./
+      Interface
+        Subroutine datimx(TimeStamp) Bind(C,name='datimx_')
+          Use, Intrinsic :: iso_c_binding, Only: c_char
+          Character(kind=c_char) :: TimeStamp(*)
+        End Subroutine
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4360,7 +4366,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             n_dc=max(mdc,n_dc)
             If (mdc.gt.MxAtom) Then
                Call WarningMessage(2,' mdc.gt.MxAtom!;'
-     &                      //' Increase MxAtom in info.fh.')
+     &                      //' Increase MxAtom in Molcas.fh.')
                Write (LuWr,*) ' MxAtom=',MxAtom
                Call Abend()
             End If

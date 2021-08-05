@@ -56,8 +56,15 @@ integer(kind=iwp) :: desc, Lu, n, nFile, rc, pDisk
 real(kind=wp) CPUA, CPUE, TIOA, TIOE
 character(len=80) :: ErrTxt
 character(len=*), parameter :: TheName = 'AixWr'
-integer(kind=iwp), external :: AixErr, c_lseek, c_write
+integer(kind=iwp), external :: AixErr
 #include "warnings.h"
+interface
+  function c_lseek(FileDescriptor,Offset) bind(C,name='c_lseek_')
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: c_lseek
+    integer(kind=MOLCAS_C_INT) :: FileDescriptor, Offset
+  end function c_lseek
+end interface
 
 !----------------------------------------------------------------------*
 ! Entry to AixWr                                                       *
@@ -102,7 +109,7 @@ CtlBlk(pWhere,nFile) = pDisk
 !----------------------------------------------------------------------*
 ! Write to file                                                        *
 !----------------------------------------------------------------------*
-rc = c_write(desc,Buf,nBuf)
+rc = c_write_wrapper(desc,Buf,nBuf)
 if (rc < 0) then
   call FASTIO('STATUS')
   AixWr = AixErr(ErrTxt)
@@ -122,5 +129,28 @@ ProfData(3,Lu) = ProfData(3,Lu)+TIOE
 ! Finished so return to caller                                         *
 !----------------------------------------------------------------------*
 return
+
+contains
+
+function c_write_wrapper(FileDescriptor,Buffer,nBytes)
+
+  use, intrinsic :: iso_c_binding, only: c_loc
+
+  integer(kind=iwp) :: c_write_wrapper
+  integer(kind=iwp), intent(in) :: FileDescriptor, nBytes
+  integer(kind=iwp), intent(in), target :: Buffer(*)
+  interface
+    function c_write(FileDescriptor,Buffer,nBytes) bind(C,name='c_write_')
+      use, intrinsic :: iso_c_binding, only: c_ptr
+      use Definitions, only: MOLCAS_C_INT
+      integer(kind=MOLCAS_C_INT) :: c_write
+      integer(kind=MOLCAS_C_INT) :: FileDescriptor, nBytes
+      type(c_ptr), value :: Buffer
+    end function c_write
+  end interface
+
+  c_write_wrapper = c_write(FileDescriptor,c_loc(Buffer(1)),nBytes)
+
+end function c_write_wrapper
 
 end function AixWr
