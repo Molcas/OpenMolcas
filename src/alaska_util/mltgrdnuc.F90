@@ -12,6 +12,7 @@
 subroutine MltGrdNuc(Grad,nGrad,nOrdOp)
 
 use Basis_Info, only: dbsc, nCnttp
+use finfld, only: force
 use Index_Functions, only: C_Ind
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -24,7 +25,6 @@ real(kind=wp) :: C(3), Fact, ff, XGrad
 logical(kind=iwp), external :: TF
 #include "Molcas.fh"
 #include "disp.fh"
-#include "finfld.fh"
 
 iIrrep = 0
 do ixop=0,nOrdOp

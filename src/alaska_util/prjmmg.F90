@@ -12,9 +12,9 @@
 !***********************************************************************
 
 subroutine PrjMmG( &
-#                define _CALLING_
-#                include "mem_interface.fh"
-                )
+#                 define _CALLING_
+#                 include "mem_interface.fh"
+                 )
 !***********************************************************************
 !                                                                      *
 !  Object: to compute the number of real*8 the kernel routine will     *

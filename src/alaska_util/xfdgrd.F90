@@ -94,15 +94,15 @@ do iOrdOp=0,nOrd_XF
   iAnga(2) = lb
   iAnga(3) = iOrdOp
   iAnga(4) = 0
-  call dcopy_(3,A,1,Coori(1,1),1)
-  call dcopy_(3,RB,1,Coori(1,2),1)
+  Coori(:,1) = A(:)
+  Coori(:,2) = RB(:)
 
   ! Find center to accumulate angular momentum on. (HRR)
 
   if (la >= lb) then
-    call dcopy_(3,A,1,CoorAC(1,1),1)
+    CoorAC(:,1) = A(:)
   else
-    call dcopy_(3,RB,1,CoorAC(1,1),1)
+    CoorAC(:,1) = RB(:)
   end if
   iuvwx(1) = dc(mdc)%nStab
   iuvwx(2) = dc(ndc)%nStab
@@ -162,7 +162,7 @@ do iOrdOp=0,nOrd_XF
     end if
     iuvwx(3) = nStb
     iuvwx(4) = nStb
-    call ICopy(6,IndGrd,1,JndGrd,1)
+    JndGrd(:,1:2) = IndGrd(:,:)
     do i=1,3
       do j=1,2
         JfGrad(i,j) = IfGrad(i,j)
@@ -172,11 +172,11 @@ do iOrdOp=0,nOrd_XF
     ! No derivatives with respect to the third or fourth center.
     ! The positions of the points in the external field are frozen.
 
-    call ICopy(3,[0],0,JndGrd(1,3),1)
+    JndGrd(:,3) = 0
     JfGrad(1,3) = .false.
     JfGrad(2,3) = .false.
     JfGrad(3,3) = .false.
-    call ICopy(3,[0],0,JndGrd(1,4),1)
+    JndGrd(:,4) = 0
     JfGrad(1,4) = .false.
     JfGrad(2,4) = .false.
     JfGrad(3,4) = .false.
@@ -193,9 +193,9 @@ do iOrdOp=0,nOrd_XF
       lOp(3) = NrOpr(iDCRT(lDCRT))
       lOp(4) = lOp(3)
       call OA(iDCRT(lDCRT),C,TC)
-      call dcopy_(3,TC,1,CoorAC(1,2),1)
-      call dcopy_(3,TC,1,Coori(1,3),1)
-      call dcopy_(3,TC,1,Coori(1,4),1)
+      CoorAC(:,2) = TC(:)
+      Coori(:,3) = TC(:)
+      Coori(:,4) = TC(:)
 
       if (iOrdOp == 0) then
         call DYaX(nZeta*nDAO,Fact*ZFd(1),DAO,1,Array(ipDAO),1)

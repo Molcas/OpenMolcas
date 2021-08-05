@@ -36,7 +36,7 @@ real(kind=wp), allocatable :: aDAO(:)
 external :: OvrGrd, OvrMmG
 #include "nac.fh"
 
-call DCopy_(nGrad,[Zero],0,Grad,1)
+Grad(:) = Zero
 
 !nB = nBas(0)
 call Qpg_dArray('D1ao-',Found,nD)
@@ -48,7 +48,7 @@ call Get_dArray('D1ao-',aDAO,nD)
 !    Inner product of S[x] and D^A (antisymmetric component of transition density matrix)
 !    This is the same as the product of S[x]^A and D
 isCSF = .true.
-call DCopy_(3,[Zero],0,CCoor,1)
+CCoor(:) = Zero
 lOper(1) = 1
 Label = 'The CSF Contribution'
 call OneEl_g(OvrGrd,OvrMmG,Grad,nGrad,.false.,CCoor,aDAO,nD,lOper,1,0,Label)

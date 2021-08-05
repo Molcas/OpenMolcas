@@ -32,13 +32,13 @@ subroutine MltGrd( &
 
 use Her_RW, only: iHerR, iHerW, HerR, HerW
 use Center_Info, only: dc
+use finfld, only: force
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipRnxyz, ipRxyz, nip
 logical(kind=iwp) :: ABeq(3)
-#include "finfld.fh"
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iPrint, iRout
 #include "print.fh"

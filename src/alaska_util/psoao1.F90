@@ -117,7 +117,7 @@ do
     iiBas(2) = jBsInc
     iiBas(3) = kBsInc
     iiBas(4) = lBsInc
-    call ICopy(4*8,[0],0,nPam,1)
+    nPam(:,:) = 0
     MemPSO = 1
     nTmp2 = 0
 

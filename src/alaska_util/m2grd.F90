@@ -158,7 +158,7 @@ do kCnttp=1,nCnttp
           Gmma = dbsc(kCnttp)%M2xp(iM2xp)
           if (iPrint >= 99) write(u6,*) ' Gmma=',Gmma
 
-          call ICopy(6,IndGrd,1,JndGrd,1)
+          JndGrd(:,1:2) = IndGrd(:,:)
           do i=1,3
             do j=1,2
               JfGrad(i,j) = IfGrad(i,j)
@@ -194,7 +194,7 @@ do kCnttp=1,nCnttp
             end if
           end do
           ! No derivatives with respect to the fourth center.
-          call ICopy(3,[0],0,JndGrd(1,4),1)
+          JndGrd(:,4) = 0
           JfGrad(1,4) = .false.
           JfGrad(2,4) = .false.
           JfGrad(3,4) = .false.

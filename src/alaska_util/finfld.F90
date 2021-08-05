@@ -8,7 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      integer lforce
-      parameter (lforce=20)
-      real*8 force(lforce)
-      common /finfld/force
+
+module finfld
+
+use Definitions, only: wp
+
+implicit none
+private
+
+real(kind=wp) :: force(20)
+
+public :: force
+
+end module finfld

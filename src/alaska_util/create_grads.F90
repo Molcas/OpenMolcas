@@ -53,9 +53,9 @@ integer(kind=iwp), allocatable :: i_grad(:), i_nac(:)
 nCoup = max(1,nRoots*(nRoots-1)/2)
 call mma_allocate(i_grad,nRoots)
 call mma_allocate(i_nac,nCoup)
-call iCopy(size(TOC),[0],0,TOC,1)
-call iCopy(nRoots,[0],0,i_grad,1)
-call iCopy(nCoup,[0],0,i_nac,1)
+TOC(:) = 0
+i_grad(:) = 0
+i_nac(:) = 0
 
 Lu = 20
 call DaName(Lu,trim(FN))

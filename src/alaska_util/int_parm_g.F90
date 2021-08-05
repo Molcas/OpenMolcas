@@ -27,10 +27,10 @@ logical(kind=iwp), intent(out) :: AeqB, CeqD
 logical(kind=iwp), intent(in) :: l2DI
 integer(kind=iwp) :: iAng, iCmp, ijShll, iShell, jAng, jCmp, jShell, kAng, kCmp, klShll, kShell, lAng, lCmp, lShell
 
-call ICopy(4,iSD4(1,1),nSD+1,iAnga,1)
-call ICopy(4,iSD4(2,1),nSD+1,iCmpa,1)
-call ICopy(4,iSD4(0,1),nSD+1,iShlla,1)
-call ICopy(4,iSD4(11,1),nSD+1,iShela,1)
+iAnga(:) = iSD4(1,:)
+iCmpa(:) = iSD4(2,:)
+iShlla(:) = iSD4(0,:)
+iShela(:) = iSD4(11,:)
 iPrimi = Shells(iSD4(0,1))%nExp
 jPrimj = Shells(iSD4(0,2))%nExp
 kPrimk = Shells(iSD4(0,3))%nExp

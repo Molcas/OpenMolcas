@@ -86,12 +86,12 @@ iAnga(1) = la
 iAnga(2) = lb
 iAnga(3) = 0
 iAnga(4) = 0
-call dcopy_(3,A,1,Coori(1,1),1)
-call dcopy_(3,RB,1,Coori(1,2),1)
+Coori(:,1) = A(:)
+Coori(:,2) = RB(:)
 if (la >= lb) then
-  call dcopy_(3,A,1,CoorAC(1,1),1)
+  CoorAC(:,1) = A(:)
 else
-  call dcopy_(3,RB,1,CoorAC(1,1),1)
+  CoorAC(:,1) = RB(:)
 end if
 iuvwx(1) = dc(mdc)%nStab
 iuvwx(2) = dc(ndc)%nStab
@@ -158,7 +158,7 @@ do kCnttp=1,nCnttp
       end if
       iuvwx(3) = dc(kdc+kCnt)%nStab
       iuvwx(4) = dc(kdc+kCnt)%nStab
-      call ICopy(6,IndGrd,1,JndGrd,1)
+      JndGrd(:,1:2) = IndGrd(:,:)
       do i=1,3
         do j=1,2
           JfGrad(i,j) = IfGrad(i,j)
@@ -195,7 +195,7 @@ do kCnttp=1,nCnttp
         end if
       end do
       ! No derivatives with respect to the fourth center.
-      call ICopy(3,[0],0,JndGrd(1,4),1)
+      JndGrd(:,4) = 0
       JfGrad(1,4) = .false.
       JfGrad(2,4) = .false.
       JfGrad(3,4) = .false.
@@ -212,9 +212,9 @@ do kCnttp=1,nCnttp
         lOp(3) = NrOpr(iDCRT(lDCRT))
         lOp(4) = lOp(3)
         call OA(iDCRT(lDCRT),C,TC)
-        call dcopy_(3,TC,1,CoorAC(1,2),1)
-        call dcopy_(3,TC,1,Coori(1,3),1)
-        call dcopy_(3,TC,1,Coori(1,4),1)
+        CoorAC(:,2) = TC(:)
+        Coori(:,3) = TC(:)
+        Coori(:,4) = TC(:)
 
         if (Nuclear_Model == Gaussian_Type) then
           Eta = dbsc(kCnttp)%ExpNuc
@@ -225,7 +225,7 @@ do kCnttp=1,nCnttp
           call Rysg1(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,Coori,Coori, &
                      CoorAC,Array(nip),nArray,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO,Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
         else
-        ! more to come...
+          ! more to come...
         end if
 
         !call RecPrt('In NaGrd: Grad',' ',Grad,nGrad,1)

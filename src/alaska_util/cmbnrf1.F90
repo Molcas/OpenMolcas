@@ -227,7 +227,7 @@ do ixa=0,la
                 if (izb > 0) then
                   zb = -izb
                   do iZeta=1,nZeta
-                    rFinal(iZeta,ipa,ipb,iComp,6) = Temp(iZeta)*&
+                    rFinal(iZeta,ipa,ipb,iComp,6) = Temp(iZeta)* &
                                    (Two*Beta(iZeta)*Rnxyz(iZeta,3,iza,izb+1,iz)+ &
                                                  zb*Rnxyz(iZeta,3,iza,izb-1,iz))
                   end do

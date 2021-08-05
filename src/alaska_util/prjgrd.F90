@@ -115,7 +115,7 @@ do kCnttp=1,nCnttp
 
       iuvwx(3) = dc(kdc+kCnt)%nStab
       iuvwx(4) = dc(kdc+kCnt)%nStab
-      call ICopy(6,IndGrd,1,JndGrd,1)
+      JndGrd(:,1:2) = IndGrd(:,:)
       do i=1,3
         do j=1,2
           JfGrad(i,j) = IfGrad(i,j)
@@ -141,7 +141,7 @@ do kCnttp=1,nCnttp
           JndGrd(iCar+1,3) = 0
         end if
       end do
-      call ICopy(3,[0],0,JndGrd(1,4),1)
+      JndGrd(:,4) = 0
       JfGrad(1,4) = .false.
       JfGrad(2,4) = .false.
       JfGrad(3,4) = .false.
@@ -391,7 +391,7 @@ do kCnttp=1,nCnttp
           !   End loop C
           ! End Loop b and a
 
-          call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*6,[Zero],0,rFinal,1)
+          rFinal(:,:,:,:) = Zero
 
           mVec = 0
           mVecAC = 1

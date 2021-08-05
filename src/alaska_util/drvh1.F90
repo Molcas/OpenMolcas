@@ -37,9 +37,12 @@ use PCM_arrays, only: PCM_SQ
 use External_Centers, only: nWel, XF, Wel_Info
 use Basis_Info, only: nCnttp, dbsc, nBas
 use Symmetry_Info, only: nIrrep
+#ifdef _NEXTFFIELD_
+use finfld, only: force
+#endif
 use Index_Functions, only: nTri_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -67,7 +70,6 @@ external :: COSGrd, FragPGrd, FragPMmG, KneGrd, KneMmG, M1Grd, M1MmG, M2Grd, M2M
 #include "disp.fh"
 #include "wldata.fh"
 #include "rctfld.fh"
-#include "finfld.fh"
 
 ! Prologue
 iRout = 131
@@ -151,7 +153,7 @@ if (.not. HF_Force) then
   DiffOp = .false.
   Label = ' The Renormalization Contribution'
   call OneEl_g(OvrGrd,OvrMmG,Temp,nGrad,DiffOp,Coor,Fock,nFock,lOper,nComp,nOrdOp,Label)
-  call DaXpY_(nGrad,-One,Temp,1,Grad,1)
+  Grad(:) = Grad(:)-Temp(:)
 end if
 
 !***********************************************************************
@@ -165,14 +167,14 @@ if (.not. HF_Force) then
   DiffOp = .false.
   Label = ' The Kinetic Energy Contribution'
   call OneEl_g(KneGrd,KneMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-  call DaXpY_(nGrad,One,Temp,1,Grad,1)
+  Grad(:) = Grad(:)+Temp(:)
   ! This is either not implemented or disabled, so commenting it out
 # ifdef _NEXTFFIELD_
   !AOM<
   ! Check finite field operators...
   nextfld = 0
   do
-    call GetNextFfield(nextfld,fldname,nOrdOpf,ncmp,force,lforce)
+    call GetNextFfield(nextfld,fldname,nOrdOpf,ncmp,force,size(force))
     if (nextfld == 0) exit
     if (nOrdOpf == 0) then
       if (fldname(1:2) /= 'OV') then
@@ -195,7 +197,7 @@ if (.not. HF_Force) then
     call OneEl_g(MltGrd,MltMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOperf,nCompf,nOrdOpf,Label)
     call MltGrdNuc(Temp,nGrad,nOrdOpf)
     call mma_deallocate(lOperf)
-    call DaXpY_(nGrad,-One,Temp,1,Grad,1)
+    Grad(:) = Grad(:)-Temp(:)
   end do
   !AOM>
 # endif
@@ -211,7 +213,7 @@ end if
 DiffOp = .true.
 Label = ' The Nuclear Attraction Contribution'
 call OneEl_g(NAGrd,NAMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-call DaXpY_(nGrad,One,Temp,1,Grad,1)
+Grad(:) = Grad(:)+Temp(:)
 if (HF_Force) then
   if (lECP .or. (nWel /= 0) .or. allocated(XF) .or. lRF) then
     call WarningMessage(2,'Error in Drvh1')
@@ -232,24 +234,24 @@ if (.not. HF_Force) then
     DiffOp = .true.
     Label = ' The Projection Operator Contribution'
     call OneEl_g(PrjGrd,PrjMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-    call DaXpY_(nGrad,One,Temp,1,Grad,1)
+    Grad(:) = Grad(:)+Temp(:)
 
     Label = ' The M1 Operator Contribution'
     call OneEl_g(M1Grd,M1MmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-    call DaXpY_(nGrad,One,Temp,1,Grad,1)
+    Grad(:) = Grad(:)+Temp(:)
 
     Label = ' The M2 Operator Contribution'
     call OneEl_g(M2Grd,M2MmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-    call DaXpY_(nGrad,One,Temp,1,Grad,1)
+    Grad(:) = Grad(:)+Temp(:)
 
     Label = ' The SR Operator Contribution'
     call OneEl_g(SROGrd,SROMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-    call DaXpY_(nGrad,One,Temp,1,Grad,1)
+    Grad(:) = Grad(:)+Temp(:)
   end if
   if (lPP) then
     Label = ' The Pseudo Potential Contribution'
     call OneEl_g(PPGrd,PPMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-    call DaXpY_(nGrad,One,Temp,1,Grad,1)
+    Grad(:) = Grad(:)+Temp(:)
   end if
 end if
 
@@ -268,7 +270,7 @@ if (.not. HF_Force) then
     Label = ' The Spherical Well Contribution'
     call OneEl_g(WelGrd,WelMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
     Fact = Wel_Info(3,iWel)
-    call DaXpY_(nGrad,Fact,Temp,1,Grad,1)
+    Grad(:) = Grad(:)+Fact*Temp(:)
   end do
 end if
 
@@ -284,7 +286,7 @@ if (.not. HF_Force) then
     DiffOp = .true.
     Label = ' The External Field Contribution'
     call OneEl_g(XFdGrd,XFdMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-    call DaXpY_(nGrad,One,Temp,1,Grad,1)
+    Grad(:) = Grad(:)+Temp(:)
   end if
 end if
 
@@ -343,7 +345,7 @@ if (.not. HF_Force) then
     DiffOp = .true.
     Label = ' The Electronic Reaction Field Contribution'
     call OneEl_g(RFGrd,RFMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-    call DaXpY_(nGrad,One,Temp,1,Grad,1)
+    Grad(:) = Grad(:)+Temp(:)
 
   else if (lRF .and. PCM) then
     iCOSMO = 0
@@ -351,7 +353,7 @@ if (.not. HF_Force) then
 
     if (iCOSMO <= 0) then
       iPrint = 15
-      call DScal_(nTs*2,One/real(nIrrep,kind=wp),PCM_SQ,1)
+      PCM_SQ(:,:) = PCM_SQ(:,:)/real(nIrrep,kind=wp)
     end if
     lOper(1) = 1
     DiffOp = .true.
@@ -372,8 +374,8 @@ if (.not. HF_Force) then
       end if
     end if
 
-    call DaXpY_(nGrad,One,Temp,1,Grad,1)
-    if (iCOSMO == 0) call DScal_(nTs*2,real(nIrrep,kind=wp),PCM_SQ,1)
+    Grad(:) = Grad(:)+Temp(:)
+    if (iCOSMO == 0) PCM_SQ(:,:) = PCM_SQ(:,:)*real(nIrrep,kind=wp)
 
   end if
 end if
@@ -390,7 +392,7 @@ if (.not. HF_Force) then
     DiffOp = .true.
     Label = ' The FAIEMP Projection Operator Contribution'
     call OneEl_g(FragPGrd,FragPMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-    call DaXpY_(nGrad,One,Temp,1,Grad,1)
+    Grad(:) = Grad(:)+Temp(:)
     call DrvG_FAIEMP(Grad,Temp,nGrad)
   end if
 end if
