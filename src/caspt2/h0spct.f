@@ -149,8 +149,8 @@ C positioning.
               COEF=WORK(lg_VEC+IAS-1+NIN*(IIS-IISTA))
 #endif
               ECNT=COEF*RHS
-              IF (ABS(DNOM).LT.DNMTHR .OR.
-     &            ABS(COEF).GT.CMPTHR .OR.
+              IF (ABS(DNOM).LT.DNMTHR .AND.
+     &            ABS(COEF).GT.CMPTHR .AND.
      &            ABS(ECNT).GT.CNTTHR )
      &        THEN
                 IF (IBUF.LT.MAXBUF) THEN
@@ -198,8 +198,10 @@ C positioning.
             IIS  = IWORK(LIDX+1+2*(IBUF-1))
             DNOM = WORK(LVAL+0+4*(IBUF-1))
             ! compute regularized denominator
-            if (regularizer.gt.0.0d0) then
+            if (regularizer > 0.0d0) then
               DNOMR = DNOM/(1.0 - exp(-regularizer * DNOM**2))
+            else if (shifti > 0.0d0) then
+              DNOMR = DNOM+SHIFTI**2/DNOM
             else
               DNOMR = DNOM
             end if
@@ -224,33 +226,39 @@ C positioning.
             END IF
 
             ! if a denominator has changed significantly
-            if (abs(DNOMR - DNOM).gt.0.3d0) then
+            ! if (abs(DNOMR - DNOM).gt.0.3d0) then
               ! compute unregularized contribution
-              ECNTD = -RHS**2/DNOM
+              ! ECNTD = -RHS**2/DNOM
               ! if the energy contribution has changed a lot
               ! between regularized and unregularized denominators
-              if (abs(ECNTD - ECNT).gt.1.0e-4) then
-                write(6,'(A)')'------------------------------'//
-     &          ' large regularized ---------------------'//
-     &          '----------------------------------------'
-              end if
-            end if
-
+              ! if (abs(ECNTD - ECNT).gt.1.0e-4) then
+    !             write(6,'(A)')'------------------------------'//
+    !  &          ' large regularized ---------------------'//
+    !  &          '----------------------------------------'
+              ! end if
+            ! end if
+            !!! DEBUG
+            ECNTD = -RHS**2/DNOM
+            COEFD = -RHS/DNOM
+            ! WRITE(6,'(10A11)')('-----------',i=1,10)
+            WRITE(6,'(A,4F16.8)') LINE(1:46),DNOM,RHS,COEFD,ECNTD
+            !!!!
             ! print out the regularized denominator in any case
             ! satisfying the official thresholds
             WRITE(6,'(A,4F16.8)') LINE(1:46),DNOMR,RHS,COEF,ECNT
+            WRITE(6,'(10A11)')('-----------',i=1,10)
 
             ! if a denominator has changed significantly
-            if (abs(DNOMR - DNOM).gt.0.3d0) then
-              if (abs(ECNTD - ECNT).gt.1.0e-4) then
-                COEFD = -RHS/DNOM
-                write(6,'(A)')'------------------------------'//
-     &          ' original unregularized ----------------'//
-     &          '----------------------------------------'
-                WRITE(6,'(A,4F16.8)') LINE(1:46),DNOM,RHS,COEFD,ECNTD
-                WRITE(6,'(10A11)')('-----------',i=1,10)
-              end if
-            end if
+    !         if (abs(DNOMR - DNOM).gt.0.3d0) then
+    !           if (abs(ECNTD - ECNT).gt.1.0e-4) then
+    !             COEFD = -RHS/DNOM
+    !             write(6,'(A)')'------------------------------'//
+    !  &          ' original unregularized ----------------'//
+    !  &          '----------------------------------------'
+    !             WRITE(6,'(A,4F16.8)') LINE(1:46),DNOM,RHS,COEFD,ECNTD
+    !             WRITE(6,'(10A11)')('-----------',i=1,10)
+    !           end if
+    !         end if
 
           END DO
 

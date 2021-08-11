@@ -1378,8 +1378,13 @@ C-SVC: get the local vertical stripes of the lg_W vector
         DELINV=DELTA+SHIFTI**2/DELTA
         ! regularized CASPT2
         ! WARNING: if delta is very close to zero numerical problems!
-        if (reg.gt.0.0d0) then
-          DELINV = DELINV/(1.0d0 - exp(-reg * DELTA**2))
+        if (reg > 0.0d0) then
+          factor = 1.0d0 - exp(-reg * DELTA**2)
+          ! if (factor < 1e-4) then
+          !   write(6,*) 'factor = ',factor
+          ! end if
+          DELINV = DELINV/factor
+
         end if
         W(I,J)=DELINV*W(I,J)
         END DO
