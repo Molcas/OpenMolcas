@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine InfoToMp(nSym,nBas,Energy_Without_FFPT,ip_Ene_Occ,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine InfoToMp(nSym,nBas,Energy_Without_FFPT,ip_Ene_Occ,     &
      &                   nOcOb,UserDen,Restart)
       Implicit real*8(a-h,o-z)
 
@@ -19,13 +19,13 @@
       Character*6 FName
       Logical UserDen,Restart
       Dimension iDum(1)
-*                                                                      *
-************************************************************************
-*                                                                      *
-* Set some variables needed for creating the MpProp file.              *
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Set some variables needed for creating the MpProp file.              *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       NOCOB=0
       If(.not.UserDen) then
          nVec=0
@@ -50,7 +50,7 @@
             FName ='INPORB'
             iDum  = 0
             iWarn = 2
-            Call RdVec(FName,Lu_,'COE',nSym,nBas,nBas,Work(ip_Vec),
+            Call RdVec(FName,Lu_,'COE',nSym,nBas,nBas,Work(ip_Vec),     &
      &           Work(ip_Occ),Work(ip_Ene_Occ),iDum,VTitle,iWarn,iErr)
             Close(Lu_)
 

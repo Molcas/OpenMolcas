@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine CoreToPoint(nAt,MP,TP)
       Implicit Real*8 (a-h,o-z)
 
@@ -20,11 +20,11 @@
 
       Data ByggareBas/2.0d0,8.0d0,8.0d0,18.0d0,18.0d0,32.0d0/
 
-*
-*-- A crude but to the point algorithm to put core electrons and
-*   nuclei together, and separating the presumably more diffuse
-*   part of the charge distribution in a separate chunk.
-*
+!
+!-- A crude but to the point algorithm to put core electrons and
+!   nuclei together, and separating the presumably more diffuse
+!   part of the charge distribution in a separate chunk.
+!
       Call GetMem('NucC','Allo','Real',iNucCh,nAt)
       Call Get_dArray('Nuclear charge',Work(iNucCh),nAt)
       kAt=0

@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine Diff_Numerical(nAt,nB,ipMP,ipC,nij,EC,iANr
-     &                         ,ip_Ttot,ip_Ttot_Inv
-     &                         ,lMax,iTP,dLimmo
-     &                         ,Thrs1,Thrs2,nThrs,iPrint
-     &                         ,ThrsMul,Pot_Expo,Pot_Point,Pot_Fac
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine Diff_Numerical(nAt,nB,ipMP,ipC,nij,EC,iANr             &
+     &                         ,ip_Ttot,ip_Ttot_Inv                     &
+     &                         ,lMax,iTP,dLimmo                         &
+     &                         ,Thrs1,Thrs2,nThrs,iPrint                &
+     &                         ,ThrsMul,Pot_Expo,Pot_Point,Pot_Fac      &
      &                         ,Diffed)
       Implicit real*8 (a-h,o-z)
 
@@ -28,9 +28,9 @@
       Character*50 UtChar
       Character*10 OneFile
 
-*
-*-- Pick up some auxiliary stuff.
-*
+!
+!-- Pick up some auxiliary stuff.
+!
       Write(OneFile,'(A)')'ONEINT'
       Call Diff_Aux1(nEPP,ipEPCo,nB,OneFile)
       Call GetMem('BasIndCent','Allo','Inte',ip_Center,nB)
@@ -38,35 +38,35 @@
       Call GetMem('PickPoints','Allo','Inte',ipPick,nEPP)
       Call GetMem('DistPick','Allo','Real',ipDPick,nEPP)
 
-*
-*-- Do a 'clever' determination of the threshold for the multipole
-*   magnitude.
-*
-*      Call Diff_ThrsMul(ipMP,ThrsMul,ThrsMul_Clever,nAt,nij,lMax)
+!
+!-- Do a 'clever' determination of the threshold for the multipole
+!   magnitude.
+!
+!      Call Diff_ThrsMul(ipMP,ThrsMul,ThrsMul_Clever,nAt,nij,lMax)
       ThrsMul_Clever=ThrsMul
 
-*
-*-- Run a numerical fit for each active centre.
-*
+!
+!-- Run a numerical fit for each active centre.
+!
       kauntA=0
       nAbove=0
       Do iAtom=1,nAt
         Do jAtom=1,iAtom
           ij=iAtom*(iAtom-1)/2+jAtom
-*
-*-- Pick up the nuclei+core charge.
-*
+!
+!-- Pick up the nuclei+core charge.
+!
           If(iAtom.eq.jAtom) then
             chPoint=Work(iTP+iAtom-1)
           Else
             chPoint=0.0d0
           Endif
-*
-*---- Pick out the multipole, the prefactors. If none is above a
-*     certain threshold, then it is not meaningful to make them
-*     diffuse. Also check which individual multipoles that should
-*     be made diffuse.
-*
+!
+!---- Pick out the multipole, the prefactors. If none is above a
+!     certain threshold, then it is not meaningful to make them
+!     diffuse. Also check which individual multipoles that should
+!     be made diffuse.
+!
           kaunt=0
           AboveThr=.false.
           Do l=0,lMax
@@ -89,43 +89,43 @@
 
           If(AboveThr) then
             nAbove=nAbove+1
-*
-*---- Select the potential points which should be used for this centre.
-*
-*            BS=0.5d0*(Bragg_Slater(iANr(iAtom))
-*     &               +Bragg_Slater(iANr(jAtom)))
+!
+!---- Select the potential points which should be used for this centre.
+!
+!            BS=0.5d0*(Bragg_Slater(iANr(iAtom))
+!     &               +Bragg_Slater(iANr(jAtom)))
             BS=0.5d0*(vdWRad(iANr(iAtom))+vdWRad(iANr(jAtom)))
-            Call PickPoints(nPick,ipPick,ipDPick,nEPP,ipEPCo,EC(1,ij)
+            Call PickPoints(nPick,ipPick,ipDPick,nEPP,ipEPCo,EC(1,ij)   &
      &                     ,dLimmo,BS)
-*
-*---- Compute the true potential from the density assigned to
-*     this centre.
-*
+!
+!---- Compute the true potential from the density assigned to
+!     this centre.
+!
             Call GetMem('Potential','Allo','Real',iPotte,nPick)
-            Call EPotPoint(iPotte,nPick,ipPick,ipDPick,nEPP
-     &                    ,ip_Ttot,ip_Ttot_Inv,iANr(iAtom)
+            Call EPotPoint(iPotte,nPick,ipPick,ipDPick,nEPP             &
+     &                    ,ip_Ttot,ip_Ttot_Inv,iANr(iAtom)              &
      &                    ,nB,iAtom,jAtom,ip_Center)
 
-*
-*---- Print the true potential for given centre if requested.
-*
+!
+!---- Print the true potential for given centre if requested.
+!
             If(iPrint.ge.5) then
-              Write(UtChar,'(A,2I3)')'Partial density potential, centre'
+              Write(UtChar,'(A,2I3)')'Partial density potential, centre'&
      &                               ,iAtom,jAtom
               Call RecPrt(UtChar,' ',Work(iPotte),nPick,1)
             Endif
 
-*
-*---- All hail to the chiefs, i.e. Levenberg and Marquardt.
-*
-            Call LevMarquart(iPotte,nPick,ipPick,nEPP,ipEPCo,EC(1,ij)
-     &                      ,dMullig,lMax,A,iAtom,jAtom,chPoint
+!
+!---- All hail to the chiefs, i.e. Levenberg and Marquardt.
+!
+            Call LevMarquart(iPotte,nPick,ipPick,nEPP,ipEPCo,EC(1,ij)   &
+     &                      ,dMullig,lMax,A,iAtom,jAtom,chPoint         &
      &                      ,Thrs1,Thrs2,nThrs,Chi2B,iPrint,AboveMul)
             Call GetMem('Potential','Free','Real',iPotte,nPick)
           Endif
-*
-*---- Store things for later.
-*
+!
+!---- Store things for later.
+!
           kaunt=0
           Pot_Point(kauntA+1)=chPoint
           Do iDC=1,2
@@ -146,16 +146,16 @@
               Endif
             Endif
           Enddo
-*
-*---- Step the atom-pair counter.
-*
+!
+!---- Step the atom-pair counter.
+!
           kauntA=kauntA+1
         Enddo
       Enddo
 
-*
-*-- Deallocations.
-*
+!
+!-- Deallocations.
+!
       Call GetMem('BasIndCent','Free','Inte',ip_Center,nB)
       Call GetMem('PickPoints','Free','Inte',ipPick,nEPP)
       Call GetMem('DistPick','Free','Real',ipDPick,nEPP)
@@ -164,6 +164,6 @@
       Call ClsOne(irc,0)
 
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer(ipC)
       End

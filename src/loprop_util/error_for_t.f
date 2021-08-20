@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Real*8 Function Error_for_t(t,rMP,xrMP,xxrMP,xnrMP,EC,A,R_ij,
-     &                            C_o_C,ij,l,nij,lMax,nElem,nAtoms,
-     &                            nPert,Scratch_New,Scratch_Org,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Real*8 Function Error_for_t(t,rMP,xrMP,xxrMP,xnrMP,EC,A,R_ij,     &
+     &                            C_o_C,ij,l,nij,lMax,nElem,nAtoms,     &
+     &                            nPert,Scratch_New,Scratch_Org,        &
      &                            iPrint_Errors)
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -29,10 +29,10 @@
       End Do
       call daxpy_(iDim,One,xnrMP,1,xrMP,1)
       Call dCopy_(iDim,xrMP,1,xxrMP,1)
-      Call CutOff_Error(l,lMax,xrMP,xxrMP,nij,A,
-     &                  C_o_C,nElem,Scratch_New,Scratch_Org,
+      Call CutOff_Error(l,lMax,xrMP,xxrMP,nij,A,                        &
+     &                  C_o_C,nElem,Scratch_New,Scratch_Org,            &
      &                  nAtoms,iPrint_Errors,Error)
-*
+!
       Error_for_t = Error
       Return
       End

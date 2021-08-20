@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2017, Ignacio Fdez. Galvan                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2017, Ignacio Fdez. Galvan                             *
+!***********************************************************************
 
-      Subroutine MnBrak2(ax,bx,cx,fa,fb,fc,f,
+      Subroutine MnBrak2(ax,bx,cx,fa,fb,fc,f,                           &
      &                 q_a,q_b,dipole_a,dipole_b,r_a,r_b)
       Implicit None
       Real*8 :: ax, bx, cx, fa, fb, fc, vx, fv, coefA, coefB
       Logical :: Def
       Real*8, Parameter :: Ratio = 0.5D0*(Sqrt(5.0D0)+1.0D0)
       Real*8, Parameter :: Thr = 1.0D-20, Lim = 100.0D0
-c External function f and its arguments
+! External function f and its arguments
       Real*8, External :: f
       Real*8 :: q_a,q_b,dipole_a,dipole_b,r_a,r_b
       Logical, Parameter :: Absolute=.True.

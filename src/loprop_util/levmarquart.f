@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine LevMarquart(iPotte,nPick,ipPick,nEPP,ipEPCo,Coo
-     &                      ,dMullig,lMax,A,iAtom,jAtom,chP
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine LevMarquart(iPotte,nPick,ipPick,nEPP,ipEPCo,Coo        &
+     &                      ,dMullig,lMax,A,iAtom,jAtom,chP             &
      &                      ,Thrs1,Thrs2,nThrs,Chi2B,iPrint,AboveMul)
       Implicit real*8 (a-h,o-z)
 
@@ -27,14 +27,14 @@
 
       Character*60 UtChar
 
-*
-*-- Set iteration count to zero here at the top of the
-*   Levenberg-Marquart thing. Initiate lambda and the exponents.
-*   The exponents are not God-given, but these rather low values
-*   have been found to work nicely in most cases. Set highest
-*   and lowest allowed values of exponents. Set highest and lowest
-*   allowed values of exponent steps.
-*
+!
+!-- Set iteration count to zero here at the top of the
+!   Levenberg-Marquart thing. Initiate lambda and the exponents.
+!   The exponents are not God-given, but these rather low values
+!   have been found to work nicely in most cases. Set highest
+!   and lowest allowed values of exponents. Set highest and lowest
+!   allowed values of exponent steps.
+!
       Iter=0
       nStep=0
       dLambda=1d-3
@@ -45,9 +45,9 @@
       ddUpper=0.7d0
       ddLower=-0.7d0
 
-*
-*-- Start loop, set zeros.
-*
+!
+!-- Start loop, set zeros.
+!
 9901  Continue
       Iter=Iter+1
       Chi2=0.0d0
@@ -60,9 +60,9 @@
         Enddo
       Enddo
 
-*
-*-- Compute distances and store them.
-*
+!
+!-- Compute distances and store them.
+!
       Do iP=1,nPick
         ind=iWork(ipPick+iP-1)
         x=Work(ipEPCo+(ind-1)*3+0)-Coo(1)
@@ -75,15 +75,15 @@
         rinvStore(iP)=1.0d0/rStore(iP)
       Enddo
 
-*
-*-- Compute the electric potential and the difference between true and
-*   modelled potential. Also compute first derivatives. Formaly, there
-*   are second derivatives as well, but they are neglected for
-*   stability reasons. For this relatively simple non-linear problem,
-*   it is probably not meaningful to code a more intelligent
-*   routine that includes the second derivatives with some
-*   stabalizing modifications.
-*
+!
+!-- Compute the electric potential and the difference between true and
+!   modelled potential. Also compute first derivatives. Formaly, there
+!   are second derivatives as well, but they are neglected for
+!   stability reasons. For this relatively simple non-linear problem,
+!   it is probably not meaningful to code a more intelligent
+!   routine that includes the second derivatives with some
+!   stabalizing modifications.
+!
       DerMax=0d0
       Do iP=1,nPick
         r=rStore(iP)
@@ -94,13 +94,13 @@
         Potte=ElPot(r,rinv,x,y,z,dMullig,lMax,A,chP,.true.,.true.)
         Diffo=Work(iPotte+iP-1)-Potte
         Der1=dMullig(1)*(1.0d0+2.0d0*A(1)*r)*exp(-2.0d0*A(1)*r)
-        Der2=(dMullig(2)*x+dMullig(3)*y+dMullig(4)*z)
+        Der2=(dMullig(2)*x+dMullig(3)*y+dMullig(4)*z)                   &
      &      *(A(2)**2+2.0d0*A(2)**3*r)*exp(-2.0d0*A(2)*r)
         If(abs(Der1).gt.DerMax)Dermax=abs(Der1)
         If(abs(Der2).gt.DerMax)Dermax=abs(Der2)
-*
-*---- Assemble the alpha-matrix, the beta-vector and the chi2 scalar.
-*
+!
+!---- Assemble the alpha-matrix, the beta-vector and the chi2 scalar.
+!
         Chi2=Chi2+Diffo**2
         BRaw(1)=BRaw(1)+Diffo*Der1
         BRaw(2)=BRaw(2)+Diffo*Der2
@@ -110,15 +110,15 @@
       Enddo
       Chi2=Chi2/dble(nPick)
 
-*
-*-- Check if numerical and statistical well-behaved calculations are
-*   expected or not.
-*
+!
+!-- Check if numerical and statistical well-behaved calculations are
+!   expected or not.
+!
       If(nPick.lt.5) then
         Write(6,*)
         Write(6,'(A)')' Error in numerical fit for exponent!'
         Write(6,'(A)')'    Too few electric potential points have'
-        Write(6,'(A,2I4)')'    been sampled for (At1,At2):'
+        Write(6,'(A,2I4)')'    been sampled for (At1,At2):'             &
      &                              ,iAtom,jAtom
         Write(6,*)
         Call Quit(_RC_GENERAL_ERROR_)
@@ -127,7 +127,7 @@
         Write(6,*)
         Write(6,'(A)')' Error in numerical fit for exponent!'
         Write(6,'(A)')'    To small derivative for parameter'
-        Write(6,'(A,2I4)')'    in centre (At1,At2):'
+        Write(6,'(A,2I4)')'    in centre (At1,At2):'                    &
      &                              ,iAtom,jAtom
         Write(6,'(A,E12.4)')'    Maximal derivative:',DerMax
         Write(6,*)
@@ -138,17 +138,17 @@
         Call Quit(_RC_GENERAL_ERROR_)
       Endif
 
-*
-*-- Solve the linear system to get step, dA.
-*
-      Call SolveA(AlfMat,AlfMatI,dLambda,dMullig,lMax
+!
+!-- Solve the linear system to get step, dA.
+!
+      Call SolveA(AlfMat,AlfMatI,dLambda,dMullig,lMax                   &
      &           ,ARaw,BRaw,dA,iPrint,AboveMul,ddUpper,ddLower)
 
-*
-*-- Make a screening of dA: if the maximal or minimal exponent
-*   has been reached, but the optimization still pushes on, screen
-*   them by putting them as zero, and modifying abovemul.
-*
+!
+!-- Make a screening of dA: if the maximal or minimal exponent
+!   has been reached, but the optimization still pushes on, screen
+!   them by putting them as zero, and modifying abovemul.
+!
       Do i=1,2
         If(AboveMul(i)) then
           lScreen1=(A(i)+1d-8).gt.dUpper
@@ -165,11 +165,11 @@
         Call RecPrt('deltaA',' ',dA,2,1)
       Endif
 
-*
-*-- Construct trial parameters and compute the chi2-scalar for
-*   the trial parameters. To keep things within reasonable bounds
-*   do not exceed certain values.
-*
+!
+!-- Construct trial parameters and compute the chi2-scalar for
+!   the trial parameters. To keep things within reasonable bounds
+!   do not exceed certain values.
+!
       B(1)=A(1)+dA(1)
       B(2)=A(2)+dA(2)
       If(B(1).lt.dLower)B(1)=dLower
@@ -188,19 +188,19 @@
       Enddo
       Chi2B=Chi2B/dble(nPick)
 
-*
-*-- Take appropriate action given the different Stop-criterion. They
-*   measure the following: (1) The error should not change too much
-*   between steps; observe that it is not meaningful to have a too
-*   tight threshold in this regard due to the statistical nature of
-*   the problem. (2) The modifier parameter has to stabalize and not
-*   be far out in the linear region, rather in the second order regime.
-*   (3) The last step should be a decrease. (4) A certain number of
-*   steps should preceed that decreases the error; this threshold
-*   'overlaps' some with second threshold. Halt the optimization if
-*   no convergence is reached after 40 iterations. This is by far
-*   a generous limit.
-*
+!
+!-- Take appropriate action given the different Stop-criterion. They
+!   measure the following: (1) The error should not change too much
+!   between steps; observe that it is not meaningful to have a too
+!   tight threshold in this regard due to the statistical nature of
+!   the problem. (2) The modifier parameter has to stabalize and not
+!   be far out in the linear region, rather in the second order regime.
+!   (3) The last step should be a decrease. (4) A certain number of
+!   steps should preceed that decreases the error; this threshold
+!   'overlaps' some with second threshold. Halt the optimization if
+!   no convergence is reached after 40 iterations. This is by far
+!   a generous limit.
+!
       lStop1=abs(Chi2-Chi2B).lt.Thrs1
       lStop2=dLambda.lt.Thrs2
       lStop3=Chi2.gt.Chi2B
@@ -236,9 +236,9 @@
 
 9902  Continue
 
-*
-*-- Optional printing when convergence is reached.
-*
+!
+!-- Optional printing when convergence is reached.
+!
       If(iPrint.ge.5) then
         Write(6,*)
         Write(6,*)
@@ -255,7 +255,7 @@
           z=zStore(iP)
           Pout(iP)=ElPot(r,rinv,x,y,z,dMullig,lMax,A,chP,.true.,.true.)
         Enddo
-        Write(UtChar,'(A,2I3)')'Approximate partial density potential,'
+        Write(UtChar,'(A,2I3)')'Approximate partial density potential,' &
      &                       //' centre',iAtom,jAtom
         Call RecPrt(UtChar,' ',Pout,nPick,1)
         Call RecPrt('Distance to points',' ',rStore,nPick,1)
@@ -268,20 +268,20 @@
 792   Format('       ',2F12.6)
 793   Format('Convergence reached in iteration ',I2)
 
-*
-*-- And yes, there is an end here as well.
-*
+!
+!-- And yes, there is an end here as well.
+!
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer(nEPP)
       End
 
 
-*
-*-- The electric potential with diffuse s- and p-functions. No
-*   higher than d-functions (with non-zero trace).
-*
-      real*8 Function ElPot(r,rinv,x,y,z,dMullig,lMax,A,chP
+!
+!-- The electric potential with diffuse s- and p-functions. No
+!   higher than d-functions (with non-zero trace).
+!
+      real*8 Function ElPot(r,rinv,x,y,z,dMullig,lMax,A,chP             &
      &                               ,lDOrNot1,lDOrNot2)
       Implicit real*8 (a-h,o-z)
 
@@ -297,7 +297,7 @@ c Avoid unused argument warnings
       If(lMax.ge.0) then
         If(lDOrNot1) then
           dCh=chP*rinv
-          dCh=dCh+dMullig(1)*rinv*(1.0d0-(1.0d0+A(1)*r)
+          dCh=dCh+dMullig(1)*rinv*(1.0d0-(1.0d0+A(1)*r)                 &
      &                          *exp(-2.0d0*A(1)*r))
           ElPot=dCh
         Else
@@ -308,8 +308,8 @@ c Avoid unused argument warnings
       If(lMax.ge.1) then
         If(lDOrNot2) then
           ar=A(2)*r
-          dM=(x*dMullig(2)+y*dMullig(3)+z*dMullig(4))
-     &       *rinv**3*(1.0d0-(1.0d0+2.0d0*ar+2.0d0*ar**2+ar**3)
+          dM=(x*dMullig(2)+y*dMullig(3)+z*dMullig(4))                   &
+     &       *rinv**3*(1.0d0-(1.0d0+2.0d0*ar+2.0d0*ar**2+ar**3)         &
      &       *exp(-2.0d0*ar))
           ElPot=ElPot+dM
         Else
@@ -385,7 +385,7 @@ c Avoid unused argument warnings
       Endif
       If(lMax.ge.6) then
         Write(6,*)
-        Write(6,*)'Oops! You hit the roof with respect to angular'
+        Write(6,*)'Oops! You hit the roof with respect to angular'      &
      &          //' momentum. Lower that, or do some programming.'
         Call Quit(_RC_GENERAL_ERROR_)
       Endif

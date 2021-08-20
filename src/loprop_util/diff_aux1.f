@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Diff_Aux1(nEPotPoints,ipEPCo,nB,OneFile)
       Implicit Real*8 (a-h,o-z)
 
@@ -17,9 +17,9 @@
       Character*10 Label,OneFile
       Dimension nInt(1)
 
-*
-*-- Open One-electron file.
-*
+!
+!-- Open One-electron file.
+!
       irc=-1
       Lu_One=49
       Lu_One=IsFreeUnit(Lu_One)
@@ -30,9 +30,9 @@
         Call Quit(_RC_IO_ERROR_READ_)
       Endif
 
-*
-*-- Loop over all EF0, terminate when return-code is non-zero.
-*
+!
+!-- Loop over all EF0, terminate when return-code is non-zero.
+!
       nEPotPoints=0
       maxCen=99999
       Call GetMem('Temporary','Allo','Real',iTmp,maxCen*3)
@@ -55,15 +55,15 @@
       Enddo
 9901  Continue
 
-*
-*-- Put the coordinates and nuclear part in nice and tight vectors.
-*
+!
+!-- Put the coordinates and nuclear part in nice and tight vectors.
+!
       Call GetMem('PotPointCoord','Allo','Real',ipEPCo,3*nEPotPoints)
       call dcopy_(3*nEPotPoints,Work(iTmp),1,Work(ipEPCo),1)
 
-*
-*-- Deallocate.
-*
+!
+!-- Deallocate.
+!
       Call GetMem('Temporary','Free','Real',iTmp,maxCen*3)
       Call GetMem('Idiot','Free','Real',idiot,nB*(nB+1)/2+4)
 
