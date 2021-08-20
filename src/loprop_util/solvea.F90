@@ -8,92 +8,86 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine SolveA(AlfMat,AlfMatI,dLambda,dMullig,lMax             &
-     &                 ,ARaw,BRaw,dA,iPrint,AboveMul,ddUpper,ddLower)
-      Implicit Real*8 (a-h,o-z)
 
-      Dimension AlfMat(4),AlfMatI(4),ARaw(2,2),BRaw(2),Beta(2),dA(2)
-      Dimension dtA(2),dMullig((lMax*(lMax**2+6*lMax+11)+6)/6)
+subroutine SolveA(AlfMat,AlfMatI,dLambda,dMullig,lMax,ARaw,BRaw,dA,iPrint,AboveMul,ddUpper,ddLower)
 
-      Logical AboveMul(2)
-      Logical Yeps(2)
+implicit real*8(a-h,o-z)
+dimension AlfMat(4), AlfMatI(4), ARaw(2,2), BRaw(2), Beta(2), dA(2)
+dimension dtA(2), dMullig((lMax*(lMax**2+6*lMax+11)+6)/6)
+logical AboveMul(2)
+logical Yeps(2)
 
-!
-!-- Which elements can be non-zero? Too low magnitude of multipoles
-!   and they are screened.
-!
-      nDim=0
-      Do iMull=1,2
-        If(AboveMul(iMull)) then
-          Yeps(iMull)=.true.
-          nDim=nDim+1
-          Beta(nDim)=BRaw(iMull)
-        Else
-          Yeps(iMull)=.false.
-        Endif
-      Enddo
-      If(iPrint.ge.10) then
-        Call RecPrt('Beta',' ',Beta,nDim,1)
-      Endif
+! Which elements can be non-zero? Too low magnitude of multipoles
+! and they are screened.
 
-!
-!-- Shuffle around, and create a matrix for exponents with non-zero
-!   factors.
-!
-      kaunt=0
-      Do i=1,2
-        Do j=1,2
-          If(Yeps(i).and.Yeps(j)) then
-            kaunt=kaunt+1
-            If(i.eq.j) then
-              AlfMat(kaunt)=ARaw(max(i,j),min(i,j))*(1.0d0+dLambda)
-            Else
-              AlfMat(kaunt)=ARaw(max(i,j),min(i,j))
-            Endif
-          Endif
-        Enddo
-      Enddo
+nDim = 0
+do iMull=1,2
+  if (AboveMul(iMull)) then
+    Yeps(iMull) = .true.
+    nDim = nDim+1
+    Beta(nDim) = BRaw(iMull)
+  else
+    Yeps(iMull) = .false.
+  end if
+end do
+if (iPrint >= 10) then
+  call RecPrt('Beta',' ',Beta,nDim,1)
+end if
 
-!
-!-- Invert and solve.
-!
-      Call MInv(AlfMat,AlfMatI,Ising,Det,nDim)
-      call dcopy_(nDim,[0.0d0],0,dtA,1)
-      Call dGeMV_('N',nDim,nDim,1.0d0,AlfMatI,nDim,Beta,1,0.0d0,dtA,1)
+! Shuffle around, and create a matrix for exponents with non-zero
+! factors.
 
-!
-!-- Optional printing.
-!
-      If(iPrint.ge.10) then
-        Call RecPrt('Alfa',' ',AlfMat,nDim,nDim)
-        Call RecPrt('InverseA',' ',AlfMatI,nDim,nDim)
-        Call RecPrt('deltatA',' ',dtA,nDim,1)
-      Endif
+kaunt = 0
+do i=1,2
+  do j=1,2
+    if (Yeps(i) .and. Yeps(j)) then
+      kaunt = kaunt+1
+      if (i == j) then
+        AlfMat(kaunt) = ARaw(max(i,j),min(i,j))*(1.0d0+dLambda)
+      else
+        AlfMat(kaunt) = ARaw(max(i,j),min(i,j))
+      end if
+    end if
+  end do
+end do
 
-!
-!-- Damp large steps since such steps can take the optimization
-!   too far away and put it in a region with very small derivatives,
-!   and there things turns into baloney.
-!
-      If(dtA(1).lt.ddLower) dtA(1)=ddLower
-      If(dtA(2).lt.ddLower) dtA(2)=ddLower
-      If(dtA(1).gt.ddUpper) dtA(1)=ddUpper
-      If(dtA(2).gt.ddUpper) dtA(2)=ddUpper
+! Invert and solve.
 
-!
-!-- Extend to full dimension.
-!
-      kaunt=0
-      Do i=1,2
-        If(Yeps(i)) then
-          kaunt=kaunt+1
-          dA(i)=dtA(kaunt)
-        Else
-          dA(i)=0.0d0
-        Endif
-      Enddo
+call MInv(AlfMat,AlfMatI,Ising,Det,nDim)
+call dcopy_(nDim,[0.0d0],0,dtA,1)
+call dGeMV_('N',nDim,nDim,1.0d0,AlfMatI,nDim,Beta,1,0.0d0,dtA,1)
 
-      Return
+! Optional printing.
+
+if (iPrint >= 10) then
+  call RecPrt('Alfa',' ',AlfMat,nDim,nDim)
+  call RecPrt('InverseA',' ',AlfMatI,nDim,nDim)
+  call RecPrt('deltatA',' ',dtA,nDim,1)
+end if
+
+! Damp large steps since such steps can take the optimization
+! too far away and put it in a region with very small derivatives,
+! and there things turns into baloney.
+
+if (dtA(1) < ddLower) dtA(1) = ddLower
+if (dtA(2) < ddLower) dtA(2) = ddLower
+if (dtA(1) > ddUpper) dtA(1) = ddUpper
+if (dtA(2) > ddUpper) dtA(2) = ddUpper
+
+! Extend to full dimension.
+
+kaunt = 0
+do i=1,2
+  if (Yeps(i)) then
+    kaunt = kaunt+1
+    dA(i) = dtA(kaunt)
+  else
+    dA(i) = 0.0d0
+  end if
+end do
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(dMullig)
-      End
+if (.false.) call Unused_real_array(dMullig)
+
+end subroutine SolveA

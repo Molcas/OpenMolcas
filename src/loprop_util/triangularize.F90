@@ -9,30 +9,25 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Lowdin_LP(S,C,nDim)
+subroutine Triangularize(A_sq,A_tr,n,Fold)
 
-implicit real*8(A-H,O-Z)
+implicit real*8(a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
-real*8 C(nDim,nDim), S(nDim,nDim)
+real*8 A_sq(n,n), A_tr(n*(n+1)/2)
+logical Fold
 
-call Allocate_Work(ip_S,nDim*(nDim+1)/2)
-call Allocate_Work(ip_B,nDim**2)
-
-do i=1,nDim
-  do j=1,i
-    ioff = ip_S-1+i*(i-1)/2+j
-    Work(iOff) = S(i,j)
+Fact = One
+if (Fold) Fact = Two
+ij = 1
+do i=1,n
+  do j=1,i-1
+    A_tr(ij) = Fact*A_sq(i,j)
+    ij = ij+1
   end do
+  A_tr(ij) = A_sq(i,j)
+  ij = ij+1
 end do
-call dcopy_(nDim**2,[Zero],0,Work(ip_B),1)
-call dcopy_(nDim,[One],0,Work(ip_B),nDim+1)
-
-call Lowdin_LP_(S,Work(ip_S),C,nDim,nDim,Work(ip_B))
-
-call Free_Work(ip_B)
-call Free_Work(ip_S)
 
 return
 
-end subroutine Lowdin_LP
+end subroutine Triangularize

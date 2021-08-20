@@ -8,267 +8,235 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine WeGotThis(nAt,nB,ipMP,ipC,nij,EC,iANr,ipT,ipTi,lMax    &
-     &                    ,iTP,iPrint,Pot_Expo,Pot_Point,Pot_Fac,Diffed)
-      Implicit real*8 (a-h,o-z)
 
+subroutine WeGotThis(nAt,nB,ipMP,ipC,nij,EC,iANr,ipT,ipTi,lMax,iTP,iPrint,Pot_Expo,Pot_Point,Pot_Fac,Diffed)
+
+implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "warnings.h"
+dimension EC(3,nij), Pot_Expo(nij*2), Pot_Point(nij), Pot_Fac(nij*4)
+dimension iANr(nAt)
+dimension Expo(4), dMullig((lMax*(lMax**2+6*lMax+11)+6)/6)
+logical Diffed(nij*2)
+logical Que, D1, D2
+logical Found
+real*8, allocatable :: D1ao(:)
+character*10 DistType(2), OneFile, Label
+data DistType/'Monopole  ','Dipole    '/
 
-      Dimension EC(3,nij),Pot_Expo(nij*2),Pot_Point(nij),Pot_Fac(nij*4)
-      Dimension iANr(nAt)
-      Dimension Expo(4),dMullig((lMax*(lMax**2+6*lMax+11)+6)/6)
+! Print exponents and factors.
 
-      Logical Diffed(nij*2)
-      Logical Que,D1,D2
-      Logical Found
-      Real*8, Allocatable:: D1ao(:)
+write(6,*)
+write(6,'(A)') ' **********************************************************************************'
+write(6,'(A)') ' *                                                                                *'
+write(6,'(A)') ' *                  Result for the Diffuse Distribution                           *'
+write(6,'(A)') ' *                                                                                *'
+write(6,'(A)') ' **********************************************************************************'
+write(6,*)
+write(6,401) 'Centre','Coordinate','Multipole','Factor','Exponent','Point-charge'
+write(6,402) '|-------------------------------------------------------------------------------------------------|'
+kauntA = 0
+do iA=1,nAt
+  do jA=1,iA
+    kauntA = kauntA+1
+    do iDC=1,2
+      PP = -1.0d0
+      if (iDC == 1) PP = Pot_Point(kauntA)
+      if (Diffed(2*(kauntA-1)+iDC)) then
+        if (iDC == 1) then
+          write(6,403) kauntA,(EC(k,kauntA),k=1,3),DistType(iDC),Pot_Fac(4*(kauntA-1)+iDC),2.0d0*Pot_Expo(2*(kauntA-1)+iDC),PP
+        elseif (iDC == 2) then
+          write(6,404) kauntA,(EC(k,kauntA),k=1,3),DistType(iDC),(Pot_Fac(4*(kauntA-1)+iDC+k),k=0,2), &
+                       2.0d0*Pot_Expo(2*(kauntA-1)+iDC)
+        end if
+      else
+        if (iDC == 1) then
+          write(6,405) kauntA,(EC(k,kauntA),k=1,3),DistType(iDC),Pot_Fac(4*(kauntA-1)+iDC),'Point(inf)',PP
+        elseif (iDC == 2) then
+          write(6,406) kauntA,(EC(k,kauntA),k=1,3),DistType(iDC),(Pot_Fac(4*(kauntA-1)+iDC+k),k=0,2),'Point(inf)'
+        end if
+      end if
+    end do
+  end do
+end do
+401 format(' ',A,'     ',A,'             ',A,'             ',A,'          ',A,'     ',A)
+402 format(A)
+403 format(' ',I3,' (',2(F7.3,','),F7.3,')      ',A,'          ',F7.3,'          ',F7.3,'      ',F7.3)
+404 format(' ',I3,' (',2(F7.3,','),F7.3,')      ',A,' (',2(F7.3,','),F7.3,') ',F7.3)
+405 format(' ',I3,' (',2(F7.3,','),F7.3,')      ',A,'          ',F7.3,'            ',A,'      ',F7.3)
+406 format(' ',I3,' (',2(F7.3,','),F7.3,')      ',A,' (',2(F7.3,','),F7.3,')   ',A)
 
-      Character*10 DistType(2),OneFile,Label
+! If the extra ONEINT-file exist, then do an error analysis.
 
-      Data DistType/'Monopole  ','Dipole    '/
+Que = .false.
+call F_Inquire('ONEINTP',Que)
+if (Que) then
+  write(6,*)
+  write(6,'(A)') ' Found Test-grid for error analysis.'
+  write(6,*)
+  ErrAv1 = 0.0d0
+  ErrAv2 = 0.0d0
+  ErrDe1 = 0.0d0
+  ErrDe2 = 0.0d0
+  ErrVar1 = 0.0d0
+  ErrVar2 = 0.0d0
+  ErrMax1 = 0.0d0
+  ErrMax2 = 0.0d0
+  ErrCorr = 0.0d0
+  nImprove = 0
+  nShitty = 0
+  DeNom = 0.0d0
+  write(OneFile,'(A)') 'ONEINTP'
+  call Diff_Aux1(nEPP,ipEPCo,nB,OneFile)
+  call Qpg_dArray('D1ao',Found,nDens)
+  if (Found .and. (nDens /= 0)) then
+    call mma_allocate(D1ao,nDens,Label='D1ao')
+  else
+    write(6,*) 'WeGotThis: do not think so!'
+    call Abend()
+  end if
+  call Get_D1ao(D1ao,nDens)
+  call GetMem('ElPot','Allo','Real',iElP,nDens+4)
+  if (iPrint >= 2) then
+    write(6,*)
+    write(6,'(A)') ' Electric Potential'
+    write(6,'(A)') '  Reference   Approximate MP-expanded'
+  end if
 
-!
-!-- Print exponents and factors.
-!
-      Write(6,*)
-      Write(6,'(A)')' *************************************************'&
-     &//'*********************************'
-      Write(6,'(A)')' *                                                '&
-     &//'                                *'
-      Write(6,'(A)')' *                  Result for the Diffuse Distrib'&
-     &//'ution                           *'
-      Write(6,'(A)')' *                                                '&
-     &//'                                *'
-      Write(6,'(A)')' *************************************************'&
-     &//'*********************************'
-      Write(6,*)
-      Write(6,401)'Centre','Coordinate','Multipole','Factor'            &
-     &           ,'Exponent','Point-charge'
-      Write(6,402)'|--------------------------------------------------' &
-     &          //'-----------------------------------------------|'
-      kauntA=0
-      Do iA=1,nAt
-        Do jA=1,iA
-          kauntA=kauntA+1
-          Do iDC=1,2
-            PP=-1.0d0
-            If(iDC.eq.1)PP=Pot_Point(kauntA)
-            If(Diffed(2*(kauntA-1)+iDC)) then
-              If(iDC.eq.1) then
-                Write(6,403)kauntA,(EC(k,kauntA),k=1,3),DistType(iDC)   &
-     &                     ,Pot_Fac(4*(kauntA-1)+iDC)                   &
-     &                     ,2.0d0*Pot_Expo(2*(kauntA-1)+iDC),PP
-              ElseIf(iDC.eq.2) then
-                Write(6,404)kauntA,(EC(k,kauntA),k=1,3),DistType(iDC)   &
-     &                     ,(Pot_Fac(4*(kauntA-1)+iDC+k),k=0,2)         &
-     &                     ,2.0d0*Pot_Expo(2*(kauntA-1)+iDC)
-              Endif
-            Else
-              If(iDC.eq.1) then
-                Write(6,405)kauntA,(EC(k,kauntA),k=1,3),DistType(iDC)   &
-     &                     ,Pot_Fac(4*(kauntA-1)+iDC),'Point(inf)',PP
-              ElseIf(iDC.eq.2) then
-                Write(6,406)kauntA,(EC(k,kauntA),k=1,3),DistType(iDC)   &
-     &                     ,(Pot_Fac(4*(kauntA-1)+iDC+k),k=0,2)         &
-     &                     ,'Point(inf)'
-              Endif
-            Endif
-          Enddo
-        Enddo
-      Enddo
-401   Format(' ',A,'     ',A,'             ',A,'             ',A        &
-     &      ,'          ',A,'     ',A)
-402   Format(A)
-403   Format(' ',I3,' (',2(F7.3,','),F7.3,')      ',A,'          '      &
-     &                            ,F7.3,'          ',F7.3,'      ',F7.3)
-404   Format(' ',I3,' (',2(F7.3,','),F7.3,')      ',A,                  &
-     &              ' (',2(F7.3,','),F7.3,') ',F7.3)
-405   Format(' ',I3,' (',2(F7.3,','),F7.3,')      ',A,'          '      &
-     &                            ,F7.3,'            ',A,'      ',F7.3)
-406   Format(' ',I3,' (',2(F7.3,','),F7.3,')      ',A,                  &
-     &              ' (',2(F7.3,','),F7.3,')   ',A)
+  ! Loop over all points where the electric potential has been sampled.
 
-!
-!-- If the extra ONEINT-file exist, then do an error analysis.
-!
-      Que=.false.
-      Call F_Inquire('ONEINTP',Que)
-      If(Que) then
-        Write(6,*)
-        Write(6,'(A)')' Found Test-grid for error analysis.'
-        Write(6,*)
-        ErrAv1=0.0d0
-        ErrAv2=0.0d0
-        ErrDe1=0.0d0
-        ErrDe2=0.0d0
-        ErrVar1=0.0d0
-        ErrVar2=0.0d0
-        ErrMax1=0.0d0
-        ErrMax2=0.0d0
-        ErrCorr=0.0d0
-        nImprove=0
-        nShitty=0
-        DeNom=0.0d0
-        Write(OneFile,'(A)')'ONEINTP'
-        Call Diff_Aux1(nEPP,ipEPCo,nB,OneFile)
-        Call Qpg_dArray('D1ao',Found,nDens)
-        If (Found .and. nDens/=0) Then
-           Call mma_allocate(D1ao,nDens,Label='D1ao')
-        Else
-           Write (6,*) 'WeGotThis: do not think so!'
-           Call Abend()
-        End If
-        Call Get_D1ao(D1ao,nDens)
-        Call GetMem('ElPot','Allo','Real',iElP,nDens+4)
-        If(iPrint.ge.2) then
-          Write(6,*)
-          Write(6,'(A)')' Electric Potential'
-          Write(6,'(A)')'  Reference   Approximate MP-expanded'
-        Endif
-!
-!---- Loop over all points where the electric potential has
-!     been sampled.
-!
-        Do iPP=1,nEPP
-!
-!---- First, get the true electric potential, the reference.
-!
-          Write(Label,'(A3,I5)')'EF0',iPP
-          irc=-1
-          iOpt=0
-          iSmLbl=0
-          iComp=1
-          Call RdOne(irc,iOpt,Label,iComp,Work(iElP),iSmLbl)
-          ElPot_REF=Work(iElP+nDens+3)
-          ElPot_REF=ElPot_REF-Ddot_(nDens,D1ao,1,Work(iElP),1)
-!
-!---- Second, get the approximate electric potential and also the
-!     completely multipole expanded potential.
-!
-          ElPot_APP=0.0d0
-          ElPot_MP=0.0d0
-          kauntA=0
-!          rMin=1d10
-          Do iA=1,nAt
-            Do jA=1,iA
-              kauntA=kauntA+1
-              x=Work(ipEPCo+(iPP-1)*3+0)-EC(1,kauntA)
-              y=Work(ipEPCo+(iPP-1)*3+1)-EC(2,kauntA)
-              z=Work(ipEPCo+(iPP-1)*3+2)-EC(3,kauntA)
-              r=sqrt(x**2+y**2+z**2)
-              rinv=1.0d0/r
-              D1=Diffed(2*(kauntA-1)+1)
-              D2=Diffed(2*(kauntA-1)+2)
-              Expo(1)=Pot_Expo(2*(kauntA-1)+1)
-              Expo(2)=Pot_Expo(2*(kauntA-1)+2)
-              chP=Pot_Point(kauntA)
-              kaunt=0
-!              rmin=min(r,rmin)
-              Do l=0,lMax
-                kComp=(l+1)*(l+2)/2
-                Do k=1,kComp
-                  kaunt=kaunt+1
-                  dMullig(kaunt)=Work(ipMP+nij*(kaunt-1)+kauntA-1)
-                Enddo
-              Enddo
-              ElPot_APP=ElPot_APP+ElPot(r,rinv,x,y,z,dMullig,lMax,Expo  &
-     &                                 ,chP,D1,D2)
-              ElPot_MP=ElPot_MP+ElPot(r,rinv,x,y,z,dMullig,lMax,Expo    &
-     &                                 ,chP,.false.,.false.)
-            Enddo
-          Enddo
-!          Write(6,*)'Minimum Dist:',rMin
+  do iPP=1,nEPP
 
-!
-!---- Print if requested.
-!
-          If(iPrint.ge.2) then
-            Write(6,441)ElPot_REF,ElPot_APP,ElPot_MP                    &
-     &                 ,(Work(ipEPCo+(iPP-1)*3+k),k=0,2)
-          Endif
-!
-!---- Third, accumulate to error analysis.
-!
-!------ The difference
-          Dif1=ElPot_APP-ElPot_REF
-          Dif2=ElPot_MP-ElPot_REF
-!------ Accumulate to average error
-          ErrAv1=ErrAv1+Dif1
-          ErrAv2=ErrAv2+Dif2
-!------ Accumulate to variance of error
-          ErrVar1=ErrVar1+Dif1**2
-          ErrVar2=ErrVar2+Dif2**2
-!------ Accumulate to deviation
-          ErrDe1=ErrDe1+abs(Dif1)
-          ErrDe2=ErrDe2+abs(Dif2)
-!------ Maximal error
-          If(ErrMax1.lt.abs(Dif1))ErrMax1=abs(Dif1)
-          If(ErrMax2.lt.abs(Dif2))ErrMax2=abs(Dif2)
-!------ Accumulate to covariance of errors
-          ErrCorr=ErrCorr+Dif1*Dif2
-!------ Better or worse
-          If(abs(Dif1).le.abs(Dif2))nImprove=nImprove+1
-          If(abs(Dif2).lt.abs(Dif1))nShitty=nShitty+1
-!------ Accumulate to denominator in relative error
-          DeNom=DeNom+abs(ElPot_REF)
-        Enddo
-        ErrRe1=ErrDe1/DeNom
-        ErrRe2=ErrDe2/DeNom
-        ErrAv1=ErrAv1/dble(nEPP)
-        ErrAv2=ErrAv2/dble(nEPP)
-        ErrDe1=ErrDe1/dble(nEPP)
-        ErrDe2=ErrDe2/dble(nEPP)
-        ErrVar1=ErrVar1/dble(nEPP)
-        ErrVar2=ErrVar2/dble(nEPP)
-        ErrCorr=ErrCorr/dble(nEPP)
-        CorrCoeff=(ErrCorr-ErrAv1*ErrAv2)                               &
-     &           /sqrt((ErrVar1-ErrAv1**2)*(ErrVar2-ErrAv2**2))
-        PImp=100.0*dble(nImprove)/dble(nEPP)
-        PShi=100.0*dble(nShitty)/dble(nEPP)
-!
-!---- Four, print the analysis.
-!
-        Write(6,*)
-        Write(6,'(A)')'   Error Analysis'
-        Write(6,'(A)')' |----------------------------------------------'&
-     &//'------|'
-        Write(6,'(A)')'                                Diffuse    '     &
-     &//' MP-expanded'
-        Write(6,442)'  Average absolute error:      ',ErrAv1,ErrAv2
-        Write(6,442)'  Average absolute deviation:  ',ErrDe1,ErrDe2
-        Write(6,442)'  Average relative error:      ',ErrRe1,ErrRe2
-        Write(6,442)'  Maximal deviation:           ',ErrMax1,ErrMax2
-        Write(6,*)
-        Write(6,443)'  Error correlation:           ',CorrCoeff
-        Write(6,444)'  Smaller error than MP:       ',PImp,'%'
-        Write(6,444)'  Larger error than MP:        ',PShi,'%'
-        Write(6,'(A)')' |----------------------------------------------'&
-     &//'------|'
-        Write(6,*)
-!
-!---- Deallocate
-!
-        Call GetMem('ElPot','Free','Real',iElP,nDens+4)
-        Call mma_deallocate(D1ao)
-        Call GetMem('PotPointCoord','Free','Real',ipEPCo,3*nEPP)
-        irc=-1
-        Call ClsOne(irc,0)
-      Endif
+    ! First, get the true electric potential, the reference.
 
-441   Format(3(F12.8),'    In: ',3(F8.4))
-442   Format(A,2(F12.8))
-443   Format(A,F12.8)
-444   Format(A,F12.8,A)
+    write(Label,'(A3,I5)') 'EF0',iPP
+    irc = -1
+    iOpt = 0
+    iSmLbl = 0
+    iComp = 1
+    call RdOne(irc,iOpt,Label,iComp,Work(iElP),iSmLbl)
+    ElPot_REF = Work(iElP+nDens+3)
+    ElPot_REF = ElPot_REF-Ddot_(nDens,D1ao,1,Work(iElP),1)
 
-      Return
+    ! Second, get the approximate electric potential and also the
+    ! completely multipole expanded potential.
+
+    ElPot_APP = 0.0d0
+    ElPot_MP = 0.0d0
+    kauntA = 0
+    !rMin = 1.0d10
+    do iA=1,nAt
+      do jA=1,iA
+        kauntA = kauntA+1
+        x = Work(ipEPCo+(iPP-1)*3+0)-EC(1,kauntA)
+        y = Work(ipEPCo+(iPP-1)*3+1)-EC(2,kauntA)
+        z = Work(ipEPCo+(iPP-1)*3+2)-EC(3,kauntA)
+        r = sqrt(x**2+y**2+z**2)
+        rinv = 1.0d0/r
+        D1 = Diffed(2*(kauntA-1)+1)
+        D2 = Diffed(2*(kauntA-1)+2)
+        Expo(1) = Pot_Expo(2*(kauntA-1)+1)
+        Expo(2) = Pot_Expo(2*(kauntA-1)+2)
+        chP = Pot_Point(kauntA)
+        kaunt = 0
+        !rmin = min(r,rmin)
+        do l=0,lMax
+          kComp = (l+1)*(l+2)/2
+          do k=1,kComp
+            kaunt = kaunt+1
+            dMullig(kaunt) = Work(ipMP+nij*(kaunt-1)+kauntA-1)
+          end do
+        end do
+        ElPot_APP = ElPot_APP+ElPot(r,rinv,x,y,z,dMullig,lMax,Expo,chP,D1,D2)
+        ElPot_MP = ElPot_MP+ElPot(r,rinv,x,y,z,dMullig,lMax,Expo,chP,.false.,.false.)
+      end do
+    end do
+    !write(6,*)'Minimum Dist:',rMin
+
+    ! Print if requested.
+
+    if (iPrint >= 2) then
+      write(6,441) ElPot_REF,ElPot_APP,ElPot_MP,(Work(ipEPCo+(iPP-1)*3+k),k=0,2)
+    end if
+
+    ! Third, accumulate to error analysis.
+
+    ! The difference
+    Dif1 = ElPot_APP-ElPot_REF
+    Dif2 = ElPot_MP-ElPot_REF
+    ! Accumulate to average error
+    ErrAv1 = ErrAv1+Dif1
+    ErrAv2 = ErrAv2+Dif2
+    ! Accumulate to variance of error
+    ErrVar1 = ErrVar1+Dif1**2
+    ErrVar2 = ErrVar2+Dif2**2
+    ! Accumulate to deviation
+    ErrDe1 = ErrDe1+abs(Dif1)
+    ErrDe2 = ErrDe2+abs(Dif2)
+    ! Maximal error
+    if (ErrMax1 < abs(Dif1)) ErrMax1 = abs(Dif1)
+    if (ErrMax2 < abs(Dif2)) ErrMax2 = abs(Dif2)
+    ! Accumulate to covariance of errors
+    ErrCorr = ErrCorr+Dif1*Dif2
+    ! Better or worse
+    if (abs(Dif1) <= abs(Dif2)) nImprove = nImprove+1
+    if (abs(Dif2) < abs(Dif1)) nShitty = nShitty+1
+    ! Accumulate to denominator in relative error
+    DeNom = DeNom+abs(ElPot_REF)
+  end do
+  ErrRe1 = ErrDe1/DeNom
+  ErrRe2 = ErrDe2/DeNom
+  ErrAv1 = ErrAv1/dble(nEPP)
+  ErrAv2 = ErrAv2/dble(nEPP)
+  ErrDe1 = ErrDe1/dble(nEPP)
+  ErrDe2 = ErrDe2/dble(nEPP)
+  ErrVar1 = ErrVar1/dble(nEPP)
+  ErrVar2 = ErrVar2/dble(nEPP)
+  ErrCorr = ErrCorr/dble(nEPP)
+  CorrCoeff = (ErrCorr-ErrAv1*ErrAv2)/sqrt((ErrVar1-ErrAv1**2)*(ErrVar2-ErrAv2**2))
+  PImp = 100.0*dble(nImprove)/dble(nEPP)
+  PShi = 100.0*dble(nShitty)/dble(nEPP)
+
+  ! Four, print the analysis.
+
+  write(6,*)
+  write(6,'(A)') '   Error Analysis'
+  write(6,'(A)') ' |----------------------------------------------------|'
+  write(6,'(A)') '                                Diffuse     MP-expanded'
+  write(6,442) '  Average absolute error:      ',ErrAv1,ErrAv2
+  write(6,442) '  Average absolute deviation:  ',ErrDe1,ErrDe2
+  write(6,442) '  Average relative error:      ',ErrRe1,ErrRe2
+  write(6,442) '  Maximal deviation:           ',ErrMax1,ErrMax2
+  write(6,*)
+  write(6,443) '  Error correlation:           ',CorrCoeff
+  write(6,444) '  Smaller error than MP:       ',PImp,'%'
+  write(6,444) '  Larger error than MP:        ',PShi,'%'
+  write(6,'(A)') ' |----------------------------------------------------|'
+  write(6,*)
+
+  ! Deallocate
+
+  call GetMem('ElPot','Free','Real',iElP,nDens+4)
+  call mma_deallocate(D1ao)
+  call GetMem('PotPointCoord','Free','Real',ipEPCo,3*nEPP)
+  irc = -1
+  call ClsOne(irc,0)
+end if
+
+441 format(3(F12.8),'    In: ',3(F8.4))
+442 format(A,2(F12.8))
+443 format(A,F12.8)
+444 format(A,F12.8,A)
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(ipC)
-         Call Unused_integer_array(iANr)
-         Call Unused_integer(ipT)
-         Call Unused_integer(ipTi)
-         Call Unused_integer(iTP)
-      End If
-      End
+if (.false.) then
+  call Unused_integer(ipC)
+  call Unused_integer_array(iANr)
+  call Unused_integer(ipT)
+  call Unused_integer(ipTi)
+  call Unused_integer(iTP)
+end if
+
+end subroutine WeGotThis

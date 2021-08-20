@@ -11,90 +11,90 @@
 ! Copyright (C) 2017, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
-      Subroutine MnBrak2(ax,bx,cx,fa,fb,fc,f,                           &
-     &                 q_a,q_b,dipole_a,dipole_b,r_a,r_b)
-      Implicit None
-      Real*8 :: ax, bx, cx, fa, fb, fc, vx, fv, coefA, coefB
-      Logical :: Def
-      Real*8, Parameter :: Ratio = 0.5D0*(Sqrt(5.0D0)+1.0D0)
-      Real*8, Parameter :: Thr = 1.0D-20, Lim = 100.0D0
+subroutine MnBrak2(ax,bx,cx,fa,fb,fc,f,q_a,q_b,dipole_a,dipole_b,r_a,r_b)
+
+implicit none
+real*8 :: ax, bx, cx, fa, fb, fc, vx, fv, coefA, coefB
+logical :: Def
+real*8, parameter :: Ratio = 0.5d0*(sqrt(5.0d0)+1.0d0)
+real*8, parameter :: Thr = 1.0D-20, Lim = 100.0d0
 ! External function f and its arguments
-      Real*8, External :: f
-      Real*8 :: q_a,q_b,dipole_a,dipole_b,r_a,r_b
-      Logical, Parameter :: Absolute=.True.
-
+real*8, external :: f
+real*8 :: q_a, q_b, dipole_a, dipole_b, r_a, r_b
+logical, parameter :: Absolute = .true.
 #include "real.fh"
-      fa = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,ax,Absolute)
-      fb = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,bx,Absolute)
-      If (fa .lt. fb) Then
-        cx = ax
-        ax = bx
-        bx = cx
-        fc = fa
-        fa = fb
-        fb = fc
-      End If
-      ! three points such that b is between a and c,
-      ! and f(a) > f(b) > f(c), stop when f(c) > f(b)
-      cx = bx + Ratio*(bx-ax)
-      fc = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,cx,Absolute)
-      Do While (fc .le. fb)
-        write(6,*) ax,bx,cx
-        Def = .True.
-        ! try a parabolic fitting
-        coefA = (   cx*(fb-fa)+   bx*(fa-fc)+   ax*(fc-fb))
-        coefB = (cx**2*(fa-fb)+bx**2*(fc-fa)+ax**2*(fb-fc))
-        ! only worth it if the points are not linear and
-        ! if the 2nd derivative is positive
-        If ((Abs(coefA) .gt. Thr) .and. coefA*(ax-cx) .gt. Zero) Then
-          vx = -Half*coefB/coefA
-          ! v is between b and c
-          If ((cx-vx)*(vx-bx) .gt. Zero) Then
-            fv = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,vx,Absolute)
-            ! minimum between b and c
-            If (fv .lt. fc) Then
-              ax = bx
-              bx = vx
-              fa = fb
-              fb = fv
-              Return
-            ! minimum between a and v
-            Else If (fv .gt. fb) Then
-              cx = vx
-              fc = fv
-              Return
-            End If
-          ! v is beyond c, but within limits
-          Else If ((bx+Lim*(cx-bx)-vx)*(vx-cx) .gt. Zero) Then
-            fv = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,vx,Absolute)
-            ! whatever happens, replace c,v -> b,c
-            bx = cx
-            cx = vx
-            fb = fc
-            fc = fv
-            ! minimum between b and v
-            If (fv .gt. fc) Then
-              ax = bx
-              fa = fb
-              Return
-            End If
-          ! v is beyond the limit, cutoff to the limit
-          Else If ((vx-cx)*(cx-bx) .gt. Zero) Then
-            fv = bx + Lim*(cx-bx)
-            Def = .False.
-          End If
-        End If
-        ! unless the fit went beyond limits, use default step
-        If (Def) Then
-          vx = cx + Ratio*(cx-bx)
-          fv = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,vx,Absolute)
-        End If
-        ax = bx
-        bx = cx
-        cx = vx
-        fa = fb
-        fb = fc
-        fc = fv
-      End Do
 
-      End Subroutine MnBrak2
+fa = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,ax,Absolute)
+fb = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,bx,Absolute)
+if (fa < fb) then
+  cx = ax
+  ax = bx
+  bx = cx
+  fc = fa
+  fa = fb
+  fb = fc
+end if
+! three points such that b is between a and c,
+! and f(a) > f(b) > f(c), stop when f(c) > f(b)
+cx = bx+Ratio*(bx-ax)
+fc = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,cx,Absolute)
+do while (fc <= fb)
+  write(6,*) ax,bx,cx
+  Def = .true.
+  ! try a parabolic fitting
+  coefA = (cx*(fb-fa)+bx*(fa-fc)+ax*(fc-fb))
+  coefB = (cx**2*(fa-fb)+bx**2*(fc-fa)+ax**2*(fb-fc))
+  ! only worth it if the points are not linear and
+  ! if the 2nd derivative is positive
+  if ((abs(coefA) > Thr) .and. (coefA*(ax-cx) > Zero)) then
+    vx = -Half*coefB/coefA
+    ! v is between b and c
+    if ((cx-vx)*(vx-bx) > Zero) then
+      fv = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,vx,Absolute)
+      ! minimum between b and c
+      if (fv < fc) then
+        ax = bx
+        bx = vx
+        fa = fb
+        fb = fv
+        return
+        ! minimum between a and v
+      else if (fv > fb) then
+        cx = vx
+        fc = fv
+        return
+      end if
+      ! v is beyond c, but within limits
+    else if ((bx+Lim*(cx-bx)-vx)*(vx-cx) > Zero) then
+      fv = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,vx,Absolute)
+      ! whatever happens, replace c,v -> b,c
+      bx = cx
+      cx = vx
+      fb = fc
+      fc = fv
+      ! minimum between b and v
+      if (fv > fc) then
+        ax = bx
+        fa = fb
+        return
+      end if
+      ! v is beyond the limit, cutoff to the limit
+    else if ((vx-cx)*(cx-bx) > Zero) then
+      fv = bx+Lim*(cx-bx)
+      Def = .false.
+    end if
+  end if
+  ! unless the fit went beyond limits, use default step
+  if (Def) then
+    vx = cx+Ratio*(cx-bx)
+    fv = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,vx,Absolute)
+  end if
+  ax = bx
+  bx = cx
+  cx = vx
+  fa = fb
+  fb = fc
+  fc = fv
+end do
+
+end subroutine MnBrak2

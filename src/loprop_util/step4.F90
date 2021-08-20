@@ -8,35 +8,34 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Step4(SMatrix,nDim,TMatrix,iType)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Step 4. LW S3 ->S4
-!
-      Implicit ReaL*8 (A-H,O-Z)
-      Real*8 SMatrix(nDim*nDim),TMatrix(nDim*nDim)
-      Integer iType(nDim)
-#include "real.fh"
-!
-!lg   write (*,*) 'Step 4', nDim
-!lg   Call RecPrt('T before LW 4',' ',TMatrix,nDim,nDim)
-!lg   Call RecPrt('S in step4 ',' ',SMatrix,nDim,nDim)
-!lg   write (*,*)
-      k=0
-      Do i=1,nDim
-         Do j=1,nDim
-            k=k+1
-            If (i.ne.j .and.(iType(i).ne.iType(j))) then
-               SMatrix(k)=Zero
-            EndIf
-         End Do
-      End Do
-!lg   Call RecPrt('S before LW 4',' ',SMatrix,nDim,nDim)
 
-      call dcopy_(nDim**2,[Zero],0,TMatrix,1)
-      call dcopy_(nDim,[One],0,TMatrix,nDim+1)
-      Call Lowdin_LP(SMatrix,TMatrix,nDim)
-!
-      Return
-      End
+subroutine Step4(SMatrix,nDim,TMatrix,iType)
+! Step 4. LW S3 ->S4
+
+implicit real*8(A-H,O-Z)
+real*8 SMatrix(nDim*nDim), TMatrix(nDim*nDim)
+integer iType(nDim)
+#include "real.fh"
+
+!lg  write(6,*) 'Step 4', nDim
+!lg  call RecPrt('T before LW 4',' ',TMatrix,nDim,nDim)
+!lg  call RecPrt('S in step4 ',' ',SMatrix,nDim,nDim)
+!lg  write(6,*)
+k = 0
+do i=1,nDim
+  do j=1,nDim
+    k = k+1
+    if ((i /= j) .and. (iType(i) /= iType(j))) then
+      SMatrix(k) = Zero
+    end if
+  end do
+end do
+!lg call RecPrt('S before LW 4',' ',SMatrix,nDim,nDim)
+
+call dcopy_(nDim**2,[Zero],0,TMatrix,1)
+call dcopy_(nDim,[One],0,TMatrix,nDim+1)
+call Lowdin_LP(SMatrix,TMatrix,nDim)
+
+return
+
+end subroutine Step4

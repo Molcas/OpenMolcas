@@ -8,34 +8,36 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Warnings_lp(iCode,Warning,iLength)
-      Implicit Real*8 (A-H,O-Z)
-      Character*(*) Warning
-!
+
+subroutine Warnings_lp(iCode,Warning,iLength)
+
+implicit real*8(A-H,O-Z)
+character*(*) Warning
+
 ! Binary codes:
-!  1: Multiple minima found
-!  2: Minima not within range
-!  3: Ran out of iterations
-!
-      If (iLength .lt. 25) Then
-         Write(6,*)                                                     &
-     &         'Length of warning string must be at least 25 characters'
-         Call Abend()
-      End If
-!
-      Do i = 1,iLength
-         Warning(i:i) = ' '
-      End Do
-!
-      If (iCode .eq. 1) Then
-         Warning = 'Multiple minima found'
-      Else If (iCode .eq. 2) Then
-         Warning = 'Minima not within range'
-      Else If (iCode .eq. 3) Then
-         Warning = 'Ran out of iterations'
-      Else If (iCode .eq. 4) Then
-         Warning = 'No minima found'
-      End If
-!
-      Return
-      End
+! 1: Multiple minima found
+! 2: Minima not within range
+! 3: Ran out of iterations
+
+if (iLength < 25) then
+  write(6,*) 'Length of warning string must be at least 25 characters'
+  call Abend()
+end if
+
+do i=1,iLength
+  Warning(i:i) = ' '
+end do
+
+if (iCode == 1) then
+  Warning = 'Multiple minima found'
+else if (iCode == 2) then
+  Warning = 'Minima not within range'
+else if (iCode == 3) then
+  Warning = 'Ran out of iterations'
+else if (iCode == 4) then
+  Warning = 'No minima found'
+end if
+
+return
+
+end subroutine Warnings_lp

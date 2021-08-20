@@ -8,68 +8,52 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Diff_MotherGoose(Diffuse,nAt,nB,ipMP,ipC,nij,ip_EC     &
-     &                           ,ip_ANr,ip_Ttot                        &
-     &                           ,ip_Ttot_Inv,lMax,iTP,dLimmo           &
-     &                           ,Thrs1,Thrs2,nThrs,iPrint              &
-     &                           ,ThrsMul,LuYou)
-      Implicit Real*8 (a-h,o-z)
 
+subroutine Diff_MotherGoose(Diffuse,nAt,nB,ipMP,ipC,nij,ip_EC,ip_ANr,ip_Ttot,ip_Ttot_Inv,lMax,iTP,dLimmo,Thrs1,Thrs2,nThrs,iPrint, &
+                            ThrsMul,LuYou)
+
+implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
+dimension dLimmo(2), Pot_Expo(nij*2), Pot_Point(nij)
+dimension Pot_Fac(nij*4)
+logical Diffuse(3), Diffed(nij*2)
 
-      Dimension dLimmo(2),Pot_Expo(nij*2),Pot_Point(nij)
-      Dimension Pot_Fac(nij*4)
+! Sag hej till publiken.
 
-      Logical Diffuse(3),Diffed(nij*2)
+write(6,'(A)') '  Enter Slater charge distribution section.'
 
-!
-!-- Sag hej till publiken.
-!
-      Write(6,'(A)')'  Enter Slater charge distribution section.'
-!
-!-- Take different route for the different methods for getting
-!   diffuse distributions.
-!
-      If(Diffuse(2)) then
-        Write(6,'(A)')'    ---Run a non-linear fit,'                    &
-     &              //' (Levenberg-Marquart).'
-        Write(6,'(A)')'        Thresholds'
-        Write(6,991)'           Delta                   :',Thrs1
-        Write(6,991)'           Lambda                  :',Thrs2
-        Write(6,991)'           Factor                  :',ThrsMul
-        Write(6,992)'           Min. decreasing steps   :',nThrs
-        Write(6,'(A)')'        Local limit factors'
-        Write(6,993)'           Low:',dLimmo(1),'     High:',dLimmo(2)
-        Call Diff_Numerical(nAt,nB,ipMP,ipC,nij,Work(ip_EC)             &
-     &                     ,iWork(ip_ANr),ip_Ttot                       &
-     &                     ,ip_Ttot_Inv,lMax,iTP,dLimmo                 &
-     &                     ,Thrs1,Thrs2,nThrs,iPrint                    &
-     &                     ,ThrsMul,Pot_Expo,Pot_Point,Pot_Fac          &
-     &                     ,Diffed)
-      Elseif(Diffuse(3)) then
-        Write(6,*)
-        Write(6,*)'Not programmed yet, bitte sehr.'
-        Call Abend()
-      Endif
-991   Format(A,E12.5)
-992   Format(A,I2)
-993   Format(2(A,F10.5))
+! Take different route for the different methods for getting
+! diffuse distributions.
 
-!
-!-- Print, analyze uzw, the result of the diffuse stuff.
-!
-      Call WeGotThis(nAt,nB,ipMP,ipC,nij,Work(ip_EC)                    &
-     &              ,iWork(ip_ANr),ip_Ttot                              &
-     &              ,ip_Ttot_Inv,lMax,iTP,iPrint                        &
-     &              ,Pot_Expo,Pot_Point,Pot_Fac,Diffed)
+if (Diffuse(2)) then
+  write(6,'(A)') '    ---Run a non-linear fit, (Levenberg-Marquart).'
+  write(6,'(A)') '        Thresholds'
+  write(6,991) '           Delta                   :',Thrs1
+  write(6,991) '           Lambda                  :',Thrs2
+  write(6,991) '           Factor                  :',ThrsMul
+  write(6,992) '           Min. decreasing steps   :',nThrs
+  write(6,'(A)') '        Local limit factors'
+  write(6,993) '           Low:',dLimmo(1),'     High:',dLimmo(2)
+  call Diff_Numerical(nAt,nB,ipMP,ipC,nij,Work(ip_EC),iWork(ip_ANr),ip_Ttot,ip_Ttot_Inv,lMax,iTP,dLimmo,Thrs1,Thrs2,nThrs,iPrint, &
+                      ThrsMul,Pot_Expo,Pot_Point,Pot_Fac,Diffed)
+elseif (Diffuse(3)) then
+  write(6,*)
+  write(6,*) 'Not programmed yet, bitte sehr.'
+  call Abend()
+end if
+991 format(A,E12.5)
+992 format(A,I2)
+993 format(2(A,F10.5))
 
-!
-!-- Generate file with information for other programs.
-!
-      lMaxF=1
-      Call YouGetThis(nAt,Work(ip_EC),Pot_Expo,Pot_Point,Pot_Fac        &
-     &               ,Diffed,ipMP,lMax,lMaxF,nij,LuYou)
+! Print, analyze uzw, the result of the diffuse stuff.
 
+call WeGotThis(nAt,nB,ipMP,ipC,nij,Work(ip_EC),iWork(ip_ANr),ip_Ttot,ip_Ttot_Inv,lMax,iTP,iPrint,Pot_Expo,Pot_Point,Pot_Fac,Diffed)
 
-      Return
-      End
+! Generate file with information for other programs.
+
+lMaxF = 1
+call YouGetThis(nAt,Work(ip_EC),Pot_Expo,Pot_Point,Pot_Fac,Diffed,ipMP,lMax,lMaxF,nij,LuYou)
+
+return
+
+end subroutine Diff_MotherGoose

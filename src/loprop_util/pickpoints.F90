@@ -8,26 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine PickPoints(nPick,ipPick,ipDPick,nEPP,ipEPCo,Coo        &
-     &                     ,dLimmo,BS)
-      Implicit real*8(a-h,o-z)
 
+subroutine PickPoints(nPick,ipPick,ipDPick,nEPP,ipEPCo,Coo,dLimmo,BS)
+
+implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
+dimension Coo(3), dLimmo(2)
 
-      Dimension Coo(3),dLimmo(2)
+nPick = 0
+do iP=1,nEPP
+  xtwo = (Work(ipEPCo+(iP-1)*3+0)-Coo(1))**2
+  ytwo = (Work(ipEPCo+(iP-1)*3+1)-Coo(2))**2
+  ztwo = (Work(ipEPCo+(iP-1)*3+2)-Coo(3))**2
+  Distad = sqrt(xtwo+ytwo+ztwo)
+  if ((Distad < dLimmo(2)*BS) .and. (Distad > dLimmo(1)*BS)) then
+    iWork(ipPick+nPick) = iP
+    Work(ipDPick+nPick) = Distad
+    nPick = nPick+1
+  end if
+end do
 
-      nPick=0
-      Do iP=1,nEPP
-        xtwo=(Work(ipEPCo+(iP-1)*3+0)-Coo(1))**2
-        ytwo=(Work(ipEPCo+(iP-1)*3+1)-Coo(2))**2
-        ztwo=(Work(ipEPCo+(iP-1)*3+2)-Coo(3))**2
-        Distad=sqrt(xtwo+ytwo+ztwo)
-        If(Distad.lt.dLimmo(2)*BS.and.Distad.gt.dLimmo(1)*BS) then
-          iWork(ipPick+nPick)=iP
-          Work(ipDPick+nPick)=Distad
-          nPick=nPick+1
-        Endif
-      Enddo
+return
 
-      Return
-      End
+end subroutine PickPoints

@@ -8,239 +8,211 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_Density_Matrix(ip_D,nBas1,nBas2,nBasMax,nBas,nSym, &
-     &                      ipP,UserDen,PrintDen,SubtractDen,SubScale,  &
-     &                      Q_Nuc,nAtoms,iPert,Restart,Utility,TDensity,&
-     &                      nStateI,nStateF)
 
-      Implicit Real*8 (a-h,o-z)
+subroutine Get_Density_Matrix(ip_D,nBas1,nBas2,nBasMax,nBas,nSym,ipP,UserDen,PrintDen,SubtractDen,SubScale,Q_Nuc,nAtoms,iPert, &
+                              Restart,Utility,TDensity,nStateI,nStateF)
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-! OBSERVE! MxState has to be the same as MxStat in cntrl.fh
-!          in src/rassi.
-      Parameter (MxState=200,MxStOT=MxState*(MxState+1)/2)
-      Integer nBas(nSym)
-      Character*16 Label, filename
-      Dimension Q_Nuc(nAtoms)
-      Dimension iToc(MxStOT)
-      Logical UserDen, PrintDen, SubtractDen, Exist, Restart, Utility
-      Logical TDensity, ok1, ok2, Found
-      Character*8 Method
-      Real*8, Allocatable:: DTmp(:), DSym(:)
-!
-!define _DEBUGPRINT_
-!
-      Write(Label,'(A,I1)') 'LoProp Dens ',iPert
-      If (Restart) Then
-!
-! Retrieve density matrix from the runfile
-!
-         Call qpg_dArray(Label,Exist,nDens)
-         If (.NOT. Exist .or. nDens .eq. 0) Then
-            Call SysAbendMsg('get_density_matrix',                      &
-     &                       'Could not locate:',Label)
-         End If
-         Call Allocate_Work(ip_D,nDens)
-         Call Get_dArray(Label,Work(ip_D),nDens)
-!
-         nSize=nDens
-!
-      Else If (nSym.eq.1) Then
-!
-         nSize=nBas(1)*(nBas(1)+1)/2
-!
-         If(UserDen) then
-! Additions made by A.Ohrn to enable LoProp to read in a density matrix
-! provided by the user. Generalized by P. Soderhjelm so that also
-! perturbed density matrices may be read for polarizability calculation
-           Lu_Ud=56
-           Lu_Ud=IsFreeUnit(Lu_Ud)
-           If(ipert.eq.0) Then
-              filename='USERDEN'
-           Else
-              Write(filename,'(A7,I1)')'USERDEN',ipert
-           EndIf
-           Call OpnFl(filename,Lu_Ud,Exist)
-           If(.not.Exist) then
-             Write(6,*)
-             Write(6,*)' Unable to locate user density matrix.'
-             Call Abend()
-           Endif
-           Call GetMem('UserDen','Allo','Real',ipUser,nSize)
-           Read(Lu_Ud,*)(Work(ipUser+k),k=0,nSize-1)
-           Call Put_D1ao(Work(ipUser),nSize)
-           Call GetMem('UserDen','Free','Real',ipUser,nSize)
-           Close(Lu_Ud)
-         Endif
-! Addition of A.Ohrn, to collect transition density matrix from ToFile.
-         If(TDensity) then
-           LuIn=57
-           LuIn=IsFreeUnit(LuIn)
-           Call DaName(LuIn,'TOFILE')
-           iDisk=0
-!---  Table-of-contents
-           Call iDaFile(LuIn,2,iToc,MxStOT,iDisk)
-!---  Allocation of density
-           Call GetMem('TDMden','Allo','Real',iTDMden,nSize)
-!---  Loop to 'suck-out' the relevant matrix from the ToFile.
-           nStateM=max(nStateI,nStateF)
-           kaunter=0
-           Do iS1=1,nStateM
-             Do iS2=1,iS1
-               kaunter=kaunter+1
-               iDisk=iToc(kaunter)
-               Call dDaFile(LuIn,2,Work(iTDMden),nSize,iDisk)
-               ok1=iS1.eq.nStateI.and.iS2.eq.nStateF
-               ok2=iS1.eq.nStateF.and.iS2.eq.nStateI
-               If(ok1.or.ok2) then
-                 Call Put_D1ao(Work(iTDMden),nSize)
-               Endif
-             Enddo
-           Enddo
-           Call GetMem('TDMden','Free','Real',iTDMden,nSize)
-           Call DaClos(LuIn)
-         Endif
-! End addition A.Ohrn.
+! OBSERVE! MxState has to be the same as MxStat in cntrl.fh in src/rassi.
+parameter(MxState=200,MxStOT=MxState*(MxState+1)/2)
+integer nBas(nSym)
+character*16 Label, filename
+dimension Q_Nuc(nAtoms)
+dimension iToc(MxStOT)
+logical UserDen, PrintDen, SubtractDen, Exist, Restart, Utility
+logical TDensity, ok1, ok2, Found
+character*8 Method
+real*8, allocatable :: DTmp(:), DSym(:)
 
-         If(SubtractDen) then
-! Additions made by P.Soderhjelm to enable LoProp to read in a density matrix
-! provided by the user and subtract that from the current one (which could
-! in fact be provided by the Userdens keyword. After subtraction the matrix
-! is scaled by a constant SubScale. Nuclear charges are set to zero.
-           Lu_Ud=56
-           Lu_Ud=IsFreeUnit(Lu_Ud)
-           Call OpnFl('SUBDEN',Lu_Ud,Exist)
-           If(.not.Exist) then
-             Write(6,*)
-             Write(6,*)' Unable to locate density matrix to subtract.'
-             Call Abend()
-           Endif
-           Call GetMem('UserDen','Allo','Real',ipUser,nSize)
-           Read(Lu_Ud,*)(Work(ipUser+k),k=0,nSize-1)
-           Call mma_allocate(DTmp,nSize)
-           Call Get_D1ao(Dtmp,nSize)
-           Do k=0,nSize-1
-              Dtmp(1+k)=SubScale*(Dtmp(1+k)-Work(ipUser+k))
-           EndDo
-           Call Put_D1ao(Dtmp,nSize)
-           Call mma_deallocate(DTmp)
-           Call GetMem('UserDen','Free','Real',ipUser,nSize)
-           Close(Lu_Ud)
-           Do k=1,nAtoms
-              Q_Nuc(k)=0.0D0
-           EndDo
-         Endif
-! End addition P.Soderhjelm.
+write(Label,'(A,I1)') 'LoProp Dens ',iPert
+if (Restart) then
 
-! Addition by J.Bostrom to check if loprop should pick
-! the variational density instead.
-         Call Get_cArray('Relax Method',Method,8)
-         iMp2Prpt = 0
-         If(Method.eq.'MBPT2   ') Then
-            Call Get_iScalar('mp2prpt',iMp2Prpt)
-         End If
-         Call getmem('D','Allo','Real',ip_D,nSize)
-         If(iMp2Prpt.ne.0) Then
-            Call Get_D1ao_var(Work(ip_D),nSize)
-         else
-! End Addition J.Bostrom (well, the End If too ofc.)
-            Call Get_D1ao(Work(ip_D),nSize)
-         End If
-         nDens=nSize
-#ifdef _DEBUGPRINT_
-         Call RecPrt('D',' ',Work(ip_D),1,nDens)
-#endif
-         If(PrintDen) Then
-! Addition made by P.Soderhjelm to enable LoProp to print the density matrix
-! to a text file for later use.
-           Lu_Ud=56
-           Lu_Ud=IsFreeUnit(Lu_Ud)
-           Call OpnFl('PRDEN',Lu_Ud,Exist)
-           Write(Lu_Ud,'(10d25.16)')(Work(ip_D+k),k=0,nDens-1)
-           Close(Lu_Ud)
-         EndIf
+  ! Retrieve density matrix from the runfile
 
-!
-      Else
-!
-         Call Allocate_Work(ip_D,nBas1*(nBas1+1)/2)
-         Call Allocate_Work(ip_D_sq,nBas1**2)
-         Call Allocate_Work(ip_Tmp,nBas2)
-!
-         Call Qpg_darray('D1ao',Found,nDens)
-         If (Found .and. nDens/=0) Then
-            Call mma_allocate(DSym,nDens,Label='DSym')
-            Call Get_D1ao(DSym,nDens)
-         Else
-            Write (6,*) 'Get_density_matrix: not found.'
-            Call Abend()
-         End If
-         iSyLbl=1
+  call qpg_dArray(Label,Exist,nDens)
+  if ((.not. Exist) .or. (nDens == 0)) then
+    call SysAbendMsg('get_density_matrix','Could not locate:',Label)
+  end if
+  call Allocate_Work(ip_D,nDens)
+  call Get_dArray(Label,Work(ip_D),nDens)
+
+  nSize = nDens
+
+else if (nSym == 1) then
+
+  nSize = nBas(1)*(nBas(1)+1)/2
+
+  if (UserDen) then
+    ! Additions made by A.Ohrn to enable LoProp to read in a density matrix
+    ! provided by the user. Generalized by P. Soderhjelm so that also
+    ! perturbed density matrices may be read for polarizability calculation
+    Lu_Ud = 56
+    Lu_Ud = IsFreeUnit(Lu_Ud)
+    if (ipert == 0) then
+      filename = 'USERDEN'
+    else
+      write(filename,'(A7,I1)') 'USERDEN',ipert
+    end if
+    call OpnFl(filename,Lu_Ud,Exist)
+    if (.not. Exist) then
+      write(6,*)
+      write(6,*) ' Unable to locate user density matrix.'
+      call Abend()
+    end if
+    call GetMem('UserDen','Allo','Real',ipUser,nSize)
+    read(Lu_Ud,*) (Work(ipUser+k),k=0,nSize-1)
+    call Put_D1ao(Work(ipUser),nSize)
+    call GetMem('UserDen','Free','Real',ipUser,nSize)
+    close(Lu_Ud)
+  end if
+  ! Addition of A.Ohrn, to collect transition density matrix from ToFile.
+  if (TDensity) then
+    LuIn = 57
+    LuIn = IsFreeUnit(LuIn)
+    call DaName(LuIn,'TOFILE')
+    iDisk = 0
+    ! Table-of-contents
+    call iDaFile(LuIn,2,iToc,MxStOT,iDisk)
+    ! Allocation of density
+    call GetMem('TDMden','Allo','Real',iTDMden,nSize)
+    ! Loop to 'suck-out' the relevant matrix from the ToFile.
+    nStateM = max(nStateI,nStateF)
+    kaunter = 0
+    do iS1=1,nStateM
+      do iS2=1,iS1
+        kaunter = kaunter+1
+        iDisk = iToc(kaunter)
+        call dDaFile(LuIn,2,Work(iTDMden),nSize,iDisk)
+        ok1 = (iS1 == nStateI) .and. (iS2 == nStateF)
+        ok2 = (iS1 == nStateF) .and. (iS2 == nStateI)
+        if (ok1 .or. ok2) then
+          call Put_D1ao(Work(iTDMden),nSize)
+        end if
+      end do
+    end do
+    call GetMem('TDMden','Free','Real',iTDMden,nSize)
+    call DaClos(LuIn)
+  end if
+  ! End addition A.Ohrn.
+
+  if (SubtractDen) then
+    ! Additions made by P.Soderhjelm to enable LoProp to read in a density matrix
+    ! provided by the user and subtract that from the current one (which could
+    ! in fact be provided by the Userdens keyword. After subtraction the matrix
+    ! is scaled by a constant SubScale. Nuclear charges are set to zero.
+    Lu_Ud = 56
+    Lu_Ud = IsFreeUnit(Lu_Ud)
+    call OpnFl('SUBDEN',Lu_Ud,Exist)
+    if (.not. Exist) then
+      write(6,*)
+      write(6,*) ' Unable to locate density matrix to subtract.'
+      call Abend()
+    end if
+    call GetMem('UserDen','Allo','Real',ipUser,nSize)
+    read(Lu_Ud,*) (Work(ipUser+k),k=0,nSize-1)
+    call mma_allocate(DTmp,nSize)
+    call Get_D1ao(Dtmp,nSize)
+    do k=0,nSize-1
+      Dtmp(1+k) = SubScale*(Dtmp(1+k)-Work(ipUser+k))
+    end do
+    call Put_D1ao(Dtmp,nSize)
+    call mma_deallocate(DTmp)
+    call GetMem('UserDen','Free','Real',ipUser,nSize)
+    close(Lu_Ud)
+    do k=1,nAtoms
+      Q_Nuc(k) = 0.0d0
+    end do
+  end if
+  ! End addition P.Soderhjelm.
+
+  ! Addition by J.Bostrom to check if loprop should pick
+  ! the variational density instead.
+  call Get_cArray('Relax Method',Method,8)
+  iMp2Prpt = 0
+  if (Method == 'MBPT2   ') then
+    call Get_iScalar('mp2prpt',iMp2Prpt)
+  end if
+  call getmem('D','Allo','Real',ip_D,nSize)
+  if (iMp2Prpt /= 0) then
+    call Get_D1ao_var(Work(ip_D),nSize)
+  else
+  ! End Addition J.Bostrom (well, the End If too ofc.)
+    call Get_D1ao(Work(ip_D),nSize)
+  end if
+  nDens = nSize
+# ifdef _DEBUGPRINT_
+  call RecPrt('D',' ',Work(ip_D),1,nDens)
+# endif
+  if (PrintDen) then
+    ! Addition made by P.Soderhjelm to enable LoProp to print the density matrix
+    ! to a text file for later use.
+    Lu_Ud = 56
+    Lu_Ud = IsFreeUnit(Lu_Ud)
+    call OpnFl('PRDEN',Lu_Ud,Exist)
+    write(Lu_Ud,'(10d25.16)') (Work(ip_D+k),k=0,nDens-1)
+    close(Lu_Ud)
+  end if
+
+else
+
+  call Allocate_Work(ip_D,nBas1*(nBas1+1)/2)
+  call Allocate_Work(ip_D_sq,nBas1**2)
+  call Allocate_Work(ip_Tmp,nBas2)
+
+  call Qpg_darray('D1ao',Found,nDens)
+  if (Found .and. (nDens /= 0)) then
+    call mma_allocate(DSym,nDens,Label='DSym')
+    call Get_D1ao(DSym,nDens)
+  else
+    write(6,*) 'Get_density_matrix: not found.'
+    call Abend()
+  end if
+  iSyLbl = 1
+# ifdef _DEBUGPRINT_
+  call RecPrt('DSym',' ',DSym,1,nDens)
+# endif
+  iOfft = 1
+  iOffs = ip_Tmp
+  do iSym=1,nSym
+    if (nBas(iSym) == 0) Go To 99
+#   ifdef _DEBUGPRINT_
+    call TriPrt('DSym',' ',DSym(iOfft),nBas(iSym))
+#   endif
+    call Square(DSym(iOfft),Work(iOffs),1,nBas(iSym),nBas(iSym))
+    call DScal_(nBas(iSym)**2,Half,Work(iOffs),1)
+    call DScal_(nBas(iSym),Two,Work(iOffs),nBas(iSym)+1)
+#   ifdef _DEBUGPRINT_
+    call RecPrt('DSym',' ',Work(iOffs),nBas(iSym),nBas(iSym))
+#   endif
+    iOfft = iOfft+nBas(iSym)*(nBas(iSym)+1)/2
+    iOffs = iOffs+nBas(iSym)**2
+99  continue
+  end do
+  call mma_deallocate(DSym)
+
+  nScr = nBasMax*nBas1
+  call Allocate_Work(ipScr,nScr)
+  call Desymmetrize(Work(ip_Tmp),nBas2,Work(ipScr),nScr,Work(ip_D_sq),nBas,nBas1,Work(ipP),nSym,iSyLbl)
+  call Free_Work(ipScr)
+  call Free_Work(ip_Tmp)
+
+  call Triangularize(Work(ip_D_sq),Work(ip_D),nBas1,.true.)
+  call Free_Work(ip_D_sq)
+end if
 #ifdef _DEBUGPRINT_
-         Call RecPrt('DSym',' ',DSym,1,nDens)
+call TriPrt('Density Matrix',' ',Work(ip_D),nBas1)
 #endif
-         iOfft = 1
-         iOffs = ip_Tmp
-         Do iSym = 1, nSym
-            If (nBas(iSym).eq.0) Go To 99
-#ifdef _DEBUGPRINT_
-            Call TriPrt('DSym',' ',DSym(iOfft),nBas(iSym))
-#endif
-            Call Square(DSym(iOfft),Work(iOffs),1,nBas(iSym),nBas(iSym))
-            Call DScal_(nBas(iSym)**2,Half,Work(iOffs),1)
-            Call DScal_(nBas(iSym)   ,Two, Work(iOffs),nBas(iSym)+1)
-#ifdef _DEBUGPRINT_
-            Call RecPrt('DSym',' ',Work(iOffs),nBas(iSym),nBas(iSym))
-#endif
-            iOfft = iOfft + nBas(iSym)*(nBas(iSym)+1)/2
-            iOffs = iOffs + nBas(iSym)**2
- 99         Continue
-         End Do
-         Call mma_deallocate(DSym)
-!
-         nScr=nBasMax*nBas1
-         Call Allocate_Work(ipScr,nScr)
-         Call Desymmetrize(Work(ip_Tmp),nBas2,Work(ipScr),nScr,         &
-     &                     Work(ip_D_sq),nBas,nBas1,Work(ipP),nSym,     &
-     &                     iSyLbl)
-         Call Free_Work(ipScr)
-         Call Free_Work(ip_Tmp)
-!
-         Call Triangularize(Work(ip_D_sq),Work(ip_D),nBas1,.True.)
-         Call Free_Work(ip_D_sq)
-      End If
-#ifdef _DEBUGPRINT_
-      Call TriPrt('Density Matrix',' ',Work(ip_D),nBas1)
-#endif
-!
+
 ! Copy Density Matrix to the runfile
-!
-      If ((.Not. Restart) .AND. (.Not. Utility)) Then
-!        Call put_dArray(Label,Work(ip_D),nDens)
-         Call put_dArray(Label,Work(ip_D),nBas1*(nBas1+1)/2)
-      End If
-!
-      Return
-      End
-      Subroutine Triangularize(A_sq, A_tr, n, Fold)
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-      Real*8 A_sq(n,n), A_tr(n*(n+1)/2)
-      Logical Fold
-!
-      Fact = One
-      If (Fold) Fact = Two
-      ij = 1
-      Do i = 1, n
-         Do j = 1, i-1
-            A_tr(ij)=Fact*A_sq(i,j)
-            ij = ij + 1
-         End Do
-         A_tr(ij)=A_sq(i,j)
-         ij = ij + 1
-      End Do
-!
-      Return
-      End
-!
+
+if ((.not. Restart) .and. (.not. Utility)) then
+  !call put_dArray(Label,Work(ip_D),nDens)
+  call put_dArray(Label,Work(ip_D),nBas1*(nBas1+1)/2)
+end if
+
+return
+
+end subroutine Get_Density_Matrix

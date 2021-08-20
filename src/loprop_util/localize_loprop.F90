@@ -8,8 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Localize_LoProp(Ttot,Ttot_Inv,nBas,SMatrix,iCenter,    &
-     &                           iType)
+
+subroutine Localize_LoProp(Ttot,Ttot_Inv,nBas,SMatrix,iCenter,iType)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -43,150 +43,139 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Implicit Real*8 (a-h,o-z)
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
-      Real*8 Ttot(nBas,nBas), Ttot_Inv(nBas,nBas), SMatrix(nBas,nBas)
-      Integer iCenter(nBas), iType(nBas)
-      Integer IndType(7), Occ, Vir
-      Parameter(Occ=1,Vir=0)
-      Character OrbName*128, Note*80, Filename*6
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Allocate temporary memory
-!
-      Call Allocate_Work(ip_T1,nBas**2)
-      Call Allocate_Work(ip_T2,nBas**2)
-      Call Allocate_Work(ip_T3,nBas**2)
-      Call Allocate_Work(ip_T4,nBas**2)
-      Call Allocate_Work(ip_tmp,nBas**2)
-      Call Allocate_Work(ip_S,nBas**2)
-      Call Allocate_Work(ip_Save,nBas**2)
-!
-!     Save S because GS will destroy it!
-!
-      call dcopy_(nBas**2,SMatrix,1,Work(ip_S),1)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Step 1. GS S0 ->S1
-!
-      call dcopy_(nBas**2,[Zero],0,Work(ip_T1),1)
-      call dcopy_(nBas,[One],0,Work(ip_T1),nBas+1)
-!
-      Call Step1(iCenter,Work(ip_S),nBas,Work(ip_T1),iType,             &
-     &           SMatrix,Work(ip_tmp))
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Step 2. LO S1 ->S2
-!
-      call dcopy_(nBas**2,Work(ip_S),1,Work(ip_Save),1)
-      call dcopy_(nBas**2,[Zero],0,Work(ip_T2),1)
-      call dcopy_(nBas,[One],0,Work(ip_T2),nBas+1)
-!
-      Call Step2(iCenter,Work(ip_S),nBas,Work(ip_T2),iType,             &
-     &           Work(ip_Save),Work(ip_tmp))
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Now set up things for the GS orthogonalization
-!
-!
-!     Step 3. GS S2 ->S3
-!
-      Call Step3(iCenter,Work(ip_S), nBas,Work(ip_T3),iType)
+real*8 Ttot(nBas,nBas), Ttot_Inv(nBas,nBas), SMatrix(nBas,nBas)
+integer iCenter(nBas), iType(nBas)
+integer IndType(7), Occ, Vir
+parameter(Occ=1,Vir=0)
+character OrbName*128, Note*80, Filename*6
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Now do a final Lowdin to remove virtual-virtual
+! Allocate temporary memory
+
+call Allocate_Work(ip_T1,nBas**2)
+call Allocate_Work(ip_T2,nBas**2)
+call Allocate_Work(ip_T3,nBas**2)
+call Allocate_Work(ip_T4,nBas**2)
+call Allocate_Work(ip_tmp,nBas**2)
+call Allocate_Work(ip_S,nBas**2)
+call Allocate_Work(ip_Save,nBas**2)
+
+! Save S because GS will destroy it!
+
+call dcopy_(nBas**2,SMatrix,1,Work(ip_S),1)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Step 1. GS S0 ->S1
+
+call dcopy_(nBas**2,[Zero],0,Work(ip_T1),1)
+call dcopy_(nBas,[One],0,Work(ip_T1),nBas+1)
+
+call Step1(iCenter,Work(ip_S),nBas,Work(ip_T1),iType,SMatrix,Work(ip_tmp))
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Step 2. LO S1 ->S2
+
+call dcopy_(nBas**2,Work(ip_S),1,Work(ip_Save),1)
+call dcopy_(nBas**2,[Zero],0,Work(ip_T2),1)
+call dcopy_(nBas,[One],0,Work(ip_T2),nBas+1)
+
+call Step2(iCenter,Work(ip_S),nBas,Work(ip_T2),iType,Work(ip_Save),Work(ip_tmp))
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Now set up things for the GS orthogonalization
 !
-!
-!     Step 4. LO S3 ->S4
-!
-      Call Step4(Work(ip_S),nBas,Work(ip_T4),iType)
+! Step 3. GS S2 ->S3
+
+call Step3(iCenter,Work(ip_S),nBas,Work(ip_T3),iType)
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Now I have LO orthog twice and GS orthog
-!     The corresponding transformation matrices are T1 T2 and TGS
-!     Now I generate the total transformation matrix TTOT=T1*T2*TGS
+! Now do a final Lowdin to remove virtual-virtual
 !
-!        ...now T is T1*T2*T3*T4
-!
-      Call Ttotal(Work(ip_T1),Work(ip_T2),Work(ip_T3), Work(ip_T4),     &
-     &            Ttot,Ttot_Inv,nBas)
+! Step 4. LO S3 ->S4
+
+call Step4(Work(ip_S),nBas,Work(ip_T4),iType)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!      Check that all this works by applaying TTot to original overlap
-!      matrix and you should get unit matrix
+! Now I have LO orthog twice and GS orthog
+! The corresponding transformation matrices are T1 T2 and TGS
+! Now I generate the total transformation matrix TTOT=T1*T2*TGS
 !
-!     Call RecPrt('Old S',' ',SMatrix,nBas,nBas)
-!     Call xxDGeMul(SMatrix,nBas,'N',
-!    &            Ttot,nBas,'N',
-!    &            Work(ip_tmp),nBas,
-!    &            nBas,nBas,nBas)
-!     Call xxDGeMul(Ttot,nBas,'T',
-!    &            Work(ip_tmp),nBas,'N',
-!    &            SMatrix,nBas,
-!    &            nBas,nBas,nBas)
-!     Call RecPrt('New S',' ',SMatrix,nBas,nBas)
+! ...now T is T1*T2*T3*T4
+
+call Ttotal(Work(ip_T1),Work(ip_T2),Work(ip_T3),Work(ip_T4),Ttot,Ttot_Inv,nBas)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Dealloctate memory
+! Check that all this works by applaying TTot to original overlap
+! matrix and you should get unit matrix
 !
-      Call Free_Work(ip_Save)
-      Call Free_Work(ip_S)
-      Call Free_Work(ip_tmp)
-      Call Free_Work(ip_T4)
-      Call Free_Work(ip_T3)
-      Call Free_Work(ip_T2)
-      Call Free_Work(ip_T1)
+!call RecPrt('Old S',' ',SMatrix,nBas,nBas)
+!call xxDGeMul(SMatrix,nBas,'N',Ttot,nBas,'N',Work(ip_tmp),nBas,nBas,nBas,nBas)
+!call xxDGeMul(Ttot,nBas,'T',Work(ip_tmp),nBas,'N',SMatrix,nBas,nBas,nBas,nBas)
+!call RecPrt('New S',' ',SMatrix,nBas,nBas)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Write out the transformation matrix as molecular orbitals.
-!
-      nOcc=0
-      Do iBas = 1, nBas
-         If (iType(iBas).eq.Occ) nOcc = nOcc + 1
-      End Do
-!
-      IndType(1)=0
-      IndType(2)=nOcc
-      IndType(3)=0
-      IndType(4)=0
-      IndType(5)=0
-      IndType(6)=nBas-nOcc
-      IndType(7)=0
-!
-      Call Allocate_Work(ipE,nBas)
-      Call FZero(Work(ipE),nBas)
-      OrbName='LPRORB'
-      LuOut=20
-      iUHF=0
-      nSym=1
-      Note='LoProp localized orbitals'
-      Call WrVec_(OrbName,LuOut,'COEI',iUHF,nSym,[nBas],[nBas],         &
-     &            TTot,[0.0d0],                                         &
-     &            Work(ipE),[0.0d0],                                    &
-     &            Work(ipE),[0.0d0],IndType,Note,0)
-      Call Free_Work(ipE)
+! Dealloctate memory
+
+call Free_Work(ip_Save)
+call Free_Work(ip_S)
+call Free_Work(ip_tmp)
+call Free_Work(ip_T4)
+call Free_Work(ip_T3)
+call Free_Work(ip_T2)
+call Free_Work(ip_T1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Not implemented for symmetry!
-!
-      Filename='MD_LPR'
-      Call Get_iScalar('nSym',nSym)
-      If (nSym.eq.1) Call Molden_Interface(iUHF,OrbName,Filename)
+! Write out the transformation matrix as molecular orbitals.
+
+nOcc = 0
+do iBas=1,nBas
+  if (iType(iBas) == Occ) nOcc = nOcc+1
+end do
+
+IndType(1) = 0
+IndType(2) = nOcc
+IndType(3) = 0
+IndType(4) = 0
+IndType(5) = 0
+IndType(6) = nBas-nOcc
+IndType(7) = 0
+
+call Allocate_Work(ipE,nBas)
+call FZero(Work(ipE),nBas)
+OrbName = 'LPRORB'
+LuOut = 20
+iUHF = 0
+nSym = 1
+Note = 'LoProp localized orbitals'
+call WrVec_(OrbName,LuOut,'COEI',iUHF,nSym,[nBas],[nBas],TTot,[0.0d0],Work(ipE),[0.0d0],Work(ipE),[0.0d0],IndType,Note,0)
+call Free_Work(ipE)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+! Not implemented for symmetry!
+
+Filename = 'MD_LPR'
+call Get_iScalar('nSym',nSym)
+if (nSym == 1) call Molden_Interface(iUHF,OrbName,Filename)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+return
+
+end subroutine Localize_LoProp

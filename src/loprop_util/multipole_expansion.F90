@@ -8,22 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Function Multipole_Expansion(q_A,q_B,Dipole_A,Dipole_B,           &
-     &                  R_A,R_B,R,Absolute)
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 Multipole_Expansion
-      Logical Absolute
+
+function Multipole_Expansion(q_A,q_B,Dipole_A,Dipole_B,R_A,R_B,R,Absolute)
+
+implicit real*8(A-H,O-Z)
+real*8 Multipole_Expansion
+logical Absolute
 #include "real.fh"
-!
-      dR_A  = R_A-R
-      dR_B  = R_B-R
-      Call Multipole_E(q_A,Dipole_A,dR_A,E_A)
-      Call Multipole_E(q_B,Dipole_B,dR_B,E_B)
-!
-      If (Absolute) Then
-         Multipole_Expansion = Abs(E_A + E_B)
-      Else
-         Multipole_Expansion = E_A + E_B
-      End If
-      Return
-      End
+
+dR_A = R_A-R
+dR_B = R_B-R
+call Multipole_E(q_A,Dipole_A,dR_A,E_A)
+call Multipole_E(q_B,Dipole_B,dR_B,E_B)
+
+if (Absolute) then
+  Multipole_Expansion = abs(E_A+E_B)
+else
+  Multipole_Expansion = E_A+E_B
+end if
+
+return
+
+end function Multipole_Expansion

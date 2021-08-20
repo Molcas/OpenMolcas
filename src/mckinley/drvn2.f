@@ -116,7 +116,7 @@ c     iPrint = nPrint(iRout)
                ddfab=Zero
 *
                If (dbsc(iCnttp)%ECP) Then
-*-----------------Add contibution from M1 operator
+*-----------------Add contribution from M1 operator
                   Cnt0M1=Zero
                   Cnt1M1=Zero
                   Cnt2M1=Zero
@@ -130,7 +130,7 @@ c     iPrint = nPrint(iRout)
                   fab=fab+Cnt0M1
                   dfab=dfab-Two*r12*Cnt1M1
                   ddfab=-Two*Cnt1M1+Four*r12**2*Cnt2M1
-*-----------------Add contibution from M2 operator
+*-----------------Add contribution from M2 operator
                   Cnt0M2=Zero
                   Cnt1M2=Zero
                   Cnt2M2=Zero
@@ -146,7 +146,7 @@ c     iPrint = nPrint(iRout)
                   ddfab=ddfab-Six**r12*Cnt1M2+Four*r12*Three*Cnt2M2
                End If
                If (dbsc(jCnttp)%ECP) Then
-*-----------------Add contibution from M1 operator
+*-----------------Add contribution from M1 operator
                   Cnt0M1=Zero
                   Cnt1M1=Zero
                   Cnt2M1=Zero
@@ -160,7 +160,7 @@ c     iPrint = nPrint(iRout)
                   fab=fab+Cnt0M1
                   dfab=dfab-Two*r12*Cnt1M1
                   ddfab=-Two*Cnt1M1+Four*r12**2*Cnt2M1
-*-----------------Add contibution from M2 operator
+*-----------------Add contribution from M2 operator
                   Cnt0M2=Zero
                   Cnt1M2=Zero
                   Cnt2M2=Zero
@@ -362,7 +362,7 @@ c     iPrint = nPrint(iRout)
                   dfab =Zero
                   ddfab=Zero
                   If (dbsc(jCnttp)%ECP) Then
-*--------------------Add contibution from M1 operator
+*--------------------Add contribution from M1 operator
                      Cnt0M1=Zero
                      Cnt1M1=Zero
                      Cnt2M1=Zero
@@ -377,7 +377,7 @@ c     iPrint = nPrint(iRout)
                      fab=fab+Cnt0M1
                      dfab=dfab-Two*r12*Cnt1M1
                      ddfab=-Two*Cnt1M1+Four*r12**2*Cnt2M1
-*--------------------Add contibution from M2 operator
+*--------------------Add contribution from M2 operator
                      Cnt0M2=Zero
                      Cnt1M2=Zero
                      Cnt2M2=Zero
@@ -544,7 +544,7 @@ c     iPrint = nPrint(iRout)
                   fab  =One
                   dfab =Zero
                   If (dbsc(iCnttp)%ECP) Then
-*--------------------Add contibution from M1 operator
+*--------------------Add contribution from M1 operator
                      Cnt0M1=Zero
                      Cnt1M1=Zero
                      Do iM1xp = 1, dbsc(iCnttp)%nM1
@@ -556,7 +556,7 @@ c     iPrint = nPrint(iRout)
                      End Do
                      fab=fab+Cnt0M1
                      dfab=dfab-Two*r12_AB*Cnt1M1
-*--------------------Add contibution from M2 operator
+*--------------------Add contribution from M2 operator
                      Cnt0M2=Zero
                      Cnt1M2=Zero
                      Do iM2xp = 1, dbsc(iCnttp)%nM2
@@ -598,7 +598,7 @@ c     iPrint = nPrint(iRout)
                   fcd  =One
                   dfcd =Zero
                   If (dbsc(jCnttp)%ECP) Then
-*--------------------Add contibution from M1 operator
+*--------------------Add contribution from M1 operator
                      Cnt0M1=Zero
                      Cnt1M1=Zero
                      Do iM1xp = 1, dbsc(jCnttp)%nM1
@@ -610,7 +610,7 @@ c     iPrint = nPrint(iRout)
                      End Do
                      fcd=fcd+Cnt0M1
                      dfcd=dfcd-Two*r12_CD*Cnt1M1
-*--------------------Add contibution from M2 operator
+*--------------------Add contribution from M2 operator
                      Cnt0M2=Zero
                      Cnt1M2=Zero
                      Do iM2xp = 1, dbsc(jCnttp)%nM2

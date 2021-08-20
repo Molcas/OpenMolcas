@@ -8,31 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Diff_ThrsMul(ipMP,ThrsMul,ThrsMul_Clever,nAt,nij,lMax)
-      Implicit Real*8 (a-h,o-z)
 
+subroutine Diff_ThrsMul(ipMP,ThrsMul,ThrsMul_Clever,nAt,nij,lMax)
+
+implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
 
-      dMMax=0.0d0
-      kauntA=0
-      Do iAtom=1,nAt
-        Do jAtom=1,iAtom
-          kaunt=0
-          Do l=0,1
-            kComp=(l+1)*(l+2)/2
-            Do k=1,kComp
-              dM=Work(ipMP+nij*kaunt+kauntA)
-              If(abs(dM).gt.dMMax)dMMax=abs(dM)
-              kaunt=kaunt+1
-            Enddo
-          Enddo
-          kauntA=kauntA+1
-        Enddo
-      Enddo
+dMMax = 0.0d0
+kauntA = 0
+do iAtom=1,nAt
+  do jAtom=1,iAtom
+    kaunt = 0
+    do l=0,1
+      kComp = (l+1)*(l+2)/2
+      do k=1,kComp
+        dM = Work(ipMP+nij*kaunt+kauntA)
+        if (abs(dM) > dMMax) dMMax = abs(dM)
+        kaunt = kaunt+1
+      end do
+    end do
+    kauntA = kauntA+1
+  end do
+end do
 
-      ThrsMul_Clever=dMMax*ThrsMul
+ThrsMul_Clever = dMMax*ThrsMul
 
-      Return
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(lMax)
-      End
+if (.false.) call Unused_integer(lMax)
+
+end subroutine Diff_ThrsMul

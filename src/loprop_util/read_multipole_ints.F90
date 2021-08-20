@@ -8,207 +8,196 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Read_Multipole_Int(lMax,ip_sq_mu,nBas,ip_mu,Ttot,Temp, &
-     &                              Origin,rMPq,nElem,nBas1,nBas2,      &
-     &                           nBasMax,nTemp,nSym,ipP,Restart,Utility)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Read_Multipole_Int(lMax,ip_sq_mu,nBas,ip_mu,Ttot,Temp,Origin,rMPq,nElem,nBas1,nBas2,nBasMax,nTemp,nSym,ipP,Restart, &
+                              Utility)
+
+implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
-      Real*8 Temp(nTemp), Ttot(nBas2), Origin(3,0:lMax),                &
-     &       rMPq(0:nElem-1)
-      Integer ip_mu(0:nElem-1), ip_sq_mu(0:nElem-1), nBas(0:nSym-1)
-      Character*8 Label
-      Character*16 RunFile_dLabel, RunFile_iLabel, RunFile_iLabel2
-      Logical Restart, Found, Utility
-      Dimension idum(1)
+real*8 Temp(nTemp), Ttot(nBas2), Origin(3,0:lMax),rMPq(0:nElem-1)
+integer ip_mu(0:nElem-1), ip_sq_mu(0:nElem-1), nBas(0:nSym-1)
+character*8 Label
+character*16 RunFile_dLabel, RunFile_iLabel, RunFile_iLabel2
+logical Restart, Found, Utility
+dimension idum(1)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!#define _DEBUGPRINT_
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Note that we will store two sets of the integrals.
+! Note that we will store two sets of the integrals.
 !
-!     Set 1: used to compute the localized properties.
-!     Set 2: used in the finite differenc calculation of the
-!            polarizability.
+! Set 1: used to compute the localized properties.
+! Set 2: used in the finite differenc calculation of the
+!        polarizability.
 !
-!     Set 1 will be desymmetrized in case of symmetry.
+! Set 1 will be desymmetrized in case of symmetry.
 !
-!     Pointers to Set 1 are stored in ip_sq_mu.
-!     Pointers to Set 2 are stored in ip_mu.
-!
-      RunFile_dLabel  = 'LoProp Integrals'
-      RunFile_iLabel  = 'LoProp nInts'
-      RunFile_iLabel2 = 'LoProp iSyLbl'
-      nInts_Tot = 0
-      Call Allocate_iWork(ip_nComp,nElem)
-      Call Allocate_iWork(ip_iSyLbl,nElem)
-      If (Restart) Then
-         Call Qpg_dArray(RunFile_dLabel,Found,nInts_tot)
-         If (.Not. Found) Then
-            Write(6,*) 'LoProp Integrals not available on the RunFile.'
-            Call Abend()
-         End If
-         Call Allocate_Work(ip_all_ints,nInts_Tot)
-         Call Get_dArray(RunFile_dLabel,Work(ip_all_ints),nInts_tot)
-         Call Get_iArray(RunFile_iLabel,iWork(ip_nComp),nElem)
-         Call Get_iArray(RunFile_iLabel2,iWork(ip_iSyLbl),nElem)
-      End If
-      nInts=0
-      iOpt0=0
-      iOpt1=1
-      Label='Mltpl  X'
-      mu = -1
-      iOff = 0
-      Do l = 0, lMax
-         nComp = (l+1)*(l+2)/2
-         Write (Label(8:8),'(I1)') l
-         Do iComp = 1, nComp
+! Pointers to Set 1 are stored in ip_sq_mu.
+! Pointers to Set 2 are stored in ip_mu.
+
+RunFile_dLabel = 'LoProp Integrals'
+RunFile_iLabel = 'LoProp nInts'
+RunFile_iLabel2 = 'LoProp iSyLbl'
+nInts_Tot = 0
+call Allocate_iWork(ip_nComp,nElem)
+call Allocate_iWork(ip_iSyLbl,nElem)
+if (Restart) then
+  call Qpg_dArray(RunFile_dLabel,Found,nInts_tot)
+  if (.not. Found) then
+    write(6,*) 'LoProp Integrals not available on the RunFile.'
+    call Abend()
+  end if
+  call Allocate_Work(ip_all_ints,nInts_Tot)
+  call Get_dArray(RunFile_dLabel,Work(ip_all_ints),nInts_tot)
+  call Get_iArray(RunFile_iLabel,iWork(ip_nComp),nElem)
+  call Get_iArray(RunFile_iLabel2,iWork(ip_iSyLbl),nElem)
+end if
+nInts = 0
+iOpt0 = 0
+iOpt1 = 1
+Label = 'Mltpl  X'
+mu = -1
+iOff = 0
+do l=0,lMax
+  nComp = (l+1)*(l+2)/2
+  write(Label(8:8),'(I1)') l
+  do iComp=1,nComp
+#   ifdef _DEBUGPRINT_
+    write(6,*) 'l,iComp=',l,iComp
+#   endif
+    mu = mu+1
+    if (Restart) then
+      call Allocate_Work(ip_mu(mu),iWork(ip_nComp+mu))
+      nInts = iWork(ip_nComp+mu)-4
+      call dCopy_(iWork(ip_nComp+mu),Work(ip_all_ints+iOff),1,Work(ip_mu(mu)),1)
+      iSyLbl = iWork(ip_iSyLbl+mu)
+      iOff = iOff+iWork(ip_nComp+mu)
+    else
+      iRc = -1
+      iSyLbl = 0
+      call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
+      if (iRc /= 0) then
+        write(6,*) 'Polar: error reading length of mu!'
+        write(6,*) 'Mu=',mu
+        call Abend()
+      end if
+      nInts = idum(1)
+      call Allocate_Work(ip_mu(mu),nInts+4)
+      call RdOne(iRc,iOpt0,Label,iComp,Work(ip_mu(mu)),iSyLbl)
+      if (iRc /= 0) then
+        write(6,*) 'Polar: error reading mu!'
+        write(6,*) 'Mu=',mu
+        call Abend()
+      end if
+      iWork(ip_iSyLbl+mu) = iSyLbl
+      iWork(ip_nComp+mu) = nInts+4
+      nInts_Tot = nInts_Tot+iWork(ip_nComp+mu)
+    end if
+
+    ! Transform multipole moment integrals to new basis
+
+    call Allocate_Work(ip_Tmp,nBas1**2)
+    call Fzero(Work(ip_Tmp),nBas1**2)
+    if (nSym == 1) then
+      ip_sq_mu(mu) = ip_Tmp
+    else
+      call GetMem('SMatrix','Allo','Real',ip_sq_mu(mu),nBas1**2)
+    end if
+
+    ! Now I square the dipole moment integral matrix because it
+    ! has been stored as a low triangle
+
+    iOfft = ip_mu(mu)
+    iOffs = ip_Tmp
+    do iSym=0,nSym-1
+      do jSym=0,iSym
+        ijSym = ieor(iSym,jSym)
+        if (iand(iSyLbl,2**ijSym) == 0) then
+          Go To 20
+        end if
+        if (nBas(iSym)*nBas(jSym) == 0) then
+          Go To 20
+        end if
+        if (iSym == jSym) then
+
+          ! Now I square the overlap matrix because it has been
+          ! stored as a lower triangle
+
+          call Square(Work(iOfft),Work(iOffs),1,nBas(iSym),nBas(iSym))
+
+          iOfft = iOfft+nBas(iSym)*(nBas(iSym)+1)/2
+        else
+          call dcopy_(nBas(iSym)*nBas(jSym),Work(iOfft),1,Work(iOffs),1)
+          iOfft = iOfft+nBas(iSym)*nBas(jSym)
+        end if
+        iOffs = iOffs+nBas(iSym)*nBas(jSym)
+20      continue
+      end do
+    end do
+
+    if (nSym /= 1) then
+
+      ! Desymmetrize
+
+      nScr = nBasMax*nBas1
+      call Allocate_Work(ipScr,nScr)
+      call FZero(Work(ip_sq_mu(mu)),nBas1**2)
+      call Desymmetrize(Work(ip_Tmp),nBas2,Work(ipScr),nScr,Work(ip_sq_mu(mu)),nBas,nBas1,Work(ipP),nSym,iSyLbl)
+      call Free_Work(ipScr)
+      call Free_Work(ip_Tmp)
+
+    end if
+
+    ! Now I transform with my Transformation Matrix Ttot the
+    ! multipole moment integral matrices
+
+#   ifdef _DEBUGPRINT_
+    call RecPrt('Multipole Integrals in AO Basis',' ',Work(ip_sq_mu(mu)),nBas1,nBas1)
+#   endif
+    call TransMu(Work(ip_sq_mu(mu)),nBas1,Ttot,Temp)
+#   ifdef _DEBUGPRINT_
+    call RecPrt('Multipole Integrals in LoProp Basis',' ',Work(ip_sq_mu(mu)),nBas1,nBas1)
+#   endif
+
+    ! Pick up the nuclear value for this operator
+
+    rMPq(mu) = Work(ip_mu(mu)+nInts+3)
+  end do
+
+  ! Pick up the origin of this operator
+
+  call dcopy_(3,Work(ip_mu(mu)+nInts),1,Origin(1,l),1)
+
+end do
+if ((.not. Restart) .and. (.not. Utility)) then
+  call Allocate_Work(ip_all_ints,nInts_Tot)
+  mu = -1
+  iOff = 0
+  do l=0,lMax
+    nComp = (l+1)*(l+2)/2
+    do iComp=1,nComp
+      mu = mu+1
+      call dCopy_(iWork(ip_nComp+mu),Work(ip_mu(mu)),1,Work(ip_all_ints+iOff),1)
+      iOff = iOff+iWork(ip_nComp+mu)
+    end do
+  end do
+  call Put_dArray(RunFile_dLabel,Work(ip_all_ints),nInts_Tot)
+  call Put_iArray(RunFile_iLabel,iWork(ip_nComp),nElem)
+  call Put_iArray(RunFile_iLabel2,iWork(ip_iSyLbl),nElem)
+end if
+if (.not. Utility) then
+  call Free_Work(ip_all_ints)
+end if
+call Free_iWork(ip_nComp)
+call Free_iWork(ip_iSyLbl)
 #ifdef _DEBUGPRINT_
-            Write (6,*) 'l,iComp=',l,iComp
-#endif
-            mu = mu + 1
-            If (Restart) Then
-               Call Allocate_Work(ip_mu(mu),iWork(ip_nComp+mu))
-               nInts = iWork(ip_nComp+mu) - 4
-               Call dCopy_(iWork(ip_nComp+mu),Work(ip_all_ints+iOff),1, &
-     &                                       Work(ip_mu(mu)),1)
-               iSyLbl = iWork(ip_iSyLbl+mu)
-               iOff = iOff + iWork(ip_nComp+mu)
-            Else
-               iRc=-1
-               iSyLbl=0
-               Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
-               If ( iRc.ne.0 ) Then
-                  Write (6,*) 'Polar: error reading length of mu!'
-                  Write (6,*) 'Mu=',mu
-                  Call Abend()
-               End If
-               nInts=idum(1)
-               Call Allocate_Work(ip_mu(mu),nInts+4)
-               Call RdOne(iRc,iOpt0,Label,iComp,Work(ip_mu(mu)),iSyLbl)
-               If ( iRc.ne.0 ) Then
-                  Write (6,*) 'Polar: error reading mu!'
-                  Write (6,*) 'Mu=',mu
-                  Call Abend()
-               End If
-               iWork(ip_iSyLbl+mu) = iSyLbl
-               iWork(ip_nComp+mu)  = nInts+4
-               nInts_Tot = nInts_Tot + iWork(ip_nComp+mu)
-            End If
-!
-!           Transform multipole moment integrals to new basis
-!
-            Call Allocate_Work(ip_Tmp,nBas1**2)
-            Call Fzero(Work(ip_Tmp),nBas1**2)
-            If (nSym.eq.1) Then
-               ip_sq_mu(mu) = ip_Tmp
-            Else
-               Call GetMem('SMatrix','Allo','Real',ip_sq_mu(mu),        &
-     &                     nBas1**2)
-            End If
-!
-!           Now I square the dipole moment integral matrix because it
-!           has been stored as a low triangle
-!
-            iOfft = ip_mu(mu)
-            iOffs = ip_Tmp
-            Do iSym = 0, nSym-1
-               Do jSym = 0, iSym
-                  ijSym=iEor(iSym,jSym)
-                  If (iAnd(iSyLbl,2**ijSym).eq.0) Then
-                     Go To 20
-                  End If
-                  If (nBas(iSym)*nBas(jSym).eq.0) Then
-                     Go To 20
-                  End If
-                  If (iSym.eq.jSym) Then
-!
-!                    Now I square the overlap matrix because it has been
-!                    stored as a lower triangle
-!
-                     Call Square(Work(iOfft),Work(iOffs),1,nBas(iSym),  &
-     &                           nBas(iSym))
-!
-                     iOfft = iOfft + nBas(iSym)*(nBas(iSym)+1)/2
-                  Else
-                     call dcopy_(nBas(iSym)*nBas(jSym),Work(iOfft),1,   &
-     &                                                Work(iOffs),1)
-                     iOfft = iOfft + nBas(iSym)*nBas(jSym)
-                  End If
-                  iOffs = iOffs + nBas(iSym)*nBas(jSym)
- 20               Continue
-               End Do
-            End Do
-!
-            If (nSym.ne.1) Then
-!
-!------------- Desymmetrize
-!
-               nScr=nBasMax*nBas1
-               Call Allocate_Work(ipScr,nScr)
-               Call FZero(Work(ip_sq_mu(mu)),nBas1**2)
-               Call Desymmetrize(Work(ip_Tmp),nBas2,Work(ipScr),nScr,   &
-     &                           Work(ip_sq_mu(mu)),nBas,nBas1,         &
-     &                           Work(ipP),nSym,iSyLbl)
-               Call Free_Work(ipScr)
-               Call Free_Work(ip_Tmp)
-!
-            End If
-!
-!           Now I transform with my Transformation Matrix Ttot the
-!           multipole moment integral matrices
-!
-#ifdef _DEBUGPRINT_
-            Call RecPrt('Multipole Integrals in AO Basis',' ',          &
-     &                  Work(ip_sq_mu(mu)),nBas1,nBas1)
-#endif
-            Call TransMu(Work(ip_sq_mu(mu)),nBas1,Ttot,Temp)
-#ifdef _DEBUGPRINT_
-            Call RecPrt('Multipole Integrals in LoProp Basis',' ',      &
-     &                  Work(ip_sq_mu(mu)),nBas1,nBas1)
-#endif
-!
-!           Pick up the nuclear value for this operator
-!
-            rMPq(mu)=Work(ip_mu(mu)+nInts+3)
-         End Do
-!
-!        Pick up the origin of this operator
-!
-         call dcopy_(3,Work(ip_mu(mu)+nInts),1,Origin(1,l),1)
-!
-      End Do
-      If ((.Not. Restart) .AND. (.Not. Utility)) Then
-         Call Allocate_Work(ip_all_ints,nInts_Tot)
-         mu = -1
-         iOff = 0
-         Do l = 0, lMax
-            nComp = (l+1)*(l+2)/2
-            Do iComp = 1, nComp
-               mu = mu + 1
-               Call dCopy_(iWork(ip_nComp+mu),Work(ip_mu(mu)),1,        &
-     &                                       Work(ip_all_ints+iOff),1)
-               iOff = iOff + iWork(ip_nComp+mu)
-            End Do
-         End Do
-         Call Put_dArray(RunFile_dLabel,Work(ip_all_ints),nInts_Tot)
-         Call Put_iArray(RunFile_iLabel,iWork(ip_nComp),nElem)
-         Call Put_iArray(RunFile_iLabel2,iWork(ip_iSyLbl),nElem)
-      End If
-      If (.Not. Utility) Then
-         Call Free_Work(ip_all_ints)
-      End If
-      Call Free_iWork(ip_nComp)
-      Call Free_iWork(ip_iSyLbl)
-#ifdef _DEBUGPRINT_
-      Call RecPrt('Origin',' ',Origin,3,lMax+1)
-      Call RecPrt('rMPq',' ',rMPq,1,nElem)
-      Call xSpot('Exit  Read_Multipole_Int')
+call RecPrt('Origin',' ',Origin,3,lMax+1)
+call RecPrt('rMPq',' ',rMPq,1,nElem)
+call xSpot('Exit  Read_Multipole_Int')
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+return
+
+end subroutine Read_Multipole_Int

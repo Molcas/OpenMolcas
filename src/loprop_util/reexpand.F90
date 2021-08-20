@@ -8,79 +8,74 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine ReExpand(rMP,nij,nElem,A,B,ij,lMax)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine ReExpand(rMP,nij,nElem,A,B,ij,lMax)
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
 #include "itmax.fh"
 #include "binom.fh"
-      Real*8 rMP(nij,nElem), A(3), B(3)
+real*8 rMP(nij,nElem), A(3), B(3)
+! Statement function
+mElem(i) = (i+1)*(i+2)*(i+3)/6
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Statement function
-!
-      mElem(i)=(i+1)*(i+2)*(i+3)/6
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!
-!     Call RecPrt('A',' ',A,1,3)
-!     Call RecPrt('B',' ',B,1,3)
-!     Call RecPrt('rMP',' ',rMP,nij,nElem)
-      Do l = lMax, 0, -1
-         iElem = mElem(l-1)
-         Do ix = l, 0, -1
-            ABx = A(1)-B(1)
-            Do iy = l-ix, 0, -1
-               ABy = A(2)-B(2)
-               iz = l-ix-iy
-               ABz = A(3)-B(3)
-               iElem = iElem + 1
-!              Write (*,*)
-!              Write (*,*)
-!              Write (*,*) 'ix,iy,iz=',ix,iy,iz
-!              Write (*,*)
-!
-               temp = Zero
-               Do jx = 0, ix
-               Do jy = 0, iy
-               Do jz = 0, iz
-!              Write (*,*) 'jx,jy,jz=',jx,jy,jz
-!
-                  If (ix-jx.eq.0) then
-                   ABx_=One
-                  else
-                   ABx_=ABx**(ix-jx)
-                  endif
-                  If (iy-jy.eq.0) then
-                   ABy_=One
-                  else
-                   ABy_=ABy**(iy-jy)
-                  endif
-                  If (iz-jz.eq.0) then
-                   ABz_=One
-                  else
-                   ABz_=ABz**(iz-jz)
-                  endif
-                  k=jx+jy+jz
-                  jElem = mElem(k-1)+(jy+jz)*(jy+jz+1)/2+jz+1
-!                 Write (6,*) 'jElem=',jElem
-!                 Write (6,*)   binom(ix,jx),binom(iy,jy),binom(iz,jz),
-!    &                   rMP(ij,jElem) ,
-!    &                    ABx_ , ABy_ , ABz_
-                  temp = temp + binom(ix,jx)*binom(iy,jy)*binom(iz,jz)  &
-     &                  *rMP(ij,jElem)                                  &
-     &                  * ABx_ * ABy_ * ABz_
-!
-               End Do
-               End Do
-               End Do
-               rMP(ij,iElem)=temp
-!
-            End Do
-         End Do
-      End Do
-!     Call RecPrt('rMP',' ',rMP,nij,nElem)
-!
-      Return
-      End
+!call RecPrt('A',' ',A,1,3)
+!call RecPrt('B',' ',B,1,3)
+!call RecPrt('rMP',' ',rMP,nij,nElem)
+do l=lMax,0,-1
+  iElem = mElem(l-1)
+  do ix=l,0,-1
+    ABx = A(1)-B(1)
+    do iy=l-ix,0,-1
+      ABy = A(2)-B(2)
+      iz = l-ix-iy
+      ABz = A(3)-B(3)
+      ielem = iElem+1
+      !write(6,*)
+      !write(6,*)
+      !write(6,*) 'ix,iy,iz=',ix,iy,iz
+      !write(6,*)
+
+      temp = Zero
+      do jx=0,ix
+        do jy=0,iy
+          do jz=0,iz
+            !write(6,*) 'jx,jy,jz=',jx,jy,jz
+
+            if (ix-jx == 0) then
+              ABx_ = One
+            else
+              ABx_ = ABx**(ix-jx)
+            end if
+            if (iy-jy == 0) then
+              ABy_ = One
+            else
+              ABy_ = ABy**(iy-jy)
+            end if
+            if (iz-jz == 0) then
+              ABz_ = One
+            else
+              ABz_ = ABz**(iz-jz)
+            end if
+            k = jx+jy+jz
+            jElem = mElem(k-1)+(jy+jz)*(jy+jz+1)/2+jz+1
+            !write(6,*) 'jElem=',jElem
+            !write(6,*) binom(ix,jx),binom(iy,jy),binom(iz,jz),rMP(ij,jElem),ABx_,ABy_,ABz_
+            temp = temp+binom(ix,jx)*binom(iy,jy)*binom(iz,jz)*rMP(ij,jElem)*ABx_*ABy_*ABz_
+
+          end do
+        end do
+      end do
+      rMP(ij,iElem) = temp
+
+    end do
+  end do
+end do
+!call RecPrt('rMP',' ',rMP,nij,nElem)
+
+return
+
+end subroutine ReExpand

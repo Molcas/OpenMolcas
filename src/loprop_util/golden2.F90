@@ -11,51 +11,50 @@
 ! Copyright (C) 2017, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
-      Real*8 Function Golden2(ax,bx,cx,f,tol_x,tol_f,xmin,              &
-     &                 q_a,q_b,dipole_a,dipole_b,r_a,r_b)
-      Implicit None
-      Real*8 :: ax, bx, cx, tol_x, tol_f, xmin
-      Real*8, Parameter :: Ratio = 0.5D0*(3.0D0-Sqrt(5.0D0))
-      Real*8, Parameter :: RM = 1.0D0-Ratio
-      Real*8 :: x1, x2, x3, x4, f2, f3
+real*8 function Golden2(ax,bx,cx,f,tol_x,tol_f,xmin,q_a,q_b,dipole_a,dipole_b,r_a,r_b)
+
+implicit none
+real*8 :: ax, bx, cx, tol_x, tol_f, xmin
+real*8, parameter :: Ratio = 0.5d0*(3.0d0-sqrt(5.0d0))
+real*8, parameter :: RM = 1.0d0-Ratio
+real*8 :: x1, x2, x3, x4, f2, f3
 ! External function f and its arguments
-      Real*8, External :: f
-      Real*8 :: q_a,q_b,dipole_a,dipole_b,r_a,r_b
-      Logical, Parameter :: Absolute=.True.
+real*8, external :: f
+real*8 :: q_a, q_b, dipole_a, dipole_b, r_a, r_b
+logical, parameter :: Absolute = .true.
 
-      x1 = ax
-      x4 = cx
-      If (Abs(cx-bx) .gt. Abs(bx-ax)) Then
-        x2 = bx
-        x3 = RM*bx + Ratio*cx
-      Else
-        x2 = RM*bx + Ratio*ax
-        x3 = bx
-      End If
-      f2 = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,x2,Absolute)
-      f3 = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,x3,Absolute)
-      Do While ((Abs(x4-x1) .gt. tol_x*(Abs(x1)+Abs(x2))) .and.         &
-     &          (Abs(f3-f2) .gt. tol_f*(Abs(f2)+Abs(f3))))
-        If (f2 .lt. f3) Then
-          x4 = x3
-          x3 = x2
-          f3 = f2
-          x2 = RM*x3 + Ratio*x1
-          f2 = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,x2,Absolute)
-        Else
-          x1 = x2
-          x2 = x3
-          f2 = f3
-          x3 = RM*x2 + Ratio*x4
-          f3 = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,x3,Absolute)
-        End If
-      End Do
-      If (f2 .lt. f3) Then
-        xmin = x2
-        Golden2 = f2
-      Else
-        xmin = x3
-        Golden2 = f3
-      End If
+x1 = ax
+x4 = cx
+if (abs(cx-bx) > abs(bx-ax)) then
+  x2 = bx
+  x3 = RM*bx+Ratio*cx
+else
+  x2 = RM*bx+Ratio*ax
+  x3 = bx
+end if
+f2 = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,x2,Absolute)
+f3 = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,x3,Absolute)
+do while ((abs(x4-x1) > tol_x*(abs(x1)+abs(x2))) .and. (abs(f3-f2) > tol_f*(abs(f2)+abs(f3))))
+  if (f2 < f3) then
+    x4 = x3
+    x3 = x2
+    f3 = f2
+    x2 = RM*x3+Ratio*x1
+    f2 = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,x2,Absolute)
+  else
+    x1 = x2
+    x2 = x3
+    f2 = f3
+    x3 = RM*x2+Ratio*x4
+    f3 = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,x3,Absolute)
+  end if
+end do
+if (f2 < f3) then
+  xmin = x2
+  Golden2 = f2
+else
+  xmin = x3
+  Golden2 = f3
+end if
 
-      End Function Golden2
+end function Golden2
