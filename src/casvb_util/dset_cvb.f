@@ -20,7 +20,7 @@
 #include "print_cvb.fh"
 
 #include "inpmod_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension iorbrel(ndimrel),ifxorb(mxorb),
      >  iorts(*),irots(*),izeta(*)
 
@@ -33,9 +33,9 @@ c  Check if any molecular interaction constraints :
       call wrioff_cvb(11,recinp,ioffs)
       call wris_cvb(ifxorb,norb,recinp,ioffs)
       call wrioff_cvb(12,recinp,ioffs)
-      call wris_cvb(iw(ifxstr),nfxvb,recinp,ioffs)
+      call wris_cvb(iwork(ifxstr),nfxvb,recinp,ioffs)
       call wrioff_cvb(13,recinp,ioffs)
-      call wris_cvb(iw(idelstr),nzrvb,recinp,ioffs)
+      call wris_cvb(iwork(idelstr),nzrvb,recinp,ioffs)
       call wrioff_cvb(14,recinp,ioffs)
       call wris_cvb(iorts,2*nort,recinp,ioffs)
       call wrioff_cvb(15,recinp,ioffs)

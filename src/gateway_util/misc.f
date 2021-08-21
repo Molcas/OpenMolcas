@@ -72,7 +72,7 @@
      &                      cdMax,EtMax)
                If (iShell.gt.MxShll) Then
                   Call WarningMessage(2,'iShell.gt.MxShll;'
-     &                    //' Change MxShll in info.fh and re'
+     &                    //' Change MxShll in Molcas.fh and re'
      &                    //'compile the code!')
                   Call Abend()
                End If

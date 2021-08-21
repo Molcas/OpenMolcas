@@ -20,7 +20,7 @@
       logical strucopt,skip
       logical close2conv
       external asonc12s_cvb,ddres2upd10_cvb
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 #include "opt_cvb.fh"
 #include "locopt1_cvb.fh"
 #include "locopt2_cvb.fh"

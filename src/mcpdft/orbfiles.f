@@ -23,7 +23,6 @@ c***********************************************************************
       Dimension IndType(56)
       Integer nBas(mxSym),nFro(mxSym),nDel(mxSym),nAsh(mxSym)
       Integer nIsh(mxSym),nRs1(mxSym),nRs2(mxSym),nRs3(mxSym)
-      Dimension E2act(1)
 
 * This routine is used at normal end of a RASSCF optimization, or
 * when using the OrbOnly keyword to create orbital files.
@@ -126,14 +125,14 @@ c     &  Work(lCMO), Work(ipOcc), FDIAG, iDummy,VecTyp)
       Call WrVec_(filename,LuvvVec,'COET',0,nSym,nBas,nBas,
      &            Work(lCMO),Work(lCMO),
      &            Work(ipOcc),Work(ipOcc),
-     &            FDIAG,E2act,
+     &            FDIAG,[E2act],
      &            indType,VecTyp,0)
 c      Call WrVec(filename,LuvvVec,'AI',NSYM,NBAS,NBAS,
 c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
       Call WrVec_(filename,LuvvVec,'AIT',0,nSym,nBas,nBas,
      &            Work(lCMO),Work(lCMO),
      &            Work(ipOcc),Work(ipOcc),
-     &            FDIAG,E2act,
+     &            FDIAG,[E2act],
      &            indType,VecTyp,0)
 *----------------------------------------------------------------------*
 *     Second, write natural orbitals

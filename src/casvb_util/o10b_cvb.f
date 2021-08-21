@@ -14,7 +14,7 @@
       subroutine o10b_cvb(nparm,dxnrm,grdnrm,close2conv)
       implicit real*8 (a-h,o-z)
       logical close2conv
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 #include "opt_cvb.fh"
 #include "locopt1_cvb.fh"
 #include "locopt2_cvb.fh"
@@ -31,7 +31,7 @@
         resthr_use=min(1d-5,resthr_use)
         resthr_use=max(1d-9,resthr_use)
       endif
-      call axexb_cvb(asonc10_cvb,ddres2upd10_cvb,w(ix(1)),
+      call axexb_cvb(asonc10_cvb,ddres2upd10_cvb,work(ix(1)),
      >  resthr_use,ioptc2,iter2,fx_exp)
       have_solved_it=.true.
 
@@ -43,6 +43,6 @@
         call abend_cvb()
       endif
 
-      dxnrm=dnrm2_(nparm,w(ix(1)),1)
+      dxnrm=dnrm2_(nparm,work(ix(1)),1)
       return
       end

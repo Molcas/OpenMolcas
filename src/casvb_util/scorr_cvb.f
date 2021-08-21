@@ -19,14 +19,14 @@
 #include "print_cvb.fh"
 
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension cvbdet(ndetvb),dvbdet(ndetvb),evbdet(ndetvb)
 
       k1 = mstackr_cvb(norb*norb)
       k2 = mstackr_cvb(ndetvb)
       k3 = mstacki_cvb(norb)
       call scorr2_cvb(cvbdet,dvbdet,evbdet,
-     >      w(k1),w(k2),iw(k3))
+     >      work(k1),work(k2),iwork(k3))
       call mfreer_cvb(k1)
       return
       end

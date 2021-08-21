@@ -15,7 +15,7 @@
 c  Memory allocator (heap). Reallocate pointer.
       implicit real*8 (a-h,o-z)
 #include "memman_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 #include "files_cvb.fh"
 
       if(memdebug)write(6,*)'     Enter mreallocr: nword & pointer :',
@@ -28,10 +28,10 @@ c      call getmem('casvb','CHAN','REAL',ipoint_g,nword)
 c  Read and write data -- not efficient but safe and simple :
       call getmem('casvb','LENG','REAL',ipoint_g,nword_old)
       nword_move=min(nword,nword_old)
-      call wrr_cvb(w(ipoint),nword_move,recn_tmp06,0)
+      call wrr_cvb(work(ipoint),nword_move,recn_tmp06,0)
       call mfreer_cvb(ipoint)
       ipoint=mheapr_cvb(nword)
-      call rdr_cvb(w(ipoint),nword_move,recn_tmp06,0)
+      call rdr_cvb(work(ipoint),nword_move,recn_tmp06,0)
 
       if(memdebug)write(6,*)'     mreallocr : nword & pointer :',
      >  nword,ipoint

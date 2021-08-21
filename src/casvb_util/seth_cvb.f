@@ -13,7 +13,7 @@
 ************************************************************************
       subroutine seth_cvb(iarr,n)
       implicit real*8(a-h,o-z)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 #include "seth_cvb.fh"
       dimension iarr(n)
 
@@ -22,7 +22,7 @@
       end
       subroutine geth_cvb(iarr,n)
       implicit real*8(a-h,o-z)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 #include "seth_cvb.fh"
       dimension iarr(n)
       if(icnt.lt.ncnt)then

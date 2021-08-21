@@ -16,7 +16,7 @@
       implicit real*8 (a-h,o-z)
       logical share
       dimension aikcof(ndet,ifns),bikcof(ndet,ifns)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       save one
       data one/1d0/
 
@@ -48,10 +48,10 @@
       i14= mstacki_cvb(nbet)
       call rumer_cvb(bikcof,
      >  nel,nalf,nbet,ndet,ifns,kbasis,iprint,nswpdim,
-     >  iw(i1),iw(i2),iw(i3),
-     >  iw(i4),iw(i5),iw(i6),iw(i7),iw(i8),iw(i9),
-     >  iw(i10),iw(i11),iw(i12),
-     >  iw(i13),iw(i14))
+     >  iwork(i1),iwork(i2),iwork(i3),
+     >  iwork(i4),iwork(i5),iwork(i6),iwork(i7),iwork(i8),iwork(i9),
+     >  iwork(i10),iwork(i11),iwork(i12),
+     >  iwork(i13),iwork(i14))
       call mfreei_cvb(i1)
 
       if(kbasis.eq.1.or.kbasis.eq.5)
@@ -75,10 +75,10 @@
         i15= mstackr_cvb(ndet)
         call projspn_cvb(bikcof,
      >    nel,nalf,nbet,ndet,ifns,
-     >    iw(i1),iw(i2),iw(i3),iw(i4),iw(i5),iw(i6),
-     >    iw(i7),iw(i8),iw(i9),iw(i10),
-     >    iw(i11),
-     >    iw(i12),iw(i13),iw(i14),w(i15))
+     >    iwork(i1),iwork(i2),iwork(i3),iwork(i4),iwork(i5),iwork(i6),
+     >    iwork(i7),iwork(i8),iwork(i9),iwork(i10),
+     >    iwork(i11),
+     >    iwork(i12),iwork(i13),iwork(i14),work(i15))
         call mfreei_cvb(i1)
       endif
 
@@ -94,8 +94,8 @@
         i9 = mstacki_cvb(ifns)
         call serber_cvb(bikcof,
      >    nel,nalf,nbet,ndet,ifns,
-     >    iw(i1),iw(i2),iw(i3),iw(i4),iw(i5),iw(i6),
-     >    iw(i7),iw(i8),iw(i9))
+     >    iwork(i1),iwork(i2),iwork(i3),iwork(i4),iwork(i5),iwork(i6),
+     >    iwork(i7),iwork(i8),iwork(i9))
         call mfreei_cvb(i1)
       endif
 
@@ -106,7 +106,7 @@
       endif
       call aikcof_cvb(aikcof,bikcof,
      >  ndet,ifns,kbasis,share,
-     >  w(i1))
+     >  work(i1))
       call mfreer_cvb(i1)
 
       return

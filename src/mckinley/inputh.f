@@ -48,6 +48,12 @@ c      Logical DoCholesky
       Integer, Allocatable:: ATDisp(:), DEGDisp(:), TDisp(:), Car(:)
       Real*8, Allocatable:: AM(:,:), Tmp(:,:), C(:,:), Scr(:,:)
       Data xyz/'x','y','z'/
+      Interface
+        Subroutine datimx(TimeStamp) Bind(C,name='datimx_')
+          Use, Intrinsic :: iso_c_binding, Only: c_char
+          Character(kind=c_char) :: TimeStamp(*)
+        End Subroutine
+      End Interface
 *
 c      Call DecideOnCholesky(DoCholesky)
 c      If (DoCholesky) Then

@@ -30,6 +30,14 @@ implicit none
 character(len=*), intent(in) :: VarName
 character(len=*), intent(out) :: Val
 integer(kind=iwp) :: ilen, irl, maxlen
+interface
+  subroutine getenvf2c(name_,ilen,value_,maxlen,irl) bind(C,name='getenvf2c_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    character(kind=c_char) :: name_(*), value_(*)
+    integer(kind=MOLCAS_C_INT) :: ilen, maxlen, irl
+  end subroutine getenvf2c
+end interface
 
 Val = ' '
 ilen = len(VarName)

@@ -26,29 +26,29 @@
       logical function mxorth_cvb(a,n)
 c  Returns .TRUE. if A is orthogonal.
       implicit real*8 (a-h,o-z)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension a(n,n)
       save thresh,one
       data thresh/1d-8/,one/1d0/
 
       i1 = mstackr_cvb(n*n)
       i2 = mstackr_cvb(n*n)
-c  W(I1) <= A transpose
+c  Work(I1) <= A transpose
       do 100 i=1,n
       do 101 j=1,n
-      w(i+(j-1)*n+i1-1)=a(j,i)
+      work(i+(j-1)*n+i1-1)=a(j,i)
 101   continue
 100   continue
-      call mxatb_cvb(w(i1),a,n,n,n,w(i2))
-c  W(I2) identity ??
+      call mxatb_cvb(work(i1),a,n,n,n,work(i2))
+c  Work(I2) identity ??
       mxorth_cvb=.true.
       do 200 j=1,n
       do 201 i=1,n
       if(i.ne.j)then
-        tst=abs(w(i+(j-1)*n+i2-1))
+        tst=abs(work(i+(j-1)*n+i2-1))
         if(tst.gt.thresh)mxorth_cvb=.false.
       else
-        tst=abs(w(i+(j-1)*n+i2-1)-one)
+        tst=abs(work(i+(j-1)*n+i2-1)-one)
         if(tst.gt.thresh)mxorth_cvb=.false.
       endif
 201   continue

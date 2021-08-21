@@ -410,7 +410,7 @@ c irfno(i)=j no. i ref is no. j cfs in h0
       icount=0
       do i=1,n_ref
         do j=1,ndimh0
-          call found_a_config(j,1.0,0)
+          call found_a_config(j,1.0d0,0)
           do im=1,norb_all
             iwalktmp(im)=nwalk(norb_all-im+1)
           enddo
@@ -494,7 +494,7 @@ c          stop 777
       icount=0
       do i=1,n_ref
         do j=1,ndimh0
-          call found_a_config(j,1.0,0)
+          call found_a_config(j,1.0d0,0)
           do im=1,norb_all
             iwalktmp(im)=nwalk(norb_all-im+1)
           enddo

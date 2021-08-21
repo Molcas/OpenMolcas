@@ -106,7 +106,7 @@ c  Altered definitions of I1ALF & I1BET :
 700   continue
       if(absym(4))then
 c  I1ALF & I1BET may share memory:
-        if(iiloc(i1alf).ne.iiloc(i1bet))
+        if(ip_of_iWork(i1alf(1,1)).ne.ip_of_iWork(i1bet(1,1)))
      >    call imove_cvb(i1alf,i1bet,norb*n1a)
       else
         do 800 iorb=1,norb

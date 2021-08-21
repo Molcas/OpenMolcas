@@ -19,14 +19,14 @@
 #include "print_cvb.fh"
 
 #include "frag_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
       if(nfrag.le.1)then
-        call dscal_(nvb,-one,w(lv(2)),1)
-        call dscal_(ndetvb,-one,w(lv(5)),1)
+        call dscal_(nvb,-one,work(lv(2)),1)
+        call dscal_(ndetvb,-one,work(lv(5)),1)
       else
-        call dscal_(nvb_fr(1),-one,w(lv(2)),1)
-        call dscal_(ndetvb_fr(1),-one,w(lv(5)),1)
+        call dscal_(nvb_fr(1),-one,work(lv(2)),1)
+        call dscal_(ndetvb_fr(1),-one,work(lv(5)),1)
       endif
       call touch_cvb('CVB')
       call fx_cvb(fx,.false.)

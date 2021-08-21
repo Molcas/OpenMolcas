@@ -71,7 +71,7 @@ void getenvf2c(char *name, INT *ilen, char *value, INT *maxlen, INT *irl)
       {
       len=strlen(envvar);
       if (len>=*maxlen) len=*maxlen-1;
-      strncpy(value,envvar,len);
+      strncpy(value,envvar,*maxlen-1);
       value[len]=0;
       free(envvar);
       }

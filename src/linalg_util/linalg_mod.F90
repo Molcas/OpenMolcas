@@ -26,7 +26,7 @@ use sorting_funcs, only: leq_i, leq_r, geq_r
 implicit none
 private
 
-public :: mult, sym_diagonalize, isclose, operator(.isclose.), dot_product_, norm, canonicalize, Gram_Schmidt, Canonical, Lowdin, &
+public :: mult, sym_diagonalize, is_close, operator(.isclose.), dot_product_, norm, canonicalize, Gram_Schmidt, Canonical, Lowdin, &
           symmetric
 ! TODO Move to different module
 public :: abort_, verify_
@@ -348,7 +348,7 @@ subroutine determine_eigenspaces(lambda,dimensions)
   do i=1,size(lambda)
     d_buffer(n_spaces) = d_buffer(n_spaces)+1
     if (i+1 <= size(lambda)) then
-      if (.not. isclose(lambda(i),lambda(i+1),epsilon(lambda)*1.0e3_wp,1.0e-8_wp)) then
+      if (.not. is_close(lambda(i),lambda(i+1),epsilon(lambda)*1.0e3_wp,1.0e-8_wp)) then
         n_spaces = n_spaces+1
         lambda(low:i) = mean(lambda(low:i))
         low = i+1
@@ -491,12 +491,14 @@ end subroutine canonicalize_general
 !>
 !>  @author
 !>    Oskar Weser
-elemental function isclose(a,b,atol,rtol) result(res)
+! Change name from isclose to is_close, for nvfortran's sake
+! (https://forums.developer.nvidia.com/t/nvfortran-wrong-error-compiler-is-confused-by-similar-names/186146)
+elemental function is_close(a,b,atol,rtol) result(res)
   real(kind=wp), intent(in) :: a, b
   real(kind=wp), intent(in) :: atol, rtol
   logical(kind=iwp) :: res
   res = abs(a-b) <= max(rtol*max(abs(a),abs(b)),atol)
-end function isclose
+end function is_close
 
 ! Operator functions may only have two arguments.
 elemental function isclose_for_operator(a,b) result(res)
@@ -504,7 +506,7 @@ elemental function isclose_for_operator(a,b) result(res)
   logical(kind=iwp) :: res
 
   ! For real64, the epsilon is 2.3e-16 so that atol becomes roughly 2.3e-14 which is very tight.
-  res = isclose(a,b,atol=epsilon(a)*1.0e2_wp,rtol=1.0e-9_wp)
+  res = is_close(a,b,atol=epsilon(a)*1.0e2_wp,rtol=1.0e-9_wp)
 end function isclose_for_operator
 
 !>  @brief
@@ -576,7 +578,7 @@ pure function symmetric(M)
   symmetric = .true.
   do j=1,size(M,2)
     do i=j,size(M,1)
-      if (.not.(M(i,j) .isclose.M(j,i))) then
+      if (.not. (M(i,j) .isclose. M(j,i))) then
         symmetric = .false.
         return
       end if

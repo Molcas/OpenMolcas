@@ -138,7 +138,7 @@ end if
 ! a link between an atom and its basis set ---
 !
 ! NOTICE!!!
-! This call will also fill info.fh and the Basis_Info
+! This call will also fill Basis_Info and Center_Info.
 
 call mma_allocate(AtomLabel,MxAtom,label='AtomLabel')
 call mma_allocate(iBas_Lab,MxAtom,label='iBas_Lab')

@@ -360,22 +360,16 @@ C                 Do k = 1, 2
                      Call NxtWrd(AtomLbl(mAtom),iF2,iE2)
                      Lbls(2)=AtomLbl(mAtom)(iF2:iE2)
                      If (kDCRR.ne.0) Then
-                        Lbls(2)(iE2+1:iE2+1)='('
-                        Lbls(2)(iE2+2:iE2+1+iChOp(kDCRR))=
-     &                        ChOp(kDCRR)(1:iChOp(kDCRR))
-                        Lbls(2)(iE2+2+iChOp(kDCRR):
-     &                          iE2+2+iChOp(kDCRR))=')'
+                        Lbls(2)(iE2+1:iE2+2+iChOp(kDCRR))=
+     &                   '('//ChOp(kDCRR)(1:iChOp(kDCRR))//')'
                         Call NxtWrd(Lbls(2),iF2,iE2)
                      End If
                      iF3=1
                      Call NxtWrd(AtomLbl(jAtom),iF3,iE3)
                      Lbls(3)=AtomLbl(jAtom)(iF3:iE3)
                      If (kDCRT.ne.0) Then
-                        Lbls(3)(iE3+1:iE3+1)='('
-                        Lbls(3)(iE3+2:iE3+1+iChOp(kDCRT))=
-     &                        ChOp(kDCRT)(1:iChOp(kDCRT))
-                        Lbls(3)(iE3+2+iChOp(kDCRT):
-     &                          iE3+2+iChOp(kDCRT))=')'
+                        Lbls(3)(iE3+1:iE3+2+iChOp(kDCRT))=
+     &                   '('//ChOp(kDCRT)(1:iChOp(kDCRT))//')'
                         Call NxtWrd(Lbls(3),iF3,iE3)
                      End If
                      Write (LuIC,'(A,I3.3,A,I1.1,6A)')
@@ -458,22 +452,16 @@ C                 Do k = 1, 2
                   Call NxtWrd(AtomLbl(mAtom),iF2,iE2)
                   Lbls(2)=AtomLbl(mAtom)(iF2:iE2)
                   If (kDCRR.ne.0) Then
-                     Lbls(2)(iE2+1:iE2+1)='('
-                     Lbls(2)(iE2+2:iE2+1+iChOp(kDCRR))=
-     &                     ChOp(kDCRR)(1:iChOp(kDCRR))
-                     Lbls(2)(iE2+2+iChOp(kDCRR):
-     &                       iE2+2+iChOp(kDCRR))=')'
+                     Lbls(2)(iE2+1:iE2+2+iChOp(kDCRR))=
+     &                '('//ChOp(kDCRR)(1:iChOp(kDCRR))//')'
                      Call NxtWrd(Lbls(2),iF2,iE2)
                   End If
                   iF3=1
                   Call NxtWrd(AtomLbl(jAtom),iF3,iE3)
                   Lbls(3)=AtomLbl(jAtom)(iF3:iE3)
                   If (kDCRT.ne.0) Then
-                     Lbls(3)(iE3+1:iE3+1)='('
-                     Lbls(3)(iE3+2:iE3+1+iChOp(kDCRT))=
-     &                     ChOp(kDCRT)(1:iChOp(kDCRT))
-                     Lbls(3)(iE3+2+iChOp(kDCRT):
-     &                       iE3+2+iChOp(kDCRT))=')'
+                     Lbls(3)(iE3+1:iE3+2+iChOp(kDCRT))=
+     &                '('//ChOp(kDCRT)(1:iChOp(kDCRT))//')'
                      Call NxtWrd(Lbls(3),iF3,iE3)
                   End If
                   Write (LuIC,'(A,I3.3,6A)')

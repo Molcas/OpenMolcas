@@ -13,7 +13,7 @@
 ************************************************************************
       subroutine span1_cvb(c,nvec,s,n,metr)
       implicit real*8 (a-h,o-z)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 #include "span_comcvb.fh"
       dimension c(n,nvec),s(*)
 
@@ -23,9 +23,9 @@
         write(6,*)' Fatal error in SPAN_CVB!',nvmove,nvremain
         call abend_cvb()
       endif
-      call fmove_cvb(c(1,1+nvec-nvremain),w(nvtot*n+iaddr),n*nvmove)
+      call fmove_cvb(c(1,1+nvec-nvremain),work(nvtot*n+iaddr),n*nvmove)
       nvtot=nvtot+nvmove
-      if(nvtot.eq.nvecmx)call span_cvb(w(iaddr),nvtot,nvtot,s,n,metr)
+      if(nvtot.eq.nvecmx)call span_cvb(work(iaddr),nvtot,nvtot,s,n,metr)
       nvremain=nvremain-nvmove
       if(nvremain.gt.0)goto 100
       return

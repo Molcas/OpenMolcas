@@ -13,7 +13,7 @@
 ************************************************************************
       subroutine ddrhs_cvb(vec,ndim,ioffs)
       implicit real*8(a-h,o-z)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 #include "direct_cvb.fh"
       dimension vec(ndim)
 
@@ -26,9 +26,9 @@
         write(6,*)' Illegal call to DDRHS :',ndim,ioffs,nparm
         call abend_cvb()
       endif
-      call fzero(w(idd(ivrhs)+(nvrhs-1)*nparm),ioffs)
-      call fmove_cvb(vec,w(ioffs+idd(ivrhs)+(nvrhs-1)*nparm),ndim)
-      call fzero(w(ndim+ioffs+idd(ivrhs)+(nvrhs-1)*nparm),
+      call fzero(work(idd(ivrhs)+(nvrhs-1)*nparm),ioffs)
+      call fmove_cvb(vec,work(ioffs+idd(ivrhs)+(nvrhs-1)*nparm),ndim)
+      call fzero(work(ndim+ioffs+idd(ivrhs)+(nvrhs-1)*nparm),
      >  nparm-ioffs-ndim)
       return
       end

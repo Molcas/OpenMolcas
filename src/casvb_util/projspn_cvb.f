@@ -15,14 +15,14 @@
      > nel,nalf,nbet,ndet,ifns,
      > minalf,maxalf,nkalf,minspn,maxspn,nkspn,
      > locswp,lnoswp,locca,lnocca,ialfa,
-     > xdet,xspin,iwork,detphase)
+     > xdet,xspin,iw,detphase)
       implicit real*8 (a-h,o-w,y-z),integer(x)
       dimension bikcof(ndet,ifns)
       dimension minalf(0:nel), maxalf(0:nel), nkalf(0:nel)
       dimension minspn(0:nel), maxspn(0:nel), nkspn(0:nel)
       dimension locswp(2*nbet), lnoswp(2*nbet), locca(nel), lnocca(nel)
       dimension ialfa(nalf),xdet(0:nel,0:nalf),xspin((nel+1)*(nalf+1))
-      dimension iwork(nel),detphase(ndet)
+      dimension iw(nel),detphase(ndet)
 
 c  Phase factors between alpha-beta separated determinants
 c  and determinants with ascending orbital numbers
@@ -40,7 +40,7 @@ c Set up maximum and minimum of spin functions:
       call weight_cvb(xspin,minspn,maxspn,nalf,nel)
 
       call imove_cvb(maxspn,nkspn,nel+1)
-      call occupy_cvb(nkspn,nel,iwork,iwork(nalf+1))
+      call occupy_cvb(nkspn,nel,iw,iw(nalf+1))
 c Set up maximum and minimum for determinants :
       do 2100 iorb=0,nel
       minalf(iorb)=max(iorb-nbet,0)
@@ -59,7 +59,7 @@ c MAXSPN contains same elements as MAXALF
       call occupy_cvb(nkalf,nel,locswp,lnoswp)
 2400  continue
       do 2500 i=1,nalf
-      ialfa(i)=iwork(locswp(i))
+      ialfa(i)=iw(locswp(i))
 2500  continue
 2600  continue
       do 2700 i=2,nalf
@@ -75,6 +75,6 @@ c MAXSPN contains same elements as MAXALF
       call loind_cvb(nel,nalf,nkalf,minalf,maxalf,
      >                     locswp,lnoswp,inddet,xdet,*2400)
 2200  call loind_cvb(nel,nalf,nkspn,minspn,maxspn,
-     >                     iwork,iwork(nalf+1),index,xspin,*2300)
+     >                     iw,iw(nalf+1),index,xspin,*2300)
       return
       end

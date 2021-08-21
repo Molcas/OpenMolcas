@@ -18,7 +18,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
       k1 = mstacki_cvb((norb+1)*(nalf+1))
       k2 = mstacki_cvb((norb+1)*(nbet+1))
@@ -32,10 +32,11 @@
       k10= mstacki_cvb(norb)
       k11= mstacki_cvb(norb)
       call mkciinfo2_cvb(
-     >  iw(ll(1)),iw(ll(2)),iw(ll(3)),iw(ll(4)),iw(ll(5)),iw(ll(6)),
-     >  w(ll(9)),w(ll(10)),
-     >  iw(k1),iw(k2),iw(k3),iw(k4),iw(k5),iw(k6),
-     >  iw(k7),iw(k8),iw(k9),iw(k10),iw(k11))
+     >  iwork(ll(1)),iwork(ll(2)),iwork(ll(3)),iwork(ll(4)),
+     >  iwork(ll(5)),iwork(ll(6)),
+     >  work(ll(9)),work(ll(10)),
+     >  iwork(k1),iwork(k2),iwork(k3),iwork(k4),iwork(k5),iwork(k6),
+     >  iwork(k7),iwork(k8),iwork(k9),iwork(k10),iwork(k11))
       call mfreei_cvb(k1)
       return
       end

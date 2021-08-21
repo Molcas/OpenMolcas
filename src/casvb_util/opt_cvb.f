@@ -19,8 +19,8 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
-      call opt2_cvb(w(lv(1)),w(lv(2)))
+      call opt2_cvb(work(lv(1)),work(lv(2)))
       return
       end

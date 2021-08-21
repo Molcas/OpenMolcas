@@ -34,14 +34,14 @@
       IMPLICIT NONE
       INTEGER n, ija(*), ijb(*), nijb, i, j, k, kk, kkb, l
       REAL*8 A(*), B(*), Ljk, Thr
-      INTEGER idLoc
-      EXTERNAL idLoc
+      INTEGER ip_of_Work
+      EXTERNAL ip_of_Work
       PARAMETER (Thr=1.0D-12)
       LOGICAL Sym, GoOn
 #include "real.fh"
 
       Sym=(A(n+1).GT.0.0D0)
-      IF (idLoc(A(1)).EQ.idLoc(B(1))) THEN
+      IF (ip_of_Work(A(1)).EQ.ip_of_Work(B(1))) THEN
         IF (.NOT.Sym) THEN
           CALL SysAbendMsg('Sp_ICD',
      &                     'In-place decomposition only allowed with '

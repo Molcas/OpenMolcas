@@ -19,7 +19,7 @@ c  stripped.
       logical blankdelim
       character*(*) line
       character*1 blanks(nblank)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
       do 100 iblank=1,nblank
       if(blanks(iblank).ne.' ')then
@@ -33,16 +33,16 @@ c  stripped.
       do 300 ich=1,lenline
       if(line(ich:ich).ne.' ')then
         ich2=ich2+1
-        iw(ich2+ilv-1)=ich
+        iwork(ich2+ilv-1)=ich
 c  (Final condition eliminates leading blanks :)
       elseif(blankdelim.and.ich.ge.2.and.line(ich-1:ich-1).ne.' '
      >  .and.ich2.ne.0)then
         ich2=ich2+1
-        iw(ich2+ilv-1)=ich
+        iwork(ich2+ilv-1)=ich
       endif
 300   continue
       do 400 ich=1,ich2
-      line(ich:ich)=line(iw(ich+ilv-1):iw(ich+ilv-1))
+      line(ich:ich)=line(iwork(ich+ilv-1):iwork(ich+ilv-1))
 400   continue
       lenline=ich2
       call mfreei_cvb(ilv)

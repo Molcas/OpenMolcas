@@ -18,14 +18,14 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension grad(n)
 
       if(ip(3).lt.2)return
       i1 = mstackr_cvb(norb*norb)
-      call mxunfold_cvb(grad,w(i1),norb)
+      call mxunfold_cvb(grad,work(i1),norb)
       write(6,'(/,a)')' Orbital gradient :'
-      call mxprint_cvb(w(i1),norb,norb,0)
+      call mxprint_cvb(work(i1),norb,norb,0)
       if(n-nprorb.gt.0)then
         write(6,'(a)')' Structure coefficient gradient :'
         call mxprint_cvb(grad(nprorb+1),1,n-nprorb,0)

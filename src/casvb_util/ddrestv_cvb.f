@@ -14,7 +14,7 @@
       subroutine ddrestv_cvb(vec,avec,svec,ndim,ioffs,ause,suse)
       implicit real*8(a-h,o-z)
       logical ause,suse
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 #include "direct_cvb.fh"
       dimension vec(ndim),avec(ndim),svec(ndim)
 
@@ -30,24 +30,25 @@
         call abend_cvb()
       endif
       iddvec=1
-      call fzero(w(idd(iddvec)+(nvrestart-1)*nparm),ioffs)
-      call fmove_cvb(vec,w(ioffs+idd(iddvec)+(nvrestart-1)*nparm),ndim)
-      call fzero(w(ndim+ioffs+idd(iddvec)+(nvrestart-1)*nparm),
+      call fzero(work(idd(iddvec)+(nvrestart-1)*nparm),ioffs)
+      call fmove_cvb(vec,work(ioffs+idd(iddvec)+(nvrestart-1)*nparm),
+     >               ndim)
+      call fzero(work(ndim+ioffs+idd(iddvec)+(nvrestart-1)*nparm),
      >  nparm-ioffs-ndim)
       if(ause)then
         iddvec=iddvec+1
-        call fzero(w(idd(iddvec)+(nvrestart-1)*nparm),ioffs)
-        call fmove_cvb(avec,w(ioffs+idd(iddvec)+(nvrestart-1)*nparm),
+        call fzero(work(idd(iddvec)+(nvrestart-1)*nparm),ioffs)
+        call fmove_cvb(avec,work(ioffs+idd(iddvec)+(nvrestart-1)*nparm),
      >    ndim)
-        call fzero(w(ndim+ioffs+idd(iddvec)+(nvrestart-1)*nparm),
+        call fzero(work(ndim+ioffs+idd(iddvec)+(nvrestart-1)*nparm),
      >    nparm-ioffs-ndim)
       endif
       if(suse)then
         iddvec=iddvec+1
-        call fzero(w(idd(iddvec)+(nvrestart-1)*nparm),ioffs)
-        call fmove_cvb(svec,w(ioffs+idd(iddvec)+(nvrestart-1)*nparm),
+        call fzero(work(idd(iddvec)+(nvrestart-1)*nparm),ioffs)
+        call fmove_cvb(svec,work(ioffs+idd(iddvec)+(nvrestart-1)*nparm),
      >    ndim)
-        call fzero(w(ndim+ioffs+idd(iddvec)+(nvrestart-1)*nparm),
+        call fzero(work(ndim+ioffs+idd(iddvec)+(nvrestart-1)*nparm),
      >    nparm-ioffs-ndim)
       endif
       return
