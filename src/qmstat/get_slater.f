@@ -17,7 +17,7 @@
 
 #include "maxi.fh"
 #include "files_qmstat.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Dimension CoordTest(3),SlFactQ(6)
       Dimension SlExpQ(MxMltp+1,MxQCen),outxyz(MxQCen,3)

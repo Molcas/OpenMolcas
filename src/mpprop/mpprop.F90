@@ -434,7 +434,7 @@ else
   call mma_allocate(Ene,nOcc,2,label='OrbE')
   nsum = nSum+2*nOcc
   if (Method == 'RHF-SCF') then
-    call Get_OrbE_mpprop(Ene,nOcc)
+    call Get_OrbE(Ene,nOcc)
   else
     Ene(:,:) = Zero
   end if
@@ -569,7 +569,7 @@ if (iPol > 0) then
       write(u6,*)
       iPol = 0
     end if
-  elseif (iPol == 2) then
+  else if (iPol == 2) then
     call LauraPol()
   end if
 end if

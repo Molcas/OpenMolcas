@@ -96,8 +96,7 @@
 #include "global.fh"
 #include "mafdecls.fh"
 #else
-      REAL*8 DBL_MB(1:IWORKLEN)
-      EQUIVALENCE (DBL_MB,WORK)
+#define DBL_MB Work
 #endif
 
       IF (iPrGlb.GE.DEBUG) THEN
@@ -206,8 +205,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "global.fh"
 #include "mafdecls.fh"
 #else
-      REAL*8 DBL_MB(1:IWORKLEN)
-      EQUIVALENCE (DBL_MB,WORK)
+#define DBL_MB Work
 #endif
 
       IF (iPrGlb.GE.DEBUG) THEN
@@ -330,8 +328,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "global.fh"
 #include "mafdecls.fh"
 #else
-      REAL*8 DBL_MB(1:IWORKLEN)
-      EQUIVALENCE (DBL_MB,WORK)
+#define DBL_MB Work
 #endif
 
       IF (iPrGlb.GE.DEBUG) THEN
@@ -517,8 +514,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "global.fh"
 #include "mafdecls.fh"
 #else
-      REAL*8 DBL_MB(1:IWORKLEN)
-      EQUIVALENCE (DBL_MB,WORK)
+#define DBL_MB Work
 #endif
 
       IF (iPrGlb.GE.DEBUG) THEN
@@ -703,8 +699,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "global.fh"
 #include "mafdecls.fh"
 #else
-      REAL*8 DBL_MB(1:IWORKLEN)
-      EQUIVALENCE (DBL_MB,WORK)
+#define DBL_MB Work
 #endif
       INTEGER, PARAMETER :: NOSYM = 1
       REAL*8, ALLOCATABLE :: AIBJ(:,:)
@@ -842,8 +837,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "global.fh"
 #include "mafdecls.fh"
 #else
-      REAL*8 DBL_MB(1:IWORKLEN)
-      EQUIVALENCE (DBL_MB,WORK)
+#define DBL_MB Work
 #endif
       DIMENSION NFIMOES(8)
 
@@ -1008,8 +1002,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "global.fh"
 #include "mafdecls.fh"
 #else
-      REAL*8 DBL_MB(1:IWORKLEN)
-      EQUIVALENCE (DBL_MB,WORK)
+#define DBL_MB Work
 #endif
 
       IF (iPrGlb.GE.DEBUG) THEN
@@ -1226,8 +1219,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "global.fh"
 #include "mafdecls.fh"
 #else
-      REAL*8 DBL_MB(1:IWORKLEN)
-      EQUIVALENCE (DBL_MB,WORK)
+#define DBL_MB Work
 #endif
 
       IF (iPrGlb.GE.DEBUG) THEN

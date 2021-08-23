@@ -105,7 +105,7 @@ call refwfn_close()
 
 !> check if nr_states has been requested as 'all'
 if (nr_states == 0) then
-  ! using standard allocate and deallocate because MultGroup&State
+  ! using standard allocate and deallocate because MultGroup%State
   ! is deallocated somewhere in the external library
   if (allocated(MultGroup%State)) deallocate(MultGroup%State)
   !> nstate from common block in caspt2.fh

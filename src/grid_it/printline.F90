@@ -22,6 +22,14 @@ integer(kind=iwp), intent(in) :: unt, length
 logical(kind=iwp), intent(in) :: isBinLuscus
 character(len=128) :: line
 integer(kind=iwp) :: ll, li
+interface
+  subroutine prt_lusc(lid,line,len_,isBin) bind(C,name='prt_lusc_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: lid, len_, isBin
+    character(kind=c_char) :: line(*)
+  end subroutine prt_lusc
+end interface
 
 if (isLuscus) then
   ll = length

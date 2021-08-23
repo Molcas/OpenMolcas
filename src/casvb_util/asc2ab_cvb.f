@@ -13,7 +13,7 @@
 ************************************************************************
       subroutine asc2ab_cvb(detvec,nvec,nel,nalf)
       implicit real*8 (a-h,o-z)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension detvec(*)
 
 
@@ -26,13 +26,13 @@
       i5 = mstacki_cvb(nel)
       call asc2ab2_cvb(detvec,nvec,nel,nalf,
      >  nbet,ndet,
-     >  iw(i1),iw(i2),iw(i3),iw(i4),iw(i5))
+     >  iwork(i1),iwork(i2),iwork(i3),iwork(i4),iwork(i5))
       call mfreei_cvb(i1)
       return
       end
       subroutine ab2asc_cvb(detvec,nvec,nel,nalf)
       implicit real*8 (a-h,o-z)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension detvec(*)
 
 
@@ -45,7 +45,7 @@
       i5 = mstacki_cvb(nel)
       call asc2ab2_cvb(detvec,nvec,nel,nalf,
      >  nbet,ndet,
-     >  iw(i1),iw(i2),iw(i3),iw(i4),iw(i5))
+     >  iwork(i1),iwork(i2),iwork(i3),iwork(i4),iwork(i5))
       call mfreei_cvb(i1)
       return
       end

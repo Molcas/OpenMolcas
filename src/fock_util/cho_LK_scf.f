@@ -73,7 +73,7 @@ C
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "stdalloc.fh"
-#include "warnings.fh"
+#include "warnings.h"
       Logical add
       Character(LEN=6) mode
 

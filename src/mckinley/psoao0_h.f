@@ -45,7 +45,7 @@
 #include "print.fh"
 #include "lCache.fh"
 #include "pstat.fh"
-#include "warnings.fh"
+#include "warnings.h"
       Integer iAnga(4), iCmpa(4)
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
 #include "SysDef.fh"

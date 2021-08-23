@@ -41,8 +41,7 @@ C
 #if defined (_DEBUGPRINT_)
       Write(6,'(A,A)') '>>> Enter ',SecNam
 #endif
-      Call ThisIsRestrictedCode('Thomas Bondo Pedersen',
-     &                          'Local Density Fitting',.false.)
+      Call Untested('Local Density Fitting')
 
 C=============
 C     Preamble

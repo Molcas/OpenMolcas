@@ -63,7 +63,7 @@ do
       key = Get_Ln(LuSpool)
       read(key,*,iostat=iError) nr_states
       if (iError > 0) call error(0)
-      ! using standard allocate and deallocate because MultGroup&State
+      ! using standard allocate and deallocate because MultGroup%State
       ! is deallocated somewhere in the external library
       if (allocated(MultGroup%State)) deallocate(MultGroup%State)
       allocate(MultGroup%State(nr_states))
@@ -161,7 +161,7 @@ do
           call Quit_OnUserError()
         end if
       end if
-      ! using standard allocate and deallocate because MultGroup&State
+      ! using standard allocate and deallocate because MultGroup%State
       ! is deallocated somewhere in the external library
       if (allocated(MultGroup%State)) deallocate(MultGroup%State)
       allocate(MultGroup%State(nr_states))

@@ -20,7 +20,7 @@
 
 
 #include "frag_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension cvb(nvb),cvbdet(ndetvb),ifnss(0:nel,0:nel)
 
 c  First applicable configuration with first possible spin in

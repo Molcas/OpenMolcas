@@ -72,7 +72,7 @@
       Parameter (ROUTINE='READVC  ')
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "wadr.fh"
 #include "casvb.fh"
 #include "sxci_mcpdft.fh"
@@ -269,7 +269,7 @@ C Local print level (if any)
          Else
             Write(LF,'(6X,A)')
      &      'The MO-coefficients are taken from the file:'
-            Write(LF,'(6X,A)') IPHNAME(:mylen(IPHNAME))
+            Write(LF,'(6X,A)') trim(IPHNAME)
          End If
          Write(VecTit(1:72),'(A72)') JobTit(1)
          Write(LF,'(6X,2A)') 'Title:',VecTit(1:72)
@@ -287,7 +287,7 @@ C Local print level (if any)
            Else
               Write(LF,'(6X,A)')
      &        'The active density matrices (D,DS,P,PA) are read from'//
-     &        ' file '//IPHNAME(:mylen(IPHNAME))//
+     &        ' file '//trim(IPHNAME)//
      &        ' and weighted together.'
            End If
          End If

@@ -14,7 +14,7 @@
 Module Symmetry_Info
 Implicit None
 Private
-Public :: nIrrep, iOper, iChTbl, iChCar, iChBas, lIrrep, lBsFnc, SymLab, iSkip, &
+Public :: nIrrep, iOper, iChTbl, iChCar, Mul, iChBas, lIrrep, lBsFnc, SymLab, iSkip, &
           Symmetry_Info_Set, Symmetry_Info_Dmp, Symmetry_Info_Get, Symmetry_Info_Back, Symmetry_Info_Free, &
           Symmetry_Info_Setup, VarR, VarT
 
@@ -31,6 +31,14 @@ Integer:: iChTbl(0:7,0:7)=Reshape([0,0,0,0,0,0,0,0,      &
                                    0,0,0,0,0,0,0,0],[8,8])
 Integer:: iChCar(3)=[0,0,0]
 Integer:: MxFnc
+Integer, Parameter:: Mul(8,8)=Reshape([1,2,3,4,5,6,7,8,      &
+                                       2,1,4,3,6,5,8,7,      &
+                                       3,4,1,2,7,8,5,6,      &
+                                       4,3,2,1,8,7,6,5,      &
+                                       5,6,7,8,1,2,3,4,      &
+                                       6,5,8,7,2,1,4,3,      &
+                                       7,8,5,6,3,4,1,2,      &
+                                       8,7,6,5,4,3,2,1],[8,8])
 Integer, Allocatable:: iChBas(:)
 Character(LEN=3) :: lIrrep(0:7)=['','','','','','','','']
 Character(LEN=80) :: lBsFnc(0:7)=['','','','','','','','']
@@ -637,6 +645,10 @@ If (Inv) Then
 
       Do i = 1, nIrrep
          If (iOper(i).eq.7) Then
+#ifdef _WARNING_WORKAROUND_
+            ! see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101827
+            i1 = min(i1,len(lIrrep))
+#endif
             If (iChTbl(iIrrep,i).eq.1) Then
                lIrrep(iIrrep-1)(i1:i1)='g'
             Else If (iChTbl(iIrrep,i).eq.-1) Then

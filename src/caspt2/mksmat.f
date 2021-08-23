@@ -26,6 +26,7 @@ C     Set up S matrices for cases 1..13.
 #include "eqsolv.fh"
 #include "pt2_guga.fh"
 #include "SysDef.fh"
+      REAL*8 DUM(1)
 
 
       IF(IPRGLB.GE.VERBOSE) THEN
@@ -67,12 +68,13 @@ C-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
 C For completeness, even case H has formally S and B
 C matrices. This costs nothing, and saves conditional
 C looping, etc in the rest  of the routines.
+      DUM(1)=1.0D00
       DO ISYM=1,NSYM
         DO ICASE=12,13
           NIN=NINDEP(ISYM,ICASE)
           IF(NIN.GT.0) THEN
             IDISK=IDSMAT(ISYM,ICASE)
-            CALL DDAFILE(LUSBT,1,[1.0D00],1,IDISK)
+            CALL DDAFILE(LUSBT,1,DUM,1,IDISK)
           END IF
         END DO
       END DO

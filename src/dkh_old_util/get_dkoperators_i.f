@@ -19,7 +19,7 @@ c----------------------------------------------------------------------
       nwop=(maxlength-1)/lwop+1
       koff=(i-1)*nwop
 *
-      Call ByteCopy(iArray(koff+1),String,MaxLength)
+      String = Transfer(iArray(koff+1:koff+nwop),String)
 *
       return
 *

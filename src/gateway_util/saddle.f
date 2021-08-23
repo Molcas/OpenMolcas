@@ -36,7 +36,7 @@
       Character*16 StdIn
       Logical Not_First_Iter, FindTS,Found,quadratic,Invar
 #include "angstr.fh"
-#include "warnings.fh"
+#include "warnings.h"
       Character*2, Dimension(:), Allocatable :: Elm
       Real*8, Dimension(:), Allocatable :: TanVec, TmpA, W
       Real*8, Dimension(:,:), Allocatable :: Vec, MEP

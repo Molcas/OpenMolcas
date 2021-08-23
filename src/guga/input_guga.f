@@ -18,7 +18,7 @@
       DIMENSION ISO(*),JSYM(*),JSY(*),L0(*),L1(*),L2(*),L3(*)
 #include "real_guga.fh"
 #include "integ.fh"
-#include "warnings.fh"
+#include "warnings.h"
       DIMENSION MLL(64),IOCR(nIOCR),JREFX(9000),
      *NISH(8),JJS(18),NVAL(8),NCOR(8),ICOR(55),IONE(8),JONE(8)
 *
@@ -260,7 +260,7 @@ CPAM97 IFCORE was not set -- assume bug. Following line inserted:
       Write(6,'(6X,57A1,A6,57A1)')'*',(' ',i=1,56),'Title:',
      &                                (' ',i=1,56),'*'
       Do i=1,nTit
-         Call Center(Title(i))
+         Call Center_Text(Title(i))
          Write(6,'(6X,24A1,A72,24A1)')
      &        '*',(' ',j=1,23),Title(i),(' ',j=1,23),'*'
       End Do

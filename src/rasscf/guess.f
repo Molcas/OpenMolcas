@@ -37,7 +37,7 @@
 *     global definitions
 
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "general.fh"
 #include "output_ras.fh"
 #include "rasscf.fh"

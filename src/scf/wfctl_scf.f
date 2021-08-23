@@ -85,6 +85,9 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+#ifdef _MSYM_
+      Use, Intrinsic :: iso_c_binding, only: c_ptr
+#endif
       Use Interfaces_SCF, Only: TraClc_i
       Implicit Real*8 (a-h,o-z)
       External Seconds
@@ -104,7 +107,7 @@
 #include "llists.fh"
 #include "twoswi.fh"
 #include "ldfscf.fh"
-#include "warnings.fh"
+#include "warnings.h"
       Real*8, Dimension(:),   Allocatable:: D1Sao
       Real*8, Dimension(:,:), Allocatable:: Grd1, Disp, Xnp1
 
@@ -121,7 +124,7 @@
       Integer iAufOK, Ind(MxOptm)
       Character*128 OrbName
 #ifdef _MSYM_
-      Real*8 msym_ctx
+      Type(c_ptr) msym_ctx
 #endif
       Dimension Dummy(1),iDummy(7,8)
       External DNRM2_

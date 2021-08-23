@@ -63,7 +63,7 @@
       use orthonormalization, only : ON_scheme
 #ifdef _FDE_
       use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis,
-     &    embWriteEsp
+     &    embPotPath, embWriteEsp
 #endif
 #ifdef _HDF5_
       use mh5, only: mh5_put_attr, mh5_put_dset
@@ -75,7 +75,7 @@
 #include "WrkSpc.fh"
 #include "wadr.fh"
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "input_ras.fh"
 #include "rasscf.fh"
 #include "rasrc.fh"
@@ -92,7 +92,6 @@
 #include "csfbas.fh"
 #include "gugx.fh"
 #include "pamint.fh"
-#include "davctl.fh"
 #include "qnctl.fh"
 #include "orthonormalize.fh"
 #include "ciinfo.fh"
@@ -341,13 +340,13 @@
          Call GetMem('TUVX','Allo','Real',LTUVX,NACPR2)
          Call FZero(Work(LTUVX),NACPR2)
          ltuvx_cvb=ltuvx
+         Call GetMem('DSPN','Allo','Real',LDSPN,NACPAR)
+         call dcopy_(NACPAR,[0.0d0],0,Work(LDSPN),1)
          if(.not.DumpOnly) then
            Call GetMem('DMAT','Allo','Real',LDMAT,NACPAR)
-           Call GetMem('DSPN','Allo','Real',LDSPN,NACPAR)
            Call GetMem('PMAT','Allo','Real',LPMAT,NACPR2)
            Call GetMem('P2AS','Allo','Real',LPA,NACPR2)
            call dcopy_(NACPAR,[0.0d0],0,Work(LDMAT),1)
-           call dcopy_(NACPAR,[0.0d0],0,Work(LDSPN),1)
            ldmat_cvb=ldmat
            ldspn_cvb=ldspn
            lpmat_cvb=lpmat
@@ -1911,11 +1910,11 @@ c  i_root>0 gives natural spin orbitals for that root
 c deallocating TUVX memory...
       IF(NAC.GT.0) THEN
          Call GetMem('TUVX','Free','Real',LTUVX,NACPR2)
+         Call GetMem('DSPN','Free','Real',LDSPN,NACPAR)
          if(.not.DumpOnly) Then
             Call GetMem('P2AS','Free','Real',LPA,NACPR2)
             Call GetMem('PMAT','Free','Real',LPMAT,NACPR2)
             Call GetMem('DMAT','Free','Real',LDMAT,NACPAR)
-            Call GetMem('DSPN','Free','Real',LDSPN,NACPAR)
          endif
       END IF
 *
@@ -2012,6 +2011,11 @@ c      End If
       if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG
      &          .or. allocated(CI_solver) .or. DumpOnly)) then
         Call MKGUGA_FREE
+      end if
+
+      if (DoFaro) then
+         call faroald_free()
+         call citrans_free()
       end if
 
       if (allocated(CI_solver)) then

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Warnings(iCode,Warning,iLength)
+      Subroutine Warnings_lp(iCode,Warning,iLength)
       Implicit Real*8 (A-H,O-Z)
       Character*(*) Warning
 *

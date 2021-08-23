@@ -686,7 +686,7 @@ C
          enddo
       enddo
 
-      IF(IPGLOB.GE.3) THEN
+      IF(IPGLOB.GE.4) THEN
       write(6,'(/)')
       write(6,'(5X,A)') 'BPMOMENT(ic1,ic2):'
       write(6,*)
@@ -764,7 +764,7 @@ C
       endif
 c
 
-      IF(IPGLOB.GE.3) THEN
+      IF(IPGLOB.GE.4) THEN
       write(6,*)
       write(6,'(4x,A)') 'A_TENS_TERM TENSOR:'
       write(6,'(65a)') ('-',i=1,56),'|'
@@ -792,7 +792,7 @@ c
       MAIN(i)=sqrt(W(i))
       enddo
 
-      if(IPGLOB.GT.2) write(6,'(5x,a,3F9.5)') 'EIGenValues after DSPEV:'
+      if(IPGLOB.GE.4) write(6,'(5x,a,3F9.5)') 'EIGenValues after DSPEV:'
      & , (W(I),I=1,3)
 
 C  Check the sign of the coordinate system. if CS is Left-handed,
@@ -818,7 +818,7 @@ C  then change it to RIGHT-handed
       diff23=0.d0
       diff12=MAIN(2)-MAIN(1)
       diff23=MAIN(3)-MAIN(2)
-      if(IPGLOB.GT.2) then
+      if(IPGLOB.GE.4) then
       write(6,'(5x,a,3F19.15)') 'diff12 = ', diff12
       write(6,'(5x,a,3F19.15)') 'diff23 = ', diff23
       endif

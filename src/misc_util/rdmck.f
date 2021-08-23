@@ -60,21 +60,19 @@
 *
       Logical :: Debug=.False.
       Character(LEN=8) TmpLab,Label
-*     Dimension LabTmp(2)
-*     Equivalence (TmpLab,LabTmp)
       Dimension TmpBuf(nBuf),HldBuf(1)
       Character(LEN=16) :: TheName= 'RdMck'
       Integer :: CurrOp=1
 *----------------------------------------------------------------------*
 *     Start procedure:                                                 *
-*     Define inline function (symmetry multiplication)                 *
+*     Define statement function (symmetry multiplication)              *
 *----------------------------------------------------------------------*
       MulTab(i,j)=iEor(i-1,j-1)+1
 *----------------------------------------------------------------------*
 *     Pick up the file definitions                                     *
 *----------------------------------------------------------------------*
       icpi=itob
-      Length=rc
+      Len_=rc
       rc    = rc0000
       LuMck = AuxMck(pLu  )
       Open  = AuxMck(pOpen)
@@ -91,6 +89,7 @@
       Label=InLab
       Call UpCase(Label)
       TmpLab=Label
+      iLen=Len(TmpLab)/ItoB
       Comp=icomp
       Symlab=isymlab
       If ((label.eq.'STATHESS').or.
@@ -156,8 +155,8 @@
          Call SysAbendMsg(TheName,'Undefined Label:',Label)
          End If
          If(iAnd(option,sOpSiz).eq.0) Then
-            Len=TocOne(pnDisp)*30/icpi+1
-            Call iCopy(Len,TocOne(pchdisp),1,Data(1),1)
+            Length=TocOne(pnDisp)*30/icpi+1
+            Call iCopy(Length,TocOne(pchdisp),1,Data(1),1)
             If(debug) Then
                Write(6,'(a,z8)') ' Reading perturbations:'
                Write(6,'(8(1x,z8))') (Data(k),k=1,nTitle)
@@ -197,10 +196,10 @@
          Call SysAbendMsg(TheName,'Undefined Label:',Label)
          End If
          If(iAnd(option,sOpSiz).eq.0) Then
-            Len=TocOne(pSym)
-            Call iCopy(Len,TocOne(pBas),1,Data,1)
+            Length=TocOne(pSym)
+            Call iCopy(Length,TocOne(pBas),1,Data,1)
             If(debug) Then
-               Write(6,'(a,8z8)') ' Reading nBas: ',(Data(k),k=1,Len)
+               Write(6,'(a,8z8)') ' Reading nBas: ',(Data(k),k=1,Length)
             End If
          Else
             Data(1)=TocOne(pSym)
@@ -213,10 +212,11 @@
          Call SysAbendMsg(TheName,'Undefined Label:',Label)
          End If
          If(iAnd(option,sOpSiz).eq.0) Then
-            Len=TocOne(psym)
-            Call iCopy(Len,TocOne(pldisp),1,Data,1)
+            Length=TocOne(psym)
+            Call iCopy(Length,TocOne(pldisp),1,Data,1)
             If(debug) Then
-               Write(6,'(a,8z8)') ' Reading ldisp: ',(Data(k),k=1,Len)
+               Write(6,'(a,8z8)') ' Reading ldisp: ',
+     &                            (Data(k),k=1,Length)
             End If
          Else
             Data(1)=TocOne(pSym)
@@ -229,10 +229,11 @@
          Call SysAbendMsg(TheName,'Undefined Label:',Label)
           End If
           If(iAnd(option,sOpSiz).eq.0) Then
-             Len=TocOne(pndisp)
-             Call iCopy(Len,TocOne(ptdisp),1,Data,1)
+             Length=TocOne(pndisp)
+             Call iCopy(Length,TocOne(ptdisp),1,Data,1)
              If(debug) Then
-                Write(6,'(a,8z8)') ' Reading nBas: ',(Data(k),k=1,Len)
+                Write(6,'(a,8z8)') ' Reading nBas: ',
+     &                             (Data(k),k=1,Length)
              End If
           Else
              Data(1)=TocOne(pSym)
@@ -245,10 +246,10 @@
          Call SysAbendMsg(TheName,'Undefined Label:',Label)
          End If
          If(iAnd(option,sOpSiz).eq.0) Then
-            Len=TocOne(pSYM)
-            Call iCopy(Len,TocOne(pASH),1,Data,1)
+            Length=TocOne(pSYM)
+            Call iCopy(Length,TocOne(pASH),1,Data,1)
             If(debug) Then
-               Write(6,'(a,8z8)') ' Reading nASH: ',(Data(k),k=1,Len)
+               Write(6,'(a,8z8)') ' Reading nASH: ',(Data(k),k=1,Length)
             End If
          Else
             Data(1)=TocOne(pSym)
@@ -263,20 +264,20 @@
          If(TocOne(pndisp).eq.NaN) Then
          Call SysAbendMsg(TheName,'Undefined Label:',Label)
          End If
-         Len=TocOne(pndisp)
-         Call iCOPY(Len,TocOne(pnrdisp),1,Data,1)
+         Length=TocOne(pndisp)
+         Call iCOPY(Length,TocOne(pnrdisp),1,Data,1)
 *
       Else If(Label.eq.'SYMOP' .and. iAnd(option,NoGo).eq.0) Then
          If (TocOne(pSym).eq.NaN) Then
          Call SysAbendMsg(TheName,'Undefined Label:',Label)
          End If
          If(iAnd(option,sOpSiz).eq.0) Then
-*           Len=(3*TocOne(pSym)-1)/icpi+1
-            Len=(3*TocOne(pSym)+ItoB-1)/ItoB
-            Call iCopy(Len,TocOne(pSymOp),1,Data,1)
+*           Length=(3*TocOne(pSym)-1)/icpi+1
+            Length=(3*TocOne(pSym)+ItoB-1)/ItoB
+            Call iCopy(Length,TocOne(pSymOp),1,Data,1)
             If(debug) Then
                Write(6,'(a)') ' Reading symmetry operators:'
-               Write(6,'(8(1x,z8))') (Data(k),k=1,Len)
+               Write(6,'(8(1x,z8))') (Data(k),k=1,Length)
             End If
          Else
             Data(1)=TocOne(pSym)
@@ -289,8 +290,8 @@
          If(TocOne(pndisp).eq.NaN) Then
          Call SysAbendMsg(TheName,'Undefined Label:',Label)
          End If
-         Len=TocOne(pndisp)
-         Call iCOPY(Len,TocOne(pdegdisp),1,Data,1)
+         Length=TocOne(pndisp)
+         Call iCOPY(Length,TocOne(pdegdisp),1,Data,1)
 *
       Else
 *----------------------------------------------------------------------*
@@ -311,7 +312,8 @@
 *#ifndef _I8_
 *               LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
 *#endif
-               Call ByteCopy(TocOne(pOp+LenOp*(i-1)+oLabel),TmpLab,8)
+               idx=pOp+LenOp*(i-1)+oLabel
+               TmpLab=Transfer(TocOne(idx:idx+iLen-1),TmpLab)
                Label=TmpLab
                InLab=Label
                SymLab=TocOne(pOp+LenOp*(i-1)+oSymLb)
@@ -330,7 +332,8 @@
 *#ifndef _I8_
 *               LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
 *#endif
-               Call ByteCopy(TocOne(pOp+LenOp*(i-1)+oLabel),TmpLab,8)
+               idx=pOp+LenOp*(i-1)+oLabel
+               TmpLab=Transfer(TocOne(idx:idx+iLen-1),TmpLab)
                Label=TmpLab
                InLab=Label
                SymLab=TocOne(pOp+LenOp*(i-1)+oSymLb)
@@ -350,7 +353,8 @@
 *#ifndef _I8_
 *               LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
 *#endif
-               Call ByteCopy(TocOne(pOp+LenOp*(i-1)+oLabel),TmpLab,8)
+               idx=pOp+LenOp*(i-1)+oLabel
+               TmpLab=Transfer(TocOne(idx:idx+iLen-1),TmpLab)
                Label=TmpLab
                InLab=Label
                SymLab=TocOne(pOp+LenOp*(i-1)+oSymLb)
@@ -363,7 +367,8 @@
 *#ifndef _I8_
 *               LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
 *#endif
-               Call ByteCopy(TocOne(pOp+LenOp*(i-1)+oLabel),TmpLab,8)
+               idx=pOp+LenOp*(i-1)+oLabel
+               TmpLab=Transfer(TocOne(idx:idx+iLen-1),TmpLab)
                CmpTmp=TocOne(pOp+LenOp*(i-1)+oComp   )
                TmpCmp=Comp
                If(TmpLab.eq.Label .and. CmpTmp.eq.TmpCmp) CurrOp=i
@@ -383,22 +388,22 @@
             Do i=0,TocOne(psym)-1
              na=TocOne(pAsh+i)+na
             End Do
-            Len=na*(na+1)/2
-            Len=len*(len+1)/2
+            Length=na*(na+1)/2
+            Length=Length*(Length+1)/2
          Else If (label.eq.'NUCGRAD') Then
              Comp=1
              SymLab=1
              If(TocOne(pldisp).eq.NaN) Then
          Call SysAbendMsg(TheName,'Undefined Label:',Label)
              End If
-             Len=TocOne(pldisp)
+             Length=TocOne(pldisp)
          Else If (label.eq.'TWOGRAD') Then
              Comp=1
              SymLab=1
              If(TocOne(pldisp).eq.NaN) Then
          Call SysAbendMsg(TheName,'Undefined Label:',Label)
              End If
-             Len=TocOne(pldisp)
+             Length=TocOne(pldisp)
          Else If ((label.eq.'STATHESS').or.
      &            (label.eq.'RESPHESS').or.
      &            (label.eq.'CONNHESS').or.
@@ -408,14 +413,14 @@
              If(TocOne(pndisp).eq.NaN) Then
          Call SysAbendMsg(TheName,'Undefined Label:',Label)
              End If
-             Len=0
+             Length=0
              Do iSym=0,TocOne(pSym)-1
-               Len=Len+TocOne(pldisp+isym)*
+               Length=Length+TocOne(pldisp+isym)*
      &                (TocOne(pldisp+isym)+1)/2
              End Do
 *
          Else If (label.eq.'INACTIVE') THEN
-             Len=0
+             Length=0
              Do iS=1,TocOne(pSym)
               Do jS=1,TocOne(pSym)
                ijS=MulTab(iS,jS)
@@ -426,13 +431,13 @@
      * Call SysAbendMsg(TheName,'jBas.eq.NaN at label',Label)
            If (iBas.eq.NaN)
      * Call SysAbendMsg(TheName,'iBas.eq.NaN at label',Label)
-                 Len=len+iBas*jBas
+                 Length=Length+iBas*jBas
                End If
               End Do
              End Do
 
          Else If (label.eq.'TOTAL') THEN
-             Len=0
+             Length=0
              Do iS=1,TocOne(pSym)
               Do jS=1,TocOne(pSym)
                ijS=MulTab(iS,jS)
@@ -443,37 +448,38 @@
      * Call SysAbendMsg(TheName,'jBas.eq.NaN at label',Label)
            If (iBas.eq.NaN)
      * Call SysAbendMsg(TheName,'iBas.eq.NaN at label',Label)
-                 Len=len+iBas*jBas
+                 Length=Length+iBas*jBas
                End If
               End Do
              End Do
           Else
 *
-            Len=0
+            Length=0
             Do 510 i=1,TocOne(pSym)
             Do 511 j=1,i
               ij=MulTab(i,j)-1
               If(iAnd(2**ij,SymLab).ne.0) Then
                  If(i.eq.j) Then
-                    Len=Len+TocOne(pBas-1+i)*(TocOne(pBas-1+i)+1)/2
+                    Length=Length+TocOne(pBas-1+i)*(TocOne(pBas-1+i)+1)
+     &                     /2
                  Else
-                    Len=Len+TocOne(pBas-1+i)*TocOne(pBas-1+j)
+                    Length=Length+TocOne(pBas-1+i)*TocOne(pBas-1+j)
                  End If
               End If
 511         Continue
 510         Continue
-            If (iAnd(Option,slength).ne.0) Len=Length
+            If (iAnd(Option,slength).ne.0) Length=Len_
          End If
 
-         Data(1)=Len
+         Data(1)=Length
          If ( IAND(option,sOpSiz).eq.0 ) Then
-           Len=rtoi*Len
+           Length=rtoi*Length
            IndDta=1
            IndHld=1
            iDisk=TocOne(pOp+LenOp*(CurrOp-1)+oAddr   )
-           Do 550 k=0,Len+nAuxDt-1,nBuf
-              iBuf=Max(0,Min(nBuf,Len+nAuxDt-k))
-              tBuf=Max(0,Min(nBuf,Len-k))
+           Do 550 k=0,Length+nAuxDt-1,nBuf
+              iBuf=Max(0,Min(nBuf,Length+nAuxDt-k))
+              tBuf=Max(0,Min(nBuf,Length-k))
               eBuf=iBuf-tBuf
               Call iDaFile(LuMCK,2,TmpBuf,iBuf,iDisk)
               IndTmp=1

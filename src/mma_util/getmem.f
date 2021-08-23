@@ -61,7 +61,7 @@
 ************************************************************************
 
 #include "SysCtl.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "WrkSpc.fh"
 #include "mama.fh"
 *
@@ -69,12 +69,21 @@
       Character*(*) NameIn,KeyIn,TypeIn
       Character*8   FldNam,eopr,eoprcc,elbl,etyp
       Character*4   Key,VarTyp
-      Integer       c_getmem
-      External      c_getmem
 #ifdef _GARBLE_
       Character*5   xKey
       Logical       SkipGarble
 #endif
+      Interface
+        Function c_getmem(name_,Op,dtyp,offset,len_)
+     &           bind(C,name='c_getmem_')
+          Use, Intrinsic :: iso_c_binding, only: c_char
+          Use Definitions, only: MOLCAS_C_INT
+          Integer(kind=MOLCAS_C_INT) :: c_getmem
+          Character(kind=c_char) :: name_(*), Op(*), dtyp(*)
+          Integer(kind=MOLCAS_C_INT) :: offset, len_
+        End Function c_getmem
+      End Interface
+
 
 *----------------------------------------------------------------------*
 *     Initialize the Common / MemCtl / the first time it is referenced *

@@ -27,7 +27,7 @@ implicit none
 integer(kind=iwp) :: Tol, iUHF, l_orbitals, iSpin, iSym, ipO, ipV, i
 real(kind=wp) :: Tst(8)
 character(len=13) :: orbitals
-character(len=18), parameter :: SecNam = 'RPA_Setup_Add_Info'
+character(len=*), parameter :: SecNam = 'RPA_Setup_Add_Info'
 integer(kind=iwp), external :: RPA_iUHF, Cho_X_GetTol
 real(kind=r8), external :: Cho_dSumElm, dDot_
 

@@ -23,8 +23,8 @@
   REAL (wp) :: gnuplot_version
   INTEGER   :: file_number, iH, iTempMagn, LuPlt, LuData, file_size, StdOut
   LOGICAL   :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
-  CHARACTER(LEN=100)  :: line1, line2, cdummy
-  CHARACTER(LEN=100)  :: datafile, plotfile, imagefile, epsfile
+  CHARACTER(LEN=300)  :: line1, line2, cdummy
+  CHARACTER(LEN=300)  :: datafile, plotfile, imagefile, epsfile
   INTEGER, EXTERNAL   :: AixRm
   INTEGER             :: Length
   CHARACTER(LEN=1023) :: realname_plt, realname_dat, realname_png, realname_eps, gnuplot_CMD
@@ -311,12 +311,21 @@
      IF (execute_gnuplot_cmd) Then
        ! attempt to execute the script
        IF (dbg) THEN
+         file_exist=.false.
          WRITE (StdOut,*) trim(realname_plt)
          INQUIRE(FILE=trim(realname_plt),EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
          IF(file_exist) THEN
            WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_plt)//'" exists.'
          ELSE
            WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_plt)//'" does not exist.'
+         END IF
+         file_exist=.false.
+         WRITE (StdOut,*) trim(realname_dat)
+         INQUIRE(FILE=trim(realname_dat),EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
+         IF(file_exist) THEN
+           WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_dat)//'" exists.'
+         ELSE
+           WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_dat)//'" does not exist.'
          END IF
        END IF
 
@@ -331,6 +340,7 @@
 !#endif
 
        IF ( gnuplot_version < 5.0_wp ) Then
+         file_exist=.false.
          INQUIRE(FILE=trim(realname_eps),EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
          IF(file_exist) THEN
            WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_eps)//'" was created in Working directory.'
@@ -338,6 +348,7 @@
            WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_eps)//'" was NOT created in Working directory.'
          END IF
        ELSE
+         file_exist=.false.
          INQUIRE(FILE=trim(realname_png),EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
          IF(file_exist) THEN
            WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_png)//'" was created in Working directory.'
@@ -373,8 +384,8 @@
   REAL (wp) :: gnuplot_version
   INTEGER   :: file_number, iH, iTempMagn, LuPlt, LuData, ik, ic, file_size, StdOut
   LOGICAL   :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
-  CHARACTER(LEN=100)    :: line1, line2, fmtline, cdummy
-  CHARACTER(LEN=100)    :: datafile, plotfile, imagefile, epsfile
+  CHARACTER(LEN=300)    :: line1, line2, fmtline, cdummy
+  CHARACTER(LEN=300)    :: datafile, plotfile, imagefile, epsfile
   CHARACTER(LEN=7)      :: color(111)
   INTEGER, EXTERNAL     :: AixRm
   INTEGER               :: Length
@@ -699,17 +710,25 @@
   WRITE (LuPlt,'(A)')
   CLOSE (LuPlt)
 
-  WRITE (StdOut,'(A)') 'File "'//trim(realname_png)//'" was created in Working directory.'
 
   IF (execute_gnuplot_cmd) Then
     ! attempt to execute the script
     IF (dbg) THEN
+      file_exist=.false.
       WRITE (StdOut,*) trim(realname_plt)
       INQUIRE(FILE=trim(realname_plt),EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
       IF(file_exist) THEN
         WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_plt)//'" exists.'
       ELSE
         WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_plt)//'" does not exist.'
+      END IF
+      file_exist=.false.
+      WRITE (StdOut,*) trim(realname_dat)
+      INQUIRE(FILE=trim(realname_dat),EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
+      IF(file_exist) THEN
+        WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_dat)//'" exists.'
+      ELSE
+        WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_dat)//'" does not exist.'
       END IF
     END IF
 
@@ -724,6 +743,7 @@
 !#endif
 
     IF ( gnuplot_version < 5.0_wp ) Then
+      file_exist=.false.
       INQUIRE(FILE=trim(realname_eps),EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
       IF(file_exist) THEN
         WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_eps)//'" was created in Working directory.'
@@ -731,6 +751,7 @@
         WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_eps)//'" was NOT created in Working directory.'
       END IF
     ELSE
+      file_exist=.false.
       INQUIRE(FILE=trim(realname_png),EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
       IF(file_exist) THEN
         WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_png)//'" was created in Working directory.'

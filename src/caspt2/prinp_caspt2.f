@@ -62,10 +62,10 @@
       WRITE(6,Fmt1) '--------------------------'
       WRITE(Line,'(36A2)') (Header(i),i=1,36)
       Call LeftAd(Line)
-      WRITE(6,Fmt1)  Line(:mylen(Line))
+      WRITE(6,Fmt1)  trim(Line)
       WRITE(Line,'(36A2)') (Header(i),i=37,72)
       Call LeftAd(Line)
-      WRITE(6,Fmt1)  Line(:mylen(Line))
+      WRITE(6,Fmt1)  trim(Line)
       WRITE(6,*)
       END IF
 *----------------------------------------------------------------------*

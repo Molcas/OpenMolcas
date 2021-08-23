@@ -14,7 +14,7 @@
 
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Dimension EC(3,nij),Pot_Expo(nij*2),Pot_Point(nij),Pot_Fac(nij*4)
       Dimension iANr(nAt)

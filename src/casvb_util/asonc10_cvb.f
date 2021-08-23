@@ -18,7 +18,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 #include "ipp.fh"
       dimension c(nprm,nvec),axc(nprm,nvec)
 c      save iter,ipp
@@ -48,7 +48,7 @@ c Avoid unused argument warnings
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 #include "ipp.fh"
 c      save iter
 

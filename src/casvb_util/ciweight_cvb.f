@@ -25,7 +25,7 @@ c  *********************************************************************
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension orbs(norb,norb),sorbs(norb,norb)
       dimension orbinv(norb,norb),owrk(norb,norb)
       dimension gjorb(*),gjorb2(*),gjorb3(*),civec(*),civbs(*),
@@ -93,14 +93,18 @@ c  Work out number of configurations in CASSCF vector :
       ivec5=nint(vec5(1))
       call ciweight2_cvb(civec,civbs,civb,citmp,vec5,
      >  orbs,sorbs,orbinv,owrk,gjorb,gjorb2,gjorb3,
-     >  w(iaddr_ci(icitmp)),w(iaddr_ci(icivbs)),w(iaddr_ci(icivec)),
-     >  w(iaddr_ci(icivb)),w(iaddr_ci(ivec5)),
-     >  w(k1),w(k2),w(k3),w(k4),w(k5),w(k6),
-     >  iw(k7),iw(k8),iw(k9),iw(k10),iw(k11),iw(k12),
-     >  iw(k13),iw(k14),iw(k15),iw(k16),iw(k17),iw(k18),
-     >  iw(k19),iw(k20),iw(k21),iw(k22),iw(k23),iw(k24),
-     >  iw(k25),iw(k26),iw(k27),iw(k28),iw(k29),iw(k30),
-     >  w(k31),w(k32),iw(k33),iw(k34),
+     >  work(iaddr_ci(icitmp)),work(iaddr_ci(icivbs)),
+     >  work(iaddr_ci(icivec)),
+     >  work(iaddr_ci(icivb)),work(iaddr_ci(ivec5)),
+     >  work(k1),work(k2),work(k3),work(k4),work(k5),work(k6),
+     >  iwork(k7),iwork(k8),iwork(k9),iwork(k10),iwork(k11),iwork(k12),
+     >  iwork(k13),iwork(k14),iwork(k15),iwork(k16),iwork(k17),
+     >  iwork(k18),
+     >  iwork(k19),iwork(k20),iwork(k21),iwork(k22),iwork(k23),
+     >  iwork(k24),
+     >  iwork(k25),iwork(k26),iwork(k27),iwork(k28),iwork(k29),
+     >  iwork(k30),
+     >  work(k31),work(k32),iwork(k33),iwork(k34),
      >  ionmin,ionmax,mxrem,mxsng,mxasg,ncnfcas,mxdetcas)
       call mfreer_cvb(k1)
       return

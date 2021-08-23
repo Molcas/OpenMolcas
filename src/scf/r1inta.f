@@ -32,7 +32,8 @@
 ************************************************************************
       use SCF_Arrays
 #ifdef _FDE_
-      use Embedding_Global, only: embInt, embPot, embPotInBasis
+      use Embedding_Global, only: embInt, embPot, embPotInBasis,
+     &                            embPotPath
 #endif
       Implicit Real*8 (a-h,o-z)
 #include "mxdm.fh"

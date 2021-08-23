@@ -16,8 +16,8 @@ c     to prepaired possition in lunrst
 c
 
 #include "SysDef.fh"
-       integer lunrst,niter,iokey,daddr
-       real*8 energy
+       integer lunrst,niter,iokey,daddr,idum(1)
+       real*8 energy,dum(1)
 c
 c1    write energy,niter
        if (iokey.eq.1) then
@@ -26,8 +26,10 @@ c      Fortran IO
 c
        else
 c      MOLCAS IO
-       call ddafile (lunrst,1,[energy],1,daddr)
-       call idafile (lunrst,1,[niter],1,daddr)
+       dum(1)=energy
+       call ddafile (lunrst,1,dum,1,daddr)
+       idum(1)=niter
+       call idafile (lunrst,1,idum,1,daddr)
        end if
 c
        return

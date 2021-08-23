@@ -19,10 +19,10 @@
 #include "print_cvb.fh"
 
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
       dimension cvb(*)
 
-      call ppgs2_cvb(cvb,w(lv(5)),iw(lb(4)))
+      call ppgs2_cvb(cvb,work(lv(5)),iwork(lb(4)))
       return
       end

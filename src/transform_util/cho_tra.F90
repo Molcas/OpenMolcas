@@ -14,26 +14,22 @@
 !         MODULE for TRANSFORMATION of CHOLESKY VECTORS                *
 !              and GENERATION of TWO-ELECTRONS INTEGRALS               *
 !***********************************************************************
-Module Cho_Tra
 
-Private:: v2
+module Cho_Tra
 
-Integer, Parameter:: MaxSym=8, MxTCVx=7
-Integer IAD2M(3,36*36)
-Integer NSYMZ,NORBZ(MaxSym),NOSHZ(MaxSym),LUINTMZ
-Integer nSym, nBas(MaxSym), nFro(MaxSym), nDel(MaxSym)
-Integer nOrb(MaxSym),nIsh(MaxSym),nAsh(MaxSym),nOsh(MaxSym), nSsh(MaxSym)
-Integer NumCho(MaxSym)
-Logical DoTCVA, DoFull, DoCoul, DoExc2
-Logical SubBlocks(3,3)
-Logical IfTest
+use Data_Structures, only: Alloc2DArray_Type
+use Definitions, only: iwp
 
-Logical  TCVXist(MxTCVx,MaxSym,MaxSym)
+implicit none
+private
 
-Type v2
-  Real*8, Allocatable:: A(:,:)
-End Type v2
+integer(kind=iwp), parameter :: MaxSym = 8, MxTCVx = 7
+integer(kind=iwp) :: IAD2M(3,36*36), nAsh(MaxSym), nBas(MaxSym), nDel(MaxSym), nFro(MaxSym), nIsh(MaxSym), nOrb(MaxSym), &
+                     nOsh(MaxSym), nSsh(MaxSym), nSym, NumCho(MaxSym)
+logical(kind=iwp) :: DoCoul, DoExc2, DoFull, DoTCVA, IfTest, SubBlocks(3,3), TCVXist(MxTCVx,MaxSym,MaxSym)
+type(Alloc2DArray_Type) :: TCVX(MxTCVx,MaxSym,MaxSym)
 
-Type (v2):: TCVX(MxTCVx,MaxSym,MaxSym)
+public :: DoCoul, DoExc2, DoFull, DoTCVA, IAD2M, IfTest, nAsh, nBas, nDel, nFro, nIsh, nOrb, nOsh, nSsh, nSym, NumCho, SubBlocks, &
+          TCVX, TCVXist
 
-End Module Cho_Tra
+end module Cho_Tra

@@ -14,7 +14,7 @@ module mh5
 
 #include "intent.fh"
 
-use iso_c_binding, only: c_char, c_null_char
+use, intrinsic :: iso_c_binding, only: c_char, c_null_char
 use Definitions, only: wp, iwp, u6, MOLCAS_C_INT, MOLCAS_C_REAL
 
 implicit none

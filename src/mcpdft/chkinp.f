@@ -32,7 +32,7 @@
 #include "gas.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "warnings.fh"
+#include "warnings.h"
 *----------------------------------------------------------------------*
 C Local print level (if any)
       IERR=0

@@ -12,7 +12,7 @@
       IMPLICIT REAL*8 (A-H,O-Z)
       External COUNT
 #include "SysDef.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "mrci.fh"
       DIMENSION BUFS(NBITM1,NCHN1)
       DIMENSION INDS(NBITM1+2,NCHN1)

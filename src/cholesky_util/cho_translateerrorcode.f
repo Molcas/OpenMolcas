@@ -11,7 +11,7 @@
       SubRoutine Cho_TranslateErrorCode(iErr,MolcasCode)
       Implicit None
       Integer iErr, MolcasCode
-#include "warnings.fh"
+#include "warnings.h"
 
       If (iErr .eq. 3) Then ! special code used in parallel
          MolcasCode = _RC_NOT_AVAILABLE_

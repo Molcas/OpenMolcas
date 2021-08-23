@@ -16,7 +16,7 @@
 #include "qm2.fh"
 #include "numbers.fh"
 #include "WrkSpc.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Dimension iTocBig(MxStOT)
 

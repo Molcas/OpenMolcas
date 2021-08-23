@@ -944,8 +944,8 @@ C                 Write (*,*)
      &                              kl2,Scrt(ipDkl),kl2)
                      Else
                         vkl = Dkl(kBas*lBas+1,i3,i4)
-                        loc1=(idLoc(Dkl(1,i3,i4))-idLoc(Scrt))
-                        loc2=(idLoc(Scrt(2))-idLoc(Scrt(1)))
+                        loc1=(ixLoc(Dkl(1,i3,i4))-ixLoc(Scrt))
+                        loc2=(ixLoc(Scrt(2))-ixLoc(Scrt(1)))
                         ipDkl = 1 + loc1/loc2
                      End If
                      ipFij1 = ((i2-1)*iCmpa(1)+i1-1)*iBas*jBas
@@ -958,8 +958,8 @@ C                 Write (*,*)
      &                              ij2,Scrt(ipDij),ij2)
                      Else
                         vij = Dij(iBas*jBas+1,i1,i2)
-                        loc1=(idLoc(Dij(1,i1,i2))-idLoc(Scrt))
-                        loc2=(idLoc(Scrt(2))-idLoc(Scrt(1)))
+                        loc1=(ixLoc(Dij(1,i1,i2))-ixLoc(Scrt))
+                        loc2=(ixLoc(Scrt(2))-ixLoc(Scrt(1)))
                         ipDij = 1 + loc1/loc2
                      End  If
                      ipFkl1 = ((i4-1)*iCmpa(3)+i3-1)*kBas*lBas
@@ -985,8 +985,8 @@ C                 Write (*,*)
      &                              jl2,Scrt(ipDjl),jl2)
                      Else
                         vjl=Djl(jBas*lBas+1,i2,i4)
-                        loc1= (idLoc(Djl(1,i2,i4))-idLoc(Scrt))
-                        loc2=(idLoc(Scrt(2))-idLoc(Scrt(1)))
+                        loc1= (ixLoc(Djl(1,i2,i4))-ixLoc(Scrt))
+                        loc2=(ixLoc(Scrt(2))-ixLoc(Scrt(1)))
                         ipDjl = 1 + loc1/loc2
                      End If
                      ipFik1 = ((i3-1)*iCmpa(1)+i1-1)*iBas*kBas
@@ -999,8 +999,8 @@ C                 Write (*,*)
      &                              ik2,Scrt(ipDik),ik2)
                      Else
                         vik=Dik(iBas*kBas+1,i1,i3)
-                        loc1=(idLoc(Dik(1,i1,i3))-idLoc(Scrt))
-                        loc2=(idLoc(Scrt(2))-idLoc(Scrt(1)))
+                        loc1=(ixLoc(Dik(1,i1,i3))-ixLoc(Scrt))
+                        loc2=(ixLoc(Scrt(2))-ixLoc(Scrt(1)))
                         ipDik = 1 + loc1/loc2
                      End If
                      ipFjl1 = ((i4-1)*iCmpa(2)+i2-1)*jBas*lBas
@@ -1026,8 +1026,8 @@ C                 Write (*,*)
      &                              jk2,Scrt(ipDjk),jk2)
                      Else
                         vjk = Djk(jBas*kBas+1,i2,i3)
-                        loc1=(idLoc(Djk(1,i2,i3))-idLoc(Scrt))
-                        loc2= (idLoc(Scrt(2))-idLoc(Scrt(1)))
+                        loc1=(ixLoc(Djk(1,i2,i3))-ixLoc(Scrt))
+                        loc2= (ixLoc(Scrt(2))-ixLoc(Scrt(1)))
                         ipDjk = 1 + loc1/loc2
                      End If
                      ipFil1 = ((i4-1)*iCmpa(1)+i1-1)*iBas*lBas
@@ -1040,8 +1040,8 @@ C                 Write (*,*)
      &                              il2,Scrt(ipDil),il2)
                      Else
                         vil = Dil(iBas*lBas+1,i1,i4)
-                        loc1= (idLoc(Dil(1,i1,i4))-idLoc(Scrt))
-                        loc2= (idLoc(Scrt(2))-idLoc(Scrt(1)))
+                        loc1= (ixLoc(Dil(1,i1,i4))-ixLoc(Scrt))
+                        loc2= (ixLoc(Scrt(2))-ixLoc(Scrt(1)))
                         ipDil = 1 + loc1/loc2
                      End If
                      ipFjk1 = ((i3-1)*iCmpa(2)+i2-1)*jBas*kBas

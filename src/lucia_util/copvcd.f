@@ -44,7 +44,8 @@ C?        write(6,*) ' COPVCD LBL : ', LBL(1)
           CALL IDAFILE(LUIN,2,LBL,1,IDISK(LUIN))
           CALL IDAFILE(LUIN,2,IDUMMY,1,IDISK(LUIN))
           CALL IDAFILE(LUOUT,1,LBL,1,IDISK(LUOUT))
-          CALL IDAFILE(LUOUT,1,[-1],1,IDISK(LUOUT))
+          IDUMMY(1)=-1
+          CALL IDAFILE(LUOUT,1,IDUMMY,1,IDISK(LUOUT))
         END IF
         IF( LBL(1) .GE. 0 ) THEN
           IF(LBLK .GE.0 ) THEN

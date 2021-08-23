@@ -18,12 +18,12 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension vecfrom(nfr,nvec),vecto(npr,nvec)
 
       do 100 ivec=1,nvec
       if(.not.orbfr_is_unit)then
-        call mxatb_cvb(w(ls(14)),vecfrom(1,ivec),
+        call mxatb_cvb(work(ls(14)),vecfrom(1,ivec),
      >    nprorb,nfrorb,1,vecto(1,ivec))
       else
         if(nprorb.gt.0) call fmove_cvb(vecfrom(1,ivec),

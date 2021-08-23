@@ -24,7 +24,7 @@
       Integer n, m, lu_A0, lu_A, iD_A(n), lScr
       Real*8  Diag(*), Wg(*), Scr(lScr)
 #include "stdalloc.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Integer, Allocatable :: List(:)
 *

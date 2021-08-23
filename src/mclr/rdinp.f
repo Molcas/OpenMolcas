@@ -60,7 +60,7 @@
       Call Get_info_Static()
       istate=1     ! State for which the Lagrangian is calc.
       override=.false.
-      If (debug) write(6,*) 'Got info.fh'
+      If (debug) write(6,*) 'Got Basis_Info and Center_Info'
       lRoots=-1
       kprint=0
       ngp=.false.

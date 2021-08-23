@@ -20,7 +20,7 @@ c ... Files/Hamiltonian available ...
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 #include "casinfo_cvb.fh"
 #include "io_cvb.fh"
       dimension ncix(mxirrep),civec(*)
@@ -41,7 +41,7 @@ c ... Files/Hamiltonian available ...
           write(6,'(a)')' '
           call prtfid_cvb(' Restoring CI vector from ',strtci)
         endif
-        call fzero(w(iaddr_ci(icivec)),ndet)
+        call fzero(work(iaddr_ci(icivec)),ndet)
       elseif(iwr.eq.1)then
         if(ip(5).ge.1.and.valid_cvb(savvbci))then
           write(6,'(a)')' '
@@ -59,19 +59,19 @@ c ... Files/Hamiltonian available ...
         do 1100 istate=1,nstats_d(istsym_d)
         if(abs(weight_d(istate,istsym_d)).gt.1.d-20)then
           call mkfn_cvb(strtci,ibf)
-          call rdcivec_cvb(w(lcim),filename(ibf),.true.)
+          call rdcivec_cvb(work(lcim),filename(ibf),.true.)
           fac=sqrt(weight_d(istate,istsym_d))
-          call mol2vbma_cvb(w(iaddr_ci(icivec)),w(lcim),isyml,fac)
+          call mol2vbma_cvb(work(iaddr_ci(icivec)),work(lcim),isyml,fac)
         endif
 1100    continue
       elseif(iwr.eq.1)then
         do 1200 istate=1,nstats_d(istsym_d)
         if(abs(weight_d(istate,istsym_d)).gt.1.d-20)then
-          call vb2mol_cvb(w(iaddr_ci(icivec)),w(lcim),isyml)
-          cnrm=one/dnrm2_(nci,w(lcim),1)
-          call dscal_(nci,cnrm,w(lcim),1)
+          call vb2mol_cvb(work(iaddr_ci(icivec)),work(lcim),isyml)
+          cnrm=one/dnrm2_(nci,work(lcim),1)
+          call dscal_(nci,cnrm,work(lcim),1)
           call mkfn_cvb(savvbci,ibf)
-          call wrcivec_cvb(w(lcim),filename(ibf),.not.variat)
+          call wrcivec_cvb(work(lcim),filename(ibf),.not.variat)
         endif
 1200    continue
       endif
@@ -88,7 +88,7 @@ c ... Files/Hamiltonian available ...
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 #include "casinfo_cvb.fh"
 #include "io_cvb.fh"
       dimension ncix(mxirrep),civec(*)
@@ -106,7 +106,7 @@ c ... Files/Hamiltonian available ...
           write(6,'(a)')' '
           call prtfid_cvb(' Restoring CI vector from ',strtci)
         endif
-        call fzero(w(iaddr_ci(icivec)),ndet)
+        call fzero(work(iaddr_ci(icivec)),ndet)
       elseif(iwr.eq.1)then
         if(ip(5).ge.1.and.valid_cvb(savvbci))then
           write(6,'(a)')' '
@@ -124,19 +124,19 @@ c ... Files/Hamiltonian available ...
         do 1100 istate=1,nstats_d(istsym_d)
         if(abs(weight_d(istate,istsym_d)).gt.1.d-20)then
           call mkfn_cvb(strtci,ibf)
-          call rdcivec_cvb(w(lcim),filename(ibf),.true.)
+          call rdcivec_cvb(work(lcim),filename(ibf),.true.)
           fac=sqrt(weight_d(istate,istsym_d))
-          call mol2vbma_cvb(w(iaddr_ci(icivec)),w(lcim),isyml,fac)
+          call mol2vbma_cvb(work(iaddr_ci(icivec)),work(lcim),isyml,fac)
         endif
 1100    continue
       elseif(iwr.eq.1)then
         do 1200 istate=1,nstats_d(istsym_d)
         if(abs(weight_d(istate,istsym_d)).gt.1.d-20)then
-          call vb2mol_cvb(w(iaddr_ci(icivec)),w(lcim),isyml)
-          cnrm=one/dnrm2_(nci,w(lcim),1)
-          call dscal_(nci,cnrm,w(lcim),1)
+          call vb2mol_cvb(work(iaddr_ci(icivec)),work(lcim),isyml)
+          cnrm=one/dnrm2_(nci,work(lcim),1)
+          call dscal_(nci,cnrm,work(lcim),1)
           call mkfn_cvb(savvbci,ibf)
-          call wrcivec_cvb(w(lcim),filename(ibf),.not.variat)
+          call wrcivec_cvb(work(lcim),filename(ibf),.not.variat)
         endif
 1200    continue
       endif

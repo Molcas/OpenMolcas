@@ -42,7 +42,7 @@ character(len=8) :: IntCh
 character(len=80) :: Title1(10), Title2(10)
 character(len=180) :: Line, l84, l84x
 integer(kind=iwp), parameter :: ntab = 19
-character(len=4), parameter :: tabinp(ntab) = ['TITL','ATOM','GRID','RANG','VIBR','ROTA','ORBI','NOSP','OBSE','STEP', &
+character(len=*), parameter :: tabinp(ntab) = ['TITL','ATOM','GRID','RANG','VIBR','ROTA','ORBI','NOSP','OBSE','STEP', &
                                                'POTE','ROVI','TRAN','ASYM','PRWF','SCAL','TEMP','ALLR','END ']
 integer(kind=iwp), external :: IsFreeUnit, iNuclearChargeFromSymbol, iMostAbundantIsotope
 real(kind=r8), external :: dNuclearMass
@@ -229,7 +229,7 @@ input: do
       if (J2A >= nRot_Max) then
         write(u6,*)
         write(u6,*) '********************************'
-        write(u6,*) ' VIBINP Error: J2A > nRot_Max. '
+        write(u6,*) ' VIBINP Error: J2A > nRot_Max.'
         write(u6,'(1x,a,2i6)') 'J2A:',J2A
         write(u6,*) '********************************'
         call Quit_OnUserError()
@@ -252,7 +252,7 @@ input: do
       if (iobs > 10) then
         write(u6,*)
         write(u6,*) '***************************'
-        write(u6,*) ' VIBINP Error: IOBS > 10. '
+        write(u6,*) ' VIBINP Error: IOBS > 10.'
         write(u6,'(1x,a,2i6)') 'IOBS:',IOBS
         write(u6,*) '***************************'
         call Quit_OnUserError()
@@ -293,7 +293,7 @@ input: do
         if (NOBSI > NPIN) then
           write(u6,*)
           write(u6,*) '**********************************'
-          write(u6,*) ' VIBINP Error: NOBSI > NPIN      '
+          write(u6,*) ' VIBINP Error: NOBSI > NPIN'
           write(u6,'(1x,a,2i6)') 'NOBSI,NPIN:',NOBSI,NPIN
           write(u6,*) '**********************************'
           call Quit_OnUserError()
@@ -407,8 +407,8 @@ input: do
     case default
       write(u6,*)
       write(u6,*) '******************************************'
-      write(u6,*) ' VIBINP Error: Input line not recognized. '
-      write(u6,*) ' Input line, in upper case:               '
+      write(u6,*) ' VIBINP Error: Input line not recognized.'
+      write(u6,*) ' Input line, in upper case:'
       write(u6,'(a)') line
       write(u6,*) ' Extracted keyword: ',word
       write(u6,*) '******************************************'
@@ -419,16 +419,17 @@ end do input
 if (J1A < lambda) then
   write(u6,*)
   write(u6,*) '********************************'
-  write(u6,*) ' VIBINP Warning: J1A < Lambda. '
+  write(u6,*) ' VIBINP Warning: J1A < Lambda.'
   write(u6,'(1x,a,2i6)') 'J1A,Lambda:',J1A,Lambda
-  write(u6,*) ' J1A is now reset=Lambda.       '
+  write(u6,*) ' J1A is now reset to Lambda.'
   write(u6,*) '********************************'
+  J1A = lambda
 end if
 
 if (J2A < J1A) then
   write(u6,*)
   write(u6,*) '***************************'
-  write(u6,*) ' VIBINP Error: J2A < J1A. '
+  write(u6,*) ' VIBINP Error: J2A < J1A.'
   write(u6,'(1x,a,2i6)') 'J2A,J1A:',J2A,J1A
   write(u6,*) '***************************'
   call Quit_OnUserError()
@@ -524,7 +525,7 @@ if (ncase == 2) then
   if (IERR /= 0) then
     write(u6,*) '*****************************************'
     write(u6,*) ' VIBINP: Irrecoverable errors.'
-    write(u6,*) ' Transition calculation, but data on the '
+    write(u6,*) ' Transition calculation, but data on the'
     write(u6,*) ' two VibWvs files are not compatible.'
     write(u6,*) '*****************************************'
     call Quit_OnUserError()
@@ -571,7 +572,7 @@ if (iobs /= 0) write(u6,1700) iobs
 if ((ipot == 0) .and. (ncase == 1)) then
   write(u6,*)
   write(u6,*) '**********************************'
-  write(u6,*) ' VIBINP Error: IPOT=0 and NCASE=1 '
+  write(u6,*) ' VIBINP Error: IPOT=0 and NCASE=1'
   write(u6,*) '**********************************'
   call Quit_OnUserError()
 end if
@@ -586,8 +587,8 @@ if (ipot /= 0) then
   if ((Rin(1) > Rmax) .or. (Rin(nop) < Rmin)) then
     write(u6,*)
     write(u6,*) '****************************'
-    write(u6,*) ' VIBINP Error: Potential is '
-    write(u6,*) ' not within defined range.  '
+    write(u6,*) ' VIBINP Error: Potential is'
+    write(u6,*) ' not within defined range.'
     write(u6,*) '****************************'
     call Quit_OnUserError()
   end if

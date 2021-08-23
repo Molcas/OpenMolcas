@@ -245,7 +245,7 @@ CPAM97      Read(Line,*,Err=992) ETrsh
       WRITE(6,'(6X,57A1,A6,57A1)')
      &        '*',(' ',i=1,56),'Title:',(' ',i=1,56),'*'
       Do i=1,nTit
-         Call Center(Title(i))
+         Call Center_Text(Title(i))
          WRITE(6,'(6X,24A1,A72,24A1)')
      &        '*',(' ',j=1,23),Title(i),(' ',j=1,23),'*'
       End Do

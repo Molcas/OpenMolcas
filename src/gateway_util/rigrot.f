@@ -252,7 +252,7 @@ C     Call Put_dArray('PAX',Pax,9)
          Label(1:24)=' Symmetric Top, Oblate'
       End If
       If (RR_Show) Then
-      Write (6,'(19X,A,A)') ' Rotor Type:',Label(1:mylen(Label))
+      Write (6,'(19X,A,A)') ' Rotor Type:',trim(Label)
       Write (6,'(19X,A,F7.3)') ' Asymmetry parameter:',rKappa
       Write (6,'(19X,A)')       ' Prolate = -1'
       Write (6,'(19X,A)')       ' Oblate  =  1'

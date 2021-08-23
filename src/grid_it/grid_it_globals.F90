@@ -21,7 +21,7 @@ private
 ! GridSparse, GridDense number of points in a.u.
 ! MAXGRID maximum number of generated grid ONLY if you set up it by hand!
 integer(kind=iwp), parameter :: GridDense = 10, GridNormal = 3, GridSparse = 2, MAXGRID = 100
-character(len=8), parameter :: VERSION = '1.01'
+character(len=*), parameter :: VERSION = '1.01'
 
 ! IMaxup/Down 0 default number of orbitals near HOMO-LUMO
 ! iGridNpt - 3 integer to set GRID

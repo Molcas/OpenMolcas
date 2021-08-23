@@ -18,7 +18,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension cvec(*)
 c  *********************************************************************
 c  *                                                                   *
@@ -29,7 +29,7 @@ c  *********************************************************************
       ivec=nint(cvec(1))
       iformat=iform_ci(ivec)
       if(iformat.eq.0)then
-        call fzero(w(iaddr_ci(ivec)),ndet)
+        call fzero(work(iaddr_ci(ivec)),ndet)
       else
         write(6,*)' Unsupported format in CIZERO :',iformat
         call abend_cvb()

@@ -40,7 +40,7 @@
 *
       I(i1,i2)=i1*(i1-1)/2+i2
 *
-*EAW 970912     ixyz=idLoc(DAO(1,1,1))
+*EAW 970912     ixyz=ixLoc(DAO(1,1,1))
 c     iRout = 134
 c     iPrint = nPrint(iRout)
       iStb(0)=iu

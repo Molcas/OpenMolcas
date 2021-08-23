@@ -26,13 +26,16 @@ use Period, only: Cell_l, ispread
 use GeoList, only: Centr, Mass
 use MpmC, only: Coor_MPM
 use EFP_Module, only: lEFP
+#ifdef _EFP_
+use EFP_Module, only: nEFP_Fragments
+#endif
 use External_centers, only: AMP_Center, DMS_Centers, nDMS, nEF, nOrdEF, nWel, nXF, OAM_Center, OMQ_Center, XF
 use Temporary_Parameters, only: Onenly, Prprt, Test
-use DKH_Info, only: BSS, DKroll, iCtrLD, LDKroll, nCtrLD, radiLD
+use DKH_Info, only: BSS, DKroll, iCtrLD, iRELAE, LDKroll, nCtrLD, radiLD
 use Sizes_of_Seward, only: S
 use Real_Info, only: ThrInt, CutInt, RPQMin, kVector
 use RICD_Info, only: iRI_Type, LDF, Do_RI, Cholesky, Do_acCD_Basis, Skip_High_AC, Cho_OneCenter, LocalDF, Do_nacCD_Basis, Thrshld_CD
-use Logical_Info, only: Vlct, lRel, lAMFI, DoFMM, EMFR, GIAO, FNMC, lPSOI
+use Logical_Info, only: Vlct, lRel, lAMFI, DoFMM, EMFR, GIAO, FNMC, lMXTC
 use Symmetry_Info, only: nIrrep
 use Gateway_global, only: Run_Mode, GS_Mode
 use Constants, only: Zero, One, Two, Ten, Pi, Angstrom
@@ -45,7 +48,6 @@ logical(kind=iwp), intent(in) :: lOPTO
 #include "rmat.fh"
 #include "rctfld.fh"
 #include "relmp.fh"
-#include "relae.fh"
 #include "print.fh"
 #include "localdf.fh"
 integer(kind=iwp) :: i, iCnttp, iDKH_H_Order, iDKH_X_Order, iParam, iPrint, iRout, iTtl, LuWr, nrSym, nTtl
@@ -224,7 +226,7 @@ else
                              '   Products of Orbital angular momentum operators around (',(AMP_Center(i),i=1,3),')'
   if (nWel /= 0) write(LuWr,'(15X,A,I4,A)') '   Spherical well for',nWel,' exponent(s) added to the one-electron Hamiltonian'
   if (lAMFI) write(LuWr,'(15X,A)') '   Atomic mean-field integrals'
-  if (lPSOI) write(LuWr,'(15X,A)') '   (PSO) Paramagnetic Spin-Orbit integrals calculated from Gen1Int F90 library'
+  if (lMXTC) write(LuWr,'(15X,A)') '   Hyperfine Magnetic integrals(MAG) calculated from Gen1Int F90 library'
   if (DoFMM) then
     write(LuWr,'(15X,A)') '   Integral environment set up for FMM option'
     write(LuWr,'(15X,A,F10.5)') '    - RPQMin: ',RPQMin

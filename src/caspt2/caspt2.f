@@ -68,11 +68,10 @@ C     HDF5 SUPPORT BY S. VANCOILLIE (2016)
 C
 ************************************************************************
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "constants.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
 #include "intgrl.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"

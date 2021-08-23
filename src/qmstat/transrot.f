@@ -15,7 +15,7 @@
       Implicit Real*8 (a-h,o-z)
 
 #include "maxi.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Dimension Rot(3,3),Cordst(MxPut*MxCen,3)
 

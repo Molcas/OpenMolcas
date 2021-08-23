@@ -18,7 +18,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension osym(mxirrep),civec1(*),civec2(*)
 c  *********************************************************************
 c  *                                                                   *
@@ -28,6 +28,7 @@ c  *********************************************************************
 
       icivec1=nint(civec1(1))
       icivec2=nint(civec2(1))
-      call psym1_cvb(w(iaddr_ci(icivec1)),w(iaddr_ci(icivec2)),osym,2)
+      call psym1_cvb(work(iaddr_ci(icivec1)),work(iaddr_ci(icivec2)),
+     >               osym,2)
       return
       end

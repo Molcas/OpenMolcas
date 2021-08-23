@@ -20,7 +20,7 @@ private
 !  'strange' order is due to back compatibility issues
 !    UNK: unknown
 !
-character(len=36), parameter :: BasTypeCon = 'SEG:ANO:RAF:CCC:UNK:UNC:ARC:GEN:SEC:'
+character(len=*), parameter :: BasTypeCon = 'SEG:ANO:RAF:CCC:UNK:UNC:ARC:GEN:SEC:'
 ! 1: Contraction type
 !  - SEG: segmented
 !  - SEC: segmented Cartesian
@@ -31,14 +31,14 @@ character(len=36), parameter :: BasTypeCon = 'SEG:ANO:RAF:CCC:UNK:UNC:ARC:GEN:SE
 !  - ARC: automatic Raffenetti
 !  - GEN: general contraction
 
-character(len=20), parameter :: BasTypeAll = 'AE_:NAE:YES:NO_:UNK:'
+character(len=*), parameter :: BasTypeAll = 'AE_:NAE:YES:NO_:UNK:'
 ! 2: All electron
 !  - AE_: all electron
 !  - NAE: not all electron
 !  - YES: same as AE_
 !  - NO_: same as NAE
 
-character(len=56), parameter :: BasTypeRel = 'NRH:RH_:RCP:DKH:UNK:DK2:DK3:DK4:DK5:DK6:DK7:DK8:RYD:X2C:'
+character(len=*), parameter :: BasTypeRel = 'NRH:RH_:RCP:DKH:UNK:DK2:DK3:DK4:DK5:DK6:DK7:DK8:RYD:X2C:'
 ! 3: Relativity
 !  - RH_: relativistic Hamiltonian
 !  - NRH: non relativistic Hamiltonian
@@ -47,7 +47,7 @@ character(len=56), parameter :: BasTypeRel = 'NRH:RH_:RCP:DKH:UNK:DK2:DK3:DK4:DK
 !  - X2C: exact 2-component
 !  - RYD: Rydberg
 
-character(len=16), parameter :: BasTypeNuc = 'PN_:GN_:MGN:UNK:'
+character(len=*), parameter :: BasTypeNuc = 'PN_:GN_:MGN:UNK:'
 ! 4: Nucleus
 !  - PN_: point nucleus
 !  - GN_: Gaussian nucleus

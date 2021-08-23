@@ -23,6 +23,7 @@
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "rassi.fh"
+#include "hfc_logical.fh"
       Character*256 STRING
       Logical FoundTwoEls,DoCholesky
 
@@ -191,6 +192,8 @@ cnf
 C tjd- BMII: Print out spin-orbit properties to files
       LPRPR=.FALSE.
       LHAMI=.FALSE.
+c Feng: test control
+      MAG_X2C=.FALSE.
 
 C K. Sharkas  BEG
       IFATCALSA=.FALSE.

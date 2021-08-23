@@ -30,7 +30,7 @@
 #define xml_cdumpc xml_cdumpc_
 #endif
 #endif
-void xml_cdumpc(char *name, int *nx_name) {
+void xml_cdumpc(char *name, INT *nx_name) {
    FILE *f;
    char  line[256];
    int   n_name;

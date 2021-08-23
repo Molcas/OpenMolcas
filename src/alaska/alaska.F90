@@ -293,7 +293,7 @@ if (isNAC) then
   call PrGrad(trim(Label),Tmp,lDisp(0),ChDisp,iPrint)
   write(u6,'(15X,A,F12.4)') 'norm: ',dnrm2_(lDisp(0),Tmp,1)
   call mma_deallocate(Tmp)
-elseif (iPrint >= 4) then
+else if (iPrint >= 4) then
   if (HF_Force) then
     call PrGrad('Hellmann-Feynman Forces ',Grad,lDisp(0),ChDisp,iPrint)
   else
@@ -348,7 +348,7 @@ end do
 !
 if (HF_Force) then
   call Put_dArray('HF-forces',Rlx,l1)
-elseif (Columbus == 1) then
+else if (Columbus == 1) then
   call Put_nadc(colgradmode,Rlx,l1)
 else
   call Put_Grad(Rlx,l1)

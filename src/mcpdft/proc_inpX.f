@@ -24,7 +24,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "WrkSpc.fh"
 #include "gas.fh"
 #include "rasscf.fh"
@@ -114,7 +114,6 @@ C   No changing about read in orbital information from INPORB yet.
 
 !      DBG = .TRUE.
       DBG = .FALSE.
-      DoFaro = .FALSE.
       IPRLEV = TERSE
 
 * NN.14 Block DMRG flag
@@ -2488,11 +2487,6 @@ c       write(6,*)          '  --------------------------------------'
        Call ChkIfKey_m()
       End If
 *
-*---  Process ALPH command --------------------------------------------*
-      If (KeyFARO) Then
-        DoFaro = .TRUE.
-      End If
-*
 *---  Process NOCA command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if NOCALC case.'
       If (KeyNOCA) Then
@@ -2873,23 +2867,6 @@ C Test read failed. JOBOLD cannot be used.
 #ifdef module_DMRG
 !     call set_dmrg_cfg()
 #endif
-
-      ! faroald initializations
-!      DOFARO = .True.
-      IF (DOFARO) THEN
-        IF (NSYM.GT.1) THEN
-          WRITE(6,'(1X,A)') 'FARO keyword was used, but NSYM > 1,'
-          WRITE(6,'(1X,A)') 'switching to LUCIA as the CI backend.'
-          DOFARO=.FALSE.
-        ELSE
-          WRITE(6,'(1X,A)') '**EXPERIMENTAL**'
-          WRITE(6,'(1X,A)') 'CI backend is FAROALD instead of LUCIA.'
-          WRITE(6,'(1X,A)') '**EXPERIMENTAL**'
-          CALL FAROALD_INIT(NACTEL,NASH(1),ISPIN)
-          CALL CITRANS_INIT(NACTEL,NASH(1),ISPIN)
-        END IF
-      END IF
-      DOFARO = .FALSE.
 
       Go to 9000
 *

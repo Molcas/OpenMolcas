@@ -36,7 +36,7 @@
       Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
-#include "itmax.fh"
+#include "angtp.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       Character*(*) DDname
@@ -63,7 +63,7 @@
       Logical inLn1, inLn2, inLn3, Hit, IfTest,
      &        isEorb,isFock
       Integer nCGTO(0:iTabMx),mCGTO(0:iTabMx)
-      Logical Found
+      Logical Found,Cart(0:iTabMx)
       Real*8, Allocatable:: ExpMerged(:),Temp(:,:)
       Data DefNm/'basis_library'/
 *
@@ -103,6 +103,7 @@
       dbsc(nCnttp)%FOp = .True.
       lAng=0
 *
+      Cart(:) = .False.
       If (IfTest) Write (6,'(A,A)') 'DDName=',DDName
       Line=DDName
       call UpCase(Line)
@@ -214,6 +215,17 @@
      &         Write(6,*) 'Fock operator is included'
                isEorb=.true.
                isFock=.true.
+            Else If(Line(1:9).eq.'Cartesian') Then
+               Line = Line(10:)
+               Call LoCase(Line)
+*              Only d or higher shells are tested
+               If (Index(Line,'all').ne.0) Then
+                  Cart(2:) = .True.
+               Else
+                  Do i=2,iTabMx
+                     If (Index(Line,AngTp(i)).ne.0) Cart(i) = .True.
+                  End Do
+               End If
             Else
                Write(6,*) 'Illegal option: ',Line
                Call Abend()
@@ -290,6 +302,10 @@
 *
          Shells(iShll)%nExp=nPrim
          Shells(iShll)%nBasis_c = nCntrc
+         If (Cart(iAng)) Then
+            Shells(iShll)%Transf=.False.
+            Shells(iShll)%Prjct =.False.
+         End If
          Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
 *        Read gaussian exponents
          If (nPrim.gt.0) then

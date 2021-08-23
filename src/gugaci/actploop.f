@@ -1431,7 +1431,7 @@ c look for partial loops in active space drt and save them into disk
 #include "files_gugaci.fh"
 #include "count.fh"
 #include "lpdisk.fh"
-      dimension info(10)
+      dimension info(10),idum(1)
 
       if(mh.gt.mhlpmax) mhlpmax=mh
       mhsum=mhsum+mh
@@ -1479,7 +1479,8 @@ c      print*, "in save_lp, linelp",line,idisk_lp,mh,mtype
         jhyl=jphyl(jph)
         jhyr=jphy(jph)
         in=ihyl(jhyl)
-        call idafile(luloop,1,[in],1,idisk_lp)
+        idum(1)=in
+        call idafile(luloop,1,idum,1,idisk_lp)
         call idafile(luloop,1,ihyl(jhyl+1:jhyl+in),in,idisk_lp)
         call idafile(luloop,1,ihy(jhyr+1:jhyr+in),in,idisk_lp)
 c        write(20)in,ihyl(jhyl+1:jhyl+in),ihy(jhyr+1:jhyr+in)

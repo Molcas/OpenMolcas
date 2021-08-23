@@ -9,6 +9,7 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
 # Copyright (C) 2017, Stefan Knecht                                    *
+#               2021, Ignacio Fdez. Galván                             *
 #***********************************************************************
 #                                                                      *
 #***********************************************************************
@@ -41,12 +42,7 @@ list(APPEND GEN1INTCMakeArgs
   -DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}/External
   -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
   -DCMAKE_Fortran_FLAGS=${CMAKE_Fortran_FLAGS}
-  -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-  -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
-  -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-  -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
   -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-  -DCMAKE_INSTALL_LIBDIR=lib
   -DCMAKE_Fortran_MODULE_DIRECTORY=${mod_dir}
   -DEXTRA_INCLUDE=${OPENMOLCAS_DIR}/src/Include
   )
@@ -54,28 +50,38 @@ list(APPEND GEN1INTCMakeArgs
 #####################################
 # git references for GEN1INT module #
 #####################################
-set(reference_git_commit 996e972b)
-set(reference_git_repo git@gitlab.chab.ethz.ch:dmrg/gen1int-molcaslib.git)
+set(reference_git_repo https://gitlab.com/Molcas/gen1int-molcas.git)
+set(reference_git_commit 4b486d698258401a8b94450affb1f0dc8334630a)
 set(EP_PROJECT gen1int)
-
 
 # Enabling source changes to keep ExternalProject happy
 set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
 
+set (last_hash "None")
+set (hash_file ${CUSTOM_GEN1INT_LOCATION}/${EP_PROJECT}.hash)
+if (EXISTS ${hash_file})
+  file (READ ${hash_file} last_hash)
+  string (REGEX REPLACE "\n$" "" last_hash "${last_hash}")
+endif ()
+if (last_hash STREQUAL ${reference_git_commit})
+  set (EP_SkipUpdate ON)
+else ()
+  set (EP_SkipUpdate OFF)
+endif ()
+
 ExternalProject_Add(${EP_PROJECT}
                     PREFIX ${CUSTOM_GEN1INT_LOCATION}
+                    CMAKE_ARGS "${GEN1INTCMakeArgs}"
                     GIT_REPOSITORY ${reference_git_repo}
                     GIT_TAG ${reference_git_commit}
-                    CMAKE_ARGS "${GEN1INTCMakeArgs}"
+                    UPDATE_DISCONNECTED ${EP_SkipUpdate}
                     INSTALL_DIR "${PROJECT_BINARY_DIR}"
-                    LOG_INSTALL 1
-                    LOG_DOWNLOAD 1
-                    LOG_UPDATE 1
-                    LOG_CONFIGURE 1
-                    LOG_BUILD 1
-                    LOG_TEST 1
-                    LOG_INSTALL 1
                    )
+
+ExternalProject_Add_Step (${EP_PROJECT} update_hash
+                          COMMAND echo ${reference_git_commit} > ${hash_file}
+                          DEPENDEES build
+                         )
 
 set (CMAKE_DISABLE_SOURCE_CHANGES ON)
 

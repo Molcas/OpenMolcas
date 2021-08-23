@@ -17,13 +17,13 @@
      &         IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,               &
      &         iStabM,nStabM                                            &
 #elif defined (_USE_WP_)
-! TODO: unknown intents, probably all "in", except Fin, Grad
+! TODO: unknown intents, probably all "in", except Final, Grad
 integer(kind=iwp), intent(inout) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, nGrad, IndGrd(3,2), mdc, ndc, kOp(2), nComp, &
                                     nStabM, lOper(nComp), iStabM(0:nStabM-1)
 real(kind=wp), intent(inout) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), &
                                 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), A(3), RB(3), Array(nZeta*nArr), Ccoor(3), &
                                 Grad(nGrad), DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-logical(kind=iwp), intent(in) :: IfGrad(3,2)
+logical(kind=iwp), intent(inout) :: IfGrad(3,2)
 #else
       Integer nAlpha, nBeta
       Real*8 Alpha(nAlpha), Beta(nBeta)

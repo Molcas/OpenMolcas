@@ -90,8 +90,9 @@
 !>  @paramin[out] PSMAT Average symm. 2-dens matrix
 !>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
       subroutine RDM_to_runfile(DMAT, D1S_MO, PSMAT, PAMAT)
-        real(wp), intent(in) :: DMAT(nAcpar), D1S_MO(nAcPar),
-     &                        PSMAT(nAcpr2), PAMAT(nAcpr2)
+#include "intent.fh"
+        real(wp), intent(_IN_) :: DMAT(nAcpar), D1S_MO(nAcPar),
+     &                            PSMAT(nAcpr2), PAMAT(nAcpr2)
         integer :: jDisk
 
 ! Put it on the RUNFILE

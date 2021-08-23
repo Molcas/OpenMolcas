@@ -49,6 +49,14 @@
       Integer iOpt,nData,nByte
       Real*8  InBuf(*)
       Real*8  OutBuf(*)
+      Interface
+        Subroutine rld_r8(in_,n_in,out_,n_out,thr)
+     &             bind(C,name='rld_r8_')
+          Use Definitions, only: MOLCAS_C_INT, MOLCAS_C_REAL
+          Real(kind=MOLCAS_C_REAL) :: in_(*), out_(*), thr
+          Integer(kind=MOLCAS_C_INT) :: n_in, n_out
+        End Subroutine rld_r8
+      End Interface
 *
 *----------------------------------------------------------------------*
 *     If data have not been packed copy them from                      *
@@ -69,7 +77,8 @@
 *     Call upkERI(nData,PkThrs,nByte,InBuf,OutBuf)
       Kase=iAnd(iOpt,15)
       If(Kase.eq.0) Then
-         Call tcd_r8(InBuf,nComp, OutBuf,nData, PkThrs,Init_do_setup_d)
+         Call tcd_r8_wrapper(InBuf,nComp, OutBuf,nData, PkThrs,
+     &                       Init_do_setup_d)
          Init_do_setup_d=0
          nByte=nComp
       Else
@@ -81,4 +90,29 @@
 *----------------------------------------------------------------------*
 *
       Return
+
+      Contains
+
+      Subroutine tcd_r8_wrapper(in_,n_in,out_,n_out,thr,Init_do_setup_e)
+
+      Use, Intrinsic :: iso_c_binding, only: c_loc
+
+      Real*8, Target :: in_(*)
+      Integer :: n_in, n_out, Init_do_setup_e
+      Real*8 :: out_(*), thr
+      Interface
+        Subroutine tcd_r8(in_,n_in,out_,n_out,thr,Init_do_setup_d)
+     &             bind(C,name='tcd_r8_')
+          Use, Intrinsic :: iso_c_binding, only: c_ptr
+          Use Definitions, only: MOLCAS_C_INT, MOLCAS_C_REAL
+          Type(c_ptr), Value :: in_
+          Integer(kind=MOLCAS_C_INT) :: n_in, n_out, Init_do_setup_d
+          Real(kind=MOLCAS_C_REAL) :: out_(*), thr
+        End Subroutine
+      End Interface
+
+      Call tcd_r8(c_loc(in_),n_in,out_,n_out,thr,Init_do_setup_e)
+
+      End Subroutine tcd_r8_wrapper
+
       End

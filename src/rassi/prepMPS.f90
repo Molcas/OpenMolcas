@@ -35,6 +35,7 @@
   use qcmaquis_interface_cfg
   use qcmaquis_info
   use qcmaquis_interface_mpssi
+  use fortran_strings, only : str
 #endif
 
   implicit none
@@ -72,10 +73,11 @@
 
   if(.not.trorb)then
     write(lupri,'(a,a)') ' prepMPS: no MPS rotation requested for state ', &
-    qcm_group_names(job)%states(ist)
+    trim(qcm_group_names(job)%states(ist))//' jobiph: '//str(job)//', root: '//str(istate)
     return
   else
-    write(lupri,'(a,a)') ' prepMPS:    MPS rotation requested for state ', qcm_group_names(job)%states(ist)
+    write(lupri,'(a,a)') ' prepMPS:    MPS rotation requested for state ', trim(qcm_group_names(job)%states(ist))// &
+         ' jobiph: '//str(job)//', root: '//str(istate)
   end if
 
   dmrg_orbital_space%nash(1:nsym) = nash(1:nsym)
@@ -129,7 +131,7 @@
 
   ! rotate MPS
   call qcmaquis_mpssi_rotate(qcm_prefixes(job), &
-                             ist,               &
+                             istate,            &
                              tmat, &
                              nash(1)**2, &
                              fac(1,1), &
@@ -141,7 +143,7 @@
   ! Avoid unused variable warnings
   if (.false.) then
     call unused_integer(istatereal)
-    call unused_integer(istate)
+    call unused_integer(ist)
   end if
 #else
   write(lupri,*) ' calling prepMPS w/o DMRG interface - foolish!'

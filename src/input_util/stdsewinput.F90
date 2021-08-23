@@ -38,7 +38,7 @@ character(len=180) :: Key, KWord, Line
 character(len=80) :: BsLbl
 character(len=180) :: Ref(2)
 character(len=4) :: dbas
-character(len=13), parameter :: DefNm = 'basis_library' !CGGd
+character(len=*), parameter :: DefNm = 'basis_library' !CGGd
 integer(kind=iwp), parameter :: nBuff = 10000
 real(kind=wp), allocatable :: Buffer(:)
 integer(kind=iwp), external :: iCLast
@@ -161,10 +161,11 @@ do
   KWord(1:Indx-1) = BSLbl(1:Indx-1)
   call UpCase(KWord)
   if (index(KWord,'6-31G') /= 0) then
-    do iSh=jShll+3,iShll
+    iSh=jShll+3
+    if (iSh.le.iShll) then
       Shells(iSh)%Transf = .false.
       Shells(iSh)%Prjct = .false.
-    end do
+    end if
   end if
   !                                                                    *
   !*********************************************************************

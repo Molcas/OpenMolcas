@@ -28,6 +28,7 @@ C Set up B matrices for cases 1..13.
 #include "pt2_guga.fh"
 
 #include "SysDef.fh"
+      REAL*8 DUM(1)
 
 
       IF(IPRGLB.GE.VERBOSE) THEN
@@ -83,12 +84,13 @@ C Set up B matrices for cases 1..13.
 C For completeness, even case H has formally S and B
 C matrices. This costs nothing, and saves conditional
 C looping, etc in the rest  of the routines.
+      DUM(1)=0.0D0
       DO ISYM=1,NSYM
         DO ICASE=12,13
           NIN=NINDEP(ISYM,ICASE)
           IF(NIN.GT.0) THEN
             IDISK=IDBMAT(ISYM,ICASE)
-            CALL DDAFILE(LUSBT,1,[0.0D0],1,IDISK)
+            CALL DDAFILE(LUSBT,1,DUM,1,IDISK)
           END IF
         END DO
       END DO

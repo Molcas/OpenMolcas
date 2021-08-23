@@ -268,9 +268,9 @@ C SO Dyson orbitals
 ! If at least one orbital was found, export it/them
         IF(ORBNUM.GT.0) THEN
          Write(filename,'(A16,I0,A3)') 'Dyson.SO.molden.',JSTATE,'.Re'
-         Call Molden_DysOrb(0,filename,DYSEN,AMPS,SODYSCMOR,ORBNUM,NZ)
+         Call Molden_DysOrb(filename,DYSEN,AMPS,SODYSCMOR,ORBNUM,NZ)
          Write(filename,'(A16,I0,A3)') 'Dyson.SO.molden.',JSTATE,'.Im'
-         Call Molden_DysOrb(0,filename,DYSEN,AMPS,SODYSCMOI,ORBNUM,NZ)
+         Call Molden_DysOrb(filename,DYSEN,AMPS,SODYSCMOI,ORBNUM,NZ)
         END IF
 
        END DO ! JSTATE

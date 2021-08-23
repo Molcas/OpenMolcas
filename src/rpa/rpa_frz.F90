@@ -25,7 +25,7 @@ integer(kind=iwp) :: l_Point, l_E, iCount, NumFre, iFre, i, iSym
 real(kind=wp) :: xMin
 integer(kind=iwp), allocatable :: Point(:), Pivot(:), iOcc(:)
 real(kind=wp), allocatable :: E(:)
-character(len=7), parameter :: SecNam = 'RPA_Frz'
+character(len=*), parameter :: SecNam = 'RPA_Frz'
 integer(kind=iwp), external :: Cho_iRange
 
 if ((nSym < 1) .or. (nSym > 8)) then

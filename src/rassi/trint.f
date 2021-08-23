@@ -170,7 +170,7 @@ c --- FAO already contains the one-electron part
             Call AbEnd()
          endif
 
-         Call Allocate_DSBA(DLT,nBasF,nBasF,nSym,Case='TRI')
+         Call Allocate_DSBA(DLT,nBasF,nBasF,nSym,aCase='TRI')
          CALL Fold_Mat(nSym,nBasF,DINAO%A0,DLT%A0)
 
 #ifdef _DEBUGPRINT_
@@ -183,7 +183,7 @@ c --- FAO already contains the one-electron part
 
 #endif
 
-         Call Allocate_DSBA(FLT,nBasF,nBasF,nSym,Case='TRI')
+         Call Allocate_DSBA(FLT,nBasF,nBasF,nSym,aCase='TRI')
 
 C GET THE ONE-ELECTRON HAMILTONIAN MATRIX FROM ONE-EL FILE AND
 C PUT IT INTO A FOCK MATRIX IN AO BASIS:

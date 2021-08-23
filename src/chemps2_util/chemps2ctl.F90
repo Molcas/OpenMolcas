@@ -16,10 +16,10 @@
 ! Written by Quan Phung and Sebastian Wouters, Leuven, Aug 2016
 ! Adapted for Molcas 8.1 by Quan Phung, Leuven, Oct 2016
 
-subroutine Chemps2Ctl(LW1,TUVX,IFINAL,IRST)
+subroutine Chemps2Ctl(W1,TUVX,IFINAL,IRST)
 
 #ifdef _MOLCAS_MPP_
-use MPI
+use MPI, only: MPI_COMM_WORLD
 use Para_Info, only: Is_Real_Par, King
 use Definitions, only: MPIInt
 #endif
@@ -30,8 +30,8 @@ use Constants, only: Zero, Five, Ten, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: LW1(*), IFINAL, IRST
-real(kind=wp), intent(in) :: TUVX(*)
+real(kind=wp), intent(in) :: W1(*), TUVX(*)
+integer(kind=iwp), intent(in) :: IFINAL, IRST
 #include "general.fh"
 integer(kind=iwp) :: iChMolpro(8), LINSIZE, NUM_TEI, dtemp, nooctemp, labelpsi4, conversion(8), activesize(8), chemroot, &
                      chemps2_info, iOper(0:7), ihfocc, iErr, iOrb, iSigma, iSym, jOrb, lSymMolpro, LUCHEMIN, LUCONV, LUTOTE, &
@@ -41,7 +41,7 @@ integer(kind=iwp), allocatable :: OrbSym(:)
 integer(kind=MPIInt) :: IERROR
 #endif
 real(kind=wp) :: chemps2_totale_4d, revdiff, chemps2_conv
-logical(kind=iwp) :: fiedler, mps0
+logical(kind=iwp) :: fiedler, Found, mps0
 character(len=3) :: Label
 character(len=10) :: rootindex
 character(len=100) :: imp1, imp2
@@ -77,7 +77,7 @@ if (NACTEL == 1) NRDM_ORDER = 1
 
 LINSIZE = (NAC*(NAC+1))/2
 NUM_TEI = (LINSIZE*(LINSIZE+1))/2
-call FCIDUMP_OUTPUT(NAC,NACTEL,ISPIN-1,lSymMolpro,OrbSym,Zero,LW1,TUVX,LINSIZE,NUM_TEI)
+call FCIDUMP_OUTPUT(NAC,NACTEL,ISPIN-1,lSymMolpro,OrbSym,Zero,W1,TUVX,LINSIZE,NUM_TEI)
 
 call mma_deallocate(OrbSym)
 
@@ -96,7 +96,9 @@ if (KING() .or. (.not. Is_Real_Par())) then
 #endif
   if (IRST == 0) then
     ! Cleanup chemps2.log.total
-    call c_remove('chemps2.log.total')
+    imp1 = 'chemps2.log.total'
+    call f_inquire(imp1,Found)
+    if (Found) call aixrm(imp1)
     ! Check if checkpoint files exist
     if (chemps2_restart) then
       call f_inquire('CHEMNATFIE',fiedler)
@@ -149,8 +151,10 @@ if (((abs(CBLBM) > chemps2_blb) .and. (IFINAL /= 2)) .or. &
     ((IFINAL == 2) .and. Do3RDM .and. (chemps2_lrestart == 0)) .or. &
     ((IFINAL == 2) .and. (iOrbTyp == 2) .and. (chemps2_lrestart == 0))) then
 
-  call c_remove('molcas_fiedler.txt')
-  !Quan: FIXME: how to remove CheMPS2_MPS0.h5, etc with c_remove
+  imp1 = 'molcas_fiedler.txt'
+  call f_inquire(imp1,Found)
+  if (Found) call aixrm(imp1)
+  !Quan: FIXME: how to remove CheMPS2_MPS0.h5, etc with aixrm
   call systemf('rm -f CheMPS2_MPS*.h5',iErr)
   write(LUCHEMIN,*) 'MOLCAS_MPS     = TRUE'
   write(u6,*) 'CHEMPS2> Start DMRG from scratch'
@@ -415,8 +419,10 @@ if (KING() .or. (.not. Is_Real_Par())) then
 
   ! Quan: Cleanup checkpoint files
   if (IFINAL == 2) then
-    call c_remove('molcas_fiedler.txt')
-    !Quan: FIXME: how to remove CheMPS2_MPS0.h5, etc with c_remove
+    imp1 = 'molcas_fiedler.txt'
+    call f_inquire(imp1,Found)
+    if (Found) call aixrm(imp1)
+    !Quan: FIXME: how to remove CheMPS2_MPS0.h5, etc with aixrm
     call systemf('rm -f CheMPS2_MPS*.h5',iErr)
   end if
 

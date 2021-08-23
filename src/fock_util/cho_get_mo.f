@@ -70,7 +70,7 @@ C --- Inactive D(a,b) = sum_i C(a,i)*C(b,i)
 
       If (nDen.eq.2 .and. irc.eq.0 .and. ikc.eq.0) Then
 
-         Call Allocate_DSBA(SMat,nBas,nBas,nSym,Case='TRI')
+         Call Allocate_DSBA(SMat,nBas,nBas,nSym,aCase='TRI')
          Call mma_allocate(SXMat,nBm**2,Label='SXMat')
 
 *        Read overlap integrals (LT-storage) and get Square-storage

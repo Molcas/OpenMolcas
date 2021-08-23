@@ -12,7 +12,7 @@
       SUBROUTINE SORTB(BUFS,INDS,ACBDS,ACBDT,ISAB,BFACBD,NINTGR)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "mrci.fh"
 c      DIMENSION BUFOUT(NBSIZ2,NCHN2)
 *PAM04      DIMENSION BUFOUT(*)

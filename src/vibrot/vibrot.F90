@@ -44,7 +44,7 @@ real(kind=wp) :: Adif, AGi, Akk, AVi, const, D, D1, D1t, D2, dE, del, del12, del
                  S11c, Snna, Snnc, Svec0, SvecN1, term2, term4, V0, V1, Vmax, Vn, VN1, Wii, X2, Xrot
 real(kind=wp), allocatable :: V(:), G(:), Svec(:), alpha(:), beta(:), B(:), W(:), Vec(:), Ener(:), S(:,:), H(:,:)
 real(kind=wp), parameter :: Thre = 1.0e-8_wp, THR = 1.0e-3_wp
-#include "warnings.fh"
+#include "warnings.h"
 
 D = Zero    ! dummy initialize
 DMem = Zero ! dummy initialize

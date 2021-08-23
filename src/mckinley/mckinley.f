@@ -50,7 +50,7 @@ c      Parameter (nLines=12)
       Character*120 Lines
       Logical DoRys, Run_MCLR
       Real*8, Allocatable:: Hess(:), Temp(:), GradN(:)
-#include "warnings.fh"
+#include "warnings.h"
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -283,7 +283,6 @@ cpcm_solvent end
       Call CWTime(TCpu2,TWall2)
       Call SavTim(5,TCpu2-TCpu1,TWall2-TWall1)
 *
-C     Call DaTimm
       Call Timing(Time,dum,dum,dum)
       CPUStat(nTotal)=Time
       If (iPrint.ge.6) Call Sttstc
@@ -298,7 +297,7 @@ C     Call DaTimm
       Subroutine Request_MCLR_Run(Run_MCLR,ireturn,iPrint)
       Logical Run_MCLR
       Character*16 StdIn
-#include "warnings.fh"
+#include "warnings.h"
 *
       If (Run_MCLR) Then
 *

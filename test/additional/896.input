@@ -68,30 +68,30 @@ PROPerties
 'AngMom' 1
 'AngMom' 2
 'AngMom' 3
-'ASD    1' 1
-'ASD    1' 2
-'ASD    1' 3
-'ASD    1' 4
-'ASD    1' 5
-'ASD    1' 6
-'ASD    2' 1
-'ASD    2' 2
-'ASD    2' 3
-'ASD    2' 4
-'ASD    2' 5
-'ASD    2' 6
-'ASD    3' 1
-'ASD    3' 2
-'ASD    3' 3
-'ASD    3' 4
-'ASD    3' 5
-'ASD    3' 6
-'ASD    4' 1
-'ASD    4' 2
-'ASD    4' 3
-'ASD    4' 4
-'ASD    4' 5
-'ASD    4' 6
+'ASDO   1' 1
+'ASDO   1' 2
+'ASDO   1' 3
+'ASDO   1' 4
+'ASDO   1' 5
+'ASDO   1' 6
+'ASDO   2' 1
+'ASDO   2' 2
+'ASDO   2' 3
+'ASDO   2' 4
+'ASDO   2' 5
+'ASDO   2' 6
+'ASDO   3' 1
+'ASDO   3' 2
+'ASDO   3' 3
+'ASDO   3' 4
+'ASDO   3' 5
+'ASDO   3' 6
+'ASDO   4' 1
+'ASDO   4' 2
+'ASDO   4' 3
+'ASDO   4' 4
+'ASDO   4' 5
+'ASDO   4' 6
 end of input
 
 >>FILE checkfile

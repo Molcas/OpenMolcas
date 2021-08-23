@@ -28,7 +28,7 @@ character(len=4) :: Keyword
 character(len=180) :: Line
 integer(kind=iwp), allocatable :: InpRdI(:)
 integer(kind=iwp), parameter :: mLine = 100000
-character(len=9), parameter :: SecNam = 'RPA_RdInp'
+character(len=*), parameter :: SecNam = 'RPA_RdInp'
 integer(kind=iwp), external :: iPrintLevel, RPA_iUHF
 logical(kind=iwp), external :: Reduce_Prt
 character(len=180), external :: Get_Ln

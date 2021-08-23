@@ -23,7 +23,6 @@ c***********************************************************************
       Dimension IndType(56)
       Integer nBas(mxSym),nFro(mxSym),nDel(mxSym),nAsh(mxSym)
       Integer nIsh(mxSym),nRs1(mxSym),nRs2(mxSym),nRs3(mxSym)
-      Dimension E2act(1)
 
 * This routine is used at normal end of a RASSCF optimization, or
 * when using the OrbOnly keyword to create orbital files.
@@ -104,14 +103,14 @@ c***********************************************************************
       If ( iOrbTyp.ne.2 ) then
          IF(IPRLEV.GE.USUAL)Write(LF,'(6X,3A)')
      &   'Average orbitals are written to the ',
-     &   filename(:mylen(filename)),' file'
+     &   trim(filename),' file'
          Write(VecTyp,'(A)')
      &   '* RASSCF average (pseudo-natural) orbitals'
          Call dDaFile(JobIph,2,Work(ipOcc),ntot,iDisk)
       Else
          IF(IPRLEV.GE.USUAL)Write(LF,'(6X,3A)')
      &   'Canonical orbitals are written to the ',
-     &   filename(:mylen(filename)),' file'
+     &   trim(filename),' file'
          Write(VecTyp,'(A)')
      &   '* RASSCF canonical orbitals for CASPT2'
          call dcopy_(ntot,[1.0D0],0,Work(ipOcc),1)
@@ -126,14 +125,14 @@ c     &  Work(lCMO), Work(ipOcc), FDIAG, iDummy,VecTyp)
       Call WrVec_(filename,LuvvVec,'COET',0,nSym,nBas,nBas,
      &            Work(lCMO),Work(lCMO),
      &            Work(ipOcc),Work(ipOcc),
-     &            FDIAG,E2act,
+     &            FDIAG,[E2act],
      &            indType,VecTyp,0)
 c      Call WrVec(filename,LuvvVec,'AI',NSYM,NBAS,NBAS,
 c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
       Call WrVec_(filename,LuvvVec,'AIT',0,nSym,nBas,nBas,
      &            Work(lCMO),Work(lCMO),
      &            Work(ipOcc),Work(ipOcc),
-     &            FDIAG,E2act,
+     &            FDIAG,[E2act],
      &            indType,VecTyp,0)
 *----------------------------------------------------------------------*
 *     Second, write natural orbitals
@@ -163,7 +162,7 @@ c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
         Call dDaFile(JobIph,2,Work(ipOcc),ntot,iDisk)
         IF(IPRLEV.GE.USUAL)Write(LF,'(6X,A,I3,3A)')
      &   'Natural orbitals for root ',IRT,
-     &   ' are written to the ',filename(:mylen(filename)),' file'
+     &   ' are written to the ',trim(filename),' file'
          Write(VecTyp,'(A41,I3,A3,f22.12)')
      &   '* RASSCF natural orbitals for root number',IRT,
      &   ' E=',Energy
@@ -198,7 +197,7 @@ c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
         Call dDaFile(JobIph,2,Work(ipOcc),ntot,iDisk)
         IF(IPRLEV.GE.USUAL)Write(LF,'(6X,A,I3,3A)')
      &   'Spin density orbitals for root ',IRT,
-     &   ' are written to the ',filename(:mylen(filename)),' file'
+     &   ' are written to the ',trim(filename),' file'
         Write(VecTyp,'(A,I3)')
      &   '* RASSCF spin density orbitals for root number',IRT
 *----------------------------------------------------------------------*

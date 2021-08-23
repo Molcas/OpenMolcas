@@ -511,7 +511,7 @@ c     iPrint = nPrint(iRout)
       Do jTs = 1, iTs
          Fact=Two
          If (jTs.eq.iTs) Fact=One
-         Q_ij = DMElm(nTs,iTs,jTs,PCMDM)
+         Q_ij = PCMDM(iTs,jTs)
          NoLoop = Q_ij.eq.Zero
          If (NoLoop) Go To 122
          C(1:3) = PCMTess(1:3,jTs)
@@ -769,7 +769,7 @@ c     iPrint = nPrint(iRout)
         Call Cav_Hss(nAtoms,nGrad,nTs,nS,Eps,PCMSph,
      &               PCMiSph,PCM_N,PCMTess,PCM_SQ,
      &               PCMDM,Der1,DerDM,Temp,
-     &               dTes,DPnt,dRad,dCntr,pcmhss,nPCMHss)
+     &               dTes,DPnt,dRad,dCntr,pcmhss)
         Call mma_deallocate(pcmhss)
         Call mma_deallocate(Der1)
         Call mma_deallocate(DerDM)

@@ -51,7 +51,7 @@ character(len=LenIn4), allocatable :: LblCnt4(:)
 real(kind=r8) :: E
 real(kind=r8), external :: DDot_
 #endif
-character(len=3), parameter :: AufBau(19) = ['01s',                   &
+character(len=*), parameter :: AufBau(19) = ['01s',                   &
                                              '02s',            '02p', &
                                              '03s',            '03p', &
                                              '04s',      '03d','04p', &

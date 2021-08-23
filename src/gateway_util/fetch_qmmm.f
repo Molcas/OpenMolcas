@@ -11,6 +11,7 @@
 #ifdef _GROMACS_
       SUBROUTINE Fetch_QMMM(CastMM,nCastMM)
 
+      USE, INTRINSIC :: iso_c_binding, only: c_int, c_loc, c_ptr
       IMPLICIT NONE
 
 #include "Molcas.fh"
@@ -23,7 +24,8 @@
       INTEGER, DIMENSION(nCastMM), INTENT(IN) :: CastMM
 
       INTEGER :: iAtGMX,iAtNmbGMX,iAtOut,iCastMM,iFirst,iGrpGMX,iLast
-      INTEGER :: iOk,ipCR,ipGMS,iXYZ,LuWr,LuXYZ,nAtGMX,nAtIn,nAtOut
+      INTEGER :: iOk,iXYZ,LuWr,LuXYZ,nAtGMX,nAtIn,nAtOut
+      TYPE(c_ptr) :: ipCR, ipGMS
       INTEGER, DIMENSION(:), ALLOCATABLE :: AT
       REAL*8, DIMENSION(:,:), ALLOCATABLE :: CoordGMX,CoordMMO
       CHARACTER(LEN=256) :: LogFileName, Message, TPRFileName
@@ -31,9 +33,49 @@
       CHARACTER(LEN=LENIN), DIMENSION(:), ALLOCATABLE :: LabMMO
       LOGICAL :: Exist
 
-      INTEGER, EXTERNAL :: init_commrec,isFreeUnit,mmslave_copyx
-      INTEGER, EXTERNAL :: mmslave_get_atomnumber,mmslave_get_group_id
-      INTEGER, EXTERNAL :: mmslave_init,mmslave_natoms,mmslave_read_tpr
+      INTEGER, EXTERNAL :: isFreeUnit
+      INTERFACE
+        SUBROUTINE mmslave_done(gms) BIND(C,NAME='mmslave_done_')
+          USE, INTRINSIC :: iso_c_binding, ONLY: c_ptr
+          TYPE(c_ptr), VALUE :: gms
+        END SUBROUTINE mmslave_done
+        FUNCTION mmslave_init(cr,log_) BIND(C,NAME='mmslave_init_')
+          USE, INTRINSIC :: iso_c_binding, ONLY: c_char, c_ptr
+          TYPE(c_ptr) :: mmslave_init
+          TYPE(c_ptr), VALUE :: cr
+          CHARACTER(kind=c_char) :: log_(*)
+        END FUNCTION mmslave_init
+        FUNCTION mmslave_get_atomnumber(gms,id)
+     &           BIND(C,NAME='mmslave_get_atomnumber_')
+          USE, INTRINSIC :: iso_c_binding, only: c_int, c_ptr
+          INTEGER(kind=c_int) :: mmslave_get_atomnumber
+          TYPE(c_ptr), VALUE :: gms
+          INTEGER(kind=c_int), VAlUE :: id
+        END FUNCTION mmslave_get_atomnumber
+        FUNCTION mmslave_get_group_id(gms,id)
+     &           BIND(C,NAME='mmslave_get_group_id_')
+          USE, INTRINSIC :: iso_c_binding, only: c_int, c_ptr
+          INTEGER(kind=c_int) :: mmslave_get_group_id
+          TYPE(c_ptr), VALUE :: gms
+          INTEGER(kind=c_int), VAlUE :: id
+        END FUNCTION mmslave_get_group_id
+        FUNCTION mmslave_natoms(gms) BIND(C,NAME='mmslave_natoms_')
+          USE, INTRINSIC :: iso_c_binding, only: c_int, c_ptr
+          INTEGER(kind=c_int) :: mmslave_natoms
+          TYPE(c_ptr), VALUE :: gms
+        END FUNCTION mmslave_natoms
+        FUNCTION mmslave_read_tpr(tpr,gms)
+     &           BIND(C,NAME='mmslave_read_tpr_')
+          USE, INTRINSIC :: iso_c_binding, ONLY: c_char, c_int, c_ptr
+          INTEGER(kind=c_int) :: mmslave_read_tpr
+          CHARACTER(kind=c_char) :: tpr(*)
+          TYPE(c_ptr), VALUE :: gms
+        END FUNCTION mmslave_read_tpr
+        FUNCTION init_commrec() BIND(C,NAME='init_commrec_')
+          USE, INTRINSIC :: iso_c_binding, ONLY: c_ptr
+          TYPE(c_ptr) :: init_commrec
+        END FUNCTION init_commrec
+      END INTERFACE
 
       LuWr = 6
 
@@ -41,7 +83,7 @@
       ipCR = init_commrec()
       CALL prgmtranslate('GMX.LOG',LogFileName,iLast)
       LogFileName(iLast+1:iLast+1) = CHAR(0)
-      ipGMS = mmslave_init(%val(ipCR),LogFileName)
+      ipGMS = mmslave_init(ipCR,LogFileName)
 
 ! Tell Gromacs to read tpr file
       TPRFileName = TPRDefName
@@ -53,7 +95,7 @@
          CALL Quit_OnUserError()
       END IF
       TPRFileName(iLast+1:iLast+1) = CHAR(0)
-      iOk = mmslave_read_tpr(TPRFileName,%val(ipGMS))
+      iOk = mmslave_read_tpr(TPRFileName,ipGMS)
       IF (iOk.NE.1) THEN
          Message = 'Error reading tpr file'
          CALL WarningMessage(2,Message)
@@ -61,10 +103,10 @@
       END IF
 
 ! Fetch coordinates from Gromacs
-      nAtGMX = mmslave_natoms(%val(ipGMS))
+      nAtGMX = mmslave_natoms(ipGMS)
       CALL mma_allocate(CoordGMX,3,nAtGMX)
       CALL dcopy_(3*nAtGMX,Zero,0,CoordGMX,1)
-      iOk = mmslave_copyX(%val(ipGMS),%val(nAtGMX),CoordGMX)
+      iOk = mmslave_copyX_wrapper(ipGMS,INT(nAtGMX,kind=c_int),CoordGMX)
       IF (iOk.NE.1) THEN
          Message = 'Fetch_QMMM: mmslave_copyx is not ok'
          CALL WarningMessage(2,Message)
@@ -76,7 +118,7 @@
       nAtOut = 0
       CALL mma_allocate(AT,nAtGMX)
       DO iAtGMX = 1,nAtGMX
-         iGrpGMX = mmslave_get_group_id(%val(ipGMS),%val(iAtGMX-1))
+         iGrpGMX = mmslave_get_group_id(ipGMS,INT(iAtGMX-1,kind=c_int))
          IF (iGrpGMX==QMGMX) THEN
             AT(iAtGMX) = QM
          ELSE IF (iGrpGMX==MMGMX) THEN
@@ -116,7 +158,8 @@
       CALL mma_allocate(LabMMO,nAtOut)
       iAtOut = 1
       DO iAtGMX = 1,nAtGMX
-         iAtNmbGMX = mmslave_get_atomnumber(%val(ipGMS),%val(iAtGMX-1))
+         iAtNmbGMX = mmslave_get_atomnumber(ipGMS,
+     &                                      INT(iAtGMX-1,kind=c_int))
          iFirst = INDEX(PTab(iAtNmbGMX),' ')+1
          IF (AT(iAtGMX)==QM) THEN
             Symbol = PTab(iAtNmbGMX)(iFirst:2)
@@ -145,9 +188,29 @@
       CALL mma_deallocate(AT)
       CALL mma_deallocate(CoordMMO)
       CALL mma_deallocate(LabMMO)
-      CALL mmslave_done(%val(ipGMS))
+      CALL mmslave_done(ipGMS)
 
       RETURN
+
+      CONTAINS
+
+      FUNCTION mmslave_copyx_wrapper(gms,natoms,x)
+      INTEGER :: mmslave_copyx_wrapper
+      TYPE(c_ptr) :: gms
+      INTEGER(kind=c_int) :: natoms
+      REAL*8, TARGET :: x(*)
+      INTERFACE
+        FUNCTION mmslave_copyx(gms,natoms,x)
+     &           BIND(C,NAME='mmslave_copyx_')
+          USE, INTRINSIC :: iso_c_binding, only: c_int, c_ptr
+          INTEGER(kind=c_int) :: mmslave_copyx
+          TYPE(c_ptr), VALUE :: gms, x
+          INTEGER(kind=c_int), VALUE :: natoms
+        END FUNCTION mmslave_copyx
+      END INTERFACE
+      mmslave_copyx_wrapper = mmslave_copyx(gms,natoms,c_loc(x(1)))
+      END FUNCTION mmslave_copyx_wrapper
+
       END
 #elif defined (NAGFOR)
       SUBROUTINE empty_Fetch_QMMM()

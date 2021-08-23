@@ -29,7 +29,7 @@
 *     MXSB                 :       Largest symmetry block **
 *     MXSOOB                :       Largest block        **
 *
-      Integer IDUMMY,NICISP,IASTFI(MXPICI),IBSTFI(MXPICI),
+      Integer NICISP,IASTFI(MXPICI),IBSTFI(MXPICI),
      &              IACTI(MXPICI),
      &              MNR1IC(MXPICI),MXR1IC(MXPICI),
      &              MNR3IC(MXPICI),MXR3IC(MXPICI),
@@ -39,7 +39,7 @@
      &              NBELCI(MXPICI),
      &              ISMOST(MXPCSM,MXPCSM),MXSB,MXSOOB,ldet,lcsf
         Real*8 XISPSM(MXPCSM,MXPICI)
-      COMMON/CICISP_MCLR/IDUMMY,NICISP,IASTFI,IBSTFI,
+      COMMON/CICISP_MCLR/NICISP,IASTFI,IBSTFI,
      &              IACTI,
      &              MNR1IC,MXR1IC,
      &              MNR3IC,MXR3IC,

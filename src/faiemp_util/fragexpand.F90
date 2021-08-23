@@ -16,7 +16,7 @@ subroutine FragExpand(LuRd)
 !***********************************************************************
 !                                                                      *
 !    Objective: To expand the data for the fragments and append them   *
-!               to regular arrays in info.fh                           *
+!               to regular arrays in Basis_Info, Center_Info           *
 !                                                                      *
 ! Called from: Input                                                   *
 !                                                                      *
@@ -82,7 +82,7 @@ end do
 
 ! Loop over distrinct basis set centers (dbsc)
 
-ndc = 0 ! destinct center index
+ndc = 0 ! distinct center index
 do iCnttp=1,mCnttp
 
   ! Skip if this is not a fragment dbsc to expand.
@@ -165,10 +165,11 @@ do iCnttp=1,mCnttp
         Shells(iSh)%Frag = .true.
       end do
       if (index(sBasis(1:Indx-1),'6-31G') /= 0) then
-        do iSh=jShll+3,iShll
+        iSh = jShll+3
+        if (iSh <= iShll) then
           Shells(iSh)%Prjct = .false.
           Shells(iSh)%Transf = .false.
-        end do
+        end if
       end if
       dbsc(nCnttp)%Frag = .true.
 

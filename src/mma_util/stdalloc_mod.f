@@ -11,7 +11,7 @@
 
 ! This is just an encapsulation of the interface in
 ! src/Include/stdalloc.fh
-! and data in src/Include/WrkSpc_min.fh
+! and data in src/Include/WrkSpc.fh
 ! into a module.
 
       module stdalloc
@@ -20,7 +20,7 @@
       public :: mma_allocate, mma_deallocate, mxMem
 
 #include "stdalloc.fh"
-#include "WrkSpc_min.fh"
+      integer MxMem
       save
 
       end module stdalloc

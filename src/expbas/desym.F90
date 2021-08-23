@@ -105,7 +105,7 @@ subroutine desym(ireturn)
   character(len=LenIn+8), allocatable :: Label(:)
   character(len=LenIn+9), allocatable :: gtolabel(:)
   integer(kind=iwp), parameter :: notSymm = 1, arbitrary_number = 42, noUHF = 0, iWarn = 1
-  character(len=8), parameter :: baslab_0(1) = ['01s     '], &
+  character(len=*), parameter :: baslab_0(1) = ['01s     '], &
                                  baslab_1(3) = ['02px    ','02py    ','02pz    '], &
                                  baslab_2(5) = ['03d02-  ','03d01-  ','03d00   ','03d01+  ','03d02+  '], &
                                  baslab_3(7) = ['04f03-  ','04f02-  ','04f01-  ','04f00   ','04f01+  ','04f02+  ','04f03+  '], &
@@ -121,13 +121,12 @@ subroutine desym(ireturn)
   call f_Inquire('RUNFILE',exists)
   call verify_(exists,'Error finding RUNFILE')
 
-  !-----Read the characteristics of all different basis sets,
-  !     provide each atom with a nuclear charge and establish
-  !     a link between an atom and its basis set ---
+  ! Read the characteristics of all different basis sets,
+  ! provide each atom with a nuclear charge and establish
+  ! a link between an atom and its basis set ---
   !
-  !     NOTICE!!!
-  !     This call will also fill info.fh and the dynamic storage in
-  !     Work(ipInf)
+  ! NOTICE!!!
+  ! This call will also fill Basis_Info and Center_Info
 
   call mma_allocate(AtomLabel,MxAtom,label='AtomLabel')
   call mma_allocate(iBas_Lab,MxAtom,label='iBas_Lab')
@@ -278,7 +277,7 @@ subroutine desym(ireturn)
   AdEor(:) = Zero
   AdCMO(:) = Zero
 
-  !---- Read HF CMOs from file
+  ! Read HF CMOs from file
   FilesOrb = EB_FileOrb
   if (len_trim(FilesOrb) == 0) FilesOrb = 'INPORB'
   if (DoExpbas) FilesOrb = 'EXPORB'
@@ -295,20 +294,19 @@ subroutine desym(ireturn)
   call Dens_IF_SCF(CMO2,AdCMO,'F')
   call mma_deallocate(AdCMO)
 
-  !  Back 'transformation' of the symmetry adapted basis functions.
-  !  Probably somewhat clumsy, but it seems to work. If someone
-  !  knows a more elegant way to do it, please improve this part!
+  ! Back 'transformation' of the symmetry adapted basis functions.
+  ! Probably somewhat clumsy, but it seems to work. If someone
+  ! knows a more elegant way to do it, please improve this part!
   !
-  !  PART 1: Obtain symmetry information (soout), construct a label
-  !          for each sabf, which will be used in part 2 to find the
-  !          corresponding GTO in the MOLDEN list by comparing with
-  !          gtolabel
+  ! PART 1: Obtain symmetry information (soout), construct a label
+  !         for each sabf, which will be used in part 2 to find the
+  !         corresponding GTO in the MOLDEN list by comparing with
+  !         gtolabel
   !
-  !  nB     --- Total number of contracted basis functions
-  !  nCent  --- degeneracy of a basis function
-  !  Cent   --- centres over which the basis function is
-  !               delocalized
-  !  Phase  --- phase of the AO in the linear combination
+  ! nB     --- Total number of contracted basis functions
+  ! nCent  --- degeneracy of a basis function
+  ! Cent   --- centres over which the basis function is delocalized
+  ! Phase  --- phase of the AO in the linear combination
 
   call mma_allocate(Label,nB,label='Label')
   Phase(:) = 0

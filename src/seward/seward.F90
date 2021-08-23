@@ -61,22 +61,29 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-#include "warnings.fh"
+#include "warnings.h"
 #include "print.fh"
-integer(kind=iwp) :: i, iOpt, iRC, iRout, iWrOpt_Save, Lu_One, LuSpool, MaxDax, nByte_r, nChoV(8), nDiff, nDNA
-real(kind=wp) :: ChFracMem, DiagErr(4), Dummy(2), rrx(2), TCpu1, TCpu2, TWall1, Twall2
+integer(kind=iwp) :: i, iOpt, iRC, iRout, iWrOpt_Save, Lu_One, LuSpool, MaxDax, nChoV(8), nDiff, nDNA
+real(kind=wp) :: ChFracMem, DiagErr(4), Dummy(2), TCpu1, TCpu2, TWall1, Twall2
 logical(kind=iwp) :: PrPrt_Save, Exists, DoRys, lOPTO, IsBorn, Do_OneEl
 !-SVC: identify runfile with a fingerprint
 character(len=256) :: cDNA
-integer(kind=iwp), external :: idLoc, isFreeUnit
+integer(kind=iwp), external :: ip_of_Work, isFreeUnit
 external :: Integral_WrOut, Integral_WrOut2, Integral_RI_3
+interface
+  subroutine get_genome(cDNA,nDNA) bind(C,name='get_genome_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    character(kind=c_char) :: cDNA(*)
+    integer(kind=MOLCAS_C_INT) :: nDNA
+  end subroutine get_genome
+end interface
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !call Seward_Banner()
 lOPTO = .false.
-nByte_r = idloc(rrx(2))-idloc(rrx(1))
 call CWTime(TCpu1,TWall1)
 
 ! Prologue
@@ -393,8 +400,7 @@ if (.not. Test) then
         Lu_28 = isfreeunit(Lu_28)
         call DaName_MF(Lu_28,'BASINT')
         iDisk = 0
-        lBuf = idLoc(Buf%r_End)-idLoc(Buf%Buf(1))
-        lBuf = (lBuf+nByte_r)/nByte_r-1
+        lBuf = ip_of_Work(Buf%r_End)-ip_of_Work(Buf%Buf(1))
 
         call Drv2El(Integral_WrOut,Zero)
 

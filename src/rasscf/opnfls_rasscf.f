@@ -31,7 +31,6 @@
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "davctl.fh"
 #include "qnctl.fh"
       Logical DSCF,test,DoCholesky
 *----------------------------------------------------------------------*
@@ -90,8 +89,8 @@
       End If
 *---  open the file carrying the transfromed two-electron integrals ---*
       Call DaName(LUINTM,'TRAINT')
-*---  open the DAVID file carrying temporary CI and sigma vectros -----*
-*     Note the unit number is defined in the davctl.fh file
+*---  open the DAVID file carrying temporary CI and sigma vectors -----*
+*     Note the unit number is defined in the general.fh file
       Call DaName(LuDavid,'TEMP01')
 *---  open the file carrying the hessian update vectors ---------------*
       Call DaName(LuQune,'TEMP02')

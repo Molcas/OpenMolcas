@@ -7,19 +7,29 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2019, Thomas J. Duignan                                *
+*               2021, Rulin Feng                                       *
 ************************************************************************
-      subroutine repmat(idbg,bInt,sInt)
+      subroutine repmat(idbg,bInt,sInt,donorm)
       Use Basis_Info
       use Symmetry_Info, only: nIrrep
       implicit real*8(a-h,o-z)
 #include "itmax.fh"
 #include "Molcas.fh"
 #include "rinfo.fh"
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
       integer icaddr(MxAO),numc(MxAO),ihelp(MxAtom,iTabMx),numb(MxAO)
       integer mcaddr(MxAO)
       real*8 bint(*),sint(*)
       logical New_Center,New_l,New_m, Old_Center, Old_l
+      integer istart
+      integer np, nc, ip, jp, kp
+      logical donorm
+      real*8, allocatable :: mag(:,:), u2c(:,:), scr(:,:)
+      real*8, allocatable :: u2ct(:,:), fin(:,:), pa(:)
+      real*8 kpp, finish
 *     contracted basis, atomic basis functions
 *
 *     symmetry info
@@ -136,14 +146,15 @@ c     Write (*,*) (rCof(i),i=1,4)
 *
 *     transform
 *
-      kc=0
-      kcL=0
-      ibasL=0
-      indbL=0
-      kp=0
-      Do iSym = 1, nSym
+      If (donorm) then
+        kc=0
+        kcL=0
+        ibasL=0
+        indbL=0
+        kp=0
+        Do iSym = 1, nSym
 *        loop over contracted
-         Do iBas = 1, nrBas(iSym)
+          Do iBas = 1, nrBas(iSym)
             ibasL=ibasL+1
             jbasL=kcL
             Do jbas=1,ibas
@@ -175,11 +186,97 @@ c     Write (*,*) (rCof(i),i=1,4)
                sint(kc)=sum
 c              write(66,'(d25.14)') sum
             End Do
-         End Do
-         kcL=kcL+nrBas(iSym)
-         indbL=indbL+(nBas(iSym-1)*(nBas(iSym-1)+1))/2
-c        If (idbg.gt.0) Write(idbg,*) ipbasL,jpbasL,kp
-      End Do
-*
+          End Do
+          kcL=kcL+nrBas(iSym)
+          indbL=indbL+(nBas(iSym-1)*(nBas(iSym-1)+1))/2
+c         If (idbg.gt.0) Write(idbg,*) ipbasL,jpbasL,kp
+        End Do
+
+      else
+
+        np = nBas(0)
+        nc = nrBas(1)
+        ! Scratch to square the mag ints and contract
+        call mma_allocate(mag,np,np)
+        call mma_allocate(u2c,np,nc)
+        call mma_allocate(u2ct,nc,np)
+        call mma_allocate(scr,np,nc)
+        call mma_allocate(fin,nc,nc)
+        call mma_allocate(pa,np)
+
+        mag(:,:)= 0.0D0
+        u2c(:,:) = 0.0D0
+        u2ct(:,:) = 0.0D0
+        scr(:,:) = 0.0D0
+        fin(:,:) = 0.0D0
+        pa(:) = 0.0D0
+
+        ! Square the uncontracted ints
+        mp = 0
+        do ip = 1, np
+          do jp = 1, ip
+            mp = mp + 1
+            mag(jp, ip) = bint(mp)
+            ! Suboptimal
+            mag(ip, jp) = bint(mp)
+          enddo
+        enddo
+
+        ! Construct contraction matrix
+        do icon = 1, nc
+          istart = mcaddr(icon) - 1
+          do iprim = 1, numb(icon)
+!            write(6,'(A,4I5,F14.10)') 'u2c loop',
+!     &     icon,iprim,istart,icaddr(icon),rCof(icaddr(icon)+iprim)
+            u2c(istart+iprim, icon) = rCof(icaddr(icon)+iprim)
+          enddo
+        enddo
+
+        ! U2C.T * UNCON * U2C => CON
+        u2ct(:,:) = transpose(u2c)
+
+        ! Since dgemm_ is causing trouble and this is trivial
+        do iprim = 1, np
+          do icon = 1, nc
+            kpp=0.0d0
+            pa(:) = u2ct(icon,:) * mag(:,iprim)
+            do ip = 1, np
+              kpp = kpp + pa(ip)
+            enddo
+            scr(iprim, icon) = kpp
+          enddo
+        enddo
+!
+        kp = 0
+        do icon = 1, nc
+          do jcon = 1, nc
+            pa(:) = u2c(:,icon) * scr(:,jcon)
+            kpp = 0.0d0
+            do ip = 1, np
+              kpp = kpp + pa(ip)
+            enddo
+            fin(icon, jcon) = kpp
+          enddo
+        enddo
+
+        kp = 0
+        do icon = 1, nc
+          do jcon = 1, icon
+            kp = kp + 1
+            sint(kp) = fin(icon, jcon)
+          enddo
+        enddo
+
+        call mma_deallocate(mag)
+        call mma_deallocate(u2c)
+        call mma_deallocate(u2ct)
+        call mma_deallocate(scr)
+        call mma_deallocate(fin)
+        call mma_deallocate(pa)
+
+        call cpu_time(finish)
+
+      endif !donorm
+
       Return
       End

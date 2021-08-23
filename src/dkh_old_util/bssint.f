@@ -11,6 +11,7 @@
       Subroutine BSSint
       use Basis_Info
       use Symmetry_Info, only: nIrrep
+      use DKH_Info, only: CLightAU
       Implicit real*8(a-h,o-z)
 #include "Molcas.fh"
 #include "rinfo.fh"
@@ -19,7 +20,6 @@
 #include "WrkSpc.fh"
 #include "wldata.fh"
 #include "oneswi.fh"
-#include "RelLight.fh"
       integer ipaddr(3)
       Character*8 Label
       Logical IfTest
@@ -734,7 +734,7 @@ C
 C
 C
       call dcopy_(4,[Zero],0,Work(iH_temp+iSizec),1)
-      Call repmat(idbg,Work(iV),Work(iH_temp))
+      Call repmat(idbg,Work(iV),Work(iH_temp),.True.)
 *
 C
 C
@@ -762,7 +762,7 @@ C
 
 
 C
-      Call repmat(idbg,Work(iK),Work(iH))
+      Call repmat(idbg,Work(iK),Work(iH),.True.)
 *
       CALL GetMem('Kin     ','FREE','REAL',iK,iSizep+4)
 *

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine not_DGeEV(iOpt,a,lda,w,z,ldz,n,aux)
+subroutine not_DGeEV(iOpt,a,lda,w,z,ldz,n)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -18,9 +18,9 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: iOpt, lda, ldz, n
 real(kind=wp), intent(inout) :: a(lda,n)
-real(kind=wp), intent(out) :: w(2,n), z(2*ldz*n), aux(n,2)
+real(kind=wp), intent(out) :: w(2,n), z(2*ldz*n)
 integer(kind=iwp) :: i, iErr, iOff
-real(kind=wp), allocatable :: w1(:)
+real(kind=wp), allocatable :: aux(:,:), w1(:)
 
 if (iOpt == 2) then
   write(u6,*) 'not_DGeEV: iOpt=2 is not implemented yet!'
@@ -48,6 +48,7 @@ end if
 
 !-----Order eigenvalues to ESSL standard
 
+call mma_allocate(aux,n,2,label='aux')
 call dcopy_(n,w,1,aux(:,1),1)
 do i=1,n
   w(1,i) = aux(i,1)  ! Real
@@ -79,6 +80,7 @@ do while (i >= 1)
   end if
   i = i-1
 end do
+call mma_deallocate(aux)
 
 return
 

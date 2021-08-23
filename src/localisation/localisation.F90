@@ -45,7 +45,7 @@ character(len=6) :: Filename
 character(len=4) :: Model
 character(len=2) :: PreFix
 real(kind=wp), allocatable :: CMO2(:), CMO3(:), jXarray(:)
-character(len=12), parameter :: SecNam = 'Localisation'
+character(len=*), parameter :: SecNam = 'Localisation'
 integer(kind=iwp), external :: isFreeUnit !vv , LocUtil_Models
 real(kind=r8), external :: ddot_
 character(len=180), external :: Get_Ln

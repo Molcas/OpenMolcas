@@ -33,7 +33,7 @@ c
 c
 c     help variables
 c
-       integer nhelp,mhelp,ierr
+       integer nhelp,mhelp,ierr,idum(1)
        logical is_error
 c
        rc=0
@@ -107,7 +107,8 @@ c
        else
 c      MOLCAS IO
        nhelp=0
-       call idafile (lun,5,[nhelp],1,daddr(lun))
+       idum(1)=nhelp
+       call idafile (lun,5,idum,1,daddr(lun))
        end if
 c
 c

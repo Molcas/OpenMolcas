@@ -36,7 +36,7 @@ use PAM2, only: iPAMcount, iPAMPrim, kCnttpPAM
 use DKH_Info, only: BSS, DKroll
 use Sizes_of_Seward, only: S
 use Real_Info, only: PotNuc, kVector
-use Logical_Info, only: Vlct, lRel, lAMFI, NEMO, Do_FckInt, DoFMM, EMFR, GIAO, lPSOI
+use Logical_Info, only: Vlct, lRel, lAMFI, NEMO, Do_FckInt, DoFMM, EMFR, GIAO, lMXTC
 #ifdef _FDE_
 use Embedding_Global, only: embInt, embPot, embPotInBasis, embPotPath
 #endif
@@ -49,14 +49,14 @@ implicit none
 #include "wldata.fh"
 #include "property_label.fh"
 #include "oneswi.fh"
-#include "warnings.fh"
+#include "warnings.h"
 integer(kind=iwp) :: i, i2, i3, iAddr, iAtom_Number, iB, iC, iChO, iChO1, iChO2, iChOx, iChOxx, iChOxy, iChOxz, iChOy, iChOyx, &
                      iChOyy, iChOyz, iChOz, iChOzx, iChOzy, iChOzz, iCnt, iCnttp, iComp, iD, iDisk, iDMS, idum(1), iEF, iLow, &
                      iMltpl, iOpt, iPAMBas, iPAMf, iPAMltpl, iPrint, iRC, iRout, iSym, iSymBx, iSymBy, iSymBz, iSymC, iSymCX, &
                      iSymCXY, iSymCy, iSymCz, iSymD, iSymLx, iSymLy, iSymLz, iSymR(0:3), iSymRx, iSymRy, iSymRz, iSymX, iSymxLx, &
                      iSymxLy, iSymxLz, iSymXY, iSymXZ, iSymY, iSymyLx, iSymyLy, iSymyLz, iSymYZ, iSymZ, iSymzLx, iSymzLy, iSymzLz, &
-                     iSyXYZ, iTemp, iTol, iWel, ix, ixyz, iy, iz, jx, jxyz, jy, jz, kCnttpPAM_, lOper, LuTmp, mCnt, mComp, mDMS, &
-                     mMltpl, mOrdOp, nB, nComp, nOrdOp, nPAMltpl
+                     iSyXYZ, iTemp, iTol, iWel, ix, ixyz, iy, iz, jx, jxyz, jy, jz,  kCnttpPAM_, lOper, LuTmp, mCnt, mComp, &
+                     mDMS, mMltpl, mOrdOp, nB, nComp, nOrdOp, nPAMltpl
 real(kind=wp) :: Ccoor(3), dum(1), Fact, rHrmt
 logical(kind=iwp) :: lECPnp, lECP, lPAM2np, lPAM2, lPP, lFAIEMP
 character(len=8) :: Label
@@ -83,6 +83,10 @@ integer(kind=iwp) :: iEMb, iunit
 real(kind=wp), allocatable :: Emb_Int(:)
 integer(kind=iwp), external :: isFreeUnit
 external :: embPotKernel, embPotMem
+#endif
+#ifdef _GEN1INT_
+integer(kind=iwp) :: nAtoms, jCnt
+real(kind=wp) :: XTCInt, XTCMem !XTCInt and XTCMem are dummy names
 #endif
 
 iRout = 131
@@ -1558,69 +1562,49 @@ if (lAMFI .and. (.not. Prprt) .and. (.not. Primitive_Pass)) then
 end if
 !***********************************************************************
 !***********************************************************************
-!KAMAL)                                                                *
+!KAMAL,Rulin Update)                                                   *
 !                                                                      *
 !              GEN1INT                                                 *
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-if (lPSOI .and. (.not. Prprt) .and. (.not. Primitive_Pass)) then
+!!!MXTC
+if (lMXTC.and.DKroll.and.Primitive_Pass) then
 # ifdef _GEN1INT_
-  PLabel = ' '
-  rHrmt = -One
-  nComp = 3
-  call Get_nAtoms_All(nAtoms)
-  do iCnt=1,nAtoms
-    write(Label,'(A,I2)') 'PSOI  ',iCnt
-    nPSOI = iCnt
-    nOrdOp = 1
-    call Allocate_Auxiliary()
-
-    iComp = 0
-    do iComp=1,nComp
-      ! FIXME ipPSO is uninitialized
-      !call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
-      call SysAbendMsg('Drv1El','Faulty code (undefined Work index).','Please correct it or contact the developer.')
-    end do
-
-    ixyz = 1
-    iSymX = 2**IrrFnc(ixyz)
-    ixyz = 2
-    iSymY = 2**IrrFnc(ixyz)
-    ixyz = 4
-    iSymZ = 2**IrrFnc(ixyz)
-    iSymCx = iSymX
-    if (Ccoor(1) /= Zero) iSymCx = ibset(iSymCx,0)
-    iSymCy = iSymY
-    if (Ccoor(2) /= Zero) iSymCy = ibset(iSymCy,0)
-    iSymCz = iSymZ
-    if (Ccoor(3) /= Zero) iSymCz = ibset(iSymCz,0)
-
-    iSymLx = ior(MltLbl(iSymCy,iSymZ),MltLbl(iSymCz,iSymY))
-    iChOx = iChBas(3)+iChBas(4)
-    OperI(1) = iSymLx
-    OperC(1) = iChOx
-    iSymLy = ior(MltLbl(iSymCz,iSymX),MltLbl(iSymCx,iSymZ))
-    iChOy = iChBas(4)+iChBas(2)
-    OperI(1+1) = iSymLy
-    OperC(1+1) = iChOy
-    iSymLz = ior(MltLbl(iSymCx,iSymY),MltLbl(iSymCy,iSymX))
-    iChOz = iChBas(2)+iChBas(3)
-    OperI(1+2) = iSymLz
-    OperC(1+2) = iChOz
-
-    ! Zero nuclear contribution
-    call DCopy_(nComp,[Zero],0,Nuc,1)
-    call OneEl(PSOInt,PSOMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
-
-    call Deallocate_Auxiliary()
-  end do
-  !call PrMtrx(Label,lOper,nComp,ip)
+  nOrdOp = 0
+  ! Assume symmetric
+  rHrmt = One
+  nComp = 9
+  Call Get_nAtoms_All(nAtoms)
+  Do iCnt = 1, nAtoms
+    Do jCnt = 1, 2
+      if (jCnt.eq.1) then
+        !     Label for lower triangular portion
+        Write (Label,'(A,I3)') 'MAGXP', iCnt
+        Write (PLabel,'(A6)') 'MagInt'
+      else
+        !     Label for upper triangular portion
+        Write (Label,'(A,I3)') 'MAGPX', iCnt
+        Write (PLabel,'(A6)') 'MagInt'
+      endif
+      Call Allocate_Auxiliary()
+      !     Dummy symmetry indices
+      do i=1,nComp
+        OperI(i) = 255
+        OperC(i) = 0
+      enddo
+      !     Zero nuclear contribution
+      Call dcopy_(nComp,[Zero],0,Nuc,1)
+      !     Compute one electron integrals
+      Call OneEl(XTCInt,XTCMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+      Call Deallocate_Auxiliary()
+    enddo
+  enddo
 # else
-  call WarningMessage(2,'Drv1El: NO Gen1int interface available!')
-  call Abend()
+  Call WarningMessage(2,'Drv1El: NO Gen1int interface available!')
+  Call Abend()
 # endif
-end if   ! lPSOI
+end if ! lMXTC
 !***********************************************************************
 !***********************************************************************
 !20)                                                                   *

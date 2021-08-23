@@ -11,7 +11,7 @@
 
 #Hamiltonian NRH
 #Nucleus UNK
-#Contraction SEC
+#Contraction SEG
 #AllElectron AE_
 
 ************************************************************************
@@ -425,6 +425,9 @@ NEON (11s,5p,1d) -> [4s,3p,1d]
 /Na.6-311G**.Francl.12s9p1d.6s5p1d.
 M.M. Francl, W.J. Pietro, W.J. Hehre, J.S. Binkley, M.S. Gordon, D.J. DeFrees, J.A. Pople. J. Chem. Phys. 77 (1982) 3654-3665. doi:10.1063/1.444267
 SODIUM (12s,9p,1d) -> [6s,5p,1d]
+Options
+Cartesian d
+EndOptions
     11.0   2
 * s-type functions
    12    6
@@ -480,6 +483,9 @@ SODIUM (12s,9p,1d) -> [6s,5p,1d]
 /Mg.6-311G**.Francl.12s9p1d.6s5p1d.
 M.M. Francl, W.J. Pietro, W.J. Hehre, J.S. Binkley, M.S. Gordon, D.J. DeFrees, J.A. Pople. J. Chem. Phys. 77 (1982) 3654-3665. doi:10.1063/1.444267
 MAGNESIUM (12s,9p,1d) -> [6s,5p,1d]
+Options
+Cartesian d
+EndOptions
     12.0   2
 * s-type functions
    12    6
@@ -535,6 +541,9 @@ MAGNESIUM (12s,9p,1d) -> [6s,5p,1d]
 /Al.6-311G**.Francl.12s9p1d.6s5p1d.
 M.M. Francl, W.J. Pietro, W.J. Hehre, J.S. Binkley, M.S. Gordon, D.J. DeFrees, J.A. Pople. J. Chem. Phys. 77 (1982) 3654-3665. doi:10.1063/1.444267
 ALUMINIUM (12s,9p,1d) -> [6s,5p,1d]
+Options
+Cartesian d
+EndOptions
     13.0   2
 * s-type functions
    12    6
@@ -590,6 +599,9 @@ ALUMINIUM (12s,9p,1d) -> [6s,5p,1d]
 /Si.6-311G**.Francl.12s9p1d.6s5p1d.
 M.M. Francl, W.J. Pietro, W.J. Hehre, J.S. Binkley, M.S. Gordon, D.J. DeFrees, J.A. Pople. J. Chem. Phys. 77 (1982) 3654-3665. doi:10.1063/1.444267
 SILICON (12s,9p,1d) -> [6s,5p,1d]
+Options
+Cartesian d
+EndOptions
     14.0   2
 * s-type functions
    12    6
@@ -645,6 +657,9 @@ SILICON (12s,9p,1d) -> [6s,5p,1d]
 /P.6-311G**.Francl.12s9p1d.6s5p1d.
 M.M. Francl, W.J. Pietro, W.J. Hehre, J.S. Binkley, M.S. Gordon, D.J. DeFrees, J.A. Pople. J. Chem. Phys. 77 (1982) 3654-3665. doi:10.1063/1.444267
 PHOSPHORUS (12s,9p,1d) -> [6s,5p,1d]
+Options
+Cartesian d
+EndOptions
     15.0   2
 * s-type functions
    12    6
@@ -700,6 +715,9 @@ PHOSPHORUS (12s,9p,1d) -> [6s,5p,1d]
 /S.6-311G**.Francl.12s9p1d.6s5p1d.
 M.M. Francl, W.J. Pietro, W.J. Hehre, J.S. Binkley, M.S. Gordon, D.J. DeFrees, J.A. Pople. J. Chem. Phys. 77 (1982) 3654-3665. doi:10.1063/1.444267
 SULFUR (12s,9p,1d) -> [6s,5p,1d]
+Options
+Cartesian d
+EndOptions
     16.0   2
 * s-type functions
    12    6
@@ -755,6 +773,9 @@ SULFUR (12s,9p,1d) -> [6s,5p,1d]
 /Cl.6-311G**.Francl.12s9p1d.6s5p1d.
 M.M. Francl, W.J. Pietro, W.J. Hehre, J.S. Binkley, M.S. Gordon, D.J. DeFrees, J.A. Pople. J. Chem. Phys. 77 (1982) 3654-3665. doi:10.1063/1.444267
 CHLORINE (12s,9p,1d) -> [6s,5p,1d]
+Options
+Cartesian d
+EndOptions
     17.0   2
 * s-type functions
    12    6
@@ -810,6 +831,9 @@ CHLORINE (12s,9p,1d) -> [6s,5p,1d]
 /Ar.6-311G**.Francl.12s9p1d.6s5p1d.
 M.M. Francl, W.J. Pietro, W.J. Hehre, J.S. Binkley, M.S. Gordon, D.J. DeFrees, J.A. Pople. J. Chem. Phys. 77 (1982) 3654-3665. doi:10.1063/1.444267
 ARGON (12s,9p,1d) -> [6s,5p,1d]
+Options
+Cartesian d
+EndOptions
     18.0   2
 * s-type functions
    12    6

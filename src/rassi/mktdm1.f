@@ -22,6 +22,7 @@
      &    pretty_print_util
       use qcmaquis_info
       use qcmaquis_interface_mpssi
+      use rassi_global_arrays, only : LROOT
 #endif
 
       IMPLICIT NONE
@@ -70,9 +71,9 @@ C Overlap:
         else
             sij = qcmaquis_mpssi_overlap(
      &         qcm_prefixes(job1),
-     &         ist,
+     &         istate,
      &         qcm_prefixes(job2),
-     &         jst,
+     &         jstate,
      &         .true.)
 
         end if ! DMRG or not
@@ -123,18 +124,18 @@ C General 1-particle transition density matrix:
           if (MPLET1.lt.MPLET2) then
             call qcmaquis_mpssi_get_onetdm_spin(
      &             qcm_prefixes(job2),
-     &             jst,
+     &             LROOT(JSTATE),
      &             qcm_prefixes(job1),
-     &             ist,
+     &             LROOT(ISTATE),
      &             TDMAA,
      &             TDMBB,
      &             NSPD1)
           else
             call qcmaquis_mpssi_get_onetdm_spin(
      &             qcm_prefixes(job1),
-     &             ist,
+     &             LROOT(ISTATE),
      &             qcm_prefixes(job2),
-     &             jst,
+     &             LROOT(JSTATE),
      &             TDMAA,
      &             TDMBB,
      &             NSPD1)

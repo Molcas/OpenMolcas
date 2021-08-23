@@ -330,26 +330,33 @@ taken from a Maxwell--Boltzmann distribution at 300 K.
 Dynamixtools
 ------------
 
-This tool can be found into the :file:`Tools/` folder and it will provide some general tools to manage molecular dynamics calculations. At the moment it can be used to generate intial conditions (geometries and momenta) following a Boltzmann distribution, based on a frequency calculation. It is working with a :file:`freq.molden` file (:file:`.h5` support coming soon...).
+This tool can be found into the :file:`Tools/` folder and it will provide some general tools to manage molecular dynamics calculations. At the moment it can be used to generate intial conditions (geometries and momenta) based on a frequency calculation using several sampling methods. It is working with a :file:`freq.molden` file (:file:`.h5` support coming soon...). 
 
 From the command prompt: ::
 
   $ python3 dynamixtools.py -h
-  usage: dynamixtools.py [-h] [-s SEED] [-l LABEL] -i I [-b BOL] -t TEMP
+  usage: dynamixtools.py [-h] [-s SEED] [-l LABEL] [-i I] [-c CONDITION] [-t TEMP] [-v] [-T] [-D] [-m METHOD]
 
   optional arguments:
-    -h, --help            show this help message and exit
-    -s SEED, --seed SEED  indicate the SEED to use for the generation of randoms
-    -l LABEL, --label LABEL
-                          label for your project (default is "geom")
-    -i I, --input I       path of the frequency h5 or molden file
-    -b BOL, --boltzmann BOL
-                          number of initial condition following Boltzmann
-                          distribution (default 1)
-    -t TEMP, --temperature TEMP
-                          temperature in kelvin for the initial conditions
+  -h, --help            show this help message and exit
+  -s SEED, --seed SEED  indicate the SEED to use for the generation of randoms
+  -l LABEL, --label LABEL
+                        label for your project (default is "geom")
+  -i I, --input I       path of the frequency h5 or molden file
+  -c CONDITION, --condition CONDITION
+                        number of initial conditions (default 1)
+  -t TEMP, --temperature TEMP
+                        temperature in kelvin for the initial conditions
+  -v, --verbose         more verbose output
+  -T, --TEST            keyword use to test the routines
+  -D, --DIGIT           keyword to suppress the counter in the filename (needed for debug)
+  -m METHOD, --method METHOD
+                        Keyword to specify the sampling method:
+                        1 Initial conditions based on the molecular vibrational frequencies and energies sampled from a Boltzmann distribution (Default).
+                        2 Thermal normal mode sampling where the cumulitative distribution function for a classical boltzmann distribution at temperature T is used to approximate the energy of each mode.
+                        3 Wigner distribution for the ground vibrational state, n=0.
 
 Having a :file:`water.freq.molden` file, this is the command to generate 200 initial conditions using 3435432 as seed and a temperature of 300 kelvin: ::
 
-  $ python3 dynamixtools.py -i water.freq.molden -t 300 -b 200 -s 3435432
+  $ python3 dynamixtools.py -i water.freq.molden -t 300 -c 200 -s 3435432
 

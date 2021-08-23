@@ -24,7 +24,7 @@
 
 #include "davtune_cvb.fh"
 #include "opt2_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension orbs(norb,norb),cvb(nvb)
       dimension gjorb(*),gjorb2(*),gjorb3(*)
       dimension c(nvb,maxdav),axc(nvb,maxdav),sxc(nvb,maxdav),res(nvb)

@@ -45,7 +45,7 @@
 #include "twoswi.fh"
 #include "file.fh"
 #include "hflda.fh"
-#include "warnings.fh"
+#include "warnings.h"
 *
       Character*8 EMILOOP
       Logical FstItr, Semi_Direct

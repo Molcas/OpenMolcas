@@ -13,7 +13,7 @@
       IMPLICIT REAL*8 (A-H,O-Z)
       INTRINSIC ABS,LOG10
 #include "SysDef.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "mrci.fh"
 c      DIMENSION BUFOUT(NBSIZ3,NCHN3)
 c      DIMENSION INDOUT(RTOI*NBSIZ3,NCHN3)

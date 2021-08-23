@@ -46,6 +46,13 @@ incomplete.
 #define TRAILING_ZEROS
 #endif
 
+/* Bit extraction (ibits) with zero length */
+#if ( __PGI )
+#undef IBITS_LEN_ZERO
+#else
+#define IBITS_LEN_ZERO
+#endif
+
 /* c_ptr binding */
 #if ( NAGFOR && __NAG_COMPILER_RELEASE < 61 )
 #undef C_PTR_BINDING
@@ -62,7 +69,7 @@ With PGI 20 ( __PGIC__ >= 20 ) it compiles, but it appears to be buggy at runtim
 #endif
 
 /* Allows files with no compilable instructions */
-#if ( NAGFOR )
+#if (( NAGFOR ) || ( __PGI ))
 #undef EMPTY_FILES
 #else
 #define EMPTY_FILES

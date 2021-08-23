@@ -19,7 +19,7 @@ c  Exact copy if applyh except for c_daxpy in arg list.
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension civec(*)
       save thr2
       data thr2/1.d-20/
@@ -38,41 +38,42 @@ c  (NIRREP may be altered in loop)
       nci=ncivb(isyml)
       lcim=mstackrz_cvb(nci)
       ibasemx=max(ibasemx,mstackr_cvb(0))
-      call vb2mol_cvb(w(iaddr_ci(icivec)),w(lcim),isyml)
+      call vb2mol_cvb(work(iaddr_ci(icivec)),work(lcim),isyml)
 
 c  If only one irrep present keep down memory requirements:
       if(isymmx.gt.1.and.nci.ne.ndet)then
         lcim2=mstackrz_cvb(nci)
         ibasemx=max(ibasemx,mstackr_cvb(0))
-        cnrm=ddot_(nci,w(lcim),1,w(lcim),1)
+        cnrm=ddot_(nci,work(lcim),1,work(lcim),1)
 c  If anything there, apply Hamiltonian to vector of this symmetry :
         if(cnrm.gt.thr2)then
-          call sigmadet_cvb(w(lcim),w(lcim2),isyml,absym(5),nci)
+          call sigmadet_cvb(work(lcim),work(lcim2),isyml,nci)
           if(c_daxpy.ne.zero)
-     >      call daxpy_(nci,c_daxpy,w(lcim),1,w(lcim2),1)
+     >      call daxpy_(nci,c_daxpy,work(lcim),1,work(lcim2),1)
         else
           if(c_daxpy.ne.zero)
-     >      call daxpy_(nci,c_daxpy,w(lcim),1,w(lcim2),1)
+     >      call daxpy_(nci,c_daxpy,work(lcim),1,work(lcim2),1)
         endif
-        call mol2vb_cvb(w(iaddr_ci(icivec)),w(lcim2),isyml)
+        call mol2vb_cvb(work(iaddr_ci(icivec)),work(lcim2),isyml)
         call mfreer_cvb(lcim2)
       else
-        call fzero(w(iaddr_ci(icivec)),nci)
-        cnrm=ddot_(nci,w(lcim),1,w(lcim),1)
+        call fzero(work(iaddr_ci(icivec)),nci)
+        cnrm=ddot_(nci,work(lcim),1,work(lcim),1)
 c  If anything there, apply Hamiltonian to vector of this symmetry :
         if(cnrm.gt.thr2)then
-          call fzero(w(iaddr_ci(icivec)),nci)
-          call sigmadet_cvb(w(lcim),w(iaddr_ci(icivec)),isyml,absym(5),
-     &      nci)
+          call fzero(work(iaddr_ci(icivec)),nci)
+          call sigmadet_cvb(work(lcim),work(iaddr_ci(icivec)),isyml,nci)
           if(c_daxpy.ne.zero)
-     >      call daxpy_(nci,c_daxpy,w(lcim),1,w(iaddr_ci(icivec)),1)
-          call fmove_cvb(w(iaddr_ci(icivec)),w(lcim),nci)
+     >      call daxpy_(nci,c_daxpy,work(lcim),1,work(iaddr_ci(icivec)),
+     >                  1)
+          call fmove_cvb(work(iaddr_ci(icivec)),work(lcim),nci)
         else
           if(c_daxpy.ne.zero)
-     >      call daxpy_(nci,c_daxpy,w(lcim),1,w(iaddr_ci(icivec)),1)
-          call fmove_cvb(w(iaddr_ci(icivec)),w(lcim),nci)
+     >      call daxpy_(nci,c_daxpy,work(lcim),1,work(iaddr_ci(icivec)),
+     >                  1)
+          call fmove_cvb(work(iaddr_ci(icivec)),work(lcim),nci)
         endif
-        call mol2vb_cvb(w(iaddr_ci(icivec)),w(lcim),isyml)
+        call mol2vb_cvb(work(iaddr_ci(icivec)),work(lcim),isyml)
       endif
       call mfreer_cvb(lcim)
 1000  continue

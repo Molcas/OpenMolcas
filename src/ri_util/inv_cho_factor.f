@@ -85,7 +85,7 @@
       Integer kCol, nMem, lu_A, lu_Q, lScr, lindep
       Real*8  A_k(*), Am(*), Qm(*), Scr(*), Z(*), X(*), Q_k(*)
       Real*8  thr
-#include "warnings.fh"
+#include "warnings.h"
       Parameter ( two = 2.0d0, one = 1.0d0, zero = 0.0d0 )
       Parameter ( thr_neg = -1.0d-8 )
 **********************************************************************

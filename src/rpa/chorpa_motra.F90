@@ -38,7 +38,7 @@ character(len=6) BName(2)
 integer(kind=iwp), allocatable :: loc(:,:)
 real(kind=wp), allocatable :: lCMO(:)
 integer(kind=iwp), external :: RPA_iUHF
-character(len=12), parameter :: SecNam = 'ChoRPA_MOTra'
+character(len=*), parameter :: SecNam = 'ChoRPA_MOTra'
 
 nSpin = RPA_iUHF()
 if (nSpin == 1) then
@@ -90,8 +90,8 @@ do iSpin=1,nSpin
   call ChoRPA_MOTra_ReorderCMO(nSym,nBas,nOrb,CMO(:,iSpin),lCMO)
   ! Set base name for MO files
   ! Transform Cholesky vectors
-  call Cho_MOTra_Internal(lCMO,l_lCMO,nSym,nBas,nOrb,loc(:,lnFro),loc(:,lnOcc),loc(:,Zeros),loc(:,lnVir),loc(:,lnDel), &
-                          BName(iSpin),.false.,0,.false.)
+  call Cho_MOTra_Inner(lCMO,l_lCMO,nSym,nBas,loc(:,lnFro),loc(:,lnOcc),loc(:,Zeros),loc(:,lnVir),loc(:,lnDel),BName(iSpin), &
+                       .false.,0,.false.)
 
 end do
 

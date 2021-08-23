@@ -13,11 +13,11 @@
 ************************************************************************
       subroutine mxdiag_cvb(a,eigval,n)
       implicit real*8 (a-h,o-z)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension a(n,n),eigval(n)
 
       itmp = mstackr_cvb(n*3)
-      call dsyev_('V','L',n,a,n,eigval,w(itmp),n*3,ierr)
+      call dsyev_('V','L',n,a,n,eigval,work(itmp),n*3,ierr)
       call mfreer_cvb(itmp)
       if(ierr.ne.0)then
         write(6,*)' Fatal error in mxdiag, ierr :',ierr

@@ -19,7 +19,7 @@
 #include "print_cvb.fh"
 
 #include "frag_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension c(*)
 
       if(.not.(imethod.eq.4.or.imethod.eq.12))

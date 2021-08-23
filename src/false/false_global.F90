@@ -19,8 +19,9 @@ implicit none
 private
 
 character(len=180) :: Run_Command
+character(len=7) :: Mode
 logical(kind=iwp) :: Will_Print
 
-public :: Run_Command, Will_Print
+public :: Mode, Run_Command, Will_Print
 
 end module False_Global

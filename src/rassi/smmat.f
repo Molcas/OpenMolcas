@@ -43,6 +43,10 @@ C 2 = spin dependent property, triplet operator
      &          (PTYPE(IPROP).EQ.SOPRTP(ISONUM)).AND.
      &          (ICOMP(IPROP).EQ.ISOCMP(ISONUM))) THEN
                IPRNUM=IPROP
+               IF (PNAME(IPRNUM)(1:3).EQ.'PSO') THEN
+                  IFSPIN=0
+                  IPRCMP=ISPINCMP
+               END IF
                IF (PNAME(IPRNUM)(1:5).EQ.'TMOM0') THEN
                   IFSPIN=2
                   IPRCMP=ISPINCMP

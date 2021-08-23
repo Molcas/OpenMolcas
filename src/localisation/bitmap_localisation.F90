@@ -23,7 +23,7 @@ integer(kind=iwp) :: iSym, kC, kC1, MxBa, MxOr, n2, nBasT, nDiff, nShell
 real(kind=wp) :: ThrAO
 logical(kind=iwp) :: Indexation, DoF, DoG
 real(kind=wp), allocatable :: CSh(:), Den(:), DSh(:), XSh(:)
-character(len=19), parameter :: SecNam = 'BitMap_Localisation'
+character(len=*), parameter :: SecNam = 'BitMap_Localisation'
 
 nBasT = nBas(1)
 do iSym=2,nSym

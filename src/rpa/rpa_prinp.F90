@@ -33,7 +33,7 @@ character(len=13) :: orbitals
 character(len=120) :: Line, BlLine, StLine
 character(len=LenIn8), allocatable :: UBName(:)
 integer(kind=iwp), parameter :: lPaper = 132
-character(len=9), parameter :: SecNam = 'RPA_PrInp'
+character(len=*), parameter :: SecNam = 'RPA_PrInp'
 integer(kind=iwp), external :: RPA_iUHF
 
 ! set restricted(1)/unrestricted(2)
@@ -84,7 +84,7 @@ if (nTitle > 0) then
     if ((i == 1) .or. (i == nLine)) Line = StLine
     if (i == 3) Line = 'Title:'
     if ((i >= 4) .and. (i <= nLine-2)) Line = Title(i-3)
-    call Center(Line)
+    call Center_Text(Line)
     write(u6,Fmt1) '*'//Line//'*'
   end do
   write(u6,*)

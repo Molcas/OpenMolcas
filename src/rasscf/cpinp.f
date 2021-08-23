@@ -20,7 +20,7 @@
 #endif
       Character*100 ProgName
 
-#include "warnings.fh"
+#include "warnings.h"
       iRc=_RC_ALL_IS_WELL_
 * The following code will open, and return the unit number LUSpool,
 * of an ASCII file with a copy of the presently used input.

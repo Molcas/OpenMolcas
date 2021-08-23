@@ -44,7 +44,7 @@
 #include "maxi.fh"
 #include "numbers.fh"
 #include "WrkSpc.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
 * MaxAngqNr=4 means f-function is top. There is no limit in the
 * algorithm though, so if higher is needed, change this number.

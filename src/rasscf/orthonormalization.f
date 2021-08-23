@@ -186,7 +186,7 @@
      &    n_to_ON, nNew,
      &    nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
       use general_data, only : nSym
-#include "warnings.fh"
+#include "warnings.h"
 #include "output_ras.fh"
       integer, intent(in) :: n_to_ON(:), nNew(:)
       integer, intent(inout) :: nDel(:), nSSH(:), nOrb(:),
@@ -237,7 +237,7 @@
       subroutine read_raw_S(S_buffer)
         real(wp), intent(inout) :: S_buffer(:)
         integer :: i_Rc, i_Opt, i_Component, i_SymLbl
-#include "warnings.fh"
+#include "warnings.h"
 
         i_Rc = 0
         i_Opt = 2
@@ -258,7 +258,7 @@
       subroutine read_S(S)
         use general_data, only : nBas, nSym, nActEl
         use rasscf_data, only : nFr, nIn, Tot_Nuc_Charge
-#include "warnings.fh"
+#include "warnings.h"
 #include "output_ras.fh"
         type(t_blockdiagonal) :: S(nSym)
 

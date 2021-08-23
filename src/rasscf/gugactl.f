@@ -21,7 +21,7 @@ C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "rasscf.fh"
 #include "general.fh"
 #include "gas.fh"

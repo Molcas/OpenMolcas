@@ -15,7 +15,7 @@
 c  MODE: 0,1 => determine NEXTRACT based on THR
 c        1,3 => transform also T matrix
       implicit real*8 (a-h,o-z)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension c(nbf,nvec1),t(nbf,nvec1),s(*)
 
       nvec=nvec1
@@ -23,23 +23,23 @@ c        1,3 => transform also T matrix
       i2 = mstackr_cvb(nbf*nvec)
       i3 = mstackr_cvb(nvec*nvec)
       i4 = mstackr_cvb(nbf*nvec)
-      call svd_cvb(c,w(i1),w(i2),w(i3),nbf,nvec)
+      call svd_cvb(c,work(i1),work(i2),work(i3),nbf,nvec)
 
       if(mode.lt.2)then
 c  Determine NEXTRACT :
         do 100 i=nvec,1,-1
-        if(w(i+i1-1).le.thr)goto 200
+        if(work(i+i1-1).le.thr)goto 200
 100     continue
 200     nextract=nvec-i
       endif
-      call fmove_cvb(w(1+(nvec-nextract)*nbf+i2-1),c,nbf*nextract)
+      call fmove_cvb(work(1+(nvec-nextract)*nbf+i2-1),c,nbf*nextract)
       if(mod(mode,2).eq.1)then
 c  Apply same transformation to T :
-        call mxatb_cvb(t,w(i3),nbf,nvec,nvec,w(i4))
+        call mxatb_cvb(t,work(i3),nbf,nvec,nvec,work(i4))
         do 300 i=1,nvec
-        call dscal_(nbf,1.d0/w(i+i1-1),w((i-1)*nbf+i4),1)
+        call dscal_(nbf,1.d0/work(i+i1-1),work((i-1)*nbf+i4),1)
 300     continue
-        call fmove_cvb(w(1+(nvec-nextract)*nbf+i4-1),t,nbf*nextract)
+        call fmove_cvb(work(1+(nvec-nextract)*nbf+i4-1),t,nbf*nextract)
         call schmidtt_cvb(c,nextract,t,nbf,s,nbf,metr)
       endif
       call mfreer_cvb(i1)

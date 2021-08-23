@@ -179,7 +179,7 @@
         End Do
         ! Release and allocate again in LT format
         Call Deallocate_DSBA(DLT)
-        Call Allocate_DSBA(DLT,nOrb,nOrb,nSym,Case='TRI')
+        Call Allocate_DSBA(DLT,nOrb,nOrb,nSym,aCase='TRI')
 
         call Fold_Mat(nSym,nOrb,Dens2,DLT%A0)
         DLT%A0(:) = ReCo * DLT%A0(:)
@@ -271,7 +271,7 @@
 **      Compute the whole thing
 *
         Call Allocate_DSBA(Kappa,nBas,nBas,nSym,Ref=rKappa)
-        Call Allocate_DSBA(JI,nBas,nBas,nSym,Case='TRI')
+        Call Allocate_DSBA(JI,nBas,nBas,nSym,aCase='TRI')
         JI%A0(:)=Zero
         Call Allocate_DSBA(KI,nBas,nBas,nSym)
         KI%A0(:)=Zero
@@ -287,7 +287,7 @@
         Call Allocate_DSBA(CMO,nBas,nAsh,nSym,Ref=W_CMO)
         Call Allocate_DSBA(CMO_Inv,nBas,nAsh,nSym,Ref=W_CMO_Inv)
         iread=2 ! Asks to read the half-transformed Cho vectors
-                                                                               *
+
         Call CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,JI,KI,JA,KA,FkI,FkA,
      &                   rMOs,QVec,CVa,CMO,CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,

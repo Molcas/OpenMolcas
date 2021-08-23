@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine ILASRT(ID,N,D,INFO)
-!  Variant of LAPACK's [SD]LASRT for sorting an integer array
+! Variant of LAPACK's [SD]LASRT for sorting an integer array
 
 use Definitions, only: iwp
 
@@ -50,149 +50,156 @@ if (N <= 1) return
 STKPNT = 1
 STACK(1,1) = 1
 STACK(2,1) = N
-10 continue
-START = STACK(1,STKPNT)
-ENDD = STACK(2,STKPNT)
-STKPNT = STKPNT-1
-if ((ENDD-START <= slct) .and. (ENDD-START > 0)) then
+do
+  START = STACK(1,STKPNT)
+  ENDD = STACK(2,STKPNT)
+  STKPNT = STKPNT-1
+  if ((ENDD-START <= slct) .and. (ENDD-START > 0)) then
 
-  ! Do Insertion sort on D( START:ENDD )
+    ! Do Insertion sort on D( START:ENDD )
 
-  if (DIR == 0) then
+    if (DIR == 0) then
 
-    ! Sort into decreasing order
+      ! Sort into decreasing order
 
-    do I=START+1,ENDD
-      do J=I,START+1,-1
-        if (D(J) > D(J-1)) then
-          DMNMX = D(J)
-          D(J) = D(J-1)
-          D(J-1) = DMNMX
+      do I=START+1,ENDD
+        do J=I,START+1,-1
+          if (D(J) > D(J-1)) then
+            DMNMX = D(J)
+            D(J) = D(J-1)
+            D(J-1) = DMNMX
+          else
+            exit
+          end if
+        end do
+      end do
+
+    else
+
+      ! Sort into increasing order
+
+      do I=START+1,ENDD
+        do J=I,START+1,-1
+          if (D(J) < D(J-1)) then
+            DMNMX = D(J)
+            D(J) = D(J-1)
+            D(J-1) = DMNMX
+          else
+            exit
+          end if
+        end do
+      end do
+
+    end if
+
+  else if (ENDD-START > slct) then
+
+    ! Partition D( START:ENDD ) and stack parts, largest one first
+    !
+    ! Choose partition entry as median of 3
+
+    D1 = D(START)
+    D2 = D(ENDD)
+    I = (START+ENDD)/2
+    D3 = D(I)
+    if (D1 < D2) then
+      if (D3 < D1) then
+        DMNMX = D1
+      else if (D3 < D2) then
+        DMNMX = D3
+      else
+        DMNMX = D2
+      end if
+    else
+      if (D3 < D2) then
+        DMNMX = D2
+      else if (D3 < D1) then
+        DMNMX = D3
+      else
+        DMNMX = D1
+      end if
+    end if
+
+    if (DIR == 0) then
+
+      ! Sort into decreasing order
+
+      I = START-1
+      J = ENDD+1
+      do
+        do
+          J = J-1
+          if (D(J) >= DMNMX) exit
+        end do
+        do
+          I = I+1
+          if (D(I) <= DMNMX) exit
+        end do
+        if (I < J) then
+          TMP = D(I)
+          D(I) = D(J)
+          D(J) = TMP
         else
-          GO TO 30
+          exit
         end if
       end do
-30    continue
-    end do
+      if (J-START > ENDD-J-1) then
+        STKPNT = STKPNT+1
+        STACK(1,STKPNT) = START
+        STACK(2,STKPNT) = J
+        STKPNT = STKPNT+1
+        STACK(1,STKPNT) = J+1
+        STACK(2,STKPNT) = ENDD
+      else
+        STKPNT = STKPNT+1
+        STACK(1,STKPNT) = J+1
+        STACK(2,STKPNT) = ENDD
+        STKPNT = STKPNT+1
+        STACK(1,STKPNT) = START
+        STACK(2,STKPNT) = J
+      end if
+    else
 
-  else
+      ! Sort into increasing order
 
-    ! Sort into increasing order
-
-    do I=START+1,ENDD
-      do J=I,START+1,-1
-        if (D(J) < D(J-1)) then
-          DMNMX = D(J)
-          D(J) = D(J-1)
-          D(J-1) = DMNMX
+      I = START-1
+      J = ENDD+1
+      do
+        do
+          J = J-1
+          if (D(J) <= DMNMX) exit
+        end do
+        do
+          I = I+1
+          if (D(I) >= DMNMX) exit
+        end do
+        if (I < J) then
+          TMP = D(I)
+          D(I) = D(J)
+          D(J) = TMP
         else
-          GO TO 50
+          exit
         end if
       end do
-50    continue
-    end do
-
-  end if
-
-else if (ENDD-START > slct) then
-
-  ! Partition D( START:ENDD ) and stack parts, largest one first
-  !
-  ! Choose partition entry as median of 3
-
-  D1 = D(START)
-  D2 = D(ENDD)
-  I = (START+ENDD)/2
-  D3 = D(I)
-  if (D1 < D2) then
-    if (D3 < D1) then
-      DMNMX = D1
-    else if (D3 < D2) then
-      DMNMX = D3
-    else
-      DMNMX = D2
-    end if
-  else
-    if (D3 < D2) then
-      DMNMX = D2
-    else if (D3 < D1) then
-      DMNMX = D3
-    else
-      DMNMX = D1
+      if (J-START > ENDD-J-1) then
+        STKPNT = STKPNT+1
+        STACK(1,STKPNT) = START
+        STACK(2,STKPNT) = J
+        STKPNT = STKPNT+1
+        STACK(1,STKPNT) = J+1
+        STACK(2,STKPNT) = ENDD
+      else
+        STKPNT = STKPNT+1
+        STACK(1,STKPNT) = J+1
+        STACK(2,STKPNT) = ENDD
+        STKPNT = STKPNT+1
+        STACK(1,STKPNT) = START
+        STACK(2,STKPNT) = J
+      end if
     end if
   end if
-
-  if (DIR == 0) then
-
-    ! Sort into decreasing order
-
-    I = START-1
-    J = ENDD+1
-60  continue
-70  continue
-    J = J-1
-    if (D(J) < DMNMX) GO TO 70
-80  continue
-    I = I+1
-    if (D(I) > DMNMX) GO TO 80
-    if (I < J) then
-      TMP = D(I)
-      D(I) = D(J)
-      D(J) = TMP
-      GO TO 60
-    end if
-    if (J-START > ENDD-J-1) then
-      STKPNT = STKPNT+1
-      STACK(1,STKPNT) = START
-      STACK(2,STKPNT) = J
-      STKPNT = STKPNT+1
-      STACK(1,STKPNT) = J+1
-      STACK(2,STKPNT) = ENDD
-    else
-      STKPNT = STKPNT+1
-      STACK(1,STKPNT) = J+1
-      STACK(2,STKPNT) = ENDD
-      STKPNT = STKPNT+1
-      STACK(1,STKPNT) = START
-      STACK(2,STKPNT) = J
-    end if
-  else
-
-    ! Sort into increasing order
-
-    I = START-1
-    J = ENDD+1
-90  continue
-100 continue
-    J = J-1
-    if (D(J) > DMNMX) GO TO 100
-110 continue
-    I = I+1
-    if (D(I) < DMNMX) GO TO 110
-    if (I < J) then
-      TMP = D(I)
-      D(I) = D(J)
-      D(J) = TMP
-      GO TO 90
-    end if
-    if (J-START > ENDD-J-1) then
-      STKPNT = STKPNT+1
-      STACK(1,STKPNT) = START
-      STACK(2,STKPNT) = J
-      STKPNT = STKPNT+1
-      STACK(1,STKPNT) = J+1
-      STACK(2,STKPNT) = ENDD
-    else
-      STKPNT = STKPNT+1
-      STACK(1,STKPNT) = J+1
-      STACK(2,STKPNT) = ENDD
-      STKPNT = STKPNT+1
-      STACK(1,STKPNT) = START
-      STACK(2,STKPNT) = J
-    end if
-  end if
-end if
-if (STKPNT > 0) GO TO 10
+  if (STKPNT <= 0) exit
+end do
 
 return
 
