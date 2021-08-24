@@ -15,7 +15,7 @@
      >  orbs,irdorbs,ip_cvb,nvbinp,kbasiscvb_inp,
      >  mxaobf,mxorb,kbasis,strtvb)
       implicit real*8 (a-h,o-z)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       parameter (ngs=7,ncmp=4)
       character*8 guess
       logical firsttime_cvb
@@ -51,7 +51,7 @@ c  If previous orb. permutation disable:
         call mhpfreer_cvb(ip_cvb)
         mxread=mavailr_cvb()/2
         ip_cvb=mheapr_cvb(mxread)
-        call realz_cvb(w(ip_cvb),mxread,nvbinp,0)
+        call realz_cvb(work(ip_cvb),mxread,nvbinp,0)
         call mreallocr_cvb(ip_cvb,nvbinp)
         kbasiscvb_inp=kbasis
       elseif(istr.eq.3)then
@@ -109,7 +109,7 @@ c              jorb2=jorb1
 c            endif
 c          endif
 c          if(istr3.ne.0)goto 3100
-c          call othergs_cvb(orbs,w(ip_cvb),recordnm,1,
+c          call othergs_cvb(orbs,work(ip_cvb),recordnm,1,
 c     >      iorb1,iorb2,jorb1,jorb2)
 c        elseif(istr2.eq.2)then
 cc      'STRUC'
@@ -163,7 +163,7 @@ c              jstruc2=jstruc1
 c            endif
 c          endif
 c          if(istr3.ne.0)goto 3200
-c          call othergs_cvb(orbs,w(ip_cvb),recordnm,2,
+c          call othergs_cvb(orbs,work(ip_cvb),recordnm,2,
 c     >      istruc1,istruc2,jstruc1,jstruc2)
 c        elseif(istr2.eq.3)then
 cc 'ALL'
@@ -177,7 +177,7 @@ c              write(6,*)' No identifier after READ,...,FROM, !'
 c              call abend_cvb()
 c            endif
 c          endif
-c          call getguess_cvb(orbs,w(ip_cvb),recordnm,kbasiscvb_inp)
+c          call getguess_cvb(orbs,work(ip_cvb),recordnm,kbasiscvb_inp)
 c        endif
       elseif(istr.eq.4)then
 c 'AOBASIS'

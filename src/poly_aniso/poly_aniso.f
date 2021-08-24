@@ -804,7 +804,7 @@ c---------------------------------------------------------------------
 
           Call  BARRIER( nBlock, dipexch(1:3,1:nBlock,1:nBlock),
      &                   W(1:nBlock), imanIfold, nMult, nDim(1:nMult),
-     &                   iprint )
+     &                   DoPlot, iprint )
 
         Else
            Write(6,'(A)') 'nBlock parameter is not defined. '

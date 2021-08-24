@@ -19,7 +19,7 @@ c  *  DIRDIAG front-end for solving  A x = b .                         *
 c  *                                                                   *
 c  *********************************************************************
       implicit real*8 (a-h,o-z)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 #include "direct_cvb.fh"
       external asonc,ddres2upd
 
@@ -27,7 +27,7 @@ c  *********************************************************************
 
       call axb2_cvb(asonc,ddres2upd,vec,
      >  resthr_inp,ioptc,iter,fx_exp,
-     >  w(idd(1)),w(idd(2)),w(idd(3)),w(idd(4)),
-     >  w(idd(5)),w(idd(6)),w(idd(7)))
+     >  work(idd(1)),work(idd(2)),work(idd(3)),work(idd(4)),
+     >  work(idd(5)),work(idd(6)),work(idd(7)))
       return
       end

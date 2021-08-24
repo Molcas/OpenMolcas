@@ -55,8 +55,6 @@
       Dimension Data(*)
 *
       Character*8 TmpLab,Label
-*     Dimension LabTmp(2)
-*     Equivalence (TmpLab,LabTmp)
 *
       Parameter (lBuf=1024)
       Real*8    TmpBuf(lBuf),AuxBuf(4)
@@ -65,7 +63,7 @@
       Save CurrOp
 *----------------------------------------------------------------------*
 *     Start procedure:                                                 *
-*     Define inline function (symmetry multiplication)                 *
+*     Define statement function (symmetry multiplication)              *
 *----------------------------------------------------------------------*
       MulTab(i,j)=iEor(i-1,j-1)+1
 *----------------------------------------------------------------------*
@@ -102,6 +100,7 @@
       Label=InLab
       Call UpCase(Label)
       TmpLab=Label
+      iLen=Len(TmpLab)/ItoB
 *----------------------------------------------------------------------*
 *     Print debugging information                                      *
 *----------------------------------------------------------------------*
@@ -151,7 +150,8 @@
 *#ifndef _I8_
 *            LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
 *#endif
-            Call ByteCopy(TocOne(pOp+LenOp*(i-1)+oLabel),TmpLab,8)
+            idx=pOp+LenOp*(i-1)+oLabel
+            TmpLab=Transfer(TocOne(idx:idx+iLen-1),TmpLab)
             Label=TmpLab
             InLab=Label
             SymLab=TocOne(pOp+LenOp*(i-1)+oSymLb)
@@ -167,7 +167,8 @@
 *#ifndef _I8_
 *            LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
 *#endif
-            Call ByteCopy(TocOne(pOp+LenOp*(i-1)+oLabel),TmpLab,8)
+            idx=pOp+LenOp*(i-1)+oLabel
+            TmpLab=Transfer(TocOne(idx:idx+iLen-1),TmpLab)
             Label=TmpLab
             InLab=Label
             SymLab=TocOne(pOp+LenOp*(i-1)+oSymLb)
@@ -184,7 +185,8 @@
 *#ifndef _I8_
 *            LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
 *#endif
-            Call ByteCopy(TocOne(pOp+LenOp*(i-1)+oLabel),TmpLab,8)
+            idx=pOp+LenOp*(i-1)+oLabel
+            TmpLab=Transfer(TocOne(idx:idx+iLen-1),TmpLab)
             Label=TmpLab
             InLab=Label
             SymLab=TocOne(pOp+LenOp*(i-1)+oSymLb)
@@ -197,7 +199,8 @@
 *#ifndef _I8_
 *            LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
 *#endif
-            Call ByteCopy(TocOne(pOp+LenOp*(i-1)+oLabel),TmpLab,8)
+            idx=pOp+LenOp*(i-1)+oLabel
+            TmpLab=Transfer(TocOne(idx:idx+iLen-1),TmpLab)
             CmpTmp=TocOne(pOp+LenOp*(i-1)+oComp   )
             TmpCmp=Comp
             If(TmpLab.eq.Label .and. CmpTmp.eq.TmpCmp) CurrOp=i
@@ -213,27 +216,27 @@
          Go To 999
       End If
       SymLab=TocOne(pOp+LenOp*(CurrOp-1)+oSymLb)
-      Len=0
+      Length=0
       Do 510 i=1,nSym
       Do 511 j=1,i
          ij=MulTab(i,j)-1
          If(iAnd(2**ij,SymLab).ne.0) Then
             If(i.eq.j) Then
-               Len=Len+nBas(i)*(nBas(i)+1)/2
+               Length=Length+nBas(i)*(nBas(i)+1)/2
             Else
-               Len=Len+nBas(i)*nBas(j)
+               Length=Length+nBas(i)*nBas(j)
             End If
          End If
 511   Continue
 510   Continue
-      Data(1)=Len
+      Data(1)=Length
       If ( IAND(option,sOpSiz).eq.0 ) Then
          IndAux = 0
          IndDta = 0
          iDisk=TocOne(pOp+LenOp*(CurrOp-1)+oAddr)
-         Do i = 0,Len+3,lBuf
-           nCopy  = MAX(0,MIN(lBuf,Len+4-i))
-           nSave  = MAX(0,MIN(lBuf,Len-i))
+         Do i = 0,Length+3,lBuf
+           nCopy  = MAX(0,MIN(lBuf,Length+4-i))
+           nSave  = MAX(0,MIN(lBuf,Length-i))
            Call dDaFile(LuOne,2,TmpBuf,nCopy,iDisk)
            Call idCopy(nSave,TmpBuf,1,Data(IndDta+1),1)
            IndDta = IndDta+RtoI*nSave

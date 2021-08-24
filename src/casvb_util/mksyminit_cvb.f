@@ -18,7 +18,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
 c  Generate symmetry information - first call gets dimensions :
       i1 = mstacki_cvb(4*norbrel)
@@ -31,11 +31,13 @@ c  Generate symmetry information - first call gets dimensions :
       i8 = mstackr_cvb(norb*norb)
       i9 = mstackr_cvb(norb*norb)
       i10= mstacki_cvb(norb)
-      call syminit2_cvb(w(ls(1)),iw(ls(2)),iw(ls(3)),w(ls(4)),
-     >  iw(ls(5)),w(ls(6)),iw(i1),iw(i2),iw(i3),w(i4),w(i5),
-     >  w(i6),w(i7),w(i8),w(i9),iw(i10),
-     >  iw(ls(8)),iw(ls(9)),iw(ls(10)),
-     >  iw(ls(11)),iw(ls(12)),iw(ls(13)))
+      call syminit2_cvb(work(ls(1)),iwork(ls(2)),iwork(ls(3)),
+     >  work(ls(4)),
+     >  iwork(ls(5)),work(ls(6)),iwork(i1),iwork(i2),iwork(i3),work(i4),
+     >  work(i5),
+     >  work(i6),work(i7),work(i8),work(i9),iwork(i10),
+     >  iwork(ls(8)),iwork(ls(9)),iwork(ls(10)),
+     >  iwork(ls(11)),iwork(ls(12)),iwork(ls(13)))
       call mfreei_cvb(i1)
       return
       end

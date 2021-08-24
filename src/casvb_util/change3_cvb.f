@@ -22,7 +22,7 @@ c ... Change of dimensioning variables ...
 #include "print_cvb.fh"
 
 #include "rls_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
       changed=.false.
 c Spin functions coefficients (BIKCOF) + inverse (AIKCOF)
@@ -72,8 +72,8 @@ c  --> figure out which one needs most :
         lb(2) = lb(1)
       endif
 c  Flag AIKCOF/BIKCOF as unset :
-      w(lb(1))=zero
-      w(lb(2))=zero
+      work(lb(1))=zero
+      work(lb(2))=zero
 
       lb(3) = mstacki_cvb((nel+1)*(nel+1)*(nel+1))
       lb(4) = mstacki_cvb((nel+1)*(nel+1))

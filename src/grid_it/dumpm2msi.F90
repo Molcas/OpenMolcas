@@ -42,7 +42,6 @@ real(kind=wp), allocatable :: CMP(:)
 !character(len=3) :: cint
 !character, parameter :: cx(64) = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#'
 ! test end
-integer(kind=iwp), external :: C_WRITE
 #include "macros.fh"
 unused_var(isMOPack)
 unused_var(PBlock(1))
@@ -250,7 +249,7 @@ if (isDensity) then
   !    call IArrToChar(PBlock,cMoBlock,mCoor)
   !    !vv!!!!!!!
   !    if (isLuscus) then
-  !      RC = C_WRITE(LID,CMOBLOCK,(mCoor*nBytesPackedVal)*RtoB) !!!!!!!!!!!!!!!!!!!!check mCoor*nBytesPackedVal
+  !      RC = C_WRITE_WRAPPER(LID,CMOBLOCK,(mCoor*nBytesPackedVal)*RtoB) !!!!!!!!!!!!!!!!!!!!check mCoor*nBytesPackedVal
   !      if (RC == 0) THEN
   !        write(u6,*) 'error in writing luscus file!'
   !        call Abend()
@@ -260,7 +259,7 @@ if (isDensity) then
   !    end if
   !  else
   !    if (isLuscus) then
-  !      RC = C_WRITE(LID,PBLOCK,(mCoor)*RtoB) !!!!!!!!!!!!!!!!!!!!check mCoor*nBytesPackedVal
+  !      RC = C_WRITE_WRAPPER(LID,PBLOCK,(mCoor)*RtoB) !!!!!!!!!!!!!!!!!!!!check mCoor*nBytesPackedVal
   !      if (RC == 0) then
   !        write(u6,*) 'error in writing luscus file!'
   !        call Abend()
@@ -288,7 +287,7 @@ if (isDensity) then
 
       if (isLuscus) then
         !!!!!!!!!!!!!!!!!!!!check iii-1
-        RC = C_WRITE(LID,CMP,(III-1)*RtoB)
+        RC = C_WRITE_WRAPPER(LID,CMP,(III-1)*RtoB)
         if (RC == 0) then
           write(u6,*) 'error in writing luscus file!'
           call Abend()
@@ -302,7 +301,7 @@ if (isDensity) then
       !if (isLuscus) then
       !  call dump_lusc(LID,DOut,mCoor)
       !  write(u6,*) 'here'
-      !  RC = C_WRITE(LID,DOUT,MCOOR*RtoB) !!!!!!!!!!!!!!!!!!!!check MCOOR
+      !  RC = C_WRITE_WRAPPER(LID,DOUT,MCOOR*RtoB) !!!!!!!!!!!!!!!!!!!!check MCOOR
       !  if (RC == 0) then
       !    write(u6,*) 'error in writing luscus file!'
       !    call Abend()
@@ -347,5 +346,28 @@ if (isLine .and. (.not. isLuscus)) then
 end if
 
 return
+
+contains
+
+function c_write_wrapper(FileDescriptor,Buffer,nBytes)
+
+  use, intrinsic :: iso_c_binding, only: c_loc
+
+  integer(kind=iwp) :: c_write_wrapper
+  integer(kind=iwp), intent(in) :: FileDescriptor, nBytes
+  real(kind=wp), intent(in), target :: Buffer(*)
+  interface
+    function c_write(FileDescriptor,Buffer,nBytes) bind(C,name='c_write_')
+      use, intrinsic :: iso_c_binding, only: c_ptr
+      use Definitions, only: MOLCAS_C_INT
+      integer(kind=MOLCAS_C_INT) :: c_write
+      integer(kind=MOLCAS_C_INT) :: FileDescriptor, nBytes
+      type(c_ptr), value :: Buffer
+    end function c_write
+  end interface
+
+  c_write_wrapper = c_write(FileDescriptor,c_loc(Buffer(1)),nBytes)
+
+end function c_write_wrapper
 
 end subroutine DumpM2Msi

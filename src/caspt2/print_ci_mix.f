@@ -18,7 +18,6 @@
       Use mh5, Only: mh5_open_file_r, mh5_fetch_dset
 #endif
       Implicit None
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "rasdim.fh"
 #include "caspt2.fh"

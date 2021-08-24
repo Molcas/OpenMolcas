@@ -273,7 +273,7 @@ checks:
 
 tinker:
   stage: build
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-9:latest
   interruptible: true
   variables:
     # A patch to the tinker patch to make it work in low memory conditions
@@ -328,7 +328,6 @@ test:plain:
   <<: *run-tests
   needs:
     - build:plain
-    - tinker
   parallel: 2
 
 build:options:
@@ -361,7 +360,6 @@ test:pgi:
   <<: *run-tests
   needs:
     - build:pgi
-    - tinker
   parallel: 2
 
 #build:sun:
@@ -407,7 +405,7 @@ test:nag:
   <<: *run-tests
   needs:
     - build:nag
-  parallel: 4
+  parallel: 6
   tags:
     - docker
 

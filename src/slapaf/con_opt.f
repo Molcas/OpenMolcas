@@ -77,6 +77,7 @@
       Real*8, Allocatable:: RT(:,:), RTInv(:,:), RRR(:,:), RRInv(:,:),
      &                      RR(:,:), Tdy(:), Tr(:), WTr(:),
      &                      Hessian(:,:)
+      Character*8, Allocatable :: LblSave(:)
       Real*8, Save:: Beta_Disp_Save=Zero,disp_Save=Zero
 *                                                                      *
 ************************************************************************
@@ -1061,17 +1062,16 @@ C           Write (6,*) 'gBeta=',gBeta
 *
          StpMax_Save=StpMax
          StpLbl_Save=StpLbl
-         Call mma_allocate(Tmp1,nInter-nLambda,Label='Tmp1')
-         Call Char2Real(Lbl,Tmp1,(nInter-nLambda)*8)
+         Call mma_allocate(LblSave,Size(Lbl),Label='LblSave')
+         LblSave(:) = Lbl
          GrdMax=Zero
          Do i = 1, nInter-nLambda
             Write (Lbl(i),'(A,I3.3)') 'dEdx',i
          End Do
-         Call MxLbls(nInter-nLambda,dEdx(1,nIter),dx(1,nIter),Lbl)
+         Call MxLbls(nInter-nLambda,dEdx(1,nIter),dx(1,nIter),LblSave)
+         Call mma_deallocate(LblSave)
          StpMax=StpMax_Save
          StpLbl=StpLbl_Save
-         Call Real2Char(Tmp1,Lbl,(nInter-nLambda)*8)
-         Call mma_deallocate(Tmp1)
 *
       End If
 *                                                                      *

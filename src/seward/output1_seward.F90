@@ -26,6 +26,9 @@ use Period, only: Cell_l, ispread
 use GeoList, only: Centr, Mass
 use MpmC, only: Coor_MPM
 use EFP_Module, only: lEFP
+#ifdef _EFP_
+use EFP_Module, only: nEFP_Fragments
+#endif
 use External_centers, only: AMP_Center, DMS_Centers, nDMS, nEF, nOrdEF, nWel, nXF, OAM_Center, OMQ_Center, XF
 use Temporary_Parameters, only: Onenly, Prprt, Test
 use DKH_Info, only: BSS, DKroll, iCtrLD, iRELAE, LDKroll, nCtrLD, radiLD

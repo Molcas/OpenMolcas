@@ -37,7 +37,7 @@
                If (krBas.gt.MxAO) Then
                   Call WarningMessage(2,'Too many shells')
                   Write(6,*) 'MORE THAN ',MxAO,' SHELLS'
-                  Write(6,*) 'Increase MxAO in info.fh and',
+                  Write(6,*) 'Increase MxAO in maxbfn.fh and',
      &                      ' recompile the code!'
                   Call Abend()
                End If

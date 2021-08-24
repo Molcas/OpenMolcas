@@ -42,9 +42,8 @@
       Call Seward_Init()
 
 *------------------------------------------------------------------------*
-* GetInf reads everything in the info file and put it in variables       *
-* in the info.fh include file. Look in the header of info.fh to see the  *
-* plethora of numbers you can fetch there.                               *
+* GetInf reads everything in the runfile and puts it in variables        *
+* in modules.                                                            *
 *------------------------------------------------------------------------*
       nDiff=0
       DoRys=.false.

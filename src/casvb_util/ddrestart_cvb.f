@@ -16,7 +16,7 @@
      >  maxdav,n,
      >  nvguess1,nvrestart1)
       implicit real*8 (a-h,o-z)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension c(n,maxdav),axc(n,maxdav),vec(n)
       dimension hp(maxdav,maxdav)
       dimension solp(maxdav)
@@ -28,7 +28,7 @@
      >  hp,solp,
      >  maxdav,n,
      >  nvguess1,nvrestart1,
-     >  w(i1),w(i2))
+     >  work(i1),work(i2))
 
       call mfreer_cvb(i1)
       return

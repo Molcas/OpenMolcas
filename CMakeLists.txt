@@ -92,6 +92,7 @@ option (MPI "Enable MPI parallellization." OFF)
 option (GA "Use Global Arrays library." OFF)
 
 option (OPENMP "Enable multi-threading." OFF)
+option (IPO "Enable interprocedural optimization (if supported)." OFF)
 
 option (BOUNDS "Enable bounds checking (only GNU Fortran)." OFF)
 
@@ -722,7 +723,7 @@ set (SunPro_TRAP "-ftrap=common")
 #======================================#
 # defines __PGI
 # C++ compiler
-list (APPEND SUPPORTED_CXX_COMPILERS "PGI")
+list (APPEND SUPPORTED_CXX_COMPILERS "PGI" "NVHPC")
 set (CXXFLAGS_PGI_BASIC "-c99 -pgf90libs")
 set (CXXFLAGS_PGI_OPENMP "-mp")
 # build targets
@@ -732,7 +733,7 @@ set (CXXFLAGS_PGI_RELWITHDEBINFO "-O2 -gopt -Minform=warn")
 set (CXXFLAGS_PGI_RELEASE "-O2")
 set (CXXFLAGS_PGI_FAST "-O2")
 # C compiler
-list (APPEND SUPPORTED_C_COMPILERS "PGI")
+list (APPEND SUPPORTED_C_COMPILERS "PGI" "NVHPC")
 set (CFLAGS_PGI_BASIC "-c99 -pgf90libs")
 set (CFLAGS_PGI_OPENMP "-mp")
 # build targets
@@ -742,7 +743,7 @@ set (CFLAGS_PGI_RELWITHDEBINFO "-O2 -gopt -Minform=warn")
 set (CFLAGS_PGI_RELEASE "-O2")
 set (CFLAGS_PGI_FAST "-O2")
 # Fortran compiler
-list (APPEND SUPPORTED_Fortran_COMPILERS "PGI")
+list (APPEND SUPPORTED_Fortran_COMPILERS "PGI" "NVHPC")
 set (FFLAGS_PGI_BASIC "-Mbackslash")
 set (FFLAGS_PGI_PREPROCESS "-Mpreprocess")
 set (FFLAGS_PGI_OPENMP "-mp")
@@ -800,6 +801,9 @@ if (DMRG OR WFA)
       set (CXXCID ${CMAKE_CXX_COMPILER_ID})
     endif ()
   endforeach ()
+  if (CXXCID STREQUAL "NVHPC")
+    set (CXXCID "PGI")
+  endif ()
 
   if (NOT CXXCID)
     message (FATAL_ERROR "unsupported CXX compiler: ${CMAKE_CXX_COMPILER_ID}")
@@ -812,6 +816,9 @@ foreach (C_COMPILER ${SUPPORTED_C_COMPILERS})
     set (CCID ${CMAKE_C_COMPILER_ID})
   endif ()
 endforeach ()
+if (CCID STREQUAL "NVHPC")
+  set (CCID "PGI")
+endif ()
 
 if (NOT CCID)
   message (FATAL_ERROR "unsupported C compiler: ${CMAKE_C_COMPILER_ID}")
@@ -899,6 +906,9 @@ foreach (Fortran_COMPILER ${SUPPORTED_Fortran_COMPILERS})
     set (FCID ${CMAKE_Fortran_COMPILER_ID})
   endif ()
 endforeach ()
+if (FCID STREQUAL "NVHPC")
+  set (FCID "PGI")
+endif ()
 
 if (NOT FCID)
   message (FATAL_ERROR "unsupported Fortran compiler: ${CMAKE_Fortran_COMPILER_ID}")
@@ -2341,6 +2351,14 @@ message ("-- Debug definitions: ${DEBUG_DEFS}")
 # Utilities/Programs                                                           #
 #                                                                              #
 ################################################################################
+
+# Enable interprocedural optimization, if requested and supported, from now on
+set (set_IPO OFF)
+if (IPO AND ";RelWithDebInfo;Release;Fast;" MATCHES ";${CMAKE_BUILD_TYPE};")
+  include (CheckIPOSupported)
+  check_ipo_supported (RESULT set_IPO)
+endif ()
+set (CMAKE_INTERPROCEDURAL_OPTIMIZATION ${set_IPO})
 
 # generate utility list
 #======================

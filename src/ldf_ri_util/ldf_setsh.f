@@ -18,7 +18,7 @@ C     Set data in localdf_bas.fh
 C
       use Index_arrays, only: iSO2Sh
       use Basis_Info, only: nBas, nBas_Aux
-      Implicit Real*8 (a-h,o-z) ! info.fh misses declarations
+      Implicit Real*8 (a-h,o-z)
       Integer nShell_Val
       Integer nShell_Aux
       Logical Verbose
@@ -42,10 +42,10 @@ C
       nShell_Valence=nShell_Val
       nShell_Auxiliary=nShell_Aux
 
-      ! Get number of valence functions from info.fh
+      ! Get number of valence functions from Basis_Info
       nBas_Valence=nBas(0)
 
-      ! Get number of auxiliary functions from info.fh
+      ! Get number of auxiliary functions from Basis_Info
       ! Subtract the additional dummy function
       nBas_Auxiliary=nBas_Aux(0)-1
 

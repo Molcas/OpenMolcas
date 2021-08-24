@@ -12,61 +12,109 @@
 !***********************************************************************
 
 subroutine fmsym_create_context(ctx)
-use Definitions, only: wp, iwp
+
+use iso_c_binding, only: c_ptr
+use Definitions, only: iwp
+
 implicit none
-real(kind=wp), intent(out) :: ctx
+type(c_ptr), intent(out) :: ctx
 integer(kind=iwp) :: ret
+interface
+  subroutine cmsym_create_context(pctx,err) bind(C,name='cmsym_create_context_')
+    use, intrinsic :: iso_c_binding, only: c_ptr
+    use Definitions, only: MOLCAS_C_INT
+    type(c_ptr), value :: pctx
+    integer(kind=MOLCAS_C_INT) :: err
+  end subroutine cmsym_create_context
+end interface
+
 ! INT cmsym_create_context(msym_context *pctx, int *err)
 call cmsym_create_context(ctx,ret)
 if (ret /= 0) then
   call WarningMessage(2,'Failed to create symmetry context')
   call Abend()
 end if
+
 return
+
 end subroutine fmsym_create_context
 
 !***********************************************************************
 
 subroutine fmsym_set_elements(ctx)
+
+use, intrinsic :: iso_c_binding, only: c_ptr
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
+
 implicit none
-real(kind=wp), intent(inout) :: ctx
+type(c_ptr), intent(inout) :: ctx
 integer(kind=iwp) :: nAtoms
 real(kind=wp), allocatable :: Coord(:)
+
 call Get_nAtoms_All(nAtoms)
 call mma_allocate(Coord,3*nAtoms,label='Coord')
 call Get_Coord_All(Coord,nAtoms)
 call fmsym_set_ele_orb(ctx,nAtoms,Coord)
 call mma_deallocate(Coord)
+
 return
+
 end subroutine fmsym_set_elements
 
 !***********************************************************************
 
 subroutine fmsym_release_context(ctx)
-use Definitions, only: wp, iwp
+
+use iso_c_binding, only: c_ptr
+use Definitions, only: iwp
+
 implicit none
-real(kind=wp), intent(inout) :: ctx
+type(c_ptr), intent(inout) :: ctx
 integer(kind=iwp) :: ret
+interface
+  function cmsym_release_context(pctx,err) bind(C,name='cmsym_release_context_')
+    use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: cmsym_release_context
+    type(c_ptr), value :: pctx
+    integer(kind=MOLCAS_C_INT) :: err
+  end function cmsym_release_context
+end interface
+
 ! INT cmsym_release_context(msym_context *pctx, int*err)
-call cmsym_release_context(ctx,ret)
+ret = cmsym_release_context(ctx,ret)
+
 return
+
 end subroutine fmsym_release_context
 
 !***********************************************************************
 
 subroutine fmsym_set_ele_orb(ctx,nAtoms,Coord)
+
+use iso_c_binding, only: c_ptr
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+
 implicit none
-real(kind=wp), intent(inout) :: ctx
+type(c_ptr), intent(inout) :: ctx
 integer(kind=iwp), intent(in) :: nAtoms
 real(kind=wp), intent(in) :: Coord(3,nAtoms)
 #include "LenIn.fh"
 character(len=LenIn), allocatable :: AtomLabel(:)
 integer(kind=iwp), allocatable :: basis_ids(:), nBas(:)
 integer(kind=iwp) :: nSym, nMO, nCMO, iSym, ret
+interface
+  subroutine cmsym_set_elements(pctx,pel,puel,uelement,xyz,paol,basis_ids,err) bind(C,name='cmsym_set_elements_')
+    use, intrinsic :: iso_c_binding, only: c_char, c_ptr
+    use Definitions, only: MOLCAS_C_INT, MOLCAS_C_REAL
+    type(c_ptr), value :: pctx
+    integer(kind=MOLCAS_C_INT) :: pel, puel, paol, basis_ids(*), err
+    character(kind=c_char) :: uelement(*)
+    real(kind=MOLCAS_C_REAL) :: xyz(*)
+  end subroutine cmsym_set_elements
+end interface
 
 call mma_allocate(AtomLabel,nAtoms,label='AtomLabel')
 call Get_LblCnt_All(AtomLabel)
@@ -76,8 +124,7 @@ call Get_iArray('nBas',nBas,nSym)
 
 if (nSym /= 1) then
   call WarningMessage(2,'MSYM can only be used with group c1')
-  ! INT cmsym_release_context(msym_context *pctx, int*err)
-  call cmsym_release_context(ctx,ret)
+  call fmsym_release_context(ctx)
   call Abend()
 end if
 
@@ -90,7 +137,7 @@ end do
 call mma_deallocate(nBas)
 
 call mma_allocate(basis_ids,4*nMO,label='basis_ids')
-call Get_iArray('Basis IDs',basis_ids,(4*nMO))
+call Get_iArray('Basis IDs',basis_ids,4*nMO)
 ! INT cmsym_set_elements(msym_context *pctx, INT *pel, INT *puel, char *uelement, double xyz[][3], INT *paol, INT basis_ids[][4], int *err)
 call cmsym_set_elements(ctx,nAtoms,(LENIN),AtomLabel,Coord,nMO,basis_ids,ret)
 call mma_deallocate(basis_ids)
@@ -98,59 +145,90 @@ call mma_deallocate(AtomLabel)
 call xflush(u6)
 if (ret /= 0) then
   call WarningMessage(2,'Failed to set elements')
-  ! INT cmsym_release_context(msym_context *pctx, int*err)
-  call cmsym_release_context(ctx,ret)
+  call fmsym_release_context(ctx)
   call Abend()
 end if
 
 return
+
 end subroutine fmsym_set_ele_orb
 
 !***********************************************************************
 
 subroutine fmsym_find_symmetry(ctx)
-use Definitions, only: wp, iwp, u6
+
+use iso_c_binding, only: c_ptr
+use Definitions, only: iwp, u6
+
 implicit none
-real(kind=wp), intent(inout) :: ctx
+type(c_ptr), intent(inout) :: ctx
 integer(kind=iwp) :: ret
 character(len=6) :: PGName
+
+interface
+  subroutine cmsym_find_symmetry(pctx,pgname,err) bind(C,name='cmsym_find_symmetry_')
+    use, intrinsic :: iso_c_binding, only: c_char, c_ptr
+    use Definitions, only: MOLCAS_C_INT
+    type(c_ptr), value :: pctx
+    character(kind=c_char) :: pgname(6)
+    integer(kind=MOLCAS_C_INT) :: err
+  end subroutine cmsym_find_symmetry
+end interface
+
 ! INT cmsym_find_symmetry(msym_context *pctx, char pgname[6], int *err)
 call cmsym_find_symmetry(ctx,PGName,ret)
 if (ret /= 0) then
   call WarningMessage(2,'Failed to find symmetry')
-  ! INT cmsym_release_context(msym_context *pctx, int*err)
-  call cmsym_release_context(ctx,ret)
+  call fmsym_release_context(ctx)
   call Abend()
 end if
 write(u6,*) 'Found Point Group:'
 write(u6,*) PGName
+
 return
+
 end subroutine fmsym_find_symmetry
 
 !***********************************************************************
 
 subroutine fmsym_symmetrize_molecule(ctx)
-use Definitions, only: wp, iwp
+
+use iso_c_binding, only: c_ptr
+use Definitions, only: iwp
+
 implicit none
-real(kind=wp), intent(inout) :: ctx
+type(c_ptr), intent(inout) :: ctx
 integer(kind=iwp) :: lFN, ret
 character(len=256) :: FN
+interface
+  subroutine cmsym_symmetrize_molecule(pctx,outfile,err) bind(C,name='cmsym_symmetrize_molecule_')
+    use, intrinsic :: iso_c_binding, only: c_char, c_ptr
+    use Definitions, only: MOLCAS_C_INT
+    type(c_ptr), value :: pctx
+    character(kind=c_char) :: outfile(*)
+    integer(kind=MOLCAS_C_INT) :: err
+  end subroutine cmsym_symmetrize_molecule
+end interface
+
 call PrgmTranslate('MSYMOUT',FN,lFN)
 FN = FN(1:lFN)//char(0)
 ! INT cmsym_symmetrize_molecule(msym_context *pctx, char *outfile, INT *err)
 call cmsym_symmetrize_molecule(ctx,FN,ret)
 if (ret /= 0) then
   call WarningMessage(2,'Failed to symmetrize molecule')
-  ! INT cmsym_release_context(msym_context *pctx, int*err)
-  call cmsym_release_context(ctx,ret)
+  call fmsym_release_context(ctx)
   call Abend()
 end if
+
 return
+
 end subroutine fmsym_symmetrize_molecule
 
 !***********************************************************************
 
 subroutine fmsym_generate_orbital_subspaces(ctx)
+
+use iso_c_binding, only: c_ptr
 #ifdef _HDF5_
 use mh5, only: mh5_create_file, mh5_init_attr, mh5_create_dset_real, mh5_create_dset_int, mh5_create_dset_str, mh5_put_dset, &
                mh5_close_dset, mh5_close_file
@@ -158,9 +236,11 @@ use mh5, only: mh5_create_file, mh5_init_attr, mh5_create_dset_real, mh5_create_
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+
 implicit none
-real(kind=wp), intent(inout) :: ctx
-integer(kind=iwp) :: iSym, nSym, nMO, nCMO, nIrr, LuOrb, Dummy(1), ret
+type(c_ptr), intent(inout) :: ctx
+integer(kind=iwp) :: IndT(7,8), iSym, nSym, nMO, nCMO, nIrr, LuOrb, ret
+real(kind=wp) :: Dummy(1)
 integer(kind=iwp), allocatable :: nBas(:), IrrIds(:), IrrInd(:)
 character(len=80) :: Title
 character(len=8), allocatable :: irrep_strings(:)
@@ -169,6 +249,17 @@ real(kind=wp), allocatable :: CAO(:), Occ(:)
 integer(kind=iwp) :: fileid, dsetid
 #endif
 integer(kind=iwp), external :: isfreeunit
+interface
+  subroutine cmsym_generate_orbital_subspaces(pctx,l,c,irrep_ids,irrep_ind,nirreps,lbl,err) &
+             bind(C,name='cmsym_generate_orbital_subspaces_')
+    use, intrinsic :: iso_c_binding, only: c_char, c_ptr
+    use Definitions, only: MOLCAS_C_INT, MOLCAS_C_REAL
+    type(c_ptr), value :: pctx
+    integer(kind=MOLCAS_C_INT) :: l, irrep_ids(l), irrep_ind(l), nirreps, err
+    real(kind=MOLCAS_C_REAL) :: c(l,l)
+    character(kind=c_char) :: lbl(8,l)
+  end subroutine cmsym_generate_orbital_subspaces
+end interface
 
 call Get_iScalar('nSym',nSym)
 call mma_allocate(nBas,nSym,label='nBas')
@@ -187,7 +278,7 @@ call mma_allocate(IrrIds,nMO,label='IrrIds')
 call mma_allocate(IrrInd,nMO,label='IrrInd')
 call mma_allocate(irrep_strings,nMO,label='irrep_strings')
 
-! INT cmsym_generate_orbital_subspaces(msym_context *pctx, INT *l, double c[*l][*l], INT irrep_ids[*l], INT irrep_ind[*l], INT *err)
+! INT cmsym_generate_orbital_subspaces(msym_context *pctx, INT *l, double c[*l][*l], INT irrep_ids[*l], INT irrep_ind[*l], INT* nirreps, char lbl[*l][8], INT *err){
 call cmsym_generate_orbital_subspaces(ctx,nMO,CAO,IrrIds,IrrInd,nIrr,irrep_strings,ret)
 write(u6,*) 'Irrep indices='
 write(u6,'(5i3)') IrrInd(:)
@@ -196,8 +287,7 @@ write(u6,'(5i3)') IrrIds(:)
 
 if (ret /= 0) then
   call WarningMessage(2,'Failed to generate SALCs')
-  ! INT cmsym_release_context(msym_context *pctx, int*err)
-  call cmsym_release_context(ctx,ret)
+  call fmsym_release_context(ctx)
   call Abend()
 end if
 
@@ -205,7 +295,8 @@ Occ(:) = Zero
 
 Title = 'Orbital Subspaces'
 LuOrb = isfreeunit(50)
-call WrVec('MSYMAORB',LuOrb,'CO',nSym,nBas,nBas,CAO,Occ,Dummy,IrrInd,Title)
+IndT(:,:) = 0
+call WrVec('MSYMAORB',LuOrb,'CO',nSym,nBas,nBas,CAO,Occ,Dummy,IndT,Title)
 #ifdef _HDF5_
 fileid = mh5_create_file('MSYMH5')
 call run2h5_molinfo(fileid)
@@ -257,17 +348,31 @@ call mma_deallocate(IrrIds)
 call mma_deallocate(irrep_strings)
 
 return
+
 end subroutine fmsym_generate_orbital_subspaces
 
 !***********************************************************************
 
 subroutine fmsym_symmetrize_orbitals(ctx,CIO)
+
+use iso_c_binding, only: c_ptr
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
+
 implicit none
-real(kind=wp), intent(inout) :: ctx, CIO(*)
+type(c_ptr), intent(inout) :: ctx
+real(kind=wp), intent(inout) :: CIO(*)
 integer(kind=iwp) :: iSym, nSym, nMO, nCMO, ret
 integer(kind=iwp), allocatable :: nBas(:)
+interface
+  subroutine cmsym_symmetrize_orbitals(pctx,l,c,err) bind(C,name='cmsym_symmetrize_orbitals_')
+    use, intrinsic :: iso_c_binding, only: c_ptr
+    use Definitions, only: MOLCAS_C_INT, MOLCAS_C_REAL
+    type(c_ptr), value :: pctx
+    integer(kind=MOLCAS_C_INT) :: l, err
+    real(kind=MOLCAS_C_REAL) :: c(l,l)
+  end subroutine cmsym_symmetrize_orbitals
+end interface
 
 call Get_iScalar('nSym',nSym)
 call mma_allocate(nBas,nSym,label='nBas')
@@ -275,8 +380,7 @@ call Get_iArray('nBas',nBas,nSym)
 
 if (nSym /= 1) then
   call WarningMessage(2,'MSYM can only be used with group c1')
-  ! INT cmsym_release_context(msym_context *pctx, int*err)
-  call cmsym_release_context(ctx,ret)
+  call fmsym_release_context(ctx)
   call Abend()
 end if
 
@@ -292,27 +396,39 @@ call mma_deallocate(nBas)
 call cmsym_symmetrize_orbitals(ctx,nMO,CIO,ret)
 if (ret /= 0) then
   call WarningMessage(2,'Failed to symmetrize orbitals')
-  ! INT cmsym_release_context(msym_context *pctx, int*err)
-  call cmsym_release_context(ctx,ret)
+  call fmsym_release_context(ctx)
   call Abend()
 end if
 
 return
+
 end subroutine fmsym_symmetrize_orbitals
 
 !***********************************************************************
 
 subroutine fmsym_symmetrize_orb_file(ctx,INPORB)
+
+use iso_c_binding, only: c_ptr
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
+
 implicit none
-real(kind=wp), intent(inout) :: ctx
+type(c_ptr), intent(inout) :: ctx
 character(len=*), intent(in) :: INPORB
 integer(kind=iwp) :: iSym, iBas, nSym, nMO, nCMO, LuOrb, iWarn, iErr, i, j, ret
 integer(kind=iwp), allocatable :: nBas(:), indType(:,:), TIND(:)
 real(kind=wp), allocatable :: CIO(:), Occ(:), E(:)
 character(len=80) :: Title
 integer(kind=iwp), external :: isfreeunit
+interface
+  subroutine cmsym_symmetrize_orbitals(pctx,l,c,err) bind(C,name='cmsym_symmetrize_orbitals_')
+    use, intrinsic :: iso_c_binding, only: c_ptr
+    use Definitions, only: MOLCAS_C_INT, MOLCAS_C_REAL
+    type(c_ptr), value :: pctx
+    integer(kind=MOLCAS_C_INT) :: l, err
+    real(kind=MOLCAS_C_REAL) :: c(l,l)
+  end subroutine cmsym_symmetrize_orbitals
+end interface
 
 call Get_iScalar('nSym',nSym)
 call mma_allocate(nBas,nSym,label='nBas')
@@ -321,8 +437,7 @@ call Get_iArray('nBas',nBas,nSym)
 
 if (nSym /= 1) then
   call WarningMessage(2,'MSYM can only be used with group c1')
-  ! INT cmsym_release_context(msym_context *pctx, int*err)
-  call cmsym_release_context(ctx,ret)
+  call fmsym_release_context(ctx)
   call Abend()
 end if
 
@@ -345,8 +460,7 @@ call cmsym_symmetrize_orbitals(ctx,nMO,CIO,ret)
 
 if (ret /= 0) then
   call WarningMessage(2,'Failed to symmetrize orbitals')
-  ! INT cmsym_release_context(msym_context *pctx, int*err)
-  call cmsym_release_context(ctx,ret)
+  call fmsym_release_context(ctx)
   call Abend()
 end if
 indType(:,:) = 0

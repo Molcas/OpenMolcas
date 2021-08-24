@@ -14,7 +14,7 @@
       subroutine transp_cvb(a,b,n1,n2)
 c  Transposes matrix A; A and B may share memory.
       implicit real*8 (a-h,o-z)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension a(n1,n2),b(n2,n1)
 
       i1 = mstackr_cvb(n2*n1)
@@ -22,10 +22,10 @@ c  Transposes matrix A; A and B may share memory.
       do 100 i=1,n1
       iskip=iskip+n2
       do 101 j=1,n2
-      w(j+iskip)=a(i,j)
+      work(j+iskip)=a(i,j)
 101   continue
 100   continue
-      call fmove_cvb(w(i1),b,n2*n1)
+      call fmove_cvb(work(i1),b,n2*n1)
       call mfreer_cvb(i1)
       return
       end

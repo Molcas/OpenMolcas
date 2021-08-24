@@ -14,6 +14,12 @@
       subroutine date2_cvb(delcpu)
       implicit real*8(a-h,o-z)
       character*120 line
+      interface
+        subroutine datimx(TimeStamp) bind(C,name='datimx_')
+          use, intrinsic :: iso_c_binding, only: c_char
+          character(kind=c_char) :: TimeStamp(*)
+        end subroutine
+      end interface
 
       line=' '
       call datimx(line)

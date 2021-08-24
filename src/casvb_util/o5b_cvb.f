@@ -15,11 +15,11 @@
      >  dxnrm,grdnrm,close2conv)
       implicit real*8 (a-h,o-z)
       logical close2conv
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 #include "opt2_cvb.fh"
 
       call o5b2_cvb(nparm,
-     >  w(ix(1)),w(ix(2)),
+     >  work(ix(1)),work(ix(2)),
      >  dxnrm,close2conv)
       return
 c Avoid unused argument warnings

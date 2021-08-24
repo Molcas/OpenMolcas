@@ -20,13 +20,13 @@
 
 
 #include "frag_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension dum1(1), dum2(1)
 
       k1=mstackr_cvb(nda*ndb)
-      call dpci2vb_cvb(w(k1),dum1,dum2,0,dum3,4)
-      call setiaprtot2_cvb(w(k1),
-     >  iw(ll(11)),iw(ll(12)),iw(ll(13)),iw(ll(14)),npvb,
+      call dpci2vb_cvb(work(k1),dum1,dum2,0,dum3,4)
+      call setiaprtot2_cvb(work(k1),
+     >  iwork(ll(11)),iwork(ll(12)),iwork(ll(13)),iwork(ll(14)),npvb,
      >  nda,ndb)
       call mfreer_cvb(k1)
       return

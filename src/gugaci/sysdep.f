@@ -502,6 +502,7 @@ c...end of readint
 #ifdef MOLPRO
 #else
       real*8 function c_time()
+      real*8, external :: seconds
       c_time=seconds()
 
       end function c_time

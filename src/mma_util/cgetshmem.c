@@ -74,6 +74,7 @@ struct  mstat{
     INT   naccess;             /* Total number of allocs                     */
     INT   mxmem;               /* MOLCASMEM                                  */
     INT   avmem;               /* maximal available memory for MOLCAS        */
+    INT   totmem;              /* initial MOLCAS_MEM                         */
 };
 
 extern mstat   MlM;

@@ -53,7 +53,7 @@
       If (.Not.Found) Then
          Call Put_iArray('nDel',nDel,nIrrep)
       End If
-      Do i=1,nIrrep ! note that in info.fh is nBas(0:7)
+      Do i=1,nIrrep ! note that in Basis_Info is nBas(0:7)
          nDel(i)=nBas(i-1)-nDel(i)
       End Do
       Call Put_iArray('nOrb',nDel,nIrrep) ! nDel is corrupted here!

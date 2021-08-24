@@ -181,6 +181,9 @@ CONTAINS
     INTEGER :: IA, IS
 
     REAL(REAL64), ALLOCATABLE :: WORK(:)
+    REAL(REAL64), ALLOCATABLE :: TMPII(:,:), TMPIA(:,:), TMPIS(:,:)
+    REAL(REAL64), ALLOCATABLE :: TMPAI(:,:), TMPAA(:,:), TMPAS(:,:)
+    REAL(REAL64), ALLOCATABLE :: TMPSI(:,:), TMPSA(:,:)
     INTEGER :: NWORK, INFO
 
     NI=SIZE(F%DI)
@@ -191,14 +194,19 @@ CONTAINS
     ! allocate temporary scratch
     NWORK=1+MAX(MAX(NI,NA),NS)**2
     ALLOCATE(WORK(NWORK))
+    ALLOCATE(TMPII(NI,NI),TMPIA(NI,NA),TMPIS(NI,NS))
+    ALLOCATE(TMPAI(NA,NI),TMPAA(NA,NA),TMPAS(NA,NS))
+    ALLOCATE(TMPSI(NS,NI),TMPSA(NS,NA))
 
     ! step 1: diagonalize the secondary-secondary subblock
     call dsyev_('V','U',NS,F%SS,NS,F%DS,WORK,NWORK,INFO)
     IF (INFO.NE.0) STOP 'Error: diagonalization of FSS failed'
 
     ! adjust off-diagonal blocks to basis change
-    F%IS(:,:) = MATMUL(F%IS,F%SS)
-    F%AS(:,:) = MATMUL(F%AS,F%SS)
+    TMPIS(:,:) = MATMUL(F%IS,F%SS)
+    F%IS(:,:) = TMPIS
+    TMPAS(:,:) = MATMUL(F%AS,F%SS)
+    F%AS(:,:) = TMPAS
     F%SI(:,:) = TRANSPOSE(F%IS)
     F%SA(:,:) = TRANSPOSE(F%AS)
 
@@ -206,18 +214,21 @@ CONTAINS
     DO IS=1,NS
       F%IS(:,IS) = F%IS(:,IS)/F%DS(IS)
     END DO
-    F%II(:,:) = F%II - MATMUL(F%IS,F%SI)
+    TMPII(:,:) = MATMUL(F%IS,F%SI)
+    F%II(:,:) = F%II - TMPII
     F%SI(:,:) = TRANSPOSE(F%IS)
 
     ! adjust off-diagonal blocks to elimination
-    F%AI(:,:) = F%AI - MATMUL(F%AS,F%SI)
+    TMPAI(:,:) = MATMUL(F%AS,F%SI)
+    F%AI(:,:) = F%AI - TMPAI
     F%IA(:,:) = TRANSPOSE(F%AI)
 
     ! construct new QAS/QSA blocks
     DO IS=1,NS
       F%AS(:,IS) = F%AS(:,IS)/F%DS(IS)
     END DO
-    F%AA(:,:) = F%AA - MATMUL(F%AS,F%SA)
+    TMPAA(:,:) = MATMUL(F%AS,F%SA)
+    F%AA(:,:) = F%AA - TMPAA
     F%SA(:,:) = TRANSPOSE(F%AS)
 
     ! step 2: diagonalize the active-active subblock
@@ -225,8 +236,10 @@ CONTAINS
     IF (INFO.NE.0) STOP 'Error: diagonalization of FAA failed'
 
     ! adjust off-diagonal blocks to basis change
-    F%IA(:,:) = MATMUL(F%IA,F%AA)
-    F%SA(:,:) = MATMUL(F%SA,F%AA)
+    TMPIA(:,:) = MATMUL(F%IA,F%AA)
+    F%IA(:,:) = TMPIA
+    TMPSA(:,:) = MATMUL(F%SA,F%AA)
+    F%SA(:,:) = TMPSA
     F%AI(:,:) = TRANSPOSE(F%IA)
     F%AS(:,:) = TRANSPOSE(F%SA)
 
@@ -234,7 +247,8 @@ CONTAINS
     DO IA=1,NA
       F%IA(:,IA) = F%IA(:,IA)/F%DA(IA)
     END DO
-    F%II(:,:) = F%II - MATMUL(F%IA,F%AI)
+    TMPII(:,:) = MATMUL(F%IA,F%AI)
+    F%II(:,:) = F%II - TMPII
     F%AI(:,:) = TRANSPOSE(F%IA)
 
     ! step 3: diagonalize the inactive-inactive subblock
@@ -242,10 +256,14 @@ CONTAINS
     IF (INFO.NE.0) STOP 'Error: diagonalization of FII failed'
 
     ! adjust off-diagonal blocks to basis change
-    F%AI(:,:) = MATMUL(F%AI,F%II)
-    F%SI(:,:) = MATMUL(F%SI,F%II)
+    TMPAI(:,:) = MATMUL(F%AI,F%II)
+    F%AI(:,:) = TMPAI
+    TMPSI(:,:) = MATMUL(F%SI,F%II)
+    F%SI(:,:) = TMPSI
     F%IA(:,:) = TRANSPOSE(F%AI)
     F%IS(:,:) = TRANSPOSE(F%SI)
+
+    DEALLOCATE(TMPII,TMPIA,TMPIS,TMPAI,TMPAA,TMPAS,TMPSI,TMPSA)
 
 #ifdef _DEBUG_
     ! sanity test: we should be able to reconstruct the original fock matrix!!

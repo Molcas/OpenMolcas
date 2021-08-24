@@ -15,7 +15,7 @@
      >  nel,nalffrom,nalfto,nvec)
       implicit real*8 (a-h,o-z)
       dimension bikfrom(*),bikto(*)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
       call ab2asc_cvb(bikfrom,nvec,nel,nalffrom)
 
@@ -29,22 +29,22 @@
       if(nalffrom.eq.nalfto+1)then
         call sminus2_cvb(bikfrom,bikto,
      >    nel,ialffrom,ndetfrom,ialfto,ndetto,nvec,
-     >    iw(i1),iw(i2),iw(i3))
+     >    iwork(i1),iwork(i2),iwork(i3))
       elseif(ialfto.eq.nalffrom-1)then
         i4 = mheapr_cvb(ndetto*nvec)
-        call sminus2_cvb(bikfrom,w(i4),
+        call sminus2_cvb(bikfrom,work(i4),
      >    nel,ialffrom,ndetfrom,ialfto,ndetto,nvec,
-     >    iw(i1),iw(i2),iw(i3))
+     >    iwork(i1),iwork(i2),iwork(i3))
       elseif(ialfto.eq.nalfto)then
-        call sminus2_cvb(w(i4),bikto,
+        call sminus2_cvb(work(i4),bikto,
      >    nel,ialffrom,ndetfrom,ialfto,ndetto,nvec,
-     >    iw(i1),iw(i2),iw(i3))
+     >    iwork(i1),iwork(i2),iwork(i3))
         call mhpfreer_cvb(i4)
       else
         i5 = mheapr_cvb(ndetto*nvec)
-        call sminus2_cvb(w(i4),w(i5),
+        call sminus2_cvb(work(i4),work(i5),
      >    nel,ialffrom,ndetfrom,ialfto,ndetto,nvec,
-     >    iw(i1),iw(i2),iw(i3))
+     >    iwork(i1),iwork(i2),iwork(i3))
         call mhpfreer_cvb(i4)
         i4=i5
       endif

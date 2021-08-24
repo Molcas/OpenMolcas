@@ -47,10 +47,6 @@
 #include "real.fh"
 #include "rctfld.fh"
 #include "nq_info.fh"
-      Integer  iix(2)
-      Real*8   rix(2)
-      nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
-      nbyte_r = idloc(rix(2)) - idloc(rix(1))
 *
       Call DmpInf_Internal(
      & cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
@@ -82,23 +78,19 @@
 *                                                                      *
 *     Reaction field parameters
 *
-      Len = iiLoc(lRFEnd)-iiLoc(lRFStrt)
-      Len = (Len+nByte_i)/nByte_i
+      Len = ip_of_iWork(lRFEnd)-ip_of_iWork(lRFStrt)+1
       Call C_F_Pointer(C_Loc(lRFStrt),p_lRF,[Len])
       Call Put_iArray('RFlInfo',p_lRF,Len)
 *
-      Len = idLoc(rRFEnd)-idLoc(rRFStrt)
-      Len = (Len+nByte_r)/nByte_r
+      Len = ip_of_Work(rRFEnd)-ip_of_Work(rRFStrt)+1
       Call C_F_Pointer(C_Loc(rRFStrt),p_rRF,[Len])
       Call Put_dArray('RFrInfo',p_rRF,Len)
 *
-      Len = iiLoc(iRFEnd)-iiLoc(iRFStrt)
-      Len = (Len+nByte_i)/nByte_i
+      Len = ip_of_iWork(iRFEnd)-ip_of_iWork(iRFStrt)+1
       Call C_F_Pointer(C_Loc(iRFStrt),p_iRF,[Len])
       Call Put_iArray('RFiInfo',p_iRF,Len)
 *
-      Len = iiLoc(cRFEnd)-iiLoc(cRFStrt)
-      Len = (Len+nByte_i)/nByte_i
+      Len = ip_of_iWork(cRFEnd)-ip_of_iWork(cRFStrt)+1
       Call C_F_Pointer(C_Loc(cRFStrt),p_cRF,[Len])
       Call Put_iArray('RFcInfo',p_cRF,Len)
 *
@@ -108,18 +100,15 @@
 *                                                                      *
 *     Numerical integration information and parameters
 *
-      Len = idLoc(rQEnd)-idLoc(rQStrt)
-      Len = (Len+nByte_r)/nByte_r
+      Len = ip_of_Work(rQEnd)-ip_of_Work(rQStrt)+1
       Call C_F_Pointer(C_Loc(rQStrt),p_rQ,[Len])
       Call Put_dArray('Quad_r',p_rQ,Len)
 *
-      Len = iiLoc(iQEnd)-iiLoc(iQStrt)
-      Len = (Len+nByte_i)/nByte_i
+      Len = ip_of_iWork(iQEnd)-ip_of_iWork(iQStrt)+1
       Call C_F_Pointer(C_Loc(iQStrt),p_iQ,[Len])
       Call Put_iArray('Quad_i',p_iQ,Len)
 *
-      Len = iiLoc(cQEnd)-iiLoc(cQStrt)
-      Len = (Len+nByte_i)/nByte_i
+      Len = ip_of_iWork(cQEnd)-ip_of_iWork(cQStrt)+1
       Call C_F_Pointer(C_Loc(cQStrt),p_cQ,[Len])
       Call Put_iArray('Quad_c',p_cQ,Len)
 *

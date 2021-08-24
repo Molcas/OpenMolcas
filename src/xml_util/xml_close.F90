@@ -32,6 +32,14 @@ character(len=*), intent(in) :: TagName
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
 character(len=16) :: myName
+interface
+  subroutine xml_Closec(name_,nx_name) bind(C,name='xml_closec_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    character(kind=c_char) :: name_(*)
+    integer(kind=MOLCAS_C_INT) :: nx_name
+  end subroutine xml_Closec
+end interface
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*

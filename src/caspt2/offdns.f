@@ -22,7 +22,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "eqsolv.fh"
-#include "WrkSpc.fh"
       DIMENSION X1(*),X2(*),Y(*)
       DIMENSION DPT2(*)
       DIMENSION LIST(*)

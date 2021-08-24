@@ -16,7 +16,7 @@
       parameter (nkeyw=3,ncmp=4)
       character*8 keyword(nkeyw)
       character*(*) a
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension iarr(*),ito(1)
       save keyword
       data keyword/'NONE    ','ALL     ','TO      '/

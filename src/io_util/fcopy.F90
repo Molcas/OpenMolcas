@@ -18,7 +18,30 @@ character(len=*), intent(in) :: NmIn, NmUt
 integer(kind=iwp), intent(out) :: iErr
 integer(kind=iwp) :: lIn, lUt, rc, rcIn, rcUt
 character(len=1024) :: myIn, myUt
-integer(kind=iwp), external :: c_close, c_copy, c_open, c_openw
+interface
+  function c_close(FileDescriptor) bind(C,name='c_close_')
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: c_close
+    integer(kind=MOLCAS_C_INT) :: FileDescriptor
+  end function c_close
+  function c_copy(FileDescriptor1,FileDescriptor2) bind(C,name='c_copy_')
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: c_copy
+    integer(kind=MOLCAS_C_INT) :: FileDescriptor1, FileDescriptor2
+  end function c_copy
+  function c_open(Path) bind(C,name='c_open_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: c_open
+    character(kind=c_char) :: Path(*)
+  end function c_open
+  function c_openw(Path) bind(C,name='c_openw_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: c_openw
+    character(kind=c_char) :: Path(*)
+  end function c_openw
+end interface
 
 iErr = 0
 if ((len(NmIn) > 1024) .or. (len(NmUt) > 1024)) then

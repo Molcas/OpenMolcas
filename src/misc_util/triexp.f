@@ -28,7 +28,7 @@ C
       REAL*8 B(*)
 C
       IMODE=1
-      If ( idLOC(A(1)).EQ.idLOC(B(1)) ) IMODE=2
+      If ( ip_of_Work(A(1)).EQ.ip_of_Work(B(1)) ) IMODE=2
 C
       IF( IMODE.EQ.1 ) THEN
          K=0

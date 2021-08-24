@@ -20,7 +20,7 @@
 
 
 #include "frag_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
       ibase=mstacki_cvb(0)
 
@@ -40,8 +40,9 @@
       nda_fr(1,ifrag)=nda_l
 
       call vbgendet_cvb(
-     >  iw(iapr_add),iw(ixapr_add),iw(ibpr_add),iw(ixbpr_add),
-     >  iw(iconfs_add),iw(idetvb_add),
+     >  iwork(iapr_add),iwork(ixapr_add),iwork(ibpr_add),
+     >  iwork(ixbpr_add),
+     >  iwork(iconfs_add),iwork(idetvb_add),
      >  nconf_fr(ifrag),nconfion_fr(0,ifrag),
      >  nda_l,ndb_l,ndetvb_fr(ifrag),nel_fr(ifrag),
      >  noe,nalf_l,nbet_l,norb)
@@ -57,11 +58,11 @@
       iastr_fr(ifrag)=mstacki_cvb(nalf_fr(1,ifrag)*nda_fr(1,ifrag))
       ibstr_fr(ifrag)=mstacki_cvb(nbet_fr(1,ifrag)*ndb_fr(1,ifrag))
       call stringen_cvb(nel_fr(ifrag),nalf_fr(1,ifrag),
-     >  iw(iastr_fr(ifrag)),iw(ibstr_fr(ifrag)),nda_fr(1,ifrag))
+     >  iwork(iastr_fr(ifrag)),iwork(ibstr_fr(ifrag)),nda_fr(1,ifrag))
 200   continue
 
-      call izero(iw(ll(7)),naprodvb)
-      call izero(iw(ll(8)),nbprodvb)
+      call izero(iwork(ll(7)),naprodvb)
+      call izero(iwork(ll(8)),nbprodvb)
       k1 = mstacki_cvb((norb+1)*(nalf+1))
       k2 = mstacki_cvb(nfrag)
       k3 = mstacki_cvb(nfrag)
@@ -71,9 +72,9 @@
       mxstack=100
       k7 = mstacki_cvb(mxstack)
       call detsort2_cvb(
-     >  iw(k1),norb,nalf,nfrag,nda_fr(1,1),nalf_fr(1,1),
-     >  iw(k2),iw(ll(7)),iw(k3),iw(k4),iw(k5),
-     >  iw(1),iastr_fr,iw(k6),iw(k7),mxstack)
+     >  iwork(k1),norb,nalf,nfrag,nda_fr(1,1),nalf_fr(1,1),
+     >  iwork(k2),iwork(ll(7)),iwork(k3),iwork(k4),iwork(k5),
+     >  iwork(1),iastr_fr,iwork(k6),iwork(k7),mxstack)
       call mfreei_cvb(k1)
       k1 = mstacki_cvb((norb+1)*(nbet+1))
       k2 = mstacki_cvb(nfrag)
@@ -84,9 +85,9 @@
       mxstack=100
       k7 = mstacki_cvb(mxstack)
       call detsort2_cvb(
-     >  iw(k1),norb,nbet,nfrag,ndb_fr(1,1),nbet_fr(1,1),
-     >  iw(k2),iw(ll(8)),iw(k3),iw(k4),iw(k5),
-     >  iw(1),ibstr_fr,iw(k6),iw(k7),mxstack)
+     >  iwork(k1),norb,nbet,nfrag,ndb_fr(1,1),nbet_fr(1,1),
+     >  iwork(k2),iwork(ll(8)),iwork(k3),iwork(k4),iwork(k5),
+     >  iwork(1),ibstr_fr,iwork(k6),iwork(k7),mxstack)
       call mfreei_cvb(k1)
 
       call mfreei_cvb(ibase)

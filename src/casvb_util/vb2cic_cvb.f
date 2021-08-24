@@ -38,7 +38,7 @@ c  *********************************************************************
 #include "print_cvb.fh"
 
 #include "frag_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension cvbdet(ndetvb),civec(*)
 
       icivec=nint(civec(1))
@@ -49,10 +49,11 @@ c  *********************************************************************
         call abend_cvb()
       endif
       if(nfrag.le.1)then
-        call ci2vb2_cvb(w(iaddr_ci(icivec)),cvbdet,
-     >    iw(ll(11)),iw(ll(12)),dum,1)
+        call ci2vb2_cvb(work(iaddr_ci(icivec)),cvbdet,
+     >    iwork(ll(11)),iwork(ll(12)),dum,1)
       else
-        call dpci2vb_cvb(w(iaddr_ci(icivec)),cvbdet,w(lv(5)),ic,dum,1)
+        call dpci2vb_cvb(work(iaddr_ci(icivec)),cvbdet,work(lv(5)),ic,
+     >                   dum,1)
       endif
       call setcnt2_cvb(icivec,0)
       return
@@ -66,7 +67,7 @@ c  *********************************************************************
 #include "print_cvb.fh"
 
 #include "frag_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension cvbdet(ndetvb),civec(*)
 
       icivec=nint(civec(1))
@@ -77,10 +78,11 @@ c  *********************************************************************
         call abend_cvb()
       endif
       if(nfrag.le.1)then
-        call ci2vb2_cvb(w(iaddr_ci(icivec)),cvbdet,
-     >    iw(ll(11)),iw(ll(12)),dum,1)
+        call ci2vb2_cvb(work(iaddr_ci(icivec)),cvbdet,
+     >    iwork(ll(11)),iwork(ll(12)),dum,1)
       else
-        call dpci2vb_cvb(w(iaddr_ci(icivec)),cvbdet,w(lv(5)),ic,dum,1)
+        call dpci2vb_cvb(work(iaddr_ci(icivec)),cvbdet,work(lv(5)),ic,
+     >                   dum,1)
       endif
       call setcnt2_cvb(icivec,0)
       return
@@ -95,7 +97,7 @@ c  *********************************************************************
 #include "print_cvb.fh"
 
 #include "frag_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension cvbdet(ndetvb),civec(*)
       icivec=nint(civec(1))
       ic=0
@@ -105,10 +107,11 @@ c  *********************************************************************
         call abend_cvb()
       endif
       if(nfrag.le.1)then
-        call ci2vb2_cvb(w(iaddr_ci(icivec)),cvbdet,
-     >    iw(ll(11)),iw(ll(12)),dum,0)
+        call ci2vb2_cvb(work(iaddr_ci(icivec)),cvbdet,
+     >    iwork(ll(11)),iwork(ll(12)),dum,0)
       else
-        call dpci2vb_cvb(w(iaddr_ci(icivec)),cvbdet,w(lv(5)),ic,dum,0)
+        call dpci2vb_cvb(work(iaddr_ci(icivec)),cvbdet,work(lv(5)),ic,
+     >                   dum,0)
       endif
       return
       end
@@ -123,7 +126,7 @@ c  *********************************************************************
 #include "print_cvb.fh"
 
 #include "frag_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension cvbdet(ndetvb),civec(*)
       icivec=nint(civec(1))
       ic=2
@@ -133,10 +136,11 @@ c  *********************************************************************
         call abend_cvb()
       endif
       if(nfrag.le.1)then
-        call ci2vb2_cvb(w(iaddr_ci(icivec)),cvbdet,
-     >    iw(ll(11)),iw(ll(12)),dum,0)
+        call ci2vb2_cvb(work(iaddr_ci(icivec)),cvbdet,
+     >    iwork(ll(11)),iwork(ll(12)),dum,0)
       else
-        call dpci2vb_cvb(w(iaddr_ci(icivec)),cvbdet,w(lv(5)),ic,dum,0)
+        call dpci2vb_cvb(work(iaddr_ci(icivec)),cvbdet,work(lv(5)),ic,
+     >                   dum,0)
       endif
       return
       end
@@ -149,7 +153,7 @@ c  *********************************************************************
 #include "print_cvb.fh"
 
 #include "frag_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension cvbdet(ndetvb),civec(*)
       icivec=nint(civec(1))
       if(iform_ci(icivec).ne.0)then
@@ -157,10 +161,11 @@ c  *********************************************************************
         call abend_cvb()
       endif
       if(nfrag.le.1)then
-        call ci2vb2_cvb(w(iaddr_ci(icivec)),cvbdet,
-     >    iw(ll(11)),iw(ll(12)),dum,2)
+        call ci2vb2_cvb(work(iaddr_ci(icivec)),cvbdet,
+     >    iwork(ll(11)),iwork(ll(12)),dum,2)
       else
-        call dpci2vb_cvb(w(iaddr_ci(icivec)),cvbdet,w(lv(5)),1,dum,2)
+        call dpci2vb_cvb(work(iaddr_ci(icivec)),cvbdet,work(lv(5)),1,
+     >                   dum,2)
       endif
       call setcnt2_cvb(icivec,0)
       return

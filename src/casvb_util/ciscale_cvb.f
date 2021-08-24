@@ -18,7 +18,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension cvec(*)
 c  *********************************************************************
 c  *                                                                   *
@@ -29,7 +29,7 @@ c  *********************************************************************
       ivec=nint(cvec(1))
       iformat=iform_ci(ivec)
       if(iformat.eq.0)then
-        call dscal_(ndet,scale,w(iaddr_ci(ivec)),1)
+        call dscal_(ndet,scale,work(iaddr_ci(ivec)),1)
       else
         write(6,*)' Unsupported format in CISCALE :',iformat
         call abend_cvb()

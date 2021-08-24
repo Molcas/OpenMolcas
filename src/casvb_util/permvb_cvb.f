@@ -29,7 +29,7 @@ c  Permutes orbitals in V1 according to IPERM.
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension iperm(norb),v1(*)
 
       vb=.true.
@@ -57,18 +57,20 @@ c  Permutes orbitals in V1 according to IPERM.
         k17= mstackr_cvb(nda)
       endif
       if(vb)then
-        call permvb2_cvb(v1,iperm,vb,iw(ll(11)),iw(ll(12)),
-     >    iw(k1),iw(k2),iw(k5),iw(k6),
-     >    iw(k7),iw(k8),iw(k9),iw(k10),iw(k11),iw(k12),
-     >    iw(k13),w(k14),iw(k15),w(k16),w(k17),ialg)
+        call permvb2_cvb(v1,iperm,vb,iwork(ll(11)),iwork(ll(12)),
+     >    iwork(k1),iwork(k2),iwork(k5),iwork(k6),
+     >    iwork(k7),iwork(k8),iwork(k9),iwork(k10),iwork(k11),
+     >    iwork(k12),
+     >    iwork(k13),work(k14),iwork(k15),work(k16),work(k17),ialg)
       else
         iv1=nint(v1(1))
-cDLC iw(maddr_r2i_cvb(iaddr_ci(iv1))) --> w(iaddr_ci(iv1))
-        call permvb2_cvb(w(iaddr_ci(iv1)),
-     >    iperm,vb,iw(ll(11)),iw(ll(12)),
-     >    iw(k1),iw(k2),iw(k5),iw(k6),
-     >    iw(k7),iw(k8),iw(k9),iw(k10),iw(k11),iw(k12),
-     >    iw(k13),w(k14),iw(k15),w(k16),w(k17),ialg)
+cDLC iwork(maddr_r2i_cvb(iaddr_ci(iv1))) --> work(iaddr_ci(iv1))
+        call permvb2_cvb(work(iaddr_ci(iv1)),
+     >    iperm,vb,iwork(ll(11)),iwork(ll(12)),
+     >    iwork(k1),iwork(k2),iwork(k5),iwork(k6),
+     >    iwork(k7),iwork(k8),iwork(k9),iwork(k10),iwork(k11),
+     >    iwork(k12),
+     >    iwork(k13),work(k14),iwork(k15),work(k16),work(k17),ialg)
       endif
       call mfreei_cvb(k1)
       return
@@ -81,7 +83,7 @@ cDLC iw(maddr_r2i_cvb(iaddr_ci(iv1))) --> w(iaddr_ci(iv1))
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension iperm(norb),v1(*)
       vb=.false.
       k1 = mstacki_cvb((norb+1)*(nalf+1))
@@ -108,18 +110,20 @@ cDLC iw(maddr_r2i_cvb(iaddr_ci(iv1))) --> w(iaddr_ci(iv1))
         k17= mstackr_cvb(nda)
       endif
       if(vb)then
-        call permvb2_cvb(v1,iperm,vb,iw(ll(11)),iw(ll(12)),
-     >    iw(k1),iw(k2),iw(k5),iw(k6),
-     >    iw(k7),iw(k8),iw(k9),iw(k10),iw(k11),iw(k12),
-     >    iw(k13),w(k14),iw(k15),w(k16),w(k17),ialg)
+        call permvb2_cvb(v1,iperm,vb,iwork(ll(11)),iwork(ll(12)),
+     >    iwork(k1),iwork(k2),iwork(k5),iwork(k6),
+     >    iwork(k7),iwork(k8),iwork(k9),iwork(k10),iwork(k11),
+     >    iwork(k12),
+     >    iwork(k13),work(k14),iwork(k15),work(k16),work(k17),ialg)
       else
         iv1=nint(v1(1))
-cDLC iw(maddr_r2i_cvb(iaddr_ci(iv1))) --> w(iaddr_ci(iv1))
-        call permvb2_cvb(w(iaddr_ci(iv1)),
-     >    iperm,vb,iw(ll(11)),iw(ll(12)),
-     >    iw(k1),iw(k2),iw(k5),iw(k6),
-     >    iw(k7),iw(k8),iw(k9),iw(k10),iw(k11),iw(k12),
-     >    iw(k13),w(k14),iw(k15),w(k16),w(k17),ialg)
+cDLC iwork(maddr_r2i_cvb(iaddr_ci(iv1))) --> work(iaddr_ci(iv1))
+        call permvb2_cvb(work(iaddr_ci(iv1)),
+     >    iperm,vb,iwork(ll(11)),iwork(ll(12)),
+     >    iwork(k1),iwork(k2),iwork(k5),iwork(k6),
+     >    iwork(k7),iwork(k8),iwork(k9),iwork(k10),iwork(k11),
+     >    iwork(k12),
+     >    iwork(k13),work(k14),iwork(k15),work(k16),work(k17),ialg)
       endif
       call mfreei_cvb(k1)
       return

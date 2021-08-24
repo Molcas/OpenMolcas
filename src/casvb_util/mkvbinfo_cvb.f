@@ -13,7 +13,7 @@
 ************************************************************************
       subroutine mkvbinfo_cvb()
       implicit real*8 (a-h,o-z)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -26,8 +26,8 @@
         call dpgendet_cvb()
       else
         call vbgendet_cvb(
-     >    iw(ll(11)),iw(ll(12)),iw(ll(13)),iw(ll(14)),
-     >    iw(ll(15)),iw(ll(17)),
+     >    iwork(ll(11)),iwork(ll(12)),iwork(ll(13)),iwork(ll(14)),
+     >    iwork(ll(15)),iwork(ll(17)),
      >    nconf,nconfion_fr(0,1),
      >    nda,ndb,ndetvb,nel,
      >    noe,nalf,nbet,norb)

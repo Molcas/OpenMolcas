@@ -19,32 +19,32 @@
 #include "print_cvb.fh"
 
 #include "frag_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension c(*)
 
       ioffs=nparm1-nprvb+1
       if(nfrag.le.1)then
-        call daxpy_(nprvb,-ddot_(nprvb,w(lv(2)),1,c(ioffs),1)/cvbnrm,
-     >    w(lv(2)),1,c(ioffs),1)
+        call daxpy_(nprvb,-ddot_(nprvb,work(lv(2)),1,c(ioffs),1)/cvbnrm,
+     >    work(lv(2)),1,c(ioffs),1)
       else
         ifr_off=0
         do 100 ifrag=1,nfrag
         call daxpy_(nvb_fr(ifrag),
-     >    -ddot_(nvb_fr(ifrag),w(ifr_off+lv(2)),1,c(ifr_off+ioffs),1)
+     >    -ddot_(nvb_fr(ifrag),work(ifr_off+lv(2)),1,c(ifr_off+ioffs),1)
      >    /cvbnrm_fr(ifrag),
-     >   w(ifr_off+lv(2)),1,c(ifr_off+ioffs),1)
+     >   work(ifr_off+lv(2)),1,c(ifr_off+ioffs),1)
         ifr_off=ifr_off+nvb_fr(ifrag)
 100     continue
       endif
       return
       entry orthcvb_init_cvb()
       if(nfrag.le.1)then
-        cvbnrm=ddot_(nvb,w(lv(2)),1,w(lv(2)),1)
+        cvbnrm=ddot_(nvb,work(lv(2)),1,work(lv(2)),1)
       else
         ifr_off=0
         do 200 ifrag=1,nfrag
-        cvbnrm_fr(ifrag)=ddot_(nvb_fr(ifrag),w(ifr_off+lv(2)),1,
-     >    w(ifr_off+lv(2)),1)
+        cvbnrm_fr(ifrag)=ddot_(nvb_fr(ifrag),work(ifr_off+lv(2)),1,
+     >    work(ifr_off+lv(2)),1)
         ifr_off=ifr_off+nvb_fr(ifrag)
 200     continue
       endif

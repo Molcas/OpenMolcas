@@ -509,11 +509,8 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   Call NxtWrd(AtomLbl(jAtom),iF2,iE2)
                   Lbls(2)=AtomLbl(jAtom)(iF2:iE2)
                   If (kDCRR.ne.0) Then
-                     Lbls(2)(iE2+1:iE2+1)='('
-                     Lbls(2)(iE2+2:iE2+1+iChOp(kDCRR))=
-     &                     ChOp(kDCRR)(1:iChOp(kDCRR))
-                     Lbls(2)(iE2+2+iChOp(kDCRR):
-     &                       iE2+2+iChOp(kDCRR))=')'
+                     Lbls(2)(iE2+1:iE2+2+iChOp(kDCRR))=
+     &                '('//ChOp(kDCRR)(1:iChOp(kDCRR))//')'
                      Call NxtWrd(Lbls(2),iF2,iE2)
                   End If
 *
@@ -521,11 +518,8 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   Call NxtWrd(AtomLbl(kAtom),iF3,iE3)
                   Lbls(3)=AtomLbl(kAtom)(iF3:iE3)
                   If (kDCRT.ne.0) Then
-                     Lbls(3)(iE3+1:iE3+1)='('
-                     Lbls(3)(iE3+2:iE3+1+iChOp(kDCRT))=
-     &                     ChOp(kDCRT)(1:iChOp(kDCRT))
-                     Lbls(3)(iE3+2+iChOp(kDCRT):
-     &                       iE3+2+iChOp(kDCRT))=')'
+                     Lbls(3)(iE3+1:iE3+2+iChOp(kDCRT))=
+     &                '('//ChOp(kDCRT)(1:iChOp(kDCRT))//')'
                      Call NxtWrd(Lbls(3),iF3,iE3)
                   End If
 *
@@ -533,11 +527,8 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   Call NxtWrd(AtomLbl(lAtom),iF4,iE4)
                   Lbls(4)=AtomLbl(lAtom)(iF4:iE4)
                   If (kDCRTS.ne.0) Then
-                     Lbls(4)(iE4+1:iE4+1)='('
-                     Lbls(4)(iE4+2:iE4+1+iChOp(kDCRTS))=
-     &                     ChOp(kDCRTS)(1:iChOp(kDCRTS))
-                     Lbls(4)(iE4+2+iChOp(kDCRTS):
-     &                       iE4+2+iChOp(kDCRTS))=')'
+                     Lbls(4)(iE4+1:iE4+2+iChOp(kDCRTS))=
+     &                '('//ChOp(kDCRTS)(1:iChOp(kDCRTS))//')'
                      Call NxtWrd(Lbls(4),iF4,iE4)
                   End If
                   Write (LuIC,'(A,I3.3,8A)')

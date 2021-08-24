@@ -19,9 +19,9 @@
 #include "print_cvb.fh"
 
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
-      call biks_cvb(w(lb(1)),w(lb(2)),iw(lb(3)),
+      call biks_cvb(work(lb(1)),work(lb(2)),iwork(lb(3)),
      >  nel,kbasiscvb,(lb(1).eq.lb(2)),ip(1))
       return
       end

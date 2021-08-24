@@ -49,10 +49,9 @@ subroutine WRVEC(FName,LU_,LABEL,NSYM,NBAS,NORB,CMO,OCC,EORB,INDT,TITLE)
 use Definitions, only: wp, iwp
 
 implicit none
-character(len=*), intent(in) :: FName, LABEL
+character(len=*), intent(in) :: FName, LABEL, TITLE
 integer(kind=iwp), intent(in) :: LU_, NSYM, NBAS(NSYM), NORB(NSYM), INDT(7,8)
 real(kind=wp), intent(in) :: CMO(*), OCC(*), EORB(*)
-character(len=*), intent(in) :: TITLE
 real(kind=wp) :: vDum(2)
 
 call WrVec_(FName,LU_,LABEL,0,NSYM,NBAS,NORB,CMO,vDum,OCC,vDum,EORB,vDum,INDT,TITLE,0)

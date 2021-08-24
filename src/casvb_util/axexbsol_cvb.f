@@ -14,7 +14,7 @@
       subroutine axexbsol_cvb(ap,rhsp,itdav,maxdav,nfrdim,
      >  solp,solp_res,eig,eig_res)
       implicit real*8 (a-h,o-z)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension ap(maxdav,maxdav),rhsp(maxdav)
       dimension solp(maxdav),solp_res(maxdav)
 
@@ -25,7 +25,7 @@
       i5 = mstackr_cvb(itdav)
       call axexbsol2_cvb(ap,rhsp,itdav,maxdav,nfrdim,
      >  solp,solp_res,eig,eig_res,
-     >  w(i1),w(i2),w(i3),w(i4),w(i5))
+     >  work(i1),work(i2),work(i3),work(i4),work(i5))
       call mfreer_cvb(i1)
       return
       end

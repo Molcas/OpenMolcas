@@ -39,10 +39,7 @@ End Type Sizes_of_Stuff
 !
 Type (Sizes_of_Stuff), Target :: S
 Integer, Pointer :: p_ix(:)
-Integer nByte_i
 Integer Len, Len2
-Integer iiLoc
-External iiLoc
 Logical Found
 
 
@@ -70,10 +67,8 @@ Contains
 
 Subroutine Size_Init()
   Use Iso_C_Binding
-  Integer :: iix(2) = [0, 0]
-  nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
-  Len = iiLoc(S%High_Anchor)-iiLoc(S%Low_Anchor)
-  Len = (Len+nByte_i)/nByte_i
+  Integer, External :: ip_of_iWork
+  Len = ip_of_iWork(S%High_Anchor)-ip_of_iWork(S%Low_Anchor)+1
   Call C_F_Pointer(C_Loc(S%Low_Anchor),p_ix,[Len])
 End Subroutine Size_Init
 

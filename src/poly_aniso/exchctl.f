@@ -1078,7 +1078,10 @@ cccc----------------------------------------------------------------------------
      &                MMR(1:nneq,1:3,1:nmaxR,1:nmaxR),
      &                SMR(1:nneq,1:3,1:nmaxR,1:nmaxR) )
 
-          Call barrier(exchR,MR(1:3,1:exchR,1:exchR),WR(1:exchR),1,2)
+          Call WarningMessage(2,'Wrong code in poly_aniso/exchctl.f')
+          ! FIXME: This call is missing 3 arguments
+          !Call barrier(exchR,MR(1:3,1:exchR,1:exchR),WR(1:exchR),1,2)
+          Call Abend()
         End If !KEOPT
 
         End If ! npair>0, index lp

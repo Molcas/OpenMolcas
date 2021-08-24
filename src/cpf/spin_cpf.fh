@@ -9,4 +9,4 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Logical LWSP
-      Common /SPIN/ LWSP
+      Common /SPINBLOCK/ LWSP

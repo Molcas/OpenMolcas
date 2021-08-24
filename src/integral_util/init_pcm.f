@@ -28,8 +28,6 @@
 #include "unixinfo.fh"
       Character*2 Elements(MxAtom*8)
       Logical NonEq
-      Integer  iix(2)
-      Real*8   rix(2)
 #include "periodic_table.fh"
       Real*8, Allocatable:: Coor(:,:), LcCoor(:,:)
       Integer, Allocatable:: ANr(:), LcANr(:)
@@ -38,9 +36,6 @@
 *
       iRout=1
       iPrint=nPrint(iRout)
-*
-      nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
-      nbyte_r = idloc(rix(2)) - idloc(rix(1))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -193,23 +188,19 @@ cpcm_solvent end
 *
 *---- Put the reaction field common blocks on disk again!
 *
-      Len = ilLoc(lRFEnd)-ilLoc(lRFStrt)
-      Len = (Len+nByte_i)/nByte_i
+      Len = ip_of_iWork(lRFEnd)-ip_of_iWork(lRFStrt)+1
       Call C_F_Pointer(C_Loc(lRFStrt),p_lRF,[Len])
       Call Put_iArray('RFlInfo',p_lRF,Len)
 *
-      Len = idLoc(rRFEnd)-idLoc(rRFStrt)
-      Len = (Len+nByte_r)/nByte_r
+      Len = ip_of_Work(rRFEnd)-ip_of_Work(rRFStrt)+1
       Call C_F_Pointer(C_Loc(rRFStrt),p_rRF,[Len])
       Call Put_dArray('RFrInfo',p_rRF,Len)
 *
-      Len = iiLoc(iRFEnd)-iiLoc(iRFStrt)
-      Len = (Len+nByte_i)/nByte_i
+      Len = ip_of_iWork(iRFEnd)-ip_of_iWork(iRFStrt)+1
       Call C_F_Pointer(C_Loc(iRFStrt),p_iRF,[Len])
       Call Put_iArray('RFiInfo',p_iRF,Len)
 *
-      Len = iiLoc(cRFEnd)-iiLoc(cRFStrt)
-      Len = (Len+nByte_i)/nByte_i
+      Len = ip_of_iWork(cRFEnd)-ip_of_iWork(cRFStrt)+1
       Call C_F_Pointer(C_Loc(cRFStrt),p_cRF,[Len])
       Call Put_iArray('RFcInfo',p_cRF,Len)
 *

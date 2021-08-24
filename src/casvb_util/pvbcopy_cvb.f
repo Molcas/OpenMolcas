@@ -18,7 +18,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension cfrom(*),cto(*)
 
       icfrom=nint(cfrom(1))
@@ -27,8 +27,8 @@
         write(6,*)' Unsupported format in PVBCOPY'
         call abend_cvb()
       endif
-      call pvbcopy2_cvb(w(iaddr_ci(icfrom)),w(iaddr_ci(icto)),
-     >  iw(ll(11)),iw(ll(12)),dum,0)
+      call pvbcopy2_cvb(work(iaddr_ci(icfrom)),work(iaddr_ci(icto)),
+     >  iwork(ll(11)),iwork(ll(12)),dum,0)
       call setcnt2_cvb(icto,0)
       return
       end
@@ -39,7 +39,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension cfrom(*),cto(*)
       icfrom=nint(cfrom(1))
       icto=nint(cto(1))
@@ -47,7 +47,7 @@
         write(6,*)' Unsupported format in PVBDOT'
         call abend_cvb()
       endif
-      call pvbcopy2_cvb(w(iaddr_ci(icfrom)),w(iaddr_ci(icto)),
-     >  iw(ll(11)),iw(ll(12)),ret,1)
+      call pvbcopy2_cvb(work(iaddr_ci(icfrom)),work(iaddr_ci(icto)),
+     >  iwork(ll(11)),iwork(ll(12)),ret,1)
       return
       end

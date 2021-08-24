@@ -30,15 +30,15 @@ c  *********************************************************************
 #include "print_cvb.fh"
 
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension iconfs(noe,nconf1)
 
       i1 = mstacki_cvb(noe)
-      call cnfcheck2_cvb(iconfs,nconf1,nel1,iw(i1))
+      call cnfcheck2_cvb(iconfs,nconf1,nel1,iwork(i1))
       call mfreei_cvb(i1)
       ioncty = mstacki_cvb(nconf1)
       iconfs2 = mstacki_cvb(noe*nconf1)
-      call cnfsort_cvb(iconfs,nconf1,nel1,iw(ioncty),iw(iconfs2))
+      call cnfsort_cvb(iconfs,nconf1,nel1,iwork(ioncty),iwork(iconfs2))
       call mfreei_cvb(ioncty)
       return
       end

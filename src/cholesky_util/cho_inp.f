@@ -830,8 +830,8 @@ C     ----------------
          END IF
       END IF
 
-C     Put decomposition threshold in info.fh.
-C     ---------------------------------------
+C     Put decomposition threshold in RICD_Info.
+C     -----------------------------------------
 
       CALL PUT_THR_CHO(THRCOM)
 

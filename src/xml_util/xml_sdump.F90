@@ -34,6 +34,20 @@ character(len=*), intent(in) :: TagName
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
 integer(kind=iwp) :: opt
+interface
+  subroutine xml_cDumpc(name_,nx_name) bind(C,name='xml_cdumpc_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    character(kind=c_char) :: name_(*)
+    integer(kind=MOLCAS_C_INT) :: nx_name
+  end subroutine xml_cDumpc
+  subroutine xml_cDumps(name_,nx_name) bind(C,name='xml_cdumps_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    character(kind=c_char) :: name_(*)
+    integer(kind=MOLCAS_C_INT) :: nx_name
+  end subroutine xml_cDumps
+end interface
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
