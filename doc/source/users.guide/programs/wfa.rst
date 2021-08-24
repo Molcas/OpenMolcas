@@ -98,7 +98,8 @@ For a seamless interface to TheoDORE, you can also create the :file:`tden_summ.t
 
   grep '^|' molcas.log > tden_summ.txt
 
-Extraction of the NOs, NTOs, and NDOs from the HDF5 file occurs with the external `Molpy program <https://github.com/steabert/molpy>`_. Call, e.g.: ::
+The NOs, NTOs, and NDOs on the HDF5 file can be accessed via `Pegamoid <https://pypi.org/project/Pegamoid/>`_.
+Alternatively, the orbitals can be converted to Molden format via the `Molpy program <https://github.com/felixplasser/molpy>`_. Call, e.g.: ::
 
   penny molcas.rassi.h5 --wfaorbs molden
 
