@@ -638,7 +638,7 @@ cRKCft
          If(.not.Do_Grad) then
           do iGrid=0,mGrid-1
            dTot=Rho(1,iGrid+1)+Rho(2,iGrid+1)
-           ratio  0.0d0
+           ratio = 0.0d0
            IF(Debug) THEN
            write(LuMT,'(3(F10.6,A),5(F17.10,A))')
      &       Grid(1,iGrid+1),',',
