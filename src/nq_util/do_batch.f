@@ -509,6 +509,7 @@ cGLM          if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
 * Compute gradients
           end if
 *         ^ end if for little rho
+          IF(Debug) THEN
           write(LuMC,'(3(F10.6,A),7(F17.10,A))')
      &          Grid(1,iGrid+1),',',
      &          Grid(2,iGrid+1),',',
@@ -520,6 +521,7 @@ cGLM          if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
      &          dTot,',',
      &          P2_ontop(1,iGrid+1),',',
      &          ratio
+          END IF
          end do
 *        ^ end loop over grid points
        Else !GRADIENT CALCULATION
@@ -636,7 +638,8 @@ cRKCft
          If(.not.Do_Grad) then
           do iGrid=0,mGrid-1
            dTot=Rho(1,iGrid+1)+Rho(2,iGrid+1)
-           ratio = 0.0d0
+           ratio  0.0d0
+           IF(Debug) THEN
            write(LuMT,'(3(F10.6,A),5(F17.10,A))')
      &       Grid(1,iGrid+1),',',
      &       Grid(2,iGrid+1),',',
@@ -646,6 +649,7 @@ cRKCft
      &       dTot*Weights(iGrid+1),',',
      &       Weights(iGrid+1),',',
      &       dTot
+           END IF
 cGLM       if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
            if(dTot.ge.thrsrho) then
              ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
