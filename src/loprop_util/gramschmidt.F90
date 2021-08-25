@@ -9,24 +9,28 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine GramSchmidt(S,C,nDim,type,Center,iRestrict)
+subroutine GramSchmidt(S,C,nDim,itype,Center,iRestrict)
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-real*8 S(nDim,nDim), C(nDim,nDim)
-integer type(nDim), Occ, Vir, Center(nDim)
-parameter(Occ=1,Vir=0)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-!write(6,*) 'nDim,nDim',nDim,nDim
-!write(6,*) Center
+implicit none
+integer(kind=iwp) :: nDim, itype(nDim), Center(nDim), iRestrict
+real(kind=wp) :: S(nDim,nDim), C(nDim,nDim)
+integer(kind=iwp) :: ibas, iOrb, iStart, Jorb, Korb
+real(kind=wp) :: A, F
+integer(kind=iwp), parameter :: Occ = 1, Vir = 0
+
+!write(u6,*) 'nDim,nDim',nDim,nDim
+!write(u6,*) Center
 do iOrb=1,nDim
-  if ((iRestrict == 1) .and. (type(iOrb) == Vir)) Go To 99
+  if ((iRestrict == 1) .and. (itype(iOrb) == Vir)) Go To 99
   F = Zero
   if (S(iOrb,iOrb) > Zero) F = One/sqrt(S(iOrb,iOrb))
 
   do ibas=1,nDim
     C(Ibas,Iorb) = F*C(Ibas,Iorb)
-    !write(6,*) C(Ibas,Iorb),IBas,Iorb
+    !write(u6,*) C(Ibas,Iorb),IBas,Iorb
   end do
 
   do Jorb=1,nDim
@@ -39,7 +43,7 @@ do iOrb=1,nDim
   iStart = 1
   if (iRestrict == 0) iStart = iOrb+1
   do jOrb=iStart,nDim
-    if ((iRestrict == 1) .and. (type(jOrb) == Occ)) Go To 98
+    if ((iRestrict == 1) .and. (itype(jOrb) == Occ)) Go To 98
     !if (Center(iOrb) == Center(jOrb)) Go To 98
     A = S(Iorb,Jorb)
     do Ibas=1,nDim

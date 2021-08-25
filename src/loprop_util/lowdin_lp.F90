@@ -11,10 +11,14 @@
 
 subroutine Lowdin_LP(S,C,nDim)
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nDim
+real(kind=wp) :: S(nDim,nDim), C(nDim,nDim)
+integer(kind=iwp) :: i, ioff, ip_B, ip_S, j
 #include "WrkSpc.fh"
-real*8 C(nDim,nDim), S(nDim,nDim)
 
 call Allocate_Work(ip_S,nDim*(nDim+1)/2)
 call Allocate_Work(ip_B,nDim**2)

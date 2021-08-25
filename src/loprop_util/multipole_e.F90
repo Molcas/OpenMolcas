@@ -11,18 +11,22 @@
 
 subroutine Multipole_E(q,Dipole,R,E)
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+use Constants, only: Zero, One, Three
+use Definitions, only: wp
 
-R_Inv = 1.0d0/R
+implicit none
+real(kind=wp) :: q, Dipole, R, E
+real(kind=wp) :: R_Inv, R2_Inv, xDipole, xMonopole
+
+R_Inv = One/R
 R2_Inv = R_Inv*R_Inv
 
 if (R < Zero) then
   xMonopole = -q*R2_Inv
-  xDipole = -3.0d0*Dipole*R*R2_Inv*R2_Inv
+  xDipole = -Three*Dipole*R*R2_Inv*R2_Inv
 else
   xMonopole = q*R2_Inv
-  xDipole = 3.0d0*Dipole*R*R2_Inv*R2_Inv
+  xDipole = Three*Dipole*R*R2_Inv*R2_Inv
 end if
 
 E = xMonopole+xDipole

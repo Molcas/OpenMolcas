@@ -11,11 +11,16 @@
 
 subroutine Diff_Aux1(nEPotPoints,ipEPCo,nB,OneFile)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: nEPotPoints, ipEPCo, nB
+character(len=10) :: OneFile
+character(len=10) :: Label
+integer(kind=iwp) :: i, idiot, iopt, irc, iSmLbl, iTmp, Lu_One, maxCen, nint(1)
+integer(kind=iwp), external :: IsFreeUnit
 #include "WrkSpc.fh"
 #include "warnings.h"
-character*10 Label, OneFile
-dimension nint(1)
 
 ! Open One-electron file.
 
@@ -24,8 +29,8 @@ Lu_One = 49
 Lu_One = IsFreeUnit(Lu_One)
 call OpnOne(irc,0,OneFile,Lu_One)
 if (irc /= 0) then
-  write(6,*)
-  write(6,*) 'ERROR! Could not open one-electron integral file.'
+  write(u6,*)
+  write(u6,*) 'ERROR! Could not open one-electron integral file.'
   call Quit(_RC_IO_ERROR_READ_)
 end if
 

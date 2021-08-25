@@ -11,12 +11,18 @@
 
 subroutine ReExpand(rMP,nij,nElem,A,B,ij,lMax)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nij, nElem, ij, lMax
+real(kind=wp) :: rMP(nij,nElem), A(3), B(3)
+integer(kind=iwp) :: iElem, ix, iy, iz, jElem, jx, jy, jz, k, l
+real(kind=wp) :: ABx, ABx_, ABy, ABy_, ABz, ABz_, temp
 #include "itmax.fh"
 #include "binom.fh"
-real*8 rMP(nij,nElem), A(3), B(3)
 ! Statement function
+integer(kind=iwp) :: mElem, i
 mElem(i) = (i+1)*(i+2)*(i+3)/6
 
 !                                                                      *
@@ -34,16 +40,16 @@ do l=lMax,0,-1
       iz = l-ix-iy
       ABz = A(3)-B(3)
       ielem = iElem+1
-      !write(6,*)
-      !write(6,*)
-      !write(6,*) 'ix,iy,iz=',ix,iy,iz
-      !write(6,*)
+      !write(u6,*)
+      !write(u6,*)
+      !write(u6,*) 'ix,iy,iz=',ix,iy,iz
+      !write(u6,*)
 
       temp = Zero
       do jx=0,ix
         do jy=0,iy
           do jz=0,iz
-            !write(6,*) 'jx,jy,jz=',jx,jy,jz
+            !write(u6,*) 'jx,jy,jz=',jx,jy,jz
 
             if (ix-jx == 0) then
               ABx_ = One
@@ -62,8 +68,8 @@ do l=lMax,0,-1
             end if
             k = jx+jy+jz
             jElem = mElem(k-1)+(jy+jz)*(jy+jz+1)/2+jz+1
-            !write(6,*) 'jElem=',jElem
-            !write(6,*) binom(ix,jx),binom(iy,jy),binom(iz,jz),rMP(ij,jElem),ABx_,ABy_,ABz_
+            !write(u6,*) 'jElem=',jElem
+            !write(u6,*) binom(ix,jx),binom(iy,jy),binom(iz,jz),rMP(ij,jElem),ABx_,ABy_,ABz_
             temp = temp+binom(ix,jx)*binom(iy,jy)*binom(iz,jz)*rMP(ij,jElem)*ABx_*ABy_*ABz_
 
           end do

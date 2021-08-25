@@ -44,14 +44,18 @@ subroutine Localize_LoProp(Ttot,Ttot_Inv,nBas,SMatrix,iCenter,iType)
 !***********************************************************************
 !                                                                      *
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nBas, iCenter(nBas), iType(nBas)
+real(kind=wp) :: Ttot(nBas,nBas), Ttot_Inv(nBas,nBas), SMatrix(nBas,nBas)
+integer(kind=iwp) :: iBas, IndType(7), ip_S, ip_Save, ip_T1, ip_T2, ip_T3, ip_T4, ip_tmp, ipE, iUHF, LuOut, nOcc, nSym
+character(len=128) :: OrbName
+character(len=80) :: Note
+character(len=6) :: Filename
+integer(kind=iwp), parameter :: Occ = 1, Vir = 0
 #include "WrkSpc.fh"
-real*8 Ttot(nBas,nBas), Ttot_Inv(nBas,nBas), SMatrix(nBas,nBas)
-integer iCenter(nBas), iType(nBas)
-integer IndType(7), Occ, Vir
-parameter(Occ=1,Vir=0)
-character OrbName*128, Note*80, Filename*6
 
 !                                                                      *
 !***********************************************************************
@@ -163,7 +167,7 @@ LuOut = 20
 iUHF = 0
 nSym = 1
 Note = 'LoProp localized orbitals'
-call WrVec_(OrbName,LuOut,'COEI',iUHF,nSym,[nBas],[nBas],TTot,[0.0d0],Work(ipE),[0.0d0],Work(ipE),[0.0d0],IndType,Note,0)
+call WrVec_(OrbName,LuOut,'COEI',iUHF,nSym,[nBas],[nBas],TTot,[Zero],Work(ipE),[Zero],Work(ipE),[Zero],IndType,Note,0)
 call Free_Work(ipE)
 !                                                                      *
 !***********************************************************************

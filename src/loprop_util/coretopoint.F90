@@ -11,12 +11,17 @@
 
 subroutine CoreToPoint(nAt,MP,TP)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAt
+real(kind=wp) :: MP(*), TP(*)
+integer(kind=iwp) :: i, iAt, iNucCh, kAt
+real(kind=wp) :: ByggMeraHus, dScaleOff, dScaleOffSave, dToPoint
+logical(kind=iwp) :: GoHere
+real(kind=wp), parameter :: ByggareBas(6) = [2.0_wp,8.0_wp,8.0_wp,18.0_wp,18.0_wp,32.0_wp]
 #include "WrkSpc.fh"
-real*8 MP(*), TP(*)
-dimension ByggareBas(6)
-logical GoHere
-data ByggareBas/2.0d0,8.0d0,8.0d0,18.0d0,18.0d0,32.0d0/
 
 ! A crude but to the point algorithm to put core electrons and
 ! nuclei together, and separating the presumably more diffuse
@@ -25,14 +30,14 @@ data ByggareBas/2.0d0,8.0d0,8.0d0,18.0d0,18.0d0,32.0d0/
 call GetMem('NucC','Allo','Real',iNucCh,nAt)
 call Get_dArray('Nuclear charge',Work(iNucCh),nAt)
 kAt = 0
-dToPoint = 0.0d0
+dToPoint = Zero
 do iAt=1,nAt
-  ByggMeraHus = 0.0d0
+  ByggMeraHus = Zero
   GoHere = .true.
   dScaleOffSave = Work(iNucCh+iAt-1)
   do i=1,6
     dScaleOff = dScaleOffSave-ByggareBas(i)
-    if ((dScaleOff <= 0.0d0) .and. GoHere) then
+    if ((dScaleOff <= Zero) .and. GoHere) then
       dToPoint = ByggMeraHus
       GoHere = .false.
     end if

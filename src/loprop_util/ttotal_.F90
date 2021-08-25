@@ -11,19 +11,25 @@
 
 subroutine Ttotal_(T1,T2,T3,T4,Ttot,Ttot_Inv,nDim,Temp,Temp2)
 
-implicit real*8(A-H,O-Z)
-real*8 T1(nDim*nDim), T2(nDim*nDim), T3(nDim*nDim), T4(nDim,nDim), Ttot(nDim,nDim), Ttot_Inv(nDim,nDim), Temp(nDim,nDim), &
-       Temp2(nDim,nDim)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nDim
+real(kind=wp) :: T1(nDim*nDim), T2(nDim*nDim), T3(nDim*nDim), T4(nDim,nDim), Ttot(nDim,nDim), Ttot_Inv(nDim,nDim), &
+                 Temp(nDim,nDim), Temp2(nDim,nDim)
+integer(kind=iwp) :: ISING
+real(kind=wp) :: DET
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Ttot=T1*T2*T3*T4
 
-!lg write(6,*) 'Ttotal ', nDim
-call DGEMM_('N','N',nDim,nDim,nDim,1.0d0,T1,nDim,T2,nDim,0.0d0,Temp,nDim)
-call DGEMM_('N','N',nDim,nDim,nDim,1.0d0,Temp,nDim,T3,nDim,0.0d0,Temp2,nDim)
-call DGEMM_('N','N',nDim,nDim,nDim,1.0d0,Temp2,nDim,T4,nDim,0.0d0,Ttot,nDim)
+!lg write(u6,*) 'Ttotal ', nDim
+call DGEMM_('N','N',nDim,nDim,nDim,One,T1,nDim,T2,nDim,Zero,Temp,nDim)
+call DGEMM_('N','N',nDim,nDim,nDim,One,Temp,nDim,T3,nDim,Zero,Temp2,nDim)
+call DGEMM_('N','N',nDim,nDim,nDim,One,Temp2,nDim,T4,nDim,Zero,Ttot,nDim)
 !lg call RecPrt('T_TOT',' ',Ttot,nDim,nDim)
 call MINV(Ttot,Ttot_Inv,ISING,DET,nDim)
 

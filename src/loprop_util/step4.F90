@@ -12,15 +12,18 @@
 subroutine Step4(SMatrix,nDim,TMatrix,iType)
 ! Step 4. LW S3 ->S4
 
-implicit real*8(A-H,O-Z)
-real*8 SMatrix(nDim*nDim), TMatrix(nDim*nDim)
-integer iType(nDim)
-#include "real.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-!lg  write(6,*) 'Step 4', nDim
+implicit none
+integer(kind=iwp) :: nDim, iType(nDim)
+real(kind=wp) :: SMatrix(nDim*nDim), TMatrix(nDim*nDim)
+integer(kind=iwp) :: i, j, k
+
+!lg  write(u6,*) 'Step 4', nDim
 !lg  call RecPrt('T before LW 4',' ',TMatrix,nDim,nDim)
 !lg  call RecPrt('S in step4 ',' ',SMatrix,nDim,nDim)
-!lg  write(6,*)
+!lg  write(u6,*)
 k = 0
 do i=1,nDim
   do j=1,nDim

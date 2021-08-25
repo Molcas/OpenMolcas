@@ -11,8 +11,12 @@
 
 subroutine Warnings_lp(iCode,Warning,iLength)
 
-implicit real*8(A-H,O-Z)
-character*(*) Warning
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: iCode, iLength
+character(len=*) :: Warning
+integer(kind=iwp) :: i
 
 ! Binary codes:
 ! 1: Multiple minima found
@@ -20,7 +24,7 @@ character*(*) Warning
 ! 3: Ran out of iterations
 
 if (iLength < 25) then
-  write(6,*) 'Length of warning string must be at least 25 characters'
+  write(u6,*) 'Length of warning string must be at least 25 characters'
   call Abend()
 end if
 

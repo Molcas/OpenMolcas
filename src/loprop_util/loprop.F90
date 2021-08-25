@@ -20,19 +20,24 @@ subroutine LoProp(ireturn)
 !             University of Lund, SWEDEN.                              *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: ireturn
 #include "itmax.fh"
 #include "Molcas.fh"
-parameter(nElem=(iTabMx*(iTabMx**2+6*iTabMx+11)+6)/6)
 #include "WrkSpc.fh"
-#include "real.fh"
-real*8 Origin(3,0:iTabMx), CoC(3)
-integer nBas(8), ip_mu(0:nElem-1), nOrb(8), ip_sq_mu(0:nElem-1), ip_D(0:6)
-logical NoField, Standard, Utility, UserDen, PrintDen, SubtractDen
-logical Restart, TDensity, lSave, Reduce_Prt
-external Reduce_Prt
-character*(LENIN4) LblCnt(MxAtom)
-character*12 Opt_Method
+integer(kind=iwp), parameter :: nElem=(iTabMx*(iTabMx**2+6*iTabMx+11)+6)/6
+integer(kind=iwp) :: i, ip_ANr, ip_Center, ip_D(0:6), ip_EC, ip_mu(0:nElem-1), ip_sq_mu(0:nElem-1), ip_sq_temp, ip_tmp, ip_Ttot, &
+                     ip_Ttot_Inv, ip_Type, ipC, iPert, iPL, iPlot, ipMP, ipMPq, ipP, ipPInv, ipPol, ipQ_Nuc, iPrint, lMax, mElem, &
+                     nAtoms, nBas(8), nBas1, nBas2, nBasMax, nij, nmu, nOrb(8), nPert, nSize, nStateF, nStateI, nSym, nTemp
+real(kind=wp) :: Bond_Threshold, CoC(3), Origin(3,0:iTabMx), SubScale
+logical(kind=iwp) :: lSave, NoField, PrintDen, Restart, Standard, SubtractDen, TDensity, UserDen, Utility
+character(len=LenIn4) :: LblCnt(MxAtom)
+character(len=12) :: Opt_Method
+integer(kind=iwp), external :: iPrintLevel
+logical(kind=iwp), external :: Reduce_Prt
 
 !                                                                      *
 !***********************************************************************
@@ -67,7 +72,7 @@ Restart = .false.
 TDensity = .false.
 nStateI = 1
 nStateF = 1
-Bond_Threshold = -1.0d0
+Bond_Threshold = -One
 iPlot = 0
 iPrint = 0
 !                                                                      *
@@ -127,10 +132,10 @@ call Allocate_Work(ip_sq_temp,nTemp)
 call Allocate_Work(ip_EC,3*nij)
 
 if (iPL >= 2) then
-  write(6,*)
+  write(u6,*)
   call CollapseOutput(1,'   Static properties:')
-  write(6,'(3X,A)') '   ------------------'
-  write(6,*)
+  write(u6,'(3X,A)') '   ------------------'
+  write(u6,*)
 end if
 call Local_Properties(Work(ipC),nAtoms,ip_sq_mu,mElem,Work(ip_sq_temp),Origin,iWork(ip_center),Work(ip_Ttot_Inv),Work(ip_tmp),nij, &
                       nPert,ip_D,Work(ipMP),lMax,Work(ipMPq),CoC,Work(ip_EC),iWork(ip_ANr),Standard,nBas1,nTemp,Work(ipQ_Nuc), &
@@ -151,11 +156,11 @@ call Allocate_Work(ipPol,6*nij)
 !                                                                      *
 ! Print out the properties
 
-call Get_cArray('LP_L',LblCnt,(LENIN4)*nAtoms)
+call Get_cArray('LP_L',LblCnt,LenIn4*nAtoms)
 call LoProp_Print(Work(ipMP),nij,nElem,nAtoms,Work(ipQ_Nuc),LblCnt,lSave)
 if (iPL >= 2) then
   call CollapseOutput(0,'   Static properties:')
-  write(6,*)
+  write(u6,*)
 end if
 !                                                                      *
 !***********************************************************************

@@ -10,13 +10,18 @@
 !***********************************************************************
 
 subroutine Init_LoProp(nSym,nBas,nOrb,CoC,nAtoms,ipC,ipQ_Nuc,ip_ANr,ip_Type,ip_Center,nSize,nBas1,nBas2,nBasMax,ipP,ipPInv)
-implicit real*8(a-h,o-z)
+
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nSym, nBas(8), nOrb(8), nAtoms, ipC, ipQ_Nuc, ip_ANr, ip_Type, ip_Center, nSize, nBas1, nBas2, nBasMax, ipP, &
+                     ipPInv
+real(kind=wp) :: CoC(3)
+integer(kind=iwp) :: i, iDum, ISING, iSym
+real(kind=wp) :: DET
+logical(kind=iwp) :: lOrb
+integer(kind=iwp), parameter :: Occ = 1, Vir = 0
 #include "WrkSpc.fh"
-integer Occ, Vir
-parameter(Occ=1,Vir=0)
-integer nBas(8), nOrb(8)
-real*8 CoC(3)
-logical lOrb
 
 !                                                                      *
 !***********************************************************************
@@ -67,7 +72,7 @@ call Allocate_iWork(ip_type,nbas1)
 call Get_iArray('Orbital Type',iWork(ip_type),nBas1)
 do i=ip_type,ip_type+nBas1-1
   if ((iWork(i) /= Occ) .and. (iWork(i) /= Vir)) then
-    write(6,*) 'Orbital type vector is corrupted!'
+    write(u6,*) 'Orbital type vector is corrupted!'
     call Abend()
   end if
 end do
@@ -77,22 +82,22 @@ call Allocate_iWork(ip_center,nbas1)
 call Get_iArray('Center Index',iWork(ip_center),nBas1)
 
 #ifdef _DEBUGPRINT_
-write(6,*) '******* LoProp Debug Info *******'
+write(u6,*) '******* LoProp Debug Info *******'
 call RecPrt('Coordinates',' ',Work(ipC),3,nAtoms)
 call RecPrt('Charges',' ',Work(ipQ_Nuc),1,nAtoms)
-write(6,*) 'Atom Nr:',(iWork(i),i=ip_ANr,ip_ANr+nAtoms-1)
+write(u6,*) 'Atom Nr:',(iWork(i),i=ip_ANr,ip_ANr+nAtoms-1)
 do iBas=1,nBas1
   if (iWork(ip_type+iBas-1) == Occ) then
-    write(6,'(A,I3,A)') 'Basis function ',iBas,' is occupied'
+    write(u6,'(A,I3,A)') 'Basis function ',iBas,' is occupied'
   else
-    write(6,'(A,I3,A)') 'Basis function ',iBas,' is virtual'
+    write(u6,'(A,I3,A)') 'Basis function ',iBas,' is virtual'
   end if
 end do
-write(6,*)
+write(u6,*)
 do iBas=1,nBas1
-  write(6,'(A,I3,A,I3)') 'Basis function ',iBas,' belongs to center ',iWork(ip_center+iBas-1)
+  write(u6,'(A,I3,A,I3)') 'Basis function ',iBas,' belongs to center ',iWork(ip_center+iBas-1)
 end do
-write(6,*) '*********************************'
+write(u6,*) '*********************************'
 #endif
 !                                                                      *
 !***********************************************************************

@@ -12,23 +12,26 @@
 real*8 function Error_for_t(t,rMP,xrMP,xxrMP,xnrMP,EC,A,R_ij,C_o_C,ij,l,nij,lMax,nElem,nAtoms,nPert,Scratch_New,Scratch_Org, &
                             iPrint_Errors)
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-dimension EC(3,nij), A(3,nij), C_o_C(3), R_ij(3)
-dimension rMP(nij,0:nElem-1,0:nPert-1), xnrMP(nij,nElem)
-dimension xrMP(nij,nElem), xxrMP(nij,nElem)
-dimension Scratch_Org(nij*(2+lMax+1)), Scratch_New(nij*(2+lMax+1))
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-iDim = nij*nElem
+implicit none
+integer(kind=iwp) :: ij, l, nij, lMax, nElem, nAtoms, nPert, iPrint_Errors
+real(kind=wp) :: t, rMP(nij,0:nElem-1,0:nPert-1), xrMP(nij,nElem), xnrMP(nij,nElem), xxrMP(nij,nElem), EC(3,nij), A(3,nij), &
+                 R_ij(3), C_o_C(3), Scratch_New(nij*(2+lMax+1)), Scratch_Org(nij*(2+lMax+1))
+integer(kind=iwp) :: i_Dim, ij_temp
+real(kind=wp) :: Error
+
+i_Dim = nij*nElem
 A(1,ij) = EC(1,ij)+t*R_ij(1)
 A(2,ij) = EC(2,ij)+t*R_ij(2)
 A(3,ij) = EC(3,ij)+t*R_ij(3)
-call dCopy_(iDim,rMP,1,xrMP,1)
+call dCopy_(i_Dim,rMP,1,xrMP,1)
 do ij_temp=1,nij
   call ReExpand(xrMP,nij,nElem,EC(1,ij_temp),C_o_C,ij_temp,lMax)
 end do
-call daxpy_(iDim,One,xnrMP,1,xrMP,1)
-call dCopy_(iDim,xrMP,1,xxrMP,1)
+call daxpy_(i_Dim,One,xnrMP,1,xrMP,1)
+call dCopy_(i_Dim,xrMP,1,xxrMP,1)
 call CutOff_Error(l,lMax,xrMP,xxrMP,nij,A,C_o_C,nElem,Scratch_New,Scratch_Org,nAtoms,iPrint_Errors,Error)
 
 Error_for_t = Error

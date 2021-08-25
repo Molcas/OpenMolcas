@@ -11,11 +11,14 @@
 
 subroutine Read_h0(nSize,nBas,ip_h0,Restart)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: nSize, nBas, ip_h0
+logical(kind=iwp) :: Restart
 #include "WrkSpc.fh"
-character*8 Label
-logical Restart
-dimension nInts(1)
+character(len=8) :: Label
+integer(kind=iwp) :: iComp, iOpt0, iOpt1, iRc, iSyLbl, nInts(1)
 
 !                                                                      *
 !***********************************************************************
@@ -34,12 +37,12 @@ if (Restart) then
 else
   call iRdOne(iRc,iOpt1,Label,iComp,nInts,iSyLbl)
   if (iRc /= 0) then
-    write(6,*) 'Read_h0: Error reading ONEINT'
-    write(6,'(A,A)') 'Label=',Label
+    write(u6,*) 'Read_h0: Error reading ONEINT'
+    write(u6,'(A,A)') 'Label=',Label
     call Abend()
   end if
   if (nInts(1)+4 /= nSize) then
-    write(6,*) 'Local_Polar: nInts+4.ne.nSize',nInts(1)+4,nSize
+    write(u6,*) 'Local_Polar: nInts+4.ne.nSize',nInts(1)+4,nSize
     call Abend()
   end if
   iRc = -1

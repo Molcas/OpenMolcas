@@ -12,14 +12,18 @@
 subroutine Read_Multipole_Int(lMax,ip_sq_mu,nBas,ip_mu,Ttot,Temp,Origin,rMPq,nElem,nBas1,nBas2,nBasMax,nTemp,nSym,ipP,Restart, &
                               Utility)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: lMax, nElem, ip_sq_mu(0:nElem-1), nSym, nBas(0:nSym-1), ip_mu(0:nElem-1), nBas1, nBas2, nBasMax, nTemp, ipP
+real(kind=wp) :: Ttot(nBas2), Temp(nTemp), Origin(3,0:lMax), rMPq(0:nElem-1)
+logical(kind=iwp) :: Restart, Utility
+integer(kind=iwp) :: iComp, idum(1), ijSym, iOff, iOffs, iOfft, iOpt0, iOpt1, ip_all_ints, ip_iSyLbl, ip_nComp, ip_Tmp, ipScr, &
+                     iRc, iSyLbl, iSym, jSym, l, mu, nComp, nInts, nInts_Tot, nScr
+character(len=16) :: RunFile_dLabel, RunFile_iLabel, RunFile_iLabel2
+character(len=8) :: Label
+logical(kind=iwp) :: Found
 #include "WrkSpc.fh"
-real*8 Temp(nTemp), Ttot(nBas2), Origin(3,0:lMax),rMPq(0:nElem-1)
-integer ip_mu(0:nElem-1), ip_sq_mu(0:nElem-1), nBas(0:nSym-1)
-character*8 Label
-character*16 RunFile_dLabel, RunFile_iLabel, RunFile_iLabel2
-logical Restart, Found, Utility
-dimension idum(1)
 
 !                                                                      *
 !***********************************************************************
@@ -44,7 +48,7 @@ call Allocate_iWork(ip_iSyLbl,nElem)
 if (Restart) then
   call Qpg_dArray(RunFile_dLabel,Found,nInts_tot)
   if (.not. Found) then
-    write(6,*) 'LoProp Integrals not available on the RunFile.'
+    write(u6,*) 'LoProp Integrals not available on the RunFile.'
     call Abend()
   end if
   call Allocate_Work(ip_all_ints,nInts_Tot)
@@ -63,7 +67,7 @@ do l=0,lMax
   write(Label(8:8),'(I1)') l
   do iComp=1,nComp
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'l,iComp=',l,iComp
+    write(u6,*) 'l,iComp=',l,iComp
 #   endif
     mu = mu+1
     if (Restart) then
@@ -77,16 +81,16 @@ do l=0,lMax
       iSyLbl = 0
       call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
       if (iRc /= 0) then
-        write(6,*) 'Polar: error reading length of mu!'
-        write(6,*) 'Mu=',mu
+        write(u6,*) 'Polar: error reading length of mu!'
+        write(u6,*) 'Mu=',mu
         call Abend()
       end if
       nInts = idum(1)
       call Allocate_Work(ip_mu(mu),nInts+4)
       call RdOne(iRc,iOpt0,Label,iComp,Work(ip_mu(mu)),iSyLbl)
       if (iRc /= 0) then
-        write(6,*) 'Polar: error reading mu!'
-        write(6,*) 'Mu=',mu
+        write(u6,*) 'Polar: error reading mu!'
+        write(u6,*) 'Mu=',mu
         call Abend()
       end if
       iWork(ip_iSyLbl+mu) = iSyLbl

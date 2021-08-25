@@ -9,12 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-logical function Check_Bond(CXi,CXj,iANr,jANr,Factor)
+function Check_Bond(CXi,CXj,iANr,jANr,Factor)
 ! Returns true if the bond should be included, otherwise false
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-real*8 CXi(3), CXj(3)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+logical(kind=iwp) :: Check_Bond
+real(kind=wp) :: CXi(3), CXj(3), Factor
+integer(kind=iwp) :: iANr, jANr
+real(kind=wp) :: Bond_Length, Bond_Max, Radius_i, Radius_j
+real(kind=wp), external :: Bragg_Slater
 
 Check_Bond = .true.
 if (Factor < Zero) then

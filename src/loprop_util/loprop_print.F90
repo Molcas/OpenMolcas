@@ -11,17 +11,22 @@
 
 subroutine LoProp_Print(rMP,nij,nElem,nAtoms,Q_Nuc,LblCnt,lSave)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-real*8 rMP(nij,nElem), Q_Nuc(nAtoms)
-character*(LENIN4) LblCnt(nAtoms)
-character*120 Banner_Line(3)
-real*8 E_Charge(MxAtom), Q_Charge(MxAtom)
-character*(LENIN) Lbl(MxAtom)
-logical lSave, Reduce_Prt
-external Reduce_Prt
+integer(kind=iwp) :: nij, nElem, nAtoms
+real(kind=wp) :: rMP(nij,nElem), Q_Nuc(nAtoms)
+character(len=LenIn4) :: LblCnt(nAtoms)
+logical(kind=iwp) :: lSave
+integer(kind=iwp) :: i, iAtom, iEnd, ij, Inc, iPL, ipLPChg, iSt, mAtoms
+real(kind=wp) :: E_Charge(MxAtom), Q_Charge(MxAtom)
+character(len=LenIn) :: Lbl(MxAtom)
+character(len=120) :: Banner_Line(3)
+integer(kind=iwp), external :: iPrintLevel
+logical(kind=iwp), external :: Reduce_Prt
 
 !                                                                      *
 !***********************************************************************
@@ -40,14 +45,14 @@ call Set_Binom()
 !                                                                      *
 ! Loop over all domains
 
-write(6,*)
+write(u6,*)
 Banner_Line(1) = 'LoProp Charges per center'
 #ifdef _DEBUGPRINT_
 Banner_Line(2) = ' '
 Banner_Line(3) = 'Note that this charge analysis only makes sense if the orbital basis is of true AO type!'
 call Banner(Banner_Line,3,120)
 #else
-write(6,'(6X,A)') trim(Banner_Line(1))
+write(u6,'(6X,A)') trim(Banner_Line(1))
 #endif
 
 ! Collect data
@@ -76,16 +81,16 @@ end if
 Inc = 10
 do iSt=1,mAtoms,Inc
   iEnd = min(mAtoms,iSt+Inc-1)
-  write(6,*)
-  write(6,'(/16X,10(3X,A))') (Lbl(i),i=iSt,iEnd)
-  write(6,'(6X,A,10F9.4)') 'Nuclear   ',(Q_Charge(i),i=iSt,iEnd)
-  write(6,'(6X,A,10F9.4)') 'Electronic',(E_Charge(i),i=iSt,iEnd)
-  write(6,*)
-  write(6,'(6X,A,10F9.4)') 'Total     ',(Q_Charge(i)+E_Charge(i),i=iSt,iEnd)
+  write(u6,*)
+  write(u6,'(/16X,10(3X,A))') (Lbl(i),i=iSt,iEnd)
+  write(u6,'(6X,A,10F9.4)') 'Nuclear   ',(Q_Charge(i),i=iSt,iEnd)
+  write(u6,'(6X,A,10F9.4)') 'Electronic',(E_Charge(i),i=iSt,iEnd)
+  write(u6,*)
+  write(u6,'(6X,A,10F9.4)') 'Total     ',(Q_Charge(i)+E_Charge(i),i=iSt,iEnd)
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*)
+write(u6,*)
 call Banner(Banner_Line,0,120)
 #endif
 !                                                                      *

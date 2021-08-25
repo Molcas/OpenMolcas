@@ -57,5 +57,6 @@
 *Jose. Slater
 *     Parameter(MxSlFactQ=(MxMltp*(MxMltp**2+6*MxMltp+11)+6)/6)
 *Observe! MxState must be the same as MXSTAT in cntrl.fh in src/rassi
+*         (but there's no such variable)
       Parameter(MxState=200,MxStOT=MxState*(MxState+1)/2)
       Parameter(MxJobs=40)

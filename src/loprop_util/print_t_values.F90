@@ -11,32 +11,37 @@
 
 subroutine Print_T_Values(T_Values,iT_Sets,iANr,EC,Bond_Threshold,nAtoms,nij,Standard,iWarnings,Num_Warnings,iPrint)
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nij, iT_Sets(nij), nAtoms, iANr(nAtoms), iWarnings(nij), Num_Warnings, iPrint
+real(kind=wp) :: T_Values(nij), EC(3,nij), Bond_Threshold
+logical(kind=iwp) :: Standard
 #include "Molcas.fh"
-#include "real.fh"
-real*8 T_Values(nij), EC(3,nij)
-integer iT_Sets(nij), iANr(nAtoms), iWarnings(nij)
-character*(LENIN) AtomLbl(MxAtom)
-character*(LENIN4) AtomLbl4(MxAtom)
-character*17 BondLbl
-parameter(iLength=25)
-character*(iLength) Warning
-logical Standard
+integer(kind=iwp) :: i, iAtom, ii, ij, j, jAtom, jj, Last_NonBlank
+real(kind=wp) :: Bond_Length, Bond_Max, bs_t, Factor, Radius_i, Radius_j
+integer(kind=iwp), parameter :: iLength = 25
+character(len=LenIn) :: AtomLbl(MxAtom)
+character(len=LenIn4) :: AtomLbl4(MxAtom)
+character(len=iLength) :: Warning
+character(len=17) :: BondLbl
+real(kind=wp), external :: Bragg_Slater
 
 ! Print header
 
-call Get_cArray('LP_L',AtomLbl4,(LENIN4)*nAtoms)
+call Get_cArray('LP_L',AtomLbl4,(LenIn4)*nAtoms)
 do i=1,nAtoms
-  AtomLbl(i)(1:LENIN) = AtomLbl4(i)(1:LENIN)
+  AtomLbl(i)(1:LenIn) = AtomLbl4(i)(1:LenIn)
 end do
 ij = 0
-write(6,*)
+write(u6,*)
 if (Num_Warnings > 0) then
-  write(6,'(A,I3,A)') 'During optimization of the expansion centers ',Num_Warnings,' warnings were encountered.'
-  write(6,*)
-  write(6,'(A)') ' iAtom   jAtom   Atom(s)          Factor   Bragg-Slater      t      Warning'
+  write(u6,'(A,I3,A)') 'During optimization of the expansion centers ',Num_Warnings,' warnings were encountered.'
+  write(u6,*)
+  write(u6,'(A)') ' iAtom   jAtom   Atom(s)          Factor   Bragg-Slater      t      Warning'
 else
-  write(6,'(A)') ' iAtom   jAtom   Atom(s)          Factor   Bragg-Slater      t'
+  write(u6,'(A)') ' iAtom   jAtom   Atom(s)          Factor   Bragg-Slater      t'
 end if
 
 ! Print informations for the atoms
@@ -61,25 +66,25 @@ do iAtom=1,nAtoms
     if (Num_Warnings > 0) then
       call Warnings_lp(iWarnings(ii),Warning,iLength)
       if (iT_sets(ii) == 1) then
-        write(6,'(1X,I3,5X,8X,A17,24X,F7.4,3X,A)') iAtom,BondLbl,T_Values(ij),Warning
+        write(u6,'(1X,I3,5X,8X,A17,24X,F7.4,3X,A)') iAtom,BondLbl,T_Values(ij),Warning
       else if (Standard) then
-        write(6,'(1X,I3,5X,8X,A17,24X,A,3X,A)') iAtom,BondLbl,'Standard',Warning
+        write(u6,'(1X,I3,5X,8X,A17,24X,A,3X,A)') iAtom,BondLbl,'Standard',Warning
       else
-        write(6,'(1X,I3,5X,8X,A17,24X,A,3X,A)') iAtom,BondLbl,'Skipped',Warning
+        write(u6,'(1X,I3,5X,8X,A17,24X,A,3X,A)') iAtom,BondLbl,'Skipped',Warning
       end if
     else
       if (iT_sets(ii) == 1) then
-        write(6,'(1X,I3,5X,8X,A17,24X,F7.4)') iAtom,BondLbl,T_Values(ij)
+        write(u6,'(1X,I3,5X,8X,A17,24X,F7.4)') iAtom,BondLbl,T_Values(ij)
       else if (Standard) then
-        write(6,'(1X,I3,5X,8X,A17,24X,A)') iAtom,BondLbl,'Standard'
+        write(u6,'(1X,I3,5X,8X,A17,24X,A)') iAtom,BondLbl,'Standard'
       else
-        write(6,'(1X,I3,5X,8X,A17,24X,A)') iAtom,BondLbl,'Skipped'
+        write(u6,'(1X,I3,5X,8X,A17,24X,A)') iAtom,BondLbl,'Skipped'
       end if
     end if
   end if
 end do
 
-write(6,'(79A)') ('-',i=1,79)
+write(u6,'(79A)') ('-',i=1,79)
 
 ! Print informations for the bonds
 
@@ -114,19 +119,19 @@ do iAtom=1,nAtoms
       if (Num_Warnings > 0) then
         call Warnings_lp(iWarnings(ij),Warning,iLength)
         if (iT_sets(ij) == 1) then
-          write(6,'(1X,I3,5X,I3,5X,A17,F6.3,5X,F7.4,6X,F7.4,3X,A)') iAtom,jAtom,BondLbl,Factor,BS_t,T_Values(ij),Warning
+          write(u6,'(1X,I3,5X,I3,5X,A17,F6.3,5X,F7.4,6X,F7.4,3X,A)') iAtom,jAtom,BondLbl,Factor,BS_t,T_Values(ij),Warning
         else if (Standard) then
-          write(6,'(1X,I3,5X,I3,5X,A17,F6.3,5X,F7.4,6X,A,3X,A)') iAtom,jAtom,BondLbl,Factor,BS_t,'Standard',Warning
+          write(u6,'(1X,I3,5X,I3,5X,A17,F6.3,5X,F7.4,6X,A,3X,A)') iAtom,jAtom,BondLbl,Factor,BS_t,'Standard',Warning
         else
-          write(6,'(1X,I3,5X,I3,5X,A17,F6.3,5X,F7.4,6X,A,3X,A)') iAtom,jAtom,BondLbl,Factor,BS_t,'Skipped',Warning
+          write(u6,'(1X,I3,5X,I3,5X,A17,F6.3,5X,F7.4,6X,A,3X,A)') iAtom,jAtom,BondLbl,Factor,BS_t,'Skipped',Warning
         end if
       else
         if (iT_sets(ij) == 1) then
-          write(6,'(1X,I3,5X,I3,5X,A17,F6.3,5X,F7.4,6X,F7.4)') iAtom,jAtom,BondLbl,Factor,BS_t,T_Values(ij)
+          write(u6,'(1X,I3,5X,I3,5X,A17,F6.3,5X,F7.4,6X,F7.4)') iAtom,jAtom,BondLbl,Factor,BS_t,T_Values(ij)
         else if (Standard) then
-          write(6,'(1X,I3,5X,I3,5X,A17,F6.3,5X,F7.4,6X,A)') iAtom,jAtom,BondLbl,Factor,BS_t,'Standard'
+          write(u6,'(1X,I3,5X,I3,5X,A17,F6.3,5X,F7.4,6X,A)') iAtom,jAtom,BondLbl,Factor,BS_t,'Standard'
         else
-          write(6,'(1X,I3,5X,I3,5X,A17,F6.3,5X,F7.4,6X,A)') iAtom,jAtom,BondLbl,Factor,BS_t,'Skipped'
+          write(u6,'(1X,I3,5X,I3,5X,A17,F6.3,5X,F7.4,6X,A)') iAtom,jAtom,BondLbl,Factor,BS_t,'Skipped'
         end if
       end if
     end if

@@ -11,18 +11,20 @@
 
 subroutine Local_XHole(ipXHole2,dMolExpec,nAtoms,nBas1,nTemp,iCenter,Ttot,Ttot_Inv,Coor,nij,EC,iANr,Bond_Threshold,iPrint,XHLoc2)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
-dimension Coor(3,nAtoms), Sq_Temp(nTemp), Ttot_Inv(nTemp)
-dimension Temp(nTemp), A(3), B(3), d2Loc(nij), EC(3,nij)
-dimension Ttot(nTemp), XHLoc2(nij)
-dimension iCenter(nBas1), iANr(nAtoms)
-logical Found
-real*8, allocatable :: Dens(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-! Binomal stuff
+implicit none
+integer(kind=iwp) :: ipXHole2, nAtoms, nBas1, nTemp, iCenter(nBas1), nij, iANr(nAtoms), iPrint
+real(kind=wp) :: dMolExpec, Ttot(nTemp), Ttot_Inv(nTemp), Coor(3,nAtoms), EC(3,nij), Bond_Threshold, XHLoc2(nij)
+#include "WrkSpc.fh"
+integer(kind=iwp) :: i, iAtom, ij, iOffO, j, jAtom, nDenno
+real(kind=wp) :: A(3), Acc, B(3), d2Loc(nij), Sq_Temp(nTemp), Temp(nTemp)
+logical(kind=iwp) :: Found
+real(kind=wp), allocatable :: Dens(:)
+
+! Binomial stuff
 
 call Set_Binom()
 
@@ -32,15 +34,15 @@ call Qpg_dArray('D1ao',Found,nDenno)
 if (Found .and. (nDenno /= 0)) then
   call mma_Allocate(Dens,nDenno,Label='Dens')
 else
-  write(6,*) 'Local XHole: D1ao not found.'
+  write(u6,*) 'Local XHole: D1ao not found.'
   call Abend()
 end if
 call Get_D1ao(Dens,nDenno)
 call DSq(Dens,Sq_Temp,1,nBas1,nBas1)
 call mma_deallocate(Dens)
 
-call DGEMM_('N','T',nBas1,nBas1,nBas1,1.0d0,Sq_Temp,nBas1,Ttot_Inv,nBas1,0.0d0,Temp,nBas1)
-call DGEMM_('N','N',nBas1,nBas1,nBas1,1.0d0,Ttot_Inv,nBas1,Temp,nBas1,0.0d0,Sq_Temp,nBas1)
+call DGEMM_('N','T',nBas1,nBas1,nBas1,One,Sq_Temp,nBas1,Ttot_Inv,nBas1,Zero,Temp,nBas1)
+call DGEMM_('N','N',nBas1,nBas1,nBas1,One,Ttot_Inv,nBas1,Temp,nBas1,Zero,Sq_Temp,nBas1)
 
 ! Transform the exchange-hole stuff to LoProp basis
 

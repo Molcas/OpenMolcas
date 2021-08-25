@@ -15,11 +15,14 @@ subroutine Move_Xhole(rX,EC,nAtoms,nij,iANr,Bond_Threshold)
 ! two atoms involved in the bond.
 ! Ripped from move_prop.
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-dimension rX(nij), EC(3,nij)
-dimension iAnr(nAtoms)
-logical Bond_OK, Check_Bond
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAtoms, nij, iANr(nAtoms)
+real(kind=wp) :: rX(nij), EC(3,nij), Bond_Threshold
+integer(kind=iwp) :: iAtom, ii, ij, jAtom, jj
+logical(kind=iwp) :: Bond_OK, Check_Bond
 
 do iAtom=2,nAtoms
   ii = iAtom*(iAtom+1)/2

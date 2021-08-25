@@ -11,10 +11,17 @@
 
 subroutine Diff_ThrsMul(ipMP,ThrsMul,ThrsMul_Clever,nAt,nij,lMax)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: ipMP, nAt, nij, lMax
+real(kind=wp) :: ThrsMul, ThrsMul_Clever
+integer(kind=iwp) :: iAtom, jAtom, k, kaunt, kauntA, kComp, l
+real(kind=wp) :: dM, dMMax
 #include "WrkSpc.fh"
 
-dMMax = 0.0d0
+dMMax = Zero
 kauntA = 0
 do iAtom=1,nAt
   do jAtom=1,iAtom

@@ -11,9 +11,13 @@
 
 subroutine Ttotal(T1,T2,T3,T4,Ttot,Ttot_Inv,nDim)
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nDim
+real(kind=wp) :: T1(nDim*nDim), T2(nDim*nDim), T3(nDim*nDim), T4(nDim,nDim), Ttot(nDim,nDim), Ttot_Inv(nDim,nDim)
+integer(kind=iwp) :: ipTemp, ipTemp2
 #include "WrkSpc.fh"
-real*8 T1(nDim*nDim), T2(nDim*nDim), T3(nDim*nDim), T4(nDim,nDim), Ttot(nDim,nDim), Ttot_Inv(nDim,nDim)
 
 call Allocate_Work(ipTemp,nDim**2)
 call Allocate_Work(ipTemp2,nDim**2)

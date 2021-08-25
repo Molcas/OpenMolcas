@@ -11,13 +11,19 @@
 
 subroutine EPotPoint(iPotte,nPick,ipPick,ipDPick,nEPP,ipT,ipTi,NucNr,nB,iAtom,jAtom,ip_Center)
 
-implicit real*8(a-h,o-z)
-#include "stdalloc.fh"
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: iPotte, nPick, ipPick, ipDPick, nEPP, ipT, ipTi, NucNr, nB, iAtom, jAtom, ip_Center
+integer(kind=iwp) :: iB1, iB2, iC1, iC2, iComp, iDSq, iDTrans, iOpt, iPo, iPoint, iPP, iPSq, iPTr, irc, iSmLbl, iTEMP, kaunter, &
+                     nB2, nB22, nDens
+real(kind=wp) :: dEx
+character(len=10) :: Label
+logical(kind=iwp) :: Found
+real(kind=wp), allocatable :: D1ao(:)
 #include "WrkSpc.fh"
-#include "warnings.h"
-real*8, allocatable :: D1ao(:)
-character*10 Label
-logical Found
 
 ! Loop through all points, pick out the relevant ones, obtain the
 ! partial expectation value from the appropriate basis and return.
@@ -29,7 +35,7 @@ call Qpg_darray('D1ao',Found,nDens)
 if (Found .and. (nDens /= 0)) then
   call mma_allocate(D1ao,nDens,Label='D1ao')
 else
-  write(6,*) 'EPotPoint: D1ao not found.'
+  write(u6,*) 'EPotPoint: D1ao not found.'
   call abend()
 end if
 call Get_D1ao(D1ao,nDens)
@@ -40,8 +46,8 @@ call GetMem('DTrans','Allo','Real',iDTrans,nB22)
 
 ! Contravariant transformation of density matrix.
 
-call DGEMM_('N','N',nB,nB,nB,1.0d0,Work(ipTi),nB,Work(iDSq),nB,0.0d0,Work(iTEMP),nB)
-call DGEMM_('N','T',nB,nB,nB,1.0d0,Work(iTEMP),nB,Work(ipTi),nB,0.0d0,Work(iDTrans),nB)
+call DGEMM_('N','N',nB,nB,nB,One,Work(ipTi),nB,Work(iDSq),nB,Zero,Work(iTEMP),nB)
+call DGEMM_('N','T',nB,nB,nB,One,Work(iTEMP),nB,Work(ipTi),nB,Zero,Work(iDTrans),nB)
 call GetMem('Points','Allo','Real',iPP,nB2+4)
 call GetMem('PointsSq','Allo','Real',iPSq,nB22)
 call GetMem('PointsTr','Allo','Real',iPTr,nB22)
@@ -57,9 +63,9 @@ do iPoint=1,nPick
 
   ! Covariant transformation of the matrix for the potential in this particular point.
 
-  call DGEMM_('T','N',nB,nB,nB,1.0d0,Work(ipT),nB,Work(iPSq),nB,0.0d0,Work(iTEMP),nB)
-  call DGEMM_('N','N',nB,nB,nB,1.0d0,Work(iTEMP),nB,Work(ipT),nB,0.0d0,Work(iPTr),nB)
-  dEx = 0.0d0
+  call DGEMM_('T','N',nB,nB,nB,One,Work(ipT),nB,Work(iPSq),nB,Zero,Work(iTEMP),nB)
+  call DGEMM_('N','N',nB,nB,nB,One,Work(iTEMP),nB,Work(ipT),nB,Zero,Work(iPTr),nB)
+  dEx = Zero
   kaunter = 0
 
   ! The usual stuff to get the localized value.
@@ -78,9 +84,9 @@ do iPoint=1,nPick
   ! Accumulate in the return vector.
 
   if (iAtom == jAtom) then
-    Work(iPotte+iPoint-1) = -1.0d0*dEx+dble(NucNr)/Work(ipDPick+iPoint-1)
+    Work(iPotte+iPoint-1) = -dEx+dble(NucNr)/Work(ipDPick+iPoint-1)
   else
-    Work(iPotte+iPoint-1) = -1.0d0*dEx
+    Work(iPotte+iPoint-1) = -dEx
   end if
 end do
 

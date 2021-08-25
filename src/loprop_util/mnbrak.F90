@@ -14,18 +14,19 @@
 subroutine MnBrak(ax,bx,cx,fa,fb,fc,f,rMP,xrMP,xxrMP,xnrMP,EC,AC,R_ij,C_o_C,ij,l,nij,lMax,nElem,nAtoms,nPert,Scratch_New, &
                   Scratch_Org,iPrint_Errors)
 
+use Constants, only: Zero, One, Five, Half
+use Definitions, only: wp, iwp, u6
+
 implicit none
-real*8 :: ax, bx, cx, fa, fb, fc, vx, fv, coefA, coefB
-logical :: Def
-real*8, parameter :: Ratio = 0.5d0*(sqrt(5.0d0)+1.0d0)
-real*8, parameter :: Thr = 1.0D-20, Lim = 100.0d0
+real(wp) :: ax, bx, cx, fa, fb, fc
 ! External function f and its arguments
-real*8, external :: f
-integer :: nij, lMax, nElem
-real*8 :: rMP(nij,0:nElem), xrMP(nij,nElem), xxrMP(nij,nElem), xnrMP(nij,nElem), EC(3,nij), AC(3,nij), R_ij(3), C_o_C(3), &
-          Scratch_New(nij*(2+lMax+1)), Scratch_Org(nij*(2+lMax+1))
-integer :: ij, l, nAtoms, nPert, iPrint_Errors
-#include "real.fh"
+real(kind=wp), external :: f
+integer(kind=iwp) :: ij, l, nij, lMax, nElem, nAtoms, nPert, iPrint_Errors
+real(kind=wp) :: rMP(nij,0:nElem), xrMP(nij,nElem), xxrMP(nij,nElem), xnrMP(nij,nElem), EC(3,nij), AC(3,nij), R_ij(3), C_o_C(3), &
+                 Scratch_New(nij*(2+lMax+1)), Scratch_Org(nij*(2+lMax+1))
+real(kind=wp) :: vx, fv, coefA, coefB
+logical(kind=iwp) :: Def
+real(kind=wp), parameter :: Lim = 100.0_wp, Ratio = Half*(One+sqrt(Five)), Thr = 1.0e-20_wp
 
 fa = f(ax,rMP,xrMP,xxrMP,xnrMP,EC,AC,R_ij,C_o_C,ij,l,nij,lMax,nElem,nAtoms,nPert,Scratch_New,Scratch_Org,iPrint_Errors)
 fb = f(bx,rMP,xrMP,xxrMP,xnrMP,EC,AC,R_ij,C_o_C,ij,l,nij,lMax,nElem,nAtoms,nPert,Scratch_New,Scratch_Org,iPrint_Errors)
@@ -42,7 +43,7 @@ end if
 cx = bx+Ratio*(bx-ax)
 fc = f(cx,rMP,xrMP,xxrMP,xnrMP,EC,AC,R_ij,C_o_C,ij,l,nij,lMax,nElem,nAtoms,nPert,Scratch_New,Scratch_Org,iPrint_Errors)
 do while (fc <= fb)
-  write(6,*) ax,bx,cx
+  write(u6,*) ax,bx,cx
   Def = .true.
   ! try a parabolic fitting
   coefA = (cx*(fb-fa)+bx*(fa-fc)+ax*(fc-fb))

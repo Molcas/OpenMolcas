@@ -13,22 +13,25 @@ subroutine Step2(iMatrix,SMatrix,nDim,TMatrix,iType,SMatrix_Save,Temp)
 ! Step 2. LO S0 ->S1
 ! occupied virtual on the same center
 ! and orthonormalization of the original AO basis
-! The call to lowdin_lp gives me a transforation A1, and a
+! The call to lowdin_lp gives me a transformation A1, and a
 ! transformed S matrix
 
-implicit real*8(A-H,O-Z)
-real*8 SMatrix(nDim*nDim), TMatrix(nDim*nDim), Temp(nDim*nDim), SMatrix_Save(nDim*nDim)
-integer iMatrix(nDim), iType(nDim)
-#include "real.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-!lg write(6,*) 'Step 2', nDim
+implicit none
+integer(kind=iwp) :: nDim, iMatrix(nDim), iType(nDim)
+real(kind=wp) :: SMatrix(nDim*nDim), TMatrix(nDim*nDim), SMatrix_Save(nDim*nDim), Temp(nDim*nDim)
+integer(kind=iwp) :: i, j, k
+
+!lg write(u6,*) 'Step 2', nDim
 !lg call RecPrt('Save before LW 2',' ',SMatrix_Save,nDim,nDim)
-!lg write(6,*)
+!lg write(u6,*)
 k = 0
 do i=1,nDim
   do j=1,nDim
     k = k+1
-    !write(6,*) iMatrix(i),iMatrix(j),SMatrix(k)
+    !write(u6,*) iMatrix(i),iMatrix(j),SMatrix(k)
     if ((iMatrix(i) /= iMatrix(j)) .and. (iType(i) /= iType(j))) then
       SMatrix(k) = Zero
     end if
@@ -48,8 +51,8 @@ call dcopy_(nDim**2,SMatrix_Save,1,SMatrix,1)
 ! Now apply T2 to S2:  S3=T2(T)*S2*T2
 
 call FZero(Temp,nDim**2)
-call DGEMM_('N','N',nDim,nDim,nDim,1.0d0,SMatrix,nDim,TMatrix,nDim,0.0d0,Temp,nDim)
-call DGEMM_('T','N',nDim,nDim,nDim,1.0d0,TMatrix,nDim,Temp,nDim,0.0d0,SMatrix,nDim)
+call DGEMM_('N','N',nDim,nDim,nDim,One,SMatrix,nDim,TMatrix,nDim,Zero,Temp,nDim)
+call DGEMM_('T','N',nDim,nDim,nDim,One,TMatrix,nDim,Temp,nDim,Zero,SMatrix,nDim)
 !call RecPrt('S3',' ',Work(ip_s),nBas(1),nBas(1))
 call dcopy_(nDim**2,SMatrix,1,SMatrix_Save,1)
 

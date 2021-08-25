@@ -11,10 +11,16 @@
 
 subroutine Desymmetrize(SOInt,nSOInt,Scr,nScr,AOInt,nBas,nBas1,SymInv,nSym,iSyLbl)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 SOInt(nSOInt), Scr(nScr), AOInt(nBas1,nBas1),SymInv(nBas1**2)
-integer nBas(0:nSym-1)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
+implicit none
+integer(kind=iwp) :: nSOInt, nScr, nSym, nBas(0:nSym-1), nBas1, iSyLbl
+real(kind=wp) :: SOInt(nSOInt), Scr(nScr), AOInt(nBas1,nBas1), SymInv(nBas1**2)
+integer(kind=iwp) :: ijSym, iOffPi, iOffPj, iOffSO, iSym, jSym
 
 call FZero(AOInt,nBas1**2)
 
@@ -28,23 +34,23 @@ do iSym=0,nSym-1
     if (nBas(iSym)*nBas(jSym) == 0) Go To 30
     if (iSym == jSym) then
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'Diagonal Block'
+      write(u6,*) 'Diagonal Block'
       call RecPrt('SOInt',' ',SOInt(iOffSO),nBas(iSym),nBas(iSym))
 #     endif
 
-      call DGEMM_('N','T',nBas(iSym),nBas1,nBas(iSym),1.0d0,SOInt(iOffSO),nBas(iSym),SymInv(iOffPi),nBas1,0.0d0,Scr,nBas(iSym))
+      call DGEMM_('N','T',nBas(iSym),nBas1,nBas(iSym),One,SOInt(iOffSO),nBas(iSym),SymInv(iOffPi),nBas1,Zero,Scr,nBas(iSym))
 
       call DGEMM_('N','N',nBas1,nBas1,nBas(iSym),One,SymInv(iOffPi),nBas1,Scr,nBas(iSym),One,AOInt,nBas1)
 
     else
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'Off-Diagonal Block',iSym,jSym
+      write(u6,*) 'Off-Diagonal Block',iSym,jSym
       call RecPrt('SOInt',' ',SOInt(iOffSO),nBas(iSym),nBas(jSym))
       call RecPrt('Pi',' ',SymInv(iOffPi),nbas1,nBas(iSym))
       call RecPrt('Pj',' ',SymInv(iOffPj),nbas1,nBas(jSym))
 #     endif
 
-      call DGEMM_('N','T',nBas(iSym),nBas1,nBas(jSym),1.0d0,SOInt(iOffSO),nBas(iSym),SymInv(iOffPj),nBas1,0.0d0,Scr,nBas(iSym))
+      call DGEMM_('N','T',nBas(iSym),nBas1,nBas(jSym),One,SOInt(iOffSO),nBas(iSym),SymInv(iOffPj),nBas1,Zero,Scr,nBas(iSym))
 
       call DGEMM_('N','N',nBas1,nBas1,nBas(iSym),One,SymInv(iOffPi),nBas1,Scr,nBas(iSym),One,AOInt,nBas1)
 

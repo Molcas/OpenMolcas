@@ -12,15 +12,18 @@
 subroutine TransMu(SqMu,nDim,TTot,Temp)
 ! Transform with TTOT the multipole moment integral matrix
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-real*8 SqMu(nDim*nDim), TTot(nDim*nDim), Temp(nDim*nDim)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nDim
+real(kind=wp) :: SqMu(nDim*nDim), TTot(nDim*nDim), Temp(nDim*nDim)
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call DGEMM_('N','N',nDim,nDim,nDim,1.0d0,SqMu,nDim,TTot,nDim,0.0d0,Temp,nDim)
-call DGEMM_('T','N',nDim,nDim,nDim,1.0d0,Ttot,nDim,Temp,nDim,0.0d0,SqMu,nDim)
+call DGEMM_('N','N',nDim,nDim,nDim,One,SqMu,nDim,TTot,nDim,Zero,Temp,nDim)
+call DGEMM_('T','N',nDim,nDim,nDim,One,Ttot,nDim,Temp,nDim,Zero,SqMu,nDim)
 !call RecPrt('Overout',' ',SqMu,nDim,nDim)
 !                                                                      *
 !***********************************************************************

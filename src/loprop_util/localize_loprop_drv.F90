@@ -11,14 +11,17 @@
 
 subroutine Localize_LoProp_Drv(Ttot,Ttot_Inv,nBas,iCenter,iType,nBas1,nBas2,nSym,nBasMax,ipP,Restart)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nSym, nBas(nSym), nBas1, iCenter(nBas1), iType(nBas1), nBas2, nBasMax, ipP
+real(kind=wp) :: Ttot(nBas2), Ttot_Inv(nBas2)
+logical(kind=iwp) :: Restart
+integer(kind=iwp) :: idum(1), iOffs, iOfft, iOpt0, iOpt1, ip_all_ints, ip_restart, ip_SSym, ip_Tmp, ipS, ipScr, iRc, iSyLbl, iSym, &
+                     nElem, nInts, nInts_tot, nScr
+character(len=8) :: Label
+logical(kind=iwp) :: Found
 #include "WrkSpc.fh"
-real*8 Ttot(nBas2), Ttot_Inv(nBas2)
-integer iCenter(nBas1), iType(nBas1), nBas(nSym)
-character*8 Label
-logical Found, Restart
-dimension idum(1)
 
 !                                                                      *
 !***********************************************************************
@@ -38,7 +41,7 @@ if (Restart) then
   call GetMem('Tmp','Allo','Real',ip_SSym,nInts+4)
   call Qpg_dArray('LoProp Integrals',Found,nInts_tot)
   if (.not. Found) then
-    write(6,*) 'LoProp Integrals not available on the RunFile.'
+    write(u6,*) 'LoProp Integrals not available on the RunFile.'
     call Abend()
   end if
   call Allocate_Work(ip_all_ints,nInts_Tot)
@@ -51,16 +54,16 @@ if (Restart) then
 else
   call iRdOne(iRc,iOpt1,Label,1,idum,iSyLbl)
   if (iRc /= 0) then
-    write(6,*) 'Polar: error reading length of mu!'
-    write(6,*) 'Mu=',0
+    write(u6,*) 'Polar: error reading length of mu!'
+    write(u6,*) 'Mu=',0
     call Abend()
   end if
   nInts = idum(1)
   call GetMem('Tmp','Allo','Real',ip_SSym,nInts+4)
   call RdOne(iRc,iOpt0,Label,1,Work(ip_SSym),iSyLbl)
   if (iRc /= 0) then
-    write(6,*) 'Polar: error reading mu!'
-    write(6,*) 'Mu=',0
+    write(u6,*) 'Polar: error reading mu!'
+    write(u6,*) 'Mu=',0
     call Abend()
   end if
 end if

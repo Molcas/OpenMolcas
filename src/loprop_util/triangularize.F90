@@ -11,10 +11,15 @@
 
 subroutine Triangularize(A_sq,A_tr,n,Fold)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 A_sq(n,n), A_tr(n*(n+1)/2)
-logical Fold
+use Constants, only: One, Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n
+real(kind=wp) :: A_sq(n,n), A_tr(n*(n+1)/2)
+logical(kind=iwp) :: Fold
+integer(kind=iwp) :: i, ij, j
+real(kind=wp) :: Fact
 
 Fact = One
 if (Fold) Fact = Two

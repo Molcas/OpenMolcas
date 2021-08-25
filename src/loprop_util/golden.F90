@@ -11,20 +11,22 @@
 ! Copyright (C) 2017, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
-real*8 function Golden(ax,bx,cx,f,tol_x,tol_f,xmin,rMP,xrMP,xxrMP,xnrMP,EC,AC,R_ij,C_o_C,ij,l,nij,lMax,nElem,nAtoms,nPert, &
+function Golden(ax,bx,cx,f,tol_x,tol_f,xmin,rMP,xrMP,xxrMP,xnrMP,EC,AC,R_ij,C_o_C,ij,l,nij,lMax,nElem,nAtoms,nPert, &
                        Scratch_New,Scratch_Org,iPrint_Errors)
 
+use Constants, only: One, Three, Five, Half
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 :: ax, bx, cx, tol_x, tol_f, xmin
-real*8, parameter :: Ratio = 0.5d0*(3.0d0-sqrt(5.0d0))
-real*8, parameter :: RM = 1.0d0-Ratio
-real*8 :: x1, x2, x3, x4, f2, f3
+real(kind=wp) :: Golden
+real(kind=wp) :: ax, bx, cx, tol_x, tol_f, xmin
 ! External function f and its arguments
-real*8, external :: f
-integer :: nij, lMax, nElem
-real*8 :: rMP(nij,0:nElem), xrMP(nij,nElem), xxrMP(nij,nElem), xnrMP(nij,nElem), EC(3,nij), AC(3,nij), R_ij(3), C_o_C(3), &
+real(kind=wp), external :: f
+integer(kind=iwp) :: ij, l, nij, lMax, nElem, nAtoms, nPert, iPrint_Errors
+real(kind=wp) :: rMP(nij,0:nElem), xrMP(nij,nElem), xxrMP(nij,nElem), xnrMP(nij,nElem), EC(3,nij), AC(3,nij), R_ij(3), C_o_C(3), &
           Scratch_New(nij*(2+lMax+1)), Scratch_Org(nij*(2+lMax+1))
-integer :: ij, l, nAtoms, nPert, iPrint_Errors
+real(kind=wp) :: f2, f3, x1, x2, x3, x4
+real(kind=wp), parameter :: Ratio = Half*(Three-sqrt(Five)), RM = One-Ratio
 
 x1 = ax
 x4 = cx

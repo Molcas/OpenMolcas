@@ -16,11 +16,14 @@ subroutine Move_Prop(rMP,EC,lMax,nElem,nAtoms,nPert,nij,iANr,Bond_Threshold)
 !
 ! Polarizabilities are moved in the Move_Polar subroutine!
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-real*8 rMP(nij,0:nElem-1,0:nPert-1), EC(3,nij)
-integer iAnr(nAtoms)
-logical Bond_OK, Check_Bond
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: lMax, nElem, nAtoms, nPert, nij, iANr(nAtoms)
+real(kind=wp) :: rMP(nij,0:nElem-1,0:nPert-1), EC(3,nij), Bond_Threshold
+integer(kind=iwp) :: iAtom, iElem, ii, ij, iPert, jAtom, jj
+logical(kind=iwp) :: Bond_OK, Check_Bond
 
 do iAtom=2,nAtoms
   ii = iAtom*(iAtom+1)/2

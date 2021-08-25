@@ -11,9 +11,14 @@
 
 subroutine PickPoints(nPick,ipPick,ipDPick,nEPP,ipEPCo,Coo,dLimmo,BS)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nPick, ipPick, ipDPick, nEPP, ipEPCo
+real(kind=wp) :: Coo(3), dLimmo(2), BS
+integer(kind=iwp) :: iP
+real(kind=wp) :: Distad, xtwo, ytwo, ztwo
 #include "WrkSpc.fh"
-dimension Coo(3), dLimmo(2)
 
 nPick = 0
 do iP=1,nEPP

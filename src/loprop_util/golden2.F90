@@ -11,17 +11,20 @@
 ! Copyright (C) 2017, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
-real*8 function Golden2(ax,bx,cx,f,tol_x,tol_f,xmin,q_a,q_b,dipole_a,dipole_b,r_a,r_b)
+function Golden2(ax,bx,cx,f,tol_x,tol_f,xmin,q_a,q_b,dipole_a,dipole_b,r_a,r_b)
+
+use Constants, only: One, Three, Five, Half
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 :: ax, bx, cx, tol_x, tol_f, xmin
-real*8, parameter :: Ratio = 0.5d0*(3.0d0-sqrt(5.0d0))
-real*8, parameter :: RM = 1.0d0-Ratio
-real*8 :: x1, x2, x3, x4, f2, f3
+real(kind=wp) :: Golden2
+real(kind=wp) :: ax, bx, cx, tol_x, tol_f, xmin
 ! External function f and its arguments
-real*8, external :: f
-real*8 :: q_a, q_b, dipole_a, dipole_b, r_a, r_b
-logical, parameter :: Absolute = .true.
+real(kind=wp), external :: f
+real(kind=wp) :: q_a, q_b, dipole_a, dipole_b, r_a, r_b
+real(kind=wp) :: f2, f3, x1, x2, x3, x4
+real(kind=wp), parameter :: Ratio = Half*(Three-sqrt(Five)), RM = One-Ratio
+logical(kind=iwp), parameter :: Absolute = .true.
 
 x1 = ax
 x4 = cx

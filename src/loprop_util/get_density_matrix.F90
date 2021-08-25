@@ -12,28 +12,33 @@
 subroutine Get_Density_Matrix(ip_D,nBas1,nBas2,nBasMax,nBas,nSym,ipP,UserDen,PrintDen,SubtractDen,SubScale,Q_Nuc,nAtoms,iPert, &
                               Restart,Utility,TDensity,nStateI,nStateF)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Two, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: ip_D, nBas1, nBas2, nBasMax, nSym, nBas(nSym), ipP, nAtoms, iPert, nStateI, nStateF
+logical(kind=iwp) :: UserDen, PrintDen, SubtractDen, Restart, Utility, TDensity
 ! OBSERVE! MxState has to be the same as MxStat in cntrl.fh in src/rassi.
-parameter(MxState=200,MxStOT=MxState*(MxState+1)/2)
-integer nBas(nSym)
-character*16 Label, filename
-dimension Q_Nuc(nAtoms)
-dimension iToc(MxStOT)
-logical UserDen, PrintDen, SubtractDen, Exist, Restart, Utility
-logical TDensity, ok1, ok2, Found
-character*8 Method
-real*8, allocatable :: DTmp(:), DSym(:)
+!          (but there's no such variable)
+integer(kind=iwp), parameter :: MxState = 200, MxStOT = MxState*(MxState+1)/2
+real(kind=wp) :: SubScale, Q_Nuc(nAtoms)
+integer(kind=iwp) :: iDisk, iMp2Prpt, iOffs, iOfft, ip_D_sq, ip_Tmp, ipScr, ipUser, iS1, iS2, iSyLbl, iSym, iTDMden, iToc(MxStOT), &
+                     k, kaunter, Lu_Ud, LuIn, nDens, nScr, nSize, nStateM
+character(len=16) :: Label, filename
+character(len=8) :: Method
+logical(kind=iwp) :: Exists, Found, ok1, ok2
+real(kind=wp), allocatable :: DTmp(:), DSym(:)
+integer(kind=iwp), external :: IsFreeUnit
+#include "WrkSpc.fh"
 
 write(Label,'(A,I1)') 'LoProp Dens ',iPert
 if (Restart) then
 
   ! Retrieve density matrix from the runfile
 
-  call qpg_dArray(Label,Exist,nDens)
-  if ((.not. Exist) .or. (nDens == 0)) then
+  call qpg_dArray(Label,Exists,nDens)
+  if ((.not. Exists) .or. (nDens == 0)) then
     call SysAbendMsg('get_density_matrix','Could not locate:',Label)
   end if
   call Allocate_Work(ip_D,nDens)
@@ -56,10 +61,10 @@ else if (nSym == 1) then
     else
       write(filename,'(A7,I1)') 'USERDEN',ipert
     end if
-    call OpnFl(filename,Lu_Ud,Exist)
-    if (.not. Exist) then
-      write(6,*)
-      write(6,*) ' Unable to locate user density matrix.'
+    call OpnFl(filename,Lu_Ud,Exists)
+    if (.not. Exists) then
+      write(u6,*)
+      write(u6,*) ' Unable to locate user density matrix.'
       call Abend()
     end if
     call GetMem('UserDen','Allo','Real',ipUser,nSize)
@@ -105,10 +110,10 @@ else if (nSym == 1) then
     ! is scaled by a constant SubScale. Nuclear charges are set to zero.
     Lu_Ud = 56
     Lu_Ud = IsFreeUnit(Lu_Ud)
-    call OpnFl('SUBDEN',Lu_Ud,Exist)
-    if (.not. Exist) then
-      write(6,*)
-      write(6,*) ' Unable to locate density matrix to subtract.'
+    call OpnFl('SUBDEN',Lu_Ud,Exists)
+    if (.not. Exists) then
+      write(u6,*)
+      write(u6,*) ' Unable to locate density matrix to subtract.'
       call Abend()
     end if
     call GetMem('UserDen','Allo','Real',ipUser,nSize)
@@ -123,7 +128,7 @@ else if (nSym == 1) then
     call GetMem('UserDen','Free','Real',ipUser,nSize)
     close(Lu_Ud)
     do k=1,nAtoms
-      Q_Nuc(k) = 0.0d0
+      Q_Nuc(k) = Zero
     end do
   end if
   ! End addition P.Soderhjelm.
@@ -151,8 +156,8 @@ else if (nSym == 1) then
     ! to a text file for later use.
     Lu_Ud = 56
     Lu_Ud = IsFreeUnit(Lu_Ud)
-    call OpnFl('PRDEN',Lu_Ud,Exist)
-    write(Lu_Ud,'(10d25.16)') (Work(ip_D+k),k=0,nDens-1)
+    call OpnFl('PRDEN',Lu_Ud,Exists)
+    write(Lu_Ud,'(10F25.16)') (Work(ip_D+k),k=0,nDens-1)
     close(Lu_Ud)
   end if
 
@@ -167,7 +172,7 @@ else
     call mma_allocate(DSym,nDens,Label='DSym')
     call Get_D1ao(DSym,nDens)
   else
-    write(6,*) 'Get_density_matrix: not found.'
+    write(u6,*) 'Get_density_matrix: not found.'
     call Abend()
   end if
   iSyLbl = 1

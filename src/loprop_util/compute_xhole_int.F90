@@ -11,28 +11,27 @@
 
 subroutine Compute_Xhole_Int(nBasLop,nSym,ipSqMom,Func,nSize)
 
-use Her_RW
-use Real_Spherical
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: nSym, nBasLop(nSym), ipSqMom, nSize
+real(kind=wp) :: Func
+integer(kind=iwp) :: i, iMult1, iMultSq, iO1, iO2, iOpt, ip_MatEl, irc, iSmLbl, iTEMP, kaunt1, kaunt2, Lu_One, nB, nCMO, nDens, &
+                     nDiff, nOrb, nTri
+logical(kind=iwp) :: DSCF !, Do_Gamma, Do_Grad, On_Top, Do_Tau, Do_MO, Do_TwoEl
+character(len=4) :: DFTFOCK, KSDFT
+real(kind=wp), allocatable :: CMO(:), D1ao(:)
+integer(kind=iwp), external :: IsFreeUnit
 #include "nq_info.fh"
-#include "status.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
-real*8, allocatable :: D1ao(:)
-dimension nBasLop(nSym)
-!logical Do_Gamma, Do_Grad, On_Top, Do_Tau, Do_MO, Do_TwoEl
-logical DSCF
-character*4 DFTFOCK, KSDFT
-integer nSize
-real*8, allocatable :: CMO(:)
 
 ! Check symmetry
 
 if (nSym /= 1) then
-  write(6,*)
-  write(6,*) ' You should not run LoProp with symmetry!'
+  write(u6,*)
+  write(u6,*) ' You should not run LoProp with symmetry!'
   call Abend()
 end if
 
@@ -58,8 +57,7 @@ call mma_allocate(D1ao,nTri)
 nDens = nTri
 call Get_D1ao(D1ao,nDens)   ! The density matrix.
 Functional_type = LDA_type  ! Number from nq_info.fh.
-EThr = 1.0d-9
-call Put_dScalar('EThr',EThr)        ! A threshold for energy accuracy in DFT/SCF. Dummy.
+call Put_dScalar('EThr',1.0e-9_wp)   ! A threshold for energy accuracy in DFT/SCF. Dummy.
 call Seward_Init()                   ! Initialize a lot of shit.
 nDiff = 0                            ! like above
 DSCF = .false.                       ! like above
@@ -73,7 +71,7 @@ call Get_iArray('nBas',mBas,mIrrep)  ! Like above
 
 nCMO = nB**2
 call mma_allocate(CMO,nCMO,Label='CMO')
-nOrb = int(sqrt(dble(nCMO)))
+nOrb = int(sqrt(real(nCMO,kind=wp)))
 call Get_CMO(CMO,nCMO)
 nB = mBas(0)
 call GetMem('MultSq','Allo','Real',iMultSq,nB**2)
@@ -87,8 +85,8 @@ Lu_One = 49
 Lu_One = IsFreeUnit(Lu_One)
 call OpnOne(irc,0,'ONEINT',Lu_One)
 if (irc /= 0) then
-  write(6,*)
-  write(6,*) 'ERROR! Could not open one-electron integral file.'
+  write(u6,*)
+  write(u6,*) 'ERROR! Could not open one-electron integral file.'
   call Abend()
 end if
 do i=1,3
@@ -147,7 +145,7 @@ call WarningMessage(2,'There is surely a bug here!')
 !call DrvNQ(Do_XHoleDip,Work(ip_MatEl),nFckDim,Func,Dens,D1ao,nTri,nD,Do_Gamma,Do_Grad,Dummy,iDummy,Dummy,Dummy,iDummy,On_Top, &
 !           Do_Tau,Do_MO,Do_TwoEl,DFTFOCK)
 !FFF = ddot_(nDens,D1ao,1,Work(ip_MatEl),1)
-!write(6,*) 'YYY:',nDens,FFF,Func,ip_MatEl
+!write(u6,*) 'YYY:',nDens,FFF,Func,ip_MatEl
 
 ! Put the second-moments in square form.
 

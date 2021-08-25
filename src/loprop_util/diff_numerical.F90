@@ -12,15 +12,21 @@
 subroutine Diff_Numerical(nAt,nB,ipMP,ipC,nij,EC,iANr,ip_Ttot,ip_Ttot_Inv,lMax,iTP,dLimmo,Thrs1,Thrs2,nThrs,iPrint,ThrsMul, &
                           Pot_Expo,Pot_Point,Pot_Fac,Diffed)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, Three, Ten, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAt, nB, ipMP, ipC, nij, iANr(nAt), ip_Ttot, ip_Ttot_Inv, lMax, iTP, nThrs, iPrint
+real(kind=wp) :: EC(3,nij), dLimmo(2), Thrs1, Thrs2, ThrsMul, Pot_Expo(nij*2), Pot_Point(nij), Pot_Fac(nij*4)
+logical(kind=iwp) :: Diffed(nij*2)
+integer(kind=iwp) :: iAtom, iDC, ij, iK, ip_Center, ipDPick, ipEPCo, iPotte, ipPick, irc, jAtom, k, kaunt, kauntA, kComp, l, &
+                     nAbove, nEPP, nK, nPick
+real(kind=wp) :: A(2), BS, Chi2B, chPoint, dM, dMag, dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), ThrsMul_Clever
+logical(kind=iwp) :: AboveMul(2), AboveThr
+character(len=50) :: UtChar
+character(len=10) :: OneFile
+real(kind=wp), external :: vdwRad
 #include "WrkSpc.fh"
-dimension EC(3,nij), dMullig((lMax*(lMax**2+6*lMax+11)+6)/6)
-dimension A(2), dLimmo(2), Pot_Expo(nij*2), Pot_Point(nij)
-dimension Pot_Fac(nij*4)
-dimension iANr(nAt)
-logical AboveThr, Diffed(nij*2), AboveMul(2)
-character*50 UtChar
-character*10 OneFile
 
 ! Pick up some auxiliary stuff.
 
@@ -49,7 +55,7 @@ do iAtom=1,nAt
     if (iAtom == jAtom) then
       chPoint = Work(iTP+iAtom-1)
     else
-      chPoint = 0.0d0
+      chPoint = Zero
     end if
 
     ! Pick out the multipole, the prefactors. If none is above a
@@ -61,7 +67,7 @@ do iAtom=1,nAt
     AboveThr = .false.
     do l=0,lMax
       kComp = (l+1)*(l+2)/2
-      dMag = 0.0d0
+      dMag = Zero
       do k=1,kComp
         dM = Work(ipMP+nij*kaunt+kauntA)
         dMullig(kaunt+1) = dM
@@ -82,8 +88,8 @@ do iAtom=1,nAt
 
       ! Select the potential points which should be used for this centre.
 
-      !BS = 0.5d0*(Bragg_Slater(iANr(iAtom))+Bragg_Slater(iANr(jAtom)))
-      BS = 0.5d0*(vdWRad(iANr(iAtom))+vdWRad(iANr(jAtom)))
+      !BS = Half*(Bragg_Slater(iANr(iAtom))+Bragg_Slater(iANr(jAtom)))
+      BS = Half*(vdWRad(iANr(iAtom))+vdWRad(iANr(jAtom)))
       call PickPoints(nPick,ipPick,ipDPick,nEPP,ipEPCo,EC(1,ij),dLimmo,BS)
 
       ! Compute the true potential from the density assigned to this centre.
@@ -118,12 +124,12 @@ do iAtom=1,nAt
       if (.not. AboveThr) then
         Diffed(2*kauntA+iDC) = .false.
       else
-        if ((A(iDC) < 3.0d0) .and. AboveMul(iDC)) then
+        if ((A(iDC) < Three) .and. AboveMul(iDC)) then
           Diffed(2*kauntA+iDC) = .true.
           Pot_Expo(2*kauntA+iDC) = A(iDC)
         else
           Diffed(2*kauntA+iDC) = .false.
-          Pot_Expo(2*kauntA+iDC) = 1.0d1 !Dummy
+          Pot_Expo(2*kauntA+iDC) = Ten !Dummy
         end if
       end if
     end do

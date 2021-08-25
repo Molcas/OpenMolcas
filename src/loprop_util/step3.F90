@@ -12,14 +12,16 @@
 subroutine Step3(iCenter,SMatrix,nDim,TMatrix,iType)
 ! Step 3. GS S2 ->S3
 
-implicit real*8(A-H,O-Z)
-real*8 SMatrix(nDim*nDim), TMatrix(nDim*nDim)
-integer iCenter(nDim), iType(nDim)
-#include "real.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-!lg write(6,*) 'Step 3', nDim
+implicit none
+integer(kind=iwp) :: nDim, iCenter(nDim), iType(nDim)
+real(kind=wp) :: SMatrix(nDim*nDim), TMatrix(nDim*nDim)
+
+!lg write(u6,*) 'Step 3', nDim
 !lg call RecPrt('T before GS 3',' ',TMatrix,nDim,nDim)
-!lg write(6,*)
+!lg write(u6,*)
 call dcopy_(nDim**2,[Zero],0,TMatrix,1)
 call dcopy_(nDim,[One],0,TMatrix,nDim+1)
 call GramSchmidt(SMatrix,TMatrix,nDim,iType,iCenter,1)

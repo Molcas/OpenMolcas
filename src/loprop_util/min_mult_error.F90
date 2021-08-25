@@ -12,15 +12,18 @@
 subroutine Min_Mult_Error(EC,A,B,Ci,Cj,rMP,xrMP,xxrMP,xnrMP,lMax,nij,nElem,iAtom,jAtom,nAtoms,nPert,C_o_C,Scratch_New,Scratch_Org, &
                           iPlot,T_Values,iWarnings,Num_Warnings)
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-dimension EC(3,nij), C_o_C(3), A(3,nij), B(3,nij), Ci(3), Cj(3), R_ij(3)
-dimension rMP(nij,0:nElem-1,0:nPert-1), xnrMP(nij,nElem)
-dimension xrMP(nij,nElem), xxrMP(nij,nElem), T_Values(nij)
-dimension Scratch_Org(nij*(2+lMax+1)), Scratch_New(nij*(2+lMax+1))
-dimension iWarnings(nij)
-parameter(Error_Threshold=1.0D-12,Delta_Threshold=1.0D-12)
-external Error_for_t, Golden
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: lMax, nij, nElem, iAtom, jAtom, nAtoms, nPert, iPlot, iWarnings(nij), Num_Warnings
+real(kind=wp) :: EC(3,nij), A(3,nij), B(3,nij), Ci(3), Cj(3), rMP(nij,0:nElem-1,0:nPert-1), xrMP(nij,nElem), xxrMP(nij,nElem), &
+                 xnrMP(nij,nElem), C_o_C(3), Scratch_New(nij*(2+lMax+1)), Scratch_Org(nij*(2+lMax+1)), T_Values(nij)
+integer(kind=iwp) :: i, ij, iPrint_Errors, iSlope, iSlope_old, l, num_min
+real(kind=wp) :: ax, bx, cx, Delta, Delta_Error, Delta_Orig, Error, Error_Best, Error_old, fa, fb, fc, R_ij(3), t_best, t_final, &
+                 t_max, t_min, t_temp
+real(kind=wp), parameter :: Error_Threshold = 1.0e-12_wp, Delta_Threshold = 1.0e-12_wp
+real(kind=wp), external :: Error_for_t, Golden
 
 ij = iAtom*(iAtom-1)/2+jAtom
 iPrint_Errors = 0
@@ -32,12 +35,12 @@ end do
 t_min = Zero
 t_max = Zero
 do i=1,3
-  if (R_ij(i) /= 0.0d0) then
+  if (R_ij(i) /= Zero) then
     t_min = (Ci(i)-EC(i,ij))/R_ij(i)
     t_max = (Cj(i)-EC(i,ij))/R_ij(i)
   end if
 end do
-Delta_Orig = 0.1d0
+Delta_Orig = 0.1_wp
 Delta = Delta_Orig
 
 ! Check the range of possible t-values for minima
@@ -45,19 +48,19 @@ Delta = Delta_Orig
 num_min = 0
 iSlope = 0
 if (iPlot == 1) then
-  write(6,*)
-  write(6,*) 'iAtom, jAtom = ',iAtom,jAtom
+  write(u6,*)
+  write(u6,*) 'iAtom, jAtom = ',iAtom,jAtom
 end if
 t_temp = t_min
-Error_Best = -1.0d0
+Error_Best = -One
 Error_Old = Zero
-t_best = 0.0d0
+t_best = Zero
 50 continue
 Error = Error_for_t(t_temp,rMP,xrMP,xxrMP,xnrMP,EC,A,R_ij,C_o_C,ij,l,nij,lMax,nElem,nAtoms,nPert,Scratch_New,Scratch_Org, &
                     iPrint_Errors)
 if (iPlot == 1) then
-  write(6,'(1X,A,F5.2,F16.12)') 't, Error = ',t_temp,Error
-  call xFlush(6)
+  write(u6,'(1X,A,F5.2,F16.12)') 't, Error = ',t_temp,Error
+  call xFlush(u6)
 end if
 Delta_Error = Error-Error_Old
 Error_Old = Error
@@ -76,8 +79,8 @@ if ((Error < Error_Best) .or. (Error_Best < Zero)) then
   Error_Best = Error
   t_best = t_temp
 end if
-t_temp = t_temp+Delta/10.0d0
-if (t_temp <= t_max+Delta/100.0d0) goto 50
+t_temp = t_temp+Delta*0.1_wp
+if (t_temp <= t_max+Delta*0.01_wp) goto 50
 
 ! Any warnings from scan?
 

@@ -11,11 +11,17 @@
 
 subroutine SolveA(AlfMat,AlfMatI,dLambda,dMullig,lMax,ARaw,BRaw,dA,iPrint,AboveMul,ddUpper,ddLower)
 
-implicit real*8(a-h,o-z)
-dimension AlfMat(4), AlfMatI(4), ARaw(2,2), BRaw(2), Beta(2), dA(2)
-dimension dtA(2), dMullig((lMax*(lMax**2+6*lMax+11)+6)/6)
-logical AboveMul(2)
-logical Yeps(2)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: lMax, iPrint
+real(kind=wp) :: AlfMat(4), AlfMatI(4), dLambda, dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), ARaw(2,2), BRaw(2), dA(2), ddUpper, &
+                 ddLower
+logical(kind=iwp) :: AboveMul(2)
+integer(kind=iwp) :: i, iMull, Ising, j, kaunt, nDim
+real(kind=wp) :: Beta(2), Det, dtA(2)
+logical(kind=iwp) :: Yeps(2)
 
 ! Which elements can be non-zero? Too low magnitude of multipoles
 ! and they are screened.
@@ -43,7 +49,7 @@ do i=1,2
     if (Yeps(i) .and. Yeps(j)) then
       kaunt = kaunt+1
       if (i == j) then
-        AlfMat(kaunt) = ARaw(max(i,j),min(i,j))*(1.0d0+dLambda)
+        AlfMat(kaunt) = ARaw(max(i,j),min(i,j))*(One+dLambda)
       else
         AlfMat(kaunt) = ARaw(max(i,j),min(i,j))
       end if
@@ -54,8 +60,8 @@ end do
 ! Invert and solve.
 
 call MInv(AlfMat,AlfMatI,Ising,Det,nDim)
-call dcopy_(nDim,[0.0d0],0,dtA,1)
-call dGeMV_('N',nDim,nDim,1.0d0,AlfMatI,nDim,Beta,1,0.0d0,dtA,1)
+call dcopy_(nDim,[Zero],0,dtA,1)
+call dGeMV_('N',nDim,nDim,One,AlfMatI,nDim,Beta,1,Zero,dtA,1)
 
 ! Optional printing.
 
@@ -82,7 +88,7 @@ do i=1,2
     kaunt = kaunt+1
     dA(i) = dtA(kaunt)
   else
-    dA(i) = 0.0d0
+    dA(i) = Zero
   end if
 end do
 

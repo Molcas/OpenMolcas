@@ -21,33 +21,43 @@
 !> @param[in] y    \f$ y \f$-coordinate of the same vector
 !> @param[in] z    \f$ z \f$-coordinate of the same vector
 !> @param[in] L    Angular momentum of the multipole, \p L = ``0`` charge, \p L = ``1`` dipole, etc.
-!> @param[in] D    The components of the multipole, ordered in the usual Molcas fashion. Should not be in Buckingham form, rather as pure moments
+!> @param[in] D    The components of the multipole, ordered in the usual Molcas fashion. Should not be in Buckingham form,
+!>                 rather as pure moments
 !>
 !> @return The electric potential
 !***********************************************************************
 
-real*8 function ElPointPot(rinv,x,y,z,L,D)
-implicit real*8(a-h,o-z)
-dimension D((L+1)*(L+2)/2)
+function ElPointPot(rinv,x,y,z,L,D)
 
-Pot = 0.0d0
+use Constants, only: Zero, Two, Three, Four, Six, Nine, Twelve
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: ElPointPot
+integer(kind=iwp) :: L
+real(kind=wp) :: rinv, x, y, z, D((L+1)*(L+2)/2)
+real(kind=wp) :: Pot, r3, r5, r7, r9, r11, x2, x3, x4, x5, y2, y3, y4, y5, z2, z3, z4, z5
+real(kind=wp), parameter :: r15 = 15.0_wp, r24 = 24.0_wp, r45 = 45.0_wp, r90 = 90.0_wp, r105 = 105.0_wp, r120 = 120.0_wp, &
+                            r225 = 225.0_wp, r315 = 315.0_wp, r630 = 630.0_wp, r945 = 945.0_wp, r1050 = 1050.0_wp
+
+Pot = Zero
 r3 = rinv**3
 r5 = rinv**5
 x2 = x*x
 y2 = y*y
 z2 = z*z
 r7 = rinv**7
-x3 = x2*x
-y3 = y2*y
-z3 = z2*z
+x3 = x**3
+y3 = y**3
+z3 = z**3
 r9 = rinv**9
-x4 = x3*x
-y4 = y3*y
-z4 = z3*z
+x4 = x**4
+y4 = y**4
+z4 = z**4
 r11 = rinv**11
-x5 = x4*x
-y5 = y4*y
-z5 = z4*z
+x5 = x**5
+y5 = y**5
+z5 = z**5
 if (L == 0) then
   Pot = Pot+D(1)*rinv
 elseif (L == 1) then
@@ -55,65 +65,65 @@ elseif (L == 1) then
   Pot = Pot+D(2)*y*r3
   Pot = Pot+D(3)*z*r3
 elseif (L == 2) then
-  Pot = Pot+D(1)*(3.0d0*x2*r5-1.0d0*r3)
-  Pot = Pot+2.0d0*D(2)*(3.0d0*x*y*r5)
-  Pot = Pot+2.0d0*D(3)*(3.0d0*x*z*r5)
-  Pot = Pot+D(4)*(3.0d0*y2*r5-1.0d0*r3)
-  Pot = Pot+2.0d0*D(5)*(3.0d0*y*z*r5)
-  Pot = Pot+D(6)*(3.0d0*z2*r5-1.0d0*r3)
-  Pot = Pot/2.0d0
+  Pot = Pot+D(1)*(Three*x2*r5-r3)
+  Pot = Pot+Two*D(2)*(Three*x*y*r5)
+  Pot = Pot+Two*D(3)*(Three*x*z*r5)
+  Pot = Pot+D(4)*(Three*y2*r5-r3)
+  Pot = Pot+Two*D(5)*(Three*y*z*r5)
+  Pot = Pot+D(6)*(Three*z2*r5-r3)
+  Pot = Pot/Two
 elseif (L == 3) then
-  Pot = Pot+D(1)*(15.0d0*x3*r7-9.0d0*x*r5)
-  Pot = Pot+3.0d0*D(2)*(15.0d0*x2*y*r7-3.0d0*y*r5)
-  Pot = Pot+3.0d0*D(3)*(15.0d0*x2*z*r7-3.0d0*z*r5)
-  Pot = Pot+3.0d0*D(4)*(15.0d0*x*y2*r7-3.0d0*x*r5)
-  Pot = Pot+6.0d0*D(5)*(15.0d0*x*y*z*r7)
-  Pot = Pot+3.0d0*D(6)*(15.0d0*x*z2*r7-3.0d0*x*r5)
-  Pot = Pot+D(7)*(15.0d0*y3*r7-9.0d0*y*r5)
-  Pot = Pot+3.0d0*D(8)*(15.0d0*y2*z*r7-3.0d0*z*r5)
-  Pot = Pot+3.0d0*D(9)*(15.0d0*y*z2*r7-3.0d0*y*r5)
-  Pot = Pot+D(10)*(15.0d0*z3*r7-9.0d0*z*r5)
-  Pot = Pot/6.0d0
+  Pot = Pot+D(1)*(r15*x3*r7-Nine*x*r5)
+  Pot = Pot+Three*D(2)*(r15*x2*y*r7-Three*y*r5)
+  Pot = Pot+Three*D(3)*(r15*x2*z*r7-Three*z*r5)
+  Pot = Pot+Three*D(4)*(r15*x*y2*r7-Three*x*r5)
+  Pot = Pot+Six*D(5)*(r15*x*y*z*r7)
+  Pot = Pot+Three*D(6)*(r15*x*z2*r7-Three*x*r5)
+  Pot = Pot+D(7)*(r15*y3*r7-Nine*y*r5)
+  Pot = Pot+Three*D(8)*(r15*y2*z*r7-Three*z*r5)
+  Pot = Pot+Three*D(9)*(r15*y*z2*r7-Three*y*r5)
+  Pot = Pot+D(10)*(r15*z3*r7-Nine*z*r5)
+  Pot = Pot/Six
 elseif (L == 4) then
-  Pot = Pot+D(1)*(105.0d0*x4*r9-90.0d0*x2*r7+9.0d0*r5)
-  Pot = Pot+D(2)*4.0d0*(105.0d0*x3*y*r9-45.0d0*x*y*r7)
-  Pot = Pot+D(3)*4.0d0*(105.0d0*x3*z*r9-45.0d0*x*z*r7)
-  Pot = Pot+D(4)*6.0d0*(105.0d0*x2*y2*r9-15.0d0*x2*r7-15.0d0*y2*r7+3.0d0*r5)
-  Pot = Pot+D(5)*12.0d0*(105.0d0*x2*y*z*r9-15.0d0*y*z*r7)
-  Pot = Pot+D(6)*6.0d0*(105.0d0*x2*z2*r9-15.0d0*x2*r7-15.0d0*z2*r7+3.0d0*r5)
-  Pot = Pot+D(7)*4.0d0*(105.0d0*x*y3*r9-45.0d0*x*y*r7)
-  Pot = Pot+D(8)*12.0d0*(105.0d0*x*y2*z*r9-15.0d0*x*z*r7)
-  Pot = Pot+D(9)*12.0d0*(105.0d0*x*y*z2*r9-15.0d0*x*y*r7)
-  Pot = Pot+D(10)*4.0d0*(105.0d0*x*z3*r9-45.0d0*x*z*r7)
-  Pot = Pot+D(11)*(105.0d0*y4*r9-90.0d0*y2*r7+9.0d0*r5)
-  Pot = Pot+D(12)*4.0d0*(105.0d0*y3*z*r9-45.0d0*y*z*r7)
-  Pot = Pot+D(13)*6.0d0*(105.0d0*y2*z2*r9-15.0d0*z2*r7-15.0d0*y2*r7+3.0d0*r5)
-  Pot = Pot+D(14)*4.0d0*(105.0d0*y*z3*r9-45.0d0*y*z*r7)
-  Pot = Pot+D(15)*(105.0d0*z4*r9-90.0d0*z2*r7+9.0d0*r5)
-  Pot = Pot/24.0d0
+  Pot = Pot+D(1)*(r105*x4*r9-r90*x2*r7+Nine*r5)
+  Pot = Pot+D(2)*Four*(r105*x3*y*r9-r45*x*y*r7)
+  Pot = Pot+D(3)*Four*(r105*x3*z*r9-r45*x*z*r7)
+  Pot = Pot+D(4)*Six*(r105*x2*y2*r9-r15*x2*r7-r15*y2*r7+Three*r5)
+  Pot = Pot+D(5)*Twelve*(r105*x2*y*z*r9-r15*y*z*r7)
+  Pot = Pot+D(6)*Six*(r105*x2*z2*r9-r15*x2*r7-r15*z2*r7+Three*r5)
+  Pot = Pot+D(7)*Four*(r105*x*y3*r9-r45*x*y*r7)
+  Pot = Pot+D(8)*Twelve*(r105*x*y2*z*r9-r15*x*z*r7)
+  Pot = Pot+D(9)*Twelve*(r105*x*y*z2*r9-r15*x*y*r7)
+  Pot = Pot+D(10)*Four*(r105*x*z3*r9-r45*x*z*r7)
+  Pot = Pot+D(11)*(r105*y4*r9-r90*y2*r7+Nine*r5)
+  Pot = Pot+D(12)*Four*(r105*y3*z*r9-r45*y*z*r7)
+  Pot = Pot+D(13)*Six*(r105*y2*z2*r9-r15*z2*r7-r15*y2*r7+Three*r5)
+  Pot = Pot+D(14)*Four*(r105*y*z3*r9-r45*y*z*r7)
+  Pot = Pot+D(15)*(r105*z4*r9-r90*z2*r7+Nine*r5)
+  Pot = Pot/r24
 elseif (L == 5) then
-  Pot = Pot+D(1)*(945.0d0*x5*r11-1050.0d0*x3*r9+225.0d0*x*r7)
-  Pot = Pot+D(2)*(945.0d0*x4*y*r11-630.0d0*x2*y*r9+45.0d0*y*r7)
-  Pot = Pot+D(3)*(945.0d0*x4*z*r11-630.0d0*x2*z*r9+45.0d0*z*r7)
-  Pot = Pot+D(4)*(945.0d0*x3*y2*r11-315.0d0*x*y2*r9-105.0d0*x3*r9+45.0d0*x*r7)
-  Pot = Pot+D(5)*(945.0d0*x3*y*z*r11-315.0d0*x*y*z*r9)
-  Pot = Pot+D(6)*(945.0d0*x3*z2*r11-315.0d0*x*z2*r9-105.0d0*x3*r9+45.0d0*x*r7)
-  Pot = Pot+D(7)*(945.0d0*x2*y3*r11-315.0d0*x2*y*r9-105.0d0*y3*r9+45.0d0*y*r7)
-  Pot = Pot+D(8)*(945.0d0*x2*y2*z*r11-105.0d0*y2*z*r9-105.0d0*x2*z*r9+15.0d0*z*r7)
-  Pot = Pot+D(9)*(945.0d0*x2*y*z2*r11-105.0d0*z2*y*r9-105.0d0*x2*y*r9+15.0d0*y*r7)
-  Pot = Pot+D(10)*(945.0d0*x2*z3*r11-315.0d0*x2*z*r9-105.0d0*z3*r9+45.0d0*z*r7)
-  Pot = Pot+D(11)*(945.0d0*x*y4*r11-630.0d0*x*y2*r9+45.0d0*x*r7)
-  Pot = Pot+D(12)*(945.0d0*x*y3*z*r11-315.0d0*x*y*z*r9)
-  Pot = Pot+D(13)*(945.0d0*x*y2*z2*r11-105.0d0*x*y2*r9-105.0d0*x*z2*r9+15.0d0*x*r7)
-  Pot = Pot+D(14)*(945.0d0*x*y*z3*r11-315.0d0*x*y*z*r9)
-  Pot = Pot+D(15)*(945.0d0*x*z4*r11-630.0d0*x*z2*r9+45.0d0*x*r7)
-  Pot = Pot+D(16)*(945.0d0*y5*r11-1050.0d0*y3*r9+225.0d0*y*r7)
-  Pot = Pot+D(17)*(945.0d0*y4*z*r11-630.0d0*y2*z+45.0d0*z*r7)
-  Pot = Pot+D(18)*(945.0d0*y3*z2*r11-315.0d0*y*z2*r9-105.0d0*y3*r9+45.0d0*y*r9)
-  Pot = Pot+D(19)*(945.0d0*y2*z3*r11-315.0d0*y2*z*r9-105.0d0*z3*r9+45.0d0*z*r9)
-  Pot = Pot+D(20)*(945.0d0*y*z4*r11-630.0d0*y*z2*r9+45.0d0*y*r7)
-  Pot = Pot+D(21)*(9450.0d0*z5*r11-1050.0d0*z3*r9+225.0d0*z*r7)
-  Pot = Pot/120.0d0
+  Pot = Pot+D(1)*(r945*x5*r11-r1050*x3*r9+r225*x*r7)
+  Pot = Pot+D(2)*(r945*x4*y*r11-r630*x2*y*r9+r45*y*r7)
+  Pot = Pot+D(3)*(r945*x4*z*r11-r630*x2*z*r9+r45*z*r7)
+  Pot = Pot+D(4)*(r945*x3*y2*r11-r315*x*y2*r9-r105*x3*r9+r45*x*r7)
+  Pot = Pot+D(5)*(r945*x3*y*z*r11-r315*x*y*z*r9)
+  Pot = Pot+D(6)*(r945*x3*z2*r11-r315*x*z2*r9-r105*x3*r9+r45*x*r7)
+  Pot = Pot+D(7)*(r945*x2*y3*r11-r315*x2*y*r9-r105*y3*r9+r45*y*r7)
+  Pot = Pot+D(8)*(r945*x2*y2*z*r11-r105*y2*z*r9-r105*x2*z*r9+r15*z*r7)
+  Pot = Pot+D(9)*(r945*x2*y*z2*r11-r105*z2*y*r9-r105*x2*y*r9+r15*y*r7)
+  Pot = Pot+D(10)*(r945*x2*z3*r11-r315*x2*z*r9-r105*z3*r9+r45*z*r7)
+  Pot = Pot+D(11)*(r945*x*y4*r11-r630*x*y2*r9+r45*x*r7)
+  Pot = Pot+D(12)*(r945*x*y3*z*r11-r315*x*y*z*r9)
+  Pot = Pot+D(13)*(r945*x*y2*z2*r11-r105*x*y2*r9-r105*x*z2*r9+r15*x*r7)
+  Pot = Pot+D(14)*(r945*x*y*z3*r11-r315*x*y*z*r9)
+  Pot = Pot+D(15)*(r945*x*z4*r11-r630*x*z2*r9+r45*x*r7)
+  Pot = Pot+D(16)*(r945*y5*r11-r1050*y3*r9+r225*y*r7)
+  Pot = Pot+D(17)*(r945*y4*z*r11-r630*y2*z+r45*z*r7)
+  Pot = Pot+D(18)*(r945*y3*z2*r11-r315*y*z2*r9-r105*y3*r9+r45*y*r9)
+  Pot = Pot+D(19)*(r945*y2*z3*r11-r315*y2*z*r9-r105*z3*r9+r45*z*r9)
+  Pot = Pot+D(20)*(r945*y*z4*r11-r630*y*z2*r9+r45*y*r7)
+  Pot = Pot+D(21)*(r945*z5*r11-r1050*z3*r9+r225*z*r7)
+  Pot = Pot/r120
 end if
 
 ElPointPot = Pot

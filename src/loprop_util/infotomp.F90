@@ -11,14 +11,18 @@
 
 subroutine InfoToMp(nSym,nBas,Energy_Without_FFPT,ip_Ene_Occ,nOcOb,UserDen,Restart)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nSym, nBas(8), ip_Ene_Occ, nOcOb
+real(kind=wp) :: Energy_Without_FFPT
+logical(kind=iwp) :: UserDen, Restart
+integer(kind=iwp) :: i, iDum(1), iErr, ip_Occ, ip_Vec, iSym, iWarn, Lu_, nOcc, nVec
+character(len=40) :: VTitle
+character(len=8) :: Method
+character(len=6) :: FName
 #include "WrkSpc.fh"
-integer nBas(8)
-character*8 Method
-character*40 VTitle
-character*6 FName
-logical UserDen, Restart
-dimension iDum(1)
 
 !                                                                      *
 !***********************************************************************
@@ -55,7 +59,7 @@ if (.not. UserDen) then
     close(Lu_)
 
     do i=0,nOcc-1
-      if (Work(ip_Occ+i) /= 0.0d0) then
+      if (Work(ip_Occ+i) /= Zero) then
         nOcOb = nOcOb+1
       end if
     end do
@@ -69,14 +73,14 @@ else
   !Here we go if user give density as input. Need to put some
   !dummy values for later; also we give a value to the relax
   !method, which for now is called 'external'.
-  Energy_Without_FFPT = 0.0d0
+  Energy_Without_FFPT = Zero
   nOcc = 0
   do iSym=1,nSym
     nOcc = nOcc+nBas(iSym)
   end do
   call Allocate_Work(ip_Ene_Occ,nOcc)
   do i=0,nOcc-1
-    Work(ip_Ene_Occ+i) = 0.0d0
+    Work(ip_Ene_Occ+i) = Zero
   end do
   write(Method,'(A)') 'External'
   call Put_cArray('Relax Method',Method,8)

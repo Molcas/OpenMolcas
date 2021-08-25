@@ -13,16 +13,18 @@
 
 subroutine MnBrak2(ax,bx,cx,fa,fb,fc,f,q_a,q_b,dipole_a,dipole_b,r_a,r_b)
 
+use Constants, only: Zero, One, Five, Half
+use Definitions, only: wp, iwp, u6
+
 implicit none
-real*8 :: ax, bx, cx, fa, fb, fc, vx, fv, coefA, coefB
-logical :: Def
-real*8, parameter :: Ratio = 0.5d0*(sqrt(5.0d0)+1.0d0)
-real*8, parameter :: Thr = 1.0D-20, Lim = 100.0d0
+real(kind=wp) :: ax, bx, cx, fa, fb, fc
 ! External function f and its arguments
-real*8, external :: f
-real*8 :: q_a, q_b, dipole_a, dipole_b, r_a, r_b
-logical, parameter :: Absolute = .true.
-#include "real.fh"
+real(kind=wp), external :: f
+real(kind=wp) :: q_a, q_b, dipole_a, dipole_b, r_a, r_b
+real(kind=wp) :: vx, fv, coefA, coefB
+logical(kind=iwp) :: Def
+real(kind=wp), parameter :: Lim = 100.0_wp, Ratio = Half*(One+sqrt(Five)), Thr = 1.0e-20_wp
+logical(kind=iwp), parameter :: Absolute = .true.
 
 fa = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,ax,Absolute)
 fb = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,bx,Absolute)
@@ -39,7 +41,7 @@ end if
 cx = bx+Ratio*(bx-ax)
 fc = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,cx,Absolute)
 do while (fc <= fb)
-  write(6,*) ax,bx,cx
+  write(u6,*) ax,bx,cx
   Def = .true.
   ! try a parabolic fitting
   coefA = (cx*(fb-fa)+bx*(fa-fc)+ax*(fc-fb))

@@ -13,10 +13,15 @@ subroutine Lowdin_LP_(S,Eval,C,nDim,nDim2,Blk)
 ! S: full-storage overlap matrix (it will be destroyed!)
 ! C: on exit, the S^-1/2 matrix
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-real*8 C(nDim,nDim), S(nDim,nDim), Blk(nDim,nDim),Eval(nDim*(nDim+1)/2)
-data DIAGTH,DANGER/1.0D-12,1.0d3/
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nDim, nDim2
+real(kind=wp) :: S(nDim,nDim), Eval(nDim*(nDim+1)/2), C(nDim,nDim), Blk(nDim,nDim)
+integer(kind=iwp) :: i, j, k
+real(kind=wp) :: eigenv, sij, toosml
+real(kind=wp), parameter :: DIAGTH = 1.0e-12_wp, DANGER=1.0e3_wp
 
 ! diagth  threshold for matrix diagonalization used in
 !         subroutine jacobi.  in jacobi, this  constant
@@ -44,14 +49,14 @@ call Jacob(Eval,Blk,nDim,nDim)
 do i=1,nDim
   eigenv = eval(i*(i+1)/2)
   if (eigenv < toosml) go to 900
-  eval(i*(i+1)/2) = ONE/sqrt(eigenv)
+  eval(i*(i+1)/2) = One/sqrt(eigenv)
 end do
 
 ! Compute S^-1/2
 
 do i=1,nDim
   do j=1,i
-    sij = zero
+    sij = Zero
     do k=1,nDim
       sij = sij+eval(k*(k+1)/2)*blk(i,k)*blk(j,k)
     end do
@@ -64,7 +69,7 @@ end do
 
 return
 
-900 write(6,910) eigenv,toosmL
+900 write(u6,910) eigenv,toosmL
 910 format(/1X,'An eigenvalue of the overlap matrix of the symmetrized Jacobi transf. matrix of ',E13.5,' has been found.'/1X, &
             'This is lower than the allowed threshold of ',E13.5)
 ! Avoid unused argument warnings

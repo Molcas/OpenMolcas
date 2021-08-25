@@ -11,10 +11,15 @@
 
 subroutine YouGetThis(nAt,EC,Pot_Expo,Pot_Point,Pot_Fac,Diffed,ipMP,lMax,lMaxF,nij,LuYou)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAt, ipMP, lMax, lMaxF, nij, LuYou
+real(kind=wp) :: EC(3,nij), Pot_Expo(nij*4), Pot_Point(nij), Pot_Fac(nij*4)
+logical(kind=iwp) :: Diffed(nij*4)
+integer(kind=iwp) :: i, k, kauntA, kk, l, nS, nT
 #include "WrkSpc.fh"
-dimension EC(3,nij), Pot_Expo(nij*4), Pot_Point(nij), Pot_Fac(nij*4)
-logical Diffed(nij*4)
 
 ! Number of centres and maximal angular momentum.
 
@@ -38,21 +43,21 @@ do i=1,nij
 
         ! Factor and exponent.
 
-        write(LuYou,104) 2.0d0*Pot_Expo(2*(kauntA-1)+l+1)
+        write(LuYou,104) Two*Pot_Expo(2*(kauntA-1)+l+1)
         write(LuYou,105) (Pot_Fac(4*(kauntA-1)+kk),kk=nS+1,nT)
       else
 
         ! Factor and dummy-exponent, if this multipole should not be
         ! made diffuse.
 
-        write(LuYou,104)-7.91204d0
+        write(LuYou,104) -7.91204_wp
         write(LuYou,105) (Pot_Fac(4*(kauntA-1)+kk),kk=nS+1,nT)
       end if
     else
 
       ! The pure multipole, which under no circumstance can be diffuse.
 
-      write(LuYou,104)-7.91204d0
+      write(LuYou,104) -7.91204_wp
       write(LuYou,105) (Work(ipMP+nij*kk+kauntA-1),kk=nS,nT-1)
     end if
   end do

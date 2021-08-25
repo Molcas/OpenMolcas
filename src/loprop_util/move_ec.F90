@@ -12,22 +12,19 @@
 subroutine Move_EC(rMP,EC,Scratch_New,Scratch_Org,xrMP,xxrMP,xnrMP,lMax,A,B,nij,nElem,Coor,nAtoms,Q_Nuc,C_o_C,nPert, &
                    Bond_Threshold,iANr,T_Values,iT_Sets,iWarnings,Num_Warnings,Opt_Method,iPlot,iPrint)
 
-use Real_Spherical
+use Real_Spherical, only: Sphere, Sphere_Free
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "stdalloc.fh"
-#include "status.fh"
-real*8 rMP(nij,0:nElem-1,0:nPert-1), EC(3,nij)
-real*8 Scratch_Org(nij*(2+lMax+1))
-real*8 Scratch_New(nij*(2+lMax+1)), xrMP(nij,nElem), C_o_C(3)
-real*8 xxrMP(nij,nElem), T_Values(nij)
-real*8 xnrMP(nij,nElem), Coor(3,nAtoms), CX(3), Q_Nuc(nAtoms)
-real*8 A(3,nij), B(3,nij)
-logical Bond_OK, Check_Bond
-character*12 Opt_Method
-integer iAnr(nAtoms), iT_Sets(nij), iWarnings(nij)
-!parameter (mxAtoms=500)
+implicit none
+integer(kind=iwp) :: lMax, nij, nElem, nAtoms, nPert, iANr(nAtoms), iT_Sets(nij), iWarnings(nij), Num_Warnings, iPlot, iPrint
+real(kind=wp) :: rMP(nij,0:nElem-1,0:nPert-1), EC(3,nij), Scratch_New(nij*(2+lMax+1)), Scratch_Org(nij*(2+lMax+1)), &
+                 xrMP(nij,nElem), xxrMP(nij,nElem), xnrMP(nij,nElem), A(3,nij), B(3,nij), Coor(3,nAtoms), Q_Nuc(nAtoms), C_o_C(3), &
+                 Bond_Threshold, T_Values(nij)
+character(len=12) :: Opt_Method
+integer(kind=iwp) :: iAtom, ii, ij, iPert, jAtom, jj
+real(kind=wp) :: CX(3), Dipole_Rot_A, Dipole_Rot_B, Dipole_Rot_AB, R_A, R_B
+logical(kind=iwp) :: Bond_OK, Check_Bond
 
 call Sphere(lMax)
 
@@ -59,7 +56,7 @@ do iAtom=1,nAtoms
       ! Atomic domain
       ! Do nothing for now - put appropriate expresion in later.
       iT_sets(ij) = 1
-      T_values(ij) = 0.0d0
+      T_values(ij) = Zero
       B(1,ij) = EC(1,ij)
       B(2,ij) = EC(2,ij)
       B(3,ij) = EC(3,ij)
@@ -71,7 +68,7 @@ do iAtom=1,nAtoms
 
       Bond_OK = Check_Bond(EC(1,ii),EC(1,jj),iANr(iAtom),iANr(jAtom),Bond_Threshold)
       if (.not. Bond_OK) then
-        T_values(ij) = 0.0d0
+        T_values(ij) = Zero
         B(1,ij) = EC(1,ij)
         B(2,ij) = EC(2,ij)
         B(3,ij) = EC(3,ij)

@@ -11,10 +11,12 @@
 
 function Multipole_Expansion(q_A,q_B,Dipole_A,Dipole_B,R_A,R_B,R,Absolute)
 
-implicit real*8(A-H,O-Z)
-real*8 Multipole_Expansion
-logical Absolute
-#include "real.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: q_A, q_B, Dipole_A, Dipole_B, R_A, R_B, R
+logical(kind=iwp) :: Absolute
+real(kind=wp) :: dR_A, dR_B, E_A, E_B, Multipole_Expansion
 
 dR_A = R_A-R
 dR_B = R_B-R

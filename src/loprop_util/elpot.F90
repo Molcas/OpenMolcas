@@ -9,25 +9,27 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-real*8 function ElPot(r,rinv,x,y,z,dMullig,lMax,A,chP,lDOrNot1,lDOrNot2)
+function ElPot(r,rinv,x,y,z,dMullig,lMax,A,chP,lDOrNot1,lDOrNot2)
 ! The electric potential with diffuse s- and p-functions. No
 ! higher than d-functions (with non-zero trace).
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
 
-#include "WrkSpc.fh"
+implicit none
+real(kind=wp) :: ElPot
+integer(kind=iwp) :: lMax
+real(kind=wp) :: r, rinv, x, y, z, dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), A(2), chP
+logical(kind=iwp) :: lDOrNot1, lDOrNot2
+real(kind=wp) :: ar, dCh, dL2(6), dL3(10), dL4(15), dL5(21), dM
+real(kind=wp), external :: ElPointPot
 #include "warnings.h"
 
-dimension A(2), dMullig((lMax*(lMax**2+6*lMax+11)+6)/6)
-dimension dL2(6), dL3(10), dL4(15), dL5(21)
-
-logical lDOrNot1, lDOrNot2
-
-ElPot = 0.0d0
+ElPot = Zero
 if (lMax >= 0) then
   if (lDOrNot1) then
     dCh = chP*rinv
-    dCh = dCh+dMullig(1)*rinv*(1.0d0-(1.0d0+A(1)*r)*exp(-2.0d0*A(1)*r))
+    dCh = dCh+dMullig(1)*rinv*(One-(One+A(1)*r)*exp(-Two*A(1)*r))
     ElPot = dCh
   else
     dL2(1) = dMullig(1)+chP
@@ -37,7 +39,7 @@ end if
 if (lMax >= 1) then
   if (lDOrNot2) then
     ar = A(2)*r
-    dM = (x*dMullig(2)+y*dMullig(3)+z*dMullig(4))*rinv**3*(1.0d0-(1.0d0+2.0d0*ar+2.0d0*ar**2+ar**3)*exp(-2.0d0*ar))
+    dM = (x*dMullig(2)+y*dMullig(3)+z*dMullig(4))*rinv**3*(One-(One+Two*ar+Two*ar**2+ar**3)*exp(-Two*ar))
     ElPot = ElPot+dM
   else
     dL2(1) = dMullig(2)
@@ -111,8 +113,8 @@ if (lMax >= 5) then
   ElPot = ElPot+ElpointPot(rinv,x,y,z,5,dL5)
 end if
 if (lMax >= 6) then
-  write(6,*)
-  write(6,*) 'Oops! You hit the roof with respect to angular momentum. Lower that, or do some programming.'
+  write(u6,*)
+  write(u6,*) 'Oops! You hit the roof with respect to angular momentum. Lower that, or do some programming.'
   call Quit(_RC_GENERAL_ERROR_)
 end if
 

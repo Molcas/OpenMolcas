@@ -9,23 +9,29 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Local_Properties(Coor,nAtoms,ip_sq_mu,nElem,Sq_Temp,Origin,iCenter,Ttot_Inv,Temp,nij,nPert,ip_D,rMP,lMax,rMPq,C_o_C,EC, &
+subroutine Local_Properties(Coor,nAtoms,ip_sq_Mu,nElem,Sq_Temp,Origin,iCenter,Ttot_Inv,Temp,nij,nPert,ip_D,rMP,lMax,rMPq,C_o_C,EC, &
                             iANr,Standard,nBas1,nTemp,Q_Nuc,Bond_Threshold,Utility,Opt_Method,iPlot,iPrint,nSym)
 
-implicit real*8(a-h,o-z)
-#include "itmax.fh"
-#include "real.fh"
-#include "WrkSpc.fh"
-real*8 Coor(3,nAtoms), A(3), B(3), Sq_Temp(nTemp), Origin(3,0:lMax), Ref(3), C_o_C(3), EC(3,nij), Ttot_Inv(nBas1**2), Temp(nTemp), &
-       Q_Nuc(nAtoms), rMP(nij,0:nElem-1,0:nPert-1), rMPq(0:nElem-1)
-integer ip_sq_Mu(0:nElem-1), iCenter(nBas1), ip_D(0:6), iANr(nAtoms)
-logical Standard, Utility, Reduce_Prt
-external Reduce_Prt
-character*12 Opt_Method
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAtoms, nElem, ip_sq_Mu(0:nElem-1), nBas1, iCenter(nBas1), nij, nPert, ip_D(0:6), lMax, iANr(nAtoms), nTemp, &
+                     iPlot, iPrint, nSym
+real(kind=wp) ::  Coor(3,nAtoms), Sq_Temp(nTemp), Origin(3,0:lMax), Ttot_Inv(nBas1**2), Temp(nTemp), rMP(nij,0:nElem-1,0:nPert-1), &
+                  rMPq(0:nElem-1), C_o_C(3), EC(3,nij), Q_Nuc(nAtoms), Bond_Threshold
+logical(kind=iwp) :: Standard, Utility
+character(len=12) :: Opt_Method
 #include "Molcas.fh"
-character*(LENIN) CNAME(MXATOM)
-integer tNuc
-data Ref/0.0d0,0.0d0,0.0d0/
+#include "WrkSpc.fh"
+integer(kind=iwp) :: i, iAtom, ii, ii_, ij, ij_, iMu, iOffD, iOffO, ip_center, ip_Charge, iPert, iPL, ipNBFpA, iScratch_1, &
+                     iScratch_2, iScratch_A, iScratch_B, iT_sets, iT_values, iWarnings, ix, ixnrMP, ixrMP, ixxrMP, iy, j, jAtom, &
+                     ji_, jj, l, mElem, NBAST, nNUC, Num_Warnings, tNuc
+real(kind=wp) :: A(3), Acc, B(3)
+character(len=LenIn) :: CNAME(MxAtom)
+real(kind=wp), parameter :: Ref(3) = [Zero, Zero, Zero]
+integer(kind=iwp), external :: iPrintLevel
+logical(kind=iwp), external :: Reduce_Prt
 
 !                                                                      *
 !***********************************************************************
@@ -54,12 +60,12 @@ do iPert=0,nPert-1
     Sq_Temp(ii_) = Work(ii+iOffD)
   end do
 
-  call DGEMM_('N','T',nBas1,nBas1,nBas1,1.0d0,Sq_Temp,nBas1,Ttot_Inv,nBas1,0.0d0,Temp,nBas1)
-  call DGEMM_('N','N',nBas1,nBas1,nBas1,1.0d0,Ttot_Inv,nBas1,Temp,nBas1,0.0d0,Sq_Temp,nBas1)
+  call DGEMM_('N','T',nBas1,nBas1,nBas1,One,Sq_Temp,nBas1,Ttot_Inv,nBas1,Zero,Temp,nBas1)
+  call DGEMM_('N','N',nBas1,nBas1,nBas1,One,Ttot_Inv,nBas1,Temp,nBas1,Zero,Sq_Temp,nBas1)
 
   ! vv
   call Get_iScalar('Unique atoms',nNUC)
-  call Get_cArray('Unique Atom Names',CNAME,(LENIN)*nNuc)
+  call Get_cArray('Unique Atom Names',CNAME,(LenIn)*nNuc)
 
   call Get_iScalar('LP_nCenter',tNuc)
   ! someday this code will use symmetry
@@ -163,7 +169,7 @@ do iAtom=1,nAtoms
   do jAtom=iAtom,1,-1
     ij = iAtom*(iAtom-1)/2+jAtom
     jj = jAtom*(jAtom+1)/2
-    !write(6,*) 'ij=',ij
+    !write(u6,*) 'ij=',ij
 
     ! Step 1
 
@@ -174,13 +180,13 @@ do iAtom=1,nAtoms
       end do
       if (ij == 1) call ReExpand(rMPq,1,mElem,Origin(1,l),Origin(1,l+1),1,l)
     end do
-    !write(6,*) 'End step 1a'
+    !write(u6,*) 'End step 1a'
     mElem = (lMax+1)*(lMax+2)*(lMax+3)/6
     do iPert=0,nPert-1
       call ReExpand(rMP(1,0,iPert),nij,mElem,Origin(1,lMax),Ref,ij,lMax)
     end do
     if (ij == 1) call ReExpand(rMPq,1,mElem,Origin(1,lMax),C_o_C,1,lmax)
-    !write(6,*) 'End step 1b'
+    !write(u6,*) 'End step 1b'
 
     ! Step 2
     !
@@ -201,7 +207,7 @@ do iAtom=1,nAtoms
     do iPert=0,nPert-1
       call ReExpand(rMP(1,0,iPert),nij,mElem,Ref,A,ij,lMax)
     end do
-    !write(6,*) 'End step 2'
+    !write(u6,*) 'End step 2'
 
   end do
 end do
