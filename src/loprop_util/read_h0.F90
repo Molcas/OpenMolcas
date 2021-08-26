@@ -14,8 +14,9 @@ subroutine Read_h0(nSize,nBas,ip_h0,Restart)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: nSize, nBas, ip_h0
-logical(kind=iwp) :: Restart
+integer(kind=iwp), intent(in) :: nSize, nBas
+integer(kind=iwp), intent(out) :: ip_h0
+logical(kind=iwp), intent(in) :: Restart
 #include "WrkSpc.fh"
 character(len=8) :: Label
 integer(kind=iwp) :: iComp, iOpt0, iOpt1, iRc, iSyLbl, nInts(1)

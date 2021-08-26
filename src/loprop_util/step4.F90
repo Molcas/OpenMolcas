@@ -16,8 +16,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDim, iType(nDim)
-real(kind=wp) :: SMatrix(nDim*nDim), TMatrix(nDim*nDim)
+integer(kind=iwp), intent(in) :: nDim, iType(nDim)
+real(kind=wp), intent(inout) :: SMatrix(nDim*nDim)
+real(kind=wp), intent(out) :: TMatrix(nDim*nDim)
 integer(kind=iwp) :: i, j, k
 
 !lg  write(u6,*) 'Step 4', nDim

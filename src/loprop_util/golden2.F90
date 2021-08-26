@@ -18,10 +18,11 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Golden2
-real(kind=wp) :: ax, bx, cx, tol_x, tol_f, xmin
+real(kind=wp), intent(in) :: ax, bx, cx, tol_x, tol_f
+real(kind=wp), intent(out) :: xmin
 ! External function f and its arguments
 real(kind=wp), external :: f
-real(kind=wp) :: q_a, q_b, dipole_a, dipole_b, r_a, r_b
+real(kind=wp), intent(in) :: q_a, q_b, dipole_a, dipole_b, r_a, r_b
 real(kind=wp) :: f2, f3, x1, x2, x3, x4
 real(kind=wp), parameter :: Ratio = Half*(Three-sqrt(Five)), RM = One-Ratio
 logical(kind=iwp), parameter :: Absolute = .true.

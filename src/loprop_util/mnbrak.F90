@@ -18,12 +18,14 @@ use Constants, only: Zero, One, Five, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(wp) :: ax, bx, cx, fa, fb, fc
+real(kind=wp), intent(inout) :: ax, bx
+real(kind=wp), intent(out) :: cx, fa, fb, fc
 ! External function f and its arguments
 real(kind=wp), external :: f
-integer(kind=iwp) :: ij, l, nij, lMax, nElem, nAtoms, nPert, iPrint_Errors
-real(kind=wp) :: rMP(nij,0:nElem), xrMP(nij,nElem), xxrMP(nij,nElem), xnrMP(nij,nElem), EC(3,nij), AC(3,nij), R_ij(3), C_o_C(3), &
-                 Scratch_New(nij*(2+lMax+1)), Scratch_Org(nij*(2+lMax+1))
+integer(kind=iwp), intent(in) :: ij, l, nij, lMax, nElem, nAtoms, nPert, iPrint_Errors
+real(kind=wp), intent(in) :: rMP(nij,0:nElem), xnrMP(nij,nElem), EC(3,nij), R_ij(3), C_o_C(3)
+real(kind=wp), intent(out) :: xrMP(nij,nElem), xxrMP(nij,nElem), Scratch_New(nij*(2+lMax+1)), Scratch_Org(nij*(2+lMax+1))
+real(kind=wp), intent(inout) :: AC(3,nij)
 real(kind=wp) :: vx, fv, coefA, coefB
 logical(kind=iwp) :: Def
 real(kind=wp), parameter :: Lim = 100.0_wp, Ratio = Half*(One+sqrt(Five)), Thr = 1.0e-20_wp

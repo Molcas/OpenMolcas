@@ -16,9 +16,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8, u6
 
 implicit none
-integer(kind=iwp) :: l, lMax, nij, nElem, nAtoms, iPrint
-real(kind=wp) :: rMP(nij,nElem), xrMP(nij,nElem), EC(3,nij), C_o_C(3), Scratch_New(nij*(2+lMax+1)), &
-                 Scratch_Org(nij*(2+lMax+1)), Cut_Off_Error
+integer(kind=iwp), intent(in) :: l, lMax, nij, nElem, nAtoms, iPrint
+real(kind=wp), intent(in) :: rMP(nij,nElem), EC(3,nij), C_o_C(3)
+real(kind=wp), intent(inout) :: xrMP(nij,nElem)
+real(kind=wp), intent(out) :: Scratch_New(nij*(2+lMax+1)), Scratch_Org(nij*(2+lMax+1)), Cut_Off_Error
 integer(kind=iwp) :: iAtom, iElem, iEnd, ij, iOff, iStrt, jAtom, k, kDim, m
 real(kind=wp) :: Error, Estimated, Original, Percent, rms, rSum
 character(len=80) :: Banner_Line

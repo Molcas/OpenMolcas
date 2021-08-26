@@ -17,12 +17,14 @@ use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ip_D, nBas1, nBas2, nBasMax, nSym, nBas(nSym), ipP, nAtoms, iPert, nStateI, nStateF
-logical(kind=iwp) :: UserDen, PrintDen, SubtractDen, Restart, Utility, TDensity
+integer(kind=iwp), intent(out) :: ip_D
+integer(kind=iwp), intent(in) :: nBas1, nBas2, nBasMax, nSym, nBas(nSym), ipP, nAtoms, iPert, nStateI, nStateF
+logical(kind=iwp), intent(in) :: UserDen, PrintDen, SubtractDen, Restart, Utility, TDensity
+real(kind=wp), intent(in) :: SubScale
+real(kind=wp), intent(inout) :: Q_Nuc(nAtoms)
 ! OBSERVE! MxState has to be the same as MxStat in cntrl.fh in src/rassi.
 !          (but there's no such variable)
 integer(kind=iwp), parameter :: MxState = 200, MxStOT = MxState*(MxState+1)/2
-real(kind=wp) :: SubScale, Q_Nuc(nAtoms)
 integer(kind=iwp) :: iDisk, iMp2Prpt, iOffs, iOfft, ip_D_sq, ip_Tmp, ipScr, ipUser, iS1, iS2, iSyLbl, iSym, iTDMden, iToc(MxStOT), &
                      k, kaunter, Lu_Ud, LuIn, nDens, nScr, nSize, nStateM
 character(len=16) :: Label, filename

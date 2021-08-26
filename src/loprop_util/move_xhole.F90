@@ -19,8 +19,9 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtoms, nij, iANr(nAtoms)
-real(kind=wp) :: rX(nij), EC(3,nij), Bond_Threshold
+integer(kind=iwp), intent(in) :: nAtoms, nij, iANr(nAtoms)
+real(kind=wp), intent(inout) :: rX(nij)
+real(kind=wp), intent(in) :: EC(3,nij), Bond_Threshold
 integer(kind=iwp) :: iAtom, ii, ij, jAtom, jj
 logical(kind=iwp) :: Bond_OK, Check_Bond
 

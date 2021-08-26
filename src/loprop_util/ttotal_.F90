@@ -15,9 +15,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDim
-real(kind=wp) :: T1(nDim*nDim), T2(nDim*nDim), T3(nDim*nDim), T4(nDim,nDim), Ttot(nDim,nDim), Ttot_Inv(nDim,nDim), &
-                 Temp(nDim,nDim), Temp2(nDim,nDim)
+integer(kind=iwp), intent(in) :: nDim
+real(kind=wp), intent(in) :: T1(nDim*nDim), T2(nDim*nDim), T3(nDim*nDim), T4(nDim,nDim)
+real(kind=wp), intent(out) :: Ttot(nDim,nDim), Ttot_Inv(nDim,nDim), Temp(nDim,nDim), Temp2(nDim,nDim)
 integer(kind=iwp) :: ISING
 real(kind=wp) :: DET
 

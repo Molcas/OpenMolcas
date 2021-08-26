@@ -16,9 +16,9 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAt, nB, ipMP, ipC, nij, iANr(nAt), ipT, ipTi, lMax, iTP, iPrint
-real(kind=wp) :: EC(3,nij), Pot_Expo(nij*2), Pot_Point(nij), Pot_Fac(nij*4)
-logical(kind=iwp) :: Diffed(nij*2)
+integer(kind=iwp), intent(in) :: nAt, nB, ipMP, ipC, nij, iANr(nAt), ipT, ipTi, lMax, iTP, iPrint
+real(kind=wp), intent(in) :: EC(3,nij), Pot_Expo(nij*2), Pot_Point(nij), Pot_Fac(nij*4)
+logical(kind=iwp), intent(in) :: Diffed(nij*2)
 integer(kind=iwp) :: iA, iComp, iDC, iElP, iOpt, ipEPCo, iPP, irc, iSmLbl, jA, k, kaunt, kauntA, kComp, l, nDens, nEPP, nImprove, &
                      nShitty
 real(kind=wp) :: chP, CorrCoeff, DeNom, Dif1, Dif2, dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), ElPot_APP, ElPot_MP, ElPot_REF, &

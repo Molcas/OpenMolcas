@@ -15,10 +15,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lMax, iPrint
-real(kind=wp) :: AlfMat(4), AlfMatI(4), dLambda, dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), ARaw(2,2), BRaw(2), dA(2), ddUpper, &
-                 ddLower
-logical(kind=iwp) :: AboveMul(2)
+real(kind=wp), intent(out) :: AlfMat(4), AlfMatI(4), dA(2)
+integer(kind=iwp), intent(in) :: lMax, iPrint
+real(kind=wp), intent(in) :: dLambda, dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), ARaw(2,2), BRaw(2), ddUpper, ddLower
+logical(kind=iwp), intent(in) :: AboveMul(2)
 integer(kind=iwp) :: i, iMull, Ising, j, kaunt, nDim
 real(kind=wp) :: Beta(2), Det, dtA(2)
 logical(kind=iwp) :: Yeps(2)
@@ -40,8 +40,7 @@ if (iPrint >= 10) then
   call RecPrt('Beta',' ',Beta,nDim,1)
 end if
 
-! Shuffle around, and create a matrix for exponents with non-zero
-! factors.
+! Shuffle around, and create a matrix for exponents with non-zero factors.
 
 kaunt = 0
 do i=1,2

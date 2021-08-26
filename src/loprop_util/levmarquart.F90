@@ -15,9 +15,10 @@ use Constants, only: Zero, One, Two, Three, Ten, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iPotte, nPick, ipPick, nEPP, ipEPCo, lMax, iAtom, jAtom, nThrs, iPrint
-real(kind=wp) :: Coo(3), dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), A(2), chP, Thrs1, Thrs2, Chi2B
-logical(kind=iwp) :: AboveMul(2)
+integer(kind=iwp), intent(in) :: iPotte, nPick, ipPick, nEPP, ipEPCo, lMax, iAtom, jAtom, nThrs, iPrint
+real(kind=wp), intent(in) :: Coo(3), dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), chP, Thrs1, Thrs2
+real(kind=wp), intent(out) :: A(2), Chi2B
+logical(kind=iwp), intent(inout) :: AboveMul(2)
 integer(kind=iwp) :: i, ind, iP, Iter, j, nStep
 real(kind=wp) :: AlfMat(4), AlfMatI(4), ARaw(2,2), B(2), BRaw(2), Chi2, dA(2), ddLower, ddUpper, Der1, Der2, DerMax, Diffo, &
                  dLambda, dLower, dUpper, Potte, Pout(nPick), r, rinv, rinvStore(nPick), rStore(nPick), x, xStore(nPick), y, &
@@ -38,8 +39,7 @@ real(kind=wp), external :: ElPot
 Iter = 0
 nStep = 0
 dLambda = 1.0e-3_wp
-A(1) = Half
-A(2) = Half
+A(:) = Half
 dUpper = Three
 dLower = 0.1_wp
 ddUpper = 0.7_wp
@@ -137,7 +137,7 @@ call SolveA(AlfMat,AlfMatI,dLambda,dMullig,lMax,ARaw,BRaw,dA,iPrint,AboveMul,ddU
 
 ! Make a screening of dA: if the maximal or minimal exponent
 ! has been reached, but the optimization still pushes on, screen
-! them by putting them as zero, and modifying abovemul.
+! them by putting them as zero, and modifying AboveMul.
 
 do i=1,2
   if (AboveMul(i)) then
@@ -179,8 +179,8 @@ Chi2B = Chi2B/real(nPick,kind=wp)
 
 ! Take appropriate action given the different Stop-criterion. They
 ! measure the following: (1) The error should not change too much
-! between steps; observe that it is not meaningful to have a too
-! tight threshold in this regard due to the statistical nature of
+! between steps; observe that it is not meaningful to have too
+! tight a threshold in this regard due to the statistical nature of
 ! the problem. (2) The modifier parameter has to stabalize and not
 ! be far out in the linear region, rather in the second order regime.
 ! (3) The last step should be a decrease. (4) A certain number of

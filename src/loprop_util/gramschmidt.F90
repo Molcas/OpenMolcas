@@ -15,8 +15,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDim, itype(nDim), Center(nDim), iRestrict
-real(kind=wp) :: S(nDim,nDim), C(nDim,nDim)
+integer(kind=iwp), intent(in) :: nDim, itype(nDim), Center(nDim), iRestrict
+real(kind=wp), intent(inout) :: S(nDim,nDim), C(nDim,nDim)
 integer(kind=iwp) :: ibas, iOrb, iStart, Jorb, Korb
 real(kind=wp) :: A, F
 integer(kind=iwp), parameter :: Occ = 1, Vir = 0

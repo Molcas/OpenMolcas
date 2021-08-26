@@ -15,8 +15,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDim
-real(kind=wp) :: S(nDim,nDim), C(nDim,nDim)
+integer(kind=iwp), intent(in) :: nDim
+real(kind=wp), intent(in) :: S(nDim,nDim)
+real(kind=wp), intent(out) :: C(nDim,nDim)
 integer(kind=iwp) :: i, ioff, ip_B, ip_S, j
 #include "WrkSpc.fh"
 

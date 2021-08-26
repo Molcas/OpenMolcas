@@ -16,9 +16,10 @@ use Constants, only: Zero, Three, Ten, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAt, nB, ipMP, ipC, nij, iANr(nAt), ip_Ttot, ip_Ttot_Inv, lMax, iTP, nThrs, iPrint
-real(kind=wp) :: EC(3,nij), dLimmo(2), Thrs1, Thrs2, ThrsMul, Pot_Expo(nij*2), Pot_Point(nij), Pot_Fac(nij*4)
-logical(kind=iwp) :: Diffed(nij*2)
+integer(kind=iwp), intent(in) :: nAt, nB, ipMP, ipC, nij, iANr(nAt), ip_Ttot, ip_Ttot_Inv, lMax, iTP, nThrs, iPrint
+real(kind=wp), intent(in) :: EC(3,nij), dLimmo(2), Thrs1, Thrs2, ThrsMul
+real(kind=wp), intent(out) :: Pot_Expo(nij*2), Pot_Point(nij), Pot_Fac(nij*4)
+logical(kind=iwp), intent(out) :: Diffed(nij*2)
 integer(kind=iwp) :: iAtom, iDC, ij, iK, ip_Center, ipDPick, ipEPCo, iPotte, ipPick, irc, jAtom, k, kaunt, kauntA, kComp, l, &
                      nAbove, nEPP, nK, nPick
 real(kind=wp) :: A(2), BS, Chi2B, chPoint, dM, dMag, dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), ThrsMul_Clever

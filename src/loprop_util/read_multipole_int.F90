@@ -15,9 +15,11 @@ subroutine Read_Multipole_Int(lMax,ip_sq_mu,nBas,ip_mu,Ttot,Temp,Origin,rMPq,nEl
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: lMax, nElem, ip_sq_mu(0:nElem-1), nSym, nBas(0:nSym-1), ip_mu(0:nElem-1), nBas1, nBas2, nBasMax, nTemp, ipP
-real(kind=wp) :: Ttot(nBas2), Temp(nTemp), Origin(3,0:lMax), rMPq(0:nElem-1)
-logical(kind=iwp) :: Restart, Utility
+integer(kind=iwp), intent(in) :: lMax, nSym, nBas(0:nSym-1), nElem, nBas1, nBas2, nBasMax, nTemp, ipP
+integer(kind=iwp), intent(out) :: ip_sq_mu(0:nElem-1), ip_mu(0:nElem-1)
+real(kind=wp), intent(in) :: Ttot(nBas2)
+real(kind=wp), intent(out) :: Temp(nTemp), Origin(3,0:lMax), rMPq(0:nElem-1)
+logical(kind=iwp), intent(in) :: Restart, Utility
 integer(kind=iwp) :: iComp, idum(1), ijSym, iOff, iOffs, iOfft, iOpt0, iOpt1, ip_all_ints, ip_iSyLbl, ip_nComp, ip_Tmp, ipScr, &
                      iRc, iSyLbl, iSym, jSym, l, mu, nComp, nInts, nInts_Tot, nScr
 character(len=16) :: RunFile_dLabel, RunFile_iLabel, RunFile_iLabel2
@@ -31,8 +33,7 @@ logical(kind=iwp) :: Found
 ! Note that we will store two sets of the integrals.
 !
 ! Set 1: used to compute the localized properties.
-! Set 2: used in the finite differenc calculation of the
-!        polarizability.
+! Set 2: used in the finite difference calculation of the polarizability.
 !
 ! Set 1 will be desymmetrized in case of symmetry.
 !

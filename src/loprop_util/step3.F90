@@ -16,8 +16,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDim, iCenter(nDim), iType(nDim)
-real(kind=wp) :: SMatrix(nDim*nDim), TMatrix(nDim*nDim)
+integer(kind=iwp), intent(in) :: nDim, iCenter(nDim), iType(nDim)
+real(kind=wp), intent(inout) :: SMatrix(nDim*nDim)
+real(kind=wp), intent(out) :: TMatrix(nDim*nDim)
 
 !lg write(u6,*) 'Step 3', nDim
 !lg call RecPrt('T before GS 3',' ',TMatrix,nDim,nDim)

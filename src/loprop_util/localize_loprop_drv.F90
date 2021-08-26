@@ -14,9 +14,9 @@ subroutine Localize_LoProp_Drv(Ttot,Ttot_Inv,nBas,iCenter,iType,nBas1,nBas2,nSym
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nSym, nBas(nSym), nBas1, iCenter(nBas1), iType(nBas1), nBas2, nBasMax, ipP
-real(kind=wp) :: Ttot(nBas2), Ttot_Inv(nBas2)
-logical(kind=iwp) :: Restart
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nBas1, iCenter(nBas1), iType(nBas1), nBas2, nBasMax, ipP
+real(kind=wp), intent(out) :: Ttot(nBas2), Ttot_Inv(nBas2)
+logical(kind=iwp), intent(in) :: Restart
 integer(kind=iwp) :: idum(1), iOffs, iOfft, iOpt0, iOpt1, ip_all_ints, ip_restart, ip_SSym, ip_Tmp, ipS, ipScr, iRc, iSyLbl, iSym, &
                      nElem, nInts, nInts_tot, nScr
 character(len=8) :: Label

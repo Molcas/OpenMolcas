@@ -34,8 +34,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: ElPointPot
-integer(kind=iwp) :: L
-real(kind=wp) :: rinv, x, y, z, D((L+1)*(L+2)/2)
+integer(kind=iwp), intent(in) :: L
+real(kind=wp), intent(in) :: rinv, x, y, z, D((L+1)*(L+2)/2)
 real(kind=wp) :: Pot, r3, r5, r7, r9, r11, x2, x3, x4, x5, y2, y3, y4, y5, z2, z3, z4, z5
 real(kind=wp), parameter :: r15 = 15.0_wp, r24 = 24.0_wp, r45 = 45.0_wp, r90 = 90.0_wp, r105 = 105.0_wp, r120 = 120.0_wp, &
                             r225 = 225.0_wp, r315 = 315.0_wp, r630 = 630.0_wp, r945 = 945.0_wp, r1050 = 1050.0_wp

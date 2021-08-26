@@ -14,9 +14,10 @@ function Multipole_Expansion(q_A,q_B,Dipole_A,Dipole_B,R_A,R_B,R,Absolute)
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: q_A, q_B, Dipole_A, Dipole_B, R_A, R_B, R
+real(kind=wp) :: Multipole_Expansion
+real(kind=wp), intent(in) :: q_A, q_B, Dipole_A, Dipole_B, R_A, R_B, R
 logical(kind=iwp) :: Absolute
-real(kind=wp) :: dR_A, dR_B, E_A, E_B, Multipole_Expansion
+real(kind=wp) :: dR_A, dR_B, E_A, E_B
 
 dR_A = R_A-R
 dR_B = R_B-R

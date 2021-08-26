@@ -17,10 +17,11 @@ use Constants, only: Zero, One, Five, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: ax, bx, cx, fa, fb, fc
+real(kind=wp), intent(inout) :: ax, bx
+real(kind=wp), intent(out) :: cx, fa, fb, fc
 ! External function f and its arguments
 real(kind=wp), external :: f
-real(kind=wp) :: q_a, q_b, dipole_a, dipole_b, r_a, r_b
+real(kind=wp), intent(in) :: q_a, q_b, dipole_a, dipole_b, r_a, r_b
 real(kind=wp) :: vx, fv, coefA, coefB
 logical(kind=iwp) :: Def
 real(kind=wp), parameter :: Lim = 100.0_wp, Ratio = Half*(One+sqrt(Five)), Thr = 1.0e-20_wp

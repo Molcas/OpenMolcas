@@ -17,8 +17,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: Check_Bond
-real(kind=wp) :: CXi(3), CXj(3), Factor
-integer(kind=iwp) :: iANr, jANr
+real(kind=wp), intent(in) :: CXi(3), CXj(3), Factor
+integer(kind=iwp), intent(in) :: iANr, jANr
 real(kind=wp) :: Bond_Length, Bond_Max, Radius_i, Radius_j
 real(kind=wp), external :: Bragg_Slater
 

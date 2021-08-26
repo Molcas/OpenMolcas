@@ -16,10 +16,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nSym, nBasLop(nSym), ipSqMom, nSize
-real(kind=wp) :: Func
-integer(kind=iwp) :: i, iMult1, iMultSq, iO1, iO2, iOpt, ip_MatEl, irc, iSmLbl, iTEMP, kaunt1, kaunt2, Lu_One, nB, nCMO, nDens, &
-                     nDiff, nOrb, nTri
+integer(kind=iwp), intent(in) :: nSym, nBasLop(nSym)
+integer(kind=iwp), intent(out) :: ipSqMom, nSize
+real(kind=wp), intent(out) :: Func
+integer(kind=iwp) :: i, iDum(1), iMult1, iMultSq, iO1, iO2, iOpt, ip_MatEl, irc, iSmLbl, iTEMP, kaunt1, kaunt2, Lu_One, nB, nCMO, &
+                     nDens, nDiff, nOrb, nTri
 logical(kind=iwp) :: DSCF !, Do_Gamma, Do_Grad, On_Top, Do_Tau, Do_MO, Do_TwoEl
 character(len=4) :: DFTFOCK, KSDFT
 real(kind=wp), allocatable :: CMO(:), D1ao(:)
@@ -93,7 +94,8 @@ do i=1,3
   irc = -1
   iOpt = 1
   iSmLbl = 1
-  call iRdOne(irc,iOpt,'Mltpl  1',i,nSize,iSmLbl)
+  call iRdOne(irc,iOpt,'Mltpl  1',i,iDum,iSmLbl)
+  nSize = iDum(1)
   irc = -1
   iOpt = 0
   iSmLbl = 0

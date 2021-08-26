@@ -20,8 +20,9 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lMax, nElem, nAtoms, nPert, nij, iANr(nAtoms)
-real(kind=wp) :: rMP(nij,0:nElem-1,0:nPert-1), EC(3,nij), Bond_Threshold
+integer(kind=iwp), intent(in) :: lMax, nElem, nAtoms, nPert, nij, iANr(nAtoms)
+real(kind=wp), intent(inout) :: rMP(nij,0:nElem-1,0:nPert-1)
+real(kind=wp), intent(in) :: EC(3,nij), Bond_Threshold
 integer(kind=iwp) :: iAtom, iElem, ii, ij, iPert, jAtom, jj
 logical(kind=iwp) :: Bond_OK, Check_Bond
 

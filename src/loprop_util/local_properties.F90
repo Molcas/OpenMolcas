@@ -16,12 +16,13 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtoms, nElem, ip_sq_Mu(0:nElem-1), nBas1, iCenter(nBas1), nij, nPert, ip_D(0:6), lMax, iANr(nAtoms), nTemp, &
-                     iPlot, iPrint, nSym
-real(kind=wp) ::  Coor(3,nAtoms), Sq_Temp(nTemp), Origin(3,0:lMax), Ttot_Inv(nBas1**2), Temp(nTemp), rMP(nij,0:nElem-1,0:nPert-1), &
-                  rMPq(0:nElem-1), C_o_C(3), EC(3,nij), Q_Nuc(nAtoms), Bond_Threshold
-logical(kind=iwp) :: Standard, Utility
-character(len=12) :: Opt_Method
+integer(kind=iwp), intent(in) :: nAtoms, nElem, ip_sq_Mu(0:nElem-1), nBas1, iCenter(nBas1), nij, nPert, ip_D(0:6), lMax, &
+                                 iANr(nAtoms), nTemp, iPlot, iPrint, nSym
+real(kind=wp), intent(in) ::  Coor(3,nAtoms), Origin(3,0:lMax), Ttot_Inv(nBas1**2), C_o_C(3), Q_Nuc(nAtoms), Bond_Threshold
+real(kind=wp), intent(out) ::  Sq_Temp(nTemp), Temp(nTemp)
+real(kind=wp), intent(inout) :: rMP(nij,0:nElem-1,0:nPert-1), rMPq(0:nElem-1), EC(3,nij)
+logical(kind=iwp), intent(in) :: Standard, Utility
+character(len=12), intent(in) :: Opt_Method
 #include "Molcas.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iAtom, ii, ii_, ij, ij_, iMu, iOffD, iOffO, ip_center, ip_Charge, iPert, iPL, ipNBFpA, iScratch_1, &
@@ -87,22 +88,6 @@ do iPert=0,nPert-1
     end do
     call Allocate_Work(ip_Charge,tNuc)
     call Get_dArray('Effective nuclear charge',Work(ip_Charge),tNuc)
-#   ifdef VV_VALE
-    call Allocate_Work(ip_VV_QAB,tNuc)
-    call Allocate_Work(ip_VV_WAB,tNuc*tNuc)
-    call Allocate_Work(ip_VV_CAB,tNuc)
-    call Allocate_Work(ip_VV_VAB,tNuc)
-    call Allocate_iWork(ip_VV_N,tNuc+1)
-
-    call VALE(tNuc,iWork(ipNBFpA),Work(ip_Charge),nBast,Sq_Temp,CName,LenIn,iWork(ip_VV_N),Work(ip_VV_QAB),Work(ip_VV_WAB), &
-              Work(ip_VV_CAB),Work(ip_VV_VAB))
-
-    call Free_Work(ip_VV_N)
-    call Free_Work(ip_VV_VAB)
-    call Free_Work(ip_VV_CAB)
-    call Free_Work(ip_VV_WAB)
-    call Free_Work(ip_VV_QAB)
-#   endif
     call Free_Work(ip_Charge)
     call Free_Work(ipNBFpA)
     call Free_Work(ip_center)

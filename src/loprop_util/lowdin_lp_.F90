@@ -10,15 +10,17 @@
 !***********************************************************************
 
 subroutine Lowdin_LP_(S,Eval,C,nDim,nDim2,Blk)
-! S: full-storage overlap matrix (it will be destroyed!)
+! S: full-storage overlap matrix (it will be destroyed!) (not true, actually unused)
 ! C: on exit, the S^-1/2 matrix
 
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nDim, nDim2
-real(kind=wp) :: S(nDim,nDim), Eval(nDim*(nDim+1)/2), C(nDim,nDim), Blk(nDim,nDim)
+integer(kind=iwp), intent(in) :: nDim, nDim2
+real(kind=wp), intent(in) :: S(nDim,nDim)
+real(kind=wp), intent(inout) :: Eval(nDim*(nDim+1)/2), Blk(nDim,nDim)
+real(kind=wp), intent(out) ::  C(nDim,nDim)
 integer(kind=iwp) :: i, j, k
 real(kind=wp) :: eigenv, sij, toosml
 real(kind=wp), parameter :: DIAGTH = 1.0e-12_wp, DANGER=1.0e3_wp
@@ -42,7 +44,7 @@ call Jacob(Eval,Blk,nDim,nDim)
 !call TriPrt('Eval',' ',Eval,nDim)
 
 ! form the inverse sqrt of the overlap matrix of the vectors:
-! (avoid numerical problems of linear dependence (too small eigenvals)
+! (avoid numerical problems of linear dependence (too small eigenvalues)
 ! by prescreening
 ! the  eigenvalues)
 

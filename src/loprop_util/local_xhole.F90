@@ -16,8 +16,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ipXHole2, nAtoms, nBas1, nTemp, iCenter(nBas1), nij, iANr(nAtoms), iPrint
-real(kind=wp) :: dMolExpec, Ttot(nTemp), Ttot_Inv(nTemp), Coor(3,nAtoms), EC(3,nij), Bond_Threshold, XHLoc2(nij)
+integer(kind=iwp), intent(in) :: ipXHole2, nAtoms, nBas1, nTemp, iCenter(nBas1), nij, iANr(nAtoms), iPrint
+real(kind=wp), intent(in) :: dMolExpec, Ttot(nTemp), Ttot_Inv(nTemp), Coor(3,nAtoms), EC(3,nij), Bond_Threshold
+real(kind=wp), intent(out) :: XHLoc2(nij)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iAtom, ij, iOffO, j, jAtom, nDenno
 real(kind=wp) :: A(3), Acc, B(3), d2Loc(nij), Sq_Temp(nTemp), Temp(nTemp)
@@ -77,7 +78,7 @@ end do   ! iAtom
 ! two atoms involved in the bond.
 
 call Move_XHole(d2Loc,EC,nAtoms,nij,iANr,Bond_Threshold)
-call dcopy_(nij,d2Loc,1,XHLoc2,1)
+call dcopy_(nij,d2Loc,1,XHLoc2,1) !IFG XHLoc2(out)
 
 return
 ! Avoid unused argument warnings

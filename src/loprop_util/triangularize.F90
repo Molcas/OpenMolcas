@@ -15,9 +15,10 @@ use Constants, only: One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: A_sq(n,n), A_tr(n*(n+1)/2)
-logical(kind=iwp) :: Fold
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: A_sq(n,n)
+real(kind=wp), intent(out) :: A_tr(n*(n+1)/2)
+logical(kind=iwp), intent(in) :: Fold
 integer(kind=iwp) :: i, ij, j
 real(kind=wp) :: Fact
 

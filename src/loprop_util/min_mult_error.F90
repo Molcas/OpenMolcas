@@ -10,15 +10,17 @@
 !***********************************************************************
 
 subroutine Min_Mult_Error(EC,A,B,Ci,Cj,rMP,xrMP,xxrMP,xnrMP,lMax,nij,nElem,iAtom,jAtom,nAtoms,nPert,C_o_C,Scratch_New,Scratch_Org, &
-                          iPlot,T_Values,iWarnings,Num_Warnings)
+                          iPlot,T_Value,iWarning,Num_Warnings)
 
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: lMax, nij, nElem, iAtom, jAtom, nAtoms, nPert, iPlot, iWarnings(nij), Num_Warnings
-real(kind=wp) :: EC(3,nij), A(3,nij), B(3,nij), Ci(3), Cj(3), rMP(nij,0:nElem-1,0:nPert-1), xrMP(nij,nElem), xxrMP(nij,nElem), &
-                 xnrMP(nij,nElem), C_o_C(3), Scratch_New(nij*(2+lMax+1)), Scratch_Org(nij*(2+lMax+1)), T_Values(nij)
+integer(kind=iwp), intent(in) :: lMax, nij, nElem, iAtom, jAtom, nAtoms, nPert, iPlot
+real(kind=wp), intent(in) :: EC(3,nij), Ci(3), Cj(3), rMP(nij,0:nElem-1,0:nPert-1), xnrMP(nij,nElem), C_o_C(3)
+real(kind=wp), intent(inout) :: A(3,nij), B(3,nij)
+real(kind=wp), intent(out) :: xrMP(nij,nElem), xxrMP(nij,nElem), Scratch_New(nij*(2+lMax+1)), Scratch_Org(nij*(2+lMax+1)), T_Value
+integer(kind=iwp), intent(inout) :: iWarning, Num_Warnings
 integer(kind=iwp) :: i, ij, iPrint_Errors, iSlope, iSlope_old, l, num_min
 real(kind=wp) :: ax, bx, cx, Delta, Delta_Error, Delta_Orig, Error, Error_Best, Error_old, fa, fb, fc, R_ij(3), t_best, t_final, &
                  t_max, t_min, t_temp
@@ -85,7 +87,7 @@ if (t_temp <= t_max+Delta*0.01_wp) goto 50
 ! Any warnings from scan?
 
 if (num_min > 1) then
-  iWarnings(ij) = 1
+  iWarning = 1
   Num_Warnings = Num_Warnings+1
 end if
 
@@ -102,7 +104,7 @@ call mnBrak(ax,bx,cx,fa,fb,fc,Error_for_t,rMP,xrMP,xxrMP,xnrMP,EC,A,R_ij,C_o_C,i
             Scratch_Org,iPrint_Errors)
 
 if (abs(fa-fc) < Error_Threshold) then
-  iWarnings(ij) = 4
+  iWarning = 4
   Num_Warnings = Num_Warnings+1
   t_final = Zero
 else
@@ -114,15 +116,15 @@ end if
 
 if (t_final > t_max) then
   t_final = t_max
-  iWarnings(ij) = 2
+  iWarning = 2
   Num_Warnings = Num_Warnings+1
 else if (t_final < t_min) then
   t_final = t_min
-  iWarnings(ij) = 2
+  iWarning = 2
   Num_Warnings = Num_Warnings+1
 end if
 
-T_values(ij) = t_final
+T_value = t_final
 B(1,ij) = EC(1,ij)+t_final*R_ij(1)
 B(2,ij) = EC(2,ij)+t_final*R_ij(2)
 B(3,ij) = EC(3,ij)+t_final*R_ij(3)

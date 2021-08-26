@@ -15,8 +15,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ipMP, nAt, nij, lMax
-real(kind=wp) :: ThrsMul, ThrsMul_Clever
+integer(kind=iwp), intent(in) :: ipMP, nAt, nij, lMax
+real(kind=wp), intent(in) :: ThrsMul
+real(kind=wp), intent(out) :: ThrsMul_Clever
 integer(kind=iwp) :: iAtom, jAtom, k, kaunt, kauntA, kComp, l
 real(kind=wp) :: dM, dMMax
 #include "WrkSpc.fh"

@@ -11,16 +11,16 @@
 
 subroutine LoProp_Print(rMP,nij,nElem,nAtoms,Q_Nuc,LblCnt,lSave)
 
+use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
-#include "real.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: nij, nElem, nAtoms
-real(kind=wp) :: rMP(nij,nElem), Q_Nuc(nAtoms)
-character(len=LenIn4) :: LblCnt(nAtoms)
-logical(kind=iwp) :: lSave
+integer(kind=iwp), intent(in) :: nij, nElem, nAtoms
+real(kind=wp), intent(in) :: rMP(nij,nElem), Q_Nuc(nAtoms)
+character(len=LenIn4), intent(in) :: LblCnt(nAtoms)
+logical(kind=iwp), intent(in) :: lSave
 integer(kind=iwp) :: i, iAtom, iEnd, ij, Inc, iPL, ipLPChg, iSt, mAtoms
 real(kind=wp) :: E_Charge(MxAtom), Q_Charge(MxAtom)
 character(len=LenIn) :: Lbl(MxAtom)

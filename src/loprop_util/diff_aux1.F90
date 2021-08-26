@@ -14,10 +14,11 @@ subroutine Diff_Aux1(nEPotPoints,ipEPCo,nB,OneFile)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: nEPotPoints, ipEPCo, nB
-character(len=10) :: OneFile
+integer(kind=iwp), intent(out) :: nEPotPoints, ipEPCo
+integer(kind=iwp), intent(in) :: nB
+character(len=10), intent(in) :: OneFile
 character(len=10) :: Label
-integer(kind=iwp) :: i, idiot, iopt, irc, iSmLbl, iTmp, Lu_One, maxCen, nint(1)
+integer(kind=iwp) :: i, idiot, iopt, irc, iSmLbl, iTmp, Lu_One, maxCen, n_int(1)
 integer(kind=iwp), external :: IsFreeUnit
 #include "WrkSpc.fh"
 #include "warnings.h"
@@ -45,15 +46,15 @@ do i=1,maxCen
   irc = -1
   iopt = 1
   iSmLbl = 0
-  call iRdOne(irc,iopt,label,1,nInt,iSmLbl)
+  call iRdOne(irc,iopt,label,1,n_Int,iSmLbl)
   if (irc /= 0) Go To 9901
   irc = -1
   iopt = 0
   iSmLbl = 0
   call RdOne(irc,iopt,label,1,Work(idiot),iSmLbl)
-  Work(iTmp+(i-1)*3+0) = Work(idiot+nint(1)+0)
-  Work(iTmp+(i-1)*3+1) = Work(idiot+nint(1)+1)
-  Work(iTmp+(i-1)*3+2) = Work(idiot+nint(1)+2)
+  Work(iTmp+(i-1)*3+0) = Work(idiot+n_int(1)+0)
+  Work(iTmp+(i-1)*3+1) = Work(idiot+n_int(1)+1)
+  Work(iTmp+(i-1)*3+2) = Work(idiot+n_int(1)+2)
   nEPotPoints = nEPotPoints+1
 end do
 9901 continue

@@ -16,8 +16,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDim
-real(kind=wp) :: SqMu(nDim*nDim), TTot(nDim*nDim), Temp(nDim*nDim)
+integer(kind=iwp), intent(in) :: nDim
+real(kind=wp), intent(inout) :: SqMu(nDim*nDim)
+real(kind=wp), intent(in) :: TTot(nDim*nDim)
+real(kind=wp), intent(out) :: Temp(nDim*nDim)
 
 !                                                                      *
 !***********************************************************************

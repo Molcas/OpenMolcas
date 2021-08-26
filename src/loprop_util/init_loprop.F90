@@ -14,9 +14,9 @@ subroutine Init_LoProp(nSym,nBas,nOrb,CoC,nAtoms,ipC,ipQ_Nuc,ip_ANr,ip_Type,ip_C
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nSym, nBas(8), nOrb(8), nAtoms, ipC, ipQ_Nuc, ip_ANr, ip_Type, ip_Center, nSize, nBas1, nBas2, nBasMax, ipP, &
-                     ipPInv
-real(kind=wp) :: CoC(3)
+integer(kind=iwp), intent(out) :: nSym, nBas(8), nOrb(8), nAtoms, ipC, ipQ_Nuc, ip_ANr, ip_Type, ip_Center, nSize, nBas1, nBas2, &
+                                  nBasMax, ipP, ipPInv
+real(kind=wp), intent(out) :: CoC(3)
 integer(kind=iwp) :: i, iDum, ISING, iSym
 real(kind=wp) :: DET
 logical(kind=iwp) :: lOrb

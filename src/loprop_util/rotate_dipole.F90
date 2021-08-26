@@ -15,8 +15,9 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nij, nElem, nPert, ij, ii, jj
-real(kind=wp) :: rMP(nij,0:nElem-1,0:nPert-1), EC(3,nij), Dipole_Rot_A, Dipole_Rot_B, Dipole_Rot_AB, R_A, R_B
+integer(kind=iwp), intent(in) :: nij, nElem, nPert, ij, ii, jj
+real(kind=wp), intent(in) :: rMP(nij,0:nElem-1,0:nPert-1), EC(3,nij)
+real(kind=wp), intent(out) :: Dipole_Rot_A, Dipole_Rot_B, Dipole_Rot_AB, R_A, R_B
 real(kind=wp) :: E_Bond(3), QQ, R_Q(3,3), R_temp, R_test(3), rMu_A(3), rMu_AB(3), rMu_B(3), T(3,3), T_R, Tmp(3,3), x_R, y_R, z_R
 
 ! The three dipole components for the bond

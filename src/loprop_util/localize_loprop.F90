@@ -48,8 +48,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nBas, iCenter(nBas), iType(nBas)
-real(kind=wp) :: Ttot(nBas,nBas), Ttot_Inv(nBas,nBas), SMatrix(nBas,nBas)
+integer(kind=iwp), intent(in) :: nBas, iCenter(nBas), iType(nBas)
+real(kind=wp), intent(out) :: Ttot(nBas,nBas), Ttot_Inv(nBas,nBas)
+real(kind=wp), intent(inout) :: SMatrix(nBas,nBas)
 integer(kind=iwp) :: iBas, IndType(7), ip_S, ip_Save, ip_T1, ip_T2, ip_T3, ip_T4, ip_tmp, ipE, iUHF, LuOut, nOcc, nSym
 character(len=128) :: OrbName
 character(len=80) :: Note

@@ -15,8 +15,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAt
-real(kind=wp) :: MP(*), TP(*)
+integer(kind=iwp), intent(in) :: nAt
+real(kind=wp), intent(inout) :: MP(nAt*(nAt+1)/2)
+real(kind=wp), intent(out) :: TP(nAt)
 integer(kind=iwp) :: i, iAt, iNucCh, kAt
 real(kind=wp) :: ByggMeraHus, dScaleOff, dScaleOffSave, dToPoint
 logical(kind=iwp) :: GoHere

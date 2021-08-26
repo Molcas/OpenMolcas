@@ -15,9 +15,9 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nij, iT_Sets(nij), nAtoms, iANr(nAtoms), iWarnings(nij), Num_Warnings, iPrint
-real(kind=wp) :: T_Values(nij), EC(3,nij), Bond_Threshold
-logical(kind=iwp) :: Standard
+integer(kind=iwp), intent(in) :: nij, iT_Sets(nij), nAtoms, iANr(nAtoms), iWarnings(nij), Num_Warnings, iPrint
+real(kind=wp), intent(in) :: T_Values(nij), EC(3,nij), Bond_Threshold
+logical(kind=iwp), intent(in) :: Standard
 #include "Molcas.fh"
 integer(kind=iwp) :: i, iAtom, ii, ij, j, jAtom, jj, Last_NonBlank
 real(kind=wp) :: Bond_Length, Bond_Max, bs_t, Factor, Radius_i, Radius_j

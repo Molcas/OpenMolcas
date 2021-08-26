@@ -15,9 +15,9 @@ subroutine Diff_MotherGoose(Diffuse,nAt,nB,ipMP,ipC,nij,ip_EC,ip_ANr,ip_Ttot,ip_
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp) :: Diffuse(3)
-integer(kind=iwp) :: nAt, nB, ipMP, ipC, nij, ip_EC, ip_ANr, ip_Ttot, ip_Ttot_Inv, lMax, iTP, nThrs, iPrint, LuYou
-real(kind=wp) :: dLimmo(2), Thrs1, Thrs2, ThrsMul
+logical(kind=iwp), intent(in) :: Diffuse(3)
+integer(kind=iwp), intent(in) :: nAt, nB, ipMP, ipC, nij, ip_EC, ip_ANr, ip_Ttot, ip_Ttot_Inv, lMax, iTP, nThrs, iPrint, LuYou
+real(kind=wp), intent(in) :: dLimmo(2), Thrs1, Thrs2, ThrsMul
 integer(kind=iwp) :: lMaxF
 real(kind=wp) :: Pot_Expo(nij*2), Pot_Fac(nij*4), Pot_Point(nij)
 logical(kind=iwp) :: Diffed(nij*2)

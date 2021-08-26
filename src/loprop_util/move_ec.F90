@@ -17,10 +17,13 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lMax, nij, nElem, nAtoms, nPert, iANr(nAtoms), iT_Sets(nij), iWarnings(nij), Num_Warnings, iPlot, iPrint
-real(kind=wp) :: rMP(nij,0:nElem-1,0:nPert-1), EC(3,nij), Scratch_New(nij*(2+lMax+1)), Scratch_Org(nij*(2+lMax+1)), &
-                 xrMP(nij,nElem), xxrMP(nij,nElem), xnrMP(nij,nElem), A(3,nij), B(3,nij), Coor(3,nAtoms), Q_Nuc(nAtoms), C_o_C(3), &
-                 Bond_Threshold, T_Values(nij)
+integer(kind=iwp), intent(in) :: lMax, nij, nElem, nAtoms, nPert, iANr(nAtoms), iPlot, iPrint
+real(kind=wp), intent(inout) :: rMP(nij,0:nElem-1,0:nPert-1)
+real(kind=wp), intent(in) :: EC(3,nij), Coor(3,nAtoms), Q_Nuc(nAtoms), C_o_C(3), Bond_Threshold
+real(kind=wp), intent(out) :: Scratch_New(nij*(2+lMax+1)), Scratch_Org(nij*(2+lMax+1)), xrMP(nij,nElem), xxrMP(nij,nElem), &
+                              xnrMP(nij,nElem), A(3,nij), B(3,nij), T_Values(nij)
+integer(kind=iwp), intent(inout) :: iT_Sets(nij), Num_Warnings
+integer(kind=iwp), intent(out) :: iWarnings(nij)
 character(len=12) :: Opt_Method
 integer(kind=iwp) :: iAtom, ii, ij, iPert, jAtom, jj
 real(kind=wp) :: CX(3), Dipole_Rot_A, Dipole_Rot_B, Dipole_Rot_AB, R_A, R_B
@@ -88,7 +91,7 @@ do iAtom=1,nAtoms
           B(3,ij) = EC(3,ij)+T_Values(ij)*(EC(3,jj)-EC(3,ii))
         else
           call Min_Mult_Error(EC,A,B,EC(1,ii),EC(1,jj),rMP,xrMP,xxrMP,xnrMP,lMax,nij,nElem,iAtom,jAtom,nAtoms,nPert,C_o_C, &
-                              Scratch_New,Scratch_Org,iPlot,T_Values,iWarnings,Num_Warnings)
+                              Scratch_New,Scratch_Org,iPlot,T_Values(ij),iWarnings(ij),Num_Warnings)
         end if
       end if
 

@@ -15,8 +15,9 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: q_A, q_B, Dipole_A, Dipole_B, qn_A, qn_B, R_A, R_B, EC_A(3), EC_B(3), EC_AB(3), t
-integer(kind=iwp) :: iPlot
+real(kind=wp), intent(in) :: q_A, q_B, Dipole_A, Dipole_B, qn_A, qn_B, R_A, R_B, EC_A(3), EC_B(3), EC_AB(3)
+real(kind=wp), intent(out) :: t
+integer(kind=iwp), intent(in) :: iPlot
 integer(kind=iwp) :: i
 real(kind=wp) :: ax, bx, cx, Delta, E, fa, fb, fc, golden, R, r_best, r_best2, R_Test
 integer(kind=iwp) :: nSteps = 100

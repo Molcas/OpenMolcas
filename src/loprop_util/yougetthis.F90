@@ -15,9 +15,9 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAt, ipMP, lMax, lMaxF, nij, LuYou
-real(kind=wp) :: EC(3,nij), Pot_Expo(nij*4), Pot_Point(nij), Pot_Fac(nij*4)
-logical(kind=iwp) :: Diffed(nij*4)
+integer(kind=iwp), intent(in) :: nAt, ipMP, lMax, lMaxF, nij, LuYou
+real(kind=wp), intent(in) :: EC(3,nij), Pot_Expo(nij*4), Pot_Point(nij), Pot_Fac(nij*4)
+logical(kind=iwp), intent(in) :: Diffed(nij*4)
 integer(kind=iwp) :: i, k, kauntA, kk, l, nS, nT
 #include "WrkSpc.fh"
 

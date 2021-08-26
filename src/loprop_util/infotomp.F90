@@ -15,9 +15,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nSym, nBas(8), ip_Ene_Occ, nOcOb
-real(kind=wp) :: Energy_Without_FFPT
-logical(kind=iwp) :: UserDen, Restart
+integer(kind=iwp), intent(in) :: nSym, nBas(8)
+real(kind=wp), intent(out) :: Energy_Without_FFPT
+integer(kind=iwp), intent(out) :: ip_Ene_Occ, nOcOb
+logical(kind=iwp), intent(in) :: UserDen, Restart
 integer(kind=iwp) :: i, iDum(1), iErr, ip_Occ, ip_Vec, iSym, iWarn, Lu_, nOcc, nVec
 character(len=40) :: VTitle
 character(len=8) :: Method
@@ -31,7 +32,7 @@ character(len=6) :: FName
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-NOCOB = 0
+nOcOb = 0
 if (.not. UserDen) then
   nVec = 0
   nOcc = 0

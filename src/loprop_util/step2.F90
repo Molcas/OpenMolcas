@@ -20,8 +20,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDim, iMatrix(nDim), iType(nDim)
-real(kind=wp) :: SMatrix(nDim*nDim), TMatrix(nDim*nDim), SMatrix_Save(nDim*nDim), Temp(nDim*nDim)
+integer(kind=iwp), intent(in) :: nDim, iMatrix(nDim), iType(nDim)
+real(kind=wp), intent(inout) :: SMatrix(nDim*nDim), SMatrix_Save(nDim*nDim)
+real(kind=wp), intent(out) :: TMatrix(nDim*nDim), Temp(nDim*nDim)
 integer(kind=iwp) :: i, j, k
 
 !lg write(u6,*) 'Step 2', nDim
@@ -50,7 +51,6 @@ call dcopy_(nDim**2,SMatrix_Save,1,SMatrix,1)
 
 ! Now apply T2 to S2:  S3=T2(T)*S2*T2
 
-call FZero(Temp,nDim**2)
 call DGEMM_('N','N',nDim,nDim,nDim,One,SMatrix,nDim,TMatrix,nDim,Zero,Temp,nDim)
 call DGEMM_('T','N',nDim,nDim,nDim,One,TMatrix,nDim,Temp,nDim,Zero,SMatrix,nDim)
 !call RecPrt('S3',' ',Work(ip_s),nBas(1),nBas(1))

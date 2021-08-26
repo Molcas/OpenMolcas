@@ -18,9 +18,9 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: ElPot
-integer(kind=iwp) :: lMax
-real(kind=wp) :: r, rinv, x, y, z, dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), A(2), chP
-logical(kind=iwp) :: lDOrNot1, lDOrNot2
+integer(kind=iwp), intent(in) :: lMax
+real(kind=wp), intent(in) :: r, rinv, x, y, z, dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), A(2), chP
+logical(kind=iwp), intent(in) :: lDOrNot1, lDOrNot2
 real(kind=wp) :: ar, dCh, dL2(6), dL3(10), dL4(15), dL5(21), dM
 real(kind=wp), external :: ElPointPot
 #include "warnings.h"

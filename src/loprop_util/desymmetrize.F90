@@ -18,8 +18,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: nSOInt, nScr, nSym, nBas(0:nSym-1), nBas1, iSyLbl
-real(kind=wp) :: SOInt(nSOInt), Scr(nScr), AOInt(nBas1,nBas1), SymInv(nBas1**2)
+integer(kind=iwp), intent(in) :: nSOInt, nScr, nSym, nBas(0:nSym-1), nBas1, iSyLbl
+real(kind=wp), intent(in) :: SOInt(nSOInt), SymInv(nBas1**2)
+real(kind=wp), intent(out) :: Scr(nScr), AOInt(nBas1,nBas1)
 integer(kind=iwp) :: ijSym, iOffPi, iOffPj, iOffSO, iSym, jSym
 
 call FZero(AOInt,nBas1**2)

@@ -14,8 +14,9 @@ subroutine PickPoints(nPick,ipPick,ipDPick,nEPP,ipEPCo,Coo,dLimmo,BS)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nPick, ipPick, ipDPick, nEPP, ipEPCo
-real(kind=wp) :: Coo(3), dLimmo(2), BS
+integer(kind=iwp), intent(out) :: nPick
+integer(kind=iwp), intent(in) :: ipPick, ipDPick, nEPP, ipEPCo
+real(kind=wp), intent(in) :: Coo(3), dLimmo(2), BS
 integer(kind=iwp) :: iP
 real(kind=wp) :: Distad, xtwo, ytwo, ztwo
 #include "WrkSpc.fh"

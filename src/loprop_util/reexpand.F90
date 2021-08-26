@@ -15,8 +15,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nij, nElem, ij, lMax
-real(kind=wp) :: rMP(nij,nElem), A(3), B(3)
+integer(kind=iwp), intent(in) :: nij, nElem, ij, lMax
+real(kind=wp), intent(inout) :: rMP(nij,nElem)
+real(kind=wp), intent(in) :: A(3), B(3)
 integer(kind=iwp) :: iElem, ix, iy, iz, jElem, jx, jy, jz, k, l
 real(kind=wp) :: ABx, ABx_, ABy, ABy_, ABz, ABz_, temp
 #include "itmax.fh"
@@ -39,7 +40,7 @@ do l=lMax,0,-1
       ABy = A(2)-B(2)
       iz = l-ix-iy
       ABz = A(3)-B(3)
-      ielem = iElem+1
+      iElem = iElem+1
       !write(u6,*)
       !write(u6,*)
       !write(u6,*) 'ix,iy,iz=',ix,iy,iz

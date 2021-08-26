@@ -16,7 +16,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iPotte, nPick, ipPick, ipDPick, nEPP, ipT, ipTi, NucNr, nB, iAtom, jAtom, ip_Center
+integer(kind=iwp), intent(in) :: iPotte, nPick, ipPick, ipDPick, nEPP, ipT, ipTi, NucNr, nB, iAtom, jAtom, ip_Center
 integer(kind=iwp) :: iB1, iB2, iC1, iC2, iComp, iDSq, iDTrans, iOpt, iPo, iPoint, iPP, iPSq, iPTr, irc, iSmLbl, iTEMP, kaunter, &
                      nB2, nB22, nDens
 real(kind=wp) :: dEx
@@ -84,7 +84,7 @@ do iPoint=1,nPick
   ! Accumulate in the return vector.
 
   if (iAtom == jAtom) then
-    Work(iPotte+iPoint-1) = -dEx+dble(NucNr)/Work(ipDPick+iPoint-1)
+    Work(iPotte+iPoint-1) = -dEx+real(NucNr,kind=wp)/Work(ipDPick+iPoint-1)
   else
     Work(iPotte+iPoint-1) = -dEx
   end if

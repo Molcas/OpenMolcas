@@ -24,7 +24,7 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ireturn
+integer(kind=iwp), intent(inout) :: ireturn
 #include "itmax.fh"
 #include "Molcas.fh"
 #include "WrkSpc.fh"

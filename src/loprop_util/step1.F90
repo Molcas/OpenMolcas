@@ -20,8 +20,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDim, iCenter(nDim), iType(nDim)
-real(kind=wp) :: Matrix(nDim*nDim), TMatrix(nDim*nDim), Matrix0(nDim*nDim), Temp(nDim*nDim)
+integer(kind=iwp), intent(in) :: nDim, iCenter(nDim), iType(nDim)
+real(kind=wp), intent(inout) :: Matrix(nDim*nDim), TMatrix(nDim*nDim), Matrix0(nDim*nDim)
+real(kind=wp), intent(out) :: Temp(nDim*nDim)
 integer(kind=iwp) :: i, j, k
 
 k = 0

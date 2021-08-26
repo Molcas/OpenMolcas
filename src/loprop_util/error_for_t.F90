@@ -9,16 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-real*8 function Error_for_t(t,rMP,xrMP,xxrMP,xnrMP,EC,A,R_ij,C_o_C,ij,l,nij,lMax,nElem,nAtoms,nPert,Scratch_New,Scratch_Org, &
-                            iPrint_Errors)
+function Error_for_t(t,rMP,xrMP,xxrMP,xnrMP,EC,A,R_ij,C_o_C,ij,l,nij,lMax,nElem,nAtoms,nPert,Scratch_New,Scratch_Org,iPrint_Errors)
 
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ij, l, nij, lMax, nElem, nAtoms, nPert, iPrint_Errors
-real(kind=wp) :: t, rMP(nij,0:nElem-1,0:nPert-1), xrMP(nij,nElem), xnrMP(nij,nElem), xxrMP(nij,nElem), EC(3,nij), A(3,nij), &
-                 R_ij(3), C_o_C(3), Scratch_New(nij*(2+lMax+1)), Scratch_Org(nij*(2+lMax+1))
+real(kind=wp) :: Error_for_t
+integer(kind=iwp), intent(in) :: ij, l, nij, lMax, nElem, nAtoms, nPert, iPrint_Errors
+real(kind=wp), intent(in) :: t, rMP(nij,0:nElem-1,0:nPert-1), xnrMP(nij,nElem), EC(3,nij), R_ij(3), C_o_C(3)
+real(kind=wp), intent(out) :: xrMP(nij,nElem), xxrMP(nij,nElem), Scratch_New(nij*(2+lMax+1)), Scratch_Org(nij*(2+lMax+1))
+real(kind=wp), intent(inout) :: A(3,nij)
 integer(kind=iwp) :: i_Dim, ij_temp
 real(kind=wp) :: Error
 

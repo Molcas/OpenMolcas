@@ -15,7 +15,8 @@ use Constants, only: Zero, One, Three
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: q, Dipole, R, E
+real(kind=wp), intent(in) :: q, Dipole, R
+real(kind=wp), intent(out) :: E
 real(kind=wp) :: R_Inv, R2_Inv, xDipole, xMonopole
 
 R_Inv = One/R

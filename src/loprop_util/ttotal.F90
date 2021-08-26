@@ -14,8 +14,9 @@ subroutine Ttotal(T1,T2,T3,T4,Ttot,Ttot_Inv,nDim)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDim
-real(kind=wp) :: T1(nDim*nDim), T2(nDim*nDim), T3(nDim*nDim), T4(nDim,nDim), Ttot(nDim,nDim), Ttot_Inv(nDim,nDim)
+integer(kind=iwp), intent(in) :: nDim
+real(kind=wp), intent(in) :: T1(nDim*nDim), T2(nDim*nDim), T3(nDim*nDim), T4(nDim,nDim)
+real(kind=wp), intent(out) :: Ttot(nDim,nDim), Ttot_Inv(nDim,nDim)
 integer(kind=iwp) :: ipTemp, ipTemp2
 #include "WrkSpc.fh"
 
