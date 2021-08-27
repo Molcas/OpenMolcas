@@ -11,6 +11,7 @@
 
 subroutine InfoToMp(nSym,nBas,Energy_Without_FFPT,ip_Ene_Occ,nOcOb,UserDen,Restart)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -19,10 +20,11 @@ integer(kind=iwp), intent(in) :: nSym, nBas(8)
 real(kind=wp), intent(out) :: Energy_Without_FFPT
 integer(kind=iwp), intent(out) :: ip_Ene_Occ, nOcOb
 logical(kind=iwp), intent(in) :: UserDen, Restart
-integer(kind=iwp) :: i, iDum(1), iErr, ip_Occ, ip_Vec, iSym, iWarn, Lu_, nOcc, nVec
+integer(kind=iwp) :: i, iDum(1), iErr, iSym, iWarn, Lu_, nOcc, nVec
 character(len=40) :: VTitle
 character(len=8) :: Method
 character(len=6) :: FName
+real(kind=wp), allocatable :: Occ(:), Vec(:)
 #include "WrkSpc.fh"
 
 !                                                                      *
@@ -49,26 +51,24 @@ if (.not. UserDen) then
     call Get_dScalar('Last energy',Energy_Without_FFPT)
     call Put_dScalar('MpProp Energy',Energy_Without_FFPT)
 
-    call Allocate_Work(ip_Vec,nVec)
-    call Allocate_Work(ip_Occ,nOcc)
+    call mma_allocate(Vec,nVec,label='Vec')
+    call mma_allocate(Occ,nOcc,label='Occ')
 
     Lu_ = 11
     FName = 'INPORB'
     iDum = 0
     iWarn = 2
-    call RdVec(FName,Lu_,'COE',nSym,nBas,nBas,Work(ip_Vec),Work(ip_Occ),Work(ip_Ene_Occ),iDum,VTitle,iWarn,iErr)
+    call RdVec(FName,Lu_,'COE',nSym,nBas,nBas,Vec,Occ,Work(ip_Ene_Occ),iDum,VTitle,iWarn,iErr)
     close(Lu_)
 
-    do i=0,nOcc-1
-      if (Work(ip_Occ+i) /= Zero) then
-        nOcOb = nOcOb+1
-      end if
+    do i=1,nOcc
+      if (Occ(i) /= Zero) nOcOb = nOcOb+1
     end do
     call Put_dArray('MpProp Orb Ener',Work(ip_Ene_occ),nOcc)
     call Put_iScalar('MpProp nOcOb',nOcOb)
 
-    call Free_Work(ip_Vec)
-    call Free_Work(ip_Occ)
+    call mma_deallocate(Vec)
+    call mma_deallocate(Occ)
   end if
 else
   !Here we go if user give density as input. Need to put some

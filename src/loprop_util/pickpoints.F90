@@ -9,13 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PickPoints(nPick,ipPick,ipDPick,nEPP,ipEPCo,Coo,dLimmo,BS)
+subroutine PickPoints(nPick,Pick,DPick,nEPP,ipEPCo,Coo,dLimmo,BS)
 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(out) :: nPick
-integer(kind=iwp), intent(in) :: ipPick, ipDPick, nEPP, ipEPCo
+integer(kind=iwp), intent(in) :: nEPP, ipEPCo
+integer(kind=iwp), intent(out) :: nPick, Pick(nEPP)
+real(kind=wp), intent(out) :: DPick(nEPP)
 real(kind=wp), intent(in) :: Coo(3), dLimmo(2), BS
 integer(kind=iwp) :: iP
 real(kind=wp) :: Distad, xtwo, ytwo, ztwo
@@ -28,9 +29,9 @@ do iP=1,nEPP
   ztwo = (Work(ipEPCo+(iP-1)*3+2)-Coo(3))**2
   Distad = sqrt(xtwo+ytwo+ztwo)
   if ((Distad < dLimmo(2)*BS) .and. (Distad > dLimmo(1)*BS)) then
-    iWork(ipPick+nPick) = iP
-    Work(ipDPick+nPick) = Distad
     nPick = nPick+1
+    Pick(nPick) = iP
+    DPick(nPick) = Distad
   end if
 end do
 

@@ -12,6 +12,7 @@
 subroutine Read_Multipole_Int(lMax,ip_sq_mu,nBas,ip_mu,Ttot,Temp,Origin,rMPq,nElem,nBas1,nBas2,nBasMax,nTemp,nSym,ipP,Restart, &
                               Utility)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -20,11 +21,13 @@ integer(kind=iwp), intent(out) :: ip_sq_mu(0:nElem-1), ip_mu(0:nElem-1)
 real(kind=wp), intent(in) :: Ttot(nBas2)
 real(kind=wp), intent(out) :: Temp(nTemp), Origin(3,0:lMax), rMPq(0:nElem-1)
 logical(kind=iwp), intent(in) :: Restart, Utility
-integer(kind=iwp) :: iComp, idum(1), ijSym, iOff, iOffs, iOfft, iOpt0, iOpt1, ip_all_ints, ip_iSyLbl, ip_nComp, ip_Tmp, ipScr, &
-                     iRc, iSyLbl, iSym, jSym, l, mu, nComp, nInts, nInts_Tot, nScr
+integer(kind=iwp) :: iComp, idum(1), ijSym, iOff, iOffs, iOfft, iOpt0, iOpt1, ip_Tmp, iRc, iSyLbl, iSym, jSym, l, mu, nComp, &
+                     nInts, nInts_Tot, nScr
 character(len=16) :: RunFile_dLabel, RunFile_iLabel, RunFile_iLabel2
 character(len=8) :: Label
 logical(kind=iwp) :: Found
+integer(kind=iwp), allocatable :: Comp(:), SyLbl(:)
+real(kind=wp), allocatable :: all_ints(:), Scr(:)
 #include "WrkSpc.fh"
 
 !                                                                      *
@@ -44,25 +47,25 @@ RunFile_dLabel = 'LoProp Integrals'
 RunFile_iLabel = 'LoProp nInts'
 RunFile_iLabel2 = 'LoProp iSyLbl'
 nInts_Tot = 0
-call Allocate_iWork(ip_nComp,nElem)
-call Allocate_iWork(ip_iSyLbl,nElem)
+call mma_allocate(Comp,[0,nElem],label='nComp')
+call mma_allocate(SyLbl,[0,nElem],label='SyLbl')
 if (Restart) then
   call Qpg_dArray(RunFile_dLabel,Found,nInts_tot)
   if (.not. Found) then
     write(u6,*) 'LoProp Integrals not available on the RunFile.'
     call Abend()
   end if
-  call Allocate_Work(ip_all_ints,nInts_Tot)
-  call Get_dArray(RunFile_dLabel,Work(ip_all_ints),nInts_tot)
-  call Get_iArray(RunFile_iLabel,iWork(ip_nComp),nElem)
-  call Get_iArray(RunFile_iLabel2,iWork(ip_iSyLbl),nElem)
+  call mma_allocate(all_ints,nInts_Tot,label='all_ints')
+  call Get_dArray(RunFile_dLabel,all_ints,nInts_tot)
+  call Get_iArray(RunFile_iLabel,Comp,nElem)
+  call Get_iArray(RunFile_iLabel2,SyLbl,nElem)
 end if
 nInts = 0
 iOpt0 = 0
 iOpt1 = 1
 Label = 'Mltpl  X'
 mu = -1
-iOff = 0
+iOff = 1
 do l=0,lMax
   nComp = (l+1)*(l+2)/2
   write(Label(8:8),'(I1)') l
@@ -72,11 +75,11 @@ do l=0,lMax
 #   endif
     mu = mu+1
     if (Restart) then
-      call Allocate_Work(ip_mu(mu),iWork(ip_nComp+mu))
-      nInts = iWork(ip_nComp+mu)-4
-      call dCopy_(iWork(ip_nComp+mu),Work(ip_all_ints+iOff),1,Work(ip_mu(mu)),1)
-      iSyLbl = iWork(ip_iSyLbl+mu)
-      iOff = iOff+iWork(ip_nComp+mu)
+      call Allocate_Work(ip_mu(mu),Comp(mu))
+      nInts = Comp(mu)-4
+      call dCopy_(Comp(mu),all_ints(iOff),1,Work(ip_mu(mu)),1)
+      iSyLbl = SyLbl(mu)
+      iOff = iOff+Comp(mu)
     else
       iRc = -1
       iSyLbl = 0
@@ -94,9 +97,9 @@ do l=0,lMax
         write(u6,*) 'Mu=',mu
         call Abend()
       end if
-      iWork(ip_iSyLbl+mu) = iSyLbl
-      iWork(ip_nComp+mu) = nInts+4
-      nInts_Tot = nInts_Tot+iWork(ip_nComp+mu)
+      SyLbl(mu) = iSyLbl
+      Comp(mu) = nInts+4
+      nInts_Tot = nInts_Tot+Comp(mu)
     end if
 
     ! Transform multipole moment integrals to new basis
@@ -140,10 +143,10 @@ do l=0,lMax
       ! Desymmetrize
 
       nScr = nBasMax*nBas1
-      call Allocate_Work(ipScr,nScr)
+      call mma_allocate(Scr,nScr,label='Scr')
       call FZero(Work(ip_sq_mu(mu)),nBas1**2)
-      call Desymmetrize(Work(ip_Tmp),nBas2,Work(ipScr),nScr,Work(ip_sq_mu(mu)),nBas,nBas1,Work(ipP),nSym,iSyLbl)
-      call Free_Work(ipScr)
+      call Desymmetrize(Work(ip_Tmp),nBas2,Scr,nScr,Work(ip_sq_mu(mu)),nBas,nBas1,Work(ipP),nSym,iSyLbl)
+      call mma_deallocate(Scr)
       call Free_Work(ip_Tmp)
 
     end if
@@ -170,26 +173,26 @@ do l=0,lMax
 
 end do
 if ((.not. Restart) .and. (.not. Utility)) then
-  call Allocate_Work(ip_all_ints,nInts_Tot)
+  call mma_allocate(all_ints,nInts_Tot,label='all_ints')
   mu = -1
-  iOff = 0
+  iOff = 1
   do l=0,lMax
     nComp = (l+1)*(l+2)/2
     do iComp=1,nComp
       mu = mu+1
-      call dCopy_(iWork(ip_nComp+mu),Work(ip_mu(mu)),1,Work(ip_all_ints+iOff),1)
-      iOff = iOff+iWork(ip_nComp+mu)
+      call dCopy_(Comp(mu),Work(ip_mu(mu)),1,all_ints(iOff),1)
+      iOff = iOff+Comp(mu)
     end do
   end do
-  call Put_dArray(RunFile_dLabel,Work(ip_all_ints),nInts_Tot)
-  call Put_iArray(RunFile_iLabel,iWork(ip_nComp),nElem)
-  call Put_iArray(RunFile_iLabel2,iWork(ip_iSyLbl),nElem)
+  call Put_dArray(RunFile_dLabel,all_ints,nInts_Tot)
+  call Put_iArray(RunFile_iLabel,Comp,nElem)
+  call Put_iArray(RunFile_iLabel2,SyLbl,nElem)
 end if
 if (.not. Utility) then
-  call Free_Work(ip_all_ints)
+  call mma_deallocate(all_ints)
 end if
-call Free_iWork(ip_nComp)
-call Free_iWork(ip_iSyLbl)
+call mma_deallocate(Comp)
+call mma_deallocate(SyLbl)
 #ifdef _DEBUGPRINT_
 call RecPrt('Origin',' ',Origin,3,lMax+1)
 call RecPrt('rMPq',' ',rMPq,1,nElem)

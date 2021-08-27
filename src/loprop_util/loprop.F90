@@ -20,6 +20,7 @@ subroutine LoProp(ireturn)
 !             University of Lund, SWEDEN.                              *
 !***********************************************************************
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
@@ -29,13 +30,14 @@ integer(kind=iwp), intent(inout) :: ireturn
 #include "Molcas.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp), parameter :: nElem=(iTabMx*(iTabMx**2+6*iTabMx+11)+6)/6
-integer(kind=iwp) :: i, ip_ANr, ip_Center, ip_D(0:6), ip_EC, ip_mu(0:nElem-1), ip_sq_mu(0:nElem-1), ip_sq_temp, ip_tmp, ip_Ttot, &
-                     ip_Ttot_Inv, ip_Type, ipC, iPert, iPL, iPlot, ipMP, ipMPq, ipP, ipPInv, ipPol, ipQ_Nuc, iPrint, lMax, mElem, &
-                     nAtoms, nBas(8), nBas1, nBas2, nBasMax, nij, nmu, nOrb(8), nPert, nSize, nStateF, nStateI, nSym, nTemp
+integer(kind=iwp) :: i, ip_ANr, ip_Center, ip_D(0:6), ip_mu(0:nElem-1), ip_sq_mu(0:nElem-1), ip_Type, ipC, iPert, iPL, iPlot, ipP, &
+                     ipPInv, ipQ_Nuc, iPrint, lMax, mElem, nAtoms, nBas(8), nBas1, nBas2, nBasMax, nij, nOrb(8), nPert, nSize, &
+                     nStateF, nStateI, nSym, nTemp
 real(kind=wp) :: Bond_Threshold, CoC(3), Origin(3,0:iTabMx), SubScale
 logical(kind=iwp) :: lSave, NoField, PrintDen, Restart, Standard, SubtractDen, TDensity, UserDen, Utility
 character(len=LenIn4) :: LblCnt(MxAtom)
 character(len=12) :: Opt_Method
+real(kind=wp), allocatable :: EC(:,:), MP(:,:,:), MPq(:), tmp(:), sq_temp(:), Ttot(:,:), Ttot_Inv(:,:)
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt
 
@@ -79,11 +81,10 @@ iPrint = 0
 !                                                                      *
 ! Do the LoProp localization.
 
-call GetMem('Ttot','Allo','Real',ip_Ttot,nBas1**2)
-call GetMem('TtotInv','Allo','Real',ip_Ttot_Inv,nBas1**2)
+call mma_allocate(Ttot,nBas1,nBas1,label='Ttot')
+call mma_allocate(Ttot_Inv,nBas1,nBas1,label='TtotInv')
 
-call Localize_LoProp_Drv(Work(ip_Ttot),Work(ip_Ttot_Inv),nBas,iWork(ip_Center),iWork(ip_Type),nBas1,nBas2,nSym,nBasMax,ipPInv, &
-                         Restart)
+call Localize_LoProp_Drv(Ttot,Ttot_Inv,nBas,iWork(ip_Center),iWork(ip_Type),nBas1,nBas2,nSym,nBasMax,ipPInv,Restart)
 
 call Free_iWork(ip_type)
 !                                                                      *
@@ -95,12 +96,11 @@ lMax = 0   ! do only charges
 mElem = (lMax*(lMax**2+6*lMax+11)+6)/6
 
 nTemp = nBas1**2
-call Allocate_Work(ip_tmp,nTemp)
+call mma_allocate(tmp,nTemp,label='tmp')
 
-call Allocate_Work(ipMPq,mElem)
-call Read_Multipole_Int(lMax,ip_sq_mu,nBas,ip_mu,Work(ip_Ttot),Work(ip_tmp),Origin,Work(ipMPq),mElem,nBas1,nBas2,nBasMax,nTemp, &
-                        nSym,ipPInv,Restart,Utility)
-call Free_Work(ip_Ttot)
+call mma_allocate(MPq,mElem,label='MPq')
+call Read_Multipole_Int(lMax,ip_sq_mu,nBas,ip_mu,Ttot,tmp,Origin,MPq,mElem,nBas1,nBas2,nBasMax,nTemp,nSym,ipPInv,Restart,Utility)
+call mma_deallocate(Ttot)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -125,10 +125,9 @@ end do
 nPert = 2*3+1
 if (NoField) nPert = 1
 nij = (nAtoms*(nAtoms+1)/2)
-nmu = nij*mElem*nPert
-call Allocate_Work(ipMP,nmu)
-call Allocate_Work(ip_sq_temp,nTemp)
-call Allocate_Work(ip_EC,3*nij)
+call mma_allocate(MP,nij,mElem,nPert,label='MP')
+call mma_allocate(sq_temp,nTemp,label='sq_temp')
+call mma_allocate(EC,3,nij,label='EC')
 
 if (iPL >= 2) then
   write(u6,*)
@@ -136,27 +135,22 @@ if (iPL >= 2) then
   write(u6,'(3X,A)') '   ------------------'
   write(u6,*)
 end if
-call Local_Properties(Work(ipC),nAtoms,ip_sq_mu,mElem,Work(ip_sq_temp),Origin,iWork(ip_center),Work(ip_Ttot_Inv),Work(ip_tmp),nij, &
-                      nPert,ip_D,Work(ipMP),lMax,Work(ipMPq),CoC,Work(ip_EC),iWork(ip_ANr),Standard,nBas1,nTemp,Work(ipQ_Nuc), &
-                      Bond_Threshold,Opt_Method,iPlot,iPrint,nSym)
+call Local_Properties(Work(ipC),nAtoms,ip_sq_mu,mElem,sq_temp,Origin,iWork(ip_center),Ttot_Inv,tmp,nij,nPert,ip_D,MP,lMax,MPq,CoC, &
+                      EC,iWork(ip_ANr),Standard,nBas1,nTemp,Work(ipQ_Nuc),Bond_Threshold,Opt_Method,iPlot,iPrint,nSym)
 
 do i=mElem,1,-1
   call Free_Work(ip_sq_mu(i-1))
 end do
-call Free_Work(ip_Ttot_Inv)
-call Free_Work(ip_sq_temp)
+call mma_deallocate(Ttot_Inv)
+call mma_deallocate(sq_temp)
 call Free_iWork(ip_center)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-call Allocate_Work(ipPol,6*nij)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Print out the properties
 
 call Get_cArray('LP_L',LblCnt,LenIn4*nAtoms)
-call LoProp_Print(Work(ipMP),nij,nElem,nAtoms,Work(ipQ_Nuc),LblCnt,lSave)
+call LoProp_Print(MP,nij,nElem,nAtoms,Work(ipQ_Nuc),LblCnt,lSave)
 if (iPL >= 2) then
   call CollapseOutput(0,'   Static properties:')
   write(u6,*)
@@ -164,12 +158,11 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call Free_Work(ipPol)
 call Free_Work(ipQ_Nuc)
-call Free_Work(ipMPq)
-call Free_Work(ip_EC)
-call Free_Work(ipMP)
-call Free_Work(ip_Tmp)
+call mma_deallocate(MPq)
+call mma_deallocate(EC)
+call mma_deallocate(MP)
+call mma_deallocate(tmp)
 call Free_iWork(ip_ANr)
 call Free_Work(ipC)
 if (nSym /= 1) then

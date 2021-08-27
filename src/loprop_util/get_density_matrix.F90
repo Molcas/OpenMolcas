@@ -25,12 +25,12 @@ real(kind=wp), intent(inout) :: Q_Nuc(nAtoms)
 ! OBSERVE! MxState has to be the same as MxStat in cntrl.fh in src/rassi.
 !          (but there's no such variable)
 integer(kind=iwp), parameter :: MxState = 200, MxStOT = MxState*(MxState+1)/2
-integer(kind=iwp) :: iDisk, iMp2Prpt, iOffs, iOfft, ip_D_sq, ip_Tmp, ipScr, ipUser, iS1, iS2, iSyLbl, iSym, iTDMden, iToc(MxStOT), &
-                     k, kaunter, Lu_Ud, LuIn, nDens, nScr, nSize, nStateM
+integer(kind=iwp) :: iDisk, iMp2Prpt, iOffs, iOfft, iS1, iS2, iSyLbl, iSym, iToc(MxStOT), k, kaunter, Lu_Ud, LuIn, nDens, nScr, &
+                     nSize, nStateM
 character(len=16) :: Label, filename
 character(len=8) :: Method
 logical(kind=iwp) :: Exists, Found, ok1, ok2
-real(kind=wp), allocatable :: DTmp(:), DSym(:)
+real(kind=wp), allocatable :: D_sq(:,:), DTmp(:), DSym(:), Scr(:), TDMden(:), Tmp(:), User(:)
 integer(kind=iwp), external :: IsFreeUnit
 #include "WrkSpc.fh"
 
@@ -69,10 +69,10 @@ else if (nSym == 1) then
       write(u6,*) ' Unable to locate user density matrix.'
       call Abend()
     end if
-    call GetMem('UserDen','Allo','Real',ipUser,nSize)
-    read(Lu_Ud,*) (Work(ipUser+k),k=0,nSize-1)
-    call Put_D1ao(Work(ipUser),nSize)
-    call GetMem('UserDen','Free','Real',ipUser,nSize)
+    call mma_allocate(User,nSize,label='UserDen')
+    read(Lu_Ud,*) User(:)
+    call Put_D1ao(User,nSize)
+    call mma_deallocate(User)
     close(Lu_Ud)
   end if
   ! Addition of A.Ohrn, to collect transition density matrix from ToFile.
@@ -84,7 +84,7 @@ else if (nSym == 1) then
     ! Table-of-contents
     call iDaFile(LuIn,2,iToc,MxStOT,iDisk)
     ! Allocation of density
-    call GetMem('TDMden','Allo','Real',iTDMden,nSize)
+    call mma_allocate(TDMden,nSize,label='TDMden')
     ! Loop to 'suck-out' the relevant matrix from the ToFile.
     nStateM = max(nStateI,nStateF)
     kaunter = 0
@@ -92,15 +92,15 @@ else if (nSym == 1) then
       do iS2=1,iS1
         kaunter = kaunter+1
         iDisk = iToc(kaunter)
-        call dDaFile(LuIn,2,Work(iTDMden),nSize,iDisk)
+        call dDaFile(LuIn,2,TDMden,nSize,iDisk)
         ok1 = (iS1 == nStateI) .and. (iS2 == nStateF)
         ok2 = (iS1 == nStateF) .and. (iS2 == nStateI)
         if (ok1 .or. ok2) then
-          call Put_D1ao(Work(iTDMden),nSize)
+          call Put_D1ao(TDMden,nSize)
         end if
       end do
     end do
-    call GetMem('TDMden','Free','Real',iTDMden,nSize)
+    call mma_deallocate(TDMden)
     call DaClos(LuIn)
   end if
   ! End addition A.Ohrn.
@@ -118,16 +118,14 @@ else if (nSym == 1) then
       write(u6,*) ' Unable to locate density matrix to subtract.'
       call Abend()
     end if
-    call GetMem('UserDen','Allo','Real',ipUser,nSize)
-    read(Lu_Ud,*) (Work(ipUser+k),k=0,nSize-1)
+    call mma_allocate(User,nSize,label='UserDen')
+    read(Lu_Ud,*) User(:)
     call mma_allocate(DTmp,nSize)
     call Get_D1ao(Dtmp,nSize)
-    do k=0,nSize-1
-      Dtmp(1+k) = SubScale*(Dtmp(1+k)-Work(ipUser+k))
-    end do
+    Dtmp(:) = SubScale*(Dtmp(:)-User(:))
     call Put_D1ao(Dtmp,nSize)
     call mma_deallocate(DTmp)
-    call GetMem('UserDen','Free','Real',ipUser,nSize)
+    call mma_deallocate(User)
     close(Lu_Ud)
     do k=1,nAtoms
       Q_Nuc(k) = Zero
@@ -166,8 +164,8 @@ else if (nSym == 1) then
 else
 
   call Allocate_Work(ip_D,nBas1*(nBas1+1)/2)
-  call Allocate_Work(ip_D_sq,nBas1**2)
-  call Allocate_Work(ip_Tmp,nBas2)
+  call mma_allocate(D_sq,nBas1,nBas1,label='D_sq')
+  call mma_allocate(Tmp,nBas2,label='Tmp')
 
   call Qpg_darray('D1ao',Found,nDens)
   if (Found .and. (nDens /= 0)) then
@@ -182,17 +180,17 @@ else
   call RecPrt('DSym',' ',DSym,1,nDens)
 # endif
   iOfft = 1
-  iOffs = ip_Tmp
+  iOffs = 1
   do iSym=1,nSym
     if (nBas(iSym) == 0) cycle
 #   ifdef _DEBUGPRINT_
     call TriPrt('DSym',' ',DSym(iOfft),nBas(iSym))
 #   endif
-    call Square(DSym(iOfft),Work(iOffs),1,nBas(iSym),nBas(iSym))
-    call DScal_(nBas(iSym)**2,Half,Work(iOffs),1)
-    call DScal_(nBas(iSym),Two,Work(iOffs),nBas(iSym)+1)
+    call Square(DSym(iOfft),Tmp(iOffs),1,nBas(iSym),nBas(iSym))
+    call DScal_(nBas(iSym)**2,Half,Tmp(iOffs),1)
+    call DScal_(nBas(iSym),Two,Tmp(iOffs),nBas(iSym)+1)
 #   ifdef _DEBUGPRINT_
-    call RecPrt('DSym',' ',Work(iOffs),nBas(iSym),nBas(iSym))
+    call RecPrt('DSym',' ',Tmp(iOffs),nBas(iSym),nBas(iSym))
 #   endif
     iOfft = iOfft+nBas(iSym)*(nBas(iSym)+1)/2
     iOffs = iOffs+nBas(iSym)**2
@@ -200,13 +198,13 @@ else
   call mma_deallocate(DSym)
 
   nScr = nBasMax*nBas1
-  call Allocate_Work(ipScr,nScr)
-  call Desymmetrize(Work(ip_Tmp),nBas2,Work(ipScr),nScr,Work(ip_D_sq),nBas,nBas1,Work(ipP),nSym,iSyLbl)
-  call Free_Work(ipScr)
-  call Free_Work(ip_Tmp)
+  call mma_allocate(Scr,nScr,label='Scr')
+  call Desymmetrize(Tmp,nBas2,Scr,nScr,D_sq,nBas,nBas1,Work(ipP),nSym,iSyLbl)
+  call mma_deallocate(Scr)
+  call mma_deallocate(Tmp)
 
-  call Triangularize(Work(ip_D_sq),Work(ip_D),nBas1,.true.)
-  call Free_Work(ip_D_sq)
+  call Triangularize(D_sq,Work(ip_D),nBas1,.true.)
+  call mma_deallocate(D_sq)
 end if
 #ifdef _DEBUGPRINT_
 call TriPrt('Density Matrix',' ',Work(ip_D),nBas1)

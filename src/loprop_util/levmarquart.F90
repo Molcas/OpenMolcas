@@ -9,19 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine LevMarquart(iPotte,nPick,ipPick,ipEPCo,Coo,dMullig,lMax,A,iAtom,jAtom,chP,Thrs1,Thrs2,nThrs,Chi2B,iPrint,AboveMul)
+subroutine LevMarquart(Potte,nPick,Pick,ipEPCo,Coo,dMullig,lMax,A,iAtom,jAtom,chP,Thrs1,Thrs2,nThrs,Chi2B,iPrint,AboveMul)
 
 use Constants, only: Zero, One, Two, Three, Ten, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iPotte, nPick, ipPick, ipEPCo, lMax, iAtom, jAtom, nThrs, iPrint
-real(kind=wp), intent(in) :: Coo(3), dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), chP, Thrs1, Thrs2
+integer(kind=iwp), intent(in) :: nPick, Pick(nPick), ipEPCo, lMax, iAtom, jAtom, nThrs, iPrint
+real(kind=wp), intent(in) :: Potte(nPick), Coo(3), dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), chP, Thrs1, Thrs2
 real(kind=wp), intent(out) :: A(2), Chi2B
 logical(kind=iwp), intent(inout) :: AboveMul(2)
 integer(kind=iwp) :: i, ind, iP, Iter, j, nStep
 real(kind=wp) :: AlfMat(4), AlfMatI(4), ARaw(2,2), B(2), BRaw(2), Chi2, dA(2), ddLower, ddUpper, Der1, Der2, DerMax, Diffo, &
-                 dLambda, dLower, dUpper, Potte, Pout(nPick), r, rinv, rinvStore(nPick), rStore(nPick), x, xStore(nPick), y, &
+                 dLambda, dLower, dUpper, Pout(nPick), r, rinv, rinvStore(nPick), rStore(nPick), x, xStore(nPick), y, &
                  yStore(nPick), z, zStore(nPick)
 logical(kind=iwp) :: lScreen1, lScreen2, lScreen3, lScreen4, lStop1, lStop2, lStop3, lStop4
 character(len=60) :: UtChar
@@ -62,7 +62,7 @@ do
   ! Compute distances and store them.
 
   do iP=1,nPick
-    ind = iWork(ipPick+iP-1)
+    ind = Pick(iP)
     x = Work(ipEPCo+(ind-1)*3+0)-Coo(1)
     y = Work(ipEPCo+(ind-1)*3+1)-Coo(2)
     z = Work(ipEPCo+(ind-1)*3+2)-Coo(3)
@@ -88,8 +88,7 @@ do
     x = xStore(iP)
     y = yStore(iP)
     z = zStore(iP)
-    Potte = ElPot(r,rinv,x,y,z,dMullig,lMax,A,chP,.true.,.true.)
-    Diffo = Work(iPotte+iP-1)-Potte
+    Diffo = Potte(iP)-ElPot(r,rinv,x,y,z,dMullig,lMax,A,chP,.true.,.true.)
     Der1 = dMullig(1)*(One+Two*A(1)*r)*exp(-Two*A(1)*r)
     Der2 = (dMullig(2)*x+dMullig(3)*y+dMullig(4)*z)*(A(2)**2+Two*A(2)**3*r)*exp(-Two*A(2)*r)
     if (abs(Der1) > DerMax) Dermax = abs(Der1)
@@ -171,8 +170,7 @@ do
     x = xStore(iP)
     y = yStore(iP)
     z = zStore(iP)
-    Potte = ElPot(r,rinv,x,y,z,dMullig,lMax,B,chP,.true.,.true.)
-    Diffo = Work(iPotte+iP-1)-Potte
+    Diffo = Potte(iP)-ElPot(r,rinv,x,y,z,dMullig,lMax,B,chP,.true.,.true.)
     Chi2B = Chi2B+Diffo**2
   end do
   Chi2B = Chi2B/real(nPick,kind=wp)

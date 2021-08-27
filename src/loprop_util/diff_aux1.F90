@@ -11,14 +11,16 @@
 
 subroutine Diff_Aux1(nEPotPoints,ipEPCo,nB,OneFile)
 
-use Definitions, only: iwp, u6
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: nEPotPoints, ipEPCo
 integer(kind=iwp), intent(in) :: nB
 character(len=10), intent(in) :: OneFile
 character(len=10) :: Label
-integer(kind=iwp) :: i, idiot, iopt, irc, iSmLbl, iTmp, Lu_One, maxCen, n_int(1)
+integer(kind=iwp) :: i, iopt, irc, iSmLbl, Lu_One, maxCen, n_int(1)
+real(kind=wp), allocatable :: idiot(:), Tmp(:,:)
 integer(kind=iwp), external :: IsFreeUnit
 #include "WrkSpc.fh"
 #include "warnings.h"
@@ -39,8 +41,8 @@ end if
 
 nEPotPoints = 0
 maxCen = 99999
-call GetMem('Temporary','Allo','Real',iTmp,maxCen*3)
-call GetMem('Idiot','Allo','Real',idiot,nB*(nB+1)/2+4)
+call mma_allocate(Tmp,3,maxCen,label='Temporary')
+call mma_allocate(idiot,nB*(nB+1)/2+4,label='Idiot')
 do i=1,maxCen
   write(Label,'(A3,I5)') 'EF0',i
   irc = -1
@@ -51,22 +53,20 @@ do i=1,maxCen
   irc = -1
   iopt = 0
   iSmLbl = 0
-  call RdOne(irc,iopt,label,1,Work(idiot),iSmLbl)
-  Work(iTmp+(i-1)*3+0) = Work(idiot+n_int(1)+0)
-  Work(iTmp+(i-1)*3+1) = Work(idiot+n_int(1)+1)
-  Work(iTmp+(i-1)*3+2) = Work(idiot+n_int(1)+2)
+  call RdOne(irc,iopt,label,1,idiot,iSmLbl)
+  Tmp(:,i) = idiot(n_int(1)+1:n_int(1)+3)
   nEPotPoints = nEPotPoints+1
 end do
 
 ! Put the coordinates and nuclear part in nice and tight vectors.
 
 call GetMem('PotPointCoord','Allo','Real',ipEPCo,3*nEPotPoints)
-call dcopy_(3*nEPotPoints,Work(iTmp),1,Work(ipEPCo),1)
+call dcopy_(3*nEPotPoints,Tmp,1,Work(ipEPCo),1)
 
 ! Deallocate.
 
-call GetMem('Temporary','Free','Real',iTmp,maxCen*3)
-call GetMem('Idiot','Free','Real',idiot,nB*(nB+1)/2+4)
+call mma_deallocate(Tmp)
+call mma_deallocate(idiot)
 
 return
 

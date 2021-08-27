@@ -11,20 +11,33 @@
 
 subroutine Ttotal(T1,T2,T3,T4,Ttot,Ttot_Inv,nDim)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nDim
-real(kind=wp), intent(in) :: T1(nDim*nDim), T2(nDim*nDim), T3(nDim*nDim), T4(nDim,nDim)
+real(kind=wp), intent(in) :: T1(nDim,nDim), T2(nDim,nDim), T3(nDim,nDim), T4(nDim,nDim)
 real(kind=wp), intent(out) :: Ttot(nDim,nDim), Ttot_Inv(nDim,nDim)
-integer(kind=iwp) :: ipTemp, ipTemp2
-#include "WrkSpc.fh"
+integer(kind=iwp) :: ISING
+real(kind=wp) :: DET
+real(kind=wp), allocatable :: Temp(:,:), Temp2(:,:)
 
-call Allocate_Work(ipTemp,nDim**2)
-call Allocate_Work(ipTemp2,nDim**2)
-call Ttotal_(T1,T2,T3,T4,Ttot,Ttot_Inv,nDim,Work(ipTemp),Work(ipTemp2))
-call Free_Work(ipTemp2)
-call Free_Work(ipTemp)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Ttot=T1*T2*T3*T4
+
+!lg write(u6,*) 'Ttotal ', nDim
+call mma_allocate(Temp,nDim,nDim,label='Temp')
+call mma_allocate(Temp2,nDim,nDim,label='Temp2')
+call DGEMM_('N','N',nDim,nDim,nDim,One,T1,nDim,T2,nDim,Zero,Temp,nDim)
+call DGEMM_('N','N',nDim,nDim,nDim,One,Temp,nDim,T3,nDim,Zero,Temp2,nDim)
+call DGEMM_('N','N',nDim,nDim,nDim,One,Temp2,nDim,T4,nDim,Zero,Ttot,nDim)
+call mma_deallocate(Temp)
+call mma_deallocate(Temp2)
+!lg call RecPrt('T_TOT',' ',Ttot,nDim,nDim)
+call MINV(Ttot,Ttot_Inv,ISING,DET,nDim)
 
 return
 

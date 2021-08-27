@@ -12,6 +12,7 @@
 subroutine Local_Properties(Coor,nAtoms,ip_sq_Mu,nElem,Sq_Temp,Origin,iCenter,Ttot_Inv,Temp,nij,nPert,ip_D,rMP,lMax,rMPq,C_o_C,EC, &
                             iANr,Standard,nBas1,nTemp,Q_Nuc,Bond_Threshold,Opt_Method,iPlot,iPrint,nSym)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
@@ -25,14 +26,15 @@ logical(kind=iwp), intent(in) :: Standard
 character(len=12), intent(in) :: Opt_Method
 #include "Molcas.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i, iAtom, ii, ii_, ij, ij_, iMu, iOffD, iOffO, ip_center, ip_Charge, iPert, iPL, ipNBFpA, iScratch_1, &
-                     iScratch_2, iScratch_A, iScratch_B, iT_sets, iT_values, iWarnings, ix, ixnrMP, ixrMP, ixxrMP, iy, j, jAtom, &
-                     ji_, jj, l, mElem, NBAST, nNUC, Num_Warnings, tNuc
+integer(kind=iwp) :: i, iAtom, ii, ii_, ij, ij_, iMu, iOffD, iOffO, iPert, ix, iy, j, jAtom, ji_, jj, l, mElem, Num_Warnings
 real(kind=wp) :: A(3), Acc, B(3)
-character(len=LenIn) :: CNAME(MxAtom)
+integer(kind=iwp), allocatable :: T_sets(:), Warnings(:) !, center(:), Charge(:), NBFpA(:)
+real(kind=wp), allocatable :: T_values(:)
+!character(len=LenIn), allocatable :: CNAME(:)
 real(kind=wp), parameter :: Ref(3) = [Zero, Zero, Zero]
-integer(kind=iwp), external :: iPrintLevel
-logical(kind=iwp), external :: Reduce_Prt
+
+#include "macros.fh"
+unused_var(nSym)
 
 !                                                                      *
 !***********************************************************************
@@ -65,33 +67,31 @@ do iPert=0,nPert-1
   call DGEMM_('N','N',nBas1,nBas1,nBas1,One,Ttot_Inv,nBas1,Temp,nBas1,Zero,Sq_Temp,nBas1)
 
   ! vv
-  call Get_iScalar('Unique atoms',nNUC)
-  call Get_cArray('Unique Atom Names',CNAME,(LenIn)*nNuc)
-
-  call Get_iScalar('LP_nCenter',tNuc)
+  !call Get_iScalar('Unique atoms',nNuc)
+  !call mma_allocate(CNAME,nNuc,label='CNAME')
+  !call Get_cArray('Unique Atom Names',CNAME,(LenIn)*nNuc)
+  !
+  !call Get_iScalar('LP_nCenter',tNuc)
   ! someday this code will use symmetry
-
-  iPL = iPrintLevel(-1)
-  if (Reduce_Prt() .and. (iPL < 3)) iPL = 0
-
-  if ((nSym == 1) .and. (tNuc == nNuc) .and. (iPL >= 2)) then
-
-    NBAST = nBas1
-    call Allocate_iWork(ip_center,NBAST)
-    call Get_iArray('Center Index',iWork(ip_center),NBAST)
-    call Allocate_iWork(ipNBFpA,tNUC)
-    do I=1,tNUC
-      iWork(ipNBFpA+I-1) = 0
-    end do
-    do I=1,NBAST
-      iWork(ipNBFpA+iWork(ip_center+I-1)-1) = iWork(ipNBFpA+iWork(ip_center+I-1)-1)+1
-    end do
-    call Allocate_Work(ip_Charge,tNuc)
-    call Get_dArray('Effective nuclear charge',Work(ip_Charge),tNuc)
-    call Free_Work(ip_Charge)
-    call Free_Work(ipNBFpA)
-    call Free_Work(ip_center)
-  end if
+  !
+  !iPL = iPrintLevel(-1)
+  !if (Reduce_Prt() .and. (iPL < 3)) iPL = 0
+  !
+  !if ((nSym == 1) .and. (tNuc == nNuc) .and. (iPL >= 2)) then
+  !  call mma_allocate(center,nBas1,label='center')
+  !  call Get_iArray('Center Index',center,nBas1)
+  !  call mma_allocate(NBFpA,tNuc,label='NBFpA')
+  !  NBFpA(:) = 0
+  !  do I=1,nBas1
+  !    NBFpA(center(I)) = NBFpA(center(I))+1
+  !  end do
+  !  call mma_allocate(Charge,tNuc,label='Charge')
+  !  call Get_dArray('Effective nuclear charge',Charge,tNuc)
+  !  call mma_deallocate(Charge)
+  !  call mma_deallocate(NBFpA)
+  !  call mma_deallocate(center)
+  !  call mma_deallocate(CNAME)
+  !end if
   ! vv
   iMu = -1
   do l=0,lMax
@@ -208,40 +208,22 @@ call Move_Prop(rMP,EC,lMax,nElem,nAtoms,nPert,nij,iANr,Bond_Threshold)
 ! Modify the expansion centers
 
 Num_Warnings = 0
-call Allocate_Work(iT_values,nij)
-call Allocate_iWork(iT_sets,nij)
-call Allocate_iWork(iWarnings,nij)
-call iCopy(nij,[0],0,iWork(iWarnings),1)
-call iCopy(nij,[0],0,iWork(iT_Sets),1)
-call dCopy_(nij,[Zero],0,Work(iT_Values),1)
+call mma_allocate(T_values,nij,label='T_values')
+call mma_allocate(T_sets,nij,label='T_sets')
+call mma_allocate(Warnings,nij,label='Warnings')
+T_values(:) = Zero
+T_sets(:) = 0
+Warnings(:) = 0
 if (.not. Standard) then
-  call Allocate_Work(iScratch_1,nij*(2*lMax+1))
-  call Allocate_Work(iScratch_2,nij*(2*lMax+1))
-  call Allocate_Work(iScratch_A,3*nij)
-  call Allocate_Work(iScratch_B,3*nij)
-  call Allocate_Work(ixrMP,nij*nElem)
-  call Allocate_Work(ixxrMP,nij*nElem)
-  call Allocate_Work(ixnrMP,nij*nElem)
-
-  call Move_EC(rMP,EC,Work(iScratch_1),Work(iScratch_2),Work(ixrMP),Work(ixxrMP),Work(ixnrMP),lMax,Work(iScratch_A), &
-               Work(iScratch_B),nij,nElem,Coor,nAtoms,Q_Nuc,C_o_C,nPert,Bond_Threshold,iANr,Work(iT_Values),iWork(iT_Sets), &
-               iWork(iWarnings),Num_Warnings,Opt_Method,iPlot)
-
-  call Free_Work(ixnrMP)
-  call Free_Work(ixxrMP)
-  call Free_Work(ixrMP)
-  call Free_Work(iScratch_B)
-  call Free_Work(iScratch_A)
-  call Free_Work(iScratch_2)
-  call Free_Work(iScratch_1)
+  call Move_EC(rMP,EC,lMax,nij,nElem,Coor,nAtoms,Q_Nuc,C_o_C,nPert,Bond_Threshold,iANr,T_Values,T_Sets,Warnings,Num_Warnings, &
+               Opt_Method,iPlot)
 end if
 if ((iPrint >= 1) .or. (iPlot >= 1) .or. (Num_Warnings > 0)) then
-  call Print_T_Values(Work(iT_Values),iWork(iT_Sets),iANr,EC,Bond_Threshold,nAtoms,nij,Standard,iWork(iWarnings),Num_Warnings, &
-                      iPrint)
+  call Print_T_Values(T_Values,T_Sets,iANr,EC,Bond_Threshold,nAtoms,nij,Standard,Warnings,Num_Warnings,iPrint)
 end if
-call Free_iWork(iWarnings)
-call Free_iWork(iT_values)
-call Free_iWork(iT_sets)
+call mma_deallocate(T_values)
+call mma_deallocate(T_sets)
+call mma_deallocate(Warnings)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

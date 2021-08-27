@@ -19,14 +19,13 @@ implicit none
 integer(kind=iwp), intent(in) :: nAt, nB, ipMP, nij, lMax, iPrint
 real(kind=wp), intent(in) :: EC(3,nij), Pot_Expo(nij*2), Pot_Point(nij), Pot_Fac(nij*4)
 logical(kind=iwp), intent(in) :: Diffed(nij*2)
-integer(kind=iwp) :: iA, iComp, iDC, iElP, iOpt, ipEPCo, iPP, irc, iSmLbl, jA, k, kaunt, kauntA, kComp, l, nDens, nEPP, nImprove, &
-                     nShitty
+integer(kind=iwp) :: iA, iComp, iDC, iOpt, ipEPCo, iPP, irc, iSmLbl, jA, k, kaunt, kauntA, kComp, l, nDens, nEPP, nImprove, nShitty
 real(kind=wp) :: chP, CorrCoeff, DeNom, Dif1, Dif2, dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), ElPot_APP, ElPot_MP, ElPot_REF, &
                  ErrAv1, ErrAv2, ErrCorr, ErrDe1, ErrDe2, ErrMax1, ErrMax2, ErrRe1, ErrRe2, ErrVar1, ErrVar2, Expo(4), PImp, PP, &
                  PShi, r, rinv, x, y, z
 logical(kind=iwp) :: D1, D2, Found, Que
 character(len=10) :: OneFile, Label
-real(kind=wp), allocatable :: D1ao(:)
+real(kind=wp), allocatable :: D1ao(:), ElP(:)
 character(len=10), parameter :: DistType(2) = ['Monopole  ','Dipole    ']
 real(kind=wp) :: Ddot_, ElPot
 #include "WrkSpc.fh"
@@ -102,7 +101,7 @@ if (Que) then
     call Abend()
   end if
   call Get_D1ao(D1ao,nDens)
-  call GetMem('ElPot','Allo','Real',iElP,nDens+4)
+  call mma_allocate(ElP,nDens+4,label='ElPot')
   if (iPrint >= 2) then
     write(u6,*)
     write(u6,'(A)') ' Electric Potential'
@@ -120,9 +119,9 @@ if (Que) then
     iOpt = 0
     iSmLbl = 0
     iComp = 1
-    call RdOne(irc,iOpt,Label,iComp,Work(iElP),iSmLbl)
-    ElPot_REF = Work(iElP+nDens+3)
-    ElPot_REF = ElPot_REF-Ddot_(nDens,D1ao,1,Work(iElP),1)
+    call RdOne(irc,iOpt,Label,iComp,ElP,iSmLbl)
+    ElPot_REF = ElP(nDens+4)
+    ElPot_REF = ElPot_REF-Ddot_(nDens,D1ao,1,ElP,1)
 
     ! Second, get the approximate electric potential and also the
     ! completely multipole expanded potential.
@@ -222,7 +221,7 @@ if (Que) then
 
   ! Deallocate
 
-  call GetMem('ElPot','Free','Real',iElP,nDens+4)
+  call mma_deallocate(ElP)
   call mma_deallocate(D1ao)
   call GetMem('PotPointCoord','Free','Real',ipEPCo,3*nEPP)
   irc = -1

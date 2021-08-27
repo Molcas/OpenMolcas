@@ -51,11 +51,11 @@ end function C_Ind3
 !
 !   n  nTri_Elem
 !   ------------
-!   0     0 0
-!   1     1 1
-!   2     3 4
-!   3     6 10
-!   4    10 20
+!   0     0
+!   1     1
+!   2     3
+!   3     6
+!   4    10
 pure function nTri_Elem(n)
   integer(kind=iwp) :: nTri_Elem
   integer(kind=iwp), intent(in) :: n

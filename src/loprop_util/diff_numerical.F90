@@ -12,6 +12,7 @@
 subroutine Diff_Numerical(nAt,nB,ipMP,nij,EC,iANr,ip_Ttot,ip_Ttot_Inv,lMax,iTP,dLimmo,Thrs1,Thrs2,nThrs,iPrint,ThrsMul,Pot_Expo, &
                           Pot_Point,Pot_Fac,Diffed)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Three, Ten, Half
 use Definitions, only: wp, iwp
 
@@ -20,12 +21,13 @@ integer(kind=iwp), intent(in) :: nAt, nB, ipMP, nij, iANr(nAt), ip_Ttot, ip_Ttot
 real(kind=wp), intent(in) :: EC(3,nij), dLimmo(2), Thrs1, Thrs2, ThrsMul
 real(kind=wp), intent(out) :: Pot_Expo(nij*2), Pot_Point(nij), Pot_Fac(nij*4)
 logical(kind=iwp), intent(out) :: Diffed(nij*2)
-integer(kind=iwp) :: iAtom, iDC, ij, iK, ip_Center, ipDPick, ipEPCo, iPotte, ipPick, irc, jAtom, k, kaunt, kauntA, kComp, l, &
-                     nAbove, nEPP, nK, nPick
+integer(kind=iwp) :: iAtom, iDC, ij, iK, ipEPCo, irc, jAtom, k, kaunt, kauntA, kComp, l, nAbove, nEPP, nK, nPick
 real(kind=wp) :: A(2), BS, Chi2B, chPoint, dM, dMag, dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), ThrsMul_Clever
 logical(kind=iwp) :: AboveMul(2), AboveThr
 character(len=50) :: UtChar
 character(len=10) :: OneFile
+integer(kind=iwp), allocatable :: Center(:), Pick(:)
+real(kind=wp), allocatable :: DPick(:), Potte(:)
 real(kind=wp), external :: vdwRad
 #include "WrkSpc.fh"
 
@@ -33,10 +35,10 @@ real(kind=wp), external :: vdwRad
 
 write(OneFile,'(A)') 'ONEINT'
 call Diff_Aux1(nEPP,ipEPCo,nB,OneFile)
-call GetMem('BasIndCent','Allo','Inte',ip_Center,nB)
-call Get_iArray('Center Index',iWork(ip_Center),nB)
-call GetMem('PickPoints','Allo','Inte',ipPick,nEPP)
-call GetMem('DistPick','Allo','Real',ipDPick,nEPP)
+call mma_allocate(Center,nB,label='BasIndCent')
+call Get_iArray('Center Index',Center,nB)
+call mma_allocate(Pick,nEPP,label='PickPoints')
+call mma_allocate(DPick,nEPP,label='DistPick')
 
 !-- Do a 'clever' determination of the threshold for the multipole magnitude.
 
@@ -91,25 +93,24 @@ do iAtom=1,nAt
 
       !BS = Half*(Bragg_Slater(iANr(iAtom))+Bragg_Slater(iANr(jAtom)))
       BS = Half*(vdWRad(iANr(iAtom))+vdWRad(iANr(jAtom)))
-      call PickPoints(nPick,ipPick,ipDPick,nEPP,ipEPCo,EC(1,ij),dLimmo,BS)
+      call PickPoints(nPick,Pick,DPick,nEPP,ipEPCo,EC(1,ij),dLimmo,BS)
 
       ! Compute the true potential from the density assigned to this centre.
 
-      call GetMem('Potential','Allo','Real',iPotte,nPick)
-      call EPotPoint(iPotte,nPick,ipPick,ipDPick,ip_Ttot,ip_Ttot_Inv,iANr(iAtom),nB,iAtom,jAtom,ip_Center)
+      call mma_allocate(Potte,nPick,label='Potential')
+      call EPotPoint(Potte,nPick,Pick,DPick,ip_Ttot,ip_Ttot_Inv,iANr(iAtom),nB,iAtom,jAtom,Center)
 
       ! Print the true potential for given centre if requested.
 
       if (iPrint >= 5) then
         write(UtChar,'(A,2I3)') 'Partial density potential, centre',iAtom,jAtom
-        call RecPrt(UtChar,' ',Work(iPotte),nPick,1)
+        call RecPrt(UtChar,' ',Potte,nPick,1)
       end if
 
       ! All hail to the chiefs, i.e. Levenberg and Marquardt.
 
-      call LevMarquart(iPotte,nPick,ipPick,ipEPCo,EC(1,ij),dMullig,lMax,A,iAtom,jAtom,chPoint,Thrs1,Thrs2,nThrs,Chi2B,iPrint, &
-                       AboveMul)
-      call GetMem('Potential','Free','Real',iPotte,nPick)
+      call LevMarquart(Potte,nPick,Pick,ipEPCo,EC(1,ij),dMullig,lMax,A,iAtom,jAtom,chPoint,Thrs1,Thrs2,nThrs,Chi2B,iPrint,AboveMul)
+      call mma_deallocate(Potte)
     end if
 
     ! Store things for later.
@@ -143,9 +144,9 @@ end do
 
 ! Deallocations.
 
-call GetMem('BasIndCent','Free','Inte',ip_Center,nB)
-call GetMem('PickPoints','Free','Inte',ipPick,nEPP)
-call GetMem('DistPick','Free','Real',ipDPick,nEPP)
+call mma_deallocate(Center)
+call mma_deallocate(Pick)
+call mma_deallocate(DPick)
 call GetMem('PotPointCoord','Free','Real',ipEPCo,3*nEPP)
 irc = -1
 call ClsOne(irc,0)

@@ -11,20 +11,20 @@
 
 subroutine LoProp_Print(rMP,nij,nElem,nAtoms,Q_Nuc,LblCnt,lSave)
 
-use Constants, only: One
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp), intent(in) :: nij, nElem, nAtoms
 real(kind=wp), intent(in) :: rMP(nij,nElem), Q_Nuc(nAtoms)
 character(len=LenIn4), intent(in) :: LblCnt(nAtoms)
 logical(kind=iwp), intent(in) :: lSave
-integer(kind=iwp) :: i, iAtom, iEnd, ij, Inc, iPL, ipLPChg, iSt, mAtoms
+integer(kind=iwp) :: i, iAtom, iEnd, ij, Inc, iPL, iSt, mAtoms
 real(kind=wp) :: E_Charge(MxAtom), Q_Charge(MxAtom)
 character(len=LenIn) :: Lbl(MxAtom)
 character(len=120) :: Banner_Line(3)
+real(kind=wp), allocatable :: LPChg(:)
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt
 
@@ -69,11 +69,10 @@ do iAtom=1,nAtoms
   end if
 end do
 if (lSave) then
-  call GetMem('LoProp Chg','Allo','Real',ipLPChg,mAtoms)
-  call dCopy_(mAtoms,Q_Charge,1,Work(ipLPChg),1)
-  call daxpy_(mAtoms,One,E_Charge,1,Work(ipLPChg),1)
-  call Put_dArray('LoProp Charge',Work(ipLPChg),mAtoms)
-  call GetMem('LoProp Chg','Free','Real',ipLPChg,mAtoms)
+  call mma_allocate(LPChg,mAtoms,label='LoProp Chg')
+  LPChg(:) = Q_Charge(1:mAtoms)+E_Charge(1:mAtoms)
+  call Put_dArray('LoProp Charge',LPChg,mAtoms)
+  call mma_deallocate(LPChg)
 end if
 
 ! Print out the stuff!

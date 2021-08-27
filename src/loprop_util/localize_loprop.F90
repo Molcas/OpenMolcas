@@ -44,6 +44,7 @@ subroutine Localize_LoProp(Ttot,Ttot_Inv,nBas,SMatrix,iCenter,iType)
 !***********************************************************************
 !                                                                      *
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -51,48 +52,48 @@ implicit none
 integer(kind=iwp), intent(in) :: nBas, iCenter(nBas), iType(nBas)
 real(kind=wp), intent(out) :: Ttot(nBas,nBas), Ttot_Inv(nBas,nBas)
 real(kind=wp), intent(inout) :: SMatrix(nBas,nBas)
-integer(kind=iwp) :: iBas, IndType(7), ip_S, ip_Save, ip_T1, ip_T2, ip_T3, ip_T4, ip_tmp, ipE, iUHF, LuOut, nOcc, nSym
+integer(kind=iwp) :: iBas, IndType(7), iUHF, LuOut, nOcc, nSym
 character(len=128) :: OrbName
 character(len=80) :: Note
 character(len=6) :: Filename
+real(kind=wp), allocatable :: E(:), S(:,:), SSave(:,:),T1(:,:), T2(:,:), T3(:,:), T4(:,:), tmp(:,:)
 integer(kind=iwp), parameter :: Occ = 1, Vir = 0
-#include "WrkSpc.fh"
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Allocate temporary memory
 
-call Allocate_Work(ip_T1,nBas**2)
-call Allocate_Work(ip_T2,nBas**2)
-call Allocate_Work(ip_T3,nBas**2)
-call Allocate_Work(ip_T4,nBas**2)
-call Allocate_Work(ip_tmp,nBas**2)
-call Allocate_Work(ip_S,nBas**2)
-call Allocate_Work(ip_Save,nBas**2)
+call mma_allocate(T1,nBas,nBas,label='T1')
+call mma_allocate(T2,nBas,nBas,label='T2')
+call mma_allocate(T3,nBas,nBas,label='T3')
+call mma_allocate(T4,nBas,nBas,label='T4')
+call mma_allocate(tmp,nBas,nBas,label='tmp')
+call mma_allocate(S,nBas,nBas,label='S')
+call mma_allocate(SSave,nBas,nBas,label='SSave')
 
 ! Save S because GS will destroy it!
 
-call dcopy_(nBas**2,SMatrix,1,Work(ip_S),1)
+S(:,:) = SMatrix(:,:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Step 1. GS S0 ->S1
 
-call dcopy_(nBas**2,[Zero],0,Work(ip_T1),1)
-call dcopy_(nBas,[One],0,Work(ip_T1),nBas+1)
+T1(:,:) = Zero
+call dcopy_(nBas,[One],0,T1,nBas+1)
 
-call Step1(iCenter,Work(ip_S),nBas,Work(ip_T1),iType,SMatrix,Work(ip_tmp))
+call Step1(iCenter,S,nBas,T1,iType,SMatrix,tmp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Step 2. LO S1 ->S2
 
-call dcopy_(nBas**2,Work(ip_S),1,Work(ip_Save),1)
-call dcopy_(nBas**2,[Zero],0,Work(ip_T2),1)
-call dcopy_(nBas,[One],0,Work(ip_T2),nBas+1)
+SSave(:,:) = S(:,:)
+T2(:,:) = Zero
+call dcopy_(nBas,[One],0,T2,nBas+1)
 
-call Step2(iCenter,Work(ip_S),nBas,Work(ip_T2),iType,Work(ip_Save),Work(ip_tmp))
+call Step2(iCenter,S,nBas,T2,iType,SSave,tmp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -100,7 +101,7 @@ call Step2(iCenter,Work(ip_S),nBas,Work(ip_T2),iType,Work(ip_Save),Work(ip_tmp))
 !
 ! Step 3. GS S2 ->S3
 
-call Step3(iCenter,Work(ip_S),nBas,Work(ip_T3),iType)
+call Step3(iCenter,S,nBas,T3,iType)
 
 !                                                                      *
 !***********************************************************************
@@ -109,7 +110,7 @@ call Step3(iCenter,Work(ip_S),nBas,Work(ip_T3),iType)
 !
 ! Step 4. LO S3 ->S4
 
-call Step4(Work(ip_S),nBas,Work(ip_T4),iType)
+call Step4(S,nBas,T4,iType)
 
 !                                                                      *
 !***********************************************************************
@@ -120,7 +121,7 @@ call Step4(Work(ip_S),nBas,Work(ip_T4),iType)
 !
 ! ...now T is T1*T2*T3*T4
 
-call Ttotal(Work(ip_T1),Work(ip_T2),Work(ip_T3),Work(ip_T4),Ttot,Ttot_Inv,nBas)
+call Ttotal(T1,T2,T3,T4,Ttot,Ttot_Inv,nBas)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -128,21 +129,21 @@ call Ttotal(Work(ip_T1),Work(ip_T2),Work(ip_T3),Work(ip_T4),Ttot,Ttot_Inv,nBas)
 ! matrix and you should get unit matrix
 !
 !call RecPrt('Old S',' ',SMatrix,nBas,nBas)
-!call xxDGeMul(SMatrix,nBas,'N',Ttot,nBas,'N',Work(ip_tmp),nBas,nBas,nBas,nBas)
-!call xxDGeMul(Ttot,nBas,'T',Work(ip_tmp),nBas,'N',SMatrix,nBas,nBas,nBas,nBas)
+!call xxDGeMul(SMatrix,nBas,'N',Ttot,nBas,'N',tmp,nBas,nBas,nBas,nBas)
+!call xxDGeMul(Ttot,nBas,'T',tmp,nBas,'N',SMatrix,nBas,nBas,nBas,nBas)
 !call RecPrt('New S',' ',SMatrix,nBas,nBas)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Dealloctate memory
 
-call Free_Work(ip_Save)
-call Free_Work(ip_S)
-call Free_Work(ip_tmp)
-call Free_Work(ip_T4)
-call Free_Work(ip_T3)
-call Free_Work(ip_T2)
-call Free_Work(ip_T1)
+call mma_deallocate(T1)
+call mma_deallocate(T2)
+call mma_deallocate(T3)
+call mma_deallocate(T4)
+call mma_deallocate(tmp)
+call mma_deallocate(S)
+call mma_deallocate(SSave)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -161,15 +162,15 @@ IndType(5) = 0
 IndType(6) = nBas-nOcc
 IndType(7) = 0
 
-call Allocate_Work(ipE,nBas)
-call FZero(Work(ipE),nBas)
+call mma_allocate(E,nBas,label='E')
+E(:) = Zero
 OrbName = 'LPRORB'
 LuOut = 20
 iUHF = 0
 nSym = 1
 Note = 'LoProp localized orbitals'
-call WrVec_(OrbName,LuOut,'COEI',iUHF,nSym,[nBas],[nBas],TTot,[Zero],Work(ipE),[Zero],Work(ipE),[Zero],IndType,Note,0)
-call Free_Work(ipE)
+call WrVec_(OrbName,LuOut,'COEI',iUHF,nSym,[nBas],[nBas],TTot,[Zero],E,[Zero],E,[Zero],IndType,Note,0)
+call mma_deallocate(E)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
