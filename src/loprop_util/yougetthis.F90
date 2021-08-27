@@ -9,13 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine YouGetThis(nAt,EC,Pot_Expo,Pot_Point,Pot_Fac,Diffed,ipMP,lMax,lMaxF,nij,LuYou)
+subroutine YouGetThis(EC,Pot_Expo,Pot_Point,Pot_Fac,Diffed,ipMP,lMax,lMaxF,nij,LuYou)
 
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nAt, ipMP, lMax, lMaxF, nij, LuYou
+integer(kind=iwp), intent(in) :: ipMP, lMax, lMaxF, nij, LuYou
 real(kind=wp), intent(in) :: EC(3,nij), Pot_Expo(nij*4), Pot_Point(nij), Pot_Fac(nij*4)
 logical(kind=iwp), intent(in) :: Diffed(nij*4)
 integer(kind=iwp) :: i, k, kauntA, kk, l, nS, nT
@@ -74,7 +74,5 @@ end do
 105 format(3(F20.14))
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nAt)
 
 end subroutine YouGetThis

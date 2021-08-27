@@ -113,7 +113,7 @@ if (XHole) call Compute_XHole_Int(nBas,nSym,ipXHole2,dMolExpec,nSize)
 
 if (.not. NoField) then
   ! Read the one-electron hamiltonian.
-  call Read_h0(nSize,nBas(1),ip_h0,Restart)
+  call Read_h0(nSize,ip_h0,Restart)
   do iPert=1,6
     i_f = (iPert+1)/2
     Dlt = -Dlt
@@ -146,7 +146,7 @@ call mma_allocate(sq_temp,nTemp,label='sq_temp')
 call mma_allocate(EC,3,nij,label='EC')
 
 call Local_Properties(Work(ipC),nAtoms,ip_sq_mu,mElem,sq_temp,Origin,iWork(ip_center),Ttot_Inv,tmp,nij,nPert,ip_D,MP,lMax,MPq,CoC, &
-                      EC,iWork(ip_ANr),Standard,nBas1,nTemp,Work(ipQ_Nuc),Bond_Threshold,Utility,Opt_Method,iPlot,iPrint,nSym)
+                      EC,iWork(ip_ANr),Standard,nBas1,nTemp,Work(ipQ_Nuc),Bond_Threshold,Opt_Method,iPlot,iPrint,nSym)
 
 !-- If XHole integrals are available, localize them. Most unfortunate,
 !   the local_properties routine is focused on multipole moments,
@@ -154,8 +154,7 @@ call Local_Properties(Work(ipC),nAtoms,ip_sq_mu,mElem,sq_temp,Origin,iWork(ip_ce
 !   edit the local_properties routine.
 if (XHole) then
   call mma_allocate(XHLoc2,nij,label='XHLoc2')
-  call Local_Xhole(ipXHole2,dMolExpec,nAtoms,nBas1,nTemp,iWork(ip_center),Ttot,Ttot_Inv,Work(ipC),nij,EC,iWork(ip_ANr), &
-                   Bond_Threshold,iPrint,XHLoc2)
+  call Local_Xhole(ipXHole2,nAtoms,nBas1,nTemp,iWork(ip_center),Ttot,Ttot_Inv,Work(ipC),nij,EC,iWork(ip_ANr),Bond_Threshold,XHLoc2)
 else
   call mma_allocate(XHLoc2,0,label='XHLoc2')
 end if
@@ -174,8 +173,8 @@ if (Diffuse(1)) then
   ip_Ttot = ip_of_Work(Ttot(1,1))
   ip_Ttot_Inv = ip_of_Work(Ttot_Inv(1,1))
   ip_EC = ip_of_Work(EC(1,1))
-  call Diff_MotherGoose(Diffuse,nAtoms,nBas1,ipMPp,ipC,nij,ip_EC,ip_ANr,ip_Ttot,ip_Ttot_Inv,lMax,iTP,dLimmo,Thrs1,Thrs2,nThrs, &
-                        iPrint,ThrsMul,LuYou)
+  call Diff_MotherGoose(Diffuse,nAtoms,nBas1,ipMPp,nij,ip_EC,ip_ANr,ip_Ttot,ip_Ttot_Inv,lMax,iTP,dLimmo,Thrs1,Thrs2,nThrs,iPrint, &
+                        ThrsMul,LuYou)
   close(LuYou)
   call mma_deallocate(TP)
   call mma_deallocate(MPp)

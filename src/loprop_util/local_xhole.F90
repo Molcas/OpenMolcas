@@ -9,15 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Local_XHole(ipXHole2,dMolExpec,nAtoms,nBas1,nTemp,iCenter,Ttot,Ttot_Inv,Coor,nij,EC,iANr,Bond_Threshold,iPrint,XHLoc2)
+subroutine Local_XHole(ipXHole2,nAtoms,nBas1,nTemp,iCenter,Ttot,Ttot_Inv,Coor,nij,EC,iANr,Bond_Threshold,XHLoc2)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: ipXHole2, nAtoms, nBas1, nTemp, iCenter(nBas1), nij, iANr(nAtoms), iPrint
-real(kind=wp), intent(in) :: dMolExpec, Ttot(nTemp), Ttot_Inv(nTemp), Coor(3,nAtoms), EC(3,nij), Bond_Threshold
+integer(kind=iwp), intent(in) :: ipXHole2, nAtoms, nBas1, nTemp, iCenter(nBas1), nij, iANr(nAtoms)
+real(kind=wp), intent(in) :: Ttot(nTemp), Ttot_Inv(nTemp), Coor(3,nAtoms), EC(3,nij), Bond_Threshold
 real(kind=wp), intent(out) :: XHLoc2(nij)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iAtom, ij, iOffO, j, jAtom, nDenno
@@ -81,10 +81,5 @@ call Move_XHole(d2Loc,EC,nAtoms,nij,iANr,Bond_Threshold)
 call dcopy_(nij,d2Loc,1,XHLoc2,1) !IFG XHLoc2(out)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real(dMolExpec)
-  call Unused_integer(iPrint)
-end if
 
 end subroutine Local_XHole

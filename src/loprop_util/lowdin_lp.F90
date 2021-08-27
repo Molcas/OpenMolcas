@@ -33,7 +33,7 @@ end do
 call dcopy_(nDim**2,[Zero],0,Work(ip_B),1)
 call dcopy_(nDim,[One],0,Work(ip_B),nDim+1)
 
-call Lowdin_LP_(S,Work(ip_S),C,nDim,nDim,Work(ip_B))
+call Lowdin_LP_(Work(ip_S),C,nDim,Work(ip_B))
 
 call Free_Work(ip_B)
 call Free_Work(ip_S)

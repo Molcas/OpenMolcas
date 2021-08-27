@@ -21,6 +21,9 @@ integer(kind=iwp) :: ibas, iOrb, iStart, Jorb, Korb
 real(kind=wp) :: A, F
 integer(kind=iwp), parameter :: Occ = 1, Vir = 0
 
+#include "macros.fh"
+unused_var(Center)
+
 !write(u6,*) 'nDim,nDim',nDim,nDim
 !write(u6,*) Center
 do iOrb=1,nDim
@@ -59,7 +62,5 @@ do iOrb=1,nDim
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(Center)
 
 end subroutine GramSchmidt

@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine Local_Properties(Coor,nAtoms,ip_sq_Mu,nElem,Sq_Temp,Origin,iCenter,Ttot_Inv,Temp,nij,nPert,ip_D,rMP,lMax,rMPq,C_o_C,EC, &
-                            iANr,Standard,nBas1,nTemp,Q_Nuc,Bond_Threshold,Utility,Opt_Method,iPlot,iPrint,nSym)
+                            iANr,Standard,nBas1,nTemp,Q_Nuc,Bond_Threshold,Opt_Method,iPlot,iPrint,nSym)
 
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
@@ -21,7 +21,7 @@ integer(kind=iwp), intent(in) :: nAtoms, nElem, ip_sq_Mu(0:nElem-1), nBas1, iCen
 real(kind=wp), intent(in) ::  Coor(3,nAtoms), Origin(3,0:lMax), Ttot_Inv(nBas1**2), C_o_C(3), Q_Nuc(nAtoms), Bond_Threshold
 real(kind=wp), intent(out) ::  Sq_Temp(nTemp), Temp(nTemp)
 real(kind=wp), intent(inout) :: rMP(nij,0:nElem-1,0:nPert-1), rMPq(0:nElem-1), EC(3,nij)
-logical(kind=iwp), intent(in) :: Standard, Utility
+logical(kind=iwp), intent(in) :: Standard
 character(len=12), intent(in) :: Opt_Method
 #include "Molcas.fh"
 #include "WrkSpc.fh"
@@ -225,7 +225,7 @@ if (.not. Standard) then
 
   call Move_EC(rMP,EC,Work(iScratch_1),Work(iScratch_2),Work(ixrMP),Work(ixxrMP),Work(ixnrMP),lMax,Work(iScratch_A), &
                Work(iScratch_B),nij,nElem,Coor,nAtoms,Q_Nuc,C_o_C,nPert,Bond_Threshold,iANr,Work(iT_Values),iWork(iT_Sets), &
-               iWork(iWarnings),Num_Warnings,Opt_Method,iPlot,iPrint)
+               iWork(iWarnings),Num_Warnings,Opt_Method,iPlot)
 
   call Free_Work(ixnrMP)
   call Free_Work(ixxrMP)
@@ -253,7 +253,5 @@ call xSpot('Exit  Local_Properties')
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_logical(Utility)
 
 end subroutine Local_Properties

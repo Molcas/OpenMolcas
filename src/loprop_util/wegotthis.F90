@@ -9,14 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine WeGotThis(nAt,nB,ipMP,ipC,nij,EC,iANr,ipT,ipTi,lMax,iTP,iPrint,Pot_Expo,Pot_Point,Pot_Fac,Diffed)
+subroutine WeGotThis(nAt,nB,ipMP,nij,EC,lMax,iPrint,Pot_Expo,Pot_Point,Pot_Fac,Diffed)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nAt, nB, ipMP, ipC, nij, iANr(nAt), ipT, ipTi, lMax, iTP, iPrint
+integer(kind=iwp), intent(in) :: nAt, nB, ipMP, nij, lMax, iPrint
 real(kind=wp), intent(in) :: EC(3,nij), Pot_Expo(nij*2), Pot_Point(nij), Pot_Fac(nij*4)
 logical(kind=iwp), intent(in) :: Diffed(nij*2)
 integer(kind=iwp) :: iA, iComp, iDC, iElP, iOpt, ipEPCo, iPP, irc, iSmLbl, jA, k, kaunt, kauntA, kComp, l, nDens, nEPP, nImprove, &
@@ -235,13 +235,5 @@ end if
 444 format(A,F12.8,A)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(ipC)
-  call Unused_integer_array(iANr)
-  call Unused_integer(ipT)
-  call Unused_integer(ipTi)
-  call Unused_integer(iTP)
-end if
 
 end subroutine WeGotThis

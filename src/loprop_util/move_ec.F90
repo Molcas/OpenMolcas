@@ -10,14 +10,14 @@
 !***********************************************************************
 
 subroutine Move_EC(rMP,EC,Scratch_New,Scratch_Org,xrMP,xxrMP,xnrMP,lMax,A,B,nij,nElem,Coor,nAtoms,Q_Nuc,C_o_C,nPert, &
-                   Bond_Threshold,iANr,T_Values,iT_Sets,iWarnings,Num_Warnings,Opt_Method,iPlot,iPrint)
+                   Bond_Threshold,iANr,T_Values,iT_Sets,iWarnings,Num_Warnings,Opt_Method,iPlot)
 
 use Real_Spherical, only: Sphere, Sphere_Free
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: lMax, nij, nElem, nAtoms, nPert, iANr(nAtoms), iPlot, iPrint
+integer(kind=iwp), intent(in) :: lMax, nij, nElem, nAtoms, nPert, iANr(nAtoms), iPlot
 real(kind=wp), intent(inout) :: rMP(nij,0:nElem-1,0:nPert-1)
 real(kind=wp), intent(in) :: EC(3,nij), Coor(3,nAtoms), Q_Nuc(nAtoms), C_o_C(3), Bond_Threshold
 real(kind=wp), intent(out) :: Scratch_New(nij*(2+lMax+1)), Scratch_Org(nij*(2+lMax+1)), xrMP(nij,nElem), xxrMP(nij,nElem), &
@@ -109,7 +109,5 @@ call dcopy_(3*nij,B,1,EC,1)
 call Sphere_Free()
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(iPrint)
 
 end subroutine Move_EC

@@ -9,13 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Diff_ThrsMul(ipMP,ThrsMul,ThrsMul_Clever,nAt,nij,lMax)
+subroutine Diff_ThrsMul(ipMP,ThrsMul,ThrsMul_Clever,nAt,nij)
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: ipMP, nAt, nij, lMax
+integer(kind=iwp), intent(in) :: ipMP, nAt, nij
 real(kind=wp), intent(in) :: ThrsMul
 real(kind=wp), intent(out) :: ThrsMul_Clever
 integer(kind=iwp) :: iAtom, jAtom, k, kaunt, kauntA, kComp, l
@@ -42,7 +42,5 @@ end do
 ThrsMul_Clever = dMMax*ThrsMul
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lMax)
 
 end subroutine Diff_ThrsMul

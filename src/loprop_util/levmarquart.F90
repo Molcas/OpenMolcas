@@ -9,13 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine LevMarquart(iPotte,nPick,ipPick,nEPP,ipEPCo,Coo,dMullig,lMax,A,iAtom,jAtom,chP,Thrs1,Thrs2,nThrs,Chi2B,iPrint,AboveMul)
+subroutine LevMarquart(iPotte,nPick,ipPick,ipEPCo,Coo,dMullig,lMax,A,iAtom,jAtom,chP,Thrs1,Thrs2,nThrs,Chi2B,iPrint,AboveMul)
 
 use Constants, only: Zero, One, Two, Three, Ten, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iPotte, nPick, ipPick, nEPP, ipEPCo, lMax, iAtom, jAtom, nThrs, iPrint
+integer(kind=iwp), intent(in) :: iPotte, nPick, ipPick, ipEPCo, lMax, iAtom, jAtom, nThrs, iPrint
 real(kind=wp), intent(in) :: Coo(3), dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), chP, Thrs1, Thrs2
 real(kind=wp), intent(out) :: A(2), Chi2B
 logical(kind=iwp), intent(inout) :: AboveMul(2)
@@ -133,7 +133,7 @@ do
 
   ! Solve the linear system to get step, dA.
 
-  call SolveA(AlfMat,AlfMatI,dLambda,dMullig,lMax,ARaw,BRaw,dA,iPrint,AboveMul,ddUpper,ddLower)
+  call SolveA(AlfMat,AlfMatI,dLambda,ARaw,BRaw,dA,iPrint,AboveMul,ddUpper,ddLower)
 
   ! Make a screening of dA: if the maximal or minimal exponent
   ! has been reached, but the optimization still pushes on, screen
@@ -254,7 +254,5 @@ end if
 ! And yes, there is an end here as well.
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nEPP)
 
 end subroutine LevMarquart

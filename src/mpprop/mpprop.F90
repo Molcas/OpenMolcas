@@ -19,9 +19,9 @@ use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
-integer(kind=iwp) :: i, iComp, iDum(1), iErr, iMltpl, iOff1, iOff2, iopt, ip_ANr, ip_Coor, ip_EC, ip_Ttot, ip_Ttot_Inv, ipMP, &
-                     iPol, iPrint, irc, iSmLbl, iSym, iTP, iWarn, iWFtype, Lu_, LuYou, nAtoms, nBas(8), nCenters, nComp, n_Int, &
-                     nIrrep, nMltPl, nOcc, NOCOB, nOcOb_b, nOrbi, nPrim(8), nSize, nSum, nSym, nThrs, nTM, nVec, nVec_p
+integer(kind=iwp) :: i, iComp, iDum(1), iErr, iMltpl, iOff1, iOff2, iopt, ip_ANr, ip_EC, ip_Ttot, ip_Ttot_Inv, ipMP, iPol, iPrint, &
+                     irc, iSmLbl, iSym, iTP, iWarn, iWFtype, Lu_, LuYou, nAtoms, nBas(8), nCenters, nComp, n_Int, nIrrep, nMltPl, &
+                     nOcc, NOCOB, nOcOb_b, nOrbi, nPrim(8), nSize, nSum, nSym, nThrs, nTM, nVec, nVec_p
 real(kind=wp) :: dLimmo(2), Thrs1, Thrs2, ThrsMul
 character(len=6) :: FName
 character(len=8) :: Label, MemLabel
@@ -510,14 +510,13 @@ if (Diffuse(1)) then
   LuYou = IsFreeUnit(81)
   call OpnFl('DIFFPR',LuYou,Exists)
   ip_ANr = ip_of_iWork(ANr(1))
-  ip_Coor = ip_of_Work(Coor(1,1))
   ip_Ttot = ip_of_Work(Ttot(1,1))
   ip_Ttot_Inv = ip_of_Work(Ttot_Inv(1,1))
   ipMP = ip_of_Work(MP(1,1))
   ip_EC = ip_of_Work(EC(1,1))
   iTP = ip_of_Work(TP(1))
-  call Diff_MotherGoose(Diffuse,nAtoms,nBas(1),ipMP,ip_Coor,nCenters,ip_EC,ip_ANr,ip_Ttot,ip_Ttot_Inv,nMltPl,iTP,dLimmo,Thrs1, &
-                        Thrs2,nThrs,iPrint,ThrsMul,LuYou)
+  call Diff_MotherGoose(Diffuse,nAtoms,nBas(1),ipMP,nCenters,ip_EC,ip_ANr,ip_Ttot,ip_Ttot_Inv,nMltPl,iTP,dLimmo,Thrs1,Thrs2,nThrs, &
+                        iPrint,ThrsMul,LuYou)
   close(LuYou)
   call mma_deallocate(ANr)
   call mma_deallocate(Ttot)

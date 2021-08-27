@@ -9,14 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Diff_MotherGoose(Diffuse,nAt,nB,ipMP,ipC,nij,ip_EC,ip_ANr,ip_Ttot,ip_Ttot_Inv,lMax,iTP,dLimmo,Thrs1,Thrs2,nThrs,iPrint, &
+subroutine Diff_MotherGoose(Diffuse,nAt,nB,ipMP,nij,ip_EC,ip_ANr,ip_Ttot,ip_Ttot_Inv,lMax,iTP,dLimmo,Thrs1,Thrs2,nThrs,iPrint, &
                             ThrsMul,LuYou)
 
 use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp), intent(in) :: Diffuse(3)
-integer(kind=iwp), intent(in) :: nAt, nB, ipMP, ipC, nij, ip_EC, ip_ANr, ip_Ttot, ip_Ttot_Inv, lMax, iTP, nThrs, iPrint, LuYou
+integer(kind=iwp), intent(in) :: nAt, nB, ipMP, nij, ip_EC, ip_ANr, ip_Ttot, ip_Ttot_Inv, lMax, iTP, nThrs, iPrint, LuYou
 real(kind=wp), intent(in) :: dLimmo(2), Thrs1, Thrs2, ThrsMul
 integer(kind=iwp) :: lMaxF
 real(kind=wp) :: Pot_Expo(nij*2), Pot_Fac(nij*4), Pot_Point(nij)
@@ -39,7 +39,7 @@ if (Diffuse(2)) then
   write(u6,992) '           Min. decreasing steps   :',nThrs
   write(u6,'(A)') '        Local limit factors'
   write(u6,993) '           Low:',dLimmo(1),'     High:',dLimmo(2)
-  call Diff_Numerical(nAt,nB,ipMP,ipC,nij,Work(ip_EC),iWork(ip_ANr),ip_Ttot,ip_Ttot_Inv,lMax,iTP,dLimmo,Thrs1,Thrs2,nThrs,iPrint, &
+  call Diff_Numerical(nAt,nB,ipMP,nij,Work(ip_EC),iWork(ip_ANr),ip_Ttot,ip_Ttot_Inv,lMax,iTP,dLimmo,Thrs1,Thrs2,nThrs,iPrint, &
                       ThrsMul,Pot_Expo,Pot_Point,Pot_Fac,Diffed)
 elseif (Diffuse(3)) then
   write(u6,*)
@@ -52,12 +52,12 @@ end if
 
 ! Print, analyze uzw, the result of the diffuse stuff.
 
-call WeGotThis(nAt,nB,ipMP,ipC,nij,Work(ip_EC),iWork(ip_ANr),ip_Ttot,ip_Ttot_Inv,lMax,iTP,iPrint,Pot_Expo,Pot_Point,Pot_Fac,Diffed)
+call WeGotThis(nAt,nB,ipMP,nij,Work(ip_EC),lMax,iPrint,Pot_Expo,Pot_Point,Pot_Fac,Diffed)
 
 ! Generate file with information for other programs.
 
 lMaxF = 1
-call YouGetThis(nAt,Work(ip_EC),Pot_Expo,Pot_Point,Pot_Fac,Diffed,ipMP,lMax,lMaxF,nij,LuYou)
+call YouGetThis(Work(ip_EC),Pot_Expo,Pot_Point,Pot_Fac,Diffed,ipMP,lMax,lMaxF,nij,LuYou)
 
 return
 

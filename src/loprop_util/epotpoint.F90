@@ -9,14 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine EPotPoint(iPotte,nPick,ipPick,ipDPick,nEPP,ipT,ipTi,NucNr,nB,iAtom,jAtom,ip_Center)
+subroutine EPotPoint(iPotte,nPick,ipPick,ipDPick,ipT,ipTi,NucNr,nB,iAtom,jAtom,ip_Center)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iPotte, nPick, ipPick, ipDPick, nEPP, ipT, ipTi, NucNr, nB, iAtom, jAtom, ip_Center
+integer(kind=iwp), intent(in) :: iPotte, nPick, ipPick, ipDPick, ipT, ipTi, NucNr, nB, iAtom, jAtom, ip_Center
 integer(kind=iwp) :: iB1, iB2, iC1, iC2, iComp, iDSq, iDTrans, iOpt, iPo, iPoint, iPP, iPSq, iPTr, irc, iSmLbl, iTEMP, kaunter, &
                      nB2, nB22, nDens
 real(kind=wp) :: dEx
@@ -100,7 +100,5 @@ call GetMem('PointsSq','Free','Real',iPSq,nB22)
 call GetMem('PointsTr','Free','Real',iPTr,nB22)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nEPP)
 
 end subroutine EPotPoint

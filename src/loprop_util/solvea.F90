@@ -9,15 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SolveA(AlfMat,AlfMatI,dLambda,dMullig,lMax,ARaw,BRaw,dA,iPrint,AboveMul,ddUpper,ddLower)
+subroutine SolveA(AlfMat,AlfMatI,dLambda,ARaw,BRaw,dA,iPrint,AboveMul,ddUpper,ddLower)
 
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(out) :: AlfMat(4), AlfMatI(4), dA(2)
-integer(kind=iwp), intent(in) :: lMax, iPrint
-real(kind=wp), intent(in) :: dLambda, dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), ARaw(2,2), BRaw(2), ddUpper, ddLower
+integer(kind=iwp), intent(in) :: iPrint
+real(kind=wp), intent(in) :: dLambda, ARaw(2,2), BRaw(2), ddUpper, ddLower
 logical(kind=iwp), intent(in) :: AboveMul(2)
 integer(kind=iwp) :: i, iMull, Ising, j, kaunt, nDim
 real(kind=wp) :: Beta(2), Det, dtA(2)
@@ -92,7 +92,5 @@ do i=1,2
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(dMullig)
 
 end subroutine SolveA

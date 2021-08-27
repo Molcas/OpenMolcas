@@ -9,13 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Find_Dipole_Center(q_A,q_B,Dipole_A,Dipole_B,qn_A,qn_B,R_A,R_B,EC_A,EC_B,EC_AB,t,iPlot)
+subroutine Find_Dipole_Center(q_A,q_B,Dipole_A,Dipole_B,qn_A,qn_B,R_A,R_B,t,iPlot)
 
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), intent(in) :: q_A, q_B, Dipole_A, Dipole_B, qn_A, qn_B, R_A, R_B, EC_A(3), EC_B(3), EC_AB(3)
+real(kind=wp), intent(in) :: q_A, q_B, Dipole_A, Dipole_B, qn_A, qn_B, R_A, R_B
 real(kind=wp), intent(out) :: t
 integer(kind=iwp), intent(in) :: iPlot
 integer(kind=iwp) :: i
@@ -92,11 +92,5 @@ call xflush(u6)
 !?? call xflush(u6)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(EC_A)
-  call Unused_real_array(EC_B)
-  call Unused_real_array(EC_AB)
-end if
 
 end subroutine Find_Dipole_Center

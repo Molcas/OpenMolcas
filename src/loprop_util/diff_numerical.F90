@@ -9,14 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Diff_Numerical(nAt,nB,ipMP,ipC,nij,EC,iANr,ip_Ttot,ip_Ttot_Inv,lMax,iTP,dLimmo,Thrs1,Thrs2,nThrs,iPrint,ThrsMul, &
-                          Pot_Expo,Pot_Point,Pot_Fac,Diffed)
+subroutine Diff_Numerical(nAt,nB,ipMP,nij,EC,iANr,ip_Ttot,ip_Ttot_Inv,lMax,iTP,dLimmo,Thrs1,Thrs2,nThrs,iPrint,ThrsMul,Pot_Expo, &
+                          Pot_Point,Pot_Fac,Diffed)
 
 use Constants, only: Zero, Three, Ten, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nAt, nB, ipMP, ipC, nij, iANr(nAt), ip_Ttot, ip_Ttot_Inv, lMax, iTP, nThrs, iPrint
+integer(kind=iwp), intent(in) :: nAt, nB, ipMP, nij, iANr(nAt), ip_Ttot, ip_Ttot_Inv, lMax, iTP, nThrs, iPrint
 real(kind=wp), intent(in) :: EC(3,nij), dLimmo(2), Thrs1, Thrs2, ThrsMul
 real(kind=wp), intent(out) :: Pot_Expo(nij*2), Pot_Point(nij), Pot_Fac(nij*4)
 logical(kind=iwp), intent(out) :: Diffed(nij*2)
@@ -40,7 +40,7 @@ call GetMem('DistPick','Allo','Real',ipDPick,nEPP)
 
 !-- Do a 'clever' determination of the threshold for the multipole magnitude.
 
-!call Diff_ThrsMul(ipMP,ThrsMul,ThrsMul_Clever,nAt,nij,lMax)
+!call Diff_ThrsMul(ipMP,ThrsMul,ThrsMul_Clever,nAt,nij)
 ThrsMul_Clever = ThrsMul
 
 ! Run a numerical fit for each active centre.
@@ -96,7 +96,7 @@ do iAtom=1,nAt
       ! Compute the true potential from the density assigned to this centre.
 
       call GetMem('Potential','Allo','Real',iPotte,nPick)
-      call EPotPoint(iPotte,nPick,ipPick,ipDPick,nEPP,ip_Ttot,ip_Ttot_Inv,iANr(iAtom),nB,iAtom,jAtom,ip_Center)
+      call EPotPoint(iPotte,nPick,ipPick,ipDPick,ip_Ttot,ip_Ttot_Inv,iANr(iAtom),nB,iAtom,jAtom,ip_Center)
 
       ! Print the true potential for given centre if requested.
 
@@ -107,7 +107,7 @@ do iAtom=1,nAt
 
       ! All hail to the chiefs, i.e. Levenberg and Marquardt.
 
-      call LevMarquart(iPotte,nPick,ipPick,nEPP,ipEPCo,EC(1,ij),dMullig,lMax,A,iAtom,jAtom,chPoint,Thrs1,Thrs2,nThrs,Chi2B,iPrint, &
+      call LevMarquart(iPotte,nPick,ipPick,ipEPCo,EC(1,ij),dMullig,lMax,A,iAtom,jAtom,chPoint,Thrs1,Thrs2,nThrs,Chi2B,iPrint, &
                        AboveMul)
       call GetMem('Potential','Free','Real',iPotte,nPick)
     end if
@@ -151,7 +151,5 @@ irc = -1
 call ClsOne(irc,0)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(ipC)
 
 end subroutine Diff_Numerical

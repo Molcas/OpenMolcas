@@ -9,16 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Lowdin_LP_(S,Eval,C,nDim,nDim2,Blk)
-! S: full-storage overlap matrix (it will be destroyed!) (not true, actually unused)
+subroutine Lowdin_LP_(Eval,C,nDim,Blk)
+! Eval: full-storage overlap (S) matrix (it will be destroyed!)
 ! C: on exit, the S^-1/2 matrix
 
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nDim, nDim2
-real(kind=wp), intent(in) :: S(nDim,nDim)
+integer(kind=iwp), intent(in) :: nDim
 real(kind=wp), intent(inout) :: Eval(nDim*(nDim+1)/2), Blk(nDim,nDim)
 real(kind=wp), intent(out) ::  C(nDim,nDim)
 integer(kind=iwp) :: i, j, k
@@ -76,10 +75,5 @@ return
 
 910 format(/1X,'An eigenvalue of the overlap matrix of the symmetrized Jacobi transf. matrix of ',E13.5,' has been found.'/1X, &
             'This is lower than the allowed threshold of ',E13.5)
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(S)
-  call Unused_integer(nDim2)
-end if
 
 end subroutine Lowdin_LP_

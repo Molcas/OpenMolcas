@@ -42,7 +42,6 @@ logical(kind=iwp), external :: Reduce_Prt
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Utility = .true.
 Utility = .false.
 lSave = ireturn == 0
 ireturn = 99
@@ -139,7 +138,7 @@ if (iPL >= 2) then
 end if
 call Local_Properties(Work(ipC),nAtoms,ip_sq_mu,mElem,Work(ip_sq_temp),Origin,iWork(ip_center),Work(ip_Ttot_Inv),Work(ip_tmp),nij, &
                       nPert,ip_D,Work(ipMP),lMax,Work(ipMPq),CoC,Work(ip_EC),iWork(ip_ANr),Standard,nBas1,nTemp,Work(ipQ_Nuc), &
-                      Bond_Threshold,Utility,Opt_Method,iPlot,iPrint,nSym)
+                      Bond_Threshold,Opt_Method,iPlot,iPrint,nSym)
 
 do i=mElem,1,-1
   call Free_Work(ip_sq_mu(i-1))
