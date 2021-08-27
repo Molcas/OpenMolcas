@@ -31,37 +31,36 @@ do iSym=0,nSym-1
   iOffPj = 1
   do jSym=0,iSym
     ijSym = ieor(iSym,jSym)
-    if (iand(iSyLbl,2**ijSym) == 0) Go To 20
-    if (nBas(iSym)*nBas(jSym) == 0) Go To 30
-    if (iSym == jSym) then
-#     ifdef _DEBUGPRINT_
-      write(u6,*) 'Diagonal Block'
-      call RecPrt('SOInt',' ',SOInt(iOffSO),nBas(iSym),nBas(iSym))
-#     endif
+    if (iand(iSyLbl,2**ijSym) /= 0) then
+      if (nBas(iSym)*nBas(jSym) == 0) cycle
+      if (iSym == jSym) then
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'Diagonal Block'
+        call RecPrt('SOInt',' ',SOInt(iOffSO),nBas(iSym),nBas(iSym))
+#       endif
 
-      call DGEMM_('N','T',nBas(iSym),nBas1,nBas(iSym),One,SOInt(iOffSO),nBas(iSym),SymInv(iOffPi),nBas1,Zero,Scr,nBas(iSym))
+        call DGEMM_('N','T',nBas(iSym),nBas1,nBas(iSym),One,SOInt(iOffSO),nBas(iSym),SymInv(iOffPi),nBas1,Zero,Scr,nBas(iSym))
 
-      call DGEMM_('N','N',nBas1,nBas1,nBas(iSym),One,SymInv(iOffPi),nBas1,Scr,nBas(iSym),One,AOInt,nBas1)
+        call DGEMM_('N','N',nBas1,nBas1,nBas(iSym),One,SymInv(iOffPi),nBas1,Scr,nBas(iSym),One,AOInt,nBas1)
 
-    else
-#     ifdef _DEBUGPRINT_
-      write(u6,*) 'Off-Diagonal Block',iSym,jSym
-      call RecPrt('SOInt',' ',SOInt(iOffSO),nBas(iSym),nBas(jSym))
-      call RecPrt('Pi',' ',SymInv(iOffPi),nbas1,nBas(iSym))
-      call RecPrt('Pj',' ',SymInv(iOffPj),nbas1,nBas(jSym))
-#     endif
+      else
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'Off-Diagonal Block',iSym,jSym
+        call RecPrt('SOInt',' ',SOInt(iOffSO),nBas(iSym),nBas(jSym))
+        call RecPrt('Pi',' ',SymInv(iOffPi),nbas1,nBas(iSym))
+        call RecPrt('Pj',' ',SymInv(iOffPj),nbas1,nBas(jSym))
+#       endif
 
-      call DGEMM_('N','T',nBas(iSym),nBas1,nBas(jSym),One,SOInt(iOffSO),nBas(iSym),SymInv(iOffPj),nBas1,Zero,Scr,nBas(iSym))
+        call DGEMM_('N','T',nBas(iSym),nBas1,nBas(jSym),One,SOInt(iOffSO),nBas(iSym),SymInv(iOffPj),nBas1,Zero,Scr,nBas(iSym))
 
-      call DGEMM_('N','N',nBas1,nBas1,nBas(iSym),One,SymInv(iOffPi),nBas1,Scr,nBas(iSym),One,AOInt,nBas1)
+        call DGEMM_('N','N',nBas1,nBas1,nBas(iSym),One,SymInv(iOffPi),nBas1,Scr,nBas(iSym),One,AOInt,nBas1)
 
-      call DGEMM_('T','T',nBas1,nBas1,nBas(iSym),One,Scr,nBas(iSym),SymInv(iOffPi),nBas1,One,AOInt,nBas1)
+        call DGEMM_('T','T',nBas1,nBas1,nBas(iSym),One,Scr,nBas(iSym),SymInv(iOffPi),nBas1,One,AOInt,nBas1)
 
+      end if
+
+      iOffSO = iOffSO+nBas(iSym)*nBas(jSym)
     end if
-
-30  continue
-    iOffSO = iOffSO+nBas(iSym)*nBas(jSym)
-20  continue
     iOffPj = iOffPj+nBas(jSym)*nBas1
   end do
   iOffPi = iOffPi+nBas(iSym)*nBas1

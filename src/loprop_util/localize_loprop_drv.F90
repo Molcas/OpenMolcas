@@ -83,7 +83,7 @@ end if
 iOfft = ip_SSym
 iOffs = ip_Tmp
 do iSym=1,nSym
-  if (nBas(iSym) == 0) Go To 99
+  if (nBas(iSym) == 0) cycle
 
   ! Now I square the overlap matrix because it has been stored as a
   ! lower triangle
@@ -92,7 +92,6 @@ do iSym=1,nSym
 
   iOfft = iOfft+nBas(iSym)*(nBas(iSym)+1)/2
   iOffs = iOffs+nBas(iSym)**2
-99 continue
 end do
 call Free_Work(ip_SSym)
 

@@ -12,6 +12,7 @@
 subroutine CutOff_Error(l,lMax,rMP,xrMP,nij,EC,C_o_C,nElem,Scratch_New,Scratch_Org,nAtoms,iPrint,Cut_Off_Error)
 
 use Real_Spherical, only: ipSph, RSph
+use Index_Functions, only: nTri3_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8, u6
 
@@ -24,12 +25,9 @@ integer(kind=iwp) :: iAtom, iElem, iEnd, ij, iOff, iStrt, jAtom, k, kDim, m
 real(kind=wp) :: Error, Estimated, Original, Percent, rms, rSum
 character(len=80) :: Banner_Line
 real(kind=r8) :: DDot_
-! Statement function
-integer(kind=iwp) :: mElem, i
-mElem(i) = (i+1)*(i+2)*(i+3)/6
 
-iEnd = mElem(lMax)
-iStrt = mElem(l)+1
+iEnd = nTri3_Elem1(lMax)
+iStrt = nTri3_Elem1(l)+1
 ij = 0
 do iAtom=1,nAtoms
   do jAtom=1,iAtom
@@ -51,7 +49,7 @@ if (iPrint >= 1) then
   call Banner(Banner_Line,1,80)
 end if
 rSum = Zero
-iElem = mElem(l)+1
+iElem = nTri3_Elem1(l)+1
 do k=l+1,lMax
   if (iPrint >= 1) then
     write(u6,*)

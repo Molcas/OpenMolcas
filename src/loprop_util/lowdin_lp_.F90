@@ -50,7 +50,10 @@ call Jacob(Eval,Blk,nDim,nDim)
 
 do i=1,nDim
   eigenv = eval(i*(i+1)/2)
-  if (eigenv < toosml) go to 900
+  if (eigenv < toosml) then
+    write(u6,910) eigenv,toosmL
+    return
+  end if
   eval(i*(i+1)/2) = One/sqrt(eigenv)
 end do
 
@@ -71,7 +74,6 @@ end do
 
 return
 
-900 write(u6,910) eigenv,toosmL
 910 format(/1X,'An eigenvalue of the overlap matrix of the symmetrized Jacobi transf. matrix of ',E13.5,' has been found.'/1X, &
             'This is lower than the allowed threshold of ',E13.5)
 ! Avoid unused argument warnings

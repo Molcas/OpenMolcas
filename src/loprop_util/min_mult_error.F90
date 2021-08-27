@@ -57,32 +57,33 @@ t_temp = t_min
 Error_Best = -One
 Error_Old = Zero
 t_best = Zero
-50 continue
-Error = Error_for_t(t_temp,rMP,xrMP,xxrMP,xnrMP,EC,A,R_ij,C_o_C,ij,l,nij,lMax,nElem,nAtoms,nPert,Scratch_New,Scratch_Org, &
-                    iPrint_Errors)
-if (iPlot == 1) then
-  write(u6,'(1X,A,F5.2,F16.12)') 't, Error = ',t_temp,Error
-  call xFlush(u6)
-end if
-Delta_Error = Error-Error_Old
-Error_Old = Error
-iSlope_Old = iSlope
-if (abs(Delta_Error) < Error_Threshold) then
-  iSlope = 0
-else if (Delta_Error < Zero) then
-  iSlope = -1
-else
-  iSlope = 1
-end if
-if ((iSlope_Old < 0) .and. (iSlope >= 0)) then
-  num_min = num_min+1
-end if
-if ((Error < Error_Best) .or. (Error_Best < Zero)) then
-  Error_Best = Error
-  t_best = t_temp
-end if
-t_temp = t_temp+Delta*0.1_wp
-if (t_temp <= t_max+Delta*0.01_wp) goto 50
+do
+  Error = Error_for_t(t_temp,rMP,xrMP,xxrMP,xnrMP,EC,A,R_ij,C_o_C,ij,l,nij,lMax,nElem,nAtoms,nPert,Scratch_New,Scratch_Org, &
+                      iPrint_Errors)
+  if (iPlot == 1) then
+    write(u6,'(1X,A,F5.2,F16.12)') 't, Error = ',t_temp,Error
+    call xFlush(u6)
+  end if
+  Delta_Error = Error-Error_Old
+  Error_Old = Error
+  iSlope_Old = iSlope
+  if (abs(Delta_Error) < Error_Threshold) then
+    iSlope = 0
+  else if (Delta_Error < Zero) then
+    iSlope = -1
+  else
+    iSlope = 1
+  end if
+  if ((iSlope_Old < 0) .and. (iSlope >= 0)) then
+    num_min = num_min+1
+  end if
+  if ((Error < Error_Best) .or. (Error_Best < Zero)) then
+    Error_Best = Error
+    t_best = t_temp
+  end if
+  t_temp = t_temp+Delta*0.1_wp
+  if (t_temp > t_max+Delta*0.01_wp) exit
+end do
 
 ! Any warnings from scan?
 

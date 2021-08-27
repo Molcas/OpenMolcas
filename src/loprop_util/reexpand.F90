@@ -11,6 +11,7 @@
 
 subroutine ReExpand(rMP,nij,nElem,A,B,ij,lMax)
 
+use Index_Functions, only: nTri3_Elem
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -22,9 +23,6 @@ integer(kind=iwp) :: iElem, ix, iy, iz, jElem, jx, jy, jz, k, l
 real(kind=wp) :: ABx, ABx_, ABy, ABy_, ABz, ABz_, temp
 #include "itmax.fh"
 #include "binom.fh"
-! Statement function
-integer(kind=iwp) :: mElem, i
-mElem(i) = (i+1)*(i+2)*(i+3)/6
 
 !                                                                      *
 !***********************************************************************
@@ -33,7 +31,7 @@ mElem(i) = (i+1)*(i+2)*(i+3)/6
 !call RecPrt('B',' ',B,1,3)
 !call RecPrt('rMP',' ',rMP,nij,nElem)
 do l=lMax,0,-1
-  iElem = mElem(l-1)
+  iElem = nTri3_Elem(l)
   do ix=l,0,-1
     ABx = A(1)-B(1)
     do iy=l-ix,0,-1
@@ -68,7 +66,7 @@ do l=lMax,0,-1
               ABz_ = ABz**(iz-jz)
             end if
             k = jx+jy+jz
-            jElem = mElem(k-1)+(jy+jz)*(jy+jz+1)/2+jz+1
+            jElem = nTri3_Elem(k)+(jy+jz)*(jy+jz+1)/2+jz+1
             !write(u6,*) 'jElem=',jElem
             !write(u6,*) binom(ix,jx),binom(iy,jy),binom(iz,jz),rMP(ij,jElem),ABx_,ABy_,ABz_
             temp = temp+binom(ix,jx)*binom(iy,jy)*binom(iz,jz)*rMP(ij,jElem)*ABx_*ABy_*ABz_

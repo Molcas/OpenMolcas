@@ -47,7 +47,7 @@ do i=1,maxCen
   iopt = 1
   iSmLbl = 0
   call iRdOne(irc,iopt,label,1,n_Int,iSmLbl)
-  if (irc /= 0) Go To 9901
+  if (irc /= 0) exit
   irc = -1
   iopt = 0
   iSmLbl = 0
@@ -57,7 +57,6 @@ do i=1,maxCen
   Work(iTmp+(i-1)*3+2) = Work(idiot+n_int(1)+2)
   nEPotPoints = nEPotPoints+1
 end do
-9901 continue
 
 ! Put the coordinates and nuclear part in nice and tight vectors.
 

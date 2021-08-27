@@ -104,23 +104,22 @@ write(u6,*) '*********************************'
 !                                                                      *
 ! In case of symmetry we need the desymmetrization matrix
 
-if (nSym == 1) Go To 99
-
-call Allocate_Work(ipP,nbas1**2)
-call Allocate_Work(ipPInv,nbas1**2)
-call Get_dArray('SM',Work(ipP),nbas1**2)
-#ifdef _DEBUGPRINT_
-call RecPrt('SM',' ',Work(ipP),nbas1,nbas1)
-#endif
-call MINV(Work(ipP),Work(ipPInv),ISING,DET,nBas1)
-#ifdef _DEBUGPRINT_
-call RecPrt('SMInv',' ',Work(ipPInv),nbas1,nbas1)
-#endif
-call DGeTMi(Work(ipPInv),nbas1,nbas1)
+if (nSym /= 1) then
+  call Allocate_Work(ipP,nbas1**2)
+  call Allocate_Work(ipPInv,nbas1**2)
+  call Get_dArray('SM',Work(ipP),nbas1**2)
+# ifdef _DEBUGPRINT_
+  call RecPrt('SM',' ',Work(ipP),nbas1,nbas1)
+# endif
+  call MINV(Work(ipP),Work(ipPInv),ISING,DET,nBas1)
+# ifdef _DEBUGPRINT_
+  call RecPrt('SMInv',' ',Work(ipPInv),nbas1,nbas1)
+# endif
+  call DGeTMi(Work(ipPInv),nbas1,nbas1)
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-99 continue
 return
 
 end subroutine Init_LoProp

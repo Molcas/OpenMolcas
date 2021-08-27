@@ -24,7 +24,7 @@ integer(kind=iwp), parameter :: Occ = 1, Vir = 0
 !write(u6,*) 'nDim,nDim',nDim,nDim
 !write(u6,*) Center
 do iOrb=1,nDim
-  if ((iRestrict == 1) .and. (itype(iOrb) == Vir)) Go To 99
+  if ((iRestrict == 1) .and. (itype(iOrb) == Vir)) cycle
   F = Zero
   if (S(iOrb,iOrb) > Zero) F = One/sqrt(S(iOrb,iOrb))
 
@@ -43,8 +43,8 @@ do iOrb=1,nDim
   iStart = 1
   if (iRestrict == 0) iStart = iOrb+1
   do jOrb=iStart,nDim
-    if ((iRestrict == 1) .and. (itype(jOrb) == Occ)) Go To 98
-    !if (Center(iOrb) == Center(jOrb)) Go To 98
+    if ((iRestrict == 1) .and. (itype(jOrb) == Occ)) cycle
+    !if (Center(iOrb) == Center(jOrb)) cycle
     A = S(Iorb,Jorb)
     do Ibas=1,nDim
       C(Ibas,Jorb) = C(Ibas,Jorb)-A*C(Ibas,Iorb)
@@ -55,9 +55,7 @@ do iOrb=1,nDim
     do Korb=1,nDim
       S(Korb,Jorb) = S(Korb,Jorb)-A*S(Korb,Iorb)
     end do
-98  continue
   end do
-99 continue
 end do
 
 return

@@ -117,12 +117,8 @@ do l=0,lMax
     do iSym=0,nSym-1
       do jSym=0,iSym
         ijSym = ieor(iSym,jSym)
-        if (iand(iSyLbl,2**ijSym) == 0) then
-          Go To 20
-        end if
-        if (nBas(iSym)*nBas(jSym) == 0) then
-          Go To 20
-        end if
+        if (iand(iSyLbl,2**ijSym) == 0) cycle
+        if (nBas(iSym)*nBas(jSym) == 0) cycle
         if (iSym == jSym) then
 
           ! Now I square the overlap matrix because it has been
@@ -136,7 +132,6 @@ do l=0,lMax
           iOfft = iOfft+nBas(iSym)*nBas(jSym)
         end if
         iOffs = iOffs+nBas(iSym)*nBas(jSym)
-20      continue
       end do
     end do
 
