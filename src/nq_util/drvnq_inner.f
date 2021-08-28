@@ -107,6 +107,8 @@
         sp_time = 0d0
         FI_time = 0d0
 !
+       Debug=.false.
+       IF(Debug) THEN
         LuMC=37
         call OpnFl('MCPDFT',LuMC,Exist)
 c        Call append_file(LuMC)
@@ -125,6 +127,7 @@ c        Call append_file(LuMT)
      &                    '       d_a*W     ,       d_b*W     ,'//
      &                    '       dTot*W    ,       Weights   ,'//
      &                    '       dTot '
+       END IF
       END IF
 ************************************************************************
 *
