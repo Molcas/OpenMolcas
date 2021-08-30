@@ -9,24 +9,25 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Local_Properties(Coor,nAtoms,ip_sq_Mu,nElem,Sq_Temp,Origin,iCenter,Ttot_Inv,Temp,nij,nPert,ip_D,rMP,lMax,rMPq,C_o_C,EC, &
-                            iANr,Standard,nBas1,nTemp,Q_Nuc,Bond_Threshold,Opt_Method,iPlot,iPrint,nSym)
+subroutine Local_Properties(Coor,nAtoms,sq_Mu,nElem,Sq_Temp,Origin,iCenter,Ttot_Inv,Temp,nij,nPert,D,rMP,lMax,rMPq,C_o_C,EC,iANr, &
+                            Standard,nBas1,nTemp,Q_Nuc,Bond_Threshold,Opt_Method,iPlot,iPrint,nSym)
 
+use Data_Structures, only: Alloc1DArray_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nAtoms, nElem, ip_sq_Mu(0:nElem-1), nBas1, iCenter(nBas1), nij, nPert, ip_D(0:6), lMax, &
-                                 iANr(nAtoms), nTemp, iPlot, iPrint, nSym
-real(kind=wp), intent(in) ::  Coor(3,nAtoms), Origin(3,0:lMax), Ttot_Inv(nBas1**2), C_o_C(3), Q_Nuc(nAtoms), Bond_Threshold
+integer(kind=iwp), intent(in) :: nAtoms, nElem, nBas1, iCenter(nBas1), nij, nPert, lMax, iANr(nAtoms), nTemp, iPlot, iPrint, nSym
+real(kind=wp), intent(in) ::  Coor(3,nAtoms), sq_Mu(nBas1**2,0:nElem-1), Origin(3,0:lMax), Ttot_Inv(nBas1**2), C_o_C(3), &
+                              Q_Nuc(nAtoms), Bond_Threshold
+type(Alloc1DArray_Type), intent(inout) :: D(0:6)
 real(kind=wp), intent(out) ::  Sq_Temp(nTemp), Temp(nTemp)
 real(kind=wp), intent(inout) :: rMP(nij,0:nElem-1,0:nPert-1), rMPq(0:nElem-1), EC(3,nij)
 logical(kind=iwp), intent(in) :: Standard
 character(len=12), intent(in) :: Opt_Method
 #include "Molcas.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iAtom, ii, ii_, ij, ij_, iMu, iOffD, iOffO, iPert, ix, iy, j, jAtom, ji_, jj, l, mElem, Num_Warnings
+integer(kind=iwp) :: i, iAtom, ii, ii_, ij, ij_, iMu, iPert, ix, iy, j, jAtom, ji_, jj, l, mElem, Num_Warnings
 real(kind=wp) :: A(3), Acc, B(3)
 integer(kind=iwp), allocatable :: T_sets(:), Warnings(:) !, center(:), Charge(:), NBFpA(:)
 real(kind=wp), allocatable :: T_values(:)
@@ -49,18 +50,17 @@ do iPert=0,nPert-1
 
   ! Transform the density matrix to the LoProp basis
 
-  iOffD = ip_D(iPert)-1
   do i=1,nBas1
     do j=1,i-1
       ij = i*(i-1)/2+j
       ij_ = (j-1)*nBas1+i
       ji_ = (i-1)*nBas1+j
-      Sq_Temp(ij_) = Half*Work(ij+iOffD)
+      Sq_Temp(ij_) = Half*D(iPert)%A(ij)
       Sq_Temp(ji_) = Sq_Temp(ij_)
     end do
     ii = i*(i+1)/2
     ii_ = (i-1)*nBas1+i
-    Sq_Temp(ii_) = Work(ii+iOffD)
+    Sq_Temp(ii_) = D(iPert)%A(ii)
   end do
 
   call DGEMM_('N','T',nBas1,nBas1,nBas1,One,Sq_Temp,nBas1,Ttot_Inv,nBas1,Zero,Temp,nBas1)
@@ -109,13 +109,12 @@ do iPert=0,nPert-1
             ! Sum up contributions to the domain ij
 
             Acc = Zero
-            iOffO = ip_sq_mu(iMu)-1
             do j=1,nBas1
               do i=1,nBas1
                 if (((iCenter(i) == iAtom) .and. (iCenter(j) == jAtom)) .or. &
                     ((iCenter(i) == jAtom) .and. (iCenter(j) == iAtom))) then
                   ij = (j-1)*nBas1+i
-                  Acc = Acc+Sq_Temp(ij)*Work(ij+iOffO)
+                  Acc = Acc+Sq_Temp(ij)*sq_mu(ij,iMu)
                 end if
               end do
             end do
@@ -131,7 +130,7 @@ do iPert=0,nPert-1
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  call Free_Work(ip_D(iPert))
+  call mma_deallocate(D(iPert)%A)
 end do   ! iPert
 !                                                                      *
 !***********************************************************************

@@ -9,23 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Compute_Xhole_Int(nBasLop,nSym,ipSqMom,Func,nSize)
+subroutine Compute_Xhole_Int(nBasLop,nSym,nB1,SqMom,Func,nSize)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSym, nBasLop(nSym)
-integer(kind=iwp), intent(out) :: ipSqMom, nSize
-real(kind=wp), intent(out) :: Func
+integer(kind=iwp), intent(in) :: nSym, nBasLop(nSym), nB1
+real(kind=wp), intent(out) :: SqMom(nB1,nB1), Func
+integer(kind=iwp), intent(out) :: nSize
 integer(kind=iwp) :: i, iDum(1), iO1, iO2, iOpt, irc, iSmLbl, kaunt1, kaunt2, Lu_One, nB, nCMO, nDens, nDiff, nOrb, nTri
 logical(kind=iwp) :: DSCF !, Do_Gamma, Do_Grad, On_Top, Do_Tau, Do_MO, Do_TwoEl
 character(len=4) :: DFTFOCK, KSDFT
 real(kind=wp), allocatable :: CMO(:), D1ao(:), MatEl(:), Mult1(:), MultSq(:,:), OrbDip(:,:), TEMP(:,:)
 integer(kind=iwp), external :: ip_of_Work, IsFreeUnit
 #include "nq_info.fh"
-#include "WrkSpc.fh"
 
 ! Check symmetry
 
@@ -151,8 +150,7 @@ call WarningMessage(2,'There is surely a bug here!')
 
 ! Put the second-moments in square form.
 
-call GetMem('2MomSq','Allo','Real',ipSqMom,nB**2)
-call Square(MatEl,Work(ipSqMom),1,nB,nB)
+call Square(MatEl,SqMom,1,nB,nB)
 
 ! Deallocate
 call mma_deallocate(D1ao)

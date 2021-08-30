@@ -9,22 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Localize_LoProp_Drv(Ttot,Ttot_Inv,nBas,iCenter,iType,nBas1,nBas2,nSym,nBasMax,ipP,Restart)
+subroutine Localize_LoProp_Drv(Ttot,Ttot_Inv,nBas,iCenter,iType,nBas1,nBas2,nSym,nBasMax,P,Restart)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nBas1, iCenter(nBas1), iType(nBas1), nBas2, nBasMax, ipP
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nBas1, iCenter(nBas1), iType(nBas1), nBas2, nBasMax
 real(kind=wp), intent(out) :: Ttot(nBas1,nBas1), Ttot_Inv(nBas1,nBas1)
+real(kind=wp), intent(in) :: P(*)
 logical(kind=iwp), intent(in) :: Restart
 integer(kind=iwp) :: idum(1), iOffs, iOfft, iOpt0, iOpt1, iRc, iSyLbl, iSym, nElem, nInts, nInts_tot, nScr
 character(len=8) :: Label
 logical(kind=iwp) :: Found
 integer(kind=iwp), allocatable :: irestart(:)
 real(kind=wp), allocatable :: all_ints(:), S(:), Scr(:), SSym(:), Tmp(:)
-#include "WrkSpc.fh"
 
 !                                                                      *
 !***********************************************************************
@@ -103,7 +103,7 @@ else
   nScr = nBasMax*nBas1
   call mma_allocate(Scr,nScr,label='Scr')
   S(:) = Zero
-  call Desymmetrize(Tmp,nBas2,Scr,nScr,S,nBas,nBas1,Work(ipP),nSym,iSyLbl)
+  call Desymmetrize(Tmp,nBas2,Scr,nScr,S,nBas,nBas1,P,nSym,iSyLbl)
   call mma_deallocate(Scr)
   call mma_deallocate(Tmp)
 

@@ -9,22 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine EPotPoint(Potte,nPick,Pick,DPick,ipT,ipTi,NucNr,nB,iAtom,jAtom,Center)
+subroutine EPotPoint(Potte,nPick,Pick,DPick,T,Ti,NucNr,nB,iAtom,jAtom,Center)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nPick, Pick(nPick), ipT, ipTi, NucNr, nB, iAtom, jAtom, Center(nB)
+integer(kind=iwp), intent(in) :: nPick, Pick(nPick), NucNr, nB, iAtom, jAtom, Center(nB)
 real(kind=wp), intent(out) :: Potte(nPick)
-real(kind=wp), intent(in) :: DPick(nPick)
+real(kind=wp), intent(in) :: DPick(nPick), T(nB,nB), Ti(nB,nB)
 integer(kind=iwp) :: iB1, iB2, iC1, iC2, iComp, iOpt, iPo, iPoint, irc, iSmLbl, nB2, nDens
 real(kind=wp) :: dEx
 character(len=10) :: Label
 logical(kind=iwp) :: Found
 real(kind=wp), allocatable :: D1ao(:), D_Sq(:,:), DTrans(:,:), PP(:), PSq(:,:), PTr(:,:), TEMP(:,:)
-#include "WrkSpc.fh"
 
 ! Loop through all points, pick out the relevant ones, obtain the
 ! partial expectation value from the appropriate basis and return.
@@ -46,8 +45,8 @@ call mma_allocate(DTrans,nB,nB,label='DTrans')
 
 ! Contravariant transformation of density matrix.
 
-call DGEMM_('N','N',nB,nB,nB,One,Work(ipTi),nB,D_Sq,nB,Zero,TEMP,nB)
-call DGEMM_('N','T',nB,nB,nB,One,TEMP,nB,Work(ipTi),nB,Zero,DTrans,nB)
+call DGEMM_('N','N',nB,nB,nB,One,Ti,nB,D_Sq,nB,Zero,TEMP,nB)
+call DGEMM_('N','T',nB,nB,nB,One,TEMP,nB,Ti,nB,Zero,DTrans,nB)
 call mma_allocate(PP,nB2+4,label='Points')
 call mma_allocate(PSq,nB,nB,label='PointsSq')
 call mma_allocate(PTr,nB,nB,label='PointsTr')
@@ -63,8 +62,8 @@ do iPoint=1,nPick
 
   ! Covariant transformation of the matrix for the potential in this particular point.
 
-  call DGEMM_('T','N',nB,nB,nB,One,Work(ipT),nB,PSq,nB,Zero,TEMP,nB)
-  call DGEMM_('N','N',nB,nB,nB,One,TEMP,nB,Work(ipT),nB,Zero,PTr,nB)
+  call DGEMM_('T','N',nB,nB,nB,One,T,nB,PSq,nB,Zero,TEMP,nB)
+  call DGEMM_('N','N',nB,nB,nB,One,TEMP,nB,T,nB,Zero,PTr,nB)
   dEx = Zero
 
   ! The usual stuff to get the localized value.

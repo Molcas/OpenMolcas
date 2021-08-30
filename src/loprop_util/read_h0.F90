@@ -9,15 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Read_h0(nSize,ip_h0,Restart)
+subroutine Read_h0(nSize,h0,Restart)
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp, wp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSize
-integer(kind=iwp), intent(out) :: ip_h0
+real(kind=wp), intent(out) :: h0(nSize)
 logical(kind=iwp), intent(in) :: Restart
-#include "WrkSpc.fh"
 character(len=8) :: Label
 integer(kind=iwp) :: iComp, iOpt0, iOpt1, iRc, iSyLbl, nInts(1)
 
@@ -27,14 +26,12 @@ integer(kind=iwp) :: iComp, iOpt0, iOpt1, iRc, iSyLbl, nInts(1)
 iOpt0 = 0
 iOpt1 = 1
 
-call Allocate_Work(ip_h0,nsize)
-
 iComp = 1
 iSyLbl = 1
 Label = 'OneHam  '
 iRc = -1
 if (Restart) then
-  call Get_dArray('LoProp H0',Work(ip_h0),nSize)
+  call Get_dArray('LoProp H0',h0,nSize)
 else
   call iRdOne(iRc,iOpt1,Label,iComp,nInts,iSyLbl)
   if (iRc /= 0) then
@@ -47,8 +44,8 @@ else
     call Abend()
   end if
   iRc = -1
-  call RdOne(iRc,iOpt0,Label,iComp,Work(ip_h0),iSyLbl)
-  call Put_dArray('LoProp H0',Work(ip_h0),nSize)
+  call RdOne(iRc,iOpt0,Label,iComp,h0,iSyLbl)
+  call Put_dArray('LoProp H0',h0,nSize)
 end if
 !                                                                      *
 !***********************************************************************

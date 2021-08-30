@@ -9,14 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine LevMarquart(Potte,nPick,Pick,ipEPCo,Coo,dMullig,lMax,A,iAtom,jAtom,chP,Thrs1,Thrs2,nThrs,Chi2B,iPrint,AboveMul)
+subroutine LevMarquart(Potte,nPick,Pick,EPCo,Coo,dMullig,lMax,A,iAtom,jAtom,chP,Thrs1,Thrs2,nThrs,Chi2B,iPrint,AboveMul)
 
 use Constants, only: Zero, One, Two, Three, Ten, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nPick, Pick(nPick), ipEPCo, lMax, iAtom, jAtom, nThrs, iPrint
-real(kind=wp), intent(in) :: Potte(nPick), Coo(3), dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), chP, Thrs1, Thrs2
+integer(kind=iwp), intent(in) :: nPick, Pick(nPick), lMax, iAtom, jAtom, nThrs, iPrint
+real(kind=wp), intent(in) :: Potte(nPick), EPCo(3,*), Coo(3), dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), chP, Thrs1, Thrs2
 real(kind=wp), intent(out) :: A(2), Chi2B
 logical(kind=iwp), intent(inout) :: AboveMul(2)
 integer(kind=iwp) :: i, ind, iP, Iter, j, nStep
@@ -26,7 +26,6 @@ real(kind=wp) :: AlfMat(4), AlfMatI(4), ARaw(2,2), B(2), BRaw(2), Chi2, dA(2), d
 logical(kind=iwp) :: lScreen1, lScreen2, lScreen3, lScreen4, lStop1, lStop2, lStop3, lStop4
 character(len=60) :: UtChar
 real(kind=wp), external :: ElPot
-#include "WrkSpc.fh"
 #include "warnings.h"
 
 ! Set iteration count to zero here at the top of the
@@ -63,9 +62,9 @@ do
 
   do iP=1,nPick
     ind = Pick(iP)
-    x = Work(ipEPCo+(ind-1)*3+0)-Coo(1)
-    y = Work(ipEPCo+(ind-1)*3+1)-Coo(2)
-    z = Work(ipEPCo+(ind-1)*3+2)-Coo(3)
+    x = EPCo(1,ind)-Coo(1)
+    y = EPCo(2,ind)-Coo(2)
+    z = EPCo(3,ind)-Coo(3)
     xStore(iP) = x
     yStore(iP) = y
     zStore(iP) = z

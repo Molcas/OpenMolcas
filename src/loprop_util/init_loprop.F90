@@ -9,19 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Init_LoProp(nSym,nBas,nOrb,CoC,nAtoms,ipC,ipQ_Nuc,ip_ANr,ip_Type,ip_Center,nSize,nBas1,nBas2,nBasMax,ipP,ipPInv)
+subroutine Init_LoProp(nSym,nBas,nOrb,CoC,nAtoms,LP_context,nSize,nBas1,nBas2,nBasMax)
 
+use loprop_arrays, only: LP_context_type
+use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(out) :: nSym, nBas(8), nOrb(8), nAtoms, ipC, ipQ_Nuc, ip_ANr, ip_Type, ip_Center, nSize, nBas1, nBas2, &
-                                  nBasMax, ipP, ipPInv
+integer(kind=iwp), intent(out) :: nSym, nBas(8), nOrb(8), nAtoms, nSize, nBas1, nBas2, nBasMax
 real(kind=wp), intent(out) :: CoC(3)
+type(LP_context_type), intent(out) :: LP_context
 integer(kind=iwp) :: i, iDum, ISING, iSym
 real(kind=wp) :: DET
 logical(kind=iwp) :: lOrb
 integer(kind=iwp), parameter :: Occ = 1, Vir = 0
-#include "WrkSpc.fh"
 
 !                                                                      *
 !***********************************************************************
@@ -56,38 +57,38 @@ call Get_dArray('Center of Charge',CoC,3)
 
 ! List coordinates of Coordinates
 call Get_iScalar('LP_nCenter',nAtoms)
-call Allocate_Work(ipC,3*nAtoms)
-call Get_dArray('LP_Coor',Work(ipC),3*nAtoms)
-call Allocate_Work(ipQ_Nuc,nAtoms)
+call mma_allocate(LP_context%C,3,nAtoms,label='C')
+call Get_dArray('LP_Coor',LP_context%C,3*nAtoms)
 
 ! Effective charge at each center
-call Get_dArray('LP_Q',Work(ipQ_Nuc),nAtoms)
+call mma_allocate(LP_context%Q_Nuc,nAtoms,label='nAtoms')
+call Get_dArray('LP_Q',LP_context%Q_Nuc,nAtoms)
 
 ! Atom number of each center
-call Allocate_iWork(ip_ANr,nAtoms)
-call Get_iArray('LP_A',iWork(ip_ANr),nAtoms)
+call mma_allocate(LP_context%ANr,nAtoms,label='ANr')
+call Get_iArray('LP_A',LP_context%ANr,nAtoms)
 
 ! Pick up information of orbital type. Occ/Vir
-call Allocate_iWork(ip_type,nbas1)
-call Get_iArray('Orbital Type',iWork(ip_type),nBas1)
-do i=ip_type,ip_type+nBas1-1
-  if ((iWork(i) /= Occ) .and. (iWork(i) /= Vir)) then
+call mma_allocate(LP_context%otype,nbas1,label='otype')
+call Get_iArray('Orbital Type',LP_context%otype,nBas1)
+do i=1,nBas1
+  if ((LP_context%otype(i) /= Occ) .and. (LP_context%otype(i) /= Vir)) then
     write(u6,*) 'Orbital type vector is corrupted!'
     call Abend()
   end if
 end do
 
 ! Pick up index array of which center a basis function belong.
-call Allocate_iWork(ip_center,nbas1)
-call Get_iArray('Center Index',iWork(ip_center),nBas1)
+call mma_allocate(LP_context%center,nbas1,label='center')
+call Get_iArray('Center Index',LP_context%center,nBas1)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) '******* LoProp Debug Info *******'
-call RecPrt('Coordinates',' ',Work(ipC),3,nAtoms)
-call RecPrt('Charges',' ',Work(ipQ_Nuc),1,nAtoms)
-write(u6,*) 'Atom Nr:',(iWork(i),i=ip_ANr,ip_ANr+nAtoms-1)
+call RecPrt('Coordinates',' ',LP_context%C,3,nAtoms)
+call RecPrt('Charges',' ',LP_context%Q_Nuc,1,nAtoms)
+write(u6,*) 'Atom Nr:',LP_context%ANr(:)
 do iBas=1,nBas1
-  if (iWork(ip_type+iBas-1) == Occ) then
+  if (LP_context%otype(iBas) == Occ) then
     write(u6,'(A,I3,A)') 'Basis function ',iBas,' is occupied'
   else
     write(u6,'(A,I3,A)') 'Basis function ',iBas,' is virtual'
@@ -95,7 +96,7 @@ do iBas=1,nBas1
 end do
 write(u6,*)
 do iBas=1,nBas1
-  write(u6,'(A,I3,A,I3)') 'Basis function ',iBas,' belongs to center ',iWork(ip_center+iBas-1)
+  write(u6,'(A,I3,A,I3)') 'Basis function ',iBas,' belongs to center ',LP_context%center(iBas)
 end do
 write(u6,*) '*********************************'
 #endif
@@ -105,17 +106,20 @@ write(u6,*) '*********************************'
 ! In case of symmetry we need the desymmetrization matrix
 
 if (nSym /= 1) then
-  call Allocate_Work(ipP,nbas1**2)
-  call Allocate_Work(ipPInv,nbas1**2)
-  call Get_dArray('SM',Work(ipP),nbas1**2)
+  call mma_allocate(LP_context%P,nbas1,nbas1,label='P')
+  call mma_allocate(LP_context%PInv,nbas1,nbas1,label='PInv')
+  call Get_dArray('SM',LP_context%P,nbas1**2)
 # ifdef _DEBUGPRINT_
-  call RecPrt('SM',' ',Work(ipP),nbas1,nbas1)
+  call RecPrt('SM',' ',LP_context%P,nbas1,nbas1)
 # endif
-  call MINV(Work(ipP),Work(ipPInv),ISING,DET,nBas1)
+  call MINV(LP_context%P,LP_context%PInv,ISING,DET,nBas1)
 # ifdef _DEBUGPRINT_
-  call RecPrt('SMInv',' ',Work(ipPInv),nbas1,nbas1)
+  call RecPrt('SMInv',' ',LP_context%PInv,nbas1,nbas1)
 # endif
-  call DGeTMi(Work(ipPInv),nbas1,nbas1)
+  call DGeTMi(LP_context%PInv,nbas1,nbas1)
+else
+  call mma_allocate(LP_context%P,0,0,label='P')
+  call mma_allocate(LP_context%PInv,0,0,label='PInv')
 end if
 !                                                                      *
 !***********************************************************************

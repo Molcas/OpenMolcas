@@ -9,18 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Get_Density_Matrix(ip_D,nBas1,nBas2,nBasMax,nBas,nSym,ipP,UserDen,PrintDen,SubtractDen,SubScale,Q_Nuc,nAtoms,iPert, &
-                              Restart,Utility,TDensity,nStateI,nStateF)
+subroutine Get_Density_Matrix(D,nBas1,nBas2,nBasMax,nBas,nSym,P,UserDen,PrintDen,SubtractDen,SubScale,Q_Nuc,nAtoms,iPert,Restart, &
+                              Utility,TDensity,nStateI,nStateF)
 
+use Data_Structures, only: Alloc1DArray_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(out) :: ip_D
-integer(kind=iwp), intent(in) :: nBas1, nBas2, nBasMax, nSym, nBas(nSym), ipP, nAtoms, iPert, nStateI, nStateF
+type(Alloc1DArray_Type), intent(out) :: D
+integer(kind=iwp), intent(in) :: nBas1, nBas2, nBasMax, nSym, nBas(nSym), nAtoms, iPert, nStateI, nStateF
+real(kind=wp), intent(in) :: P(*), SubScale
 logical(kind=iwp), intent(in) :: UserDen, PrintDen, SubtractDen, Restart, Utility, TDensity
-real(kind=wp), intent(in) :: SubScale
 real(kind=wp), intent(inout) :: Q_Nuc(nAtoms)
 ! OBSERVE! MxState has to be the same as MxStat in cntrl.fh in src/rassi.
 !          (but there's no such variable)
@@ -32,7 +33,6 @@ character(len=8) :: Method
 logical(kind=iwp) :: Exists, Found, ok1, ok2
 real(kind=wp), allocatable :: D_sq(:,:), DTmp(:), DSym(:), Scr(:), TDMden(:), Tmp(:), User(:)
 integer(kind=iwp), external :: IsFreeUnit
-#include "WrkSpc.fh"
 
 write(Label,'(A,I1)') 'LoProp Dens ',iPert
 if (Restart) then
@@ -43,8 +43,8 @@ if (Restart) then
   if ((.not. Exists) .or. (nDens == 0)) then
     call SysAbendMsg('get_density_matrix','Could not locate:',Label)
   end if
-  call Allocate_Work(ip_D,nDens)
-  call Get_dArray(Label,Work(ip_D),nDens)
+  call mma_allocate(D%A,nDens,label='D')
+  call Get_dArray(Label,D%A,nDens)
 
   nSize = nDens
 
@@ -140,16 +140,16 @@ else if (nSym == 1) then
   if (Method == 'MBPT2   ') then
     call Get_iScalar('mp2prpt',iMp2Prpt)
   end if
-  call getmem('D','Allo','Real',ip_D,nSize)
+  call mma_allocate(D%A,nSize,label='D')
   if (iMp2Prpt /= 0) then
-    call Get_D1ao_var(Work(ip_D),nSize)
+    call Get_D1ao_var(D%A,nSize)
   else
   ! End Addition J.Bostrom (well, the End If too ofc.)
-    call Get_D1ao(Work(ip_D),nSize)
+    call Get_D1ao(D%A,nSize)
   end if
   nDens = nSize
 # ifdef _DEBUGPRINT_
-  call RecPrt('D',' ',Work(ip_D),1,nDens)
+  call RecPrt('D',' ',D%A,1,nDens)
 # endif
   if (PrintDen) then
     ! Addition made by P.Soderhjelm to enable LoProp to print the density matrix
@@ -157,13 +157,13 @@ else if (nSym == 1) then
     Lu_Ud = 56
     Lu_Ud = IsFreeUnit(Lu_Ud)
     call OpnFl('PRDEN',Lu_Ud,Exists)
-    write(Lu_Ud,'(10F25.16)') (Work(ip_D+k),k=0,nDens-1)
+    write(Lu_Ud,'(10F25.16)') D%A(:)
     close(Lu_Ud)
   end if
 
 else
 
-  call Allocate_Work(ip_D,nBas1*(nBas1+1)/2)
+  call mma_allocate(D%A,nBas1*(nBas1+1)/2,label='D')
   call mma_allocate(D_sq,nBas1,nBas1,label='D_sq')
   call mma_allocate(Tmp,nBas2,label='Tmp')
 
@@ -199,22 +199,22 @@ else
 
   nScr = nBasMax*nBas1
   call mma_allocate(Scr,nScr,label='Scr')
-  call Desymmetrize(Tmp,nBas2,Scr,nScr,D_sq,nBas,nBas1,Work(ipP),nSym,iSyLbl)
+  call Desymmetrize(Tmp,nBas2,Scr,nScr,D_sq,nBas,nBas1,P,nSym,iSyLbl)
   call mma_deallocate(Scr)
   call mma_deallocate(Tmp)
 
-  call Triangularize(D_sq,Work(ip_D),nBas1,.true.)
+  call Triangularize(D_sq,D%A,nBas1,.true.)
   call mma_deallocate(D_sq)
 end if
 #ifdef _DEBUGPRINT_
-call TriPrt('Density Matrix',' ',Work(ip_D),nBas1)
+call TriPrt('Density Matrix',' ',D%A,nBas1)
 #endif
 
 ! Copy Density Matrix to the runfile
 
 if ((.not. Restart) .and. (.not. Utility)) then
-  !call put_dArray(Label,Work(ip_D),nDens)
-  call put_dArray(Label,Work(ip_D),nBas1*(nBas1+1)/2)
+  !call put_dArray(Label,D%A,nDens)
+  call put_dArray(Label,D%A,nBas1*(nBas1+1)/2)
 end if
 
 return

@@ -9,20 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Diff_Aux1(nEPotPoints,ipEPCo,nB,OneFile)
+subroutine Diff_Aux1(nEPotPoints,EPCo,nB,OneFile)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(out) :: nEPotPoints, ipEPCo
+integer(kind=iwp), intent(out) :: nEPotPoints
+real(kind=wp), allocatable, intent(out) :: EPCo(:,:)
 integer(kind=iwp), intent(in) :: nB
 character(len=10), intent(in) :: OneFile
 character(len=10) :: Label
 integer(kind=iwp) :: i, iopt, irc, iSmLbl, Lu_One, maxCen, n_int(1)
 real(kind=wp), allocatable :: idiot(:), Tmp(:,:)
 integer(kind=iwp), external :: IsFreeUnit
-#include "WrkSpc.fh"
 #include "warnings.h"
 
 ! Open One-electron file.
@@ -60,8 +60,8 @@ end do
 
 ! Put the coordinates and nuclear part in nice and tight vectors.
 
-call GetMem('PotPointCoord','Allo','Real',ipEPCo,3*nEPotPoints)
-call dcopy_(3*nEPotPoints,Tmp,1,Work(ipEPCo),1)
+call mma_allocate(EPCo,3,nEPotPoints,label='PotPointCoord')
+EPCo(:,:) = Tmp(:,1:nEPotPoints)
 
 ! Deallocate.
 

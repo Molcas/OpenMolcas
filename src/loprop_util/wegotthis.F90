@@ -9,26 +9,34 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine WeGotThis(nAt,nB,ipMP,nij,EC,lMax,iPrint,Pot_Expo,Pot_Point,Pot_Fac,Diffed)
+subroutine WeGotThis(nAt,nB,MP,nij,EC,lMax,iPrint,Pot_Expo,Pot_Point,Pot_Fac,Diffed)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nAt, nB, ipMP, nij, lMax, iPrint
-real(kind=wp), intent(in) :: EC(3,nij), Pot_Expo(nij*2), Pot_Point(nij), Pot_Fac(nij*4)
+integer(kind=iwp), intent(in) :: nAt, nB, nij, lMax, iPrint
+real(kind=wp), intent(in) :: MP(nij,*), EC(3,nij), Pot_Expo(nij*2), Pot_Point(nij), Pot_Fac(nij*4)
 logical(kind=iwp), intent(in) :: Diffed(nij*2)
-integer(kind=iwp) :: iA, iComp, iDC, iOpt, ipEPCo, iPP, irc, iSmLbl, jA, k, kaunt, kauntA, kComp, l, nDens, nEPP, nImprove, nShitty
+integer(kind=iwp) :: iA, iComp, iDC, iOpt, iPP, irc, iSmLbl, jA, k, kaunt, kauntA, kComp, l, nDens, nEPP, nImprove, nShitty
 real(kind=wp) :: chP, CorrCoeff, DeNom, Dif1, Dif2, dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), ElPot_APP, ElPot_MP, ElPot_REF, &
                  ErrAv1, ErrAv2, ErrCorr, ErrDe1, ErrDe2, ErrMax1, ErrMax2, ErrRe1, ErrRe2, ErrVar1, ErrVar2, Expo(4), PImp, PP, &
                  PShi, r, rinv, x, y, z
 logical(kind=iwp) :: D1, D2, Found, Que
 character(len=10) :: OneFile, Label
-real(kind=wp), allocatable :: D1ao(:), ElP(:)
+real(kind=wp), allocatable :: D1ao(:), ElP(:), EPCo(:,:)
 character(len=10), parameter :: DistType(2) = ['Monopole  ','Dipole    ']
 real(kind=wp) :: Ddot_, ElPot
-#include "WrkSpc.fh"
+interface
+  subroutine Diff_Aux1(nEPotPoints,EPCo,nB,OneFile)
+    import :: wp, iwp
+    integer(kind=iwp), intent(out) :: nEPotPoints
+    real(kind=wp), allocatable, intent(out) :: EPCo(:,:)
+    integer(kind=iwp), intent(in) :: nB
+    character(len=10), intent(in) :: OneFile
+  end subroutine
+end interface
 
 ! Print exponents and factors.
 
@@ -92,7 +100,7 @@ if (Que) then
   nShitty = 0
   DeNom = Zero
   write(OneFile,'(A)') 'ONEINTP'
-  call Diff_Aux1(nEPP,ipEPCo,nB,OneFile)
+  call Diff_Aux1(nEPP,EPCo,nB,OneFile)
   call Qpg_dArray('D1ao',Found,nDens)
   if (Found .and. (nDens /= 0)) then
     call mma_allocate(D1ao,nDens,Label='D1ao')
@@ -128,14 +136,13 @@ if (Que) then
 
     ElPot_APP = Zero
     ElPot_MP = Zero
-    kauntA = 0
+    kauntA = 1
     !rMin = 1.0e10_wp
     do iA=1,nAt
       do jA=1,iA
-        kauntA = kauntA+1
-        x = Work(ipEPCo+(iPP-1)*3+0)-EC(1,kauntA)
-        y = Work(ipEPCo+(iPP-1)*3+1)-EC(2,kauntA)
-        z = Work(ipEPCo+(iPP-1)*3+2)-EC(3,kauntA)
+        x = EPCo(1,iPP)-EC(1,kauntA)
+        y = EPCo(2,iPP)-EC(2,kauntA)
+        z = EPCo(3,iPP)-EC(3,kauntA)
         r = sqrt(x**2+y**2+z**2)
         rinv = One/r
         D1 = Diffed(2*(kauntA-1)+1)
@@ -143,17 +150,18 @@ if (Que) then
         Expo(1) = Pot_Expo(2*(kauntA-1)+1)
         Expo(2) = Pot_Expo(2*(kauntA-1)+2)
         chP = Pot_Point(kauntA)
-        kaunt = 0
+        kaunt = 1
         !rmin = min(r,rmin)
         do l=0,lMax
           kComp = (l+1)*(l+2)/2
           do k=1,kComp
+            dMullig(kaunt) = MP(kauntA,kaunt)
             kaunt = kaunt+1
-            dMullig(kaunt) = Work(ipMP+nij*(kaunt-1)+kauntA-1)
           end do
         end do
         ElPot_APP = ElPot_APP+ElPot(r,rinv,x,y,z,dMullig,lMax,Expo,chP,D1,D2)
         ElPot_MP = ElPot_MP+ElPot(r,rinv,x,y,z,dMullig,lMax,Expo,chP,.false.,.false.)
+        kauntA = kauntA+1
       end do
     end do
     !write(u6,*)'Minimum Dist:',rMin
@@ -161,7 +169,7 @@ if (Que) then
     ! Print if requested.
 
     if (iPrint >= 2) then
-      write(u6,441) ElPot_REF,ElPot_APP,ElPot_MP,(Work(ipEPCo+(iPP-1)*3+k),k=0,2)
+      write(u6,441) ElPot_REF,ElPot_APP,ElPot_MP,EPCo(:,iPP)
     end if
 
     ! Third, accumulate to error analysis.
@@ -223,7 +231,7 @@ if (Que) then
 
   call mma_deallocate(ElP)
   call mma_deallocate(D1ao)
-  call GetMem('PotPointCoord','Free','Real',ipEPCo,3*nEPP)
+  call mma_deallocate(EPCo)
   irc = -1
   call ClsOne(irc,0)
 end if

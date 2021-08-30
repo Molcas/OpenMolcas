@@ -19,9 +19,9 @@ use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
-integer(kind=iwp) :: i, iComp, iDum(1), iErr, iMltpl, iOff1, iOff2, iopt, ip_ANr, ip_EC, ip_Ttot, ip_Ttot_Inv, ipMP, iPol, iPrint, &
-                     irc, iSmLbl, iSym, iTP, iWarn, iWFtype, Lu_, LuYou, nAtoms, nBas(8), nCenters, nComp, n_Int, nIrrep, nMltPl, &
-                     nOcc, NOCOB, nOcOb_b, nOrbi, nPrim(8), nSize, nSum, nSym, nThrs, nTM, nVec, nVec_p
+integer(kind=iwp) :: i, iComp, iDum(1), iErr, iMltpl, iOff1, iOff2, iopt, iPol, iPrint, irc, iSmLbl, iSym, iWarn, iWFtype, Lu_, &
+                     LuYou, nAtoms, nBas(8), nCenters, nComp, n_Int, nIrrep, nMltPl, nOcc, NOCOB, nOcOb_b, nOrbi, nPrim(8), nSize, &
+                     nSum, nSym, nThrs, nTM, nVec, nVec_p
 real(kind=wp) :: dLimmo(2), Thrs1, Thrs2, ThrsMul
 character(len=6) :: FName
 character(len=8) :: Label, MemLabel
@@ -31,7 +31,7 @@ integer(kind=iwp), allocatable :: ANr(:)
 real(kind=wp), allocatable :: Atype(:), CenX(:), CenY(:), CenZ(:), Coor(:,:), D(:), D_p(:), D_p_b(:), EC(:,:), Ene(:,:), MP(:,:), &
                               Occ(:,:), Ocen(:,:), Ocen_b(:,:), Ocof(:), Ocof_b(:), TM(:), TP(:), Ttot(:,:), Ttot_Inv(:,:), &
                               Vec(:,:), Vec_p(:), Vec_p_b(:)
-integer(kind=iwp), external :: ip_of_iWork, ip_of_Work, IsFreeUnit
+integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
 !***********************************************************************
@@ -502,21 +502,15 @@ if (Diffuse(1)) then
   call mma_allocate(ANr,nAtoms,label='ANr')
   call mma_allocate(Ttot,nBas(1),nBas(1),label='T')
   call mma_allocate(Ttot_Inv,nBas(1),nBas(1),label='Tinv')
-  call mma_allocate(MP,nAtoms*(nAtoms+1)/2,(nMltPl+1)*(nMltPl+2)*(nMltPl+3)/6,label='MultMom')
-  call mma_allocate(EC,3,nAtoms*(nAtoms+1)/2,label='ExpCent')
+  call mma_allocate(MP,nCenters,(nMltPl+1)*(nMltPl+2)*(nMltPl+3)/6,label='MultMom')
+  call mma_allocate(EC,3,nCenters,label='ExpCent')
   call StoreMpAsLop(nAtoms,ANr,nBas(1),Ttot,Ttot_Inv,MP,nMltPl,EC)
   call mma_allocate(TP,nAtoms,label='ToPoint')
   call CoreToPoint(nAtoms,MP,TP)
   LuYou = IsFreeUnit(81)
   call OpnFl('DIFFPR',LuYou,Exists)
-  ip_ANr = ip_of_iWork(ANr(1))
-  ip_Ttot = ip_of_Work(Ttot(1,1))
-  ip_Ttot_Inv = ip_of_Work(Ttot_Inv(1,1))
-  ipMP = ip_of_Work(MP(1,1))
-  ip_EC = ip_of_Work(EC(1,1))
-  iTP = ip_of_Work(TP(1))
-  call Diff_MotherGoose(Diffuse,nAtoms,nBas(1),ipMP,nCenters,ip_EC,ip_ANr,ip_Ttot,ip_Ttot_Inv,nMltPl,iTP,dLimmo,Thrs1,Thrs2,nThrs, &
-                        iPrint,ThrsMul,LuYou)
+  call Diff_MotherGoose(Diffuse,nAtoms,nBas(1),MP,nCenters,EC,ANr,Ttot,Ttot_Inv,nMltPl,TP,dLimmo,Thrs1,Thrs2,nThrs,iPrint,ThrsMul, &
+                        LuYou)
   close(LuYou)
   call mma_deallocate(ANr)
   call mma_deallocate(Ttot)

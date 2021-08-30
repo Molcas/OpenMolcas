@@ -9,17 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine YouGetThis(EC,Pot_Expo,Pot_Point,Pot_Fac,Diffed,ipMP,lMax,lMaxF,nij,LuYou)
+subroutine YouGetThis(EC,Pot_Expo,Pot_Point,Pot_Fac,Diffed,MP,lMax,lMaxF,nij,LuYou)
 
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: ipMP, lMax, lMaxF, nij, LuYou
-real(kind=wp), intent(in) :: EC(3,nij), Pot_Expo(nij*4), Pot_Point(nij), Pot_Fac(nij*4)
+integer(kind=iwp), intent(in) :: lMax, lMaxF, nij, LuYou
+real(kind=wp), intent(in) :: EC(3,nij), Pot_Expo(nij*4), Pot_Point(nij), Pot_Fac(nij*4), MP(nij,*)
 logical(kind=iwp), intent(in) :: Diffed(nij*4)
 integer(kind=iwp) :: i, k, kauntA, kk, l, nS, nT
-#include "WrkSpc.fh"
 
 ! Number of centres and maximal angular momentum.
 
@@ -58,7 +57,7 @@ do i=1,nij
       ! The pure multipole, which under no circumstance can be diffuse.
 
       write(LuYou,104) -7.91204_wp
-      write(LuYou,105) (Work(ipMP+nij*kk+kauntA-1),kk=nS,nT-1)
+      write(LuYou,105) (MP(kauntA,kk),kk=nS+1,nT)
     end if
   end do
 

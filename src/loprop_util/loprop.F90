@@ -20,6 +20,8 @@ subroutine LoProp(ireturn)
 !             University of Lund, SWEDEN.                              *
 !***********************************************************************
 
+use loprop_arrays, only: LP_context_type
+use Data_Structures, only: Alloc1DArray_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
@@ -28,16 +30,16 @@ implicit none
 integer(kind=iwp), intent(inout) :: ireturn
 #include "itmax.fh"
 #include "Molcas.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp), parameter :: nElem=(iTabMx*(iTabMx**2+6*iTabMx+11)+6)/6
-integer(kind=iwp) :: i, ip_ANr, ip_Center, ip_D(0:6), ip_mu(0:nElem-1), ip_sq_mu(0:nElem-1), ip_Type, ipC, iPert, iPL, iPlot, ipP, &
-                     ipPInv, ipQ_Nuc, iPrint, lMax, mElem, nAtoms, nBas(8), nBas1, nBas2, nBasMax, nij, nOrb(8), nPert, nSize, &
-                     nStateF, nStateI, nSym, nTemp
+integer(kind=iwp), parameter :: nElem=(iTabMx+1)*(iTabMx+2)*(iTabMx+3)/6
+integer(kind=iwp) :: i, iPert, iPL, iPlot, iPrint, lMax, mElem, nAtoms, nBas(8), nBas1, nBas2, nBasMax, nij, nOrb(8), nPert, &
+                     nSize, nStateF, nStateI, nSym, nTemp
 real(kind=wp) :: Bond_Threshold, CoC(3), Origin(3,0:iTabMx), SubScale
 logical(kind=iwp) :: lSave, NoField, PrintDen, Restart, Standard, SubtractDen, TDensity, UserDen, Utility
 character(len=LenIn4) :: LblCnt(MxAtom)
 character(len=12) :: Opt_Method
-real(kind=wp), allocatable :: EC(:,:), MP(:,:,:), MPq(:), tmp(:), sq_temp(:), Ttot(:,:), Ttot_Inv(:,:)
+type(LP_context_type) :: LP_context
+type(Alloc1DArray_Type) :: D(0:6), imu(0:nElem-1)
+real(kind=wp), allocatable :: EC(:,:), MP(:,:,:), MPq(:), tmp(:), sq_mu(:,:), sq_temp(:), Ttot(:,:), Ttot_Inv(:,:)
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt
 
@@ -56,7 +58,7 @@ if (Reduce_Prt() .and. (iPL < 3)) iPL = 0
 !                                                                      *
 ! Prelude
 
-call Init_LoProp(nSym,nBas,nOrb,CoC,nAtoms,ipC,ipQ_Nuc,ip_ANr,ip_Type,ip_Center,nSize,nBas1,nBas2,nBasMax,ipP,ipPInv)
+call Init_LoProp(nSym,nBas,nOrb,CoC,nAtoms,LP_context,nSize,nBas1,nBas2,nBasMax)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -84,9 +86,9 @@ iPrint = 0
 call mma_allocate(Ttot,nBas1,nBas1,label='Ttot')
 call mma_allocate(Ttot_Inv,nBas1,nBas1,label='TtotInv')
 
-call Localize_LoProp_Drv(Ttot,Ttot_Inv,nBas,iWork(ip_Center),iWork(ip_Type),nBas1,nBas2,nSym,nBasMax,ipPInv,Restart)
+call Localize_LoProp_Drv(Ttot,Ttot_Inv,nBas,LP_context%center,LP_context%otype,nBas1,nBas2,nSym,nBasMax,LP_context%PInv,Restart)
 
-call Free_iWork(ip_type)
+call mma_deallocate(LP_context%otype)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -98,8 +100,10 @@ mElem = (lMax*(lMax**2+6*lMax+11)+6)/6
 nTemp = nBas1**2
 call mma_allocate(tmp,nTemp,label='tmp')
 
+call mma_allocate(sq_mu,[1,nBas1**2],[0,mElem-1],label='sq_mu')
 call mma_allocate(MPq,mElem,label='MPq')
-call Read_Multipole_Int(lMax,ip_sq_mu,nBas,ip_mu,Ttot,tmp,Origin,MPq,mElem,nBas1,nBas2,nBasMax,nTemp,nSym,ipPInv,Restart,Utility)
+call Read_Multipole_Int(lMax,sq_mu,nBas,imu,Ttot,tmp,Origin,MPq,mElem,nBas1,nBas2,nBasMax,nTemp,nSym,LP_context%PInv,Restart, &
+                        Utility)
 call mma_deallocate(Ttot)
 !                                                                      *
 !***********************************************************************
@@ -107,11 +111,11 @@ call mma_deallocate(Ttot)
 ! Compute the 1-particle density matrix
 
 iPert = 0
-call Get_Density_Matrix(ip_D(0),nBas1,nBas2,nBasMax,nBas,nSym,ipP,UserDen,PrintDen,SubtractDen,SubScale,Work(ipQ_Nuc),nAtoms, &
-                        iPert,Restart,Utility,TDensity,nStateI,nStateF)
+call Get_Density_Matrix(D(0),nBas1,nBas2,nBasMax,nBas,nSym,LP_context%P,UserDen,PrintDen,SubtractDen,SubScale,LP_context%Q_Nuc, &
+                        nAtoms,iPert,Restart,Utility,TDensity,nStateI,nStateF)
 
-do i=mElem,1,-1
-  call Free_Work(ip_mu(i-1))
+do i=mElem-1,0,-1
+  call mma_deallocate(imu(i)%A)
 end do
 !                                                                      *
 !***********************************************************************
@@ -135,22 +139,20 @@ if (iPL >= 2) then
   write(u6,'(3X,A)') '   ------------------'
   write(u6,*)
 end if
-call Local_Properties(Work(ipC),nAtoms,ip_sq_mu,mElem,sq_temp,Origin,iWork(ip_center),Ttot_Inv,tmp,nij,nPert,ip_D,MP,lMax,MPq,CoC, &
-                      EC,iWork(ip_ANr),Standard,nBas1,nTemp,Work(ipQ_Nuc),Bond_Threshold,Opt_Method,iPlot,iPrint,nSym)
+call Local_Properties(LP_context%C,nAtoms,sq_mu,mElem,sq_temp,Origin,LP_context%center,Ttot_Inv,tmp,nij,nPert,D,MP,lMax,MPq,CoC, &
+                      EC,LP_context%ANr,Standard,nBas1,nTemp,LP_context%Q_Nuc,Bond_Threshold,Opt_Method,iPlot,iPrint,nSym)
 
-do i=mElem,1,-1
-  call Free_Work(ip_sq_mu(i-1))
-end do
+call mma_deallocate(sq_mu)
 call mma_deallocate(Ttot_Inv)
 call mma_deallocate(sq_temp)
-call Free_iWork(ip_center)
+call mma_deallocate(LP_context%center)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Print out the properties
 
 call Get_cArray('LP_L',LblCnt,LenIn4*nAtoms)
-call LoProp_Print(MP,nij,nElem,nAtoms,Work(ipQ_Nuc),LblCnt,lSave)
+call LoProp_Print(MP,nij,nElem,nAtoms,LP_context%Q_Nuc,LblCnt,lSave)
 if (iPL >= 2) then
   call CollapseOutput(0,'   Static properties:')
   write(u6,*)
@@ -158,17 +160,15 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call Free_Work(ipQ_Nuc)
 call mma_deallocate(MPq)
 call mma_deallocate(EC)
 call mma_deallocate(MP)
 call mma_deallocate(tmp)
-call Free_iWork(ip_ANr)
-call Free_Work(ipC)
-if (nSym /= 1) then
-  call Free_Work(ipP)
-  call Free_Work(ipPInv)
-end if
+call mma_deallocate(LP_context%Q_Nuc)
+call mma_deallocate(LP_context%ANr)
+call mma_deallocate(LP_context%C)
+call mma_deallocate(LP_context%P)
+call mma_deallocate(LP_context%PInv)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

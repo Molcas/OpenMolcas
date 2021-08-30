@@ -53,7 +53,7 @@ call dcopy_(nDim**2,SMatrix_Save,1,SMatrix,1)
 
 call DGEMM_('N','N',nDim,nDim,nDim,One,SMatrix,nDim,TMatrix,nDim,Zero,Temp,nDim)
 call DGEMM_('T','N',nDim,nDim,nDim,One,TMatrix,nDim,Temp,nDim,Zero,SMatrix,nDim)
-!call RecPrt('S3',' ',Work(ip_s),nBas(1),nBas(1))
+!call RecPrt('S3',' ',SMatrix,nBas(1),nBas(1))
 call dcopy_(nDim**2,SMatrix,1,SMatrix_Save,1)
 
 return

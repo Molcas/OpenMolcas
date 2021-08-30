@@ -9,37 +9,24 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Diff_ThrsMul(MP,ThrsMul,ThrsMul_Clever,nAt,nij)
+module loprop_arrays
 
-use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nAt, nij
-real(kind=wp), intent(in) :: MP(nij,*), ThrsMul
-real(kind=wp), intent(out) :: ThrsMul_Clever
-integer(kind=iwp) :: iAtom, jAtom, k, kaunt, kauntA, kComp, l
-real(kind=wp) :: dM, dMMax
+private
 
-dMMax = Zero
-kauntA = 1
-do iAtom=1,nAt
-  do jAtom=1,iAtom
-    kaunt = 1
-    do l=0,1
-      kComp = (l+1)*(l+2)/2
-      do k=1,kComp
-        dM = MP(kauntA,kaunt)
-        if (abs(dM) > dMMax) dMMax = abs(dM)
-        kaunt = kaunt+1
-      end do
-    end do
-    kauntA = kauntA+1
-  end do
-end do
+! Encapsulating all these allocatable arrays in a derived type allows
+! passing the type as an argument without an explicit interface, and
+! allocating in the inner subroutine. It also allows having several
+! simultaneous contexts with independent arrays (e.g. in a recursive
+! calling sequence)
 
-ThrsMul_Clever = dMMax*ThrsMul
+type LP_context_type
+  integer(kind=iwp), allocatable :: ANr(:), center(:), otype(:)
+  real(kind=wp), allocatable :: C(:,:), P(:,:), PInv(:,:), Q_Nuc(:)
+end type LP_context_type
 
-return
+public :: LP_context_type
 
-end subroutine Diff_ThrsMul
+end module loprop_arrays
