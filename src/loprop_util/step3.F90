@@ -17,13 +17,13 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nDim, iCenter(nDim), iType(nDim)
-real(kind=wp), intent(inout) :: SMatrix(nDim*nDim)
-real(kind=wp), intent(out) :: TMatrix(nDim*nDim)
+real(kind=wp), intent(inout) :: SMatrix(nDim,nDim)
+real(kind=wp), intent(out) :: TMatrix(nDim,nDim)
 
 !lg write(u6,*) 'Step 3', nDim
 !lg call RecPrt('T before GS 3',' ',TMatrix,nDim,nDim)
 !lg write(u6,*)
-call dcopy_(nDim**2,[Zero],0,TMatrix,1)
+TMatrix(:,:) = Zero
 call dcopy_(nDim,[One],0,TMatrix,nDim+1)
 call GramSchmidt(SMatrix,TMatrix,nDim,iType,iCenter,1)
 

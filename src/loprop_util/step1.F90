@@ -21,22 +21,20 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nDim, iCenter(nDim), iType(nDim)
-real(kind=wp), intent(inout) :: Matrix(nDim*nDim), TMatrix(nDim*nDim), Matrix0(nDim*nDim)
-real(kind=wp), intent(out) :: Temp(nDim*nDim)
-integer(kind=iwp) :: i, j, k
+real(kind=wp), intent(inout) :: Matrix(nDim,nDim), TMatrix(nDim,nDim), Matrix0(nDim,nDim)
+real(kind=wp), intent(out) :: Temp(nDim,nDim)
+integer(kind=iwp) :: i, j
 
-k = 0
 do i=1,nDim
   do j=1,nDim
-    k = k+1
-    !write(u6,*) iCenter(i),iCenter(j), Matrix(k)
+    !write(u6,*) iCenter(i),iCenter(j), Matrix(j,i)
     if (iCenter(i) /= iCenter(j)) then
-      Matrix(k) = Zero
+      Matrix(j,i) = Zero
     end if
   end do
 end do
 call GramSchmidt(Matrix,TMatrix,nDim,iType,iCenter,0)
-call dcopy_(nDim**2,Matrix0,1,Matrix,1)
+Matrix(:,:) = Matrix0(:,:)
 
 ! Now apply T1 to original S: S2=T1(T)*S*T1
 

@@ -52,9 +52,9 @@ call Transmu(XHole2,nBas1,Ttot,Temp)
 ! Now localize
 
 do iAtom=1,nAtoms
-  call dcopy_(3,Coor(1,iAtom),1,A,1)
+  A(:) = Coor(:,iAtom)
   do jAtom=1,iAtom
-    call dcopy_(3,Coor(1,jAtom),1,B,1)
+    B(:) = Coor(:,jAtom)
 
     ! Sum up contributions to the domain ij
 
@@ -77,7 +77,7 @@ end do   ! iAtom
 ! two atoms involved in the bond.
 
 call Move_XHole(d2Loc,EC,nAtoms,nij,iANr,Bond_Threshold)
-call dcopy_(nij,d2Loc,1,XHLoc2,1)
+XHLoc2(:) = d2Loc(:)
 
 return
 

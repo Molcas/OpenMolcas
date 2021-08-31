@@ -33,7 +33,7 @@ call qpg_iarray('nOrb',lOrb,iDum)
 if (lOrb) then
   call Get_iArray('nOrb',nOrb,nSym)
 else
-  call ICopy(nSym,nBas,1,nOrb,1)
+  nOrb(1:nSym) = nBas(1:nSym)
 end if
 !                                                                      *
 !***********************************************************************

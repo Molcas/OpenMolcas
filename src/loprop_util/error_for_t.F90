@@ -20,19 +20,18 @@ integer(kind=iwp), intent(in) :: ij, l, nij, lMax, nElem, nAtoms, nPert, iPrint_
 real(kind=wp), intent(in) :: t, rMP(nij,0:nElem-1,0:nPert-1), xnrMP(nij,nElem), EC(3,nij), R_ij(3), C_o_C(3)
 real(kind=wp), intent(out) :: xrMP(nij,nElem), xxrMP(nij,nElem), Scratch_New(nij*(2+lMax+1)), Scratch_Org(nij*(2+lMax+1))
 real(kind=wp), intent(inout) :: A(3,nij)
-integer(kind=iwp) :: i_Dim, ij_temp
+integer(kind=iwp) :: ij_temp
 real(kind=wp) :: Error
 
-i_Dim = nij*nElem
 A(1,ij) = EC(1,ij)+t*R_ij(1)
 A(2,ij) = EC(2,ij)+t*R_ij(2)
 A(3,ij) = EC(3,ij)+t*R_ij(3)
-call dCopy_(i_Dim,rMP,1,xrMP,1)
+xrMP(:,:) = rMP(:,:,0)
 do ij_temp=1,nij
   call ReExpand(xrMP,nij,nElem,EC(1,ij_temp),C_o_C,ij_temp,lMax)
 end do
-call daxpy_(i_Dim,One,xnrMP,1,xrMP,1)
-call dCopy_(i_Dim,xrMP,1,xxrMP,1)
+xrMP(:,:) = xrMP(:,:)+xnrMP(:,:)
+xxrMP(:,:) = xrMP(:,:)
 call CutOff_Error(l,lMax,xrMP,xxrMP,nij,A,C_o_C,nElem,Scratch_New,Scratch_Org,nAtoms,iPrint_Errors,Error)
 
 Error_for_t = Error

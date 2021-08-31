@@ -57,7 +57,7 @@ do iAtom=2,nAtoms
 
         ! Set local properties to zero
 
-        call dCopy_(nElem,[Zero],0,rMP(ij,0,iPert),nij)
+        rMP(ij,:,iPert) = Zero
       end do
     end if
   end do

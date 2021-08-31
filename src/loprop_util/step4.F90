@@ -17,26 +17,24 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nDim, iType(nDim)
-real(kind=wp), intent(inout) :: SMatrix(nDim*nDim)
-real(kind=wp), intent(out) :: TMatrix(nDim*nDim)
-integer(kind=iwp) :: i, j, k
+real(kind=wp), intent(inout) :: SMatrix(nDim,nDim)
+real(kind=wp), intent(out) :: TMatrix(nDim,nDim)
+integer(kind=iwp) :: i, j
 
 !lg  write(u6,*) 'Step 4', nDim
 !lg  call RecPrt('T before LW 4',' ',TMatrix,nDim,nDim)
 !lg  call RecPrt('S in step4 ',' ',SMatrix,nDim,nDim)
 !lg  write(u6,*)
-k = 0
 do i=1,nDim
   do j=1,nDim
-    k = k+1
     if ((i /= j) .and. (iType(i) /= iType(j))) then
-      SMatrix(k) = Zero
+      SMatrix(j,i) = Zero
     end if
   end do
 end do
 !lg call RecPrt('S before LW 4',' ',SMatrix,nDim,nDim)
 
-call dcopy_(nDim**2,[Zero],0,TMatrix,1)
+TMatrix(:,:) = Zero
 call dcopy_(nDim,[One],0,TMatrix,nDim+1)
 call Lowdin_LP(SMatrix,TMatrix,nDim)
 

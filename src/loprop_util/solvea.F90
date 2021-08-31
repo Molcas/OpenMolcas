@@ -59,7 +59,6 @@ end do
 ! Invert and solve.
 
 call MInv(AlfMat,AlfMatI,Ising,Det,nDim)
-call dcopy_(nDim,[Zero],0,dtA,1)
 call dGeMV_('N',nDim,nDim,One,AlfMatI,nDim,Beta,1,Zero,dtA,1)
 
 ! Optional printing.

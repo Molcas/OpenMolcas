@@ -102,9 +102,9 @@ do iPert=0,nPert-1
         ! Compute local properties
 
         do iAtom=1,nAtoms
-          call dcopy_(3,Coor(1,iAtom),1,A,1)
+          A(:) = Coor(:,iAtom)
           do jAtom=1,iAtom
-            call dcopy_(3,Coor(1,jAtom),1,B,1)
+            B(:) = Coor(:,jAtom)
 
             ! Sum up contributions to the domain ij
 
@@ -187,7 +187,7 @@ do iAtom=1,nAtoms
       A(2) = (EC(2,ii)+EC(2,jj))*Half
       A(3) = (EC(3,ii)+EC(3,jj))*Half
     end if
-    call dcopy_(3,A,1,EC(1,ij),1)
+    EC(:,ij) = A(:)
     do iPert=0,nPert-1
       call ReExpand(rMP(1,0,iPert),nij,mElem,Ref,A,ij,lMax)
     end do

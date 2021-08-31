@@ -21,40 +21,38 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nDim, iMatrix(nDim), iType(nDim)
-real(kind=wp), intent(inout) :: SMatrix(nDim*nDim), SMatrix_Save(nDim*nDim)
-real(kind=wp), intent(out) :: TMatrix(nDim*nDim), Temp(nDim*nDim)
-integer(kind=iwp) :: i, j, k
+real(kind=wp), intent(inout) :: SMatrix(nDim,nDim), SMatrix_Save(nDim,nDim)
+real(kind=wp), intent(out) :: TMatrix(nDim,nDim), Temp(nDim,nDim)
+integer(kind=iwp) :: i, j
 
 !lg write(u6,*) 'Step 2', nDim
 !lg call RecPrt('Save before LW 2',' ',SMatrix_Save,nDim,nDim)
 !lg write(u6,*)
-k = 0
 do i=1,nDim
   do j=1,nDim
-    k = k+1
-    !write(u6,*) iMatrix(i),iMatrix(j),SMatrix(k)
+    !write(u6,*) iMatrix(i),iMatrix(j),SMatrix(j,i)
     if ((iMatrix(i) /= iMatrix(j)) .and. (iType(i) /= iType(j))) then
-      SMatrix(k) = Zero
+      SMatrix(j,i) = Zero
     end if
   end do
 end do
 !lg call RecPrt('SMatrix before LW 2',' ',SMatrix,nDim,nDim)
 !lg call RecPrt('SMatrix_Save before LW 2',' ',SMatrix_Save,nDim,nDim)
 
-call dcopy_(nDim**2,[Zero],0,TMatrix,1)
+TMatrix(:,:) = Zero
 call dcopy_(nDim,[One],0,TMatrix,nDim+1)
 call Lowdin_LP(SMatrix,TMatrix,nDim)
 ! Pick up S2
 !lg call RecPrt('SMatrix after LW 2',' ',SMatrix,nDim,nDim)
 !lg call RecPrt('TMatrix after LW 2',' ',TMatrix,nDim,nDim)
-call dcopy_(nDim**2,SMatrix_Save,1,SMatrix,1)
+SMatrix(:,:) = SMatrix_Save(:,:)
 
 ! Now apply T2 to S2:  S3=T2(T)*S2*T2
 
 call DGEMM_('N','N',nDim,nDim,nDim,One,SMatrix,nDim,TMatrix,nDim,Zero,Temp,nDim)
 call DGEMM_('T','N',nDim,nDim,nDim,One,TMatrix,nDim,Temp,nDim,Zero,SMatrix,nDim)
 !call RecPrt('S3',' ',SMatrix,nBas(1),nBas(1))
-call dcopy_(nDim**2,SMatrix,1,SMatrix_Save,1)
+SMatrix_Save(:,:) = SMatrix(:,:)
 
 return
 

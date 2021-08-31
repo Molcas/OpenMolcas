@@ -23,7 +23,7 @@ real(kind=wp), intent(in) :: SOInt(nSOInt), SymInv(nBas1**2)
 real(kind=wp), intent(out) :: Scr(nScr), AOInt(nBas1,nBas1)
 integer(kind=iwp) :: ijSym, iOffPi, iOffPj, iOffSO, iSym, jSym
 
-call FZero(AOInt,nBas1**2)
+AOInt(:,:) = Zero
 
 iOffSO = 1
 iOffPi = 1

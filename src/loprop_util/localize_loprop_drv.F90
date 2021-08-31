@@ -49,7 +49,7 @@ if (Restart) then
   end if
   call mma_allocate(all_ints,nInts_Tot,label='all_ints')
   call Get_dArray('LoProp Integrals',all_ints,nInts_tot)
-  call dCopy_(irestart(1),all_ints,1,SSym,1)
+  SSym(1:nInts+4) = all_ints(1:nInts+4)
   call Get_iArray('LoProp iSyLbl',irestart,nElem)
   iSyLbl = irestart(1)
   call mma_deallocate(all_ints)
