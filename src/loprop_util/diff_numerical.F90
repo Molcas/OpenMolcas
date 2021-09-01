@@ -12,6 +12,7 @@
 subroutine Diff_Numerical(nAt,nB,MP,nij,EC,iANr,Ttot,Ttot_Inv,lMax,TP,dLimmo,Thrs1,Thrs2,nThrs,iPrint,ThrsMul,Pot_Expo,Pot_Point, &
                           Pot_Fac,Diffed)
 
+use Index_Functions, only: nTri3_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Three, Ten, Half
 use Definitions, only: wp, iwp
@@ -22,12 +23,12 @@ real(kind=wp), intent(in) :: MP(nij,*), EC(3,nij), Ttot(nB,nB), Ttot_Inv(nB,nB),
 real(kind=wp), intent(out) :: Pot_Expo(nij*2), Pot_Point(nij), Pot_Fac(nij*4)
 logical(kind=iwp), intent(out) :: Diffed(nij*2)
 integer(kind=iwp) :: iAtom, iDC, ij, iK, irc, jAtom, k, kaunt, kauntA, kComp, l, nAbove, nEPP, nK, nPick
-real(kind=wp) :: A(2), BS, Chi2B, chPoint, dM, dMag, dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), ThrsMul_Clever
+real(kind=wp) :: A(2), BS, Chi2B, chPoint, dM, dMag, ThrsMul_Clever
 logical(kind=iwp) :: AboveMul(2), AboveThr
 character(len=50) :: UtChar
 character(len=10) :: OneFile
 integer(kind=iwp), allocatable :: Center(:), Pick(:)
-real(kind=wp), allocatable :: DPick(:), EPCo(:,:), Potte(:)
+real(kind=wp), allocatable :: dMullig(:), DPick(:), EPCo(:,:), Potte(:)
 real(kind=wp), external :: vdwRad
 interface
   subroutine Diff_Aux1(nEPotPoints,EPCo,nB,OneFile)
@@ -47,6 +48,7 @@ call mma_allocate(Center,nB,label='BasIndCent')
 call Get_iArray('Center Index',Center,nB)
 call mma_allocate(Pick,nEPP,label='PickPoints')
 call mma_allocate(DPick,nEPP,label='DistPick')
+call mma_allocate(dMullig,nTri3_Elem1(lMax),label='dMullig')
 
 !-- Do a 'clever' determination of the threshold for the multipole magnitude.
 
@@ -156,6 +158,7 @@ call mma_deallocate(Center)
 call mma_deallocate(Pick)
 call mma_deallocate(DPick)
 call mma_deallocate(EPCo)
+call mma_deallocate(dMullig)
 irc = -1
 call ClsOne(irc,0)
 

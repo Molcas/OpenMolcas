@@ -11,6 +11,7 @@
 
 subroutine Read_Multipole_Int(lMax,sq_mu,nBas,imu,Ttot,Temp,Origin,rMPq,nElem,nBas1,nBas2,nBasMax,nTemp,nSym,P,Restart,Utility)
 
+use Symmetry_Info, only: Mul
 use Data_Structures, only: Alloc1DArray_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -116,8 +117,8 @@ do l=0,lMax
     iOffs = 1
     do iSym=0,nSym-1
       do jSym=0,iSym
-        ijSym = ieor(iSym,jSym)
-        if (iand(iSyLbl,2**ijSym) == 0) cycle
+        ijSym = Mul(iSym+1,jSym+1)-1
+        if (.not. btest(iSyLbl,ijSym)) cycle
         if (nBas(iSym)*nBas(jSym) == 0) cycle
         if (iSym == jSym) then
 

@@ -11,20 +11,21 @@
 
 subroutine LevMarquart(Potte,nPick,Pick,EPCo,Coo,dMullig,lMax,A,iAtom,jAtom,chP,Thrs1,Thrs2,nThrs,Chi2B,iPrint,AboveMul)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Ten, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nPick, Pick(nPick), lMax, iAtom, jAtom, nThrs, iPrint
-real(kind=wp), intent(in) :: Potte(nPick), EPCo(3,*), Coo(3), dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), chP, Thrs1, Thrs2
+real(kind=wp), intent(in) :: Potte(nPick), EPCo(3,*), Coo(3), dMullig((lMax+1)*(lMax+2)*(lMax+3)/6), chP, Thrs1, Thrs2
 real(kind=wp), intent(out) :: A(2), Chi2B
 logical(kind=iwp), intent(inout) :: AboveMul(2)
 integer(kind=iwp) :: i, ind, iP, Iter, j, nStep
 real(kind=wp) :: AlfMat(4), AlfMatI(4), ARaw(2,2), B(2), BRaw(2), Chi2, dA(2), ddLower, ddUpper, Der1, Der2, DerMax, Diffo, &
-                 dLambda, dLower, dUpper, Pout(nPick), r, rinv, rinvStore(nPick), rStore(nPick), x, xStore(nPick), y, &
-                 yStore(nPick), z, zStore(nPick)
+                 dLambda, dLower, dUpper, r, rinv, x, y, z
 logical(kind=iwp) :: lScreen1, lScreen2, lScreen3, lScreen4, lStop1, lStop2, lStop3, lStop4
 character(len=60) :: UtChar
+real(kind=wp), allocatable :: Pout(:), rinvStore(:), rStore(:), xStore(:), yStore(:), zStore(:)
 real(kind=wp), external :: ElPot
 #include "warnings.h"
 
@@ -60,6 +61,11 @@ do
 
   ! Compute distances and store them.
 
+  call mma_allocate(xStore,nPick,label='xStore')
+  call mma_allocate(yStore,nPick,label='yStore')
+  call mma_allocate(zStore,nPick,label='zStore')
+  call mma_allocate(rStore,nPick,label='rStore')
+  call mma_allocate(rinvStore,nPick,label='rinvStore')
   do iP=1,nPick
     ind = Pick(iP)
     x = EPCo(1,ind)-Coo(1)
@@ -228,6 +234,7 @@ if (iPrint >= 5) then
   write(u6,791) Chi2,Chi2B,dLambda
   write(u6,795) 'Exponents:','Charge','Dipole'
   write(u6,792) A(1),A(2)
+  call mma_allocate(Pout,nPick,label='Pout')
   do iP=1,nPick
     r = rStore(iP)
     rinv = rinvStore(iP)
@@ -239,7 +246,18 @@ if (iPrint >= 5) then
   write(UtChar,'(A,2I3)') 'Approximate partial density potential, centre',iAtom,jAtom
   call RecPrt(UtChar,' ',Pout,nPick,1)
   call RecPrt('Distance to points',' ',rStore,nPick,1)
+  call mma_deallocate(Pout)
 end if
+
+call mma_deallocate(xStore)
+call mma_deallocate(yStore)
+call mma_deallocate(zStore)
+call mma_deallocate(rStore)
+call mma_deallocate(rinvStore)
+
+! And yes, there is an end here as well.
+
+return
 
 790 format('Levenberg-Marquart optimization. Iteration:',I3)
 794 format('   ',A,'          ',A,'   ',A)
@@ -247,9 +265,5 @@ end if
 795 format(' ',A,' ',A,'      ',A)
 792 format('       ',2F12.6)
 793 format('Convergence reached in iteration ',I2)
-
-! And yes, there is an end here as well.
-
-return
 
 end subroutine LevMarquart

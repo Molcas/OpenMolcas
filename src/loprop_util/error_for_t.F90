@@ -11,7 +11,6 @@
 
 function Error_for_t(t,rMP,xrMP,xxrMP,xnrMP,EC,A,R_ij,C_o_C,ij,l,nij,lMax,nElem,nAtoms,nPert,Scratch_New,Scratch_Org,iPrint_Errors)
 
-use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none

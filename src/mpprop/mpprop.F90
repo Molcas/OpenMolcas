@@ -11,8 +11,9 @@
 
 subroutine MpProp(iReturn)
 
-use MPProp_globals, only: Alloc_MltPlArr, AtBoMltPl, AtBoMltPlCopy, AtMltPl, AtPol, AtBoPol, BondMat, Cor, CordMltPl, EneV, Frac, &
-                          Free_MltPlArr, iAtomType, iAtomPar, iAtPrTab, Labe, Method, MltPl, nAtomPBas, Qnuc
+use MPProp_globals, only: AtBoMltPl, AtBoMltPlCopy, AtMltPl, AtPol, AtBoPol, BondMat, Cor, CordMltPl, EneV, Frac, iAtomType, &
+                          iAtomPar, iAtPrTab, Labe, Method, MltPl, nAtomPBas, Qnuc
+use Data_Structures, only: Alloc_Alloc2DArray, Free_Alloc2DArray
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6, RtoB
@@ -182,7 +183,7 @@ do
 end do
 nMltpl = max(0,iMltpl-1)
 
-call Alloc_MltPlArr(MltPl,[0,nMltPl],'MltPl')
+call Alloc_Alloc2DArray(MltPl,[0,nMltPl],'MltPl')
 call mma_allocate(CordMltPl,[1,3],[0,nMltPl],label='CordMltPl')
 nSum = nSum+3*(nMltPl+1)
 
@@ -203,7 +204,7 @@ do iMltpl=0,nMltPl
     end if
     if (iComp == 1) then
       n_Int = iDum(1)
-      call mma_allocate(MltPl(iMltPl)%M,n_Int+4,nComp,label=MemLabel)
+      call mma_allocate(MltPl(iMltPl)%A,n_Int+4,nComp,label=MemLabel)
       nSum = nSum+nComp*(n_Int+4)
     else if (iDum(1) /= n_Int) then
       write(u6,'(2A)') 'MPProp: Error reading iComp /= 1 label=',label
@@ -215,15 +216,15 @@ do iMltpl=0,nMltPl
     end if
     irc = -1
     iopt = 0
-    call RdOne(irc,iopt,label,iComp,MltPl(iMltpl)%M(:,iComp),iSmLbl)
+    call RdOne(irc,iopt,label,iComp,MltPl(iMltpl)%A(:,iComp),iSmLbl)
     if (irc /= 0) then
       write(u6,'(2A)') '2 MPProp: Error reading ',label
       call Abend()
     end if
     !???????????????????????
-    call CmpInt(MltPl(iMltpl)%M(:,iComp),n_Int,nPrim,nIrrep,iSmLbl)
+    call CmpInt(MltPl(iMltpl)%A(:,iComp),n_Int,nPrim,nIrrep,iSmLbl)
     do i=1,3
-      CordMltPl(i,iMltpl) = MltPl(iMltpl)%M(n_Int+i,1)
+      CordMltPl(i,iMltpl) = MltPl(iMltpl)%A(n_Int+i,1)
     end do
   end do
 end do
@@ -233,20 +234,20 @@ end do
 !                                                                      *
 ! Allocate Memory For Multipoles on Atoms + Atoms and Bonds
 
-call Alloc_MltPlArr(AtMltPl,[0,nMltPl],'AtMltPl')
-call Alloc_MltPlArr(AtBoMltPl,[0,nMltPl],'AtBoMltPl')
-call Alloc_MltPlArr(AtBoMltPlCopy,[0,nMltPl],'AtBoMltPlCopy')
+call Alloc_Alloc2DArray(AtMltPl,[0,nMltPl],'AtMltPl')
+call Alloc_Alloc2DArray(AtBoMltPl,[0,nMltPl],'AtBoMltPl')
+call Alloc_Alloc2DArray(AtBoMltPlCopy,[0,nMltPl],'AtBoMltPlCopy')
 do iMltpl=0,nMltPl
   nComp = (iMltpl+1)*(iMltpl+2)/2
   write(MemLabel,'(A5,i3.3)') 'AMtPl',iMltpl
-  call mma_allocate(AtMltPl(iMltpl)%M,nComp,nCenters,label=MemLabel)
+  call mma_allocate(AtMltPl(iMltpl)%A,nComp,nCenters,label=MemLabel)
   write(MemLabel,'(A5,i3.3)') 'ABMtP',iMltpl
-  call mma_allocate(AtBoMltPl(iMltpl)%M,nComp,nCenters,label=MemLabel)
+  call mma_allocate(AtBoMltPl(iMltpl)%A,nComp,nCenters,label=MemLabel)
   write(MemLabel,'(A5,i3.3)') 'MtPCp',iMltpl
-  call mma_allocate(AtBoMltPlCopy(iMltpl)%M,nComp,nCenters,label=MemLabel)
+  call mma_allocate(AtBoMltPlCopy(iMltpl)%A,nComp,nCenters,label=MemLabel)
   nSum = nSum+3*nComp*nCenters
-  AtMltPl(iMltpl)%M(:,:) = Zero
-  AtBoMltPl(iMltpl)%M(:,:) = Zero
+  AtMltPl(iMltpl)%A(:,:) = Zero
+  AtBoMltPl(iMltpl)%A(:,:) = Zero
 end do
 !                                                                      *
 !***********************************************************************
@@ -538,9 +539,9 @@ nSum = nSum+6*(nCenters+nAtoms)
 AtPol(:,:) = Zero
 AtBoPol(:,:) = Zero
 if (iPol > 0) then
-  !EB call Get_OrbCen(nPrim(1),nBas(1),NORBI,MltPl(0)%M(:,:))
-  call Get_OrbCen(nPrim(1),NORBI,MltPl(0)%M(:,1),Ocen,CenX,CenY,CenZ,Ocof)
-  if (Method == 'UHF-SCF') call Get_OrbCen(nPrim(1),NORBI,MltPl(0)%M(:,1),Ocen_b,CenX,CenY,CenZ,Ocof_b)
+  !EB call Get_OrbCen(nPrim(1),nBas(1),NORBI,MltPl(0)%A(:,:))
+  call Get_OrbCen(nPrim(1),NORBI,MltPl(0)%A(:,1),Ocen,CenX,CenY,CenZ,Ocof)
+  if (Method == 'UHF-SCF') call Get_OrbCen(nPrim(1),NORBI,MltPl(0)%A(:,1),Ocen_b,CenX,CenY,CenZ,Ocof_b)
   if (iPol == 1) then
     if (nOcOb < nOcc) then
       call Get_Polar(nPrim(1),nBas(1),nAtoms,nOcOb,Ene,nOcc,Ocof,Ocen,LNearestAtom,LFirstRun)
@@ -601,10 +602,10 @@ call mma_deallocate(TM)
 call mma_deallocate(CenX)
 call mma_deallocate(CenY)
 call mma_deallocate(CenZ)
-call Free_MltPlArr(AtMltPl)
-call Free_MltPlArr(AtBoMltPl)
-call Free_MltPlArr(AtBoMltPlCopy)
-call Free_MltPlArr(MltPl)
+call Free_Alloc2DArray(AtMltPl)
+call Free_Alloc2DArray(AtBoMltPl)
+call Free_Alloc2DArray(AtBoMltPlCopy)
+call Free_Alloc2DArray(MltPl)
 call mma_deallocate(CordMltPl)
 call mma_deallocate(Coor)
 call mma_deallocate(Labe)

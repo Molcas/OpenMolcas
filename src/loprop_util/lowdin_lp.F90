@@ -20,11 +20,11 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nDim
 real(kind=wp), intent(in) :: S(nDim,nDim)
-real(kind=wp), intent(out) ::  C(nDim,nDim)
+real(kind=wp), intent(out) :: C(nDim,nDim)
 integer(kind=iwp) :: i, j, k
 real(kind=wp) :: eigenv, sij, toosml
 real(kind=wp), allocatable :: Blk(:,:), Eval(:)
-real(kind=wp), parameter :: DIAGTH = 1.0e-12_wp, DANGER=1.0e3_wp
+real(kind=wp), parameter :: DIAGTH = 1.0e-12_wp, DANGER = 1.0e3_wp
 
 ! diagth  threshold for matrix diagonalization used in
 !         subroutine jacobi.  in jacobi, this  constant

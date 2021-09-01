@@ -23,15 +23,15 @@ integer(kind=iwp), intent(in) :: nBas1, nBas2, nBasMax, nSym, nBas(nSym), nAtoms
 real(kind=wp), intent(in) :: P(*), SubScale
 logical(kind=iwp), intent(in) :: UserDen, PrintDen, SubtractDen, Restart, Utility, TDensity
 real(kind=wp), intent(inout) :: Q_Nuc(nAtoms)
-! OBSERVE! MxState has to be the same as MxStat in cntrl.fh in src/rassi.
-!          (but there's no such variable)
-integer(kind=iwp), parameter :: MxState = 200, MxStOT = MxState*(MxState+1)/2
-integer(kind=iwp) :: iDisk, iMp2Prpt, iOffs, iOfft, iS1, iS2, iSyLbl, iSym, iToc(MxStOT), k, kaunter, Lu_Ud, LuIn, nDens, nScr, &
-                     nSize, nStateM
+integer(kind=iwp) :: iDisk, iMp2Prpt, iOffs, iOfft, iS1, iS2, iSyLbl, iSym, k, kaunter, Lu_Ud, LuIn, nDens, nScr, nSize, nStateM
 character(len=16) :: Label, filename
 character(len=8) :: Method
 logical(kind=iwp) :: Exists, Found, ok1, ok2
+integer(kind=iwp), allocatable :: iToc(:)
 real(kind=wp), allocatable :: D_sq(:,:), DTmp(:), DSym(:), Scr(:), TDMden(:), Tmp(:), User(:)
+! OBSERVE! MxState has to be the same as MxStat in cntrl.fh in src/rassi.
+!          (but there's no such variable)
+integer(kind=iwp), parameter :: MxState = 200, MxStOT = MxState*(MxState+1)/2
 integer(kind=iwp), external :: IsFreeUnit
 
 write(Label,'(A,I1)') 'LoProp Dens ',iPert
@@ -82,6 +82,7 @@ else if (nSym == 1) then
     call DaName(LuIn,'TOFILE')
     iDisk = 0
     ! Table-of-contents
+    call mma_allocate(iToc,MxStOT,label='iToc')
     call iDaFile(LuIn,2,iToc,MxStOT,iDisk)
     ! Allocation of density
     call mma_allocate(TDMden,nSize,label='TDMden')
@@ -100,16 +101,17 @@ else if (nSym == 1) then
         end if
       end do
     end do
+    call mma_deallocate(iToc)
     call mma_deallocate(TDMden)
     call DaClos(LuIn)
   end if
   ! End addition A.Ohrn.
 
+  ! Additions made by P.Soderhjelm to enable LoProp to read in a density matrix
+  ! provided by the user and subtract that from the current one (which could
+  ! in fact be provided by the Userdens keyword. After subtraction the matrix
+  ! is scaled by a constant SubScale. Nuclear charges are set to zero.
   if (SubtractDen) then
-    ! Additions made by P.Soderhjelm to enable LoProp to read in a density matrix
-    ! provided by the user and subtract that from the current one (which could
-    ! in fact be provided by the Userdens keyword. After subtraction the matrix
-    ! is scaled by a constant SubScale. Nuclear charges are set to zero.
     Lu_Ud = 56
     Lu_Ud = IsFreeUnit(Lu_Ud)
     call OpnFl('SUBDEN',Lu_Ud,Exists)

@@ -11,6 +11,7 @@
 
 subroutine Diff_MotherGoose(Diffuse,nAt,nB,MP,nij,EC,ANr,Ttot,Ttot_Inv,lMax,TP,dLimmo,Thrs1,Thrs2,nThrs,iPrint,ThrsMul,LuYou)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -18,8 +19,8 @@ logical(kind=iwp), intent(in) :: Diffuse(3)
 integer(kind=iwp), intent(in) :: nAt, nB, nij, ANr(nAt), lMax, nThrs, iPrint, LuYou
 real(kind=wp), intent(in) :: MP(nij,*), EC(3,nij), Ttot(nB,nB), Ttot_Inv(nB,nB), TP(nAt), dLimmo(2), Thrs1, Thrs2, ThrsMul
 integer(kind=iwp) :: lMaxF
-real(kind=wp) :: Pot_Expo(nij*2), Pot_Fac(nij*4), Pot_Point(nij)
-logical(kind=iwp) :: Diffed(nij*2)
+real(kind=wp), allocatable :: Pot_Expo(:), Pot_Fac(:), Pot_Point(:)
+logical(kind=iwp), allocatable :: Diffed(:)
 
 ! Sag hej till publiken.
 
@@ -27,6 +28,11 @@ write(u6,'(A)') '  Enter Slater charge distribution section.'
 
 ! Take different route for the different methods for getting
 ! diffuse distributions.
+
+call mma_allocate(Pot_Expo,nij*2,label='Pot_Expo')
+call mma_allocate(Pot_Point,nij,label='Pot_Point')
+call mma_allocate(Pot_Fac,nij*4,label='Pot_Fac')
+call mma_allocate(Diffed,nij*2,label='Diffed')
 
 if (Diffuse(2)) then
   write(u6,'(A)') '    ---Run a non-linear fit, (Levenberg-Marquart).'
@@ -44,9 +50,6 @@ elseif (Diffuse(3)) then
   write(u6,*) 'Not programmed yet, bitte sehr.'
   call Abend()
 end if
-991 format(A,E12.5)
-992 format(A,I2)
-993 format(2(A,F10.5))
 
 ! Print, analyze uzw, the result of the diffuse stuff.
 
@@ -57,6 +60,15 @@ call WeGotThis(nAt,nB,MP,nij,EC,lMax,iPrint,Pot_Expo,Pot_Point,Pot_Fac,Diffed)
 lMaxF = 1
 call YouGetThis(EC,Pot_Expo,Pot_Point,Pot_Fac,Diffed,MP,lMax,lMaxF,nij,LuYou)
 
+call mma_deallocate(Pot_Expo)
+call mma_deallocate(Pot_Point)
+call mma_deallocate(Pot_Fac)
+call mma_deallocate(Diffed)
+
 return
+
+991 format(A,E12.5)
+992 format(A,I2)
+993 format(2(A,F10.5))
 
 end subroutine Diff_MotherGoose

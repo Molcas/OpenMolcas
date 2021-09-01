@@ -19,20 +19,20 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nElem, nBas1, iCenter(nBas1), nij, nPert, lMax, iANr(nAtoms), nTemp, iPlot, iPrint, nSym
-real(kind=wp), intent(in) ::  Coor(3,nAtoms), sq_Mu(nBas1**2,0:nElem-1), Origin(3,0:lMax), Ttot_Inv(nBas1**2), C_o_C(3), &
-                              Q_Nuc(nAtoms), Bond_Threshold
+real(kind=wp), intent(in) :: Coor(3,nAtoms), sq_Mu(nBas1**2,0:nElem-1), Origin(3,0:lMax), Ttot_Inv(nBas1**2), C_o_C(3), &
+                             Q_Nuc(nAtoms), Bond_Threshold
 type(Alloc1DArray_Type), intent(inout) :: D(0:6)
-real(kind=wp), intent(out) ::  Sq_Temp(nTemp), Temp(nTemp)
+real(kind=wp), intent(out) :: Sq_Temp(nTemp), Temp(nTemp)
 real(kind=wp), intent(inout) :: rMP(nij,0:nElem-1,0:nPert-1), rMPq(0:nElem-1), EC(3,nij)
 logical(kind=iwp), intent(in) :: Standard
 character(len=12), intent(in) :: Opt_Method
 #include "Molcas.fh"
 integer(kind=iwp) :: i, iAtom, ii, ii_, ij, ij_, iMu, iPert, ix, iy, j, jAtom, ji_, jj, l, mElem, Num_Warnings
-real(kind=wp) :: A(3), Acc, B(3)
+real(kind=wp) :: A(3), Acc
 integer(kind=iwp), allocatable :: T_sets(:), Warnings(:) !, center(:), Charge(:), NBFpA(:)
 real(kind=wp), allocatable :: T_values(:)
 !character(len=LenIn), allocatable :: CNAME(:)
-real(kind=wp), parameter :: Ref(3) = [Zero, Zero, Zero]
+real(kind=wp), parameter :: Ref(3) = [Zero,Zero,Zero]
 
 #include "macros.fh"
 unused_var(nSym)
@@ -104,7 +104,6 @@ do iPert=0,nPert-1
         do iAtom=1,nAtoms
           A(:) = Coor(:,iAtom)
           do jAtom=1,iAtom
-            B(:) = Coor(:,jAtom)
 
             ! Sum up contributions to the domain ij
 

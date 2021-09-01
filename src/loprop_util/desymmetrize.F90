@@ -11,6 +11,7 @@
 
 subroutine Desymmetrize(SOInt,nSOInt,Scr,nScr,AOInt,nBas,nBas1,SymInv,nSym,iSyLbl)
 
+use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -30,8 +31,8 @@ iOffPi = 1
 do iSym=0,nSym-1
   iOffPj = 1
   do jSym=0,iSym
-    ijSym = ieor(iSym,jSym)
-    if (iand(iSyLbl,2**ijSym) /= 0) then
+    ijSym = Mul(iSym+1,jSym+1)-1
+    if (btest(iSyLbl,ijSym)) then
       if (nBas(iSym)*nBas(jSym) == 0) cycle
       if (iSym == jSym) then
 #       ifdef _DEBUGPRINT_

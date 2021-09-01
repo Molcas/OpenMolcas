@@ -17,9 +17,13 @@ type array, after the contents have been garbled.
 #include <stdint.h>
 #ifdef _CAPITALS_
 #define c_null_alloc C_NULL_ALLOC
+#define c_null_alloc2 C_NULL_ALLOC2
 #else
 #ifndef ADD_
 #define c_null_alloc c_null_alloc_
+#define c_null_alloc2 c_null_alloc2_
 #endif
 #endif
 void c_null_alloc(intptr_t* A) { *A = 0; }
+/* silly wrapper to work around compilers complaining about mismatched interfaces */
+void c_null_alloc2(intptr_t* A) { c_null_alloc(A); }

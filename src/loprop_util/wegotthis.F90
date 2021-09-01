@@ -11,6 +11,7 @@
 
 subroutine WeGotThis(nAt,nB,MP,nij,EC,lMax,iPrint,Pot_Expo,Pot_Point,Pot_Fac,Diffed)
 
+use Index_Functions, only: nTri3_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
@@ -20,12 +21,11 @@ integer(kind=iwp), intent(in) :: nAt, nB, nij, lMax, iPrint
 real(kind=wp), intent(in) :: MP(nij,*), EC(3,nij), Pot_Expo(nij*2), Pot_Point(nij), Pot_Fac(nij*4)
 logical(kind=iwp), intent(in) :: Diffed(nij*2)
 integer(kind=iwp) :: iA, iComp, iDC, iOpt, iPP, irc, iSmLbl, jA, k, kaunt, kauntA, kComp, l, nDens, nEPP, nImprove, nShitty
-real(kind=wp) :: chP, CorrCoeff, DeNom, Dif1, Dif2, dMullig((lMax*(lMax**2+6*lMax+11)+6)/6), ElPot_APP, ElPot_MP, ElPot_REF, &
-                 ErrAv1, ErrAv2, ErrCorr, ErrDe1, ErrDe2, ErrMax1, ErrMax2, ErrRe1, ErrRe2, ErrVar1, ErrVar2, Expo(4), PImp, PP, &
-                 PShi, r, rinv, x, y, z
+real(kind=wp) :: chP, CorrCoeff, DeNom, Dif1, Dif2, ElPot_APP, ElPot_MP, ElPot_REF, ErrAv1, ErrAv2, ErrCorr, ErrDe1, ErrDe2, &
+                 ErrMax1, ErrMax2, ErrRe1, ErrRe2, ErrVar1, ErrVar2, Expo(4), PImp, PP, PShi, r, rinv, x, y, z
 logical(kind=iwp) :: D1, D2, Found, Que
 character(len=10) :: OneFile, Label
-real(kind=wp), allocatable :: D1ao(:), ElP(:), EPCo(:,:)
+real(kind=wp), allocatable :: D1ao(:), dMullig(:), ElP(:), EPCo(:,:)
 character(len=10), parameter :: DistType(2) = ['Monopole  ','Dipole    ']
 real(kind=wp) :: Ddot_, ElPot
 interface
@@ -118,6 +118,8 @@ if (Que) then
 
   ! Loop over all points where the electric potential has been sampled.
 
+  call mma_allocate(dMullig,nTri3_Elem1(lMax),label='dMullig')
+
   do iPP=1,nEPP
 
     ! First, get the true electric potential, the reference.
@@ -164,7 +166,7 @@ if (Que) then
         kauntA = kauntA+1
       end do
     end do
-    !write(u6,*)'Minimum Dist:',rMin
+    !write(u6,*) 'Minimum Dist:',rMin
 
     ! Print if requested.
 
@@ -232,6 +234,7 @@ if (Que) then
   call mma_deallocate(ElP)
   call mma_deallocate(D1ao)
   call mma_deallocate(EPCo)
+  call mma_deallocate(dMullig)
   irc = -1
   call ClsOne(irc,0)
 end if

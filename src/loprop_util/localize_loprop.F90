@@ -56,7 +56,7 @@ integer(kind=iwp) :: iBas, IndType(7), iUHF, LuOut, nOcc, nSym
 character(len=128) :: OrbName
 character(len=80) :: Note
 character(len=6) :: Filename
-real(kind=wp), allocatable :: E(:), S(:,:), SSave(:,:),T1(:,:), T2(:,:), T3(:,:), T4(:,:), tmp(:,:)
+real(kind=wp), allocatable :: E(:), S(:,:), SSave(:,:), T1(:,:), T2(:,:), T3(:,:), T4(:,:), tmp(:,:)
 integer(kind=iwp), parameter :: Occ = 1, Vir = 0
 
 !                                                                      *

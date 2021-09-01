@@ -11,6 +11,7 @@
 
 subroutine Print_T_Values(T_Values,iT_Sets,iANr,EC,Bond_Threshold,nAtoms,nij,Standard,iWarnings,Num_Warnings,iPrint)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
@@ -22,18 +23,22 @@ logical(kind=iwp), intent(in) :: Standard
 integer(kind=iwp) :: i, iAtom, ii, ij, j, jAtom, jj, Last_NonBlank
 real(kind=wp) :: Bond_Length, Bond_Max, bs_t, Factor, Radius_i, Radius_j
 integer(kind=iwp), parameter :: iLength = 25
-character(len=LenIn) :: AtomLbl(MxAtom)
-character(len=LenIn4) :: AtomLbl4(MxAtom)
 character(len=iLength) :: Warning
 character(len=17) :: BondLbl
+character(len=LenIn), allocatable :: AtomLbl(:)
+character(len=LenIn4), allocatable :: AtomLbl4(:)
 real(kind=wp), external :: Bragg_Slater
 
 ! Print header
 
-call Get_cArray('LP_L',AtomLbl4,(LenIn4)*nAtoms)
+call mma_allocate(AtomLbl,nAtoms,label='AtomLbl')
+call mma_allocate(AtomLbl4,nAtoms,label='AtomLbl4')
+
+call Get_cArray('LP_L',AtomLbl4,LenIn4*nAtoms)
 do i=1,nAtoms
-  AtomLbl(i)(1:LenIn) = AtomLbl4(i)(1:LenIn)
+  AtomLbl(i) = AtomLbl4(i)(1:LenIn)
 end do
+call mma_deallocate(AtomLbl4)
 ij = 0
 write(u6,*)
 if (Num_Warnings > 0) then
@@ -137,6 +142,8 @@ do iAtom=1,nAtoms
     end if
   end do
 end do
+
+call mma_deallocate(AtomLbl)
 
 return
 

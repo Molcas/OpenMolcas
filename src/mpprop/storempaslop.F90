@@ -58,7 +58,7 @@ do l=0,lMax
       do iAt1=1,nAtoms
         do iAt2=1,iAt1
           iAtK = iAtK+1
-          MP(iAtK,iMu) = AtBoMltPl(l)%M(kompost,iAtK)
+          MP(iAtK,iMu) = AtBoMltPl(l)%A(kompost,iAtK)
         end do
         if (l == 0) then
           MP(iAtK,iMu) = MP(iAtK,iMu)-real(ANr(iAt1),kind=wp)

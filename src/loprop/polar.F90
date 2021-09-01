@@ -21,31 +21,29 @@ subroutine Polar(ireturn)
 !***********************************************************************
 
 use loprop_arrays, only: LP_context_type
-use Data_Structures, only: Alloc1DArray_Type
+use Data_Structures, only: Alloc_Alloc1DArray, Alloc1DArray_Type, Free_Alloc1DArray
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-#include "itmax.fh"
 #include "Molcas.fh"
 #include "timtra.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp), parameter :: nElem = (iTabMx*(iTabMx**2+6*iTabMx+11)+6)/6
 integer(kind=iwp) :: i, i_f, iPert, iPlot, iPrint, lMax, LoProp_Mode, LuYou, mElem, MpProp_Level, nAtoms, nBas(8), nBas1, nBas2, &
                      nBasMax, nDim, nij, nOcOb, nOrb(8), nPert, nSize, nStateF, nStateI, nSym, nTemp, nThrs
-real(kind=wp) :: Alpha, Bond_Threshold, CoC(3), Delta, Dlt, dLimmo(2), dMolExpec, Energy_Without_FFPT, Ep, Origin(3,0:iTabMx), &
-                 SubScale, Thrs1, Thrs2, ThrsMul
+real(kind=wp) :: Alpha, Bond_Threshold, CoC(3), Delta, Dlt, dLimmo(2), dMolExpec, Energy_Without_FFPT, Ep, SubScale, Thrs1, Thrs2, &
+                 ThrsMul
 logical(kind=iwp) :: NoField, Standard, Utility, UserDen, PrintDen, SubtractDen, Restart, TDensity, XHole, Diffuse(3), Exists, &
                      LIonize
 character(len=12) :: Opt_Method
 type(LP_context_type) :: LP_context
-type(Alloc1DArray_Type) :: D(0:6), imu(0:nElem-1)
+type(Alloc1DArray_Type) :: D(0:6)
 character(len=LenIn), allocatable :: LblCnt(:)
 character(len=LenIn4), allocatable :: LblCnt4(:)
-real(kind=wp), allocatable :: Cpl(:,:), CplT(:,:), EC(:,:), Ene_Occ(:), h0(:), MP(:,:,:), MPp(:,:), MPq(:), nxMP(:), Pol(:,:), &
-                              sq_mu(:,:), sq_temp(:), tmp(:), TP(:), Ttot(:,:), Ttot_Inv(:,:), XHLoc2(:), XHole2(:,:), xMP(:), &
-                              xxMP(:)
+real(kind=wp), allocatable :: Cpl(:,:), CplT(:,:), EC(:,:), Ene_Occ(:), h0(:), MP(:,:,:), MPp(:,:), MPq(:), nxMP(:), Origin(:,:), &
+                              Pol(:,:), sq_mu(:,:), sq_temp(:), tmp(:), TP(:), Ttot(:,:), Ttot_Inv(:,:), XHLoc2(:), XHole2(:,:), &
+                              xMP(:), xxMP(:)
+type(Alloc1DArray_Type), allocatable :: imu(:)
 integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
@@ -99,8 +97,10 @@ mElem = (lMax+1)*(lMax+2)*(lMax+3)/6
 nTemp = nBas1**2
 call mma_allocate(tmp,nTemp,label='tmp')
 
+call mma_allocate(Origin,[1,3],[0,lMax],label='Origin')
 call mma_allocate(sq_mu,[1,nBas1**2],[0,mElem-1],label='sq_mu')
 call mma_allocate(MPq,mElem,label='MPq')
+call Alloc_Alloc1DArray(imu,[0,mElem-1],label='imu')
 call Read_Multipole_Int(lMax,sq_mu,nBas,imu,Ttot,tmp,Origin,MPq,mElem,nBas1,nBas2,nBasMax,nTemp,nSym,LP_context%PInv,Restart, &
                         Utility)
 !                                                                      *
@@ -121,6 +121,8 @@ if (XHole) then
 end if
 
 if (.not. NoField) then
+  ! This assumes mElem >= 4, so lMax >= 1
+  if (lMax < 1) call Abend()
   ! Read the one-electron hamiltonian.
   call mma_allocate(h0,nSize,label='h0')
   call Read_h0(nSize,h0,Restart)
@@ -135,9 +137,7 @@ if (.not. NoField) then
   end do
   call mma_deallocate(h0)
 end if
-do i=mElem-1,0,-1
-  call mma_deallocate(imu(i)%A)
-end do
+call Free_Alloc1DArray(imu)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -163,8 +163,7 @@ call Local_Properties(LP_context%C,nAtoms,sq_mu,mElem,sq_temp,Origin,LP_context%
 !   edit the local_properties routine.
 if (XHole) then
   call mma_allocate(XHLoc2,nij,label='XHLoc2')
-  call Local_Xhole(XHole2,nAtoms,nBas1,nTemp,LP_context%center,Ttot,Ttot_Inv,LP_context%C,nij,EC,LP_context%ANr,Bond_Threshold, &
-                   XHLoc2)
+  call Local_Xhole(XHole2,nAtoms,nBas1,nTemp,LP_context%center,Ttot,Ttot_Inv,nij,EC,LP_context%ANr,Bond_Threshold,XHLoc2)
   call mma_deallocate(XHole2)
 else
   call mma_allocate(XHLoc2,0,label='XHLoc2')
@@ -186,6 +185,7 @@ if (Diffuse(1)) then
   call mma_deallocate(MPp)
 end if
 
+call mma_deallocate(Origin)
 call mma_deallocate(sq_mu)
 call mma_deallocate(Ttot)
 call mma_deallocate(Ttot_Inv)
