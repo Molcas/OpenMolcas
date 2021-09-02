@@ -519,6 +519,23 @@ c BP Natural orbitals options
         GoTo 100
       Endif
 c END BP OPTIONS
+c RF SO-NTO
+      If(line(1:4).eq.'SONT') then
+        read(LuIn,*,ERR=997) SONTOSTATES
+        CALL GETMEM('SONTO','ALLO','INTE',LSONTO,2*SONTOSTATES)
+        linenr=linenr+1
+        do ILINE=1,SONTOSTATES
+          read(LuIn,*,ERR=997) (iwork(LSONTO+J-1),J=ILINE*2-1,ILINE*2)
+          linenr=linenr+1
+        enddo
+        goto 100
+      Endif
+      If(line(1:4).eq.'ARGU') then
+        IFARGU=.TRUE.
+        Linenr=Linenr+1
+        goto 100
+      Endif
+c END RF
 C-SVC 2007 2008------------------------------
       If(Line(1:4).eq.'MAGN') then
         IFXCAL=.TRUE.

@@ -202,6 +202,7 @@ C K. Sharkas  BEG
 C K. Sharkas  END
 
 c BP - Hyperfine tensor and SONATORB initialization
+c RF - SO-NTO initialization
       IFACAL=.FALSE.
       IFACALFC=.TRUE.
       IFACALSD=.TRUE.
@@ -210,7 +211,10 @@ c BP - Hyperfine tensor and SONATORB initialization
       SONATNSTATE=0
       SODIAGNSTATE=0
 
+      SONTOSTATES=0
+
       IFCURD=.FALSE.
+      IFARGU=.FALSE.
 
 
 * Nr of states for which natural orbitals will be computed:

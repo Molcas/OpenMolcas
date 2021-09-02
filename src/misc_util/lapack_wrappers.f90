@@ -40,6 +40,7 @@
 ! dsteqr_
 ! dlascl_
 ! dorgtr_
+! zgesvd_
 
 ! For procedures known to raise floating point exceptions in the test suite,
 ! disable exception trapping locally: three pieces of code are needed
@@ -593,3 +594,28 @@ subroutine dorgtr_( uplo, n_, a, lda_, tau, work, lwork_, info_ )
   call dorgtr( uplo, n_, a, lda_, tau, work, lwork_, info_ )
 #endif
 end subroutine
+
+subroutine zgesvd_( jobu, jobvt, m_, n_, a, lda_, s, u, ldu_, &
+  &                   vt, ldvt_, work, lwork_, rwork, info_ )
+  implicit none
+  character          jobu, jobvt
+  integer            info_, lda_, ldu_, ldvt_, lwork_, m_, n_
+  real*8             rwork(*),s(*)
+  complex*16         a(lda_,*),u(ldu_,*),vt(ldvt_,*),work(*)
+#ifdef MOLCAS_TO_LAPACK_INT
+  LAPACKINT          info, lda, ldu, ldvt, lwork, m, n
+  lda=lda_
+  ldu=ldu_
+  ldvt=ldvt_
+  lwork=lwork_
+  m=m_
+  n=n_
+  call zgesvd( jobu, jobvt, m, n, a, lda, s, u, ldu, &
+      &                   vt, ldvt, work, lwork, rwork, info )
+  info_=info
+#else
+  call zgesvd( jobu, jobvt, m_, n_, a, lda_, s, u, ldu_, &
+      &                   vt, ldvt_, work, lwork_, rwork, info_ )
+#endif
+end subroutine
+
