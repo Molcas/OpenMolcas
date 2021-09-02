@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine vd_drt_ci_new()
 #include "drt_h.fh"
 #include "intsort_h.fh"
@@ -43,9 +43,9 @@
 #include "lpextmode_h.fh"
       logic_dh=.true.
       lpok=jpadlr
-c      jmlr=mul_tab(jml,jmr)
-      goto(101,102,103,104,105,106,107,108,109,10,111,112,
-     :     113,114,115,116,10,10,119,120,121,122,123,124,125,10),lpok
+!      jmlr=mul_tab(jml,jmr)
+      goto(101,102,103,104,105,106,107,108,109,10,111,112,              &
+     &     113,114,115,116,10,10,119,120,121,122,123,124,125,10),lpok
 !=======================================================================
 !ss(1) 16: act -b^r-
 101   if(linelp.ne.16) return
@@ -111,8 +111,8 @@ c      jmlr=mul_tab(jml,jmr)
 !=======================================================================
 !ds(7) act -c'-
 107   if(linelp.ne.13) return
-      if(jmr.eq.1)
-     :  call ds_ardlr_act_c1(26 )
+      if(jmr.eq.1)                                                      &
+     &  call ds_ardlr_act_c1(26 )
         call ds_arblbr_act_c1(26 )
       if(jb_sys.gt.0) then
         call ds_arblbr_act_c1_sgt0(26 )
@@ -132,8 +132,8 @@ c      jmlr=mul_tab(jml,jmr)
 !=======================================================================
 !dds(9) ar-bl-br ar-dlr act -c'-
 109   if(linelp.ne.13) return
-      if(jmr.eq.1)
-     :  call dds_ardlr_act_c_sgt0(26 )
+      if(jmr.eq.1)                                                      &
+     &  call dds_ardlr_act_c_sgt0(26 )
       lra=nlg1
       call dds_drlbr_act_c_sgt0(26)
       call dds_arblbr_act_c_sgt0(26 )
@@ -267,9 +267,9 @@ c      jmlr=mul_tab(jml,jmr)
           lp_rwei(mpl)=iwalk_ad(jpad,ipae,iwar,iwdr)
         enddo
         call drl_br_sum_al_new(26,0,0,lra)
-c        do lrk=1,norb_dz
-c          call drl_br_ext_al_new(26,lrk,lra )
-c        enddo
+!        do lrk=1,norb_dz
+!          call drl_br_ext_al_new(26,lrk,lra )
+!        enddo
       endif
       return
 !=======================================================================
@@ -307,7 +307,7 @@ c        enddo
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 #include "lpdisk.fh"
-c      write(6,*)'  sd_wyb'
+!      write(6,*)'  sd_wyb'
 
       call external_space_plpmode_value_ds()
 
@@ -319,7 +319,7 @@ c      write(6,*)'  sd_wyb'
         call get_jpty(jpadlr,jptyl,jptyr)
         call get_jp(jptyl,jml,jpadl,1)
         call get_jp(jptyr,jmr,jpad,1)
-c        jmlr=mul_tab(jml,jmr)
+!        jmlr=mul_tab(jml,jmr)
         call gsd_determine_extarmode_paras(imr,iml,.true.)
         if(linelp.le.12)   then
           call ds_ext_head_in_act()
@@ -337,12 +337,12 @@ c        jmlr=mul_tab(jml,jmr)
 #include "lpextmode_h.fh"
 
       logic_dh=.true.
-c      jmlr=mul_tab(jml,jmr)
+!      jmlr=mul_tab(jml,jmr)
       lpok=jpadlr
 !      goto(101,102,103,104,10,106,107,108,109,10,111,112,
 !     :     113,114,115,116,10,10,119,120,121,122,123,124,125,10),lpok
-      goto(101,102,103,104,105,106,107,108,109,10,111,112,
-     :     113,114,115,116,10,10,119,120,121,122,123,124,125,10),lpok
+      goto(101,102,103,104,105,106,107,108,109,10,111,112,              &
+     &     113,114,115,116,10,10,119,120,121,122,123,124,125,10),lpok
 !=======================================================================
 !ss(1) 16: act -b^r-
 101   if(linelp.ne.16) return
@@ -428,8 +428,8 @@ c      jmlr=mul_tab(jml,jmr)
 !=======================================================================
 !dds(9) ar-bl-br ar-dlr act -c'-
 109   if(linelp.ne.13) return
-      if(jmr.eq.1)
-     :  call dds_ardlr_act_c_sgt0(7)
+      if(jmr.eq.1)                                                      &
+     &  call dds_ardlr_act_c_sgt0(7)
       lra=nlg1
       call dds_drlbr_act_c_sgt0(7)
       call dds_arblbr_act_c_sgt0(7)
@@ -563,9 +563,9 @@ c      jmlr=mul_tab(jml,jmr)
           lp_rwei(mpl)=iwalk_ad(jpad,ipae,iwar,iwdr)
         enddo
         call drl_br_sum_al_new(7,0,0,lra)
-c        do lrk=1,norb_dz
-c          call drl_br_ext_al_new(7,lrk,lra )
-c        enddo
+!        do lrk=1,norb_dz
+!          call drl_br_ext_al_new(7,lrk,lra )
+!        enddo
       endif
 10    return
       end
@@ -610,7 +610,7 @@ c        enddo
 #include "lpextmode_h.fh"
 #include "lpdisk.fh"
 
-c      write(6,*)'  td_wyb'
+!      write(6,*)'  td_wyb'
       call external_space_plpmode_value_dt()
 
       idisk_lp=idisk_array(4)
@@ -621,7 +621,7 @@ c      write(6,*)'  td_wyb'
         call get_jpty(jpadlr,jptyl,jptyr)
         call get_jp(jptyl,jml,jpadl,1)
         call get_jp(jptyr,jmr,jpad,1)
-c        jmlr=mul_tab(jml,jmr)
+!        jmlr=mul_tab(jml,jmr)
         call gsd_determine_extarmode_paras(imr,iml,.false.)
         if(linelp.le.12)   then
           call dt_ext_head_in_act()
@@ -639,12 +639,12 @@ c        jmlr=mul_tab(jml,jmr)
 #include "lpextmode_h.fh"
 
       logic_dh=.true.
-c      jmlr=mul_tab(jml,jmr)
+!      jmlr=mul_tab(jml,jmr)
       lpok=jpadlr
 !      goto(101,102,103,10,10,106,107,10,10,10,111,10,
 !     :     113,114,10,10,10,10,119,10,10,10,123,10,125,10),lpok
-      goto(101,102,103,104,105,106,107,108,109,10,111,112,
-     :     113,114,115,116,10,10,119,120,121,122,123,124,125,10),lpok
+      goto(101,102,103,104,105,106,107,108,109,10,111,112,              &
+     &     113,114,115,116,10,10,119,120,121,122,123,124,125,10),lpok
 !=======================================================================
 !ss(1) 16: act -b^r-
 101   if(linelp.ne.16) return
@@ -730,8 +730,8 @@ c      jmlr=mul_tab(jml,jmr)
 !=======================================================================
 !dds(9) ar-bl-br ar-dlr act -c'-
 109   if(linelp.ne.13) return
-      if(jmr.eq.1)
-     :  call dds_ardlr_act_c_sgt0(14)
+      if(jmr.eq.1)                                                      &
+     &  call dds_ardlr_act_c_sgt0(14)
       lra=nlg1
       call dds_drlbr_act_c_sgt0(14)
       call dds_arblbr_act_c_sgt0(14)
@@ -865,9 +865,9 @@ c      jmlr=mul_tab(jml,jmr)
           lp_rwei(mpl)=iwalk_ad(jpad,ipae,iwar,iwdr)
         enddo
         call drl_br_sum_al_new(14,0,0,lra)
-c        do lrk=1,norb_dz
-c          call drl_br_ext_al_new(14,lrk,lra )
-c        enddo
+!        do lrk=1,norb_dz
+!          call drl_br_ext_al_new(14,lrk,lra )
+!        enddo
       endif
 10    return
       end

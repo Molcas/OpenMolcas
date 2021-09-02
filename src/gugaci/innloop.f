@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-c inner space loop calculation,
-c loops in dbl space, dbl-act space, act space
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+! inner space loop calculation,
+! loops in dbl space, dbl-act space, act space
 !****************************************************************
 !   ar      =1 (+a^r)     drr     =2 (+d^rr)   drl     =3 (+d^rl)
 !   arbr    =4 (+d^rr)    arbl    =5 (+d^rl)   ard_l^r =6 (+a^l)
@@ -19,13 +19,13 @@ c loops in dbl space, dbl-act space, act space
 !****************************************************************
       subroutine inner_space_loop()
       implicit REAL*8 (a-h,o-z)
-c      wsc0=c_time()
+!      wsc0=c_time()
       call dbl_space_loop()
-c      wsc1=c_time()
+!      wsc1=c_time()
       call act_space_cloop()
       call act_space_ploop()
-c      wsc2=c_time()
-c      write(6,'(2x,2(a5,f12.4))')'dbl',wsc1-wsc0,'act',wsc2-wsc1
+!      wsc2=c_time()
+!      write(6,'(2x,2(a5,f12.4))')'dbl',wsc1-wsc0,'act',wsc2-wsc1
       return
       end
 
@@ -71,9 +71,9 @@ c      write(6,'(2x,2(a5,f12.4))')'dbl',wsc1-wsc0,'act',wsc2-wsc1
             if(nu_ad(jpad).eq.0) cycle
             call seg_drt()
             if(ndim .eq. 0) cycle
-c        if( ipae.eq.18.and. jpadl.eq.2.and.jpad.eq.1) then
-c      write(6,*)
-c     endif
+!        if( ipae.eq.18.and. jpadl.eq.2.and.jpad.eq.1) then
+!      write(6,*)
+!     endif
            call ploop_in_act()
           enddo
         enddo
@@ -91,33 +91,33 @@ c     endif
         do lraj=lrai+1,norb_inn
           lmj=lsm_inn(lraj)
           lmij=mul_tab(lmi,lmj)
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 !line=8 d&r&r--d^r^r
           call head_drr_at_given_orb(mh,lrai)
           logic_br(1:mh)=.true.
           call link_c2_to_given_orb(mh,lrai+1,lraj-1)
           call tail_drr_at_given_orb(mh,lraj)
-c          write(6,'(6i6)')8,mh,lrai,lraj,0,0
+!          write(6,'(6i6)')8,mh,lrai,lraj,0,0
           if(mh.ne.0) call act_cloop(8,mh,lrai,lraj,0,0)
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 !line=9 d&r&l--d^r^l
           call head_drl_at_given_orb(mh,lrai)
           call link_c2_to_given_orb(mh,lrai+1,lraj-1)
           call tail_drl_at_given_orb(mh,lraj)
-c          write(6,'(6i6)')9,mh,lrai,lraj,0,0
+!          write(6,'(6i6)')9,mh,lrai,lraj,0,0
           if(mh.ne.0) call act_cloop(9,mh,lrai,lraj,0,0)
           lsmij=mul_tab(lmi,lmj)
-c-----------------------------------------------------------
+!-----------------------------------------------------------
           if(lsmij.ne.1) goto 400
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 !line=1 a&r--a^r
           call head_ar_at_given_orb(mh,lrai)
           call link_c1_to_given_orb_coe(mh,lrai+1,lraj-1)
           call tail_ar_at_given_orb_coe(mh,lraj)
-c          write(6,'(6i6)')1,mh,lrai,lraj,0,0
+!          write(6,'(6i6)')1,mh,lrai,lraj,0,0
           if(mh.ne.0) call act_cloop(1,mh,lrai,lraj,0,0)
-c          call save_clp(1,mh,lra,0)
-c-----------------------------------------------------------
+!          call save_clp(1,mh,lra,0)
+!-----------------------------------------------------------
 !line=2 a&r-d^r&l-a^l
           do lrak=lrai+1,lraj-1
             call head_ar_at_given_orb(mh,lrai)
@@ -125,10 +125,10 @@ c-----------------------------------------------------------
             call link_d10_at_given_orb(mh,lrak)
             call link_c1_to_given_orb(mh,lrak+1,lraj-1)
             call tail_al_at_given_orb(mh,lraj)
-c          write(6,'(6i6)')2,mh,lrai,lraj,lrak,0
+!          write(6,'(6i6)')2,mh,lrai,lraj,lrak,0
             if(mh.ne.0) call act_cloop(2,mh,lrai,lraj,lrak,0)
           enddo
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 !line=3 a&r-b&r-d^r^r
           do lrak=lraj+1,norb_inn
            call head_ar_at_given_orb(mh,lrai)
@@ -137,9 +137,9 @@ c-----------------------------------------------------------
             logic_br(1:mh)=.true.
             call link_c2_to_given_orb(mh,lraj+1,lrak-1)
             call tail_drr_at_given_orb(mh,lrak)
-c          write(6,'(6i6)')3,mh,lrai,lraj,lrak,0
+!          write(6,'(6i6)')3,mh,lrai,lraj,lrak,0
             if(mh.ne.0) call act_cloop(3,mh,lrai,lraj,lrak,0)
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 !line=5 a&r-b&l-d^r^l
             call head_ar_at_given_orb(mh,lrai)
             call link_c1_to_given_orb(mh,lrai+1,lraj-1)
@@ -147,10 +147,10 @@ c-----------------------------------------------------------
             logic_br(1:mh)=.true.
             call link_c2_to_given_orb(mh,lraj+1,lrak-1)
             call tail_drl_at_given_orb(mh,lrak)
-c          write(6,'(6i6)')5,mh,lrai,lraj,lrak,0
+!          write(6,'(6i6)')5,mh,lrai,lraj,lrak,0
             if(mh.ne.0) call act_cloop(5,mh,lrai,lraj,lrak,0)
           enddo
-c-----------------------------------------------------------
+!-----------------------------------------------------------
           do lrak=norb_dz+1,lrai-1
 !line=10 d&rr--b^r--a^r
             call head_drr_at_given_orb(mh,lrak)
@@ -159,25 +159,25 @@ c-----------------------------------------------------------
             call link_b2_at_given_orb(mh,lrai)
             call link_c1_to_given_orb(mh,lrai+1,lraj-1)
             call tail_ar_at_given_orb(mh,lraj)
-c          write(6,'(6i6)')10,mh,lrai,lraj,lrak,0
+!          write(6,'(6i6)')10,mh,lrai,lraj,lrak,0
             if(mh.ne.0) call act_cloop(10,mh,lrai,lraj,lrak,0)
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 !line=11 d&r&l-b^r-a^l
            call head_drl_at_given_orb(mh,lrak)
             call link_c2_to_given_orb(mh,lrak+1,lrai-1)
             call link_b2_at_given_orb(mh,lra)
             call link_c1_to_given_orb(mh,lrai+1,lraj-1)
             call tail_al_at_given_orb(mh,lraj)
-c          write(6,'(6i6)')11,mh,lrai,lraj,lrak,0
+!          write(6,'(6i6)')11,mh,lrai,lraj,lrak,0
             if(mh.ne.0) call act_cloop(11,mh,lrai,lraj,lrak,0)
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 !line=12 d&r&l-b^l-a^r
            call head_drl_at_given_orb(mh,lrak)
             call link_c2_to_given_orb(mh,lrak+1,lrai-1)
             call link_b1_at_given_orb(mh,lrai)
             call link_c1_to_given_orb(mh,lrai+1,lraj-1)
             call tail_ar_at_given_orb(mh,lraj)
-c          write(6,'(6i6)')12,mh,lrai,lraj,lrak,0
+!          write(6,'(6i6)')12,mh,lrai,lraj,lrak,0
             if(mh.ne.0) call act_cloop(12,mh,lrai,lraj,lrak,0)
           enddo
 400       if(lraj.gt.norb_inn-2) cycle
@@ -197,9 +197,9 @@ c          write(6,'(6i6)')12,mh,lrai,lraj,lrak,0
               call link_b2_at_given_orb(mh,lrak)
               call link_c1_to_given_orb(mh,lrak+1,lral-1)
               call tail_ar_at_given_orb(mh,lral)
-c          write(6,'(6i6)')4,mh,lrai,lral,lraj,lrak
+!          write(6,'(6i6)')4,mh,lrai,lral,lraj,lrak
               if(mh.ne.0) call act_cloop(4,mh,lrai,lral,lraj,lrak)
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 !line=6  a&r--b&l--b^r--a^l
               call head_ar_at_given_orb(mh,lrai)
               call link_c1_to_given_orb(mh,lrai+1,lraj-1)
@@ -209,9 +209,9 @@ c-----------------------------------------------------------
               call link_b2_at_given_orb(mh,lrak)
               call link_c1_to_given_orb(mh,lrak+1,lral-1)
               call tail_al_at_given_orb(mh,lral)
-c          write(6,'(6i6)')6,mh,lrai,lral,lraj,lrak
+!          write(6,'(6i6)')6,mh,lrai,lral,lraj,lrak
               if(mh.ne.0) call act_cloop(6,mh,lrai,lral,lraj,lrak)
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 !line=7 a&r--b&l--b^l--a^r
               call head_ar_at_given_orb(mh,lrai)
               call link_c1_to_given_orb(mh,lrai+1,lraj-1)
@@ -221,9 +221,9 @@ c-----------------------------------------------------------
               call link_b1_at_given_orb(mh,lrak)
               call link_c1_to_given_orb(mh,lrak+1,lral-1)
               call tail_ar_at_given_orb(mh,lral)
-c          write(6,'(6i6)')7,mh,lrai,lral,lraj,lrak
+!          write(6,'(6i6)')7,mh,lrai,lral,lraj,lrak
               if(mh.ne.0) call act_cloop(7,mh,lrai,lral,lraj,lrak)
-c-----------------------------------------------------------
+!-----------------------------------------------------------
             enddo
           enddo
         enddo
@@ -236,32 +236,32 @@ c-----------------------------------------------------------
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-c===========================================================
+!===========================================================
       do lrai=norb_dz+1,norb_inn
 !line=25 -c"-d^r^r
         logic_br(1)=.true.
         call link_c2_to_given_orb(mh,norb_dz+1,lrai-1)
         call tail_drr_at_given_orb(mh,lrai)
         if(mh.ne.0)  call lp_act_tail(25,mh,0,lrai)
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 !line=26 -c"-d^r^l
         logic_br(1)=.true.
         call link_c2_to_given_orb(mh,norb_dz+1,lrai-1)
         call tail_drl_at_given_orb(mh,lrai)
         if(mh.ne.0)  call lp_act_tail(26,mh,0,lrai)
-c===========================================================
+!===========================================================
 !line=23 -c'-a^l
         call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
         call tail_al_at_given_orb(mh,lrai)
         if(mh.ne.0)  call lp_act_tail(23,mh,0,0)
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 !line=24 -c'-a^r
         call link_c1_to_given_orb_coe(mh,norb_dz+1,lrai-1)
         call tail_ar_at_given_orb_coe(mh,lrai)
         if(mh.ne.0)  call lp_act_tail(24,mh,0,0)
-c===========================================================
+!===========================================================
         do lrak=lrai+1,norb_inn
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 !line=30 -c'-b&r-d^r^r
           call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
           call link_b4_at_given_orb(mh,lrai)
@@ -269,7 +269,7 @@ c-----------------------------------------------------------
           call link_c2_to_given_orb(mh,lrai+1,lrak-1)
           call tail_drr_at_given_orb(mh,lrak)
           if(mh.ne.0)  call lp_act_tail(30,mh,lrai,0)
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 !line=31 -c'-b&l-d^r^l
           call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
           call link_b3_at_given_orb(mh,lrai)
@@ -278,9 +278,9 @@ c-----------------------------------------------------------
           call tail_drl_at_given_orb(mh,lrak)
           if(mh.ne.0)  call lp_act_tail(31,mh,lrai,0)
         enddo
-c===========================================================
+!===========================================================
         do lrak=norb_dz+1,lrai-1
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 !line=35 -c'-d^r&l-a^l
           call link_c1_to_given_orb(mh,norb_dz+1,lrak-1)
           call link_d10_at_given_orb(mh,lrak)
@@ -288,32 +288,32 @@ c-----------------------------------------------------------
           call tail_al_at_given_orb(mh,lrai)
           if(mh.ne.0)  call lp_act_tail(35,mh,lrak,lrak)
          enddo
-c===========================================================
+!===========================================================
         do lraj=lrai+1,norb_inn
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 !line=27 -c"-b^r-a^r
           call link_c2_to_given_orb(mh,norb_dz+1,lrai-1)
           call link_b2_at_given_orb(mh,lrai)
           call link_c1_to_given_orb(mh,lrai+1,lraj-1)
           call tail_ar_at_given_orb(mh,lraj)
           if(mh.ne.0)  call lp_act_tail(27,mh,0,lrai)
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 !line=28 -c"-b^l-a^r
           call link_c2_to_given_orb(mh,norb_dz+1,lrai-1)
           call link_b1_at_given_orb(mh,lrai)
           call link_c1_to_given_orb(mh,lrai+1,lraj-1)
           call tail_ar_at_given_orb(mh,lraj)
           if(mh.ne.0)  call lp_act_tail(28,mh,0,lrai)
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 !line=29 -c"-b^r-a^l
           call link_c2_to_given_orb(mh,norb_dz+1,lrai-1)
           call link_b2_at_given_orb(mh,lrai)
           call link_c1_to_given_orb(mh,lrai+1,lraj-1)
           call tail_al_at_given_orb(mh,lraj)
           if(mh.ne.0)  call lp_act_tail(29,mh,0,lrai)
-c-----------------------------------------------------------
+!-----------------------------------------------------------
           do lral=lraj+1,norb_inn
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 !line=32 -c'-b&r-c"-b^r-a^r
             call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
             call link_b4_at_given_orb(mh,lrai)
@@ -323,7 +323,7 @@ c-----------------------------------------------------------
             call link_c1_to_given_orb(mh,lraj+1,lral-1)
             call tail_ar_at_given_orb(mh,lral)
            if(mh.ne.0)  call lp_act_tail(32,mh,lrai,lraj)
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 !line=33 -c'-b&l-c"-b^r-a^l
             call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
             call link_b3_at_given_orb(mh,lrai)
@@ -333,7 +333,7 @@ c-----------------------------------------------------------
             call link_c1_to_given_orb(mh,lraj+1,lral-1)
             call tail_al_at_given_orb(mh,lral)
            if(mh.ne.0)  call lp_act_tail(33,mh,lrai,lraj)
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 !line=34 -c'-b&l-c"-b^l-a^r
             call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
             call link_b3_at_given_orb(mh,lrai)
@@ -345,7 +345,7 @@ c-----------------------------------------------------------
             if(mh.ne.0)  call lp_act_tail(34,mh,lrai,lraj)
           enddo
         enddo
-c-----------------------------------------------------------
+!-----------------------------------------------------------
       enddo
       return
       end
@@ -442,7 +442,7 @@ c-----------------------------------------------------------
         enddo
       enddo
       mh=lpnew
-c      call change_vplp_pointer_arrays()
+!      call change_vplp_pointer_arrays()
       end
 
       subroutine act_cloop(lin,mh,lr0,lr,lrg0,lrs0)
@@ -465,7 +465,7 @@ c      call change_vplp_pointer_arrays()
         vlop1 =vplpnew_w1(mhlp)
 
         goto (31,32,21,13,22,11,12,51,52,41,42,43),line
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 31          do l=norb_dz+1,lr
               lpcoe(l)=lpnew_coe(l,mhlp)
             enddo
@@ -481,54 +481,54 @@ c-----------------------------------------------------------
 32          list=list3(lr0,lr,lrg)
             wl=vlop0*vint_ci(list)
             goto 500
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 11           list=list4(lr0,lrg,lrs,lr)
-             wl=vlop0*(vint_ci(list)-2*vint_ci(list+1))
-     :             -vlop1*vint_ci(list)
+             wl=vlop0*(vint_ci(list)-2*vint_ci(list+1))                 &
+     &             -vlop1*vint_ci(list)
              goto 500
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 12           list=list4(lr0,lrg,lrs,lr)
-             wl=vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1))
-     :           -vlop1*vint_ci(list+2)
+             wl=vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1))           &
+     &           -vlop1*vint_ci(list+2)
              goto 500
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 13           list=list4(lr0,lrg,lrs,lr)
-             wl=vlop0*(vint_ci(list+2)+vint_ci(list))
-     :             -vlop1*(vint_ci(list+2)-vint_ci(list))
+             wl=vlop0*(vint_ci(list+2)+vint_ci(list))                   &
+     &             -vlop1*(vint_ci(list+2)-vint_ci(list))
              goto 500
-c-----------------------------------------------------------
-c21           list=list3(lr0,lrg,lrg)
+!-----------------------------------------------------------
+!21           list=list3(lr0,lrg,lrg)
 21           list=list3(lr0,lr,lrg)
              wl=(vlop0+vlop1)*vint_ci(list)
              goto 500
-c-----------------------------------------------------------
-c22           list=list3(lr0,lrg,lr)
+!-----------------------------------------------------------
+!22           list=list3(lr0,lrg,lr)
 22           list=list3(lr0,lr,lrg)
-             wl=vlop0*(vint_ci(list)-2.0d0*vint_ci(list+1))
-     :           -vlop1*vint_ci(list)
+             wl=vlop0*(vint_ci(list)-2.0d0*vint_ci(list+1))             &
+     &           -vlop1*vint_ci(list)
              goto 500
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 51            wl=vlop0*voint(lr,lr0)*0.5d0
               goto 500
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 52            wl=(vlop0-vlop1)*voint(lr,lr0)
               goto 500
-c-----------------------------------------------------------
-c41            list=list3(lrg,lr,lr0)
+!-----------------------------------------------------------
+!41            list=list3(lrg,lr,lr0)
 41            list=list3(lr0,lr,lrg)
               wl=(vlop0+vlop1)*vint_ci(list)
               goto 500
-c-----------------------------------------------------------
-c42            list=list3(lrg,lr,lr0)
+!-----------------------------------------------------------
+!42            list=list3(lrg,lr,lr0)
 42            list=list3(lr0,lr,lrg)
               wl=(vlop0-vlop1)*vint_ci(list)
               goto 500
-c-----------------------------------------------------------
-c43            list=list3(lrg,lr,lr0)
+!-----------------------------------------------------------
+!43            list=list3(lrg,lr,lr0)
 43            list=list3(lr0,lr,lrg)
-              wl=vlop0*(vint_ci(list)-2.0d0*vint_ci(list+1))
-     :           -vlop1*vint_ci(list)
-c-----------------------------------------------------------
+              wl=vlop0*(vint_ci(list)-2.0d0*vint_ci(list+1))            &
+     &           -vlop1*vint_ci(list)
+!-----------------------------------------------------------
 500     call prodab(2,jph,jpel,jwl,jwr,0,wl,jper)
       enddo
       return
@@ -563,11 +563,11 @@ c-----------------------------------------------------------
       lpok=map_jplr(itypadl,itypadr)
       if(lpok.eq.0) return
 !          23   24 25 26 27 28 29 30 31 32 33 34 35
-      goto(100,200,300,400,500,600,700,800,900,1000,1100,1200,1300),
-     :    line-22
+      goto(100,200,300,400,500,600,700,800,900,1000,1100,1200,1300),    &
+     &    line-22
 !line=23:-a^l<-->ds(7),dds(9),dt(14),ddtt(16)
-100   goto(10,10,10,10,10,10,107,10,109,10,10,10,
-     :     10,114,10,116,10,10,10,10,10,10,10,10,10,10),lpok
+100   goto(10,10,10,10,10,10,107,10,109,10,10,10,                       &
+     &     10,114,10,116,10,10,10,10,10,10,10,10,10,10),lpok
 !ds(7-1) ar(23)-drl(30)-
 107   do lri=norb_frz+1,norb_dz
         lmi=lsm_inn(lri)
@@ -603,8 +603,8 @@ c-----------------------------------------------------------
            vlop0=w0*w0ds3
             vlop1=w1*w1ds3
            list=list4(lrd,lri,lrj,lra)
-            wl=(vlop0-vlop1)*vint_ci(list)-
-     :               2*vlop0*vint_ci(list+1)            !1.1
+            wl=(vlop0-vlop1)*vint_ci(list)-                             &
+     &               2*vlop0*vint_ci(list+1)            !1.1
            call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
             if(jb_sys.gt.0) then
 !ds(7-2) ar(23)-bl(31)-br(32)-         the symmetry problem
@@ -617,8 +617,8 @@ c-----------------------------------------------------------
              vlop0=w0*w0ds3
               vlop1=w1*w1ds3
             list=list4(lrd,lri,lrj,lra)
-              wl=(vlop0-vlop1)*vint_ci(list)-
-     :                 2*vlop0*vint_ci(list+1)            !1.1
+              wl=(vlop0-vlop1)*vint_ci(list)-                           &
+     &                 2*vlop0*vint_ci(list+1)            !1.1
              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
             endif
           enddo
@@ -675,8 +675,8 @@ c-----------------------------------------------------------
            vlop0=w0*w0ds3
             vlop1=w1*w1ds3
            list=list4(lrd,lri,lrj,lra)
-            wl=(vlop0-vlop1)*vint_ci(list)-
-     :               2*vlop0*vint_ci(list+1)            !1.1
+            wl=(vlop0-vlop1)*vint_ci(list)-                             &
+     &               2*vlop0*vint_ci(list+1)            !1.1
            call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
             if(jb_sys.gt.0) then
 !d1s(9-2)   ar(13)-bl(31)-br(32)-   the symmetry problem
@@ -689,8 +689,8 @@ c-----------------------------------------------------------
              vlop0=w0*w0ds3
               vlop1=w1*w1ds3
             list=list4(lrd,lri,lrj,lra)
-              wl=(vlop0-vlop1)*vint_ci(list)-
-     :                 2*vlop0*vint_ci(list+1)            !1.1
+              wl=(vlop0-vlop1)*vint_ci(list)-                           &
+     &                 2*vlop0*vint_ci(list+1)            !1.1
              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
             endif
           enddo
@@ -754,8 +754,8 @@ c-----------------------------------------------------------
       enddo
       return
 !line=24:-a^r<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
-200   goto(10,10,10,10,10,206,10,208,10,10,10,10,
-     :     213,10,215,10,10,10,10,10,10,10,223,224,10,10),lpok
+200   goto(10,10,10,10,10,206,10,208,10,10,10,10,                       &
+     &     213,10,215,10,10,10,10,10,10,10,223,224,10,10),lpok
 
 206   call sd_head_dbl_tail_act(lra,lpcoe)
       return
@@ -829,7 +829,7 @@ c-----------------------------------------------------------
             call neoc(kcoe,nocc,tcoe)
             wl=wl+vlop0*nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
           enddo
-c            wl=wl*vlop0
+!            wl=wl*vlop0
 !td(13-4) d&r&l(22)b^l(23)
           vlop0=w0*w0td4
           vlop1=w1*w0td4
@@ -867,8 +867,8 @@ c            wl=wl*vlop0
           vlop0=w0*w0td2
           vlop1=w1*w1td2
           list=list4(lri,lrj,lrd,lra)
-          wl=vlop0*(vint_ci(list+2)+vint_ci(list))  !1.3
-     :       -vlop1*(vint_ci(list+2)-vint_ci(list))
+          wl=vlop0*(vint_ci(list+2)+vint_ci(list))                      & !1.3
+     &       -vlop1*(vint_ci(list+2)-vint_ci(list))
         call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
         enddo
 !td(13-3) a&(23)b&l(32)b^l(23)
@@ -884,8 +884,8 @@ c            wl=wl*vlop0
           vlop0=w0*w0td3                !d6-8
           vlop1=w1*w1td3
           list=list4(lri,lrd,lrj,lra)
-        wl=vlop0*(vint_ci(list+2)-2*vint_ci(list+1))      !1.2
-     :       -vlop1*vint_ci(list+2)
+        wl=vlop0*(vint_ci(list+2)-2*vint_ci(list+1))                    & !1.2
+     &       -vlop1*vint_ci(list+2)
         call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
         enddo
       enddo
@@ -907,7 +907,7 @@ c            wl=wl*vlop0
         if(ni.eq.1) w0dv1=-w0dv1
         vlop0=w0*w0dv1                !d23-1
         vlop1=w1*w0dv1
-c**********************************************************
+!**********************************************************
               lr0=lrd
               lr=kk(jpel) -1
               list=list3(lr0,lr,lr0)
@@ -934,7 +934,7 @@ c**********************************************************
            wl_430=wl_430+vlop0*(vint_ci(list)-2*vint_ci(list+1))       !
           enddo
           wl=wl+wl_430
-c**********************************************************
+!**********************************************************
           call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
       enddo
       return
@@ -950,7 +950,7 @@ c**********************************************************
         if(ni.eq.1) w0dv1=-w0dv1
         vlop0=w0*w0dv1                !d24-1
         vlop1=w1*w0dv1
-c**********************************************************
+!**********************************************************
           lr0=lrd
           lr=kk(jpel) -1
           list=list3(lr0,lr,lr0)
@@ -977,13 +977,13 @@ c**********************************************************
            wl_430=wl_430+vlop0*(vint_ci(list)-2*vint_ci(list+1))       !
           enddo
           wl=wl+wl_430
-c**********************************************************
+!**********************************************************
           call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
       enddo
       return
 !line=25:-d^r^r<-->sv(10),tv(17),ttv(18)
-300   goto(10,10,10,10,10,10,10,10,10,310,10,10,
-     :     10,10,10,10,317,318,10,10,10,10,10,10,10,10),lpok
+300   goto(10,10,10,10,10,10,10,10,10,310,10,10,                        &
+     &     10,10,10,10,317,318,10,10,10,10,10,10,10,10),lpok
 
 310   call sv_head_dbl_tail_act(lra)
       return
@@ -1023,14 +1023,14 @@ c**********************************************************
       return   ! tmp for spin=0
 
 !line=26:-d^r^l<-->ss(1),st(2),ts(3),stt(4),tts(5),tt(11),tttt(12),dd(19
-400   goto(401,402,403,404,405,10,10,10,10,10,411,412,
-     :     10,10,10,10,10,10,419,420,421,422,10,10,425,10),lpok
+400   goto(401,402,403,404,405,10,10,10,10,10,411,412,                  &
+     &     10,10,10,10,10,10,419,420,421,422,10,10,425,10),lpok
 401   call ss_head_dbl_tail_act(lra)
       return
 
 402   call st_head_dbl_tail_act(lra)
       return
-c=======================================================================
+!=======================================================================
 403   call ts_head_dbl_tail_act(lra)
       return
 
@@ -1072,8 +1072,8 @@ c=======================================================================
 
 !   sv(10),tv(17),ttv(18)
 !line=27:-b^r-a^r<-->sv(10),tv(17),ttv(18)
-500   goto(10,10,10,10,10,10,10,10,10,510,10,10,
-     :   10,10,10,10,517,518,10,10,10,10,10,10,10,10),lpok
+500   goto(10,10,10,10,10,10,10,10,10,510,10,10,                        &
+     &   10,10,10,10,517,518,10,10,10,10,10,10,10,10),lpok
 
 510   call sv_head_dbl_tail_act(lra)
       return
@@ -1116,8 +1116,8 @@ c=======================================================================
       return   ! tmp for spin=0
 
 !line=28:-b^l-a^r<-->ss(1),st(2),ts(3),stt(4),tts(5),tt(11),tttt(12),dd(
-600     goto(601,602,603,604,605,10,10,10,10,10,611,612,
-     :     10,10,10,10,10,10,619,620,621,622,10,10,625,10),lpok
+600     goto(601,602,603,604,605,10,10,10,10,10,611,612,                &
+     &     10,10,10,10,10,10,619,620,621,622,10,10,625,10),lpok
 601   call ss_head_dbl_tail_act(lra)
       return
 
@@ -1165,8 +1165,8 @@ c=======================================================================
       return
 
 !line=29:-b^r-a^l<-->ss(1),st(2),ts(3),stt(4),tts(5),tt(11),tttt(12),dd(
-700      goto(701,702,703,704,705,10,10,10,10,10,711,712,
-     :     10,10,10,10,10,10,719,720,721,722,10,10,725,10),lpok
+700      goto(701,702,703,704,705,10,10,10,10,10,711,712,               &
+     &     10,10,10,10,10,10,719,720,721,722,10,10,725,10),lpok
 701   call ss_head_dbl_tail_act(lra)
       return
 
@@ -1214,8 +1214,8 @@ c=======================================================================
       return
 
 !line=30:-b&r-d^r^r<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
-800   goto(10,10,10,10,10,806,10,808,10,10,10,10,
-     :     813,10,815,10,10,10,10,10,10,10,823,824,10,10),lpok
+800   goto(10,10,10,10,10,806,10,808,10,10,10,10,                       &
+     &     813,10,815,10,10,10,10,10,10,10,823,824,10,10),lpok
 !                                    sd(6-3) a&r(13)c'(22)-
 806   call dbl_sd_act_comp(3,lra)
       return
@@ -1263,8 +1263,8 @@ c=======================================================================
       return
 
 !line=31:-b&l-d^r^l<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
-900   goto(10,10,10,10,10,906,10,908,10,10,10,10,
-     :     913,10,915,10,10,10,10,10,10,10,923,924,10,10),lpok
+900   goto(10,10,10,10,10,906,10,908,10,10,10,10,                       &
+     &     913,10,915,10,10,10,10,10,10,10,923,924,10,10),lpok
 906   call dbl_sd_act_comp(5,lra)
       return
 
@@ -1288,8 +1288,8 @@ c=======================================================================
         vlop0=w0*w0dv1                !d23-1
         vlop1=w1*w0dv1
         list=list3(lrd,lrg,lra)
-        wl=vlop0*(vint_ci(list)-2*vint_ci(list+1))   !2.2          !!!!!
-     :       -vlop1*(vint_ci(list))
+        wl=vlop0*(vint_ci(list)-2*vint_ci(list+1))                      & !2.2          !!!!!
+     &       -vlop1*(vint_ci(list))
         call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
       enddo
       return
@@ -1305,15 +1305,15 @@ c=======================================================================
         vlop0=w0*w0dv1                !d23-1
         vlop1=w1*w0dv1
         list=list3(lrd,lrg,lra)
-        wl=vlop0*(vint_ci(list)-2*vint_ci(list+1))   !2.2          !!!!!
-     :       -vlop1*(vint_ci(list))
+        wl=vlop0*(vint_ci(list)-2*vint_ci(list+1))                      & !2.2          !!!!!
+     &       -vlop1*(vint_ci(list))
         call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
       enddo
       return
 
 !line=32:-b&r-b^r-a^r<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
-1000  goto(10,10,10,10,10,1006,10,1008,10,10,10,10,
-     :     1013,10,1015,10,10,10,10,10,10,10,1023,1024,10,10),lpok
+1000  goto(10,10,10,10,10,1006,10,1008,10,10,10,10,                     &
+     &     1013,10,1015,10,10,10,10,10,10,10,1023,1024,10,10),lpok
 1006  call dbl_sd_act_comp(4,lra)
       return
 1008  call dbl_sdd_act_comp(4,lra)
@@ -1335,8 +1335,8 @@ c=======================================================================
         vlop0=w0*w0dv1                !d23-1
         vlop1=w1*w0dv1
         list=list4(lrd,lrg,lrs,lra)
-        wl=vlop0*(vint_ci(list+2)+vint_ci(list))  !1.3        !!!!!
-     :       -vlop1*(vint_ci(list+2)-vint_ci(list))
+        wl=vlop0*(vint_ci(list+2)+vint_ci(list))                        & !1.3        !!!!!
+     &       -vlop1*(vint_ci(list+2)-vint_ci(list))
         call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
       enddo
       return
@@ -1352,14 +1352,14 @@ c=======================================================================
         vlop0=w0*w0dv1                !d23-1
         vlop1=w1*w0dv1
         list=list4(lrd,lrg,lrs,lra)
-        wl=vlop0*(vint_ci(list+2)+vint_ci(list))  !1.3        !!!!!
-     :       -vlop1*(vint_ci(list+2)-vint_ci(list))
+        wl=vlop0*(vint_ci(list+2)+vint_ci(list))                        & !1.3        !!!!!
+     &       -vlop1*(vint_ci(list+2)-vint_ci(list))
         call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
       enddo
       return
 !line=33:-b&l-b^r-a^l<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
-1100  goto(10,10,10,10,10,1106,10,1108,10,10,10,10,
-     :     1113,10,1115,10,10,10,10,10,10,10,1123,1124,10,10),lpok
+1100  goto(10,10,10,10,10,1106,10,1108,10,10,10,10,                     &
+     &     1113,10,1115,10,10,10,10,10,10,10,1123,1124,10,10),lpok
 1106  call dbl_sd_act_comp(6,lra)
       return
 1108  call dbl_sdd_act_comp(6,lra)
@@ -1382,8 +1382,8 @@ c=======================================================================
         vlop0=w0*w0dv1                !d23-1
         vlop1=w1*w0dv1
         list=list4(lrd,lrg,lrs,lra)
-        wl=vlop0*(vint_ci(list)-2*vint_ci(list+1))  !1.1          !!!!!
-     :       -vlop1*vint_ci(list)
+        wl=vlop0*(vint_ci(list)-2*vint_ci(list+1))                      & !1.1          !!!!!
+     &       -vlop1*vint_ci(list)
           call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
       enddo
       return
@@ -1399,14 +1399,14 @@ c=======================================================================
         vlop0=w0*w0dv1                !d23-1
         vlop1=w1*w0dv1
         list=list4(lrd,lrg,lrs,lra)
-        wl=vlop0*(vint_ci(list)-2*vint_ci(list+1))  !1.1          !!!!!
-     :       -vlop1*vint_ci(list)
+        wl=vlop0*(vint_ci(list)-2*vint_ci(list+1))                      & !1.1          !!!!!
+     &       -vlop1*vint_ci(list)
           call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
       enddo
       return
 !line=34:-b&l-b^l-a^r<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
-1200  goto(10,10,10,10,10,1206,10,1208,10,10,10,10,
-     :     1213,10,1215,10,10,10,10,10,10,10,1223,1224,10,10),lpok
+1200  goto(10,10,10,10,10,1206,10,1208,10,10,10,10,                     &
+     &     1213,10,1215,10,10,10,10,10,10,10,1223,1224,10,10),lpok
 1206   call dbl_sd_act_comp(7,lra)
       return
 1208  call dbl_sdd_act_comp(7,lra)
@@ -1428,8 +1428,8 @@ c=======================================================================
         vlop0=w0*w0dv1                !d23-1
         vlop1=w1*w0dv1
         list=list4(lrd,lrg,lrs,lra)
-        wl=vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1)) !1.2      !!!!!
-     :           -vlop1*vint_ci(list+2)
+        wl=vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1))                & !1.2      !!!!!
+     &           -vlop1*vint_ci(list+2)
           call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
       enddo
       return
@@ -1445,14 +1445,14 @@ c=======================================================================
         vlop0=w0*w0dv1                !d23-1
         vlop1=w1*w0dv1
         list=list4(lrd,lrg,lrs,lra)
-        wl=vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1)) !1.2      !!!!!
-     :           -vlop1*vint_ci(list+2)
+        wl=vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1))                & !1.2      !!!!!
+     &           -vlop1*vint_ci(list+2)
           call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
       enddo
       return
 !line=35:-d&r^l-a^l<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
-1300  goto(10,10,10,10,10,1306,10,1308,10,10,10,10,
-     :     1313,10,1315,10,10,10,10,10,10,10,1323,1324,10,10),lpok
+1300  goto(10,10,10,10,10,1306,10,1308,10,10,10,10,                     &
+     &     1313,10,1315,10,10,10,10,10,10,10,1323,1324,10,10),lpok
 1306   call dbl_sd_act_comp(2,lra)
       return
 1308   call dbl_sdd_act_comp(2,lra)
@@ -1595,66 +1595,66 @@ c=======================================================================
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
       goto (31,32,21,13,22,11,12,51,52,41,42,43),line
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 31    goto 500
-c         do l=norb_dz+1,lr-1
-c                lpcoe(l)=lp_coe(l,mpl)
-c             enddo
-c            lpcoe(lr)=kcoe
-c             wl=voint(lr0,lr)
-c             do l=lr0,lr
-c               list=list3(lr0,lr,l)
-c               kcoe=lpcoe(l)
-c               call neoc(kcoe,nocc,tcoe)
-c               wl=wl+nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
-c             enddo
-c             wl=wl*vlop0
+!         do l=norb_dz+1,lr-1
+!                lpcoe(l)=lp_coe(l,mpl)
+!             enddo
+!            lpcoe(lr)=kcoe
+!             wl=voint(lr0,lr)
+!             do l=lr0,lr
+!               list=list3(lr0,lr,l)
+!               kcoe=lpcoe(l)
+!               call neoc(kcoe,nocc,tcoe)
+!               wl=wl+nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
+!             enddo
+!             wl=wl*vlop0
 32           list=list3(lr0,lr,lrs)   ! lrg
              wl=vlop0*vint_ci(list)
              goto 500
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 11           list=list4(lr0,lrg,lrs,lr)
-             wl=vlop0*(vint_ci(list)-2*vint_ci(list+1))
-     :             -vlop1*vint_ci(list)
+             wl=vlop0*(vint_ci(list)-2*vint_ci(list+1))                 &
+     &             -vlop1*vint_ci(list)
              goto 500
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 12           list=list4(lr0,lrg,lrs,lr)
-             wl=vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1))
-     :           -vlop1*vint_ci(list+2)
+             wl=vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1))           &
+     &           -vlop1*vint_ci(list+2)
              goto 500
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 13           list=list4(lr0,lrg,lrs,lr)
-             wl=vlop0*(vint_ci(list+2)+vint_ci(list))
-     :             -vlop1*(vint_ci(list+2)-vint_ci(list))
+             wl=vlop0*(vint_ci(list+2)+vint_ci(list))                   &
+     &             -vlop1*(vint_ci(list+2)-vint_ci(list))
              goto 500
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 21           list=list3(lr0,lrg,lr)
              wl=(vlop0+vlop1)*vint_ci(list)
              goto 500
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 22           list=list3(lr0,lrg,lr)
-             wl=vlop0*(vint_ci(list)-2.0d0*vint_ci(list+1))
-     :           -vlop1*vint_ci(list)
+             wl=vlop0*(vint_ci(list)-2.0d0*vint_ci(list+1))             &
+     &           -vlop1*vint_ci(list)
              goto 500
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 51            wl=vlop0*voint(lr,lr0)*0.5d0
               goto 500
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 52            wl=(vlop0-vlop1)*voint(lr,lr0)
               goto 500
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 41            list=list3(lrs,lr,lr0)      ! lrg
               wl=(vlop0+vlop1)*vint_ci(list)
               goto 500
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 42            list=list3(lrs,lr,lr0)      ! lrg
               wl=(vlop0-vlop1)*vint_ci(list)
               goto 500
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 43            list=list3(lrs,lr,lr0)      ! lrg
-              wl=vlop0*(vint_ci(list)-2.0d0*vint_ci(list+1))
-     :           -vlop1*vint_ci(list)
-c-----------------------------------------------------------
+              wl=vlop0*(vint_ci(list)-2.0d0*vint_ci(list+1))            &
+     &           -vlop1*vint_ci(list)
+!-----------------------------------------------------------
 500   return
       end
 
@@ -1923,11 +1923,11 @@ c-----------------------------------------------------------
       lpok=map_jplr(itypadl,itypadr)
       if(lpok.eq.0) return
 !          23   24 25 26 27 28 29 30 31 32 33 34 35
-      goto(100,200,300,400,500,600,700,800,900,1000,1100,1200,1300),
-     :    line-22
+      goto(100,200,300,400,500,600,700,800,900,1000,1100,1200,1300),    &
+     &    line-22
 !line=23:-a^l<-->ds(7),dds(9),dt(14),ddtt(16)
-100   goto(10,10,10,10,10,10,107,10,109,10,10,10,
-     :     10,114,10,116,10,10,10,10,10,10,10,10,10,10),lpok
+100   goto(10,10,10,10,10,10,107,10,109,10,10,10,                       &
+     &     10,114,10,116,10,10,10,10,10,10,10,10,10,10),lpok
 !ds(7-2) ar(23)-bl(31)-br(32)-
 
 !ds(7-1) ar(23)-drl(30)-
@@ -1971,16 +1971,16 @@ c-----------------------------------------------------------
             iwdr=just(lri,lrj)
            vlop0=w0*w0ds3
             vlop1=w1*w1ds3
-            wl=(vlop0-vlop1)*vint_ci(list)-
-     :             2*vlop0*vint_ci(list+1)            !1.1
+            wl=(vlop0-vlop1)*vint_ci(list)-                             &
+     &             2*vlop0*vint_ci(list+1)            !1.1
            call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
             if(jb_sys.gt.0) then
 !ds(7-2) ar(23)-bl(31)-br(32)-         the symmetry problem
               iwdr=just(lrj,lri)
              vlop0=w0*w0ds2
               vlop1=w1*w1ds2
-              wl=(vlop0-vlop1)*vint_ci(list)-
-     :               2*vlop0*vint_ci(list+1)            !1.1
+              wl=(vlop0-vlop1)*vint_ci(list)-                           &
+     &               2*vlop0*vint_ci(list+1)            !1.1
              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
             endif
           enddo
@@ -2036,8 +2036,8 @@ c-----------------------------------------------------------
            vlop0=w0*w0ds3
             vlop1=w1*w1ds3
            list=list4(lrd,lri,lrj,lra)
-            wl=(vlop0-vlop1)*vint_ci(list)-
-     :               2*vlop0*vint_ci(list+1)            !1.1
+            wl=(vlop0-vlop1)*vint_ci(list)-                             &
+     &               2*vlop0*vint_ci(list+1)            !1.1
            call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
             if(jb_sys.gt.0) then
 !d1s(9-2)   ar(13)-bl(31)-br(32)-   the symmetry problem
@@ -2050,8 +2050,8 @@ c-----------------------------------------------------------
              vlop0=w0*w0ds3
               vlop1=w1*w1ds3
             list=list4(lrd,lri,lrj,lra)
-              wl=(vlop0-vlop1)*vint_ci(list)-
-     :                 2*vlop0*vint_ci(list+1)            !1.1
+              wl=(vlop0-vlop1)*vint_ci(list)-                           &
+     &                 2*vlop0*vint_ci(list+1)            !1.1
              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
             endif
           enddo
@@ -2114,8 +2114,8 @@ c-----------------------------------------------------------
       return
 
 !line=24:-a^r<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
-200   goto(10,10,10,10,10,206,10,208,10,10,10,10,
-     :     213,10,215,10,10,10,10,10,10,10,223,224,10,10),lpok
+200   goto(10,10,10,10,10,206,10,208,10,10,10,10,                       &
+     &     213,10,215,10,10,10,10,10,10,10,223,224,10,10),lpok
 !sd(6-1) a&r(02)-
 !sd(6-2) c(22)a&(13)-
 !sd(6-3) a&r(13)c'(22)-
@@ -2204,7 +2204,7 @@ c-----------------------------------------------------------
             call neoc(kcoe,nocc,tcoe)
             wl=wl+vlop0*nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
           enddo
-c            wl=wl*vlop0
+!            wl=wl*vlop0
 !td(13-4) d&r&l(22)b^l(23)
           vlop0=w0*w0td4
           vlop1=w1*w0td4
@@ -2242,8 +2242,8 @@ c            wl=wl*vlop0
           vlop0=w0*w0td2
           vlop1=w1*w1td2
           list=list4(lri,lrj,lrd,lra)
-          wl=vlop0*(vint_ci(list+2)+vint_ci(list))  !1.3
-     :       -vlop1*(vint_ci(list+2)-vint_ci(list))
+          wl=vlop0*(vint_ci(list+2)+vint_ci(list))                      & !1.3
+     &       -vlop1*(vint_ci(list+2)-vint_ci(list))
         call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
         enddo
 !td(13-3) a&(23)b&l(32)b^l(23)
@@ -2259,8 +2259,8 @@ c            wl=wl*vlop0
           vlop0=w0*w0td3                !d6-8
           vlop1=w1*w1td3
           list=list4(lri,lrd,lrj,lra)
-        wl=vlop0*(vint_ci(list+2)-2*vint_ci(list+1))      !1.2
-     :       -vlop1*vint_ci(list+2)
+        wl=vlop0*(vint_ci(list+2)-2*vint_ci(list+1))                    & !1.2
+     &       -vlop1*vint_ci(list+2)
         call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
         enddo
       enddo
@@ -2281,7 +2281,7 @@ c            wl=wl*vlop0
         if(ni.eq.1) w0dv1=-w0dv1
         vlop0=w0*w0dv1                !d23-1
         vlop1=w1*w0dv1
-c**********************************************************
+!**********************************************************
               lr0=lrd
               lr=kk(jpel) -1
               list=list3(lr0,lr,lr0)
@@ -2308,7 +2308,7 @@ c**********************************************************
            wl_430=wl_430+vlop0*(vint_ci(list)-2*vint_ci(list+1))       !
           enddo
           wl=wl+wl_430
-c**********************************************************
+!**********************************************************
           call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
       enddo
       return
@@ -2324,7 +2324,7 @@ c**********************************************************
         if(ni.eq.1) w0dv1=-w0dv1
           vlop0=w0*w0dv1                !d24-1
         vlop1=w1*w0dv1
-c**********************************************************
+!**********************************************************
           lr0=lrd
           lr=kk(jpel) -1
           list=list3(lr0,lr,lr0)
@@ -2351,14 +2351,14 @@ c**********************************************************
              wl_430=wl_430+vlop0*(vint_ci(list)-2*vint_ci(list+1))
           enddo
           wl=wl+wl_430
-c**********************************************************
+!**********************************************************
           call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
       enddo
       return
 
 !line=25:-d^r^r<-->sv(10),tv(17),ttv(18)
-300   goto(10,10,10,10,10,10,10,10,10,310,10,10,
-     :     10,10,10,10,317,318,10,10,10,10,10,10,10,10),lpok
+300   goto(10,10,10,10,10,10,10,10,10,310,10,10,                        &
+     &     10,10,10,10,317,318,10,10,10,10,10,10,10,10),lpok
 310   call sv_head_dbl_tail_act(lra)
       return
 !tv(17) ar(23)-br(23)-
@@ -2396,14 +2396,14 @@ c**********************************************************
       return
 
 !line=26:-d^r^l<-->ss(1),st(2),ts(3),stt(4),tts(5),tt(11),tttt(12),dd(19
-400   goto(401,402,403,404,405,10,10,10,10,10,411,412,
-     :     10,10,10,10,10,10,419,420,421,422,10,10,425,10),lpok
+400   goto(401,402,403,404,405,10,10,10,10,10,411,412,                  &
+     &     10,10,10,10,10,10,419,420,421,422,10,10,425,10),lpok
 401   call ss_head_dbl_tail_act(lra)
       return
 
 402   call st_head_dbl_tail_act(lra)
       return
-c=======================================================================
+!=======================================================================
 403   call ts_head_dbl_tail_act(lra)
       return
 
@@ -2444,8 +2444,8 @@ c=======================================================================
       return
 
 !line=27:-b^r-a^r<-->sv(10),tv(17),ttv(18)
-500   goto(10,10,10,10,10,10,10,10,10,510,10,10,
-     :   10,10,10,10,517,518,10,10,10,10,10,10,10,10),lpok
+500   goto(10,10,10,10,10,10,10,10,10,510,10,10,                        &
+     &   10,10,10,10,517,518,10,10,10,10,10,10,10,10),lpok
 510   call sv_head_dbl_tail_act(lra)
       return
 !tv(17) ar(23)-br(23)-
@@ -2487,8 +2487,8 @@ c=======================================================================
 
 
 !line=28:-b^l-a^r<-->ss(1),st(2),ts(3),stt(4),tts(5),tt(11),tttt(12),dd(
-600     goto(601,602,603,604,605,10,10,10,10,10,611,612,
-     :     10,10,10,10,10,10,619,620,621,622,10,10,625,10),lpok
+600     goto(601,602,603,604,605,10,10,10,10,10,611,612,                &
+     &     10,10,10,10,10,10,619,620,621,622,10,10,625,10),lpok
 601   call ss_head_dbl_tail_act(lra)
       return
 
@@ -2536,8 +2536,8 @@ c=======================================================================
       return
 
 !line=29:-b^r-a^l<-->ss(1),st(2),ts(3),stt(4),tts(5),tt(11),tttt(12),dd(
-700      goto(701,702,703,704,705,10,10,10,10,10,711,712,
-     :     10,10,10,10,10,10,719,720,721,722,10,10,725,10),lpok
+700      goto(701,702,703,704,705,10,10,10,10,10,711,712,               &
+     &     10,10,10,10,10,10,719,720,721,722,10,10,725,10),lpok
 701   call ss_head_dbl_tail_act(lra)
       return
 
@@ -2585,8 +2585,8 @@ c=======================================================================
       return
 
 !line=30:-b&r-d^r^r<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
-800   goto(10,10,10,10,10,806,10,808,10,10,10,10,
-     :     813,10,815,10,10,10,10,10,10,10,823,824,10,10),lpok
+800   goto(10,10,10,10,10,806,10,808,10,10,10,10,                       &
+     &     813,10,815,10,10,10,10,10,10,10,823,824,10,10),lpok
 !                                    sd(6-3) a&r(13)c'(22)-
 806   call dbl_sd_act_comp(3,lra)
       return
@@ -2634,8 +2634,8 @@ c=======================================================================
       return
 
 !line=31:-b&l-d^r^l<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
-900   goto(10,10,10,10,10,906,10,908,10,10,10,10,
-     :     913,10,915,10,10,10,10,10,10,10,923,924,10,10),lpok
+900   goto(10,10,10,10,10,906,10,908,10,10,10,10,                       &
+     &     913,10,915,10,10,10,10,10,10,10,923,924,10,10),lpok
 906   call dbl_sd_act_comp(5,lra)
       return
 
@@ -2660,8 +2660,8 @@ c=======================================================================
         vlop0=w0*w0dv1                !d23-1
         vlop1=w1*w0dv1
         list=list3(lrd,lrg,lra)
-        wl=vlop0*(vint_ci(list)-2*vint_ci(list+1))   !2.2          !!!!!
-     :       -vlop1*(vint_ci(list))
+        wl=vlop0*(vint_ci(list)-2*vint_ci(list+1))                      & !2.2          !!!!!
+     &       -vlop1*(vint_ci(list))
         call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
       enddo
       return
@@ -2677,8 +2677,8 @@ c=======================================================================
         vlop0=w0*w0dv1                !d23-1
         vlop1=w1*w0dv1
         list=list3(lrd,lrg,lra)
-        wl=vlop0*(vint_ci(list)-2*vint_ci(list+1))   !2.2          !!!!!
-     :       -vlop1*(vint_ci(list))
+        wl=vlop0*(vint_ci(list)-2*vint_ci(list+1))                      & !2.2          !!!!!
+     &       -vlop1*(vint_ci(list))
         call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
       enddo
       return
@@ -2686,8 +2686,8 @@ c=======================================================================
 
 
 !line=32:-b&r-b^r-a^r<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
-1000  goto(10,10,10,10,10,1006,10,1008,10,10,10,10,
-     :     1013,10,1015,10,10,10,10,10,10,10,1023,1024,10,10),lpok
+1000  goto(10,10,10,10,10,1006,10,1008,10,10,10,10,                     &
+     &     1013,10,1015,10,10,10,10,10,10,10,1023,1024,10,10),lpok
 1006  call dbl_sd_act_comp(4,lra)
       return
 1008  call dbl_sdd_act_comp(4,lra)
@@ -2709,8 +2709,8 @@ c=======================================================================
         vlop0=w0*w0dv1                !d23-1
         vlop1=w1*w0dv1
         list=list4(lrd,lrg,lrs,lra)
-        wl=vlop0*(vint_ci(list+2)+vint_ci(list))  !1.3        !!!!!
-     :       -vlop1*(vint_ci(list+2)-vint_ci(list))
+        wl=vlop0*(vint_ci(list+2)+vint_ci(list))                        & !1.3        !!!!!
+     &       -vlop1*(vint_ci(list+2)-vint_ci(list))
         call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
       enddo
       return
@@ -2726,15 +2726,15 @@ c=======================================================================
         vlop0=w0*w0dv1                !d23-1
         vlop1=w1*w0dv1
         list=list4(lrd,lrg,lrs,lra)
-        wl=vlop0*(vint_ci(list+2)+vint_ci(list))  !1.3        !!!!!
-     :       -vlop1*(vint_ci(list+2)-vint_ci(list))
+        wl=vlop0*(vint_ci(list+2)+vint_ci(list))                        & !1.3        !!!!!
+     &       -vlop1*(vint_ci(list+2)-vint_ci(list))
         call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
       enddo
       return
 
 !line=33:-b&l-b^r-a^l<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
-1100  goto(10,10,10,10,10,1106,10,1108,10,10,10,10,
-     :     1113,10,1115,10,10,10,10,10,10,10,1123,1124,10,10),lpok
+1100  goto(10,10,10,10,10,1106,10,1108,10,10,10,10,                     &
+     &     1113,10,1115,10,10,10,10,10,10,10,1123,1124,10,10),lpok
 1106  call dbl_sd_act_comp(6,lra)
       return
 1108  call dbl_sdd_act_comp(6,lra)
@@ -2757,8 +2757,8 @@ c=======================================================================
         vlop0=w0*w0dv1                !d23-1
         vlop1=w1*w0dv1
         list=list4(lrd,lrg,lrs,lra)
-        wl=vlop0*(vint_ci(list)-2*vint_ci(list+1))  !1.1          !!!!!
-     :       -vlop1*vint_ci(list)
+        wl=vlop0*(vint_ci(list)-2*vint_ci(list+1))                      & !1.1          !!!!!
+     &       -vlop1*vint_ci(list)
           call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
       enddo
       return
@@ -2774,15 +2774,15 @@ c=======================================================================
         vlop0=w0*w0dv1                !d23-1
         vlop1=w1*w0dv1
         list=list4(lrd,lrg,lrs,lra)
-        wl=vlop0*(vint_ci(list)-2*vint_ci(list+1))  !1.1          !!!!!
-     :       -vlop1*vint_ci(list)
+        wl=vlop0*(vint_ci(list)-2*vint_ci(list+1))                      & !1.1          !!!!!
+     &       -vlop1*vint_ci(list)
           call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
       enddo
       return
 
 !line=34:-b&l-b^l-a^r<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
-1200  goto(10,10,10,10,10,1206,10,1208,10,10,10,10,
-     :     1213,10,1215,10,10,10,10,10,10,10,1223,1224,10,10),lpok
+1200  goto(10,10,10,10,10,1206,10,1208,10,10,10,10,                     &
+     &     1213,10,1215,10,10,10,10,10,10,10,1223,1224,10,10),lpok
 1206   call dbl_sd_act_comp(7,lra)
       return
 1208  call dbl_sdd_act_comp(7,lra)
@@ -2804,8 +2804,8 @@ c=======================================================================
         vlop0=w0*w0dv1                !d23-1
         vlop1=w1*w0dv1
         list=list4(lrd,lrg,lrs,lra)
-        wl=vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1)) !1.2      !!!!!
-     :           -vlop1*vint_ci(list+2)
+        wl=vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1))                & !1.2      !!!!!
+     &           -vlop1*vint_ci(list+2)
           call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
       enddo
       return
@@ -2821,15 +2821,15 @@ c=======================================================================
         vlop0=w0*w0dv1                !d23-1
         vlop1=w1*w0dv1
         list=list4(lrd,lrg,lrs,lra)
-        wl=vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1)) !1.2      !!!!!
-     :           -vlop1*vint_ci(list+2)
+        wl=vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1))                & !1.2      !!!!!
+     &           -vlop1*vint_ci(list+2)
           call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
       enddo
       return
 
 !line=35:-d&r^l-a^l<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
-1300  goto(10,10,10,10,10,1306,10,1308,10,10,10,10,
-     :     1313,10,1315,10,10,10,10,10,10,10,1323,1324,10,10),lpok
+1300  goto(10,10,10,10,10,1306,10,1308,10,10,10,10,                     &
+     &     1313,10,1315,10,10,10,10,10,10,10,1323,1324,10,10),lpok
 1306   call dbl_sd_act_comp(2,lra)
       return
 1308   call dbl_sdd_act_comp(2,lra)

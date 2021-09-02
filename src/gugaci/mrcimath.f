@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine hotred (nx,n,a,d,e,z)
       implicit real*8  (a-h,o-z)
       dimension a(nx*(nx+1)/2),z(nx,nx),d(nx),e(nx)
@@ -103,7 +103,7 @@
       z(2,1)=0.0d0
       return
       end
-c
+!
       subroutine qlcm(nx,n,d,e,z)
       implicit real*8 (a-h,o-z)
       dimension z(nx,nx),d(nx),e(nx)
@@ -193,8 +193,8 @@ c
   180 continue
       return
   200 write(6,250)
-  250 format(1x///5x,'***the subroutine qlcm is fail,so this',
-     *       'computation must stop***')
+  250 format(1x///5x,'***the subroutine qlcm is fail,so this',          &
+     &       'computation must stop***')
 #ifdef MOLPRO
 #else
       call abend()

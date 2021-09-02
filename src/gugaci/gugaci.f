@@ -1,34 +1,34 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine gugaci(ireturn)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "files_gugaci.fh"
 #include "scratch.fh"
       data istep_occ/0,1,1,2/
-      data mul_tab/1,2,3,4,5,6,7,8,
-     *             2,1,4,3,6,5,8,7,
-     *             3,4,1,2,7,8,5,6,
-     *             4,3,2,1,8,7,6,5,
-     *             5,6,7,8,1,2,3,4,
-     *             6,5,8,7,2,1,4,3,
-     *             7,8,5,6,3,4,1,2,
-     *             8,7,6,5,4,3,2,1/
+      data mul_tab/1,2,3,4,5,6,7,8,                                     &
+     &             2,1,4,3,6,5,8,7,                                     &
+     &             3,4,1,2,7,8,5,6,                                     &
+     &             4,3,2,1,8,7,6,5,                                     &
+     &             5,6,7,8,1,2,3,4,                                     &
+     &             6,5,8,7,2,1,4,3,                                     &
+     &             7,8,5,6,3,4,1,2,                                     &
+     &             8,7,6,5,4,3,2,1/
 !                           v   d  t  s dd tt
-      data map_jplr/       25,23,17,10,24,18, !v
-     :                     26,19,13, 6,22, 0, !d
-     :                      0,14,11, 2, 0, 0, !t
-     :                      0, 7, 3, 1, 9, 5, !s
-     :                      0,21, 0, 8,20,15, !dd
-     :                      0, 0, 0, 4,16,12/ !tt
+      data map_jplr/       25,23,17,10,24,18,                           & !v
+     &                     26,19,13, 6,22, 0,                           & !d
+     &                      0,14,11, 2, 0, 0,                           & !t
+     &                      0, 7, 3, 1, 9, 5,                           & !s
+     &                      0,21, 0, 8,20,15,                           & !dd
+     &                      0, 0, 0, 4,16,12/ !tt
 
       ireturn=100
       call version_info
@@ -51,8 +51,8 @@
       nc0=norb_all*(norb_all+1)/2
       nc1=nc0*(nc0+1)/2
       if(nc1.gt.2*max_vector) then
-        write(6,*) "No enough space to store MO integrals! number of ",
-     *             " orbital should be less than ",max_orb
+        write(6,*) "No enough space to store MO integrals! number of ", &
+     &             " orbital should be less than ",max_orb
 #ifdef MOLPRO
 #else
         call abend
@@ -98,8 +98,8 @@
 
       write(6,*)
       write(6,*)   '==================================================='
-      write(6,'(a30,i10,f14.2,a1)')
-     :     '   end of h_diagonal, nci_dim=',nci_dim,sc2-sc1,'s'
+      write(6,'(a30,i10,f14.2,a1)')                                     &
+     &     '   end of h_diagonal, nci_dim=',nci_dim,sc2-sc1,'s'
       write(6,*)   '==================================================='
       write(6,*)
 
@@ -149,8 +149,8 @@
       sc1=c_time()
       call xflush(6)
 
-      write(6,'(a25,i10,f14.2,a1)')
-     :          '  end of pl_serach, n_pl=',npl,sc1-sc0,'s'
+      write(6,'(a25,i10,f14.2,a1)')                                     &
+     &          '  end of pl_serach, n_pl=',npl,sc1-sc0,'s'
       write(6,*)'=============================================='
 
       if(maxplcon.lt.max_node) maxplcon=max_node
@@ -201,6 +201,6 @@
       call gugafinalize
 
       ireturn=0
-910   format(/,1x,"end of ci energy calculation,
-     *       takes ",f10.2,1x,"seconds"/)
+910   format(/,1x,"end of ci energy calculation,                        &
+     &       takes ",f10.2,1x,"seconds"/)
       end

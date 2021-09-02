@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE SS_HEAD_DBL_TAIL_ACT_G(LRA)
 #include "drt_h.fh"
 #include "intsort_h.fh"
@@ -156,21 +156,21 @@
               VLOP0=W0*W0SS1
               VLOP1=W1*W1SS1
       IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-        CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+        CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,       &
+     &                     WL1,LIST1)
       ENDIF
       IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-        CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+        CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,       &
+     &                     WL1,LIST1)
       ENDIF
       IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-        CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+        CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,       &
+     &                     WL1,LIST1)
       ENDIF
 
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :      CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &      CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
             ENDIF
 !SS(1-2)  Ar(02)-Bl(31)-
@@ -178,20 +178,20 @@
             VLOP0=W0*W0SS2
             VLOP1=W1*W1SS2
       IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-        CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+        CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,       &
+     &                     WL1,LIST1)
       ENDIF
       IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-        CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+        CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,       &
+     &                     WL1,LIST1)
       ENDIF
       IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-        CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+        CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,       &
+     &                     WL1,LIST1)
       ENDIF
         CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :  CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &  CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
          ENDIF
 
@@ -203,20 +203,20 @@
               VLOP0=W0*W0SS3
               VLOP1=W1*W1SS3
       IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-        CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+        CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,       &
+     &                     WL1,LIST1)
       ENDIF
       IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-        CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+        CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,       &
+     &                     WL1,LIST1)
       ENDIF
       IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-        CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+        CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,       &
+     &                     WL1,LIST1)
       ENDIF
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :         CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &         CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
             ENDIF
 !SS(1-4)  Ar(23)-Bl(10)-        ACT -C"-                         ! IPRAD
@@ -224,50 +224,50 @@
             VLOP0=W0*W0SS4
             VLOP1=W1*W1SS4
       IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-        CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+        CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,       &
+     &                     WL1,LIST1)
       ENDIF
       IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-        CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+        CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,       &
+     &                     WL1,LIST1)
       ENDIF
       IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-        CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+        CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,       &
+     &                     WL1,LIST1)
       ENDIF
         CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :  CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &  CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
          ENDIF
 
           VLOP0=W0*W0SS5
           VLOP1=W1*W1SS5
           IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-            CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-            CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-            CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
         IF(JB_SYS.GT.0) THEN
           VLOP0=W0*W0SS6
           VLOP1=W1*W1SS6
           IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-           CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+           CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,&
+     &                     WL1_1,LIST1_1)
           ENDIF
           IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-           CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+           CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,&
+     &                     WL1_1,LIST1_1)
           ENDIF
           IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-           CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+           CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,&
+     &                     WL1_1,LIST1_1)
           ENDIF
         ENDIF
           DO LRK=NORB_FRZ+1,LRI-1
@@ -279,16 +279,16 @@
               IWDL=JUST(LRK,LRI)
               IWDR=JUST(LRK,LRJ)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :         CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &         CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
               IF(JB_SYS.GT.0) THEN
 !SS(1-6)  (11)-Ar(23)-Bl(32)-
                 IWDL=JUST(LRI,LRK)
                 IWDR=JUST(LRJ,LRK)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0_1,JPER,LIST0_1)
-      IF(LIST1_1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_1,JPER,LIST1_1)
+      IF(LIST1_1.NE.0)                                                  &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_1,JPER,LIST1_1)
 
               ENDIF
             ENDIF
@@ -298,59 +298,59 @@
           VLOP0=W0*W0SS7
           VLOP1=W1*W1SS7
           IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-           CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+           CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,&
+     &                     WL1_1,LIST1_1)
           ENDIF
           IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-           CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+           CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,&
+     &                     WL1_1,LIST1_1)
           ENDIF
           IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-           CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+           CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,&
+     &                     WL1_1,LIST1_1)
           ENDIF
           VLOP0=W0*W0SS8
           VLOP1=W1*W1SS8
           IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-           CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_2,LIST0_2,
-     :                     WL1_2,LIST1_2)
+           CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_2,LIST0_2,&
+     &                     WL1_2,LIST1_2)
           ENDIF
           IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-           CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_2,LIST0_2,
-     :                     WL1_2,LIST1_2)
+           CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_2,LIST0_2,&
+     &                     WL1_2,LIST1_2)
           ENDIF
           IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-           CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_2,LIST0_2,
-     :                     WL1_2,LIST1_2)
+           CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_2,LIST0_2,&
+     &                     WL1_2,LIST1_2)
           ENDIF
           VLOP0=W0*W0SS9
           VLOP1=W1*W1SS9
           IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-           CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_3,LIST0_3,
-     :                     WL1_3,LIST1_3)
+           CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_3,LIST0_3,&
+     &                     WL1_3,LIST1_3)
           ENDIF
           IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-           CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_3,LIST0_3,
-     :                     WL1_3,LIST1_3)
+           CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_3,LIST0_3,&
+     &                     WL1_3,LIST1_3)
           ENDIF
           IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-           CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_3,LIST0_3,
-     :                     WL1_3,LIST1_3)
+           CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_3,LIST0_3,&
+     &                     WL1_3,LIST1_3)
           ENDIF
         ENDIF
           VLOP0=W0*W0SS10
           VLOP1=W1*W1SS10
           IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-           CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_4,LIST0_4,
-     :                     WL1_4,LIST1_4)
+           CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_4,LIST0_4,&
+     &                     WL1_4,LIST1_4)
           ENDIF
           IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-           CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_4,LIST0_4,
-     :                     WL1_4,LIST1_4)
+           CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_4,LIST0_4,&
+     &                     WL1_4,LIST1_4)
           ENDIF
           IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-           CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_4,LIST0_4,
-     :                     WL1_4,LIST1_4)
+           CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_4,LIST0_4,&
+     &                     WL1_4,LIST1_4)
           ENDIF
 
           DO LRK=LRI+1,LRJ-1
@@ -362,36 +362,36 @@
 !SS(1-7)  Ar(13)-C'(21)-Bl(32)-
                 IWDL=JUST(LRK,LRI)
                 IWDR=JUST(LRJ,LRK)
-C                CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,-WL1,JPER)
+!                CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,-WL1,JPER)
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL0_1,JPER,LIST0_1)
-      IF(LIST1_1.NE.0)
-     :      CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL1_1,JPER,LIST1_1)
+      IF(LIST1_1.NE.0)                                                  &
+     &      CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL1_1,JPER,LIST1_1)
 
 !SS(1-8)  Ar(13)-C'(22)-Bl(31)-
                 IWDL=JUST(LRK,LRI)
                 IWDR=JUST(LRK,LRJ)
-C                CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,-WL2,JPER)
+!                CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,-WL2,JPER)
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL0_2,JPER,LIST0_2)
-      IF(LIST1_2.NE.0)
-     :      CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL1_2,JPER,LIST1_2)
+      IF(LIST1_2.NE.0)                                                  &
+     &      CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL1_2,JPER,LIST1_2)
 
 !SS(1-9)  Ar(23)-C'(11)-Bl(32)-
                 IWDL=JUST(LRI,LRK)
                 IWDR=JUST(LRJ,LRK)
 !               WL=(VLOP0-VLOP1)*vint_ci(LIST)-2*VLOP0*vint_ci(LIST+1)
-C                CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,-WL3,JPER)
+!                CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,-WL3,JPER)
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL0_3,JPER,LIST0_3)
-      IF(LIST1_3.NE.0)
-     :      CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL1_3,JPER,LIST1_3)
+      IF(LIST1_3.NE.0)                                                  &
+     &      CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL1_3,JPER,LIST1_3)
 
               ENDIF
 !SS(1-10) Ar(23)-C'(12)-Bl(31)-
               IWDL=JUST(LRI,LRK)
               IWDR=JUST(LRK,LRJ)
-C              CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL4,JPER)
+!              CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL4,JPER)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0_4,JPER,LIST0_4)
-      IF(LIST1_4.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_4,JPER,LIST1_4)
+      IF(LIST1_4.NE.0)                                                  &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_4,JPER,LIST1_4)
 
             ENDIF
           ENDDO
@@ -400,59 +400,59 @@ C              CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL4,JPER)
           VLOP0=W0*W0SS11
           VLOP1=W1*W1SS11
           IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-           CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+           CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,&
+     &                     WL1_1,LIST1_1)
           ENDIF
           IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-           CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+           CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,&
+     &                     WL1_1,LIST1_1)
           ENDIF
           IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-           CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+           CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,&
+     &                     WL1_1,LIST1_1)
           ENDIF
           VLOP0=W0*W0SS12
           VLOP1=W1*W1SS12
           IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-           CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_2,LIST0_2,
-     :                     WL1_2,LIST1_2)
+           CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_2,LIST0_2,&
+     &                     WL1_2,LIST1_2)
           ENDIF
           IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-           CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_2,LIST0_2,
-     :                     WL1_2,LIST1_2)
+           CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_2,LIST0_2,&
+     &                     WL1_2,LIST1_2)
           ENDIF
           IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-           CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_2,LIST0_2,
-     :                     WL1_2,LIST1_2)
+           CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_2,LIST0_2,&
+     &                     WL1_2,LIST1_2)
           ENDIF
           VLOP0=W0*W0SS13
           VLOP1=W1*W1SS13
           IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-           CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_3,LIST0_3,
-     :                     WL1_3,LIST1_3)
+           CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_3,LIST0_3,&
+     &                     WL1_3,LIST1_3)
           ENDIF
           IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-           CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_3,LIST0_3,
-     :                     WL1_3,LIST1_3)
+           CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_3,LIST0_3,&
+     &                     WL1_3,LIST1_3)
           ENDIF
           IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-           CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_3,LIST0_3,
-     :                     WL1_3,LIST1_3)
+           CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_3,LIST0_3,&
+     &                     WL1_3,LIST1_3)
           ENDIF
         ENDIF
           VLOP0=W0*W0SS14
           VLOP1=W1*W1SS14
           IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-           CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_4,LIST0_4,
-     :                     WL1_4,LIST1_4)
+           CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_4,LIST0_4,&
+     &                     WL1_4,LIST1_4)
           ENDIF
           IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-           CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_4,LIST0_4,
-     :                     WL1_4,LIST1_4)
+           CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_4,LIST0_4,&
+     &                     WL1_4,LIST1_4)
           ENDIF
           IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-           CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_4,LIST0_4,
-     :                     WL1_4,LIST1_4)
+           CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_4,LIST0_4,&
+     &                     WL1_4,LIST1_4)
           ENDIF
 
           DO LRK=LRJ+1,NORB_DZ
@@ -464,35 +464,35 @@ C              CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL4,JPER)
 !SS(1-11) Ar(13)-Bl(31)-C"(22)-
                 IWDL=JUST(LRK,LRI)
                 IWDR=JUST(LRK,LRJ)
-C                CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER)
+!                CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0_1,JPER,LIST0_1)
-      IF(LIST1_1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_1,JPER,LIST1_1)
+      IF(LIST1_1.NE.0)                                                  &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_1,JPER,LIST1_1)
 
 !SS(1-12) Ar(13)-Bl(32)-C"(21)-
                 IWDL=JUST(LRK,LRI)
                 IWDR=JUST(LRJ,LRK)
-C                CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER)
+!                CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0_2,JPER,LIST0_2)
-      IF(LIST1_2.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_2,JPER,LIST1_2)
+      IF(LIST1_2.NE.0)                                                  &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_2,JPER,LIST1_2)
 
 !SS(1-13) Ar(23)-Bl(31)-C"(12)-
                 IWDL=JUST(LRI,LRK)
                 IWDR=JUST(LRK,LRJ)
-C                CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL3,JPER)
+!                CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL3,JPER)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0_3,JPER,LIST0_3)
-      IF(LIST1_3.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_3,JPER,LIST1_3)
+      IF(LIST1_3.NE.0)                                                  &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_3,JPER,LIST1_3)
 
               ENDIF
 !SS(1-14) Ar(23)-Bl(32)-C"(11)- ACT -C"-
               IWDL=JUST(LRI,LRK)
               IWDR=JUST(LRJ,LRK)
-C              CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL4,JPER)
+!              CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL4,JPER)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0_4,JPER,LIST0_4)
-      IF(LIST1_4.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_4,JPER,LIST1_4)
+      IF(LIST1_4.NE.0)                                                  &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_4,JPER,LIST1_4)
 
             ENDIF
           ENDDO
@@ -516,22 +516,22 @@ C              CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL4,JPER)
             VLOP0=W0*W0_SS(19)
             VLOP1=W1*W1_SS(19)
             IF(LINE.EQ.26) THEN    !LRI,LRA
-              CALL COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,     &
+     &                     WL1,LIST1)
             ENDIF
             IF(LINE.EQ.28) THEN    !LRI,LRS,LRA
-              CALL COMP_LOOP_G(12,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(12,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,  &
+     &                     WL1,LIST1)
             ENDIF
             IF(LINE.EQ.29) THEN    !LRI,LRS,LRA
-              CALL COMP_LOOP_G(11,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(11,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,  &
+     &                     WL1,LIST1)
             ENDIF
 !         WL=(VLOP0-VLOP1)*VOINT(LRI,LRB)
-C           CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
         ENDDO
       ENDDO
@@ -558,28 +558,28 @@ C           CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           IWDR=IWDL
           VLOP0=W0*W0_SS(20)
           VLOP1=0.D0
-C         WL=0.D0
+!         WL=0.D0
           DO LRK=1,NORB_DZ
             IF(LRK.EQ.LR0) CYCLE
             IF(LINE.EQ.26) THEN    !LRK,LRA
-             CALL COMP_LOOP_G(9,LRK,0,0,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+             CALL COMP_LOOP_G(9,LRK,0,0,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,  &
+     &                     WL1_1,LIST1_1)
             ENDIF
             IF(LINE.EQ.28) THEN    !LRK,LRS,LRA    LRS,LRA,LRK
-        CALL COMP_LOOP_G(12,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+        CALL COMP_LOOP_G(12,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,    &
+     &                     WL1_1,LIST1_1)
             ENDIF
             IF(LINE.EQ.29) THEN    !LRK,LRS,LRA
-        CALL COMP_LOOP_G(11,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+        CALL COMP_LOOP_G(11,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,    &
+     &                     WL1_1,LIST1_1)
             ENDIF
-C            WL=WL+WL1
+!            WL=WL+WL1
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0_1,JPER,LIST0_1)
-      IF(LIST1_1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_1,JPER,LIST1_1)
+      IF(LIST1_1.NE.0)                                                  &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_1,JPER,LIST1_1)
 
           ENDDO
-C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
         ENDDO
       ENDIF
       DO LRI=NORB_FRZ+1,NORB_DZ
@@ -589,50 +589,50 @@ C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           LMIJ=MUL_TAB(LMI,LMJ)
           IF(LMIJ.NE.JML.OR.JML.NE.JMR) CYCLE
           IF(JWL.GE.JWR.AND.JB_SYS.EQ.0) CYCLE
-C          WL=0.D0
+!          WL=0.D0
           IWDL=JUST(LRI,LRJ)
           IWDR=IWDL
 !SS(1-15) (22)-Drl(11)-
           VLOP0=W0*W0SS15
           VLOP1=W1*W1SS15
-C          WL=0.D0
+!          WL=0.D0
           IF(LINE.EQ.26) THEN    !LRJ,LRA
-            CALL COMP_LOOP_G(9,LRJ,0,0,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+            CALL COMP_LOOP_G(9,LRJ,0,0,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,   &
+     &                     WL1_1,LIST1_1)
           ENDIF
           IF(LINE.EQ.28) THEN    !LRJ,LRS,LRA
-            CALL COMP_LOOP_G(12,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+            CALL COMP_LOOP_G(12,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,&
+     &                     WL1_1,LIST1_1)
           ENDIF
           IF(LINE.EQ.29) THEN    !LRJ,LRS,LRA
-            CALL COMP_LOOP_G(11,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+            CALL COMP_LOOP_G(11,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,&
+     &                     WL1_1,LIST1_1)
           ENDIF
-C          WL=WL+WL1
+!          WL=WL+WL1
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0_1,JPER,LIST0_1)
-      IF(LIST1_1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_1,JPER,LIST1_1)
+      IF(LIST1_1.NE.0)                                                  &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_1,JPER,LIST1_1)
 
 !         WL=WL+(VLOP0-VLOP1)*VOINT(LRJ,LRB)
 !SS(1-17) Drl(22)-C"(11)-
           VLOP0=W0*W0SS17
          VLOP1=W1*W1SS17
           IF(LINE.EQ.26) THEN    !LRI,LRA
-            CALL COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+            CALL COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,   &
+     &                     WL1_1,LIST1_1)
           ENDIF
           IF(LINE.EQ.28) THEN    !LRI,LRS,LRA
-            CALL COMP_LOOP_G(12,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+            CALL COMP_LOOP_G(12,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,&
+     &                     WL1_1,LIST1_1)
           ENDIF
           IF(LINE.EQ.29) THEN    !LRI,LRS,LRA
-            CALL COMP_LOOP_G(11,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+            CALL COMP_LOOP_G(11,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,&
+     &                     WL1_1,LIST1_1)
           ENDIF
-C          WL=WL+WL1
+!          WL=WL+WL1
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0_1,JPER,LIST0_1)
-      IF(LIST1_1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_1,JPER,LIST1_1)
+      IF(LIST1_1.NE.0)                                                  &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_1,JPER,LIST1_1)
 
 !         WL=WL+(VLOP0-VLOP1)*VOINT(LRI,LRB)
 !SS(1-20) (22)(11)Drl(33)-
@@ -644,69 +644,69 @@ C          WL=WL+WL1
             IF(LRK.EQ.LRI) CYCLE
             IF(LRK.EQ.LRJ) CYCLE
             IF(LINE.EQ.26) THEN    !LRK,LRA
-              CALL COMP_LOOP_G(9,LRK,0,0,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+              CALL COMP_LOOP_G(9,LRK,0,0,LRA,VLOP0,VLOP1,WL0_1,LIST0_1, &
+     &                     WL1_1,LIST1_1)
             ENDIF
             IF(LINE.EQ.28) THEN    !LRK,LRS,LRA
-            CALL COMP_LOOP_G(12,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+            CALL COMP_LOOP_G(12,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,&
+     &                     WL1_1,LIST1_1)
             ENDIF
             IF(LINE.EQ.29) THEN    !LRK,LRS,LRA
-            CALL COMP_LOOP_G(11,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+            CALL COMP_LOOP_G(11,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,&
+     &                     WL1_1,LIST1_1)
             ENDIF
-C            WL=WL+WL1
+!            WL=WL+WL1
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0_1,JPER,LIST0_1)
-      IF(LIST1_1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_1,JPER,LIST1_1)
+      IF(LIST1_1.NE.0)                                                  &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_1,JPER,LIST1_1)
 
 !           WL=WL+VLOP0*VOINT(LRK,LRB)
           ENDDO
-C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           IF(JB_SYS.GT.0) THEN
             IWDL=JUST(LRJ,LRI)
             IWDR=IWDL
 !SS(1-16) (11)-Drl(22)-
             VLOP0=W0*W0SS16
            VLOP1=W1*W1SS16
-C          WL=0.D0
+!          WL=0.D0
             IF(LINE.EQ.26) THEN    !LRJ,LRA
-            CALL COMP_LOOP_G(9,LRJ,0,0,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+            CALL COMP_LOOP_G(9,LRJ,0,0,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,   &
+     &                     WL1_1,LIST1_1)
             ENDIF
             IF(LINE.EQ.28) THEN    !LRJ,LRS,LRA
-          CALL COMP_LOOP_G(12,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+          CALL COMP_LOOP_G(12,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,  &
+     &                     WL1_1,LIST1_1)
             ENDIF
             IF(LINE.EQ.29) THEN    !LRJ,LRS,LRA
-          CALL COMP_LOOP_G(11,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+          CALL COMP_LOOP_G(11,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,  &
+     &                     WL1_1,LIST1_1)
             ENDIF
-c            WL=WL+WL1
+!            WL=WL+WL1
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0_1,JPER,LIST0_1)
-      IF(LIST1_1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_1,JPER,LIST1_1)
+      IF(LIST1_1.NE.0)                                                  &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_1,JPER,LIST1_1)
 
 !            WL=(VLOP0-VLOP1)*VOINT(LRJ,LRB)
 !SS(1-18) Drl(11)-C"(22)-
             VLOP0=W0*W0SS18
             VLOP1=W1*W1SS18
             IF(LINE.EQ.26) THEN    !LRI,LRA
-            CALL COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+            CALL COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,   &
+     &                     WL1_1,LIST1_1)
             ENDIF
             IF(LINE.EQ.28) THEN    !LRI,LRS,LRA
-            CALL COMP_LOOP_G(12,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+            CALL COMP_LOOP_G(12,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,&
+     &                     WL1_1,LIST1_1)
             ENDIF
             IF(LINE.EQ.29) THEN    !LRI,LRS,LRA
-            CALL COMP_LOOP_G(11,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+            CALL COMP_LOOP_G(11,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,&
+     &                     WL1_1,LIST1_1)
             ENDIF
-C            WL=WL+WL1
+!            WL=WL+WL1
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0_1,JPER,LIST0_1)
-      IF(LIST1_1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_1,JPER,LIST1_1)
+      IF(LIST1_1.NE.0)                                                  &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_1,JPER,LIST1_1)
 
 !            WL=WL+(VLOP0-VLOP1)*VOINT(LRI,LRB)
 !SS(1-20) Drl(33)-C"(11)-C"(22)-
@@ -718,25 +718,25 @@ C            WL=WL+WL1
               IF(LRK.EQ.LRI) CYCLE
               IF(LRK.EQ.LRJ) CYCLE
               IF(LINE.EQ.26) THEN    !LRK,LRA
-           CALL COMP_LOOP_G(9,LRK,0,0,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+           CALL COMP_LOOP_G(9,LRK,0,0,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,    &
+     &                     WL1_1,LIST1_1)
               ENDIF
               IF(LINE.EQ.28) THEN    !LRK,LRS,LRA
-           CALL COMP_LOOP_G(12,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+           CALL COMP_LOOP_G(12,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1, &
+     &                     WL1_1,LIST1_1)
               ENDIF
               IF(LINE.EQ.29) THEN    !LRK,LRS,LRA
-           CALL COMP_LOOP_G(11,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+           CALL COMP_LOOP_G(11,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1, &
+     &                     WL1_1,LIST1_1)
               ENDIF
-C              WL=WL+WL1
+!              WL=WL+WL1
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0_1,JPER,LIST0_1)
-      IF(LIST1_1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_1,JPER,LIST1_1)
+      IF(LIST1_1.NE.0)                                                  &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1_1,JPER,LIST1_1)
 
 !              WL=WL+VLOP0*VOINT(LRK,LRB)
             ENDDO
-C            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
            ENDIF
         ENDDO
       ENDDO
@@ -768,48 +768,48 @@ C            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
             VLOP1=W1*W1_ST(5)             !D2-5
             VLOP0=0.D0
             IF(LINE.EQ.26) THEN    !LRJ,LRA
-              CALL COMP_LOOP_G(9,LRJ,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(9,LRJ,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,     &
+     &                     WL1,LIST1)
             ENDIF
             IF(LINE.EQ.28) THEN    !LRJ,LRS,LRA
-              CALL COMP_LOOP_G(12,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(12,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,  &
+     &                     WL1,LIST1)
             ENDIF
             IF(LINE.EQ.29) THEN    !LRJ,LRS,LRA
-              CALL COMP_LOOP_G(11,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(11,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,  &
+     &                     WL1,LIST1)
             ENDIF
-C           CALL PRODAB_1(3,JPEL,IWDS,IWDT,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!           CALL PRODAB_1(3,JPEL,IWDS,IWDT,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,WL1,JPER,LIST1)
 
 !ST(2-6) Drl(22)-C"(12)-
             VLOP1=W1*W1_ST(6)             !D2-6
             VLOP0=0.D0
             IF(LINE.EQ.26) THEN    !LRI,LRA
-          CALL COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+          CALL COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,     &
+     &                     WL1_1,LIST1_1)
             ENDIF
             IF(LINE.EQ.28) THEN    !LRI,LRS,LRA
-          CALL COMP_LOOP_G(12,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+          CALL COMP_LOOP_G(12,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,  &
+     &                     WL1_1,LIST1_1)
             ENDIF
             IF(LINE.EQ.29) THEN    !LRI,LRS,LRA
-          CALL COMP_LOOP_G(11,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+          CALL COMP_LOOP_G(11,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,  &
+     &                     WL1_1,LIST1_1)
             ENDIF
 
-C          CALL PRODAB_1(3,JPEL,IWDS,IWDT,JWL,JWR,WL2_1,JPER,LIST2_1,
-C    :                                                       LIST3_1)
+!          CALL PRODAB_1(3,JPEL,IWDS,IWDT,JWL,JWR,WL2_1,JPER,LIST2_1,
+!    :                                                       LIST3_1)
               CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,WL0_1,JPER,LIST0_1)
-      IF(LIST1_1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,WL1_1,JPER,LIST1_1)
+      IF(LIST1_1.NE.0)                                                  &
+     &        CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,WL1_1,JPER,LIST1_1)
 
-C           WL=WL+WL1
+!           WL=WL+WL1
 !            LIST=LIST3(LRA,LRB,LRI)
 !            WL=WL-VLOP1*vint_ci(LIST)    !4.3 Vlop0=0        !!!!!
-C            CALL PRODAB(3,JPEL,IWDS,IWDT,JWL,JWR,WL,JPER)
+!            CALL PRODAB(3,JPEL,IWDS,IWDT,JWL,JWR,WL,JPER)
 !ST(2-7) Drl(12)-C"(22)-
             IF(JB_SYS.GT.0) THEN
               IWDS=JUST(LRJ,LRI)
@@ -819,23 +819,23 @@ C            CALL PRODAB(3,JPEL,IWDS,IWDT,JWL,JWR,WL,JPER)
 !              LIST=LIST3(LRA,LRB,LRI)
 !              WL=WL-VLOP1*vint_ci(LIST)    !4.3 Vlop0=0        !!!!!
               IF(LINE.EQ.26) THEN    !LRI,LRA
-                CALL COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+                CALL COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
               ENDIF
               IF(LINE.EQ.28) THEN    !LRI,LRS,LRA
-                CALL COMP_LOOP_G(12,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+                CALL COMP_LOOP_G(12,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,&
+     &                     WL1,LIST1)
               ENDIF
               IF(LINE.EQ.29) THEN    !LRI,LRS,LRA
-                CALL COMP_LOOP_G(11,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+                CALL COMP_LOOP_G(11,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,&
+     &                     WL1,LIST1)
               ENDIF
-C           CALL PRODAB_1(3,JPEL,IWDS,IWDT,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!           CALL PRODAB_1(3,JPEL,IWDS,IWDT,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,WL1,JPER,LIST1)
 
-C              CALL PRODAB(3,JPEL,IWDS,IWDT,JWL,JWR,WL,JPER)
+!              CALL PRODAB(3,JPEL,IWDS,IWDT,JWL,JWR,WL,JPER)
             ENDIF
           ENDIF
 
@@ -860,23 +860,23 @@ C              CALL PRODAB(3,JPEL,IWDS,IWDT,JWL,JWR,WL,JPER)
            VLOP0=0.D0
 !          LIST=LIST4(LRI,LRJ,LRA,LRB)
             IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-              CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0, &
+     &                     WL1,LIST1)
             ENDIF
             IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-               CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+               CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,&
+     &                     WL1,LIST1)
             ENDIF
             IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-              CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0, &
+     &                     WL1,LIST1)
             ENDIF
 !          WL=-VLOP1*vint_ci(LIST)    !1.1 VLOP0=0        !!!!!
-C            CALL PRODAB(3,JPEL,IWDS,IWDT,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDS,IWDT,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!            CALL PRODAB(3,JPEL,IWDS,IWDT,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDS,IWDT,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,WL1,JPER,LIST1)
 
           ENDIF
 
@@ -885,16 +885,16 @@ C           CALL PRODAB_1(3,JPEL,IWDS,IWDT,JWL,JWR,WL2,JPER,LIST2,LIST3)
 !       WL=-VLOP1*vint_ci(LIST)    !1.1
           VLOP0=0.D0
           IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-            CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-            CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-            CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
          DO LRK=NORB_FRZ+1,LRI-1
             LMK=LSM_INN(LRK)
@@ -902,43 +902,43 @@ C           CALL PRODAB_1(3,JPEL,IWDS,IWDT,JWL,JWR,WL2,JPER,LIST2,LIST3)
             IF(MUL_TAB(LMK,LMJ).NE.JMR) CYCLE
             IWDS=JUST(LRK,LRI)
             IWDT=JUST(LRK,LRJ)      !
-C            CALL PRODAB(3,JPEL,IWDS,IWDT,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDS,IWDT,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!            CALL PRODAB(3,JPEL,IWDS,IWDT,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDS,IWDT,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,WL1,JPER,LIST1)
           ENDDO
 !ST(2-3) Ar(13)-Bl(32)-C'(22)-
 !ST(2-4) Ar(23)-Bl(32)-C'(12)-
           VLOP1=W1*W1ST4
          VLOP0=0.D0
           IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-            CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-            CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-            CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
 !        WL=-VLOP1*vint_ci(LIST)    !1.1 VLOP0=0
         IF(JB_SYS.GT.0) THEN
           VLOP1=W1*W1ST3
           VLOP0=0.D0
           IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-        CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+        CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,   &
+     &                     WL1_1,LIST1_1)
           ENDIF
           IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-        CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+        CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,   &
+     &                     WL1_1,LIST1_1)
           ENDIF
           IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-        CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,
-     :                     WL1_1,LIST1_1)
+        CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,   &
+     &                     WL1_1,LIST1_1)
           ENDIF
         ENDIF
 !         WL1=-VLOP1*vint_ci(LIST)
@@ -948,20 +948,20 @@ C           CALL PRODAB_1(3,JPEL,IWDS,IWDT,JWL,JWR,WL2,JPER,LIST2,LIST3)
             IF(MUL_TAB(LMK,LMJ).NE.JMR) CYCLE
             IWDS=JUST(LRI,LRK)
             IWDT=JUST(LRJ,LRK)     !
-C            CALL PRODAB(3,JPEL,IWDS,IWDT,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDS,IWDT,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!            CALL PRODAB(3,JPEL,IWDS,IWDT,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDS,IWDT,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,WL1,JPER,LIST1)
 
             IF(JB_SYS.GT.0) THEN
               IWDS=JUST(LRK,LRI)
-C              CALL PRODAB(3,JPEL,IWDS,IWDT,JWL,JWR,WL1,JPER)
-C          CALL PRODAB_1(3,JPEL,IWDS,IWDT,JWL,JWR,WL2_1,JPER,LIST2_1,
-C    :                                                       LIST3_1)
+!              CALL PRODAB(3,JPEL,IWDS,IWDT,JWL,JWR,WL1,JPER)
+!          CALL PRODAB_1(3,JPEL,IWDS,IWDT,JWL,JWR,WL2_1,JPER,LIST2_1,
+!    :                                                       LIST3_1)
               CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,WL0_1,JPER,LIST0_1)
-      IF(LIST1_1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,WL1_1,JPER,LIST1_1)
+      IF(LIST1_1.NE.0)                                                  &
+     &        CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,WL1_1,JPER,LIST1_1)
 
             ENDIF
           ENDDO
@@ -972,21 +972,21 @@ C    :                                                       LIST3_1)
             IF(MUL_TAB(LMK,LMJ).NE.JMR) CYCLE
             IWDS=JUST(LRI,LRK)
             IWDT=JUST(LRK,LRJ)    !
-C            CALL PRODAB(3,JPEL,IWDS,IWDT,JWL,JWR,-WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDS,IWDT,JWL,JWR,-WL2,JPER,LIST2,LIST3
+!            CALL PRODAB(3,JPEL,IWDS,IWDT,JWL,JWR,-WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDS,IWDT,JWL,JWR,-WL2,JPER,LIST2,LIST3
           CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,-WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :       CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,-WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &       CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,-WL1,JPER,LIST1)
 
 !ST(2-3) Ar(13)-C'(22)-Bl(32)-
             IF(JB_SYS.GT.0) THEN
               IWDS=JUST(LRK,LRI)
-C              CALL PRODAB(3,JPEL,IWDS,IWDT,JWL,JWR,-WL1,JPER)
-C          CALL PRODAB_1(3,JPEL,IWDS,IWDT,JWL,JWR,-WL2_1,JPER,LIST2_1,
-C    :                                                        LIST3_1)
+!              CALL PRODAB(3,JPEL,IWDS,IWDT,JWL,JWR,-WL1,JPER)
+!          CALL PRODAB_1(3,JPEL,IWDS,IWDT,JWL,JWR,-WL2_1,JPER,LIST2_1,
+!    :                                                        LIST3_1)
            CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,-WL0_1,JPER,LIST0_1)
-      IF(LIST1_1.NE.0)
-     :     CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,-WL1_1,JPER,LIST1_1)
+      IF(LIST1_1.NE.0)                                                  &
+     &     CALL PRODAB_2(3,JPEL,IWDS,IWDT,JWL,JWR,-WL1_1,JPER,LIST1_1)
 
            ENDIF
           ENDDO
@@ -1031,38 +1031,38 @@ C    :                                                        LIST3_1)
             VLOP1=W1*W1TS1             !D3-1
             VLOP0=0.D0
             IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-              CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0, &
+     &                     WL1,LIST1)
             ENDIF
             IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-              CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0, &
+     &                     WL1,LIST1)
             ENDIF
             IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-              CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0, &
+     &                     WL1,LIST1)
             ENDIF
 !           WL=-VLOP1*(VINT_CI(LIST))    !2.2 vlop0=0
-C            CALL PRODAB(3,JPEL,IWDT,IWDS,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDT,IWDS,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!            CALL PRODAB(3,JPEL,IWDT,IWDS,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDT,IWDS,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDT,IWDS,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDT,IWDS,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDT,IWDS,JWL,JWR,WL1,JPER,LIST1)
           ENDIF
 !-------------------------------------------------------------------
           VLOP1=W1*W1TS2             !D3-2
           VLOP0=0.D0
           IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-            CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-            CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-            CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
 !          WL=-VLOP1*(VINT_CI(LIST))    !2.2 vlop0=0
 !TS(3-2) (22)Ar(23)-Bl(31)-
@@ -1071,11 +1071,11 @@ C           CALL PRODAB_1(3,JPEL,IWDT,IWDS,JWL,JWR,WL2,JPER,LIST2,LIST3)
             IF(MUL_TAB(LMK,LMI).NE.JML.or.MUL_TAB(LMK,LMJ).NE.JMR) CYCLE
            IWDT=JUST(LRK,LRI)   !
             IWDS=JUST(LRK,LRJ)
-C            CALL PRODAB(3,JPEL,IWDT,IWDS,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDT,IWDS,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!            CALL PRODAB(3,JPEL,IWDT,IWDS,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDT,IWDS,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDT,IWDS,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDT,IWDS,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDT,IWDS,JWL,JWR,WL1,JPER,LIST1)
           ENDDO
 
 !TS(3-2) Ar(23)-C'(22)-Bl(31)-
@@ -1084,11 +1084,11 @@ C           CALL PRODAB_1(3,JPEL,IWDT,IWDS,JWL,JWR,WL2,JPER,LIST2,LIST3)
             IF(MUL_TAB(LMK,LMI).NE.JML.or.MUL_TAB(LMK,LMJ).NE.JMR) CYCLE
            IWDT=JUST(LRI,LRK)   !
             IWDS=JUST(LRK,LRJ)
-C            CALL PRODAB(3,JPEL,IWDT,IWDS,JWL,JWR,-WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDT,IWDS,JWL,JWR,-WL2,JPER,LIST2,LIST3
+!            CALL PRODAB(3,JPEL,IWDT,IWDS,JWL,JWR,-WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDT,IWDS,JWL,JWR,-WL2,JPER,LIST2,LIST3
               CALL PRODAB_2(3,JPEL,IWDT,IWDS,JWL,JWR,-WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDT,IWDS,JWL,JWR,-WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDT,IWDS,JWL,JWR,-WL1,JPER,LIST1)
           ENDDO
 
 !-------------------------------------------------------------------
@@ -1096,27 +1096,27 @@ C           CALL PRODAB_1(3,JPEL,IWDT,IWDS,JWL,JWR,-WL2,JPER,LIST2,LIST3
           VLOP1=W1*W1TS4             !D3-4
           VLOP0=0.D0
           IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-            CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-            CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-            CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
           DO LRK=LRJ+1,NORB_DZ
             LMK=LSM_INN(LRK)
             IF(MUL_TAB(LMK,LMI).NE.JML.or.MUL_TAB(LMK,LMJ).NE.JMR) CYCLE
             IWDT=JUST(LRI,LRK)   !
             IWDS=JUST(LRJ,LRK)
-C            CALL PRODAB(3,JPEL,IWDT,IWDS,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDT,IWDS,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!            CALL PRODAB(3,JPEL,IWDT,IWDS,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDT,IWDS,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDT,IWDS,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDT,IWDS,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDT,IWDS,JWL,JWR,WL1,JPER,LIST1)
 
           ENDDO
 
@@ -1126,16 +1126,16 @@ C           CALL PRODAB_1(3,JPEL,IWDT,IWDS,JWL,JWR,WL2,JPER,LIST2,LIST3)
             VLOP1=W1*W1TS3             !D3-4
             VLOP0=0.D0
             IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-              CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0, &
+     &                     WL1,LIST1)
             ENDIF
             IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-              CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0, &
+     &                     WL1,LIST1)
             ENDIF
             IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-              CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0, &
+     &                     WL1,LIST1)
             ENDIF
 !            WL=-VLOP1*VINT_CI(LIST)    !2.2 vlop0=0
             DO LRK=LRJ+1,NORB_DZ
@@ -1143,11 +1143,11 @@ C           CALL PRODAB_1(3,JPEL,IWDT,IWDS,JWL,JWR,WL2,JPER,LIST2,LIST3)
        IF(MUL_TAB(LMK,LMI).NE.JML.or.MUL_TAB(LMK,LMJ).NE.JMR) CYCLE
               IWDT=JUST(LRI,LRK)   !
               IWDS=JUST(LRK,LRJ)
-C              CALL PRODAB(3,JPEL,IWDT,IWDS,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDT,IWDS,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!              CALL PRODAB(3,JPEL,IWDT,IWDS,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDT,IWDS,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDT,IWDS,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDT,IWDS,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDT,IWDS,JWL,JWR,WL1,JPER,LIST1)
 
             ENDDO
           ENDIF
@@ -1192,132 +1192,132 @@ C           CALL PRODAB_1(3,JPEL,IWDT,IWDS,JWL,JWR,WL2,JPER,LIST2,LIST3)
             VLOP1=W1*W1ST1
              VLOP0=0.D0
              IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-               CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+               CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,&
+     &                     WL1,LIST1)
              ENDIF
              IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-               CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+               CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,&
+     &                     WL1,LIST1)
              ENDIF
              IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-               CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+               CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,&
+     &                     WL1,LIST1)
              ENDIF
 !             WL=-VLOP1*(VINT_CI(LIST))    !2.2 vlop0=0
-C             CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!             CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
            ENDIF
 !ST1(4-2) (11)Ar(23)-Bl(31)-
            VLOP1=W1*W1ST2
            VLOP0=0.D0
            IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-             CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+             CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,  &
+     &                     WL1,LIST1)
            ENDIF
            IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-             CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+             CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,  &
+     &                     WL1,LIST1)
            ENDIF
            IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-             CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+             CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,  &
+     &                     WL1,LIST1)
            ENDIF
            DO LRK=NORB_FRZ+1,LRI-1
              LMK=LSM_INN(LRK)
-             IF(MUL_TAB(LMK,LMI).NE.JML.OR.
-     :            MUL_TAB(LMK,LMJ).NE.JMR) CYCLE
+             IF(MUL_TAB(LMK,LMI).NE.JML.OR.                             &
+     &            MUL_TAB(LMK,LMJ).NE.JMR) CYCLE
 !            WL=-VLOP1*VINT_CI(LIST)
              IWDL=JUST(LRI,LRK)
              IWDR=JUST(LRK,LRJ)
-C            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
           ENDDO
            VLOP1=W1*W1ST4
            VLOP0=0.D0
            IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-              CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0, &
+     &                     WL1,LIST1)
            ENDIF
            IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-             CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+             CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,  &
+     &                     WL1,LIST1)
            ENDIF
            IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-             CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+             CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,  &
+     &                     WL1,LIST1)
            ENDIF
 !ST1(4-4) Ar(23)-C'(11)-Bl(31)-
            DO LRK=LRI+1,LRJ-1
              LMK=LSM_INN(LRK)
-             IF(MUL_TAB(LMI,LMK).NE.JML.OR.
-     :             MUL_TAB(LMK,LMJ).NE.JMR) CYCLE
+             IF(MUL_TAB(LMI,LMK).NE.JML.OR.                             &
+     &             MUL_TAB(LMK,LMJ).NE.JMR) CYCLE
              IWDL=JUST(LRI,LRK)
              IWDR=JUST(LRK,LRJ)
-C            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,-WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,-WL2,JPER,LIST2,LIST3
+!            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,-WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,-WL2,JPER,LIST2,LIST3
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL1,JPER,LIST1)
           ENDDO
 !ST1(4-4) Ar(23)-Bl(31)-C"(11)-
            DO LRK=LRJ+1,NORB_DZ
              LMK=LSM_INN(LRK)
-            IF(MUL_TAB(LMI,LMK).NE.JML.OR.
-     :          MUL_TAB(LMJ,LMK).NE.JMR) CYCLE
+            IF(MUL_TAB(LMI,LMK).NE.JML.OR.                              &
+     &          MUL_TAB(LMJ,LMK).NE.JMR) CYCLE
              IWDL=JUST(LRI,LRK)
              IWDR=JUST(LRJ,LRK)
-C            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
           ENDDO
 
            VLOP1=W1*W1ST3
            VLOP0=0.D0
            IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-             CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+             CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,  &
+     &                     WL1,LIST1)
            ENDIF
            IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-             CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+             CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,  &
+     &                     WL1,LIST1)
            ENDIF
            IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-             CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+             CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,  &
+     &                     WL1,LIST1)
            ENDIF
 !ST1(4-3) Ar(13)-C'(21)-Bl(31)-
            DO LRK=LRI+1,LRJ-1
              LMK=LSM_INN(LRK)
-             IF(MUL_TAB(LMI,LMK).NE.JML.OR.
-     :         MUL_TAB(LMK,LMJ).NE.JMR) CYCLE
+             IF(MUL_TAB(LMI,LMK).NE.JML.OR.                             &
+     &         MUL_TAB(LMK,LMJ).NE.JMR) CYCLE
              IWDL=JUST(LRK,LRI)
              IWDR=JUST(LRK,LRJ)
-C            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,-WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,-WL2,JPER,LIST2,LIST3
+!            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,-WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,-WL2,JPER,LIST2,LIST3
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL1,JPER,LIST1)
           ENDDO
 !ST1(4-3) Ar(13)-Bl(31)-C"(21)-
            DO LRK=LRJ+1,NORB_DZ
              LMK=LSM_INN(LRK)
-             IF(MUL_TAB(LMI,LMK).NE.JML.OR.
-     :            MUL_TAB(LMJ,LMK).NE.JMR) CYCLE
+             IF(MUL_TAB(LMI,LMK).NE.JML.OR.                             &
+     &            MUL_TAB(LMJ,LMK).NE.JMR) CYCLE
              IWDL=JUST(LRK,LRI)
              IWDR=JUST(LRJ,LRK)
-C            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
           ENDDO
         ENDDO
       ENDDO
@@ -1366,203 +1366,203 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
           VLOP1=W1*W1T1S1
           VLOP0=0.D0
           IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-            CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-            CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-            CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
 !         WL=-VLOP1*VINT_CI(LIST)
          IWDL=JUST(LRI,LRJ)
           IWDR=JUST(LRJ,LRJ)
-C        CALL  PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!        CALL  PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
         ENDIF
         VLOP1=W1*W1T1S2
         VLOP0=0.D0
         IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-          CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,     &
+     &                     WL1,LIST1)
         ENDIF
         IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-          CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,     &
+     &                     WL1,LIST1)
         ENDIF
         IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-          CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,     &
+     &                     WL1,LIST1)
         ENDIF
 !         WL=-VLOP1*VINT_CI(LIST)
         DO LRK=NORB_FRZ+1,LRI-1
           LMK=LSM_INN(LRK)
 !T1S(5-2)   (11)Ar(13)-Bl(32)-
-          IF(JML.NE.MUL_TAB(LMK,LMI).OR.JMR.NE.
-     :        MUL_TAB(LMK,LMJ)) CYCLE
+          IF(JML.NE.MUL_TAB(LMK,LMI).OR.JMR.NE.                         &
+     &        MUL_TAB(LMK,LMJ)) CYCLE
 !          VLOP1=W1*W1T1S2
 !          WL=-VLOP1*VINT_CI(LIST)
            IWDL=JUST(LRK,LRI)
            IWDR=JUST(LRJ,LRK)
-C         CALL  PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!         CALL  PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
         ENDDO
         DO LRK=LRI+1,LRJ-1
           LMK=LSM_INN(LRK)
 !T1S(5-2)   Ar(13)-C'(11)-Bl(32)-
-          IF(JML.NE.MUL_TAB(LMI,LMK).OR.JMR.NE.
-     :        MUL_TAB(LMK,LMJ)) CYCLE
+          IF(JML.NE.MUL_TAB(LMI,LMK).OR.JMR.NE.                         &
+     &        MUL_TAB(LMK,LMJ)) CYCLE
 !          VLOP1=W1*W1T1S2
 !          WL=-VLOP1*VINT_CI(LIST)
            IWDL=JUST(LRI,LRK)
            IWDR=JUST(LRJ,LRK)
-C         CALL  PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,-WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,-WL2,JPER,LIST2,LIST3
+!         CALL  PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,-WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,-WL2,JPER,LIST2,LIST3
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL1,JPER,LIST1)
 
         ENDDO
         VLOP1=W1*W1T1S3
         VLOP0=0.D0
         IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-          CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,     &
+     &                     WL1,LIST1)
         ENDIF
         IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-          CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,     &
+     &                     WL1,LIST1)
         ENDIF
         IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-          CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,     &
+     &                     WL1,LIST1)
         ENDIF
         DO LRK=LRJ+1,NORB_DZ
           LMK=LSM_INN(LRK)
 !T1S(5-3)   Ar(13)-Bl(31)-C"(12)-
-          IF(JML.NE.MUL_TAB(LMI,LMK).OR.JMR.NE.
-     :        MUL_TAB(LMJ,LMK)) CYCLE
+          IF(JML.NE.MUL_TAB(LMI,LMK).OR.JMR.NE.                         &
+     &        MUL_TAB(LMJ,LMK)) CYCLE
 !          VLOP1=W1*W1T1S3
 !          WL=-VLOP1*VINT_CI(LIST)
            IWDL=JUST(LRI,LRK)
            IWDR=JUST(LRK,LRJ)
-C         CALL  PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!         CALL  PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
         ENDDO
         VLOP1=W1*W1T1S4
         VLOP0=0.D0
         IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-          CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,     &
+     &                     WL1,LIST1)
         ENDIF
         IF(LINE.EQ.28) THEN     !LRI,LRK,LRS,LRA
-          CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,     &
+     &                     WL1,LIST1)
         ENDIF
         IF(LINE.EQ.29) THEN     !LRI,LRK,LRS,LRA
-          CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,     &
+     &                     WL1,LIST1)
         ENDIF
 !       WL=-VLOP1*VINT_CI(LIST)
         DO LRK=LRJ+1,NORB_DZ
           LMK=LSM_INN(LRK)
 !T1S(5-4)   Ar(13)-Bl(32)-C"(11)-
-          IF(JML.NE.MUL_TAB(LMI,LMK).OR.JMR.NE.
-     :        MUL_TAB(LMJ,LMK)) CYCLE
+          IF(JML.NE.MUL_TAB(LMI,LMK).OR.JMR.NE.                         &
+     &        MUL_TAB(LMJ,LMK)) CYCLE
            IWDL=JUST(LRI,LRK)
            IWDR=JUST(LRJ,LRK)
-C         CALL  PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!         CALL  PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
         ENDDO
         IF(LMIJ.EQ.JML.AND.LMIJ.EQ.JMR) THEN
 !T1S(5-5)   (11)Drl(12)-
           VLOP1=W1*W1T1S5
           VLOP0=0.D0
           IF(LINE.EQ.26) THEN    !LRJ,LRA
-            CALL COMP_LOOP_G(9,LRJ,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(9,LRJ,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,       &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.28) THEN    !LRJ,LRS,LRA
-            CALL COMP_LOOP_G(12,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(12,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,    &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.29) THEN    !LRJ,LRS,LRA
-            CALL COMP_LOOP_G(11,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(11,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,    &
+     &                     WL1,LIST1)
           ENDIF
 !         WL=-VLOP1*VOINT(LRB,LRJ)
           IWDL=JUST(LRI,LRJ)
           IWDR=JUST(LRJ,LRI)
-C         CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!         CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
 !T1S(5-6)   Drl(11)-C"(12)-
           VLOP1=W1*W1T1S6
           VLOP0=0.D0
           IF(LINE.EQ.26) THEN    !LRI,LRA
-            CALL COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,       &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.28) THEN    !LRI,LRS,LRA
-            CALL COMP_LOOP_G(12,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(12,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,    &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.29) THEN    !LRI,LRS,LRA
-            CALL COMP_LOOP_G(11,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(11,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,    &
+     &                     WL1,LIST1)
           ENDIF
 !         WL=-VLOP1*VOINT(LRB,LRI)
           IWDL=JUST(LRI,LRJ)
           IWDR=JUST(LRJ,LRI)
-C         CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!         CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
 !T1S(5-7)   Drl(12)-C"(11)-
           VLOP1=W1*W1T1S7
           VLOP0=0.D0
           IF(LINE.EQ.26) THEN    !LRI,LRA
-            CALL COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,       &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.28) THEN    !LRI,LRS,LRA
-            CALL COMP_LOOP_G(12,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(12,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,    &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.29) THEN    !LRI,LRS,LRA
-            CALL COMP_LOOP_G(11,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(11,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,    &
+     &                     WL1,LIST1)
           ENDIF
 !         WL=-VLOP1*VOINT(LRB,LRI)
           IWDL=JUST(LRI,LRJ)
           IWDR=IWDL
-C         CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!         CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
         ENDIF
       ENDDO
@@ -1602,16 +1602,16 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
           VLOP0=W0*W0TT1
           VLOP1=W1*W1TT1
           IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-            CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-            CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-            CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
 !          WL=(VLOP0-VLOP1)*vint_ci(LIST)-2*VLOP0*vint_ci(LIST+1)
 !TT(11-1) (22)Ar(23)-Bl(32)-
@@ -1622,11 +1622,11 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
             IF(LMKI.EQ.JML.AND.LMKJ.EQ.JMR) THEN
               IWDL=JUST(LRK,LRI)     !
               IWDR=JUST(LRK,LRJ)     !
-C              CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!              CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
              ENDIF
           ENDDO
@@ -1638,11 +1638,11 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
             IF(LMKI.EQ.JML.AND.LMKJ.EQ.JMR) THEN
               IWDL=JUST(LRI,LRK)     !
               IWDR=JUST(LRJ,LRK)     !
-C              CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!              CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
             ENDIF
           ENDDO
@@ -1654,11 +1654,11 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
             IF(LMKI.EQ.JML.AND.LMKJ.EQ.JMR) THEN
               IWDL=JUST(LRI,LRK)      !
               IWDR=JUST(LRK,LRJ)      !
-C              CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,-WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,-WL2,JPER,LIST2,LIST3
+!              CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,-WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,-WL2,JPER,LIST2,LIST3
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL1,JPER,LIST1)
 
             ENDIF
           ENDDO
@@ -1686,42 +1686,42 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,-WL2,JPER,LIST2,LIST3
           VLOP0=W0*W0TT2
           VLOP1=W1*W1TT2
           IF(LINE.EQ.26) THEN    !LRJ,LRA
-            CALL COMP_LOOP_G(9,LRJ,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(9,LRJ,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,       &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.28) THEN    !LRJ,LRS,LRA
-            CALL COMP_LOOP_G(12,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(12,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,    &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.29) THEN    !LRJ,LRS,LRA
-            CALL COMP_LOOP_G(11,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(11,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,    &
+     &                     WL1,LIST1)
           ENDIF
 
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
           IF(LINE.EQ.26) THEN    !LRI,LRA
-            CALL COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,       &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.28) THEN    !LRI,LRS,LRA
-            CALL COMP_LOOP_G(12,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(12,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,    &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.29) THEN    !LRI,LRS,LRA
-            CALL COMP_LOOP_G(11,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(11,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,    &
+     &                     WL1,LIST1)
           ENDIF
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
 
-C         WL=WL+WLTMP
+!         WL=WL+WLTMP
 !          WL=(VLOP0-VLOP1)*(VOINT(LRB,LRI)+VOINT(LRB,LRJ))
           VLOP0=W0*W0TT3
           VLOP1=0.D0
@@ -1732,25 +1732,25 @@ C         WL=WL+WLTMP
 !TT(11-3) (22)Drl(33)-C"(22)-
 !TT(11-3) (22)(22)Drl(33)-
             IF(LINE.EQ.26) THEN    !LRK,LRA
-              CALL COMP_LOOP_G(9,LRK,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(9,LRK,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,     &
+     &                     WL1,LIST1)
             ENDIF
             IF(LINE.EQ.28) THEN    !LRK,LRS,LRA
-              CALL COMP_LOOP_G(12,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(12,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,  &
+     &                     WL1,LIST1)
             ENDIF
             IF(LINE.EQ.29) THEN    !LRK,LRS,LRA
-              CALL COMP_LOOP_G(11,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(11,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,  &
+     &                     WL1,LIST1)
             ENDIF
-C            WL=WL+WLTMP
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!            WL=WL+WLTMP
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
           ENDDO
-C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
         ENDDO
       ENDDO
 
@@ -1780,16 +1780,16 @@ C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
         VLOP0=W0*W0TT1
         VLOP1=W1*W1TT1
         IF(LINE.EQ.26) THEN    !LRI,LRJ,LRA
-          CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,     &
+     &                     WL1,LIST1)
         ENDIF
         IF(LINE.EQ.28) THEN     !LRI,LRJ,LRS,LRA
-          CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,     &
+     &                     WL1,LIST1)
         ENDIF
         IF(LINE.EQ.29) THEN     !LRI,LRJ,LRS,LRA
-          CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,     &
+     &                     WL1,LIST1)
         ENDIF
 !       WL=(VLOP0-VLOP1)*VINT_CI(LIST)-2*VLOP0*VINT_CI(LIST+1)
 !T1T1(12-1)  (11)Ar(13)-Bl(31)-
@@ -1798,11 +1798,11 @@ C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           IF(JML.NE.MUL_TAB(LMI,LMM).OR.JMR.NE.MUL_TAB(LMM,LMJ)) CYCLE
           IWDL=JUST(LRM,LRI)
           IWDR=JUST(LRM,LRJ)
-C         CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!         CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
         ENDDO
 !T1T1(12-1)  Ar(13)-Bl(31)-C"(11)-
@@ -1811,11 +1811,11 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
           IF(JML.NE.MUL_TAB(LMI,LMM).OR.JMR.NE.MUL_TAB(LMM,LMJ)) CYCLE
           IWDL=JUST(LRI,LRM)
           IWDR=JUST(LRJ,LRM)
-C         CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!         CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
         ENDDO
 !T1T1(12-1)  Ar(13)-C'(11)-Bl(31)-
@@ -1824,11 +1824,11 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
           IF(JML.NE.MUL_TAB(LMI,LMM).OR.JMR.NE.MUL_TAB(LMM,LMJ)) CYCLE
           IWDL=JUST(LRI,LRM)
           IWDR=JUST(LRM,LRJ)
-C         CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,-WL,JPER)
-C          CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,-WL2,JPER,LIST2,LIST3)
+!         CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,-WL,JPER)
+!          CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,-WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,-WL1,JPER,LIST1)
 
         ENDDO
       ENDDO
@@ -1845,47 +1845,47 @@ C          CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,-WL2,JPER,LIST2,LIST3)
         IF(JML.NE.LMIJ) CYCLE
         VLOP0=W0*W0_T1T1(2)
         VLOP1=W1*W1_T1T1(2)
-C----------------------------------------
-C lyb
+!----------------------------------------
+! lyb
         IWDL=JUST(LRI,LRJ)
         IWDR=IWDL
 
 !T1T1(12-2)  (11)Drl(11)-
         IF(LINE.EQ.26) THEN    !LRI,LRA
-           CALL COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+           CALL COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,        &
+     &                     WL1,LIST1)
         ENDIF
         IF(LINE.EQ.28) THEN    !LRK,LRS,LRA
-          CALL COMP_LOOP_G(12,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(12,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,      &
+     &                     WL1,LIST1)
         ENDIF
         IF(LINE.EQ.29) THEN    !LRK,LRS,LRA
-          CALL COMP_LOOP_G(11,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(11,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,      &
+     &                     WL1,LIST1)
         ENDIF
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
 !T1T1(12-2)  Drl(11)-C"(11)-
         IF(LINE.EQ.26) THEN    !LRJ,LRA
-           CALL COMP_LOOP_G(9,LRJ,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+           CALL COMP_LOOP_G(9,LRJ,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,        &
+     &                     WL1,LIST1)
         ENDIF
         IF(LINE.EQ.28) THEN    !LRJ,LRS,LRA
-          CALL COMP_LOOP_G(12,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(12,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,      &
+     &                     WL1,LIST1)
         ENDIF
         IF(LINE.EQ.29) THEN    !LRJ,LRS,LRA
-          CALL COMP_LOOP_G(11,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(11,LRJ,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,      &
+     &                     WL1,LIST1)
         ENDIF
-C       WL=WL+WLTMP
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!       WL=WL+WLTMP
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
 !T1T1(12-3)  (11)(11)Drl(33)-
 !T1T1(12-3)  (11)Drl(33)-C"(11)-
@@ -1896,27 +1896,27 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
           VLOP0=W0*W0_T1T1(3)
           VLOP1=0.D0
           IF(LINE.EQ.26) THEN    !LRK,LRA
-            CALL COMP_LOOP_G(9,LRK,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(9,LRK,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,       &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.28) THEN    !LRK,LRS,LRA
-            CALL COMP_LOOP_G(12,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(12,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,    &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.29) THEN    !LRK,LRS,LRA
-            CALL COMP_LOOP_G(11,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(11,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,    &
+     &                     WL1,LIST1)
           ENDIF
-C          WL=WL+WLTMP
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!          WL=WL+WLTMP
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
         ENDDO
-C        IWDL=JUST(LRI,LRJ)
-C        IWDR=IWDL
-C       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!        IWDL=JUST(LRI,LRJ)
+!        IWDR=IWDL
+!       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
       ENDDO
       ENDDO
 
@@ -1954,21 +1954,21 @@ C       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
             VLOP0=W0*W0_DD(2)
             VLOP1=W1*W1_DD(2)
             IF(LINE.EQ.26) THEN    !LRIL,LRA
-              CALL COMP_LOOP_G(9,LRIL,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(9,LRIL,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,    &
+     &                     WL1,LIST1)
             ENDIF
             IF(LINE.EQ.28) THEN    !LRIL,LRS,LRA
-              CALL COMP_LOOP_G(12,LRIL,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(12,LRIL,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0, &
+     &                     WL1,LIST1)
             ENDIF
             IF(LINE.EQ.29) THEN    !LRIL,LRS,LRA
-              CALL COMP_LOOP_G(11,LRIL,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(11,LRIL,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0, &
+     &                     WL1,LIST1)
             ENDIF
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
 !            WL=(VLOP0-VLOP1)*VOINT(LRA,LRIL)
 !            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
@@ -1979,50 +1979,50 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
              IF(LRK.EQ.LRIL) CYCLE
 !             LIST=LIST3(LRS,LRA,LRK)
              IF(LINE.EQ.26) THEN    !LRK,LRA
-               CALL COMP_LOOP_G(9,LRK,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)     !WYB
+               CALL COMP_LOOP_G(9,LRK,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,    &
+     &                     WL1,LIST1)     !WYB
              ENDIF
              IF(LINE.EQ.28) THEN    !LRK,LRS,LRA
-               CALL COMP_LOOP_G(12,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)   !WYB
+               CALL COMP_LOOP_G(12,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0, &
+     &                     WL1,LIST1)   !WYB
              ENDIF
              IF(LINE.EQ.29) THEN    !LRK,LRS,LRA
-               CALL COMP_LOOP_G(11,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)   !WYB
+               CALL COMP_LOOP_G(11,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0, &
+     &                     WL1,LIST1)   !WYB
              ENDIF
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 !              WL=WL+VLOP0*VOINT(LRK,LRA)
-C             WL=WLTMP+WL
+!             WL=WLTMP+WL
             ENDDO
-C             CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!             CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           ENDIF
           IF(LRIL.NE.LRIR)THEN
 !DD(19-1) Ar(23)-Bl(32)-
             VLOP0=W0*W0DD1
             VLOP1=W1*W1DD1
             IF(LINE.EQ.26) THEN   !LRIL,LRIR,LRA
-             CALL COMP_LOOP_G(5,LRIL,LRIR,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+             CALL COMP_LOOP_G(5,LRIL,LRIR,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,&
+     &                     WL1,LIST1)
             ENDIF
             IF(LINE.EQ.28) THEN   !LRIL,LRIR,LRS,LRA
-             CALL COMP_LOOP_G(7,LRIL,LRIR,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+             CALL COMP_LOOP_G(7,LRIL,LRIR,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,&
+     &                     WL1,LIST1)
             ENDIF
             IF(LINE.EQ.29) THEN   !LRIL,LRIR,LRS,LRA
-             CALL COMP_LOOP_G(6,LRIL,LRIR,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+             CALL COMP_LOOP_G(6,LRIL,LRIR,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,&
+     &                     WL1,LIST1)
             ENDIF
 !            LIST=LIST4(LRIL,LRIR,LRS,LRA)
 !            WL=VLOP0*(vint_ci(LIST)-2*vint_ci(LIST+1)) !1.1       !!!!!
 !     :       -VLOP1*vint_ci(LIST)
-C            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
           ENDIF
         ENDDO
@@ -2060,21 +2060,21 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
            VLOP0=W0*W0_D1D1(2)
             VLOP1=W1*W1_D1D1(2)
             IF(LINE.EQ.26) THEN    !LRIL,LRA
-              CALL COMP_LOOP_G(9,LRIL,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(9,LRIL,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,    &
+     &                     WL1,LIST1)
             ENDIF
             IF(LINE.EQ.28) THEN    !LRIL,LRS,LRA
-              CALL COMP_LOOP_G(12,LRIL,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(12,LRIL,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0, &
+     &                     WL1,LIST1)
             ENDIF
             IF(LINE.EQ.29) THEN    !LRIL,LRS,LRA
-              CALL COMP_LOOP_G(11,LRIL,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(11,LRIL,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0, &
+     &                     WL1,LIST1)
             ENDIF
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
 !D1D1(20-1) Drl(33)-
 !D1D1(20-1) Drl(33)-C"(11)-
@@ -2083,49 +2083,49 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
            DO LRK=1,NORB_DZ
               IF(LRK.EQ.LRIL) CYCLE
               IF(LINE.EQ.26) THEN    !LRK,LRA
-                CALL COMP_LOOP_G(9,LRK,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+                CALL COMP_LOOP_G(9,LRK,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
               ENDIF
               IF(LINE.EQ.28) THEN    !LRK,LRS,LRA
-                CALL COMP_LOOP_G(12,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+                CALL COMP_LOOP_G(12,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,&
+     &                     WL1,LIST1)
               ENDIF
               IF(LINE.EQ.29) THEN    !LRK,LRS,LRA
-                CALL COMP_LOOP_G(11,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+                CALL COMP_LOOP_G(11,LRK,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,&
+     &                     WL1,LIST1)
               ENDIF
-C             WL=WL+WLTMP
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!             WL=WL+WLTMP
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
             ENDDO
-C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           ENDIF
           IF(LRIL.NE.LRIR)THEN
 !D1D1(20-1) Ar(13)-BL(31)-
             VLOP0=W0*W0DD1
             VLOP1=W1*W1DD1
             IF(LINE.EQ.26) THEN   !LRIL,LRIR,LRA
-             CALL COMP_LOOP_G(5,LRIL,LRIR,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+             CALL COMP_LOOP_G(5,LRIL,LRIR,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,&
+     &                     WL1,LIST1)
             ENDIF
             IF(LINE.EQ.28) THEN   !LRIL,LRIR,LRS,LRA
-             CALL COMP_LOOP_G(7,LRIL,LRIR,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+             CALL COMP_LOOP_G(7,LRIL,LRIR,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,&
+     &                     WL1,LIST1)
             ENDIF
             IF(LINE.EQ.29) THEN   !LRIL,LRIR,LRS,LRA
-             CALL COMP_LOOP_G(6,LRIL,LRIR,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+             CALL COMP_LOOP_G(6,LRIL,LRIR,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,&
+     &                     WL1,LIST1)
             ENDIF
 !            LIST=LIST3(LRIL,LRIR,LRA)
 !            WL=(VLOP0-VLOP1)*vint_ci(LIST)-2*VLOP0*vint_ci(LIST+1)   !2
-C            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
          ENDIF
         ENDDO
@@ -2154,25 +2154,25 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
         ENDIF
 
         IF(LINE.EQ.26) THEN   !LRI,LRJ,LRA
-          CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,     &
+     &                     WL1,LIST1)
         ENDIF
         IF(LINE.EQ.28) THEN   !LRIL,LRJ,LRS,LRA
-          CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,     &
+     &                     WL1,LIST1)
         ENDIF
         IF(LINE.EQ.29) THEN   !LRI,LRJ,LRS,LRA
-          CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,     &
+     &                     WL1,LIST1)
         ENDIF
 !       LIST=LIST3(LRI,LRJ,LRA)
 !       WL=-VLOP1*VINT_CI(LIST)
         IWDR=JUD(LRJ)
-C       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
       ENDDO
       ENDDO
@@ -2199,25 +2199,25 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
           VLOP1=-VLOP1
         ENDIF
         IF(LINE.EQ.26) THEN   !LRI,LRJ,LRA
-          CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,     &
+     &                     WL1,LIST1)
         ENDIF
         IF(LINE.EQ.28) THEN   !LRIL,LRJ,LRS,LRA
-          CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(7,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,     &
+     &                     WL1,LIST1)
         ENDIF
         IF(LINE.EQ.29) THEN   !LRI,LRJ,LRS,LRA
-          CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(6,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,     &
+     &                     WL1,LIST1)
         ENDIF
 !       LIST=LIST3(LRI,LRJ,LRA)
 !       WL=-VLOP1*VINT_CI(LIST)
         IWDR=JUD(LRJ)
-C       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
       ENDDO
       ENDDO
@@ -2228,26 +2228,26 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
         LMI=LSM_INN(LRI)
         IF(JML.NE.LMI.OR.JMR.NE.LMI) CYCLE
         IF(LINE.EQ.26) THEN    !LRI,LRA
-          CALL COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,         &
+     &                     WL1,LIST1)
         ENDIF
         IF(LINE.EQ.28) THEN    !LRI,LRS,LRA
-          CALL COMP_LOOP_G(12,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(12,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,      &
+     &                     WL1,LIST1)
         ENDIF
         IF(LINE.EQ.29) THEN    !LRI,LRS,LRA
-          CALL COMP_LOOP_G(11,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+          CALL COMP_LOOP_G(11,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,      &
+     &                     WL1,LIST1)
         ENDIF
 !       VLOP1=W1*W1_D1D(2)
 !       WL=-VLOP1*VOINT(LRI,LRA)
         IWDL=JUD(LRI)
         IWDR=IWDL
-C       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
       ENDDO
 
@@ -2286,20 +2286,20 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
           VLOP1=0.D0
 !         WL=VLOP0*VOINT(LRA,LRI)/2
           IF(LINE.EQ.25) THEN    !LRI,LRA
-Cwyb         CALL COMP_LOOP_G(8,LRI,LRG,LRS,LRA,VLOP0,VLOP1,WL)
-             CALL COMP_LOOP_G(8,LRI,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+!wyb         CALL COMP_LOOP_G(8,LRI,LRG,LRS,LRA,VLOP0,VLOP1,WL)
+             CALL COMP_LOOP_G(8,LRI,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,      &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.27) THEN    !LRI,LRS,LRA
-Cwyb         CALL COMP_LOOP_G(10,LRI,LRS,LRA,LRA,VLOP0,VLOP1,WL)
-            CALL COMP_LOOP_G(10,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+!wyb         CALL COMP_LOOP_G(10,LRI,LRS,LRA,LRA,VLOP0,VLOP1,WL)
+            CALL COMP_LOOP_G(10,LRI,0,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,    &
+     &                     WL1,LIST1)
           ENDIF
-C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
         ELSE
           VLOP0=W0*W0SV2             !D10-2
@@ -2307,18 +2307,18 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
 !         LIST=LIST3(LRI,LRJ,LRA)
 !          WL=(VLOP0+VLOP1)*vint_ci(LIST)        !2.1          !!!!!
           IF(LINE.EQ.25) THEN    !LRI,LRJ,LRA
-            CALL COMP_LOOP_G(3,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(3,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
           ENDIF
           IF(LINE.EQ.27) THEN      !LRI,LRJ,LRS,LRA
-            CALL COMP_LOOP_G(4,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+            CALL COMP_LOOP_G(4,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,   &
+     &                     WL1,LIST1)
          ENDIF
-C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
           IF(JB_SYS.GT.0) THEN
             IWDL=JUST(LRJ,LRI)
@@ -2327,18 +2327,18 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
 !           LIST=LIST3(LRI,LRJ,LRA)
 !            WL=(VLOP0+VLOP1)*vint_ci(LIST)        !2.1          !!!!!
             IF(LINE.EQ.25) THEN    !LRI,LRJ,LRA
-              CALL COMP_LOOP_G(3,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(3,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0, &
+     &                     WL1,LIST1)
             ENDIF
             IF(LINE.EQ.27) THEN      !LRI,LRJ,LRS,LRA
-              CALL COMP_LOOP_G(4,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,
-     :                     WL1,LIST1)
+              CALL COMP_LOOP_G(4,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0, &
+     &                     WL1,LIST1)
             ENDIF
-C            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
+!            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
               CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL0,JPER,LIST0)
-      IF(LIST1.NE.0)
-     :        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
+      IF(LIST1.NE.0)                                                    &
+     &        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
 
           ENDIF
         ENDIF
@@ -2392,13 +2392,13 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
         IF(LMI.EQ.JMLR) THEN
           IWDR=JUD(LRI)
           VLOP0=W0*W0SD1
-C          WL=VLOP0*VOINT(LRI,LRA)
+!          WL=VLOP0*VOINT(LRI,LRA)
           WL=VLOP0
           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,LRI,LRA)
 
           DO LR=LRI+1,NORB_DZ
-C           LIST =LIST3(LRI,LRA,LR)
-C            WL=WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC=2
+!           LIST =LIST3(LRI,LRA,LR)
+!            WL=WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC=2
           WL=VLOP0*2
           CALL TRANS_IJKL_INTPOS(LRA,LRI,LR,LR,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2407,10 +2407,10 @@ C            WL=WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC=2
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
           ENDDO
           DO LRK=norb_dz+1,LRA
-C            LIST=LIST3(LRI,LRA,LRK)
+!            LIST=LIST3(LRI,LRA,LRK)
             KCOE=LPCOE(LRK)
             CALL NEOC(KCOE,NOCC,TCOE)
-C            WL=WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
+!            WL=WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             WL=VLOP0*NOCC
           CALL TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2419,12 +2419,12 @@ C            WL=WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
           ENDDO
-C          WL=WL*VLOP0
+!          WL=WL*VLOP0
 !SD(6-12) D&rl(33)B^l(02)
           VLOP0=W0*W0SD12
          DO LRK=1,LRI-1
-C            LIST=LIST3(LRI,LRA,LRK)
-C            WL=WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))
+!            LIST=LIST3(LRI,LRA,LRK)
+!            WL=WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))
             WL=VLOP0
           CALL TRANS_IJKL_INTPOS(LRA,LRK,LRI,LRK,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2433,7 +2433,7 @@ C            WL=WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
           ENDDO
-C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
         ENDIF
 
 !SD(6-9) D&r&r(03)B^r(32)
@@ -2445,8 +2445,8 @@ C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           IF(NI.EQ.1)   W0SD9=-W0SD9
           IWDR=JUD(LRD)
           VLOP0=W0*W0SD9
-C          LIST=LIST3(LRD,LRA,LRI)
-C          WL=VINT_CI(LIST)*VLOP0
+!          LIST=LIST3(LRD,LRA,LRI)
+!          WL=VINT_CI(LIST)*VLOP0
            WL=VLOP0
           CALL TRANS_IJKL_INTPOS(LRA,LRI,LRD,LRI,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2474,21 +2474,21 @@ C          WL=VINT_CI(LIST)*VLOP0
           ENDIF
           IWDL=JUST(LRI,LRJ)
           IWDL1=JUST(LRJ,LRI)
-C**********************************************************
+!**********************************************************
 !SD(6-2) C(22)-A&r(13)-
           IF(LMI.EQ.JMR) THEN
             IWDR=JUD(LRI)
             VLOP0=W0*W0SD2
-C            LIST=LIST3(LRJ,LRA,LRJ)
-C            WL=VLOP0*(VOINT(LRJ,LRA)+VINT_CI(LIST))          !310,act_c
+!            LIST=LIST3(LRJ,LRA,LRJ)
+!            WL=VLOP0*(VOINT(LRJ,LRA)+VINT_CI(LIST))          !310,act_c
             WL=VLOP0
           CALL TRANS_IJKL_INTPOS(LRA,LRJ,LRJ,LRJ,NXO)
           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,LRJ,LRA)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
             DO LR=LRJ+1,NORB_DZ
-C              LIST =LIST3(LRJ,LRA,LR)
-C              WL=WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC
+!              LIST =LIST3(LRJ,LRA,LR)
+!              WL=WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC
             WL=VLOP0*2
           CALL TRANS_IJKL_INTPOS(LRA,LRJ,LR,LR,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2498,10 +2498,10 @@ C              WL=WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC
 
             ENDDO
             DO LRK=norb_dz+1,LRA
-C              LIST=LIST3(LRJ,LRA,LRK)
+!              LIST=LIST3(LRJ,LRA,LRK)
               KCOE=LPCOE(LRK)
               CALL NEOC(KCOE,NOCC,TCOE)
-C              WL=WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
+!              WL=WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             WL=VLOP0*NOCC
           CALL TRANS_IJKL_INTPOS(LRA,LRJ,LRK,LRK,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2510,12 +2510,12 @@ C              WL=WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
             ENDDO
-C            WL=WL*VLOP0
+!            WL=WL*VLOP0
 !SD(6-11) D&r&l(22)B^l(13)
             VLOP0=W0*W0SD11
             VLOP1=W1*W1SD11
-C            LIST=LIST3(LRJ,LRA,LRI)
-C          WL=WL+(VLOP0-VLOP1)*vint_ci(LIST)-2*VLOP0*VINT_CI(LIST+1)
+!            LIST=LIST3(LRJ,LRA,LRI)
+!          WL=WL+(VLOP0-VLOP1)*vint_ci(LIST)-2*VLOP0*VINT_CI(LIST+1)
             WL=VLOP0-VLOP1
           CALL TRANS_IJKL_INTPOS(LRA,LRI,LRJ,LRI,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2528,8 +2528,8 @@ C          WL=WL+(VLOP0-VLOP1)*vint_ci(LIST)-2*VLOP0*VINT_CI(LIST+1)
             VLOP0=W0*W0SD14
             DO LRK=1,LRJ-1
               IF(LRK.EQ.LRI) CYCLE
-C              LIST=LIST3(LRJ,LRA,LRK)
-C              WL=WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))
+!              LIST=LIST3(LRJ,LRA,LRK)
+!              WL=WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))
             WL=VLOP0
           CALL TRANS_IJKL_INTPOS(LRA,LRK,LRJ,LRK,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2538,7 +2538,7 @@ C              WL=WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
             ENDDO
-C            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           ENDIF
         IF(JB_SYS.GT.0) THEN
           IF(LMJ.EQ.JMR) THEN
@@ -2554,14 +2554,14 @@ C            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
             ENDIF
 !SD(6-3) A&r(13)-C'(22)-
            VLOP0=W0*W0SD3
-C            LIST=LIST3(LRI,LRA,LRI)
-C            WL=VOINT(LRI,LRA)+VINT_CI(LIST)
+!            LIST=LIST3(LRI,LRA,LRI)
+!            WL=VOINT(LRI,LRA)+VINT_CI(LIST)
           WL=VLOP0
           CALL PRODAB_1(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER,LRI,LRA)
           CALL TRANS_IJKL_INTPOS(LRA,LRI,LRI,LRI,NXO)
           CALL PRODAB_2(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER,NXO)
-C            LIST=LIST3(LRI,LRA,LRJ)
-C            WL=WL+VINT_CI(LIST+1)-VINT_CI(LIST)   !310 C'(22)NEOC=1,COE
+!            LIST=LIST3(LRI,LRA,LRJ)
+!            WL=WL+VINT_CI(LIST+1)-VINT_CI(LIST)   !310 C'(22)NEOC=1,COE
             WL=VLOP0
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRJ,LRJ,NXO)
             CALL PRODAB_2(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2571,8 +2571,8 @@ C            WL=WL+VINT_CI(LIST+1)-VINT_CI(LIST)   !310 C'(22)NEOC=1,COE
 
             DO LR=LRI+1,NORB_DZ
               IF(LR.EQ.LRJ) CYCLE
-C           LIST =LIST3(LRI,LRA,LR)
-C              WL=WL+2*VINT_CI(LIST+1)-VINT_CI(LIST)       !310:NEOC=2,C
+!           LIST =LIST3(LRI,LRA,LR)
+!              WL=WL+2*VINT_CI(LIST+1)-VINT_CI(LIST)       !310:NEOC=2,C
             WL=VLOP0*2
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LR,LR,NXO)
             CALL PRODAB_2(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2582,10 +2582,10 @@ C              WL=WL+2*VINT_CI(LIST+1)-VINT_CI(LIST)       !310:NEOC=2,C
 
             ENDDO
             DO LRK=norb_dz+1,LRA
-C              LIST=LIST3(LRI,LRA,LRK)
+!              LIST=LIST3(LRI,LRA,LRK)
               KCOE=LPCOE(LRK)
               CALL NEOC(KCOE,NOCC,TCOE)
-C              WL=WL+NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
+!              WL=WL+NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             WL=VLOP0*NOCC
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
             CALL PRODAB_2(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2594,12 +2594,12 @@ C              WL=WL+NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             CALL PRODAB_2(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER,NXO)
 
             ENDDO
-C            WL=WL*VLOP0
+!            WL=WL*VLOP0
 !SD(6-15) D&r&l(33)B^l(13)C'(22)
             VLOP0=W0*W0SD15
             DO LRK=1,LRI-1
-C              LIST=LIST3(LRI,LRA,LRK)
-C              WL=WL-VLOP0*(2*VINT_CI(LIST+1)-vint_ci(LIST))
+!              LIST=LIST3(LRI,LRA,LRK)
+!              WL=WL-VLOP0*(2*VINT_CI(LIST+1)-vint_ci(LIST))
             WL=-VLOP0*2
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
             CALL PRODAB_2(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2608,7 +2608,7 @@ C              WL=WL-VLOP0*(2*VINT_CI(LIST+1)-vint_ci(LIST))
             CALL PRODAB_2(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER,NXO)
 
             ENDDO
-C            CALL PRODAB(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER)
+!            CALL PRODAB(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER)
           ENDIF
          IF(LMIJ.EQ.JML.AND.LMI.EQ.JMR) THEN
             IWDR=JUD(LRI)
@@ -2619,8 +2619,8 @@ C            CALL PRODAB(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER)
             ENDIF
 !SD(6-10) D&r&l(12)B^l(23)
             VLOP1=W1*W1SD10
-C            LIST=LIST3(LRJ,LRA,LRI)
-C          WL=-VLOP1*vint_ci(LIST)      !4.3
+!            LIST=LIST3(LRJ,LRA,LRI)
+!          WL=-VLOP1*vint_ci(LIST)      !4.3
             WL=-VLOP1
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRJ,LRI,NXO)
             CALL PRODAB_2(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2635,15 +2635,15 @@ C          WL=-VLOP1*vint_ci(LIST)      !4.3
             IF(NI.EQ.0) W0SD4=-W0SD4
             IF(NI.EQ.0) W0SD16=-W0SD16
             VLOP0=W0*W0SD4
-C            LIST=LIST3(LRI,LRA,LRI)
-C            WL=VOINT(LRI,LRA)+VINT_CI(LIST)             !310,act_coe,61
+!            LIST=LIST3(LRI,LRA,LRI)
+!            WL=VOINT(LRI,LRA)+VINT_CI(LIST)             !310,act_coe,61
             WL=VLOP0
           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,LRI,LRA)
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRI,LRI,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
-C            LIST=LIST3(LRI,LRA,LRJ)
-C            WL=WL+VINT_CI(LIST+1)-(JB_SYS+2)*1.d0*VINT_CI(LIST)
+!            LIST=LIST3(LRI,LRA,LRJ)
+!            WL=WL+VINT_CI(LIST+1)-(JB_SYS+2)*1.d0*VINT_CI(LIST)
             WL=VLOP0
               CALL TRANS_IJKL_INTPOS(LRA,LRI,LRJ,LRJ,NXO)
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2653,8 +2653,8 @@ C            WL=WL+VINT_CI(LIST+1)-(JB_SYS+2)*1.d0*VINT_CI(LIST)
 
             DO LR=LRI+1,NORB_DZ
               IF(LR.EQ.LRJ) CYCLE
-C           LIST =LIST3(LRI,LRA,LR)
-C              WL=WL+2*VINT_CI(LIST+1)-VINT_CI(LIST)       !310:NEOC=2,C
+!           LIST =LIST3(LRI,LRA,LR)
+!              WL=WL+2*VINT_CI(LIST+1)-VINT_CI(LIST)       !310:NEOC=2,C
             WL=VLOP0*2
               CALL TRANS_IJKL_INTPOS(LRA,LRI,LR,LR,NXO)
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2664,10 +2664,10 @@ C              WL=WL+2*VINT_CI(LIST+1)-VINT_CI(LIST)       !310:NEOC=2,C
 
             ENDDO
             DO LRK=norb_dz+1,LRA
-C              LIST=LIST3(LRI,LRA,LRK)
+!              LIST=LIST3(LRI,LRA,LRK)
               KCOE=LPCOE(LRK)
               CALL NEOC(KCOE,NOCC,TCOE)
-C              WL=WL+NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
+!              WL=WL+NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             WL=VLOP0*NOCC
               CALL TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2676,12 +2676,12 @@ C              WL=WL+NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
             ENDDO
-C            WL=WL*VLOP0
+!            WL=WL*VLOP0
 !SD(6-16) D&r&l(33)B^l(23)C'(12)
             VLOP0=W0*W0SD16
             DO LRK=1,LRI-1
-C              LIST=LIST3(LRI,LRA,LRK)
-C              WL=WL-VLOP0*(2*VINT_CI(LIST+1)-vint_ci(LIST))
+!              LIST=LIST3(LRI,LRA,LRK)
+!              WL=WL-VLOP0*(2*VINT_CI(LIST+1)-vint_ci(LIST))
             WL=-VLOP0*2
               CALL TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2690,7 +2690,7 @@ C              WL=WL-VLOP0*(2*VINT_CI(LIST+1)-vint_ci(LIST))
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
             ENDDO
-C            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           ENDIF
 
 !SD(6-5) A&r(23)B&r(13)B^r(32)
@@ -2705,9 +2705,9 @@ C            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
             IF(NI.EQ.0)   W1SD5=-W1SD5
             VLOP0=W0*W0SD5
             VLOP1=W1*W1SD5
-C            LIST=LIST4(LRI,LRJ,LRD,LRA)
-C            WL=(VLOP0-VLOP1)*vint_ci(LIST+2)+
-C     :         (VLOP0+VLOP1)*vint_ci(LIST)             !1.3
+!            LIST=LIST4(LRI,LRJ,LRD,LRA)
+!            WL=(VLOP0-VLOP1)*vint_ci(LIST+2)+
+!     :         (VLOP0+VLOP1)*vint_ci(LIST)             !1.3
             WL=VLOP0-VLOP1
               CALL TRANS_IJKL_INTPOS(LRA,LRI,LRJ,LRD,NXO)
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2715,7 +2715,7 @@ C     :         (VLOP0+VLOP1)*vint_ci(LIST)             !1.3
               CALL TRANS_IJKL_INTPOS(LRA,LRJ,LRD,LRI,NXO)
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
-C         CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!         CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
          ENDDO
         IF(JB_SYS.GT.0) THEN
 !SD(6-6) A&r(13)B&r(23)B^r(32)
@@ -2730,9 +2730,9 @@ C         CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
             IF(NI.EQ.0)   W1SD6=-W1SD6
             VLOP0=W0*W0SD6
             VLOP1=W1*W1SD6
-C            LIST=LIST4(LRI,LRJ,LRD,LRA)
-C            WL=(VLOP0-VLOP1)*vint_ci(LIST+2)+
-C     :         (VLOP0+VLOP1)*vint_ci(LIST)             !1.3
+!            LIST=LIST4(LRI,LRJ,LRD,LRA)
+!            WL=(VLOP0-VLOP1)*vint_ci(LIST+2)+
+!     :         (VLOP0+VLOP1)*vint_ci(LIST)             !1.3
             WL=VLOP0-VLOP1
               CALL TRANS_IJKL_INTPOS(LRA,LRI,LRJ,LRD,NXO)
             CALL PRODAB_2(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2740,7 +2740,7 @@ C     :         (VLOP0+VLOP1)*vint_ci(LIST)             !1.3
               CALL TRANS_IJKL_INTPOS(LRA,LRJ,LRD,LRI,NXO)
             CALL PRODAB_2(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER,NXO)
 
-C         CALL PRODAB(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER)
+!         CALL PRODAB(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER)
          ENDDO
 !SD(6-7) A&r(13)B&l(32)B^l(23)
          DO LRD=LRI+1,LRJ-1
@@ -2754,16 +2754,16 @@ C         CALL PRODAB(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER)
            IF(NI.EQ.0)   W1SD7=-W1SD7
            VLOP0=W0*W0SD7
            VLOP1=W1*W1SD7
-C           LIST=LIST4(LRI,LRD,LRJ,LRA)
-C          WL=(VLOP0-VLOP1)*vint_ci(LIST+2)-
-C     :             2*VLOP0*vint_ci(LIST+1)      !1.2
+!           LIST=LIST4(LRI,LRD,LRJ,LRA)
+!          WL=(VLOP0-VLOP1)*vint_ci(LIST+2)-
+!     :             2*VLOP0*vint_ci(LIST+1)      !1.2
             WL=VLOP0-VLOP1
               CALL TRANS_IJKL_INTPOS(LRA,LRI,LRD,LRJ,NXO)
             CALL PRODAB_2(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER,NXO)
             WL=-2*VLOP0
               CALL TRANS_IJKL_INTPOS(LRA,LRJ,LRD,LRI,NXO)
             CALL PRODAB_2(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER,NXO)
-C          CALL PRODAB(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER)
+!          CALL PRODAB(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER)
          ENDDO
         ENDIF
 !SD(6-8) A&r(23)B&l(32)B^l(13)
@@ -2778,9 +2778,9 @@ C          CALL PRODAB(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER)
            IF(NI.EQ.0)   W1SD8=-W1SD8
            VLOP0=W0*W0SD8
            VLOP1=W1*W1SD8
-C           LIST=LIST4(LRI,LRD,LRJ,LRA)
-C          WL=(VLOP0-VLOP1)*vint_ci(LIST+2)-
-C     :             2*VLOP0*vint_ci(LIST+1)      !1.2
+!           LIST=LIST4(LRI,LRD,LRJ,LRA)
+!          WL=(VLOP0-VLOP1)*vint_ci(LIST+2)-
+!     :             2*VLOP0*vint_ci(LIST+1)      !1.2
             WL=VLOP0-VLOP1
               CALL TRANS_IJKL_INTPOS(LRA,LRI,LRD,LRJ,NXO)
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2788,7 +2788,7 @@ C     :             2*VLOP0*vint_ci(LIST+1)      !1.2
               CALL TRANS_IJKL_INTPOS(LRA,LRJ,LRD,LRI,NXO)
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
-C        CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!        CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
         ENDDO
       ENDDO
       ENDDO
@@ -2836,13 +2836,13 @@ C        CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
         IF(LMI.EQ.JMLR) THEN
           IWDR=JUD(LRI)
           VLOP0=W0*W0SD1
-C          WL=VLOP0*VOINT(LRI,LRA)
+!          WL=VLOP0*VOINT(LRI,LRA)
           WL=VLOP0
           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,LRI,LRA)
 
           DO LR=LRI+1,NORB_DZ
-C            LIST =LIST3(LRI,LRA,LR)
-C            WL=WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC=2
+!            LIST =LIST3(LRI,LRA,LR)
+!            WL=WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC=2
           WL=VLOP0*2
           CALL TRANS_IJKL_INTPOS(LRA,LRI,LR,LR,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2852,10 +2852,10 @@ C            WL=WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC=2
 
           ENDDO
           DO LRK=norb_dz+1,LRA
-C            LIST=LIST3(LRI,LRA,LRK)
+!            LIST=LIST3(LRI,LRA,LRK)
             KCOE=LPCOE(LRK)
             CALL NEOC(KCOE,NOCC,TCOE)
-C            WL=WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
+!            WL=WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             WL=VLOP0*NOCC
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2864,12 +2864,12 @@ C            WL=WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
           ENDDO
-C          WL=WL*VLOP0
+!          WL=WL*VLOP0
 !SD1(8-11) D&rl(33)B^l(01)
           VLOP0=W0*W0SD11
          DO LRK=1,LRI-1
-C            LIST=LIST3(LRI,LRA,LRK)
-C            WL=WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))
+!            LIST=LIST3(LRI,LRA,LRK)
+!            WL=WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))
             WL=VLOP0
             CALL TRANS_IJKL_INTPOS(LRA,LRK,LRI,LRK,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2878,7 +2878,7 @@ C            WL=WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
           ENDDO
-C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
         ENDIF
 
 !SD1(8-9) D&r&r(03)B^r(31)
@@ -2890,13 +2890,13 @@ C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           IF(NI.EQ.1)   W0SD9=-W0SD9
           IWDR=JUD(LRD)
           VLOP0=W0*W0SD9
-C          LIST=LIST3(LRD,LRA,LRI)
-C          WL=VINT_CI(LIST)*VLOP0
+!          LIST=LIST3(LRD,LRA,LRI)
+!          WL=VINT_CI(LIST)*VLOP0
             WL=VLOP0
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRD,LRI,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
-C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
         ENDDO
       ENDDO
 
@@ -2936,22 +2936,22 @@ C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           ENDIF
           IWDL=JUST(LRJ,LRI)
           IWDL1=JUST(LRI,LRJ)
-C**********************************************************
+!**********************************************************
 !SD1(8-2) C(11)-A&r(23)-
           IF(LMI.EQ.JMR) THEN
             IWDL=JUST(LRJ,LRI)
             IWDR=JUD(LRI)
             VLOP0=W0*W0SD2
-C            LIST=LIST3(LRJ,LRA,LRJ)
-C            WL=VLOP0*(VOINT(LRJ,LRA)+VINT_CI(LIST))
+!            LIST=LIST3(LRJ,LRA,LRJ)
+!            WL=VLOP0*(VOINT(LRJ,LRA)+VINT_CI(LIST))
               WL=VLOP0
         CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,LRJ,LRA)
             CALL TRANS_IJKL_INTPOS(LRA,LRJ,LRJ,LRJ,NXO)
         CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
             DO LR=LRJ+1,NORB_DZ
-C              LIST =LIST3(LRJ,LRA,LR)
-C              WL=WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC
+!              LIST =LIST3(LRJ,LRA,LR)
+!              WL=WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC
             WL=VLOP0*2
             CALL TRANS_IJKL_INTPOS(LRA,LRJ,LR,LR,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2961,10 +2961,10 @@ C              WL=WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC
 
             ENDDO
             DO LRK=norb_dz+1,LRA
-C              LIST=LIST3(LRJ,LRA,LRK)
+!              LIST=LIST3(LRJ,LRA,LRK)
               KCOE=LPCOE(LRK)
               CALL NEOC(KCOE,NOCC,TCOE)
-C              WL=WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
+!              WL=WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             WL=VLOP0*NOCC
             CALL TRANS_IJKL_INTPOS(LRA,LRJ,LRK,LRK,NXO)
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2973,12 +2973,12 @@ C              WL=WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
             ENDDO
-C            WL=WL*VLOP0
+!            WL=WL*VLOP0
 !SD1(8-10) D&r&l(11)B^l(23)
             VLOP0=W0*W0SD10
             VLOP1=W1*W1SD10
-C            LIST=LIST3(LRJ,LRA,LRI)
-C          WL=WL+(VLOP0-VLOP1)*vint_ci(LIST)-2*VLOP0*VINT_CI(LIST+1)
+!            LIST=LIST3(LRJ,LRA,LRI)
+!          WL=WL+(VLOP0-VLOP1)*vint_ci(LIST)-2*VLOP0*VINT_CI(LIST+1)
 
             WL=VLOP0-VLOP1
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRJ,LRI,NXO)
@@ -2993,8 +2993,8 @@ C          WL=WL+(VLOP0-VLOP1)*vint_ci(LIST)-2*VLOP0*VINT_CI(LIST+1)
             VLOP0=W0*W0SD11
             DO LRK=1,LRJ-1
               IF(LRK.EQ.LRI) CYCLE
-C              LIST=LIST3(LRJ,LRA,LRK)
-C              WL=WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))
+!              LIST=LIST3(LRJ,LRA,LRK)
+!              WL=WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))
             WL=VLOP0
             CALL TRANS_IJKL_INTPOS(LRA,LRK,LRJ,LRK,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3003,26 +3003,26 @@ C              WL=WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
             ENDDO
-C            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           ENDIF
 !SD1(8-3) A&r(13)-C'(21)-
           IF(LMJ.EQ.JMR) THEN
             VLOP0=-W0*W0SD3
-C--------------------------------------
-C lyb
+!--------------------------------------
+! lyb
            IWDL=JUST(LRJ,LRI)
            IWDR=JUD(LRJ)
 
-C            LIST=LIST3(LRI,LRA,LRI)
-C            WL=VOINT(LRI,LRA)+VINT_CI(LIST)
+!            LIST=LIST3(LRI,LRA,LRI)
+!            WL=VOINT(LRI,LRA)+VINT_CI(LIST)
               WL=VLOP0
-C            write(nf2,'(a3,5I8)') 'sdd',JPEL,IWDL,IWDR,JWL,JWR
+!            write(nf2,'(a3,5I8)') 'sdd',JPEL,IWDL,IWDR,JWL,JWR
         CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,LRI,LRA)
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRI,LRI,NXO)
         CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
-C            LIST=LIST3(LRI,LRA,LRJ)
-C            WL=WL+VINT_CI(LIST+1)+JB_SYS*1.d0*VINT_CI(LIST)
+!            LIST=LIST3(LRI,LRA,LRJ)
+!            WL=WL+VINT_CI(LIST+1)+JB_SYS*1.d0*VINT_CI(LIST)
             WL=VLOP0
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRJ,LRJ,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3032,8 +3032,8 @@ C            WL=WL+VINT_CI(LIST+1)+JB_SYS*1.d0*VINT_CI(LIST)
 
             DO LR=LRI+1,NORB_DZ
               IF(LR.EQ.LRJ) CYCLE
-C           LIST =LIST3(LRI,LRA,LR)
-C              WL=WL+2*VINT_CI(LIST+1)-VINT_CI(LIST)       !310:NEOC=2,C
+!           LIST =LIST3(LRI,LRA,LR)
+!              WL=WL+2*VINT_CI(LIST+1)-VINT_CI(LIST)       !310:NEOC=2,C
             WL=VLOP0*2
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LR,LR,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3043,10 +3043,10 @@ C              WL=WL+2*VINT_CI(LIST+1)-VINT_CI(LIST)       !310:NEOC=2,C
 
             ENDDO
             DO LRK=norb_dz+1,LRA
-C              LIST=LIST3(LRI,LRA,LRK)
+!              LIST=LIST3(LRI,LRA,LRK)
               KCOE=LPCOE(LRK)
               CALL NEOC(KCOE,NOCC,TCOE)
-C              WL=WL+NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
+!              WL=WL+NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             WL=VLOP0*NOCC
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3054,14 +3054,14 @@ C              WL=WL+NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             CALL TRANS_IJKL_INTPOS(LRA,LRK,LRI,LRK,NXO)
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
             ENDDO
-C            WL=WL*VLOP0
+!            WL=WL*VLOP0
 !SD1(8-12) Drl(33)-BL(13)-C'(21)-
-C            IWDL=JUST(LRJ,LRI)
-C           IWDR=JUD(LRJ)
+!            IWDL=JUST(LRJ,LRI)
+!           IWDR=JUD(LRJ)
             VLOP0=-W0*W0SD12
             DO LRK=1,LRI-1
-C              LIST=LIST3(LRI,LRA,LRK)
-C              WL=WL-VLOP0*(2*VINT_CI(LIST+1)-vint_ci(LIST))
+!              LIST=LIST3(LRI,LRA,LRK)
+!              WL=WL-VLOP0*(2*VINT_CI(LIST+1)-vint_ci(LIST))
             WL=-VLOP0*2
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3070,24 +3070,24 @@ C              WL=WL-VLOP0*(2*VINT_CI(LIST+1)-vint_ci(LIST))
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
             ENDDO
-C            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           ENDIF
 !SD1(8-4) A&r(23)-C'(11)-
           IF(LMJ.EQ.JMR) THEN
-C-----------------------------
-C lyb
+!-----------------------------
+! lyb
            IWDL=JUST(LRI,LRJ)
            IWDR=JUD(LRJ)
              VLOP0=-W0*W0SD4
-C            LIST=LIST3(LRI,LRA,LRI)
-C            WL=VOINT(LRI,LRA)+VINT_CI(LIST)
+!            LIST=LIST3(LRI,LRA,LRI)
+!            WL=VOINT(LRI,LRA)+VINT_CI(LIST)
               WL=VLOP0
         CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,LRI,LRA)
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRI,LRI,NXO)
         CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
-C            LIST=LIST3(LRI,LRA,LRJ)
-C            WL=WL+VINT_CI(LIST+1)-VINT_CI(LIST)
+!            LIST=LIST3(LRI,LRA,LRJ)
+!            WL=WL+VINT_CI(LIST+1)-VINT_CI(LIST)
             WL=VLOP0
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRJ,LRJ,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3097,8 +3097,8 @@ C            WL=WL+VINT_CI(LIST+1)-VINT_CI(LIST)
 
             DO LR=LRI+1,NORB_DZ
               IF(LR.EQ.LRJ) CYCLE
-C           LIST =LIST3(LRI,LRA,LR)
-C              WL=WL+2*VINT_CI(LIST+1)-VINT_CI(LIST)       !310:NEOC=2,C
+!           LIST =LIST3(LRI,LRA,LR)
+!              WL=WL+2*VINT_CI(LIST+1)-VINT_CI(LIST)       !310:NEOC=2,C
             WL=VLOP0*2
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LR,LR,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3108,10 +3108,10 @@ C              WL=WL+2*VINT_CI(LIST+1)-VINT_CI(LIST)       !310:NEOC=2,C
 
             ENDDO
             DO LRK=norb_dz+1,LRA
-C              LIST=LIST3(LRI,LRA,LRK)
+!              LIST=LIST3(LRI,LRA,LRK)
               KCOE=LPCOE(LRK)
               CALL NEOC(KCOE,NOCC,TCOE)
-C              WL=WL+NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
+!              WL=WL+NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             WL=VLOP0*NOCC
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3120,14 +3120,14 @@ C              WL=WL+NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
             ENDDO
-C            WL=WL*VLOP0
+!            WL=WL*VLOP0
 !SD1(8-13) Drl(33)-BL(23)-C'(11)-
-C            IWDL=JUST(LRI,LRJ)
-C           IWDR=JUD(LRJ)
+!            IWDL=JUST(LRI,LRJ)
+!           IWDR=JUD(LRJ)
             VLOP0=-W0*W0SD13
             DO LRK=1,LRI-1
-C              LIST=LIST3(LRI,LRA,LRK)
-C              WL=WL-VLOP0*(2*VINT_CI(LIST+1)-vint_ci(LIST))
+!              LIST=LIST3(LRI,LRA,LRK)
+!              WL=WL-VLOP0*(2*VINT_CI(LIST+1)-vint_ci(LIST))
             WL=-VLOP0*2
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3136,7 +3136,7 @@ C              WL=WL-VLOP0*(2*VINT_CI(LIST+1)-vint_ci(LIST))
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
             ENDDO
-C            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           ENDIF
 !SD1(8-5) A&r(13)B&r(23)B^r(31)
           DO LRD=LRJ+1,NORB_DZ
@@ -3151,16 +3151,16 @@ C            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
             IF(NI.EQ.0)   W1SD5=-W1SD5
             VLOP0=W0*W0SD5
             VLOP1=W1*W1SD5
-C            LIST=LIST4(LRI,LRJ,LRD,LRA)
-C            WL=(VLOP0-VLOP1)*vint_ci(LIST+2)+
-C     :         (VLOP0+VLOP1)*vint_ci(LIST)             !1.3
+!            LIST=LIST4(LRI,LRJ,LRD,LRA)
+!            WL=(VLOP0-VLOP1)*vint_ci(LIST+2)+
+!     :         (VLOP0+VLOP1)*vint_ci(LIST)             !1.3
             WL=VLOP0-VLOP1
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRJ,LRD,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
             WL=VLOP0+VLOP1
             CALL TRANS_IJKL_INTPOS(LRA,LRJ,LRD,LRI,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
 !SD1(8-6) A&r(23)B&r(13)B^r(31)
             IWDL=JUST(LRI,LRJ)
             W0SD6=W0_SD1(6)
@@ -3170,9 +3170,9 @@ C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
             IF(NI.EQ.0)   W1SD6=-W1SD6
             VLOP0=W0*W0SD6
             VLOP1=W1*W1SD6
-C            LIST=LIST4(LRI,LRJ,LRD,LRA)
-C            WL=(VLOP0-VLOP1)*vint_ci(LIST+2)+
-C     :         (VLOP0+VLOP1)*vint_ci(LIST)             !1.3
+!            LIST=LIST4(LRI,LRJ,LRD,LRA)
+!            WL=(VLOP0-VLOP1)*vint_ci(LIST+2)+
+!     :         (VLOP0+VLOP1)*vint_ci(LIST)             !1.3
             WL=VLOP0-VLOP1
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRJ,LRD,NXO)
           CALL PRODAB_2(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3180,7 +3180,7 @@ C     :         (VLOP0+VLOP1)*vint_ci(LIST)             !1.3
             CALL TRANS_IJKL_INTPOS(LRA,LRJ,LRD,LRI,NXO)
           CALL PRODAB_2(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER,NXO)
 
-C         CALL PRODAB(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER)
+!         CALL PRODAB(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER)
          ENDDO
 !SD1(8-7) A&r(13)B&l(31)B^l(23)
          DO LRD=LRI+1,LRJ-1
@@ -3195,9 +3195,9 @@ C         CALL PRODAB(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER)
            IF(NI.EQ.0)   W1SD7=-W1SD7
            VLOP0=W0*W0SD7
            VLOP1=W1*W1SD7
-C           LIST=LIST4(LRI,LRD,LRJ,LRA)
-C          WL=(VLOP0-VLOP1)*vint_ci(LIST+2)-
-C     :             2*VLOP0*vint_ci(LIST+1)      !1.2
+!           LIST=LIST4(LRI,LRD,LRJ,LRA)
+!          WL=(VLOP0-VLOP1)*vint_ci(LIST+2)-
+!     :             2*VLOP0*vint_ci(LIST+1)      !1.2
             WL=VLOP0-VLOP1
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRD,LRJ,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3205,7 +3205,7 @@ C     :             2*VLOP0*vint_ci(LIST+1)      !1.2
             CALL TRANS_IJKL_INTPOS(LRA,LRJ,LRD,LRI,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
-C         CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!         CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
 !SD1(8-8) A&r(23)B&l(31)B^l(13)
            IWDL=JUST(LRI,LRJ)
            W0SD8=W0_SD1(8)
@@ -3215,9 +3215,9 @@ C         CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
            IF(NI.EQ.0)   W1SD8=-W1SD8
            VLOP0=W0*W0SD8
            VLOP1=W1*W1SD8
-C           LIST=LIST4(LRI,LRD,LRJ,LRA)
-C          WL=(VLOP0-VLOP1)*vint_ci(LIST+2)-
-C     :             2*VLOP0*vint_ci(LIST+1)      !1.2
+!           LIST=LIST4(LRI,LRD,LRJ,LRA)
+!          WL=(VLOP0-VLOP1)*vint_ci(LIST+2)-
+!     :             2*VLOP0*vint_ci(LIST+1)      !1.2
             WL=VLOP0-VLOP1
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRD,LRJ,NXO)
           CALL PRODAB_2(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3225,7 +3225,7 @@ C     :             2*VLOP0*vint_ci(LIST+1)      !1.2
             CALL TRANS_IJKL_INTPOS(LRA,LRJ,LRD,LRI,NXO)
           CALL PRODAB_2(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER,NXO)
 
-C         CALL PRODAB(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER)
+!         CALL PRODAB(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER)
          ENDDO
        ENDDO
       ENDDO
@@ -3263,23 +3263,23 @@ C         CALL PRODAB(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER)
          IWDL=JUST(LRI,LRD)      !
           IWDR=JUD(LRD)
           VLOP0=-W0*W0TD1
-C          LIST=LIST3(LRI,LRA,LRI)
-C          WL=VOINT(LRI,LRA)+VINT_CI(LIST)             !310,act_coe,610,
+!          LIST=LIST3(LRI,LRA,LRI)
+!          WL=VOINT(LRI,LRA)+VINT_CI(LIST)             !310,act_coe,610,
               WL=VLOP0
         CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,LRI,LRA)
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRI,LRI,NXO)
         CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
-C          LIST=LIST3(LRI,LRA,LRD)
-C         WL=WL+VINT_CI(LIST+1)                          !310 C'(22) COE
+!          LIST=LIST3(LRI,LRA,LRD)
+!         WL=WL+VINT_CI(LIST+1)                          !310 C'(22) COE
               WL=VLOP0
             CALL TRANS_IJKL_INTPOS(LRA,LRD,LRI,LRD,NXO)
         CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
          DO LR=LRI+1,NORB_DZ
             IF(LR.EQ.LRD) CYCLE
-C          LIST =LIST3(LRI,LRA,LR)
-C            WL=WL+2*VINT_CI(LIST+1)-VINT_CI(LIST)       !310:NEOC=2,COE
+!          LIST =LIST3(LRI,LRA,LR)
+!            WL=WL+2*VINT_CI(LIST+1)-VINT_CI(LIST)       !310:NEOC=2,COE
             WL=2*VLOP0
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LR,LR,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3289,10 +3289,10 @@ C            WL=WL+2*VINT_CI(LIST+1)-VINT_CI(LIST)       !310:NEOC=2,COE
 
           ENDDO
           DO LRK=norb_dz+1,LRA
-C            LIST=LIST3(LRI,LRA,LRK)
+!            LIST=LIST3(LRI,LRA,LRK)
             KCOE=LPCOE(LRK)
             CALL NEOC(KCOE,NOCC,TCOE)
-C            WL=WL+NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
+!            WL=WL+NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
             WL=VLOP0*NOCC
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3301,12 +3301,12 @@ C            WL=WL+NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
           ENDDO
-C          WL=WL*VLOP0
+!          WL=WL*VLOP0
 !TD(13-5) D&rl(33)B^l(23)C'(22)          !CC (22)D&rl(33)B^l(23)???
           VLOP0=-W0*W0TD5
           DO LRK=1,LRI-1
-C            LIST=LIST3(LRI,LRA,LRK)
-C            WL=WL-VLOP0*(2*VINT_CI(LIST+1)-vint_ci(LIST))
+!            LIST=LIST3(LRI,LRA,LRK)
+!            WL=WL-VLOP0*(2*VINT_CI(LIST+1)-vint_ci(LIST))
             WL=-2*VLOP0
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3315,7 +3315,7 @@ C            WL=WL-VLOP0*(2*VINT_CI(LIST+1)-vint_ci(LIST))
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
           ENDDO
-C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
         ENDDO
 !-------------------------------------------------------------------
         DO LRD=NORB_FRZ+1,LRI-1
@@ -3325,16 +3325,16 @@ C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           IWDR=JUD(LRD)
 !TD(13-1) (22)A&(23)
           VLOP0=W0*W0TD1
-C          LIST=LIST3(LRI,LRA,LRI)
-C          WL=VLOP0*(VOINT(LRI,LRA)+VINT_CI(LIST))             !310,act_
+!          LIST=LIST3(LRI,LRA,LRI)
+!          WL=VLOP0*(VOINT(LRI,LRA)+VINT_CI(LIST))             !310,act_
               WL=VLOP0
         CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,LRI,LRA)
               CALL TRANS_IJKL_INTPOS(LRA,LRI,LRI,LRI,NXO)
        CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
           DO LR=LRI+1,NORB_DZ
-C            LIST =LIST3(LRI,LRA,LR)
-C            WL=WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC=2
+!            LIST =LIST3(LRI,LRA,LR)
+!            WL=WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC=2
             WL=2*VLOP0
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LR,LR,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3344,10 +3344,10 @@ C            WL=WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC=2
 
           ENDDO
           DO LRK=norb_dz+1,LRA
-C            LIST=LIST3(LRI,LRA,LRK)
+!            LIST=LIST3(LRI,LRA,LRK)
             KCOE=LPCOE(LRK)
             CALL NEOC(KCOE,NOCC,TCOE)
-C            WL=WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
+!            WL=WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             WL=VLOP0*NOCC
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3355,12 +3355,12 @@ C            WL=WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             CALL TRANS_IJKL_INTPOS(LRA,LRK,LRI,LRK,NXO)
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
           ENDDO
-C            WL=WL*VLOP0
+!            WL=WL*VLOP0
 !TD(13-4) D&r&l(22)B^l(23)
           VLOP0=W0*W0TD4
           VLOP1=W1*W0TD4
-C          LIST=LIST3(LRI,LRA,LRD)
-C          WL=WL+(VLOP0-VLOP1)*vint_ci(LIST)-2*VLOP0*VINT_CI(LIST+1)
+!          LIST=LIST3(LRI,LRA,LRD)
+!          WL=WL+(VLOP0-VLOP1)*vint_ci(LIST)-2*VLOP0*VINT_CI(LIST+1)
 
             WL=VLOP0-VLOP1
             CALL TRANS_IJKL_INTPOS(LRA,LRD,LRI,LRD,NXO)
@@ -3372,8 +3372,8 @@ C          WL=WL+(VLOP0-VLOP1)*vint_ci(LIST)-2*VLOP0*VINT_CI(LIST+1)
           VLOP0=W0*W0TD5
           DO LRK=1,LRI-1
             IF(LRK.EQ.LRD) CYCLE
-C          LIST=LIST3(LRI,LRA,LRK)
-C            WL=WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))      !4.3
+!          LIST=LIST3(LRI,LRA,LRK)
+!            WL=WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))      !4.3
             WL=VLOP0
             CALL TRANS_IJKL_INTPOS(LRA,LRK,LRI,LRK,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3381,7 +3381,7 @@ C            WL=WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))      !4.3
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
           ENDDO
-C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
         ENDDO
       ENDDO
       DO LRI=NORB_FRZ+1,NORB_DZ-1
@@ -3405,9 +3405,9 @@ C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           IWDR=JUD(LRD)
           VLOP0=W0*W0TD2
           VLOP1=W1*W1TD2
-C          LIST=LIST4(LRI,LRJ,LRD,LRA)
-C         WL=VLOP0*(vint_ci(LIST+2)+vint_ci(LIST))  !1.3
-C    :       -VLOP1*(vint_ci(LIST+2)-vint_ci(LIST))
+!          LIST=LIST4(LRI,LRJ,LRD,LRA)
+!         WL=VLOP0*(vint_ci(LIST+2)+vint_ci(LIST))  !1.3
+!    :       -VLOP1*(vint_ci(LIST+2)-vint_ci(LIST))
             WL=VLOP0-VLOP1
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRJ,LRD,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3415,7 +3415,7 @@ C    :       -VLOP1*(vint_ci(LIST+2)-vint_ci(LIST))
               CALL TRANS_IJKL_INTPOS(LRA,LRJ,LRD,LRI,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
-C       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
         ENDDO
 !TD(13-3) A&(23)B&l(32)B^l(23)
         DO LRD=LRI+1,LRJ-1
@@ -3429,9 +3429,9 @@ C       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           IF(NI.EQ.0)   W1TD3=-W1TD3
           VLOP0=W0*W0TD3                !D6-8
           VLOP1=W1*W1TD3
-C          LIST=LIST4(LRI,LRD,LRJ,LRA)
-C       WL=VLOP0*(vint_ci(LIST+2)-2*vint_ci(LIST+1))      !1.2
-C     :       -VLOP1*vint_ci(LIST+2)
+!          LIST=LIST4(LRI,LRD,LRJ,LRA)
+!       WL=VLOP0*(vint_ci(LIST+2)-2*vint_ci(LIST+1))      !1.2
+!     :       -VLOP1*vint_ci(LIST+2)
             WL=VLOP0-VLOP1
             CALL TRANS_IJKL_INTPOS(LRA,LRI,LRD,LRJ,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3439,7 +3439,7 @@ C     :       -VLOP1*vint_ci(LIST+2)
               CALL TRANS_IJKL_INTPOS(LRA,LRJ,LRD,LRI,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
-C       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
         ENDDO
       ENDDO
       ENDDO
@@ -3479,23 +3479,23 @@ C       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
          IWDL=JUST(LRI,LRD)      !
           IWDR=JUD(LRD)
           VLOP0=-W0*W0TD1
-C          LIST=LIST3(LRI,LRA,LRI)
-C          WL=VOINT(LRI,LRA)+VINT_CI(LIST)             !310,act_coe,610,
+!          LIST=LIST3(LRI,LRA,LRI)
+!          WL=VOINT(LRI,LRA)+VINT_CI(LIST)             !310,act_coe,610,
               WL=VLOP0
         CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,LRI,LRA)
               CALL TRANS_IJKL_INTPOS(LRA,LRI,LRI,LRI,NXO)
         CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
-C          LIST=LIST3(LRI,LRA,LRD)
-C          WL=WL+VINT_CI(LIST+1)                          !310 C'(22) CO
+!          LIST=LIST3(LRI,LRA,LRD)
+!          WL=WL+VINT_CI(LIST+1)                          !310 C'(22) CO
               WL=VLOP0
               CALL TRANS_IJKL_INTPOS(LRA,LRI,LRD,LRD,NXO)
         CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
          DO LR=LRI+1,NORB_DZ
             IF(LR.EQ.LRD) CYCLE
-C          LIST =LIST3(LRI,LRA,LR)
-C            WL=WL+2*VINT_CI(LIST+1)-VINT_CI(LIST)       !310:NEOC=2,COE
+!          LIST =LIST3(LRI,LRA,LR)
+!            WL=WL+2*VINT_CI(LIST+1)-VINT_CI(LIST)       !310:NEOC=2,COE
             WL=2*VLOP0
               CALL TRANS_IJKL_INTPOS(LRA,LRI,LR,LR,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3505,10 +3505,10 @@ C            WL=WL+2*VINT_CI(LIST+1)-VINT_CI(LIST)       !310:NEOC=2,COE
 
           ENDDO
           DO LRK=norb_dz+1,LRA
-C            LIST=LIST3(LRI,LRA,LRK)
+!            LIST=LIST3(LRI,LRA,LRK)
             KCOE=LPCOE(LRK)
             CALL NEOC(KCOE,NOCC,TCOE)
-C            WL=WL+NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
+!            WL=WL+NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             WL=VLOP0*NOCC
               CALL TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3517,12 +3517,12 @@ C            WL=WL+NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
           ENDDO
-C          WL=WL*VLOP0
+!          WL=WL*VLOP0
 !T1D1(15-5) D&rl(33)B^l(13)C'(11)
           VLOP0=-W0*W0TD5
           DO LRK=1,LRI-1
-C            LIST=LIST3(LRI,LRA,LRK)
-C            WL=WL-VLOP0*(2*VINT_CI(LIST+1)-vint_ci(LIST))
+!            LIST=LIST3(LRI,LRA,LRK)
+!            WL=WL-VLOP0*(2*VINT_CI(LIST+1)-vint_ci(LIST))
             WL=-2*VLOP0
               CALL TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3531,7 +3531,7 @@ C            WL=WL-VLOP0*(2*VINT_CI(LIST+1)-vint_ci(LIST))
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
           ENDDO
-C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
         ENDDO
 !-------------------------------------------------------------------
         DO LRD=NORB_FRZ+1,LRI-1
@@ -3541,8 +3541,8 @@ C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           IWDR=JUD(LRD)
 !T1D1(15-1) (11)A&(13)
           VLOP0=W0*W0TD1
-C          LIST=LIST3(LRI,LRA,LRI)
-C          WL=VLOP0*(VOINT(LRI,LRA)+VINT_CI(LIST))             !310,act_
+!          LIST=LIST3(LRI,LRA,LRI)
+!          WL=VLOP0*(VOINT(LRI,LRA)+VINT_CI(LIST))             !310,act_
               WL=VLOP0
         CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,LRI,LRA)
               CALL TRANS_IJKL_INTPOS(LRA,LRI,LRI,LRI,NXO)
@@ -3550,8 +3550,8 @@ C          WL=VLOP0*(VOINT(LRI,LRA)+VINT_CI(LIST))             !310,act_
 
 
           DO LR=LRI+1,NORB_DZ
-C            LIST =LIST3(LRI,LRA,LR)
-C            WL=WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC=2
+!            LIST =LIST3(LRI,LRA,LR)
+!            WL=WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC=2
             WL=2*VLOP0
               CALL TRANS_IJKL_INTPOS(LRA,LRI,LR,LR,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3561,10 +3561,10 @@ C            WL=WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC=2
 
           ENDDO
           DO LRK=norb_dz+1,LRA
-C            LIST=LIST3(LRI,LRA,LRK)
+!            LIST=LIST3(LRI,LRA,LRK)
             KCOE=LPCOE(LRK)
             CALL NEOC(KCOE,NOCC,TCOE)
-C            WL=WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
+!            WL=WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             WL=VLOP0*NOCC
               CALL TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3573,12 +3573,12 @@ C            WL=WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
             CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
           ENDDO
-C            WL=WL*VLOP0
+!            WL=WL*VLOP0
 !T1D1(15-4) D&r&l(11)B^l(13)
           VLOP0=W0*W0TD4
           VLOP1=W1*W0TD4
-C          LIST=LIST3(LRI,LRA,LRD)
-C          WL=WL+(VLOP0-VLOP1)*vint_ci(LIST)-2*VLOP0*VINT_CI(LIST+1)
+!          LIST=LIST3(LRI,LRA,LRD)
+!          WL=WL+(VLOP0-VLOP1)*vint_ci(LIST)-2*VLOP0*VINT_CI(LIST+1)
             WL=VLOP0-VLOP1
               CALL TRANS_IJKL_INTPOS(LRA,LRD,LRI,LRD,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3591,8 +3591,8 @@ C          WL=WL+(VLOP0-VLOP1)*vint_ci(LIST)-2*VLOP0*VINT_CI(LIST+1)
           VLOP0=W0*W0TD5
           DO LRK=1,LRI-1
             IF(LRK.EQ.LRD) CYCLE
-C          LIST=LIST3(LRI,LRA,LRK)
-C           WL=WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))      !4.3
+!          LIST=LIST3(LRI,LRA,LRK)
+!           WL=WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))      !4.3
             WL=-2*VLOP0
               CALL TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3601,7 +3601,7 @@ C           WL=WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))      !4.3
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
           ENDDO
-C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
         ENDDO
       ENDDO
       DO LRI=NORB_FRZ+1,NORB_DZ-1
@@ -3625,9 +3625,9 @@ C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           IWDR=JUD(LRD)
           VLOP0=W0*W0TD2
           VLOP1=W1*W1TD2
-C          LIST=LIST4(LRI,LRJ,LRD,LRA)
-C         WL=VLOP0*(vint_ci(LIST+2)+vint_ci(LIST))  !1.3
-C     :       -VLOP1*(vint_ci(LIST+2)-vint_ci(LIST))
+!          LIST=LIST4(LRI,LRJ,LRD,LRA)
+!         WL=VLOP0*(vint_ci(LIST+2)+vint_ci(LIST))  !1.3
+!     :       -VLOP1*(vint_ci(LIST+2)-vint_ci(LIST))
             WL=VLOP0-VLOP1
               CALL TRANS_IJKL_INTPOS(LRA,LRI,LRJ,LRD,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3635,7 +3635,7 @@ C     :       -VLOP1*(vint_ci(LIST+2)-vint_ci(LIST))
               CALL TRANS_IJKL_INTPOS(LRA,LRJ,LRD,LRI,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
-C       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
         ENDDO
 !T1D1(15-3) A&(13)B&l(31)B^l(13)
         DO LRD=LRI+1,LRJ-1
@@ -3649,9 +3649,9 @@ C       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           IF(NI.EQ.0)   W1TD3=-W1TD3
           VLOP0=W0*W0TD3                !D6-8
           VLOP1=W1*W1TD3
-C          LIST=LIST4(LRI,LRD,LRJ,LRA)
-C       WL=VLOP0*(vint_ci(LIST+2)-2*vint_ci(LIST+1))      !1.2
-C     :       -VLOP1*vint_ci(LIST+2)
+!          LIST=LIST4(LRI,LRD,LRJ,LRA)
+!       WL=VLOP0*(vint_ci(LIST+2)-2*vint_ci(LIST+1))      !1.2
+!     :       -VLOP1*vint_ci(LIST+2)
             WL=VLOP0-VLOP1
               CALL TRANS_IJKL_INTPOS(LRA,LRI,LRD,LRJ,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3659,7 +3659,7 @@ C     :       -VLOP1*vint_ci(LIST+2)
               CALL TRANS_IJKL_INTPOS(LRA,LRJ,LRD,LRI,NXO)
           CALL PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
-C       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
         ENDDO
       ENDDO
       ENDDO

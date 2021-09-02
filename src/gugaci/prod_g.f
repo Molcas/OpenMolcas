@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine inn_ext_ss_drl_loop_unpack_g(iplplwei,iplprwei)
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-c     write(*,*) ' ss_test 2/2'
+!     write(*,*) ' ss_test 2/2'
       ii=1
       ii0=ii
       if ( logic_g2g4a ) then
@@ -40,13 +40,13 @@ c     write(*,*) ' ss_test 2/2'
 
 !         if(indexlp.ne.0) then
            valuelp=value_lpext(ii+1)
-           vector2(indexlp)=vector2(indexlp)
-     :       +vector1(mm)*(vector1(nna)+vector1(nnb))*valuelp
+           vector2(indexlp)=vector2(indexlp)                            &
+     &       +vector1(mm)*(vector1(nna)+vector1(nnb))*valuelp
 !         end if
 !         if(indexlp1.ne.0) then
            valuelp1=value_lpext1(ii+1)
-           vector2(indexlp1)=vector2(indexlp1)
-     :       +vector1(mm)*(vector1(nna)+vector1(nnb))*valuelp1
+           vector2(indexlp1)=vector2(indexlp1)                          &
+     &       +vector1(mm)*(vector1(nna)+vector1(nnb))*valuelp1
 !         end if
                   ii=ii+2
                enddo
@@ -77,13 +77,13 @@ c     write(*,*) ' ss_test 2/2'
                   indexlp1=index_lpext1(ii+1)
 !         if(indexlp.ne.0) then
            valuelp=value_lpext(ii+1)
-           vector2(indexlp)=vector2(indexlp)
-     :       +vector1(mm)*(vector1(nna)+vector1(nnb))*valuelp
+           vector2(indexlp)=vector2(indexlp)                            &
+     &       +vector1(mm)*(vector1(nna)+vector1(nnb))*valuelp
 !         end if
 !         if(indexlp1.ne.0) then
            valuelp1=value_lpext1(ii+1)
-           vector2(indexlp1)=vector2(indexlp1)
-     :       +vector1(mm)*(vector1(nna)+vector1(nnb))*valuelp1
+           vector2(indexlp1)=vector2(indexlp1)                          &
+     &       +vector1(mm)*(vector1(nna)+vector1(nnb))*valuelp1
 !         end if
                   ii=ii+2
                enddo
@@ -118,13 +118,13 @@ c     write(*,*) ' ss_test 2/2'
                indexlp1=index_lpext1(ii)
 !         if(indexlp.ne.0) then
            valuelp=value_lpext(ii)
-           vector2(indexlp)=vector2(indexlp)
-     :       +vector1(mm)*vector1(nn)*valuelp
+           vector2(indexlp)=vector2(indexlp)                            &
+     &       +vector1(mm)*vector1(nn)*valuelp
 !         end if
 !         if(indexlp1.ne.0) then
            valuelp1=value_lpext1(ii)
-           vector2(indexlp1)=vector2(indexlp1)
-     :       +vector1(mm)*vector1(nn)*valuelp1
+           vector2(indexlp1)=vector2(indexlp1)                          &
+     &       +vector1(mm)*vector1(nn)*valuelp1
 !         end if
 
                mm=mm+1
@@ -156,13 +156,13 @@ c     write(*,*) ' ss_test 2/2'
                indexlp1=index_lpext1(iij)
 !         if(indexlp.ne.0) then
            valuelp=value_lpext(iij)
-           vector2(indexlp)=vector2(indexlp)
-     :       +vector1(mm)*vector1(nn)*valuelp
+           vector2(indexlp)=vector2(indexlp)                            &
+     &       +vector1(mm)*vector1(nn)*valuelp
 !         end if
 !         if(indexlp1.ne.0) then
            valuelp1=value_lpext1(iij)
-           vector2(indexlp1)=vector2(indexlp1)
-     :       +vector1(mm)*vector1(nn)*valuelp1
+           vector2(indexlp1)=vector2(indexlp1)                          &
+     &       +vector1(mm)*vector1(nn)*valuelp1
 !         end if
                iij=iij+1
                mm=mm+1
@@ -195,13 +195,13 @@ c     write(*,*) ' ss_test 2/2'
                indexlp1=index_lpext1(iij)
 !         if(indexlp.ne.0) then
            valuelp=value_lpext(iij)
-           vector2(indexlp)=vector2(indexlp)
-     :       +vector1(mm)*vector1(nn)*valuelp
+           vector2(indexlp)=vector2(indexlp)                            &
+     &       +vector1(mm)*vector1(nn)*valuelp
 !         end if
 !         if(indexlp1.ne.0) then
            valuelp1=value_lpext1(iij)
-           vector2(indexlp1)=vector2(indexlp1)
-     :       +vector1(mm)*vector1(nn)*valuelp1
+           vector2(indexlp1)=vector2(indexlp1)                          &
+     &       +vector1(mm)*vector1(nn)*valuelp1
 !         end if
                iij=iij+1
                mm=mm+1
@@ -216,7 +216,7 @@ c     write(*,*) ' ss_test 2/2'
       subroutine inn_ext_st_drl_loop_unpack_g(iplplwei,iplprwei)
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-c     write(*,*) ' st_test 2/2'
+!     write(*,*) ' st_test 2/2'
 
       ii=1
       if ( logic_g1415 ) then
@@ -229,13 +229,13 @@ c     write(*,*) ' st_test 2/2'
          indexlp1=index_lpext1(ii)
 !         if(indexlp.ne.0) then
            valuelp=value_lpext(ii)
-           vector2(indexlp)=vector2(indexlp)
-     :       +vector1(mm)*vector1(nn)*valuelp
+           vector2(indexlp)=vector2(indexlp)                            &
+     &       +vector1(mm)*vector1(nn)*valuelp
 !         end if
 !         if(indexlp1.ne.0) then
            valuelp1=value_lpext1(ii)
-           vector2(indexlp1)=vector2(indexlp1)
-     :       +vector1(mm)*vector1(nn)*valuelp1
+           vector2(indexlp1)=vector2(indexlp1)                          &
+     &       +vector1(mm)*vector1(nn)*valuelp1
 !         end if
          ii=ii+1
       enddo
@@ -267,16 +267,16 @@ c     write(*,*) ' st_test 2/2'
                   indexlp=index_lpext(ii)
 !         if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nna)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nna)*valuelp
 !         end if
                   ii=ii+1
 
                   indexlp=index_lpext(ii)
 !          if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nnb)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nnb)*valuelp
 !          end if
                   ii=ii+1
                enddo
@@ -307,16 +307,16 @@ c     write(*,*) ' st_test 2/2'
                   indexlp=index_lpext(ii)
 !         if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nnb)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nnb)*valuelp
 !         end if
                   ii=ii+1
 
                   indexlp=index_lpext(ii)
 !         if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nna)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nna)*valuelp
 !         end if
                   ii=ii+1
 
@@ -350,8 +350,8 @@ c     write(*,*) ' st_test 2/2'
                indexlp=index_lpext(ii)
 !         if(indexlp.ne.0) then
                valuelp=value_lpext(ii)
-               vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !         end if
                mm=mm+1
                nn=nn+1
@@ -372,8 +372,8 @@ c     write(*,*) ' st_test 2/2'
                indexlp=index_lpext(iij)
 !          if(indexlp.ne.0) then
                valuelp=value_lpext(iij)
-               vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !          end if
                iij=iij+1
                mm=mm+1
@@ -393,8 +393,8 @@ c     write(*,*) ' st_test 2/2'
                indexlp=index_lpext(iij)
 !           if(indexlp.ne.0) then
                valuelp=-value_lpext(iij)
-               vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !           end if
                iij=iij+1
                mm=mm+1
@@ -426,8 +426,8 @@ c     write(*,*) ' st_test 2/2'
                indexlp=index_lpext(iij)
 !           if(indexlp.ne.0) then
                valuelp=-value_lpext(iij)
-               vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !           end if
                iij=iij+1
                mm=mm+1
@@ -442,7 +442,7 @@ c     write(*,*) ' st_test 2/2'
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
       logical logic_g14150,logic_g34b0,logic_g35b0,logic_g36b0
-c     write(*,*) '  tt_test 2/2'
+!     write(*,*) '  tt_test 2/2'
       logic_g14150=logic_g1415
       logic_g36b0=logic_g36b
       logic_g35b0=logic_g35b
@@ -464,14 +464,14 @@ c     write(*,*) '  tt_test 2/2'
          indexlp=index_lpext(ii)
 !       if(indexlp.ne.0) then
          valuelp=value_lpext(ii)
-         vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+         vector2(indexlp)=vector2(indexlp)                              &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !       end if
          indexlp1=index_lpext1(ii)
 !       if(indexlp1.ne.0) then
          valuelp1=value_lpext1(ii)
-         vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+         vector2(indexlp1)=vector2(indexlp1)                            &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
 !       end if
          ii=ii+1
       enddo
@@ -503,14 +503,14 @@ c     write(*,*) '  tt_test 2/2'
                indexlp=index_lpext(ii)
 !       if(indexlp.ne.0) then
                valuelp=value_lpext(ii)
-               vector2(indexlp)=vector2(indexlp)
-     :            +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &            +vector1(mm)*vector1(nn)*valuelp
 !       end if
                indexlp1=index_lpext1(ii)
 !       if(indexlp1.ne.0) then
                valuelp1=value_lpext1(ii)
-               vector2(indexlp1)=vector2(indexlp1)
-     :            +vector1(mm)*vector1(nn)*valuelp1
+               vector2(indexlp1)=vector2(indexlp1)                      &
+     &            +vector1(mm)*vector1(nn)*valuelp1
 !       end if
                mm=mm+1
                nn=nn+1
@@ -541,14 +541,14 @@ c     write(*,*) '  tt_test 2/2'
                indexlp=index_lpext(iij)
 !       if(indexlp.ne.0) then
                valuelp=-value_lpext(iij)
-               vector2(indexlp)=vector2(indexlp)
-     :            +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &            +vector1(mm)*vector1(nn)*valuelp
 !       end if
                indexlp1=index_lpext1(iij)
 !       if(indexlp1.ne.0) then
                valuelp1=-value_lpext1(iij)
-               vector2(indexlp1)=vector2(indexlp1)
-     :            +vector1(mm)*vector1(nn)*valuelp1
+               vector2(indexlp1)=vector2(indexlp1)                      &
+     &            +vector1(mm)*vector1(nn)*valuelp1
 !       end if
                iij=iij+1
                mm=mm+1
@@ -581,14 +581,14 @@ c     write(*,*) '  tt_test 2/2'
                indexlp=index_lpext(iij)
 !       if(indexlp.ne.0) then
                valuelp=value_lpext(iij)
-               vector2(indexlp)=vector2(indexlp)
-     :            +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &            +vector1(mm)*vector1(nn)*valuelp
 !       end if
                indexlp1=index_lpext1(iij)
 !       if(indexlp1.ne.0) then
                valuelp1=value_lpext1(iij)
-               vector2(indexlp1)=vector2(indexlp1)
-     :            +vector1(mm)*vector1(nn)*valuelp1
+               vector2(indexlp1)=vector2(indexlp1)                      &
+     &            +vector1(mm)*vector1(nn)*valuelp1
 !       end if
                iij=iij+1
                mm=mm+1
@@ -603,17 +603,17 @@ c     write(*,*) '  tt_test 2/2'
       subroutine inn_ext_ts_drl_loop_unpack_g(iplplwei,iplprwei)
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-c     write(*,*) '  ts_test 2/2'
+!     write(*,*) '  ts_test 2/2'
       ii=1
-c      logic_g1415=.false.
-c      logic_g2g4a=.false.
-c      logic_g2g4b=.false.
-c      logic_g36a=.false.
-c      logic_g36b=.false.
-c      logic_g35a=.false.
-c      logic_g35b=.false.
-c      logic_g34a=.false.
-c      logic_g34b=.false.
+!      logic_g1415=.false.
+!      logic_g2g4a=.false.
+!      logic_g2g4b=.false.
+!      logic_g36a=.false.
+!      logic_g36b=.false.
+!      logic_g35a=.false.
+!      logic_g35b=.false.
+!      logic_g34a=.false.
+!      logic_g34b=.false.
       if ( logic_g1415 ) then
       mm=iplplwei
       nn=iplprwei
@@ -623,14 +623,14 @@ c      logic_g34b=.false.
          indexlp=index_lpext(ii)
 !        if(indexlp.ne.0) then
          valuelp=value_lpext(ii)
-         vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+         vector2(indexlp)=vector2(indexlp)                              &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !        end if
          indexlp1=index_lpext1(ii)
 !        if(indexlp1.ne.0) then
          valuelp1=value_lpext1(ii)
-         vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+         vector2(indexlp1)=vector2(indexlp1)                            &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
 !        end if
          ii=ii+1
       enddo
@@ -659,15 +659,15 @@ c      logic_g34b=.false.
                   indexlp=index_lpext(ii)
 !        if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nna)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nna)*valuelp
 !        end if
                   ii=ii+1
                   indexlp=index_lpext(ii)
 !         if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nnb)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nnb)*valuelp
 !         end if
                   ii=ii+1
                enddo
@@ -697,15 +697,15 @@ c      logic_g34b=.false.
                   indexlp=index_lpext(ii)
 !         if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nnb)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nnb)*valuelp
 !         end if
                   ii=ii+1
                   indexlp=index_lpext(ii)
 !         if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nna)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nna)*valuelp
 !         end if
                   ii=ii+1
                enddo
@@ -739,8 +739,8 @@ c      logic_g34b=.false.
                indexlp=index_lpext(ii)
 !          if(indexlp.ne.0) then
                valuelp=value_lpext(ii)
-               vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !          end if
                mm=mm+1
                nn=nn+1
@@ -762,8 +762,8 @@ c      logic_g34b=.false.
                indexlp=index_lpext(iij)
 !           if(indexlp.ne.0) then
                valuelp=-value_lpext(iij)
-               vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !           end if
                iij=iij+1
                mm=mm+1
@@ -783,8 +783,8 @@ c      logic_g34b=.false.
                indexlp=index_lpext(iij)
 !           if(indexlp.ne.0) then
                valuelp=value_lpext(iij)
-               vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !           end if
                iij=iij+1
                mm=mm+1
@@ -816,8 +816,8 @@ c      logic_g34b=.false.
                indexlp=index_lpext(iij)
 !           if(indexlp.ne.0) then
                valuelp=-value_lpext(iij)
-               vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !           end if
                iij=iij+1
                mm=mm+1
@@ -831,7 +831,7 @@ c      logic_g34b=.false.
       subroutine inn_ext_ss_loop_unpack_g(iplplwei,iplprwei)
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-c     write(*,*) ' ss_test 1/2'
+!     write(*,*) ' ss_test 1/2'
       ii=1
       if ( logic_g1415 ) then
       mm=iplplwei
@@ -843,28 +843,28 @@ c     write(*,*) ' ss_test 1/2'
          indexlp=index_lpext(ii)
 !       if(indexlp.ne.0) then
          valuelp=value_lpext(ii)
-         vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+         vector2(indexlp)=vector2(indexlp)                              &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !       end if
          indexlp1=index_lpext1(ii)
 !       if(indexlp1.ne.0) then
          valuelp1=value_lpext1(ii)
-         vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+         vector2(indexlp1)=vector2(indexlp1)                            &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
 !       end if
          ii=ii+1
 
          indexlp=index_lpext(ii)
        if(indexlp.ne.0) then
          valuelp=value_lpext(ii)
-        vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+        vector2(indexlp)=vector2(indexlp)                               &
+     &                   +vector1(mm)*vector1(nn)*valuelp
        end if
          indexlp1=index_lpext1(ii)
        if(indexlp1.ne.0) then
          valuelp1=value_lpext1(ii)
-         vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+         vector2(indexlp1)=vector2(indexlp1)                            &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
        end if
          ii=ii+1
       enddo
@@ -894,27 +894,27 @@ c     write(*,*) ' ss_test 1/2'
                   indexlp=index_lpext(ii)
 !            if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nna)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nna)*valuelp
 !            end if
                   indexlp1=index_lpext1(ii)
 !            if(indexlp1.ne.0) then
                   valuelp1=value_lpext1(ii)
-                  vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nna)*valuelp1
+                  vector2(indexlp1)=vector2(indexlp1)                   &
+     &                   +vector1(mm)*vector1(nna)*valuelp1
 !            end if
                   ii=ii+1
                   indexlp=index_lpext(ii)
 !            if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nnb)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nnb)*valuelp
 !            end if
                   indexlp1=index_lpext1(ii)
 !            if(indexlp1.ne.0) then
                   valuelp1=value_lpext1(ii)
-                  vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nnb)*valuelp1
+                  vector2(indexlp1)=vector2(indexlp1)                   &
+     &                   +vector1(mm)*vector1(nnb)*valuelp1
 !            end if
                   ii=ii+1
 
@@ -945,27 +945,27 @@ c     write(*,*) ' ss_test 1/2'
                   indexlp=index_lpext(ii)
 !            if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nnb)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nnb)*valuelp
 !            end if
                   indexlp1=index_lpext1(ii)
 !            if(indexlp1.ne.0) then
                   valuelp1=value_lpext1(ii)
-                  vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nnb)*valuelp1
+                  vector2(indexlp1)=vector2(indexlp1)                   &
+     &                   +vector1(mm)*vector1(nnb)*valuelp1
 !            end if
                   ii=ii+1
                   indexlp=index_lpext(ii)
 !            if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nna)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nna)*valuelp
 !            end if
                   indexlp1=index_lpext1(ii)
 !            if(indexlp1.ne.0) then
                   valuelp1=value_lpext1(ii)
-                  vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nna)*valuelp1
+                  vector2(indexlp1)=vector2(indexlp1)                   &
+     &                   +vector1(mm)*vector1(nna)*valuelp1
 !            end if
                   ii=ii+1
 
@@ -1000,14 +1000,14 @@ c     write(*,*) ' ss_test 1/2'
                   indexlp=index_lpext(ii)
 !            if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !            end if
                   indexlp1=index_lpext1(ii)
 !            if(indexlp1.ne.0) then
                   valuelp1=value_lpext1(ii)
-                  vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+                  vector2(indexlp1)=vector2(indexlp1)                   &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
 !            end if
 
                mm=mm+1
@@ -1038,14 +1038,14 @@ c     write(*,*) ' ss_test 1/2'
                indexlp=index_lpext(iij)
 !            if(indexlp.ne.0) then
                valuelp=value_lpext(iij)
-               vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !            end if
                indexlp1=index_lpext1(iij)
 !            if(indexlp1.ne.0) then
                valuelp1=value_lpext1(iij)
-               vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+               vector2(indexlp1)=vector2(indexlp1)                      &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
 !            end if
                iij=iij+1
                mm=mm+1
@@ -1076,14 +1076,14 @@ c     write(*,*) ' ss_test 1/2'
                indexlp=index_lpext(iij)
 !            if(indexlp.ne.0) then
                valuelp=value_lpext(iij)
-               vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !            end if
                indexlp1=index_lpext1(iij)
 !            if(indexlp1.ne.0) then
                valuelp1=value_lpext1(iij)
-               vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+               vector2(indexlp1)=vector2(indexlp1)                      &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
 !            end if
                iij=iij+1
                mm=mm+1
@@ -1098,7 +1098,7 @@ c     write(*,*) ' ss_test 1/2'
       subroutine inn_ext_st_loop_unpack_g(iplplwei,iplprwei)
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-c     write(*,*) ' st_test 1/2'
+!     write(*,*) ' st_test 1/2'
       ii=1
       if ( logic_g1415 ) then
       mm=iplplwei
@@ -1109,28 +1109,28 @@ c     write(*,*) ' st_test 1/2'
          indexlp=index_lpext(ii)
 !       if(indexlp.ne.0) then
          valuelp=value_lpext(ii)
-         vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+         vector2(indexlp)=vector2(indexlp)                              &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !       end if
          indexlp1=index_lpext1(ii)
 !       if(indexlp1.ne.0) then
          valuelp1=value_lpext1(ii)
-         vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+         vector2(indexlp1)=vector2(indexlp1)                            &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
 !       end if
          ii=ii+1
 
          indexlp=index_lpext(ii)
        if(indexlp.ne.0) then
          valuelp=value_lpext(ii)
-         vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+         vector2(indexlp)=vector2(indexlp)                              &
+     &                   +vector1(mm)*vector1(nn)*valuelp
        end if
          indexlp1=index_lpext1(ii)
        if(indexlp1.ne.0) then
          valuelp1=value_lpext1(ii)
-         vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+         vector2(indexlp1)=vector2(indexlp1)                            &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
        end if
          ii=ii+1
       enddo
@@ -1161,28 +1161,28 @@ c     write(*,*) ' st_test 1/2'
                   indexlp=index_lpext(ii)
 !       if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nna)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nna)*valuelp
 !       end if
                   indexlp1=index_lpext1(ii)
 !       if(indexlp1.ne.0) then
                   valuelp1=value_lpext1(ii)
-                  vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nna)*valuelp1
+                  vector2(indexlp1)=vector2(indexlp1)                   &
+     &                   +vector1(mm)*vector1(nna)*valuelp1
 !       end if
                   ii=ii+1
 
                   indexlp=index_lpext(ii)
 !       if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nnb)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nnb)*valuelp
 !       end if
                   indexlp1=index_lpext1(ii)
 !       if(indexlp1.ne.0) then
                   valuelp1=value_lpext1(ii)
-                  vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nnb)*valuelp1
+                  vector2(indexlp1)=vector2(indexlp1)                   &
+     &                   +vector1(mm)*vector1(nnb)*valuelp1
 !       end if
                   ii=ii+1
                enddo
@@ -1214,28 +1214,28 @@ c     write(*,*) ' st_test 1/2'
                   indexlp=index_lpext(ii)
 !       if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nnb)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nnb)*valuelp
 !       end if
                   indexlp1=index_lpext1(ii)
                   valuelp1=value_lpext1(ii)
 !       if(indexlp1.ne.0) then
-                  vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nnb)*valuelp1
+                  vector2(indexlp1)=vector2(indexlp1)                   &
+     &                   +vector1(mm)*vector1(nnb)*valuelp1
 !       end if
                   ii=ii+1
 
                   indexlp=index_lpext(ii)
 !       if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nna)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nna)*valuelp
 !       end if
                   indexlp1=index_lpext1(ii)
 !       if(indexlp1.ne.0) then
                   valuelp1=value_lpext1(ii)
-                  vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nna)*valuelp1
+                  vector2(indexlp1)=vector2(indexlp1)                   &
+     &                   +vector1(mm)*vector1(nna)*valuelp1
 !       end if
                   ii=ii+1
 
@@ -1269,14 +1269,14 @@ c     write(*,*) ' st_test 1/2'
                   indexlp=index_lpext(ii)
 !       if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !       end if
                   indexlp1=index_lpext1(ii)
 !       if(indexlp1.ne.0) then
                   valuelp1=value_lpext1(ii)
-                  vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+                  vector2(indexlp1)=vector2(indexlp1)                   &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
 !       end if
                mm=mm+1
                nn=nn+1
@@ -1284,7 +1284,7 @@ c     write(*,*) ' st_test 1/2'
          enddo
 936   continue
 
-c      write(*,*)'st_g35a',iplplwei,iplprwei,vector2(137)
+!      write(*,*)'st_g35a',iplplwei,iplprwei,vector2(137)
       if ( icle.eq.1 .and. logic_g35a ) then
          mm0=iplplwei
          nn0=iplprwei
@@ -1298,14 +1298,14 @@ c      write(*,*)'st_g35a',iplplwei,iplprwei,vector2(137)
                indexlp=index_lpext(iij)
 !       if(indexlp.ne.0) then
                valuelp=value_lpext(iij)
-               vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !       end if
                indexlp1=index_lpext1(iij)
 !       if(indexlp1.ne.0) then
                valuelp1=value_lpext1(iij)
-               vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+               vector2(indexlp1)=vector2(indexlp1)                      &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
 !       end if
                iij=iij+1
                mm=mm+1
@@ -1324,14 +1324,14 @@ c      write(*,*)'st_g35a',iplplwei,iplprwei,vector2(137)
                indexlp=index_lpext(iij)
 !       if(indexlp.ne.0) then
                valuelp=-value_lpext(iij)
-               vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !       end if
                indexlp1=index_lpext1(iij)
 !       if(indexlp1.ne.0) then
                valuelp1=-value_lpext1(iij)
-               vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+               vector2(indexlp1)=vector2(indexlp1)                      &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
 !       end if
                iij=iij+1
                mm=mm+1
@@ -1339,7 +1339,7 @@ c      write(*,*)'st_g35a',iplplwei,iplprwei,vector2(137)
          enddo
       endif
 
-c      write(*,*)'st_g34',iplplwei,iplprwei,vector2(137)
+!      write(*,*)'st_g34',iplplwei,iplprwei,vector2(137)
       if ( icle.eq.1 .and. logic_g34a ) then
          mm0=iplplwei
          nn0=iplprwei
@@ -1363,14 +1363,14 @@ c      write(*,*)'st_g34',iplplwei,iplprwei,vector2(137)
                indexlp=index_lpext(iij)
 !       if(indexlp.ne.0) then
                valuelp=-value_lpext(iij)
-               vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !       end if
                indexlp1=index_lpext1(iij)
 !       if(indexlp1.ne.0) then
                valuelp1=-value_lpext1(iij)
-               vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+               vector2(indexlp1)=vector2(indexlp1)                      &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
 !       end if
                iij=iij+1
                mm=mm+1
@@ -1385,7 +1385,7 @@ c      write(*,*)'st_g34',iplplwei,iplprwei,vector2(137)
       subroutine inn_ext_ts_loop_unpack_g(iplplwei,iplprwei)
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-c     write(*,*) '  ts_test 1/2 '
+!     write(*,*) '  ts_test 1/2 '
       ii=1
       if ( logic_g1415 ) then
       mm=iplplwei
@@ -1396,28 +1396,28 @@ c     write(*,*) '  ts_test 1/2 '
          indexlp=index_lpext(ii)
 !       if(indexlp.ne.0) then
          valuelp=value_lpext(ii)
-         vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+         vector2(indexlp)=vector2(indexlp)                              &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !       end if
          indexlp1=index_lpext1(ii)
 !       if(indexlp1.ne.0) then
          valuelp1=value_lpext1(ii)
-         vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+         vector2(indexlp1)=vector2(indexlp1)                            &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
 !       end if
          ii=ii+1
 
          indexlp=index_lpext(ii)
        if(indexlp.ne.0) then
          valuelp=value_lpext(ii)
-         vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+         vector2(indexlp)=vector2(indexlp)                              &
+     &                   +vector1(mm)*vector1(nn)*valuelp
        end if
          indexlp1=index_lpext1(ii)
        if(indexlp1.ne.0) then
          valuelp1=value_lpext1(ii)
-         vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+         vector2(indexlp1)=vector2(indexlp1)                            &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
        end if
          ii=ii+1
       enddo
@@ -1447,28 +1447,28 @@ c     write(*,*) '  ts_test 1/2 '
                   indexlp=index_lpext(ii)
 !       if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nna)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nna)*valuelp
 !       end if
                   indexlp1=index_lpext1(ii)
 !       if(indexlp1.ne.0) then
                   valuelp1=value_lpext1(ii)
-                  vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nna)*valuelp1
+                  vector2(indexlp1)=vector2(indexlp1)                   &
+     &                   +vector1(mm)*vector1(nna)*valuelp1
 !       end if
                   ii=ii+1
 
                   indexlp=index_lpext(ii)
 !       if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nnb)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nnb)*valuelp
 !       end if
                   indexlp1=index_lpext1(ii)
 !       if(indexlp1.ne.0) then
                   valuelp1=value_lpext1(ii)
-                  vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nnb)*valuelp1
+                  vector2(indexlp1)=vector2(indexlp1)                   &
+     &                   +vector1(mm)*vector1(nnb)*valuelp1
 !       end if
                   ii=ii+1
 
@@ -1499,28 +1499,28 @@ c     write(*,*) '  ts_test 1/2 '
                   indexlp=index_lpext(ii)
 !       if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nnb)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nnb)*valuelp
 !       end if
                   indexlp1=index_lpext1(ii)
 !       if(indexlp1.ne.0) then
                   valuelp1=value_lpext1(ii)
-                  vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nnb)*valuelp1
+                  vector2(indexlp1)=vector2(indexlp1)                   &
+     &                   +vector1(mm)*vector1(nnb)*valuelp1
 !       end if
                   ii=ii+1
 
                   indexlp=index_lpext(ii)
 !       if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nna)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nna)*valuelp
 !       end if
                   indexlp1=index_lpext1(ii)
 !       if(indexlp1.ne.0) then
                   valuelp1=value_lpext1(ii)
-                  vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nna)*valuelp1
+                  vector2(indexlp1)=vector2(indexlp1)                   &
+     &                   +vector1(mm)*vector1(nna)*valuelp1
 !       end if
                   ii=ii+1
 
@@ -1554,14 +1554,14 @@ c     write(*,*) '  ts_test 1/2 '
                   indexlp=index_lpext(ii)
 !       if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !       end if
                   indexlp1=index_lpext1(ii)
 !       if(indexlp1.ne.0) then
                   valuelp1=value_lpext1(ii)
-                  vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+                  vector2(indexlp1)=vector2(indexlp1)                   &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
 !       end if
                mm=mm+1
                nn=nn+1
@@ -1582,14 +1582,14 @@ c     write(*,*) '  ts_test 1/2 '
                   indexlp=index_lpext(iij)
 !       if(indexlp.ne.0) then
                   valuelp=-value_lpext(iij)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !       end if
                   indexlp1=index_lpext1(iij)
 !       if(indexlp1.ne.0) then
                   valuelp1=-value_lpext1(iij)
-                  vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+                  vector2(indexlp1)=vector2(indexlp1)                   &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
 !       end if
                iij=iij+1
                mm=mm+1
@@ -1608,14 +1608,14 @@ c     write(*,*) '  ts_test 1/2 '
                   indexlp=index_lpext(iij)
 !       if(indexlp.ne.0) then
                   valuelp=value_lpext(iij)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !       end if
                   indexlp1=index_lpext1(iij)
 !       if(indexlp1.ne.0) then
                   valuelp1=value_lpext1(iij)
-                  vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+                  vector2(indexlp1)=vector2(indexlp1)                   &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
 !       end if
                iij=iij+1
                mm=mm+1
@@ -1647,14 +1647,14 @@ c     write(*,*) '  ts_test 1/2 '
                   indexlp=index_lpext(iij)
 !       if(indexlp.ne.0) then
                   valuelp=-value_lpext(iij)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !       end if
                   indexlp1=index_lpext1(iij)
 !       if(indexlp1.ne.0) then
                   valuelp1=-value_lpext1(iij)
-                  vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+                  vector2(indexlp1)=vector2(indexlp1)                   &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
 !       end if
                iij=iij+1
                mm=mm+1
@@ -1669,7 +1669,7 @@ c     write(*,*) '  ts_test 1/2 '
       subroutine inn_ext_tt_loop_unpack_g(iplplwei,iplprwei)
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-c     write(*,*) '  tt_test 1/2'
+!     write(*,*) '  tt_test 1/2'
       ii=1
       if ( logic_g1415 ) then
       mm=iplplwei
@@ -1681,14 +1681,14 @@ c     write(*,*) '  tt_test 1/2'
          indexlp=index_lpext(ii)
 !       if(indexlp.ne.0) then
          valuelp=value_lpext(ii)
-         vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+         vector2(indexlp)=vector2(indexlp)                              &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !       end if
          indexlp1=index_lpext1(ii)
 !       if(indexlp1.ne.0) then
          valuelp1=value_lpext1(ii)
-         vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+         vector2(indexlp1)=vector2(indexlp1)                            &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
 !       end if
 
          ii=ii+1
@@ -1696,14 +1696,14 @@ c     write(*,*) '  tt_test 1/2'
          indexlp=index_lpext(ii)
        if(indexlp.ne.0) then
          valuelp=value_lpext(ii)
-         vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+         vector2(indexlp)=vector2(indexlp)                              &
+     &                   +vector1(mm)*vector1(nn)*valuelp
        end if
          indexlp1=index_lpext1(ii)
        if(indexlp1.ne.0) then
          valuelp1=value_lpext1(ii)
-         vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+         vector2(indexlp1)=vector2(indexlp1)                            &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
        end if
          ii=ii+1
       enddo
@@ -1735,14 +1735,14 @@ c     write(*,*) '  tt_test 1/2'
                   indexlp=index_lpext(ii)
 !       if(indexlp.ne.0) then
                   valuelp=value_lpext(ii)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !       end if
                   indexlp1=index_lpext1(ii)
 !       if(indexlp1.ne.0) then
                   valuelp1=value_lpext1(ii)
-                  vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+                  vector2(indexlp1)=vector2(indexlp1)                   &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
 !       end if
                mm=mm+1
                nn=nn+1
@@ -1773,14 +1773,14 @@ c     write(*,*) '  tt_test 1/2'
                   indexlp=index_lpext(iij)
 !       if(indexlp.ne.0) then
                   valuelp=-value_lpext(iij)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !       end if
                   indexlp1=index_lpext1(iij)
 !       if(indexlp1.ne.0) then
                   valuelp1=-value_lpext1(iij)
-                  vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+                  vector2(indexlp1)=vector2(indexlp1)                   &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
 !       end if
 
                iij=iij+1
@@ -1814,14 +1814,14 @@ c     write(*,*) '  tt_test 1/2'
                   indexlp=index_lpext(iij)
 !       if(indexlp.ne.0) then
                   valuelp=value_lpext(iij)
-                  vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+                  vector2(indexlp)=vector2(indexlp)                     &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !       end if
                   indexlp1=index_lpext1(iij)
 !       if(indexlp1.ne.0) then
                   valuelp1=value_lpext1(iij)
-                  vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+                  vector2(indexlp1)=vector2(indexlp1)                   &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
 !       end if
 
                iij=iij+1
@@ -1837,7 +1837,7 @@ c     write(*,*) '  tt_test 1/2'
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
       parameter (v_sqtwo=1.414213562373095d0 )
-c      write(*,*) '  sd_test 1/2','  ds_test 1'
+!      write(*,*) '  sd_test 1/2','  ds_test 1'
 
       ilpvalue=0
       if ( logic_g25a ) then
@@ -1854,12 +1854,12 @@ c      write(*,*) '  sd_test 1/2','  ds_test 1'
                mm=mm+1
                nn=nn+1
 !            if(indexlp.ne.0) then
-               vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !            end if
               if(indexlp1.ne.0) then
-                vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+                vector2(indexlp1)=vector2(indexlp1)                     &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
               end if
             enddo
          enddo
@@ -1878,12 +1878,12 @@ c      write(*,*) '  sd_test 1/2','  ds_test 1'
                mm=mm+1
                nn=nn+1
 !            if(indexlp.ne.0) then
-              vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+              vector2(indexlp)=vector2(indexlp)                         &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !            end if
               if(indexlp1.ne.0) then
-                vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+                vector2(indexlp1)=vector2(indexlp1)                     &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
               end if
             enddo
          enddo
@@ -1900,14 +1900,14 @@ c      write(*,*) '  sd_test 1/2','  ds_test 1'
                indexlp=index_lpext(ilpvalue)
 !            if(indexlp.ne.0) then
                valuelp=value_lpext(ilpvalue)
-               vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !            end if
               indexlp1=index_lpext1(ilpvalue)
               if(indexlp1.ne.0) then
                 valuelp1=value_lpext1(ilpvalue)
-                vector2(indexlp1)=vector2(indexlp1)
-     :                    +vector1(mm)*vector1(nn)*valuelp1
+                vector2(indexlp1)=vector2(indexlp1)                     &
+     &                    +vector1(mm)*vector1(nn)*valuelp1
               end if
            enddo
          enddo
@@ -1922,14 +1922,14 @@ c      write(*,*) '  sd_test 1/2','  ds_test 1'
                indexlp=index_lpext(ilpvalue)
 !            if(indexlp.ne.0) then
                valuelp=value_lpext(ilpvalue)
-               vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !            end if
               indexlp1=index_lpext1(ilpvalue)
               if(indexlp1.ne.0) then
                 valuelp1=value_lpext1(ilpvalue)
-                vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+                vector2(indexlp1)=vector2(indexlp1)                     &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
               end if
             enddo
           enddo
@@ -1944,19 +1944,19 @@ c      write(*,*) '  sd_test 1/2','  ds_test 1'
            indexlp=index_lpext(ilpvalue)
 !          if(indexlp.ne.0) then
            valuelp=value_lpext(ilpvalue)*v_sqtwo
-           vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+           vector2(indexlp)=vector2(indexlp)                            &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !          end if
            indexlp1=index_lpext1(ilpvalue)
            if(indexlp1.ne.0) then
              valuelp1=value_lpext1(ilpvalue)*v_sqtwo
-             vector2(indexlp1)=vector2(indexlp1)
-     :                  +vector1(mm)*vector1(nn)*valuelp1
+             vector2(indexlp1)=vector2(indexlp1)                        &
+     &                  +vector1(mm)*vector1(nn)*valuelp1
            end if
            mm=mm+1
          enddo
       endif
-c      print*, "out sd 1"
+!      print*, "out sd 1"
 
       end
 
@@ -1965,7 +1965,7 @@ c      print*, "out sd 1"
 #include "lpextmode_h.fh"
 #include "cont_tmp.fh"
       parameter (   v_sqtwo=1.414213562373095d0 )
-c     write(*,*) ' td_test _1/2',' dt_test '
+!     write(*,*) ' td_test _1/2',' dt_test '
       ilpvalue=0
       if ( logic_g25a ) then
          mm=iplplwei+iweista_g25-1
@@ -1982,12 +1982,12 @@ c     write(*,*) ' td_test _1/2',' dt_test '
                mm=mm+1
                nn=nn+1
 !            if(indexlp.ne.0) then
-              vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+              vector2(indexlp)=vector2(indexlp)                         &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !            end if
             if(indexlp1.ne.0) then
-              vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+              vector2(indexlp1)=vector2(indexlp1)                       &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
             end if
            enddo
          enddo
@@ -2007,12 +2007,12 @@ c     write(*,*) ' td_test _1/2',' dt_test '
                mm=mm+1
                nn=nn+1
 !            if(indexlp.ne.0) then
-              vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+              vector2(indexlp)=vector2(indexlp)                         &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !            end if
             if(indexlp1.ne.0) then
-              vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+              vector2(indexlp1)=vector2(indexlp1)                       &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
             end if
             enddo
          enddo
@@ -2028,14 +2028,14 @@ c     write(*,*) ' td_test _1/2',' dt_test '
               indexlp=index_lpext(ilpvalue)
 !          if(indexlp.ne.0) then
               valuelp=-value_lpext(ilpvalue)
-              vector2(indexlp)=vector2(indexlp)
-     :                 +vector1(mm)*vector1(nn)*valuelp
+              vector2(indexlp)=vector2(indexlp)                         &
+     &                 +vector1(mm)*vector1(nn)*valuelp
 !          end if
              indexlp1=index_lpext1(ilpvalue)
              if(indexlp1.ne.0) then
                valuelp1=-value_lpext1(ilpvalue)
-               vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+               vector2(indexlp1)=vector2(indexlp1)                      &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
              end if
             enddo
          enddo
@@ -2051,14 +2051,14 @@ c     write(*,*) ' td_test _1/2',' dt_test '
                indexlp=index_lpext(ilpvalue)
 !          if(indexlp.ne.0) then
                valuelp=-value_lpext(ilpvalue)
-               vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !          end if
                indexlp1=index_lpext1(ilpvalue)
           if(indexlp1.ne.0) then
                valuelp1=-value_lpext1(ilpvalue)
-               vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+               vector2(indexlp1)=vector2(indexlp1)                      &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
           end if
             enddo
          enddo
@@ -2078,14 +2078,14 @@ c     write(*,*) ' td_test _1/2',' dt_test '
          indexlp=index_lpext(iij)
 !       if(indexlp.ne.0) then
          valuelp=value_lpext(iij)
-         vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+         vector2(indexlp)=vector2(indexlp)                              &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !       end if
          indexlp1=index_lpext1(iij)
          if(indexlp1.ne.0) then
            valuelp1=value_lpext1(iij)
-           vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+           vector2(indexlp1)=vector2(indexlp1)                          &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
          end if
       enddo
       end
@@ -2096,7 +2096,7 @@ c     write(*,*) ' td_test _1/2',' dt_test '
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 #include "gext_sequence.fh"
-c      write(*,*) 'sd_test 2/2','  td_test_2/2 2'
+!      write(*,*) 'sd_test 2/2','  td_test_2/2 2'
       ilpvalue=0
       mm0=ilwei
       nn=irwei+icano_nnsta-1
@@ -2108,18 +2108,18 @@ c      write(*,*) 'sd_test 2/2','  td_test_2/2 2'
           mm=mm+1
           indexlp=index_lpext(ilpvalue)
           valuelp=value_lpext(ilpvalue)
-          vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+          vector2(indexlp)=vector2(indexlp)                             &
+     &                   +vector1(mm)*vector1(nn)*valuelp
           indexlp1=index_lpext1(ilpvalue)
           if(indexlp1.ne.0) then
 
             valuelp1=value_lpext1(ilpvalue)
-            vector2(indexlp1)=vector2(indexlp1)
-     :                    +vector1(mm)*vector1(nn)*valuelp1
+            vector2(indexlp1)=vector2(indexlp1)                         &
+     &                    +vector1(mm)*vector1(nn)*valuelp1
           endif
         enddo
       enddo
-c      print*, "out sd 2"
+!      print*, "out sd 2"
       return
       end
 
@@ -2136,22 +2136,22 @@ c      print*, "out sd 2"
          mm=mm+1
          indexlp2=index_lpext5(ilpvalue)
          valuelp2=value_lpext5(ilpvalue)
-         dm1tmp(indexlp2)=dm1tmp(indexlp2)
-     :                  +vector1(mm)*vector1(nn)*valuelp2
+         dm1tmp(indexlp2)=dm1tmp(indexlp2)                              &
+     &                  +vector1(mm)*vector1(nn)*valuelp2
 
          do nii=1,n
             indexlp3=index_lpext3(ilpvalue,nii)
 !          if(indexlp3.ne.0) then
             valuelp3=value_lpext3(ilpvalue,nii)
-            vector2(indexlp3)=vector2(indexlp3)
-     :                   +vector1(mm)*vector1(nn)*valuelp3
+            vector2(indexlp3)=vector2(indexlp3)                         &
+     &                   +vector1(mm)*vector1(nn)*valuelp3
 !          end if
 
             indexlp4=index_lpext4(ilpvalue,nii)
           if(indexlp4.ne.0) then
             valuelp4=value_lpext4(ilpvalue,nii)
-            vector2(indexlp4)=vector2(indexlp4)
-     :                   +vector1(mm)*vector1(nn)*valuelp4
+            vector2(indexlp4)=vector2(indexlp4)                         &
+     &                   +vector1(mm)*vector1(nn)*valuelp4
           end if
          enddo
       enddo
@@ -2165,7 +2165,7 @@ c      print*, "out sd 2"
 #include "iaib.fh"
 #include "cont_tmp.fh"
       parameter (   v_sqtwo=1.414213562373095d0 )
-c     write(*,*) ' td_test _1/2',' dt_test '
+!     write(*,*) ' td_test _1/2',' dt_test '
       ilpvalue=0
       if ( logic_g25a ) then
          mm=iplplwei+iweista_g25-1
@@ -2178,20 +2178,20 @@ c     write(*,*) ' td_test _1/2',' dt_test '
             do i=1,nwei_g25
                mm=mm+1
                nn=nn+1
-               dm1tmp(indexlp2)=dm1tmp(indexlp2)
-     :                  +vector1(mm)*vector1(nn)*valuelp2
+               dm1tmp(indexlp2)=dm1tmp(indexlp2)                        &
+     &                  +vector1(mm)*vector1(nn)*valuelp2
                do nii=1,n
                  indexlp3=index_lpext3(ilpvalue,nii)
 !          if(indexlp3.ne.0) then
                  valuelp3=value_lpext3(ilpvalue,nii)
-                 vector2(indexlp3)=vector2(indexlp3)
-     :                   +vector1(mm)*vector1(nn)*valuelp3
+                 vector2(indexlp3)=vector2(indexlp3)                    &
+     &                   +vector1(mm)*vector1(nn)*valuelp3
 !          end if
                  indexlp4=index_lpext4(ilpvalue,nii)
           if(indexlp4.ne.0) then
                  valuelp4=value_lpext4(ilpvalue,nii)
-                 vector2(indexlp4)=vector2(indexlp4)
-     :                   +vector1(mm)*vector1(nn)*valuelp4
+                 vector2(indexlp4)=vector2(indexlp4)                    &
+     &                   +vector1(mm)*vector1(nn)*valuelp4
           end if
               enddo
            enddo
@@ -2209,20 +2209,20 @@ c     write(*,*) ' td_test _1/2',' dt_test '
             do i=1,itmp-1
                mm=mm+1
                nn=nn+1
-               dm1tmp(indexlp2)=dm1tmp(indexlp2)
-     :                  +vector1(mm)*vector1(nn)*valuelp2
+               dm1tmp(indexlp2)=dm1tmp(indexlp2)                        &
+     &                  +vector1(mm)*vector1(nn)*valuelp2
                do nii=1,n
                  indexlp3=index_lpext3(ilpvalue,nii)
 !             if(indexlp3.ne.0) then
                  valuelp3=value_lpext3(ilpvalue,nii)
-                 vector2(indexlp3)=vector2(indexlp3)
-     :                   +vector1(mm)*vector1(nn)*valuelp3
+                 vector2(indexlp3)=vector2(indexlp3)                    &
+     &                   +vector1(mm)*vector1(nn)*valuelp3
 !             end if
                  indexlp4=index_lpext4(ilpvalue,nii)
              if(indexlp4.ne.0) then
                  valuelp4=value_lpext4(ilpvalue,nii)
-                 vector2(indexlp4)=vector2(indexlp4)
-     :                   +vector1(mm)*vector1(nn)*valuelp4
+                 vector2(indexlp4)=vector2(indexlp4)                    &
+     &                   +vector1(mm)*vector1(nn)*valuelp4
              end if
               enddo
             enddo
@@ -2238,20 +2238,20 @@ c     write(*,*) ' td_test _1/2',' dt_test '
                indexlp2=index_lpext5(ilpvalue)
                valuelp2=-value_lpext5(ilpvalue)
                mm=mm+1
-               dm1tmp(indexlp2)=dm1tmp(indexlp2)
-     :                  +vector1(mm)*vector1(nn)*valuelp2
+               dm1tmp(indexlp2)=dm1tmp(indexlp2)                        &
+     &                  +vector1(mm)*vector1(nn)*valuelp2
                do nii=1,n
                  indexlp3=index_lpext3(ilpvalue,nii)
 !             if(indexlp3.ne.0) then
                  valuelp3=-value_lpext3(ilpvalue,nii)
-                 vector2(indexlp3)=vector2(indexlp3)
-     :                   +vector1(mm)*vector1(nn)*valuelp3
+                 vector2(indexlp3)=vector2(indexlp3)                    &
+     &                   +vector1(mm)*vector1(nn)*valuelp3
 !             end if
                  indexlp4=index_lpext4(ilpvalue,nii)
              if(indexlp4.ne.0) then
                  valuelp4=-value_lpext4(ilpvalue,nii)
-                 vector2(indexlp4)=vector2(indexlp4)
-     :                   +vector1(mm)*vector1(nn)*valuelp4
+                 vector2(indexlp4)=vector2(indexlp4)                    &
+     &                   +vector1(mm)*vector1(nn)*valuelp4
              end if
               enddo
             enddo
@@ -2267,20 +2267,20 @@ c     write(*,*) ' td_test _1/2',' dt_test '
                indexlp2=index_lpext5(ilpvalue)
                valuelp2=-value_lpext5(ilpvalue)
                mm=mm+1
-               dm1tmp(indexlp2)=dm1tmp(indexlp2)
-     :                  +vector1(mm)*vector1(nn)*valuelp2
+               dm1tmp(indexlp2)=dm1tmp(indexlp2)                        &
+     &                  +vector1(mm)*vector1(nn)*valuelp2
                do nii=1,n
                  indexlp3=index_lpext3(ilpvalue,nii)
 !             if(indexlp3.ne.0) then
                  valuelp3=-value_lpext3(ilpvalue,nii)
-                 vector2(indexlp3)=vector2(indexlp3)
-     :                   +vector1(mm)*vector1(nn)*valuelp3
+                 vector2(indexlp3)=vector2(indexlp3)                    &
+     &                   +vector1(mm)*vector1(nn)*valuelp3
 !             end if
                  indexlp4=index_lpext4(ilpvalue,nii)
              if(indexlp4.ne.0) then
                  valuelp4=-value_lpext4(ilpvalue,nii)
-                 vector2(indexlp4)=vector2(indexlp4)
-     :                   +vector1(mm)*vector1(nn)*valuelp4
+                 vector2(indexlp4)=vector2(indexlp4)                    &
+     &                   +vector1(mm)*vector1(nn)*valuelp4
              end if
                enddo
             enddo
@@ -2294,7 +2294,7 @@ c     write(*,*) ' td_test _1/2',' dt_test '
 #include "grad_h.fh"
 #include "iaib.fh"
       parameter (v_sqtwo=1.414213562373095d0 )
-c      write(*,*) '  sd_test 1/2','  ds_test 0'
+!      write(*,*) '  sd_test 1/2','  ds_test 0'
 
       ilpvalue=0
       if ( logic_g25a ) then
@@ -2309,20 +2309,20 @@ c      write(*,*) '  sd_test 1/2','  ds_test 0'
             do i=1,nwei_g25
                mm=mm+1
                nn=nn+1
-               dm1tmp(indexlp2)=dm1tmp(indexlp2)
-     :                  +vector1(mm)*vector1(nn)*valuelp2
+               dm1tmp(indexlp2)=dm1tmp(indexlp2)                        &
+     &                  +vector1(mm)*vector1(nn)*valuelp2
                do nii=1,n
                  indexlp3=index_lpext3(ilpvalue,nii)
 !             if(indexlp3.ne.0) then
                  valuelp3=value_lpext3(ilpvalue,nii)
-                 vector2(indexlp3)=vector2(indexlp3)
-     :                   +vector1(mm)*vector1(nn)*valuelp3
+                 vector2(indexlp3)=vector2(indexlp3)                    &
+     &                   +vector1(mm)*vector1(nn)*valuelp3
 !             end if
                  indexlp4=index_lpext4(ilpvalue,nii)
                  if(indexlp4.ne.0) then
                    valuelp4=value_lpext4(ilpvalue,nii)
-                   vector2(indexlp4)=vector2(indexlp4)
-     :                     +vector1(mm)*vector1(nn)*valuelp4
+                   vector2(indexlp4)=vector2(indexlp4)                  &
+     &                     +vector1(mm)*vector1(nn)*valuelp4
                  end if
                 enddo
             enddo
@@ -2340,20 +2340,20 @@ c      write(*,*) '  sd_test 1/2','  ds_test 0'
             do i=1,itmp-1
                mm=mm+1
                nn=nn+1
-               dm1tmp(indexlp2)=dm1tmp(indexlp2)
-     :                  +vector1(mm)*vector1(nn)*valuelp2
+               dm1tmp(indexlp2)=dm1tmp(indexlp2)                        &
+     &                  +vector1(mm)*vector1(nn)*valuelp2
                do nii=1,n
                  indexlp3=index_lpext3(ilpvalue,nii)
 !             if(indexlp3.ne.0) then
                  valuelp3=value_lpext3(ilpvalue,nii)
-                 vector2(indexlp3)=vector2(indexlp3)
-     :                   +vector1(mm)*vector1(nn)*valuelp3
+                 vector2(indexlp3)=vector2(indexlp3)                    &
+     &                   +vector1(mm)*vector1(nn)*valuelp3
 !             end if
                  indexlp4=index_lpext4(ilpvalue,nii)
              if(indexlp4.ne.0) then
                  valuelp4=value_lpext4(ilpvalue,nii)
-                 vector2(indexlp4)=vector2(indexlp4)
-     :                   +vector1(mm)*vector1(nn)*valuelp4
+                 vector2(indexlp4)=vector2(indexlp4)                    &
+     &                   +vector1(mm)*vector1(nn)*valuelp4
              end if
                 enddo
 
@@ -2371,20 +2371,20 @@ c      write(*,*) '  sd_test 1/2','  ds_test 0'
                indexlp2=index_lpext5(ilpvalue)
                valuelp2=value_lpext5(ilpvalue)
                mm=mm+1
-               dm1tmp(indexlp2)=dm1tmp(indexlp2)
-     :                  +vector1(mm)*vector1(nn)*valuelp2
+               dm1tmp(indexlp2)=dm1tmp(indexlp2)                        &
+     &                  +vector1(mm)*vector1(nn)*valuelp2
                do nii=1,n
                   indexlp3=index_lpext3(ilpvalue,nii)
 !             if(indexlp3.ne.0) then
                   valuelp3=value_lpext3(ilpvalue,nii)
-                  vector2(indexlp3)=vector2(indexlp3)
-     :                   +vector1(mm)*vector1(nn)*valuelp3
+                  vector2(indexlp3)=vector2(indexlp3)                   &
+     &                   +vector1(mm)*vector1(nn)*valuelp3
 !             end if
                   indexlp4=index_lpext4(ilpvalue,nii)
              if(indexlp4.ne.0) then
                   valuelp4=value_lpext4(ilpvalue,nii)
-                  vector2(indexlp4)=vector2(indexlp4)
-     :                   +vector1(mm)*vector1(nn)*valuelp4
+                  vector2(indexlp4)=vector2(indexlp4)                   &
+     &                   +vector1(mm)*vector1(nn)*valuelp4
              end if
                enddo
             enddo
@@ -2399,20 +2399,20 @@ c      write(*,*) '  sd_test 1/2','  ds_test 0'
                indexlp2=index_lpext5(ilpvalue)
                valuelp2=value_lpext5(ilpvalue)
                mm=mm+1
-               dm1tmp(indexlp2)=dm1tmp(indexlp2)
-     :                  +vector1(mm)*vector1(nn)*valuelp2
+               dm1tmp(indexlp2)=dm1tmp(indexlp2)                        &
+     &                  +vector1(mm)*vector1(nn)*valuelp2
                do nii=1,n
                   indexlp3=index_lpext3(ilpvalue,nii)
 !             if(indexlp3.ne.0) then
                   valuelp3=value_lpext3(ilpvalue,nii)
-                  vector2(indexlp3)=vector2(indexlp3)
-     :                   +vector1(mm)*vector1(nn)*valuelp3
+                  vector2(indexlp3)=vector2(indexlp3)                   &
+     &                   +vector1(mm)*vector1(nn)*valuelp3
 !             end if
                   indexlp4=index_lpext4(ilpvalue,nii)
              if(indexlp4.ne.0) then
                   valuelp4=value_lpext4(ilpvalue,nii)
-                  vector2(indexlp4)=vector2(indexlp4)
-     :                   +vector1(mm)*vector1(nn)*valuelp4
+                  vector2(indexlp4)=vector2(indexlp4)                   &
+     &                   +vector1(mm)*vector1(nn)*valuelp4
              end if
                enddo
             enddo
@@ -2428,26 +2428,26 @@ c      write(*,*) '  sd_test 1/2','  ds_test 0'
             indexlp2=index_lpext5(ilpvalue)
             valuelp2=value_lpext5(ilpvalue)*v_sqtwo
 
-            dm1tmp(indexlp2)=dm1tmp(indexlp2)
-     :                  +vector1(mm)*vector1(nn)*valuelp2
+            dm1tmp(indexlp2)=dm1tmp(indexlp2)                           &
+     &                  +vector1(mm)*vector1(nn)*valuelp2
             do nii=1,n
                indexlp3=index_lpext3(ilpvalue,nii)
 !             if(indexlp3.ne.0) then
                valuelp3=value_lpext3(ilpvalue,nii)*v_sqtwo
-               vector2(indexlp3)=vector2(indexlp3)
-     :                   +vector1(mm)*vector1(nn)*valuelp3
+               vector2(indexlp3)=vector2(indexlp3)                      &
+     &                   +vector1(mm)*vector1(nn)*valuelp3
 !             end if
                indexlp4=index_lpext4(ilpvalue,nii)
              if(indexlp4.ne.0) then
                valuelp4=value_lpext4(ilpvalue,nii)*v_sqtwo
-               vector2(indexlp4)=vector2(indexlp4)
-     :                   +vector1(mm)*vector1(nn)*valuelp4
+               vector2(indexlp4)=vector2(indexlp4)                      &
+     &                   +vector1(mm)*vector1(nn)*valuelp4
              end if
             enddo
             mm=mm+1
          enddo
       endif
-c      print*, "out ds 0"
+!      print*, "out ds 0"
 
       end
 
@@ -2456,7 +2456,7 @@ c      print*, "out ds 0"
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
-c      write(nf2,*) 'logic_g49b',logic_g50,logic_g49a,logic_g49b
+!      write(nf2,*) 'logic_g49b',logic_g50,logic_g49a,logic_g49b
 
       ii=1
       if ( logic_g50 ) then
@@ -2469,14 +2469,14 @@ c      write(nf2,*) 'logic_g49b',logic_g50,logic_g49a,logic_g49b
               indexlp=index_lpext(ii)
            if(indexlp.ne.0) then
               valuelp=value_lpext(ii)
-              vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+              vector2(indexlp)=vector2(indexlp)                         &
+     &                   +vector1(mm)*vector1(nn)*valuelp
            end if
               indexlp1=index_lpext1(ii)
            if(indexlp1.ne.0) then
               valuelp1=value_lpext1(ii)
-              vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+              vector2(indexlp1)=vector2(indexlp1)                       &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
            end if
                ii=ii+1
             enddo
@@ -2494,14 +2494,14 @@ c      write(nf2,*) 'logic_g49b',logic_g50,logic_g49a,logic_g49b
                indexlp=index_lpext(ii)
            if(indexlp.ne.0) then
                valuelp=value_lpext(ii)
-               vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &                   +vector1(mm)*vector1(nn)*valuelp
            end if
                indexlp1=index_lpext1(ii)
            if(indexlp1.ne.0) then
                valuelp1=value_lpext1(ii)
-               vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+               vector2(indexlp1)=vector2(indexlp1)                      &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
            end if
                ii=ii+1
             enddo
@@ -2534,14 +2534,14 @@ c      write(nf2,*) 'logic_g49b',logic_g50,logic_g49a,logic_g49b
                indexlp=index_lpext(ii)
 !           if(indexlp.ne.0) then
                valuelp=value_lpext(ii)
-               vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+               vector2(indexlp)=vector2(indexlp)                        &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !           end if
                indexlp1=index_lpext1(ii)
 !           if(indexlp1.ne.0) then
                valuelp1=value_lpext1(ii)
-               vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+               vector2(indexlp1)=vector2(indexlp1)                      &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
 !           end if
                ii=ii+1
             enddo
@@ -2560,14 +2560,14 @@ c      write(nf2,*) 'logic_g49b',logic_g50,logic_g49a,logic_g49b
          indexlp=index_lpext(iij)
 !       if(indexlp.ne.0) then
          valuelp=value_lpext(iij)
-         vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+         vector2(indexlp)=vector2(indexlp)                              &
+     &                   +vector1(mm)*vector1(nn)*valuelp
 !       end if
          indexlp1=index_lpext1(iij)
        if(indexlp1.ne.0) then
          valuelp1=value_lpext1(iij)
-         vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+         vector2(indexlp1)=vector2(indexlp1)                            &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
        end if
       enddo
       end
@@ -2582,10 +2582,10 @@ c      write(nf2,*) 'logic_g49b',logic_g50,logic_g49a,logic_g49b
 !  this subroutine prodab_1 does the dm1 part, which corresponds to voin
       subroutine prodab_1(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6,mg7)
 #include "drt_h.fh"
-      if(log_prod.eq.1) call prodab_h_1(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,
-     *                                  mg6,mg7)
-      if(log_prod.eq.2) call prodab_h0_1(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,
-     *                                  mg6,mg7)
+      if(log_prod.eq.1) call prodab_h_1(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr, &
+     &                                  mg6,mg7)
+      if(log_prod.eq.2) call prodab_h0_1(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,&
+     &                                  mg6,mg7)
       return
       end
 
@@ -2616,10 +2616,10 @@ c      write(nf2,*) 'logic_g49b',logic_g50,logic_g49a,logic_g49b
           do m=1,lwnu
             mm=mm+1
             nn=nn+1
-c101        vector2(mm)=vector2(mm)+vector1(nn)*wl
-c          vector2(nn)=vector2(nn)+vector1(mm)*wl
-c          vector2(mm)=vector2(mm)+vector1(nn)*wl
-c          vector2(nn)=vector2(nn)+vector1(mm)*wl
+!101        vector2(mm)=vector2(mm)+vector1(nn)*wl
+!          vector2(nn)=vector2(nn)+vector1(mm)*wl
+!          vector2(mm)=vector2(mm)+vector1(nn)*wl
+!          vector2(nn)=vector2(nn)+vector1(mm)*wl
             mg67=ican_a(mg7)+mg6
             dm1tmp(mg67)=dm1tmp(mg67)+vector1(nn)*wl*vector1(mm)
           enddo
@@ -2630,8 +2630,8 @@ c          vector2(nn)=vector2(nn)+vector1(mm)*wl
 200   if(jpad.ne.jpadl) return
       jph=mg1
       jpl=mg2
-c     iwal=mg3
-c     iwar=mg4
+!     iwal=mg3
+!     iwar=mg4
       iwupwei=jpad_upwei(jpad)
       isegdownwei=iseg_downwei(ipae)
       jpy=jphy(jph)
@@ -2655,14 +2655,14 @@ c     iwar=mg4
               do iwe=1,isegdownwei
                 mm=iwadl+iwe
                 nn=iwadr+iwe
-c201        vector2(mm)=vector2(mm)+vector1(nn)*wl
-c           vector2(nn)=vector2(nn)+vector1(mm)*wl
-c              vector2(mm)=vector2(mm)+vector1(nn)*wl
-c              vector2(nn)=vector2(nn)+vector1(mm)*wl
+!201        vector2(mm)=vector2(mm)+vector1(nn)*wl
+!           vector2(nn)=vector2(nn)+vector1(mm)*wl
+!              vector2(mm)=vector2(mm)+vector1(nn)*wl
+!              vector2(nn)=vector2(nn)+vector1(mm)*wl
             mg67=ican_a(mg7)+mg6
             dm1tmp(mg67)=dm1tmp(mg67)+vector1(nn)*wl*vector1(mm)
-c             write(nf2,'(4i4,4f18.10)')mg6,mg7, mm,nn,wl,
-c     :       vector1(mm),vector1(nn),dm1tmp(mg67)
+!             write(nf2,'(4i4,4f18.10)')mg6,mg7, mm,nn,wl,
+!     :       vector1(mm),vector1(nn),dm1tmp(mg67)
               enddo
             enddo
           enddo
@@ -2689,14 +2689,14 @@ c     :       vector1(mm),vector1(nn),dm1tmp(mg67)
           do iwe=1,isegdownwei
             mm=mm+1                  ! iwl=iwalk_ad
             nn=nn+1                  ! iwl=iwalk_ad
-c301        vector2(mm)=vector2(mm)+vector1(nn)*wl
-c           vector2(nn)=vector2(nn)+vector1(mm)*wl
-c           vector2(mm)=vector2(mm)+vector1(nn)*wl
-c            vector2(nn)=vector2(nn)+vector1(mm)*wl
+!301        vector2(mm)=vector2(mm)+vector1(nn)*wl
+!           vector2(nn)=vector2(nn)+vector1(mm)*wl
+!           vector2(mm)=vector2(mm)+vector1(nn)*wl
+!            vector2(nn)=vector2(nn)+vector1(mm)*wl
             mg67=ican_a(mg7)+mg6
             dm1tmp(mg67)=dm1tmp(mg67)+vector1(nn)*wl*vector1(mm)
-c            write(nf2,'(a9,3i8,3f18.10)') '1_dbl_act',mg6,mm,nn,wl,
-c     :             vector1(mm),vector1(nn)
+!            write(nf2,'(a9,3i8,3f18.10)') '1_dbl_act',mg6,mm,nn,wl,
+!     :             vector1(mm),vector1(nn)
             enddo
         enddo
       enddo
@@ -2731,9 +2731,9 @@ c     :             vector1(mm),vector1(nn)
           do m=1,lwnu
             mm=mm+1
             nn=nn+1
-c             if(mm.gt.nn) mntmp=mm*(mm-1)/2+nn
-c             if(nn.gt.mm) mntmp=nn*(nn-1)/2+mm
-c             vector2(mntmp)=vector2(mntmp)+wl
+!             if(mm.gt.nn) mntmp=mm*(mm-1)/2+nn
+!             if(nn.gt.mm) mntmp=nn*(nn-1)/2+mm
+!             vector2(mntmp)=vector2(mntmp)+wl
             mg67=ican_a(mg7)+mg6
             dm1tmp(mg67)=dm1tmp(mg67)+vector1(nn)*wl*vector1(mm)
 !              if(mntmp.eq.2) then
@@ -2747,8 +2747,8 @@ c             vector2(mntmp)=vector2(mntmp)+wl
 200   if(jpad.ne.jpadl) return
       jph=mg1
       jpl=mg2
-c     iwal=mg3
-c     iwar=mg4
+!     iwal=mg3
+!     iwar=mg4
       iwupwei=jpad_upwei(jpad)
       isegdownwei=iseg_downwei(ipae)
       jpy=jphy(jph)
@@ -2772,9 +2772,9 @@ c     iwar=mg4
               do iwe=1,isegdownwei
                 mm=iwadl+iwe
                 nn=iwadr+iwe
-c             if(mm.gt.nn) mntmp=mm*(mm-1)/2+nn
-c             if(nn.gt.mm) mntmp=nn*(nn-1)/2+mm
-c             vector2(mntmp)=vector2(mntmp)+wl
+!             if(mm.gt.nn) mntmp=mm*(mm-1)/2+nn
+!             if(nn.gt.mm) mntmp=nn*(nn-1)/2+mm
+!             vector2(mntmp)=vector2(mntmp)+wl
             mg67=ican_a(mg7)+mg6
             dm1tmp(mg67)=dm1tmp(mg67)+vector1(nn)*wl*vector1(mm)
 !              if(mntmp.eq.2) then
@@ -2806,9 +2806,9 @@ c             vector2(mntmp)=vector2(mntmp)+wl
           do iwe=1,isegdownwei
             mm=mm+1                  ! iwl=iwalk_ad
             nn=nn+1                  ! iwl=iwalk_ad
-c             if(mm.gt.nn) mntmp=mm*(mm-1)/2+nn
-c             if(nn.gt.mm) mntmp=nn*(nn-1)/2+mm
-c             vector2(mntmp)=vector2(mntmp)+wl
+!             if(mm.gt.nn) mntmp=mm*(mm-1)/2+nn
+!             if(nn.gt.mm) mntmp=nn*(nn-1)/2+mm
+!             vector2(mntmp)=vector2(mntmp)+wl
             mg67=ican_a(mg7)+mg6
             dm1tmp(mg67)=dm1tmp(mg67)+vector1(nn)*wl*vector1(mm)
 !              if(mntmp.eq.2) then
@@ -2825,10 +2825,10 @@ c             vector2(mntmp)=vector2(mntmp)+wl
 !this subroutine prodab_2 does the dm2 part, which corresponds to vint_c
       subroutine prodab_2(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6)
 #include "drt_h.fh"
-      if(log_prod.eq.1) call prodab_h_2(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,
-     *                                  mg6)
-      if(log_prod.eq.2) call prodab_h0_2(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,
-     *                                  mg6)
+      if(log_prod.eq.1) call prodab_h_2(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr, &
+     &                                  mg6)
+      if(log_prod.eq.2) call prodab_h0_2(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,&
+     &                                  mg6)
       return
       end
 
@@ -2858,14 +2858,14 @@ c             vector2(mntmp)=vector2(mntmp)+wl
           do m=1,lwnu
             mm=mm+1
             nn=nn+1
-c101        vector2(mm)=vector2(mm)+vector1(nn)*wl
-c          vector2(nn)=vector2(nn)+vector1(mm)*wl
-c          vector2(mm)=vector2(mm)+vector1(nn)*wl
-c          vector2(nn)=vector2(nn)+vector1(mm)*wl
+!101        vector2(mm)=vector2(mm)+vector1(nn)*wl
+!          vector2(nn)=vector2(nn)+vector1(mm)*wl
+!          vector2(mm)=vector2(mm)+vector1(nn)*wl
+!          vector2(nn)=vector2(nn)+vector1(mm)*wl
             vector2(mg6)=vector2(mg6)+vector1(nn)*wl*vector1(mm)
-c       if(mg6.eq.29)
-c     :     write(nf2,'(i8,2i4,4f18.10)')mg6,mm,nn,vector2(mg6),
-c     :                          vector1(mm),wl,vector1(nn)
+!       if(mg6.eq.29)
+!     :     write(nf2,'(i8,2i4,4f18.10)')mg6,mm,nn,vector2(mg6),
+!     :                          vector1(mm),wl,vector1(nn)
            enddo
         enddo
       enddo
@@ -2874,8 +2874,8 @@ c     :                          vector1(mm),wl,vector1(nn)
 200   if(jpad.ne.jpadl) return
       jph=mg1
       jpl=mg2
-c     iwal=mg3
-c     iwar=mg4
+!     iwal=mg3
+!     iwar=mg4
       iwupwei=jpad_upwei(jpad)
       isegdownwei=iseg_downwei(ipae)
       jpy=jphy(jph)
@@ -2899,15 +2899,15 @@ c     iwar=mg4
               do iwe=1,isegdownwei
                 mm=iwadl+iwe
                 nn=iwadr+iwe
-c201        vector2(mm)=vector2(mm)+vector1(nn)*wl
-c           vector2(nn)=vector2(nn)+vector1(mm)*wl
-c              vector2(mm)=vector2(mm)+vector1(nn)*wl
-c              vector2(nn)=vector2(nn)+vector1(mm)*wl
+!201        vector2(mm)=vector2(mm)+vector1(nn)*wl
+!           vector2(nn)=vector2(nn)+vector1(mm)*wl
+!              vector2(mm)=vector2(mm)+vector1(nn)*wl
+!              vector2(nn)=vector2(nn)+vector1(mm)*wl
             vector2(mg6)=vector2(mg6)+vector1(nn)*wl*vector1(mm)
-c       if(mg6.eq.15)  write(nf2,'(2i4,4f18.10)')
-c     :          mm,nn,wl,vector1(mm),vector1(nn),vector2(mg6)
-c            write(nf2,'(a3,2i4,i8,2f18.10)') 'act',mm,nn,mg6,
-c     :       vector1(mm),vector1(nn)
+!       if(mg6.eq.15)  write(nf2,'(2i4,4f18.10)')
+!     :          mm,nn,wl,vector1(mm),vector1(nn),vector2(mg6)
+!            write(nf2,'(a3,2i4,i8,2f18.10)') 'act',mm,nn,mg6,
+!     :       vector1(mm),vector1(nn)
             enddo
             enddo
           enddo
@@ -2934,10 +2934,10 @@ c     :       vector1(mm),vector1(nn)
           do iwe=1,isegdownwei
             mm=mm+1                  ! iwl=iwalk_ad
             nn=nn+1                  ! iwl=iwalk_ad
-c301        vector2(mm)=vector2(mm)+vector1(nn)*wl
-c           vector2(nn)=vector2(nn)+vector1(mm)*wl
-c           vector2(mm)=vector2(mm)+vector1(nn)*wl
-c            vector2(nn)=vector2(nn)+vector1(mm)*wl
+!301        vector2(mm)=vector2(mm)+vector1(nn)*wl
+!           vector2(nn)=vector2(nn)+vector1(mm)*wl
+!           vector2(mm)=vector2(mm)+vector1(nn)*wl
+!            vector2(nn)=vector2(nn)+vector1(mm)*wl
             vector2(mg6)=vector2(mg6)+vector1(nn)*wl*vector1(mm)
           enddo
         enddo
@@ -2978,7 +2978,7 @@ c            vector2(nn)=vector2(nn)+vector1(mm)*wl
               else
                 mntmp=nn*(nn-1)/2+mm
               endif
-c             vector2(mntmp)=vector2(mntmp)+wl
+!             vector2(mntmp)=vector2(mntmp)+wl
             vector2(mg6)=vector2(mg6)+vector1(mntmp)*wl*vector1(mntmp)
 
 !              if(mntmp.eq.2) then
@@ -2992,8 +2992,8 @@ c             vector2(mntmp)=vector2(mntmp)+wl
 200   if(jpad.ne.jpadl) return
       jph=mg1
       jpl=mg2
-c     iwal=mg3
-c     iwar=mg4
+!     iwal=mg3
+!     iwar=mg4
       iwupwei=jpad_upwei(jpad)
       isegdownwei=iseg_downwei(ipae)
       jpy=jphy(jph)
@@ -3022,7 +3022,7 @@ c     iwar=mg4
               else
                 mntmp=nn*(nn-1)/2+mm
               endif
-c             vector2(mntmp)=vector2(mntmp)+wl
+!             vector2(mntmp)=vector2(mntmp)+wl
             vector2(mg6)=vector2(mg6)+vector1(mntmp)*wl*vector1(mntmp)
 
 !              if(mntmp.eq.2) then
@@ -3059,7 +3059,7 @@ c             vector2(mntmp)=vector2(mntmp)+wl
               else
                 mntmp=nn*(nn-1)/2+mm
               endif
-c             vector2(mntmp)=vector2(mntmp)+wl
+!             vector2(mntmp)=vector2(mntmp)+wl
             vector2(mg6)=vector2(mg6)+vector1(mntmp)*wl*vector1(mntmp)
 
 !              if(mntmp.eq.2) then

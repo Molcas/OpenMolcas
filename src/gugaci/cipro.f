@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine cipro()
 #include "drt_h.fh"
 #include "grad_h.fh"
@@ -87,8 +87,8 @@
 ! read density matrix
         idisk=idx_idisk1(iroot)
         call ddafile(luciden,2,denm1,nc1,idisk)
-        call natureorb(nlsm_bas,nlsm_all,nlsm_del,ng_sm,denm1,
-     *                 nc1,cmo,nc0,bsbl,nc,cno,occ,nmo,pror)
+        call natureorb(nlsm_bas,nlsm_all,nlsm_del,ng_sm,denm1,          &
+     &                 nc1,cmo,nc0,bsbl,nc,cno,occ,nmo,pror)
 
 ! mulliken population
         call xflush(6)
@@ -102,9 +102,9 @@
         call transden(ng_sm,nlsm_bas,denao,cno,nc0,occ,nmo)
 
 ! calculated properties
-        call calprop(ng_sm,nlsm_bas,mroot,iroot,iroot,nc2,npro,
-     *               pname,ipcom,ptyp,
-     *               denao,nc0,vprop,pgauge,pnuc,icall)
+        call calprop(ng_sm,nlsm_bas,mroot,iroot,iroot,nc2,npro,         &
+     &               pname,ipcom,ptyp,                                  &
+     &               denao,nc0,vprop,pgauge,pnuc,icall)
 ! print property
       enddo
       call mma_deallocate(cmo)
@@ -114,29 +114,29 @@
 
 ! this code copy from molcas
       if(npro.gt.0) then
-c write expectation values:
+! write expectation values:
         write(6,*)
         write(6,*)' expectation values of various operators:'
-        write(6,*)
-     *  '(note: electronic multipoles include a negative sign.)'
+        write(6,*)                                                      &
+     &  '(note: electronic multipoles include a negative sign.)'
         do 110 iprop=1,npro
           if(ptyp(iprop).eq.'ANTI') goto 110
           do 105 ista=1,mroot,4
             iend=min(ista+3,mroot)
             write(6,*)
-            write(6,'(1x,a,a8,a,i4)')
-     *    '   property: ',pname(iprop),
-     *    '   component:',ipcom(iprop)
-            write(6,'(1x,a,3f16.8)')
-     *    '    gauge origin:',(pgauge(i,iprop),i=1,3)
-            write(6,'(1x,a,i8,3i16)')
-     *    '            root:',(i,i=ista,iend)
-            write(6,'(1x,a,4f16.8)')
-     *    '      electronic:',(vprop(i,i,iprop),i=ista,iend)
-            write(6,'(1x,a,4f16.8)')
-     *    '         nuclear:',(pnuc(iprop),i=ista,iend)
-            write(6,'(1x,a,4f16.8)')
-     *    '           total:',(pnuc(iprop)+vprop(i,i,iprop),i=ista,iend)
+            write(6,'(1x,a,a8,a,i4)')                                   &
+     &    '   property: ',pname(iprop),                                 &
+     &    '   component:',ipcom(iprop)
+            write(6,'(1x,a,3f16.8)')                                    &
+     &    '    gauge origin:',(pgauge(i,iprop),i=1,3)
+            write(6,'(1x,a,i8,3i16)')                                   &
+     &    '            root:',(i,i=ista,iend)
+            write(6,'(1x,a,4f16.8)')                                    &
+     &    '      electronic:',(vprop(i,i,iprop),i=ista,iend)
+            write(6,'(1x,a,4f16.8)')                                    &
+     &    '         nuclear:',(pnuc(iprop),i=ista,iend)
+            write(6,'(1x,a,4f16.8)')                                    &
+     &    '           total:',(pnuc(iprop)+vprop(i,i,iprop),i=ista,iend)
 105       continue
 110     continue
         write(6,*)
@@ -176,7 +176,7 @@ c write expectation values:
         if(nsiz.gt.nc2) then
           write(6,*) "in subroutine cipro, read so int error"
           call abend
-c          stop 1999
+!          stop 1999
         endif
         write(6,"(a8,1x,2i4)") "nsiz=",i,nsiz
         write(6,"(5(1x,f12.8))") omat(1:nsiz)
@@ -190,9 +190,9 @@ c          stop 1999
       return
       end
 
-      subroutine calprop(ngsm,nsbas,mroot,istate,jstate,nsi,npro,pname,
-     *                   ipcom,ptyp,aden,lmo,
-     *                   vprop,pgauge,pnuc,icall)
+      subroutine calprop(ngsm,nsbas,mroot,istate,jstate,nsi,npro,pname, &
+     &                   ipcom,ptyp,aden,lmo,                           &
+     &                   vprop,pgauge,pnuc,icall)
       implicit none
 !-----------------------------------------------------
       integer ngsm,mroot,istate,jstate,nsi,npro,lmo,icall
@@ -217,10 +217,10 @@ c          stop 1999
         if(nsbas(im).eq.0) cycle
         do i=1,nsbas(im)
           do j=1,i-1
-            smat(nc1)=aden(nc0+(j-1)*nsbas(im)+i)
-     *               +aden(nc0+(i-1)*nsbas(im)+j)
-            amat(nc1)=aden(nc0+(j-1)*nsbas(im)+i)
-     *               -aden(nc0+(i-1)*nsbas(im)+j)
+            smat(nc1)=aden(nc0+(j-1)*nsbas(im)+i)                       &
+     &               +aden(nc0+(i-1)*nsbas(im)+j)
+            amat(nc1)=aden(nc0+(j-1)*nsbas(im)+i)                       &
+     &               -aden(nc0+(i-1)*nsbas(im)+j)
 !            smat(nc1)=aden(nc+i,nc+j)+aden(nc+j,nc+i)
 !            amat(nc1)=aden(nc+i,nc+j)-aden(nc+j,nc+i)
             nc1=nc1+1
@@ -246,7 +246,7 @@ c          stop 1999
         call irdone(irtc,1,pname(i),ipcom(i),idummy,isymlb)
         if (irtc.eq.0) nsiz=idummy(1)
         call rdone(irtc,0,pname(i),ipcom(i),pint,isymlb)
-C        print*, "nsiz",nsiz
+!        print*, "nsiz",nsiz
         if(icall.eq.0) then
           pgauge(1,i)=pint(nsiz+1)
           pgauge(2,i)=pint(nsiz+2)
@@ -306,8 +306,8 @@ C        print*, "nsiz",nsiz
 !        print*, nc,ni
         do i=1,ni
           val=occ(i+nc0)
-          call dger(ni,ni,val,cno(nc1),1,cno(nc1),1,
-     *              denao(nc),ni)
+          call dger(ni,ni,val,cno(nc1),1,cno(nc1),1,                    &
+     &              denao(nc),ni)
           nc1=nc1+ni
         enddo
         nc0=nc0+ni

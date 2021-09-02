@@ -1,40 +1,40 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2007, Bingbing Suo                                     *
-************************************************************************
-c 28 dec 2007 -bsuo- the initial vectors for davidson diagnolazation are
-c                    the vectors obtained by diagnol h0 space will be us
-c                    initial vector for mrci calculation.
-c 18 jul 2007 -bsuo- multi-root calculation is revised to perform calcul
-c                    nci_dim*mroot>max_civector, the roots are calculated
-c                    by one, old subroutine for davidson diagonalization
-c                    deleted. the subroutines to init the initial vector
-c                    revised.
-c 15 mar 2007 -bsuo- new method for multi-root calculation finished
-c 23 feb 2007 -bsuo- revised by suo bing for multi-root calculation
-c
-c this module consains some routines to calculate the segmentation
-c value of the partial loops,information of the molecular orbital
-c and the davidson diagonalization calculation
-c
-c*************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2007, Bingbing Suo                                     *
+!***********************************************************************
+! 28 dec 2007 -bsuo- the initial vectors for davidson diagnolazation are
+!                    the vectors obtained by diagnol h0 space will be us
+!                    initial vector for mrci calculation.
+! 18 jul 2007 -bsuo- multi-root calculation is revised to perform calcul
+!                    nci_dim*mroot>max_civector, the roots are calculated
+!                    by one, old subroutine for davidson diagonalization
+!                    deleted. the subroutines to init the initial vector
+!                    revised.
+! 15 mar 2007 -bsuo- new method for multi-root calculation finished
+! 23 feb 2007 -bsuo- revised by suo bing for multi-root calculation
+!
+! this module consains some routines to calculate the segmentation
+! value of the partial loops,information of the molecular orbital
+! and the davidson diagonalization calculation
+!
+!*************************************************
       subroutine mole_inf()
-c*************************************************
+!*************************************************
 #include "drt_h.fh"
 #include "thresh.fh"
       parameter ( ncmd=9 )
       character*4 command,cmd(ncmd)
       character*72  line
-      Data Cmd /'TITL','NRRO','MAXI','CPRO','PTHR',
-     &          'CONV','PROR','REST',
+      Data Cmd /'TITL','NRRO','MAXI','CPRO','PTHR',                     &
+     &          'CONV','PROR','REST',                                   &
 #ifdef MOLPRO
 #else
      &          'END '/
@@ -47,14 +47,14 @@ c*************************************************
       call rdnlst(5,"GUGACI")
 #endif
 
-c init some program control logic variables
-c trandional davidson diagnolization method is used
+! init some program control logic variables
+! trandional davidson diagnolization method is used
       logic_tdav=.true.
       logic_inivec_read=.false.
       logic_calpro=.false.
       cm_cri=0.05
       pror=0.0001
-c set the default convergence threshhold
+! set the default convergence threshhold
       vthreen=1.d-8
       vthrealp=1.d-6
       vthreresid=1.d-8
@@ -73,8 +73,8 @@ c set the default convergence threshhold
       do icmd=1,ncmd
          if ( command.eq.cmd(icmd) ) jcmd=icmd
       end do
-20    goto ( 100, 200, 300, 400, 500, 600,
-     &       700, 800, 900
+20    goto ( 100, 200, 300, 400, 500, 600,                              &
+     &       700, 800, 900                                              &
      &       ) jcmd
       write (6,*) 'input: illegal keyword'
       write (6,'(a,a)') 'command=',command
@@ -84,8 +84,8 @@ c set the default convergence threshhold
 #endif
 #ifdef _XIANEST_
 #endif
-*
-*---  process title    command ----------------------------------------*
+!
+!---  process title    command ----------------------------------------*
  100  continue
       read(5,'(a)',end=991) line
       command=line(1:8)
@@ -98,44 +98,44 @@ c set the default convergence threshhold
       if ( jcmd.ne.0 ) goto 20
       ntit=ntit+1
       goto 100
-*
-*---  process nrroot command ----------------------------------------*
+!
+!---  process nrroot command ----------------------------------------*
  200  continue
       read(5,'(a)',end=991) line
       if(line(1:1).eq."*") goto 200
       read(line,*,err=992) mroot
       goto 10
 
-*
-*---  process Maxiterations command ------------------------------------
+!
+!---  process Maxiterations command ------------------------------------
  300  continue
       read(5,'(a)',end=991) line
       if(line(1:1).eq."*") goto 300
       read(line,*,err=992) maxciiter
       goto 10
 
-*
-*---  process Calculate property command -------------------------------
+!
+!---  process Calculate property command -------------------------------
  400  continue
       logic_calpro=.true.
       goto 10
 
-*
-*---  process Thresh print command -------------------------------------
+!
+!---  process Thresh print command -------------------------------------
  500  continue
       read(5,'(a)',end=991) line
       if(line(1:1).eq."*") goto 500
       read(line,*,err=992) cm_cri
       goto 10
-*
-*---  process Convergence threshold command ----------------------------
+!
+!---  process Convergence threshold command ----------------------------
  600  continue
       read(5,'(a)',end=991) line
       if(line(1:1).eq."*") goto 600
       read(line,*,err=992) vthreen,vthrealp,vthreresid
       goto 10
-*
-*---  process print orbital command ------------------------------------
+!
+!---  process print orbital command ------------------------------------
  700  continue
       read(5,'(a)',end=991)  line
       if(line(1:1).eq."*") goto 700
@@ -143,11 +143,11 @@ c set the default convergence threshhold
       goto 10
 
 
-*---  process restart command ------------------------------------------
+!---  process restart command ------------------------------------------
  800  continue
       goto 10
 
-*--- End of GUGACI input ----------------------*
+!--- End of GUGACI input ----------------------*
  900  continue
 
       call mole_inf_molcas()
@@ -179,17 +179,17 @@ c set the default convergence threshhold
       dimension lsmtmp(maxgdm)
       dimension idum(1)
 
-c      open(nf1,file="drt.inp")
-c      read(nf1,*)
-c      read(nf1,*) mroot,mth_eigen,kin
-c      read(nf1,*) n_electron, spin, ng_sm, ns_sm, cm_cri
-c      read(nf1,*) nlsm_all(1:ng_sm)
-c      read(nf1,*) nlsm_frz(1:ng_sm)
-c      read(nf1,*) nlsm_dbl(1:ng_sm)
-c      read(nf1,*) nlsm_act(1:ng_sm)
-c      read(nf1,*) log_thre
+!      open(nf1,file="drt.inp")
+!      read(nf1,*)
+!      read(nf1,*) mroot,mth_eigen,kin
+!      read(nf1,*) n_electron, spin, ng_sm, ns_sm, cm_cri
+!      read(nf1,*) nlsm_all(1:ng_sm)
+!      read(nf1,*) nlsm_frz(1:ng_sm)
+!      read(nf1,*) nlsm_dbl(1:ng_sm)
+!      read(nf1,*) nlsm_act(1:ng_sm)
+!      read(nf1,*) log_thre
 ! merge into molcas
-c write date into cidrt for ci calculation
+! write date into cidrt for ci calculation
       noidx=0
       idisk=0
       call idafile(ludrt,2,noidx,2,idisk)
@@ -313,10 +313,10 @@ c write date into cidrt for ci calculation
           if ( imr .gt. iml ) cycle
           int_dd_offset(iml,imr)=im_lr_sta
           int_dd_offset(imr,iml)=im_lr_sta
-          if(iml.eq.imr)im_lr_sta=im_lr_sta+
-     :           nlsm_ext(iml)*(nlsm_ext(iml)-1)/2
-          if(iml.ne.imr)im_lr_sta=im_lr_sta+
-     :           nlsm_ext(iml)*nlsm_ext(imr)
+          if(iml.eq.imr)im_lr_sta=im_lr_sta+                            &
+     &           nlsm_ext(iml)*(nlsm_ext(iml)-1)/2
+          if(iml.ne.imr)im_lr_sta=im_lr_sta+                            &
+     &           nlsm_ext(iml)*nlsm_ext(imr)
         enddo
         do l=1,nlsm_ext(im)
           lr=lr+1
@@ -357,7 +357,7 @@ c write date into cidrt for ci calculation
          iesm_ext(i)=itmp
       enddo
 
-c****************************************************
+!****************************************************
 #ifdef _DEBUG
       idebug=1
       if(idebug.eq.1) then
@@ -376,7 +376,7 @@ c****************************************************
 1001  format(1x,"all frz dz inn ext")
 1002  format(8(1x,i3))
 #endif
-c*****************************************************
+!*****************************************************
 
       return
       end

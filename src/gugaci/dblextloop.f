@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine drl_bl_ext_ar_new(lin,lrk,lri)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
@@ -188,10 +188,10 @@
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-c      if(lin.eq.14.and.intentry.eq.15195.and.isma
-c     :    .eq.1.and.jpad.eq.20.and.jpad.eq.jpadl) then
-c      write(6,*) "bbs_tmp"
-c      endif
+!      if(lin.eq.14.and.intentry.eq.15195.and.isma
+!     :    .eq.1.and.jpad.eq.20.and.jpad.eq.jpadl) then
+!      write(6,*) "bbs_tmp"
+!      endif
 
       iwuplwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipae)

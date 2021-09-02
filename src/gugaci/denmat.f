@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine cidenmat()
 #include "drt_h.fh"
 #include "intsort_h.fh"
@@ -15,29 +15,29 @@
 #include "grad_h.fh"
 #include "files_gugaci.fh"
 #include "scratch.fh"
-c     character*256 filename
+!     character*256 filename
 #include "lgrn.fh"
 #include "iaib.fh"
 #include "vect.fh"
 #include "grad_xyz.fh"
 #include "ncprhf.fh"
       parameter (htoklm=627.50956d+00,zero=0.0d+00)
-c     dimension x1e(50000)
+!     dimension x1e(50000)
 !      logical logic_mulroot
-c================================================
-c    the main subroutine for ci gradient calculations.
-c    ican_a and ican_b save canonical order.
-c    e(*) save the scf orbital energies.
-c    xlgrn(*) save the lagrangian matrix.
+!================================================
+!    the main subroutine for ci gradient calculations.
+!    ican_a and ican_b save canonical order.
+!    e(*) save the scf orbital energies.
+!    xlgrn(*) save the lagrangian matrix.
 
-c-----------------------------------------------------
-c     initialize the integral index nxo by canonical order
+!-----------------------------------------------------
+!     initialize the integral index nxo by canonical order
       call init_canonical
 
-c     calculate the frozen mo contribution to density matrix
+!     calculate the frozen mo contribution to density matrix
 !      call density_scf_frz
-c-----------------------------------------------------
-c     calculate the ci reduced one and two electron density matrix
+!-----------------------------------------------------
+!     calculate the ci reduced one and two electron density matrix
       ncount1=ican_a(norb_all)+norb_all
       ncount2=ican_b(ncount1)+ncount1
 
@@ -56,7 +56,7 @@ c     calculate the ci reduced one and two electron density matrix
 !        call read_ml(lucivec,1,vector1,neigen*nci_dim,1)
 !      endif
 !      write(6,*) "density matrix",neigen,ncount2
-c should we calculated two-electronic density matrix ?
+! should we calculated two-electronic density matrix ?
       do i=1,neigen
         call read_ml(lucivec,1,vector1,nci_dim,i)
         vector2=zero
@@ -103,24 +103,24 @@ c should we calculated two-electronic density matrix ?
 
       allocate(x(nmob))
       call daname(luonemo,fnonemo)
-c      call copen_molcas(nft,filename,lenstr)
+!      call copen_molcas(nft,filename,lenstr)
       call readtraonehead(luonemo,ecor,idisk)
       vnuc=ecor
 
-c  read mo coeff, need debug, if frozen and delete orbitals are not zero
-c      call ddatard(nft,x,nmob,idisk)
+!  read mo coeff, need debug, if frozen and delete orbitals are not zero
+!      call ddatard(nft,x,nmob,idisk)
       call ddafile(luonemo,2,x,nmob,idisk)
 
       deallocate(x)
 
-c  read one electron fock matrix
+!  read one electron fock matrix
       call ddafile(luonemo,2,xfock,nintone,idisk)
-c      call ddatard(nft,xfock,nintone,idisk)
+!      call ddatard(nft,xfock,nintone,idisk)
       call daclos(luonemo)
-c  read one elctron kenetic intergrals
-c      call ddatard(nft,x1e,nintone,idisk)
-c      call cclose_molcas(nft)
-c write one electron fock matrix into voint
+!  read one elctron kenetic intergrals
+!      call ddatard(nft,x1e,nintone,idisk)
+!      call cclose_molcas(nft)
+! write one electron fock matrix into voint
       cienergy=0.d0
       nidx=0
       nc=0
@@ -134,8 +134,8 @@ c write one electron fock matrix into voint
             val=xfock(nc)*denm1(nc)
             if(lri.ne.lrj) val=2.d0*val
             cienergy=cienergy+val
-            write(6,'(1x,i3,1x,i3,2(1x,f18.9))')
-     *        lri+idx,lrj+idx,xfock(nc),denm1(nc)
+            write(6,'(1x,i3,1x,i3,2(1x,f18.9))')                        &
+     &        lri+idx,lrj+idx,xfock(nc),denm1(nc)
           enddo
         enddo
         nidx=nidx+nsmint
@@ -173,20 +173,20 @@ c write one electron fock matrix into voint
                 nbpq=(nop+nop**2)/2
                 nbrs=(nos+nos**2)/2
                 if(nsp.eq.nsr) then
-c  (ii|ii) type 1 int
+!  (ii|ii) type 1 int
                   nintb=(nbpq+nbpq**2)/2
                 else
-c  (ii|jj) type 3 int
+!  (ii|jj) type 3 int
                   nintb=nbpq*nbrs
                 endif
               else
                 nbpq=nop*noq
                 nbrs=nor*nos
                 if(nsp.eq.nsr) then
-c (ij|ij) type 2 int
+! (ij|ij) type 2 int
                   nintb=(nbpq+nbpq**2)/2
                 else
-c (ij|kl) type 4 int
+! (ij|kl) type 4 int
                   nintb=nbpq*nbrs
                 endif
               endif
@@ -194,7 +194,7 @@ c (ij|kl) type 4 int
               if(nintb.eq.0) goto 10
 !              write(6,2100) nsp,nsq,nsr,nss,nop,noq,nor,nos,
 !     *                      nintb
-c2100          format(7x,4i2,1x,4i4,2x,3x,i9)
+!2100          format(7x,4i2,1x,4i4,2x,3x,i9)
 
               iout=0
               call ddafile(lutwomo,2,buff,kbuf,idisk)
@@ -215,7 +215,7 @@ c2100          format(7x,4i2,1x,4i4,2x,3x,i9)
                     do ll=numin,numax
                       iout=iout+1
                       if(iout.gt.kbuf) then
-c                        call ddatard(nft,buff,kbuf,idisk)
+!                        call ddatard(nft,buff,kbuf,idisk)
                          call ddafile(lutwomo,2,buff,kbuf,idisk)
                          iout=1
                       endif
@@ -248,8 +248,8 @@ c                        call ddatard(nft,buff,kbuf,idisk)
       enddo
 
       call daclos(lutwomo)
-      write(6,"(a11,3(2x,f18.9))") "ci energy=",
-     *                  cienergy,vnuc,cienergy+vnuc
+      write(6,"(a11,3(2x,f18.9))") "ci energy=",                        &
+     &                  cienergy,vnuc,cienergy+vnuc
 
 #endif
       return
@@ -258,8 +258,8 @@ c                        call ddatard(nft,buff,kbuf,idisk)
       subroutine init_canonical
 #include "drt_h.fh"
 #include "iaib.fh"
-c========================================
-c  calculate the canonical order for index transform
+!========================================
+!  calculate the canonical order for index transform
 
       l1=max_orb
       l2=max_orb*(max_orb+1)/2
@@ -285,7 +285,7 @@ c  calculate the canonical order for index transform
                val=val+cf(i,k)*cf(j,k)
             enddo
             p(i,j)=val
-c            write(2,'(2i8,f18.10)') i,j,p(i,j)
+!            write(2,'(2i8,f18.10)') i,j,p(i,j)
          enddo
       enddo
 
@@ -383,7 +383,7 @@ c            write(2,'(2i8,f18.10)') i,j,p(i,j)
 #include "iaib.fh"
       dimension indx_m(maxgdm),idisk_array(max_root+1)
       parameter (zero=0.0d+00, half=0.5d+00, two=2.0d+00)
-c=============================================================
+!=============================================================
 !    transfer the ci density matrices (dm1 and dm2)
 !    based on the gamess save rule.
 !      vector1(1:ncount2)=zero
@@ -421,7 +421,7 @@ c=============================================================
 
       denm2=0.d0
 !label 2-elc den matrix
-c cycle on symmetry
+! cycle on symmetry
       do im=1,ng_sm
         if(nlsm_all(im).eq.0) cycle
         do jm=1,im
@@ -437,8 +437,8 @@ c cycle on symmetry
               if(ijm.ne.klm) cycle
 ! ityp 1 (ii|jj) 2 (ii|jj) 3 (ij|ij) 4 (ij|kl)
 
-c---------- cycle on on mo index
-c i>=j, k>=l, ij>=kl
+!---------- cycle on on mo index
+! i>=j, k>=l, ij>=kl
               nc0=0
               do k=1,nlsm_all(km)
                 kk=map_orb_order(k+indx_m(km))
@@ -473,7 +473,7 @@ c i>=j, k>=l, ij>=kl
                 enddo
               enddo
               call ddafile(luciden,1,denm2,nc0,idisk)
-c----------- end cycle on mo index
+!----------- end cycle on mo index
             enddo
           enddo
         enddo
@@ -485,6 +485,6 @@ c----------- end cycle on mo index
 !      stop 1999
 
       return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) call Unused_integer(ncount2)
       end

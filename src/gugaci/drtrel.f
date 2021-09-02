@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-c drt related subroutines
-c
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+! drt related subroutines
+!
       subroutine active_drt()
 #include "drt_h.fh"
 #include "intsort_h.fh"
@@ -67,7 +67,7 @@ c
 100   write(6,*)' '
       write(6,*) ' now reading distinct row tableau'
       call readdrt(ludrt)
-c
+!
       nu_ae(1)=jv
       do im=1,ng_sm
         nu_ae(1+im)=jd(im)
@@ -79,8 +79,8 @@ c
       jpe=no(norb_inn+1)
 
       jp=jv
-c     iin(1:jpe)=0
-c     iin(0)=0
+!     iin(1:jpe)=0
+!     iin(0)=0
       iin(:)=0
       iin(jp)=1
       iseg_sta(1)=0       ! for node_ext
@@ -163,16 +163,16 @@ c     iin(0)=0
       enddo
       do jp=2,25
         iseg_sta(jp)=iseg_sta(jp-1)+iseg_dim(jp-1)
-c        write(nf2,'(3i10)')jp-1,iseg_sta(jp-1),iseg_dim(jp-1)      !to
+!        write(nf2,'(3i10)')jp-1,iseg_sta(jp-1),iseg_dim(jp-1)      !to
       enddo
-c        write(nf2,'(3i10)')25,iseg_sta(25),iseg_dim(25)          !to de
+!        write(nf2,'(3i10)')25,iseg_sta(25),iseg_dim(25)          !to de
       nci_dim=iseg_sta(25)+iseg_dim(25)
       iseg_sta(26)=nci_dim
       do jp=1,25
         if(iseg_downwei(jp).eq.0) cycle
         iseg_upwei(jp)=iseg_dim(jp)/iseg_downwei(jp)
       enddo
-c      call get_ivy()
+!      call get_ivy()
 
 ! to the end of dbl,act,ext parts
 200   call dbl_downwalk()
@@ -201,18 +201,18 @@ c      call get_ivy()
       write(6,*)' '
       write(6,*) ' now reading distinct row tableau'
       call readdrt(ludrt)
-c      open(21,file="fort.drt",form="unformatted")
-c      read(21) id
-c      write(6,*) " id=",id
-c      read(21) ja(1:id),jb(1:id),jm(1:id)
-c      read(21) jj(1:4,0:id)
-c      read(21) kk(0:id)
-c      read(21) no(0:norb_inn+1)
-c      read(21) jv,jd(1:8),jt(1:8),js(1:8)
-c      close(21)
+!      open(21,file="fort.drt",form="unformatted")
+!      read(21) id
+!      write(6,*) " id=",id
+!      read(21) ja(1:id),jb(1:id),jm(1:id)
+!      read(21) jj(1:4,0:id)
+!      read(21) kk(0:id)
+!      read(21) no(0:norb_inn+1)
+!      read(21) jv,jd(1:8),jt(1:8),js(1:8)
+!      close(21)
 
       return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) then
         call Unused_integer(id)
         call Unused_integer(indd)
@@ -349,16 +349,16 @@ c Avoid unused argument warnings
 
 !      print*, "bbs debug rcas,kk(27)",kk(27)
 
-c      open(21,file="fort.drt",form="unformatted")
-c      read(21) id
-c      read(21) ja(1:id),jb(1:id),jm(1:id)
-c      read(21) jj(1:4,0:id)
-c      read(21) kk(0:id)
-c      read(21) no(0:norb_inn+1)
-c      read(21) jv,jd(1:8),jt(1:8),js(1:8)
-c      close(21)
+!      open(21,file="fort.drt",form="unformatted")
+!      read(21) id
+!      read(21) ja(1:id),jb(1:id),jm(1:id)
+!      read(21) jj(1:4,0:id)
+!      read(21) kk(0:id)
+!      read(21) no(0:norb_inn+1)
+!      read(21) jv,jd(1:8),jt(1:8),js(1:8)
+!      close(21)
       return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) then
         call Unused_integer(id)
         call Unused_integer(indd)
@@ -400,8 +400,8 @@ c Avoid unused argument warnings
       subroutine irfrst(iselcsf_occ)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
-c ifrno(j)=i
-c irfno(i)=j no. i ref is no. j cfs in h0
+! ifrno(j)=i
+! irfno(i)=j no. i ref is no. j cfs in h0
 #include "config.fh"
       dimension iselcsf_occ(max_innorb,max_ref)
       dimension iwalktmp(max_orb)
@@ -437,8 +437,8 @@ c irfno(i)=j no. i ref is no. j cfs in h0
           icount=icount+1
           irfno(icount)=j
           ifrno(j)=icount
-c          write(6,2000) iwalktmp(norb_dz+1:norb_dz+norb_act)
-c          write(6,*) "icount",icount,j
+!          write(6,2000) iwalktmp(norb_dz+1:norb_dz+norb_act)
+!          write(6,*) "icount",icount,j
 30        continue
         enddo
       enddo
@@ -447,12 +447,12 @@ c          write(6,*) "icount",icount,j
       write(6,3000) irf
 
       return
-c1000  format(1x,"warnning!the selected csf is not in references states")
-c2000  format(1x,"the selected csf is :",2x,32(i1))
+!1000  format(1x,"warnning!the selected csf is not in references states")
+!2000  format(1x,"the selected csf is :",2x,32(i1))
 3000  format(1x,"number of gelfand states in referance space:",1x,i4)
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) call Unused_integer_array(iselcsf_occ)
-c...end of irfrst
+!...end of irfrst
       end
 
       subroutine irfrst_bak(iselcsf_occ)
@@ -486,7 +486,7 @@ c...end of irfrst
           write(6,1000)
           write(6,2000) iselcsf_occ(1:norb_act,i)
           write(6,*) " please select this state as reference state"
-c          stop 777
+!          stop 777
         endif
       enddo
       icsfocc=0
@@ -516,8 +516,8 @@ c          stop 777
           icount=icount+1
           irfno(icount)=j
           ifrno(j)=icount
-c          write(6,2000) iwalktmp(norb_dz+1:norb_dz+norb_act)
-c          write(6,*) "icount",icount,j
+!          write(6,2000) iwalktmp(norb_dz+1:norb_dz+norb_act)
+!          write(6,*) "icount",icount,j
 30        continue
         enddo
       enddo
@@ -546,13 +546,13 @@ c          write(6,*) "icount",icount,j
 1000  format(1x,"warnning!the selected csf is not in references states")
 2000  format(1x,"the selected csf is :",2x,32(i1))
 3000  format(1x,"number of gelfand states in referance space:",1x,i4)
-c...end of irfrst
+!...end of irfrst
       end
 
       function min_itexcit(indjk)
 #include "ref.fh"
       dimension indjk(4)
-c      integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
+!      integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
 !    indexcit=  ir1 ir2 ir3 ir4 ir5 ir6 ir7 ir8 ......... ir15
 !--------------------------------------------------------
       min_itexcit=3

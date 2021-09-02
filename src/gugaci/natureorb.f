@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      subroutine natureorb(nsbas,nsall,nsdel,ngsm,den1,lden,cmo,lcmo,
-     *                     bsbl,lenb,cno,occ,nmo,pror)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      subroutine natureorb(nsbas,nsall,nsdel,ngsm,den1,lden,cmo,lcmo,   &
+     &                     bsbl,lenb,cno,occ,nmo,pror)
       implicit none
       integer :: nsbas(8),nsall(8),nsdel(8)
       integer :: ngsm,lden,lcmo,lenb,nmo
@@ -121,8 +121,8 @@
 !        nc0=nc0+nsbas(im)
 !      enddo
 
-      call primo(Header,.true.,.false.,pror,0.d0,ngsm,nsbas,nsbas,
-     *           bsbl,[val],occ,cno,-1)
+      call primo(Header,.true.,.false.,pror,0.d0,ngsm,nsbas,nsbas,      &
+     &           bsbl,[val],occ,cno,-1)
 
       return
       end

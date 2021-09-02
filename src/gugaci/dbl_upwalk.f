@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine dbl_upwalk()
 #include "drt_h.fh"
 #include "intsort_h.fh"
 
       if(norb_dbl.eq.1) then
-c     v(1),d(2-9),s(18-25)           for s=0
-c     v(1),d(2-9),s(18-25),d'(26-33)   for s<>0
+!     v(1),d(2-9),s(18-25)           for s=0
+!     v(1),d(2-9),s(18-25),d'(26-33)   for s<>0
 
         mxnode=17+ng_sm
         lri=norb_frz+1
@@ -59,7 +59,7 @@ c     v(1),d(2-9),s(18-25),d'(26-33)   for s<>0
           jpad_upwei(no_t)=jpad_upwei(no_t)+1
         enddo
       enddo
-c     v(1),d(2-9),t(10-17),s(18-25),d'(26-33),t'(34-41)
+!     v(1),d(2-9),t(10-17),s(18-25),d'(26-33),t'(34-41)
       goto(100,200,300) jroute_sys
 100     mxnode=25                     !v,d,t,s
         jpad_upwei(18:25)=jpad_upwei(10:17)
@@ -150,19 +150,19 @@ c     v(1),d(2-9),t(10-17),s(18-25),d'(26-33),t'(34-41)
       return
       end
 
-c     juv,just(nost,nost),jud(nost)
-c     |  \  1         |
-c     | d,dd,s(i=i)   |
-c     |    \ s,t,tt(i<j)|
-c     |     \       1 2 |     deal with inner of dbl_space
-c     |ss(i>j)\       |
-c     |  2 1  \       |
+!     juv,just(nost,nost),jud(nost)
+!     |  \  1         |
+!     | d,dd,s(i=i)   |
+!     |    \ s,t,tt(i<j)|
+!     |     \       1 2 |     deal with inner of dbl_space
+!     |ss(i>j)\       |
+!     |  2 1  \       |
       subroutine dbl_downwalk()
 #include "drt_h.fh"
 #include "intsort_h.fh"
-c     integer lsml(10,10)       !to del
+!     integer lsml(10,10)       !to del
       if(norb_dbl.ne.0) goto 200
-c----------- norb_dbl=0 ------------------------------------------------
+!----------- norb_dbl=0 ------------------------------------------------
       do im=1,ng_sm
         nnd=iseg_sta(1+im)
         nnt=iseg_sta(9+im)
@@ -187,8 +187,8 @@ c----------- norb_dbl=0 ------------------------------------------------
            enddo
         enddo
       enddo
-c----------- norb_dbl=0 ------------------------------------------------
-c----------- norb_dbl<>0 -----------------------------------------------
+!----------- norb_dbl=0 ------------------------------------------------
+!----------- norb_dbl<>0 -----------------------------------------------
 200   continue
       do im=1,ng_sm
         nnd=0
@@ -228,23 +228,23 @@ c----------- norb_dbl<>0 -----------------------------------------------
       enddo
 !      print*, "ns_sm",ns_sm
 !      print*, just(1:4,1:4)
-c     do i=norb_frz+1,norb_dz           !to del
-c       lmi=lsm_inn(i)               !to del
-c        do j=norb_frz+1,norb_dz         !to del
-c       lmj=lsm_inn(j)                !to del
-c       lsml(i,j)=mul_tab(lmi,lmj)       !to del
-c        enddo                         !to del
-c     enddo                         !to del
-c     write(nf2,*)'   jud ...'             !to del
-c     write(nf2,'(2x,12i8)')(jud(lr),lr=norb_frz+1,norb_dz)    !to del
-c     write(nf2,*)'   just ...'           !to del
-c     do i=norb_frz+1,norb_dz               !to del
-c      write(nf2,'(2x,8i3)')             !to del
-c    :         (lsml(i,lr),lr=norb_frz+1,norb_dz)  !to del
-c      write(nf2,'(2x,8i3)')             !to del
-c    :         (just(i,lr),lr=norb_frz+1,norb_dz)  !to del
-c      write(nf2,*)
-c     enddo                            !to del
-c----------- norb_dbl<>0 -----------------------------------------------
+!     do i=norb_frz+1,norb_dz           !to del
+!       lmi=lsm_inn(i)               !to del
+!        do j=norb_frz+1,norb_dz         !to del
+!       lmj=lsm_inn(j)                !to del
+!       lsml(i,j)=mul_tab(lmi,lmj)       !to del
+!        enddo                         !to del
+!     enddo                         !to del
+!     write(nf2,*)'   jud ...'             !to del
+!     write(nf2,'(2x,12i8)')(jud(lr),lr=norb_frz+1,norb_dz)    !to del
+!     write(nf2,*)'   just ...'           !to del
+!     do i=norb_frz+1,norb_dz               !to del
+!      write(nf2,'(2x,8i3)')             !to del
+!    :         (lsml(i,lr),lr=norb_frz+1,norb_dz)  !to del
+!      write(nf2,'(2x,8i3)')             !to del
+!    :         (just(i,lr),lr=norb_frz+1,norb_dz)  !to del
+!      write(nf2,*)
+!     enddo                            !to del
+!----------- norb_dbl<>0 -----------------------------------------------
       return
       end

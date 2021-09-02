@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine geth0()
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "scratch.fh"
-c     character*256 filename
+!     character*256 filename
       dimension vad0(max_h0)
       real*8, allocatable :: vb1(:), vb2(:)
       dimension iselcsf_occ(max_innorb,max_ref)
@@ -61,7 +61,7 @@ c     character*256 filename
 
 !=====================================================================
 100   continue
-c     if(logic_mr) ndim_h0=irf
+!     if(logic_mr) ndim_h0=irf
       if(.not.logic_mr) then
         ndim0=ndim_h0
       else
@@ -116,26 +116,26 @@ c     if(logic_mr) ndim_h0=irf
         enddo
 
         kval=mroot*2
-        call hymat_2(max_root,max_kspace,ndim_h0,kval,mroot,dcrita,
-     *               ecih0,vcm,indx,vector2,nxh,vb1,vb2,nxb,vad0)
-c        vcm(1:mroot*ndim_h0)=vb1(1:mroot*ndim_h0)
-c save ci vector in h0 into vb2
-c        numh0=nci_h0 !iw_sta(2,1)
-c        vb2(1:numh0*mroot)=0.d0
-c        if(logic_mr) then
-c          idx1=0
-c          idx2=0
-c          do i=1,mroot
-c            do j=1,ndim_h0
-c              m=irfno(j)
-c              vb2(idx1+m)=vb1(idx2+j)
-c            enddo
-c            idx1=idx1+numh0
-c            idx2=idx2+ndim_h0
-c          enddo
-c        else
-c          vb2(1:numh0*mroot)=vb1(1:numh0*mroot)
-c        endif
+        call hymat_2(max_root,max_kspace,ndim_h0,kval,mroot,dcrita,     &
+     &               ecih0,vcm,indx,vector2,nxh,vb1,vb2,nxb,vad0)
+!        vcm(1:mroot*ndim_h0)=vb1(1:mroot*ndim_h0)
+! save ci vector in h0 into vb2
+!        numh0=nci_h0 !iw_sta(2,1)
+!        vb2(1:numh0*mroot)=0.d0
+!        if(logic_mr) then
+!          idx1=0
+!          idx2=0
+!          do i=1,mroot
+!            do j=1,ndim_h0
+!              m=irfno(j)
+!              vb2(idx1+m)=vb1(idx2+j)
+!            enddo
+!            idx1=idx1+numh0
+!            idx2=idx2+ndim_h0
+!          enddo
+!        else
+!          vb2(1:numh0*mroot)=vb1(1:numh0*mroot)
+!        endif
       endif
       deallocate(vcm)
 
@@ -146,31 +146,31 @@ c        endif
       enddo
       write(6,*)
 
-c      filename=tmpdir(1:len_str)//"/fort7"
-c      len=len_str+6
-c      open(nf7,file=filename(1:len),form="unformatted")
-c      write(nf7) vb2(1:numh0*mroot)
-c      close(nf7)
+!      filename=tmpdir(1:len_str)//"/fort7"
+!      len=len_str+6
+!      open(nf7,file=filename(1:len),form="unformatted")
+!      write(nf7) vb2(1:numh0*mroot)
+!      close(nf7)
 
-c      open(100,file="tmp.dat")
-c      do i=1,ndim_h0
-c        write(100,"(1x,f18.9,2i8)") vb1(i),i,irfno(i)
-c      enddo
-c      write(100,*) "ndim_h0=",ndim_h0,"v0=",numh0
-c      idx1=0
-c      idx2=0
-c      do i=1,mroot
-c        write(100,*) "mroot=",mroot
-c        do j=1,numh0
-c          write(100,"(1x,i2,1x,i5,2x,f18.9)") 1,j,vb2(j)
-c          m=ifrno(j)
-c          write(100,"(2(1x,i8,1x,f18.9))") j,vb2(j+idx1),m,vb1(m+idx2)
-c        enddo
-c        idx1=idx1+numh0
-c        idx2=idx2+ndim_h0
-c      enddo
-c      close(100)
-c      stop 888
+!      open(100,file="tmp.dat")
+!      do i=1,ndim_h0
+!        write(100,"(1x,f18.9,2i8)") vb1(i),i,irfno(i)
+!      enddo
+!      write(100,*) "ndim_h0=",ndim_h0,"v0=",numh0
+!      idx1=0
+!      idx2=0
+!      do i=1,mroot
+!        write(100,*) "mroot=",mroot
+!        do j=1,numh0
+!          write(100,"(1x,i2,1x,i5,2x,f18.9)") 1,j,vb2(j)
+!          m=ifrno(j)
+!          write(100,"(2(1x,i8,1x,f18.9))") j,vb2(j+idx1),m,vb1(m+idx2)
+!        enddo
+!        idx1=idx1+numh0
+!        idx2=idx2+ndim_h0
+!      enddo
+!      close(100)
+!      stop 888
       return
       end
 
@@ -202,7 +202,7 @@ c      stop 888
 ! dbl- act loop
       call ploop_in_act()
 
-c save the h0 matrix into sracth file 23 to use later
+! save the h0 matrix into sracth file 23 to use later
       if ( logic_mr ) then ! rst
         allocate(buff(ndim_h0))
         buff(1:ndim_h0)=vector1(1:ndim_h0)
@@ -240,17 +240,17 @@ c save the h0 matrix into sracth file 23 to use later
       write(6,"(a24,i5)") " dimension of h0 space= ",ndim_h0
       log_prod=1
 
-c      open(100,file="h0_new")
-c      do i=1,num
-c        write(100,*) i,vector2(i)
-c      enddo
-c      close(100)
-c      stop 777
+!      open(100,file="h0_new")
+!      do i=1,num
+!        write(100,*) i,vector2(i)
+!      enddo
+!      close(100)
+!      stop 777
       return
       end
 
-c mroot=2 min_space=4
-c    b1=(0,0,1.0,0,0,0...) b2=(0,0,0,0,1.0,0...)
+! mroot=2 min_space=4
+!    b1=(0,0,1.0,0,0,0...) b2=(0,0,0,0,1.0,0...)
       subroutine basis_2(ndim,vb1,nxb,vad,th,nxh)
 #include "drt_h.fh"
       data dzero/0.d0/dcrita/1.0d-6/epc/5.0d-3/
@@ -271,7 +271,7 @@ c    b1=(0,0,1.0,0,0,0...) b2=(0,0,0,0,1.0,0...)
         vb1(ij+mief)=1.0d0
       enddo
 
-c=================================================================
+!=================================================================
       j=mroot
       do m=1,mroot
         i=mjn(m)
@@ -296,17 +296,17 @@ c=================================================================
         enddo
       enddo
 
-c--------------------------------------------------------------------
-c write out basis
-c--------------------------------------------------------------------
-c500    write(nf2,*)' l    vb5       vb6      vb7       vb8     '
-c
-c       do l=1,ndim
-c        write(nf2,'(2x,i5,4f10.4)')l,vb1(indx(5)+l),vb1(indx(6)+l)
-c     :                             ,vb1(indx(7)+l),vb1(indx(8)+l)
-c     enddo
-c      stop 777   !wyb_tmp
-c--------------------------------------------------------------------
+!--------------------------------------------------------------------
+! write out basis
+!--------------------------------------------------------------------
+!500    write(nf2,*)' l    vb5       vb6      vb7       vb8     '
+!
+!       do l=1,ndim
+!        write(nf2,'(2x,i5,4f10.4)')l,vb1(indx(5)+l),vb1(indx(6)+l)
+!     :                             ,vb1(indx(7)+l),vb1(indx(8)+l)
+!     enddo
+!      stop 777   !wyb_tmp
+!--------------------------------------------------------------------
       do m0=1,mroot
         ib=m0+mroot
         call orthnor(ndim,ib,dcrita,vb1,nxb)
@@ -377,7 +377,7 @@ c--------------------------------------------------------------------
             if(iwalktmp(ij).eq.1) iselcsf_occ(io,m)=1
             if(iwalktmp(ij).eq.0) iselcsf_occ(io,m)=0
           enddo
-c          write(6,"(16(i1))") iwalktmp(norb_dz+1:norb_dz+norb_act)
+!          write(6,"(16(i1))") iwalktmp(norb_dz+1:norb_dz+norb_act)
         endif
 !        write(6 ,'(2x,2i8,f18.8)') m,mjn(m),escf(m)
 !       write(nf2,'(2x,2i8,f18.8)') m,mjn(m),escf(m)
@@ -389,12 +389,12 @@ c          write(6,"(16(i1))") iwalktmp(norb_dz+1:norb_dz+norb_act)
       real*8 av(n),bv(n),s,ddot_,dcrita
       dcrita=1.0e-10
       if(id.ne.0) goto 150
-c     orthogonization av,bv
+!     orthogonization av,bv
       s=ddot_(n,av,1,bv,1)
       do i=1,n
         av(i)=av(i)-s*bv(i)
       enddo
-c     normalization of av_eigenvector.
+!     normalization of av_eigenvector.
 150   s=0.0d0
       s=ddot_(n,av,1,av,1)
       s=sqrt(s)

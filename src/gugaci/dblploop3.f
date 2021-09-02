@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 !===================================================
 !  have computed vlop0 and vlop1, link to extern space
 !  (ss, st, ts, tt)
@@ -1063,11 +1063,11 @@
 !t1t1(12-3)  drl(33)-
 !t1t1(12-3)  drl(33)-c"(11)-
 !t1t1(12-3)  drl(33)-c"(11)-c"(11)-
-c      do lrk=1,norb_dz
-c        if(lrk.eq.lri) cycle
-c        if(lrk.eq.lrj) cycle
-c        call drl_ss_ext(lrk)
-c     enddo
+!      do lrk=1,norb_dz
+!        if(lrk.eq.lri) cycle
+!        if(lrk.eq.lrj) cycle
+!        call drl_ss_ext(lrk)
+!     enddo
             call drl_act_c_link_ext_ab_sum(lin,lri,lrj)
           enddo
         enddo

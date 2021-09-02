@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-C dbl space partial loop values
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+! dbl space partial loop values
       SUBROUTINE Value_of_PL_IN_DBL()
 #include "drt_h.fh"
       DATA DZERO,DONE,DHALF/0.D0,1.D0,0.5D0/
@@ -200,7 +200,7 @@ C dbl space partial loop values
 !VV(25) Drl(33)-
         W0_VV   = FGSQ2
 
-C===============================================================
+!===============================================================
         IF(JB_SYS.EQ.0) RETURN
 
 !SS(1-1)  Ar(01)-Bl(32)-
@@ -356,7 +356,7 @@ C===============================================================
         W0_D1V(2) =-W0_D1V(1)
         W1_D1V(2) = DZERO
 
-C=======================================================================
+!=======================================================================
         IF(JB_SYS.EQ.1) RETURN
 
 !ST1(4-1) Ar(01)-Bl(31)-

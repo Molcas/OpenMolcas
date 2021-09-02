@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine seg_drt()
 #include "drt_h.fh"
 #include "intsort_h.fh"
@@ -204,13 +204,13 @@
       return
       endif
       lr=kk(jp)
-c     write(6,*)'  ajphy,jp,start,end',jp,no(nst-lr)+1,no(nst-lr+1)
+!     write(6,*)'  ajphy,jp,start,end',jp,no(nst-lr)+1,no(nst-lr+1)
       jpe=no(lr+1)
       iin(jpad:jpe)=0
       iin(jp)=1
       do 10 jpn=no(lr-1),jpad,-1
-      iin(jpn)=iin(jj_sub(1,jpn))+iin(jj_sub(2,jpn))+iin(jj_sub(3,jpn))
-     :        +iin(jj_sub(4,jpn))
+      iin(jpn)=iin(jj_sub(1,jpn))+iin(jj_sub(2,jpn))+iin(jj_sub(3,jpn)) &
+     &        +iin(jj_sub(4,jpn))
 10    continue
       in=iin(jpad)
       idr=0
@@ -285,9 +285,9 @@ c     write(6,*)'  ajphy,jp,start,end',jp,no(nst-lr)+1,no(nst-lr+1)
       end
 
       subroutine get_jpty(jpadlr,jptyl,jptyr)
-      goto(1,2,3,4,5,6,7,8,9,10,
-     :     11,12,13,14,15,16,17,18,19,20,
-     :     21,22,23,24,25),jpadlr
+      goto(1,2,3,4,5,6,7,8,9,10,                                        &
+     &     11,12,13,14,15,16,17,18,19,20,                               &
+     &     21,22,23,24,25),jpadlr
 1     jptyl=4
       jptyr=4
       return

@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 !---------------------------------------bbs act-ext
       subroutine ar_bl_dd_ext(lri,lrj,nk)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-c      write(nf2,*) 'ar_bl_dd_ext'
+!      write(nf2,*) 'ar_bl_dd_ext'
       logic_g49b=.true.
       iwuplwei=jpad_upwei(jpadl)
       ilsegdownwei=iseg_downwei(ipael)
@@ -30,8 +30,8 @@ c      write(nf2,*) 'ar_bl_dd_ext'
         if(logic_dh) w1_plp=vplp_w1(iw0)
 
       if(logic_grad) then
-        call lp_arbl_ext_dd_calcuvalue_g
-     :                      (lri,lrj,iml0,imr0,nlp_value)
+        call lp_arbl_ext_dd_calcuvalue_g                                &
+     &                      (lri,lrj,iml0,imr0,nlp_value)
         ilpsta=nstaval(iw0)*nk+1
         ilpend=(nstaval(iw0)+nvalue(iw0))*nk
         do iplp=ilpsta,ilpend
@@ -352,10 +352,10 @@ c      write(nf2,*) 'ar_bl_dd_ext'
       irsegdownwei=iseg_downwei(ipae)
       ildownwei_segdd=iseg_downwei(ipael)
       irdownwei_segdd=iseg_downwei(ipae)
-c      logic_g1415=.false.
-c      logic_g34b=.false.
-c      logic_g35b=.false.
-c      logic_g36b=.false.
+!      logic_g1415=.false.
+!      logic_g34b=.false.
+!      logic_g35b=.false.
+!      logic_g36b=.false.
 
       w1_plp=vplpnew_w1(1)
       if(logic_dh) w1_plp=vplp_w1(1)
@@ -411,15 +411,15 @@ c      logic_g36b=.false.
         if(abs(w1_plp).lt.crl) cycle
         w1multi=w1_plp/w1_old
         w1_old=w1_plp
-c        call calcu_drl2_value_wyb(1,lri,lrj)
-c        call lp_drl_ext_st_calcuvalue(lri,nlp_value)
+!        call calcu_drl2_value_wyb(1,lri,lrj)
+!        call lp_drl_ext_st_calcuvalue(lri,nlp_value)
         do iiext=1,nlp_value
          value_lpext(iiext)=value_lpext(iiext)*w1multi
         enddo
 202     ilpsta=nstaval(iw0)+1
         ilpend=nstaval(iw0)+nvalue(iw0)
         do iplp=ilpsta,ilpend
-c      write(6,*) '      calcuvalue_w', intentry
+!      write(6,*) '      calcuvalue_w', intentry
 
          if(logic_dh) then                    !lp_head is in dbl_space
             ilw=lp_lwei(iplp)
@@ -452,11 +452,11 @@ c      write(6,*) '      calcuvalue_w', intentry
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-c                  logic_g1415=.false.
-c                  logic_g2g4b=.false.
-c                  logic_g36b=.false.
-c                  logic_g35b=.false.
-c                  logic_g34b=.false.
+!                  logic_g1415=.false.
+!                  logic_g2g4b=.false.
+!                  logic_g36b=.false.
+!                  logic_g35b=.false.
+!                  logic_g34b=.false.
       iwuplwei=jpad_upwei(jpadl)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
@@ -532,12 +532,12 @@ c                  logic_g34b=.false.
 #include "lpextmode_h.fh"
 
       data crl/1.0d-8/
-c                  logic_g1415=.false.
-c                  logic_g2g4b=.false.
-c                  logic_g36b=.false.
-c                  logic_g35b=.false.
-c                  logic_g34b=.false.
-c      write(nf2,*) 'drl_tt_sum'
+!                  logic_g1415=.false.
+!                  logic_g2g4b=.false.
+!                  logic_g36b=.false.
+!                  logic_g35b=.false.
+!                  logic_g34b=.false.
+!      write(nf2,*) 'drl_tt_sum'
       if(logic_grad) then
       do lrk=1,norb_dz
          if(lri.eq.lrk)   cycle
@@ -587,7 +587,7 @@ c      write(nf2,*) 'drl_tt_sum'
         do iiext=1,nlp_value
          value_lpext(iiext)=value_lpext(iiext)*w0multi
         enddo
-c      call lp_drl_sum_tt_calcuvalue(lri,lrj,n1415,nlp_value)
+!      call lp_drl_sum_tt_calcuvalue(lri,lrj,n1415,nlp_value)
 202     ilpsta=nstaval(iw0)+1
         ilpend=nstaval(iw0)+nvalue(iw0)
         do iplp=ilpsta,ilpend
@@ -606,11 +606,11 @@ c      call lp_drl_sum_tt_calcuvalue(lri,lrj,n1415,nlp_value)
 #include "lpextmode_h.fh"
       data crl/1.0d-8/
 
-c                  logic_g1415=.false.
-c                  logic_g2g4b=.false.
-c                  logic_g36b=.false.
-c                  logic_g35b=.false.
-c                  logic_g34b=.false.
+!                  logic_g1415=.false.
+!                  logic_g2g4b=.false.
+!                  logic_g36b=.false.
+!                  logic_g35b=.false.
+!                  logic_g34b=.false.
       ildownwei_segdd=iseg_downwei(ipael)
       irdownwei_segdd=iseg_downwei(ipae)
       iwuplwei=jpad_upwei(jpadl)
@@ -956,14 +956,14 @@ c                  logic_g34b=.false.
         ilpsta=nstaval(iw0)+1
         ilpend=nstaval(iw0)+nvalue(iw0)
         do iplp=ilpsta,ilpend
-c                        ipcoe=lp_arpos(iplp)
+!                        ipcoe=lp_arpos(iplp)
           do norb=norb_dz+1,norb_inn
             lpcoe(norb)=lpnew_coe(norb,iplp)       !01.12.25
           enddo
 
       if(logic_grad) then
-         call lp_ar_coe_calcuvalue_g
-     *            (idtu,isma,lri,lrj,nlp_value,lpcoe,nvalue1)
+         call lp_ar_coe_calcuvalue_g                                    &
+     &            (idtu,isma,lri,lrj,nlp_value,lpcoe,nvalue1)
           if(logic_dh) then              !lp_head is in dbl_space
             ilw=lp_lwei(iplp)
             irw=lp_rwei(iplp)
@@ -984,8 +984,8 @@ c                        ipcoe=lp_arpos(iplp)
             enddo
          endif
        else
-         call lp_ar_coe_calcuvalue_wyb
-     *            (idtu,isma,lri,lrj,nlp_value,lpcoe)
+         call lp_ar_coe_calcuvalue_wyb                                  &
+     &            (idtu,isma,lri,lrj,nlp_value,lpcoe)
          if(logic_dh) then              !lp_head is in dbl_space
            ilw=lp_lwei(iplp)
            irw=lp_rwei(iplp)
@@ -1042,8 +1042,8 @@ c                        ipcoe=lp_arpos(iplp)
           enddo
 
       if(logic_grad) then
-          call lp_ar_coe_calcuvalue_g
-     *            (idtu,isma,lri,lrj,nlp_value,lpcoe,nvalue1)
+          call lp_ar_coe_calcuvalue_g                                   &
+     &            (idtu,isma,lri,lrj,nlp_value,lpcoe,nvalue1)
           if(logic_dh) then              !lp_head is in dbl_space
             ilw=lp_lwei(iplp)
             irw=lp_rwei(iplp)
@@ -1064,8 +1064,8 @@ c                        ipcoe=lp_arpos(iplp)
             enddo
          endif
       else
-          call lp_ar_coe_calcuvalue_wyb
-     *            (idtu,isma,lri,lrj,nlp_value,lpcoe)
+          call lp_ar_coe_calcuvalue_wyb                                 &
+     &            (idtu,isma,lri,lrj,nlp_value,lpcoe)
           if(logic_dh) then              !lp_head is in dbl_space
             ilw=lp_lwei(iplp)
             irw=lp_rwei(iplp)
@@ -1112,8 +1112,8 @@ c                        ipcoe=lp_arpos(iplp)
           enddo
 
       if(logic_grad) then
-         call lp_ar_coe_calcuvalue_g
-     *            (idtu,isma,lri,lrj,nlp_value,lpcoe,nvalue1)
+         call lp_ar_coe_calcuvalue_g                                    &
+     &            (idtu,isma,lri,lrj,nlp_value,lpcoe,nvalue1)
           if(logic_dh) then              !lp_head is in dbl_space
             ilw=lp_lwei(iplp)
             irw=lp_rwei(iplp)
@@ -1135,8 +1135,8 @@ c                        ipcoe=lp_arpos(iplp)
             enddo
           endif
       else
-         call lp_ar_coe_calcuvalue_wyb
-     *            (idtu,isma,lri,lrj,nlp_value,lpcoe)
+         call lp_ar_coe_calcuvalue_wyb                                  &
+     &            (idtu,isma,lri,lrj,nlp_value,lpcoe)
           if(logic_dh) then              !lp_head is in dbl_space
             ilw=lp_lwei(iplp)
             irw=lp_rwei(iplp)

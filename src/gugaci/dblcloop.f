@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-c complete double occpied space loops
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+! complete double occpied space loops
       subroutine dbl_space_loop()
 #include "drt_h.fh"
       if(norb_dbl.eq.0) return
@@ -22,8 +22,8 @@ c complete double occpied space loops
 #include "drt_h.fh"
 #include "intsort_h.fh"
       data dzero/0.d0/
-c =============================  g1,2,4,6,7,8 ==========================
-c       zz=' doub_800_v'
+! =============================  g1,2,4,6,7,8 ==========================
+!       zz=' doub_800_v'
       dzero=0.0d0
       wls1=dzero
       db=jb_sys
@@ -59,12 +59,12 @@ c       zz=' doub_800_v'
 
       do 200 lri=norb_frz+1,norb_dz-1           !frz
         imi=lsm_inn(lri)
-c       n2=ngw2(lri-2)
+!       n2=ngw2(lri-2)
         do 201 lrj=lri+1,norb_dz
           mij=mul_tab(imi,lsm_inn(lrj))
           if(mij.ne.1) goto 201
           ni=mod(lrj-lri,2)
-c=============== down comm for 2 4 =====================================
+!=============== down comm for 2 4 =====================================
           vl_0=sqrt((db+2)/(db+1))
           vl_1=sqrt(db/(db+1))
           if(ni.eq.0)     vl_0=-vl_0
@@ -128,7 +128,7 @@ c=============== down comm for 2 4 =====================================
           enddo
          wl0 =wl0+vl_0*wltmp
          wl10=wl10+vl_1*wltmp
-c=============== start comm for 2 4 ====================================
+!=============== start comm for 2 4 ====================================
           do 300 lrm=norb_frz+1,norb_dz        !ic=1,norb_act   !frz
            imm=lsm_inn(lrm)
             im=mul_tab(imm,imi)
@@ -204,7 +204,7 @@ c=============== start comm for 2 4 ====================================
             wl =-vl_1*vint_ci(list)
             call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
            endif
-c=============== start  d9(ss) d35(tt) =================================
+!=============== start  d9(ss) d35(tt) =================================
              jpds=17+im
              jpdt=9+im
              jpdt1=jpdt+24
@@ -284,7 +284,7 @@ c=============== start  d9(ss) d35(tt) =================================
              wls0_1=wls0_1+vls10_2*wltmp
              wls0_2=wls0_2-vls0_2*wltmp
       !       wls0=-wlt0
-c=============== up comm for 9 35 ======================================
+!=============== up comm for 9 35 ======================================
 !t   ar(23)-c'(22)-arw(32) w0=1 w1=0
 !t   ar(13)-c'(11)-arw(31) w0=1 w1=0
 !s   ar(23)-c'(12)-arw(31) w0=-1/(db+1)  w1=0
@@ -350,7 +350,7 @@ c=============== up comm for 9 35 ======================================
                call prodab(1,0,jpdt1,iwlt,iwrt,0,wlt,0)    !bbs_tmp
              endif
 300        continue
-c=============== start  d10_ss(dd,ss,tt)  ==============================
+!=============== start  d10_ss(dd,ss,tt)  ==============================
 !   ar(23)-drr(33)-ar(32)  ar(23)-cw(33)-ar(23)
 !   ar(13)-drr(33)-ar(31)  ar(13)-cw(33)-ar(13) w0=1 w1=0
 !      if(lri.eq.2.and.lrj.eq.4) then
@@ -396,11 +396,11 @@ c=============== start  d10_ss(dd,ss,tt)  ==============================
           endif
            do lr=lrj+1,norb_dz
              list =list3(lri,lrj,lr)
-             wls=wl0+(vls0-vl0_2)*(vint_ci(list)-2*vint_ci(list+1))
-     :         -vls1*vint_ci(list)
+             wls=wl0+(vls0-vl0_2)*(vint_ci(list)-2*vint_ci(list+1))     &
+     &         -vls1*vint_ci(list)
       !ar(23)-bl(32)-drl(22) ar(13)-bl(31)-drl(11)
-             wlt=wl0+(vlt0-vl0_2)*(vint_ci(list)-2*vint_ci(list+1))
-     :         -vlt1*vint_ci(list)
+             wlt=wl0+(vlt0-vl0_2)*(vint_ci(list)-2*vint_ci(list+1))     &
+     &         -vlt1*vint_ci(list)
              im=mul_tab(lsm_inn(lri),lsm_inn(lr))
              im=mul_tab(im,ns_sm)
              jpds=17+im
@@ -412,8 +412,8 @@ c=============== start  d10_ss(dd,ss,tt)  ==============================
              call prodab(1,0,jpds,iwls,iwrs,0,wls,0)
              call prodab(1,0,jpdt,iwlt,iwrt,0,wlt,0)
              if(jb_sys.gt.0) then
-               wls_a=wl0+(vls0-vl0_2)*(vint_ci(list)-2*vint_ci(list+1))
-     :           -vls1_a*vint_ci(list)
+               wls_a=wl0+(vls0-vl0_2)*(vint_ci(list)-2*vint_ci(list+1)) &
+     &           -vls1_a*vint_ci(list)
                wls_b=-vls10_2b*vint_ci(list)
                iwls=just(lr,lri)
                iwrs=just(lr,lrj)
@@ -430,15 +430,15 @@ c=============== start  d10_ss(dd,ss,tt)  ==============================
                call prodab(1,0,jpdt,iwlt,iwrt,0,wlt,0)
              endif
            enddo
-c======= start d5(ss),d40(tt) =================================
+!======= start d5(ss),d40(tt) =================================
            do lr=norb_frz+1,lri-1
              list =list3(lri,lrj,lr)
       ! drl(22)-bl(13)-ar(31)
-             wls=wl0+(vls0-vl0_2)*(vint_ci(list)-2*vint_ci(list+1))
-     :             -vls1*vint_ci(list)
+             wls=wl0+(vls0-vl0_2)*(vint_ci(list)-2*vint_ci(list+1))     &
+     &             -vls1*vint_ci(list)
       ! drl(22)-bl(23)-ar(32)  drl(11)-bl(13)-ar(31)
-             wlt=wl0+(vlt0-vl0_2)*(vint_ci(list)-2*vint_ci(list+1))
-     :             -vlt1*vint_ci(list)
+             wlt=wl0+(vlt0-vl0_2)*(vint_ci(list)-2*vint_ci(list+1))     &
+     &             -vlt1*vint_ci(list)
              im=mul_tab(lsm_inn(lri),lsm_inn(lr))
              im=mul_tab(im,ns_sm)
              jpds=17+im                     !bbs_tmp
@@ -451,8 +451,8 @@ c======= start d5(ss),d40(tt) =================================
              call prodab(1,0,jpdt,iwlt,iwrt,0,wlt,0)
              if(jb_sys.gt.0) then
 !drl(11)-bl(23)-ar(32)
-               wls=wl0+(vls0-vl0_2)*(vint_ci(list)-2*vint_ci(list+1))
-     :             -vls1_a*vint_ci(list)
+               wls=wl0+(vls0-vl0_2)*(vint_ci(list)-2*vint_ci(list+1))   &
+     &             -vls1_a*vint_ci(list)
                iwls=just(lri,lr)
                iwrs=just(lrj,lr)
                call prodab(1,0,jpds,iwls,iwrs,0,wls,0)
@@ -470,7 +470,7 @@ c======= start d5(ss),d40(tt) =================================
                call prodab(1,0,jpat,iwlt,iwrt,0,wlt,0)
              endif
            enddo
-c======= end g5,40 =================================
+!======= end g5,40 =================================
 201      continue
 200    continue
       continue
@@ -480,8 +480,8 @@ c======= end g5,40 =================================
       subroutine dbl_space_loop_ijkl_sgezero()
 #include "drt_h.fh"
 #include "intsort_h.fh"
-c =============================  g11,12  == (v-s)=======================
-c =============================  g41,42  == (v-t)=======================
+! =============================  g11,12  == (v-s)=======================
+! =============================  g41,42  == (v-t)=======================
       wls1=0.d0
       wls2=0.d0
       db=jb_sys
@@ -493,7 +493,7 @@ c =============================  g41,42  == (v-t)=======================
             imj=lsm_inn(lrj)
              do 40 lri=norb_dz,lrj+1,-1
                imi=lsm_inn(lri)
-c               list=list4(lri,lrj,lrk,lrl)
+!               list=list4(lri,lrj,lrk,lrl)
                list=list4(lrl,lrk,lrj,lri)
                ni =mod(lrk-lrl+lri-lrj,2)
                imik=mul_tab(imi,imk)
@@ -507,9 +507,9 @@ c               list=list4(lri,lrj,lrk,lrl)
                iwlt=iwls             !
                iwrt=iwrs             !
               if(jb_sys.eq.0) then
-c                   w0g11=-1/2 w1g11=-3/2                 === g11 ===  1
+!                   w0g11=-1/2 w1g11=-3/2                 === g11 ===  1
                  wls =vint_ci(list+1)+vint_ci(list+2)
-c                   w0g42=-1/2 w1g42=1/2                  === g42 ===  1
+!                   w0g42=-1/2 w1g42=1/2                  === g42 ===  1
                  wlt =vint_ci(list+1)-vint_ci(list+2)
                endif
               if(jb_sys.gt.0) then
@@ -565,9 +565,9 @@ c                   w0g42=-1/2 w1g42=1/2                  === g42 ===  1
               iwlt=iwls       !
               iwrt=iwrs       !
               if(jb_sys.eq.0) then
-c                   w0g11=-1/2 w1g11=-3/2                  === g11 ===
+!                   w0g11=-1/2 w1g11=-3/2                  === g11 ===
                 wls =vint_ci(list)+vint_ci(list+1)
-c                   w0g42=-1/2 w1g42=1/2                   === g42 ===
+!                   w0g42=-1/2 w1g42=1/2                   === g42 ===
                 wlt =vint_ci(list+1)-vint_ci(list)
               endif
               if(jb_sys.gt.0) then
@@ -620,9 +620,9 @@ c                   w0g42=-1/2 w1g42=1/2                   === g42 ===
                 iwlt=iwls             !
                 iwrt=iwrs             !
               if(jb_sys.eq.0) then
-c           w0g12=1, w1g12=0                                === g12 ===
+!           w0g12=1, w1g12=0                                === g12 ===
                   wls =vint_ci(list)+vint_ci(list+2)
-c           w0g41=0, w1g41=1                                === g41 ===
+!           w0g41=0, w1g41=1                                === g41 ===
                   wlt =vint_ci(list)-vint_ci(list+2)
               endif
                 if(jb_sys.gt.0) then

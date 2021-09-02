@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-c****************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!****************************************************
       subroutine arrange_orbital()
-c****************************************************
-c  arrange orbital for ci calculation, in meld and
-c  molcas program, the orbital are arranged as the symmetry
-c  block. we transfer them to ci order
-c -----
-c map_order_orbital    ab ---> ci
-c
+!****************************************************
+!  arrange orbital for ci calculation, in meld and
+!  molcas program, the orbital are arranged as the symmetry
+!  block. we transfer them to ci order
+! -----
+! map_order_orbital    ab ---> ci
+!
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "mcorb.fh"

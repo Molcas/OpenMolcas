@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-c generate and print csfs
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+! generate and print csfs
       subroutine found_a_config(ndl,de,npr)
 #include "drt_h.fh"
 #include "intsort_h.fh"
@@ -20,8 +20,8 @@ c generate and print csfs
 !     :    ,jv,jd(8),jt(8),js(8)
 !      common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-      dimension  nwalk_gamess(max_orb),norbindex(max_orb),
-     :     norbsymm(max_orb),norbwalk(max_orb)
+      dimension  nwalk_gamess(max_orb),norbindex(max_orb),              &
+     &     norbsymm(max_orb),norbwalk(max_orb)
       character*18 form1
 
       ndr=ndl
@@ -191,29 +191,29 @@ c generate and print csfs
 !      dimension ndr(max_innorb)
       REAL*8, pointer :: jph(:),jeh(:),jwh(:)
 #include "ptlph.fh"
-c#include "ptlphv.fh"
-c     write(6,*)'               ***** start h-diaelm *****'
-c      write(6,*)   '   diagonal_act_d:',jpad,ipae
+!#include "ptlphv.fh"
+!     write(6,*)'               ***** start h-diaelm *****'
+!      write(6,*)   '   diagonal_act_d:',jpad,ipae
       do lr=norb_dz+1,norb_inn
         jp0=no(lr-1)+1
         jp1=no(lr)
         lr0=lr
         do jp=jp0,jp1
           if(iy(1,jp).eq.0) cycle
-c  800
+!  800
           do idl=2,3
             mpe=jj_sub(idl,jp)
             if(mpe.eq.0) cycle
-c            wt = voint(lr0,lr0)    ! hnil=1
+!            wt = voint(lr0,lr0)    ! hnil=1
             jw=iy(idl,jp)
-c           call prodel(3,wt,jp,mpe,jw)
+!           call prodel(3,wt,jp,mpe,jw)
             call prodel_conf(3,jp,mpe,jw,lr0,0,idl-1)
           enddo
           mpe=jj_sub(4,jp)
           if(mpe.ne.0) then
-c            wt = vdint(lr0,lr0)+2.d0*voint(lr0,lr0)     !idl=4 hnil=2
+!            wt = vdint(lr0,lr0)+2.d0*voint(lr0,lr0)     !idl=4 hnil=2
             jw=iy(4,jp)
-c           call prodel(3,wt,jp,mpe,jw)
+!           call prodel(3,wt,jp,mpe,jw)
             call prodel_conf(3,jp,mpe,jw,lr0,0,3)
           endif
         enddo
@@ -238,27 +238,27 @@ c           call prodel(3,wt,jp,mpe,jw)
         if(nu_ae(ipae).eq.0) cycle
         iwdownv=iw_downwei(1,ipae)
         do iwa=0,iwdownv-1
-c       zz=' doub_800_v'
+!       zz=' doub_800_v'
           iwad=iwalk_ad(1,ipae,iwa,0)
-c          call prodel(1,wt0,0,ipae,iwad)
+!          call prodel(1,wt0,0,ipae,iwad)
           call prodel_conf(1,0,ipae,iwad,0,0,1)
         enddo
       enddo
-c       jps=js(1)
+!       jps=js(1)
       do 100 lr0=norb_frz+1,norb_dz
         mr0=mul_tab(lsm_inn(lr0),ns_sm)
         iwd=jud(lr0)
           jpad =1+mr0
           jpad1=jpad+24
-c         wld=wt0-voint(lr0,lr0)-vdint(lr0,lr0)
-c          wls=wld-voint(lr0,lr0)
+!         wld=wt0-voint(lr0,lr0)-vdint(lr0,lr0)
+!          wls=wld-voint(lr0,lr0)
           do ipae_=1,25
             ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpad,ipae)
             do iwa=0,iwdownv-1
               iwad=iwalk_ad(jpad,ipae,iwa,iwd)
-c             call prodel(1,wld,0,ipae,iwad)
+!             call prodel(1,wld,0,ipae,iwad)
               call prodel_conf(1,0,ipae,iwad,lr0,0,2)     !d
             enddo
           enddo
@@ -270,7 +270,7 @@ c             call prodel(1,wld,0,ipae,iwad)
             iwdownv=iw_downwei(jpad1,ipae)
             do iwa=0,iwdownv-1
               iwad=iwalk_ad(jpad1,ipae,iwa,iwd)
-c             call prodel(1,wld,0,ipae,iwad)
+!             call prodel(1,wld,0,ipae,iwad)
               call prodel_conf(1,0,ipae,iwad,lr0,0,5)     !dd
             enddo
           enddo
@@ -283,13 +283,13 @@ c             call prodel(1,wld,0,ipae,iwad)
           iwdownv=iw_downwei(jpad,ipae)
           do iwa=0,iwdownv-1
             iwad=iwalk_ad(jpad,ipae,iwa,iwd)
-c         call prodel(1,wls,0,ipae,iwad)
+!         call prodel(1,wls,0,ipae,iwad)
             call prodel_conf(1,0,ipae,iwad,lr0,0,4)     !s
         enddo
         enddo
 
       if(lr0.eq.norb_dz) goto 100
-c           wld0=wld
+!           wld0=wld
 
       do 200 lr=lr0+1,norb_dz
         mr=mul_tab(mr0,lsm_inn(lr))
@@ -298,35 +298,35 @@ c           wld0=wld
         jpat1=jpat+24
         iws=just(lr0,lr)
         iwt=iws            !
-c          wld=wld0-voint(lr,lr)-vdint(lr,lr)
+!          wld=wld0-voint(lr,lr)-vdint(lr,lr)
           do ipae_=1,25
             ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpat,ipae)
             do iwa=0,iwdownv-1
               iwad=iwalk_ad(jpat,ipae,iwa,iwt)
-c           call prodel(1,wld,0,ipae,iwad)
+!           call prodel(1,wld,0,ipae,iwad)
               call prodel_conf(1,0,ipae,iwad,lr0,lr,3)   !t
           enddo
             if(jb_sys.gt.1) then
               iwdownv=iw_downwei(jpat1,ipae)
               do iwa=0,iwdownv-1
                 iwad=iwalk_ad(jpat1,ipae,iwa,iwt)         !tt
-c             call prodel(1,wld,0,ipae,iwad)
+!             call prodel(1,wld,0,ipae,iwad)
               call prodel_conf(1,0,ipae,iwad,lr0,lr,6)
             enddo
           endif
             iwdownv=iw_downwei(jpas,ipae)
             do iwa=0,iwdownv-1
               iwad=iwalk_ad(jpas,ipae,iwa,iws)
-c           call prodel(1,wld,0,ipae,iwad)
+!           call prodel(1,wld,0,ipae,iwad)
               call prodel_conf(1,0,ipae,iwad,lr0,lr,4)   !s
           enddo
             if(jb_sys.gt.0) then
             iws1=just(lr,lr0)
               do iwa=0,iwdownv-1
                 iwad=iwalk_ad(jpas,ipae,iwa,iws1)
-c             call prodel(1,wld,0,ipae,iwad)
+!             call prodel(1,wld,0,ipae,iwad)
               call prodel_conf(1,0,ipae,iwad,lr0,lr,7)      !ss
             enddo
           endif
@@ -356,25 +356,25 @@ c             call prodel(1,wld,0,ipae,iwad)
         jws0=jws0+lrzz
         jw=0
         do la=lasta,laend
-c        jpd=jd(mra)
+!        jpd=jd(mra)
           jw=jw+1
-c         lra=norb_all-la+1
-c        wld=voint(lra,lra)
-c         call prodel(2,wld,0,ipae,jw)
+!         lra=norb_all-la+1
+!        wld=voint(lra,lra)
+!         call prodel(2,wld,0,ipae,jw)
           call prodel_conf(2,0,ipae,jw,la,0,2)      !d
         enddo
       enddo
 
 !      zz=' out_800_s'
-c       jps=js(1)
+!       jps=js(1)
 
       jweis=jws0
       do la=1,norb_ext
-c        jpd=jd(mra)
-c       lra=norb_all-la+1
+!        jpd=jd(mra)
+!       lra=norb_all-la+1
         jweis=jweis+1
-c        wls=2.d0*voint(lra,lra)+vdint(lra,lra)
-c       call prodel(2,wls,0,18,jweis)
+!        wls=2.d0*voint(lra,lra)+vdint(lra,lra)
+!       call prodel(2,wls,0,18,jweis)
         call prodel_conf(2,0,18,jweis,la,0,4)      !s
       enddo
       do im=1,8
@@ -383,24 +383,24 @@ c       call prodel(2,wls,0,18,jweis)
         ipat=9+im
         ipas=17+im
         do la=2,norb_ext
-c        lra=norb_all-la+1
+!        lra=norb_all-la+1
          ima=lsm(la)
          do 600 lb=1,la-1
-c          lrb=norb_all-lb+1
+!          lrb=norb_all-lb+1
            imb=lsm(lb)
            mr=mul_tab(ima,imb)
            if(mr.ne.im) goto 600
-c          jps=js(mr)
-c          jpt=jt(mr)
+!          jps=js(mr)
+!          jpt=jt(mr)
            jws=jws+1
            jwt=jwt+1
-c            wls=voint(lra,lra)+voint(lrb,lrb)
-c            wlt=wls
-c           wls=wls+voint(lrb,lra)+vdint(lrb,lra)   ! w0=-1/2  w1=-3/2
-c            wlt=wlt-voint(lrb,lra)+vdint(lrb,lra)   ! w0=-1/2  w1=1/2
+!            wls=voint(lra,lra)+voint(lrb,lrb)
+!            wlt=wls
+!           wls=wls+voint(lrb,lra)+vdint(lrb,lra)   ! w0=-1/2  w1=-3/2
+!            wlt=wlt-voint(lrb,lra)+vdint(lrb,lra)   ! w0=-1/2  w1=1/2
 
-c          call prodel(2,wls,0,ipas,jws)
-c           call prodel(2,wlt,0,ipat,jwt)
+!          call prodel(2,wls,0,ipas,jws)
+!           call prodel(2,wlt,0,ipat,jwt)
             call prodel_conf(2,0,ipas,jws,la,lb,4)      !s
             call prodel_conf(2,0,ipat,jwt,la,lb,3)      !t
 600       continue

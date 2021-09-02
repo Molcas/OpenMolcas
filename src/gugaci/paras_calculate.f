@@ -1,43 +1,43 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine paras_calculate()
 #include "drt_h.fh"
 #include "paraconstants_h.fh"
 #include "intsort_h.fh"
-c      data inlptb_new/
+!      data inlptb_new/
 !         1  2  3  4  5  6  7  8  9  10  11  12 13
-c a^r=1
-c     *    -1, 0, 0, 0, 0, 0,-7, 0,-9,-10,  0,-12, 0,
-c a^l=2
-c     *     0, 0, 0, 0, 0,-6, 0,-8, 0,  0,-11,  0, 0,
-c b_r=3
-c     *    4, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,
-c b_l=4
-c     *    5, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,
-c b^r=5
-c     *    0, 7, 8,10,11, 0, 0, 0, 0,  0,  0,  0, 0,
-c b^l=6
-c     *    0, 0, 9, 0,12, 0, 0, 0, 0,  0,  0,  0, 9,
-c c^'=7
-c     *    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 3,
-c c^"=8
-c     *    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,13,
-c d_l^r=9
-c     *    6, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,
-c d^r^r=10
-c     *    0,-2, 0,-4, 0, 0, 0, 0, 0,  0,  0,  0, 0,
-c d^r^l=11
-c     *    0, 0,-3, 0,-5, 0, 0, 0, 0,  0,  0,  0, 0,
-c c^'" =12
-c     *    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 0/
+! a^r=1
+!     *    -1, 0, 0, 0, 0, 0,-7, 0,-9,-10,  0,-12, 0,
+! a^l=2
+!     *     0, 0, 0, 0, 0,-6, 0,-8, 0,  0,-11,  0, 0,
+! b_r=3
+!     *    4, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,
+! b_l=4
+!     *    5, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,
+! b^r=5
+!     *    0, 7, 8,10,11, 0, 0, 0, 0,  0,  0,  0, 0,
+! b^l=6
+!     *    0, 0, 9, 0,12, 0, 0, 0, 0,  0,  0,  0, 9,
+! c^'=7
+!     *    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 3,
+! c^"=8
+!     *    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,13,
+! d_l^r=9
+!     *    6, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,
+! d^r^r=10
+!     *    0,-2, 0,-4, 0, 0, 0, 0, 0,  0,  0,  0, 0,
+! d^r^l=11
+!     *    0, 0,-3, 0,-5, 0, 0, 0, 0,  0,  0,  0, 0,
+! c^'" =12
+!     *    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 0/
 !
 !****************************************************************
 !   ar      =1 (+a^r)     drr     =2 (+d^rr)   drl     =3 (+d^rl)
@@ -68,7 +68,7 @@ c     *    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 0/
       jb_sys=int(spin+spin)
       jc_sys=norb_all-ja_sys-jb_sys
       jsm_sys=ns_sm
-c      write(6,'(a9,3(1x,i3))') "ja,jb,jc ",ja_sys,jb_sys,jc_sys
+!      write(6,'(a9,3(1x,i3))') "ja,jb,jc ",ja_sys,jb_sys,jc_sys
 !     if ( jb_sys.eq.jb_sys/2*2 ) then    ????? 11.2
 !        w0_drl2_44=v_sqtwo
 !        w0_drl2_1122=v_onevsqtwo

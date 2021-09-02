@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-c*****************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!*****************************************************************
       subroutine complete_ext_loop()
-c*****************************************************************
-c     26 feb 2007 - revised
-c
+!*****************************************************************
+!     26 feb 2007 - revised
+!
 #include "drt_h.fh"
 #include "gext_sequence.fh"
 
-c     write(6,*) ' ext_test '
-c      return
+!     write(6,*) ' ext_test '
+!      return
       do irot=1,mcroot
         irtidx=indx(irot)
         lwei=isegsta !+irtidx
@@ -44,7 +44,7 @@ c      return
         enddo
 
       enddo
-c...end of complete_ext_loop
+!...end of complete_ext_loop
       end
 
       subroutine complete_ext_loop_g()
@@ -67,20 +67,20 @@ c...end of complete_ext_loop
             indexlp=index_lpext(ilpvalue)
           if(indexlp.ne.0) then
             valuelp=value_lpext(ilpvalue)
-            vector2(indexlp)=vector2(indexlp)
-     :                   +vector1(mm)*vector1(nn)*valuelp
+            vector2(indexlp)=vector2(indexlp)                           &
+     &                   +vector1(mm)*vector1(nn)*valuelp
           end if
             indexlp1=index_lpext1(ilpvalue)
           if(indexlp1.ne.0) then
             valuelp1=value_lpext1(ilpvalue)
-            vector2(indexlp1)=vector2(indexlp1)
-     :                   +vector1(mm)*vector1(nn)*valuelp1
+            vector2(indexlp1)=vector2(indexlp1)                         &
+     &                   +vector1(mm)*vector1(nn)*valuelp1
           end if
             indexlp2=index_lpext2(ilpvalue)
           if(indexlp2.ne.0) then
             valuelp2=value_lpext2(ilpvalue)
-               dm1tmp(indexlp2)=dm1tmp(indexlp2)
-     :                  +vector1(mm)*vector1(nn)*valuelp2
+               dm1tmp(indexlp2)=dm1tmp(indexlp2)                        &
+     &                  +vector1(mm)*vector1(nn)*valuelp2
           endif
          enddo
         enddo

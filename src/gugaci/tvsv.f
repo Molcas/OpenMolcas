@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine tv_drt_ci_new()
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 #include "lpdisk.fh"
-c      dsq3=1.732050807568877d0
-c      iltype =3
-c      irtype =1
-c      w0_d48=0.0d0
-c      w1_d48=dsq3
+!      dsq3=1.732050807568877d0
+!      iltype =3
+!      irtype =1
+!      w0_d48=0.0d0
+!      w1_d48=dsq3
 
       idisk_lp=idisk_array(6)
 
@@ -29,7 +29,7 @@ c      w1_d48=dsq3
         call get_jpty(jpadlr,jptyl,jptyr)
         call get_jp(jptyl,jml,jpadl,1)
         call get_jp(jptyr,jmr,jpad,1)
-c        jmlr=mul_tab(jml,jmr)
+!        jmlr=mul_tab(jml,jmr)
         if(linelp.le.12)   then
           call tv_ext_head_in_act()
         else
@@ -47,8 +47,8 @@ c        jmlr=mul_tab(jml,jmr)
       logic_dh=.true.
       lpok=jpadlr
       jmlr=mul_tab(jml,jmr)
-      goto(10,10,10,10,10,106,10,108,10,110,10,10,
-     :     113,10,115,10,117,118,10,10,10,10,123,124,10,10),lpok
+      goto(10,10,10,10,10,106,10,108,10,110,10,10,                      &
+     &     113,10,115,10,117,118,10,10,10,10,123,124,10,10),lpok
 !=======================================================
 !sd1(8) ar- act -br-
 108   if(linelp.ne.18) return
@@ -330,8 +330,8 @@ c        jmlr=mul_tab(jml,jmr)
       w1g36a=0.d0
       w0g13a=-dsq2
 
-c      iltype =4
-c      irtype =1
+!      iltype =4
+!      irtype =1
       logic_g36a=.true.
       logic_g13=.false.
 
@@ -346,7 +346,7 @@ c      irtype =1
         call get_jpty(jpadlr,jptyl,jptyr)
         call get_jp(jptyl,jml,jpadl,1)
         call get_jp(jptyr,jmr,jpad,1)
-c        jmlr=mul_tab(jml,jmr)
+!        jmlr=mul_tab(jml,jmr)
         if(linelp.le.12)   then
           call sv_ext_head_in_act()
         else
@@ -366,8 +366,8 @@ c        jmlr=mul_tab(jml,jmr)
       jmlr=mul_tab(jml,jmr)
 !      goto(10,10,10,10,10,106,10,10,10,110,10,10,
 !     :     113,10,10,10,117,10,10,10,10,10,123,10,10,10),lpok
-      goto(10,10,10,10,10,106,10,108,10,110,10,10,
-     :     113,10,115,10,117,118,10,10,10,10,123,124,10,10),lpok
+      goto(10,10,10,10,10,106,10,108,10,110,10,10,                      &
+     &     113,10,115,10,117,118,10,10,10,10,123,124,10,10),lpok
 !=======================================================
 !sd1(8) ar- act -br-
 108   if(linelp.ne.18) return

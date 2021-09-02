@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2007, Bingbing Suo                                     *
-************************************************************************
-c 11 feb 2007 -bsuo- added by suo bing
-c                    this file contains subroutines which depend on plat
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2007, Bingbing Suo                                     *
+!***********************************************************************
+! 11 feb 2007 -bsuo- added by suo bing
+!                    this file contains subroutines which depend on plat
       subroutine version_info
 #include "drt_h.fh"
 
@@ -33,29 +33,29 @@ c                    this file contains subroutines which depend on plat
       return
       end
 
-c************************************************
+!************************************************
       subroutine allocate_int_memory()
-c************************************************
+!************************************************
 #include "drt_h.fh"
-c     this subroutine is used to allocate the dynamic memory
-c     for integrals
-c vint_ci(:) pointer to the base address of the memory of integrals
-c maxintseg  maximum length of the integral segment
-c
+!     this subroutine is used to allocate the dynamic memory
+!     for integrals
+! vint_ci(:) pointer to the base address of the memory of integrals
+! maxintseg  maximum length of the integral segment
+!
       allocate(vint_ci(0:maxintseg+1))
       vint_ci=0.d0
       return
-c...end of allocate_int_memory
+!...end of allocate_int_memory
       end
 
-c************************************************
+!************************************************
       subroutine deallocate_int_memory()
-c************************************************
+!************************************************
 #include "drt_h.fh"
 
       deallocate(vint_ci)
       return
-c...end of deallocate_int_memory
+!...end of deallocate_int_memory
       end
 
 
@@ -69,17 +69,17 @@ c...end of deallocate_int_memory
       idisk=irec(m)
       call ddafile(nf,2,bv,n,idisk)
 
-c      select case (nf)
-c        case(34)
-c          call ddafile(nf,2,bv,n,idisk)
-c        case(35)
-c          call ddafile(nf,2,bv,n,idisk)
-c        case default
+!      select case (nf)
+!        case(34)
+!          call ddafile(nf,2,bv,n,idisk)
+!        case(35)
+!          call ddafile(nf,2,bv,n,idisk)
+!        case default
 
-c      end select
+!      end select
 
       return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) call Unused_integer(i)
       end
 
@@ -99,21 +99,21 @@ c Avoid unused argument warnings
 
       idisk=irec(m)
       call ddafile(nf,1,bv,n,idisk)
-c
-c      select case (nf)
-c        case(34)
-c          call ddafile(nf,1,bv,n,idisk)
-c        case(35)
-c          call ddafile(nf,1,bv,n,idisk)
-c        case default
+!
+!      select case (nf)
+!        case(34)
+!          call ddafile(nf,1,bv,n,idisk)
+!        case(35)
+!          call ddafile(nf,1,bv,n,idisk)
+!        case default
 
-c      end select
+!      end select
       irec(m+1)=idisk
       idisk=0
       call idafile(nf,1,irec,64,idisk)
-c      print*,"idisk",m,idisk
+!      print*,"idisk",m,idisk
       return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) call Unused_integer(i)
       end
 
@@ -135,24 +135,24 @@ c Avoid unused argument warnings
       return
       end
 
-c***************************************
+!***************************************
       subroutine readint(ntyp,vintrd)
-c***************************************
+!***************************************
       implicit REAL*8 (a-h,o-z)
-c
-c     subroutine used to read divided integrals into
-c     main memeroy
-c on entry:
-c -----------------
-c ntyp   - integral type need to be readed
-c   1 internal space integrals
-c   2 integrals which have one or three indexs in external space
-c   3 integrals which have two indexs in external space
-c   4 external space integrals
-c on out:
-c -------------------
-c vintrd(*) - integrals used in hamitonian matrix calculation
-c
+!
+!     subroutine used to read divided integrals into
+!     main memeroy
+! on entry:
+! -----------------
+! ntyp   - integral type need to be readed
+!   1 internal space integrals
+!   2 integrals which have one or three indexs in external space
+!   3 integrals which have two indexs in external space
+!   4 external space integrals
+! on out:
+! -------------------
+! vintrd(*) - integrals used in hamitonian matrix calculation
+!
 #include "files_gugaci.fh"
       dimension vintrd(*)
       dimension idx(4)
@@ -168,20 +168,20 @@ c
           lenint=idum(1)
           call ddafile(luciint,2,vintrd(2),lenint,idisk)
         case (2)
-c internal external space 1 and 3 index integrals
+! internal external space 1 and 3 index integrals
           idisk=idx(2)
           call idafile(luciint,2,idum,1,idisk)
           lenint=idum(1)
           call ddafile(luciint,2,vintrd(2),lenint,idisk)
           !write(6,*) vintrd(1:lenint)
         case (3)
-c interner external space 2 index integrals
+! interner external space 2 index integrals
           idisk=idx(3)
           call idafile(luciint,2,idum,1,idisk)
           lenint=idum(1)
           call ddafile(luciint,2,vintrd(2),lenint,idisk)
         case (4)
-c external space intergrals
+! external space intergrals
           idisk=idx(4)
           call idafile(luciint,2,idum,1,idisk)
           lenint=idum(1)
@@ -192,7 +192,7 @@ c external space intergrals
       !    write(12,"(i8,1x,f15.8)") i,vintrd(i)
       !  enddo
       return
-c...end of readint
+!...end of readint
       end
 
       subroutine gugaciinit
@@ -374,8 +374,8 @@ c...end of readint
 
       allocate(intind_iaqq(50000))
       allocate(intind_abkk(50000))
-      lent=norb_inn*nabc+norb_all
-     *    +ngw2(norb_all)+ngw3(norb_all) !2*norb_ext*norb_ext*norb_ext
+      lent=norb_inn*nabc+norb_all                                       &
+     &    +ngw2(norb_all)+ngw3(norb_all) !2*norb_ext*norb_ext*norb_ext
       allocate(intind_iabc(lent))
       allocate(intind_ijka(50000))
       allocate(intind_ijcc(50000))

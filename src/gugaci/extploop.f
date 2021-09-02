@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 !      SUBROUTINE lp10_arbrbr_ext_calcuvalue(intentry,isma,nlp_value)
 !      SUBROUTINE lp11_arblbr_ext_calcuvalue(intentry,isma,nlp_value)
 !      SUBROUTINE lp12_arblbl_ext_calcuvalue(intentry,isma,nlp_value)
@@ -51,8 +51,8 @@
             do ia=iasta,min(iaend,ib-1)
               lra=norb_number(ia)
             ivalue=ivalue+1
-C           value_lpext(ivalue)=vint_ci(intposia)*ww0lp
-C    *         +vint_ci(intposia+1)*ww1lp+valuelpib
+!           value_lpext(ivalue)=vint_ci(intposia)*ww0lp
+!    *         +vint_ci(intposia+1)*ww1lp+valuelpib
 !  OK,only for Spin=0
          value_lpext(ivalue)=(voint(lra,lri)-voint(lrb,lri))*w1lp
             enddo
@@ -65,12 +65,12 @@ C    *         +vint_ci(intposia+1)*ww1lp+valuelpib
         w0lp=w0_plp*w0g2a
         w1lp=w1_plp*w1g2a
 
-C       valuelptmp1=w0lp
-C       w0lp=w0lp-w1lp
-C       w1lp=-valuelptmp1*2.d0
-C       valuelptmp1=ww0lp
-C       ww0lp=ww0lp-ww1lp
-C       ww1lp=-valuelptmp1*2.d0
+!       valuelptmp1=w0lp
+!       w0lp=w0lp-w1lp
+!       w1lp=-valuelptmp1*2.d0
+!       valuelptmp1=ww0lp
+!       ww0lp=ww0lp-ww1lp
+!       ww1lp=-valuelptmp1*2.d0
 
         do i=1,intspace
          ivalue=ivalue+2
@@ -106,8 +106,8 @@ C       ww1lp=-valuelptmp1*2.d0
       ilpvalue=0
       do m_ia=1,nlsm_ext(isma)
          ilpvalue=ilpvalue+1
-         value_lpext(ilpvalue)=w0_sdplp25*vint_ci(intpos)+
-     *                  w1_sdplp25*vint_ci(intpos+1)
+         value_lpext(ilpvalue)=w0_sdplp25*vint_ci(intpos)+              &
+     &                  w1_sdplp25*vint_ci(intpos+1)
          intpos=intpos+iaddpos      !ip3ad_intspace   !severe_new_error_
       enddo
       end
@@ -122,8 +122,8 @@ C       ww1lp=-valuelptmp1*2.d0
       ilpvalue=0
       do m_ia=1,nlsm_ext(isma)
          ilpvalue=ilpvalue+1
-         value_lpext(ilpvalue)=w0_sdplp25*vint_ci(intpos+2)+
-     *                  w1_sdplp25*vint_ci(intpos+1)
+         value_lpext(ilpvalue)=w0_sdplp25*vint_ci(intpos+2)+            &
+     &                  w1_sdplp25*vint_ci(intpos+1)
          intpos=intpos+3
       enddo
       nlp_value=ilpvalue
@@ -139,8 +139,8 @@ C       ww1lp=-valuelptmp1*2.d0
       ilpvalue=0
       do m_ia=1,nlsm_ext(isma)
          ilpvalue=ilpvalue+1
-         value_lpext(ilpvalue)=w0_sdplp25*vint_ci(intpos+1)+
-     *                  w1_sdplp25*vint_ci(intpos)
+         value_lpext(ilpvalue)=w0_sdplp25*vint_ci(intpos+1)+            &
+     &                  w1_sdplp25*vint_ci(intpos)
          intpos=intpos+3
       enddo
       nlp_value=ilpvalue
@@ -158,8 +158,8 @@ C       ww1lp=-valuelptmp1*2.d0
       ilpvalue=0
       do m_ia=1,nlsm_ext(isma)
          ilpvalue=ilpvalue+1
-         value_lpext(ilpvalue)=w0_sdplp25*vint_ci(intpos+2)+
-     *                  w1_sdplp25*vint_ci(intpos)
+         value_lpext(ilpvalue)=w0_sdplp25*vint_ci(intpos+2)+            &
+     &                  w1_sdplp25*vint_ci(intpos)
          intpos=intpos+3
 
       enddo
@@ -181,8 +181,8 @@ C       ww1lp=-valuelptmp1*2.d0
 !        intpos=intentry+lpext_int_index(ii)*3-3
          ivalue=ivalue+1
 !        ArBr -- B^rA^r =10
-         value_lpext(ivalue)=vint_ci(intpos+2)*w0lp
-     *                  +vint_ci(intpos+1)*w1lp
+         value_lpext(ivalue)=vint_ci(intpos+2)*w0lp                     &
+     &                  +vint_ci(intpos+1)*w1lp
       enddo
 !G36b
 !G1415
@@ -218,8 +218,8 @@ C       ww1lp=-valuelptmp1*2.d0
          w0lp=0.5d0*w0_plp*w0g13a
 !        isma=ism_g1415
 !        na_tmp=nlsm_ext(isma)
-         do intpos=intentry+ip2_drl_drl_intspace,
-     *               intentry+ip2_drl_intspace-2,2         !severe_new_e
+         do intpos=intentry+ip2_drl_drl_intspace,                       &
+     &               intentry+ip2_drl_intspace-2,2         !severe_new_e
 !        do ia=1,na_tmp
             ivalue=ivalue+1
             value_lpext(ivalue)=vint_ci(intpos+1)*w0lp
@@ -247,8 +247,8 @@ C       ww1lp=-valuelptmp1*2.d0
           ia=ia0+ira
           intposbase=intind_iaqq(ia)
           intpos=intposbase+idorbint
-          value_lpext(ilpvalue)=w0_sdplp25*vint_ci(intpos)+
-     *                          w1_sdplp25*vint_ci(intpos+1)
+          value_lpext(ilpvalue)=w0_sdplp25*vint_ci(intpos)+             &
+     &                          w1_sdplp25*vint_ci(intpos+1)
       enddo
       end
 
@@ -257,8 +257,8 @@ C       ww1lp=-valuelptmp1*2.d0
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      dimension vint_0(MAX_INNORB,MAX_EXTORB),
-     :          vint_1(MAX_INNORB,MAX_EXTORB)
+      dimension vint_0(MAX_INNORB,MAX_EXTORB),                          &
+     &          vint_1(MAX_INNORB,MAX_EXTORB)
 
       vint_0(1:norb_inn,1:norb_ext)=viasum_0(1:norb_inn,1:norb_ext)
       vint_1(1:norb_inn,1:norb_ext)=viasum_1(1:norb_inn,1:norb_ext)
@@ -291,8 +291,8 @@ C       ww1lp=-valuelptmp1*2.d0
       do m_ia=1,nlsm_ext(isma)
           ilpvalue=ilpvalue+1
           ira=m_ia+next_sta
-          value_lpext(ilpvalue)=w0_sdplp25*vint_0(lri,ira)   !value_lptm
-     :                       -w1_sdplp25*vint_1(lri,ira)
+          value_lpext(ilpvalue)=w0_sdplp25*vint_0(lri,ira)              & !value_lptm
+     &                       -w1_sdplp25*vint_1(lri,ira)
       enddo
       nv=   ilpvalue
       end
@@ -302,8 +302,8 @@ C       ww1lp=-valuelptmp1*2.d0
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
 
-      dimension vint_0(MAX_INNORB,MAX_EXTORB),
-     :          vint_1(MAX_INNORB,MAX_EXTORB)
+      dimension vint_0(MAX_INNORB,MAX_EXTORB),                          &
+     &          vint_1(MAX_INNORB,MAX_EXTORB)
 
       vint_0(1:norb_INN,1:norb_ext)=viasum_0(1:norb_INN,1:norb_ext)
       vint_1(1:norb_INN,1:norb_ext)=viasum_1(1:norb_INN,1:norb_ext)
@@ -337,8 +337,8 @@ C       ww1lp=-valuelptmp1*2.d0
       do m_ia=1,nlsm_ext(isma)
           ilpvalue=ilpvalue+1
           ira=m_ia+next_sta
-          value_lpext(ilpvalue)=w0_sdplp25*vint_0(lri,ira)+
-     *                        w1_sdplp25*vint_1(lri,ira)
+          value_lpext(ilpvalue)=w0_sdplp25*vint_0(lri,ira)+             &
+     &                        w1_sdplp25*vint_1(lri,ira)
       enddo
       nv=   ilpvalue
       end
@@ -398,8 +398,8 @@ C       ww1lp=-valuelptmp1*2.d0
         intpos=intentry+intoffset
         do I=1,mcloop
           ivalue=ivalue+1
-          value_lpext(ivalue)=vint_ci(intpos)*w0lp
-     *            +vint_ci(intpos+1)*w1lp
+          value_lpext(ivalue)=vint_ci(intpos)*w0lp                      &
+     &            +vint_ci(intpos+1)*w1lp
           intpos=intpos+2
         enddo
       endif
@@ -416,8 +416,8 @@ C       ww1lp=-valuelptmp1*2.d0
 !G49a:Bl_Ar  line=12
         do I=1,MCLOOP
           ivalue=ivalue+1
-          value_lpext(ivalue)=vint_ci(intpos+2)*w0lp
-     *                  +vint_ci(intpos)*w1lp
+          value_lpext(ivalue)=vint_ci(intpos+2)*w0lp                    &
+     &                  +vint_ci(intpos)*w1lp
           INTPOS=INTPOS+3
         enddo
       ENDIF
@@ -426,31 +426,31 @@ C       ww1lp=-valuelptmp1*2.d0
       if (logic_g49b) then
         do I=1,MCLOOP
           ivalue=ivalue+1
-          value_lpext(ivalue)=vint_ci(intpos+1)*w0lp
-     *                  +vint_ci(intpos)*w1lp
+          value_lpext(ivalue)=vint_ci(intpos+1)*w0lp                    &
+     &                  +vint_ci(intpos)*w1lp
           INTPOS=INTPOS+3
         enddo
       endif
       nlp_value=ivalue
       end
 
-      subroutine lp_ar_coe_calcuvalue_wyb
-     *          (idtu,isma,lri,lrj,nlp_value,lpcoe)
+      subroutine lp_ar_coe_calcuvalue_wyb                               &
+     &          (idtu,isma,lri,lrj,nlp_value,lpcoe)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
       REAL*8 valuetmp
       dimension lpcoe(norb_dz+1:norb_inn)
-C      idtu=25,26,28,25(43),46,51,100(in act_space)
+!      idtu=25,26,28,25(43),46,51,100(in act_space)
 
       next_sta=ibsm_ext(isma)-1
       w0_sdplp25=w0_sdplp*w0g25
       ia0=(lri-1)*norb_ext
-C      idorbint=lri*2-2
-C      intpos=intposbase+idorbint
+!      idorbint=lri*2-2
+!      intpos=intposbase+idorbint
       ilpvalue=0
-C      intposbase=intentry
+!      intposbase=intentry
 
       if(idtu.eq.100) then
         lsta=lri
@@ -459,7 +459,7 @@ C      intposbase=intentry
           ira=m_ia+next_sta
           lra=norb_number(ira)
           valuetmp=voint(lri,lra)
-C          valuetmp=0.D0
+!          valuetmp=0.D0
           ia=ia0+ira
           intposbase=intind_iaqq(ia)
           do iorb=lsta,lend
@@ -468,7 +468,7 @@ C          valuetmp=0.D0
             idorbint=(iorb-1)*2
             intpos=intposbase+idorbint
         valuetmp=valuetmp+nocc*(vint_ci(intpos+1)+tcoe*vint_ci(intpos))
-C            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
+!            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
           enddo
           ilpvalue=ilpvalue+1
           value_lpext(ilpvalue)=w0_sdplp25*valuetmp
@@ -483,7 +483,7 @@ C            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
           ira=m_ia+next_sta
             lra=norb_number(ira)
             valuetmp=voint(lri,lra)
-C            valuetmp=0.d0
+!            valuetmp=0.d0
             ia=ia0+ira
             intposbase=intind_iaqq(ia)
             idorbint=-2
@@ -504,7 +504,7 @@ C            valuetmp=0.d0
               idorbint=iorb*2-2
               intpos=intposbase+idorbint
         valuetmp=valuetmp+nocc*(vint_ci(intpos+1)+tcoe*vint_ci(intpos))
-C            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
+!            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
             enddo
             ilpvalue=ilpvalue+1
             value_lpext(ilpvalue)=w0_sdplp25*valuetmp
@@ -518,7 +518,7 @@ C            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
         ira=m_ia+next_sta
         lra=norb_number(ira)
         valuetmp=voint(lri,lra)
-C        valuetmp=0.d0
+!        valuetmp=0.d0
         ia=ia0+ira
         intposbase=intind_iaqq(ia)
         idorbint=lri*2-2
@@ -536,7 +536,7 @@ C        valuetmp=0.d0
           idorbint=iorb*2-2
           intpos=intposbase+idorbint
         valuetmp=valuetmp+nocc*(vint_ci(intpos+1)+tcoe*vint_ci(intpos))
-C            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
+!            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
         enddo
         ilpvalue=ilpvalue+1
         value_lpext(ilpvalue)=w0_sdplp25*valuetmp
@@ -567,7 +567,7 @@ C            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
               idorbint=idorbint+2
               intpos=intposbase+idorbint
         valuetmp=valuetmp+nocc*(vint_ci(intpos+1)+tcoe*vint_ci(intpos))
-C            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
+!            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
             enddo
 
             ilpvalue=ilpvalue+1
@@ -597,10 +597,10 @@ C            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
               do iorb=lri+1,norb_dz
                idorbint=idorbint+2
                 intpos=intposbase+idorbint
-                if(iorb.eq.lrj) valuetmp=valuetmp+
-     *                  vint_ci(intpos+1)+icoe*vint_ci(intpos)
-                if(iorb.ne.lrj) valuetmp=valuetmp+
-     *                    2.d0*vint_ci(intpos+1)-vint_ci(intpos)
+                if(iorb.eq.lrj) valuetmp=valuetmp+                      &
+     &                  vint_ci(intpos+1)+icoe*vint_ci(intpos)
+                if(iorb.ne.lrj) valuetmp=valuetmp+                      &
+     &                    2.d0*vint_ci(intpos+1)-vint_ci(intpos)
               enddo
             endif
             do iorb=norb_dz+1,norb_inn
@@ -609,7 +609,7 @@ C            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
               idorbint=idorbint+2
               intpos=intposbase+idorbint
         valuetmp=valuetmp+nocc*(vint_ci(intpos+1)+tcoe*vint_ci(intpos))
-C            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
+!            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
             enddo
 
             ilpvalue=ilpvalue+1
@@ -640,10 +640,10 @@ C            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
               do iorb=lri+1,norb_dz
                idorbint=idorbint+2
                 intpos=intposbase+idorbint
-                if(iorb.eq.lrj) valuetmp=valuetmp+
-     *                  vint_ci(intpos+1)+icoe*vint_ci(intpos)
-                if(iorb.ne.lrj) valuetmp=valuetmp+
-     *                    2.d0*vint_ci(intpos+1)-vint_ci(intpos)
+                if(iorb.eq.lrj) valuetmp=valuetmp+                      &
+     &                  vint_ci(intpos+1)+icoe*vint_ci(intpos)
+                if(iorb.ne.lrj) valuetmp=valuetmp+                      &
+     &                    2.d0*vint_ci(intpos+1)-vint_ci(intpos)
               enddo
             endif
             do iorb=norb_dz+1,norb_inn
@@ -652,7 +652,7 @@ C            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
               idorbint=idorbint+2
               intpos=intposbase+idorbint
         valuetmp=valuetmp+nocc*(vint_ci(intpos+1)+tcoe*vint_ci(intpos))
-C            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
+!            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
             enddo
 
             ilpvalue=ilpvalue+1
@@ -668,7 +668,7 @@ C            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
         ira=m_ia+next_sta
         lra=norb_number(ira)
         valuetmp=voint(lri,lra)
-C        valuetmp=0.d0
+!        valuetmp=0.d0
         ia=ia0+ira
         intposbase=intind_iaqq(ia)
         idorbint=lri*2-2
@@ -686,7 +686,7 @@ C        valuetmp=0.d0
           idorbint=iorb*2-2
           intpos=intposbase+idorbint
         valuetmp=valuetmp+nocc*(vint_ci(intpos+1)+tcoe*vint_ci(intpos))
-C            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
+!            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
         enddo
         ilpvalue=ilpvalue+1
         value_lpext(ilpvalue)=w0_sdplp25*valuetmp
@@ -710,15 +710,15 @@ C            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
       if ( logic_g2g4a ) then
         w0lp=w0_plp*w0g2a
         w1lp=w1_plp*w1g2a
-c       ww0lp=w0_plp*w0g4a
-c       ww1lp=w1_plp*w1g4a
+!       ww0lp=w0_plp*w0g4a
+!       ww1lp=w1_plp*w1g4a
 
-C       valuelptmp1=w0lp
-C       w0lp=w0lp-w1lp
-C       w1lp=-valuelptmp1*2.d0
-C       valuelptmp1=ww0lp
-C       ww0lp=ww0lp-ww1lp
-C       ww1lp=-valuelptmp1*2.d0
+!       valuelptmp1=w0lp
+!       w0lp=w0lp-w1lp
+!       w1lp=-valuelptmp1*2.d0
+!       valuelptmp1=ww0lp
+!       ww0lp=ww0lp-ww1lp
+!       ww1lp=-valuelptmp1*2.d0
 
         do i=1,intspace
          ivalue=ivalue+2
@@ -797,8 +797,8 @@ C       ww1lp=-valuelptmp1*2.d0
 
         do I=1,intspace
           ivalue=ivalue+1
-          value_lpext(ivalue)=
-     :          vint_1(i)*w0lp-vint_0(i)*w1lp
+          value_lpext(ivalue)=                                          &
+     &          vint_1(i)*w0lp-vint_0(i)*w1lp
         enddo
       nlp_value=ivalue
       end
@@ -827,8 +827,8 @@ C       ww1lp=-valuelptmp1*2.d0
             do ia=iasta,min(iaend,ib-1)
               lra=norb_number(ia)
             ivalue=ivalue+1
-C           value_lpext(ivalue)=vint_ci(intposia)*ww0lp
-C    *         +vint_ci(intposia+1)*ww1lp+valuelpib
+!           value_lpext(ivalue)=vint_ci(intposia)*ww0lp
+!    *         +vint_ci(intposia+1)*ww1lp+valuelpib
 !  OK,only for Spin=0
          value_lpext(ivalue)=(voint(lra,lri)-voint(lrb,lri))*w1lp
             enddo
@@ -971,8 +971,8 @@ C    *         +vint_ci(intposia+1)*ww1lp+valuelpib
               do lrk=lrk0+1,norb_dz
                 if(lrk.eq.lri) cycle
                 if(lrk.eq.lrj) cycle
-        value_lpext(ivalue)=value_lpext(ivalue)+
-     :         w15lp*voint(lra,lrk)+w14lp*voint(lrb,lrk)
+        value_lpext(ivalue)=value_lpext(ivalue)+                        &
+     &         w15lp*voint(lra,lrk)+w14lp*voint(lrb,lrk)
               enddo
           enddo
          enddo
@@ -1007,8 +1007,8 @@ C    *         +vint_ci(intposia+1)*ww1lp+valuelpib
 !        ArBr -- B^rA^r =10
       do i=1,intspace
         ivalue=ivalue+1
-        value_lpext(ivalue)=vint_ci(intpos+2)*w0lp
-     *                  +vint_ci(intpos+1)*w1lp
+        value_lpext(ivalue)=vint_ci(intpos+2)*w0lp                      &
+     &                  +vint_ci(intpos+1)*w1lp
         intpos=intpos+3
       enddo
 !G36b
@@ -1106,8 +1106,8 @@ C    *         +vint_ci(intposia+1)*ww1lp+valuelpib
          do ia=1,norb_ext
              intpos13=intpos+ia*2-2
             ivalue=ivalue+1
-            value_lpext(ivalue)=w0lp*(vint_ci(intpos13)
-     :                         -vint_ci(intpos13+1)*2.d0)
+            value_lpext(ivalue)=w0lp*(vint_ci(intpos13)                 &
+     &                         -vint_ci(intpos13+1)*2.d0)
             intpos13=intpos13+2
          enddo
       endif
@@ -1132,11 +1132,11 @@ C    *         +vint_ci(intposia+1)*ww1lp+valuelpib
         do i=1,intspace
          ivalue=ivalue+2
 !        ArBl -- B^lA^r =12
-         value_lpext(ivalue-1)=vint_ci(intpos+2)*w0lp
-     *               +vint_ci(intpos)*w1lp
+         value_lpext(ivalue-1)=vint_ci(intpos+2)*w0lp                   &
+     &               +vint_ci(intpos)*w1lp
 !        ArBl -- B^rA^l =11
-         value_lpext(ivalue)=vint_ci(intpos+1)*ww0lp
-     *               +vint_ci(intpos)*ww1lp
+         value_lpext(ivalue)=vint_ci(intpos+1)*ww0lp                    &
+     &               +vint_ci(intpos)*ww1lp
           intpos=intpos+3
         enddo
       else
@@ -1158,11 +1158,11 @@ C    *         +vint_ci(intposia+1)*ww1lp+valuelpib
         do i=1,intspace
          ivalue=ivalue+2
 !        ArBl -- B^lA^r =12
-         value_lpext(ivalue-1)=vint_ci(intpos+2)*ww0lp
-     *               +vint_ci(intpos)*ww1lp
+         value_lpext(ivalue-1)=vint_ci(intpos+2)*ww0lp                  &
+     &               +vint_ci(intpos)*ww1lp
 !        ArBl -- B^rA^l =11
-         value_lpext(ivalue)=vint_ci(intpos+1)*w0lp
-     *               +vint_ci(intpos)*w1lp
+         value_lpext(ivalue)=vint_ci(intpos+1)*w0lp                     &
+     &               +vint_ci(intpos)*w1lp
           intpos=intpos+3
         enddo
       endif
@@ -1178,8 +1178,8 @@ C    *         +vint_ci(intposia+1)*ww1lp+valuelpib
       do i=1,intspace
         ivalue=ivalue+1
 !       ArBl -- B^lA^r =12
-        value_lpext(ivalue)=vint_ci(intpos+2)*w0lp
-     *                     +vint_ci(intpos)*w1lp
+        value_lpext(ivalue)=vint_ci(intpos+2)*w0lp                      &
+     &                     +vint_ci(intpos)*w1lp
         intpos=intpos+3
       enddo
 !G36b

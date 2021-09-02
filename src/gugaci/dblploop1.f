@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine ss_head_dbl_tail_act(lra)
 #include "drt_h.fh"
 #include "intsort_h.fh"
@@ -464,12 +464,12 @@
               call comp_loop(9,lrk,0,0,lra,vlop0,vlop1,wl1)
             endif
             if(line.eq.28) then    !lrk,lrs,lra    lrs,lra,lrk
-c             call comp_loop(12,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
+!             call comp_loop(12,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
               call comp_loop(12,lrk,0,lrs,lra,vlop0,vlop1,wl1)
             endif
             if(line.eq.29) then    !lrk,lrs,lra
               call comp_loop(11,lrk,0,lrs,lra,vlop0,vlop1,wl1)
-c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
+!              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
             endif
             wl=wl+wl1
           enddo
@@ -965,8 +965,8 @@ c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
            endif
            do lrk=norb_frz+1,lri-1
              lmk=lsm_inn(lrk)
-             if(mul_tab(lmk,lmi).ne.jml.or.
-     :            mul_tab(lmk,lmj).ne.jmr) cycle
+             if(mul_tab(lmk,lmi).ne.jml.or.                             &
+     &            mul_tab(lmk,lmj).ne.jmr) cycle
 !            wl=-vlop1*vint_ci(list)
              iwdl=just(lri,lrk)
              iwdr=just(lrk,lrj)
@@ -986,8 +986,8 @@ c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
 !st1(4-4) ar(23)-c'(11)-bl(31)-
            do lrk=lri+1,lrj-1
              lmk=lsm_inn(lrk)
-             if(mul_tab(lmi,lmk).ne.jml.or.
-     :             mul_tab(lmk,lmj).ne.jmr) cycle
+             if(mul_tab(lmi,lmk).ne.jml.or.                             &
+     &             mul_tab(lmk,lmj).ne.jmr) cycle
              iwdl=just(lri,lrk)
              iwdr=just(lrk,lrj)
              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,-wl,jper)
@@ -995,8 +995,8 @@ c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
 !st1(4-4) ar(23)-bl(31)-c"(11)-
            do lrk=lrj+1,norb_dz
              lmk=lsm_inn(lrk)
-            if(mul_tab(lmi,lmk).ne.jml.or.
-     :          mul_tab(lmj,lmk).ne.jmr) cycle
+            if(mul_tab(lmi,lmk).ne.jml.or.                              &
+     &          mul_tab(lmj,lmk).ne.jmr) cycle
              iwdl=just(lri,lrk)
              iwdr=just(lrj,lrk)
              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
@@ -1016,8 +1016,8 @@ c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
 !st1(4-3) ar(13)-c'(21)-bl(31)-
            do lrk=lri+1,lrj-1
              lmk=lsm_inn(lrk)
-             if(mul_tab(lmi,lmk).ne.jml.or.
-     :         mul_tab(lmk,lmj).ne.jmr) cycle
+             if(mul_tab(lmi,lmk).ne.jml.or.                             &
+     &         mul_tab(lmk,lmj).ne.jmr) cycle
              iwdl=just(lrk,lri)
              iwdr=just(lrk,lrj)
              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,-wl,jper)
@@ -1025,8 +1025,8 @@ c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
 !st1(4-3) ar(13)-bl(31)-c"(21)-
            do lrk=lrj+1,norb_dz
              lmk=lsm_inn(lrk)
-             if(mul_tab(lmi,lmk).ne.jml.or.
-     :            mul_tab(lmj,lmk).ne.jmr) cycle
+             if(mul_tab(lmi,lmk).ne.jml.or.                             &
+     &            mul_tab(lmj,lmk).ne.jmr) cycle
              iwdl=just(lrk,lri)
              iwdr=just(lrj,lrk)
              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
@@ -1106,8 +1106,8 @@ c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
         do lrk=norb_frz+1,lri-1
           lmk=lsm_inn(lrk)
 !t1s(5-2)   (11)ar(13)-bl(32)-
-          if(jml.ne.mul_tab(lmk,lmi).or.jmr.ne.
-     :        mul_tab(lmk,lmj)) cycle
+          if(jml.ne.mul_tab(lmk,lmi).or.jmr.ne.                         &
+     &        mul_tab(lmk,lmj)) cycle
 !          vlop1=w1*w1t1s2
 !          wl=-vlop1*vint_ci(list)
            iwdl=just(lrk,lri)
@@ -1117,8 +1117,8 @@ c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
         do lrk=lri+1,lrj-1
           lmk=lsm_inn(lrk)
 !t1s(5-2)   ar(13)-c'(11)-bl(32)-
-          if(jml.ne.mul_tab(lmi,lmk).or.jmr.ne.
-     :        mul_tab(lmk,lmj)) cycle
+          if(jml.ne.mul_tab(lmi,lmk).or.jmr.ne.                         &
+     &        mul_tab(lmk,lmj)) cycle
 !          vlop1=w1*w1t1s2
 !          wl=-vlop1*vint_ci(list)
            iwdl=just(lri,lrk)
@@ -1139,8 +1139,8 @@ c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
         do lrk=lrj+1,norb_dz
           lmk=lsm_inn(lrk)
 !t1s(5-3)   ar(13)-bl(31)-c"(12)-
-          if(jml.ne.mul_tab(lmi,lmk).or.jmr.ne.
-     :        mul_tab(lmj,lmk)) cycle
+          if(jml.ne.mul_tab(lmi,lmk).or.jmr.ne.                         &
+     &        mul_tab(lmj,lmk)) cycle
 !          vlop1=w1*w1t1s3
 !          wl=-vlop1*vint_ci(list)
            iwdl=just(lri,lrk)
@@ -1162,8 +1162,8 @@ c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
         do lrk=lrj+1,norb_dz
           lmk=lsm_inn(lrk)
 !t1s(5-4)   ar(13)-bl(32)-c"(11)-
-          if(jml.ne.mul_tab(lmi,lmk).or.jmr.ne.
-     :        mul_tab(lmj,lmk)) cycle
+          if(jml.ne.mul_tab(lmi,lmk).or.jmr.ne.                         &
+     &        mul_tab(lmj,lmk)) cycle
            iwdl=just(lri,lrk)
            iwdr=just(lrj,lrk)
           call  prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
@@ -1777,11 +1777,11 @@ c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
           vlop1=0.d0
 !         wl=vlop0*voint(lra,lri)/2
           if(line.eq.25) then    !lri,lra
-cwyb         call comp_loop(8,lri,lrg,lrs,lra,vlop0,vlop1,wl)
+!wyb         call comp_loop(8,lri,lrg,lrs,lra,vlop0,vlop1,wl)
              call comp_loop(8,lri,0,0,lra,vlop0,vlop1,wl)
           endif
           if(line.eq.27) then    !lri,lrs,lra
-cwyb         call comp_loop(10,lri,lrs,lra,lra,vlop0,vlop1,wl)
+!wyb         call comp_loop(10,lri,lrs,lra,lra,vlop0,vlop1,wl)
             call comp_loop(10,lri,0,lrs,lra,vlop0,vlop1,wl)
           endif
           call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
@@ -1870,7 +1870,7 @@ cwyb         call comp_loop(10,lri,lrs,lra,lra,vlop0,vlop1,wl)
             call neoc(kcoe,nocc,tcoe)
             wl=wl+vlop0*nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
           enddo
-c          wl=wl*vlop0
+!          wl=wl*vlop0
 !sd(6-12) d&rl(33)b^l(02)
           vlop0=w0*w0sd12
          do lrk=1,lri-1
@@ -1916,7 +1916,7 @@ c          wl=wl*vlop0
           endif
           iwdl=just(lri,lrj)
           iwdl1=just(lrj,lri)
-c**********************************************************
+!**********************************************************
 !sd(6-2) c(22)-a&r(13)-
           if(lmi.eq.jmr) then
             iwdr=jud(lri)
@@ -1933,7 +1933,7 @@ c**********************************************************
               call neoc(kcoe,nocc,tcoe)
               wl=wl+vlop0*nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
             enddo
-c            wl=wl*vlop0
+!            wl=wl*vlop0
 !sd(6-11) d&r&l(22)b^l(13)
             vlop0=w0*w0sd11
             vlop1=w1*w1sd11
@@ -2048,8 +2048,8 @@ c            wl=wl*vlop0
             vlop0=w0*w0sd5
             vlop1=w1*w1sd5
             list=list4(lri,lrj,lrd,lra)
-            wl=(vlop0-vlop1)*vint_ci(list+2)+
-     :         (vlop0+vlop1)*vint_ci(list)             !1.3
+            wl=(vlop0-vlop1)*vint_ci(list+2)+                           &
+     &         (vlop0+vlop1)*vint_ci(list)             !1.3
           call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
          enddo
         if(jb_sys.gt.0) then
@@ -2066,8 +2066,8 @@ c            wl=wl*vlop0
             vlop0=w0*w0sd6
             vlop1=w1*w1sd6
             list=list4(lri,lrj,lrd,lra)
-            wl=(vlop0-vlop1)*vint_ci(list+2)+
-     :         (vlop0+vlop1)*vint_ci(list)             !1.3
+            wl=(vlop0-vlop1)*vint_ci(list+2)+                           &
+     &         (vlop0+vlop1)*vint_ci(list)             !1.3
           call prodab(3,jpel,iwdl1,iwdr,jwl,jwr,wl,jper)
          enddo
 !sd(6-7) a&r(13)b&l(32)b^l(23)
@@ -2083,8 +2083,8 @@ c            wl=wl*vlop0
            vlop0=w0*w0sd7
            vlop1=w1*w1sd7
            list=list4(lri,lrd,lrj,lra)
-           wl=(vlop0-vlop1)*vint_ci(list+2)-
-     :             2*vlop0*vint_ci(list+1)      !1.2
+           wl=(vlop0-vlop1)*vint_ci(list+2)-                            &
+     &             2*vlop0*vint_ci(list+1)      !1.2
            call prodab(3,jpel,iwdl1,iwdr,jwl,jwr,wl,jper)
          enddo
         endif
@@ -2101,8 +2101,8 @@ c            wl=wl*vlop0
            vlop0=w0*w0sd8
            vlop1=w1*w1sd8
            list=list4(lri,lrd,lrj,lra)
-           wl=(vlop0-vlop1)*vint_ci(list+2)-
-     :             2*vlop0*vint_ci(list+1)      !1.2
+           wl=(vlop0-vlop1)*vint_ci(list+2)-                            &
+     &             2*vlop0*vint_ci(list+1)      !1.2
          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
         enddo
       enddo
@@ -2159,7 +2159,7 @@ c            wl=wl*vlop0
             call neoc(kcoe,nocc,tcoe)
             wl=wl+vlop0*nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
           enddo
-c          wl=wl*vlop0
+!          wl=wl*vlop0
 !sd1(8-11) d&rl(33)b^l(01)
           vlop0=w0*w0sd11
          do lrk=1,lri-1
@@ -2219,7 +2219,7 @@ c          wl=wl*vlop0
           endif
           iwdl=just(lrj,lri)
           iwdl1=just(lri,lrj)
-c**********************************************************
+!**********************************************************
 !sd1(8-2) c(11)-a&r(23)-
           if(lmi.eq.jmr) then
             iwdl=just(lrj,lri)
@@ -2237,7 +2237,7 @@ c**********************************************************
               call neoc(kcoe,nocc,tcoe)
               wl=wl+vlop0*nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
             enddo
-c            wl=wl*vlop0
+!            wl=wl*vlop0
 !sd1(8-10) d&r&l(11)b^l(23)
             vlop0=w0*w0sd10
             vlop1=w1*w1sd10
@@ -2326,8 +2326,8 @@ c            wl=wl*vlop0
             vlop0=w0*w0sd5
             vlop1=w1*w1sd5
             list=list4(lri,lrj,lrd,lra)
-            wl=(vlop0-vlop1)*vint_ci(list+2)+
-     :         (vlop0+vlop1)*vint_ci(list)             !1.3
+            wl=(vlop0-vlop1)*vint_ci(list+2)+                           &
+     &         (vlop0+vlop1)*vint_ci(list)             !1.3
            call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
 !sd1(8-6) a&r(23)b&r(13)b^r(31)
             iwdl=just(lri,lrj)
@@ -2339,8 +2339,8 @@ c            wl=wl*vlop0
             vlop0=w0*w0sd6
             vlop1=w1*w1sd6
             list=list4(lri,lrj,lrd,lra)
-            wl=(vlop0-vlop1)*vint_ci(list+2)+
-     :         (vlop0+vlop1)*vint_ci(list)             !1.3
+            wl=(vlop0-vlop1)*vint_ci(list+2)+                           &
+     &         (vlop0+vlop1)*vint_ci(list)             !1.3
           call prodab(3,jpel,iwdl1,iwdr,jwl,jwr,wl,jper)
          enddo
 !sd1(8-7) a&r(13)b&l(31)b^l(23)
@@ -2357,8 +2357,8 @@ c            wl=wl*vlop0
            vlop0=w0*w0sd7
            vlop1=w1*w1sd7
            list=list4(lri,lrd,lrj,lra)
-           wl=(vlop0-vlop1)*vint_ci(list+2)-
-     :             2*vlop0*vint_ci(list+1)      !1.2
+           wl=(vlop0-vlop1)*vint_ci(list+2)-                            &
+     &             2*vlop0*vint_ci(list+1)      !1.2
           call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
 !sd1(8-8) a&r(23)b&l(31)b^l(13)
            iwdl=just(lri,lrj)
@@ -2370,8 +2370,8 @@ c            wl=wl*vlop0
            vlop0=w0*w0sd8
            vlop1=w1*w1sd8
            list=list4(lri,lrd,lrj,lra)
-           wl=(vlop0-vlop1)*vint_ci(list+2)-
-     :             2*vlop0*vint_ci(list+1)      !1.2
+           wl=(vlop0-vlop1)*vint_ci(list+2)-                            &
+     &             2*vlop0*vint_ci(list+1)      !1.2
           call prodab(3,jpel,iwdl1,iwdr,jwl,jwr,wl,jper)
          enddo
        enddo
@@ -2452,7 +2452,7 @@ c            wl=wl*vlop0
             call neoc(kcoe,nocc,tcoe)
             wl=wl+vlop0*nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
           enddo
-c            wl=wl*vlop0
+!            wl=wl*vlop0
 !td(13-4) d&r&l(22)b^l(23)
           vlop0=w0*w0td4
           vlop1=w1*w0td4
@@ -2490,8 +2490,8 @@ c            wl=wl*vlop0
           vlop0=w0*w0td2
           vlop1=w1*w1td2
           list=list4(lri,lrj,lrd,lra)
-          wl=vlop0*(vint_ci(list+2)+vint_ci(list))  !1.3
-     :       -vlop1*(vint_ci(list+2)-vint_ci(list))
+          wl=vlop0*(vint_ci(list+2)+vint_ci(list))                      & !1.3
+     &       -vlop1*(vint_ci(list+2)-vint_ci(list))
         call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
         enddo
 !td(13-3) a&(23)b&l(32)b^l(23)
@@ -2507,8 +2507,8 @@ c            wl=wl*vlop0
           vlop0=w0*w0td3                !d6-8
           vlop1=w1*w1td3
           list=list4(lri,lrd,lrj,lra)
-        wl=vlop0*(vint_ci(list+2)-2*vint_ci(list+1))      !1.2
-     :       -vlop1*vint_ci(list+2)
+        wl=vlop0*(vint_ci(list+2)-2*vint_ci(list+1))                    & !1.2
+     &       -vlop1*vint_ci(list+2)
         call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
         enddo
       enddo
@@ -2590,7 +2590,7 @@ c            wl=wl*vlop0
             call neoc(kcoe,nocc,tcoe)
             wl=wl+vlop0*nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
           enddo
-c            wl=wl*vlop0
+!            wl=wl*vlop0
 !t1d1(15-4) d&r&l(11)b^l(13)
           vlop0=w0*w0td4
           vlop1=w1*w0td4
@@ -2628,8 +2628,8 @@ c            wl=wl*vlop0
           vlop0=w0*w0td2
           vlop1=w1*w1td2
           list=list4(lri,lrj,lrd,lra)
-          wl=vlop0*(vint_ci(list+2)+vint_ci(list))  !1.3
-     :       -vlop1*(vint_ci(list+2)-vint_ci(list))
+          wl=vlop0*(vint_ci(list+2)+vint_ci(list))                      & !1.3
+     &       -vlop1*(vint_ci(list+2)-vint_ci(list))
         call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
         enddo
 !t1d1(15-3) a&(13)b&l(31)b^l(13)
@@ -2645,8 +2645,8 @@ c            wl=wl*vlop0
           vlop0=w0*w0td3                !d6-8
           vlop1=w1*w1td3
           list=list4(lri,lrd,lrj,lra)
-        wl=vlop0*(vint_ci(list+2)-2*vint_ci(list+1))      !1.2
-     :       -vlop1*vint_ci(list+2)
+        wl=vlop0*(vint_ci(list+2)-2*vint_ci(list+1))                    & !1.2
+     &       -vlop1*vint_ci(list+2)
         call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
         enddo
       enddo

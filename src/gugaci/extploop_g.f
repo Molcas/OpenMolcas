@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 ! Module_calcu  Completed LOOP multiply MOs and partly complete DM1 and
 
 ! SUBROUTINE lp10_arbrbr_ext_calcuvalue_G
@@ -112,9 +112,9 @@
       if ( logic_g1415 ) then
 
       w1lp=w1_plp*w1g14a
-C=========================lyb====================
-C THE W1LP SHOULD BE MULTIPLED BY TWO,BECAUSE WE JUST USE HALF OF THEM
-C IS H*C CALCULATIONS, ???
+!=========================lyb====================
+! THE W1LP SHOULD BE MULTIPLED BY TWO,BECAUSE WE JUST USE HALF OF THEM
+! IS H*C CALCULATIONS, ???
 
       w1lp=w1lp*2.0D+00
 
@@ -190,8 +190,8 @@ C IS H*C CALCULATIONS, ???
 
       end
 
-      subroutine lp_drl_ext_TT_calcuvalue_G
-     :                           (lri,n1415_value,nlp_value)
+      subroutine lp_drl_ext_TT_calcuvalue_G                             &
+     &                           (lri,n1415_value,nlp_value)
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "intsort_h.fh"
@@ -207,10 +207,10 @@ C IS H*C CALCULATIONS, ???
 
       w14lp=w014-w114
       w15lp=w015-w115
-C=========================lyb====================
-C THE W1LP SHOULD BE MULTIPLED BY TWO,BECAUSE WE JUST USE HALF OF THEM
-C IS H*C CALCULATIONS, ???
-C
+!=========================lyb====================
+! THE W1LP SHOULD BE MULTIPLED BY TWO,BECAUSE WE JUST USE HALF OF THEM
+! IS H*C CALCULATIONS, ???
+!
 
       w14lp=w14lp*2.0D+00
       w15lp=w15lp*2.0D+00
@@ -267,8 +267,8 @@ C
       nlp_value=ivalue
       end
 
-      subroutine lp_drl_SUM_TT_calcuvalue_G
-     :                           (lri,n1415_value,nlp_value)
+      subroutine lp_drl_SUM_TT_calcuvalue_G                             &
+     &                           (lri,n1415_value,nlp_value)
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "intsort_h.fh"
@@ -284,10 +284,10 @@ C
 
       w14lp=w014-w114
       w15lp=w015-w115
-C=========================lyb====================
-C THE W1LP SHOULD BE MULTIPLED BY TWO,BECAUSE WE JUST USE HALF OF THEM
-C IS H*C CALCULATIONS, ???
-C
+!=========================lyb====================
+! THE W1LP SHOULD BE MULTIPLED BY TWO,BECAUSE WE JUST USE HALF OF THEM
+! IS H*C CALCULATIONS, ???
+!
       w14lp=w14lp*2.0D+00
       w15lp=w15lp*2.0D+00
       do ismb=1,ng_sm
@@ -347,9 +347,9 @@ C
       if ( logic_g1415 ) then
 
       w1lp=w1_plp*w1g14a
-C=========================lyb====================
-C THE W1LP SHOULD BE MULTIPLED BY TWO,BECAUSE WE JUST USE HALF OF THEM
-C IS H*C CALCULATIONS, ???
+!=========================lyb====================
+! THE W1LP SHOULD BE MULTIPLED BY TWO,BECAUSE WE JUST USE HALF OF THEM
+! IS H*C CALCULATIONS, ???
 
       w1lp=w1lp*2.0D+00
       do ismb=1,ng_sm
@@ -378,15 +378,15 @@ C IS H*C CALCULATIONS, ???
 
 !G2G4b
       if ( logic_g2g4a ) then
-c       w0lp=w0_plp*w0g2a
+!       w0lp=w0_plp*w0g2a
         w1lp=w1_plp*w1g2a
 
-C       valuelptmp1=w0lp
-C       w0lp=w0lp-w1lp
-C       w1lp=-valuelptmp1*2.d0
-C       valuelptmp1=ww0lp
-C       ww0lp=ww0lp-ww1lp
-C       ww1lp=-valuelptmp1*2.d0
+!       valuelptmp1=w0lp
+!       w0lp=w0lp-w1lp
+!       w1lp=-valuelptmp1*2.d0
+!       valuelptmp1=ww0lp
+!       ww0lp=ww0lp-ww1lp
+!       ww1lp=-valuelptmp1*2.d0
 
 
       do lmb=1,ng_sm
@@ -669,8 +669,8 @@ C       ww1lp=-valuelptmp1*2.d0
       nlp_value=ivalue
       end
 
-      subroutine lp10_arbrbr_ext_calcuvalue_G(intentry,
-     :                                      isma,nlp_value)
+      subroutine lp10_arbrbr_ext_calcuvalue_G(intentry,                 &
+     &                                      isma,nlp_value)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
@@ -686,8 +686,8 @@ C       ww1lp=-valuelptmp1*2.d0
             DO LRKTMP=LRJTMP+1,norb_inn
               lsmk=lsm_inn(LRKTMP)
                IF(mul_tab(lsmij,lsmk).NE.isma) CYCLE
-               IJK=LRITMP-NORB_FRZ+NGW2(LRJTMP-NORB_FRZ)
-     :                          +NGW3(LRKTMP-NORB_FRZ)
+               IJK=LRITMP-NORB_FRZ+NGW2(LRJTMP-NORB_FRZ)                &
+     &                          +NGW3(LRKTMP-NORB_FRZ)
                IF(INTIND_IJKA(IJK).EQ.intentry) THEN
                   LRI=LRITMP
                   LRJ=LRJTMP
@@ -715,8 +715,8 @@ C       ww1lp=-valuelptmp1*2.d0
       nlp_value=ivalue
       end
 
-      subroutine lp11_arblbr_ext_calcuvalue_G(intentry,isma,
-     :                                                nlp_value)
+      subroutine lp11_arblbr_ext_calcuvalue_G(intentry,isma,            &
+     &                                                nlp_value)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
@@ -733,8 +733,8 @@ C       ww1lp=-valuelptmp1*2.d0
             DO LRKTMP=LRJTMP+1,norb_inn
               lsmk=lsm_inn(LRKTMP)
                IF(mul_tab(lsmij,lsmk).NE.isma) CYCLE
-               IJK=LRITMP-NORB_FRZ+NGW2(LRJTMP-NORB_FRZ)
-     :                          +NGW3(LRKTMP-NORB_FRZ)
+               IJK=LRITMP-NORB_FRZ+NGW2(LRJTMP-NORB_FRZ)                &
+     &                          +NGW3(LRKTMP-NORB_FRZ)
                IF(INTIND_IJKA(IJK).EQ.intentry) THEN
                   LRI=LRITMP
                   LRJ=LRJTMP
@@ -761,8 +761,8 @@ C       ww1lp=-valuelptmp1*2.d0
       nlp_value=ivalue
       end
 
-      subroutine lp12_arblbl_ext_calcuvalue_G(intentry,isma,
-     :                                                nlp_value)
+      subroutine lp12_arblbl_ext_calcuvalue_G(intentry,isma,            &
+     &                                                nlp_value)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
@@ -779,8 +779,8 @@ C       ww1lp=-valuelptmp1*2.d0
             DO LRKTMP=LRJTMP+1,norb_inn
               lsmk=lsm_inn(LRKTMP)
                IF(mul_tab(lsmij,lsmk).NE.isma) CYCLE
-               IJK=LRITMP-NORB_FRZ+NGW2(LRJTMP-NORB_FRZ)
-     :                          +NGW3(LRKTMP-NORB_FRZ)
+               IJK=LRITMP-NORB_FRZ+NGW2(LRJTMP-NORB_FRZ)                &
+     &                          +NGW3(LRKTMP-NORB_FRZ)
                IF(INTIND_IJKA(IJK).EQ.intentry) THEN
                   LRI=LRITMP
                   LRJ=LRJTMP
@@ -962,8 +962,8 @@ C       ww1lp=-valuelptmp1*2.d0
       end
 
 
-      subroutine lp_ar_coe_calcuvalue_G
-     *          (idtu,isma,lri,lrj,nlp_value,lpcoe,nlp_value1)
+      subroutine lp_ar_coe_calcuvalue_G                                 &
+     &          (idtu,isma,lri,lrj,nlp_value,lpcoe,nlp_value1)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1317,8 +1317,8 @@ C       ww1lp=-valuelptmp1*2.d0
       end
 
 
-      subroutine lp_arbl_ext_dd_calcuvalue_G(lri,lrj,
-     :                                 iml,imr,nlp_value)
+      subroutine lp_arbl_ext_dd_calcuvalue_G(lri,lrj,                   &
+     &                                 iml,imr,nlp_value)
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "intsort_h.fh"
@@ -1355,11 +1355,11 @@ C       ww1lp=-valuelptmp1*2.d0
 
        do irb=nlbf,nlef
           lrb=norb_number(irb)
-C            lsmb=lsm(irb)
+!            lsmb=lsm(irb)
           do ira=nlbf,irb-1
              lra=norb_number(ira)
-C             lsma=lsm(ira)
-C             lsmba=mul_tab(lsmb,lsma)
+!             lsma=lsm(ira)
+!             lsmba=mul_tab(lsmb,lsma)
              ivalue=ivalue+1
              CALL TRANS_IJKL_INTPOS(lra,lri,lrj,lrb,NXO)
              index_lpext(ivalue)=NXO
@@ -1371,11 +1371,11 @@ C             lsmba=mul_tab(lsmb,lsma)
        enddo
        do irb=nlbf,nlef
           lrb=norb_number(irb)
-C          lsmb=lsm(irb)
+!          lsmb=lsm(irb)
           do ira=nlbf,irb-1
              lra=norb_number(ira)
-C             lsma=lsm(ira)
-C             lsmba=mul_tab(lsmb,lsma)
+!             lsma=lsm(ira)
+!             lsmba=mul_tab(lsmb,lsma)
              ivalue=ivalue+1
              CALL TRANS_IJKL_INTPOS(lra,lrj,lrb,lri,NXO)
              index_lpext(ivalue)=NXO
@@ -1553,10 +1553,10 @@ C             lsmba=mul_tab(lsmb,lsma)
       enddo
 
       if ( logic_g13 ) then
-C===================================
-C  Drr-DRR
-C  w0lp=2.0D0*w0lp but not 1.0D0*w0lp is based on that the non-diagonal
-C  just uses the non-triangle <Ci|H|Cj> which designates that I > J.
+!===================================
+!  Drr-DRR
+!  w0lp=2.0D0*w0lp but not 1.0D0*w0lp is based on that the non-diagonal
+!  just uses the non-triangle <Ci|H|Cj> which designates that I > J.
 
         w0lp=0.5d0*w0_plp*w0g13a
         w0lp=2.0d0*w0lp

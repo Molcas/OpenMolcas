@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-c
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!
       subroutine stermha4(w,ww,ind1,jbr)
       implicit real*8 (a-h,o-z)
       data done,two/1.d0,2.d0/
       w=0.0d0
       ww=0.0d0
-c     calculate w,ww
+!     calculate w,ww
       b=dble(jbr)
       if(mod(jbr,2).eq.0) fq=done
       if(mod(jbr,2).ne.0) fq=-done
       goto(34,35,40,44),ind1
-c     case a&l
-c     case a&r
+!     case a&l
+!     case a&r
 34    w=fq
       goto 1
 35    w=done
@@ -28,22 +28,22 @@ c     case a&r
 40    w=sqrt(b/(b+done))
       goto 1
 44    w=-fq*sqrt((b+two)/(b+done))
-c      if(abs(w).gt.1.e-13) then
+!      if(abs(w).gt.1.e-13) then
 1     ww=w
       return
       end
-c
+!
       subroutine stermhd1(w,ww,ind1,jbr)
       implicit real*8 (a-h,o-z)
       data done,two,three/1.d0,2.d0,3.d0/
       w=0.0d0
       ww=0.0d0
-c     calculate w,ww
+!     calculate w,ww
       b=dble(jbr)
       if(mod(jbr,2).eq.0) fq=done
       if(mod(jbr,2).ne.0) fq=-done
       goto(38,39,43,48),ind1
-c   d1: case d&r&l
+!   d1: case d&r&l
 38    w=-fq/sqrt(two)
       ww=-fq*sqrt((b-done)/(b+b+two))
       goto 2
@@ -53,23 +53,23 @@ c   d1: case d&r&l
 48    w=fq*sqrt(two)
       goto 2
 39    ww=-sqrt(b/(b+done))
-c      if(dldr.eq.2101) ww=(b+two)/(b+done)
+!      if(dldr.eq.2101) ww=(b+two)/(b+done)
 2     return
       end
-c
+!
       subroutine stermhd5(w,ww)
       implicit real*8 (a-h,o-z)
       data two/2.d0/
       w=0.0d0
       ww=0.0d0
-c     calculate w,ww
-c   d5: case d&r&r
+!     calculate w,ww
+!   d5: case d&r&r
       w=-sqrt(two)
       return
       end
-c
+!
       subroutine stermla1(w,ww,ind1,jbr)
-c     case a^l
+!     case a^l
       implicit real*8 (a-h,o-z)
       data done/1.d0/
       w=0.0d0
@@ -88,14 +88,14 @@ c     case a^l
 2     ww=w
       return
       end
-c
+!
       subroutine stermla2(w,ww,ind1,jbr)
-c     case a^r
+!     case a^r
       implicit real*8 (a-h,o-z)
       data done,two/1.d0,2.d0/
       w=0.0d0
       ww=0.0d0
-c     calculate w,ww
+!     calculate w,ww
       b=dble(jbr)
       if(mod(jbr,2).eq.0) fq=done
       if(mod(jbr,2).ne.0) fq=-done
@@ -110,14 +110,14 @@ c     calculate w,ww
 3     ww=w
       return
       end
-c
+!
       subroutine stermld2(w,ww,ind1,jbr)
-c    d2: case d^r^l
+!    d2: case d^r^l
       implicit real*8 (a-h,o-z)
       data done,two/1.d0,2.d0/
       w=0.0d0
       ww=0.0d0
-c     calculate w,ww
+!     calculate w,ww
       b=dble(jbr)
       if(mod(jbr,2).eq.0) fq=done
       if(mod(jbr,2).ne.0) fq=-done
@@ -135,18 +135,18 @@ c     calculate w,ww
 74    ww=sqrt((b+done)/b)
 4     return
       end
-c
+!
       subroutine stermld6(w,ww)
-c   d6: case d^r^r
+!   d6: case d^r^r
       implicit real*8  (a-h,o-z)
       data dzero,two/0.d0,2.d0/
       w=-sqrt(two)
       ww=dzero
       return
       end
-c
+!
       subroutine segmidc1(w,ww,ind1,jbr)
-c  case c1
+!  case c1
       implicit real*8 (a-h,o-z)
       data dzero,done,three/0.d0,1.d0,3.d0/
       b=dble(jbr)
@@ -177,9 +177,9 @@ c  case c1
 2     ww=w
       return
       end
-c
+!
       subroutine segmidc2(w,ww,ind1,jbr)
-c  case c2
+!  case c2
       implicit real*8 (a-h,o-z)
       data dzero,done,two,three/0.d0,1.d0,2.d0,3.d0/
       b=dble(jbr)
@@ -225,9 +225,9 @@ c  case c2
 74    ww=fq*sqrt(two/(b*b-b))
 2     return
       end
-c
+!
       subroutine segmidc22(w,ww,ind1,jbr)
-c  case c22
+!  case c22
       implicit real*8 (a-h,o-z)
       data dzero,done,two,three/0.d0,1.d0,2.d0,3.d0/
       b=dble(jbr)
@@ -269,12 +269,12 @@ c  case c22
 80    ww=done
 2     return
       end
-c
+!
       subroutine segmidb3(w,ww,ind1,jbr)
-c  submid b3(b&l)
+!  submid b3(b&l)
       implicit real*8     (a-h,o-z)
       data dzero,done,two,three/0.d0,1.d0,2.d0,3.d0/vtwo/0.5d0/
-c     calculate w,ww
+!     calculate w,ww
       b=dble(jbr)
       if(mod(jbr,2).eq.0) fq=done
       if(mod(jbr,2).ne.0) fq=-done
@@ -302,12 +302,12 @@ c     calculate w,ww
 63    ww=done
 2     return
       end
-c
+!
       subroutine segmidb4(w,ww,ind1,jbr)
-c   segmid b4(b&r)
+!   segmid b4(b&r)
       implicit real*8 (a-h,o-z)
       data dzero,done,two,three/0.d0,1.d0,2.d0,3.d0/vtwo/0.5d0/
-c     calculate w,ww
+!     calculate w,ww
       b=dble(jbr)
       if(mod(jbr,2).eq.0) fq=done
       if(mod(jbr,2).ne.0) fq=-done
@@ -336,12 +336,12 @@ c     calculate w,ww
 56    ww=fq*sqrt((b-done)/b)
 6     return
       end
-c
+!
       subroutine segmidd10(w,ww,ind1,jbr)
-c   segmid d10(d^r&l)
+!   segmid d10(d^r&l)
       implicit real*8 (a-h,o-z)
       data dzero,done/0.d0,1.d0/
-c     calculate w,ww
+!     calculate w,ww
       if(mod(jbr,2).eq.0) fq=done
       if(mod(jbr,2).ne.0) fq=-done
       w=dzero
@@ -354,10 +354,10 @@ c     calculate w,ww
       end
 
       subroutine segmidb2(w,ww,ind1,jbr)
-c   segmid b2(b^r)
+!   segmid b2(b^r)
       implicit real*8 (a-h,o-z)
       data dzero,done,two/0.d0,1.d0,2.d0/vtwo/0.5d0/
-c     calculate w,ww
+!     calculate w,ww
       b=dble(jbr)
       if(mod(jbr,2).eq.0) fq=done
       if(mod(jbr,2).ne.0) fq=-done
@@ -385,12 +385,12 @@ c     calculate w,ww
 15    ww=-sqrt((b+done)/(b+two))
 2     return
       end
-c
+!
       subroutine segmidb1(w,ww,ind1,jbr)
-c   segmid b1(b^l)
+!   segmid b1(b^l)
       implicit real*8 (a-h,o-z)
       data dzero,done,two/0.d0,1.d0,2.d0/vtwo/0.5d0/
-c     calculate w,ww
+!     calculate w,ww
       b=dble(jbr)
       if(mod(jbr,2).eq.0) fq=done
       if(mod(jbr,2).ne.0) fq=-done
@@ -425,13 +425,13 @@ c     calculate w,ww
       isq=0
       w=dzero
       ww=dzero
-c     calculate w,ww
+!     calculate w,ww
       b=dble(jbr)
       if(mod(jbr,2).eq.0) fq=done
       if(mod(jbr,2).ne.0) fq=-done
       goto(34,35,36,38,39,40,43,44,48),ind1
-c     case a&l
-c     case a&r
+!     case a&l
+!     case a&r
 34    w=fq
       goto 1
 35    w=done
@@ -439,11 +439,11 @@ c     case a&r
 40    w=sqrt(b/(b+done))
       goto 1
 44    w=-fq*sqrt((b+two)/(b+done))
-c      if(abs(w).gt.1.e-13) then
+!      if(abs(w).gt.1.e-13) then
 1     isq=1
       ww=w
       goto 100
-c     case d&r&l
+!     case d&r&l
 38    w=-fq*sqrt(vtwo)
       ww=-fq*sqrt((b-done)/(b+b+two))
       goto 2
@@ -453,16 +453,16 @@ c     case d&r&l
 48    w=fq*sqrt(two)
       goto 2
 39    ww=-sqrt(b/(b+done))
-c      if(dldr.eq.2101) ww=(b+two)/(b+done)
+!      if(dldr.eq.2101) ww=(b+two)/(b+done)
 2     isq=2
       goto 100
-c     case d&l&l
-c     case d&r&r
+!     case d&l&l
+!     case d&r&r
 36    w=-sqrt(two)
       isq=3
 100   return
       end
-c
+!
 
       subroutine stmh(isq,w,ww,mw,ind1,jbr)
       implicit real*8    (a-h,o-z)
@@ -471,7 +471,7 @@ c
       isq=0
       w=dzero
       ww=dzero
-c     calculate w,ww
+!     calculate w,ww
       b=dble(jbr)
       if(mod(jbr,2).eq.0) fq=done
       if(mod(jbr,2).ne.0) fq=-done
@@ -489,18 +489,18 @@ c     calculate w,ww
       goto 100
 100   return
       end
-c
+!
       subroutine smidc2(isq,w,ww,mw,ind1,jbr)
       implicit real*8 (a-h,o-z)
       data dzero,done,two,three/0.0d0,1.0d0,2.0d0,3.0d0/
-c     calculate w,ww
+!     calculate w,ww
       b=dble(jbr)
       w=dzero
       ww=dzero
       isq=0
       mw=0
       goto(33,38,43,48),ind1
-c     write(6,*) 'this is case c2'
+!     write(6,*) 'this is case c2'
 33    w=done
       ww=done
       goto 2
@@ -524,12 +524,12 @@ c     write(6,*) 'this is case c2'
       isq=0
       w=dzero
       ww=dzero
-c     calculate w,ww
+!     calculate w,ww
       b=dble(jbr)
       if(mod(jbr,2).eq.0) fq=done
       if(mod(jbr,2).ne.0) fq=-done
       goto(38,43,48),ind1
-c     case d^r^l
+!     case d^r^l
 38    w=-fq*sqrt(vtwo)
       ww=fq*sqrt((b+two)/(b*two))
       goto 4

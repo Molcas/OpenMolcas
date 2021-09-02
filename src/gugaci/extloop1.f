@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2009, Bingbing Suo                                     *
-************************************************************************
-C Jul. 3, 2009 -BSUO- External space loops
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2009, Bingbing Suo                                     *
+!***********************************************************************
+! Jul. 3, 2009 -BSUO- External space loops
       subroutine dd_ext_plpmode(ilnodesm,irnodesm)
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
@@ -59,8 +59,8 @@ C Jul. 3, 2009 -BSUO- External space loops
       ip3smabc=isma+jp2(ismb)+jp3(ismc)
       ip2cd=m_jc+(m_jd-1)*nlsm_ext(ismc)   !severe_new_error_1206
       num_smab=nlsm_ext(isma)*nlsm_ext(ismb)  !need checking
-      ipos_intbasetmp=ip4_abcd_ext_base(ip3smabc)+
-     *            (ip2cd-1)*num_smab*3
+      ipos_intbasetmp=ip4_abcd_ext_base(ip3smabc)+                      &
+     &            (ip2cd-1)*num_smab*3
       ibsta=ibsm_ext(ismb)
       ibend=iesm_ext(ismb)
       iasta=ibsm_ext(isma)
@@ -79,8 +79,8 @@ C Jul. 3, 2009 -BSUO- External space loops
       ip2cd=m_jc+NGW2(m_jd)
       nsma=nlsm_ext(isma)
       num_smab=nsma*(nsma-1)/2   !need checking
-      ipos_intbasetmp=ip4_abcd_ext_base(ip3smabc)+
-     *            (ip2cd-1)*num_smab*3
+      ipos_intbasetmp=ip4_abcd_ext_base(ip3smabc)+                      &
+     &            (ip2cd-1)*num_smab*3
       ibsta=ibsm_ext(ismb)+1
       ibend=iesm_ext(ismb)
       iasta=ibsm_ext(isma)
@@ -214,8 +214,8 @@ C Jul. 3, 2009 -BSUO- External space loops
       iaend=iesm_ext(isma)
 
       ibdpos=NGW2(m_jd)
-      ipos_intbasetmp=ipos_intbasetmp+
-     *            ibdpos*num_smab+NGW2(m_jc)*3
+      ipos_intbasetmp=ipos_intbasetmp+                                  &
+     &            ibdpos*num_smab+NGW2(m_jc)*3
       do ib=ibsta,id-1
          iposint=ipos_intbasetmp
          ilwei=icnt_base+iwt_orb_ext(iasta,ib)
@@ -229,8 +229,8 @@ C Jul. 3, 2009 -BSUO- External space loops
 
       ipos_intbasetmp=ip4_abcd_ext_base(ipsmabc)
       ibdpos=NGW2(m_jd)
-      ipos_intbasetmp=ipos_intbasetmp+
-     *            ibdpos*num_smab+m_jc*3
+      ipos_intbasetmp=ipos_intbasetmp+                                  &
+     &            ibdpos*num_smab+m_jc*3
       do ib=ibsta,id-1
          iposint=ipos_intbasetmp
          ja=m_jc
@@ -255,8 +255,8 @@ C Jul. 3, 2009 -BSUO- External space loops
       do ia=iasta,ic-1
          ipos_g36=iwt_orb_ext(ia,ic)-1
          iposint=ipos_intbasetmp+ipos_g36*2         !severe_new_error
-         value_lpext(ilwei)=vint_ci(iposint+1)-vint_ci(iposint)
-     *            +vint_ci(ip2_aa_ext_base+ipos_g36)
+         value_lpext(ilwei)=vint_ci(iposint+1)-vint_ci(iposint)         &
+     &            +vint_ci(ip2_aa_ext_base+ipos_g36)
          ilwei=ilwei+1
       enddo
       end
@@ -271,8 +271,8 @@ C Jul. 3, 2009 -BSUO- External space loops
          ipos_g5=iwt_orb_ext(ib,id)-1            !severe_new_error
          iposint=ipos_intbasetmp+ipos_g5*2         !severe_new_error
          ilwei=icnt_base+iwt_orb_ext(ic,ib)
-         value_lpext(ilwei)=vint_ci(iposint+1)-vint_ci(iposint)
-     *            +vint_ci(ip2_aa_ext_base+ipos_g5)
+         value_lpext(ilwei)=vint_ci(iposint+1)-vint_ci(iposint)         &
+     &            +vint_ci(ip2_aa_ext_base+ipos_g5)
       enddo
       end
 
@@ -286,14 +286,14 @@ C Jul. 3, 2009 -BSUO- External space loops
       do ia=iasta,ic-1                     !severe_new_error
          ipos_g9=iwt_orb_ext(ia,id)-1
          iposint=ipos_intbasetmp+ipos_g9*2      !severe_new_error
-         value_lpext(ilwei)=vint_ci(iposint)-vint_ci(iposint+1)
-     *            -vint_ci(ip2_aa_ext_base+ipos_g9)         !severe_new_
+         value_lpext(ilwei)=vint_ci(iposint)-vint_ci(iposint+1)         &
+     &            -vint_ci(ip2_aa_ext_base+ipos_g9)         !severe_new_
          ilwei=ilwei+1
       enddo
       end
 
-      subroutine gsd_determine_extarmode_paras(
-     *                           ismnodes,ismnoded,logic_sd)
+      subroutine gsd_determine_extarmode_paras(                         &
+     &                           ismnodes,ismnoded,logic_sd)
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
       logical logic_sd
@@ -432,8 +432,8 @@ C Jul. 3, 2009 -BSUO- External space loops
       ip3smabc=isma+jp2(ismb)+jp3(ismc)
       ip2cd=m_jc+(m_jd-1)*nlsm_ext(ismc)      !severe_new_error_1206
       num_smab=nlsm_ext(isma)*nlsm_ext(ismb)  !need checking
-      ipos_intbasetmp=ip4_abcd_ext_base(ip3smabc)+
-     *            (ip2cd-1)*num_smab*3
+      ipos_intbasetmp=ip4_abcd_ext_base(ip3smabc)+                      &
+     &            (ip2cd-1)*num_smab*3
       ibsta=ibsm_ext(ismb)
       ibend=iesm_ext(ismb)
       iasta=ibsm_ext(isma)
@@ -452,8 +452,8 @@ C Jul. 3, 2009 -BSUO- External space loops
       ip2cd=m_jc+NGW2(m_jd)
       nsma=nlsm_ext(isma)
       num_smab=nsma*(nsma-1)/2   !need checking
-      ipos_intbasetmp=ip4_abcd_ext_base(ip3smabc)+
-     *            (ip2cd-1)*num_smab*3
+      ipos_intbasetmp=ip4_abcd_ext_base(ip3smabc)+                      &
+     &            (ip2cd-1)*num_smab*3
       ibsta=ibsm_ext(ismb)+1
       ibend=iesm_ext(ismb)
       iasta=ibsm_ext(isma)
@@ -588,8 +588,8 @@ C Jul. 3, 2009 -BSUO- External space loops
       iaend=iesm_ext(isma)
 
       ibdpos=NGW2(m_jd)
-      ipos_intbasetmp=ipos_intbasetmp+
-     *            ibdpos*num_smab+NGW2(m_jc)*3
+      ipos_intbasetmp=ipos_intbasetmp+                                  &
+     &            ibdpos*num_smab+NGW2(m_jc)*3
       do ib=ibsta,id-1
          iposint=ipos_intbasetmp
          ilwei=icnt_base+iwt_orb_ext(iasta,ib)
@@ -603,8 +603,8 @@ C Jul. 3, 2009 -BSUO- External space loops
 
       ipos_intbasetmp=ip4_abcd_ext_base(ipsmabc)
       ibdpos=NGW2(m_jd)
-      ipos_intbasetmp=ipos_intbasetmp+
-     *            ibdpos*num_smab+m_jc*3
+      ipos_intbasetmp=ipos_intbasetmp+                                  &
+     &            ibdpos*num_smab+m_jc*3
       do ib=ibsta,id-1
          iposint=ipos_intbasetmp
          ja=m_jc
@@ -629,8 +629,8 @@ C Jul. 3, 2009 -BSUO- External space loops
       do ia=iasta,ic-1
          ipos_g10=iwt_orb_ext(ia,ic)-1
          iposint=ipos_intbasetmp+ipos_g10*2
-         value_lpext(ilwei)=vint_ci(iposint+1)+vint_ci(iposint)
-     *            +vint_ci(ip2_aa_ext_base+ipos_g10)
+         value_lpext(ilwei)=vint_ci(iposint+1)+vint_ci(iposint)         &
+     &            +vint_ci(ip2_aa_ext_base+ipos_g10)
          ilwei=ilwei+1
       enddo
       end
@@ -645,8 +645,8 @@ C Jul. 3, 2009 -BSUO- External space loops
          ipos_g5=iwt_orb_ext(ib,id)-1            !severe_new_error
          iposint=ipos_intbasetmp+ipos_g5*2         !severe_new_error
          ilwei=icnt_base+iwt_orb_ext(ic,ib)
-         value_lpext(ilwei)=vint_ci(iposint+1)+vint_ci(iposint)
-     *            +vint_ci(ip2_aa_ext_base+ipos_g5)
+         value_lpext(ilwei)=vint_ci(iposint+1)+vint_ci(iposint)         &
+     &            +vint_ci(ip2_aa_ext_base+ipos_g5)
       enddo
       end
 
@@ -660,8 +660,8 @@ C Jul. 3, 2009 -BSUO- External space loops
       do ia=iasta,ic-1                     !severe_new_error
          ipos_g9=iwt_orb_ext(ia,id)-1
          iposint=ipos_intbasetmp+ipos_g9*2      !severe_new_error
-         value_lpext(ilwei)=vint_ci(iposint+1)+vint_ci(iposint)
-     *            +vint_ci(ip2_aa_ext_base+ipos_g9)
+         value_lpext(ilwei)=vint_ci(iposint+1)+vint_ci(iposint)         &
+     &            +vint_ci(ip2_aa_ext_base+ipos_g9)
          ilwei=ilwei+1
       enddo
       end
@@ -685,8 +685,8 @@ C Jul. 3, 2009 -BSUO- External space loops
             if ( ib .eq. id .or. ia .eq. id ) then
 !              g2   arar+ar(head)ar
                ilwei=ilwei+1
-               value_lpext(ilwei)=
-     *         v_sqtwo*(vint_ci(iposintaa)+vint_ci(iposint))
+               value_lpext(ilwei)=                                      &
+     &         v_sqtwo*(vint_ci(iposintaa)+vint_ci(iposint))
             else
 !              g6g7g8
                ilwei=ilwei+1
@@ -726,8 +726,8 @@ C Jul. 3, 2009 -BSUO- External space loops
 !     g31   type_12 arbrb^ra^r
           iabc=iabc0+ia+ngw2(ib)+ngw3(ic)
           iposint=intind_iabc(iabc)
-         value_lpext(ilwei)=vint_ci(iposint+1)*w0plp31
-     *               +vint_ci(iposint+2)*w1plp31
+         value_lpext(ilwei)=vint_ci(iposint+1)*w0plp31                  &
+     &               +vint_ci(iposint+2)*w1plp31
          ilwei=ilwei+1
         enddo
       enddo
@@ -752,8 +752,8 @@ C Jul. 3, 2009 -BSUO- External space loops
         do ia=iasta,iaend
           iabc=iabc0+ia+ngw2(ic)+ngw3(ib)
           iposint=intind_iabc(iabc)
-         value_lpext(ilwei)=vint_ci(iposint+2)*w0plp32
-     *                  -vint_ci(iposint)*w1plp32
+         value_lpext(ilwei)=vint_ci(iposint+2)*w0plp32                  &
+     &                  -vint_ci(iposint)*w1plp32
          ilwei=ilwei+1
         enddo
       enddo
@@ -780,8 +780,8 @@ C Jul. 3, 2009 -BSUO- External space loops
       !g32b
           iabc=iabc0+ic+ngw2(ia)+ngw3(ib)
           iposint=intind_iabc(iabc)
-         value_lpext(ilwei)=vint_ci(iposint+1)*w0plp32   !severe_new_err
-     *                  -vint_ci(iposint)*w1plp32
+         value_lpext(ilwei)=vint_ci(iposint+1)*w0plp32                  & !severe_new_err
+     &                  -vint_ci(iposint)*w1plp32
          ilwei=ilwei+1
         enddo
       enddo
@@ -1101,8 +1101,8 @@ C Jul. 3, 2009 -BSUO- External space loops
       if ( lptype .ne. 2 .and. ilrsm .eq. 1 ) then
          logic_g1415=.true.
          ism_g1415=ilnodesm
-         if ( ilnodesm .eq. 1 .and. iltype .eq. 4
-     *      .and.irtype .eq. 4 ) then
+         if ( ilnodesm .eq. 1 .and. iltype .eq. 4                       &
+     &      .and.irtype .eq. 4 ) then
             logic_g13=.true.
          endif
          if ( iltype.eq.4 ) then          !severe_error
@@ -1254,19 +1254,19 @@ C Jul. 3, 2009 -BSUO- External space loops
             numa=nlsm_ext(isma)
             numint=0
             if ( isma .eq. ismc ) then         !aaa
-C              numint=numa-2+ip2(numb-1)+ip3(numc)
+!              numint=numa-2+ip2(numb-1)+ip3(numc)
               if(numb.gt.1) then
                 numint=numa-2+ngw2(numb-1)+ngw3(numc)
               endif
             elseif ( isma .eq. ismb ) then      !aac
-C              numint=(numa-1+ip2(numb))*numc
+!              numint=(numa-1+ip2(numb))*numc
               if(numb.gt.0) then
                 if((numa-1+ngw2(numb)).gt.0) then
                   numint=(numa-1+ngw2(numb))*numc
                 endif
               endif
             elseif ( ismb .eq. ismc ) then      !acc
-C              numint=(numb-1+ip2(numc))*numa
+!              numint=(numb-1+ip2(numc))*numa
               if(numc.gt.0) then
                 if((numb-1+ngw2(numc)).gt.0) then
                   numint=(numb-1+ngw2(numc))*numa
@@ -1495,7 +1495,7 @@ C              numint=(numb-1+ip2(numc))*numa
       enddo
       endif
 
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) call Unused_integer(ismc)
       end
 
@@ -1528,7 +1528,7 @@ c Avoid unused argument warnings
             ilwei=ilwei+1
          enddo
       enddo
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) call Unused_integer(ismc)
       end
 
@@ -1559,7 +1559,7 @@ c Avoid unused argument warnings
             ilwei=ilwei+1
          enddo
       enddo
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) call Unused_integer(ismc)
       end
 
@@ -1785,10 +1785,10 @@ c Avoid unused argument warnings
          enddo
       enddo
 !           g1
-C===================================
-C  Drr-DRR
-C  WL=2.0D0 but not 1.0D0 is based on that the non-diagonal just uses th
-C  non-triangle <Ci|H|Cj> which designates that I > J.
+!===================================
+!  Drr-DRR
+!  WL=2.0D0 but not 1.0D0 is based on that the non-diagonal just uses th
+!  non-triangle <Ci|H|Cj> which designates that I > J.
 
       do ic=1,id-1
          lrc=norb_number(ic)
@@ -1853,7 +1853,7 @@ C  non-triangle <Ci|H|Cj> which designates that I > J.
          enddo
       enddo
       endif
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) call Unused_integer(ismc)
       end
 
@@ -1884,7 +1884,7 @@ c Avoid unused argument warnings
             ilwei=ilwei+1
          enddo
       enddo
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) call Unused_integer(ismc)
       end
       subroutine g11b_t_diffsym_G(isma,ismb,ismc,ic,id)
@@ -1913,7 +1913,7 @@ c Avoid unused argument warnings
             ilwei=ilwei+1
          enddo
       enddo
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) call Unused_integer(ismc)
       end
 

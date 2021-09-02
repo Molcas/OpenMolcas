@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2007, Bingbing Suo                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2007, Bingbing Suo                                     *
+!***********************************************************************
       subroutine jl_ne_jr(mp,jl,jr,jwl,jwr,lopu)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
@@ -71,22 +71,22 @@
 !  idb=1  in dbl_space      ity_up=0-5               0 ,jpad,iwdl,iwdr,
 !  idb=2  in act_space      ity_up=0-5,itdown=0,3      jph, jpe,iwal,iwa
 !  idb=3  betwin dbl and act   ity_up=0-5,itdown=0,3      jpe,iwdl,iwdr,
-c**************************************************************
+!**************************************************************
       subroutine prodab_h0(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
-c**************************************************************
-c     calculate h matrix elements which were contributed
-c     only by whole inner space loops and store them into
-c     vector2
-c
+!**************************************************************
+!     calculate h matrix elements which were contributed
+!     only by whole inner space loops and store them into
+!     vector2
+!
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
       dimension lopu(4,loputmp)
-c     write(6,*) 'prodab_02 '
+!     write(6,*) 'prodab_02 '
 
       goto(100,200,300),idb
 ! in dbl_space
-c100   jpad=mg2
+!100   jpad=mg2
 100   iwdl=mg3
       iwdr=mg4
       ipae=1
@@ -110,14 +110,14 @@ c100   jpad=mg2
 !           endif
         enddo
       enddo
-c      enddo
+!      enddo
       goto 1000
 ! in act_space
 200   if(jpad.ne.jpadl) return
       jph=mg1
       jpl=mg2
-c     iwal=mg3
-c     iwar=mg4
+!     iwal=mg3
+!     iwar=mg4
       iwupwei=jpad_upwei(jpad)
       isegdownwei=iseg_downwei(ipae)
       jpy=jphy(jph)
@@ -192,12 +192,12 @@ c     iwar=mg4
 1000  return
       end
 
-********************************************************************
+!*******************************************************************
       subroutine prodab_h(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
-c*******************************************************************
-c     whole inner space loops - h*c
-c     26 feb 2007 - revised by suo bing for multi-root calculation
-c
+!*******************************************************************
+!     whole inner space loops - h*c
+!     26 feb 2007 - revised by suo bing for multi-root calculation
+!
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -242,8 +242,8 @@ c
 200   if(jpad.ne.jpadl) return
       jph=mg1
       jpl=mg2
-c     iwal=mg3
-c     iwar=mg4
+!     iwal=mg3
+!     iwar=mg4
       iwupwei=jpad_upwei(jpad)
       isegdownwei=iseg_downwei(ipae)
       jpy=jphy(jph)
@@ -340,7 +340,7 @@ c     iwar=mg4
 #include "pl_structure_h.fh"
       dimension lopu(4,loputmp)
 !log_prod=2:directly no_formh0
-c       write(*,*) 'prodab_h0 '
+!       write(*,*) 'prodab_h0 '
 
       goto(100,200,300),idb
 ! in dbl_space
@@ -380,8 +380,8 @@ c       write(*,*) 'prodab_h0 '
 200   if(jpad.ne.jpadl) return
       jph=mg1
       jpl=mg2
-c     iwal=mg3
-c     iwar=mg4
+!     iwal=mg3
+!     iwar=mg4
       iwupwei=jpad_upwei(jpad)
       jpaedownwei=jpae_downwei(ipae)
       jpy=jphy(jph)
@@ -463,7 +463,7 @@ c     iwar=mg4
 #include "pl_structure_h.fh"
       dimension lopu(4,loputmp)
 !log_prod=1:truanditional formh0
-c       write(*,*) 'prodab_h0 '
+!       write(*,*) 'prodab_h0 '
 
       goto(100,200,300),idb
 ! in dbl_space
@@ -491,8 +491,8 @@ c       write(*,*) 'prodab_h0 '
 200   if(jpad.ne.jpadl) return
       jph=mg1
       jpl=mg2
-c     iwal=mg3
-c     iwar=mg4
+!     iwal=mg3
+!     iwar=mg4
       iwupwei=jpad_upwei(jpad)
       jpaedownwei=jpae_downwei(ipae)
       jpy=jphy(jph)

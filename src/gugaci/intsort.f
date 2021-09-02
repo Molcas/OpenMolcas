@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine int_sort()
 #include "drt_h.fh"
 #include "intsort_h.fh"
@@ -30,7 +30,7 @@
         numb=numb*norb_ext*(norb_ext+1)/2
       endif
 ! (ia|bc)+(ij|ka)
-      lra=norb_inn*norb_ext*(norb_ext+1)*norb_ext/2
+      lra=norb_inn*norb_ext*(norb_ext+1)*norb_ext/2                     &
      &   +norb_inn*(norb_inn+1)*norb_inn*norb_ext/2
       if(lra.gt.numb) numb=lra
 
@@ -44,7 +44,7 @@
 #else
       call intrd_molcas
 #endif
-c --------     vtint(*)-->vint_ci(*)    ------------
+! --------     vtint(*)-->vint_ci(*)    ------------
       numb=1
       call int_sort_inn(numb)         !_ext_0  (ijkl,ijkk,iijj)
       idisk=0
@@ -71,7 +71,7 @@ c --------     vtint(*)-->vint_ci(*)    ------------
         maxintseg=numb
       endif
 
-c  sum over iaqq
+!  sum over iaqq
       viasum_0(1:norb_dz,1:norb_ext)=zero
       viasum_1(1:norb_dz,1:norb_ext)=zero
       do lri=norb_frz+1,norb_inn
@@ -102,7 +102,7 @@ c  sum over iaqq
         maxintseg=numb
       endif
 
-c  sum over (abkk)
+!  sum over (abkk)
       intspace=intspace_abkk(1)
       intpos=intind_abkk(1)
       vijkk_0sum(1:intspace)=zero
@@ -138,31 +138,31 @@ c  sum over (abkk)
       time=etime-stime
       write(6,912) time
 
-900   format(1x,"start integral sorting",/,
-     *       1x,"start reading integral file",/)
-c901   format(1x,"end reading integral file",/)
+900   format(1x,"start integral sorting",/,                             &
+     &       1x,"start reading integral file",/)
+!901   format(1x,"end reading integral file",/)
 902   format(1x,"number of integrals in internal space is ",i8)
-903   format(1x,"number of integrals which have one or three "
-     *       ,"indexs in external space is ",i8)
-904   format(1x,"number of integrals which have two indexs in "
-     *       ,"external space is ",i8)
+903   format(1x,"number of integrals which have one or three "          &
+     &       ,"indexs in external space is ",i8)
+904   format(1x,"number of integrals which have two indexs in "         &
+     &       ,"external space is ",i8)
 905   format(1x,"number of integrals in external space is ",i8)
 910   format(1x,/,1x,"end of integral sorting")
-912   format(1x,"total wall clock time for integral sorting=",
-     *       f8.2," s",/)
+912   format(1x,"total wall clock time for integral sorting=",          &
+     &       f8.2," s",/)
       end
 
       subroutine blocks()
-c**************************************
+!**************************************
 #include "drt_h.fh"
 #include "intsort_h.fh"
-c                              ----- 1 - electron integrals -----
+!                              ----- 1 - electron integrals -----
       nint1=0
       do 1 ip=1,ng_sm
         nint1=nint1+((nlsm_all(ip)+1)*nlsm_all(ip))/2
   1   continue
-c
-c                              ----- 2 - electron integrals -----
+!
+!                              ----- 2 - electron integrals -----
       nint2=0
       nblock=0
       do 10 ip=1,ng_sm
@@ -236,20 +236,20 @@ c                              ----- 2 - electron integrals -----
       nint12=nint1+nint2
 
       write(6,100) nint1,nint2,nint12
-c      write(12,100) nint1,nint2,nint12
-  100 format(' ',1x/2x,
-     -  'number of 1-electron integrals  :',i9/2x,
-     -  'number of 2-electron integrals  :',i9/2x,
-     -  'total number of integrals       :',i9)
+!      write(12,100) nint1,nint2,nint12
+  100 format(' ',1x/2x,                                                 &
+     &  'number of 1-electron integrals  :',i9/2x,                      &
+     &  'number of 2-electron integrals  :',i9/2x,                      &
+     &  'total number of integrals       :',i9)
       write(6,200) nint1
-c      write(12,200) nint1
-  200 format(' ',1x/2x,
-     -  '1-electron blocks  :   1 to',i8/2x,29(1h*))
+!      write(12,200) nint1
+  200 format(' ',1x/2x,                                                 &
+     &  '1-electron blocks  :   1 to',i8/2x,29(1h*))
       write(6,300) (j,(iblktb(i,j),i=1,5),j=1,nblock)
-c      write(12,300) (j,(iblktb(i,j),i=1,5),j=1,nblock)
-  300 format(' ',1x/2x,
-     -  '2-electron block description  :'/2x,
-     -      40(1h*)/2x,50(3('(',i3,')',4i2,i8,3x)/2x))
+!      write(12,300) (j,(iblktb(i,j),i=1,5),j=1,nblock)
+  300 format(' ',1x/2x,                                                 &
+     &  '2-electron block description  :'/2x,                           &
+     &      40(1h*)/2x,50(3('(',i3,')',4i2,i8,3x)/2x))
       return
       end
 
@@ -287,7 +287,7 @@ c      write(12,300) (j,(iblktb(i,j),i=1,5),j=1,nblock)
       enddo
 !  _002_dd_
       ip2_dd_ext_base=ii
-c     write(10,'(2x,a20,i8)')' ip2_dd_ext_base=',      ii
+!     write(10,'(2x,a20,i8)')' ip2_dd_ext_base=',      ii
       do ib=2,norb_ext
         jb=norb_number(ib)
         do ia=1,ib-1
@@ -300,7 +300,7 @@ c     write(10,'(2x,a20,i8)')' ip2_dd_ext_base=',      ii
       enddo
 !_003
       ip3_abd_ext_base=ii
-c     write(10,'(2x,a20,i8)')' ip3_abd_ext_base=',      ii
+!     write(10,'(2x,a20,i8)')' ip3_abd_ext_base=',      ii
 
       do ic=1,norb_ext
         lrc=norb_number(ic)
@@ -357,7 +357,7 @@ c     write(10,'(2x,a20,i8)')' ip3_abd_ext_base=',      ii
               if ( lsmb .eq. lsma ) ibsta=ibsta+1
                 lsmtmp=lsma+jp2(lsmb)+jp3(lsmc)
                 ip4_abcd_ext_base(lsmtmp)=ii
-c     write(10,'(2x,a20,2i8)')' ip4_abcd_ext_base=',  lsmtmp,ii
+!     write(10,'(2x,a20,2i8)')' ip4_abcd_ext_base=',  lsmtmp,ii
       do id=idsta,idend
         lrd=norb_number(id)
         do ic=icsta,min(id-1,icend)
@@ -384,7 +384,7 @@ c     write(10,'(2x,a20,2i8)')' ip4_abcd_ext_base=',  lsmtmp,ii
       subroutine int_sort_inn_2(ii)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-c     (ijcc,ijab)
+!     (ijcc,ijab)
       do ismab=1,ng_sm
         ip2_ab_inn_base(ismab)=ii
         do lri=norb_frz+1,norb_inn-1
@@ -398,7 +398,7 @@ c     (ijcc,ijab)
         enddo
       enddo
 
-c     (abkk)
+!     (abkk)
       do lri=1,norb_inn
         intind_abkk(lri)=ii
         intspace_abkk(lri)=0
@@ -426,10 +426,10 @@ c     (abkk)
       subroutine int_ext_2_1(lri,lrj,lsmij,ii)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-c      write(10,*)'     start intind_ijab',lri,lrj,ii
+!      write(10,*)'     start intind_ijab',lri,lrj,ii
       ij=lri-norb_frz+ngw2(lrj-norb_frz)
       if ( lsmij .eq. 1 ) then       !ijcc
-c        write(10,*)'     start intind_ijcc',ii
+!        write(10,*)'     start intind_ijcc',ii
         intind_ijcc(ij)=ii
         intspace_ijcc(ij)=0
         do ic=1,norb_ext
@@ -437,8 +437,8 @@ c        write(10,*)'     start intind_ijcc',ii
           lrc=norb_number(ic)
           vint_ci(ii)=vfutei(lrj,lrc,lri,lrc)
           vint_ci(ii+1)=vfutei(lrj,lri,lrc,lrc)
-c      write(10,'(2x,4i6,i8,3f16.8)')lrj,lri,lrc,lrc,ii,
-c     *          vint_ci(ii),vint_ci(ii+1)
+!      write(10,'(2x,4i6,i8,3f16.8)')lrj,lri,lrc,lrc,ii,
+!     *          vint_ci(ii),vint_ci(ii+1)
           ii=ii+2
         enddo
       endif
@@ -460,8 +460,8 @@ c     *          vint_ci(ii),vint_ci(ii+1)
             vint_ci(ii)=vfutei(jd,jc,lrj,lri)
             vint_ci(ii+1)=vfutei(jd,lrj,jc,lri)
             vint_ci(ii+2)=vfutei(jd,lri,lrj,jc)
-c      write(10,'(2x,4i6,i8,3f16.8)')jd,jc,lrj,lri,ii,
-c     *          vint_ci(ii),vint_ci(ii+1),vint_ci(ii+2)
+!      write(10,'(2x,4i6,i8,3f16.8)')jd,jc,lrj,lri,ii,
+!     *          vint_ci(ii),vint_ci(ii+1),vint_ci(ii+2)
             ii=ii+3
           enddo
         enddo
@@ -473,8 +473,8 @@ c     *          vint_ci(ii),vint_ci(ii+1),vint_ci(ii+2)
       subroutine int_sort_inn_3(ii)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-c     write(10,'(2x,a20,i8)')' int_inn_3_base=',      ii
-c      write(10,*)'     start intind_ijka',ii
+!     write(10,'(2x,a20,i8)')' int_inn_3_base=',      ii
+!      write(10,*)'     start intind_ijka',ii
       do lri=norb_frz+1,norb_inn-2
         lsmi=lsm_inn(lri)
         do lrj=lri+1,norb_inn-1
@@ -492,8 +492,8 @@ c      write(10,*)'     start intind_ijka',ii
               vint_ci(ii)=vfutei(ja,lrk,lrj,lri)
               vint_ci(ii+1)=vfutei(ja,lrj,lrk,lri)
               vint_ci(ii+2)=vfutei(ja,lri,lrk,lrj)
-c     write(10,'(2x,4i6,i8,3f16.8)')ja,lrk,lrj,lri,ii,
-c    *       vint_ci(ii),vint_ci(ii+1),vint_ci(ii+2)
+!     write(10,'(2x,4i6,i8,3f16.8)')ja,lrk,lrj,lri,ii,
+!    *       vint_ci(ii),vint_ci(ii+1),vint_ci(ii+2)
               ii=ii+3
             enddo
           enddo
@@ -505,9 +505,9 @@ c    *       vint_ci(ii),vint_ci(ii+1),vint_ci(ii+2)
       subroutine int_ext_3_2_1(lri,lsmi,ii)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-c      write(10,*)'   int_ext_3_2_1'
+!      write(10,*)'   int_ext_3_2_1'
       iabc0=(lri-1)*nabc
-c     write(10,*)'     start intind_iabc',ii
+!     write(10,*)'     start intind_iabc',ii
       do lsmd=1,ng_sm
         lsmbc=mul_tab(lsmi,lsmd)
         do lsmc=1,lsmd
@@ -543,7 +543,7 @@ c     write(10,*)'     start intind_iabc',ii
           enddo
         enddo
 
-c      write(10,*)'     start intind_iaqq',ii
+!      write(10,*)'     start intind_iaqq',ii
       ib0=(lri-1)*norb_ext
       lsmb=lsmi                       !3_ibqq
       ibsta=ibsm_ext(lsmb)
@@ -586,24 +586,24 @@ c      write(10,*)'     start intind_iaqq',ii
       function list3(i,j,k)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-c            *****************
+!            *****************
       nij   = i+ngw2(j)
       list3 = loij(nij)+2*(k-1)
-c            *****************
+!            *****************
       return
       end
-c***********************************************************************
+!***********************************************************************
       function list4(ld,lc,lb,la)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-c                    ***************
+!                    ***************
       lra  = ncibl(la)
       njkl = ld+ngw2(lc)+ngw3(lb)
       list4= loijk(njkl)+3*(lra-1)
-c                    ***************
+!                    ***************
       return
       end
-************************************************************************
+!***********************************************************************
       subroutine int_sort_inn(numb)
 #include "drt_h.fh"
 #include "intsort_h.fh"
@@ -615,7 +615,7 @@ c                    ***************
         msob(ms)=msob(ms)+1
         ncibl(lra) = msob(ms)
 12    continue
-c=======================================================================
+!=======================================================================
 !      write(6,'(1x,14i3)')(ncibl(i),i=1,norb_inn)
 
       numb = 1
@@ -638,8 +638,8 @@ c=======================================================================
 !      print*, loij(1:8)
 !      stop 888
 
-c=======================================================================
-c      la<lb<lc<ld
+!=======================================================================
+!      la<lb<lc<ld
       do 30 ld = 1,norb_inn-3
         do 31 lc = ld+1,norb_inn-2
           msd  = lsm_inn(ld)
@@ -656,20 +656,20 @@ c      la<lb<lc<ld
             do 40 la = norb_inn,lb+1,-1
               if(lsm_inn(la).ne.msa) cycle
               nolra=nolra+1
-c              list = loijk(njkl)+3*(nolra-1)
+!              list = loijk(njkl)+3*(nolra-1)
 
-c        write(6,'(2x,4i3,2i7)')  la,lb,lc,ld,list,numb
+!        write(6,'(2x,4i3,2i7)')  la,lb,lc,ld,list,numb
 
               vint_ci(numb)=vfutei(la,lc,lb,ld)        !tmp stop
               vint_ci(numb+1)=vfutei(la,lb,lc,ld)
               vint_ci(numb+2)=vfutei(la,ld,lc,lb)
-c     write(10,'(2x,4i6,i8,3f16.8)')la,lb,lc,ld, numb,
-c    *        vint_ci(numb),vint_ci(numb+1),vint_ci(numb+2)
+!     write(10,'(2x,4i6,i8,3f16.8)')la,lb,lc,ld, numb,
+!    *        vint_ci(numb),vint_ci(numb+1),vint_ci(numb+2)
               numb=numb+3
 40          continue
 32        continue
 31      continue
 30    continue
       return
-c=======================================================================
+!=======================================================================
       end

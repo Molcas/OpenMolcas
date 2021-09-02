@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2007, Bingbing Suo                                     *
-************************************************************************
-c  16 apr 2007 - bsuo - revised to use molcas intergrals
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2007, Bingbing Suo                                     *
+!***********************************************************************
+!  16 apr 2007 - bsuo - revised to use molcas intergrals
 #ifdef MOLPRO
       subroutine intrd
       use file_qininit, only : maxrecord
@@ -51,7 +51,7 @@ c  16 apr 2007 - bsuo - revised to use molcas intergrals
       ! 4th record, 1e int
       call ddafile(Lutwomo,2,xfock,nintone,ni) ! 1e integrals
 
-c write one electron fock matrix into voint
+! write one electron fock matrix into voint
       nidx=0
       do i=1,ng_sm
         nism  = nlsm_all(i)
@@ -74,8 +74,8 @@ c write one electron fock matrix into voint
         enddo
         nidx=nidx+nsmint
       enddo
-      call readtwoeint(lutwomo,maxrecord,noffset,nlsm_all,ng_sm,mul_tab,
-     *                 map_orb_order,noidx)
+      call readtwoeint(lutwomo,maxrecord,noffset,nlsm_all,ng_sm,mul_tab,&
+     &                 map_orb_order,noidx)
 
       !write(6,*)
       !write(6,*) "MRCI integrals"
@@ -84,11 +84,11 @@ c write one electron fock matrix into voint
       !enddo
 
       return
-c...end of intrd_molcas
+!...end of intrd_molcas
       end
 
-      subroutine readtwoeint(nft,maxrecord,noffset,norb,
-     *                       ngsm,multab,maporb,noidx)
+      subroutine readtwoeint(nft,maxrecord,noffset,norb,                &
+     &                       ngsm,multab,maporb,noidx)
       implicit REAL*8 (a-h,o-z)
 #include "ci_parameter.fh"
       integer :: noffset(maxrecord)
@@ -118,11 +118,11 @@ c...end of intrd_molcas
                 nbpq=(nop+nop**2)/2
                 nbrs=(nos+nos**2)/2
                 if(nsp.eq.nsr) then
-c  (ii|ii) type 1 int
+!  (ii|ii) type 1 int
                   nintb=(nbpq+nbpq**2)/2
                   ityp=1
                 else
-c  (ii|jj) type 3 int
+!  (ii|jj) type 3 int
                   nintb=nbpq*nbrs
                   ityp=3
                 endif
@@ -130,24 +130,24 @@ c  (ii|jj) type 3 int
                 nbpq=nop*noq
                 nbrs=nor*nos
                 if(nsp.eq.nsr) then
-c (ij|ij) type 2 int
+! (ij|ij) type 2 int
                   nintb=(nbpq+nbpq**2)/2
                   ityp=2
                 else
-c (ij|kl) type 4 int
+! (ij|kl) type 4 int
                   nintb=nbpq*nbrs
                   ityp=4
                 endif
               endif
 
               if(nintb.eq.0) goto 10
-              write(6,2100) nsp,nsq,nsr,nss,nop,noq,nor,nos,
-     *                      nintb
+              write(6,2100) nsp,nsq,nsr,nss,nop,noq,nor,nos,            &
+     &                      nintb
 2100          format(7x,4i2,1x,4i4,2x,3x,i9)
 
               idx=0
               iout=0
-c              call ddatard(nft,buff,kbuf,idisk)
+!              call ddatard(nft,buff,kbuf,idisk)
               if(nintb.gt.kbuf) then
                 call ddafile(nft,2,buff,kbuf, idisk)
               else
@@ -198,7 +198,7 @@ c              call ddatard(nft,buff,kbuf,idisk)
       enddo
 
       return
-c....end of readtwoeint
+!....end of readtwoeint
       end
 
 #else
@@ -229,18 +229,18 @@ c....end of readtwoeint
       call readtraonehead(luonemo,ecor,idisk)
       vpotnuc=ecor
 
-c  read mo coeff, need debug, if frozen and delete orbitals are not zero
-c      call ddatard(nft,x,nmob,idisk)
+!  read mo coeff, need debug, if frozen and delete orbitals are not zero
+!      call ddatard(nft,x,nmob,idisk)
       call ddafile(luonemo,2,x,nmob,idisk)
 
-c  read one electron fock matrix
+!  read one electron fock matrix
       call ddafile(luonemo,2,xfock,nintone,idisk)
-c      call ddatard(nft,xfock,nintone,idisk)
+!      call ddatard(nft,xfock,nintone,idisk)
       call daclos(luonemo)
-c  read one elctron kenetic intergrals
-c      call ddatard(nft,x1e,nintone,idisk)
-c      call cclose_molcas(nft)
-c write one electron fock matrix into voint
+!  read one elctron kenetic intergrals
+!      call ddatard(nft,x1e,nintone,idisk)
+!      call cclose_molcas(nft)
+! write one electron fock matrix into voint
       nidx=0
       do i=1,ng_sm
         nism  = nlsm_all(i)
@@ -265,14 +265,14 @@ c write one electron fock matrix into voint
       enddo
 
       call daname(lutwomo,fntwomo)
-      call readtwoeint(lutwomo,nlsm_all,ng_sm,mul_tab,
-     *                 map_orb_order,noidx)
+      call readtwoeint(lutwomo,nlsm_all,ng_sm,mul_tab,                  &
+     &                 map_orb_order,noidx)
       call daclos(lutwomo)
       write(6,*)
       deallocate(x)
 
       return
-c...end of intrd_molcas
+!...end of intrd_molcas
       end
 
       subroutine readtwoeint(nft,norb,ngsm,multab,maporb,noidx)
@@ -286,9 +286,9 @@ c...end of intrd_molcas
       idisk=0
       lenrd=ntratoc*lenintegral
       write(6,*) lenrd
-c      call idatard(nft,itratoc,lenrd,idisk)
+!      call idatard(nft,itratoc,lenrd,idisk)
       call idafile(nft,2,itratoc,ntratoc,idisk)
-c      write(6,"(10(1x,i8))") itratoc(1:10)
+!      write(6,"(10(1x,i8))") itratoc(1:10)
       write(6,2000)
 2000  format(/7x,'symmetry',6x,' orbitals',8x,'integrals')
       do nsp=1,ngsm
@@ -309,32 +309,32 @@ c      write(6,"(10(1x,i8))") itratoc(1:10)
                 nbpq=(nop+nop**2)/2
                 nbrs=(nos+nos**2)/2
                 if(nsp.eq.nsr) then
-c  (ii|ii) type 1 int
+!  (ii|ii) type 1 int
                   nintb=(nbpq+nbpq**2)/2
                 else
-c  (ii|jj) type 3 int
+!  (ii|jj) type 3 int
                   nintb=nbpq*nbrs
                 endif
               else
                 nbpq=nop*noq
                 nbrs=nor*nos
                 if(nsp.eq.nsr) then
-c (ij|ij) type 2 int
+! (ij|ij) type 2 int
                   nintb=(nbpq+nbpq**2)/2
                 else
-c (ij|kl) type 4 int
+! (ij|kl) type 4 int
                   nintb=nbpq*nbrs
                 endif
               endif
 
               if(nintb.eq.0) goto 10
-              write(6,2100) nsp,nsq,nsr,nss,nop,noq,nor,nos,
-     *                      nintb
+              write(6,2100) nsp,nsq,nsr,nss,nop,noq,nor,nos,            &
+     &                      nintb
 2100          format(7x,4i2,1x,4i4,2x,3x,i9)
 
               idx=0
               iout=0
-c              call ddatard(nft,buff,kbuf,idisk)
+!              call ddatard(nft,buff,kbuf,idisk)
               call ddafile(nft,2,buff,kbuf,idisk)
 
               do li=1,nor
@@ -351,7 +351,7 @@ c              call ddatard(nft,buff,kbuf,idisk)
                     do ll=numin,numax
                       iout=iout+1
                       if(iout.gt.kbuf) then
-c                        call ddatard(nft,buff,kbuf,idisk)
+!                        call ddatard(nft,buff,kbuf,idisk)
                          call ddafile(nft,2,buff,kbuf,idisk)
                          iout=1
                       endif
@@ -377,7 +377,7 @@ c                        call ddatard(nft,buff,kbuf,idisk)
       enddo
 
       return
-c....end of readtwoeint
+!....end of readtwoeint
       end
 
       subroutine readtraonehead(nft,ecor,idisk)
@@ -386,8 +386,8 @@ c....end of readtwoeint
 #include "maxbfn.fh"
       parameter (maxmolcasorb=maxbfn)
       parameter (lenin8=6+8)
-      dimension ncone(64),nbas(8),norb(8),nfro(8),
-     *          ndel(8)
+      dimension ncone(64),nbas(8),norb(8),nfro(8),                      &
+     &          ndel(8)
       character bsbl(maxmolcasorb)*(lenin8)
       dimension dum(1),idum(1)
 
@@ -396,7 +396,7 @@ c....end of readtwoeint
       call ddafile(nft,2,dum,1,idisk)
       ecor=dum(1)
       call idafile(nft,2,idum,1,idisk)
-c      nsym=idum(1)
+!      nsym=idum(1)
       call idafile(nft,2,nbas,8,idisk)
       call idafile(nft,2,norb,8,idisk)
       call idafile(nft,2,nfro,8,idisk)
@@ -404,77 +404,77 @@ c      nsym=idum(1)
       lenrd=lenin8*maxmolcasorb
       call cdafile(nft,2,bsbl,lenrd,idisk)
 
-c#ifdef debug
-c      write(6,"(a4,1x,8(2x,i8))") "ncon",ncone(1:8)
-c      write(6,*) "idisk : ", idisk
-c      write(6,"(a4,1x,f18.9)") "ecor",ecor
-c      write(6,"(a4,1x,i8)") "nsym",nsym
-c      write(6,"(a4,1x,8(2x,i8))") "nbas",nbas(1:8)
-c      write(6,"(a4,1x,8(2x,i8))") "norb",norb(1:8)
-c      write(6,"(a4,1x,8(2x,i8))") "nfro",nfro(1:8)
-c      write(6,"(a4,1x,8(2x,i8))") "ndel",ndel(1:8)
-c#endif
+!#ifdef debug
+!      write(6,"(a4,1x,8(2x,i8))") "ncon",ncone(1:8)
+!      write(6,*) "idisk : ", idisk
+!      write(6,"(a4,1x,f18.9)") "ecor",ecor
+!      write(6,"(a4,1x,i8)") "nsym",nsym
+!      write(6,"(a4,1x,8(2x,i8))") "nbas",nbas(1:8)
+!      write(6,"(a4,1x,8(2x,i8))") "norb",norb(1:8)
+!      write(6,"(a4,1x,8(2x,i8))") "nfro",nfro(1:8)
+!      write(6,"(a4,1x,8(2x,i8))") "ndel",ndel(1:8)
+!#endif
 
       return
-c...end of readtraonehead
+!...end of readtraonehead
       end
 
 
 #endif
 
 
-c      subroutine ddatard(nft,xbuff,lend,idisk)
-c      implicit REAL*8 (a-h,o-z)
+!      subroutine ddatard(nft,xbuff,lend,idisk)
+!      implicit REAL*8 (a-h,o-z)
 
-c      dimension ncone(64),nbas(mxsym),norb(mxsym),nfro(mxsym),
-c     *          ndel(mxsym)
-c      dimension xbuff(lend)
-c
-c      lenrd=lend*lendbl
-c      call idatard(nft,xbuff,lenrd,idisk)
-c
-c      return
-cc...end of readtraonehead
-c      end
+!      dimension ncone(64),nbas(mxsym),norb(mxsym),nfro(mxsym),
+!     *          ndel(mxsym)
+!      dimension xbuff(lend)
+!
+!      lenrd=lend*lendbl
+!      call idatard(nft,xbuff,lenrd,idisk)
+!
+!      return
+!c...end of readtraonehead
+!      end
 
 
-c*************************************
-c      subroutine idatard(nft,ibuf,lbuf,idisk)
-cc   write by suo bing, read molcas file
-cc   imul = 0, the file readed is not a multifile
-cc   imul = 1, the file readed is a multifile
-cc
-c      implicit REAL*8 (a-h,o-z)
-c      parameter (min_block_length=512)
-c      character ibuf(lbuf)*1
-c
-c      noff=idisk*min_block_length
-c      call clseek(nft,noff,nr)
-c      if(nr.ne.noff) then
-c        write(6,*) "error seek file : ",idisk
-c        stop 888
-c      endif
-c      call cread_molcas(nft,ibuf,lbuf,nr)
-c      if(nr.ne.lbuf) then
-c        write(6,*) "error read file ",nr
-c        write(6,*) "nft : ",nft
-c        write(6,*) "lbuf  : ",lbuf
-c        write(6,*) "idisk : ",idisk
-c        stop 888
-c      else
-c        imo=mod(lbuf,min_block_length)
-c        if(imo.eq.0) then
-c          ioff=lbuf/min_block_length
-c        else
-c          ioff=1+lbuf/min_block_length
-c        endif
-c        idisk=idisk+ioff
-cc        write(6,*) "ioff ",ioff
-c      endif
+!*************************************
+!      subroutine idatard(nft,ibuf,lbuf,idisk)
+!c   write by suo bing, read molcas file
+!c   imul = 0, the file readed is not a multifile
+!c   imul = 1, the file readed is a multifile
+!c
+!      implicit REAL*8 (a-h,o-z)
+!      parameter (min_block_length=512)
+!      character ibuf(lbuf)*1
+!
+!      noff=idisk*min_block_length
+!      call clseek(nft,noff,nr)
+!      if(nr.ne.noff) then
+!        write(6,*) "error seek file : ",idisk
+!        stop 888
+!      endif
+!      call cread_molcas(nft,ibuf,lbuf,nr)
+!      if(nr.ne.lbuf) then
+!        write(6,*) "error read file ",nr
+!        write(6,*) "nft : ",nft
+!        write(6,*) "lbuf  : ",lbuf
+!        write(6,*) "idisk : ",idisk
+!        stop 888
+!      else
+!        imo=mod(lbuf,min_block_length)
+!        if(imo.eq.0) then
+!          ioff=lbuf/min_block_length
+!        else
+!          ioff=1+lbuf/min_block_length
+!        endif
+!        idisk=idisk+ioff
+!c        write(6,*) "ioff ",ioff
+!      endif
 
-c      return
-cc...end of idatard
-c      end
+!      return
+!c...end of idatard
+!      end
 
       subroutine intrw_mol(ik,jk,kk,lk,val)
 #include "drt_h.fh"
@@ -576,8 +576,8 @@ c      end
         goto 10
       endif
 
-      if(lri.ne.lrj.and.lri.ne.lrk.and.
-     *   lri.ne.lrl.and.lrj.ne.lrk.and.lrj.ne.lrl.and.lrk.ne.lrl) then
+      if(lri.ne.lrj.and.lri.ne.lrk.and.                                 &
+     &   lri.ne.lrl.and.lrj.ne.lrk.and.lrj.ne.lrl.and.lrk.ne.lrl) then
         list=list4_all(ind(1),ind(2),ind(3),ind(4))       !(ijkl)
         if(lrj.gt.lrk.and.lrj.gt.lrl) then
           vector1(list+2)=val
@@ -610,8 +610,8 @@ c      end
 12    continue
 
 !      write(6,*)
-c=======================================================================
-c      write(6,'(1x,14i3)')(ncibl(i),i=1,14)
+!=======================================================================
+!      write(6,'(1x,14i3)')(ncibl(i),i=1,14)
 
       numb = 1
       do 10  i = 1,norb_all-1
@@ -623,13 +623,13 @@ c      write(6,'(1x,14i3)')(ncibl(i),i=1,14)
 !          write(6,*) "lsm(lri)",lsm(lri),"lsm(lrj)",lsm(lrj)
 
           nij=i+ngw2(j)
-c       write(6,*)'i,j,mij,nij   ',i,j,mij,nij
+!       write(6,*)'i,j,mij,nij   ',i,j,mij,nij
           loij_all(nij)=numb
 !          do 20  k = 1,norb_all
 !            vint_ci(numb)=vfutei(j,k,i,k)
 !            vint_ci(numb+1)=vfutei(j,i,k,k)
-c     write(10,'(2x,4i6,i8,3f16.8)')i,j,k,k, numb,
-c    *        vint_ci(numb),vint_ci(numb+1)
+!     write(10,'(2x,4i6,i8,3f16.8)')i,j,k,k, numb,
+!    *        vint_ci(numb),vint_ci(numb+1)
             numb=numb+2*norb_all
 !20        continue
 
@@ -637,8 +637,8 @@ c    *        vint_ci(numb),vint_ci(numb+1)
 10    continue
 !      write(6,*) "number 3 index",numb
 !      stop 777
-c=======================================================================
-c      la<lb<lc<ld
+!=======================================================================
+!      la<lb<lc<ld
       do 30 ld = 1,norb_all-3
         do 31 lc = ld+1,norb_all-2
           lrd=norb_all-ld+1
@@ -662,13 +662,13 @@ c      la<lb<lc<ld
 !              list = loijk_all(njkl)+3*(nolra-1)
 !              write(6,*) "ld,lc,lb,la",ld,lc,lb,la,list
 
-c        write(6,'(2x,4i3,2i7)')  la,lb,lc,ld,list,numb
+!        write(6,'(2x,4i3,2i7)')  la,lb,lc,ld,list,numb
 
 !             vint_ci(numb)=vfutei(la,lc,lb,ld)        !tmp stop
 !             vint_ci(numb+1)=vfutei(la,lb,lc,ld)
 !             vint_ci(numb+2)=vfutei(la,ld,lc,lb)
-c     write(10,'(2x,4i6,i8,3f16.8)')la,lb,lc,ld, numb,
-c    *        vint_ci(numb),vint_ci(numb+1),vint_ci(numb+2)
+!     write(10,'(2x,4i6,i8,3f16.8)')la,lb,lc,ld, numb,
+!    *        vint_ci(numb),vint_ci(numb+1),vint_ci(numb+2)
               numb=numb+3
 40         continue
 32        continue
@@ -676,7 +676,7 @@ c    *        vint_ci(numb),vint_ci(numb+1),vint_ci(numb+2)
 30    continue
 !              stop 777
       return
-c=======================================================================
+!=======================================================================
       end
 
       REAL*8 function vfutei(ix,jx,kx,lx)
@@ -731,8 +731,8 @@ c=======================================================================
         goto 10
       endif
 
-      if(lri.ne.lrj.and.lri.ne.lrk.and.
-     *   lri.ne.lrl.and.lrj.ne.lrk.and.lrj.ne.lrl.and.lrk.ne.lrl) then
+      if(lri.ne.lrj.and.lri.ne.lrk.and.                                 &
+     &   lri.ne.lrl.and.lrj.ne.lrk.and.lrj.ne.lrl.and.lrk.ne.lrl) then
         ind(1)=lri
         ind(2)=lrj
         ind(3)=lrk
@@ -766,22 +766,22 @@ c=======================================================================
       function list3_all(i,j,k)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-c            *****************
+!            *****************
       nij   = i+ngw2(j)
       list3_all = loij_all(nij)+2*(k-1)
-c            *****************
+!            *****************
       return
       end
-c
-c***********************************************************************
+!
+!***********************************************************************
       function list4_all(ld,lc,lb,la)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-c                    ***************
+!                    ***************
 !      write(6,*) "ld,lc,lb,la",ld,lc,lb,la
         lra  = ncibl_all(la)
         njkl = ld+ngw2(lc)+ngw3(lb)
         list4_all= loijk_all(njkl)+3*(lra-1)
-c                    ***************
+!                    ***************
       return
       end

@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2007, Bingbing Suo                                     *
-************************************************************************
-c 26 feb 2007 -bsuo- revised by suo bing for multi-root calculation
-c***********************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2007, Bingbing Suo                                     *
+!***********************************************************************
+! 26 feb 2007 -bsuo- revised by suo bing for multi-root calculation
+!***********************************************************
       subroutine gdv_sequence_extspace(ilw,irw)
-c***********************************************************
-c     26 feb 2007 - revised
-c
+!***********************************************************
+!     26 feb 2007 - revised
+!
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-c      write(6,*) '  dv_test ','  vd_test '
+!      write(6,*) '  dv_test ','  vd_test '
 
       ! mrpt2
       if(log_prod.eq.3) then
@@ -71,16 +71,16 @@ c      write(6,*) '  dv_test ','  vd_test '
       enddo
       end
 
-c********************************************************************
+!********************************************************************
       subroutine gtd_sequence_extspace(iplplweiin,iplprweiin)
-c********************************************************************
-c     26 feb 2007 - revised
-c
+!********************************************************************
+!     26 feb 2007 - revised
+!
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "cont_tmp.fh"
       parameter (   v_sqtwo=1.414213562373095d0 )
-c     write(6,*) ' td_test _1/2',' dt_test '
+!     write(6,*) ' td_test _1/2',' dt_test '
 
       do irot=1,mcroot
         irtidx=indx(irot)
@@ -153,18 +153,18 @@ c     write(6,*) ' td_test _1/2',' dt_test '
         endif
       enddo
 
-c...end of gtd_sequence_extspace
+!...end of gtd_sequence_extspace
       end
 
-c**************************************************************
+!**************************************************************
       subroutine inn_ext_ss_loop_unpack(iplplweiin,iplprweiin)
-c**************************************************************
-c     26 feb 2007 - revised
-c
+!**************************************************************
+!     26 feb 2007 - revised
+!
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
-c     write(6,*) ' ss_test 1/2'
+!     write(6,*) ' ss_test 1/2'
       do irot=1,mcroot
         irtidx=indx(irot)
         iplplwei=iplplweiin+irtidx
@@ -209,8 +209,8 @@ c     write(6,*) ' ss_test 1/2'
                 valuelp2=value_lpext(ii+1)
                 mm=mm+1
                 nnb=nnb+1
-                vector2(mm)=vector2(mm)+valuelptmp1*valuelp1
-     *                     +vector1(nnb)*valuelp2
+                vector2(mm)=vector2(mm)+valuelptmp1*valuelp1            &
+     &                     +vector1(nnb)*valuelp2
                 vector2(nnb)=vector2(nnb)+vector1(mm)*valuelp2
                 valuelptmp2=valuelptmp2+vector1(mm)*valuelp1
                 ii=ii+2
@@ -243,8 +243,8 @@ c     write(6,*) ' ss_test 1/2'
                 valuelp1=value_lpext(ii+1)
                 mm=mm+1
                 nnb=nnb+1
-                vector2(mm)=vector2(mm)+valuelptmp1*valuelp1
-     *                     +vector1(nnb)*valuelp2
+                vector2(mm)=vector2(mm)+valuelptmp1*valuelp1            &
+     &                     +vector1(nnb)*valuelp2
                 vector2(nnb)=vector2(nnb)+vector1(mm)*valuelp2
                 valuelptmp2=valuelptmp2+vector1(mm)*valuelp1
                 ii=ii+2
@@ -358,18 +358,18 @@ c     write(6,*) ' ss_test 1/2'
 
       enddo
 
-c...end of inn_ext_ss_loop_unpack
+!...end of inn_ext_ss_loop_unpack
       end
 
-c********************************************************************
+!********************************************************************
       subroutine inn_ext_ss_drl_loop_unpack(iplplweiin,iplprweiin)
-c********************************************************************
-c     26 feb 2007 - revised
-c
+!********************************************************************
+!     26 feb 2007 - revised
+!
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
-c     write(6,*) ' ss_test 2/2'
+!     write(6,*) ' ss_test 2/2'
       do irot=1,mcroot
         irtidx=indx(irot)
         iplplwei=iplplweiin+irtidx
@@ -414,8 +414,8 @@ c     write(6,*) ' ss_test 2/2'
                 valuelp2=value_lpext(ii+1)
                 mm=mm+1
                 nnb=nnb+1
-                vector2(mm)=vector2(mm)+valuelptmp1*valuelp2
-     *                     +vector1(nnb)*valuelp2
+                vector2(mm)=vector2(mm)+valuelptmp1*valuelp2            &
+     &                     +vector1(nnb)*valuelp2
                 vector2(nnb)=vector2(nnb)+vector1(mm)*valuelp2
                 valuelptmp2=valuelptmp2+vector1(mm)*valuelp2
                 ii=ii+2
@@ -449,8 +449,8 @@ c     write(6,*) ' ss_test 2/2'
                 valuelp1=value_lpext(ii+1)
                 mm=mm+1
                 nnb=nnb+1
-                vector2(mm)=vector2(mm)+valuelptmp1*valuelp1
-     *                     +vector1(nnb)*valuelp1
+                vector2(mm)=vector2(mm)+valuelptmp1*valuelp1            &
+     &                     +vector1(nnb)*valuelp1
                 vector2(nnb)=vector2(nnb)+vector1(mm)*valuelp1
                 valuelptmp2=valuelptmp2+vector1(mm)*valuelp1
                 ii=ii+2
@@ -562,17 +562,17 @@ c     write(6,*) ' ss_test 2/2'
 
       enddo
 
-c...end of inn_ext_ss_drl_loop_unpack
+!...end of inn_ext_ss_drl_loop_unpack
       end
 
-c********************************************************************
+!********************************************************************
       subroutine inn_ext_sv_loop_unpack(ilw,irw)   !,ilsegdownwei)
-c********************************************************************
-c     26 feb 2007 - revised
-c
+!********************************************************************
+!     26 feb 2007 - revised
+!
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-c     write(6,*) 'sv_test,   tv_test '
+!     write(6,*) 'sv_test,   tv_test '
       if(log_prod.eq.3) then
         call inn_ext_svloop_unpack_pt(ilw,irw)
         return
@@ -592,7 +592,7 @@ c     write(6,*) 'sv_test,   tv_test '
         vector2(nn)=valuelp
       enddo
 
-c...end of inn_ext_sv_loop_unpack
+!...end of inn_ext_sv_loop_unpack
       end
 
       subroutine inn_ext_svloop_unpack_pt(ilw,irw)
@@ -615,14 +615,14 @@ c...end of inn_ext_sv_loop_unpack
       enddo
       end
 
-c*******************************************************************
+!*******************************************************************
       subroutine inn_ext_tt_loop_unpack(iplplweiin,iplprweiin)
-c*******************************************************************
-c     26 feb 2007 - revised
-c
+!*******************************************************************
+!     26 feb 2007 - revised
+!
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-c     write(6,*) '  tt_test 1/2'
+!     write(6,*) '  tt_test 1/2'
 
 
       do irot=1,mcroot
@@ -742,17 +742,17 @@ c     write(6,*) '  tt_test 1/2'
 
       enddo
 
-c...end of inn_ext_tt_loop_unpack
+!...end of inn_ext_tt_loop_unpack
       end
 
-c*******************************************************************
+!*******************************************************************
       subroutine inn_ext_ts_loop_unpack(iplplweiin,iplprweiin)
-c*******************************************************************
-c     26 feb 2007 - revised
-c
+!*******************************************************************
+!     26 feb 2007 - revised
+!
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-c     write(6,*) '  ts_test 1/2 '
+!     write(6,*) '  ts_test 1/2 '
 
       do irot=1,mcroot
         irtidx=indx(irot)
@@ -798,8 +798,8 @@ c     write(6,*) '  ts_test 1/2 '
                 valuelp2=value_lpext(ii+1)
                 mm=mm+1
                 nnb=nnb+1
-                vector2(mm)=vector2(mm)+valuelptmp1*valuelp1
-     *                     +vector1(nnb)*valuelp2
+                vector2(mm)=vector2(mm)+valuelptmp1*valuelp1            &
+     &                     +vector1(nnb)*valuelp2
                 vector2(nnb)=vector2(nnb)+vector1(mm)*valuelp2
                 valuelptmp2=valuelptmp2+vector1(mm)*valuelp1
                 ii=ii+2
@@ -833,8 +833,8 @@ c     write(6,*) '  ts_test 1/2 '
                 valuelp1=value_lpext(ii+1)
                 mm=mm+1
                 nnb=nnb+1
-                vector2(mm)=vector2(mm)+valuelptmp1*valuelp1
-     *                     +vector1(nnb)*valuelp2
+                vector2(mm)=vector2(mm)+valuelptmp1*valuelp1            &
+     &                     +vector1(nnb)*valuelp2
                 vector2(nnb)=vector2(nnb)+vector1(mm)*valuelp2
                 valuelptmp2=valuelptmp2+vector1(mm)*valuelp1
                 ii=ii+2
@@ -950,17 +950,17 @@ c     write(6,*) '  ts_test 1/2 '
         enddo
       enddo
 
-c...end of inn_ext_ts_loop_unpack
+!...end of inn_ext_ts_loop_unpack
       end
 
-c*********************************************************************
+!*********************************************************************
       subroutine inn_ext_ts_drl_loop_unpack(iplplweiin,iplprweiin)
-c*********************************************************************
-c     26 feb 2007 - revised
-c
+!*********************************************************************
+!     26 feb 2007 - revised
+!
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-c     write(6,*) '  ts_test 2/2'
+!     write(6,*) '  ts_test 2/2'
 
       do irot=1,mcroot
         irtidx=indx(irot)
@@ -1006,8 +1006,8 @@ c     write(6,*) '  ts_test 2/2'
                    valuelp2=value_lpext(ii+1)
                    mm=mm+1
                    nnb=nnb+1
-                   vector2(mm)=vector2(mm)+valuelptmp1*valuelp1
-     *                        +vector1(nnb)*valuelp2
+                   vector2(mm)=vector2(mm)+valuelptmp1*valuelp1         &
+     &                        +vector1(nnb)*valuelp2
                    vector2(nnb)=vector2(nnb)+vector1(mm)*valuelp2
                    valuelptmp2=valuelptmp2+vector1(mm)*valuelp1
                    ii=ii+2
@@ -1041,8 +1041,8 @@ c     write(6,*) '  ts_test 2/2'
                   valuelp1=value_lpext(ii+1)
                   mm=mm+1
                   nnb=nnb+1
-                  vector2(mm)=vector2(mm)+valuelptmp1*valuelp1
-     *                       +vector1(nnb)*valuelp2
+                  vector2(mm)=vector2(mm)+valuelptmp1*valuelp1          &
+     &                       +vector1(nnb)*valuelp2
                   vector2(nnb)=vector2(nnb)+vector1(mm)*valuelp2
                   valuelptmp2=valuelptmp2+vector1(mm)*valuelp1
                   ii=ii+2
@@ -1159,17 +1159,17 @@ c     write(6,*) '  ts_test 2/2'
 
       enddo
 
-c...end of inn_ext_ts_drl_loop_unpack
+!...end of inn_ext_ts_drl_loop_unpack
       end
 
-c*****************************************************************
+!*****************************************************************
       subroutine inn_ext_st_loop_unpack(iplplweiin,iplprweiin)
-c*****************************************************************
-c     26 feb 2007 - revised
-c
+!*****************************************************************
+!     26 feb 2007 - revised
+!
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-c     write(6,*) ' st_test 1/2'
+!     write(6,*) ' st_test 1/2'
 
       do irot=1,mcroot
         irtidx=indx(irot)
@@ -1190,7 +1190,7 @@ c     write(6,*) ' st_test 1/2'
           enddo
         endif
 
-c      write(6,*)'st_g2g4a',iplplwei,iplprwei,vector2(137)
+!      write(6,*)'st_g2g4a',iplplwei,iplprwei,vector2(137)
         ii0=ii
         if ( logic_g2g4a ) then
           ii=ii0
@@ -1216,8 +1216,8 @@ c      write(6,*)'st_g2g4a',iplplwei,iplprwei,vector2(137)
                 valuelp2=value_lpext(ii+1)
                 mm=mm+1
                 nnb=nnb+1
-                vector2(mm)=vector2(mm)+valuelptmp1*valuelp1
-     *                     +vector1(nnb)*valuelp2
+                vector2(mm)=vector2(mm)+valuelptmp1*valuelp1            &
+     &                     +vector1(nnb)*valuelp2
                 vector2(nnb)=vector2(nnb)+vector1(mm)*valuelp2
                 valuelptmp2=valuelptmp2+vector1(mm)*valuelp1
                 ii=ii+2
@@ -1226,7 +1226,7 @@ c      write(6,*)'st_g2g4a',iplplwei,iplprwei,vector2(137)
             enddo
           enddo
         endif
-c      write(6,*)'st_g2g4b',iplplwei,iplprwei,vector2(137)
+!      write(6,*)'st_g2g4b',iplplwei,iplprwei,vector2(137)
         if ( logic_g2g4b ) then
           ii=ii0
           mm0=iplprwei
@@ -1251,8 +1251,8 @@ c      write(6,*)'st_g2g4b',iplplwei,iplprwei,vector2(137)
                 valuelp1=value_lpext(ii+1)
                 mm=mm+1
                 nnb=nnb+1
-                vector2(mm)=vector2(mm)+valuelptmp1*valuelp1
-     *                     +vector1(nnb)*valuelp2
+                vector2(mm)=vector2(mm)+valuelptmp1*valuelp1            &
+     &                     +vector1(nnb)*valuelp2
                 vector2(nnb)=vector2(nnb)+vector1(mm)*valuelp2
                 valuelptmp2=valuelptmp2+vector1(mm)*valuelp1
                 ii=ii+2
@@ -1263,7 +1263,7 @@ c      write(6,*)'st_g2g4b',iplplwei,iplprwei,vector2(137)
         endif
         ii0=ii-1
 
-c      write(6,*)'st_g36a',iplplwei,iplprwei,vector2(137)
+!      write(6,*)'st_g36a',iplplwei,iplprwei,vector2(137)
         do icle=1,2
           if ( icle.eq.1 .and. logic_g36a ) then
             mm0=iplplwei
@@ -1293,7 +1293,7 @@ c      write(6,*)'st_g36a',iplplwei,iplprwei,vector2(137)
           enddo
 936       continue
 
-c      write(6,*)'st_g35a',iplplwei,iplprwei,vector2(137)
+!      write(6,*)'st_g35a',iplplwei,iplprwei,vector2(137)
           if ( icle.eq.1 .and. logic_g35a ) then
             mm0=iplplwei
             nn0=iplprwei
@@ -1336,7 +1336,7 @@ c      write(6,*)'st_g35a',iplplwei,iplprwei,vector2(137)
             enddo
           endif
 
-c      write(6,*)'st_g34',iplplwei,iplprwei,vector2(137)
+!      write(6,*)'st_g34',iplplwei,iplprwei,vector2(137)
           if ( icle.eq.1 .and. logic_g34a ) then
             mm0=iplplwei
             nn0=iplprwei
@@ -1373,17 +1373,17 @@ c      write(6,*)'st_g34',iplplwei,iplprwei,vector2(137)
 
       enddo
 
-c...end of inn_ext_st_loop_unpack
+!...end of inn_ext_st_loop_unpack
       end
 
-c*******************************************************************
+!*******************************************************************
       subroutine inn_ext_st_drl_loop_unpack(iplplweiin,iplprweiin)
-c*******************************************************************
-c     26 feb 2007 - revised
-c
+!*******************************************************************
+!     26 feb 2007 - revised
+!
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-c     write(6,*) ' st_test 2/2'
+!     write(6,*) ' st_test 2/2'
 
       do irot=1,mcroot
         irtidx=indx(irot)
@@ -1429,8 +1429,8 @@ c     write(6,*) ' st_test 2/2'
                 valuelp2=value_lpext(ii+1)
                 mm=mm+1
                 nnb=nnb+1
-                vector2(mm)=vector2(mm)+valuelptmp1*valuelp1
-     *                     +vector1(nnb)*valuelp2
+                vector2(mm)=vector2(mm)+valuelptmp1*valuelp1            &
+     &                     +vector1(nnb)*valuelp2
                 vector2(nnb)=vector2(nnb)+vector1(mm)*valuelp2
                 valuelptmp2=valuelptmp2+vector1(mm)*valuelp1
                 ii=ii+2
@@ -1463,8 +1463,8 @@ c     write(6,*) ' st_test 2/2'
                 valuelp1=value_lpext(ii+1)
                 mm=mm+1
                 nnb=nnb+1
-                vector2(mm)=vector2(mm)+valuelptmp1*valuelp1
-     *                     +vector1(nnb)*valuelp2
+                vector2(mm)=vector2(mm)+valuelptmp1*valuelp1            &
+     &                     +vector1(nnb)*valuelp2
                 vector2(nnb)=vector2(nnb)+vector1(mm)*valuelp2
                 valuelptmp2=valuelptmp2+vector1(mm)*valuelp1
                 ii=ii+2
@@ -1580,19 +1580,19 @@ c     write(6,*) ' st_test 2/2'
         enddo
       enddo
 
-c...end of inn_ext_st_drl_loop_unpack
+!...end of inn_ext_st_drl_loop_unpack
       end
 
 
-c**************************************************************
+!**************************************************************
       subroutine gsd_sequence_extspace(iplplweiin,iplprweiin)
-c**************************************************************
-c     26 feb 2007 - revised
-c
+!**************************************************************
+!     26 feb 2007 - revised
+!
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
       parameter (v_sqtwo=1.414213562373095d0 )
-c      write(6,*) '  sd_test 1/2','  ds_test 011'
+!      write(6,*) '  sd_test 1/2','  ds_test 011'
 
       do irot=1,mcroot
         irtidx=indx(irot)
@@ -1656,10 +1656,10 @@ c      write(6,*) '  sd_test 1/2','  ds_test 011'
             do i=1,nint_g28
               ilpvalue=ilpvalue+1
               mm=mm+1
-              vector2(mm)=vector2(mm)+
-     *                    vlptmp1*value_lpext(ilpvalue)
-              vlptmp=vlptmp+
-     *               vector1(mm)*value_lpext(ilpvalue)
+              vector2(mm)=vector2(mm)+                                  &
+     &                    vlptmp1*value_lpext(ilpvalue)
+              vlptmp=vlptmp+                                            &
+     &               vector1(mm)*value_lpext(ilpvalue)
             enddo
             vector2(nn)=vlptmp
           enddo
@@ -1679,20 +1679,20 @@ c      write(6,*) '  sd_test 1/2','  ds_test 011'
         endif
       enddo
 
-c...end of gsd_sequence_extspace
+!...end of gsd_sequence_extspace
       end
 
-c***********************************************************************
+!***********************************************************************
       subroutine complete_sd_ar_ext_loop(ilweiin,irweiin,isdownwei)
-c***********************************************************************
-c     26 feb 2007 - revised
-c
+!***********************************************************************
+!     26 feb 2007 - revised
+!
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 #include "gext_sequence.fh"
-c      write(6,*) 'sd_test 2/2','  td_test_2/2 012'
+!      write(6,*) 'sd_test 2/2','  td_test_2/2 012'
 
 
       do irot=1,mcroot
@@ -1719,17 +1719,17 @@ c      write(6,*) 'sd_test 2/2','  td_test_2/2 012'
       enddo
       return
 
-c...end of complete_sd_ar_ext_loop
+!...end of complete_sd_ar_ext_loop
       end
 
-c******************************************************************
+!******************************************************************
       subroutine inn_ext_dd_loop_unpack(iplplweiin,iplprweiin)
-c******************************************************************
-c     26 feb 2007 - revised
-c
+!******************************************************************
+!     26 feb 2007 - revised
+!
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-c        'dd_test '
+!        'dd_test '
 
       do irot=1,mcroot
         irtidx=indx(irot)
@@ -1806,18 +1806,18 @@ c        'dd_test '
         endif
       enddo
 
-c...end of inn_ext_dd_loop_unpack
+!...end of inn_ext_dd_loop_unpack
       end
 
-c***********************************************************************
+!***********************************************************************
       subroutine inn_ext_tt_drl_loop_unpack(iplplweiin,iplprweiin,n1415)
-c***********************************************************************
-c     26 feb 2007 - revised
-c
+!***********************************************************************
+!     26 feb 2007 - revised
+!
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
       logical logic_g14150,logic_g34b0,logic_g35b0,logic_g36b0
-c     write(6,*) '  tt_test 2/2'
+!     write(6,*) '  tt_test 2/2'
 
       logic_g14150=logic_g1415
       logic_g36b0=logic_g36b
@@ -1945,5 +1945,5 @@ c     write(6,*) '  tt_test 2/2'
         enddo
       enddo
 
-c...end of inn_ext_tt_drl_loop_unpack
+!...end of inn_ext_tt_drl_loop_unpack
       end

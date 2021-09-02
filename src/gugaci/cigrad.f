@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 !module_grad works for the ci gradient calculations.
 ! subroutine ci_grad
 ! subroutine ci_density_label
@@ -30,24 +30,24 @@
 #include "grad_xyz.fh"
 #include "ncprhf.fh"
       parameter (htoklm=627.50956d+00,zero=0.0d+00)
-c================================================
-c    the main subroutine for ci gradient calculations.
-c    ican_a and ican_b save canonical order.
-c    e(*) save the scf orbital energies.
-c    xlgrn(*) save the lagrangian matrix.
+!================================================
+!    the main subroutine for ci gradient calculations.
+!    ican_a and ican_b save canonical order.
+!    e(*) save the scf orbital energies.
+!    xlgrn(*) save the lagrangian matrix.
 
-c ci gradient is still in developing, so we do not include it in current
-c version of xian-ci
+! ci gradient is still in developing, so we do not include it in current
+! version of xian-ci
 
       return
 
-c     write(6,'(a18,2x,f10.2,2x,a1)') 'end of grad, takes',sc5-sc0,'s'
+!     write(6,'(a18,2x,f10.2,2x,a1)') 'end of grad, takes',sc5-sc0,'s'
       end
 
 
       subroutine convert_vector()
 #include "drt_h.fh"
-c=====================================================
+!=====================================================
 !    this just uses at debug.
 
 !      open(10,file='cigmsvector')
@@ -65,7 +65,7 @@ c=====================================================
 #include "drt_h.fh"
 #include "grad_h.fh"
 #include "iaib.fh"
-c====================================================
+!====================================================
 !    transfer the ci mo indexs to scf mo indexs
 !    and use library function ishft() to save
 !    two electron mo indexs to dm2_index().
@@ -93,23 +93,23 @@ c====================================================
          nkl=ican_a(lrk)+lrl
          nijkl=ican_b(nij)+nkl
          vector1(nijkl)=val
-c      write(nf2,'(4i4,f18.10)') lri,lrj,lrk,lrl,vector1(nijkl)
+!      write(nf2,'(4i4,f18.10)') lri,lrj,lrk,lrl,vector1(nijkl)
       end
 
       subroutine trans_ijkl_intpos(ii,jj,kk,ll,nxo)
 #include "drt_h.fh"
 #include "grad_h.fh"
 #include "iaib.fh"
-c====================================================
+!====================================================
 !    transfer the ci mo indexs to scf mo indexs
 !    and use library function ishft() to save
 !    two electron mo indexs to dm2_index().
-c       write(nf2,'(4i4)') ii,jj,kk,ll
+!       write(nf2,'(4i4)') ii,jj,kk,ll
 
-c      i=map_orb_order_t(ii)
-c      j=map_orb_order_t(jj)
-c      k=map_orb_order_t(kk)
-c      l=map_orb_order_t(ll)
+!      i=map_orb_order_t(ii)
+!      j=map_orb_order_t(jj)
+!      k=map_orb_order_t(kk)
+!      l=map_orb_order_t(ll)
 
       lrj=min(ii,jj)
       lri=max(ii,jj)
@@ -133,9 +133,9 @@ c      l=map_orb_order_t(ll)
          nkl=ican_a(lrk)+lrl
          nxo=ican_b(nij)+nkl
 
-c      if(nxo.eq.3003) then
-c       write(nf2,'(8i4,i8)')ii,jj,kk,ll,lri,lrj,lrk,lrl,nxo
-c      endif
+!      if(nxo.eq.3003) then
+!       write(nf2,'(8i4,i8)')ii,jj,kk,ll,lri,lrj,lrk,lrl,nxo
+!      endif
       end
 
       subroutine trans_intpos_ijkl(intpos,lijkl)
@@ -144,11 +144,11 @@ c      endif
 #include "grad_h.fh"
       dimension lijkl(4)
 
-c=========================================================
+!=========================================================
 !    read the saved two electron mo indexs.
 
       return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) then
          call Unused_integer(intpos)
          call Unused_integer_array(lijkl)
@@ -166,18 +166,18 @@ c Avoid unused argument warnings
       dimension x1e(50000),fock(n_all,n_all)
       parameter (zero=0.0d+00,two=2.0d+00)
 
-c================================================
-c lyb
-c     xlgrn(norb_all,norb_all) is the lagrange matrix.
+!================================================
+! lyb
+!     xlgrn(norb_all,norb_all) is the lagrange matrix.
 
       norbf=n_frz+1
-c      norbf=1
+!      norbf=1
 
       xlgrn(1:n_all,1:n_all)=0.0d0
 
       call lagran_fock(x1e,fock)
 
-c form two electron contributions to the lagrangian with frozen mo
+! form two electron contributions to the lagrangian with frozen mo
 
       do i=ndbl+1,n_all
          do j=1,n_frz
@@ -253,7 +253,7 @@ c form two electron contributions to the lagrangian with frozen mo
 
 
 
-c form two electron contributions to the lagrangian with active mo
+! form two electron contributions to the lagrangian with active mo
 
 
       do i=norbf,ndbl
@@ -279,8 +279,8 @@ c form two electron contributions to the lagrangian with active mo
                         njmkl=ican_b(j0)+kl
                      endif
                      dumtmp=dumtmp+vector1(nimkl)*vector2(njmkl)
-c         if(i.eq.1.and.j.eq.5)
-c     :   write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl)
+!         if(i.eq.1.and.j.eq.5)
+!     :   write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl)
                   enddo
 
                   dum=dum+dumtmp*two
@@ -299,16 +299,16 @@ c     :   write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl)
                   endif
 
                   dum=dum+vector1(nimkl)*vector2(njmkl)
-c      if(nimkl.ne.njmkl)
-c     :                write(nf2,'(2i8,2f18.10)') nimkl,njmkl,
-c     :vector1(nimkl),vector2(njmkl)
-c         if(i.eq.1.and.j.eq.5)
-c     :    write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl
+!      if(nimkl.ne.njmkl)
+!     :                write(nf2,'(2i8,2f18.10)') nimkl,njmkl,
+!     :vector1(nimkl),vector2(njmkl)
+!         if(i.eq.1.and.j.eq.5)
+!     :    write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl
                enddo
             enddo
 
             xlgrn(i,j)=xlgrn(i,j)+dum*two
-c       write(2,'(a7,2i4,f18.10)') 'xlgrn_2',i,j,xlgrn(i,j)
+!       write(2,'(a7,2i4,f18.10)') 'xlgrn_2',i,j,xlgrn(i,j)
          enddo
       enddo
       do i=norbf,ndbl
@@ -321,10 +321,10 @@ c       write(2,'(a7,2i4,f18.10)') 'xlgrn_2',i,j,xlgrn(i,j)
                njk=min(j,k)
                dum=dum+fock(mik,nik)*dm1(mjk,njk)
 
-c            write(nf2,'(2f18.10)') x1e(mnik),dm1(mjk,njk)
+!            write(nf2,'(2f18.10)') x1e(mnik),dm1(mjk,njk)
             enddo
             xlgrn(i,j)=xlgrn(i,j)+dum
-c       write(2,'(a9,2i4,f18.10)') 'xlgrn_all',i,j,xlgrn(i,j)
+!       write(2,'(a9,2i4,f18.10)') 'xlgrn_all',i,j,xlgrn(i,j)
          enddo
       enddo
 
@@ -352,8 +352,8 @@ c       write(2,'(a9,2i4,f18.10)') 'xlgrn_all',i,j,xlgrn(i,j)
                         njmkl=ican_b(j0)+kl
                      endif
                      dumtmp=dumtmp+vector1(nimkl)*vector2(njmkl)
-c         if(i.eq.1.and.j.eq.5)
-c     :   write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl)
+!         if(i.eq.1.and.j.eq.5)
+!     :   write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl)
                   enddo
 
                   dum=dum+dumtmp*two
@@ -372,16 +372,16 @@ c     :   write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl)
                   endif
 
                   dum=dum+vector1(nimkl)*vector2(njmkl)
-c      if(nimkl.ne.njmkl)
-c     :                write(nf2,'(2i8,2f18.10)') nimkl,njmkl,
-c     :vector1(nimkl),vector2(njmkl)
-c         if(i.eq.1.and.j.eq.5)
-c     :    write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl
+!      if(nimkl.ne.njmkl)
+!     :                write(nf2,'(2i8,2f18.10)') nimkl,njmkl,
+!     :vector1(nimkl),vector2(njmkl)
+!         if(i.eq.1.and.j.eq.5)
+!     :    write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl
                enddo
             enddo
 
             xlgrn(i,j)=xlgrn(i,j)+dum*two
-c       write(2,'(a7,2i4,f18.10)') 'xlgrn_2',i,j,xlgrn(i,j)
+!       write(2,'(a7,2i4,f18.10)') 'xlgrn_2',i,j,xlgrn(i,j)
          enddo
       enddo
 
@@ -396,10 +396,10 @@ c       write(2,'(a7,2i4,f18.10)') 'xlgrn_2',i,j,xlgrn(i,j)
                njk=min(j,k)
                dum=dum+fock(mik,nik)*dm1(mjk,njk)
 
-c            write(nf2,'(2f18.10)') x1e(mnik),dm1(mjk,njk)
+!            write(nf2,'(2f18.10)') x1e(mnik),dm1(mjk,njk)
             enddo
             xlgrn(i,j)=xlgrn(i,j)+dum
-c       write(2,'(a9,2i4,f18.10)') 'xlgrn_all',i,j,xlgrn(i,j)
+!       write(2,'(a9,2i4,f18.10)') 'xlgrn_all',i,j,xlgrn(i,j)
          enddo
       enddo
 
@@ -416,16 +416,16 @@ c       write(2,'(a9,2i4,f18.10)') 'xlgrn_all',i,j,xlgrn(i,j)
       dimension x1e(50000)
       parameter (zero=0.0d+00,two=2.0d+00)
 
-c================================================
-c lyb
-c     xlgrn(norb_all,norb_all) is the lagrange matrix.
+!================================================
+! lyb
+!     xlgrn(norb_all,norb_all) is the lagrange matrix.
 
-c      norbf=n_frz+1
-c      norbf=1
+!      norbf=n_frz+1
+!      norbf=1
 
       xlgrn(1:norb_all,1:norb_all)=0.0d0
 
-c form two electron contributions to the lagrangian
+! form two electron contributions to the lagrangian
       do i=1,norb_all
          do j=1,norb_all
             dum=zero
@@ -449,8 +449,8 @@ c form two electron contributions to the lagrangian
                         njmkl=ican_b(j0)+kl
                      endif
                      dumtmp=dumtmp+vector1(nimkl)*vector2(njmkl)
-c         if(i.eq.1.and.j.eq.5)
-c     :   write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl)
+!         if(i.eq.1.and.j.eq.5)
+!     :   write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl)
                   enddo
 
                   dum=dum+dumtmp*two
@@ -469,16 +469,16 @@ c     :   write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl)
                   endif
 
                   dum=dum+vector1(nimkl)*vector2(njmkl)
-c      if(nimkl.ne.njmkl)
-c     :                write(nf2,'(2i8,2f18.10)') nimkl,njmkl,
-c     :vector1(nimkl),vector2(njmkl)
-c         if(i.eq.1.and.j.eq.5)
-c     :    write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl
+!      if(nimkl.ne.njmkl)
+!     :                write(nf2,'(2i8,2f18.10)') nimkl,njmkl,
+!     :vector1(nimkl),vector2(njmkl)
+!         if(i.eq.1.and.j.eq.5)
+!     :    write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl
                enddo
             enddo
 
             xlgrn(i,j)=xlgrn(i,j)+dum*two
-c       write(2,'(a7,2i4,f18.10)') 'xlgrn_2',i,j,xlgrn(i,j)
+!       write(2,'(a7,2i4,f18.10)') 'xlgrn_2',i,j,xlgrn(i,j)
          enddo
       enddo
       do i=1,norb_all
@@ -492,10 +492,10 @@ c       write(2,'(a7,2i4,f18.10)') 'xlgrn_2',i,j,xlgrn(i,j)
                mnik=ican_a(mik)+nik
                dum=dum+x1e(mnik)*dm1(mjk,njk)
 
-c            write(nf2,'(2f18.10)') x1e(mnik),dm1(mjk,njk)
+!            write(nf2,'(2f18.10)') x1e(mnik),dm1(mjk,njk)
             enddo
             xlgrn(i,j)=xlgrn(i,j)+dum
-c       write(2,'(a9,2i4,f18.10)') 'xlgrn_all',i,j,xlgrn(i,j)
+!       write(2,'(a9,2i4,f18.10)') 'xlgrn_all',i,j,xlgrn(i,j)
          enddo
       enddo
 
@@ -514,11 +514,11 @@ c       write(2,'(a9,2i4,f18.10)') 'xlgrn_all',i,j,xlgrn(i,j)
 ! Need debug
 !      open(nf22,file=filename(1:len),form='unformatted')
 
-c      open(nf22,file='density',form='unformatted')
+!      open(nf22,file='density',form='unformatted')
 !      write(nf22) (vector2(i),i=1,nx)
 !      close(nf22)
 
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) call Unused_integer(nx)
 
       end
@@ -527,7 +527,7 @@ c Avoid unused argument warnings
 #include "drt_h.fh"
 #include "grad_h.fh"
 #include "scratch.fh"
-c     character*256 filename
+!     character*256 filename
 
       vector2(1:nx)=0.0d+00
 
@@ -536,7 +536,7 @@ c     character*256 filename
 
 !      open(nf22,file=filename(1:len),form='unformatted')
 
-c      open(nf22,file='density',form='unformatted')
+!      open(nf22,file='density',form='unformatted')
 !      read(nf22) (vector2(i),i=1,nx)
 !      close(nf22)
 
@@ -548,42 +548,42 @@ c      open(nf22,file='density',form='unformatted')
 #include "drt_h.fh"
 #include "grad_h.fh"
 #include "scratch.fh"
-c     character*256 filename
+!     character*256 filename
 #include "vect.fh"
 #include "iaib.fh"
 #include "density.fh"
       dimension ican_ab(norb_all),c(70000),dm1_act(naorbs,naorbs)
       logical resina
-      parameter (htoklm=627.50956d+00,zero=0.0d+00,two=2.0d+00,
-     :           half=0.5d+00,half2=0.25d+00)
+      parameter (htoklm=627.50956d+00,zero=0.0d+00,two=2.0d+00,         &
+     &           half=0.5d+00,half2=0.25d+00)
 
-************************************************************************
-*
-*   rrogram transmo transfers the one and two electronic ao integrals to
-*   integrals.
-*          on input
-* cf      = all m.o.'s coefficient
-* naorbs  = number of atomic orbitals
-* maxao   = the number of ao integrals
-* h       = the one electronic ao integrals
-* vector1  = the two electronic ao density matrix
-* norb    = the start mo wanted to be transfered
-* norbs   = the end mo wanted to be transfered
-* c       = the m.o.'s coefficient with the order that is different from
-*           this is need by the transformation subroutine c4itd
-*
-*          on output
-* tmoint1 = the one electronic mo integrals
-* vector2 = the two electronic mo density matrix
-*
-* c4itd   = the subroutine to transfer aos to mos
-*           copy right by carlos f. bunge. annik vivier bunge. gerardo c
-*           and jean-pierre daudey, 1987.
-*           reference: c. f. bunge, a. v. bunge, g. cisneros and j.-p. d
-*                      comput. chem. vol 12, page 91, year 1988.
-* iteifd  = the subroutine to scale the aos by a factor 1/2
+!***********************************************************************
+!
+!   rrogram transmo transfers the one and two electronic ao integrals to
+!   integrals.
+!          on input
+! cf      = all m.o.'s coefficient
+! naorbs  = number of atomic orbitals
+! maxao   = the number of ao integrals
+! h       = the one electronic ao integrals
+! vector1  = the two electronic ao density matrix
+! norb    = the start mo wanted to be transfered
+! norbs   = the end mo wanted to be transfered
+! c       = the m.o.'s coefficient with the order that is different from
+!           this is need by the transformation subroutine c4itd
+!
+!          on output
+! tmoint1 = the one electronic mo integrals
+! vector2 = the two electronic mo density matrix
+!
+! c4itd   = the subroutine to transfer aos to mos
+!           copy right by carlos f. bunge. annik vivier bunge. gerardo c
+!           and jean-pierre daudey, 1987.
+!           reference: c. f. bunge, a. v. bunge, g. cisneros and j.-p. d
+!                      comput. chem. vol 12, page 91, year 1988.
+! iteifd  = the subroutine to scale the aos by a factor 1/2
 
-************************************************************************
+!***********************************************************************
       time0=c_time()
 
 !      write(nf2,*) 'start of backtransform'
@@ -610,7 +610,7 @@ c     character*256 filename
          do j=1,naorbs
             ij=ij+1
             c(ij)=cf(j,i)
-c         write(nf2,'(2i4,2f18.10)')i,j,c(ij),cf(j,i)
+!         write(nf2,'(2i4,2f18.10)')i,j,c(ij),cf(j,i)
          enddo
       enddo
 
@@ -638,7 +638,7 @@ c         write(nf2,'(2i4,2f18.10)')i,j,c(ij),cf(j,i)
                      nijkl=ican_b(nkl)+nij
                   endif
                   vector1(nijkl)=val
-c      write(nf2,'(8i4,2i8,f18.10)')i0,j0,k0,l0,i,j,k,l,nijkl0,nijkl,val
+!      write(nf2,'(8i4,2i8,f18.10)')i0,j0,k0,l0,i,j,k,l,nijkl0,nijkl,val
 
                enddo
             enddo
@@ -647,32 +647,32 @@ c      write(nf2,'(8i4,2i8,f18.10)')i0,j0,k0,l0,i,j,k,l,nijkl0,nijkl,val
 
 
 
-c*******************************************************
-* the aoints should be saved as the order the following
-* provided.
-*
-c        nijkl=0
-c        do i=1,naorbs
-c           do j=i,naorbs
-c              do k=1,i
-c                 if(k.eq.i) then
-c                   inl=j
-c                 else
-c                   inl=naorbs
-c                 endif
-c                 do l=k,inl
-c                    nijkl=nijkl+1
-c                   read(naoint) vector1(nijkl)
+!*******************************************************
+! the aoints should be saved as the order the following
+! provided.
+!
+!        nijkl=0
+!        do i=1,naorbs
+!           do j=i,naorbs
+!              do k=1,i
+!                 if(k.eq.i) then
+!                   inl=j
+!                 else
+!                   inl=naorbs
+!                 endif
+!                 do l=k,inl
+!                    nijkl=nijkl+1
+!                   read(naoint) vector1(nijkl)
 
-c       write(6,'(4i3,i8,f18.10)')i,j,k,l,nijkl,vector1(nijkl)
-c       write(nf2,'(5i8)')i,j,k,l,nijkl
-c
+!       write(6,'(4i3,i8,f18.10)')i,j,k,l,nijkl,vector1(nijkl)
+!       write(nf2,'(5i8)')i,j,k,l,nijkl
+!
 
-c                 enddo
-c              enddo
-c           enddo
-c        enddo
-c*******************************************************
+!                 enddo
+!              enddo
+!           enddo
+!        enddo
+!*******************************************************
 
       vector2(1:nx)=zero
       resina=.false.
@@ -681,22 +681,22 @@ c*******************************************************
 
       call iteifd(ncase,nsym,norbe,norbe,norbe,norbe,vector1)
 
-      call c4itd(norbe,norbe,norbe,norbe,naorbs,naorbs,naorbs,naorbs,
-     1     nsym,ncase,c,c,c,c,vector1,resina,vector2)
+      call c4itd(norbe,norbe,norbe,norbe,naorbs,naorbs,naorbs,naorbs,   &
+     &     nsym,ncase,c,c,c,c,vector1,resina,vector2)
 
 
       vector2(1:nx)=zero
 
-c--------------------------------------------------------------
+!--------------------------------------------------------------
       dm1_act(1:naorbs,1:naorbs)=zero
 
       call density_ci_one(dm1_act)
 
-c      do i=1,naorbs
-c         do j=1,naorbs
-c            write(nf2,'(2i4,f18.10)') i,j,dm1_act(i,j)
-c         enddo
-c      enddo
+!      do i=1,naorbs
+!         do j=1,naorbs
+!            write(nf2,'(2i4,f18.10)') i,j,dm1_act(i,j)
+!         enddo
+!      enddo
 
 
        nijkl=0
@@ -711,18 +711,18 @@ c      enddo
                  do l=1,inl
                     nijkl=nijkl+1
 
-                    valtmp=two*p(i,j)*p(k,l)-half*p(i,l)*p(j,k)
-     :                    -half*p(i,k)*p(j,l)
-     :                    +p(i,j)*dm1_act(k,l)+p(k,l)*dm1_act(i,j)
-     :                    -half2*(p(j,k)*dm1_act(i,l)
-     :                    +p(j,l)*dm1_act(i,k)
-     :                    +p(i,k)*dm1_act(j,l)
-     :                    +p(i,l)*dm1_act(j,k))
+                    valtmp=two*p(i,j)*p(k,l)-half*p(i,l)*p(j,k)         &
+     &                    -half*p(i,k)*p(j,l)                           &
+     &                    +p(i,j)*dm1_act(k,l)+p(k,l)*dm1_act(i,j)      &
+     &                    -half2*(p(j,k)*dm1_act(i,l)                   &
+     &                    +p(j,l)*dm1_act(i,k)                          &
+     &                    +p(i,k)*dm1_act(j,l)                          &
+     &                    +p(i,l)*dm1_act(j,k))
 
                     vector1(nijkl)=vector1(nijkl)+valtmp
-c       write(nf2,'(4i3,i8,f18.10)')i,j,k,l,nijkl,vector1(nijkl)
-c       write(nf2,'(5i8)')i,j,k,l,nijkl
-c
+!       write(nf2,'(4i3,i8,f18.10)')i,j,k,l,nijkl,vector1(nijkl)
+!       write(nf2,'(5i8)')i,j,k,l,nijkl
+!
                  enddo
               enddo
            enddo
@@ -730,9 +730,9 @@ c
 
 !      write(nf2,*) 'the new dm2'
 
-c      do i=1,nx
-c        write(nf2,'(i8,f18.10)')i, vector1(i)
-c      enddo
+!      do i=1,nx
+!        write(nf2,'(i8,f18.10)')i, vector1(i)
+!      enddo
 
 
 !      filename=tmpdir(1:len_str)//"/backdm2"
@@ -740,7 +740,7 @@ c      enddo
 
 !      open(20,file=filename(1:len),form='unformatted')
 
-c      open(20,file='backdm2',form='unformatted')
+!      open(20,file='backdm2',form='unformatted')
 !       write(20) (vector1(i),i=1,nx)
 !      close(20)
 
@@ -758,10 +758,10 @@ c      open(20,file='backdm2',form='unformatted')
 #include "drt_h.fh"
 #include "vect.fh"
 #include "iaib.fh"
-c-------------------------------------------------------------
-c this subroutine for test the backtrans result by just one density matr
-c ao, such as (ij|kl)
-c
+!-------------------------------------------------------------
+! this subroutine for test the backtrans result by just one density matr
+! ao, such as (ij|kl)
+!
       sum=0.0d+00
       i0=6
       j0=6
@@ -941,7 +941,7 @@ c
 
 !      open(500,file=filename(1:len),form='unformatted')
 
-c      open(500,file='dfock1',form='unformatted')
+!      open(500,file='dfock1',form='unformatted')
 !      do i=1,numat
 !         do k=1,3
 !            read(500) (dsaos(k,i,j),j=1,naorbs*(naorbs+1)/2)
@@ -952,8 +952,8 @@ c      open(500,file='dfock1',form='unformatted')
       dmo1xyz(1:3,1:numat)=zero
 
 
-c---------------------------------------------------
-c partial backtransform one electron density matrix
+!---------------------------------------------------
+! partial backtransform one electron density matrix
 
       dm1_act(1:naorbs,1:naorbs)=zero
       call density_ci_one(dm1_act)
@@ -966,11 +966,11 @@ c partial backtransform one electron density matrix
          enddo
       enddo
 
-c      do i=1,naorbs
-c         do j=1,i
-c            write(nf2,'(2i8,f18.10)') i,j,dm1_act(i,j)
-c         enddo
-c      enddo
+!      do i=1,naorbs
+!         do j=1,i
+!            write(nf2,'(2i8,f18.10)') i,j,dm1_act(i,j)
+!         enddo
+!      enddo
 
       do i=1,3
          do j=1,numat
@@ -983,31 +983,31 @@ c      enddo
 
                   else
                      nkl=ican_a(k)+l
-                     dxyz(i,j)=dxyz(i,j)
-     :                        +dsaos(i,j,nkl)*dm1_act(k,l)*two
+                     dxyz(i,j)=dxyz(i,j)                                &
+     &                        +dsaos(i,j,nkl)*dm1_act(k,l)*two
 
-                     dmo1xyz(i,j)=dmo1xyz(i,j)
-     :                        +dsaos(i,j,nkl)*dm1_act(k,l)*two
+                     dmo1xyz(i,j)=dmo1xyz(i,j)                          &
+     &                        +dsaos(i,j,nkl)*dm1_act(k,l)*two
                   endif
                enddo
             enddo
          enddo
       enddo
 
-c      dgxyz(1:3,1:numat)=zero
-c      do i=1,numat
-c         do j=1,3
-c            dgxyz(j,i)=dmo1xyz(j,i)*htoklm
-c         enddo
-c      enddo
+!      dgxyz(1:3,1:numat)=zero
+!      do i=1,numat
+!         do j=1,3
+!            dgxyz(j,i)=dmo1xyz(j,i)*htoklm
+!         enddo
+!      enddo
 
 
-c      write(nf2,'(//10x,''cartesian coordinate derivatives'',//3x,
-c     1''number  atom '',5x,''x'',12x,''y'',12x,''z'',/)')
-c      write(nf2,*) 'the one electron gradient'
-c      do i=1,numat
-c         write(nf2,'(6x,i6,3f13.6)') i,(dgxyz(j,i),j=1,3)
-c      enddo
+!      write(nf2,'(//10x,''cartesian coordinate derivatives'',//3x,
+!     1''number  atom '',5x,''x'',12x,''y'',12x,''z'',/)')
+!      write(nf2,*) 'the one electron gradient'
+!      do i=1,numat
+!         write(nf2,'(6x,i6,3f13.6)') i,(dgxyz(j,i),j=1,3)
+!      enddo
 
       dgxyz(1:3,1:numat)=zero
       do i=1,numat
@@ -1022,8 +1022,8 @@ c      enddo
          write(6,'(6x,i6,3f13.6)') i,(dgxyz(j,i),j=1,3)
       enddo
 
-1000  format(//10x,"cartesian coordinate derivatives",//3x,
-     * "number  atom ",5x,"x",12x,"y",12x,"z",/)
+1000  format(//10x,"cartesian coordinate derivatives",//3x,             &
+     & "number  atom ",5x,"x",12x,"y",12x,"z",/)
       end
 
 
@@ -1071,8 +1071,8 @@ c      enddo
                   if(k.eq.l) then
                      val=val+dsaos(i,j,nkl)*cf(k,i0)*cf(l,j0)
                   else
-                     val=val+dsaos(i,j,nkl)*cf(k,i0)*cf(l,j0)
-     :                  +dsaos(i,j,nkl)*cf(k,j0)*cf(l,i0)
+                     val=val+dsaos(i,j,nkl)*cf(k,i0)*cf(l,j0)           &
+     &                  +dsaos(i,j,nkl)*cf(k,j0)*cf(l,i0)
                   endif
                enddo
             enddo
@@ -1117,8 +1117,8 @@ c      enddo
          write(6,'(6x,i6,3f13.6)') i,(dgxyz(j,i),j=1,3)
       enddo
 
-1000  format(//10x,"cartesian coordinate derivatives",//3x,
-     * "number  atom ",5x,"x",12x,"y",12x,"z",/)
+1000  format(//10x,"cartesian coordinate derivatives",//3x,             &
+     & "number  atom ",5x,"x",12x,"y",12x,"z",/)
       end
 
       subroutine density_ci_one(dm1_act)
@@ -1136,12 +1136,12 @@ c      enddo
             do np=norbf,norb_all
                do nq=norbf,np
                   if(np.eq.nq) then
-                     dm1_act(i,j)=dm1_act(i,j)
-     :                          +dm1(np,nq)*cf(i,np)*cf(j,nq)
+                     dm1_act(i,j)=dm1_act(i,j)                          &
+     &                          +dm1(np,nq)*cf(i,np)*cf(j,nq)
                   else
-                     dm1_act(i,j)=dm1_act(i,j)
-     :                          +dm1(np,nq)*cf(i,np)*cf(j,nq)
-     :                          +dm1(np,nq)*cf(j,np)*cf(i,nq)
+                     dm1_act(i,j)=dm1_act(i,j)                          &
+     &                          +dm1(np,nq)*cf(i,np)*cf(j,nq)           &
+     &                          +dm1(np,nq)*cf(j,np)*cf(i,nq)
                   endif
                enddo
             enddo

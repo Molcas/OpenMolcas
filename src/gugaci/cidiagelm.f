@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-c ci diagonal elements
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+! ci diagonal elements
       subroutine diagonal_loop_wyb()  !  for norb_act<>0
 #include "drt_h.fh"
 #include "intsort_h.fh"
@@ -20,13 +20,13 @@ c ci diagonal elements
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
       do lr0=2,norb_all
         do lr=1,lr0-1
-          vdint(lr,lr0)=voint(lr0,lr)
-     :      -vdint(lr0,lr)-vdint(lr0,lr)   ! 520
+          vdint(lr,lr0)=voint(lr0,lr)                                   &
+     &      -vdint(lr0,lr)-vdint(lr0,lr)   ! 520
 !      write(6,'(2i4,3f14.8)')
 !     :   lr,lr0,voint(lr0,lr),vdint(lr0,lr),vdint(lr,lr0)
         enddo
       enddo
-c     write(6,*)'               ***** start h-diaelm *****'
+!     write(6,*)'               ***** start h-diaelm *****'
       vector1(1:nci_dim)=vpotnuc
 !      wl8 = hnil*(hnil-1)*vmd(lr,lr)*0.5d0+hnil*vo(lr,lr)   800
 
@@ -58,9 +58,9 @@ c     write(6,*)'               ***** start h-diaelm *****'
           call seg_drt()
           iwupwei=jpad_upwei(jpad)
           iw_downwei(jpad,ipae)=ndim
-c       if(jpad.ge.26) then
-c     write(6,*)
-c     endif
+!       if(jpad.ge.26) then
+!     write(6,*)
+!     endif
           ndimsum=ndimsum+ndim*jaedownwei*iwupwei
           if(ndim .eq. 0) cycle
           call diagonal_act_d()
@@ -140,8 +140,8 @@ c     endif
 #include "ptlphv.fh"
       real*8, allocatable :: te(:), tee(:)
       integer, allocatable :: jpe(:), jee(:), jwe(:)
-c     write(6,*)'               ***** start h-diaelm *****'
-c      write(6,*)  jpad,jpae
+!     write(6,*)'               ***** start h-diaelm *****'
+!      write(6,*)  jpad,jpae
       allocate(te(maxpl),tee(maxpl),jpe(maxpl),jee(maxpl),jwe(maxpl))
       ndr=0
       if(norb_act.eq.0) then
@@ -152,7 +152,7 @@ c      write(6,*)  jpad,jpae
         return
       endif
       mp=0
-c 520
+! 520
       mh=0
       me=0
       jp=jpad
@@ -160,7 +160,7 @@ c 520
       do idl=1,4
         if(jj_sub(idl,jp).eq.0) cycle
         ind1=idl
-c     link c"
+!     link c"
         call smidc2(isq,w,ww,mw,ind1,jpb)
         mh=mh+1
         jeh(mh)=jj_sub(idl,jp)
@@ -169,7 +169,7 @@ c     link c"
         jph(mh)=0
         jwh(mh)=0
         if(idl.ne.1) jwh(mh)=iy(idl,jp)
-c     complete a loop 'v'
+!     complete a loop 'v'
         if(ind1.eq.1) cycle
         call stml(isq,w,ww,mw,ind1-1,jpb)
         vlop0=w
@@ -179,9 +179,9 @@ c     complete a loop 'v'
         iwa=iy(idl,jp)
         call diagonal_link_ad(mpe,iwa,vlop0,vlop1)
       enddo
-c************************************************************
-c      write(6,*)ad(i)
-c************************************************************
+!************************************************************
+!      write(6,*)ad(i)
+!************************************************************
       lr=norb_dz+1
 
 40    continue
@@ -194,12 +194,12 @@ c************************************************************
       do 160 m=1,mh
         je=jeh(m)
         jeb=jb(je)
-c        jp=jph(m)
+!        jp=jph(m)
         do idl=1,4
           if(jj_sub(idl,je).eq.0) cycle
           ind1=idl
-c          if(lr.eq.1) goto 20
-c     link loop
+!          if(lr.eq.1) goto 20
+!     link loop
           call smidc2(isq,w,ww,mw,ind1,jeb)
           me=me+1
           jwe(me)=jwh(m)
@@ -208,8 +208,8 @@ c     link loop
           te(me)=th(m)*w
           tee(me)=thh(m)*ww
           jpe(me)=jph(m)
-c   complete a loop 'v'
-c20        continue
+!   complete a loop 'v'
+!20        continue
           if(ind1.eq.1) cycle
           call stml(isq,w,ww,mw,ind1-1,jeb)
           vlop0=th(m)*w
@@ -220,12 +220,12 @@ c20        continue
           iwa=jwh(m)
           if(idl.ne.1) iwa=iwa+iy(idl,je)
           call diagonal_link_ad(mpe,iwa,vlop0,vlop1)
-c*****   520  ******************************************************
+!*****   520  ******************************************************
        enddo
 160     continue
-c***********************************************************
-c      write(6,*) ad(i)
-c************************************************************
+!***********************************************************
+!      write(6,*) ad(i)
+!************************************************************
         do m=1,me
           th(m)=te(m)
           te(m)=0.0d0
@@ -267,8 +267,8 @@ c************************************************************
 #include "ptlphv.fh"
       real*8, allocatable :: te(:), tee(:)
       integer, allocatable :: jpe(:), jee(:), jwe(:)
-c     write(6,*)'               ***** start h-diaelm *****'
-c      write(6,*)   '   diagonal_act_d:',jpad,ipae
+!     write(6,*)'               ***** start h-diaelm *****'
+!      write(6,*)   '   diagonal_act_d:',jpad,ipae
       allocate(te(maxpl),tee(maxpl),jpe(maxpl),jee(maxpl),jwe(maxpl))
       ndr=0
       do lr=norb_dz+1,norb_inn
@@ -277,7 +277,7 @@ c      write(6,*)   '   diagonal_act_d:',jpad,ipae
         lr0=lr
         do jp=jp0,jp1
           if(iy(1,jp).eq.0) cycle
-c  800
+!  800
           do idl=2,3
             mpe=jj_sub(idl,jp)
             if(mpe.eq.0) cycle
@@ -293,7 +293,7 @@ c  800
           endif
         enddo
       enddo
-c 520
+! 520
       do 5 lr0=norb_dz+1,norb_inn
         mh=0
         me=0
@@ -302,7 +302,7 @@ c 520
         if(jp0.gt.jp1) jp0=jp1
         do 1 jp=jp0,jp1
           if(iy(1,jp).eq.0) cycle
-c     start '^'
+!     start '^'
           do idl=1,4
             if(jj_sub(idl,jp).eq.0) cycle
             jbl=jb(jp)
@@ -318,9 +318,9 @@ c     start '^'
             if(idl.ne.1) jwh(mh)=iy(idl,jp)
           enddo
 1       continue
-c************************************************************
-c      write(6,*)ad(i)
-c************************************************************
+!************************************************************
+!      write(6,*)ad(i)
+!************************************************************
         lr=lr0
         if(ndr(lr).lt.mh) ndr(lr)=mh
 40      if(lr.eq.norb_inn) then
@@ -338,7 +338,7 @@ c************************************************************
             if(jj_sub(idl,je).eq.0) goto 17
             ind1=idl
             if(lr.eq.1) goto 20
-c     link loop
+!     link loop
             call smidc2(isq,w,ww,mw,ind1,jeb)
             me=me+1
             jwe(me)=jwh(m)
@@ -347,7 +347,7 @@ c     link loop
             te(me)=th(m)*w
             tee(me)=thh(m)*ww
             jpe(me)=jph(m)
-c     complete a loop 'v'
+!     complete a loop 'v'
 20          if(ind1.eq.1) goto 17
             call stml(isq,w,ww,mw,ind1-1,jeb)
             vlop0=th(m)*w
@@ -360,12 +360,12 @@ c     complete a loop 'v'
             wt=(vlop0-vlop1)*voint(lr,lr0)-2.d0*vlop0*vdint(lr,lr0)
 
             call prodel(3,wt,jp,mpe,iwa)
-c*****   520  ******************************************************
+!*****   520  ******************************************************
 17        continue
 160     continue
-c***********************************************************
-c      write(6,*) ad(i)
-c************************************************************
+!***********************************************************
+!      write(6,*) ad(i)
+!************************************************************
       do  m=1,me
           th(m)=te(m)
           te(m)=0.0d0
@@ -420,15 +420,15 @@ c************************************************************
         iwe=0
         jp=jph(ip)
         lr0=kk(jp)
-c      write(6,*)'ip,jpe,ind0',ip,jpe,ind0
+!      write(6,*)'ip,jpe,ind0',ip,jpe,ind0
         iwa=jwh(ip)
         vlop0=th(ip)
         vlop1=thh(ip)
 
-c      wl5=(vlop0-vlop1)*vo(lr0,lr)-2.0d0*vlop0*vmd(lr0,lr)
-c      wl8=vlop0*(vo(lr0,lr0)+(vlop0-1)*0.5*vmd(lr0,lr0))
-c             two-index,one-loop 520
-c   520=<a,j,k,a>:13,14(ss=3),38(tt=2),50(dd=1)
+!      wl5=(vlop0-vlop1)*vo(lr0,lr)-2.0d0*vlop0*vmd(lr0,lr)
+!      wl8=vlop0*(vo(lr0,lr0)+(vlop0-1)*0.5*vmd(lr0,lr0))
+!             two-index,one-loop 520
+!   520=<a,j,k,a>:13,14(ss=3),38(tt=2),50(dd=1)
       goto(100,200,300),ityae
 !link arc_d
 !100     zz='  g50  '
@@ -440,8 +440,8 @@ c   520=<a,j,k,a>:13,14(ss=3),38(tt=2),50(dd=1)
           lra=norb_all-la+1
           iwe=iwe+1
           wld =(wg50-wwg50)*voint(lra,lr0)-2.d0*wg50*vdint(lra,lr0)
-c       write(6,'(a11,2i3,i6,1x,5f10.4)')
-c     :   zz,lr0,la,jwl,vo(lr0,la),vmd(lr0,la),wg50,wwg50,wl
+!       write(6,'(a11,2i3,i6,1x,5f10.4)')
+!     :   zz,lr0,la,jwl,vo(lr0,la),vmd(lr0,la),wg50,wwg50,wl
           call prodel(5,wld,jp,iwa,iwe)
         enddo
         goto 108
@@ -459,10 +459,10 @@ c     :   zz,lr0,la,jwl,vo(lr0,la),vmd(lr0,la),wg50,wwg50,wl
             do lb=lbsta,lbend
               lrb=norb_all-lb+1
               iwe=iwe+1
-              wlt =(wg38-wwg38)*(voint(lra,lr0)+voint(lrb,lr0))
-     :          -2.d0*wg38*(vdint(lra,lr0)+vdint(lrb,lr0))
-c        write(6,*)' 520 r0,la,lb '
-c     :   ,vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
+              wlt =(wg38-wwg38)*(voint(lra,lr0)+voint(lrb,lr0))         &
+     &          -2.d0*wg38*(vdint(lra,lr0)+vdint(lrb,lr0))
+!        write(6,*)' 520 r0,la,lb '
+!     :   ,vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
 
               call prodel(5,wlt,jp,iwa,iwe)
             enddo
@@ -484,8 +484,8 @@ c     :   ,vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
             do lb=lbsta,lbend
               lrb=norb_all-lb+1
               iwe=iwe+1
-              wls =wg14*(voint(lra,lr0)+voint(lrb,lr0))
-     :           -2.d0*wg14*(vdint(lra,lr0)+vdint(lrb,lr0))
+              wls =wg14*(voint(lra,lr0)+voint(lrb,lr0))                 &
+     &           -2.d0*wg14*(vdint(lra,lr0)+vdint(lrb,lr0))
               call prodel(5,wls,jp,iwa,iwe)
             enddo
          enddo
@@ -498,8 +498,8 @@ c     :   ,vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
           iwe=iwe+1
           wls =wg13*(voint(lra,lr0)-2.d0*vdint(lra,lr0))
           call prodel(5,wls,jp,iwa,iwe)
-c        write(6,*)' g13 ',
-c     :   vo(lr0,la),vo(lr0,lb),vmd(lr0,la),vmd(lr0,lb)
+!        write(6,*)' g13 ',
+!     :   vo(lr0,la),vo(lr0,lb),vmd(lr0,la),vmd(lr0,lb)
         enddo
 108   continue
       mh=0
@@ -537,7 +537,7 @@ c     :   vo(lr0,la),vo(lr0,lb),vmd(lr0,la),vmd(lr0,lb)
 100   fqi=-fg
           vl0=fqi*dsq2*vlop0
           wlv=0.d0
-c          do lr=norb_frz+1,norb_dz
+!          do lr=norb_frz+1,norb_dz
            do lr=1,norb_dz
            wlv=wlv-vl0*vdint(lr,lra)
            enddo
@@ -978,7 +978,7 @@ c          do lr=norb_frz+1,norb_dz
         imae=8
       endif
       iwe=0
-c   520=<a,j,k,a>:13,14(ss=3),38(tt=2),50(dd=1)
+!   520=<a,j,k,a>:13,14(ss=3),38(tt=2),50(dd=1)
       goto(100,200,300),ityae
 !link arc_d
 !100     zz='  g50  '
@@ -998,8 +998,8 @@ c   520=<a,j,k,a>:13,14(ss=3),38(tt=2),50(dd=1)
           wl=wl+(vlop0-vlop1)*voint(lra,lri)-2.d0*vlop0*vdint(lra,lri)
           vlop1=-vij2*dsq3vsq2
           wl=wl+(vlop0-vlop1)*voint(lra,lrj)-2.d0*vlop0*vdint(lra,lrj)
-c       write(6,'(a11,2i3,i6,1x,5f10.4)')
-c     :   zz,lr0,la,jwl,vo(lr0,la),vmd(lr0,la),wg50,wwg50,wl
+!       write(6,'(a11,2i3,i6,1x,5f10.4)')
+!     :   zz,lr0,la,jwl,vo(lr0,la),vmd(lr0,la),wg50,wwg50,wl
         else
           vlop0= vij0*vsq2
           vlop1=-vij1*dsq3vsq2       !db space (22)drl(11)- ext space -g
@@ -1036,22 +1036,22 @@ c     :   zz,lr0,la,jwl,vo(lr0,la),vmd(lr0,la),wg50,wwg50,wl
             if(lri.ge.lrj) then
               vlop0=-vij0*vsq2
               vlop1=vij1
-              wl=wl+(vlop0-vlop1)*(voint(lra,lri)+voint(lrb,lri))
-     :          -2.d0*vlop0*(vdint(lra,lri)+vdint(lrb,lri))
+              wl=wl+(vlop0-vlop1)*(voint(lra,lri)+voint(lrb,lri))       &
+     &          -2.d0*vlop0*(vdint(lra,lri)+vdint(lrb,lri))
               vlop1=vij2
-              wl=wl+(vlop0-vlop1)*(voint(lra,lrj)+voint(lrb,lrj))
-     :          -2.d0*vlop0*(vdint(lra,lrj)+vdint(lrb,lrj))
+              wl=wl+(vlop0-vlop1)*(voint(lra,lrj)+voint(lrb,lrj))       &
+     &          -2.d0*vlop0*(vdint(lra,lrj)+vdint(lrb,lrj))
             else
               vlop0=-vij0*vsq2
               vlop1=vij1
-              wl=wl+(vlop0-vlop1)*(voint(lra,lrj)+voint(lrb,lrj))
-     :          -2.d0*vlop0*(vdint(lra,lrj)+vdint(lrb,lrj))
+              wl=wl+(vlop0-vlop1)*(voint(lra,lrj)+voint(lrb,lrj))       &
+     &          -2.d0*vlop0*(vdint(lra,lrj)+vdint(lrb,lrj))
               vlop1=vij2
-              wl=wl+(vlop0-vlop1)*(voint(lra,lri)+voint(lrb,lri))
-     :          -2.d0*vlop0*(vdint(lra,lri)+vdint(lrb,lri))
+              wl=wl+(vlop0-vlop1)*(voint(lra,lri)+voint(lrb,lri))       &
+     &          -2.d0*vlop0*(vdint(lra,lri)+vdint(lrb,lri))
             endif
-c        write(6,*)' 520 r0,la,lb '
-c     :   ,vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
+!        write(6,*)' 520 r0,la,lb '
+!     :   ,vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
 
             call prodel(6,wl,iwd,iwa,iwe)
           enddo
@@ -1084,12 +1084,12 @@ c     :   ,vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
 
             if(jpad.eq.18.and.lri.eq.lrj) goto 301
             wg14 =-vij0*vsq2
-            wl=wl+wg14*(voint(lra,lri)+voint(lrb,lri))
-     :          -2.d0*wg14*(vdint(lra,lri)+vdint(lrb,lri))
-            wl=wl+wg14*(voint(lra,lrj)+voint(lrb,lrj))
-     :          -2.d0*wg14*(vdint(lra,lrj)+vdint(lrb,lrj))
-c        write(6,*)' 520 r0,la,lb '
-c     :   ,vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
+            wl=wl+wg14*(voint(lra,lri)+voint(lrb,lri))                  &
+     &          -2.d0*wg14*(vdint(lra,lri)+vdint(lrb,lri))
+            wl=wl+wg14*(voint(lra,lrj)+voint(lrb,lrj))                  &
+     &          -2.d0*wg14*(vdint(lra,lrj)+vdint(lrb,lrj))
+!        write(6,*)' 520 r0,la,lb '
+!     :   ,vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
 301         call prodel(6,wl,iwd,iwa,iwe)
           enddo
         enddo
@@ -1113,8 +1113,8 @@ c     :   ,vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
         wl=wl+wg13*(vdint(lri,lra)+vdint(lrj,lra))
 
         call prodel(6,wl,iwd,iwa,iwe)
-c        write(6,*)' g13 ',
-c     :   vo(lr0,la),vo(lr0,lb),vmd(lr0,la),vmd(lr0,lb)
+!        write(6,*)' g13 ',
+!     :   vo(lr0,la),vo(lr0,lb),vmd(lr0,la),vmd(lr0,lb)
       enddo
 108   continue
       return
@@ -1140,13 +1140,13 @@ c     :   vo(lr0,la),vo(lr0,lb),vmd(lr0,la),vmd(lr0,lb)
         if(nu_ae(ipae).eq.0) cycle
         iwdownv=iw_downwei(1,ipae)
         do iwa=0,iwdownv-1
-c       zz=' doub_800_v'
+!       zz=' doub_800_v'
           iwad=iwalk_ad(1,ipae,iwa,0)
           call prodel(1,wt0,0,ipae,iwad)
-c         zz=' doub_800_s'
+!         zz=' doub_800_s'
         enddo
       enddo
-c       jps=js(1)
+!       jps=js(1)
       do 100 lr0=norb_frz+1,norb_dz
         mr0=mul_tab(lsm_inn(lr0),ns_sm)
         iwd=jud(lr0)
@@ -1395,7 +1395,7 @@ c       jps=js(1)
             enddo
 401     continue
 400   continue
-c ------------- end of delm --------------
+! ------------- end of delm --------------
       return
       end
 
@@ -1419,7 +1419,7 @@ c ------------- end of delm --------------
         jws0=jws0+lrzz
         jw=0
         do la=lasta,laend
-c        jpd=jd(mra)
+!        jpd=jd(mra)
           jw=jw+1
                                           ! d(1)_800
           lra=norb_all-la+1
@@ -1429,11 +1429,11 @@ c        jpd=jd(mra)
       enddo
 
 !      zz=' out_800_s'
-c       jps=js(1)
+!       jps=js(1)
 
       jweis=jws0
       do la=1,norb_ext
-c        jpd=jd(mra)
+!        jpd=jd(mra)
         lra=norb_all-la+1
         jweis=jweis+1
                                           ! (3)_800
@@ -1453,8 +1453,8 @@ c        jpd=jd(mra)
            imb=lsm(lb)
            mr=mul_tab(ima,imb)
            if(mr.ne.im) goto 600
-c          jps=js(mr)
-c          jpt=jt(mr)
+!          jps=js(mr)
+!          jpt=jt(mr)
            jws=jws+1
            jwt=jwt+1
             wls=voint(lra,lra)+voint(lrb,lrb)
@@ -1467,7 +1467,7 @@ c          jpt=jt(mr)
 600       continue
           enddo
       enddo
-c ------------- end of h_delm --------------
+! ------------- end of h_delm --------------
       return
       end
 
@@ -1482,7 +1482,7 @@ c ------------- end of h_delm --------------
       end
 
 
-c  2001.10.2 for norb_act<>0            mg1,mg2,mg3:
+!  2001.10.2 for norb_act<>0            mg1,mg2,mg3:
 !  idb=1  in dbl_space      ity_up=0-5             jd_type,jd_im,iwd
 !  idb=2  in ext_space      ity_down=0-3          je_type,je_im,iwe
 !  idb=3  in act_space      ity_up=0-5,itdown=0,3      jp ,mpe,iwa

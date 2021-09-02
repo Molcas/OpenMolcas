@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-C calculate dd, ss and tt space
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+! calculate dd, ss and tt space
       subroutine dd_drt_ci_new()
 #include "drt_h.fh"
 #include "intsort_h.fh"
@@ -30,7 +30,7 @@ C calculate dd, ss and tt space
         call get_jpty(jpadlr,jptyl,jptyr)
         call get_jp(jptyl,jml,jpadl,1)
         call get_jp(jptyr,jmr,jpad,1)
-C        JMLR=MUL_TAB(JML,JMR)
+!        JMLR=MUL_TAB(JML,JMR)
         if(linelp.le.12)   then
           call dd_ext_head_in_act()
         else
@@ -49,8 +49,8 @@ C        JMLR=MUL_TAB(JML,JMR)
       LOGIC_DH=.TRUE.
       JMLR=MUL_TAB(JML,JMR)
       LPOK=JPADLR
-      GOTO(101,102,103,104,105,106,10,108,10,10,111,112,
-     :     113,10,115,10,10,10,119,120,121,122,123,124,125,10),LPOK
+      GOTO(101,102,103,104,105,106,10,108,10,10,111,112,                &
+     &     113,10,115,10,10,10,119,120,121,122,123,124,125,10),LPOK
 !====================================================================
 !SD(6)    ACT: -B&L-
 106   IF(LINELP.NE.17) RETURN
@@ -111,7 +111,7 @@ C        JMLR=MUL_TAB(JML,JMR)
           LMK=LSM_INN(LRK)
           LMKI=MUL_TAB(LMK,LMI)
           IF(LMKI.NE.JML.OR.LMK.NE.JMR) CYCLE
-C..........................03_01.......................
+!..........................03_01.......................
 !          IF(jroute_sys.GT.1) THEN
 !SD(6-3) A&r(13)-C'(22)-
 !            IWDL=JUST(LRK,LRI)
@@ -128,7 +128,7 @@ C..........................03_01.......................
 !            ENDDO
 !            CALL Ar_BL_DD_EXT(LRI,LRA,1)
 !          ENDIF
-C...........................03_01......................
+!...........................03_01......................
           IWDL=JUST(LRI,LRK)
           IWDR=JUD(LRK)
           DO MPL=1,MHLP
@@ -619,7 +619,7 @@ C...........................03_01......................
         CALL Drl_DD_EXT(LRK)
       ENDDO
       GOTO 10
-C=======================================================================
+!=======================================================================
 10    return
       end
 
@@ -661,12 +661,12 @@ C=======================================================================
         imlr=mul_tab(iml,imr)
         nvalue_space_ss=iseg_downwei(9+imlr)
         idownwei_g131415=iseg_downwei(17+iml)
-C        if(imlr.eq.1)imspace=iml
+!        if(imlr.eq.1)imspace=iml
         call logicg_st(iml,imr,4,4)      ! irtype=4(S),lptype=5:ArBl-
         call get_jpty(jpadlr,jptyl,jptyr)
         call get_jp(jptyl,jml,jpadl,1)
         call get_jp(jptyr,jmr,jpad,1)
-C        JMLR=MUL_TAB(JML,JMR)
+!        JMLR=MUL_TAB(JML,JMR)
         if(linelp.le.12)   then
           call ss_ext_head_in_act()
         else
@@ -685,8 +685,8 @@ C        JMLR=MUL_TAB(JML,JMR)
       LOGIC_DH=.TRUE.
       JMLR=MUL_TAB(JML,JMR)
       LPOK=JPADLR
-      GOTO(101,102,10,104,105,106,10,108,10,10,111,112,
-     :     113,10,115,10,10,10,119,120,121,122,123,124,125,10),LPOK
+      GOTO(101,102,10,104,105,106,10,108,10,10,111,112,                 &
+     &     113,10,115,10,10,10,119,120,121,122,123,124,125,10),LPOK
 !=======================================================================
 !SD(6-1) ACT -B&L-
 106   IF(LINELP.NE.17) RETURN
@@ -1057,11 +1057,11 @@ C        JMLR=MUL_TAB(JML,JMR)
         LP_RWEI(MPL)=IWALK_AD(JPAD,Ipae,IWAR,IWDR)
       ENDDO
         CALL Drl_SS_SUM(0,0)
-C      do lrk=1,norb_dz
-C        CALL Drl_ss_ext(lrk)
-C     enddo
+!      do lrk=1,norb_dz
+!        CALL Drl_ss_ext(lrk)
+!     enddo
       GOTO 10
-C=======================================================================
+!=======================================================================
 10    return
       end
 
@@ -1107,7 +1107,7 @@ C=======================================================================
         call get_jpty(jpadlr,jptyl,jptyr)
         call get_jp(jptyl,jml,jpadl,1)
         call get_jp(jptyr,jmr,jpad,1)
-C        JMLR=MUL_TAB(JML,JMR)
+!        JMLR=MUL_TAB(JML,JMR)
         if(linelp.le.12)   then
           call st_ext_head_in_act()
         else
@@ -1128,8 +1128,8 @@ C        JMLR=MUL_TAB(JML,JMR)
       LPOK=JPADLR
 !      GOTO(101,102,103,10,10,106,10,10,10,10,111,10,
 !     :     113,10,10,10,10,10,119,10,10,10,123,10,125,10),LPOK
-      GOTO(101,102,103,104,105,106,10,108,10,10,111,112,
-     :     113,10,115,10,10,10,119,120,121,122,123,124,125,10),LPOK
+      GOTO(101,102,103,104,105,106,10,108,10,10,111,112,                &
+     &     113,10,115,10,10,10,119,120,121,122,123,124,125,10),LPOK
 !=======================================================================
 !SD(6-1) ACT -B&L-
 106   IF(LINELP.NE.17) RETURN
@@ -1486,7 +1486,7 @@ C        JMLR=MUL_TAB(JML,JMR)
 !=======================================================================
 !VV(25) ACT -BL- ....................................................
 125   RETURN
-C=======================================================================
+!=======================================================================
 10    return
       end
 
@@ -1531,7 +1531,7 @@ C=======================================================================
         call get_jpty(jpadlr,jptyl,jptyr)
         call get_jp(jptyl,jml,jpadl,1)
         call get_jp(jptyr,jmr,jpad,1)
-C        JMLR=MUL_TAB(JML,JMR)
+!        JMLR=MUL_TAB(JML,JMR)
         if(linelp.le.12)   then
           call ts_ext_head_in_act()
         else
@@ -1550,8 +1550,8 @@ C        JMLR=MUL_TAB(JML,JMR)
       LOGIC_DH=.TRUE.
       JMLR=MUL_TAB(JML,JMR)
       LPOK=JPADLR
-      GOTO(101,102,103,104,105,106,10,108,10,10,111,112,
-     :     113,10,115,10,10,10,119,120,121,122,123,124,125,10),LPOK
+      GOTO(101,102,103,104,105,106,10,108,10,10,111,112,                &
+     &     113,10,115,10,10,10,119,120,121,122,123,124,125,10),LPOK
 !=======================================================================
 !SD(6-1) ACT -B&L-
 106   IF(LINELP.NE.17) RETURN
@@ -1907,7 +1907,7 @@ C        JMLR=MUL_TAB(JML,JMR)
 !=======================================================================
 !VV(25) ACT -BL- ....................................................
 125   GOTO 10
-C=======================================================================
+!=======================================================================
 10    return
       end
 
@@ -1949,13 +1949,13 @@ C=======================================================================
         Ipae =imr+9
         call logicg_st(iml,imr,3,3)      ! irtype=3(T),lptype=5:ArBl-
         imlr=mul_tab(iml,imr)
-C        if(imlr.eq.1)imspace=iml
+!        if(imlr.eq.1)imspace=iml
         nvalue_space_ss=iseg_downwei(9+imlr)
         idownwei_g131415=iseg_downwei(9+iml)
         call get_jpty(jpadlr,jptyl,jptyr)
         call get_jp(jptyl,jml,jpadl,1)
         call get_jp(jptyr,jmr,jpad,1)
-C        JMLR=MUL_TAB(JML,JMR)
+!        JMLR=MUL_TAB(JML,JMR)
         if(linelp.le.12)   then
           call tt_ext_head_in_act()
         else
@@ -1974,8 +1974,8 @@ C        JMLR=MUL_TAB(JML,JMR)
       LOGIC_DH=.TRUE.
       JMLR=MUL_TAB(JML,JMR)
       LPOK=JPADLR
-      GOTO(101,102,103,104,105,106,10,108,10,10,111,112,
-     :     113,10,115,10,10,10,119,120,121,122,123,124,125,10),LPOK
+      GOTO(101,102,103,104,105,106,10,108,10,10,111,112,                &
+     &     113,10,115,10,10,10,119,120,121,122,123,124,125,10),LPOK
 !=======================================================================
 !SD(6-1) ACT -B&L-
 106   IF(LINELP.NE.17) RETURN
@@ -2077,10 +2077,10 @@ C        JMLR=MUL_TAB(JML,JMR)
             VPLP_W0(MPL)=VPLPNEW_W0(MPL)*W0SS20
             VPLP_W1(MPL)=0.D0
           ENDDO
-C      do lrk=1,norb_dz
-C        if(lrk.eq.lr0) cycle
-C        CALL Drl_tt_ext(lrk)
-C     enddo
+!      do lrk=1,norb_dz
+!        if(lrk.eq.lr0) cycle
+!        CALL Drl_tt_ext(lrk)
+!     enddo
           CALL Drl_TT_SUM(LR0,0)
         ENDDO
       ENDIF
@@ -2295,11 +2295,11 @@ C     enddo
               VPLP_W0(MPL)=VPLPNEW_W0(MPL)*W0TT3
               VPLP_W1(MPL)=0.D0
             ENDDO
-C      do lrk=1,norb_dz
-C        if(lrk.eq.lri) cycle
-C        if(lrk.eq.lrj) cycle
-C        CALL Drl_tt_ext(lrk)
-C     enddo
+!      do lrk=1,norb_dz
+!        if(lrk.eq.lri) cycle
+!        if(lrk.eq.lrj) cycle
+!        CALL Drl_tt_ext(lrk)
+!     enddo
             CALL Drl_TT_SUM(LRI,LRJ)
           ENDDO
         ENDDO
@@ -2368,10 +2368,10 @@ C     enddo
           VPLP_W1(MPL)=0.D0
         ENDDO
         CALL Drl_TT_SUM(LRI,0)
-C      do lrk=1,norb_dz
-C        if(lrk.eq.lri) cycle
-C        CALL Drl_tt_ext(lrk)
-C     enddo
+!      do lrk=1,norb_dz
+!        if(lrk.eq.lri) cycle
+!        CALL Drl_tt_ext(lrk)
+!     enddo
       ENDDO
       GOTO 10
 !=======================================================================
@@ -2395,7 +2395,7 @@ C     enddo
         CALL Drl_tt_ext(lrk)
       enddo
       GOTO 10
-C=======================================================================
+!=======================================================================
 10    return
       end
 

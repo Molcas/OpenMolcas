@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine dv_drt_ci_new()
 #include "drt_h.fh"
 #include "intsort_h.fh"
@@ -25,7 +25,7 @@
         call get_jpty(jpadlr,jptyl,jptyr)
         call get_jp(jptyl,jml,jpadl,1)
         call get_jp(jptyr,jmr,jpad,1)
-c        jmlr=mul_tab(jml,jmr)
+!        jmlr=mul_tab(jml,jmr)
         call gsd_determine_extarmode_paras(iml,imr,.false.)
         if(linelp.le.12)   then
           call dv_ext_head_in_act()
@@ -46,8 +46,8 @@ c        jmlr=mul_tab(jml,jmr)
       isma=iml
       lpok=jpadlr
       jmlr=mul_tab(jml,jmr)
-      goto(101,102,103,104,105,106,10,108,109,110,111,112,    ! 107???
-     :     113,10,115,10,117,118,119,120,121,122,123,124,125,10),lpok
+      goto(101,102,103,104,105,106,10,108,109,110,111,112,              & ! 107???
+     &     113,10,115,10,117,118,119,120,121,122,123,124,125,10),lpok
 !====================================================================
 !sd(6-1) a&r(02)-
 !sd(6-2) c(22)a&(13)-
@@ -692,9 +692,9 @@ c        jmlr=mul_tab(jml,jmr)
           lp_rwei(mpl)=iwalk_ad(jpad,ipae,iwar,iwdr)
         enddo
         call drl_bl_sum_ar_new(23,0,0,lra)
-c        do lrk=1,norb_dz
-c          call drl_bl_ext_ar_new(23,lrk,lra)
-c        enddo
+!        do lrk=1,norb_dz
+!          call drl_bl_ext_ar_new(23,lrk,lra)
+!        enddo
        endif
       return
 !=======================================================================
@@ -847,7 +847,7 @@ c        enddo
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 #include "lpdisk.fh"
-c      write(6,*)'  sd_wyb'
+!      write(6,*)'  sd_wyb'
 
 !      logic_sd=.true.
       call external_space_plpmode_value_sd()
@@ -861,7 +861,7 @@ c      write(6,*)'  sd_wyb'
         call get_jpty(jpadlr,jptyl,jptyr)
         call get_jp(jptyl,jml,jpadl,1)
         call get_jp(jptyr,jmr,jpad,1)
-c        jmlr=mul_tab(jml,jmr)
+!        jmlr=mul_tab(jml,jmr)
         call gsd_determine_extarmode_paras(iml,imr,.true.)
         if(linelp.le.12)   then
           call sd_ext_head_in_act()
@@ -879,7 +879,7 @@ c        jmlr=mul_tab(jml,jmr)
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 #include "lpdisk.fh"
-c      write(6,*)'  sd_wyb'
+!      write(6,*)'  sd_wyb'
 
 !      logic_sd=.true.
       call external_space_plpmode_value_sd()
@@ -893,7 +893,7 @@ c      write(6,*)'  sd_wyb'
         call get_jpty(jpadlr,jptyl,jptyr)
         call get_jp(jptyl,jml,jpadl,1)
         call get_jp(jptyr,jmr,jpad,1)
-c        jmlr=mul_tab(jml,jmr)
+!        jmlr=mul_tab(jml,jmr)
         call gsd_determine_extarmode_paras(iml,imr,.true.)
         if(linelp.le.12)   then
           call sd_ext_head_in_act()
@@ -913,8 +913,8 @@ c        jmlr=mul_tab(jml,jmr)
       isma=mul_tab(iml,imr)
       jmlr=mul_tab(jml,jmr)
       lpok=jpadlr
-      goto(101,102,103,104,105,106,10,108,10,110,111,112, ! 109???
-     :     113,10,115,10,117,118,119,120,121,122,123,124,125,10),lpok
+      goto(101,102,103,104,105,106,10,108,10,110,111,112,               & ! 109???
+     &     113,10,115,10,117,118,119,120,121,122,123,124,125,10),lpok
 !====================================================================
 !sd(6-1) a&r(02)-
 !sd(6-2) c(22)a&(13)-
@@ -1486,11 +1486,11 @@ c        jmlr=mul_tab(jml,jmr)
       return
 !=======================================================================
 !dds(9) act -c'- ..............................................
-c109   if(linelp.eq.13) then
-c        lra=nlg1
-c        call dds_abb_act_c_sgt0(6)
-c      endif
-c      return
+!109   if(linelp.eq.13) then
+!        lra=nlg1
+!        call dds_abb_act_c_sgt0(6)
+!      endif
+!      return
 !=======================================================================
 !tt(11)   act -b^l
 111   if(linelp.ne.15) return
@@ -1587,9 +1587,9 @@ c      return
           lp_rwei(mpl)=iwalk_ad(jpad,ipae,iwar,iwdr)
         enddo
         call drl_bl_sum_ar_new(6,0,0,lra)
-c        do lrk=1,norb_dz
-c          call drl_bl_ext_ar_new(6,lrk,lra)
-c        enddo
+!        do lrk=1,norb_dz
+!          call drl_bl_ext_ar_new(6,lrk,lra)
+!        enddo
       endif
       return
 !=======================================================================
@@ -1762,8 +1762,8 @@ c        enddo
 !     g31   type_12 arbrb^ra^r
           iabc=iabc0+ia+ngw2(ib)+ngw3(ic)
           iposint=intind_iabc(iabc)
-          value_lpext(ilwei)=vint_ci(iposint+1)*w0plp31
-     *               +vint_ci(iposint+2)*w1plp31
+          value_lpext(ilwei)=vint_ci(iposint+1)*w0plp31                 &
+     &               +vint_ci(iposint+2)*w1plp31
          ilwei=ilwei+1
       enddo
       enddo
@@ -1775,8 +1775,8 @@ c        enddo
          iaqq=ia0+ia
          intpos=intind_iaqq(iaqq)
          iposint=intpos+jcoffset
-          value_lpext(ilwei)=(vint_ci(iposint)/w0g28a
-     :             +vint_ci(iposint+1))*w0plp28
+          value_lpext(ilwei)=(vint_ci(iposint)/w0g28a                   &
+     &             +vint_ci(iposint+1))*w0plp28
          ilwei=ilwei+1
       enddo
 
@@ -1787,8 +1787,8 @@ c        enddo
          intpos=intind_iaqq(iaqq)
          iposint=intpos+jcoffset
          ilwei=icnt_base+iwt_orb_ext(ic,ib)
-         value_lpext(ilwei)=vint_ci(iposint)*w0plp27
-     :                    -vint_ci(iposint+1)*w1plp27
+         value_lpext(ilwei)=vint_ci(iposint)*w0plp27                    &
+     &                    -vint_ci(iposint+1)*w1plp27
       enddo
 
       do ib=ic+1,ibend
@@ -1797,8 +1797,8 @@ c        enddo
 !     g32a   type g12
           iabc=iabc0+ia+ngw2(ic)+ngw3(ib)
           iposint=intind_iabc(iabc)
-          value_lpext(ilwei)=vint_ci(iposint+2)*w0plp32   !severe_new_er
-     *                  -vint_ci(iposint)*w1plp32
+          value_lpext(ilwei)=vint_ci(iposint+2)*w0plp32                 & !severe_new_er
+     &                  -vint_ci(iposint)*w1plp32
           ilwei=ilwei+1
         enddo
       enddo
@@ -1809,8 +1809,8 @@ c        enddo
           iabc=iabc0+ic+ngw2(ia)+ngw3(ib)
           iposint=intind_iabc(iabc)
 !     g32b  type 11
-         value_lpext(ilwei)=vint_ci(iposint+1)*w0plp32      !severe_new_
-     *                  -vint_ci(iposint)*w1plp32
+         value_lpext(ilwei)=vint_ci(iposint+1)*w0plp32                  & !severe_new_
+     &                  -vint_ci(iposint)*w1plp32
          ilwei=ilwei+1
         enddo
       enddo
@@ -1841,8 +1841,8 @@ c        enddo
 !     g31   type_12 arbrb^ra^r
           iabc=iabc0+ia+ngw2(ib)+ngw3(ic)
           iposint=intind_iabc(iabc)
-         value_lpext(ilwei)=vint_ci(iposint+1)*w0plp31      !severe_new_
-     *               +vint_ci(iposint+2)*w1plp31
+         value_lpext(ilwei)=vint_ci(iposint+1)*w0plp31                  & !severe_new_
+     &               +vint_ci(iposint+2)*w1plp31
          ilwei=ilwei+1
         enddo
       enddo
@@ -1855,8 +1855,8 @@ c        enddo
          !g32a
           iabc=iabc0+ia+ngw2(ic)+ngw3(ib)
           iposint=intind_iabc(iabc)
-         value_lpext(ilwei)=vint_ci(iposint+2)*w0plp32   !severe_new_err
-     *               -vint_ci(iposint)*w1plp32
+         value_lpext(ilwei)=vint_ci(iposint+2)*w0plp32                  & !severe_new_err
+     &               -vint_ci(iposint)*w1plp32
          ilwei=ilwei+1
         enddo
       enddo
@@ -1868,9 +1868,9 @@ c        enddo
          iaqq=ia0+ia
          intpos=intind_iaqq(iaqq)
          iposint=intpos+jcoffset
-c        value_lpext(ilwei)=(vint_ci(iposint2)+
-         value_lpext(ilwei)=w0plp28*(vint_ci(iposint)/w0g28a+
-     *                              vint_ci(iposint+1))
+!        value_lpext(ilwei)=(vint_ci(iposint2)+
+         value_lpext(ilwei)=w0plp28*(vint_ci(iposint)/w0g28a+           &
+     &                              vint_ci(iposint+1))
          ilwei=ilwei+1
       enddo
       end
@@ -1900,8 +1900,8 @@ c        value_lpext(ilwei)=(vint_ci(iposint2)+
          !g32a
           iabc=iabc0+ia+ngw2(ic)+ngw3(ib)
           iposint=intind_iabc(iabc)
-         value_lpext(ilwei)=vint_ci(iposint+2)*w0plp32      !severe_new_
-     *                  -vint_ci(iposint)*w1plp32
+         value_lpext(ilwei)=vint_ci(iposint+2)*w0plp32                  & !severe_new_
+     &                  -vint_ci(iposint)*w1plp32
          ilwei=ilwei+1
         enddo
       enddo
@@ -1912,8 +1912,8 @@ c        value_lpext(ilwei)=(vint_ci(iposint2)+
           iabc=iabc0+ic+ngw2(ia)+ngw3(ib)
           iposint=intind_iabc(iabc)
          !g32b
-         value_lpext(ilwei)=vint_ci(iposint+1)*w0plp32   !severe_new_err
-     *                  -vint_ci(iposint)*w1plp32
+         value_lpext(ilwei)=vint_ci(iposint+1)*w0plp32                  & !severe_new_err
+     &                  -vint_ci(iposint)*w1plp32
          ilwei=ilwei+1
         enddo
       enddo
@@ -1925,8 +1925,8 @@ c        value_lpext(ilwei)=(vint_ci(iposint2)+
          intpos=intind_iaqq(iaqq)
          iposint=intpos+jcoffset
          ilwei=icnt_base+iwt_orb_ext(ic,ib)
-         value_lpext(ilwei)=vint_ci(iposint)*w0plp27
-     :                    -vint_ci(iposint+1)*w1plp27
+         value_lpext(ilwei)=vint_ci(iposint)*w0plp27                    &
+     &                    -vint_ci(iposint+1)*w1plp27
       enddo
       end
 
@@ -1975,7 +1975,7 @@ c        value_lpext(ilwei)=(vint_ci(iposint2)+
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 #include "lpdisk.fh"
-c      write(6,*)'  td_wyb'
+!      write(6,*)'  td_wyb'
 
 !      logic_sd=.true.
       call external_space_plpmode_value_td()
@@ -1990,7 +1990,7 @@ c      write(6,*)'  td_wyb'
         call get_jpty(jpadlr,jptyl,jptyr)
         call get_jp(jptyl,jml,jpadl,1)
         call get_jp(jptyr,jmr,jpad,1)
-c        jmlr=mul_tab(jml,jmr)
+!        jmlr=mul_tab(jml,jmr)
         call gsd_determine_extarmode_paras(iml,imr,.false.)
         if(linelp.le.12)   then
           call td_ext_head_in_act()
@@ -2012,8 +2012,8 @@ c        jmlr=mul_tab(jml,jmr)
       lpok=jpadlr
 !      goto(101,102,103,104,105,106,10,108,109,110,111,112,
 !     :     113,10,115,10,117,118,119,120,121,122,123,124,125,10),lpok
-      goto(101,102,103,104,105,106,10,108,109,110,111,112,
-     :     113,10,115,10,117,118,119,120,121,122,123,124,125,10),lpok
+      goto(101,102,103,104,105,106,10,108,109,110,111,112,              &
+     &     113,10,115,10,117,118,119,120,121,122,123,124,125,10),lpok
 !====================================================================
 !sd(6-1) a&r(02)-
 !sd(6-2) c(22)a&(13)-
@@ -2684,9 +2684,9 @@ c        jmlr=mul_tab(jml,jmr)
           lp_rwei(mpl)=iwalk_ad(jpad,ipae,iwar,iwdr)
         enddo
         call drl_bl_sum_ar_new(13,0,0,lra)
-c        do lrk=1,norb_dz
-c          call drl_bl_ext_ar_new(13,lrk,lra)
-c        enddo
+!        do lrk=1,norb_dz
+!          call drl_bl_ext_ar_new(13,lrk,lra)
+!        enddo
       endif
       return
 !=======================================================================

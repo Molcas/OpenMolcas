@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine ds_ardlr_act_c1(lin )
 !=======================================================================
 !ds(7-1) ar(23)-drl(30)-
@@ -320,11 +320,11 @@
                 call drl_bl_ext_ar_new(lin,lrk,lra)
               enddo
             endif
-c            do lrk=1,norb_dz
-c              if(lrk.eq.lri) cycle
-c              if(lrk.eq.lrj) cycle
-c           call drl_bl_ext_ar_new(lin,lrk,lra)
-c            enddo
+!            do lrk=1,norb_dz
+!              if(lrk.eq.lri) cycle
+!              if(lrk.eq.lrj) cycle
+!           call drl_bl_ext_ar_new(lin,lrk,lra)
+!            enddo
           enddo
         enddo
       return
@@ -409,11 +409,11 @@ c            enddo
                 call drl_br_ext_al_new(lin,lrk,lra)
               enddo
             endif
-c            do lrk=1,norb_dz
-c              if(lrk.eq.lri) cycle
-c              if(lrk.eq.lrj) cycle
-c           call drl_br_ext_al_new(lin,lrk,lra)
-c            enddo
+!            do lrk=1,norb_dz
+!              if(lrk.eq.lri) cycle
+!              if(lrk.eq.lrj) cycle
+!           call drl_br_ext_al_new(lin,lrk,lra)
+!            enddo
           enddo
         enddo
       return
@@ -763,10 +763,10 @@ c            enddo
                 call drl_bl_ext_ar_new(lin,lrk,lra)
               enddo
             endif
-c            do lrk=1,norb_dz
-c              if(lrk.eq.lri) cycle
-c              call drl_bl_ext_ar_new(lin,lrk,lra)
-c            enddo
+!            do lrk=1,norb_dz
+!              if(lrk.eq.lri) cycle
+!              call drl_bl_ext_ar_new(lin,lrk,lra)
+!            enddo
           endif
           do lrj=lri+1,norb_dz
             lmj=lsm_inn(lrj)
@@ -808,11 +808,11 @@ c            enddo
                 call drl_bl_ext_ar_new(lin,lrk,lra)
               enddo
             endif
-c            do lrk=1,norb_dz
-c              if(lrk.eq.lri) cycle
-c              if(lrk.eq.lrj) cycle
-c              call drl_bl_ext_ar_new(lin,lrk,lra)
-c            enddo
+!            do lrk=1,norb_dz
+!              if(lrk.eq.lri) cycle
+!              if(lrk.eq.lrj) cycle
+!              call drl_bl_ext_ar_new(lin,lrk,lra)
+!            enddo
           enddo
         enddo
       return
@@ -1619,10 +1619,10 @@ c            enddo
             call drl_bl_ext_ar_new(lin,lrk,lra)
           enddo
          endif
-c        do lrk=1,norb_dz
-c           if(lrk.eq.lrl) cycle
-c           call drl_bl_ext_ar_new(lin,lrk,lra)
-c         enddo
+!        do lrk=1,norb_dz
+!           if(lrk.eq.lrl) cycle
+!           call drl_bl_ext_ar_new(lin,lrk,lra)
+!         enddo
        enddo
       return
       end

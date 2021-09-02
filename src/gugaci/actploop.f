@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-c look for partial loops in active space drt and save them into disk
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+! look for partial loops in active space drt and save them into disk
       subroutine guga_ploop(npl,maxplcon)
 #include "drt_h.fh"
 #include "files_gugaci.fh"
@@ -1398,8 +1398,8 @@ c look for partial loops in active space drt and save them into disk
 !===========================================================
       jpml=mul_tab(jml,ns_sm)
       jpmr=mul_tab(jmr,ns_sm)
-      write(20,'(2x,10i8)')
-     :   line,iml,imr,jpml,jpmr,jpadlr,mtype,mh,lg1,lg2
+      write(20,'(2x,10i8)')                                             &
+     &   line,iml,imr,jpml,jpmr,jpadlr,mtype,mh,lg1,lg2
       write(20,"(7f12.6)")vplpnew_w0(1:mtype)
       write(20,"(7f12.6)")vplpnew_w1(1:mtype)
       write(20,"(8i4)")nstaval(1:mtype)
@@ -1414,8 +1414,8 @@ c look for partial loops in active space drt and save them into disk
         jhyl=jphyl(jph)
         jhyr=jphy(jph)
         in=ihyl(jhyl)
-        write(20,"(8(1x,i4))")jph,jhyl,jhyr,in,ihyl(jhyl+1:jhyl+in),
-     *    ihy(jhyr+1:jhyr+in)
+        write(20,"(8(1x,i4))")jph,jhyl,jhyr,in,ihyl(jhyl+1:jhyl+in),    &
+     &    ihy(jhyr+1:jhyr+in)
       enddo
 100   if(line.ne.1.and.line.ne.13) return
 !coe_record
@@ -1466,7 +1466,7 @@ c look for partial loops in active space drt and save them into disk
       info(9)=lg1
       info(10)=lg2
       call idafile(luloop,1,info,10,idisk_lp)
-c      print*, "in save_lp, linelp",line,idisk_lp,mh,mtype
+!      print*, "in save_lp, linelp",line,idisk_lp,mh,mtype
       call ddafile(luloop,1,vplpnew_w0,mtype,idisk_lp)
       call ddafile(luloop,1,vplpnew_w1,mtype,idisk_lp)
       call idafile(luloop,1,nstaval,mtype,idisk_lp)
@@ -1483,14 +1483,14 @@ c      print*, "in save_lp, linelp",line,idisk_lp,mh,mtype
         call idafile(luloop,1,idum,1,idisk_lp)
         call idafile(luloop,1,ihyl(jhyl+1:jhyl+in),in,idisk_lp)
         call idafile(luloop,1,ihy(jhyr+1:jhyr+in),in,idisk_lp)
-c        write(20)in,ihyl(jhyl+1:jhyl+in),ihy(jhyr+1:jhyr+in)
+!        write(20)in,ihyl(jhyl+1:jhyl+in),ihy(jhyr+1:jhyr+in)
       enddo
 100   if(line.ne.1.and.line.ne.13) return
-c      print*, "in read_lp, write coe",idisk_lp,norb_inn-norb_dz
+!      print*, "in read_lp, write coe",idisk_lp,norb_inn-norb_dz
 !coe_record
       lenw=norb_inn-norb_dz
       do m=1,mh
-        call idafile(luloop,1,lpnew_coe(norb_dz+1:norb_inn,m),lenw,
+        call idafile(luloop,1,lpnew_coe(norb_dz+1:norb_inn,m),lenw,     &
      &               idisk_lp)
       enddo
       return
@@ -1536,11 +1536,11 @@ c      print*, "in read_lp, write coe",idisk_lp,norb_inn-norb_dz
         ihypos=ihypos+ndim+1
       enddo
 100   if(linelp.ne.1.and.linelp.ne.13) return
-c      print*, "in read_lp, read coe",idisk_lp,norb_inn-norb_dz
+!      print*, "in read_lp, read coe",idisk_lp,norb_inn-norb_dz
 !coe_read
       lenr=norb_inn-norb_dz
       do m=1,mhlp
-        call idafile(luloop,2,lpnew_coe(norb_dz+1:norb_inn,m),lenr,
+        call idafile(luloop,2,lpnew_coe(norb_dz+1:norb_inn,m),lenr,     &
      &               idisk_lp)
       enddo
       return
@@ -1633,8 +1633,8 @@ c      print*, "in read_lp, read coe",idisk_lp,norb_inn-norb_dz
 
       jml=mul_tab(jml,ns_sm)
       jmr=mul_tab(jmr,ns_sm)
-      goto( 10, 10, 10, 10, 10, 10, 10, 10, 10,110, 10, 10, 10,
-     :      10, 10, 10,117, 10, 10, 10, 10, 10,123, 10, 10,126),ipaety
+      goto( 10, 10, 10, 10, 10, 10, 10, 10, 10,110, 10, 10, 10,         &
+     &      10, 10, 10,117, 10, 10, 10, 10, 10,123, 10, 10,126),ipaety
 110   call sv_ext_head_in_act()
        goto 10
 117   call tv_ext_head_in_act()
@@ -1656,8 +1656,8 @@ c      print*, "in read_lp, read coe",idisk_lp,norb_inn-norb_dz
       logic_dh=.true.
       jml=mul_tab(jml,ns_sm)
       jmr=mul_tab(jmr,ns_sm)
-      goto( 10, 10, 10, 10, 10, 10, 10, 10, 10,110, 10, 10, 10,
-     :      10, 10, 10,117, 10, 10, 10, 10, 10,123, 10, 10,126),ipaety
+      goto( 10, 10, 10, 10, 10, 10, 10, 10, 10,110, 10, 10, 10,         &
+     &      10, 10, 10,117, 10, 10, 10, 10, 10,123, 10, 10,126),ipaety
 110   call sv_ext_head_in_dbl()
       goto 10
 117   call tv_ext_head_in_dbl()

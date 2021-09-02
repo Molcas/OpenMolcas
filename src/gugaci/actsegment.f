@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2009, Yubin Wang                                       *
-*               2009, Bingbing Suo                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2009, Yubin Wang                                       *
+!               2009, Bingbing Suo                                     *
+!***********************************************************************
 ! Sep. 28, 2009 -BSuo- Firstly write by YBWang, revised by BSuo
 ! Active space partial loops
       subroutine link_b1_at_given_orb(mh,lract)       !b^l:lstep<rstep
@@ -120,7 +120,7 @@
               lpnew_rwei(lpnew)=lprwei
               vplpnew_w0(lpnew)=w0*w
               vplpnew_w1(lpnew)=w1*ww
-              if ( vplpnew_w0(lpnew).eq.0.and.vplpnew_w1(lpnew).eq.0)
+              if ( vplpnew_w0(lpnew).eq.0.and.vplpnew_w1(lpnew).eq.0)   &
      &           then
                 lpnew=lpnew-1
               endif
@@ -319,7 +319,7 @@
         lp_rwei(mh)=0
         vplp_w0(mh)=1.0d0
         vplp_w1(mh)=1.0d0
-c        logic_br(mh)=.true
+!        logic_br(mh)=.true
       endif
       if(norb_act.eq.0)  return
       do iorb=lrsta,lrend
@@ -366,8 +366,8 @@ c        logic_br(mh)=.true
                 if(irstep.gt.ilstep) logic_newbr(lpnew)=.true.
                 vplpnew_w0(lpnew)=w0*w
                 vplpnew_w1(lpnew)=w1*ww
-                if (vplpnew_w0(lpnew).eq.0
-     *             .and.vplpnew_w1(lpnew).eq.0)then
+                if (vplpnew_w0(lpnew).eq.0                              &
+     &             .and.vplpnew_w1(lpnew).eq.0)then
                   lpnew=lpnew-1
                   cycle
                 endif
@@ -438,7 +438,7 @@ c        logic_br(mh)=.true
                 lpnew_rwei(lpnew)=lprwei
                 vplpnew_w0(lpnew)=w0*w
                 vplpnew_w1(lpnew)=w1*ww
-                if (vplpnew_w0(lpnew).ne.0.or.vplpnew_w1(lpnew).ne.0)
+                if (vplpnew_w0(lpnew).ne.0.or.vplpnew_w1(lpnew).ne.0)   &
      &            exit
                 lpnew=lpnew-1
               enddo
@@ -480,7 +480,7 @@ c        logic_br(mh)=.true
           jbl=jb(lpltail)
           jbr=jb(lprtail)
           idb=jbr-jbl
-c         iposib=jb(lprtail)*80
+!         iposib=jb(lprtail)*80
           do ilstep=1,4
             ilc=istep_occ(ilstep)
             lpnextltail=jjl_sub(ilstep,lpltail)
@@ -506,7 +506,7 @@ c         iposib=jb(lprtail)*80
                 lpnew_rwei(lpnew)=lprwei
                 vplpnew_w0(lpnew)=w0*w
                 vplpnew_w1(lpnew)=w1*ww
-                if (vplpnew_w0(lpnew).ne.0.or.vplpnew_w1(lpnew).ne.0)
+                if (vplpnew_w0(lpnew).ne.0.or.vplpnew_w1(lpnew).ne.0)   &
      &            then
                   do lr=norb_dz+1,iorb-1
                     lpnew_coe(lr,lpnew)=lp_coe(lr,iactploop)
@@ -542,7 +542,7 @@ c         iposib=jb(lprtail)*80
         jr=jj_sub(jdr,jp)
         if(jr.eq.0) cycle
         ind0=32+(jdl-1)*4+jdr
-c     start '^'
+!     start '^'
         if(ind0.ne.ishdrr) cycle
         call stermhd5(w,ww)
         iactploop=iactploop+1
@@ -583,7 +583,7 @@ c     start '^'
             if(jr.eq.0) cycle
             jbr=jb(jp)
             ind0=32+(jdl-1)*4+jdr
-c     start '^'
+!     start '^'
             do  ni=1,4
               if(ind0.ne.ishd1(ni)) cycle
               call stermhd1(w,ww,ni,jbr)
@@ -630,7 +630,7 @@ c     start '^'
             if(jd_occ.ne.1) cycle
             jbr=jb(jp)
             ind0=32+(jdl-1)*4+jdr
-c     start '^'
+!     start '^'
             do 105 ni=1,4
               if(ind0.ne.isha4(ni)) goto 105
               call stermha4(w,ww,ni,jbr)
@@ -716,7 +716,7 @@ c     start '^'
         enddo
       enddo
       mh=lpnew
-c      call change_vplp_pointer_arrays()
+!      call change_vplp_pointer_arrays()
       return
 ! Avoid unused argument warnings
       if (.false.) call Unused_integer(lract)
@@ -779,7 +779,7 @@ c      call change_vplp_pointer_arrays()
         enddo
       enddo
       mh=lpnew
-c      call change_vplp_pointer_arrays()
+!      call change_vplp_pointer_arrays()
       return
 ! Avoid unused argument warnings
       if (.false.) call Unused_integer(lract)
@@ -832,7 +832,7 @@ c      call change_vplp_pointer_arrays()
             endif
       enddo
       mh=lpnew
-c      call change_vplp_pointer_arrays()
+!      call change_vplp_pointer_arrays()
       return
 ! Avoid unused argument warnings
       if (.false.) call Unused_integer(lract)
@@ -898,7 +898,7 @@ c      call change_vplp_pointer_arrays()
         enddo
       enddo
       mh=lpnew
-c      call change_vplp_pointer_arrays()
+!      call change_vplp_pointer_arrays()
       return
 ! Avoid unused argument warnings
       if (.false.) call Unused_integer(lract)
