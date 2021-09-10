@@ -116,7 +116,7 @@ if (npro > 0) then
   write(6,*) ' expectation values of various operators:'
   write(6,*) '(note: electronic multipoles include a negative sign.)'
   do iprop=1,npro
-    if (ptyp(iprop) == 'ANTI') goto 110
+    if (ptyp(iprop) == 'ANTI') cycle
     do ista=1,mroot,4
       iend = min(ista+3,mroot)
       write(6,*)
@@ -127,7 +127,6 @@ if (npro > 0) then
       write(6,'(1x,a,4f16.8)') '         nuclear:',(pnuc(iprop),i=ista,iend)
       write(6,'(1x,a,4f16.8)') '           total:',(pnuc(iprop)+vprop(i,i,iprop),i=ista,iend)
     end do
-110 continue
   end do
   write(6,*)
 end if

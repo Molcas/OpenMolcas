@@ -254,101 +254,95 @@ do irot=1,mcroot
   ii0 = ii-1
 
   do icle=1,2
-    if ((icle == 1) .and. logic_g36a) then
-      mm0 = iplplwei
-      nn0 = iplprwei
-      lpsta36 = lpsta36a
-      lpend36 = lpend36a
-    else if ((icle == 2) .and. logic_g36b) then
-      mm0 = iplprwei
-      nn0 = iplplwei
-      lpsta36 = lpsta36b
-      lpend36 = lpend36b
-    else
-      goto 936
-    end if
-    do iii=lpsta36,lpend36,4
-      ilwtmp = lpext_wei(iii)
-      irwtmp = lpext_wei(iii+1)
-      ii = ii0+lpext_wei(iii+2)
-      mm = mm0+ilwtmp
-      nn = nn0+irwtmp
-      do i=1,lpext_wei(iii+3)
-        valuetmp = value_lpext(ii)
-        vector2(mm) = vector2(mm)+vector1(nn)*valuetmp
-        vector2(nn) = vector2(nn)+vector1(mm)*valuetmp
-        mm = mm+1
-        nn = nn+1
+    if (((icle == 1) .and. logic_g36a) .or. ((icle == 2) .and. logic_g36b)) then
+      if (icle == 1) then
+        mm0 = iplplwei
+        nn0 = iplprwei
+        lpsta36 = lpsta36a
+        lpend36 = lpend36a
+      else
+        mm0 = iplprwei
+        nn0 = iplplwei
+        lpsta36 = lpsta36b
+        lpend36 = lpend36b
+      end if
+      do iii=lpsta36,lpend36,4
+        ilwtmp = lpext_wei(iii)
+        irwtmp = lpext_wei(iii+1)
+        ii = ii0+lpext_wei(iii+2)
+        mm = mm0+ilwtmp
+        nn = nn0+irwtmp
+        do i=1,lpext_wei(iii+3)
+          valuetmp = value_lpext(ii)
+          vector2(mm) = vector2(mm)+vector1(nn)*valuetmp
+          vector2(nn) = vector2(nn)+vector1(mm)*valuetmp
+          mm = mm+1
+          nn = nn+1
+        end do
       end do
-    end do
-
-936 continue
-
-    if ((icle == 1) .and. logic_g35a) then
-      mm0 = iplplwei
-      nn0 = iplprwei
-      lpsta35 = lpsta35a
-      lpend35 = lpend35a
-    else if ((icle == 2) .and. logic_g35b) then
-      mm0 = iplprwei
-      nn0 = iplplwei
-      lpsta35 = lpsta35b
-      lpend35 = lpend35b
-    else
-      goto 935
     end if
 
-    do iii=lpsta35,lpend35,4
-      mm = mm0+lpext_wei(iii)
-      nn = nn0+lpext_wei(iii+1)
-      iij = ii0+lpext_wei(iii+2)
-      valuelp = vector2(nn)
-      valuelptmp1 = vector1(nn)
-      do i=1,lpext_wei(iii+3)
-        valuetmp = value_lpext(iij)
-        vector2(mm) = vector2(mm)+valuelptmp1*valuetmp
-        valuelp = valuelp+vector1(mm)*valuetmp
-        iij = iij+1
-        mm = mm+1
+    if (((icle == 1) .and. logic_g35a) .or. ((icle == 2) .and. logic_g35b)) then
+      if (icle == 1) then
+        mm0 = iplplwei
+        nn0 = iplprwei
+        lpsta35 = lpsta35a
+        lpend35 = lpend35a
+      else
+        mm0 = iplprwei
+        nn0 = iplplwei
+        lpsta35 = lpsta35b
+        lpend35 = lpend35b
+      end if
+      do iii=lpsta35,lpend35,4
+        mm = mm0+lpext_wei(iii)
+        nn = nn0+lpext_wei(iii+1)
+        iij = ii0+lpext_wei(iii+2)
+        valuelp = vector2(nn)
+        valuelptmp1 = vector1(nn)
+        do i=1,lpext_wei(iii+3)
+          valuetmp = value_lpext(iij)
+          vector2(mm) = vector2(mm)+valuelptmp1*valuetmp
+          valuelp = valuelp+vector1(mm)*valuetmp
+          iij = iij+1
+          mm = mm+1
+        end do
+        vector2(nn) = valuelp
       end do
-      vector2(nn) = valuelp
-    end do
+    end if
 
-935 continue
     !cycle
 
-    if ((icle == 1) .and. logic_g34a) then
-      mm0 = iplplwei
-      nn0 = iplprwei
-      lpsta34 = lpsta34a
-      lpend34 = lpend34a
-    else if ((icle == 2) .and. logic_g34b) then
-      mm0 = iplprwei
-      nn0 = iplplwei
-      lpsta34 = lpsta34b
-      lpend34 = lpend34b
-    else
-      goto 934
-    end if
-    do iii=lpsta34,lpend34,4
-      ilwtmp = lpext_wei(iii)
-      irwtmp = lpext_wei(iii+1)
-      mm = mm0+ilwtmp
-      nn = nn0+irwtmp
-      iij = ii0+lpext_wei(iii+2)
-      valuelp = vector2(nn)
-      valuelptmp1 = vector1(nn)
-      do i=1,lpext_wei(iii+3)
-        valuetmp = value_lpext(iij)
-        vector2(mm) = vector2(mm)+valuelptmp1*valuetmp
-        valuelp = valuelp+vector1(mm)*valuetmp
-        iij = iij+1
-        mm = mm+1
+    if (((icle == 1) .and. logic_g34a) .or. ((icle == 2) .and. logic_g34b)) then
+      if (icle == 1) then
+        mm0 = iplplwei
+        nn0 = iplprwei
+        lpsta34 = lpsta34a
+        lpend34 = lpend34a
+      else
+        mm0 = iplprwei
+        nn0 = iplplwei
+        lpsta34 = lpsta34b
+        lpend34 = lpend34b
+      end if
+      do iii=lpsta34,lpend34,4
+        ilwtmp = lpext_wei(iii)
+        irwtmp = lpext_wei(iii+1)
+        mm = mm0+ilwtmp
+        nn = nn0+irwtmp
+        iij = ii0+lpext_wei(iii+2)
+        valuelp = vector2(nn)
+        valuelptmp1 = vector1(nn)
+        do i=1,lpext_wei(iii+3)
+          valuetmp = value_lpext(iij)
+          vector2(mm) = vector2(mm)+valuelptmp1*valuetmp
+          valuelp = valuelp+vector1(mm)*valuetmp
+          iij = iij+1
+          mm = mm+1
+        end do
+        vector2(nn) = valuelp
       end do
-      vector2(nn) = valuelp
-    end do
-
-934 continue
+    end if
 
     ii0 = ii0+nvalue_space_ss
   end do
@@ -456,101 +450,96 @@ do irot=1,mcroot
   ii0 = ii-1
 
   do icle=1,2
-    if ((icle == 1) .and. logic_g36a) then
-      mm0 = iplplwei
-      nn0 = iplprwei
-      lpsta36 = lpsta36a
-      lpend36 = lpend36a
-    else if ((icle == 2) .and. logic_g36b) then
-      mm0 = iplprwei
-      nn0 = iplplwei
-      lpsta36 = lpsta36b
-      lpend36 = lpend36b
-    else
-      goto 936
-    end if
-    do iii=lpsta36,lpend36,4
-      ilwtmp = lpext_wei(iii)
-      irwtmp = lpext_wei(iii+1)
-      ii = ii0+lpext_wei(iii+2)
-      mm = mm0+ilwtmp
-      nn = nn0+irwtmp
-      do i=1,lpext_wei(iii+3)
-        valuetmp = value_lpext(ii)
-        vector2(mm) = vector2(mm)+vector1(nn)*valuetmp
-        vector2(nn) = vector2(nn)+vector1(mm)*valuetmp
-        mm = mm+1
-        nn = nn+1
+    if (((icle == 1) .and. logic_g36a) .or. ((icle == 2) .and. logic_g36b)) then
+      if (icle == 1) then
+        mm0 = iplplwei
+        nn0 = iplprwei
+        lpsta36 = lpsta36a
+        lpend36 = lpend36a
+      else
+        mm0 = iplprwei
+        nn0 = iplplwei
+        lpsta36 = lpsta36b
+        lpend36 = lpend36b
+      end if
+      do iii=lpsta36,lpend36,4
+        ilwtmp = lpext_wei(iii)
+        irwtmp = lpext_wei(iii+1)
+        ii = ii0+lpext_wei(iii+2)
+        mm = mm0+ilwtmp
+        nn = nn0+irwtmp
+        do i=1,lpext_wei(iii+3)
+          valuetmp = value_lpext(ii)
+          vector2(mm) = vector2(mm)+vector1(nn)*valuetmp
+          vector2(nn) = vector2(nn)+vector1(mm)*valuetmp
+          mm = mm+1
+          nn = nn+1
+        end do
       end do
-    end do
-
-936 continue
-
-    if ((icle == 1) .and. logic_g35a) then
-      mm0 = iplplwei
-      nn0 = iplprwei
-      lpsta35 = lpsta35a
-      lpend35 = lpend35a
-    else if ((icle == 2) .and. logic_g35b) then
-      mm0 = iplprwei
-      nn0 = iplplwei
-      lpsta35 = lpsta35b
-      lpend35 = lpend35b
-    else
-      goto 935
     end if
 
-    do iii=lpsta35,lpend35,4
-      mm = mm0+lpext_wei(iii)
-      nn = nn0+lpext_wei(iii+1)
-      iij = ii0+lpext_wei(iii+2)
-      valuelp = vector2(nn)
-      valuelptmp1 = vector1(nn)
-      do i=1,lpext_wei(iii+3)
-        valuetmp = value_lpext(iij)
-        vector2(mm) = vector2(mm)+valuelptmp1*valuetmp
-        valuelp = valuelp+vector1(mm)*valuetmp
-        iij = iij+1
-        mm = mm+1
+    if (((icle == 1) .and. logic_g35a) .or. ((icle == 2) .and. logic_g35b)) then
+      if (icle == 1) then
+        mm0 = iplplwei
+        nn0 = iplprwei
+        lpsta35 = lpsta35a
+        lpend35 = lpend35a
+      else
+        mm0 = iplprwei
+        nn0 = iplplwei
+        lpsta35 = lpsta35b
+        lpend35 = lpend35b
+      end if
+      do iii=lpsta35,lpend35,4
+        mm = mm0+lpext_wei(iii)
+        nn = nn0+lpext_wei(iii+1)
+        iij = ii0+lpext_wei(iii+2)
+        valuelp = vector2(nn)
+        valuelptmp1 = vector1(nn)
+        do i=1,lpext_wei(iii+3)
+          valuetmp = value_lpext(iij)
+          vector2(mm) = vector2(mm)+valuelptmp1*valuetmp
+          valuelp = valuelp+vector1(mm)*valuetmp
+          iij = iij+1
+          mm = mm+1
+        end do
+        vector2(nn) = valuelp
       end do
-      vector2(nn) = valuelp
-    end do
+    end if
 
-935 continue
     !cycle
 
-    if ((icle == 1) .and. logic_g34a) then
-      mm0 = iplplwei
-      nn0 = iplprwei
-      lpsta34 = lpsta34a
-      lpend34 = lpend34a
-    else if ((icle == 2) .and. logic_g34b) then
-      mm0 = iplprwei
-      nn0 = iplplwei
-      lpsta34 = lpsta34b
-      lpend34 = lpend34b
-    else
-      goto 934
-    end if
-    do iii=lpsta34,lpend34,4
-      ilwtmp = lpext_wei(iii)
-      irwtmp = lpext_wei(iii+1)
-      mm = mm0+ilwtmp
-      nn = nn0+irwtmp
-      iij = ii0+lpext_wei(iii+2)
-      valuelp = vector2(nn)
-      valuelptmp1 = vector1(nn)
-      do i=1,lpext_wei(iii+3)
-        valuetmp = value_lpext(iij)
-        vector2(mm) = vector2(mm)+valuelptmp1*valuetmp
-        valuelp = valuelp+vector1(mm)*valuetmp
-        iij = iij+1
-        mm = mm+1
+    if (((icle == 1) .and. logic_g34a) .or. ((icle == 2) .and. logic_g34b)) then
+      if (icle == 1) then
+        mm0 = iplplwei
+        nn0 = iplprwei
+        lpsta34 = lpsta34a
+        lpend34 = lpend34a
+      else
+        mm0 = iplprwei
+        nn0 = iplplwei
+        lpsta34 = lpsta34b
+        lpend34 = lpend34b
+      end if
+      do iii=lpsta34,lpend34,4
+        ilwtmp = lpext_wei(iii)
+        irwtmp = lpext_wei(iii+1)
+        mm = mm0+ilwtmp
+        nn = nn0+irwtmp
+        iij = ii0+lpext_wei(iii+2)
+        valuelp = vector2(nn)
+        valuelptmp1 = vector1(nn)
+        do i=1,lpext_wei(iii+3)
+          valuetmp = value_lpext(iij)
+          vector2(mm) = vector2(mm)+valuelptmp1*valuetmp
+          valuelp = valuelp+vector1(mm)*valuetmp
+          iij = iij+1
+          mm = mm+1
+        end do
+        vector2(nn) = valuelp
       end do
-      vector2(nn) = valuelp
-    end do
+    end if
 
-934 continue
   end do
 
 end do
@@ -639,96 +628,92 @@ do irot=1,mcroot
   ii0 = ii-1         !severe_error
 
   do icle=1,2
-    if ((icle == 1) .and. logic_g36a) then
-      mm0 = iplplwei
-      nn0 = iplprwei
-      lpsta36 = lpsta36a
-      lpend36 = lpend36a
-    else if ((icle == 2) .and. logic_g36b) then
-      mm0 = iplprwei
-      nn0 = iplplwei
-      lpsta36 = lpsta36b
-      lpend36 = lpend36b
-    else
-      goto 936
-    end if
-    do iii=lpsta36,lpend36,4
-      ilwtmp = lpext_wei(iii)
-      irwtmp = lpext_wei(iii+1)
-      ii = ii0+lpext_wei(iii+2)
-      mm = mm0+ilwtmp
-      nn = nn0+irwtmp
-      do i=1,lpext_wei(iii+3)
-        valuelp = value_lpext(ii)
-        vector2(mm) = vector2(mm)+vector1(nn)*valuelp
-        vector2(nn) = vector2(nn)+vector1(mm)*valuelp
-        mm = mm+1
-        nn = nn+1
+    if (((icle == 1) .and. logic_g36a) .or. ((icle == 2) .and. logic_g36b)) then
+      if (icle == 1) then
+        mm0 = iplplwei
+        nn0 = iplprwei
+        lpsta36 = lpsta36a
+        lpend36 = lpend36a
+      else
+        mm0 = iplprwei
+        nn0 = iplplwei
+        lpsta36 = lpsta36b
+        lpend36 = lpend36b
+      end if
+      do iii=lpsta36,lpend36,4
+        ilwtmp = lpext_wei(iii)
+        irwtmp = lpext_wei(iii+1)
+        ii = ii0+lpext_wei(iii+2)
+        mm = mm0+ilwtmp
+        nn = nn0+irwtmp
+        do i=1,lpext_wei(iii+3)
+          valuelp = value_lpext(ii)
+          vector2(mm) = vector2(mm)+vector1(nn)*valuelp
+          vector2(nn) = vector2(nn)+vector1(mm)*valuelp
+          mm = mm+1
+          nn = nn+1
+        end do
       end do
-    end do
-936 continue
-
-    if ((icle == 1) .and. logic_g35a) then
-      mm0 = iplplwei
-      nn0 = iplprwei
-      lpsta35 = lpsta35a
-      lpend35 = lpend35a
-    else if ((icle == 2) .and. logic_g35b) then
-      mm0 = iplprwei
-      nn0 = iplplwei
-      lpsta35 = lpsta35b
-      lpend35 = lpend35b
-    else
-      goto 935
     end if
 
-    do iii=lpsta35,lpend35,4
-      mm = mm0+lpext_wei(iii)
-      nn = nn0+lpext_wei(iii+1)
-      iij = ii0+lpext_wei(iii+2)
-      valuelp = vector2(nn)
-      valuelptmp1 = vector1(nn)
-      do i=1,lpext_wei(iii+3)
-        valuetmp = -value_lpext(iij)
-        vector2(mm) = vector2(mm)+valuelptmp1*valuetmp
-        valuelp = valuelp+vector1(mm)*valuetmp
-        iij = iij+1
-        mm = mm+1
+    if (((icle == 1) .and. logic_g35a) .or. ((icle == 2) .and. logic_g35b)) then
+      if (icle == 1) then
+        mm0 = iplplwei
+        nn0 = iplprwei
+        lpsta35 = lpsta35a
+        lpend35 = lpend35a
+      else
+        mm0 = iplprwei
+        nn0 = iplplwei
+        lpsta35 = lpsta35b
+        lpend35 = lpend35b
+      end if
+      do iii=lpsta35,lpend35,4
+        mm = mm0+lpext_wei(iii)
+        nn = nn0+lpext_wei(iii+1)
+        iij = ii0+lpext_wei(iii+2)
+        valuelp = vector2(nn)
+        valuelptmp1 = vector1(nn)
+        do i=1,lpext_wei(iii+3)
+          valuetmp = -value_lpext(iij)
+          vector2(mm) = vector2(mm)+valuelptmp1*valuetmp
+          valuelp = valuelp+vector1(mm)*valuetmp
+          iij = iij+1
+          mm = mm+1
+        end do
+        vector2(nn) = valuelp      !severe_error_1202
       end do
-      vector2(nn) = valuelp      !severe_error_1202
-    end do
-935 continue
-
-    if ((icle == 1) .and. logic_g34a) then
-      mm0 = iplplwei
-      nn0 = iplprwei
-      lpsta34 = lpsta34a
-      lpend34 = lpend34a
-    else if ((icle == 2) .and. logic_g34b) then
-      mm0 = iplprwei
-      nn0 = iplplwei
-      lpsta34 = lpsta34b
-      lpend34 = lpend34b
-    else
-      goto 934
     end if
-    do iii=lpsta34,lpend34,4
-      ilwtmp = lpext_wei(iii)
-      irwtmp = lpext_wei(iii+1)
-      mm = mm0+ilwtmp
-      nn = nn0+irwtmp
-      iij = ii0+lpext_wei(iii+2)
-      valuelp = vector2(nn)
-      valuelptmp1 = vector1(nn)
-      do i=1,lpext_wei(iii+3)
-        vector2(mm) = vector2(mm)+valuelptmp1*value_lpext(iij)
-        valuelp = valuelp+vector1(mm)*value_lpext(iij)
-        iij = iij+1
-        mm = mm+1
+
+    if (((icle == 1) .and. logic_g34a) .or. ((icle == 2) .and. logic_g34b)) then
+      if (icle == 1) then
+        mm0 = iplplwei
+        nn0 = iplprwei
+        lpsta34 = lpsta34a
+        lpend34 = lpend34a
+      else
+        mm0 = iplprwei
+        nn0 = iplplwei
+        lpsta34 = lpsta34b
+        lpend34 = lpend34b
+      end if
+      do iii=lpsta34,lpend34,4
+        ilwtmp = lpext_wei(iii)
+        irwtmp = lpext_wei(iii+1)
+        mm = mm0+ilwtmp
+        nn = nn0+irwtmp
+        iij = ii0+lpext_wei(iii+2)
+        valuelp = vector2(nn)
+        valuelptmp1 = vector1(nn)
+        do i=1,lpext_wei(iii+3)
+          vector2(mm) = vector2(mm)+valuelptmp1*value_lpext(iij)
+          valuelp = valuelp+vector1(mm)*value_lpext(iij)
+          iij = iij+1
+          mm = mm+1
+        end do
+        vector2(nn) = valuelp
       end do
-      vector2(nn) = valuelp
-    end do
-934 continue
+    end if
     ii0 = ii0+nvalue_space_ss
   end do
 
@@ -835,33 +820,32 @@ do irot=1,mcroot
   ii0 = ii-1         !severe_error
 
   do icle=1,2
-    if ((icle == 1) .and. logic_g36a) then
-      mm0 = iplplwei
-      nn0 = iplprwei
-      lpsta36 = lpsta36a
-      lpend36 = lpend36a
-    else if ((icle == 2) .and. logic_g36b) then
-      mm0 = iplprwei
-      nn0 = iplplwei
-      lpsta36 = lpsta36b
-      lpend36 = lpend36b
-    else
-      goto 936
-    end if
-    do iii=lpsta36,lpend36,4
-      ilwtmp = lpext_wei(iii)
-      irwtmp = lpext_wei(iii+1)
-      ii = ii0+lpext_wei(iii+2)
-      mm = mm0+ilwtmp
-      nn = nn0+irwtmp
-      do i=1,lpext_wei(iii+3)
-        vector2(mm) = vector2(mm)+vector1(nn)*value_lpext(ii)
-        vector2(nn) = vector2(nn)+vector1(mm)*value_lpext(ii)
-        mm = mm+1
-        nn = nn+1
+    if (((icle == 1) .and. logic_g36a) .or. ((icle == 2) .and. logic_g36b)) then
+      if (icle == 1) then
+        mm0 = iplplwei
+        nn0 = iplprwei
+        lpsta36 = lpsta36a
+        lpend36 = lpend36a
+      else
+        mm0 = iplprwei
+        nn0 = iplplwei
+        lpsta36 = lpsta36b
+        lpend36 = lpend36b
+      end if
+      do iii=lpsta36,lpend36,4
+        ilwtmp = lpext_wei(iii)
+        irwtmp = lpext_wei(iii+1)
+        ii = ii0+lpext_wei(iii+2)
+        mm = mm0+ilwtmp
+        nn = nn0+irwtmp
+        do i=1,lpext_wei(iii+3)
+          vector2(mm) = vector2(mm)+vector1(nn)*value_lpext(ii)
+          vector2(nn) = vector2(nn)+vector1(mm)*value_lpext(ii)
+          mm = mm+1
+          nn = nn+1
+        end do
       end do
-    end do
-936 continue
+    end if
 
     if ((icle == 1) .and. logic_g35a) then
       mm0 = iplplwei
@@ -904,37 +888,36 @@ do irot=1,mcroot
       end do
     end if
 
-    if ((icle == 1) .and. logic_g34a) then
-      mm0 = iplplwei
-      nn0 = iplprwei
-      lpsta34 = lpsta34a
-      lpend34 = lpend34a
-    else if ((icle == 2) .and. logic_g34b) then
-      mm0 = iplprwei
-      nn0 = iplplwei
-      lpsta34 = lpsta34b
-      lpend34 = lpend34b
-    else
-      goto 934
-    end if
-    do iii=lpsta34,lpend34,4
-      ilwtmp = lpext_wei(iii)
-      irwtmp = lpext_wei(iii+1)
-      mm = mm0+ilwtmp
-      nn = nn0+irwtmp
-      iij = ii0+lpext_wei(iii+2)
-      valuelp = vector2(nn)
-      valuelptmp1 = vector1(nn)
-      do i=1,lpext_wei(iii+3)
-        valuetmp = -value_lpext(iij)
-        vector2(mm) = vector2(mm)+valuelptmp1*valuetmp
-        valuelp = valuelp+vector1(mm)*valuetmp
-        iij = iij+1
-        mm = mm+1
+    if (((icle == 1) .and. logic_g34a) .or. ((icle == 2) .and. logic_g34b)) then
+      if (icle == 1) then
+        mm0 = iplplwei
+        nn0 = iplprwei
+        lpsta34 = lpsta34a
+        lpend34 = lpend34a
+      else
+        mm0 = iplprwei
+        nn0 = iplplwei
+        lpsta34 = lpsta34b
+        lpend34 = lpend34b
+      end if
+      do iii=lpsta34,lpend34,4
+        ilwtmp = lpext_wei(iii)
+        irwtmp = lpext_wei(iii+1)
+        mm = mm0+ilwtmp
+        nn = nn0+irwtmp
+        iij = ii0+lpext_wei(iii+2)
+        valuelp = vector2(nn)
+        valuelptmp1 = vector1(nn)
+        do i=1,lpext_wei(iii+3)
+          valuetmp = -value_lpext(iij)
+          vector2(mm) = vector2(mm)+valuelptmp1*valuetmp
+          valuelp = valuelp+vector1(mm)*valuetmp
+          iij = iij+1
+          mm = mm+1
+        end do
+        vector2(nn) = valuelp      !severe_error
       end do
-      vector2(nn) = valuelp      !severe_error
-    end do
-934 continue
+    end if
     ii0 = ii0+nvalue_space_ss
   end do
 end do
@@ -1041,33 +1024,32 @@ do irot=1,mcroot
   ii0 = ii-1         !severe_error
 
   do icle=1,2
-    if ((icle == 1) .and. logic_g36a) then
-      mm0 = iplplwei
-      nn0 = iplprwei
-      lpsta36 = lpsta36a
-      lpend36 = lpend36a
-    else if ((icle == 2) .and. logic_g36b) then
-      mm0 = iplprwei
-      nn0 = iplplwei
-      lpsta36 = lpsta36b
-      lpend36 = lpend36b
-    else
-      goto 936
-    end if
-    do iii=lpsta36,lpend36,4
-      ilwtmp = lpext_wei(iii)
-      irwtmp = lpext_wei(iii+1)
-      ii = ii0+lpext_wei(iii+2)
-      mm = mm0+ilwtmp
-      nn = nn0+irwtmp
-      do i=1,lpext_wei(iii+3)
-        vector2(mm) = vector2(mm)+vector1(nn)*value_lpext(ii)
-        vector2(nn) = vector2(nn)+vector1(mm)*value_lpext(ii)
-        mm = mm+1
-        nn = nn+1
+    if (((icle == 1) .and. logic_g36a) .or. ((icle == 2) .and. logic_g36b)) then
+      if (icle == 1) then
+        mm0 = iplplwei
+        nn0 = iplprwei
+        lpsta36 = lpsta36a
+        lpend36 = lpend36a
+      else
+        mm0 = iplprwei
+        nn0 = iplplwei
+        lpsta36 = lpsta36b
+        lpend36 = lpend36b
+      end if
+      do iii=lpsta36,lpend36,4
+        ilwtmp = lpext_wei(iii)
+        irwtmp = lpext_wei(iii+1)
+        ii = ii0+lpext_wei(iii+2)
+        mm = mm0+ilwtmp
+        nn = nn0+irwtmp
+        do i=1,lpext_wei(iii+3)
+          vector2(mm) = vector2(mm)+vector1(nn)*value_lpext(ii)
+          vector2(nn) = vector2(nn)+vector1(mm)*value_lpext(ii)
+          mm = mm+1
+          nn = nn+1
+        end do
       end do
-    end do
-936 continue
+    end if
 
     if ((icle == 1) .and. logic_g35a) then
       mm0 = iplplwei
@@ -1110,37 +1092,36 @@ do irot=1,mcroot
       end do
     end if
 
-    if ((icle == 1) .and. logic_g34a) then
-      mm0 = iplplwei
-      nn0 = iplprwei
-      lpsta34 = lpsta34a
-      lpend34 = lpend34a
-    else if ((icle == 2) .and. logic_g34b) then
-      mm0 = iplprwei
-      nn0 = iplplwei
-      lpsta34 = lpsta34b
-      lpend34 = lpend34b
-    else
-      goto 934
-    end if
-    do iii=lpsta34,lpend34,4
-      ilwtmp = lpext_wei(iii)
-      irwtmp = lpext_wei(iii+1)
-      mm = mm0+ilwtmp
-      nn = nn0+irwtmp
-      iij = ii0+lpext_wei(iii+2)
-      valuelp = vector2(nn)
-      valuelptmp1 = vector1(nn)
-      do i=1,lpext_wei(iii+3)
-        valuetmp = -value_lpext(iij)
-        vector2(mm) = vector2(mm)+valuelptmp1*valuetmp
-        valuelp = valuelp+vector1(mm)*valuetmp
-        iij = iij+1
-        mm = mm+1
+    if (((icle == 1) .and. logic_g34a) .or. ((icle == 2) .and. logic_g34b)) then
+      if (icle == 1) then
+        mm0 = iplplwei
+        nn0 = iplprwei
+        lpsta34 = lpsta34a
+        lpend34 = lpend34a
+      else
+        mm0 = iplprwei
+        nn0 = iplplwei
+        lpsta34 = lpsta34b
+        lpend34 = lpend34b
+      end if
+      do iii=lpsta34,lpend34,4
+        ilwtmp = lpext_wei(iii)
+        irwtmp = lpext_wei(iii+1)
+        mm = mm0+ilwtmp
+        nn = nn0+irwtmp
+        iij = ii0+lpext_wei(iii+2)
+        valuelp = vector2(nn)
+        valuelptmp1 = vector1(nn)
+        do i=1,lpext_wei(iii+3)
+          valuetmp = -value_lpext(iij)
+          vector2(mm) = vector2(mm)+valuelptmp1*valuetmp
+          valuelp = valuelp+vector1(mm)*valuetmp
+          iij = iij+1
+          mm = mm+1
+        end do
+        vector2(nn) = valuelp      !severe_error
       end do
-      vector2(nn) = valuelp      !severe_error
-    end do
-934 continue
+    end if
   end do
 
 end do
@@ -1248,33 +1229,32 @@ do irot=1,mcroot
 
   !write(6,*) 'st_g36a',iplplwei,iplprwei,vector2(137)
   do icle=1,2
-    if ((icle == 1) .and. logic_g36a) then
-      mm0 = iplplwei
-      nn0 = iplprwei
-      lpsta36 = lpsta36a
-      lpend36 = lpend36a
-    else if ((icle == 2) .and. logic_g36b) then
-      mm0 = iplprwei
-      nn0 = iplplwei
-      lpsta36 = lpsta36b
-      lpend36 = lpend36b
-    else
-      goto 936
-    end if
-    do iii=lpsta36,lpend36,4
-      ilwtmp = lpext_wei(iii)
-      irwtmp = lpext_wei(iii+1)
-      ii = ii0+lpext_wei(iii+2)
-      mm = mm0+ilwtmp
-      nn = nn0+irwtmp
-      do i=1,lpext_wei(iii+3)
-        vector2(mm) = vector2(mm)+vector1(nn)*value_lpext(ii)
-        vector2(nn) = vector2(nn)+vector1(mm)*value_lpext(ii)
-        mm = mm+1
-        nn = nn+1
+    if (((icle == 1) .and. logic_g36a) .or. ((icle == 2) .and. logic_g36b)) then
+      if (icle == 1) then
+        mm0 = iplplwei
+        nn0 = iplprwei
+        lpsta36 = lpsta36a
+        lpend36 = lpend36a
+      else
+        mm0 = iplprwei
+        nn0 = iplplwei
+        lpsta36 = lpsta36b
+        lpend36 = lpend36b
+      end if
+      do iii=lpsta36,lpend36,4
+        ilwtmp = lpext_wei(iii)
+        irwtmp = lpext_wei(iii+1)
+        ii = ii0+lpext_wei(iii+2)
+        mm = mm0+ilwtmp
+        nn = nn0+irwtmp
+        do i=1,lpext_wei(iii+3)
+          vector2(mm) = vector2(mm)+vector1(nn)*value_lpext(ii)
+          vector2(nn) = vector2(nn)+vector1(mm)*value_lpext(ii)
+          mm = mm+1
+          nn = nn+1
+        end do
       end do
-    end do
-936 continue
+    end if
 
     !write(6,*) 'st_g35a',iplplwei,iplprwei,vector2(137)
     if ((icle == 1) .and. logic_g35a) then
@@ -1320,37 +1300,36 @@ do irot=1,mcroot
     end if
 
     !write(6,*) 'st_g34',iplplwei,iplprwei,vector2(137)
-    if ((icle == 1) .and. logic_g34a) then
-      mm0 = iplplwei
-      nn0 = iplprwei
-      lpsta34 = lpsta34a
-      lpend34 = lpend34a
-    else if ((icle == 2) .and. logic_g34b) then
-      mm0 = iplprwei
-      nn0 = iplplwei
-      lpsta34 = lpsta34b
-      lpend34 = lpend34b
-    else
-      goto 934
-    end if
-    do iii=lpsta34,lpend34,4
-      ilwtmp = lpext_wei(iii)
-      irwtmp = lpext_wei(iii+1)
-      mm = mm0+ilwtmp
-      nn = nn0+irwtmp
-      iij = ii0+lpext_wei(iii+2)
-      valuelp = vector2(nn)
-      valuelptmp1 = vector1(nn)
-      do i=1,lpext_wei(iii+3)
-        valuetmp = -value_lpext(iij)
-        vector2(mm) = vector2(mm)+valuelptmp1*valuetmp
-        valuelp = valuelp+vector1(mm)*valuetmp
-        iij = iij+1
-        mm = mm+1
+    if (((icle == 1) .and. logic_g34a) .or. ((icle == 2) .and. logic_g34b)) then
+      if (icle == 1) then
+        mm0 = iplplwei
+        nn0 = iplprwei
+        lpsta34 = lpsta34a
+        lpend34 = lpend34a
+      else
+        mm0 = iplprwei
+        nn0 = iplplwei
+        lpsta34 = lpsta34b
+        lpend34 = lpend34b
+      end if
+      do iii=lpsta34,lpend34,4
+        ilwtmp = lpext_wei(iii)
+        irwtmp = lpext_wei(iii+1)
+        mm = mm0+ilwtmp
+        nn = nn0+irwtmp
+        iij = ii0+lpext_wei(iii+2)
+        valuelp = vector2(nn)
+        valuelptmp1 = vector1(nn)
+        do i=1,lpext_wei(iii+3)
+          valuetmp = -value_lpext(iij)
+          vector2(mm) = vector2(mm)+valuelptmp1*valuetmp
+          valuelp = valuelp+vector1(mm)*valuetmp
+          iij = iij+1
+          mm = mm+1
+        end do
+        vector2(nn) = valuelp
       end do
-      vector2(nn) = valuelp
-    end do
-934 continue
+    end if
     ii0 = ii0+nvalue_space_ss
   end do
 
@@ -1456,34 +1435,33 @@ do irot=1,mcroot
   ii0 = ii-1
 
   do icle=1,2
-    if ((icle == 1) .and. logic_g36a) then
-      mm0 = iplplwei
-      nn0 = iplprwei
-      lpsta36 = lpsta36a
-      lpend36 = lpend36a
-    else if ((icle == 2) .and. logic_g36b) then
-      mm0 = iplprwei
-      nn0 = iplplwei
-      lpsta36 = lpsta36b
-      lpend36 = lpend36b
-    else
-      goto 936
-    end if
-    do iii=lpsta36,lpend36,4
-      ilwtmp = lpext_wei(iii)
-      irwtmp = lpext_wei(iii+1)
-      ii = ii0+lpext_wei(iii+2)
-      mm = mm0+ilwtmp
-      nn = nn0+irwtmp
-      do i=1,lpext_wei(iii+3)
-        valuetmp = value_lpext(ii)
-        vector2(mm) = vector2(mm)+vector1(nn)*valuetmp
-        vector2(nn) = vector2(nn)+vector1(mm)*valuetmp
-        mm = mm+1
-        nn = nn+1
+    if (((icle == 1) .and. logic_g36a) .or. ((icle == 2) .and. logic_g36b)) then
+      if (icle == 1) then
+        mm0 = iplplwei
+        nn0 = iplprwei
+        lpsta36 = lpsta36a
+        lpend36 = lpend36a
+      else
+        mm0 = iplprwei
+        nn0 = iplplwei
+        lpsta36 = lpsta36b
+        lpend36 = lpend36b
+      end if
+      do iii=lpsta36,lpend36,4
+        ilwtmp = lpext_wei(iii)
+        irwtmp = lpext_wei(iii+1)
+        ii = ii0+lpext_wei(iii+2)
+        mm = mm0+ilwtmp
+        nn = nn0+irwtmp
+        do i=1,lpext_wei(iii+3)
+          valuetmp = value_lpext(ii)
+          vector2(mm) = vector2(mm)+vector1(nn)*valuetmp
+          vector2(nn) = vector2(nn)+vector1(mm)*valuetmp
+          mm = mm+1
+          nn = nn+1
+        end do
       end do
-    end do
-936 continue
+    end if
     if ((icle == 1) .and. logic_g35a) then
       mm0 = iplplwei
       nn0 = iplprwei
@@ -1526,37 +1504,36 @@ do irot=1,mcroot
       end do
     end if
 
-    if ((icle == 1) .and. logic_g34a) then
-      mm0 = iplplwei
-      nn0 = iplprwei
-      lpsta34 = lpsta34a
-      lpend34 = lpend34a
-    else if ((icle == 2) .and. logic_g34b) then
-      mm0 = iplprwei
-      nn0 = iplplwei
-      lpsta34 = lpsta34b
-      lpend34 = lpend34b
-    else
-      goto 934
-    end if
-    do iii=lpsta34,lpend34,4
-      ilwtmp = lpext_wei(iii)
-      irwtmp = lpext_wei(iii+1)
-      mm = mm0+ilwtmp
-      nn = nn0+irwtmp
-      iij = ii0+lpext_wei(iii+2)
-      valuelp = vector2(nn)
-      valuelptmp1 = vector1(nn)
-      do i=1,lpext_wei(iii+3)
-        valuetmp = -value_lpext(iij)
-        vector2(mm) = vector2(mm)+valuelptmp1*valuetmp
-        valuelp = valuelp+vector1(mm)*valuetmp
-        iij = iij+1
-        mm = mm+1
+    if (((icle == 1) .and. logic_g34a) .or. ((icle == 2) .and. logic_g34b)) then
+      if (icle == 1) then
+        mm0 = iplplwei
+        nn0 = iplprwei
+        lpsta34 = lpsta34a
+        lpend34 = lpend34a
+      else
+        mm0 = iplprwei
+        nn0 = iplplwei
+        lpsta34 = lpsta34b
+        lpend34 = lpend34b
+      end if
+      do iii=lpsta34,lpend34,4
+        ilwtmp = lpext_wei(iii)
+        irwtmp = lpext_wei(iii+1)
+        mm = mm0+ilwtmp
+        nn = nn0+irwtmp
+        iij = ii0+lpext_wei(iii+2)
+        valuelp = vector2(nn)
+        valuelptmp1 = vector1(nn)
+        do i=1,lpext_wei(iii+3)
+          valuetmp = -value_lpext(iij)
+          vector2(mm) = vector2(mm)+valuelptmp1*valuetmp
+          valuelp = valuelp+vector1(mm)*valuetmp
+          iij = iij+1
+          mm = mm+1
+        end do
+        vector2(nn) = valuelp
       end do
-      vector2(nn) = valuelp
-    end do
-934 continue
+    end if
   end do
 end do
 
@@ -1824,96 +1801,92 @@ do irot=1,mcroot
   ii0 = n1415         !severe_error
 
   do icle=1,2
-    if ((icle == 1) .and. logic_g36a) then
-      mm0 = iplplwei
-      nn0 = iplprwei
-      lpsta36 = lpsta36a
-      lpend36 = lpend36a
-    else if ((icle == 2) .and. logic_g36b0) then
-      mm0 = iplprwei
-      nn0 = iplplwei
-      lpsta36 = lpsta36b
-      lpend36 = lpend36b
-    else
-      goto 936
-    end if
-    do iii=lpsta36,lpend36,4
-      ilwtmp = lpext_wei(iii)
-      irwtmp = lpext_wei(iii+1)
-      ii = ii0+lpext_wei(iii+2)
-      mm = mm0+ilwtmp
-      nn = nn0+irwtmp
-      do i=1,lpext_wei(iii+3)
-        valuelp = value_lpext(ii)
-        vector2(mm) = vector2(mm)+vector1(nn)*valuelp
-        vector2(nn) = vector2(nn)+vector1(mm)*valuelp
-        mm = mm+1
-        nn = nn+1
+    if (((icle == 1) .and. logic_g36a) .or. ((icle == 2) .and. logic_g36b0)) then
+      if (icle == 1) then
+        mm0 = iplplwei
+        nn0 = iplprwei
+        lpsta36 = lpsta36a
+        lpend36 = lpend36a
+      else
+        mm0 = iplprwei
+        nn0 = iplplwei
+        lpsta36 = lpsta36b
+        lpend36 = lpend36b
+      end if
+      do iii=lpsta36,lpend36,4
+        ilwtmp = lpext_wei(iii)
+        irwtmp = lpext_wei(iii+1)
+        ii = ii0+lpext_wei(iii+2)
+        mm = mm0+ilwtmp
+        nn = nn0+irwtmp
+        do i=1,lpext_wei(iii+3)
+          valuelp = value_lpext(ii)
+          vector2(mm) = vector2(mm)+vector1(nn)*valuelp
+          vector2(nn) = vector2(nn)+vector1(mm)*valuelp
+          mm = mm+1
+          nn = nn+1
+        end do
       end do
-    end do
-936 continue
-
-    if ((icle == 1) .and. logic_g35a) then
-      mm0 = iplplwei
-      nn0 = iplprwei
-      lpsta35 = lpsta35a
-      lpend35 = lpend35a
-    else if ((icle == 2) .and. logic_g35b0) then
-      mm0 = iplprwei
-      nn0 = iplplwei
-      lpsta35 = lpsta35b
-      lpend35 = lpend35b
-    else
-      goto 935
     end if
 
-    do iii=lpsta35,lpend35,4
-      mm = mm0+lpext_wei(iii)
-      nn = nn0+lpext_wei(iii+1)
-      iij = ii0+lpext_wei(iii+2)
-      valuelp = vector2(nn)
-      valuelptmp1 = vector1(nn)
-      do i=1,lpext_wei(iii+3)
-        valuetmp = -value_lpext(iij)
-        vector2(mm) = vector2(mm)+valuelptmp1*valuetmp
-        valuelp = valuelp+vector1(mm)*valuetmp
-        iij = iij+1
-        mm = mm+1
+    if (((icle == 1) .and. logic_g35a) .or. ((icle == 2) .and. logic_g35b0)) then
+      if (icle == 1) then
+        mm0 = iplplwei
+        nn0 = iplprwei
+        lpsta35 = lpsta35a
+        lpend35 = lpend35a
+      else
+        mm0 = iplprwei
+        nn0 = iplplwei
+        lpsta35 = lpsta35b
+        lpend35 = lpend35b
+      end if
+      do iii=lpsta35,lpend35,4
+        mm = mm0+lpext_wei(iii)
+        nn = nn0+lpext_wei(iii+1)
+        iij = ii0+lpext_wei(iii+2)
+        valuelp = vector2(nn)
+        valuelptmp1 = vector1(nn)
+        do i=1,lpext_wei(iii+3)
+          valuetmp = -value_lpext(iij)
+          vector2(mm) = vector2(mm)+valuelptmp1*valuetmp
+          valuelp = valuelp+vector1(mm)*valuetmp
+          iij = iij+1
+          mm = mm+1
+        end do
+        vector2(nn) = valuelp      !severe_error_1202
       end do
-      vector2(nn) = valuelp      !severe_error_1202
-    end do
-935 continue
-
-    if ((icle == 1) .and. logic_g34a) then
-      mm0 = iplplwei
-      nn0 = iplprwei
-      lpsta34 = lpsta34a
-      lpend34 = lpend34a
-    else if ((icle == 2) .and. logic_g34b0) then
-      mm0 = iplprwei
-      nn0 = iplplwei
-      lpsta34 = lpsta34b
-      lpend34 = lpend34b
-    else
-      goto 934
     end if
-    do iii=lpsta34,lpend34,4
-      ilwtmp = lpext_wei(iii)
-      irwtmp = lpext_wei(iii+1)
-      mm = mm0+ilwtmp
-      nn = nn0+irwtmp
-      iij = ii0+lpext_wei(iii+2)
-      valuelp = vector2(nn)
-      valuelptmp1 = vector1(nn)
-      do i=1,lpext_wei(iii+3)
-        vector2(mm) = vector2(mm)+valuelptmp1*value_lpext(iij)
-        valuelp = valuelp+vector1(mm)*value_lpext(iij)
-        iij = iij+1
-        mm = mm+1
+
+    if (((icle == 1) .and. logic_g34a) .or. ((icle == 2) .and. logic_g34b0)) then
+      if (icle == 1) then
+        mm0 = iplplwei
+        nn0 = iplprwei
+        lpsta34 = lpsta34a
+        lpend34 = lpend34a
+      else
+        mm0 = iplprwei
+        nn0 = iplplwei
+        lpsta34 = lpsta34b
+        lpend34 = lpend34b
+      end if
+      do iii=lpsta34,lpend34,4
+        ilwtmp = lpext_wei(iii)
+        irwtmp = lpext_wei(iii+1)
+        mm = mm0+ilwtmp
+        nn = nn0+irwtmp
+        iij = ii0+lpext_wei(iii+2)
+        valuelp = vector2(nn)
+        valuelptmp1 = vector1(nn)
+        do i=1,lpext_wei(iii+3)
+          vector2(mm) = vector2(mm)+valuelptmp1*value_lpext(iij)
+          valuelp = valuelp+vector1(mm)*value_lpext(iij)
+          iij = iij+1
+          mm = mm+1
+        end do
+        vector2(nn) = valuelp
       end do
-      vector2(nn) = valuelp
-    end do
-934 continue
+    end if
   end do
 end do
 

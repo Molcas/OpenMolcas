@@ -62,26 +62,24 @@ do lri=norb_frz+1,norb_dz
   end do
 end do
 ! v(1),d(2-9),t(10-17),s(18-25),d'(26-33),t'(34-41)
-goto(100,200,300) jroute_sys
-100 continue
-mxnode = 25                     !v,d,t,s
-jpad_upwei(18:25) = jpad_upwei(10:17)
-jpad_upwei(17+ns_sm) = jpad_upwei(17+ns_sm)+norb_dbl
-goto 500
-200 continue
-mxnode = 25+8
-jpad_upwei(18:25) = jpad_upwei(10:17)+jpad_upwei(10:17)
-jpad_upwei(17+ns_sm) = jpad_upwei(17+ns_sm)+norb_dbl
-jpad_upwei(26:33) = jpad_upwei(2:9)
-goto 500
-300 continue
-mxnode = 25+8+8
-jpad_upwei(18:25) = jpad_upwei(10:17)+jpad_upwei(10:17)
-jpad_upwei(17+ns_sm) = jpad_upwei(17+ns_sm)+norb_dbl
-jpad_upwei(26:33) = jpad_upwei(2:9)
-jpad_upwei(34:41) = jpad_upwei(10:17)
+select case (jroute_sys)
+  case default ! (1)
+    mxnode = 25                     !v,d,t,s
+    jpad_upwei(18:25) = jpad_upwei(10:17)
+    jpad_upwei(17+ns_sm) = jpad_upwei(17+ns_sm)+norb_dbl
+  case (2)
+    mxnode = 25+8
+    jpad_upwei(18:25) = jpad_upwei(10:17)+jpad_upwei(10:17)
+    jpad_upwei(17+ns_sm) = jpad_upwei(17+ns_sm)+norb_dbl
+    jpad_upwei(26:33) = jpad_upwei(2:9)
+  case (3)
+    mxnode = 25+8+8
+    jpad_upwei(18:25) = jpad_upwei(10:17)+jpad_upwei(10:17)
+    jpad_upwei(17+ns_sm) = jpad_upwei(17+ns_sm)+norb_dbl
+    jpad_upwei(26:33) = jpad_upwei(2:9)
+    jpad_upwei(34:41) = jpad_upwei(10:17)
+end select
 
-500 continue
 do node=2,mxnode
   iw = jpad_upwei(node)
   if (iw == 0) cycle
@@ -173,35 +171,35 @@ subroutine dbl_downwalk()
 #include "intsort_h.fh"
 !integer lsml(10,10)       !to del
 
-if (norb_dbl /= 0) goto 200
-!----------- norb_dbl=0 ------------------------------------------------
-do im=1,ng_sm
-  nnd = iseg_sta(1+im)
-  nnt = iseg_sta(9+im)
-  nns = iseg_sta(17+im)
-  do lri=norb_dz,norb_frz+1,-1
-    ismi = lsm_inn(lri)
-    if (ismi /= im) cycle
-    jud(lri) = nnd
-    nnd = nnd+iseg_downwei(1+im)
-  end do
-  do lrj=norb_dz,norb_frz+1,-1
-    ismj = lsm_inn(lrj)
-    do lri=lrj,1,-1
+if (norb_dbl == 0) then
+  !----------- norb_dbl=0 ----------------------------------------------
+  do im=1,ng_sm
+    nnd = iseg_sta(1+im)
+    nnt = iseg_sta(9+im)
+    nns = iseg_sta(17+im)
+    do lri=norb_dz,norb_frz+1,-1
       ismi = lsm_inn(lri)
-      ismij = mul_tab(ismi,ismj)
-      if (ismij /= im) cycle
-      just(lri,lrj) = nns
-      nns = nns+iseg_downwei(17+im)
-      if (lri == lrj) cycle
-      just(lrj,lri) = nnt
-      nnt = nnt+iseg_downwei(9+im)
+      if (ismi /= im) cycle
+      jud(lri) = nnd
+      nnd = nnd+iseg_downwei(1+im)
+    end do
+    do lrj=norb_dz,norb_frz+1,-1
+      ismj = lsm_inn(lrj)
+      do lri=lrj,1,-1
+        ismi = lsm_inn(lri)
+        ismij = mul_tab(ismi,ismj)
+        if (ismij /= im) cycle
+        just(lri,lrj) = nns
+        nns = nns+iseg_downwei(17+im)
+        if (lri == lrj) cycle
+        just(lrj,lri) = nnt
+        nnt = nnt+iseg_downwei(9+im)
+      end do
     end do
   end do
-end do
+end if
 !----------- norb_dbl=0 ------------------------------------------------
 !----------- norb_dbl<>0 -----------------------------------------------
-200 continue
 do im=1,ng_sm
   nnd = 0
   nns = 0

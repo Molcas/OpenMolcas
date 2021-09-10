@@ -367,13 +367,13 @@ iaend = iesm_ext(iml)
 intpos0 = intind_abkk(lri)
 ivalue = 0
 jvalue = 0
-if (.not. logic_g49b) goto 100
-do ira=iasta,iaend
-  ivalue = ivalue+1
-  lra = norb_number(ira)
-  value_lpext(ivalue) = -w1lp*voint(lra,lri)
-end do
-100 continue
+if (logic_g49b) then
+  do ira=iasta,iaend
+    ivalue = ivalue+1
+    lra = norb_number(ira)
+    value_lpext(ivalue) = -w1lp*voint(lra,lri)
+  end do
+end if
 mloop = nliml*(nliml-1)/2
 intpos = intpos0+int_dd_drl*2
 ivalue = ivalue+int_dd_drl

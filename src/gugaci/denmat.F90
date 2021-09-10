@@ -194,7 +194,7 @@ do nsp=1,ng_sm
           end if
         end if
 
-        if (nintb == 0) goto 10
+        if (nintb == 0) cycle
         !write(6,2100) nsp,nsq,nsr,nss,nop,noq,nor,nos,nintb
         !2100 format(7x,4i2,1x,4i4,2x,3x,i9)
 
@@ -238,7 +238,6 @@ do nsp=1,ng_sm
           write(6,*) 'in ci_dentest,count error'
           call abend()
         end if
-10      continue
       end do
     end do
   end do

@@ -26,7 +26,7 @@ subroutine cidiagonalize(mxvec)
 dimension idxvec(max_iter)
 dimension valpha(max_root), vcien(max_root), vcienold(max_root), difeci(max_root), vresid(max_root)
 !dimension vad(max_vector),th(max_vector)
-logical log_convergance, log_muliter
+logical log_convergence, log_muliter, restart
 data dzero/0.d0/,depc/1.0d-7/
 data vortho_criterion/1.d-8/
 !data venergy_criterion/1.d-8/,valpha_criterion/1.d-7/,vresid_criterion/1.d-8/
@@ -38,7 +38,7 @@ write(6,*) ' threshold for convergence is set as'
 write(6,*) venergy_criterion,valpha_criterion,vresid_criterion
 
 !write(6,*) vthreen,vthrealp,vthreresid
-log_convergance = .false.
+log_convergence = .false.
 log_muliter = .false.
 if (mroot*nci_dim <= mxvec) log_muliter = .true.
 mcroot = mroot
@@ -68,320 +68,323 @@ end if
 
 mth_eigen = 0
 numroot = mroot
-10 continue
-sc0 = c_time()
-vector1 = 0.d0
-vector2 = 0.d0
-if (log_muliter) then
-  msroot = 1
-  mcroot = mroot
-  call mrcibasis(nci_dim,mroot,mjn,indx,vector1,vector2,vcien,mth_eigen,mroot)
-  !call mrcibasis_init(nci_dim,mroot,mjn,indx,vector1,vector2,vcien,mth_eigen,mroot)
-else
-  msroot = 1
-  mcroot = 1
-  if (mth_eigen == 0) then
-    mth_eigen = 1
-  else
-    mth_eigen = mth_eigen+1
-  end if
-  if (mth_eigen == 1) then
-    call mrcibasis(nci_dim,mroot,mjn,indx,vector1,vector2,vcien,mth_eigen,1)
+do
+  restart = .false.
+  sc0 = c_time()
+  vector1 = 0.d0
+  vector2 = 0.d0
+  if (log_muliter) then
+    msroot = 1
+    mcroot = mroot
+    call mrcibasis(nci_dim,mroot,mjn,indx,vector1,vector2,vcien,mth_eigen,mroot)
+    !call mrcibasis_init(nci_dim,mroot,mjn,indx,vector1,vector2,vcien,mth_eigen,mroot)
   else
     msroot = 1
     mcroot = 1
-    call mrcibasis_rest(nci_dim,numroot,mjn,indx,vector1,vector2,vcien,mth_eigen,1)
+    if (mth_eigen == 0) then
+      mth_eigen = 1
+    else
+      mth_eigen = mth_eigen+1
+    end if
+    if (mth_eigen == 1) then
+      call mrcibasis(nci_dim,mroot,mjn,indx,vector1,vector2,vcien,mth_eigen,1)
+    else
+      msroot = 1
+      mcroot = 1
+      call mrcibasis_rest(nci_dim,numroot,mjn,indx,vector1,vector2,vcien,mth_eigen,1)
+    end if
   end if
-end if
-!call abend()
-sc1 = c_time()
-sct = sc1-sc0
-write(6,890) 2*mroot,sct
+  !call abend()
+  sc1 = c_time()
+  sct = sc1-sc0
+  write(6,890) 2*mroot,sct
 
-idxvec(1) = mroot
-idxvec(2) = 2*mroot
-idxvec(3:max_iter) = 0
-vcienold(1:max_root) = dzero
-vresid(1:max_root) = dzero
-valpha(1:max_root) = dzero
-iiter = 2
-kval = 2*mroot
-msroot = 1
-mcroot = mroot
-mtsta = 1
-iciter = 0
-irset = 0
+  idxvec(1) = mroot
+  idxvec(2) = 2*mroot
+  idxvec(3:max_iter) = 0
+  vcienold(1:max_root) = dzero
+  vresid(1:max_root) = dzero
+  valpha(1:max_root) = dzero
+  iiter = 2
+  kval = 2*mroot
+  msroot = 1
+  mcroot = mroot
+  mtsta = 1
+  iciter = 0
+  irset = 0
 
-write(6,901)
-do while (.not. log_convergance)
-  iciter = iciter+1
-  sc0 = c_time()
-  call matrmkmul(kval,mtsta,iiter,idxvec,irset)
-  call hotred(max_kspace,kval,vp,vd,ve,vu)
-  call qlcm(max_kspace,kval,vd,ve,vu)
-  !if (iciter == 3) call abend()
+  write(6,901)
+  do while (.not. log_convergence)
+    iciter = iciter+1
+    sc0 = c_time()
+    call matrmkmul(kval,mtsta,iiter,idxvec,irset)
+    call hotred(max_kspace,kval,vp,vd,ve,vu)
+    call qlcm(max_kspace,kval,vd,ve,vu)
+    !if (iciter == 3) call abend()
 
-  vcienold(1:mroot) = vcien(1:mroot)
-  valpha(mtsta:mroot) = dzero
-  do m=mtsta,mroot
-    vcien(m) = vd(m)
-    valpha(m) = abs(vu(kval,m))
-    difeci(m) = abs(vcien(m)-vcienold(m))
-  end do
+    vcienold(1:mroot) = vcien(1:mroot)
+    valpha(mtsta:mroot) = dzero
+    do m=mtsta,mroot
+      vcien(m) = vd(m)
+      valpha(m) = abs(vu(kval,m))
+      difeci(m) = abs(vcien(m)-vcienold(m))
+    end do
 
-  call compute_residual_vector_mroot(kval,mtsta,iiter,idxvec,vresid,vcien)
-  !write(6,900) iciter
-  !write(6,901)
-  if (iciter == 1) then
-    sechc = 0.d0
-    scvp = 0.d0
-  end if
-  do mt=1,mroot
-    write(6,902) iciter,mt,vcien(mt),difeci(mt),valpha(mt),vresid(mt),sechc,scvp
-  end do
-  call xflush(6)
+    call compute_residual_vector_mroot(kval,mtsta,iiter,idxvec,vresid,vcien)
+    !write(6,900) iciter
+    !write(6,901)
+    if (iciter == 1) then
+      sechc = 0.d0
+      scvp = 0.d0
+    end if
+    do mt=1,mroot
+      write(6,902) iciter,mt,vcien(mt),difeci(mt),valpha(mt),vresid(mt),sechc,scvp
+    end do
+    call xflush(6)
 
-  !write(6,903) sechc,scvp
-  !write(nf2,903) sechc,scvp
-  mtsta0 = mtsta
-  do mt=mtsta0,mroot
-    if (((valpha(mt) < valpha_criterion) .or. (vresid(mt) < vresid_criterion)) .and. (abs(difeci(mt)) < venergy_criterion)) then
-      if (mt == mtsta) then
-        mtsta = mtsta+1
-        mcroot = mcroot-1
-      end if
-      if (mtsta == mroot+1) then
-        if (log_muliter) then
-          log_convergance = .true.
-          call get_eigvector(mtsta0,vcien,valpha,diffci,vresid,mth_eigen,log_muliter)
-          return
-        else
-          if (mth_eigen < numroot) then
-            call get_eigvector(mtsta0,vcien,valpha,diffci,vresid,mth_eigen,log_muliter)
-            log_convergance = .false.
-            goto 10
-          else
-            log_convergance = .true.
+    !write(6,903) sechc,scvp
+    !write(nf2,903) sechc,scvp
+    mtsta0 = mtsta
+    do mt=mtsta0,mroot
+      if (((valpha(mt) < valpha_criterion) .or. (vresid(mt) < vresid_criterion)) .and. (abs(difeci(mt)) < venergy_criterion)) then
+        if (mt == mtsta) then
+          mtsta = mtsta+1
+          mcroot = mcroot-1
+        end if
+        if (mtsta == mroot+1) then
+          if (log_muliter) then
+            log_convergence = .true.
             call get_eigvector(mtsta0,vcien,valpha,diffci,vresid,mth_eigen,log_muliter)
             return
+          else
+            if (mth_eigen < numroot) then
+              call get_eigvector(mtsta0,vcien,valpha,diffci,vresid,mth_eigen,log_muliter)
+              log_convergence = .false.
+              restart = .true.
+            else
+              log_convergence = .true.
+              call get_eigvector(mtsta0,vcien,valpha,diffci,vresid,mth_eigen,log_muliter)
+              return
+            end if
           end if
         end if
       end if
+    end do
+
+    if (iciter > maxciiter) then
+      write(6,*) ' warning! mrci fail to converged! program stop!'
+      write(6,'(a30,1x,i3)') ' number of converged roots is=',mtsta0
+      mtsta0 = mroot
+      call get_eigvector(mtsta0,vcien,valpha,diffci,vresid,mth_eigen,log_muliter)
+      return
     end if
-  end do
 
-  if (iciter > maxciiter) then
-    write(6,*) ' warning! mrci fail to converged! program stop!'
-    write(6,'(a30,1x,i3)') ' number of converged roots is=',mtsta0
-    mtsta0 = mroot
-    call get_eigvector(mtsta0,vcien,valpha,diffci,vresid,mth_eigen,log_muliter)
-    return
-  end if
-
-  if (mtsta /= mtsta0) then
-    nd = nci_dim*(mroot-mtsta0+1)
-    call read_ml(lucidia,1,vector2,nd,2)
-    ! write converged cm into file 7
-    do mt=mtsta0,mtsta-1
-      mtidx = indx(mt-mtsta0+1)
-      call write_ml(lucivec,1,vector2(mtidx+1:mtidx+nci_dim),nci_dim,mt)
-    end do
-    nd = (mroot-mtsta0+1)*nci_dim
-    vector2(1:nd) = vector1(1:nd)
-    vector1(1:nd) = dzero
-    mi = indx(mtsta-mtsta0+1)
-    nd = (mroot-mtsta+1)*nci_dim
-    do i=1,nd
-      vector1(i) = vector2(i+mi)
-    end do
-  end if
-  !write(6,910) mtsta-1
-
-  !*********************************************************************
-  ! reset kspace
-
-  if (kval+mcroot > max_kspace-1) then
-    write(6,911)
-
-    nd = mroot*nci_dim
-    vector1(1:nd) = dzero
-    nd = (mroot-mtsta0+1)*nci_dim
-    call read_ml(lucidia,1,vector2,nd,2)
-    nda = nci_dim*mroot
-    call read_bv(lucitv1,1,vector1,nda)
-    !rewind(7)
-    do mt=1,mtsta-1
-      mtidx = indx(mt)
-      call read_ml(lucivec,1,vector1(mtidx+1:mtidx+nci_dim),nci_dim,mt)
-      !read(7) vector1(mtidx+1:mtidx+nci_dim)
-    end do
-
-    nda = nci_dim*mroot
-    nd = (mroot-mtsta+1)*nci_dim
-    mtidx = indx(mtsta)
-    mid = indx(mtsta-mtsta0+1)
-    vector1(mtidx+1:mtidx+nd) = vector2(mid+1:mid+nd)
-    call write_bv(lucitv1,1,vector1,nda)
-    do mt=1,mtsta-1
-      vet = vcien(mt)
-      mtidx = indx(mt)
-      do l=1,nci_dim
-        vector1(l+mtidx) = vet*vector1(l+mtidx)
+    if (mtsta /= mtsta0) then
+      nd = nci_dim*(mroot-mtsta0+1)
+      call read_ml(lucidia,1,vector2,nd,2)
+      ! write converged cm into file 7
+      do mt=mtsta0,mtsta-1
+        mtidx = indx(mt-mtsta0+1)
+        call write_ml(lucivec,1,vector2(mtidx+1:mtidx+nci_dim),nci_dim,mt)
       end do
-    end do
+      nd = (mroot-mtsta0+1)*nci_dim
+      vector2(1:nd) = vector1(1:nd)
+      vector1(1:nd) = dzero
+      mi = indx(mtsta-mtsta0+1)
+      nd = (mroot-mtsta+1)*nci_dim
+      do i=1,nd
+        vector1(i) = vector2(i+mi)
+      end do
+    end if
+    !write(6,910) mtsta-1
 
-    nda = mroot*nci_dim
-    vector1(1:nda) = dzero
-    do jiter=1,iiter
-      if (jiter == 1) then
-        irts = 1
-      else
-        irts = idxvec(jiter-1)+1
-      end if
-      irte = idxvec(jiter)
-      nd = (irte-irts+1)*nci_dim
-      call read_bv(lucitv2,jiter,vector2,nd)
-      do mt=mtsta,mroot
+    !*******************************************************************
+    ! reset kspace
+
+    if (kval+mcroot > max_kspace-1) then
+      write(6,911)
+
+      nd = mroot*nci_dim
+      vector1(1:nd) = dzero
+      nd = (mroot-mtsta0+1)*nci_dim
+      call read_ml(lucidia,1,vector2,nd,2)
+      nda = nci_dim*mroot
+      call read_bv(lucitv1,1,vector1,nda)
+      !rewind(7)
+      do mt=1,mtsta-1
         mtidx = indx(mt)
-        do irot=irts,irte
-          itidx = indx(irot-irts+1)
-          vuim = vu(irot,mt)
-          do l=1,nci_dim
-            vector1(mtidx+l) = vector1(mtidx+l)+vuim*vector2(itidx+l)
+        call read_ml(lucivec,1,vector1(mtidx+1:mtidx+nci_dim),nci_dim,mt)
+        !read(7) vector1(mtidx+1:mtidx+nci_dim)
+      end do
+
+      nda = nci_dim*mroot
+      nd = (mroot-mtsta+1)*nci_dim
+      mtidx = indx(mtsta)
+      mid = indx(mtsta-mtsta0+1)
+      vector1(mtidx+1:mtidx+nd) = vector2(mid+1:mid+nd)
+      call write_bv(lucitv1,1,vector1,nda)
+      do mt=1,mtsta-1
+        vet = vcien(mt)
+        mtidx = indx(mt)
+        do l=1,nci_dim
+          vector1(l+mtidx) = vet*vector1(l+mtidx)
+        end do
+      end do
+
+      nda = mroot*nci_dim
+      vector1(1:nda) = dzero
+      do jiter=1,iiter
+        if (jiter == 1) then
+          irts = 1
+        else
+          irts = idxvec(jiter-1)+1
+        end if
+        irte = idxvec(jiter)
+        nd = (irte-irts+1)*nci_dim
+        call read_bv(lucitv2,jiter,vector2,nd)
+        do mt=mtsta,mroot
+          mtidx = indx(mt)
+          do irot=irts,irte
+            itidx = indx(irot-irts+1)
+            vuim = vu(irot,mt)
+            do l=1,nci_dim
+              vector1(mtidx+l) = vector1(mtidx+l)+vuim*vector2(itidx+l)
+            end do
           end do
         end do
       end do
-    end do
 
-    nda = mroot*nci_dim
-    vector2(1:nda) = vector1(1:nda)
-    call write_bv(lucitv2,1,vector2,nda)
+      nda = mroot*nci_dim
+      vector2(1:nda) = vector1(1:nda)
+      call write_bv(lucitv2,1,vector2,nda)
 
-    ! start new trial vector
-    nda = nci_dim*mroot
-    nd = nci_dim*(mroot-mtsta+1)
-    mtidx = indx(mtsta)
-    vector2(1:nda) = dzero
-    vector2(1:nd) = vector1(mtidx+1:mtidx+nd)
+      ! start new trial vector
+      nda = nci_dim*mroot
+      nd = nci_dim*(mroot-mtsta+1)
+      mtidx = indx(mtsta)
+      vector2(1:nda) = dzero
+      vector2(1:nd) = vector1(mtidx+1:mtidx+nd)
 
-    nd = (mroot-mtsta0+1)*nci_dim
-    call read_ml(lucidia,1,vector1,nd,2)
-    !rewind(nf22)
-    !read(nf22) vector1(1:nd)
-    do mt=mtsta,mroot
-      mtidx = indx(mt-mtsta+1)
-      mtid = indx(mt-mtsta0+1)
-      do l=1,nci_dim
-        vector1(l+mtidx) = vector1(mtid+l)
+      nd = (mroot-mtsta0+1)*nci_dim
+      call read_ml(lucidia,1,vector1,nd,2)
+      !rewind(nf22)
+      !read(nf22) vector1(1:nd)
+      do mt=mtsta,mroot
+        mtidx = indx(mt-mtsta+1)
+        mtid = indx(mt-mtsta0+1)
+        do l=1,nci_dim
+          vector1(l+mtidx) = vector1(mtid+l)
+        end do
       end do
-    end do
 
-    do mt=mtsta,mroot
-      mtidx = indx(mt-mtsta+1)
-      venergy = vcien(mt)
-      do l=1,nci_dim
-        vector1(mtidx+l) = venergy*vector1(mtidx+l)-vector2(mtidx+l)
+      do mt=mtsta,mroot
+        mtidx = indx(mt-mtsta+1)
+        venergy = vcien(mt)
+        do l=1,nci_dim
+          vector1(mtidx+l) = venergy*vector1(mtidx+l)-vector2(mtidx+l)
+        end do
       end do
-    end do
 
-    !call read_bv(nf8,1,vector2,nci_dim)
+      !call read_bv(nf8,1,vector2,nci_dim)
+      call read_ml(lucidia,1,vector2,nci_dim,1)
+      do mt=mtsta,mroot
+        mtidx = indx(mt-mtsta+1)
+        do l=1,nci_dim
+          depff = vector2(l)-vcien(mt)
+          if (abs(depff) <= depc) depff = depc
+          vector1(mtidx+l) = vector1(mtidx+l)/depff
+        end do
+      end do
+
+      iiter = 1
+      kval = mroot
+      mcroot = mroot-mtsta+1
+      call orthog(kval,iiter,mtsta,idxvec)
+
+      idxvec(iiter) = kval
+
+      mcroot = mroot-mtsta+1
+      iiter = 2
+      if (.not. log_muliter) then
+        if (mth_eigen > 1) then
+          call orthogwconvec()
+        end if
+      end if
+      nd = (mroot-mtsta+1)*nci_dim
+      call write_bv(lucitv1,iiter,vector1,nd)
+      idxvec(iiter) = kval
+      mn = mroot*(mroot+1)/2
+      vp(1:mn) = dzero
+      mn = 0
+      do m=1,mroot
+        mn = mn+m
+        vp(mn) = vcien(m)
+      end do
+      irset = 1
+    else
+
+      !*****************************************************************
+      ! compute revised new appoximate vector
+      !
+      !call read_ml(lucidia,1,vector2,nci_dim,1)
+      !irset=1
+      !do mt=mtsta,mroot
+      !  mtidx = indx(mt-mtsta+1)
+      !  !logic_tda v= .false.
+      !  if (logic_tdav) then
+      !    ! traditional davidson diagonalization method is used
+      !    do l=1,nci_dim
+      !      depff = vector2(l)-vcien(mt)
+      !      !if (abs(depff) <= depc) depff = depc
+      !      vector1(mtidx+l) = vector1(mtidx+l)/depff
+      !    end do
+      !  else
+      !    ! generalized davidson diagonalization method is used
+      !    call gdavdiag(mt,mtidx,vcien(mt))
+      !  end if
+      !end do
+
+      mcroot = mroot-mtsta+1
+      call orthog(kval,iiter,mtsta,idxvec)
+      if (.not. log_muliter) then
+        if (mth_eigen > 1) then
+          call orthogwconvec()
+        end if
+      end if
+      idxvec(iiter) = kval
+      nd = (mroot-mtsta+1)*nci_dim
+      call write_bv(lucitv1,iiter,vector1,nd)
+    end if
+
+    sc1 = c_time()
+    scvp = sc1-sc0
+
+    nd = nci_dim*mroot
+    vector2(1:nd) = dzero
+    ! start h*c
+
     call read_ml(lucidia,1,vector2,nci_dim,1)
-    do mt=mtsta,mroot
+    do mt=mtsta+1,mroot
       mtidx = indx(mt-mtsta+1)
       do l=1,nci_dim
-        depff = vector2(l)-vcien(mt)
-        if (abs(depff) <= depc) depff = depc
-        vector1(mtidx+l) = vector1(mtidx+l)/depff
+        vector2(mtidx+l) = vector2(l)
       end do
     end do
 
-    iiter = 1
-    kval = mroot
-    mcroot = mroot-mtsta+1
-    call orthog(kval,iiter,mtsta,idxvec)
-
-    idxvec(iiter) = kval
-
-    mcroot = mroot-mtsta+1
-    iiter = 2
-    if (.not. log_muliter) then
-      if (mth_eigen > 1) then
-        call orthogwconvec()
-      end if
-    end if
-    nd = (mroot-mtsta+1)*nci_dim
-    call write_bv(lucitv1,iiter,vector1,nd)
-    idxvec(iiter) = kval
-    mn = mroot*(mroot+1)/2
-    vp(1:mn) = dzero
-    mn = 0
-    do m=1,mroot
-      mn = mn+m
-      vp(mn) = vcien(m)
+    do mt=mtsta,mroot
+      mtidx = indx(mt-mtsta+1)
+      do l=1,nci_dim
+        ni = mtidx+l
+        vector2(ni) = vector2(ni)*vector1(ni)
+      end do
     end do
-    irset = 1
-  else
 
-    !**************************************************
-    ! compute revised new appoximate vector
-    !
-    !call read_ml(lucidia,1,vector2,nci_dim,1)
-    !irset=1
-    !do mt=mtsta,mroot
-    !  mtidx = indx(mt-mtsta+1)
-    !  !logic_tda v= .false.
-    !  if (logic_tdav) then
-    !    ! traditional davidson diagonalization method is used
-    !    do l=1,nci_dim
-    !      depff = vector2(l)-vcien(mt)
-    !      !if (abs(depff) <= depc) depff = depc
-    !      vector1(mtidx+l) = vector1(mtidx+l)/depff
-    !    end do
-    !  else
-    !    ! generalized davidson diagonalization method is used
-    !    call gdavdiag(mt,mtidx,vcien(mt))
-    !  end if
-    !end do
+    call matrix_vector_multi_parallel_drt(sechc)
+    nd = nci_dim*(mroot-mtsta+1)
+    call write_bv(lucitv2,iiter,vector2,nd)
 
-    mcroot = mroot-mtsta+1
-    call orthog(kval,iiter,mtsta,idxvec)
-    if (.not. log_muliter) then
-      if (mth_eigen > 1) then
-        call orthogwconvec()
-      end if
-    end if
-    idxvec(iiter) = kval
-    nd = (mroot-mtsta+1)*nci_dim
-    call write_bv(lucitv1,iiter,vector1,nd)
-  end if
-
-  sc1 = c_time()
-  scvp = sc1-sc0
-
-  nd = nci_dim*mroot
-  vector2(1:nd) = dzero
-  ! start h*c
-
-  call read_ml(lucidia,1,vector2,nci_dim,1)
-  do mt=mtsta+1,mroot
-    mtidx = indx(mt-mtsta+1)
-    do l=1,nci_dim
-      vector2(mtidx+l) = vector2(l)
-    end do
   end do
-
-  do mt=mtsta,mroot
-    mtidx = indx(mt-mtsta+1)
-    do l=1,nci_dim
-      ni = mtidx+l
-      vector2(ni) = vector2(ni)*vector1(ni)
-    end do
-  end do
-
-  call matrix_vector_multi_parallel_drt(sechc)
-  nd = nci_dim*(mroot-mtsta+1)
-  call write_bv(lucitv2,iiter,vector2,nd)
-
+  if (.not. restart) exit
 end do
 
 890 format(/,1x,'number of initial trial vectors is',i3,/,1x,'total wall clock time=',f9.2,' seconds')
@@ -477,16 +480,15 @@ call write_bv(lucitv2,1,vb2,ndim)
 
 vad = 0.d0
 idx = 0
-do m=1,ndim
+outer: do m=1,ndim
   do k=1,mth_eigen
-    if (m == mjn(k)) goto 30
+    if (m == mjn(k)) cycle outer
   end do
   if (abs(vb2(m)) > vad) then
     vad = abs(vb2(m))
     idx = m
   end if
-30 continue
-end do
+end do outer
 mjntm = idx
 !write(6,*) 'mjn(kk)',idx,vb1(idx),vb2(idx)
 !write(6,*) 'bbs debug 3'
@@ -669,16 +671,15 @@ if (mth_eigen == 0) then
     ij = indx(kk-mroot)
     vad = 0.d0
     idx = 0
-    do m=1,ndim
+    outer1: do m=1,ndim
       do l=1,kk-1
-        if (m == mjntmp(l)) goto 20
+        if (m == mjntmp(l)) cycle outer1
       end do
       if (abs(vb2(m+ij)) > vad) then
         vad = abs(vb2(m+ij))
         idx = m
       end if
-20    continue
-    end do
+    end do outer1
     mjntmp(kk) = idx
     vdiatmp(kk) = vb1(idx)
     write(6,*) 'mjn(kk)',idx,vb1(idx+ij),vb2(idx+ij)
@@ -689,16 +690,15 @@ else
   vad = 0.d0
   idx = 0
   l = mth_eigen
-  do m=1,ndim
+  outer2: do m=1,ndim
     do k=1,mth_eigen
-      if (m == mjn(k)) goto 30
+      if (m == mjn(k)) cycle outer2
     end do
     if (abs(vb2(m)) > vad) then
       vad = abs(vb2(m))
       idx = m
     end if
-30  continue
-  end do
+  end do outer2
   mjntmp(kk) = idx
   vdiatmp(kk) = vb1(idx)
   write(6,*) 'mjn(kk)',idx,vb1(idx),vb2(idx)

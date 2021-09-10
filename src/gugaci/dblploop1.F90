@@ -1872,59 +1872,60 @@ jmlr = mul_tab(jml,jmr)
 ! sd(6-10) d&r&l(12)b^l(23)
 ! sd(6-15) d&r&l(33)b^l(13)c'(22)
 
-if (jml /= 1) goto 207
+if (jml == 1) then
 
-! sd(6-1) a&r(02)-
-do lri=norb_frz+1,norb_dz
-  lmi = lsm_inn(lri)
-  iwdl = just(lri,lri)
-  w0sd1 = w0_sd(1)
-  w0sd12 = w0_sd(12)
-  ni = mod(norb_dz-lri,2)
-  if (ni == 1) then
-    w0sd1 = -w0sd1
-    w0sd12 = -w0sd12
-  end if
-  if (lmi == jmlr) then
-    iwdr = jud(lri)
-    vlop0 = w0*w0sd1
-    wl = vlop0*voint(lri,lra)             !310,act_coe,610,710
-    do lr=lri+1,norb_dz
-      list = list3(lri,lra,lr)
-      wl = wl+vlop0*(2*vint_ci(list+1)-vint_ci(list)) !  310:neoc=2,
-    end do
-    do lrk=norb_dz+1,lra
-      list = list3(lri,lra,lrk)
-      kcoe = lpcoe(lrk)
-      call neoc(kcoe,nocc,tcoe)
-      wl = wl+vlop0*nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
-    end do
-    !wl = wl*vlop0
-    ! sd(6-12) d&rl(33)b^l(02)
-    vlop0 = w0*w0sd12
-    do lrk=1,lri-1
-      list = list3(lri,lra,lrk)
-      wl = wl+vlop0*(vint_ci(list)-2*vint_ci(list+1))
-    end do
-    call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-  end if
+  ! sd(6-1) a&r(02)-
+  do lri=norb_frz+1,norb_dz
+    lmi = lsm_inn(lri)
+    iwdl = just(lri,lri)
+    w0sd1 = w0_sd(1)
+    w0sd12 = w0_sd(12)
+    ni = mod(norb_dz-lri,2)
+    if (ni == 1) then
+      w0sd1 = -w0sd1
+      w0sd12 = -w0sd12
+    end if
+    if (lmi == jmlr) then
+      iwdr = jud(lri)
+      vlop0 = w0*w0sd1
+      wl = vlop0*voint(lri,lra)             !310,act_coe,610,710
+      do lr=lri+1,norb_dz
+        list = list3(lri,lra,lr)
+        wl = wl+vlop0*(2*vint_ci(list+1)-vint_ci(list)) !  310:neoc=2,
+      end do
+      do lrk=norb_dz+1,lra
+        list = list3(lri,lra,lrk)
+        kcoe = lpcoe(lrk)
+        call neoc(kcoe,nocc,tcoe)
+        wl = wl+vlop0*nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
+      end do
+      !wl = wl*vlop0
+      ! sd(6-12) d&rl(33)b^l(02)
+      vlop0 = w0*w0sd12
+      do lrk=1,lri-1
+        list = list3(lri,lra,lrk)
+        wl = wl+vlop0*(vint_ci(list)-2*vint_ci(list+1))
+      end do
+      call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+    end if
 
-  ! sd(6-9) d&r&r(03)b^r(32)
-  do lrd=lri+1,norb_dz
-    lmd = lsm_inn(lrd)
-    if (lmd /= jmr) cycle
-    w0sd9 = w0_sd(9)
-    ni = mod(norb_dz-lrd,2)
-    if (ni == 1) w0sd9 = -w0sd9
-    iwdr = jud(lrd)
-    vlop0 = w0*w0sd9
-    list = list3(lrd,lra,lri)
-    wl = vint_ci(list)*vlop0
-    call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+    ! sd(6-9) d&r&r(03)b^r(32)
+    do lrd=lri+1,norb_dz
+      lmd = lsm_inn(lrd)
+      if (lmd /= jmr) cycle
+      w0sd9 = w0_sd(9)
+      ni = mod(norb_dz-lrd,2)
+      if (ni == 1) w0sd9 = -w0sd9
+      iwdr = jud(lrd)
+      vlop0 = w0*w0sd9
+      list = list3(lrd,lra,lri)
+      wl = vint_ci(list)*vlop0
+      call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+    end do
   end do
-end do
 
-207 continue
+end if
+
 do lri=norb_frz+1,norb_dz
   lmi = lsm_inn(lri)
   do lrj=lri+1,norb_dz
@@ -2162,57 +2163,57 @@ jmlr = mul_tab(jml,jmr)
 ! sd1(8-13) d&r&l(33)c"(13)b^l(23)
 ! sd1(8-14) d&r&l(33)b^l(11)c'(23)
 ! sd1(8-15) d&r&l(33)b^l(23)c'(11)
-if (jml /= 1) goto 209
-do lri=norb_frz+1,norb_dz
-  ! sd1(8-1) a&r(01)-
-  lmi = lsm_inn(lri)
-  iwdl = just(lri,lri)
-  w0sd1 = w0_sd1(1)
-  w0sd11 = w0_sd1(9)
-  ni = mod(norb_dz-lri,2)
-  if (ni == 1) then
-    w0sd1 = -w0sd1
-    w0sd11 = -w0sd11
-  end if
-  if (lmi == jmlr) then
-    iwdr = jud(lri)
-    vlop0 = w0*w0sd1
-    wl = vlop0*voint(lri,lra)             !310,act_coe,610,710
-    do lr=lri+1,norb_dz
-      list = list3(lri,lra,lr)
-      wl = wl+vlop0*(2*vint_ci(list+1)-vint_ci(list)) !  310:neoc=2,
+if (jml == 1) then
+  do lri=norb_frz+1,norb_dz
+    ! sd1(8-1) a&r(01)-
+    lmi = lsm_inn(lri)
+    iwdl = just(lri,lri)
+    w0sd1 = w0_sd1(1)
+    w0sd11 = w0_sd1(9)
+    ni = mod(norb_dz-lri,2)
+    if (ni == 1) then
+      w0sd1 = -w0sd1
+      w0sd11 = -w0sd11
+    end if
+    if (lmi == jmlr) then
+      iwdr = jud(lri)
+      vlop0 = w0*w0sd1
+      wl = vlop0*voint(lri,lra)             !310,act_coe,610,710
+      do lr=lri+1,norb_dz
+        list = list3(lri,lra,lr)
+        wl = wl+vlop0*(2*vint_ci(list+1)-vint_ci(list)) !  310:neoc=2,
+      end do
+      do lrk=norb_dz+1,lra
+        list = list3(lri,lra,lrk)
+        kcoe = lpcoe(lrk)
+        call neoc(kcoe,nocc,tcoe)
+        wl = wl+vlop0*nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
+      end do
+      !wl = wl*vlop0
+      ! sd1(8-11) d&rl(33)b^l(01)
+      vlop0 = w0*w0sd11
+      do lrk=1,lri-1
+        list = list3(lri,lra,lrk)
+        wl = wl+vlop0*(vint_ci(list)-2*vint_ci(list+1))
+      end do
+      call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+    end if
+    ! sd1(8-9) d&r&r(03)b^r(31)
+    do lrd=lri+1,norb_dz
+      lmd = lsm_inn(lrd)
+      if (lmd /= jmr) cycle
+      w0sd9 = w0_sd1(9)
+      ni = mod(norb_dz-lrd,2)
+      if (ni == 1) w0sd9 = -w0sd9
+      iwdr = jud(lrd)
+      vlop0 = w0*w0sd9
+      list = list3(lrd,lra,lri)
+      wl = vint_ci(list)*vlop0
+      call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
     end do
-    do lrk=norb_dz+1,lra
-      list = list3(lri,lra,lrk)
-      kcoe = lpcoe(lrk)
-      call neoc(kcoe,nocc,tcoe)
-      wl = wl+vlop0*nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
-    end do
-    !wl = wl*vlop0
-    ! sd1(8-11) d&rl(33)b^l(01)
-    vlop0 = w0*w0sd11
-    do lrk=1,lri-1
-      list = list3(lri,lra,lrk)
-      wl = wl+vlop0*(vint_ci(list)-2*vint_ci(list+1))
-    end do
-    call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-  end if
-  ! sd1(8-9) d&r&r(03)b^r(31)
-  do lrd=lri+1,norb_dz
-    lmd = lsm_inn(lrd)
-    if (lmd /= jmr) cycle
-    w0sd9 = w0_sd1(9)
-    ni = mod(norb_dz-lrd,2)
-    if (ni == 1) w0sd9 = -w0sd9
-    iwdr = jud(lrd)
-    vlop0 = w0*w0sd9
-    list = list3(lrd,lra,lri)
-    wl = vint_ci(list)*vlop0
-    call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
   end do
-end do
+end if
 
-209 continue
 do lri=norb_frz+1,norb_dz
   lmi = lsm_inn(lri)
   do lrj=lri+1,norb_dz

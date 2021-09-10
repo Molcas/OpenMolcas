@@ -55,598 +55,596 @@ subroutine dd_ext_head_in_dbl()
 LOGIC_DH = .true.
 JMLR = MUL_TAB(JML,JMR)
 LPOK = JPADLR
-goto(101,102,103,104,105,106,10,108,10,10,111,112,113,10,115,10,10,10,119,120,121,122,123,124,125,10),LPOK
-!=======================================================================
-! SD(6)    ACT: -B&L-
-106 continue
-if (LINELP /= 17) return
-LRA = NLG1
-if (JB_SYS > 0) then
-  call SD_Ar_ACT_Bl_DD_EXT_SGT0(LRA)
-end if
-do LRI=NORB_FRZ+1,NORB_DZ
-  LMI = LSM_INN(LRI)
-  if (LMI /= JMLR) cycle
-  W0SD1 = W0_SD(1)
-  W0SD2 = W0_SD(2)
-  W0SD3 = -W0_SD(3)
-  W0SD4 = -W0_SD(4)
-  NI = mod(NORB_DZ-LRI,2)
-  if (NI == 1) W0SD1 = -W0SD1
-  if (NI == 1) W0SD2 = -W0SD2
-  if (NI == 1) W0SD3 = -W0SD3
-  if (NI == 1) W0SD4 = -W0SD4
-  if ((JML == 1) .and. (LMI == JMR)) then
-    ! SD(6-1) A&r(02)-
-    IWDL = JUST(LRI,LRI)
-    IWDR = JUD(LRI)
-    do MPL=1,MHLP
-      IWAL = LPNEW_LWEI(MPL)
-      IWAR = LPNEW_RWEI(MPL)
-      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-    end do
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SD1
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W0SD1
-    end do
-    call Ar_BL_DD_EXT(LRI,LRA,1)
-  end if
-  ! SD(6-2) C(22)-A&r(13)-
-  do LRK=NORB_FRZ+1,LRI-1
-    LMK = LSM_INN(LRK)
-    LMKI = MUL_TAB(LMK,LMI)
-    if ((LMKI == JML) .and. (LMK == JMR)) then
-      IWDL = JUST(LRK,LRI)
-      IWDR = JUD(LRK)
-      do MPL=1,MHLP
-        IWAL = LPNEW_LWEI(MPL)
-        IWAR = LPNEW_RWEI(MPL)
-        LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-        LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-      end do
-      do MPL=1,MTYPE
-        VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SD2
-        VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W0SD2
-      end do
-      call Ar_BL_DD_EXT(LRI,LRA,1)
-    end if
-  end do
-  ! SD(6-4) A&r(23)-C'(12)-
-  do LRK=LRI+1,NORB_DZ
-    LMK = LSM_INN(LRK)
-    LMKI = MUL_TAB(LMK,LMI)
-    if ((LMKI /= JML) .or. (LMK /= JMR)) cycle
-    !......................03_01........................................
-    !if (jroute_sys > 1) then
-    !  ! SD(6-3) A&r(13)-C'(22)-
-    !  IWDL = JUST(LRK,LRI)
-    !  IWDR = JUD(LRK)
-    !  do MPL=1,MHLP
-    !    IWAL = LPNEW_LWEI(MPL)
-    !    IWAR = LPNEW_RWEI(MPL)
-    !    LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-    !    LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-    !  end do
-    !  do MPL=1,MTYPE
-    !    VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SD3
-    !    VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W0SD3
-    !  end do
-    !  call Ar_BL_DD_EXT(LRI,LRA,1)
-    !end if
-    !.......................03_01.......................................
-    IWDL = JUST(LRI,LRK)
-    IWDR = JUD(LRK)
-    do MPL=1,MHLP
-      IWAL = LPNEW_LWEI(MPL)
-      IWAR = LPNEW_RWEI(MPL)
-      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-    end do
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SD4
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W0SD4
-    end do
-    call Ar_BL_DD_EXT(LRI,LRA,1)
-  end do
-end do
-goto 10
-!=======================================================================
-! TD(13) ACT -B&L-
-113 continue
-if (LINELP /= 17) return
-LRA = NLG1
-do LRI=NORB_FRZ+1,NORB_DZ
-  LMI = LSM_INN(LRI)
-  if (LMI /= JMLR) cycle
-  W0TD1 = W0_TD(1)
-  NI = mod(NORB_DZ-LRI,2)
-  if (NI == 1) W0TD1 = -W0TD1
-
-  do LRK=NORB_FRZ+1,LRI-1
-    LMK = LSM_INN(LRK)
-    if (LMK == JMR) then
-      ! TD(13-1) C(22)-A&r(23)-
-      IWDL = JUST(LRK,LRI)
-      IWDR = JUD(LRK)
-      do MPL=1,MHLP
-        IWAL = LPNEW_LWEI(MPL)
-        IWAR = LPNEW_RWEI(MPL)
-        LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-        LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-      end do
-      do MPL=1,MTYPE
-        VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TD1
-        VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W0TD1
-      end do
-      call Ar_BL_DD_EXT(LRI,LRA,1)
-    end if
-  end do
-  do LRK=LRI+1,NORB_DZ
-    LMK = LSM_INN(LRK)
-    if (LMK == JMR) then
-      ! TD(13-1) A&r(23)-C'(22)-
-      IWDL = JUST(LRI,LRK)
-      IWDR = JUD(LRK)
-      do MPL=1,MHLP
-        IWAL = LPNEW_LWEI(MPL)
-        IWAR = LPNEW_RWEI(MPL)
-        LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-        LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-      end do
-      do MPL=1,MTYPE
-        VPLP_W0(MPL) = -VPLPNEW_W0(MPL)*W0TD1
-        VPLP_W1(MPL) = -VPLPNEW_W1(MPL)*W0TD1
-      end do
-      call Ar_BL_DD_EXT(LRI,LRA,1)
-    end if
-  end do
-end do
-goto 10
-!=======================================================================
-! DV(23) ACT -C'-..................................................
-123 continue
-if (LINELP /= 17) return
-LRA = NLG1
-do LRI=NORB_FRZ+1,NORB_DZ
-  LMI = LSM_INN(LRI)
-  if (LMI /= JMLR) cycle
-  W0DV1 = W0_DV(1)
-  NI = mod(NORB_DZ-LRI,2)
-  if (NI == 1) W0DV1 = -W0DV1
-  ! DV(23-1) A&r(23)-
-  IWDL = JUD(LRI)
-  IWDR = 0
-  do MPL=1,MHLP
-    IWAL = LPNEW_LWEI(MPL)
-    IWAR = LPNEW_RWEI(MPL)
-    LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-    LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-  end do
-  do MPL=1,MTYPE
-    VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DV1
-    VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W0DV1
-  end do
-  call Ar_BL_DD_EXT(LRI,LRA,1)
-end do
-goto 10
-!=======================================================================
-! SS(1)   ACT -C"-
-!-----------------------------------------------------------------------
-! SS(1-9)  Ar(23)-C'(11)-Bl(32)- ACT -C"-
-! SS(1-11) Ar(13)-Bl(31)-C"(22)- ACT -C"-
-! SS(1-12) Ar(13)-Bl(32)-C"(21)- ACT -C"-
-! SS(1-13) Ar(23)-Bl(31)-C"(12)- ACT -C"-
-! SS(1-16) (11)-Drl(22)-         ACT -C"-
-! SS(1-18) Drl(11)-C"(22)-       ACT -C"-
-! SS(1-19) Drl(12)-C"(21)-       ACT -C"-
-! SS(1-20) (11)-Drl(33)-C"(22)-  ACT -C"-
-! SS(1-20) Drl(33)-C"(11)-C"(22)-ACT -C"-
-!-----------------------------------------------------------------------
-! SS(1)   ACT 14: -C"-
-101 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) goto 1011
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  do LRJ=LRI+1,NORB_DZ
-    call SS2_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,1)
-    call SS4_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,1)
-    call SS5_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,NK)
-    call SS10_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,NK)
-    call SS14_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,NK)
-    !if (JROUTE_SYS > 1) then
-    !  call SS1_EXT(LRI,LRJ)
-    !  call Ar_BL_DD_EXT(LRI,LRJ,1)
-    !  call SS3_EXT(LRI,LRJ)
-    !  call Ar_BL_DD_EXT(LRI,LRJ,1)
-    !end if
-  end do
-end do
-if (JB_SYS > 0) then
-  call SS_ArBr_ACT_C_DD_EXT_SGT0()
-  call SS_S_Drl_ACT_C_DD_EXT_SGT0()
-end if
-return
-
-1011 continue
-if (JB_SYS > 0) then
-  LRA = NLG1
-  call SS_Drl_ACT_C_DD_EXT_SGT0()
-end if
-W0SS15 = W0_SS(15)
-W1SS15 = W1_SS(15)
-W0SS17 = W0_SS(17)
-W1SS17 = W1_SS(17)
-W0SS20 = W0_SS(20)
-if ((JML == 1) .and. (JMR == 1)) then
-  ! SS(1-20) Drl(33)-C"(00)-       ACT -C"-
-  do LR0=NORB_FRZ+1,NORB_DZ
-    IWDL = JUST(LR0,LR0)
-    IWDR = IWDL
-    do MPL=1,MHLP
-      IWAL = LPNEW_LWEI(MPL)
-      IWAR = LPNEW_RWEI(MPL)
-      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-    end do
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
-      VPLP_W1(MPL) = 0.d0
-    end do
-    do LRK=1,NORB_DZ
-      if (LRK == LR0) cycle
-      call Drl_DD_EXT(LRK)
-    end do
-  end do
-end if
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  LMI = LSM_INN(LRI)
-  do LRJ=LRI+1,NORB_DZ
-    LMJ = LSM_INN(LRJ)
-    LMIJ = MUL_TAB(LMI,LMJ)
-    if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
-    IWDL = JUST(LRI,LRJ)
-    IWDR = IWDL
-    do MPL=1,MHLP
-      IWAL = LPNEW_LWEI(MPL)
-      IWAR = LPNEW_RWEI(MPL)
-      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-    end do
-    ! SS(1-15) (22)-Drl(11)-         ACT -C"-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS15
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS15
-    end do
-    call Drl_DD_EXT(LRJ)
-    ! SS(1-17) Drl(22)-C"(11)-       ACT -C"-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS17
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS17
-    end do
-    call Drl_DD_EXT(LRI)
-    ! SS(1-20) (22)(11)Drl(33)-      ACT -C"-
-    ! SS(1-20) (22)Drl(33)-C"(11)-   ACT -C"-
-    ! SS(1-20) Drl(33)-C"(22)-C"(11)-ACT -C"-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
-      VPLP_W1(MPL) = 0.d0
-    end do
-    do LRK=1,NORB_DZ
-      if (LRK == LRI) cycle
-      if (LRK == LRJ) cycle
-      call Drl_DD_EXT(LRK)
-    end do
-  end do
-end do
-return
-!=======================================================================
-! ST(2)   ACT -C"-
-if (JB_SYS > 0) call ST_Drl_ACT_C_DD_EXT()
-if (JB_SYS > 0) call ST_ArBl_ACT_C_DD_EXT_SGT0()
-
-102 continue
-if ((LINELP /= 14) .or. (NLG2 == 1)) return
-if (JB_SYS > 0) call ST_Drl_ACT_C_DD_EXT_SGT0()
-if (JB_SYS > 0) call ST_ArBl_ACT_C_DD_EXT_SGT0()
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  do LRJ=LRI+1,NORB_DZ
-    call ST1_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,1)
-    call ST2_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,NK)
-    call ST4_EXT(LRI,LRJ,NK,1)
-    if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,NK)
-    call ST4_EXT(LRI,LRJ,NK,-1)
-    if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,NK)
-  end do
-end do
-
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  LMI = LSM_INN(LRI)
-  do LRJ=LRI+1,NORB_DZ
-    LMJ = LSM_INN(LRJ)
-    LMIJ = MUL_TAB(LMI,LMJ)
-    if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
-    ! ST(2-5) (22)Drl(12)-          ACT -C"-
-    IWDL = JUST(LRI,LRJ)
-    IWDR = JUST(LRI,LRJ)
-    do MPL=1,MHLP
-      IWAL = LPNEW_LWEI(MPL)
-      IWAR = LPNEW_RWEI(MPL)
-      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-    end do
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = 0.d0
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(5)
-    end do
-    call Drl_DD_EXT(LRJ)
-    ! ST(2-6) Drl(22)-C"(12)-       ACT -C"-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = 0.d0
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(6)
-    end do
-    call Drl_DD_EXT(LRI)
+select case (LPOK)
+  case (1)
+    !===================================================================
+    ! SS(1)   ACT -C"-
     !-------------------------------------------------------------------
-    ! ST(2-3) Ar(13)-C'(22)-Bl(32)-   ACT -C"-
-    ! ST(2-3) Ar(13)-Bl(32)-C'(22)-   ACT -C"-
-    ! ST(2-7) Drl(12)-C"(22)-         ACT -C"-
+    ! SS(1-9)  Ar(23)-C'(11)-Bl(32)- ACT -C"-
+    ! SS(1-11) Ar(13)-Bl(31)-C"(22)- ACT -C"-
+    ! SS(1-12) Ar(13)-Bl(32)-C"(21)- ACT -C"-
+    ! SS(1-13) Ar(23)-Bl(31)-C"(12)- ACT -C"-
+    ! SS(1-16) (11)-Drl(22)-         ACT -C"-
+    ! SS(1-18) Drl(11)-C"(22)-       ACT -C"-
+    ! SS(1-19) Drl(12)-C"(21)-       ACT -C"-
+    ! SS(1-20) (11)-Drl(33)-C"(22)-  ACT -C"-
+    ! SS(1-20) Drl(33)-C"(11)-C"(22)-ACT -C"-
     !-------------------------------------------------------------------
-  end do
-end do
-goto 10
-!=======================================================================
-! TS(3) D&R^L-  ACT -C"-
-103 continue
-if ((LINELP /= 14) .or. (NLG2 == 1)) return
-if (JB_SYS > 0) then
-  call TS_ArBl_ACT_C_DD_EXE_SGT0()
-end if
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  do LRJ=LRI+1,NORB_DZ
-    call TS1_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,1)
-    call TS2_EXT(LRI,LRJ,NK,1)
-    if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,NK)
-    call TS2_EXT(LRI,LRJ,NK,-1)
-    if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,NK)
-    call TS4_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,NK)
-  end do
-end do
-goto 10
-!=======================================================================
-! STT(4) ArBl-  ACT -C"-
-104 continue
-if ((LINELP /= 14) .or. (NLG2 == 1)) return
-LRA = NLG1
-call STT_ArBl_ACT_C_DD_EXT_SGT1()
-return
-!=======================================================================
-! TTS(3) ArBl-  ACT -C"-
-105 continue
-if ((LINELP /= 14) .or. (NLG2 == 1)) return
-call TTS_ArBl_ACT_C_DD_EXT_SGT1()
-call TTS_Drl_ACT_C_DD_EXT_SGT1()
-return
-!=======================================================================
-! SDD(8) Ar- ACT -Bl-
-108 continue
-if (LINELP /= 17) return
-LRA = NLG1
-call SDD_Ar_ACT_Bl_DD_EXT_SGT0(LRA)
-return
-!=======================================================================
-! TT(11-1) (22)Ar(23)-Bl(32)-      IGF=1   ACT -C"-
-! TT(11-1) Ar(23)-Bl(32)-C"(22)-  IGF=1    ACT -C"-
-! TT(11-1) Ar(23)-C'(22)-Bl(32)-  IGF=-1    ACT -C"-
-111 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) goto 1111
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  do LRJ=LRI+1,NORB_DZ
-    call TT1_EXT(LRI,LRJ,NK,1)
-    call Ar_BL_DD_EXT(LRI,LRJ,NK)
-    call TT1_EXT(LRI,LRJ,NK,-1)
-    call Ar_BL_DD_EXT(LRI,LRJ,NK)
-  end do
-end do
-return
-
-1111 continue
-W0TT2 = W0_TT(2)
-W1TT2 = W1_TT(2)
-W0TT3 = W0_TT(3)
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  LMI = LSM_INN(LRI)
-  do LRJ=LRI+1,NORB_DZ
-    LMJ = LSM_INN(LRJ)
-    LMIJ = MUL_TAB(LMI,LMJ)
-    if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
-    ! TT(11-2) (22)Drl(22)-
-    ! TT(11-2) Drl(22)-C"(22)-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TT2
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1TT2
-    end do
-    IWDL = JUST(LRI,LRJ)
-    IWDR = IWDL
-    do MPL=1,MHLP
-      IWAL = LPNEW_LWEI(MPL)
-      IWAR = LPNEW_RWEI(MPL)
-      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-    end do
-    call Drl_DD_EXT(LRI)
-    call Drl_DD_EXT(LRJ)
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TT3
-      VPLP_W1(MPL) = 0.d0
-    end do
-    do LRK=1,NORB_DZ
-      if (LRK == LRI) cycle
-      if (LRK == LRJ) cycle
-      LMK = LSM_INN(LRK)
-      LMKI = MUL_TAB(LMK,LMI)
-      ! TT(11-3) Drl(33)-C"(22)-C"(22)-
-      ! TT(11-3) (22)Drl(33)-C"(22)-
-      ! TT(11-3) (22)(22)Drl(33)-
-      call Drl_DD_EXT(LRK)
-    end do
-  end do
-end do
-return
-!=======================================================================
-! TTTT(12) Drl- ArBl-  ACT -C"-
-112 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) then
-  call TTTT_Drl_ACT_C_DD_EXT_SGT1()
-else
-  call TTTT_ArBl_ACT_C_DD_EXT_SGT1()
-end if
-!=======================================================================
-! T1D1(15) Ar- ACT -Bl-
-115 continue
-if (LINELP /= 17) return
-LRA = NLG1
-call TTDD_Ar_ACT_Bl_DD_EXT_SGT1(LRA)
-return
-!=======================================================================
-! DD(19) ACT -C"- ....................................................
-119 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) goto 1191
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  LMI = LSM_INN(LRI)
-  do LRJ=LRI+1,NORB_DZ
-    LMJ = LSM_INN(LRJ)
-    LMIJ = MUL_TAB(LMI,LMJ)
-    if (LMIJ /= JMLR) cycle
-    W0DD1 = W0_DD(1)
-    W1DD1 = W1_DD(1)
-    NI = mod(LRJ-LRI,2)
-    if (NI == 0) then
-      W0DD1 = -W0DD1
-      W1DD1 = -W1DD1
-    end if
-    if ((LMI == JML) .and. (LMJ == JMR)) then
-      ! DD(19-1) Ar(23)-Bl(32)-      ACT -C"-
-      do MPL=1,MTYPE
-        VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD1
-        VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1DD1
+    ! SS(1)   ACT 14: -C"-
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      if (JB_SYS > 0) then
+        LRA = NLG1
+        call SS_Drl_ACT_C_DD_EXT_SGT0()
+      end if
+      W0SS15 = W0_SS(15)
+      W1SS15 = W1_SS(15)
+      W0SS17 = W0_SS(17)
+      W1SS17 = W1_SS(17)
+      W0SS20 = W0_SS(20)
+      if ((JML == 1) .and. (JMR == 1)) then
+        ! SS(1-20) Drl(33)-C"(00)-       ACT -C"-
+        do LR0=NORB_FRZ+1,NORB_DZ
+          IWDL = JUST(LR0,LR0)
+          IWDR = IWDL
+          do MPL=1,MHLP
+            IWAL = LPNEW_LWEI(MPL)
+            IWAR = LPNEW_RWEI(MPL)
+            LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+            LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+          end do
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
+            VPLP_W1(MPL) = 0.d0
+          end do
+          do LRK=1,NORB_DZ
+            if (LRK == LR0) cycle
+            call Drl_DD_EXT(LRK)
+          end do
+        end do
+      end if
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        LMI = LSM_INN(LRI)
+        do LRJ=LRI+1,NORB_DZ
+          LMJ = LSM_INN(LRJ)
+          LMIJ = MUL_TAB(LMI,LMJ)
+          if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
+          IWDL = JUST(LRI,LRJ)
+          IWDR = IWDL
+          do MPL=1,MHLP
+            IWAL = LPNEW_LWEI(MPL)
+            IWAR = LPNEW_RWEI(MPL)
+            LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+            LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+          end do
+          ! SS(1-15) (22)-Drl(11)-         ACT -C"-
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS15
+            VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS15
+          end do
+          call Drl_DD_EXT(LRJ)
+          ! SS(1-17) Drl(22)-C"(11)-       ACT -C"-
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS17
+            VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS17
+          end do
+          call Drl_DD_EXT(LRI)
+          ! SS(1-20) (22)(11)Drl(33)-      ACT -C"-
+          ! SS(1-20) (22)Drl(33)-C"(11)-   ACT -C"-
+          ! SS(1-20) Drl(33)-C"(22)-C"(11)-ACT -C"-
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
+            VPLP_W1(MPL) = 0.d0
+          end do
+          do LRK=1,NORB_DZ
+            if (LRK == LRI) cycle
+            if (LRK == LRJ) cycle
+            call Drl_DD_EXT(LRK)
+          end do
+        end do
       end do
+    else
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        do LRJ=LRI+1,NORB_DZ
+          call SS2_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,1)
+          call SS4_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,1)
+          call SS5_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,NK)
+          call SS10_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,NK)
+          call SS14_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,NK)
+          !if (JROUTE_SYS > 1) then
+          !  call SS1_EXT(LRI,LRJ)
+          !  call Ar_BL_DD_EXT(LRI,LRJ,1)
+          !  call SS3_EXT(LRI,LRJ)
+          !  call Ar_BL_DD_EXT(LRI,LRJ,1)
+          !end if
+        end do
+      end do
+      if (JB_SYS > 0) then
+        call SS_ArBr_ACT_C_DD_EXT_SGT0()
+        call SS_S_Drl_ACT_C_DD_EXT_SGT0()
+      end if
+    end if
+
+  case (2)
+    !===================================================================
+    ! ST(2)   ACT -C"-
+    !if (JB_SYS > 0) call ST_Drl_ACT_C_DD_EXT()
+    !if (JB_SYS > 0) call ST_ArBl_ACT_C_DD_EXT_SGT0()
+
+    if ((LINELP /= 14) .or. (NLG2 == 1)) return
+    if (JB_SYS > 0) call ST_Drl_ACT_C_DD_EXT_SGT0()
+    if (JB_SYS > 0) call ST_ArBl_ACT_C_DD_EXT_SGT0()
+    do LRI=NORB_FRZ+1,NORB_DZ-1
+      do LRJ=LRI+1,NORB_DZ
+        call ST1_EXT(LRI,LRJ,NK)
+        if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,1)
+        call ST2_EXT(LRI,LRJ,NK)
+        if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,NK)
+        call ST4_EXT(LRI,LRJ,NK,1)
+        if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,NK)
+        call ST4_EXT(LRI,LRJ,NK,-1)
+        if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,NK)
+      end do
+    end do
+
+    do LRI=NORB_FRZ+1,NORB_DZ-1
+      LMI = LSM_INN(LRI)
+      do LRJ=LRI+1,NORB_DZ
+        LMJ = LSM_INN(LRJ)
+        LMIJ = MUL_TAB(LMI,LMJ)
+        if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
+        ! ST(2-5) (22)Drl(12)-          ACT -C"-
+        IWDL = JUST(LRI,LRJ)
+        IWDR = JUST(LRI,LRJ)
+        do MPL=1,MHLP
+          IWAL = LPNEW_LWEI(MPL)
+          IWAR = LPNEW_RWEI(MPL)
+          LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+          LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+        end do
+        do MPL=1,MTYPE
+          VPLP_W0(MPL) = 0.d0
+          VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(5)
+        end do
+        call Drl_DD_EXT(LRJ)
+        ! ST(2-6) Drl(22)-C"(12)-       ACT -C"-
+        do MPL=1,MTYPE
+          VPLP_W0(MPL) = 0.d0
+          VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(6)
+        end do
+        call Drl_DD_EXT(LRI)
+        !---------------------------------------------------------------
+        ! ST(2-3) Ar(13)-C'(22)-Bl(32)-   ACT -C"-
+        ! ST(2-3) Ar(13)-Bl(32)-C'(22)-   ACT -C"-
+        ! ST(2-7) Drl(12)-C"(22)-         ACT -C"-
+        !---------------------------------------------------------------
+      end do
+    end do
+
+  case (3)
+    !===================================================================
+    ! TS(3) D&R^L-  ACT -C"-
+    if ((LINELP /= 14) .or. (NLG2 == 1)) return
+    if (JB_SYS > 0) then
+      call TS_ArBl_ACT_C_DD_EXE_SGT0()
+    end if
+    do LRI=NORB_FRZ+1,NORB_DZ-1
+      do LRJ=LRI+1,NORB_DZ
+        call TS1_EXT(LRI,LRJ,NK)
+        if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,1)
+        call TS2_EXT(LRI,LRJ,NK,1)
+        if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,NK)
+        call TS2_EXT(LRI,LRJ,NK,-1)
+        if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,NK)
+        call TS4_EXT(LRI,LRJ,NK)
+        if (NK /= 0) call Ar_BL_DD_EXT(LRI,LRJ,NK)
+      end do
+    end do
+
+  case (4)
+    !===================================================================
+    ! STT(4) ArBl-  ACT -C"-
+    if ((LINELP /= 14) .or. (NLG2 == 1)) return
+    LRA = NLG1
+    call STT_ArBl_ACT_C_DD_EXT_SGT1()
+
+  case (5)
+    !===================================================================
+    ! TTS(3) ArBl-  ACT -C"-
+    if ((LINELP /= 14) .or. (NLG2 == 1)) return
+    call TTS_ArBl_ACT_C_DD_EXT_SGT1()
+    call TTS_Drl_ACT_C_DD_EXT_SGT1()
+
+  case default ! (6)
+    !===================================================================
+    ! SD(6)    ACT: -B&L-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    if (JB_SYS > 0) then
+      call SD_Ar_ACT_Bl_DD_EXT_SGT0(LRA)
+    end if
+    do LRI=NORB_FRZ+1,NORB_DZ
+      LMI = LSM_INN(LRI)
+      if (LMI /= JMLR) cycle
+      W0SD1 = W0_SD(1)
+      W0SD2 = W0_SD(2)
+      W0SD3 = -W0_SD(3)
+      W0SD4 = -W0_SD(4)
+      NI = mod(NORB_DZ-LRI,2)
+      if (NI == 1) W0SD1 = -W0SD1
+      if (NI == 1) W0SD2 = -W0SD2
+      if (NI == 1) W0SD3 = -W0SD3
+      if (NI == 1) W0SD4 = -W0SD4
+      if ((JML == 1) .and. (LMI == JMR)) then
+        ! SD(6-1) A&r(02)-
+        IWDL = JUST(LRI,LRI)
+        IWDR = JUD(LRI)
+        do MPL=1,MHLP
+          IWAL = LPNEW_LWEI(MPL)
+          IWAR = LPNEW_RWEI(MPL)
+          LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+          LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+        end do
+        do MPL=1,MTYPE
+          VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SD1
+          VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W0SD1
+        end do
+        call Ar_BL_DD_EXT(LRI,LRA,1)
+      end if
+      ! SD(6-2) C(22)-A&r(13)-
+      do LRK=NORB_FRZ+1,LRI-1
+        LMK = LSM_INN(LRK)
+        LMKI = MUL_TAB(LMK,LMI)
+        if ((LMKI == JML) .and. (LMK == JMR)) then
+          IWDL = JUST(LRK,LRI)
+          IWDR = JUD(LRK)
+          do MPL=1,MHLP
+            IWAL = LPNEW_LWEI(MPL)
+            IWAR = LPNEW_RWEI(MPL)
+            LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+            LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+          end do
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SD2
+            VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W0SD2
+          end do
+          call Ar_BL_DD_EXT(LRI,LRA,1)
+        end if
+      end do
+      ! SD(6-4) A&r(23)-C'(12)-
+      do LRK=LRI+1,NORB_DZ
+        LMK = LSM_INN(LRK)
+        LMKI = MUL_TAB(LMK,LMI)
+        if ((LMKI /= JML) .or. (LMK /= JMR)) cycle
+        !......................03_01....................................
+        !if (jroute_sys > 1) then
+        !  ! SD(6-3) A&r(13)-C'(22)-
+        !  IWDL = JUST(LRK,LRI)
+        !  IWDR = JUD(LRK)
+        !  do MPL=1,MHLP
+        !    IWAL = LPNEW_LWEI(MPL)
+        !    IWAR = LPNEW_RWEI(MPL)
+        !    LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+        !    LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+        !  end do
+        !  do MPL=1,MTYPE
+        !    VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SD3
+        !    VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W0SD3
+        !  end do
+        !  call Ar_BL_DD_EXT(LRI,LRA,1)
+        !end if
+        !.......................03_01...................................
+        IWDL = JUST(LRI,LRK)
+        IWDR = JUD(LRK)
+        do MPL=1,MHLP
+          IWAL = LPNEW_LWEI(MPL)
+          IWAR = LPNEW_RWEI(MPL)
+          LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+          LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+        end do
+        do MPL=1,MTYPE
+          VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SD4
+          VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W0SD4
+        end do
+        call Ar_BL_DD_EXT(LRI,LRA,1)
+      end do
+    end do
+
+  case (8)
+    !===================================================================
+    ! SDD(8) Ar- ACT -Bl-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    call SDD_Ar_ACT_Bl_DD_EXT_SGT0(LRA)
+
+  case (11)
+    !===================================================================
+    ! TT(11-1) (22)Ar(23)-Bl(32)-      IGF=1   ACT -C"-
+    ! TT(11-1) Ar(23)-Bl(32)-C"(22)-  IGF=1    ACT -C"-
+    ! TT(11-1) Ar(23)-C'(22)-Bl(32)-  IGF=-1    ACT -C"-
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      W0TT2 = W0_TT(2)
+      W1TT2 = W1_TT(2)
+      W0TT3 = W0_TT(3)
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        LMI = LSM_INN(LRI)
+        do LRJ=LRI+1,NORB_DZ
+          LMJ = LSM_INN(LRJ)
+          LMIJ = MUL_TAB(LMI,LMJ)
+          if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
+          ! TT(11-2) (22)Drl(22)-
+          ! TT(11-2) Drl(22)-C"(22)-
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TT2
+            VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1TT2
+          end do
+          IWDL = JUST(LRI,LRJ)
+          IWDR = IWDL
+          do MPL=1,MHLP
+            IWAL = LPNEW_LWEI(MPL)
+            IWAR = LPNEW_RWEI(MPL)
+            LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+            LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+          end do
+          call Drl_DD_EXT(LRI)
+          call Drl_DD_EXT(LRJ)
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TT3
+            VPLP_W1(MPL) = 0.d0
+          end do
+          do LRK=1,NORB_DZ
+            if (LRK == LRI) cycle
+            if (LRK == LRJ) cycle
+            LMK = LSM_INN(LRK)
+            LMKI = MUL_TAB(LMK,LMI)
+            ! TT(11-3) Drl(33)-C"(22)-C"(22)-
+            ! TT(11-3) (22)Drl(33)-C"(22)-
+            ! TT(11-3) (22)(22)Drl(33)-
+            call Drl_DD_EXT(LRK)
+          end do
+        end do
+      end do
+    else
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        do LRJ=LRI+1,NORB_DZ
+          call TT1_EXT(LRI,LRJ,NK,1)
+          call Ar_BL_DD_EXT(LRI,LRJ,NK)
+          call TT1_EXT(LRI,LRJ,NK,-1)
+          call Ar_BL_DD_EXT(LRI,LRJ,NK)
+        end do
+      end do
+    end if
+
+  case (12)
+    !===================================================================
+    ! TTTT(12) Drl- ArBl-  ACT -C"-
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      call TTTT_Drl_ACT_C_DD_EXT_SGT1()
+    else
+      call TTTT_ArBl_ACT_C_DD_EXT_SGT1()
+    end if
+
+  case (13)
+    !===================================================================
+    ! TD(13) ACT -B&L-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    do LRI=NORB_FRZ+1,NORB_DZ
+      LMI = LSM_INN(LRI)
+      if (LMI /= JMLR) cycle
+      W0TD1 = W0_TD(1)
+      NI = mod(NORB_DZ-LRI,2)
+      if (NI == 1) W0TD1 = -W0TD1
+
+      do LRK=NORB_FRZ+1,LRI-1
+        LMK = LSM_INN(LRK)
+        if (LMK == JMR) then
+          ! TD(13-1) C(22)-A&r(23)-
+          IWDL = JUST(LRK,LRI)
+          IWDR = JUD(LRK)
+          do MPL=1,MHLP
+            IWAL = LPNEW_LWEI(MPL)
+            IWAR = LPNEW_RWEI(MPL)
+            LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+            LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+          end do
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TD1
+            VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W0TD1
+          end do
+          call Ar_BL_DD_EXT(LRI,LRA,1)
+        end if
+      end do
+      do LRK=LRI+1,NORB_DZ
+        LMK = LSM_INN(LRK)
+        if (LMK == JMR) then
+          ! TD(13-1) A&r(23)-C'(22)-
+          IWDL = JUST(LRI,LRK)
+          IWDR = JUD(LRK)
+          do MPL=1,MHLP
+            IWAL = LPNEW_LWEI(MPL)
+            IWAR = LPNEW_RWEI(MPL)
+            LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+            LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+          end do
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = -VPLPNEW_W0(MPL)*W0TD1
+            VPLP_W1(MPL) = -VPLPNEW_W1(MPL)*W0TD1
+          end do
+          call Ar_BL_DD_EXT(LRI,LRA,1)
+        end if
+      end do
+    end do
+
+  case (15)
+    !===================================================================
+    ! T1D1(15) Ar- ACT -Bl-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    call TTDD_Ar_ACT_Bl_DD_EXT_SGT1(LRA)
+
+  case (19)
+    !===================================================================
+    ! DD(19) ACT -C"- ..................................................
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      W0DD2 = W0_DD(2)
+      W1DD2 = W1_DD(2)
+      W0DD3 = W0_DD(3)
+      do LRI=NORB_FRZ+1,NORB_DZ
+        LMI = LSM_INN(LRI)
+        if (LMI /= JML) cycle
+        ! DD(19-2) Drl(22)-
+        do MPL=1,MTYPE
+          VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD2
+          VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1DD2
+        end do
+        IWDL = JUD(LRI)
+        IWDR = IWDL
+        do MPL=1,MHLP
+          IWAL = LPNEW_LWEI(MPL)
+          IWAR = LPNEW_RWEI(MPL)
+          LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+          LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+        end do
+        call Drl_DD_EXT(LRI)
+        do MPL=1,MTYPE
+          VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD3
+          VPLP_W1(MPL) = 0.d0
+        end do
+        ! DD(19-3) (22)Drl(33)-
+        ! DD(19-3) Drl(33)-C"(22)-
+        do LRK=1,NORB_DZ
+          if (LRK == LRI) cycle
+          LMK = LSM_INN(LRK)
+          LMKI = MUL_TAB(LMK,LMI)
+          call Drl_DD_EXT(LRK)
+        end do
+      end do
+    else
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        LMI = LSM_INN(LRI)
+        do LRJ=LRI+1,NORB_DZ
+          LMJ = LSM_INN(LRJ)
+          LMIJ = MUL_TAB(LMI,LMJ)
+          if (LMIJ /= JMLR) cycle
+          W0DD1 = W0_DD(1)
+          W1DD1 = W1_DD(1)
+          NI = mod(LRJ-LRI,2)
+          if (NI == 0) then
+            W0DD1 = -W0DD1
+            W1DD1 = -W1DD1
+          end if
+          if ((LMI == JML) .and. (LMJ == JMR)) then
+            ! DD(19-1) Ar(23)-Bl(32)-      ACT -C"-
+            do MPL=1,MTYPE
+              VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD1
+              VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1DD1
+            end do
+            IWDL = JUD(LRI)
+            IWDR = JUD(LRJ)
+            do MPL=1,MHLP
+              IWAL = LPNEW_LWEI(MPL)
+              IWAR = LPNEW_RWEI(MPL)
+              LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+              LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+            end do
+            call Ar_BL_DD_EXT(LRI,LRJ,1)
+          end if
+        end do
+      end do
+    end if
+
+  case (20)
+    !===================================================================
+    ! DDDD(19) ACT -C"- ................................................
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      call DDDD_Drl_ACT_C_DD_EXT_SGT0()
+    else
+      call DDDD_ArBl_ACT_C_DD_EXT_SGT0()
+    end if
+
+  case (21)
+    !===================================================================
+    ! DD1(19) ACT -C"- .................................................
+    if ((LINELP /= 14) .or. (NLG2 /= 2)) return
+    call DD1_ArBl_ACT_C_DD_EXT_SGT0()
+
+  case (22)
+    !===================================================================
+    ! D1D(19) ACT -C"- .................................................
+    if (LINELP /= 14) return
+    !if (NLG2 == 1) then
+    call D1D_Drl_ACT_C_DD_EXT_SGT0()
+    !else
+    call D1D_ArBl_ACT_C_DD_EXT_SGT0()
+    !end if
+
+  case (23)
+    !===================================================================
+    ! DV(23) ACT -C'-..................................................
+    if (LINELP /= 17) return
+    LRA = NLG1
+    do LRI=NORB_FRZ+1,NORB_DZ
+      LMI = LSM_INN(LRI)
+      if (LMI /= JMLR) cycle
+      W0DV1 = W0_DV(1)
+      NI = mod(NORB_DZ-LRI,2)
+      if (NI == 1) W0DV1 = -W0DV1
+      ! DV(23-1) A&r(23)-
       IWDL = JUD(LRI)
-      IWDR = JUD(LRJ)
+      IWDR = 0
       do MPL=1,MHLP
         IWAL = LPNEW_LWEI(MPL)
         IWAR = LPNEW_RWEI(MPL)
         LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
         LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
       end do
-      call Ar_BL_DD_EXT(LRI,LRJ,1)
-    end if
-  end do
-end do
-return
+      do MPL=1,MTYPE
+        VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DV1
+        VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W0DV1
+      end do
+      call Ar_BL_DD_EXT(LRI,LRA,1)
+    end do
 
-1191 continue
-W0DD2 = W0_DD(2)
-W1DD2 = W1_DD(2)
-W0DD3 = W0_DD(3)
-do LRI=NORB_FRZ+1,NORB_DZ
-  LMI = LSM_INN(LRI)
-  if (LMI /= JML) cycle
-  ! DD(19-2) Drl(22)-
-  do MPL=1,MTYPE
-    VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD2
-    VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1DD2
-  end do
-  IWDL = JUD(LRI)
-  IWDR = IWDL
-  do MPL=1,MHLP
-    IWAL = LPNEW_LWEI(MPL)
-    IWAR = LPNEW_RWEI(MPL)
-    LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-    LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-  end do
-  call Drl_DD_EXT(LRI)
-  do MPL=1,MTYPE
-    VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD3
-    VPLP_W1(MPL) = 0.d0
-  end do
-  ! DD(19-3) (22)Drl(33)-
-  ! DD(19-3) Drl(33)-C"(22)-
-  do LRK=1,NORB_DZ
-    if (LRK == LRI) cycle
-    LMK = LSM_INN(LRK)
-    LMKI = MUL_TAB(LMK,LMI)
-    call Drl_DD_EXT(LRK)
-  end do
-end do
-goto 10
-!=======================================================================
-! DDDD(19) ACT -C"- ....................................................
-120 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) then
-  call DDDD_Drl_ACT_C_DD_EXT_SGT0()
-else
-  call DDDD_ArBl_ACT_C_DD_EXT_SGT0()
-end if
-return
-!=======================================================================
-! DD1(19) ACT -C"- ....................................................
-121 continue
-if ((LINELP /= 14) .or. (NLG2 /= 2)) return
-call DD1_ArBl_ACT_C_DD_EXT_SGT0()
-return
-!=======================================================================
-! D1D(19) ACT -C"- ....................................................
-122 continue
-if (LINELP /= 14) return
-!if (NLG2 == 1) then
-call D1D_Drl_ACT_C_DD_EXT_SGT0()
-!else
-call D1D_ArBl_ACT_C_DD_EXT_SGT0()
-!end if
-return
-!=======================================================================
-! D1V(24) Ar- ACT -Bl-..................................................
-124 continue
-if (LINELP /= 17) return
-LRA = NLG1
-call D1V_Ar_ACT_Bl_DD_EXT_SGT0(LRA)
-return
-!=======================================================================
-! VV(25) ACT -BL- ....................................................
-125 continue
-if ((LINELP /= 14) .or. (NLG2 /= 1)) return
-! VV(25) Drl(33)-
-IWDL = 0
-IWDR = 0
-do MPL=1,MTYPE
-  VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0_VV
-  VPLP_W1(MPL) = 0.d0
-end do
-do MPL=1,MHLP
-  IWAL = LPNEW_LWEI(MPL)
-  IWAR = LPNEW_RWEI(MPL)
-  LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-  LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-end do
-do LRK=1,NORB_DZ
-  call Drl_DD_EXT(LRK)
-end do
-goto 10
-!=======================================================================
-10 continue
+  case (24)
+    !===================================================================
+    ! D1V(24) Ar- ACT -Bl-..............................................
+    if (LINELP /= 17) return
+    LRA = NLG1
+    call D1V_Ar_ACT_Bl_DD_EXT_SGT0(LRA)
+
+  case (25)
+    !===================================================================
+    ! VV(25) ACT -BL- ..................................................
+    if ((LINELP /= 14) .or. (NLG2 /= 1)) return
+    ! VV(25) Drl(33)-
+    IWDL = 0
+    IWDR = 0
+    do MPL=1,MTYPE
+      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0_VV
+      VPLP_W1(MPL) = 0.d0
+    end do
+    do MPL=1,MHLP
+      IWAL = LPNEW_LWEI(MPL)
+      IWAR = LPNEW_RWEI(MPL)
+      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+    end do
+    do LRK=1,NORB_DZ
+      call Drl_DD_EXT(LRK)
+    end do
+
+  case (7,9:10,14,16:18,26)
+end select
 
 return
 
@@ -720,403 +718,400 @@ subroutine ss_ext_head_in_dbl()
 LOGIC_DH = .true.
 JMLR = MUL_TAB(JML,JMR)
 LPOK = JPADLR
-goto(101,102,10,104,105,106,10,108,10,10,111,112,113,10,115,10,10,10,119,120,121,122,123,124,125,10),LPOK
-!=======================================================================
-! SD(6-1) ACT -B&L-
-106 continue
-if (LINELP /= 17) return
-LRA = NLG1
-call SD_AR_ACT_BL(1,LRA)
-if (JB_SYS > 0) call SD_AR_ACT_BL_SGT0(1,LRA)
-goto 10
-!=======================================================================
-! TD(13) ACT -BL-
-113 continue
-if (LINELP /= 17) return
-LRA = NLG1
-call TD_AR_ACT_BL(1,LRA)
-return
-!=======================================================================
-! DV(23) ACT -C'-..................................................
-123 continue
-if (LINELP /= 17) return
-LRA = NLG1
-do LRI=NORB_FRZ+1,NORB_DZ
-  LMI = LSM_INN(LRI)
-  if (LMI /= JMLR) cycle
-  W0DV1 = W0_DV(1)
-  NI = mod(NORB_DZ-LRI,2)
-  if (NI == 1) W0DV1 = -W0DV1
-  ! DV(23-1) A&r(23)-
-  IWDL = JUD(LRI)
-  IWDR = 0
-  do MPL=1,MHLP
-    IWAL = LPNEW_LWEI(MPL)
-    IWAR = LPNEW_RWEI(MPL)
-    LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-    LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-  end do
-  do MPL=1,MTYPE
-    VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DV1
-  end do
-  call Ar_BL_EXT_SS(LRI,LRA,1)
-end do
-goto 10
-!=======================================================================
-! SS(1)   ACT -C"-
-!-----------------------------------------------------------------------
-! SS(1-1)  Ar(01)-Bl(32)-        ACT -C"-
-! SS(1-3)  Ar(13)-Bl(20)-        ACT -C"-
-! SS(1-6)  (11)-Ar(23)-Bl(32)-   ACT -C"-
-! SS(1-7)  Ar(13)-C'(21)-Bl(32)- ACT -C"-
-! SS(1-8)  Ar(13)-C'(22)-Bl(31)- ACT -C"-
-! SS(1-9)  Ar(23)-C'(11)-Bl(32)- ACT -C"-
-! SS(1-11) Ar(13)-Bl(31)-C"(22)- ACT -C"-
-! SS(1-12) Ar(13)-Bl(32)-C"(21)- ACT -C"-
-! SS(1-13) Ar(23)-Bl(31)-C"(12)- ACT -C"-
-! SS(1-16) (11)-Drl(22)-         ACT -C"-
-! SS(1-18) Drl(11)-C"(22)-       ACT -C"-
-! SS(1-19) Drl(12)-C"(21)-       ACT -C"-
-! SS(1-20) (11)-Drl(33)-C"(22)-  ACT -C"-
-! SS(1-20) Drl(33)-C"(11)-C"(22)-ACT -C"-
-!-----------------------------------------------------------------------
-! SS(1)   ACT 14: -C"-
-101 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) goto 1011
-if (JB_SYS > 0) then
-  call SS_ArBl_ACT_C_EXT_AB_SGT0(1)
-  call SS_S_Drl_ACT_C_EXT_AB_SGT0(1)
-end if
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  do LRJ=LRI+1,NORB_DZ
-    call SS2_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_SS(LRI,LRJ,1)
-    call SS4_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_SS(LRI,LRJ,1)
-    call SS5_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_SS(LRI,LRJ,NK)
-    call SS10_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_SS(LRI,LRJ,NK)
-    call SS14_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_SS(LRI,LRJ,NK)
-  end do
-end do
-return
-
-1011 continue
-if (JB_SYS > 0) call SS_Drl_ACT_C_EXT_AB_SGT0(1)
-W0SS15 = W0_SS(15)
-W1SS15 = W1_SS(15)
-W0SS17 = W0_SS(17)
-W1SS17 = W1_SS(17)
-W0SS20 = W0_SS(20)
-if ((JML == 1) .and. (JMR == 1)) then
-  ! SS(1-20) Drl(33)-C"(00)-       ACT -C"-                  ! IPL(R)AD=
-  do LR0=NORB_FRZ+1,NORB_DZ
-    IWDL = JUST(LR0,LR0)
-    IWDR = IWDL
-    do MPL=1,MHLP
-      IWAL = LPNEW_LWEI(MPL)
-      IWAR = LPNEW_RWEI(MPL)
-      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-    end do
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
-      VPLP_W1(MPL) = 0.d0
-    end do
-    call Drl_SS_SUM(LR0,0)
-  end do
-end if
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  LMI = LSM_INN(LRI)
-  do LRJ=LRI+1,NORB_DZ
-    LMJ = LSM_INN(LRJ)
-    LMIJ = MUL_TAB(LMI,LMJ)
-    if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
-    IWDL = JUST(LRI,LRJ)
-    IWDR = IWDL
-    do MPL=1,MHLP
-      IWAL = LPNEW_LWEI(MPL)
-      IWAR = LPNEW_RWEI(MPL)
-      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-    end do
-    ! SS(1-15) (22)-Drl(11)-         ACT -C"-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS15
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS15
-    end do
-    call Drl_SS_EXT(LRJ)
-    ! SS(1-17) Drl(22)-C"(11)-       ACT -C"-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS17
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS17
-    end do
-    call Drl_SS_EXT(LRI)
-    ! SS(1-20) (22)(11)Drl(33)-      ACT -C"-
-    ! SS(1-20) (22)Drl(33)-C"(11)-   ACT -C"-
-    ! SS(1-20) Drl(33)-C"(22)-C"(11)-ACT -C"-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
-      VPLP_W1(MPL) = 0.d0
-    end do
-    call Drl_SS_SUM(LRI,LRJ)
-  end do
-end do
-return
-! ST(2)   ACT -C"-
-102 continue
-if ((LINELP /= 14) .or. (NLG2 == 1)) return
-if (JB_SYS > 0) call ST_Drl_ACT_C_EXT_AB_SGT0(1)
-if (JB_SYS > 0) call ST_ArBl_ACT_C_EXT_AB_SGT0(1)
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  LMI = LSM_INN(LRI)
-  do LRJ=LRI+1,NORB_DZ
-    LMJ = LSM_INN(LRJ)
-    LMIJ = MUL_TAB(LMI,LMJ)
-    if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
-    ! ST(2-5) (22)Drl(12)-          ACT -C"-
-    IWDL = JUST(LRI,LRJ)
-    IWDR = IWDL
-    do MPL=1,MHLP
-      IWAL = LPNEW_LWEI(MPL)
-      IWAR = LPNEW_RWEI(MPL)
-      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-    end do
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = 0.d0
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(5)
-    end do
-    call Drl_SS_EXT(LRJ)
-    ! ST(2-6) Drl(22)-C"(12)-       ACT -C"-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = 0.d0
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(6)
-    end do
-    call Drl_SS_EXT(LRI)
+select case (LPOK)
+  case (1)
+    !===================================================================
+    ! SS(1)   ACT -C"-
     !-------------------------------------------------------------------
-    ! ST(2-3) Ar(13)-C'(22)-Bl(32)-   ACT -C"-
-    ! ST(2-3) Ar(13)-Bl(32)-C'(22)-   ACT -C"-
-    ! ST(2-7) Drl(12)-C"(22)-         ACT -C"-
+    ! SS(1-1)  Ar(01)-Bl(32)-        ACT -C"-
+    ! SS(1-3)  Ar(13)-Bl(20)-        ACT -C"-
+    ! SS(1-6)  (11)-Ar(23)-Bl(32)-   ACT -C"-
+    ! SS(1-7)  Ar(13)-C'(21)-Bl(32)- ACT -C"-
+    ! SS(1-8)  Ar(13)-C'(22)-Bl(31)- ACT -C"-
+    ! SS(1-9)  Ar(23)-C'(11)-Bl(32)- ACT -C"-
+    ! SS(1-11) Ar(13)-Bl(31)-C"(22)- ACT -C"-
+    ! SS(1-12) Ar(13)-Bl(32)-C"(21)- ACT -C"-
+    ! SS(1-13) Ar(23)-Bl(31)-C"(12)- ACT -C"-
+    ! SS(1-16) (11)-Drl(22)-         ACT -C"-
+    ! SS(1-18) Drl(11)-C"(22)-       ACT -C"-
+    ! SS(1-19) Drl(12)-C"(21)-       ACT -C"-
+    ! SS(1-20) (11)-Drl(33)-C"(22)-  ACT -C"-
+    ! SS(1-20) Drl(33)-C"(11)-C"(22)-ACT -C"-
     !-------------------------------------------------------------------
-  end do
-end do
-goto 10
-!=======================================================================
-! TS(3)   ACT -C"-  no used
-!=======================================================================
-! ST1(4) Ar-Bl- Drl- ACT -C"-
-104 continue
-if ((LINELP /= 14) .or. (nlg2 /= 2)) return
-call STT_ArBl_ACT_C_EXT_AB_SGT1(1)
-return
-!=======================================================================
-! T1S(5) Ar-Bl- Drl ACT -C"-
-105 continue
-if ((LINELP /= 14) .or. (NLG2 /= 2)) return
-call TTS_Drl_ACT_C_EXT_AB_SGT1(1)
-call TTS_ArBl_ACT_C_EXT_AB_SGT1(1)
-return
-!=======================================================================
-! SD1(8) Ar ACT -Bl-
-108 continue
-if (LINELP /= 17) return
-LRA = NLG1
-if (JB_SYS > 0) call SDD_AR_ACT_BL_SGT0(1,LRA)
-return
-!=======================================================================
-! TTTT(12) Ar-Bl- Drl- ACT -C"-
-112 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) then
-  call TTTT_Drl_ACT_C_EXT_AB_SGT0(1)
-else
-  call TTTT_ArBl_ACT_C_EXT_AB_SGT0(1)
-end if
-return
-!=======================================================================
-! T1D1(15) Ar- ACT -Bl-
-115 continue
-if (LINELP /= 17) return
-LRA = NLG1
-call TTDD_AR_ACT_BL_SGT1(1,LRA)
-return
-!=======================================================================
-! D1D1(20) Drl- Ar-Bl- ACT -C"-
-120 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) then
-  call D1D1_Drl_ACT_C_EXT_AB_SGT0(1)
-else
-  call D1D1_ArBl_ACT_C_EXT_AB_SGT0(1)
-end if
-return
-!=======================================================================
-! DD1(21) Ar-Bl- ACT -C"-
-121 continue
-if ((LINELP /= 14) .or. (nlg2 /= 2)) return
-call DD1_ArBl_ACT_C_EXT_AB_SGT0(1)
-return
-!=======================================================================
-! D1D(22) Ar-Bl- Drl- ACT -C"-
-122 continue
-if ((LINELP /= 14) .or. (nlg2 /= 2)) return
-call D1D_ArBl_ACT_C_EXT_AB_SGT0(1)
-call D1D_Drl_ACT_C_EXT_AB_SGT0(1)
-return
-!=======================================================================
-! D1V(24) Ar- ACT -Bl-
-124 continue
-if (LINELP /= 17) return
-LRA = NLG1
-call D1V_Ar_ACT_Bl_EXT_AB_SGT0(1,LRA)
-return
-!=======================================================================
-! TT(11) AR-BL   ACT -C"-
-111 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) goto 1111
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  do LRJ=LRI+1,NORB_DZ
-    call TT1_EXT(LRI,LRJ,NK,1)
-    if (NK /= 0) call AR_BL_EXT_SS(LRI,LRJ,NK)
-    call TT1_EXT(LRI,LRJ,NK,-1)
-    if (NK /= 0) call AR_BL_EXT_SS(LRI,LRJ,NK)
-  end do
-end do
-return
-
-1111 continue
-W0TT2 = W0_TT(2)
-W1TT2 = W1_TT(2)
-W0TT3 = W0_TT(3)
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  LMI = LSM_INN(LRI)
-  do LRJ=LRI+1,NORB_DZ
-    LMJ = LSM_INN(LRJ)
-    LMIJ = MUL_TAB(LMI,LMJ)
-    if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
-    ! TT(11-2) (22)Drl(22)-
-    ! TT(11-2) Drl(22)-C"(22)-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TT2
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1TT2
-    end do
-    IWDL = JUST(LRI,LRJ)
-    IWDR = IWDL
-    do MPL=1,MHLP
-      IWAL = LPNEW_LWEI(MPL)
-      IWAR = LPNEW_RWEI(MPL)
-      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-    end do
-    call Drl_SS_EXT(LRI)
-    call Drl_SS_EXT(LRJ)
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TT3
-      VPLP_W1(MPL) = 0.d0
-    end do
-    ! TT(11-3) Drl(33)-C"(22)-C"(22)-
-    ! TT(11-3) (22)Drl(33)-C"(22)-
-    ! TT(11-3) (22)(22)Drl(33)-
-    call Drl_SS_SUM(LRI,LRJ)
-  end do
-end do
-return
-!=======================================================================
-! DD(19) ACT -C"- ....................................................
-119 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) goto 1191
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  LMI = LSM_INN(LRI)
-  do LRJ=LRI+1,NORB_DZ
-    LMJ = LSM_INN(LRJ)
-    LMIJ = MUL_TAB(LMI,LMJ)
-    if (LMIJ /= JMLR) cycle
-    W0DD1 = W0_DD(1)
-    W1DD1 = W1_DD(1)
-    NI = mod(LRJ-LRI,2)
-    if (NI == 0) then
-      W0DD1 = -W0DD1
-      W1DD1 = -W1DD1
-    end if
-    if ((LMI == JML) .and. (LMJ == JMR)) then
-      ! DD(19-1) Ar(23)-Bl(32)-      ACT -C"-
-      do MPL=1,MTYPE
-        VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD1
+    ! SS(1)   ACT 14: -C"-
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      if (JB_SYS > 0) call SS_Drl_ACT_C_EXT_AB_SGT0(1)
+      W0SS15 = W0_SS(15)
+      W1SS15 = W1_SS(15)
+      W0SS17 = W0_SS(17)
+      W1SS17 = W1_SS(17)
+      W0SS20 = W0_SS(20)
+      if ((JML == 1) .and. (JMR == 1)) then
+        ! SS(1-20) Drl(33)-C"(00)-       ACT -C"-                  ! IPL(R)AD=
+        do LR0=NORB_FRZ+1,NORB_DZ
+          IWDL = JUST(LR0,LR0)
+          IWDR = IWDL
+          do MPL=1,MHLP
+            IWAL = LPNEW_LWEI(MPL)
+            IWAR = LPNEW_RWEI(MPL)
+            LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+            LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+          end do
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
+            VPLP_W1(MPL) = 0.d0
+          end do
+          call Drl_SS_SUM(LR0,0)
+        end do
+      end if
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        LMI = LSM_INN(LRI)
+        do LRJ=LRI+1,NORB_DZ
+          LMJ = LSM_INN(LRJ)
+          LMIJ = MUL_TAB(LMI,LMJ)
+          if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
+          IWDL = JUST(LRI,LRJ)
+          IWDR = IWDL
+          do MPL=1,MHLP
+            IWAL = LPNEW_LWEI(MPL)
+            IWAR = LPNEW_RWEI(MPL)
+            LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+            LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+          end do
+          ! SS(1-15) (22)-Drl(11)-         ACT -C"-
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS15
+            VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS15
+          end do
+          call Drl_SS_EXT(LRJ)
+          ! SS(1-17) Drl(22)-C"(11)-       ACT -C"-
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS17
+            VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS17
+          end do
+          call Drl_SS_EXT(LRI)
+          ! SS(1-20) (22)(11)Drl(33)-      ACT -C"-
+          ! SS(1-20) (22)Drl(33)-C"(11)-   ACT -C"-
+          ! SS(1-20) Drl(33)-C"(22)-C"(11)-ACT -C"-
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
+            VPLP_W1(MPL) = 0.d0
+          end do
+          call Drl_SS_SUM(LRI,LRJ)
+        end do
       end do
+    else
+      if (JB_SYS > 0) then
+        call SS_ArBl_ACT_C_EXT_AB_SGT0(1)
+        call SS_S_Drl_ACT_C_EXT_AB_SGT0(1)
+      end if
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        do LRJ=LRI+1,NORB_DZ
+          call SS2_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call Ar_BL_EXT_SS(LRI,LRJ,1)
+          call SS4_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call Ar_BL_EXT_SS(LRI,LRJ,1)
+          call SS5_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call Ar_BL_EXT_SS(LRI,LRJ,NK)
+          call SS10_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call Ar_BL_EXT_SS(LRI,LRJ,NK)
+          call SS14_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call Ar_BL_EXT_SS(LRI,LRJ,NK)
+        end do
+      end do
+    end if
+
+  case (2)
+    ! ST(2)   ACT -C"-
+    if ((LINELP /= 14) .or. (NLG2 == 1)) return
+    if (JB_SYS > 0) call ST_Drl_ACT_C_EXT_AB_SGT0(1)
+    if (JB_SYS > 0) call ST_ArBl_ACT_C_EXT_AB_SGT0(1)
+    do LRI=NORB_FRZ+1,NORB_DZ-1
+      LMI = LSM_INN(LRI)
+      do LRJ=LRI+1,NORB_DZ
+        LMJ = LSM_INN(LRJ)
+        LMIJ = MUL_TAB(LMI,LMJ)
+        if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
+        ! ST(2-5) (22)Drl(12)-          ACT -C"-
+        IWDL = JUST(LRI,LRJ)
+        IWDR = IWDL
+        do MPL=1,MHLP
+          IWAL = LPNEW_LWEI(MPL)
+          IWAR = LPNEW_RWEI(MPL)
+          LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+          LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+        end do
+        do MPL=1,MTYPE
+          VPLP_W0(MPL) = 0.d0
+          VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(5)
+        end do
+        call Drl_SS_EXT(LRJ)
+        ! ST(2-6) Drl(22)-C"(12)-       ACT -C"-
+        do MPL=1,MTYPE
+          VPLP_W0(MPL) = 0.d0
+          VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(6)
+        end do
+        call Drl_SS_EXT(LRI)
+        !---------------------------------------------------------------
+        ! ST(2-3) Ar(13)-C'(22)-Bl(32)-   ACT -C"-
+        ! ST(2-3) Ar(13)-Bl(32)-C'(22)-   ACT -C"-
+        ! ST(2-7) Drl(12)-C"(22)-         ACT -C"-
+        !---------------------------------------------------------------
+      end do
+    end do
+
+  case (4)
+    !===================================================================
+    ! TS(3)   ACT -C"-  no used
+    !===================================================================
+    ! ST1(4) Ar-Bl- Drl- ACT -C"-
+    if ((LINELP /= 14) .or. (nlg2 /= 2)) return
+    call STT_ArBl_ACT_C_EXT_AB_SGT1(1)
+
+  case (5)
+    !===================================================================
+    ! T1S(5) Ar-Bl- Drl ACT -C"-
+    if ((LINELP /= 14) .or. (NLG2 /= 2)) return
+    call TTS_Drl_ACT_C_EXT_AB_SGT1(1)
+    call TTS_ArBl_ACT_C_EXT_AB_SGT1(1)
+
+  case default ! (6)
+    !===================================================================
+    ! SD(6-1) ACT -B&L-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    call SD_AR_ACT_BL(1,LRA)
+    if (JB_SYS > 0) call SD_AR_ACT_BL_SGT0(1,LRA)
+
+  case (8)
+    !===================================================================
+    ! SD1(8) Ar ACT -Bl-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    if (JB_SYS > 0) call SDD_AR_ACT_BL_SGT0(1,LRA)
+
+  case (11)
+    !===================================================================
+    ! TT(11) AR-BL   ACT -C"-
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      W0TT2 = W0_TT(2)
+      W1TT2 = W1_TT(2)
+      W0TT3 = W0_TT(3)
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        LMI = LSM_INN(LRI)
+        do LRJ=LRI+1,NORB_DZ
+          LMJ = LSM_INN(LRJ)
+          LMIJ = MUL_TAB(LMI,LMJ)
+          if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
+          ! TT(11-2) (22)Drl(22)-
+          ! TT(11-2) Drl(22)-C"(22)-
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TT2
+            VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1TT2
+          end do
+          IWDL = JUST(LRI,LRJ)
+          IWDR = IWDL
+          do MPL=1,MHLP
+            IWAL = LPNEW_LWEI(MPL)
+            IWAR = LPNEW_RWEI(MPL)
+            LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+            LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+          end do
+          call Drl_SS_EXT(LRI)
+          call Drl_SS_EXT(LRJ)
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TT3
+            VPLP_W1(MPL) = 0.d0
+          end do
+          ! TT(11-3) Drl(33)-C"(22)-C"(22)-
+          ! TT(11-3) (22)Drl(33)-C"(22)-
+          ! TT(11-3) (22)(22)Drl(33)-
+          call Drl_SS_SUM(LRI,LRJ)
+        end do
+      end do
+    else
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        do LRJ=LRI+1,NORB_DZ
+          call TT1_EXT(LRI,LRJ,NK,1)
+          if (NK /= 0) call AR_BL_EXT_SS(LRI,LRJ,NK)
+          call TT1_EXT(LRI,LRJ,NK,-1)
+          if (NK /= 0) call AR_BL_EXT_SS(LRI,LRJ,NK)
+        end do
+      end do
+    end if
+
+  case (12)
+    !===================================================================
+    ! TTTT(12) Ar-Bl- Drl- ACT -C"-
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      call TTTT_Drl_ACT_C_EXT_AB_SGT0(1)
+    else
+      call TTTT_ArBl_ACT_C_EXT_AB_SGT0(1)
+    end if
+
+  case (13)
+    !===================================================================
+    ! TD(13) ACT -BL-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    call TD_AR_ACT_BL(1,LRA)
+
+  case (15)
+    !===================================================================
+    ! T1D1(15) Ar- ACT -Bl-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    call TTDD_AR_ACT_BL_SGT1(1,LRA)
+
+  case (19)
+    !===================================================================
+    ! DD(19) ACT -C"- ..................................................
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      W0DD2 = W0_DD(2)
+      W1DD2 = W1_DD(2)
+      W0DD3 = W0_DD(3)
+      do LRI=NORB_FRZ+1,NORB_DZ
+        LMI = LSM_INN(LRI)
+        if (LMI /= JML) cycle
+        ! DD(19-2) Drl(22)-
+        do MPL=1,MTYPE
+          VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD2
+          VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1DD2
+        end do
+        IWDL = JUD(LRI)
+        IWDR = IWDL
+        do MPL=1,MHLP
+          IWAL = LPNEW_LWEI(MPL)
+          IWAR = LPNEW_RWEI(MPL)
+          LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+          LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+        end do
+        call Drl_SS_EXT(LRI)
+        do MPL=1,MTYPE
+          VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD3
+          VPLP_W1(MPL) = 0.d0
+        end do
+        ! DD(19-3) (22)Drl(33)-
+        ! DD(19-3) Drl(33)-C"(22)-
+        call Drl_SS_SUM(LRI,0)
+      end do
+    else
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        LMI = LSM_INN(LRI)
+        do LRJ=LRI+1,NORB_DZ
+          LMJ = LSM_INN(LRJ)
+          LMIJ = MUL_TAB(LMI,LMJ)
+          if (LMIJ /= JMLR) cycle
+          W0DD1 = W0_DD(1)
+          W1DD1 = W1_DD(1)
+          NI = mod(LRJ-LRI,2)
+          if (NI == 0) then
+            W0DD1 = -W0DD1
+            W1DD1 = -W1DD1
+          end if
+          if ((LMI == JML) .and. (LMJ == JMR)) then
+            ! DD(19-1) Ar(23)-Bl(32)-      ACT -C"-
+            do MPL=1,MTYPE
+              VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD1
+            end do
+            IWDL = JUD(LRI)
+            IWDR = JUD(LRJ)
+            do MPL=1,MHLP
+              IWAL = LPNEW_LWEI(MPL)
+              IWAR = LPNEW_RWEI(MPL)
+              LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+              LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+            end do
+            call Ar_BL_EXT_SS(LRI,LRJ,1)
+          end if
+        end do
+      end do
+    end if
+
+  case (20)
+    !===================================================================
+    ! D1D1(20) Drl- Ar-Bl- ACT -C"-
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      call D1D1_Drl_ACT_C_EXT_AB_SGT0(1)
+    else
+      call D1D1_ArBl_ACT_C_EXT_AB_SGT0(1)
+    end if
+
+  case (21)
+    !===================================================================
+    ! DD1(21) Ar-Bl- ACT -C"-
+    if ((LINELP /= 14) .or. (nlg2 /= 2)) return
+    call DD1_ArBl_ACT_C_EXT_AB_SGT0(1)
+
+  case (22)
+    !===================================================================
+    ! D1D(22) Ar-Bl- Drl- ACT -C"-
+    if ((LINELP /= 14) .or. (nlg2 /= 2)) return
+    call D1D_ArBl_ACT_C_EXT_AB_SGT0(1)
+    call D1D_Drl_ACT_C_EXT_AB_SGT0(1)
+
+  case (23)
+    !===================================================================
+    ! DV(23) ACT -C'-..................................................
+    if (LINELP /= 17) return
+    LRA = NLG1
+    do LRI=NORB_FRZ+1,NORB_DZ
+      LMI = LSM_INN(LRI)
+      if (LMI /= JMLR) cycle
+      W0DV1 = W0_DV(1)
+      NI = mod(NORB_DZ-LRI,2)
+      if (NI == 1) W0DV1 = -W0DV1
+      ! DV(23-1) A&r(23)-
       IWDL = JUD(LRI)
-      IWDR = JUD(LRJ)
+      IWDR = 0
       do MPL=1,MHLP
         IWAL = LPNEW_LWEI(MPL)
         IWAR = LPNEW_RWEI(MPL)
         LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
         LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
       end do
-      call Ar_BL_EXT_SS(LRI,LRJ,1)
-    end if
-  end do
-end do
-return
+      do MPL=1,MTYPE
+        VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DV1
+      end do
+      call Ar_BL_EXT_SS(LRI,LRA,1)
+    end do
 
-1191 continue
-W0DD2 = W0_DD(2)
-W1DD2 = W1_DD(2)
-W0DD3 = W0_DD(3)
-do LRI=NORB_FRZ+1,NORB_DZ
-  LMI = LSM_INN(LRI)
-  if (LMI /= JML) cycle
-  ! DD(19-2) Drl(22)-
-  do MPL=1,MTYPE
-    VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD2
-    VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1DD2
-  end do
-  IWDL = JUD(LRI)
-  IWDR = IWDL
-  do MPL=1,MHLP
-    IWAL = LPNEW_LWEI(MPL)
-    IWAR = LPNEW_RWEI(MPL)
-    LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-    LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-  end do
-  call Drl_SS_EXT(LRI)
-  do MPL=1,MTYPE
-    VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD3
-    VPLP_W1(MPL) = 0.d0
-  end do
-  ! DD(19-3) (22)Drl(33)-
-  ! DD(19-3) Drl(33)-C"(22)-
-  call Drl_SS_SUM(LRI,0)
-end do
-goto 10
-!=======================================================================
-! VV(25) ACT -C"- .false.
-125 continue
-if ((LINELP /= 14) .or. (NLG2 /= 1)) return
-!VV(25) Drl(33)-
-IWDL = 0
-IWDR = 0
-do MPL=1,MTYPE
-  VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0_VV
-  VPLP_W1(MPL) = 0.d0
-end do
-do MPL=1,MHLP
-  IWAL = LPNEW_LWEI(MPL)
-  IWAR = LPNEW_RWEI(MPL)
-  LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-  LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-end do
-call Drl_SS_SUM(0,0)
-!do lrk=1,norb_dz
-!  call Drl_ss_ext(lrk)
-!end do
-goto 10
-!=======================================================================
-10 continue
+  case (24)
+    !===================================================================
+    ! D1V(24) Ar- ACT -Bl-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    call D1V_Ar_ACT_Bl_EXT_AB_SGT0(1,LRA)
+
+  case (25)
+    !===================================================================
+    ! VV(25) ACT -C"- .false.
+    if ((LINELP /= 14) .or. (NLG2 /= 1)) return
+    !VV(25) Drl(33)-
+    IWDL = 0
+    IWDR = 0
+    do MPL=1,MTYPE
+      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0_VV
+      VPLP_W1(MPL) = 0.d0
+    end do
+    do MPL=1,MHLP
+      IWAL = LPNEW_LWEI(MPL)
+      IWAR = LPNEW_RWEI(MPL)
+      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+    end do
+    call Drl_SS_SUM(0,0)
+    !do lrk=1,norb_dz
+    !  call Drl_ss_ext(lrk)
+    !end do
+
+  case (3,7,9:10,14,16:18,26)
+end select
 
 return
 
@@ -1189,388 +1184,384 @@ subroutine st_ext_head_in_dbl()
 LOGIC_DH = .true.
 JMLR = MUL_TAB(JML,JMR)
 LPOK = JPADLR
-!goto(101,102,103,10,10,106,10,10,10,10,111,10,113,10,10,10,10,10,119,10,10,10,123,10,125,10),LPOK
-goto(101,102,103,104,105,106,10,108,10,10,111,112,113,10,115,10,10,10,119,120,121,122,123,124,125,10),LPOK
-!=======================================================================
-! SD(6-1) ACT -B&L-
-106 continue
-if (LINELP /= 17) return
-LRA = NLG1
-call SD_AR_ACT_BL(2,LRA)
-if (JB_SYS > 0) call SD_AR_ACT_BL_SGT0(2,LRA)
-goto 10
-!=======================================================================
-! TD(13) ACT -BL-
-113 continue
-if (LINELP /= 17) return
-LRA = NLG1
-call TD_AR_ACT_BL(2,LRA)
-return
-!=======================================================================
-! DV(23) ACT -C'-..................................................
-123 continue
-if (LINELP /= 17) return
-LRA = NLG1
-do LRI=NORB_FRZ+1,NORB_DZ
-  LMI = LSM_INN(LRI)
-  if (LMI /= JMLR) cycle
-  W0DV1 = W0_DV(1)
-  NI = mod(NORB_DZ-LRI,2)
-  if (NI == 1) W0DV1 = -W0DV1
-  ! DV(23-1) A&r(23)-
-  IWDL = JUD(LRI)
-  IWDR = 0
-  do MPL=1,MHLP
-    IWAL = LPNEW_LWEI(MPL)
-    IWAR = LPNEW_RWEI(MPL)
-    LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-    LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-  end do
-  do MPL=1,MTYPE
-    VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W0DV1
-  end do
-  call Ar_BL_EXT_ST(LRI,LRA,1)
-end do
-goto 10
-!=======================================================================
-! SS(1)   ACT -C"-
-!-----------------------------------------------------------------------
-! SS(1-1)  Ar(01)-Bl(32)-        ACT -C"-
-! SS(1-3)  Ar(13)-Bl(20)-        ACT -C"-
-! SS(1-6)  (11)-Ar(23)-Bl(32)-   ACT -C"-
-! SS(1-7)  Ar(13)-C'(21)-Bl(32)- ACT -C"-
-! SS(1-8)  Ar(13)-C'(22)-Bl(31)- ACT -C"-
-! SS(1-9)  Ar(23)-C'(11)-Bl(32)- ACT -C"-
-! SS(1-11) Ar(13)-Bl(31)-C"(22)- ACT -C"-
-! SS(1-12) Ar(13)-Bl(32)-C"(21)- ACT -C"-
-! SS(1-13) Ar(23)-Bl(31)-C"(12)- ACT -C"-
-! SS(1-16) (11)-Drl(22)-         ACT -C"-
-! SS(1-18) Drl(11)-C"(22)-       ACT -C"-
-! SS(1-19) Drl(12)-C"(21)-       ACT -C"-
-! SS(1-20) (11)-Drl(33)-C"(22)-  ACT -C"-
-! SS(1-20) Drl(33)-C"(11)-C"(22)-ACT -C"-
-!-----------------------------------------------------------------------
-! SS(1)   ACT 14: -C"-
-101 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) goto 1011
-LRA = NLG1
-if (JB_SYS > 0) then
-  call SS_ArBl_ACT_C_EXT_AB_SGT0(2)
-  call SS_S_Drl_ACT_C_EXT_AB_SGT0(2)
-end if
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  do LRJ=LRI+1,NORB_DZ
-    call SS2_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,1)
-    call SS4_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,1)
-    call SS5_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,NK)
-    call SS10_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,NK)
-    call SS14_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,NK)
-  end do
-end do
-return
-
-1011 continue
-if (JB_SYS > 0) call SS_Drl_ACT_C_EXT_AB_SGT0(2)
-W0SS15 = W0_SS(15)
-W1SS15 = W1_SS(15)
-W0SS17 = W0_SS(17)
-W1SS17 = W1_SS(17)
-W0SS20 = W0_SS(20)
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  LMI = LSM_INN(LRI)
-  do LRJ=LRI+1,NORB_DZ
-    LMJ = LSM_INN(LRJ)
-    LMIJ = MUL_TAB(LMI,LMJ)
-    if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
-    IWDL = JUST(LRI,LRJ)
-    IWDR = IWDL
-    do MPL=1,MHLP
-      IWAL = LPNEW_LWEI(MPL)
-      IWAR = LPNEW_RWEI(MPL)
-      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-    end do
-    ! SS(1-15) (22)-Drl(11)-         ACT -C"-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS15
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS15
-    end do
-    call Drl_ST_EXT(LRJ)
-    ! SS(1-17) Drl(22)-C"(11)-       ACT -C"-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS17
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS17
-    end do
-    call Drl_ST_EXT(LRI)
-    ! SS(1-20) (22)(11)Drl(33)-      ACT -C"-
-    ! SS(1-20) (22)Drl(33)-C"(11)-   ACT -C"-
-    ! SS(1-20) Drl(33)-C"(22)-C"(11)-ACT -C"-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
-      VPLP_W1(MPL) = 0.d0
-    end do
-    do LRK=1,NORB_DZ
-      if (LRK == LRI) cycle
-      if (LRK == LRJ) cycle
-      call Drl_ST_EXT(LRK)
-    end do
-  end do
-end do
-return
-! ST(2)   ACT -C"-
-102 continue
-if ((LINELP /= 14) .or. (NLG2 == 1)) return
-if (JB_SYS > 0) call ST_Drl_ACT_C_EXT_AB_SGT0(2)
-if (JB_SYS > 0) call ST_ArBl_ACT_C_EXT_AB_SGT0(2)
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  do LRJ=LRI+1,NORB_DZ
-    call ST1_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,1)
-    call ST2_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,NK)
-    call ST4_EXT(LRI,LRJ,NK,1)
-    if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,NK)
-    call ST4_EXT(LRI,LRJ,NK,-1)
-    if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,NK)
-  end do
-end do
-
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  LMI = LSM_INN(LRI)
-  do LRJ=LRI+1,NORB_DZ
-    LMJ = LSM_INN(LRJ)
-    LMIJ = MUL_TAB(LMI,LMJ)
-    if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
-    ! ST(2-5) (22)Drl(12)-          ACT -C"-
-    IWDL = JUST(LRI,LRJ)
-    IWDR = IWDL
-    do MPL=1,MHLP
-      IWAL = LPNEW_LWEI(MPL)
-      IWAR = LPNEW_RWEI(MPL)
-      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-    end do
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = 0.d0
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(5)
-    end do
-    call Drl_ST_EXT(LRJ)
-    ! ST(2-6) Drl(22)-C"(12)-       ACT -C"-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = 0.d0
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(6)
-    end do
-    call Drl_ST_EXT(LRI)
+select case (LPOK)
+  case (1)
+    !===================================================================
+    ! SS(1)   ACT -C"-
     !-------------------------------------------------------------------
-    ! ST(2-3) Ar(13)-C'(22)-Bl(32)-   ACT -C"-
-    ! ST(2-3) Ar(13)-Bl(32)-C'(22)-   ACT -C"-
-    ! ST(2-7) Drl(12)-C"(22)-         ACT -C"-
+    ! SS(1-1)  Ar(01)-Bl(32)-        ACT -C"-
+    ! SS(1-3)  Ar(13)-Bl(20)-        ACT -C"-
+    ! SS(1-6)  (11)-Ar(23)-Bl(32)-   ACT -C"-
+    ! SS(1-7)  Ar(13)-C'(21)-Bl(32)- ACT -C"-
+    ! SS(1-8)  Ar(13)-C'(22)-Bl(31)- ACT -C"-
+    ! SS(1-9)  Ar(23)-C'(11)-Bl(32)- ACT -C"-
+    ! SS(1-11) Ar(13)-Bl(31)-C"(22)- ACT -C"-
+    ! SS(1-12) Ar(13)-Bl(32)-C"(21)- ACT -C"-
+    ! SS(1-13) Ar(23)-Bl(31)-C"(12)- ACT -C"-
+    ! SS(1-16) (11)-Drl(22)-         ACT -C"-
+    ! SS(1-18) Drl(11)-C"(22)-       ACT -C"-
+    ! SS(1-19) Drl(12)-C"(21)-       ACT -C"-
+    ! SS(1-20) (11)-Drl(33)-C"(22)-  ACT -C"-
+    ! SS(1-20) Drl(33)-C"(11)-C"(22)-ACT -C"-
     !-------------------------------------------------------------------
-  end do
-end do
-goto 10
-!=======================================================================
-! TS(3) A&R-B^L-  ACT -C"-
-103 continue
-if ((LINELP /= 14) .or. (NLG2 == 1)) return
-if (JB_SYS > 0) then
-  call TS_ArBl_ACT_C_EXT_AB_SGT0(2)
-end if
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  do LRJ=LRI+1,NORB_DZ
-    call TS1_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,1)
-    call TS2_EXT(LRI,LRJ,NK,1)
-    if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,NK)
-    call TS2_EXT(LRI,LRJ,NK,-1)
-    if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,NK)
-    call TS4_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,NK)
-  end do
-end do
-goto 10
-!=======================================================================
-! TT(11) Drl-  ACT -C"-
-111 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) goto 1111
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  do LRJ=LRI+1,NORB_DZ
-    call TT1_EXT(LRI,LRJ,NK,1)
-    call AR_BL_EXT_TS(LRI,LRJ,NK)
-    call TT1_EXT(LRI,LRJ,NK,-1)
-    call AR_BL_EXT_ST(LRI,LRJ,NK)
-  end do
-end do
-return
-
-1111 continue
-W0TT2 = W0_TT(2)
-W1TT2 = W1_TT(2)
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  LMI = LSM_INN(LRI)
-  do LRJ=LRI+1,NORB_DZ
-    LMJ = LSM_INN(LRJ)
-    LMIJ = MUL_TAB(LMI,LMJ)
-    if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
-    ! TT(11-2) (22)Drl(22)-
-    ! TT(11-2) Drl(22)-C"(22)-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TT2
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1TT2
-    end do
-    IWDL = JUST(LRI,LRJ)
-    IWDR = IWDL
-    do MPL=1,MHLP
-      IWAL = LPNEW_LWEI(MPL)
-      IWAR = LPNEW_RWEI(MPL)
-      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-    end do
-    call Drl_ST_EXT(LRI)
-    call Drl_ST_EXT(LRJ)
-  end do
-end do
-return
-!=======================================================================
-! DD(19) ACT -C"- ....................................................
-119 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) goto 1191
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  LMI = LSM_INN(LRI)
-  do LRJ=LRI+1,NORB_DZ
-    LMJ = LSM_INN(LRJ)
-    LMIJ = MUL_TAB(LMI,LMJ)
-    if (LMIJ /= JMLR) cycle
-    W0DD1 = W0_DD(1)
-    W1DD1 = W1_DD(1)
-    NI = mod(LRJ-LRI,2)
-    if (NI == 0) then
-      W0DD1 = -W0DD1
-      W1DD1 = -W1DD1
-    end if
-    if ((LMI == JML) .and. (LMJ == JMR)) then
-      ! DD(19-1) Ar(23)-Bl(32)-      ACT -C"-
-      do MPL=1,MTYPE
-        VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1DD1
+    ! SS(1)   ACT 14: -C"-
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      if (JB_SYS > 0) call SS_Drl_ACT_C_EXT_AB_SGT0(2)
+      W0SS15 = W0_SS(15)
+      W1SS15 = W1_SS(15)
+      W0SS17 = W0_SS(17)
+      W1SS17 = W1_SS(17)
+      W0SS20 = W0_SS(20)
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        LMI = LSM_INN(LRI)
+        do LRJ=LRI+1,NORB_DZ
+          LMJ = LSM_INN(LRJ)
+          LMIJ = MUL_TAB(LMI,LMJ)
+          if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
+          IWDL = JUST(LRI,LRJ)
+          IWDR = IWDL
+          do MPL=1,MHLP
+            IWAL = LPNEW_LWEI(MPL)
+            IWAR = LPNEW_RWEI(MPL)
+            LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+            LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+          end do
+          ! SS(1-15) (22)-Drl(11)-         ACT -C"-
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS15
+            VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS15
+          end do
+          call Drl_ST_EXT(LRJ)
+          ! SS(1-17) Drl(22)-C"(11)-       ACT -C"-
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS17
+            VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS17
+          end do
+          call Drl_ST_EXT(LRI)
+          ! SS(1-20) (22)(11)Drl(33)-      ACT -C"-
+          ! SS(1-20) (22)Drl(33)-C"(11)-   ACT -C"-
+          ! SS(1-20) Drl(33)-C"(22)-C"(11)-ACT -C"-
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
+            VPLP_W1(MPL) = 0.d0
+          end do
+          do LRK=1,NORB_DZ
+            if (LRK == LRI) cycle
+            if (LRK == LRJ) cycle
+            call Drl_ST_EXT(LRK)
+          end do
+        end do
       end do
+    else
+      LRA = NLG1
+      if (JB_SYS > 0) then
+        call SS_ArBl_ACT_C_EXT_AB_SGT0(2)
+        call SS_S_Drl_ACT_C_EXT_AB_SGT0(2)
+      end if
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        do LRJ=LRI+1,NORB_DZ
+          call SS2_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,1)
+          call SS4_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,1)
+          call SS5_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,NK)
+          call SS10_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,NK)
+          call SS14_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,NK)
+        end do
+      end do
+    end if
+
+  case (2)
+    ! ST(2)   ACT -C"-
+    if ((LINELP /= 14) .or. (NLG2 == 1)) return
+    if (JB_SYS > 0) call ST_Drl_ACT_C_EXT_AB_SGT0(2)
+    if (JB_SYS > 0) call ST_ArBl_ACT_C_EXT_AB_SGT0(2)
+    do LRI=NORB_FRZ+1,NORB_DZ-1
+      do LRJ=LRI+1,NORB_DZ
+        call ST1_EXT(LRI,LRJ,NK)
+        if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,1)
+        call ST2_EXT(LRI,LRJ,NK)
+        if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,NK)
+        call ST4_EXT(LRI,LRJ,NK,1)
+        if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,NK)
+        call ST4_EXT(LRI,LRJ,NK,-1)
+        if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,NK)
+      end do
+    end do
+
+    do LRI=NORB_FRZ+1,NORB_DZ-1
+      LMI = LSM_INN(LRI)
+      do LRJ=LRI+1,NORB_DZ
+        LMJ = LSM_INN(LRJ)
+        LMIJ = MUL_TAB(LMI,LMJ)
+        if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
+        ! ST(2-5) (22)Drl(12)-          ACT -C"-
+        IWDL = JUST(LRI,LRJ)
+        IWDR = IWDL
+        do MPL=1,MHLP
+          IWAL = LPNEW_LWEI(MPL)
+          IWAR = LPNEW_RWEI(MPL)
+          LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+          LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+        end do
+        do MPL=1,MTYPE
+          VPLP_W0(MPL) = 0.d0
+          VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(5)
+        end do
+        call Drl_ST_EXT(LRJ)
+        ! ST(2-6) Drl(22)-C"(12)-       ACT -C"-
+        do MPL=1,MTYPE
+          VPLP_W0(MPL) = 0.d0
+          VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(6)
+        end do
+        call Drl_ST_EXT(LRI)
+        !---------------------------------------------------------------
+        ! ST(2-3) Ar(13)-C'(22)-Bl(32)-   ACT -C"-
+        ! ST(2-3) Ar(13)-Bl(32)-C'(22)-   ACT -C"-
+        ! ST(2-7) Drl(12)-C"(22)-         ACT -C"-
+        !---------------------------------------------------------------
+      end do
+    end do
+
+  case (3)
+    !===================================================================
+    ! TS(3) A&R-B^L-  ACT -C"-
+    if ((LINELP /= 14) .or. (NLG2 == 1)) return
+    if (JB_SYS > 0) then
+      call TS_ArBl_ACT_C_EXT_AB_SGT0(2)
+    end if
+    do LRI=NORB_FRZ+1,NORB_DZ-1
+      do LRJ=LRI+1,NORB_DZ
+        call TS1_EXT(LRI,LRJ,NK)
+        if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,1)
+        call TS2_EXT(LRI,LRJ,NK,1)
+        if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,NK)
+        call TS2_EXT(LRI,LRJ,NK,-1)
+        if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,NK)
+        call TS4_EXT(LRI,LRJ,NK)
+        if (NK /= 0) call Ar_BL_EXT_ST(LRI,LRJ,NK)
+      end do
+    end do
+
+  case (4)
+    !===================================================================
+    ! ST1(4) Ar-Bl- Drl- ACT -C"-
+    if ((LINELP /= 14) .or. (nlg2 /= 2)) return
+    call STT_ArBl_ACT_C_EXT_AB_SGT1(2)
+
+  case (5)
+    !===================================================================
+    ! T1S(5) Ar-Bl- Drl ACT -C"-
+    if ((LINELP /= 14) .or. (NLG2 /= 2)) return
+    call TTS_Drl_ACT_C_EXT_AB_SGT1(2)
+    call TTS_ArBl_ACT_C_EXT_AB_SGT1(2)
+
+  case default ! (6)
+    !===================================================================
+    ! SD(6-1) ACT -B&L-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    call SD_AR_ACT_BL(2,LRA)
+    if (JB_SYS > 0) call SD_AR_ACT_BL_SGT0(2,LRA)
+
+  case (8)
+    !===================================================================
+    ! SD1(8) Ar ACT -Bl-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    if (JB_SYS > 0) call SDD_AR_ACT_BL_SGT0(2,LRA)
+
+  case (11)
+    !===================================================================
+    ! TT(11) Drl-  ACT -C"-
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      W0TT2 = W0_TT(2)
+      W1TT2 = W1_TT(2)
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        LMI = LSM_INN(LRI)
+        do LRJ=LRI+1,NORB_DZ
+          LMJ = LSM_INN(LRJ)
+          LMIJ = MUL_TAB(LMI,LMJ)
+          if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
+          ! TT(11-2) (22)Drl(22)-
+          ! TT(11-2) Drl(22)-C"(22)-
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TT2
+            VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1TT2
+          end do
+          IWDL = JUST(LRI,LRJ)
+          IWDR = IWDL
+          do MPL=1,MHLP
+            IWAL = LPNEW_LWEI(MPL)
+            IWAR = LPNEW_RWEI(MPL)
+            LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+            LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+          end do
+          call Drl_ST_EXT(LRI)
+          call Drl_ST_EXT(LRJ)
+        end do
+      end do
+    else
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        do LRJ=LRI+1,NORB_DZ
+          call TT1_EXT(LRI,LRJ,NK,1)
+          call AR_BL_EXT_TS(LRI,LRJ,NK)
+          call TT1_EXT(LRI,LRJ,NK,-1)
+          call AR_BL_EXT_ST(LRI,LRJ,NK)
+        end do
+      end do
+    end if
+
+  case (12)
+    !===================================================================
+    ! TTTT(12) Ar-Bl- Drl- ACT -C"-
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      call TTTT_Drl_ACT_C_EXT_AB_SGT0(2)
+    else
+      call TTTT_ArBl_ACT_C_EXT_AB_SGT0(2)
+    end if
+
+  case (13)
+    !===================================================================
+    ! TD(13) ACT -BL-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    call TD_AR_ACT_BL(2,LRA)
+
+  case (15)
+    !===================================================================
+    ! T1D1(15) Ar- ACT -Bl-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    call TTDD_AR_ACT_BL_SGT1(2,LRA)
+
+  case (19)
+    !===================================================================
+    ! DD(19) ACT -C"- ..................................................
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      W0DD2 = W0_DD(2)
+      W1DD2 = W1_DD(2)
+      do LRI=NORB_FRZ+1,NORB_DZ
+        LMI = LSM_INN(LRI)
+        if (LMI /= JML) cycle
+        ! DD(19-2) Drl(22)-
+        do MPL=1,MTYPE
+          VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD2
+          VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1DD2
+        end do
+        IWDL = JUD(LRI)
+        IWDR = IWDL
+        do MPL=1,MHLP
+          IWAL = LPNEW_LWEI(MPL)
+          IWAR = LPNEW_RWEI(MPL)
+          LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+          LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+        end do
+        call Drl_ST_EXT(LRI)
+      end do
+    else
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        LMI = LSM_INN(LRI)
+        do LRJ=LRI+1,NORB_DZ
+          LMJ = LSM_INN(LRJ)
+          LMIJ = MUL_TAB(LMI,LMJ)
+          if (LMIJ /= JMLR) cycle
+          W0DD1 = W0_DD(1)
+          W1DD1 = W1_DD(1)
+          NI = mod(LRJ-LRI,2)
+          if (NI == 0) then
+            W0DD1 = -W0DD1
+            W1DD1 = -W1DD1
+          end if
+          if ((LMI == JML) .and. (LMJ == JMR)) then
+            ! DD(19-1) Ar(23)-Bl(32)-      ACT -C"-
+            do MPL=1,MTYPE
+              VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1DD1
+            end do
+            IWDL = JUD(LRI)
+            IWDR = JUD(LRJ)
+            do MPL=1,MHLP
+              IWAL = LPNEW_LWEI(MPL)
+              IWAR = LPNEW_RWEI(MPL)
+              LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+              LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+            end do
+            call Ar_BL_EXT_ST(LRI,LRJ,1)
+          end if
+        end do
+      end do
+    end if
+
+  case (20)
+    !===================================================================
+    ! D1D1(20) Drl- Ar-Bl- ACT -C"-
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      call D1D1_Drl_ACT_C_EXT_AB_SGT0(2)
+    else
+      call D1D1_ArBl_ACT_C_EXT_AB_SGT0(2)
+    end if
+
+  case (21)
+    !===================================================================
+    ! DD1(21) Ar-Bl- ACT -C"-
+    if ((LINELP /= 14) .or. (nlg2 /= 2)) return
+    call DD1_ArBl_ACT_C_EXT_AB_SGT0(2)
+
+  case (22)
+    !===================================================================
+    ! D1D(22) Ar-Bl- Drl- ACT -C"-
+    if ((LINELP /= 14) .or. (nlg2 /= 2)) return
+    call D1D_ArBl_ACT_C_EXT_AB_SGT0(2)
+    call D1D_Drl_ACT_C_EXT_AB_SGT0(2)
+
+  case (23)
+    !===================================================================
+    ! DV(23) ACT -C'-..................................................
+    if (LINELP /= 17) return
+    LRA = NLG1
+    do LRI=NORB_FRZ+1,NORB_DZ
+      LMI = LSM_INN(LRI)
+      if (LMI /= JMLR) cycle
+      W0DV1 = W0_DV(1)
+      NI = mod(NORB_DZ-LRI,2)
+      if (NI == 1) W0DV1 = -W0DV1
+      ! DV(23-1) A&r(23)-
       IWDL = JUD(LRI)
-      IWDR = JUD(LRJ)
+      IWDR = 0
       do MPL=1,MHLP
         IWAL = LPNEW_LWEI(MPL)
         IWAR = LPNEW_RWEI(MPL)
         LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
         LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
       end do
-      call Ar_BL_EXT_ST(LRI,LRJ,1)
-    end if
-  end do
-end do
-return
+      do MPL=1,MTYPE
+        VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W0DV1
+      end do
+      call Ar_BL_EXT_ST(LRI,LRA,1)
+    end do
 
-1191 continue
-W0DD2 = W0_DD(2)
-W1DD2 = W1_DD(2)
-do LRI=NORB_FRZ+1,NORB_DZ
-  LMI = LSM_INN(LRI)
-  if (LMI /= JML) cycle
-  ! DD(19-2) Drl(22)-
-  do MPL=1,MTYPE
-    VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD2
-    VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1DD2
-  end do
-  IWDL = JUD(LRI)
-  IWDR = IWDL
-  do MPL=1,MHLP
-    IWAL = LPNEW_LWEI(MPL)
-    IWAR = LPNEW_RWEI(MPL)
-    LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-    LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-  end do
-  call Drl_ST_EXT(LRI)
-end do
-goto 10
-!=======================================================================
-! ST1(4) Ar-Bl- Drl- ACT -C"-
-104 continue
-if ((LINELP /= 14) .or. (nlg2 /= 2)) return
-call STT_ArBl_ACT_C_EXT_AB_SGT1(2)
-return
-!=======================================================================
-! T1S(5) Ar-Bl- Drl ACT -C"-
-105 continue
-if ((LINELP /= 14) .or. (NLG2 /= 2)) return
-call TTS_Drl_ACT_C_EXT_AB_SGT1(2)
-call TTS_ArBl_ACT_C_EXT_AB_SGT1(2)
-return
-!=======================================================================
-! SD1(8) Ar ACT -Bl-
-108 continue
-if (LINELP /= 17) return
-LRA = NLG1
-if (JB_SYS > 0) call SDD_AR_ACT_BL_SGT0(2,LRA)
-return
-!=======================================================================
-! TTTT(12) Ar-Bl- Drl- ACT -C"-
-112 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) then
-  call TTTT_Drl_ACT_C_EXT_AB_SGT0(2)
-else
-  call TTTT_ArBl_ACT_C_EXT_AB_SGT0(2)
-end if
-return
-!=======================================================================
-! T1D1(15) Ar- ACT -Bl-
-115 continue
-if (LINELP /= 17) return
-LRA = NLG1
-call TTDD_AR_ACT_BL_SGT1(2,LRA)
-return
-!=======================================================================
-! D1D1(20) Drl- Ar-Bl- ACT -C"-
-120 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) then
-  call D1D1_Drl_ACT_C_EXT_AB_SGT0(2)
-else
-  call D1D1_ArBl_ACT_C_EXT_AB_SGT0(2)
-end if
-return
-!=======================================================================
-! DD1(21) Ar-Bl- ACT -C"-
-121 continue
-if ((LINELP /= 14) .or. (nlg2 /= 2)) return
-call DD1_ArBl_ACT_C_EXT_AB_SGT0(2)
-return
-!=======================================================================
-! D1D(22) Ar-Bl- Drl- ACT -C"-
-122 continue
-if ((LINELP /= 14) .or. (nlg2 /= 2)) return
-call D1D_ArBl_ACT_C_EXT_AB_SGT0(2)
-call D1D_Drl_ACT_C_EXT_AB_SGT0(2)
-return
-!=======================================================================
-! D1V(24) Ar- ACT -Bl-
-124 continue
-if (LINELP /= 17) return
-LRA = NLG1
-call D1V_Ar_ACT_Bl_EXT_AB_SGT0(2,LRA)
-return
-!=======================================================================
-! VV(25) ACT -BL- ....................................................
-125 continue
-return
-!=======================================================================
-10 continue
+  case (24)
+    !===================================================================
+    ! D1V(24) Ar- ACT -Bl-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    call D1V_Ar_ACT_Bl_EXT_AB_SGT0(2,LRA)
 
+  case (25)
+    !===================================================================
+    ! VV(25) ACT -BL- ..................................................
+    return
+
+  case (7,9:10,14,16:18,26)
+end select
 return
 
 end subroutine st_ext_head_in_dbl
@@ -1641,385 +1632,382 @@ subroutine ts_ext_head_in_dbl()
 LOGIC_DH = .true.
 JMLR = MUL_TAB(JML,JMR)
 LPOK = JPADLR
-goto(101,102,103,104,105,106,10,108,10,10,111,112,113,10,115,10,10,10,119,120,121,122,123,124,125,10),LPOK
-!=======================================================================
-! SD(6-1) ACT -B&L-
-106 continue
-if (LINELP /= 17) return
-LRA = NLG1
-call SD_AR_ACT_BL(3,LRA)
-if (JB_SYS > 0) call SD_AR_ACT_BL_SGT0(3,LRA)
-goto 10
-!=======================================================================
-! TD(13) ACT -BL-
-113 continue
-if (LINELP /= 17) return
-LRA = NLG1
-call TD_AR_ACT_BL(3,LRA)
-return
-!=======================================================================
-! DV(23) ACT -C'-..................................................
-123 continue
-if (LINELP /= 17) return
-LRA = NLG1
-do LRI=NORB_FRZ+1,NORB_DZ
-  LMI = LSM_INN(LRI)
-  if (LMI /= JMLR) cycle
-  W0DV1 = W0_DV(1)
-  NI = mod(NORB_DZ-LRI,2)
-  if (NI == 1) W0DV1 = -W0DV1
-  ! DV(23-1) A&r(23)-
-  IWDL = JUD(LRI)
-  IWDR = 0
-  do MPL=1,MHLP
-    IWAL = LPNEW_LWEI(MPL)
-    IWAR = LPNEW_RWEI(MPL)
-    LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-    LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-  end do
-  do MPL=1,MTYPE
-    VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W0DV1
-  end do
-  call Ar_BL_EXT_TS(LRI,LRA,1)
-end do
-goto 10
-!=======================================================================
-! SS(1)   ACT -C"-
-!-----------------------------------------------------------------------
-! SS(1-1)  Ar(01)-Bl(32)-        ACT -C"-
-! SS(1-3)  Ar(13)-Bl(20)-        ACT -C"-
-! SS(1-6)  (11)-Ar(23)-Bl(32)-   ACT -C"-
-! SS(1-7)  Ar(13)-C'(21)-Bl(32)- ACT -C"-
-! SS(1-8)  Ar(13)-C'(22)-Bl(31)- ACT -C"-
-! SS(1-9)  Ar(23)-C'(11)-Bl(32)- ACT -C"-
-! SS(1-11) Ar(13)-Bl(31)-C"(22)- ACT -C"-
-! SS(1-12) Ar(13)-Bl(32)-C"(21)- ACT -C"-
-! SS(1-13) Ar(23)-Bl(31)-C"(12)- ACT -C"-
-! SS(1-16) (11)-Drl(22)-         ACT -C"-
-! SS(1-18) Drl(11)-C"(22)-       ACT -C"-
-! SS(1-19) Drl(12)-C"(21)-       ACT -C"-
-! SS(1-20) (11)-Drl(33)-C"(22)-  ACT -C"-
-! SS(1-20) Drl(33)-C"(11)-C"(22)-ACT -C"-
-!-----------------------------------------------------------------------
-! SS(1)   ACT 14: -C"-
-101 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) goto 1011
-if (JB_SYS > 0) then
-  call SS_ArBl_ACT_C_EXT_AB_SGT0(3)
-  call SS_S_Drl_ACT_C_EXT_AB_SGT0(3)
-end if
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  do LRJ=LRI+1,NORB_DZ
-    call SS2_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call AR_BL_EXT_TS(LRI,LRJ,1)
-    call SS4_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call AR_BL_EXT_TS(LRI,LRJ,1)
-    call SS5_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call AR_BL_EXT_TS(LRI,LRJ,NK)
-    call SS10_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call AR_BL_EXT_TS(LRI,LRJ,NK)
-    call SS14_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call AR_BL_EXT_TS(LRI,LRJ,NK)
-  end do
-end do
-return
-
-1011 continue
-if (JB_SYS > 0) call SS_Drl_ACT_C_EXT_AB_SGT0(3)
-W0SS15 = W0_SS(15)
-W1SS15 = W1_SS(15)
-W0SS17 = W0_SS(17)
-W1SS17 = W1_SS(17)
-W0SS20 = W0_SS(20)
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  LMI = LSM_INN(LRI)
-  do LRJ=LRI+1,NORB_DZ
-    LMJ = LSM_INN(LRJ)
-    LMIJ = MUL_TAB(LMI,LMJ)
-    if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
-    IWDL = JUST(LRI,LRJ)
-    IWDR = IWDL
-    do MPL=1,MHLP
-      IWAL = LPNEW_LWEI(MPL)
-      IWAR = LPNEW_RWEI(MPL)
-      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-    end do
-    ! SS(1-15) (22)-Drl(11)-         ACT -C"-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS15
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS15
-    end do
-    call Drl_TS_EXT(LRJ)
-    ! SS(1-17) Drl(22)-C"(11)-       ACT -C"-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS17
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS17
-    end do
-    call Drl_TS_EXT(LRI)
-    ! SS(1-20) (22)(11)Drl(33)-      ACT -C"-
-    ! SS(1-20) (22)Drl(33)-C"(11)-   ACT -C"-
-    ! SS(1-20) Drl(33)-C"(22)-C"(11)-ACT -C"-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
-      VPLP_W1(MPL) = 0.d0
-    end do
-    do LRK=1,NORB_DZ
-      if (LRK == LRI) cycle
-      if (LRK == LRJ) cycle
-      call Drl_TS_EXT(LRK)
-    end do
-  end do
-end do
-return
-! ST(2)   ACT -C"-
-102 continue
-if ((LINELP /= 14) .or. (NLG2 == 1)) return
-if (JB_SYS > 0) call ST_Drl_ACT_C_EXT_AB_SGT0(3)
-if (JB_SYS > 0) call ST_ArBl_ACT_C_EXT_AB_SGT0(3)
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  do LRJ=LRI+1,NORB_DZ
-    call ST1_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_TS(LRI,LRJ,1)
-    call ST2_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_TS(LRI,LRJ,NK)
-    call ST4_EXT(LRI,LRJ,NK,1)
-    if (NK /= 0) call Ar_BL_EXT_TS(LRI,LRJ,NK)
-    call ST4_EXT(LRI,LRJ,NK,-1)
-    if (NK /= 0) call Ar_BL_EXT_TS(LRI,LRJ,NK)
-  end do
-end do
-
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  LMI = LSM_INN(LRI)
-  do LRJ=LRI+1,NORB_DZ
-    LMJ = LSM_INN(LRJ)
-    LMIJ = MUL_TAB(LMI,LMJ)
-    if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
-    ! ST(2-5) (22)Drl(12)-          ACT -C"-
-    IWDL = JUST(LRI,LRJ)
-    IWDR = IWDL
-    do MPL=1,MHLP
-      IWAL = LPNEW_LWEI(MPL)
-      IWAR = LPNEW_RWEI(MPL)
-      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-    end do
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = 0.d0
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(5)
-    end do
-    call Drl_TS_EXT(LRJ)
-    ! ST(2-6) Drl(22)-C"(12)-       ACT -C"-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = 0.d0
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(6)
-    end do
-    call Drl_TS_EXT(LRI)
+select case (LPOK)
+  case (1)
+    !===================================================================
+    ! SS(1)   ACT -C"-
     !-------------------------------------------------------------------
-    ! ST(2-3) Ar(13)-C'(22)-Bl(32)-   ACT -C"-
-    ! ST(2-3) Ar(13)-Bl(32)-C'(22)-   ACT -C"-
-    ! ST(2-7) Drl(12)-C"(22)-         ACT -C"-
+    ! SS(1-1)  Ar(01)-Bl(32)-        ACT -C"-
+    ! SS(1-3)  Ar(13)-Bl(20)-        ACT -C"-
+    ! SS(1-6)  (11)-Ar(23)-Bl(32)-   ACT -C"-
+    ! SS(1-7)  Ar(13)-C'(21)-Bl(32)- ACT -C"-
+    ! SS(1-8)  Ar(13)-C'(22)-Bl(31)- ACT -C"-
+    ! SS(1-9)  Ar(23)-C'(11)-Bl(32)- ACT -C"-
+    ! SS(1-11) Ar(13)-Bl(31)-C"(22)- ACT -C"-
+    ! SS(1-12) Ar(13)-Bl(32)-C"(21)- ACT -C"-
+    ! SS(1-13) Ar(23)-Bl(31)-C"(12)- ACT -C"-
+    ! SS(1-16) (11)-Drl(22)-         ACT -C"-
+    ! SS(1-18) Drl(11)-C"(22)-       ACT -C"-
+    ! SS(1-19) Drl(12)-C"(21)-       ACT -C"-
+    ! SS(1-20) (11)-Drl(33)-C"(22)-  ACT -C"-
+    ! SS(1-20) Drl(33)-C"(11)-C"(22)-ACT -C"-
     !-------------------------------------------------------------------
-  end do
-end do
-goto 10
-!=======================================================================
-! TS(3) D&R^L-  ACT -C"-
-103 continue
-if ((LINELP /= 14) .or. (NLG2 == 1)) return
-if (JB_SYS > 0) then
-  call TS_ArBl_ACT_C_EXT_AB_SGT0(3)
-end if
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  do LRJ=LRI+1,NORB_DZ
-    call TS1_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_TS(LRI,LRJ,1)
-    call TS2_EXT(LRI,LRJ,NK,1)
-    if (NK /= 0) call Ar_BL_EXT_TS(LRI,LRJ,NK)
-    call TS2_EXT(LRI,LRJ,NK,-1)
-    if (NK /= 0) call Ar_BL_EXT_TS(LRI,LRJ,NK)
-    call TS4_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_TS(LRI,LRJ,NK)
-  end do
-end do
-goto 10
-!=======================================================================
-! ST1(4) Ar-Bl- Drl- ACT -C"-
-104 continue
-if ((LINELP /= 14) .or. (nlg2 /= 2)) return
-call STT_ArBl_ACT_C_EXT_AB_SGT1(3)
-return
-!=======================================================================
-! T1S(5) Ar-Bl- Drl ACT -C"-
-105 continue
-if ((LINELP /= 14) .or. (NLG2 /= 2)) return
-call TTS_Drl_ACT_C_EXT_AB_SGT1(3)
-call TTS_ArBl_ACT_C_EXT_AB_SGT1(3)
-return
-!=======================================================================
-! SD1(8) Ar ACT -Bl-
-108 continue
-if (LINELP /= 17) return
-LRA = NLG1
-if (JB_SYS > 0) call SDD_AR_ACT_BL_SGT0(3,LRA)
-return
-!=======================================================================
-! TTTT(12) Ar-Bl- Drl- ACT -C"-
-112 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) then
-  call TTTT_Drl_ACT_C_EXT_AB_SGT0(3)
-else
-  call TTTT_ArBl_ACT_C_EXT_AB_SGT0(3)
-end if
-return
-!=======================================================================
-! T1D1(15) Ar- ACT -Bl-
-115 continue
-if (LINELP /= 17) return
-LRA = NLG1
-call TTDD_AR_ACT_BL_SGT1(3,LRA)
-return
-!=======================================================================
-! D1D1(20) Drl- Ar-Bl- ACT -C"-
-120 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) then
-  call D1D1_Drl_ACT_C_EXT_AB_SGT0(3)
-else
-  call D1D1_ArBl_ACT_C_EXT_AB_SGT0(3)
-end if
-return
-!=======================================================================
-! DD1(21) Ar-Bl- ACT -C"-
-121 continue
-if ((LINELP /= 14) .or. (nlg2 /= 2)) return
-call DD1_ArBl_ACT_C_EXT_AB_SGT0(3)
-return
-!=======================================================================
-! D1D(22) Ar-Bl- Drl- ACT -C"-
-122 continue
-if ((LINELP /= 14) .or. (nlg2 /= 2)) return
-call D1D_ArBl_ACT_C_EXT_AB_SGT0(3)
-call D1D_Drl_ACT_C_EXT_AB_SGT0(3)
-return
-!=======================================================================
-! D1V(24) Ar- ACT -Bl-
-124 continue
-if (LINELP /= 17) return
-LRA = NLG1
-call D1V_Ar_ACT_Bl_EXT_AB_SGT0(3,LRA)
-return
-!=======================================================================
-! TT(11) Drl-  ACT -C"-
-111 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) goto 1111
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  do LRJ=LRI+1,NORB_DZ
-    call TT1_EXT(LRI,LRJ,NK,1)
-    call AR_BL_EXT_TS(LRI,LRJ,NK)
-    call TT1_EXT(LRI,LRJ,NK,-1)
-    call AR_BL_EXT_TS(LRI,LRJ,NK)
-  end do
-end do
-return
-
-1111 continue
-W0TT2 = W0_TT(2)
-W1TT2 = W1_TT(2)
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  LMI = LSM_INN(LRI)
-  do LRJ=LRI+1,NORB_DZ
-    LMJ = LSM_INN(LRJ)
-    LMIJ = MUL_TAB(LMI,LMJ)
-    if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
-    ! TT(11-2) (22)Drl(22)-
-    ! TT(11-2) Drl(22)-C"(22)-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TT2
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1TT2
-    end do
-    IWDL = JUST(LRI,LRJ)
-    IWDR = IWDL
-    do MPL=1,MHLP
-      IWAL = LPNEW_LWEI(MPL)
-      IWAR = LPNEW_RWEI(MPL)
-      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-    end do
-    call Drl_TS_EXT(LRI)
-    call Drl_TS_EXT(LRJ)
-  end do
-end do
-return
-!=======================================================================
-! DD(19) ACT -C"- ....................................................
-119 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) goto 1191
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  LMI = LSM_INN(LRI)
-  do LRJ=LRI+1,NORB_DZ
-    LMJ = LSM_INN(LRJ)
-    LMIJ = MUL_TAB(LMI,LMJ)
-    if (LMIJ /= JMLR) cycle
-    W0DD1 = W0_DD(1)
-    W1DD1 = W1_DD(1)
-    NI = mod(LRJ-LRI,2)
-    if (NI == 0) then
-      W0DD1 = -W0DD1
-      W1DD1 = -W1DD1
-    end if
-    if ((LMI == JML) .and. (LMJ == JMR)) then
-      ! DD(19-1) Ar(23)-Bl(32)-      ACT -C"-
-      do MPL=1,MTYPE
-        VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1DD1
+    ! SS(1)   ACT 14: -C"-
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      if (JB_SYS > 0) call SS_Drl_ACT_C_EXT_AB_SGT0(3)
+      W0SS15 = W0_SS(15)
+      W1SS15 = W1_SS(15)
+      W0SS17 = W0_SS(17)
+      W1SS17 = W1_SS(17)
+      W0SS20 = W0_SS(20)
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        LMI = LSM_INN(LRI)
+        do LRJ=LRI+1,NORB_DZ
+          LMJ = LSM_INN(LRJ)
+          LMIJ = MUL_TAB(LMI,LMJ)
+          if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
+          IWDL = JUST(LRI,LRJ)
+          IWDR = IWDL
+          do MPL=1,MHLP
+            IWAL = LPNEW_LWEI(MPL)
+            IWAR = LPNEW_RWEI(MPL)
+            LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+            LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+          end do
+          ! SS(1-15) (22)-Drl(11)-         ACT -C"-
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS15
+            VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS15
+          end do
+          call Drl_TS_EXT(LRJ)
+          ! SS(1-17) Drl(22)-C"(11)-       ACT -C"-
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS17
+            VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS17
+          end do
+          call Drl_TS_EXT(LRI)
+          ! SS(1-20) (22)(11)Drl(33)-      ACT -C"-
+          ! SS(1-20) (22)Drl(33)-C"(11)-   ACT -C"-
+          ! SS(1-20) Drl(33)-C"(22)-C"(11)-ACT -C"-
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
+            VPLP_W1(MPL) = 0.d0
+          end do
+          do LRK=1,NORB_DZ
+            if (LRK == LRI) cycle
+            if (LRK == LRJ) cycle
+            call Drl_TS_EXT(LRK)
+          end do
+        end do
       end do
+    else
+      if (JB_SYS > 0) then
+        call SS_ArBl_ACT_C_EXT_AB_SGT0(3)
+        call SS_S_Drl_ACT_C_EXT_AB_SGT0(3)
+      end if
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        do LRJ=LRI+1,NORB_DZ
+          call SS2_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call AR_BL_EXT_TS(LRI,LRJ,1)
+          call SS4_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call AR_BL_EXT_TS(LRI,LRJ,1)
+          call SS5_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call AR_BL_EXT_TS(LRI,LRJ,NK)
+          call SS10_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call AR_BL_EXT_TS(LRI,LRJ,NK)
+          call SS14_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call AR_BL_EXT_TS(LRI,LRJ,NK)
+        end do
+      end do
+    end if
+
+  case (2)
+    ! ST(2)   ACT -C"-
+    if ((LINELP /= 14) .or. (NLG2 == 1)) return
+    if (JB_SYS > 0) call ST_Drl_ACT_C_EXT_AB_SGT0(3)
+    if (JB_SYS > 0) call ST_ArBl_ACT_C_EXT_AB_SGT0(3)
+    do LRI=NORB_FRZ+1,NORB_DZ-1
+      do LRJ=LRI+1,NORB_DZ
+        call ST1_EXT(LRI,LRJ,NK)
+        if (NK /= 0) call Ar_BL_EXT_TS(LRI,LRJ,1)
+        call ST2_EXT(LRI,LRJ,NK)
+        if (NK /= 0) call Ar_BL_EXT_TS(LRI,LRJ,NK)
+        call ST4_EXT(LRI,LRJ,NK,1)
+        if (NK /= 0) call Ar_BL_EXT_TS(LRI,LRJ,NK)
+        call ST4_EXT(LRI,LRJ,NK,-1)
+        if (NK /= 0) call Ar_BL_EXT_TS(LRI,LRJ,NK)
+      end do
+    end do
+
+    do LRI=NORB_FRZ+1,NORB_DZ-1
+      LMI = LSM_INN(LRI)
+      do LRJ=LRI+1,NORB_DZ
+        LMJ = LSM_INN(LRJ)
+        LMIJ = MUL_TAB(LMI,LMJ)
+        if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
+        ! ST(2-5) (22)Drl(12)-          ACT -C"-
+        IWDL = JUST(LRI,LRJ)
+        IWDR = IWDL
+        do MPL=1,MHLP
+          IWAL = LPNEW_LWEI(MPL)
+          IWAR = LPNEW_RWEI(MPL)
+          LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+          LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+        end do
+        do MPL=1,MTYPE
+          VPLP_W0(MPL) = 0.d0
+          VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(5)
+        end do
+        call Drl_TS_EXT(LRJ)
+        ! ST(2-6) Drl(22)-C"(12)-       ACT -C"-
+        do MPL=1,MTYPE
+          VPLP_W0(MPL) = 0.d0
+          VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(6)
+        end do
+        call Drl_TS_EXT(LRI)
+        !---------------------------------------------------------------
+        ! ST(2-3) Ar(13)-C'(22)-Bl(32)-   ACT -C"-
+        ! ST(2-3) Ar(13)-Bl(32)-C'(22)-   ACT -C"-
+        ! ST(2-7) Drl(12)-C"(22)-         ACT -C"-
+        !---------------------------------------------------------------
+      end do
+    end do
+
+  case (3)
+    !===================================================================
+    ! TS(3) D&R^L-  ACT -C"-
+    if ((LINELP /= 14) .or. (NLG2 == 1)) return
+    if (JB_SYS > 0) then
+      call TS_ArBl_ACT_C_EXT_AB_SGT0(3)
+    end if
+    do LRI=NORB_FRZ+1,NORB_DZ-1
+      do LRJ=LRI+1,NORB_DZ
+        call TS1_EXT(LRI,LRJ,NK)
+        if (NK /= 0) call Ar_BL_EXT_TS(LRI,LRJ,1)
+        call TS2_EXT(LRI,LRJ,NK,1)
+        if (NK /= 0) call Ar_BL_EXT_TS(LRI,LRJ,NK)
+        call TS2_EXT(LRI,LRJ,NK,-1)
+        if (NK /= 0) call Ar_BL_EXT_TS(LRI,LRJ,NK)
+        call TS4_EXT(LRI,LRJ,NK)
+        if (NK /= 0) call Ar_BL_EXT_TS(LRI,LRJ,NK)
+      end do
+    end do
+
+  case (4)
+    !===================================================================
+    ! ST1(4) Ar-Bl- Drl- ACT -C"-
+    if ((LINELP /= 14) .or. (nlg2 /= 2)) return
+    call STT_ArBl_ACT_C_EXT_AB_SGT1(3)
+
+  case (5)
+    !===================================================================
+    ! T1S(5) Ar-Bl- Drl ACT -C"-
+    if ((LINELP /= 14) .or. (NLG2 /= 2)) return
+    call TTS_Drl_ACT_C_EXT_AB_SGT1(3)
+    call TTS_ArBl_ACT_C_EXT_AB_SGT1(3)
+
+  case default ! (6)
+    !===================================================================
+    ! SD(6-1) ACT -B&L-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    call SD_AR_ACT_BL(3,LRA)
+    if (JB_SYS > 0) call SD_AR_ACT_BL_SGT0(3,LRA)
+
+  case (8)
+    !===================================================================
+    ! SD1(8) Ar ACT -Bl-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    if (JB_SYS > 0) call SDD_AR_ACT_BL_SGT0(3,LRA)
+
+  case (11)
+    !===================================================================
+    ! TT(11) Drl-  ACT -C"-
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      W0TT2 = W0_TT(2)
+      W1TT2 = W1_TT(2)
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        LMI = LSM_INN(LRI)
+        do LRJ=LRI+1,NORB_DZ
+          LMJ = LSM_INN(LRJ)
+          LMIJ = MUL_TAB(LMI,LMJ)
+          if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
+          ! TT(11-2) (22)Drl(22)-
+          ! TT(11-2) Drl(22)-C"(22)-
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TT2
+            VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1TT2
+          end do
+          IWDL = JUST(LRI,LRJ)
+          IWDR = IWDL
+          do MPL=1,MHLP
+            IWAL = LPNEW_LWEI(MPL)
+            IWAR = LPNEW_RWEI(MPL)
+            LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+            LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+          end do
+          call Drl_TS_EXT(LRI)
+          call Drl_TS_EXT(LRJ)
+        end do
+      end do
+    else
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        do LRJ=LRI+1,NORB_DZ
+          call TT1_EXT(LRI,LRJ,NK,1)
+          call AR_BL_EXT_TS(LRI,LRJ,NK)
+          call TT1_EXT(LRI,LRJ,NK,-1)
+          call AR_BL_EXT_TS(LRI,LRJ,NK)
+        end do
+      end do
+    endif
+
+  case (12)
+    !===================================================================
+    ! TTTT(12) Ar-Bl- Drl- ACT -C"-
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      call TTTT_Drl_ACT_C_EXT_AB_SGT0(3)
+    else
+      call TTTT_ArBl_ACT_C_EXT_AB_SGT0(3)
+    end if
+
+  case (13)
+    !===================================================================
+    ! TD(13) ACT -BL-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    call TD_AR_ACT_BL(3,LRA)
+
+  case (15)
+    !===================================================================
+    ! T1D1(15) Ar- ACT -Bl-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    call TTDD_AR_ACT_BL_SGT1(3,LRA)
+
+  case (19)
+    !===================================================================
+    ! DD(19) ACT -C"- ..................................................
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      W0DD2 = W0_DD(2)
+      W1DD2 = W1_DD(2)
+      do LRI=NORB_FRZ+1,NORB_DZ
+        LMI = LSM_INN(LRI)
+        if (LMI /= JML) cycle
+        ! DD(19-2) Drl(22)-
+        do MPL=1,MTYPE
+          VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD2
+          VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1DD2
+        end do
+        IWDL = JUD(LRI)
+        IWDR = IWDL
+        do MPL=1,MHLP
+          IWAL = LPNEW_LWEI(MPL)
+          IWAR = LPNEW_RWEI(MPL)
+          LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+          LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+        end do
+        call Drl_TS_EXT(LRI)
+      end do
+    else
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        LMI = LSM_INN(LRI)
+        do LRJ=LRI+1,NORB_DZ
+          LMJ = LSM_INN(LRJ)
+          LMIJ = MUL_TAB(LMI,LMJ)
+          if (LMIJ /= JMLR) cycle
+          W0DD1 = W0_DD(1)
+          W1DD1 = W1_DD(1)
+          NI = mod(LRJ-LRI,2)
+          if (NI == 0) then
+            W0DD1 = -W0DD1
+            W1DD1 = -W1DD1
+          end if
+          if ((LMI == JML) .and. (LMJ == JMR)) then
+            ! DD(19-1) Ar(23)-Bl(32)-      ACT -C"-
+            do MPL=1,MTYPE
+              VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1DD1
+            end do
+            IWDL = JUD(LRI)
+            IWDR = JUD(LRJ)
+            do MPL=1,MHLP
+              IWAL = LPNEW_LWEI(MPL)
+              IWAR = LPNEW_RWEI(MPL)
+              LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+              LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+            end do
+            call AR_BL_EXT_TS(LRI,LRJ,1)
+          end if
+        end do
+      end do
+    end if
+
+  case (20)
+    !===================================================================
+    ! D1D1(20) Drl- Ar-Bl- ACT -C"-
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      call D1D1_Drl_ACT_C_EXT_AB_SGT0(3)
+    else
+      call D1D1_ArBl_ACT_C_EXT_AB_SGT0(3)
+    end if
+
+  case (21)
+    !===================================================================
+    ! DD1(21) Ar-Bl- ACT -C"-
+    if ((LINELP /= 14) .or. (nlg2 /= 2)) return
+    call DD1_ArBl_ACT_C_EXT_AB_SGT0(3)
+
+  case (22)
+    !===================================================================
+    ! D1D(22) Ar-Bl- Drl- ACT -C"-
+    if ((LINELP /= 14) .or. (nlg2 /= 2)) return
+    call D1D_ArBl_ACT_C_EXT_AB_SGT0(3)
+    call D1D_Drl_ACT_C_EXT_AB_SGT0(3)
+
+  case (23)
+    !===================================================================
+    ! DV(23) ACT -C'-..................................................
+    if (LINELP /= 17) return
+    LRA = NLG1
+    do LRI=NORB_FRZ+1,NORB_DZ
+      LMI = LSM_INN(LRI)
+      if (LMI /= JMLR) cycle
+      W0DV1 = W0_DV(1)
+      NI = mod(NORB_DZ-LRI,2)
+      if (NI == 1) W0DV1 = -W0DV1
+      ! DV(23-1) A&r(23)-
       IWDL = JUD(LRI)
-      IWDR = JUD(LRJ)
+      IWDR = 0
       do MPL=1,MHLP
         IWAL = LPNEW_LWEI(MPL)
         IWAR = LPNEW_RWEI(MPL)
         LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
         LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
       end do
-      call AR_BL_EXT_TS(LRI,LRJ,1)
-    end if
-  end do
-end do
-return
+      do MPL=1,MTYPE
+        VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W0DV1
+      end do
+      call Ar_BL_EXT_TS(LRI,LRA,1)
+    end do
 
-1191 continue
-W0DD2 = W0_DD(2)
-W1DD2 = W1_DD(2)
-do LRI=NORB_FRZ+1,NORB_DZ
-  LMI = LSM_INN(LRI)
-  if (LMI /= JML) cycle
-  ! DD(19-2) Drl(22)-
-  do MPL=1,MTYPE
-    VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD2
-    VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1DD2
-  end do
-  IWDL = JUD(LRI)
-  IWDR = IWDL
-  do MPL=1,MHLP
-    IWAL = LPNEW_LWEI(MPL)
-    IWAR = LPNEW_RWEI(MPL)
-    LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-    LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-  end do
-  call Drl_TS_EXT(LRI)
-end do
-goto 10
-!=======================================================================
-! VV(25) ACT -BL- ....................................................
-125 continue
-goto 10
-!=======================================================================
-10 continue
+  case (24)
+    !===================================================================
+    ! D1V(24) Ar- ACT -Bl-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    call D1V_Ar_ACT_Bl_EXT_AB_SGT0(3,LRA)
+
+  case (25)
+    !===================================================================
+    ! VV(25) ACT -BL- ..................................................
+
+  case (7,9:10,14,16:18,26)
+end select
 
 return
 
@@ -2093,449 +2081,447 @@ subroutine tt_ext_head_in_dbl()
 LOGIC_DH = .true.
 JMLR = MUL_TAB(JML,JMR)
 LPOK = JPADLR
-goto(101,102,103,104,105,106,10,108,10,10,111,112,113,10,115,10,10,10,119,120,121,122,123,124,125,10),LPOK
-!=======================================================================
-! SD(6-1) ACT -B&L-
-106 continue
-if (LINELP /= 17) return
-LRA = NLG1
-call SD_AR_ACT_BL(11,LRA)
-if (JB_SYS > 0) call SD_AR_ACT_BL_SGT0(11,LRA)
-goto 10
-!=======================================================================
-! TD(13) ACT -B&L-
-113 continue
-if (LINELP /= 17) return
-LRA = NLG1
-call TD_AR_ACT_BL(11,LRA)
-goto 10
-!=======================================================================
-! DV(23) ACT -C'-..................................................
-123 continue
-if (LINELP /= 17) return
-LRA = NLG1
-do LRI=NORB_FRZ+1,NORB_DZ
-  LMI = LSM_INN(LRI)
-  if (LMI /= JMLR) cycle
-  W0DV1 = W0_DV(1)
-  NI = mod(NORB_DZ-LRI,2)
-  if (NI == 1) W0DV1 = -W0DV1
-!DV(23-1) A&r(23)-
-  IWDL = JUD(LRI)
-  IWDR = 0
-  do MPL=1,MHLP
-    IWAL = LPNEW_LWEI(MPL)
-    IWAR = LPNEW_RWEI(MPL)
-    LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-    LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-  end do
-  do MPL=1,MTYPE
-    VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DV1
-    VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W0DV1
-  end do
-  call Ar_BL_EXT_TT(LRI,LRA,1)
-end do
-goto 10
-!=======================================================================
-! SS(1)   ACT -C"-
-!-----------------------------------------------------------------------
-! SS(1-1)  Ar(01)-Bl(32)-        ACT -C"-
-! SS(1-3)  Ar(13)-Bl(20)-        ACT -C"-
-! SS(1-6)  (11)-Ar(23)-Bl(32)-   ACT -C"-
-! SS(1-7)  Ar(13)-C'(21)-Bl(32)- ACT -C"-
-! SS(1-8)  Ar(13)-C'(22)-Bl(31)- ACT -C"-
-! SS(1-9)  Ar(23)-C'(11)-Bl(32)- ACT -C"-
-! SS(1-11) Ar(13)-Bl(31)-C"(22)- ACT -C"-
-! SS(1-12) Ar(13)-Bl(32)-C"(21)- ACT -C"-
-! SS(1-13) Ar(23)-Bl(31)-C"(12)- ACT -C"-
-! SS(1-16) (11)-Drl(22)-         ACT -C"-
-! SS(1-18) Drl(11)-C"(22)-       ACT -C"-
-! SS(1-19) Drl(12)-C"(21)-       ACT -C"-
-! SS(1-20) (11)-Drl(33)-C"(22)-  ACT -C"-
-! SS(1-20) Drl(33)-C"(11)-C"(22)-ACT -C"-
-!-----------------------------------------------------------------------
-! SS(1)   ACT 14: -C"-
-101 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) goto 1011
-if (JB_SYS > 0) then
-  call SS_ArBl_ACT_C_EXT_AB_SGT0(11)
-  call SS_S_Drl_ACT_C_EXT_AB_SGT0(11)
-end if
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  do LRJ=LRI+1,NORB_DZ
-    call SS2_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,1)
-    call SS4_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,1)
-    call SS5_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,NK)
-    call SS10_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,NK)
-    call SS14_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,NK)
-  end do
-end do
-return
-
-1011 continue
-if (JB_SYS > 0) call SS_Drl_ACT_C_EXT_AB_SGT0(11)
-W0SS15 = W0_SS(15)
-W1SS15 = W1_SS(15)
-W0SS17 = W0_SS(17)
-W1SS17 = W1_SS(17)
-W0SS20 = W0_SS(20)
-if ((JML == 1) .and. (JMR == 1)) then
-  ! SS(1-20) Drl(33)-C"(00)-       ACT -C"-                  ! IPL(R)AD=
-  do LR0=NORB_FRZ+1,NORB_DZ
-    IWDL = JUST(LR0,LR0)
-    IWDR = IWDL
-    do MPL=1,MHLP
-      IWAL = LPNEW_LWEI(MPL)
-      IWAR = LPNEW_RWEI(MPL)
-      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-    end do
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
-      VPLP_W1(MPL) = 0.d0
-    end do
-    !do lrk=1,norb_dz
-    !  if (lrk == lr0) cycle
-    !  call Drl_tt_ext(lrk)
-    !end do
-    call Drl_TT_SUM(LR0,0)
-  end do
-end if
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  LMI = LSM_INN(LRI)
-  do LRJ=LRI+1,NORB_DZ
-    LMJ = LSM_INN(LRJ)
-    LMIJ = MUL_TAB(LMI,LMJ)
-    if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
-    IWDL = JUST(LRI,LRJ)
-    IWDR = IWDL
-    do MPL=1,MHLP
-      IWAL = LPNEW_LWEI(MPL)
-      IWAR = LPNEW_RWEI(MPL)
-      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-    end do
-    ! SS(1-15) (22)-Drl(11)-         ACT -C"-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS15
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS15
-    end do
-    call Drl_TT_EXT(LRJ)
-    ! SS(1-17) Drl(22)-C"(11)-       ACT -C"-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS17
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS17
-    end do
-    call Drl_TT_EXT(LRI)
-    ! SS(1-20) (22)(11)Drl(33)-      ACT -C"-
-    ! SS(1-20) (22)Drl(33)-C"(11)-   ACT -C"-
-    ! SS(1-20) Drl(33)-C"(22)-C"(11)-ACT -C"-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
-      VPLP_W1(MPL) = 0.d0
-    end do
-    call Drl_TT_SUM(LRI,LRJ)
-  end do
-end do
-return
-! ST(2)   ACT -C"-
-102 continue
-if ((LINELP /= 14) .or. (NLG2 == 1)) return
-if (JB_SYS > 0) call ST_Drl_ACT_C_EXT_AB_SGT0(11)
-if (JB_SYS > 0) call ST_ArBl_ACT_C_EXT_AB_SGT0(11)
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  do LRJ=LRI+1,NORB_DZ
-    call ST1_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,1)
-    call ST2_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,NK)
-    call ST4_EXT(LRI,LRJ,NK,1)
-    if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,NK)
-    call ST4_EXT(LRI,LRJ,NK,-1)
-    if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,NK)
-  end do
-end do
-
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  LMI = LSM_INN(LRI)
-  do LRJ=LRI+1,NORB_DZ
-    LMJ = LSM_INN(LRJ)
-    LMIJ = MUL_TAB(LMI,LMJ)
-    if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
-    ! ST(2-5) (22)Drl(12)-          ACT -C"-
-    IWDL = JUST(LRI,LRJ)
-    IWDR = IWDL
-    do MPL=1,MHLP
-      IWAL = LPNEW_LWEI(MPL)
-      IWAR = LPNEW_RWEI(MPL)
-      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-    end do
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = 0.d0
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(5)
-    end do
-    call Drl_TT_EXT(LRJ)
-    ! ST(2-6) Drl(22)-C"(12)-       ACT -C"-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = 0.d0
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(6)
-    end do
-    call Drl_TT_EXT(LRI)
+select case (LPOK)
+  case (1)
+    !===================================================================
+    ! SS(1)   ACT -C"-
     !-------------------------------------------------------------------
-    ! ST(2-3) Ar(13)-C'(22)-Bl(32)-   ACT -C"-
-    ! ST(2-3) Ar(13)-Bl(32)-C'(22)-   ACT -C"-
-    ! ST(2-7) Drl(12)-C"(22)-         ACT -C"-
+    ! SS(1-1)  Ar(01)-Bl(32)-        ACT -C"-
+    ! SS(1-3)  Ar(13)-Bl(20)-        ACT -C"-
+    ! SS(1-6)  (11)-Ar(23)-Bl(32)-   ACT -C"-
+    ! SS(1-7)  Ar(13)-C'(21)-Bl(32)- ACT -C"-
+    ! SS(1-8)  Ar(13)-C'(22)-Bl(31)- ACT -C"-
+    ! SS(1-9)  Ar(23)-C'(11)-Bl(32)- ACT -C"-
+    ! SS(1-11) Ar(13)-Bl(31)-C"(22)- ACT -C"-
+    ! SS(1-12) Ar(13)-Bl(32)-C"(21)- ACT -C"-
+    ! SS(1-13) Ar(23)-Bl(31)-C"(12)- ACT -C"-
+    ! SS(1-16) (11)-Drl(22)-         ACT -C"-
+    ! SS(1-18) Drl(11)-C"(22)-       ACT -C"-
+    ! SS(1-19) Drl(12)-C"(21)-       ACT -C"-
+    ! SS(1-20) (11)-Drl(33)-C"(22)-  ACT -C"-
+    ! SS(1-20) Drl(33)-C"(11)-C"(22)-ACT -C"-
     !-------------------------------------------------------------------
-  end do
-end do
-goto 10
-!=======================================================================
-! TS(3) D&R^L-  ACT -C"-
-103 continue
-if ((LINELP /= 14) .or. (NLG2 == 1)) return
-if (JB_SYS > 0) then
-  call TS_ArBl_ACT_C_EXT_AB_SGT0(11)
-end if
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  do LRJ=LRI+1,NORB_DZ
-    call TS1_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,1)
-    call TS2_EXT(LRI,LRJ,NK,1)
-    if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,NK)
-    call TS2_EXT(LRI,LRJ,NK,-1)
-    if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,NK)
-    call TS4_EXT(LRI,LRJ,NK)
-    if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,NK)
-  end do
-end do
-goto 10
-!=======================================================================
-! ST1(4) Ar-Bl- Drl- ACT -C"-
-104 continue
-if ((LINELP /= 14) .or. (nlg2 /= 2)) return
-call STT_ArBl_ACT_C_EXT_AB_SGT1(11)
-return
-!=======================================================================
-! T1S(5) Ar-Bl- Drl ACT -C"-
-105 continue
-if ((LINELP /= 14) .or. (NLG2 /= 2)) return
-call TTS_Drl_ACT_C_EXT_AB_SGT1(11)
-call TTS_ArBl_ACT_C_EXT_AB_SGT1(11)
-return
-!=======================================================================
-! SD1(8) Ar ACT -Bl-
-108 continue
-if (LINELP /= 17) return
-LRA = NLG1
-if (JB_SYS > 0) call SDD_AR_ACT_BL_SGT0(11,LRA)
-return
-!=======================================================================
-! TTTT(12) Ar-Bl- Drl- ACT -C"-
-112 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) then
-  call TTTT_Drl_ACT_C_EXT_AB_SGT0(11)
-else
-  call TTTT_ArBl_ACT_C_EXT_AB_SGT0(11)
-end if
-return
-!=======================================================================
-! T1D1(15) Ar- ACT -Bl-
-115 continue
-if (LINELP /= 17) return
-LRA = NLG1
-call TTDD_AR_ACT_BL_SGT1(11,LRA)
-return
-!=======================================================================
-! D1D1(20) Drl- Ar-Bl- ACT -C"-
-120 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) then
-  call D1D1_Drl_ACT_C_EXT_AB_SGT0(11)
-else
-  call D1D1_ArBl_ACT_C_EXT_AB_SGT0(11)
-end if
-return
-!=======================================================================
-! DD1(21) Ar-Bl- ACT -C"-
-121 continue
-if ((LINELP /= 14) .or. (nlg2 /= 2)) return
-call DD1_ArBl_ACT_C_EXT_AB_SGT0(11)
-return
-!=======================================================================
-! D1D(22) Ar-Bl- Drl- ACT -C"-
-122 continue
-if ((LINELP /= 14) .or. (nlg2 /= 2)) return
-call D1D_ArBl_ACT_C_EXT_AB_SGT0(11)
-call D1D_Drl_ACT_C_EXT_AB_SGT0(11)
-return
-!=======================================================================
-! D1V(24) Ar- ACT -Bl-
-124 continue
-if (LINELP /= 17) return
-LRA = NLG1
-call D1V_Ar_ACT_Bl_EXT_AB_SGT0(11,LRA)
-return
-!=======================================================================
-! TT(11) Drl-  ACT -C"-
-111 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) goto 1111
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  do LRJ=LRI+1,NORB_DZ
-    call TT1_EXT(LRI,LRJ,NK,1)
-    call Ar_BL_EXT_TT(LRI,LRJ,NK)
-    call TT1_EXT(LRI,LRJ,NK,-1)
-    call Ar_BL_EXT_TT(LRI,LRJ,NK)
-  end do
-end do
-return
-
-1111 continue
-W0TT2 = W0_TT(2)
-W1TT2 = W1_TT(2)
-W0TT3 = W0_TT(3)
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  LMI = LSM_INN(LRI)
-  do LRJ=LRI+1,NORB_DZ
-    LMJ = LSM_INN(LRJ)
-    LMIJ = MUL_TAB(LMI,LMJ)
-    if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
-    ! TT(11-2) (22)Drl(22)-
-    ! TT(11-2) Drl(22)-C"(22)-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TT2
-      VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1TT2
-    end do
-    IWDL = JUST(LRI,LRJ)
-    IWDR = IWDL
-    do MPL=1,MHLP
-      IWAL = LPNEW_LWEI(MPL)
-      IWAR = LPNEW_RWEI(MPL)
-      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-    end do
-    call Drl_TT_EXT(LRI)
-    call Drl_TT_EXT(LRJ)
-    ! TT(11-3) Drl(33)-C"(22)-C"(22)-
-    ! TT(11-3) (22)Drl(33)-C"(22)-
-    ! TT(11-3) (22)(22)Drl(33)-
-    do MPL=1,MTYPE
-      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TT3
-      VPLP_W1(MPL) = 0.d0
-    end do
-    !do lrk=1,norb_dz
-    !  if (lrk == lri) cycle
-    !  if (lrk == lrj) cycle
-    !  call Drl_tt_ext(lrk)
-    !end do
-    call Drl_TT_SUM(LRI,LRJ)
-  end do
-end do
-return
-!=======================================================================
-! DD(19) ACT -C"- ....................................................
-119 continue
-if (LINELP /= 14) return
-if (NLG2 == 1) goto 1191
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  LMI = LSM_INN(LRI)
-  do LRJ=LRI+1,NORB_DZ
-    LMJ = LSM_INN(LRJ)
-    LMIJ = MUL_TAB(LMI,LMJ)
-    if (LMIJ /= JMLR) cycle
-    W0DD1 = W0_DD(1)
-    W1DD1 = W1_DD(1)
-    NI = mod(LRJ-LRI,2)
-    if (NI == 0) then
-      W0DD1 = -W0DD1
-      W1DD1 = -W1DD1
-    end if
-    if ((LMI == JML) .and. (LMJ == JMR)) then
-      ! DD(19-1) Ar(23)-Bl(32)-      ACT -C"-
-      do MPL=1,MTYPE
-        VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD1
-        VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1DD1
+    ! SS(1)   ACT 14: -C"-
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      if (JB_SYS > 0) call SS_Drl_ACT_C_EXT_AB_SGT0(11)
+      W0SS15 = W0_SS(15)
+      W1SS15 = W1_SS(15)
+      W0SS17 = W0_SS(17)
+      W1SS17 = W1_SS(17)
+      W0SS20 = W0_SS(20)
+      if ((JML == 1) .and. (JMR == 1)) then
+        ! SS(1-20) Drl(33)-C"(00)-       ACT -C"-                  ! IPL(R)AD=
+        do LR0=NORB_FRZ+1,NORB_DZ
+          IWDL = JUST(LR0,LR0)
+          IWDR = IWDL
+          do MPL=1,MHLP
+            IWAL = LPNEW_LWEI(MPL)
+            IWAR = LPNEW_RWEI(MPL)
+            LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+            LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+          end do
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
+            VPLP_W1(MPL) = 0.d0
+          end do
+          !do lrk=1,norb_dz
+          !  if (lrk == lr0) cycle
+          !  call Drl_tt_ext(lrk)
+          !end do
+          call Drl_TT_SUM(LR0,0)
+        end do
+      end if
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        LMI = LSM_INN(LRI)
+        do LRJ=LRI+1,NORB_DZ
+          LMJ = LSM_INN(LRJ)
+          LMIJ = MUL_TAB(LMI,LMJ)
+          if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
+          IWDL = JUST(LRI,LRJ)
+          IWDR = IWDL
+          do MPL=1,MHLP
+            IWAL = LPNEW_LWEI(MPL)
+            IWAR = LPNEW_RWEI(MPL)
+            LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+            LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+          end do
+          ! SS(1-15) (22)-Drl(11)-         ACT -C"-
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS15
+            VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS15
+          end do
+          call Drl_TT_EXT(LRJ)
+          ! SS(1-17) Drl(22)-C"(11)-       ACT -C"-
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS17
+            VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS17
+          end do
+          call Drl_TT_EXT(LRI)
+          ! SS(1-20) (22)(11)Drl(33)-      ACT -C"-
+          ! SS(1-20) (22)Drl(33)-C"(11)-   ACT -C"-
+          ! SS(1-20) Drl(33)-C"(22)-C"(11)-ACT -C"-
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
+            VPLP_W1(MPL) = 0.d0
+          end do
+          call Drl_TT_SUM(LRI,LRJ)
+        end do
       end do
+    else
+      if (JB_SYS > 0) then
+        call SS_ArBl_ACT_C_EXT_AB_SGT0(11)
+        call SS_S_Drl_ACT_C_EXT_AB_SGT0(11)
+      end if
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        do LRJ=LRI+1,NORB_DZ
+          call SS2_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,1)
+          call SS4_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,1)
+          call SS5_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,NK)
+          call SS10_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,NK)
+          call SS14_EXT(LRI,LRJ,NK)
+          if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,NK)
+        end do
+      end do
+    end if
+
+  case (2)
+    !===================================================================
+    ! ST(2)   ACT -C"-
+    if ((LINELP /= 14) .or. (NLG2 == 1)) return
+    if (JB_SYS > 0) call ST_Drl_ACT_C_EXT_AB_SGT0(11)
+    if (JB_SYS > 0) call ST_ArBl_ACT_C_EXT_AB_SGT0(11)
+    do LRI=NORB_FRZ+1,NORB_DZ-1
+      do LRJ=LRI+1,NORB_DZ
+        call ST1_EXT(LRI,LRJ,NK)
+        if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,1)
+        call ST2_EXT(LRI,LRJ,NK)
+        if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,NK)
+        call ST4_EXT(LRI,LRJ,NK,1)
+        if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,NK)
+        call ST4_EXT(LRI,LRJ,NK,-1)
+        if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,NK)
+      end do
+    end do
+
+    do LRI=NORB_FRZ+1,NORB_DZ-1
+      LMI = LSM_INN(LRI)
+      do LRJ=LRI+1,NORB_DZ
+        LMJ = LSM_INN(LRJ)
+        LMIJ = MUL_TAB(LMI,LMJ)
+        if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
+        ! ST(2-5) (22)Drl(12)-          ACT -C"-
+        IWDL = JUST(LRI,LRJ)
+        IWDR = IWDL
+        do MPL=1,MHLP
+          IWAL = LPNEW_LWEI(MPL)
+          IWAR = LPNEW_RWEI(MPL)
+          LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+          LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+        end do
+        do MPL=1,MTYPE
+          VPLP_W0(MPL) = 0.d0
+          VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(5)
+        end do
+        call Drl_TT_EXT(LRJ)
+        ! ST(2-6) Drl(22)-C"(12)-       ACT -C"-
+        do MPL=1,MTYPE
+          VPLP_W0(MPL) = 0.d0
+          VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(6)
+        end do
+        call Drl_TT_EXT(LRI)
+        !---------------------------------------------------------------
+        ! ST(2-3) Ar(13)-C'(22)-Bl(32)-   ACT -C"-
+        ! ST(2-3) Ar(13)-Bl(32)-C'(22)-   ACT -C"-
+        ! ST(2-7) Drl(12)-C"(22)-         ACT -C"-
+        !---------------------------------------------------------------
+      end do
+    end do
+
+  case (3)
+    !===================================================================
+    ! TS(3) D&R^L-  ACT -C"-
+    if ((LINELP /= 14) .or. (NLG2 == 1)) return
+    if (JB_SYS > 0) then
+      call TS_ArBl_ACT_C_EXT_AB_SGT0(11)
+    end if
+    do LRI=NORB_FRZ+1,NORB_DZ-1
+      do LRJ=LRI+1,NORB_DZ
+        call TS1_EXT(LRI,LRJ,NK)
+        if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,1)
+        call TS2_EXT(LRI,LRJ,NK,1)
+        if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,NK)
+        call TS2_EXT(LRI,LRJ,NK,-1)
+        if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,NK)
+        call TS4_EXT(LRI,LRJ,NK)
+        if (NK /= 0) call Ar_BL_EXT_TT(LRI,LRJ,NK)
+      end do
+    end do
+
+  case (4)
+    !===================================================================
+    ! ST1(4) Ar-Bl- Drl- ACT -C"-
+    if ((LINELP /= 14) .or. (nlg2 /= 2)) return
+    call STT_ArBl_ACT_C_EXT_AB_SGT1(11)
+
+  case (5)
+    !===================================================================
+    ! T1S(5) Ar-Bl- Drl ACT -C"-
+    if ((LINELP /= 14) .or. (NLG2 /= 2)) return
+    call TTS_Drl_ACT_C_EXT_AB_SGT1(11)
+    call TTS_ArBl_ACT_C_EXT_AB_SGT1(11)
+
+  case default ! (6)
+    !===================================================================
+    ! SD(6-1) ACT -B&L-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    call SD_AR_ACT_BL(11,LRA)
+    if (JB_SYS > 0) call SD_AR_ACT_BL_SGT0(11,LRA)
+
+  case (8)
+    !===================================================================
+    ! SD1(8) Ar ACT -Bl-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    if (JB_SYS > 0) call SDD_AR_ACT_BL_SGT0(11,LRA)
+
+  case (11)
+    !===================================================================
+    ! TT(11) Drl-  ACT -C"-
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      W0TT2 = W0_TT(2)
+      W1TT2 = W1_TT(2)
+      W0TT3 = W0_TT(3)
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        LMI = LSM_INN(LRI)
+        do LRJ=LRI+1,NORB_DZ
+          LMJ = LSM_INN(LRJ)
+          LMIJ = MUL_TAB(LMI,LMJ)
+          if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
+          ! TT(11-2) (22)Drl(22)-
+          ! TT(11-2) Drl(22)-C"(22)-
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TT2
+            VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1TT2
+          end do
+          IWDL = JUST(LRI,LRJ)
+          IWDR = IWDL
+          do MPL=1,MHLP
+            IWAL = LPNEW_LWEI(MPL)
+            IWAR = LPNEW_RWEI(MPL)
+            LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+            LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+          end do
+          call Drl_TT_EXT(LRI)
+          call Drl_TT_EXT(LRJ)
+          ! TT(11-3) Drl(33)-C"(22)-C"(22)-
+          ! TT(11-3) (22)Drl(33)-C"(22)-
+          ! TT(11-3) (22)(22)Drl(33)-
+          do MPL=1,MTYPE
+            VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TT3
+            VPLP_W1(MPL) = 0.d0
+          end do
+          !do lrk=1,norb_dz
+          !  if (lrk == lri) cycle
+          !  if (lrk == lrj) cycle
+          !  call Drl_tt_ext(lrk)
+          !end do
+          call Drl_TT_SUM(LRI,LRJ)
+        end do
+      end do
+    else
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        do LRJ=LRI+1,NORB_DZ
+          call TT1_EXT(LRI,LRJ,NK,1)
+          call Ar_BL_EXT_TT(LRI,LRJ,NK)
+          call TT1_EXT(LRI,LRJ,NK,-1)
+          call Ar_BL_EXT_TT(LRI,LRJ,NK)
+        end do
+      end do
+    end if
+
+  case (12)
+    !===================================================================
+    ! TTTT(12) Ar-Bl- Drl- ACT -C"-
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      call TTTT_Drl_ACT_C_EXT_AB_SGT0(11)
+    else
+      call TTTT_ArBl_ACT_C_EXT_AB_SGT0(11)
+    end if
+
+  case (13)
+    !===================================================================
+    ! TD(13) ACT -B&L-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    call TD_AR_ACT_BL(11,LRA)
+
+  case (15)
+    !===================================================================
+    ! T1D1(15) Ar- ACT -Bl-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    call TTDD_AR_ACT_BL_SGT1(11,LRA)
+
+  case (19)
+    !===================================================================
+    ! DD(19) ACT -C"- ..................................................
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      W0DD2 = W0_DD(2)
+      W1DD2 = W1_DD(2)
+      W0DD3 = W0_DD(3)
+      do LRI=NORB_FRZ+1,NORB_DZ
+        LMI = LSM_INN(LRI)
+        if (LMI /= JML) cycle
+        ! DD(19-2) Drl(22)-
+        do MPL=1,MTYPE
+          VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD2
+          VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1DD2
+        end do
+        IWDL = JUD(LRI)
+        IWDR = IWDL
+        do MPL=1,MHLP
+          IWAL = LPNEW_LWEI(MPL)
+          IWAR = LPNEW_RWEI(MPL)
+          LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+          LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+        end do
+        call Drl_TT_EXT(LRI)
+        ! DD(19-3) (22)Drl(33)-
+        ! DD(19-3) Drl(33)-C"(22)-
+        do MPL=1,MTYPE
+          VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD3
+          VPLP_W1(MPL) = 0.d0
+        end do
+        call Drl_TT_SUM(LRI,0)
+        !do lrk=1,norb_dz
+        !  if (lrk == lri) cycle
+        !  call Drl_tt_ext(lrk)
+        !end do
+      end do
+    else
+      do LRI=NORB_FRZ+1,NORB_DZ-1
+        LMI = LSM_INN(LRI)
+        do LRJ=LRI+1,NORB_DZ
+          LMJ = LSM_INN(LRJ)
+          LMIJ = MUL_TAB(LMI,LMJ)
+          if (LMIJ /= JMLR) cycle
+          W0DD1 = W0_DD(1)
+          W1DD1 = W1_DD(1)
+          NI = mod(LRJ-LRI,2)
+          if (NI == 0) then
+            W0DD1 = -W0DD1
+            W1DD1 = -W1DD1
+          end if
+          if ((LMI == JML) .and. (LMJ == JMR)) then
+            ! DD(19-1) Ar(23)-Bl(32)-      ACT -C"-
+            do MPL=1,MTYPE
+              VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD1
+              VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1DD1
+            end do
+            IWDL = JUD(LRI)
+            IWDR = JUD(LRJ)
+            do MPL=1,MHLP
+              IWAL = LPNEW_LWEI(MPL)
+              IWAR = LPNEW_RWEI(MPL)
+              LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+              LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+            end do
+            call Ar_BL_EXT_TT(LRI,LRJ,1)
+          end if
+        end do
+      end do
+    end if
+
+  case (20)
+    !===================================================================
+    ! D1D1(20) Drl- Ar-Bl- ACT -C"-
+    if (LINELP /= 14) return
+    if (NLG2 == 1) then
+      call D1D1_Drl_ACT_C_EXT_AB_SGT0(11)
+    else
+      call D1D1_ArBl_ACT_C_EXT_AB_SGT0(11)
+    end if
+
+  case (21)
+    !===================================================================
+    ! DD1(21) Ar-Bl- ACT -C"-
+    if ((LINELP /= 14) .or. (nlg2 /= 2)) return
+    call DD1_ArBl_ACT_C_EXT_AB_SGT0(11)
+
+  case (22)
+    !===================================================================
+    ! D1D(22) Ar-Bl- Drl- ACT -C"-
+    if ((LINELP /= 14) .or. (nlg2 /= 2)) return
+    call D1D_ArBl_ACT_C_EXT_AB_SGT0(11)
+    call D1D_Drl_ACT_C_EXT_AB_SGT0(11)
+
+  case (23)
+    !===================================================================
+    ! DV(23) ACT -C'-..................................................
+    if (LINELP /= 17) return
+    LRA = NLG1
+    do LRI=NORB_FRZ+1,NORB_DZ
+      LMI = LSM_INN(LRI)
+      if (LMI /= JMLR) cycle
+      W0DV1 = W0_DV(1)
+      NI = mod(NORB_DZ-LRI,2)
+      if (NI == 1) W0DV1 = -W0DV1
+    !DV(23-1) A&r(23)-
       IWDL = JUD(LRI)
-      IWDR = JUD(LRJ)
+      IWDR = 0
       do MPL=1,MHLP
         IWAL = LPNEW_LWEI(MPL)
         IWAR = LPNEW_RWEI(MPL)
         LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
         LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
       end do
-      call Ar_BL_EXT_TT(LRI,LRJ,1)
-    end if
-  end do
-end do
-return
+      do MPL=1,MTYPE
+        VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DV1
+        VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W0DV1
+      end do
+      call Ar_BL_EXT_TT(LRI,LRA,1)
+    end do
 
-1191 continue
-W0DD2 = W0_DD(2)
-W1DD2 = W1_DD(2)
-W0DD3 = W0_DD(3)
-do LRI=NORB_FRZ+1,NORB_DZ
-  LMI = LSM_INN(LRI)
-  if (LMI /= JML) cycle
-  ! DD(19-2) Drl(22)-
-  do MPL=1,MTYPE
-    VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD2
-    VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1DD2
-  end do
-  IWDL = JUD(LRI)
-  IWDR = IWDL
-  do MPL=1,MHLP
-    IWAL = LPNEW_LWEI(MPL)
-    IWAR = LPNEW_RWEI(MPL)
-    LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-    LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-  end do
-  call Drl_TT_EXT(LRI)
-  ! DD(19-3) (22)Drl(33)-
-  ! DD(19-3) Drl(33)-C"(22)-
-  do MPL=1,MTYPE
-    VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD3
-    VPLP_W1(MPL) = 0.d0
-  end do
-  call Drl_TT_SUM(LRI,0)
-  !do lrk=1,norb_dz
-  !  if (lrk == lri) cycle
-  !  call Drl_tt_ext(lrk)
-  !end do
-end do
-goto 10
-!=======================================================================
-! VV(25) ACT -BL- ....................................................
-125 continue
-if ((LINELP /= 14) .or. (NLG2 /= 1)) return
-! VV(25) Drl(33)-
-IWDL = 0
-IWDR = 0
-do MPL=1,MTYPE
-  VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0_VV
-  VPLP_W1(MPL) = 0.d0
-end do
-do MPL=1,MHLP
-  IWAL = LPNEW_LWEI(MPL)
-  IWAR = LPNEW_RWEI(MPL)
-  LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-  LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-end do
-!call Drl_TT_SUM(0,0)
-do lrk=1,norb_dz
-  call Drl_tt_ext(lrk)
-end do
-goto 10
-!=======================================================================
-10 continue
+  case (24)
+    !===================================================================
+    ! D1V(24) Ar- ACT -Bl-
+    if (LINELP /= 17) return
+    LRA = NLG1
+    call D1V_Ar_ACT_Bl_EXT_AB_SGT0(11,LRA)
+
+  case (25)
+    !===================================================================
+    ! VV(25) ACT -BL- ..................................................
+    if ((LINELP /= 14) .or. (NLG2 /= 1)) return
+    ! VV(25) Drl(33)-
+    IWDL = 0
+    IWDR = 0
+    do MPL=1,MTYPE
+      VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0_VV
+      VPLP_W1(MPL) = 0.d0
+    end do
+    do MPL=1,MHLP
+      IWAL = LPNEW_LWEI(MPL)
+      IWAR = LPNEW_RWEI(MPL)
+      LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+      LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+    end do
+    !call Drl_TT_SUM(0,0)
+    do lrk=1,norb_dz
+      call Drl_tt_ext(lrk)
+    end do
+
+  case (7,9:10,14,16:18,26)
+end select
 
 return
 

@@ -42,7 +42,6 @@ if (logic_assign_actorb) then
     lr_scf = map_orb_order(lr)
     logi_norb_inn(lr_scf) = .true.
   end do
-  goto 200
 else
   do lr=1,norb_inn
     lsmr = lsm_inn(lr)
@@ -52,7 +51,6 @@ else
     logi_norb_inn(lr_scf) = .true.
   end do
 end if
-200 continue
 lr_scf0 = norb_all
 la = norb_inn+1
 do ms=ng_sm,1,-1
@@ -92,10 +90,9 @@ do i=1,norb_all
   do j=1,norb_all
     if (map_tmp(j) == i) then
       map_orb_order(i) = j
-      goto 40
+      exit
     end if
   end do
-40 continue
 end do
 
 return

@@ -180,63 +180,63 @@ end do
 !***********************************************************************
 lr = norb_dz+1
 
-40 continue
-if (lr == norb_inn) then
-  if (mh /= 0) call diagonal_link_dae(mh)
-  return
-end if
-lr = lr+1
-me = 0
-do m=1,mh
-  je = jeh(m)
-  jeb = jb(je)
-  !jp = jph(m)
-  do idl=1,4
-    if (jj_sub(idl,je) == 0) cycle
-    ind1 = idl
-    !if (lr == 1) goto 20
-    ! link loop
-    call smidc2(isq,w,ww,mw,ind1,jeb)
-    me = me+1
-    jwe(me) = jwh(m)
-    if (idl /= 1) jwe(me) = jwe(me)+iy(idl,je)
-    jee(me) = jj_sub(idl,je)
-    te(me) = th(m)*w
-    tee(me) = thh(m)*ww
-    jpe(me) = jph(m)
-    ! complete a loop 'v'
-    !20 continue
-    if (ind1 == 1) cycle
-    call stml(isq,w,ww,mw,ind1-1,jeb)
-    vlop0 = th(m)*w
-    vlop1 = thh(m)*ww
-    if ((vlop0 == 0.0d0) .and. (vlop1 == 0.0d0)) cycle
-    mp = mp+1
-    mpe = jj_sub(idl,je)
-    iwa = jwh(m)
-    if (idl /= 1) iwa = iwa+iy(idl,je)
-    call diagonal_link_ad(mpe,iwa,vlop0,vlop1)
-    !*****   520  ******************************************************
+do
+  if (lr == norb_inn) then
+    if (mh /= 0) call diagonal_link_dae(mh)
+    return
+  end if
+  lr = lr+1
+  me = 0
+  do m=1,mh
+    je = jeh(m)
+    jeb = jb(je)
+    !jp = jph(m)
+    do idl=1,4
+      if (jj_sub(idl,je) == 0) cycle
+      ind1 = idl
+      !if (lr /= 1) then
+      ! link loop
+      call smidc2(isq,w,ww,mw,ind1,jeb)
+      me = me+1
+      jwe(me) = jwh(m)
+      if (idl /= 1) jwe(me) = jwe(me)+iy(idl,je)
+      jee(me) = jj_sub(idl,je)
+      te(me) = th(m)*w
+      tee(me) = thh(m)*ww
+      jpe(me) = jph(m)
+      !end if
+      ! complete a loop 'v'
+      if (ind1 == 1) cycle
+      call stml(isq,w,ww,mw,ind1-1,jeb)
+      vlop0 = th(m)*w
+      vlop1 = thh(m)*ww
+      if ((vlop0 == 0.0d0) .and. (vlop1 == 0.0d0)) cycle
+      mp = mp+1
+      mpe = jj_sub(idl,je)
+      iwa = jwh(m)
+      if (idl /= 1) iwa = iwa+iy(idl,je)
+      call diagonal_link_ad(mpe,iwa,vlop0,vlop1)
+      !*****   520  ****************************************************
+    end do
   end do
+  !*********************************************************************
+  !write(6,*) ad(i)
+  !*********************************************************************
+  do m=1,me
+    th(m) = te(m)
+    te(m) = 0.0d0
+    thh(m) = tee(m)
+    tee(m) = 0.0d0
+    jwh(m) = jwe(m)
+    jwe(m) = 0
+    jeh(m) = jee(m)
+    jee(m) = 0
+    jph(m) = jpe(m)
+    jpe(m) = 0
+  end do
+  mh = me
+  if (ndr(lr) < mh) ndr(lr) = mh
 end do
-!***********************************************************************
-!write(6,*) ad(i)
-!***********************************************************************
-do m=1,me
-  th(m) = te(m)
-  te(m) = 0.0d0
-  thh(m) = tee(m)
-  tee(m) = 0.0d0
-  jwh(m) = jwe(m)
-  jwe(m) = 0
-  jeh(m) = jee(m)
-  jee(m) = 0
-  jph(m) = jpe(m)
-  jpe(m) = 0
-end do
-mh = me
-if (ndr(lr) < mh) ndr(lr) = mh
-goto 40
 do m=1,mh
   th(m) = 0.0d0
   thh(m) = 0.0d0
@@ -291,7 +291,7 @@ do lr=norb_dz+1,norb_inn
   end do
 end do
 ! 520
-do lr0=norb_dz+1,norb_inn
+outer: do lr0=norb_dz+1,norb_inn
   mh = 0
   me = 0
   jp0 = no(lr0-1)+1
@@ -320,67 +320,66 @@ do lr0=norb_dz+1,norb_inn
   !*********************************************************************
   lr = lr0
   if (ndr(lr) < mh) ndr(lr) = mh
-40 continue
-  if (lr == norb_inn) then
-    call diagonal_link_ae(mh)
-    goto 5
-  end if
-  lr = lr+1
-  me = 0
-  mp = 0
-  do m=1,mh
-    je = jeh(m)
-    jeb = jb(je)
-    jp = jph(m)
-    do idl=1,4
-      if (jj_sub(idl,je) == 0) goto 17
-      ind1 = idl
-      if (lr == 1) goto 20
-      ! link loop
-      call smidc2(isq,w,ww,mw,ind1,jeb)
-      me = me+1
-      jwe(me) = jwh(m)
-      if (idl /= 1) jwe(me) = jwe(me)+iy(idl,je)
-      jee(me) = jj_sub(idl,je)
-      te(me) = th(m)*w
-      tee(me) = thh(m)*ww
-      jpe(me) = jph(m)
-      ! complete a loop 'v'
-20    continue
-      if (ind1 == 1) goto 17
-      call stml(isq,w,ww,mw,ind1-1,jeb)
-      vlop0 = th(m)*w
-      vlop1 = thh(m)*ww
-      if ((vlop0 == 0.0d0) .and. (vlop1 == 0.0d0)) goto 17
-      mp = mp+1
-      mpe = jj_sub(idl,je)
-      iwa = jwh(m)
-      if (idl /= 1) iwa = iy(idl,je)+iwa
-      wt = (vlop0-vlop1)*voint(lr,lr0)-2.d0*vlop0*vdint(lr,lr0)
+  do
+    if (lr == norb_inn) then
+      call diagonal_link_ae(mh)
+      cycle outer
+    end if
+    lr = lr+1
+    me = 0
+    mp = 0
+    do m=1,mh
+      je = jeh(m)
+      jeb = jb(je)
+      jp = jph(m)
+      do idl=1,4
+        if (jj_sub(idl,je) == 0) cycle
+        ind1 = idl
+        if (lr /= 1) then
+          ! link loop
+          call smidc2(isq,w,ww,mw,ind1,jeb)
+          me = me+1
+          jwe(me) = jwh(m)
+          if (idl /= 1) jwe(me) = jwe(me)+iy(idl,je)
+          jee(me) = jj_sub(idl,je)
+          te(me) = th(m)*w
+          tee(me) = thh(m)*ww
+          jpe(me) = jph(m)
+        end if
+        ! complete a loop 'v'
+        if (ind1 == 1) cycle
+        call stml(isq,w,ww,mw,ind1-1,jeb)
+        vlop0 = th(m)*w
+        vlop1 = thh(m)*ww
+        if ((vlop0 == 0.0d0) .and. (vlop1 == 0.0d0)) cycle
+        mp = mp+1
+        mpe = jj_sub(idl,je)
+        iwa = jwh(m)
+        if (idl /= 1) iwa = iy(idl,je)+iwa
+        wt = (vlop0-vlop1)*voint(lr,lr0)-2.d0*vlop0*vdint(lr,lr0)
 
-      call prodel(3,wt,jp,mpe,iwa)
-      !*****   520  ****************************************************
-17    continue
+        call prodel(3,wt,jp,mpe,iwa)
+        !*****   520  **************************************************
+      end do
     end do
+    !*******************************************************************
+    !write(6,*) ad(i)
+    !*******************************************************************
+    do m=1,me
+      th(m) = te(m)
+      te(m) = 0.0d0
+      thh(m) = tee(m)
+      tee(m) = 0.0d0
+      jwh(m) = jwe(m)
+      jwe(m) = 0
+      jeh(m) = jee(m)
+      jee(m) = 0
+      jph(m) = jpe(m)
+      jpe(m) = 0
+    end do
+    mh = me
+    if (ndr(lr) < mh) ndr(lr) = mh
   end do
-  !*********************************************************************
-  !write(6,*) ad(i)
-  !*********************************************************************
-  do m=1,me
-    th(m) = te(m)
-    te(m) = 0.0d0
-    thh(m) = tee(m)
-    tee(m) = 0.0d0
-    jwh(m) = jwe(m)
-    jwe(m) = 0
-    jeh(m) = jee(m)
-    jee(m) = 0
-    jph(m) = jpe(m)
-    jpe(m) = 0
-  end do
-  mh = me
-  if (ndr(lr) < mh) ndr(lr) = mh
-  goto 40
   do m=1,mh
     th(m) = 0.0d0
     thh(m) = 0.0d0
@@ -388,8 +387,7 @@ do lr0=norb_dz+1,norb_inn
     jph(m) = 0
     jeh(m) = 0
   end do
-5 continue
-end do
+end do outer
 
 return
 
@@ -431,77 +429,78 @@ do ip=1,mh
   !wl8 = vlop0*(vo(lr0,lr0)+(vlop0-1)*0.5*vmd(lr0,lr0))
   ! two-index,one-loop 520
   ! 0=<a,j,k,a>:13,14(ss=3),38(tt=2),50(dd=1)
-  goto(100,200,300),ityae
   !link arc_d
-100 continue
-  !zz = '  g50  '
-  wg50 = vlop0*vsq2
-  wwg50 = -vlop1*sqrt(3.d0)/sqrt(2.d0)
-  do la=1,norb_ext
-    ma = lsm(la)
-    if (ma /= imae) cycle
-    lra = norb_all-la+1
-    iwe = iwe+1
-    wld = (wg50-wwg50)*voint(lra,lr0)-2.d0*wg50*vdint(lra,lr0)
-    !write(6,'(a11,2i3,i6,1x,5f10.4)') zz,lr0,la,jwl,vo(lr0,la),vmd(lr0,la),wg50,wwg50,wl
-    call prodel(5,wld,jp,iwa,iwe)
-  end do
-  goto 108
-200 continue
-  !zz = '  g38,39  '
-  wg38 = -vlop0*vsq2
-  wwg38 = vlop1
-  do ima=1,ng_sm
-    imb = mul_tab(ima,imae)
-    if (imb > ima) cycle
-    do la=ibsm_ext(ima),iesm_ext(ima)
-      lra = norb_all-la+1
-      lbsta = ibsm_ext(imb)
-      lbend = iesm_ext(imb)
-      if (ima == imb) lbend = la-1
-      do lb=lbsta,lbend
-        lrb = norb_all-lb+1
+  select case (ityae)
+    case default ! (1)
+      !zz = '  g50  '
+      wg50 = vlop0*vsq2
+      wwg50 = -vlop1*sqrt(3.d0)/sqrt(2.d0)
+      do la=1,norb_ext
+        ma = lsm(la)
+        if (ma /= imae) cycle
+        lra = norb_all-la+1
         iwe = iwe+1
-        wlt = (wg38-wwg38)*(voint(lra,lr0)+voint(lrb,lr0))-2.d0*wg38*(vdint(lra,lr0)+vdint(lrb,lr0))
-        !write(6,*) ' 520 r0,la,lb ',vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
+        wld = (wg50-wwg50)*voint(lra,lr0)-2.d0*wg50*vdint(lra,lr0)
+        !write(6,'(a11,2i3,i6,1x,5f10.4)') zz,lr0,la,jwl,vo(lr0,la),vmd(lr0,la),wg50,wwg50,wl
+        call prodel(5,wld,jp,iwa,iwe)
+      end do
 
-        call prodel(5,wlt,jp,iwa,iwe)
+    case (2)
+      !zz = '  g38,39  '
+      wg38 = -vlop0*vsq2
+      wwg38 = vlop1
+      do ima=1,ng_sm
+        imb = mul_tab(ima,imae)
+        if (imb > ima) cycle
+        do la=ibsm_ext(ima),iesm_ext(ima)
+          lra = norb_all-la+1
+          lbsta = ibsm_ext(imb)
+          lbend = iesm_ext(imb)
+          if (ima == imb) lbend = la-1
+          do lb=lbsta,lbend
+            lrb = norb_all-lb+1
+            iwe = iwe+1
+            wlt = (wg38-wwg38)*(voint(lra,lr0)+voint(lrb,lr0))-2.d0*wg38*(vdint(lra,lr0)+vdint(lrb,lr0))
+            !write(6,*) ' 520 r0,la,lb ',vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
+
+            call prodel(5,wlt,jp,iwa,iwe)
+          end do
+        end do
       end do
-    end do
-  end do
-  goto 108
-300 continue
-  !zz = '  g14,15  '
-  wg14 = -vlop0*vsq2
-  do ima=1,ng_sm
-    imb = mul_tab(ima,imae)
-    if (imb > ima) cycle
-    if (nlsm_ext(ima) == 0) cycle
-    if (nlsm_ext(imb) == 0) cycle
-    do la=ibsm_ext(ima),iesm_ext(ima)
-      lra = norb_all-la+1
-      lbsta = ibsm_ext(imb)
-      lbend = iesm_ext(imb)
-      if (ima == imb) lbend = la-1
-      do lb=lbsta,lbend
-        lrb = norb_all-lb+1
+
+    case (3)
+      !zz = '  g14,15  '
+      wg14 = -vlop0*vsq2
+      do ima=1,ng_sm
+        imb = mul_tab(ima,imae)
+        if (imb > ima) cycle
+        if (nlsm_ext(ima) == 0) cycle
+        if (nlsm_ext(imb) == 0) cycle
+        do la=ibsm_ext(ima),iesm_ext(ima)
+          lra = norb_all-la+1
+          lbsta = ibsm_ext(imb)
+          lbend = iesm_ext(imb)
+          if (ima == imb) lbend = la-1
+          do lb=lbsta,lbend
+            lrb = norb_all-lb+1
+            iwe = iwe+1
+            wls = wg14*(voint(lra,lr0)+voint(lrb,lr0))-2.d0*wg14*(vdint(lra,lr0)+vdint(lrb,lr0))
+            call prodel(5,wls,jp,iwa,iwe)
+          end do
+        end do
+      end do
+      if (ipae /= 18) cycle
+      !zz = '  g13     '
+      wg13 = -vlop0*dsq2
+      do la=1,norb_ext
+        lra = norb_all-la+1
         iwe = iwe+1
-        wls = wg14*(voint(lra,lr0)+voint(lrb,lr0))-2.d0*wg14*(vdint(lra,lr0)+vdint(lrb,lr0))
+        wls = wg13*(voint(lra,lr0)-2.d0*vdint(lra,lr0))
         call prodel(5,wls,jp,iwa,iwe)
+        !write(6,*) ' g13 ',vo(lr0,la),vo(lr0,lb),vmd(lr0,la),vmd(lr0,lb)
       end do
-    end do
-  end do
-  if (ipae /= 18) goto 108
-  !zz = '  g13     '
-  wg13 = -vlop0*dsq2
-  do la=1,norb_ext
-    lra = norb_all-la+1
-    iwe = iwe+1
-    wls = wg13*(voint(lra,lr0)-2.d0*vdint(lra,lr0))
-    call prodel(5,wls,jp,iwa,iwe)
-    !write(6,*) ' g13 ',vo(lr0,la),vo(lr0,lb),vmd(lr0,la),vmd(lr0,lb)
-  end do
-108 continue
+  end select
+
 end do
 mh = 0
 
@@ -534,236 +533,235 @@ if (imad == 0) then
   imad = 8
 end if
 lra = kk(mpe)-1
-goto(100,200,300,400,500,600),ityad
-! v: d&r&l(3)
-100 continue
-fqi = -fg
-vl0 = fqi*dsq2*vlop0
-wlv = 0.d0
-!do lr=norb_frz+1,norb_dz
-do lr=1,norb_dz
-  wlv = wlv-vl0*vdint(lr,lra)
-end do
-call prodel(4,wlv,mpe,0,iwa)
-return
-!jpad = jd(im)
-200 continue
-fqi = -fg
-do lri=norb_frz+1,norb_dz
-  imd = mul_tab(lsm_inn(lri),ns_sm)
-  if (imd /= imad) cycle
-  iwd = jud(lri)
-
-  ! d: d&r&l(2)
-  vl0 = fqi*vsq2*vlop0
-  vl1 = pd*vlop1
-  wld = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
-  ! d: d&r&l(3)+c"(2)
-  vl0 = fqi*dsq2*vlop0
-  do lr=1,lri-1
-    wld = wld+vl0*(voint(lra,lr)-2.d0*vdint(lra,lr))
-  end do
-  ! d: d&r&l(3)
-  do lr=lri+1,norb_dz
-    wld = wld+vl0*(voint(lra,lr)-2.d0*vdint(lra,lr))
-  end do
-
-  call prodel(4,wld,mpe,iwd,iwa)
-end do
-return
-!jpad = jt(im)
-300 continue
-fqi = fg
-iwt = 0
-do lri=norb_frz+1,norb_dz
-  imi = mul_tab(lsm_inn(lri),ns_sm)
-  do lrj=lri+1,norb_dz
-    imj = lsm_inn(lrj)
-    imij = mul_tab(imi,imj)
-    if (imij /= imad) cycle
-    iwt = just(lri,lrj)
-
-    ! t: d&r&l(2)
-    ! t: d&r&l(2)+c"(2)
-    vl0 = fqi*vsq2*vlop0
-    vl1 = pt*vlop1
-    wlt = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
-    wlt = wlt-2.0d0*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
+select case (ityad)
+  case default ! (1)
+    ! v: d&r&l(3)
+    fqi = -fg
     vl0 = fqi*dsq2*vlop0
-    ! t: d&r&l(3)+c"(2)+c"(2)
-    do lr=1,lri-1
-      wlt = wlt+vl0*vdint(lr,lra)
-    end do
-    ! t: d&r&l(3)+c"(2)
-    do lr=lri+1,lrj-1
-      wlt = wlt+vl0*vdint(lr,lra)
-    end do
-    ! t: d&r&l(3)
-    do lr=lrj+1,norb_dz
-      wlt = wlt+vl0*vdint(lr,lra)
-    end do
-    call prodel(4,wlt,mpe,iwt,iwa)
-  end do
-end do
-return
-400 continue
-fqi = fg
-iws = 0
-do lri=norb_frz+1,norb_dz
-  if (imad == ns_sm) then
-    lrj = lri
-    iws = just(lri,lri)
-    ! s: d&r&l(3)+c"(0)
-    ! s: d&r&l(3)
-    vl0 = fqi*dsq2*vlop0
-    wls = 0.d0
+    wlv = 0.d0
+    !do lr=norb_frz+1,norb_dz
     do lr=1,norb_dz
-      if (lr == lri) cycle
-      wls = wls+vl0*(voint(lra,lr)-2.d0*vdint(lra,lr))
+      wlv = wlv-vl0*vdint(lr,lra)
     end do
-    call prodel(4,wls,mpe,iws,iwa)
-  end if
+    call prodel(4,wlv,mpe,0,iwa)
 
-  imi = mul_tab(lsm_inn(lri),ns_sm)
-  lrjsta = lri+1
-  do lrj=lrjsta,norb_dz
-    imj = lsm_inn(lrj)
-    imij = mul_tab(imi,imj)
-    if (imij /= imad) cycle
-    iws = just(lri,lrj)
-    ! s1: d&r&l(1)
-    vl0 = fqi*vsq2*vlop0
-    vl1 = ps1*vlop1
-    wls = -2.0d0*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
-    ! s4: d&r&l(2)+c"(1)
-    vl0 = fqi*vsq2*vlop0
-    vl1 = ps4*vlop1
-    wls = wls-2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
+  case (2)
+    !jpad = jd(im)
+    fqi = -fg
+    do lri=norb_frz+1,norb_dz
+      imd = mul_tab(lsm_inn(lri),ns_sm)
+      if (imd /= imad) cycle
+      iwd = jud(lri)
 
-    vl0 = fqi*dsq2*vlop0
-    ! s: d&r&l(3)+c"(2)+c"(1)
-    do lr=1,lri-1
-      wls = wls+vl0*vdint(lr,lra)
-    end do
-    ! s: d&r&l(3)+c"(1)
-    do lr=lri+1,lrj-1
-      wls = wls+vl0*vdint(lr,lra)
-    end do
-    ! s: d&r&l(3)
-    do lr=lrj+1,norb_dz
-      wls = wls+vl0*vdint(lr,lra)
-    end do
-    call prodel(4,wls,mpe,iws,iwa)
-  end do
-end do
+      ! d: d&r&l(2)
+      vl0 = fqi*vsq2*vlop0
+      vl1 = pd*vlop1
+      wld = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
+      ! d: d&r&l(3)+c"(2)
+      vl0 = fqi*dsq2*vlop0
+      do lr=1,lri-1
+        wld = wld+vl0*(voint(lra,lr)-2.d0*vdint(lra,lr))
+      end do
+      ! d: d&r&l(3)
+      do lr=lri+1,norb_dz
+        wld = wld+vl0*(voint(lra,lr)-2.d0*vdint(lra,lr))
+      end do
 
-if (jb_sys == 0) return      !any difference when jb_sys=1 and jb_sy
-fqi = fg
-do lri=norb_frz+1,norb_dz
-  imi = mul_tab(lsm_inn(lri),ns_sm)
-  do lrj=lri+1,norb_dz
-    imj = lsm_inn(lrj)
-    imij = mul_tab(imi,imj)
-    if (imij /= imad) cycle
-    !iws = iws+1
-    iws = just(lrj,lri)
-    ! s1: d&r&l(1)-c"(2)
-    vl0 = fqi*vsq2*vlop0
-    vl1 = ps3*vlop1
-    wls = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
-
-    ! s3: (11)d&r&l(2)
-    vl0 = fqi*vsq2*vlop0
-    vl1 = ps2*vlop1
-    wls = wls-2.0d0*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
-
-    vl0 = fqi*dsq2*vlop0
-    ! s: d&r&l(3)+c"(1)+c"(2)
-    do lr=1,lri-1
-      wls = wls+vl0*vdint(lr,lra)
-    end do
-    ! s: d&r&l(3)+c"(2)
-    do lr=lri+1,lrj-1
-      wls = wls+vl0*vdint(lr,lra)
-    end do
-    ! s: d&r&l(3)
-    do lr=lrj+1,norb_dz
-      wls = wls+vl0*vdint(lr,lra)
-    end do
-    call prodel(4,wls,mpe,iws,iwa)
-  end do
-end do
-return
-
-500 continue
-fqi = -fg
-iwd = 0
-
-do lri=norb_frz+1,norb_dz
-  imd = mul_tab(lsm_inn(lri),ns_sm)
-  if (imd /= imad) cycle
-  iwd = jud(lri)
-
-  ! dd1: d&r&l(1)
-  vl0 = fqi*vsq2*vlop0
-  vl1 = pdd*vlop1
-  !if ((mpe == 43) .and. (iwd == 1.)) then
-  !  write(6,*)
-  !  write(6,*) lri,lra,vl0,vl1,wld,vlop0,vlop1
-  !end if
-
-  wld = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
-
-  vl0 = fqi*dsq2*vlop0
-
-  ! d: d&r&l(3)+c"(1)
-  do lr=1,lri-1
-    wld = wld+vl0*vdint(lr,lra)
-  end do
-
-  ! d: d&r&l(3)
-  do lr=lri+1,norb_dz
-    wld = wld+vl0*vdint(lr,lra)
-  end do
-
-  call prodel(4,wld,mpe,iwd,iwa)
-end do
-return
-
-600 continue
-fqi = fg
-iwt = 0
-do lri=norb_frz+1,norb_dz
-  imi = mul_tab(lsm_inn(lri),ns_sm)
-  do lrj=lri+1,norb_dz
-    imj = lsm_inn(lrj)
-    imij = mul_tab(imi,imj)
-    if (imij /= imad) cycle
-    iwt = just(lri,lrj)
-
-    ! tt: d&r&l(1)
-    ! tt: d&r&l(1)+c"(1)
-    vl0 = fqi*vsq2*vlop0
-    vl1 = ptt*vlop1
-    wlt = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
-    wlt = wlt-2.0d0*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
-    vl0 = fqi*dsq2*vlop0
-    ! t: d&r&l(3)+c"(1)+c"(1)
-    do lr=1,lri-1
-      wlt = wlt+vl0*vdint(lr,lra)
-    end do
-    ! t: d&r&l(3)+c"(1)
-    do lr=lri+1,lrj-1
-      wlt = wlt+vl0*vdint(lr,lra)
-    end do
-    ! t: d&r&l(3)
-    do lr=lrj+1,norb_dz
-      wlt = wlt+vl0*vdint(lr,lra)
+      call prodel(4,wld,mpe,iwd,iwa)
     end do
 
-    call prodel(4,wlt,mpe,iwt,iwa)
-  end do
-end do
+  case (3)
+    !jpad = jt(im)
+    fqi = fg
+    iwt = 0
+    do lri=norb_frz+1,norb_dz
+      imi = mul_tab(lsm_inn(lri),ns_sm)
+      do lrj=lri+1,norb_dz
+        imj = lsm_inn(lrj)
+        imij = mul_tab(imi,imj)
+        if (imij /= imad) cycle
+        iwt = just(lri,lrj)
+
+        ! t: d&r&l(2)
+        ! t: d&r&l(2)+c"(2)
+        vl0 = fqi*vsq2*vlop0
+        vl1 = pt*vlop1
+        wlt = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
+        wlt = wlt-2.0d0*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
+        vl0 = fqi*dsq2*vlop0
+        ! t: d&r&l(3)+c"(2)+c"(2)
+        do lr=1,lri-1
+          wlt = wlt+vl0*vdint(lr,lra)
+        end do
+        ! t: d&r&l(3)+c"(2)
+        do lr=lri+1,lrj-1
+          wlt = wlt+vl0*vdint(lr,lra)
+        end do
+        ! t: d&r&l(3)
+        do lr=lrj+1,norb_dz
+          wlt = wlt+vl0*vdint(lr,lra)
+        end do
+        call prodel(4,wlt,mpe,iwt,iwa)
+      end do
+    end do
+
+  case (4)
+    fqi = fg
+    iws = 0
+    do lri=norb_frz+1,norb_dz
+      if (imad == ns_sm) then
+        lrj = lri
+        iws = just(lri,lri)
+        ! s: d&r&l(3)+c"(0)
+        ! s: d&r&l(3)
+        vl0 = fqi*dsq2*vlop0
+        wls = 0.d0
+        do lr=1,norb_dz
+          if (lr == lri) cycle
+          wls = wls+vl0*(voint(lra,lr)-2.d0*vdint(lra,lr))
+        end do
+        call prodel(4,wls,mpe,iws,iwa)
+      end if
+
+      imi = mul_tab(lsm_inn(lri),ns_sm)
+      lrjsta = lri+1
+      do lrj=lrjsta,norb_dz
+        imj = lsm_inn(lrj)
+        imij = mul_tab(imi,imj)
+        if (imij /= imad) cycle
+        iws = just(lri,lrj)
+        ! s1: d&r&l(1)
+        vl0 = fqi*vsq2*vlop0
+        vl1 = ps1*vlop1
+        wls = -2.0d0*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
+        ! s4: d&r&l(2)+c"(1)
+        vl0 = fqi*vsq2*vlop0
+        vl1 = ps4*vlop1
+        wls = wls-2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
+
+        vl0 = fqi*dsq2*vlop0
+        ! s: d&r&l(3)+c"(2)+c"(1)
+        do lr=1,lri-1
+          wls = wls+vl0*vdint(lr,lra)
+        end do
+        ! s: d&r&l(3)+c"(1)
+        do lr=lri+1,lrj-1
+          wls = wls+vl0*vdint(lr,lra)
+        end do
+        ! s: d&r&l(3)
+        do lr=lrj+1,norb_dz
+          wls = wls+vl0*vdint(lr,lra)
+        end do
+        call prodel(4,wls,mpe,iws,iwa)
+      end do
+    end do
+
+    if (jb_sys == 0) return      !any difference when jb_sys=1 and jb_sy
+    fqi = fg
+    do lri=norb_frz+1,norb_dz
+      imi = mul_tab(lsm_inn(lri),ns_sm)
+      do lrj=lri+1,norb_dz
+        imj = lsm_inn(lrj)
+        imij = mul_tab(imi,imj)
+        if (imij /= imad) cycle
+        !iws = iws+1
+        iws = just(lrj,lri)
+        ! s1: d&r&l(1)-c"(2)
+        vl0 = fqi*vsq2*vlop0
+        vl1 = ps3*vlop1
+        wls = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
+
+        ! s3: (11)d&r&l(2)
+        vl0 = fqi*vsq2*vlop0
+        vl1 = ps2*vlop1
+        wls = wls-2.0d0*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
+
+        vl0 = fqi*dsq2*vlop0
+        ! s: d&r&l(3)+c"(1)+c"(2)
+        do lr=1,lri-1
+          wls = wls+vl0*vdint(lr,lra)
+        end do
+        ! s: d&r&l(3)+c"(2)
+        do lr=lri+1,lrj-1
+          wls = wls+vl0*vdint(lr,lra)
+        end do
+        ! s: d&r&l(3)
+        do lr=lrj+1,norb_dz
+          wls = wls+vl0*vdint(lr,lra)
+        end do
+        call prodel(4,wls,mpe,iws,iwa)
+      end do
+    end do
+
+  case (5)
+    fqi = -fg
+    iwd = 0
+
+    do lri=norb_frz+1,norb_dz
+      imd = mul_tab(lsm_inn(lri),ns_sm)
+      if (imd /= imad) cycle
+      iwd = jud(lri)
+
+      ! dd1: d&r&l(1)
+      vl0 = fqi*vsq2*vlop0
+      vl1 = pdd*vlop1
+      !if ((mpe == 43) .and. (iwd == 1.)) then
+      !  write(6,*)
+      !  write(6,*) lri,lra,vl0,vl1,wld,vlop0,vlop1
+      !end if
+
+      wld = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
+
+      vl0 = fqi*dsq2*vlop0
+
+      ! d: d&r&l(3)+c"(1)
+      do lr=1,lri-1
+        wld = wld+vl0*vdint(lr,lra)
+      end do
+
+      ! d: d&r&l(3)
+      do lr=lri+1,norb_dz
+        wld = wld+vl0*vdint(lr,lra)
+      end do
+
+      call prodel(4,wld,mpe,iwd,iwa)
+    end do
+
+  case (6)
+    fqi = fg
+    iwt = 0
+    do lri=norb_frz+1,norb_dz
+      imi = mul_tab(lsm_inn(lri),ns_sm)
+      do lrj=lri+1,norb_dz
+        imj = lsm_inn(lrj)
+        imij = mul_tab(imi,imj)
+        if (imij /= imad) cycle
+        iwt = just(lri,lrj)
+
+        ! tt: d&r&l(1)
+        ! tt: d&r&l(1)+c"(1)
+        vl0 = fqi*vsq2*vlop0
+        vl1 = ptt*vlop1
+        wlt = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
+        wlt = wlt-2.0d0*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
+        vl0 = fqi*dsq2*vlop0
+        ! t: d&r&l(3)+c"(1)+c"(1)
+        do lr=1,lri-1
+          wlt = wlt+vl0*vdint(lr,lra)
+        end do
+        ! t: d&r&l(3)+c"(1)
+        do lr=lri+1,lrj-1
+          wlt = wlt+vl0*vdint(lr,lra)
+        end do
+        ! t: d&r&l(3)
+        do lr=lrj+1,norb_dz
+          wlt = wlt+vl0*vdint(lr,lra)
+        end do
+
+        call prodel(4,wlt,mpe,iwt,iwa)
+      end do
+    end do
+end select
 
 return
 
@@ -797,172 +795,170 @@ do ip=1,mh
   vlop0 = th(ip)
   vlop1 = thh(ip)
 
-  goto(100,200,300,400,500,600),ityad
-
-  !jpad = 1
-100 continue
-  if (abs(vlop0) < 1e-30) goto 108
-  fqi = fg
-  ! v: d&r&l(3)
-  lri = 0
-  lrj = 0
-  iwd = 0
-  vij0 = 0.d0
-  vij1 = 0.d0
-  vij2 = 0.d0
-  vl0 = fqi*dsq2*vlop0
-  call diagonal_call_dae(lri,lrj,iwd,iwa,vij0,vij1,vij2,vl0)
-  goto 108
-  !jpad = jd(im)
-200 continue
-  fqi = -fg
-  lrj = 0
-  do lri=norb_frz+1,norb_dz
-    imd = mul_tab(lsm_inn(lri),ns_sm)
-    if (imd /= imad) cycle
-    iwd = jud(lri)
-
-    ! d: d&r&l(2)
-    vij0 = fqi*vsq2*vlop0
-    vij1 = pd*vlop1
-    vij2 = 0.d0
-    ! d: d&r&l(3)+c"(2)
-    ! d: d&r&l(3)
-    vl0 = fqi*dsq2*vlop0
-
-    call diagonal_call_dae(lri,lrj,iwd,iwa,vij0,vij1,vij2,vl0)
-
-  end do
-  goto 108
-  !jpad = jt(im)
-300 continue
-  fqi = fg
-  iwt = 0
-  do lri=norb_frz+1,norb_dz
-    imi = mul_tab(lsm_inn(lri),ns_sm)
-    do lrj=lri+1,norb_dz
-      imj = lsm_inn(lrj)
-      imij = mul_tab(imi,imj)
-      if (imij /= imad) cycle
-      iwt = just(lri,lrj)
-
-      ! t: d&r&l(2)
-      ! t: d&r&l(2)+c"(2)
-      vij0 = fqi*vsq2*vlop0
-      vij1 = pt*vlop1
-      vij2 = vij1
-      ! t: d&r&l(3)+c"(2)+c"(2)
-      ! t: d&r&l(3)+c"(2)
-      ! t: d&r&l(3)
-      vl0 = fqi*dsq2*vlop0
-
-      call diagonal_call_dae(lri,lrj,iwt,iwa,vij0,vij1,vij2,vl0)
-    end do
-  end do
-  goto 108
-400 continue
-  fqi = fg
-  iws = 0
-  do lri=norb_frz+1,norb_dz           !cc
-    if (imad == ns_sm) then
-      lrj = lri
-      iws = just(lri,lri)
+  select case (ityad)
+    case default ! (1)
+      !jpad = 1
+      if (abs(vlop0) < 1e-30) cycle
+      fqi = fg
+      ! v: d&r&l(3)
+      lri = 0
+      lrj = 0
+      iwd = 0
       vij0 = 0.d0
       vij1 = 0.d0
       vij2 = 0.d0
-      ! s: d&r&l(3)+c"(0)
-      ! s: d&r&l(3)
       vl0 = fqi*dsq2*vlop0
-      call diagonal_call_dae(lri,lrj,iws,iwa,vij0,vij1,vij2,vl0)
-    end if
-    imi = mul_tab(lsm_inn(lri),ns_sm)
-    lrjsta = lri+1
-    do lrj=lrjsta,norb_dz
-      imj = lsm_inn(lrj)
-      imij = mul_tab(imi,imj)
-      if (imij /= imad) cycle
-      iws = just(lri,lrj)
-      ! s2: d&r&l(2)
-      ! s4: d&r&l(2)+c"(1)
-      vij0 = fqi*vsq2*vlop0
-      vij1 = ps1*vlop1
-      vij2 = ps4*vlop1
-      ! s: d&r&l(3)+c"(2)+c"(1)
-      ! s: d&r&l(3)+c"(1)
-      ! s: d&r&l(3)
-      vl0 = fqi*dsq2*vlop0
-      call diagonal_call_dae(lri,lrj,iws,iwa,vij0,vij1,vij2,vl0)
-    end do
-  end do
-  if (jb_sys == 0) goto 108
-  fqi = fg
-  do lri=norb_frz+1,norb_dz
-    imi = mul_tab(lsm_inn(lri),ns_sm)
-    if (imad == ns_sm) lrjsta = lri
-    do lrj=lri+1,norb_dz
-      imj = lsm_inn(lrj)
-      imij = mul_tab(imi,imj)
-      if (imij /= imad) cycle
-      iws = just(lrj,lri)
-      ! s1: d&r&l(1)
-      ! s3: d&r&l(1)+c"(2)
-      vij0 = fqi*vsq2*vlop0
-      vij1 = ps2*vlop1
-      vij2 = ps3*vlop1
-      ! s: d&r&l(3)+c"(1)+c"(2)
-      ! s: d&r&l(3)+c"(2)
-      ! s: d&r&l(3)
-      vl0 = fqi*dsq2*vlop0
-      call diagonal_call_dae(lri,lrj,iws,iwa,vij0,vij1,vij2,vl0)
-    end do
-  end do
-  goto 108
-500 continue
-  fqi = -fg
-  lrj = 0
-  do lri=norb_frz+1,norb_dz
-    imd = mul_tab(lsm_inn(lri),ns_sm)
-    if (imd /= imad) cycle
-    iwd = jud(lri)
+      call diagonal_call_dae(lri,lrj,iwd,iwa,vij0,vij1,vij2,vl0)
 
-    ! dd1: d&r&l(1)
-    vij0 = fqi*vsq2*vlop0
-    vij1 = pdd*vlop1
-    vij2 = 0.d0
-    ! d: d&r&l(3)+c"(1)
-    ! d: d&r&l(3)
-    vl0 = fqi*dsq2*vlop0
+    case (2)
+      !jpad = jd(im)
+      fqi = -fg
+      lrj = 0
+      do lri=norb_frz+1,norb_dz
+        imd = mul_tab(lsm_inn(lri),ns_sm)
+        if (imd /= imad) cycle
+        iwd = jud(lri)
 
-    call diagonal_call_dae(lri,lrj,iwd,iwa,vij0,vij1,vij2,vl0)
+        ! d: d&r&l(2)
+        vij0 = fqi*vsq2*vlop0
+        vij1 = pd*vlop1
+        vij2 = 0.d0
+        ! d: d&r&l(3)+c"(2)
+        ! d: d&r&l(3)
+        vl0 = fqi*dsq2*vlop0
 
-  end do
-  goto 108
+        call diagonal_call_dae(lri,lrj,iwd,iwa,vij0,vij1,vij2,vl0)
 
-600 continue
-  fqi = fg               !aa
-  iwt = 0
-  do lri=norb_frz+1,norb_dz
-    imi = mul_tab(lsm_inn(lri),ns_sm)
-    do lrj=lri+1,norb_dz
-      imj = lsm_inn(lrj)
-      imij = mul_tab(imi,imj)
-      if (imij /= imad) cycle
-      iwt = just(lri,lrj)
+      end do
 
-      vij0 = fqi*vsq2*vlop0
-      ! tt: d&r&l(1)
-      vij1 = ptt*vlop1
-      ! tt: d&r&l(1)+c"(1)
-      vij2 = ptt*vlop1
-      ! t: d&r&l(3)+c"(1)+c"(1)
-      ! t: d&r&l(3)+c"(1)
-      ! t: d&r&l(3)
-      vl0 = fqi*dsq2*vlop0
-      call diagonal_call_dae(lri,lrj,iwt,iwa,vij0,vij1,vij2,vl0)
-    end do
-  end do
+    case (3)
+      !jpad = jt(im)
+      fqi = fg
+      iwt = 0
+      do lri=norb_frz+1,norb_dz
+        imi = mul_tab(lsm_inn(lri),ns_sm)
+        do lrj=lri+1,norb_dz
+          imj = lsm_inn(lrj)
+          imij = mul_tab(imi,imj)
+          if (imij /= imad) cycle
+          iwt = just(lri,lrj)
 
-108 continue
+          ! t: d&r&l(2)
+          ! t: d&r&l(2)+c"(2)
+          vij0 = fqi*vsq2*vlop0
+          vij1 = pt*vlop1
+          vij2 = vij1
+          ! t: d&r&l(3)+c"(2)+c"(2)
+          ! t: d&r&l(3)+c"(2)
+          ! t: d&r&l(3)
+          vl0 = fqi*dsq2*vlop0
+
+          call diagonal_call_dae(lri,lrj,iwt,iwa,vij0,vij1,vij2,vl0)
+        end do
+      end do
+
+    case (4)
+      fqi = fg
+      iws = 0
+      do lri=norb_frz+1,norb_dz           !cc
+        if (imad == ns_sm) then
+          lrj = lri
+          iws = just(lri,lri)
+          vij0 = 0.d0
+          vij1 = 0.d0
+          vij2 = 0.d0
+          ! s: d&r&l(3)+c"(0)
+          ! s: d&r&l(3)
+          vl0 = fqi*dsq2*vlop0
+          call diagonal_call_dae(lri,lrj,iws,iwa,vij0,vij1,vij2,vl0)
+        end if
+        imi = mul_tab(lsm_inn(lri),ns_sm)
+        lrjsta = lri+1
+        do lrj=lrjsta,norb_dz
+          imj = lsm_inn(lrj)
+          imij = mul_tab(imi,imj)
+          if (imij /= imad) cycle
+          iws = just(lri,lrj)
+          ! s2: d&r&l(2)
+          ! s4: d&r&l(2)+c"(1)
+          vij0 = fqi*vsq2*vlop0
+          vij1 = ps1*vlop1
+          vij2 = ps4*vlop1
+          ! s: d&r&l(3)+c"(2)+c"(1)
+          ! s: d&r&l(3)+c"(1)
+          ! s: d&r&l(3)
+          vl0 = fqi*dsq2*vlop0
+          call diagonal_call_dae(lri,lrj,iws,iwa,vij0,vij1,vij2,vl0)
+        end do
+      end do
+      if (jb_sys == 0) cycle
+      fqi = fg
+      do lri=norb_frz+1,norb_dz
+        imi = mul_tab(lsm_inn(lri),ns_sm)
+        if (imad == ns_sm) lrjsta = lri
+        do lrj=lri+1,norb_dz
+          imj = lsm_inn(lrj)
+          imij = mul_tab(imi,imj)
+          if (imij /= imad) cycle
+          iws = just(lrj,lri)
+          ! s1: d&r&l(1)
+          ! s3: d&r&l(1)+c"(2)
+          vij0 = fqi*vsq2*vlop0
+          vij1 = ps2*vlop1
+          vij2 = ps3*vlop1
+          ! s: d&r&l(3)+c"(1)+c"(2)
+          ! s: d&r&l(3)+c"(2)
+          ! s: d&r&l(3)
+          vl0 = fqi*dsq2*vlop0
+          call diagonal_call_dae(lri,lrj,iws,iwa,vij0,vij1,vij2,vl0)
+        end do
+      end do
+
+    case (5)
+      fqi = -fg
+      lrj = 0
+      do lri=norb_frz+1,norb_dz
+        imd = mul_tab(lsm_inn(lri),ns_sm)
+        if (imd /= imad) cycle
+        iwd = jud(lri)
+
+        ! dd1: d&r&l(1)
+        vij0 = fqi*vsq2*vlop0
+        vij1 = pdd*vlop1
+        vij2 = 0.d0
+        ! d: d&r&l(3)+c"(1)
+        ! d: d&r&l(3)
+        vl0 = fqi*dsq2*vlop0
+
+        call diagonal_call_dae(lri,lrj,iwd,iwa,vij0,vij1,vij2,vl0)
+
+      end do
+
+    case (6)
+      fqi = fg               !aa
+      iwt = 0
+      do lri=norb_frz+1,norb_dz
+        imi = mul_tab(lsm_inn(lri),ns_sm)
+        do lrj=lri+1,norb_dz
+          imj = lsm_inn(lrj)
+          imij = mul_tab(imi,imj)
+          if (imij /= imad) cycle
+          iwt = just(lri,lrj)
+
+          vij0 = fqi*vsq2*vlop0
+          ! tt: d&r&l(1)
+          vij1 = ptt*vlop1
+          ! tt: d&r&l(1)+c"(1)
+          vij2 = ptt*vlop1
+          ! t: d&r&l(3)+c"(1)+c"(1)
+          ! t: d&r&l(3)+c"(1)
+          ! t: d&r&l(3)
+          vl0 = fqi*dsq2*vlop0
+          call diagonal_call_dae(lri,lrj,iwt,iwa,vij0,vij1,vij2,vl0)
+        end do
+      end do
+  end select
+
 end do
 
 return
@@ -996,139 +992,139 @@ if (imae == 0) then
 end if
 iwe = 0
 ! 520=<a,j,k,a>:13,14(ss=3),38(tt=2),50(dd=1)
-goto(100,200,300),ityae
 ! link arc_d
-100 continue
-!zz = '  g50  '
-do la=ibsm_ext(imae),iesm_ext(imae)
-  lra = norb_all-la+1
-  iwe = iwe+1
-  vlop0 = vl0*vsq2
-  wl = 0.d0
-  do lr=1,norb_dz
-    if (lr == lri) cycle
-    if (lr == lrj) cycle
-    wl = wl+vlop0*vdint(lr,lra)    !db space drl(33)- ext space -
-  end do
-  if (lri >= lrj) then
-    vlop0 = vij0*vsq2
-    vlop1 = -vij1*dsq3vsq2
-    wl = wl+(vlop0-vlop1)*voint(lra,lri)-2.d0*vlop0*vdint(lra,lri)
-    vlop1 = -vij2*dsq3vsq2
-    wl = wl+(vlop0-vlop1)*voint(lra,lrj)-2.d0*vlop0*vdint(lra,lrj)
-    !write(6,'(a11,2i3,i6,1x,5f10.4)') zz,lr0,la,jwl,vo(lr0,la),vmd(lr0,la),wg50,wwg50,wl
-  else
-    vlop0 = vij0*vsq2
-    vlop1 = -vij1*dsq3vsq2         !db space (22)drl(11)- ext space -g
-    wl = wl+(vlop0-vlop1)*voint(lra,lrj)-2.d0*vlop0*vdint(lra,lrj)
-    vlop1 = -vij2*dsq3vsq2         !db space drl(22)c"(11)- ext space
-    wl = wl+(vlop0-vlop1)*voint(lra,lri)-2.d0*vlop0*vdint(lra,lri)
-  end if
-  call prodel(6,wl,iwd,iwa,iwe)
-end do
-goto 108
-200 continue
-!zz = '  g38,39  '
-do ima=1,ng_sm
-  imb = mul_tab(ima,imae)
-  if (imb > ima) cycle
-  do la=ibsm_ext(ima),iesm_ext(ima)
-    lra = norb_all-la+1
-    lbsta = ibsm_ext(imb)
-    lbend = iesm_ext(imb)
-    if (ima == imb) lbend = la-1
-    do lb=lbsta,lbend
-      lrb = norb_all-lb+1
+select case (ityae)
+  case default ! (1)
+    !zz = '  g50  '
+    do la=ibsm_ext(imae),iesm_ext(imae)
+      lra = norb_all-la+1
       iwe = iwe+1
-      volalb = 0.d0
-      vd2lalb = 0.d0
+      vlop0 = vl0*vsq2
+      wl = 0.d0
       do lr=1,norb_dz
         if (lr == lri) cycle
         if (lr == lrj) cycle
-        volalb = volalb+(voint(lra,lr)+voint(lrb,lr))
-        vd2lalb = vd2lalb-2.d0*(vdint(lra,lr)+vdint(lrb,lr))
+        wl = wl+vlop0*vdint(lr,lra)    !db space drl(33)- ext space -
       end do
-
-      vlop0 = -vl0*vsq2
-      wl = vlop0*(volalb+vd2lalb)
       if (lri >= lrj) then
-        vlop0 = -vij0*vsq2
-        vlop1 = vij1
-        wl = wl+(vlop0-vlop1)*(voint(lra,lri)+voint(lrb,lri))-2.d0*vlop0*(vdint(lra,lri)+vdint(lrb,lri))
-        vlop1 = vij2
-        wl = wl+(vlop0-vlop1)*(voint(lra,lrj)+voint(lrb,lrj))-2.d0*vlop0*(vdint(lra,lrj)+vdint(lrb,lrj))
+        vlop0 = vij0*vsq2
+        vlop1 = -vij1*dsq3vsq2
+        wl = wl+(vlop0-vlop1)*voint(lra,lri)-2.d0*vlop0*vdint(lra,lri)
+        vlop1 = -vij2*dsq3vsq2
+        wl = wl+(vlop0-vlop1)*voint(lra,lrj)-2.d0*vlop0*vdint(lra,lrj)
+        !write(6,'(a11,2i3,i6,1x,5f10.4)') zz,lr0,la,jwl,vo(lr0,la),vmd(lr0,la),wg50,wwg50,wl
       else
-        vlop0 = -vij0*vsq2
-        vlop1 = vij1
-        wl = wl+(vlop0-vlop1)*(voint(lra,lrj)+voint(lrb,lrj))-2.d0*vlop0*(vdint(lra,lrj)+vdint(lrb,lrj))
-        vlop1 = vij2
-        wl = wl+(vlop0-vlop1)*(voint(lra,lri)+voint(lrb,lri))-2.d0*vlop0*(vdint(lra,lri)+vdint(lrb,lri))
+        vlop0 = vij0*vsq2
+        vlop1 = -vij1*dsq3vsq2         !db space (22)drl(11)- ext space -g
+        wl = wl+(vlop0-vlop1)*voint(lra,lrj)-2.d0*vlop0*vdint(lra,lrj)
+        vlop1 = -vij2*dsq3vsq2         !db space drl(22)c"(11)- ext space
+        wl = wl+(vlop0-vlop1)*voint(lra,lri)-2.d0*vlop0*vdint(lra,lri)
       end if
-      !write(6,*) ' 520 r0,la,lb ',vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
-
       call prodel(6,wl,iwd,iwa,iwe)
     end do
-  end do
-end do
-goto 108
-300 continue
-!zz = '  g14,15  '
-do ima=1,ng_sm
-  imb = mul_tab(ima,imae)
-  if (imb > ima) cycle
-  do la=ibsm_ext(ima),iesm_ext(ima)
-    lra = norb_all-la+1
-    lbsta = ibsm_ext(imb)
-    lbend = iesm_ext(imb)
-    if (ima == imb) lbend = la-1
-    do lb=lbsta,lbend
-      lrb = norb_all-lb+1
+
+  case (2)
+    !zz = '  g38,39  '
+    do ima=1,ng_sm
+      imb = mul_tab(ima,imae)
+      if (imb > ima) cycle
+      do la=ibsm_ext(ima),iesm_ext(ima)
+        lra = norb_all-la+1
+        lbsta = ibsm_ext(imb)
+        lbend = iesm_ext(imb)
+        if (ima == imb) lbend = la-1
+        do lb=lbsta,lbend
+          lrb = norb_all-lb+1
+          iwe = iwe+1
+          volalb = 0.d0
+          vd2lalb = 0.d0
+          do lr=1,norb_dz
+            if (lr == lri) cycle
+            if (lr == lrj) cycle
+            volalb = volalb+(voint(lra,lr)+voint(lrb,lr))
+            vd2lalb = vd2lalb-2.d0*(vdint(lra,lr)+vdint(lrb,lr))
+          end do
+
+          vlop0 = -vl0*vsq2
+          wl = vlop0*(volalb+vd2lalb)
+          if (lri >= lrj) then
+            vlop0 = -vij0*vsq2
+            vlop1 = vij1
+            wl = wl+(vlop0-vlop1)*(voint(lra,lri)+voint(lrb,lri))-2.d0*vlop0*(vdint(lra,lri)+vdint(lrb,lri))
+            vlop1 = vij2
+            wl = wl+(vlop0-vlop1)*(voint(lra,lrj)+voint(lrb,lrj))-2.d0*vlop0*(vdint(lra,lrj)+vdint(lrb,lrj))
+          else
+            vlop0 = -vij0*vsq2
+            vlop1 = vij1
+            wl = wl+(vlop0-vlop1)*(voint(lra,lrj)+voint(lrb,lrj))-2.d0*vlop0*(vdint(lra,lrj)+vdint(lrb,lrj))
+            vlop1 = vij2
+            wl = wl+(vlop0-vlop1)*(voint(lra,lri)+voint(lrb,lri))-2.d0*vlop0*(vdint(lra,lri)+vdint(lrb,lri))
+          end if
+          !write(6,*) ' 520 r0,la,lb ',vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
+
+          call prodel(6,wl,iwd,iwa,iwe)
+        end do
+      end do
+    end do
+
+  case (3)
+    !zz = '  g14,15  '
+    do ima=1,ng_sm
+      imb = mul_tab(ima,imae)
+      if (imb > ima) cycle
+      do la=ibsm_ext(ima),iesm_ext(ima)
+        lra = norb_all-la+1
+        lbsta = ibsm_ext(imb)
+        lbend = iesm_ext(imb)
+        if (ima == imb) lbend = la-1
+        do lb=lbsta,lbend
+          lrb = norb_all-lb+1
+          iwe = iwe+1
+          volalb = 0.d0
+          vd2lalb = 0.d0
+          do lr=1,norb_dz
+            if (lr == lri) cycle
+            if (lr == lrj) cycle
+            volalb = volalb+(voint(lra,lr)+voint(lrb,lr))
+            vd2lalb = vd2lalb-2.d0*(vdint(lra,lr)+vdint(lrb,lr))
+          end do
+
+          wg14 = -vl0*vsq2
+          wl = wg14*(volalb+vd2lalb)
+
+          if ((jpad /= 18) .or. (lri /= lrj)) then
+            wg14 = -vij0*vsq2
+            wl = wl+wg14*(voint(lra,lri)+voint(lrb,lri))-2.d0*wg14*(vdint(lra,lri)+vdint(lrb,lri))
+            wl = wl+wg14*(voint(lra,lrj)+voint(lrb,lrj))-2.d0*wg14*(vdint(lra,lrj)+vdint(lrb,lrj))
+            !write(6,*) ' 520 r0,la,lb ',vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
+          end if
+          call prodel(6,wl,iwd,iwa,iwe)
+        end do
+      end do
+    end do
+
+    if (ipae /= 18) return
+    !zz = '  g13     '
+    do la=1,norb_ext
+      lra = norb_all-la+1
       iwe = iwe+1
-      volalb = 0.d0
-      vd2lalb = 0.d0
+      vovdla = 0.d0
       do lr=1,norb_dz
         if (lr == lri) cycle
         if (lr == lrj) cycle
-        volalb = volalb+(voint(lra,lr)+voint(lrb,lr))
-        vd2lalb = vd2lalb-2.d0*(vdint(lra,lr)+vdint(lrb,lr))
+        vovdla = vovdla+vdint(lr,lra)
       end do
 
-      wg14 = -vl0*vsq2
-      wl = wg14*(volalb+vd2lalb)
+      wg13 = -vl0*dsq2
+      wl = wg13*vovdla
+      wg13 = -vij0*dsq2
+      wl = wl+wg13*(vdint(lri,lra)+vdint(lrj,lra))
 
-      if ((jpad == 18) .and. (lri == lrj)) goto 301
-      wg14 = -vij0*vsq2
-      wl = wl+wg14*(voint(lra,lri)+voint(lrb,lri))-2.d0*wg14*(vdint(lra,lri)+vdint(lrb,lri))
-      wl = wl+wg14*(voint(lra,lrj)+voint(lrb,lrj))-2.d0*wg14*(vdint(lra,lrj)+vdint(lrb,lrj))
-      !write(6,*) ' 520 r0,la,lb ',vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
-301   continue
       call prodel(6,wl,iwd,iwa,iwe)
+      !write(6,*) ' g13 ',vo(lr0,la),vo(lr0,lb),vmd(lr0,la),vmd(lr0,lb)
     end do
-  end do
-end do
+end select
 
-if (ipae /= 18) return
-!zz = '  g13     '
-do la=1,norb_ext
-  lra = norb_all-la+1
-  iwe = iwe+1
-  vovdla = 0.d0
-  do lr=1,norb_dz
-    if (lr == lri) cycle
-    if (lr == lrj) cycle
-    vovdla = vovdla+vdint(lr,lra)
-  end do
-
-  wg13 = -vl0*dsq2
-  wl = wg13*vovdla
-  wg13 = -vij0*dsq2
-  wl = wl+wg13*(vdint(lri,lra)+vdint(lrj,lra))
-
-  call prodel(6,wl,iwd,iwa,iwe)
-  !write(6,*) ' g13 ',vo(lr0,la),vo(lr0,lb),vmd(lr0,la),vmd(lr0,lb)
-end do
-
-108 continue
 return
 
 end subroutine diagonal_call_dae
@@ -1201,7 +1197,7 @@ do lr0=norb_frz+1,norb_dz
     end do
   end do
 
-  if (lr0 == norb_dz) goto 100
+  if (lr0 == norb_dz) cycle
   wld0 = wld
 
   do lr=lr0+1,norb_dz
@@ -1241,7 +1237,6 @@ do lr0=norb_frz+1,norb_dz
       end if
     end do
   end do
-100 continue
 end do
 !wl8 = 1/2*hnil*(hnil-1)*vmd(lr,lr)+hnil*voint(lr,lr)  !800
 !wl5 = (vlop0-vlop1)*vo(lr0,lr)-2*vlop0*vmd(lr0,lr)
@@ -1465,7 +1460,7 @@ do im=1,8
       lrb = norb_all-lb+1
       imb = lsm(lb)
       mr = mul_tab(ima,imb)
-      if (mr /= im) goto 600
+      if (mr /= im) cycle
       !jps = js(mr)
       !jpt = jt(mr)
       jws = jws+1
@@ -1477,8 +1472,6 @@ do im=1,8
 
       call prodel(2,wls,0,ipas,jws)
       call prodel(2,wlt,0,ipat,jwt)
-600   continue
-      continue
     end do
   end do
 end do
@@ -1517,120 +1510,120 @@ subroutine prodel_hd(idb,wl,mg1,mg2,mg3)
 !common /sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 
 !ndr = 1
-goto(100,200,300,400,500,600),idb
-! in dbl_space
-100 continue
-ipae = mg2
-iwad = mg3
-isegdownwei = iseg_downwei(ipae)
-do mm=iwad+1,iwad+isegdownwei
-  vector1(mm) = vector1(mm)+wl
-  !if (mm == ndr) then
-  !  write(6,'(a8,3i6,2f20.14)') ' in dbl _',mg1,mg2,mg3,wl,vector1(mm)
-  !end if
-end do
-goto 1000
-! in ext_space
-200 continue
-ipae = mg2
-iwe = mg3
-do jdbl=1,mxnode
-  if (nu_ad(jdbl) == 0) cycle
-  iw = iw_downwei(jdbl,ipae)
-  iwupwei = jpad_upwei(jdbl)
-  do iwa=0,iw-1
-    do iwd=0,iwupwei-1
-      mm = iwalk_ad(jdbl,ipae,iwa,iwd)+iwe
+select case (idb)
+  case default ! (1)
+    ! in dbl_space
+    ipae = mg2
+    iwad = mg3
+    isegdownwei = iseg_downwei(ipae)
+    do mm=iwad+1,iwad+isegdownwei
       vector1(mm) = vector1(mm)+wl
-      !if(mm == ndr) then
-      !  write(nf2,'(a8,3i6,2f20.14)') ' in ext _',mg1,mg2,mg3,wl,vector1(mm)
-      !  write(6,'(a8,3i6,2f20.14)') ' in ext _',mg1,mg2,mg3,wl,vector1(mm)
+      !if (mm == ndr) then
+      !  write(6,'(a8,3i6,2f20.14)') ' in dbl _',mg1,mg2,mg3,wl,vector1(mm)
       !end if
     end do
-  end do
-end do
-goto 1000
-! in act_space
-300 continue
-jp = mg1
-mpe = mg2
-jw = mg3
-iwupwei = jpad_upwei(jpad)
-isegdownwei = iseg_downwei(ipae)
-jph = jphy(jp)
-in = ihy(jph)
-lwnu = iy(1,mpe)
-do jwu=jph+1,jph+in
-  iwa = jw+ihy(jwu)-1
-  do jwd=1,lwnu
-    iwa = iwa+1
-    do iwd=0,iwupwei-1
+
+  case (2)
+    ! in ext_space
+    ipae = mg2
+    iwe = mg3
+    do jdbl=1,mxnode
+      if (nu_ad(jdbl) == 0) cycle
+      iw = iw_downwei(jdbl,ipae)
+      iwupwei = jpad_upwei(jdbl)
+      do iwa=0,iw-1
+        do iwd=0,iwupwei-1
+          mm = iwalk_ad(jdbl,ipae,iwa,iwd)+iwe
+          vector1(mm) = vector1(mm)+wl
+          !if(mm == ndr) then
+          !  write(nf2,'(a8,3i6,2f20.14)') ' in ext _',mg1,mg2,mg3,wl,vector1(mm)
+          !  write(6,'(a8,3i6,2f20.14)') ' in ext _',mg1,mg2,mg3,wl,vector1(mm)
+          !end if
+        end do
+      end do
+    end do
+
+  case (3)
+    ! in act_space
+    jp = mg1
+    mpe = mg2
+    jw = mg3
+    iwupwei = jpad_upwei(jpad)
+    isegdownwei = iseg_downwei(ipae)
+    jph = jphy(jp)
+    in = ihy(jph)
+    lwnu = iy(1,mpe)
+    do jwu=jph+1,jph+in
+      iwa = jw+ihy(jwu)-1
+      do jwd=1,lwnu
+        iwa = iwa+1
+        do iwd=0,iwupwei-1
+          iwad = iwalk_ad(jpad,ipae,iwa,iwd)
+          do iwe=1,isegdownwei
+            mm = iwe+iwad
+            vector1(mm) = vector1(mm)+wl
+            !if (mm == ndr) then
+            !  write(6,'(a8,3i6,2f20.14)') ' in act _',mg1,mg2,mg3,wl,vector1(mm)
+            !end if
+          end do
+        end do
+      end do
+    end do
+
+  case (4)
+    ! between dbl and act
+    mpe = mg1
+    iwd = mg2
+    iwa = mg3-1
+    isegdownwei = iseg_downwei(ipae)   ! between dbl and act
+    jwnu = iy(1,mpe)
+    do ii=1,jwnu
+      iwa = iwa+1
       iwad = iwalk_ad(jpad,ipae,iwa,iwd)
       do iwe=1,isegdownwei
-        mm = iwe+iwad
+        mm = iwe+iwad                  ! iwl=iwalk_ad
         vector1(mm) = vector1(mm)+wl
         !if (mm == ndr) then
-        !  write(6,'(a8,3i6,2f20.14)') ' in act _',mg1,mg2,mg3,wl,vector1(mm)
+        !  write(6,'(a8,3i6,2f20.14)') ' dbl_act ',mg1,mg2,mg3,wl,vector1(mm)
         !end if
       end do
     end do
-  end do
-end do
-goto 1000
-! between dbl and act
-400 continue
-mpe = mg1
-iwd = mg2
-iwa = mg3-1
-isegdownwei = iseg_downwei(ipae)   ! between dbl and act
-jwnu = iy(1,mpe)
-do ii=1,jwnu
-  iwa = iwa+1
-  iwad = iwalk_ad(jpad,ipae,iwa,iwd)
-  do iwe=1,isegdownwei
-    mm = iwe+iwad                  ! iwl=iwalk_ad
-    vector1(mm) = vector1(mm)+wl
-    !if (mm == ndr) then
-    !  write(6,'(a8,3i6,2f20.14)') ' dbl_act ',mg1,mg2,mg3,wl,vector1(mm)
-    !end if
-  end do
-end do
-goto 1000
-! between act and ext
-500 continue
-jp = mg1
-iwa0 = mg2
-iwe = mg3
-iwupwei = jpad_upwei(jpad)
-jph = jphy(jp)
-in = ihy(jph)
-do jwu=jph+1,jph+in
-  iwa = iwa0+ihy(jwu)
-  do iwd=0,iwupwei-1
-    iwad = iwalk_ad(jpad,ipae,iwa,iwd)
+
+  case (5)
+    ! between act and ext
+    jp = mg1
+    iwa0 = mg2
+    iwe = mg3
+    iwupwei = jpad_upwei(jpad)
+    jph = jphy(jp)
+    in = ihy(jph)
+    do jwu=jph+1,jph+in
+      iwa = iwa0+ihy(jwu)
+      do iwd=0,iwupwei-1
+        iwad = iwalk_ad(jpad,ipae,iwa,iwd)
+        mm = iwe+iwad
+        vector1(mm) = vector1(mm)+wl
+        !if (mm == ndr) then
+        !  write(nf2,'(a8,3i6,2f20.14)') ' act_ext ',mg1,mg2,mg3,wl,vector1(mm)
+        !  write(6,'(a8,3i6,2f20.14)') ' act_ext ',mg1,mg2,mg3,wl,vector1(mm)
+        !end if
+      end do
+    end do
+
+  case (6)
+    ! between dbl and ext
+    iwd = mg1
+    iwa = mg2
+    iwe = mg3
+    iwad = iwalk_ad(jpad,ipae,iwa,iwd)   ! between dbl,act and ext
     mm = iwe+iwad
     vector1(mm) = vector1(mm)+wl
     !if (mm == ndr) then
-    !  write(nf2,'(a8,3i6,2f20.14)') ' act_ext ',mg1,mg2,mg3,wl,vector1(mm)
-    !  write(6,'(a8,3i6,2f20.14)') ' act_ext ',mg1,mg2,mg3,wl,vector1(mm)
+    !  write(nf2,'(a8,3i6,2f20.14)') ' dbl_ext ',mg1,mg2,mg3,wl,vector1(mm)
+    !  write(6,'(a8,3i6,2f20.14)') ' dbl_ext ',mg1,mg2,mg3,wl,vector1(mm)
     !end if
-  end do
-end do
-goto 1000
-! between dbl and ext
-600 continue
-iwd = mg1
-iwa = mg2
-iwe = mg3
-iwad = iwalk_ad(jpad,ipae,iwa,iwd)   ! between dbl,act and ext
-mm = iwe+iwad
-vector1(mm) = vector1(mm)+wl
-!if (mm == ndr) then
-!  write(nf2,'(a8,3i6,2f20.14)') ' dbl_ext ',mg1,mg2,mg3,wl,vector1(mm)
-!  write(6,'(a8,3i6,2f20.14)') ' dbl_ext ',mg1,mg2,mg3,wl,vector1(mm)
-!end if
+end select
 
-1000 continue
 return
 
 end subroutine prodel_hd
@@ -1645,120 +1638,120 @@ subroutine prodel_pt(idb,wl,mg1,mg2,mg3)
 !if ((jpad == 18) .and. (ipae == 2)) ndr=ndim_h0+1
 
 !ndr = 32257+ndim_h0
-goto(100,200,300,400,500,600),idb
-! in dbl_space
-100 continue
-ipae = mg2
-iwad = mg3
-isegdownwei = jpae_downwei(ipae)
-do mm=iwad+1,iwad+isegdownwei
-  vector1(mm) = vector1(mm)+wl
-  !if (mm == ndr) then
-  !  write(nf2,'(a8,3i6,2f20.14)') ' in dbl _',mg1,mg2,mg3,wl,vector1(mm)
-  !  write(6,'(a8,3i6,2f20.14)') ' in dbl _',mg1,mg2,mg3,wl,vector1(mm)
-  !end if
-end do
-goto 1000
-! in ext_space
-200 continue
-ipae = mg2
-iwe = mg3
-iw = ndim
-!iw = iseg_dim(jpad,ipae)
-iwupwei = jpad_upwei(jpad)
-do iwa=0,iw-1
-  do iwd=0,iwupwei-1
-    mm = iwalk_ad(jpad,ipae,iwa,iwd)+iwe
-    vector1(mm) = vector1(mm)+wl
-    !if (mm == ndr) then
-    !  write(nf2,'(a8,3i6,2f20.14)') ' in ext _',mg1,mg2,mg3,wl,vector1(mm)
-    !  write(6,'(a8,3i6,2f20.14)') ' in ext _',mg1,mg2,mg3,wl,vector1(mm)
-    !end if
-  end do
-end do
-goto 1000
-! in act_space
-300 continue
-jp = mg1
-mpe = mg2
-jw = mg3
-iwupwei = jpad_upwei(jpad)
-isegdownwei = jpae_downwei(ipae)
-jph = jphy(jp)
-in = ihy(jph)
-lwnu = iy(1,mpe)
-do jwu=jph+1,jph+in
-  iwa = jw+ihy(jwu)-1
-  do jwd=1,lwnu
-    iwa = iwa+1
-    do iwd=0,iwupwei-1
-      iwad = iwalk_ad(jpad,ipae,iwa,iwd)
-      do iwe=1,isegdownwei
-        mm = iwe+iwad
+select case (idb)
+  case default ! (1)
+    ! in dbl_space
+    ipae = mg2
+    iwad = mg3
+    isegdownwei = jpae_downwei(ipae)
+    do mm=iwad+1,iwad+isegdownwei
+      vector1(mm) = vector1(mm)+wl
+      !if (mm == ndr) then
+      !  write(nf2,'(a8,3i6,2f20.14)') ' in dbl _',mg1,mg2,mg3,wl,vector1(mm)
+      !  write(6,'(a8,3i6,2f20.14)') ' in dbl _',mg1,mg2,mg3,wl,vector1(mm)
+      !end if
+    end do
+
+  case (2)
+    ! in ext_space
+    ipae = mg2
+    iwe = mg3
+    iw = ndim
+    !iw = iseg_dim(jpad,ipae)
+    iwupwei = jpad_upwei(jpad)
+    do iwa=0,iw-1
+      do iwd=0,iwupwei-1
+        mm = iwalk_ad(jpad,ipae,iwa,iwd)+iwe
         vector1(mm) = vector1(mm)+wl
         !if (mm == ndr) then
-        !  write(nf2,'(a8,3i6,2f20.14)') ' in act _',mg1,mg2,mg3,wl,vector1(mm)
-        !  write(6,'(a8,3i6,2f20.14)') ' in act _',mg1,mg2,mg3,wl,vector1(mm)
+        !  write(nf2,'(a8,3i6,2f20.14)') ' in ext _',mg1,mg2,mg3,wl,vector1(mm)
+        !  write(6,'(a8,3i6,2f20.14)') ' in ext _',mg1,mg2,mg3,wl,vector1(mm)
         !end if
       end do
     end do
-  end do
-end do
-goto 1000
-! between dbl and act
-400 continue
-mpe = mg1
-iwd = mg2
-iwa = mg3-1
-isegdownwei = jpae_downwei(ipae)       ! between dbl and act
-jwnu = iy(1,mpe)
-do ii=1,jwnu
-  iwa = iwa+1
-  iwad = iwalk_ad(jpad,ipae,iwa,iwd)
-  do iwe=1,isegdownwei
-    mm = iwe+iwad                  ! iwl=iwalk_ad
-    vector1(mm) = vector1(mm)+wl
-    !if (mm == ndr) then
-    !  write(nf2,'(a8,3i6,2f20.14)') ' dbl_act ',mg1,mg2,mg3,wl,vector1(mm)
-    !  write(6,'(a8,3i6,2f20.14)') ' dbl_act ',mg1,mg2,mg3,wl,vector1(mm)
-    !end if
-  end do
-end do
-goto 1000
-! between act and ext
-500 continue
-jp = mg1
-iwa0 = mg2
-iwe = mg3
-iwupwei = jpad_upwei(jpad)
-jph = jphy(jp)
-in = ihy(jph)
-do jwu=jph+1,jph+in
-  iwa = iwa0+ihy(jwu)
-  do iwd=0,iwupwei-1
-    iwad = iwalk_ad(jpad,ipae,iwa,iwd)
+
+  case (3)
+    ! in act_space
+    jp = mg1
+    mpe = mg2
+    jw = mg3
+    iwupwei = jpad_upwei(jpad)
+    isegdownwei = jpae_downwei(ipae)
+    jph = jphy(jp)
+    in = ihy(jph)
+    lwnu = iy(1,mpe)
+    do jwu=jph+1,jph+in
+      iwa = jw+ihy(jwu)-1
+      do jwd=1,lwnu
+        iwa = iwa+1
+        do iwd=0,iwupwei-1
+          iwad = iwalk_ad(jpad,ipae,iwa,iwd)
+          do iwe=1,isegdownwei
+            mm = iwe+iwad
+            vector1(mm) = vector1(mm)+wl
+            !if (mm == ndr) then
+            !  write(nf2,'(a8,3i6,2f20.14)') ' in act _',mg1,mg2,mg3,wl,vector1(mm)
+            !  write(6,'(a8,3i6,2f20.14)') ' in act _',mg1,mg2,mg3,wl,vector1(mm)
+            !end if
+          end do
+        end do
+      end do
+    end do
+
+  case (4)
+    ! between dbl and act
+    mpe = mg1
+    iwd = mg2
+    iwa = mg3-1
+    isegdownwei = jpae_downwei(ipae)       ! between dbl and act
+    jwnu = iy(1,mpe)
+    do ii=1,jwnu
+      iwa = iwa+1
+      iwad = iwalk_ad(jpad,ipae,iwa,iwd)
+      do iwe=1,isegdownwei
+        mm = iwe+iwad                  ! iwl=iwalk_ad
+        vector1(mm) = vector1(mm)+wl
+        !if (mm == ndr) then
+        !  write(nf2,'(a8,3i6,2f20.14)') ' dbl_act ',mg1,mg2,mg3,wl,vector1(mm)
+        !  write(6,'(a8,3i6,2f20.14)') ' dbl_act ',mg1,mg2,mg3,wl,vector1(mm)
+        !end if
+      end do
+    end do
+
+  case (5)
+    ! between act and ext
+    jp = mg1
+    iwa0 = mg2
+    iwe = mg3
+    iwupwei = jpad_upwei(jpad)
+    jph = jphy(jp)
+    in = ihy(jph)
+    do jwu=jph+1,jph+in
+      iwa = iwa0+ihy(jwu)
+      do iwd=0,iwupwei-1
+        iwad = iwalk_ad(jpad,ipae,iwa,iwd)
+        mm = iwe+iwad
+        vector1(mm) = vector1(mm)+wl
+        !if (mm == ndr) then
+        !  write(nf2,'(a8,3i6,2f20.14)') ' act_ext ',mg1,mg2,mg3,wl,vector1(mm)
+        !  write(6,'(a8,3i6,2f20.14)') ' act_ext ',mg1,mg2,mg3,wl,vector1(mm)
+        !end if
+      end do
+    end do
+
+  case (6)
+    ! between dbl and ext
+    iwd = mg1
+    iwa = mg2
+    iwe = mg3
+    iwad = iwalk_ad(jpad,ipae,iwa,iwd)       ! between dbl,act and ext
     mm = iwe+iwad
     vector1(mm) = vector1(mm)+wl
     !if (mm == ndr) then
-    !  write(nf2,'(a8,3i6,2f20.14)') ' act_ext ',mg1,mg2,mg3,wl,vector1(mm)
-    !  write(6,'(a8,3i6,2f20.14)') ' act_ext ',mg1,mg2,mg3,wl,vector1(mm)
+    !  write(nf2,'(a8,3i6,2f20.14)') ' dbl_ext ',mg1,mg2,mg3,wl,vector1(mm)
+    !  write(6,'(a8,3i6,2f20.14)') ' dbl_ext ',mg1,mg2,mg3,wl,vector1(mm)
     !end if
-  end do
-end do
-goto 1000
-! between dbl and ext
-600 continue
-iwd = mg1
-iwa = mg2
-iwe = mg3
-iwad = iwalk_ad(jpad,ipae,iwa,iwd)       ! between dbl,act and ext
-mm = iwe+iwad
-vector1(mm) = vector1(mm)+wl
-!if (mm == ndr) then
-!  write(nf2,'(a8,3i6,2f20.14)') ' dbl_ext ',mg1,mg2,mg3,wl,vector1(mm)
-!  write(6,'(a8,3i6,2f20.14)') ' dbl_ext ',mg1,mg2,mg3,wl,vector1(mm)
-!end if
-1000 continue
+end select
 
 return
 
@@ -1770,24 +1763,20 @@ subroutine get_jp(ity,nms,jp,id)
 
 ms = nms
 if (id == 1) ms = mul_tab(nms,ns_sm)
-goto(10,20,30,40,50,60),ity
-10 continue
-jp = 1
-return
-20 continue
-jp = 1+ms
-return
-30 continue
-jp = 9+ms
-return
-40 continue
-jp = 17+ms
-return
-50 continue
-jp = 25+ms
-return
-60 continue
-jp = 33+ms
+select case (ity)
+  case default ! (1)
+    jp = 1
+  case (2)
+    jp = 1+ms
+  case (3)
+    jp = 9+ms
+  case (4)
+    jp = 17+ms
+  case (5)
+    jp = 25+ms
+  case (6)
+    jp = 33+ms
+end select
 
 return
 

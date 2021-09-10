@@ -43,75 +43,75 @@ if ((npr == 1) .or. (npr == 0)) then
   iw_downwei(jpad,ipae) = ndim               !   iw_downwei(jpad,jpae)
   ndimsum = ndimsum+ndim*jaedownwei*iwupwei  !   iseg_dim(jpae)    =
   call config_act()                          !   jpae_upwei(jpae)  =
-  goto 110
+else
+
+  jpae = jv
+  ipae = 1
+  jaedownwei = iseg_downwei(ipae)
+  do jpad_=1,mxnode
+    jpad = jpad_ ! jpad is in common block, is this necessary?
+    iw_sta(jpad,ipae) = ndimsum
+    if (nu_ad(jpad) == 0) cycle
+    call seg_drt()                             !   jpad_upwei(*)        = jp
+    iwupwei = jpad_upwei(jpad)                 !   iw_sta(jpad,jpae)
+    iw_downwei(jpad,ipae) = ndim               !   iw_downwei(jpad,jpae)
+    ndimsum = ndimsum+ndim*jaedownwei*iwupwei  !   iseg_dim(jpae)    =
+    if (ndim == 0) cycle                       !   jpae_sta(jpae)    = jpa
+    call config_act()                          !   jpae_upwei(jpae)  =
+  end do
+  do im=1,8
+    jpae = jd(im)
+    ipae = 1+im
+    iw_sta(1:mxnode,ipae) = ndimsum
+    if (nu_ae(ipae) == 0) cycle
+    jaedownwei = iseg_downwei(ipae)
+    do jpad_=1,mxnode
+      jpad = jpad_ ! jpad is in common block, is this necessary?
+      iw_sta(jpad,ipae) = ndimsum
+      if (nu_ad(jpad) == 0) cycle
+      call seg_drt()
+      iwupwei = jpad_upwei(jpad)
+      iw_downwei(jpad,ipae) = ndim
+      ndimsum = ndimsum+ndim*jaedownwei*iwupwei
+      if (ndim == 0) cycle
+      call config_act()
+    end do
+  end do
+  do im=1,8
+    jpae = jt(im)
+    ipae = 9+im
+    iw_sta(1:mxnode,ipae) = ndimsum
+    if (nu_ae(ipae) == 0) cycle
+    jaedownwei = iseg_downwei(ipae)
+    do jpad_=1,mxnode
+      jpad = jpad_ ! jpad is in common block, is this necessary?
+      iw_sta(jpad,ipae) = ndimsum
+      if (nu_ad(jpad) == 0) cycle
+      call seg_drt()
+      iwupwei = jpad_upwei(jpad)
+      iw_downwei(jpad,ipae) = ndim
+      ndimsum = ndimsum+ndim*jaedownwei*iwupwei
+      if (ndim == 0) cycle
+      call config_act()
+    end do
+  end do
+  do im=1,8
+    jpae = js(im)
+    ipae = 17+im
+    if (nu_ae(ipae) == 0) cycle
+    do jpad_=1,mxnode
+      jpad = jpad_ ! jpad is in common block, is this necessary?
+      if (nu_ad(jpad) == 0) cycle
+      call seg_drt()
+      if (ndim == 0) cycle
+      call config_act()
+    end do
+  end do
+  call config_dbl()
+  call config_ext()
+
 end if
 
-jpae = jv
-ipae = 1
-jaedownwei = iseg_downwei(ipae)
-do jpad_=1,mxnode
-  jpad = jpad_ ! jpad is in common block, is this necessary?
-  iw_sta(jpad,ipae) = ndimsum
-  if (nu_ad(jpad) == 0) cycle
-  call seg_drt()                             !   jpad_upwei(*)        = jp
-  iwupwei = jpad_upwei(jpad)                 !   iw_sta(jpad,jpae)
-  iw_downwei(jpad,ipae) = ndim               !   iw_downwei(jpad,jpae)
-  ndimsum = ndimsum+ndim*jaedownwei*iwupwei  !   iseg_dim(jpae)    =
-  if (ndim == 0) cycle                       !   jpae_sta(jpae)    = jpa
-  call config_act()                          !   jpae_upwei(jpae)  =
-end do
-do im=1,8
-  jpae = jd(im)
-  ipae = 1+im
-  iw_sta(1:mxnode,ipae) = ndimsum
-  if (nu_ae(ipae) == 0) cycle
-  jaedownwei = iseg_downwei(ipae)
-  do jpad_=1,mxnode
-    jpad = jpad_ ! jpad is in common block, is this necessary?
-    iw_sta(jpad,ipae) = ndimsum
-    if (nu_ad(jpad) == 0) cycle
-    call seg_drt()
-    iwupwei = jpad_upwei(jpad)
-    iw_downwei(jpad,ipae) = ndim
-    ndimsum = ndimsum+ndim*jaedownwei*iwupwei
-    if (ndim == 0) cycle
-    call config_act()
-  end do
-end do
-do im=1,8
-  jpae = jt(im)
-  ipae = 9+im
-  iw_sta(1:mxnode,ipae) = ndimsum
-  if (nu_ae(ipae) == 0) cycle
-  jaedownwei = iseg_downwei(ipae)
-  do jpad_=1,mxnode
-    jpad = jpad_ ! jpad is in common block, is this necessary?
-    iw_sta(jpad,ipae) = ndimsum
-    if (nu_ad(jpad) == 0) cycle
-    call seg_drt()
-    iwupwei = jpad_upwei(jpad)
-    iw_downwei(jpad,ipae) = ndim
-    ndimsum = ndimsum+ndim*jaedownwei*iwupwei
-    if (ndim == 0) cycle
-    call config_act()
-  end do
-end do
-do im=1,8
-  jpae = js(im)
-  ipae = 17+im
-  if (nu_ae(ipae) == 0) cycle
-  do jpad_=1,mxnode
-    jpad = jpad_ ! jpad is in common block, is this necessary?
-    if (nu_ad(jpad) == 0) cycle
-    call seg_drt()
-    if (ndim == 0) cycle
-    call config_act()
-  end do
-end do
-call config_dbl()
-call config_ext()
-
-110 continue
 if (npr == 0) return
 
 nwalk_gamess(1:norb_all) = 0
@@ -286,7 +286,7 @@ do lr0=norb_frz+1,norb_dz
     end do
   end do
 
-  if (lr0 == norb_dz) goto 100
+  if (lr0 == norb_dz) cycle
   !wld0 = wld
 
   do lr=lr0+1,norb_dz
@@ -330,7 +330,6 @@ do lr0=norb_frz+1,norb_dz
       end if
     end do
   end do
-100 continue
 end do
 
 return
@@ -389,7 +388,7 @@ do im=1,8
       !lrbi = norb_all-lb+1
       imb = lsm(lb)
       mr = mul_tab(ima,imb)
-      if (mr /= im) goto 600
+      if (mr /= im) cycle
       !jps = js(mr)
       !jpt = jt(mr)
       jws = jws+1
@@ -403,7 +402,6 @@ do im=1,8
       !call prodel(2,wlt,0,ipat,jwt)
       call prodel_conf(2,0,ipas,jws,la,lb,4)      !s
       call prodel_conf(2,0,ipat,jwt,la,lb,3)      !t
-600   continue
     end do
   end do
 end do
@@ -423,119 +421,111 @@ subroutine prodel_conf(idb,mg1,mg2,mg3,lr01,lr02,jpty)
 #include "config.fh"
 !common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 
-goto(100,200,300),idb
-! in dbl_space
-! jpty=  1,  2,  3,  4,  5,  6,  7
-!        v   d   t   s  dd  tt  ss
-100 continue
-ipae = mg2
-iwad = mg3
-lr1 = norb_all-lr01+1
-lr2 = norb_all-lr02+1
-isegdownwei = iseg_downwei(ipae)
-do mm=iwad+1,iwad+isegdownwei
-  if (mm == ndr) then
-    goto(1,2,3,4,5,6,7),jpty
-1   continue
-    goto 1000
-2   continue
-    nwalk(lr1) = 2
-    goto 1000
-3   continue
-    nwalk(lr1) = 2
-    nwalk(lr2) = 2
-    goto 1000
-4   continue
-    nwalk(lr1) = 2
-    nwalk(lr2) = 1
-    if (lr02 == 0) then
-      nwalk(lr1) = 0
-    end if
-    if (lr01 == 0) then
-      nwalk(lr2) = 0
-    end if
-    goto 1000
-5   continue
-    nwalk(lr1) = 1
-    goto 1000
-6   continue
-    nwalk(lr1) = 1
-    nwalk(lr2) = 1
-    goto 1000
-7   continue
-    nwalk(lr1) = 1
-    nwalk(lr2) = 2
-    goto 1000
-  end if
-end do
-goto 1000
-
-! in ext_space
-! jpty=  1,  2,  3,  4
-!        v   d   t   s
-200 continue
-ipae = mg2
-iwe = mg3
-lr1 = lr01
-lr2 = lr02
-do jdbl=1,mxnode
-  if (nu_ad(jdbl) == 0) cycle
-  iw = iw_downwei(jdbl,ipae)
-  iwupwei = jpad_upwei(jdbl)
-  do iwa=0,iw-1
-    do iwd=0,iwupwei-1
-      mm = iwalk_ad(jdbl,ipae,iwa,iwd)+iwe
+select case (idb)
+  case default ! (1)
+    ! in dbl_space
+    ! jpty=  1,  2,  3,  4,  5,  6,  7
+    !        v   d   t   s  dd  tt  ss
+    ipae = mg2
+    iwad = mg3
+    lr1 = norb_all-lr01+1
+    lr2 = norb_all-lr02+1
+    isegdownwei = iseg_downwei(ipae)
+    do mm=iwad+1,iwad+isegdownwei
       if (mm == ndr) then
-        goto(10,20,30,40),jpty
-10      continue
-        goto 1000
-20      continue
-        nwalk(lr1) = 1
-        goto 1000
-30      continue
-        nwalk(lr1) = 1
-        nwalk(lr2) = 1
-        goto 1000
-40      continue
-        nwalk(lr1) = 2
-        nwalk(lr2) = 1
-        if (lr02 == 0) then
-          nwalk(lr1) = 3
-        end if
-        goto 1000
+        select case (jpty)
+          case default ! (1)
+          case (2)
+            nwalk(lr1) = 2
+          case (3)
+            nwalk(lr1) = 2
+            nwalk(lr2) = 2
+          case (4)
+            nwalk(lr1) = 2
+            nwalk(lr2) = 1
+            if (lr02 == 0) then
+              nwalk(lr1) = 0
+            end if
+            if (lr01 == 0) then
+              nwalk(lr2) = 0
+            end if
+          case (5)
+            nwalk(lr1) = 1
+          case (6)
+            nwalk(lr1) = 1
+            nwalk(lr2) = 1
+          case (7)
+            nwalk(lr1) = 1
+            nwalk(lr2) = 2
+        end select
+        exit
       end if
     end do
-  end do
-end do
-goto 1000
-! in act_space
-300 continue
-jp = mg1
-mpe = mg2
-jw = mg3
-iwupwei = jpad_upwei(jpad)
-isegdownwei = iseg_downwei(ipae)
-jph = jphy(jp)
-in = ihy(jph)
-lwnu = iy(1,mpe)
-lr1 = norb_all-lr01+1
-do jwu=jph+1,jph+in
-  iwa = jw+ihy(jwu)-1
-  do jwd=1,lwnu
-    iwa = iwa+1
-    do iwd=0,iwupwei-1
-      iwad = iwalk_ad(jpad,ipae,iwa,iwd)
-      do iwe=1,isegdownwei
-        mm = iwe+iwad
-        if (mm == ndr) then
-          nwalk(lr1) = jpty
-          goto 1000
-        end if
+
+  case (2)
+    ! in ext_space
+    ! jpty=  1,  2,  3,  4
+    !        v   d   t   s
+    ipae = mg2
+    iwe = mg3
+    lr1 = lr01
+    lr2 = lr02
+    outer1: do jdbl=1,mxnode
+      if (nu_ad(jdbl) == 0) cycle
+      iw = iw_downwei(jdbl,ipae)
+      iwupwei = jpad_upwei(jdbl)
+      do iwa=0,iw-1
+        do iwd=0,iwupwei-1
+          mm = iwalk_ad(jdbl,ipae,iwa,iwd)+iwe
+          if (mm == ndr) then
+            select case (jpty)
+              case default ! (1)
+              case (2)
+                nwalk(lr1) = 1
+              case (3)
+                nwalk(lr1) = 1
+                nwalk(lr2) = 1
+              case (4)
+                nwalk(lr1) = 2
+                nwalk(lr2) = 1
+                if (lr02 == 0) then
+                  nwalk(lr1) = 3
+                end if
+            end select
+            exit outer1
+          end if
+        end do
       end do
-    end do
-  end do
-end do
-1000 continue
+    end do outer1
+
+  case (3)
+    ! in act_space
+    jp = mg1
+    mpe = mg2
+    jw = mg3
+    iwupwei = jpad_upwei(jpad)
+    isegdownwei = iseg_downwei(ipae)
+    jph = jphy(jp)
+    in = ihy(jph)
+    lwnu = iy(1,mpe)
+    lr1 = norb_all-lr01+1
+    outer2: do jwu=jph+1,jph+in
+      iwa = jw+ihy(jwu)-1
+      do jwd=1,lwnu
+        iwa = iwa+1
+        do iwd=0,iwupwei-1
+          iwad = iwalk_ad(jpad,ipae,iwa,iwd)
+          do iwe=1,isegdownwei
+            mm = iwe+iwad
+            if (mm == ndr) then
+              nwalk(lr1) = jpty
+              exit outer2
+            end if
+          end do
+        end do
+      end do
+    end do outer2
+end select
 
 return
 

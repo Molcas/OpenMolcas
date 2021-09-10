@@ -62,175 +62,175 @@ write(6,*)
 !write(6,*) 'diagonalization of matrix p(j,j)'
 
 !=======================================================================
-200 continue
-iterat = iterat+1
-if (iterat == 200) then
-  write(6,*) ' h0 space fail to converged'
-  write(6,*) ' program stop'
-  call abend()
-end if
-eeval(1:mroot) = eval(1:mroot)
-call hotred(minspace,kval,vp,vd,ve,vu)
-call qlcm(minspace,kval,vd,ve,vu)
-
-valpha(mrsta:mroot) = 0.d0
-do m=mrsta,mroot
-  eval(m) = vd(m)
-  do k=1,kval
-    tm = abs(vu(k,m))
-    if (valpha(m) < tm) valpha(m) = tm   !max(vu(k,m),k=1,kval)
-  end do
-  valpha(m) = 1-valpha(m)*valpha(m)
-  if (valpha(m) > depc) valpha(m) = sqrt(valpha(m))
-  deff(m) = abs(eval(m)-eeval(m))
-end do
-!***********************************************************************
-!
-! construction of the new approximate eigenvector vcm(n)'
-!
-!***********************************************************************
-ijm = indx(mrsta)
-vcm(ijm+1:ndim*mroot) = 0.0d0
-do k=1,kval
-  ijb = indx(k)
-  do m=mrsta,mroot
-    ijm = indx(m)
-    vukm = vu(k,m)
-    do i=1,ndim
-      vcm(ijm+i) = vcm(ijm+i)+vukm*vb1(ijb+i)
-    end do
-  end do
-end do
-
-!do i=1,ndim
-!  write(6,'(i8,f18.8)') i,vcm(i)
-!end do
-
-write(6,1113) iterat,kval,(m,eval(m),deff(m),m=mrsta,mroot)
-1113 format(2i3,10(2x,i2,f14.8,f14.8))
-
-nroot = mroot-mrsta+1
-
-if (kval == mroot*2) goto 10
-
-mrsta0 = mrsta
-do m=mrsta0,mroot
-  !if ((deff(m) < ecrita(m)) .or. (valpha(m) < dcrita)) then     ! conv
-  if ((m == mrsta) .and. (deff(m) < ecrita(m))) then             ! conv
-    !if (valpha(m) < dcrita) then                                ! conve
-    mrsta = mrsta+1
+do
+  iterat = iterat+1
+  if (iterat == 200) then
+    write(6,*) ' h0 space fail to converged'
+    write(6,*) ' program stop'
+    call abend()
   end if
-end do
-!mrsta = mrsta+mrooted
-nroot = mroot-mrsta+1
-if (mrsta > mroot) then
-  write(6,*)
-  write(6,*) mroot,' roots are convegenced,after',iterat,' iterat'
-  goto 300
-end if
+  eeval(1:mroot) = eval(1:mroot)
+  call hotred(minspace,kval,vp,vd,ve,vu)
+  call qlcm(minspace,kval,vd,ve,vu)
 
-10 continue
-mmspace = min(mroot*3+10,ndim)
-!nroot = 1             ! bbs debug error?
-if (kval+nroot > mmspace) then
-
-  !===== start  reset_basis ============================================
-
-  do m=mrsta,kval
-    indxm = indx(m)
-    vb1(indxm+1:indxm+ndim) = 0.0d0
-  end do
+  valpha(mrsta:mroot) = 0.d0
   do m=mrsta,mroot
-    ijm = indx(m)
+    eval(m) = vd(m)
     do k=1,kval
-      ijb = indx(k)
+      tm = abs(vu(k,m))
+      if (valpha(m) < tm) valpha(m) = tm   !max(vu(k,m),k=1,kval)
+    end do
+    valpha(m) = 1-valpha(m)*valpha(m)
+    if (valpha(m) > depc) valpha(m) = sqrt(valpha(m))
+    deff(m) = abs(eval(m)-eeval(m))
+  end do
+  !*********************************************************************
+  !
+  ! construction of the new approximate eigenvector vcm(n)'
+  !
+  !*********************************************************************
+  ijm = indx(mrsta)
+  vcm(ijm+1:ndim*mroot) = 0.0d0
+  do k=1,kval
+    ijb = indx(k)
+    do m=mrsta,mroot
+      ijm = indx(m)
       vukm = vu(k,m)
-      do l=1,ndim
-        vb1(ijm+l) = vb1(ijm+l)+vukm*vb2(ijb+l)  ! h*cm-->vb1
+      do i=1,ndim
+        vcm(ijm+i) = vcm(ijm+i)+vukm*vb1(ijb+i)
       end do
     end do
   end do
-  ijm = indx(mrsta)
-  vb2(ijm+1:ijm+ndim*nroot) = vb1(ijm+1:ijm+ndim*nroot)  ! h*cm-->vb
-  vb1(ijm+1:ijm+ndim*nroot) = vcm(ijm+1:ijm+ndim*nroot)  !   cm-->vb
-  residvb(mrsta:mroot) = 0.d0
 
-  mval = mroot
-  do m=mrsta,mroot
-    ijm = indx(m)
-    mval = mval+1
-    ijmb1 = indx(mval)
-    do l=1,ndim
-      depcc = eval(m)-vad(l)
-      if (abs(depcc) < depc) depcc = depc
-      vb1(ijmb1+l) = (vb2(ijm+l)-vcm(ijm+l)*eval(m))/depcc
-      residvb(m) = residvb(m)+vb1(ijmb1+l)*vb1(ijmb1+l)
+  !do i=1,ndim
+  !  write(6,'(i8,f18.8)') i,vcm(i)
+  !end do
+
+  write(6,1113) iterat,kval,(m,eval(m),deff(m),m=mrsta,mroot)
+  1113 format(2i3,10(2x,i2,f14.8,f14.8))
+
+  nroot = mroot-mrsta+1
+
+  if (kval /= mroot*2) then
+
+    mrsta0 = mrsta
+    do m=mrsta0,mroot
+      !if ((deff(m) < ecrita(m)) .or. (valpha(m) < dcrita)) then     ! conv
+      if ((m == mrsta) .and. (deff(m) < ecrita(m))) then             ! conv
+        !if (valpha(m) < dcrita) then                                ! conve
+        mrsta = mrsta+1
+      end if
     end do
-    call orthnor(ndim,mval,dcrita,vb1,nxb)
-  end do
+    !mrsta = mrsta+mrooted
+    nroot = mroot-mrsta+1
+    if (mrsta > mroot) then
+      write(6,*)
+      write(6,*) mroot,' roots are convegenced,after',iterat,' iterat'
+      exit
+    end if
 
-  vb2(indx(mroot+1)+1:indx(kval+1)) = 0.d0
-  kval = mroot+nroot
-  mval = mroot+1
-  mn = mroot*(mroot+1)/2
-  vp(1:mn) = 0.0d0
-  mn = 0
-  do m=1,mroot
-    mn = mn+m
-    vp(mn) = eval(m)
-  end do
-  goto 100
-  !===== end  reset_basis ==============================================
-end if
+  end if
 
-! form the (j+1)-th approximate vector, vb1(n,j+1)
+  mmspace = min(mroot*3+10,ndim)
+  !nroot = 1             ! bbs debug error?
+  if (kval+nroot > mmspace) then
 
-jib1 = indx(kval)
-jicm = indx(mrsta)
+    !===== start  reset_basis ==========================================
 
-residvb(mrsta:mroot) = 0.d0
-do m=mrsta,mroot
-  jib1 = jib1+ndim
-  do k=1,kval
-    jib2 = indx(k)
-    do l=1,ndim
-      vb1(jib1+l) = vb1(jib1+l)+vu(k,m)*vb2(jib2+l)
+    do m=mrsta,kval
+      indxm = indx(m)
+      vb1(indxm+1:indxm+ndim) = 0.0d0
     end do
-  end do
+    do m=mrsta,mroot
+      ijm = indx(m)
+      do k=1,kval
+        ijb = indx(k)
+        vukm = vu(k,m)
+        do l=1,ndim
+          vb1(ijm+l) = vb1(ijm+l)+vukm*vb2(ijb+l)  ! h*cm-->vb1
+        end do
+      end do
+    end do
+    ijm = indx(mrsta)
+    vb2(ijm+1:ijm+ndim*nroot) = vb1(ijm+1:ijm+ndim*nroot)  ! h*cm-->vb
+    vb1(ijm+1:ijm+ndim*nroot) = vcm(ijm+1:ijm+ndim*nroot)  !   cm-->vb
+    residvb(mrsta:mroot) = 0.d0
 
-  do l=1,ndim
-    depcc = eval(m)-vad(l)
-    if (abs(depcc) < depc) depcc = depc
-    vb1(jib1+l) = (vb1(jib1+l)-vcm(jicm+l)*eval(m))/depcc
-    residvb(m) = residvb(m)+vb1(jib1+l)*vb1(jib1+l)
-  end do
-  jicm = jicm+ndim
+    mval = mroot
+    do m=mrsta,mroot
+      ijm = indx(m)
+      mval = mval+1
+      ijmb1 = indx(mval)
+      do l=1,ndim
+        depcc = eval(m)-vad(l)
+        if (abs(depcc) < depc) depcc = depc
+        vb1(ijmb1+l) = (vb2(ijm+l)-vcm(ijm+l)*eval(m))/depcc
+        residvb(m) = residvb(m)+vb1(ijmb1+l)*vb1(ijmb1+l)
+      end do
+      call orthnor(ndim,mval,dcrita,vb1,nxb)
+    end do
+
+    vb2(indx(mroot+1)+1:indx(kval+1)) = 0.d0
+    kval = mroot+nroot
+    mval = mroot+1
+    mn = mroot*(mroot+1)/2
+    vp(1:mn) = 0.0d0
+    mn = 0
+    do m=1,mroot
+      mn = mn+m
+      vp(mn) = eval(m)
+    end do
+    !===== end  reset_basis ============================================
+
+  else
+
+    ! form the (j+1)-th approximate vector, vb1(n,j+1)
+
+    jib1 = indx(kval)
+    jicm = indx(mrsta)
+
+    residvb(mrsta:mroot) = 0.d0
+    do m=mrsta,mroot
+      jib1 = jib1+ndim
+      do k=1,kval
+        jib2 = indx(k)
+        do l=1,ndim
+          vb1(jib1+l) = vb1(jib1+l)+vu(k,m)*vb2(jib2+l)
+        end do
+      end do
+
+      do l=1,ndim
+        depcc = eval(m)-vad(l)
+        if (abs(depcc) < depc) depcc = depc
+        vb1(jib1+l) = (vb1(jib1+l)-vcm(jicm+l)*eval(m))/depcc
+        residvb(m) = residvb(m)+vb1(jib1+l)*vb1(jib1+l)
+      end do
+      jicm = jicm+ndim
+    end do
+    mval = kval+1
+    do m=mrsta,mroot
+      kval = kval+1
+      call orthnor(ndim,kval,dcrita,vb1,nxb)
+    end do
+
+  end if
+
+  call abprod2(ndim,mval,kval,th,nxh,vb1,vb2,nxb,vad)
+  call matrmk2(ndim,mval,kval,indx,vp,vb1,vb2,nxb)
+
+  !=====  write out p_matrix ===========================================
+  !write(6,*)
+  !write(nf2,*)
+  !l = 0
+  !do k=1,kval
+  !  write(6,1112) (vp(i),i=l+1,l+k)
+  !  write(nf2,1112) (vp(i),i=l+1,l+k)
+  !  l = l+k
+  !end do
+  !write(6,*)
+  !=====  write out p_matrix ===========================================
+
 end do
-mval = kval+1
-do m=mrsta,mroot
-  kval = kval+1
-  call orthnor(ndim,kval,dcrita,vb1,nxb)
-end do
-
-100 continue
-call abprod2(ndim,mval,kval,th,nxh,vb1,vb2,nxb,vad)
-call matrmk2(ndim,mval,kval,indx,vp,vb1,vb2,nxb)
-
-!=====  write out p_matrix =============================================
-!write(6,*)
-!write(nf2,*)
-!l = 0
-!do k=1,kval
-!  write(6,1112) (vp(i),i=l+1,l+k)
-!  write(nf2,1112) (vp(i),i=l+1,l+k)
-!  l = l+k
-!end do
-!write(6,*)
-!=====  write out p_matrix =============================================
-
-goto 200
-
-300 continue
 
 ! copy ci vector to VB1
 do m=1,mroot
@@ -240,9 +240,9 @@ do m=1,mroot
   !write(6,'(5(1x,f18.9),1x,i2)') (vcm(ijm+i),i=1,4),vcm(35)
 end do
 
-1112 format(2x,20f14.8)
-
 return
+
+1112 format(2x,20f14.8)
 
 end subroutine hymat_2
 
@@ -305,35 +305,35 @@ subroutine orthnor(n,j,dcrita,vb1,nxb)
 dimension vb1(nxb)
 
 ji = indx(j)
-if (j == 1) goto 150
-jm = j-1
-smax2 = 1.d10
-120 continue
-smax1 = 0.0d0
-do l=1,jm
-  s = 0.0d0
-  ij = indx(l)
-  do i=1,n
-    s = s+vb1(ij+i)*vb1(ji+i)
-  end do
-  smax1 = max(smax1,abs(s))
-  do i=1,n
-    vb1(ji+i) = vb1(ji+i)-s*vb1(ij+i)
-  end do
-end do
+if (j /= 1) then
+  jm = j-1
+  smax2 = 1.d10
+  do
+    smax1 = 0.0d0
+    do l=1,jm
+      s = 0.0d0
+      ij = indx(l)
+      do i=1,n
+        s = s+vb1(ij+i)*vb1(ji+i)
+      end do
+      smax1 = max(smax1,abs(s))
+      do i=1,n
+        vb1(ji+i) = vb1(ji+i)-s*vb1(ij+i)
+      end do
+    end do
 
-if (smax1 < dcrita) goto 150
-if (smax1 > smax2) then
-  write(6,*) 'dgnalization procedure is non-convergent.'
-# ifndef MOLPRO
-  call abend()
-# endif
-  !call abend()
+    if (smax1 < dcrita) exit
+    if (smax1 > smax2) then
+      write(6,*) 'dgnalization procedure is non-convergent.'
+#     ifndef MOLPRO
+      call abend()
+#     endif
+      !call abend()
+    end if
+    smax2 = smax1
+  end do
 end if
-smax2 = smax1
-goto 120
 ! normalization of j-th eigenvector.
-150 continue
 s = 0.0d0
 do i=1,n
   s = s+vb1(ji+i)*vb1(ji+i)

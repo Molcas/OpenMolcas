@@ -681,7 +681,7 @@ subroutine lp10_arbrbr_ext_calcuvalue_G(intentry,isma,nlp_value)
 w0_sdplp25 = (w0_sdplp-w1_sdplp)*w0g25
 w1_sdplp25 = (w0_sdplp+w1_sdplp)*w0g25
 
-do LRITMP=NORB_FRZ+1,norb_inn-2
+outer: do LRITMP=NORB_FRZ+1,norb_inn-2
   lsmi = lsm_inn(LRITMP)
   do LRJTMP=LRITMP+1,norb_inn-1
     lsmj = lsm_inn(LRJTMP)
@@ -694,13 +694,12 @@ do LRITMP=NORB_FRZ+1,norb_inn-2
         LRI = LRITMP
         LRJ = LRJTMP
         LRK = LRKTMP
-        goto 100
+        exit outer
       end if
     end do
   end do
-end do
+end do outer
 
-100 continue
 next_sta = ibsm_ext(isma)-1
 
 ivalue = 0
@@ -728,7 +727,7 @@ subroutine lp11_arblbr_ext_calcuvalue_G(intentry,isma,nlp_value)
 w0_sdplp25 = (w0_sdplp-w1_sdplp)*w0g25
 w1_sdplp25 = -2.d0*w0_sdplp*w0g25
 
-do LRITMP=NORB_FRZ+1,norb_inn-2
+outer: do LRITMP=NORB_FRZ+1,norb_inn-2
   lsmi = lsm_inn(LRITMP)
   do LRJTMP=LRITMP+1,norb_inn-1
     lsmj = lsm_inn(LRJTMP)
@@ -741,12 +740,11 @@ do LRITMP=NORB_FRZ+1,norb_inn-2
         LRI = LRITMP
         LRJ = LRJTMP
         LRK = LRKTMP
-        goto 100
+        exit outer
       end if
     end do
   end do
-end do
-100 continue
+end do outer
 next_sta = ibsm_ext(isma)-1
 
 ivalue = 0
@@ -775,7 +773,7 @@ subroutine lp12_arblbl_ext_calcuvalue_G(intentry,isma,nlp_value)
 w0_sdplp25 = (w0_sdplp-w1_sdplp)*w0g25
 w1_sdplp25 = -2.d0*w0_sdplp*w0g25
 
-do LRITMP=NORB_FRZ+1,norb_inn-2
+outer: do LRITMP=NORB_FRZ+1,norb_inn-2
   lsmi = lsm_inn(LRITMP)
   do LRJTMP=LRITMP+1,norb_inn-1
     lsmj = lsm_inn(LRJTMP)
@@ -788,13 +786,12 @@ do LRITMP=NORB_FRZ+1,norb_inn-2
         LRI = LRITMP
         LRJ = LRJTMP
         LRK = LRKTMP
-        goto 100
+        exit outer
       end if
     end do
   end do
-end do
+end do outer
 
-100 continue
 next_sta = ibsm_ext(isma)-1
 
 ivalue = 0
@@ -1449,16 +1446,16 @@ iasta = ibsm_ext(iml)
 iaend = iesm_ext(iml)
 
 ivalue = 0
-if (.not. logic_g49b) goto 100
-do ira=iasta,iaend
-  lra = norb_number(ira)
-  ivalue = ivalue+1
-  call TRANS_IJKL_INTPOS(lra,LRI,lra,LRI,NXO)
-  index_lpext(ivalue) = NXO
-  value_lpext(ivalue) = -w1lp*2.0d0
-  index_lpext1(ivalue) = 0
-end do
-100 continue
+if (logic_g49b) then
+  do ira=iasta,iaend
+    lra = norb_number(ira)
+    ivalue = ivalue+1
+    call TRANS_IJKL_INTPOS(lra,LRI,lra,LRI,NXO)
+    index_lpext(ivalue) = NXO
+    value_lpext(ivalue) = -w1lp*2.0d0
+    index_lpext1(ivalue) = 0
+  end do
+end if
 mloop = nliml*(nliml-1)/2
 
 ivalue = ivalue+int_dd_drl

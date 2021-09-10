@@ -142,7 +142,7 @@ do nsp=1,ngsm
           end if
         end if
 
-        if (nintb == 0) goto 10
+        if (nintb == 0) cycle
         write(6,2100) nsp,nsq,nsr,nss,nop,noq,nor,nos,nintb
 2100    format(7x,4i2,1x,4i4,2x,3x,i9)
 
@@ -190,7 +190,6 @@ do nsp=1,ngsm
           end do
         end do
 
-10      continue
       end do
     end do
   end do
@@ -328,7 +327,7 @@ do nsp=1,ngsm
           end if
         end if
 
-        if (nintb == 0) goto 10
+        if (nintb == 0) cycle
         write(6,2100) nsp,nsq,nsr,nss,nop,noq,nor,nos,nintb
 2100    format(7x,4i2,1x,4i4,2x,3x,i9)
 
@@ -368,7 +367,6 @@ do nsp=1,ngsm
           end do
         end do
 
-10      continue
       end do
     end do
   end do
@@ -508,24 +506,18 @@ do i=1,4
 end do
 
 !write(6,*) ind(1),ind(2),ind(3),ind(4)
-!goto 10
+
 if (ind(1) == ind(4)) then   !(iiii)
   vdint(lri,lri) = val
-  goto 10
-end if
 
-if ((lri == lrj) .and. (lrk == lrl)) then   !(iikk)
+else if ((lri == lrj) .and. (lrk == lrl)) then   !(iikk)
   vdint(lrk,lri) = val
-  goto 10
-end if
 
-if ((lri == lrk) .and. (lrj == lrl)) then   !(ijij)
+else if ((lri == lrk) .and. (lrj == lrl)) then   !(ijij)
   !if ((lri == 1) .and. (lrj == 2)) call abend()
   voint(lrj,lri) = val
-  goto 10
-end if
 
-if ((lri /= lrl) .and. (lrj == lrk)) then !(ijjl)
+else if ((lri /= lrl) .and. (lrj == lrk)) then !(ijjl)
   list = list3_all(lri,lrl,lrj)
   vector1(list) = val
   if (lrj == lrl) then
@@ -534,44 +526,34 @@ if ((lri /= lrl) .and. (lrj == lrk)) then !(ijjl)
   if (lri == lrj) then
     vector1(list+1) = val
   end if
-  goto 10
-end if
 
-if ((lri /= lrj) .and. (lrk == lrl)) then  !(ijkk)
+else if ((lri /= lrj) .and. (lrk == lrl)) then  !(ijkk)
   list = list3_all(lri,lrj,lrk)
   vector1(list+1) = val
   if (lrj == lrk) then
     vector1(list) = val
   end if
-  goto 10
-end if
 
-if ((lri == lrj) .and. (lrk /= lrl)) then  !(iikl)
+else if ((lri == lrj) .and. (lrk /= lrl)) then  !(iikl)
   list = list3_all(lrk,lrl,lri)
   vector1(list+1) = val
-  goto 10
-end if
 
-if ((lri == lrk) .and. (lrj /= lrl)) then      !(ijil)
+else if ((lri == lrk) .and. (lrj /= lrl)) then      !(ijil)
   if (lrj < lrl) then
     list = list3_all(lrj,lrl,lri)
   else
     list = list3_all(lrl,lrj,lri)
   end if
   vector1(list) = val
-  goto 10
-end if
 
-if ((lri /= lrk) .and. (lrj == lrl)) then   !(ijkj)
+else if ((lri /= lrk) .and. (lrj == lrl)) then   !(ijkj)
   list = list3_all(lri,lrk,lrj)
   vector1(list) = val
   if (lrj == lrk) then
     vector1(list+1) = val
   end if
-  goto 10
-end if
 
-if ((lri /= lrj) .and. (lri /= lrk) .and. (lri /= lrl) .and. (lrj /= lrk) .and. (lrj /= lrl) .and. (lrk /= lrl)) then
+else if ((lri /= lrj) .and. (lri /= lrk) .and. (lri /= lrl) .and. (lrj /= lrk) .and. (lrj /= lrl) .and. (lrk /= lrl)) then
   list = list4_all(ind(1),ind(2),ind(3),ind(4))       !(ijkl)
   if ((lrj > lrk) .and. (lrj > lrl)) then
     vector1(list+2) = val
@@ -583,10 +565,8 @@ if ((lri /= lrj) .and. (lri /= lrk) .and. (lri /= lrl) .and. (lrj /= lrk) .and. 
     vector1(list+1) = val
   end if
 
-  goto 10
 end if
 
-10 continue
 !write(6,*) 'list=',list
 
 return
@@ -616,7 +596,7 @@ do i=1,norb_all-1
   do j=i+1,norb_all
     lri = norb_number(i)
     lrj = norb_number(j)
-    if (lsm(lri) /= lsm(lrj)) goto 11
+    if (lsm(lri) /= lsm(lrj)) cycle
     !write(6,*) 'lri=',lri,'lrj=',lrj
     !write(6,*) 'lsm(lri)',lsm(lri),'lsm(lrj)',lsm(lrj)
 
@@ -630,7 +610,6 @@ do i=1,norb_all-1
     numb = numb+2*norb_all
     !end do
 
-11  continue
   end do
 end do
 !write(6,*) 'number 3 index',numb
@@ -701,38 +680,28 @@ val = 0.d0
 if ((lri /= lrl) .and. (lrj == lrk)) then !(ijjl)
   list = list3_all(lri,lrl,lrj)
   val = vector1(list)
-  goto 10
-end if
 
-if ((lri /= lrj) .and. (lrk == lrl)) then  !(ijkk)
+else if ((lri /= lrj) .and. (lrk == lrl)) then  !(ijkk)
   list = list3_all(lri,lrj,lrk)
   val = vector1(list+1)
-  goto 10
-end if
 
-if ((lri == lrj) .and. (lrk /= lrl)) then  !(iikl)
+else if ((lri == lrj) .and. (lrk /= lrl)) then  !(iikl)
   list = list3_all(lrk,lrl,lri)
   val = vector1(list+1)
-  goto 10
-end if
 
-if ((lri == lrk) .and. (lrj /= lrl)) then  !(ijil)
+else if ((lri == lrk) .and. (lrj /= lrl)) then  !(ijil)
   if (lrj < lrl) then
     list = list3_all(lrj,lrl,lri)
   else
     list = list3_all(lrl,lrj,lri)
   end if
   val = vector1(list)
-  goto 10
-end if
 
-if ((lri /= lrk) .and. (lrj == lrl)) then  !(ijkj)
+else if ((lri /= lrk) .and. (lrj == lrl)) then  !(ijkj)
   list = list3_all(lri,lrk,lrj)
   val = vector1(list)
-  goto 10
-end if
 
-if ((lri /= lrj) .and. (lri /= lrk) .and. (lri /= lrl) .and. (lrj /= lrk) .and. (lrj /= lrl) .and. (lrk /= lrl)) then
+else if ((lri /= lrj) .and. (lri /= lrk) .and. (lri /= lrl) .and. (lrj /= lrk) .and. (lrj /= lrl) .and. (lrk /= lrl)) then
   ind(1) = lri
   ind(2) = lrj
   ind(3) = lrk
@@ -757,10 +726,8 @@ if ((lri /= lrj) .and. (lri /= lrk) .and. (lri /= lrl) .and. (lrj /= lrk) .and. 
   if ((lrj < lrk) .and. (lrj < lrl)) then
     val = vector1(list+1)
   end if
-  goto 10
 end if
 
-10 continue
 vfutei = val
 
 end function vfutei

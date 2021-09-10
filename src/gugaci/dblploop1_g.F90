@@ -2137,84 +2137,85 @@ JMLR = MUL_TAB(JML,JMR)
 ! SD(6-10) D&r&l(12)B^l(23)
 ! SD(6-15) D&r&l(33)B^l(13)C'(22)
 
-if (JML /= 1) goto 207
+if (JML == 1) then
 
-!SD(6-1) A&r(02)-
-do LRI=NORB_FRZ+1,NORB_DZ
-  LMI = LSM_INN(LRI)
-  IWDL = JUST(LRI,LRI)
-  W0SD1 = W0_SD(1)
-  W0SD12 = W0_SD(12)
-  NI = mod(NORB_DZ-LRI,2)
-  if (NI == 1) then
-    W0SD1 = -W0SD1
-    W0SD12 = -W0SD12
-  end if
-  if (LMI == JMLR) then
-    IWDR = JUD(LRI)
-    VLOP0 = W0*W0SD1
-    !WL = VLOP0*VOINT(LRI,LRA)
-    WL = VLOP0
-    call PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,LRI,LRA)
-
-    do LR=LRI+1,NORB_DZ
-      !LIST = LIST3(LRI,LRA,LR)
-      !WL = WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST))  ! 310:NEOC=2
-      WL = VLOP0*2
-      call TRANS_IJKL_INTPOS(LRA,LRI,LR,LR,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-      WL = -VLOP0
-      call TRANS_IJKL_INTPOS(LRA,LR,LRI,LR,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-    end do
-    do LRK=norb_dz+1,LRA
-      !LIST = LIST3(LRI,LRA,LRK)
-      KCOE = LPCOE(LRK)
-      call NEOC(KCOE,NOCC,TCOE)
-      !WL = WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
-      WL = VLOP0*NOCC
-      call TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-      WL = VLOP0*NOCC*TCOE
-      call TRANS_IJKL_INTPOS(LRA,LRK,LRI,LRK,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-
-    end do
-    !WL = WL*VLOP0
-    ! SD(6-12) D&rl(33)B^l(02)
-    VLOP0 = W0*W0SD12
-    do LRK=1,LRI-1
-      !LIST = LIST3(LRI,LRA,LRK)
-      !WL = WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))
+  !SD(6-1) A&r(02)-
+  do LRI=NORB_FRZ+1,NORB_DZ
+    LMI = LSM_INN(LRI)
+    IWDL = JUST(LRI,LRI)
+    W0SD1 = W0_SD(1)
+    W0SD12 = W0_SD(12)
+    NI = mod(NORB_DZ-LRI,2)
+    if (NI == 1) then
+      W0SD1 = -W0SD1
+      W0SD12 = -W0SD12
+    end if
+    if (LMI == JMLR) then
+      IWDR = JUD(LRI)
+      VLOP0 = W0*W0SD1
+      !WL = VLOP0*VOINT(LRI,LRA)
       WL = VLOP0
-      call TRANS_IJKL_INTPOS(LRA,LRK,LRI,LRK,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-      WL = -VLOP0*2
-      call TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+      call PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,LRI,LRA)
 
+      do LR=LRI+1,NORB_DZ
+        !LIST = LIST3(LRI,LRA,LR)
+        !WL = WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST))  ! 310:NEOC=2
+        WL = VLOP0*2
+        call TRANS_IJKL_INTPOS(LRA,LRI,LR,LR,NXO)
+        call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+        WL = -VLOP0
+        call TRANS_IJKL_INTPOS(LRA,LR,LRI,LR,NXO)
+        call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+      end do
+      do LRK=norb_dz+1,LRA
+        !LIST = LIST3(LRI,LRA,LRK)
+        KCOE = LPCOE(LRK)
+        call NEOC(KCOE,NOCC,TCOE)
+        !WL = WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
+        WL = VLOP0*NOCC
+        call TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
+        call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+        WL = VLOP0*NOCC*TCOE
+        call TRANS_IJKL_INTPOS(LRA,LRK,LRI,LRK,NXO)
+        call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+
+      end do
+      !WL = WL*VLOP0
+      ! SD(6-12) D&rl(33)B^l(02)
+      VLOP0 = W0*W0SD12
+      do LRK=1,LRI-1
+        !LIST = LIST3(LRI,LRA,LRK)
+        !WL = WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))
+        WL = VLOP0
+        call TRANS_IJKL_INTPOS(LRA,LRK,LRI,LRK,NXO)
+        call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+        WL = -VLOP0*2
+        call TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
+        call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+
+      end do
+      !call PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+    end if
+
+    ! SD(6-9) D&r&r(03)B^r(32)
+    do LRD=LRI+1,NORB_DZ
+      LMD = LSM_INN(LRD)
+      if (LMD /= JMR) cycle
+      W0SD9 = W0_SD(9)
+      NI = mod(NORB_DZ-LRD,2)
+      if (NI == 1) W0SD9 = -W0SD9
+      IWDR = JUD(LRD)
+      VLOP0 = W0*W0SD9
+      !LIST = LIST3(LRD,LRA,LRI)
+      !WL = VINT_CI(LIST)*VLOP0
+      WL = VLOP0
+      call TRANS_IJKL_INTPOS(LRA,LRI,LRD,LRI,NXO)
+      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
     end do
-    !call PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-  end if
-
-  ! SD(6-9) D&r&r(03)B^r(32)
-  do LRD=LRI+1,NORB_DZ
-    LMD = LSM_INN(LRD)
-    if (LMD /= JMR) cycle
-    W0SD9 = W0_SD(9)
-    NI = mod(NORB_DZ-LRD,2)
-    if (NI == 1) W0SD9 = -W0SD9
-    IWDR = JUD(LRD)
-    VLOP0 = W0*W0SD9
-    !LIST = LIST3(LRD,LRA,LRI)
-    !WL = VINT_CI(LIST)*VLOP0
-    WL = VLOP0
-    call TRANS_IJKL_INTPOS(LRA,LRI,LRD,LRI,NXO)
-    call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
   end do
-end do
 
-207 continue
+end if
+
 do LRI=NORB_FRZ+1,NORB_DZ
   LMI = LSM_INN(LRI)
   do LRJ=LRI+1,NORB_DZ
@@ -2582,86 +2583,86 @@ JMLR = MUL_TAB(JML,JMR)
 ! SD1(8-13) D&r&l(33)C"(13)B^l(23)
 ! SD1(8-14) D&r&l(33)B^l(11)C'(23)
 ! SD1(8-15) D&r&l(33)B^l(23)C'(11)
-if (JML /= 1) goto 209
-do LRI=NORB_FRZ+1,NORB_DZ
-  ! SD1(8-1) A&r(01)-
-  LMI = LSM_INN(LRI)
-  IWDL = JUST(LRI,LRI)
-  W0SD1 = W0_SD1(1)
-  W0SD11 = W0_SD1(9)
-  NI = mod(NORB_DZ-LRI,2)
-  if (NI == 1) then
-    W0SD1 = -W0SD1
-    W0SD11 = -W0SD11
-  end if
-  if (LMI == JMLR) then
-    IWDR = JUD(LRI)
-    VLOP0 = W0*W0SD1
-    !WL = VLOP0*VOINT(LRI,LRA)
-    WL = VLOP0
-    call PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,LRI,LRA)
-
-    do LR=LRI+1,NORB_DZ
-      !LIST = LIST3(LRI,LRA,LR)
-      !WL = WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC=2
-      WL = VLOP0*2
-      call TRANS_IJKL_INTPOS(LRA,LRI,LR,LR,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-      WL = -VLOP0
-      call TRANS_IJKL_INTPOS(LRA,LR,LRI,LR,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-
-    end do
-    do LRK=norb_dz+1,LRA
-      !LIST = LIST3(LRI,LRA,LRK)
-      KCOE = LPCOE(LRK)
-      call NEOC(KCOE,NOCC,TCOE)
-      !WL = WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
-      WL = VLOP0*NOCC
-      call TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-      WL = VLOP0*NOCC*TCOE
-      call TRANS_IJKL_INTPOS(LRA,LRK,LRI,LRK,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-
-    end do
-    !WL = WL*VLOP0
-    ! SD1(8-11) D&rl(33)B^l(01)
-    VLOP0 = W0*W0SD11
-    do LRK=1,LRI-1
-      !LIST = LIST3(LRI,LRA,LRK)
-      !WL = WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))
+if (JML == 1) then
+  do LRI=NORB_FRZ+1,NORB_DZ
+    ! SD1(8-1) A&r(01)-
+    LMI = LSM_INN(LRI)
+    IWDL = JUST(LRI,LRI)
+    W0SD1 = W0_SD1(1)
+    W0SD11 = W0_SD1(9)
+    NI = mod(NORB_DZ-LRI,2)
+    if (NI == 1) then
+      W0SD1 = -W0SD1
+      W0SD11 = -W0SD11
+    end if
+    if (LMI == JMLR) then
+      IWDR = JUD(LRI)
+      VLOP0 = W0*W0SD1
+      !WL = VLOP0*VOINT(LRI,LRA)
       WL = VLOP0
-      call TRANS_IJKL_INTPOS(LRA,LRK,LRI,LRK,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-      WL = -VLOP0*2
-      call TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
+      call PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,LRI,LRA)
+
+      do LR=LRI+1,NORB_DZ
+        !LIST = LIST3(LRI,LRA,LR)
+        !WL = WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC=2
+        WL = VLOP0*2
+        call TRANS_IJKL_INTPOS(LRA,LRI,LR,LR,NXO)
+        call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+        WL = -VLOP0
+        call TRANS_IJKL_INTPOS(LRA,LR,LRI,LR,NXO)
+        call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+
+      end do
+      do LRK=norb_dz+1,LRA
+        !LIST = LIST3(LRI,LRA,LRK)
+        KCOE = LPCOE(LRK)
+        call NEOC(KCOE,NOCC,TCOE)
+        !WL = WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
+        WL = VLOP0*NOCC
+        call TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
+        call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+        WL = VLOP0*NOCC*TCOE
+        call TRANS_IJKL_INTPOS(LRA,LRK,LRI,LRK,NXO)
+        call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+
+      end do
+      !WL = WL*VLOP0
+      ! SD1(8-11) D&rl(33)B^l(01)
+      VLOP0 = W0*W0SD11
+      do LRK=1,LRI-1
+        !LIST = LIST3(LRI,LRA,LRK)
+        !WL = WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))
+        WL = VLOP0
+        call TRANS_IJKL_INTPOS(LRA,LRK,LRI,LRK,NXO)
+        call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+        WL = -VLOP0*2
+        call TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
+        call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+
+      end do
+      !call PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+    end if
+
+    ! SD1(8-9) D&r&r(03)B^r(31)
+    do LRD=LRI+1,NORB_DZ
+      LMD = LSM_INN(LRD)
+      if (LMD /= JMR) cycle
+      W0SD9 = W0_SD1(9)
+      NI = mod(NORB_DZ-LRD,2)
+      if (NI == 1) W0SD9 = -W0SD9
+      IWDR = JUD(LRD)
+      VLOP0 = W0*W0SD9
+      !LIST = LIST3(LRD,LRA,LRI)
+      !WL = VINT_CI(LIST)*VLOP0
+      WL = VLOP0
+      call TRANS_IJKL_INTPOS(LRA,LRI,LRD,LRI,NXO)
       call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
+      !call PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
     end do
-    !call PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-  end if
-
-  ! SD1(8-9) D&r&r(03)B^r(31)
-  do LRD=LRI+1,NORB_DZ
-    LMD = LSM_INN(LRD)
-    if (LMD /= JMR) cycle
-    W0SD9 = W0_SD1(9)
-    NI = mod(NORB_DZ-LRD,2)
-    if (NI == 1) W0SD9 = -W0SD9
-    IWDR = JUD(LRD)
-    VLOP0 = W0*W0SD9
-    !LIST = LIST3(LRD,LRA,LRI)
-    !WL = VINT_CI(LIST)*VLOP0
-    WL = VLOP0
-    call TRANS_IJKL_INTPOS(LRA,LRI,LRD,LRI,NXO)
-    call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-
-    !call PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
   end do
-end do
+end if
 
-209 continue
 do LRI=NORB_FRZ+1,NORB_DZ
   LMI = LSM_INN(LRI)
   do LRJ=LRI+1,NORB_DZ

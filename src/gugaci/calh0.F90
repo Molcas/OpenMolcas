@@ -30,39 +30,38 @@ if (norb_act == 0) then
   ndim_h0 = 1
   vector2(1) = vector1(1)
   irfno(1) = 1
-  goto 100
   !return
-end if
-ipae = 1
-jpae = nu_ae(ipae)
-if (jpae == 0) return
-jpadl = 1
-if (nu_ad(jpadl) == 0) return
-jpad = jpadl
-call seg_drt()
-if (ndim == 0) return
-ndim_h0 = ndim
+else
+  ipae = 1
+  jpae = nu_ae(ipae)
+  if (jpae == 0) return
+  jpadl = 1
+  if (nu_ad(jpadl) == 0) return
+  jpad = jpadl
+  call seg_drt()
+  if (ndim == 0) return
+  ndim_h0 = ndim
 
-if (mroot > ndim_h0) then
-  write(6,*) '    mroot> ndim_h0, mroot,ndim_h0=',mroot,ndim_h0
-  mroot = min(ndim_h0,mroot)
-  write(6,*) '   ',mroot,'roots are calculated'
-end if
-
-call copy_to_drtl()
-
-if (logic_mr) then
-  call irfrst(iselcsf_occ)
   if (mroot > ndim_h0) then
     write(6,*) '    mroot> ndim_h0, mroot,ndim_h0=',mroot,ndim_h0
     mroot = min(ndim_h0,mroot)
     write(6,*) '   ',mroot,'roots are calculated'
   end if
-  call minevalue(iselcsf_occ)
+
+  call copy_to_drtl()
+
+  if (logic_mr) then
+    call irfrst(iselcsf_occ)
+    if (mroot > ndim_h0) then
+      write(6,*) '    mroot> ndim_h0, mroot,ndim_h0=',mroot,ndim_h0
+      mroot = min(ndim_h0,mroot)
+      write(6,*) '   ',mroot,'roots are calculated'
+    end if
+    call minevalue(iselcsf_occ)
+  end if
 end if
 
 !=======================================================================
-100 continue
 !if (logic_mr) ndim_h0 = irf
 if (.not. logic_mr) then
   ndim0 = ndim_h0
@@ -77,70 +76,68 @@ write(6,*) '     ================================'
 if (ndim_h0 == 1) then
   ecih0(1) = escf(1)
   vcm(1) = 1.d0
-  goto 400
-end if
-
-call formh0()   ! for log_mr, ndim_h0 changed to irf in this subroutine
-!=======================================================================
-if (associated(vcm)) deallocate(vcm)
-allocate(vcm(ndim_h0*mroot))
-
-if (ndim_h0 <= 30) then
-  call hotred(max_kspace,ndim_h0,vector2,vd,ve,vu)
-  call qlcm(max_kspace,ndim_h0,vd,ve,vu)
-  ijm = 0
-  do m=1,mroot
-    ecih0(m) = vd(m)
-    do l=1,ndim_h0
-      vcm(ijm+l) = vu(m,l)
-    end do
-    ijm = ijm+ndim_h0
-  end do
-  goto 400
 else
-  mmspace = mroot*3+10
-  do i=1,mmspace
-    indx(i) = (i-1)*ndim_h0
-  end do
 
-  do i=1,ndim_h0
-    mn = i*(i+1)/2
-    vad0(i) = vector2(mn)
-  end do
+  call formh0()   ! for log_mr, ndim_h0 changed to irf in this subroutine
+  !=====================================================================
+  if (associated(vcm)) deallocate(vcm)
+  allocate(vcm(ndim_h0*mroot))
 
-  nxh = ndim_h0*(ndim_h0+1)/2
-  nxb = ndim_h0*max_kspace
+  if (ndim_h0 <= 30) then
+    call hotred(max_kspace,ndim_h0,vector2,vd,ve,vu)
+    call qlcm(max_kspace,ndim_h0,vd,ve,vu)
+    ijm = 0
+    do m=1,mroot
+      ecih0(m) = vd(m)
+      do l=1,ndim_h0
+        vcm(ijm+l) = vu(m,l)
+      end do
+      ijm = ijm+ndim_h0
+    end do
+  else
+    mmspace = mroot*3+10
+    do i=1,mmspace
+      indx(i) = (i-1)*ndim_h0
+    end do
 
-  call basis_2(ndim_h0,vb1,nxb,vad0,vector2,nxh)
+    do i=1,ndim_h0
+      mn = i*(i+1)/2
+      vad0(i) = vector2(mn)
+    end do
 
-  do m=1,mroot
-    ecih0(m) = escf(m)
-  end do
+    nxh = ndim_h0*(ndim_h0+1)/2
+    nxb = ndim_h0*max_kspace
 
-  kval = mroot*2
-  call hymat_2(max_root,max_kspace,ndim_h0,kval,mroot,dcrita,ecih0,vcm,indx,vector2,nxh,vb1,vb2,nxb,vad0)
-  !vcm(1:mroot*ndim_h0) = vb1(1:mroot*ndim_h0)
-  ! save ci vector in h0 into vb2
-  !numh0 = nci_h0 !iw_sta(2,1)
-  !vb2(1:numh0*mroot) = 0.d0
-  !if (logic_mr) then
-  !  idx1 = 0
-  !  idx2 = 0
-  !  do i=1,mroot
-  !    do j=1,ndim_h0
-  !      m = irfno(j)
-  !      vb2(idx1+m) = vb1(idx2+j)
-  !    end do
-  !    idx1 = idx1+numh0
-  !    idx2 = idx2+ndim_h0
-  !  end do
-  !else
-  !  vb2(1:numh0*mroot) = vb1(1:numh0*mroot)
-  !end if
+    call basis_2(ndim_h0,vb1,nxb,vad0,vector2,nxh)
+
+    do m=1,mroot
+      ecih0(m) = escf(m)
+    end do
+
+    kval = mroot*2
+    call hymat_2(max_root,max_kspace,ndim_h0,kval,mroot,dcrita,ecih0,vcm,indx,vector2,nxh,vb1,vb2,nxb,vad0)
+    !vcm(1:mroot*ndim_h0) = vb1(1:mroot*ndim_h0)
+    ! save ci vector in h0 into vb2
+    !numh0 = nci_h0 !iw_sta(2,1)
+    !vb2(1:numh0*mroot) = 0.d0
+    !if (logic_mr) then
+    !  idx1 = 0
+    !  idx2 = 0
+    !  do i=1,mroot
+    !    do j=1,ndim_h0
+    !      m = irfno(j)
+    !      vb2(idx1+m) = vb1(idx2+j)
+    !    end do
+    !    idx1 = idx1+numh0
+    !    idx2 = idx2+ndim_h0
+    !  end do
+    !else
+    !  vb2(1:numh0*mroot) = vb1(1:numh0*mroot)
+    !end if
+  end if
+  deallocate(vcm)
 end if
-deallocate(vcm)
 
-400 continue
 write(6,*)
 do m=1,mroot
   write(6,'(5x,a7,i5,f18.8)') ' root,',m,ecih0(m)
@@ -397,14 +394,14 @@ subroutine orthnor_ab(n,av,bv,id)  !bv:basis, av:vector for orth a
 real*8 av(n), bv(n), s, ddot_, dcrita
 
 dcrita = 1.0e-10
-if (id /= 0) goto 150
-! orthogonalization av,bv
-s = ddot_(n,av,1,bv,1)
-do i=1,n
-  av(i) = av(i)-s*bv(i)
-end do
+if (id == 0) then
+  ! orthogonalization av,bv
+  s = ddot_(n,av,1,bv,1)
+  do i=1,n
+    av(i) = av(i)-s*bv(i)
+  end do
+end if
 ! normalization of av_eigenvector.
-150 continue
 s = 0.0d0
 s = ddot_(n,av,1,av,1)
 s = sqrt(s)

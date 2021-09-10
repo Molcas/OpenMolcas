@@ -32,16 +32,15 @@ PT = -FG*sqrt((DB+4)/(2*DB+4))
 PS1 = FG*sqrt(DB/(2*DB+4))                   ! (2)D&R&L(1)
 PS4 = -FG*(DB+3)*sqrt((DB)/(2*DB+4))/(DB+1)  !D&R&L(2)C"(1)
 
-if (JB_SYS == 0) goto 100
-PDD = -FG*sqrt((DB-1)/(2*DB+2))
-PS2 = -FG*sqrt((DB+2)/(2*DB))                ! (1)D&R&L(2)
-PS3 = FG*(DB-1)*sqrt((DB+2)/(2*DB))/(DB+1)   !D&R&L(1)C"(2)
+if (JB_SYS /= 0) then
+  PDD = -FG*sqrt((DB-1)/(2*DB+2))
+  PS2 = -FG*sqrt((DB+2)/(2*DB))                ! (1)D&R&L(2)
+  PS3 = FG*(DB-1)*sqrt((DB+2)/(2*DB))/(DB+1)   !D&R&L(1)C"(2)
 
-if (JB_SYS == 1) goto 100
-PTT = FG*sqrt((DB-2)/(2*DB))
+  if (JB_SYS /= 1) PTT = FG*sqrt((DB-2)/(2*DB))
+end if
 
 !---------------------- off diag ---------------------------------------
-100 continue
 FGSQ2 = FG*DSQ2
 FGVSQ2 = FG*VSQ2
 
@@ -701,45 +700,43 @@ dimension IWDL(MAX_INNORB), IWDR(MAX_INNORB)
 NK = 0
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
-if (IGF == -1) goto 200
-! TT(11-1) (22)Ar(23)-Bl(32)-
-do LRK=NORB_FRZ+1,LRI-1
-  LMK = LSM_INN(LRK)
-  LMKI = MUL_TAB(LMK,LMI)
-  LMKJ = MUL_TAB(LMK,LMJ)
-  if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
-  NK = NK+1
-  IWDL(NK) = JUST(LRK,LRI)
-  IWDR(NK) = JUST(LRK,LRJ)
-end do
-! TT(11-1) Ar(23)-Bl(32)-C"(22)-    ACT -C"-
-do LRK=LRJ+1,NORB_DZ
-  LMK = LSM_INN(LRK)
-  LMKI = MUL_TAB(LMK,LMI)
-  LMKJ = MUL_TAB(LMK,LMJ)
-  if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
-  NK = NK+1
-  IWDL(NK) = JUST(LRI,LRK)
-  IWDR(NK) = JUST(LRJ,LRK)
-end do
-W0TT1 = W0_TT(1)
-W1TT1 = W1_TT(1)
-goto 300
-! TT(11-1) Ar(23)-C'(22)-Bl(32)-
-200 continue
-do LRK=LRI+1,LRJ-1
-  LMK = LSM_INN(LRK)
-  LMKI = MUL_TAB(LMK,LMI)
-  LMKJ = MUL_TAB(LMK,LMJ)
-  if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
-  NK = NK+1
-  IWDL(NK) = JUST(LRI,LRK)
-  IWDR(NK) = JUST(LRK,LRJ)
-end do
-W0TT1 = -W0_TT(1)
-W1TT1 = -W1_TT(1)
-
-300 continue
+if (IGF == -1) then
+  ! TT(11-1) Ar(23)-C'(22)-Bl(32)-
+  do LRK=LRI+1,LRJ-1
+    LMK = LSM_INN(LRK)
+    LMKI = MUL_TAB(LMK,LMI)
+    LMKJ = MUL_TAB(LMK,LMJ)
+    if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
+    NK = NK+1
+    IWDL(NK) = JUST(LRI,LRK)
+    IWDR(NK) = JUST(LRK,LRJ)
+  end do
+  W0TT1 = -W0_TT(1)
+  W1TT1 = -W1_TT(1)
+else
+  ! TT(11-1) (22)Ar(23)-Bl(32)-
+  do LRK=NORB_FRZ+1,LRI-1
+    LMK = LSM_INN(LRK)
+    LMKI = MUL_TAB(LMK,LMI)
+    LMKJ = MUL_TAB(LMK,LMJ)
+    if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
+    NK = NK+1
+    IWDL(NK) = JUST(LRK,LRI)
+    IWDR(NK) = JUST(LRK,LRJ)
+  end do
+  ! TT(11-1) Ar(23)-Bl(32)-C"(22)-    ACT -C"-
+  do LRK=LRJ+1,NORB_DZ
+    LMK = LSM_INN(LRK)
+    LMKI = MUL_TAB(LMK,LMI)
+    LMKJ = MUL_TAB(LMK,LMJ)
+    if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
+    NK = NK+1
+    IWDL(NK) = JUST(LRI,LRK)
+    IWDR(NK) = JUST(LRJ,LRK)
+  end do
+  W0TT1 = W0_TT(1)
+  W1TT1 = W1_TT(1)
+end if
 if (NK == 0) return
 
 NI = mod(LRJ-LRI,2)
@@ -811,32 +808,31 @@ dimension IWDL(MAX_INNORB), IWDR(MAX_INNORB)
 NK = 0
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
-if (IGF == -1) goto 200
-! TS(3-2) (22)Ar(23)-Bl(31)-
-do LRK=NORB_FRZ+1,LRI-1
-  LMK = LSM_INN(LRK)
-  LMKI = MUL_TAB(LMK,LMI)
-  LMKJ = MUL_TAB(LMK,LMJ)
-  if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
-  NK = NK+1
-  IWDL(NK) = JUST(LRK,LRI)
-  IWDR(NK) = JUST(LRK,LRJ)
-end do
-W1TS2 = W1_TS(2)
-goto 300
-! TS(3-2) Ar(23)-C'(22)-Bl(31)-   ACT -C"-
-200 continue
-do LRK=LRI+1,LRJ-1
-  LMK = LSM_INN(LRK)
-  LMKI = MUL_TAB(LMK,LMI)
-  LMKJ = MUL_TAB(LMK,LMJ)
-  if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
-  NK = NK+1
-  IWDL(NK) = JUST(LRI,LRK)
-  IWDR(NK) = JUST(LRK,LRJ)
-end do
-W1TS2 = -W1_TS(2)
-300 continue
+if (IGF == -1) then
+  ! TS(3-2) Ar(23)-C'(22)-Bl(31)-   ACT -C"-
+  do LRK=LRI+1,LRJ-1
+    LMK = LSM_INN(LRK)
+    LMKI = MUL_TAB(LMK,LMI)
+    LMKJ = MUL_TAB(LMK,LMJ)
+    if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
+    NK = NK+1
+    IWDL(NK) = JUST(LRI,LRK)
+    IWDR(NK) = JUST(LRK,LRJ)
+  end do
+  W1TS2 = -W1_TS(2)
+else
+  ! TS(3-2) (22)Ar(23)-Bl(31)-
+  do LRK=NORB_FRZ+1,LRI-1
+    LMK = LSM_INN(LRK)
+    LMKI = MUL_TAB(LMK,LMI)
+    LMKJ = MUL_TAB(LMK,LMJ)
+    if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
+    NK = NK+1
+    IWDL(NK) = JUST(LRK,LRI)
+    IWDR(NK) = JUST(LRK,LRJ)
+  end do
+  W1TS2 = W1_TS(2)
+end if
 if (NK == 0) return
 NI = mod(LRJ-LRI,2)
 if (NI == 0) then
@@ -999,34 +995,32 @@ dimension IWDL(MAX_INNORB), IWDR(MAX_INNORB)
 NK = 0
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
-if (IGF == -1) goto 200
-! ST(2-4) Ar(23)-Bl(32)-C'(12)-
-do LRK=LRJ+1,NORB_DZ
-  LMK = LSM_INN(LRK)
-  LMKI = MUL_TAB(LMK,LMI)
-  LMKJ = MUL_TAB(LMK,LMJ)
-  if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
-  NK = NK+1
-  IWDL(NK) = JUST(LRI,LRK)
-  IWDR(NK) = JUST(LRJ,LRK)
-end do
-W1ST4 = W1_ST(4)
-goto 300
+if (IGF == -1) then
+  ! ST(2-4) Ar(23)-C'(12)-Bl(32)-
+  do LRK=LRI+1,LRJ-1
+    LMK = LSM_INN(LRK)
+    LMKI = MUL_TAB(LMK,LMI)
+    LMKJ = MUL_TAB(LMK,LMJ)
+    if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
+    NK = NK+1
+    IWDL(NK) = JUST(LRI,LRK)
+    IWDR(NK) = JUST(LRK,LRJ)
+  end do
+  W1ST4 = -W1_ST(4)
+else
+  ! ST(2-4) Ar(23)-Bl(32)-C'(12)-
+  do LRK=LRJ+1,NORB_DZ
+    LMK = LSM_INN(LRK)
+    LMKI = MUL_TAB(LMK,LMI)
+    LMKJ = MUL_TAB(LMK,LMJ)
+    if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
+    NK = NK+1
+    IWDL(NK) = JUST(LRI,LRK)
+    IWDR(NK) = JUST(LRJ,LRK)
+  end do
+  W1ST4 = W1_ST(4)
+end if
 
-! ST(2-4) Ar(23)-C'(12)-Bl(32)-
-200 continue
-do LRK=LRI+1,LRJ-1
-  LMK = LSM_INN(LRK)
-  LMKI = MUL_TAB(LMK,LMI)
-  LMKJ = MUL_TAB(LMK,LMJ)
-  if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
-  NK = NK+1
-  IWDL(NK) = JUST(LRI,LRK)
-  IWDR(NK) = JUST(LRK,LRJ)
-end do
-W1ST4 = -W1_ST(4)
-
-300 continue
 if (NK == 0) return
 NI = mod(LRJ-LRI,2)
 if (NI == 0) then

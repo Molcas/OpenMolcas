@@ -636,6 +636,7 @@ subroutine head_ar_at_given_orb(mh,lri)
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 dimension isha4(4)
+logical found
 data isha4/34,35,40,44/
 
 iactploop = 0
@@ -656,14 +657,15 @@ do jp=jpsta,jpend
       jbr = jb(jp)
       ind0 = 32+(jdl-1)*4+jdr
       !start '^'
+      found = .false.
       do ni=1,4
-        if (ind0 /= isha4(ni)) goto 105
-        call stermha4(w,ww,ni,jbr)
-        goto 100
-105     continue
+        if (ind0 == isha4(ni)) then
+          call stermha4(w,ww,ni,jbr)
+          found = .true.
+          exit
+        end if
       end do
-      cycle
-100   continue
+      if (.not. found) cycle
       iactploop = iactploop+1
       !if (iactploop == 4) write(6,*) 'bbs_tmp'
       lp_head(iactploop) = jp

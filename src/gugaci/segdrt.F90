@@ -79,26 +79,19 @@ do lr=norb_inn-1,norb_dz+1,-1
     j3 = jj_sub(3,jde)
     j4 = jj_sub(4,jde)
     iy(1,jde) = iy(1,j1)+iy(1,j2)+iy(1,j3)+iy(1,j4)
-    if (iy(1,jde) /= 0) goto 304
-    do jp0=no(lr-1)+1,no(lr)
-      if (jj_sub(1,jp0) == jde) jj_sub(1,jp0) = 0
-      if (jj_sub(2,jp0) == jde) jj_sub(2,jp0) = 0
-      if (jj_sub(3,jp0) == jde) jj_sub(3,jp0) = 0
-      if (jj_sub(4,jp0) == jde) jj_sub(4,jp0) = 0
-    end do
-    goto 21
-304 continue
-    if ((j2 == 0) .or. (iy(1,j2) == 0)) goto 31
-    iy(2,jde) = iy(1,j1)
-31  continue
-    if ((j3 == 0) .or. (iy(1,j3) == 0)) goto 32
-    iy(3,jde) = iy(1,j1)+iy(1,j2)
-32  continue
-    if ((j4 == 0) .or. (iy(1,j4) == 0)) goto 303
-    iy(4,jde) = iy(1,jde)-iy(1,j4)
-303 continue
-    if (jde == 1) goto 21
-21  continue
+    if (iy(1,jde) /= 0) then
+      if ((j2 /= 0) .and. (iy(1,j2) /= 0)) iy(2,jde) = iy(1,j1)
+      if ((j3 /= 0) .and. (iy(1,j3) /= 0)) iy(3,jde) = iy(1,j1)+iy(1,j2)
+      if ((j4 /= 0) .and. (iy(1,j4) /= 0)) iy(4,jde) = iy(1,jde)-iy(1,j4)
+      !if (jde == 1) continue
+    else
+      do jp0=no(lr-1)+1,no(lr)
+        if (jj_sub(1,jp0) == jde) jj_sub(1,jp0) = 0
+        if (jj_sub(2,jp0) == jde) jj_sub(2,jp0) = 0
+        if (jj_sub(3,jp0) == jde) jj_sub(3,jp0) = 0
+        if (jj_sub(4,jp0) == jde) jj_sub(4,jp0) = 0
+      end do
+    end if
   end do
 end do
 lr = norb_dz+1
@@ -108,26 +101,19 @@ j2 = jj_sub(2,jde)
 j3 = jj_sub(3,jde)
 j4 = jj_sub(4,jde)
 iy(1,jde) = iy(1,j1)+iy(1,j2)+iy(1,j3)+iy(1,j4)
-if (iy(1,jde) /= 0) goto 404
-do jp0=no(lr)+1,no(lr+1)
-  if (jj_sub(1,jp0) == jde) jj_sub(1,jp0) = 0
-  if (jj_sub(2,jp0) == jde) jj_sub(2,jp0) = 0
-  if (jj_sub(3,jp0) == jde) jj_sub(3,jp0) = 0
-  if (jj_sub(4,jp0) == jde) jj_sub(4,jp0) = 0
-end do
-goto 40
-404 continue
-if ((j2 == 0) .or. (iy(1,j2) == 0)) goto 41
-iy(2,jde) = iy(1,j1)
-41 continue
-if ((j3 == 0) .or. (iy(1,j3) == 0)) goto 42
-iy(3,jde) = iy(1,j1)+iy(1,j2)
-42 continue
-if ((j4 == 0) .or. (iy(1,j4) == 0)) goto 403
-iy(4,jde) = iy(1,jde)-iy(1,j4)
-403 continue
-if (jde == 1) goto 40
-40 continue
+if (iy(1,jde) /= 0) then
+  if ((j2 /= 0) .and. (iy(1,j2) /= 0)) iy(2,jde) = iy(1,j1)
+  if ((j3 /= 0) .and. (iy(1,j3) /= 0)) iy(3,jde) = iy(1,j1)+iy(1,j2)
+  if ((j4 /= 0) .and. (iy(1,j4) /= 0)) iy(4,jde) = iy(1,jde)-iy(1,j4)
+  !if (jde == 1) continue
+else
+  do jp0=no(lr)+1,no(lr+1)
+    if (jj_sub(1,jp0) == jde) jj_sub(1,jp0) = 0
+    if (jj_sub(2,jp0) == jde) jj_sub(2,jp0) = 0
+    if (jj_sub(3,jp0) == jde) jj_sub(3,jp0) = 0
+    if (jj_sub(4,jp0) == jde) jj_sub(4,jp0) = 0
+  end do
+end if
 
 ndim = iy(1,jpad)
 !=======================================================================
@@ -236,15 +222,13 @@ do l=1,in
   nn = jpad
   do i=norb_dz+1,lr-1
     do j=1,4
-      if (jj(j,nn) == 0) goto 40
-      if (jy > iin(jj_sub(j,nn))) goto 353
-      idr = j
-      goto 350
-353   continue
+      if (jj(j,nn) == 0) cycle
+      if (jy <= iin(jj_sub(j,nn))) then
+        idr = j
+        exit
+      end if
       jy = jy-iin(jj_sub(j,nn))
-40    continue
     end do
-350 continue
     if (idr /= 1) jpihy(l) = jpihy(l)+iy(idr,nn)
     nn = jj_sub(idr,nn)
   end do
@@ -318,106 +302,84 @@ end subroutine get_jpadty
 
 subroutine get_jpty(jpadlr,jptyl,jptyr)
 
-goto(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25),jpadlr
-1 continue
-jptyl = 4
-jptyr = 4
-return
-2 continue
-jptyl = 4
-jptyr = 3
-return
-3 continue
-jptyl = 3
-jptyr = 4
-return
-4 continue
-jptyl = 4
-jptyr = 6
-return
-5 continue
-jptyl = 6
-jptyr = 4
-return
-6 continue
-jptyl = 4
-jptyr = 2
-return
-7 continue
-jptyl = 2
-jptyr = 4
-return
-8 continue
-jptyl = 4
-jptyr = 5
-return
-9 continue
-jptyl = 5
-jptyr = 4
-return
-10 continue
-jptyl = 4
-jptyr = 1
-return
-11 continue
-jptyl = 3
-jptyr = 3
-return
-12 continue
-jptyl = 6
-jptyr = 6
-return
-13 continue
-jptyl = 3
-jptyr = 2
-return
-14 continue
-jptyl = 2
-jptyr = 3
-return
-15 continue
-jptyl = 6
-jptyr = 5
-return
-16 continue
-jptyl = 5
-jptyr = 6
-return
-17 continue
-jptyl = 3
-jptyr = 1
-return
-18 continue
-jptyl = 6
-jptyr = 1
-return
-19 continue
-jptyl = 2
-jptyr = 2
-return
-20 continue
-jptyl = 5
-jptyr = 5
-return
-21 continue
-jptyl = 2
-jptyr = 5
-return
-22 continue
-jptyl = 5
-jptyr = 2
-return
-23 continue
-jptyl = 2
-jptyr = 1
-return
-24 continue
-jptyl = 5
-jptyr = 1
-return
-25 continue
-jptyl = 1
-jptyr = 1
+select case (jpadlr)
+  case default ! (1)
+    jptyl = 4
+    jptyr = 4
+  case (2)
+    jptyl = 4
+    jptyr = 3
+  case (3)
+    jptyl = 3
+    jptyr = 4
+  case (4)
+    jptyl = 4
+    jptyr = 6
+  case (5)
+    jptyl = 6
+    jptyr = 4
+  case (6)
+    jptyl = 4
+    jptyr = 2
+  case (7)
+    jptyl = 2
+    jptyr = 4
+  case (8)
+    jptyl = 4
+    jptyr = 5
+  case (9)
+    jptyl = 5
+    jptyr = 4
+  case (10)
+    jptyl = 4
+    jptyr = 1
+  case (11)
+    jptyl = 3
+    jptyr = 3
+  case (12)
+    jptyl = 6
+    jptyr = 6
+  case (13)
+    jptyl = 3
+    jptyr = 2
+  case (14)
+    jptyl = 2
+    jptyr = 3
+  case (15)
+    jptyl = 6
+    jptyr = 5
+  case (16)
+    jptyl = 5
+    jptyr = 6
+  case (17)
+    jptyl = 3
+    jptyr = 1
+  case (18)
+    jptyl = 6
+    jptyr = 1
+  case (19)
+    jptyl = 2
+    jptyr = 2
+  case (20)
+    jptyl = 5
+    jptyr = 5
+  case (21)
+    jptyl = 2
+    jptyr = 5
+  case (22)
+    jptyl = 5
+    jptyr = 2
+  case (23)
+    jptyl = 2
+    jptyr = 1
+  case (24)
+    jptyl = 5
+    jptyr = 1
+  case (25)
+    jptyl = 1
+    jptyr = 1
+end select
+
 return
 
 end subroutine get_jpty

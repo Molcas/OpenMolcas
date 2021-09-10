@@ -37,41 +37,39 @@ lopi(1,1) = jwl
 lopi(2,1) = jwr
 lopi(3,1) = jl
 lopi(4,1) = jr
-103 continue
-lpj = 0
-do nlp=1,lpi
-  if (lopi(3,nlp) == lopi(4,nlp)) then
-    mp = mp+1
-    lopu(1:4,mp) = lopi(1:4,nlp)
-    cycle
-  end if
-  jlp = lopi(3,nlp)
-  jrp = lopi(4,nlp)
-  do idlr=1,4
-    ml = jjl_sub(idlr,jlp)
-    mr = jj_sub(idlr,jrp)
-    !write(6,*) 'ml,mr',ml,mr
-    if ((ml == 0) .or. (mr == 0)) goto 115
-    jwlp = lopi(1,nlp)
-    jwrp = lopi(2,nlp)
-    if (idlr /= 1) jwlp = jwlp+iyl(idlr,jlp)
-    if (idlr /= 1) jwrp = jwrp+iy(idlr,jrp)
-    lpj = lpj+1
-    lopj(1,lpj) = jwlp
-    lopj(2,lpj) = jwrp
-    lopj(3,lpj) = ml
-    lopj(4,lpj) = mr
-115 continue
+do
+  lpj = 0
+  do nlp=1,lpi
+    if (lopi(3,nlp) == lopi(4,nlp)) then
+      mp = mp+1
+      lopu(1:4,mp) = lopi(1:4,nlp)
+      cycle
+    end if
+    jlp = lopi(3,nlp)
+    jrp = lopi(4,nlp)
+    do idlr=1,4
+      ml = jjl_sub(idlr,jlp)
+      mr = jj_sub(idlr,jrp)
+      !write(6,*) 'ml,mr',ml,mr
+      if ((ml == 0) .or. (mr == 0)) cycle
+      jwlp = lopi(1,nlp)
+      jwrp = lopi(2,nlp)
+      if (idlr /= 1) jwlp = jwlp+iyl(idlr,jlp)
+      if (idlr /= 1) jwrp = jwrp+iy(idlr,jrp)
+      lpj = lpj+1
+      lopj(1,lpj) = jwlp
+      lopj(2,lpj) = jwrp
+      lopj(3,lpj) = ml
+      lopj(4,lpj) = mr
+    end do
+  end do
+  if (lpj == 0) exit
+  lpi = lpj
+  do i=1,lpj
+    lopi(1:4,i) = lopj(1:4,i)
   end do
 end do
-if (lpj == 0) goto 200
-lpi = lpj
-do i=1,lpj
-  lopi(1:4,i) = lopj(1:4,i)
-end do
-goto 103
 
-200 continue
 return
 
 end subroutine jl_ne_jr
@@ -93,112 +91,111 @@ dimension lopu(4,loputmp)
 
 !write(6,*) 'prodab_02 '
 
-goto(100,200,300),idb
-! in dbl_space
-100 continue
-!jpad = mg2
-iwdl = mg3
-iwdr = mg4
-ipae = 1
-jpad = 1
-mntmp = 0
-iwdown = iw_downwei(jpad,ipae)
-lwnu = iseg_downwei(ipae)
-do iwa=0,iwdown-1
-  iwadl = iwalk_ad(jpad,ipae,iwa,iwdl)
-  iwadr = iwalk_ad(jpad,ipae,iwa,iwdr)
-  mm = iwadl
-  nn = iwadr
-  do m=1,lwnu
-    mm = mm+1
-    nn = nn+1
-    if (mm > nn) mntmp = mm*(mm-1)/2+nn
-    if (nn > mm) mntmp = nn*(nn-1)/2+mm
-    vector2(mntmp) = vector2(mntmp)+wl
-    !if (mntmp == 2) write(6,*) '  102',vector2(mntmp),wl
-  end do
-end do
-!end do
-goto 1000
-! in act_space
-200 continue
-if (jpad /= jpadl) return
-jph = mg1
-jpl = mg2
-!iwal = mg3
-!iwar = mg4
-iwupwei = jpad_upwei(jpad)
-isegdownwei = iseg_downwei(ipae)
-jpy = jphy(jph)
-in = ihy(jpy)
+select case (idb)
+  case default ! (1)
+    ! in dbl_space
+    !jpad = mg2
+    iwdl = mg3
+    iwdr = mg4
+    ipae = 1
+    jpad = 1
+    mntmp = 0
+    iwdown = iw_downwei(jpad,ipae)
+    lwnu = iseg_downwei(ipae)
+    do iwa=0,iwdown-1
+      iwadl = iwalk_ad(jpad,ipae,iwa,iwdl)
+      iwadr = iwalk_ad(jpad,ipae,iwa,iwdr)
+      mm = iwadl
+      nn = iwadr
+      do m=1,lwnu
+        mm = mm+1
+        nn = nn+1
+        if (mm > nn) mntmp = mm*(mm-1)/2+nn
+        if (nn > mm) mntmp = nn*(nn-1)/2+mm
+        vector2(mntmp) = vector2(mntmp)+wl
+        !if (mntmp == 2) write(6,*) '  102',vector2(mntmp),wl
+      end do
+    end do
+    !end do
 
-call jl_ne_jr(mp,jpl,jpr,mg3,mg4,lopu)
-do lp=1,mp
-  iwl = lopu(1,lp)-1
-  iwr = lopu(2,lp)-1
-  jpe = lopu(3,lp)
-  lwnu = iy(1,jpe)
-  do jwu=jpy+1,jpy+in
-    iwal = iwl+ihy(jwu)
-    iwar = iwr+ihy(jwu)
-    do jwd=1,lwnu
-      iwal = iwal+1
-      iwar = iwar+1
-      do iwd=0,iwupwei-1
-        iwadl = iwalk_ad(jpadl,ipael,iwal,iwd)
-        iwadr = iwalk_ad(jpad,ipae,iwar,iwd)
+  case (2)
+    ! in act_space
+    if (jpad /= jpadl) return
+    jph = mg1
+    jpl = mg2
+    !iwal = mg3
+    !iwar = mg4
+    iwupwei = jpad_upwei(jpad)
+    isegdownwei = iseg_downwei(ipae)
+    jpy = jphy(jph)
+    in = ihy(jpy)
+
+    call jl_ne_jr(mp,jpl,jpr,mg3,mg4,lopu)
+    do lp=1,mp
+      iwl = lopu(1,lp)-1
+      iwr = lopu(2,lp)-1
+      jpe = lopu(3,lp)
+      lwnu = iy(1,jpe)
+      do jwu=jpy+1,jpy+in
+        iwal = iwl+ihy(jwu)
+        iwar = iwr+ihy(jwu)
+        do jwd=1,lwnu
+          iwal = iwal+1
+          iwar = iwar+1
+          do iwd=0,iwupwei-1
+            iwadl = iwalk_ad(jpadl,ipael,iwal,iwd)
+            iwadr = iwalk_ad(jpad,ipae,iwar,iwd)
+            do iwe=1,isegdownwei
+              mm = iwadl+iwe
+              nn = iwadr+iwe
+              if (mm > nn) then
+                mntmp = mm*(mm-1)/2+nn
+              else
+                mntmp = nn*(nn-1)/2+mm
+              end if
+              vector2(mntmp) = vector2(mntmp)+wl
+              if (mntmp == 7) then
+                write(6,*) '  202',vector2(mntmp),wl
+              end if
+            end do
+          end do
+        end do
+      end do
+    end do
+
+  case (3)
+    ! between act and dbl
+    jpl = mg1
+    iwdl = mg2
+    iwdr = mg3
+    isegdownwei = iseg_downwei(ipae)
+
+    call jl_ne_jr(mp,jpl,jpr,mg4,mg5,lopu)
+    do lp=1,mp
+      iwal = lopu(1,lp)-1
+      iwar = lopu(2,lp)-1
+      jpe = lopu(3,lp)
+      jwnu = iy(1,jpe)
+      do ii=1,jwnu
+        iwal = iwal+1
+        iwar = iwar+1
+        mm = iwalk_ad(jpadl,ipael,iwal,iwdl)
+        nn = iwalk_ad(jpad,ipae,iwar,iwdr)
         do iwe=1,isegdownwei
-          mm = iwadl+iwe
-          nn = iwadr+iwe
+          mm = mm+1             ! iwl=iwalk_ad
+          nn = nn+1             ! iwl=iwalk_ad
           if (mm > nn) then
             mntmp = mm*(mm-1)/2+nn
           else
             mntmp = nn*(nn-1)/2+mm
           end if
           vector2(mntmp) = vector2(mntmp)+wl
-          if (mntmp == 7) then
-            write(6,*) '  202',vector2(mntmp),wl
-          end if
+          !if (mntmp == 2) write(6,*) '  302',vector2(mntmp),wl
         end do
       end do
     end do
-  end do
-end do
-goto 1000
-! between act and dbl
-300 continue
-jpl = mg1
-iwdl = mg2
-iwdr = mg3
-isegdownwei = iseg_downwei(ipae)
+end select
 
-call jl_ne_jr(mp,jpl,jpr,mg4,mg5,lopu)
-do lp=1,mp
-  iwal = lopu(1,lp)-1
-  iwar = lopu(2,lp)-1
-  jpe = lopu(3,lp)
-  jwnu = iy(1,jpe)
-  do ii=1,jwnu
-    iwal = iwal+1
-    iwar = iwar+1
-    mm = iwalk_ad(jpadl,ipael,iwal,iwdl)
-    nn = iwalk_ad(jpad,ipae,iwar,iwdr)
-    do iwe=1,isegdownwei
-      mm = mm+1             ! iwl=iwalk_ad
-      nn = nn+1             ! iwl=iwalk_ad
-      if (mm > nn) then
-        mntmp = mm*(mm-1)/2+nn
-      else
-        mntmp = nn*(nn-1)/2+mm
-      end if
-      vector2(mntmp) = vector2(mntmp)+wl
-      !if (mntmp == 2) write(6,*) '  302',vector2(mntmp),wl
-    end do
-  end do
-end do
-goto 1000
-
-1000 continue
 return
 
 end subroutine prodab_h0
@@ -214,118 +211,115 @@ subroutine prodab_h(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
 dimension lopu(4,loputmp)
 
 !write(6,*) 'prodab_02 ',mcroot,indx(1),iw_downwei(jpad,ipae)
-goto(100,200,300),idb
-! in dbl_space
-100 continue
-jpad = mg2
-iwdl = mg3
-iwdr = mg4
-ipaeend = 25
-do ipae_=1,ipaeend
-  ipae = ipae_ ! ipae is in common block, is this necessary?
-  if (nu_ae(ipae) == 0) cycle
-  iwdown = iw_downwei(jpad,ipae)
-  if (iwdown == 0) cycle
-  lwnu = iseg_downwei(ipae)
-  do iwa=0,iwdown-1
-    iwadl = iwalk_ad(jpad,ipae,iwa,iwdl)
-    iwadr = iwalk_ad(jpad,ipae,iwa,iwdr)
-    do irot=1,mcroot
-      irtidx = indx(irot)
-      mm = iwadl+irtidx
-      nn = iwadr+irtidx
-      do m=1,lwnu
-        mm = mm+1
-        nn = nn+1
-        !if ((mm > nci_dim) .or. (nn > nci_dim)) write(6,*) jpad,ipae,iw_downwei(jpad,ipae),iseg_downwei(ipae),jpad_upwei(jpad), &
-        !                                                   iw_sta(jpad,ipae),iwadl,iwadr
-        vector2(mm) = vector2(mm)+vector1(nn)*wl
-        vector2(nn) = vector2(nn)+vector1(mm)*wl
-      end do
-    end do
-  end do
-end do
-goto 1000
-
-! in act_space
-200 continue
-if (jpad /= jpadl) return
-jph = mg1
-jpl = mg2
-!iwal = mg3
-!iwar = mg4
-iwupwei = jpad_upwei(jpad)
-isegdownwei = iseg_downwei(ipae)
-jpy = jphy(jph)
-in = ihy(jpy)
-
-call jl_ne_jr(mp,jpl,jpr,mg3,mg4,lopu)
-do lp=1,mp
-  iwl = lopu(1,lp)-1
-  iwr = lopu(2,lp)-1
-  jpe = lopu(3,lp)
-  lwnu = iy(1,jpe)
-  do jwu=jpy+1,jpy+in
-    iwal = iwl+ihy(jwu)
-    iwar = iwr+ihy(jwu)
-    do jwd=1,lwnu
-      iwal = iwal+1
-      iwar = iwar+1
-      do iwd=0,iwupwei-1
-        iwadl = iwalk_ad(jpadl,ipael,iwal,iwd)
-        iwadr = iwalk_ad(jpad,ipae,iwar,iwd)
+select case (idb)
+  case default ! (1)
+    ! in dbl_space
+    jpad = mg2
+    iwdl = mg3
+    iwdr = mg4
+    ipaeend = 25
+    do ipae_=1,ipaeend
+      ipae = ipae_ ! ipae is in common block, is this necessary?
+      if (nu_ae(ipae) == 0) cycle
+      iwdown = iw_downwei(jpad,ipae)
+      if (iwdown == 0) cycle
+      lwnu = iseg_downwei(ipae)
+      do iwa=0,iwdown-1
+        iwadl = iwalk_ad(jpad,ipae,iwa,iwdl)
+        iwadr = iwalk_ad(jpad,ipae,iwa,iwdr)
         do irot=1,mcroot
           irtidx = indx(irot)
           mm = iwadl+irtidx
           nn = iwadr+irtidx
-          do iwe=1,isegdownwei
+          do m=1,lwnu
             mm = mm+1
             nn = nn+1
+            !if ((mm > nci_dim) .or. (nn > nci_dim)) write(6,*) jpad,ipae,iw_downwei(jpad,ipae),iseg_downwei(ipae), &
+            !                                                   jpad_upwei(jpad),iw_sta(jpad,ipae),iwadl,iwadr
             vector2(mm) = vector2(mm)+vector1(nn)*wl
             vector2(nn) = vector2(nn)+vector1(mm)*wl
           end do
         end do
       end do
     end do
-  end do
-end do
-goto 1000
 
-! between act and dbl
-300 continue
-jpl = mg1
-iwdl = mg2
-iwdr = mg3
-isegdownwei = iseg_downwei(ipae)
+  case (2)
+    ! in act_space
+    if (jpad /= jpadl) return
+    jph = mg1
+    jpl = mg2
+    !iwal = mg3
+    !iwar = mg4
+    iwupwei = jpad_upwei(jpad)
+    isegdownwei = iseg_downwei(ipae)
+    jpy = jphy(jph)
+    in = ihy(jpy)
 
-call jl_ne_jr(mp,jpl,jpr,mg4,mg5,lopu)
-
-do lp=1,mp
-  iwal = lopu(1,lp)-1
-  iwar = lopu(2,lp)-1
-  jpe = lopu(3,lp)
-  jwnu = iy(1,jpe)
-  do ii=1,jwnu
-    iwal = iwal+1
-    iwar = iwar+1
-    iwadl = iwalk_ad(jpadl,ipael,iwal,iwdl)
-    iwadr = iwalk_ad(jpad,ipae,iwar,iwdr)
-    do irot=1,mcroot
-      irtidx = indx(irot)
-      mm = iwadl+irtidx
-      nn = iwadr+irtidx
-      do iwe=1,isegdownwei
-        mm = mm+1             ! iwl=iwalk_ad
-        nn = nn+1             ! iwl=iwalk_ad
-        vector2(mm) = vector2(mm)+vector1(nn)*wl
-        vector2(nn) = vector2(nn)+vector1(mm)*wl
+    call jl_ne_jr(mp,jpl,jpr,mg3,mg4,lopu)
+    do lp=1,mp
+      iwl = lopu(1,lp)-1
+      iwr = lopu(2,lp)-1
+      jpe = lopu(3,lp)
+      lwnu = iy(1,jpe)
+      do jwu=jpy+1,jpy+in
+        iwal = iwl+ihy(jwu)
+        iwar = iwr+ihy(jwu)
+        do jwd=1,lwnu
+          iwal = iwal+1
+          iwar = iwar+1
+          do iwd=0,iwupwei-1
+            iwadl = iwalk_ad(jpadl,ipael,iwal,iwd)
+            iwadr = iwalk_ad(jpad,ipae,iwar,iwd)
+            do irot=1,mcroot
+              irtidx = indx(irot)
+              mm = iwadl+irtidx
+              nn = iwadr+irtidx
+              do iwe=1,isegdownwei
+                mm = mm+1
+                nn = nn+1
+                vector2(mm) = vector2(mm)+vector1(nn)*wl
+                vector2(nn) = vector2(nn)+vector1(mm)*wl
+              end do
+            end do
+          end do
+        end do
       end do
     end do
-  end do
-end do
-goto 1000
 
-1000 continue
+  case (3)
+    ! between act and dbl
+    jpl = mg1
+    iwdl = mg2
+    iwdr = mg3
+    isegdownwei = iseg_downwei(ipae)
+
+    call jl_ne_jr(mp,jpl,jpr,mg4,mg5,lopu)
+
+    do lp=1,mp
+      iwal = lopu(1,lp)-1
+      iwar = lopu(2,lp)-1
+      jpe = lopu(3,lp)
+      jwnu = iy(1,jpe)
+      do ii=1,jwnu
+        iwal = iwal+1
+        iwar = iwar+1
+        iwadl = iwalk_ad(jpadl,ipael,iwal,iwdl)
+        iwadr = iwalk_ad(jpad,ipae,iwar,iwdr)
+        do irot=1,mcroot
+          irtidx = indx(irot)
+          mm = iwadl+irtidx
+          nn = iwadr+irtidx
+          do iwe=1,isegdownwei
+            mm = mm+1             ! iwl=iwalk_ad
+            nn = nn+1             ! iwl=iwalk_ad
+            vector2(mm) = vector2(mm)+vector1(nn)*wl
+            vector2(nn) = vector2(nn)+vector1(mm)*wl
+          end do
+        end do
+      end do
+    end do
+end select
+
 return
 
 end subroutine prodab_h
@@ -360,119 +354,119 @@ dimension lopu(4,loputmp)
 ! log_prod=2:directly no_formh0
 !write(6,*) 'prodab_h0 '
 
-goto(100,200,300),idb
-! in dbl_space
-100 continue
-iwdl = mg3
-iwdr = mg4
-iwdown = iw_downwei(jpad,ipae)
-lwnu = jpae_downwei(ipae)
-do iwa=0,iwdown-1
-  iwadl = iwalk_ad(jpad,ipae,iwa,iwdl)
-  iwadr = iwalk_ad(jpad,ipae,iwa,iwdr)
-  do irot=1,mcroot
-    irtidx = indx(irot)
-    mm = iwadl+irtidx
-    nn = iwadr+irtidx
-    do m=1,lwnu
-      mm = mm+1
-      nn = nn+1
-      !if ((mm > nci_dim) .or. (nn > nci_dim)) write(6,*) jpad,ipae,iw_downwei(jpad,ipae),iseg_downwei(ipae),jpad_upwei(jpad), &
-      !                                                   iw_sta(jpad,ipae),iwadl,iwadr
-      vector2(mm) = vector2(mm)+vector1(nn)*wl
-      vector2(nn) = vector2(nn)+vector1(mm)*wl
+select case (idb)
+  case default ! (1)
+    ! in dbl_space
+    iwdl = mg3
+    iwdr = mg4
+    iwdown = iw_downwei(jpad,ipae)
+    lwnu = jpae_downwei(ipae)
+    do iwa=0,iwdown-1
+      iwadl = iwalk_ad(jpad,ipae,iwa,iwdl)
+      iwadr = iwalk_ad(jpad,ipae,iwa,iwdr)
+      do irot=1,mcroot
+        irtidx = indx(irot)
+        mm = iwadl+irtidx
+        nn = iwadr+irtidx
+        do m=1,lwnu
+          mm = mm+1
+          nn = nn+1
+          !if ((mm > nci_dim) .or. (nn > nci_dim)) write(6,*) jpad,ipae,iw_downwei(jpad,ipae),iseg_downwei(ipae), &
+          !                                                   jpad_upwei(jpad),iw_sta(jpad,ipae),iwadl,iwadr
+          vector2(mm) = vector2(mm)+vector1(nn)*wl
+          vector2(nn) = vector2(nn)+vector1(mm)*wl
+        end do
+      end do
+      !do m=1,lwnu
+      !  mm = mm+1
+      !  nn = nn+1
+      !  vector2(mm) = vector2(mm)+vector1(nn)*wl
+      !  vector2(nn) = vector2(nn)+vector1(mm)*wl
+      !end do
     end do
-  end do
-  !do m=1,lwnu
-  !  mm = mm+1
-  !  nn = nn+1
-  !  vector2(mm) = vector2(mm)+vector1(nn)*wl
-  !  vector2(nn) = vector2(nn)+vector1(mm)*wl
-  !end do
-end do
-goto 1000
-! in act_space
-200 continue
-if (jpad /= jpadl) return
-jph = mg1
-jpl = mg2
-!iwal = mg3
-!iwar = mg4
-iwupwei = jpad_upwei(jpad)
-jpaedownwei = jpae_downwei(ipae)
-jpy = jphy(jph)
-in = ihy(jpy)
 
-call jl_ne_jr(mp,jpl,jpr,mg3,mg4,lopu)
-do lp=1,mp
-  iwl = lopu(1,lp)-1
-  iwr = lopu(2,lp)-1
-  jpe = lopu(3,lp)
-  lwnu = iy(1,jpe)
-  do jwu=jpy+1,jpy+in
-    iwal = iwl+ihy(jwu)
-    iwar = iwr+ihy(jwu)
-    do jwd=1,lwnu
-      iwal = iwal+1
-      iwar = iwar+1
-      do iwd=0,iwupwei-1
-        iwadl = iwalk_ad(jpadl,ipael,iwal,iwd)
-        iwadr = iwalk_ad(jpad,ipae,iwar,iwd)
+  case (2)
+    ! in act_space
+    if (jpad /= jpadl) return
+    jph = mg1
+    jpl = mg2
+    !iwal = mg3
+    !iwar = mg4
+    iwupwei = jpad_upwei(jpad)
+    jpaedownwei = jpae_downwei(ipae)
+    jpy = jphy(jph)
+    in = ihy(jpy)
+
+    call jl_ne_jr(mp,jpl,jpr,mg3,mg4,lopu)
+    do lp=1,mp
+      iwl = lopu(1,lp)-1
+      iwr = lopu(2,lp)-1
+      jpe = lopu(3,lp)
+      lwnu = iy(1,jpe)
+      do jwu=jpy+1,jpy+in
+        iwal = iwl+ihy(jwu)
+        iwar = iwr+ihy(jwu)
+        do jwd=1,lwnu
+          iwal = iwal+1
+          iwar = iwar+1
+          do iwd=0,iwupwei-1
+            iwadl = iwalk_ad(jpadl,ipael,iwal,iwd)
+            iwadr = iwalk_ad(jpad,ipae,iwar,iwd)
+            do irot=1,mcroot
+              irtidx = indx(irot)
+              mm = iwadl+irtidx
+              nn = iwadr+irtidx
+              do iwe=1,jpaedownwei
+                mm = mm+1
+                nn = nn+1
+                vector2(mm) = vector2(mm)+vector1(nn)*wl
+                vector2(nn) = vector2(nn)+vector1(mm)*wl
+              end do
+            end do
+            !do iwe=1,jpaedownwei
+            !  mm = iwadl+iwe
+            !  nn = iwadr+iwe
+            !  vector2(mm) = vector2(mm)+vector1(nn)*wl
+            !  vector2(nn) = vector2(nn)+vector1(mm)*wl
+            !end do
+          end do
+        end do
+      end do
+    end do
+
+  case (3)
+    ! between act and dbl
+    jpl = mg1
+    iwdl = mg2
+    iwdr = mg3
+    jpaedownwei = jpae_downwei(ipae)
+
+    call jl_ne_jr(mp,jpl,jpr,mg4,mg5,lopu)
+    do lp=1,mp
+      iwal = lopu(1,lp)-1
+      iwar = lopu(2,lp)-1
+      jpe = lopu(3,lp)
+      jwnu = iy(1,jpe)
+      do ii=1,jwnu
+        iwal = iwal+1
+        iwar = iwar+1
+        iwadl = iwalk_ad(jpadl,ipael,iwal,iwdl)
+        iwadr = iwalk_ad(jpad,ipae,iwar,iwdr)
         do irot=1,mcroot
           irtidx = indx(irot)
           mm = iwadl+irtidx
           nn = iwadr+irtidx
           do iwe=1,jpaedownwei
-            mm = mm+1
-            nn = nn+1
+            mm = mm+1             ! iwl=iwalk_ad
+            nn = nn+1             ! iwl=iwalk_ad
             vector2(mm) = vector2(mm)+vector1(nn)*wl
             vector2(nn) = vector2(nn)+vector1(mm)*wl
           end do
         end do
-        !do iwe=1,jpaedownwei
-        !  mm = iwadl+iwe
-        !  nn = iwadr+iwe
-        !  vector2(mm) = vector2(mm)+vector1(nn)*wl
-        !  vector2(nn) = vector2(nn)+vector1(mm)*wl
-        !end do
       end do
     end do
-  end do
-end do
-goto 1000
-! between act and dbl
-300 continue
-jpl = mg1
-iwdl = mg2
-iwdr = mg3
-jpaedownwei = jpae_downwei(ipae)
+end select
 
-call jl_ne_jr(mp,jpl,jpr,mg4,mg5,lopu)
-do lp=1,mp
-  iwal = lopu(1,lp)-1
-  iwar = lopu(2,lp)-1
-  jpe = lopu(3,lp)
-  jwnu = iy(1,jpe)
-  do ii=1,jwnu
-    iwal = iwal+1
-    iwar = iwar+1
-    iwadl = iwalk_ad(jpadl,ipael,iwal,iwdl)
-    iwadr = iwalk_ad(jpad,ipae,iwar,iwdr)
-    do irot=1,mcroot
-      irtidx = indx(irot)
-      mm = iwadl+irtidx
-      nn = iwadr+irtidx
-      do iwe=1,jpaedownwei
-        mm = mm+1             ! iwl=iwalk_ad
-        nn = nn+1             ! iwl=iwalk_ad
-        vector2(mm) = vector2(mm)+vector1(nn)*wl
-        vector2(nn) = vector2(nn)+vector1(mm)*wl
-      end do
-    end do
-  end do
-end do
-
-1000 continue
 return
 
 end subroutine prodab_h0_d
@@ -487,96 +481,99 @@ dimension lopu(4,loputmp)
 ! log_prod=1:traditional formh0
 !write(6,*) 'prodab_h0 '
 
-goto(100,200,300),idb
-! in dbl_space
-100 continue
-iwdl = mg3
-iwdr = mg4
-iwdown = iw_downwei(jpad,ipae)
-lwnu = jpae_downwei(ipae)
-do iwa=0,iwdown-1
-  mm = iwalk_ad(jpad,ipae,iwa,iwdl)
-  nn = iwalk_ad(jpad,ipae,iwa,iwdr)
-  do m=1,lwnu
-    mm = mm+1
-    nn = nn+1
-    mnh0 = mm*(mm-1)/2+nn
-    if (nn > mm) mnh0 = nn*(nn-1)/2+mm
-    vector2(mnh0) = vector2(mnh0)+wl
-    !if (((mm == 1) .and. (nn == 9)) .or. ((mm == 9) .and. (nn == 1))) write(nf2,'(a10,2i5,2f18.8)') ' in dbl ',mm,nn,wl,vector2(mnh
-  end do
-end do
-goto 1000
-! in act_space
-200 continue
-if (jpad /= jpadl) return
-jph = mg1
-jpl = mg2
-!iwal = mg3
-!iwar = mg4
-iwupwei = jpad_upwei(jpad)
-jpaedownwei = jpae_downwei(ipae)
-jpy = jphy(jph)
-in = ihy(jpy)
+select case (idb)
+  case default ! (1)
+    ! in dbl_space
+    iwdl = mg3
+    iwdr = mg4
+    iwdown = iw_downwei(jpad,ipae)
+    lwnu = jpae_downwei(ipae)
+    do iwa=0,iwdown-1
+      mm = iwalk_ad(jpad,ipae,iwa,iwdl)
+      nn = iwalk_ad(jpad,ipae,iwa,iwdr)
+      do m=1,lwnu
+        mm = mm+1
+        nn = nn+1
+        mnh0 = mm*(mm-1)/2+nn
+        if (nn > mm) mnh0 = nn*(nn-1)/2+mm
+        vector2(mnh0) = vector2(mnh0)+wl
+        !if (((mm == 1) .and. (nn == 9)) .or. ((mm == 9) .and. (nn == 1))) write(nf2,'(a10,2i5,2f18.8)') ' in dbl ',mm,nn,wl, &
+        !                                                                                                vector2(mnh
+      end do
+    end do
 
-call jl_ne_jr(mp,jpl,jpr,mg3,mg4,lopu)
-do lp=1,mp
-  iwl = lopu(1,lp)-1
-  iwr = lopu(2,lp)-1
-  jpe = lopu(3,lp)
-  lwnu = iy(1,jpe)
-  do jwu=jpy+1,jpy+in
-    iwal = iwl+ihy(jwu)
-    iwar = iwr+ihy(jwu)
-    do jwd=1,lwnu
-      iwal = iwal+1
-      iwar = iwar+1
-      do iwd=0,iwupwei-1
-        iwadl = iwalk_ad(jpadl,ipael,iwal,iwd)
-        iwadr = iwalk_ad(jpad,ipae,iwar,iwd)
-        do iwe=1,jpaedownwei
-          mm = iwadl+iwe
-          nn = iwadr+iwe
-          mnh0 = mm*(mm-1)/2+nn
-          if (nn > mm) mnh0 = nn*(nn-1)/2+mm
-          vector2(mnh0) = vector2(mnh0)+wl
-          !if (((mm == 1) .and. (nn == 9)) .or. ((mm == 9) .and. (nn == 1))) write(nf2,'(a10,2i5,2f18.8)')' in act ',mm,nn,wl,vector2(mnh
+  case (2)
+    ! in act_space
+    if (jpad /= jpadl) return
+    jph = mg1
+    jpl = mg2
+    !iwal = mg3
+    !iwar = mg4
+    iwupwei = jpad_upwei(jpad)
+    jpaedownwei = jpae_downwei(ipae)
+    jpy = jphy(jph)
+    in = ihy(jpy)
+
+    call jl_ne_jr(mp,jpl,jpr,mg3,mg4,lopu)
+    do lp=1,mp
+      iwl = lopu(1,lp)-1
+      iwr = lopu(2,lp)-1
+      jpe = lopu(3,lp)
+      lwnu = iy(1,jpe)
+      do jwu=jpy+1,jpy+in
+        iwal = iwl+ihy(jwu)
+        iwar = iwr+ihy(jwu)
+        do jwd=1,lwnu
+          iwal = iwal+1
+          iwar = iwar+1
+          do iwd=0,iwupwei-1
+            iwadl = iwalk_ad(jpadl,ipael,iwal,iwd)
+            iwadr = iwalk_ad(jpad,ipae,iwar,iwd)
+            do iwe=1,jpaedownwei
+              mm = iwadl+iwe
+              nn = iwadr+iwe
+              mnh0 = mm*(mm-1)/2+nn
+              if (nn > mm) mnh0 = nn*(nn-1)/2+mm
+              vector2(mnh0) = vector2(mnh0)+wl
+              !if (((mm == 1) .and. (nn == 9)) .or. ((mm == 9) .and. (nn == 1))) write(nf2,'(a10,2i5,2f18.8)') ' in act ',mm,nn,wl, &
+              !                                                                                                vector2(mnh
+            end do
+          end do
         end do
       end do
     end do
-  end do
-end do
-goto 1000
-! between act and dbl
-300 continue
-jpl = mg1
-iwdl = mg2
-iwdr = mg3
-jpaedownwei = jpae_downwei(ipae)
 
-call jl_ne_jr(mp,jpl,jpr,mg4,mg5,lopu)
-do lp=1,mp
-  iwal = lopu(1,lp)-1
-  iwar = lopu(2,lp)-1
-  jpe = lopu(3,lp)
-  jwnu = iy(1,jpe)
-  do ii=1,jwnu
-    iwal = iwal+1
-    iwar = iwar+1
-    mm = iwalk_ad(jpadl,ipael,iwal,iwdl)
-    nn = iwalk_ad(jpad,ipae,iwar,iwdr)
-    do iwe=1,jpaedownwei
-      mm = mm+1             ! iwl=iwalk_ad
-      nn = nn+1             ! iwl=iwalk_ad
-      mnh0 = mm*(mm-1)/2+nn
-      if (nn > mm) mnh0 = nn*(nn-1)/2+mm
-      vector2(mnh0) = vector2(mnh0)+wl
-      !if (((mm == 1) .and. (nn == 9)) .or. ((mm == 9) .and. (nn == 1))) write(nf2,'(a10,2i5,2f18.8)')' act-dbl ',mm,nn,wl,vector2(mnh0)
+  case (3)
+    ! between act and dbl
+    jpl = mg1
+    iwdl = mg2
+    iwdr = mg3
+    jpaedownwei = jpae_downwei(ipae)
+
+    call jl_ne_jr(mp,jpl,jpr,mg4,mg5,lopu)
+    do lp=1,mp
+      iwal = lopu(1,lp)-1
+      iwar = lopu(2,lp)-1
+      jpe = lopu(3,lp)
+      jwnu = iy(1,jpe)
+      do ii=1,jwnu
+        iwal = iwal+1
+        iwar = iwar+1
+        mm = iwalk_ad(jpadl,ipael,iwal,iwdl)
+        nn = iwalk_ad(jpad,ipae,iwar,iwdr)
+        do iwe=1,jpaedownwei
+          mm = mm+1             ! iwl=iwalk_ad
+          nn = nn+1             ! iwl=iwalk_ad
+          mnh0 = mm*(mm-1)/2+nn
+          if (nn > mm) mnh0 = nn*(nn-1)/2+mm
+          vector2(mnh0) = vector2(mnh0)+wl
+          !if (((mm == 1) .and. (nn == 9)) .or. ((mm == 9) .and. (nn == 1))) write(nf2,'(a10,2i5,2f18.8)') ' act-dbl ',mm,nn,wl, &
+          !                                                                                                vector2(mnh0)
+        end do
+      end do
     end do
-  end do
-end do
+end select
 
-1000 continue
 return
 
 end subroutine prodab_h0_t

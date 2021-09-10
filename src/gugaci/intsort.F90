@@ -204,21 +204,21 @@ do ip=1,ng_sm
   end do
 end do
 do ip=4,8
-  if (nlsm_all(ip) == 0) goto 40
+  if (nlsm_all(ip) == 0) cycle
   iqm = ip
   do iq=1,iqm-1
-    if (nlsm_all(iq) == 0) goto 41
+    if (nlsm_all(iq) == 0) cycle
     npq = nlsm_all(ip)*nlsm_all(iq)
     ispq = mul_tab(ip,iq)
     irm = ip
     do ir=1,irm-1
-      if (nlsm_all(ir) == 0) goto 42
+      if (nlsm_all(ir) == 0) cycle
       ispqr = mul_tab(ispq,ir)
       ism = ir
       if (ip == ir) ism = iq
       do is=1,ism-1
-        if (nlsm_all(is) == 0) go to 43
-        if (is /= ispqr) go to 43
+        if (nlsm_all(is) == 0) cycle
+        if (is /= ispqr) cycle
         nrs = nlsm_all(ir)*nlsm_all(is)
         nintb = npq*nrs
         nint2 = nint2+nintb
@@ -228,13 +228,9 @@ do ip=4,8
         iblktb(3,nblock) = ir
         iblktb(4,nblock) = is
         iblktb(5,nblock) = nint2
-43      continue
       end do
-42    continue
     end do
-41  continue
   end do
-40 continue
 end do
 nint12 = nint1+nint2
 
@@ -258,12 +254,11 @@ subroutine ff(i,j)
 i = 0
 do iq=1,j
   j0 = iq*(iq-1)/2+iq
-  if (j0 /= j) goto 10
-  i = iq
-  goto 100
-10 continue
+  if (j0 == j) then
+    i = iq
+    exit
+  end if
 end do
-100 continue
 
 return
 
@@ -643,7 +638,7 @@ end do
 numb = 1
 do i=1,norb_inn-1
   do j=i+1,norb_inn
-    if (lsm_inn(i) /= lsm_inn(j)) goto 11
+    if (lsm_inn(i) /= lsm_inn(j)) cycle
 
     nij = i+ngw2(j)
     loij(nij) = numb
@@ -653,7 +648,6 @@ do i=1,norb_inn-1
       !write(6,'(2x,4i6,i8,3f16.8)') i,j,k,k,numb,vint_ci(numb),vint_ci(numb+1)
       numb = numb+2
     end do
-11  continue
   end do
 end do
 !write(6,*) 'num_inn',numb

@@ -470,7 +470,7 @@ imlr = mul_tab(iml,imr)
 do lra=norb_dz+1,norb_inn
   lma = lsm_inn(lra)
   if (lma /= imlr) cycle
-  !line=1 a&r<-->a^r
+  ! line=1 a&r<-->a^r
   call head_ar_at_given_orb(mh,lra)
   call link_c1_to_given_orb_coe(mh,lra+1,norb_inn)
   if (mh == 0) cycle
@@ -498,7 +498,7 @@ do lrai=norb_dz+1,norb_inn
       if (lmk /= lsmk) cycle
       ijk = lrai-norb_frz+ngw2(lraj-norb_frz)+ngw3(lrak-norb_frz)
       intpos = intind_ijka(ijk)
-      !line=4  a&r--b&r--b^r<-->a^r
+      ! line=4  a&r--b&r--b^r<-->a^r
       call head_ar_at_given_orb(mh,lrai)
       call link_c1_to_given_orb(mh,lrai+1,lraj-1)
       call link_b4_at_given_orb(mh,lraj)
@@ -506,20 +506,20 @@ do lrai=norb_dz+1,norb_inn
       call link_c2_to_given_orb(mh,lraj+1,lrak-1)
       call link_b2_at_given_orb(mh,lrak)
       call link_c1_to_given_orb(mh,lrak+1,norb_inn)
-      if (mh == 0) goto 7
-      call value_sort_ploop(mh,.false.,.true.,.true.)
-      if (log_prod == 3) then
-        linelp = 4
-        mhlp = mh
-        nlg1 = intpos
-        nlg2 = 0
-        call ext_head_in_act()
-      else
-        call save_lp(4,mh,intpos,0)
-        lpblock = lpblock+1
+      if (mh /= 0) then
+        call value_sort_ploop(mh,.false.,.true.,.true.)
+        if (log_prod == 3) then
+          linelp = 4
+          mhlp = mh
+          nlg1 = intpos
+          nlg2 = 0
+          call ext_head_in_act()
+        else
+          call save_lp(4,mh,intpos,0)
+          lpblock = lpblock+1
+        end if
       end if
-      !line=7 a&r--b&l--b^l<-->a^r
-7     continue
+      ! line=7 a&r--b&l--b^l<-->a^r
       call head_ar_at_given_orb(mh,lrai)
       call link_c1_to_given_orb(mh,lrai+1,lraj-1)
       call link_b3_at_given_orb(mh,lraj)
@@ -546,26 +546,26 @@ do lrai=norb_dz+2,norb_inn
   lmai = lsm_inn(lrai)
   if (lmai /= imlr) cycle
   do lrak=norb_dz+1,lrai-1
-    !line=10 d&rr--b^r<-->a^r
+    ! line=10 d&rr--b^r<-->a^r
     call head_drr_at_given_orb(mh,lrak)
     logic_br(1:mh) = .true.
     call link_c2_to_given_orb(mh,lrak+1,lrai-1)
     call link_b2_at_given_orb(mh,lrai)
     call link_c1_to_given_orb(mh,lrai+1,norb_inn)
-    if (mh == 0) goto 12
-    call value_sort_ploop(mh,.false.,.true.,.true.)
-    if (log_prod == 3) then
-      linelp = 10
-      mhlp = mh
-      nlg1 = lrak
-      nlg2 = lrai
-      call ext_head_in_act()
-    else
-      call save_lp(10,mh,lrak,lrai)
-      lpblock = lpblock+1
+    if (mh /= 0) then
+      call value_sort_ploop(mh,.false.,.true.,.true.)
+      if (log_prod == 3) then
+        linelp = 10
+        mhlp = mh
+        nlg1 = lrak
+        nlg2 = lrai
+        call ext_head_in_act()
+      else
+        call save_lp(10,mh,lrak,lrai)
+        lpblock = lpblock+1
+      end if
     end if
-    !line=12 d&rl--b^l<-->a^r
-12  continue
+    ! line=12 d&rl--b^l<-->a^r
     call head_drl_at_given_orb(mh,lrak)
     call link_c2_to_given_orb(mh,lrak+1,lrai-1)
     call link_b1_at_given_orb(mh,lrai)
@@ -602,7 +602,7 @@ do lra=norb_dz+1,norb_inn
   lma = lsm_inn(lra)
   if (lma /= imlr) cycle
   do lrd=lra+1,norb_inn
-    !line=2 a&r--d&l^r<-->a^l
+    ! line=2 a&r--d&l^r<-->a^l
     call head_ar_at_given_orb(mh,lra)
     call link_c1_to_given_orb(mh,lra+1,lrd-1)
     call link_d10_at_given_orb(mh,lrd)
@@ -639,7 +639,7 @@ do lrai=norb_dz+1,norb_inn
       if (lmk /= lsmk) cycle
       ijk = lrai-norb_frz+ngw2(lraj-norb_frz)+ngw3(lrak-norb_frz)
       intpos = intind_ijka(ijk)
-      !line=6  a&r--b&l--b^r<-->a^l
+      ! line=6  a&r--b&l--b^r<-->a^l
       call head_ar_at_given_orb(mh,lrai)
       call link_c1_to_given_orb(mh,lrai+1,lraj-1)
       call link_b3_at_given_orb(mh,lraj)
@@ -668,7 +668,7 @@ do lrai=norb_dz+2,norb_inn
   lmai = lsm_inn(lrai)
   if (lmai /= imlr) cycle
   do lrak=norb_dz+1,lrai-1
-    !line=11 d&rl--b^r<-->a^l
+    ! line=11 d&rl--b^r<-->a^l
     call head_drl_at_given_orb(mh,lrak)
     call link_c2_to_given_orb(mh,lrak+1,lrai-1)
     call link_b2_at_given_orb(mh,lrai)
@@ -703,7 +703,7 @@ subroutine lp_head_in_act_3(ide)      !for ide=0:dd,tt,ide=1:ss,id
 imlr = mul_tab(iml,imr)
 
 do lra=norb_dz+1,norb_inn
-  !line=9 d&r&l-
+  ! line=9 d&r&l-
   call head_drl_at_given_orb(mh,lra)
   call link_c2_to_given_orb(mh,lra+1,norb_inn)
   if (mh == 0) cycle
@@ -717,24 +717,21 @@ do lrai=norb_dz+1,norb_inn
     lsmj = lsm_inn(lraj)
     lsmij = mul_tab(lsmi,lsmj)
     if (lsmij /= imlr) cycle
-    !line=5 a&r-b&l-
+    ! line=5 a&r-b&l-
     call head_ar_at_given_orb(mh,lrai)
     call link_c1_to_given_orb(mh,lrai+1,lraj-1)
     call link_b3_at_given_orb(mh,lraj)
     logic_br(1:mh) = .true.
     call link_c2_to_given_orb(mh,lraj+1,norb_inn)
     if (mh == 0) cycle
-    if (ide /= 0) then
-      goto(22,33),ide
-22    continue
-      call value_sort_ploop(mh,.false.,.true.,.false.)    !ss
-      goto 55
-33    continue
-      call value_sort_ploop(mh,.false.,.false.,.true.)    !st,ts
-      goto 55
-    end if
-    call value_sort_ploop(mh,.false.,.true.,.true.)
-55  continue
+    select case (ide)
+      case (0)
+        call value_sort_ploop(mh,.false.,.true.,.true.)
+      case default ! (1)
+        call value_sort_ploop(mh,.false.,.true.,.false.)    !ss
+      case (2)
+        call value_sort_ploop(mh,.false.,.false.,.true.)    !st,ts
+    end select
     call save_lp(5,mh,lrai,lraj)
     lpblock = lpblock+1
   end do
@@ -754,7 +751,7 @@ subroutine lp_head_in_act_4()
 imlr = mul_tab(iml,imr)
 
 do lra=norb_dz+1,norb_inn
-  !line=8 d&rr-
+  ! line=8 d&rr-
   call head_drr_at_given_orb(mh,lra)
   logic_br(1:mh) = .true.
   call link_c2_to_given_orb(mh,lra+1,norb_inn)
@@ -816,53 +813,55 @@ lend = norb_inn
 
 if (imlr == jmlr) then       !!! imlr == 1
 
-!line=13 -c'-
+  ! line=13 -c'-
   call link_c1_to_given_orb_coe(mh,lsta,lend)
-  if (mh == 0) goto 15
-  call value_sort_ploop(mh,.true.,.true.,.true.)
-  call save_lp(13,mh,0,0)
-  lpblock = lpblock+1
+  if (mh /= 0) then
+    call value_sort_ploop(mh,.true.,.true.,.true.)
+    call save_lp(13,mh,0,0)
+    lpblock = lpblock+1
+  end if
 end if
 
-!line=15 -b^l-
-15 continue
+! line=15 -b^l-
 do lra=norb_dz+1,norb_inn
   lsma = lsm_inn(lra)
 
   if (lsma /= lsmact) cycle
 
-  if (jml /= jmr) goto 1502
-  logic_br(1) = .false.
-  call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-  call link_b1_at_given_orb(mh,lra)
-  call link_c1_to_given_orb(mh,lra+1,norb_inn)
-  if (mh == 0) goto 1502
-  call value_sort_ploop(mh,.false.,.true.,.true.)
-  call save_lp(15,mh,lra,1)
-  lpblock = lpblock+1
-1502 continue
+  if (jml == jmr) then
+    logic_br(1) = .false.
+    call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
+    call link_b1_at_given_orb(mh,lra)
+    call link_c1_to_given_orb(mh,lra+1,norb_inn)
+    if (mh /= 0) then
+      call value_sort_ploop(mh,.false.,.true.,.true.)
+      call save_lp(15,mh,lra,1)
+      lpblock = lpblock+1
+    end if
+  end if
   logic_br(1) = .true.
   call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
   call link_b1_at_given_orb(mh,lra)        !b^l
   call link_c1_to_given_orb(mh,lra+1,norb_inn)
-  if (mh == 0) goto 1601
-  call value_sort_ploop(mh,.false.,.true.,.true.)
-  call save_lp(15,mh,lra,2)
-  lpblock = lpblock+1
+  if (mh /= 0) then
+    call value_sort_ploop(mh,.false.,.true.,.true.)
+    call save_lp(15,mh,lra,2)
+    lpblock = lpblock+1
+  end if
 
-!line=16 -b^r-
-1601 continue
-  if (jml /= jmr) goto 1602
-  logic_br(1) = .false.
-  call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-  call link_b2_at_given_orb(mh,lra)
-  call link_c1_to_given_orb(mh,lra+1,norb_inn)
-  if (mh == 0) goto 1602
-  call value_sort_ploop(mh,.false.,.true.,.true.)
-  call save_lp(16,mh,lra,1)
-  lpblock = lpblock+1
+  ! line=16 -b^r-
+  if (jml == jmr) then
+    logic_br(1) = .false.
+    call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
+    call link_b2_at_given_orb(mh,lra)
+    call link_c1_to_given_orb(mh,lra+1,norb_inn)
+    if (mh /= 0) then
+      call value_sort_ploop(mh,.false.,.true.,.true.)
+      call save_lp(16,mh,lra,1)
+      lpblock = lpblock+1
+    end if
+  end if
 
-1602 continue
   logic_br(1) = .true.
   call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
   call link_b2_at_given_orb(mh,lra)
@@ -874,7 +873,7 @@ do lra=norb_dz+1,norb_inn
 
 end do
 
-!line=20 -b&r-b^r-
+! line=20 -b&r-b^r-
 do lrai=norb_dz+1,norb_inn-1
   lsmi = lsm_inn(lrai)
   do lraj=lrai+1,norb_inn
@@ -889,12 +888,12 @@ do lrai=norb_dz+1,norb_inn-1
     call link_c2_to_given_orb(mh,lrai+1,lraj-1)
     call link_b2_at_given_orb(mh,lraj)        !b^r
     call link_c1_to_given_orb(mh,lraj+1,norb_inn)
-    if (mh == 0) goto 22
-    call value_sort_ploop(mh,.false.,.true.,.true.)
-    call save_lp(20,mh,jk,0)
-    lpblock = lpblock+1
-    !line=22 -b&l-b^l-
-22  continue
+    if (mh /= 0) then
+      call value_sort_ploop(mh,.false.,.true.,.true.)
+      call save_lp(20,mh,jk,0)
+      lpblock = lpblock+1
+    end if
+    ! line=22 -b&l-b^l-
     call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
     call link_b3_at_given_orb(mh,lrai)        !b&l
     logic_br(1:mh) = .true.
@@ -918,6 +917,7 @@ subroutine lp_head_in_dbl_1_mrpt2()    !for dv,sd,td       !200709
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
+logical :: do_15, do_16
 
 imlr = mul_tab(iml,imr)
 jmlr = mul_tab(jml,jmr)
@@ -925,136 +925,153 @@ lsmact = mul_tab(imlr,jmlr)
 lsta = norb_dz+1
 lend = norb_inn
 
-goto(100,200,300,400),jpadlrel(jpadlr)              !200709
+do_15 = .false.
+do_16 = .false.
+select case (jpadlrel(jpadlr)) !200709
+  case default ! (1)
+    if (imlr == jmlr) then               !!! imlr == 1
+      ! line=13 -c'-
+      call link_c1_to_given_orb_coe(mh,lsta,lend)
+      if (mh == 0) then
+        do_15 = .true.
+      else
+        call value_sort_ploop(mh,.true.,.true.,.true.)
+        linelp = 13
+        mhlp = mh
+        nlg1 = 0
+        nlg2 = 0
+        call ext_head_in_dbl()
+      end if
+    end if
 
-100 continue
-if (imlr == jmlr) then               !!! imlr == 1
-  !line=13 -c'-
-  call link_c1_to_given_orb_coe(mh,lsta,lend)
-  if (mh == 0) goto 15
-  call value_sort_ploop(mh,.true.,.true.,.true.)
-  linelp = 13
-  mhlp = mh
-  nlg1 = 0
-  nlg2 = 0
-  call ext_head_in_dbl()
+    if (.not. do_15) then
+      ! line=20 -b&r-b^r-
+      do lrai=norb_dz+1,norb_inn-1
+        lsmi = lsm_inn(lrai)
+        do lraj=lrai+1,norb_inn
+          lsmj = lsm_inn(lraj)
+          lsmij = mul_tab(lsmi,lsmj)
+          if (lsmij /= lsmact) cycle
+          jk = ngw2(lrai-norb_frz)+ngw3(lraj-norb_frz)
+
+          call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
+          call link_b4_at_given_orb(mh,lrai)        !b&r
+          logic_br(1:mh) = .true.
+          call link_c2_to_given_orb(mh,lrai+1,lraj-1)
+          call link_b2_at_given_orb(mh,lraj)        !b^r
+          call link_c1_to_given_orb(mh,lraj+1,norb_inn)
+          if (mh /= 0) then
+            call value_sort_ploop(mh,.false.,.true.,.true.)
+            linelp = 20
+            mhlp = mh
+            nlg1 = jk
+            nlg2 = 0
+            call ext_head_in_dbl()
+          end if
+          ! line=22 -b&l-b^l-
+          call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
+          call link_b3_at_given_orb(mh,lrai)        !b&l
+          logic_br(1:mh) = .true.
+          call link_c2_to_given_orb(mh,lrai+1,lraj-1)
+          call link_b1_at_given_orb(mh,lraj)        !b^l
+          call link_c1_to_given_orb(mh,lraj+1,norb_inn)
+          if (mh == 0) cycle
+          call value_sort_ploop(mh,.false.,.true.,.true.)
+          linelp = 22
+          mhlp = mh
+          nlg1 = jk
+          nlg2 = 0
+          call ext_head_in_dbl()
+        end do
+      end do
+    end if
+
+  case (2)
+
+  case (3)
+    do_15 = .true.
+
+  case (4)
+    do_16 = .true.
+end select
+
+! line=15 -b^l-
+if (do_15) then
+  do lra=norb_dz+1,norb_inn
+    lsma = lsm_inn(lra)
+
+    if (lsma /= lsmact) cycle
+
+    if (jml == jmr) then
+      logic_br(1) = .false.
+      call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
+      call link_b1_at_given_orb(mh,lra)
+      call link_c1_to_given_orb(mh,lra+1,norb_inn)
+      if (mh /= 0) then
+        call value_sort_ploop(mh,.false.,.true.,.true.)
+        linelp = 15
+        mhlp = mh
+        nlg1 = lra
+        nlg2 = 1
+        call ext_head_in_dbl()
+        !write(6,*) mh,linelp
+      end if
+    end if
+    logic_br(1) = .true.
+    call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
+    call link_b1_at_given_orb(mh,lra)        !b^l
+    call link_c1_to_given_orb(mh,lra+1,norb_inn)
+    if (mh == 0) then
+      do_16 = .true.
+      exit
+    else
+      call value_sort_ploop(mh,.false.,.true.,.true.)
+      linelp = 15
+      mhlp = mh
+      nlg1 = lra
+      nlg2 = 2
+      call ext_head_in_dbl()
+      !write(6,*) mh,linelp
+    end if
+  end do
 end if
 
-!line=20 -b&r-b^r-
-do lrai=norb_dz+1,norb_inn-1
-  lsmi = lsm_inn(lrai)
-  do lraj=lrai+1,norb_inn
-    lsmj = lsm_inn(lraj)
-    lsmij = mul_tab(lsmi,lsmj)
-    if (lsmij /= lsmact) cycle
-    jk = ngw2(lrai-norb_frz)+ngw3(lraj-norb_frz)
+! line=16 -b^r-
+if (do_16) then
+  do lra=norb_dz+1,norb_inn
+    lsma = lsm_inn(lra)
+    if (jml == jmr) then
+      logic_br(1) = .false.
+      call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
+      call link_b2_at_given_orb(mh,lra)
+      call link_c1_to_given_orb(mh,lra+1,norb_inn)
+      if (mh /= 0) then
+        call value_sort_ploop(mh,.false.,.true.,.true.)
+        linelp = 16
+        mhlp = mh
+        nlg1 = lra
+        nlg2 = 1
+        call ext_head_in_dbl()
+        !write(6,*) mh,linelp
+      end if
+    end if
 
-    call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
-    call link_b4_at_given_orb(mh,lrai)        !b&r
-    logic_br(1:mh) = .true.
-    call link_c2_to_given_orb(mh,lrai+1,lraj-1)
-    call link_b2_at_given_orb(mh,lraj)        !b^r
-    call link_c1_to_given_orb(mh,lraj+1,norb_inn)
-    if (mh == 0) goto 22
-    call value_sort_ploop(mh,.false.,.true.,.true.)
-    linelp = 20
-    mhlp = mh
-    nlg1 = jk
-    nlg2 = 0
-    call ext_head_in_dbl()
-    !line=22 -b&l-b^l-
-22  continue
-    call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
-    call link_b3_at_given_orb(mh,lrai)        !b&l
-    logic_br(1:mh) = .true.
-    call link_c2_to_given_orb(mh,lrai+1,lraj-1)
-    call link_b1_at_given_orb(mh,lraj)        !b^l
-    call link_c1_to_given_orb(mh,lraj+1,norb_inn)
+    logic_br(1) = .true.
+    call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
+    call link_b2_at_given_orb(mh,lra)
+    call link_c1_to_given_orb(mh,lra+1,norb_inn)
     if (mh == 0) cycle
     call value_sort_ploop(mh,.false.,.true.,.true.)
-    linelp = 22
+    linelp = 16
     mhlp = mh
-    nlg1 = jk
-    nlg2 = 0
+    nlg1 = lra
+    nlg2 = 2
     call ext_head_in_dbl()
+    !write(6,*) mh,linelp
+
   end do
-end do
+end if
 
-return
-
-300 continue
-!line=15 -b^l-
-15 continue
-do lra=norb_dz+1,norb_inn
-  lsma = lsm_inn(lra)
-
-  if (lsma /= lsmact) cycle
-
-  if (jml /= jmr) goto 1502
-  logic_br(1) = .false.
-  call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-  call link_b1_at_given_orb(mh,lra)
-  call link_c1_to_given_orb(mh,lra+1,norb_inn)
-  if (mh == 0) goto 1502
-  call value_sort_ploop(mh,.false.,.true.,.true.)
-  linelp = 15
-  mhlp = mh
-  nlg1 = lra
-  nlg2 = 1
-  call ext_head_in_dbl()
-  !write(6,*) mh,linelp
-1502 continue
-  logic_br(1) = .true.
-  call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-  call link_b1_at_given_orb(mh,lra)        !b^l
-  call link_c1_to_given_orb(mh,lra+1,norb_inn)
-  if (mh == 0) goto 1601
-  call value_sort_ploop(mh,.false.,.true.,.true.)
-  linelp = 15
-  mhlp = mh
-  nlg1 = lra
-  nlg2 = 2
-  call ext_head_in_dbl()
-  !write(6,*) mh,linelp
-end do
-return
-
-400 continue
-!line=16 -b^r-
-1601 continue
-do lra=norb_dz+1,norb_inn
-  lsma = lsm_inn(lra)
-  if (jml /= jmr) goto 1602
-  logic_br(1) = .false.
-  call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-  call link_b2_at_given_orb(mh,lra)
-  call link_c1_to_given_orb(mh,lra+1,norb_inn)
-  if (mh == 0) goto 1602
-  call value_sort_ploop(mh,.false.,.true.,.true.)
-  linelp = 16
-  mhlp = mh
-  nlg1 = lra
-  nlg2 = 1
-  call ext_head_in_dbl()
-  !write(6,*) mh,linelp
-
-1602 continue
-  logic_br(1) = .true.
-  call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-  call link_b2_at_given_orb(mh,lra)
-  call link_c1_to_given_orb(mh,lra+1,norb_inn)
-  if (mh == 0) cycle
-  call value_sort_ploop(mh,.false.,.true.,.true.)
-  linelp = 16
-  mhlp = mh
-  nlg1 = lra
-  nlg2 = 2
-  call ext_head_in_dbl()
-  !write(6,*) mh,linelp
-
-end do
-
-200 continue
 return
 
 end subroutine lp_head_in_dbl_1_mrpt2
@@ -1074,68 +1091,71 @@ lend = norb_inn
 
 if (imlr == jmlr) then       !!! imlr == 1
 
-  !line=13 -c'-
+  ! line=13 -c'-
   call link_c1_to_given_orb_coe(mh,lsta,lend)
-  if (mh == 0) goto 16
-  call value_sort_ploop(mh,.true.,.true.,.true.)
-  if (log_prod == 3) then
-    ! mrpt2, do not save loop
-    linelp = 13
-    mhlp = mh
-    nlg1 = 0
-    nlg2 = 0
-    call ext_head_in_dbl()
-  else
-    call save_lp(13,mh,0,0)
-    lpblock = lpblock+1
+  if (mh /= 0) then
+    call value_sort_ploop(mh,.true.,.true.,.true.)
+    if (log_prod == 3) then
+      ! mrpt2, do not save loop
+      linelp = 13
+      mhlp = mh
+      nlg1 = 0
+      nlg2 = 0
+      call ext_head_in_dbl()
+    else
+      call save_lp(13,mh,0,0)
+      lpblock = lpblock+1
+    end if
   end if
 end if
 
-!line=16 -b^r-
-16 continue
+! line=16 -b^r-
 do lra=norb_dz+1,norb_inn
   lsma = lsm_inn(lra)
 
-  if (lsma /= lsmact) goto 19
+  if (lsma == lsmact) then
 
-  if (jml /= jmr) goto 1602
-  logic_br(1) = .false.
-  call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-  call link_b2_at_given_orb(mh,lra)        !b^r
-  call link_c1_to_given_orb(mh,lra+1,norb_inn)
-  if (mh == 0) goto 1602
-  call value_sort_ploop(mh,.false.,.true.,.true.)
-  if (log_prod == 3) then
-    linelp = 16
-    mhlp = mh
-    nlg1 = lra
-    nlg2 = 1
-    call ext_head_in_dbl()
-  else
-    call save_lp(16,mh,lra,1)
-    lpblock = lpblock+1
+    if (jml == jmr) then
+      logic_br(1) = .false.
+      call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
+      call link_b2_at_given_orb(mh,lra)        !b^r
+      call link_c1_to_given_orb(mh,lra+1,norb_inn)
+      if (mh /= 0) then
+        call value_sort_ploop(mh,.false.,.true.,.true.)
+        if (log_prod == 3) then
+          linelp = 16
+          mhlp = mh
+          nlg1 = lra
+          nlg2 = 1
+          call ext_head_in_dbl()
+        else
+          call save_lp(16,mh,lra,1)
+          lpblock = lpblock+1
+        end if
+      end if
+    end if
+
+    logic_br(1) = .true.
+    call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
+    call link_b2_at_given_orb(mh,lra)        !b^r
+    call link_c1_to_given_orb(mh,lra+1,norb_inn)
+    if (mh /= 0) then
+      call value_sort_ploop(mh,.false.,.true.,.true.)
+      if (log_prod == 3) then
+        linelp = 16
+        mhlp = mh
+        nlg1 = lra
+        nlg2 = 2
+        call ext_head_in_dbl()
+      else
+        call save_lp(16,mh,lra,2)
+        lpblock = lpblock+1
+      end if
+    end if
+
   end if
 
-1602 continue
-  logic_br(1) = .true.
-  call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-  call link_b2_at_given_orb(mh,lra)        !b^r
-  call link_c1_to_given_orb(mh,lra+1,norb_inn)
-  if (mh == 0) goto 19
-  call value_sort_ploop(mh,.false.,.true.,.true.)
-  if (log_prod == 3) then
-    linelp = 16
-    mhlp = mh
-    nlg1 = lra
-    nlg2 = 2
-    call ext_head_in_dbl()
-  else
-    call save_lp(16,mh,lra,2)
-    lpblock = lpblock+1
-  end if
-
-!line=19 -d&r^l-
-19 continue
+  ! line=19 -d&r^l-
   call link_c1_to_given_orb(mh,norb_dz+1,lra-1)
   call link_d10_at_given_orb(mh,lra)
   call link_c1_to_given_orb(mh,lra+1,norb_inn)
@@ -1161,7 +1181,7 @@ do lrai=norb_dz+1,norb_inn-1
     if (lsmij /= lsmact) cycle
     jk = ngw2(lrai-norb_frz)+ngw3(lraj-norb_frz)
 
-    !line=21 -b&l-b^r-
+    ! line=21 -b&l-b^r-
     call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
     call link_b3_at_given_orb(mh,lrai)        !b&l
     logic_br(1:mh) = .true.
@@ -1193,6 +1213,7 @@ subroutine lp_head_in_dbl_2_mrpt2()          !for vd,dt,ds
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
+logical :: do_16
 
 imlr = mul_tab(iml,imr)
 jmlr = mul_tab(jml,jmr)
@@ -1200,109 +1221,113 @@ lsmact = mul_tab(imlr,jmlr)
 lsta = norb_dz+1
 lend = norb_inn
 
-goto(100,200,300,400),jpadlrel(jpadlr)        !200709
+do_16 = .false.
+select case (jpadlrel(jpadlr)) !200709
+  case default ! (1)
+    do lra=norb_dz+1,norb_inn
+      lsma = lsm_inn(lra)
+      ! line=19 -d&l^r-
+      call link_c1_to_given_orb(mh,norb_dz+1,lra-1)
+      call link_d10_at_given_orb(mh,lra)
+      call link_c1_to_given_orb(mh,lra+1,norb_inn)
+      if (mh == 0) cycle
+      call value_sort_ploop(mh,.true.,.true.,.true.)
+      linelp = 19
+      mhlp = mh
+      nlg1 = lra
+      nlg2 = 0
+      !call print_lp()
+      call ext_head_in_dbl()
+    end do
 
-400 continue
-return
+    do lrai=norb_dz+1,norb_inn-1
+      lsmi = lsm_inn(lrai)
+      do lraj=lrai+1,norb_inn
+        lsmj = lsm_inn(lraj)
+        lsmij = mul_tab(lsmi,lsmj)
+        if (lsmij /= lsmact) cycle
+        jk = ngw2(lrai-norb_frz)+ngw3(lraj-norb_frz)
 
-200 continue
-if (imlr == jmlr) then               !!! imlr == 1
+        ! line=21 -b&l-b^r-
+        call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
+        call link_b3_at_given_orb(mh,lrai)        !b&l
+        logic_br(1:mh) = .true.
+        call link_c2_to_given_orb(mh,lrai+1,lraj-1)
+        call link_b2_at_given_orb(mh,lraj)        !b^r
+        call link_c1_to_given_orb(mh,lraj+1,norb_inn)
+        if (mh == 0) cycle
+        call value_sort_ploop(mh,.false.,.true.,.true.)
+        linelp = 21
+        mhlp = mh
+        nlg1 = jk
+        nlg2 = 0
+        !call print_lp()
+        call ext_head_in_dbl()
+      end do
+    end do
 
-  !line=13 -c'-
-  call link_c1_to_given_orb_coe(mh,lsta,lend)
-  if (mh == 0) goto 16
-  call value_sort_ploop(mh,.true.,.true.,.true.)
-  linelp = 13
-  mhlp = mh
-  nlg1 = 0
-  nlg2 = 0
-  !call print_lp()
-  call ext_head_in_dbl()
+  case (2)
+    if (imlr == jmlr) then               !!! imlr == 1
 
-end if
+      ! line=13 -c'-
+      call link_c1_to_given_orb_coe(mh,lsta,lend)
+      if (mh == 0) then
+        do_16 = .true.
+      else
+        call value_sort_ploop(mh,.true.,.true.,.true.)
+        linelp = 13
+        mhlp = mh
+        nlg1 = 0
+        nlg2 = 0
+        !call print_lp()
+        call ext_head_in_dbl()
+      end if
 
-return
+    end if
 
-300 continue
-!line=16 -b^r-
-16 continue
-do lra=norb_dz+1,norb_inn
-  lsma = lsm_inn(lra)
+  case (3)
+    do_16 = .true.
 
-  if (lsma /= lsmact) cycle
+  case (4)
+end select
 
-  if (jml /= jmr) goto 1602
-  logic_br(1) = .false.
-  call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-  call link_b2_at_given_orb(mh,lra)        !b^r
-  call link_c1_to_given_orb(mh,lra+1,norb_inn)
-  if (mh == 0) goto 1602
-  call value_sort_ploop(mh,.false.,.true.,.true.)
-  linelp = 16
-  mhlp = mh
-  nlg1 = lra
-  nlg2 = 1
-  !call print_lp()
-  call ext_head_in_dbl()
+! line=16 -b^r-
+if (do_16) then
+  do lra=norb_dz+1,norb_inn
+    lsma = lsm_inn(lra)
 
-1602 continue
-  logic_br(1) = .true.
-  call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-  call link_b2_at_given_orb(mh,lra)        !b^r
-  call link_c1_to_given_orb(mh,lra+1,norb_inn)
-  if (mh == 0) cycle
-  call value_sort_ploop(mh,.false.,.true.,.true.)
-  linelp = 16
-  mhlp = mh
-  nlg1 = lra
-  nlg2 = 2
-  !call print_lp()
-  call ext_head_in_dbl()
-end do
-return
+    if (lsma /= lsmact) cycle
 
-100 continue
-do lra=norb_dz+1,norb_inn
-  lsma = lsm_inn(lra)
-  !line=19 -d&l^r-
-  call link_c1_to_given_orb(mh,norb_dz+1,lra-1)
-  call link_d10_at_given_orb(mh,lra)
-  call link_c1_to_given_orb(mh,lra+1,norb_inn)
-  if (mh == 0) cycle
-  call value_sort_ploop(mh,.true.,.true.,.true.)
-  linelp = 19
-  mhlp = mh
-  nlg1 = lra
-  nlg2 = 0
-  !call print_lp()
-  call ext_head_in_dbl()
-end do
+    if (jml == jmr) then
+      logic_br(1) = .false.
+      call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
+      call link_b2_at_given_orb(mh,lra)        !b^r
+      call link_c1_to_given_orb(mh,lra+1,norb_inn)
+      if (mh /= 0) then
+        call value_sort_ploop(mh,.false.,.true.,.true.)
+        linelp = 16
+        mhlp = mh
+        nlg1 = lra
+        nlg2 = 1
+        !call print_lp()
+        call ext_head_in_dbl()
+      end if
+    end if
 
-do lrai=norb_dz+1,norb_inn-1
-  lsmi = lsm_inn(lrai)
-  do lraj=lrai+1,norb_inn
-    lsmj = lsm_inn(lraj)
-    lsmij = mul_tab(lsmi,lsmj)
-    if (lsmij /= lsmact) cycle
-    jk = ngw2(lrai-norb_frz)+ngw3(lraj-norb_frz)
-
-    !line=21 -b&l-b^r-
-    call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
-    call link_b3_at_given_orb(mh,lrai)        !b&l
-    logic_br(1:mh) = .true.
-    call link_c2_to_given_orb(mh,lrai+1,lraj-1)
-    call link_b2_at_given_orb(mh,lraj)        !b^r
-    call link_c1_to_given_orb(mh,lraj+1,norb_inn)
+    logic_br(1) = .true.
+    call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
+    call link_b2_at_given_orb(mh,lra)        !b^r
+    call link_c1_to_given_orb(mh,lra+1,norb_inn)
     if (mh == 0) cycle
     call value_sort_ploop(mh,.false.,.true.,.true.)
-    linelp = 21
+    linelp = 16
     mhlp = mh
-    nlg1 = jk
-    nlg2 = 0
+    nlg1 = lra
+    nlg2 = 2
     !call print_lp()
     call ext_head_in_dbl()
   end do
-end do
+end if
 
 return
 
@@ -1323,47 +1348,45 @@ lend = norb_inn
 
 if (imlr == jmlr) then       !!! imlr == 1
 
-  !line=14 -c"-
-  if (jml /= jmr) goto 1402
-  logic_br(1) = .false.
-  call link_c2_to_given_orb(mh,lsta,lend)
-  if (mh == 0) goto 1402
-  call value_sort_ploop(mh,.true.,.true.,.true.)
-  call save_lp(14,mh,0,1)
-  lpblock = lpblock+1
+  ! line=14 -c"-
+  if (jml == jmr) then
+    logic_br(1) = .false.
+    call link_c2_to_given_orb(mh,lsta,lend)
+    if (mh /= 0) then
+      call value_sort_ploop(mh,.true.,.true.,.true.)
+      call save_lp(14,mh,0,1)
+      lpblock = lpblock+1
+    end if
+  end if
 
-1402 continue
   logic_br(1) = .true.
   call link_c2_to_given_orb(mh,lsta,lend)
-  if (mh == 0) goto 15
-  call value_sort_ploop(mh,.true.,.true.,.true.)
-  call save_lp(14,mh,0,2)
-  lpblock = lpblock+1
+  if (mh /= 0) then
+    call value_sort_ploop(mh,.true.,.true.,.true.)
+    call save_lp(14,mh,0,2)
+    lpblock = lpblock+1
+  end if
 
 end if
 
-15 continue
 do lra=norb_dz+1,norb_inn
   lsma = lsm_inn(lra)
   if (lsma /= lsmact) cycle
 
-  !line=17 -b&l-
+  ! line=17 -b&l-
   call link_c1_to_given_orb(mh,norb_dz+1,lra-1)
   call link_b3_at_given_orb(mh,lra)        !b&l
   logic_br(1:mh) = .true.
   call link_c2_to_given_orb(mh,lra+1,norb_inn)
   if (mh == 0) cycle
-  if (ide /= 0) then
-    goto(1,2),ide
-1   continue
-    call value_sort_ploop(mh,.false.,.true.,.false.)    !ss
-    goto 5
-2   continue
-    call value_sort_ploop(mh,.false.,.false.,.true.)    !st,ts
-    goto 5
-  end if
-  call value_sort_ploop(mh,.false.,.true.,.true.)
-5 continue
+  select case (ide)
+    case (0)
+      call value_sort_ploop(mh,.false.,.true.,.true.)
+    case default ! (1)
+      call value_sort_ploop(mh,.false.,.true.,.false.)    !ss
+    case (2)
+      call value_sort_ploop(mh,.false.,.false.,.true.)    !st,ts
+  end select
   call save_lp(17,mh,lra,0)
   lpblock = lpblock+1
 
@@ -1388,30 +1411,31 @@ lend = norb_inn
 
 if (imlr == jmlr) then       !!! imlr == 1
 
-  !line=14 -c"-
-  if (jml /= jmr) goto 1402
-  logic_br(1) = .false.
-  call link_c2_to_given_orb(mh,lsta,lend)
-  if (mh == 0) goto 1402
-  call value_sort_ploop(mh,.true.,.true.,.true.)
-  call save_lp(14,mh,0,1)
-  lpblock = lpblock+1
+  ! line=14 -c"-
+  if (jml == jmr) then
+    logic_br(1) = .false.
+    call link_c2_to_given_orb(mh,lsta,lend)
+    if (mh /= 0) then
+      call value_sort_ploop(mh,.true.,.true.,.true.)
+      call save_lp(14,mh,0,1)
+      lpblock = lpblock+1
+    end if
+  end if
 
-1402 continue
   logic_br(1) = .true.
   call link_c2_to_given_orb(mh,lsta,lend)
-  if (mh == 0) goto 15
-  call value_sort_ploop(mh,.true.,.true.,.true.)
-  call save_lp(14,mh,0,2)
-  lpblock = lpblock+1
+  if (mh /= 0) then
+    call value_sort_ploop(mh,.true.,.true.,.true.)
+    call save_lp(14,mh,0,2)
+    lpblock = lpblock+1
+  end if
 
 end if
-15 continue
 do lra=norb_dz+1,norb_inn
   lsma = lsm_inn(lra)
   if (lsma /= lsmact) cycle
 
-  !line=18 -b&r-
+  ! line=18 -b&r-
   call link_c1_to_given_orb(mh,norb_dz+1,lra-1)
   call link_b4_at_given_orb(mh,lra)        !b&r
   logic_br(1:mh) = .true.
@@ -1433,6 +1457,7 @@ subroutine lp_head_in_dbl_4_mrpt2()
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
+logical :: do_15
 
 imlr = mul_tab(iml,imr)
 jmlr = mul_tab(jml,jmr)
@@ -1440,65 +1465,68 @@ lsmact = mul_tab(imlr,jmlr)
 lsta = norb_dz+1
 lend = norb_inn
 
-goto(100,200,300,400),jpadlrel(jpadlr)         !200709
+do_15 = .false.
+select case (jpadlrel(jpadlr)) !200709
+  case default ! (1)
+    do_15 = .true.
 
-200 continue
-return
+  case (2)
 
-300 continue
-return
+  case (3)
 
-400 continue
-if (imlr == jmlr) then               !!! imlr == 1
+  case (4)
+    if (imlr == jmlr) then               !!! imlr == 1
 
-  !line=14 -c"-
-  if (jml /= jmr) goto 1402
-  logic_br(1) = .false.
-  call link_c2_to_given_orb(mh,lsta,lend)
-  if (mh == 0) goto 1402
-  call value_sort_ploop(mh,.true.,.true.,.true.)
-  linelp = 14
-  mhlp = mh
-  nlg1 = 0
-  nlg2 = 1
-  call ext_head_in_dbl()
+      ! line=14 -c"-
+      if (jml == jmr) then
+        logic_br(1) = .false.
+        call link_c2_to_given_orb(mh,lsta,lend)
+        if (mh /= 0) then
+          call value_sort_ploop(mh,.true.,.true.,.true.)
+          linelp = 14
+          mhlp = mh
+          nlg1 = 0
+          nlg2 = 1
+          call ext_head_in_dbl()
+        end if
+      end if
 
-1402 continue
-  logic_br(1) = .true.
-  call link_c2_to_given_orb(mh,lsta,lend)
-  if (mh == 0) goto 15
-  call value_sort_ploop(mh,.true.,.true.,.true.)
-  linelp = 14
-  mhlp = mh
-  nlg1 = 0
-  nlg2 = 2
-  call ext_head_in_dbl()
+      logic_br(1) = .true.
+      call link_c2_to_given_orb(mh,lsta,lend)
+      if (mh == 0) then
+        do_15 = .true.
+      else
+        call value_sort_ploop(mh,.true.,.true.,.true.)
+        linelp = 14
+        mhlp = mh
+        nlg1 = 0
+        nlg2 = 2
+        call ext_head_in_dbl()
+      end if
 
+    end if
+end select
+
+if (do_15) then
+  do lra=norb_dz+1,norb_inn
+    lsma = lsm_inn(lra)
+    if (lsma /= lsmact) cycle
+
+    ! line=18 -b&r-
+    call link_c1_to_given_orb(mh,norb_dz+1,lra-1)
+    call link_b4_at_given_orb(mh,lra)        !b&r
+    logic_br(1:mh) = .true.
+    call link_c2_to_given_orb(mh,lra+1,norb_inn)
+    if (mh == 0) cycle
+    call value_sort_ploop(mh,.false.,.true.,.true.)
+    linelp = 18
+    mhlp = mh
+    nlg1 = lra
+    nlg2 = 0
+    call ext_head_in_dbl()
+
+  end do
 end if
-
-return
-
-100 continue
-
-15 continue
-do lra=norb_dz+1,norb_inn
-  lsma = lsm_inn(lra)
-  if (lsma /= lsmact) cycle
-
-  !line=18 -b&r-
-  call link_c1_to_given_orb(mh,norb_dz+1,lra-1)
-  call link_b4_at_given_orb(mh,lra)        !b&r
-  logic_br(1:mh) = .true.
-  call link_c2_to_given_orb(mh,lra+1,norb_inn)
-  if (mh == 0) cycle
-  call value_sort_ploop(mh,.false.,.true.,.true.)
-  linelp = 18
-  mhlp = mh
-  nlg1 = lra
-  nlg2 = 0
-  call ext_head_in_dbl()
-
-end do
 
 return
 
@@ -1534,18 +1562,18 @@ write(20,'(8i4)') nvalue(1:mtype)
 write(20,'(8i6)') lpnew_lwei(1:mh)
 write(20,'(8i6)') lpnew_rwei(1:mh)
 !=======================================================================
-if (line > 12) goto 100
-!upwei_record
-do m=1,mh
-  jph = lpnew_head(m)
-  jhyl = jphyl(jph)
-  jhyr = jphy(jph)
-  in = ihyl(jhyl)
-  write(20,'(8(1x,i4))') jph,jhyl,jhyr,in,ihyl(jhyl+1:jhyl+in),ihy(jhyr+1:jhyr+in)
-end do
-100 continue
+if (line <= 12) then
+  ! upwei_record
+  do m=1,mh
+    jph = lpnew_head(m)
+    jhyl = jphyl(jph)
+    jhyr = jphy(jph)
+    in = ihyl(jhyl)
+    write(20,'(8(1x,i4))') jph,jhyl,jhyr,in,ihyl(jhyl+1:jhyl+in),ihy(jhyr+1:jhyr+in)
+  end do
+end if
 if ((line /= 1) .and. (line /= 13)) return
-!coe_record
+! coe_record
 do m=1,mh
   write(20,*) lpnew_coe(norb_dz+1:norb_inn,m)
 end do
@@ -1600,22 +1628,22 @@ call idafile(luloop,1,nstaval,mtype,idisk_lp)
 call idafile(luloop,1,nvalue,mtype,idisk_lp)
 call idafile(luloop,1,lpnew_lwei,mh,idisk_lp)
 call idafile(luloop,1,lpnew_rwei,mh,idisk_lp)
-if (line > 12) goto 100
-do m=1,mh
-  jph = lpnew_head(m)
-  jhyl = jphyl(jph)
-  jhyr = jphy(jph)
-  in = ihyl(jhyl)
-  idum(1) = in
-  call idafile(luloop,1,idum,1,idisk_lp)
-  call idafile(luloop,1,ihyl(jhyl+1:jhyl+in),in,idisk_lp)
-  call idafile(luloop,1,ihy(jhyr+1:jhyr+in),in,idisk_lp)
-  !write(20) in,ihyl(jhyl+1:jhyl+in),ihy(jhyr+1:jhyr+in)
-end do
-100 continue
+if (line <= 12) then
+  do m=1,mh
+    jph = lpnew_head(m)
+    jhyl = jphyl(jph)
+    jhyr = jphy(jph)
+    in = ihyl(jhyl)
+    idum(1) = in
+    call idafile(luloop,1,idum,1,idisk_lp)
+    call idafile(luloop,1,ihyl(jhyl+1:jhyl+in),in,idisk_lp)
+    call idafile(luloop,1,ihy(jhyr+1:jhyr+in),in,idisk_lp)
+    !write(20) in,ihyl(jhyl+1:jhyl+in),ihy(jhyr+1:jhyr+in)
+  end do
+end if
 if ((line /= 1) .and. (line /= 13)) return
 !write(6,*) 'in read_lp, write coe',idisk_lp,norb_inn-norb_dz
-!coe_record
+! coe_record
 lenw = norb_inn-norb_dz
 do m=1,mh
   call idafile(luloop,1,lpnew_coe(norb_dz+1:norb_inn,m),lenw,idisk_lp)
@@ -1653,22 +1681,22 @@ call idafile(luloop,2,lpnew_lwei,mhlp,idisk_lp)
 call idafile(luloop,2,lpnew_rwei,mhlp,idisk_lp)
 !=======================================================================
 
-if (linelp > 12) goto 100
-!upwei_read
-ihypos = 1
-do m=1,mhlp
-  jphy(m) = ihypos
-  call idafile(luloop,2,info,1,idisk_lp)
-  ndim = info(1)
-  call idafile(luloop,2,ihyl(ihypos+1:ihypos+ndim),ndim,idisk_lp)
-  call idafile(luloop,2,ihy(ihypos+1:ihypos+ndim),ndim,idisk_lp)
-  ihy(ihypos) = ndim
-  ihypos = ihypos+ndim+1
-end do
-100 continue
+if (linelp <= 12) then
+  ! upwei_read
+  ihypos = 1
+  do m=1,mhlp
+    jphy(m) = ihypos
+    call idafile(luloop,2,info,1,idisk_lp)
+    ndim = info(1)
+    call idafile(luloop,2,ihyl(ihypos+1:ihypos+ndim),ndim,idisk_lp)
+    call idafile(luloop,2,ihy(ihypos+1:ihypos+ndim),ndim,idisk_lp)
+    ihy(ihypos) = ndim
+    ihypos = ihypos+ndim+1
+  end do
+end if
 if ((linelp /= 1) .and. (linelp /= 13)) return
 !write(6,*) 'in read_lp, read coe',idisk_lp,norb_inn-norb_dz
-!coe_read
+! coe_read
 lenr = norb_inn-norb_dz
 do m=1,mhlp
   call idafile(luloop,2,lpnew_coe(norb_dz+1:norb_inn,m),lenr,idisk_lp)
@@ -1767,19 +1795,17 @@ subroutine ext_head_in_act()
 logic_dh = .false.
 jml = mul_tab(jml,ns_sm)
 jmr = mul_tab(jmr,ns_sm)
-goto(10,10,10,10,10,10,10,10,10,110,10,10,10,10,10,10,117,10,10,10,10,10,123,10,10,126),ipaety
-110 continue
-call sv_ext_head_in_act()
-goto 10
-117 continue
-call tv_ext_head_in_act()
-goto 10
-123 continue
-call dv_ext_head_in_act()
-goto 10
-126 continue
-call vd_ext_head_in_act()
-10 continue
+select case (ipaety)
+  case default ! (10)
+    call sv_ext_head_in_act()
+  case (17)
+    call tv_ext_head_in_act()
+  case (23)
+    call dv_ext_head_in_act()
+  case (26)
+    call vd_ext_head_in_act()
+  case (1:9,11:16,18:22,24:25)
+end select
 jml = mul_tab(jml,ns_sm)
 jmr = mul_tab(jmr,ns_sm)
 
@@ -1797,19 +1823,17 @@ subroutine ext_head_in_dbl()
 logic_dh = .true.
 jml = mul_tab(jml,ns_sm)
 jmr = mul_tab(jmr,ns_sm)
-goto(10,10,10,10,10,10,10,10,10,110,10,10,10,10,10,10,117,10,10,10,10,10,123,10,10,126),ipaety
-110 continue
-call sv_ext_head_in_dbl()
-goto 10
-117 continue
-call tv_ext_head_in_dbl()
-goto 10
-123 continue
-call dv_ext_head_in_dbl()
-goto 10
-126 continue
-call vd_ext_head_in_dbl()
-10 continue
+select case (ipaety)
+  case default ! (10)
+    call sv_ext_head_in_dbl()
+  case (17)
+    call tv_ext_head_in_dbl()
+  case (23)
+    call dv_ext_head_in_dbl()
+  case (26)
+    call vd_ext_head_in_dbl()
+  case (1:9,11:16,18:22,24:25)
+end select
 jml = mul_tab(jml,ns_sm)
 jmr = mul_tab(jmr,ns_sm)
 

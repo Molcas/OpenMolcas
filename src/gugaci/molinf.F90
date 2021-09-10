@@ -39,6 +39,7 @@ character*72 line
 #ifdef _XIANEST_
 #define _END_ '$END'
 #endif
+logical skip
 data Cmd/'TITL','NRRO','MAXI','CPRO','PTHR','CONV','PROR','REST',_END_/
 
 #ifndef MOLPRO
@@ -59,104 +60,137 @@ vthreresid = 1.d-8
 mroot = 1
 maxciiter = 30
 ntit = 0
-10 continue
-read(5,'(a)',end=991) line
-command = line(1:8)
-call upcase(command)
-if (command(1:1) == '*') goto 10
-#ifdef _XIANEST_
-if (command(1:4) == '$MRC') goto 10
-#endif
-if (command == ' ') goto 10
+skip = .false.
 jcmd = 0
-do icmd=1,ncmd
-  if (command == cmd(icmd)) jcmd = icmd
+do
+  if (.not. skip) then
+    read(5,'(a)',iostat=istatus) line
+    if (istatus < 0) call error(istatus)
+    command = line(1:8)
+    call upcase(command)
+    if (command(1:1) == '*') cycle
+#   ifdef _XIANEST_
+    if (command(1:4) == '$MRC') cycle
+#   endif
+    if (command == ' ') cycle
+    jcmd = 0
+    do icmd=1,ncmd
+      if (command == cmd(icmd)) jcmd = icmd
+    end do
+  end if
+  skip = .false.
+  select case (jcmd)
+    case (1)
+      !---  process title    command -----------------------------------
+      do
+        read(5,'(a)',iostat=istatus) line
+        if (istatus < 0) call error(istatus)
+        command = line(1:8)
+        call upcase(command)
+        if (command(1:1) == '*') cycle
+        jcmd = 0
+        do icmd=1,ncmd
+          if (command == cmd(icmd)) jcmd = icmd
+        end do
+        if (jcmd /= 0) then
+          skip = .true.
+          exit
+        end if
+        ntit = ntit+1
+      end do
+
+    case (2)
+      !---  process nrroot command -------------------------------------
+      do
+        read(5,'(a)',iostat=istatus) line
+        if (istatus < 0) call error(istatus)
+        if (line(1:1) /= '*') exit
+      end do
+      read(line,*,iostat=istatus) mroot
+      if (istatus > 0) call error(istatus)
+
+    case (3)
+      !---  process Maxiterations command ------------------------------
+      do
+        read(5,'(a)',iostat=istatus) line
+        if (istatus < 0) call error(istatus)
+        if (line(1:1) /= '*') exit
+      end do
+      read(line,*,iostat=istatus) maxciiter
+      if (istatus > 0) call error(istatus)
+
+    case (4)
+      !---  process Calculate property command -------------------------
+      logic_calpro = .true.
+
+    case (5)
+      !---  process Thresh print command -------------------------------
+      do
+        read(5,'(a)',iostat=istatus) line
+        if (istatus < 0) call error(istatus)
+        if (line(1:1) /= '*') exit
+      end do
+      read(line,*,iostat=istatus) cm_cri
+      if (istatus > 0) call error(istatus)
+
+    case (6)
+      !---  process Convergence threshold command ----------------------
+      do
+        read(5,'(a)',iostat=istatus) line
+        if (istatus < 0) call error(istatus)
+        if (line(1:1) /= '*') exit
+      end do
+      read(line,*,iostat=istatus) vthreen,vthrealp,vthreresid
+      if (istatus > 0) call error(istatus)
+
+    case (7)
+      !---  process print orbital command ------------------------------
+      do
+        read(5,'(a)',iostat=istatus) line
+        if (istatus < 0) call error(istatus)
+        if (line(1:1) /= '*') exit
+      end do
+      read(line,*,iostat=istatus) pror
+      if (istatus > 0) call error(istatus)
+
+    case (8)
+      !---  process restart command ------------------------------------
+
+    case (9)
+      !--- End of GUGACI input -----------------------------------------
+      exit
+
+    case default
+      write(6,*) 'input: illegal keyword'
+      write(6,'(a,a)') 'command=',command
+#     ifndef MOLPRO
+      call abend()
+#     endif
+  end select
+
 end do
-20 continue
-goto(100,200,300,400,500,600,700,800,900) jcmd
-write(6,*) 'input: illegal keyword'
-write(6,'(a,a)') 'command=',command
-#ifndef MOLPRO
-call abend()
-#endif
-
-!---  process title    command -----------------------------------------
-100 continue
-read(5,'(a)',end=991) line
-command = line(1:8)
-call upcase(command)
-if (command(1:1) == '*') goto 100
-jcmd = 0
-do icmd=1,ncmd
-  if (command == cmd(icmd)) jcmd = icmd
-end do
-if (jcmd /= 0) goto 20
-ntit = ntit+1
-goto 100
-
-!---  process nrroot command -------------------------------------------
-200 continue
-read(5,'(a)',end=991) line
-if (line(1:1) == '*') goto 200
-read(line,*,err=992) mroot
-goto 10
-
-!---  process Maxiterations command ------------------------------------
-300 continue
-read(5,'(a)',end=991) line
-if (line(1:1) == '*') goto 300
-read(line,*,err=992) maxciiter
-goto 10
-
-!---  process Calculate property command -------------------------------
-400 continue
-logic_calpro = .true.
-goto 10
-
-!---  process Thresh print command -------------------------------------
-500 continue
-read(5,'(a)',end=991) line
-if (line(1:1) == '*') goto 500
-read(line,*,err=992) cm_cri
-goto 10
-
-!---  process Convergence threshold command ----------------------------
-600 continue
-read(5,'(a)',end=991) line
-if (line(1:1) == '*') goto 600
-read(line,*,err=992) vthreen,vthrealp,vthreresid
-goto 10
-
-!---  process print orbital command ------------------------------------
-700 continue
-read(5,'(a)',end=991) line
-if (line(1:1) == '*') goto 700
-read(line,*,err=992) pror
-goto 10
-
-!---  process restart command ------------------------------------------
-800 continue
-goto 10
-
-!--- End of GUGACI input -----------------------------------------------
-900 continue
 
 call mole_inf_molcas()
 
 return
 
-991 continue
-write(6,*) 'input: end of input file encountered'
-write(6,'(a,a)') 'last command: ',command
-#ifndef MOLPRO
-call abend()
-#endif
-992 continue
-write(6,*) 'input: error while reading input!'
-write(6,'(a,a)') 'last command: ',command
-#ifndef MOLPRO
-call abend()
-#endif
+contains
+
+subroutine error(code)
+
+  integer code
+
+  if (code < 0) then
+    write(6,*) 'input: end of input file encountered'
+  else
+    write(6,*) 'input: error while reading input!'
+  end if
+  write(6,'(a,a)') 'last command: ',command
+# ifndef MOLPRO
+  call abend()
+# endif
+
+end subroutine error
 
 end subroutine mole_inf
 

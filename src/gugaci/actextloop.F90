@@ -200,18 +200,18 @@ if (logic_grad) then
   call lp_drl_ext_ss_calcuvalue_g(lri,nlp_value)
   w0_old = w0_plp
   do iw0=1,mtype
-    if (iw0 == 1) goto 201
-    w0_plp = vplpnew_w0(iw0)
-    if (logic_dh) w0_plp = vplp_w0(iw0)
-    if (abs(w0_plp) < crl) cycle
-    w0multi = w0_plp/w0_old
-    w0_old = w0_plp
-    do iiext=1,nlp_value
-      value_lpext(iiext) = value_lpext(iiext)*w0multi
-      value_lpext1(iiext) = value_lpext1(iiext)*w0multi
-    end do
+    if (iw0 /= 1) then
+      w0_plp = vplpnew_w0(iw0)
+      if (logic_dh) w0_plp = vplp_w0(iw0)
+      if (abs(w0_plp) < crl) cycle
+      w0multi = w0_plp/w0_old
+      w0_old = w0_plp
+      do iiext=1,nlp_value
+        value_lpext(iiext) = value_lpext(iiext)*w0multi
+        value_lpext1(iiext) = value_lpext1(iiext)*w0multi
+      end do
+    end if
 
-201 continue
     ilpsta = nstaval(iw0)+1
     ilpend = nstaval(iw0)+nvalue(iw0)
     do iplp=ilpsta,ilpend
@@ -241,17 +241,17 @@ else
   call lp_drl_ext_ss_calcuvalue(lri,nlp_value)
   w0_old = w0_plp
   do iw0=1,mtype
-    if (iw0 == 1) goto 202
-    w0_plp = vplpnew_w0(iw0)
-    if (logic_dh) w0_plp = vplp_w0(iw0)
-    if (abs(w0_plp) < crl) cycle
-    w0multi = w0_plp/w0_old
-    w0_old = w0_plp
-    do iiext=1,nlp_value
-      value_lpext(iiext) = value_lpext(iiext)*w0multi
-    end do
+    if (iw0 /= 1) then
+      w0_plp = vplpnew_w0(iw0)
+      if (logic_dh) w0_plp = vplp_w0(iw0)
+      if (abs(w0_plp) < crl) cycle
+      w0multi = w0_plp/w0_old
+      w0_old = w0_plp
+      do iiext=1,nlp_value
+        value_lpext(iiext) = value_lpext(iiext)*w0multi
+      end do
+    end if
 
-202 continue
     ilpsta = nstaval(iw0)+1
     ilpend = nstaval(iw0)+nvalue(iw0)
     do iplp=ilpsta,ilpend
@@ -307,16 +307,16 @@ if (logic_grad) then
     call lp_drl_ext_ss_calcuvalue_g(lrk,nlp_value)
     w0_old = w0_plp
     do iw0=1,mtype
-      if (iw0 == 1) goto 201
-      w0_plp = vplp_w0(iw0)
-      if (abs(w0_plp) < crl) cycle
-      w0multi = w0_plp/w0_old
-      w0_old = w0_plp
-      do iiext=1,nlp_value
-        value_lpext(iiext) = value_lpext(iiext)*w0multi
-        value_lpext1(iiext) = value_lpext1(iiext)*w0multi
-      end do
-201   continue
+      if (iw0 /= 1) then
+        w0_plp = vplp_w0(iw0)
+        if (abs(w0_plp) < crl) cycle
+        w0multi = w0_plp/w0_old
+        w0_old = w0_plp
+        do iiext=1,nlp_value
+          value_lpext(iiext) = value_lpext(iiext)*w0multi
+          value_lpext1(iiext) = value_lpext1(iiext)*w0multi
+        end do
+      end if
       ilpsta = nstaval(iw0)+1
       ilpend = nstaval(iw0)+nvalue(iw0)
       do iplp=ilpsta,ilpend
@@ -336,15 +336,15 @@ else
   call lp_drl_sum_ss_calcuvalue(lri,lrj,nlp_value)
   w0_old = w0_plp
   do iw0=1,mtype
-    if (iw0 == 1) goto 202
-    w0_plp = vplp_w0(iw0)
-    if (abs(w0_plp) < crl) cycle
-    w0multi = w0_plp/w0_old
-    w0_old = w0_plp
-    do iiext=1,nlp_value
-      value_lpext(iiext) = value_lpext(iiext)*w0multi
-    end do
-202 continue
+    if (iw0 /= 1) then
+      w0_plp = vplp_w0(iw0)
+      if (abs(w0_plp) < crl) cycle
+      w0multi = w0_plp/w0_old
+      w0_old = w0_plp
+      do iiext=1,nlp_value
+        value_lpext(iiext) = value_lpext(iiext)*w0multi
+      end do
+    end if
     ilpsta = nstaval(iw0)+1
     ilpend = nstaval(iw0)+nvalue(iw0)
     do iplp=ilpsta,ilpend
@@ -383,18 +383,18 @@ if (logic_grad) then
   call lp_drl_ext_st_calcuvalue_g(lri,nlp_value)
   w1_old = w1_plp
   do iw0=1,mtype
-    if (iw0 == 1) goto 201
-    w1_plp = vplpnew_w1(iw0)
-    if (logic_dh) w1_plp = vplp_w1(iw0)
-    if (abs(w1_plp) < crl) cycle
-    w1multi = w1_plp/w1_old
-    w1_old = w1_plp
+    if (iw0 /= 1) then
+      w1_plp = vplpnew_w1(iw0)
+      if (logic_dh) w1_plp = vplp_w1(iw0)
+      if (abs(w1_plp) < crl) cycle
+      w1multi = w1_plp/w1_old
+      w1_old = w1_plp
 
-    do iiext=1,nlp_value
-      value_lpext(iiext) = value_lpext(iiext)*w1multi
-      value_lpext1(iiext) = value_lpext1(iiext)*w1multi
-    end do
-201 continue
+      do iiext=1,nlp_value
+        value_lpext(iiext) = value_lpext(iiext)*w1multi
+        value_lpext1(iiext) = value_lpext1(iiext)*w1multi
+      end do
+    end if
     ilpsta = nstaval(iw0)+1
     ilpend = nstaval(iw0)+nvalue(iw0)
     do iplp=ilpsta,ilpend
@@ -425,18 +425,18 @@ else
   call lp_drl_ext_st_calcuvalue(lri,nlp_value)
   w1_old = w1_plp
   do iw0=1,mtype
-    if (iw0 == 1) goto 202
-    w1_plp = vplpnew_w1(iw0)
-    if (logic_dh) w1_plp = vplp_w1(iw0)
-    if (abs(w1_plp) < crl) cycle
-    w1multi = w1_plp/w1_old
-    w1_old = w1_plp
-    !call calcu_drl2_value_wyb(1,lri,lrj)
-    !call lp_drl_ext_st_calcuvalue(lri,nlp_value)
-    do iiext=1,nlp_value
-      value_lpext(iiext) = value_lpext(iiext)*w1multi
-    end do
-202 continue
+    if (iw0 /= 1) then
+      w1_plp = vplpnew_w1(iw0)
+      if (logic_dh) w1_plp = vplp_w1(iw0)
+      if (abs(w1_plp) < crl) cycle
+      w1multi = w1_plp/w1_old
+      w1_old = w1_plp
+      !call calcu_drl2_value_wyb(1,lri,lrj)
+      !call lp_drl_ext_st_calcuvalue(lri,nlp_value)
+      do iiext=1,nlp_value
+        value_lpext(iiext) = value_lpext(iiext)*w1multi
+      end do
+    end if
     ilpsta = nstaval(iw0)+1
     ilpend = nstaval(iw0)+nvalue(iw0)
     do iplp=ilpsta,ilpend
@@ -577,17 +577,17 @@ if (logic_grad) then
     call lp_drl_sum_tt_calcuvalue_g(lrk,n1415,nlp_value)
     w0_old = w0_plp
     do iw0=1,mtype
-      if (iw0 == 1) goto 201
-      w0_plp = vplp_w0(iw0)
-      if (abs(w0_plp) < crl) cycle
-      w0multi = w0_plp/w0_old
-      w0_old = w0_plp
-      do iiext=1,nlp_value
-        value_lpext(iiext) = value_lpext(iiext)*w0multi
-        value_lpext1(iiext) = value_lpext1(iiext)*w0multi
-      end do
+      if (iw0 /= 1) then
+        w0_plp = vplp_w0(iw0)
+        if (abs(w0_plp) < crl) cycle
+        w0multi = w0_plp/w0_old
+        w0_old = w0_plp
+        do iiext=1,nlp_value
+          value_lpext(iiext) = value_lpext(iiext)*w0multi
+          value_lpext1(iiext) = value_lpext1(iiext)*w0multi
+        end do
+      end if
 
-201   continue
       ilpsta = nstaval(iw0)+1
       ilpend = nstaval(iw0)+nvalue(iw0)
       do iplp=ilpsta,ilpend
@@ -607,16 +607,16 @@ else
   call lp_drl_sum_tt_calcuvalue(lri,lrj,n1415,nlp_value)
   w0_old = w0_plp
   do iw0=1,mtype
-    if (iw0 == 1) goto 202
-    w0_plp = vplp_w0(iw0)
-    if (abs(w0_plp) < crl) cycle
-    w0multi = w0_plp/w0_old
-    w0_old = w0_plp
-    do iiext=1,nlp_value
-      value_lpext(iiext) = value_lpext(iiext)*w0multi
-    end do
-!      call lp_drl_sum_tt_calcuvalue(lri,lrj,n1415,nlp_value)
-202 continue
+    if (iw0 /= 1) then
+      w0_plp = vplp_w0(iw0)
+      if (abs(w0_plp) < crl) cycle
+      w0multi = w0_plp/w0_old
+      w0_old = w0_plp
+      do iiext=1,nlp_value
+        value_lpext(iiext) = value_lpext(iiext)*w0multi
+      end do
+      !call lp_drl_sum_tt_calcuvalue(lri,lrj,n1415,nlp_value)
+    end if
     ilpsta = nstaval(iw0)+1
     ilpend = nstaval(iw0)+nvalue(iw0)
     do iplp=ilpsta,ilpend
@@ -655,17 +655,17 @@ if (logic_grad) then
   call lp_drl_ext_ts_calcuvalue_g(lri,nlp_value)
   w1_old = w1_plp
   do iw0=1,mtype
-    if (iw0 == 1) goto 201
-    w1_plp = vplpnew_w1(iw0)
-    if (logic_dh) w1_plp = vplp_w1(iw0)
-    if (abs(w1_plp) < crl) cycle
-    w1multi = w1_plp/w1_old
-    w1_old = w1_plp
-    do iiext=1,nlp_value
-      value_lpext(iiext) = value_lpext(iiext)*w1multi
-      value_lpext1(iiext) = value_lpext1(iiext)*w1multi
-    end do
-201 continue
+    if (iw0 /= 1) then
+      w1_plp = vplpnew_w1(iw0)
+      if (logic_dh) w1_plp = vplp_w1(iw0)
+      if (abs(w1_plp) < crl) cycle
+      w1multi = w1_plp/w1_old
+      w1_old = w1_plp
+      do iiext=1,nlp_value
+        value_lpext(iiext) = value_lpext(iiext)*w1multi
+        value_lpext1(iiext) = value_lpext1(iiext)*w1multi
+      end do
+    end if
     ilpsta = nstaval(iw0)+1
     ilpend = nstaval(iw0)+nvalue(iw0)
     do iplp=ilpsta,ilpend
@@ -696,16 +696,16 @@ else
   call lp_drl_ext_ts_calcuvalue(lri,nlp_value)
   w1_old = w1_plp
   do iw0=1,mtype
-    if (iw0 == 1) goto 202
-    w1_plp = vplpnew_w1(iw0)
-    if (logic_dh) w1_plp = vplp_w1(iw0)
-    if (abs(w1_plp) < crl) cycle
-    w1multi = w1_plp/w1_old
-    w1_old = w1_plp
-    do iiext=1,nlp_value
-      value_lpext(iiext) = value_lpext(iiext)*w1multi
-    end do
-202 continue
+    if (iw0 /= 1) then
+      w1_plp = vplpnew_w1(iw0)
+      if (logic_dh) w1_plp = vplp_w1(iw0)
+      if (abs(w1_plp) < crl) cycle
+      w1multi = w1_plp/w1_old
+      w1_old = w1_plp
+      do iiext=1,nlp_value
+        value_lpext(iiext) = value_lpext(iiext)*w1multi
+      end do
+    end if
     ilpsta = nstaval(iw0)+1
     ilpend = nstaval(iw0)+nvalue(iw0)
     do iplp=ilpsta,ilpend

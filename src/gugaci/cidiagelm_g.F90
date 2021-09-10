@@ -167,63 +167,63 @@ end do
 ! write(6,*) ad(i)
 !***********************************************************************
 lr = norb_dz+1
-40 continue
-if (lr == norb_inn) then
-  if (mh /= 0) call diagonal_link_dae_g(mh)
-  return
-end if
-lr = lr+1
-me = 0
-do m=1,mh
-  je = jeh(m)
-  jeb = jb(je)
-  !jp = jph(m)
-  do idl=1,4
-    if (jj_sub(idl,je) == 0) cycle
-    ind1 = idl
-    !if (lr == 1) goto 20
-    ! link loop
-    call smidc2(isq,w,ww,mw,ind1,jeb)
-    me = me+1
-    jwe(me) = jwh(m)
-    if (idl /= 1) jwe(me) = jwe(me)+iy(idl,je)
-    jee(me) = jj_sub(idl,je)
-    te(me) = th(m)*w
-    tee(me) = thh(m)*ww
-    jpe(me) = jph(m)
-    ! complete a loop 'v'
-    !20 continue
-    if (ind1 == 1) cycle
-    call stml(isq,w,ww,mw,ind1-1,jeb)
-    vlop0 = th(m)*w
-    vlop1 = thh(m)*ww
-    if ((vlop0 == 0.0d0) .and. (vlop1 == 0.0d0)) cycle
-    mp = mp+1
-    mpe = jj_sub(idl,je)
-    iwa = jwh(m)
-    if (idl /= 1) iwa = iwa+iy(idl,je)
-    call diagonal_link_ad_g(mpe,iwa,vlop0,vlop1)
-    !*****   520  ******************************************************
+do
+  if (lr == norb_inn) then
+    if (mh /= 0) call diagonal_link_dae_g(mh)
+    return
+  end if
+  lr = lr+1
+  me = 0
+  do m=1,mh
+    je = jeh(m)
+    jeb = jb(je)
+    !jp = jph(m)
+    do idl=1,4
+      if (jj_sub(idl,je) == 0) cycle
+      ind1 = idl
+      !if (lr /= 1) then
+      ! link loop
+      call smidc2(isq,w,ww,mw,ind1,jeb)
+      me = me+1
+      jwe(me) = jwh(m)
+      if (idl /= 1) jwe(me) = jwe(me)+iy(idl,je)
+      jee(me) = jj_sub(idl,je)
+      te(me) = th(m)*w
+      tee(me) = thh(m)*ww
+      jpe(me) = jph(m)
+      !end if
+      ! complete a loop 'v'
+      if (ind1 == 1) cycle
+      call stml(isq,w,ww,mw,ind1-1,jeb)
+      vlop0 = th(m)*w
+      vlop1 = thh(m)*ww
+      if ((vlop0 == 0.0d0) .and. (vlop1 == 0.0d0)) cycle
+      mp = mp+1
+      mpe = jj_sub(idl,je)
+      iwa = jwh(m)
+      if (idl /= 1) iwa = iwa+iy(idl,je)
+      call diagonal_link_ad_g(mpe,iwa,vlop0,vlop1)
+      !*****   520  ****************************************************
+    end do
   end do
+  !*********************************************************************
+  ! write(6,*) ad(i)
+  !*********************************************************************
+  do m=1,me
+    th(m) = te(m)
+    te(m) = 0.0d0
+    thh(m) = tee(m)
+    tee(m) = 0.0d0
+    jwh(m) = jwe(m)
+    jwe(m) = 0
+    jeh(m) = jee(m)
+    jee(m) = 0
+    jph(m) = jpe(m)
+    jpe(m) = 0
+  end do
+  mh = me
+  if (ndr(lr) < mh) ndr(lr) = mh
 end do
-!***********************************************************************
-! write(6,*) ad(i)
-!***********************************************************************
-do m=1,me
-  th(m) = te(m)
-  te(m) = 0.0d0
-  thh(m) = tee(m)
-  tee(m) = 0.0d0
-  jwh(m) = jwe(m)
-  jwe(m) = 0
-  jeh(m) = jee(m)
-  jee(m) = 0
-  jph(m) = jpe(m)
-  jpe(m) = 0
-end do
-mh = me
-if (ndr(lr) < mh) ndr(lr) = mh
-goto 40
 do m=1,mh
   th(m) = 0.0d0
   thh(m) = 0.0d0
@@ -283,7 +283,7 @@ do lr=norb_dz+1,norb_inn
   end do
 end do
 ! 520
-do lr0=norb_dz+1,norb_inn
+outer: do lr0=norb_dz+1,norb_inn
   mh = 0
   me = 0
   jp0 = no(lr0-1)+1
@@ -312,74 +312,73 @@ do lr0=norb_dz+1,norb_inn
   !*********************************************************************
   lr = lr0
   if (ndr(lr) < mh) ndr(lr) = mh
-40 continue
-  if (lr == norb_inn) then
-    call diagonal_link_ae_g(mh)
-    goto 5
-  end if
-  lr = lr+1
-  me = 0
+  do
+    if (lr == norb_inn) then
+      call diagonal_link_ae_g(mh)
+      cycle outer
+    end if
+    lr = lr+1
+    me = 0
 
-  mp = 0
-  do m=1,mh
-    je = jeh(m)
-    jeb = jb(je)
-    jp = jph(m)
-    do idl=1,4
-      if (jj_sub(idl,je) == 0) goto 17
-      ind1 = idl
-      if (lr == 1) goto 20
-      ! link loop
-      call smidc2(isq,w,ww,mw,ind1,jeb)
-      me = me+1
-      jwe(me) = jwh(m)
-      if (idl /= 1) jwe(me) = jwe(me)+iy(idl,je)
-      jee(me) = jj_sub(idl,je)
-      te(me) = th(m)*w
-      tee(me) = thh(m)*ww
-      jpe(me) = jph(m)
-      ! complete a loop 'v'
-20    continue
-      if (ind1 == 1) goto 17
-      call stml(isq,w,ww,mw,ind1-1,jeb)
-      vlop0 = th(m)*w
-      vlop1 = thh(m)*ww
-      if ((vlop0 == 0.0d0) .and. (vlop1 == 0.0d0)) goto 17
-      mp = mp+1
-      mpe = jj_sub(idl,je)
-      iwa = jwh(m)
-      if (idl /= 1) iwa = iy(idl,je)+iwa
-      !wt = (vlop0-vlop1)*voint(lr,lr0)-2.d0*vlop0*vdint(lr,lr0)
-      wt = vlop0-vlop1
-      call trans_ijkl_intpos(lr,lr0,lr,lr0,nxo)
-      !write(nf2,'(4i4,i8)') lr,lr0,lr,lr0,nxo
-      call prodel_2(3,wt,jp,mpe,iwa,nxo)
-      wt = -2.d0*vlop0
-      call trans_ijkl_intpos(lr,lr,lr0,lr0,nxo)
-      call prodel_2(3,wt,jp,mpe,iwa,nxo)
+    mp = 0
+    do m=1,mh
+      je = jeh(m)
+      jeb = jb(je)
+      jp = jph(m)
+      do idl=1,4
+        if (jj_sub(idl,je) == 0) cycle
+        ind1 = idl
+        if (lr /= 1) then
+          ! link loop
+          call smidc2(isq,w,ww,mw,ind1,jeb)
+          me = me+1
+          jwe(me) = jwh(m)
+          if (idl /= 1) jwe(me) = jwe(me)+iy(idl,je)
+          jee(me) = jj_sub(idl,je)
+          te(me) = th(m)*w
+          tee(me) = thh(m)*ww
+          jpe(me) = jph(m)
+        end if
+        ! complete a loop 'v'
+        if (ind1 == 1) cycle
+        call stml(isq,w,ww,mw,ind1-1,jeb)
+        vlop0 = th(m)*w
+        vlop1 = thh(m)*ww
+        if ((vlop0 == 0.0d0) .and. (vlop1 == 0.0d0)) cycle
+        mp = mp+1
+        mpe = jj_sub(idl,je)
+        iwa = jwh(m)
+        if (idl /= 1) iwa = iy(idl,je)+iwa
+        !wt = (vlop0-vlop1)*voint(lr,lr0)-2.d0*vlop0*vdint(lr,lr0)
+        wt = vlop0-vlop1
+        call trans_ijkl_intpos(lr,lr0,lr,lr0,nxo)
+        !write(nf2,'(4i4,i8)') lr,lr0,lr,lr0,nxo
+        call prodel_2(3,wt,jp,mpe,iwa,nxo)
+        wt = -2.d0*vlop0
+        call trans_ijkl_intpos(lr,lr,lr0,lr0,nxo)
+        call prodel_2(3,wt,jp,mpe,iwa,nxo)
 
-      !*****   520  ****************************************************
-17    continue
+        !*****   520  **************************************************
+      end do
     end do
+    !*******************************************************************
+    !write(6,*) ad(i)
+    !*******************************************************************
+    do m=1,me
+      th(m) = te(m)
+      te(m) = 0.0d0
+      thh(m) = tee(m)
+      tee(m) = 0.0d0
+      jwh(m) = jwe(m)
+      jwe(m) = 0
+      jeh(m) = jee(m)
+      jee(m) = 0
+      jph(m) = jpe(m)
+      jpe(m) = 0
+    end do
+    mh = me
+    if (ndr(lr) < mh) ndr(lr) = mh
   end do
-  !*********************************************************************
-  !write(6,*) ad(i)
-  !*********************************************************************
-  do m=1,me
-    th(m) = te(m)
-    te(m) = 0.0d0
-    thh(m) = tee(m)
-    tee(m) = 0.0d0
-    jwh(m) = jwe(m)
-    jwe(m) = 0
-    jeh(m) = jee(m)
-    jee(m) = 0
-    jph(m) = jpe(m)
-    jpe(m) = 0
-  end do
-  mh = me
-  if (ndr(lr) < mh) ndr(lr) = mh
-  goto 40
   do m=1,mh
     th(m) = 0.0d0
     thh(m) = 0.0d0
@@ -387,8 +386,7 @@ do lr0=norb_dz+1,norb_inn
     jph(m) = 0
     jeh(m) = 0
   end do
-5 continue
-end do
+end do outer
 
 return
 
@@ -431,110 +429,110 @@ do ip=1,mh
   ! two-index,one-loop 520
   ! 520=<a,j,k,a>:13,14(ss=3),38(tt=2),50(dd=1)
   !write(nf2,*) 'ityae',ityae
-  goto(100,200,300),ityae
 
   !link arc_d
-100 continue
-  !zz = '  g50  '
-  wg50 = vlop0*vsq2
-  wwg50 = -vlop1*sqrt(3.d0)/sqrt(2.d0)
-  do la=1,norb_ext
-    ma = lsm(la)
-    if (ma /= imae) cycle
-    lra = norb_all-la+1
-    iwe = iwe+1
-    !wld = (wg50-wwg50)*voint(lra,lr0)-2.d0*wg50*vdint(lra,lr0)
-    wld = wg50-wwg50
-    call trans_ijkl_intpos(lra,lr0,lra,lr0,nxo)
-    call prodel_2(5,wld,jp,iwa,iwe,nxo)
-    wld = -2.d0*wg50
-    call trans_ijkl_intpos(lra,lra,lr0,lr0,nxo)
-    call prodel_2(5,wld,jp,iwa,iwe,nxo)
-
-    !write(6,'(a11,2i3,i6,1x,5f10.4)') zz,lr0,la,jwl,vo(lr0,la),vmd(lr0,la),wg50,wwg50,wl
-  end do
-  goto 108
-200 continue
-  !zz = '  g38,39  '
-  wg38 = -vlop0*vsq2
-  wwg38 = vlop1
-  do ima=1,ng_sm
-    imb = mul_tab(ima,imae)
-    if (imb > ima) cycle
-    do la=ibsm_ext(ima),iesm_ext(ima)
-      lra = norb_all-la+1
-      lbsta = ibsm_ext(imb)
-      lbend = iesm_ext(imb)
-      if (ima == imb) lbend = la-1
-      do lb=lbsta,lbend
-        lrb = norb_all-lb+1
+  select case (ityae)
+    case default ! (1)
+      !zz = '  g50  '
+      wg50 = vlop0*vsq2
+      wwg50 = -vlop1*sqrt(3.d0)/sqrt(2.d0)
+      do la=1,norb_ext
+        ma = lsm(la)
+        if (ma /= imae) cycle
+        lra = norb_all-la+1
         iwe = iwe+1
-        !wlt = (wg38-wwg38)*(voint(lra,lr0)+voint(lrb,lr0))-2.d0*wg38*(vdint(lra,lr0)+vdint(lrb,lr0))
-        wlt = wg38-wwg38
+        !wld = (wg50-wwg50)*voint(lra,lr0)-2.d0*wg50*vdint(lra,lr0)
+        wld = wg50-wwg50
         call trans_ijkl_intpos(lra,lr0,lra,lr0,nxo)
-        call prodel_2(5,wlt,jp,iwa,iwe,nxo)
-        wlt = wg38-wwg38
-        call trans_ijkl_intpos(lrb,lr0,lrb,lr0,nxo)
-        call prodel_2(5,wlt,jp,iwa,iwe,nxo)
-        wlt = -2.d0*wg38
+        call prodel_2(5,wld,jp,iwa,iwe,nxo)
+        wld = -2.d0*wg50
         call trans_ijkl_intpos(lra,lra,lr0,lr0,nxo)
-        call prodel_2(5,wlt,jp,iwa,iwe,nxo)
-        wlt = -2.d0*wg38
-        call trans_ijkl_intpos(lrb,lrb,lr0,lr0,nxo)
-        call prodel_2(5,wlt,jp,iwa,iwe,nxo)
-      end do
-    end do
-  end do
-  goto 108
-300 continue
-  !zz = '  g14,15  '
-  wg14 = -vlop0*vsq2
-  do ima=1,ng_sm
-    imb = mul_tab(ima,imae)
-    if (imb > ima) cycle
-    if (nlsm_ext(ima) == 0) cycle
-    if (nlsm_ext(imb) == 0) cycle
-    do la=ibsm_ext(ima),iesm_ext(ima)
-      lra = norb_all-la+1
-      lbsta = ibsm_ext(imb)
-      lbend = iesm_ext(imb)
-      if (ima == imb) lbend = la-1
-      do lb=lbsta,lbend
-        lrb = norb_all-lb+1
-        iwe = iwe+1
-        !wls = wg14*(voint(lra,lr0)+voint(lrb,lr0))-2.d0*wg14*(vdint(lra,lr0)+vdint(lrb,lr0))
-        wls = wg14
-        call trans_ijkl_intpos(lra,lr0,lra,lr0,nxo)
-        call prodel_2(5,wls,jp,iwa,iwe,nxo)
-        wls = wg14
-        call trans_ijkl_intpos(lrb,lr0,lrb,lr0,nxo)
-        call prodel_2(5,wls,jp,iwa,iwe,nxo)
-        wls = -2.d0*wg14
-        call trans_ijkl_intpos(lra,lra,lr0,lr0,nxo)
-        call prodel_2(5,wls,jp,iwa,iwe,nxo)
-        wls = -2.d0*wg14
-        call trans_ijkl_intpos(lrb,lrb,lr0,lr0,nxo)
-        call prodel_2(5,wls,jp,iwa,iwe,nxo)
-      end do
-    end do
-  end do
-  if (ipae /= 18) goto 108
-  !zz = '  g13     '
-  wg13 = -vlop0*dsq2
-  do la=1,norb_ext
-    lra = norb_all-la+1
-    iwe = iwe+1
-    !wls = wg13*(voint(lra,lr0)-2.d0*vdint(lra,lr0))
-    wls = wg13
-    call trans_ijkl_intpos(lra,lr0,lra,lr0,nxo)
-    call prodel_2(5,wls,jp,iwa,iwe,nxo)
-    wls = -2.d0*wg13
-    call trans_ijkl_intpos(lra,lra,lr0,lr0,nxo)
-    call prodel_2(5,wls,jp,iwa,iwe,nxo)
+        call prodel_2(5,wld,jp,iwa,iwe,nxo)
 
-    !write(6,*) ' g13 ',vo(lr0,la),vo(lr0,lb),vmd(lr0,la),vmd(lr0,lb)
-  end do
-108 continue
+        !write(6,'(a11,2i3,i6,1x,5f10.4)') zz,lr0,la,jwl,vo(lr0,la),vmd(lr0,la),wg50,wwg50,wl
+      end do
+
+    case (2)
+      !zz = '  g38,39  '
+      wg38 = -vlop0*vsq2
+      wwg38 = vlop1
+      do ima=1,ng_sm
+        imb = mul_tab(ima,imae)
+        if (imb > ima) cycle
+        do la=ibsm_ext(ima),iesm_ext(ima)
+          lra = norb_all-la+1
+          lbsta = ibsm_ext(imb)
+          lbend = iesm_ext(imb)
+          if (ima == imb) lbend = la-1
+          do lb=lbsta,lbend
+            lrb = norb_all-lb+1
+            iwe = iwe+1
+            !wlt = (wg38-wwg38)*(voint(lra,lr0)+voint(lrb,lr0))-2.d0*wg38*(vdint(lra,lr0)+vdint(lrb,lr0))
+            wlt = wg38-wwg38
+            call trans_ijkl_intpos(lra,lr0,lra,lr0,nxo)
+            call prodel_2(5,wlt,jp,iwa,iwe,nxo)
+            wlt = wg38-wwg38
+            call trans_ijkl_intpos(lrb,lr0,lrb,lr0,nxo)
+            call prodel_2(5,wlt,jp,iwa,iwe,nxo)
+            wlt = -2.d0*wg38
+            call trans_ijkl_intpos(lra,lra,lr0,lr0,nxo)
+            call prodel_2(5,wlt,jp,iwa,iwe,nxo)
+            wlt = -2.d0*wg38
+            call trans_ijkl_intpos(lrb,lrb,lr0,lr0,nxo)
+            call prodel_2(5,wlt,jp,iwa,iwe,nxo)
+          end do
+        end do
+      end do
+
+    case (3)
+      !zz = '  g14,15  '
+      wg14 = -vlop0*vsq2
+      do ima=1,ng_sm
+        imb = mul_tab(ima,imae)
+        if (imb > ima) cycle
+        if (nlsm_ext(ima) == 0) cycle
+        if (nlsm_ext(imb) == 0) cycle
+        do la=ibsm_ext(ima),iesm_ext(ima)
+          lra = norb_all-la+1
+          lbsta = ibsm_ext(imb)
+          lbend = iesm_ext(imb)
+          if (ima == imb) lbend = la-1
+          do lb=lbsta,lbend
+            lrb = norb_all-lb+1
+            iwe = iwe+1
+            !wls = wg14*(voint(lra,lr0)+voint(lrb,lr0))-2.d0*wg14*(vdint(lra,lr0)+vdint(lrb,lr0))
+            wls = wg14
+            call trans_ijkl_intpos(lra,lr0,lra,lr0,nxo)
+            call prodel_2(5,wls,jp,iwa,iwe,nxo)
+            wls = wg14
+            call trans_ijkl_intpos(lrb,lr0,lrb,lr0,nxo)
+            call prodel_2(5,wls,jp,iwa,iwe,nxo)
+            wls = -2.d0*wg14
+            call trans_ijkl_intpos(lra,lra,lr0,lr0,nxo)
+            call prodel_2(5,wls,jp,iwa,iwe,nxo)
+            wls = -2.d0*wg14
+            call trans_ijkl_intpos(lrb,lrb,lr0,lr0,nxo)
+            call prodel_2(5,wls,jp,iwa,iwe,nxo)
+          end do
+        end do
+      end do
+      if (ipae /= 18) cycle
+      !zz = '  g13     '
+      wg13 = -vlop0*dsq2
+      do la=1,norb_ext
+        lra = norb_all-la+1
+        iwe = iwe+1
+        !wls = wg13*(voint(lra,lr0)-2.d0*vdint(lra,lr0))
+        wls = wg13
+        call trans_ijkl_intpos(lra,lr0,lra,lr0,nxo)
+        call prodel_2(5,wls,jp,iwa,iwe,nxo)
+        wls = -2.d0*wg13
+        call trans_ijkl_intpos(lra,lra,lr0,lr0,nxo)
+        call prodel_2(5,wls,jp,iwa,iwe,nxo)
+
+        !write(6,*) ' g13 ',vo(lr0,la),vo(lr0,lb),vmd(lr0,la),vmd(lr0,lb)
+      end do
+  end select
 end do
 mh = 0
 
@@ -568,402 +566,401 @@ if (imad == 0) then
   imad = 8
 end if
 lra = kk(mpe)-1
-goto(100,200,300,400,500,600),ityad
-! v: d&r&l(3)
-100 continue
-fqi = -fg
-vl0 = fqi*dsq2*vlop0
-wlv = 0.d0
-do lr=1,norb_dz
-  !wlv = wlv-vl0*vdint(lr,lra)
-  wlv = -vl0
-  call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
-  !write(nf2,'(4i4,i8)') lra,lr,lra,lr,nxo
-  call prodel_2(4,wlv,mpe,0,iwa,nxo)
-  wlv = 2.0d0*vl0
-  call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
-  call prodel_2(4,wlv,mpe,0,iwa,nxo)
-end do
-!call prodel(4,wlv,mpe,0,iwa)
-return
-!jpad = jd(im)
-200 continue
-fqi = -fg
-do lri=norb_frz+1,norb_dz
-  imd = mul_tab(lsm_inn(lri),ns_sm)
-  if (imd /= imad) cycle
-  iwd = jud(lri)
-
-  ! d: d&r&l(2)
-  vl0 = fqi*vsq2*vlop0
-  vl1 = pd*vlop1
-  !wld = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
-  wld = -2.0d0*vl0
-  call trans_ijkl_intpos(lra,lra,lri,lri,nxo)
-  call prodel_2(4,wld,mpe,iwd,iwa,nxo)
-  wld = vl0-vl1
-  call trans_ijkl_intpos(lra,lri,lra,lri,nxo)
-  call prodel_2(4,wld,mpe,iwd,iwa,nxo)
-
-  ! d: d&r&l(3)+c"(2)
-  vl0 = fqi*dsq2*vlop0
-  do lr=1,lri-1
-    !wld = wld+vl0*(voint(lra,lr)-2.d0*vdint(lra,lr))
-    wld = -2.0d0*vl0
-    call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
-    call prodel_2(4,wld,mpe,iwd,iwa,nxo)
-    wld = vl0
-    call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
-    call prodel_2(4,wld,mpe,iwd,iwa,nxo)
-  end do
-  ! d: d&r&l(3)
-  do lr=lri+1,norb_dz
-    !wld = wld+vl0*(voint(lra,lr)-2.d0*vdint(lra,lr))
-    wld = -2.0d0*vl0
-    call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
-    call prodel_2(4,wld,mpe,iwd,iwa,nxo)
-    wld = vl0
-    call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
-    call prodel_2(4,wld,mpe,iwd,iwa,nxo)
-  end do
-
-!call prodel(4,wld,mpe,iwd,iwa)
-end do
-return
-!jpad = jt(im)
-300 continue
-fqi = fg
-iwt = 0
-do lri=norb_frz+1,norb_dz
-  imi = mul_tab(lsm_inn(lri),ns_sm)
-  do lrj=lri+1,norb_dz
-    imj = lsm_inn(lrj)
-    imij = mul_tab(imi,imj)
-    if (imij /= imad) cycle
-    iwt = just(lri,lrj)
-
-    ! t: d&r&l(2)
-    ! t: d&r&l(2)+c"(2)
-    vl0 = fqi*vsq2*vlop0
-    vl1 = pt*vlop1
-    !wlt = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
-    wlt = -2.0d0*vl0
-    call trans_ijkl_intpos(lra,lra,lri,lri,nxo)
-    call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
-    wlt = vl0-vl1
-    call trans_ijkl_intpos(lra,lri,lra,lri,nxo)
-    call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
-
-    !wlt = wlt-2.0d0*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
-    wlt = -2.0d0*vl0
-    call trans_ijkl_intpos(lra,lra,lrj,lrj,nxo)
-    call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
-    wlt = vl0-vl1
-    call trans_ijkl_intpos(lra,lrj,lra,lrj,nxo)
-    call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
-
+select case (ityad)
+  case default ! (1)
+    ! v: d&r&l(3)
+    fqi = -fg
     vl0 = fqi*dsq2*vlop0
-    ! t: d&r&l(3)+c"(2)+c"(2)
-    do lr=1,lri-1
-      !wlt = wlt+vl0*vdint(lr,lra)
-      wlt = vl0
-      call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
-      call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
-      wlt = -2.0d0*vl0
-      call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
-      call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
-    end do
-    ! t: d&r&l(3)+c"(2)
-    do lr=lri+1,lrj-1
-      !wlt = wlt+vl0*vdint(lr,lra)
-      wlt = vl0
-      call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
-      call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
-      wlt = -2.0d0*vl0
-      call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
-      call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
-    end do
-    ! t: d&r&l(3)
-    do lr=lrj+1,norb_dz
-      !wlt = wlt+vl0*vdint(lr,lra)
-      wlt = vl0
-      call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
-      call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
-      wlt = -2.0d0*vl0
-      call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
-      call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
-    end do
-    !call prodel(4,wlt,mpe,iwt,iwa)
-  end do
-end do
-return
-400 continue
-fqi = fg
-iws = 0
-do lri=norb_frz+1,norb_dz
-  if (imad == ns_sm) then
-    lrj = lri
-    iws = just(lri,lri)
-    ! s: d&r&l(3)+c"(0)
-    ! s: d&r&l(3)
-    vl0 = fqi*dsq2*vlop0
-    !wls = 0.d0
+    wlv = 0.d0
     do lr=1,norb_dz
-      if (lr == lri) cycle
-      !wls = wls+vl0*(voint(lra,lr)-2.d0*vdint(lra,lr))
-      wls = vl0
+      !wlv = wlv-vl0*vdint(lr,lra)
+      wlv = -vl0
       call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
-      call prodel_2(4,wls,mpe,iws,iwa,nxo)
-      wls = -2.0d0*vl0
+      !write(nf2,'(4i4,i8)') lra,lr,lra,lr,nxo
+      call prodel_2(4,wlv,mpe,0,iwa,nxo)
+      wlv = 2.0d0*vl0
       call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
-      call prodel_2(4,wls,mpe,iws,iwa,nxo)
+      call prodel_2(4,wlv,mpe,0,iwa,nxo)
     end do
-    !call prodel(4,wls,mpe,iws,iwa)
-  end if
+    !call prodel(4,wlv,mpe,0,iwa)
 
-  imi = mul_tab(lsm_inn(lri),ns_sm)
-  lrjsta = lri+1
-  do lrj=lrjsta,norb_dz
-    imj = lsm_inn(lrj)
-    imij = mul_tab(imi,imj)
-    if (imij /= imad) cycle
-    iws = just(lri,lrj)
-    ! s1: d&r&l(1)
-    vl0 = fqi*vsq2*vlop0
-    vl1 = ps1*vlop1
-    !wls = -2.0d0*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
-    wls = -2.0d0*vl0
-    call trans_ijkl_intpos(lra,lra,lrj,lrj,nxo)
-    call prodel_2(4,wls,mpe,iws,iwa,nxo)
-    wls = vl0-vl1
-    call trans_ijkl_intpos(lra,lrj,lra,lrj,nxo)
-    call prodel_2(4,wls,mpe,iws,iwa,nxo)
+  case (2)
+    !jpad = jd(im)
+    fqi = -fg
+    do lri=norb_frz+1,norb_dz
+      imd = mul_tab(lsm_inn(lri),ns_sm)
+      if (imd /= imad) cycle
+      iwd = jud(lri)
 
-    ! s4: d&r&l(2)+c"(1)
-    vl0 = fqi*vsq2*vlop0
-    vl1 = ps4*vlop1
-    !wls = wls-2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
-    wls = -2.0d0*vl0
-    call trans_ijkl_intpos(lra,lra,lri,lri,nxo)
-    call prodel_2(4,wls,mpe,iws,iwa,nxo)
-    wls = vl0-vl1
-    call trans_ijkl_intpos(lra,lri,lra,lri,nxo)
-    call prodel_2(4,wls,mpe,iws,iwa,nxo)
+      ! d: d&r&l(2)
+      vl0 = fqi*vsq2*vlop0
+      vl1 = pd*vlop1
+      !wld = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
+      wld = -2.0d0*vl0
+      call trans_ijkl_intpos(lra,lra,lri,lri,nxo)
+      call prodel_2(4,wld,mpe,iwd,iwa,nxo)
+      wld = vl0-vl1
+      call trans_ijkl_intpos(lra,lri,lra,lri,nxo)
+      call prodel_2(4,wld,mpe,iwd,iwa,nxo)
 
-    vl0 = fqi*dsq2*vlop0
-    ! s: d&r&l(3)+c"(2)+c"(1)
-    do lr=1,lri-1
-      !wls = wls+vl0*vdint(lr,lra)
-      wls = vl0
-      call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
-      call prodel_2(4,wls,mpe,iws,iwa,nxo)
-      wls = -2.0d0*vl0
-      call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
-      call prodel_2(4,wls,mpe,iws,iwa,nxo)
-    end do
-    ! s: d&r&l(3)+c"(1)
-    do lr=lri+1,lrj-1
-      !wls = wls+vl0*vdint(lr,lra)
-      wls = vl0
-      call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
-      call prodel_2(4,wls,mpe,iws,iwa,nxo)
-      wls = -2.0d0*vl0
-      call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
-      call prodel_2(4,wls,mpe,iws,iwa,nxo)
-    end do
-    ! s: d&r&l(3)
-    do lr=lrj+1,norb_dz
-      !wls = wls+vl0*vdint(lr,lra)
-      wls = vl0
-      call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
-      call prodel_2(4,wls,mpe,iws,iwa,nxo)
-      wls = -2.0d0*vl0
-      call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
-      call prodel_2(4,wls,mpe,iws,iwa,nxo)
-    end do
-    !call prodel(4,wls,mpe,iws,iwa)
-  end do
-end do
+      ! d: d&r&l(3)+c"(2)
+      vl0 = fqi*dsq2*vlop0
+      do lr=1,lri-1
+        !wld = wld+vl0*(voint(lra,lr)-2.d0*vdint(lra,lr))
+        wld = -2.0d0*vl0
+        call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
+        call prodel_2(4,wld,mpe,iwd,iwa,nxo)
+        wld = vl0
+        call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
+        call prodel_2(4,wld,mpe,iwd,iwa,nxo)
+      end do
+      ! d: d&r&l(3)
+      do lr=lri+1,norb_dz
+        !wld = wld+vl0*(voint(lra,lr)-2.d0*vdint(lra,lr))
+        wld = -2.0d0*vl0
+        call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
+        call prodel_2(4,wld,mpe,iwd,iwa,nxo)
+        wld = vl0
+        call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
+        call prodel_2(4,wld,mpe,iwd,iwa,nxo)
+      end do
 
-if (jb_sys == 0) return      !any diffrence when jb_sys=1 and jb_sy
-fqi = fg
-do lri=norb_frz+1,norb_dz
-  imi = mul_tab(lsm_inn(lri),ns_sm)
-  do lrj=lri+1,norb_dz
-    imj = lsm_inn(lrj)
-    imij = mul_tab(imi,imj)
-    if (imij /= imad) cycle
-    !iws = iws+1
-    iws = just(lrj,lri)
-    ! s1: d&r&l(1)-c"(2)
-    vl0 = fqi*vsq2*vlop0
-    vl1 = ps3*vlop1
-    !wls = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
-    wls = -2.0d0*vl0
-    call trans_ijkl_intpos(lra,lra,lri,lri,nxo)
-    call prodel_2(4,wls,mpe,iws,iwa,nxo)
-    wls = vl0-vl1
-    call trans_ijkl_intpos(lra,lri,lra,lri,nxo)
-    call prodel_2(4,wls,mpe,iws,iwa,nxo)
-
-    ! s3: (11)d&r&l(2)
-    vl0 = fqi*vsq2*vlop0
-    vl1 = ps2*vlop1
-    !wls = wls-2.0d0*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
-    wls = -2.0d0*vl0
-    call trans_ijkl_intpos(lra,lra,lrj,lrj,nxo)
-    call prodel_2(4,wls,mpe,iws,iwa,nxo)
-    wls = vl0-vl1
-    call trans_ijkl_intpos(lra,lrj,lra,lrj,nxo)
-    call prodel_2(4,wls,mpe,iws,iwa,nxo)
-
-    vl0 = fqi*dsq2*vlop0
-    ! s: d&r&l(3)+c"(1)+c"(2)
-    do lr=1,lri-1
-      !wls = wls+vl0*vdint(lr,lra)
-      wls = vl0
-      call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
-      call prodel_2(4,wls,mpe,iws,iwa,nxo)
-      wls = -2.0d0*vl0
-      call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
-      call prodel_2(4,wls,mpe,iws,iwa,nxo)
-    end do
-    ! s: d&r&l(3)+c"(2)
-    do lr=lri+1,lrj-1
-      !wls = wls+vl0*vdint(lr,lra)
-      wls = vl0
-      call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
-      call prodel_2(4,wls,mpe,iws,iwa,nxo)
-      wls = -2.0d0*vl0
-      call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
-      call prodel_2(4,wls,mpe,iws,iwa,nxo)
-    end do
-    ! s: d&r&l(3)
-    do lr=lrj+1,norb_dz
-      !wls = wls+vl0*vdint(lr,lra)
-      wls = vl0
-      call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
-      call prodel_2(4,wls,mpe,iws,iwa,nxo)
-      wls = -2.0d0*vl0
-      call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
-      call prodel_2(4,wls,mpe,iws,iwa,nxo)
-    end do
-    !call prodel(4,wls,mpe,iws,iwa)
-  end do
-end do
-return
-
-500 continue
-fqi = -fg
-iwd = 0
-do lri=norb_frz+1,norb_dz
-  imd = mul_tab(lsm_inn(lri),ns_sm)
-  if (imd /= imad) cycle
-  iwd = jud(lri)
-
-  ! dd1: d&r&l(1)
-  vl0 = fqi*vsq2*vlop0
-  vl1 = pdd*vlop1
-  !wld = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
-  wld = vl0-vl1
-  call trans_ijkl_intpos(lra,lri,lra,lri,nxo)
-  call prodel_2(4,wld,mpe,iwd,iwa,nxo)
-  wld = -2.0d0*vl0
-  call trans_ijkl_intpos(lra,lra,lri,lri,nxo)
-  call prodel_2(4,wld,mpe,iwd,iwa,nxo)
-
-  vl0 = fqi*dsq2*vlop0
-  ! d: d&r&l(3)+c"(1)
-  do lr=1,lri-1
-    !wld = wld+vl0*vdint(lr,lra)
-    wld = vl0
-    call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
-    call prodel_2(4,wld,mpe,iwd,iwa,nxo)
-    wld = -2.0d0*vl0
-    call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
-    call prodel_2(4,wld,mpe,iwd,iwa,nxo)
-  end do
-  ! d: d&r&l(3)
-  do lr=lri+1,norb_dz
-    !wld = wld+vl0*vdint(lr,lra)
-    wld = vl0
-    call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
-    call prodel_2(4,wld,mpe,iwd,iwa,nxo)
-    wld = -2.0d0*vl0
-    call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
-    call prodel_2(4,wld,mpe,iwd,iwa,nxo)
-  end do
-
-  !call prodel(4,wld,mpe,iwd,iwa)
-end do
-return
-
-600 continue
-fqi = fg
-iwt = 0
-do lri=norb_frz+1,norb_dz
-  imi = mul_tab(lsm_inn(lri),ns_sm)
-  do lrj=lri+1,norb_dz
-    imj = lsm_inn(lrj)
-    imij = mul_tab(imi,imj)
-    if (imij /= imad) cycle
-    iwt = just(lri,lrj)
-
-    ! tt: d&r&l(1)
-    ! tt: d&r&l(1)+c"(1)
-    vl0 = fqi*vsq2*vlop0
-    vl1 = ptt*vlop1
-    !wlt = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
-    wlt = -2.0d0*vl0
-    call trans_ijkl_intpos(lra,lra,lri,lri,nxo)
-    call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
-    wlt = vl0-vl1
-    call trans_ijkl_intpos(lra,lri,lra,lri,nxo)
-    call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
-
-    !wlt = wlt-2.0d0*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
-    wlt = -2.0d0*vl0
-    call trans_ijkl_intpos(lra,lra,lrj,lrj,nxo)
-    call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
-    wlt = vl0-vl1
-    call trans_ijkl_intpos(lra,lrj,lra,lrj,nxo)
-    call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
-
-    vl0 = fqi*dsq2*vlop0
-    do lr=1,lri-1
-      ! t: d&r&l(3)+c"(1)+c"(1)
-      !wlt = wlt+vl0*vdint(lr,lra)
-      wlt = vl0
-      call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
-      call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
-      wlt = -2.0d0*vl0
-      call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
-      call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
-    end do
-    ! t: d&r&l(3)+c"(1)
-    do lr=lri+1,lrj-1
-      !wlt = wlt+vl0*vdint(lr,lra)
-      wlt = vl0
-      call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
-      call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
-      wlt = -2.0d0*vl0
-      call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
-      call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
-    end do
-    ! t: d&r&l(3)
-    do lr=lrj+1,norb_dz
-      !wlt = wlt+vl0*vdint(lr,lra)
-      wlt = vl0
-      call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
-      call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
-      wlt = -2.0d0*vl0
-      call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
-      call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
+    !call prodel(4,wld,mpe,iwd,iwa)
     end do
 
-    !call prodel(4,wlt,mpe,iwt,iwa)
-  end do
-end do
+  case (3)
+    !jpad = jt(im)
+    fqi = fg
+    iwt = 0
+    do lri=norb_frz+1,norb_dz
+      imi = mul_tab(lsm_inn(lri),ns_sm)
+      do lrj=lri+1,norb_dz
+        imj = lsm_inn(lrj)
+        imij = mul_tab(imi,imj)
+        if (imij /= imad) cycle
+        iwt = just(lri,lrj)
+
+        ! t: d&r&l(2)
+        ! t: d&r&l(2)+c"(2)
+        vl0 = fqi*vsq2*vlop0
+        vl1 = pt*vlop1
+        !wlt = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
+        wlt = -2.0d0*vl0
+        call trans_ijkl_intpos(lra,lra,lri,lri,nxo)
+        call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
+        wlt = vl0-vl1
+        call trans_ijkl_intpos(lra,lri,lra,lri,nxo)
+        call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
+
+        !wlt = wlt-2.0d0*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
+        wlt = -2.0d0*vl0
+        call trans_ijkl_intpos(lra,lra,lrj,lrj,nxo)
+        call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
+        wlt = vl0-vl1
+        call trans_ijkl_intpos(lra,lrj,lra,lrj,nxo)
+        call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
+
+        vl0 = fqi*dsq2*vlop0
+        ! t: d&r&l(3)+c"(2)+c"(2)
+        do lr=1,lri-1
+          !wlt = wlt+vl0*vdint(lr,lra)
+          wlt = vl0
+          call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
+          call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
+          wlt = -2.0d0*vl0
+          call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
+          call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
+        end do
+        ! t: d&r&l(3)+c"(2)
+        do lr=lri+1,lrj-1
+          !wlt = wlt+vl0*vdint(lr,lra)
+          wlt = vl0
+          call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
+          call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
+          wlt = -2.0d0*vl0
+          call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
+          call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
+        end do
+        ! t: d&r&l(3)
+        do lr=lrj+1,norb_dz
+          !wlt = wlt+vl0*vdint(lr,lra)
+          wlt = vl0
+          call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
+          call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
+          wlt = -2.0d0*vl0
+          call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
+          call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
+        end do
+        !call prodel(4,wlt,mpe,iwt,iwa)
+      end do
+    end do
+
+  case (4)
+    fqi = fg
+    iws = 0
+    do lri=norb_frz+1,norb_dz
+      if (imad == ns_sm) then
+        lrj = lri
+        iws = just(lri,lri)
+        ! s: d&r&l(3)+c"(0)
+        ! s: d&r&l(3)
+        vl0 = fqi*dsq2*vlop0
+        !wls = 0.d0
+        do lr=1,norb_dz
+          if (lr == lri) cycle
+          !wls = wls+vl0*(voint(lra,lr)-2.d0*vdint(lra,lr))
+          wls = vl0
+          call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
+          call prodel_2(4,wls,mpe,iws,iwa,nxo)
+          wls = -2.0d0*vl0
+          call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
+          call prodel_2(4,wls,mpe,iws,iwa,nxo)
+        end do
+        !call prodel(4,wls,mpe,iws,iwa)
+      end if
+
+      imi = mul_tab(lsm_inn(lri),ns_sm)
+      lrjsta = lri+1
+      do lrj=lrjsta,norb_dz
+        imj = lsm_inn(lrj)
+        imij = mul_tab(imi,imj)
+        if (imij /= imad) cycle
+        iws = just(lri,lrj)
+        ! s1: d&r&l(1)
+        vl0 = fqi*vsq2*vlop0
+        vl1 = ps1*vlop1
+        !wls = -2.0d0*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
+        wls = -2.0d0*vl0
+        call trans_ijkl_intpos(lra,lra,lrj,lrj,nxo)
+        call prodel_2(4,wls,mpe,iws,iwa,nxo)
+        wls = vl0-vl1
+        call trans_ijkl_intpos(lra,lrj,lra,lrj,nxo)
+        call prodel_2(4,wls,mpe,iws,iwa,nxo)
+
+        ! s4: d&r&l(2)+c"(1)
+        vl0 = fqi*vsq2*vlop0
+        vl1 = ps4*vlop1
+        !wls = wls-2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
+        wls = -2.0d0*vl0
+        call trans_ijkl_intpos(lra,lra,lri,lri,nxo)
+        call prodel_2(4,wls,mpe,iws,iwa,nxo)
+        wls = vl0-vl1
+        call trans_ijkl_intpos(lra,lri,lra,lri,nxo)
+        call prodel_2(4,wls,mpe,iws,iwa,nxo)
+
+        vl0 = fqi*dsq2*vlop0
+        ! s: d&r&l(3)+c"(2)+c"(1)
+        do lr=1,lri-1
+          !wls = wls+vl0*vdint(lr,lra)
+          wls = vl0
+          call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
+          call prodel_2(4,wls,mpe,iws,iwa,nxo)
+          wls = -2.0d0*vl0
+          call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
+          call prodel_2(4,wls,mpe,iws,iwa,nxo)
+        end do
+        ! s: d&r&l(3)+c"(1)
+        do lr=lri+1,lrj-1
+          !wls = wls+vl0*vdint(lr,lra)
+          wls = vl0
+          call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
+          call prodel_2(4,wls,mpe,iws,iwa,nxo)
+          wls = -2.0d0*vl0
+          call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
+          call prodel_2(4,wls,mpe,iws,iwa,nxo)
+        end do
+        ! s: d&r&l(3)
+        do lr=lrj+1,norb_dz
+          !wls = wls+vl0*vdint(lr,lra)
+          wls = vl0
+          call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
+          call prodel_2(4,wls,mpe,iws,iwa,nxo)
+          wls = -2.0d0*vl0
+          call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
+          call prodel_2(4,wls,mpe,iws,iwa,nxo)
+        end do
+        !call prodel(4,wls,mpe,iws,iwa)
+      end do
+    end do
+
+    if (jb_sys == 0) return      !any diffrence when jb_sys=1 and jb_sy
+    fqi = fg
+    do lri=norb_frz+1,norb_dz
+      imi = mul_tab(lsm_inn(lri),ns_sm)
+      do lrj=lri+1,norb_dz
+        imj = lsm_inn(lrj)
+        imij = mul_tab(imi,imj)
+        if (imij /= imad) cycle
+        !iws = iws+1
+        iws = just(lrj,lri)
+        ! s1: d&r&l(1)-c"(2)
+        vl0 = fqi*vsq2*vlop0
+        vl1 = ps3*vlop1
+        !wls = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
+        wls = -2.0d0*vl0
+        call trans_ijkl_intpos(lra,lra,lri,lri,nxo)
+        call prodel_2(4,wls,mpe,iws,iwa,nxo)
+        wls = vl0-vl1
+        call trans_ijkl_intpos(lra,lri,lra,lri,nxo)
+        call prodel_2(4,wls,mpe,iws,iwa,nxo)
+
+        ! s3: (11)d&r&l(2)
+        vl0 = fqi*vsq2*vlop0
+        vl1 = ps2*vlop1
+        !wls = wls-2.0d0*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
+        wls = -2.0d0*vl0
+        call trans_ijkl_intpos(lra,lra,lrj,lrj,nxo)
+        call prodel_2(4,wls,mpe,iws,iwa,nxo)
+        wls = vl0-vl1
+        call trans_ijkl_intpos(lra,lrj,lra,lrj,nxo)
+        call prodel_2(4,wls,mpe,iws,iwa,nxo)
+
+        vl0 = fqi*dsq2*vlop0
+        ! s: d&r&l(3)+c"(1)+c"(2)
+        do lr=1,lri-1
+          !wls = wls+vl0*vdint(lr,lra)
+          wls = vl0
+          call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
+          call prodel_2(4,wls,mpe,iws,iwa,nxo)
+          wls = -2.0d0*vl0
+          call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
+          call prodel_2(4,wls,mpe,iws,iwa,nxo)
+        end do
+        ! s: d&r&l(3)+c"(2)
+        do lr=lri+1,lrj-1
+          !wls = wls+vl0*vdint(lr,lra)
+          wls = vl0
+          call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
+          call prodel_2(4,wls,mpe,iws,iwa,nxo)
+          wls = -2.0d0*vl0
+          call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
+          call prodel_2(4,wls,mpe,iws,iwa,nxo)
+        end do
+        ! s: d&r&l(3)
+        do lr=lrj+1,norb_dz
+          !wls = wls+vl0*vdint(lr,lra)
+          wls = vl0
+          call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
+          call prodel_2(4,wls,mpe,iws,iwa,nxo)
+          wls = -2.0d0*vl0
+          call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
+          call prodel_2(4,wls,mpe,iws,iwa,nxo)
+        end do
+        !call prodel(4,wls,mpe,iws,iwa)
+      end do
+    end do
+
+  case (5)
+    fqi = -fg
+    iwd = 0
+    do lri=norb_frz+1,norb_dz
+      imd = mul_tab(lsm_inn(lri),ns_sm)
+      if (imd /= imad) cycle
+      iwd = jud(lri)
+
+      ! dd1: d&r&l(1)
+      vl0 = fqi*vsq2*vlop0
+      vl1 = pdd*vlop1
+      !wld = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
+      wld = vl0-vl1
+      call trans_ijkl_intpos(lra,lri,lra,lri,nxo)
+      call prodel_2(4,wld,mpe,iwd,iwa,nxo)
+      wld = -2.0d0*vl0
+      call trans_ijkl_intpos(lra,lra,lri,lri,nxo)
+      call prodel_2(4,wld,mpe,iwd,iwa,nxo)
+
+      vl0 = fqi*dsq2*vlop0
+      ! d: d&r&l(3)+c"(1)
+      do lr=1,lri-1
+        !wld = wld+vl0*vdint(lr,lra)
+        wld = vl0
+        call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
+        call prodel_2(4,wld,mpe,iwd,iwa,nxo)
+        wld = -2.0d0*vl0
+        call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
+        call prodel_2(4,wld,mpe,iwd,iwa,nxo)
+      end do
+      ! d: d&r&l(3)
+      do lr=lri+1,norb_dz
+        !wld = wld+vl0*vdint(lr,lra)
+        wld = vl0
+        call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
+        call prodel_2(4,wld,mpe,iwd,iwa,nxo)
+        wld = -2.0d0*vl0
+        call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
+        call prodel_2(4,wld,mpe,iwd,iwa,nxo)
+      end do
+
+      !call prodel(4,wld,mpe,iwd,iwa)
+    end do
+
+  case (6)
+    fqi = fg
+    iwt = 0
+    do lri=norb_frz+1,norb_dz
+      imi = mul_tab(lsm_inn(lri),ns_sm)
+      do lrj=lri+1,norb_dz
+        imj = lsm_inn(lrj)
+        imij = mul_tab(imi,imj)
+        if (imij /= imad) cycle
+        iwt = just(lri,lrj)
+
+        ! tt: d&r&l(1)
+        ! tt: d&r&l(1)+c"(1)
+        vl0 = fqi*vsq2*vlop0
+        vl1 = ptt*vlop1
+        !wlt = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
+        wlt = -2.0d0*vl0
+        call trans_ijkl_intpos(lra,lra,lri,lri,nxo)
+        call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
+        wlt = vl0-vl1
+        call trans_ijkl_intpos(lra,lri,lra,lri,nxo)
+        call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
+
+        !wlt = wlt-2.0d0*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
+        wlt = -2.0d0*vl0
+        call trans_ijkl_intpos(lra,lra,lrj,lrj,nxo)
+        call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
+        wlt = vl0-vl1
+        call trans_ijkl_intpos(lra,lrj,lra,lrj,nxo)
+        call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
+
+        vl0 = fqi*dsq2*vlop0
+        do lr=1,lri-1
+          ! t: d&r&l(3)+c"(1)+c"(1)
+          !wlt = wlt+vl0*vdint(lr,lra)
+          wlt = vl0
+          call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
+          call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
+          wlt = -2.0d0*vl0
+          call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
+          call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
+        end do
+        ! t: d&r&l(3)+c"(1)
+        do lr=lri+1,lrj-1
+          !wlt = wlt+vl0*vdint(lr,lra)
+          wlt = vl0
+          call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
+          call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
+          wlt = -2.0d0*vl0
+          call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
+          call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
+        end do
+        ! t: d&r&l(3)
+        do lr=lrj+1,norb_dz
+          !wlt = wlt+vl0*vdint(lr,lra)
+          wlt = vl0
+          call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
+          call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
+          wlt = -2.0d0*vl0
+          call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
+          call prodel_2(4,wlt,mpe,iwt,iwa,nxo)
+        end do
+
+        !call prodel(4,wlt,mpe,iwt,iwa)
+      end do
+    end do
+end select
 
 return
 
@@ -997,175 +994,173 @@ do ip=1,mh
   vlop0 = th(ip)
   vlop1 = thh(ip)
 
-  goto(100,200,300,400,500,600),ityad
-
-  !jpad = 1
-100 continue
-  if (abs(vlop0) < 1e-30) goto 108
-  fqi = fg
-  ! v: d&r&l(3)
-  lri = 0
-  lrj = 0
-  iwd = 0
-  vij0 = 0.d0
-  vij1 = 0.d0
-  vij2 = 0.d0
-  vl0 = fqi*dsq2*vlop0
-  call diagonal_call_dae_g(lri,lrj,iwd,iwa,vij0,vij1,vij2,vl0)
-  goto 108
-  !jpad = jd(im)
-200 continue
-  fqi = -fg
-  lrj = 0
-  do lri=norb_frz+1,norb_dz
-    imd = mul_tab(lsm_inn(lri),ns_sm)
-    if (imd /= imad) cycle
-    iwd = jud(lri)
-
-    ! d: d&r&l(2)
-    vij0 = fqi*vsq2*vlop0
-    vij1 = pd*vlop1
-    vij2 = 0.d0
-    ! d: d&r&l(3)+c"(2)
-    ! d: d&r&l(3)
-    vl0 = fqi*dsq2*vlop0
-
-    call diagonal_call_dae_g(lri,lrj,iwd,iwa,vij0,vij1,vij2,vl0)
-
-  end do
-  goto 108
-  !jpad = jt(im)
-300 continue
-  fqi = fg
-  iwt = 0
-  do lri=norb_frz+1,norb_dz
-    imi = mul_tab(lsm_inn(lri),ns_sm)
-    do lrj=lri+1,norb_dz
-      imj = lsm_inn(lrj)
-      imij = mul_tab(imi,imj)
-      if (imij /= imad) cycle
-      iwt = just(lri,lrj)
-
-      ! t: d&r&l(2)
-      ! t: d&r&l(2)+c"(2)
-      vij0 = fqi*vsq2*vlop0
-      vij1 = pt*vlop1
-      vij2 = vij1
-      ! t: d&r&l(3)+c"(2)+c"(2)
-      ! t: d&r&l(3)+c"(2)
-      ! t: d&r&l(3)
-      vl0 = fqi*dsq2*vlop0
-
-      call diagonal_call_dae_g(lri,lrj,iwt,iwa,vij0,vij1,vij2,vl0)
-    end do
-  end do
-  goto 108
-400 continue
-  fqi = fg
-  iws = 0
-  do lri=norb_frz+1,norb_dz      !cc
-    if (imad == ns_sm) then
-      lrj = lri
-      iws = just(lri,lri)
+  select case (ityad)
+    case default ! (1)
+      !jpad = 1
+      if (abs(vlop0) < 1e-30) cycle
+      fqi = fg
+      ! v: d&r&l(3)
+      lri = 0
+      lrj = 0
+      iwd = 0
       vij0 = 0.d0
       vij1 = 0.d0
       vij2 = 0.d0
-      ! s: d&r&l(3)+c"(0)
-      ! s: d&r&l(3)
       vl0 = fqi*dsq2*vlop0
-      call diagonal_call_dae_g(lri,lrj,iws,iwa,vij0,vij1,vij2,vl0)
-    end if
+      call diagonal_call_dae_g(lri,lrj,iwd,iwa,vij0,vij1,vij2,vl0)
 
-    imi = mul_tab(lsm_inn(lri),ns_sm)
-    lrjsta = lri+1
-    do lrj=lrjsta,norb_dz
-      imj = lsm_inn(lrj)
-      imij = mul_tab(imi,imj)
-      if (imij /= imad) cycle
-      iws = just(lri,lrj)
-      ! s2: d&r&l(2)
-      ! s4: d&r&l(2)+c"(1)
-      vij0 = fqi*vsq2*vlop0
-      vij1 = ps1*vlop1
-      vij2 = ps4*vlop1
-      ! s: d&r&l(3)+c"(2)+c"(1)
-      ! s: d&r&l(3)+c"(1)
-      ! s: d&r&l(3)
-      vl0 = fqi*dsq2*vlop0
-      call diagonal_call_dae_g(lri,lrj,iws,iwa,vij0,vij1,vij2,vl0)
-    end do
-  end do
-  if (jb_sys == 0) goto 108
-  fqi = fg
-  do lri=norb_frz+1,norb_dz
-    imi = mul_tab(lsm_inn(lri),ns_sm)
-    if (imad == ns_sm) lrjsta = lri
-    do lrj=lri+1,norb_dz
-      imj = lsm_inn(lrj)
-      imij = mul_tab(imi,imj)
-      if (imij /= imad) cycle
-      iws = just(lrj,lri)
-      ! s1: d&r&l(1)
-      ! s3: d&r&l(1)+c"(2)
-      vij0 = fqi*vsq2*vlop0
-      vij1 = ps2*vlop1
-      vij2 = ps3*vlop1
-      ! s: d&r&l(3)+c"(1)+c"(2)
-      ! s: d&r&l(3)+c"(2)
-      ! s: d&r&l(3)
-      vl0 = fqi*dsq2*vlop0
+    case (2)
+      !jpad = jd(im)
+      fqi = -fg
+      lrj = 0
+      do lri=norb_frz+1,norb_dz
+        imd = mul_tab(lsm_inn(lri),ns_sm)
+        if (imd /= imad) cycle
+        iwd = jud(lri)
 
-      call diagonal_call_dae_g(lri,lrj,iws,iwa,vij0,vij1,vij2,vl0)
+        ! d: d&r&l(2)
+        vij0 = fqi*vsq2*vlop0
+        vij1 = pd*vlop1
+        vij2 = 0.d0
+        ! d: d&r&l(3)+c"(2)
+        ! d: d&r&l(3)
+        vl0 = fqi*dsq2*vlop0
 
-    end do
-  end do
-  goto 108
-500 continue
-  fqi = -fg
-  lrj = 0
-  do lri=norb_frz+1,norb_dz
-    imd = mul_tab(lsm_inn(lri),ns_sm)
-    if (imd /= imad) cycle
-    iwd = jud(lri)
+        call diagonal_call_dae_g(lri,lrj,iwd,iwa,vij0,vij1,vij2,vl0)
 
-    ! dd1: d&r&l(1)
-    vij0 = fqi*vsq2*vlop0
-    vij1 = pdd*vlop1
-    vij2 = 0.d0
-    ! d: d&r&l(3)+c"(1)
-    ! d: d&r&l(3)
-    vl0 = fqi*dsq2*vlop0
+      end do
 
-    call diagonal_call_dae_g(lri,lrj,iwd,iwa,vij0,vij1,vij2,vl0)
+    case (3)
+      !jpad = jt(im)
+      fqi = fg
+      iwt = 0
+      do lri=norb_frz+1,norb_dz
+        imi = mul_tab(lsm_inn(lri),ns_sm)
+        do lrj=lri+1,norb_dz
+          imj = lsm_inn(lrj)
+          imij = mul_tab(imi,imj)
+          if (imij /= imad) cycle
+          iwt = just(lri,lrj)
 
-  end do
-  goto 108
+          ! t: d&r&l(2)
+          ! t: d&r&l(2)+c"(2)
+          vij0 = fqi*vsq2*vlop0
+          vij1 = pt*vlop1
+          vij2 = vij1
+          ! t: d&r&l(3)+c"(2)+c"(2)
+          ! t: d&r&l(3)+c"(2)
+          ! t: d&r&l(3)
+          vl0 = fqi*dsq2*vlop0
 
-600 continue
-  fqi = fg           !aa
-  iwt = 0
-  do lri=norb_frz+1,norb_dz
-    imi = mul_tab(lsm_inn(lri),ns_sm)
-    do lrj=lri+1,norb_dz
-      imj = lsm_inn(lrj)
-      imij = mul_tab(imi,imj)
-      if (imij /= imad) cycle
-      iwt = just(lri,lrj)
+          call diagonal_call_dae_g(lri,lrj,iwt,iwa,vij0,vij1,vij2,vl0)
+        end do
+      end do
 
-      vij0 = fqi*vsq2*vlop0
-      ! tt: d&r&l(1)
-      vij1 = ptt*vlop1
-      ! tt: d&r&l(1)+c"(1)
-      vij2 = ptt*vlop1
-      ! t: d&r&l(3)+c"(1)+c"(1)
-      ! t: d&r&l(3)+c"(1)
-      ! t: d&r&l(3)
-      vl0 = fqi*dsq2*vlop0
-      call diagonal_call_dae_g(lri,lrj,iwt,iwa,vij0,vij1,vij2,vl0)
-    end do
-  end do
+    case (4)
+      fqi = fg
+      iws = 0
+      do lri=norb_frz+1,norb_dz      !cc
+        if (imad == ns_sm) then
+          lrj = lri
+          iws = just(lri,lri)
+          vij0 = 0.d0
+          vij1 = 0.d0
+          vij2 = 0.d0
+          ! s: d&r&l(3)+c"(0)
+          ! s: d&r&l(3)
+          vl0 = fqi*dsq2*vlop0
+          call diagonal_call_dae_g(lri,lrj,iws,iwa,vij0,vij1,vij2,vl0)
+        end if
 
-108 continue
+        imi = mul_tab(lsm_inn(lri),ns_sm)
+        lrjsta = lri+1
+        do lrj=lrjsta,norb_dz
+          imj = lsm_inn(lrj)
+          imij = mul_tab(imi,imj)
+          if (imij /= imad) cycle
+          iws = just(lri,lrj)
+          ! s2: d&r&l(2)
+          ! s4: d&r&l(2)+c"(1)
+          vij0 = fqi*vsq2*vlop0
+          vij1 = ps1*vlop1
+          vij2 = ps4*vlop1
+          ! s: d&r&l(3)+c"(2)+c"(1)
+          ! s: d&r&l(3)+c"(1)
+          ! s: d&r&l(3)
+          vl0 = fqi*dsq2*vlop0
+          call diagonal_call_dae_g(lri,lrj,iws,iwa,vij0,vij1,vij2,vl0)
+        end do
+      end do
+      if (jb_sys == 0) cycle
+      fqi = fg
+      do lri=norb_frz+1,norb_dz
+        imi = mul_tab(lsm_inn(lri),ns_sm)
+        if (imad == ns_sm) lrjsta = lri
+        do lrj=lri+1,norb_dz
+          imj = lsm_inn(lrj)
+          imij = mul_tab(imi,imj)
+          if (imij /= imad) cycle
+          iws = just(lrj,lri)
+          ! s1: d&r&l(1)
+          ! s3: d&r&l(1)+c"(2)
+          vij0 = fqi*vsq2*vlop0
+          vij1 = ps2*vlop1
+          vij2 = ps3*vlop1
+          ! s: d&r&l(3)+c"(1)+c"(2)
+          ! s: d&r&l(3)+c"(2)
+          ! s: d&r&l(3)
+          vl0 = fqi*dsq2*vlop0
+
+          call diagonal_call_dae_g(lri,lrj,iws,iwa,vij0,vij1,vij2,vl0)
+
+        end do
+      end do
+
+    case (5)
+      fqi = -fg
+      lrj = 0
+      do lri=norb_frz+1,norb_dz
+        imd = mul_tab(lsm_inn(lri),ns_sm)
+        if (imd /= imad) cycle
+        iwd = jud(lri)
+
+        ! dd1: d&r&l(1)
+        vij0 = fqi*vsq2*vlop0
+        vij1 = pdd*vlop1
+        vij2 = 0.d0
+        ! d: d&r&l(3)+c"(1)
+        ! d: d&r&l(3)
+        vl0 = fqi*dsq2*vlop0
+
+        call diagonal_call_dae_g(lri,lrj,iwd,iwa,vij0,vij1,vij2,vl0)
+
+      end do
+
+    case (6)
+      fqi = fg           !aa
+      iwt = 0
+      do lri=norb_frz+1,norb_dz
+        imi = mul_tab(lsm_inn(lri),ns_sm)
+        do lrj=lri+1,norb_dz
+          imj = lsm_inn(lrj)
+          imij = mul_tab(imi,imj)
+          if (imij /= imad) cycle
+          iwt = just(lri,lrj)
+
+          vij0 = fqi*vsq2*vlop0
+          ! tt: d&r&l(1)
+          vij1 = ptt*vlop1
+          ! tt: d&r&l(1)+c"(1)
+          vij2 = ptt*vlop1
+          ! t: d&r&l(3)+c"(1)+c"(1)
+          ! t: d&r&l(3)+c"(1)
+          ! t: d&r&l(3)
+          vl0 = fqi*dsq2*vlop0
+          call diagonal_call_dae_g(lri,lrj,iwt,iwa,vij0,vij1,vij2,vl0)
+        end do
+      end do
+  end select
+
 end do
 
 return
@@ -1200,298 +1195,295 @@ if (imae == 0) then
 end if
 iwe = 0
 ! 520=<a,j,k,a>:13,14(ss=3),38(tt=2),50(dd=1)
-goto(100,200,300),ityae
 !link arc_d
-
-100 continue
-!zz = '  g50  '
-do la=ibsm_ext(imae),iesm_ext(imae)
-  lra = norb_all-la+1
-  iwe = iwe+1
-  vlop0 = vl0*vsq2
-  !wl = 0.d0
-  do lr=1,norb_dz
-    if (lr == lri) cycle
-    if (lr == lrj) cycle
-    !wl = wl+vlop0*vdint(lr,lra)    !db space drl(33)- ext space
-    wl = vlop0
-    call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
-    call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-    wl = -2.0d0*vlop0
-    call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
-    call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-  end do
-  if (lri >= lrj) then
-    vlop0 = vij0*vsq2
-    vlop1 = -vij1*dsq3vsq2
-    !wl = wl+(vlop0-vlop1)*voint(lra,lri)-2.d0*vlop0*vdint(lra,lri)
-    if (lri /= 0) then
-      wl = vlop0-vlop1
-      call trans_ijkl_intpos(lra,lri,lra,lri,nxo)
-      call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-      wl = -2.0d0*vlop0
-      call trans_ijkl_intpos(lra,lra,lri,lri,nxo)
-      call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-    end if
-    vlop1 = -vij2*dsq3vsq2
-    !wl = wl+(vlop0-vlop1)*voint(lra,lrj)-2.d0*vlop0*vdint(lra,lrj)
-    if (lrj /= 0) then
-      wl = vlop0-vlop1
-      call trans_ijkl_intpos(lra,lrj,lra,lrj,nxo)
-      call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-      wl = -2.0d0*vlop0
-      call trans_ijkl_intpos(lra,lra,lrj,lrj,nxo)
-      call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-    end if
-    !write(6,'(a11,2i3,i6,1x,5f10.4)') zz,lr0,la,jwl,vo(lr0,la),vmd(lr0,la),wg50,wwg50,wl
-  else
-    vlop0 = vij0*vsq2
-    vlop1 = -vij1*dsq3vsq2       !db space (22)drl(11)- ext space -g
-    !wl = wl+(vlop0-vlop1)*voint(lra,lrj)-2.d0*vlop0*vdint(lra,lrj)
-    if (lrj /= 0) then
-      wl = vlop0-vlop1
-      call trans_ijkl_intpos(lra,lrj,lra,lrj,nxo)
-      call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-      wl = -2.0d0*vlop0
-      call trans_ijkl_intpos(lra,lra,lrj,lrj,nxo)
-      call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-    end if
-    vlop1 = -vij2*dsq3vsq2       !db space drl(22)c"(11)- ext space
-    !wl = wl+(vlop0-vlop1)*voint(lra,lri)-2.d0*vlop0*vdint(lra,lri)
-    if (lri /= 0) then
-      wl = vlop0-vlop1
-      call trans_ijkl_intpos(lra,lri,lra,lri,nxo)
-      call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-      wl = -2.0d0*vlop0
-      call trans_ijkl_intpos(lra,lra,lri,lri,nxo)
-      call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-    end if
-  end if
-  !call prodel(6,wl,iwd,iwa,iwe)
-end do
-goto 108
-200 continue
-!zz = '  g38,39  '
-do ima=1,ng_sm
-  imb = mul_tab(ima,imae)
-  if (imb > ima) cycle
-  do la=ibsm_ext(ima),iesm_ext(ima)
-    lra = norb_all-la+1
-    lbsta = ibsm_ext(imb)
-    lbend = iesm_ext(imb)
-    if (ima == imb) lbend = la-1
-    do lb=lbsta,lbend
-      lrb = norb_all-lb+1
+select case (ityae)
+  case default ! (1)
+    !zz = '  g50  '
+    do la=ibsm_ext(imae),iesm_ext(imae)
+      lra = norb_all-la+1
       iwe = iwe+1
-      !volalb = 0.d0
-      !vd2lalb = 0.d0
-      vlop0 = -vl0*vsq2
-
+      vlop0 = vl0*vsq2
+      !wl = 0.d0
       do lr=1,norb_dz
         if (lr == lri) cycle
         if (lr == lrj) cycle
-        !volalb = volalb+(voint(lra,lr)+voint(lrb,lr))
-        !vd2lalb = vd2lalb-2.d0*(vdint(lra,lr)+vdint(lrb,lr))
+        !wl = wl+vlop0*vdint(lr,lra)    !db space drl(33)- ext space
         wl = vlop0
         call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
-        call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-        call trans_ijkl_intpos(lrb,lr,lrb,lr,nxo)
         call prodel_2(6,wl,iwd,iwa,iwe,nxo)
         wl = -2.0d0*vlop0
         call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
         call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-        call trans_ijkl_intpos(lrb,lrb,lr,lr,nxo)
-        call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-
       end do
-
-      !wl = vlop0*(volalb+vd2lalb)
       if (lri >= lrj) then
-        vlop0 = -vij0*vsq2
-        vlop1 = vij1
-        !wl = wl+(vlop0-vlop1)*(voint(lra,lri)+voint(lrb,lri))-2.d0*vlop0*(vdint(lra,lri)+vdint(lrb,lri))
+        vlop0 = vij0*vsq2
+        vlop1 = -vij1*dsq3vsq2
+        !wl = wl+(vlop0-vlop1)*voint(lra,lri)-2.d0*vlop0*vdint(lra,lri)
         if (lri /= 0) then
           wl = vlop0-vlop1
           call trans_ijkl_intpos(lra,lri,lra,lri,nxo)
           call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-          call trans_ijkl_intpos(lrb,lri,lrb,lri,nxo)
-          call prodel_2(6,wl,iwd,iwa,iwe,nxo)
           wl = -2.0d0*vlop0
           call trans_ijkl_intpos(lra,lra,lri,lri,nxo)
           call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-          call trans_ijkl_intpos(lrb,lrb,lri,lri,nxo)
-          call prodel_2(6,wl,iwd,iwa,iwe,nxo)
         end if
-        vlop1 = vij2
-        !wl = wl+(vlop0-vlop1)*(voint(lra,lrj)+voint(lrb,lrj))-2.d0*vlop0*(vdint(lra,lrj)+vdint(lrb,lrj))
+        vlop1 = -vij2*dsq3vsq2
+        !wl = wl+(vlop0-vlop1)*voint(lra,lrj)-2.d0*vlop0*vdint(lra,lrj)
         if (lrj /= 0) then
           wl = vlop0-vlop1
           call trans_ijkl_intpos(lra,lrj,lra,lrj,nxo)
           call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-          call trans_ijkl_intpos(lrb,lrj,lrb,lrj,nxo)
-          call prodel_2(6,wl,iwd,iwa,iwe,nxo)
           wl = -2.0d0*vlop0
           call trans_ijkl_intpos(lra,lra,lrj,lrj,nxo)
           call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-          call trans_ijkl_intpos(lrb,lrb,lrj,lrj,nxo)
-          call prodel_2(6,wl,iwd,iwa,iwe,nxo)
         end if
+        !write(6,'(a11,2i3,i6,1x,5f10.4)') zz,lr0,la,jwl,vo(lr0,la),vmd(lr0,la),wg50,wwg50,wl
       else
-        vlop0 = -vij0*vsq2
-        vlop1 = vij1
-        !wl = wl+(vlop0-vlop1)*(voint(lra,lrj)+voint(lrb,lrj))-2.d0*vlop0*(vdint(lra,lrj)+vdint(lrb,lrj))
+        vlop0 = vij0*vsq2
+        vlop1 = -vij1*dsq3vsq2       !db space (22)drl(11)- ext space -g
+        !wl = wl+(vlop0-vlop1)*voint(lra,lrj)-2.d0*vlop0*vdint(lra,lrj)
         if (lrj /= 0) then
           wl = vlop0-vlop1
           call trans_ijkl_intpos(lra,lrj,lra,lrj,nxo)
           call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-          call trans_ijkl_intpos(lrb,lrj,lrb,lrj,nxo)
-          call prodel_2(6,wl,iwd,iwa,iwe,nxo)
           wl = -2.0d0*vlop0
           call trans_ijkl_intpos(lra,lra,lrj,lrj,nxo)
           call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-          call trans_ijkl_intpos(lrb,lrb,lrj,lrj,nxo)
-          call prodel_2(6,wl,iwd,iwa,iwe,nxo)
         end if
-        vlop1 = vij2
-        !wl = wl+(vlop0-vlop1)*(voint(lra,lri)+voint(lrb,lri))-2.d0*vlop0*(vdint(lra,lri)+vdint(lrb,lri))
+        vlop1 = -vij2*dsq3vsq2       !db space drl(22)c"(11)- ext space
+        !wl = wl+(vlop0-vlop1)*voint(lra,lri)-2.d0*vlop0*vdint(lra,lri)
         if (lri /= 0) then
           wl = vlop0-vlop1
           call trans_ijkl_intpos(lra,lri,lra,lri,nxo)
           call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-          call trans_ijkl_intpos(lrb,lri,lrb,lri,nxo)
-          call prodel_2(6,wl,iwd,iwa,iwe,nxo)
           wl = -2.0d0*vlop0
           call trans_ijkl_intpos(lra,lra,lri,lri,nxo)
-          call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-          call trans_ijkl_intpos(lrb,lrb,lri,lri,nxo)
           call prodel_2(6,wl,iwd,iwa,iwe,nxo)
         end if
       end if
       !call prodel(6,wl,iwd,iwa,iwe)
     end do
-  end do
-end do
-goto 108
-!===========================lyb=======
 
-300 continue
-!zz = '  g14,15  '
-!do ima=1,8
-! the 8 should be changed to ng_sm
-do ima=1,ng_sm
-  imb = mul_tab(ima,imae)
-  if (imb > ima) cycle
-  do la=ibsm_ext(ima),iesm_ext(ima)
-    lra = norb_all-la+1
-    lbsta = ibsm_ext(imb)
-    lbend = iesm_ext(imb)
-    if (ima == imb) lbend = la-1
-    do lb=lbsta,lbend
-      lrb = norb_all-lb+1
+  case (2)
+    !zz = '  g38,39  '
+    do ima=1,ng_sm
+      imb = mul_tab(ima,imae)
+      if (imb > ima) cycle
+      do la=ibsm_ext(ima),iesm_ext(ima)
+        lra = norb_all-la+1
+        lbsta = ibsm_ext(imb)
+        lbend = iesm_ext(imb)
+        if (ima == imb) lbend = la-1
+        do lb=lbsta,lbend
+          lrb = norb_all-lb+1
+          iwe = iwe+1
+          !volalb = 0.d0
+          !vd2lalb = 0.d0
+          vlop0 = -vl0*vsq2
+
+          do lr=1,norb_dz
+            if (lr == lri) cycle
+            if (lr == lrj) cycle
+            !volalb = volalb+(voint(lra,lr)+voint(lrb,lr))
+            !vd2lalb = vd2lalb-2.d0*(vdint(lra,lr)+vdint(lrb,lr))
+            wl = vlop0
+            call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
+            call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+            call trans_ijkl_intpos(lrb,lr,lrb,lr,nxo)
+            call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+            wl = -2.0d0*vlop0
+            call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
+            call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+            call trans_ijkl_intpos(lrb,lrb,lr,lr,nxo)
+            call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+
+          end do
+
+          !wl = vlop0*(volalb+vd2lalb)
+          if (lri >= lrj) then
+            vlop0 = -vij0*vsq2
+            vlop1 = vij1
+            !wl = wl+(vlop0-vlop1)*(voint(lra,lri)+voint(lrb,lri))-2.d0*vlop0*(vdint(lra,lri)+vdint(lrb,lri))
+            if (lri /= 0) then
+              wl = vlop0-vlop1
+              call trans_ijkl_intpos(lra,lri,lra,lri,nxo)
+              call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+              call trans_ijkl_intpos(lrb,lri,lrb,lri,nxo)
+              call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+              wl = -2.0d0*vlop0
+              call trans_ijkl_intpos(lra,lra,lri,lri,nxo)
+              call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+              call trans_ijkl_intpos(lrb,lrb,lri,lri,nxo)
+              call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+            end if
+            vlop1 = vij2
+            !wl = wl+(vlop0-vlop1)*(voint(lra,lrj)+voint(lrb,lrj))-2.d0*vlop0*(vdint(lra,lrj)+vdint(lrb,lrj))
+            if (lrj /= 0) then
+              wl = vlop0-vlop1
+              call trans_ijkl_intpos(lra,lrj,lra,lrj,nxo)
+              call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+              call trans_ijkl_intpos(lrb,lrj,lrb,lrj,nxo)
+              call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+              wl = -2.0d0*vlop0
+              call trans_ijkl_intpos(lra,lra,lrj,lrj,nxo)
+              call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+              call trans_ijkl_intpos(lrb,lrb,lrj,lrj,nxo)
+              call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+            end if
+          else
+            vlop0 = -vij0*vsq2
+            vlop1 = vij1
+            !wl = wl+(vlop0-vlop1)*(voint(lra,lrj)+voint(lrb,lrj))-2.d0*vlop0*(vdint(lra,lrj)+vdint(lrb,lrj))
+            if (lrj /= 0) then
+              wl = vlop0-vlop1
+              call trans_ijkl_intpos(lra,lrj,lra,lrj,nxo)
+              call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+              call trans_ijkl_intpos(lrb,lrj,lrb,lrj,nxo)
+              call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+              wl = -2.0d0*vlop0
+              call trans_ijkl_intpos(lra,lra,lrj,lrj,nxo)
+              call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+              call trans_ijkl_intpos(lrb,lrb,lrj,lrj,nxo)
+              call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+            end if
+            vlop1 = vij2
+            !wl = wl+(vlop0-vlop1)*(voint(lra,lri)+voint(lrb,lri))-2.d0*vlop0*(vdint(lra,lri)+vdint(lrb,lri))
+            if (lri /= 0) then
+              wl = vlop0-vlop1
+              call trans_ijkl_intpos(lra,lri,lra,lri,nxo)
+              call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+              call trans_ijkl_intpos(lrb,lri,lrb,lri,nxo)
+              call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+              wl = -2.0d0*vlop0
+              call trans_ijkl_intpos(lra,lra,lri,lri,nxo)
+              call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+              call trans_ijkl_intpos(lrb,lrb,lri,lri,nxo)
+              call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+            end if
+          end if
+          !call prodel(6,wl,iwd,iwa,iwe)
+        end do
+      end do
+    end do
+
+  case (3)
+    !===========================lyb=====================================
+    !zz = '  g14,15  '
+    !do ima=1,8
+    ! the 8 should be changed to ng_sm
+    do ima=1,ng_sm
+      imb = mul_tab(ima,imae)
+      if (imb > ima) cycle
+      do la=ibsm_ext(ima),iesm_ext(ima)
+        lra = norb_all-la+1
+        lbsta = ibsm_ext(imb)
+        lbend = iesm_ext(imb)
+        if (ima == imb) lbend = la-1
+        do lb=lbsta,lbend
+          lrb = norb_all-lb+1
+          iwe = iwe+1
+          !volalb = 0.d0
+          !vd2lalb = 0.d0
+
+          wg14 = -vl0*vsq2
+
+          do lr=1,norb_dz
+            if (lr == lri) cycle
+            if (lr == lrj) cycle
+            !volalb = volalb+(voint(lra,lr)+voint(lrb,lr))
+            !vd2lalb = vd2lalb-2.d0*(vdint(lra,lr)+vdint(lrb,lr))
+            wl = wg14
+            call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
+            call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+            call trans_ijkl_intpos(lrb,lr,lrb,lr,nxo)
+            call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+            wl = -2.0d0*wg14
+            call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
+            call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+            call trans_ijkl_intpos(lrb,lrb,lr,lr,nxo)
+            call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+          end do
+
+          !wl = wg14*(volalb+vd2lalb)
+
+          if ((jpad == 18) .and. (lri == lrj)) cycle
+          wg14 = -vij0*vsq2
+          !wl = wl+wg14*(voint(lra,lri)+voint(lrb,lri))-2.d0*wg14*(vdint(lra,lri)+vdint(lrb,lri))
+          if (lri /= 0) then
+            wl = wg14
+            call trans_ijkl_intpos(lra,lri,lra,lri,nxo)
+            call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+            call trans_ijkl_intpos(lrb,lri,lrb,lri,nxo)
+            call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+            wl = -2.0d0*wg14
+            call trans_ijkl_intpos(lra,lra,lri,lri,nxo)
+            call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+            call trans_ijkl_intpos(lrb,lrb,lri,lri,nxo)
+            call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+          end if
+          !wl = wl+wg14*(voint(lra,lrj)+voint(lrb,lrj))-2.d0*wg14*(vdint(lra,lrj)+vdint(lrb,lrj))
+          if (lrj /= 0) then
+            wl = wg14
+            call trans_ijkl_intpos(lra,lrj,lra,lrj,nxo)
+            call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+            call trans_ijkl_intpos(lrb,lrj,lrb,lrj,nxo)
+            call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+            wl = -2.0d0*wg14
+            call trans_ijkl_intpos(lra,lra,lrj,lrj,nxo)
+            call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+            call trans_ijkl_intpos(lrb,lrb,lrj,lrj,nxo)
+            call prodel_2(6,wl,iwd,iwa,iwe,nxo)
+          end if
+          !call prodel(6,wl,iwd,iwa,iwe)
+        end do
+      end do
+    end do
+
+    if (ipae /= 18) return
+    !zz = '  g13     '
+    do la=1,norb_ext
+      lra = norb_all-la+1
+
       iwe = iwe+1
-      !volalb = 0.d0
-      !vd2lalb = 0.d0
+      !vovdla = 0.d0
 
-      wg14 = -vl0*vsq2
+      wg13 = -vl0*dsq2
 
       do lr=1,norb_dz
         if (lr == lri) cycle
         if (lr == lrj) cycle
-        !volalb = volalb+(voint(lra,lr)+voint(lrb,lr))
-        !vd2lalb = vd2lalb-2.d0*(vdint(lra,lr)+vdint(lrb,lr))
-        wl = wg14
+        !vovdla = vovdla+vdint(lr,lra)
+        wl = wg13
         call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
         call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-        call trans_ijkl_intpos(lrb,lr,lrb,lr,nxo)
-        call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-        wl = -2.0d0*wg14
+        wl = -2.0d0*wg13
         call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
-        call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-        call trans_ijkl_intpos(lrb,lrb,lr,lr,nxo)
         call prodel_2(6,wl,iwd,iwa,iwe,nxo)
       end do
 
-      !wl = wg14*(volalb+vd2lalb)
+      !wl = wg13*vovdla
 
-      if ((jpad == 18) .and. (lri == lrj)) goto 301
-      wg14 = -vij0*vsq2
-      !wl = wl+wg14*(voint(lra,lri)+voint(lrb,lri))-2.d0*wg14*(vdint(lra,lri)+vdint(lrb,lri))
+      wg13 = -vij0*dsq2
+      !wl = wl+wg13*(vdint(lri,lra)+vdint(lrj,lra))
       if (lri /= 0) then
-        wl = wg14
+        wl = wg13
         call trans_ijkl_intpos(lra,lri,lra,lri,nxo)
         call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-        call trans_ijkl_intpos(lrb,lri,lrb,lri,nxo)
-        call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-        wl = -2.0d0*wg14
+        wl = -2.0d0*wg13
         call trans_ijkl_intpos(lra,lra,lri,lri,nxo)
         call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-        call trans_ijkl_intpos(lrb,lrb,lri,lri,nxo)
-        call prodel_2(6,wl,iwd,iwa,iwe,nxo)
       end if
-      !wl = wl+wg14*(voint(lra,lrj)+voint(lrb,lrj))-2.d0*wg14*(vdint(lra,lrj)+vdint(lrb,lrj))
       if (lrj /= 0) then
-        wl = wg14
+        wl = wg13
         call trans_ijkl_intpos(lra,lrj,lra,lrj,nxo)
         call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-        call trans_ijkl_intpos(lrb,lrj,lrb,lrj,nxo)
-        call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-        wl = -2.0d0*wg14
+        wl = -2.0d0*wg13
         call trans_ijkl_intpos(lra,lra,lrj,lrj,nxo)
-        call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-        call trans_ijkl_intpos(lrb,lrb,lrj,lrj,nxo)
         call prodel_2(6,wl,iwd,iwa,iwe,nxo)
       end if
       !call prodel(6,wl,iwd,iwa,iwe)
-301   continue
     end do
-  end do
-end do
-
-if (ipae /= 18) return
-!zz = '  g13     '
-do la=1,norb_ext
-  lra = norb_all-la+1
-
-  iwe = iwe+1
-  !vovdla = 0.d0
-
-  wg13 = -vl0*dsq2
-
-  do lr=1,norb_dz
-    if (lr == lri) cycle
-    if (lr == lrj) cycle
-    !vovdla = vovdla+vdint(lr,lra)
-    wl = wg13
-    call trans_ijkl_intpos(lra,lr,lra,lr,nxo)
-    call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-    wl = -2.0d0*wg13
-    call trans_ijkl_intpos(lra,lra,lr,lr,nxo)
-    call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-  end do
-
-  !wl = wg13*vovdla
-
-  wg13 = -vij0*dsq2
-  !wl = wl+wg13*(vdint(lri,lra)+vdint(lrj,lra))
-  if (lri /= 0) then
-    wl = wg13
-    call trans_ijkl_intpos(lra,lri,lra,lri,nxo)
-    call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-    wl = -2.0d0*wg13
-    call trans_ijkl_intpos(lra,lra,lri,lri,nxo)
-    call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-  end if
-  if (lrj /= 0) then
-    wl = wg13
-    call trans_ijkl_intpos(lra,lrj,lra,lrj,nxo)
-    call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-    wl = -2.0d0*wg13
-    call trans_ijkl_intpos(lra,lra,lrj,lrj,nxo)
-    call prodel_2(6,wl,iwd,iwa,iwe,nxo)
-  end if
-  !call prodel(6,wl,iwd,iwa,iwe)
-end do
-108 continue
+end select
 
 return
 
@@ -1616,7 +1608,7 @@ do lr0=norb_frz+1,norb_dz
       end do
     end if
   end do
-  if (lr0 == norb_dz) goto 100
+  if (lr0 == norb_dz) cycle
   !wld0 = wld
   ! ........800...
   do lr=lr0+1,norb_dz
@@ -1729,7 +1721,6 @@ do lr0=norb_frz+1,norb_dz
       end if
     end do
   end do
-100 continue
 end do
 
 !wl8 = 1/2*hnil*(hnil-1)*vmd(lr,lr)+hnil*voint(lr,lr)  ! 800
@@ -2403,7 +2394,7 @@ do im=1,ng_sm
       lrb = norb_all-lb+1
       imb = lsm(lb)
       mr = mul_tab(ima,imb)
-      if (mr /= im) goto 600
+      if (mr /= im) cycle
       !jps = js(mr)
       !jpt = jt(mr)
       jws = jws+1
@@ -2432,7 +2423,6 @@ do im=1,ng_sm
 
       !call prodel(2,wls,0,ipas,jws)
       !call prodel(2,wlt,0,ipat,jwt)
-600   continue
     end do
   end do
 end do
@@ -2459,142 +2449,142 @@ subroutine prodel_1(idb,wl,mg1,mg2,mg3,mg6,mg7)
 #include "iaib.fh"
 
 !ndr = 88
-goto(100,200,300,400,500,600),idb
-! in dbl_space
-100 continue
-ipae = mg2
-iwad = mg3
-isegdownwei = iseg_downwei(ipae)
-do mm=iwad+1,iwad+isegdownwei
-  !vector1(mm) = vector1(mm)+wl
-  mg67 = ican_a(mg7)+mg6
-  dm1tmp(mg67) = dm1tmp(mg67)+vector1(mm)*wl*vector1(mm)
-  !if (mg7 == 4) write(nf2,'(3i4,f18.10)') mg7,mg6,mm,wl
-  !write(nf2,'(3i4,3f18.10)') mg7,mg6,mm,wl,vector1(mm),vector1(mm
-  !if (mm == ndr) then
-  !  write(nf2,'(a8,3i6,2f20.14)') ' in dbl _',mg1,mg2,mg3,wl,vector1(mm)
-  !  write(6,'(a8,3i6,2f20.14)') ' in dbl _',mg1,mg2,mg3,wl,vector1(mm)
-  !end if
-end do
-goto 1000
-! in ext_space
-200 continue
-ipae = mg2
-iwe = mg3
-do jdbl=1,mxnode
-  if (nu_ad(jdbl) == 0) cycle
-  iw = iw_downwei(jdbl,ipae)
-  iwupwei = jpad_upwei(jdbl)
-  do iwa=0,iw-1
-    do iwd=0,iwupwei-1
-      mm = iwalk_ad(jdbl,ipae,iwa,iwd)+iwe
+select case (idb)
+  case default ! (1)
+    ! in dbl_space
+    ipae = mg2
+    iwad = mg3
+    isegdownwei = iseg_downwei(ipae)
+    do mm=iwad+1,iwad+isegdownwei
       !vector1(mm) = vector1(mm)+wl
       mg67 = ican_a(mg7)+mg6
       dm1tmp(mg67) = dm1tmp(mg67)+vector1(mm)*wl*vector1(mm)
-
+      !if (mg7 == 4) write(nf2,'(3i4,f18.10)') mg7,mg6,mm,wl
+      !write(nf2,'(3i4,3f18.10)') mg7,mg6,mm,wl,vector1(mm),vector1(mm
       !if (mm == ndr) then
-      !  write(nf2,'(a8,3i6,2f20.14)') ' in ext _',mg1,mg2,mg3,wl,vector1(mm)
-      !  write(6,'(a8,3i6,2f20.14)') ' in ext _',mg1,mg2,mg3,wl,vector1(mm)
+      !  write(nf2,'(a8,3i6,2f20.14)') ' in dbl _',mg1,mg2,mg3,wl,vector1(mm)
+      !  write(6,'(a8,3i6,2f20.14)') ' in dbl _',mg1,mg2,mg3,wl,vector1(mm)
       !end if
     end do
-  end do
-end do
-goto 1000
-! in act_space
-300 continue
-jp = mg1
-mpe = mg2
-jw = mg3
-iwupwei = jpad_upwei(jpad)
-isegdownwei = iseg_downwei(ipae)
-jph = jphy(jp)
-in = ihy(jph)
-lwnu = iy(1,mpe)
-do jwu=jph+1,jph+in
-  iwa = jw+ihy(jwu)-1
-  do jwd=1,lwnu
-    iwa = iwa+1
-    do iwd=0,iwupwei-1
+
+  case (2)
+    ! in ext_space
+    ipae = mg2
+    iwe = mg3
+    do jdbl=1,mxnode
+      if (nu_ad(jdbl) == 0) cycle
+      iw = iw_downwei(jdbl,ipae)
+      iwupwei = jpad_upwei(jdbl)
+      do iwa=0,iw-1
+        do iwd=0,iwupwei-1
+          mm = iwalk_ad(jdbl,ipae,iwa,iwd)+iwe
+          !vector1(mm) = vector1(mm)+wl
+          mg67 = ican_a(mg7)+mg6
+          dm1tmp(mg67) = dm1tmp(mg67)+vector1(mm)*wl*vector1(mm)
+
+          !if (mm == ndr) then
+          !  write(nf2,'(a8,3i6,2f20.14)') ' in ext _',mg1,mg2,mg3,wl,vector1(mm)
+          !  write(6,'(a8,3i6,2f20.14)') ' in ext _',mg1,mg2,mg3,wl,vector1(mm)
+          !end if
+        end do
+      end do
+    end do
+
+  case (3)
+    ! in act_space
+    jp = mg1
+    mpe = mg2
+    jw = mg3
+    iwupwei = jpad_upwei(jpad)
+    isegdownwei = iseg_downwei(ipae)
+    jph = jphy(jp)
+    in = ihy(jph)
+    lwnu = iy(1,mpe)
+    do jwu=jph+1,jph+in
+      iwa = jw+ihy(jwu)-1
+      do jwd=1,lwnu
+        iwa = iwa+1
+        do iwd=0,iwupwei-1
+          iwad = iwalk_ad(jpad,ipae,iwa,iwd)
+          do iwe=1,isegdownwei
+            mm = iwe+iwad
+            !vector1(mm) = vector1(mm)+wl
+            mg67 = ican_a(mg7)+mg6
+            dm1tmp(mg67) = dm1tmp(mg67)+vector1(mm)*wl*vector1(mm)
+
+            !if (mm == ndr) then
+            !  write(nf2,'(a8,3i6,2f20.14)') ' in act _',mg1,mg2,mg3,wl,vector1(mm)
+            !  write(6,'(a8,3i6,2f20.14)') ' in act _',mg1,mg2,mg3,wl,vector1(mm)
+            !end if
+          end do
+        end do
+      end do
+    end do
+
+  case (4)
+    ! between dbl and act
+    mpe = mg1
+    iwd = mg2
+    iwa = mg3-1
+    isegdownwei = iseg_downwei(ipae)   ! between dbl and act
+    jwnu = iy(1,mpe)
+    do ii=1,jwnu
+      iwa = iwa+1
       iwad = iwalk_ad(jpad,ipae,iwa,iwd)
       do iwe=1,isegdownwei
+        mm = iwe+iwad                  ! iwl=iwalk_ad
+        !vector1(mm) = vector1(mm)+wl
+        mg67 = ican_a(mg7)+mg6
+        dm1tmp(mg67) = dm1tmp(mg67)+vector1(mm)*wl*vector1(mm)
+
+        !if (mm == ndr) then
+        !  write(nf2,'(a8,3i6,2f20.14)') ' dbl_act ',mg1,mg2,mg3,wl,vector1(mm)
+        !  write(6,'(a8,3i6,2f20.14)') ' dbl_act ',mg1,mg2,mg3,wl,vector1(mm)
+        !end if
+      end do
+    end do
+
+  case (5)
+    ! between act and ext
+    jp = mg1
+    iwa0 = mg2
+    iwe = mg3
+    iwupwei = jpad_upwei(jpad)
+    jph = jphy(jp)
+    in = ihy(jph)
+    do jwu=jph+1,jph+in
+      iwa = iwa0+ihy(jwu)
+      do iwd=0,iwupwei-1
+        iwad = iwalk_ad(jpad,ipae,iwa,iwd)
         mm = iwe+iwad
         !vector1(mm) = vector1(mm)+wl
         mg67 = ican_a(mg7)+mg6
         dm1tmp(mg67) = dm1tmp(mg67)+vector1(mm)*wl*vector1(mm)
 
         !if (mm == ndr) then
-        !  write(nf2,'(a8,3i6,2f20.14)') ' in act _',mg1,mg2,mg3,wl,vector1(mm)
-        !  write(6,'(a8,3i6,2f20.14)') ' in act _',mg1,mg2,mg3,wl,vector1(mm)
+        !  write(nf2,'(a8,3i6,2f20.14)') ' act_ext ',mg1,mg2,mg3,wl,vector1(mm)
+        !  write(6,'(a8,3i6,2f20.14)') ' act_ext ',mg1,mg2,mg3,wl,vector1(mm)
         !end if
       end do
     end do
-  end do
-end do
-goto 1000
-! between dbl and act
-400 continue
-mpe = mg1
-iwd = mg2
-iwa = mg3-1
-isegdownwei = iseg_downwei(ipae)   ! between dbl and act
-jwnu = iy(1,mpe)
-do ii=1,jwnu
-  iwa = iwa+1
-  iwad = iwalk_ad(jpad,ipae,iwa,iwd)
-  do iwe=1,isegdownwei
-    mm = iwe+iwad                  ! iwl=iwalk_ad
-    !vector1(mm) = vector1(mm)+wl
-    mg67 = ican_a(mg7)+mg6
-    dm1tmp(mg67) = dm1tmp(mg67)+vector1(mm)*wl*vector1(mm)
 
-    !if (mm == ndr) then
-    !  write(nf2,'(a8,3i6,2f20.14)') ' dbl_act ',mg1,mg2,mg3,wl,vector1(mm)
-    !  write(6,'(a8,3i6,2f20.14)') ' dbl_act ',mg1,mg2,mg3,wl,vector1(mm)
-    !end if
-  end do
-end do
-goto 1000
-! between act and ext
-500 continue
-jp = mg1
-iwa0 = mg2
-iwe = mg3
-iwupwei = jpad_upwei(jpad)
-jph = jphy(jp)
-in = ihy(jph)
-do jwu=jph+1,jph+in
-  iwa = iwa0+ihy(jwu)
-  do iwd=0,iwupwei-1
-    iwad = iwalk_ad(jpad,ipae,iwa,iwd)
+  case (6)
+    ! between dbl and ext
+    iwd = mg1
+    iwa = mg2
+    iwe = mg3
+    iwad = iwalk_ad(jpad,ipae,iwa,iwd)   ! between dbl,act and ext
     mm = iwe+iwad
     !vector1(mm) = vector1(mm)+wl
     mg67 = ican_a(mg7)+mg6
     dm1tmp(mg67) = dm1tmp(mg67)+vector1(mm)*wl*vector1(mm)
 
     !if (mm == ndr) then
-    !  write(nf2,'(a8,3i6,2f20.14)') ' act_ext ',mg1,mg2,mg3,wl,vector1(mm)
-    !  write(6,'(a8,3i6,2f20.14)') ' act_ext ',mg1,mg2,mg3,wl,vector1(mm)
+    !  write(nf2,'(a8,3i6,2f20.14)') ' dbl_ext ',mg1,mg2,mg3,wl,vector1(mm)
+    !  write(6,'(a8,3i6,2f20.14)') ' dbl_ext ',mg1,mg2,mg3,wl,vector1(mm)
     !end if
-  end do
-end do
-goto 1000
-! between dbl and ext
-600 continue
-iwd = mg1
-iwa = mg2
-iwe = mg3
-iwad = iwalk_ad(jpad,ipae,iwa,iwd)   ! between dbl,act and ext
-mm = iwe+iwad
-!vector1(mm) = vector1(mm)+wl
-mg67 = ican_a(mg7)+mg6
-dm1tmp(mg67) = dm1tmp(mg67)+vector1(mm)*wl*vector1(mm)
+end select
 
-!if (mm == ndr) then
-!  write(nf2,'(a8,3i6,2f20.14)') ' dbl_ext ',mg1,mg2,mg3,wl,vector1(mm)
-!  write(6,'(a8,3i6,2f20.14)') ' dbl_ext ',mg1,mg2,mg3,wl,vector1(mm)
-!end if
-
-1000 continue
 return
 
 end subroutine prodel_1
@@ -2610,147 +2600,147 @@ subroutine prodel_2(idb,wl,mg1,mg2,mg3,mg6)
 
 !ndr = 88
 !ndr = 6
-goto(100,200,300,400,500,600),idb
-! in dbl_space
-100 continue
-ipae = mg2
-iwad = mg3
-isegdownwei = iseg_downwei(ipae)
-do mm=iwad+1,iwad+isegdownwei
-  !vector1(mm) = vector1(mm)+wl
-  vector2(mg6) = vector2(mg6)+vector1(mm)*wl*vector1(mm)
-  !if (mg6 == 45) write(nf2,'(i8,2i4,4f18.10)') mg6,mm,mm,vector2(mg6),vector1(mm),wl,vector1(mm)
-
-  !if (mg6 == ndr) then
-  !  write(nf2,'(a9,3i6,3f20.14)') ' in dbl_ ',mg6,mm,mm,wl,vector1(mm),vector2(mg6)
-  !  write(6,'(a8,3i6,2f20.14)') ' in dbl _',mg1,mg2,mg3,wl,vector1(mm)
-  !end if
-end do
-goto 1000
-! in ext_space
-200 continue
-ipae = mg2
-iwe = mg3
-do jdbl=1,mxnode
-  if (nu_ad(jdbl) == 0) cycle
-  iw = iw_downwei(jdbl,ipae)
-  iwupwei = jpad_upwei(jdbl)
-  do iwa=0,iw-1
-    do iwd=0,iwupwei-1
-      mm = iwalk_ad(jdbl,ipae,iwa,iwd)+iwe
-      !vector1(mm)=vector1(mm)+wl
+select case (idb)
+  case default ! (1)
+    ! in dbl_space
+    ipae = mg2
+    iwad = mg3
+    isegdownwei = iseg_downwei(ipae)
+    do mm=iwad+1,iwad+isegdownwei
+      !vector1(mm) = vector1(mm)+wl
       vector2(mg6) = vector2(mg6)+vector1(mm)*wl*vector1(mm)
-      !write(nf2,'(i8,2i4,4f18.10)') mg6,mm,mm,vector2(mg6),vector1(mm),wl,vector1(mm)
+      !if (mg6 == 45) write(nf2,'(i8,2i4,4f18.10)') mg6,mm,mm,vector2(mg6),vector1(mm),wl,vector1(mm)
 
-      !if (mg6 == 2926) then
-      !  write(nf2,'(a9,3i6,3f20.14)') ' in ext_ ',mg6,mm,mm,wl,vector1(mm),vector2(mg6)
-      !  write(6,'(a8,3i6,2f20.14)') ' in ext _',mg1,mg2,mg3,wl,vector1(mm)
+      !if (mg6 == ndr) then
+      !  write(nf2,'(a9,3i6,3f20.14)') ' in dbl_ ',mg6,mm,mm,wl,vector1(mm),vector2(mg6)
+      !  write(6,'(a8,3i6,2f20.14)') ' in dbl _',mg1,mg2,mg3,wl,vector1(mm)
       !end if
     end do
-  end do
-end do
-goto 1000
-! in act_space
-300 continue
-jp = mg1
-mpe = mg2
-jw = mg3
-iwupwei = jpad_upwei(jpad)
-isegdownwei = iseg_downwei(ipae)
-jph = jphy(jp)
-in = ihy(jph)
-lwnu = iy(1,mpe)
-do jwu=jph+1,jph+in
-  iwa = jw+ihy(jwu)-1
-  do jwd=1,lwnu
-    iwa = iwa+1
-    do iwd=0,iwupwei-1
+
+  case (2)
+    ! in ext_space
+    ipae = mg2
+    iwe = mg3
+    do jdbl=1,mxnode
+      if (nu_ad(jdbl) == 0) cycle
+      iw = iw_downwei(jdbl,ipae)
+      iwupwei = jpad_upwei(jdbl)
+      do iwa=0,iw-1
+        do iwd=0,iwupwei-1
+          mm = iwalk_ad(jdbl,ipae,iwa,iwd)+iwe
+          !vector1(mm)=vector1(mm)+wl
+          vector2(mg6) = vector2(mg6)+vector1(mm)*wl*vector1(mm)
+          !write(nf2,'(i8,2i4,4f18.10)') mg6,mm,mm,vector2(mg6),vector1(mm),wl,vector1(mm)
+
+          !if (mg6 == 2926) then
+          !  write(nf2,'(a9,3i6,3f20.14)') ' in ext_ ',mg6,mm,mm,wl,vector1(mm),vector2(mg6)
+          !  write(6,'(a8,3i6,2f20.14)') ' in ext _',mg1,mg2,mg3,wl,vector1(mm)
+          !end if
+        end do
+      end do
+    end do
+
+  case (3)
+    ! in act_space
+    jp = mg1
+    mpe = mg2
+    jw = mg3
+    iwupwei = jpad_upwei(jpad)
+    isegdownwei = iseg_downwei(ipae)
+    jph = jphy(jp)
+    in = ihy(jph)
+    lwnu = iy(1,mpe)
+    do jwu=jph+1,jph+in
+      iwa = jw+ihy(jwu)-1
+      do jwd=1,lwnu
+        iwa = iwa+1
+        do iwd=0,iwupwei-1
+          iwad = iwalk_ad(jpad,ipae,iwa,iwd)
+          do iwe=1,isegdownwei
+            mm = iwe+iwad
+            !vector1(mm) = vector1(mm)+wl
+            vector2(mg6) = vector2(mg6)+vector1(mm)*wl*vector1(mm)
+            !if (mg6 == 231)  write(nf2,'(i4,3f18.10)') mm,wl,vector1(mm),vector2(mg6)
+            !write(nf2,'(a3,i4)') 'act',mm
+
+            !write(nf2,'(i8,2i4,4f18.10)') mg6,mm,mm,vector2(mg6),vector1(mm),wl,vector1(mm)
+
+            !if (mg6 == ndr) then
+            !  write(nf2,'(a9,3i6,3f20.14)') ' in act_ ',mg6,mm,mm,wl,vector1(mm),vector2(mg6)
+            !  write(6,'(a8,3i6,2f20.14)') ' in act _',mg1,mg2,mg3,wl,vector1(mm)
+            !end if
+          end do
+        end do
+      end do
+    end do
+
+  case (4)
+    ! between dbl and act
+    mpe = mg1
+    iwd = mg2
+    iwa = mg3-1
+    isegdownwei = iseg_downwei(ipae)   ! between dbl and act
+    jwnu = iy(1,mpe)
+    do ii=1,jwnu
+      iwa = iwa+1
       iwad = iwalk_ad(jpad,ipae,iwa,iwd)
       do iwe=1,isegdownwei
-        mm = iwe+iwad
+        mm = iwe+iwad                  ! iwl=iwalk_ad
         !vector1(mm) = vector1(mm)+wl
         vector2(mg6) = vector2(mg6)+vector1(mm)*wl*vector1(mm)
-        !if (mg6 == 231)  write(nf2,'(i4,3f18.10)') mm,wl,vector1(mm),vector2(mg6)
-        !write(nf2,'(a3,i4)') 'act',mm
+        !if (mg6 == 91) write(nf2,'(i8,i4,3f18.10)') mg6,mm,vector2(mg6),wl,vector1(mm)
+        !write(nf2,'(a7,i4)') 'dbl_act',mm
 
-        !write(nf2,'(i8,2i4,4f18.10)') mg6,mm,mm,vector2(mg6),vector1(mm),wl,vector1(mm)
-
+        !if (mg6 == 3) write(nf2,'(i4,2f18.10)') mm,wl,vector1(mm)
         !if (mg6 == ndr) then
-        !  write(nf2,'(a9,3i6,3f20.14)') ' in act_ ',mg6,mm,mm,wl,vector1(mm),vector2(mg6)
-        !  write(6,'(a8,3i6,2f20.14)') ' in act _',mg1,mg2,mg3,wl,vector1(mm)
+        !  write(nf2,'(a9,3i6,3f20.14)') ' dbl_act ',mg6,mm,mm,wl,vector1(mm),vector2(mg6)
+        !  write(6,'(a8,3i6,2f20.14)') ' dbl_act ',mg1,mg2,mg3,wl,vector1(mm)
         !end if
       end do
     end do
-  end do
-end do
-goto 1000
-! between dbl and act
-400 continue
-mpe = mg1
-iwd = mg2
-iwa = mg3-1
-isegdownwei = iseg_downwei(ipae)   ! between dbl and act
-jwnu = iy(1,mpe)
-do ii=1,jwnu
-  iwa = iwa+1
-  iwad = iwalk_ad(jpad,ipae,iwa,iwd)
-  do iwe=1,isegdownwei
-    mm = iwe+iwad                  ! iwl=iwalk_ad
-    !vector1(mm) = vector1(mm)+wl
-    vector2(mg6) = vector2(mg6)+vector1(mm)*wl*vector1(mm)
-    !if (mg6 == 91) write(nf2,'(i8,i4,3f18.10)') mg6,mm,vector2(mg6),wl,vector1(mm)
-    !write(nf2,'(a7,i4)') 'dbl_act',mm
 
-    !if (mg6 == 3) write(nf2,'(i4,2f18.10)') mm,wl,vector1(mm)
-    !if (mg6 == ndr) then
-    !  write(nf2,'(a9,3i6,3f20.14)') ' dbl_act ',mg6,mm,mm,wl,vector1(mm),vector2(mg6)
-    !  write(6,'(a8,3i6,2f20.14)') ' dbl_act ',mg1,mg2,mg3,wl,vector1(mm)
-    !end if
-  end do
-end do
-goto 1000
-! between act and ext
-500 continue
-jp = mg1
-iwa0 = mg2
-iwe = mg3
-iwupwei = jpad_upwei(jpad)
-jph = jphy(jp)
-in = ihy(jph)
-do jwu=jph+1,jph+in
-  iwa = iwa0+ihy(jwu)
-  do iwd=0,iwupwei-1
-    iwad = iwalk_ad(jpad,ipae,iwa,iwd)
+  case (5)
+    ! between act and ext
+    jp = mg1
+    iwa0 = mg2
+    iwe = mg3
+    iwupwei = jpad_upwei(jpad)
+    jph = jphy(jp)
+    in = ihy(jph)
+    do jwu=jph+1,jph+in
+      iwa = iwa0+ihy(jwu)
+      do iwd=0,iwupwei-1
+        iwad = iwalk_ad(jpad,ipae,iwa,iwd)
+        mm = iwe+iwad
+        !vector1(mm) = vector1(mm)+wl
+        vector2(mg6) = vector2(mg6)+vector1(mm)*wl*vector1(mm)
+        !write(nf2,*) 'ae',mm,wl,vector1(mm)
+        !write(nf2,'(i8,2i4,4f18.10)') mg6,mm,mm,vector2(mg6),vector1(mm),wl,vector1(mm)
+
+        !if (mg6 == ndr) then
+        !  write(nf2,'(a9,3i6,3f20.14)') ' act_ext ',mg6,mm,mm,wl,vector1(mm),vector2(mg6)
+        !  write(6,'(a8,3i6,2f20.14)') ' act_ext ',mg1,mg2,mg3,wl,vector1(mm)
+        !end if
+      end do
+    end do
+
+  case (6)
+    ! between dbl and ext
+    iwd = mg1
+    iwa = mg2
+    iwe = mg3
+    iwad = iwalk_ad(jpad,ipae,iwa,iwd)   ! between dbl,act and ext
     mm = iwe+iwad
     !vector1(mm) = vector1(mm)+wl
     vector2(mg6) = vector2(mg6)+vector1(mm)*wl*vector1(mm)
-    !write(nf2,*) 'ae',mm,wl,vector1(mm)
     !write(nf2,'(i8,2i4,4f18.10)') mg6,mm,mm,vector2(mg6),vector1(mm),wl,vector1(mm)
 
     !if (mg6 == ndr) then
-    !  write(nf2,'(a9,3i6,3f20.14)') ' act_ext ',mg6,mm,mm,wl,vector1(mm),vector2(mg6)
-    !  write(6,'(a8,3i6,2f20.14)') ' act_ext ',mg1,mg2,mg3,wl,vector1(mm)
+    !  write(nf2,'(a9,3i6,3f20.14)') ' dbl_ext ',mg6,mm,mm,wl,vector1(mm),vector2(mg6)
+    !  write(6,'(a8,3i6,2f20.14)') ' dbl_ext ',mg1,mg2,mg3,wl,vector1(mm)
     !end if
-  end do
-end do
-goto 1000
-! between dbl and ext
-600 continue
-iwd = mg1
-iwa = mg2
-iwe = mg3
-iwad = iwalk_ad(jpad,ipae,iwa,iwd)   ! between dbl,act and ext
-mm = iwe+iwad
-!vector1(mm) = vector1(mm)+wl
-vector2(mg6) = vector2(mg6)+vector1(mm)*wl*vector1(mm)
-!write(nf2,'(i8,2i4,4f18.10)') mg6,mm,mm,vector2(mg6),vector1(mm),wl,vector1(mm)
+end select
 
-!if(mg6 == ndr) then
-!  write(nf2,'(a9,3i6,3f20.14)') ' dbl_ext ',mg6,mm,mm,wl,vector1(mm),vector2(mg6)
-!  write(6,'(a8,3i6,2f20.14)') ' dbl_ext ',mg1,mg2,mg3,wl,vector1(mm)
-!end if
-
-1000 continue
 return
 
 end subroutine prodel_2

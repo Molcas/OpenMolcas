@@ -68,7 +68,7 @@ do lri=norb_frz+1,norb_dz-1           !frz
   !n2 = ngw2(lri-2)
   do lrj=lri+1,norb_dz
     mij = mul_tab(imi,lsm_inn(lrj))
-    if (mij /= 1) goto 201
+    if (mij /= 1) cycle
     ni = mod(lrj-lri,2)
     !=========== down comm for 2 4 =====================================
     vl_0 = sqrt((db+2)/(db+1))
@@ -145,222 +145,224 @@ do lri=norb_frz+1,norb_dz-1           !frz
       if (lrm < lri) kij = 7
       if (lrm > lrj) kij = 6
       if ((lrm > lri) .and. (lrm < lrj)) kij = 8
-      goto(300,2,300,4,300,6,7,8),kij
-      ! ss(1-c1)  ar(23)-ar(10)-    ar(13)-ar(20)
-2     continue
-      iwdl = just(lri,lrj)
-      iwdr = just(lrj,lrj)
-      list = list3(lri,lrj,lri)
-      wl = wl0+vl_0*(voint(lri,lrj)+vint_ci(list))
-      call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
-      if (jb_sys > 0) then
-        wl = wl10+vl_1*(voint(lri,lrj)+vint_ci(list))
-        iwdl = just(lrj,lri)
-        call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
-      end if
-      goto 300
-      ! ss(1-c2)  ar(02)-ar(31)    ar(01)-ar(32)
-4     continue
-      iwdl = just(lri,lri)
-      iwdr = just(lri,lrj)
-      list = list3(lri,lrj,lrj)
-      wl = wl0+vl_0*(voint(lri,lrj)+vint_ci(list))
-      call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
-      if (jb_sys > 0) then
-        iwdr = just(lrj,lri)
-        wl = wl10+vl_1*(voint(lri,lrj)+vint_ci(list))
-        call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
-      end if
-      goto 300
-      ! ar(23)-br(13)-drr(30)  w0=-sqrt((db+2)/(db+1)) w1=0
-      ! ar(13)-br(23)-drr(30)  w0=-sqrt(db/(db+1)) w1=0
-6     continue
-      iwdl = just(lri,lrj)
-      iwdr = just(lrm,lrm)
-      list = list3(lri,lrj,lrm)
-      wl = -vl_0*vint_ci(list)
-      call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
-      if (jb_sys > 0) then
-        iwdl = just(lrj,lri)
-        wl = -vl_1*vint_ci(list)
-        call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
-      end if
-      goto 300
-      ! drr(03)br(32)br(31)   w0=-sqrt((db+2)/(db+1)) w1=0
-      ! drr(03)br(31)br(32)   w0=-sqrt(db/(db+1)) w1=0
-7     continue
-      iwdl = just(lrm,lrm)
-      iwdr = just(lri,lrj)
-      list = list3(lri,lrj,lrm)
-      wl = -vl_0*vint_ci(list)
-      call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
-      if (jb_sys > 0) then
-        iwdr = just(lrj,lri)
-        iwdl = just(lrm,lrm)
-        wl = -vl_1*vint_ci(list)
-        call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
-      end if
-      goto 300
-      ! ar(23)-drl(30)-al(13)   w0=sqrt((db+2)/(db+1)) w1=0
-      ! ar(13)-drl(30)-al(23)   w0=sqrt(db/(db+1)) w1=0
-8     continue
-      iwdl = just(lri,lrj)
-      iwdr = just(lrm,lrm)
-      list = list3(lri,lrj,lrm)
-      wl = -vl_0*vint_ci(list)
-      call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
-      if (jb_sys > 0) then
-      ! ar(13)-drl(30)-al(23)   w0=sqrt(db/(db+1)) w1=0
-        iwdl = just(lrj,lri)
-        wl = -vl_1*vint_ci(list)
-        call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
-      end if
-      !========= start  d9(ss) d35(tt) =================================
-      jpds = 17+im
-      jpdt = 9+im
-      jpdt1 = jpdt+24
-      iwls = just(lri,lrm)
-      iwrs = just(lrm,lrj)
-      iwlt = iwls
-      iwrt = iwrs
-      ! t  ar(23)-c'(22)-cw(33)-ar(32)   w0=1 w1=0
-      ! t  ar(13)-c'(11)-cw(33)-ar(31)   w0=1 w1=0
-      ! s  ar(23)-c'(12)-cw(33)-ar(31)   w0=-1/(db+1) w1=0
-      ! s  ar(23)-c'(11)-cw(33)-ar(32)   w0=-sqrt(db*(db+2))/(db+1) w1=0
-      ! s  ar(13)-c'(21)-cw(33)-ar(32)   w0=1/(db+1) w1=0
-      ! s  ar(13)-c'(22)-cw(33)-ar(31)   w0=-sqrt(db*(db+2))/(db+1) w1=0
-      wlt0 = dzero
-      wls0 = dzero
-      wls0_1 = dzero                   ! bbs_tmp
-      wls0_2 = dzero
-      wltmp = dzero
-      do lr=lrm+1,lrj-1
-        list = list3(lri,lrj,lr)
-        wltmp = wltmp+2*vint_ci(list+1)-vint_ci(list)
-        !wlt0 = wlt0+vl0_2*(2*vint_ci(list+1)-vint_ci(list))
-      end do
-      wlt0 = wlt0+vl0_2*wltmp
-      wls0 = wls0-vls0_2*wltmp
-      wls0_1 = wls0_1-vls10_2*wltmp
-      wls0_2 = wls0_2+vls0_2*wltmp
-      !wls2 = wls0
-      ! t  ar(23)-cw(33)-c'(22)-ar(32)      w0=1 w1=0
-      ! t  ar(13)-cw(33)-c'(11)-ar(31)      w0=1 w1=0
-      ! s  ar(23)-cw(33)-c'(12)-ar(31)      w0=-1/(db+1) w1=0
-      ! s  ar(23)-cw(33)-c'(11)-ar(32)      w0=-sqrt(db*(db+2))/(db+1) w1=0
-      ! s  ar(13)-cw(33)-c'(21)-ar(32)      w0=1/(db+1) w1=0
-      ! s  ar(13)-cw(33)-c'(22)-ar(31)      w0=-sqrt(db*(db+2))/(db+1) w1=0
-      wltmp = dzero
-      do lr=lri+1,lrm-1
-        list = list3(lri,lrj,lr)
-        wltmp = wltmp+2*vint_ci(list+1)-vint_ci(list)
-        !wlt0 = wlt0+vl0_2*(2*vint_ci(list+1)-vint_ci(list))
-      end do
-      wlt0 = wlt0+vl0_2*wltmp
-      wls0 = wls0-vls0_2*wltmp
-      wls0_1 = wls0_1-vls10_2*wltmp
-      wls0_2 = wls0_2+vls0_2*wltmp
-      ! t  drl(33)-bl(23)-c'(22)-ar(32) w0=-1 w1=0
-      ! t  drl(33)-bl(13)-c'(11)-ar(31) w0=-1 w1=0
-      ! s  drl(33)-bl(23)-c'(12)-ar(31) w0=1/(db+1)  w1=0
-      ! s  drl(33)-bl(23)-c'(11)-ar(32) w0=sqrt(db*(db+2))/(db+1) w1=0
-      ! s  drl(33)-bl(13)-c'(21)-ar(32) w0=-1/(db+1)  w1=0
-      ! s  drl(33)-bl(13)-c'(22)-ar(31) w0=sqrt(db*(db+2))/(db+1)   w1=0
-      wltmp = dzero
-      do lr=1,lri-1
-        list = list3(lri,lrj,lr)
-        wltmp = wltmp+(vint_ci(list)-2*vint_ci(list+1))
-      end do
-      wlt0 = wlt0-vl0_2*wltmp                  !bbs_tmp
-      wls0 = wls0+vls0_2*wltmp
-      wls0_1 = wls0_1+vls10_2*wltmp
-      wls0_2 = wls0_2-vls0_2*wltmp
-      ! t  ar(23)-c'(22)-bl(32)-drl(33) w0=-1 w1=0
-      ! t  ar(13)-c'(11)-bl(31)-drl(33) w0=-1 w1=0
-      ! s  ar(23)-c'(12)-br(31)-drl(33) w0=1/(db+1)  w1=0
-      ! s  ar(23)-c'(11)-br(32)-drl(33) w0=sqrt(db*(db+2))/(db+1) w1=0
-      ! s  ar(13)-c'(21)-br(32)-drl(33) w0=-1/(db+1)  w1=0
-      ! s  ar(13)-c'(22)-br(31)-drl(33) w0=sqrt(db*(db+2))/(db+1) w1=0
-      wltmp = dzero
-      do lr=lrj+1,norb_dz
-        list = list3(lri,lrj,lr)
-        wltmp = wltmp+(vint_ci(list)-2*vint_ci(list+1))
-      end do
-      !wlt0 = wlt0+vl0_2*wltmp
-      !wls0 = wls0-vls0_2*wltmp
-      !wls0_1 = wls0_1+vls10_2*wltmp
-      !wls0_2 = wls0_2+vls0_2*wltmp
-      wlt0 = wlt0-vl0_2*wltmp
-      wls0 = wls0+vls0_2*wltmp
-      wls0_1 = wls0_1+vls10_2*wltmp
-      wls0_2 = wls0_2-vls0_2*wltmp
-      !wls0 = -wlt0
-      !========= up comm for 9 35 ======================================
-      ! t  ar(23)-c'(22)-arw(32) w0=1 w1=0
-      ! t  ar(13)-c'(11)-arw(31) w0=1 w1=0
-      ! s  ar(23)-c'(12)-arw(31) w0=-1/(db+1)  w1=0
-      ! s  ar(23)-c'(11)-arw(31) w0=-sqrt(db*(db+2))/(db+1) w1=0
-      ! s  ar(13)-c'(21)-arw(32) w0=1/(db+1)  w1=0
-      ! s  ar(13)-c'(22)-arw(31) w0=-sqrt(db*(db+2))/(db+1) w1=0
-      !list = list3(lri,lrj,lrj)
-      !wlt = wlt0+vl0_2*vint_ci(list)
-      !wls = wls0-vl0_2*vint_ci(list)
-      list = list3(lri,lrj,lrj)
-      wlt = wlt0+vl0_2*vint_ci(list)
-      wls = wls0-vls0_2*vint_ci(list)
-      wls1 = wls0_1-vls10_2*vint_ci(list)
-      wls2 = wls0_2+vls0_2*vint_ci(list)
-      !wl_bbs = -vls0_2*vint_ci(list)
-      ! t  ar(23)-cw(22)-ar(32)
-      ! t  ar(13)-cw(11)-ar(31)
-      ! s  ar(23)-cw(12)-ar(31)    w0=-1/(db+1)    ar(12)-drr(22)-ar(32)
-      ! s  ar(23)-cw(11)-ar(32)    w0=-sqrt(db*(db+1))/(db+1)
-      ! s  ar(13)-cw(21)-ar(32)    w0=1/(db+1)
-      ! s  ar(13)-cw(22)-ar(31)    w0=-sqrt(db*(db+1))/(db+1)
-      list = list3(lri,lrj,lrm)
-      wlt = wlt+vl0_2*vint_ci(list+1)
-      wls = wls-vls0_2*(vint_ci(list+1)-(db+2)*vint_ci(list)) !coe=
-      wls1 = wls1-vls10_2*(vint_ci(list+1)-vint_ci(list))     !coe=-1
-      wls2 = wls2+vls0_2*(vint_ci(list+1)+db*vint_ci(list))   !coe=d
-      !wls2 = wls2+vls0_2*(vint_ci(list+1)-2*vint_ci(list))
-      !wl_bbs = wl_bbs-vls0_2*(vint_ci(list+1)-2*vint_ci(list))
-      ! t  arw(23)-c'(22)-ar(32)
-      ! t  arw(13)-c'(11)-ar(31)
-      ! s  arw(23)-c'(12)-ar(31)
-      ! s  arw(23)-c'(11)-ar(32)
-      ! s  arw(13)-c'(21)-ar(32)
-      ! s  arw(13)-c'(22)-ar(31)
-      ! t  ar(23)-c'(22)-ar(32)   w0=1
-      ! t  ar(13)-c'(11)-ar(31)   w0=1
-      ! s  ar(23)-c'(12)-ar(31)   w0=-1/(db+1)  w1=0
-      ! s  ar(23)-c'(11)-ar(32)   w0=-sqrt(db*(db+2))/(db+1) w1=0
-      ! s  ar(13)-c'(21)-ar(32)   w0=1/(db+1)  w1=0
-      ! s  ar(13)-c'(22)-ar(31)   w0=-sqrt(db*(db+2))/(db+1) w1=0
-      list = list3(lri,lrj,lri)
-      wlt = wlt+vl0_2*(voint(lri,lrj)+vint_ci(list))
-      wls = wls-vls0_2*(voint(lri,lrj)+vint_ci(list))
-      wls1 = wls1-vls10_2*(voint(lri,lrj)+vint_ci(list))
-      wls2 = wls2+vls0_2*(voint(lri,lrj)+vint_ci(list))
-      !wl_bbs = wl_bbs-vls0_2*(voint(lri,lrj)+vint_ci(list))
+      select case (kij)
+        case (2)
+          ! ss(1-c1)  ar(23)-ar(10)-    ar(13)-ar(20)
+          iwdl = just(lri,lrj)
+          iwdr = just(lrj,lrj)
+          list = list3(lri,lrj,lri)
+          wl = wl0+vl_0*(voint(lri,lrj)+vint_ci(list))
+          call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
+          if (jb_sys > 0) then
+            wl = wl10+vl_1*(voint(lri,lrj)+vint_ci(list))
+            iwdl = just(lrj,lri)
+            call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
+          end if
 
-      ! ar(23)-drr(12)-ar(31)  w0=(db+2)/(db+1)   ???? complete
-      call prodab(1,0,jpds,iwls,iwrs,0,wls,0)
-      call prodab(1,0,jpdt,iwlt,iwrt,0,wlt,0)
-      if (jb_sys > 0) then
-        iwls = just(lri,lrm)
-        iwrs = just(lrj,lrm)
-        call prodab(1,0,jpds,iwls,iwrs,0,wls1,0)
-        iwls = just(lrm,lri)
-        iwrs = just(lrj,lrm)
-        call prodab(1,0,jpds,iwls,iwrs,0,wls2,0)
-        iwls = just(lrm,lri)
-        iwrs = just(lrm,lrj)
-        call prodab(1,0,jpds,iwls,iwrs,0,wls1,0)
-      end if
-      if (jb_sys > 1) then
-        call prodab(1,0,jpdt1,iwlt,iwrt,0,wlt,0)    !bbs_tmp
-      end if
-300   continue
+        case (4)
+          ! ss(1-c2)  ar(02)-ar(31)    ar(01)-ar(32)
+          iwdl = just(lri,lri)
+          iwdr = just(lri,lrj)
+          list = list3(lri,lrj,lrj)
+          wl = wl0+vl_0*(voint(lri,lrj)+vint_ci(list))
+          call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
+          if (jb_sys > 0) then
+            iwdr = just(lrj,lri)
+            wl = wl10+vl_1*(voint(lri,lrj)+vint_ci(list))
+            call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
+          end if
+
+        case (6)
+          ! ar(23)-br(13)-drr(30)  w0=-sqrt((db+2)/(db+1)) w1=0
+          ! ar(13)-br(23)-drr(30)  w0=-sqrt(db/(db+1)) w1=0
+          iwdl = just(lri,lrj)
+          iwdr = just(lrm,lrm)
+          list = list3(lri,lrj,lrm)
+          wl = -vl_0*vint_ci(list)
+          call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
+          if (jb_sys > 0) then
+            iwdl = just(lrj,lri)
+            wl = -vl_1*vint_ci(list)
+            call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
+          end if
+
+        case (7)
+          ! drr(03)br(32)br(31)   w0=-sqrt((db+2)/(db+1)) w1=0
+          ! drr(03)br(31)br(32)   w0=-sqrt(db/(db+1)) w1=0
+          iwdl = just(lrm,lrm)
+          iwdr = just(lri,lrj)
+          list = list3(lri,lrj,lrm)
+          wl = -vl_0*vint_ci(list)
+          call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
+          if (jb_sys > 0) then
+            iwdr = just(lrj,lri)
+            iwdl = just(lrm,lrm)
+            wl = -vl_1*vint_ci(list)
+            call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
+          end if
+
+        case (8)
+          ! ar(23)-drl(30)-al(13)   w0=sqrt((db+2)/(db+1)) w1=0
+          ! ar(13)-drl(30)-al(23)   w0=sqrt(db/(db+1)) w1=0
+          iwdl = just(lri,lrj)
+          iwdr = just(lrm,lrm)
+          list = list3(lri,lrj,lrm)
+          wl = -vl_0*vint_ci(list)
+          call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
+          if (jb_sys > 0) then
+          ! ar(13)-drl(30)-al(23)   w0=sqrt(db/(db+1)) w1=0
+            iwdl = just(lrj,lri)
+            wl = -vl_1*vint_ci(list)
+            call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
+          end if
+          !========= start  d9(ss) d35(tt) =============================
+          jpds = 17+im
+          jpdt = 9+im
+          jpdt1 = jpdt+24
+          iwls = just(lri,lrm)
+          iwrs = just(lrm,lrj)
+          iwlt = iwls
+          iwrt = iwrs
+          ! t  ar(23)-c'(22)-cw(33)-ar(32)   w0=1 w1=0
+          ! t  ar(13)-c'(11)-cw(33)-ar(31)   w0=1 w1=0
+          ! s  ar(23)-c'(12)-cw(33)-ar(31)   w0=-1/(db+1) w1=0
+          ! s  ar(23)-c'(11)-cw(33)-ar(32)   w0=-sqrt(db*(db+2))/(db+1) w1=0
+          ! s  ar(13)-c'(21)-cw(33)-ar(32)   w0=1/(db+1) w1=0
+          ! s  ar(13)-c'(22)-cw(33)-ar(31)   w0=-sqrt(db*(db+2))/(db+1) w1=0
+          wlt0 = dzero
+          wls0 = dzero
+          wls0_1 = dzero                   ! bbs_tmp
+          wls0_2 = dzero
+          wltmp = dzero
+          do lr=lrm+1,lrj-1
+            list = list3(lri,lrj,lr)
+            wltmp = wltmp+2*vint_ci(list+1)-vint_ci(list)
+            !wlt0 = wlt0+vl0_2*(2*vint_ci(list+1)-vint_ci(list))
+          end do
+          wlt0 = wlt0+vl0_2*wltmp
+          wls0 = wls0-vls0_2*wltmp
+          wls0_1 = wls0_1-vls10_2*wltmp
+          wls0_2 = wls0_2+vls0_2*wltmp
+          !wls2 = wls0
+          ! t  ar(23)-cw(33)-c'(22)-ar(32)      w0=1 w1=0
+          ! t  ar(13)-cw(33)-c'(11)-ar(31)      w0=1 w1=0
+          ! s  ar(23)-cw(33)-c'(12)-ar(31)      w0=-1/(db+1) w1=0
+          ! s  ar(23)-cw(33)-c'(11)-ar(32)      w0=-sqrt(db*(db+2))/(db+1) w1=0
+          ! s  ar(13)-cw(33)-c'(21)-ar(32)      w0=1/(db+1) w1=0
+          ! s  ar(13)-cw(33)-c'(22)-ar(31)      w0=-sqrt(db*(db+2))/(db+1) w1=0
+          wltmp = dzero
+          do lr=lri+1,lrm-1
+            list = list3(lri,lrj,lr)
+            wltmp = wltmp+2*vint_ci(list+1)-vint_ci(list)
+            !wlt0 = wlt0+vl0_2*(2*vint_ci(list+1)-vint_ci(list))
+          end do
+          wlt0 = wlt0+vl0_2*wltmp
+          wls0 = wls0-vls0_2*wltmp
+          wls0_1 = wls0_1-vls10_2*wltmp
+          wls0_2 = wls0_2+vls0_2*wltmp
+          ! t  drl(33)-bl(23)-c'(22)-ar(32) w0=-1 w1=0
+          ! t  drl(33)-bl(13)-c'(11)-ar(31) w0=-1 w1=0
+          ! s  drl(33)-bl(23)-c'(12)-ar(31) w0=1/(db+1)  w1=0
+          ! s  drl(33)-bl(23)-c'(11)-ar(32) w0=sqrt(db*(db+2))/(db+1) w1=0
+          ! s  drl(33)-bl(13)-c'(21)-ar(32) w0=-1/(db+1)  w1=0
+          ! s  drl(33)-bl(13)-c'(22)-ar(31) w0=sqrt(db*(db+2))/(db+1)   w1=0
+          wltmp = dzero
+          do lr=1,lri-1
+            list = list3(lri,lrj,lr)
+            wltmp = wltmp+(vint_ci(list)-2*vint_ci(list+1))
+          end do
+          wlt0 = wlt0-vl0_2*wltmp                  !bbs_tmp
+          wls0 = wls0+vls0_2*wltmp
+          wls0_1 = wls0_1+vls10_2*wltmp
+          wls0_2 = wls0_2-vls0_2*wltmp
+          ! t  ar(23)-c'(22)-bl(32)-drl(33) w0=-1 w1=0
+          ! t  ar(13)-c'(11)-bl(31)-drl(33) w0=-1 w1=0
+          ! s  ar(23)-c'(12)-br(31)-drl(33) w0=1/(db+1)  w1=0
+          ! s  ar(23)-c'(11)-br(32)-drl(33) w0=sqrt(db*(db+2))/(db+1) w1=0
+          ! s  ar(13)-c'(21)-br(32)-drl(33) w0=-1/(db+1)  w1=0
+          ! s  ar(13)-c'(22)-br(31)-drl(33) w0=sqrt(db*(db+2))/(db+1) w1=0
+          wltmp = dzero
+          do lr=lrj+1,norb_dz
+            list = list3(lri,lrj,lr)
+            wltmp = wltmp+(vint_ci(list)-2*vint_ci(list+1))
+          end do
+          !wlt0 = wlt0+vl0_2*wltmp
+          !wls0 = wls0-vls0_2*wltmp
+          !wls0_1 = wls0_1+vls10_2*wltmp
+          !wls0_2 = wls0_2+vls0_2*wltmp
+          wlt0 = wlt0-vl0_2*wltmp
+          wls0 = wls0+vls0_2*wltmp
+          wls0_1 = wls0_1+vls10_2*wltmp
+          wls0_2 = wls0_2-vls0_2*wltmp
+          !wls0 = -wlt0
+          !========= up comm for 9 35 ==================================
+          ! t  ar(23)-c'(22)-arw(32) w0=1 w1=0
+          ! t  ar(13)-c'(11)-arw(31) w0=1 w1=0
+          ! s  ar(23)-c'(12)-arw(31) w0=-1/(db+1)  w1=0
+          ! s  ar(23)-c'(11)-arw(31) w0=-sqrt(db*(db+2))/(db+1) w1=0
+          ! s  ar(13)-c'(21)-arw(32) w0=1/(db+1)  w1=0
+          ! s  ar(13)-c'(22)-arw(31) w0=-sqrt(db*(db+2))/(db+1) w1=0
+          !list = list3(lri,lrj,lrj)
+          !wlt = wlt0+vl0_2*vint_ci(list)
+          !wls = wls0-vl0_2*vint_ci(list)
+          list = list3(lri,lrj,lrj)
+          wlt = wlt0+vl0_2*vint_ci(list)
+          wls = wls0-vls0_2*vint_ci(list)
+          wls1 = wls0_1-vls10_2*vint_ci(list)
+          wls2 = wls0_2+vls0_2*vint_ci(list)
+          !wl_bbs = -vls0_2*vint_ci(list)
+          ! t  ar(23)-cw(22)-ar(32)
+          ! t  ar(13)-cw(11)-ar(31)
+          ! s  ar(23)-cw(12)-ar(31)    w0=-1/(db+1)    ar(12)-drr(22)-ar(32)
+          ! s  ar(23)-cw(11)-ar(32)    w0=-sqrt(db*(db+1))/(db+1)
+          ! s  ar(13)-cw(21)-ar(32)    w0=1/(db+1)
+          ! s  ar(13)-cw(22)-ar(31)    w0=-sqrt(db*(db+1))/(db+1)
+          list = list3(lri,lrj,lrm)
+          wlt = wlt+vl0_2*vint_ci(list+1)
+          wls = wls-vls0_2*(vint_ci(list+1)-(db+2)*vint_ci(list)) !coe=
+          wls1 = wls1-vls10_2*(vint_ci(list+1)-vint_ci(list))     !coe=-1
+          wls2 = wls2+vls0_2*(vint_ci(list+1)+db*vint_ci(list))   !coe=d
+          !wls2 = wls2+vls0_2*(vint_ci(list+1)-2*vint_ci(list))
+          !wl_bbs = wl_bbs-vls0_2*(vint_ci(list+1)-2*vint_ci(list))
+          ! t  arw(23)-c'(22)-ar(32)
+          ! t  arw(13)-c'(11)-ar(31)
+          ! s  arw(23)-c'(12)-ar(31)
+          ! s  arw(23)-c'(11)-ar(32)
+          ! s  arw(13)-c'(21)-ar(32)
+          ! s  arw(13)-c'(22)-ar(31)
+          ! t  ar(23)-c'(22)-ar(32)   w0=1
+          ! t  ar(13)-c'(11)-ar(31)   w0=1
+          ! s  ar(23)-c'(12)-ar(31)   w0=-1/(db+1)  w1=0
+          ! s  ar(23)-c'(11)-ar(32)   w0=-sqrt(db*(db+2))/(db+1) w1=0
+          ! s  ar(13)-c'(21)-ar(32)   w0=1/(db+1)  w1=0
+          ! s  ar(13)-c'(22)-ar(31)   w0=-sqrt(db*(db+2))/(db+1) w1=0
+          list = list3(lri,lrj,lri)
+          wlt = wlt+vl0_2*(voint(lri,lrj)+vint_ci(list))
+          wls = wls-vls0_2*(voint(lri,lrj)+vint_ci(list))
+          wls1 = wls1-vls10_2*(voint(lri,lrj)+vint_ci(list))
+          wls2 = wls2+vls0_2*(voint(lri,lrj)+vint_ci(list))
+          !wl_bbs = wl_bbs-vls0_2*(voint(lri,lrj)+vint_ci(list))
+
+          ! ar(23)-drr(12)-ar(31)  w0=(db+2)/(db+1)   ???? complete
+          call prodab(1,0,jpds,iwls,iwrs,0,wls,0)
+          call prodab(1,0,jpdt,iwlt,iwrt,0,wlt,0)
+          if (jb_sys > 0) then
+            iwls = just(lri,lrm)
+            iwrs = just(lrj,lrm)
+            call prodab(1,0,jpds,iwls,iwrs,0,wls1,0)
+            iwls = just(lrm,lri)
+            iwrs = just(lrj,lrm)
+            call prodab(1,0,jpds,iwls,iwrs,0,wls2,0)
+            iwls = just(lrm,lri)
+            iwrs = just(lrm,lrj)
+            call prodab(1,0,jpds,iwls,iwrs,0,wls1,0)
+          end if
+          if (jb_sys > 1) then
+            call prodab(1,0,jpdt1,iwlt,iwrt,0,wlt,0)    !bbs_tmp
+          end if
+
+        case default
+      end select
     end do
     !=========== start  d10_ss(dd,ss,tt)  ==============================
     ! ar(23)-drr(33)-ar(32)  ar(23)-cw(33)-ar(23)
@@ -477,10 +479,8 @@ do lri=norb_frz+1,norb_dz-1           !frz
       end if
     end do
     !=== end g5,40 =====================================================
-201 continue
   end do
 end do
-continue
 
 return
 
