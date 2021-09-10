@@ -8,358 +8,374 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine hymat_2(maxroot,minspace,ndim,kval,mroot,dcrita,eval,  &
-     &                   vcm,indx,th,nxh,vb1,vb2,nxb,vad)
-!     *****************************************************************
-!     the sub. based on the algorithm of davidson (e.r. davison, j.
-!     comp. phys. 17,87 (1975)) for searching the m-th eigenvalue and
-!     eigenvector of the symmetric matrix . this sub. is an improved
-!     version of the one given by j. weber , r. lacroix and g. wanner
-!     in computers & chemistry , 4 , 55 , 1980 .
-!     *****************************************************************
-      implicit real*8 (a,c,d,e,f,p,h,w,v,t,r)
-      !parameter (maxroot=10,minspace=40)
-!      common /file_descript/nf1,nf2,nf3,nf4,nf7,nf8,nf9,nf10,
-!     *                      nf11,nf13,nf15,nf20
-      dimension indx(minspace),vd(minspace),ve(minspace),               &
-     &   vu(minspace,minspace),vp(minspace*(minspace+1)/2),             &
-     &   th(nxh),vb1(nxb),vb2(nxb),vad(ndim)
-      dimension eval(maxroot),vcm(ndim*mroot),eeval(maxroot)
-      dimension residvb(maxroot),valpha(maxroot),deff(maxroot)
-      dimension ecrita(maxroot)
-      data depc/1.0d-7/
-!**************************************************************
-!
-!      write(6,*) 'generate vector vb2 from matrix a and vector vb1'
-!
+
+subroutine hymat_2(maxroot,minspace,ndim,kval,mroot,dcrita,eval,vcm,indx,th,nxh,vb1,vb2,nxb,vad)
+!***********************************************************************
+! The sub. based on the algorithm of Davidson [E.R. Davison, J.
+! Comput. Phys. 17, 87 (1975)] for searching the m-th eigenvalue and
+! eigenvector of the symmetric matrix. This sub. is an improved
+! version of the one given by J. Weber, R. Lacroix and G. Wanner
+! in Computers & Chemistry, 4, 55 (1980).
+!***********************************************************************
+implicit real*8(a,c,d,e,f,p,h,w,v,t,r)
+!parameter (maxroot=10,minspace=40)
+!common /file_descript/nf1,nf2,nf3,nf4,nf7,nf8,nf9,nf10, nf11,nf13,nf15,nf20
+dimension indx(minspace), vd(minspace), ve(minspace), vu(minspace,minspace), vp(minspace*(minspace+1)/2), th(nxh), vb1(nxb), &
+          vb2(nxb), vad(ndim)
+dimension eval(maxroot), vcm(ndim*mroot), eeval(maxroot)
+dimension residvb(maxroot), valpha(maxroot), deff(maxroot)
+dimension ecrita(maxroot)
+data depc/1.0d-7/
+
 !**************************************************************
 
-      ! debugging
-      !vb1(1:ndim)=0.d0; vb2(1:ndim)=0.d0
-      !vb1(5)=1.d0
-      !call abprod2(ndim,1,kval,th,nxh,vb1,vb2,nxb,vad)
-      !do i=1,ndim
-      !  write(6,"(i8,f18.8)") i,vb2(i)
-      !enddo
-      !stop 888
+!write(6,*) 'generate vector vb2 from matrix a and vector vb1'
 
-      ecrita=1.e-8
-      iterat=1
-      mrsta=1
-      call abprod2(ndim,1,kval,th,nxh,vb1,vb2,nxb,vad)
-      call matrmk2(ndim,1,kval,indx,vp,vb1,vb2,nxb)
+!**************************************************************
 
-!==============================================================
-      write(6,*)
-      l=0
-      do k=1,kval
-        write(6,1112) (vp(i),i=l+1,l+k)
-        l=l+k
-      enddo
-      write(6,*)
-!==============================================================
+! debugging
+!vb1(1:ndim) = 0.d0
+!vb2(1:ndim) = 0.d0
+!vb1(5) = 1.d0
+!call abprod2(ndim,1,kval,th,nxh,vb1,vb2,nxb,vad)
+!do i=1,ndim
+!  write(6,'(i8,f18.8)') i,vb2(i)
+!end do
+!call abend()
+
+ecrita = 1.e-8
+iterat = 1
+mrsta = 1
+call abprod2(ndim,1,kval,th,nxh,vb1,vb2,nxb,vad)
+call matrmk2(ndim,1,kval,indx,vp,vb1,vb2,nxb)
+
+!=======================================================================
+write(6,*)
+l = 0
+do k=1,kval
+  write(6,1112) (vp(i),i=l+1,l+k)
+  l = l+k
+end do
+write(6,*)
+!=======================================================================
+
+!write(6,*) 'diagonalization of matrix p(j,j)'
+
+!=======================================================================
+200 continue
+iterat = iterat+1
+if (iterat == 200) then
+  write(6,*) ' h0 space fail to converged'
+  write(6,*) ' program stop'
+  call abend()
+end if
+eeval(1:mroot) = eval(1:mroot)
+call hotred(minspace,kval,vp,vd,ve,vu)
+call qlcm(minspace,kval,vd,ve,vu)
+
+valpha(mrsta:mroot) = 0.d0
+do m=mrsta,mroot
+  eval(m) = vd(m)
+  do k=1,kval
+    tm = abs(vu(k,m))
+    if (valpha(m) < tm) valpha(m) = tm   !max(vu(k,m),k=1,kval)
+  end do
+  valpha(m) = 1-valpha(m)*valpha(m)
+  if (valpha(m) > depc) valpha(m) = sqrt(valpha(m))
+  deff(m) = abs(eval(m)-eeval(m))
+end do
+!***********************************************************************
 !
-!     write(6,*) 'diagonalization of matrix p(j,j)'
+! construction of the new approximate eigenvector vcm(n)'
 !
-!==============================================================
-200   iterat=iterat+1
-      if(iterat.eq.200) then
-        write(6,*) " h0 space fail to converged"
-        write(6,*) " program stop"
-        call abend()
-      endif
-      eeval(1:mroot)=eval(1:mroot)
-      call hotred(minspace,kval,vp,vd,ve,vu)
-      call qlcm(minspace,kval,vd,ve,vu)
+!***********************************************************************
+ijm = indx(mrsta)
+vcm(ijm+1:ndim*mroot) = 0.0d0
+do k=1,kval
+  ijb = indx(k)
+  do m=mrsta,mroot
+    ijm = indx(m)
+    vukm = vu(k,m)
+    do i=1,ndim
+      vcm(ijm+i) = vcm(ijm+i)+vukm*vb1(ijb+i)
+    end do
+  end do
+end do
 
-      valpha(mrsta:mroot)=0.d0
-      do m=mrsta,mroot
-        eval(m)=vd(m)
-        do k=1,kval
-          tm=abs(vu(k,m))
-         if(valpha(m).lt.tm) valpha(m)=tm   !max(vu(k,m),k=1,kval)
-        enddo
-        valpha(m)=1-valpha(m)*valpha(m)
-        if(valpha(m).gt.depc) valpha(m)=sqrt(valpha(m))
-        deff(m)  =abs(eval(m)-eeval(m))
-      enddo
-!****************************************************************
-!
-!     construction of the new approximate eigenvector vcm(n)'
-!
-!****************************************************************
-      ijm=indx(mrsta)
-      vcm(ijm+1:ndim*mroot)=0.0d0
-      do k=1,kval
-        ijb=indx(k)
-        do m=mrsta,mroot
-          ijm=indx(m)
-          vukm=vu(k,m)
-          do i=1,ndim
-            vcm(ijm+i)=vcm(ijm+i)+vukm*vb1(ijb+i)
-          enddo
-        enddo
-      enddo
+!do i=1,ndim
+!  write(6,'(i8,f18.8)') i,vcm(i)
+!end do
 
-      !do i=1,ndim
-      !    write(6,"(i8,f18.8)") i, vcm(i)
-      !enddo
+write(6,1113) iterat,kval,(m,eval(m),deff(m),m=mrsta,mroot)
+1113 format(2i3,10(2x,i2,f14.8,f14.8))
 
+nroot = mroot-mrsta+1
 
-      write(6,1113) iterat,kval,                                        &
-     &        (m,eval(m),deff(m),m=mrsta,mroot)
-1113  format(2i3,10(2x,i2,f14.8,f14.8))
+if (kval == mroot*2) goto 10
 
-      nroot=mroot-mrsta+1
+mrsta0 = mrsta
+do m=mrsta0,mroot
+  !if ((deff(m) < ecrita(m)) .or. (valpha(m) < dcrita)) then     ! conv
+  if ((m == mrsta) .and. (deff(m) < ecrita(m))) then             ! conv
+    !if (valpha(m) < dcrita) then                                ! conve
+    mrsta = mrsta+1
+  end if
+end do
+!mrsta = mrsta+mrooted
+nroot = mroot-mrsta+1
+if (mrsta > mroot) then
+  write(6,*)
+  write(6,*) mroot,' roots are convegenced,after',iterat,' iterat'
+  goto 300
+end if
 
-      if(kval.eq.mroot*2) goto 10
+10 continue
+mmspace = min(mroot*3+10,ndim)
+!nroot = 1             ! bbs debug error?
+if (kval+nroot > mmspace) then
 
-      mrsta0=mrsta
-      do m=mrsta0,mroot
-!        if(deff(m).lt.ecrita(m).or.valpha(m).lt.dcrita) then     ! conv
-        if(m.eq.mrsta.and.deff(m).lt.ecrita(m)) then              ! conv
-!         if(valpha(m).lt.dcrita) then                           ! conve
-         mrsta=mrsta+1
-        endif
-      enddo
-!      mrsta=mrsta+mrooted
-      nroot=mroot-mrsta+1
-      if(mrsta.gt.mroot) then
-        write(6,*)
-        write(6,*)mroot,' roots are convegenced,after',iterat,' iterat'
-        goto 300
-      endif
+  !===== start  reset_basis ============================================
 
-10    mmspace=min(mroot*3+10,ndim)
-!      nroot=1             ! bbs debug error?
-      if(kval+nroot.gt.mmspace) then
+  do m=mrsta,kval
+    indxm = indx(m)
+    vb1(indxm+1:indxm+ndim) = 0.0d0
+  end do
+  do m=mrsta,mroot
+    ijm = indx(m)
+    do k=1,kval
+      ijb = indx(k)
+      vukm = vu(k,m)
+      do l=1,ndim
+        vb1(ijm+l) = vb1(ijm+l)+vukm*vb2(ijb+l)  ! h*cm-->vb1
+      end do
+    end do
+  end do
+  ijm = indx(mrsta)
+  vb2(ijm+1:ijm+ndim*nroot) = vb1(ijm+1:ijm+ndim*nroot)  ! h*cm-->vb
+  vb1(ijm+1:ijm+ndim*nroot) = vcm(ijm+1:ijm+ndim*nroot)  !   cm-->vb
+  residvb(mrsta:mroot) = 0.d0
 
-!===== start  reset_basis ======================================
+  mval = mroot
+  do m=mrsta,mroot
+    ijm = indx(m)
+    mval = mval+1
+    ijmb1 = indx(mval)
+    do l=1,ndim
+      depcc = eval(m)-vad(l)
+      if (abs(depcc) < depc) depcc = depc
+      vb1(ijmb1+l) = (vb2(ijm+l)-vcm(ijm+l)*eval(m))/depcc
+      residvb(m) = residvb(m)+vb1(ijmb1+l)*vb1(ijmb1+l)
+    end do
+    call orthnor(ndim,mval,dcrita,vb1,nxb)
+  end do
 
-        do m=mrsta,kval
-          indxm=indx(m)
-          vb1(indxm+1:indxm+ndim)=0.0d0
-        enddo
-        do m=mrsta,mroot
-          ijm=indx(m)
-          do k=1,kval
-            ijb=indx(k)
-            vukm=vu(k,m)
-            do l=1,ndim
-              vb1(ijm+l)=vb1(ijm+l)+vukm*vb2(ijb+l)  ! h*cm-->vb1
-            enddo
-          enddo
-        enddo
-        ijm=indx(mrsta)
-        vb2(ijm+1:ijm+ndim*nroot)=vb1(ijm+1:ijm+ndim*nroot)  ! h*cm-->vb
-        vb1(ijm+1:ijm+ndim*nroot)=vcm(ijm+1:ijm+ndim*nroot)  !   cm-->vb
-        residvb(mrsta:mroot)=0.d0
+  vb2(indx(mroot+1)+1:indx(kval+1)) = 0.d0
+  kval = mroot+nroot
+  mval = mroot+1
+  mn = mroot*(mroot+1)/2
+  vp(1:mn) = 0.0d0
+  mn = 0
+  do m=1,mroot
+    mn = mn+m
+    vp(mn) = eval(m)
+  end do
+  goto 100
+  !===== end  reset_basis ==============================================
+end if
 
-        mval=mroot
-        do m=mrsta,mroot
-          ijm=indx(m)
-          mval=mval+1
-          ijmb1=indx(mval)
-          do l=1,ndim
-            depcc= eval(m)-vad(l)
-            if(abs(depcc).lt.depc) depcc=depc
-            vb1(ijmb1+l)=(vb2(ijm+l)-vcm(ijm+l)*eval(m))/depcc
-            residvb(m)=residvb(m)+vb1(ijmb1+l)*vb1(ijmb1+l)
-          enddo
-          call orthnor(ndim,mval,dcrita,vb1,nxb)
-        enddo
+! form the (j+1)-th approximate vector, vb1(n,j+1)
 
-        vb2(indx(mroot+1)+1:indx(kval+1)) =0.d0
-        kval=mroot+nroot
-        mval=mroot+1
-        mn=mroot*(mroot+1)/2
-        vp(1:mn)=0.0d0
-        mn=0
-        do m=1,mroot
-          mn=mn+m
-          vp(mn)=eval(m)
-        enddo
-        goto 100
-!===== end  reset_basis ======================================
-      endif
+jib1 = indx(kval)
+jicm = indx(mrsta)
 
-!
-!     form the (j+1)-th approximate vector , vb1(n,j+1)
-!
-      jib1=indx(kval)
-      jicm=indx(mrsta)
+residvb(mrsta:mroot) = 0.d0
+do m=mrsta,mroot
+  jib1 = jib1+ndim
+  do k=1,kval
+    jib2 = indx(k)
+    do l=1,ndim
+      vb1(jib1+l) = vb1(jib1+l)+vu(k,m)*vb2(jib2+l)
+    end do
+  end do
 
-      residvb(mrsta:mroot)=0.d0
-      do m=mrsta,mroot
-        jib1=jib1+ndim
-        do k=1,kval
-          jib2=indx(k)
-          do l=1,ndim
-            vb1(jib1+l)=vb1(jib1+l)+vu(k,m)*vb2(jib2+l)
-          enddo
-        enddo
+  do l=1,ndim
+    depcc = eval(m)-vad(l)
+    if (abs(depcc) < depc) depcc = depc
+    vb1(jib1+l) = (vb1(jib1+l)-vcm(jicm+l)*eval(m))/depcc
+    residvb(m) = residvb(m)+vb1(jib1+l)*vb1(jib1+l)
+  end do
+  jicm = jicm+ndim
+end do
+mval = kval+1
+do m=mrsta,mroot
+  kval = kval+1
+  call orthnor(ndim,kval,dcrita,vb1,nxb)
+end do
 
-        do l=1,ndim
-          depcc= eval(m)-vad(l)
-          if(abs(depcc).lt.depc) depcc=depc
-          vb1(jib1+l)=(vb1(jib1+l)-vcm(jicm+l)*eval(m))/depcc
-          residvb(m)=residvb(m)+vb1(jib1+l)*vb1(jib1+l)
-        enddo
-        jicm=jicm+ndim
-      enddo
-      mval=kval+1
-      do m=mrsta,mroot
-        kval=kval+1
-        call orthnor(ndim,kval,dcrita,vb1,nxb)
-      enddo
+100 continue
+call abprod2(ndim,mval,kval,th,nxh,vb1,vb2,nxb,vad)
+call matrmk2(ndim,mval,kval,indx,vp,vb1,vb2,nxb)
 
-100   call abprod2(ndim,mval,kval,th,nxh,vb1,vb2,nxb,vad)
-      call matrmk2(ndim,mval,kval,indx,vp,vb1,vb2,nxb)
+!=====  write out p_matrix =============================================
+!write(6,*)
+!write(nf2,*)
+!l = 0
+!do k=1,kval
+!  write(6,1112) (vp(i),i=l+1,l+k)
+!  write(nf2,1112) (vp(i),i=l+1,l+k)
+!  l = l+k
+!end do
+!write(6,*)
+!=====  write out p_matrix =============================================
 
-!=====  write out p_matrix =======================================
-!      write(6,*)
-!      write(nf2,*)
-!      l=0
-!      do k=1,kval
-!        write(6 ,1112) (vp(i),i=l+1,l+k)
-!        write(nf2,1112) (vp(i),i=l+1,l+k)
-!        l=l+k
-!     enddo
-!      write(6,*)
-!=====  write out p_matrix =======================================
+goto 200
 
-      goto 200
-!
-300   continue
+300 continue
 
-      ! copy ci vector to VB1
-      do m=1,mroot
-        ijm=indx(m)
-        vb1(ijm+1:ijm+ndim)=vcm(ijm+1:ijm+ndim)
-!       write(nf1) eval(m),(vcm(ijm+i),i=1,ndim)
-!        write(6,"(5(1x,f18.9),1x,i2)") (vcm(ijm+i),i=1,4),vcm(35)
-      enddo
+! copy ci vector to VB1
+do m=1,mroot
+  ijm = indx(m)
+  vb1(ijm+1:ijm+ndim) = vcm(ijm+1:ijm+ndim)
+  !write(nf1) eval(m),(vcm(ijm+i),i=1,ndim)
+  !write(6,'(5(1x,f18.9),1x,i2)') (vcm(ijm+i),i=1,4),vcm(35)
+end do
 
-1112  format(2x,20f14.8)
+1112 format(2x,20f14.8)
 
-      return
-      end
+return
 
-      subroutine matrmk2(n,k1,k2,indx,p,vb1,vb2,nxb)
-      implicit real*8  (a-h,o-z)
-      dimension p(465),indx(30),vb1(nxb),vb2(nxb)
-      do 200 i=k1,k2
-      iijj=i*(i-1)/2
-      ij=indx(i)
-      do 201 j=1,i
-      ji=indx(j)
-      p(iijj+j)=0.0d0
-!--------------------------------------------------------------
-      do 202 l=1,n
-!-----------------------------------------------------------------
-      p(iijj+j)=p(iijj+j)+vb1(ij+l)*vb2(ji+l)
-202   continue
-201   continue
-200   continue
-      return
-      end
+end subroutine hymat_2
 
-      subroutine abprod2(n,k1,k2,th,nxh,vb1,vb2,nxb,vad)
+subroutine matrmk2(n,k1,k2,indx,p,vb1,vb2,nxb)
+
+implicit real*8(a-h,o-z)
+dimension p(465), indx(30), vb1(nxb), vb2(nxb)
+
+do i=k1,k2
+  iijj = i*(i-1)/2
+  ij = indx(i)
+  do j=1,i
+    ji = indx(j)
+    p(iijj+j) = 0.0d0
+    !-------------------------------------------------------------------
+    do l=1,n
+      !-----------------------------------------------------------------
+      p(iijj+j) = p(iijj+j)+vb1(ij+l)*vb2(ji+l)
+    end do
+  end do
+end do
+
+return
+
+end subroutine matrmk2
+
+subroutine abprod2(n,k1,k2,th,nxh,vb1,vb2,nxb,vad)
+
 #include "drt_h.fh"
-      dimension th(nxh),vb1(nxb),vb2(nxb),vad(n)
-      !real*8,allocatable :: buff(:)
-      !allocate(buff(n))
-      ij=0
-      do j=k1,k2
-        ij=indx(j)
-        do i=1,n
-          vb2(ij+i)=vad(i)*vb1(ij+i)
-        enddo
-      enddo
-!-------------------------------------------------------------------
-      do 200 i=2,n
-      mn=i*(i-1)/2
-      do 201 j=k1,k2
-      ij=indx(j)
-      do 202 l=1,i-1
-      vb2(ij+i)=vb2(ij+i)+th(mn+l)*vb1(ij+l)
-      vb2(ij+l)=vb2(ij+l)+th(mn+l)*vb1(ij+i)
-202   continue
-201   continue
-200   continue
-!-------------------------------------------------------------------
-      return
-      end
-!
-      subroutine orthnor(n,j,dcrita,vb1,nxb)
+dimension th(nxh), vb1(nxb), vb2(nxb), vad(n)
+!real*8, allocatable :: buff(:)
+
+!allocate(buff(n))
+ij = 0
+do j=k1,k2
+  ij = indx(j)
+  do i=1,n
+    vb2(ij+i) = vad(i)*vb1(ij+i)
+  end do
+end do
+!-----------------------------------------------------------------------
+do i=2,n
+  mn = i*(i-1)/2
+  do j=k1,k2
+    ij = indx(j)
+    do l=1,i-1
+      vb2(ij+i) = vb2(ij+i)+th(mn+l)*vb1(ij+l)
+      vb2(ij+l) = vb2(ij+l)+th(mn+l)*vb1(ij+i)
+    end do
+  end do
+end do
+!-----------------------------------------------------------------------
+return
+
+end subroutine abprod2
+
+subroutine orthnor(n,j,dcrita,vb1,nxb)
+
 #include "drt_h.fh"
-      dimension vb1(nxb)
-      ji=indx(j)
-      if(j.eq.1) goto 150
-      jm=j-1
-      smax2=1.d10
-120   smax1=0.0d0
-      do 140 l=1,jm
-      s=0.0d0
-      ij=indx(l)
-      do 130 i=1,n
-      s=s+vb1(ij+i)*vb1(ji+i)
-130   continue
-      smax1=max(smax1,abs(s))
-      do 141 i=1,n
-        vb1(ji+i)=vb1(ji+i)-s*vb1(ij+i)
-141   continue
-140   continue
+dimension vb1(nxb)
 
-      if(smax1.lt.dcrita) goto 150
-      if(smax1.gt.smax2) then
-         write(6,*) 'dgnalization procedure is non-convergent.'
-#ifdef MOLPRO
-#else
-      call abend()
-#endif
-#ifdef _XIANEST_
-#endif
-!        call abend
-!         stop
-      endif
-      smax2=smax1
-      goto 120
-!     normalization of j-th eigenvector.
-150   s=0.0d0
-      do 160 i=1,n
-      s=s+vb1(ji+i)*vb1(ji+i)
-160   continue
-      s=sqrt(s)
-      do 170 i=1,n
-      vb1(ji+i)=vb1(ji+i)/s
-170   continue
-      return
-      end
-!
+ji = indx(j)
+if (j == 1) goto 150
+jm = j-1
+smax2 = 1.d10
+120 continue
+smax1 = 0.0d0
+do l=1,jm
+  s = 0.0d0
+  ij = indx(l)
+  do i=1,n
+    s = s+vb1(ij+i)*vb1(ji+i)
+  end do
+  smax1 = max(smax1,abs(s))
+  do i=1,n
+    vb1(ji+i) = vb1(ji+i)-s*vb1(ij+i)
+  end do
+end do
 
-      subroutine norm_a(n,av)  !bv:basis, av:vector for orth and norm
-      real*8 av(n),s,ddot_,dcrita
-      dcrita=1.0d-10
-!     normalization of av_eigenvector.
-      s=0.0d0
-      s=ddot_(n,av,1,av,1)
-      s=sqrt(s)
-      s=max(s,dcrita)
-      do i=1,n
-        av(i)=av(i)/s
-      enddo
+if (smax1 < dcrita) goto 150
+if (smax1 > smax2) then
+  write(6,*) 'dgnalization procedure is non-convergent.'
+# ifndef MOLPRO
+  call abend()
+# endif
+  !call abend()
+end if
+smax2 = smax1
+goto 120
+! normalization of j-th eigenvector.
+150 continue
+s = 0.0d0
+do i=1,n
+  s = s+vb1(ji+i)*vb1(ji+i)
+end do
+s = sqrt(s)
+do i=1,n
+  vb1(ji+i) = vb1(ji+i)/s
+end do
 
-      return
-      end
+return
 
-      subroutine orth_ab(n,av,bv)  !bv:basis, av:vector for orth
-      real*8 av(n),bv(n),s,ddot_
-!     orthogonalization av,bv
-      s=ddot_(n,av,1,bv,1)
+end subroutine orthnor
 
-      do i=1,n
-        av(i)=av(i)-s*bv(i)
-      enddo
-      return
-      end
+subroutine norm_a(n,av)  !bv:basis, av:vector for orth and norm
+
+real*8 av(n), s, ddot_, dcrita
+
+dcrita = 1.0d-10
+! normalization of av_eigenvector.
+s = 0.0d0
+s = ddot_(n,av,1,av,1)
+s = sqrt(s)
+s = max(s,dcrita)
+do i=1,n
+  av(i) = av(i)/s
+end do
+
+return
+
+end subroutine norm_a
+
+subroutine orth_ab(n,av,bv)  !bv:basis, av:vector for orth
+
+real*8 av(n), bv(n), s, ddot_
+
+! orthogonalization av,bv
+s = ddot_(n,av,1,bv,1)
+
+do i=1,n
+  av(i) = av(i)-s*bv(i)
+end do
+
+return
+
+end subroutine orth_ab

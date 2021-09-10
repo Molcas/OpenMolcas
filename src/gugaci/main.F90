@@ -8,18 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       program main
+
+program Main
+
 #ifdef _FPE_TRAP_
-       Use, Intrinsic :: IEEE_Exceptions
-       Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
+use, intrinsic :: IEEE_Exceptions, only: IEEE_Set_Halting_Mode, IEEE_Usual
+use Definitions, only: DefInt
 #endif
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: rc
+
+#ifdef _FPE_TRAP_
+call IEEE_Set_Halting_Mode(IEEE_Usual,.true._DefInt)
+#endif
+
 #ifdef MOLPRO
-       Call Startpgm('mrci')
-       Call gugaci(ireturn)
-       Call stoppgm('mrci',ireturn)
+call Startpgm('mrci')
+call gugaci(rc)
+call stoppgm('mrci',rc)
 #else
-       Call Start('gugaci')
-       Call gugaci(ireturn)
-       Call Finish(ireturn)
+call Start('gugaci')
+call gugaci(rc)
+call Finish(rc)
 #endif
-       end
+
+end program Main

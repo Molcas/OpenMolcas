@@ -8,1251 +8,1307 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!---------------------------------------bbs act-ext
-      subroutine ar_bl_dd_ext(lri,lrj,nk)
+
+! bbs act-ext
+subroutine ar_bl_dd_ext(lri,lrj,nk)
+
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-!      write(nf2,*) 'ar_bl_dd_ext'
-      logic_g49b=.true.
-      iwuplwei=jpad_upwei(jpadl)
-      ilsegdownwei=iseg_downwei(ipael)
-      irsegdownwei=iseg_downwei(ipae)
-      ildownwei_segdd=iseg_downwei(ipael)
-      irdownwei_segdd=iseg_downwei(ipae)
-      iml0= iml
-      imr0= imr
-      do iw0=1,mtype
-        w0_plp=vplpnew_w0(iw0)
-        w1_plp=vplpnew_w1(iw0)
-        if(logic_dh) w0_plp=vplp_w0(iw0)
-        if(logic_dh) w1_plp=vplp_w1(iw0)
 
-      if(logic_grad) then
-        call lp_arbl_ext_dd_calcuvalue_g                                &
-     &                      (lri,lrj,iml0,imr0,nlp_value)
-        ilpsta=nstaval(iw0)*nk+1
-        ilpend=(nstaval(iw0)+nvalue(iw0))*nk
-        do iplp=ilpsta,ilpend
-          if(logic_dh) then                    !lp_head is in dbl_space
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
-           call inn_ext_dd_loop_unpack_g(ilw,irw)
-          else                                    !lp_head is in act_spa
-            ihypos=jphy(iplp)
-            ndim =ihy(ihypos)
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihypos+in)
-              iwar=iwar0+ihy(ihypos+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call inn_ext_dd_loop_unpack_g(ilw,irw)
-              enddo
-            enddo
-          endif
-        enddo
-      else
-        call lp_arbl_ext_dd_calcuvalue(lri,lrj,iml0,imr0,nlp_value)
-        ilpsta=nstaval(iw0)*nk+1
-        ilpend=(nstaval(iw0)+nvalue(iw0))*nk
-        do iplp=ilpsta,ilpend
-          if(logic_dh) then                    !lp_head is in dbl_space
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
-           call inn_ext_dd_loop_unpack(ilw,irw)
-          else                                    !lp_head is in act_spa
-            ihypos=jphy(iplp)
-            ndim =ihy(ihypos)
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihypos+in)
-              iwar=iwar0+ihy(ihypos+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call inn_ext_dd_loop_unpack(ilw,irw)
-              enddo
-            enddo
-          endif
-        enddo
-      endif
-      enddo
-      return
-      end
+!write(nf2,*) 'ar_bl_dd_ext'
+logic_g49b = .true.
+iwuplwei = jpad_upwei(jpadl)
+ilsegdownwei = iseg_downwei(ipael)
+irsegdownwei = iseg_downwei(ipae)
+ildownwei_segdd = iseg_downwei(ipael)
+irdownwei_segdd = iseg_downwei(ipae)
+iml0 = iml
+imr0 = imr
+do iw0=1,mtype
+  w0_plp = vplpnew_w0(iw0)
+  w1_plp = vplpnew_w1(iw0)
+  if (logic_dh) w0_plp = vplp_w0(iw0)
+  if (logic_dh) w1_plp = vplp_w1(iw0)
 
-      subroutine drl_dd_ext(lri)
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
-      iwuplwei=jpad_upwei(jpadl)
-      ildownwei_segdd=iseg_downwei(ipael)
-      irdownwei_segdd=iseg_downwei(ipae)
-
-      do iw0=1,mtype
-        w0_plp=vplpnew_w0(iw0)
-        w1_plp=vplpnew_w1(iw0)
-        if(logic_dh) w0_plp=vplp_w0(iw0)
-        if(logic_dh) w1_plp=vplp_w1(iw0)
-        ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
-          ilw=lp_lwei(iplp)
-          irw=lp_rwei(iplp)
-          logic_g49b=.false.
-          if(ilw.ne.irw) logic_g49b=.true.
-
-      if(logic_grad) then
-!          call lp_drl_ext_dd_calcuvalue_g(lri,iml,nlp_value)
-          if(logic_dh) then                       !lp_head is in dbl_spa
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
-            logic_g49b=.false.
-            if(ilw.ne.irw) logic_g49b=.true.
-            call lp_drl_ext_dd_calcuvalue_g(lri,iml,nlp_value)
+  if (logic_grad) then
+    call lp_arbl_ext_dd_calcuvalue_g(lri,lrj,iml0,imr0,nlp_value)
+    ilpsta = nstaval(iw0)*nk+1
+    ilpend = (nstaval(iw0)+nvalue(iw0))*nk
+    do iplp=ilpsta,ilpend
+      if (logic_dh) then                    !lp_head is in dbl_space
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call inn_ext_dd_loop_unpack_g(ilw,irw)
+      else                                  !lp_head is in act_spa
+        ihypos = jphy(iplp)
+        ndim = ihy(ihypos)
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihypos+in)
+          iwar = iwar0+ihy(ihypos+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
             call inn_ext_dd_loop_unpack_g(ilw,irw)
-          else                                    !lp_head is in act_spa
-            ihypos=jphy(iplp)
-            ndim =ihy(ihypos)
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            logic_g49b=.false.
-            if(iwal0.ne.iwar0) logic_g49b=.true.
-            call lp_drl_ext_dd_calcuvalue_g(lri,iml,nlp_value)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihypos+in)
-              iwar=iwar0+ihy(ihypos+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call inn_ext_dd_loop_unpack_g(ilw,irw)
-            enddo
-            enddo
-          endif
-      else
-!          call lp_drl_ext_dd_calcuvalue_wyb(lri,iml,nlp_value)
-          if(logic_dh) then                       !lp_head is in dbl_spa
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
-            logic_g49b=.false.
-            if(ilw.ne.irw) logic_g49b=.true.
-            call lp_drl_ext_dd_calcuvalue_wyb(lri,iml,nlp_value)
+          end do
+        end do
+      end if
+    end do
+  else
+    call lp_arbl_ext_dd_calcuvalue(lri,lrj,iml0,imr0,nlp_value)
+    ilpsta = nstaval(iw0)*nk+1
+    ilpend = (nstaval(iw0)+nvalue(iw0))*nk
+    do iplp=ilpsta,ilpend
+      if (logic_dh) then                    !lp_head is in dbl_space
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call inn_ext_dd_loop_unpack(ilw,irw)
+      else                                  !lp_head is in act_spa
+        ihypos = jphy(iplp)
+        ndim = ihy(ihypos)
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihypos+in)
+          iwar = iwar0+ihy(ihypos+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
             call inn_ext_dd_loop_unpack(ilw,irw)
-          else                                    !lp_head is in act_spa
-            ihypos=jphy(iplp)
-            ndim =ihy(ihypos)
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            logic_g49b=.false.
-            if(iwal0.ne.iwar0) logic_g49b=.true.
-            call lp_drl_ext_dd_calcuvalue_wyb(lri,iml,nlp_value)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihypos+in)
-              iwar=iwar0+ihy(ihypos+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call inn_ext_dd_loop_unpack(ilw,irw)
-            enddo
-            enddo
-          endif
-       endif
-        enddo
-      enddo
-      return
-      end
+          end do
+        end do
+      end if
+    end do
+  end if
+end do
 
-      subroutine drl_ss_ext(lri)
+return
+
+end subroutine ar_bl_dd_ext
+
+subroutine drl_dd_ext(lri)
+
+#include "drt_h.fh"
+#include "pl_structure_h.fh"
+#include "intsort_h.fh"
+#include "lpextmode_h.fh"
+
+iwuplwei = jpad_upwei(jpadl)
+ildownwei_segdd = iseg_downwei(ipael)
+irdownwei_segdd = iseg_downwei(ipae)
+
+do iw0=1,mtype
+  w0_plp = vplpnew_w0(iw0)
+  w1_plp = vplpnew_w1(iw0)
+  if (logic_dh) w0_plp = vplp_w0(iw0)
+  if (logic_dh) w1_plp = vplp_w1(iw0)
+  ilpsta = nstaval(iw0)+1
+  ilpend = nstaval(iw0)+nvalue(iw0)
+  do iplp=ilpsta,ilpend
+    ilw = lp_lwei(iplp)
+    irw = lp_rwei(iplp)
+    logic_g49b = .false.
+    if (ilw /= irw) logic_g49b = .true.
+
+    if (logic_grad) then
+      !call lp_drl_ext_dd_calcuvalue_g(lri,iml,nlp_value)
+      if (logic_dh) then                      !lp_head is in dbl_spa
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        logic_g49b = .false.
+        if (ilw /= irw) logic_g49b = .true.
+        call lp_drl_ext_dd_calcuvalue_g(lri,iml,nlp_value)
+        call inn_ext_dd_loop_unpack_g(ilw,irw)
+      else                                    !lp_head is in act_spa
+        ihypos = jphy(iplp)
+        ndim = ihy(ihypos)
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        logic_g49b = .false.
+        if (iwal0 /= iwar0) logic_g49b = .true.
+        call lp_drl_ext_dd_calcuvalue_g(lri,iml,nlp_value)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihypos+in)
+          iwar = iwar0+ihy(ihypos+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
+            call inn_ext_dd_loop_unpack_g(ilw,irw)
+          end do
+        end do
+      end if
+    else
+      !call lp_drl_ext_dd_calcuvalue_wyb(lri,iml,nlp_value)
+      if (logic_dh) then                      !lp_head is in dbl_spa
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        logic_g49b = .false.
+        if (ilw /= irw) logic_g49b = .true.
+        call lp_drl_ext_dd_calcuvalue_wyb(lri,iml,nlp_value)
+        call inn_ext_dd_loop_unpack(ilw,irw)
+      else                                    !lp_head is in act_spa
+        ihypos = jphy(iplp)
+        ndim = ihy(ihypos)
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        logic_g49b = .false.
+        if (iwal0 /= iwar0) logic_g49b = .true.
+        call lp_drl_ext_dd_calcuvalue_wyb(lri,iml,nlp_value)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihypos+in)
+          iwar = iwar0+ihy(ihypos+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
+            call inn_ext_dd_loop_unpack(ilw,irw)
+          end do
+        end do
+      end if
+    end if
+  end do
+end do
+
+return
+
+end subroutine drl_dd_ext
+
+subroutine drl_ss_ext(lri)
+
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0d-8/
+data crl/1.0d-8/
 
-      logic_g1415=.false.
-      logic_g2g4b=.false.
-      logic_g36b=.false.
-      logic_g35b=.false.
-      logic_g34b=.false.
-      iwuplwei=jpad_upwei(jpadl)
-      ilsegdownwei=iseg_downwei(ipael)
-      irsegdownwei=iseg_downwei(ipae)
-      ildownwei_segdd=iseg_downwei(ipael)
-      irdownwei_segdd=iseg_downwei(ipae)
+logic_g1415 = .false.
+logic_g2g4b = .false.
+logic_g36b = .false.
+logic_g35b = .false.
+logic_g34b = .false.
+iwuplwei = jpad_upwei(jpadl)
+ilsegdownwei = iseg_downwei(ipael)
+irsegdownwei = iseg_downwei(ipae)
+ildownwei_segdd = iseg_downwei(ipael)
+irdownwei_segdd = iseg_downwei(ipae)
 
-      w0_plp=vplpnew_w0(1)
-      if(logic_dh) w0_plp=vplp_w0(1)
+w0_plp = vplpnew_w0(1)
+if (logic_dh) w0_plp = vplp_w0(1)
 
-      if(logic_grad) then
-      call lp_drl_ext_ss_calcuvalue_g(lri,nlp_value)
-      w0_old=w0_plp
-      do iw0=1,mtype
-        if(iw0.eq.1) goto 201
-        w0_plp=vplpnew_w0(iw0)
-        if(logic_dh) w0_plp=vplp_w0(iw0)
-        if(abs(w0_plp).lt.crl) cycle
-        w0multi=w0_plp/w0_old
-        w0_old=w0_plp
-        do iiext=1,nlp_value
-         value_lpext(iiext)=value_lpext(iiext)*w0multi
-         value_lpext1(iiext)=value_lpext1(iiext)*w0multi
-        enddo
+if (logic_grad) then
+  call lp_drl_ext_ss_calcuvalue_g(lri,nlp_value)
+  w0_old = w0_plp
+  do iw0=1,mtype
+    if (iw0 == 1) goto 201
+    w0_plp = vplpnew_w0(iw0)
+    if (logic_dh) w0_plp = vplp_w0(iw0)
+    if (abs(w0_plp) < crl) cycle
+    w0multi = w0_plp/w0_old
+    w0_old = w0_plp
+    do iiext=1,nlp_value
+      value_lpext(iiext) = value_lpext(iiext)*w0multi
+      value_lpext1(iiext) = value_lpext1(iiext)*w0multi
+    end do
 
-201     ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
-          if(logic_dh) then                    !lp_head is in dbl_space
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
+201 continue
+    ilpsta = nstaval(iw0)+1
+    ilpend = nstaval(iw0)+nvalue(iw0)
+    do iplp=ilpsta,ilpend
+      if (logic_dh) then                    !lp_head is in dbl_space
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call inn_ext_ss_drl_loop_unpack_g(ilw,irw)
+      else                                  !lp_head is in act_spa
+        ihypos = jphy(iplp)
+        ndim = ihy(ihypos)
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihypos+in)
+          iwar = iwar0+ihy(ihypos+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
             call inn_ext_ss_drl_loop_unpack_g(ilw,irw)
-          else                                    !lp_head is in act_spa
-            ihypos=jphy(iplp)
-            ndim =ihy(ihypos)
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihypos+in)
-              iwar=iwar0+ihy(ihypos+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call inn_ext_ss_drl_loop_unpack_g(ilw,irw)
-              enddo
-            enddo
-          endif
-        enddo
-      enddo
+          end do
+        end do
+      end if
+    end do
+  end do
 
-      else
-      call lp_drl_ext_ss_calcuvalue(lri,nlp_value)
-      w0_old=w0_plp
-      do iw0=1,mtype
-        if(iw0.eq.1) goto 202
-        w0_plp=vplpnew_w0(iw0)
-        if(logic_dh) w0_plp=vplp_w0(iw0)
-        if(abs(w0_plp).lt.crl) cycle
-        w0multi=w0_plp/w0_old
-        w0_old=w0_plp
-        do iiext=1,nlp_value
-         value_lpext(iiext)=value_lpext(iiext)*w0multi
-        enddo
+else
+  call lp_drl_ext_ss_calcuvalue(lri,nlp_value)
+  w0_old = w0_plp
+  do iw0=1,mtype
+    if (iw0 == 1) goto 202
+    w0_plp = vplpnew_w0(iw0)
+    if (logic_dh) w0_plp = vplp_w0(iw0)
+    if (abs(w0_plp) < crl) cycle
+    w0multi = w0_plp/w0_old
+    w0_old = w0_plp
+    do iiext=1,nlp_value
+      value_lpext(iiext) = value_lpext(iiext)*w0multi
+    end do
 
-202     ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
-          if(logic_dh) then                    !lp_head is in dbl_space
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
+202 continue
+    ilpsta = nstaval(iw0)+1
+    ilpend = nstaval(iw0)+nvalue(iw0)
+    do iplp=ilpsta,ilpend
+      if (logic_dh) then                    !lp_head is in dbl_space
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call inn_ext_ss_drl_loop_unpack(ilw,irw)
+      else                                  !lp_head is in act_spa
+        ihypos = jphy(iplp)
+        ndim = ihy(ihypos)
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihypos+in)
+          iwar = iwar0+ihy(ihypos+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
             call inn_ext_ss_drl_loop_unpack(ilw,irw)
-          else                                    !lp_head is in act_spa
-            ihypos=jphy(iplp)
-            ndim =ihy(ihypos)
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihypos+in)
-              iwar=iwar0+ihy(ihypos+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call inn_ext_ss_drl_loop_unpack(ilw,irw)
-              enddo
-            enddo
-          endif
-        enddo
-      enddo
-      endif
-      return
-      end
+          end do
+        end do
+      end if
+    end do
+  end do
+end if
 
+return
 
-      subroutine drl_ss_sum(lri,lrj)
+end subroutine drl_ss_ext
+
+subroutine drl_ss_sum(lri,lrj)
+
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-                  logic_g1415=.false.
-                  logic_g2g4b=.false.
-                  logic_g36b=.false.
-                  logic_g35b=.false.
-                  logic_g34b=.false.
-      data crl/1.0d-8/
-      if(logic_grad) then
-      do lrk=1,norb_dz
-         if(lri.eq.lrk)   cycle
-         if(lrj.eq.lrk)   cycle
-      ilsegdownwei=iseg_downwei(ipael)
-      irsegdownwei=iseg_downwei(ipae)
-      ildownwei_segdd=iseg_downwei(ipael)
-      irdownwei_segdd=iseg_downwei(ipae)
-      w0_plp=vplp_w0(1)
-      call lp_drl_ext_ss_calcuvalue_g(lrk,nlp_value)
-      w0_old=w0_plp
-      do iw0=1,mtype
-        if(iw0.eq.1) goto 201
-        w0_plp=vplp_w0(iw0)
-        if(abs(w0_plp).lt.crl) cycle
-        w0multi=w0_plp/w0_old
-        w0_old=w0_plp
-        do iiext=1,nlp_value
-         value_lpext(iiext)=value_lpext(iiext)*w0multi
-         value_lpext1(iiext)=value_lpext1(iiext)*w0multi
-        enddo
-201     ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
-            call inn_ext_ss_drl_loop_unpack_g(ilw,irw)
-        enddo
-      enddo
-      enddo
 
-      else
-      ilsegdownwei=iseg_downwei(ipael)
-      irsegdownwei=iseg_downwei(ipae)
-      ildownwei_segdd=iseg_downwei(ipael)
-      irdownwei_segdd=iseg_downwei(ipae)
-      w0_plp=vplp_w0(1)
-      call lp_drl_sum_ss_calcuvalue(lri,lrj,nlp_value)
-      w0_old=w0_plp
-      do iw0=1,mtype
-        if(iw0.eq.1) goto 202
-        w0_plp=vplp_w0(iw0)
-        if(abs(w0_plp).lt.crl) cycle
-        w0multi=w0_plp/w0_old
-        w0_old=w0_plp
-        do iiext=1,nlp_value
-         value_lpext(iiext)=value_lpext(iiext)*w0multi
-        enddo
-202     ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
-            call inn_ext_ss_drl_loop_unpack(ilw,irw)
-        enddo
-      enddo
-      endif
+logic_g1415 = .false.
+logic_g2g4b = .false.
+logic_g36b = .false.
+logic_g35b = .false.
+logic_g34b = .false.
+data crl/1.0d-8/
 
-      return
-      end
+if (logic_grad) then
+  do lrk=1,norb_dz
+    if (lri == lrk) cycle
+    if (lrj == lrk) cycle
+    ilsegdownwei = iseg_downwei(ipael)
+    irsegdownwei = iseg_downwei(ipae)
+    ildownwei_segdd = iseg_downwei(ipael)
+    irdownwei_segdd = iseg_downwei(ipae)
+    w0_plp = vplp_w0(1)
+    call lp_drl_ext_ss_calcuvalue_g(lrk,nlp_value)
+    w0_old = w0_plp
+    do iw0=1,mtype
+      if (iw0 == 1) goto 201
+      w0_plp = vplp_w0(iw0)
+      if (abs(w0_plp) < crl) cycle
+      w0multi = w0_plp/w0_old
+      w0_old = w0_plp
+      do iiext=1,nlp_value
+        value_lpext(iiext) = value_lpext(iiext)*w0multi
+        value_lpext1(iiext) = value_lpext1(iiext)*w0multi
+      end do
+201   continue
+      ilpsta = nstaval(iw0)+1
+      ilpend = nstaval(iw0)+nvalue(iw0)
+      do iplp=ilpsta,ilpend
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call inn_ext_ss_drl_loop_unpack_g(ilw,irw)
+      end do
+    end do
+  end do
 
-      subroutine drl_st_ext(lri)
+else
+  ilsegdownwei = iseg_downwei(ipael)
+  irsegdownwei = iseg_downwei(ipae)
+  ildownwei_segdd = iseg_downwei(ipael)
+  irdownwei_segdd = iseg_downwei(ipae)
+  w0_plp = vplp_w0(1)
+  call lp_drl_sum_ss_calcuvalue(lri,lrj,nlp_value)
+  w0_old = w0_plp
+  do iw0=1,mtype
+    if (iw0 == 1) goto 202
+    w0_plp = vplp_w0(iw0)
+    if (abs(w0_plp) < crl) cycle
+    w0multi = w0_plp/w0_old
+    w0_old = w0_plp
+    do iiext=1,nlp_value
+      value_lpext(iiext) = value_lpext(iiext)*w0multi
+    end do
+202 continue
+    ilpsta = nstaval(iw0)+1
+    ilpend = nstaval(iw0)+nvalue(iw0)
+    do iplp=ilpsta,ilpend
+      ilw = lp_lwei(iplp)
+      irw = lp_rwei(iplp)
+      call inn_ext_ss_drl_loop_unpack(ilw,irw)
+    end do
+  end do
+end if
+
+return
+
+end subroutine drl_ss_sum
+
+subroutine drl_st_ext(lri)
+
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0d-8/
+data crl/1.0d-8/
 
-      iwuplwei=jpad_upwei(jpadl)
-      ilsegdownwei=iseg_downwei(ipael)
-      irsegdownwei=iseg_downwei(ipae)
-      ildownwei_segdd=iseg_downwei(ipael)
-      irdownwei_segdd=iseg_downwei(ipae)
-!      logic_g1415=.false.
-!      logic_g34b=.false.
-!      logic_g35b=.false.
-!      logic_g36b=.false.
+iwuplwei = jpad_upwei(jpadl)
+ilsegdownwei = iseg_downwei(ipael)
+irsegdownwei = iseg_downwei(ipae)
+ildownwei_segdd = iseg_downwei(ipael)
+irdownwei_segdd = iseg_downwei(ipae)
+!logic_g1415 = .false.
+!logic_g34b = .false.
+!logic_g35b = .false.
+!logic_g36b = .false.
 
-      w1_plp=vplpnew_w1(1)
-      if(logic_dh) w1_plp=vplp_w1(1)
+w1_plp = vplpnew_w1(1)
+if (logic_dh) w1_plp = vplp_w1(1)
 
-      if(logic_grad) then
-      call lp_drl_ext_st_calcuvalue_g(lri,nlp_value)
-      w1_old=w1_plp
-      do iw0=1,mtype
-        if(iw0.eq.1) goto 201
-        w1_plp=vplpnew_w1(iw0)
-        if(logic_dh) w1_plp=vplp_w1(iw0)
-        if(abs(w1_plp).lt.crl) cycle
-        w1multi=w1_plp/w1_old
-        w1_old=w1_plp
+if (logic_grad) then
+  call lp_drl_ext_st_calcuvalue_g(lri,nlp_value)
+  w1_old = w1_plp
+  do iw0=1,mtype
+    if (iw0 == 1) goto 201
+    w1_plp = vplpnew_w1(iw0)
+    if (logic_dh) w1_plp = vplp_w1(iw0)
+    if (abs(w1_plp) < crl) cycle
+    w1multi = w1_plp/w1_old
+    w1_old = w1_plp
 
-        do iiext=1,nlp_value
-         value_lpext(iiext)=value_lpext(iiext)*w1multi
-         value_lpext1(iiext)=value_lpext1(iiext)*w1multi
-        enddo
-201     ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
+    do iiext=1,nlp_value
+      value_lpext(iiext) = value_lpext(iiext)*w1multi
+      value_lpext1(iiext) = value_lpext1(iiext)*w1multi
+    end do
+201 continue
+    ilpsta = nstaval(iw0)+1
+    ilpend = nstaval(iw0)+nvalue(iw0)
+    do iplp=ilpsta,ilpend
 
-         if(logic_dh) then                    !lp_head is in dbl_space
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
+      if (logic_dh) then                    !lp_head is in dbl_space
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call inn_ext_st_drl_loop_unpack_g(ilw,irw)
+      else                                  !lp_head is in act_spa
+        ihypos = jphy(iplp)
+        ndim = ihy(ihypos)
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihypos+in)
+          iwar = iwar0+ihy(ihypos+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
             call inn_ext_st_drl_loop_unpack_g(ilw,irw)
-          else                                    !lp_head is in act_spa
-            ihypos=jphy(iplp)
-              ndim =ihy(ihypos)
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihypos+in)
-              iwar=iwar0+ihy(ihypos+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call inn_ext_st_drl_loop_unpack_g(ilw,irw)
-              enddo
-            enddo
-          endif
-        enddo
-      enddo
+          end do
+        end do
+      end if
+    end do
+  end do
 
-      else
-      call lp_drl_ext_st_calcuvalue(lri,nlp_value)
-      w1_old=w1_plp
-      do iw0=1,mtype
-        if(iw0.eq.1) goto 202
-        w1_plp=vplpnew_w1(iw0)
-        if(logic_dh) w1_plp=vplp_w1(iw0)
-        if(abs(w1_plp).lt.crl) cycle
-        w1multi=w1_plp/w1_old
-        w1_old=w1_plp
-!        call calcu_drl2_value_wyb(1,lri,lrj)
-!        call lp_drl_ext_st_calcuvalue(lri,nlp_value)
-        do iiext=1,nlp_value
-         value_lpext(iiext)=value_lpext(iiext)*w1multi
-        enddo
-202     ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
-!      write(6,*) '      calcuvalue_w', intentry
+else
+  call lp_drl_ext_st_calcuvalue(lri,nlp_value)
+  w1_old = w1_plp
+  do iw0=1,mtype
+    if (iw0 == 1) goto 202
+    w1_plp = vplpnew_w1(iw0)
+    if (logic_dh) w1_plp = vplp_w1(iw0)
+    if (abs(w1_plp) < crl) cycle
+    w1multi = w1_plp/w1_old
+    w1_old = w1_plp
+    !call calcu_drl2_value_wyb(1,lri,lrj)
+    !call lp_drl_ext_st_calcuvalue(lri,nlp_value)
+    do iiext=1,nlp_value
+      value_lpext(iiext) = value_lpext(iiext)*w1multi
+    end do
+202 continue
+    ilpsta = nstaval(iw0)+1
+    ilpend = nstaval(iw0)+nvalue(iw0)
+    do iplp=ilpsta,ilpend
+    !write(6,*) '      calcuvalue_w',intentry
 
-         if(logic_dh) then                    !lp_head is in dbl_space
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
+      if (logic_dh) then                    !lp_head is in dbl_space
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call inn_ext_st_drl_loop_unpack(ilw,irw)
+      else                                  !lp_head is in act_spa
+        ihypos = jphy(iplp)
+        ndim = ihy(ihypos)
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihypos+in)
+          iwar = iwar0+ihy(ihypos+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
             call inn_ext_st_drl_loop_unpack(ilw,irw)
-          else                                    !lp_head is in act_spa
-            ihypos=jphy(iplp)
-              ndim =ihy(ihypos)
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihypos+in)
-              iwar=iwar0+ihy(ihypos+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call inn_ext_st_drl_loop_unpack(ilw,irw)
-              enddo
-            enddo
-          endif
-        enddo
-      enddo
+          end do
+        end do
+      end if
+    end do
+  end do
 
-      endif
-      return
-      end
+end if
 
-      subroutine drl_tt_ext(lri)
+return
+
+end subroutine drl_st_ext
+
+subroutine drl_tt_ext(lri)
+
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-!                  logic_g1415=.false.
-!                  logic_g2g4b=.false.
-!                  logic_g36b=.false.
-!                  logic_g35b=.false.
-!                  logic_g34b=.false.
-      iwuplwei=jpad_upwei(jpadl)
-      ilsegdownwei=iseg_downwei(ipael)
-      irsegdownwei=iseg_downwei(ipae)
-      ildownwei_segdd=iseg_downwei(ipael)
-      irdownwei_segdd=iseg_downwei(ipae)
+!logic_g1415 = .false.
+!logic_g2g4b = .false.
+!logic_g36b = .false.
+!logic_g35b = .false.
+!logic_g34b = .false.
+iwuplwei = jpad_upwei(jpadl)
+ilsegdownwei = iseg_downwei(ipael)
+irsegdownwei = iseg_downwei(ipae)
+ildownwei_segdd = iseg_downwei(ipael)
+irdownwei_segdd = iseg_downwei(ipae)
 
-      do iw0=1,mtype
-        w0_plp=vplpnew_w0(iw0)
-        w1_plp=vplpnew_w1(iw0)
-        if(logic_dh) w0_plp=vplp_w0(iw0)
-        if(logic_dh) w1_plp=vplp_w1(iw0)
+do iw0=1,mtype
+  w0_plp = vplpnew_w0(iw0)
+  w1_plp = vplpnew_w1(iw0)
+  if (logic_dh) w0_plp = vplp_w0(iw0)
+  if (logic_dh) w1_plp = vplp_w1(iw0)
 
-       if(logic_grad) then
-        call lp_drl_ext_tt_calcuvalue_g(lri,n1415,nlp_value)
-        ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
+  if (logic_grad) then
+    call lp_drl_ext_tt_calcuvalue_g(lri,n1415,nlp_value)
+    ilpsta = nstaval(iw0)+1
+    ilpend = nstaval(iw0)+nvalue(iw0)
+    do iplp=ilpsta,ilpend
 
-          if(logic_dh) then                    !lp_head is in dbl_space
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
+      if (logic_dh) then                    !lp_head is in dbl_space
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call inn_ext_tt_drl_loop_unpack_g(ilw,irw,n1415)
+      else                                  !lp_head is in act_spa
+        ihypos = jphy(iplp)
+        ndim = ihy(ihypos)
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihypos+in)
+          iwar = iwar0+ihy(ihypos+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
             call inn_ext_tt_drl_loop_unpack_g(ilw,irw,n1415)
-          else                                    !lp_head is in act_spa
-            ihypos=jphy(iplp)
-            ndim =ihy(ihypos)
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihypos+in)
-              iwar=iwar0+ihy(ihypos+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-               call inn_ext_tt_drl_loop_unpack_g(ilw,irw,n1415)
-              enddo
-            enddo
-          endif
-        enddo
-       else
-        call lp_drl_ext_tt_calcuvalue(lri,n1415,nlp_value)
-        ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
+          end do
+        end do
+      end if
+    end do
+  else
+    call lp_drl_ext_tt_calcuvalue(lri,n1415,nlp_value)
+    ilpsta = nstaval(iw0)+1
+    ilpend = nstaval(iw0)+nvalue(iw0)
+    do iplp=ilpsta,ilpend
 
-          if(logic_dh) then                    !lp_head is in dbl_space
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
+      if (logic_dh) then                    !lp_head is in dbl_space
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call inn_ext_tt_drl_loop_unpack(ilw,irw,n1415)
+      else                                  !lp_head is in act_spa
+        ihypos = jphy(iplp)
+        ndim = ihy(ihypos)
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihypos+in)
+          iwar = iwar0+ihy(ihypos+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
             call inn_ext_tt_drl_loop_unpack(ilw,irw,n1415)
-          else                                    !lp_head is in act_spa
-            ihypos=jphy(iplp)
-            ndim =ihy(ihypos)
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihypos+in)
-              iwar=iwar0+ihy(ihypos+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-               call inn_ext_tt_drl_loop_unpack(ilw,irw,n1415)
-              enddo
-            enddo
-          endif
-        enddo
-       endif
-      enddo
-      return
-      end
+          end do
+        end do
+      end if
+    end do
+  end if
+end do
 
-      subroutine drl_tt_sum(lri,lrj)
+return
+
+end subroutine drl_tt_ext
+
+subroutine drl_tt_sum(lri,lrj)
+
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
+data crl/1.0d-8/
 
-      data crl/1.0d-8/
-!                  logic_g1415=.false.
-!                  logic_g2g4b=.false.
-!                  logic_g36b=.false.
-!                  logic_g35b=.false.
-!                  logic_g34b=.false.
-!      write(nf2,*) 'drl_tt_sum'
-      if(logic_grad) then
-      do lrk=1,norb_dz
-         if(lri.eq.lrk)   cycle
-         if(lrj.eq.lrk)   cycle
-      ilsegdownwei=iseg_downwei(ipael)
-      irsegdownwei=iseg_downwei(ipae)
-      ildownwei_segdd=iseg_downwei(ipael)
-      irdownwei_segdd=iseg_downwei(ipae)
-      w0_plp=vplp_w0(1)
-      call lp_drl_sum_tt_calcuvalue_g(lrk,n1415,nlp_value)
-      w0_old=w0_plp
-      do iw0=1,mtype
-        if(iw0.eq.1) goto 201
-        w0_plp=vplp_w0(iw0)
-        if(abs(w0_plp).lt.crl) cycle
-        w0multi=w0_plp/w0_old
-        w0_old=w0_plp
-        do iiext=1,nlp_value
-         value_lpext(iiext)=value_lpext(iiext)*w0multi
-         value_lpext1(iiext)=value_lpext1(iiext)*w0multi
-        enddo
+!logic_g1415 = .false.
+!logic_g2g4b = .false.
+!logic_g36b = .false.
+!logic_g35b = .false.
+!logic_g34b = .false.
+!write(nf2,*) 'drl_tt_sum'
+if (logic_grad) then
+  do lrk=1,norb_dz
+    if (lri == lrk) cycle
+    if (lrj == lrk) cycle
+    ilsegdownwei = iseg_downwei(ipael)
+    irsegdownwei = iseg_downwei(ipae)
+    ildownwei_segdd = iseg_downwei(ipael)
+    irdownwei_segdd = iseg_downwei(ipae)
+    w0_plp = vplp_w0(1)
+    call lp_drl_sum_tt_calcuvalue_g(lrk,n1415,nlp_value)
+    w0_old = w0_plp
+    do iw0=1,mtype
+      if (iw0 == 1) goto 201
+      w0_plp = vplp_w0(iw0)
+      if (abs(w0_plp) < crl) cycle
+      w0multi = w0_plp/w0_old
+      w0_old = w0_plp
+      do iiext=1,nlp_value
+        value_lpext(iiext) = value_lpext(iiext)*w0multi
+        value_lpext1(iiext) = value_lpext1(iiext)*w0multi
+      end do
 
-201     ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
-            call inn_ext_tt_drl_loop_unpack_g(ilw,irw,n1415)
-        enddo
-      enddo
-      enddo
+201   continue
+      ilpsta = nstaval(iw0)+1
+      ilpend = nstaval(iw0)+nvalue(iw0)
+      do iplp=ilpsta,ilpend
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call inn_ext_tt_drl_loop_unpack_g(ilw,irw,n1415)
+      end do
+    end do
+  end do
 
-      else
-      ilsegdownwei=iseg_downwei(ipael)
-      irsegdownwei=iseg_downwei(ipae)
-      ildownwei_segdd=iseg_downwei(ipael)
-      irdownwei_segdd=iseg_downwei(ipae)
-      w0_plp=vplp_w0(1)
-      call lp_drl_sum_tt_calcuvalue(lri,lrj,n1415,nlp_value)
-      w0_old=w0_plp
-      do iw0=1,mtype
-        if(iw0.eq.1) goto 202
-        w0_plp=vplp_w0(iw0)
-        if(abs(w0_plp).lt.crl) cycle
-        w0multi=w0_plp/w0_old
-        w0_old=w0_plp
-        do iiext=1,nlp_value
-         value_lpext(iiext)=value_lpext(iiext)*w0multi
-        enddo
+else
+  ilsegdownwei = iseg_downwei(ipael)
+  irsegdownwei = iseg_downwei(ipae)
+  ildownwei_segdd = iseg_downwei(ipael)
+  irdownwei_segdd = iseg_downwei(ipae)
+  w0_plp = vplp_w0(1)
+  call lp_drl_sum_tt_calcuvalue(lri,lrj,n1415,nlp_value)
+  w0_old = w0_plp
+  do iw0=1,mtype
+    if (iw0 == 1) goto 202
+    w0_plp = vplp_w0(iw0)
+    if (abs(w0_plp) < crl) cycle
+    w0multi = w0_plp/w0_old
+    w0_old = w0_plp
+    do iiext=1,nlp_value
+      value_lpext(iiext) = value_lpext(iiext)*w0multi
+    end do
 !      call lp_drl_sum_tt_calcuvalue(lri,lrj,n1415,nlp_value)
-202     ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
-            call inn_ext_tt_drl_loop_unpack(ilw,irw,n1415)
-        enddo
-      enddo
-      endif
-      return
-      end
+202 continue
+    ilpsta = nstaval(iw0)+1
+    ilpend = nstaval(iw0)+nvalue(iw0)
+    do iplp=ilpsta,ilpend
+      ilw = lp_lwei(iplp)
+      irw = lp_rwei(iplp)
+      call inn_ext_tt_drl_loop_unpack(ilw,irw,n1415)
+    end do
+  end do
+end if
 
-      subroutine drl_ts_ext(lri)
+return
+
+end subroutine drl_tt_sum
+
+subroutine drl_ts_ext(lri)
+
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0d-8/
+data crl/1.0d-8/
 
-!                  logic_g1415=.false.
-!                  logic_g2g4b=.false.
-!                  logic_g36b=.false.
-!                  logic_g35b=.false.
-!                  logic_g34b=.false.
-      ildownwei_segdd=iseg_downwei(ipael)
-      irdownwei_segdd=iseg_downwei(ipae)
-      iwuplwei=jpad_upwei(jpadl)
-      ilsegdownwei=iseg_downwei(ipael)
-      irsegdownwei=iseg_downwei(ipae)
-      w1_plp=vplpnew_w1(1)
-      if(logic_dh) w1_plp=vplp_w1(1)
+!logic_g1415 = .false.
+!logic_g2g4b = .false.
+!logic_g36b = .false.
+!logic_g35b = .false.
+!logic_g34b = .false.
+ildownwei_segdd = iseg_downwei(ipael)
+irdownwei_segdd = iseg_downwei(ipae)
+iwuplwei = jpad_upwei(jpadl)
+ilsegdownwei = iseg_downwei(ipael)
+irsegdownwei = iseg_downwei(ipae)
+w1_plp = vplpnew_w1(1)
+if (logic_dh) w1_plp = vplp_w1(1)
 
-      if(logic_grad) then
-      call lp_drl_ext_ts_calcuvalue_g(lri,nlp_value)
-      w1_old=w1_plp
-      do iw0=1,mtype
-        if(iw0.eq.1) goto 201
-        w1_plp=vplpnew_w1(iw0)
-        if(logic_dh) w1_plp=vplp_w1(iw0)
-        if(abs(w1_plp).lt.crl) cycle
-        w1multi=w1_plp/w1_old
-        w1_old=w1_plp
-        do iiext=1,nlp_value
-         value_lpext(iiext)=value_lpext(iiext)*w1multi
-         value_lpext1(iiext)=value_lpext1(iiext)*w1multi
-        enddo
-201     ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
+if (logic_grad) then
+  call lp_drl_ext_ts_calcuvalue_g(lri,nlp_value)
+  w1_old = w1_plp
+  do iw0=1,mtype
+    if (iw0 == 1) goto 201
+    w1_plp = vplpnew_w1(iw0)
+    if (logic_dh) w1_plp = vplp_w1(iw0)
+    if (abs(w1_plp) < crl) cycle
+    w1multi = w1_plp/w1_old
+    w1_old = w1_plp
+    do iiext=1,nlp_value
+      value_lpext(iiext) = value_lpext(iiext)*w1multi
+      value_lpext1(iiext) = value_lpext1(iiext)*w1multi
+    end do
+201 continue
+    ilpsta = nstaval(iw0)+1
+    ilpend = nstaval(iw0)+nvalue(iw0)
+    do iplp=ilpsta,ilpend
 
-          if(logic_dh) then                    !lp_head is in dbl_space
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
+      if (logic_dh) then                    !lp_head is in dbl_space
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call inn_ext_ts_drl_loop_unpack_g(ilw,irw)
+      else                                  !lp_head is in act_spa
+        ihypos = jphy(iplp)
+        ndim = ihy(ihypos)
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihypos+in)
+          iwar = iwar0+ihy(ihypos+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
             call inn_ext_ts_drl_loop_unpack_g(ilw,irw)
-          else                                    !lp_head is in act_spa
-            ihypos=jphy(iplp)
-            ndim =ihy(ihypos)
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihypos+in)
-              iwar=iwar0+ihy(ihypos+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call inn_ext_ts_drl_loop_unpack_g(ilw,irw)
-              enddo
-            enddo
-          endif
-        enddo
-      enddo
+          end do
+        end do
+      end if
+    end do
+  end do
 
-      else
-      call lp_drl_ext_ts_calcuvalue(lri,nlp_value)
-      w1_old=w1_plp
-      do iw0=1,mtype
-        if(iw0.eq.1) goto 202
-        w1_plp=vplpnew_w1(iw0)
-        if(logic_dh) w1_plp=vplp_w1(iw0)
-        if(abs(w1_plp).lt.crl) cycle
-        w1multi=w1_plp/w1_old
-        w1_old=w1_plp
-        do iiext=1,nlp_value
-         value_lpext(iiext)=value_lpext(iiext)*w1multi
-        enddo
-202     ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
+else
+  call lp_drl_ext_ts_calcuvalue(lri,nlp_value)
+  w1_old = w1_plp
+  do iw0=1,mtype
+    if (iw0 == 1) goto 202
+    w1_plp = vplpnew_w1(iw0)
+    if (logic_dh) w1_plp = vplp_w1(iw0)
+    if (abs(w1_plp) < crl) cycle
+    w1multi = w1_plp/w1_old
+    w1_old = w1_plp
+    do iiext=1,nlp_value
+      value_lpext(iiext) = value_lpext(iiext)*w1multi
+    end do
+202 continue
+    ilpsta = nstaval(iw0)+1
+    ilpend = nstaval(iw0)+nvalue(iw0)
+    do iplp=ilpsta,ilpend
 
-          if(logic_dh) then                    !lp_head is in dbl_space
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
+      if (logic_dh) then                    !lp_head is in dbl_space
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call inn_ext_ts_drl_loop_unpack(ilw,irw)
+      else                                  !lp_head is in act_spa
+        ihypos = jphy(iplp)
+        ndim = ihy(ihypos)
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihypos+in)
+          iwar = iwar0+ihy(ihypos+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
             call inn_ext_ts_drl_loop_unpack(ilw,irw)
-          else                                    !lp_head is in act_spa
-            ihypos=jphy(iplp)
-            ndim =ihy(ihypos)
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihypos+in)
-              iwar=iwar0+ihy(ihypos+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call inn_ext_ts_drl_loop_unpack(ilw,irw)
-              enddo
-            enddo
-          endif
-        enddo
-      enddo
+          end do
+        end do
+      end if
+    end do
+  end do
 
-      endif
-      return
-      end
+end if
 
-      subroutine ar_br_tv_ext_br_ar(lri,lrj)
+return
+
+end subroutine drl_ts_ext
+
+subroutine ar_br_tv_ext_br_ar(lri,lrj)
+
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
 
-      ilsegdownwei=iseg_downwei(ipael)
-      irsegdownwei=iseg_downwei(ipae)
-      iwuplwei=jpad_upwei(jpadl)
-      w0g36a=0.d0
-      w1g36a=-1.d0
-      do iw0=1,mtype
-        w0_plp=vplpnew_w0(iw0)
-        w1_plp=vplpnew_w1(iw0)
-        if(logic_dh) w0_plp=vplp_w0(iw0)
-        if(logic_dh) w1_plp=vplp_w1(iw0)
+ilsegdownwei = iseg_downwei(ipael)
+irsegdownwei = iseg_downwei(ipae)
+iwuplwei = jpad_upwei(jpadl)
+w0g36a = 0.d0
+w1g36a = -1.d0
+do iw0=1,mtype
+  w0_plp = vplpnew_w0(iw0)
+  w1_plp = vplpnew_w1(iw0)
+  if (logic_dh) w0_plp = vplp_w0(iw0)
+  if (logic_dh) w1_plp = vplp_w1(iw0)
 
-      if(logic_grad) then
-       call lp_arbr_ext_svtv_calcuvalue_g(lri,lrj,nlp_value)
-        ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
-          if(logic_dh) then
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
+  if (logic_grad) then
+    call lp_arbr_ext_svtv_calcuvalue_g(lri,lrj,nlp_value)
+    ilpsta = nstaval(iw0)+1
+    ilpend = nstaval(iw0)+nvalue(iw0)
+    do iplp=ilpsta,ilpend
+      if (logic_dh) then
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call inn_ext_sv_loop_unpack_g(ilw,irw)
+      else
+        ihypos = jphy(iplp)
+        ndim = ihy(ihypos)
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihypos+in)
+          iwar = iwar0+ihy(ihypos+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
             call inn_ext_sv_loop_unpack_g(ilw,irw)
-          else
-            ihypos=jphy(iplp)
-            ndim =ihy(ihypos)
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihypos+in)
-              iwar=iwar0+ihy(ihypos+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call inn_ext_sv_loop_unpack_g(ilw,irw)
-              enddo
-            enddo
-          endif
-        enddo
+          end do
+        end do
+      end if
+    end do
+  else
+    call lp_arbr_ext_svtv_calcuvalue_wyb(lri,lrj,nlp_value)
+    ilpsta = nstaval(iw0)+1
+    ilpend = nstaval(iw0)+nvalue(iw0)
+    do iplp=ilpsta,ilpend
+      if (logic_dh) then
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call inn_ext_sv_loop_unpack(ilw,irw)
       else
-        call lp_arbr_ext_svtv_calcuvalue_wyb(lri,lrj,nlp_value)
-        ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
-          if(logic_dh) then
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
+        if (log_prod == 3) then
+          lphead = lpnew_head(iplp)
+          ihyposl = jphyl(lphead)
+          ihyposr = jphy(lphead)
+          ndim = ihyl(ihyposl)
+        else
+          ihyposl = jphy(iplp)
+          ihyposr = ihyposl
+          ndim = ihy(ihyposl)
+        end if
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihyposl+in)
+          iwar = iwar0+ihy(ihyposr+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
             call inn_ext_sv_loop_unpack(ilw,irw)
-          else
-            if(log_prod.eq.3) then
-              lphead=lpnew_head(iplp)
-              ihyposl=jphyl(lphead)
-              ihyposr=jphy(lphead)
-              ndim =ihyl(ihyposl)
-            else
-              ihyposl=jphy(iplp)
-              ihyposr=ihyposl
-              ndim =ihy(ihyposl)
-            endif
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihyposl+in)
-              iwar=iwar0+ihy(ihyposr+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call inn_ext_sv_loop_unpack(ilw,irw)
-              enddo
-            enddo
-          endif
-        enddo
-      endif
-      enddo
-      return
-      end
+          end do
+        end do
+      end if
+    end do
+  end if
+end do
 
-      subroutine drr_sv_ext_br_ar(lri)
+return
+
+end subroutine ar_br_tv_ext_br_ar
+
+subroutine drr_sv_ext_br_ar(lri)
+
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
 
-      ndorb=norb_dz-lri
-      ilsegdownwei=iseg_downwei(ipael)
-      irsegdownwei=iseg_downwei(ipae)
-      iwuplwei=jpad_upwei(jpadl)
-      do iw0=1,mtype
-        w0_plp=vplpnew_w0(iw0)
-        w1_plp=vplpnew_w1(iw0)
-        if(ndorb.ge.0) w0_plp=vplp_w0(iw0)
-        if(ndorb.ge.0) w1_plp=vplp_w1(iw0)
+ndorb = norb_dz-lri
+ilsegdownwei = iseg_downwei(ipael)
+irsegdownwei = iseg_downwei(ipae)
+iwuplwei = jpad_upwei(jpadl)
+do iw0=1,mtype
+  w0_plp = vplpnew_w0(iw0)
+  w1_plp = vplpnew_w1(iw0)
+  if (ndorb >= 0) w0_plp = vplp_w0(iw0)
+  if (ndorb >= 0) w1_plp = vplp_w1(iw0)
 
-      if(logic_grad) then
-        call lp_drr_ext_svtv_calcuvalue_g(lri,nlp_value)
-        ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
-          if(logic_dh) then
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
-           call inn_ext_sv_loop_unpack_g(ilw,irw)
-          else
-            ihypos=jphy(iplp)
-            ndim =ihy(ihypos)
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihypos+in)
-              iwar=iwar0+ihy(ihypos+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call inn_ext_sv_loop_unpack_g(ilw,irw)
-              enddo
-            enddo
-          endif
-        enddo
+  if (logic_grad) then
+    call lp_drr_ext_svtv_calcuvalue_g(lri,nlp_value)
+    ilpsta = nstaval(iw0)+1
+    ilpend = nstaval(iw0)+nvalue(iw0)
+    do iplp=ilpsta,ilpend
+      if (logic_dh) then
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call inn_ext_sv_loop_unpack_g(ilw,irw)
       else
-        call lp_drr_ext_svtv_calcuvalue_wyb(lri,nlp_value)
-        ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
-          if(logic_dh) then
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
-           call inn_ext_sv_loop_unpack(ilw,irw)
-          else
-            if(log_prod.eq.3) then
-              lphead=lpnew_head(iplp)
-              ihyposl=jphyl(lphead)
-              ihyposr=jphy(lphead)
-              ndim =ihyl(ihyposl)
-            else
-              ihyposl=jphy(iplp)
-              ihyposr=ihyposl
-              ndim =ihy(ihyposl)
-            endif
-
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihyposl+in)
-              iwar=iwar0+ihy(ihyposr+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call inn_ext_sv_loop_unpack(ilw,irw)
-              enddo
-            enddo
-          endif
-        enddo
-      endif
-      enddo
-      return
-      end
-      subroutine drr_tv_ext_br_ar(lri)
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
-
-      ndorb=norb_dz-lri
-      ilsegdownwei=iseg_downwei(ipael)
-      irsegdownwei=iseg_downwei(ipae)
-      iwuplwei=jpad_upwei(jpadl)
-      do iw0=1,mtype
-        w0_plp=vplpnew_w0(iw0)
-        w1_plp=vplpnew_w1(iw0)
-        if(ndorb.ge.0) w0_plp=vplp_w0(iw0)
-        if(ndorb.ge.0) w1_plp=vplp_w1(iw0)
-
-      if(logic_grad) then
-        call lp_drr_ext_svtv_calcuvalue_g(lri,nlp_value)
-        ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
-          if(logic_dh) then
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
-           call inn_ext_sv_loop_unpack_g(ilw,irw)
-          else
-            ihypos=jphy(iplp)
-            ndim =ihy(ihypos)
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihypos+in)
-              iwar=iwar0+ihy(ihypos+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call inn_ext_sv_loop_unpack_g(ilw,irw)
-              enddo
-            enddo
-          endif
-        enddo
+        ihypos = jphy(iplp)
+        ndim = ihy(ihypos)
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihypos+in)
+          iwar = iwar0+ihy(ihypos+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
+            call inn_ext_sv_loop_unpack_g(ilw,irw)
+          end do
+        end do
+      end if
+    end do
+  else
+    call lp_drr_ext_svtv_calcuvalue_wyb(lri,nlp_value)
+    ilpsta = nstaval(iw0)+1
+    ilpend = nstaval(iw0)+nvalue(iw0)
+    do iplp=ilpsta,ilpend
+      if (logic_dh) then
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call inn_ext_sv_loop_unpack(ilw,irw)
       else
-        call lp_drr_ext_svtv_calcuvalue_wyb(lri,nlp_value)
-        ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
-          if(logic_dh) then
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
-           call inn_ext_sv_loop_unpack(ilw,irw)
-          else
-            if(log_prod.eq.3) then
-              lphead=lpnew_head(iplp)
-              ihyposl=jphyl(lphead)
-              ihyposr=jphy(lphead)
-              ndim =ihyl(ihyposl)
-            else
-              ihyposl=jphy(iplp)
-              ihyposr=ihyposl
-              ndim =ihy(ihyposl)
-            endif
+        if (log_prod == 3) then
+          lphead = lpnew_head(iplp)
+          ihyposl = jphyl(lphead)
+          ihyposr = jphy(lphead)
+          ndim = ihyl(ihyposl)
+        else
+          ihyposl = jphy(iplp)
+          ihyposr = ihyposl
+          ndim = ihy(ihyposl)
+        end if
 
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihyposl+in)
-              iwar=iwar0+ihy(ihyposr+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call inn_ext_sv_loop_unpack(ilw,irw)
-              enddo
-            enddo
-          endif
-        enddo
-      endif
-      enddo
-      return
-      end
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihyposl+in)
+          iwar = iwar0+ihy(ihyposr+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
+            call inn_ext_sv_loop_unpack(ilw,irw)
+          end do
+        end do
+      end if
+    end do
+  end if
+end do
 
-      subroutine ar_dv_ext_ar(idtu,isma,lri,lrj)
+return
+
+end subroutine drr_sv_ext_br_ar
+
+subroutine drr_tv_ext_br_ar(lri)
+
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      dimension lpcoe(norb_dz+1:norb_inn)
-      iwuplwei=jpad_upwei(jpadl)
-      ilsegdownwei=iseg_downwei(ipael)
-      irsegdownwei=iseg_downwei(ipae)
-      do iw0=1,mtype
-        w0_sdplp=vplpnew_w0(iw0)
-        if(logic_dh) w0_sdplp=vplp_w0(iw0)
-        ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
-!                        ipcoe=lp_arpos(iplp)
-          do norb=norb_dz+1,norb_inn
-            lpcoe(norb)=lpnew_coe(norb,iplp)       !01.12.25
-          enddo
 
-      if(logic_grad) then
-         call lp_ar_coe_calcuvalue_g                                    &
-     &            (idtu,isma,lri,lrj,nlp_value,lpcoe,nvalue1)
-          if(logic_dh) then              !lp_head is in dbl_space
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
+ndorb = norb_dz-lri
+ilsegdownwei = iseg_downwei(ipael)
+irsegdownwei = iseg_downwei(ipae)
+iwuplwei = jpad_upwei(jpadl)
+do iw0=1,mtype
+  w0_plp = vplpnew_w0(iw0)
+  w1_plp = vplpnew_w1(iw0)
+  if (ndorb >= 0) w0_plp = vplp_w0(iw0)
+  if (ndorb >= 0) w1_plp = vplp_w1(iw0)
+
+  if (logic_grad) then
+    call lp_drr_ext_svtv_calcuvalue_g(lri,nlp_value)
+    ilpsta = nstaval(iw0)+1
+    ilpend = nstaval(iw0)+nvalue(iw0)
+    do iplp=ilpsta,ilpend
+      if (logic_dh) then
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call inn_ext_sv_loop_unpack_g(ilw,irw)
+      else
+        ihypos = jphy(iplp)
+        ndim = ihy(ihypos)
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihypos+in)
+          iwar = iwar0+ihy(ihypos+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
+            call inn_ext_sv_loop_unpack_g(ilw,irw)
+          end do
+        end do
+      end if
+    end do
+  else
+    call lp_drr_ext_svtv_calcuvalue_wyb(lri,nlp_value)
+    ilpsta = nstaval(iw0)+1
+    ilpend = nstaval(iw0)+nvalue(iw0)
+    do iplp=ilpsta,ilpend
+      if (logic_dh) then
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call inn_ext_sv_loop_unpack(ilw,irw)
+      else
+        if (log_prod == 3) then
+          lphead = lpnew_head(iplp)
+          ihyposl = jphyl(lphead)
+          ihyposr = jphy(lphead)
+          ndim = ihyl(ihyposl)
+        else
+          ihyposl = jphy(iplp)
+          ihyposr = ihyposl
+          ndim = ihy(ihyposl)
+        end if
+
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihyposl+in)
+          iwar = iwar0+ihy(ihyposr+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
+            call inn_ext_sv_loop_unpack(ilw,irw)
+          end do
+        end do
+      end if
+    end do
+  end if
+end do
+
+return
+
+end subroutine drr_tv_ext_br_ar
+
+subroutine ar_dv_ext_ar(idtu,isma,lri,lrj)
+
+#include "drt_h.fh"
+#include "pl_structure_h.fh"
+#include "intsort_h.fh"
+#include "lpextmode_h.fh"
+dimension lpcoe(norb_dz+1:norb_inn)
+
+iwuplwei = jpad_upwei(jpadl)
+ilsegdownwei = iseg_downwei(ipael)
+irsegdownwei = iseg_downwei(ipae)
+do iw0=1,mtype
+  w0_sdplp = vplpnew_w0(iw0)
+  if (logic_dh) w0_sdplp = vplp_w0(iw0)
+  ilpsta = nstaval(iw0)+1
+  ilpend = nstaval(iw0)+nvalue(iw0)
+  do iplp=ilpsta,ilpend
+    !ipcoe = lp_arpos(iplp)
+    do norb=norb_dz+1,norb_inn
+      lpcoe(norb) = lpnew_coe(norb,iplp)  !01.12.25
+    end do
+
+    if (logic_grad) then
+      call lp_ar_coe_calcuvalue_g(idtu,isma,lri,lrj,nlp_value,lpcoe,nvalue1)
+      if (logic_dh) then                  !lp_head is in dbl_space
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call gdv_sequence_extspace1_g(ilw,irw,nvalue1)
+      else                                !lp_head is in act_spa
+        ihypos = jphy(iplp)
+        ndim = ihy(ihypos)
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihypos+in)
+          iwar = iwar0+ihy(ihypos+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
             call gdv_sequence_extspace1_g(ilw,irw,nvalue1)
-          else                                    !lp_head is in act_spa
-            ihypos=jphy(iplp)
-            ndim =ihy(ihypos)
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihypos+in)
-              iwar=iwar0+ihy(ihypos+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call gdv_sequence_extspace1_g(ilw,irw,nvalue1)
-              enddo
-            enddo
-         endif
-       else
-         call lp_ar_coe_calcuvalue_wyb                                  &
-     &            (idtu,isma,lri,lrj,nlp_value,lpcoe)
-         if(logic_dh) then              !lp_head is in dbl_space
-           ilw=lp_lwei(iplp)
-           irw=lp_rwei(iplp)
-           call gdv_sequence_extspace(ilw,irw)
-         else           !lp_head is in act_space
-           if(log_prod.eq.3) then
-             lphead=lpnew_head(iplp)
-             ihyposl=jphyl(lphead)
-             ihyposr=jphy(lphead)
-             ndim =ihyl(ihyposl)
-           else
-             ihyposl=jphy(iplp)
-             ihyposr=ihyposl
-             ndim =ihy(ihyposl)
-           endif
+          end do
+        end do
+      end if
+    else
+      call lp_ar_coe_calcuvalue_wyb(idtu,isma,lri,lrj,nlp_value,lpcoe)
+      if (logic_dh) then                  !lp_head is in dbl_space
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call gdv_sequence_extspace(ilw,irw)
+      else                                !lp_head is in act_space
+        if (log_prod == 3) then
+          lphead = lpnew_head(iplp)
+          ihyposl = jphyl(lphead)
+          ihyposr = jphy(lphead)
+          ndim = ihyl(ihyposl)
+        else
+          ihyposl = jphy(iplp)
+          ihyposr = ihyposl
+          ndim = ihy(ihyposl)
+        end if
 
-           iwal0=lpnew_lwei(iplp)
-           iwar0=lpnew_rwei(iplp)
-           do in=1,ndim
-             iwal=iwal0+ihyl(ihyposl+in)
-             iwar=iwar0+ihy(ihyposr+in)
-             do iwd=0,iwuplwei-1
-               ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-               irw=iwalk_ad(jpad,ipae,iwar,iwd)
-               call gdv_sequence_extspace(ilw,irw)
-             enddo
-           enddo
-         endif
-      endif
-        enddo
-      enddo
-      return
-      end
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihyposl+in)
+          iwar = iwar0+ihy(ihyposr+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
+            call gdv_sequence_extspace(ilw,irw)
+          end do
+        end do
+      end if
+    end if
+  end do
+end do
 
-      subroutine ar_sd_ext_ar(idtu,lri,lrj,isma)
+return
+
+end subroutine ar_dv_ext_ar
+
+subroutine ar_sd_ext_ar(idtu,lri,lrj,isma)
+
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      dimension lpcoe(norb_dz+1:norb_inn)
+dimension lpcoe(norb_dz+1:norb_inn)
 
-      iwuplwei=jpad_upwei(jpadl)
-      ilsegdownwei=iseg_downwei(ipael)
-      irsegdownwei=iseg_downwei(ipae)
-      do iw0=1,mtype
-        w0_sdplp=vplpnew_w0(iw0)
-        if(logic_dh) w0_sdplp=vplp_w0(iw0)
-        ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
+iwuplwei = jpad_upwei(jpadl)
+ilsegdownwei = iseg_downwei(ipael)
+irsegdownwei = iseg_downwei(ipae)
+do iw0=1,mtype
+  w0_sdplp = vplpnew_w0(iw0)
+  if (logic_dh) w0_sdplp = vplp_w0(iw0)
+  ilpsta = nstaval(iw0)+1
+  ilpend = nstaval(iw0)+nvalue(iw0)
+  do iplp=ilpsta,ilpend
 
-          do norb=norb_dz+1,norb_inn
-            lpcoe(norb)=lpnew_coe(norb,iplp)
-          enddo
+    do norb=norb_dz+1,norb_inn
+      lpcoe(norb) = lpnew_coe(norb,iplp)
+    end do
 
-      if(logic_grad) then
-          call lp_ar_coe_calcuvalue_g                                   &
-     &            (idtu,isma,lri,lrj,nlp_value,lpcoe,nvalue1)
-          if(logic_dh) then              !lp_head is in dbl_space
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
+    if (logic_grad) then
+      call lp_ar_coe_calcuvalue_g(idtu,isma,lri,lrj,nlp_value,lpcoe,nvalue1)
+      if (logic_dh) then              !lp_head is in dbl_space
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call gsd_sequence_extspace1_g(ilw,irw,nvalue1)
+      else                            !lp_head is in act_spa
+        ihypos = jphy(iplp)
+        ndim = ihy(ihypos)
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihypos+in)
+          iwar = iwar0+ihy(ihypos+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
             call gsd_sequence_extspace1_g(ilw,irw,nvalue1)
-          else                                    !lp_head is in act_spa
-            ihypos=jphy(iplp)
-            ndim =ihy(ihypos)
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihypos+in)
-              iwar=iwar0+ihy(ihypos+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call gsd_sequence_extspace1_g(ilw,irw,nvalue1)
-              enddo
-            enddo
-         endif
-      else
-          call lp_ar_coe_calcuvalue_wyb                                 &
-     &            (idtu,isma,lri,lrj,nlp_value,lpcoe)
-          if(logic_dh) then              !lp_head is in dbl_space
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
+          end do
+        end do
+      end if
+    else
+      call lp_ar_coe_calcuvalue_wyb(idtu,isma,lri,lrj,nlp_value,lpcoe)
+      if (logic_dh) then              !lp_head is in dbl_space
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call gsd_sequence_extspace(ilw,irw)
+      else                            !lp_head is in act_spa
+        ihypos = jphy(iplp)
+        ndim = ihy(ihypos)
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihypos+in)
+          iwar = iwar0+ihy(ihypos+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
             call gsd_sequence_extspace(ilw,irw)
-          else                                    !lp_head is in act_spa
-            ihypos=jphy(iplp)
-            ndim =ihy(ihypos)
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihypos+in)
-              iwar=iwar0+ihy(ihypos+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call gsd_sequence_extspace(ilw,irw)
-              enddo
-            enddo
-         endif
-      endif
-        enddo
-      enddo
-      return
-      end
+          end do
+        end do
+      end if
+    end if
+  end do
+end do
 
-      subroutine ar_td_ext_ar(idtu,lri,lrj,isma)
+return
+
+end subroutine ar_sd_ext_ar
+
+subroutine ar_td_ext_ar(idtu,lri,lrj,isma)
+
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      dimension lpcoe(norb_dz+1:norb_inn)
+dimension lpcoe(norb_dz+1:norb_inn)
 
-      iwuplwei=jpad_upwei(jpadl)
-      ilsegdownwei=iseg_downwei(ipael)
-      irsegdownwei=iseg_downwei(ipae)
-      do iw0=1,mtype
-        w0_sdplp=vplpnew_w0(iw0)
-        if(logic_dh) w0_sdplp=vplp_w0(iw0)
-        ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
-          do norb=norb_dz+1,norb_inn
-            lpcoe(norb)=lpnew_coe(norb,iplp)
-          enddo
+iwuplwei = jpad_upwei(jpadl)
+ilsegdownwei = iseg_downwei(ipael)
+irsegdownwei = iseg_downwei(ipae)
+do iw0=1,mtype
+  w0_sdplp = vplpnew_w0(iw0)
+  if (logic_dh) w0_sdplp = vplp_w0(iw0)
+  ilpsta = nstaval(iw0)+1
+  ilpend = nstaval(iw0)+nvalue(iw0)
+  do iplp=ilpsta,ilpend
+    do norb=norb_dz+1,norb_inn
+      lpcoe(norb) = lpnew_coe(norb,iplp)
+    end do
 
-      if(logic_grad) then
-         call lp_ar_coe_calcuvalue_g                                    &
-     &            (idtu,isma,lri,lrj,nlp_value,lpcoe,nvalue1)
-          if(logic_dh) then              !lp_head is in dbl_space
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
+    if (logic_grad) then
+      call lp_ar_coe_calcuvalue_g(idtu,isma,lri,lrj,nlp_value,lpcoe,nvalue1)
+      if (logic_dh) then              !lp_head is in dbl_space
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
 
+        call gtd_sequence_extspace1_g(ilw,irw,nvalue1)
+      else                            !lp_head is in act_space
+        ihypos = jphy(iplp)
+        ndim = ihy(ihypos)
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihypos+in)
+          iwar = iwar0+ihy(ihypos+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
             call gtd_sequence_extspace1_g(ilw,irw,nvalue1)
-          else                           !lp_head is in act_space
-            ihypos=jphy(iplp)
-            ndim =ihy(ihypos)
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihypos+in)
-              iwar=iwar0+ihy(ihypos+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call gtd_sequence_extspace1_g(ilw,irw,nvalue1)
-              enddo
-            enddo
-          endif
-      else
-         call lp_ar_coe_calcuvalue_wyb                                  &
-     &            (idtu,isma,lri,lrj,nlp_value,lpcoe)
-          if(logic_dh) then              !lp_head is in dbl_space
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
+          end do
+        end do
+      end if
+    else
+      call lp_ar_coe_calcuvalue_wyb(idtu,isma,lri,lrj,nlp_value,lpcoe)
+      if (logic_dh) then             !lp_head is in dbl_space
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call gtd_sequence_extspace(ilw,irw)
+      else                           !lp_head is in act_space
+        ihypos = jphy(iplp)
+        ndim = ihy(ihypos)
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihypos+in)
+          iwar = iwar0+ihy(ihypos+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
             call gtd_sequence_extspace(ilw,irw)
-          else                           !lp_head is in act_space
-            ihypos=jphy(iplp)
-            ndim =ihy(ihypos)
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihypos+in)
-              iwar=iwar0+ihy(ihypos+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call gtd_sequence_extspace(ilw,irw)
-              enddo
-            enddo
-          endif
-      endif
-        enddo
-      enddo
-      return
-      end
+          end do
+        end do
+      end if
+    end if
+  end do
+end do
 
-      subroutine ar_br_sv_ext_br_ar(lri,lrj)
+return
+
+end subroutine ar_td_ext_ar
+
+subroutine ar_br_sv_ext_br_ar(lri,lrj)
+
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
 
-      ilsegdownwei=iseg_downwei(ipael)
-      irsegdownwei=iseg_downwei(ipae)
-      iwuplwei=jpad_upwei(jpadl)
-      do iw0=1,mtype
-        w0_plp=vplpnew_w0(iw0)
-        w1_plp=vplpnew_w1(iw0)
-        if(logic_dh) w0_plp=vplp_w0(iw0)
-        if(logic_dh) w1_plp=vplp_w1(iw0)
+ilsegdownwei = iseg_downwei(ipael)
+irsegdownwei = iseg_downwei(ipae)
+iwuplwei = jpad_upwei(jpadl)
+do iw0=1,mtype
+  w0_plp = vplpnew_w0(iw0)
+  w1_plp = vplpnew_w1(iw0)
+  if (logic_dh) w0_plp = vplp_w0(iw0)
+  if (logic_dh) w1_plp = vplp_w1(iw0)
 
-      if(logic_grad) then
-        call lp_arbr_ext_svtv_calcuvalue_g(lri,lrj,nlp_value)
-        ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
-          if(logic_dh) then
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
-            call inn_ext_sv_loop_unpack_g(ilw,irw)
-          else
-            ihypos=jphy(iplp)
-            ndim =ihy(ihypos)
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihypos+in)
-              iwar=iwar0+ihy(ihypos+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call inn_ext_sv_loop_unpack_g(ilw,irw)
-              enddo
-            enddo
-          endif
-        enddo
+  if (logic_grad) then
+    call lp_arbr_ext_svtv_calcuvalue_g(lri,lrj,nlp_value)
+    ilpsta = nstaval(iw0)+1
+    ilpend = nstaval(iw0)+nvalue(iw0)
+    do iplp=ilpsta,ilpend
+      if (logic_dh) then
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call inn_ext_sv_loop_unpack_g(ilw,irw)
       else
-        call lp_arbr_ext_svtv_calcuvalue_wyb(lri,lrj,nlp_value)
-        ilpsta=nstaval(iw0)+1
-        ilpend=nstaval(iw0)+nvalue(iw0)
-        do iplp=ilpsta,ilpend
-          if(logic_dh) then
-            ilw=lp_lwei(iplp)
-            irw=lp_rwei(iplp)
+        ihypos = jphy(iplp)
+        ndim = ihy(ihypos)
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihypos+in)
+          iwar = iwar0+ihy(ihypos+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
+            call inn_ext_sv_loop_unpack_g(ilw,irw)
+          end do
+        end do
+      end if
+    end do
+  else
+    call lp_arbr_ext_svtv_calcuvalue_wyb(lri,lrj,nlp_value)
+    ilpsta = nstaval(iw0)+1
+    ilpend = nstaval(iw0)+nvalue(iw0)
+    do iplp=ilpsta,ilpend
+      if (logic_dh) then
+        ilw = lp_lwei(iplp)
+        irw = lp_rwei(iplp)
+        call inn_ext_sv_loop_unpack(ilw,irw)
+      else
+        if (log_prod == 3) then
+          lphead = lpnew_head(iplp)
+          ihyposl = jphyl(lphead)
+          ihyposr = jphy(lphead)
+          ndim = ihyl(ihyposl)
+        else
+          ihyposl = jphy(iplp)
+          ihyposr = ihyposl
+          ndim = ihy(ihyposl)
+        end if
+        iwal0 = lpnew_lwei(iplp)
+        iwar0 = lpnew_rwei(iplp)
+        do in=1,ndim
+          iwal = iwal0+ihyl(ihyposl+in)
+          iwar = iwar0+ihy(ihyposr+in)
+          do iwd=0,iwuplwei-1
+            ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
+            irw = iwalk_ad(jpad,ipae,iwar,iwd)
             call inn_ext_sv_loop_unpack(ilw,irw)
-          else
-            if(log_prod.eq.3) then
-              lphead=lpnew_head(iplp)
-              ihyposl=jphyl(lphead)
-              ihyposr=jphy(lphead)
-              ndim =ihyl(ihyposl)
-            else
-              ihyposl=jphy(iplp)
-              ihyposr=ihyposl
-              ndim =ihy(ihyposl)
-            endif
-            iwal0=lpnew_lwei(iplp)
-            iwar0=lpnew_rwei(iplp)
-            do in=1,ndim
-              iwal=iwal0+ihyl(ihyposl+in)
-              iwar=iwar0+ihy(ihyposr+in)
-              do iwd=0,iwuplwei-1
-                ilw=iwalk_ad(jpadl,ipael,iwal,iwd)
-                irw=iwalk_ad(jpad,ipae,iwar,iwd)
-                call inn_ext_sv_loop_unpack(ilw,irw)
-              enddo
-            enddo
-          endif
-        enddo
-      endif
-      enddo
-      return
-      end
+          end do
+        end do
+      end if
+    end do
+  end if
+end do
 
-      subroutine logicg_dd(ilnodesm,irnodesm)
+return
+
+end subroutine ar_br_sv_ext_br_ar
+
+subroutine logicg_dd(ilnodesm,irnodesm)
+
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-      logic_g50 =.false.
-      logic_g49a=.false.
-      logic_g49b=.false.
-      if (ilnodesm.lt.irnodesm) then
-            logic_g49a=.true.
-      elseif ( ilnodesm.eq.irnodesm) then
-            logic_g49a=.true.
-            logic_g49b=.true.
-            logic_g50 =.true.
-      else
-            logic_g49b=.true.
-      endif
-      end
+
+logic_g50 = .false.
+logic_g49a = .false.
+logic_g49b = .false.
+if (ilnodesm < irnodesm) then
+  logic_g49a = .true.
+else if (ilnodesm == irnodesm) then
+  logic_g49a = .true.
+  logic_g49b = .true.
+  logic_g50 = .true.
+else
+  logic_g49b = .true.
+end if
+
+end subroutine logicg_dd
