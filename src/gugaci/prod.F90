@@ -16,6 +16,10 @@ subroutine gdv_sequence_extspace(ilw,irw)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+implicit none
+integer :: ilw, irw
+integer :: iij, irot, irtidx, mm, nn
+real*8 :: valuelp, valuelptmp1, vlptmp
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -52,6 +56,10 @@ end subroutine gdv_sequence_extspace
 
 subroutine gdv_sequence_extspace_pt(ilw,irw)  !log_prod=
 
+implicit none
+integer :: ilw, irw
+integer :: iij, mm, nn
+real*8 :: wl
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "pl_structure_h.fh"
@@ -76,10 +84,14 @@ subroutine gtd_sequence_extspace(iplplweiin,iplprweiin)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+implicit none
+integer :: iplplweiin, iplprweiin
+integer :: i, ilpvalue, iplplwei, iplprwei, irot, irtidx, itmp, mm, nn, nn0
+real*8 :: vlptmp, vlptmp1, vlptmp2
+real*8, parameter :: v_sqtwo = 1.414213562373095d0
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "cont_tmp.fh"
-parameter(v_sqtwo=1.414213562373095d0)
 
 !write(6,*) ' td_test _1/2',' dt_test '
 
@@ -160,6 +172,11 @@ subroutine inn_ext_ss_loop_unpack(iplplweiin,iplprweiin)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+implicit none
+integer :: iplplweiin, iplprweiin
+integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, isma, &
+           ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
+real*8 :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -355,6 +372,11 @@ subroutine inn_ext_ss_drl_loop_unpack(iplplweiin,iplprweiin)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+implicit none
+integer :: iplplweiin, iplprweiin
+integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, isma, &
+           ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
+real*8 :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -550,6 +572,10 @@ subroutine inn_ext_sv_loop_unpack(ilw,irw)   !,ilsegdownwei)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+implicit none
+integer :: ilw, irw
+integer :: iij, irot, irtidx, mm, nn
+real*8 :: valuelp, valuelptmp1
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -577,10 +603,14 @@ end subroutine inn_ext_sv_loop_unpack
 
 subroutine inn_ext_svloop_unpack_pt(ilw,irw)
 
+implicit none
+integer :: ilw, irw
+integer :: iij, mm, nn
+real*8 :: wl
+!character(len=16) loop_type
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "pl_structure_h.fh"
-!character*16 loop_type
 
 !loop_type = ' sv_test_pt, tv_test_pt'
 mm = ilw
@@ -601,6 +631,11 @@ subroutine inn_ext_tt_loop_unpack(iplplweiin,iplprweiin)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+implicit none
+integer :: iplplweiin, iplprweiin
+integer :: i, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, lpend34, lpend35, lpend36, lpsta34, &
+           lpsta35, lpsta36, mm, mm0, nn, nn0
+real*8 :: valuelp, valuelptmp1, valuetmp
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -725,6 +760,11 @@ subroutine inn_ext_ts_loop_unpack(iplplweiin,iplprweiin)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+implicit none
+integer :: iplplweiin, iplprweiin
+integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, isma, &
+           ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
+real*8 :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -928,6 +968,11 @@ subroutine inn_ext_ts_drl_loop_unpack(iplplweiin,iplprweiin)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+implicit none
+integer :: iplplweiin, iplprweiin
+integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, isma, &
+           ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
+real*8 :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -1132,6 +1177,11 @@ subroutine inn_ext_st_loop_unpack(iplplweiin,iplprweiin)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+implicit none
+integer :: iplplweiin, iplprweiin
+integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, isma, &
+           ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
+real*8 :: valtmp, valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -1341,6 +1391,11 @@ subroutine inn_ext_st_drl_loop_unpack(iplplweiin,iplprweiin)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+implicit none
+integer :: iplplweiin, iplprweiin
+integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, isma, &
+           ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
+real*8 :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -1543,9 +1598,13 @@ subroutine gsd_sequence_extspace(iplplweiin,iplprweiin)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+implicit none
+integer :: iplplweiin, iplprweiin
+integer :: i, ilpvalue, iplplwei, iplprwei, irot, irtidx, itmp, mm, nn, nn0
+real*8 :: vlptmp, vlptmp1, vtmp
+real*8, parameter :: v_sqtwo = 1.414213562373095d0
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-parameter(v_sqtwo=1.414213562373095d0)
 
 !write(6,*) '  sd_test 1/2','  ds_test 011'
 
@@ -1638,6 +1697,10 @@ subroutine complete_sd_ar_ext_loop(ilweiin,irweiin,isdownwei)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+implicit none
+integer :: ilweiin, irweiin, isdownwei
+integer :: ilpvalue, ilwei, irot, irtidx, irwei, mm, mm0, mmtmp, nn, nntmp
+real*8 :: vlptmp, vlptmp1
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1677,6 +1740,10 @@ subroutine inn_ext_dd_loop_unpack(iplplweiin,iplprweiin)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+implicit none
+integer :: iplplweiin, iplprweiin
+integer :: i, icle, ii, ildownwei, iplplwei, iplprwei, irdownwei, irot, irtidx, j, mm, mm0, nn
+real*8 :: valuelp, valuelptmp1, valuetmp
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -1762,9 +1829,14 @@ subroutine inn_ext_tt_drl_loop_unpack(iplplweiin,iplprweiin,n1415)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+implicit none
+integer :: iplplweiin, iplprweiin, n1415
+integer :: i, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, lpend34, lpend35, lpend36, lpsta34, &
+           lpsta35, lpsta36, mm, mm0, nn, nn0
+real*8 :: valuelp, valuelptmp1, valuetmp
+logical :: logic_g14150, logic_g34b0, logic_g35b0, logic_g36b0
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-logical logic_g14150, logic_g34b0, logic_g35b0, logic_g36b0
 
 !write(6,*) '  tt_test 2/2'
 

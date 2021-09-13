@@ -11,8 +11,11 @@
 
 subroutine hotred(nx,n,a,d,e,z)
 
-implicit real*8(a-h,o-z)
-dimension a(nx*(nx+1)/2), z(nx,nx), d(nx), e(nx)
+implicit none
+integer :: nx, n
+real*8 :: a(nx*(nx+1)/2), d(nx), e(nx), z(nx,nx)
+integer :: i, ij, ip, j, jn, k, l
+real*8 :: f, g, h, hh
 
 if (n <= 2) then
   select case (n)
@@ -119,8 +122,11 @@ end subroutine hotred
 
 subroutine qlcm(nx,n,d,e,z)
 
-implicit real*8(a-h,o-z)
-dimension z(nx,nx), d(nx), e(nx)
+implicit none
+integer :: nx, n
+real*8 :: d(nx), e(nx), z(nx,nx)
+integer :: i, j, k, kk, l, ll, m, mm
+real*8 :: b, c, f, g, h, p, pp, r, s
 
 do i=2,n
   e(i-1) = e(i)

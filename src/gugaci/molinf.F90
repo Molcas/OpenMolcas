@@ -28,19 +28,21 @@
 
 subroutine mole_inf()
 
-#include "drt_h.fh"
-#include "thresh.fh"
-parameter(ncmd=9)
-character*4 command, cmd(ncmd)
-character*72 line
+implicit none
+integer, parameter :: ncmd = 9
+integer :: icmd, istatus, jcmd, ntit
+character(len=4) :: command
+character(len=72) :: line
 #ifndef MOLPRO
 #define _END_ 'END '
 #endif
 #ifdef _XIANEST_
 #define _END_ '$END'
 #endif
-logical skip
-data Cmd/'TITL','NRRO','MAXI','CPRO','PTHR','CONV','PROR','REST',_END_/
+logical :: skip
+character(len=4), parameter :: cmd(ncmd) = ['TITL','NRRO','MAXI','CPRO','PTHR','CONV','PROR','REST',_END_]
+#include "drt_h.fh"
+#include "thresh.fh"
 
 #ifndef MOLPRO
 call rdnlst(5,'GUGACI')
@@ -178,7 +180,7 @@ contains
 
 subroutine error(code)
 
-  integer code
+  integer :: code
 
   if (code < 0) then
     write(6,*) 'input: end of input file encountered'
@@ -196,13 +198,14 @@ end subroutine mole_inf
 
 subroutine mole_inf_molcas()
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "files_gugaci.fh"
 #include "thresh.fh"
 #include "mcorb.fh"
-dimension lsmtmp(maxgdm)
-dimension idum(1)
+integer :: i, idisk, idum(1), idx, im, im_lr_sta, iml, imr, imrcas_case, iorb, itmp, j, l, lr, nact_sm, lsmtmp(maxgdm), ngsm, ni, &
+           norb_all_tmp
 
 !open(nf1,file='drt.inp')
 !read(nf1,*)

@@ -8,6 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      integer max_vector,max_ext_int,lendbl,lenintegral,maxgdm,max_ref, &
+     &max_node,max_wei,max_root,max_kspace,max_h0,max_iter,max_actorb,  &
+     &max_innorb,max_extorb,max_orb,max_drt_jb,maxpl,mxsym,             &
+     &max_tmpvalue,loputmp,nvaltype,max2actorb,max3actorb,nb2d,nb2,id2, &
+     &mtmp,maxvtt,maxvff,maxij,maxabc,ntratoc,ntrabuf,maxstate,mxtit,   &
+     &max_atom,max2_all
+
       parameter (max_vector= 800000000)           !!!  max_vector=169000
       parameter (max_ext_int=800000000)            !!!  max_ext_int=9000
       parameter (lendbl=8,lenintegral=4)

@@ -29,6 +29,10 @@
 
 subroutine lp_drl_ext_TS_calcuvalue(lri,nlp_value)
 
+implicit none
+integer :: lri, nlp_value
+integer :: i, ia, iaend, iasta, ib, ibend, ibsta, intpos, intspace, isma, ismb, ivalue, lra, lrb
+real*8 :: w0lp, w1lp
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "intsort_h.fh"
@@ -99,6 +103,9 @@ end subroutine lp_drl_ext_TS_calcuvalue
 
 subroutine lp9_drlbl_ext_sd_calcuvalue(intentry,isma)   ! ,nlp_value)
 
+implicit none
+integer :: intentry, isma
+integer :: iaddpos, ilpvalue, intpos, m_ia
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
@@ -118,6 +125,9 @@ end subroutine lp9_drlbl_ext_sd_calcuvalue
 
 subroutine lp10_arbrbr_ext_calcuvalue(intentry,isma,nlp_value)
 
+implicit none
+integer :: intentry, isma, nlp_value
+integer :: ilpvalue, intpos, m_ia
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
@@ -137,6 +147,9 @@ end subroutine lp10_arbrbr_ext_calcuvalue
 
 subroutine lp11_arblbr_ext_calcuvalue(intentry,isma,nlp_value)
 
+implicit none
+integer :: intentry, isma, nlp_value
+integer :: ilpvalue, intpos, m_ia
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
@@ -156,6 +169,9 @@ end subroutine lp11_arblbr_ext_calcuvalue
 
 subroutine lp12_arblbl_ext_calcuvalue(intentry,isma,nlp_value)
 
+implicit none
+integer :: intentry, isma, nlp_value
+integer :: ilpvalue, intpos, m_ia
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
@@ -177,6 +193,10 @@ end subroutine lp12_arblbl_ext_calcuvalue
 
 subroutine lp_arbr_ext_svtv_calcuvalue(intentry,nlp_value)
 
+implicit none
+integer :: intentry, nlp_value
+integer :: ia, intpos, ivalue
+real*8 :: valuelptmp1, w0lp, w1lp
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "intsort_h.fh"
@@ -211,6 +231,10 @@ end subroutine lp_arbr_ext_svtv_calcuvalue
 
 subroutine lp_drr_ext_svtv_calcuvalue(intentry,nlp_value)
 
+implicit none
+integer :: intentry, nlp_value
+integer :: intpos, ivalue
+real*8 :: w0lp
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "intsort_h.fh"
@@ -242,6 +266,9 @@ end subroutine lp_drr_ext_svtv_calcuvalue
 
 subroutine lp9_drlbl_ext_calcuvalue_wyb(lri,lrk,isma)
 
+implicit none
+integer :: lri, lrk, isma
+integer :: ia, ia0, idorbint, ilpvalue, intpos, intposbase, ira, m_ia, next_sta
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
@@ -265,11 +292,14 @@ end subroutine lp9_drlbl_ext_calcuvalue_wyb
 
 subroutine lp8_drlbr_sum_calcuvalue_wyb(lri,lrp,lrq,isma,nv)
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-dimension vint_0(MAX_INNORB,MAX_EXTORB),vint_1(MAX_INNORB,MAX_EXTORB)
+integer :: lri, lrp, lrq, isma, nv
+integer :: ia, ia0, idorbint_p, idorbint_q, ilpvalue, intpos, intposbase, ira, m_ia, next_sta
+real*8 :: vint_0(max_innorb,max_extorb), vint_1(max_innorb,max_extorb)
 
 vint_0(1:norb_inn,1:norb_ext) = viasum_0(1:norb_inn,1:norb_ext)
 vint_1(1:norb_inn,1:norb_ext) = viasum_1(1:norb_inn,1:norb_ext)
@@ -310,10 +340,13 @@ end subroutine lp8_drlbr_sum_calcuvalue_wyb
 
 subroutine lp9_drlbl_sum_calcuvalue_wyb(lri,lrp,lrq,isma,nv)
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-dimension vint_0(MAX_INNORB,MAX_EXTORB),vint_1(MAX_INNORB,MAX_EXTORB)
+integer :: lri, lrp, lrq, isma, nv
+integer :: ia, ia0, idorbint_p, idorbint_q, ilpvalue, intpos, intposbase, ira, m_ia, next_sta
+real*8 :: vint_0(max_innorb,max_extorb), vint_1(max_innorb,max_extorb)
 
 vint_0(1:norb_INN,1:norb_ext) = viasum_0(1:norb_INN,1:norb_ext)
 vint_1(1:norb_INN,1:norb_ext) = viasum_1(1:norb_INN,1:norb_ext)
@@ -355,6 +388,10 @@ end subroutine lp9_drlbl_sum_calcuvalue_wyb
 
 subroutine lp_drl_ext_dd_calcuvalue_wyb(lri,iml,nlp_value)
 
+implicit none
+integer :: lri, iml, nlp_value
+integer :: i, iaend, iasta, intpos, intpos0, ira, ivalue, jvalue, lra, mloop, nliml
+real*8 :: w0lp, w1lp
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "intsort_h.fh"
@@ -390,6 +427,10 @@ end subroutine lp_drl_ext_dd_calcuvalue_wyb
 
 subroutine lp_arbl_ext_dd_calcuvalue(lri,lrj,iml,imr,nlp_value)
 
+implicit none
+integer :: lri, lrj, iml, imr, nlp_value
+integer :: i, ij, intentry, intoffset, intpos, ivalue, mcloop, nlbf, nliml, nlimr
+real*8 :: valuetmp1, w0lp, w1lp
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "intsort_h.fh"
@@ -449,12 +490,16 @@ end subroutine lp_arbl_ext_dd_calcuvalue
 
 subroutine lp_ar_coe_calcuvalue_wyb(idtu,isma,lri,lrj,nlp_value,lpcoe)
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-real*8 valuetmp
-dimension lpcoe(norb_dz+1:norb_inn)
+integer :: idtu, isma, lri, lrj, nlp_value, lpcoe(norb_dz+1:norb_inn)
+real*8 :: valuetmp
+integer :: ia, ia0, icoe, idorb, idorbint, ilpvalue, intpos, intposbase, iorb, iorbs, ira, kcoe, lend, lra, lsta, m_ia, ndorb, &
+           next_sta, nocc, nsorb
+real*8 :: tcoe
 
 ! idtu=25,26,28,25(43),46,51,100(in act_space)
 
@@ -709,6 +754,10 @@ end subroutine lp_ar_coe_calcuvalue_wyb
 
 subroutine lp_drl_ext_SS_calcuvalue(lri,nlp_value)
 
+implicit none
+integer :: lri, nlp_value
+integer :: i, intpos, intspace, ivalue
+real*8 :: w0lp, w1lp
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "intsort_h.fh"
@@ -756,11 +805,14 @@ end subroutine lp_drl_ext_SS_calcuvalue
 
 subroutine lp_drl_sum_SS_calcuvalue(lri,lrj,nlp_value)
 
+implicit none
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension vint_0(norb_ext*norb_ext), vint_1(norb_ext*norb_ext)
+integer :: lri, lrj, nlp_value
+integer :: i, intpos, intspace, ivalue
+real*8 :: vint_0(norb_ext*norb_ext), vint_1(norb_ext*norb_ext), w0lp, w1lp
 
 intspace = intspace_abkk(1)
 vint_0(1:intspace) = vijkk_0sum(1:intspace)
@@ -818,6 +870,10 @@ end subroutine lp_drl_sum_SS_calcuvalue
 
 subroutine lp_drl_ext_ST_calcuvalue(lri,nlp_value)
 
+implicit none
+integer :: lri, nlp_value
+integer :: i, ia, iaend, iasta, ib, ibend, ibsta, intpos, intspace, isma, ismb, ivalue, lra, lrb
+real*8 :: w1lp
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "intsort_h.fh"
@@ -879,6 +935,10 @@ end subroutine lp_drl_ext_ST_calcuvalue
 
 subroutine lp_drl_ext_TT_calcuvalue(lri,n1415_value,nlp_value)
 
+implicit none
+integer :: lri, n1415_value, nlp_value
+integer :: i, ia, iaend, iasta, ib, ibend, ibsta, intpos, intspace, isma, ismb, ivalue, lra, lrb
+real*8 :: w014, w015, w0lp, w114, w115, w14lp, w15lp, w1lp
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "intsort_h.fh"
@@ -932,11 +992,14 @@ end subroutine lp_drl_ext_TT_calcuvalue
 
 subroutine lp_drl_sum_TT_calcuvalue(lri,lrj,n1415,nlp_value)
 
+implicit none
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension vint_0(norb_ext*norb_ext), vint_1(norb_ext*norb_ext)
+integer :: lri, lrj, n1415, nlp_value
+integer :: i, ia, iaend, iasta, ib, ibend, ibsta, intpos, intspace, isma, ismb, ivalue, lra, lrb, lrk, lrk0
+real*8 :: vint_0(norb_ext*norb_ext), vint_1(norb_ext*norb_ext), w014, w015, w0lp, w14lp, w15lp
 
 intspace = intspace_abkk(1)
 vint_0(1:intspace) = vijkk_0sum(1:intspace)
@@ -1009,6 +1072,10 @@ end subroutine lp_drl_sum_TT_calcuvalue
 
 subroutine lp_arbr_ext_svtv_calcuvalue_wyb(LRI,LRJ,nlp_value)
 
+implicit none
+integer :: lri, lrj, nlp_value
+integer :: i, ij, intentry, intpos, intspace, ivalue
+real*8 :: valuelptmp1, w0lp, w1lp
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "intsort_h.fh"
@@ -1050,6 +1117,10 @@ end subroutine lp_arbr_ext_svtv_calcuvalue_wyb
 
 subroutine lp_drr_ext_svtv_calcuvalue_wyb(lri,nlp_value)
 
+implicit none
+integer :: lri, nlp_value
+integer :: i, intpos, intspace, ivalue, lra
+real*8 :: w0lp
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "intsort_h.fh"
@@ -1078,6 +1149,10 @@ end subroutine lp_drr_ext_svtv_calcuvalue_wyb
 
 subroutine lp_arbl_ext_st_calcuvalue(lri,lrj,nlp_value)
 
+implicit none
+integer :: lri, lrj, nlp_value
+integer :: i, ia, iaend, iasta, ib, ibend, ibsta, ij, intpos, intpos13, intposia,intposib, intspace, isma, ismb, ivalue
+real*8 :: valp, valuelpib, valuelptmp1, w0lp, w1lp, ww0lp, ww1lp
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "intsort_h.fh"
@@ -1221,6 +1296,9 @@ end subroutine lp_arbl_ext_st_calcuvalue
 
 subroutine lp678_ext_wyb_calcuvalue(lri,lrk,isma,nlp_value)
 
+implicit none
+integer :: lri, lrk, isma, nlp_value
+integer :: ia, ia0, iaend, iaqq, iasta, ilpvalue, intoffset, intpos, iposint
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"

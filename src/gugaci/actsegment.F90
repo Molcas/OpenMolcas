@@ -16,11 +16,15 @@
 
 subroutine link_b1_at_given_orb(mh,lract)       !b^l:lstep<rstep
 
+implicit none
+integer :: mh, lract
+integer :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, &
+           lpnextrtail, lprtail, lprwei, lprwei0, ni
+real*8 :: w, w0, w1, ww
+integer, parameter :: ismb1(8) = [3,8,34,35,40,44,66,76]
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension ismb1(8)
-data ismb1/3,8,34,35,40,44,66,76/
 
 lpnew = 0
 do iactploop=1,mh
@@ -77,12 +81,16 @@ end subroutine link_b1_at_given_orb
 
 subroutine link_b2_at_given_orb(mh,lract)        !b^r:lstep>rstep
 
+implicit none
+integer :: mh, lract
+integer :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, &
+           lpnextrtail, lprtail, lprwei, lprwei0, ni
+real*8 :: w, w0, w1, ww
+logical :: logic_plbr
+integer, parameter :: ismb2(8) = [5,15,37,41,46,47,73,78]
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension ismb2(8)
-data ismb2/5,15,37,41,46,47,73,78/
-logical logic_plbr
 
 lpnew = 0
 do iactploop=1,mh
@@ -142,11 +150,15 @@ end subroutine link_b2_at_given_orb
 
 subroutine link_b3_at_given_orb(mh,lract)      !b&l:lstep>rstep
 
+implicit none
+integer :: mh, lract
+integer :: iactploop, idb, idocc, ilc, ilstep ,ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, &
+           lpnextrtail, lprtail, lprwei, lprwei0, ni
+real*8 :: w, w0, w1, ww
+integer, parameter :: ismb3(8) = [21,25,30,31,53,57,62,63]
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension ismb3(8)
-data ismb3/21,25,30,31,53,57,62,63/
 
 lpnew = 0
 do iactploop=1,mh
@@ -203,11 +215,15 @@ end subroutine link_b3_at_given_orb
 
 subroutine link_b4_at_given_orb(mh,lract)         !b&r:lstep<rstep
 
+implicit none
+integer :: mh, lract
+integer :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, &
+           lpnextrtail, lprtail, lprwei, lprwei0, ni
+real*8 :: w, w0, w1, ww
+integer, parameter :: ismb4(8) = [18,19,24,28,50,51,56,60]
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension ismb4(8)
-data ismb4/18,19,24,28,50,51,56,60/
 
 lpnew = 0
 do iactploop=1,mh
@@ -264,11 +280,15 @@ end subroutine link_b4_at_given_orb
 
 subroutine link_d10_at_given_orb(mh,lract)
 
+implicit none
+integer :: mh, lract
+integer :: iactploop, idb, ilstep, ind0, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, lpnextrtail, lprtail, &
+           lprwei, lprwei0, ni
+real*8 :: w, w0, w1, ww
+integer, parameter :: ismd10(2) = [29,61]
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension ismd10(2)
-data ismd10/29,61/
 
 lpnew = 0
 do iactploop=1,mh
@@ -319,12 +339,16 @@ end subroutine link_d10_at_given_orb
 
 subroutine link_c2_to_given_orb(mh,lrsta,lrend)
 
+implicit none
+integer :: mh, lrsta, lrend
+integer :: iactploop, idb, ilc, ilstep, ind0, iorb, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, &
+           lpnextrtail, lprtail, lprwei, lprwei0, ni
+real*8 :: w, w0, w1, ww
+logical :: logic_plbr
+integer, parameter :: ismc2(16) = [1,6,7,11,16,33,38,39,42,43,48,65,70,74,75,80]
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension ismc2(16)
-logical logic_plbr
-data ismc2/1,6,7,11,16,33,38,39,42,43,48,65,70,74,75,80/
 
 if ((norb_act == 0) .or. (lrsta == norb_dz+1)) then
   mh = 1
@@ -397,11 +421,15 @@ end subroutine link_c2_to_given_orb
 
 subroutine link_c1_to_given_orb(mh,lrsta,lrend)
 
+implicit none
+integer :: mh, lrsta, lrend
+integer :: iactploop, idb, ilc, ilstep, ind0, iorb, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, &
+           lpnextrtail, lprtail, lprwei, lprwei0, ni
+real*8 :: w, w0, w1, ww
+integer, parameter :: ismc1(10) = [17,22,23,27,32,49,54,58,59,64]
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension ismc1(10)
-data ismc1/17,22,23,27,32,49,54,58,59,64/
 
 if ((norb_act == 0) .or. (lrsta == norb_dz+1)) then
   mh = 1
@@ -466,11 +494,16 @@ end subroutine link_c1_to_given_orb
 
 subroutine link_c1_to_given_orb_coe(mh,lrsta,lrend)
 
+implicit none
+integer :: mh, lrsta, lrend
+integer :: iactploop, idb, ilc, ilstep, ind0, iorb, irc, irstep, jbl, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, &
+           lpnextrtail, lprtail, lprwei, lprwei0, lr, ni
+real*8 :: w, w0, w1, ww
+integer, parameter :: ismc1(10) = [17,22,23,27,32,49,54,58,59,64]
+integer, external :: k_coe
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension ismc1(10)
-data ismc1/17,22,23,27,32,49,54,58,59,64/
 
 if ((norb_act == 0) .or. (lrsta == norb_dz+1)) then
   mh = 1
@@ -543,10 +576,14 @@ end subroutine link_c1_to_given_orb_coe
 
 subroutine head_drr_at_given_orb(mh,lri)
 
+implicit none
+integer :: mh, lri
+integer :: iactploop, ind0, jdl, jdr, jl, jp, jpend, jpsta, jr
+real*8 :: w, ww
+integer, parameter :: ishdrr = 36
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-data ishdrr/36/
 
 iactploop = 0
 jpsta = no(lri-1)+1
@@ -582,11 +619,14 @@ end subroutine head_drr_at_given_orb
 
 subroutine head_drl_at_given_orb(mh,lri)
 
+implicit none
+integer :: mh, lri
+integer :: iactploop, ind0, jbr, jdl, jdr, jl, jp, jpend, jpsta, jr, ndl, ndr, ni
+real*8 :: w, ww
+integer, parameter :: ishd1(4) = [38,39,43,48]
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension ishd1(4)
-data ishd1/38,39,43,48/
 
 jpsta = no(lri-1)+1
 jpend = no(lri)
@@ -632,12 +672,15 @@ end subroutine head_drl_at_given_orb
 
 subroutine head_ar_at_given_orb(mh,lri)
 
+implicit none
+integer :: mh, lri
+integer :: iactploop, ind0, jbr, jd_occ, jdl, jdl_occ, jdr, jdr_occ, jl, jp, jpend, jpsta, jr, ni
+real*8 :: w, ww
+logical :: found
+integer, parameter :: isha4(4) = [34,35,40,44]
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension isha4(4)
-logical found
-data isha4/34,35,40,44/
 
 iactploop = 0
 jpsta = no(lri-1)+1
@@ -690,11 +733,15 @@ end subroutine head_ar_at_given_orb
 
 subroutine tail_ar_at_given_orb(mh,lract)       !a^r:lstep>rstep
 
+implicit none
+integer :: mh, lract
+integer :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, &
+           lpnextrtail, lprtail, lprwei, lprwei0, ni
+real*8 :: w, w0, w1, ww
+integer, parameter :: isla2(4) = [21,31,57,62]
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension isla2(4)
-data isla2/21,31,57,62/
 
 lpnew = 0
 do iactploop=1,mh
@@ -756,11 +803,15 @@ end subroutine tail_ar_at_given_orb
 
 subroutine tail_al_at_given_orb(mh,lract)       !a^l:lstep<rstep
 
+implicit none
+integer :: mh, lract
+integer :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, &
+           lpnextrtail, lprtail, lprwei, lprwei0, ni
+real*8 :: w, w0, w1, ww
+integer, parameter :: isla1(4) = [19,24,50,60]
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension isla1(4)
-data isla1/19,24,50,60/
 
 lpnew = 0
 do iactploop=1,mh
@@ -822,10 +873,15 @@ end subroutine tail_al_at_given_orb
 
 subroutine tail_drr_at_given_orb(mh,lract)       !d^r^r(3,0):locc=
 
+implicit none
+integer :: mh, lract
+integer :: iactploop, idb, ilstep, ind0, irstep, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, lpnextrtail, lprtail, &
+           lprwei, lprwei0
+real*8 :: w, w0, w1, ww
+integer, parameter :: isld6 = 45
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-data isld6/45/
 
 lpnew = 0
 do iactploop=1,mh
@@ -878,12 +934,16 @@ end subroutine tail_drr_at_given_orb
 
 subroutine tail_drl_at_given_orb(mh,lract)       !d^r^l:locc=rocc
 
+implicit none
+integer :: mh, lract
+logical :: logic_plbr
+integer :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstart, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
+           lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, ni
+real*8 :: w, w0, w1, ww
+integer, parameter :: isld2(5) = [7,38,43,48,74]
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension isld2(5)
-data isld2/7,38,43,48,74/
-logical logic_plbr
 
 lpnew = 0
 do iactploop=1,mh

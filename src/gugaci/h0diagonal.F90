@@ -17,15 +17,16 @@ subroutine hymat_2(maxroot,minspace,ndim,kval,mroot,dcrita,eval,vcm,indx,th,nxh,
 ! version of the one given by J. Weber, R. Lacroix and G. Wanner
 ! in Computers & Chemistry, 4, 55 (1980).
 !***********************************************************************
-implicit real*8(a,c,d,e,f,p,h,w,v,t,r)
-!parameter (maxroot=10,minspace=40)
+
+implicit none
+!integer, parameter :: maxroot = 10, minspace = 40)
+integer :: maxroot, minspace, ndim, kval, mroot, indx(minspace), nxh, nxb
+real*8 :: dcrita, eval(maxroot), vcm(ndim*mroot), th(nxh), vb1(nxb), vb2(nxb), vad(ndim)
+integer :: i, ijb, ijm, ijmb1, indxm, iterat, jib1, jib2, jicm, k, l, m, mmspace, mn, mrsta, mrsta0, mval, nroot
+real*8 :: deff(maxroot), depcc, ecrita(maxroot), eeval(maxroot), residvb(maxroot), tm, valpha(maxroot), vd(minspace), &
+          ve(minspace), vp(minspace*(minspace+1)/2), vu(minspace,minspace), vukm
+real*8, parameter :: depc = 1.0d-7
 !common /file_descript/nf1,nf2,nf3,nf4,nf7,nf8,nf9,nf10, nf11,nf13,nf15,nf20
-dimension indx(minspace), vd(minspace), ve(minspace), vu(minspace,minspace), vp(minspace*(minspace+1)/2), th(nxh), vb1(nxb), &
-          vb2(nxb), vad(ndim)
-dimension eval(maxroot), vcm(ndim*mroot), eeval(maxroot)
-dimension residvb(maxroot), valpha(maxroot), deff(maxroot)
-dimension ecrita(maxroot)
-data depc/1.0d-7/
 
 !**************************************************************
 
@@ -248,8 +249,10 @@ end subroutine hymat_2
 
 subroutine matrmk2(n,k1,k2,indx,p,vb1,vb2,nxb)
 
-implicit real*8(a-h,o-z)
-dimension p(465), indx(30), vb1(nxb), vb2(nxb)
+implicit none
+integer :: n, k1, k2, indx(30), nxb
+real*8 :: p(465), vb1(nxb), vb2(nxb)
+integer :: i, iijj, ij, j, ji, l
 
 do i=k1,k2
   iijj = i*(i-1)/2
@@ -271,9 +274,12 @@ end subroutine matrmk2
 
 subroutine abprod2(n,k1,k2,th,nxh,vb1,vb2,nxb,vad)
 
-#include "drt_h.fh"
-dimension th(nxh), vb1(nxb), vb2(nxb), vad(n)
+implicit none
+integer :: n, k1, k2, nxh, nxb
+real*8 :: th(nxh), vb1(nxb), vb2(nxb), vad(n)
+integer :: i, ij, j, l, mn
 !real*8, allocatable :: buff(:)
+#include "drt_h.fh"
 
 !allocate(buff(n))
 ij = 0
@@ -301,8 +307,12 @@ end subroutine abprod2
 
 subroutine orthnor(n,j,dcrita,vb1,nxb)
 
+implicit none
+integer :: n, j, nxb
+real*8 :: dcrita, vb1(nxb)
+integer :: i, ij, ji, jm, l
+real*8 :: s, smax1, smax2
 #include "drt_h.fh"
-dimension vb1(nxb)
 
 ji = indx(j)
 if (j /= 1) then
@@ -349,9 +359,14 @@ end subroutine orthnor
 
 subroutine norm_a(n,av)  !bv:basis, av:vector for orth and norm
 
-real*8 av(n), s, ddot_, dcrita
+implicit none
+integer :: n
+real*8 :: av(n)
+integer :: i
+real*8 :: s
+real*8, parameter :: dcrita = 1.0d-10
+real*8, external :: ddot_
 
-dcrita = 1.0d-10
 ! normalization of av_eigenvector.
 s = 0.0d0
 s = ddot_(n,av,1,av,1)
@@ -367,7 +382,12 @@ end subroutine norm_a
 
 subroutine orth_ab(n,av,bv)  !bv:basis, av:vector for orth
 
-real*8 av(n), bv(n), s, ddot_
+implicit none
+integer :: n
+real*8 :: av(n), bv(n)
+integer :: i
+real*8 :: s
+real*8, external :: ddot_
 
 ! orthogonalization av,bv
 s = ddot_(n,av,1,bv,1)

@@ -8,6 +8,12 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      integer nblock,iblktb,mbf,npbf,ncibl,ip4_abcd_ext_base,           &
+     &ip3_abd_ext_base,np3_abd_ext,ip2_aa_ext_base,ip2_dd_ext_base,     &
+     &ip2_ab_inn_base,int2ind_space_extsmab,int2ind_numijkl_extsmab,    &
+     &ip1_a_dbl_base,intnum_of_innext_isma,intoset_of_ext_jpsmabc,      &
+     &intoset_of_aad_isma,ipwt,ipws,ncibl_all
+
       REAL*8, pointer :: vtint(:)
       COMMON/FINT/VTINT
       COMMON/BFT/NBLOCK,IBLKTB(5,106),                                  &

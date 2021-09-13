@@ -11,22 +11,19 @@
 
 subroutine cipro()
 
+implicit none
 #include "drt_h.fh"
 #include "grad_h.fh"
 #include "files_gugaci.fh"
 #include "stdalloc.fh"
-parameter(maxmolcasorb=5000,maxpro=50)
-dimension idx_idisk0(64), idx_idisk1(max_root+1)
-dimension occ(max_orb)
-allocatable cmo(:), cno(:) !, denao(max_orb,max_orb)
-dimension ipcom(maxpro)
-real*8, pointer :: omat(:), denao(:), vprop(:,:,:)
-character bsbl(2*4*maxmolcasorb)*1
-character*8 label
-character*8 pname(maxpro), ptyp(maxpro)
-dimension pnuc(maxpro)
-dimension pgauge(3,maxpro)
-dimension idummy(1)
+integer, parameter :: maxmolcasorb = 5000, maxpro = 50
+integer :: i, icall, idisk, idummy(1), idx_idisk0(64), idx_idisk1(max_root+1), iend, im, iopt, ipc, ipcom(maxpro), iprop, irec, &
+           iroot, irtc, ista, isymlb, nc, nc0, nc1, nc2, nmo, npro, nsiz
+real*8 :: occ(max_orb), pgauge(3,maxpro), pnuc(maxpro) !, denao(max_orb,max_orb)
+character :: bsbl(2*4*maxmolcasorb)
+character(len=8) :: label, pname(maxpro), ptyp(maxpro)
+real*8, allocatable :: cmo(:), cno(:)
+real*8, pointer :: denao(:), omat(:), vprop(:,:,:)
 
 ! mrci nature orbital
 idisk = 0

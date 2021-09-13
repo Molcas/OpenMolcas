@@ -12,6 +12,10 @@
 ! bbs act-ext
 subroutine ar_bl_dd_ext(lri,lrj,nk)
 
+implicit none
+integer :: lri, lrj, nk
+integer :: ihypos, ilpend, ilpsta, ilw, iml0, imr0, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
@@ -46,9 +50,9 @@ do iw0=1,mtype
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -71,9 +75,9 @@ do iw0=1,mtype
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -91,6 +95,10 @@ end subroutine ar_bl_dd_ext
 
 subroutine drl_dd_ext(lri)
 
+implicit none
+integer :: lri
+integer :: ihypos, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
@@ -130,9 +138,9 @@ do iw0=1,mtype
         logic_g49b = .false.
         if (iwal0 /= iwar0) logic_g49b = .true.
         call lp_drl_ext_dd_calcuvalue_g(lri,iml,nlp_value)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -157,9 +165,9 @@ do iw0=1,mtype
         logic_g49b = .false.
         if (iwal0 /= iwar0) logic_g49b = .true.
         call lp_drl_ext_dd_calcuvalue_wyb(lri,iml,nlp_value)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -177,10 +185,15 @@ end subroutine drl_dd_ext
 
 subroutine drl_ss_ext(lri)
 
+implicit none
+integer :: lri
+integer :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value
+real*8 :: w0_old, w0multi
+real*8, parameter :: crl = 1.0d-8
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-data crl/1.0d-8/
 
 logic_g1415 = .false.
 logic_g2g4b = .false.
@@ -224,9 +237,9 @@ if (logic_grad) then
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -264,9 +277,9 @@ else
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -284,6 +297,11 @@ end subroutine drl_ss_ext
 
 subroutine drl_ss_sum(lri,lrj)
 
+implicit none
+integer :: lri, lrj
+integer :: iiext, ilpend, ilpsta, ilw, iplp, irw, iw0, lrk, nlp_value
+real*8 :: w0_old, w0multi
+real*8, parameter :: crl = 1.0d-8
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
@@ -293,7 +311,6 @@ logic_g2g4b = .false.
 logic_g36b = .false.
 logic_g35b = .false.
 logic_g34b = .false.
-data crl/1.0d-8/
 
 if (logic_grad) then
   do lrk=1,norb_dz
@@ -361,10 +378,15 @@ end subroutine drl_ss_sum
 
 subroutine drl_st_ext(lri)
 
+implicit none
+integer :: lri
+integer :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value
+real*8 :: w1_old, w1multi
+real*8, parameter :: crl = 1.0d-8
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-data crl/1.0d-8/
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
@@ -408,9 +430,9 @@ if (logic_grad) then
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -451,9 +473,9 @@ else
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -472,6 +494,10 @@ end subroutine drl_st_ext
 
 subroutine drl_tt_ext(lri)
 
+implicit none
+integer :: lri
+integer :: ihypos, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, n1415, nlp_value
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
@@ -508,9 +534,9 @@ do iw0=1,mtype
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -534,9 +560,9 @@ do iw0=1,mtype
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -554,10 +580,14 @@ end subroutine drl_tt_ext
 
 subroutine drl_tt_sum(lri,lrj)
 
+implicit none
+integer :: lri, lrj
+integer :: iiext, ilpend, ilpsta, ilw, iplp, irw, iw0, lrk, n1415, nlp_value
+real*8 :: w0_old, w0multi
+real*8, parameter :: crl = 1.0d-8
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-data crl/1.0d-8/
 
 !logic_g1415 = .false.
 !logic_g2g4b = .false.
@@ -633,10 +663,15 @@ end subroutine drl_tt_sum
 
 subroutine drl_ts_ext(lri)
 
+implicit none
+integer :: lri
+integer :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value
+real*8 :: w1_old, w1multi
+real*8, parameter :: crl = 1.0d-8
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-data crl/1.0d-8/
 
 !logic_g1415 = .false.
 !logic_g2g4b = .false.
@@ -679,9 +714,9 @@ if (logic_grad) then
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -719,9 +754,9 @@ else
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -740,6 +775,11 @@ end subroutine drl_ts_ext
 
 subroutine ar_br_tv_ext_br_ar(lri,lrj)
 
+implicit none
+integer :: lri, lrj
+integer :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, lphead, &
+           nlp_value
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
@@ -770,9 +810,9 @@ do iw0=1,mtype
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -803,9 +843,9 @@ do iw0=1,mtype
         end if
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihyposl+in)
-          iwar = iwar0+ihy(ihyposr+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihyposl+in_)
+          iwar = iwar0+ihy(ihyposr+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -823,6 +863,11 @@ end subroutine ar_br_tv_ext_br_ar
 
 subroutine drr_sv_ext_br_ar(lri)
 
+implicit none
+integer :: lri
+integer :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, lphead, &
+           ndorb, nlp_value
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
@@ -852,9 +897,9 @@ do iw0=1,mtype
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -886,9 +931,9 @@ do iw0=1,mtype
 
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihyposl+in)
-          iwar = iwar0+ihy(ihyposr+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihyposl+in_)
+          iwar = iwar0+ihy(ihyposr+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -906,6 +951,11 @@ end subroutine drr_sv_ext_br_ar
 
 subroutine drr_tv_ext_br_ar(lri)
 
+implicit none
+integer :: lri
+integer :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, lphead, &
+           ndorb, nlp_value
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
@@ -935,9 +985,9 @@ do iw0=1,mtype
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -969,9 +1019,9 @@ do iw0=1,mtype
 
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihyposl+in)
-          iwar = iwar0+ihy(ihyposr+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihyposl+in_)
+          iwar = iwar0+ihy(ihyposr+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -989,11 +1039,15 @@ end subroutine drr_tv_ext_br_ar
 
 subroutine ar_dv_ext_ar(idtu,isma,lri,lrj)
 
+implicit none
+integer :: idtu, isma, lri, lrj
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-dimension lpcoe(norb_dz+1:norb_inn)
+integer :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
+           lpcoe(norb_dz+1:norb_inn), lphead, nlp_value, norb, nvalue1
+integer, external :: iwalk_ad
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
@@ -1020,9 +1074,9 @@ do iw0=1,mtype
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -1050,9 +1104,9 @@ do iw0=1,mtype
 
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihyposl+in)
-          iwar = iwar0+ihy(ihyposr+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihyposl+in_)
+          iwar = iwar0+ihy(ihyposr+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -1070,11 +1124,15 @@ end subroutine ar_dv_ext_ar
 
 subroutine ar_sd_ext_ar(idtu,lri,lrj,isma)
 
+implicit none
+integer :: idtu, lri, lrj, isma
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-dimension lpcoe(norb_dz+1:norb_inn)
+integer :: ihypos, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, lpcoe(norb_dz+1:norb_inn), &
+           nlp_value, norb, nvalue1
+integer, external :: iwalk_ad
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
@@ -1101,9 +1159,9 @@ do iw0=1,mtype
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -1122,9 +1180,9 @@ do iw0=1,mtype
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -1142,11 +1200,15 @@ end subroutine ar_sd_ext_ar
 
 subroutine ar_td_ext_ar(idtu,lri,lrj,isma)
 
+implicit none
+integer :: idtu, lri, lrj, isma
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-dimension lpcoe(norb_dz+1:norb_inn)
+integer :: ihypos, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, lpcoe(norb_dz+1:norb_inn), &
+           nlp_value, norb, nvalue1
+integer, external :: iwalk_ad
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
@@ -1173,9 +1235,9 @@ do iw0=1,mtype
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -1194,9 +1256,9 @@ do iw0=1,mtype
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -1214,6 +1276,11 @@ end subroutine ar_td_ext_ar
 
 subroutine ar_br_sv_ext_br_ar(lri,lrj)
 
+implicit none
+integer :: lri, lrj
+integer :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, lphead, &
+           nlp_value
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
@@ -1242,9 +1309,9 @@ do iw0=1,mtype
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -1275,9 +1342,9 @@ do iw0=1,mtype
         end if
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihyposl+in)
-          iwar = iwar0+ihy(ihyposr+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihyposl+in_)
+          iwar = iwar0+ihy(ihyposr+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -1295,6 +1362,8 @@ end subroutine ar_br_sv_ext_br_ar
 
 subroutine logicg_dd(ilnodesm,irnodesm)
 
+implicit none
+integer :: ilnodesm, irnodesm
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 

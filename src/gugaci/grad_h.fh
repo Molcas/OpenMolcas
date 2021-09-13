@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      real*8 dm1,index_dm2,dm1tmp
       COMMON /DM_1_2/ DM1(MAX_ORB,MAX_ORB),INDEX_DM2(MAX2_ALL),         &
      &                DM1TMP(MAX_ORB*(MAX_ORB+1)/2)
       REAL*8, pointer :: DENM1(:),DENM2(:)

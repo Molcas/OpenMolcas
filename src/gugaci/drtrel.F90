@@ -13,12 +13,13 @@
 
 subroutine active_drt()
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "files_gugaci.fh"
 !common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-dimension iin(0:max_node)
+integer :: i, iin(0:max_node), im, jde, jdim, jdn, jds, jji, jp, jpe, jpn, jsim, jtim, ndi
 
 nci_dim = 0
 if (norb_act == 0) then
@@ -196,6 +197,8 @@ end subroutine active_drt
 
 subroutine rst(id,indd)
 
+implicit none
+integer :: id, indd
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -226,11 +229,14 @@ end subroutine rst
 
 subroutine ref_gfs(nel,ndj,locu,nm)
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 !common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-dimension lhsm(8), locu(8,max_ref), lscu(0:8,max_ref)
+integer :: nel, ndj, locu(8,max_ref), nm
+integer :: i, l1, l2, l3, l4, l5, l6, l7, l8, ldj, lh, lhe, lhs, lhsm(8), lm, lpsum, lscu(0:8,max_ref), m, m1, m2, m3, m4, m5, m6, &
+           m7, m8, mdj, mys, ne_act, ne_s, nes, npair, nre
 
 ne_act = nel-2*norb_dz
 ne_s = nint(spin*2)
@@ -338,6 +344,8 @@ end subroutine ref_gfs
 
 subroutine rcas(id,indd)
 
+implicit none
+integer :: id, indd
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -370,11 +378,13 @@ end subroutine rcas
 
 subroutine check_rcas3(jk,ind,inb,ndj,locu)
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 !common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-dimension ind(8,max_node), lsym(8), iexcit(ndj), locu(8,ndj)
+integer :: jk, ind(8,max_node), inb, ndj, locu(8,ndj)
+integer :: i, iex, iexcit(ndj), lsym(8), m, nsumel
 
 inb = 0
 nsumel = 0
@@ -402,14 +412,15 @@ return
 end subroutine check_rcas3
 
 subroutine irfrst(iselcsf_occ)
-
 ! ifrno(j)=i
 ! irfno(i)=j no. i ref is no. j cfs in h0
+
+implicit none
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "config.fh"
-dimension iselcsf_occ(max_innorb,max_ref)
-dimension iwalktmp(max_orb)
+integer :: iselcsf_occ(max_innorb,max_ref)
+integer :: i, icount, icsfocc, icsfwlk, ii, ij, im, iwalktmp(max_orb), j, ndimh0
 
 icsfwlk = 0
 ndimh0 = nci_h0 !iw_sta(2,1)
@@ -461,12 +472,13 @@ end subroutine irfrst
 
 subroutine irfrst_bak(iselcsf_occ)
 
+implicit none
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "config.fh"
-dimension iselcsf_occ(max_innorb,max_ref)
-dimension iwalktmp(max_orb)
-logical log_exist
+integer :: iselcsf_occ(max_innorb,max_ref)
+integer :: i, icount, icsfocc, icsfwlk, ii, ij, im, io, iocsf, ire, iwalktmp(max_orb), j, ndimh0, nocc
+logical :: log_exist
 
 nocc = 0
 do i=1,mroot
@@ -549,8 +561,11 @@ end subroutine irfrst_bak
 
 function min_itexcit(indjk)
 
+implicit none
+integer :: min_itexcit
+integer :: indjk(4)
+integer :: indexcit, ixcit, lref, ngrop, nj
 #include "ref.fh"
-dimension indjk(4)
 ! integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
 ! indexcit=  ir1 ir2 ir3 ir4 ir5 ir6 ir7 ir8 ......... ir15
 
@@ -585,8 +600,10 @@ end function min_itexcit
 
 subroutine njexcit(idcc,indjk,locuk0,n_ref)
 
+implicit none
+integer :: idcc, indjk(4), n_ref, locuk0(n_ref)
+integer :: indexcit, ixcit, lref, ngrop, nj
 #include "ref.fh"
-dimension indjk(4), locuk0(n_ref)
 
 nj = 0
 do ngrop=1,ndjgrop-1         !1-(ndjgrop-1) grop

@@ -8,7 +8,6 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      implicit REAL*8 (a-h,o-z)
 #include "ci_parameter.fh"
       REAL*8, pointer :: vector1(:),vector2(:)
       common /ci_vector/ vector1,vector2
@@ -20,6 +19,16 @@
      &                     index_lpext2(:)
       common/tmpval12/ value_lpext,value_lpext1,value_lpext2
       common/itmval12/ index_lpext,index_lpext1,index_lpext2
+      integer index_lpext3,index_lpext4,index_lpext5,nstate,n_electron, &
+     &nactel,ispin,ns_sm,ng_sm,nci_dim,ja_sys,jb_sys,jc_sys,            &
+     &iorb_revese_order,jroute_sys,max_jb,maxintseg,intgen,lenvec,      &
+     &nci_h0,norb_frz,norb_dbl,norb_act,norb_ext,nabc,norb_dz,norb_inn, &
+     &norb_all,nstart_act,                  iwt_dbl,iwt_ext,            &
+     &jpadlrel,lsm_inn,lsm,nlsm_all,nlsm_ext,nlsm_frz,nlsm_dbl,nlsm_act,&
+     &nlsm_inn,nlsm_bas,nlsm_del,ibsm_dbl,iesm_dbl,ibsm_ext,iesm_ext,   &
+     &map_orb_order,map_orb_order_t,norb_mr,n_ref,iref_occ
+      real*8 value_lpext3,value_lpext4,value_lpext5,vpotnuc,voint,vdint,&
+     &vijkk_0sum,vijkk_1sum,viasum_0,viasum_1,spin
       common/tmpval35/ value_lpext3(max_extorb, max_innorb),            &
      &                 value_lpext4(max_extorb, max_innorb),            &
      &                 value_lpext5(max_extorb)
@@ -39,10 +48,9 @@
       common/spininfo/spin
       common /mole_orb_ci/norb_frz,norb_dbl,norb_act,norb_ext,nabc,     &
      &               norb_dz,norb_inn,norb_all,nstart_act
-      common /com_tab_ci/mul_tab(8,8),istep_occ(4),                     &
-     &                               iwt_dbl(maxgdm,6),                 &
+      common /com_tab_ci/            iwt_dbl(maxgdm,6),                 &
      &                               iwt_ext(maxgdm,4),                 &
-     &  map_jplr(6,6),jpadlrel(26)
+     &  jpadlrel(26)
       common /info_orb_ci/lsm_inn(max_innorb),lsm(max_orb),             &
      &                 nlsm_all(maxgdm),nlsm_ext(maxgdm),               &
      &                 nlsm_frz(maxgdm),nlsm_dbl(maxgdm),               &
@@ -57,6 +65,18 @@
 #include "program_control.fh"
       integer :: log_prod,maxciiter
       common /program_ictrl/ log_prod,maxciiter
+
+      integer jjd_node,jarc_node,jupwei_node,inode_orb,iwt_sm_s_dbl,    &
+     &iwt_sm_s_ext,iwt_dbl_d,iwt_dbl_st,iwt_sm_sab,iwt_sm_dbl,          &
+     &iwt_sm_ext,iwt_orb_dbl,iwt_orb_ext,iwt_revorb_dbl,iwt_revorb_ext, &
+     &imap_revorbtoorb_dbl,imap_revorbtoorb_ext,ngw1,ngw2,ngw3,ngw4,jp2,&
+     &jp3,norb_number,int_dd_drl,int_dd_offset,mroot,mcroot,msroot,     &
+     &mth_eigen,mjn,indx,icount_iteration,min_conf,min_innconf,         &
+     &min_indxconf,min_extconf,minn_innconf,minn_indxconf,minn_extconf, &
+      ndim_h0,irf,irfno,ifrno,jud,just
+      real*8                  valpha_criterion,vresid_criterion,cm_cri, &
+     &pror,vp,vu,vd,ve,veigenci,escf,ecih0,eci,valh0,ecpmp2,eval0,de2,  &
+     &eval
 
       common /drt_node/jjd_node(4,max_node),jarc_node(4,max_node),      &
      &       jupwei_node(max_node),inode_orb(max_actorb)
@@ -81,7 +101,7 @@
       common /first_matrixvector_multiply_ci/icount_iteration,          &
      &               min_conf,min_innconf,min_indxconf,min_extconf,     &
      &               minn_innconf,minn_indxconf,minn_extconf
-      common /convergence_criterion_ci/vortho_criterion,                &
+      common /convergence_criterion_ci/                                 &
      &       valpha_criterion,vresid_criterion,cm_cri,pror
       common /varrrays_for_diag/                                        &
      &       vp((max_kspace*max_kspace+max_kspace)/2),                  &
@@ -94,6 +114,20 @@
       common/spacedoub_ci/jud(max_innorb),just(max_innorb,max_innorb)
       real*8,pointer :: vcm(:),vcm0(:)
       common/h0vcm/ vcm,vcm0
+
+      integer mxnode,nu_ad,nu_ae,jpad_upwei,jpad_downwei,jpae_sta,      &
+     &jpae_upwei,jpae_downwei,iseg_dim,iseg_sta,iw_sta,iw_downwei,      &
+     &iseg_upwei,iseg_downwei,isegdim_mrpt2,isub_dim,isub_sta,nu_ad_v,  &
+     &nu_ad_d2,nu_ad_d1,nu_ad_t2,nu_ad_t1,nu_ad_s,lpblock,lpblock_vd,   &
+     &lpblock_dd,lpblock_td,lpblock_sd,lpblock_dv,lpblock_dt,lpblock_tt,&
+     &lpblock_st,lpblock_tv,lpblock_ds,lpblock_ts,lpblock_ss,lpblock_sv,&
+     &iprint,maxcisubdim
+      real*8 fg,pd,pdd,pt,ptt,ps1,ps2,ps3,ps4,w1_cs21,w1_cs12,w1_ct11,  &
+     &w1_ct22,w0_ss,w1_ss,w1_st,w1_ts,w1_st1,w1_t1s,w0_sd,w1_sd,w0_ds,  &
+     &w1_ds,w0_sd1,w1_sd1,w0_d1s,w1_d1s,w0_sv,w1_sv,w0_tt,w1_tt,w0_t1t1,&
+     &w1_t1t1,w0_td,w1_td,w0_dt,w1_dt,w0_t1d1,w1_t1d1,w0_d1t1,w1_d1t1,  &
+     &w0_tv,w1_tv,w0_t1v,w1_t1v,w0_dd,w1_dd,w0_d1d1,w1_d1d1,w0_dd1,     &
+     &w1_dd1,w0_d1d,w1_d1d,w0_dv,w1_dv,w0_d1v,w1_d1v,w0_vv
 
       common/drtmrci/ mxnode,nu_ad(41),nu_ae(25),                       &
      &            jpad_upwei(82),jpad_downwei(82),                      &
@@ -149,3 +183,21 @@
       common /prtcontrol/ iprint(6)
 !-----use in mrpt2--------
       common /maxcidim/maxcisubdim
+
+      integer, parameter :: istep_occ(4) = [0,1,1,2],                   &
+     &                      mul_tab(8,8) = reshape([1,2,3,4,5,6,7,8,    &
+     &                                              2,1,4,3,6,5,8,7,    &
+     &                                              3,4,1,2,7,8,5,6,    &
+     &                                              4,3,2,1,8,7,6,5,    &
+     &                                              5,6,7,8,1,2,3,4,    &
+     &                                              6,5,8,7,2,1,4,3,    &
+     &                                              7,8,5,6,3,4,1,2,    &
+     &                                              8,7,6,5,4,3,2,1],   &
+     &                                              [8,8]),             &
+     &                      map_jplr(6,6) = reshape([25,23,17,10,24,18, & !v
+     &                                               26,19,13, 6,22, 0, & !d
+     &                                                0,14,11, 2, 0, 0, & !t
+     &                                                0, 7, 3, 1, 9, 5, & !s
+     &                                                0,21, 0, 8,20,15, & !dd
+     &                                                0, 0, 0, 4,16,12],& !tt
+     &                                              [6,6])

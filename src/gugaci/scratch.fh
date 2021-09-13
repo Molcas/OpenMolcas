@@ -9,4 +9,5 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       character*256 tmpdir
+      integer len_str
       common /scratch/ tmpdir,len_str

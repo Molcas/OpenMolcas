@@ -11,6 +11,8 @@
 
 subroutine dv_drt_ci_new()
 
+implicit none
+integer :: jptyl, jptyr, lpb
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -42,6 +44,11 @@ end subroutine dv_drt_ci_new
 
 subroutine dv_ext_head_in_dbl()
 
+implicit none
+integer :: ijk, imap_1, intpos, isma, iwal, iwar, iwdl, iwdr, jk, jmlr, lmd, lmi, lmij, lmj, lpok, lra, lrd, lri, lrj, lrk, mpl, ni
+real*8 :: w0, w0sd1, w0sd11, w0sd12, w0sd14, w0sd16, w0sd2, w0sd4, w0sd5, w0sd8, w0sd9, w0sv2, w0td1, w0td2, w0td3, w0td4, w0td5, &
+          w1sd11, w1sd12, w1sd5, w1sd8, w1sd9, w1sv2, w1td2, w1td3, w1td4, w1tv
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -836,6 +843,8 @@ end subroutine dv_ext_head_in_dbl
 
 subroutine dv_ext_head_in_act()
 
+implicit none
+integer :: intpos, isma, lri, lrj
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -872,6 +881,8 @@ end subroutine dv_ext_head_in_act
 
 subroutine sd_drt_ci_new_den()
 
+implicit none
+integer :: jptyl, jptyr, lpb
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -907,6 +918,8 @@ end subroutine sd_drt_ci_new_den
 
 subroutine sd_drt_ci_new()
 
+implicit none
+integer :: jptyl, jptyr, lpb
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -942,6 +955,11 @@ end subroutine sd_drt_ci_new
 
 subroutine sd_ext_head_in_dbl()
 
+implicit none
+integer :: ijk, imap_1, intpos, isma, iwal, iwar, iwdl, iwdr, jk, jmlr, lmd, lmi, lmij, lmj, lpok, lra, lrd, lri, lrj, lrk, mpl, ni
+real*8 :: w0, w0sd1, w0sd11, w0sd12, w0sd14, w0sd16, w0sd2, w0sd4, w0sd5, w0sd8, w0sd9, w0sv2, w0td1, w0td2, w0td3, w0td4, w0td5, &
+          w1sd11, w1sd12, w1sd5, w1sd8, w1sd9, w1sv2, w1td2, w1td3, w1td4, w1tv
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1751,6 +1769,8 @@ end subroutine sd_ext_head_in_dbl
 
 subroutine sd_ext_head_in_act()
 
+implicit none
+integer :: intpos, isma, lri, lrj
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1788,6 +1808,7 @@ end subroutine sd_ext_head_in_act
 
 subroutine sd_ext_space_w01plp_value()
 
+implicit none
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -1807,6 +1828,9 @@ end subroutine sd_ext_space_w01plp_value
 
 subroutine gsd_samesym_aaa(lri,isma)
 
+implicit none
+integer :: lri, isma
+integer :: ia, ia0, iabc, iabc0, iaqq, iasta, ib, ibend, ibsta, ic, ilwei, intpos, iposint, jcoffset, lrc
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
@@ -1881,6 +1905,9 @@ end subroutine gsd_samesym_aaa
 
 subroutine gsd_diffsamesym_abb(lri,isma,ismb)
 
+implicit none
+integer :: lri, isma, ismb
+integer :: ia, ia0, iabc, iabc0, iaend, iaqq, iasta, ib, ibend, ibsta, ic, ilwei, intpos, iposint, jb, jcoffset, lrc
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
@@ -1939,6 +1966,9 @@ end subroutine gsd_diffsamesym_abb
 
 subroutine gsd_diffsamesym_aab(lri,isma,ismb)
 
+implicit none
+integer :: lri, isma, ismb
+integer :: ia, ia0, iabc, iabc0, iaend, iaqq, iasta, ib, ibend, ibsta, ic, ilwei, intpos, iposint, jcoffset, lrc
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
@@ -1993,6 +2023,9 @@ end subroutine gsd_diffsamesym_aab
 
 subroutine gsd_arlp_s1(lri)
 
+implicit none
+integer :: lri
+integer :: ia0, iaqq, ic, ilwei, intoffset, intpos, iposint, is1orb, lrk
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
@@ -2034,6 +2067,8 @@ end subroutine gsd_arlp_s1
 
 subroutine td_drt_ci_new()
 
+implicit none
+integer :: jptyl, jptyr, lpb
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2070,6 +2105,11 @@ end subroutine td_drt_ci_new
 
 subroutine td_ext_head_in_dbl()
 
+implicit none
+integer :: ijk, imap_1, intpos, isma, iwal, iwar, iwdl, iwdr, jk, jmlr, lmd, lmi, lmij, lmj, lpok, lra, lrd, lri, lrj, lrk, mpl, ni
+real*8 :: w0, w0sd1, w0sd11, w0sd12, w0sd14, w0sd16, w0sd2, w0sd4, w0sd5, w0sd8, w0sd9, w0sv2, w0td1, w0td2, w0td3, w0td4, w0td5, &
+          w1sd11, w1sd12, w1sd5, w1sd8, w1sd9, w1sv2, w1td2, w1td3, w1td4, w1tv
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2877,6 +2917,8 @@ end subroutine td_ext_head_in_dbl
 
 subroutine td_ext_head_in_act()
 
+implicit none
+integer :: intpos, isma, lri, lrj
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2914,6 +2956,9 @@ end subroutine td_ext_head_in_act
 
 subroutine gsd_ext_sequence(iltype,ilsm,irsm,lri)
 
+implicit none
+integer :: iltype, ilsm, irsm, lri
+integer :: ic, icano_nn, icend, icsta, ilnodedownwei, indl, isma, ismb, ismnoded, ismnodes
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -2974,6 +3019,11 @@ end subroutine gsd_ext_sequence
 
 subroutine ar_sd_ext_rest(lri)
 
+implicit none
+integer :: lri
+integer :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei
+real*8 :: w0_old, w0multi
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
@@ -3009,9 +3059,9 @@ if (logic_grad) then
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -3046,9 +3096,9 @@ else
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -3066,6 +3116,11 @@ end subroutine ar_sd_ext_rest
 
 subroutine ar_td_ext_rest(lri)
 
+implicit none
+integer :: lri
+integer :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei
+real*8 :: w0_old, w0multi
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
@@ -3101,9 +3156,9 @@ if (logic_grad) then
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)
@@ -3139,9 +3194,9 @@ else
         ndim = ihy(ihypos)
         iwal0 = lpnew_lwei(iplp)
         iwar0 = lpnew_rwei(iplp)
-        do in=1,ndim
-          iwal = iwal0+ihyl(ihypos+in)
-          iwar = iwar0+ihy(ihypos+in)
+        do in_=1,ndim
+          iwal = iwal0+ihyl(ihypos+in_)
+          iwar = iwar0+ihy(ihypos+in_)
           do iwd=0,iwuplwei-1
             ilw = iwalk_ad(jpadl,ipael,iwal,iwd)
             irw = iwalk_ad(jpad,ipae,iwar,iwd)

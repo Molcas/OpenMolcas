@@ -12,9 +12,11 @@
 ! dbl space partial loop values
 subroutine Value_of_PL_IN_DBL()
 
+implicit none
+integer :: ib
+real*8 :: db, fgsq2, fgvsq2
+real*8, parameter :: dhalf = 0.5d0, done = 1.0d0, dsq2 = 1.414213562373095d0, dzero = 0.0d0, vsq2 = 0.7071067811865d0
 #include "drt_h.fh"
-data DZERO,DONE,DHALF/0.d0,1.d0,0.5d0/
-data DSQ2,VSQ2/1.414213562373095d0,0.7071067811865d0/
 
 DB = JB_SYS
 IB = mod(JB_SYS,2)
@@ -435,6 +437,11 @@ end subroutine Value_of_PL_IN_DBL
 
 subroutine SS2_EXT(LRI,LRJ,NK)
 
+implicit none
+integer :: lri, lrj, nk
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, mpl, ni
+real*8 :: w0ss2, w1ss2
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -474,6 +481,11 @@ end subroutine SS2_EXT
 subroutine SS3_EXT(LRI,LRJ)
 ! SS(1-3)  Ar(13)-Bl(20)-
 
+implicit none
+integer :: lri, lrj
+integer :: iwal, iwar, iwdl, iwdr, mpl, ni
+real*8 :: w0ss3, w1ss3
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -505,6 +517,11 @@ end subroutine SS3_EXT
 
 subroutine SS4_EXT(LRI,LRJ,NK)
 
+implicit none
+integer :: lri, lrj, nk
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, mpl, ni
+real*8 :: w0ss4, w1ss4
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -544,11 +561,15 @@ end subroutine SS4_EXT
 subroutine SS5_EXT(LRI,LRJ,NK)
 ! SS(1-5)  (22)-Ar(13)-Bl(31)-
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-dimension IWDL(MAX_INNORB), IWDR(MAX_INNORB)
+integer :: lri, lrj, nk
+integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+real*8 :: w0ss5, w1ss5
+integer, external :: iwalk_ad
 
 NK = 0
 LMI = LSM_INN(LRI)
@@ -593,11 +614,15 @@ end subroutine SS5_EXT
 subroutine SS10_EXT(LRI,LRJ,NK)
 ! SS(1-10) Ar(23)-C'(12)-Bl(31)-
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-dimension IWDL(MAX_INNORB), IWDR(MAX_INNORB)
+integer :: lri, lrj, nk
+integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+real*8 :: w0ss10, w1ss10
+integer, external :: iwalk_ad
 
 NK = 0
 LMI = LSM_INN(LRI)
@@ -642,11 +667,15 @@ end subroutine SS10_EXT
 subroutine SS14_EXT(LRI,LRJ,NK)
 ! SS(1-14) Ar(23)-Bl(32)-C"(11)-
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-dimension IWDL(MAX_INNORB), IWDR(MAX_INNORB)
+integer :: lri, lrj, nk
+integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+real*8 :: w0ss14, w1ss14
+integer, external :: iwalk_ad
 
 NK = 0
 LMI = LSM_INN(LRI)
@@ -691,11 +720,15 @@ end subroutine SS14_EXT
 subroutine TT1_EXT(LRI,LRJ,NK,IGF)
 ! SS(1-14) Ar(23)-Bl(32)-C"(11)-
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-dimension IWDL(MAX_INNORB), IWDR(MAX_INNORB)
+integer :: lri, lrj, nk, igf
+integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+real*8 :: w0tt1, w1tt1
+integer, external :: iwalk_ad
 
 NK = 0
 LMI = LSM_INN(LRI)
@@ -765,6 +798,11 @@ end subroutine TT1_EXT
 
 subroutine TS1_EXT(LRI,LRJ,NK)
 
+implicit none
+integer :: lri, lrj, nk
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, mpl, ni
+real*8 :: w1ts1
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -799,11 +837,15 @@ end subroutine TS1_EXT
 
 subroutine TS2_EXT(LRI,LRJ,NK,IGF)
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-dimension IWDL(MAX_INNORB), IWDR(MAX_INNORB)
+integer :: lri, lrj, nk, igf
+integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+real*8 :: w1ts2
+integer, external :: iwalk_ad
 
 NK = 0
 LMI = LSM_INN(LRI)
@@ -859,11 +901,15 @@ end subroutine TS2_EXT
 
 subroutine TS4_EXT(LRI,LRJ,NK)
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-dimension IWDL(MAX_INNORB), IWDR(MAX_INNORB)
+integer :: lri, lrj, nk
+integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+real*8 :: w1ts4
+integer, external :: iwalk_ad
 
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
@@ -905,6 +951,11 @@ end subroutine TS4_EXT
 
 subroutine ST1_EXT(LRI,LRJ,NK)
 
+implicit none
+integer :: lri, lrj, nk
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, mpl, ni
+real*8 :: w1st1
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -939,11 +990,15 @@ end subroutine ST1_EXT
 
 subroutine ST2_EXT(LRI,LRJ,NK)
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-dimension IWDL(MAX_INNORB), IWDR(MAX_INNORB)
+integer :: lri, lrj, nk
+integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+real*8 :: w1st2
+integer, external :: iwalk_ad
 
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
@@ -986,11 +1041,15 @@ end subroutine ST2_EXT
 
 subroutine ST4_EXT(LRI,LRJ,NK,IGF)
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-dimension IWDL(MAX_INNORB), IWDR(MAX_INNORB)
+integer :: lri, lrj, nk, igf
+integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+real*8 :: w1st4
+integer, external :: iwalk_ad
 
 NK = 0
 LMI = LSM_INN(LRI)

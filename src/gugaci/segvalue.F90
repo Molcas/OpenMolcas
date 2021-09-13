@@ -11,8 +11,11 @@
 
 subroutine stermha4(w,ww,ind1,jbr)
 
-implicit real*8(a-h,o-z)
-data done,two/1.d0,2.d0/
+implicit none
+real*8 :: w, ww
+integer :: ind1, jbr
+real*8 :: b, fq
+real*8, parameter :: done = 1.0d0, two = 2.0d0
 
 w = 0.0d0
 ww = 0.0d0
@@ -41,8 +44,11 @@ end subroutine stermha4
 
 subroutine stermhd1(w,ww,ind1,jbr)
 
-implicit real*8(a-h,o-z)
-data done,two,three/1.d0,2.d0,3.d0/
+implicit none
+real*8 :: w, ww
+integer :: ind1, jbr
+real*8 :: b, fq
+real*8, parameter :: done = 1.0d0, three = 3.0d0, two = 2.0d0
 
 w = 0.0d0
 ww = 0.0d0
@@ -71,8 +77,9 @@ end subroutine stermhd1
 
 subroutine stermhd5(w,ww)
 
-implicit real*8(a-h,o-z)
-data two/2.d0/
+implicit none
+real*8 :: w, ww
+real*8, parameter :: two = 2.0d0
 
 w = 0.0d0
 ww = 0.0d0
@@ -87,8 +94,11 @@ end subroutine stermhd5
 subroutine stermla1(w,ww,ind1,jbr)
 ! case a^l
 
-implicit real*8(a-h,o-z)
-data done/1.d0/
+implicit none
+real*8 :: w, ww
+integer :: ind1, jbr
+real*8 :: b, fq
+real*8 :: done = 1.0d0
 
 w = 0.0d0
 ww = 0.0d0
@@ -114,8 +124,11 @@ end subroutine stermla1
 subroutine stermla2(w,ww,ind1,jbr)
 ! case a^r
 
-implicit real*8(a-h,o-z)
-data done,two/1.d0,2.d0/
+implicit none
+real*8 :: w, ww
+integer :: ind1, jbr
+real*8 :: b, fq
+real*8, parameter :: done = 1.0d0, two = 2.0d0
 
 w = 0.0d0
 ww = 0.0d0
@@ -142,8 +155,11 @@ end subroutine stermla2
 subroutine stermld2(w,ww,ind1,jbr)
 ! d2: case d^r^l
 
-implicit real*8(a-h,o-z)
-data done,two/1.d0,2.d0/
+implicit none
+real*8 :: w, ww
+integer :: ind1, jbr
+real*8 :: b, fq
+real*8, parameter :: done = 1.0d0, two = 2.0d0
 
 w = 0.0d0
 ww = 0.0d0
@@ -173,8 +189,9 @@ end subroutine stermld2
 subroutine stermld6(w,ww)
 ! d6: case d^r^r
 
-implicit real*8(a-h,o-z)
-data dzero,two/0.d0,2.d0/
+implicit none
+real*8 :: w, ww
+real*8, parameter :: dzero = 0.0d0, two = 2.0d0
 
 w = -sqrt(two)
 ww = dzero
@@ -186,8 +203,11 @@ end subroutine stermld6
 subroutine segmidc1(w,ww,ind1,jbr)
 ! case c1
 
-implicit real*8(a-h,o-z)
-data dzero,done,three/0.d0,1.d0,3.d0/
+implicit none
+real*8 :: w, ww
+integer :: ind1, jbr
+real*8 :: b, fq
+real*8, parameter :: done = 1.0d0, dzero = 0.0d0, three = 3.0d0
 
 b = dble(jbr)
 if (mod(jbr,2) == 0) fq = done
@@ -225,8 +245,11 @@ end subroutine segmidc1
 subroutine segmidc2(w,ww,ind1,jbr)
 ! case c2
 
-implicit real*8(a-h,o-z)
-data dzero,done,two,three/0.d0,1.d0,2.d0,3.d0/
+implicit none
+real*8 :: w, ww
+integer :: ind1, jbr
+real*8 :: b, fq
+real*8, parameter :: done = 1.0d0, dzero = 0.0d0, three = 3.0d0, two = 2.0d0
 
 b = dble(jbr)
 if (mod(jbr,2) == 0) fq = done
@@ -279,8 +302,11 @@ end subroutine segmidc2
 subroutine segmidc22(w,ww,ind1,jbr)
 ! case c22
 
-implicit real*8(a-h,o-z)
-data dzero,done,two,three/0.d0,1.d0,2.d0,3.d0/
+implicit none
+real*8 :: w, ww
+integer :: ind1, jbr
+real*8 :: b, fq
+real*8, parameter :: done = 1.0d0, dzero = 0.0d0, three = 3.0d0, two = 2.0d0
 
 b = dble(jbr)
 if (mod(jbr,2) == 0) fq = done
@@ -329,8 +355,11 @@ end subroutine segmidc22
 subroutine segmidb3(w,ww,ind1,jbr)
 ! submid b3(b&l)
 
-implicit real*8(a-h,o-z)
-data dzero,done,two,three/0.d0,1.d0,2.d0,3.d0/vtwo/0.5d0/
+implicit none
+real*8 :: w, ww
+integer :: ind1, jbr
+real*8 :: b, fq
+real*8, parameter :: done = 1.0d0, dzero = 0.0d0, three = 3.0d0, two = 2.0d0, vtwo = 0.5d0
 
 ! calculate w,ww
 b = dble(jbr)
@@ -368,8 +397,11 @@ end subroutine segmidb3
 subroutine segmidb4(w,ww,ind1,jbr)
 ! segmid b4(b&r)
 
-implicit real*8(a-h,o-z)
-data dzero,done,two,three/0.d0,1.d0,2.d0,3.d0/vtwo/0.5d0/
+implicit none
+real*8 :: w, ww
+integer :: ind1, jbr
+real*8 :: b, fq
+real, parameter :: done = 1.0d0, dzero = 0.0d0, three = 3.0d0, two = 2.0d0, vtwo = 0.5d0
 
 ! calculate w,ww
 b = dble(jbr)
@@ -407,8 +439,11 @@ end subroutine segmidb4
 subroutine segmidd10(w,ww,ind1,jbr)
 ! segmid d10(d^r&l)
 
-implicit real*8(a-h,o-z)
-data dzero,done/0.d0,1.d0/
+implicit none
+real*8 :: w, ww
+integer :: ind1, jbr
+real*8 :: fq
+real*8, parameter :: done = 1.0d0, dzero = 0.0d0
 
 ! calculate w,ww
 if (mod(jbr,2) == 0) fq = done
@@ -429,8 +464,11 @@ end subroutine segmidd10
 subroutine segmidb2(w,ww,ind1,jbr)
 ! segmid b2(b^r)
 
-implicit real*8(a-h,o-z)
-data dzero,done,two/0.d0,1.d0,2.d0/vtwo/0.5d0/
+implicit none
+real*8 :: w, ww
+integer :: ind1, jbr
+real*8 :: b, fq
+real*8, parameter :: done = 1.0d0, dzero = 0.0d0, two = 2.0d0, vtwo = 0.5d0
 
 ! calculate w,ww
 b = dble(jbr)
@@ -468,8 +506,11 @@ end subroutine segmidb2
 subroutine segmidb1(w,ww,ind1,jbr)
 ! segmid b1(b^l)
 
-implicit real*8(a-h,o-z)
-data dzero,done,two/0.d0,1.d0,2.d0/vtwo/0.5d0/
+implicit none
+real*8 :: w, ww
+integer :: ind1, jbr
+real*8 :: b, fq
+real*8, parameter :: done = 1.0d0, dzero = 0.0d0, two = 2.0d0, vtwo = 0.5d0
 
 ! calculate w,ww
 b = dble(jbr)
@@ -506,8 +547,11 @@ end subroutine segmidb1
 
 subroutine stermh(isq,w,ww,ind1,jbr)
 
-implicit real*8(a-h,o-z)
-data dzero,done,two,three/0.d0,1.d0,2.d0,3.d0/vtwo/0.5d0/
+implicit none
+integer :: isq, ind1, jbr
+real*8 :: w, ww
+real*8 :: b, fq
+real*8, parameter :: done = 1.0d0, dzero = 0.0d0, three = 3.0d0, two = 2.0d0, vtwo = 0.5d0
 
 isq = 0
 w = dzero
@@ -565,8 +609,11 @@ end subroutine stermh
 
 subroutine stmh(isq,w,ww,mw,ind1,jbr)
 
-implicit real*8(a-h,o-z)
-data dzero,done,two,three/0.0d0,1.0d0,2.0d0,3.0d0/vtwo/0.5d0/
+implicit none
+integer :: isq, mw, ind1, jbr
+real*8 :: w, ww
+real*8 :: b, fq
+real*8 :: done = 1.0d0, dzero = 0.0d0, three = 3.0d0, two = 2.0d0, vtwo = 0.5d0
 
 mw = 0
 isq = 0
@@ -596,8 +643,11 @@ end subroutine stmh
 
 subroutine smidc2(isq,w,ww,mw,ind1,jbr)
 
-implicit real*8(a-h,o-z)
-data dzero,done,two,three/0.0d0,1.0d0,2.0d0,3.0d0/
+implicit none
+integer :: isq, mw, ind1, jbr
+real*8 :: w, ww
+real*8 :: b
+real*8, parameter :: done = 1.0d0, dzero = 0.0d0, three = 3.0d0, two = 2.0d0
 
 ! calculate w,ww
 b = dble(jbr)
@@ -628,8 +678,11 @@ end subroutine smidc2
 
 subroutine stml(isq,w,ww,mw,ind1,jbr)
 
-implicit real*8(a-h,o-z)
-data dzero,done,two/0.0d0,1.0d0,2.0d0/vtwo/0.5d0/
+implicit none
+integer :: isq, mw, ind1, jbr
+real*8 :: w, ww
+real*8 :: b, fq
+real*8, parameter :: done = 1.0d0, dzero = 0.0d0, two = 2.0d0, vtwo = 0.5d0
 
 mw = 0
 isq = 0
@@ -660,7 +713,9 @@ end subroutine stml
 
 subroutine neoc(kcoe,nocc,tcoe)
 
-real*8 tcoe
+implicit none
+integer :: kcoe, nocc
+real*8 :: tcoe
 
 nocc = 1
 tcoe = kcoe

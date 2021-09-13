@@ -12,21 +12,13 @@
 subroutine natureorb(nsbas,nsall,nsdel,ngsm,den1,lden,cmo,lcmo,bsbl,lenb,cno,occ,nmo,pror)
 
 implicit none
-integer :: nsbas(8), nsall(8), nsdel(8)
-integer :: ngsm, lden, lcmo, lenb, nmo
-real*8 :: cmo(lcmo), cno(lcmo), occ(nmo)
-real*8 :: den1(lden)
-character bsbl(lenb)*1
-real*8 :: pror
-!-----------------------------------------------------------------------
-integer :: nsfrz(8), nsort(nmo)
-integer :: nc, nc0, nc1, nc2, nc3, nc4, nc5
-integer :: im, i, j
-real*8 :: buff(nmo**2)
-real*8 :: val
-character*128 :: header
+integer :: nsbas(8), nsall(8), nsdel(8), ngsm, lden, lcmo, lenb, nmo
+real*8 :: den1(lden), cmo(lcmo), cno(lcmo), occ(nmo), pror
+character :: bsbl(lenb)
+integer :: i, im, j, nc, nc0, nc1, nc2, nc3, nc4, nc5, nsfrz(8), nsort(nmo)
+real*8 :: buff(nmo**2), val
+character(len=128), parameter :: header = 'MRCISD Natural orbital'
 
-header = 'MRCISD Natural orbital'
 nc0 = 1
 do im=1,ngsm
   if (nsall(im) == 0) cycle
@@ -101,7 +93,7 @@ do im=1,ngsm
     cno(nc3:nc3+nsbas(im)-1) = buff(nc4:nc4+nsbas(im)-1)
   end do
 
-  ! do nothing for deleted orbital
+  ! Do nothing for deleted orbital
   !nc3 = 1+(nsfrz(im)+nsall(im))*nsbas(im)
   !nc = nsdel(im)*nsbas(im)-1
   !cno(nc3:nc3+nc) = buff(nc3:nc3+nc)

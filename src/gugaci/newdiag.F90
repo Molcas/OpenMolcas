@@ -14,8 +14,13 @@
 
 subroutine gdavdiag(istate,mtidx,veistate)
 
+implicit none
+integer :: istate, mtidx
+real*8 :: veistate
+integer :: l, lent1, lent2, ndimt
+real*8 :: depff
+integer, parameter :: maxdimlu = 1000, maxdimgit = 10000
 #include "drt_h.fh"
-parameter(maxdimlu=1000,maxdimgit=10000)
 
 ! compute (h00-rouk)-1, and save the low triagular part of the
 ! inverse matrix at value_tmp(1:lent1-1)
@@ -45,8 +50,10 @@ subroutine matmultv(a,n,np,x,y)
 ! matrix a(n,n), vector x(n),y(n)
 ! ax=y
 
-implicit real*8(a-h,o-z)
-dimension a(np,np), x(n), y(n)
+implicit none
+integer :: n, np
+real*8 :: a(np,np), x(n), y(n)
+integer :: i, j
 
 y(1:n) = 0.d0
 do i=1,n
@@ -62,10 +69,14 @@ end subroutine matmultv
 
 subroutine cimtinverse(ndimt,vrouk)
 
+implicit none
+integer :: ndimt
+real*8 :: vrouk
+integer :: lent, neh0, num
+!character(len=256) :: filename
+integer, parameter :: maxdimlu = 1000, maxdimgit = 10000
 #include "drt_h.fh"
 #include "scratch.fh"
-!character*256 filename
-parameter(maxdimlu=1000,maxdimgit=10000)
 
 !is = 1
 !if (is == 1) then
@@ -110,12 +121,12 @@ end subroutine cimtinverse
 
 subroutine matinverse(a,y,n,np,valvec,lent,vrouk)
 
-implicit real*8(a-h,o-z)
-parameter(maxdimlu=1000,maxdimgit=10000)
-integer np, indx(n)
-dimension a(np,np), y(np,np), valvec(lent)
-parameter(zero=0.d0)
-!i64 parameter (zero=0.e0)
+implicit none
+integer :: n, np, lent
+real*8 :: a(np,np), y(np,np), valvec(lent), vrouk
+integer :: i, indx(n), j, k
+integer, parameter :: maxdimlu = 1000, maxdimgit = 10000
+real*8, parameter :: zero = 0.d0
 
 k = 0
 do i=1,n
@@ -161,10 +172,11 @@ end subroutine matinverse
 
 subroutine savelowtra(varry,a,ndimt,maxdimlu,neh0)
 
-implicit real*8(a-h,o-z)
-dimension varry(neh0), a(maxdimlu,maxdimlu)
-parameter(dzero=0.d0)
-!i64 parameter (dzero=0.e0)
+implicit none
+integer :: ndimt, maxdimlu, neh0
+real*8 :: varry(neh0), a(maxdimlu,maxdimlu)
+integer :: i, j, k
+real, parameter :: dzero = 0.d0
 
 varry(1:neh0) = dzero
 k = 0

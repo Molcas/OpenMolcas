@@ -8,4 +8,6 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      real*8 dxyz
+      integer numat
       common /grad_xyz/dxyz(3,max_atom),numat

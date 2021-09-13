@@ -11,11 +11,14 @@
 
 subroutine int_sort()
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "files_gugaci.fh"
-dimension idx(4), idum(1)
-data zero/0.d0/
+integer :: ia, ia0, idisk, idorbint, idum(1), idx(4), intpos, intposbase, intspace, ivalue, lra, lri, lrk, numb
+real*8 :: etime, stime, time
+real*8, parameter :: zero = 0.0d0
+real*8, external :: c_time
 
 idx = 0
 stime = c_time()
@@ -152,6 +155,8 @@ end subroutine int_sort
 
 subroutine blocks()
 
+implicit none
+integer :: i, ip, ipq, iq, iqm, ir, irm, is, ism, ispq, ispqr, j, nint1, nint12, nint2, nintb, npp, npq, nrr, nrs
 #include "drt_h.fh"
 #include "intsort_h.fh"
 
@@ -251,6 +256,10 @@ end subroutine blocks
 
 subroutine ff(i,j)
 
+implicit none
+integer :: i, j
+integer :: iq, j0
+
 i = 0
 do iq=1,j
   j0 = iq*(iq-1)/2+iq
@@ -266,9 +275,13 @@ end subroutine ff
 
 subroutine int_sort_ext(ii)         !_ext_4_3_2
 
+implicit none
+integer :: ii
+integer :: ia, iaend, iasta, ib, ibend, ibsta, ic, icend, icsta, id, idend, idsta, isma, ja, jb, lra, lrb, lrc, lrd, lsma, lsmb, &
+           lsmc, lsmcd, lsmd, lsmtmp(8), na
+real*8, external :: vfutei
 #include "drt_h.fh"
 #include "intsort_h.fh"
-dimension lsmtmp(8)
 
 ! _002_aa_
 ip2_aa_ext_base = ii
@@ -385,6 +398,10 @@ end subroutine int_sort_ext
 
 subroutine int_sort_inn_2(ii)
 
+implicit none
+integer :: ii
+integer :: ibend, ibsta, ira, irb, ismab, lmb, lra, lrb, lri, lrj, lsmi, lsmij, lsmj
+real*8, external :: vfutei
 #include "drt_h.fh"
 #include "intsort_h.fh"
 
@@ -429,6 +446,10 @@ end subroutine int_sort_inn_2
 
 subroutine int_ext_2_1(lri,lrj,lsmij,ii)
 
+implicit none
+integer :: lri, lrj, lsmij, ii
+integer :: ic, icend, icsta, id, idend, idsta, ij, jc, jd, lrc, lsmc, lsmd
+real*8, external :: vfutei
 #include "drt_h.fh"
 #include "intsort_h.fh"
 
@@ -479,6 +500,10 @@ end
 
 subroutine int_sort_inn_3(ii)
 
+implicit none
+integer :: ii
+integer :: ia, iaend, iasta, ijk, ja, lri, lrj, lrk, lsmd, lsmi, lsmij, lsmj, lsmk
+real*8, external :: vfutei
 #include "drt_h.fh"
 #include "intsort_h.fh"
 
@@ -514,6 +539,11 @@ end subroutine int_sort_inn_3
 
 subroutine int_ext_3_2_1(lri,lsmi,ii)
 
+implicit none
+integer :: lri, lsmi, ii
+integer :: iabc, iabc0, ib, ib0, ibend, ibsta, icend, icsta, idend, idsta, irb, irc, ird, lrb, lrc, lrd, lsmb, lsmbc, lsmc, lsmd, &
+           nb, nc, nd
+real*8, external :: vfutei
 #include "drt_h.fh"
 #include "intsort_h.fh"
 
@@ -582,6 +612,9 @@ end subroutine int_ext_3_2_1
 
 subroutine int_sort_inn_1(ii)
 
+implicit none
+integer :: ii
+integer :: lri, lsmi
 #include "drt_h.fh"
 #include "intsort_h.fh"
 
@@ -598,6 +631,10 @@ end subroutine int_sort_inn_1
 
 function list3(i,j,k)
 
+implicit none
+integer :: list3
+integer :: i, j, k
+integer :: nij
 #include "drt_h.fh"
 #include "intsort_h.fh"
 
@@ -609,6 +646,11 @@ return
 end function list3
 
 function list4(ld,lc,lb,la)
+
+implicit none
+integer :: list4
+integer :: ld, lc, lb, la
+integer :: lra, njkl
 #include "drt_h.fh"
 #include "intsort_h.fh"
 
@@ -622,9 +664,12 @@ end function list4
 
 subroutine int_sort_inn(numb)
 
+implicit none
+integer :: numb
+integer :: i, j, k, la, lb, lc, ld, lra, ms, msa, msb, msc, mscd, msd, msob(120), nij, njkl, nolra
+real*8, external :: vfutei
 #include "drt_h.fh"
 #include "intsort_h.fh"
-dimension msob(120)
 
 msob = 0
 do lra=norb_inn,1,-1

@@ -17,11 +17,13 @@ subroutine arrange_orbital()
 ! -----
 ! map_order_orbital    ab ---> ci
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "mcorb.fh"
-dimension lsmorbcount(ng_sm), map_tmp(max_orb)
-logical logi_norb_inn(norb_all)
+integer :: i, iccount, im, iorb, isum2, isum3, j, la, lr, lr_scf, lr_scf0, lra, lrd, lsmid, lsmorbcount(ng_sm), lsmr, &
+           map_tmp(max_orb), ms, nim
+logical :: logi_norb_inn(norb_all)
 
 logi_norb_inn(1:norb_all) = .false.
 iorb = norb_all

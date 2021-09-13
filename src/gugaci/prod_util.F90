@@ -13,8 +13,12 @@
 
 subroutine jl_ne_jr(mp,jl,jr,jwl,jwr,lopu)
 
+implicit none
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
+integer :: mp, jl, jr, jwl, jwr, lopu(4,loputmp)
+integer :: i, idlr, jlp, jrp, jwlp, jwrp, lopi(4,loputmp), lopj(4,loputmp), lpi, lpj, ml, mr, nlp
+
 !-----------------------------------------------------------------------
 ! on entry:
 !     jl  - left DRT node
@@ -22,12 +26,11 @@ subroutine jl_ne_jr(mp,jl,jr,jwl,jwr,lopu)
 !     jwl - left weight
 !     jwr - right weight
 ! output
-!     mp   - number of partial loop tails
+!     mp  - number of partial loop tails
 !     lopu(1,i) - left weight of parital loop i
 !     lopu(2,i) - right weight of partial loop i
 !     lopu(3,i) - loop tail node
 !-----------------------------------------------------------------------
-dimension lopu(4,loputmp), lopi(4,loputmp), lopj(4,loputmp)
 
 ! lopu(1,*)=jwl lopu(2,*)=jwr,lopu(3,*)=jl,lopu(4,*)=jr
 !write(6,*) 'in subroutine jl_ne_jr',jl,jr
@@ -84,10 +87,15 @@ subroutine prodab_h0(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
 ! only by whole inner space loops and store them into
 ! vector2
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension lopu(4,loputmp)
+integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr
+real*8 :: wl
+integer :: ii, in_, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpe, jph, jpl, &
+           jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mntmp, mp, nn
+integer, external :: iwalk_ad
 
 !write(6,*) 'prodab_02 '
 
@@ -128,7 +136,7 @@ select case (idb)
     iwupwei = jpad_upwei(jpad)
     isegdownwei = iseg_downwei(ipae)
     jpy = jphy(jph)
-    in = ihy(jpy)
+    in_ = ihy(jpy)
 
     call jl_ne_jr(mp,jpl,jpr,mg3,mg4,lopu)
     do lp=1,mp
@@ -136,7 +144,7 @@ select case (idb)
       iwr = lopu(2,lp)-1
       jpe = lopu(3,lp)
       lwnu = iy(1,jpe)
-      do jwu=jpy+1,jpy+in
+      do jwu=jpy+1,jpy+in_
         iwal = iwl+ihy(jwu)
         iwar = iwr+ihy(jwu)
         do jwd=1,lwnu
@@ -205,10 +213,15 @@ subroutine prodab_h(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
 ! whole inner space loops - h*c
 ! 26 feb 2007 - revised by suo bing for multi-root calculation
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension lopu(4,loputmp)
+integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr
+real*8 :: wl
+integer :: ii, in_, ipae_, ipaeend, irot, irtidx, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, &
+           iwr, iwupwei, jpe, jph, jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mp, nn
+integer, external :: iwalk_ad
 
 !write(6,*) 'prodab_02 ',mcroot,indx(1),iw_downwei(jpad,ipae)
 select case (idb)
@@ -253,7 +266,7 @@ select case (idb)
     iwupwei = jpad_upwei(jpad)
     isegdownwei = iseg_downwei(ipae)
     jpy = jphy(jph)
-    in = ihy(jpy)
+    in_ = ihy(jpy)
 
     call jl_ne_jr(mp,jpl,jpr,mg3,mg4,lopu)
     do lp=1,mp
@@ -261,7 +274,7 @@ select case (idb)
       iwr = lopu(2,lp)-1
       jpe = lopu(3,lp)
       lwnu = iy(1,jpe)
-      do jwu=jpy+1,jpy+in
+      do jwu=jpy+1,jpy+in_
         iwal = iwl+ihy(jwu)
         iwar = iwr+ihy(jwu)
         do jwd=1,lwnu
@@ -326,6 +339,9 @@ end subroutine prodab_h
 
 subroutine prodab(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
 
+implicit none
+integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr
+real*8 :: wl
 #include "drt_h.fh"
 
 select case (log_prod)
@@ -346,10 +362,15 @@ end subroutine prodab
 
 subroutine prodab_h0_d(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension lopu(4,loputmp)
+integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr
+real*8 :: wl
+integer :: ii, in_, irot, irtidx, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpaedownwei, &
+           jpe, jph, jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mp, nn
+integer, external :: iwalk_ad
 
 ! log_prod=2:directly no_formh0
 !write(6,*) 'prodab_h0 '
@@ -395,7 +416,7 @@ select case (idb)
     iwupwei = jpad_upwei(jpad)
     jpaedownwei = jpae_downwei(ipae)
     jpy = jphy(jph)
-    in = ihy(jpy)
+    in_ = ihy(jpy)
 
     call jl_ne_jr(mp,jpl,jpr,mg3,mg4,lopu)
     do lp=1,mp
@@ -403,7 +424,7 @@ select case (idb)
       iwr = lopu(2,lp)-1
       jpe = lopu(3,lp)
       lwnu = iy(1,jpe)
-      do jwu=jpy+1,jpy+in
+      do jwu=jpy+1,jpy+in_
         iwal = iwl+ihy(jwu)
         iwar = iwr+ihy(jwu)
         do jwd=1,lwnu
@@ -473,10 +494,15 @@ end subroutine prodab_h0_d
 
 subroutine prodab_h0_t(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension lopu(4,loputmp)
+integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr
+real*8 :: wl
+integer :: ii, in_, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpaedownwei, jpe, jph, jpl, &
+           jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mnh0, mp, nn
+integer, external :: iwalk_ad
 
 ! log_prod=1:traditional formh0
 !write(6,*) 'prodab_h0 '
@@ -512,7 +538,7 @@ select case (idb)
     iwupwei = jpad_upwei(jpad)
     jpaedownwei = jpae_downwei(ipae)
     jpy = jphy(jph)
-    in = ihy(jpy)
+    in_ = ihy(jpy)
 
     call jl_ne_jr(mp,jpl,jpr,mg3,mg4,lopu)
     do lp=1,mp
@@ -520,7 +546,7 @@ select case (idb)
       iwr = lopu(2,lp)-1
       jpe = lopu(3,lp)
       lwnu = iy(1,jpe)
-      do jwu=jpy+1,jpy+in
+      do jwu=jpy+1,jpy+in_
         iwal = iwl+ihy(jwu)
         iwar = iwr+ihy(jwu)
         do jwd=1,lwnu

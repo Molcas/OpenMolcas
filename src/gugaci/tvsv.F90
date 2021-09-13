@@ -11,6 +11,8 @@
 
 subroutine tv_drt_ci_new()
 
+implicit none
+integer :: jptyl, jptyr, lpb
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -46,6 +48,10 @@ end subroutine tv_drt_ci_new
 
 subroutine tv_ext_head_in_dbl()
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lpok, lra, lri, lrj, lrk, mpl, ni
+real*8 :: w0, w0sd1, w0sd2, w0sd4, w0sv2, w0td1, w1, w1sv2
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -319,6 +325,8 @@ end subroutine tv_ext_head_in_dbl
 
 subroutine tv_ext_head_in_act()
 
+implicit none
+integer :: lra, lrai, lraj
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -344,13 +352,15 @@ end subroutine tv_ext_head_in_act
 
 subroutine sv_drt_ci_new()
 
+implicit none
+integer :: jptyl, jptyr, lpb
+real*8, parameter :: dsq2 = 1.414213562373095d0
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 #include "lpdisk.fh"
 
-dsq2 = 1.414213562373095d0
 w0g36a = -1.d0
 w1g36a = 0.d0
 w0g13a = -dsq2
@@ -384,6 +394,10 @@ end subroutine sv_drt_ci_new
 
 subroutine sv_ext_head_in_dbl()
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lpok, lra, lri, lrj, lrk, mpl, ni
+real*8 :: w0, w0sd1, w0sd2, w0sd4, w0sv2, w0td1, w1, w1sv2
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -657,6 +671,8 @@ end subroutine sv_ext_head_in_dbl
 
 subroutine sv_ext_head_in_act()
 
+implicit none
+integer :: lra, lrai, lraj
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"

@@ -11,6 +11,8 @@
 
 subroutine vd_drt_ci_new()
 
+implicit none
+integer :: jptyl, jptyr, lpb
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -41,6 +43,9 @@ end subroutine vd_drt_ci_new
 
 subroutine vd_ext_head_in_dbl()
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, jk, lpok, lra, mpl
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -304,6 +309,8 @@ end subroutine vd_ext_head_in_dbl
 
 subroutine vd_ext_head_in_act()
 
+implicit none
+integer :: intpos, isma, lri, lrj
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -333,6 +340,8 @@ end subroutine vd_ext_head_in_act
 
 subroutine ds_drt_ci_new()
 
+implicit none
+integer :: jptyl, jptyr, lpb
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -366,6 +375,9 @@ end subroutine ds_drt_ci_new
 
 subroutine ds_ext_head_in_dbl()
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, jk, lpok, lra, mpl
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -630,6 +642,8 @@ end subroutine ds_ext_head_in_dbl
 
 subroutine ds_ext_head_in_act()
 
+implicit none
+integer :: intpos, isma, lri, lrj
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -659,6 +673,8 @@ end subroutine ds_ext_head_in_act
 
 subroutine dt_drt_ci_new()
 
+implicit none
+integer :: jptyl, jptyr, lpb
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -691,6 +707,9 @@ end subroutine dt_drt_ci_new
 
 subroutine dt_ext_head_in_dbl()
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, jk, lpok, lra, mpl
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -955,6 +974,8 @@ end subroutine dt_ext_head_in_dbl
 
 subroutine dt_ext_head_in_act()
 
+implicit none
+integer :: intpos, isma, lri, lrj
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"

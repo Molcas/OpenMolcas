@@ -8,4 +8,6 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      integer line,jph,jpel,jper,lrg,lrs,jwl,jwr
+      real*8 w0,w1
       COMMON/ONEPL/LINE,JPH,JPEL,JPER,LRG,LRS,JWL,JWR,W0,W1

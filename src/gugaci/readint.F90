@@ -18,13 +18,13 @@ subroutine intrd()
 
 use file_qininit, only: maxrecord
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "files_gugaci.fh"
-integer :: noffset(maxrecord)
 #include "mcorb.fh"
-real*8, pointer :: x(:)
-dimension xfock(max_orb*(max_orb+1)/2)
+integer :: i, idx, lrcii, lrcij, lri, lrj, lrt, noffset(maxrecord), nc, ni, nidx, nintone, nism, nmob, nsmint
+real*8 :: ecor, xfock(max_orb*(max_orb+1)/2)
 
 nintone = 0
 nmob = 0
@@ -91,12 +91,13 @@ end subroutine intrd
 
 subroutine readtwoeint(nft,maxrecord,noffset,norb,ngsm,multab,maporb,noidx)
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "ci_parameter.fh"
-integer :: noffset(maxrecord)
-parameter(kbuf=ntrabuf)
-dimension norb(8), multab(8,8), maporb(max_orb), noidx(8)
-dimension buff(kbuf)
+integer :: nft, maxrecord, noffset(maxrecord), norb(8), ngsm, multab(8,8), maporb(max_orb), noidx(8)
+integer, parameter :: kbuf = ntrabuf
+integer :: idisk, idx, iout, ityp, li, lj, lk, ll, lri, lrj, lrk, lrl, nbpq, nbrs, nintb, nop, noq, nor, nos, nsp, nspq, nspqr, &
+           nsq, nsr, nss, nssm, ntj, ntk, ntl
+real*8 :: buff(kbuf), val
 
 idisk = noffset(5)
 write(6,2000)
@@ -203,12 +204,14 @@ end subroutine readtwoeint
 
 subroutine intrd_molcas()
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "files_gugaci.fh"
 #include "mcorb.fh"
+integer :: i, idisk, idx, lrcii, lrcij, lri, lrj, lrt, nc, ni, nidx, nintone, nism, nmob, nsmint
+real*8 :: ecor, xfock(max_orb*(max_orb+1)/2)
 real*8, pointer :: x(:)
-dimension xfock(max_orb*(max_orb+1)/2)
 
 nintone = 0
 nmob = 0
@@ -276,12 +279,15 @@ end subroutine intrd_molcas
 
 subroutine readtwoeint(nft,norb,ngsm,multab,maporb,noidx)
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "ci_parameter.fh"
-parameter(kbuf=ntrabuf)
-dimension norb(8), multab(8,8), maporb(max_orb), noidx(8)
-dimension itratoc(ntratoc)
-dimension buff(kbuf)
+integer :: nft, norb(8), ngsm, multab(8,8), maporb(max_orb), noidx(8)
+integer, parameter :: kbuf = ntrabuf
+integer :: idisk, idx, iout, lenrd, li, lj, lk, ll, lri, lrj, lrk, lrl, nbpq, nbrs, nintb, nop, noq, nor, nos, nsp, nspq, nspqr, &
+           nsq, nsr, nss, nssm, ntj, ntk, numax, numin
+real*8 :: val
+integer :: itratoc(ntratoc)
+real*8 :: buff(kbuf)
 
 idisk = 0
 lenrd = ntratoc*lenintegral
@@ -378,14 +384,15 @@ end subroutine readtwoeint
 
 subroutine readtraonehead(nft,ecor,idisk)
 
+implicit none
 #include "ci_parameter.fh"
-implicit real*8(a-h,o-z)
 #include "maxbfn.fh"
-parameter(maxmolcasorb=maxbfn)
-parameter(lenin8=6+8)
-dimension ncone(64), nbas(8), norb(8), nfro(8), ndel(8)
-character bsbl(maxmolcasorb)*(lenin8)
-dimension dum(1), idum(1)
+integer :: nft, idisk
+real*8 :: ecor
+integer, parameter :: lenin8 = 6+8, maxmolcasorb = maxbfn
+integer :: idum(1), lenrd, nbas(8), ncone(64), ndel(8), nfro(8), norb(8)
+real*8 :: dum(1)
+character(len=lenin8) :: bsbl(maxmolcasorb)
 
 idisk = 0
 call idafile(nft,2,ncone,64,idisk)
@@ -419,9 +426,10 @@ end subroutine readtraonehead
 
 !subroutine ddatard(nft,xbuff,lend,idisk)
 !
-!implicit real*8 (a-h,o-z)
-!dimension ncone(64), nbas(mxsym), norb(mxsym), nfro(mxsym), ndel(mxsym)
-!dimension xbuff(lend)
+!implicit none
+!integer :: nft, lend, idisk
+!real*8 :: xbuff(lend)
+!integer :: nbas(mxsym), ncone(64), ndel(mxsym), nfro(mxsym), norb(mxsym)
 !
 !lenrd = lend*lendbl
 !call idatard(nft,xbuff,lenrd,idisk)
@@ -435,9 +443,10 @@ end subroutine readtraonehead
 !! imul = 0, the file readed is not a multifile
 !! imul = 1, the file readed is a multifile
 !
-!implicit real*8 (a-h,o-z)
-!parameter (min_block_length=512)
-!character ibuf(lbuf)*1
+!implicit none
+!integer :: nft, lbuf, idisk
+!character :: ibuf(lbuf)
+!integer, parameter :: min_block_length = 512
 !
 !noff = idisk*min_block_length
 !call clseek(nft,noff,nr)
@@ -469,9 +478,13 @@ end subroutine readtraonehead
 
 subroutine intrw_mol(ik,jk,kk,lk,val)
 
+implicit none
+integer :: ik, jk, kk, lk
+real*8 :: val
+integer :: i, ind(4), j, k, l, list, lri, lrj, lrk, lrl, lrn, nt
+integer, external :: list3_all, list4_all
 #include "drt_h.fh"
 #include "intsort_h.fh"
-dimension ind(4)
 
 list = 0
 i = ik
@@ -575,9 +588,11 @@ end subroutine intrw_mol
 
 subroutine int_index(numb)
 
+implicit none
+integer :: numb
+integer :: i, j, la, lb, lc, ld, lra, lrb, lrc, lrd, lri, lrj, ms, msa, msb, msc, mscd, msd, msob(8), nij, njkl
 #include "drt_h.fh"
 #include "intsort_h.fh"
-dimension msob(8)
 
 msob = 0
 do la=norb_all,1,-1
@@ -658,10 +673,14 @@ end subroutine int_index
 
 function vfutei(ix,jx,kx,lx)
 
+implicit none
+real*8 :: vfutei
+integer :: ix, jx, kx, lx
+integer :: i, ind(4), j, list, lri, lrj, lrk, lrl, lrn, nt
+real*8 :: val
+integer, external :: list3_all, list4_all
 #include "drt_h.fh"
 #include "intsort_h.fh"
-real*8 vfutei
-dimension ind(4)
 
 lri = min(ix,jx)
 lrj = max(ix,jx)
@@ -734,6 +753,10 @@ end function vfutei
 
 function list3_all(i,j,k)
 
+implicit none
+integer :: list3_all
+integer :: i, j, k
+integer :: nij
 #include "drt_h.fh"
 #include "intsort_h.fh"
 
@@ -746,6 +769,10 @@ end function list3_all
 
 function list4_all(ld,lc,lb,la)
 
+implicit none
+integer :: list4_all
+integer :: ld, lc, lb, la
+integer :: lra, njkl
 #include "drt_h.fh"
 #include "intsort_h.fh"
 

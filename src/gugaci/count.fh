@@ -8,4 +8,5 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      integer mhsum,lp_count,mhlpmax
       common/count/mhsum,lp_count(22),mhlpmax

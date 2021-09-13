@@ -16,6 +16,10 @@
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 !      common/sub_drtl/jpadl,jpael,ipael,ndiml,nohyl,ihyl(max_wei),
 !     :     jjl_sub(4,0:max_node),iyl(4,0:max_node),jphyl(max_node)
+      integer jv,jd,jt,js,no,jpad,jpae,ipae,ndim,nohy,jpadl,jpael,ipael,&
+     &ndiml,nohyl,linelp,ipaety,iml,imr,jpadlr,jml,jmr,nlg1,nlg2,       &
+     &insubdrt,mtype,mhlp,nstaval,nvalue,lpprint,lpct_lwei,lpct_rwei
+
       integer,pointer :: ja(:),jb(:),jm(:),jj(:,:),kk(:)
       common/casrst/ jv,jd(8),jt(8),js(8),no(0:max_innorb),             &
      &     ja,jb,jm,jj,kk

@@ -12,12 +12,14 @@
 ! calculate dd, ss and tt space
 subroutine dd_drt_ci_new()
 
+implicit none
+integer :: jptyl, jptyr, lpb
+real*8, parameter :: vsq2 = 0.7071067811865950d0
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 #include "lpdisk.fh"
-data VSQ2/0.7071067811865950d0/
 
 w0gdd = vsq2
 !w1gdd = -sq3vsq2
@@ -47,6 +49,11 @@ end subroutine dd_drt_ci_new
 
 subroutine dd_ext_head_in_dbl()
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lmki, lpok, lr0, lra, lri, lrj, lrk, mpl, ni, nk
+real*8 :: w0dd1, w0dd2, w0dd3, w0dv1, w0sd1, w0sd2, w0sd3, w0sd4, w0ss15, w0ss17, w0ss20, w0td1, w0tt2, w0tt3, w1dd1, w1dd2, &
+          w1ss15, w1ss17, w1tt2
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -652,6 +659,8 @@ end subroutine dd_ext_head_in_dbl
 
 subroutine DD_ext_head_in_act()
 
+implicit none
+integer :: lrai, lraj
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -675,6 +684,8 @@ end subroutine DD_ext_head_in_act
 
 subroutine ss_drt_ci_new()
 
+implicit none
+integer :: imlr, jptyl, jptyr, lpb
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -710,6 +721,10 @@ end subroutine ss_drt_ci_new
 
 subroutine ss_ext_head_in_dbl()
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lpok, lr0, lra, lri, lrj, mpl, ni, nk
+real*8 :: w0dd1, w0dd2, w0dd3, w0dv1, w0ss15, w0ss17, w0ss20, w0tt2, w0tt3, w1dd1, w1dd2, w1ss15, w1ss17, w1tt2
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1119,6 +1134,8 @@ end subroutine ss_ext_head_in_dbl
 
 subroutine ss_ext_head_in_act()
 
+implicit none
+integer :: lrai, lraj
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1142,6 +1159,8 @@ end subroutine ss_ext_head_in_act
 
 subroutine st_drt_ci_new()
 
+implicit none
+integer :: imlr, jptyl, jptyr, lpb
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1176,6 +1195,10 @@ end subroutine st_drt_ci_new
 
 subroutine st_ext_head_in_dbl()
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lpok, lra, lri, lrj, lrk, mpl, ni, nk
+real*8 :: w0dd1, w0dd2, w0dv1, w0ss15, w0ss17, w0ss20, w0tt2, w1dd1, w1dd2, w1ss15, w1ss17, w1tt2
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1568,6 +1591,8 @@ end subroutine st_ext_head_in_dbl
 
 subroutine ST_ext_head_in_act()
 
+implicit none
+integer :: lrai, lraj
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1591,6 +1616,8 @@ end subroutine ST_ext_head_in_act
 
 subroutine ts_drt_ci_new()
 
+implicit none
+integer :: imlr, jptyl, jptyr, lpb
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1624,6 +1651,10 @@ end subroutine ts_drt_ci_new
 
 subroutine ts_ext_head_in_dbl()
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lpok, lra, lri, lrj, lrk, mpl, ni, nk
+real*8 :: w0dd1, w0dd2, w0dv1, w0ss15, w0ss17, w0ss20, w0tt2, w1dd1, w1dd2, w1ss15, w1ss17, w1tt2
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2015,6 +2046,8 @@ end subroutine ts_ext_head_in_dbl
 
 subroutine TS_ext_head_in_act()
 
+implicit none
+integer :: lrai, lraj
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2038,6 +2071,8 @@ end subroutine TS_ext_head_in_act
 
 subroutine tt_drt_ci_new()
 
+implicit none
+integer :: imlr, jptyl, jptyr, lpb
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2073,6 +2108,10 @@ end subroutine tt_drt_ci_new
 
 subroutine tt_ext_head_in_dbl()
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lpok, lr0, lra, lri, lrj, lrk, mpl, ni, nk
+real*8 :: w0dd1, w0dd2, w0dd3, w0dv1, w0ss15, w0ss17, w0ss20, w0tt2, w0tt3, w1dd1, w1dd2, w1ss15, w1ss17, w1tt2
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2529,6 +2568,8 @@ end subroutine tt_ext_head_in_dbl
 
 subroutine TT_ext_head_in_act()
 
+implicit none
+integer :: lrai, lraj
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2552,6 +2593,9 @@ end subroutine TT_ext_head_in_act
 
 subroutine logicg_st(ilnodesm,irnodesm,iltype,irtype)
 
+implicit none
+integer :: ilnodesm, irnodesm, iltype, irtype
+integer :: iii, ilrsm
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 

@@ -11,26 +11,15 @@
 
 subroutine gugaci(ireturn)
 
+implicit none
+integer :: ireturn
+integer :: maxplcon, mxvec, nc, nc0, nc1, npl
+real*8 :: sc0, sc1, sc2
+real*8, external :: c_time
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "files_gugaci.fh"
 #include "scratch.fh"
-data istep_occ/0,1,1,2/
-data mul_tab/1,2,3,4,5,6,7,8, &
-             2,1,4,3,6,5,8,7, &
-             3,4,1,2,7,8,5,6, &
-             4,3,2,1,8,7,6,5, &
-             5,6,7,8,1,2,3,4, &
-             6,5,8,7,2,1,4,3, &
-             7,8,5,6,3,4,1,2, &
-             8,7,6,5,4,3,2,1/
-!              v  d  t  s dd tt
-data map_jplr/25,23,17,10,24,18, & !v
-              26,19,13, 6,22, 0, & !d
-               0,14,11, 2, 0, 0, & !t
-               0, 7, 3, 1, 9, 5, & !s
-               0,21, 0, 8,20,15, & !dd
-               0, 0, 0, 4,16,12/   !tt
 
 ireturn = 100
 call version_info()

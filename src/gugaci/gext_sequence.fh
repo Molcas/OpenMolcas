@@ -8,5 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      integer icnt_base,icano_nnsta,icano_nnend,m_jc,m_jd,isegsta,      &
+     &isegupwei,isegdownwei
       common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,          &
      &   m_jc,m_jd, isegsta,isegupwei,isegdownwei

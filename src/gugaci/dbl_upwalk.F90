@@ -11,6 +11,8 @@
 
 subroutine dbl_upwalk()
 
+implicit none
+integer :: iw, lri, lrj, lsmi, lsmid, lsmij, lsmit, lsmj, no_d, no_t, node
 #include "drt_h.fh"
 #include "intsort_h.fh"
 
@@ -92,11 +94,12 @@ end subroutine dbl_upwalk
 
 subroutine ext_downwalk()
 
+implicit none
+integer :: im, imi, imij, imj, iwmij(8)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 !common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-dimension iwmij(8)
 
 nu_ae(1) = 1
 do im=1,ng_sm
@@ -130,11 +133,13 @@ end subroutine ext_downwalk
 
 subroutine readdrt(ludrt)
 
+implicit none
+integer :: ludrt
+integer :: id, idisk, idx(2)
 #include "drt_h.fh"
-!#include "files_gugaci.fh"
 #include "pl_structure_h.fh"
+!#include "files_gugaci.fh"
 !common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-dimension idx(2)
 
 idisk = 0
 ! number of nodes
@@ -167,9 +172,10 @@ end subroutine readdrt
 ! |  2 1   \         |
 subroutine dbl_downwalk()
 
+implicit none
+integer :: im, ismi, ismij, ismj, lr0, lri, lrj, nnd, nns, nnt !, lsml(10,10)       !to del
 #include "drt_h.fh"
 #include "intsort_h.fh"
-!integer lsml(10,10)       !to del
 
 if (norb_dbl == 0) then
   !----------- norb_dbl=0 ----------------------------------------------

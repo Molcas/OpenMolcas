@@ -14,6 +14,8 @@
 
 subroutine dd_ext_plpmode(ilnodesm,irnodesm)
 
+implicit none
+integer :: ilnodesm, irnodesm
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -36,6 +38,7 @@ end subroutine dd_ext_plpmode
 
 subroutine external_space_plpmode_value_dv()
 
+implicit none
 #include "drt_h.fh"
 #include "paraconstants_h.fh"
 #include "lpextmode_h.fh"
@@ -49,6 +52,7 @@ end subroutine external_space_plpmode_value_dv
 
 subroutine external_space_plpmode_value_vd()
 
+implicit none
 #include "drt_h.fh"
 #include "paraconstants_h.fh"
 #include "lpextmode_h.fh"
@@ -62,6 +66,9 @@ end subroutine external_space_plpmode_value_vd
 
 subroutine g12_t_diffsym(isma,ismb,ismc)
 
+implicit none
+integer :: isma, ismb, ismc
+integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ip2cd, ip3smabc, ipos_intbasetmp, iposint, nsma, num_smab
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -109,6 +116,9 @@ end subroutine g12_t_diffsym
 
 subroutine g11a_t_diffsym(isma,ismb,ismc)
 
+implicit none
+integer :: isma, ismb, ismc
+integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, jcoffset, jdoffset, num_smab
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -138,6 +148,9 @@ end subroutine g11a_t_diffsym
 
 subroutine g11b_t_diffsym(isma,ismb,ismc)
 
+implicit none
+integer :: isma, ismb, ismc
+integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, jcoffset, jdoffset, num_smab, numint_jc
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -168,6 +181,10 @@ end subroutine g11b_t_diffsym
 
 subroutine g1112_t_symaaaa(isma,ic,id)
 
+implicit none
+integer :: isma, ic, id
+integer :: ia, iabcdpos_11b, iasta, ib, ibcdpos_11a, ibcdpos_11b, ibsta, icdpos_11a, icdpos_11b, icdpos_12, ilwei, &
+           ipos_intbasetmp, iposint, ipsmabc, ja, jb
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -222,9 +239,13 @@ end subroutine g1112_t_symaaaa
 
 subroutine g11a11b_t_symaacc(isma,ismc,ic,id)
 
+implicit none
+integer :: isma, ismc, ic, id
+integer :: ia, iaend, iasta, ib, ibdpos, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, ja, num_smab
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
+
 ipsmabc = isma+jp2(isma)+jp3(ismc)
 ipos_intbasetmp = ip4_abcd_ext_base(ipsmabc)
 num_smab = nlsm_ext(isma)
@@ -266,6 +287,9 @@ end subroutine g11a11b_t_symaacc
 
 subroutine g36_t_ext(ismc,ic,id)
 
+implicit none
+integer :: ismc, ic, id
+integer :: ia, iasta, ilwei, ipos_g36, ipos_intbasetmp, iposint
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -284,6 +308,9 @@ end subroutine g36_t_ext
 
 subroutine g5_t_ext(ismd,ic,id)
 
+implicit none
+integer :: ismd, ic, id
+integer :: ib, ibsta, ilwei, ipos_g5, ipos_intbasetmp, iposint
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -301,6 +328,9 @@ end subroutine g5_t_ext
 
 subroutine g9_t_ext(ismd,ic,id)
 
+implicit none
+integer :: ismd, ic, id
+integer :: ia, iasta, ilwei, ipos_g9, ipos_intbasetmp, iposint
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -319,9 +349,12 @@ end subroutine g9_t_ext
 
 subroutine gsd_determine_extarmode_paras(ismnodes,ismnoded,logic_sd)
 
+implicit none
+integer :: ismnodes, ismnoded
+logical :: logic_sd
+integer :: iorbid, iorbisd, ismnodesd, numsmd, numsmsd
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-logical logic_sd
 
 ismnodesd = mul_tab(ismnodes,ismnoded)
 numsmd = nlsm_ext(ismnoded)
@@ -363,6 +396,9 @@ end subroutine gsd_determine_extarmode_paras
 
 subroutine g_dd_ext_sequence(ism)
 
+implicit none
+integer :: ism
+integer :: ia, iasta, ib, ibend, ibsta, ilwei, lra, lrb
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -388,6 +424,9 @@ end subroutine g_dd_ext_sequence
 
 subroutine g_ss_ext_sequence(ism,itype)
 
+implicit none
+integer :: ism, itype
+integer :: ic, ic_sta, icano_nn, icend, id, id_sta, idend, idsta, isma, ismb, ismc, ismd
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -458,6 +497,9 @@ end subroutine g_ss_ext_sequence
 
 subroutine g12_diffsym(isma,ismb,ismc)
 
+implicit none
+integer :: isma, ismb, ismc
+integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ip2cd, ip3smabc, ipos_intbasetmp, iposint, nsma, num_smab
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -505,6 +547,9 @@ end subroutine g12_diffsym
 
 subroutine g11a_diffsym(isma,ismb,ismc)
 
+implicit none
+integer :: isma, ismb, ismc
+integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, jcoffset, jdoffset, num_smab
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -534,6 +579,9 @@ end subroutine g11a_diffsym
 
 subroutine g11b_diffsym(isma,ismb,ismc)
 
+implicit none
+integer :: isma, ismb, ismc
+integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, jcoffset, jdoffset, num_smab, numint_jc
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -564,6 +612,10 @@ end subroutine g11b_diffsym
 
 subroutine g1112_symaaaa(isma,ic,id)
 
+implicit none
+integer :: isma, ic, id
+integer :: ia, iabcdpos_11b, iasta, ib, ibcdpos_11a, ibcdpos_11b, ibsta, icdpos_11a, icdpos_11b, icdpos_12, ilwei, &
+           ipos_intbasetmp, iposint, ipsmabc, ja, jb
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -619,6 +671,9 @@ end subroutine g1112_symaaaa
 
 subroutine g11a11b_symaacc(isma,ismc,ic,id)
 
+implicit none
+integer :: isma, ismc, ic, id
+integer :: ia, iaend, iasta, ib, ibdpos, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, ja, num_smab
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -664,6 +719,9 @@ end subroutine g11a11b_symaacc
 
 subroutine g10_ext(ismc,ic,id)
 
+implicit none
+integer :: ismc, ic, id
+integer :: ia, iasta, ilwei, ipos_g10, ipos_intbasetmp, iposint
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -682,6 +740,9 @@ end subroutine g10_ext
 
 subroutine g5_ext(ismd,ic,id)
 
+implicit none
+integer :: ismd, ic, id
+integer :: ib, ibsta, ilwei, ipos_g5, ipos_intbasetmp, iposint
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -699,6 +760,9 @@ end subroutine g5_ext
 
 subroutine g9_ext(ismd,ic,id)
 
+implicit none
+integer :: ismd, ic, id
+integer :: ia, iasta, ilwei, ipos_g9, ipos_intbasetmp, iposint
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -717,10 +781,13 @@ end subroutine g9_ext
 
 subroutine ext_lp_ab_s1(id)
 
+implicit none
+integer :: id
+integer :: ia, iasta, ib, ibend, ibsta, ic, ilwei, ipos_intbasetmp, iposint, iposintaa, ismb
+real*8, parameter :: v_sqtwo = 1.414213562373095d0
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
-parameter(v_sqtwo=1.414213562373095d0)
 
 ipos_intbasetmp = ip3_abd_ext_base+(id-1)*np3_abd_ext
 ilwei = icnt_base
@@ -759,6 +826,9 @@ end subroutine ext_lp_ab_s1
 
 subroutine g31_diffsym(lri,isma,ismb)
 
+implicit none
+integer :: lri, isma, ismb
+integer :: ia, iabc, iabc0, iaend, iasta, ib, ibend, ibsta, ic, ilwei, iposint
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
@@ -787,6 +857,9 @@ end subroutine g31_diffsym
 
 subroutine g32a_diffsym(lri,isma,ismb)
 
+implicit none
+integer :: lri, isma, ismb
+integer :: ia, iabc, iabc0, iaend, iasta, ib, ibend, ibsta, ic, ilwei, iposint
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
@@ -814,6 +887,9 @@ end subroutine g32a_diffsym
 
 subroutine g32b_diffsym(lri,isma,ismb)
 
+implicit none
+integer :: lri, isma, ismb
+integer :: ia, iabc, iabc0, iaend, iasta, ib, ibend, ibsta, ic, ilwei, iposint
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
@@ -843,6 +919,8 @@ end subroutine g32b_diffsym
 
 subroutine assign_segmode_paras(indl,indr,ilrdivnodesm)
 
+implicit none
+integer :: indl, indr, ilrdivnodesm
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "intsort_h.fh"
@@ -859,6 +937,7 @@ end subroutine assign_segmode_paras
 
 subroutine external_space_plpmode_value_st()   !tt
 
+implicit none
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "paraconstants_h.fh"
@@ -895,6 +974,7 @@ end subroutine external_space_plpmode_value_st
 
 subroutine external_space_plpmode_value_ts()   !tt
 
+implicit none
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "paraconstants_h.fh"
@@ -929,6 +1009,7 @@ end subroutine external_space_plpmode_value_ts
 
 subroutine external_space_plpmode_value_ss()   !ss
 
+implicit none
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "paraconstants_h.fh"
@@ -963,6 +1044,7 @@ end subroutine external_space_plpmode_value_ss
 
 subroutine external_space_plpmode_value_tt()   !tt
 
+implicit none
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "paraconstants_h.fh"
@@ -998,6 +1080,7 @@ end subroutine external_space_plpmode_value_tt
 
 subroutine external_space_plpmode_value_sd()
 
+implicit none
 #include "drt_h.fh"
 #include "paraconstants_h.fh"
 #include "lpextmode_h.fh"
@@ -1035,6 +1118,7 @@ end subroutine external_space_plpmode_value_sd
 
 subroutine external_space_plpmode_value_td()
 
+implicit none
 #include "drt_h.fh"
 #include "paraconstants_h.fh"
 #include "lpextmode_h.fh"
@@ -1070,6 +1154,7 @@ end subroutine external_space_plpmode_value_td
 
 subroutine external_space_plpmode_value_ds()
 
+implicit none
 #include "drt_h.fh"
 #include "paraconstants_h.fh"
 #include "lpextmode_h.fh"
@@ -1091,6 +1176,7 @@ end subroutine external_space_plpmode_value_ds
 
 subroutine external_space_plpmode_value_dt()
 
+implicit none
 #include "drt_h.fh"
 #include "paraconstants_h.fh"
 #include "lpextmode_h.fh"
@@ -1108,6 +1194,9 @@ end subroutine external_space_plpmode_value_dt
 
 subroutine ss_ext_plpmode(ilnodesm,irnodesm,iltype,irtype,lptype)
 
+implicit none
+integer :: ilnodesm, irnodesm, iltype, irtype, lptype
+integer :: iii, ilrsm
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -1196,6 +1285,9 @@ end subroutine ss_ext_plpmode
 
 subroutine do_g36mode(ilrsm,ilnodesm,iii)
 
+implicit none
+integer :: ilrsm, ilnodesm, iii
+integer :: isma, ismb, ismlink
 #include "drt_h.fh"
 
 do ismb=1,ng_sm
@@ -1210,6 +1302,9 @@ end subroutine do_g36mode
 
 subroutine do_g34mode(ilrsm,ilnodesm,iii)
 
+implicit none
+integer :: ilrsm, ilnodesm, iii
+integer :: isma, ismb, ismlink
 #include "drt_h.fh"
 
 do ismb=1,ng_sm
@@ -1224,6 +1319,9 @@ end subroutine do_g34mode
 
 subroutine do_g35mode(ilrsm,ilnodesm,iii)
 
+implicit none
+integer :: ilrsm, ilnodesm, iii
+integer :: isma, ismb, ismlink
 #include "drt_h.fh"
 
 do ismb=1,ng_sm
@@ -1238,6 +1336,9 @@ end subroutine do_g35mode
 
 subroutine g36_form(isma,ismb,ismlink,iii)
 
+implicit none
+integer :: isma, ismb, ismlink, iii
+integer :: ia, iaend, iasta, ib, ibend, ibsta, icsta, ilinkend, ilinksta, nlinkorb
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -1268,6 +1369,9 @@ end subroutine g36_form
 
 subroutine g34_form(isma,ismb,ismlink,iii)
 
+implicit none
+integer :: isma, ismb, ismlink, iii
+integer :: iaend, iasta, ib, ibend, ibsta, ilink, ilinkend, ilinksta, naorb
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -1297,6 +1401,9 @@ end subroutine g34_form
 
 subroutine g35_form(isma,ismb,ismlink,iii)
 
+implicit none
+integer :: isma, ismb, ismlink, iii
+integer :: iaend, iasta, ib, ibend, ibsta, ilink, ilinkend, ilinksta, naorb
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -1326,6 +1433,10 @@ end subroutine g35_form
 
 function ibfunction(ib,istep)
 
+implicit none
+integer :: ibfunction
+integer :: ib, istep
+
 select case (istep)
   case (2)
     ibfunction = ib-1
@@ -1342,6 +1453,8 @@ end function ibfunction
 
 subroutine determine_para_array_for_int1ind()
 
+implicit none
+integer :: isma, ismab, ismabc, ismb, ismc, jpsmabc, nintcount, numa, numb, numc, numint
 #include "drt_h.fh"
 #include "intsort_h.fh"
 
@@ -1396,6 +1509,9 @@ end subroutine determine_para_array_for_int1ind
 
 subroutine g_dd_ext_sequence_G(ism)
 
+implicit none
+integer :: ism
+integer :: ia, iasta, ib, ibend, ibsta, ilwei, lra, lrb, nac
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -1427,6 +1543,9 @@ end subroutine g_dd_ext_sequence_G
 
 subroutine g_tt_ext_sequence_G(ism)
 
+implicit none
+integer :: ism
+integer :: ic, ic_sta, icano_nn, icend, id, id_sta, idend, idsta, isma, ismb, ismc, ismd
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -1484,6 +1603,9 @@ end subroutine g_tt_ext_sequence_G
 
 subroutine g_ss_ext_sequence_G(ism,itype)
 
+implicit none
+integer :: ism, itype
+integer :: ic, ic_sta, icano_nn, icend, id, id_sta, idend, idsta, isma, ismb, ismc, ismd
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -1556,6 +1678,9 @@ end subroutine g_ss_ext_sequence_G
 
 subroutine g12_diffsym_G(isma,ismb,ismc,ic,id)
 
+implicit none
+integer :: isma, ismb, ismc, ic, id
+integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -1617,6 +1742,9 @@ end subroutine g12_diffsym_G
 
 subroutine g11a_diffsym_G(isma,ismb,ismc,ic,id)
 
+implicit none
+integer :: isma, ismb, ismc, ic, id
+integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -1653,6 +1781,9 @@ end subroutine g11a_diffsym_G
 
 subroutine g11b_diffsym_G(isma,ismb,ismc,ic,id)
 
+implicit none
+integer :: isma, ismb, ismc, ic, id
+integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -1688,6 +1819,9 @@ end subroutine g11b_diffsym_G
 
 subroutine g1112_symaaaa_G(isma,ic,id)
 
+implicit none
+integer :: isma, ic, id
+integer :: ia, iasta, ib, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -1751,6 +1885,9 @@ end subroutine g1112_symaaaa_G
 
 subroutine g11a11b_symaacc_G(isma,ismc,ic,id)
 
+implicit none
+integer :: isma, ismc, ic, id
+integer :: ia, iaend, iasta, ib, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -1799,6 +1936,9 @@ end subroutine g11a11b_symaacc_G
 
 subroutine g10_ext_G(ismc,ic,id)
 
+implicit none
+integer :: ismc, ic, id
+integer :: ia, iasta, ilwei, lra, lrc, lrd, nac, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "iaib.fh"
@@ -1827,6 +1967,9 @@ end subroutine g10_ext_G
 
 subroutine g5_ext_G(ismd,ic,id)
 
+implicit none
+integer :: ismd, ic, id
+integer :: ib, ibsta, ilwei, lrb, lrc, lrd, nac, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -1854,6 +1997,9 @@ end subroutine g5_ext_G
 
 subroutine g9_ext_G(ismd,ic,id)
 
+implicit none
+integer :: ismd, ic, id
+integer :: ia, iasta, ilwei, lra, lrc, lrd, nac, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -1882,11 +2028,14 @@ end subroutine g9_ext_G
 
 subroutine ext_lp_ab_s1_G(id)
 
+implicit none
+integer :: id
+integer :: ia, iasta, ib, ibend, ibsta, ic, ilwei, ismb, lra, lrb, lrc, lrd, nac, nxo
+real*8, parameter :: v_sqtwo = 1.414213562373095d0
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
 #include "iaib.fh"
-parameter(v_sqtwo=1.414213562373095d0)
 
 !write(nf2,*) 'ext_lp_ab_s1'
 lrd = norb_number(id)
@@ -1942,6 +2091,9 @@ end subroutine ext_lp_ab_s1_G
 
 subroutine g12_t_diffsym_G(isma,ismb,ismc,ic,id)
 
+implicit none
+integer :: isma, ismb, ismc, ic, id
+integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -2002,6 +2154,9 @@ end subroutine g12_t_diffsym_G
 
 subroutine g11a_t_diffsym_G(isma,ismb,ismc,ic,id)
 
+implicit none
+integer :: isma, ismb, ismc, ic, id
+integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -2037,6 +2192,9 @@ end subroutine g11a_t_diffsym_G
 
 subroutine g11b_t_diffsym_G(isma,ismb,ismc,ic,id)
 
+implicit none
+integer :: isma, ismb, ismc, ic, id
+integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -2071,6 +2229,9 @@ end subroutine g11b_t_diffsym_G
 
 subroutine g1112_t_symaaaa_G(isma,ic,id)
 
+implicit none
+integer :: isma, ic, id
+integer :: ia, iasta, ib, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -2133,6 +2294,9 @@ end subroutine g1112_t_symaaaa_G
 
 subroutine g11a11b_t_symaacc_G(isma,ismc,ic,id)
 
+implicit none
+integer :: isma, ismc, ic, id
+integer :: ia, iaend, iasta, ib, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -2180,6 +2344,9 @@ end subroutine g11a11b_t_symaacc_G
 
 subroutine g36_t_ext_G(ismc,ic,id)
 
+implicit none
+integer :: ismc, ic, id
+integer :: ia, iasta, ilwei, lra, lrc, lrd, nac, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "iaib.fh"
@@ -2207,6 +2374,9 @@ end subroutine g36_t_ext_G
 
 subroutine g5_t_ext_G(ismd,ic,id)
 
+implicit none
+integer :: ismd, ic, id
+integer :: ib, ibsta, ilwei, lrb, lrc, lrd, nac, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -2233,6 +2403,9 @@ end subroutine g5_t_ext_G
 
 subroutine g9_t_ext_G(ismd,ic,id)
 
+implicit none
+integer :: ismd, ic, id
+integer :: ia, iasta, ilwei, lra, lrc, lrd, nac, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "gext_sequence.fh"
@@ -2260,6 +2433,9 @@ end subroutine g9_t_ext_G
 
 subroutine g31_diffsym_G(lri,isma,ismb)
 
+implicit none
+integer :: lri, isma, ismb
+integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
@@ -2295,6 +2471,9 @@ end subroutine g31_diffsym_G
 
 subroutine g32a_diffsym_G(lri,isma,ismb)
 
+implicit none
+integer :: lri, isma, ismb
+integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
@@ -2325,6 +2504,9 @@ end subroutine g32a_diffsym_G
 
 subroutine g32b_diffsym_G(lri,isma,ismb)
 
+implicit none
+integer :: lri, isma, ismb
+integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
@@ -2357,6 +2539,9 @@ end subroutine g32b_diffsym_G
 
 subroutine gsd_samesym_aaa_G(lri,isma)
 
+implicit none
+integer :: lri, isma
+integer :: ia, iasta, ib, ibend, ibsta, ic, ilwei, lra, lrb, lrc, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
@@ -2459,6 +2644,9 @@ end subroutine gsd_samesym_aaa_G
 
 subroutine gsd_diffsamesym_abb_G(lri,isma,ismb)
 
+implicit none
+integer :: lri, isma, ismb
+integer :: ia, iaend, iasta, ib, ibend, ibsta, ic, ilwei, lra, lrb, lrc, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
@@ -2527,6 +2715,9 @@ end subroutine gsd_diffsamesym_abb_G
 
 subroutine gsd_diffsamesym_aab_G(lri,isma,ismb)
 
+implicit none
+integer :: lri, isma, ismb
+integer :: ia, iaend, iasta, ib, ibend, ibsta, ic, ilwei, lra, lrb, lrc, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
@@ -2593,6 +2784,9 @@ end subroutine gsd_diffsamesym_aab_G
 
 subroutine gsd_arlp_s1_G(lri)
 
+implicit none
+integer :: lri
+integer :: ic, ilwei, is1orb, lrc, lrk, nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"

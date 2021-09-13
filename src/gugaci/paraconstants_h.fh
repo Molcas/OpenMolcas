@@ -15,7 +15,7 @@
 !    :        /sq3vsq2/1.224744850431060D0/
 
       REAL*8 v_onevsqtwo,v_sqtwo,v_sqthreevsqtwo,                       &
-     &      v_sqthree
+     &      v_sqthree,zero,done,threevtwo,epc
       parameter (   v_onevsqtwo=0.7071067811865475d0,                   &
      &   v_sqtwo=1.414213562373095d0,                                   &
      &   v_sqthreevsqtwo=1.224744871391589d0,                           &

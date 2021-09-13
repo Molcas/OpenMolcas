@@ -19,7 +19,7 @@
 
 subroutine inner_space_loop_g()
 
-implicit real*8(a-h,o-z)
+implicit none
 
 !wsc0 = c_time()
 call dbl_space_loop_g()
@@ -35,6 +35,8 @@ end subroutine inner_space_loop_g
 
 subroutine act_space_cloop_g()        ! one sub_drt
 
+implicit none
+integer :: ipae_, jpad_
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -60,6 +62,8 @@ end subroutine act_space_cloop_g
 
 subroutine act_space_ploop_g()        ! two sub_drt with same ipae
 
+implicit none
+integer :: ipae_, jpad_, jpadl_
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -93,6 +97,8 @@ end subroutine act_space_ploop_g
 
 subroutine cloop_in_act_g()
 
+implicit none
+integer :: lmi, lmij, lmj, lmk, lml, lra, lrai, lraj, lrak, lral, lsmij, mh
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -248,11 +254,13 @@ end subroutine cloop_in_act_g
 
 subroutine ploop_in_act_g()
 
+implicit none
+integer :: lrai, lraj, lrak, lral, mh
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-!=======================================================================
+
 do lrai=norb_dz+1,norb_inn
   ! line=25 -c"-d^r^r
   logic_br(1) = .true.
@@ -370,11 +378,13 @@ end subroutine ploop_in_act_g
 
 subroutine lp_act_tail_g(lin,mh,lrg0,lrs0)
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension lpcoe(norb_dz+1:norb_inn)
 #include "onepl.fh"
+integer :: lin, mh, lrg0, lrs0
+integer :: iorb, lpcoe(norb_dz+1:norb_inn), mhlp_
 
 line = lin
 lrg = lrg0
@@ -402,12 +412,15 @@ end subroutine lp_act_tail_g
 
 subroutine act_cloop_g(lin,mh,lr0,lr,lrg0,lrs0)
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension lpcoe(norb_dz+1:norb_inn)
 #include "onepl.fh"
-parameter(two=2.0d+00,half=0.5d+00)
+integer :: lin, mh, lr0, lr, lrg0, lrs0
+integer :: kcoe, l, lpcoe(norb_dz+1:norb_inn), mhlp_, nocc, nxo
+real*8 :: tcoe, vlop0, vlop1, wl
+real*8, parameter :: half = 0.5d0, two = 2.0d0
 
 line = lin
 lrg = lrg0
@@ -584,6 +597,10 @@ end subroutine act_cloop_g
 
 subroutine dbl_td_act_comp_g(lin,lra)
 
+implicit none
+integer :: lin, lra
+integer :: iwdl, iwdr, jmlr, list0, list1, lmi, lmk, lri, lrk, ni
+real*8 :: vlop0, vlop1, w0td1, wl0, wl1
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -645,6 +662,10 @@ end subroutine dbl_td_act_comp_g
 
 subroutine dbl_ttdd_act_comp_g(lin,lra)
 
+implicit none
+integer :: lin, lra
+integer :: iwdl, iwdr, jmlr, list0, list1, lmi, lmk, lri, lrk, ni
+real*8 :: vlop0, vlop1, w0td1, wl0, wl1
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -699,6 +720,10 @@ end subroutine dbl_ttdd_act_comp_g
 
 subroutine comp_loop_g(line,lr0,lrg,lrs,lr,vlop0,vlop1,wl0,list0,wl1,list1)
 
+implicit none
+integer :: line, lr0, lrg, lrs, lr, list0, list1
+real*8 :: vlop0, vlop1, wl0, wl1
+integer :: nxo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -846,12 +871,15 @@ return
 end subroutine comp_loop_g
 
 subroutine dbl_sd_act_comp_g(lin,lra)
-
 !sd(6-1) a&r(02)-
 !sd(6-2) (22)a&(13)-
 !sd(6-3) a&r(13)c'(22)-
 !sd(6-4) a&r(23)c'(12)-
 
+implicit none
+integer :: lin, lra
+integer :: iwdl, iwdr, jmlr, list0, list1, lmi, lmk, lri, lrk, ni
+real*8 :: vlop0, vlop1, w0sd1, w0sd2, w0sd3, w0sd4, wl0, wl1
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -935,12 +963,15 @@ return
 end subroutine dbl_sd_act_comp_g
 
 subroutine dbl_sdd_act_comp_g(lin,lra)
-
 ! sd1(8-1)    ar(01)-
 ! sd1(8-2)    (11)ar(23)-
 ! sd1(8-3)    ar(13)-c'(21)-
 ! sd1(8-4)    ar(23)-c'(11)-
 
+implicit none
+integer :: lin, lra
+integer :: iwdl, iwdr, jmlr, list0, list1, lmi, lmk, lri, lrk, ni
+real*8 :: vlop0, vlop1, w0sd1, w0sd2, w0sd3, w0sd4, wl0, wl1
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1025,6 +1056,8 @@ end subroutine dbl_sdd_act_comp_g
 
 subroutine ext_space_loop_g()
 
+implicit none
+integer :: inx, ism
 #include "drt_h.fh"
 #include "gext_sequence.fh"
 
@@ -1062,11 +1095,16 @@ end subroutine ext_space_loop_g
 
 subroutine dbl_head_act_tail_g(lpcoe)
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension lpcoe(norb_dz+1:norb_inn)
 #include "onepl.fh"
+integer :: lpcoe(norb_dz+1:norb_inn)
+integer :: imd, imi, imij, imj, itypadl, itypadr, iwdl, iwdr, jmlr, kcoe, l, lmd, lmi, lmij, lmj, lpok, lr, lr0, lra, lrd, lri, &
+           lrj, lrk, ni, nocc, nxo
+real*8 :: tcoe, vlop0, vlop1, w0ds1, w0ds2, w0ds3, w0dv1, w0dv2, w0td1, w0td2, w0td3, w0td4, w0td5, w1ds, w1ds2, w1ds3, w1td2, &
+          w1td3, w1tv, wl
 
 lra = kk(jpel)-1
 jml = mod((jpadl-1),8)

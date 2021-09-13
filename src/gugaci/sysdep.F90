@@ -15,6 +15,7 @@
 
 subroutine version_info()
 
+implicit none
 #include "drt_h.fh"
 
 write(6,'(10x,a42)') '*****************************************'
@@ -38,7 +39,9 @@ end subroutine version_info
 
 subroutine allocate_int_memory()
 
+implicit none
 #include "drt_h.fh"
+
 ! this subroutine is used to allocate the dynamic memory for integrals
 ! vint_ci(:) pointer to the base address of the memory of integrals
 ! maxintseg  maximum length of the integral segment
@@ -52,6 +55,7 @@ end subroutine allocate_int_memory
 
 subroutine deallocate_int_memory()
 
+implicit none
 #include "drt_h.fh"
 
 deallocate(vint_ci)
@@ -62,9 +66,10 @@ end subroutine deallocate_int_memory
 
 subroutine read_ml(nf,i,bv,n,m)
 
-implicit real*8(a-h,o-z)
-dimension bv(n)
-dimension irec(64)
+implicit none
+integer :: nf, i, n, m
+real*8 :: bv(n)
+integer :: idisk, irec(64)
 
 idisk = 0
 call idafile(nf,2,irec,64,idisk)
@@ -87,9 +92,10 @@ end subroutine read_ml
 
 subroutine write_ml(nf,i,bv,n,m)
 
-implicit real*8(a-h,o-z)
-dimension bv(n)
-dimension irec(64)
+implicit none
+integer :: nf, i, n, m
+real*8 :: bv(n)
+integer :: idisk, irec(64)
 
 idisk = 0
 if (m == 1) then
@@ -123,8 +129,9 @@ end subroutine write_ml
 
 subroutine write_bv(nf,i,bv,n)
 
-implicit real*8(a-h,o-z)
-dimension bv(n)
+implicit none
+integer :: nf, i, n
+real*8 :: bv(n)
 
 call write_ml(nf,1,bv,n,i)
 
@@ -134,8 +141,9 @@ end subroutine write_bv
 
 subroutine read_bv(nf,i,bv,n)
 
-implicit real*8(a-h,o-z)
-dimension bv(n)
+implicit none
+integer :: nf, i, n
+real*8 :: bv(n)
 
 call read_ml(nf,1,bv,n,i)
 
@@ -156,11 +164,11 @@ subroutine readint(ntyp,vintrd)
 ! -------------------
 ! vintrd(*) - integrals used in hamiltonian matrix calculation
 
-implicit real*8(a-h,o-z)
+implicit none
+integer :: ntyp
+real*8 :: vintrd(*)
+integer :: idisk, idum(1), idx(4), lenint
 #include "files_gugaci.fh"
-dimension vintrd(*)
-dimension idx(4)
-dimension idum(1)
 
 idx = 0
 idisk = 0
@@ -209,12 +217,13 @@ use groupinfo
 use orbinfo
 #endif
 
-!#include "comfile.fh"
-#include "drt_h.fh"
-#include "files_gugaci.fh"
+implicit none
 #ifdef MOLPRO
 integer :: noffset(maxrecord)
 #endif
+#include "drt_h.fh"
+#include "files_gugaci.fh"
+!#include "comfile.fh"
 
 #ifndef MOLPRO
 fnonemo = 'traone'
@@ -282,7 +291,7 @@ end subroutine gugaciinit
 
 subroutine gugafinalize()
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "files_gugaci.fh"
 
 #ifdef MOLPRO
@@ -314,6 +323,8 @@ end subroutine gugafinalize
 
 subroutine memdengrad_alloc()
 
+implicit none
+integer :: nc, ndim
 #include "drt_h.fh"
 #include "grad_h.fh"
 
@@ -326,6 +337,7 @@ end subroutine memdengrad_alloc
 
 subroutine memdengrad_free()
 
+implicit none
 #include "drt_h.fh"
 #include "grad_h.fh"
 
@@ -336,9 +348,8 @@ end subroutine memdengrad_free
 
 subroutine memcidiag_alloc()
 
+implicit none
 #include "drt_h.fh"
-integer, pointer :: jph(:), jeh(:), jwh(:)
-real*8, pointer :: th(:), thh(:)
 #include "ptlph.fh"
 #include "ptlphv.fh"
 
@@ -359,9 +370,8 @@ end subroutine memcidiag_alloc
 
 subroutine memcidiag_dealloc()
 
+implicit none
 #include "drt_h.fh"
-integer, pointer :: jph(:), jeh(:), jwh(:)
-real*8, pointer :: th(:), thh(:)
 #include "ptlph.fh"
 #include "ptlphv.fh"
 
@@ -377,6 +387,8 @@ end subroutine memcidiag_dealloc
 
 subroutine mem_intinnindex_alloc()
 
+implicit none
+integer :: lent
 #include "drt_h.fh"
 #include "intsort_h.fh"
 
@@ -425,6 +437,7 @@ end subroutine mem_intinnindex_alloc
 
 subroutine mem_intinnindex_dealloc()
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 
@@ -453,6 +466,7 @@ end subroutine mem_intinnindex_dealloc
 
 subroutine allocate_casrst()
 
+implicit none
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 
@@ -469,6 +483,7 @@ end subroutine allocate_casrst
 
 subroutine deallocate_casrst()
 
+implicit none
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 
@@ -482,6 +497,8 @@ end subroutine deallocate_casrst
 
 subroutine allocate_subdrt(icase,lent)
 
+implicit none
+integer :: icase, lent
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 
@@ -497,6 +514,8 @@ end subroutine allocate_subdrt
 
 subroutine allocate_subdrtl(icase,lent)
 
+implicit none
+integer :: icase, lent
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 
@@ -512,6 +531,7 @@ end subroutine allocate_subdrtl
 
 subroutine deallocate_subdrt()
 
+implicit none
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 
@@ -523,6 +543,7 @@ end subroutine deallocate_subdrt
 
 subroutine deallocate_subdrtl()
 
+implicit none
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 
@@ -536,6 +557,7 @@ end subroutine deallocate_subdrtl
 
 function c_time()
 
+implicit none
 real*8 c_time
 real*8, external :: seconds
 
@@ -546,7 +568,7 @@ end function c_time
 function ipair(i,j)
 
 implicit none
-integer ipair
+integer :: ipair
 integer :: i, j
 
 if (i >= j) then
@@ -561,9 +583,9 @@ subroutine trimstr(string)
 ! delete space character in the head and tail of the string
 
 implicit none
-character*(*), intent(out) :: string
-character*128 :: line
+character(len=*), intent(out) :: string
 integer :: i, j, k
+character(len=128) :: line
 
 k = len_trim(string)
 line(1:k) = string(1:k)

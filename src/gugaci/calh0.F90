@@ -11,14 +11,15 @@
 
 subroutine geth0()
 
+implicit none
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "scratch.fh"
-!character*256 filename
-dimension vad0(max_h0)
+integer :: i, ijm, iselcsf_occ(max_innorb,max_ref), kval, l, m, mmspace, mn, ndim0, nxb, nxh
+real*8 :: vad0(max_h0)
+!character(len=256) :: filename
 real*8, allocatable :: vb1(:), vb2(:)
-dimension iselcsf_occ(max_innorb,max_ref)
-data dcrita/0.5d-5/
+real*8, parameter :: dcrita = 0.5d-5
 
 allocate(vb1(max_h0*max_kspace),vb2(max_h0*max_kspace))
 if (.not. logic_mr) then
@@ -176,11 +177,13 @@ end subroutine geth0
 
 subroutine formh0()
 
+implicit none
+integer :: i, iconf1, iconf2, iconfmax, iconfmin, ii, iicc, ir1, ir2, mnh0, mnrh0, num
+real*8, allocatable :: buff(:)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "scratch.fh"
-real*8, allocatable :: buff(:)
 
 num = ndim_h0*(ndim_h0+1)/2
 if (num > max_vector) then
@@ -253,11 +256,13 @@ end subroutine formh0
 
 subroutine basis_2(ndim,vb1,nxb,vad,th,nxh)
 
+implicit none
 #include "drt_h.fh"
-
-data dzero/0.d0/dcrita/1.0d-6/epc/5.0d-3/
-dimension vb1(max_kspace*ndim), vad(ndim)
-dimension th(nxh), ijb1(mroot)
+integer :: ndim, nxb, nxh
+real*8 :: vb1(max_kspace*ndim), vad(ndim), th(nxh)
+integer :: i, ib, ij, ijb1(mroot), ijh, j, l, m, m0, mief, mjnj
+real*8 :: fenmu, vadi
+real*8, parameter :: dzero = 0.0d0, dcrita = 1.0d-6, epc = 5.0d-3
 
 vb1 = 0.d0
 
@@ -320,12 +325,14 @@ end subroutine basis_2
 
 subroutine minevalue(iselcsf_occ)
 
+implicit none
 #include "drt_h.fh"
 #include "files_gugaci.fh"
 #include "config.fh"
-dimension iselcsf_occ(max_innorb,max_ref)
-dimension iwalktmp(0:max_orb)
-data dzero/0.d0/
+integer :: iselcsf_occ(max_innorb,max_ref)
+integer :: i, ij, io, iwalktmp(0:max_orb), j, jm, l, m, ndimh0
+real*8 :: am
+real*8, parameter :: dzero = 0.0d0
 
 call read_ml(lucidia,1,vector1,nci_dim,1)
 
@@ -391,9 +398,14 @@ end subroutine minevalue
 
 subroutine orthnor_ab(n,av,bv,id)  !bv:basis, av:vector for orth a
 
-real*8 av(n), bv(n), s, ddot_, dcrita
+implicit none
+integer :: n, id
+real*8 :: av(n), bv(n)
+integer :: i
+real*8 :: s
+real*8, parameter :: dcrita = 1.0d-10
+real*8, external :: ddot_
 
-dcrita = 1.0e-10
 if (id == 0) then
   ! orthogonalization av,bv
   s = ddot_(n,av,1,bv,1)
@@ -416,8 +428,12 @@ end subroutine orthnor_ab
 
 function ddot_bak(n,dx,dy)
 
-real*8 ddot_bak
-real*8 dx(n), dy(n), s
+implicit none
+integer :: n
+real*8 :: dx(n), dy(n)
+integer :: l
+real*8 :: ddot_bak
+real*8 :: s
 
 s = 0.0d0
 do l=1,n
@@ -431,6 +447,9 @@ end function ddot_bak
 
 subroutine matrmk_1(k)
 
+implicit none
+integer :: i, ibas, ij, il, jbas, l, k
+real*8 :: vsumtmp
 #include "drt_h.fh"
 #include "files_gugaci.fh"
 

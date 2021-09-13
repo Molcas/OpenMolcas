@@ -11,6 +11,7 @@
 
 subroutine allocate_vplp_memory()
 
+implicit none
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 
@@ -46,6 +47,7 @@ end subroutine allocate_vplp_memory
 
 subroutine deallocate_vplp_memory()
 
+implicit none
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 
@@ -80,9 +82,10 @@ end subroutine deallocate_vplp_memory
 
 subroutine change_vplp_pointer_arrays()
 
-#include "drt_h.fh"
-real*8, pointer :: plptmp(:)
+implicit none
 integer, pointer :: iplptmp(:)
+real*8, pointer :: plptmp(:)
+#include "drt_h.fh"
 #include "pl_structure_h.fh"
 
 plptmp => vplp_w0
@@ -117,8 +120,9 @@ end subroutine change_vplp_pointer_arrays
 
 subroutine change_coe_pointer_arrays()
 
+implicit none
+integer, pointer :: icoetmp(:,:)
 #include "drt_h.fh"
-integer, dimension(:,:), pointer :: icoetmp
 #include "pl_structure_h.fh"
 
 icoetmp => lp_coe
@@ -129,8 +133,9 @@ end subroutine change_coe_pointer_arrays
 
 subroutine change_br_pointer_arrays()
 
+implicit none
+logical, pointer :: logic_brtmp(:)
 #include "drt_h.fh"
-logical, dimension(:), pointer :: logic_brtmp
 #include "pl_structure_h.fh"
 
 logic_brtmp => logic_br

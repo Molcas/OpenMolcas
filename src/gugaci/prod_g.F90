@@ -11,6 +11,11 @@
 
 subroutine inn_ext_ss_drl_loop_unpack_g(iplplwei,iplprwei)
 
+implicit none
+integer :: iplplwei, iplprwei
+integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, isma, ismb, lpend34, &
+           lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
+real*8 :: valuelp, valuelp1
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -204,6 +209,11 @@ end subroutine inn_ext_ss_drl_loop_unpack_g
 
 subroutine inn_ext_st_drl_loop_unpack_g(iplplwei,iplprwei)
 
+implicit none
+integer :: iplplwei, iplprwei
+integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, isma, ismb, lpend34, &
+           lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
+real*8 :: valuelp, valuelp1
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -420,9 +430,14 @@ end subroutine inn_ext_st_drl_loop_unpack_g
 
 subroutine inn_ext_tt_drl_loop_unpack_g(iplplwei,iplprwei,n1415)
 
+implicit none
+integer :: iplplwei, iplprwei, n1415
+integer :: i, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, &
+           mm, mm0, nn, nn0
+real*8 :: valuelp, valuelp1
+logical :: logic_g14150, logic_g34b0, logic_g35b0, logic_g36b0
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-logical logic_g14150, logic_g34b0, logic_g35b0, logic_g36b0
 
 !write(6,*) '  tt_test 2/2'
 logic_g14150 = logic_g1415
@@ -573,6 +588,11 @@ end subroutine inn_ext_tt_drl_loop_unpack_g
 
 subroutine inn_ext_ts_drl_loop_unpack_g(iplplwei,iplprwei)
 
+implicit none
+integer :: iplplwei, iplprwei
+integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, isma, ismb, lpend34, &
+           lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
+real*8 :: valuelp, valuelp1
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -791,6 +811,11 @@ end subroutine inn_ext_ts_drl_loop_unpack_g
 
 subroutine inn_ext_ss_loop_unpack_g(iplplwei,iplprwei)
 
+implicit none
+integer :: iplplwei, iplprwei
+integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, isma, ismb, lpend34, &
+           lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
+real*8 :: valuelp, valuelp1
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -1038,6 +1063,11 @@ end subroutine inn_ext_ss_loop_unpack_g
 
 subroutine inn_ext_st_loop_unpack_g(iplplwei,iplprwei)
 
+implicit none
+integer :: iplplwei, iplprwei
+integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, isma, ismb, lpend34, &
+           lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
+real*8 :: valuelp, valuelp1
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -1304,6 +1334,11 @@ end subroutine inn_ext_st_loop_unpack_g
 
 subroutine inn_ext_ts_loop_unpack_g(iplplwei,iplprwei)
 
+implicit none
+integer :: iplplwei, iplprwei
+integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, isma, ismb, lpend34, &
+           lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
+real*8 :: valuelp, valuelp1
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -1568,6 +1603,11 @@ end subroutine inn_ext_ts_loop_unpack_g
 
 subroutine inn_ext_tt_loop_unpack_g(iplplwei,iplprwei)
 
+implicit none
+integer :: iplplwei, iplprwei
+integer :: i, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, &
+           mm, mm0, nn, nn0
+real*8 :: valuelp, valuelp1
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -1724,9 +1764,13 @@ end subroutine inn_ext_tt_loop_unpack_g
 
 subroutine gsd_sequence_extspace_g(iplplwei,iplprwei)
 
+implicit none
+integer :: iplplwei, iplprwei
+integer :: i, ilpvalue, indexlp, indexlp1, itmp, mm, nn, nn0
+real*8 :: valuelp, valuelp1
+real*8, parameter :: v_sqtwo = 1.414213562373095d0
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-parameter(v_sqtwo=1.414213562373095d0)
 
 !write(6,*) '  sd_test 1/2','  ds_test 1'
 
@@ -1843,10 +1887,14 @@ end subroutine gsd_sequence_extspace_g
 
 subroutine gtd_sequence_extspace_g(iplplwei,iplprwei)
 
+implicit none
+integer :: iplplwei, iplprwei
+integer :: i, ilpvalue, indexlp, indexlp1, itmp, mm, nn, nn0
+real*8 :: valuelp, valuelp1
+real*8, parameter :: v_sqtwo = 1.414213562373095d0
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "cont_tmp.fh"
-parameter(v_sqtwo=1.414213562373095d0)
 
 !write(6,*) ' td_test _1/2',' dt_test '
 ilpvalue = 0
@@ -1943,6 +1991,10 @@ end subroutine gtd_sequence_extspace_g
 
 subroutine gdv_sequence_extspace_g(ilw,irw)
 
+implicit none
+integer :: ilw, irw
+integer :: iij, indexlp, indexlp1, mm, nn
+real*8 :: valuelp, valuelp1
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -1967,6 +2019,10 @@ end subroutine gdv_sequence_extspace_g
 
 subroutine complete_sd_ar_ext_loop_g(ilwei,irwei,isdownwei)
 
+implicit none
+integer :: ilwei, irwei, isdownwei
+integer :: ilpvalue, indexlp, indexlp1, mm, mm0, mmtmp, nn, nntmp
+real*8 :: valuelp, valuelp1
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2002,6 +2058,10 @@ end subroutine complete_sd_ar_ext_loop_g
 
 subroutine gdv_sequence_extspace1_g(ilw,irw,n)
 
+implicit none
+integer :: ilw, irw, n
+integer :: ilpvalue, indexlp2, indexlp3, indexlp4, mm, nii, nn
+real*8 :: valuelp2, valuelp3, valuelp4
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "grad_h.fh"
@@ -2035,12 +2095,16 @@ end subroutine gdv_sequence_extspace1_g
 
 subroutine gtd_sequence_extspace1_g(iplplwei,iplprwei,n)
 
+implicit none
+integer :: iplplwei, iplprwei, n
+integer :: i, ilpvalue, indexlp2, indexlp3, indexlp4, itmp, mm, nii, nn, nn0
+real*8 :: valuelp2, valuelp3, valuelp4
+real*8, parameter :: v_sqtwo = 1.414213562373095d0
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "grad_h.fh"
 #include "iaib.fh"
 #include "cont_tmp.fh"
-parameter(v_sqtwo=1.414213562373095d0)
 
 !write(6,*) ' td_test _1/2',' dt_test '
 ilpvalue = 0
@@ -2156,11 +2220,15 @@ end subroutine gtd_sequence_extspace1_g
 
 subroutine gsd_sequence_extspace1_g(iplplwei,iplprwei,n)
 
+implicit none
+integer :: iplplwei, iplprwei, n
+integer :: i, ilpvalue, indexlp2, indexlp3, indexlp4, itmp, mm, nii, nn, nn0
+real*8 :: valuelp2, valuelp3, valuelp4
+real*8, parameter :: v_sqtwo = 1.414213562373095d0
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "grad_h.fh"
 #include "iaib.fh"
-parameter(v_sqtwo=1.414213562373095d0)
 
 !write(6,*) '  sd_test 1/2','  ds_test 0'
 
@@ -2306,6 +2374,10 @@ end subroutine gsd_sequence_extspace1_g
 
 subroutine inn_ext_dd_loop_unpack_g(iplplwei,iplprwei)
 
+implicit none
+integer :: iplplwei, iplprwei
+integer :: i, icle, ii, ildownwei, indexlp, indexlp1, irdownwei, j, mm, mm0, nn
+real*8 :: valuelp, valuelp1
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -2398,6 +2470,10 @@ end subroutine inn_ext_dd_loop_unpack_g
 
 subroutine inn_ext_sv_loop_unpack_g(ilw,irw)
 
+implicit none
+integer :: ilw, irw
+integer :: iij, indexlp, indexlp1, mm, nn
+real*8 :: valuelp, valuelp1
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 
@@ -2428,6 +2504,9 @@ end subroutine inn_ext_sv_loop_unpack_g
 ! this subroutine prodab_1 does the dm1 part, which corresponds to voin
 subroutine prodab_1(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6,mg7)
 
+implicit none
+integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6, mg7
+real*8 :: wl
 #include "drt_h.fh"
 
 if (log_prod == 1) call prodab_h_1(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6,mg7)
@@ -2439,12 +2518,18 @@ end subroutine prodab_1
 
 subroutine prodab_h_1(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6,mg7)
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension lopu(4,loputmp)
 #include "grad_h.fh"
 #include "iaib.fh"
+integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6, mg7
+real*8 :: wl
+integer :: ii, in_, ipae_, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpe, jph, &
+           jpl, jpy, jwd, jwnu, jwu, lp, lwnu, m, mg67, mm, mp, nn
+integer :: lopu(4,loputmp)
+integer, external :: iwalk_ad
 
 select case (idb)
   case default ! (1)
@@ -2486,7 +2571,7 @@ select case (idb)
     iwupwei = jpad_upwei(jpad)
     isegdownwei = iseg_downwei(ipae)
     jpy = jphy(jph)
-    in = ihy(jpy)
+    in_ = ihy(jpy)
 
     call jl_ne_jr(mp,jpl,jpr,mg3,mg4,lopu)
     do lp=1,mp
@@ -2494,7 +2579,7 @@ select case (idb)
       iwr = lopu(2,lp)-1
       jpe = lopu(3,lp)
       lwnu = iy(1,jpe)
-      do jwu=jpy+1,jpy+in
+      do jwu=jpy+1,jpy+in_
         iwal = iwl+ihy(jwu)
         iwar = iwr+ihy(jwu)
         do jwd=1,lwnu
@@ -2559,12 +2644,17 @@ end subroutine prodab_h_1
 
 subroutine prodab_h0_1(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6,mg7)
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension lopu(4,loputmp)
 #include "grad_h.fh"
 #include "iaib.fh"
+integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6, mg7
+real*8 :: wl
+integer :: ii, in_, ipae_, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpe, jph, &
+           jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mg67, mm, mp, nn
+integer, external :: iwalk_ad
 
 select case (idb)
   case default ! (1)
@@ -2606,7 +2696,7 @@ select case (idb)
     iwupwei = jpad_upwei(jpad)
     isegdownwei = iseg_downwei(ipae)
     jpy = jphy(jph)
-    in = ihy(jpy)
+    in_ = ihy(jpy)
 
     call jl_ne_jr(mp,jpl,jpr,mg3,mg4,lopu)
     do lp=1,mp
@@ -2614,7 +2704,7 @@ select case (idb)
       iwr = lopu(2,lp)-1
       jpe = lopu(3,lp)
       lwnu = iy(1,jpe)
-      do jwu=jpy+1,jpy+in
+      do jwu=jpy+1,jpy+in_
         iwal = iwl+ihy(jwu)
         iwar = iwr+ihy(jwu)
         do jwd=1,lwnu
@@ -2678,6 +2768,9 @@ end subroutine prodab_h0_1
 !this subroutine prodab_2 does the dm2 part, which corresponds to vint_c
 subroutine prodab_2(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6)
 
+implicit none
+integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6
+real*8 :: wl
 #include "drt_h.fh"
 
 if (log_prod == 1) call prodab_h_2(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6)
@@ -2689,11 +2782,16 @@ end subroutine prodab_2
 
 subroutine prodab_h_2(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6)
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension lopu(4,loputmp)
 #include "grad_h.fh"
+integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6
+real*8 :: wl
+integer :: ii, in_, ipae_, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpe, jph, &
+           jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mp, nn
+integer, external :: iwalk_ad
 
 select case (idb)
   case default ! (1)
@@ -2735,7 +2833,7 @@ select case (idb)
     iwupwei = jpad_upwei(jpad)
     isegdownwei = iseg_downwei(ipae)
     jpy = jphy(jph)
-    in = ihy(jpy)
+    in_ = ihy(jpy)
 
     call jl_ne_jr(mp,jpl,jpr,mg3,mg4,lopu)
     do lp=1,mp
@@ -2743,7 +2841,7 @@ select case (idb)
       iwr = lopu(2,lp)-1
       jpe = lopu(3,lp)
       lwnu = iy(1,jpe)
-      do jwu=jpy+1,jpy+in
+      do jwu=jpy+1,jpy+in_
         iwal = iwl+ihy(jwu)
         iwar = iwr+ihy(jwu)
         do jwd=1,lwnu
@@ -2806,11 +2904,16 @@ end subroutine prodab_h_2
 
 subroutine prodab_h0_2(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6)
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension lopu(4,loputmp)
 #include "grad_h.fh"
+integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6
+real*8 :: wl
+integer :: ii, in_, ipae_, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpe, jph, &
+           jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp),  lp, lwnu, m, mm, mntmp, mp, nn
+integer, external :: iwalk_ad
 
 select case (idb)
   case default ! (1)
@@ -2856,7 +2959,7 @@ select case (idb)
     iwupwei = jpad_upwei(jpad)
     isegdownwei = iseg_downwei(ipae)
     jpy = jphy(jph)
-    in = ihy(jpy)
+    in_ = ihy(jpy)
 
     call jl_ne_jr(mp,jpl,jpr,mg3,mg4,lopu)
     do lp=1,mp
@@ -2864,7 +2967,7 @@ select case (idb)
       iwr = lopu(2,lp)-1
       jpe = lopu(3,lp)
       lwnu = iy(1,jpe)
-      do jwu=jpy+1,jpy+in
+      do jwu=jpy+1,jpy+in_
         iwal = iwl+ihy(jwu)
         iwar = iwr+ihy(jwu)
         do jwd=1,lwnu

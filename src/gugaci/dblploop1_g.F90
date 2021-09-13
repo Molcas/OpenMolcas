@@ -11,6 +11,14 @@
 
 subroutine SS_HEAD_DBL_TAIL_ACT_G(LRA)
 
+implicit none
+integer :: lra
+integer :: iwdl, iwdr, jmlr, list0, list0_1, list0_2, list0_3, list0_4, list1, list1_1, list1_2, list1_3, list1_4, lmi, lmij, lmj, &
+           lmk, lmki, lmkj, lr0, lri, lrj, lrk, ni
+real*8 :: vlop0, vlop1, w0ss1, w0ss10, w0ss11, w0ss12, w0ss13, w0ss14, w0ss15, w0ss16, w0ss17, w0ss18, w0ss2, w0ss20, w0ss3, &
+           w0ss4, w0ss5, w0ss6, w0ss7, w0ss8, w0ss9, w1ss1, w1ss10, w1ss11, w1ss12, w1ss13, w1ss14, w1ss15, w1ss16, w1ss17, &
+           w1ss18, w1ss2, w1ss3, w1ss4, w1ss5, w1ss6, w1ss7, w1ss8, w1ss9, wl0, wl0_1, wl0_2, wl0_3, wl0_4, wl1, wl1_1, wl1_2, &
+           wl1_3, wl1_4, xwl1_1
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -661,6 +669,10 @@ end subroutine SS_HEAD_DBL_TAIL_ACT_G
 
 subroutine ST_HEAD_DBL_TAIL_ACT_G(LRA)
 
+implicit none
+integer :: lra
+integer :: iwds, iwdt, jmlr, list0, list0_1, list1, list1_1, lmi, lmij, lmj, lmk, lri, lrj, lrk, ni
+real*8 :: vlop0, vlop1, w1st1, w1st2, w1st3, w1st4, wl0, wl0_1, wl1, wl1_1
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -883,6 +895,10 @@ end subroutine ST_HEAD_DBL_TAIL_ACT_G
 
 subroutine TS_HEAD_DBL_TAIL_ACT_G(LRA)
 
+implicit none
+integer :: lra
+integer :: iwds, iwdt, list0, list1, lmi, lmij, lmj, lmk, lri, lrj, lrk, ni
+real*8 :: vlop0, vlop1, w1ts1, w1ts2, w1ts3, w1ts4, wl0, wl1
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1030,6 +1046,10 @@ end subroutine TS_HEAD_DBL_TAIL_ACT_G
 
 subroutine STT_HEAD_DBL_TAIL_ACT_G(LRA)
 
+implicit none
+integer :: lra
+integer :: iwdl, iwdr, list0, list1, lmi, lmij, lmj, lmk, lri, lrj, lrk, ni
+real*8 :: vlop0, vlop1, w1st1, w1st2, w1st3, w1st4, wl0, wl1
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1178,6 +1198,10 @@ end subroutine STT_HEAD_DBL_TAIL_ACT_G
 
 subroutine TTS_HEAD_DBL_TAIL_ACT_G(LRA)
 
+implicit none
+integer :: lra
+integer :: iwdl, iwdr, list0, list1, lmi, lmij, lmj, lmk, lri, lrj, lrk, ni
+real*8 :: vlop0, vlop1, w1t1s1, w1t1s2, w1t1s3, w1t1s4, w1t1s5, w1t1s6, w1t1s7, wl0, wl1
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1394,6 +1418,10 @@ end subroutine TTS_HEAD_DBL_TAIL_ACT_G
 
 subroutine TT_HEAD_DBL_TAIL_ACT_G(LRA)
 
+implicit none
+integer :: lra
+integer :: iwdl, iwdr, jmlr, list0, list1, lmi, lmij, lmj, lmk, lmki, lmkj, lri, lrj, lrk, ni
+real*8 :: vlop0, vlop1, w0tt1, w0tt2, w0tt3, w1tt1, w1tt2, wl0, wl1
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1564,6 +1592,10 @@ end subroutine TT_HEAD_DBL_TAIL_ACT_G
 
 subroutine TTTT_HEAD_DBL_TAIL_ACT_G(LRA)
 
+implicit none
+integer :: lra
+integer :: iwdl, iwdr, list0, list1, lmi, lmij, lmj, lmm, lri, lrj, lrk, lrm, ni
+real*8 :: vlop0, vlop1, w0tt1, w1tt1, wl0, wl1
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1715,6 +1747,10 @@ end subroutine TTTT_HEAD_DBL_TAIL_ACT_G
 
 subroutine DD_HEAD_DBL_TAIL_ACT_G(LRA)
 
+implicit none
+integer :: lra
+integer :: imil, imir, iwdl, iwdr, list0, list1, lril, lrir, lrk, ni
+real*8 :: vlop0, vlop1, w0dd1, w1dd1, wl0, wl1
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1813,6 +1849,10 @@ end subroutine DD_HEAD_DBL_TAIL_ACT_G
 
 subroutine DDDD_HEAD_DBL_TAIL_ACT_G(LRA)
 
+implicit none
+integer :: lra
+integer :: imil, imir, iwdl, iwdr, list0, list1, lril, lrir, lrk, ni
+real*8 :: vlop0, vlop1, w0dd1, w1dd1, wl0, wl1
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1907,6 +1947,10 @@ end subroutine DDDD_HEAD_DBL_TAIL_ACT_G
 
 subroutine DD1_HEAD_DBL_TAIL_ACT_G(LRA)
 
+implicit none
+integer :: lra
+integer :: iwdl, iwdr, list0, list1, lmi, lmj, lri, lrj, ni
+real*8 :: vlop0, vlop1, wl0, wl1
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1952,6 +1996,10 @@ end subroutine DD1_HEAD_DBL_TAIL_ACT_G
 
 subroutine D1D_HEAD_DBL_TAIL_ACT_G(LRA)
 
+implicit none
+integer :: lra
+integer :: iwdl, iwdr, list0, list1, lmi, lmj, lri, lrj
+real*8 :: vlop0, vlop1, wl0, wl1
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2021,6 +2069,10 @@ end subroutine D1D_HEAD_DBL_TAIL_ACT_G
 
 subroutine SV_HEAD_DBL_TAIL_ACT_G(LRA)
 
+implicit none
+integer :: lra
+integer :: iwdl, iwdr, list0, list1, lmi, lmij, lmj, lri, lrj, ni
+real*8 :: vlop0, vlop1, w0sv1, w0sv2, w1sv1, w1sv2, wl0, wl1
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2112,11 +2164,15 @@ subroutine SD_HEAD_DBL_TAIL_ACT_G(LRA,LPCOE)
 !     LRA, ....partial loop.......
 !**********************************************
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension LPCOE(NORB_DZ+1:NORB_INN)
 #include "onepl.fh"
+integer :: lra, lpcoe(norb_dz+1:norb_inn)
+integer :: iwdl, iwdl1, iwdr, jmlr, kcoe, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc, nxo
+real*8 :: tcoe, vlop0, vlop1, w0sd1, w0sd11, w0sd12, w0sd14, w0sd15, w0sd16, w0sd2, w0sd3, w0sd4, w0sd5, w0sd6, w0sd7, w0sd8, &
+          w0sd9, w1sd10, w1sd11, w1sd2, w1sd5, w1sd6, w1sd7, w1sd8, wl
 
 JMLR = MUL_TAB(JML,JMR)
 ! SD(6-1) A&r(02)-
@@ -2561,11 +2617,15 @@ subroutine SDD_HEAD_DBL_TAIL_ACT_G(LRA,LPCOE)
 !     LRA, ....partial loop.......
 !**********************************************
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension LPCOE(NORB_DZ+1:NORB_INN)
 #include "onepl.fh"
+integer :: lra, lpcoe(norb_dz+1:norb_inn)
+integer :: iwdl, iwdl1, iwdr, jmlr, kcoe, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc, nxo
+real*8 :: tcoe, vlop0, vlop1, w0sd1, w0sd10, w0sd11, w0sd12, w0sd13, w0sd2, w0sd3, w0sd4, w0sd5, w0sd6, w0sd7, w0sd8, w0sd9, &
+          w1sd10, w1sd2, w1sd3, w1sd4, w1sd5, w1sd6, w1sd7, w1sd8, wl
 
 JMLR = MUL_TAB(JML,JMR)
 ! SD1(8-1) A&r(01)-
@@ -2997,11 +3057,14 @@ subroutine TD_HEAD_DBL_TAIL_ACT_G(LRA,LPCOE)
 !     LRA, ....partial loop.......
 !**********************************************
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension LPCOE(NORB_DZ+1:NORB_INN)
 #include "onepl.fh"
+integer :: lra, lpcoe(norb_dz+1:norb_inn)
+integer :: iwdl, iwdr, jmlr, kcoe, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc, nxo
+real*8 :: tcoe, vlop0, vlop1, w0td1, w0td2, w0td3, w0td4, w0td5, w1td2, w1td3, wl
 
 JMLR = MUL_TAB(JML,JMR)
 ! TD(13-1) (22)A&(23)
@@ -3213,11 +3276,14 @@ subroutine TTDD_HEAD_DBL_TAIL_ACT_G(LRA,LPCOE)
 !     LRA, ....partial loop.......
 !**********************************************
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-dimension LPCOE(NORB_DZ+1:NORB_INN)
 #include "onepl.fh"
+integer :: lra, lpcoe(norb_dz+1:norb_inn)
+integer :: iwdl, iwdr, jmlr, kcoe, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc, nxo
+real*8 :: tcoe, vlop0, vlop1, w0td1, w0td2, w0td3, w0td4, w0td5, w1td2, w1td3, wl
 
 JMLR = MUL_TAB(JML,JMR)
 ! T1D1(15-1) (11)A&(13)

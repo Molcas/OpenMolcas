@@ -22,6 +22,8 @@
 
 subroutine ci_grad()
 
+implicit none
+real*8, parameter :: htoklm = 627.50956d0, zero = 0.0d0
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -32,7 +34,6 @@ subroutine ci_grad()
 #include "vect.fh"
 #include "grad_xyz.fh"
 #include "ncprhf.fh"
-parameter(htoklm=627.50956d+00,zero=0.0d+00)
 
 !================================================
 ! the main subroutine for ci gradient calculations.
@@ -50,6 +51,7 @@ end subroutine ci_grad
 
 subroutine convert_vector()
 
+implicit none
 #include "drt_h.fh"
 
 !=====================================================
@@ -68,6 +70,10 @@ end subroutine convert_vector
 
 subroutine moread(ii,jj,kk,ll,val)
 
+implicit none
+integer :: ii, jj, kk, ll
+real*8 :: val
+integer :: lri, lrj, lrk, lrl, lrn, nij, nijkl, nkl
 #include "drt_h.fh"
 #include "grad_h.fh"
 #include "iaib.fh"
@@ -103,6 +109,9 @@ end subroutine moread
 
 subroutine trans_ijkl_intpos(ii,jj,kk,ll,nxo)
 
+implicit none
+integer :: ii, jj, kk, ll, nxo
+integer :: lri, lrj, lrk, lrl, lrn, nij, nkl
 #include "drt_h.fh"
 #include "grad_h.fh"
 #include "iaib.fh"
@@ -147,9 +156,10 @@ end subroutine trans_ijkl_intpos
 
 subroutine trans_intpos_ijkl(intpos,lijkl)
 
+implicit none
+integer :: intpos, lijkl(4)
 #include "drt_h.fh"
 #include "grad_h.fh"
-dimension lijkl(4)
 
 !=========================================================
 ! read the saved two electron mo indices.
@@ -165,14 +175,17 @@ end subroutine trans_intpos_ijkl
 
 subroutine lagran_act(x1e)
 
+implicit none
 #include "drt_h.fh"
 #include "grad_h.fh"
 #include "vect.fh"
 #include "ncprhf.fh"
 #include "iaib.fh"
 #include "lgrn.fh"
-dimension x1e(50000), fock(n_all,n_all)
-parameter(zero=0.0d+00,two=2.0d+00)
+real*8 :: x1e(50000)
+integer :: i, i0, j, j0, k, k0, kl, l, l0, m, mik, mjk, nik, nil, niljk, nimkl, nji, njikl, njk, njmkl, nkl, norbf
+real*8 :: dum, dumtmp, fock(n_all,n_all)
+real*8, parameter :: two = 2.0d0, zero = 0.0d0
 
 !================================================
 ! lyb
@@ -402,13 +415,16 @@ end subroutine lagran_act
 
 subroutine lagran_all(x1e)
 
+implicit none
+real*8 :: x1e(50000)
+integer :: i, i0, j, j0, k, kl, l, m, mik, mjk, mnik, nik, nimkl, njk, njmkl
+real*8 :: dum, dumtmp
+real*8, parameter :: two = 2.0d0, zero = 0.0d0
 #include "drt_h.fh"
 #include "grad_h.fh"
 #include "iaib.fh"
 #include "lgrn.fh"
 #include "ncprhf.fh"
-dimension x1e(50000)
-parameter(zero=0.0d+00,two=2.0d+00)
 
 !================================================
 ! lyb
@@ -493,10 +509,12 @@ end subroutine lagran_all
 
 subroutine writedm2(nx)
 
+implicit none
+integer :: nx
+!character(len=256) :: filename
 #include "drt_h.fh"
 #include "grad_h.fh"
 #include "scratch.fh"
-!character*256 filename
 
 !filename = tmpdir(1:len_str)//'/density'
 !len = len_str+8
@@ -514,10 +532,12 @@ end subroutine writedm2
 
 subroutine readdm2(nx)
 
+implicit none
+integer :: nx
+!character(len=256) :: filename
 #include "drt_h.fh"
 #include "grad_h.fh"
 #include "scratch.fh"
-!character*256 filename
 
 vector2(1:nx) = 0.0d+00
 
@@ -535,16 +555,19 @@ end subroutine readdm2
 #ifdef _COMPILE_
 
 subroutine backtransmo()
+
+implicit none
 #include "drt_h.fh"
 #include "grad_h.fh"
 #include "scratch.fh"
-!character*256 filename
 #include "vect.fh"
 #include "iaib.fh"
 #include "density.fh"
-dimension ican_ab(norb_all), c(70000), dm1_act(naorbs,naorbs)
-logical resina
-parameter(htoklm=627.50956d+00,zero=0.0d+00,two=2.0d+00,half=0.5d+00,half2=0.25d+00)
+integer :: ican_ab(norb_all)
+real*8 :: c(70000), dm1_act(naorbs,naorbs)
+logical :: resina
+!character(len=256) :: filename
+real*8, parameter :: half = 0.5d0, half2 = 0.25d0, htokl = 627.50956d0, zero = 0.0d0, two = 2.0d0
 
 !***********************************************************************
 !
@@ -735,6 +758,9 @@ end subroutine backtransmo
 
 subroutine backtrans_test()
 
+implicit none
+integer :: i, i0, j, j0, k, k0, l, l0, nij, nijkl, nkl
+real*8 :: sum_, val
 #include "drt_h.fh"
 #include "vect.fh"
 #include "iaib.fh"
@@ -743,7 +769,7 @@ subroutine backtrans_test()
 ! this subroutine for test the backtrans result by just one density matr
 ! ao, such as (ij|kl)
 
-sum = 0.0d+00
+sum_ = 0.0d+00
 i0 = 6
 j0 = 6
 k0 = 6
@@ -770,28 +796,28 @@ do i=norb_frz+1,norb_all
           nijkl = ican_b(nkl)+nij
         end if
         val = vector2(nijkl)
-        sum = sum+val*cf(i0,i)*cf(j0,j)*cf(k0,k)*cf(l0,l)
+        sum_ = sum_+val*cf(i0,i)*cf(j0,j)*cf(k0,k)*cf(l0,l)
       end do
     end do
   end do
 end do
 
-!write(nf2,*) 'num 1 sum=',sum
+!write(nf2,*) 'num 1 sum=',sum_
 
 end subroutine backtrans_test
 
 ! FIXME: ndao is undefined
 !subroutine grad_two()
 !
+!implicit none
 !#include "drt_h.fh"
 !#include "grad_xyz.fh"
 !#include "iaib.fh"
 !#include "scratch.fh"
-!!character*256 filename
-!dimension index_atom(3,numat*(numat+1)/2),ndi0(ndao),ndj0(ndao),ndk0(ndao),ndl0(ndao),daoint1(ndao)
-!dimension dgxyz(3,numat),daoxyz(3,numat)
-!parameter (htoklm=627.50956d+00)
-!parameter (zero=0.0d+00,one=1.0d+00,two=2.0d+00,four=4.0d+00)
+!integer :: index_atom(3,numat*(numat+1)/2), ndi0(ndao), ndj0(ndao), ndk0(ndao), ndl0(ndao)
+!real*8 :: daoint1(ndao), daoxyz(3,numat), dgxyz(3,numat)
+!!character(len=256) filename
+!real*8, parameter :: four=4.0d0, htoklm = 627.50956d0, one=1.0d0, two=2.0d0, zero=0.0d0
 !
 !npat = numat*(numat+1)/2
 !index_atom(1:3,1:npat) = 0
@@ -896,19 +922,19 @@ end subroutine backtrans_test
 
 subroutine grad_one_ao()
 
+implicit none
 #include "drt_h.fh"
 #include "grad_h.fh"
 #include "scratch.fh"
-!character*256 filename
 #include "lgrn.fh"
 #include "iaib.fh"
 #include "vect.fh"
 #include "grad_xyz.fh"
 #include "density.fh"
-dimension dsaos(3,numat,naorbs*(naorbs+1)/2)
-dimension dgxyz(3,numat), dmo1xyz(3,numat), dm1_act(naorbs,naorbs)
-parameter(htoklm=627.50956d+00)
-parameter(zero=0.0d+00,one=1.0d+00,two=2.0d+00,four=4.0d+00)
+integer :: i, j, k, l, nkl
+real*8 :: dgxyz(3,numat), dm1_act(naorbs,naorbs), dmo1xyz(3,numat), dsaos(3,numat,naorbs*(naorbs+1)/2)
+!character*256 filename
+real*8, parameter :: four = 4.0d0, htoklm = 627.50956d0, one = 1.0d0, two = 2.0d0, zero = 0.0d0
 
 dsaos(1:3,1:numat,1:naorbs*(naorbs+1)/2) = zero
 
@@ -999,16 +1025,16 @@ end subroutine grad_one_ao
 
 subroutine grad_one_mo()
 
+implicit none
 #include "drt_h.fh"
 #include "grad_h.fh"
 #include "lgrn.fh"
 #include "iaib.fh"
 #include "vect.fh"
 #include "grad_xyz.fh"
-dimension dsaos(3,numat,naorbs*(naorbs+1)/2)
-dimension dgxyz(3,numat), dmo1xyz(3,numat)
-parameter(htoklm=627.50956d+00)
-parameter(zero=0.0d+00,one=1.0d+00,two=2.0d+00,four=4.0d+00)
+integer :: i, i0, j, j0, k, l, nkl
+real*8 :: dgxyz(3,numat), dmo1xyz(3,numat), dsaos(3,numat,naorbs*(naorbs+1)/2), val
+real*8, parameter :: four = 4.0d0, htoklm = 627.50956d0, one = 1.0d0, two = 2.0d0, zero = 0.0d0
 
 return
 
@@ -1091,12 +1117,14 @@ end subroutine grad_one_mo
 
 subroutine density_ci_one(dm1_act)
 
+implicit none
 #include "drt_h.fh"
 #include "grad_h.fh"
 #include "iaib.fh"
 #include "vect.fh"
-dimension dm1_act(naorbs,naorbs)
-parameter(zero=0.0d+00,one=1.0d+00,two=2.0d+00,four=4.0d+00)
+integer :: i, j, norbf, np, nq
+real*8 :: dm1_act(naorbs,naorbs)
+real*8, parameter :: four = 4.0d0, one = 1.0d0, two = 2.0d0, zero = 0.0d0
 
 norbf = norb_frz+1
 do i=1,naorbs
@@ -1119,13 +1147,16 @@ end subroutine density_ci_one
 
 subroutine lagran_fock(x1e,fock)
 
+implicit none
 #include "drt_h.fh"
 #include "grad_h.fh"
 #include "vect.fh"
 #include "iaib.fh"
 #include "ncprhf.fh"
-dimension x1e(50000), fock(n_all,n_all)
-parameter(zero=0.0d+00,two=2.0d+00)
+real*8 :: x1e(50000)
+integer :: i, i0, j, j0, k, k0, nij, nijkk, nik, nikjk, njk, nkk
+real*8 :: fock(n_all,n_all), val
+real*8, parameter :: two = 2.0d0, zero = 0.0d0
 
 fock(1:n_all,1:n_all) = zero
 

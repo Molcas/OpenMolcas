@@ -11,21 +11,24 @@
 
 subroutine cidenmat()
 
+implicit none
+integer :: i, ncount1, ncount2, neigen
+real*8 :: sechc !, x1e(50000)
+!character(len=256) :: filename
+!logical :: logic_mulroot
+real*8, parameter :: htoklm = 627.50956d0, zero = 0.0d0
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "grad_h.fh"
 #include "files_gugaci.fh"
 #include "scratch.fh"
-!character*256 filename
 #include "lgrn.fh"
 #include "iaib.fh"
 #include "vect.fh"
 #include "grad_xyz.fh"
 #include "ncprhf.fh"
-parameter(htoklm=627.50956d+00,zero=0.0d+00)
-!dimension x1e(50000)
-!logical logic_mulroot
+
 !=======================================================================
 ! the main subroutine for ci gradient calculations.
 ! ican_a and ican_b save canonical order.
@@ -77,16 +80,18 @@ end subroutine cidenmat
 
 subroutine ci_dentest(iroot)
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "files_gugaci.fh"
 #include "grad_h.fh"
-dimension noidx(8), idisk_array(max_root+1)
+integer :: iroot
+integer :: i, idisk, idisk0, idisk_array(max_root+1), idx, iout, itratoc(ntratoc), kbuf, lenrd, li, lj, lk, ll, lri, lrj, nbpq, &
+           nbrs, nc, nc1, nc2, nidx, nintb, nintone, nism, nmob, noidx(8), nop, noq, nor, norb(8), nos, nsmint, nsp, nspq, nspqr, &
+           nsq, nsr, nss, nssm, ntj, ntk, numax, numin
+real*8 :: buff(ntrabuf), cienergy, ecor, val, vnuc, xfock(max_orb*(max_orb+1)/2) !, x(1024*1024)
 real*8, pointer :: x(:)
-!dimension x(1024*1024)
-dimension xfock(max_orb*(max_orb+1)/2)
-dimension norb(8), itratoc(ntratoc)
-dimension buff(ntrabuf)
+integer, external :: ipair
 
 kbuf = ntrabuf
 
@@ -254,6 +259,8 @@ end subroutine ci_dentest
 
 subroutine init_canonical()
 
+implicit none
+integer :: i, l1, l2
 #include "drt_h.fh"
 #include "iaib.fh"
 
@@ -273,10 +280,13 @@ end subroutine init_canonical
 
 subroutine density_scf_frz()
 
+implicit none
+integer :: i, j, k
+real*8 :: val
+real*8, parameter :: four = 4.0d0, one = 1.0d0, two = 2.0d0, zero = 0.0d0
 #include "drt_h.fh"
 #include "vect.fh"
 #include "density.fh"
-parameter(zero=0.0d+00,one=1.0d+00,two=2.0d+00,four=4.0d+00)
 
 do i=1,naorbs
   do j=1,naorbs
@@ -293,6 +303,10 @@ end subroutine density_scf_frz
 
 subroutine matrix_vector_multi_parallel_drt_g(sechc)
 
+implicit none
+real*8 :: sechc
+real*8 :: sc1, sc2
+real*8, external :: c_time
 #include "drt_h.fh"
 
 write(6,*)
@@ -322,6 +336,10 @@ end subroutine matrix_vector_multi_parallel_drt_g
 
 subroutine matrix_vector_multi_parallel_prt_g(sechc)
 
+implicit none
+real*8 :: sechc
+real*8 :: sc1, sc10, sc11, sc12, sc13, sc14, sc15, sc16, sc2, sc3, sc4, sc5, sc6, sc7, sc8, sc9
+real*8, external :: c_time
 #include "drt_h.fh"
 
 write(6,*)
@@ -381,12 +399,17 @@ end subroutine matrix_vector_multi_parallel_prt_g
 
 subroutine ci_density_label_sm(iroot,ncount2)
 
+implicit none
 #include "drt_h.fh"
 #include "grad_h.fh"
 #include "files_gugaci.fh"
 #include "iaib.fh"
-dimension indx_m(maxgdm), idisk_array(max_root+1)
-parameter(zero=0.0d+00,half=0.5d+00,two=2.0d+00)
+integer :: iroot, ncount2
+integer :: i, ic, idisk, ii, ij, ijm, im, indx_m(maxgdm), idisk_array(max_root+1), j, jc, je, jj, jm, k, kk, kl, klm, km, l, lc, &
+           le, ll, lm, nc0, nc1
+real*8 :: val
+real*8, parameter :: half = 0.5d0, two = 2.0d0, zero = 0.0d0
+integer, external :: ipair
 
 !=======================================================================
 ! transfer the ci density matrices (dm1 and dm2)

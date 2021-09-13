@@ -12,6 +12,8 @@
 ! look for partial loops in active space drt and save them into disk
 subroutine guga_ploop(npl,maxplcon)
 
+implicit none
+integer :: npl, maxplcon
 #include "drt_h.fh"
 #include "files_gugaci.fh"
 #include "count.fh"
@@ -50,6 +52,9 @@ end subroutine guga_ploop
 
 subroutine sv_lp_search(npl)
 
+implicit none
+integer :: npl
+integer :: iml_
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "lpdisk.fh"
@@ -75,6 +80,9 @@ end subroutine sv_lp_search
 
 subroutine sd_lp_search(npl)
 
+implicit none
+integer :: npl
+integer :: iml_, imr_
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "count.fh"
@@ -102,6 +110,9 @@ end subroutine sd_lp_search
 
 subroutine st_lp_search(npl)
 
+implicit none
+integer :: npl
+integer :: iml_, imr_
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "count.fh"
@@ -129,6 +140,9 @@ end subroutine st_lp_search
 
 subroutine ss_lp_search(npl)
 
+implicit none
+integer :: npl
+integer :: iml_, imr_
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "count.fh"
@@ -156,6 +170,9 @@ end subroutine ss_lp_search
 
 subroutine tv_lp_search(npl)
 
+implicit none
+integer :: npl
+integer :: iml_
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "count.fh"
@@ -181,6 +198,9 @@ end subroutine tv_lp_search
 
 subroutine td_lp_search(npl)
 
+implicit none
+integer :: npl
+integer :: iml_, imr_
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "count.fh"
@@ -208,6 +228,9 @@ end subroutine td_lp_search
 
 subroutine tt_lp_search(npl)
 
+implicit none
+integer :: npl
+integer :: iml_, imr_
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "count.fh"
@@ -235,6 +258,9 @@ end subroutine tt_lp_search
 
 subroutine ts_lp_search(npl)
 
+implicit none
+integer :: npl
+integer :: iml_, imr_
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "count.fh"
@@ -262,6 +288,9 @@ end subroutine ts_lp_search
 
 subroutine dv_lp_search(npl)
 
+implicit none
+integer :: npl
+integer :: iml_
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "count.fh"
@@ -287,6 +316,9 @@ end subroutine dv_lp_search
 
 subroutine dd_lp_search(npl)
 
+implicit none
+integer :: npl
+integer :: iml_, imr_
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "count.fh"
@@ -314,6 +346,9 @@ end subroutine dd_lp_search
 
 subroutine dt_lp_search(npl)
 
+implicit none
+integer :: npl
+integer :: iml_, imr_
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "count.fh"
@@ -341,6 +376,9 @@ end subroutine dt_lp_search
 
 subroutine ds_lp_search(npl)
 
+implicit none
+integer :: npl
+integer :: iml_, imr_
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "count.fh"
@@ -368,6 +406,9 @@ end subroutine ds_lp_search
 
 subroutine vd_lp_search(npl)
 
+implicit none
+integer :: npl
+integer :: imr_
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "count.fh"
@@ -393,6 +434,9 @@ end subroutine vd_lp_search
 
 subroutine act_lp_search(id,iptyl,iptyr)
 
+implicit none
+integer :: id, iptyl, iptyr
+integer :: ide, ipaer, jml_, jmlend, jmlsta, jmr_, jmrend, jmrsta, jpadr, jpaer, jptyl, jptyr, jptyrend
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -461,6 +505,8 @@ end subroutine act_lp_search
 
 subroutine lp_head_in_act_1()      !for dv,td,sd
 
+implicit none
+integer :: ijk, imlr, intpos, lma, lmai, lmk, lra, lrai, lraj, lrak, lsmi, lsmij, lsmj, lsmk, mh
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -591,6 +637,8 @@ end subroutine lp_head_in_act_1
 
 subroutine lp_head_in_act_2()      !for vd,dt,ds
 
+implicit none
+integer :: ijk, imlr, intpos, lma, lmai, lmk, lra, lrai, lraj, lrak, lrd, lsmi, lsmij, lsmj, lsmk, mh
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -695,6 +743,9 @@ end subroutine lp_head_in_act_2
 
 subroutine lp_head_in_act_3(ide)      !for ide=0:dd,tt,ide=1:ss,id
 
+implicit none
+integer :: ide
+integer :: imlr, lra, lrai, lraj, lsmi, lsmij, lsmj, mh
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -743,6 +794,8 @@ end subroutine lp_head_in_act_3
 
 subroutine lp_head_in_act_4()
 
+implicit none
+integer :: imlr, lra, lrai, lraj, lsmi, lsmij, lsmj, mh
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -800,6 +853,8 @@ end subroutine lp_head_in_act_4
 
 subroutine lp_head_in_dbl_1()      !for dv,sd,td
 
+implicit none
+integer :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -913,11 +968,13 @@ end subroutine lp_head_in_dbl_1
 
 subroutine lp_head_in_dbl_1_mrpt2()    !for dv,sd,td       !200709
 
+implicit none
+integer :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
+logical :: do_15, do_16
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-logical :: do_15, do_16
 
 imlr = mul_tab(iml,imr)
 jmlr = mul_tab(jml,jmr)
@@ -1078,6 +1135,8 @@ end subroutine lp_head_in_dbl_1_mrpt2
 
 subroutine lp_head_in_dbl_2()      !for vd,dt,ds
 
+implicit none
+integer :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1209,11 +1268,13 @@ end subroutine lp_head_in_dbl_2
 
 subroutine lp_head_in_dbl_2_mrpt2()          !for vd,dt,ds
 
+implicit none
+integer :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
+logical :: do_16
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-logical :: do_16
 
 imlr = mul_tab(iml,imr)
 jmlr = mul_tab(jml,jmr)
@@ -1335,6 +1396,9 @@ end subroutine lp_head_in_dbl_2_mrpt2
 
 subroutine lp_head_in_dbl_3(ide)      !for ide=0:dd,tt,ide=1:ss,id
 
+implicit none
+integer :: ide
+integer :: imlr, jmlr, lend, lra, lsma, lsmact, lsta, mh
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1398,6 +1462,8 @@ end subroutine lp_head_in_dbl_3
 
 subroutine lp_head_in_dbl_4()
 
+implicit none
+integer :: imlr, jmlr, lend, lra, lsma, lsmact, lsta, mh
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1453,11 +1519,13 @@ end subroutine lp_head_in_dbl_4
 
 subroutine lp_head_in_dbl_4_mrpt2()
 
+implicit none
+integer :: imlr, jmlr, lend, lra, lsma, lsmact, lsta, mh
+logical :: do_15
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-logical :: do_15
 
 imlr = mul_tab(iml,imr)
 jmlr = mul_tab(jml,jmr)
@@ -1534,6 +1602,8 @@ end subroutine lp_head_in_dbl_4_mrpt2
 
 subroutine print_lp()
 
+implicit none
+integer :: in_, jhyl, jhyr, jph, jpml, jpmr, lg1, lg2, line, m, mh
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "files_gugaci.fh"
@@ -1568,8 +1638,8 @@ if (line <= 12) then
     jph = lpnew_head(m)
     jhyl = jphyl(jph)
     jhyr = jphy(jph)
-    in = ihyl(jhyl)
-    write(20,'(8(1x,i4))') jph,jhyl,jhyr,in,ihyl(jhyl+1:jhyl+in),ihy(jhyr+1:jhyr+in)
+    in_ = ihyl(jhyl)
+    write(20,'(8(1x,i4))') jph,jhyl,jhyr,in_,ihyl(jhyl+1:jhyl+in_),ihy(jhyr+1:jhyr+in_)
   end do
 end if
 if ((line /= 1) .and. (line /= 13)) return
@@ -1582,12 +1652,14 @@ end subroutine print_lp
 
 subroutine save_lp(line,mh,lg1,lg2)
 
+implicit none
+integer :: line, mh, lg1, lg2
+integer :: idum(1), in_, info(10), jhyl, jhyr, jph, jpml, jpmr, lenw, m
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "files_gugaci.fh"
 #include "count.fh"
 #include "lpdisk.fh"
-dimension info(10), idum(1)
 
 if (mh > mhlpmax) mhlpmax = mh
 mhsum = mhsum+mh
@@ -1633,11 +1705,11 @@ if (line <= 12) then
     jph = lpnew_head(m)
     jhyl = jphyl(jph)
     jhyr = jphy(jph)
-    in = ihyl(jhyl)
-    idum(1) = in
+    in_ = ihyl(jhyl)
+    idum(1) = in_
     call idafile(luloop,1,idum,1,idisk_lp)
-    call idafile(luloop,1,ihyl(jhyl+1:jhyl+in),in,idisk_lp)
-    call idafile(luloop,1,ihy(jhyr+1:jhyr+in),in,idisk_lp)
+    call idafile(luloop,1,ihyl(jhyl+1:jhyl+in_),in_,idisk_lp)
+    call idafile(luloop,1,ihy(jhyr+1:jhyr+in_),in_,idisk_lp)
     !write(20) in,ihyl(jhyl+1:jhyl+in),ihy(jhyr+1:jhyr+in)
   end do
 end if
@@ -1655,12 +1727,13 @@ end subroutine save_lp
 
 subroutine read_lp()
 
+implicit none
+integer :: ihypos, info(10), lenr, m
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 #include "files_gugaci.fh"
 #include "lpdisk.fh"
-dimension info(10)
 
 call idafile(luloop,2,info,10,idisk_lp)
 linelp = info(1)
@@ -1708,12 +1781,15 @@ end subroutine read_lp
 
 subroutine value_sort_ploop(mh,logic_ar,logic_w0,logic_w1)
 
+implicit none
+integer :: mh
+logical :: logic_ar, logic_w0, logic_w1
+integer :: lr, m, mnew, mty, n, nty
+real*8 :: s_w0, s_w1, w0, w1, zero
+integer, allocatable :: ntype(:)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "stdalloc.fh"
-real*8 w0, w1, s_w0, s_w1
-logical logic_ar, logic_w0, logic_w1
-allocatable ntype(:)
 
 call mma_allocate(ntype,nvaltype,label='nvaltype')
 zero = 0.d0
@@ -1787,6 +1863,7 @@ end subroutine value_sort_ploop
 
 subroutine ext_head_in_act()
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1815,6 +1892,7 @@ end subroutine ext_head_in_act
 
 subroutine ext_head_in_dbl()
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"

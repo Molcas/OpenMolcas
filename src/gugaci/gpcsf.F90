@@ -12,6 +12,7 @@
 ! generate and print csfs
 subroutine found_a_config(ndl,de,npr)
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -19,8 +20,12 @@ subroutine found_a_config(ndl,de,npr)
 #include "config.fh"
 !common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
 !common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-dimension nwalk_gamess(max_orb), norbindex(max_orb), norbsymm(max_orb), norbwalk(max_orb)
-character*18 form1
+integer :: ndl, npr
+real*8 :: de
+integer :: i, im, iwupwei, j, jaedownwei, jpad_, l, ndimsum, ne, no_dz, noi, norbindex(max_orb), norbsymm(max_orb), &
+           norbwalk(max_orb), ns, nst, nwalk_gamess(max_orb)
+real*8 :: sqde
+character(len=18) :: form1
 
 ndr = ndl
 nst = norb_all
@@ -179,16 +184,17 @@ end subroutine found_a_config
 
 subroutine config_act()
 
+implicit none
+integer :: idl, jp, jp0, jp1, jw, lr, lr0, mpe
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "config.fh"
+#include "ptlph.fh"
+!#include "ptlphv.fh"
 !common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
 !common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 !dimension ndr(max_innorb)
-real*8, pointer :: jph(:), jeh(:), jwh(:)
-#include "ptlph.fh"
-!#include "ptlphv.fh"
 
 !write(6,*) '               ***** start h-diaelm *****'
 !write(6,*) '   diagonal_act_d:',jpad,ipae
@@ -223,6 +229,9 @@ end subroutine config_act
 
 subroutine config_dbl()
 
+implicit none
+integer :: ipae_, iwa, iwad, iwd, iwdownv, iws, iws1, iwt, jpad1, jpas, jpat, jpat1, lr, lr0, mr, mr0
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -338,6 +347,8 @@ end subroutine config_dbl
 
 subroutine config_ext()
 
+implicit none
+integer :: im, ima, imb, ipas, ipat, jw, jweis, jws, jws0, jwt, la, laend, lasta, lb, lrzz, mr, mra
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -415,6 +426,10 @@ end subroutine config_ext
 ! idb=3  in act_space      ity_up=0-5,itdown=0,3  jp,     mpe,  iwa
 subroutine prodel_conf(idb,mg1,mg2,mg3,lr01,lr02,jpty)
 
+implicit none
+integer :: idb, mg1, mg2, mg3, lr01, lr02, jpty
+integer :: in_, isegdownwei, iw, iwa, iwad, iwd, iwe, iwupwei, jdbl, jp, jph, jw, jwd, jwu, lr1, lr2, lwnu, mm, mpe
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -506,10 +521,10 @@ select case (idb)
     iwupwei = jpad_upwei(jpad)
     isegdownwei = iseg_downwei(ipae)
     jph = jphy(jp)
-    in = ihy(jph)
+    in_ = ihy(jph)
     lwnu = iy(1,mpe)
     lr1 = norb_all-lr01+1
-    outer2: do jwu=jph+1,jph+in
+    outer2: do jwu=jph+1,jph+in_
       iwa = jw+ihy(jwu)-1
       do jwd=1,lwnu
         iwa = iwa+1

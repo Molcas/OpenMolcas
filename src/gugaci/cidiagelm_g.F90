@@ -11,6 +11,8 @@
 
 subroutine diagonal_loop_wyb_g()  !  for norb_act<>0
 
+implicit none
+integer :: im, iwupwei, jaedownwei, jpad_, ndimsum
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -111,18 +113,18 @@ end subroutine diagonal_loop_wyb_g
 
 subroutine diagonal_act_c_g()
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-!common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-dimension ndr(max_innorb)
-integer, pointer :: jph(:), jeh(:), jwh(:)
-real*8, pointer :: th(:), thh(:)
 #include "ptlph.fh"
 #include "ptlphv.fh"
+!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
+!common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
+integer :: idl, ind1, isq, iwa, je, jeb, jp, jpb, lr, m, me, mh, mp, mpe, mw, ndr(max_innorb)
+real*8 :: vlop0, vlop1, w, ww
+integer, allocatable :: jee(:), jpe(:), jwe(:)
 real*8, allocatable :: te(:), tee(:)
-integer, allocatable :: jpe(:), jee(:), jwe(:)
 
 !write(6,*) '               ***** start h-diaelm *****'
 !write(6,*) jpad,jpae
@@ -238,18 +240,18 @@ end subroutine diagonal_act_c_g
 
 subroutine diagonal_act_d_g()
 
+implicit none
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-!common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-dimension ndr(max_innorb)
-integer, pointer :: jph(:), jeh(:), jwh(:)
-real*8, pointer :: th(:), thh(:)
 #include "ptlph.fh"
 #include "ptlphv.fh"
+!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
+!common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
+integer :: idl, ind1, isq, iwa, jbl, je, jeb, jp, jp0, jp1, jw, lr, lr0, m, me, mh, mp, mpe, mw, ndr(max_innorb), nxo
+real*8 :: vlop0, vlop1, w, wt, ww
+integer, allocatable :: jee(:), jpe(:), jwe(:)
 real*8, allocatable :: te(:), tee(:)
-integer, allocatable :: jpe(:), jee(:), jwe(:)
 
 !write(6,*) '               ***** start h-diaelm *****'
 !write(6,*) '   diagonal_act_d:',jpad,ipae
@@ -394,16 +396,18 @@ end subroutine diagonal_act_d_g
 
 subroutine diagonal_link_ae_g(mh)
 
+implicit none
+integer :: mh
+integer :: ima, imae, imb, ip, ityae, iwa, iwe, jp, la, lb, lbend, lbsta, lr0, lra, lrb, ma, nxo
+real*8 :: vlop0, vlop1, wg13, wg14, wg38, wg50, wld, wls, wlt, wwg38, wwg50
+real*8, parameter :: dsq2 = 1.414213562373095d0, vsq2 = 0.7071067811865d0
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-!common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-integer, pointer :: jph(:), jeh(:), jwh(:)
-real*8, pointer :: th(:), thh(:)
 #include "ptlph.fh"
 #include "ptlphv.fh"
-data dsq2,vsq2/1.414213562373095d0,0.7071067811865d0/
+!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
+!common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 
 !dsq2 = sqrt(2.d0)
 !vsq2 = 1/sqrt(2.d0)
@@ -542,17 +546,21 @@ end subroutine diagonal_link_ae_g
 
 subroutine diagonal_link_ad_g(mpe,iwa,vlop0,vlop1)
 
+implicit none
+integer :: mpe, iwa
+real*8 :: vlop0, vlop1
+integer :: imad, imd, imi, imij, imj, ityad, iwd, iws, iwt, lr, lra, lri, lrj, lrjsta, nxo
+real*8 :: vl0, vl1, wld, wls, wlt, wlv
+real*8 :: fqi
+real*8, parameter :: dsq2 = 1.414213562373095d0, vsq2 = 0.7071067811865d0
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-!common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-integer, pointer :: jph(:), jeh(:), jwh(:)
-real*8, pointer :: th(:), thh(:)
 #include "ptlph.fh"
 #include "ptlphv.fh"
+!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
+!common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 !common/delm_value/iq,pd,pdd,pt,ptt,ps1,ps2,ps3,ps4
-data dsq2,vsq2/1.414213562373095d0,0.7071067811865d0/
 
 !dsq2 = sqrt(2.d0)
 !vsq2 = 1/sqrt(2.d0)
@@ -968,16 +976,18 @@ end subroutine diagonal_link_ad_g
 
 subroutine diagonal_link_dae_g(mh)
 
+implicit none
+integer :: mh
+integer :: imad, imd, imi, imij, imj, ip, ityad, iwa, iwd, iws, iwt, lri, lrj, lrjsta
+real*8 :: fqi, vij0, vij1, vij2, vl0, vlop0, vlop1
+real*8, parameter :: dsq2 = 1.414213562373095d0, vsq2 = 0.7071067811865d0
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-!common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-integer, pointer :: jph(:), jeh(:), jwh(:)
-real*8, pointer :: th(:), thh(:)
 #include "ptlph.fh"
 #include "ptlphv.fh"
-data dsq2,vsq2/1.414213562373095d0,0.7071067811865d0/
+!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
+!common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 
 !dsq2 = sqrt(2.d0)
 !vsq2 = 1/sqrt(2.d0)
@@ -1169,17 +1179,19 @@ end subroutine diagonal_link_dae_g
 
 subroutine diagonal_call_dae_g(lri,lrj,iwd,iwa,vij0,vij1,vij2,vl0)
 
+implicit none
+integer :: lri, lrj, iwd, iwa
+real*8 :: vij0, vij1, vij2, vl0
+integer :: ima, imae, imb, ityae, iwe, la, lb, lbend, lbsta, lr, lra, lrb, nxo
+real*8 :: vlop0, vlop1, wg13, wg14, wl
+real*8, parameter :: dsq2 = 1.414213562373095d0, dsq3vsq2 = 1.224744871392d0, vsq2 = 0.7071067811865d0
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-!common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-integer, pointer :: jph(:), jeh(:), jwh(:)
-real*8, pointer :: th(:), thh(:)
 #include "ptlph.fh"
 #include "ptlphv.fh"
-data dsq2,vsq2/1.414213562373095d0,0.7071067811865d0/
-data dsq3vsq2/1.224744871392d0/
+!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
+!common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 
 !dsq2 = sqrt(2.d0)
 !vsq2 = 1/sqrt(2.d0)
@@ -1491,13 +1503,18 @@ end subroutine diagonal_call_dae_g
 
 subroutine diagonal_dbl_g()
 
+implicit none
+integer :: ipae_, iwa, iwad, iwd, iwdownv, iws, iws1, iwt, jpad1, jpas, jpat, jpat1, lr, lr0, lrd, lrds, lrg, lrm, mr, mr0, mrm, &
+           nxo, nxo1_0, nxo2_0, nxo_1, nxo_2, nxod_1, nxod_2, nxos_1, nxos_2
+real*8 :: db, w1, wld_1, wld_2, wls1_1, wls1_2, wls_1, wls_2, wlt_1, wlt_2, wt0_1, wt0_2
+logical :: logic_lij
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 !common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
 !common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 !data dzero/0.d0/
-logical logic_lij
 
 if (norb_dz == 0) return
 !wt0 = dzero
@@ -2338,6 +2355,9 @@ end subroutine diagonal_dbl_g
 
 subroutine diagonal_ext_g()
 
+implicit none
+integer :: im, ima, imb, ipas, ipat, jw, jweis, jws, jws0, jwt, la, laend, lasta, lb, lra, lrb, lrzz, mr, mra, nxo
+real*8 :: wld, wls, wlt
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2438,15 +2458,20 @@ end subroutine diagonal_ext_g
 ! idb=5  between act and ext  ity_down=0-3            jp,     iwa,  iwe
 ! idb=6  between dbl and ext  ity_down=0-3            iwd,    iwa,  iwe
 
-!  this subroutine prodel_1 does the dm1 part, which corresponds to voin
+! this subroutine prodel_1 does the dm1 part, which corresponds to voin
 subroutine prodel_1(idb,wl,mg1,mg2,mg3,mg6,mg7)
 
+implicit none
+integer :: idb, mg1, mg2, mg3, mg6, mg7
+real*8 :: wl
+integer :: ii, in_, isegdownwei, iw, iwa, iwa0, iwad, iwd, iwe, iwupwei, jdbl, jp, jph, jw, jwd, jwnu, jwu, lwnu, mg67, mm, mpe
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "grad_h.fh"
-!common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 #include "iaib.fh"
+!common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 
 !ndr = 88
 select case (idb)
@@ -2498,9 +2523,9 @@ select case (idb)
     iwupwei = jpad_upwei(jpad)
     isegdownwei = iseg_downwei(ipae)
     jph = jphy(jp)
-    in = ihy(jph)
+    in_ = ihy(jph)
     lwnu = iy(1,mpe)
-    do jwu=jph+1,jph+in
+    do jwu=jph+1,jph+in_
       iwa = jw+ihy(jwu)-1
       do jwd=1,lwnu
         iwa = iwa+1
@@ -2551,8 +2576,8 @@ select case (idb)
     iwe = mg3
     iwupwei = jpad_upwei(jpad)
     jph = jphy(jp)
-    in = ihy(jph)
-    do jwu=jph+1,jph+in
+    in_ = ihy(jph)
+    do jwu=jph+1,jph+in_
       iwa = iwa0+ihy(jwu)
       do iwd=0,iwupwei-1
         iwad = iwalk_ad(jpad,ipae,iwa,iwd)
@@ -2592,6 +2617,11 @@ end subroutine prodel_1
 !this subroutine prodel_2 does the dm2 part, which corresponds to vint_c
 subroutine prodel_2(idb,wl,mg1,mg2,mg3,mg6)
 
+implicit none
+integer :: idb, mg1, mg2, mg3, mg6
+real*8 :: wl
+integer :: ii, in_, isegdownwei, iw, iwa, iwa0, iwad, iwd, iwe, iwupwei, jdbl, jp, jph, jw, jwd, jwnu, jwu, lwnu, mm, mpe
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2648,9 +2678,9 @@ select case (idb)
     iwupwei = jpad_upwei(jpad)
     isegdownwei = iseg_downwei(ipae)
     jph = jphy(jp)
-    in = ihy(jph)
+    in_ = ihy(jph)
     lwnu = iy(1,mpe)
-    do jwu=jph+1,jph+in
+    do jwu=jph+1,jph+in_
       iwa = jw+ihy(jwu)-1
       do jwd=1,lwnu
         iwa = iwa+1
@@ -2706,8 +2736,8 @@ select case (idb)
     iwe = mg3
     iwupwei = jpad_upwei(jpad)
     jph = jphy(jp)
-    in = ihy(jph)
-    do jwu=jph+1,jph+in
+    in_ = ihy(jph)
+    do jwu=jph+1,jph+in_
       iwa = iwa0+ihy(jwu)
       do iwd=0,iwupwei-1
         iwad = iwalk_ad(jpad,ipae,iwa,iwd)

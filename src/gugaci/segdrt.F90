@@ -11,14 +11,15 @@
 
 subroutine seg_drt()
 
+implicit none
+integer :: i, ihypos, ij1, in_, iw, j(4), j1, j2, j3, j4, jde, jp, jp0, jpe, jpend, jpmax, jps, jpsta, lr
+integer, allocatable :: jpihy(:)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "stdalloc.fh"
 !common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
 !common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-dimension j(4)
-allocatable jpihy(:)
 
 jpmax = no(norb_inn+1)
 iy = 0
@@ -139,10 +140,10 @@ jpsta = no(lr)+1
 jpend = jpae
 do jp=jpsta,jpend
   if (iy(1,jp) == 0) cycle
-  call ajphy(jp,in,jpihy)
+  call ajphy(jp,in_,jpihy)
   jphy(jp) = ihypos
-  ihy(ihypos) = in
-  do ij1=1,in
+  ihy(ihypos) = in_
+  do ij1=1,in_
     ihypos = ihypos+1
     ihy(ihypos) = jpihy(ij1)
   end do
@@ -158,6 +159,10 @@ end subroutine seg_drt
 
 function iwalk_ad(jdbl,jext,iwa,iwd)
 
+implicit none
+integer :: iwalk_ad
+integer :: jdbl, jext, iwa, iwd
+integer :: ioff, isegdown, iwup
 #include "drt_h.fh"
 #include "intsort_h.fh"
 
@@ -181,6 +186,10 @@ end function iwalk_ad
 
 function iwalk_ad_mrso(jdbl,jext,iwa,iwd)
 
+implicit none
+integer :: iwalk_ad_mrso
+integer :: jdbl, jext, iwa, iwd
+integer :: isegdown, iwup
 #include "drt_h.fh"
 #include "intsort_h.fh"
 
@@ -192,17 +201,19 @@ return
 
 end function iwalk_ad_mrso
 
-subroutine ajphy(jp,in,jpihy)
+subroutine ajphy(jp,in_,jpihy)
 
+implicit none
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 !common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
 !common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-dimension iin(0:max_node), jpihy(max_wei)
+integer :: jp, in_, jpihy(max_wei)
+integer :: i, idr, iin(0:max_node), j, jpe, jpn, jy, l, lr, nn
 
 iin(0) = 0
 if (jp == jpad) then
-  in = 1
+  in_ = 1
   jpihy(1) = 0
   return
 end if
@@ -214,9 +225,9 @@ iin(jp) = 1
 do jpn=no(lr-1),jpad,-1
   iin(jpn) = iin(jj_sub(1,jpn))+iin(jj_sub(2,jpn))+iin(jj_sub(3,jpn))+iin(jj_sub(4,jpn))
 end do
-in = iin(jpad)
+in_ = iin(jpad)
 idr = 0
-do l=1,in
+do l=1,in_
   jpihy(l) = 0
   jy = l
   nn = jpad
@@ -240,6 +251,11 @@ end subroutine ajphy
 
 function K_COE(JBL,JBR,IDDL,IDDR)
 
+implicit none
+integer :: k_coe
+integer :: jbl, jbr, iddl, iddr
+integer :: idl, idr
+
 K_COE = 0
 IDL = IDDL-1
 IDR = IDDR-1
@@ -257,6 +273,8 @@ end function K_COE
 
 subroutine copy_to_drtl()
 
+implicit none
+integer :: knode, nod
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 
@@ -280,6 +298,9 @@ end subroutine copy_to_drtl
 
 subroutine get_jpadty(jp,ity,jp_ms)
 
+implicit none
+integer :: jp, ity, jp_ms
+integer :: jpp
 #include "drt_h.fh"
 
 if (jp == 1) then
@@ -301,6 +322,9 @@ return
 end subroutine get_jpadty
 
 subroutine get_jpty(jpadlr,jptyl,jptyr)
+
+implicit none
+integer :: jpadlr, jptyl, jptyr
 
 select case (jpadlr)
   case default ! (1)

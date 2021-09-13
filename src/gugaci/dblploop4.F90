@@ -14,6 +14,11 @@ subroutine dds_drlbr_act_c_sgt0(lin)
 ! dds(9-4) drl(12)-br(31)-
 !=======================================================================
 
+implicit none
+integer :: lin
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl, ni
+real*8 :: w1ds
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -53,6 +58,11 @@ subroutine dds_ardlr_act_c_sgt0(lin)
 ! dds(9-1) ar(13)-drl(30)-
 !=======================================================================
 
+implicit none
+integer :: lin
+integer :: iwal, iwar, iwdl, iwdr, lmd, lrd, lri, mpl, ni
+real*8 :: w0ds1
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -91,6 +101,11 @@ subroutine dds_arblbr_act_c_sgt0(lin)
 ! d1s(9-3)    ar(13)-bl(32)-br(31)-
 !=======================================================================
 
+implicit none
+integer :: lin
+integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmd, lmi, lmij, lmj, lrd, lri, lrj, mpl, ni
+real*8 :: w0ds2, w0ds3, w1ds2, w1ds3
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -167,6 +182,10 @@ subroutine tttt_drl_act_br_sgt1(lin,lra)
 ! tt(11-3) (22)drl(33)-c"(22)-
 ! tt(11-3) drl(33)-c"(22)-c"(22)-
 
+implicit none
+integer :: lin, lra
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, lrk, mpl
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -224,6 +243,11 @@ subroutine tttt_arbl_act_br_sgt1(lin,lra)
 ! t1t1(12-1)  ar(13)-bl(31)-c"(11)-
 !=======================================================================
 
+implicit none
+integer :: lin, lra
+integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lri, lrj, lrk, mpl, ni
+real*8 :: w0tt1, w1tt1
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -308,6 +332,11 @@ subroutine ttdd_ar_act_dlr_sgt1(lin,lra)
 ! t1d1(15-1) (11)a(13)
 ! t1d1(15-1) a(13)c'(11)
 
+implicit none
+integer :: lin, lra
+integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
+real*8 :: w0td1
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -368,6 +397,11 @@ subroutine ttdd_ar_act_blbr_sgt1(lin,jk)
 ! t1d1(15-1) (11)a(13)
 ! t1d1(15-1) a(13)c'(11)
 
+implicit none
+integer :: lin, jk
+integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
+real*8 :: w0td1
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -432,6 +466,11 @@ subroutine ddtt_arblbr_act_c1_sgt1(lin)
 ! d1t1(16) ar(13)-bl(31)-br(31)-
 !=======================================================================
 
+implicit none
+integer :: lin
+integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmd, lmi, lmij, lmj, lrd, lri, lrj, mpl, ni
+real*8 :: w0dt, w1dt
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -482,6 +521,11 @@ subroutine dddd_drl_act_br_sgt0(lin,lra)
 ! d1d1(20-3) drl(33)-c"(11)-
 ! d1d1(20-3) (11)drl(33)-
 
+implicit none
+integer :: lin, lra
+integer :: iwal, iwar, iwdl, iwdr, lml, lrk, lrl, mpl
+real*8 :: w0, w1
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -526,6 +570,11 @@ end subroutine dddd_drl_act_br_sgt0
 subroutine dddd_arbl_act_br_sgt0(lin,lra)
 ! d1d1(20-1) a&r(13)-b&l(31)-
 
+implicit none
+integer :: lin, lra
+integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lml, lmr, lrl, lrr, mpl, ni
+real*8 :: w0dd1, w1dd1
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -572,6 +621,11 @@ subroutine ddv_ar_act_blbr_sgt0(lin,jk)
 ! dv(24-1) ar(13)-
 !=======================================================================
 
+implicit none
+integer :: lin, jk
+integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lri, mpl, ni
+real*8 :: w0dv1
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -611,6 +665,11 @@ subroutine ddv_ar_act_dlr_sgt0(lin,lra)
 ! d1v(24-1) ar(13)-
 !=======================================================================
 
+implicit none
+integer :: lin, lra
+integer :: iwal, iwar, iwdl, iwdr, lmi, lri, mpl, ni
+real*8 :: w0dv1
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -645,6 +704,11 @@ end subroutine ddv_ar_act_dlr_sgt0
 subroutine dd1_arbl_act_br_sgt0(lin,lra)
 ! dd1(21-1) a&r(23)-b&l(31)-
 
+implicit none
+integer :: lin, lra
+integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lml, lmr, lrl, lrr, mpl, ni
+real*8 :: w1dd1
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -688,6 +752,11 @@ end subroutine dd1_arbl_act_br_sgt0
 subroutine d1d_arbl_act_br_sgt0(lin,lra)
 ! d1d(22-1) a&r(13)-b&l(32)-
 
+implicit none
+integer :: lin, lra
+integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lml, lmr, lrl, lrr, mpl, ni
+real*8 :: w1dd1
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -731,6 +800,11 @@ end subroutine d1d_arbl_act_br_sgt0
 subroutine d1d_drl_act_br_sgt0(lin,lra)
 ! d1d(22-2) drl(12)-
 
+implicit none
+integer :: lin, lra
+integer :: iwal, iwar, iwdl, iwdr, lml, lrl, mpl
+real*8 :: w1
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -775,6 +849,11 @@ subroutine ss_arbr_act_c_dd_ext_sgt0()
 ! ss(1-12) ar(13)-bl(32)-c"(21)- act -c"-
 ! ss(1-13) ar(23)-bl(31)-c"(12)- act -c"-
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lmk, lmki, lmkj, lri, lrj, lrk, mpl, ni
+real*8 :: w0ss1, w0ss11, w0ss12, w0ss13, w0ss3, w0ss6, w0ss7, w0ss8, w0ss9, w1ss1, w1ss11, w1ss12, w1ss13, w1ss3, w1ss6, w1ss7, &
+          w1ss8, w1ss9
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1012,6 +1091,10 @@ end subroutine ss_arbr_act_c_dd_ext_sgt0
 
 subroutine ss_arbr_act_c_dd_ext()
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lmk, lmki, lmkj, lri, lrj, lrk, mpl, ni
+real*8 :: w0ss10, w0ss14, w0ss2, w0ss4, w0ss5, w1ss10, w1ss14, w1ss2, w1ss4, w1ss5
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1153,6 +1236,9 @@ subroutine ss_drl_act_c_dd_ext_sgt0()
 ! ss(1-20) (11)-drl(33)-c"(22)-  act -c"-
 ! ss(1-20) drl(33)-c"(11)-c"(22)-act -c"-
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, lrk, mpl
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1207,6 +1293,9 @@ end subroutine ss_drl_act_c_dd_ext_sgt0
 subroutine ss_s_drl_act_c_dd_ext_sgt0()
 ! ss(1-19) drl(12)-c"(21)-       act -c"-
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1242,6 +1331,10 @@ end subroutine ss_s_drl_act_c_dd_ext_sgt0
 
 subroutine ss_drl_act_c_dd_ext()
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lr0, lri, lrj, lrk, mpl
+real*8 :: w0ss15, w0ss17, w0ss20, w1ss15, w1ss17
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1322,6 +1415,10 @@ subroutine st_arbl_act_c_dd_ext_sgt0()
 ! st(2-3) ar(13)-c'(22)-bl(32)-   act -c"-
 ! st(2-3) ar(13)-bl(32)-c'(22)-   act -c"-
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmj, lmk, lmki, lmkj, lri, lrj, lrk, mpl, ni
+real*8 :: w1st3
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1387,6 +1484,10 @@ end subroutine st_arbl_act_c_dd_ext_sgt0
 
 subroutine st_arbl_act_c_dd_ext()
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lmk, lmki, lmkj, lri, lrj, lrk, mpl, ni
+real*8 :: w1st1, w1st2, w1st4
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1497,6 +1598,9 @@ subroutine st_drl_act_c_dd_ext_sgt0()
 ! st(2-7) drl(12)-c"(22)-         act -c"-
 !-----------------------------------------------------------------------
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1531,6 +1635,9 @@ end subroutine st_drl_act_c_dd_ext_sgt0
 
 subroutine st_drl_act_c_dd_ext()
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1571,6 +1678,10 @@ end subroutine st_drl_act_c_dd_ext
 
 subroutine ts_arbl_act_c_dd_exe_sgt0()
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmj, lmk, lmki, lmkj, lri, lrj, lrk, mpl, ni
+real*8 :: w1ts3
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1621,6 +1732,10 @@ subroutine stt_arbl_act_c_dd_ext_sgt1()
 ! st1(4-4) ar(23)-c'(11)-bl(31)-
 ! st1(4-4) ar(23)-bl(31)-c"(11)-
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lmk, lmki, lmkj, lri, lrj, lrk, mpl, ni
+real*8 :: w1ts1, w1ts2, w1ts3, w1ts4
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1766,6 +1881,10 @@ subroutine tts_arbl_act_c_dd_ext_sgt1()
 ! t1s(5-6)   drl(12)-c"(12)-
 ! t1s(5-7)   drl(12)-c"(11)-
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lmk, lmki, lmkj, lri, lrj, lrk, mpl, ni
+real*8 :: w1ts1, w1ts2, w1ts3, w1ts4
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1899,6 +2018,9 @@ subroutine tts_drl_act_c_dd_ext_sgt1()
 ! t1s(5-6)   drl(12)-c"(12)-
 ! t1s(5-7)   drl(12)-c"(11)-
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1955,6 +2077,11 @@ end subroutine tts_drl_act_c_dd_ext_sgt1
 subroutine sd_ar_act_bl_dd_ext_sgt0(lra)
 ! sd(6-3) a&r(13)c'(22)-
 
+implicit none
+integer :: lra
+integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lmki, lri, lrk, mpl, ni
+real*8 :: w0sd3
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -1999,6 +2126,11 @@ subroutine sdd_ar_act_bl_dd_ext_sgt0(lra)
 ! sd1(8-3)    ar(13)-c'(21)-
 ! sd1(8-4)    ar(23)-c'(11)-
 
+implicit none
+integer :: lra
+integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lmki, lri, lrk, mpl, ni
+real*8 :: w0sd1, w0sd2, w0sd3, w0sd4
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2104,6 +2236,10 @@ subroutine tttt_arbl_act_c_dd_ext_sgt1()
 ! t1t1(12-1)  ar(13)-c'(11)-bl(31)-
 ! t1t1(12-1)  ar(13)-bl(31)-c"(11)-
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmj, lmk, lmki, lmkj, lri, lrj, lrk, mpl, ni
+real*8 :: w0tt1, w1tt1
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2193,6 +2329,9 @@ subroutine tttt_drl_act_c_dd_ext_sgt1()
 ! t1t1(12-3)  drl(33)-c"(11)-
 ! t1t1(12-3)  drl(33)-c"(11)-c"(11)-
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, lrk, mpl
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2243,6 +2382,11 @@ subroutine ttdd_ar_act_bl_dd_ext_sgt1(lra)
 ! t1d1(15-1)  (11)ar(13)-
 ! t1d1(15-1)  ar(13)-c'(11)-
 
+implicit none
+integer :: lra
+integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
+real*8 :: w0td1
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2303,6 +2447,10 @@ end subroutine ttdd_ar_act_bl_dd_ext_sgt1
 subroutine dddd_arbl_act_c_dd_ext_sgt0()
 ! d1d1(20-1) ar(13)-bl(31)-
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lri, lrj, mpl, ni
+real*8 :: w0dd1, w1dd1
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2350,6 +2498,9 @@ subroutine dddd_drl_act_c_dd_ext_sgt0()
 ! d1d1(20-3) drl(33)-
 ! d1d1(20-3) drl(33)-c"(11)-
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, lmi, lri, lrk, mpl
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2392,6 +2543,10 @@ end subroutine dddd_drl_act_c_dd_ext_sgt0
 subroutine dd1_arbl_act_c_dd_ext_sgt0()
 ! dd1(21)ar(23)-bl(31)-
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lri, lrj, mpl, ni
+real*8 :: w0dd1, w1dd1
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2437,6 +2592,10 @@ end subroutine dd1_arbl_act_c_dd_ext_sgt0
 subroutine d1d_arbl_act_c_dd_ext_sgt0()
 ! d1d(22-1)   ar(13)-bl(32)-
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lri, lrj, mpl, ni
+real*8 :: w0dd1, w1dd1
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2482,6 +2641,9 @@ end subroutine d1d_arbl_act_c_dd_ext_sgt0
 subroutine d1d_drl_act_c_dd_ext_sgt0()
 ! d1d(22-2)   drl(12)-
 
+implicit none
+integer :: iwal, iwar, iwdl, iwdr, lmi, lri, mpl
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2514,6 +2676,11 @@ end subroutine d1d_drl_act_c_dd_ext_sgt0
 subroutine d1v_ar_act_bl_dd_ext_sgt0(lra)
 ! d1v(24-1)  ar(13)-
 
+implicit none
+integer :: lra
+integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lri, mpl, ni
+real*8 :: w0dv1
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2551,6 +2718,11 @@ subroutine sd_adb_act_c_ext_ar(lin)
 ! sd(6-10) d&r&l(12)b^l(23)
 ! sd(6-15) d&r&l(33)b^l(13)c'(22)
 
+implicit none
+integer :: lin
+integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmd, lmi, lmij, lmj, lrd, lri, lrj, lrk, mpl, ni
+real*8 :: w0sd10, w0sd15, w0sd3, w0sd6, w0sd7, w1sd10, w1sd15, w1sd3, w1sd6, w1sd7
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2696,6 +2868,11 @@ end subroutine sd_adb_act_c_ext_ar
 subroutine sd_ar_act_brbr_sgt0(lin,jk)
 ! sd(6-3) a&r(13)c'(22)-
 
+implicit none
+integer :: lin, jk
+integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
+real*8 :: w0sd3
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2743,6 +2920,11 @@ end subroutine sd_ar_act_brbr_sgt0
 subroutine sd_ar_act_blbl_sgt0(lin,jk)
 ! sd(6-3) a&r(13)c'(22)-
 
+implicit none
+integer :: lin, jk
+integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
+real*8 :: w0sd3
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2786,6 +2968,11 @@ end subroutine sd_ar_act_blbl_sgt0
 
 subroutine sv_arbr_act_br_sgt0(lin,lra)
 
+implicit none
+integer :: lin, lra
+integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl, ni
+real*8 :: w0sv1, w1sv1
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2837,6 +3024,11 @@ subroutine d1v_ar_act_c_ext(lin)
 ! d1v(24-1)  ar(13)-
 ! d1v(24-2)  drl(33)-bl(13)-
 
+implicit none
+integer :: lin
+integer :: isma, iwal, iwar, iwdl, iwdr, lmd, lrd, lrk, mpl, ni
+real*8 :: w0
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2890,6 +3082,11 @@ subroutine d1v_ar_act_brbr_ext(lin,jk)
 ! d1v(24-1)  ar(13)-
 ! d1v(24-2)  drl(33)-bl(13)-
 
+implicit none
+integer :: lin, jk
+integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmd, lrd, mpl, ni
+real*8 :: w0
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2929,6 +3126,11 @@ subroutine d1v_ar_act_blbl_ext(lin,jk)
 ! d1v(24-1)  ar(13)-
 ! d1v(24-2)  drl(33)-bl(13)-
 
+implicit none
+integer :: lin, jk
+integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmd, lrd, mpl, ni
+real*8 :: w0
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
@@ -2966,6 +3168,11 @@ end subroutine d1v_ar_act_blbl_ext
 subroutine ts_arbl_act_c_ext_ab_sgt0(lin)
 ! ts(3-3) ar(23)-bl(31)-c"(22)-
 
+implicit none
+integer :: lin
+integer :: iwal, iwar, iwdl, iwdr, lmi, lmj, lmk, lmki, lmkj, lri, lrj, lrk, mpl, ni
+real*8 :: w1ts3
+integer, external :: iwalk_ad
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"

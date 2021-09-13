@@ -8,4 +8,5 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      integer ican_a,ican_b
       common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)

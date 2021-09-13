@@ -13,6 +13,9 @@ subroutine complete_ext_loop()
 !*****************************************************************
 ! 26 feb 2007 - revised
 
+implicit none
+integer :: ilpvalue, irot, irtidx, iupwei, lwei, mm, mm0, mmtmp, nn, nntmp
+real*8 :: vetmp, vlptmp, vlptmp1
 #include "drt_h.fh"
 #include "gext_sequence.fh"
 
@@ -50,6 +53,9 @@ end subroutine complete_ext_loop
 
 subroutine complete_ext_loop_g()
 
+implicit none
+integer :: ilpvalue, indexlp, indexlp1, indexlp2, iupwei, lwei, mm, mm0, mmtmp, nn, nntmp
+real*8 :: valuelp, valuelp1, valuelp2
 #include "drt_h.fh"
 #include "grad_h.fh"
 #include "gext_sequence.fh"
