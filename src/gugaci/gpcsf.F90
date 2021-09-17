@@ -12,14 +12,11 @@
 ! generate and print csfs
 subroutine found_a_config(ndl,de,npr)
 
+use gugaci_global, only: ipae, iseg_downwei, iw_downwei, iw_sta, jd, jpad, jpad_upwei, jpae, js, jt, jv, map_orb_order, max_orb, &
+                         mxnode, ndim, ndr, ng_sm, nlsm_frz, noidx, norb_act, norb_all, norb_dz, norb_ext, nu_ad, nu_ae, nwalk
+                         !, lsmorb, norb_frz
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "mcorb.fh"
-#include "config.fh"
-!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-!common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 integer :: ndl, npr
 real*8 :: de
 integer :: i, im, iwupwei, j, jaedownwei, jpad_, l, ndimsum, ne, no_dz, noi, norbindex(max_orb), norbsymm(max_orb), &
@@ -54,7 +51,7 @@ else
   ipae = 1
   jaedownwei = iseg_downwei(ipae)
   do jpad_=1,mxnode
-    jpad = jpad_ ! jpad is in common block, is this necessary?
+    jpad = jpad_ ! jpad is in global module, is this necessary?
     iw_sta(jpad,ipae) = ndimsum
     if (nu_ad(jpad) == 0) cycle
     call seg_drt()                             !   jpad_upwei(*)        = jp
@@ -71,7 +68,7 @@ else
     if (nu_ae(ipae) == 0) cycle
     jaedownwei = iseg_downwei(ipae)
     do jpad_=1,mxnode
-      jpad = jpad_ ! jpad is in common block, is this necessary?
+      jpad = jpad_ ! jpad is in global module, is this necessary?
       iw_sta(jpad,ipae) = ndimsum
       if (nu_ad(jpad) == 0) cycle
       call seg_drt()
@@ -89,7 +86,7 @@ else
     if (nu_ae(ipae) == 0) cycle
     jaedownwei = iseg_downwei(ipae)
     do jpad_=1,mxnode
-      jpad = jpad_ ! jpad is in common block, is this necessary?
+      jpad = jpad_ ! jpad is in global module, is this necessary?
       iw_sta(jpad,ipae) = ndimsum
       if (nu_ad(jpad) == 0) cycle
       call seg_drt()
@@ -105,7 +102,7 @@ else
     ipae = 17+im
     if (nu_ae(ipae) == 0) cycle
     do jpad_=1,mxnode
-      jpad = jpad_ ! jpad is in common block, is this necessary?
+      jpad = jpad_ ! jpad is in global module, is this necessary?
       if (nu_ad(jpad) == 0) cycle
       call seg_drt()
       if (ndim == 0) cycle
@@ -130,50 +127,50 @@ else
   write(6,1001) ndr,de,sqde
 end if
 
-if (intgen == 1) then
-  ! gamess integral
-  i = 0
-  j = 0
-  do i=norb_frz+1,nst
+!if (intgen == 1) then
+!  ! gamess integral
+!  i = 0
+!  j = 0
+!  do i=norb_frz+1,nst
+!    if (nwalk_gamess(map_orb_order(i)) > 0) then
+!      j = j+1
+!      norbindex(j) = i
+!      norbsymm(j) = lsmorb(i)
+!      norbwalk(j) = nwalk_gamess(map_orb_order(i))
+!    end if
+!  end do
+!
+!  !write(form1,2010) '(4x,i4,1x,',ng_sm,'(1x','i'
+!  write(form1,1010) '(4x,a4,',j,'(1x,i3))'
+!  write(6,form1) 'norb',(norbindex(i),i=1,j)
+!  write(6,form1) 'sym ',(norbsymm(i),i=1,j)
+!  write(6,form1) 'walk',(norbwalk(i),i=1,j)
+!else
+i = 0
+j = 0
+do im=1,ng_sm
+  ns = noidx(im)+nlsm_frz(im)+1
+  if (im == ng_sm) then
+    ne = norb_all
+  else
+    ne = noidx(im+1)
+  end if
+  do i=ns,ne
     if (nwalk_gamess(map_orb_order(i)) > 0) then
       j = j+1
-      norbindex(j) = i
-      norbsymm(j) = lsmorb(i)
+      noi = i-noidx(im)
+      norbindex(j) = noi
+      norbsymm(j) = im
       norbwalk(j) = nwalk_gamess(map_orb_order(i))
     end if
   end do
+end do
 
-  !write(form1,2010) '(4x,i4,1x,',ng_sm,'(1x','i'
-  write(form1,1010) '(4x,a4,',j,'(1x,i3))'
-  write(6,form1) 'norb',(norbindex(i),i=1,j)
-  write(6,form1) 'sym ',(norbsymm(i),i=1,j)
-  write(6,form1) 'walk',(norbwalk(i),i=1,j)
-else
-  i = 0
-  j = 0
-  do im=1,ng_sm
-    ns = noidx(im)+nlsm_frz(im)+1
-    if (im == ng_sm) then
-      ne = norb_all
-    else
-      ne = noidx(im+1)
-    end if
-    do i=ns,ne
-      if (nwalk_gamess(map_orb_order(i)) > 0) then
-        j = j+1
-        noi = i-noidx(im)
-        norbindex(j) = noi
-        norbsymm(j) = im
-        norbwalk(j) = nwalk_gamess(map_orb_order(i))
-      end if
-    end do
-  end do
-
-  write(form1,1010) '(4x,a4,',j,'(1x,i3))'
-  write(6,form1) 'norb',(norbindex(i),i=1,j)
-  write(6,form1) 'sym ',(norbsymm(i),i=1,j)
-  write(6,form1) 'walk',(norbwalk(i),i=1,j)
-end if
+write(form1,1010) '(4x,a4,',j,'(1x,i3))'
+write(6,form1) 'norb',(norbindex(i),i=1,j)
+write(6,form1) 'sym ',(norbsymm(i),i=1,j)
+write(6,form1) 'walk',(norbwalk(i),i=1,j)
+!end if
 
 return
 1000 format(/4x,'csf',i8,6x,'scf energy',f18.8,/)
@@ -184,17 +181,11 @@ end subroutine found_a_config
 
 subroutine config_act()
 
+use gugaci_global, only: iy, jj_sub, no, norb_dz, norb_inn
+
 implicit none
 integer :: idl, jp, jp0, jp1, jw, lr, lr0, mpe
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "config.fh"
-#include "ptlph.fh"
-!#include "ptlphv.fh"
-!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-!common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-!dimension ndr(max_innorb)
+!integer :: ndr(max_innorb)
 
 !write(6,*) '               ***** start h-diaelm *****'
 !write(6,*) '   diagonal_act_d:',jpad,ipae
@@ -229,19 +220,15 @@ end subroutine config_act
 
 subroutine config_dbl()
 
+use gugaci_global, only: ipae, iw_downwei, jb_sys, jpad, jud, just, lsm_inn, mul_tab, norb_dbl, norb_dz, norb_frz, ns_sm, nu_ae
+
 implicit none
 integer :: ipae_, iwa, iwad, iwd, iwdownv, iws, iws1, iwt, jpad1, jpas, jpat, jpat1, lr, lr0, mr, mr0
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "config.fh"
-!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-!common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 
 if (norb_dbl == 0) return
 do ipae_=1,25
-  ipae = ipae_ ! ipae is in common block, is this necessary?
+  ipae = ipae_ ! ipae is in global module, is this necessary?
   if (nu_ae(ipae) == 0) cycle
   iwdownv = iw_downwei(1,ipae)
   do iwa=0,iwdownv-1
@@ -260,7 +247,7 @@ do lr0=norb_frz+1,norb_dz
   !wld = wt0-voint(lr0,lr0)-vdint(lr0,lr0)
   !wls = wld-voint(lr0,lr0)
   do ipae_=1,25
-    ipae = ipae_ ! ipae is in common block, is this necessary?
+    ipae = ipae_ ! ipae is in global module, is this necessary?
     if (nu_ae(ipae) == 0) cycle
     iwdownv = iw_downwei(jpad,ipae)
     do iwa=0,iwdownv-1
@@ -272,7 +259,7 @@ do lr0=norb_frz+1,norb_dz
 
   if (jb_sys > 0) then
     do ipae_=1,25
-      ipae = ipae_ ! ipae is in common block, is this necessary?
+      ipae = ipae_ ! ipae is in global module, is this necessary?
       if (nu_ae(ipae) == 0) cycle
       iwdownv = iw_downwei(jpad1,ipae)
       do iwa=0,iwdownv-1
@@ -285,7 +272,7 @@ do lr0=norb_frz+1,norb_dz
   jpad = 17+ns_sm
   iwd = just(lr0,lr0)
   do ipae_=1,25
-    ipae = ipae_ ! ipae is in common block, is this necessary?
+    ipae = ipae_ ! ipae is in global module, is this necessary?
     if (nu_ae(ipae) == 0) cycle
     iwdownv = iw_downwei(jpad,ipae)
     do iwa=0,iwdownv-1
@@ -307,7 +294,7 @@ do lr0=norb_frz+1,norb_dz
     iwt = iws
     !wld = wld0-voint(lr,lr)-vdint(lr,lr)
     do ipae_=1,25
-      ipae = ipae_ ! ipae is in common block, is this necessary?
+      ipae = ipae_ ! ipae is in global module, is this necessary?
       if (nu_ae(ipae) == 0) cycle
       iwdownv = iw_downwei(jpat,ipae)
       do iwa=0,iwdownv-1
@@ -347,14 +334,10 @@ end subroutine config_dbl
 
 subroutine config_ext()
 
+use gugaci_global, only: ibsm_ext, iesm_ext, ipae, lsm, mul_tab, norb_ext
+
 implicit none
 integer :: im, ima, imb, ipas, ipat, jw, jweis, jws, jws0, jwt, la, laend, lasta, lb, lrzz, mr, mra
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "config.fh"
-!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-!common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 
 jws0 = 0
 do mra=1,8
@@ -426,15 +409,12 @@ end subroutine config_ext
 ! idb=3  in act_space      ity_up=0-5,itdown=0,3  jp,     mpe,  iwa
 subroutine prodel_conf(idb,mg1,mg2,mg3,lr01,lr02,jpty)
 
+use gugaci_global, only: ihy, ipae, iseg_downwei, iw_downwei, iy, jpad, jpad_upwei, jphy, mxnode, ndr, norb_all, nu_ad, nwalk
+
 implicit none
 integer :: idb, mg1, mg2, mg3, lr01, lr02, jpty
 integer :: in_, isegdownwei, iw, iwa, iwad, iwd, iwe, iwupwei, jdbl, jp, jph, jw, jwd, jwu, lr1, lr2, lwnu, mm, mpe
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "config.fh"
-!common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 
 select case (idb)
   case default ! (1)

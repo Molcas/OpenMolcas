@@ -11,15 +11,15 @@
 
 subroutine drl_bl_ext_ar_new(lin,lrk,lri)
 
+use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, jphy, jphyl, &
+                         log_prod, logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_head, lpnew_lwei, lpnew_rwei, lsm_inn, mtype, &
+                         ndim, nstaval, nvalue, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sdplp, w1_sdplp
+
 implicit none
 integer :: lin, lrk, lri
 integer :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, isma, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
            lphead
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
 
 isma = lsm_inn(lri)
 iwuplwei = jpad_upwei(jpadl)
@@ -106,16 +106,16 @@ end subroutine drl_bl_ext_ar_new
 
 subroutine drl_br_ext_al_new(lin,lrk,lri)   !to be revised
 
+use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, jphy, jphyl, &
+                         log_prod, logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_head, lpnew_lwei, lpnew_rwei, lsm_inn, mtype, &
+                         ndim, nstaval, nvalue, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sdplp
+
 implicit none
 integer :: lin, lrk, lri
 integer :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, isma, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
            lphead, nlp_value
 real*8, parameter :: crl = 1.0d-8
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
 
 iwuplwei = jpad_upwei(jpad)
 ilsegdownwei = iseg_downwei(ipae)
@@ -202,15 +202,15 @@ end subroutine drl_br_ext_al_new
 
 subroutine ar_bl_br_ext_al_new(lin,intentry,isma,nk)
 
+use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, jphy, jphyl, &
+                         log_prod, logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_head, lpnew_lwei, lpnew_rwei, mtype, ndim, &
+                         nstaval, nvalue, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sdplp, w1_sdplp
+
 implicit none
 integer :: lin, intentry, isma, nk
 integer :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, lphead, &
            nlp_value
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
 
 !if ((lin == 14) .and. (intentry == 15195) .and. (isma == 1) .and. (jpad == 20) .and. (jpad == jpadl)) write(6,*) 'bbs_tmp'
 
@@ -299,6 +299,10 @@ end subroutine ar_bl_br_ext_al_new
 
 subroutine ar_drl_ext_al_new(lin,lri,lrk)
 
+use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, jphy, jphyl, &
+                         log_prod, logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_head, lpnew_lwei, lpnew_rwei, lsm_inn, mtype, &
+                         ndim, nstaval, nvalue, value_lpext, value_lpext1, vplp_w0, vplpnew_w0, w0_sdplp
+
 implicit none
 integer :: lin, lri, lrk
 integer :: ihypos, ihyposl, ihyposr, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, isma, iw0, iwal, iwal0, iwar, iwar0, iwd, &
@@ -306,10 +310,6 @@ integer :: ihypos, ihyposl, ihyposr, iiext, ilpend, ilpsta, ilw, in_, iplp, irw,
 real*8 :: w0_sdold, w0multi
 real*8, parameter :: crl = 1.0d-8
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
 
 isma = lsm_inn(lri)
 iwuplwei = jpad_upwei(jpad)
@@ -421,16 +421,16 @@ end subroutine ar_drl_ext_al_new
 
 subroutine drr_br_ext_ar(lin,lrk,lri)
 
+use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, jphy, jphyl, &
+                         log_prod, logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_head, lpnew_lwei, lpnew_rwei, lsm_inn, mtype, &
+                         ndim, nstaval, nvalue, vplp_w0, vplpnew_w0, w0_sdplp
+
 implicit none
 integer :: lin, lrk, lri
 integer :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, isma, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
            lphead, nlp_value
 real*8, parameter :: crl = 1.0d-8
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
 
 isma = lsm_inn(lri)
 iwuplwei = jpad_upwei(jpadl)
@@ -518,15 +518,15 @@ end subroutine drr_br_ext_ar
 
 subroutine ar_br_br_ext_ar_new(lin,intentry,isma)
 
+use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, jphy, jphyl, &
+                         log_prod, logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_head, lpnew_lwei, lpnew_rwei, mtype, ndim, &
+                         nstaval, nvalue, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sdplp, w1_sdplp
+
 implicit none
 integer :: lin, intentry, isma
 integer :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, lphead, &
            nlp_value
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
@@ -613,15 +613,15 @@ end subroutine ar_br_br_ext_ar_new
 
 subroutine ar_bl_bl_ext_ar_new(lin,intentry,isma,nk)
 
+use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, jphy, jphyl, &
+                         log_prod, logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_head, lpnew_lwei, lpnew_rwei, mtype, ndim, &
+                         nstaval, nvalue, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sdplp, w1_sdplp
+
 implicit none
 integer :: lin, intentry, isma, nk
 integer :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, lphead, &
            nlp_value
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
@@ -708,15 +708,14 @@ end subroutine ar_bl_bl_ext_ar_new
 
 subroutine drl_br_sum_al_new(lin,lrp,lrq,lri)   !to be revised
 
+use gugaci_global, only: ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, logic_grad, lp_lwei, lp_rwei, lsm_inn, mtype, &
+                         norb_dz, nstaval, nvalue, value_lpext, value_lpext1, vplp_w0, w0_sdplp
+
 implicit none
 integer :: lin, lrp, lrq, lri
 integer :: iiext, ilpend, ilpsta, ilw, iplp, irw, isma, iw0, lrk, nlp_value
 real*8 :: w0_sdold, w0multi
 real*8, parameter :: crl = 1.0d-8
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
 
 if (logic_grad) then
   do lrk=1,norb_dz
@@ -786,15 +785,14 @@ end subroutine drl_br_sum_al_new
 
 subroutine drl_bl_sum_ar_new(lin,lrp,lrq,lri)
 
+use gugaci_global, only: ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, logic_grad, lp_lwei, lp_rwei, lsm_inn, mtype, &
+                         norb_dz, nstaval, nvalue, value_lpext, value_lpext1, vplp_w0, w0_sdplp
+
 implicit none
 integer :: lin, lrp, lrq, lri
 integer :: iiext, ilpend, ilpsta, ilw, iplp, irw, isma, iw0, lrk, nlp_value
 real*8 :: w0_sdold, w0multi
 real*8, parameter :: crl = 1.0d-8
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
 
 if (logic_grad) then
   do lrk=1,norb_dz
@@ -865,16 +863,17 @@ end subroutine drl_bl_sum_ar_new
 
 subroutine ar_bl_ext_ss(lri,lrj,nk)
 
+use gugaci_global, only: ihy, ihyl, ilsegdownwei, iml, imr, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, &
+                         jphy, logic_dh, logic_g13, logic_g1415, logic_g2g4b, logic_g34b, logic_g35b, logic_g36b, logic_grad, &
+                         lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, mtype, mul_tab, ndim, nstaval, nvalue, value_lpext, &
+                         value_lpext1, vplp_w0, vplpnew_w0, w0_plp, w1_plp
+
 implicit none
 integer :: lri, lrj, nk
 integer :: ihypos, iiext, ilpend, ilpsta, ilw, imlr, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value
 real*8 :: w0_old, w0multi
 real*8, parameter :: crl = 1.0d-8
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
@@ -980,16 +979,16 @@ end subroutine ar_bl_ext_ss
 
 subroutine ar_bl_ext_st(lri,lrj,nk)     !w0=0
 
+use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, jphy, &
+                         logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, mtype, ndim, nstaval, nvalue, &
+                         value_lpext, value_lpext1, vplp_w1, vplpnew_w1, w0_plp, w1_plp
+
 implicit none
 integer :: lri, lrj, nk
 integer :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value
 real*8 :: w0multi, w1_old
 real*8, parameter :: crl = 1.0d-8
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
@@ -1085,16 +1084,16 @@ end subroutine ar_bl_ext_st
 
 subroutine ar_bl_ext_ts(lri,lrj,nk)
 
+use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, jphy, &
+                         logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, mtype, ndim, nstaval, nvalue, &
+                         value_lpext, value_lpext1, vplp_w1, vplpnew_w1, w0_plp, w1_plp
+
 implicit none
 integer :: lri, lrj, nk
 integer :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value
 real*8 :: w0multi, w1_old
 real*8, parameter :: crl = 1.0d-8
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
@@ -1190,14 +1189,15 @@ end subroutine ar_bl_ext_ts
 
 subroutine ar_bl_ext_tt(lri,lrj,nk)
 
+use gugaci_global, only: ihy, ihyl, ilsegdownwei, iml, imr, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, &
+                         jphy, logic_dh, logic_g1415, logic_g34b, logic_g35b, logic_g36b, logic_grad, lp_lwei, lp_rwei, &
+                         lpnew_lwei, lpnew_rwei, mtype, mul_tab, ndim, nstaval, nvalue, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, &
+                         w0_plp, w1_plp
+
 implicit none
 integer :: lri, lrj, nk
 integer :: ihypos, ilpend, ilpsta, ilw, imlr, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)

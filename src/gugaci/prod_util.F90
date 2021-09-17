@@ -13,9 +13,9 @@
 
 subroutine jl_ne_jr(mp,jl,jr,jwl,jwr,lopu)
 
+use gugaci_global, only: iy, iyl, jj_sub, jjl_sub, loputmp
+
 implicit none
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
 integer :: mp, jl, jr, jwl, jwr, lopu(4,loputmp)
 integer :: i, idlr, jlp, jrp, jwlp, jwrp, lopi(4,loputmp), lopj(4,loputmp), lpi, lpj, ml, mr, nlp
 
@@ -87,10 +87,9 @@ subroutine prodab_h0(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
 ! only by whole inner space loops and store them into
 ! vector2
 
+use gugaci_global, only: ihy, ipae, ipael, iseg_downwei, iw_downwei, iy, jpad, jpad_upwei, jpadl, jphy, loputmp, vector2
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
 integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr
 real*8 :: wl
 integer :: ii, in_, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpe, jph, jpl, &
@@ -213,10 +212,10 @@ subroutine prodab_h(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
 ! whole inner space loops - h*c
 ! 26 feb 2007 - revised by suo bing for multi-root calculation
 
+use gugaci_global, only: ihy, indx, ipae, ipael, iseg_downwei, iw_downwei, iy, jpad, jpad_upwei, jpadl, jphy, loputmp, mcroot, &
+                         nu_ae, vector1, vector2
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
 integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr
 real*8 :: wl
 integer :: ii, in_, ipae_, ipaeend, irot, irtidx, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, &
@@ -232,7 +231,7 @@ select case (idb)
     iwdr = mg4
     ipaeend = 25
     do ipae_=1,ipaeend
-      ipae = ipae_ ! ipae is in common block, is this necessary?
+      ipae = ipae_ ! ipae is in global module, is this necessary?
       if (nu_ae(ipae) == 0) cycle
       iwdown = iw_downwei(jpad,ipae)
       if (iwdown == 0) cycle
@@ -339,10 +338,11 @@ end subroutine prodab_h
 
 subroutine prodab(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
 
+use gugaci_global, only: log_prod
+
 implicit none
 integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr
 real*8 :: wl
-#include "drt_h.fh"
 
 select case (log_prod)
   case (1)
@@ -362,10 +362,10 @@ end subroutine prodab
 
 subroutine prodab_h0_d(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
 
+use gugaci_global, only: ihy, indx, ipae, ipael, iw_downwei, iy, jpad, jpad_upwei, jpadl, jpae_downwei, jphy, loputmp, mcroot, &
+                         vector1, vector2
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
 integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr
 real*8 :: wl
 integer :: ii, in_, irot, irtidx, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpaedownwei, &
@@ -494,10 +494,9 @@ end subroutine prodab_h0_d
 
 subroutine prodab_h0_t(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
 
+use gugaci_global, only: ihy, ipae, ipael, iw_downwei, iy, jpad, jpad_upwei, jpadl, jpae_downwei, jphy, loputmp, vector2
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
 integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr
 real*8 :: wl
 integer :: ii, in_, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpaedownwei, jpe, jph, jpl, &

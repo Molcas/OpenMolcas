@@ -29,13 +29,13 @@
 
 subroutine lp_drl_ext_TS_calcuvalue(lri,nlp_value)
 
+use gugaci_global, only: ibsm_ext, iesm_ext, intind_abkk, intspace_abkk, ism_g1415, logic_g1415, logic_g2g4a, mul_tab, ng_sm, &
+                         norb_number, value_lpext, vint_ci, voint, w0_plp, w0g2a, w0g36a, w1_plp, w1g14a, w1g2a, w1g36a
+
 implicit none
 integer :: lri, nlp_value
 integer :: i, ia, iaend, iasta, ib, ibend, ibsta, intpos, intspace, isma, ismb, ivalue, lra, lrb
 real*8 :: w0lp, w1lp
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "intsort_h.fh"
 
 intpos = intind_abkk(lri)
 intspace = intspace_abkk(lri)
@@ -103,12 +103,11 @@ end subroutine lp_drl_ext_TS_calcuvalue
 
 subroutine lp9_drlbl_ext_sd_calcuvalue(intentry,isma)   ! ,nlp_value)
 
+use gugaci_global, only: nlsm_ext, norb_act, value_lpext, vint_ci, w0_sdplp, w0_sdplp25, w0g25, w1_sdplp, w1_sdplp25
+
 implicit none
 integer :: intentry, isma
 integer :: iaddpos, ilpvalue, intpos, m_ia
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
 
 w0_sdplp25 = (w0_sdplp-w1_sdplp)*w0g25
 w1_sdplp25 = -2.d0*w0_sdplp*w0g25
@@ -125,12 +124,11 @@ end subroutine lp9_drlbl_ext_sd_calcuvalue
 
 subroutine lp10_arbrbr_ext_calcuvalue(intentry,isma,nlp_value)
 
+use gugaci_global, only: nlsm_ext, value_lpext, vint_ci, w0_sdplp, w0_sdplp25, w0g25, w1_sdplp, w1_sdplp25
+
 implicit none
 integer :: intentry, isma, nlp_value
 integer :: ilpvalue, intpos, m_ia
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
 
 w0_sdplp25 = (w0_sdplp-w1_sdplp)*w0g25
 w1_sdplp25 = (w0_sdplp+w1_sdplp)*w0g25
@@ -147,12 +145,11 @@ end subroutine lp10_arbrbr_ext_calcuvalue
 
 subroutine lp11_arblbr_ext_calcuvalue(intentry,isma,nlp_value)
 
+use gugaci_global, only: nlsm_ext, value_lpext, vint_ci, w0_sdplp, w0_sdplp25, w0g25, w1_sdplp, w1_sdplp25
+
 implicit none
 integer :: intentry, isma, nlp_value
 integer :: ilpvalue, intpos, m_ia
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
 
 w0_sdplp25 = (w0_sdplp-w1_sdplp)*w0g25
 w1_sdplp25 = -2.d0*w0_sdplp*w0g25
@@ -169,13 +166,11 @@ end subroutine lp11_arblbr_ext_calcuvalue
 
 subroutine lp12_arblbl_ext_calcuvalue(intentry,isma,nlp_value)
 
+use gugaci_global, only: nlsm_ext, value_lpext, vint_ci, w0_sdplp, w0_sdplp25, w0g25, w1_sdplp, w1_sdplp25
+
 implicit none
 integer :: intentry, isma, nlp_value
 integer :: ilpvalue, intpos, m_ia
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
 
 w0_sdplp25 = (w0_sdplp-w1_sdplp)*w0g25
 w1_sdplp25 = -2.d0*w0_sdplp*w0g25
@@ -191,87 +186,85 @@ nlp_value = ilpvalue
 
 end subroutine lp12_arblbl_ext_calcuvalue
 
-subroutine lp_arbr_ext_svtv_calcuvalue(intentry,nlp_value)
+!subroutine lp_arbr_ext_svtv_calcuvalue(intentry,nlp_value)
+!
+!use gugaci_global, only: logic_g13, norb_ext, value_lpext, vint_ci, w0_plp, w0g13a, w0g36a, w1_plp, w1g36a
+!
+!implicit none
+!integer :: intentry, nlp_value
+!integer :: ia, intpos, ivalue
+!real*8 :: valuelptmp1, w0lp, w1lp
+!
+!ivalue = 0
+!! G36a
+!w0lp = w0_plp*w0g36a
+!w1lp = w1_plp*w1g36a
+!valuelptmp1 = w0lp
+!w0lp = w0lp-w1lp
+!w1lp = valuelptmp1+w1lp
+!do intpos=intentry,intentry+ip2_intsymspace-3,3
+!  !intpos = intentry+lpext_int_index(ii)*3-3
+!  ivalue = ivalue+1
+!  ! ArBr -- B^rA^r =10
+!  value_lpext(ivalue) = vint_ci(intpos+2)*w0lp+vint_ci(intpos+1)*w1lp
+!end do
+!! G36b
+!! G1415
+!if (logic_g13) then
+!  w0lp = w0g13a*(w0_plp+w1_plp)
+!  intpos = intentry+ip2_intsymspace
+!  do ia=1,norb_ext
+!    ivalue = ivalue+1
+!    value_lpext(ivalue) = w0lp*vint_ci(intpos) !-vint_ci(intpos+1)*2.d0)
+!    intpos = intpos+2
+!  end do
+!end if
+!nlp_value = ivalue
+!
+!end subroutine lp_arbr_ext_svtv_calcuvalue
 
-implicit none
-integer :: intentry, nlp_value
-integer :: ia, intpos, ivalue
-real*8 :: valuelptmp1, w0lp, w1lp
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "intsort_h.fh"
-
-ivalue = 0
-! G36a
-w0lp = w0_plp*w0g36a
-w1lp = w1_plp*w1g36a
-valuelptmp1 = w0lp
-w0lp = w0lp-w1lp
-w1lp = valuelptmp1+w1lp
-do intpos=intentry,intentry+ip2_intsymspace-3,3
-  !intpos = intentry+lpext_int_index(ii)*3-3
-  ivalue = ivalue+1
-  ! ArBr -- B^rA^r =10
-  value_lpext(ivalue) = vint_ci(intpos+2)*w0lp+vint_ci(intpos+1)*w1lp
-end do
-! G36b
-! G1415
-if (logic_g13) then
-  w0lp = w0g13a*(w0_plp+w1_plp)
-  intpos = intentry+ip2_intsymspace
-  do ia=1,norb_ext
-    ivalue = ivalue+1
-    value_lpext(ivalue) = w0lp*vint_ci(intpos) !-vint_ci(intpos+1)*2.d0)
-    intpos = intpos+2
-  end do
-end if
-nlp_value = ivalue
-
-end subroutine lp_arbr_ext_svtv_calcuvalue
-
-subroutine lp_drr_ext_svtv_calcuvalue(intentry,nlp_value)
-
-implicit none
-integer :: intentry, nlp_value
-integer :: intpos, ivalue
-real*8 :: w0lp
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "intsort_h.fh"
-
-ivalue = 0
-!G36a
-w0lp = (w0_plp+w1_plp)*w0g36a
-do intpos=intentry,intentry+ip2_drl_drl_intspace-2,2         !seve
-  !intpos = intentry+lpext_int_index(ii)*3-3
-  ivalue = ivalue+1
-  value_lpext(ivalue) = vint_ci(intpos)*w0lp !-vint_ci(intpos)*w1lp      !severe_error_1111
-end do
-
-if (logic_g13) then
-  !intpos = intentry+ip2_drl_drlintstart
-  w0lp = 0.5d0*w0_plp*w0g13a
-  !isma = ism_g1415
-  !na_tmp = nlsm_ext(isma)
-  do intpos=intentry+ip2_drl_drl_intspace,intentry+ip2_drl_intspace-2,2         !severe_new_e
-    !do ia=1,na_tmp
-    ivalue = ivalue+1
-    value_lpext(ivalue) = vint_ci(intpos+1)*w0lp !+vint_ci(intpos+1)*w1lp
-    !intpos = intpos+2
-  end do
-end if
-nlp_value = ivalue
-
-end subroutine lp_drr_ext_svtv_calcuvalue
+!subroutine lp_drr_ext_svtv_calcuvalue(intentry,nlp_value)
+!
+!use gugaci_global, only: logic_g13, value_lpext, vint_ci, w0_plp, w0g13a, w0g36a, w1_plp
+!
+!implicit none
+!integer :: intentry, nlp_value
+!integer :: intpos, ivalue
+!real*8 :: w0lp
+!
+!ivalue = 0
+!!G36a
+!w0lp = (w0_plp+w1_plp)*w0g36a
+!do intpos=intentry,intentry+ip2_drl_drl_intspace-2,2         !seve
+!  !intpos = intentry+lpext_int_index(ii)*3-3
+!  ivalue = ivalue+1
+!  value_lpext(ivalue) = vint_ci(intpos)*w0lp !-vint_ci(intpos)*w1lp      !severe_error_1111
+!end do
+!
+!if (logic_g13) then
+!  !intpos = intentry+ip2_drl_drlintstart
+!  w0lp = 0.5d0*w0_plp*w0g13a
+!  !isma = ism_g1415
+!  !na_tmp = nlsm_ext(isma)
+!  do intpos=intentry+ip2_drl_drl_intspace,intentry+ip2_drl_intspace-2,2         !severe_new_e
+!    !do ia=1,na_tmp
+!    ivalue = ivalue+1
+!    value_lpext(ivalue) = vint_ci(intpos+1)*w0lp !+vint_ci(intpos+1)*w1lp
+!    !intpos = intpos+2
+!  end do
+!end if
+!nlp_value = ivalue
+!
+!end subroutine lp_drr_ext_svtv_calcuvalue
 
 subroutine lp9_drlbl_ext_calcuvalue_wyb(lri,lrk,isma)
+
+use gugaci_global, only: ibsm_ext, intind_iaqq, nlsm_ext, norb_ext, value_lpext, vint_ci, w0_sdplp, w0_sdplp25, w0g25, w1_sdplp, &
+                         w1_sdplp25
 
 implicit none
 integer :: lri, lrk, isma
 integer :: ia, ia0, idorbint, ilpvalue, intpos, intposbase, ira, m_ia, next_sta
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
 
 next_sta = ibsm_ext(isma)-1
 w0_sdplp25 = (w0_sdplp-w1_sdplp)*w0g25
@@ -292,11 +285,10 @@ end subroutine lp9_drlbl_ext_calcuvalue_wyb
 
 subroutine lp8_drlbr_sum_calcuvalue_wyb(lri,lrp,lrq,isma,nv)
 
+use gugaci_global, only: ibsm_ext, intind_iaqq, max_extorb, max_innorb, nlsm_ext, norb_ext, norb_inn, value_lpext, viasum_0, &
+                         viasum_1, vint_ci, w0_sdplp, w0_sdplp25, w0g25, w1_sdplp25
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 integer :: lri, lrp, lrq, isma, nv
 integer :: ia, ia0, idorbint_p, idorbint_q, ilpvalue, intpos, intposbase, ira, m_ia, next_sta
 real*8 :: vint_0(max_innorb,max_extorb), vint_1(max_innorb,max_extorb)
@@ -340,16 +332,16 @@ end subroutine lp8_drlbr_sum_calcuvalue_wyb
 
 subroutine lp9_drlbl_sum_calcuvalue_wyb(lri,lrp,lrq,isma,nv)
 
+use gugaci_global, only: ibsm_ext, intind_iaqq, max_extorb, max_innorb, nlsm_ext, norb_ext, norb_inn, value_lpext, viasum_0, &
+                         viasum_1, vint_ci, w0_sdplp, w0_sdplp25, w0g25, w1_sdplp25
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
 integer :: lri, lrp, lrq, isma, nv
 integer :: ia, ia0, idorbint_p, idorbint_q, ilpvalue, intpos, intposbase, ira, m_ia, next_sta
 real*8 :: vint_0(max_innorb,max_extorb), vint_1(max_innorb,max_extorb)
 
-vint_0(1:norb_INN,1:norb_ext) = viasum_0(1:norb_INN,1:norb_ext)
-vint_1(1:norb_INN,1:norb_ext) = viasum_1(1:norb_INN,1:norb_ext)
+vint_0(1:norb_inn,1:norb_ext) = viasum_0(1:norb_inn,1:norb_ext)
+vint_1(1:norb_inn,1:norb_ext) = viasum_1(1:norb_inn,1:norb_ext)
 
 next_sta = ibsm_ext(isma)-1
 ia0 = (lri-1)*norb_ext
@@ -388,13 +380,13 @@ end subroutine lp9_drlbl_sum_calcuvalue_wyb
 
 subroutine lp_drl_ext_dd_calcuvalue_wyb(lri,iml,nlp_value)
 
+use gugaci_global, only: ibsm_ext, iesm_ext, int_dd_drl, intind_abkk, logic_g49b, nlsm_ext, norb_number, value_lpext, vint_ci, &
+                         voint, w0_plp, w0gdd, w1_plp, w1gdd
+
 implicit none
 integer :: lri, iml, nlp_value
 integer :: i, iaend, iasta, intpos, intpos0, ira, ivalue, jvalue, lra, mloop, nliml
 real*8 :: w0lp, w1lp
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "intsort_h.fh"
 
 w0lp = w0_plp*w0gdd
 w1lp = w1_plp*w1gdd
@@ -427,13 +419,13 @@ end subroutine lp_drl_ext_dd_calcuvalue_wyb
 
 subroutine lp_arbl_ext_dd_calcuvalue(lri,lrj,iml,imr,nlp_value)
 
+use gugaci_global, only: ibsm_ext, int_dd_drl, intind_ijab, intind_ijcc, logic_g49a, logic_g49b, logic_g50, ngw2, nlsm_ext, &
+                         norb_frz, value_lpext, vint_ci, w0_plp, w0gdd, w1_plp, w1gdd
+
 implicit none
 integer :: lri, lrj, iml, imr, nlp_value
 integer :: i, ij, intentry, intoffset, intpos, ivalue, mcloop, nlbf, nliml, nlimr
 real*8 :: valuetmp1, w0lp, w1lp
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "intsort_h.fh"
 
 ij = LRI-norb_frz+NGW2(LRJ-norb_frz)
 nliml = nlsm_ext(iml)
@@ -490,11 +482,10 @@ end subroutine lp_arbl_ext_dd_calcuvalue
 
 subroutine lp_ar_coe_calcuvalue_wyb(idtu,isma,lri,lrj,nlp_value,lpcoe)
 
+use gugaci_global, only: ibsm_ext, intind_iaqq, jb_sys, logic_dh, nlsm_ext, norb_dz, norb_ext, norb_inn, norb_number, value_lpext, &
+                         vint_ci, voint, w0_sdplp, w0_sdplp25, w0g25
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 integer :: idtu, isma, lri, lrj, nlp_value, lpcoe(norb_dz+1:norb_inn)
 real*8 :: valuetmp
 integer :: ia, ia0, icoe, idorb, idorbint, ilpvalue, intpos, intposbase, iorb, iorbs, ira, kcoe, lend, lra, lsta, m_ia, ndorb, &
@@ -754,13 +745,12 @@ end subroutine lp_ar_coe_calcuvalue_wyb
 
 subroutine lp_drl_ext_SS_calcuvalue(lri,nlp_value)
 
+use gugaci_global, only: intind_abkk, intspace_abkk, logic_g2g4a, value_lpext, vint_ci, w0_plp, w0g2a, w0g36a, w1_plp, w1g2a, w1g36a
+
 implicit none
 integer :: lri, nlp_value
 integer :: i, intpos, intspace, ivalue
 real*8 :: w0lp, w1lp
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "intsort_h.fh"
 
 intpos = intind_abkk(lri)
 intspace = intspace_abkk(lri)
@@ -805,11 +795,10 @@ end subroutine lp_drl_ext_SS_calcuvalue
 
 subroutine lp_drl_sum_SS_calcuvalue(lri,lrj,nlp_value)
 
+use gugaci_global, only: intind_abkk, intspace_abkk, logic_g2g4a, norb_ext, value_lpext, vijkk_0sum, vijkk_1sum, vint_ci, w0_plp, &
+                         w0g2a, w0g36a, w1_plp, w1g2a, w1g36a
+
 implicit none
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
 integer :: lri, lrj, nlp_value
 integer :: i, intpos, intspace, ivalue
 real*8 :: vint_0(norb_ext*norb_ext), vint_1(norb_ext*norb_ext), w0lp, w1lp
@@ -870,13 +859,13 @@ end subroutine lp_drl_sum_SS_calcuvalue
 
 subroutine lp_drl_ext_ST_calcuvalue(lri,nlp_value)
 
+use gugaci_global, only: ibsm_ext, iesm_ext, intind_abkk, intspace_abkk, ism_g1415, logic_g1415, logic_g2g4b, mul_tab, ng_sm, &
+                         norb_number, value_lpext, vint_ci, voint, w1_plp, w1g14a, w1g36a, w1g4b
+
 implicit none
 integer :: lri, nlp_value
 integer :: i, ia, iaend, iasta, ib, ibend, ibsta, intpos, intspace, isma, ismb, ivalue, lra, lrb
 real*8 :: w1lp
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "intsort_h.fh"
 
 ivalue = 0
 ! G1415
@@ -935,13 +924,13 @@ end subroutine lp_drl_ext_ST_calcuvalue
 
 subroutine lp_drl_ext_TT_calcuvalue(lri,n1415_value,nlp_value)
 
+use gugaci_global, only: ibsm_ext, iesm_ext, intind_abkk, intspace_abkk, ism_g1415, logic_g1415, mul_tab, ng_sm, norb_number, &
+                         value_lpext, vint_ci, voint, w0_plp, w0g14a, w0g15a, w0g36a, w1_plp, w1g14a, w1g15a, w1g36a
+
 implicit none
 integer :: lri, n1415_value, nlp_value
 integer :: i, ia, iaend, iasta, ib, ibend, ibsta, intpos, intspace, isma, ismb, ivalue, lra, lrb
 real*8 :: w014, w015, w0lp, w114, w115, w14lp, w15lp, w1lp
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "intsort_h.fh"
 
 ivalue = 0
 ! G1415
@@ -992,11 +981,10 @@ end subroutine lp_drl_ext_TT_calcuvalue
 
 subroutine lp_drl_sum_TT_calcuvalue(lri,lrj,n1415,nlp_value)
 
+use gugaci_global, only: ibsm_ext, iesm_ext, intind_abkk, intspace_abkk, ism_g1415, logic_g1415, mul_tab, ng_sm, norb_dz, &
+                         norb_ext, norb_number, value_lpext, vijkk_0sum, vijkk_1sum, vint_ci, voint, w0_plp, w0g14a, w0g15a, w0g36a
+
 implicit none
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
 integer :: lri, lrj, n1415, nlp_value
 integer :: i, ia, iaend, iasta, ib, ibend, ibsta, intpos, intspace, isma, ismb, ivalue, lra, lrb, lrk, lrk0
 real*8 :: vint_0(norb_ext*norb_ext), vint_1(norb_ext*norb_ext), w014, w015, w0lp, w14lp, w15lp
@@ -1072,13 +1060,13 @@ end subroutine lp_drl_sum_TT_calcuvalue
 
 subroutine lp_arbr_ext_svtv_calcuvalue_wyb(LRI,LRJ,nlp_value)
 
+use gugaci_global, only: intind_ijab, intind_ijcc, intspace_ijab, intspace_ijcc, logic_g13, ngw2, norb_frz, value_lpext, vint_ci, &
+                         w0_plp, w0g13a, w0g36a, w1_plp, w1g36a
+
 implicit none
 integer :: lri, lrj, nlp_value
 integer :: i, ij, intentry, intpos, intspace, ivalue
 real*8 :: valuelptmp1, w0lp, w1lp
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "intsort_h.fh"
 
 IJ = LRI-NORB_FRZ+NGW2(LRJ-NORB_FRZ)
 intentry = intind_ijab(ij)
@@ -1117,13 +1105,13 @@ end subroutine lp_arbr_ext_svtv_calcuvalue_wyb
 
 subroutine lp_drr_ext_svtv_calcuvalue_wyb(lri,nlp_value)
 
+use gugaci_global, only: intind_abkk, intspace_abkk, logic_g13, norb_all, norb_inn, value_lpext, vint_ci, voint, w0_plp, w0g13a, &
+                         w0g36a, w1_plp
+
 implicit none
 integer :: lri, nlp_value
 integer :: i, intpos, intspace, ivalue, lra
 real*8 :: w0lp
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "intsort_h.fh"
 
 intpos = intind_abkk(lri)
 intspace = intspace_abkk(lri)
@@ -1149,13 +1137,15 @@ end subroutine lp_drr_ext_svtv_calcuvalue_wyb
 
 subroutine lp_arbl_ext_st_calcuvalue(lri,lrj,nlp_value)
 
+use gugaci_global, only: ibsm_ext, iesm_ext, intind_ijab, intind_ijcc, intspace_ijab, intspace_ijcc, ism_g1415, logic_g13, &
+                         logic_g1415, logic_g2g4a, logic_g2g4b, mul_tab, ng_sm, ngw2, norb_ext, norb_frz, value_lpext, vint_ci, &
+                         w0_plp, w0g13a, w0g14a, w0g15a, w0g2a, w0g2b, w0g36a, w0g36b, w0g4a, w0g4b, w1_plp, w1g14a, w1g15a, &
+                         w1g2a, w1g2b, w1g36a, w1g36b, w1g4a, w1g4b
+
 implicit none
 integer :: lri, lrj, nlp_value
 integer :: i, ia, iaend, iasta, ib, ibend, ibsta, ij, intpos, intpos13, intposia,intposib, intspace, isma, ismb, ivalue
 real*8 :: valp, valuelpib, valuelptmp1, w0lp, w1lp, ww0lp, ww1lp
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "intsort_h.fh"
 
 ivalue = 0
 ij = LRI-norb_frz+NGW2(LRJ-norb_frz)
@@ -1296,12 +1286,11 @@ end subroutine lp_arbl_ext_st_calcuvalue
 
 subroutine lp678_ext_wyb_calcuvalue(lri,lrk,isma,nlp_value)
 
+use gugaci_global, only: ibsm_ext, iesm_ext, intind_iaqq, nlsm_ext, norb_ext, value_lpext, vint_ci, w0_sdplp, w0_sdplp25, w0g25
+
 implicit none
 integer :: lri, lrk, isma, nlp_value
 integer :: ia, ia0, iaend, iaqq, iasta, ilpvalue, intoffset, intpos, iposint
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
 
 w0_sdplp25 = w0_sdplp*w0g25
 ia0 = (lri-1)*norb_ext

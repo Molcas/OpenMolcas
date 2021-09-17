@@ -11,12 +11,11 @@
 
 subroutine paras_calculate()
 
+use gugaci_global, only: ibsm_ext, iesm_ext, iwt_orb_ext, iwt_sm_s_ext, jb_sys, jroute_sys, maxgdm, mul_tab, ng_sm, nlsm_dbl, &
+                         nlsm_ext, spin !, n_electron, norb_all, norb_dbl, norb_dz, norb_ext
+
 implicit none
-#include "drt_h.fh"
-#include "paraconstants_h.fh"
-#include "intsort_h.fh"
-integer :: i, iaend, iaorb, iasta, ibend, iborb, ibsta, icnttmp, ijsm, ism, isma, ismab, ismb, isumtmp, itmp, iwtsmsabtmp(maxgdm), &
-           iwttmp, j, jsm, jsm_sys, ni, nij, nj
+integer :: iaend, iaorb, iasta, ibend, iborb, ibsta, icnttmp, ijsm, isma, ismb, isumtmp, iwt_sm_sab(maxgdm), iwttmp, ni, nij, nj
 !integer, parameter :: inlptb_new(156) = [ &
 !                                        ! 1  2  3  4  5  6  7  8  9  10  11  12 13
 !                                        ! a^r=1
@@ -65,10 +64,10 @@ integer :: i, iaend, iaorb, iasta, ibend, iborb, ibsta, icnttmp, ijsm, ism, isma
 !                                           0,  0,  0,  0,  0,  9,  3, 13,  0,  0,  0,  0], &
 !                      indord_plptype(12) = [0,0,0,1,1,3,3,1,1,2,2,2]   !severe_new_error_1
 
-ja_sys = int(n_electron*0.5d0-spin)-norb_dz
+!ja_sys = int(n_electron*0.5d0-spin)-norb_dz
 jb_sys = int(spin+spin)
-jc_sys = norb_all-ja_sys-jb_sys
-jsm_sys = ns_sm
+!jc_sys = norb_all-ja_sys-jb_sys
+!jsm_sys = ns_sm
 !write(6,'(a9,3(1x,i3))') 'ja,jb,jc ',ja_sys,jb_sys,jc_sys
 !if (jb_sys == jb_sys/2*2) then    ????? 11.2
 !  w0_drl2_44 = v_sqtwo
@@ -82,58 +81,58 @@ if (jb_sys == 0) jroute_sys = 1
 if (jb_sys == 1) jroute_sys = 2
 if (jb_sys > 1) jroute_sys = 3
 
-do i=1,ng_sm
-  iwt_ext(i,1) = 0
-  iwt_ext(i,2) = nlsm_ext(i)
-end do
-iwt_ext(1,1) = 1
-
-do i=1,ng_sm
-  ni = nlsm_ext(i)
-  do j=i,ng_sm
-    nj = nlsm_ext(j)
-    if (i == j) then
-      nij = ni*(ni-1)/2
-    else
-      nij = ni*nj
-    end if
-    ijsm = mul_tab(i,j)
-    iwt_ext(ijsm,3) = iwt_ext(ijsm,3)+nij
-    iwt_ext(ijsm,4) = iwt_ext(ijsm,4)+nij
-  end do
-end do
-iwt_ext(1,4) = iwt_ext(1,4)+norb_ext
-
-do i=1,ng_sm
-  iwt_dbl(i,1) = 0
-  iwt_dbl(i,2) = nlsm_dbl(mul_tab(i,jsm_sys))
-  if (jroute_sys > 1) then
-    iwt_dbl(i,3) = nlsm_dbl(mul_tab(i,jsm_sys))
-  end if
-end do
-iwt_dbl(ns_sm,1) = 1
-
-do i=1,ng_sm
-  ni = nlsm_dbl(i)
-  do j=i,ng_sm
-    nj = nlsm_dbl(j)
-    if (i == j) then
-      nij = ni*(ni-1)/2
-    else
-      nij = ni*nj
-    end if
-    ijsm = mul_tab(mul_tab(i,j),ns_sm)
-    iwt_dbl(ijsm,4) = iwt_dbl(ijsm,4)+nij
-    if (jroute_sys > 2) then
-      iwt_dbl(ijsm,5) = iwt_dbl(ijsm,5)+nij
-    end if
-    iwt_dbl(ijsm,6) = iwt_dbl(ijsm,6)+nij
-    if (jroute_sys > 1) then
-      iwt_dbl(ijsm,6) = iwt_dbl(ijsm,6)+nij
-    end if
-  end do
-end do
-iwt_dbl(ns_sm,6) = iwt_dbl(ns_sm,6)+norb_dbl
+!do i=1,ng_sm
+!  iwt_ext(i,1) = 0
+!  iwt_ext(i,2) = nlsm_ext(i)
+!end do
+!iwt_ext(1,1) = 1
+!
+!do i=1,ng_sm
+!  ni = nlsm_ext(i)
+!  do j=i,ng_sm
+!    nj = nlsm_ext(j)
+!    if (i == j) then
+!      nij = ni*(ni-1)/2
+!    else
+!      nij = ni*nj
+!    end if
+!    ijsm = mul_tab(i,j)
+!    iwt_ext(ijsm,3) = iwt_ext(ijsm,3)+nij
+!    iwt_ext(ijsm,4) = iwt_ext(ijsm,4)+nij
+!  end do
+!end do
+!iwt_ext(1,4) = iwt_ext(1,4)+norb_ext
+!
+!do i=1,ng_sm
+!  iwt_dbl(i,1) = 0
+!  iwt_dbl(i,2) = nlsm_dbl(mul_tab(i,jsm_sys))
+!  if (jroute_sys > 1) then
+!    iwt_dbl(i,3) = nlsm_dbl(mul_tab(i,jsm_sys))
+!  end if
+!end do
+!iwt_dbl(ns_sm,1) = 1
+!
+!do i=1,ng_sm
+!  ni = nlsm_dbl(i)
+!  do j=i,ng_sm
+!    nj = nlsm_dbl(j)
+!    if (i == j) then
+!      nij = ni*(ni-1)/2
+!    else
+!      nij = ni*nj
+!    end if
+!    ijsm = mul_tab(mul_tab(i,j),ns_sm)
+!    iwt_dbl(ijsm,4) = iwt_dbl(ijsm,4)+nij
+!    if (jroute_sys > 2) then
+!      iwt_dbl(ijsm,5) = iwt_dbl(ijsm,5)+nij
+!    end if
+!    iwt_dbl(ijsm,6) = iwt_dbl(ijsm,6)+nij
+!    if (jroute_sys > 1) then
+!      iwt_dbl(ijsm,6) = iwt_dbl(ijsm,6)+nij
+!    end if
+!  end do
+!end do
+!iwt_dbl(ns_sm,6) = iwt_dbl(ns_sm,6)+norb_dbl
 
 do ismb=1,ng_sm
   iwt_sm_sab(ismb) = 0
@@ -152,7 +151,7 @@ do ismb=1,ng_sm
     ijsm = mul_tab(isma,ismb)
     !iwt_sm_sab(ijsm) = iwt_sm_sab(ijsm)+nij
     ! iwt_sm_sab function as a tmp array
-    iwt_sm_ext(isma,ismb) = iwt_sm_sab(ijsm)
+    !iwt_sm_ext(isma,ismb) = iwt_sm_sab(ijsm)
 
     iasta = ibsm_ext(isma)
     iaend = iesm_ext(isma)
@@ -181,33 +180,33 @@ do ismb=1,ng_sm
   isumtmp = isumtmp+icnttmp
 end do
 ! imap_revorbtoorb_ext()
-do ismb=1,ng_sm
-  ibsta = ibsm_ext(ismb)
-  ibend = iesm_ext(ismb)
-  do isma=1,ismb
-    iasta = ibsm_ext(isma)
-    iaend = iesm_ext(isma)
-    if (isma == ismb) iaend = iaend-1
-
-    ismab = mul_tab(isma,ismb)
-    iwttmp = iwt_sm_ext(isma,ismb)+iwt_sm_sab(ismab)
-    do iaorb=iasta,iaend
-      do iborb=max(iaorb+1,ibsta),ibend
-        iwttmp = iwttmp+1
-        iwt_revorb_ext(iaorb,iborb) = iwttmp
-        imap_revorbtoorb_ext(iwttmp) = iwt_orb_ext(iaorb,iborb)
-      end do
-    end do
-  end do
-end do
+!do ismb=1,ng_sm
+!  ibsta = ibsm_ext(ismb)
+!  ibend = iesm_ext(ismb)
+!  do isma=1,ismb
+!    iasta = ibsm_ext(isma)
+!    iaend = iesm_ext(isma)
+!    if (isma == ismb) iaend = iaend-1
+!
+!    ismab = mul_tab(isma,ismb)
+!    iwttmp = iwt_sm_ext(isma,ismb)+iwt_sm_sab(ismab)
+!    do iaorb=iasta,iaend
+!      do iborb=max(iaorb+1,ibsta),ibend
+!        iwttmp = iwttmp+1
+!        iwt_revorb_ext(iaorb,iborb) = iwttmp
+!        imap_revorbtoorb_ext(iwttmp) = iwt_orb_ext(iaorb,iborb)
+!      end do
+!    end do
+!  end do
+!end do
 
 do ismb=1,ng_sm
   iwt_sm_sab(ismb) = 0
 end do
 do ismb=1,ng_sm
   ni = nlsm_dbl(ismb)
-  ibsta = ibsm_dbl(ismb)
-  ibend = iesm_dbl(ismb)
+  !ibsta = ibsm_dbl(ismb)
+  !ibend = iesm_dbl(ismb)
   do isma=1,ismb
     nj = nlsm_dbl(isma)
     if (isma == ismb) then
@@ -216,63 +215,63 @@ do ismb=1,ng_sm
       nij = ni*nj
     end if
     ijsm = mul_tab(isma,ismb)
-    iwt_sm_dbl(isma,ismb) = iwt_sm_sab(ijsm)
+    !iwt_sm_dbl(isma,ismb) = iwt_sm_sab(ijsm)
 
-    iasta = ibsm_dbl(isma)
-    iaend = iesm_dbl(isma)
-    if (ismb == isma) then
-      ibsta = iasta+1
-    end if
-    iwttmp = iwt_sm_sab(ijsm)
-    do iborb=ibsta,ibend
-      do iaorb=iasta,min(iaend,iborb-1)
-        iwttmp = iwttmp+1
-        iwt_orb_dbl(iaorb,iborb) = iwttmp
-      end do
-    end do
+    !iasta = ibsm_dbl(isma)
+    !iaend = iesm_dbl(isma)
+    !if (ismb == isma) then
+    !  ibsta = iasta+1
+    !end if
+    !iwttmp = iwt_sm_sab(ijsm)
+    !do iborb=ibsta,ibend
+    !  do iaorb=iasta,min(iaend,iborb-1)
+    !    iwttmp = iwttmp+1
+    !    iwt_orb_dbl(iaorb,iborb) = iwttmp
+    !  end do
+    !end do
 
     iwt_sm_sab(ijsm) = iwt_sm_sab(ijsm)+nij
   end do
 end do
 
-isumtmp = 0
-do ismb=1,ng_sm
-  icnttmp = iwt_sm_sab(ismb)
-  iwtsmsabtmp(ismb) = isumtmp
-  isumtmp = isumtmp+icnttmp
-end do
+!isumtmp = 0
+!do ismb=1,ng_sm
+!  icnttmp = iwt_sm_sab(ismb)
+!  iwtsmsabtmp(ismb) = isumtmp
+!  isumtmp = isumtmp+icnttmp
+!end do
 ! imap_revorbtoorb_dbl()
-do ismb=1,ng_sm
-  ibsta = ibsm_dbl(ismb)
-  ibend = iesm_dbl(ismb)
-  do isma=1,ismb
-    iasta = ibsm_dbl(isma)
-    iaend = iesm_dbl(isma)
-    if (isma == ismb) iaend = iaend-1
-    ismab = mul_tab(isma,ismb)
-    iwttmp = iwt_sm_dbl(isma,ismb)+iwtsmsabtmp(ismab)
-    do iaorb=iasta,iaend
-      do iborb=max(iaorb+1,ibsta),ibend
-        iwttmp = iwttmp+1
-        iwt_revorb_dbl(iaorb,iborb) = iwttmp
-        imap_revorbtoorb_dbl(iwttmp) = iwt_orb_dbl(iaorb,iborb)
-      end do
-    end do
-  end do
-end do
+!do ismb=1,ng_sm
+!  ibsta = ibsm_dbl(ismb)
+!  ibend = iesm_dbl(ismb)
+!  do isma=1,ismb
+!    iasta = ibsm_dbl(isma)
+!    iaend = iesm_dbl(isma)
+!    if (isma == ismb) iaend = iaend-1
+!    ismab = mul_tab(isma,ismb)
+!    iwttmp = iwt_sm_dbl(isma,ismb)+iwtsmsabtmp(ismab)
+!    do iaorb=iasta,iaend
+!      do iborb=max(iaorb+1,ibsta),ibend
+!        iwttmp = iwttmp+1
+!        iwt_revorb_dbl(iaorb,iborb) = iwttmp
+!        imap_revorbtoorb_dbl(iwttmp) = iwt_orb_dbl(iaorb,iborb)
+!      end do
+!    end do
+!  end do
+!end do
 
-do ism=1,ng_sm
-  jsm = mul_tab(ism,ns_sm)
-  if (ism < jsm) then
-    itmp = iwt_sm_sab(jsm)
-    iwt_sm_sab(jsm) = iwt_sm_sab(ism)
-    iwt_sm_sab(ism) = itmp
-  end if
-end do
-
-iwt_sm_s_dbl = iwt_sm_sab(ns_sm)
-if (jroute_sys > 2) then
-  iwt_sm_s_dbl = iwt_sm_s_dbl*2
-end if
+!do ism=1,ng_sm
+!  jsm = mul_tab(ism,ns_sm)
+!  if (ism < jsm) then
+!    itmp = iwt_sm_sab(jsm)
+!    iwt_sm_sab(jsm) = iwt_sm_sab(ism)
+!    iwt_sm_sab(ism) = itmp
+!  end if
+!end do
+!
+!iwt_sm_s_dbl = iwt_sm_sab(ns_sm)
+!if (jroute_sys > 2) then
+!  iwt_sm_s_dbl = iwt_sm_s_dbl*2
+!end if
 
 end subroutine paras_calculate

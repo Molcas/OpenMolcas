@@ -11,10 +11,11 @@
 
 subroutine gugadrt_mole_inf()
 
-use gugadrt_global, only: iprint, iref_occ, logic_mr, logic_mrelcas, lsm_inn, ludrt, max_ref, mul_tab, n_electron, n_ref, ng_sm, &
-                          nlsm_all, nlsm_bas, nlsm_ext, nlsmddel, nlsmedel, norb_act, norb_all, norb_dbl, norb_dz, norb_ext, &
-                          norb_frz, norb_inn, ns_sm, nstart_act, spin
-use constants, only: Zero, Two
+use gugadrt_global, only: iprint, iref_occ, logic_mr, logic_mrelcas, lsm_inn, ludrt, max_ref, n_electron, n_ref, ng_sm, nlsm_all, &
+                          nlsm_bas, nlsm_ext, nlsmddel, nlsmedel, norb_act, norb_all, norb_dbl, norb_dz, norb_ext, norb_frz, &
+                          norb_inn, ns_sm, nstart_act, spin
+use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero, Two
 use Definitions, only: iwp, u6
 
 implicit none

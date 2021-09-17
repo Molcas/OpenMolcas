@@ -14,10 +14,10 @@
 
 subroutine dd_ext_plpmode(ilnodesm,irnodesm)
 
+use gugaci_global, only: logic_g13, logic_g1415, logic_g36a, logic_g36b
+
 implicit none
 integer :: ilnodesm, irnodesm
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 logic_g36a = .false.
 logic_g36b = .false.
@@ -38,10 +38,9 @@ end subroutine dd_ext_plpmode
 
 subroutine external_space_plpmode_value_dv()
 
+use gugaci_global, only: w0g25, w0g25a, w1g25a
+
 implicit none
-#include "drt_h.fh"
-#include "paraconstants_h.fh"
-#include "lpextmode_h.fh"
 
 ! sd   lpmode_value
 w0g25 = -1.d0
@@ -52,10 +51,9 @@ end subroutine external_space_plpmode_value_dv
 
 subroutine external_space_plpmode_value_vd()
 
+use gugaci_global, only: v_sqtwo, w0g25, w0g25a, w1g25a
+
 implicit none
-#include "drt_h.fh"
-#include "paraconstants_h.fh"
-#include "lpextmode_h.fh"
 
 ! sd   lpmode_value
 w0g25 = -v_sqtwo
@@ -66,12 +64,12 @@ end subroutine external_space_plpmode_value_vd
 
 subroutine g12_t_diffsym(isma,ismb,ismc)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, ip4_abcd_ext_base, iwt_orb_ext, jp2, jp3, m_jc, m_jd, ngw2, nlsm_ext, &
+                         value_lpext, vint_ci
+
 implicit none
 integer :: isma, ismb, ismc
 integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ip2cd, ip3smabc, ipos_intbasetmp, iposint, nsma, num_smab
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 if (isma < ismb) then
   ip3smabc = isma+jp2(ismb)+jp3(ismc)
@@ -116,12 +114,12 @@ end subroutine g12_t_diffsym
 
 subroutine g11a_t_diffsym(isma,ismb,ismc)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, ip4_abcd_ext_base, iwt_orb_ext, jp2, jp3, m_jc, m_jd, nlsm_ext, &
+                         value_lpext, vint_ci
+
 implicit none
 integer :: isma, ismb, ismc
 integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, jcoffset, jdoffset, num_smab
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 ipsmabc = isma+jp2(ismc)+jp3(ismb)
 ipos_intbasetmp = ip4_abcd_ext_base(ipsmabc)
@@ -148,12 +146,12 @@ end subroutine g11a_t_diffsym
 
 subroutine g11b_t_diffsym(isma,ismb,ismc)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, ip4_abcd_ext_base, iwt_orb_ext, jp2, jp3, m_jc, m_jd, nlsm_ext, &
+                         value_lpext, vint_ci
+
 implicit none
 integer :: isma, ismb, ismc
 integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, jcoffset, jdoffset, num_smab, numint_jc
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 ipsmabc = ismc+jp2(isma)+jp3(ismb)
 ipos_intbasetmp = ip4_abcd_ext_base(ipsmabc)
@@ -181,13 +179,13 @@ end subroutine g11b_t_diffsym
 
 subroutine g1112_t_symaaaa(isma,ic,id)
 
+use gugaci_global, only: ibsm_ext, icnt_base, ip4_abcd_ext_base, iwt_orb_ext, jp2, jp3, m_jc, m_jd, ngw2, ngw3, ngw4, value_lpext, &
+                         vint_ci
+
 implicit none
 integer :: isma, ic, id
 integer :: ia, iabcdpos_11b, iasta, ib, ibcdpos_11a, ibcdpos_11b, ibsta, icdpos_11a, icdpos_11b, icdpos_12, ilwei, &
            ipos_intbasetmp, iposint, ipsmabc, ja, jb
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 ipsmabc = isma+jp2(isma)+jp3(isma)
 ipos_intbasetmp = ip4_abcd_ext_base(ipsmabc)
@@ -239,12 +237,12 @@ end subroutine g1112_t_symaaaa
 
 subroutine g11a11b_t_symaacc(isma,ismc,ic,id)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, ip4_abcd_ext_base, iwt_orb_ext, jp2, jp3, m_jc, m_jd, ngw2, nlsm_ext, &
+                         value_lpext, vint_ci
+
 implicit none
 integer :: isma, ismc, ic, id
 integer :: ia, iaend, iasta, ib, ibdpos, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, ja, num_smab
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 ipsmabc = isma+jp2(isma)+jp3(ismc)
 ipos_intbasetmp = ip4_abcd_ext_base(ipsmabc)
@@ -287,12 +285,11 @@ end subroutine g11a11b_t_symaacc
 
 subroutine g36_t_ext(ismc,ic,id)
 
+use gugaci_global, only: ibsm_ext, icnt_base, ip2_aa_ext_base, ip3_abd_ext_base, iwt_orb_ext, np3_abd_ext, value_lpext, vint_ci
+
 implicit none
 integer :: ismc, ic, id
 integer :: ia, iasta, ilwei, ipos_g36, ipos_intbasetmp, iposint
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 ipos_intbasetmp = ip3_abd_ext_base+(id-1)*np3_abd_ext   !severe_new_
 iasta = ibsm_ext(ismc)
@@ -308,12 +305,11 @@ end subroutine g36_t_ext
 
 subroutine g5_t_ext(ismd,ic,id)
 
+use gugaci_global, only: ibsm_ext, icnt_base, ip2_aa_ext_base, ip3_abd_ext_base, iwt_orb_ext, np3_abd_ext, value_lpext, vint_ci
+
 implicit none
 integer :: ismd, ic, id
 integer :: ib, ibsta, ilwei, ipos_g5, ipos_intbasetmp, iposint
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 ipos_intbasetmp = ip3_abd_ext_base+(ic-1)*np3_abd_ext
 ibsta = ibsm_ext(ismd)
@@ -328,12 +324,11 @@ end subroutine g5_t_ext
 
 subroutine g9_t_ext(ismd,ic,id)
 
+use gugaci_global, only: ibsm_ext, icnt_base, ip2_aa_ext_base, ip3_abd_ext_base, iwt_orb_ext, np3_abd_ext, value_lpext, vint_ci
+
 implicit none
 integer :: ismd, ic, id
 integer :: ia, iasta, ilwei, ipos_g9, ipos_intbasetmp, iposint
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 ipos_intbasetmp = ip3_abd_ext_base+(ic-1)*np3_abd_ext
 iasta = ibsm_ext(ismd)
@@ -349,12 +344,13 @@ end subroutine g9_t_ext
 
 subroutine gsd_determine_extarmode_paras(ismnodes,ismnoded,logic_sd)
 
+use gugaci_global, only: ibsm_ext, ivaluesta_g26, iweista_g25, iweista_g26, iweista_g28, iwt_orb_ext, iwt_sm_s_ext, logic_g25a, &
+                         logic_g25b, logic_g26, logic_g28a, mul_tab, nint_g25, nint_g28, nlsm_ext, nwei_g25, nwei_g26, nwei_g28
+
 implicit none
 integer :: ismnodes, ismnoded
 logical :: logic_sd
 integer :: iorbid, iorbisd, ismnodesd, numsmd, numsmsd
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 ismnodesd = mul_tab(ismnodes,ismnoded)
 numsmd = nlsm_ext(ismnoded)
@@ -396,12 +392,11 @@ end subroutine gsd_determine_extarmode_paras
 
 subroutine g_dd_ext_sequence(ism)
 
+use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, norb_number, value_lpext, voint
+
 implicit none
 integer :: ism
 integer :: ia, iasta, ib, ibend, ibsta, ilwei, lra, lrb
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 icano_nnsta = 2
 icnt_base = 0
@@ -424,12 +419,12 @@ end subroutine g_dd_ext_sequence
 
 subroutine g_ss_ext_sequence(ism,itype)
 
+use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iwt_orb_ext, iwt_sm_s_ext, m_jc, m_jd, &
+                         max_tmpvalue, mul_tab, ng_sm, norb_ext
+
 implicit none
 integer :: ism, itype
 integer :: ic, ic_sta, icano_nn, icend, id, id_sta, idend, idsta, isma, ismb, ismc, ismd
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 icano_nnsta = 2
 icnt_base = 0
@@ -497,12 +492,12 @@ end subroutine g_ss_ext_sequence
 
 subroutine g12_diffsym(isma,ismb,ismc)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, ip4_abcd_ext_base, iwt_orb_ext, jp2, jp3, m_jc, m_jd, ngw2, nlsm_ext, &
+                         value_lpext, vint_ci
+
 implicit none
 integer :: isma, ismb, ismc
 integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ip2cd, ip3smabc, ipos_intbasetmp, iposint, nsma, num_smab
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 if (isma < ismb) then
   ip3smabc = isma+jp2(ismb)+jp3(ismc)
@@ -547,12 +542,12 @@ end subroutine g12_diffsym
 
 subroutine g11a_diffsym(isma,ismb,ismc)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, ip4_abcd_ext_base, iwt_orb_ext, jp2, jp3, m_jc, m_jd, nlsm_ext, &
+                         value_lpext, vint_ci
+
 implicit none
 integer :: isma, ismb, ismc
 integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, jcoffset, jdoffset, num_smab
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 ipsmabc = isma+jp2(ismc)+jp3(ismb)
 ipos_intbasetmp = ip4_abcd_ext_base(ipsmabc)
@@ -579,12 +574,12 @@ end subroutine g11a_diffsym
 
 subroutine g11b_diffsym(isma,ismb,ismc)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, ip4_abcd_ext_base, iwt_orb_ext, jp2, jp3, m_jc, m_jd, nlsm_ext, &
+                         value_lpext, vint_ci
+
 implicit none
 integer :: isma, ismb, ismc
 integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, jcoffset, jdoffset, num_smab, numint_jc
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 ipsmabc = ismc+jp2(isma)+jp3(ismb)
 ipos_intbasetmp = ip4_abcd_ext_base(ipsmabc)
@@ -612,13 +607,13 @@ end subroutine g11b_diffsym
 
 subroutine g1112_symaaaa(isma,ic,id)
 
+use gugaci_global, only: ibsm_ext, icnt_base, ip4_abcd_ext_base, iwt_orb_ext, jp2, jp3, m_jc, m_jd, ngw2, ngw3, ngw4, value_lpext, &
+                         vint_ci
+
 implicit none
 integer :: isma, ic, id
 integer :: ia, iabcdpos_11b, iasta, ib, ibcdpos_11a, ibcdpos_11b, ibsta, icdpos_11a, icdpos_11b, icdpos_12, ilwei, &
            ipos_intbasetmp, iposint, ipsmabc, ja, jb
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 ipsmabc = isma+jp2(isma)+jp3(isma)
 ipos_intbasetmp = ip4_abcd_ext_base(ipsmabc)
@@ -671,12 +666,12 @@ end subroutine g1112_symaaaa
 
 subroutine g11a11b_symaacc(isma,ismc,ic,id)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, ip4_abcd_ext_base, iwt_orb_ext, jp2, jp3, m_jc, m_jd, ngw2, nlsm_ext, &
+                         value_lpext, vint_ci
+
 implicit none
 integer :: isma, ismc, ic, id
 integer :: ia, iaend, iasta, ib, ibdpos, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, ja, num_smab
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 ipsmabc = isma+jp2(isma)+jp3(ismc)
 ipos_intbasetmp = ip4_abcd_ext_base(ipsmabc)
@@ -719,12 +714,11 @@ end subroutine g11a11b_symaacc
 
 subroutine g10_ext(ismc,ic,id)
 
+use gugaci_global, only: ibsm_ext, icnt_base, ip2_aa_ext_base, ip3_abd_ext_base, iwt_orb_ext, np3_abd_ext, value_lpext, vint_ci
+
 implicit none
 integer :: ismc, ic, id
 integer :: ia, iasta, ilwei, ipos_g10, ipos_intbasetmp, iposint
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 ipos_intbasetmp = ip3_abd_ext_base+(id-1)*np3_abd_ext   !severe_new_
 iasta = ibsm_ext(ismc)
@@ -740,12 +734,11 @@ end subroutine g10_ext
 
 subroutine g5_ext(ismd,ic,id)
 
+use gugaci_global, only: ibsm_ext, icnt_base, ip2_aa_ext_base, ip3_abd_ext_base, iwt_orb_ext, np3_abd_ext, value_lpext, vint_ci
+
 implicit none
 integer :: ismd, ic, id
 integer :: ib, ibsta, ilwei, ipos_g5, ipos_intbasetmp, iposint
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 ipos_intbasetmp = ip3_abd_ext_base+(ic-1)*np3_abd_ext
 ibsta = ibsm_ext(ismd)
@@ -760,12 +753,11 @@ end subroutine g5_ext
 
 subroutine g9_ext(ismd,ic,id)
 
+use gugaci_global, only: ibsm_ext, icnt_base, ip2_aa_ext_base, ip3_abd_ext_base, iwt_orb_ext, np3_abd_ext, value_lpext, vint_ci
+
 implicit none
 integer :: ismd, ic, id
 integer :: ia, iasta, ilwei, ipos_g9, ipos_intbasetmp, iposint
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 ipos_intbasetmp = ip3_abd_ext_base+(ic-1)*np3_abd_ext
 iasta = ibsm_ext(ismd)
@@ -781,13 +773,13 @@ end subroutine g9_ext
 
 subroutine ext_lp_ab_s1(id)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, ip2_aa_ext_base, ip2_dd_ext_base, ip3_abd_ext_base, ng_sm, ngw2, &
+                         np3_abd_ext, value_lpext, vint_ci
+
 implicit none
 integer :: id
 integer :: ia, iasta, ib, ibend, ibsta, ic, ilwei, ipos_intbasetmp, iposint, iposintaa, ismb
 real*8, parameter :: v_sqtwo = 1.414213562373095d0
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 ipos_intbasetmp = ip3_abd_ext_base+(id-1)*np3_abd_ext
 ilwei = icnt_base
@@ -826,13 +818,12 @@ end subroutine ext_lp_ab_s1
 
 subroutine g31_diffsym(lri,isma,ismb)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, intind_iabc, iwt_orb_ext, m_jd, nabc, ngw2, ngw3, value_lpext, vint_ci, &
+                         w0plp31, w1plp31
+
 implicit none
 integer :: lri, isma, ismb
 integer :: ia, iabc, iabc0, iaend, iasta, ib, ibend, ibsta, ic, ilwei, iposint
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
-#include "gext_sequence.fh"
 
 iabc0 = (lri-1)*nabc
 ic = m_jd
@@ -857,13 +848,12 @@ end subroutine g31_diffsym
 
 subroutine g32a_diffsym(lri,isma,ismb)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, intind_iabc, iwt_orb_ext, m_jd, nabc, ngw2, ngw3, value_lpext, vint_ci, &
+                         w0plp32, w1plp32
+
 implicit none
 integer :: lri, isma, ismb
 integer :: ia, iabc, iabc0, iaend, iasta, ib, ibend, ibsta, ic, ilwei, iposint
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
-#include "gext_sequence.fh"
 
 iabc0 = (lri-1)*nabc
 
@@ -887,13 +877,12 @@ end subroutine g32a_diffsym
 
 subroutine g32b_diffsym(lri,isma,ismb)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, intind_iabc, iwt_orb_ext, m_jd, nabc, ngw2, ngw3, value_lpext, vint_ci, &
+                         w0plp32, w1plp32
+
 implicit none
 integer :: lri, isma, ismb
 integer :: ia, iabc, iabc0, iaend, iasta, ib, ibend, ibsta, ic, ilwei, iposint
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
-#include "gext_sequence.fh"
 
 iabc0 = (lri-1)*nabc
 
@@ -917,30 +906,28 @@ end do
 
 end subroutine g32b_diffsym
 
-subroutine assign_segmode_paras(indl,indr,ilrdivnodesm)
-
-implicit none
-integer :: indl, indr, ilrdivnodesm
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "intsort_h.fh"
-
-ilsegdownwei = iseg_downwei(indl)
-irsegdownwei = iseg_downwei(indr)
-ilsegstawei = iseg_sta(indl)
-irsegstawei = iseg_sta(indr)
-ip2_intbase = ip2_ab_inn_base(ilrdivnodesm)
-ip2_intspace = int2ind_space_extsmab(ilrdivnodesm)
-ip2_intsymspace = int2ind_numijkl_extsmab(ilrdivnodesm)
-
-end subroutine assign_segmode_paras
+!subroutine assign_segmode_paras(indl,indr,ilrdivnodesm)
+!
+!use gugaci_global, only: ilsegdownwei, irsegdownwei, iseg_downwei, iseg_sta
+!
+!implicit none
+!integer :: indl, indr, ilrdivnodesm
+!
+!ilsegdownwei = iseg_downwei(indl)
+!irsegdownwei = iseg_downwei(indr)
+!irsegstawei = iseg_sta(indr)
+!ip2_intbase = ip2_ab_inn_base(ilrdivnodesm)
+!ip2_intspace = int2ind_space_extsmab(ilrdivnodesm)
+!ip2_intsymspace = int2ind_numijkl_extsmab(ilrdivnodesm)
+!
+!end subroutine assign_segmode_paras
 
 subroutine external_space_plpmode_value_st()   !tt
 
+use gugaci_global, only: v_sqthree, v_sqthreevsqtwo, w0g14a, w0g15a, w0g2a, w0g2b, w0g34a, w0g34b, w0g35a, w0g35b, w0g36a, w0g36b, &
+                         w0g4a, w0g4b, w1g14a, w1g15a, w1g2a, w1g2b, w1g34a, w1g34b, w1g35a, w1g35b, w1g36a, w1g36b, w1g4a, w1g4b
+
 implicit none
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "paraconstants_h.fh"
 
 w0g36a = 0.d0
 w0g36b = 0.d0
@@ -974,10 +961,10 @@ end subroutine external_space_plpmode_value_st
 
 subroutine external_space_plpmode_value_ts()   !tt
 
+use gugaci_global, only: v_onevsqtwo, w0g14a, w0g15a, w0g2a, w0g2b, w0g34a, w0g34b, w0g35a, w0g35b, w0g36a, w0g36b, w0g4a, w0g4b, &
+                         w1g14a, w1g15a, w1g2a, w1g2b, w1g34a, w1g34b, w1g35a, w1g35b, w1g36a, w1g36b, w1g4a, w1g4b
+
 implicit none
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "paraconstants_h.fh"
 
 w0g36a = 0.d0
 w0g36b = 0.d0
@@ -1009,10 +996,11 @@ end subroutine external_space_plpmode_value_ts
 
 subroutine external_space_plpmode_value_ss()   !ss
 
+use gugaci_global, only: v_onevsqtwo, v_sqtwo, w0g13a, w0g14a, w0g15a, w0g2a, w0g2b, w0g34a, w0g34b, w0g35a, w0g35b, w0g36a, &
+                         w0g36b, w0g4a, w0g4b, w1g14a, w1g15a, w1g2a, w1g2b, w1g34a, w1g34b, w1g35a, w1g35b, w1g36a, w1g36b, &
+                         w1g4a, w1g4b
+
 implicit none
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "paraconstants_h.fh"
 
 w0g36a = -v_onevsqtwo
 w0g36b = -v_onevsqtwo
@@ -1044,10 +1032,10 @@ end subroutine external_space_plpmode_value_ss
 
 subroutine external_space_plpmode_value_tt()   !tt
 
+use gugaci_global, only: v_onevsqtwo, w0g14a, w0g15a, w0g2a, w0g2b, w0g34a, w0g34b, w0g35a, w0g35b, w0g36a, w0g36b, w0g4a, w0g4b, &
+                         w1g14a, w1g15a, w1g2a, w1g2b, w1g34a, w1g34b, w1g35a, w1g35b, w1g36a, w1g36b, w1g4a, w1g4b
+
 implicit none
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "paraconstants_h.fh"
 
 w0g36a = -v_onevsqtwo
 w0g36b = -v_onevsqtwo
@@ -1080,10 +1068,11 @@ end subroutine external_space_plpmode_value_tt
 
 subroutine external_space_plpmode_value_sd()
 
+use gugaci_global, only: v_sqtwo, w0g25, w0g25a, w0g26a, w0g27, w0g28a, w0g29, w0g30, w0g31, w0g32, w0plp25, w0plp26, w0plp27, &
+                         w0plp28, w0plp29, w0plp30, w0plp31, w0plp32, w1g25a, w1g26a, w1g27, w1g28a, w1g31, w1g32, w1plp27, &
+                         w1plp31, w1plp32
+
 implicit none
-#include "drt_h.fh"
-#include "paraconstants_h.fh"
-#include "lpextmode_h.fh"
 
 ! sd   lpmode_value
 w0g29 = v_sqtwo
@@ -1118,10 +1107,10 @@ end subroutine external_space_plpmode_value_sd
 
 subroutine external_space_plpmode_value_td()
 
+use gugaci_global, only: w0g25, w0g25a, w0g26a, w0g27, w0g28a, w0g29, w0g30, w0g31, w0g32, w0plp25, w0plp26, w0plp27, w0plp28, &
+                         w0plp31, w0plp32, w1g25a, w1g26a, w1g27, w1g28a, w1g31, w1g32, w1plp27, w1plp31, w1plp32
+
 implicit none
-#include "drt_h.fh"
-#include "paraconstants_h.fh"
-#include "lpextmode_h.fh"
 
 ! td   lpmode_value
 w0g29 = 0.d0
@@ -1154,10 +1143,9 @@ end subroutine external_space_plpmode_value_td
 
 subroutine external_space_plpmode_value_ds()
 
+use gugaci_global, only: v_onevsqtwo, w0g25, w0g25b, w0g26b, w0g28b, w0plp25, w0plp26, w0plp28, w1g25b, w1g26b, w1g28b
+
 implicit none
-#include "drt_h.fh"
-#include "paraconstants_h.fh"
-#include "lpextmode_h.fh"
 
 ! ds   lpmode_value
 w0g25 = -v_onevsqtwo
@@ -1176,10 +1164,9 @@ end subroutine external_space_plpmode_value_ds
 
 subroutine external_space_plpmode_value_dt()
 
+use gugaci_global, only: v_sqthreevsqtwo, w0g25, w0g25b, w0g26b, w0g28b, w1g25b, w1g26b, w1g28b
+
 implicit none
-#include "drt_h.fh"
-#include "paraconstants_h.fh"
-#include "lpextmode_h.fh"
 
 ! dt   lpmode_value
 w0g25 = v_sqthreevsqtwo   !v_onevsqtwo      !severe_new_error
@@ -1192,103 +1179,107 @@ w1g26b = 0.d0
 
 end subroutine external_space_plpmode_value_dt
 
-subroutine ss_ext_plpmode(ilnodesm,irnodesm,iltype,irtype,lptype)
-
-implicit none
-integer :: ilnodesm, irnodesm, iltype, irtype, lptype
-integer :: iii, ilrsm
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-
-ilrsm = mul_tab(ilnodesm,irnodesm)
-iii = 1   !index to determine lwei rwei iposint and nlinkorb
-! G2G4a G2G4b G1415 G13
-logic_g36a = .false.
-logic_g36b = .false.
-logic_g35a = .false.
-logic_g35b = .false.
-logic_g34a = .false.
-logic_g34b = .false.
-!if ((ilnodesm == 1) .and. (irnodesm == 3)) then
-!  write(6,*)
+!subroutine ss_ext_plpmode(ilnodesm,irnodesm,iltype,irtype,lptype)
+!
+!use gugaci_global, only: idownwei_g131415, ilsegdownwei, irsegdownwei, ism_g1415, ism_g2g4, logic_g13, logic_g1415, logic_g2g4a, &
+!                         logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, lpend34a, lpend34b, &
+!                         lpend35a, lpend35b, lpend36a, lpend36b, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, lpsta36b, &
+!                         mul_tab, nvalue_space_ss
+!
+!implicit none
+!integer :: ilnodesm, irnodesm, iltype, irtype, lptype
+!integer :: iii, ilrsm
+!
+!ilrsm = mul_tab(ilnodesm,irnodesm)
+!iii = 1   !index to determine lwei rwei iposint and nlinkorb
+!! G2G4a G2G4b G1415 G13
+!logic_g36a = .false.
+!logic_g36b = .false.
+!logic_g35a = .false.
+!logic_g35b = .false.
+!logic_g34a = .false.
+!logic_g34b = .false.
+!!if ((ilnodesm == 1) .and. (irnodesm == 3)) then
+!!  write(6,*)
+!!end if
+!
+!! G36b
+!lpsta36a = iii
+!call do_g36mode(ilrsm,ilnodesm,iii)
+!lpend36a = iii-4
+!if (lpend36a >= lpsta36a) logic_g36a = .true.   !severe_new_erro
+!lpsta35a = iii
+!call do_g35mode(ilrsm,ilnodesm,iii)
+!lpend35a = iii-4
+!if (lpend35a >= lpsta35a) logic_g35a = .true.
+!lpsta34a = iii
+!call do_g34mode(ilrsm,ilnodesm,iii)
+!lpend34a = iii-4
+!if (lpend34a >= lpsta34a) logic_g34a = .true.
+!if (ilrsm /= 1) then
+!  lpsta36b = iii
+!  call do_g36mode(ilrsm,irnodesm,iii)
+!  lpend36b = iii-4
+!  if (lpend36b >= lpsta36b) logic_g36b = .true.
+!  lpsta35b = iii
+!  call do_g35mode(ilrsm,irnodesm,iii)
+!  lpend35b = iii-4
+!  if (lpend35b >= lpsta35b) logic_g35b = .true.
+!  lpsta34b = iii
+!  call do_g34mode(ilrsm,irnodesm,iii)
+!  lpend34b = iii-4
+!  if (lpend34b >= lpsta34b) logic_g34b = .true.
+!else
+!  logic_g36b = logic_g36a
+!  lpsta36b = lpsta36a
+!  lpend36b = lpend36a
+!  logic_g35b = logic_g35a
+!  lpsta35b = lpsta35a
+!  lpend35b = lpend35a
+!  logic_g34b = logic_g34a
+!  lpsta34b = lpsta34a
+!  lpend34b = lpend34a
 !end if
-
-! G36b
-lpsta36a = iii
-call do_g36mode(ilrsm,ilnodesm,iii)
-lpend36a = iii-4
-if (lpend36a >= lpsta36a) logic_g36a = .true.   !severe_new_erro
-lpsta35a = iii
-call do_g35mode(ilrsm,ilnodesm,iii)
-lpend35a = iii-4
-if (lpend35a >= lpsta35a) logic_g35a = .true.
-lpsta34a = iii
-call do_g34mode(ilrsm,ilnodesm,iii)
-lpend34a = iii-4
-if (lpend34a >= lpsta34a) logic_g34a = .true.
-if (ilrsm /= 1) then
-  lpsta36b = iii
-  call do_g36mode(ilrsm,irnodesm,iii)
-  lpend36b = iii-4
-  if (lpend36b >= lpsta36b) logic_g36b = .true.
-  lpsta35b = iii
-  call do_g35mode(ilrsm,irnodesm,iii)
-  lpend35b = iii-4
-  if (lpend35b >= lpsta35b) logic_g35b = .true.
-  lpsta34b = iii
-  call do_g34mode(ilrsm,irnodesm,iii)
-  lpend34b = iii-4
-  if (lpend34b >= lpsta34b) logic_g34b = .true.
-else
-  logic_g36b = logic_g36a
-  lpsta36b = lpsta36a
-  lpend36b = lpend36a
-  logic_g35b = logic_g35a
-  lpsta35b = lpsta35a
-  lpend35b = lpend35a
-  logic_g34b = logic_g34a
-  lpsta34b = lpsta34a
-  lpend34b = lpend34a
-end if
-
-! G2G4a G2G4b G1415 G13
-logic_g2g4a = .false.
-logic_g2g4b = .false.
-logic_g1415 = .false.
-logic_g13 = .false.
-
-if ((irnodesm == 1) .and. (irtype == 4)) then
-  logic_g2g4a = .true.
-  ism_g2g4 = ilnodesm
-end if
-if ((ilnodesm == 1) .and. (iltype == 4)) then
-  logic_g2g4b = .true.
-  ism_g2g4 = irnodesm
-end if
-
-if ((lptype /= 2) .and. (ilrsm == 1)) then
-  logic_g1415 = .true.
-  ism_g1415 = ilnodesm
-  if ((ilnodesm == 1) .and. (iltype == 4) .and. (irtype == 4)) then
-    logic_g13 = .true.
-  end if
-  if (iltype == 4) then          !severe_error
-    idownwei_g131415 = irsegdownwei
-  else
-    idownwei_g131415 = ilsegdownwei
-  end if
-end if
-
-nvalue_space_ss = ip2_intsymspace/3
-
-end subroutine ss_ext_plpmode
+!
+!! G2G4a G2G4b G1415 G13
+!logic_g2g4a = .false.
+!logic_g2g4b = .false.
+!logic_g1415 = .false.
+!logic_g13 = .false.
+!
+!if ((irnodesm == 1) .and. (irtype == 4)) then
+!  logic_g2g4a = .true.
+!  ism_g2g4 = ilnodesm
+!end if
+!if ((ilnodesm == 1) .and. (iltype == 4)) then
+!  logic_g2g4b = .true.
+!  ism_g2g4 = irnodesm
+!end if
+!
+!if ((lptype /= 2) .and. (ilrsm == 1)) then
+!  logic_g1415 = .true.
+!  ism_g1415 = ilnodesm
+!  if ((ilnodesm == 1) .and. (iltype == 4) .and. (irtype == 4)) then
+!    logic_g13 = .true.
+!  end if
+!  if (iltype == 4) then          !severe_error
+!    idownwei_g131415 = irsegdownwei
+!  else
+!    idownwei_g131415 = ilsegdownwei
+!  end if
+!end if
+!
+!nvalue_space_ss = ip2_intsymspace/3
+!
+!end subroutine ss_ext_plpmode
 
 subroutine do_g36mode(ilrsm,ilnodesm,iii)
+
+use gugaci_global, only: mul_tab, ng_sm
 
 implicit none
 integer :: ilrsm, ilnodesm, iii
 integer :: isma, ismb, ismlink
-#include "drt_h.fh"
 
 do ismb=1,ng_sm
   isma = mul_tab(ismb,ilrsm)
@@ -1302,10 +1293,11 @@ end subroutine do_g36mode
 
 subroutine do_g34mode(ilrsm,ilnodesm,iii)
 
+use gugaci_global, only: mul_tab, ng_sm
+
 implicit none
 integer :: ilrsm, ilnodesm, iii
 integer :: isma, ismb, ismlink
-#include "drt_h.fh"
 
 do ismb=1,ng_sm
   isma = mul_tab(ismb,ilrsm)
@@ -1319,10 +1311,11 @@ end subroutine do_g34mode
 
 subroutine do_g35mode(ilrsm,ilnodesm,iii)
 
+use gugaci_global, only: mul_tab, ng_sm
+
 implicit none
 integer :: ilrsm, ilnodesm, iii
 integer :: isma, ismb, ismlink
-#include "drt_h.fh"
 
 do ismb=1,ng_sm
   isma = mul_tab(ismb,ilrsm)
@@ -1336,11 +1329,11 @@ end subroutine do_g35mode
 
 subroutine g36_form(isma,ismb,ismlink,iii)
 
+use gugaci_global, only: ibsm_ext, iesm_ext, iwt_orb_ext, lpext_wei
+
 implicit none
 integer :: isma, ismb, ismlink, iii
 integer :: ia, iaend, iasta, ib, ibend, ibsta, icsta, ilinkend, ilinksta, nlinkorb
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 ibsta = ibsm_ext(ismb)
 ibend = iesm_ext(ismb)
@@ -1369,11 +1362,11 @@ end subroutine g36_form
 
 subroutine g34_form(isma,ismb,ismlink,iii)
 
+use gugaci_global, only: ibsm_ext, iesm_ext, iwt_orb_ext, lpext_wei
+
 implicit none
 integer :: isma, ismb, ismlink, iii
 integer :: iaend, iasta, ib, ibend, ibsta, ilink, ilinkend, ilinksta, naorb
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 ibsta = ibsm_ext(ismb)
 ibend = iesm_ext(ismb)
@@ -1401,11 +1394,11 @@ end subroutine g34_form
 
 subroutine g35_form(isma,ismb,ismlink,iii)
 
+use gugaci_global, only: ibsm_ext, iesm_ext, iwt_orb_ext, lpext_wei
+
 implicit none
 integer :: isma, ismb, ismlink, iii
 integer :: iaend, iasta, ib, ibend, ibsta, ilink, ilinkend, ilinksta, naorb
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 ibsta = ibsm_ext(ismb)
 ibend = iesm_ext(ismb)
@@ -1453,10 +1446,10 @@ end function ibfunction
 
 subroutine determine_para_array_for_int1ind()
 
+use gugaci_global, only: mul_tab, ng_sm, ngw2, ngw3, nlsm_ext, norb_ext
+
 implicit none
-integer :: isma, ismab, ismabc, ismb, ismc, jpsmabc, nintcount, numa, numb, numc, numint
-#include "drt_h.fh"
-#include "intsort_h.fh"
+integer :: isma, ismab, ismabc, ismb, ismc, nintcount, numa, numb, numc, numint
 
 do ismabc=1,ng_sm
   nintcount = 0
@@ -1493,29 +1486,24 @@ do ismabc=1,ng_sm
       end if
       if (numint <= 0) cycle            !severe_new_error
       numint = numint*3
-      jpsmabc = isma+jp2(ismb)+jp3(ismc)
-      intoset_of_ext_jpsmabc(jpsmabc) = nintcount
       nintcount = nintcount+numint
     end do
   end do
-  intoset_of_aad_isma(ismabc) = nintcount
   numint = nlsm_ext(ismabc)*norb_ext*2
   nintcount = nintcount+numint
   numint = nlsm_ext(ismabc)
-  intnum_of_innext_isma(ismabc) = nintcount+numint
 end do
 
 end subroutine determine_para_array_for_int1ind
 
 subroutine g_dd_ext_sequence_G(ism)
 
+use gugaci_global, only: ibsm_ext, ican_a, icano_nnend, icano_nnsta, icnt_base, iesm_ext, index_lpext, index_lpext1, index_lpext2, &
+                         norb_number, value_lpext2
+
 implicit none
 integer :: ism
 integer :: ia, iasta, ib, ibend, ibsta, ilwei, lra, lrb, nac
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
-#include "iaib.fh"
 
 icano_nnsta = 2
 icnt_base = 0
@@ -1543,12 +1531,12 @@ end subroutine g_dd_ext_sequence_G
 
 subroutine g_tt_ext_sequence_G(ism)
 
+use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iwt_orb_ext, m_jc, m_jd, max_tmpvalue, mul_tab, &
+                         ng_sm
+
 implicit none
 integer :: ism
 integer :: ic, ic_sta, icano_nn, icend, id, id_sta, idend, idsta, isma, ismb, ismc, ismd
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 icano_nnsta = 2
 icnt_base = 0
@@ -1603,12 +1591,12 @@ end subroutine g_tt_ext_sequence_G
 
 subroutine g_ss_ext_sequence_G(ism,itype)
 
+use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iwt_orb_ext, iwt_sm_s_ext, m_jc, m_jd, &
+                         max_tmpvalue, mul_tab, ng_sm, norb_ext
+
 implicit none
 integer :: ism, itype
 integer :: ic, ic_sta, icano_nn, icend, id, id_sta, idend, idsta, isma, ismb, ismc, ismd
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 icano_nnsta = 2
 icnt_base = 0
@@ -1678,12 +1666,12 @@ end subroutine g_ss_ext_sequence_G
 
 subroutine g12_diffsym_G(isma,ismb,ismc,ic,id)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
+                         value_lpext, value_lpext1
+
 implicit none
 integer :: isma, ismb, ismc, ic, id
 integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 !write(nf2,*) 'g12_diff'
 lrc = norb_number(ic)
@@ -1742,12 +1730,12 @@ end subroutine g12_diffsym_G
 
 subroutine g11a_diffsym_G(isma,ismb,ismc,ic,id)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
+                         value_lpext, value_lpext1
+
 implicit none
 integer :: isma, ismb, ismc, ic, id
 integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 !write(nf2,*) 'g11a_diff'
 lrc = norb_number(ic)
@@ -1781,12 +1769,12 @@ end subroutine g11a_diffsym_G
 
 subroutine g11b_diffsym_G(isma,ismb,ismc,ic,id)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
+                         value_lpext, value_lpext1
+
 implicit none
 integer :: isma, ismb, ismc, ic, id
 integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 !write(nf2,*) 'g11b_diff'
 lrc = norb_number(ic)
@@ -1819,12 +1807,12 @@ end subroutine g11b_diffsym_G
 
 subroutine g1112_symaaaa_G(isma,ic,id)
 
+use gugaci_global, only: ibsm_ext, icnt_base, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, value_lpext, &
+                         value_lpext1
+
 implicit none
 integer :: isma, ic, id
 integer :: ia, iasta, ib, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 !write(nf2,*) 'g1112_symaaaa'
 lrc = norb_number(ic)
@@ -1885,12 +1873,12 @@ end subroutine g1112_symaaaa_G
 
 subroutine g11a11b_symaacc_G(isma,ismc,ic,id)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
+                         value_lpext, value_lpext1
+
 implicit none
 integer :: isma, ismc, ic, id
 integer :: ia, iaend, iasta, ib, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 !write(nf2,*) 'g11a11b_symaacc'
 lrc = norb_number(ic)
@@ -1936,13 +1924,12 @@ end subroutine g11a11b_symaacc_G
 
 subroutine g10_ext_G(ismc,ic,id)
 
+use gugaci_global, only: ibsm_ext, ican_a, icnt_base, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
+                         value_lpext, value_lpext1, value_lpext2
+
 implicit none
 integer :: ismc, ic, id
 integer :: ia, iasta, ilwei, lra, lrc, lrd, nac, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "iaib.fh"
-#include "gext_sequence.fh"
 
 !write(nf2,*) 'g10_ext'
 lrc = norb_number(ic)
@@ -1967,13 +1954,12 @@ end subroutine g10_ext_G
 
 subroutine g5_ext_G(ismd,ic,id)
 
+use gugaci_global, only: ibsm_ext, ican_a, icnt_base, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
+                         value_lpext, value_lpext1, value_lpext2
+
 implicit none
 integer :: ismd, ic, id
 integer :: ib, ibsta, ilwei, lrb, lrc, lrd, nac, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
-#include "iaib.fh"
 
 !write(nf2,*) 'g5_ext'
 lrc = norb_number(ic)
@@ -1997,13 +1983,12 @@ end subroutine g5_ext_G
 
 subroutine g9_ext_G(ismd,ic,id)
 
+use gugaci_global, only: ibsm_ext, ican_a, icnt_base, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
+                         value_lpext, value_lpext1, value_lpext2
+
 implicit none
 integer :: ismd, ic, id
 integer :: ia, iasta, ilwei, lra, lrc, lrd, nac, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
-#include "iaib.fh"
 
 !write(nf2,*) 'g9_ext'
 lrc = norb_number(ic)
@@ -2028,14 +2013,13 @@ end subroutine g9_ext_G
 
 subroutine ext_lp_ab_s1_G(id)
 
+use gugaci_global, only: ibsm_ext, ican_a, icnt_base, iesm_ext, index_lpext, index_lpext1, index_lpext2, ng_sm, norb_number, &
+                         value_lpext, value_lpext2
+
 implicit none
 integer :: id
 integer :: ia, iasta, ib, ibend, ibsta, ic, ilwei, ismb, lra, lrb, lrc, lrd, nac, nxo
 real*8, parameter :: v_sqtwo = 1.414213562373095d0
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
-#include "iaib.fh"
 
 !write(nf2,*) 'ext_lp_ab_s1'
 lrd = norb_number(id)
@@ -2091,12 +2075,12 @@ end subroutine ext_lp_ab_s1_G
 
 subroutine g12_t_diffsym_G(isma,ismb,ismc,ic,id)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
+                         value_lpext, value_lpext1
+
 implicit none
 integer :: isma, ismb, ismc, ic, id
 integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 lrc = norb_number(ic)
 lrd = norb_number(id)
@@ -2154,12 +2138,12 @@ end subroutine g12_t_diffsym_G
 
 subroutine g11a_t_diffsym_G(isma,ismb,ismc,ic,id)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
+                         value_lpext, value_lpext1
+
 implicit none
 integer :: isma, ismb, ismc, ic, id
 integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 lrc = norb_number(ic)
 lrd = norb_number(id)
@@ -2192,12 +2176,12 @@ end subroutine g11a_t_diffsym_G
 
 subroutine g11b_t_diffsym_G(isma,ismb,ismc,ic,id)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
+                         value_lpext, value_lpext1
+
 implicit none
 integer :: isma, ismb, ismc, ic, id
 integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 lrc = norb_number(ic)
 lrd = norb_number(id)
@@ -2229,12 +2213,12 @@ end subroutine g11b_t_diffsym_G
 
 subroutine g1112_t_symaaaa_G(isma,ic,id)
 
+use gugaci_global, only: ibsm_ext, icnt_base, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, value_lpext, &
+                         value_lpext1
+
 implicit none
 integer :: isma, ic, id
 integer :: ia, iasta, ib, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 lrc = norb_number(ic)
 lrd = norb_number(id)
@@ -2294,12 +2278,12 @@ end subroutine g1112_t_symaaaa_G
 
 subroutine g11a11b_t_symaacc_G(isma,ismc,ic,id)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
+                         value_lpext, value_lpext1
+
 implicit none
 integer :: isma, ismc, ic, id
 integer :: ia, iaend, iasta, ib, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 lrc = norb_number(ic)
 lrd = norb_number(id)
@@ -2344,13 +2328,12 @@ end subroutine g11a11b_t_symaacc_G
 
 subroutine g36_t_ext_G(ismc,ic,id)
 
+use gugaci_global, only: ibsm_ext, ican_a, icnt_base, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
+                         value_lpext, value_lpext1, value_lpext2
+
 implicit none
 integer :: ismc, ic, id
 integer :: ia, iasta, ilwei, lra, lrc, lrd, nac, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "iaib.fh"
-#include "gext_sequence.fh"
 
 lrc = norb_number(ic)
 lrd = norb_number(id)
@@ -2374,13 +2357,12 @@ end subroutine g36_t_ext_G
 
 subroutine g5_t_ext_G(ismd,ic,id)
 
+use gugaci_global, only: ibsm_ext, ican_a, icnt_base, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
+                         value_lpext, value_lpext1, value_lpext2
+
 implicit none
 integer :: ismd, ic, id
 integer :: ib, ibsta, ilwei, lrb, lrc, lrd, nac, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
-#include "iaib.fh"
 
 lrc = norb_number(ic)
 lrd = norb_number(id)
@@ -2403,13 +2385,12 @@ end subroutine g5_t_ext_G
 
 subroutine g9_t_ext_G(ismd,ic,id)
 
+use gugaci_global, only: ibsm_ext, ican_a, icnt_base, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
+                         value_lpext, value_lpext1, value_lpext2
+
 implicit none
 integer :: ismd, ic, id
 integer :: ia, iasta, ilwei, lra, lrc, lrd, nac, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
-#include "iaib.fh"
 
 lrc = norb_number(ic)
 lrd = norb_number(id)
@@ -2433,13 +2414,12 @@ end subroutine g9_t_ext_G
 
 subroutine g31_diffsym_G(lri,isma,ismb)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, iwt_orb_ext, m_jd, norb_number, value_lpext, &
+                         value_lpext1, w0plp31, w1plp31
+
 implicit none
 integer :: lri, isma, ismb
 integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
-#include "gext_sequence.fh"
 
 LRC = norb_number(m_jd)
 
@@ -2471,13 +2451,12 @@ end subroutine g31_diffsym_G
 
 subroutine g32a_diffsym_G(lri,isma,ismb)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, iwt_orb_ext, m_jd, norb_number, value_lpext, &
+                         value_lpext1, w0plp32, w1plp32
+
 implicit none
 integer :: lri, isma, ismb
 integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
-#include "gext_sequence.fh"
 
 LRC = norb_number(m_jd)
 ibsta = ibsm_ext(ismb)
@@ -2504,13 +2483,12 @@ end subroutine g32a_diffsym_G
 
 subroutine g32b_diffsym_G(lri,isma,ismb)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, iwt_orb_ext, m_jd, norb_number, value_lpext, &
+                         value_lpext1, w0plp32, w1plp32
+
 implicit none
 integer :: lri, isma, ismb
 integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
-#include "gext_sequence.fh"
 
 LRC = norb_number(m_jd)
 ibsta = ibsm_ext(ismb)
@@ -2539,13 +2517,12 @@ end subroutine g32b_diffsym_G
 
 subroutine gsd_samesym_aaa_G(lri,isma)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, iwt_orb_ext, m_jd, norb_number, value_lpext, &
+                         value_lpext1, w0g28a, w0plp27, w0plp28, w0plp31, w0plp32, w1plp27, w1plp31, w1plp32
+
 implicit none
 integer :: lri, isma
 integer :: ia, iasta, ib, ibend, ibsta, ic, ilwei, lra, lrb, lrc, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
-#include "gext_sequence.fh"
 
 ic = m_jd
 lrc = norb_number(ic)
@@ -2609,7 +2586,7 @@ do ib=ic+1,ibend
   do ia=iasta,ic-1
     LRA = norb_number(IA)
 
-!     g32a   type g12
+    ! g32a   type g12
     call TRANS_IJKL_INTPOS(LRA,LRI,LRB,LRC,NXO)
     index_lpext(ilwei) = NXO
     value_lpext(ilwei) = w0plp32
@@ -2644,13 +2621,12 @@ end subroutine gsd_samesym_aaa_G
 
 subroutine gsd_diffsamesym_abb_G(lri,isma,ismb)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, iwt_orb_ext, m_jd, norb_number, value_lpext, &
+                         value_lpext1, w0g28a, w0plp28, w0plp31, w0plp32, w1plp31, w1plp32
+
 implicit none
 integer :: lri, isma, ismb
 integer :: ia, iaend, iasta, ib, ibend, ibsta, ic, ilwei, lra, lrb, lrc, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
-#include "gext_sequence.fh"
 
 ic = m_jd
 lrc = norb_number(ic)
@@ -2715,13 +2691,12 @@ end subroutine gsd_diffsamesym_abb_G
 
 subroutine gsd_diffsamesym_aab_G(lri,isma,ismb)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, iwt_orb_ext, m_jd, norb_number, value_lpext, &
+                         value_lpext1, w0plp27, w0plp32, w1plp27, w1plp32
+
 implicit none
 integer :: lri, isma, ismb
 integer :: ia, iaend, iasta, ib, ibend, ibsta, ic, ilwei, lra, lrb, lrc, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
-#include "gext_sequence.fh"
 
 ic = m_jd
 lrc = norb_number(ic)
@@ -2784,13 +2759,12 @@ end subroutine gsd_diffsamesym_aab_G
 
 subroutine gsd_arlp_s1_G(lri)
 
+use gugaci_global, only: icnt_base, index_lpext, index_lpext1, isegdownwei, m_jd, norb_ext, norb_number, value_lpext, w0plp26, &
+                         w0plp29, w0plp30
+
 implicit none
 integer :: lri
 integer :: ic, ilwei, is1orb, lrc, lrk, nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
-#include "gext_sequence.fh"
 
 ic = m_jd
 lrc = norb_number(ic)

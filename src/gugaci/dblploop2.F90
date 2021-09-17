@@ -17,14 +17,13 @@ subroutine SS_DRL_ACT_BL_SGT0(LIN,LRA)
 ! SS(1-20) (11)(22)Drl(33)-
 !=======================================================================
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
+                         mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+
 implicit none
 integer :: lin, lra
 integer :: iwal, iwar, iwdl, iwdr, lmi, lmj, lri, lrj, lrk, mpl
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 do LRI=NORB_FRZ+1,NORB_DZ
   LMI = LSM_INN(LRI)
@@ -100,16 +99,16 @@ subroutine SS_ARBL_ACT_BL_SGT0(LIN,LRA)
 ! SS(1-13) Ar(23)-Bl(31)-C"(12)-
 !=======================================================================
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, &
+                         vplpnew_w1, w0_ss, w1_ss
+
 implicit none
 integer :: lin, lra
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lri, lrj, lrk, mpl, ni
 real*8 :: w0ss1, w0ss11, w0ss12, w0ss13, w0ss3, w0ss6, w0ss7, w0ss8, w0ss9, w1ss1, w1ss11, w1ss12, w1ss13, w1ss3, w1ss6, w1ss7, &
           w1ss8, w1ss9
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 JMLR = MUL_TAB(JML,JMR)
 ISMA = MUL_TAB(IML,IMR)
@@ -320,15 +319,15 @@ subroutine ST_ARBL_ACT_BL_SGT0(LIN,LRA)
 ! ST(2-3) Ar(13)-Bl(32)-C'(22)-
 !***********************************************************************
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, &
+                         w1_st
+
 implicit none
 integer :: lin, lra
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lri, lrj, lrk, mpl, ni
 real*8 :: w1st3
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 JMLR = MUL_TAB(JML,JMR)
 ISMA = MUL_TAB(IML,IMR)
@@ -392,14 +391,13 @@ end subroutine ST_ARBL_ACT_BL_SGT0
 subroutine ST_DRL_ACT_BL_SGT0(LIN,LRA)
 ! ST(2-7) Drl(12)-C"(22)-
 
+use gugaci_global, only: ipae, ipael, jml, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
+                         mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
+
 implicit none
 integer :: lin, lra
 integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 do LRI=NORB_FRZ+1,NORB_DZ
   LMI = LSM_INN(LRI)
@@ -434,15 +432,15 @@ subroutine TS_ARBL_ACT_BL_SGT0(LIN,LRA)
 ! TS(3) A&R-B^L-  ACT -B&L ............................................
 ! TS(3-3) Ar(23)-Bl(31)-C"(22)-
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, &
+                         w1_ts
+
 implicit none
 integer :: lin, lra
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lri, lrj, lrk, mpl, ni
 real*8 :: w1ts3
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 JMLR = MUL_TAB(JML,JMR)
 ISMA = MUL_TAB(IML,IMR)
@@ -495,15 +493,15 @@ subroutine STT_ARBL_ACT_BL_SGT1(LIN,LRA)
 ! ST1(4-4) Ar(23)-C'(11)-Bl(31)-
 ! ST1(4-4) Ar(23)-Bl(31)-C"(11)-
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, &
+                         w1_st1
+
 implicit none
 integer :: lin, lra
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lmk, lri, lrj, lrk, mpl
 real*8 :: w1st1, w1st2, w1st3, w1st4
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 ISMA = MUL_TAB(IML,IMR)
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -576,7 +574,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
           VPLP_W1(MPL) = -VPLPNEW_W1(MPL)*W1ST3
         end do
         call Ar_Bl_BL_EXT_AR_NEW(LIN,INTPOS,ISMA,1)
-!ST1(4-4) Ar(23)-C'(11)-Bl(31)-
+        ! ST1(4-4) Ar(23)-C'(11)-Bl(31)-
         IWDL = JUST(LRI,LRK)
         IWDR = JUST(LRK,LRJ)
         do MPL=1,MHLP
@@ -641,15 +639,15 @@ subroutine TTS_ARBL_ACT_BL_SGT1(LIN,LRA)
 ! T1S(5-3)   Ar(13)-Bl(31)-C"(12)-
 ! T1S(5-4)   Ar(13)-Bl(32)-C"(11)-
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, &
+                         w1_t1s
+
 implicit none
 integer :: lin, lra
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lmk, lri, lrj, lrk, mpl
 real*8 :: w1ts1, w1ts2, w1ts3, w1ts4
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 ISMA = MUL_TAB(IML,IMR)
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -768,14 +766,13 @@ subroutine TTS_Drl_ACT_BL_SGT1(LIN,LRA)
 ! T1S(5-6)   Drl(12)-C"(12)-
 ! T1S(5-7)   Drl(12)-C"(11)-
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
+                         mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_t1s
+
 implicit none
 integer :: lin, lra
 integer :: iwal, iwar, iwdl, iwdr, lmi, lmj, lri, lrj, mpl
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 do LRI=NORB_FRZ+1,NORB_DZ
   LMI = LSM_INN(LRI)
@@ -835,15 +832,15 @@ subroutine SDD_ABB_ACT_C_SGT0(LIN)
 !SD1(8-7)    Ar(13)-Bl(31)-BL(23)-
 !SD1(8-8)    Ar(23)-Bl(31)-BL(13)-
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, &
+                         vplpnew_w1, w0_sd1, w1_sd1
+
 implicit none
 integer :: lin
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lmk, lri, lrj, lrk, mpl, ni
 real*8 :: w0sd5, w0sd6, w0sd7, w0sd8, w1sd5, w1sd6, w1sd7, w1sd8
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 ISMA = MUL_TAB(IML,IMR)
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -951,15 +948,14 @@ subroutine SDD_DrlBl_ACT_C_SGT0(LIN)
 ! SD1(8-12) Drl(33)-BL(13)-C'(21)-
 ! SD1(8-13) Drl(33)-BL(23)-C'(11)-
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, &
+                         mtype, mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sd1, w1_sd1
+
 implicit none
 integer :: lin
 integer :: iwal, iwar, iwdl, iwdr, lmi, lmj, lmk, lri, lrj, lrk, mpl
 real*8 :: w0sd10, w0sd11, w0sd12, w0sd13, w0sd9, w1sd10, w1sd11, w1sd12, w1sd13, w1sd9
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 do LRI=NORB_FRZ+1,NORB_DZ
   LMI = LSM_INN(LRI)
@@ -1105,15 +1101,14 @@ end subroutine SDD_DrlBl_ACT_C_SGT0
 subroutine SDD_DrrBR_ACT_C_SGT0(LIN)
 ! SD1(8-9)    Drr(03)-BR(31)-
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, &
+                         mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, w0_sd1
+
 implicit none
 integer :: lin
 integer :: iwal, iwar, iwdl, iwdr, lmj, lri, lrj, mpl
 real*8 :: w0sd
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 do LRI=NORB_FRZ+1,NORB_DZ
   do LRJ=LRI+1,NORB_DZ
@@ -1147,15 +1142,15 @@ subroutine SDD_Ar_ACT_BrBR_SGT0(LIN,LRA)
 ! SD1(8-3)    Ar(13)-C'(21)-
 ! SD1(8-4)    Ar(23)-C'(11)-
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, &
+                         w0_sd1, w1_sd1
+
 implicit none
 integer :: lin, lra
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl, ni
 real*8 :: w0sd1, w0sd2, w0sd3, w0sd4, w1sd1, w1sd2, w1sd3, w1sd4
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 ISMA = MUL_TAB(IML,IMR)
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -1271,15 +1266,15 @@ subroutine SDD_Ar_ACT_BlBL_SGT0(LIN,LRA)
 ! SD1(8-3)    Ar(13)-C'(21)-
 ! SD1(8-4)    Ar(23)-C'(11)-
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, &
+                         w0_sd1, w1_sd1
+
 implicit none
 integer :: lin, lra
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl, ni
 real*8 :: w0sd1, w0sd2, w0sd3, w0sd4, w1sd1, w1sd2, w1sd3, w1sd4
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 ISMA = MUL_TAB(IML,IMR)
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -1393,15 +1388,15 @@ subroutine DDS_ABB_ACT_C_SGT0(LIN)
 ! D1S(9-2)    Ar(13)-Bl(31)-BR(32)-
 ! D1S(9-3)    Ar(13)-Bl(32)-BR(31)-
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, &
+                         w1_d1s
+
 implicit none
 integer :: lin
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmj, lmk, lri, lrj, lrk, mpl, ni
 real*8 :: w1ds2, w1ds3
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 ISMA = MUL_TAB(IML,IMR)
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -1464,14 +1459,13 @@ subroutine TTTT_Drl_ACT_BL_SGT1(LIN,LRA)
 ! T1T1(12-3)  (11)Drl(33)-C"(11)-
 ! T1T1(12-3)  Drl(33)-C"(11)-C"(11)-
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
+                         mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_t1t1, w1_t1t1
+
 implicit none
 integer :: lin, lra
 integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, lrk, mpl
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 if (JML /= JMR) return
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -1524,15 +1518,15 @@ subroutine TTTT_ArBl_ACT_BL_SGT1(LIN,LRA)
 ! T1T1(12-1)  Ar(13)-C'(11)-Bl(31)-
 ! T1T1(12-1)  Ar(13)-Bl(31)-C"(11)-
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, &
+                         vplpnew_w1, w0_t1t1, w1_t1t1
+
 implicit none
 integer :: lin, lra
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmj, lmk, lri, lrj, lrk, mpl
 real*8 :: w0tt1, w1tt1
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 ISMA = MUL_TAB(IML,IMR)
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -1621,15 +1615,14 @@ subroutine TTDD_DrlBL_ACT_C_SGT1(LIN)
 ! T1D1(15-5)  Drl(33)-C"(11)-BL(13)-
 ! T1D1(15-5)  Drl(33)-BL(13)-C'(11)-
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, &
+                         mtype, mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_t1d1, w1_t1d1
+
 implicit none
 integer :: lin
 integer :: iwal, iwar, iwdl, iwdr, lmi, lmj, lri, lrj, lrk, mpl
 real*8 :: w0td4, w0td5, w1td4, w1td5
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 do LRI=NORB_FRZ+1,NORB_DZ
   LMI = LSM_INN(LRI)
@@ -1722,15 +1715,15 @@ subroutine TTDD_ABB_ACT_C_SGT1(LIN)
 ! T1D1(15-2)  Ar(13)-Br(13)-BR(31)-
 ! T1D1(15-3)  Ar(13)-Bl(31)-Bl(13)-
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, &
+                         vplpnew_w1, w0_t1d1, w1_t1d1
+
 implicit none
 integer :: lin
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmj, lmk, lri, lrj, lrk, mpl, ni
 real*8 :: w0td3, w1td2, w1td3
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 ISMA = MUL_TAB(IML,IMR)
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -1794,15 +1787,15 @@ subroutine TTDD_Ar_ACT_BrBR_SGT0(LIN,LRA)
 ! T1D1(15-1)  (11)Ar(13)-
 ! T1D1(15-1)  Ar(13)-C'(11)-
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, &
+                         w0_t1d1, w1_t1d1
+
 implicit none
 integer :: lin, lra
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl
 real*8 :: w0td1, w1td1
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 ISMA = MUL_TAB(IML,IMR)
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -1867,15 +1860,15 @@ subroutine TTDD_Ar_ACT_BlBL_SGT0(LIN,LRA)
 ! T1D1(15-1)  (11)Ar(13)-
 ! T1D1(15-1)  Ar(13)-C'(11)-
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, &
+                         w0_t1d1, w1_t1d1
+
 implicit none
 integer :: lin, lra
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl
 real*8 :: w0td1, w1td1
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 ISMA = MUL_TAB(IML,IMR)
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -1939,15 +1932,15 @@ end subroutine TTDD_Ar_ACT_BlBL_SGT0
 subroutine TTV_ArBr_ACT_C_SGT1(LIN,LRA)
 ! T1V(18) Ar(13)-Br(13)-
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, &
+                         w1_t1v
+
 implicit none
 integer :: lin, lra
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl
 real*8 :: w1tv1
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 isma = mul_tab(iml,imr)
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -1983,15 +1976,15 @@ end subroutine TTV_ArBr_ACT_C_SGT1
 subroutine DDDD_ArBl_ACT_BL_SGT0(LIN,LRA)
 ! D1D1(20-1) Ar(13)-BL(31)-
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, &
+                         lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, &
+                         w0_d1d1, w1_d1d1
+
 implicit none
 integer :: lin, lra
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmj, lri, lrj, mpl
 real*8 :: w0dd1, w1dd1
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 ISMA = MUL_TAB(IML,IMR)
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -2032,14 +2025,13 @@ subroutine DDDD_Drl_ACT_BL_SGT0(LIN,LRA)
 ! D1D1(20-3) (11)Drl(33)-
 ! D1D1(20-3) Drl(33)-C"(11)-
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, jud, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
+                         norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_d1d1, w1_d1d1
+
 implicit none
 integer :: lin, lra
 integer :: iwal, iwar, iwdl, iwdr, lmi, lri, lrj, mpl
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 if (JML /= JMR) return
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -2078,15 +2070,14 @@ end subroutine DDDD_Drl_ACT_BL_SGT0
 subroutine DD1_ArBl_ACT_BL_SGT0(LIN,LRA)
 ! DD1(21) Ar(23)-Bl(31)-
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, &
+                         lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_dd1
+
 implicit none
 integer :: lin, lra
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmj, lri, lrj, mpl
 real*8 :: w1dd1
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 ISMA = MUL_TAB(IML,IMR)
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -2123,15 +2114,14 @@ end subroutine DD1_ArBl_ACT_BL_SGT0
 subroutine D1D_ArBl_ACT_BL_SGT0(LIN,LRA)
 ! DD1(21) Ar(13)-Bl(32)-
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, &
+                         lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_d1d
+
 implicit none
 integer :: lin, lra
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmj, lri, lrj, mpl
 real*8 :: w1dd1
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 ISMA = MUL_TAB(IML,IMR)
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -2168,14 +2158,13 @@ end subroutine D1D_ArBl_ACT_BL_SGT0
 subroutine D1D_Drl_ACT_BL_SGT0(LIN,LRA)
 ! D1D(22-2) Drl(12)-
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, jud, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
+                         norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_d1d
+
 implicit none
 integer :: lin, lra
 integer :: iwal, iwar, iwdl, iwdr, lmi, lri, mpl
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 if (JML /= JMR) return
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -2205,15 +2194,14 @@ subroutine D1V_Drl_BL_ACT_C_SGT0(LIN)
 ! D1V(24-1)  Ar(13)-
 ! D1V(24-2)  Drl(33)-BL(13)-
 
+use gugaci_global, only: iml, imr, ipae, ipael, jml, jmr, jpad, jpadl, jud, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, &
+                         mhlp, mtype, mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_d1v
+
 implicit none
 integer :: lin
 integer :: isma, iwal, iwar, iwdl, iwdr, lmi, lri, lrj, mpl, ni
 real*8 :: w0
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 ISMA = MUL_TAB(IML,IMR)
 if (JMR /= 1) return
@@ -2256,15 +2244,14 @@ end subroutine D1V_Drl_BL_ACT_C_SGT0
 subroutine D1V_Ar_ACT_BrBR_SGT0(LIN,LRA)
 ! D1V(24-1)  Ar(13)-
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, &
+                         lsm_inn, mhlp, mtype, mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_d1v, w1_d1v
+
 implicit none
 integer :: lin, lra
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lri, mpl
 real*8 :: w0dv1, w1dv1
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 ISMA = MUL_TAB(IML,IMR)
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -2300,15 +2287,14 @@ end subroutine D1V_Ar_ACT_BrBR_SGT0
 subroutine D1V_Ar_ACT_BlBL_SGT0(LIN,LRA)
 ! D1V(24-1)  Ar(13)-
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, &
+                         lsm_inn, mhlp, mtype, mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_d1v, w1_d1v
+
 implicit none
 integer :: lin, lra
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lri, mpl
 real*8 :: w0dv1, w1dv1
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 ISMA = MUL_TAB(IML,IMR)
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -2352,14 +2338,13 @@ subroutine SS_DRL_ACT_BR_SGT0(LIN,LRA)
 ! SS(1-20) (11)Drl(33)-C"(22)-
 ! SS(1-20) (11)(22)Drl(33)-
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
+                         mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+
 implicit none
 integer :: lin, lra
 integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, lrk, mpl
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 if (JML /= JMR) return
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -2414,14 +2399,13 @@ end subroutine SS_DRL_ACT_BR_SGT0
 subroutine SS_S_DRL_ACT_BR_SGT0(LIN,LRA)
 ! SS(1-19) Drl(12)-C"(21)-
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
+                         mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+
 implicit none
 integer :: lin, lra
 integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 if (JML /= JMR) return
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -2454,14 +2438,13 @@ end subroutine SS_S_DRL_ACT_BR_SGT0
 subroutine SS_S_DRL_ACT_BL_SGT0(LIN,LRA)
 ! SS(1-19) Drl(12)-C"(21)-
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
+                         mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+
 implicit none
 integer :: lin, lra
 integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 if (JML /= JMR) return
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -2504,16 +2487,16 @@ subroutine SS_ARBL_ACT_BR_SGT0(LIN,LRA)
 ! SS(1-13) Ar(23)-Bl(31)-C"(12)-
 !=======================================================================
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, &
+                         vplpnew_w1, w0_ss, w1_ss
+
 implicit none
 integer :: lin, lra
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lri, lrj, lrk, mpl, ni
 real*8 :: w0ss1, w0ss11, w0ss12, w0ss13, w0ss3, w0ss6, w0ss7, w0ss8, w0ss9, w1ss1, w1ss11, w1ss12, w1ss13, w1ss3, w1ss6, w1ss7, &
           w1ss8, w1ss9
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 JMLR = MUL_TAB(JML,JMR)
 ISMA = MUL_TAB(IML,IMR)
@@ -2723,15 +2706,15 @@ subroutine ST_ARBL_ACT_BR_SGT0(LIN,LRA)
 ! ST(2-3) Ar(13)-C'(22)-Bl(32)-
 ! ST(2-3) Ar(13)-Bl(32)-C'(22)-
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, &
+                         w1_st
+
 implicit none
 integer :: lin, lra
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lri, lrj, lrk, mpl, ni
 real*8 :: w1st3
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 JMLR = MUL_TAB(JML,JMR)
 ISMA = MUL_TAB(IML,IMR)
@@ -2797,14 +2780,13 @@ end subroutine ST_ARBL_ACT_BR_SGT0
 subroutine ST_DRL_ACT_BR_SGT0(LIN,LRA)
 ! ST(2-7) Drl(12)-C"(22)-
 
+use gugaci_global, only: ipae, ipael, jml, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
+                         mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
+
 implicit none
 integer :: lin, lra
 integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 do LRI=NORB_FRZ+1,NORB_DZ
   LMI = LSM_INN(LRI)
@@ -2839,15 +2821,15 @@ subroutine TS_ARBL_ACT_BR_SGT0(LIN,LRA)
 ! TS(3) A&R-B^L-  ACT -B&R ............................................
 ! TS(3-3) Ar(23)-Bl(31)-C"(22)-
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, &
+                         w1_ts
+
 implicit none
 integer :: lin, lra
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmik, lmj, lmjk, lmk, lri, lrj, lrk, mpl, ni
 real*8 :: w1ts3
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 ISMA = MUL_TAB(IML,IMR)
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -2901,15 +2883,15 @@ subroutine STT_ARBL_ACT_BR_SGT1(LIN,LRA)
 ! ST1(4-4) Ar(23)-C'(11)-Bl(31)-
 ! ST1(4-4) Ar(23)-Bl(31)-C"(11)-
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, &
+                         w1_st1
+
 implicit none
 integer :: lin, lra
 integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lmk, lri, lrj, lrk, mpl
 real*8 :: w1st1, w1st2, w1st3, w1st4
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 ISMA = MUL_TAB(IML,IMR)
 do LRI=NORB_FRZ+1,NORB_DZ
@@ -3043,14 +3025,13 @@ subroutine TTS_Drl_ACT_BR_SGT1(LIN,LRA)
 ! T1S(5-6)   Drl(12)-C"(12)-
 ! T1S(5-7)   Drl(12)-C"(11)-
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
+                         mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_t1s
+
 implicit none
 integer :: lin, lra
 integer :: iwal, iwar, iwdl, iwdr, lmi, lmj, lri, lrj, mpl
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 do LRI=NORB_FRZ+1,NORB_DZ
   LMI = LSM_INN(LRI)

@@ -11,13 +11,16 @@
 
 subroutine inn_ext_ss_drl_loop_unpack_g(iplplwei,iplprwei)
 
+use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, ism_g2g4, iwt_sm_s_ext, logic_g2g4a, logic_g2g4b, &
+                         logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, lpend34a, lpend34b, lpend35a, &
+                         lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, lpsta36b, &
+                         mul_tab, ng_sm, value_lpext, value_lpext1, vector1, vector2
+
 implicit none
 integer :: iplplwei, iplprwei
 integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, isma, ismb, lpend34, &
            lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real*8 :: valuelp, valuelp1
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 !write(6,*) ' ss_test 2/2'
 ii = 1
@@ -209,13 +212,16 @@ end subroutine inn_ext_ss_drl_loop_unpack_g
 
 subroutine inn_ext_st_drl_loop_unpack_g(iplplwei,iplprwei)
 
+use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, index_lpext, index_lpext1, ism_g2g4, iwt_sm_s_ext, logic_g1415, &
+                         logic_g2g4a, logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, &
+                         lpend34a, lpend34b, lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, &
+                         lpsta35b, lpsta36a, lpsta36b, mul_tab, ng_sm, value_lpext, value_lpext1, vector1, vector2
+
 implicit none
 integer :: iplplwei, iplprwei
 integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, isma, ismb, lpend34, &
            lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real*8 :: valuelp, valuelp1
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 !write(6,*) ' st_test 2/2'
 
@@ -430,14 +436,16 @@ end subroutine inn_ext_st_drl_loop_unpack_g
 
 subroutine inn_ext_tt_drl_loop_unpack_g(iplplwei,iplprwei,n1415)
 
+use gugaci_global, only: idownwei_g131415, index_lpext, index_lpext1, logic_g1415, logic_g34a, logic_g34b, logic_g35a, logic_g35b, &
+                         logic_g36a, logic_g36b, lpend34a, lpend34b, lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, &
+                         lpsta34b, lpsta35a, lpsta35b, lpsta36a, lpsta36b, value_lpext, value_lpext1, vector1, vector2
+
 implicit none
 integer :: iplplwei, iplprwei, n1415
 integer :: i, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, &
            mm, mm0, nn, nn0
 real*8 :: valuelp, valuelp1
 logical :: logic_g14150, logic_g34b0, logic_g35b0, logic_g36b0
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 !write(6,*) '  tt_test 2/2'
 logic_g14150 = logic_g1415
@@ -588,13 +596,16 @@ end subroutine inn_ext_tt_drl_loop_unpack_g
 
 subroutine inn_ext_ts_drl_loop_unpack_g(iplplwei,iplprwei)
 
+use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, index_lpext, index_lpext1, ism_g2g4, iwt_sm_s_ext, logic_g1415, &
+                         logic_g2g4a, logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, &
+                         lpend34a, lpend34b, lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, &
+                         lpsta35b, lpsta36a, lpsta36b, mul_tab, ng_sm, value_lpext, value_lpext1, vector1, vector2
+
 implicit none
 integer :: iplplwei, iplprwei
 integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, isma, ismb, lpend34, &
            lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real*8 :: valuelp, valuelp1
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 !write(6,*) '  ts_test 2/2'
 ii = 1
@@ -811,13 +822,16 @@ end subroutine inn_ext_ts_drl_loop_unpack_g
 
 subroutine inn_ext_ss_loop_unpack_g(iplplwei,iplprwei)
 
+use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, index_lpext, index_lpext1, ism_g2g4, iwt_sm_s_ext, logic_g1415, &
+                         logic_g2g4a, logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, &
+                         lpend34a, lpend34b, lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, &
+                         lpsta35b, lpsta36a, lpsta36b, mul_tab, ng_sm, nvalue_space_ss, value_lpext, value_lpext1, vector1, vector2
+
 implicit none
 integer :: iplplwei, iplprwei
 integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, isma, ismb, lpend34, &
            lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real*8 :: valuelp, valuelp1
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 !write(6,*) ' ss_test 1/2'
 ii = 1
@@ -1063,13 +1077,16 @@ end subroutine inn_ext_ss_loop_unpack_g
 
 subroutine inn_ext_st_loop_unpack_g(iplplwei,iplprwei)
 
+use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, index_lpext, index_lpext1, ism_g2g4, iwt_sm_s_ext, logic_g1415, &
+                         logic_g2g4a, logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, &
+                         lpend34a, lpend34b, lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, &
+                         lpsta35b, lpsta36a, lpsta36b, mul_tab, ng_sm, nvalue_space_ss, value_lpext, value_lpext1, vector1, vector2
+
 implicit none
 integer :: iplplwei, iplprwei
 integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, isma, ismb, lpend34, &
            lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real*8 :: valuelp, valuelp1
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 !write(6,*) ' st_test 1/2'
 ii = 1
@@ -1334,13 +1351,16 @@ end subroutine inn_ext_st_loop_unpack_g
 
 subroutine inn_ext_ts_loop_unpack_g(iplplwei,iplprwei)
 
+use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, index_lpext, index_lpext1, ism_g2g4, iwt_sm_s_ext, logic_g1415, &
+                         logic_g2g4a, logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, &
+                         lpend34a, lpend34b, lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, &
+                         lpsta35b, lpsta36a, lpsta36b, mul_tab, ng_sm, nvalue_space_ss, value_lpext, value_lpext1, vector1, vector2
+
 implicit none
 integer :: iplplwei, iplprwei
 integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, isma, ismb, lpend34, &
            lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real*8 :: valuelp, valuelp1
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 !write(6,*) '  ts_test 1/2 '
 ii = 1
@@ -1603,13 +1623,16 @@ end subroutine inn_ext_ts_loop_unpack_g
 
 subroutine inn_ext_tt_loop_unpack_g(iplplwei,iplprwei)
 
+use gugaci_global, only: idownwei_g131415, index_lpext, index_lpext1, logic_g1415, logic_g34a, logic_g34b, logic_g35a, logic_g35b, &
+                         logic_g36a, logic_g36b, lpend34a, lpend34b, lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, &
+                         lpsta34b, lpsta35a, lpsta35b, lpsta36a, lpsta36b, nvalue_space_ss, value_lpext, value_lpext1, vector1, &
+                         vector2
+
 implicit none
 integer :: iplplwei, iplprwei
 integer :: i, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, &
            mm, mm0, nn, nn0
 real*8 :: valuelp, valuelp1
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 !write(6,*) '  tt_test 1/2'
 ii = 1
@@ -1764,13 +1787,15 @@ end subroutine inn_ext_tt_loop_unpack_g
 
 subroutine gsd_sequence_extspace_g(iplplwei,iplprwei)
 
+use gugaci_global, only: index_lpext, index_lpext1, ivaluesta_g26, iweista_g25, iweista_g26, iweista_g28, logic_g25a, logic_g25b, &
+                         logic_g26, logic_g28a, nint_g25, nint_g28, nwei_g25, nwei_g26, nwei_g28, value_lpext, value_lpext1, &
+                         vector1, vector2
+
 implicit none
 integer :: iplplwei, iplprwei
 integer :: i, ilpvalue, indexlp, indexlp1, itmp, mm, nn, nn0
 real*8 :: valuelp, valuelp1
 real*8, parameter :: v_sqtwo = 1.414213562373095d0
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 !write(6,*) '  sd_test 1/2','  ds_test 1'
 
@@ -1887,14 +1912,14 @@ end subroutine gsd_sequence_extspace_g
 
 subroutine gtd_sequence_extspace_g(iplplwei,iplprwei)
 
+use gugaci_global, only: index_lpext, index_lpext1, iweista_g25, iweista_g28, logic_g25a, logic_g25b, logic_g28a, nint_g25, &
+                         nint_g28, nwei_g25, nwei_g28, value_lpext, value_lpext1, vector1, vector2
+
 implicit none
 integer :: iplplwei, iplprwei
 integer :: i, ilpvalue, indexlp, indexlp1, itmp, mm, nn, nn0
 real*8 :: valuelp, valuelp1
 real*8, parameter :: v_sqtwo = 1.414213562373095d0
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "cont_tmp.fh"
 
 !write(6,*) ' td_test _1/2',' dt_test '
 ilpvalue = 0
@@ -1991,12 +2016,12 @@ end subroutine gtd_sequence_extspace_g
 
 subroutine gdv_sequence_extspace_g(ilw,irw)
 
+use gugaci_global, only: ilsegdownwei, index_lpext, index_lpext1, value_lpext, value_lpext1, vector1, vector2
+
 implicit none
 integer :: ilw, irw
 integer :: iij, indexlp, indexlp1, mm, nn
 real*8 :: valuelp, valuelp1
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 mm = ilw
 nn = irw+1
@@ -2019,15 +2044,12 @@ end subroutine gdv_sequence_extspace_g
 
 subroutine complete_sd_ar_ext_loop_g(ilwei,irwei,isdownwei)
 
+use gugaci_global, only: icano_nnend, icano_nnsta, index_lpext, index_lpext1, value_lpext, value_lpext1, vector1, vector2
+
 implicit none
 integer :: ilwei, irwei, isdownwei
 integer :: ilpvalue, indexlp, indexlp1, mm, mm0, mmtmp, nn, nntmp
 real*8 :: valuelp, valuelp1
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
-#include "gext_sequence.fh"
 
 !write(6,*) 'sd_test 2/2','  td_test_2/2 2'
 ilpvalue = 0
@@ -2058,14 +2080,13 @@ end subroutine complete_sd_ar_ext_loop_g
 
 subroutine gdv_sequence_extspace1_g(ilw,irw,n)
 
+use gugaci_global, only: dm1tmp, ilsegdownwei, index_lpext3, index_lpext4, index_lpext5, value_lpext3, value_lpext4, value_lpext5, &
+                         vector1, vector2
+
 implicit none
 integer :: ilw, irw, n
 integer :: ilpvalue, indexlp2, indexlp3, indexlp4, mm, nii, nn
 real*8 :: valuelp2, valuelp3, valuelp4
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "grad_h.fh"
-#include "iaib.fh"
 
 mm = ilw
 nn = irw+1
@@ -2095,16 +2116,15 @@ end subroutine gdv_sequence_extspace1_g
 
 subroutine gtd_sequence_extspace1_g(iplplwei,iplprwei,n)
 
+use gugaci_global, only: dm1tmp, index_lpext3, index_lpext4, index_lpext5, iweista_g25, iweista_g28, logic_g25a, logic_g25b, &
+                         logic_g28a, nint_g25, nint_g28, nwei_g25, nwei_g28, value_lpext3, value_lpext4, value_lpext5, vector1, &
+                         vector2
+
 implicit none
 integer :: iplplwei, iplprwei, n
 integer :: i, ilpvalue, indexlp2, indexlp3, indexlp4, itmp, mm, nii, nn, nn0
 real*8 :: valuelp2, valuelp3, valuelp4
 real*8, parameter :: v_sqtwo = 1.414213562373095d0
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "grad_h.fh"
-#include "iaib.fh"
-#include "cont_tmp.fh"
 
 !write(6,*) ' td_test _1/2',' dt_test '
 ilpvalue = 0
@@ -2220,15 +2240,15 @@ end subroutine gtd_sequence_extspace1_g
 
 subroutine gsd_sequence_extspace1_g(iplplwei,iplprwei,n)
 
+use gugaci_global, only: dm1tmp, index_lpext3, index_lpext4, index_lpext5, ivaluesta_g26, iweista_g25, iweista_g26, iweista_g28, &
+                         logic_g25a, logic_g25b, logic_g26, logic_g28a, nint_g25, nint_g28, nwei_g25, nwei_g26, nwei_g28, &
+                         value_lpext3, value_lpext4, value_lpext5, vector1, vector2
+
 implicit none
 integer :: iplplwei, iplprwei, n
 integer :: i, ilpvalue, indexlp2, indexlp3, indexlp4, itmp, mm, nii, nn, nn0
 real*8 :: valuelp2, valuelp3, valuelp4
 real*8, parameter :: v_sqtwo = 1.414213562373095d0
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "grad_h.fh"
-#include "iaib.fh"
 
 !write(6,*) '  sd_test 1/2','  ds_test 0'
 
@@ -2374,12 +2394,13 @@ end subroutine gsd_sequence_extspace1_g
 
 subroutine inn_ext_dd_loop_unpack_g(iplplwei,iplprwei)
 
+use gugaci_global, only: ildownwei_segdd, index_lpext, index_lpext1, int_dd_drl, irdownwei_segdd, logic_g49a, logic_g49b, &
+                         logic_g50, value_lpext, value_lpext1, vector1, vector2
+
 implicit none
 integer :: iplplwei, iplprwei
 integer :: i, icle, ii, ildownwei, indexlp, indexlp1, irdownwei, j, mm, mm0, nn
 real*8 :: valuelp, valuelp1
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 !write(nf2,*) 'logic_g49b',logic_g50,logic_g49a,logic_g49b
 
@@ -2470,12 +2491,12 @@ end subroutine inn_ext_dd_loop_unpack_g
 
 subroutine inn_ext_sv_loop_unpack_g(ilw,irw)
 
+use gugaci_global, only: ilsegdownwei, index_lpext, index_lpext1, value_lpext, value_lpext1, vector1, vector2
+
 implicit none
 integer :: ilw, irw
 integer :: iij, indexlp, indexlp1, mm, nn
 real*8 :: valuelp, valuelp1
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 mm = ilw
 nn = irw+1
@@ -2504,10 +2525,11 @@ end subroutine inn_ext_sv_loop_unpack_g
 ! this subroutine prodab_1 does the dm1 part, which corresponds to voin
 subroutine prodab_1(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6,mg7)
 
+use gugaci_global, only: log_prod
+
 implicit none
 integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6, mg7
 real*8 :: wl
-#include "drt_h.fh"
 
 if (log_prod == 1) call prodab_h_1(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6,mg7)
 if (log_prod == 2) call prodab_h0_1(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6,mg7)
@@ -2518,12 +2540,10 @@ end subroutine prodab_1
 
 subroutine prodab_h_1(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6,mg7)
 
+use gugaci_global, only: dm1tmp, ican_a, ihy, ipae, ipael, iseg_downwei, iw_downwei, iy, jpad, jpad_upwei, jpadl, jphy, loputmp, &
+                         nu_ae, vector1
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "grad_h.fh"
-#include "iaib.fh"
 integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6, mg7
 real*8 :: wl
 integer :: ii, in_, ipae_, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpe, jph, &
@@ -2538,7 +2558,7 @@ select case (idb)
     iwdl = mg3
     iwdr = mg4
     do ipae_=1,25
-      ipae = ipae_ ! ipae is in common block, is this necessary?
+      ipae = ipae_ ! ipae is in global module, is this necessary?
       if (nu_ae(ipae) == 0) cycle
       iwdown = iw_downwei(jpad,ipae)
       if (iwdown == 0) cycle
@@ -2644,12 +2664,10 @@ end subroutine prodab_h_1
 
 subroutine prodab_h0_1(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6,mg7)
 
+use gugaci_global, only: dm1tmp, ican_a, ihy, ipae, ipael, iseg_downwei, iw_downwei, iy, jpad, jpad_upwei, jpadl, jphy, loputmp, &
+                         nu_ae, vector1
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "grad_h.fh"
-#include "iaib.fh"
 integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6, mg7
 real*8 :: wl
 integer :: ii, in_, ipae_, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpe, jph, &
@@ -2663,7 +2681,7 @@ select case (idb)
     iwdl = mg3
     iwdr = mg4
     do ipae_=1,25
-      ipae = ipae_ ! ipae is in common block, is this necessary?
+      ipae = ipae_ ! ipae is in global module, is this necessary?
       if (nu_ae(ipae) == 0) cycle
       iwdown = iw_downwei(jpad,ipae)
       if (iwdown == 0) cycle
@@ -2768,10 +2786,11 @@ end subroutine prodab_h0_1
 !this subroutine prodab_2 does the dm2 part, which corresponds to vint_c
 subroutine prodab_2(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6)
 
+use gugaci_global, only: log_prod
+
 implicit none
 integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6
 real*8 :: wl
-#include "drt_h.fh"
 
 if (log_prod == 1) call prodab_h_2(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6)
 if (log_prod == 2) call prodab_h0_2(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6)
@@ -2782,11 +2801,10 @@ end subroutine prodab_2
 
 subroutine prodab_h_2(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6)
 
+use gugaci_global, only: ihy, ipae, ipael, iseg_downwei, iw_downwei, iy, jpad, jpad_upwei, jpadl, jphy, loputmp, nu_ae, vector1, &
+                         vector2
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "grad_h.fh"
 integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6
 real*8 :: wl
 integer :: ii, in_, ipae_, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpe, jph, &
@@ -2800,7 +2818,7 @@ select case (idb)
     iwdl = mg3
     iwdr = mg4
     do ipae_=1,25
-      ipae = ipae_ ! ipae is in common block, is this necessary?
+      ipae = ipae_ ! ipae is in global module, is this necessary?
       if (nu_ae(ipae) == 0) cycle
       iwdown = iw_downwei(jpad,ipae)
       if (iwdown == 0) cycle
@@ -2904,11 +2922,10 @@ end subroutine prodab_h_2
 
 subroutine prodab_h0_2(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6)
 
+use gugaci_global, only: ihy, ipae, ipael, iseg_downwei, iw_downwei, iy, jpad, jpad_upwei, jpadl, jphy, loputmp, nu_ae, vector1, &
+                         vector2
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "grad_h.fh"
 integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6
 real*8 :: wl
 integer :: ii, in_, ipae_, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpe, jph, &
@@ -2923,7 +2940,7 @@ select case (idb)
     iwdr = mg4
     mntmp = 0
     do ipae_=1,25
-      ipae = ipae_ ! ipae is in common block, is this necessary?
+      ipae = ipae_ ! ipae is in global module, is this necessary?
       if (nu_ae(ipae) == 0) cycle
       iwdown = iw_downwei(jpad,ipae)
       if (iwdown == 0) cycle

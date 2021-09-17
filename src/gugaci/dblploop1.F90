@@ -11,16 +11,15 @@
 
 subroutine ss_head_dbl_tail_act(lra)
 
+use gugaci_global, only: jb_sys, jml, jmr, jpad, jpadl, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, &
+                         norb_frz, w0, w0_ss, w1, w1_ss
+
 implicit none
 integer :: lra
 integer :: iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lmki, lmkj, lr0, lri, lrj, lrk, ni
 real*8 :: vlop0, vlop1, w0ss1, w0ss10, w0ss11, w0ss12, w0ss13, w0ss14, w0ss15, w0ss16, w0ss17, w0ss18, w0ss2, w0ss20, w0ss3, &
           w0ss4, w0ss5, w0ss6, w0ss7, w0ss8, w0ss9, w1ss1, w1ss10, w1ss11, w1ss12, w1ss13, w1ss14, w1ss15, w1ss16, w1ss17, w1ss18, &
           w1ss2, w1ss3, w1ss4, w1ss5, w1ss6, w1ss7, w1ss8, w1ss9, wl, wl1, wl2, wl3, wl4
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 
 w0ss1 = 0.d0
 w1ss1 = 0.d0
@@ -608,14 +607,12 @@ end subroutine ss_head_dbl_tail_act
 
 subroutine st_head_dbl_tail_act(lra)
 
+use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w1, w1_st
+
 implicit none
 integer :: lra
 integer :: iwds, iwdt, jmlr, lmi, lmij, lmj, lmk, lri, lrj, lrk, ni
 real*8 :: vlop0, vlop1, w1st1, w1st2, w1st3, w1st4, wl, wl1
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 
 ! st(2-1) ar(02)-bl(32)-
 ! st(2-2) (22)ar(13)-bl(32)-
@@ -798,14 +795,12 @@ end subroutine st_head_dbl_tail_act
 
 subroutine ts_head_dbl_tail_act(lra)
 
+use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w1, w1_ts
+
 implicit none
 integer :: lra
 integer :: iwds, iwdt, lmas, lmi, lmij, lmj, lmk, lri, lrj, lrk, ni
 real*8 :: vlop0, vlop1, w1ts1, w1ts2, w1ts3, w1ts4, wl
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 
 ! ts(3-1) ar(23)-bl(20)-
 ! ts(3-2) (22)ar(23)-bl(31)-
@@ -931,14 +926,12 @@ end subroutine ts_head_dbl_tail_act
 
 subroutine stt_head_dbl_tail_act(lra)
 
+use gugaci_global, only: jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w1, w1_st1
+
 implicit none
 integer :: lra
 integer :: iwdl, iwdr, lmi, lmij, lmj, lmk, lri, lrj, lrk, ni
 real*8 :: vlop0, vlop1, w1st1, w1st2, w1st3, w1st4, wl
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 
 ! st1(4-1) ar(01)-bl(31)-
 ! st1(4-2) (11)ar(23)-bl(31)-
@@ -1065,14 +1058,12 @@ end subroutine stt_head_dbl_tail_act
 
 subroutine tts_head_dbl_tail_act(lra)
 
+use gugaci_global, only: jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w1, w1_t1s
+
 implicit none
 integer :: lra
 integer :: iwdl, iwdr, lmi, lmij, lmj, lmk, lri, lrj, lrk, ni
 real*8 :: vlop0, vlop1, w1t1s1, w1t1s2, w1t1s3, w1t1s4, w1t1s5, w1t1s6, w1t1s7, wl
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 
 ! t1s(5-1)   ar(13)-bl(10)-
 ! t1s(5-2)   ar(13)-bl(32)-
@@ -1255,14 +1246,13 @@ end subroutine tts_head_dbl_tail_act
 
 subroutine tt_head_dbl_tail_act(lra)
 
+use gugaci_global, only: jml, jmr, jpad, jpadl, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, &
+                         w0_tt, w1, w1_tt
+
 implicit none
 integer :: lra
 integer :: iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lmki, lmkj, lri, lrj, lrk, ni
 real*8 :: vlop0, vlop1, w0tt1, w0tt2, w0tt3, w1tt1, w1tt2, wl, wltmp
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 
 ! tt(11-1) (22)ar(23)-bl(32)-
 ! tt(11-1) ar(23)-c'(22)-bl(32)-
@@ -1404,14 +1394,13 @@ end subroutine tt_head_dbl_tail_act
 
 subroutine tttt_head_dbl_tail_act(lra)
 
+use gugaci_global, only: jml, jmr, jpad, jpadl, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, &
+                         w0_t1t1, w1, w1_t1t1
+
 implicit none
 integer :: lra
 integer :: iwdl, iwdr, lmi, lmij, lmj, lmm, lri, lrj, lrk, lrm, ni
 real*8 :: vlop0, vlop1, w0tt1, w1tt1, wl, wltmp
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 
 ! t1t1(12-1)  ar(13)-bl(31)-
 ! t1t1(12-1)  ar(13)-c'(11)-bl(31)-
@@ -1530,14 +1519,12 @@ end subroutine tttt_head_dbl_tail_act
 
 subroutine dd_head_dbl_tail_act(lra)
 
+use gugaci_global, only: jml, jmr, jpel, jper, jud, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_dd, w1, w1_dd
+
 implicit none
 integer :: lra
 integer :: imil, imir, iwdl, iwdr, lril, lrir, lrk, ni
 real*8 :: vlop0, vlop1, w0dd1, w1dd1, wl, wltmp
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 
 ! dd(19-1) ar(23)-bl(32)-
 ! dd(19-2) drl(22)-
@@ -1596,7 +1583,7 @@ do lril=norb_frz+1,norb_dz
       call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
     end if
     if (lril /= lrir) then
-!dd(19-1) ar(23)-bl(32)-
+      ! dd(19-1) ar(23)-bl(32)-
       vlop0 = w0*w0dd1
       vlop1 = w1*w1dd1
       if (line == 26) then   !lril,lrir,lra
@@ -1621,14 +1608,12 @@ end subroutine dd_head_dbl_tail_act
 
 subroutine dddd_head_dbl_tail_act(lra)
 
+use gugaci_global, only: jml, jmr, jpel, jper, jud, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_d1d1, w1, w1_d1d1
+
 implicit none
 integer :: lra
 integer :: imil, imir, iwdl, iwdr, lril, lrir, lrk, ni
 real*8 :: vlop0, vlop1, w0dd1, w1dd1, wl, wltmp
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 
 ! d1d1(20-1) ar(13)-bl(31)-
 ! d1d1(20-1) drl(11)-
@@ -1707,14 +1692,12 @@ end subroutine dddd_head_dbl_tail_act
 
 subroutine dd1_head_dbl_tail_act(lra)
 
+use gugaci_global, only: jml, jmr, jpel, jper, jud, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w1, w1_dd1
+
 implicit none
 integer :: lra
 integer :: iwdl, iwdr, lmi, lmj, lri, lrj, ni
 real*8 :: vlop0, vlop1, wl
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 
 do lri=norb_frz+1,norb_dz
   lmi = lsm_inn(lri)
@@ -1752,14 +1735,12 @@ end subroutine dd1_head_dbl_tail_act
 
 subroutine d1d_head_dbl_tail_act(lra)
 
+use gugaci_global, only: jml, jmr, jpel, jper, jud, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w1, w1_d1d
+
 implicit none
 integer :: lra
 integer :: iwdl, iwdr, lmi, lmj, lri, lrj
 real*8 :: vlop0, vlop1, wl
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 
 ! d1d(22-1)   ar(13)-bl(32)-
 ! d1d(22-2)   drl(12)-
@@ -1817,14 +1798,13 @@ end subroutine d1d_head_dbl_tail_act
 
 subroutine sv_head_dbl_tail_act(lra)
 
+use gugaci_global, only: jb_sys, jml, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, w0_sv, w1, &
+                         w1_sv
+
 implicit none
 integer :: lra
 integer :: iwdl, iwdr, lmi, lmij, lmj, lri, lrj, ni
 real*8 :: vlop0, vlop1, w0sv1, w0sv2, w1sv1, w1sv2, wl
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 
 ! sv(10-1) ar(13)-br(23)-
 ! sv(10-2) ar(23)-br(13)-
@@ -1897,11 +1877,10 @@ end subroutine sv_head_dbl_tail_act
 
 subroutine sd_head_dbl_tail_act(lra,lpcoe)
 
+use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, mul_tab, norb_dz, norb_frz, norb_inn, &
+                         vint_ci, voint, w0, w0_sd, w1, w1_sd
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 integer :: lra, lpcoe(norb_dz+1:norb_inn)
 integer :: iwdl, iwdl1, iwdr, jmlr, kcoe, list, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc
 real*8 :: tcoe, vlop0, vlop1, w0sd1, w0sd11, w0sd12, w0sd14, w0sd15, w0sd16, w0sd2, w0sd3, w0sd4, w0sd5, w0sd6, w0sd7, w0sd8, &
@@ -2196,11 +2175,10 @@ end subroutine sd_head_dbl_tail_act
 
 subroutine sdd_head_dbl_tail_act(lra,lpcoe)
 
+use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, mul_tab, norb_dz, norb_frz, norb_inn, &
+                         vint_ci, voint, w0, w0_sd1, w1, w1_sd1
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 integer :: lra, lpcoe(norb_dz+1:norb_inn)
 integer :: iwdl, iwdl1, iwdr, jmlr, kcoe, list, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc
 real*8 :: tcoe, vlop0, vlop1, w0sd1, w0sd10, w0sd11, w0sd12, w0sd13, w0sd2, w0sd3, w0sd4, w0sd5, w0sd6, w0sd7, w0sd8, w0sd9, &
@@ -2470,11 +2448,10 @@ end subroutine sdd_head_dbl_tail_act
 
 subroutine td_head_dbl_tail_act(lra,lpcoe)
 
+use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, mul_tab, norb_dz, norb_frz, norb_inn, vint_ci, voint, &
+                         w0, w0_td, w1, w1_td
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 integer :: lra, lpcoe(norb_dz+1:norb_inn)
 integer :: iwdl, iwdr, jmlr, kcoe, list, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc
 real*8 :: tcoe, vlop0, vlop1, w0td1, w0td2, w0td3, w0td4, w0td5, w1td2, w1td3, wl
@@ -2612,11 +2589,10 @@ end subroutine td_head_dbl_tail_act
 
 subroutine ttdd_head_dbl_tail_act(lra,lpcoe)
 
+use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, mul_tab, norb_dz, norb_frz, norb_inn, vint_ci, voint, &
+                         w0, w0_t1d1, w1, w1_t1d1
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 integer :: lra, lpcoe(norb_dz+1:norb_inn)
 integer :: iwdl, iwdr, jmlr, kcoe, list, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk,  ni, nocc
 real*8 :: tcoe, vlop0, vlop1, w0td1, w0td2, w0td3, w0td4, w0td5, w1td2, w1td3, wl
@@ -2755,15 +2731,14 @@ end subroutine ttdd_head_dbl_tail_act
 
 subroutine sv_arbr_act_c_ext_stv_sgt0(lin)
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
+                         mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sv, w1_sv
+
 implicit none
 integer :: lin
 integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lri, lrj, mpl, ni
 real*8 :: w0sv1, w1sv1
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 ! sv(10-1) ar(13)br(23)  act -c"-  tv_ext -br-ar
 jmlr = mul_tab(jml,jmr)

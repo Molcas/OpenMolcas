@@ -12,12 +12,10 @@
 ! look for partial loops in active space drt and save them into disk
 subroutine guga_ploop(npl,maxplcon)
 
+use gugaci_global, only: idisk_array, idisk_lp, LuLoop, mhlpmax
+
 implicit none
 integer :: npl, maxplcon
-#include "drt_h.fh"
-#include "files_gugaci.fh"
-#include "count.fh"
-#include "lpdisk.fh"
 
 maxplcon = 0
 mhlpmax = 0
@@ -52,13 +50,11 @@ end subroutine guga_ploop
 
 subroutine sv_lp_search(npl)
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_sv, mhsum, ng_sm
+
 implicit none
 integer :: npl
 integer :: iml_
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "lpdisk.fh"
-#include "count.fh"
 
 mhsum = 0
 lpblock = 0
@@ -80,13 +76,11 @@ end subroutine sv_lp_search
 
 subroutine sd_lp_search(npl)
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_sd, mhsum, ng_sm
+
 implicit none
 integer :: npl
 integer :: iml_, imr_
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "count.fh"
-#include "lpdisk.fh"
 
 mhsum = 0
 lpblock = 0
@@ -110,13 +104,11 @@ end subroutine sd_lp_search
 
 subroutine st_lp_search(npl)
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_st, mhsum, ng_sm
+
 implicit none
 integer :: npl
 integer :: iml_, imr_
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "count.fh"
-#include "lpdisk.fh"
 
 mhsum = 0
 lpblock = 0
@@ -140,13 +132,11 @@ end subroutine st_lp_search
 
 subroutine ss_lp_search(npl)
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_ss, mhsum, ng_sm
+
 implicit none
 integer :: npl
 integer :: iml_, imr_
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "count.fh"
-#include "lpdisk.fh"
 
 mhsum = 0
 lpblock = 0
@@ -170,13 +160,11 @@ end subroutine ss_lp_search
 
 subroutine tv_lp_search(npl)
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_tv, mhsum, ng_sm
+
 implicit none
 integer :: npl
 integer :: iml_
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "count.fh"
-#include "lpdisk.fh"
 
 mhsum = 0
 lpblock = 0
@@ -198,13 +186,11 @@ end subroutine tv_lp_search
 
 subroutine td_lp_search(npl)
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_td, mhsum, ng_sm
+
 implicit none
 integer :: npl
 integer :: iml_, imr_
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "count.fh"
-#include "lpdisk.fh"
 
 mhsum = 0
 lpblock = 0
@@ -228,13 +214,11 @@ end subroutine td_lp_search
 
 subroutine tt_lp_search(npl)
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_tt, mhsum, ng_sm
+
 implicit none
 integer :: npl
 integer :: iml_, imr_
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "count.fh"
-#include "lpdisk.fh"
 
 mhsum = 0
 lpblock = 0
@@ -258,13 +242,11 @@ end subroutine tt_lp_search
 
 subroutine ts_lp_search(npl)
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_ts, mhsum, ng_sm
+
 implicit none
 integer :: npl
 integer :: iml_, imr_
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "count.fh"
-#include "lpdisk.fh"
 
 mhsum = 0
 lpblock = 0
@@ -288,13 +270,11 @@ end subroutine ts_lp_search
 
 subroutine dv_lp_search(npl)
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_dv, mhsum, ng_sm
+
 implicit none
 integer :: npl
 integer :: iml_
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "count.fh"
-#include "lpdisk.fh"
 
 mhsum = 0
 lpblock = 0
@@ -316,13 +296,11 @@ end subroutine dv_lp_search
 
 subroutine dd_lp_search(npl)
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_dd, mhsum, ng_sm
+
 implicit none
 integer :: npl
 integer :: iml_, imr_
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "count.fh"
-#include "lpdisk.fh"
 
 mhsum = 0
 lpblock = 0
@@ -346,13 +324,11 @@ end subroutine dd_lp_search
 
 subroutine dt_lp_search(npl)
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_dt, mhsum, ng_sm
+
 implicit none
 integer :: npl
 integer :: iml_, imr_
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "count.fh"
-#include "lpdisk.fh"
 
 mhsum = 0
 lpblock = 0
@@ -376,13 +352,11 @@ end subroutine dt_lp_search
 
 subroutine ds_lp_search(npl)
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_ds, mhsum, ng_sm
+
 implicit none
 integer :: npl
 integer :: iml_, imr_
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "count.fh"
-#include "lpdisk.fh"
 
 mhsum = 0
 lpblock = 0
@@ -406,13 +380,11 @@ end subroutine ds_lp_search
 
 subroutine vd_lp_search(npl)
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_vd, mhsum, ng_sm
+
 implicit none
 integer :: npl
 integer :: imr_
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "count.fh"
-#include "lpdisk.fh"
 
 mhsum = 0
 lpblock = 0
@@ -434,14 +406,12 @@ end subroutine vd_lp_search
 
 subroutine act_lp_search(id,iptyl,iptyr)
 
+use gugaci_global, only: iml, imr, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, jpae, jpael, map_jplr, ndim, ng_sm, ns_sm, nu_ad, &
+                         nu_ae
+
 implicit none
 integer :: id, iptyl, iptyr
 integer :: ide, ipaer, jml_, jmlend, jmlsta, jmr_, jmrend, jmrsta, jpadr, jpaer, jptyl, jptyr, jptyrend
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
-#include "scratch.fh"
 
 call get_jp(iptyl,iml,ipael,0)
 call get_jp(iptyr,imr,ipaer,0)
@@ -461,7 +431,7 @@ do jptyl=1,6            !1,6???
   if (jptyl == 1) jmlsta = ns_sm
   if (jptyl == 1) jmlend = ns_sm
   do jml_=jmlsta,jmlend
-    jml = jml_          ! jml is in common block, is this necessary?
+    jml = jml_          ! jml is in global module, is this necessary?
     call get_jp(jptyl,jml,jpadl,0)
     if (nu_ad(jpadl) == 0) cycle
     jpad = jpadl
@@ -476,7 +446,7 @@ do jptyl=1,6            !1,6???
       if (jptyr == 1) jmrsta = ns_sm
       if (jptyr == 1) jmrend = ns_sm
       do jmr_=jmrsta,jmrend
-        jmr = jmr_      ! jmr is in common block, is this necessary?
+        jmr = jmr_      ! jmr is in global module, is this necessary?
         call get_jp(jptyr,jmr,jpadr,0)
         if (nu_ad(jpadr) == 0) cycle
         jpad = jpadr
@@ -505,12 +475,11 @@ end subroutine act_lp_search
 
 subroutine lp_head_in_act_1()      !for dv,td,sd
 
+use gugaci_global, only: iml, imr, intind_ijka, linelp, log_prod, logic_br, lpblock, lsm_inn, mhlp, mul_tab, ngw2, ngw3, nlg1, &
+                         nlg2, norb_dz, norb_frz, norb_inn
+
 implicit none
 integer :: ijk, imlr, intpos, lma, lmai, lmk, lra, lrai, lraj, lrak, lsmi, lsmij, lsmj, lsmk, mh
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 imlr = mul_tab(iml,imr)
 do lra=norb_dz+1,norb_inn
@@ -637,12 +606,11 @@ end subroutine lp_head_in_act_1
 
 subroutine lp_head_in_act_2()      !for vd,dt,ds
 
+use gugaci_global, only: iml, imr, intind_ijka, linelp, log_prod, logic_br, lpblock, lsm_inn, mhlp, mul_tab, ngw2, ngw3, nlg1, &
+                         nlg2, norb_dz, norb_frz, norb_inn
+
 implicit none
 integer :: ijk, imlr, intpos, lma, lmai, lmk, lra, lrai, lraj, lrak, lrd, lsmi, lsmij, lsmj, lsmk, mh
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 imlr = mul_tab(iml,imr)
 
@@ -743,13 +711,11 @@ end subroutine lp_head_in_act_2
 
 subroutine lp_head_in_act_3(ide)      !for ide=0:dd,tt,ide=1:ss,id
 
+use gugaci_global, only: iml, imr, logic_br, lpblock, lsm_inn, mul_tab, norb_dz, norb_inn
+
 implicit none
 integer :: ide
 integer :: imlr, lra, lrai, lraj, lsmi, lsmij, lsmj, mh
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 imlr = mul_tab(iml,imr)
 
@@ -794,12 +760,10 @@ end subroutine lp_head_in_act_3
 
 subroutine lp_head_in_act_4()
 
+use gugaci_global, only: iml, imr, linelp, log_prod, logic_br, lpblock, lsm_inn, mhlp, mul_tab, nlg1, nlg2, norb_dz, norb_inn
+
 implicit none
 integer :: imlr, lra, lrai, lraj, lsmi, lsmij, lsmj, mh
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 imlr = mul_tab(iml,imr)
 
@@ -853,12 +817,10 @@ end subroutine lp_head_in_act_4
 
 subroutine lp_head_in_dbl_1()      !for dv,sd,td
 
+use gugaci_global, only: iml, imr, jml, jmr, logic_br, lpblock, lsm_inn, mul_tab, ngw2, ngw3, norb_dz, norb_frz, norb_inn
+
 implicit none
 integer :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 imlr = mul_tab(iml,imr)
 jmlr = mul_tab(jml,jmr)
@@ -968,13 +930,12 @@ end subroutine lp_head_in_dbl_1
 
 subroutine lp_head_in_dbl_1_mrpt2()    !for dv,sd,td       !200709
 
+use gugaci_global, only: iml, imr, jml, jmr, jpadlr, jpadlrel, linelp, logic_br, lsm_inn, mhlp, mul_tab, ngw2, ngw3, nlg1, nlg2, &
+                         norb_dz, norb_frz, norb_inn
+
 implicit none
 integer :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
 logical :: do_15, do_16
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 imlr = mul_tab(iml,imr)
 jmlr = mul_tab(jml,jmr)
@@ -1135,12 +1096,11 @@ end subroutine lp_head_in_dbl_1_mrpt2
 
 subroutine lp_head_in_dbl_2()      !for vd,dt,ds
 
+use gugaci_global, only: iml, imr, jml, jmr, linelp, log_prod, logic_br, lpblock, lsm_inn, mhlp, mul_tab, ngw2, ngw3, nlg1, nlg2, &
+                         norb_dz, norb_frz, norb_inn
+
 implicit none
 integer :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 imlr = mul_tab(iml,imr)
 jmlr = mul_tab(jml,jmr)
@@ -1268,13 +1228,12 @@ end subroutine lp_head_in_dbl_2
 
 subroutine lp_head_in_dbl_2_mrpt2()          !for vd,dt,ds
 
+use gugaci_global, only: iml, imr, jml, jmr, jpadlr, jpadlrel, linelp, logic_br, lsm_inn, mhlp, mul_tab, ngw2, ngw3, nlg1, nlg2, &
+                         norb_dz, norb_frz, norb_inn
+
 implicit none
 integer :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
 logical :: do_16
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 imlr = mul_tab(iml,imr)
 jmlr = mul_tab(jml,jmr)
@@ -1396,13 +1355,11 @@ end subroutine lp_head_in_dbl_2_mrpt2
 
 subroutine lp_head_in_dbl_3(ide)      !for ide=0:dd,tt,ide=1:ss,id
 
+use gugaci_global, only: iml, imr, jml, jmr, logic_br, lpblock, lsm_inn, mul_tab, norb_dz, norb_inn
+
 implicit none
 integer :: ide
 integer :: imlr, jmlr, lend, lra, lsma, lsmact, lsta, mh
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 imlr = mul_tab(iml,imr)
 jmlr = mul_tab(jml,jmr)
@@ -1462,12 +1419,10 @@ end subroutine lp_head_in_dbl_3
 
 subroutine lp_head_in_dbl_4()
 
+use gugaci_global, only: iml, imr, jml, jmr, logic_br, lpblock, lsm_inn, mul_tab, norb_dz, norb_inn
+
 implicit none
 integer :: imlr, jmlr, lend, lra, lsma, lsmact, lsta, mh
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 imlr = mul_tab(iml,imr)
 jmlr = mul_tab(jml,jmr)
@@ -1519,13 +1474,12 @@ end subroutine lp_head_in_dbl_4
 
 subroutine lp_head_in_dbl_4_mrpt2()
 
+use gugaci_global, only: iml, imr, jml, jmr, jpadlr, jpadlrel, linelp, logic_br, lsm_inn, mhlp, mul_tab, nlg1, nlg2, norb_dz, &
+                         norb_inn
+
 implicit none
 integer :: imlr, jmlr, lend, lra, lsma, lsmact, lsta, mh
 logical :: do_15
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 imlr = mul_tab(iml,imr)
 jmlr = mul_tab(jml,jmr)
@@ -1602,13 +1556,12 @@ end subroutine lp_head_in_dbl_4_mrpt2
 
 subroutine print_lp()
 
+use gugaci_global, only: ihy, ihyl, iml, imr, jml, jmr, jpadlr, jphy, jphyl, linelp, lp_count, lpnew_coe, lpnew_head, lpnew_lwei, &
+                         lpnew_rwei, mhlp, mhsum, mtype, mul_tab, nlg1, nlg2, norb_dz, norb_inn, ns_sm, nstaval, nvalue, &
+                         vplpnew_w0, vplpnew_w1
+
 implicit none
 integer :: in_, jhyl, jhyr, jph, jpml, jpmr, lg1, lg2, line, m, mh
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "files_gugaci.fh"
-#include "count.fh"
-#include "lpdisk.fh"
 
 line = linelp
 mh = mhlp
@@ -1652,14 +1605,13 @@ end subroutine print_lp
 
 subroutine save_lp(line,mh,lg1,lg2)
 
+use gugaci_global, only: idisk_lp, ihy, ihyl, iml, imr, jml, jmr, jpadlr, jphy, jphyl, lp_count, lpnew_coe, lpnew_head, &
+                         lpnew_lwei, lpnew_rwei, LuLoop, mhlpmax, mhsum, mtype, mul_tab, norb_dz, norb_inn, ns_sm, nstaval, &
+                         nvalue, vplpnew_w0, vplpnew_w1
+
 implicit none
 integer :: line, mh, lg1, lg2
 integer :: idum(1), in_, info(10), jhyl, jhyr, jph, jpml, jpmr, lenw, m
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "files_gugaci.fh"
-#include "count.fh"
-#include "lpdisk.fh"
 
 if (mh > mhlpmax) mhlpmax = mh
 mhsum = mhsum+mh
@@ -1727,13 +1679,11 @@ end subroutine save_lp
 
 subroutine read_lp()
 
+use gugaci_global, only: idisk_lp, ihy, ihyl, iml, imr, jml, jmr, jpadlr, jphy, linelp, lpnew_coe, lpnew_lwei, lpnew_rwei, LuLoop, &
+                         mhlp, mtype, ndim, nlg1, nlg2, norb_dz, norb_inn, nstaval, nvalue, vplpnew_w0, vplpnew_w1
+
 implicit none
 integer :: ihypos, info(10), lenr, m
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
-#include "files_gugaci.fh"
-#include "lpdisk.fh"
 
 call idafile(luloop,2,info,10,idisk_lp)
 linelp = info(1)
@@ -1781,15 +1731,16 @@ end subroutine read_lp
 
 subroutine value_sort_ploop(mh,logic_ar,logic_w0,logic_w1)
 
+use gugaci_global, only: lp_coe, lp_head, lp_lwei, lp_rwei, lpnew_coe, lpnew_head, lpnew_lwei, lpnew_rwei, mtype, norb_dz, &
+                         norb_inn, nstaval, nvaltype, nvalue, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
+use stdalloc, only: mma_allocate, mma_deallocate
+
 implicit none
 integer :: mh
 logical :: logic_ar, logic_w0, logic_w1
 integer :: lr, m, mnew, mty, n, nty
 real*8 :: s_w0, s_w1, w0, w1, zero
 integer, allocatable :: ntype(:)
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "stdalloc.fh"
 
 call mma_allocate(ntype,nvaltype,label='nvaltype')
 zero = 0.d0
@@ -1863,11 +1814,9 @@ end subroutine value_sort_ploop
 
 subroutine ext_head_in_act()
 
+use gugaci_global, only: ipaety, jml, jmr, logic_dh, mul_tab, ns_sm
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 logic_dh = .false.
 jml = mul_tab(jml,ns_sm)
@@ -1892,11 +1841,9 @@ end subroutine ext_head_in_act
 
 subroutine ext_head_in_dbl()
 
+use gugaci_global, only: ipaety, jml, jmr, logic_dh, mul_tab, ns_sm
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 logic_dh = .true.
 jml = mul_tab(jml,ns_sm)

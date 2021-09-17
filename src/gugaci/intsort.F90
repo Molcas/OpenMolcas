@@ -11,10 +11,10 @@
 
 subroutine int_sort()
 
+use gugaci_global, only: intind_abkk, intind_iaqq, intspace_abkk, LuCiInt, maxintseg, norb_dz, norb_ext, norb_frz, norb_inn, &
+                         viasum_0, viasum_1, vijkk_0sum, vijkk_1sum, vint_ci
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "files_gugaci.fh"
 integer :: ia, ia0, idisk, idorbint, idum(1), idx(4), intpos, intposbase, intspace, ivalue, lra, lri, lrk, numb
 real*8 :: etime, stime, time
 real*8, parameter :: zero = 0.0d0
@@ -76,8 +76,8 @@ if (numb > maxintseg) then
 end if
 
 ! sum over iaqq
-viasum_0(1:norb_dz,1:norb_ext) = zero
-viasum_1(1:norb_dz,1:norb_ext) = zero
+viasum_0(1:norb_inn,1:norb_ext) = zero
+viasum_1(1:norb_inn,1:norb_ext) = zero
 do lri=norb_frz+1,norb_inn
   ia0 = (lri-1)*norb_ext
   do lra=1,norb_ext
@@ -155,10 +155,11 @@ end subroutine int_sort
 
 subroutine blocks()
 
+use gugaci_global, only: mul_tab, ng_sm, nlsm_all
+
 implicit none
-integer :: i, ip, ipq, iq, iqm, ir, irm, is, ism, ispq, ispqr, j, nint1, nint12, nint2, nintb, npp, npq, nrr, nrs
-#include "drt_h.fh"
-#include "intsort_h.fh"
+integer :: i, iblktb(5,106), ip, ipq, iq, iqm, ir, irm, is, ism, ispq, ispqr, j, nblock, nint1, nint12, nint2, nintb, npp, npq, &
+           nrr, nrs
 
 ! ----- 1 - electron integrals -----
 nint1 = 0
@@ -275,13 +276,14 @@ end subroutine ff
 
 subroutine int_sort_ext(ii)         !_ext_4_3_2
 
+use gugaci_global, only: ibsm_ext, iesm_ext, ip2_aa_ext_base, ip2_dd_ext_base, ip3_abd_ext_base, ip4_abcd_ext_base, jp2, jp3, &
+                         mul_tab, ng_sm, nlsm_ext, norb_ext, norb_number, np3_abd_ext, vint_ci, voint
+
 implicit none
 integer :: ii
 integer :: ia, iaend, iasta, ib, ibend, ibsta, ic, icend, icsta, id, idend, idsta, isma, ja, jb, lra, lrb, lrc, lrd, lsma, lsmb, &
            lsmc, lsmcd, lsmd, lsmtmp(8), na
 real*8, external :: vfutei
-#include "drt_h.fh"
-#include "intsort_h.fh"
 
 ! _002_aa_
 ip2_aa_ext_base = ii
@@ -398,16 +400,17 @@ end subroutine int_sort_ext
 
 subroutine int_sort_inn_2(ii)
 
+use gugaci_global, only: ibsm_ext, iesm_ext, intind_abkk, intspace_abkk, lsm_inn, mul_tab, ng_sm, norb_frz, norb_inn, norb_number, &
+                         vint_ci
+
 implicit none
 integer :: ii
 integer :: ibend, ibsta, ira, irb, ismab, lmb, lra, lrb, lri, lrj, lsmi, lsmij, lsmj
 real*8, external :: vfutei
-#include "drt_h.fh"
-#include "intsort_h.fh"
 
 ! (ijcc,ijab)
 do ismab=1,ng_sm
-  ip2_ab_inn_base(ismab) = ii
+  !ip2_ab_inn_base(ismab) = ii
   do lri=norb_frz+1,norb_inn-1
     lsmi = lsm_inn(lri)
     do lrj=lri+1,norb_inn
@@ -446,12 +449,13 @@ end subroutine int_sort_inn_2
 
 subroutine int_ext_2_1(lri,lrj,lsmij,ii)
 
+use gugaci_global, only: ibsm_ext, iesm_ext, intind_ijab, intind_ijcc, intspace_ijab, intspace_ijcc, mul_tab, ng_sm, ngw2, &
+                         norb_ext, norb_frz, norb_number, vint_ci
+
 implicit none
 integer :: lri, lrj, lsmij, ii
 integer :: ic, icend, icsta, id, idend, idsta, ij, jc, jd, lrc, lsmc, lsmd
 real*8, external :: vfutei
-#include "drt_h.fh"
-#include "intsort_h.fh"
 
 !write(10,*) '     start intind_ijab',lri,lrj,ii
 ij = lri-norb_frz+ngw2(lrj-norb_frz)
@@ -500,12 +504,12 @@ end
 
 subroutine int_sort_inn_3(ii)
 
+use gugaci_global, only: ibsm_ext, iesm_ext, intind_ijka, lsm_inn, mul_tab, ngw2, ngw3, norb_frz, norb_inn, norb_number, vint_ci
+
 implicit none
 integer :: ii
 integer :: ia, iaend, iasta, ijk, ja, lri, lrj, lrk, lsmd, lsmi, lsmij, lsmj, lsmk
 real*8, external :: vfutei
-#include "drt_h.fh"
-#include "intsort_h.fh"
 
 !write(10,'(2x,a20,i8)') ' int_inn_3_base=',ii
 !write(10,*) '     start intind_ijka',ii
@@ -539,13 +543,14 @@ end subroutine int_sort_inn_3
 
 subroutine int_ext_3_2_1(lri,lsmi,ii)
 
+use gugaci_global, only: ibsm_ext, iesm_ext, intind_iabc, intind_iaqq, mul_tab, nabc, ng_sm, ngw2, ngw3, norb_ext, norb_inn, &
+                         norb_number, vint_ci
+
 implicit none
 integer :: lri, lsmi, ii
 integer :: iabc, iabc0, ib, ib0, ibend, ibsta, icend, icsta, idend, idsta, irb, irc, ird, lrb, lrc, lrd, lsmb, lsmbc, lsmc, lsmd, &
            nb, nc, nd
 real*8, external :: vfutei
-#include "drt_h.fh"
-#include "intsort_h.fh"
 
 !write(10,*) '   int_ext_3_2_1'
 iabc0 = (lri-1)*nabc
@@ -612,11 +617,11 @@ end subroutine int_ext_3_2_1
 
 subroutine int_sort_inn_1(ii)
 
+use gugaci_global, only: lsm_inn, norb_frz, norb_inn
+
 implicit none
 integer :: ii
 integer :: lri, lsmi
-#include "drt_h.fh"
-#include "intsort_h.fh"
 
 call determine_para_array_for_int1ind()
 
@@ -631,12 +636,12 @@ end subroutine int_sort_inn_1
 
 function list3(i,j,k)
 
+use gugaci_global, only: loij, ngw2
+
 implicit none
 integer :: list3
 integer :: i, j, k
 integer :: nij
-#include "drt_h.fh"
-#include "intsort_h.fh"
 
 nij = i+ngw2(j)
 list3 = loij(nij)+2*(k-1)
@@ -647,12 +652,12 @@ end function list3
 
 function list4(ld,lc,lb,la)
 
+use gugaci_global, only: loijk, ncibl, ngw2, ngw3
+
 implicit none
 integer :: list4
 integer :: ld, lc, lb, la
 integer :: lra, njkl
-#include "drt_h.fh"
-#include "intsort_h.fh"
 
 lra = ncibl(la)
 njkl = ld+ngw2(lc)+ngw3(lb)
@@ -664,12 +669,12 @@ end function list4
 
 subroutine int_sort_inn(numb)
 
+use gugaci_global, only: loij, loijk, lsm_inn, mul_tab, ncibl, ngw2, ngw3, norb_inn, vint_ci
+
 implicit none
 integer :: numb
 integer :: i, j, k, la, lb, lc, ld, lra, ms, msa, msb, msc, mscd, msd, msob(120), nij, njkl, nolra
 real*8, external :: vfutei
-#include "drt_h.fh"
-#include "intsort_h.fh"
 
 msob = 0
 do lra=norb_inn,1,-1

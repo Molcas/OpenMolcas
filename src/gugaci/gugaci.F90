@@ -11,15 +11,17 @@
 
 subroutine gugaci(ireturn)
 
+use gugaci_global, only: iw_downwei, iw_sta, lenvec, logic_calpro, logic_grad, LuCiDia, max_node, max_orb, max_vector, mroot, &
+                         nci_dim, nci_h0, norb_all, vcm, vector1, vector2
+
 implicit none
 integer :: ireturn
 integer :: maxplcon, mxvec, nc, nc0, nc1, npl
 real*8 :: sc0, sc1, sc2
 real*8, external :: c_time
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "files_gugaci.fh"
-#include "scratch.fh"
+
+iw_downwei(:,:) = 0
+iw_sta(:,:) = 0
 
 ireturn = 100
 call version_info()
@@ -42,7 +44,7 @@ call value_of_pl_in_dbl()
 nc0 = norb_all*(norb_all+1)/2
 nc1 = nc0*(nc0+1)/2
 if (nc1 > 2*max_vector) then
-  write(6,*) 'No enough space to store MO integrals! number of orbitals should be less than ',max_orb
+  write(6,*) 'Not enough space to store MO integrals! number of orbitals should be less than ',max_orb
 # ifndef MOLPRO
   call abend()
 # endif
@@ -166,10 +168,10 @@ if (logic_calpro) then
 
   call cidenmat()
 
-! calculate properties
-#ifndef MOLPRO
+  ! calculate properties
+# ifndef MOLPRO
   call cipro()
-#endif
+# endif
   deallocate(vector1)
   deallocate(vector2)
   call memdengrad_free()

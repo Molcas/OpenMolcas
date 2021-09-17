@@ -17,12 +17,11 @@ subroutine arrange_orbital()
 ! -----
 ! map_order_orbital    ab ---> ci
 
+use gugaci_global, only: jp2, jp3, logic_assign_actorb, lsm_inn, map_orb_order, max_orb, ng_sm, nlsm_all, norb_all, norb_inn, &
+                         norb_number !, norb_dz
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "mcorb.fh"
-integer :: i, iccount, im, iorb, isum2, isum3, j, la, lr, lr_scf, lr_scf0, lra, lrd, lsmid, lsmorbcount(ng_sm), lsmr, &
-           map_tmp(max_orb), ms, nim
+integer :: i, im, iorb, isum2, isum3, j, la, lr, lr_scf, lr_scf0, lra, lsmorbcount(ng_sm), lsmr, map_tmp(max_orb), ms, nim
 logical :: logi_norb_inn(norb_all)
 
 logi_norb_inn(1:norb_all) = .false.
@@ -75,17 +74,17 @@ do i=1,ng_sm
   isum3 = isum3+isum2
 end do
 
-iccount = 1
-do lrd=1,norb_inn
-  ipwt(lrd) = iccount
-  iccount = iccount+2
-end do
-lsmorbcount = 0
-do lrd=norb_dz,1,-1
-  lsmid = lsm_inn(lrd)
-  lsmorbcount(lsmid) = lsmorbcount(lsmid)+1
-  ipws(lrd) = (lsmorbcount(lsmid)-1)*3+1
-end do
+!iccount = 1
+!do lrd=1,norb_inn
+!  ipwt(lrd) = iccount
+!  iccount = iccount+2
+!end do
+!lsmorbcount = 0
+!do lrd=norb_dz,1,-1
+!  lsmid = lsm_inn(lrd)
+!  lsmorbcount(lsmid) = lsmorbcount(lsmid)+1
+!  ipws(lrd) = (lsmorbcount(lsmid)-1)*3+1
+!end do
 
 map_tmp(1:norb_all) = map_orb_order(1:norb_all)
 do i=1,norb_all

@@ -28,6 +28,8 @@
 
 subroutine mole_inf()
 
+use gugaci_global, only: cm_cri, logic_calpro, logic_inivec_read, maxciiter, mroot, pror, vthrealp, vthreen, vthreresid !, logic_tdav
+
 implicit none
 integer, parameter :: ncmd = 9
 integer :: icmd, istatus, jcmd, ntit
@@ -41,8 +43,6 @@ character(len=72) :: line
 #endif
 logical :: skip
 character(len=4), parameter :: cmd(ncmd) = ['TITL','NRRO','MAXI','CPRO','PTHR','CONV','PROR','REST',_END_]
-#include "drt_h.fh"
-#include "thresh.fh"
 
 #ifndef MOLPRO
 call rdnlst(5,'GUGACI')
@@ -50,7 +50,7 @@ call rdnlst(5,'GUGACI')
 
 ! init some program control logic variables
 ! traditional davidson diagonalization method is used
-logic_tdav = .true.
+!logic_tdav = .true.
 logic_inivec_read = .false.
 logic_calpro = .false.
 cm_cri = 0.05
@@ -198,14 +198,14 @@ end subroutine mole_inf
 
 subroutine mole_inf_molcas()
 
+use gugaci_global, only: ibsm_ext, iesm_ext, int_dd_offset, iref_occ, logic_assign_actorb, logic_mr, lsm, lsm_inn, lsmorb, LuDrt, &
+                         maxgdm, mul_tab, n_ref, nabc, ng_sm, ngw2, ngw3, ngw4, nlsm_all, nlsm_bas, nlsm_dbl, nlsm_ext, nlsm_frz, &
+                         noidx, norb_act, norb_all, norb_dbl, norb_dz, norb_ext, norb_frz, norb_inn, ns_sm, nstart_act, spin
+                         !, logic_mrelcas
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "files_gugaci.fh"
-#include "thresh.fh"
-#include "mcorb.fh"
-integer :: i, idisk, idum(1), idx, im, im_lr_sta, iml, imr, imrcas_case, iorb, itmp, j, l, lr, nact_sm, lsmtmp(maxgdm), ngsm, ni, &
-           norb_all_tmp
+integer :: i, idisk, idum(1), idx, im, im_lr_sta, iml, imr, imrcas_case, iorb, ispin, itmp, j, l, lr, nact_sm, nlsm_act(maxgdm), &
+           nlsm_inn(maxgdm), lsmtmp(maxgdm), ngsm, ni, norb_all_tmp
 
 !open(nf1,file='drt.inp')
 !read(nf1,*)
@@ -231,10 +231,10 @@ ns_sm = idum(1)
 call idafile(ludrt,2,idum,1,idisk)
 ! number of corelation electrons
 call idafile(ludrt,2,idum,1,idisk)
-n_electron = idum(1)
+!n_electron = idum(1)
 ! number of active electrons
 call idafile(ludrt,2,idum,1,idisk)
-nactel = idum(1)
+!nactel = idum(1)
 ! spin symmetry of the state, 2s+1
 call idafile(ludrt,2,idum,1,idisk)
 ispin = idum(1)
@@ -247,8 +247,10 @@ call idafile(ludrt,2,nlsm_all,8,idisk)
 ! num. basis
 call idafile(ludrt,2,nlsm_bas,8,idisk)
 spin = (ispin-1)/2.d0
+nlsm_frz(:) = 0
 
 norb_frz = 0
+norb_dbl = 0
 norb_act = 0
 norb_dz = 0
 norb_all = 0
@@ -272,10 +274,9 @@ norb_ext = norb_all-norb_inn
 norb_dz = norb_dbl+norb_frz
 
 nstart_act = norb_dz+1
-ngw1 = 0
-ngw2 = 0
-ngw3 = 0
-ngw1(1) = 0
+ngw2(:) = 0
+ngw3(:) = 0
+ngw4(:) = 0
 ngw2(1) = 0
 ngw2(2) = 0
 ngw3(1) = 0
@@ -349,7 +350,7 @@ end do
 lsm_inn(norb_inn+1) = lsm(norb_ext)
 
 logic_mr = .false.
-logic_mrelcas = .false.
+!logic_mrelcas = .false.
 logic_assign_actorb = .false.
 
 call idafile(ludrt,2,idum,1,idisk)
@@ -362,9 +363,9 @@ if (imrcas_case == 2) then
     call idafile(ludrt,2,iref_occ(1,i),norb_inn,idisk)
   end do
 end if
-if (imrcas_case == 4) then
-  logic_mrelcas = .true.
-end if
+!if (imrcas_case == 4) then
+!  logic_mrelcas = .true.
+!end if
 
 do i=1,ng_sm   !norb_inn
   lsmtmp(i) = 0
@@ -374,6 +375,8 @@ do i=1,norb_inn
 end do
 
 itmp = 0
+ibsm_ext(:) = 0
+iesm_ext(:) = 0
 do i=1,ng_sm
   ibsm_ext(i) = itmp+1
   itmp = itmp+nlsm_ext(i)

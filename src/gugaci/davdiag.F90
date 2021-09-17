@@ -19,16 +19,15 @@ subroutine cidiagonalize(mxvec)
 ! 26 feb 2007 - write by suo bing
 !------------------------------------------------------
 
+use gugaci_global, only: indx, LuCiDia, LuCiTv1, LuCiTv2, LuCiVec, max_iter, max_kspace, max_root, maxciiter, mcroot, mjn, mroot, &
+                         mth_eigen, nci_dim, vd, ve, vector1, vector2, vint_ci, vp, vthrealp, vthreen, vthreresid, vu
+
 implicit none
-#include "drt_h.fh"
-#include "files_gugaci.fh"
-#include "scratch.fh"
-#include "thresh.fh"
 integer :: mxvec
 integer :: i, iciter, id, idxvec(max_iter), iiter, irot, irset, irte, irts, itidx, jiter, kval, l, m, mi, mid, mn, mt, mtid, &
            mtidx, mtsta, mtsta0, nd, nda, ni, numroot
-real*8 :: depff, difeci(max_root), diffci, sc0, sc1, sct, scvp, sechc, valpha(max_root), vcien(max_root), vcienold(max_root), &
-          venergy, venergy_criterion, vet, vresid(max_root), vuim !, vad(max_vector)
+real*8 :: depff, difeci(max_root), diffci, sc0, sc1, sct, scvp, sechc, valpha(max_root), valpha_criterion, vcien(max_root), &
+          vcienold(max_root), venergy, venergy_criterion, vet, vresid(max_root), vresid_criterion, vuim !, vad(max_vector)
 logical :: log_convergence, log_muliter, restart
 real*8, parameter :: depc = 1.0d-7, dzero = 0.0d0
 !                    valpha_criterion = 1.d0-7, venergy_criterion = 1.0d-8, vresid_criterion = 1.0d-8
@@ -77,12 +76,10 @@ do
   vector1 = 0.d0
   vector2 = 0.d0
   if (log_muliter) then
-    msroot = 1
     mcroot = mroot
     call mrcibasis(nci_dim,mroot,mjn,indx,vector1,vector2,vcien,mth_eigen,mroot)
     !call mrcibasis_init(nci_dim,mroot,mjn,indx,vector1,vector2,vcien,mth_eigen,mroot)
   else
-    msroot = 1
     mcroot = 1
     if (mth_eigen == 0) then
       mth_eigen = 1
@@ -92,7 +89,6 @@ do
     if (mth_eigen == 1) then
       call mrcibasis(nci_dim,mroot,mjn,indx,vector1,vector2,vcien,mth_eigen,1)
     else
-      msroot = 1
       mcroot = 1
       call mrcibasis_rest(nci_dim,numroot,mjn,indx,vector1,vector2,vcien,mth_eigen,1)
     end if
@@ -110,7 +106,6 @@ do
   valpha(1:max_root) = dzero
   iiter = 2
   kval = 2*mroot
-  msroot = 1
   mcroot = mroot
   mtsta = 1
   iciter = 0
@@ -333,7 +328,7 @@ do
       !irset=1
       !do mt=mtsta,mroot
       !  mtidx = indx(mt-mtsta+1)
-      !  !logic_tda v= .false.
+      !  !logic_tdav = .false.
       !  if (logic_tdav) then
       !    ! traditional davidson diagonalization method is used
       !    do l=1,nci_dim
@@ -418,13 +413,9 @@ subroutine mrcibasis_rest(ndim,mroot,mjn,indx,vb1,vb2,vcien,mth_eigen,ncivec)
 !-----------------------------------------------------------------------
 !     vb1   - trial vectors
 
+use gugaci_global, only: logic_inivec_read, LuCiDia, LuCiTv1, LuCiTv2, LuCiVec, max_kspace, max_root
+
 implicit none
-#include "ci_parameter.fh"
-#include "files_gugaci.fh"
-#include "program_control.fh"
-!#include "scratch.fh"
-!common /file_descript/nf1,nf2,nf3,nf4,nf7,nf8,nf9,nf10,nf11,nf13,nf15,nf20,nf21,nf22,nf23
-!logical logic_tdav,logic_inivec_read
 integer :: ndim, mroot, mjn(2*max_root), indx(max_kspace), mth_eigen, ncivec
 real*8 :: vb1(ncivec*ndim), vb2(ncivec*ndim), vcien(mroot)
 integer :: i, idx, ij, j, k, m, mjntm, nf23, numdim
@@ -551,13 +542,9 @@ subroutine mrcibasis(ndim,mroot,mjn,indx,vb1,vb2,vcien,mth_eigen,ncivec)
 !-----------------------------------------------------------------------
 !     vb1   - trial vectors
 
+use gugaci_global, only: logic_inivec_read, LuCiDia, LuCiTv1, LuCiTv2, max_kspace, max_root !, logic_tdav
+
 implicit none
-#include "ci_parameter.fh"
-#include "files_gugaci.fh"
-#include "program_control.fh"
-!#include "scratch.fh"
-!common /file_descript/nf1,nf2,nf3,nf4,nf7,nf8,nf9,nf10,nf11,nf13,nf15,nf20,nf21,nf22,nf23
-!logical logic_tdav,logic_inivec_read
 integer :: ndim, mroot, mjn(2*max_root), indx(max_kspace), mth_eigen, ncivec
 real*8 :: vb1(ncivec*ndim), vb2(ncivec*ndim), vcien(mroot)
 integer :: i, idx, ij, im, indx0, j, jdx, k, kk, l, m, mjntmp(mroot*2), nf23, numdim
@@ -805,10 +792,9 @@ subroutine mrcibasis_init(ndim,mroot,mjn,indx,vb1,vb2,vcien,mth_eigen,ncivec)
 !-----------------------------------------------------------------------
 !     vb1   - trial vectors
 
+use gugaci_global, only: LuCiDia, LuCiTv1, LuCiTv2, max_kspace, max_root
+
 implicit none
-#include "ci_parameter.fh"
-#include "files_gugaci.fh"
-#include "program_control.fh"
 integer :: ndim, mroot, mjn(2*max_root), indx(max_kspace), mth_eigen, ncivec
 real*8 :: vb1(ncivec*ndim), vb2(ncivec*ndim), vcien(mroot)
 integer :: i, ij, indx0, ioff, j, kk, m, n, numdim
@@ -926,14 +912,13 @@ end subroutine mrcibasis_init
 
 subroutine get_eigvector(mtsta0,vcien,valpha,diffci,vresid,mtheigen,log_muliter)
 
+use gugaci_global, only: cm_cri, ecih0, irfno, logic_mr, LuCiDia, LuCiVec, max_root, mroot, mth_eigen, nci_dim, ndim_h0, vector1, &
+                         vector2
 #ifdef _XIANEST_
 use control, only: toptask
 #endif
 
 implicit none
-#include "drt_h.fh"
-#include "files_gugaci.fh"
-#include "scratch.fh"
 integer :: mtsta0, mtheigen
 real*8 :: vcien(max_root), valpha(max_root), diffci, vresid(max_root)
 logical :: log_muliter
@@ -951,7 +936,6 @@ if (log_muliter) then
     nc = nc+nci_dim
   end do
   vector1(nc:nc+nd-1) = vector2(1:nd)
-  eci(1:mroot) = vcien(1:mroot)
 
   ! write eigenvector into fort7
   nc = 1
@@ -1055,12 +1039,12 @@ end subroutine get_eigvector
 
 subroutine matrix_vector_multi_v(sechc)
 
+use gugaci_global, only: log_prod, vint_ci
+
 implicit none
 real*8 :: sechc
 real*8 :: sc1, sc2
 real*8, external :: c_time
-#include "drt_h.fh"
-#include "scratch.fh"
 
 sc1 = c_time()
 log_prod = 1
@@ -1083,12 +1067,12 @@ end subroutine matrix_vector_multi_v
 
 subroutine matrix_vector_multi_d(sechc)
 
+use gugaci_global, only: log_prod, vint_ci
+
 implicit none
 real*8 :: sechc
 real*8 :: sc1, sc2
 real*8, external :: c_time
-#include "drt_h.fh"
-#include "scratch.fh"
 
 log_prod = 1
 sc1 = c_time()
@@ -1119,12 +1103,12 @@ end subroutine matrix_vector_multi_d
 
 subroutine matrix_vector_multi_parallel_drt(sechc)
 
+use gugaci_global, only: log_prod, vint_ci
+
 implicit none
 real*8 :: sechc
 real*8 :: sc1, sc2
 real*8, external :: c_time
-#include "drt_h.fh"
-#include "scratch.fh"
 
 log_prod = 1
 sc1 = c_time()
@@ -1161,13 +1145,13 @@ end subroutine matrix_vector_multi_parallel_drt
 
 subroutine matrix_vector_multi_parallel_prt(sc3)
 
+use gugaci_global, only: log_prod, vector2, vint_ci
+
 implicit none
 real*8 :: sc3
 integer :: mtest
 real*8 :: sc1, sc2
 real*8, external :: c_time
-#include "drt_h.fh"
-#include "scratch.fh"
 
 !write(6,*) 'error stop'
 !call abend()
@@ -1228,9 +1212,9 @@ subroutine orthog(kval,iiter,msta,idxvec)
 !   kval - dimension of new k space
 !   iiter - iiter+1
 
+use gugaci_global, only: indx, LuCiTv1, max_iter, mroot, nci_dim, vector1, vector2
+
 implicit none
-#include "drt_h.fh"
-#include "files_gugaci.fh"
 integer :: kval, iiter, msta, idxvec(max_iter)
 integer :: jiter, jren, jrst, l, mt, mtidx, nd, nt, ntidx
 real*8 :: vsum
@@ -1290,13 +1274,13 @@ end subroutine orthog
 
 subroutine orthogonalization(j,n,m,ir)
 
+use gugaci_global, only: LuCiTv1, LuCiVec, mth_eigen, nci_dim, vector1, vector2
+
 implicit none
 integer :: j, n, m, ir
 integer :: i, l
 real*8 :: vsmax1, vsmax2, vsumtmp
 real*8, parameter :: vortho_criterion = 1.0d-8
-#include "drt_h.fh"
-#include "files_gugaci.fh"
 
 ir = 1
 vsmax2 = 1.d10
@@ -1344,12 +1328,12 @@ end subroutine orthogonalization
 
 subroutine compute_vp_matrix(j,n) !nf3
 
+use gugaci_global, only: LuCiTv1, vector1, vector2, vp
+
 implicit none
 integer :: j, n
 integer :: i, ij, l
 real*8 :: vsumtmp
-#include "drt_h.fh"
-#include "files_gugaci.fh"
 
 ij = j*(j-1)/2
 vsumtmp = 0.d0
@@ -1378,10 +1362,9 @@ subroutine compute_residual_vector_mroot(kval,mtsta,iiter,idxvec,vresid,vcien)
 !      e|ck>-h|ck>
 !      |ck>=\sigma(vu(i,m)*vector_i),i=1,j
 
+use gugaci_global, only: indx, LuCiDia, LuCiTv1, LuCiTv2, max_kspace, max_root, mroot, nci_dim, vector1, vector2, vu
+
 implicit none
-#include "drt_h.fh"
-#include "files_gugaci.fh"
-#include "scratch.fh"
 integer :: kval, mtsta, iiter, idxvec(max_kspace)
 real*8 :: vresid(max_root), vcien(max_root)
 integer :: i, ij, irot, irte, irts, itidx, jiter, l, mt, mtidx, nd
@@ -1483,10 +1466,9 @@ subroutine compute_residual_vector(kval,mtsta,iiter,idxvec,vresid,vcien)
 !      e|ck>-h|ck>
 !      |ck>=\sigma(vu(i,m)*vector_i),i=1,j
 
+use gugaci_global, only: indx, LuCiDia, LuCiTv1, LuCiTv2, max_kspace, max_root, mroot, nci_dim, vector1, vector2, vu
+
 implicit none
-#include "drt_h.fh"
-#include "files_gugaci.fh"
-#include "scratch.fh"
 integer :: kval, mtsta, iiter, idxvec(max_kspace)
 real*8 :: vresid(max_root), vcien(max_root)
 integer :: irot, irte, irts, itidx, jiter, l, li, mt, mtidx, nd
@@ -1568,11 +1550,12 @@ end subroutine compute_residual_vector
 
 subroutine read_ref_state(nf)
 
+use gugaci_global, only: iref_occ, n_ref, norb_act, norb_dz, norb_inn
+
 implicit none
 integer :: nf
 integer :: i, j
 character(len=32) :: refstring
-#include "drt_h.fh"
 
 do i=1,n_ref
   do j=1,norb_dz
@@ -1625,9 +1608,9 @@ subroutine matrmkmul(kval,mtsta,iiter,idxvec,irset)
 !   mend - end index of b space
 !   iiter - ith iteration
 
+use gugaci_global, only: indx, LuCiTv1, LuCiTv2, max_iter, mroot, nci_dim, vector1, vector2, vp
+
 implicit none
-#include "drt_h.fh"
-#include "files_gugaci.fh"
 integer :: kval, mtsta, iiter, idxvec(max_iter), irset
 integer :: i, iidx, iit, ij, irot, jend, jidx, jre, jrot, jrs, l, mend, msta, nd, nroot
 real*8 :: valsum, vsum
@@ -1719,10 +1702,10 @@ end subroutine matrmkmul
 
 subroutine orthogwconvec()
 
+use gugaci_global, only: LuCiVec, mth_eigen, nci_dim, vector1, vector2
+
 implicit none
 integer :: i
-#include "drt_h.fh"
-#include "files_gugaci.fh"
 
 !rewind(nf7)
 do i=1,mth_eigen-1
@@ -1740,10 +1723,11 @@ end subroutine orthogwconvec
 subroutine cielement()
 ! print a Row of CI matrix
 
+use gugaci_global, only: indx, mcroot, nci_dim, vector1, vector2
+
 implicit none
 integer :: icolum
 real*8 :: sc1
-#include "drt_h.fh"
 
 write(6,*) 'mcroot',mcroot
 indx(1) = 0

@@ -12,13 +12,11 @@
 ! ci diagonal elements
 subroutine diagonal_loop_wyb()  !  for norb_act<>0
 
+use gugaci_global, only: ipae, iseg_downwei, iw_downwei, iw_sta, jd, jpad, jpad_upwei, jpae, js, jt, jv, mxnode, nci_dim, nci_h0, &
+                         ndim, ng_sm, norb_all, nu_ad, nu_ae, vdint, vector1, voint, vpotnuc
+
 implicit none
 integer :: im, ipae_, iwupwei, jaedownwei, jpad_, lr, lr0, ndimsum
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-!common /casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-!common /sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 
 do lr0=2,norb_all
   do lr=1,lr0-1
@@ -35,7 +33,7 @@ jpae = jv
 ipae = 1
 jaedownwei = iseg_downwei(ipae)
 do jpad_=1,mxnode
-  jpad = jpad_ ! jpad is in common block, is this necessary?
+  jpad = jpad_ ! jpad is in global module, is this necessary?
   iw_sta(jpad,ipae) = ndimsum
   if (nu_ad(jpad) == 0) cycle
   call seg_drt()
@@ -52,7 +50,7 @@ do im=1,ng_sm
   if (nu_ae(ipae) == 0) cycle
   jaedownwei = iseg_downwei(ipae)
   do jpad_=1,mxnode
-    jpad = jpad_ ! jpad is in common block, is this necessary?
+    jpad = jpad_ ! jpad is in global module, is this necessary?
     iw_sta(jpad,ipae) = ndimsum
     if (nu_ad(jpad) == 0) cycle
     call seg_drt()
@@ -71,7 +69,7 @@ do im=1,ng_sm
   if (nu_ae(ipae) == 0) cycle
   jaedownwei = iseg_downwei(ipae)
   do jpad_=1,mxnode
-    jpad = jpad_ ! jpad is in common block, is this necessary?
+    jpad = jpad_ ! jpad is in global module, is this necessary?
     iw_sta(jpad,ipae) = ndimsum
     if (nu_ad(jpad) == 0) cycle
     call seg_drt()
@@ -89,7 +87,7 @@ do im=1,ng_sm
   jaedownwei = iseg_downwei(ipae)
   if (nu_ae(ipae) == 0) cycle
   do jpad_=1,mxnode
-    jpad = jpad_ ! jpad is in common block, is this necessary?
+    jpad = jpad_ ! jpad is in global module, is this necessary?
     iw_sta(jpad,ipae) = ndimsum
     if (nu_ad(jpad) == 0) cycle
     call seg_drt()
@@ -104,9 +102,9 @@ end do
 call diagonal_dbl()
 call diagonal_ext()
 outer: do ipae_=1,25
-  ipae = ipae_ ! ipae is in common block, is this necessary?
+  ipae = ipae_ ! ipae is in global module, is this necessary?
   do jpad_=1,mxnode
-    jpad = jpad_ ! jpad is in common block, is this necessary?
+    jpad = jpad_ ! jpad is in global module, is this necessary?
     if (iw_sta(jpad,ipae) /= 0) then
       nci_h0 = iw_sta(jpad,ipae)
       exit outer
@@ -125,14 +123,9 @@ end subroutine diagonal_loop_wyb
 
 subroutine diagonal_act_c()
 
+use gugaci_global, only: iy, jb, jeh, jj_sub, jpad, jph, jwh, max_innorb, maxpl, norb_act, norb_dz, norb_inn, th, thh
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "ptlph.fh"
-#include "ptlphv.fh"
-!common /casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-!common /sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 integer :: idl, ind1, isq, iwa, je, jeb, jp, jpb, lr, m, me, mh, mp, mpe, mw, ndr(max_innorb)
 real*8 :: vlop0, vlop1, w, ww
 integer, allocatable :: jee(:), jpe(:), jwe(:)
@@ -253,14 +246,9 @@ end subroutine diagonal_act_c
 
 subroutine diagonal_act_d()
 
+use gugaci_global, only: iy, jb, jeh, jj_sub, jph, jwh, max_innorb, maxpl, no, norb_dz, norb_inn, th, thh, vdint, voint
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "ptlph.fh"
-#include "ptlphv.fh"
-!common /casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-!common /sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 integer :: idl, ind1, isq, iwa, jbl, je, jeb, jp, jp0, jp1, jw, lr, lr0, m, me, mh, mp, mpe, mw, ndr(max_innorb)
 real*8 :: vlop0, vlop1, w, wt, ww
 integer, allocatable :: jee(:), jpe(:), jwe(:)
@@ -397,18 +385,14 @@ end subroutine diagonal_act_d
 
 subroutine diagonal_link_ae(mh)
 
+use gugaci_global, only: ibsm_ext, iesm_ext, ipae, jph, jwh, kk, lsm, mul_tab, ng_sm, nlsm_ext, norb_all, norb_ext, th, thh, &
+                         vdint, voint
+
 implicit none
 integer :: mh
 integer :: ima, imae, imb, ip, ityae, iwa, iwe, jp, la, lb, lbend, lbsta, lr0, lra, lrb, ma
 real*8 :: vlop0, vlop1, wg13, wg14, wg38, wg50, wld, wls, wlt, wwg38, wwg50
 real*8, parameter :: dsq2 = 1.414213562373095d0, vsq2 = 0.7071067811865d0
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "ptlph.fh"
-#include "ptlphv.fh"
-!common /casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-!common /sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 
 !dsq2 = sqrt(2.d0)
 !vsq2 = 1/sqrt(2.d0)
@@ -514,19 +498,15 @@ end subroutine diagonal_link_ae
 
 subroutine diagonal_link_ad(mpe,iwa,vlop0,vlop1)
 
+use gugaci_global, only: fg, jb_sys, jpad, jud, just, kk, lsm_inn, mul_tab, norb_dz, norb_frz, ns_sm, pd, pdd, ps1, ps2, ps3, ps4, &
+                         pt, ptt, vdint, voint
+
 implicit none
 integer :: mpe, iwa
 real*8 :: vlop0, vlop1
 integer :: imad, imd, imi, imij, imj, ityad, iwd, iws, iwt, lr, lra, lri, lrj, lrjsta
 real*8 :: fqi, vl0, vl1, wld, wls, wlt, wlv
 real*8, parameter :: dsq2 = 1.414213562373095d0, vsq2 = 0.7071067811865d0
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "ptlph.fh"
-#include "ptlphv.fh"
-!common /casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-!common /sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 
 !dsq2 = sqrt(2.d0)
 !vsq2 = 1/sqrt(2.d0)
@@ -776,18 +756,14 @@ end subroutine diagonal_link_ad
 
 subroutine diagonal_link_dae(mh)
 
+use gugaci_global, only: fg, jb_sys, jpad, jud, just, jwh, lsm_inn, mul_tab, norb_dz, norb_frz, ns_sm, pd, pdd, ps1, ps2, ps3, &
+                         ps4, pt, ptt, th, thh
+
 implicit none
 integer :: mh
 integer :: imad, imd, imi, imij, imj, ip, ityad, iwa, iwd, iws, iwt, lri, lrj, lrjsta
 real*8 :: fqi, vij0, vij1, vij2, vl0, vlop0, vlop1
 real*8, parameter :: dsq2 = 1.414213562373095d0, vsq2 = 0.7071067811865d0
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "ptlph.fh"
-#include "ptlphv.fh"
-!common /casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-!common /sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 
 !dsq2 = sqrt(2.d0)
 !vsq2 = 1/sqrt(2.d0)
@@ -976,19 +952,14 @@ end subroutine diagonal_link_dae
 
 subroutine diagonal_call_dae(lri,lrj,iwd,iwa,vij0,vij1,vij2,vl0)
 
+use gugaci_global, only: ibsm_ext, iesm_ext, ipae, jpad, mul_tab, ng_sm, norb_all, norb_dz, norb_ext, vdint, voint
+
 implicit none
 integer :: lri, lrj, iwd, iwa
 real*8 :: vij0, vij1, vij2, vl0
 integer :: ima, imae, imb, ityae, iwe, la, lb, lbend, lbsta, lr, lra, lrb
 real*8 :: vd2lalb, vlop0, vlop1, volalb, vovdla, wg13, wg14, wl
 real*8, parameter :: dsq2 = 1.414213562373095d0, dsq3vsq2 = 1.224744871392d0, vsq2 = 0.7071067811865d0
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "ptlph.fh"
-#include "ptlphv.fh"
-!common /casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-!common /sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 
 !dsq2 = sqrt(2.d0)
 !vsq2 = 1/sqrt(2.d0)
@@ -1142,16 +1113,13 @@ end subroutine diagonal_call_dae
 
 subroutine diagonal_dbl()
 
+use gugaci_global, only: ipae, iw_downwei, jb_sys, jpad, jud, just, lsm_inn, mul_tab, norb_dz, norb_frz, ns_sm, nu_ae, vdint, voint
+
 implicit none
 integer :: ipae_, iwa, iwad, iwd, iwdownv, iws, iws1, iwt, jpad1, jpas, jpat, jpat1, lr, lr0, lrg, lrm, mr, mr0, mrm
 real*8 :: db, w1, wld, wld0, wls, wls1, wlt, wt0
 integer, external :: iwalk_ad
 real*8, parameter :: dzero = 0.d0
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-!common /casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-!common /sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 
 if (norb_dz == 0) return
 wt0 = dzero
@@ -1159,7 +1127,7 @@ do lr=1,norb_dz
   wt0 = wt0+voint(lr,lr)+voint(lr,lr)+vdint(lr,lr)
 end do
 do ipae_=1,25
-  ipae = ipae_ ! ipae is in common block, is this necessary?
+  ipae = ipae_ ! ipae is in global module, is this necessary?
   if (nu_ae(ipae) == 0) cycle
   iwdownv = iw_downwei(1,ipae)
   do iwa=0,iwdownv-1
@@ -1179,7 +1147,7 @@ do lr0=norb_frz+1,norb_dz
   wld = wt0-voint(lr0,lr0)-vdint(lr0,lr0)
   wls = wld-voint(lr0,lr0)
   do ipae_=1,25
-    ipae = ipae_ ! ipae is in common block, is this necessary?
+    ipae = ipae_ ! ipae is in global module, is this necessary?
     if (nu_ae(ipae) == 0) cycle
     iwdownv = iw_downwei(jpad,ipae)
     do iwa=0,iwdownv-1
@@ -1190,7 +1158,7 @@ do lr0=norb_frz+1,norb_dz
 
   if (jb_sys > 0) then
     do ipae_=1,25
-      ipae = ipae_ ! ipae is in common block, is this necessary?
+      ipae = ipae_ ! ipae is in global module, is this necessary?
       if (nu_ae(ipae) == 0) cycle
       iwdownv = iw_downwei(jpad1,ipae)
       do iwa=0,iwdownv-1
@@ -1203,7 +1171,7 @@ do lr0=norb_frz+1,norb_dz
   jpad = 17+ns_sm
   iwd = just(lr0,lr0)
   do ipae_=1,25
-    ipae = ipae_ ! ipae is in common block, is this necessary?
+    ipae = ipae_ ! ipae is in global module, is this necessary?
     if (nu_ae(ipae) == 0) cycle
     iwdownv = iw_downwei(jpad,ipae)
     do iwa=0,iwdownv-1
@@ -1224,7 +1192,7 @@ do lr0=norb_frz+1,norb_dz
     iwt = iws
     wld = wld0-voint(lr,lr)-vdint(lr,lr)
     do ipae_=1,25
-      ipae = ipae_ ! ipae is in common block, is this necessary?
+      ipae = ipae_ ! ipae is in global module, is this necessary?
       if (nu_ae(ipae) == 0) cycle
       iwdownv = iw_downwei(jpat,ipae)
       do iwa=0,iwdownv-1
@@ -1266,7 +1234,7 @@ end do
 jpad = 1
 iwd = 0
 do ipae_=1,25
-  ipae = ipae_ ! ipae is in common block, is this necessary?
+  ipae = ipae_ ! ipae is in global module, is this necessary?
   if (nu_ae(ipae) == 0) cycle
   iwdownv = iw_downwei(jpad,ipae)
   do iwa=0,iwdownv-1
@@ -1297,7 +1265,7 @@ do lrm=norb_frz+1,norb_dz
     wls = wls+vdint(lr0,lrm)
   end do
   do ipae_=1,25
-    ipae = ipae_ ! ipae is in common block, is this necessary?
+    ipae = ipae_ ! ipae is in global module, is this necessary?
     if (nu_ae(ipae) == 0) cycle
     iwdownv = iw_downwei(jpad,ipae)
     do iwa=0,iwdownv-1
@@ -1389,7 +1357,7 @@ do lr0=norb_frz+1,norb_dz-1
       !end if
     end do
     do ipae_=1,25
-      ipae = ipae_ ! ipae is in common block, is this necessary?
+      ipae = ipae_ ! ipae is in global module, is this necessary?
       if (nu_ae(ipae) == 0) cycle
       iwdownv = iw_downwei(jpat,ipae)
       do iwa=0,iwdownv-1
@@ -1426,14 +1394,11 @@ end subroutine diagonal_dbl
 
 subroutine diagonal_ext()
 
+use gugaci_global, only: ibsm_ext, iesm_ext, ipae, lsm, mul_tab, norb_all, norb_ext, vdint, voint
+
 implicit none
 integer :: im, ima, imb, ipas, ipat, jw, jweis, jws, jws0, jwt, la, laend, lasta, lb, lra, lrb, lrzz, mr, mra
 real*8 :: wld, wls, wlt
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-!common /casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-!common /sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 
 jws0 = 0
 do mra=1,8
@@ -1501,10 +1466,11 @@ end subroutine diagonal_ext
 
 subroutine prodel(idb,wl,mg1,mg2,mg3)
 
+use gugaci_global, only: log_prod
+
 implicit none
 integer :: idb, mg1, mg2, mg3
 real*8 :: wl
-#include "drt_h.fh"
 
 if (log_prod == 3) then
   call prodel_pt(idb,wl,mg1,mg2,mg3) ! pt1
@@ -1525,15 +1491,13 @@ end subroutine prodel
 !  idb=6  between dbl and ext  ity_down=0-3           iwd,    iwa,  iwe
 subroutine prodel_hd(idb,wl,mg1,mg2,mg3)
 
+use gugaci_global, only: ihy, ipae, iseg_downwei, iw_downwei, iy, jpad, jpad_upwei, jphy, mxnode, nu_ad, vector1
+
 implicit none
 integer :: idb, mg1, mg2, mg3
 real*8 :: wl
 integer :: ii, in_, isegdownwei, iw, iwa, iwa0, iwad, iwd, iwe, iwupwei, jdbl, jp, jph, jw, jwd, jwnu, jwu, lwnu, mm, mpe
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-!common /sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 
 !ndr = 1
 select case (idb)
@@ -1656,15 +1620,13 @@ end subroutine prodel_hd
 
 subroutine prodel_pt(idb,wl,mg1,mg2,mg3)
 
+use gugaci_global, only: ihy, ipae, iy, jpad, jpad_upwei, jpae_downwei, jphy, ndim, vector1
+
 implicit none
 integer :: idb, mg1, mg2, mg3
 real*8 :: wl
 integer :: ii, in_, isegdownwei, iw, iwa, iwa0, iwad, iwd, iwe, iwupwei, jp, jph, jw, jwd, jwnu, jwu, lwnu, mm, mpe
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-!common /sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 
 !if ((jpad == 18) .and. (ipae == 2)) ndr=ndim_h0+1
 
@@ -1790,10 +1752,11 @@ end subroutine prodel_pt
 
 subroutine get_jp(ity,nms,jp,id)
 
+use gugaci_global, only: mul_tab, ns_sm
+
 implicit none
 integer :: ity, nms, jp, id
 integer :: ms
-#include "drt_h.fh"
 
 ms = nms
 if (id == 1) ms = mul_tab(nms,ns_sm)

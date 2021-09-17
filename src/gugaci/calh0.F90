@@ -11,10 +11,11 @@
 
 subroutine geth0()
 
+use gugaci_global, only: ecih0, escf, indx, ipae, irf, irfno, jpad, jpadl, jpae, logic_mr, max_h0, max_innorb, max_kspace, &
+                         max_ref, max_root, mroot, ndim, ndim_h0, norb_act, nu_ad, nu_ae, vcm, vd, ve, vector1, vector2, vu
+                         !, len_str, tmpdir
+
 implicit none
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "scratch.fh"
 integer :: i, ijm, iselcsf_occ(max_innorb,max_ref), kval, l, m, mmspace, mn, ndim0, nxb, nxh
 real*8 :: vad0(max_h0)
 !character(len=256) :: filename
@@ -177,17 +178,15 @@ end subroutine geth0
 
 subroutine formh0()
 
+use gugaci_global, only: irf, irfno, lenvec, log_prod, logic_mr, max_vector, ndim_h0, vector1, vector2, vint_ci
+
 implicit none
 integer :: i, iconf1, iconf2, iconfmax, iconfmin, ii, iicc, ir1, ir2, mnh0, mnrh0, num
 real*8, allocatable :: buff(:)
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "scratch.fh"
 
 num = ndim_h0*(ndim_h0+1)/2
 if (num > max_vector) then
-  write(6,*) ' no enough space to store h0 matrix',num
+  write(6,*) ' not enough space to store h0 matrix',num
 # ifndef MOLPRO
   call abend()
 # endif
@@ -256,8 +255,9 @@ end subroutine formh0
 
 subroutine basis_2(ndim,vb1,nxb,vad,th,nxh)
 
+use gugaci_global, only: ifrno, indx, logic_mr, max_kspace, mjn, mroot
+
 implicit none
-#include "drt_h.fh"
 integer :: ndim, nxb, nxh
 real*8 :: vb1(max_kspace*ndim), vad(ndim), th(nxh)
 integer :: i, ib, ij, ijb1(mroot), ijh, j, l, m, m0, mief, mjnj
@@ -325,10 +325,10 @@ end subroutine basis_2
 
 subroutine minevalue(iselcsf_occ)
 
+use gugaci_global, only: escf, irf, irfno, logic_mr, LuCiDia, max_innorb, max_orb, max_ref, mjn, mroot, nci_dim, nci_h0, norb_act, &
+                         norb_all, norb_dz, nwalk, vector1, vector2
+
 implicit none
-#include "drt_h.fh"
-#include "files_gugaci.fh"
-#include "config.fh"
 integer :: iselcsf_occ(max_innorb,max_ref)
 integer :: i, ij, io, iwalktmp(0:max_orb), j, jm, l, m, ndimh0
 real*8 :: am
@@ -447,11 +447,11 @@ end function ddot_bak
 
 subroutine matrmk_1(k)
 
+use gugaci_global, only: LuCiTv1, LuCiTv2, nci_dim, vector1, vector2, vp
+
 implicit none
 integer :: i, ibas, ij, il, jbas, l, k
 real*8 :: vsumtmp
-#include "drt_h.fh"
-#include "files_gugaci.fh"
 
 do ibas=1,k
   call read_bv(lucitv1,ibas,vector1,nci_dim)

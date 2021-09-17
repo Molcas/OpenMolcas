@@ -37,19 +37,18 @@ end subroutine inner_space_loop
 
 subroutine act_space_cloop()        ! one sub_drt
 
+use gugaci_global, only: ipae, jpad, jpae, mxnode, ndim, norb_act, nu_ad, nu_ae
+
 implicit none
 integer :: ipae_, jpad_
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
 
 if (norb_act == 0) return
 do ipae_=1,25
-  ipae = ipae_ ! ipae is in common block, is this necessary?
+  ipae = ipae_ ! ipae is in global module, is this necessary?
   jpae = nu_ae(ipae)
   if (jpae == 0) cycle
   do jpad_=1,mxnode
-    jpad = jpad_ ! jpad is in common block, is this necessary?
+    jpad = jpad_ ! jpad is in global module, is this necessary?
     if (nu_ad(jpad) == 0) cycle
     call seg_drt()
     if (ndim == 0) cycle
@@ -64,26 +63,25 @@ end subroutine act_space_cloop
 
 subroutine act_space_ploop()        ! two sub_drt with same ipae
 
+use gugaci_global, only: ipae, jpad, jpadl, jpae, mxnode, ndim, norb_act, nu_ad, nu_ae
+
 implicit none
 integer :: ipae_, jpad_, jpadl_
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
 
 if (norb_act == 0) return
 do ipae_=1,25
-  ipae = ipae_ ! ipae is in common block, is this necessary?
+  ipae = ipae_ ! ipae is in global module, is this necessary?
   jpae = nu_ae(ipae)
   if (jpae == 0) cycle
   do jpadl_=1,mxnode                               ! jpadl
-    jpadl = jpadl_ ! jpadl is in common block, is this necessary?
+    jpadl = jpadl_ ! jpadl is in global module, is this necessary?
     if (nu_ad(jpadl) == 0) cycle
     jpad = jpadl
     call seg_drt()
     if (ndim == 0) cycle
     call copy_to_drtl()
     do jpad_=1,mxnode                               !jpadr
-      jpad = jpad_ ! jpad is in common block, is this necessary?
+      jpad = jpad_ ! jpad is in global module, is this necessary?
       if (nu_ad(jpad) == 0) cycle
       call seg_drt()
       if (ndim == 0) cycle
@@ -99,12 +97,10 @@ end subroutine act_space_ploop
 
 subroutine cloop_in_act()
 
+use gugaci_global, only: logic_br, lsm_inn, mul_tab, norb_dz, norb_inn
+
 implicit none
 integer :: lmi, lmij, lmj, lmk, lml, lra, lrai, lraj, lrak, lral, lsmij, mh
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 do lrai=norb_dz+1,norb_inn-1
   lmi = lsm_inn(lrai)
@@ -256,12 +252,10 @@ end subroutine cloop_in_act
 
 subroutine ploop_in_act()
 
+use gugaci_global, only: logic_br, norb_dz, norb_inn
+
 implicit none
 integer :: lrai, lraj, lrak, lral, mh
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 !=======================================================================
 do lrai=norb_dz+1,norb_inn
@@ -381,20 +375,19 @@ end subroutine ploop_in_act
 
 subroutine lp_act_tail(lin,mh,lrg0,lrs0)
 
+use gugaci_global, only: jpel, jper, jph_, jwl, jwr, line, lpnew_coe, lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, lrg, lrs, &
+                         mhlp, norb_dz, norb_inn, vplpnew_w0, vplpnew_w1, w0, w1
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 integer :: lin, mh, lrg0, lrs0
 integer :: iorb, lpcoe(norb_dz+1:norb_inn), mhlp_
 
 line = lin
 lrg = lrg0
 lrs = lrs0
-jph = 0
+jph_ = 0
 do mhlp_=1,mh
-  mhlp = mhlp_ ! mhlp is in common block, is this necessary?
+  mhlp = mhlp_ ! mhlp is in global module, is this necessary?
   jpel = lpnew_ltail(mhlp)
   jper = lpnew_rtail(mhlp)
   jwl = lpnew_lwei(mhlp)
@@ -415,15 +408,16 @@ end subroutine lp_act_tail
 
 subroutine tail_ar_at_given_orb_coe(mh,lract)       !a^r:lstep>rst
 
+use gugaci_global, only: istep_occ, iy, iyl, ja, jb, jj_sub, jjl_sub, jm, lp_coe, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, &
+                         lpnew_coe, lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, norb_dz, vplp_w0, vplp_w1, &
+                         vplpnew_w0, vplpnew_w1
+
 implicit none
 integer :: mh, lract
 integer :: iactploop, idb, idocc, ilc, ilstep, ind0, iorb, irc, irstep, jbr, kcoe, lphead, lpltail, lplwei, lplwei0, lpnew, &
            lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, lr, ni
 real*8 :: w, w0, w1, ww
 integer, parameter :: isla2(4) = [21,31,57,62]
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
 
 iorb = lract
 lpnew = 0
@@ -489,11 +483,10 @@ end subroutine tail_ar_at_given_orb_coe
 
 subroutine act_cloop(lin,mh,lr0,lr,lrg0,lrs0)
 
+use gugaci_global, only: jpel, jper, jph_, jwl, jwr, line, lpnew_coe, lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, &
+                         lpnew_rwei, lrg, lrs, mhlp, norb_dz, norb_inn, vint_ci, voint, vplpnew_w0, vplpnew_w1
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 integer :: lin, mh, lr0, lr, lrg0, lrs0
 integer :: l, list, lpcoe(norb_dz+1:norb_inn), kcoe, mhlp_, nocc
 real*8 :: tcoe, vlop0, vlop1, wl
@@ -503,8 +496,8 @@ line = lin
 lrg = lrg0
 lrs = lrs0
 do mhlp_=1,mh
-  mhlp = mhlp_ ! mhlp is in common block, is this necessary?
-  jph = lpnew_head(mhlp)
+  mhlp = mhlp_ ! mhlp is in global module, is this necessary?
+  jph_ = lpnew_head(mhlp)
   jpel = lpnew_ltail(mhlp)
   jper = lpnew_rtail(mhlp)
   jwl = lpnew_lwei(mhlp)
@@ -573,7 +566,7 @@ do mhlp_=1,mh
       list = list3(lr0,lr,lrg)
       wl = vlop0*(vint_ci(list)-2.0d0*vint_ci(list+1))-vlop1*vint_ci(list)
   end select
-  call prodab(2,jph,jpel,jwl,jwr,0,wl,jper)
+  call prodab(2,jph_,jpel,jwl,jwr,0,wl,jper)
 end do
 
 return
@@ -582,11 +575,11 @@ end subroutine act_cloop
 
 subroutine dbl_head_act_tail_0(lpcoe)
 
+use gugaci_global, only: jb_sys, jml, jmr, jpad, jpadl, jpel, jper, jud, just, jwl, jwr, kk, line, lrg, lrs, lsm_inn, map_jplr, &
+                         mul_tab, norb_dz, norb_frz, norb_inn, ns_sm, vint_ci, voint, w0, w0_d1s, w0_d1t1, w0_d1v, w0_ds, w0_dt, &
+                         w0_dv, w0_td, w0_vv, w1, w1_d1s, w1_d1t1, w1_ds, w1_dt, w1_t1v, w1_td, w1_tv
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 integer :: lpcoe(norb_dz+1:norb_inn)
 integer :: imd, imi, imij, imj, itypadl, itypadr, iwdl, iwdr, jmlr, kcoe, l, list, lmd, lmi, lmij, lmj, lpok, lr, lr0, lra, lrd, &
            lri, lrj, lrk, ni, nocc
@@ -1608,14 +1601,12 @@ end subroutine dbl_head_act_tail_0
 
 subroutine dbl_td_act_comp(lin,lra)
 
+use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, w0_td, w1
+
 implicit none
 integer :: lin, lra
 integer :: iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, ni
 real*8 :: vlop0, vlop1, w0td1, wl
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 
 ! td(13-1) (22)a&(23)
 ! td(13-1) a&(23)c'(22)
@@ -1667,14 +1658,12 @@ end subroutine dbl_td_act_comp
 
 subroutine dbl_ttdd_act_comp(lin,lra)
 
+use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, w0_t1d1, w1
+
 implicit none
 integer :: lin, lra
 integer :: iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, ni
 real*8 :: vlop0, vlop1, w0td1, wl
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 
 ! t1d1(15-1)  ar(13)-
 ! t1d1(15-1)  ar(13)-c'(11)-
@@ -1719,13 +1708,12 @@ end subroutine dbl_ttdd_act_comp
 
 subroutine comp_loop(line,lr0,lrg,lrs,lr,vlop0,vlop1,wl)
 
+use gugaci_global, only: vint_ci, voint
+
 implicit none
 integer :: line, list, lr0, lrg, lrs, lr
 real*8 :: vlop0, vlop1, wl
 integer, external :: list3, list4
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
 
 select case (line)
   case default ! (1)
@@ -1796,14 +1784,13 @@ subroutine dbl_sd_act_comp(lin,lra)
 ! sd(6-3) a&r(13)c'(22)-
 ! sd(6-4) a&r(23)c'(12)-
 
+use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, &
+                         w0_sd, w1
+
 implicit none
 integer :: lin, lra
 integer :: iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, ni
 real*8 :: vlop0, vlop1, w0sd1, w0sd2, w0sd3, w0sd4, wl
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 
 jmlr = mul_tab(jml,jmr)
 do lri=norb_frz+1,norb_dz
@@ -1876,14 +1863,13 @@ subroutine dbl_sdd_act_comp(lin,lra)
 !sd1(8-3)    ar(13)-c'(21)-
 !sd1(8-4)    ar(23)-c'(11)-
 
+use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, &
+                         w0_sd1, w1
+
 implicit none
 integer :: lin, lra
 integer :: iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, ni
 real*8 :: vlop0, vlop1, w0sd1, w0sd2, w0sd3, w0sd4, wl
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 
 jmlr = mul_tab(jml,jmr)
 do lri=norb_frz+1,norb_dz
@@ -1952,10 +1938,10 @@ end subroutine dbl_sdd_act_comp
 
 subroutine ext_space_loop()
 
+use gugaci_global, only: iseg_downwei, iseg_sta, iseg_upwei, isegdownwei, isegsta, isegupwei, nu_ae
+
 implicit none
 integer :: inx, ism
-#include "drt_h.fh"
-#include "gext_sequence.fh"
 
 ism = 0
 do inx=18,25
@@ -1991,12 +1977,12 @@ end subroutine ext_space_loop
 
 subroutine g_tt_ext_sequence(ism)
 
+use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iwt_orb_ext, m_jc, m_jd, max_tmpvalue, mul_tab, &
+                         ng_sm
+
 implicit none
 integer :: ism
 integer :: ic, ic_sta, icano_nn, icend, id, id_sta, idend, idsta, isma, ismb, ismc, ismd
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 icano_nnsta = 2
 icnt_base = 0
@@ -2054,11 +2040,11 @@ end subroutine g_tt_ext_sequence
 
 subroutine dbl_head_act_tail(lpcoe)
 
+use gugaci_global, only: jb_sys, jml, jmr, jpad, jpadl, jpel, jper, jud, just, jwl, jwr, kk, line, lrg, lrs, lsm_inn, map_jplr, &
+                         mul_tab, norb_dz, norb_frz, norb_inn, ns_sm, vint_ci, voint, w0, w0_d1s, w0_d1t1, w0_d1v, w0_ds, w0_dt, &
+                         w0_dv, w0_td, w0_vv, w1, w1_d1s, w1_d1t1, w1_ds, w1_dt, w1_t1v, w1_td, w1_tv
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 integer :: lpcoe(norb_dz+1:norb_inn)
 integer :: imd, imi, imij, imj, itypadl, itypadr, iwdl, iwdr, jmlr, kcoe, l, list, lmd, lmi, lmij, lmj, lpok, lr, lr0, lra, lrd, &
            lri, lrj, lrk, ni, nocc

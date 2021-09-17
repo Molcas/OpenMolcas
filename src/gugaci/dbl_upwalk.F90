@@ -11,12 +11,16 @@
 
 subroutine dbl_upwalk()
 
+use gugaci_global, only: jpad_upwei, jroute_sys, lsm_inn, mul_tab, mxnode, ng_sm, norb_dbl, norb_dz, norb_frz, ns_sm, nu_ad
+
 implicit none
 integer :: iw, lri, lrj, lsmi, lsmid, lsmij, lsmit, lsmj, no_d, no_t, node
-#include "drt_h.fh"
-#include "intsort_h.fh"
+
+nu_ad(:) = 0
+jpad_upwei(:) = 0
 
 if (norb_dbl == 1) then
+
   ! v(1),d(2-9),s(18-25)           for s=0
   ! v(1),d(2-9),s(18-25),d'(26-33)   for s<>0
 
@@ -39,54 +43,54 @@ if (norb_dbl == 1) then
   ! for node_d'
   nu_ad(25+lsmid) = 25+lsmid
   jpad_upwei(25+lsmid) = 1
-  return
-end if
-nu_ad = 0
-jpad_upwei = 0
 
-nu_ad(1) = 1
-jpad_upwei(1) = 1
-if (norb_dbl == 0) then
-  mxnode = 1
-  return
-end if
-do lri=norb_frz+1,norb_dz
-  lsmi = lsm_inn(lri)
-  lsmid = mul_tab(lsmi,ns_sm)
-  no_d = lsmid+1
-  jpad_upwei(no_d) = jpad_upwei(no_d)+1
-  do lrj=lri+1,norb_dz
-    lsmj = lsm_inn(lrj)
-    lsmij = mul_tab(lsmi,lsmj)
-    lsmit = mul_tab(lsmij,ns_sm)
-    no_t = lsmit+9
-    jpad_upwei(no_t) = jpad_upwei(no_t)+1
+else
+
+  nu_ad(1) = 1
+  jpad_upwei(1) = 1
+  if (norb_dbl == 0) then
+    mxnode = 1
+    return
+  end if
+  do lri=norb_frz+1,norb_dz
+    lsmi = lsm_inn(lri)
+    lsmid = mul_tab(lsmi,ns_sm)
+    no_d = lsmid+1
+    jpad_upwei(no_d) = jpad_upwei(no_d)+1
+    do lrj=lri+1,norb_dz
+      lsmj = lsm_inn(lrj)
+      lsmij = mul_tab(lsmi,lsmj)
+      lsmit = mul_tab(lsmij,ns_sm)
+      no_t = lsmit+9
+      jpad_upwei(no_t) = jpad_upwei(no_t)+1
+    end do
   end do
-end do
-! v(1),d(2-9),t(10-17),s(18-25),d'(26-33),t'(34-41)
-select case (jroute_sys)
-  case default ! (1)
-    mxnode = 25                     !v,d,t,s
-    jpad_upwei(18:25) = jpad_upwei(10:17)
-    jpad_upwei(17+ns_sm) = jpad_upwei(17+ns_sm)+norb_dbl
-  case (2)
-    mxnode = 25+8
-    jpad_upwei(18:25) = jpad_upwei(10:17)+jpad_upwei(10:17)
-    jpad_upwei(17+ns_sm) = jpad_upwei(17+ns_sm)+norb_dbl
-    jpad_upwei(26:33) = jpad_upwei(2:9)
-  case (3)
-    mxnode = 25+8+8
-    jpad_upwei(18:25) = jpad_upwei(10:17)+jpad_upwei(10:17)
-    jpad_upwei(17+ns_sm) = jpad_upwei(17+ns_sm)+norb_dbl
-    jpad_upwei(26:33) = jpad_upwei(2:9)
-    jpad_upwei(34:41) = jpad_upwei(10:17)
-end select
+  ! v(1),d(2-9),t(10-17),s(18-25),d'(26-33),t'(34-41)
+  select case (jroute_sys)
+    case default ! (1)
+      mxnode = 25                     !v,d,t,s
+      jpad_upwei(18:25) = jpad_upwei(10:17)
+      jpad_upwei(17+ns_sm) = jpad_upwei(17+ns_sm)+norb_dbl
+    case (2)
+      mxnode = 25+8
+      jpad_upwei(18:25) = jpad_upwei(10:17)+jpad_upwei(10:17)
+      jpad_upwei(17+ns_sm) = jpad_upwei(17+ns_sm)+norb_dbl
+      jpad_upwei(26:33) = jpad_upwei(2:9)
+    case (3)
+      mxnode = 25+8+8
+      jpad_upwei(18:25) = jpad_upwei(10:17)+jpad_upwei(10:17)
+      jpad_upwei(17+ns_sm) = jpad_upwei(17+ns_sm)+norb_dbl
+      jpad_upwei(26:33) = jpad_upwei(2:9)
+      jpad_upwei(34:41) = jpad_upwei(10:17)
+  end select
 
-do node=2,mxnode
-  iw = jpad_upwei(node)
-  if (iw == 0) cycle
-  nu_ad(node) = node
-end do
+  do node=2,mxnode
+    iw = jpad_upwei(node)
+    if (iw == 0) cycle
+    nu_ad(node) = node
+  end do
+
+end if
 
 return
 
@@ -94,13 +98,12 @@ end subroutine dbl_upwalk
 
 subroutine ext_downwalk()
 
+use gugaci_global, only: iseg_downwei, mul_tab, ng_sm, nlsm_ext, norb_ext, nu_ae
+
 implicit none
 integer :: im, imi, imij, imj, iwmij(8)
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
 
+nu_ae(:) = 0
 nu_ae(1) = 1
 do im=1,ng_sm
   nu_ae(1+im) = 1+im
@@ -133,13 +136,11 @@ end subroutine ext_downwalk
 
 subroutine readdrt(ludrt)
 
+use gugaci_global, only: ja, jb, jd, jj, jm, js, jt, jv, kk, no, norb_inn
+
 implicit none
 integer :: ludrt
 integer :: id, idisk, idx(2)
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-!#include "files_gugaci.fh"
-!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
 
 idisk = 0
 ! number of nodes
@@ -152,7 +153,8 @@ call idafile(ludrt,2,jb,id,idisk)
 call idafile(ludrt,2,jm,id,idisk)
 call idafile(ludrt,2,jj,4*(id+1),idisk)
 call idafile(ludrt,2,kk,1+id,idisk)
-call idafile(ludrt,2,no(0),norb_inn+2,idisk)
+no(:) = 0
+call idafile(ludrt,2,no,norb_inn+2,idisk)
 call idafile(ludrt,2,idx,1,idisk)
 jv = idx(1)
 call idafile(ludrt,2,jd,8,idisk)
@@ -172,10 +174,10 @@ end subroutine readdrt
 ! |  2 1   \         |
 subroutine dbl_downwalk()
 
+use gugaci_global, only: iseg_downwei, iseg_sta, jud, just, lsm_inn, mul_tab, ng_sm, norb_dbl, norb_dz, norb_frz, ns_sm
+
 implicit none
 integer :: im, ismi, ismij, ismj, lr0, lri, lrj, nnd, nns, nnt !, lsml(10,10)       !to del
-#include "drt_h.fh"
-#include "intsort_h.fh"
 
 if (norb_dbl == 0) then
   !----------- norb_dbl=0 ----------------------------------------------

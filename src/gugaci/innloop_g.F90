@@ -35,19 +35,18 @@ end subroutine inner_space_loop_g
 
 subroutine act_space_cloop_g()        ! one sub_drt
 
+use gugaci_global, only: ipae, jpad, jpae, mxnode, ndim, norb_act, nu_ad, nu_ae
+
 implicit none
 integer :: ipae_, jpad_
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
 
 if (norb_act == 0) return
 do ipae_=1,25
-  ipae = ipae_ ! ipae is in common block, is this necessary?
+  ipae = ipae_ ! ipae is in global module, is this necessary?
   jpae = nu_ae(ipae)
   if (jpae == 0) cycle
   do jpad_=1,mxnode
-    jpad = jpad_ ! jpad is in common block, is this necessary?
+    jpad = jpad_ ! jpad is in global module, is this necessary?
     if (nu_ad(jpad) == 0) cycle
     call seg_drt()
     if (ndim == 0) cycle
@@ -62,26 +61,25 @@ end subroutine act_space_cloop_g
 
 subroutine act_space_ploop_g()        ! two sub_drt with same ipae
 
+use gugaci_global, only: ipae, jpad, jpadl, jpae, mxnode, ndim, norb_act, nu_ad, nu_ae
+
 implicit none
 integer :: ipae_, jpad_, jpadl_
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
 
 if (norb_act == 0) return
 do ipae_=1,25
-  ipae = ipae_ ! ipae is in common block, is this necessary?
+  ipae = ipae_ ! ipae is in global module, is this necessary?
   jpae = nu_ae(ipae)
   if (jpae == 0) cycle
   do jpadl_=1,mxnode                               ! jpadl
-    jpadl = jpadl_ ! jpadl is in common block, is this necessary?
+    jpadl = jpadl_ ! jpadl is in global module, is this necessary?
     if (nu_ad(jpadl) == 0) cycle
     jpad = jpadl
     call seg_drt()
     if (ndim == 0) cycle
     call copy_to_drtl()
     do jpad_=1,mxnode                               !jpadr
-      jpad = jpad_ ! jpad is in common block, is this necessary?
+      jpad = jpad_ ! jpad is in global module, is this necessary?
       if (nu_ad(jpad) == 0) cycle
       call seg_drt()
       if (ndim == 0) cycle
@@ -97,12 +95,10 @@ end subroutine act_space_ploop_g
 
 subroutine cloop_in_act_g()
 
+use gugaci_global, only: logic_br, lsm_inn, mul_tab, norb_dz, norb_inn
+
 implicit none
 integer :: lmi, lmij, lmj, lmk, lml, lra, lrai, lraj, lrak, lral, lsmij, mh
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 do lrai=norb_dz+1,norb_inn-1
   lmi = lsm_inn(lrai)
@@ -254,12 +250,10 @@ end subroutine cloop_in_act_g
 
 subroutine ploop_in_act_g()
 
+use gugaci_global, only: logic_br, norb_dz, norb_inn
+
 implicit none
 integer :: lrai, lraj, lrak, lral, mh
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 do lrai=norb_dz+1,norb_inn
   ! line=25 -c"-d^r^r
@@ -378,20 +372,19 @@ end subroutine ploop_in_act_g
 
 subroutine lp_act_tail_g(lin,mh,lrg0,lrs0)
 
+use gugaci_global, only: jpel, jper, jph_, jwl, jwr, line, lpnew_coe, lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, lrg, lrs, &
+                         mhlp, norb_dz, norb_inn, vplpnew_w0, vplpnew_w1, w0, w1
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 integer :: lin, mh, lrg0, lrs0
 integer :: iorb, lpcoe(norb_dz+1:norb_inn), mhlp_
 
 line = lin
 lrg = lrg0
 lrs = lrs0
-jph = 0
+jph_ = 0
 do mhlp_=1,mh
-  mhlp = mhlp_ ! mhlp is in common block, is this necessary?
+  mhlp = mhlp_ ! mhlp is in global module, is this necessary?
   jpel = lpnew_ltail(mhlp)
   jper = lpnew_rtail(mhlp)
   jwl = lpnew_lwei(mhlp)
@@ -412,11 +405,10 @@ end subroutine lp_act_tail_g
 
 subroutine act_cloop_g(lin,mh,lr0,lr,lrg0,lrs0)
 
+use gugaci_global, only: jpel, jper, jph_, jwl, jwr, line, lpnew_coe, lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, &
+                         lpnew_rwei, lrg, lrs, mhlp, norb_dz, norb_inn, vplpnew_w0, vplpnew_w1
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 integer :: lin, mh, lr0, lr, lrg0, lrs0
 integer :: kcoe, l, lpcoe(norb_dz+1:norb_inn), mhlp_, nocc, nxo
 real*8 :: tcoe, vlop0, vlop1, wl
@@ -426,8 +418,8 @@ line = lin
 lrg = lrg0
 lrs = lrs0
 do mhlp_=1,mh
-  mhlp = mhlp_ ! mhlp is in common block, is this necessary?
-  jph = lpnew_head(mhlp)
+  mhlp = mhlp_ ! mhlp is in global module, is this necessary?
+  jph_ = lpnew_head(mhlp)
   jpel = lpnew_ltail(mhlp)
   jper = lpnew_rtail(mhlp)
   jwl = lpnew_lwei(mhlp)
@@ -444,7 +436,7 @@ do mhlp_=1,mh
       !wl = voint(lr0,lr)
       wl = vlop0
       !write(nf2,*) 'ar-ar'
-      call prodab_1(2,jph,jpel,jwl,jwr,0,wl,jper,lr0,lr)
+      call prodab_1(2,jph_,jpel,jwl,jwr,0,wl,jper,lr0,lr)
       do l=lr0,lr
         !list = list3(lr0,lr,l)
         kcoe = lpcoe(l)
@@ -454,10 +446,10 @@ do mhlp_=1,mh
         wl = vlop0*nocc
         call trans_ijkl_intpos(lr,lr0,l,l,nxo)
         !write(nf2,'(4i4)') lr,lr0,l,l
-        call prodab_2(2,jph,jpel,jwl,jwr,0,wl,jper,nxo)
+        call prodab_2(2,jph_,jpel,jwl,jwr,0,wl,jper,nxo)
         wl = vlop0*nocc*tcoe
         call trans_ijkl_intpos(lr,l,lr0,l,nxo)
-        call prodab_2(2,jph,jpel,jwl,jwr,0,wl,jper,nxo)
+        call prodab_2(2,jph_,jpel,jwl,jwr,0,wl,jper,nxo)
 
       end do
       !wl = wl*vlop0
@@ -469,7 +461,7 @@ do mhlp_=1,mh
       !list = list3(lr0,lr,lrg)
       !wl = vlop0*vint_ci(list)
       call trans_ijkl_intpos(lr,lrg,lr0,lrg,nxo)
-      call prodab_2(2,jph,jpel,jwl,jwr,0,wl,jper,nxo)
+      call prodab_2(2,jph_,jpel,jwl,jwr,0,wl,jper,nxo)
 
     case (3)
       !-----------------------------------------------------------------
@@ -479,7 +471,7 @@ do mhlp_=1,mh
       !wl = (vlop0+vlop1)*vint_ci(list)
 
       call trans_ijkl_intpos(lr,lrg,lr0,lrg,nxo)
-      call prodab_2(2,jph,jpel,jwl,jwr,0,wl,jper,nxo)
+      call prodab_2(2,jph_,jpel,jwl,jwr,0,wl,jper,nxo)
 
     case (4)
       !-----------------------------------------------------------------
@@ -489,10 +481,10 @@ do mhlp_=1,mh
       !wl = vlop0*(vint_ci(list+2)+vint_ci(list))-vlop1*(vint_ci(list+2)-vint_ci(list))
 
       call trans_ijkl_intpos(lr,lrg,lrs,lr0,nxo)
-      call prodab_2(2,jph,jpel,jwl,jwr,0,wl,jper,nxo)
+      call prodab_2(2,jph_,jpel,jwl,jwr,0,wl,jper,nxo)
       wl = vlop0-vlop1
       call trans_ijkl_intpos(lr,lr0,lrg,lrs,nxo)
-      call prodab_2(2,jph,jpel,jwl,jwr,0,wl,jper,nxo)
+      call prodab_2(2,jph_,jpel,jwl,jwr,0,wl,jper,nxo)
 
     case (5)
       !-----------------------------------------------------------------
@@ -502,10 +494,10 @@ do mhlp_=1,mh
       !wl = vlop0*(vint_ci(list)-2.0d0*vint_ci(list+1))-vlop1*vint_ci(list)
 
       call trans_ijkl_intpos(lr,lrg,lr0,lrg,nxo)
-      call prodab_2(2,jph,jpel,jwl,jwr,0,wl,jper,nxo)
+      call prodab_2(2,jph_,jpel,jwl,jwr,0,wl,jper,nxo)
       wl = -vlop0*2.0d0
       call trans_ijkl_intpos(lr,lr0,lrg,lrg,nxo)
-      call prodab_2(2,jph,jpel,jwl,jwr,0,wl,jper,nxo)
+      call prodab_2(2,jph_,jpel,jwl,jwr,0,wl,jper,nxo)
 
     case (6)
       !-----------------------------------------------------------------
@@ -517,10 +509,10 @@ do mhlp_=1,mh
       !vint_ci(numb+2) = vfutei(la,ld,lc,lb)
       !write(nf2,*) 'ar-bl-br-al'
       call trans_ijkl_intpos(lr,lrg,lrs,lr0,nxo)
-      call prodab_2(2,jph,jpel,jwl,jwr,0,wl,jper,nxo)
+      call prodab_2(2,jph_,jpel,jwl,jwr,0,wl,jper,nxo)
       wl = -vlop0*2.0d0
       call trans_ijkl_intpos(lr,lrs,lrg,lr0,nxo)
-      call prodab_2(2,jph,jpel,jwl,jwr,0,wl,jper,nxo)
+      call prodab_2(2,jph_,jpel,jwl,jwr,0,wl,jper,nxo)
 
     case (7)
       !-----------------------------------------------------------------
@@ -529,10 +521,10 @@ do mhlp_=1,mh
       !wl = vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1))-vlop1*vint_ci(list+2)
       !write(nf2,*) 'ar-bl-bl-ar'
       call trans_ijkl_intpos(lr,lr0,lrg,lrs,nxo)
-      call prodab_2(2,jph,jpel,jwl,jwr,0,wl,jper,nxo)
+      call prodab_2(2,jph_,jpel,jwl,jwr,0,wl,jper,nxo)
       wl = -vlop0*2.0d0
       call trans_ijkl_intpos(lr,lrs,lrg,lr0,nxo)
-      call prodab_2(2,jph,jpel,jwl,jwr,0,wl,jper,nxo)
+      call prodab_2(2,jph_,jpel,jwl,jwr,0,wl,jper,nxo)
 
     case (8)
       !-----------------------------------------------------------------
@@ -544,7 +536,7 @@ do mhlp_=1,mh
       !wl = vlop0*voint(lr,lr0)*0.5d0
       call trans_ijkl_intpos(lr,lr0,lr,lr0,nxo)
       !write(nf2,*) 'drr-drr'
-      call prodab_2(2,jph,jpel,jwl,jwr,0,wl,jper,nxo)
+      call prodab_2(2,jph_,jpel,jwl,jwr,0,wl,jper,nxo)
 
     case (9)
       !-----------------------------------------------------------------
@@ -554,7 +546,7 @@ do mhlp_=1,mh
       !wl = (vlop0-vlop1)*voint(lr,lr0)
       call trans_ijkl_intpos(lr,lr0,lr,lr0,nxo)
       !write(nf2,'(a7,2i4,f18.10)') 'drl-drl',lr,lr0,wl
-      call prodab_2(2,jph,jpel,jwl,jwr,0,wl,jper,nxo)
+      call prodab_2(2,jph_,jpel,jwl,jwr,0,wl,jper,nxo)
 
     case (10)
       !-----------------------------------------------------------------
@@ -564,7 +556,7 @@ do mhlp_=1,mh
       !wl = (vlop0+vlop1)*vint_ci(list)
 
       call trans_ijkl_intpos(lr,lrg,lr0,lrg,nxo)
-      call prodab_2(2,jph,jpel,jwl,jwr,0,wl,jper,nxo)
+      call prodab_2(2,jph_,jpel,jwl,jwr,0,wl,jper,nxo)
 
     case (11)
       !-----------------------------------------------------------------
@@ -574,7 +566,7 @@ do mhlp_=1,mh
       !wl = (vlop0-vlop1)*vint_ci(list)
 
       call trans_ijkl_intpos(lr,lrg,lr0,lrg,nxo)
-      call prodab_2(2,jph,jpel,jwl,jwr,0,wl,jper,nxo)
+      call prodab_2(2,jph_,jpel,jwl,jwr,0,wl,jper,nxo)
 
     case (12)
       !-----------------------------------------------------------------
@@ -584,10 +576,10 @@ do mhlp_=1,mh
       !wl = vlop0*(vint_ci(list)-2.0d0*vint_ci(list+1))-vlop1*vint_ci(list)
 
       call trans_ijkl_intpos(lr,lrg,lr0,lrg,nxo)
-      call prodab_2(2,jph,jpel,jwl,jwr,0,wl,jper,nxo)
+      call prodab_2(2,jph_,jpel,jwl,jwr,0,wl,jper,nxo)
       wl = -vlop0*2.0d0
       call trans_ijkl_intpos(lr,lr0,lrg,lrg,nxo)
-      call prodab_2(2,jph,jpel,jwl,jwr,0,wl,jper,nxo)
+      call prodab_2(2,jph_,jpel,jwl,jwr,0,wl,jper,nxo)
   end select
 end do
 
@@ -597,14 +589,12 @@ end subroutine act_cloop_g
 
 subroutine dbl_td_act_comp_g(lin,lra)
 
+use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, w0_td, w1
+
 implicit none
 integer :: lin, lra
 integer :: iwdl, iwdr, jmlr, list0, list1, lmi, lmk, lri, lrk, ni
 real*8 :: vlop0, vlop1, w0td1, wl0, wl1
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 
 ! td(13-1) (22)a&(23)
 ! td(13-1) a&(23)c'(22)
@@ -662,14 +652,12 @@ end subroutine dbl_td_act_comp_g
 
 subroutine dbl_ttdd_act_comp_g(lin,lra)
 
+use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, w0_t1d1, w1
+
 implicit none
 integer :: lin, lra
 integer :: iwdl, iwdr, jmlr, list0, list1, lmi, lmk, lri, lrk, ni
 real*8 :: vlop0, vlop1, w0td1, wl0, wl1
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 
 ! t1d1(15-1)  ar(13)-
 ! t1d1(15-1)  ar(13)-c'(11)-
@@ -724,9 +712,6 @@ implicit none
 integer :: line, lr0, lrg, lrs, lr, list0, list1
 real*8 :: vlop0, vlop1, wl0, wl1
 integer :: nxo
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
 
 wl0 = 0.0d0
 list0 = 0
@@ -876,14 +861,13 @@ subroutine dbl_sd_act_comp_g(lin,lra)
 !sd(6-3) a&r(13)c'(22)-
 !sd(6-4) a&r(23)c'(12)-
 
+use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, &
+                         w0_sd, w1
+
 implicit none
 integer :: lin, lra
 integer :: iwdl, iwdr, jmlr, list0, list1, lmi, lmk, lri, lrk, ni
 real*8 :: vlop0, vlop1, w0sd1, w0sd2, w0sd3, w0sd4, wl0, wl1
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 
 jmlr = mul_tab(jml,jmr)
 do lri=norb_frz+1,norb_dz
@@ -968,14 +952,13 @@ subroutine dbl_sdd_act_comp_g(lin,lra)
 ! sd1(8-3)    ar(13)-c'(21)-
 ! sd1(8-4)    ar(23)-c'(11)-
 
+use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, &
+                         w0_sd1, w1
+
 implicit none
 integer :: lin, lra
 integer :: iwdl, iwdr, jmlr, list0, list1, lmi, lmk, lri, lrk, ni
 real*8 :: vlop0, vlop1, w0sd1, w0sd2, w0sd3, w0sd4, wl0, wl1
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 
 jmlr = mul_tab(jml,jmr)
 do lri=norb_frz+1,norb_dz
@@ -1056,10 +1039,10 @@ end subroutine dbl_sdd_act_comp_g
 
 subroutine ext_space_loop_g()
 
+use gugaci_global, only: iseg_downwei, iseg_sta, iseg_upwei, isegdownwei, isegsta, isegupwei, nu_ae
+
 implicit none
 integer :: inx, ism
-#include "drt_h.fh"
-#include "gext_sequence.fh"
 
 ism = 0
 do inx=18,25
@@ -1095,11 +1078,11 @@ end subroutine ext_space_loop_g
 
 subroutine dbl_head_act_tail_g(lpcoe)
 
+use gugaci_global, only: jb_sys, jml, jmr, jpad, jpadl, jpel, jper, jud, just, jwl, jwr, kk, line, lrg, lrs, lsm_inn, map_jplr, &
+                         mul_tab, norb_dz, norb_frz, norb_inn, ns_sm, w0, w0_d1s, w0_d1t1, w0_d1v, w0_ds, w0_dt, w0_dv, w0_td, &
+                         w0_vv, w1, w1_d1s, w1_d1t1, w1_ds, w1_dt, w1_t1v, w1_td, w1_tv
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "onepl.fh"
 integer :: lpcoe(norb_dz+1:norb_inn)
 integer :: imd, imi, imij, imj, itypadl, itypadr, iwdl, iwdr, jmlr, kcoe, l, lmd, lmi, lmij, lmj, lpok, lr, lr0, lra, lrd, lri, &
            lrj, lrk, ni, nocc, nxo

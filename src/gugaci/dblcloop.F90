@@ -13,8 +13,9 @@
 
 subroutine dbl_space_loop()
 
+use gugaci_global, only: norb_dbl
+
 implicit none
-#include "drt_h.fh"
 
 if (norb_dbl == 0) return
 call dbl_space_loop_ijkk_sgezero()
@@ -26,6 +27,8 @@ end subroutine dbl_space_loop
 
 subroutine dbl_space_loop_ijkk_sgezero()
 
+use gugaci_global, only: jb_sys, jud, just, lsm_inn, mul_tab, norb_dz, norb_frz, ns_sm, vint_ci, voint
+
 implicit none
 integer :: im, imi, imm, iwdl, iwdr, iwld, iwls, iwlt, iwrd, iwrs, iwrt, jpat, jpdd, jpds, jpds0, jpdt, jpdt1, kij, list, lmi, &
            lmij, lmj, lr, lri, lrj, lrm, mij, ni
@@ -33,8 +36,6 @@ real*8 :: db, vl0_2, vl_0, vl_1, vlp_1, vls0, vls0_2, vls1, vls10_2, vls10_2b, v
           wls0, wls0_1, wls0_2, wls1, wls2, wls_a, wls_b, wlt, wlt0, wltmp
 real*8, parameter :: dzero = 0.0d0
 integer, external :: list3
-#include "drt_h.fh"
-#include "intsort_h.fh"
 
 !==============================  g1,2,4,6,7,8 ==========================
 !zz = ' doub_800_v'
@@ -495,13 +496,13 @@ end subroutine dbl_space_loop_ijkk_sgezero
 
 subroutine dbl_space_loop_ijkl_sgezero()
 
+use gugaci_global, only: jb_sys, just, lsm_inn, mul_tab, norb_dz, norb_frz, ns_sm, vint_ci
+
 implicit none
 integer :: im, imi, imij, imik, imil, imj, imk, iml, iwls, iwls1, iwlt, iwrs, iwrs1, iwrt, jpds, jpdt, jpdt1, list, lri, lrj, lrk, &
            lrl, ni
 real*8 :: db, w0, w1, wls, wls1, wls2, wlt
 integer, external :: list4
-#include "drt_h.fh"
-#include "intsort_h.fh"
 
 !==============================  g11,12  == (v-s)=======================
 !==============================  g41,42  == (v-t)=======================

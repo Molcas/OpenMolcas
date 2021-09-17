@@ -13,11 +13,11 @@ subroutine complete_ext_loop()
 !*****************************************************************
 ! 26 feb 2007 - revised
 
+use gugaci_global, only: icano_nnend, icano_nnsta, indx, isegdownwei, isegsta, isegupwei, mcroot, value_lpext, vector1, vector2
+
 implicit none
 integer :: ilpvalue, irot, irtidx, iupwei, lwei, mm, mm0, mmtmp, nn, nntmp
 real*8 :: vetmp, vlptmp, vlptmp1
-#include "drt_h.fh"
-#include "gext_sequence.fh"
 
 !write(6,*) ' ext_test '
 !return
@@ -53,13 +53,12 @@ end subroutine complete_ext_loop
 
 subroutine complete_ext_loop_g()
 
+use gugaci_global, only: dm1tmp, icano_nnend, icano_nnsta, index_lpext, index_lpext1, index_lpext2, isegdownwei, isegsta, &
+                         isegupwei, value_lpext, value_lpext1, value_lpext2, vector1, vector2
+
 implicit none
 integer :: ilpvalue, indexlp, indexlp1, indexlp2, iupwei, lwei, mm, mm0, mmtmp, nn, nntmp
 real*8 :: valuelp, valuelp1, valuelp2
-#include "drt_h.fh"
-#include "grad_h.fh"
-#include "gext_sequence.fh"
-#include "iaib.fh"
 
 lwei = isegsta
 do iupwei=1,isegupwei

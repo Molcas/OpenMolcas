@@ -26,7 +26,6 @@ integer :: i, ijb, ijm, ijmb1, indxm, iterat, jib1, jib2, jicm, k, l, m, mmspace
 real*8 :: deff(maxroot), depcc, ecrita(maxroot), eeval(maxroot), residvb(maxroot), tm, valpha(maxroot), vd(minspace), &
           ve(minspace), vp(minspace*(minspace+1)/2), vu(minspace,minspace), vukm
 real*8, parameter :: depc = 1.0d-7
-!common /file_descript/nf1,nf2,nf3,nf4,nf7,nf8,nf9,nf10, nf11,nf13,nf15,nf20
 
 !**************************************************************
 
@@ -274,12 +273,13 @@ end subroutine matrmk2
 
 subroutine abprod2(n,k1,k2,th,nxh,vb1,vb2,nxb,vad)
 
+use gugaci_global, only: indx
+
 implicit none
 integer :: n, k1, k2, nxh, nxb
 real*8 :: th(nxh), vb1(nxb), vb2(nxb), vad(n)
 integer :: i, ij, j, l, mn
 !real*8, allocatable :: buff(:)
-#include "drt_h.fh"
 
 !allocate(buff(n))
 ij = 0
@@ -307,12 +307,13 @@ end subroutine abprod2
 
 subroutine orthnor(n,j,dcrita,vb1,nxb)
 
+use gugaci_global, only: indx
+
 implicit none
 integer :: n, j, nxb
 real*8 :: dcrita, vb1(nxb)
 integer :: i, ij, ji, jm, l
 real*8 :: s, smax1, smax2
-#include "drt_h.fh"
 
 ji = indx(j)
 if (j /= 1) then
@@ -334,7 +335,7 @@ if (j /= 1) then
 
     if (smax1 < dcrita) exit
     if (smax1 > smax2) then
-      write(6,*) 'dgnalization procedure is non-convergent.'
+      write(6,*) 'diagonalization procedure is non-convergent.'
 #     ifndef MOLPRO
       call abend()
 #     endif

@@ -11,13 +11,10 @@
 
 subroutine tv_drt_ci_new()
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, linelp, lpblock_tv
+
 implicit none
 integer :: jptyl, jptyr, lpb
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
-#include "lpdisk.fh"
 
 !dsq3 = 1.732050807568877d0
 !iltype = 3
@@ -48,14 +45,14 @@ end subroutine tv_drt_ci_new
 
 subroutine tv_ext_head_in_dbl()
 
+use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud, just, linelp, logic_dh, lp_lwei, lp_rwei, &
+                         lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
+                         vplpnew_w0, vplpnew_w1, w0_dv, w0_sd, w0_sv, w0_td, w1_sv, w1_tv
+
 implicit none
 integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lpok, lra, lri, lrj, lrk, mpl, ni
 real*8 :: w0, w0sd1, w0sd2, w0sd4, w0sv2, w0td1, w1, w1sv2
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 logic_dh = .true.
 lpok = jpadlr
@@ -325,12 +322,10 @@ end subroutine tv_ext_head_in_dbl
 
 subroutine tv_ext_head_in_act()
 
+use gugaci_global, only: linelp, logic_dh, nlg1, nlg2
+
 implicit none
 integer :: lra, lrai, lraj
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 logic_dh = .false.
 
@@ -352,14 +347,12 @@ end subroutine tv_ext_head_in_act
 
 subroutine sv_drt_ci_new()
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, linelp, logic_g13, logic_g36a, &
+                         lpblock_sv, w0g13a, w0g36a, w1g36a
+
 implicit none
 integer :: jptyl, jptyr, lpb
 real*8, parameter :: dsq2 = 1.414213562373095d0
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
-#include "lpdisk.fh"
 
 w0g36a = -1.d0
 w1g36a = 0.d0
@@ -394,14 +387,14 @@ end subroutine sv_drt_ci_new
 
 subroutine sv_ext_head_in_dbl()
 
+use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud, just, linelp, logic_dh, lp_lwei, lp_rwei, &
+                         lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
+                         vplpnew_w0, vplpnew_w1, w0_dv, w0_sd, w0_sv, w0_td, w1_sv, w1_tv
+
 implicit none
 integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lpok, lra, lri, lrj, lrk, mpl, ni
 real*8 :: w0, w0sd1, w0sd2, w0sd4, w0sv2, w0td1, w1, w1sv2
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 logic_dh = .true.
 lpok = jpadlr
@@ -671,12 +664,10 @@ end subroutine sv_ext_head_in_dbl
 
 subroutine sv_ext_head_in_act()
 
+use gugaci_global, only: linelp, logic_dh, nlg1, nlg2
+
 implicit none
 integer :: lra, lrai, lraj
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 logic_dh = .false.
 

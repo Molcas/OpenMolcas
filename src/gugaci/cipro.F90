@@ -11,14 +11,13 @@
 
 subroutine cipro()
 
+use gugaci_global, only: denm1, LuCiDen, LuCiMO, max_orb, max_root, maxgdm, mroot, ng_sm, nlsm_all, nlsm_bas, pror
+use stdalloc, only: mma_allocate, mma_deallocate
+
 implicit none
-#include "drt_h.fh"
-#include "grad_h.fh"
-#include "files_gugaci.fh"
-#include "stdalloc.fh"
 integer, parameter :: maxmolcasorb = 5000, maxpro = 50
 integer :: i, icall, idisk, idummy(1), idx_idisk0(64), idx_idisk1(max_root+1), iend, im, iopt, ipc, ipcom(maxpro), iprop, irec, &
-           iroot, irtc, ista, isymlb, nc, nc0, nc1, nc2, nmo, npro, nsiz
+           iroot, irtc, ista, isymlb, nc, nc0, nc1, nc2, nlsm_del(maxgdm), nmo, npro, nsiz
 real*8 :: occ(max_orb), pgauge(3,maxpro), pnuc(maxpro) !, denao(max_orb,max_orb)
 character :: bsbl(2*4*maxmolcasorb)
 character(len=8) :: label, pname(maxpro), ptyp(maxpro)
@@ -81,6 +80,7 @@ idisk = 0
 call idafile(luciden,2,idx_idisk1,max_root+1,idisk)
 
 icall = 0
+nlsm_del(:) = 0
 do iroot=1,mroot
   ! read density matrix
   idisk = idx_idisk1(iroot)
@@ -179,19 +179,12 @@ end subroutine cipro
 subroutine calprop(ngsm,nsbas,mroot,istate,jstate,nsi,npro,pname,ipcom,ptyp,aden,lmo,vprop,pgauge,pnuc,icall)
 
 implicit none
-!-----------------------------------------------------------------------
-integer ngsm, mroot, istate, jstate, nsi, npro, lmo, icall
-character*8 pname(npro), ptyp(npro)
-integer :: ipcom(npro), nsbas(ngsm)
-real*8 :: smat(nsi), amat(nsi), aden(lmo)
-real*8 :: vprop(mroot,mroot,npro)
-real*8 :: pgauge(3,npro), pnuc(npro)
-!-----------------------------------------------------------------------
-integer nsiz
-integer i, j, im, nc, nc0, nc1, irtc, isymlb
-real*8 pint(nsi+4)
-real*8 val, sgn, ddot_
-integer idummy(1)
+integer :: ngsm, nsbas(ngsm), mroot, istate, jstate, nsi, npro, ipcom(npro), lmo, icall
+character(len=8) :: pname(npro), ptyp(npro)
+real*8 :: aden(lmo), vprop(mroot,mroot,npro), pgauge(3,npro), pnuc(npro)
+integer :: i, idummy(1), im, irtc, isymlb, j, nc, nc0, nc1, nsiz
+real*8 :: amat(nsi), pint(nsi+4), sgn, smat(nsi), val
+real*8, external :: ddot_
 
 ! we have two kind of density matrix, symm or anti-symm
 ! compress density matrix
@@ -270,13 +263,10 @@ subroutine transden(ngsm,nsbas,denao,cno,lmo,occ,loc)
 ! calculate density matrix in ao basis
 
 implicit none
-integer ngsm, lmo, loc
-integer :: nsbas(ngsm)
+integer :: ngsm, nsbas(ngsm), lmo, loc
 real*8 :: denao(lmo), cno(lmo), occ(loc)
-!real*8 :: denao(loc,loc),cno(lmo),occ(loc)
-!-----------------------------------------------------------------------
-integer i, im, ni, nc, nc0, nc1
-real*8 val
+integer :: i, im, nc, nc0, nc1, ni
+real*8 :: val
 
 denao = 0.d0
 !write(6,*) 'occ',nsbas(1:ngsm)

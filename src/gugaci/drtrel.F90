@@ -13,15 +13,14 @@
 
 subroutine active_drt()
 
+use gugaci_global, only: iseg_downwei, iseg_sta, iseg_upwei, jd, jj, jpad_upwei, js, jt, jv, LuDrt, max_node, mxnode, nci_dim, &
+                         ng_sm, no, norb_act, norb_inn, nu_ad, nu_ae !, logic_mr, logic_mrelcas
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "files_gugaci.fh"
-!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-integer :: i, iin(0:max_node), im, jde, jdim, jdn, jds, jji, jp, jpe, jpn, jsim, jtim, ndi
+integer :: i, iin(0:max_node), im, iseg_dim(25), jde, jdim, jdn, jds, jji, jp, jpe, jpn, jsim, jtim, ndi
 
 nci_dim = 0
+iseg_dim(:) = 0
 if (norb_act == 0) then
   !====================  norb_act=0 ====================================
   iseg_sta(1) = 0
@@ -197,13 +196,10 @@ end subroutine active_drt
 
 subroutine rst(id,indd)
 
+use gugaci_global, only: LuDrt
+
 implicit none
 integer :: id, indd
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "files_gugaci.fh"
-!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
 
 write(6,*) ' '
 write(6,*) ' now reading distinct row tableau'
@@ -229,11 +225,9 @@ end subroutine rst
 
 subroutine ref_gfs(nel,ndj,locu,nm)
 
+use gugaci_global, only: lsm_inn, max_ref, mul_tab, norb_dz, norb_inn, nstart_act, spin
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
 integer :: nel, ndj, locu(8,max_ref), nm
 integer :: i, l1, l2, l3, l4, l5, l6, l7, l8, ldj, lh, lhe, lhs, lhsm(8), lm, lpsum, lscu(0:8,max_ref), m, m1, m2, m3, m4, m5, m6, &
            m7, m8, mdj, mys, ne_act, ne_s, nes, npair, nre
@@ -344,13 +338,10 @@ end subroutine ref_gfs
 
 subroutine rcas(id,indd)
 
+use gugaci_global, only: LuDrt
+
 implicit none
 integer :: id, indd
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "files_gugaci.fh"
-!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
 
 write(6,*) ' '
 write(6,*) ' now reading distinct row tableau'
@@ -378,11 +369,9 @@ end subroutine rcas
 
 subroutine check_rcas3(jk,ind,inb,ndj,locu)
 
+use gugaci_global, only: ja, jb, max_node
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
 integer :: jk, ind(8,max_node), inb, ndj, locu(8,ndj)
 integer :: i, iex, iexcit(ndj), lsym(8), m, nsumel
 
@@ -415,10 +404,10 @@ subroutine irfrst(iselcsf_occ)
 ! ifrno(j)=i
 ! irfno(i)=j no. i ref is no. j cfs in h0
 
+use gugaci_global, only: ifrno, iref_occ, irf, irfno, max_innorb, max_orb, max_ref, n_ref, nci_h0, norb_act, norb_all, norb_dz, &
+                         nwalk
+
 implicit none
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "config.fh"
 integer :: iselcsf_occ(max_innorb,max_ref)
 integer :: i, icount, icsfocc, icsfwlk, ii, ij, im, iwalktmp(max_orb), j, ndimh0
 
@@ -472,10 +461,10 @@ end subroutine irfrst
 
 subroutine irfrst_bak(iselcsf_occ)
 
+use gugaci_global, only: ifrno, iref_occ, irf, irfno, max_innorb, max_orb, max_ref, mjn, mroot, n_ref, nci_h0, norb_act, norb_all, &
+                         norb_dz, nwalk
+
 implicit none
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "config.fh"
 integer :: iselcsf_occ(max_innorb,max_ref)
 integer :: i, icount, icsfocc, icsfwlk, ii, ij, im, io, iocsf, ire, iwalktmp(max_orb), j, ndimh0, nocc
 logical :: log_exist
@@ -561,11 +550,12 @@ end subroutine irfrst_bak
 
 function min_itexcit(indjk)
 
+use gugaci_global, only: ndjgrop, ndjmod
+
 implicit none
 integer :: min_itexcit
 integer :: indjk(4)
 integer :: indexcit, ixcit, lref, ngrop, nj
-#include "ref.fh"
 ! integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
 ! indexcit=  ir1 ir2 ir3 ir4 ir5 ir6 ir7 ir8 ......... ir15
 
@@ -600,10 +590,11 @@ end function min_itexcit
 
 subroutine njexcit(idcc,indjk,locuk0,n_ref)
 
+use gugaci_global, only: ndjgrop, ndjmod
+
 implicit none
 integer :: idcc, indjk(4), n_ref, locuk0(n_ref)
 integer :: indexcit, ixcit, lref, ngrop, nj
-#include "ref.fh"
 
 nj = 0
 do ngrop=1,ndjgrop-1         !1-(ndjgrop-1) grop

@@ -12,11 +12,15 @@
 ! dbl space partial loop values
 subroutine Value_of_PL_IN_DBL()
 
+use gugaci_global, only: fg, jb_sys, pd, pdd, ps1, ps2, ps3, ps4, pt, ptt, w0_d1d, w0_d1d1, w0_d1s, w0_d1t1, w0_d1v, w0_dd, &
+                         w0_dd1, w0_ds, w0_dt, w0_dv, w0_sd, w0_sd1, w0_ss, w0_sv, w0_t1d1, w0_t1t1, w0_td, w0_tt, w0_vv, w1_d1d, &
+                         w1_d1d1, w1_d1s, w1_d1t1, w1_d1v, w1_dd, w1_dd1, w1_ds, w1_dt, w1_sd, w1_sd1, w1_ss, w1_st, w1_st1, &
+                         w1_sv, w1_t1d1, w1_t1s, w1_t1t1, w1_t1v, w1_td, w1_ts, w1_tt, w1_tv
+
 implicit none
 integer :: ib
 real*8 :: db, fgsq2, fgvsq2
 real*8, parameter :: dhalf = 0.5d0, done = 1.0d0, dsq2 = 1.414213562373095d0, dzero = 0.0d0, vsq2 = 0.7071067811865d0
-#include "drt_h.fh"
 
 DB = JB_SYS
 IB = mod(JB_SYS,2)
@@ -25,10 +29,8 @@ if (IB == 1) FG = -DONE
 !-------------------------- diag ---------------------------------------
 ! W0=+(-)FG*DSQ2  or  W0=+(-)FG/DSQ2
 !W1 = -(B_SYS+3)/(2*B_SYS+2)
-W1_CS21 = -(DB+3)/(2*DB+2)   ! W1  for  D&R&L(2)D^R^L(1)
-W1_CS12 = -(DB-1)/(2*DB+2)   ! W1  for  D&R&L(1)D^R^L(2)
-W1_CT11 = 0
-W1_CT22 = 0
+!W1_CS21 = -(DB+3)/(2*DB+2)   ! W1  for  D&R&L(2)D^R^L(1)
+!W1_CS12 = -(DB-1)/(2*DB+2)   ! W1  for  D&R&L(1)D^R^L(2)
 PD = FG*sqrt((DB+3)/(2*DB+2))
 PT = -FG*sqrt((DB+4)/(2*DB+4))
 PS1 = FG*sqrt(DB/(2*DB+4))                   ! (2)D&R&L(1)
@@ -198,9 +200,9 @@ W1_DD(3) = DZERO
 ! DV(23-1) Ar(23)-
 ! DV(23-2) Drl(33)-BL(23)-
 W0_DV(1) = -FG*sqrt((DB+2)/(DB+1))
-W1_DV(1) = W0_DV(1)
+!W1_DV(1) = W0_DV(1)
 W0_DV(2) = FG*sqrt((DB+2)/(DB+1))
-W1_DV(2) = DZERO
+!W1_DV(2) = DZERO
 
 ! VV(25) Drl(33)-
 W0_VV = FGSQ2
@@ -345,6 +347,7 @@ W0_D1D1(3) = -FGSQ2
 W1_D1D1(3) = DZERO
 
 ! DD1(21)Ar(23)-Bl(31)-
+W0_DD1 = DZERO
 W1_DD1 = -sqrt((DB+2)/(DB+1))
 
 ! D1D(22-1)   Ar(13)-Bl(32)-
@@ -430,22 +433,20 @@ W0_D1T1 = 0.5d0
 W1_D1T1 = -0.5d0
 
 ! T1V(18) Ar(13)-Br(13)-
-W0_T1V = DZERO
 W1_T1V = FG*sqrt((DB-1)/(DB+1))
 
 end subroutine Value_of_PL_IN_DBL
 
 subroutine SS2_EXT(LRI,LRJ,NK)
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
+                         mul_tab, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+
 implicit none
 integer :: lri, lrj, nk
 integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, mpl, ni
 real*8 :: w0ss2, w1ss2
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
@@ -481,15 +482,14 @@ end subroutine SS2_EXT
 subroutine SS3_EXT(LRI,LRJ)
 ! SS(1-3)  Ar(13)-Bl(20)-
 
+use gugaci_global, only: ipae, ipael, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, mhlp, mtype, vplp_w0, vplp_w1, &
+                         vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+
 implicit none
 integer :: lri, lrj
 integer :: iwal, iwar, iwdl, iwdr, mpl, ni
 real*8 :: w0ss3, w1ss3
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 W0SS3 = W0_SS(3)
 W1SS3 = W1_SS(3)
@@ -517,15 +517,14 @@ end subroutine SS3_EXT
 
 subroutine SS4_EXT(LRI,LRJ,NK)
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
+                         mul_tab, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+
 implicit none
 integer :: lri, lrj, nk
 integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, mpl, ni
 real*8 :: w0ss4, w1ss4
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
@@ -561,11 +560,10 @@ end subroutine SS4_EXT
 subroutine SS5_EXT(LRI,LRJ,NK)
 ! SS(1-5)  (22)-Ar(13)-Bl(31)-
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
+                         mhlp, mtype, mul_tab, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 integer :: lri, lrj, nk
 integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
 real*8 :: w0ss5, w1ss5
@@ -614,11 +612,10 @@ end subroutine SS5_EXT
 subroutine SS10_EXT(LRI,LRJ,NK)
 ! SS(1-10) Ar(23)-C'(12)-Bl(31)-
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
+                         mhlp, mtype, mul_tab, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 integer :: lri, lrj, nk
 integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
 real*8 :: w0ss10, w1ss10
@@ -667,11 +664,10 @@ end subroutine SS10_EXT
 subroutine SS14_EXT(LRI,LRJ,NK)
 ! SS(1-14) Ar(23)-Bl(32)-C"(11)-
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
+                         mhlp, mtype, mul_tab, norb_dz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 integer :: lri, lrj, nk
 integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
 real*8 :: w0ss14, w1ss14
@@ -720,11 +716,10 @@ end subroutine SS14_EXT
 subroutine TT1_EXT(LRI,LRJ,NK,IGF)
 ! SS(1-14) Ar(23)-Bl(32)-C"(11)-
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
+                         mhlp, mtype, mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_tt, w1_tt
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 integer :: lri, lrj, nk, igf
 integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
 real*8 :: w0tt1, w1tt1
@@ -798,15 +793,14 @@ end subroutine TT1_EXT
 
 subroutine TS1_EXT(LRI,LRJ,NK)
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
+                         mul_tab, vplp_w0, vplp_w1, vplpnew_w1, w1_ts
+
 implicit none
 integer :: lri, lrj, nk
 integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, mpl, ni
 real*8 :: w1ts1
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
@@ -837,11 +831,10 @@ end subroutine TS1_EXT
 
 subroutine TS2_EXT(LRI,LRJ,NK,IGF)
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
+                         mhlp, mtype, mul_tab, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_ts
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 integer :: lri, lrj, nk, igf
 integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
 real*8 :: w1ts2
@@ -901,11 +894,10 @@ end subroutine TS2_EXT
 
 subroutine TS4_EXT(LRI,LRJ,NK)
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
+                         mhlp, mtype, mul_tab, norb_dz, vplp_w0, vplp_w1, vplpnew_w1, w1_ts
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 integer :: lri, lrj, nk
 integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
 real*8 :: w1ts4
@@ -951,15 +943,14 @@ end subroutine TS4_EXT
 
 subroutine ST1_EXT(LRI,LRJ,NK)
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
+                         mul_tab, vplp_w0, vplp_w1, vplpnew_w1, w1_st
+
 implicit none
 integer :: lri, lrj, nk
 integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, mpl, ni
 real*8 :: w1st1
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
@@ -990,11 +981,10 @@ end subroutine ST1_EXT
 
 subroutine ST2_EXT(LRI,LRJ,NK)
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
+                         mhlp, mtype, mul_tab, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 integer :: lri, lrj, nk
 integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
 real*8 :: w1st2
@@ -1041,11 +1031,10 @@ end subroutine ST2_EXT
 
 subroutine ST4_EXT(LRI,LRJ,NK,IGF)
 
+use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
+                         mhlp, mtype, mul_tab, norb_dz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 integer :: lri, lrj, nk, igf
 integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
 real*8 :: w1st4

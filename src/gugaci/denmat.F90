@@ -11,23 +11,14 @@
 
 subroutine cidenmat()
 
+use gugaci_global, only: dm1tmp, ican_a, ican_b, LuCiVec, mroot, nci_dim, norb_all, vector1, vector2
+
 implicit none
 integer :: i, ncount1, ncount2, neigen
 real*8 :: sechc !, x1e(50000)
 !character(len=256) :: filename
 !logical :: logic_mulroot
 real*8, parameter :: htoklm = 627.50956d0, zero = 0.0d0
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "grad_h.fh"
-#include "files_gugaci.fh"
-#include "scratch.fh"
-#include "lgrn.fh"
-#include "iaib.fh"
-#include "vect.fh"
-#include "grad_xyz.fh"
-#include "ncprhf.fh"
 
 !=======================================================================
 ! the main subroutine for ci gradient calculations.
@@ -80,20 +71,17 @@ end subroutine cidenmat
 
 subroutine ci_dentest(iroot)
 
+use gugaci_global, only: denm1, denm2, FnOneMO, FnTwoMO, lenintegral, LuCiDen, LuOneMO, LuTwoMO, max_orb, max_root, mul_tab, &
+                         ng_sm, nlsm_all, nlsm_bas, ntrabuf, ntratoc
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "files_gugaci.fh"
-#include "grad_h.fh"
 integer :: iroot
-integer :: i, idisk, idisk0, idisk_array(max_root+1), idx, iout, itratoc(ntratoc), kbuf, lenrd, li, lj, lk, ll, lri, lrj, nbpq, &
-           nbrs, nc, nc1, nc2, nidx, nintb, nintone, nism, nmob, noidx(8), nop, noq, nor, norb(8), nos, nsmint, nsp, nspq, nspqr, &
-           nsq, nsr, nss, nssm, ntj, ntk, numax, numin
+integer :: i, idisk, idisk0, idisk_array(max_root+1), idx, iout, itratoc(ntratoc), lenrd, li, lj, lk, ll, lri, lrj, nbpq, nbrs, &
+           nc, nc1, nc2, nidx, nintb, nintone, nism, nmob, noidx(8), nop, noq, nor, norb(8), nos, nsmint, nsp, nspq, nspqr, nsq, &
+           nsr, nss, nssm, ntj, ntk, numax, numin
 real*8 :: buff(ntrabuf), cienergy, ecor, val, vnuc, xfock(max_orb*(max_orb+1)/2) !, x(1024*1024)
 real*8, pointer :: x(:)
 integer, external :: ipair
-
-kbuf = ntrabuf
 
 #ifndef MOLPRO
 norb = nlsm_all
@@ -204,7 +192,7 @@ do nsp=1,ng_sm
         !2100 format(7x,4i2,1x,4i4,2x,3x,i9)
 
         iout = 0
-        call ddafile(lutwomo,2,buff,kbuf,idisk)
+        call ddafile(lutwomo,2,buff,ntrabuf,idisk)
         call ddafile(luciden,2,denm2,nintb,idisk0)
         idx = 0
 
@@ -221,9 +209,9 @@ do nsp=1,ng_sm
               if (nsp == nsq) numax = lk
               do ll=numin,numax
                 iout = iout+1
-                if (iout > kbuf) then
-                  !call ddatard(nft,buff,kbuf,idisk)
-                  call ddafile(lutwomo,2,buff,kbuf,idisk)
+                if (iout > ntrabuf) then
+                  !call ddatard(nft,buff,ntrabuf,idisk)
+                  call ddafile(lutwomo,2,buff,ntrabuf,idisk)
                   iout = 1
                 end if
                 idx = idx+1
@@ -259,10 +247,10 @@ end subroutine ci_dentest
 
 subroutine init_canonical()
 
+use gugaci_global, only: ican_a, ican_b, max_orb
+
 implicit none
 integer :: i, l1, l2
-#include "drt_h.fh"
-#include "iaib.fh"
 
 !=======================================================================
 ! calculate the canonical order for index transform
@@ -280,13 +268,12 @@ end subroutine init_canonical
 
 subroutine density_scf_frz()
 
+use gugaci_global, only: cf, naorbs, norb_frz, p
+
 implicit none
 integer :: i, j, k
 real*8 :: val
 real*8, parameter :: four = 4.0d0, one = 1.0d0, two = 2.0d0, zero = 0.0d0
-#include "drt_h.fh"
-#include "vect.fh"
-#include "density.fh"
 
 do i=1,naorbs
   do j=1,naorbs
@@ -307,7 +294,6 @@ implicit none
 real*8 :: sechc
 real*8 :: sc1, sc2
 real*8, external :: c_time
-#include "drt_h.fh"
 
 write(6,*)
 sc1 = c_time()
@@ -340,7 +326,6 @@ implicit none
 real*8 :: sechc
 real*8 :: sc1, sc10, sc11, sc12, sc13, sc14, sc15, sc16, sc2, sc3, sc4, sc5, sc6, sc7, sc8, sc9
 real*8, external :: c_time
-#include "drt_h.fh"
 
 write(6,*)
 sc1 = c_time()
@@ -399,11 +384,9 @@ end subroutine matrix_vector_multi_parallel_prt_g
 
 subroutine ci_density_label_sm(iroot,ncount2)
 
+use gugaci_global, only: denm1, denm2, dm1tmp, LuCiDen, map_orb_order, max_root, maxgdm, mul_tab, ng_sm, nlsm_all, vector2
+
 implicit none
-#include "drt_h.fh"
-#include "grad_h.fh"
-#include "files_gugaci.fh"
-#include "iaib.fh"
 integer :: iroot, ncount2
 integer :: i, ic, idisk, ii, ij, ijm, im, indx_m(maxgdm), idisk_array(max_root+1), j, jc, je, jj, jm, k, kk, kl, klm, km, l, lc, &
            le, ll, lm, nc0, nc1

@@ -24,16 +24,6 @@ subroutine ci_grad()
 
 implicit none
 real*8, parameter :: htoklm = 627.50956d0, zero = 0.0d0
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "grad_h.fh"
-#include "scratch.fh"
-#include "lgrn.fh"
-#include "iaib.fh"
-#include "vect.fh"
-#include "grad_xyz.fh"
-#include "ncprhf.fh"
 
 !================================================
 ! the main subroutine for ci gradient calculations.
@@ -52,7 +42,6 @@ end subroutine ci_grad
 subroutine convert_vector()
 
 implicit none
-#include "drt_h.fh"
 
 !=====================================================
 ! this just uses at debug.
@@ -70,13 +59,13 @@ end subroutine convert_vector
 
 subroutine moread(ii,jj,kk,ll,val)
 
+use gugaci_global, only: ican_a, ican_b, vector1
+
 implicit none
 integer :: ii, jj, kk, ll
 real*8 :: val
 integer :: lri, lrj, lrk, lrl, lrn, nij, nijkl, nkl
-#include "drt_h.fh"
-#include "grad_h.fh"
-#include "iaib.fh"
+
 !====================================================
 ! transfer the ci mo indices to scf mo indices
 ! and use library function ishft() to save
@@ -109,12 +98,12 @@ end subroutine moread
 
 subroutine trans_ijkl_intpos(ii,jj,kk,ll,nxo)
 
+use gugaci_global, only: ican_a, ican_b
+
 implicit none
 integer :: ii, jj, kk, ll, nxo
 integer :: lri, lrj, lrk, lrl, lrn, nij, nkl
-#include "drt_h.fh"
-#include "grad_h.fh"
-#include "iaib.fh"
+
 !====================================================
 ! transfer the ci mo indices to scf mo indices
 ! and use library function ishft() to save
@@ -158,8 +147,6 @@ subroutine trans_intpos_ijkl(intpos,lijkl)
 
 implicit none
 integer :: intpos, lijkl(4)
-#include "drt_h.fh"
-#include "grad_h.fh"
 
 !=========================================================
 ! read the saved two electron mo indices.
@@ -173,348 +160,340 @@ end if
 
 end subroutine trans_intpos_ijkl
 
-subroutine lagran_act(x1e)
-
-implicit none
-#include "drt_h.fh"
-#include "grad_h.fh"
-#include "vect.fh"
-#include "ncprhf.fh"
-#include "iaib.fh"
-#include "lgrn.fh"
-real*8 :: x1e(50000)
-integer :: i, i0, j, j0, k, k0, kl, l, l0, m, mik, mjk, nik, nil, niljk, nimkl, nji, njikl, njk, njmkl, nkl, norbf
-real*8 :: dum, dumtmp, fock(n_all,n_all)
-real*8, parameter :: two = 2.0d0, zero = 0.0d0
-
-!================================================
-! lyb
-! xlgrn(norb_all,norb_all) is the lagrange matrix.
-
-norbf = n_frz+1
-!norbf = 1
-
-xlgrn(1:n_all,1:n_all) = 0.0d0
-
-call lagran_fock(x1e,fock)
-
-! form two electron contributions to the lagrangian with frozen mo
-
-do i=ndbl+1,n_all
-  do j=1,n_frz
-    dum = fock(j,i)*two
-    do k=norbf,n_all
-      do l=norbf,n_all
-        i0 = max(i,j)
-        j0 = min(i,j)
-        nji = ican_a(i0)+j0
-        k0 = max(k,l)
-        l0 = min(k,l)
-        nkl = ican_a(k0)+l0
-        if (nji >= nkl) then
-          njikl = ican_b(nji)+nkl
-        else
-          njikl = ican_b(nkl)+nji
-        end if
-        dum = dum+dm1(k0,l0)*vector1(njikl)*two
-
-        i0 = max(i,l)
-        l0 = min(i,l)
-        nil = ican_a(i0)+l0
-        j0 = max(j,k)
-        k0 = min(j,k)
-        njk = ican_a(j0)+k0
-        if (nil >= njk) then
-          niljk = ican_b(nil)+njk
-        else
-          niljk = ican_b(njk)+nil
-        end if
-        dum = dum-dm1(k0,l0)*vector1(niljk)
-      end do
-    end do
-    xlgrn(i,j) = xlgrn(i,j)+dum
-  end do
-end do
-
-do i=1,n_frz
-  do j=ndbl+1,n_all
-    dum = fock(j,i)*two
-    do k=norbf,n_all
-      do l=norbf,n_all
-        i0 = max(i,j)
-        j0 = min(i,j)
-        nji = ican_a(i0)+j0
-        k0 = max(k,l)
-        l0 = min(k,l)
-        nkl = ican_a(k0)+l0
-        if (nji >= nkl) then
-          njikl = ican_b(nji)+nkl
-        else
-          njikl = ican_b(nkl)+nji
-        end if
-        dum = dum+dm1(k0,l0)*vector1(njikl)*two
-
-        i0 = max(i,l)
-        l0 = min(i,l)
-        nil = ican_a(i0)+l0
-        j0 = max(j,k)
-        k0 = min(j,k)
-        njk = ican_a(j0)+k0
-        if (nil >= njk) then
-          niljk = ican_b(nil)+njk
-        else
-          niljk = ican_b(njk)+nil
-        end if
-        dum = dum-dm1(k0,l0)*vector1(niljk)
-      end do
-    end do
-    xlgrn(i,j) = xlgrn(i,j)+dum
-  end do
-end do
-
-! form two electron contributions to the lagrangian with active mo
-
-do i=norbf,ndbl
-  do j=ndbl+1,n_all
-    dum = zero
-    do m=norbf,n_all
-      i0 = ican_a(max(i,m))+min(i,m)
-      j0 = ican_a(max(j,m))+min(j,m)
-      kl = 0
-      do k=norbf,n_all
-        dumtmp = zero
-        do l=norbf,k-1
-          kl = kl+1
-          if (kl > i0) then
-            nimkl = ican_b(kl)+i0
-          else
-            nimkl = ican_b(i0)+kl
-          end if
-
-          if (kl > j0) then
-            njmkl = ican_b(kl)+j0
-          else
-            njmkl = ican_b(j0)+kl
-          end if
-          dumtmp = dumtmp+vector1(nimkl)*vector2(njmkl)
-          !if ((i == 1) .and. (j == 5)) write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl)
-        end do
-
-        dum = dum+dumtmp*two
-
-        kl = kl+1
-        if (kl > i0) then
-          nimkl = ican_b(kl)+i0
-        else
-          nimkl = ican_b(i0)+kl
-        end if
-
-        if (kl > j0) then
-          njmkl = ican_b(kl)+j0
-        else
-          njmkl = ican_b(j0)+kl
-        end if
-
-        dum = dum+vector1(nimkl)*vector2(njmkl)
-        !if (nimkl /= njmkl) write(nf2,'(2i8,2f18.10)') nimkl,njmkl,vector1(nimkl),vector2(njmkl)
-        !if ((i == 1) .and. (j == 5)) write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl
-      end do
-    end do
-
-    xlgrn(i,j) = xlgrn(i,j)+dum*two
-    !write(2,'(a7,2i4,f18.10)') 'xlgrn_2',i,j,xlgrn(i,j)
-  end do
-end do
-do i=norbf,ndbl
-  do j=ndbl+1,n_all
-    dum = zero
-    do k=norbf,norb_all
-      mik = max(i,k)
-      nik = min(i,k)
-      mjk = max(j,k)
-      njk = min(j,k)
-      dum = dum+fock(mik,nik)*dm1(mjk,njk)
-
-      !write(nf2,'(2f18.10)') x1e(mnik),dm1(mjk,njk)
-    end do
-    xlgrn(i,j) = xlgrn(i,j)+dum
-    !write(2,'(a9,2i4,f18.10)') 'xlgrn_all',i,j,xlgrn(i,j)
-  end do
-end do
-
-do i=ndbl+1,n_all
-  do j=norbf,ndbl
-    dum = zero
-    do m=norbf,n_all
-      i0 = ican_a(max(i,m))+min(i,m)
-      j0 = ican_a(max(j,m))+min(j,m)
-      kl = 0
-      do k=norbf,n_all
-        dumtmp = zero
-        do l=norbf,k-1
-          kl = kl+1
-          if (kl > i0) then
-            nimkl = ican_b(kl)+i0
-          else
-            nimkl = ican_b(i0)+kl
-          end if
-
-          if (kl > j0) then
-            njmkl = ican_b(kl)+j0
-          else
-            njmkl = ican_b(j0)+kl
-          end if
-          dumtmp = dumtmp+vector1(nimkl)*vector2(njmkl)
-          !if ((i == 1) .and. (j == 5)) write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl)
-        end do
-
-        dum = dum+dumtmp*two
-
-        kl = kl+1
-        if (kl > i0) then
-          nimkl = ican_b(kl)+i0
-        else
-          nimkl = ican_b(i0)+kl
-        end if
-
-        if (kl > j0) then
-          njmkl = ican_b(kl)+j0
-        else
-          njmkl = ican_b(j0)+kl
-        end if
-
-        dum = dum+vector1(nimkl)*vector2(njmkl)
-        !if (nimkl /= njmkl) write(nf2,'(2i8,2f18.10)') nimkl,njmkl,vector1(nimkl),vector2(njmkl)
-        !if ((i == 1) .and. (j == 5)) write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl
-      end do
-    end do
-
-    xlgrn(i,j) = xlgrn(i,j)+dum*two
-    !write(2,'(a7,2i4,f18.10)') 'xlgrn_2',i,j,xlgrn(i,j)
-  end do
-end do
-
-do i=ndbl+1,n_all
-  do j=norbf,ndbl
-    dum = zero
-    do k=norbf,norb_all
-      mik = max(i,k)
-      nik = min(i,k)
-      mjk = max(j,k)
-      njk = min(j,k)
-      dum = dum+fock(mik,nik)*dm1(mjk,njk)
-
-      !write(nf2,'(2f18.10)') x1e(mnik),dm1(mjk,njk)
-    end do
-    xlgrn(i,j) = xlgrn(i,j)+dum
-    !write(2,'(a9,2i4,f18.10)') 'xlgrn_all',i,j,xlgrn(i,j)
-  end do
-end do
-
-end subroutine lagran_act
-
-subroutine lagran_all(x1e)
-
-implicit none
-real*8 :: x1e(50000)
-integer :: i, i0, j, j0, k, kl, l, m, mik, mjk, mnik, nik, nimkl, njk, njmkl
-real*8 :: dum, dumtmp
-real*8, parameter :: two = 2.0d0, zero = 0.0d0
-#include "drt_h.fh"
-#include "grad_h.fh"
-#include "iaib.fh"
-#include "lgrn.fh"
-#include "ncprhf.fh"
-
-!================================================
-! lyb
-! xlgrn(norb_all,norb_all) is the lagrange matrix.
-
+!subroutine lagran_act(x1e)
+!
+!use gugaci_global, only: dm1, ican_a, ican_b, norb_all, vector1, vector2
+!
+!implicit none
+!real*8 :: x1e(50000)
+!integer :: i, i0, j, j0, k, k0, kl, l, l0, m, mik, mjk, nik, nil, niljk, nimkl, nji, njikl, njk, njmkl, nkl, norbf
+!real*8 :: dum, dumtmp, fock(n_all,n_all)
+!real*8, parameter :: two = 2.0d0, zero = 0.0d0
+!
+!!================================================
+!! lyb
+!! xlgrn(norb_all,norb_all) is the lagrange matrix.
+!
 !norbf = n_frz+1
-!norbf = 1
+!!norbf = 1
+!
+!xlgrn(1:n_all,1:n_all) = 0.0d0
+!
+!call lagran_fock(x1e,fock)
+!
+!! form two electron contributions to the lagrangian with frozen mo
+!
+!do i=ndbl+1,n_all
+!  do j=1,n_frz
+!    dum = fock(j,i)*two
+!    do k=norbf,n_all
+!      do l=norbf,n_all
+!        i0 = max(i,j)
+!        j0 = min(i,j)
+!        nji = ican_a(i0)+j0
+!        k0 = max(k,l)
+!        l0 = min(k,l)
+!        nkl = ican_a(k0)+l0
+!        if (nji >= nkl) then
+!          njikl = ican_b(nji)+nkl
+!        else
+!          njikl = ican_b(nkl)+nji
+!        end if
+!        dum = dum+dm1(k0,l0)*vector1(njikl)*two
+!
+!        i0 = max(i,l)
+!        l0 = min(i,l)
+!        nil = ican_a(i0)+l0
+!        j0 = max(j,k)
+!        k0 = min(j,k)
+!        njk = ican_a(j0)+k0
+!        if (nil >= njk) then
+!          niljk = ican_b(nil)+njk
+!        else
+!          niljk = ican_b(njk)+nil
+!        end if
+!        dum = dum-dm1(k0,l0)*vector1(niljk)
+!      end do
+!    end do
+!    xlgrn(i,j) = xlgrn(i,j)+dum
+!  end do
+!end do
+!
+!do i=1,n_frz
+!  do j=ndbl+1,n_all
+!    dum = fock(j,i)*two
+!    do k=norbf,n_all
+!      do l=norbf,n_all
+!        i0 = max(i,j)
+!        j0 = min(i,j)
+!        nji = ican_a(i0)+j0
+!        k0 = max(k,l)
+!        l0 = min(k,l)
+!        nkl = ican_a(k0)+l0
+!        if (nji >= nkl) then
+!          njikl = ican_b(nji)+nkl
+!        else
+!          njikl = ican_b(nkl)+nji
+!        end if
+!        dum = dum+dm1(k0,l0)*vector1(njikl)*two
+!
+!        i0 = max(i,l)
+!        l0 = min(i,l)
+!        nil = ican_a(i0)+l0
+!        j0 = max(j,k)
+!        k0 = min(j,k)
+!        njk = ican_a(j0)+k0
+!        if (nil >= njk) then
+!          niljk = ican_b(nil)+njk
+!        else
+!          niljk = ican_b(njk)+nil
+!        end if
+!        dum = dum-dm1(k0,l0)*vector1(niljk)
+!      end do
+!    end do
+!    xlgrn(i,j) = xlgrn(i,j)+dum
+!  end do
+!end do
+!
+!! form two electron contributions to the lagrangian with active mo
+!
+!do i=norbf,ndbl
+!  do j=ndbl+1,n_all
+!    dum = zero
+!    do m=norbf,n_all
+!      i0 = ican_a(max(i,m))+min(i,m)
+!      j0 = ican_a(max(j,m))+min(j,m)
+!      kl = 0
+!      do k=norbf,n_all
+!        dumtmp = zero
+!        do l=norbf,k-1
+!          kl = kl+1
+!          if (kl > i0) then
+!            nimkl = ican_b(kl)+i0
+!          else
+!            nimkl = ican_b(i0)+kl
+!          end if
+!
+!          if (kl > j0) then
+!            njmkl = ican_b(kl)+j0
+!          else
+!            njmkl = ican_b(j0)+kl
+!          end if
+!          dumtmp = dumtmp+vector1(nimkl)*vector2(njmkl)
+!          !if ((i == 1) .and. (j == 5)) write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl)
+!        end do
+!
+!        dum = dum+dumtmp*two
+!
+!        kl = kl+1
+!        if (kl > i0) then
+!          nimkl = ican_b(kl)+i0
+!        else
+!          nimkl = ican_b(i0)+kl
+!        end if
+!
+!        if (kl > j0) then
+!          njmkl = ican_b(kl)+j0
+!        else
+!          njmkl = ican_b(j0)+kl
+!        end if
+!
+!        dum = dum+vector1(nimkl)*vector2(njmkl)
+!        !if (nimkl /= njmkl) write(nf2,'(2i8,2f18.10)') nimkl,njmkl,vector1(nimkl),vector2(njmkl)
+!        !if ((i == 1) .and. (j == 5)) write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl
+!      end do
+!    end do
+!
+!    xlgrn(i,j) = xlgrn(i,j)+dum*two
+!    !write(2,'(a7,2i4,f18.10)') 'xlgrn_2',i,j,xlgrn(i,j)
+!  end do
+!end do
+!do i=norbf,ndbl
+!  do j=ndbl+1,n_all
+!    dum = zero
+!    do k=norbf,norb_all
+!      mik = max(i,k)
+!      nik = min(i,k)
+!      mjk = max(j,k)
+!      njk = min(j,k)
+!      dum = dum+fock(mik,nik)*dm1(mjk,njk)
+!
+!      !write(nf2,'(2f18.10)') x1e(mnik),dm1(mjk,njk)
+!    end do
+!    xlgrn(i,j) = xlgrn(i,j)+dum
+!    !write(2,'(a9,2i4,f18.10)') 'xlgrn_all',i,j,xlgrn(i,j)
+!  end do
+!end do
+!
+!do i=ndbl+1,n_all
+!  do j=norbf,ndbl
+!    dum = zero
+!    do m=norbf,n_all
+!      i0 = ican_a(max(i,m))+min(i,m)
+!      j0 = ican_a(max(j,m))+min(j,m)
+!      kl = 0
+!      do k=norbf,n_all
+!        dumtmp = zero
+!        do l=norbf,k-1
+!          kl = kl+1
+!          if (kl > i0) then
+!            nimkl = ican_b(kl)+i0
+!          else
+!            nimkl = ican_b(i0)+kl
+!          end if
+!
+!          if (kl > j0) then
+!            njmkl = ican_b(kl)+j0
+!          else
+!            njmkl = ican_b(j0)+kl
+!          end if
+!          dumtmp = dumtmp+vector1(nimkl)*vector2(njmkl)
+!          !if ((i == 1) .and. (j == 5)) write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl)
+!        end do
+!
+!        dum = dum+dumtmp*two
+!
+!        kl = kl+1
+!        if (kl > i0) then
+!          nimkl = ican_b(kl)+i0
+!        else
+!          nimkl = ican_b(i0)+kl
+!        end if
+!
+!        if (kl > j0) then
+!          njmkl = ican_b(kl)+j0
+!        else
+!          njmkl = ican_b(j0)+kl
+!        end if
+!
+!        dum = dum+vector1(nimkl)*vector2(njmkl)
+!        !if (nimkl /= njmkl) write(nf2,'(2i8,2f18.10)') nimkl,njmkl,vector1(nimkl),vector2(njmkl)
+!        !if ((i == 1) .and. (j == 5)) write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl
+!      end do
+!    end do
+!
+!    xlgrn(i,j) = xlgrn(i,j)+dum*two
+!    !write(2,'(a7,2i4,f18.10)') 'xlgrn_2',i,j,xlgrn(i,j)
+!  end do
+!end do
+!
+!do i=ndbl+1,n_all
+!  do j=norbf,ndbl
+!    dum = zero
+!    do k=norbf,norb_all
+!      mik = max(i,k)
+!      nik = min(i,k)
+!      mjk = max(j,k)
+!      njk = min(j,k)
+!      dum = dum+fock(mik,nik)*dm1(mjk,njk)
+!
+!      !write(nf2,'(2f18.10)') x1e(mnik),dm1(mjk,njk)
+!    end do
+!    xlgrn(i,j) = xlgrn(i,j)+dum
+!    !write(2,'(a9,2i4,f18.10)') 'xlgrn_all',i,j,xlgrn(i,j)
+!  end do
+!end do
+!
+!end subroutine lagran_act
 
-xlgrn(1:norb_all,1:norb_all) = 0.0d0
-
-! form two electron contributions to the lagrangian
-do i=1,norb_all
-  do j=1,norb_all
-    dum = zero
-    do m=1,norb_all
-      i0 = ican_a(max(i,m))+min(i,m)
-      j0 = ican_a(max(j,m))+min(j,m)
-      kl = 0
-      do k=1,norb_all
-        dumtmp = zero
-        do l=1,k-1
-          kl = kl+1
-          if (kl > i0) then
-            nimkl = ican_b(kl)+i0
-          else
-            nimkl = ican_b(i0)+kl
-          end if
-
-          if (kl > j0) then
-            njmkl = ican_b(kl)+j0
-          else
-            njmkl = ican_b(j0)+kl
-          end if
-          dumtmp = dumtmp+vector1(nimkl)*vector2(njmkl)
-          !if ((i == 1) .and. (j == 5)) write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl)
-        end do
-
-        dum = dum+dumtmp*two
-
-        kl = kl+1
-        if (kl > i0) then
-          nimkl = ican_b(kl)+i0
-        else
-          nimkl = ican_b(i0)+kl
-        end if
-
-        if (kl > j0) then
-          njmkl = ican_b(kl)+j0
-        else
-          njmkl = ican_b(j0)+kl
-        end if
-
-        dum = dum+vector1(nimkl)*vector2(njmkl)
-        !if (nimkl /= njmkl) write(nf2,'(2i8,2f18.10)') nimkl,njmkl,vector1(nimkl),vector2(njmkl)
-        !if ((i == 1) .and. (j == 5)) write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl)
-      end do
-    end do
-
-    xlgrn(i,j) = xlgrn(i,j)+dum*two
-    !write(2,'(a7,2i4,f18.10)') 'xlgrn_2',i,j,xlgrn(i,j)
-  end do
-end do
-do i=1,norb_all
-  do j=1,norb_all
-    dum = zero
-    do k=1,norb_all
-      mik = max(i,k)
-      nik = min(i,k)
-      mjk = max(j,k)
-      njk = min(j,k)
-      mnik = ican_a(mik)+nik
-      dum = dum+x1e(mnik)*dm1(mjk,njk)
-
-      !write(nf2,'(2f18.10)') x1e(mnik),dm1(mjk,njk)
-    end do
-    xlgrn(i,j) = xlgrn(i,j)+dum
-    !write(2,'(a9,2i4,f18.10)') 'xlgrn_all',i,j,xlgrn(i,j)
-  end do
-end do
-
-end subroutine lagran_all
+!subroutine lagran_all(x1e)
+!
+!use gugaci_global, only: dm1, ican_a, ican_b, norb_all, vector1, vector2
+!
+!implicit none
+!real*8 :: x1e(50000)
+!integer :: i, i0, j, j0, k, kl, l, m, mik, mjk, mnik, nik, nimkl, njk, njmkl
+!real*8 :: dum, dumtmp
+!real*8, parameter :: two = 2.0d0, zero = 0.0d0
+!
+!!================================================
+!! lyb
+!! xlgrn(norb_all,norb_all) is the lagrange matrix.
+!
+!!norbf = n_frz+1
+!!norbf = 1
+!
+!xlgrn(1:norb_all,1:norb_all) = 0.0d0
+!
+!! form two electron contributions to the lagrangian
+!do i=1,norb_all
+!  do j=1,norb_all
+!    dum = zero
+!    do m=1,norb_all
+!      i0 = ican_a(max(i,m))+min(i,m)
+!      j0 = ican_a(max(j,m))+min(j,m)
+!      kl = 0
+!      do k=1,norb_all
+!        dumtmp = zero
+!        do l=1,k-1
+!          kl = kl+1
+!          if (kl > i0) then
+!            nimkl = ican_b(kl)+i0
+!          else
+!            nimkl = ican_b(i0)+kl
+!          end if
+!
+!          if (kl > j0) then
+!            njmkl = ican_b(kl)+j0
+!          else
+!            njmkl = ican_b(j0)+kl
+!          end if
+!          dumtmp = dumtmp+vector1(nimkl)*vector2(njmkl)
+!          !if ((i == 1) .and. (j == 5)) write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl)
+!        end do
+!
+!        dum = dum+dumtmp*two
+!
+!        kl = kl+1
+!        if (kl > i0) then
+!          nimkl = ican_b(kl)+i0
+!        else
+!          nimkl = ican_b(i0)+kl
+!        end if
+!
+!        if (kl > j0) then
+!          njmkl = ican_b(kl)+j0
+!        else
+!          njmkl = ican_b(j0)+kl
+!        end if
+!
+!        dum = dum+vector1(nimkl)*vector2(njmkl)
+!        !if (nimkl /= njmkl) write(nf2,'(2i8,2f18.10)') nimkl,njmkl,vector1(nimkl),vector2(njmkl)
+!        !if ((i == 1) .and. (j == 5)) write(nf2,'(6i4,i8,f18.10)') i,j,m,k,l,kl,njmkl,vector2(njmkl)
+!      end do
+!    end do
+!
+!    xlgrn(i,j) = xlgrn(i,j)+dum*two
+!    !write(2,'(a7,2i4,f18.10)') 'xlgrn_2',i,j,xlgrn(i,j)
+!  end do
+!end do
+!do i=1,norb_all
+!  do j=1,norb_all
+!    dum = zero
+!    do k=1,norb_all
+!      mik = max(i,k)
+!      nik = min(i,k)
+!      mjk = max(j,k)
+!      njk = min(j,k)
+!      mnik = ican_a(mik)+nik
+!      dum = dum+x1e(mnik)*dm1(mjk,njk)
+!
+!      !write(nf2,'(2f18.10)') x1e(mnik),dm1(mjk,njk)
+!    end do
+!    xlgrn(i,j) = xlgrn(i,j)+dum
+!    !write(2,'(a9,2i4,f18.10)') 'xlgrn_all',i,j,xlgrn(i,j)
+!  end do
+!end do
+!
+!end subroutine lagran_all
 
 subroutine writedm2(nx)
+
+!use gugaci_global, only: len_str, tmpdir
 
 implicit none
 integer :: nx
 !character(len=256) :: filename
-#include "drt_h.fh"
-#include "grad_h.fh"
-#include "scratch.fh"
 
 !filename = tmpdir(1:len_str)//'/density'
 !len = len_str+8
@@ -532,12 +511,12 @@ end subroutine writedm2
 
 subroutine readdm2(nx)
 
+!use gugaci_global, only: len_str, tmpdir
+use gugaci_global, only: vector2
+
 implicit none
 integer :: nx
 !character(len=256) :: filename
-#include "drt_h.fh"
-#include "grad_h.fh"
-#include "scratch.fh"
 
 vector2(1:nx) = 0.0d+00
 
@@ -556,13 +535,9 @@ end subroutine readdm2
 
 subroutine backtransmo()
 
+!use gugaci_global, only: len_str, tmpdir
+
 implicit none
-#include "drt_h.fh"
-#include "grad_h.fh"
-#include "scratch.fh"
-#include "vect.fh"
-#include "iaib.fh"
-#include "density.fh"
 integer :: ican_ab(norb_all)
 real*8 :: c(70000), dm1_act(naorbs,naorbs)
 logical :: resina
@@ -758,12 +733,11 @@ end subroutine backtransmo
 
 subroutine backtrans_test()
 
+use gugaci_global, only: cf, ican_a, ican_b, norb_all, norb_frz, vector2
+
 implicit none
 integer :: i, i0, j, j0, k, k0, l, l0, nij, nijkl, nkl
 real*8 :: sum_, val
-#include "drt_h.fh"
-#include "vect.fh"
-#include "iaib.fh"
 
 !-------------------------------------------------------------
 ! this subroutine for test the backtrans result by just one density matr
@@ -806,17 +780,15 @@ end do
 
 end subroutine backtrans_test
 
-! FIXME: ndao is undefined
 !subroutine grad_two()
 !
+!use gugaci_global, only: dxyz, ican_a, ican_b, numat, vector1 !, len_str, tmpdir
+!
 !implicit none
-!#include "drt_h.fh"
-!#include "grad_xyz.fh"
-!#include "iaib.fh"
-!#include "scratch.fh"
-!integer :: index_atom(3,numat*(numat+1)/2), ndi0(ndao), ndj0(ndao), ndk0(ndao), ndl0(ndao)
-!real*8 :: daoint1(ndao), daoxyz(3,numat), dgxyz(3,numat)
-!!character(len=256) filename
+!integer :: i, i0, ind, index_atom(3,numat*(numat+1)/2), j, j0, k, k0, l, l0, ncon, ndi0(ndao), ndj0(ndao), ndk0(ndao), ndl0(ndao), &
+!           nij, nijkl, nkl, nnij, npat
+!real*8 :: aa, bb, daoint1(ndao), daoxyz(3,numat), dgxyz(3,numat), val, val1, val2
+!!character(len=256) :: filename
 !real*8, parameter :: four=4.0d0, htoklm = 627.50956d0, one=1.0d0, two=2.0d0, zero=0.0d0
 !
 !npat = numat*(numat+1)/2
@@ -872,7 +844,7 @@ end subroutine backtrans_test
 !        bb = one
 !        if (i0 /= j0) aa = two*aa
 !        if (k0 /= l0) bb = two*bb
-!        !===================================================
+!        !===============================================================
 !        ! this place should multiple two, because the gradient
 !        ! integral always exist the relation that :
 !        ! index nij=i*(i-1)/2+j
@@ -911,29 +883,22 @@ end subroutine backtrans_test
 !  end do
 !end do
 !
-!
 !!write(nf2,'(//10x,'cartesian coordinate derivatives',//3x,'number  atom ',5x,'x',12x,'y',12x,'z',/)')
 !
 !do i=1,numat
 !  write(6,'(6x,i6,3f13.6)') i,(dgxyz(j,i),j=1,3)
 !end do
 !
-!end subroutine backtrans_test
+!end subroutine grad_two
 
 subroutine grad_one_ao()
 
+use gugaci_global, only: dxyz, ican_a, naorbs, numat, p !, len_str, tmpdir
+
 implicit none
-#include "drt_h.fh"
-#include "grad_h.fh"
-#include "scratch.fh"
-#include "lgrn.fh"
-#include "iaib.fh"
-#include "vect.fh"
-#include "grad_xyz.fh"
-#include "density.fh"
 integer :: i, j, k, l, nkl
 real*8 :: dgxyz(3,numat), dm1_act(naorbs,naorbs), dmo1xyz(3,numat), dsaos(3,numat,naorbs*(naorbs+1)/2)
-!character*256 filename
+!character(len=256) :: filename
 real*8, parameter :: four = 4.0d0, htoklm = 627.50956d0, one = 1.0d0, two = 2.0d0, zero = 0.0d0
 
 dsaos(1:3,1:numat,1:naorbs*(naorbs+1)/2) = zero
@@ -1025,13 +990,9 @@ end subroutine grad_one_ao
 
 subroutine grad_one_mo()
 
+use gugaci_global, only: cf, dm1, dxyz, ican_a, naorbs, norb_all, numat
+
 implicit none
-#include "drt_h.fh"
-#include "grad_h.fh"
-#include "lgrn.fh"
-#include "iaib.fh"
-#include "vect.fh"
-#include "grad_xyz.fh"
 integer :: i, i0, j, j0, k, l, nkl
 real*8 :: dgxyz(3,numat), dmo1xyz(3,numat), dsaos(3,numat,naorbs*(naorbs+1)/2), val
 real*8, parameter :: four = 4.0d0, htoklm = 627.50956d0, one = 1.0d0, two = 2.0d0, zero = 0.0d0
@@ -1117,11 +1078,9 @@ end subroutine grad_one_mo
 
 subroutine density_ci_one(dm1_act)
 
+use gugaci_global, only: cf, dm1, naorbs, norb_all, norb_frz
+
 implicit none
-#include "drt_h.fh"
-#include "grad_h.fh"
-#include "iaib.fh"
-#include "vect.fh"
 integer :: i, j, norbf, np, nq
 real*8 :: dm1_act(naorbs,naorbs)
 real*8, parameter :: four = 4.0d0, one = 1.0d0, two = 2.0d0, zero = 0.0d0
@@ -1145,47 +1104,44 @@ end do
 
 end subroutine density_ci_one
 
-subroutine lagran_fock(x1e,fock)
-
-implicit none
-#include "drt_h.fh"
-#include "grad_h.fh"
-#include "vect.fh"
-#include "iaib.fh"
-#include "ncprhf.fh"
-real*8 :: x1e(50000)
-integer :: i, i0, j, j0, k, k0, nij, nijkk, nik, nikjk, njk, nkk
-real*8 :: fock(n_all,n_all), val
-real*8, parameter :: two = 2.0d0, zero = 0.0d0
-
-fock(1:n_all,1:n_all) = zero
-
-do i=1,n_all
-  do j=1,i
-    nij = ican_a(i)+j
-    fock(i,j) = x1e(nij)
-    val = zero
-    do k=1,n_frz
-      nkk = ican_a(k)+k
-      if (nij >= nkk) then
-        nijkk = ican_b(nij)+nkk
-      else
-        nijkk = ican_b(nkk)+nij
-      end if
-      val = val+vector1(nijkk)*two
-
-      i0 = max(i,k)
-      k0 = min(i,k)
-      nik = ican_a(i0)+k0
-      j0 = max(j,k)
-      k0 = min(j,k)
-      njk = ican_a(j0)+k0
-      nikjk = ican_b(nik)+njk
-      val = val-vector1(nikjk)
-    end do
-    fock(i,j) = fock(i,j)+val
-    fock(j,i) = fock(i,j)
-  end do
-end do
-
-end subroutine lagran_fock
+!subroutine lagran_fock(x1e,fock)
+!
+!use gugaci_global, only: ican_a, ican_b, vector1
+!
+!implicit none
+!real*8 :: x1e(50000)
+!integer :: i, i0, j, j0, k, k0, nij, nijkk, nik, nikjk, njk, nkk
+!real*8 :: fock(n_all,n_all), val
+!real*8, parameter :: two = 2.0d0, zero = 0.0d0
+!
+!fock(1:n_all,1:n_all) = zero
+!
+!do i=1,n_all
+!  do j=1,i
+!    nij = ican_a(i)+j
+!    fock(i,j) = x1e(nij)
+!    val = zero
+!    do k=1,n_frz
+!      nkk = ican_a(k)+k
+!      if (nij >= nkk) then
+!        nijkk = ican_b(nij)+nkk
+!      else
+!        nijkk = ican_b(nkk)+nij
+!      end if
+!      val = val+vector1(nijkk)*two
+!
+!      i0 = max(i,k)
+!      k0 = min(i,k)
+!      nik = ican_a(i0)+k0
+!      j0 = max(j,k)
+!      k0 = min(j,k)
+!      njk = ican_a(j0)+k0
+!      nikjk = ican_b(nik)+njk
+!      val = val-vector1(nikjk)
+!    end do
+!    fock(i,j) = fock(i,j)+val
+!    fock(j,i) = fock(i,j)
+!  end do
+!end do
+!
+!end subroutine lagran_fock

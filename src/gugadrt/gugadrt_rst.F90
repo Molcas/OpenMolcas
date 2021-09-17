@@ -14,8 +14,9 @@ subroutine gugadrt_rst(id,nndd)
 ! 10 may 2007 - revised by wyb
 
 use gugadrt_global, only: iseg_downwei, iprint, iintbit, ja, ja_sys, jb, jb_sys, jc_sys, jd, jj, jm, jroute_sys, js, jt, jv, kk, &
-                          lsm_inn, max_innorb, max_node, mul_tab, mxnode, n_ref, n16int, n32int, ng_sm, no, norb_act, norb_all, &
-                          norb_dz, norb_inn, ns_sm, nu_ad
+                          lsm_inn, max_innorb, max_node, mxnode, n_ref, n16int, n32int, ng_sm, no, norb_act, norb_all, norb_dz, &
+                          norb_inn, ns_sm, nu_ad
+use Symmetry_Info, only: mul_tab => Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 

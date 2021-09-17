@@ -16,7 +16,6 @@
 subroutine version_info()
 
 implicit none
-#include "drt_h.fh"
 
 write(6,'(10x,a42)') '*****************************************'
 write(6,'(10x,a42)') '*      Xian-ci mrci program             *'
@@ -39,8 +38,9 @@ end subroutine version_info
 
 subroutine allocate_int_memory()
 
+use gugaci_global, only: maxintseg, vint_ci
+
 implicit none
-#include "drt_h.fh"
 
 ! this subroutine is used to allocate the dynamic memory for integrals
 ! vint_ci(:) pointer to the base address of the memory of integrals
@@ -55,8 +55,9 @@ end subroutine allocate_int_memory
 
 subroutine deallocate_int_memory()
 
+use gugaci_global, only: vint_ci
+
 implicit none
-#include "drt_h.fh"
 
 deallocate(vint_ci)
 
@@ -164,11 +165,12 @@ subroutine readint(ntyp,vintrd)
 ! -------------------
 ! vintrd(*) - integrals used in hamiltonian matrix calculation
 
+use gugaci_global, only: LuCiInt
+
 implicit none
 integer :: ntyp
 real*8 :: vintrd(*)
 integer :: idisk, idum(1), idx(4), lenint
-#include "files_gugaci.fh"
 
 idx = 0
 idisk = 0
@@ -210,6 +212,8 @@ end subroutine readint
 
 subroutine gugaciinit()
 
+use gugaci_global, only: FnOneMO, FnTwoMO, LuCiDen, LuCiDia, LuCiInt, LuCiMO, LuCiTv1, LuCiTv2, LuCiVec, LuDrt, LuLoop, LuOneMO, &
+                         LuTwoMO
 #ifdef MOLPRO
 use file_qininit
 use molegeom
@@ -218,12 +222,10 @@ use orbinfo
 #endif
 
 implicit none
+character(len=8) :: fnciden, fncidia, fnciint, fncimo, fncitv1, fncitv2, fncivec, fndrt, fnloop
 #ifdef MOLPRO
 integer :: noffset(maxrecord)
 #endif
-#include "drt_h.fh"
-#include "files_gugaci.fh"
-!#include "comfile.fh"
 
 #ifndef MOLPRO
 fnonemo = 'traone'
@@ -291,8 +293,9 @@ end subroutine gugaciinit
 
 subroutine gugafinalize()
 
+use gugaci_global, only: LuCiDen, LuCiDia, LuCiInt, LuCiMO, LuCiTv1, LuCiTv2, LuCiVec, LuDrt, LuLoop
+
 implicit none
-#include "files_gugaci.fh"
 
 #ifdef MOLPRO
 call fileclos(ludrt,12)
@@ -323,10 +326,10 @@ end subroutine gugafinalize
 
 subroutine memdengrad_alloc()
 
+use gugaci_global, only: denm1, denm2, norb_all
+
 implicit none
 integer :: nc, ndim
-#include "drt_h.fh"
-#include "grad_h.fh"
 
 ndim = norb_all*(norb_all+1)/2
 allocate(denm1(ndim))
@@ -337,9 +340,9 @@ end subroutine memdengrad_alloc
 
 subroutine memdengrad_free()
 
+use gugaci_global, only: denm1, denm2
+
 implicit none
-#include "drt_h.fh"
-#include "grad_h.fh"
 
 deallocate(denm1)
 deallocate(denm2)
@@ -348,10 +351,9 @@ end subroutine memdengrad_free
 
 subroutine memcidiag_alloc()
 
+use gugaci_global, only: jeh, jph, jwh, maxpl, th, thh
+
 implicit none
-#include "drt_h.fh"
-#include "ptlph.fh"
-#include "ptlphv.fh"
 
 allocate(jph(maxpl))
 allocate(jeh(maxpl))
@@ -370,10 +372,9 @@ end subroutine memcidiag_alloc
 
 subroutine memcidiag_dealloc()
 
+use gugaci_global, only: jeh, jph, jwh, th, thh
+
 implicit none
-#include "drt_h.fh"
-#include "ptlph.fh"
-#include "ptlphv.fh"
 
 deallocate(jph)
 deallocate(jeh)
@@ -387,10 +388,12 @@ end subroutine memcidiag_dealloc
 
 subroutine mem_intinnindex_alloc()
 
+use gugaci_global, only: intind_abkk, intind_iabc, intind_iaqq, intind_ijab, intind_ijcc, intind_ijka, intspace_abkk, &
+                         intspace_iabc, intspace_iaqq, intspace_ijab, intspace_ijcc, intspace_ijka, loij, loij_all, loijk, &
+                         loijk_all, nabc, ngw2, ngw3, norb_all, norb_inn, vdint, voint
+
 implicit none
 integer :: lent
-#include "drt_h.fh"
-#include "intsort_h.fh"
 
 allocate(loij(50000))
 allocate(loijk(1384150))
@@ -437,9 +440,10 @@ end subroutine mem_intinnindex_alloc
 
 subroutine mem_intinnindex_dealloc()
 
+use gugaci_global, only: intind_abkk, intind_iabc, intind_iaqq, intind_ijab, intind_ijcc, intind_ijka, intspace_abkk, &
+                         intspace_iabc, intspace_iaqq, intspace_ijab, intspace_ijcc, intspace_ijka, loij, loij_all, loijk, loijk_all
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
 
 deallocate(loij)
 deallocate(loijk)
@@ -466,9 +470,9 @@ end subroutine mem_intinnindex_dealloc
 
 subroutine allocate_casrst()
 
+use gugaci_global, only: ja, jb, jj, jm, kk, max_node
+
 implicit none
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
 
 allocate(ja(max_node),jb(max_node),jm(0:max_node))
 allocate(jj(1:4,0:max_node))
@@ -483,9 +487,9 @@ end subroutine allocate_casrst
 
 subroutine deallocate_casrst()
 
+use gugaci_global, only: ja, jb, jj, jm, kk
+
 implicit none
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
 
 deallocate(ja,jb,jm)
 deallocate(jj)
@@ -497,10 +501,10 @@ end subroutine deallocate_casrst
 
 subroutine allocate_subdrt(icase,lent)
 
+use gugaci_global, only: ihy, iy, jj_sub, jphy, max_node, max_wei
+
 implicit none
 integer :: icase, lent
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
 
 allocate(ihy(max_wei),jj_sub(1:4,0:max_node))
 allocate(iy(1:4,0:max_node))
@@ -514,10 +518,10 @@ end subroutine allocate_subdrt
 
 subroutine allocate_subdrtl(icase,lent)
 
+use gugaci_global, only: ihyl, iyl, jjl_sub, jphyl, max_node, max_wei
+
 implicit none
 integer :: icase, lent
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
 
 allocate(ihyl(max_wei),jjl_sub(1:4,0:max_node))
 allocate(iyl(1:4,0:max_node))
@@ -531,9 +535,9 @@ end subroutine allocate_subdrtl
 
 subroutine deallocate_subdrt()
 
+use gugaci_global, only: ihy, iy, jj_sub, jphy
+
 implicit none
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
 
 deallocate(ihy,jj_sub)
 deallocate(iy)
@@ -543,9 +547,9 @@ end subroutine deallocate_subdrt
 
 subroutine deallocate_subdrtl()
 
+use gugaci_global, only: ihyl, iyl, jjl_sub, jphyl
+
 implicit none
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
 
 deallocate(ihyl,jjl_sub)
 deallocate(iyl)
@@ -558,7 +562,7 @@ end subroutine deallocate_subdrtl
 function c_time()
 
 implicit none
-real*8 c_time
+real*8 :: c_time
 real*8, external :: seconds
 
 c_time = seconds()

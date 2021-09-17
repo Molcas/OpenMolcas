@@ -11,13 +11,10 @@
 
 subroutine dv_drt_ci_new()
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, imr, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, linelp, lpblock_dv
+
 implicit none
 integer :: jptyl, jptyr, lpb
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
-#include "lpdisk.fh"
 
 call external_space_plpmode_value_dv()
 
@@ -44,15 +41,16 @@ end subroutine dv_drt_ci_new
 
 subroutine dv_ext_head_in_dbl()
 
+use gugaci_global, only: iml, intind_ijka, ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud, just, linelp, logic_dh, &
+                         lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, nlg1, nlg2, norb_dz, &
+                         norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_dv, w0_sd, w0_sv, w0_td, w0_vv, w1_sd, w1_sv, &
+                         w1_td, w1_tv
+
 implicit none
 integer :: ijk, imap_1, intpos, isma, iwal, iwar, iwdl, iwdr, jk, jmlr, lmd, lmi, lmij, lmj, lpok, lra, lrd, lri, lrj, lrk, mpl, ni
 real*8 :: w0, w0sd1, w0sd11, w0sd12, w0sd14, w0sd16, w0sd2, w0sd4, w0sd5, w0sd8, w0sd9, w0sv2, w0td1, w0td2, w0td3, w0td4, w0td5, &
           w1sd11, w1sd12, w1sd5, w1sd8, w1sd9, w1sv2, w1td2, w1td3, w1td4, w1tv
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 logic_dh = .true.
 isma = iml
@@ -843,12 +841,10 @@ end subroutine dv_ext_head_in_dbl
 
 subroutine dv_ext_head_in_act()
 
+use gugaci_global, only: iml, linelp, logic_dh, nlg1, nlg2
+
 implicit none
 integer :: intpos, isma, lri, lrj
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 logic_dh = .false.
 lri = nlg1
@@ -881,13 +877,10 @@ end subroutine dv_ext_head_in_act
 
 subroutine sd_drt_ci_new_den()
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, imr, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, linelp, lpblock_sd
+
 implicit none
 integer :: jptyl, jptyr, lpb
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
-#include "lpdisk.fh"
 
 !write(6,*) '  sd_wyb'
 
@@ -918,13 +911,10 @@ end subroutine sd_drt_ci_new_den
 
 subroutine sd_drt_ci_new()
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, imr, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, linelp, lpblock_sd
+
 implicit none
 integer :: jptyl, jptyr, lpb
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
-#include "lpdisk.fh"
 
 !write(6,*) '  sd_wyb'
 
@@ -955,15 +945,16 @@ end subroutine sd_drt_ci_new
 
 subroutine sd_ext_head_in_dbl()
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud, just, linelp, logic_dh, &
+                         lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, nlg1, nlg2, norb_dz, &
+                         norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_dv, w0_sd, w0_sv, w0_td, w0_vv, w1_sd, w1_sv, &
+                         w1_td, w1_tv
+
 implicit none
 integer :: ijk, imap_1, intpos, isma, iwal, iwar, iwdl, iwdr, jk, jmlr, lmd, lmi, lmij, lmj, lpok, lra, lrd, lri, lrj, lrk, mpl, ni
 real*8 :: w0, w0sd1, w0sd11, w0sd12, w0sd14, w0sd16, w0sd2, w0sd4, w0sd5, w0sd8, w0sd9, w0sv2, w0td1, w0td2, w0td3, w0td4, w0td5, &
           w1sd11, w1sd12, w1sd5, w1sd8, w1sd9, w1sv2, w1td2, w1td3, w1td4, w1tv
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 logic_dh = .true.
 isma = mul_tab(iml,imr)
@@ -1769,12 +1760,10 @@ end subroutine sd_ext_head_in_dbl
 
 subroutine sd_ext_head_in_act()
 
+use gugaci_global, only: iml, imr, linelp, logic_dh, mul_tab, nlg1, nlg2
+
 implicit none
 integer :: intpos, isma, lri, lrj
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 logic_dh = .false.
 lri = nlg1
@@ -1808,9 +1797,10 @@ end subroutine sd_ext_head_in_act
 
 subroutine sd_ext_space_w01plp_value()
 
+use gugaci_global, only: w0_sdplp, w0g25a, w0g26a, w0g27, w0g28a, w0g29, w0g30, w0g31, w0g32, w0plp25, w0plp26, w0plp27, w0plp28, &
+                         w0plp29, w0plp30, w0plp31, w0plp32, w1g27, w1g31, w1g32, w1plp27, w1plp31, w1plp32
+
 implicit none
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 w0plp25 = w0_sdplp*w0g25a
 w0plp26 = w0_sdplp*w0g26a
@@ -1828,13 +1818,12 @@ end subroutine sd_ext_space_w01plp_value
 
 subroutine gsd_samesym_aaa(lri,isma)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, intind_iabc, intind_iaqq, iwt_orb_ext, m_jd, nabc, ngw2, ngw3, norb_ext, &
+                         norb_number, value_lpext, vint_ci, w0g28a, w0plp27, w0plp28, w0plp31, w0plp32, w1plp27, w1plp31, w1plp32
+
 implicit none
 integer :: lri, isma
 integer :: ia, ia0, iabc, iabc0, iaqq, iasta, ib, ibend, ibsta, ic, ilwei, intpos, iposint, jcoffset, lrc
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
-#include "gext_sequence.fh"
 
 ia0 = (lri-1)*norb_ext
 iabc0 = (lri-1)*nabc
@@ -1905,13 +1894,12 @@ end subroutine gsd_samesym_aaa
 
 subroutine gsd_diffsamesym_abb(lri,isma,ismb)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, intind_iabc, intind_iaqq, iwt_orb_ext, m_jc, m_jd, nabc, ngw2, ngw3, &
+                         norb_ext, norb_number, value_lpext, vint_ci, w0g28a, w0plp28, w0plp31, w0plp32, w1plp31, w1plp32
+
 implicit none
 integer :: lri, isma, ismb
 integer :: ia, ia0, iabc, iabc0, iaend, iaqq, iasta, ib, ibend, ibsta, ic, ilwei, intpos, iposint, jb, jcoffset, lrc
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
-#include "gext_sequence.fh"
 
 ia0 = (lri-1)*norb_ext
 iabc0 = (lri-1)*nabc
@@ -1966,13 +1954,12 @@ end subroutine gsd_diffsamesym_abb
 
 subroutine gsd_diffsamesym_aab(lri,isma,ismb)
 
+use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, intind_iabc, intind_iaqq, iwt_orb_ext, m_jd, nabc, ngw2, ngw3, norb_ext, &
+                         norb_number, value_lpext, vint_ci, w0plp27, w0plp32, w1plp27, w1plp32
+
 implicit none
 integer :: lri, isma, ismb
 integer :: ia, ia0, iabc, iabc0, iaend, iaqq, iasta, ib, ibend, ibsta, ic, ilwei, intpos, iposint, jcoffset, lrc
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
-#include "gext_sequence.fh"
 
 ia0 = (lri-1)*norb_ext
 iabc0 = (lri-1)*nabc
@@ -2023,13 +2010,12 @@ end subroutine gsd_diffsamesym_aab
 
 subroutine gsd_arlp_s1(lri)
 
+use gugaci_global, only: icnt_base, intind_iaqq, isegdownwei, m_jd, norb_ext, norb_number, value_lpext, vint_ci, w0plp26, w0plp29, &
+                         w0plp30
+
 implicit none
 integer :: lri
 integer :: ia0, iaqq, ic, ilwei, intoffset, intpos, iposint, is1orb, lrk
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
-#include "gext_sequence.fh"
 
 ia0 = (lri-1)*norb_ext
 ic = m_jd
@@ -2067,13 +2053,10 @@ end subroutine gsd_arlp_s1
 
 subroutine td_drt_ci_new()
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, imr, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, linelp, lpblock_td, w0_sdplp
+
 implicit none
 integer :: jptyl, jptyr, lpb
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
-#include "lpdisk.fh"
 
 !write(6,*) '  td_wyb'
 
@@ -2105,15 +2088,16 @@ end subroutine td_drt_ci_new
 
 subroutine td_ext_head_in_dbl()
 
+use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud, just, linelp, logic_dh, &
+                         lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, nlg1, nlg2, norb_dz, &
+                         norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_dv, w0_sd, w0_sv, w0_td, w0_vv, w1_sd, w1_sv, &
+                         w1_td, w1_tv
+
 implicit none
 integer :: ijk, imap_1, intpos, isma, iwal, iwar, iwdl, iwdr, jk, jmlr, lmd, lmi, lmij, lmj, lpok, lra, lrd, lri, lrj, lrk, mpl, ni
 real*8 :: w0, w0sd1, w0sd11, w0sd12, w0sd14, w0sd16, w0sd2, w0sd4, w0sd5, w0sd8, w0sd9, w0sv2, w0td1, w0td2, w0td3, w0td4, w0td5, &
           w1sd11, w1sd12, w1sd5, w1sd8, w1sd9, w1sv2, w1td2, w1td3, w1td4, w1tv
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 logic_dh = .true.
 isma = mul_tab(iml,imr)
@@ -2917,12 +2901,10 @@ end subroutine td_ext_head_in_dbl
 
 subroutine td_ext_head_in_act()
 
+use gugaci_global, only: iml, imr, linelp, logic_dh, mul_tab, nlg1, nlg2
+
 implicit none
 integer :: intpos, isma, lri, lrj
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 logic_dh = .false.
 lri = nlg1
@@ -2956,12 +2938,12 @@ end subroutine td_ext_head_in_act
 
 subroutine gsd_ext_sequence(iltype,ilsm,irsm,lri)
 
+use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iseg_downwei, isegdownwei, m_jc, m_jd, mul_tab, &
+                         ng_sm
+
 implicit none
 integer :: iltype, ilsm, irsm, lri
 integer :: ic, icano_nn, icend, icsta, ilnodedownwei, indl, isma, ismb, ismnoded, ismnodes
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "gext_sequence.fh"
 
 ismnodes = ilsm
 ismnoded = irsm
@@ -3019,16 +3001,15 @@ end subroutine gsd_ext_sequence
 
 subroutine ar_sd_ext_rest(lri)
 
+use gugaci_global, only: icnt_base, ihy, ihyl, ilsegdownwei, iml, imr, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, &
+                         jpadl, jphy, logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, mtype, ndim, nstaval, &
+                         nvalue, value_lpext, value_lpext1, vplp_w0, vplpnew_w0, w0_sdplp
+
 implicit none
 integer :: lri
 integer :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei
 real*8 :: w0_old, w0multi
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
-#include "gext_sequence.fh"
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
@@ -3116,16 +3097,15 @@ end subroutine ar_sd_ext_rest
 
 subroutine ar_td_ext_rest(lri)
 
+use gugaci_global, only: icnt_base, ihy, ihyl, ilsegdownwei, iml, imr, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, &
+                         jpadl, jphy, logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, mtype, ndim, nstaval, &
+                         nvalue, value_lpext, value_lpext1, vplp_w0, vplpnew_w0, w0_sdplp
+
 implicit none
 integer :: lri
 integer :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei
 real*8 :: w0_old, w0multi
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-#include "intsort_h.fh"
-#include "lpextmode_h.fh"
-#include "gext_sequence.fh"
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)

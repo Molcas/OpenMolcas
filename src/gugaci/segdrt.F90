@@ -11,15 +11,12 @@
 
 subroutine seg_drt()
 
+use gugaci_global, only: ihy, ipae, iy, jj, jj_sub, jpad, jpae, jphy, max_wei, ndim, no, nohy, norb_act, norb_dz, norb_inn
+use stdalloc, only: mma_allocate, mma_deallocate
+
 implicit none
 integer :: i, ihypos, ij1, in_, iw, j(4), j1, j2, j3, j4, jde, jp, jp0, jpe, jpend, jpmax, jps, jpsta, lr
 integer, allocatable :: jpihy(:)
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "stdalloc.fh"
-!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-!common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 
 jpmax = no(norb_inn+1)
 iy = 0
@@ -159,12 +156,12 @@ end subroutine seg_drt
 
 function iwalk_ad(jdbl,jext,iwa,iwd)
 
+use gugaci_global, only: iseg_downwei, iw_sta, jpad_upwei, log_prod
+
 implicit none
 integer :: iwalk_ad
 integer :: jdbl, jext, iwa, iwd
 integer :: ioff, isegdown, iwup
-#include "drt_h.fh"
-#include "intsort_h.fh"
 
 if (log_prod == 3) then
   ! mrpt2
@@ -184,30 +181,28 @@ return
 
 end function iwalk_ad
 
-function iwalk_ad_mrso(jdbl,jext,iwa,iwd)
-
-implicit none
-integer :: iwalk_ad_mrso
-integer :: jdbl, jext, iwa, iwd
-integer :: isegdown, iwup
-#include "drt_h.fh"
-#include "intsort_h.fh"
-
-iwup = jpad_upwei(jdbl)
-isegdown = iseg_downwei(jext)
-iwalk_ad_mrso = (iwa*iwup+iwd)*isegdown+isub_sta(jdbl,jext)
-
-return
-
-end function iwalk_ad_mrso
+!function iwalk_ad_mrso(jdbl,jext,iwa,iwd)
+!
+!use gugaci_global, only: iseg_downwei, jpad_upwei
+!
+!implicit none
+!integer :: iwalk_ad_mrso
+!integer :: jdbl, jext, iwa, iwd
+!integer :: isegdown, iwup
+!
+!iwup = jpad_upwei(jdbl)
+!isegdown = iseg_downwei(jext)
+!iwalk_ad_mrso = (iwa*iwup+iwd)*isegdown+isub_sta(jdbl,jext)
+!
+!return
+!
+!end function iwalk_ad_mrso
 
 subroutine ajphy(jp,in_,jpihy)
 
+use gugaci_global, only: iy, jj, jj_sub, jpad, kk, max_node, max_wei, no, norb_dz
+
 implicit none
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
-!common/casrst/ja(max_node),jb(max_node),jm(0:max_node),jj(4,0:max_node),kk(0:max_node),no(0:max_innorb),jv,jd(8),jt(8),js(8)
-!common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 integer :: jp, in_, jpihy(max_wei)
 integer :: i, idr, iin(0:max_node), j, jpe, jpn, jy, l, lr, nn
 
@@ -273,17 +268,15 @@ end function K_COE
 
 subroutine copy_to_drtl()
 
+use gugaci_global, only: ihy, ihyl, ipae, ipael, iy, iyl, jj_sub, jjl_sub, jpad, jpadl, jpae, jpael, jphy, jphyl, no, nohy, norb_inn
+
 implicit none
 integer :: knode, nod
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
 
 jpadl = jpad
 jpael = jpae
 ipael = ipae
-ndiml = ndim
-nohyl = nohy
-ihyl(1:nohyl) = ihy(1:nohy)
+ihyl(1:nohy) = ihy(1:nohy)
 
 knode = no(norb_inn+1)
 do nod=1,knode
@@ -298,10 +291,11 @@ end subroutine copy_to_drtl
 
 subroutine get_jpadty(jp,ity,jp_ms)
 
+use gugaci_global, only: ns_sm
+
 implicit none
 integer :: jp, ity, jp_ms
 integer :: jpp
-#include "drt_h.fh"
 
 if (jp == 1) then
   ity = 1

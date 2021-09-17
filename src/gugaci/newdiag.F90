@@ -14,13 +14,14 @@
 
 subroutine gdavdiag(istate,mtidx,veistate)
 
+use gugaci_global, only: nci_dim, value_lpext, vector1, vector2
+
 implicit none
 integer :: istate, mtidx
 real*8 :: veistate
 integer :: l, lent1, lent2, ndimt
 real*8 :: depff
 integer, parameter :: maxdimlu = 1000, maxdimgit = 10000
-#include "drt_h.fh"
 
 ! compute (h00-rouk)-1, and save the low triagular part of the
 ! inverse matrix at value_tmp(1:lent1-1)
@@ -69,14 +70,14 @@ end subroutine matmultv
 
 subroutine cimtinverse(ndimt,vrouk)
 
+use gugaci_global, only: len_str, max_tmpvalue, value_lpext !, tmpdir
+
 implicit none
 integer :: ndimt
 real*8 :: vrouk
 integer :: lent, neh0, num
 !character(len=256) :: filename
 integer, parameter :: maxdimlu = 1000, maxdimgit = 10000
-#include "drt_h.fh"
-#include "scratch.fh"
 
 !is = 1
 !if (is == 1) then
@@ -98,7 +99,7 @@ lent = len_str+8
 neh0 = maxdimlu*maxdimlu
 num = 2*neh0+lent
 if (num > max_tmpvalue) then
-  write(6,*) 'no enough scratch vectors, error 1000',num,max_tmpvalue,neh0,lent,ndimt
+  write(6,*) 'not enough scratch vectors, error 1000',num,max_tmpvalue,neh0,lent,ndimt
 # ifndef MOLPRO
   call abend()
 # endif

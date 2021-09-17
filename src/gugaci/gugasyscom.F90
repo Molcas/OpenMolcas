@@ -11,9 +11,11 @@
 
 subroutine allocate_vplp_memory()
 
+use gugaci_global, only: index_lpext, index_lpext1, index_lpext2, logic_br, logic_newbr, lp_coe, lp_head, lp_ltail, lp_lwei, &
+                         lp_rtail, lp_rwei, lpnew_coe, lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, max_tmpvalue, &
+                         maxpl, norb_dz, norb_inn, value_lpext, value_lpext1, value_lpext2, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
+
 implicit none
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
 
 allocate(lp_coe(norb_dz+1:norb_inn+1,maxpl))
 allocate(lp_head(maxpl))
@@ -47,12 +49,15 @@ end subroutine allocate_vplp_memory
 
 subroutine deallocate_vplp_memory()
 
+use gugaci_global, only: index_lpext, index_lpext1, index_lpext2, logic_br, logic_newbr, lp_coe, lp_head, lp_ltail, lp_lwei, &
+                         lp_rtail, lp_rwei, lpnew_coe, lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, value_lpext, &
+                         value_lpext1, value_lpext2, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
+
 implicit none
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
 
 deallocate(lp_coe)
 deallocate(lp_head)
+deallocate(lp_ltail)
 deallocate(lp_rtail)
 deallocate(lp_lwei)
 deallocate(lp_rwei)
@@ -82,11 +87,12 @@ end subroutine deallocate_vplp_memory
 
 subroutine change_vplp_pointer_arrays()
 
+use gugaci_global, only: lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, &
+                         lpnew_rwei, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
+
 implicit none
 integer, pointer :: iplptmp(:)
 real*8, pointer :: plptmp(:)
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
 
 plptmp => vplp_w0
 vplp_w0 => vplpnew_w0
@@ -120,10 +126,10 @@ end subroutine change_vplp_pointer_arrays
 
 subroutine change_coe_pointer_arrays()
 
+use gugaci_global, only: lp_coe, lpnew_coe
+
 implicit none
 integer, pointer :: icoetmp(:,:)
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
 
 icoetmp => lp_coe
 lp_coe => lpnew_coe
@@ -133,10 +139,10 @@ end subroutine change_coe_pointer_arrays
 
 subroutine change_br_pointer_arrays()
 
+use gugaci_global, only: logic_br, logic_newbr
+
 implicit none
 logical, pointer :: logic_brtmp(:)
-#include "drt_h.fh"
-#include "pl_structure_h.fh"
 
 logic_brtmp => logic_br
 logic_br => logic_newbr

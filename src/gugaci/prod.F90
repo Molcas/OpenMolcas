@@ -16,12 +16,12 @@ subroutine gdv_sequence_extspace(ilw,irw)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+use gugaci_global, only: ilsegdownwei, indx, log_prod, mcroot, value_lpext, vector1, vector2
+
 implicit none
 integer :: ilw, irw
 integer :: iij, irot, irtidx, mm, nn
 real*8 :: valuelp, valuelptmp1, vlptmp
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 !write(6,*) '  dv_test ','  vd_test '
 
@@ -56,13 +56,12 @@ end subroutine gdv_sequence_extspace
 
 subroutine gdv_sequence_extspace_pt(ilw,irw)  !log_prod=
 
+use gugaci_global, only: ilsegdownwei, value_lpext, vcm, vector2
+
 implicit none
 integer :: ilw, irw
 integer :: iij, mm, nn
 real*8 :: wl
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "pl_structure_h.fh"
 
 mm = ilw
 nn = irw+1
@@ -84,14 +83,14 @@ subroutine gtd_sequence_extspace(iplplweiin,iplprweiin)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+use gugaci_global, only: indx, iweista_g25, iweista_g28, logic_g25a, logic_g25b, logic_g28a, mcroot, nint_g25, nint_g28, nwei_g25, &
+                         nwei_g28, value_lpext, vector1, vector2
+
 implicit none
 integer :: iplplweiin, iplprweiin
 integer :: i, ilpvalue, iplplwei, iplprwei, irot, irtidx, itmp, mm, nn, nn0
 real*8 :: vlptmp, vlptmp1, vlptmp2
 real*8, parameter :: v_sqtwo = 1.414213562373095d0
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "cont_tmp.fh"
 
 !write(6,*) ' td_test _1/2',' dt_test '
 
@@ -172,13 +171,16 @@ subroutine inn_ext_ss_loop_unpack(iplplweiin,iplprweiin)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, indx, ism_g2g4, iwt_sm_s_ext, logic_g1415, logic_g2g4a, &
+                         logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, lpend34a, lpend34b, &
+                         lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, &
+                         lpsta36b, mcroot, mul_tab, ng_sm, nvalue_space_ss, value_lpext, vector1, vector2
+
 implicit none
 integer :: iplplweiin, iplprweiin
 integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, isma, &
            ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real*8 :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 !write(6,*) ' ss_test 1/2'
 do irot=1,mcroot
@@ -372,13 +374,16 @@ subroutine inn_ext_ss_drl_loop_unpack(iplplweiin,iplprweiin)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, indx, ism_g2g4, iwt_sm_s_ext, logic_g1415, logic_g2g4a, &
+                         logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, lpend34a, lpend34b, &
+                         lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, &
+                         lpsta36b, mcroot, mul_tab, ng_sm, value_lpext, vector1, vector2
+
 implicit none
 integer :: iplplweiin, iplprweiin
 integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, isma, &
            ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real*8 :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 !write(6,*) ' ss_test 2/2'
 do irot=1,mcroot
@@ -572,12 +577,12 @@ subroutine inn_ext_sv_loop_unpack(ilw,irw)   !,ilsegdownwei)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+use gugaci_global, only: ilsegdownwei, indx, log_prod, mcroot, value_lpext, vector1, vector2
+
 implicit none
 integer :: ilw, irw
 integer :: iij, irot, irtidx, mm, nn
 real*8 :: valuelp, valuelptmp1
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 !write(6,*) 'sv_test,   tv_test '
 if (log_prod == 3) then
@@ -603,14 +608,13 @@ end subroutine inn_ext_sv_loop_unpack
 
 subroutine inn_ext_svloop_unpack_pt(ilw,irw)
 
+use gugaci_global, only: ilsegdownwei, value_lpext, vcm, vector2
+
 implicit none
 integer :: ilw, irw
 integer :: iij, mm, nn
 real*8 :: wl
-!character(len=16) loop_type
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
-#include "pl_structure_h.fh"
+!character(len=16) :: loop_type
 
 !loop_type = ' sv_test_pt, tv_test_pt'
 mm = ilw
@@ -631,13 +635,15 @@ subroutine inn_ext_tt_loop_unpack(iplplweiin,iplprweiin)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+use gugaci_global, only: idownwei_g131415, indx, logic_g1415, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, &
+                         logic_g36b, lpend34a, lpend34b, lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, &
+                         lpsta35a, lpsta35b, lpsta36a, lpsta36b, mcroot, nvalue_space_ss, value_lpext, vector1, vector2
+
 implicit none
 integer :: iplplweiin, iplprweiin
 integer :: i, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, lpend34, lpend35, lpend36, lpsta34, &
            lpsta35, lpsta36, mm, mm0, nn, nn0
 real*8 :: valuelp, valuelptmp1, valuetmp
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 !write(6,*) '  tt_test 1/2'
 
@@ -760,13 +766,16 @@ subroutine inn_ext_ts_loop_unpack(iplplweiin,iplprweiin)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, indx, ism_g2g4, iwt_sm_s_ext, logic_g1415, logic_g2g4a, &
+                         logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, lpend34a, lpend34b, &
+                         lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, &
+                         lpsta36b, mcroot, mul_tab, ng_sm, nvalue_space_ss, value_lpext, vector1, vector2
+
 implicit none
 integer :: iplplweiin, iplprweiin
 integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, isma, &
            ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real*8 :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 !write(6,*) '  ts_test 1/2 '
 
@@ -968,13 +977,16 @@ subroutine inn_ext_ts_drl_loop_unpack(iplplweiin,iplprweiin)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, indx, ism_g2g4, iwt_sm_s_ext, logic_g1415, logic_g2g4a, &
+                         logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, lpend34a, lpend34b, &
+                         lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, &
+                         lpsta36b, mcroot, mul_tab, ng_sm, value_lpext, vector1, vector2
+
 implicit none
 integer :: iplplweiin, iplprweiin
 integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, isma, &
            ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real*8 :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 !write(6,*) '  ts_test 2/2'
 
@@ -1177,13 +1189,16 @@ subroutine inn_ext_st_loop_unpack(iplplweiin,iplprweiin)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, indx, ism_g2g4, iwt_sm_s_ext, logic_g1415, logic_g2g4a, &
+                         logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, lpend34a, lpend34b, &
+                         lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, &
+                         lpsta36b, mcroot, mul_tab, ng_sm, nvalue_space_ss, value_lpext, vector1, vector2
+
 implicit none
 integer :: iplplweiin, iplprweiin
 integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, isma, &
            ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real*8 :: valtmp, valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 !write(6,*) ' st_test 1/2'
 
@@ -1391,13 +1406,16 @@ subroutine inn_ext_st_drl_loop_unpack(iplplweiin,iplprweiin)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, indx, ism_g2g4, iwt_sm_s_ext, logic_g1415, logic_g2g4a, &
+                         logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, lpend34a, lpend34b, &
+                         lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, &
+                         lpsta36b, mcroot, mul_tab, ng_sm, value_lpext, vector1, vector2
+
 implicit none
 integer :: iplplweiin, iplprweiin
 integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, isma, &
            ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real*8 :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 !write(6,*) ' st_test 2/2'
 
@@ -1598,13 +1616,14 @@ subroutine gsd_sequence_extspace(iplplweiin,iplprweiin)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+use gugaci_global, only: indx, ivaluesta_g26, iweista_g25, iweista_g26, iweista_g28, logic_g25a, logic_g25b, logic_g26, &
+                         logic_g28a, mcroot, nint_g25, nint_g28, nwei_g25, nwei_g26, nwei_g28, value_lpext, vector1, vector2
+
 implicit none
 integer :: iplplweiin, iplprweiin
 integer :: i, ilpvalue, iplplwei, iplprwei, irot, irtidx, itmp, mm, nn, nn0
 real*8 :: vlptmp, vlptmp1, vtmp
 real*8, parameter :: v_sqtwo = 1.414213562373095d0
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 !write(6,*) '  sd_test 1/2','  ds_test 011'
 
@@ -1697,15 +1716,12 @@ subroutine complete_sd_ar_ext_loop(ilweiin,irweiin,isdownwei)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+use gugaci_global, only: icano_nnend, icano_nnsta, indx, mcroot, value_lpext, vector1, vector2
+
 implicit none
 integer :: ilweiin, irweiin, isdownwei
 integer :: ilpvalue, ilwei, irot, irtidx, irwei, mm, mm0, mmtmp, nn, nntmp
 real*8 :: vlptmp, vlptmp1
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
-#include "gext_sequence.fh"
 
 !write(6,*) 'sd_test 2/2','  td_test_2/2 012'
 
@@ -1740,12 +1756,13 @@ subroutine inn_ext_dd_loop_unpack(iplplweiin,iplprweiin)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+use gugaci_global, only: ildownwei_segdd, indx, int_dd_drl, irdownwei_segdd, logic_g49a, logic_g49b, logic_g50, mcroot, &
+                         value_lpext, vector1, vector2
+
 implicit none
 integer :: iplplweiin, iplprweiin
 integer :: i, icle, ii, ildownwei, iplplwei, iplprwei, irdownwei, irot, irtidx, j, mm, mm0, nn
 real*8 :: valuelp, valuelptmp1, valuetmp
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 ! 'dd_test '
 
@@ -1829,14 +1846,16 @@ subroutine inn_ext_tt_drl_loop_unpack(iplplweiin,iplprweiin,n1415)
 !***********************************************************************
 ! 26 feb 2007 - revised
 
+use gugaci_global, only: idownwei_g131415, indx, logic_g1415, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, &
+                         logic_g36b, lpend34a, lpend34b, lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, &
+                         lpsta35a, lpsta35b, lpsta36a, lpsta36b, mcroot, value_lpext, vector1, vector2
+
 implicit none
 integer :: iplplweiin, iplprweiin, n1415
 integer :: i, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, lpend34, lpend35, lpend36, lpsta34, &
            lpsta35, lpsta36, mm, mm0, nn, nn0
 real*8 :: valuelp, valuelptmp1, valuetmp
 logical :: logic_g14150, logic_g34b0, logic_g35b0, logic_g36b0
-#include "drt_h.fh"
-#include "lpextmode_h.fh"
 
 !write(6,*) '  tt_test 2/2'
 

@@ -11,13 +11,10 @@
 
 subroutine vd_drt_ci_new()
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, imr, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, linelp, lpblock_vd
+
 implicit none
 integer :: jptyl, jptyr, lpb
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
-#include "lpdisk.fh"
 
 call external_space_plpmode_value_vd()
 
@@ -43,13 +40,12 @@ end subroutine vd_drt_ci_new
 
 subroutine vd_ext_head_in_dbl()
 
+use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, linelp, logic_dh, lp_lwei, lp_rwei, lpnew_lwei, &
+                         lpnew_rwei, mhlp, mtype, nlg1, nlg2, vplp_w0, vplp_w1, vplpnew_w0, w0_vv
+
 implicit none
 integer :: iwal, iwar, iwdl, iwdr, jk, lpok, lra, mpl
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 logic_dh = .true.
 lpok = jpadlr
@@ -309,12 +305,10 @@ end subroutine vd_ext_head_in_dbl
 
 subroutine vd_ext_head_in_act()
 
+use gugaci_global, only: imr, linelp, logic_dh, nlg1, nlg2
+
 implicit none
 integer :: intpos, isma, lri, lrj
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 logic_dh = .false.
 
@@ -340,13 +334,10 @@ end subroutine vd_ext_head_in_act
 
 subroutine ds_drt_ci_new()
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, imr, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, linelp, lpblock_ds
+
 implicit none
 integer :: jptyl, jptyr, lpb
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
-#include "lpdisk.fh"
 
 !write(6,*) '  sd_wyb'
 
@@ -375,13 +366,12 @@ end subroutine ds_drt_ci_new
 
 subroutine ds_ext_head_in_dbl()
 
+use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, linelp, logic_dh, lp_lwei, lp_rwei, lpnew_lwei, &
+                         lpnew_rwei, mhlp, mtype, nlg1, nlg2, vplp_w0, vplp_w1, vplpnew_w0, w0_vv
+
 implicit none
 integer :: iwal, iwar, iwdl, iwdr, jk, lpok, lra, mpl
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 logic_dh = .true.
 !jmlr = mul_tab(jml,jmr)
@@ -642,12 +632,10 @@ end subroutine ds_ext_head_in_dbl
 
 subroutine ds_ext_head_in_act()
 
+use gugaci_global, only: iml, imr, linelp, logic_dh, mul_tab, nlg1, nlg2
+
 implicit none
 integer :: intpos, isma, lri, lrj
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 logic_dh = .false.
 lri = nlg1
@@ -673,13 +661,10 @@ end subroutine ds_ext_head_in_act
 
 subroutine dt_drt_ci_new()
 
+use gugaci_global, only: idisk_array, idisk_lp, iml, imr, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, linelp, lpblock_dt
+
 implicit none
 integer :: jptyl, jptyr, lpb
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
-#include "lpdisk.fh"
 
 !write(6,*) '  td_wyb'
 call external_space_plpmode_value_dt()
@@ -707,13 +692,12 @@ end subroutine dt_drt_ci_new
 
 subroutine dt_ext_head_in_dbl()
 
+use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, linelp, logic_dh, lp_lwei, lp_rwei, lpnew_lwei, &
+                         lpnew_rwei, mhlp, mtype, nlg1, nlg2, vplp_w0, vplp_w1, vplpnew_w0, w0_vv
+
 implicit none
 integer :: iwal, iwar, iwdl, iwdr, jk, lpok, lra, mpl
 integer, external :: iwalk_ad
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 logic_dh = .true.
 !jmlr = mul_tab(jml,jmr)
@@ -974,12 +958,10 @@ end subroutine dt_ext_head_in_dbl
 
 subroutine dt_ext_head_in_act()
 
+use gugaci_global, only: iml, imr, linelp, logic_dh, mul_tab, nlg1, nlg2
+
 implicit none
 integer :: intpos, isma, lri, lrj
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "pl_structure_h.fh"
-#include "lpextmode_h.fh"
 
 logic_dh = .false.
 lri = nlg1

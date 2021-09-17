@@ -16,13 +16,10 @@
 
 subroutine intrd()
 
-use file_qininit, only: maxrecord
+use gugaci_global, only: lsmorb, LuTwoMO, map_orb_order, max_orb, mul_tab, nlsm_all, nlsm_bas, ng_sm, noidx, voint, vpotnuc
+!use file_qininit, only: maxrecord
 
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "files_gugaci.fh"
-#include "mcorb.fh"
 integer :: i, idx, lrcii, lrcij, lri, lrj, lrt, noffset(maxrecord), nc, ni, nidx, nintone, nism, nmob, nsmint
 real*8 :: ecor, xfock(max_orb*(max_orb+1)/2)
 
@@ -91,13 +88,13 @@ end subroutine intrd
 
 subroutine readtwoeint(nft,maxrecord,noffset,norb,ngsm,multab,maporb,noidx)
 
+use gugaci_global, only: max_orb, ntrabuf
+
 implicit none
-#include "ci_parameter.fh"
 integer :: nft, maxrecord, noffset(maxrecord), norb(8), ngsm, multab(8,8), maporb(max_orb), noidx(8)
-integer, parameter :: kbuf = ntrabuf
 integer :: idisk, idx, iout, ityp, li, lj, lk, ll, lri, lrj, lrk, lrl, nbpq, nbrs, nintb, nop, noq, nor, nos, nsp, nspq, nspqr, &
            nsq, nsr, nss, nssm, ntj, ntk, ntl
-real*8 :: buff(kbuf), val
+real*8 :: buff(ntrabuf), val
 
 idisk = noffset(5)
 write(6,2000)
@@ -149,9 +146,9 @@ do nsp=1,ngsm
 
         idx = 0
         iout = 0
-        !call ddatard(nft,buff,kbuf,idisk)
-        if (nintb > kbuf) then
-          call ddafile(nft,2,buff,kbuf,idisk)
+        !call ddatard(nft,buff,ntrabuf,idisk)
+        if (nintb > ntrabuf) then
+          call ddafile(nft,2,buff,ntrabuf,idisk)
         else
           call ddafile(nft,2,buff,nintb,idisk)
         end if
@@ -169,11 +166,11 @@ do nsp=1,ngsm
               if ((ityp == 2) .and. (li == lk)) ntl = lj
               do ll=1,ntl
                 iout = iout+1
-                if (iout > kbuf) then
-                  if (nintb-idx < kbuf) then
+                if (iout > ntrabuf) then
+                  if (nintb-idx < ntrabuf) then
                     call ddafile(nft,2,buff,nintb-idx,idisk)
                   else
-                    call ddafile(nft,2,buff,kbuf,idisk)
+                    call ddafile(nft,2,buff,ntrabuf,idisk)
                   end if
                   iout = 1
                 end if
@@ -204,11 +201,10 @@ end subroutine readtwoeint
 
 subroutine intrd_molcas()
 
+use gugaci_global, only: FnOneMO, FnTwoMO, lsmorb, LuOneMO, LuTwoMO, map_orb_order, max_orb, mul_tab, ng_sm, nlsm_all, nlsm_bas, &
+                         noidx, voint, vpotnuc
+
 implicit none
-#include "drt_h.fh"
-#include "intsort_h.fh"
-#include "files_gugaci.fh"
-#include "mcorb.fh"
 integer :: i, idisk, idx, lrcii, lrcij, lri, lrj, lrt, nc, ni, nidx, nintone, nism, nmob, nsmint
 real*8 :: ecor, xfock(max_orb*(max_orb+1)/2)
 real*8, pointer :: x(:)
@@ -279,15 +275,15 @@ end subroutine intrd_molcas
 
 subroutine readtwoeint(nft,norb,ngsm,multab,maporb,noidx)
 
+use gugaci_global, only: lenintegral, max_orb, ntrabuf, ntratoc
+
 implicit none
-#include "ci_parameter.fh"
 integer :: nft, norb(8), ngsm, multab(8,8), maporb(max_orb), noidx(8)
-integer, parameter :: kbuf = ntrabuf
 integer :: idisk, idx, iout, lenrd, li, lj, lk, ll, lri, lrj, lrk, lrl, nbpq, nbrs, nintb, nop, noq, nor, nos, nsp, nspq, nspqr, &
            nsq, nsr, nss, nssm, ntj, ntk, numax, numin
 real*8 :: val
 integer :: itratoc(ntratoc)
-real*8 :: buff(kbuf)
+real*8 :: buff(ntrabuf)
 
 idisk = 0
 lenrd = ntratoc*lenintegral
@@ -339,8 +335,8 @@ do nsp=1,ngsm
 
         idx = 0
         iout = 0
-        !call ddatard(nft,buff,kbuf,idisk)
-        call ddafile(nft,2,buff,kbuf,idisk)
+        !call ddatard(nft,buff,ntrabuf,idisk)
+        call ddafile(nft,2,buff,ntrabuf,idisk)
 
         do li=1,nor
           ntj = nos
@@ -355,9 +351,9 @@ do nsp=1,ngsm
               if (nsp == nsq) numax = lk
               do ll=numin,numax
                 iout = iout+1
-                if (iout > kbuf) then
-                  !call ddatard(nft,buff,kbuf,idisk)
-                  call ddafile(nft,2,buff,kbuf,idisk)
+                if (iout > ntrabuf) then
+                  !call ddatard(nft,buff,ntrabuf,idisk)
+                  call ddafile(nft,2,buff,ntrabuf,idisk)
                   iout = 1
                 end if
                 idx = idx+1
@@ -385,14 +381,12 @@ end subroutine readtwoeint
 subroutine readtraonehead(nft,ecor,idisk)
 
 implicit none
-#include "ci_parameter.fh"
-#include "maxbfn.fh"
+#include "Molcas.fh"
 integer :: nft, idisk
 real*8 :: ecor
-integer, parameter :: lenin8 = 6+8, maxmolcasorb = maxbfn
 integer :: idum(1), lenrd, nbas(8), ncone(64), ndel(8), nfro(8), norb(8)
 real*8 :: dum(1)
-character(len=lenin8) :: bsbl(maxmolcasorb)
+character(len=LenIn8) :: bsbl(maxbfn)
 
 idisk = 0
 call idafile(nft,2,ncone,64,idisk)
@@ -404,7 +398,7 @@ call idafile(nft,2,nbas,8,idisk)
 call idafile(nft,2,norb,8,idisk)
 call idafile(nft,2,nfro,8,idisk)
 call idafile(nft,2,ndel,8,idisk)
-lenrd = lenin8*maxmolcasorb
+lenrd = LenIn8*maxbfn
 call cdafile(nft,2,bsbl,lenrd,idisk)
 
 !#ifdef debug
@@ -478,13 +472,13 @@ end subroutine readtraonehead
 
 subroutine intrw_mol(ik,jk,kk,lk,val)
 
+use gugaci_global, only: vdint, vector1, voint
+
 implicit none
 integer :: ik, jk, kk, lk
 real*8 :: val
 integer :: i, ind(4), j, k, l, list, lri, lrj, lrk, lrl, lrn, nt
 integer, external :: list3_all, list4_all
-#include "drt_h.fh"
-#include "intsort_h.fh"
 
 list = 0
 i = ik
@@ -588,11 +582,11 @@ end subroutine intrw_mol
 
 subroutine int_index(numb)
 
+use gugaci_global, only: loij_all, loijk_all, lsm, mul_tab, ncibl_all, ngw2, ngw3, norb_all, norb_number
+
 implicit none
 integer :: numb
 integer :: i, j, la, lb, lc, ld, lra, lrb, lrc, lrd, lri, lrj, ms, msa, msb, msc, mscd, msd, msob(8), nij, njkl
-#include "drt_h.fh"
-#include "intsort_h.fh"
 
 msob = 0
 do la=norb_all,1,-1
@@ -673,14 +667,14 @@ end subroutine int_index
 
 function vfutei(ix,jx,kx,lx)
 
+use gugaci_global, only: vector1
+
 implicit none
 real*8 :: vfutei
 integer :: ix, jx, kx, lx
 integer :: i, ind(4), j, list, lri, lrj, lrk, lrl, lrn, nt
 real*8 :: val
 integer, external :: list3_all, list4_all
-#include "drt_h.fh"
-#include "intsort_h.fh"
 
 lri = min(ix,jx)
 lrj = max(ix,jx)
@@ -753,12 +747,12 @@ end function vfutei
 
 function list3_all(i,j,k)
 
+use gugaci_global, only: loij_all, ngw2
+
 implicit none
 integer :: list3_all
 integer :: i, j, k
 integer :: nij
-#include "drt_h.fh"
-#include "intsort_h.fh"
 
 nij = i+ngw2(j)
 list3_all = loij_all(nij)+2*(k-1)
@@ -769,12 +763,12 @@ end function list3_all
 
 function list4_all(ld,lc,lb,la)
 
+use gugaci_global, only: loijk_all, ncibl_all, ngw2, ngw3
+
 implicit none
 integer :: list4_all
 integer :: ld, lc, lb, la
 integer :: lra, njkl
-#include "drt_h.fh"
-#include "intsort_h.fh"
 
 !write(6,*) 'ld,lc,lb,la',ld,lc,lb,la
 lra = ncibl_all(la)
