@@ -1094,9 +1094,21 @@ C-------------------------------------------
              Write(6,'(A)') 'Crystal field will not be computed'
            Else If (i_OxStat == 2) Then
              lDIMCF=5 ! (L=2)  d^6  or  d^4
+             Write(6,'(3A,i5)') 'Oxidation state of ', cME,' is:',
+     &                           i_OxStat
+           Else If (i_OxStat == 3) Then
+             lDIMCF=1 ! (L=2)  d^5
+             Write(6,'(3A,i5)') 'Oxidation state of ', cME,' is:',
+     &                           i_OxStat
+             Write(6,'(A)') 'Crystal field will not be computed'
+           Else If (i_OxStat == 4) Then
+             lDIMCF=5 ! (L=2)  d^6  or  d^4
+             Write(6,'(3A,i5)') 'Oxidation state of ', cME,' is:',
+     &                           i_OxStat
            Else
              lDIMCF=1 ! (L=0)
-             Write(6,'(A)') 'Oxidation state of ', cME,' is:', i_OxStat
+             Write(6,'(3A,i5)') 'Oxidation state of ', cME,' is:',
+     &                           i_OxStat
              Write(6,'(A)') 'Crystal field will not be computed'
            End If
       !- - - - - - - - - - - - - - - - - - - -
@@ -1150,7 +1162,8 @@ C-------------------------------------------
              lDIMCF=7 ! (L=2) d^8
            Else
              lDIMCF=1 ! (L=0)
-             Write(6,'(A)') 'Oxidation state of ', cME,' is:', i_OxStat
+             Write(6,'(3A,i5)') 'Oxidation state of ', cME,' is:',
+     &                           i_OxStat
              Write(6,'(A)') 'Crystal field will not be computed'
            End If
       !- - - - - - - - - - - - - - - - - - - -
