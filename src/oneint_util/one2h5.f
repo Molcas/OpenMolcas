@@ -233,7 +233,7 @@
                 jBas = jOff + j
                 Do i=1,nB1
                   iBas = iOff + i
-                  MLTPL(iBas,jBas) = Scratch(1+iScrOff)
+                  MLTPL(jBas,iBas) = Scratch(1+iScrOff)
                   iScrOff = iScrOff + 1
                 End Do
               End Do
@@ -290,7 +290,7 @@
                 jBas = jOff + j
                 Do i=1,nB1
                   iBas = iOff + i
-                  MLTPL(iBas,jBas) = Scratch(1+iScrOff)
+                  MLTPL(jBas,iBas) = Scratch(1+iScrOff)
                   iScrOff = iScrOff + 1
                 End Do
               End Do
