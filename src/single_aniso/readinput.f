@@ -1044,6 +1044,36 @@ C-------------------------------------------
      &         (cME.eq.'Cr') .OR. (cME.eq.'CR') ) Then
 
          nlanth=32
+         ! Cr3+ -- d^4
+         READ(5,*,ERR=997) i_OxStat
+
+           If(i_OxStat<0) then
+             Write(6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',
+     &                           i_OxStat
+             Write(6,'(A)')  'It was re-set to positive.'
+             i_OxStat=abs(i_OxStat)
+           End If
+           If (i_OxStat==2) then
+             lDIMCF=5 ! (L=2) d^4
+             Write(6,'(3A,i5)') 'Oxidation state of ', cME,' is:',
+     &                           i_OxStat
+           Else If (i_OxStat == 3) Then
+             lDIMCF=7 ! (L=3) d^3
+             Write(6,'(3A,i5)') 'Oxidation state of ', cME,' is:',
+     &                           i_OxStat
+           Else If (i_OxStat == 4) Then
+             lDIMCF=7 ! (L=3) d^2
+             Write(6,'(3A,i5)') 'Oxidation state of ', cME,' is:',
+     &                           i_OxStat
+           Else If (i_OxStat == 5) Then
+             lDIMCF=5 ! (L=2) d^1
+             Write(6,'(3A,i5)') 'Oxidation state of ', cME,' is:',
+     &                           i_OxStat
+           Else
+             lDIMCF=1 ! (L=0)
+             Write(6,'(A)') 'Oxidation state of ', cME,' is:', i_OxStat
+             Write(6,'(A)') 'Crystal field will not be computed'
+           End If
          Write(6,'(A)') 'Crystal field will not be computed'
       !- - - - - - - - - - - - - - - - - - - -
       Else If( (cME.eq.'mn') .OR. (cME.eq.'mN') .OR.
@@ -1102,9 +1132,10 @@ C-------------------------------------------
      &                           i_OxStat
              Write(6,'(A)') 'Crystal field will not be computed'
            Else If (i_OxStat == 4) Then
-             lDIMCF=5 ! (L=2)  d^6  or  d^4
+             lDIMCF=1 ! (L=2)
              Write(6,'(3A,i5)') 'Oxidation state of ', cME,' is:',
      &                           i_OxStat
+             Write(6,'(A)') 'Crystal field will not be computed'
            Else
              lDIMCF=1 ! (L=0)
              Write(6,'(3A,i5)') 'Oxidation state of ', cME,' is:',
