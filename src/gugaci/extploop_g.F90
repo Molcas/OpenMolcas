@@ -106,8 +106,9 @@ end subroutine lp_drl_ext_SS_calcuvalue_G
 
 subroutine lp_drl_ext_ST_calcuvalue_G(lri,nlp_value)
 
-use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, ism_g1415, logic_g1415, logic_g2g4b, mul_tab, ng_sm, &
-                         norb_number, value_lpext, value_lpext1, w1_plp, w1g14a, w1g36a, w1g4b
+use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, ism_g1415, logic_g1415, logic_g2g4b, ng_sm, norb_number, &
+                         value_lpext, value_lpext1, w1_plp, w1g14a, w1g36a, w1g4b
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, nlp_value
@@ -199,8 +200,9 @@ end subroutine lp_drl_ext_ST_calcuvalue_G
 
 subroutine lp_drl_ext_TT_calcuvalue_G(lri,n1415_value,nlp_value)
 
-use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, ism_g1415, logic_g1415, mul_tab, ng_sm, norb_number, &
-                         value_lpext, value_lpext1, w0_plp, w0g14a, w0g15a, w0g36a, w1_plp, w1g14a, w1g15a, w1g36a
+use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, ism_g1415, logic_g1415, ng_sm, norb_number, value_lpext, &
+                         value_lpext1, w0_plp, w0g14a, w0g15a, w0g36a, w1_plp, w1g14a, w1g15a, w1g36a
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, n1415_value, nlp_value
@@ -280,8 +282,9 @@ end subroutine lp_drl_ext_TT_calcuvalue_G
 
 subroutine lp_drl_SUM_TT_calcuvalue_G(lri,n1415_value,nlp_value)
 
-use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, ism_g1415, logic_g1415, mul_tab, ng_sm, norb_number, &
-                         value_lpext, value_lpext1, w0_plp, w0g14a, w0g15a, w0g36a, w1_plp, w1g14a, w1g15a
+use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, ism_g1415, logic_g1415, ng_sm, norb_number, value_lpext, &
+                         value_lpext1, w0_plp, w0g14a, w0g15a, w0g36a, w1_plp, w1g14a, w1g15a
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, n1415_value, nlp_value
@@ -356,8 +359,9 @@ end subroutine lp_drl_SUM_TT_calcuvalue_G
 
 subroutine lp_drl_ext_TS_calcuvalue_G(lri,nlp_value)
 
-use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, ism_g1415, logic_g1415, logic_g2g4a, mul_tab, ng_sm, &
-                         norb_number, value_lpext, value_lpext1, w1_plp, w1g14a, w1g2a, w1g36a
+use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, ism_g1415, logic_g1415, logic_g2g4a, ng_sm, norb_number, &
+                         value_lpext, value_lpext1, w1_plp, w1g14a, w1g2a, w1g36a
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, nlp_value
@@ -454,9 +458,10 @@ end subroutine lp_drl_ext_TS_calcuvalue_G
 subroutine lp_arbl_ext_st_calcuvalue_G(lri,lrj,nlp_value)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, ism_g1415, logic_g13, logic_g1415, logic_g2g4a, &
-                         logic_g2g4b, lsm_inn, mul_tab, ng_sm, norb_ext, norb_number, value_lpext, value_lpext1, w0_plp, w0g13a, &
-                         w0g14a, w0g15a, w0g2a, w0g2b, w0g36a, w0g36b, w0g4a, w0g4b, w1_plp, w1g14a, w1g15a, w1g2a, w1g2b, w1g36a, &
-                         w1g36b, w1g4a, w1g4b
+                         logic_g2g4b, lsm_inn, ng_sm, norb_ext, norb_number, value_lpext, value_lpext1, w0_plp, w0g13a, w0g14a, &
+                         w0g15a, w0g2a, w0g2b, w0g36a, w0g36b, w0g4a, w0g4b, w1_plp, w1g14a, w1g15a, w1g2a, w1g2b, w1g36a, w1g36b, &
+                         w1g4a, w1g4b
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, lrj, nlp_value
@@ -700,8 +705,9 @@ end subroutine lp_arbl_ext_st_calcuvalue_G
 
 subroutine lp10_arbrbr_ext_calcuvalue_G(intentry,isma,nlp_value)
 
-use gugaci_global, only: ibsm_ext, index_lpext, index_lpext1, intind_ijka, lsm_inn, mul_tab, ngw2, ngw3, nlsm_ext, norb_frz, &
-                         norb_inn, norb_number, value_lpext, value_lpext1, w0_sdplp, w0_sdplp25, w0g25, w1_sdplp, w1_sdplp25
+use gugaci_global, only: ibsm_ext, index_lpext, index_lpext1, intind_ijka, lsm_inn, ngw2, ngw3, nlsm_ext, norb_frz, norb_inn, &
+                         norb_number, value_lpext, value_lpext1, w0_sdplp, w0_sdplp25, w0g25, w1_sdplp, w1_sdplp25
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: intentry, isma, nlp_value
@@ -749,8 +755,9 @@ end subroutine lp10_arbrbr_ext_calcuvalue_G
 
 subroutine lp11_arblbr_ext_calcuvalue_G(intentry,isma,nlp_value)
 
-use gugaci_global, only: ibsm_ext, index_lpext, index_lpext1, intind_ijka, lsm_inn, mul_tab, ngw2, ngw3, nlsm_ext, norb_frz, &
-                         norb_inn, norb_number, value_lpext, value_lpext1, w0_sdplp, w0_sdplp25, w0g25, w1_sdplp, w1_sdplp25
+use gugaci_global, only: ibsm_ext, index_lpext, index_lpext1, intind_ijka, lsm_inn, ngw2, ngw3, nlsm_ext, norb_frz, norb_inn, &
+                         norb_number, value_lpext, value_lpext1, w0_sdplp, w0_sdplp25, w0g25, w1_sdplp, w1_sdplp25
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: intentry, isma, nlp_value
@@ -797,8 +804,9 @@ end subroutine lp11_arblbr_ext_calcuvalue_G
 
 subroutine lp12_arblbl_ext_calcuvalue_G(intentry,isma,nlp_value)
 
-use gugaci_global, only: ibsm_ext, index_lpext, index_lpext1, intind_ijka, lsm_inn, mul_tab, ngw2, ngw3, nlsm_ext, norb_frz, &
-                         norb_inn, norb_number, value_lpext, value_lpext1, w0_sdplp, w0_sdplp25, w0g25, w1_sdplp, w1_sdplp25
+use gugaci_global, only: ibsm_ext, index_lpext, index_lpext1, intind_ijka, lsm_inn, ngw2, ngw3, nlsm_ext, norb_frz, norb_inn, &
+                         norb_number, value_lpext, value_lpext1, w0_sdplp, w0_sdplp25, w0g25, w1_sdplp, w1_sdplp25
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: intentry, isma, nlp_value
@@ -934,8 +942,8 @@ end subroutine lp9_drlbl_sum_calcuvalue_G
 
 subroutine gsd_ext_sequence_G(iltype,ilsm,irsm,lri)
 
-use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iseg_downwei, isegdownwei, m_jc, m_jd, mul_tab, &
-                         ng_sm
+use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iseg_downwei, isegdownwei, m_jc, m_jd, ng_sm
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: iltype, ilsm, irsm, lri
@@ -1542,8 +1550,9 @@ end subroutine lp_drl_ext_dd_calcuvalue_G
 
 subroutine lp_arbr_ext_svtv_calcuvalue_G(LRI,LRJ,nlp_value)
 
-use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, logic_g13, lsm_inn, mul_tab, ng_sm, norb_ext, norb_number, &
+use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, logic_g13, lsm_inn, ng_sm, norb_ext, norb_number, &
                          value_lpext, value_lpext1, w0_plp, w0g13a, w0g36a, w1_plp, w1g36a
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, lrj, nlp_value

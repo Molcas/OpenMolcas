@@ -865,8 +865,9 @@ subroutine ar_bl_ext_ss(lri,lrj,nk)
 
 use gugaci_global, only: ihy, ihyl, ilsegdownwei, iml, imr, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, &
                          jphy, logic_dh, logic_g13, logic_g1415, logic_g2g4b, logic_g34b, logic_g35b, logic_g36b, logic_grad, &
-                         lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, mtype, mul_tab, ndim, nstaval, nvalue, value_lpext, &
-                         value_lpext1, vplp_w0, vplpnew_w0, w0_plp, w1_plp
+                         lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, mtype, ndim, nstaval, nvalue, value_lpext, value_lpext1, &
+                         vplp_w0, vplpnew_w0, w0_plp, w1_plp
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, lrj, nk
@@ -1191,8 +1192,9 @@ subroutine ar_bl_ext_tt(lri,lrj,nk)
 
 use gugaci_global, only: ihy, ihyl, ilsegdownwei, iml, imr, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, &
                          jphy, logic_dh, logic_g1415, logic_g34b, logic_g35b, logic_g36b, logic_grad, lp_lwei, lp_rwei, &
-                         lpnew_lwei, lpnew_rwei, mtype, mul_tab, ndim, nstaval, nvalue, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, &
-                         w0_plp, w1_plp
+                         lpnew_lwei, lpnew_rwei, mtype, ndim, nstaval, nvalue, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_plp, &
+                         w1_plp
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, lrj, nk

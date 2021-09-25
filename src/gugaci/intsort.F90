@@ -153,131 +153,133 @@ write(6,912) time
 
 end subroutine int_sort
 
-subroutine blocks()
+!subroutine blocks()
+!
+!use gugaci_global, only: ng_sm, nlsm_all
+!use Symmetry_Info, only: mul_tab => Mul
+!
+!implicit none
+!integer :: i, iblktb(5,106), ip, ipq, iq, iqm, ir, irm, is, ism, ispq, ispqr, j, nblock, nint1, nint12, nint2, nintb, npp, npq, &
+!           nrr, nrs
+!
+!! ----- 1 - electron integrals -----
+!nint1 = 0
+!do ip=1,ng_sm
+!  nint1 = nint1+((nlsm_all(ip)+1)*nlsm_all(ip))/2
+!end do
+!
+!! ----- 2 - electron integrals -----
+!nint2 = 0
+!nblock = 0
+!do ip=1,ng_sm
+!  npp = (nlsm_all(ip)+1)*nlsm_all(ip)/2
+!  nintb = npp*(npp-1)/2
+!  nint2 = nint2+nintb
+!  nblock = nblock+1
+!  do i=1,4
+!    iblktb(i,nblock) = ip
+!  end do
+!  iblktb(5,nblock) = nint2
+!end do
+!do ip=1,ng_sm
+!  npp = (nlsm_all(ip)+1)*nlsm_all(ip)/2
+!  irm = ip
+!  do ir=1,irm-1
+!    nrr = (nlsm_all(ir)+1)*nlsm_all(ir)/2
+!    nintb = npp*nrr
+!    nint2 = nint2+nintb
+!    nblock = nblock+1
+!    iblktb(1,nblock) = ip
+!    iblktb(2,nblock) = ip
+!    iblktb(3,nblock) = ir
+!    iblktb(4,nblock) = ir
+!    iblktb(5,nblock) = nint2
+!  end do
+!end do
+!do ip=1,ng_sm
+!  iqm = ip
+!  do iq=1,iqm-1
+!    ipq = nlsm_all(ip)*nlsm_all(iq)
+!    nintb = ipq*(ipq-1)/2
+!    nint2 = nint2+nintb
+!    nblock = nblock+1
+!    iblktb(1,nblock) = ip
+!    iblktb(2,nblock) = iq
+!    iblktb(3,nblock) = ip
+!    iblktb(4,nblock) = iq
+!    iblktb(5,nblock) = nint2
+!  end do
+!end do
+!do ip=4,8
+!  if (nlsm_all(ip) == 0) cycle
+!  iqm = ip
+!  do iq=1,iqm-1
+!    if (nlsm_all(iq) == 0) cycle
+!    npq = nlsm_all(ip)*nlsm_all(iq)
+!    ispq = mul_tab(ip,iq)
+!    irm = ip
+!    do ir=1,irm-1
+!      if (nlsm_all(ir) == 0) cycle
+!      ispqr = mul_tab(ispq,ir)
+!      ism = ir
+!      if (ip == ir) ism = iq
+!      do is=1,ism-1
+!        if (nlsm_all(is) == 0) cycle
+!        if (is /= ispqr) cycle
+!        nrs = nlsm_all(ir)*nlsm_all(is)
+!        nintb = npq*nrs
+!        nint2 = nint2+nintb
+!        nblock = nblock+1
+!        iblktb(1,nblock) = ip
+!        iblktb(2,nblock) = iq
+!        iblktb(3,nblock) = ir
+!        iblktb(4,nblock) = is
+!        iblktb(5,nblock) = nint2
+!      end do
+!    end do
+!  end do
+!end do
+!nint12 = nint1+nint2
+!
+!write(6,100) nint1,nint2,nint12
+!!write(12,100) nint1,nint2,nint12
+!100 format(' ',1x/2x,'number of 1-electron integrals  :',i9/2x,'number of 2-electron integrals  :',i9/2x, &
+!           'total number of integrals       :',i9)
+!write(6,200) nint1
+!!write(12,200) nint1
+!200 format(' ',1x/2x,'1-electron blocks  :   1 to',i8/2x,29(1h*))
+!write(6,300) (j,(iblktb(i,j),i=1,5),j=1,nblock)
+!!write(12,300) (j,(iblktb(i,j),i=1,5),j=1,nblock)
+!300 format(' ',1x/2x,'2-electron block description  :'/2x,40(1h*)/2x,50(3('(',i3,')',4i2,i8,3x)/2x))
+!
+!return
+!
+!end subroutine blocks
 
-use gugaci_global, only: mul_tab, ng_sm, nlsm_all
-
-implicit none
-integer :: i, iblktb(5,106), ip, ipq, iq, iqm, ir, irm, is, ism, ispq, ispqr, j, nblock, nint1, nint12, nint2, nintb, npp, npq, &
-           nrr, nrs
-
-! ----- 1 - electron integrals -----
-nint1 = 0
-do ip=1,ng_sm
-  nint1 = nint1+((nlsm_all(ip)+1)*nlsm_all(ip))/2
-end do
-
-! ----- 2 - electron integrals -----
-nint2 = 0
-nblock = 0
-do ip=1,ng_sm
-  npp = (nlsm_all(ip)+1)*nlsm_all(ip)/2
-  nintb = npp*(npp-1)/2
-  nint2 = nint2+nintb
-  nblock = nblock+1
-  do i=1,4
-    iblktb(i,nblock) = ip
-  end do
-  iblktb(5,nblock) = nint2
-end do
-do ip=1,ng_sm
-  npp = (nlsm_all(ip)+1)*nlsm_all(ip)/2
-  irm = ip
-  do ir=1,irm-1
-    nrr = (nlsm_all(ir)+1)*nlsm_all(ir)/2
-    nintb = npp*nrr
-    nint2 = nint2+nintb
-    nblock = nblock+1
-    iblktb(1,nblock) = ip
-    iblktb(2,nblock) = ip
-    iblktb(3,nblock) = ir
-    iblktb(4,nblock) = ir
-    iblktb(5,nblock) = nint2
-  end do
-end do
-do ip=1,ng_sm
-  iqm = ip
-  do iq=1,iqm-1
-    ipq = nlsm_all(ip)*nlsm_all(iq)
-    nintb = ipq*(ipq-1)/2
-    nint2 = nint2+nintb
-    nblock = nblock+1
-    iblktb(1,nblock) = ip
-    iblktb(2,nblock) = iq
-    iblktb(3,nblock) = ip
-    iblktb(4,nblock) = iq
-    iblktb(5,nblock) = nint2
-  end do
-end do
-do ip=4,8
-  if (nlsm_all(ip) == 0) cycle
-  iqm = ip
-  do iq=1,iqm-1
-    if (nlsm_all(iq) == 0) cycle
-    npq = nlsm_all(ip)*nlsm_all(iq)
-    ispq = mul_tab(ip,iq)
-    irm = ip
-    do ir=1,irm-1
-      if (nlsm_all(ir) == 0) cycle
-      ispqr = mul_tab(ispq,ir)
-      ism = ir
-      if (ip == ir) ism = iq
-      do is=1,ism-1
-        if (nlsm_all(is) == 0) cycle
-        if (is /= ispqr) cycle
-        nrs = nlsm_all(ir)*nlsm_all(is)
-        nintb = npq*nrs
-        nint2 = nint2+nintb
-        nblock = nblock+1
-        iblktb(1,nblock) = ip
-        iblktb(2,nblock) = iq
-        iblktb(3,nblock) = ir
-        iblktb(4,nblock) = is
-        iblktb(5,nblock) = nint2
-      end do
-    end do
-  end do
-end do
-nint12 = nint1+nint2
-
-write(6,100) nint1,nint2,nint12
-!write(12,100) nint1,nint2,nint12
-100 format(' ',1x/2x,'number of 1-electron integrals  :',i9/2x,'number of 2-electron integrals  :',i9/2x, &
-           'total number of integrals       :',i9)
-write(6,200) nint1
-!write(12,200) nint1
-200 format(' ',1x/2x,'1-electron blocks  :   1 to',i8/2x,29(1h*))
-write(6,300) (j,(iblktb(i,j),i=1,5),j=1,nblock)
-!write(12,300) (j,(iblktb(i,j),i=1,5),j=1,nblock)
-300 format(' ',1x/2x,'2-electron block description  :'/2x,40(1h*)/2x,50(3('(',i3,')',4i2,i8,3x)/2x))
-
-return
-
-end subroutine blocks
-
-subroutine ff(i,j)
-
-implicit none
-integer :: i, j
-integer :: iq, j0
-
-i = 0
-do iq=1,j
-  j0 = iq*(iq-1)/2+iq
-  if (j0 == j) then
-    i = iq
-    exit
-  end if
-end do
-
-return
-
-end subroutine ff
+!subroutine ff(i,j)
+!
+!implicit none
+!integer :: i, j
+!integer :: iq, j0
+!
+!i = 0
+!do iq=1,j
+!  j0 = iq*(iq-1)/2+iq
+!  if (j0 == j) then
+!    i = iq
+!    exit
+!  end if
+!end do
+!
+!return
+!
+!end subroutine ff
 
 subroutine int_sort_ext(ii)         !_ext_4_3_2
 
 use gugaci_global, only: ibsm_ext, iesm_ext, ip2_aa_ext_base, ip2_dd_ext_base, ip3_abd_ext_base, ip4_abcd_ext_base, jp2, jp3, &
-                         mul_tab, ng_sm, nlsm_ext, norb_ext, norb_number, np3_abd_ext, vint_ci, voint
+                         ng_sm, nlsm_ext, norb_ext, norb_number, np3_abd_ext, vint_ci, voint
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: ii
@@ -400,8 +402,8 @@ end subroutine int_sort_ext
 
 subroutine int_sort_inn_2(ii)
 
-use gugaci_global, only: ibsm_ext, iesm_ext, intind_abkk, intspace_abkk, lsm_inn, mul_tab, ng_sm, norb_frz, norb_inn, norb_number, &
-                         vint_ci
+use gugaci_global, only: ibsm_ext, iesm_ext, intind_abkk, intspace_abkk, lsm_inn, ng_sm, norb_frz, norb_inn, norb_number, vint_ci
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: ii
@@ -449,8 +451,9 @@ end subroutine int_sort_inn_2
 
 subroutine int_ext_2_1(lri,lrj,lsmij,ii)
 
-use gugaci_global, only: ibsm_ext, iesm_ext, intind_ijab, intind_ijcc, intspace_ijab, intspace_ijcc, mul_tab, ng_sm, ngw2, &
-                         norb_ext, norb_frz, norb_number, vint_ci
+use gugaci_global, only: ibsm_ext, iesm_ext, intind_ijab, intind_ijcc, intspace_ijab, intspace_ijcc, ng_sm, ngw2, norb_ext, &
+                         norb_frz, norb_number, vint_ci
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, lrj, lsmij, ii
@@ -504,7 +507,8 @@ end
 
 subroutine int_sort_inn_3(ii)
 
-use gugaci_global, only: ibsm_ext, iesm_ext, intind_ijka, lsm_inn, mul_tab, ngw2, ngw3, norb_frz, norb_inn, norb_number, vint_ci
+use gugaci_global, only: ibsm_ext, iesm_ext, intind_ijka, lsm_inn, ngw2, ngw3, norb_frz, norb_inn, norb_number, vint_ci
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: ii
@@ -543,8 +547,9 @@ end subroutine int_sort_inn_3
 
 subroutine int_ext_3_2_1(lri,lsmi,ii)
 
-use gugaci_global, only: ibsm_ext, iesm_ext, intind_iabc, intind_iaqq, mul_tab, nabc, ng_sm, ngw2, ngw3, norb_ext, norb_inn, &
-                         norb_number, vint_ci
+use gugaci_global, only: ibsm_ext, iesm_ext, intind_iabc, intind_iaqq, nabc, ng_sm, ngw2, ngw3, norb_ext, norb_inn, norb_number, &
+                         vint_ci
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, lsmi, ii
@@ -669,7 +674,8 @@ end function list4
 
 subroutine int_sort_inn(numb)
 
-use gugaci_global, only: loij, loijk, lsm_inn, mul_tab, ncibl, ngw2, ngw3, norb_inn, vint_ci
+use gugaci_global, only: loij, loijk, lsm_inn, ncibl, ngw2, ngw3, norb_inn, vint_ci
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: numb

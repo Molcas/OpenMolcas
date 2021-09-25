@@ -632,7 +632,8 @@ end subroutine ds_ext_head_in_dbl
 
 subroutine ds_ext_head_in_act()
 
-use gugaci_global, only: iml, imr, linelp, logic_dh, mul_tab, nlg1, nlg2
+use gugaci_global, only: iml, imr, linelp, logic_dh, nlg1, nlg2
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: intpos, isma, lri, lrj
@@ -958,7 +959,8 @@ end subroutine dt_ext_head_in_dbl
 
 subroutine dt_ext_head_in_act()
 
-use gugaci_global, only: iml, imr, linelp, logic_dh, mul_tab, nlg1, nlg2
+use gugaci_global, only: iml, imr, linelp, logic_dh, nlg1, nlg2
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: intpos, isma, lri, lrj

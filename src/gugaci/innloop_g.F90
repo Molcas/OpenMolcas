@@ -95,7 +95,8 @@ end subroutine act_space_ploop_g
 
 subroutine cloop_in_act_g()
 
-use gugaci_global, only: logic_br, lsm_inn, mul_tab, norb_dz, norb_inn
+use gugaci_global, only: logic_br, lsm_inn, norb_dz, norb_inn
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lmi, lmij, lmj, lmk, lml, lra, lrai, lraj, lrak, lral, lsmij, mh
@@ -589,7 +590,8 @@ end subroutine act_cloop_g
 
 subroutine dbl_td_act_comp_g(lin,lra)
 
-use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, w0_td, w1
+use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_td, w1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -652,7 +654,8 @@ end subroutine dbl_td_act_comp_g
 
 subroutine dbl_ttdd_act_comp_g(lin,lra)
 
-use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, w0_t1d1, w1
+use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_t1d1, w1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -861,8 +864,8 @@ subroutine dbl_sd_act_comp_g(lin,lra)
 !sd(6-3) a&r(13)c'(22)-
 !sd(6-4) a&r(23)c'(12)-
 
-use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, &
-                         w0_sd, w1
+use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_sd, w1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -952,8 +955,8 @@ subroutine dbl_sdd_act_comp_g(lin,lra)
 ! sd1(8-3)    ar(13)-c'(21)-
 ! sd1(8-4)    ar(23)-c'(11)-
 
-use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, &
-                         w0_sd1, w1
+use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_sd1, w1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -1079,8 +1082,9 @@ end subroutine ext_space_loop_g
 subroutine dbl_head_act_tail_g(lpcoe)
 
 use gugaci_global, only: jb_sys, jml, jmr, jpad, jpadl, jpel, jper, jud, just, jwl, jwr, kk, line, lrg, lrs, lsm_inn, map_jplr, &
-                         mul_tab, norb_dz, norb_frz, norb_inn, ns_sm, w0, w0_d1s, w0_d1t1, w0_d1v, w0_ds, w0_dt, w0_dv, w0_td, &
-                         w0_vv, w1, w1_d1s, w1_d1t1, w1_ds, w1_dt, w1_t1v, w1_td, w1_tv
+                         norb_dz, norb_frz, norb_inn, ns_sm, w0, w0_d1s, w0_d1t1, w0_d1v, w0_ds, w0_dt, w0_dv, w0_td, w0_vv, w1, &
+                         w1_d1s, w1_d1t1, w1_ds, w1_dt, w1_t1v, w1_td, w1_tv
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lpcoe(norb_dz+1:norb_inn)

@@ -11,8 +11,9 @@
 
 subroutine SS_HEAD_DBL_TAIL_ACT_G(LRA)
 
-use gugaci_global, only: jb_sys, jml, jmr, jpad, jpadl, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, &
-                         norb_frz, w0, w0_ss, w1, w1_ss
+use gugaci_global, only: jb_sys, jml, jmr, jpad, jpadl, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w0, &
+                         w0_ss, w1, w1_ss
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra
@@ -668,7 +669,8 @@ end subroutine SS_HEAD_DBL_TAIL_ACT_G
 
 subroutine ST_HEAD_DBL_TAIL_ACT_G(LRA)
 
-use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w1, w1_st
+use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w1, w1_st
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra
@@ -892,7 +894,8 @@ end subroutine ST_HEAD_DBL_TAIL_ACT_G
 
 subroutine TS_HEAD_DBL_TAIL_ACT_G(LRA)
 
-use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w1, w1_ts
+use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w1, w1_ts
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra
@@ -1041,7 +1044,8 @@ end subroutine TS_HEAD_DBL_TAIL_ACT_G
 
 subroutine STT_HEAD_DBL_TAIL_ACT_G(LRA)
 
-use gugaci_global, only: jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w1, w1_st1
+use gugaci_global, only: jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w1, w1_st1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra
@@ -1191,7 +1195,8 @@ end subroutine STT_HEAD_DBL_TAIL_ACT_G
 
 subroutine TTS_HEAD_DBL_TAIL_ACT_G(LRA)
 
-use gugaci_global, only: jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w1, w1_t1s
+use gugaci_global, only: jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w1, w1_t1s
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra
@@ -1409,8 +1414,9 @@ end subroutine TTS_HEAD_DBL_TAIL_ACT_G
 
 subroutine TT_HEAD_DBL_TAIL_ACT_G(LRA)
 
-use gugaci_global, only: jml, jmr, jpad, jpadl, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, &
-                         w0_tt, w1, w1_tt
+use gugaci_global, only: jml, jmr, jpad, jpadl, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_tt, w1, &
+                         w1_tt
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra
@@ -1582,8 +1588,9 @@ end subroutine TT_HEAD_DBL_TAIL_ACT_G
 
 subroutine TTTT_HEAD_DBL_TAIL_ACT_G(LRA)
 
-use gugaci_global, only: jml, jmr, jpad, jpadl, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, &
-                         w0_t1t1, w1, w1_t1t1
+use gugaci_global, only: jml, jmr, jpad, jpadl, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_t1t1, &
+                         w1, w1_t1t1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra
@@ -2050,8 +2057,8 @@ end subroutine D1D_HEAD_DBL_TAIL_ACT_G
 
 subroutine SV_HEAD_DBL_TAIL_ACT_G(LRA)
 
-use gugaci_global, only: jb_sys, jml, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, w0_sv, w1, &
-                         w1_sv
+use gugaci_global, only: jb_sys, jml, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_sv, w1, w1_sv
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra
@@ -2144,8 +2151,9 @@ subroutine SD_HEAD_DBL_TAIL_ACT_G(LRA,LPCOE)
 !     LRA, ....partial loop.......
 !**********************************************
 
-use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, mul_tab, norb_dz, norb_frz, norb_inn, w0, &
-                         w0_sd, w1, w1_sd
+use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, norb_dz, norb_frz, norb_inn, w0, w0_sd, w1, &
+                         w1_sd
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra, lpcoe(norb_dz+1:norb_inn)
@@ -2596,8 +2604,9 @@ subroutine SDD_HEAD_DBL_TAIL_ACT_G(LRA,LPCOE)
 !     LRA, ....partial loop.......
 !**********************************************
 
-use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, mul_tab, norb_dz, norb_frz, norb_inn, w0, &
-                         w0_sd1, w1, w1_sd1
+use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, norb_dz, norb_frz, norb_inn, w0, w0_sd1, w1, &
+                         w1_sd1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra, lpcoe(norb_dz+1:norb_inn)
@@ -3030,231 +3039,231 @@ return
 
 end subroutine SDD_HEAD_DBL_TAIL_ACT_G
 
-subroutine TD_HEAD_DBL_TAIL_ACT_G(LRA,LPCOE)
-!**********************************************
-!     LRA, ....partial loop.......
-!**********************************************
-
-use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, mul_tab, norb_dz, norb_frz, norb_inn, w0, w0_td, w1, &
-                         w1_td
-
-implicit none
-integer :: lra, lpcoe(norb_dz+1:norb_inn)
-integer :: iwdl, iwdr, jmlr, kcoe, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc, nxo
-real*8 :: tcoe, vlop0, vlop1, w0td1, w0td2, w0td3, w0td4, w0td5, w1td2, w1td3, wl
-
-JMLR = MUL_TAB(JML,JMR)
-! TD(13-1) (22)A&(23)
-! TD(13-1) A&(23)C'(22)
-! TD(13-5) (22)D&&l(33)B^l(23)
-do LRI=NORB_FRZ+1,NORB_DZ
-  LMI = LSM_INN(LRI)
-  if (LMI /= JMLR) cycle
-  W0TD1 = W0_TD(1)
-  W0TD4 = W0_TD(4)
-  W0TD5 = W0_TD(5)
-  NI = mod(NORB_DZ-LRI,2)
-  if (NI == 1) W0TD1 = -W0TD1
-  if (NI == 1) W0TD4 = -W0TD4
-  if (NI == 1) W0TD5 = -W0TD5
-
-  ! TD(13-1) A&(23)C'(22)
-  do LRD=LRI+1,NORB_DZ
-    LMD = LSM_INN(LRD)
-    if (LMD /= JMR) cycle
-    IWDL = JUST(LRI,LRD)
-    IWDR = JUD(LRD)
-    VLOP0 = -W0*W0TD1
-    !LIST = LIST3(LRI,LRA,LRI)
-    !WL = VOINT(LRI,LRA)+VINT_CI(LIST)             !310,act_coe,610,
-    WL = VLOP0
-    call PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,LRI,LRA)
-    call TRANS_IJKL_INTPOS(LRA,LRI,LRI,LRI,NXO)
-    call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-
-    !LIST = LIST3(LRI,LRA,LRD)
-    !WL = WL+VINT_CI(LIST+1)                          !310 C'(22) COE
-    WL = VLOP0
-    call TRANS_IJKL_INTPOS(LRA,LRD,LRI,LRD,NXO)
-    call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-
-    do LR=LRI+1,NORB_DZ
-      if (LR == LRD) cycle
-      !LIST = LIST3(LRI,LRA,LR)
-      !WL = WL+2*VINT_CI(LIST+1)-VINT_CI(LIST)       !310:NEOC=2,COE
-      WL = 2*VLOP0
-      call TRANS_IJKL_INTPOS(LRA,LRI,LR,LR,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-      WL = -VLOP0
-      call TRANS_IJKL_INTPOS(LRA,LR,LRI,LR,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-
-    end do
-    do LRK=norb_dz+1,LRA
-      !LIST = LIST3(LRI,LRA,LRK)
-      KCOE = LPCOE(LRK)
-      call NEOC(KCOE,NOCC,TCOE)
-      !WL = WL+NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
-      call TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
-      WL = VLOP0*NOCC
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-      WL = VLOP0*NOCC*TCOE
-      call TRANS_IJKL_INTPOS(LRA,LRK,LRI,LRK,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-
-    end do
-    !WL = WL*VLOP0
-    ! TD(13-5) D&rl(33)B^l(23)C'(22)          !CC (22)D&rl(33)B^l(23)???
-    VLOP0 = -W0*W0TD5
-    do LRK=1,LRI-1
-      !LIST = LIST3(LRI,LRA,LRK)
-      !WL = WL-VLOP0*(2*VINT_CI(LIST+1)-vint_ci(LIST))
-      WL = -2*VLOP0
-      call TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-      WL = VLOP0
-      call TRANS_IJKL_INTPOS(LRA,LRK,LRI,LRK,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-
-    end do
-    !call PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-  end do
-  !---------------------------------------------------------------------
-  do LRD=NORB_FRZ+1,LRI-1
-    LMD = LSM_INN(LRD)
-    if (LMD /= JMR) cycle
-    IWDL = JUST(LRD,LRI)
-    IWDR = JUD(LRD)
-    ! TD(13-1) (22)A&(23)
-    VLOP0 = W0*W0TD1
-    !LIST = LIST3(LRI,LRA,LRI)
-    !WL = VLOP0*(VOINT(LRI,LRA)+VINT_CI(LIST))             !310,act_
-    WL = VLOP0
-    call PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,LRI,LRA)
-    call TRANS_IJKL_INTPOS(LRA,LRI,LRI,LRI,NXO)
-    call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-
-    do LR=LRI+1,NORB_DZ
-      !LIST = LIST3(LRI,LRA,LR)
-      !WL = WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC=2
-      WL = 2*VLOP0
-      call TRANS_IJKL_INTPOS(LRA,LRI,LR,LR,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-      WL = -VLOP0
-      call TRANS_IJKL_INTPOS(LRA,LR,LRI,LR,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-
-    end do
-    do LRK=norb_dz+1,LRA
-      !LIST = LIST3(LRI,LRA,LRK)
-      KCOE = LPCOE(LRK)
-      call NEOC(KCOE,NOCC,TCOE)
-      !WL = WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
-      WL = VLOP0*NOCC
-      call TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-      WL = VLOP0*NOCC*TCOE
-      call TRANS_IJKL_INTPOS(LRA,LRK,LRI,LRK,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-    end do
-    !WL = WL*VLOP0
-    ! TD(13-4) D&r&l(22)B^l(23)
-    VLOP0 = W0*W0TD4
-    VLOP1 = W1*W0TD4
-    !LIST = LIST3(LRI,LRA,LRD)
-    !WL = WL+(VLOP0-VLOP1)*vint_ci(LIST)-2*VLOP0*VINT_CI(LIST+1)
-
-    WL = VLOP0-VLOP1
-    call TRANS_IJKL_INTPOS(LRA,LRD,LRI,LRD,NXO)
-    call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-    WL = -2*VLOP0
-    call TRANS_IJKL_INTPOS(LRA,LRI,LRD,LRD,NXO)
-    call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-    ! TD(13-5) D&rl(33)C"(22)B^l(23)
-    VLOP0 = W0*W0TD5
-    do LRK=1,LRI-1
-      if (LRK == LRD) cycle
-      !LIST = LIST3(LRI,LRA,LRK)
-      !WL = WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))      !4.3
-      WL = VLOP0
-      call TRANS_IJKL_INTPOS(LRA,LRK,LRI,LRK,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-      WL = -2*VLOP0
-      call TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-    end do
-    !call PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-  end do
-end do
-do LRI=NORB_FRZ+1,NORB_DZ-1
-  LMI = LSM_INN(LRI)
-  do LRJ=LRI+1,NORB_DZ
-    LMJ = LSM_INN(LRJ)
-    LMIJ = MUL_TAB(LMI,LMJ)
-    if (LMIJ /= JML) cycle
-    IWDL = JUST(LRI,LRJ)
-
-    ! TD(13-2) A&(23)B&r(23)B^r(32)
-    do LRD=LRJ+1,NORB_DZ
-      LMD = LSM_INN(LRD)
-      if (LMD /= JMR) cycle
-      W0TD2 = W0_TD(2)
-      W1TD2 = W1_TD(2)
-      NI = mod(LRJ-LRI+NORB_DZ-LRD,2)
-      if (NI == 0) W0TD2 = -W0TD2
-      if (NI == 0) W1TD2 = -W1TD2
-
-      IWDR = JUD(LRD)
-      VLOP0 = W0*W0TD2
-      VLOP1 = W1*W1TD2
-      !LIST = LIST4(LRI,LRJ,LRD,LRA)
-      !WL = VLOP0*(vint_ci(LIST+2)+vint_ci(LIST))-VLOP1*(vint_ci(LIST+2)-vint_ci(LIST))  !1.3
-      WL = VLOP0-VLOP1
-      call TRANS_IJKL_INTPOS(LRA,LRI,LRJ,LRD,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-      WL = VLOP0+VLOP1
-      call TRANS_IJKL_INTPOS(LRA,LRJ,LRD,LRI,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-
-      !call PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-    end do
-    ! TD(13-3) A&(23)B&l(32)B^l(23)
-    do LRD=LRI+1,LRJ-1
-      LMD = LSM_INN(LRD)
-      if (LMD /= JMR) cycle
-      IWDR = JUD(LRD)
-      W0TD3 = W0_TD(3)
-      W1TD3 = W1_TD(3)
-      NI = mod(LRD-LRI+NORB_DZ-LRJ,2)
-      if (NI == 0) W0TD3 = -W0TD3
-      if (NI == 0) W1TD3 = -W1TD3
-      VLOP0 = W0*W0TD3                !D6-8
-      VLOP1 = W1*W1TD3
-      !LIST = LIST4(LRI,LRD,LRJ,LRA)
-      !WL = VLOP0*(vint_ci(LIST+2)-2*vint_ci(LIST+1))-VLOP1*vint_ci(LIST+2)  !1.2
-      WL = VLOP0-VLOP1
-      call TRANS_IJKL_INTPOS(LRA,LRI,LRD,LRJ,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-      WL = -2*VLOP0
-      call TRANS_IJKL_INTPOS(LRA,LRJ,LRD,LRI,NXO)
-      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
-
-      !call PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
-    end do
-  end do
-end do
-
-return
-
-end subroutine TD_HEAD_DBL_TAIL_ACT_G
+!subroutine TD_HEAD_DBL_TAIL_ACT_G(LRA,LPCOE)
+!!**********************************************
+!!     LRA, ....partial loop.......
+!!**********************************************
+!
+!use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, norb_dz, norb_frz, norb_inn, w0, w0_td, w1, w1_td
+!use Symmetry_Info, only: mul_tab => Mul
+!
+!implicit none
+!integer :: lra, lpcoe(norb_dz+1:norb_inn)
+!integer :: iwdl, iwdr, jmlr, kcoe, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc, nxo
+!real*8 :: tcoe, vlop0, vlop1, w0td1, w0td2, w0td3, w0td4, w0td5, w1td2, w1td3, wl
+!
+!JMLR = MUL_TAB(JML,JMR)
+!! TD(13-1) (22)A&(23)
+!! TD(13-1) A&(23)C'(22)
+!! TD(13-5) (22)D&&l(33)B^l(23)
+!do LRI=NORB_FRZ+1,NORB_DZ
+!  LMI = LSM_INN(LRI)
+!  if (LMI /= JMLR) cycle
+!  W0TD1 = W0_TD(1)
+!  W0TD4 = W0_TD(4)
+!  W0TD5 = W0_TD(5)
+!  NI = mod(NORB_DZ-LRI,2)
+!  if (NI == 1) W0TD1 = -W0TD1
+!  if (NI == 1) W0TD4 = -W0TD4
+!  if (NI == 1) W0TD5 = -W0TD5
+!
+!  ! TD(13-1) A&(23)C'(22)
+!  do LRD=LRI+1,NORB_DZ
+!    LMD = LSM_INN(LRD)
+!    if (LMD /= JMR) cycle
+!    IWDL = JUST(LRI,LRD)
+!    IWDR = JUD(LRD)
+!    VLOP0 = -W0*W0TD1
+!    !LIST = LIST3(LRI,LRA,LRI)
+!    !WL = VOINT(LRI,LRA)+VINT_CI(LIST)             !310,act_coe,610,
+!    WL = VLOP0
+!    call PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,LRI,LRA)
+!    call TRANS_IJKL_INTPOS(LRA,LRI,LRI,LRI,NXO)
+!    call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+!
+!    !LIST = LIST3(LRI,LRA,LRD)
+!    !WL = WL+VINT_CI(LIST+1)                          !310 C'(22) COE
+!    WL = VLOP0
+!    call TRANS_IJKL_INTPOS(LRA,LRD,LRI,LRD,NXO)
+!    call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+!
+!    do LR=LRI+1,NORB_DZ
+!      if (LR == LRD) cycle
+!      !LIST = LIST3(LRI,LRA,LR)
+!      !WL = WL+2*VINT_CI(LIST+1)-VINT_CI(LIST)       !310:NEOC=2,COE
+!      WL = 2*VLOP0
+!      call TRANS_IJKL_INTPOS(LRA,LRI,LR,LR,NXO)
+!      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+!      WL = -VLOP0
+!      call TRANS_IJKL_INTPOS(LRA,LR,LRI,LR,NXO)
+!      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+!
+!    end do
+!    do LRK=norb_dz+1,LRA
+!      !LIST = LIST3(LRI,LRA,LRK)
+!      KCOE = LPCOE(LRK)
+!      call NEOC(KCOE,NOCC,TCOE)
+!      !WL = WL+NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
+!      call TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
+!      WL = VLOP0*NOCC
+!      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+!      WL = VLOP0*NOCC*TCOE
+!      call TRANS_IJKL_INTPOS(LRA,LRK,LRI,LRK,NXO)
+!      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+!
+!    end do
+!    !WL = WL*VLOP0
+!    ! TD(13-5) D&rl(33)B^l(23)C'(22)          !CC (22)D&rl(33)B^l(23)???
+!    VLOP0 = -W0*W0TD5
+!    do LRK=1,LRI-1
+!      !LIST = LIST3(LRI,LRA,LRK)
+!      !WL = WL-VLOP0*(2*VINT_CI(LIST+1)-vint_ci(LIST))
+!      WL = -2*VLOP0
+!      call TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
+!      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+!      WL = VLOP0
+!      call TRANS_IJKL_INTPOS(LRA,LRK,LRI,LRK,NXO)
+!      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+!
+!    end do
+!    !call PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!  end do
+!  !---------------------------------------------------------------------
+!  do LRD=NORB_FRZ+1,LRI-1
+!    LMD = LSM_INN(LRD)
+!    if (LMD /= JMR) cycle
+!    IWDL = JUST(LRD,LRI)
+!    IWDR = JUD(LRD)
+!    ! TD(13-1) (22)A&(23)
+!    VLOP0 = W0*W0TD1
+!    !LIST = LIST3(LRI,LRA,LRI)
+!    !WL = VLOP0*(VOINT(LRI,LRA)+VINT_CI(LIST))             !310,act_
+!    WL = VLOP0
+!    call PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,LRI,LRA)
+!    call TRANS_IJKL_INTPOS(LRA,LRI,LRI,LRI,NXO)
+!    call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+!
+!    do LR=LRI+1,NORB_DZ
+!      !LIST = LIST3(LRI,LRA,LR)
+!      !WL = WL+VLOP0*(2*VINT_CI(LIST+1)-VINT_CI(LIST)) !  310:NEOC=2
+!      WL = 2*VLOP0
+!      call TRANS_IJKL_INTPOS(LRA,LRI,LR,LR,NXO)
+!      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+!      WL = -VLOP0
+!      call TRANS_IJKL_INTPOS(LRA,LR,LRI,LR,NXO)
+!      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+!
+!    end do
+!    do LRK=norb_dz+1,LRA
+!      !LIST = LIST3(LRI,LRA,LRK)
+!      KCOE = LPCOE(LRK)
+!      call NEOC(KCOE,NOCC,TCOE)
+!      !WL = WL+VLOP0*NOCC*(VINT_CI(LIST+1)+TCOE*VINT_CI(LIST))
+!      WL = VLOP0*NOCC
+!      call TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
+!      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+!      WL = VLOP0*NOCC*TCOE
+!      call TRANS_IJKL_INTPOS(LRA,LRK,LRI,LRK,NXO)
+!      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+!    end do
+!    !WL = WL*VLOP0
+!    ! TD(13-4) D&r&l(22)B^l(23)
+!    VLOP0 = W0*W0TD4
+!    VLOP1 = W1*W0TD4
+!    !LIST = LIST3(LRI,LRA,LRD)
+!    !WL = WL+(VLOP0-VLOP1)*vint_ci(LIST)-2*VLOP0*VINT_CI(LIST+1)
+!
+!    WL = VLOP0-VLOP1
+!    call TRANS_IJKL_INTPOS(LRA,LRD,LRI,LRD,NXO)
+!    call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+!    WL = -2*VLOP0
+!    call TRANS_IJKL_INTPOS(LRA,LRI,LRD,LRD,NXO)
+!    call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+!    ! TD(13-5) D&rl(33)C"(22)B^l(23)
+!    VLOP0 = W0*W0TD5
+!    do LRK=1,LRI-1
+!      if (LRK == LRD) cycle
+!      !LIST = LIST3(LRI,LRA,LRK)
+!      !WL = WL+VLOP0*(vint_ci(LIST)-2*VINT_CI(LIST+1))      !4.3
+!      WL = VLOP0
+!      call TRANS_IJKL_INTPOS(LRA,LRK,LRI,LRK,NXO)
+!      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+!      WL = -2*VLOP0
+!      call TRANS_IJKL_INTPOS(LRA,LRI,LRK,LRK,NXO)
+!      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+!    end do
+!    !call PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!  end do
+!end do
+!do LRI=NORB_FRZ+1,NORB_DZ-1
+!  LMI = LSM_INN(LRI)
+!  do LRJ=LRI+1,NORB_DZ
+!    LMJ = LSM_INN(LRJ)
+!    LMIJ = MUL_TAB(LMI,LMJ)
+!    if (LMIJ /= JML) cycle
+!    IWDL = JUST(LRI,LRJ)
+!
+!    ! TD(13-2) A&(23)B&r(23)B^r(32)
+!    do LRD=LRJ+1,NORB_DZ
+!      LMD = LSM_INN(LRD)
+!      if (LMD /= JMR) cycle
+!      W0TD2 = W0_TD(2)
+!      W1TD2 = W1_TD(2)
+!      NI = mod(LRJ-LRI+NORB_DZ-LRD,2)
+!      if (NI == 0) W0TD2 = -W0TD2
+!      if (NI == 0) W1TD2 = -W1TD2
+!
+!      IWDR = JUD(LRD)
+!      VLOP0 = W0*W0TD2
+!      VLOP1 = W1*W1TD2
+!      !LIST = LIST4(LRI,LRJ,LRD,LRA)
+!      !WL = VLOP0*(vint_ci(LIST+2)+vint_ci(LIST))-VLOP1*(vint_ci(LIST+2)-vint_ci(LIST))  !1.3
+!      WL = VLOP0-VLOP1
+!      call TRANS_IJKL_INTPOS(LRA,LRI,LRJ,LRD,NXO)
+!      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+!      WL = VLOP0+VLOP1
+!      call TRANS_IJKL_INTPOS(LRA,LRJ,LRD,LRI,NXO)
+!      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+!
+!      !call PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!    end do
+!    ! TD(13-3) A&(23)B&l(32)B^l(23)
+!    do LRD=LRI+1,LRJ-1
+!      LMD = LSM_INN(LRD)
+!      if (LMD /= JMR) cycle
+!      IWDR = JUD(LRD)
+!      W0TD3 = W0_TD(3)
+!      W1TD3 = W1_TD(3)
+!      NI = mod(LRD-LRI+NORB_DZ-LRJ,2)
+!      if (NI == 0) W0TD3 = -W0TD3
+!      if (NI == 0) W1TD3 = -W1TD3
+!      VLOP0 = W0*W0TD3                !D6-8
+!      VLOP1 = W1*W1TD3
+!      !LIST = LIST4(LRI,LRD,LRJ,LRA)
+!      !WL = VLOP0*(vint_ci(LIST+2)-2*vint_ci(LIST+1))-VLOP1*vint_ci(LIST+2)  !1.2
+!      WL = VLOP0-VLOP1
+!      call TRANS_IJKL_INTPOS(LRA,LRI,LRD,LRJ,NXO)
+!      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+!      WL = -2*VLOP0
+!      call TRANS_IJKL_INTPOS(LRA,LRJ,LRD,LRI,NXO)
+!      call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
+!
+!      !call PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
+!    end do
+!  end do
+!end do
+!
+!return
+!
+!end subroutine TD_HEAD_DBL_TAIL_ACT_G
 
 subroutine TTDD_HEAD_DBL_TAIL_ACT_G(LRA,LPCOE)
 !**********************************************
 !     LRA, ....partial loop.......
 !**********************************************
 
-use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, mul_tab, norb_dz, norb_frz, norb_inn, w0, w0_t1d1, &
-                         w1, w1_t1d1
+use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, norb_dz, norb_frz, norb_inn, w0, w0_t1d1, w1, w1_t1d1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra, lpcoe(norb_dz+1:norb_inn)

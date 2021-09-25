@@ -220,7 +220,8 @@ end subroutine config_act
 
 subroutine config_dbl()
 
-use gugaci_global, only: ipae, iw_downwei, jb_sys, jpad, jud, just, lsm_inn, mul_tab, norb_dbl, norb_dz, norb_frz, ns_sm, nu_ae
+use gugaci_global, only: ipae, iw_downwei, jb_sys, jpad, jud, just, lsm_inn, norb_dbl, norb_dz, norb_frz, ns_sm, nu_ae
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: ipae_, iwa, iwad, iwd, iwdownv, iws, iws1, iwt, jpad1, jpas, jpat, jpat1, lr, lr0, mr, mr0
@@ -334,7 +335,8 @@ end subroutine config_dbl
 
 subroutine config_ext()
 
-use gugaci_global, only: ibsm_ext, iesm_ext, ipae, lsm, mul_tab, norb_ext
+use gugaci_global, only: ibsm_ext, iesm_ext, ipae, lsm, norb_ext
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: im, ima, imb, ipas, ipat, jw, jweis, jws, jws0, jwt, la, laend, lasta, lb, lrzz, mr, mra

@@ -46,8 +46,9 @@ end subroutine tv_drt_ci_new
 subroutine tv_ext_head_in_dbl()
 
 use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud, just, linelp, logic_dh, lp_lwei, lp_rwei, &
-                         lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
+                         lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1, w0_dv, w0_sd, w0_sv, w0_td, w1_sv, w1_tv
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lpok, lra, lri, lrj, lrk, mpl, ni
@@ -388,8 +389,9 @@ end subroutine sv_drt_ci_new
 subroutine sv_ext_head_in_dbl()
 
 use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud, just, linelp, logic_dh, lp_lwei, lp_rwei, &
-                         lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
+                         lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1, w0_dv, w0_sd, w0_sv, w0_td, w1_sv, w1_tv
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lpok, lra, lri, lrj, lrk, mpl, ni

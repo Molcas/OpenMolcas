@@ -199,9 +199,10 @@ end subroutine mole_inf
 subroutine mole_inf_molcas()
 
 use gugaci_global, only: ibsm_ext, iesm_ext, int_dd_offset, iref_occ, logic_assign_actorb, logic_mr, lsm, lsm_inn, lsmorb, LuDrt, &
-                         maxgdm, mul_tab, n_ref, nabc, ng_sm, ngw2, ngw3, ngw4, nlsm_all, nlsm_bas, nlsm_dbl, nlsm_ext, nlsm_frz, &
-                         noidx, norb_act, norb_all, norb_dbl, norb_dz, norb_ext, norb_frz, norb_inn, ns_sm, nstart_act, spin
+                         maxgdm, n_ref, nabc, ng_sm, ngw2, ngw3, ngw4, nlsm_all, nlsm_bas, nlsm_dbl, nlsm_ext, nlsm_frz, noidx, &
+                         norb_act, norb_all, norb_dbl, norb_dz, norb_ext, norb_frz, norb_inn, ns_sm, nstart_act, spin
                          !, logic_mrelcas
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: i, idisk, idum(1), idx, im, im_lr_sta, iml, imr, imrcas_case, iorb, ispin, itmp, j, l, lr, nact_sm, nlsm_act(maxgdm), &

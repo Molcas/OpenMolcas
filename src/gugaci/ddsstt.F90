@@ -48,8 +48,9 @@ end subroutine dd_drt_ci_new
 subroutine dd_ext_head_in_dbl()
 
 use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud, just, linelp, logic_dh, lp_lwei, lp_rwei, &
-                         lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
+                         lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1, w0_dd, w0_dv, w0_sd, w0_ss, w0_td, w0_tt, w0_vv, w1_dd, w1_ss, w1_st, w1_tt
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lmki, lpok, lr0, lra, lri, lrj, lrk, mpl, ni, nk
@@ -681,7 +682,8 @@ end subroutine DD_ext_head_in_act
 subroutine ss_drt_ci_new()
 
 use gugaci_global, only: idisk_array, idisk_lp, idownwei_g131415, iml, imr, ipae, ipael, iseg_downwei, jml, jmr, jpad, jpadl, &
-                         jpadlr, linelp, lpblock_ss, mul_tab, nvalue_space_ss
+                         jpadlr, linelp, lpblock_ss, nvalue_space_ss
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: imlr, jptyl, jptyr, lpb
@@ -716,8 +718,9 @@ end subroutine ss_drt_ci_new
 subroutine ss_ext_head_in_dbl()
 
 use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud, just, linelp, logic_dh, lp_lwei, lp_rwei, &
-                         lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
+                         lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1, w0_dd, w0_dv, w0_ss, w0_tt, w0_vv, w1_dd, w1_ss, w1_st, w1_tt
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lpok, lr0, lra, lri, lrj, mpl, ni, nk
@@ -1152,7 +1155,8 @@ end subroutine ss_ext_head_in_act
 subroutine st_drt_ci_new()
 
 use gugaci_global, only: idisk_array, idisk_lp, idownwei_g131415, iml, imr, ipae, ipael, iseg_downwei, jml, jmr, jpad, jpadl, &
-                         jpadlr, linelp, lpblock_st, mul_tab, nvalue_space_ss
+                         jpadlr, linelp, lpblock_st, nvalue_space_ss
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: imlr, jptyl, jptyr, lpb
@@ -1186,8 +1190,9 @@ end subroutine st_drt_ci_new
 subroutine st_ext_head_in_dbl()
 
 use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud, just, linelp, logic_dh, lp_lwei, lp_rwei, &
-                         lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
+                         lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1, w0_dd, w0_dv, w0_ss, w0_tt, w1_dd, w1_ss, w1_st, w1_tt
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lpok, lra, lri, lrj, lrk, mpl, ni, nk
@@ -1605,7 +1610,8 @@ end subroutine ST_ext_head_in_act
 subroutine ts_drt_ci_new()
 
 use gugaci_global, only: idisk_array, idisk_lp, idownwei_g131415, iml, imr, ipae, ipael, iseg_downwei, jml, jmr, jpad, jpadl, &
-                         jpadlr, linelp, lpblock_ts, mul_tab, nvalue_space_ss
+                         jpadlr, linelp, lpblock_ts, nvalue_space_ss
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: imlr, jptyl, jptyr, lpb
@@ -1638,8 +1644,9 @@ end subroutine ts_drt_ci_new
 subroutine ts_ext_head_in_dbl()
 
 use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud, just, linelp, logic_dh, lp_lwei, lp_rwei, &
-                         lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
+                         lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1, w0_dd, w0_dv, w0_ss, w0_tt, w1_dd, w1_ss, w1_st, w1_tt
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lpok, lra, lri, lrj, lrk, mpl, ni, nk
@@ -2056,7 +2063,8 @@ end subroutine TS_ext_head_in_act
 subroutine tt_drt_ci_new()
 
 use gugaci_global, only: idisk_array, idisk_lp, idownwei_g131415, iml, imr, ipae, ipael, iseg_downwei, jml, jmr, jpad, jpadl, &
-                         jpadlr, linelp, lpblock_tt, mul_tab, nvalue_space_ss
+                         jpadlr, linelp, lpblock_tt, nvalue_space_ss
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: imlr, jptyl, jptyr, lpb
@@ -2091,8 +2099,9 @@ end subroutine tt_drt_ci_new
 subroutine tt_ext_head_in_dbl()
 
 use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud, just, linelp, logic_dh, lp_lwei, lp_rwei, &
-                         lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
+                         lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1, w0_dd, w0_dv, w0_ss, w0_tt, w0_vv, w1_dd, w1_ss, w1_st, w1_tt
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lpok, lr0, lra, lri, lrj, lrk, mpl, ni, nk
@@ -2575,7 +2584,8 @@ subroutine logicg_st(ilnodesm,irnodesm,iltype,irtype)
 
 use gugaci_global, only: ism_g1415, ism_g2g4, logic_g13, logic_g1415, logic_g2g4a, logic_g2g4b, logic_g34a, logic_g34b, &
                          logic_g35a, logic_g35b, logic_g36a, logic_g36b, lpend34a, lpend34b, lpend35a, lpend35b, lpend36a, &
-                         lpend36b, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, lpsta36b, mul_tab
+                         lpend36b, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, lpsta36b
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: ilnodesm, irnodesm, iltype, irtype

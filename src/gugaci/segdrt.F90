@@ -289,31 +289,31 @@ return
 
 end subroutine copy_to_drtl
 
-subroutine get_jpadty(jp,ity,jp_ms)
-
-use gugaci_global, only: ns_sm
-
-implicit none
-integer :: jp, ity, jp_ms
-integer :: jpp
-
-if (jp == 1) then
-  ity = 1
-  jp_ms = ns_sm
-  return
-end if
-jpp = jp+15
-if (mod(jpp,8) == 0) then
-  ity = jpp/8-1
-  jp_ms = 8
-else
-  ity = jpp/8
-  jp_ms = mod(jpp,8)
-end if
-
-return
-
-end subroutine get_jpadty
+!subroutine get_jpadty(jp,ity,jp_ms)
+!
+!use gugaci_global, only: ns_sm
+!
+!implicit none
+!integer :: jp, ity, jp_ms
+!integer :: jpp
+!
+!if (jp == 1) then
+!  ity = 1
+!  jp_ms = ns_sm
+!  return
+!end if
+!jpp = jp+15
+!if (mod(jpp,8) == 0) then
+!  ity = jpp/8-1
+!  jp_ms = 8
+!else
+!  ity = jpp/8
+!  jp_ms = mod(jpp,8)
+!end if
+!
+!return
+!
+!end subroutine get_jpadty
 
 subroutine get_jpty(jpadlr,jptyl,jptyr)
 

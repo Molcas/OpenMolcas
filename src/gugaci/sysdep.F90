@@ -583,25 +583,25 @@ end if
 
 end function ipair
 
-subroutine trimstr(string)
-! delete space character in the head and tail of the string
-
-implicit none
-character(len=*), intent(out) :: string
-integer :: i, j, k
-character(len=128) :: line
-
-k = len_trim(string)
-line(1:k) = string(1:k)
-do i=1,k
-  if (string(i:i) /= ' ') exit
-end do
-string = ' '
-j = k-i+1
-string(1:j) = line(i:k)
-
-return
-
-end subroutine trimstr
+!subroutine trimstr(string)
+!! delete space character in the head and tail of the string
+!
+!implicit none
+!character(len=*), intent(out) :: string
+!integer :: i, j, k
+!character(len=128) :: line
+!
+!k = len_trim(string)
+!line(1:k) = string(1:k)
+!do i=1,k
+!  if (string(i:i) /= ' ') exit
+!end do
+!string = ' '
+!j = k-i+1
+!string(1:j) = line(i:k)
+!
+!return
+!
+!end subroutine trimstr
 
 #endif

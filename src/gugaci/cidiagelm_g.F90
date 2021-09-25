@@ -384,7 +384,8 @@ end subroutine diagonal_act_d_g
 
 subroutine diagonal_link_ae_g(mh)
 
-use gugaci_global, only: ibsm_ext, iesm_ext, ipae, jph, jwh, kk, lsm, mul_tab, ng_sm, nlsm_ext, norb_all, norb_ext, th, thh
+use gugaci_global, only: ibsm_ext, iesm_ext, ipae, jph, jwh, kk, lsm, ng_sm, nlsm_ext, norb_all, norb_ext, th, thh
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: mh
@@ -529,8 +530,8 @@ end subroutine diagonal_link_ae_g
 
 subroutine diagonal_link_ad_g(mpe,iwa,vlop0,vlop1)
 
-use gugaci_global, only: fg, jb_sys, jpad, jud, just, kk, lsm_inn, mul_tab, norb_dz, norb_frz, ns_sm, pd, pdd, ps1, ps2, ps3, ps4, &
-                         pt, ptt
+use gugaci_global, only: fg, jb_sys, jpad, jud, just, kk, lsm_inn, norb_dz, norb_frz, ns_sm, pd, pdd, ps1, ps2, ps3, ps4, pt, ptt
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: mpe, iwa
@@ -954,8 +955,9 @@ end subroutine diagonal_link_ad_g
 
 subroutine diagonal_link_dae_g(mh)
 
-use gugaci_global, only: fg, jb_sys, jpad, jud, just, jwh, lsm_inn, mul_tab, norb_dz, norb_frz, ns_sm, pd, pdd, ps1, ps2, ps3, &
-                         ps4, pt, ptt, th, thh
+use gugaci_global, only: fg, jb_sys, jpad, jud, just, jwh, lsm_inn, norb_dz, norb_frz, ns_sm, pd, pdd, ps1, ps2, ps3, ps4, pt, &
+                         ptt, th, thh
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: mh
@@ -1153,7 +1155,8 @@ end subroutine diagonal_link_dae_g
 
 subroutine diagonal_call_dae_g(lri,lrj,iwd,iwa,vij0,vij1,vij2,vl0)
 
-use gugaci_global, only: ibsm_ext, iesm_ext, ipae, jpad, mul_tab, ng_sm, norb_all, norb_dz, norb_ext
+use gugaci_global, only: ibsm_ext, iesm_ext, ipae, jpad, ng_sm, norb_all, norb_dz, norb_ext
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, lrj, iwd, iwa
@@ -1472,7 +1475,8 @@ end subroutine diagonal_call_dae_g
 
 subroutine diagonal_dbl_g()
 
-use gugaci_global, only: ipae, iw_downwei, jb_sys, jpad, jud, just, lsm_inn, mul_tab, norb_dz, norb_frz, ns_sm, nu_ae
+use gugaci_global, only: ipae, iw_downwei, jb_sys, jpad, jud, just, lsm_inn, norb_dz, norb_frz, ns_sm, nu_ae
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: ipae_, iwa, iwad, iwd, iwdownv, iws, iws1, iwt, jpad1, jpas, jpat, jpat1, lr, lr0, lrd, lrds, lrg, lrm, mr, mr0, mrm, &
@@ -2321,7 +2325,8 @@ end subroutine diagonal_dbl_g
 
 subroutine diagonal_ext_g()
 
-use gugaci_global, only: ibsm_ext, iesm_ext, ipae, lsm, mul_tab, ng_sm, norb_all, norb_ext
+use gugaci_global, only: ibsm_ext, iesm_ext, ipae, lsm, ng_sm, norb_all, norb_ext
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: im, ima, imb, ipas, ipat, jw, jweis, jws, jws0, jwt, la, laend, lasta, lb, lra, lrb, lrzz, mr, mra, nxo

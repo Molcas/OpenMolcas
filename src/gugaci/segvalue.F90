@@ -299,58 +299,58 @@ return
 
 end subroutine segmidc2
 
-subroutine segmidc22(w,ww,ind1,jbr)
-! case c22
-
-implicit none
-real*8 :: w, ww
-integer :: ind1, jbr
-real*8 :: b, fq
-real*8, parameter :: done = 1.0d0, dzero = 0.0d0, three = 3.0d0, two = 2.0d0
-
-b = dble(jbr)
-if (mod(jbr,2) == 0) fq = done
-if (mod(jbr,2) /= 0) fq = -done
-w = dzero
-ww = dzero
-select case (ind1)
-  case (1)
-    ww = done
-  case (2)
-    ww = -done
-  case (3)
-    ww = -fq*sqrt(two/((b+two)*(b+three)))
-  case (4)
-    ww = -sqrt((b+done)*(b+4.0d0)/((b+two)*(b+three)))
-  case (5)
-    ww = done
-  case default ! (6)
-    w = done
-    ww = done
-  case (7)
-    w = -done
-    ww = -sqrt((b-done)*(b+two)/(b*b+b))
-  case (8)
-    ww = -fq*sqrt(two/(b*b+three*b+two))
-  case (9)
-    w = -done
-    ww = -sqrt(b*(b+three)/(b*b+three*b+two))
-  case (10)
-    w = done
-    ww = done
-  case (11)
-    ww = done
-  case (12)
-    ww = -sqrt((b-two)*(b+done)/(b*b-b))
-  case (13)
-    ww = -done
-  case (14)
-    ww = done
-end select
-
-return
-
-end subroutine segmidc22
+!subroutine segmidc22(w,ww,ind1,jbr)
+!! case c22
+!
+!implicit none
+!real*8 :: w, ww
+!integer :: ind1, jbr
+!real*8 :: b, fq
+!real*8, parameter :: done = 1.0d0, dzero = 0.0d0, three = 3.0d0, two = 2.0d0
+!
+!b = dble(jbr)
+!if (mod(jbr,2) == 0) fq = done
+!if (mod(jbr,2) /= 0) fq = -done
+!w = dzero
+!ww = dzero
+!select case (ind1)
+!  case (1)
+!    ww = done
+!  case (2)
+!    ww = -done
+!  case (3)
+!    ww = -fq*sqrt(two/((b+two)*(b+three)))
+!  case (4)
+!    ww = -sqrt((b+done)*(b+4.0d0)/((b+two)*(b+three)))
+!  case (5)
+!    ww = done
+!  case default ! (6)
+!    w = done
+!    ww = done
+!  case (7)
+!    w = -done
+!    ww = -sqrt((b-done)*(b+two)/(b*b+b))
+!  case (8)
+!    ww = -fq*sqrt(two/(b*b+three*b+two))
+!  case (9)
+!    w = -done
+!    ww = -sqrt(b*(b+three)/(b*b+three*b+two))
+!  case (10)
+!    w = done
+!    ww = done
+!  case (11)
+!    ww = done
+!  case (12)
+!    ww = -sqrt((b-two)*(b+done)/(b*b-b))
+!  case (13)
+!    ww = -done
+!  case (14)
+!    ww = done
+!end select
+!
+!return
+!
+!end subroutine segmidc22
 
 subroutine segmidb3(w,ww,ind1,jbr)
 ! submid b3(b&l)
@@ -545,67 +545,67 @@ return
 
 end subroutine segmidb1
 
-subroutine stermh(isq,w,ww,ind1,jbr)
-
-implicit none
-integer :: isq, ind1, jbr
-real*8 :: w, ww
-real*8 :: b, fq
-real*8, parameter :: done = 1.0d0, dzero = 0.0d0, three = 3.0d0, two = 2.0d0, vtwo = 0.5d0
-
-isq = 0
-w = dzero
-ww = dzero
-! calculate w,ww
-b = dble(jbr)
-if (mod(jbr,2) == 0) fq = done
-if (mod(jbr,2) /= 0) fq = -done
-select case (ind1)
-  case default ! (1)
-    ! case a&l
-    ! case a&r
-    w = fq
-    isq = 1
-    ww = w
-  case (2)
-    w = done
-    isq = 1
-    ww = w
-  case (3)
-    ! case d&l&l
-    ! case d&r&r
-    w = -sqrt(two)
-    isq = 3
-  case (4)
-    ! case d&r&l
-    w = -fq*sqrt(vtwo)
-    ww = -fq*sqrt((b-done)/(b+b+two))
-    isq = 2
-  case (5)
-    ww = -sqrt(b/(b+done))
-    !if (dldr == 2101) ww=(b+two)/(b+done)
-    isq = 2
-  case (6)
-    w = sqrt(b/(b+done))
-    isq = 1
-    ww = w
-  case (7)
-    w = -fq*sqrt((b+two)/(b+done))
-    !if (abs(w) > 1.e-13) then
-    isq = 1
-    ww = w
-  case (8)
-    w = -fq*sqrt(vtwo)
-    ww = fq*sqrt((b+three)/(b+b+two))
-    isq = 2
-  case (9)
-    w = fq*sqrt(two)
-    isq = 2
-end select
-
-return
-
-end subroutine stermh
+!subroutine stermh(isq,w,ww,ind1,jbr)
+!
+!implicit none
+!integer :: isq, ind1, jbr
+!real*8 :: w, ww
+!real*8 :: b, fq
+!real*8, parameter :: done = 1.0d0, dzero = 0.0d0, three = 3.0d0, two = 2.0d0, vtwo = 0.5d0
+!
+!isq = 0
+!w = dzero
+!ww = dzero
+!! calculate w,ww
+!b = dble(jbr)
+!if (mod(jbr,2) == 0) fq = done
+!if (mod(jbr,2) /= 0) fq = -done
+!select case (ind1)
+!  case default ! (1)
+!    ! case a&l
+!    ! case a&r
+!    w = fq
+!    isq = 1
+!    ww = w
+!  case (2)
+!    w = done
+!    isq = 1
+!    ww = w
+!  case (3)
+!    ! case d&l&l
+!    ! case d&r&r
+!    w = -sqrt(two)
+!    isq = 3
+!  case (4)
+!    ! case d&r&l
+!    w = -fq*sqrt(vtwo)
+!    ww = -fq*sqrt((b-done)/(b+b+two))
+!    isq = 2
+!  case (5)
+!    ww = -sqrt(b/(b+done))
+!    !if (dldr == 2101) ww=(b+two)/(b+done)
+!    isq = 2
+!  case (6)
+!    w = sqrt(b/(b+done))
+!    isq = 1
+!    ww = w
+!  case (7)
+!    w = -fq*sqrt((b+two)/(b+done))
+!    !if (abs(w) > 1.e-13) then
+!    isq = 1
+!    ww = w
+!  case (8)
+!    w = -fq*sqrt(vtwo)
+!    ww = fq*sqrt((b+three)/(b+b+two))
+!    isq = 2
+!  case (9)
+!    w = fq*sqrt(two)
+!    isq = 2
+!end select
+!
+!return
+!
+!end subroutine stermh
 
 subroutine stmh(isq,w,ww,mw,ind1,jbr)
 

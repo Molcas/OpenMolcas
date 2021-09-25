@@ -11,8 +11,9 @@
 
 subroutine ss_head_dbl_tail_act(lra)
 
-use gugaci_global, only: jb_sys, jml, jmr, jpad, jpadl, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, &
-                         norb_frz, w0, w0_ss, w1, w1_ss
+use gugaci_global, only: jb_sys, jml, jmr, jpad, jpadl, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w0, &
+                         w0_ss, w1, w1_ss
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra
@@ -607,7 +608,8 @@ end subroutine ss_head_dbl_tail_act
 
 subroutine st_head_dbl_tail_act(lra)
 
-use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w1, w1_st
+use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w1, w1_st
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra
@@ -795,7 +797,8 @@ end subroutine st_head_dbl_tail_act
 
 subroutine ts_head_dbl_tail_act(lra)
 
-use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w1, w1_ts
+use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w1, w1_ts
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra
@@ -926,7 +929,8 @@ end subroutine ts_head_dbl_tail_act
 
 subroutine stt_head_dbl_tail_act(lra)
 
-use gugaci_global, only: jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w1, w1_st1
+use gugaci_global, only: jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w1, w1_st1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra
@@ -1058,7 +1062,8 @@ end subroutine stt_head_dbl_tail_act
 
 subroutine tts_head_dbl_tail_act(lra)
 
-use gugaci_global, only: jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w1, w1_t1s
+use gugaci_global, only: jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w1, w1_t1s
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra
@@ -1246,8 +1251,9 @@ end subroutine tts_head_dbl_tail_act
 
 subroutine tt_head_dbl_tail_act(lra)
 
-use gugaci_global, only: jml, jmr, jpad, jpadl, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, &
-                         w0_tt, w1, w1_tt
+use gugaci_global, only: jml, jmr, jpad, jpadl, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_tt, w1, &
+                         w1_tt
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra
@@ -1394,8 +1400,9 @@ end subroutine tt_head_dbl_tail_act
 
 subroutine tttt_head_dbl_tail_act(lra)
 
-use gugaci_global, only: jml, jmr, jpad, jpadl, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, &
-                         w0_t1t1, w1, w1_t1t1
+use gugaci_global, only: jml, jmr, jpad, jpadl, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_t1t1, &
+                         w1, w1_t1t1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra
@@ -1798,8 +1805,8 @@ end subroutine d1d_head_dbl_tail_act
 
 subroutine sv_head_dbl_tail_act(lra)
 
-use gugaci_global, only: jb_sys, jml, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, w0_sv, w1, &
-                         w1_sv
+use gugaci_global, only: jb_sys, jml, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_sv, w1, w1_sv
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra
@@ -1877,8 +1884,9 @@ end subroutine sv_head_dbl_tail_act
 
 subroutine sd_head_dbl_tail_act(lra,lpcoe)
 
-use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, mul_tab, norb_dz, norb_frz, norb_inn, &
-                         vint_ci, voint, w0, w0_sd, w1, w1_sd
+use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, norb_dz, norb_frz, norb_inn, vint_ci, voint, &
+                         w0, w0_sd, w1, w1_sd
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra, lpcoe(norb_dz+1:norb_inn)
@@ -2175,8 +2183,9 @@ end subroutine sd_head_dbl_tail_act
 
 subroutine sdd_head_dbl_tail_act(lra,lpcoe)
 
-use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, mul_tab, norb_dz, norb_frz, norb_inn, &
-                         vint_ci, voint, w0, w0_sd1, w1, w1_sd1
+use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, norb_dz, norb_frz, norb_inn, vint_ci, voint, &
+                         w0, w0_sd1, w1, w1_sd1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra, lpcoe(norb_dz+1:norb_inn)
@@ -2446,151 +2455,153 @@ return
 
 end subroutine sdd_head_dbl_tail_act
 
-subroutine td_head_dbl_tail_act(lra,lpcoe)
-
-use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, mul_tab, norb_dz, norb_frz, norb_inn, vint_ci, voint, &
-                         w0, w0_td, w1, w1_td
-
-implicit none
-integer :: lra, lpcoe(norb_dz+1:norb_inn)
-integer :: iwdl, iwdr, jmlr, kcoe, list, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc
-real*8 :: tcoe, vlop0, vlop1, w0td1, w0td2, w0td3, w0td4, w0td5, w1td2, w1td3, wl
-integer, external :: list3, list4
-
-jmlr = mul_tab(jml,jmr)
-! td(13-1) (22)a&(23)
-! td(13-1) a&(23)c'(22)
-! td(13-5) (22)d&&l(33)b^l(23)
-do lri=norb_frz+1,norb_dz
-  lmi = lsm_inn(lri)
-  if (lmi /= jmlr) cycle
-  w0td1 = w0_td(1)
-  w0td4 = w0_td(4)
-  w0td5 = w0_td(5)
-  ni = mod(norb_dz-lri,2)
-  if (ni == 1) w0td1 = -w0td1
-  if (ni == 1) w0td4 = -w0td4
-  if (ni == 1) w0td5 = -w0td5
-
-  ! td(13-1) a&(23)c'(22)
-  do lrd=lri+1,norb_dz
-    lmd = lsm_inn(lrd)
-    if (lmd /= jmr) cycle
-    iwdl = just(lri,lrd)
-    iwdr = jud(lrd)
-    vlop0 = -w0*w0td1
-    list = list3(lri,lra,lri)
-    wl = voint(lri,lra)+vint_ci(list)        !310,act_coe,610,7
-    list = list3(lri,lra,lrd)
-    wl = wl+vint_ci(list+1)                  !310 c(22) coe
-    do lr=lri+1,norb_dz
-      if (lr == lrd) cycle
-      list = list3(lri,lra,lr)
-      wl = wl+2*vint_ci(list+1)-vint_ci(list)       !310:neoc=2,coe=
-    end do
-    do lrk=norb_dz+1,lra
-      list = list3(lri,lra,lrk)
-      kcoe = lpcoe(lrk)
-      call neoc(kcoe,nocc,tcoe)
-      wl = wl+nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
-    end do
-    wl = wl*vlop0
-    ! td(13-5) d&rl(33)b^l(23)c'(22)          !cc (22)d&rl(33)b^l(23)???
-    vlop0 = -w0*w0td5
-    do lrk=1,lri-1
-      list = list3(lri,lra,lrk)
-      wl = wl-vlop0*(2*vint_ci(list+1)-vint_ci(list))
-    end do
-    call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-  end do
-  !---------------------------------------------------------------------
-  do lrd=norb_frz+1,lri-1
-    lmd = lsm_inn(lrd)
-    if (lmd /= jmr) cycle
-    iwdl = just(lrd,lri)
-    iwdr = jud(lrd)
-    ! td(13-1) (22)a&(23)
-    vlop0 = w0*w0td1
-    list = list3(lri,lra,lri)
-    wl = vlop0*(voint(lri,lra)+vint_ci(list))             !310,act_c
-    do lr=lri+1,norb_dz
-      list = list3(lri,lra,lr)
-      wl = wl+vlop0*(2*vint_ci(list+1)-vint_ci(list))     !310:neoc=2,
-    end do
-    do lrk=norb_dz+1,lra
-      list = list3(lri,lra,lrk)
-      kcoe = lpcoe(lrk)
-      call neoc(kcoe,nocc,tcoe)
-      wl = wl+vlop0*nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
-    end do
-    !wl = wl*vlop0
-    ! td(13-4) d&r&l(22)b^l(23)
-    vlop0 = w0*w0td4
-    vlop1 = w1*w0td4
-    list = list3(lri,lra,lrd)
-    wl = wl+(vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)
-    ! td(13-5) d&rl(33)c"(22)b^l(23)
-    vlop0 = w0*w0td5
-    do lrk=1,lri-1
-      if (lrk == lrd) cycle
-      list = list3(lri,lra,lrk)
-      wl = wl+vlop0*(vint_ci(list)-2*vint_ci(list+1))      !4.3
-    end do
-    call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-  end do
-end do
-do lri=norb_frz+1,norb_dz-1
-  lmi = lsm_inn(lri)
-  do lrj=lri+1,norb_dz
-    lmj = lsm_inn(lrj)
-    lmij = mul_tab(lmi,lmj)
-    if (lmij /= jml) cycle
-    iwdl = just(lri,lrj)
-
-    ! td(13-2) a&(23)b&r(23)b^r(32)
-    do lrd=lrj+1,norb_dz
-      lmd = lsm_inn(lrd)
-      if (lmd /= jmr) cycle
-      w0td2 = w0_td(2)
-      w1td2 = w1_td(2)
-      ni = mod(lrj-lri+norb_dz-lrd,2)
-      if (ni == 0) w0td2 = -w0td2
-      if (ni == 0) w1td2 = -w1td2
-
-      iwdr = jud(lrd)
-      vlop0 = w0*w0td2
-      vlop1 = w1*w1td2
-      list = list4(lri,lrj,lrd,lra)
-      wl = vlop0*(vint_ci(list+2)+vint_ci(list))-vlop1*(vint_ci(list+2)-vint_ci(list)) !1.3
-      call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-    end do
-    ! td(13-3) a&(23)b&l(32)b^l(23)
-    do lrd=lri+1,lrj-1
-      lmd = lsm_inn(lrd)
-      if (lmd /= jmr) cycle
-      iwdr = jud(lrd)
-      w0td3 = w0_td(3)
-      w1td3 = w1_td(3)
-      ni = mod(lrd-lri+norb_dz-lrj,2)
-      if (ni == 0) w0td3 = -w0td3
-      if (ni == 0) w1td3 = -w1td3
-      vlop0 = w0*w0td3                !d6-8
-      vlop1 = w1*w1td3
-      list = list4(lri,lrd,lrj,lra)
-      wl = vlop0*(vint_ci(list+2)-2*vint_ci(list+1))-vlop1*vint_ci(list+2)    !1.2
-      call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-    end do
-  end do
-end do
-
-return
-
-end subroutine td_head_dbl_tail_act
+!subroutine td_head_dbl_tail_act(lra,lpcoe)
+!
+!use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, norb_dz, norb_frz, norb_inn, vint_ci, voint, w0, &
+!                         w0_td, w1, w1_td
+!use Symmetry_Info, only: mul_tab => Mul
+!
+!implicit none
+!integer :: lra, lpcoe(norb_dz+1:norb_inn)
+!integer :: iwdl, iwdr, jmlr, kcoe, list, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc
+!real*8 :: tcoe, vlop0, vlop1, w0td1, w0td2, w0td3, w0td4, w0td5, w1td2, w1td3, wl
+!integer, external :: list3, list4
+!
+!jmlr = mul_tab(jml,jmr)
+!! td(13-1) (22)a&(23)
+!! td(13-1) a&(23)c'(22)
+!! td(13-5) (22)d&&l(33)b^l(23)
+!do lri=norb_frz+1,norb_dz
+!  lmi = lsm_inn(lri)
+!  if (lmi /= jmlr) cycle
+!  w0td1 = w0_td(1)
+!  w0td4 = w0_td(4)
+!  w0td5 = w0_td(5)
+!  ni = mod(norb_dz-lri,2)
+!  if (ni == 1) w0td1 = -w0td1
+!  if (ni == 1) w0td4 = -w0td4
+!  if (ni == 1) w0td5 = -w0td5
+!
+!  ! td(13-1) a&(23)c'(22)
+!  do lrd=lri+1,norb_dz
+!    lmd = lsm_inn(lrd)
+!    if (lmd /= jmr) cycle
+!    iwdl = just(lri,lrd)
+!    iwdr = jud(lrd)
+!    vlop0 = -w0*w0td1
+!    list = list3(lri,lra,lri)
+!    wl = voint(lri,lra)+vint_ci(list)        !310,act_coe,610,7
+!    list = list3(lri,lra,lrd)
+!    wl = wl+vint_ci(list+1)                  !310 c(22) coe
+!    do lr=lri+1,norb_dz
+!      if (lr == lrd) cycle
+!      list = list3(lri,lra,lr)
+!      wl = wl+2*vint_ci(list+1)-vint_ci(list)       !310:neoc=2,coe=
+!    end do
+!    do lrk=norb_dz+1,lra
+!      list = list3(lri,lra,lrk)
+!      kcoe = lpcoe(lrk)
+!      call neoc(kcoe,nocc,tcoe)
+!      wl = wl+nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
+!    end do
+!    wl = wl*vlop0
+!    ! td(13-5) d&rl(33)b^l(23)c'(22)          !cc (22)d&rl(33)b^l(23)???
+!    vlop0 = -w0*w0td5
+!    do lrk=1,lri-1
+!      list = list3(lri,lra,lrk)
+!      wl = wl-vlop0*(2*vint_ci(list+1)-vint_ci(list))
+!    end do
+!    call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!  end do
+!  !---------------------------------------------------------------------
+!  do lrd=norb_frz+1,lri-1
+!    lmd = lsm_inn(lrd)
+!    if (lmd /= jmr) cycle
+!    iwdl = just(lrd,lri)
+!    iwdr = jud(lrd)
+!    ! td(13-1) (22)a&(23)
+!    vlop0 = w0*w0td1
+!    list = list3(lri,lra,lri)
+!    wl = vlop0*(voint(lri,lra)+vint_ci(list))             !310,act_c
+!    do lr=lri+1,norb_dz
+!      list = list3(lri,lra,lr)
+!      wl = wl+vlop0*(2*vint_ci(list+1)-vint_ci(list))     !310:neoc=2,
+!    end do
+!    do lrk=norb_dz+1,lra
+!      list = list3(lri,lra,lrk)
+!      kcoe = lpcoe(lrk)
+!      call neoc(kcoe,nocc,tcoe)
+!      wl = wl+vlop0*nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
+!    end do
+!    !wl = wl*vlop0
+!    ! td(13-4) d&r&l(22)b^l(23)
+!    vlop0 = w0*w0td4
+!    vlop1 = w1*w0td4
+!    list = list3(lri,lra,lrd)
+!    wl = wl+(vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)
+!    ! td(13-5) d&rl(33)c"(22)b^l(23)
+!    vlop0 = w0*w0td5
+!    do lrk=1,lri-1
+!      if (lrk == lrd) cycle
+!      list = list3(lri,lra,lrk)
+!      wl = wl+vlop0*(vint_ci(list)-2*vint_ci(list+1))      !4.3
+!    end do
+!    call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!  end do
+!end do
+!do lri=norb_frz+1,norb_dz-1
+!  lmi = lsm_inn(lri)
+!  do lrj=lri+1,norb_dz
+!    lmj = lsm_inn(lrj)
+!    lmij = mul_tab(lmi,lmj)
+!    if (lmij /= jml) cycle
+!    iwdl = just(lri,lrj)
+!
+!    ! td(13-2) a&(23)b&r(23)b^r(32)
+!    do lrd=lrj+1,norb_dz
+!      lmd = lsm_inn(lrd)
+!      if (lmd /= jmr) cycle
+!      w0td2 = w0_td(2)
+!      w1td2 = w1_td(2)
+!      ni = mod(lrj-lri+norb_dz-lrd,2)
+!      if (ni == 0) w0td2 = -w0td2
+!      if (ni == 0) w1td2 = -w1td2
+!
+!      iwdr = jud(lrd)
+!      vlop0 = w0*w0td2
+!      vlop1 = w1*w1td2
+!      list = list4(lri,lrj,lrd,lra)
+!      wl = vlop0*(vint_ci(list+2)+vint_ci(list))-vlop1*(vint_ci(list+2)-vint_ci(list)) !1.3
+!      call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!    end do
+!    ! td(13-3) a&(23)b&l(32)b^l(23)
+!    do lrd=lri+1,lrj-1
+!      lmd = lsm_inn(lrd)
+!      if (lmd /= jmr) cycle
+!      iwdr = jud(lrd)
+!      w0td3 = w0_td(3)
+!      w1td3 = w1_td(3)
+!      ni = mod(lrd-lri+norb_dz-lrj,2)
+!      if (ni == 0) w0td3 = -w0td3
+!      if (ni == 0) w1td3 = -w1td3
+!      vlop0 = w0*w0td3                !d6-8
+!      vlop1 = w1*w1td3
+!      list = list4(lri,lrd,lrj,lra)
+!      wl = vlop0*(vint_ci(list+2)-2*vint_ci(list+1))-vlop1*vint_ci(list+2)    !1.2
+!      call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!    end do
+!  end do
+!end do
+!
+!return
+!
+!end subroutine td_head_dbl_tail_act
 
 subroutine ttdd_head_dbl_tail_act(lra,lpcoe)
 
-use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, mul_tab, norb_dz, norb_frz, norb_inn, vint_ci, voint, &
-                         w0, w0_t1d1, w1, w1_t1d1
+use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, norb_dz, norb_frz, norb_inn, vint_ci, voint, w0, &
+                         w0_t1d1, w1, w1_t1d1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lra, lpcoe(norb_dz+1:norb_inn)
@@ -2732,7 +2743,8 @@ end subroutine ttdd_head_dbl_tail_act
 subroutine sv_arbr_act_c_ext_stv_sgt0(lin)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
-                         mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sv, w1_sv
+                         norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sv, w1_sv
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin

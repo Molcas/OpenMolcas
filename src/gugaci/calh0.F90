@@ -396,84 +396,84 @@ write(6,*)
 
 end subroutine minevalue
 
-subroutine orthnor_ab(n,av,bv,id)  !bv:basis, av:vector for orth a
+!subroutine orthnor_ab(n,av,bv,id)  !bv:basis, av:vector for orth a
+!
+!implicit none
+!integer :: n, id
+!real*8 :: av(n), bv(n)
+!integer :: i
+!real*8 :: s
+!real*8, parameter :: dcrita = 1.0d-10
+!real*8, external :: ddot_
+!
+!if (id == 0) then
+!  ! orthogonalization av,bv
+!  s = ddot_(n,av,1,bv,1)
+!  do i=1,n
+!    av(i) = av(i)-s*bv(i)
+!  end do
+!end if
+!! normalization of av_eigenvector.
+!s = 0.0d0
+!s = ddot_(n,av,1,av,1)
+!s = sqrt(s)
+!s = max(s,dcrita)
+!do i=1,n
+!  av(i) = av(i)/s
+!end do
+!
+!return
+!
+!end subroutine orthnor_ab
 
-implicit none
-integer :: n, id
-real*8 :: av(n), bv(n)
-integer :: i
-real*8 :: s
-real*8, parameter :: dcrita = 1.0d-10
-real*8, external :: ddot_
+!function ddot_bak(n,dx,dy)
+!
+!implicit none
+!integer :: n
+!real*8 :: dx(n), dy(n)
+!integer :: l
+!real*8 :: ddot_bak
+!real*8 :: s
+!
+!s = 0.0d0
+!do l=1,n
+!  s = s+dx(l)*dy(l)
+!end do
+!ddot_bak = s
+!
+!return
+!
+!end function ddot_bak
 
-if (id == 0) then
-  ! orthogonalization av,bv
-  s = ddot_(n,av,1,bv,1)
-  do i=1,n
-    av(i) = av(i)-s*bv(i)
-  end do
-end if
-! normalization of av_eigenvector.
-s = 0.0d0
-s = ddot_(n,av,1,av,1)
-s = sqrt(s)
-s = max(s,dcrita)
-do i=1,n
-  av(i) = av(i)/s
-end do
-
-return
-
-end subroutine orthnor_ab
-
-function ddot_bak(n,dx,dy)
-
-implicit none
-integer :: n
-real*8 :: dx(n), dy(n)
-integer :: l
-real*8 :: ddot_bak
-real*8 :: s
-
-s = 0.0d0
-do l=1,n
-  s = s+dx(l)*dy(l)
-end do
-ddot_bak = s
-
-return
-
-end function ddot_bak
-
-subroutine matrmk_1(k)
-
-use gugaci_global, only: LuCiTv1, LuCiTv2, nci_dim, vector1, vector2, vp
-
-implicit none
-integer :: i, ibas, ij, il, jbas, l, k
-real*8 :: vsumtmp
-
-do ibas=1,k
-  call read_bv(lucitv1,ibas,vector1,nci_dim)
-  ij = ibas*(ibas-1)/2
-  do jbas=1,ibas
-    call read_bv(lucitv2,jbas,vector2,nci_dim)
-    vsumtmp = 0.d0
-    do l=1,nci_dim
-      vsumtmp = vsumtmp+vector1(l)*vector2(l)
-    end do
-    vp(ij+jbas) = vsumtmp
-  end do
-end do
-write(6,*)
-il = 0
-do l=1,k
-  write(6,1112) (vp(i),i=il+1,il+l)
-  il = il+l
-end do
-write(6,*)
-
-return
-1112 format(2x,20f14.8)
-
-end subroutine matrmk_1
+!subroutine matrmk_1(k)
+!
+!use gugaci_global, only: LuCiTv1, LuCiTv2, nci_dim, vector1, vector2, vp
+!
+!implicit none
+!integer :: i, ibas, ij, il, jbas, l, k
+!real*8 :: vsumtmp
+!
+!do ibas=1,k
+!  call read_bv(lucitv1,ibas,vector1,nci_dim)
+!  ij = ibas*(ibas-1)/2
+!  do jbas=1,ibas
+!    call read_bv(lucitv2,jbas,vector2,nci_dim)
+!    vsumtmp = 0.d0
+!    do l=1,nci_dim
+!      vsumtmp = vsumtmp+vector1(l)*vector2(l)
+!    end do
+!    vp(ij+jbas) = vsumtmp
+!  end do
+!end do
+!write(6,*)
+!il = 0
+!do l=1,k
+!  write(6,1112) (vp(i),i=il+1,il+l)
+!  il = il+l
+!end do
+!write(6,*)
+!
+!return
+!1112 format(2x,20f14.8)
+!
+!end subroutine matrmk_1

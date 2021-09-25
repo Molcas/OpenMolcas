@@ -475,8 +475,9 @@ end subroutine act_lp_search
 
 subroutine lp_head_in_act_1()      !for dv,td,sd
 
-use gugaci_global, only: iml, imr, intind_ijka, linelp, log_prod, logic_br, lpblock, lsm_inn, mhlp, mul_tab, ngw2, ngw3, nlg1, &
-                         nlg2, norb_dz, norb_frz, norb_inn
+use gugaci_global, only: iml, imr, intind_ijka, linelp, log_prod, logic_br, lpblock, lsm_inn, mhlp, ngw2, ngw3, nlg1, nlg2, &
+                         norb_dz, norb_frz, norb_inn
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: ijk, imlr, intpos, lma, lmai, lmk, lra, lrai, lraj, lrak, lsmi, lsmij, lsmj, lsmk, mh
@@ -606,8 +607,9 @@ end subroutine lp_head_in_act_1
 
 subroutine lp_head_in_act_2()      !for vd,dt,ds
 
-use gugaci_global, only: iml, imr, intind_ijka, linelp, log_prod, logic_br, lpblock, lsm_inn, mhlp, mul_tab, ngw2, ngw3, nlg1, &
-                         nlg2, norb_dz, norb_frz, norb_inn
+use gugaci_global, only: iml, imr, intind_ijka, linelp, log_prod, logic_br, lpblock, lsm_inn, mhlp, ngw2, ngw3, nlg1, nlg2, &
+                         norb_dz, norb_frz, norb_inn
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: ijk, imlr, intpos, lma, lmai, lmk, lra, lrai, lraj, lrak, lrd, lsmi, lsmij, lsmj, lsmk, mh
@@ -711,7 +713,8 @@ end subroutine lp_head_in_act_2
 
 subroutine lp_head_in_act_3(ide)      !for ide=0:dd,tt,ide=1:ss,id
 
-use gugaci_global, only: iml, imr, logic_br, lpblock, lsm_inn, mul_tab, norb_dz, norb_inn
+use gugaci_global, only: iml, imr, logic_br, lpblock, lsm_inn, norb_dz, norb_inn
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: ide
@@ -760,7 +763,8 @@ end subroutine lp_head_in_act_3
 
 subroutine lp_head_in_act_4()
 
-use gugaci_global, only: iml, imr, linelp, log_prod, logic_br, lpblock, lsm_inn, mhlp, mul_tab, nlg1, nlg2, norb_dz, norb_inn
+use gugaci_global, only: iml, imr, linelp, log_prod, logic_br, lpblock, lsm_inn, mhlp, nlg1, nlg2, norb_dz, norb_inn
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: imlr, lra, lrai, lraj, lsmi, lsmij, lsmj, mh
@@ -817,7 +821,8 @@ end subroutine lp_head_in_act_4
 
 subroutine lp_head_in_dbl_1()      !for dv,sd,td
 
-use gugaci_global, only: iml, imr, jml, jmr, logic_br, lpblock, lsm_inn, mul_tab, ngw2, ngw3, norb_dz, norb_frz, norb_inn
+use gugaci_global, only: iml, imr, jml, jmr, logic_br, lpblock, lsm_inn, ngw2, ngw3, norb_dz, norb_frz, norb_inn
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
@@ -928,176 +933,178 @@ return
 
 end subroutine lp_head_in_dbl_1
 
-subroutine lp_head_in_dbl_1_mrpt2()    !for dv,sd,td       !200709
-
-use gugaci_global, only: iml, imr, jml, jmr, jpadlr, jpadlrel, linelp, logic_br, lsm_inn, mhlp, mul_tab, ngw2, ngw3, nlg1, nlg2, &
-                         norb_dz, norb_frz, norb_inn
-
-implicit none
-integer :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
-logical :: do_15, do_16
-
-imlr = mul_tab(iml,imr)
-jmlr = mul_tab(jml,jmr)
-lsmact = mul_tab(imlr,jmlr)
-lsta = norb_dz+1
-lend = norb_inn
-
-do_15 = .false.
-do_16 = .false.
-select case (jpadlrel(jpadlr)) !200709
-  case default ! (1)
-    if (imlr == jmlr) then               !!! imlr == 1
-      ! line=13 -c'-
-      call link_c1_to_given_orb_coe(mh,lsta,lend)
-      if (mh == 0) then
-        do_15 = .true.
-      else
-        call value_sort_ploop(mh,.true.,.true.,.true.)
-        linelp = 13
-        mhlp = mh
-        nlg1 = 0
-        nlg2 = 0
-        call ext_head_in_dbl()
-      end if
-    end if
-
-    if (.not. do_15) then
-      ! line=20 -b&r-b^r-
-      do lrai=norb_dz+1,norb_inn-1
-        lsmi = lsm_inn(lrai)
-        do lraj=lrai+1,norb_inn
-          lsmj = lsm_inn(lraj)
-          lsmij = mul_tab(lsmi,lsmj)
-          if (lsmij /= lsmact) cycle
-          jk = ngw2(lrai-norb_frz)+ngw3(lraj-norb_frz)
-
-          call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
-          call link_b4_at_given_orb(mh,lrai)        !b&r
-          logic_br(1:mh) = .true.
-          call link_c2_to_given_orb(mh,lrai+1,lraj-1)
-          call link_b2_at_given_orb(mh,lraj)        !b^r
-          call link_c1_to_given_orb(mh,lraj+1,norb_inn)
-          if (mh /= 0) then
-            call value_sort_ploop(mh,.false.,.true.,.true.)
-            linelp = 20
-            mhlp = mh
-            nlg1 = jk
-            nlg2 = 0
-            call ext_head_in_dbl()
-          end if
-          ! line=22 -b&l-b^l-
-          call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
-          call link_b3_at_given_orb(mh,lrai)        !b&l
-          logic_br(1:mh) = .true.
-          call link_c2_to_given_orb(mh,lrai+1,lraj-1)
-          call link_b1_at_given_orb(mh,lraj)        !b^l
-          call link_c1_to_given_orb(mh,lraj+1,norb_inn)
-          if (mh == 0) cycle
-          call value_sort_ploop(mh,.false.,.true.,.true.)
-          linelp = 22
-          mhlp = mh
-          nlg1 = jk
-          nlg2 = 0
-          call ext_head_in_dbl()
-        end do
-      end do
-    end if
-
-  case (2)
-
-  case (3)
-    do_15 = .true.
-
-  case (4)
-    do_16 = .true.
-end select
-
-! line=15 -b^l-
-if (do_15) then
-  do lra=norb_dz+1,norb_inn
-    lsma = lsm_inn(lra)
-
-    if (lsma /= lsmact) cycle
-
-    if (jml == jmr) then
-      logic_br(1) = .false.
-      call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-      call link_b1_at_given_orb(mh,lra)
-      call link_c1_to_given_orb(mh,lra+1,norb_inn)
-      if (mh /= 0) then
-        call value_sort_ploop(mh,.false.,.true.,.true.)
-        linelp = 15
-        mhlp = mh
-        nlg1 = lra
-        nlg2 = 1
-        call ext_head_in_dbl()
-        !write(6,*) mh,linelp
-      end if
-    end if
-    logic_br(1) = .true.
-    call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-    call link_b1_at_given_orb(mh,lra)        !b^l
-    call link_c1_to_given_orb(mh,lra+1,norb_inn)
-    if (mh == 0) then
-      do_16 = .true.
-      exit
-    else
-      call value_sort_ploop(mh,.false.,.true.,.true.)
-      linelp = 15
-      mhlp = mh
-      nlg1 = lra
-      nlg2 = 2
-      call ext_head_in_dbl()
-      !write(6,*) mh,linelp
-    end if
-  end do
-end if
-
-! line=16 -b^r-
-if (do_16) then
-  do lra=norb_dz+1,norb_inn
-    lsma = lsm_inn(lra)
-    if (jml == jmr) then
-      logic_br(1) = .false.
-      call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-      call link_b2_at_given_orb(mh,lra)
-      call link_c1_to_given_orb(mh,lra+1,norb_inn)
-      if (mh /= 0) then
-        call value_sort_ploop(mh,.false.,.true.,.true.)
-        linelp = 16
-        mhlp = mh
-        nlg1 = lra
-        nlg2 = 1
-        call ext_head_in_dbl()
-        !write(6,*) mh,linelp
-      end if
-    end if
-
-    logic_br(1) = .true.
-    call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-    call link_b2_at_given_orb(mh,lra)
-    call link_c1_to_given_orb(mh,lra+1,norb_inn)
-    if (mh == 0) cycle
-    call value_sort_ploop(mh,.false.,.true.,.true.)
-    linelp = 16
-    mhlp = mh
-    nlg1 = lra
-    nlg2 = 2
-    call ext_head_in_dbl()
-    !write(6,*) mh,linelp
-
-  end do
-end if
-
-return
-
-end subroutine lp_head_in_dbl_1_mrpt2
+!subroutine lp_head_in_dbl_1_mrpt2()    !for dv,sd,td       !200709
+!
+!use gugaci_global, only: iml, imr, jml, jmr, jpadlr, jpadlrel, linelp, logic_br, lsm_inn, mhlp, ngw2, ngw3, nlg1, nlg2, norb_dz, &
+!                         norb_frz, norb_inn
+!use Symmetry_Info, only: mul_tab => Mul
+!
+!implicit none
+!integer :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
+!logical :: do_15, do_16
+!
+!imlr = mul_tab(iml,imr)
+!jmlr = mul_tab(jml,jmr)
+!lsmact = mul_tab(imlr,jmlr)
+!lsta = norb_dz+1
+!lend = norb_inn
+!
+!do_15 = .false.
+!do_16 = .false.
+!select case (jpadlrel(jpadlr)) !200709
+!  case default ! (1)
+!    if (imlr == jmlr) then               !!! imlr == 1
+!      ! line=13 -c'-
+!      call link_c1_to_given_orb_coe(mh,lsta,lend)
+!      if (mh == 0) then
+!        do_15 = .true.
+!      else
+!        call value_sort_ploop(mh,.true.,.true.,.true.)
+!        linelp = 13
+!        mhlp = mh
+!        nlg1 = 0
+!        nlg2 = 0
+!        call ext_head_in_dbl()
+!      end if
+!    end if
+!
+!    if (.not. do_15) then
+!      ! line=20 -b&r-b^r-
+!      do lrai=norb_dz+1,norb_inn-1
+!        lsmi = lsm_inn(lrai)
+!        do lraj=lrai+1,norb_inn
+!          lsmj = lsm_inn(lraj)
+!          lsmij = mul_tab(lsmi,lsmj)
+!          if (lsmij /= lsmact) cycle
+!          jk = ngw2(lrai-norb_frz)+ngw3(lraj-norb_frz)
+!
+!          call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
+!          call link_b4_at_given_orb(mh,lrai)        !b&r
+!          logic_br(1:mh) = .true.
+!          call link_c2_to_given_orb(mh,lrai+1,lraj-1)
+!          call link_b2_at_given_orb(mh,lraj)        !b^r
+!          call link_c1_to_given_orb(mh,lraj+1,norb_inn)
+!          if (mh /= 0) then
+!            call value_sort_ploop(mh,.false.,.true.,.true.)
+!            linelp = 20
+!            mhlp = mh
+!            nlg1 = jk
+!            nlg2 = 0
+!            call ext_head_in_dbl()
+!          end if
+!          ! line=22 -b&l-b^l-
+!          call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
+!          call link_b3_at_given_orb(mh,lrai)        !b&l
+!          logic_br(1:mh) = .true.
+!          call link_c2_to_given_orb(mh,lrai+1,lraj-1)
+!          call link_b1_at_given_orb(mh,lraj)        !b^l
+!          call link_c1_to_given_orb(mh,lraj+1,norb_inn)
+!          if (mh == 0) cycle
+!          call value_sort_ploop(mh,.false.,.true.,.true.)
+!          linelp = 22
+!          mhlp = mh
+!          nlg1 = jk
+!          nlg2 = 0
+!          call ext_head_in_dbl()
+!        end do
+!      end do
+!    end if
+!
+!  case (2)
+!
+!  case (3)
+!    do_15 = .true.
+!
+!  case (4)
+!    do_16 = .true.
+!end select
+!
+!! line=15 -b^l-
+!if (do_15) then
+!  do lra=norb_dz+1,norb_inn
+!    lsma = lsm_inn(lra)
+!
+!    if (lsma /= lsmact) cycle
+!
+!    if (jml == jmr) then
+!      logic_br(1) = .false.
+!      call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
+!      call link_b1_at_given_orb(mh,lra)
+!      call link_c1_to_given_orb(mh,lra+1,norb_inn)
+!      if (mh /= 0) then
+!        call value_sort_ploop(mh,.false.,.true.,.true.)
+!        linelp = 15
+!        mhlp = mh
+!        nlg1 = lra
+!        nlg2 = 1
+!        call ext_head_in_dbl()
+!        !write(6,*) mh,linelp
+!      end if
+!    end if
+!    logic_br(1) = .true.
+!    call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
+!    call link_b1_at_given_orb(mh,lra)        !b^l
+!    call link_c1_to_given_orb(mh,lra+1,norb_inn)
+!    if (mh == 0) then
+!      do_16 = .true.
+!      exit
+!    else
+!      call value_sort_ploop(mh,.false.,.true.,.true.)
+!      linelp = 15
+!      mhlp = mh
+!      nlg1 = lra
+!      nlg2 = 2
+!      call ext_head_in_dbl()
+!      !write(6,*) mh,linelp
+!    end if
+!  end do
+!end if
+!
+!! line=16 -b^r-
+!if (do_16) then
+!  do lra=norb_dz+1,norb_inn
+!    lsma = lsm_inn(lra)
+!    if (jml == jmr) then
+!      logic_br(1) = .false.
+!      call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
+!      call link_b2_at_given_orb(mh,lra)
+!      call link_c1_to_given_orb(mh,lra+1,norb_inn)
+!      if (mh /= 0) then
+!        call value_sort_ploop(mh,.false.,.true.,.true.)
+!        linelp = 16
+!        mhlp = mh
+!        nlg1 = lra
+!        nlg2 = 1
+!        call ext_head_in_dbl()
+!        !write(6,*) mh,linelp
+!      end if
+!    end if
+!
+!    logic_br(1) = .true.
+!    call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
+!    call link_b2_at_given_orb(mh,lra)
+!    call link_c1_to_given_orb(mh,lra+1,norb_inn)
+!    if (mh == 0) cycle
+!    call value_sort_ploop(mh,.false.,.true.,.true.)
+!    linelp = 16
+!    mhlp = mh
+!    nlg1 = lra
+!    nlg2 = 2
+!    call ext_head_in_dbl()
+!    !write(6,*) mh,linelp
+!
+!  end do
+!end if
+!
+!return
+!
+!end subroutine lp_head_in_dbl_1_mrpt2
 
 subroutine lp_head_in_dbl_2()      !for vd,dt,ds
 
-use gugaci_global, only: iml, imr, jml, jmr, linelp, log_prod, logic_br, lpblock, lsm_inn, mhlp, mul_tab, ngw2, ngw3, nlg1, nlg2, &
-                         norb_dz, norb_frz, norb_inn
+use gugaci_global, only: iml, imr, jml, jmr, linelp, log_prod, logic_br, lpblock, lsm_inn, mhlp, ngw2, ngw3, nlg1, nlg2, norb_dz, &
+                         norb_frz, norb_inn
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
@@ -1226,136 +1233,138 @@ return
 
 end subroutine lp_head_in_dbl_2
 
-subroutine lp_head_in_dbl_2_mrpt2()          !for vd,dt,ds
-
-use gugaci_global, only: iml, imr, jml, jmr, jpadlr, jpadlrel, linelp, logic_br, lsm_inn, mhlp, mul_tab, ngw2, ngw3, nlg1, nlg2, &
-                         norb_dz, norb_frz, norb_inn
-
-implicit none
-integer :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
-logical :: do_16
-
-imlr = mul_tab(iml,imr)
-jmlr = mul_tab(jml,jmr)
-lsmact = mul_tab(imlr,jmlr)
-lsta = norb_dz+1
-lend = norb_inn
-
-do_16 = .false.
-select case (jpadlrel(jpadlr)) !200709
-  case default ! (1)
-    do lra=norb_dz+1,norb_inn
-      lsma = lsm_inn(lra)
-      ! line=19 -d&l^r-
-      call link_c1_to_given_orb(mh,norb_dz+1,lra-1)
-      call link_d10_at_given_orb(mh,lra)
-      call link_c1_to_given_orb(mh,lra+1,norb_inn)
-      if (mh == 0) cycle
-      call value_sort_ploop(mh,.true.,.true.,.true.)
-      linelp = 19
-      mhlp = mh
-      nlg1 = lra
-      nlg2 = 0
-      !call print_lp()
-      call ext_head_in_dbl()
-    end do
-
-    do lrai=norb_dz+1,norb_inn-1
-      lsmi = lsm_inn(lrai)
-      do lraj=lrai+1,norb_inn
-        lsmj = lsm_inn(lraj)
-        lsmij = mul_tab(lsmi,lsmj)
-        if (lsmij /= lsmact) cycle
-        jk = ngw2(lrai-norb_frz)+ngw3(lraj-norb_frz)
-
-        ! line=21 -b&l-b^r-
-        call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
-        call link_b3_at_given_orb(mh,lrai)        !b&l
-        logic_br(1:mh) = .true.
-        call link_c2_to_given_orb(mh,lrai+1,lraj-1)
-        call link_b2_at_given_orb(mh,lraj)        !b^r
-        call link_c1_to_given_orb(mh,lraj+1,norb_inn)
-        if (mh == 0) cycle
-        call value_sort_ploop(mh,.false.,.true.,.true.)
-        linelp = 21
-        mhlp = mh
-        nlg1 = jk
-        nlg2 = 0
-        !call print_lp()
-        call ext_head_in_dbl()
-      end do
-    end do
-
-  case (2)
-    if (imlr == jmlr) then               !!! imlr == 1
-
-      ! line=13 -c'-
-      call link_c1_to_given_orb_coe(mh,lsta,lend)
-      if (mh == 0) then
-        do_16 = .true.
-      else
-        call value_sort_ploop(mh,.true.,.true.,.true.)
-        linelp = 13
-        mhlp = mh
-        nlg1 = 0
-        nlg2 = 0
-        !call print_lp()
-        call ext_head_in_dbl()
-      end if
-
-    end if
-
-  case (3)
-    do_16 = .true.
-
-  case (4)
-end select
-
-! line=16 -b^r-
-if (do_16) then
-  do lra=norb_dz+1,norb_inn
-    lsma = lsm_inn(lra)
-
-    if (lsma /= lsmact) cycle
-
-    if (jml == jmr) then
-      logic_br(1) = .false.
-      call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-      call link_b2_at_given_orb(mh,lra)        !b^r
-      call link_c1_to_given_orb(mh,lra+1,norb_inn)
-      if (mh /= 0) then
-        call value_sort_ploop(mh,.false.,.true.,.true.)
-        linelp = 16
-        mhlp = mh
-        nlg1 = lra
-        nlg2 = 1
-        !call print_lp()
-        call ext_head_in_dbl()
-      end if
-    end if
-
-    logic_br(1) = .true.
-    call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-    call link_b2_at_given_orb(mh,lra)        !b^r
-    call link_c1_to_given_orb(mh,lra+1,norb_inn)
-    if (mh == 0) cycle
-    call value_sort_ploop(mh,.false.,.true.,.true.)
-    linelp = 16
-    mhlp = mh
-    nlg1 = lra
-    nlg2 = 2
-    !call print_lp()
-    call ext_head_in_dbl()
-  end do
-end if
-
-return
-
-end subroutine lp_head_in_dbl_2_mrpt2
+!subroutine lp_head_in_dbl_2_mrpt2()          !for vd,dt,ds
+!
+!use gugaci_global, only: iml, imr, jml, jmr, jpadlr, jpadlrel, linelp, logic_br, lsm_inn, mhlp, ngw2, ngw3, nlg1, nlg2, norb_dz, &
+!                         norb_frz, norb_inn
+!use Symmetry_Info, only: mul_tab => Mul
+!
+!implicit none
+!integer :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
+!logical :: do_16
+!
+!imlr = mul_tab(iml,imr)
+!jmlr = mul_tab(jml,jmr)
+!lsmact = mul_tab(imlr,jmlr)
+!lsta = norb_dz+1
+!lend = norb_inn
+!
+!do_16 = .false.
+!select case (jpadlrel(jpadlr)) !200709
+!  case default ! (1)
+!    do lra=norb_dz+1,norb_inn
+!      lsma = lsm_inn(lra)
+!      ! line=19 -d&l^r-
+!      call link_c1_to_given_orb(mh,norb_dz+1,lra-1)
+!      call link_d10_at_given_orb(mh,lra)
+!      call link_c1_to_given_orb(mh,lra+1,norb_inn)
+!      if (mh == 0) cycle
+!      call value_sort_ploop(mh,.true.,.true.,.true.)
+!      linelp = 19
+!      mhlp = mh
+!      nlg1 = lra
+!      nlg2 = 0
+!      !call print_lp()
+!      call ext_head_in_dbl()
+!    end do
+!
+!    do lrai=norb_dz+1,norb_inn-1
+!      lsmi = lsm_inn(lrai)
+!      do lraj=lrai+1,norb_inn
+!        lsmj = lsm_inn(lraj)
+!        lsmij = mul_tab(lsmi,lsmj)
+!        if (lsmij /= lsmact) cycle
+!        jk = ngw2(lrai-norb_frz)+ngw3(lraj-norb_frz)
+!
+!        ! line=21 -b&l-b^r-
+!        call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
+!        call link_b3_at_given_orb(mh,lrai)        !b&l
+!        logic_br(1:mh) = .true.
+!        call link_c2_to_given_orb(mh,lrai+1,lraj-1)
+!        call link_b2_at_given_orb(mh,lraj)        !b^r
+!        call link_c1_to_given_orb(mh,lraj+1,norb_inn)
+!        if (mh == 0) cycle
+!        call value_sort_ploop(mh,.false.,.true.,.true.)
+!        linelp = 21
+!        mhlp = mh
+!        nlg1 = jk
+!        nlg2 = 0
+!        !call print_lp()
+!        call ext_head_in_dbl()
+!      end do
+!    end do
+!
+!  case (2)
+!    if (imlr == jmlr) then               !!! imlr == 1
+!
+!      ! line=13 -c'-
+!      call link_c1_to_given_orb_coe(mh,lsta,lend)
+!      if (mh == 0) then
+!        do_16 = .true.
+!      else
+!        call value_sort_ploop(mh,.true.,.true.,.true.)
+!        linelp = 13
+!        mhlp = mh
+!        nlg1 = 0
+!        nlg2 = 0
+!        !call print_lp()
+!        call ext_head_in_dbl()
+!      end if
+!
+!    end if
+!
+!  case (3)
+!    do_16 = .true.
+!
+!  case (4)
+!end select
+!
+!! line=16 -b^r-
+!if (do_16) then
+!  do lra=norb_dz+1,norb_inn
+!    lsma = lsm_inn(lra)
+!
+!    if (lsma /= lsmact) cycle
+!
+!    if (jml == jmr) then
+!      logic_br(1) = .false.
+!      call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
+!      call link_b2_at_given_orb(mh,lra)        !b^r
+!      call link_c1_to_given_orb(mh,lra+1,norb_inn)
+!      if (mh /= 0) then
+!        call value_sort_ploop(mh,.false.,.true.,.true.)
+!        linelp = 16
+!        mhlp = mh
+!        nlg1 = lra
+!        nlg2 = 1
+!        !call print_lp()
+!        call ext_head_in_dbl()
+!      end if
+!    end if
+!
+!    logic_br(1) = .true.
+!    call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
+!    call link_b2_at_given_orb(mh,lra)        !b^r
+!    call link_c1_to_given_orb(mh,lra+1,norb_inn)
+!    if (mh == 0) cycle
+!    call value_sort_ploop(mh,.false.,.true.,.true.)
+!    linelp = 16
+!    mhlp = mh
+!    nlg1 = lra
+!    nlg2 = 2
+!    !call print_lp()
+!    call ext_head_in_dbl()
+!  end do
+!end if
+!
+!return
+!
+!end subroutine lp_head_in_dbl_2_mrpt2
 
 subroutine lp_head_in_dbl_3(ide)      !for ide=0:dd,tt,ide=1:ss,id
 
-use gugaci_global, only: iml, imr, jml, jmr, logic_br, lpblock, lsm_inn, mul_tab, norb_dz, norb_inn
+use gugaci_global, only: iml, imr, jml, jmr, logic_br, lpblock, lsm_inn, norb_dz, norb_inn
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: ide
@@ -1419,7 +1428,8 @@ end subroutine lp_head_in_dbl_3
 
 subroutine lp_head_in_dbl_4()
 
-use gugaci_global, only: iml, imr, jml, jmr, logic_br, lpblock, lsm_inn, mul_tab, norb_dz, norb_inn
+use gugaci_global, only: iml, imr, jml, jmr, logic_br, lpblock, lsm_inn, norb_dz, norb_inn
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: imlr, jmlr, lend, lra, lsma, lsmact, lsta, mh
@@ -1472,142 +1482,144 @@ return
 
 end subroutine lp_head_in_dbl_4
 
-subroutine lp_head_in_dbl_4_mrpt2()
+!subroutine lp_head_in_dbl_4_mrpt2()
+!
+!use gugaci_global, only: iml, imr, jml, jmr, jpadlr, jpadlrel, linelp, logic_br, lsm_inn, mhlp, nlg1, nlg2, norb_dz, norb_inn
+!use Symmetry_Info, only: mul_tab => Mul
+!
+!implicit none
+!integer :: imlr, jmlr, lend, lra, lsma, lsmact, lsta, mh
+!logical :: do_15
+!
+!imlr = mul_tab(iml,imr)
+!jmlr = mul_tab(jml,jmr)
+!lsmact = mul_tab(imlr,jmlr)
+!lsta = norb_dz+1
+!lend = norb_inn
+!
+!do_15 = .false.
+!select case (jpadlrel(jpadlr)) !200709
+!  case default ! (1)
+!    do_15 = .true.
+!
+!  case (2)
+!
+!  case (3)
+!
+!  case (4)
+!    if (imlr == jmlr) then               !!! imlr == 1
+!
+!      ! line=14 -c"-
+!      if (jml == jmr) then
+!        logic_br(1) = .false.
+!        call link_c2_to_given_orb(mh,lsta,lend)
+!        if (mh /= 0) then
+!          call value_sort_ploop(mh,.true.,.true.,.true.)
+!          linelp = 14
+!          mhlp = mh
+!          nlg1 = 0
+!          nlg2 = 1
+!          call ext_head_in_dbl()
+!        end if
+!      end if
+!
+!      logic_br(1) = .true.
+!      call link_c2_to_given_orb(mh,lsta,lend)
+!      if (mh == 0) then
+!        do_15 = .true.
+!      else
+!        call value_sort_ploop(mh,.true.,.true.,.true.)
+!        linelp = 14
+!        mhlp = mh
+!        nlg1 = 0
+!        nlg2 = 2
+!        call ext_head_in_dbl()
+!      end if
+!
+!    end if
+!end select
+!
+!if (do_15) then
+!  do lra=norb_dz+1,norb_inn
+!    lsma = lsm_inn(lra)
+!    if (lsma /= lsmact) cycle
+!
+!    ! line=18 -b&r-
+!    call link_c1_to_given_orb(mh,norb_dz+1,lra-1)
+!    call link_b4_at_given_orb(mh,lra)        !b&r
+!    logic_br(1:mh) = .true.
+!    call link_c2_to_given_orb(mh,lra+1,norb_inn)
+!    if (mh == 0) cycle
+!    call value_sort_ploop(mh,.false.,.true.,.true.)
+!    linelp = 18
+!    mhlp = mh
+!    nlg1 = lra
+!    nlg2 = 0
+!    call ext_head_in_dbl()
+!
+!  end do
+!end if
+!
+!return
+!
+!end subroutine lp_head_in_dbl_4_mrpt2
 
-use gugaci_global, only: iml, imr, jml, jmr, jpadlr, jpadlrel, linelp, logic_br, lsm_inn, mhlp, mul_tab, nlg1, nlg2, norb_dz, &
-                         norb_inn
-
-implicit none
-integer :: imlr, jmlr, lend, lra, lsma, lsmact, lsta, mh
-logical :: do_15
-
-imlr = mul_tab(iml,imr)
-jmlr = mul_tab(jml,jmr)
-lsmact = mul_tab(imlr,jmlr)
-lsta = norb_dz+1
-lend = norb_inn
-
-do_15 = .false.
-select case (jpadlrel(jpadlr)) !200709
-  case default ! (1)
-    do_15 = .true.
-
-  case (2)
-
-  case (3)
-
-  case (4)
-    if (imlr == jmlr) then               !!! imlr == 1
-
-      ! line=14 -c"-
-      if (jml == jmr) then
-        logic_br(1) = .false.
-        call link_c2_to_given_orb(mh,lsta,lend)
-        if (mh /= 0) then
-          call value_sort_ploop(mh,.true.,.true.,.true.)
-          linelp = 14
-          mhlp = mh
-          nlg1 = 0
-          nlg2 = 1
-          call ext_head_in_dbl()
-        end if
-      end if
-
-      logic_br(1) = .true.
-      call link_c2_to_given_orb(mh,lsta,lend)
-      if (mh == 0) then
-        do_15 = .true.
-      else
-        call value_sort_ploop(mh,.true.,.true.,.true.)
-        linelp = 14
-        mhlp = mh
-        nlg1 = 0
-        nlg2 = 2
-        call ext_head_in_dbl()
-      end if
-
-    end if
-end select
-
-if (do_15) then
-  do lra=norb_dz+1,norb_inn
-    lsma = lsm_inn(lra)
-    if (lsma /= lsmact) cycle
-
-    ! line=18 -b&r-
-    call link_c1_to_given_orb(mh,norb_dz+1,lra-1)
-    call link_b4_at_given_orb(mh,lra)        !b&r
-    logic_br(1:mh) = .true.
-    call link_c2_to_given_orb(mh,lra+1,norb_inn)
-    if (mh == 0) cycle
-    call value_sort_ploop(mh,.false.,.true.,.true.)
-    linelp = 18
-    mhlp = mh
-    nlg1 = lra
-    nlg2 = 0
-    call ext_head_in_dbl()
-
-  end do
-end if
-
-return
-
-end subroutine lp_head_in_dbl_4_mrpt2
-
-subroutine print_lp()
-
-use gugaci_global, only: ihy, ihyl, iml, imr, jml, jmr, jpadlr, jphy, jphyl, linelp, lp_count, lpnew_coe, lpnew_head, lpnew_lwei, &
-                         lpnew_rwei, mhlp, mhsum, mtype, mul_tab, nlg1, nlg2, norb_dz, norb_inn, ns_sm, nstaval, nvalue, &
-                         vplpnew_w0, vplpnew_w1
-
-implicit none
-integer :: in_, jhyl, jhyr, jph, jpml, jpmr, lg1, lg2, line, m, mh
-
-line = linelp
-mh = mhlp
-lg1 = nlg1
-lg2 = nlg2
-
-mhsum = mhsum+mh
-lp_count(line) = lp_count(line)+1
-if (((line == 14) .or. (line == 15) .or. (line == 16)) .and. (lg2 == 1)) then
-  mhsum = mhsum-mh
-  lp_count(line) = lp_count(line)-1
-end if
-!=======================================================================
-jpml = mul_tab(jml,ns_sm)
-jpmr = mul_tab(jmr,ns_sm)
-write(20,'(2x,10i8)') line,iml,imr,jpml,jpmr,jpadlr,mtype,mh,lg1,lg2
-write(20,'(7f12.6)') vplpnew_w0(1:mtype)
-write(20,'(7f12.6)') vplpnew_w1(1:mtype)
-write(20,'(8i4)') nstaval(1:mtype)
-write(20,'(8i4)') nvalue(1:mtype)
-write(20,'(8i6)') lpnew_lwei(1:mh)
-write(20,'(8i6)') lpnew_rwei(1:mh)
-!=======================================================================
-if (line <= 12) then
-  ! upwei_record
-  do m=1,mh
-    jph = lpnew_head(m)
-    jhyl = jphyl(jph)
-    jhyr = jphy(jph)
-    in_ = ihyl(jhyl)
-    write(20,'(8(1x,i4))') jph,jhyl,jhyr,in_,ihyl(jhyl+1:jhyl+in_),ihy(jhyr+1:jhyr+in_)
-  end do
-end if
-if ((line /= 1) .and. (line /= 13)) return
-! coe_record
-do m=1,mh
-  write(20,*) lpnew_coe(norb_dz+1:norb_inn,m)
-end do
-
-end subroutine print_lp
+!subroutine print_lp()
+!
+!use gugaci_global, only: ihy, ihyl, iml, imr, jml, jmr, jpadlr, jphy, jphyl, linelp, lp_count, lpnew_coe, lpnew_head, lpnew_lwei, &
+!                         lpnew_rwei, mhlp, mhsum, mtype, nlg1, nlg2, norb_dz, norb_inn, ns_sm, nstaval, nvalue, vplpnew_w0, &
+!                         vplpnew_w1
+!use Symmetry_Info, only: mul_tab => Mul
+!
+!implicit none
+!integer :: in_, jhyl, jhyr, jph, jpml, jpmr, lg1, lg2, line, m, mh
+!
+!line = linelp
+!mh = mhlp
+!lg1 = nlg1
+!lg2 = nlg2
+!
+!mhsum = mhsum+mh
+!lp_count(line) = lp_count(line)+1
+!if (((line == 14) .or. (line == 15) .or. (line == 16)) .and. (lg2 == 1)) then
+!  mhsum = mhsum-mh
+!  lp_count(line) = lp_count(line)-1
+!end if
+!!=======================================================================
+!jpml = mul_tab(jml,ns_sm)
+!jpmr = mul_tab(jmr,ns_sm)
+!write(20,'(2x,10i8)') line,iml,imr,jpml,jpmr,jpadlr,mtype,mh,lg1,lg2
+!write(20,'(7f12.6)') vplpnew_w0(1:mtype)
+!write(20,'(7f12.6)') vplpnew_w1(1:mtype)
+!write(20,'(8i4)') nstaval(1:mtype)
+!write(20,'(8i4)') nvalue(1:mtype)
+!write(20,'(8i6)') lpnew_lwei(1:mh)
+!write(20,'(8i6)') lpnew_rwei(1:mh)
+!!=======================================================================
+!if (line <= 12) then
+!  ! upwei_record
+!  do m=1,mh
+!    jph = lpnew_head(m)
+!    jhyl = jphyl(jph)
+!    jhyr = jphy(jph)
+!    in_ = ihyl(jhyl)
+!    write(20,'(8(1x,i4))') jph,jhyl,jhyr,in_,ihyl(jhyl+1:jhyl+in_),ihy(jhyr+1:jhyr+in_)
+!  end do
+!end if
+!if ((line /= 1) .and. (line /= 13)) return
+!! coe_record
+!do m=1,mh
+!  write(20,*) lpnew_coe(norb_dz+1:norb_inn,m)
+!end do
+!
+!end subroutine print_lp
 
 subroutine save_lp(line,mh,lg1,lg2)
 
 use gugaci_global, only: idisk_lp, ihy, ihyl, iml, imr, jml, jmr, jpadlr, jphy, jphyl, lp_count, lpnew_coe, lpnew_head, &
-                         lpnew_lwei, lpnew_rwei, LuLoop, mhlpmax, mhsum, mtype, mul_tab, norb_dz, norb_inn, ns_sm, nstaval, &
-                         nvalue, vplpnew_w0, vplpnew_w1
+                         lpnew_lwei, lpnew_rwei, LuLoop, mhlpmax, mhsum, mtype, norb_dz, norb_inn, ns_sm, nstaval, nvalue, &
+                         vplpnew_w0, vplpnew_w1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: line, mh, lg1, lg2
@@ -1814,7 +1826,8 @@ end subroutine value_sort_ploop
 
 subroutine ext_head_in_act()
 
-use gugaci_global, only: ipaety, jml, jmr, logic_dh, mul_tab, ns_sm
+use gugaci_global, only: ipaety, jml, jmr, logic_dh, ns_sm
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 
@@ -1841,7 +1854,8 @@ end subroutine ext_head_in_act
 
 subroutine ext_head_in_dbl()
 
-use gugaci_global, only: ipaety, jml, jmr, logic_dh, mul_tab, ns_sm
+use gugaci_global, only: ipaety, jml, jmr, logic_dh, ns_sm
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 

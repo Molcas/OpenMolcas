@@ -16,8 +16,9 @@
 
 subroutine intrd()
 
-use gugaci_global, only: lsmorb, LuTwoMO, map_orb_order, max_orb, mul_tab, nlsm_all, nlsm_bas, ng_sm, noidx, voint, vpotnuc
+use gugaci_global, only: lsmorb, LuTwoMO, map_orb_order, max_orb, nlsm_all, nlsm_bas, ng_sm, noidx, voint, vpotnuc
 !use file_qininit, only: maxrecord
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: i, idx, lrcii, lrcij, lri, lrj, lrt, noffset(maxrecord), nc, ni, nidx, nintone, nism, nmob, nsmint
@@ -74,7 +75,7 @@ do i=1,ng_sm
   end do
   nidx = nidx+nsmint
 end do
-call readtwoeint(lutwomo,maxrecord,noffset,nlsm_all,ng_sm,mul_tab,map_orb_order,noidx)
+call readtwoeint_molpro(lutwomo,maxrecord,noffset,nlsm_all,ng_sm,mul_tab,map_orb_order,noidx)
 
 !write(6,*)
 !write(6,*) 'MRCI integrals'
@@ -86,7 +87,7 @@ return
 
 end subroutine intrd
 
-subroutine readtwoeint(nft,maxrecord,noffset,norb,ngsm,multab,maporb,noidx)
+subroutine readtwoeint_molpro(nft,maxrecord,noffset,norb,ngsm,multab,maporb,noidx)
 
 use gugaci_global, only: max_orb, ntrabuf
 
@@ -195,14 +196,15 @@ end do
 
 return
 
-end subroutine readtwoeint
+end subroutine readtwoeint_molpro
 
 #else
 
 subroutine intrd_molcas()
 
-use gugaci_global, only: FnOneMO, FnTwoMO, lsmorb, LuOneMO, LuTwoMO, map_orb_order, max_orb, mul_tab, ng_sm, nlsm_all, nlsm_bas, &
-                         noidx, voint, vpotnuc
+use gugaci_global, only: FnOneMO, FnTwoMO, lsmorb, LuOneMO, LuTwoMO, map_orb_order, max_orb, ng_sm, nlsm_all, nlsm_bas, noidx, &
+                         voint, vpotnuc
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: i, idisk, idx, lrcii, lrcij, lri, lrj, lrt, nc, ni, nidx, nintone, nism, nmob, nsmint
@@ -582,7 +584,8 @@ end subroutine intrw_mol
 
 subroutine int_index(numb)
 
-use gugaci_global, only: loij_all, loijk_all, lsm, mul_tab, ncibl_all, ngw2, ngw3, norb_all, norb_number
+use gugaci_global, only: loij_all, loijk_all, lsm, ncibl_all, ngw2, ngw3, norb_all, norb_number
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: numb

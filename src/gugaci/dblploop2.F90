@@ -18,7 +18,8 @@ subroutine SS_DRL_ACT_BL_SGT0(LIN,LRA)
 !=======================================================================
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
-                         mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+                         norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -100,8 +101,9 @@ subroutine SS_ARBL_ACT_BL_SGT0(LIN,LRA)
 !=======================================================================
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
-                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, &
                          vplpnew_w1, w0_ss, w1_ss
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -320,8 +322,8 @@ subroutine ST_ARBL_ACT_BL_SGT0(LIN,LRA)
 !***********************************************************************
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
-                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, &
-                         w1_st
+                         lpnew_rwei, lsm_inn, mhlp, mtype, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -392,7 +394,8 @@ subroutine ST_DRL_ACT_BL_SGT0(LIN,LRA)
 ! ST(2-7) Drl(12)-C"(22)-
 
 use gugaci_global, only: ipae, ipael, jml, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
-                         mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
+                         norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -433,8 +436,8 @@ subroutine TS_ARBL_ACT_BL_SGT0(LIN,LRA)
 ! TS(3-3) Ar(23)-Bl(31)-C"(22)-
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
-                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, &
-                         w1_ts
+                         lpnew_rwei, lsm_inn, mhlp, mtype, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_ts
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -494,8 +497,8 @@ subroutine STT_ARBL_ACT_BL_SGT1(LIN,LRA)
 ! ST1(4-4) Ar(23)-Bl(31)-C"(11)-
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
-                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, &
-                         w1_st1
+                         lpnew_rwei, lsm_inn, mhlp, mtype, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_st1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -640,8 +643,8 @@ subroutine TTS_ARBL_ACT_BL_SGT1(LIN,LRA)
 ! T1S(5-4)   Ar(13)-Bl(32)-C"(11)-
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
-                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, &
-                         w1_t1s
+                         lpnew_rwei, lsm_inn, mhlp, mtype, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_t1s
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -767,7 +770,8 @@ subroutine TTS_Drl_ACT_BL_SGT1(LIN,LRA)
 ! T1S(5-7)   Drl(12)-C"(11)-
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
-                         mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_t1s
+                         norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_t1s
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -833,8 +837,9 @@ subroutine SDD_ABB_ACT_C_SGT0(LIN)
 !SD1(8-8)    Ar(23)-Bl(31)-BL(13)-
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, &
-                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, &
                          vplpnew_w1, w0_sd1, w1_sd1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin
@@ -949,7 +954,8 @@ subroutine SDD_DrlBl_ACT_C_SGT0(LIN)
 ! SD1(8-13) Drl(33)-BL(23)-C'(11)-
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, &
-                         mtype, mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sd1, w1_sd1
+                         mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sd1, w1_sd1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin
@@ -1143,8 +1149,9 @@ subroutine SDD_Ar_ACT_BrBR_SGT0(LIN,LRA)
 ! SD1(8-4)    Ar(23)-C'(11)-
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, &
-                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, &
-                         w0_sd1, w1_sd1
+                         lpnew_rwei, lsm_inn, mhlp, mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sd1, &
+                         w1_sd1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -1267,8 +1274,9 @@ subroutine SDD_Ar_ACT_BlBL_SGT0(LIN,LRA)
 ! SD1(8-4)    Ar(23)-C'(11)-
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, &
-                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, &
-                         w0_sd1, w1_sd1
+                         lpnew_rwei, lsm_inn, mhlp, mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sd1, &
+                         w1_sd1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -1389,8 +1397,8 @@ subroutine DDS_ABB_ACT_C_SGT0(LIN)
 ! D1S(9-3)    Ar(13)-Bl(32)-BR(31)-
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, &
-                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, &
-                         w1_d1s
+                         lpnew_rwei, lsm_inn, mhlp, mtype, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_d1s
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin
@@ -1460,7 +1468,8 @@ subroutine TTTT_Drl_ACT_BL_SGT1(LIN,LRA)
 ! T1T1(12-3)  Drl(33)-C"(11)-C"(11)-
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
-                         mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_t1t1, w1_t1t1
+                         norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_t1t1, w1_t1t1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -1519,8 +1528,9 @@ subroutine TTTT_ArBl_ACT_BL_SGT1(LIN,LRA)
 ! T1T1(12-1)  Ar(13)-Bl(31)-C"(11)-
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
-                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, &
                          vplpnew_w1, w0_t1t1, w1_t1t1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -1616,7 +1626,8 @@ subroutine TTDD_DrlBL_ACT_C_SGT1(LIN)
 ! T1D1(15-5)  Drl(33)-BL(13)-C'(11)-
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, &
-                         mtype, mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_t1d1, w1_t1d1
+                         mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_t1d1, w1_t1d1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin
@@ -1716,8 +1727,9 @@ subroutine TTDD_ABB_ACT_C_SGT1(LIN)
 ! T1D1(15-3)  Ar(13)-Bl(31)-Bl(13)-
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, &
-                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, &
                          vplpnew_w1, w0_t1d1, w1_t1d1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin
@@ -1788,8 +1800,9 @@ subroutine TTDD_Ar_ACT_BrBR_SGT0(LIN,LRA)
 ! T1D1(15-1)  Ar(13)-C'(11)-
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, &
-                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, &
-                         w0_t1d1, w1_t1d1
+                         lpnew_rwei, lsm_inn, mhlp, mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_t1d1, &
+                         w1_t1d1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -1861,8 +1874,9 @@ subroutine TTDD_Ar_ACT_BlBL_SGT0(LIN,LRA)
 ! T1D1(15-1)  Ar(13)-C'(11)-
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, &
-                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, &
-                         w0_t1d1, w1_t1d1
+                         lpnew_rwei, lsm_inn, mhlp, mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_t1d1, &
+                         w1_t1d1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -1933,8 +1947,8 @@ subroutine TTV_ArBr_ACT_C_SGT1(LIN,LRA)
 ! T1V(18) Ar(13)-Br(13)-
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
-                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, &
-                         w1_t1v
+                         lpnew_rwei, lsm_inn, mhlp, mtype, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_t1v
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -1977,8 +1991,9 @@ subroutine DDDD_ArBl_ACT_BL_SGT0(LIN,LRA)
 ! D1D1(20-1) Ar(13)-BL(31)-
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, &
-                         lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, &
-                         w0_d1d1, w1_d1d1
+                         lsm_inn, mhlp, mtype, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_d1d1, &
+                         w1_d1d1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -2071,7 +2086,8 @@ subroutine DD1_ArBl_ACT_BL_SGT0(LIN,LRA)
 ! DD1(21) Ar(23)-Bl(31)-
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, &
-                         lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_dd1
+                         lsm_inn, mhlp, mtype, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_dd1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -2115,7 +2131,8 @@ subroutine D1D_ArBl_ACT_BL_SGT0(LIN,LRA)
 ! DD1(21) Ar(13)-Bl(32)-
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, &
-                         lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_d1d
+                         lsm_inn, mhlp, mtype, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_d1d
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -2195,7 +2212,8 @@ subroutine D1V_Drl_BL_ACT_C_SGT0(LIN)
 ! D1V(24-2)  Drl(33)-BL(13)-
 
 use gugaci_global, only: iml, imr, ipae, ipael, jml, jmr, jpad, jpadl, jud, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, &
-                         mhlp, mtype, mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_d1v
+                         mhlp, mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_d1v
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin
@@ -2245,7 +2263,8 @@ subroutine D1V_Ar_ACT_BrBR_SGT0(LIN,LRA)
 ! D1V(24-1)  Ar(13)-
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, &
-                         lsm_inn, mhlp, mtype, mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_d1v, w1_d1v
+                         lsm_inn, mhlp, mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_d1v, w1_d1v
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -2288,7 +2307,8 @@ subroutine D1V_Ar_ACT_BlBL_SGT0(LIN,LRA)
 ! D1V(24-1)  Ar(13)-
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, &
-                         lsm_inn, mhlp, mtype, mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_d1v, w1_d1v
+                         lsm_inn, mhlp, mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_d1v, w1_d1v
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -2339,7 +2359,8 @@ subroutine SS_DRL_ACT_BR_SGT0(LIN,LRA)
 ! SS(1-20) (11)(22)Drl(33)-
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
-                         mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+                         norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -2400,7 +2421,8 @@ subroutine SS_S_DRL_ACT_BR_SGT0(LIN,LRA)
 ! SS(1-19) Drl(12)-C"(21)-
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
-                         mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+                         norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -2439,7 +2461,8 @@ subroutine SS_S_DRL_ACT_BL_SGT0(LIN,LRA)
 ! SS(1-19) Drl(12)-C"(21)-
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
-                         mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+                         norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -2488,8 +2511,9 @@ subroutine SS_ARBL_ACT_BR_SGT0(LIN,LRA)
 !=======================================================================
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
-                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, &
+                         lpnew_rwei, lsm_inn, mhlp, mtype, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, &
                          vplpnew_w1, w0_ss, w1_ss
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -2707,8 +2731,8 @@ subroutine ST_ARBL_ACT_BR_SGT0(LIN,LRA)
 ! ST(2-3) Ar(13)-Bl(32)-C'(22)-
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
-                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, &
-                         w1_st
+                         lpnew_rwei, lsm_inn, mhlp, mtype, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -2781,7 +2805,8 @@ subroutine ST_DRL_ACT_BR_SGT0(LIN,LRA)
 ! ST(2-7) Drl(12)-C"(22)-
 
 use gugaci_global, only: ipae, ipael, jml, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
-                         mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
+                         norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -2822,8 +2847,8 @@ subroutine TS_ARBL_ACT_BR_SGT0(LIN,LRA)
 ! TS(3-3) Ar(23)-Bl(31)-C"(22)-
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
-                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, &
-                         w1_ts
+                         lpnew_rwei, lsm_inn, mhlp, mtype, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_ts
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -2884,8 +2909,8 @@ subroutine STT_ARBL_ACT_BR_SGT1(LIN,LRA)
 ! ST1(4-4) Ar(23)-Bl(31)-C"(11)-
 
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
-                         lpnew_rwei, lsm_inn, mhlp, mtype, mul_tab, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, &
-                         w1_st1
+                         lpnew_rwei, lsm_inn, mhlp, mtype, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_st1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -3026,7 +3051,8 @@ subroutine TTS_Drl_ACT_BR_SGT1(LIN,LRA)
 ! T1S(5-7)   Drl(12)-C"(11)-
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
-                         mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_t1s
+                         norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_t1s
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra

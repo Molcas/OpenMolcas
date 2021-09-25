@@ -194,211 +194,212 @@ return
 
 end subroutine active_drt
 
-subroutine rst(id,indd)
+!subroutine rst(id,indd)
+!
+!use gugaci_global, only: LuDrt
+!
+!implicit none
+!integer :: id, indd
+!
+!write(6,*) ' '
+!write(6,*) ' now reading distinct row tableau'
+!call readdrt(ludrt)
+!!open(21,file='fort.drt',form='unformatted')
+!!read(21) id
+!!write(6,*) ' id=',id
+!!read(21) ja(1:id),jb(1:id),jm(1:id)
+!!read(21) jj(1:4,0:id)
+!!read(21) kk(0:id)
+!!read(21) no(0:norb_inn+1)
+!!read(21) jv,jd(1:8),jt(1:8),js(1:8)
+!!close(21)
+!
+!return
+!! Avoid unused argument warnings
+!if (.false.) then
+!  call Unused_integer(id)
+!  call Unused_integer(indd)
+!end if
+!
+!end subroutine rst
 
-use gugaci_global, only: LuDrt
+!subroutine ref_gfs(nel,ndj,locu,nm)
+!
+!use gugaci_global, only: lsm_inn, max_ref, norb_dz, norb_inn, nstart_act, spin
+!use Symmetry_Info, only: mul_tab => Mul
+!
+!implicit none
+!integer :: nel, ndj, locu(8,max_ref), nm
+!integer :: i, l1, l2, l3, l4, l5, l6, l7, l8, ldj, lh, lhe, lhs, lhsm(8), lm, lpsum, lscu(0:8,max_ref), m, m1, m2, m3, m4, m5, m6, &
+!           m7, m8, mdj, mys, ne_act, ne_s, nes, npair, nre
+!
+!ne_act = nel-2*norb_dz
+!ne_s = nint(spin*2)
+!lhs = nstart_act
+!lhe = norb_inn
+!lhsm(1:8) = 0
+!do lh=lhs,lhe
+!  lm = lsm_inn(lh)
+!  lhsm(lm) = lhsm(lm)+1
+!end do
+!mdj = 0
+!do nes=ne_s,ne_act,2
+!  do l1=0,lhsm(1)
+!    do l2=0,lhsm(2)
+!      do l3=0,lhsm(3)
+!        do l4=0,lhsm(4)
+!          do l5=0,lhsm(5)
+!            do l6=0,lhsm(6)
+!              do l7=0,lhsm(7)
+!                do l8=0,lhsm(8)
+!                  lpsum = l1+l2+l3+l4+l5+l6+l7+l8
+!                  if (lpsum /= nes) cycle
+!                  mys = 1
+!                  if (mod(l1,2) == 1) mys = mul_tab(mys,1)
+!                  if (mod(l2,2) == 1) mys = mul_tab(mys,2)
+!                  if (mod(l3,2) == 1) mys = mul_tab(mys,3)
+!                  if (mod(l4,2) == 1) mys = mul_tab(mys,4)
+!                  if (mod(l5,2) == 1) mys = mul_tab(mys,5)
+!                  if (mod(l6,2) == 1) mys = mul_tab(mys,6)
+!                  if (mod(l7,2) == 1) mys = mul_tab(mys,7)
+!                  if (mod(l8,2) == 1) mys = mul_tab(mys,8)
+!                  if (mys /= nm) cycle
+!                  mdj = mdj+1
+!                  lscu(0,mdj) = lpsum
+!                  lscu(1,mdj) = l1
+!                  lscu(2,mdj) = l2
+!                  lscu(3,mdj) = l3
+!                  lscu(4,mdj) = l4
+!                  lscu(5,mdj) = l5
+!                  lscu(6,mdj) = l6
+!                  lscu(7,mdj) = l7
+!                  lscu(8,mdj) = l8
+!                end do
+!              end do
+!            end do
+!          end do
+!        end do
+!      end do
+!    end do
+!  end do
+!end do
+!ndj = 0
+!do m=1,mdj
+!  npair = (ne_act-lscu(0,m))/2
+!  do l1=0,lhsm(1)-lscu(1,m)
+!    do l2=0,lhsm(2)-lscu(2,m)
+!      do l3=0,lhsm(3)-lscu(3,m)
+!        do l4=0,lhsm(4)-lscu(4,m)
+!          do l5=0,lhsm(5)-lscu(5,m)
+!            do l6=0,lhsm(6)-lscu(6,m)
+!              do l7=0,lhsm(7)-lscu(7,m)
+!                outer: do l8=0,lhsm(8)-lscu(8,m)
+!                  lpsum = l1+l2+l3+l4+l5+l6+l7+l8
+!                  if (lpsum == npair) then
+!                    m1 = l1*2+lscu(1,m)
+!                    m2 = l2*2+lscu(2,m)
+!                    m3 = l3*2+lscu(3,m)
+!                    m4 = l4*2+lscu(4,m)
+!                    m5 = l5*2+lscu(5,m)
+!                    m6 = l6*2+lscu(6,m)
+!                    m7 = l7*2+lscu(7,m)
+!                    m8 = l8*2+lscu(8,m)
+!                    do ldj=1,ndj
+!                      if ((m1 == locu(1,ldj)) .and. (m2 == locu(2,ldj)) .and. (m3 == locu(3,ldj)) .and. (m4 == locu(4,ldj)) .and. &
+!                          (m5 == locu(5,ldj)) .and. (m6 == locu(6,ldj)) .and. (m7 == locu(7,ldj)) .and. (m8 == locu(8,ldj))) &
+!                        cycle outer
+!                    end do
+!                    ndj = ndj+1
+!                    locu(1,ndj) = m1
+!                    locu(2,ndj) = m2
+!                    locu(3,ndj) = m3
+!                    locu(4,ndj) = m4
+!                    locu(5,ndj) = m5
+!                    locu(6,ndj) = m6
+!                    locu(7,ndj) = m7
+!                    locu(8,ndj) = m8
+!                  end if
+!                end do outer
+!              end do
+!            end do
+!          end do
+!        end do
+!      end do
+!    end do
+!  end do
+!end do
+!
+!do nre=1,ndj
+!  write(6,'(5x,i6,8i3)') nre,(locu(i,nre),i=1,8)
+!end do
+!
+!return
+!
+!end subroutine ref_gfs
 
-implicit none
-integer :: id, indd
+!subroutine rcas(id,indd)
+!
+!use gugaci_global, only: LuDrt
+!
+!implicit none
+!integer :: id, indd
+!
+!write(6,*) ' '
+!write(6,*) ' now reading distinct row tableau'
+!call readdrt(ludrt)
+!
+!!write(6,*) 'bbs debug rcas,kk(27)',kk(27)
+!
+!!open(21,file='fort.drt',form='unformatted')
+!!read(21) id
+!!read(21) ja(1:id),jb(1:id),jm(1:id)
+!!read(21) jj(1:4,0:id)
+!!read(21) kk(0:id)
+!!read(21) no(0:norb_inn+1)
+!!read(21) jv,jd(1:8),jt(1:8),js(1:8)
+!!close(21)
+!
+!return
+!! Avoid unused argument warnings
+!if (.false.) then
+!  call Unused_integer(id)
+!  call Unused_integer(indd)
+!end if
+!
+!end subroutine rcas
 
-write(6,*) ' '
-write(6,*) ' now reading distinct row tableau'
-call readdrt(ludrt)
-!open(21,file='fort.drt',form='unformatted')
-!read(21) id
-!write(6,*) ' id=',id
-!read(21) ja(1:id),jb(1:id),jm(1:id)
-!read(21) jj(1:4,0:id)
-!read(21) kk(0:id)
-!read(21) no(0:norb_inn+1)
-!read(21) jv,jd(1:8),jt(1:8),js(1:8)
-!close(21)
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(id)
-  call Unused_integer(indd)
-end if
-
-end subroutine rst
-
-subroutine ref_gfs(nel,ndj,locu,nm)
-
-use gugaci_global, only: lsm_inn, max_ref, mul_tab, norb_dz, norb_inn, nstart_act, spin
-
-implicit none
-integer :: nel, ndj, locu(8,max_ref), nm
-integer :: i, l1, l2, l3, l4, l5, l6, l7, l8, ldj, lh, lhe, lhs, lhsm(8), lm, lpsum, lscu(0:8,max_ref), m, m1, m2, m3, m4, m5, m6, &
-           m7, m8, mdj, mys, ne_act, ne_s, nes, npair, nre
-
-ne_act = nel-2*norb_dz
-ne_s = nint(spin*2)
-lhs = nstart_act
-lhe = norb_inn
-lhsm(1:8) = 0
-do lh=lhs,lhe
-  lm = lsm_inn(lh)
-  lhsm(lm) = lhsm(lm)+1
-end do
-mdj = 0
-do nes=ne_s,ne_act,2
-  do l1=0,lhsm(1)
-    do l2=0,lhsm(2)
-      do l3=0,lhsm(3)
-        do l4=0,lhsm(4)
-          do l5=0,lhsm(5)
-            do l6=0,lhsm(6)
-              do l7=0,lhsm(7)
-                do l8=0,lhsm(8)
-                  lpsum = l1+l2+l3+l4+l5+l6+l7+l8
-                  if (lpsum /= nes) cycle
-                  mys = 1
-                  if (mod(l1,2) == 1) mys = mul_tab(mys,1)
-                  if (mod(l2,2) == 1) mys = mul_tab(mys,2)
-                  if (mod(l3,2) == 1) mys = mul_tab(mys,3)
-                  if (mod(l4,2) == 1) mys = mul_tab(mys,4)
-                  if (mod(l5,2) == 1) mys = mul_tab(mys,5)
-                  if (mod(l6,2) == 1) mys = mul_tab(mys,6)
-                  if (mod(l7,2) == 1) mys = mul_tab(mys,7)
-                  if (mod(l8,2) == 1) mys = mul_tab(mys,8)
-                  if (mys /= nm) cycle
-                  mdj = mdj+1
-                  lscu(0,mdj) = lpsum
-                  lscu(1,mdj) = l1
-                  lscu(2,mdj) = l2
-                  lscu(3,mdj) = l3
-                  lscu(4,mdj) = l4
-                  lscu(5,mdj) = l5
-                  lscu(6,mdj) = l6
-                  lscu(7,mdj) = l7
-                  lscu(8,mdj) = l8
-                end do
-              end do
-            end do
-          end do
-        end do
-      end do
-    end do
-  end do
-end do
-ndj = 0
-do m=1,mdj
-  npair = (ne_act-lscu(0,m))/2
-  do l1=0,lhsm(1)-lscu(1,m)
-    do l2=0,lhsm(2)-lscu(2,m)
-      do l3=0,lhsm(3)-lscu(3,m)
-        do l4=0,lhsm(4)-lscu(4,m)
-          do l5=0,lhsm(5)-lscu(5,m)
-            do l6=0,lhsm(6)-lscu(6,m)
-              do l7=0,lhsm(7)-lscu(7,m)
-                outer: do l8=0,lhsm(8)-lscu(8,m)
-                  lpsum = l1+l2+l3+l4+l5+l6+l7+l8
-                  if (lpsum == npair) then
-                    m1 = l1*2+lscu(1,m)
-                    m2 = l2*2+lscu(2,m)
-                    m3 = l3*2+lscu(3,m)
-                    m4 = l4*2+lscu(4,m)
-                    m5 = l5*2+lscu(5,m)
-                    m6 = l6*2+lscu(6,m)
-                    m7 = l7*2+lscu(7,m)
-                    m8 = l8*2+lscu(8,m)
-                    do ldj=1,ndj
-                      if ((m1 == locu(1,ldj)) .and. (m2 == locu(2,ldj)) .and. (m3 == locu(3,ldj)) .and. (m4 == locu(4,ldj)) .and. &
-                          (m5 == locu(5,ldj)) .and. (m6 == locu(6,ldj)) .and. (m7 == locu(7,ldj)) .and. (m8 == locu(8,ldj))) &
-                        cycle outer
-                    end do
-                    ndj = ndj+1
-                    locu(1,ndj) = m1
-                    locu(2,ndj) = m2
-                    locu(3,ndj) = m3
-                    locu(4,ndj) = m4
-                    locu(5,ndj) = m5
-                    locu(6,ndj) = m6
-                    locu(7,ndj) = m7
-                    locu(8,ndj) = m8
-                  end if
-                end do outer
-              end do
-            end do
-          end do
-        end do
-      end do
-    end do
-  end do
-end do
-
-do nre=1,ndj
-  write(6,'(5x,i6,8i3)') nre,(locu(i,nre),i=1,8)
-end do
-
-return
-
-end subroutine ref_gfs
-
-subroutine rcas(id,indd)
-
-use gugaci_global, only: LuDrt
-
-implicit none
-integer :: id, indd
-
-write(6,*) ' '
-write(6,*) ' now reading distinct row tableau'
-call readdrt(ludrt)
-
-!write(6,*) 'bbs debug rcas,kk(27)',kk(27)
-
-!open(21,file='fort.drt',form='unformatted')
-!read(21) id
-!read(21) ja(1:id),jb(1:id),jm(1:id)
-!read(21) jj(1:4,0:id)
-!read(21) kk(0:id)
-!read(21) no(0:norb_inn+1)
-!read(21) jv,jd(1:8),jt(1:8),js(1:8)
-!close(21)
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(id)
-  call Unused_integer(indd)
-end if
-
-end subroutine rcas
-
-subroutine check_rcas3(jk,ind,inb,ndj,locu)
-
-use gugaci_global, only: ja, jb, max_node
-
-implicit none
-integer :: jk, ind(8,max_node), inb, ndj, locu(8,ndj)
-integer :: i, iex, iexcit(ndj), lsym(8), m, nsumel
-
-inb = 0
-nsumel = 0
-do i=1,8
-  lsym(i) = ind(i,jk)
-  nsumel = nsumel+lsym(i)
-end do
-do i=1,ndj
-  iexcit(i) = 0
-  do m=1,8
-    iex = lsym(m)-locu(m,i)
-    if (iex > 0) then
-      iexcit(i) = iexcit(i)+iex
-    end if
-  end do
-end do
-inb = iexcit(1)
-do i=2,ndj
-  inb = min(inb,iexcit(i))
-end do
-inb = inb+ja(jk)*2+jb(jk)
-
-return
-
-end subroutine check_rcas3
+!subroutine check_rcas3(jk,ind,inb,ndj,locu)
+!
+!use gugaci_global, only: ja, jb, max_node
+!
+!implicit none
+!integer :: jk, ind(8,max_node), inb, ndj, locu(8,ndj)
+!integer :: i, iex, iexcit(ndj), lsym(8), m, nsumel
+!
+!inb = 0
+!nsumel = 0
+!do i=1,8
+!  lsym(i) = ind(i,jk)
+!  nsumel = nsumel+lsym(i)
+!end do
+!do i=1,ndj
+!  iexcit(i) = 0
+!  do m=1,8
+!    iex = lsym(m)-locu(m,i)
+!    if (iex > 0) then
+!      iexcit(i) = iexcit(i)+iex
+!    end if
+!  end do
+!end do
+!inb = iexcit(1)
+!do i=2,ndj
+!  inb = min(inb,iexcit(i))
+!end do
+!inb = inb+ja(jk)*2+jb(jk)
+!
+!return
+!
+!end subroutine check_rcas3
 
 subroutine irfrst(iselcsf_occ)
 ! ifrno(j)=i
@@ -459,168 +460,168 @@ if (.false.) call Unused_integer_array(iselcsf_occ)
 
 end subroutine irfrst
 
-subroutine irfrst_bak(iselcsf_occ)
+!subroutine irfrst_bak(iselcsf_occ)
+!
+!use gugaci_global, only: ifrno, iref_occ, irf, irfno, max_innorb, max_orb, max_ref, mjn, mroot, n_ref, nci_h0, norb_act, norb_all, &
+!                         norb_dz, nwalk
+!
+!implicit none
+!integer :: iselcsf_occ(max_innorb,max_ref)
+!integer :: i, icount, icsfocc, icsfwlk, ii, ij, im, io, iocsf, ire, iwalktmp(max_orb), j, ndimh0, nocc
+!logical :: log_exist
+!
+!nocc = 0
+!do i=1,mroot
+!  log_exist = .false.
+!  outer1: do ire=1,n_ref
+!    ij = norb_dz
+!    do io=1,norb_act
+!      ij = ij+1
+!      if (iselcsf_occ(io,i) == 3) nocc = 2
+!      if (iselcsf_occ(io,i) == 2) nocc = 1
+!      if (iselcsf_occ(io,i) == 1) nocc = 1
+!      if (iselcsf_occ(io,i) == 0) nocc = 0
+!      if (nocc /= iref_occ(io+norb_dz,ire)) cycle outer1
+!    end do
+!    log_exist = .true.
+!    if (log_exist) exit
+!  end do outer1
+!  if (.not. log_exist) then
+!    write(6,1000)
+!    write(6,2000) iselcsf_occ(1:norb_act,i)
+!    write(6,*) ' please select this state as reference state'
+!  end if
+!end do
+!icsfocc = 0
+!ndimh0 = nci_h0 !iw_sta(2,1)
+!icount = 0
+!do i=1,n_ref
+!  outer2: do j=1,ndimh0
+!    call found_a_config(j,1.0d0,0)
+!    do im=1,norb_all
+!      iwalktmp(im) = nwalk(norb_all-im+1)
+!    end do
+!
+!    log_exist = .false.
+!    ij = norb_dz
+!    do ii=1,norb_act
+!      ij = ij+1
+!      icsfwlk = iwalktmp(ij)
+!      if (icsfwlk == 3) icsfocc = 2
+!      if (icsfwlk == 2) icsfocc = 1
+!      if (icsfwlk == 1) icsfocc = 1
+!      if (icsfwlk == 0) icsfocc = 0
+!      if (icsfocc /= iref_occ(ij,i)) cycle outer2
+!    end do
+!    log_exist = .true.
+!    icount = icount+1
+!    irfno(icount) = j
+!    ifrno(j) = icount
+!    !write(6,2000) iwalktmp(norb_dz+1:norb_dz+norb_act)
+!    !write(6,*) 'icount',icount,j
+!  end do outer2
+!end do
+!
+!irf = icount
+!do i=1,2*mroot
+!  iocsf = mjn(i)
+!  log_exist = .false.
+!  do j=1,icount
+!    if (iocsf == irfno(j)) then
+!      log_exist = .true.
+!      exit
+!    end if
+!  end do
+!  if (.not. log_exist) then
+!    irf = irf+1
+!    irfno(irf) = iocsf
+!    ifrno(iocsf) = irf
+!  end if
+!end do
+!
+!write(6,3000) irf
+!
+!return
+!1000 format(1x,'warnning!the selected csf is not in references states')
+!2000 format(1x,'the selected csf is :',2x,32(i1))
+!3000 format(1x,'number of gelfand states in referance space:',1x,i4)
+!!...end of irfrst
+!
+!end subroutine irfrst_bak
 
-use gugaci_global, only: ifrno, iref_occ, irf, irfno, max_innorb, max_orb, max_ref, mjn, mroot, n_ref, nci_h0, norb_act, norb_all, &
-                         norb_dz, nwalk
+!function min_itexcit(indjk)
+!
+!use gugaci_global, only: ndjgrop, ndjmod
+!
+!implicit none
+!integer :: min_itexcit
+!integer :: indjk(4)
+!integer :: indexcit, ixcit, lref, ngrop, nj
+!! integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
+!! indexcit=  ir1 ir2 ir3 ir4 ir5 ir6 ir7 ir8 ......... ir15
+!
+!!-----------------------------------------------------------------------
+!min_itexcit = 3
+!nj = 0
+!do ngrop=1,ndjgrop-1         !1-(ndjgrop-1) grop
+!  indexcit = indjk(ngrop)
+!  do lref=1,15
+!    ixcit = ishft(indexcit,-2*(lref-1))
+!    ixcit = mod(ixcit,4)
+!    !if (ixcit /= 0) ixcit = ixcit-1
+!    !if (ixcit == 0) ixcit = 3
+!    min_itexcit = min(min_itexcit,ixcit)
+!    if (min_itexcit == 0) return
+!  end do
+!  nj = nj+15
+!end do
+!indexcit = indjk(ndjgrop)       !last grop
+!do lref=1,ndjmod
+!  ixcit = ishft(indexcit,-2*(lref-1))
+!  ixcit = mod(ixcit,4)
+!  !if (ixcit /= 0) ixcit = ixcit-1
+!  !if (ixcit == 0) ixcit = 3
+!  min_itexcit = min(min_itexcit,ixcit)
+!  if (min_itexcit == 0) return
+!end do
+!!-----------------------------------------------------------------------
+!return
+!
+!end function min_itexcit
 
-implicit none
-integer :: iselcsf_occ(max_innorb,max_ref)
-integer :: i, icount, icsfocc, icsfwlk, ii, ij, im, io, iocsf, ire, iwalktmp(max_orb), j, ndimh0, nocc
-logical :: log_exist
-
-nocc = 0
-do i=1,mroot
-  log_exist = .false.
-  outer1: do ire=1,n_ref
-    ij = norb_dz
-    do io=1,norb_act
-      ij = ij+1
-      if (iselcsf_occ(io,i) == 3) nocc = 2
-      if (iselcsf_occ(io,i) == 2) nocc = 1
-      if (iselcsf_occ(io,i) == 1) nocc = 1
-      if (iselcsf_occ(io,i) == 0) nocc = 0
-      if (nocc /= iref_occ(io+norb_dz,ire)) cycle outer1
-    end do
-    log_exist = .true.
-    if (log_exist) exit
-  end do outer1
-  if (.not. log_exist) then
-    write(6,1000)
-    write(6,2000) iselcsf_occ(1:norb_act,i)
-    write(6,*) ' please select this state as reference state'
-  end if
-end do
-icsfocc = 0
-ndimh0 = nci_h0 !iw_sta(2,1)
-icount = 0
-do i=1,n_ref
-  outer2: do j=1,ndimh0
-    call found_a_config(j,1.0d0,0)
-    do im=1,norb_all
-      iwalktmp(im) = nwalk(norb_all-im+1)
-    end do
-
-    log_exist = .false.
-    ij = norb_dz
-    do ii=1,norb_act
-      ij = ij+1
-      icsfwlk = iwalktmp(ij)
-      if (icsfwlk == 3) icsfocc = 2
-      if (icsfwlk == 2) icsfocc = 1
-      if (icsfwlk == 1) icsfocc = 1
-      if (icsfwlk == 0) icsfocc = 0
-      if (icsfocc /= iref_occ(ij,i)) cycle outer2
-    end do
-    log_exist = .true.
-    icount = icount+1
-    irfno(icount) = j
-    ifrno(j) = icount
-    !write(6,2000) iwalktmp(norb_dz+1:norb_dz+norb_act)
-    !write(6,*) 'icount',icount,j
-  end do outer2
-end do
-
-irf = icount
-do i=1,2*mroot
-  iocsf = mjn(i)
-  log_exist = .false.
-  do j=1,icount
-    if (iocsf == irfno(j)) then
-      log_exist = .true.
-      exit
-    end if
-  end do
-  if (.not. log_exist) then
-    irf = irf+1
-    irfno(irf) = iocsf
-    ifrno(iocsf) = irf
-  end if
-end do
-
-write(6,3000) irf
-
-return
-1000 format(1x,'warnning!the selected csf is not in references states')
-2000 format(1x,'the selected csf is :',2x,32(i1))
-3000 format(1x,'number of gelfand states in referance space:',1x,i4)
-!...end of irfrst
-
-end subroutine irfrst_bak
-
-function min_itexcit(indjk)
-
-use gugaci_global, only: ndjgrop, ndjmod
-
-implicit none
-integer :: min_itexcit
-integer :: indjk(4)
-integer :: indexcit, ixcit, lref, ngrop, nj
-! integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
-! indexcit=  ir1 ir2 ir3 ir4 ir5 ir6 ir7 ir8 ......... ir15
-
-!-----------------------------------------------------------------------
-min_itexcit = 3
-nj = 0
-do ngrop=1,ndjgrop-1         !1-(ndjgrop-1) grop
-  indexcit = indjk(ngrop)
-  do lref=1,15
-    ixcit = ishft(indexcit,-2*(lref-1))
-    ixcit = mod(ixcit,4)
-    !if (ixcit /= 0) ixcit = ixcit-1
-    !if (ixcit == 0) ixcit = 3
-    min_itexcit = min(min_itexcit,ixcit)
-    if (min_itexcit == 0) return
-  end do
-  nj = nj+15
-end do
-indexcit = indjk(ndjgrop)       !last grop
-do lref=1,ndjmod
-  ixcit = ishft(indexcit,-2*(lref-1))
-  ixcit = mod(ixcit,4)
-  !if (ixcit /= 0) ixcit = ixcit-1
-  !if (ixcit == 0) ixcit = 3
-  min_itexcit = min(min_itexcit,ixcit)
-  if (min_itexcit == 0) return
-end do
-!-----------------------------------------------------------------------
-return
-
-end function min_itexcit
-
-subroutine njexcit(idcc,indjk,locuk0,n_ref)
-
-use gugaci_global, only: ndjgrop, ndjmod
-
-implicit none
-integer :: idcc, indjk(4), n_ref, locuk0(n_ref)
-integer :: indexcit, ixcit, lref, ngrop, nj
-
-nj = 0
-do ngrop=1,ndjgrop-1         !1-(ndjgrop-1) grop
-  indexcit = indjk(ngrop)
-  indjk(ngrop) = 0
-  do lref=1,15
-    ixcit = ishft(indexcit,-2*(lref-1))
-    ixcit = mod(ixcit,4)
-    if (idcc-locuk0(nj+lref) == 1) ixcit = ixcit+1
-    if (idcc-locuk0(nj+lref) == 2) ixcit = ixcit+2
-    if (ixcit >= 3) ixcit = 3
-    indjk(ngrop) = ishft(ixcit,2*(lref-1))+indjk(ngrop)
-  end do
-  nj = nj+15
-end do
-indexcit = indjk(ndjgrop)       !last grop
-indjk(ndjgrop) = 0
-do lref=1,ndjmod
-  ixcit = ishft(indexcit,-2*(lref-1))
-  ixcit = mod(ixcit,4)
-  if (idcc-locuk0(nj+lref) == 1) ixcit = ixcit+1
-  if (idcc-locuk0(nj+lref) == 2) ixcit = ixcit+2
-  if (ixcit >= 3) ixcit = 3
-  indjk(ngrop) = ishft(ixcit,2*(lref-1))+indjk(ngrop)
-end do
-
-return
-
-end subroutine njexcit
+!subroutine njexcit(idcc,indjk,locuk0,n_ref)
+!
+!use gugaci_global, only: ndjgrop, ndjmod
+!
+!implicit none
+!integer :: idcc, indjk(4), n_ref, locuk0(n_ref)
+!integer :: indexcit, ixcit, lref, ngrop, nj
+!
+!nj = 0
+!do ngrop=1,ndjgrop-1         !1-(ndjgrop-1) grop
+!  indexcit = indjk(ngrop)
+!  indjk(ngrop) = 0
+!  do lref=1,15
+!    ixcit = ishft(indexcit,-2*(lref-1))
+!    ixcit = mod(ixcit,4)
+!    if (idcc-locuk0(nj+lref) == 1) ixcit = ixcit+1
+!    if (idcc-locuk0(nj+lref) == 2) ixcit = ixcit+2
+!    if (ixcit >= 3) ixcit = 3
+!    indjk(ngrop) = ishft(ixcit,2*(lref-1))+indjk(ngrop)
+!  end do
+!  nj = nj+15
+!end do
+!indexcit = indjk(ndjgrop)       !last grop
+!indjk(ndjgrop) = 0
+!do lref=1,ndjmod
+!  ixcit = ishft(indexcit,-2*(lref-1))
+!  ixcit = mod(ixcit,4)
+!  if (idcc-locuk0(nj+lref) == 1) ixcit = ixcit+1
+!  if (idcc-locuk0(nj+lref) == 2) ixcit = ixcit+2
+!  if (ixcit >= 3) ixcit = 3
+!  indjk(ngrop) = ishft(ixcit,2*(lref-1))+indjk(ngrop)
+!end do
+!
+!return
+!
+!end subroutine njexcit

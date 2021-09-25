@@ -14,7 +14,8 @@ subroutine inn_ext_ss_drl_loop_unpack_g(iplplwei,iplprwei)
 use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, ism_g2g4, iwt_sm_s_ext, logic_g2g4a, logic_g2g4b, &
                          logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, lpend34a, lpend34b, lpend35a, &
                          lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, lpsta36b, &
-                         mul_tab, ng_sm, value_lpext, value_lpext1, vector1, vector2
+                         ng_sm, value_lpext, value_lpext1, vector1, vector2
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: iplplwei, iplprwei
@@ -215,7 +216,8 @@ subroutine inn_ext_st_drl_loop_unpack_g(iplplwei,iplprwei)
 use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, index_lpext, index_lpext1, ism_g2g4, iwt_sm_s_ext, logic_g1415, &
                          logic_g2g4a, logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, &
                          lpend34a, lpend34b, lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, &
-                         lpsta35b, lpsta36a, lpsta36b, mul_tab, ng_sm, value_lpext, value_lpext1, vector1, vector2
+                         lpsta35b, lpsta36a, lpsta36b, ng_sm, value_lpext, value_lpext1, vector1, vector2
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: iplplwei, iplprwei
@@ -599,7 +601,8 @@ subroutine inn_ext_ts_drl_loop_unpack_g(iplplwei,iplprwei)
 use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, index_lpext, index_lpext1, ism_g2g4, iwt_sm_s_ext, logic_g1415, &
                          logic_g2g4a, logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, &
                          lpend34a, lpend34b, lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, &
-                         lpsta35b, lpsta36a, lpsta36b, mul_tab, ng_sm, value_lpext, value_lpext1, vector1, vector2
+                         lpsta35b, lpsta36a, lpsta36b, ng_sm, value_lpext, value_lpext1, vector1, vector2
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: iplplwei, iplprwei
@@ -825,7 +828,8 @@ subroutine inn_ext_ss_loop_unpack_g(iplplwei,iplprwei)
 use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, index_lpext, index_lpext1, ism_g2g4, iwt_sm_s_ext, logic_g1415, &
                          logic_g2g4a, logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, &
                          lpend34a, lpend34b, lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, &
-                         lpsta35b, lpsta36a, lpsta36b, mul_tab, ng_sm, nvalue_space_ss, value_lpext, value_lpext1, vector1, vector2
+                         lpsta35b, lpsta36a, lpsta36b, ng_sm, nvalue_space_ss, value_lpext, value_lpext1, vector1, vector2
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: iplplwei, iplprwei
@@ -1080,7 +1084,8 @@ subroutine inn_ext_st_loop_unpack_g(iplplwei,iplprwei)
 use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, index_lpext, index_lpext1, ism_g2g4, iwt_sm_s_ext, logic_g1415, &
                          logic_g2g4a, logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, &
                          lpend34a, lpend34b, lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, &
-                         lpsta35b, lpsta36a, lpsta36b, mul_tab, ng_sm, nvalue_space_ss, value_lpext, value_lpext1, vector1, vector2
+                         lpsta35b, lpsta36a, lpsta36b, ng_sm, nvalue_space_ss, value_lpext, value_lpext1, vector1, vector2
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: iplplwei, iplprwei
@@ -1354,7 +1359,8 @@ subroutine inn_ext_ts_loop_unpack_g(iplplwei,iplprwei)
 use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, index_lpext, index_lpext1, ism_g2g4, iwt_sm_s_ext, logic_g1415, &
                          logic_g2g4a, logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, &
                          lpend34a, lpend34b, lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, &
-                         lpsta35b, lpsta36a, lpsta36b, mul_tab, ng_sm, nvalue_space_ss, value_lpext, value_lpext1, vector1, vector2
+                         lpsta35b, lpsta36a, lpsta36b, ng_sm, nvalue_space_ss, value_lpext, value_lpext1, vector1, vector2
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: iplplwei, iplprwei

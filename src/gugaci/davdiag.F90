@@ -775,140 +775,140 @@ return
 
 end subroutine mrcibasis
 
-subroutine mrcibasis_init(ndim,mroot,mjn,indx,vb1,vb2,vcien,mth_eigen,ncivec)
-!***********************************************************************
-! this subroutine is revised by suo bing. the initial trial
-! vectors are calculated.
-! on entry:
-!-----------------------------------------------------------------------
-!     ndim  - dimension of ci space
-!     mroot - number of roots are calculated
-!     mjn
-!     indx  - index of mth vector in vb1 vector
-!     vb1   - vector1
-!     vb2   - vector2
-!     mth_eigen - 0 or 1
-!  on out:
-!-----------------------------------------------------------------------
-!     vb1   - trial vectors
-
-use gugaci_global, only: LuCiDia, LuCiTv1, LuCiTv2, max_kspace, max_root
-
-implicit none
-integer :: ndim, mroot, mjn(2*max_root), indx(max_kspace), mth_eigen, ncivec
-real*8 :: vb1(ncivec*ndim), vb2(ncivec*ndim), vcien(mroot)
-integer :: i, ij, indx0, ioff, j, kk, m, n, numdim
-real*8 :: fenmu, sechc, vadi, vdia(2*mroot)
-real*8, allocatable :: diagelement(:)
-real*8, parameter :: dzero = 0.d0, epc = 5.0d-3
-
-allocate(diagelement(ndim))
-
-call read_ml(lucidia,1,diagelement,ndim,1)
-
-!call read_bv(nf8,1,vb2,ndim)
-indx(1:max_kspace) = 0
-indx0 = 0
-do i=1,mroot
-  indx(i) = indx0
-  indx0 = indx0+ndim
-  vdia(i) = diagelement(mjn(i))
-end do
-
-do i=1,mroot
-  write(6,'(2x,2i8,f18.8)') i,mjn(i),diagelement(mjn(i))
-end do
-
-! initialize vb1-vector1 and th-vector2 to zero
-if (mth_eigen == 0) then
-  numdim = ndim*mroot
-  vb1(1:numdim) = dzero
-  vb2(1:numdim) = dzero
-  do j=1,mroot
-    ij = indx(j)
-    vb1(ij+mjn(j)) = 1.0d0
-    vb2(ij+mjn(j)) = vdia(j)
-    vcien(j) = vdia(j)
-  end do
-else
-  vb1(1:ndim) = dzero
-  vb2(1:ndim) = dzero
-  j = mth_eigen
-  vb1(mjn(j)) = 1.0d0
-  vb2(mjn(j)) = vdia(j)
-  vcien(1) = vdia(j)
-  mroot = 1
-end if
-
-!write(6,*) ' initial basis vector 0',nf23
-call matrix_vector_multi_parallel_drt(sechc)
-! write vector1 and vector2 to fort3 and fort4
-call write_bv(lucitv1,1,vb1,ndim*mroot)
-call write_bv(lucitv2,1,vb2,ndim*mroot)
-
-! init second vector
-!call read_bv(nf8,1,vb1,ndim)
-if (mth_eigen == 0) then
-  vb1(1:ndim*mroot) = 0.d0
-  do kk=1,mroot
-    ioff = indx(kk)
-    ij = mjn(kk)
-    vadi = diagelement(ij)
-    do m=1,ij-1
-      fenmu = vadi-diagelement(m)
-      if (abs(fenmu) < epc) fenmu = epc
-      vb1(ioff+m) = vb2(ioff+m)/fenmu
-      !write(6,'(i8,2f18.8)') m,vb2(ioff+m),fenmu
-    end do
-    do m=ij+1,ndim
-      fenmu = vadi-diagelement(m)
-      if (abs(fenmu) < epc) fenmu = epc
-      vb1(ioff+m) = vb2(ioff+m)/fenmu
-      !write(6,'(i8,2f18.8)') m,vb2(ioff+m),fenmu
-    end do
-  end do
-
-  call read_bv(lucitv1,1,vb2,ndim*mroot)
-  do m=1,mroot
-    ! orth with vb1
-    do n=1,mroot
-      call orth_ab(ndim,vb1(indx(m)+1),vb2(indx(n)+1))
-    end do
-    ! orth with previous vector
-    do n=1,m-1
-      call orth_ab(ndim,vb1(indx(m)+1),vb1(indx(n)+1))
-    end do
-    call norm_a(ndim,vb1(indx(m)+1))
-  end do
-
-  !write(6,*)
-  !do m=1,ndim
-  !  write(6,'(2x,i5,f18.8)') m,vb1(m)
-  !end do
-  !call abend()
-else
-  call abend()
-end if
-
-numdim = ndim*mroot
-vb2(1:numdim) = dzero
-do m=1,mroot
-  kk = indx(m)
-  do i=1,ndim
-    vb2(i+kk) = vb1(i+kk)*diagelement(i)
-  end do
-end do
-
-call matrix_vector_multi_parallel_drt(sechc)
-call write_bv(lucitv1,2,vb1,ndim*mroot)
-call write_bv(lucitv2,2,vb2,ndim*mroot)
-
-deallocate(diagelement)
-
-return
-!...end of mrcibasis_init
-
-end subroutine mrcibasis_init
+!subroutine mrcibasis_init(ndim,mroot,mjn,indx,vb1,vb2,vcien,mth_eigen,ncivec)
+!!***********************************************************************
+!! this subroutine is revised by suo bing. the initial trial
+!! vectors are calculated.
+!! on entry:
+!!-----------------------------------------------------------------------
+!!     ndim  - dimension of ci space
+!!     mroot - number of roots are calculated
+!!     mjn
+!!     indx  - index of mth vector in vb1 vector
+!!     vb1   - vector1
+!!     vb2   - vector2
+!!     mth_eigen - 0 or 1
+!!  on out:
+!!-----------------------------------------------------------------------
+!!     vb1   - trial vectors
+!
+!use gugaci_global, only: LuCiDia, LuCiTv1, LuCiTv2, max_kspace, max_root
+!
+!implicit none
+!integer :: ndim, mroot, mjn(2*max_root), indx(max_kspace), mth_eigen, ncivec
+!real*8 :: vb1(ncivec*ndim), vb2(ncivec*ndim), vcien(mroot)
+!integer :: i, ij, indx0, ioff, j, kk, m, n, numdim
+!real*8 :: fenmu, sechc, vadi, vdia(2*mroot)
+!real*8, allocatable :: diagelement(:)
+!real*8, parameter :: dzero = 0.d0, epc = 5.0d-3
+!
+!allocate(diagelement(ndim))
+!
+!call read_ml(lucidia,1,diagelement,ndim,1)
+!
+!!call read_bv(nf8,1,vb2,ndim)
+!indx(1:max_kspace) = 0
+!indx0 = 0
+!do i=1,mroot
+!  indx(i) = indx0
+!  indx0 = indx0+ndim
+!  vdia(i) = diagelement(mjn(i))
+!end do
+!
+!do i=1,mroot
+!  write(6,'(2x,2i8,f18.8)') i,mjn(i),diagelement(mjn(i))
+!end do
+!
+!! initialize vb1-vector1 and th-vector2 to zero
+!if (mth_eigen == 0) then
+!  numdim = ndim*mroot
+!  vb1(1:numdim) = dzero
+!  vb2(1:numdim) = dzero
+!  do j=1,mroot
+!    ij = indx(j)
+!    vb1(ij+mjn(j)) = 1.0d0
+!    vb2(ij+mjn(j)) = vdia(j)
+!    vcien(j) = vdia(j)
+!  end do
+!else
+!  vb1(1:ndim) = dzero
+!  vb2(1:ndim) = dzero
+!  j = mth_eigen
+!  vb1(mjn(j)) = 1.0d0
+!  vb2(mjn(j)) = vdia(j)
+!  vcien(1) = vdia(j)
+!  mroot = 1
+!end if
+!
+!!write(6,*) ' initial basis vector 0',nf23
+!call matrix_vector_multi_parallel_drt(sechc)
+!! write vector1 and vector2 to fort3 and fort4
+!call write_bv(lucitv1,1,vb1,ndim*mroot)
+!call write_bv(lucitv2,1,vb2,ndim*mroot)
+!
+!! init second vector
+!!call read_bv(nf8,1,vb1,ndim)
+!if (mth_eigen == 0) then
+!  vb1(1:ndim*mroot) = 0.d0
+!  do kk=1,mroot
+!    ioff = indx(kk)
+!    ij = mjn(kk)
+!    vadi = diagelement(ij)
+!    do m=1,ij-1
+!      fenmu = vadi-diagelement(m)
+!      if (abs(fenmu) < epc) fenmu = epc
+!      vb1(ioff+m) = vb2(ioff+m)/fenmu
+!      !write(6,'(i8,2f18.8)') m,vb2(ioff+m),fenmu
+!    end do
+!    do m=ij+1,ndim
+!      fenmu = vadi-diagelement(m)
+!      if (abs(fenmu) < epc) fenmu = epc
+!      vb1(ioff+m) = vb2(ioff+m)/fenmu
+!      !write(6,'(i8,2f18.8)') m,vb2(ioff+m),fenmu
+!    end do
+!  end do
+!
+!  call read_bv(lucitv1,1,vb2,ndim*mroot)
+!  do m=1,mroot
+!    ! orth with vb1
+!    do n=1,mroot
+!      call orth_ab(ndim,vb1(indx(m)+1),vb2(indx(n)+1))
+!    end do
+!    ! orth with previous vector
+!    do n=1,m-1
+!      call orth_ab(ndim,vb1(indx(m)+1),vb1(indx(n)+1))
+!    end do
+!    call norm_a(ndim,vb1(indx(m)+1))
+!  end do
+!
+!  !write(6,*)
+!  !do m=1,ndim
+!  !  write(6,'(2x,i5,f18.8)') m,vb1(m)
+!  !end do
+!  !call abend()
+!else
+!  call abend()
+!end if
+!
+!numdim = ndim*mroot
+!vb2(1:numdim) = dzero
+!do m=1,mroot
+!  kk = indx(m)
+!  do i=1,ndim
+!    vb2(i+kk) = vb1(i+kk)*diagelement(i)
+!  end do
+!end do
+!
+!call matrix_vector_multi_parallel_drt(sechc)
+!call write_bv(lucitv1,2,vb1,ndim*mroot)
+!call write_bv(lucitv2,2,vb2,ndim*mroot)
+!
+!deallocate(diagelement)
+!
+!return
+!!...end of mrcibasis_init
+!
+!end subroutine mrcibasis_init
 
 subroutine get_eigvector(mtsta0,vcien,valpha,diffci,vresid,mtheigen,log_muliter)
 
@@ -1065,41 +1065,41 @@ return
 
 end subroutine matrix_vector_multi_v
 
-subroutine matrix_vector_multi_d(sechc)
-
-use gugaci_global, only: log_prod, vint_ci
-
-implicit none
-real*8 :: sechc
-real*8 :: sc1, sc2
-real*8, external :: c_time
-
-log_prod = 1
-sc1 = c_time()
-
-call readint(1,vint_ci)
-call inner_space_loop()
-
-call readint(2,vint_ci)
-call sd_drt_ci_new()
-call td_drt_ci_new()
-call ds_drt_ci_new()
-call dt_drt_ci_new()
-call dv_drt_ci_new()
-call vd_drt_ci_new()
-
-call readint(3,vint_ci)
-call dd_drt_ci_new()
-
-call readint(4,vint_ci)
-call ext_space_loop()
-
-sc2 = c_time()
-sechc = sc2-sc1
-
-return
-
-end subroutine matrix_vector_multi_d
+!subroutine matrix_vector_multi_d(sechc)
+!
+!use gugaci_global, only: log_prod, vint_ci
+!
+!implicit none
+!real*8 :: sechc
+!real*8 :: sc1, sc2
+!real*8, external :: c_time
+!
+!log_prod = 1
+!sc1 = c_time()
+!
+!call readint(1,vint_ci)
+!call inner_space_loop()
+!
+!call readint(2,vint_ci)
+!call sd_drt_ci_new()
+!call td_drt_ci_new()
+!call ds_drt_ci_new()
+!call dt_drt_ci_new()
+!call dv_drt_ci_new()
+!call vd_drt_ci_new()
+!
+!call readint(3,vint_ci)
+!call dd_drt_ci_new()
+!
+!call readint(4,vint_ci)
+!call ext_space_loop()
+!
+!sc2 = c_time()
+!sechc = sc2-sc1
+!
+!return
+!
+!end subroutine matrix_vector_multi_d
 
 subroutine matrix_vector_multi_parallel_drt(sechc)
 
@@ -1143,66 +1143,66 @@ return
 
 end subroutine matrix_vector_multi_parallel_drt
 
-subroutine matrix_vector_multi_parallel_prt(sc3)
-
-use gugaci_global, only: log_prod, vector2, vint_ci
-
-implicit none
-real*8 :: sc3
-integer :: mtest
-real*8 :: sc1, sc2
-real*8, external :: c_time
-
-!write(6,*) 'error stop'
-!call abend()
-sc1 = c_time()
-
-mtest = 1482
-log_prod = 1
-
-call readint(1,vint_ci)
-call inner_space_loop()
-write(6,*) ' inner',vector2(mtest)
-
-call readint(2,vint_ci)
-call sd_drt_ci_new()
-write(6,*) ' sd',vector2(mtest)
-call td_drt_ci_new()
-write(6,*) ' td',vector2(mtest)
-call ds_drt_ci_new()
-write(6,*) ' ds',vector2(mtest)
-call dt_drt_ci_new()
-write(6,*) ' dt',vector2(mtest)
-call vd_drt_ci_new()
-write(6,*) ' vd',vector2(mtest)
-call dv_drt_ci_new()
-write(6,*) ' dv',vector2(mtest)
-
-call readint(3,vint_ci)
-call dd_drt_ci_new()
-write(6,*) ' dd',vector2(mtest)
-call sv_drt_ci_new()
-write(6,*) ' sv',vector2(mtest)
-call tv_drt_ci_new()
-write(6,*) ' tv',vector2(mtest)
-call ss_drt_ci_new()
-write(6,*) ' ss',vector2(mtest)
-call st_drt_ci_new()
-write(6,*) ' st',vector2(mtest)
-call tt_drt_ci_new()
-write(6,*) ' tt',vector2(mtest)
-call ts_drt_ci_new()
-write(6,*) ' ts',vector2(mtest)
-
-call readint(4,vint_ci)
-call ext_space_loop()
-write(6,*) ' exter',vector2(mtest)
-
-sc2 = c_time()
-write(6,*) '  end this matrix_vector_multi_parallel_drt, takes',sc2-sc1,'s'
-sc3 = sc2-sc1
-
-end subroutine matrix_vector_multi_parallel_prt
+!subroutine matrix_vector_multi_parallel_prt(sc3)
+!
+!use gugaci_global, only: log_prod, vector2, vint_ci
+!
+!implicit none
+!real*8 :: sc3
+!integer :: mtest
+!real*8 :: sc1, sc2
+!real*8, external :: c_time
+!
+!!write(6,*) 'error stop'
+!!call abend()
+!sc1 = c_time()
+!
+!mtest = 1482
+!log_prod = 1
+!
+!call readint(1,vint_ci)
+!call inner_space_loop()
+!write(6,*) ' inner',vector2(mtest)
+!
+!call readint(2,vint_ci)
+!call sd_drt_ci_new()
+!write(6,*) ' sd',vector2(mtest)
+!call td_drt_ci_new()
+!write(6,*) ' td',vector2(mtest)
+!call ds_drt_ci_new()
+!write(6,*) ' ds',vector2(mtest)
+!call dt_drt_ci_new()
+!write(6,*) ' dt',vector2(mtest)
+!call vd_drt_ci_new()
+!write(6,*) ' vd',vector2(mtest)
+!call dv_drt_ci_new()
+!write(6,*) ' dv',vector2(mtest)
+!
+!call readint(3,vint_ci)
+!call dd_drt_ci_new()
+!write(6,*) ' dd',vector2(mtest)
+!call sv_drt_ci_new()
+!write(6,*) ' sv',vector2(mtest)
+!call tv_drt_ci_new()
+!write(6,*) ' tv',vector2(mtest)
+!call ss_drt_ci_new()
+!write(6,*) ' ss',vector2(mtest)
+!call st_drt_ci_new()
+!write(6,*) ' st',vector2(mtest)
+!call tt_drt_ci_new()
+!write(6,*) ' tt',vector2(mtest)
+!call ts_drt_ci_new()
+!write(6,*) ' ts',vector2(mtest)
+!
+!call readint(4,vint_ci)
+!call ext_space_loop()
+!write(6,*) ' exter',vector2(mtest)
+!
+!sc2 = c_time()
+!write(6,*) '  end this matrix_vector_multi_parallel_drt, takes',sc2-sc1,'s'
+!sc3 = sc2-sc1
+!
+!end subroutine matrix_vector_multi_parallel_prt
 
 subroutine orthog(kval,iiter,msta,idxvec)
 !***********************************************************************
@@ -1272,88 +1272,88 @@ return
 
 end subroutine orthog
 
-subroutine orthogonalization(j,n,m,ir)
-
-use gugaci_global, only: LuCiTv1, LuCiVec, mth_eigen, nci_dim, vector1, vector2
-
-implicit none
-integer :: j, n, m, ir
-integer :: i, l
-real*8 :: vsmax1, vsmax2, vsumtmp
-real*8, parameter :: vortho_criterion = 1.0d-8
-
-ir = 1
-vsmax2 = 1.d10
-do while (j > 1)
-  vsmax1 = 0.d0
-  do i=1,j-1
-    vsumtmp = 0.d0
-    call read_bv(lucitv1,i,vector2,n)
-
-    do l=1,n
-      vsumtmp = vsumtmp+vector1(l)*vector2(l)
-    end do
-    do l=1,n
-      vector1(l) = vector1(l)-vsumtmp*vector2(l)
-    end do
-    vsmax1 = max(vsmax1,abs(vsumtmp))
-  end do
-  if (vsmax1 < vortho_criterion) exit
-  if (vsmax1 > vsmax2) then
-    ir = -1
-    return
-  end if
-  vsmax2 = vsmax1
-end do
-
-vsumtmp = 0.d0
-do l=1,n
-  vsumtmp = vsumtmp+vector1(l)*vector1(l)
-end do
-
-do m=1,mth_eigen-1
-  !call read_bv(nf7,m,vector2,nci_dim)
-  call read_ml(lucivec,1,vector2,nci_dim,m)
-  call orth_ab(nci_dim,vector1,vector2)
-end do
-call norm_a(nci_dim,vector1)
-!vsumtmp = 1.d0/sqrt(vsumtmp)
-!do l=1,n
-!  vector1(l) = vector1(l)*vsumtmp
+!subroutine orthogonalization(j,n,m,ir)
+!
+!use gugaci_global, only: LuCiTv1, LuCiVec, mth_eigen, nci_dim, vector1, vector2
+!
+!implicit none
+!integer :: j, n, m, ir
+!integer :: i, l
+!real*8 :: vsmax1, vsmax2, vsumtmp
+!real*8, parameter :: vortho_criterion = 1.0d-8
+!
+!ir = 1
+!vsmax2 = 1.d10
+!do while (j > 1)
+!  vsmax1 = 0.d0
+!  do i=1,j-1
+!    vsumtmp = 0.d0
+!    call read_bv(lucitv1,i,vector2,n)
+!
+!    do l=1,n
+!      vsumtmp = vsumtmp+vector1(l)*vector2(l)
+!    end do
+!    do l=1,n
+!      vector1(l) = vector1(l)-vsumtmp*vector2(l)
+!    end do
+!    vsmax1 = max(vsmax1,abs(vsumtmp))
+!  end do
+!  if (vsmax1 < vortho_criterion) exit
+!  if (vsmax1 > vsmax2) then
+!    ir = -1
+!    return
+!  end if
+!  vsmax2 = vsmax1
 !end do
+!
+!vsumtmp = 0.d0
+!do l=1,n
+!  vsumtmp = vsumtmp+vector1(l)*vector1(l)
+!end do
+!
+!do m=1,mth_eigen-1
+!  !call read_bv(nf7,m,vector2,nci_dim)
+!  call read_ml(lucivec,1,vector2,nci_dim,m)
+!  call orth_ab(nci_dim,vector1,vector2)
+!end do
+!call norm_a(nci_dim,vector1)
+!!vsumtmp = 1.d0/sqrt(vsumtmp)
+!!do l=1,n
+!!  vector1(l) = vector1(l)*vsumtmp
+!!end do
+!
+!call write_bv(lucitv1,j,vector1,n)
+!
+!end subroutine orthogonalization
 
-call write_bv(lucitv1,j,vector1,n)
-
-end subroutine orthogonalization
-
-subroutine compute_vp_matrix(j,n) !nf3
-
-use gugaci_global, only: LuCiTv1, vector1, vector2, vp
-
-implicit none
-integer :: j, n
-integer :: i, ij, l
-real*8 :: vsumtmp
-
-ij = j*(j-1)/2
-vsumtmp = 0.d0
-do l=1,n
-  vsumtmp = vsumtmp+vector1(l)*vector2(l)
-end do
-vp(ij+j) = vsumtmp
-!rewind(nf3)
-do i=1,j-1
-  call read_bv(lucitv1,i,vector1,n)
-
-  vsumtmp = 0.d0
-  do l=1,n
-    vsumtmp = vsumtmp+vector1(l)*vector2(l)
-  end do
-  vp(ij+i) = vsumtmp
-end do
-call read_bv(lucitv1,i,vector1,n)
-
-end subroutine compute_vp_matrix
+!subroutine compute_vp_matrix(j,n) !nf3
+!
+!use gugaci_global, only: LuCiTv1, vector1, vector2, vp
+!
+!implicit none
+!integer :: j, n
+!integer :: i, ij, l
+!real*8 :: vsumtmp
+!
+!ij = j*(j-1)/2
+!vsumtmp = 0.d0
+!do l=1,n
+!  vsumtmp = vsumtmp+vector1(l)*vector2(l)
+!end do
+!vp(ij+j) = vsumtmp
+!!rewind(nf3)
+!do i=1,j-1
+!  call read_bv(lucitv1,i,vector1,n)
+!
+!  vsumtmp = 0.d0
+!  do l=1,n
+!    vsumtmp = vsumtmp+vector1(l)*vector2(l)
+!  end do
+!  vp(ij+i) = vsumtmp
+!end do
+!call read_bv(lucitv1,i,vector1,n)
+!
+!end subroutine compute_vp_matrix
 
 subroutine compute_residual_vector_mroot(kval,mtsta,iiter,idxvec,vresid,vcien)
 !***********************************************************************
@@ -1459,145 +1459,145 @@ if (.false.) call Unused_integer(kval)
 
 end subroutine compute_residual_vector_mroot
 
-subroutine compute_residual_vector(kval,mtsta,iiter,idxvec,vresid,vcien)
-!***********************************************************************
-! 2 mar 2007 - revised
-! calculate residual vector
-!      e|ck>-h|ck>
-!      |ck>=\sigma(vu(i,m)*vector_i),i=1,j
+!subroutine compute_residual_vector(kval,mtsta,iiter,idxvec,vresid,vcien)
+!!***********************************************************************
+!! 2 mar 2007 - revised
+!! calculate residual vector
+!!      e|ck>-h|ck>
+!!      |ck>=\sigma(vu(i,m)*vector_i),i=1,j
+!
+!use gugaci_global, only: indx, LuCiDia, LuCiTv1, LuCiTv2, max_kspace, max_root, mroot, nci_dim, vector1, vector2, vu
+!
+!implicit none
+!integer :: kval, mtsta, iiter, idxvec(max_kspace)
+!real*8 :: vresid(max_root), vcien(max_root)
+!integer :: irot, irte, irts, itidx, jiter, l, li, mt, mtidx, nd
+!real*8 :: venergy, vtmp, vuim
+!real*8, parameter :: dzero = 0.0d0
+!
+!nd = nci_dim*(mroot-mtsta+1)
+!vector1(1:nd) = dzero
+!
+!do jiter=1,iiter
+!  if (jiter == 1) then
+!    irts = 1
+!  else
+!    irts = idxvec(jiter-1)+1
+!  end if
+!  irte = idxvec(jiter)
+!  nd = (irte-irts+1)*nci_dim
+!  call read_bv(lucitv1,jiter,vector2,nd)
+!  do mt=mtsta,mroot
+!    mtidx = indx(mt-mtsta+1)
+!    do irot=irts,irte
+!      vuim = vu(irot,mt)
+!      itidx = indx(irot-irts+1)
+!      do l=1,nci_dim
+!        vector1(mtidx+l) = vector1(mtidx+l)+vuim*vector2(itidx+l)
+!      end do
+!    end do
+!  end do
+!end do
+!
+!nd = nci_dim*(mroot-mtsta+1)
+!call write_ml(lucidia,1,vector1,nd,2)
+!
+!do mt=mtsta,mroot
+!  mtidx = indx(mt-mtsta+1)
+!  venergy = vcien(mt)
+!  do l=1,nci_dim
+!    vector1(mtidx+l) = venergy*vector1(mtidx+l)
+!  end do
+!end do
+!
+!do jiter=1,iiter
+!  if (jiter == 1) then
+!    irts = 1
+!  else
+!    irts = idxvec(jiter-1)+1
+!  end if
+!  irte = idxvec(jiter)
+!  nd = (irte-irts+1)*nci_dim
+!  call read_bv(lucitv2,jiter,vector2,nd)
+!  do mt=mtsta,mroot
+!    mtidx = indx(mt-mtsta+1)
+!    do irot=irts,irte
+!      itidx = indx(irot-irts+1)
+!      vuim = vu(irot,mt)
+!      do l=1,nci_dim
+!        vector1(mtidx+l) = vector1(mtidx+l)-vuim*vector2(itidx+l)
+!      end do
+!    end do
+!  end do
+!end do
+!
+!do mt=mtsta,mroot
+!  mtidx = indx(mt-mtsta+1)
+!  vtmp = dzero
+!  do l=1,nci_dim
+!    li = l+mtidx
+!    vtmp = vtmp+vector1(li)*vector1(li)
+!  end do
+!  vresid(mt) = vtmp
+!end do
+!
+!return
+!! Avoid unused argument warnings
+!if (.false.) call Unused_integer(kval)
+!!...end of compute_residule_vector
+!
+!end subroutine compute_residual_vector
 
-use gugaci_global, only: indx, LuCiDia, LuCiTv1, LuCiTv2, max_kspace, max_root, mroot, nci_dim, vector1, vector2, vu
+!subroutine read_ref_state(nf)
+!
+!use gugaci_global, only: iref_occ, n_ref, norb_act, norb_dz, norb_inn
+!
+!implicit none
+!integer :: nf
+!integer :: i, j
+!character(len=32) :: refstring
+!
+!do i=1,n_ref
+!  do j=1,norb_dz
+!    iref_occ(j,i) = 2
+!  end do
+!  read(nf,*) refstring(1:norb_act)
+!  do j=1,norb_act
+!    if (refstring(j:j) == '0') iref_occ(j+norb_dz,i) = 0
+!    if (refstring(j:j) == '1') iref_occ(j+norb_dz,i) = 1
+!    if (refstring(j:j) == '2') iref_occ(j+norb_dz,i) = 2
+!  end do
+!end do
+!
+!write(6,*) '    multireference mode'
+!write(6,*) '    the reference states are:'
+!do i=1,n_ref
+!  write(6,'(12x,60(i1))') (iref_occ(j,i),j=1,norb_inn)
+!end do
+!
+!end subroutine read_ref_state
 
-implicit none
-integer :: kval, mtsta, iiter, idxvec(max_kspace)
-real*8 :: vresid(max_root), vcien(max_root)
-integer :: irot, irte, irts, itidx, jiter, l, li, mt, mtidx, nd
-real*8 :: venergy, vtmp, vuim
-real*8, parameter :: dzero = 0.0d0
-
-nd = nci_dim*(mroot-mtsta+1)
-vector1(1:nd) = dzero
-
-do jiter=1,iiter
-  if (jiter == 1) then
-    irts = 1
-  else
-    irts = idxvec(jiter-1)+1
-  end if
-  irte = idxvec(jiter)
-  nd = (irte-irts+1)*nci_dim
-  call read_bv(lucitv1,jiter,vector2,nd)
-  do mt=mtsta,mroot
-    mtidx = indx(mt-mtsta+1)
-    do irot=irts,irte
-      vuim = vu(irot,mt)
-      itidx = indx(irot-irts+1)
-      do l=1,nci_dim
-        vector1(mtidx+l) = vector1(mtidx+l)+vuim*vector2(itidx+l)
-      end do
-    end do
-  end do
-end do
-
-nd = nci_dim*(mroot-mtsta+1)
-call write_ml(lucidia,1,vector1,nd,2)
-
-do mt=mtsta,mroot
-  mtidx = indx(mt-mtsta+1)
-  venergy = vcien(mt)
-  do l=1,nci_dim
-    vector1(mtidx+l) = venergy*vector1(mtidx+l)
-  end do
-end do
-
-do jiter=1,iiter
-  if (jiter == 1) then
-    irts = 1
-  else
-    irts = idxvec(jiter-1)+1
-  end if
-  irte = idxvec(jiter)
-  nd = (irte-irts+1)*nci_dim
-  call read_bv(lucitv2,jiter,vector2,nd)
-  do mt=mtsta,mroot
-    mtidx = indx(mt-mtsta+1)
-    do irot=irts,irte
-      itidx = indx(irot-irts+1)
-      vuim = vu(irot,mt)
-      do l=1,nci_dim
-        vector1(mtidx+l) = vector1(mtidx+l)-vuim*vector2(itidx+l)
-      end do
-    end do
-  end do
-end do
-
-do mt=mtsta,mroot
-  mtidx = indx(mt-mtsta+1)
-  vtmp = dzero
-  do l=1,nci_dim
-    li = l+mtidx
-    vtmp = vtmp+vector1(li)*vector1(li)
-  end do
-  vresid(mt) = vtmp
-end do
-
-return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(kval)
-!...end of compute_residule_vector
-
-end subroutine compute_residual_vector
-
-subroutine read_ref_state(nf)
-
-use gugaci_global, only: iref_occ, n_ref, norb_act, norb_dz, norb_inn
-
-implicit none
-integer :: nf
-integer :: i, j
-character(len=32) :: refstring
-
-do i=1,n_ref
-  do j=1,norb_dz
-    iref_occ(j,i) = 2
-  end do
-  read(nf,*) refstring(1:norb_act)
-  do j=1,norb_act
-    if (refstring(j:j) == '0') iref_occ(j+norb_dz,i) = 0
-    if (refstring(j:j) == '1') iref_occ(j+norb_dz,i) = 1
-    if (refstring(j:j) == '2') iref_occ(j+norb_dz,i) = 2
-  end do
-end do
-
-write(6,*) '    multireference mode'
-write(6,*) '    the reference states are:'
-do i=1,n_ref
-  write(6,'(12x,60(i1))') (iref_occ(j,i),j=1,norb_inn)
-end do
-
-end subroutine read_ref_state
-
-function maxind(m,vector)
-
-implicit none
-integer :: maxind
-integer :: m
-real*8 :: vector(m)
-integer :: j, l
-real*8 :: am
-
-l = 1
-am = abs(vector(l))
-do j=1,m
-  if (abs(vector(j)) > am) then
-    l = j
-    am = abs(vector(j))
-  end if
-end do
-
-maxind = l
-
-end function maxind
+!function maxind(m,vector)
+!
+!implicit none
+!integer :: maxind
+!integer :: m
+!real*8 :: vector(m)
+!integer :: j, l
+!real*8 :: am
+!
+!l = 1
+!am = abs(vector(l))
+!do j=1,m
+!  if (abs(vector(j)) > am) then
+!    l = j
+!    am = abs(vector(j))
+!  end if
+!end do
+!
+!maxind = l
+!
+!end function maxind
 
 subroutine matrmkmul(kval,mtsta,iiter,idxvec,irset)
 !***********************************************************************
@@ -1720,28 +1720,28 @@ return
 
 end subroutine orthogwconvec
 
-subroutine cielement()
-! print a Row of CI matrix
-
-use gugaci_global, only: indx, mcroot, nci_dim, vector1, vector2
-
-implicit none
-integer :: icolum
-real*8 :: sc1
-
-write(6,*) 'mcroot',mcroot
-indx(1) = 0
-indx(2) = nci_dim
-mcroot = 1
-
-icolum = 807
-vector1(1:nci_dim) = 0.d0
-vector2(1:nci_dim) = 0.d0
-vector1(icolum) = 1.d0
-call matrix_vector_multi_parallel_drt(sc1)
-
-!do i=1,nci_dim
-!  write(21,'(i8,1x,f18.8)') i,vector2(i)
-!end do
-
-end subroutine cielement
+!subroutine cielement()
+!! print a Row of CI matrix
+!
+!use gugaci_global, only: indx, mcroot, nci_dim, vector1, vector2
+!
+!implicit none
+!integer :: icolum
+!real*8 :: sc1
+!
+!write(6,*) 'mcroot',mcroot
+!indx(1) = 0
+!indx(2) = nci_dim
+!mcroot = 1
+!
+!icolum = 807
+!vector1(1:nci_dim) = 0.d0
+!vector2(1:nci_dim) = 0.d0
+!vector1(icolum) = 1.d0
+!call matrix_vector_multi_parallel_drt(sc1)
+!
+!!do i=1,nci_dim
+!!  write(21,'(i8,1x,f18.8)') i,vector2(i)
+!!end do
+!
+!end subroutine cielement

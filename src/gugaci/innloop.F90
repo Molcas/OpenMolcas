@@ -97,7 +97,8 @@ end subroutine act_space_ploop
 
 subroutine cloop_in_act()
 
-use gugaci_global, only: logic_br, lsm_inn, mul_tab, norb_dz, norb_inn
+use gugaci_global, only: logic_br, lsm_inn, norb_dz, norb_inn
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lmi, lmij, lmj, lmk, lml, lra, lrai, lraj, lrak, lral, lsmij, mh
@@ -573,1035 +574,1037 @@ return
 
 end subroutine act_cloop
 
-subroutine dbl_head_act_tail_0(lpcoe)
-
-use gugaci_global, only: jb_sys, jml, jmr, jpad, jpadl, jpel, jper, jud, just, jwl, jwr, kk, line, lrg, lrs, lsm_inn, map_jplr, &
-                         mul_tab, norb_dz, norb_frz, norb_inn, ns_sm, vint_ci, voint, w0, w0_d1s, w0_d1t1, w0_d1v, w0_ds, w0_dt, &
-                         w0_dv, w0_td, w0_vv, w1, w1_d1s, w1_d1t1, w1_ds, w1_dt, w1_t1v, w1_td, w1_tv
-
-implicit none
-integer :: lpcoe(norb_dz+1:norb_inn)
-integer :: imd, imi, imij, imj, itypadl, itypadr, iwdl, iwdr, jmlr, kcoe, l, list, lmd, lmi, lmij, lmj, lpok, lr, lr0, lra, lrd, &
-           lri, lrj, lrk, ni, nocc
-real*8 :: tcoe, vlop0, vlop1, w0ds1, w0ds3, w0dv1, w0dv2, w0td1, w0td2, w0td3, w0td4, w0td5, w1ds, w1ds3, w1td2, w1td3, w1tv, wl, &
-           wl_430
-integer, external :: list3, list4
-
-lra = kk(jpel)-1
-jml = mod((jpadl-1),8)
-jmr = mod((jpad-1),8)
-itypadl = (jpadl-1)/8+2
-itypadr = (jpad-1)/8+2
-if (jml == 0) then
-  jml = 8
-  itypadl = itypadl-1
-end if
-if (jmr == 0) then
-  jmr = 8
-  itypadr = itypadr-1
-end if
-if (jpadl == 1) itypadl = 1
-if (jpad == 1) itypadr = 1
-if (jpadl == 1) jml = ns_sm
-if (jpad == 1) jmr = ns_sm
-jml = mul_tab(jml,ns_sm)
-jmr = mul_tab(jmr,ns_sm)
-jmlr = mul_tab(jml,jmr)
-lpok = map_jplr(itypadl,itypadr)
-if (lpok == 0) return
-select case (line)
-  case default ! (23)
-    !line=23:-a^l<-->ds(7),dds(9),dt(14),ddtt(16)
-    select case (lpok)
-      case default ! (7)
-        ! ds(7-1) ar(23)-drl(30)-
-        do lri=norb_frz+1,norb_dz
-          lmi = lsm_inn(lri)
-          if (jmr == 1) then
-            iwdr = just(lri,lri)
-            do lrd=norb_frz+1,lri-1
-              lmd = lsm_inn(lrd)
-              if (lmd /= jml) cycle
-              iwdl = jud(lrd)
-              w0ds1 = w0_ds(1)
-              ni = mod(norb_dz-lrd,2)
-              if (ni == 0) w0ds1 = -w0ds1
-              vlop0 = w0*w0ds1
-              list = list3(lrd,lra,lri)
-              wl = vlop0*vint_ci(list)          !   3.2
-              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-            end do
-          end if
-          do lrj=lri+1,norb_dz
-            ! ds(7-3) ar(23)-bl(32)-br(31)-
-            lmj = lsm_inn(lrj)
-            lmij = mul_tab(lmi,lmj)
-            if (lmij /= jmr) cycle
-            do lrd=norb_frz+1,lri-1
-              iwdr = just(lri,lrj)
-              lmd = lsm_inn(lrd)
-              if (lmd /= jml) cycle
-              iwdl = jud(lrd)
-              w0ds3 = w0_ds(3)
-              w1ds3 = w1_ds(3)
-              ni = mod(norb_dz-lrj+lri-lrd,2)
-              if (ni == 0) w0ds3 = -w0ds3
-              if (ni == 0) w1ds3 = -w1ds3
-              vlop0 = w0*w0ds3
-              vlop1 = w1*w1ds3
-              list = list4(lrd,lri,lrj,lra)
-              wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)            !1.1
-              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-              if (jb_sys > 0) then
-                ! ds(7-2) ar(23)-bl(31)-br(32)-         the symmetry problem
-                iwdr = just(lrj,lri)
-                w0ds3 = w0_ds(2)
-                w1ds3 = w1_ds(2)
-                ni = mod(norb_dz-lrj+lri-lrd,2)
-                if (ni == 0) w0ds3 = -w0ds3
-                if (ni == 0) w1ds3 = -w1ds3
-                vlop0 = w0*w0ds3
-                vlop1 = w1*w1ds3
-                list = list4(lrd,lri,lrj,lra)
-                wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)            !1.1
-                call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-              end if
-            end do
-          end do
-        end do
-
-      case (9)
-        do lri=norb_frz+1,norb_dz
-          ! d1s(9-1) ar(13)-drl(30)-
-          lmi = lsm_inn(lri)
-          do lrd=norb_frz+1,lri-1
-            lmd = lsm_inn(lrd)
-            if ((lmd == jml) .and. (jmr == 1)) then
-              iwdr = just(lri,lri)
-              iwdl = jud(lrd)
-              w0ds1 = w0_d1s(1)
-              ni = mod(norb_dz-lri+lri-lrd,2)
-              if (ni == 0) w0ds1 = -w0ds1
-              vlop0 = w0*w0ds1
-              list = list3(lrd,lra,lri)
-              wl = vlop0*vint_ci(list)          !   3.2
-              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-            end if
-            ! d1s(9-4) drl(12)-br(31)-
-            if ((jml == lmd) .and. (jmr == mul_tab(lmd,lmi))) then
-              iwdr = just(lrd,lri)
-              iwdl = jud(lrd)
-              w1ds = w1_d1s(4)
-              if (mod(norb_dz-lri,2) == 1) w1ds = -w1ds
-              vlop1 = w1*w1ds
-              list = list3(lri,lra,lrd)
-              wl = -vlop1*vint_ci(list)
-              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-            end if
-          end do
-        end do
-        do lri=norb_frz+1,norb_dz
-          lmi = lsm_inn(lri)
-          do lrj=lri+1,norb_dz
-            ! d1s(9-3) ar(13)-bl(32)-br(31)-
-            lmj = lsm_inn(lrj)
-            lmij = mul_tab(lmi,lmj)
-            if (lmij /= jmr) cycle
-            do lrd=norb_frz+1,lri-1
-              iwdr = just(lri,lrj)
-              lmd = lsm_inn(lrd)
-              if (lmd /= jml) cycle
-              iwdl = jud(lrd)
-              w0ds3 = w0_d1s(3)
-              w1ds3 = w1_d1s(3)
-              ni = mod(norb_dz-lrj+lri-lrd,2)
-              if (ni == 0) w0ds3 = -w0ds3
-              if (ni == 0) w1ds3 = -w1ds3
-              vlop0 = w0*w0ds3
-              vlop1 = w1*w1ds3
-              list = list4(lrd,lri,lrj,lra)
-              wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)            !1.1
-              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-              if (jb_sys > 0) then
-                ! d1s(9-2)   ar(13)-bl(31)-br(32)-   the symmetry problem
-                iwdr = just(lrj,lri)
-                w0ds3 = w0_d1s(2)
-                w1ds3 = w1_d1s(2)
-                ni = mod(norb_dz-lrj+lri-lrd,2)
-                if (ni == 0) w0ds3 = -w0ds3
-                if (ni == 0) w1ds3 = -w1ds3
-                vlop0 = w0*w0ds3
-                vlop1 = w1*w1ds3
-                list = list4(lrd,lri,lrj,lra)
-                wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)            !1.1
-                call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-              end if
-            end do
-          end do
-        end do
-
-      case (14)
-        ! dt(14) ar(23)-bl(32)-br(32)-
-        do lri=norb_frz+1,norb_dz-1
-          lmi = lsm_inn(lri)
-          do lrj=lri+1,norb_dz
-            lmj = lsm_inn(lrj)
-            lmij = mul_tab(lmi,lmj)
-            if (lmij /= jmr) cycle
-            iwdr = just(lri,lrj)
-            do lrd=norb_frz+1,lri-1
-              lmd = lsm_inn(lrd)
-              lmd = mul_tab(lmd,1)
-              if (lmd /= jml) cycle
-              iwdl = jud(lrd)
-              vlop0 = w0*w0_dt
-              vlop1 = w1*w1_dt
-              ni = mod(lri-lrd+norb_dz-lrj,2)
-              if (ni == 0) then
-                vlop0 = -vlop0
-                vlop1 = -vlop1
-              end if
-              list = list4(lrd,lri,lrj,lra)
-              wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1) !1.1
-              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-            end do
-          end do
-        end do
-
-      case (16)
-        ! d1t1(16)  ar(13)-bl(31)-br(31)-
-        do lri=norb_frz+1,norb_dz-1
-          lmi = lsm_inn(lri)
-          do lrj=lri+1,norb_dz
-            lmj = lsm_inn(lrj)
-            lmij = mul_tab(lmi,lmj)
-            if (lmij /= jmr) cycle
-            iwdr = just(lri,lrj)
-            do lrd=norb_frz+1,lri-1
-              lmd = lsm_inn(lrd)
-              lmd = mul_tab(lmd,1)
-              if (lmd /= jml) cycle
-              iwdl = jud(lrd)
-              vlop0 = w0*w0_d1t1
-              vlop1 = w1*w1_d1t1
-              ni = mod(lri-lrd+norb_dz-lrj,2)
-              if (ni == 0) then
-                vlop0 = -vlop0
-                vlop1 = -vlop1
-              end if
-              list = list4(lrd,lri,lrj,lra)
-              wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1) !1.1
-              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-            end do
-          end do
-        end do
-
-      case (1:6,8,10:13,15,17:26)
-    end select
-
-  case (24)
-    ! line=24:-a^r<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
-    select case (lpok)
-      case default !(6)
-        call sd_head_dbl_tail_act(lra,lpcoe)
-
-      case (8)
-        call sdd_head_dbl_tail_act(lra,lpcoe)
-
-      case (13)
-        !call td_head_dbl_tail_act(lra,lpcoe)
-        ! td(13-1) (22)a&(23)
-        ! td(13-1) a&(23)c'(22)
-        ! td(13-5) (22)d&&l(33)b^l(23)
-        do lri=norb_frz+1,norb_dz
-          lmi = lsm_inn(lri)
-          if (lmi /= jmlr) cycle
-          w0td1 = w0_td(1)
-          w0td4 = w0_td(4)
-          w0td5 = w0_td(5)
-          ni = mod(norb_dz-lri,2)
-          if (ni == 1) w0td1 = -w0td1
-          if (ni == 1) w0td4 = -w0td4
-          if (ni == 1) w0td5 = -w0td5
-
-          ! td(13-1) a&(23)c'(22)
-          do lrd=lri+1,norb_dz
-            lmd = lsm_inn(lrd)
-            if (lmd /= jmr) cycle
-            iwdl = just(lri,lrd)
-            iwdr = jud(lrd)
-            vlop0 = -w0*w0td1
-            list = list3(lri,lra,lri)
-            wl = voint(lri,lra)+vint_ci(list)           !310,act_coe,610,7
-            list = list3(lri,lra,lrd)
-            wl = wl+vint_ci(list+1)
-            do lr=lri+1,norb_dz
-              if (lr == lrd) cycle
-              list = list3(lri,lra,lr)
-              wl = wl+2*vint_ci(list+1)-vint_ci(list)       !310:neoc=2,coe=
-            end do
-            do lrk=norb_dz+1,lra
-              list = list3(lri,lra,lrk)
-              kcoe = lpcoe(lrk)
-              call neoc(kcoe,nocc,tcoe)
-              wl = wl+nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
-            end do
-            wl = wl*vlop0
-            ! td(13-5) d&rl(33)b^l(23)c'(22)
-            vlop0 = -w0*w0td5
-            do lrk=1,lri-1
-              list = list3(lri,lra,lrk)
-              wl = wl-vlop0*(2*vint_ci(list+1)-vint_ci(list))
-            end do
-            call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-          end do
-          !-------------------------------------------------------------
-          do lrd=norb_frz+1,lri-1
-            lmd = lsm_inn(lrd)
-            if (lmd /= jmr) cycle
-            iwdl = just(lrd,lri)
-            iwdr = jud(lrd)
-            ! td(13-1) (22)a&(23)
-            vlop0 = w0*w0td1
-            list = list3(lri,lra,lri)
-            wl = vlop0*(voint(lri,lra)+vint_ci(list))             !310,act_c
-            do lr=lri+1,norb_dz
-              list = list3(lri,lra,lr)
-              wl = wl+vlop0*(2*vint_ci(list+1)-vint_ci(list)) !  310:neoc=2,
-            end do
-            do lrk=norb_dz+1,lra
-              list = list3(lri,lra,lrk)
-              kcoe = lpcoe(lrk)
-              call neoc(kcoe,nocc,tcoe)
-              wl = wl+vlop0*nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
-            end do
-            !wl = wl*vlop0
-            ! td(13-4) d&r&l(22)b^l(23)
-            vlop0 = w0*w0td4
-            vlop1 = w1*w0td4
-            list = list3(lri,lra,lrd)
-            wl = wl+(vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)
-            ! td(13-5) d&rl(33)c"(22)b^l(23)
-            vlop0 = w0*w0td5
-            do lrk=1,lri-1
-              if (lrk == lrd) cycle
-              list = list3(lri,lra,lrk)
-              wl = wl+vlop0*(vint_ci(list)-2*vint_ci(list+1))      !4.3
-            end do
-            call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-          end do
-        end do
-        do lri=norb_frz+1,norb_dz-1
-          lmi = lsm_inn(lri)
-          do lrj=lri+1,norb_dz
-            lmj = lsm_inn(lrj)
-            lmij = mul_tab(lmi,lmj)
-            if (lmij /= jml) cycle
-            iwdl = just(lri,lrj)
-
-            ! td(13-2) a&(23)b&r(23)b^r(32)
-            do lrd=lrj+1,norb_dz
-              lmd = lsm_inn(lrd)
-              if (lmd /= jmr) cycle
-              w0td2 = w0_td(2)
-              w1td2 = w1_td(2)
-              ni = mod(lrj-lri+norb_dz-lrd,2)
-              if (ni == 0) w0td2 = -w0td2
-              if (ni == 0) w1td2 = -w1td2
-
-              iwdr = jud(lrd)
-              vlop0 = w0*w0td2
-              vlop1 = w1*w1td2
-              list = list4(lri,lrj,lrd,lra)
-              wl = vlop0*(vint_ci(list+2)+vint_ci(list))-vlop1*(vint_ci(list+2)-vint_ci(list)) !1.3
-              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-            end do
-            ! td(13-3) a&(23)b&l(32)b^l(23)
-            do lrd=lri+1,lrj-1
-              lmd = lsm_inn(lrd)
-              if (lmd /= jmr) cycle
-              iwdr = jud(lrd)
-              w0td3 = w0_td(3)
-              w1td3 = w1_td(3)
-              ni = mod(lrd-lri+norb_dz-lrj,2)
-              if (ni == 0) w0td3 = -w0td3
-              if (ni == 0) w1td3 = -w1td3
-              vlop0 = w0*w0td3                !d6-8
-              vlop1 = w1*w1td3
-              list = list4(lri,lrd,lrj,lra)
-              wl = vlop0*(vint_ci(list+2)-2*vint_ci(list+1))-vlop1*vint_ci(list+2) !1.2
-              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-            end do
-          end do
-        end do
-
-      case (15)
-        call ttdd_head_dbl_tail_act(lra,lpcoe)
-
-      case (23)
-        ! dv(23-1) ar(23)-
-        ! dv(23-2) drl(33)-bl(23)-
-        iwdr = 0
-        do lrd=norb_frz+1,norb_dz
-          imd = lsm_inn(lrd)
-          if (imd /= jml) cycle
-          iwdl = jud(lrd)
-          w0dv1 = w0_dv(1)
-          ni = mod(norb_dz-lrd,2)
-          if (ni == 1) w0dv1 = -w0dv1
-          vlop0 = w0*w0dv1                !d23-1
-          vlop1 = w1*w0dv1
-          !*************************************************************
-          lr0 = lrd
-          lr = kk(jpel)-1
-          list = list3(lr0,lr,lr0)
-          wl = vlop0*(voint(lr0,lr)+vint_ci(list))       !310+710
-          do l=lr0+1,norb_dz
-            list = list3(lr0,lr,l)
-            nocc = 2
-            tcoe = -0.5d0
-            wl = wl+nocc*vlop0*(vint_ci(list+1)+tcoe*vint_ci(list))  !dbl_
-          end do
-          do l=norb_dz+1,lr
-            list = list3(lr0,lr,l)
-            kcoe = lpcoe(l)
-            call neoc(kcoe,nocc,tcoe)
-            wl = wl+nocc*vlop0*(vint_ci(list+1)+tcoe*vint_ci(list))   !act_c
-          end do
-          wl_430 = 0.d0
-          w0dv2 = w0_dv(2)
-          ni = mod(norb_dz-lrd,2)
-          if (ni == 1) w0dv2 = -w0dv2
-          do lrk=1,lrd-1
-            list = list3(lr0,lr,lrk)
-            vlop0 = w0*w0dv2
-            wl_430 = wl_430+vlop0*(vint_ci(list)-2*vint_ci(list+1))
-          end do
-          wl = wl+wl_430
-          !*************************************************************
-          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-        end do
-
-      case (24)
-        ! d1v(24-1) ar(13)-
-        ! d1v(24-2) drl(33)-bl(13)-
-        iwdr = 0
-        do lrd=norb_frz+1,norb_dz
-          imd = lsm_inn(lrd)
-          if (imd /= jml) cycle
-          iwdl = jud(lrd)
-          w0dv1 = w0_d1v(1)
-          ni = mod(norb_dz-lrd,2)
-          if (ni == 1) w0dv1 = -w0dv1
-          vlop0 = w0*w0dv1                !d24-1
-          vlop1 = w1*w0dv1
-          !*************************************************************
-          lr0 = lrd
-          lr = kk(jpel)-1
-          list = list3(lr0,lr,lr0)
-          wl = vlop0*(voint(lr0,lr)+vint_ci(list))       !310+710
-          do l=lr0+1,norb_dz
-            list = list3(lr0,lr,l)
-            nocc = 2
-            tcoe = -0.5d0
-            wl = wl+nocc*vlop0*(vint_ci(list+1)+tcoe*vint_ci(list))  !dbl_
-          end do
-          do l=norb_dz+1,lr
-            list = list3(lr0,lr,l)
-            kcoe = lpcoe(l)
-            call neoc(kcoe,nocc,tcoe)
-            wl = wl+nocc*vlop0*(vint_ci(list+1)+tcoe*vint_ci(list))   !act_c
-          end do
-          wl_430 = 0.d0
-          w0dv2 = w0_d1v(2)
-          ni = mod(norb_dz-lrd,2)
-          if (ni == 1) w0dv2 = -w0dv2
-          do lrk=1,lrd-1
-            list = list3(lr0,lr,lrk)
-            vlop0 = w0*w0dv2
-            wl_430 = wl_430+vlop0*(vint_ci(list)-2*vint_ci(list+1))
-          end do
-          wl = wl+wl_430
-          !*************************************************************
-          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-        end do
-
-      case (1:5,7,9:12,14,16:22,25:26)
-    end select
-
-  case (25)
-    ! line=25:-d^r^r<-->sv(10),tv(17),ttv(18)
-    select case (lpok)
-      case default ! (10)
-        call sv_head_dbl_tail_act(lra)
-
-      case (17)
-        ! tv(17) ar(23)-br(23)-
-        iwdr = 0
-        do lri=norb_frz+1,norb_dz
-          imi = lsm_inn(lri)
-          do lrj=lri,norb_dz
-            imj = lsm_inn(lrj)
-            imij = mul_tab(imi,imj)
-            if (imij /= jml) cycle
-            iwdl = just(lri,lrj)
-            vlop1 = w1*w1_tv             !d17 vlop0=0
-            list = list3(lri,lrj,lra)
-            wl = vlop1*vint_ci(list)        !2.1                  !!!!!
-            call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-          end do
-        end do
-
-      case (18)
-        ! t1v(18) ar(13)-br(13)-
-        iwdr = 0
-        do lri=norb_frz+1,norb_dz
-          imi = lsm_inn(lri)
-          do lrj=lri,norb_dz
-            imj = lsm_inn(lrj)
-            imij = mul_tab(imi,imj)
-            if (imij /= jml) cycle
-            iwdl = just(lri,lrj)
-            vlop1 = w1*w1_t1v             !d18 vlop0=0
-            list = list3(lri,lrj,lra)
-            wl = vlop1*vint_ci(list)        !2.1                  !!!!!
-            call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-          end do
-        end do
-
-      case (1:9,11:16,19:26)
-    end select
-    ! tmp for spin=0
-
-  case (26)
-    ! line=26:-d^r^l<-->ss(1),st(2),ts(3),stt(4),tts(5),tt(11),tttt(12),dd(19
-    select case (lpok)
-      case default ! (1)
-        call ss_head_dbl_tail_act(lra)
-
-      case (2)
-        call st_head_dbl_tail_act(lra)
-
-      case (3)
-        call ts_head_dbl_tail_act(lra)
-
-      case (4)
-        call stt_head_dbl_tail_act(lra)
-
-      case (5)
-        call tts_head_dbl_tail_act(lra)
-
-      case (11)
-        call tt_head_dbl_tail_act(lra)
-
-      case (12)
-        call tttt_head_dbl_tail_act(lra)
-
-      case (19)
-        call dd_head_dbl_tail_act(lra)
-
-      case (20)
-        call dddd_head_dbl_tail_act(lra)
-
-      case (21)
-        call dd1_head_dbl_tail_act(lra)
-
-      case (22)
-        call d1d_head_dbl_tail_act(lra)
-
-      case (25)
-        ! vv(25) drl(33)-
-        if (jwl == jwr) return
-        vlop0 = w0*w0_vv             !d25
-        wl = 0.d0
-        iwdl = 0
-        iwdr = 0
-        do lri=1,norb_dz
-          wl = wl+vlop0*voint(lri,lra)
-        end do
-        call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-
-      case (6:10,13:18,23:24,26)
-    end select
-
-  case (27)
-    ! sv(10),tv(17),ttv(18)
-    ! line=27:-b^r-a^r<-->sv(10),tv(17),ttv(18)
-    select case (lpok)
-      case default ! (10)
-        call sv_head_dbl_tail_act(lra)
-
-      case (17)
-        ! tv(17) ar(23)-br(23)-
-        iwdr = 0
-        do lri=norb_frz+1,norb_dz
-          lmi = lsm_inn(lri)
-          do lrj=lri+1,norb_dz
-            lmj = lsm_inn(lrj)
-            lmij = mul_tab(lmi,lmj)
-            if (lmij /= jml) cycle
-            w1tv = w1_tv
-            if (mod(lrj-lri,2) == 0) w1tv = -w1tv
-            iwdl = just(lri,lrj)
-            vlop1 = w1*w1tv             !d17
-            list = list4(lri,lrj,lrs,lra)
-            wl = vlop1*(vint_ci(list)-vint_ci(list+2)) !1.3 vlop0=0      !!!!!
-            call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-          end do
-        end do
-
-      case (18)
-        ! t1v(18) ar(13)-br(13)-
-        iwdr = 0
-        do lri=norb_frz+1,norb_dz-1
-          lmi = lsm_inn(lri)
-          do lrj=lri+1,norb_dz
-            lmj = lsm_inn(lrj)
-            lmij = mul_tab(lmi,lmj)
-            if (lmij /= jml) cycle
-            w1tv = w1_t1v
-            if (mod(lrj-lri,2) == 0) w1tv = -w1tv
-            iwdl = just(lri,lrj)
-            vlop1 = w1*w1tv             !d17
-            list = list4(lri,lrj,lrs,lra)
-            wl = vlop1*(vint_ci(list)-vint_ci(list+2)) !1.3 vlop0=0      !!!!!
-            call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-          end do
-        end do
-
-      case (1:9,11:16,19:26)
-    end select
-    ! tmp for spin=0
-
-  case (28)
-    ! line=28:-b^l-a^r<-->ss(1),st(2),ts(3),stt(4),tts(5),tt(11),tttt(12),dd(
-    select case (lpok)
-      case default ! (1)
-        call ss_head_dbl_tail_act(lra)
-
-      case (2)
-        call st_head_dbl_tail_act(lra)
-
-      case (3)
-        call ts_head_dbl_tail_act(lra)
-
-      case (4)
-        call stt_head_dbl_tail_act(lra)
-
-      case (5)
-        call tts_head_dbl_tail_act(lra)
-
-      case (11)
-        call tt_head_dbl_tail_act(lra)
-
-      case (12)
-        call tttt_head_dbl_tail_act(lra)
-
-      case (19)
-        call dd_head_dbl_tail_act(lra)
-
-      case (20)
-        call dddd_head_dbl_tail_act(lra)
-
-      case (21)
-        call dd1_head_dbl_tail_act(lra)
-
-      case (22)
-        call d1d_head_dbl_tail_act(lra)
-
-      case (25)
-        ! vv(25) drl(33)-
-        vlop0 = w0*w0_vv             !d25
-        wl = 0.d0
-        iwdl = 0
-        iwdr = 0
-        do lrk=1,norb_dz
-          list = list3(lrs,lra,lrk)
-          wl = wl+vlop0*(vint_ci(list)-2*vint_ci(list+1))   !4.3 vlop1=0
-        end do
-        call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-
-      case (6:10,13:18,23:24,26)
-    end select
-
-  case (29)
-    ! line=29:-b^r-a^l<-->ss(1),st(2),ts(3),stt(4),tts(5),tt(11),tttt(12),dd(
-    select case (lpok)
-      case default ! (1)
-        call ss_head_dbl_tail_act(lra)
-
-      case (2)
-        call st_head_dbl_tail_act(lra)
-
-      case (3)
-        call ts_head_dbl_tail_act(lra)
-
-      case (4)
-        call stt_head_dbl_tail_act(lra)
-
-      case (5)
-        call tts_head_dbl_tail_act(lra)
-
-      case (11)
-        call tt_head_dbl_tail_act(lra)
-
-      case (12)
-        call tttt_head_dbl_tail_act(lra)
-
-      case (19)
-        call dd_head_dbl_tail_act(lra)
-
-      case (20)
-        call dddd_head_dbl_tail_act(lra)
-
-      case (21)
-        call dd1_head_dbl_tail_act(lra)
-
-      case (22)
-        call d1d_head_dbl_tail_act(lra)
-
-      case (25)
-        ! vv(25) drl(33)-
-        if (jwl >= jwr) return
-        vlop0 = w0*w0_vv             !d25
-        wl = 0.d0
-        iwdl = 0
-        iwdr = 0
-        do lrk=1,norb_dz
-          list = list3(lrs,lra,lrk)
-          wl = vlop0*vint_ci(list)      !4.2  vlop1=0         !!!!!
-        end do
-        call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-
-      case (6:10,13:18,23:24,26)
-    end select
-
-  case (30)
-    ! line=30:-b&r-d^r^r<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
-    select case (lpok)
-      case default ! (6)
-        ! sd(6-3) a&r(13)c'(22)-
-        call dbl_sd_act_comp(3,lra)
-        ! sd(6-3) tmp for spin=0
-
-      case (8)
-        call dbl_sdd_act_comp(3,lra)
-
-      case (13)
-        call dbl_td_act_comp(3,lra)
-
-      case (15)
-        call dbl_ttdd_act_comp(3,lra)
-
-      case (23)
-        ! dv(23-1) ar(23)-
-        ! dv(23-2) drl(33)-bl(23)-
-        iwdr = 0
-        do lrd=norb_frz+1,norb_dz
-          imd = lsm_inn(lrd)
-          if (imd /= jml) cycle
-          iwdl = jud(lrd)
-          w0dv1 = w0_dv(1)
-          ni = mod(norb_dz-lrd,2)
-          if (ni == 1) w0dv1 = -w0dv1
-          vlop0 = w0*w0dv1                   !d23-1
-          vlop1 = w1*w0dv1
-          list = list3(lrd,lrg,lra)
-          wl = (vlop0+vlop1)*vint_ci(list)        !2.1       !!!!!
-          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-        end do
-
-      case (24)
-        ! d1v(24-1)  ar(13)-
-        iwdr = 0
-        do lrd=norb_frz+1,norb_dz
-          imd = lsm_inn(lrd)
-          if (imd /= jml) cycle
-          iwdl = jud(lrd)
-          w0dv1 = w0_d1v(1)
-          ni = mod(norb_dz-lrd,2)
-          if (ni == 1) w0dv1 = -w0dv1
-          vlop0 = w0*w0dv1                   !d23-1
-          vlop1 = w1*w0dv1
-          list = list3(lrd,lrg,lra)
-          wl = (vlop0+vlop1)*vint_ci(list)        !2.1       !!!!!
-          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-        end do
-
-      case (1:5,7,9:12,14,16:22,25:26)
-    end select
-
-  case (31)
-    ! line=31:-b&l-d^r^l<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
-    select case (lpok)
-      case default ! (6)
-        call dbl_sd_act_comp(5,lra)
-
-      case (8)
-        call dbl_sdd_act_comp(5,lra)
-
-      case (13)
-        call dbl_td_act_comp(5,lra)
-
-      case (15)
-        call dbl_ttdd_act_comp(5,lra)
-
-      case (23)
-        ! dv(23-1) ar(23)-
-        ! dv(23-2) drl(33)-bl(23)-
-        iwdr = 0
-        do lrd=norb_frz+1,norb_dz
-          imd = lsm_inn(lrd)
-          if (imd /= jml) cycle
-          iwdl = jud(lrd)
-          w0dv1 = w0_dv(1)
-          ni = mod(norb_dz-lrd,2)
-          if (ni == 1) w0dv1 = -w0dv1
-          vlop0 = w0*w0dv1                !d23-1
-          vlop1 = w1*w0dv1
-          list = list3(lrd,lrg,lra)
-          wl = vlop0*(vint_ci(list)-2*vint_ci(list+1))-vlop1*(vint_ci(list)) !2.2          !!!!!
-          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-        end do
-
-      case (24)
-        ! d1v(24-1)  ar(13)-
-        iwdr = 0
-        do lrd=norb_frz+1,norb_dz
-          imd = lsm_inn(lrd)
-          if (imd /= jml) cycle
-          iwdl = jud(lrd)
-          w0dv1 = w0_d1v(1)
-          ni = mod(norb_dz-lrd,2)
-          if (ni == 1) w0dv1 = -w0dv1
-          vlop0 = w0*w0dv1                !d23-1
-          vlop1 = w1*w0dv1
-          list = list3(lrd,lrg,lra)
-          wl = vlop0*(vint_ci(list)-2*vint_ci(list+1))-vlop1*(vint_ci(list)) !2.2          !!!!!
-          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-        end do
-
-      case (1:5,7,9:12,14,16:22,25:26)
-    end select
-
-  case (32)
-    ! line=32:-b&r-b^r-a^r<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
-    select case (lpok)
-      case default ! (6)
-        call dbl_sd_act_comp(4,lra)
-
-      case (8)
-        call dbl_sdd_act_comp(4,lra)
-
-      case (13)
-        call dbl_td_act_comp(4,lra)
-
-      case (15)
-        call dbl_ttdd_act_comp(4,lra)
-
-      case (23)
-        ! dv(23-1) ar(23)-
-        ! dv(23-2) drl(33)-bl(23)-
-        iwdr = 0
-        do lrd=norb_frz+1,norb_dz
-          imd = lsm_inn(lrd)
-          if (imd /= jml) cycle
-          iwdl = jud(lrd)
-          w0dv1 = w0_dv(1)
-          ni = mod(norb_dz-lrd,2)
-          if (ni == 1) w0dv1 = -w0dv1
-          vlop0 = w0*w0dv1                !d23-1
-          vlop1 = w1*w0dv1
-          list = list4(lrd,lrg,lrs,lra)
-          wl = vlop0*(vint_ci(list+2)+vint_ci(list))-vlop1*(vint_ci(list+2)-vint_ci(list)) !1.3        !!!!!
-          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-        end do
-
-      case (24)
-        ! d1v(24-1)  ar(13)-
-        iwdr = 0
-        do lrd=norb_frz+1,norb_dz
-          imd = lsm_inn(lrd)
-          if (imd /= jml) cycle
-          iwdl = jud(lrd)
-          w0dv1 = w0_d1v(1)
-          ni = mod(norb_dz-lrd,2)
-          if (ni == 1) w0dv1 = -w0dv1
-          vlop0 = w0*w0dv1                !d23-1
-          vlop1 = w1*w0dv1
-          list = list4(lrd,lrg,lrs,lra)
-          wl = vlop0*(vint_ci(list+2)+vint_ci(list))-vlop1*(vint_ci(list+2)-vint_ci(list)) !1.3        !!!!!
-          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-        end do
-
-      case (1:5,7,9:12,14,16:22,25:26)
-    end select
-
-  case (33)
-    ! line=33:-b&l-b^r-a^l<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
-    select case (lpok)
-      case default ! (6)
-        call dbl_sd_act_comp(6,lra)
-
-      case (8)
-        call dbl_sdd_act_comp(6,lra)
-
-      case (13)
-        call dbl_td_act_comp(6,lra)
-
-      case (15)
-        call dbl_ttdd_act_comp(6,lra)
-
-      case (23)
-        ! dv(23-1) ar(23)-
-        ! dv(23-2) drl(33)-bl(23)-
-        iwdr = 0
-        do lrd=norb_frz+1,norb_dz
-          imd = lsm_inn(lrd)
-          if (imd /= jml) cycle
-          iwdl = jud(lrd)
-          w0dv1 = w0_dv(1)
-          ni = mod(norb_dz-lrd,2)
-          if (ni == 1) w0dv1 = -w0dv1
-          vlop0 = w0*w0dv1                !d23-1
-          vlop1 = w1*w0dv1
-          list = list4(lrd,lrg,lrs,lra)
-          wl = vlop0*(vint_ci(list)-2*vint_ci(list+1))-vlop1*vint_ci(list) !1.1          !!!!!
-          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-        end do
-
-      case (24)
-        ! d1v(24-1)  ar(13)-
-        iwdr = 0
-        do lrd=norb_frz+1,norb_dz
-          imd = lsm_inn(lrd)
-          if (imd /= jml) cycle
-          iwdl = jud(lrd)
-          w0dv1 = w0_d1v(1)
-          ni = mod(norb_dz-lrd,2)
-          if (ni == 1) w0dv1 = -w0dv1
-          vlop0 = w0*w0dv1                !d23-1
-          vlop1 = w1*w0dv1
-          list = list4(lrd,lrg,lrs,lra)
-          wl = vlop0*(vint_ci(list)-2*vint_ci(list+1))-vlop1*vint_ci(list) !1.1          !!!!!
-          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-        end do
-
-      case (1:5,7,9:12,14,16:22,25:26)
-    end select
-
-  case (34)
-    ! line=34:-b&l-b^l-a^r<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
-    select case (lpok)
-      case default ! (6)
-        call dbl_sd_act_comp(7,lra)
-
-      case (8)
-        call dbl_sdd_act_comp(7,lra)
-
-      case (13)
-        call dbl_td_act_comp(7,lra)
-
-      case (15)
-        call dbl_ttdd_act_comp(7,lra)
-
-      case (23)
-        ! dv(23-1) ar(23)-
-        ! dv(23-2) drl(33)-bl(23)-
-        iwdr = 0
-        do lrd=norb_frz+1,norb_dz
-          imd = lsm_inn(lrd)
-          if (imd /= jml) cycle
-          iwdl = jud(lrd)
-          w0dv1 = w0_dv(1)
-          ni = mod(norb_dz-lrd,2)
-          if (ni == 1) w0dv1 = -w0dv1
-          vlop0 = w0*w0dv1                !d23-1
-          vlop1 = w1*w0dv1
-          list = list4(lrd,lrg,lrs,lra)
-          wl = vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1))-vlop1*vint_ci(list+2) !1.2      !!!!!
-          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-        end do
-
-      case (24)
-        ! d1v(24-1)  ar(13)-
-        iwdr = 0
-        do lrd=norb_frz+1,norb_dz
-          imd = lsm_inn(lrd)
-          if (imd /= jml) cycle
-          iwdl = jud(lrd)
-          w0dv1 = w0_d1v(1)
-          ni = mod(norb_dz-lrd,2)
-          if (ni == 1) w0dv1 = -w0dv1
-          vlop0 = w0*w0dv1                !d23-1
-          vlop1 = w1*w0dv1
-          list = list4(lrd,lrg,lrs,lra)
-          wl = vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1))-vlop1*vint_ci(list+2) !1.2      !!!!!
-          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-        end do
-
-      case (1:5,7,9:12,14,16:22,25:26)
-    end select
-
-  case (35)
-    ! line=35:-d&r^l-a^l<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
-    select case (lpok)
-      case default !(6)
-        call dbl_sd_act_comp(2,lra)
-
-      case (8)
-        call dbl_sdd_act_comp(2,lra)
-
-      case (13)
-        call dbl_td_act_comp(2,lra)
-
-      case (15)
-        call dbl_ttdd_act_comp(2,lra)
-
-      case (23)
-        ! dv(23-1) ar(23)-
-        ! dv(23-2) drl(33)-bl(23)-
-        iwdr = 0
-        do lrd=norb_frz+1,norb_dz
-          imd = lsm_inn(lrd)
-          if (imd /= jml) cycle
-          iwdl = jud(lrd)
-          w0dv1 = w0_dv(1)
-          ni = mod(norb_dz-lrd,2)
-          if (ni == 1) w0dv1 = -w0dv1
-          vlop0 = w0*w0dv1                !d23-1
-          list = list3(lrd,lra,lrg)
-          wl = vlop0*vint_ci(list)          !3.2         !!!!!
-          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-        end do
-
-      case (24)
-        ! d1v(24-1)  ar(13)-
-        iwdr = 0
-        do lrd=norb_frz+1,norb_dz
-          imd = lsm_inn(lrd)
-          if (imd /= jml) cycle
-          iwdl = jud(lrd)
-          w0dv1 = w0_d1v(1)
-          ni = mod(norb_dz-lrd,2)
-          if (ni == 1) w0dv1 = -w0dv1
-          vlop0 = w0*w0dv1                !d23-1
-          list = list3(lrd,lra,lrg)
-          wl = vlop0*vint_ci(list)          !3.2         !!!!!
-          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
-        end do
-
-      case (1:5,7,9:12,14,16:22,25:26)
-    end select
-end select
-
-return
-
-end subroutine dbl_head_act_tail_0
+!subroutine dbl_head_act_tail_0(lpcoe)
+!
+!use gugaci_global, only: jb_sys, jml, jmr, jpad, jpadl, jpel, jper, jud, just, jwl, jwr, kk, line, lrg, lrs, lsm_inn, map_jplr, &
+!                         norb_dz, norb_frz, norb_inn, ns_sm, vint_ci, voint, w0, w0_d1s, w0_d1t1, w0_d1v, w0_ds, w0_dt, w0_dv, &
+!                         w0_td, w0_vv, w1, w1_d1s, w1_d1t1, w1_ds, w1_dt, w1_t1v, w1_td, w1_tv
+!use Symmetry_Info, only: mul_tab => Mul
+!
+!implicit none
+!integer :: lpcoe(norb_dz+1:norb_inn)
+!integer :: imd, imi, imij, imj, itypadl, itypadr, iwdl, iwdr, jmlr, kcoe, l, list, lmd, lmi, lmij, lmj, lpok, lr, lr0, lra, lrd, &
+!           lri, lrj, lrk, ni, nocc
+!real*8 :: tcoe, vlop0, vlop1, w0ds1, w0ds3, w0dv1, w0dv2, w0td1, w0td2, w0td3, w0td4, w0td5, w1ds, w1ds3, w1td2, w1td3, w1tv, wl, &
+!           wl_430
+!integer, external :: list3, list4
+!
+!lra = kk(jpel)-1
+!jml = mod((jpadl-1),8)
+!jmr = mod((jpad-1),8)
+!itypadl = (jpadl-1)/8+2
+!itypadr = (jpad-1)/8+2
+!if (jml == 0) then
+!  jml = 8
+!  itypadl = itypadl-1
+!end if
+!if (jmr == 0) then
+!  jmr = 8
+!  itypadr = itypadr-1
+!end if
+!if (jpadl == 1) itypadl = 1
+!if (jpad == 1) itypadr = 1
+!if (jpadl == 1) jml = ns_sm
+!if (jpad == 1) jmr = ns_sm
+!jml = mul_tab(jml,ns_sm)
+!jmr = mul_tab(jmr,ns_sm)
+!jmlr = mul_tab(jml,jmr)
+!lpok = map_jplr(itypadl,itypadr)
+!if (lpok == 0) return
+!select case (line)
+!  case default ! (23)
+!    !line=23:-a^l<-->ds(7),dds(9),dt(14),ddtt(16)
+!    select case (lpok)
+!      case default ! (7)
+!        ! ds(7-1) ar(23)-drl(30)-
+!        do lri=norb_frz+1,norb_dz
+!          lmi = lsm_inn(lri)
+!          if (jmr == 1) then
+!            iwdr = just(lri,lri)
+!            do lrd=norb_frz+1,lri-1
+!              lmd = lsm_inn(lrd)
+!              if (lmd /= jml) cycle
+!              iwdl = jud(lrd)
+!              w0ds1 = w0_ds(1)
+!              ni = mod(norb_dz-lrd,2)
+!              if (ni == 0) w0ds1 = -w0ds1
+!              vlop0 = w0*w0ds1
+!              list = list3(lrd,lra,lri)
+!              wl = vlop0*vint_ci(list)          !   3.2
+!              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!            end do
+!          end if
+!          do lrj=lri+1,norb_dz
+!            ! ds(7-3) ar(23)-bl(32)-br(31)-
+!            lmj = lsm_inn(lrj)
+!            lmij = mul_tab(lmi,lmj)
+!            if (lmij /= jmr) cycle
+!            do lrd=norb_frz+1,lri-1
+!              iwdr = just(lri,lrj)
+!              lmd = lsm_inn(lrd)
+!              if (lmd /= jml) cycle
+!              iwdl = jud(lrd)
+!              w0ds3 = w0_ds(3)
+!              w1ds3 = w1_ds(3)
+!              ni = mod(norb_dz-lrj+lri-lrd,2)
+!              if (ni == 0) w0ds3 = -w0ds3
+!              if (ni == 0) w1ds3 = -w1ds3
+!              vlop0 = w0*w0ds3
+!              vlop1 = w1*w1ds3
+!              list = list4(lrd,lri,lrj,lra)
+!              wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)            !1.1
+!              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!              if (jb_sys > 0) then
+!                ! ds(7-2) ar(23)-bl(31)-br(32)-         the symmetry problem
+!                iwdr = just(lrj,lri)
+!                w0ds3 = w0_ds(2)
+!                w1ds3 = w1_ds(2)
+!                ni = mod(norb_dz-lrj+lri-lrd,2)
+!                if (ni == 0) w0ds3 = -w0ds3
+!                if (ni == 0) w1ds3 = -w1ds3
+!                vlop0 = w0*w0ds3
+!                vlop1 = w1*w1ds3
+!                list = list4(lrd,lri,lrj,lra)
+!                wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)            !1.1
+!                call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!              end if
+!            end do
+!          end do
+!        end do
+!
+!      case (9)
+!        do lri=norb_frz+1,norb_dz
+!          ! d1s(9-1) ar(13)-drl(30)-
+!          lmi = lsm_inn(lri)
+!          do lrd=norb_frz+1,lri-1
+!            lmd = lsm_inn(lrd)
+!            if ((lmd == jml) .and. (jmr == 1)) then
+!              iwdr = just(lri,lri)
+!              iwdl = jud(lrd)
+!              w0ds1 = w0_d1s(1)
+!              ni = mod(norb_dz-lri+lri-lrd,2)
+!              if (ni == 0) w0ds1 = -w0ds1
+!              vlop0 = w0*w0ds1
+!              list = list3(lrd,lra,lri)
+!              wl = vlop0*vint_ci(list)          !   3.2
+!              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!            end if
+!            ! d1s(9-4) drl(12)-br(31)-
+!            if ((jml == lmd) .and. (jmr == mul_tab(lmd,lmi))) then
+!              iwdr = just(lrd,lri)
+!              iwdl = jud(lrd)
+!              w1ds = w1_d1s(4)
+!              if (mod(norb_dz-lri,2) == 1) w1ds = -w1ds
+!              vlop1 = w1*w1ds
+!              list = list3(lri,lra,lrd)
+!              wl = -vlop1*vint_ci(list)
+!              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!            end if
+!          end do
+!        end do
+!        do lri=norb_frz+1,norb_dz
+!          lmi = lsm_inn(lri)
+!          do lrj=lri+1,norb_dz
+!            ! d1s(9-3) ar(13)-bl(32)-br(31)-
+!            lmj = lsm_inn(lrj)
+!            lmij = mul_tab(lmi,lmj)
+!            if (lmij /= jmr) cycle
+!            do lrd=norb_frz+1,lri-1
+!              iwdr = just(lri,lrj)
+!              lmd = lsm_inn(lrd)
+!              if (lmd /= jml) cycle
+!              iwdl = jud(lrd)
+!              w0ds3 = w0_d1s(3)
+!              w1ds3 = w1_d1s(3)
+!              ni = mod(norb_dz-lrj+lri-lrd,2)
+!              if (ni == 0) w0ds3 = -w0ds3
+!              if (ni == 0) w1ds3 = -w1ds3
+!              vlop0 = w0*w0ds3
+!              vlop1 = w1*w1ds3
+!              list = list4(lrd,lri,lrj,lra)
+!              wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)            !1.1
+!              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!              if (jb_sys > 0) then
+!                ! d1s(9-2)   ar(13)-bl(31)-br(32)-   the symmetry problem
+!                iwdr = just(lrj,lri)
+!                w0ds3 = w0_d1s(2)
+!                w1ds3 = w1_d1s(2)
+!                ni = mod(norb_dz-lrj+lri-lrd,2)
+!                if (ni == 0) w0ds3 = -w0ds3
+!                if (ni == 0) w1ds3 = -w1ds3
+!                vlop0 = w0*w0ds3
+!                vlop1 = w1*w1ds3
+!                list = list4(lrd,lri,lrj,lra)
+!                wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)            !1.1
+!                call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!              end if
+!            end do
+!          end do
+!        end do
+!
+!      case (14)
+!        ! dt(14) ar(23)-bl(32)-br(32)-
+!        do lri=norb_frz+1,norb_dz-1
+!          lmi = lsm_inn(lri)
+!          do lrj=lri+1,norb_dz
+!            lmj = lsm_inn(lrj)
+!            lmij = mul_tab(lmi,lmj)
+!            if (lmij /= jmr) cycle
+!            iwdr = just(lri,lrj)
+!            do lrd=norb_frz+1,lri-1
+!              lmd = lsm_inn(lrd)
+!              lmd = mul_tab(lmd,1)
+!              if (lmd /= jml) cycle
+!              iwdl = jud(lrd)
+!              vlop0 = w0*w0_dt
+!              vlop1 = w1*w1_dt
+!              ni = mod(lri-lrd+norb_dz-lrj,2)
+!              if (ni == 0) then
+!                vlop0 = -vlop0
+!                vlop1 = -vlop1
+!              end if
+!              list = list4(lrd,lri,lrj,lra)
+!              wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1) !1.1
+!              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!            end do
+!          end do
+!        end do
+!
+!      case (16)
+!        ! d1t1(16)  ar(13)-bl(31)-br(31)-
+!        do lri=norb_frz+1,norb_dz-1
+!          lmi = lsm_inn(lri)
+!          do lrj=lri+1,norb_dz
+!            lmj = lsm_inn(lrj)
+!            lmij = mul_tab(lmi,lmj)
+!            if (lmij /= jmr) cycle
+!            iwdr = just(lri,lrj)
+!            do lrd=norb_frz+1,lri-1
+!              lmd = lsm_inn(lrd)
+!              lmd = mul_tab(lmd,1)
+!              if (lmd /= jml) cycle
+!              iwdl = jud(lrd)
+!              vlop0 = w0*w0_d1t1
+!              vlop1 = w1*w1_d1t1
+!              ni = mod(lri-lrd+norb_dz-lrj,2)
+!              if (ni == 0) then
+!                vlop0 = -vlop0
+!                vlop1 = -vlop1
+!              end if
+!              list = list4(lrd,lri,lrj,lra)
+!              wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1) !1.1
+!              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!            end do
+!          end do
+!        end do
+!
+!      case (1:6,8,10:13,15,17:26)
+!    end select
+!
+!  case (24)
+!    ! line=24:-a^r<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
+!    select case (lpok)
+!      case default !(6)
+!        call sd_head_dbl_tail_act(lra,lpcoe)
+!
+!      case (8)
+!        call sdd_head_dbl_tail_act(lra,lpcoe)
+!
+!      case (13)
+!        !call td_head_dbl_tail_act(lra,lpcoe)
+!        ! td(13-1) (22)a&(23)
+!        ! td(13-1) a&(23)c'(22)
+!        ! td(13-5) (22)d&&l(33)b^l(23)
+!        do lri=norb_frz+1,norb_dz
+!          lmi = lsm_inn(lri)
+!          if (lmi /= jmlr) cycle
+!          w0td1 = w0_td(1)
+!          w0td4 = w0_td(4)
+!          w0td5 = w0_td(5)
+!          ni = mod(norb_dz-lri,2)
+!          if (ni == 1) w0td1 = -w0td1
+!          if (ni == 1) w0td4 = -w0td4
+!          if (ni == 1) w0td5 = -w0td5
+!
+!          ! td(13-1) a&(23)c'(22)
+!          do lrd=lri+1,norb_dz
+!            lmd = lsm_inn(lrd)
+!            if (lmd /= jmr) cycle
+!            iwdl = just(lri,lrd)
+!            iwdr = jud(lrd)
+!            vlop0 = -w0*w0td1
+!            list = list3(lri,lra,lri)
+!            wl = voint(lri,lra)+vint_ci(list)           !310,act_coe,610,7
+!            list = list3(lri,lra,lrd)
+!            wl = wl+vint_ci(list+1)
+!            do lr=lri+1,norb_dz
+!              if (lr == lrd) cycle
+!              list = list3(lri,lra,lr)
+!              wl = wl+2*vint_ci(list+1)-vint_ci(list)       !310:neoc=2,coe=
+!            end do
+!            do lrk=norb_dz+1,lra
+!              list = list3(lri,lra,lrk)
+!              kcoe = lpcoe(lrk)
+!              call neoc(kcoe,nocc,tcoe)
+!              wl = wl+nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
+!            end do
+!            wl = wl*vlop0
+!            ! td(13-5) d&rl(33)b^l(23)c'(22)
+!            vlop0 = -w0*w0td5
+!            do lrk=1,lri-1
+!              list = list3(lri,lra,lrk)
+!              wl = wl-vlop0*(2*vint_ci(list+1)-vint_ci(list))
+!            end do
+!            call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!          end do
+!          !-------------------------------------------------------------
+!          do lrd=norb_frz+1,lri-1
+!            lmd = lsm_inn(lrd)
+!            if (lmd /= jmr) cycle
+!            iwdl = just(lrd,lri)
+!            iwdr = jud(lrd)
+!            ! td(13-1) (22)a&(23)
+!            vlop0 = w0*w0td1
+!            list = list3(lri,lra,lri)
+!            wl = vlop0*(voint(lri,lra)+vint_ci(list))             !310,act_c
+!            do lr=lri+1,norb_dz
+!              list = list3(lri,lra,lr)
+!              wl = wl+vlop0*(2*vint_ci(list+1)-vint_ci(list)) !  310:neoc=2,
+!            end do
+!            do lrk=norb_dz+1,lra
+!              list = list3(lri,lra,lrk)
+!              kcoe = lpcoe(lrk)
+!              call neoc(kcoe,nocc,tcoe)
+!              wl = wl+vlop0*nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
+!            end do
+!            !wl = wl*vlop0
+!            ! td(13-4) d&r&l(22)b^l(23)
+!            vlop0 = w0*w0td4
+!            vlop1 = w1*w0td4
+!            list = list3(lri,lra,lrd)
+!            wl = wl+(vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)
+!            ! td(13-5) d&rl(33)c"(22)b^l(23)
+!            vlop0 = w0*w0td5
+!            do lrk=1,lri-1
+!              if (lrk == lrd) cycle
+!              list = list3(lri,lra,lrk)
+!              wl = wl+vlop0*(vint_ci(list)-2*vint_ci(list+1))      !4.3
+!            end do
+!            call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!          end do
+!        end do
+!        do lri=norb_frz+1,norb_dz-1
+!          lmi = lsm_inn(lri)
+!          do lrj=lri+1,norb_dz
+!            lmj = lsm_inn(lrj)
+!            lmij = mul_tab(lmi,lmj)
+!            if (lmij /= jml) cycle
+!            iwdl = just(lri,lrj)
+!
+!            ! td(13-2) a&(23)b&r(23)b^r(32)
+!            do lrd=lrj+1,norb_dz
+!              lmd = lsm_inn(lrd)
+!              if (lmd /= jmr) cycle
+!              w0td2 = w0_td(2)
+!              w1td2 = w1_td(2)
+!              ni = mod(lrj-lri+norb_dz-lrd,2)
+!              if (ni == 0) w0td2 = -w0td2
+!              if (ni == 0) w1td2 = -w1td2
+!
+!              iwdr = jud(lrd)
+!              vlop0 = w0*w0td2
+!              vlop1 = w1*w1td2
+!              list = list4(lri,lrj,lrd,lra)
+!              wl = vlop0*(vint_ci(list+2)+vint_ci(list))-vlop1*(vint_ci(list+2)-vint_ci(list)) !1.3
+!              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!            end do
+!            ! td(13-3) a&(23)b&l(32)b^l(23)
+!            do lrd=lri+1,lrj-1
+!              lmd = lsm_inn(lrd)
+!              if (lmd /= jmr) cycle
+!              iwdr = jud(lrd)
+!              w0td3 = w0_td(3)
+!              w1td3 = w1_td(3)
+!              ni = mod(lrd-lri+norb_dz-lrj,2)
+!              if (ni == 0) w0td3 = -w0td3
+!              if (ni == 0) w1td3 = -w1td3
+!              vlop0 = w0*w0td3                !d6-8
+!              vlop1 = w1*w1td3
+!              list = list4(lri,lrd,lrj,lra)
+!              wl = vlop0*(vint_ci(list+2)-2*vint_ci(list+1))-vlop1*vint_ci(list+2) !1.2
+!              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!            end do
+!          end do
+!        end do
+!
+!      case (15)
+!        call ttdd_head_dbl_tail_act(lra,lpcoe)
+!
+!      case (23)
+!        ! dv(23-1) ar(23)-
+!        ! dv(23-2) drl(33)-bl(23)-
+!        iwdr = 0
+!        do lrd=norb_frz+1,norb_dz
+!          imd = lsm_inn(lrd)
+!          if (imd /= jml) cycle
+!          iwdl = jud(lrd)
+!          w0dv1 = w0_dv(1)
+!          ni = mod(norb_dz-lrd,2)
+!          if (ni == 1) w0dv1 = -w0dv1
+!          vlop0 = w0*w0dv1                !d23-1
+!          vlop1 = w1*w0dv1
+!          !*************************************************************
+!          lr0 = lrd
+!          lr = kk(jpel)-1
+!          list = list3(lr0,lr,lr0)
+!          wl = vlop0*(voint(lr0,lr)+vint_ci(list))       !310+710
+!          do l=lr0+1,norb_dz
+!            list = list3(lr0,lr,l)
+!            nocc = 2
+!            tcoe = -0.5d0
+!            wl = wl+nocc*vlop0*(vint_ci(list+1)+tcoe*vint_ci(list))  !dbl_
+!          end do
+!          do l=norb_dz+1,lr
+!            list = list3(lr0,lr,l)
+!            kcoe = lpcoe(l)
+!            call neoc(kcoe,nocc,tcoe)
+!            wl = wl+nocc*vlop0*(vint_ci(list+1)+tcoe*vint_ci(list))   !act_c
+!          end do
+!          wl_430 = 0.d0
+!          w0dv2 = w0_dv(2)
+!          ni = mod(norb_dz-lrd,2)
+!          if (ni == 1) w0dv2 = -w0dv2
+!          do lrk=1,lrd-1
+!            list = list3(lr0,lr,lrk)
+!            vlop0 = w0*w0dv2
+!            wl_430 = wl_430+vlop0*(vint_ci(list)-2*vint_ci(list+1))
+!          end do
+!          wl = wl+wl_430
+!          !*************************************************************
+!          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!        end do
+!
+!      case (24)
+!        ! d1v(24-1) ar(13)-
+!        ! d1v(24-2) drl(33)-bl(13)-
+!        iwdr = 0
+!        do lrd=norb_frz+1,norb_dz
+!          imd = lsm_inn(lrd)
+!          if (imd /= jml) cycle
+!          iwdl = jud(lrd)
+!          w0dv1 = w0_d1v(1)
+!          ni = mod(norb_dz-lrd,2)
+!          if (ni == 1) w0dv1 = -w0dv1
+!          vlop0 = w0*w0dv1                !d24-1
+!          vlop1 = w1*w0dv1
+!          !*************************************************************
+!          lr0 = lrd
+!          lr = kk(jpel)-1
+!          list = list3(lr0,lr,lr0)
+!          wl = vlop0*(voint(lr0,lr)+vint_ci(list))       !310+710
+!          do l=lr0+1,norb_dz
+!            list = list3(lr0,lr,l)
+!            nocc = 2
+!            tcoe = -0.5d0
+!            wl = wl+nocc*vlop0*(vint_ci(list+1)+tcoe*vint_ci(list))  !dbl_
+!          end do
+!          do l=norb_dz+1,lr
+!            list = list3(lr0,lr,l)
+!            kcoe = lpcoe(l)
+!            call neoc(kcoe,nocc,tcoe)
+!            wl = wl+nocc*vlop0*(vint_ci(list+1)+tcoe*vint_ci(list))   !act_c
+!          end do
+!          wl_430 = 0.d0
+!          w0dv2 = w0_d1v(2)
+!          ni = mod(norb_dz-lrd,2)
+!          if (ni == 1) w0dv2 = -w0dv2
+!          do lrk=1,lrd-1
+!            list = list3(lr0,lr,lrk)
+!            vlop0 = w0*w0dv2
+!            wl_430 = wl_430+vlop0*(vint_ci(list)-2*vint_ci(list+1))
+!          end do
+!          wl = wl+wl_430
+!          !*************************************************************
+!          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!        end do
+!
+!      case (1:5,7,9:12,14,16:22,25:26)
+!    end select
+!
+!  case (25)
+!    ! line=25:-d^r^r<-->sv(10),tv(17),ttv(18)
+!    select case (lpok)
+!      case default ! (10)
+!        call sv_head_dbl_tail_act(lra)
+!
+!      case (17)
+!        ! tv(17) ar(23)-br(23)-
+!        iwdr = 0
+!        do lri=norb_frz+1,norb_dz
+!          imi = lsm_inn(lri)
+!          do lrj=lri,norb_dz
+!            imj = lsm_inn(lrj)
+!            imij = mul_tab(imi,imj)
+!            if (imij /= jml) cycle
+!            iwdl = just(lri,lrj)
+!            vlop1 = w1*w1_tv             !d17 vlop0=0
+!            list = list3(lri,lrj,lra)
+!            wl = vlop1*vint_ci(list)        !2.1                  !!!!!
+!            call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!          end do
+!        end do
+!
+!      case (18)
+!        ! t1v(18) ar(13)-br(13)-
+!        iwdr = 0
+!        do lri=norb_frz+1,norb_dz
+!          imi = lsm_inn(lri)
+!          do lrj=lri,norb_dz
+!            imj = lsm_inn(lrj)
+!            imij = mul_tab(imi,imj)
+!            if (imij /= jml) cycle
+!            iwdl = just(lri,lrj)
+!            vlop1 = w1*w1_t1v             !d18 vlop0=0
+!            list = list3(lri,lrj,lra)
+!            wl = vlop1*vint_ci(list)        !2.1                  !!!!!
+!            call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!          end do
+!        end do
+!
+!      case (1:9,11:16,19:26)
+!    end select
+!    ! tmp for spin=0
+!
+!  case (26)
+!    ! line=26:-d^r^l<-->ss(1),st(2),ts(3),stt(4),tts(5),tt(11),tttt(12),dd(19
+!    select case (lpok)
+!      case default ! (1)
+!        call ss_head_dbl_tail_act(lra)
+!
+!      case (2)
+!        call st_head_dbl_tail_act(lra)
+!
+!      case (3)
+!        call ts_head_dbl_tail_act(lra)
+!
+!      case (4)
+!        call stt_head_dbl_tail_act(lra)
+!
+!      case (5)
+!        call tts_head_dbl_tail_act(lra)
+!
+!      case (11)
+!        call tt_head_dbl_tail_act(lra)
+!
+!      case (12)
+!        call tttt_head_dbl_tail_act(lra)
+!
+!      case (19)
+!        call dd_head_dbl_tail_act(lra)
+!
+!      case (20)
+!        call dddd_head_dbl_tail_act(lra)
+!
+!      case (21)
+!        call dd1_head_dbl_tail_act(lra)
+!
+!      case (22)
+!        call d1d_head_dbl_tail_act(lra)
+!
+!      case (25)
+!        ! vv(25) drl(33)-
+!        if (jwl == jwr) return
+!        vlop0 = w0*w0_vv             !d25
+!        wl = 0.d0
+!        iwdl = 0
+!        iwdr = 0
+!        do lri=1,norb_dz
+!          wl = wl+vlop0*voint(lri,lra)
+!        end do
+!        call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!
+!      case (6:10,13:18,23:24,26)
+!    end select
+!
+!  case (27)
+!    ! sv(10),tv(17),ttv(18)
+!    ! line=27:-b^r-a^r<-->sv(10),tv(17),ttv(18)
+!    select case (lpok)
+!      case default ! (10)
+!        call sv_head_dbl_tail_act(lra)
+!
+!      case (17)
+!        ! tv(17) ar(23)-br(23)-
+!        iwdr = 0
+!        do lri=norb_frz+1,norb_dz
+!          lmi = lsm_inn(lri)
+!          do lrj=lri+1,norb_dz
+!            lmj = lsm_inn(lrj)
+!            lmij = mul_tab(lmi,lmj)
+!            if (lmij /= jml) cycle
+!            w1tv = w1_tv
+!            if (mod(lrj-lri,2) == 0) w1tv = -w1tv
+!            iwdl = just(lri,lrj)
+!            vlop1 = w1*w1tv             !d17
+!            list = list4(lri,lrj,lrs,lra)
+!            wl = vlop1*(vint_ci(list)-vint_ci(list+2)) !1.3 vlop0=0      !!!!!
+!            call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!          end do
+!        end do
+!
+!      case (18)
+!        ! t1v(18) ar(13)-br(13)-
+!        iwdr = 0
+!        do lri=norb_frz+1,norb_dz-1
+!          lmi = lsm_inn(lri)
+!          do lrj=lri+1,norb_dz
+!            lmj = lsm_inn(lrj)
+!            lmij = mul_tab(lmi,lmj)
+!            if (lmij /= jml) cycle
+!            w1tv = w1_t1v
+!            if (mod(lrj-lri,2) == 0) w1tv = -w1tv
+!            iwdl = just(lri,lrj)
+!            vlop1 = w1*w1tv             !d17
+!            list = list4(lri,lrj,lrs,lra)
+!            wl = vlop1*(vint_ci(list)-vint_ci(list+2)) !1.3 vlop0=0      !!!!!
+!            call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!          end do
+!        end do
+!
+!      case (1:9,11:16,19:26)
+!    end select
+!    ! tmp for spin=0
+!
+!  case (28)
+!    ! line=28:-b^l-a^r<-->ss(1),st(2),ts(3),stt(4),tts(5),tt(11),tttt(12),dd(
+!    select case (lpok)
+!      case default ! (1)
+!        call ss_head_dbl_tail_act(lra)
+!
+!      case (2)
+!        call st_head_dbl_tail_act(lra)
+!
+!      case (3)
+!        call ts_head_dbl_tail_act(lra)
+!
+!      case (4)
+!        call stt_head_dbl_tail_act(lra)
+!
+!      case (5)
+!        call tts_head_dbl_tail_act(lra)
+!
+!      case (11)
+!        call tt_head_dbl_tail_act(lra)
+!
+!      case (12)
+!        call tttt_head_dbl_tail_act(lra)
+!
+!      case (19)
+!        call dd_head_dbl_tail_act(lra)
+!
+!      case (20)
+!        call dddd_head_dbl_tail_act(lra)
+!
+!      case (21)
+!        call dd1_head_dbl_tail_act(lra)
+!
+!      case (22)
+!        call d1d_head_dbl_tail_act(lra)
+!
+!      case (25)
+!        ! vv(25) drl(33)-
+!        vlop0 = w0*w0_vv             !d25
+!        wl = 0.d0
+!        iwdl = 0
+!        iwdr = 0
+!        do lrk=1,norb_dz
+!          list = list3(lrs,lra,lrk)
+!          wl = wl+vlop0*(vint_ci(list)-2*vint_ci(list+1))   !4.3 vlop1=0
+!        end do
+!        call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!
+!      case (6:10,13:18,23:24,26)
+!    end select
+!
+!  case (29)
+!    ! line=29:-b^r-a^l<-->ss(1),st(2),ts(3),stt(4),tts(5),tt(11),tttt(12),dd(
+!    select case (lpok)
+!      case default ! (1)
+!        call ss_head_dbl_tail_act(lra)
+!
+!      case (2)
+!        call st_head_dbl_tail_act(lra)
+!
+!      case (3)
+!        call ts_head_dbl_tail_act(lra)
+!
+!      case (4)
+!        call stt_head_dbl_tail_act(lra)
+!
+!      case (5)
+!        call tts_head_dbl_tail_act(lra)
+!
+!      case (11)
+!        call tt_head_dbl_tail_act(lra)
+!
+!      case (12)
+!        call tttt_head_dbl_tail_act(lra)
+!
+!      case (19)
+!        call dd_head_dbl_tail_act(lra)
+!
+!      case (20)
+!        call dddd_head_dbl_tail_act(lra)
+!
+!      case (21)
+!        call dd1_head_dbl_tail_act(lra)
+!
+!      case (22)
+!        call d1d_head_dbl_tail_act(lra)
+!
+!      case (25)
+!        ! vv(25) drl(33)-
+!        if (jwl >= jwr) return
+!        vlop0 = w0*w0_vv             !d25
+!        wl = 0.d0
+!        iwdl = 0
+!        iwdr = 0
+!        do lrk=1,norb_dz
+!          list = list3(lrs,lra,lrk)
+!          wl = vlop0*vint_ci(list)      !4.2  vlop1=0         !!!!!
+!        end do
+!        call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!
+!      case (6:10,13:18,23:24,26)
+!    end select
+!
+!  case (30)
+!    ! line=30:-b&r-d^r^r<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
+!    select case (lpok)
+!      case default ! (6)
+!        ! sd(6-3) a&r(13)c'(22)-
+!        call dbl_sd_act_comp(3,lra)
+!        ! sd(6-3) tmp for spin=0
+!
+!      case (8)
+!        call dbl_sdd_act_comp(3,lra)
+!
+!      case (13)
+!        call dbl_td_act_comp(3,lra)
+!
+!      case (15)
+!        call dbl_ttdd_act_comp(3,lra)
+!
+!      case (23)
+!        ! dv(23-1) ar(23)-
+!        ! dv(23-2) drl(33)-bl(23)-
+!        iwdr = 0
+!        do lrd=norb_frz+1,norb_dz
+!          imd = lsm_inn(lrd)
+!          if (imd /= jml) cycle
+!          iwdl = jud(lrd)
+!          w0dv1 = w0_dv(1)
+!          ni = mod(norb_dz-lrd,2)
+!          if (ni == 1) w0dv1 = -w0dv1
+!          vlop0 = w0*w0dv1                   !d23-1
+!          vlop1 = w1*w0dv1
+!          list = list3(lrd,lrg,lra)
+!          wl = (vlop0+vlop1)*vint_ci(list)        !2.1       !!!!!
+!          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!        end do
+!
+!      case (24)
+!        ! d1v(24-1)  ar(13)-
+!        iwdr = 0
+!        do lrd=norb_frz+1,norb_dz
+!          imd = lsm_inn(lrd)
+!          if (imd /= jml) cycle
+!          iwdl = jud(lrd)
+!          w0dv1 = w0_d1v(1)
+!          ni = mod(norb_dz-lrd,2)
+!          if (ni == 1) w0dv1 = -w0dv1
+!          vlop0 = w0*w0dv1                   !d23-1
+!          vlop1 = w1*w0dv1
+!          list = list3(lrd,lrg,lra)
+!          wl = (vlop0+vlop1)*vint_ci(list)        !2.1       !!!!!
+!          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!        end do
+!
+!      case (1:5,7,9:12,14,16:22,25:26)
+!    end select
+!
+!  case (31)
+!    ! line=31:-b&l-d^r^l<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
+!    select case (lpok)
+!      case default ! (6)
+!        call dbl_sd_act_comp(5,lra)
+!
+!      case (8)
+!        call dbl_sdd_act_comp(5,lra)
+!
+!      case (13)
+!        call dbl_td_act_comp(5,lra)
+!
+!      case (15)
+!        call dbl_ttdd_act_comp(5,lra)
+!
+!      case (23)
+!        ! dv(23-1) ar(23)-
+!        ! dv(23-2) drl(33)-bl(23)-
+!        iwdr = 0
+!        do lrd=norb_frz+1,norb_dz
+!          imd = lsm_inn(lrd)
+!          if (imd /= jml) cycle
+!          iwdl = jud(lrd)
+!          w0dv1 = w0_dv(1)
+!          ni = mod(norb_dz-lrd,2)
+!          if (ni == 1) w0dv1 = -w0dv1
+!          vlop0 = w0*w0dv1                !d23-1
+!          vlop1 = w1*w0dv1
+!          list = list3(lrd,lrg,lra)
+!          wl = vlop0*(vint_ci(list)-2*vint_ci(list+1))-vlop1*(vint_ci(list)) !2.2          !!!!!
+!          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!        end do
+!
+!      case (24)
+!        ! d1v(24-1)  ar(13)-
+!        iwdr = 0
+!        do lrd=norb_frz+1,norb_dz
+!          imd = lsm_inn(lrd)
+!          if (imd /= jml) cycle
+!          iwdl = jud(lrd)
+!          w0dv1 = w0_d1v(1)
+!          ni = mod(norb_dz-lrd,2)
+!          if (ni == 1) w0dv1 = -w0dv1
+!          vlop0 = w0*w0dv1                !d23-1
+!          vlop1 = w1*w0dv1
+!          list = list3(lrd,lrg,lra)
+!          wl = vlop0*(vint_ci(list)-2*vint_ci(list+1))-vlop1*(vint_ci(list)) !2.2          !!!!!
+!          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!        end do
+!
+!      case (1:5,7,9:12,14,16:22,25:26)
+!    end select
+!
+!  case (32)
+!    ! line=32:-b&r-b^r-a^r<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
+!    select case (lpok)
+!      case default ! (6)
+!        call dbl_sd_act_comp(4,lra)
+!
+!      case (8)
+!        call dbl_sdd_act_comp(4,lra)
+!
+!      case (13)
+!        call dbl_td_act_comp(4,lra)
+!
+!      case (15)
+!        call dbl_ttdd_act_comp(4,lra)
+!
+!      case (23)
+!        ! dv(23-1) ar(23)-
+!        ! dv(23-2) drl(33)-bl(23)-
+!        iwdr = 0
+!        do lrd=norb_frz+1,norb_dz
+!          imd = lsm_inn(lrd)
+!          if (imd /= jml) cycle
+!          iwdl = jud(lrd)
+!          w0dv1 = w0_dv(1)
+!          ni = mod(norb_dz-lrd,2)
+!          if (ni == 1) w0dv1 = -w0dv1
+!          vlop0 = w0*w0dv1                !d23-1
+!          vlop1 = w1*w0dv1
+!          list = list4(lrd,lrg,lrs,lra)
+!          wl = vlop0*(vint_ci(list+2)+vint_ci(list))-vlop1*(vint_ci(list+2)-vint_ci(list)) !1.3        !!!!!
+!          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!        end do
+!
+!      case (24)
+!        ! d1v(24-1)  ar(13)-
+!        iwdr = 0
+!        do lrd=norb_frz+1,norb_dz
+!          imd = lsm_inn(lrd)
+!          if (imd /= jml) cycle
+!          iwdl = jud(lrd)
+!          w0dv1 = w0_d1v(1)
+!          ni = mod(norb_dz-lrd,2)
+!          if (ni == 1) w0dv1 = -w0dv1
+!          vlop0 = w0*w0dv1                !d23-1
+!          vlop1 = w1*w0dv1
+!          list = list4(lrd,lrg,lrs,lra)
+!          wl = vlop0*(vint_ci(list+2)+vint_ci(list))-vlop1*(vint_ci(list+2)-vint_ci(list)) !1.3        !!!!!
+!          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!        end do
+!
+!      case (1:5,7,9:12,14,16:22,25:26)
+!    end select
+!
+!  case (33)
+!    ! line=33:-b&l-b^r-a^l<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
+!    select case (lpok)
+!      case default ! (6)
+!        call dbl_sd_act_comp(6,lra)
+!
+!      case (8)
+!        call dbl_sdd_act_comp(6,lra)
+!
+!      case (13)
+!        call dbl_td_act_comp(6,lra)
+!
+!      case (15)
+!        call dbl_ttdd_act_comp(6,lra)
+!
+!      case (23)
+!        ! dv(23-1) ar(23)-
+!        ! dv(23-2) drl(33)-bl(23)-
+!        iwdr = 0
+!        do lrd=norb_frz+1,norb_dz
+!          imd = lsm_inn(lrd)
+!          if (imd /= jml) cycle
+!          iwdl = jud(lrd)
+!          w0dv1 = w0_dv(1)
+!          ni = mod(norb_dz-lrd,2)
+!          if (ni == 1) w0dv1 = -w0dv1
+!          vlop0 = w0*w0dv1                !d23-1
+!          vlop1 = w1*w0dv1
+!          list = list4(lrd,lrg,lrs,lra)
+!          wl = vlop0*(vint_ci(list)-2*vint_ci(list+1))-vlop1*vint_ci(list) !1.1          !!!!!
+!          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!        end do
+!
+!      case (24)
+!        ! d1v(24-1)  ar(13)-
+!        iwdr = 0
+!        do lrd=norb_frz+1,norb_dz
+!          imd = lsm_inn(lrd)
+!          if (imd /= jml) cycle
+!          iwdl = jud(lrd)
+!          w0dv1 = w0_d1v(1)
+!          ni = mod(norb_dz-lrd,2)
+!          if (ni == 1) w0dv1 = -w0dv1
+!          vlop0 = w0*w0dv1                !d23-1
+!          vlop1 = w1*w0dv1
+!          list = list4(lrd,lrg,lrs,lra)
+!          wl = vlop0*(vint_ci(list)-2*vint_ci(list+1))-vlop1*vint_ci(list) !1.1          !!!!!
+!          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!        end do
+!
+!      case (1:5,7,9:12,14,16:22,25:26)
+!    end select
+!
+!  case (34)
+!    ! line=34:-b&l-b^l-a^r<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
+!    select case (lpok)
+!      case default ! (6)
+!        call dbl_sd_act_comp(7,lra)
+!
+!      case (8)
+!        call dbl_sdd_act_comp(7,lra)
+!
+!      case (13)
+!        call dbl_td_act_comp(7,lra)
+!
+!      case (15)
+!        call dbl_ttdd_act_comp(7,lra)
+!
+!      case (23)
+!        ! dv(23-1) ar(23)-
+!        ! dv(23-2) drl(33)-bl(23)-
+!        iwdr = 0
+!        do lrd=norb_frz+1,norb_dz
+!          imd = lsm_inn(lrd)
+!          if (imd /= jml) cycle
+!          iwdl = jud(lrd)
+!          w0dv1 = w0_dv(1)
+!          ni = mod(norb_dz-lrd,2)
+!          if (ni == 1) w0dv1 = -w0dv1
+!          vlop0 = w0*w0dv1                !d23-1
+!          vlop1 = w1*w0dv1
+!          list = list4(lrd,lrg,lrs,lra)
+!          wl = vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1))-vlop1*vint_ci(list+2) !1.2      !!!!!
+!          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!        end do
+!
+!      case (24)
+!        ! d1v(24-1)  ar(13)-
+!        iwdr = 0
+!        do lrd=norb_frz+1,norb_dz
+!          imd = lsm_inn(lrd)
+!          if (imd /= jml) cycle
+!          iwdl = jud(lrd)
+!          w0dv1 = w0_d1v(1)
+!          ni = mod(norb_dz-lrd,2)
+!          if (ni == 1) w0dv1 = -w0dv1
+!          vlop0 = w0*w0dv1                !d23-1
+!          vlop1 = w1*w0dv1
+!          list = list4(lrd,lrg,lrs,lra)
+!          wl = vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1))-vlop1*vint_ci(list+2) !1.2      !!!!!
+!          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!        end do
+!
+!      case (1:5,7,9:12,14,16:22,25:26)
+!    end select
+!
+!  case (35)
+!    ! line=35:-d&r^l-a^l<-->sd(6),sdd(8),td(13),ttdd(15),dv(23),ddv(24)
+!    select case (lpok)
+!      case default !(6)
+!        call dbl_sd_act_comp(2,lra)
+!
+!      case (8)
+!        call dbl_sdd_act_comp(2,lra)
+!
+!      case (13)
+!        call dbl_td_act_comp(2,lra)
+!
+!      case (15)
+!        call dbl_ttdd_act_comp(2,lra)
+!
+!      case (23)
+!        ! dv(23-1) ar(23)-
+!        ! dv(23-2) drl(33)-bl(23)-
+!        iwdr = 0
+!        do lrd=norb_frz+1,norb_dz
+!          imd = lsm_inn(lrd)
+!          if (imd /= jml) cycle
+!          iwdl = jud(lrd)
+!          w0dv1 = w0_dv(1)
+!          ni = mod(norb_dz-lrd,2)
+!          if (ni == 1) w0dv1 = -w0dv1
+!          vlop0 = w0*w0dv1                !d23-1
+!          list = list3(lrd,lra,lrg)
+!          wl = vlop0*vint_ci(list)          !3.2         !!!!!
+!          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!        end do
+!
+!      case (24)
+!        ! d1v(24-1)  ar(13)-
+!        iwdr = 0
+!        do lrd=norb_frz+1,norb_dz
+!          imd = lsm_inn(lrd)
+!          if (imd /= jml) cycle
+!          iwdl = jud(lrd)
+!          w0dv1 = w0_d1v(1)
+!          ni = mod(norb_dz-lrd,2)
+!          if (ni == 1) w0dv1 = -w0dv1
+!          vlop0 = w0*w0dv1                !d23-1
+!          list = list3(lrd,lra,lrg)
+!          wl = vlop0*vint_ci(list)          !3.2         !!!!!
+!          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
+!        end do
+!
+!      case (1:5,7,9:12,14,16:22,25:26)
+!    end select
+!end select
+!
+!return
+!
+!end subroutine dbl_head_act_tail_0
 
 subroutine dbl_td_act_comp(lin,lra)
 
-use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, w0_td, w1
+use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_td, w1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -1658,7 +1661,8 @@ end subroutine dbl_td_act_comp
 
 subroutine dbl_ttdd_act_comp(lin,lra)
 
-use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, w0_t1d1, w1
+use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_t1d1, w1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -1784,8 +1788,8 @@ subroutine dbl_sd_act_comp(lin,lra)
 ! sd(6-3) a&r(13)c'(22)-
 ! sd(6-4) a&r(23)c'(12)-
 
-use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, &
-                         w0_sd, w1
+use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_sd, w1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -1863,8 +1867,8 @@ subroutine dbl_sdd_act_comp(lin,lra)
 !sd1(8-3)    ar(13)-c'(21)-
 !sd1(8-4)    ar(23)-c'(11)-
 
-use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, mul_tab, norb_dz, norb_frz, w0, &
-                         w0_sd1, w1
+use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_sd1, w1
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lin, lra
@@ -1977,8 +1981,8 @@ end subroutine ext_space_loop
 
 subroutine g_tt_ext_sequence(ism)
 
-use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iwt_orb_ext, m_jc, m_jd, max_tmpvalue, mul_tab, &
-                         ng_sm
+use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iwt_orb_ext, m_jc, m_jd, max_tmpvalue, ng_sm
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: ism
@@ -2041,8 +2045,9 @@ end subroutine g_tt_ext_sequence
 subroutine dbl_head_act_tail(lpcoe)
 
 use gugaci_global, only: jb_sys, jml, jmr, jpad, jpadl, jpel, jper, jud, just, jwl, jwr, kk, line, lrg, lrs, lsm_inn, map_jplr, &
-                         mul_tab, norb_dz, norb_frz, norb_inn, ns_sm, vint_ci, voint, w0, w0_d1s, w0_d1t1, w0_d1v, w0_ds, w0_dt, &
-                         w0_dv, w0_td, w0_vv, w1, w1_d1s, w1_d1t1, w1_ds, w1_dt, w1_t1v, w1_td, w1_tv
+                         norb_dz, norb_frz, norb_inn, ns_sm, vint_ci, voint, w0, w0_d1s, w0_d1t1, w0_d1v, w0_ds, w0_dt, w0_dv, &
+                         w0_td, w0_vv, w1, w1_d1s, w1_d1t1, w1_ds, w1_dt, w1_t1v, w1_td, w1_tv
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lpcoe(norb_dz+1:norb_inn)

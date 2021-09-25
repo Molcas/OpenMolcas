@@ -27,7 +27,8 @@ end subroutine dbl_space_loop
 
 subroutine dbl_space_loop_ijkk_sgezero()
 
-use gugaci_global, only: jb_sys, jud, just, lsm_inn, mul_tab, norb_dz, norb_frz, ns_sm, vint_ci, voint
+use gugaci_global, only: jb_sys, jud, just, lsm_inn, norb_dz, norb_frz, ns_sm, vint_ci, voint
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: im, imi, imm, iwdl, iwdr, iwld, iwls, iwlt, iwrd, iwrs, iwrt, jpat, jpdd, jpds, jpds0, jpdt, jpdt1, kij, list, lmi, &
@@ -496,7 +497,8 @@ end subroutine dbl_space_loop_ijkk_sgezero
 
 subroutine dbl_space_loop_ijkl_sgezero()
 
-use gugaci_global, only: jb_sys, just, lsm_inn, mul_tab, norb_dz, norb_frz, ns_sm, vint_ci
+use gugaci_global, only: jb_sys, just, lsm_inn, norb_dz, norb_frz, ns_sm, vint_ci
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: im, imi, imij, imik, imil, imj, imk, iml, iwls, iwls1, iwlt, iwrs, iwrs1, iwrt, jpds, jpdt, jpdt1, list, lri, lrj, lrk, &

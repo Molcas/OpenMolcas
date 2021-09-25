@@ -11,7 +11,8 @@
 
 subroutine dbl_upwalk()
 
-use gugaci_global, only: jpad_upwei, jroute_sys, lsm_inn, mul_tab, mxnode, ng_sm, norb_dbl, norb_dz, norb_frz, ns_sm, nu_ad
+use gugaci_global, only: jpad_upwei, jroute_sys, lsm_inn, mxnode, ng_sm, norb_dbl, norb_dz, norb_frz, ns_sm, nu_ad
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: iw, lri, lrj, lsmi, lsmid, lsmij, lsmit, lsmj, no_d, no_t, node
@@ -98,7 +99,8 @@ end subroutine dbl_upwalk
 
 subroutine ext_downwalk()
 
-use gugaci_global, only: iseg_downwei, mul_tab, ng_sm, nlsm_ext, norb_ext, nu_ae
+use gugaci_global, only: iseg_downwei, ng_sm, nlsm_ext, norb_ext, nu_ae
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: im, imi, imij, imj, iwmij(8)
@@ -174,7 +176,8 @@ end subroutine readdrt
 ! |  2 1   \         |
 subroutine dbl_downwalk()
 
-use gugaci_global, only: iseg_downwei, iseg_sta, jud, just, lsm_inn, mul_tab, ng_sm, norb_dbl, norb_dz, norb_frz, ns_sm
+use gugaci_global, only: iseg_downwei, iseg_sta, jud, just, lsm_inn, ng_sm, norb_dbl, norb_dz, norb_frz, ns_sm
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: im, ismi, ismij, ismj, lr0, lri, lrj, nnd, nns, nnt !, lsml(10,10)       !to del

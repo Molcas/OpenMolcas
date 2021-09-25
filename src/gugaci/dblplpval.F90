@@ -440,7 +440,8 @@ end subroutine Value_of_PL_IN_DBL
 subroutine SS2_EXT(LRI,LRJ,NK)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
-                         mul_tab, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+                         vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, lrj, nk
@@ -479,46 +480,47 @@ return
 
 end subroutine SS2_EXT
 
-subroutine SS3_EXT(LRI,LRJ)
-! SS(1-3)  Ar(13)-Bl(20)-
-
-use gugaci_global, only: ipae, ipael, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, mhlp, mtype, vplp_w0, vplp_w1, &
-                         vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
-
-implicit none
-integer :: lri, lrj
-integer :: iwal, iwar, iwdl, iwdr, mpl, ni
-real*8 :: w0ss3, w1ss3
-integer, external :: iwalk_ad
-
-W0SS3 = W0_SS(3)
-W1SS3 = W1_SS(3)
-NI = mod(LRJ-LRI,2)
-if (NI == 0) then
-  W0SS3 = -W0SS3
-  W1SS3 = -W1SS3
-end if
-do MPL=1,MTYPE
-  VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS3
-  VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS3
-end do
-IWDL = JUST(LRJ,LRI)
-IWDR = JUST(LRJ,LRJ)
-do MPL=1,MHLP
-  IWAL = LPNEW_LWEI(MPL)
-  IWAR = LPNEW_RWEI(MPL)
-  LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
-  LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
-end do
-
-return
-
-end subroutine SS3_EXT
+!subroutine SS3_EXT(LRI,LRJ)
+!! SS(1-3)  Ar(13)-Bl(20)-
+!
+!use gugaci_global, only: ipae, ipael, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, mhlp, mtype, vplp_w0, vplp_w1, &
+!                         vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+!
+!implicit none
+!integer :: lri, lrj
+!integer :: iwal, iwar, iwdl, iwdr, mpl, ni
+!real*8 :: w0ss3, w1ss3
+!integer, external :: iwalk_ad
+!
+!W0SS3 = W0_SS(3)
+!W1SS3 = W1_SS(3)
+!NI = mod(LRJ-LRI,2)
+!if (NI == 0) then
+!  W0SS3 = -W0SS3
+!  W1SS3 = -W1SS3
+!end if
+!do MPL=1,MTYPE
+!  VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS3
+!  VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS3
+!end do
+!IWDL = JUST(LRJ,LRI)
+!IWDR = JUST(LRJ,LRJ)
+!do MPL=1,MHLP
+!  IWAL = LPNEW_LWEI(MPL)
+!  IWAR = LPNEW_RWEI(MPL)
+!  LP_LWEI(MPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL)
+!  LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
+!end do
+!
+!return
+!
+!end subroutine SS3_EXT
 
 subroutine SS4_EXT(LRI,LRJ,NK)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
-                         mul_tab, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+                         vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, lrj, nk
@@ -561,7 +563,8 @@ subroutine SS5_EXT(LRI,LRJ,NK)
 ! SS(1-5)  (22)-Ar(13)-Bl(31)-
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
-                         mhlp, mtype, mul_tab, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+                         mhlp, mtype, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, lrj, nk
@@ -613,7 +616,8 @@ subroutine SS10_EXT(LRI,LRJ,NK)
 ! SS(1-10) Ar(23)-C'(12)-Bl(31)-
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
-                         mhlp, mtype, mul_tab, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+                         mhlp, mtype, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, lrj, nk
@@ -665,7 +669,8 @@ subroutine SS14_EXT(LRI,LRJ,NK)
 ! SS(1-14) Ar(23)-Bl(32)-C"(11)-
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
-                         mhlp, mtype, mul_tab, norb_dz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+                         mhlp, mtype, norb_dz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, lrj, nk
@@ -717,7 +722,8 @@ subroutine TT1_EXT(LRI,LRJ,NK,IGF)
 ! SS(1-14) Ar(23)-Bl(32)-C"(11)-
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
-                         mhlp, mtype, mul_tab, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_tt, w1_tt
+                         mhlp, mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_tt, w1_tt
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, lrj, nk, igf
@@ -794,7 +800,8 @@ end subroutine TT1_EXT
 subroutine TS1_EXT(LRI,LRJ,NK)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
-                         mul_tab, vplp_w0, vplp_w1, vplpnew_w1, w1_ts
+                         vplp_w0, vplp_w1, vplpnew_w1, w1_ts
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, lrj, nk
@@ -832,7 +839,8 @@ end subroutine TS1_EXT
 subroutine TS2_EXT(LRI,LRJ,NK,IGF)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
-                         mhlp, mtype, mul_tab, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_ts
+                         mhlp, mtype, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_ts
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, lrj, nk, igf
@@ -895,7 +903,8 @@ end subroutine TS2_EXT
 subroutine TS4_EXT(LRI,LRJ,NK)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
-                         mhlp, mtype, mul_tab, norb_dz, vplp_w0, vplp_w1, vplpnew_w1, w1_ts
+                         mhlp, mtype, norb_dz, vplp_w0, vplp_w1, vplpnew_w1, w1_ts
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, lrj, nk
@@ -944,7 +953,8 @@ end subroutine TS4_EXT
 subroutine ST1_EXT(LRI,LRJ,NK)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
-                         mul_tab, vplp_w0, vplp_w1, vplpnew_w1, w1_st
+                         vplp_w0, vplp_w1, vplpnew_w1, w1_st
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, lrj, nk
@@ -982,7 +992,8 @@ end subroutine ST1_EXT
 subroutine ST2_EXT(LRI,LRJ,NK)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
-                         mhlp, mtype, mul_tab, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
+                         mhlp, mtype, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, lrj, nk
@@ -1032,7 +1043,8 @@ end subroutine ST2_EXT
 subroutine ST4_EXT(LRI,LRJ,NK,IGF)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
-                         mhlp, mtype, mul_tab, norb_dz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
+                         mhlp, mtype, norb_dz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: lri, lrj, nk, igf

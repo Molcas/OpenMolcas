@@ -11,8 +11,9 @@
 
 subroutine paras_calculate()
 
-use gugaci_global, only: ibsm_ext, iesm_ext, iwt_orb_ext, iwt_sm_s_ext, jb_sys, jroute_sys, maxgdm, mul_tab, ng_sm, nlsm_dbl, &
-                         nlsm_ext, spin !, n_electron, norb_all, norb_dbl, norb_dz, norb_ext
+use gugaci_global, only: ibsm_ext, iesm_ext, iwt_orb_ext, iwt_sm_s_ext, jb_sys, jroute_sys, maxgdm, ng_sm, nlsm_dbl, nlsm_ext, spin
+                         !, n_electron, norb_all, norb_dbl, norb_dz, norb_ext
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: iaend, iaorb, iasta, ibend, iborb, ibsta, icnttmp, ijsm, isma, ismb, isumtmp, iwt_sm_sab(maxgdm), iwttmp, ni, nij, nj

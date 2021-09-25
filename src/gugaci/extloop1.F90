@@ -12,29 +12,29 @@
 !***********************************************************************
 ! Jul. 3, 2009 -BSUO- External space loops
 
-subroutine dd_ext_plpmode(ilnodesm,irnodesm)
-
-use gugaci_global, only: logic_g13, logic_g1415, logic_g36a, logic_g36b
-
-implicit none
-integer :: ilnodesm, irnodesm
-
-logic_g36a = .false.
-logic_g36b = .false.
-logic_g1415 = .false.
-logic_g13 = .false.
-if (ilnodesm < irnodesm) then
-  logic_g36a = .true.
-else if (ilnodesm == irnodesm) then
-  logic_g36a = .true.
-  logic_g36b = .true.
-  logic_g1415 = .true.
-  logic_g13 = .true.
-else
-  logic_g36b = .true.
-end if
-
-end subroutine dd_ext_plpmode
+!subroutine dd_ext_plpmode(ilnodesm,irnodesm)
+!
+!use gugaci_global, only: logic_g13, logic_g1415, logic_g36a, logic_g36b
+!
+!implicit none
+!integer :: ilnodesm, irnodesm
+!
+!logic_g36a = .false.
+!logic_g36b = .false.
+!logic_g1415 = .false.
+!logic_g13 = .false.
+!if (ilnodesm < irnodesm) then
+!  logic_g36a = .true.
+!else if (ilnodesm == irnodesm) then
+!  logic_g36a = .true.
+!  logic_g36b = .true.
+!  logic_g1415 = .true.
+!  logic_g13 = .true.
+!else
+!  logic_g36b = .true.
+!end if
+!
+!end subroutine dd_ext_plpmode
 
 subroutine external_space_plpmode_value_dv()
 
@@ -345,7 +345,8 @@ end subroutine g9_t_ext
 subroutine gsd_determine_extarmode_paras(ismnodes,ismnoded,logic_sd)
 
 use gugaci_global, only: ibsm_ext, ivaluesta_g26, iweista_g25, iweista_g26, iweista_g28, iwt_orb_ext, iwt_sm_s_ext, logic_g25a, &
-                         logic_g25b, logic_g26, logic_g28a, mul_tab, nint_g25, nint_g28, nlsm_ext, nwei_g25, nwei_g26, nwei_g28
+                         logic_g25b, logic_g26, logic_g28a, nint_g25, nint_g28, nlsm_ext, nwei_g25, nwei_g26, nwei_g28
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: ismnodes, ismnoded
@@ -420,7 +421,8 @@ end subroutine g_dd_ext_sequence
 subroutine g_ss_ext_sequence(ism,itype)
 
 use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iwt_orb_ext, iwt_sm_s_ext, m_jc, m_jd, &
-                         max_tmpvalue, mul_tab, ng_sm, norb_ext
+                         max_tmpvalue, ng_sm, norb_ext
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: ism, itype
@@ -1184,7 +1186,8 @@ end subroutine external_space_plpmode_value_dt
 !use gugaci_global, only: idownwei_g131415, ilsegdownwei, irsegdownwei, ism_g1415, ism_g2g4, logic_g13, logic_g1415, logic_g2g4a, &
 !                         logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, lpend34a, lpend34b, &
 !                         lpend35a, lpend35b, lpend36a, lpend36b, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, lpsta36b, &
-!                         mul_tab, nvalue_space_ss
+!                         nvalue_space_ss
+!use Symmetry_Info, only: mul_tab => Mul
 !
 !implicit none
 !integer :: ilnodesm, irnodesm, iltype, irtype, lptype
@@ -1275,7 +1278,8 @@ end subroutine external_space_plpmode_value_dt
 
 subroutine do_g36mode(ilrsm,ilnodesm,iii)
 
-use gugaci_global, only: mul_tab, ng_sm
+use gugaci_global, only: ng_sm
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: ilrsm, ilnodesm, iii
@@ -1293,7 +1297,8 @@ end subroutine do_g36mode
 
 subroutine do_g34mode(ilrsm,ilnodesm,iii)
 
-use gugaci_global, only: mul_tab, ng_sm
+use gugaci_global, only: ng_sm
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: ilrsm, ilnodesm, iii
@@ -1311,7 +1316,8 @@ end subroutine do_g34mode
 
 subroutine do_g35mode(ilrsm,ilnodesm,iii)
 
-use gugaci_global, only: mul_tab, ng_sm
+use gugaci_global, only: ng_sm
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: ilrsm, ilnodesm, iii
@@ -1424,29 +1430,30 @@ end do
 
 end subroutine g35_form
 
-function ibfunction(ib,istep)
-
-implicit none
-integer :: ibfunction
-integer :: ib, istep
-
-select case (istep)
-  case (2)
-    ibfunction = ib-1
-  case (3)
-    ibfunction = ib+1
-  case DEFAULT
-    ibfunction = ib
-end select
-if (ibfunction < 0) then
-  write(6,*) 'error'
-end if
-
-end function ibfunction
+!function ibfunction(ib,istep)
+!
+!implicit none
+!integer :: ibfunction
+!integer :: ib, istep
+!
+!select case (istep)
+!  case (2)
+!    ibfunction = ib-1
+!  case (3)
+!    ibfunction = ib+1
+!  case DEFAULT
+!    ibfunction = ib
+!end select
+!if (ibfunction < 0) then
+!  write(6,*) 'error'
+!end if
+!
+!end function ibfunction
 
 subroutine determine_para_array_for_int1ind()
 
-use gugaci_global, only: mul_tab, ng_sm, ngw2, ngw3, nlsm_ext, norb_ext
+use gugaci_global, only: ng_sm, ngw2, ngw3, nlsm_ext, norb_ext
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: isma, ismab, ismabc, ismb, ismc, nintcount, numa, numb, numc, numint
@@ -1531,8 +1538,8 @@ end subroutine g_dd_ext_sequence_G
 
 subroutine g_tt_ext_sequence_G(ism)
 
-use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iwt_orb_ext, m_jc, m_jd, max_tmpvalue, mul_tab, &
-                         ng_sm
+use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iwt_orb_ext, m_jc, m_jd, max_tmpvalue, ng_sm
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: ism
@@ -1592,7 +1599,8 @@ end subroutine g_tt_ext_sequence_G
 subroutine g_ss_ext_sequence_G(ism,itype)
 
 use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iwt_orb_ext, iwt_sm_s_ext, m_jc, m_jd, &
-                         max_tmpvalue, mul_tab, ng_sm, norb_ext
+                         max_tmpvalue, ng_sm, norb_ext
+use Symmetry_Info, only: mul_tab => Mul
 
 implicit none
 integer :: ism, itype
