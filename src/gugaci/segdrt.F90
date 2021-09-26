@@ -13,10 +13,11 @@ subroutine seg_drt()
 
 use gugaci_global, only: ihy, ipae, iy, jj, jj_sub, jpad, jpae, jphy, max_wei, ndim, no, nohy, norb_act, norb_dz, norb_inn
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
 implicit none
-integer :: i, ihypos, ij1, in_, iw, j(4), j1, j2, j3, j4, jde, jp, jp0, jpe, jpend, jpmax, jps, jpsta, lr
-integer, allocatable :: jpihy(:)
+integer(kind=iwp) :: i, ihypos, ij1, in_, iw, j(4), j1, j2, j3, j4, jde, jp, jp0, jpe, jpend, jpmax, jps, jpsta, lr
+integer(kind=iwp), allocatable :: jpihy(:)
 
 jpmax = no(norb_inn+1)
 iy = 0
@@ -147,7 +148,7 @@ do jp=jpsta,jpend
   ihypos = ihypos+1
 end do
 nohy = ihypos-1
-!write(6,'(3x,4i10)') jpad,jpae,ndim,nohy
+!write(u6,'(3x,4i10)') jpad,jpae,ndim,nohy
 call mma_deallocate(jpihy)
 
 return
@@ -157,11 +158,12 @@ end subroutine seg_drt
 function iwalk_ad(jdbl,jext,iwa,iwd)
 
 use gugaci_global, only: iseg_downwei, iw_sta, jpad_upwei, log_prod
+use Definitions, only: iwp
 
 implicit none
-integer :: iwalk_ad
-integer :: jdbl, jext, iwa, iwd
-integer :: ioff, isegdown, iwup
+integer(kind=iwp) :: iwalk_ad
+integer(kind=iwp) :: jdbl, jext, iwa, iwd
+integer(kind=iwp) :: ioff, isegdown, iwup
 
 if (log_prod == 3) then
   ! mrpt2
@@ -184,11 +186,12 @@ end function iwalk_ad
 !function iwalk_ad_mrso(jdbl,jext,iwa,iwd)
 !
 !use gugaci_global, only: iseg_downwei, jpad_upwei
+!use Definitions, only: iwp
 !
 !implicit none
-!integer :: iwalk_ad_mrso
-!integer :: jdbl, jext, iwa, iwd
-!integer :: isegdown, iwup
+!integer(kind=iwp) :: iwalk_ad_mrso
+!integer(kind=iwp) :: jdbl, jext, iwa, iwd
+!integer(kind=iwp) :: isegdown, iwup
 !
 !iwup = jpad_upwei(jdbl)
 !isegdown = iseg_downwei(jext)
@@ -201,10 +204,11 @@ end function iwalk_ad
 subroutine ajphy(jp,in_,jpihy)
 
 use gugaci_global, only: iy, jj, jj_sub, jpad, kk, max_node, max_wei, no, norb_dz
+use Definitions, only: iwp
 
 implicit none
-integer :: jp, in_, jpihy(max_wei)
-integer :: i, idr, iin(0:max_node), j, jpe, jpn, jy, l, lr, nn
+integer(kind=iwp) :: jp, in_, jpihy(max_wei)
+integer(kind=iwp) :: i, idr, iin(0:max_node), j, jpe, jpn, jy, l, lr, nn
 
 iin(0) = 0
 if (jp == jpad) then
@@ -213,7 +217,7 @@ if (jp == jpad) then
   return
 end if
 lr = kk(jp)
-!write(6,*) '  ajphy,jp,start,end',jp,no(nst-lr)+1,no(nst-lr+1)
+!write(u6,*) '  ajphy,jp,start,end',jp,no(nst-lr)+1,no(nst-lr+1)
 jpe = no(lr+1)
 iin(jpad:jpe) = 0
 iin(jp) = 1
@@ -246,10 +250,12 @@ end subroutine ajphy
 
 function K_COE(JBL,JBR,IDDL,IDDR)
 
+use Definitions, only: iwp
+
 implicit none
-integer :: k_coe
-integer :: jbl, jbr, iddl, iddr
-integer :: idl, idr
+integer(kind=iwp) :: k_coe
+integer(kind=iwp) :: jbl, jbr, iddl, iddr
+integer(kind=iwp) :: idl, idr
 
 K_COE = 0
 IDL = IDDL-1
@@ -270,8 +276,10 @@ subroutine copy_to_drtl()
 
 use gugaci_global, only: ihy, ihyl, ipae, ipael, iy, iyl, jj_sub, jjl_sub, jpad, jpadl, jpae, jpael, jphy, jphyl, no, nohy, norb_inn
 
+use Definitions, only: iwp
+
 implicit none
-integer :: knode, nod
+integer(kind=iwp) :: knode, nod
 
 jpadl = jpad
 jpael = jpae
@@ -292,10 +300,11 @@ end subroutine copy_to_drtl
 !subroutine get_jpadty(jp,ity,jp_ms)
 !
 !use gugaci_global, only: ns_sm
+!use Definitions, only: iwp
 !
 !implicit none
-!integer :: jp, ity, jp_ms
-!integer :: jpp
+!integer(kind=iwp) :: jp, ity, jp_ms
+!integer(kind=iwp) :: jpp
 !
 !if (jp == 1) then
 !  ity = 1
@@ -317,8 +326,10 @@ end subroutine copy_to_drtl
 
 subroutine get_jpty(jpadlr,jptyl,jptyr)
 
+use Definitions, only: iwp
+
 implicit none
-integer :: jpadlr, jptyl, jptyr
+integer(kind=iwp) :: jpadlr, jptyl, jptyr
 
 select case (jpadlr)
   case default ! (1)

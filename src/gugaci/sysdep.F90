@@ -15,22 +15,24 @@
 
 subroutine version_info()
 
+use Definitions, only: u6
+
 implicit none
 
-write(6,'(10x,a42)') '*****************************************'
-write(6,'(10x,a42)') '*      Xian-ci mrci program             *'
-write(6,'(10x,a42)') '*     Institute of Modern Physics       *'
-write(6,'(10x,a42)') '*        Northwest University           *'
-write(6,'(10x,a42)') '*        xian, shaanxi, china           *'
-write(6,'(10x,a42)') '*                                       *'
-write(6,'(10x,a42)') '*        report bugs and errors         *'
-write(6,'(10x,a42)') '*           wzy@nwu.edu.cn              *'
-write(6,'(10x,a42)') '*        yubin_wang@hotmail.com         *'
-write(6,'(10x,a42)') '*       bingbing_suo@hotmail.com        *'
-write(6,'(10x,a42)') '*                                       *'
-write(6,'(10x,a42)') '*****************************************'
-write(6,*)
-write(6,*)
+write(u6,'(10x,a42)') '*****************************************'
+write(u6,'(10x,a42)') '*      Xian-ci mrci program             *'
+write(u6,'(10x,a42)') '*     Institute of Modern Physics       *'
+write(u6,'(10x,a42)') '*        Northwest University           *'
+write(u6,'(10x,a42)') '*        xian, shaanxi, china           *'
+write(u6,'(10x,a42)') '*                                       *'
+write(u6,'(10x,a42)') '*        report bugs and errors         *'
+write(u6,'(10x,a42)') '*           wzy@nwu.edu.cn              *'
+write(u6,'(10x,a42)') '*        yubin_wang@hotmail.com         *'
+write(u6,'(10x,a42)') '*       bingbing_suo@hotmail.com        *'
+write(u6,'(10x,a42)') '*                                       *'
+write(u6,'(10x,a42)') '*****************************************'
+write(u6,*)
+write(u6,*)
 
 return
 
@@ -39,6 +41,7 @@ end subroutine version_info
 subroutine allocate_int_memory()
 
 use gugaci_global, only: maxintseg, vint_ci
+use Constants, only: Zero
 
 implicit none
 
@@ -47,7 +50,7 @@ implicit none
 ! maxintseg  maximum length of the integral segment
 
 allocate(vint_ci(0:maxintseg+1))
-vint_ci = 0.d0
+vint_ci = Zero
 
 return
 
@@ -67,10 +70,12 @@ end subroutine deallocate_int_memory
 
 subroutine read_ml(nf,i,bv,n,m)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer :: nf, i, n, m
-real*8 :: bv(n)
-integer :: idisk, irec(64)
+integer(kind=iwp) :: nf, i, n, m
+real(kind=wp) :: bv(n)
+integer(kind=iwp) :: idisk, irec(64)
 
 idisk = 0
 call idafile(nf,2,irec,64,idisk)
@@ -93,10 +98,12 @@ end subroutine read_ml
 
 subroutine write_ml(nf,i,bv,n,m)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer :: nf, i, n, m
-real*8 :: bv(n)
-integer :: idisk, irec(64)
+integer(kind=iwp) :: nf, i, n, m
+real(kind=wp) :: bv(n)
+integer(kind=iwp) :: idisk, irec(64)
 
 idisk = 0
 if (m == 1) then
@@ -120,7 +127,7 @@ call ddafile(nf,1,bv,n,idisk)
 irec(m+1) = idisk
 idisk = 0
 call idafile(nf,1,irec,64,idisk)
-!write(6,*) 'idisk',m,idisk
+!write(u6,*) 'idisk',m,idisk
 
 return
 ! Avoid unused argument warnings
@@ -130,9 +137,11 @@ end subroutine write_ml
 
 subroutine write_bv(nf,i,bv,n)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer :: nf, i, n
-real*8 :: bv(n)
+integer(kind=iwp) :: nf, i, n
+real(kind=wp) :: bv(n)
 
 call write_ml(nf,1,bv,n,i)
 
@@ -142,9 +151,11 @@ end subroutine write_bv
 
 subroutine read_bv(nf,i,bv,n)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer :: nf, i, n
-real*8 :: bv(n)
+integer(kind=iwp) :: nf, i, n
+real(kind=wp) :: bv(n)
 
 call read_ml(nf,1,bv,n,i)
 
@@ -167,10 +178,12 @@ subroutine readint(ntyp,vintrd)
 
 use gugaci_global, only: LuCiInt
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer :: ntyp
-real*8 :: vintrd(*)
-integer :: idisk, idum(1), idx(4), lenint
+integer(kind=iwp) :: ntyp
+real(kind=wp) :: vintrd(*)
+integer(kind=iwp) :: idisk, idum(1), idx(4), lenint
 
 idx = 0
 idisk = 0
@@ -187,7 +200,7 @@ select case (ntyp)
     call idafile(luciint,2,idum,1,idisk)
     lenint = idum(1)
     call ddafile(luciint,2,vintrd(2),lenint,idisk)
-    !write(6,*) vintrd(1:lenint)
+    !write(u6,*) vintrd(1:lenint)
   case (3)
     ! internal external space 2 index integrals
     idisk = idx(3)
@@ -195,7 +208,7 @@ select case (ntyp)
     lenint = idum(1)
     call ddafile(luciint,2,vintrd(2),lenint,idisk)
   case (4)
-    ! external space intergrals
+    ! external space integrals
     idisk = idx(4)
     call idafile(luciint,2,idum,1,idisk)
     lenint = idum(1)
@@ -215,17 +228,15 @@ subroutine gugaciinit()
 use gugaci_global, only: FnOneMO, FnTwoMO, LuCiDen, LuCiDia, LuCiInt, LuCiMO, LuCiTv1, LuCiTv2, LuCiVec, LuDrt, LuLoop, LuOneMO, &
                          LuTwoMO
 #ifdef MOLPRO
-use file_qininit
-use molegeom
-use groupinfo
-use orbinfo
+use file_qininit, only:
+use molegeom, only:
+use groupinfo, only:
+use orbinfo, only:
+use Definitions, only: iwp
 #endif
 
 implicit none
 character(len=8) :: fnciden, fncidia, fnciint, fncimo, fncitv1, fncitv2, fncivec, fndrt, fnloop
-#ifdef MOLPRO
-integer :: noffset(maxrecord)
-#endif
 
 #ifndef MOLPRO
 fnonemo = 'traone'
@@ -327,9 +338,10 @@ end subroutine gugafinalize
 subroutine memdengrad_alloc()
 
 use gugaci_global, only: denm1, denm2, norb_all
+use Definitions, only: iwp
 
 implicit none
-integer :: nc, ndim
+integer(kind=iwp) :: nc, ndim
 
 ndim = norb_all*(norb_all+1)/2
 allocate(denm1(ndim))
@@ -391,9 +403,11 @@ subroutine mem_intinnindex_alloc()
 use gugaci_global, only: intind_abkk, intind_iabc, intind_iaqq, intind_ijab, intind_ijcc, intind_ijka, intspace_abkk, &
                          intspace_iabc, intspace_iaqq, intspace_ijab, intspace_ijcc, intspace_ijka, loij, loij_all, loijk, &
                          loijk_all, nabc, ngw2, ngw3, norb_all, norb_inn, vdint, voint
+use Constants, only: Zero
+use Definitions, only: iwp
 
 implicit none
-integer :: lent
+integer(kind=iwp) :: lent
 
 allocate(loij(50000))
 allocate(loijk(1384150))
@@ -431,8 +445,8 @@ intspace_ijka(1:50000) = 0
 intspace_ijcc(1:50000) = 0
 intspace_ijab(1:50000) = 0
 
-voint = 0.d0
-vdint = 0.d0
+voint = Zero
+vdint = Zero
 
 return
 
@@ -502,9 +516,10 @@ end subroutine deallocate_casrst
 subroutine allocate_subdrt(icase,lent)
 
 use gugaci_global, only: ihy, iy, jj_sub, jphy, max_node, max_wei
+use Definitions, only: iwp
 
 implicit none
-integer :: icase, lent
+integer(kind=iwp) :: icase, lent
 
 allocate(ihy(max_wei),jj_sub(1:4,0:max_node))
 allocate(iy(1:4,0:max_node))
@@ -519,9 +534,10 @@ end subroutine allocate_subdrt
 subroutine allocate_subdrtl(icase,lent)
 
 use gugaci_global, only: ihyl, iyl, jjl_sub, jphyl, max_node, max_wei
+use Definitions, only: iwp
 
 implicit none
-integer :: icase, lent
+integer(kind=iwp) :: icase, lent
 
 allocate(ihyl(max_wei),jjl_sub(1:4,0:max_node))
 allocate(iyl(1:4,0:max_node))
@@ -561,9 +577,11 @@ end subroutine deallocate_subdrtl
 
 function c_time()
 
+use Definitions, only: wp
+
 implicit none
-real*8 :: c_time
-real*8, external :: seconds
+real(kind=wp) :: c_time
+real(kind=wp), external :: seconds
 
 c_time = seconds()
 
@@ -571,9 +589,11 @@ end function c_time
 
 function ipair(i,j)
 
+use Definitions, only: iwp
+
 implicit none
-integer :: ipair
-integer :: i, j
+integer(kind=iwp) :: ipair
+integer(kind=iwp) :: i, j
 
 if (i >= j) then
   ipair = i*(i-1)/2+j
@@ -586,9 +606,11 @@ end function ipair
 !subroutine trimstr(string)
 !! delete space character in the head and tail of the string
 !
+!use Definitions, only: iwp
+!
 !implicit none
-!character(len=*), intent(out) :: string
-!integer :: i, j, k
+!character(len=*), intent(inout) :: string
+!integer(kind=iwp) :: i, j, k
 !character(len=128) :: line
 !
 !k = len_trim(string)

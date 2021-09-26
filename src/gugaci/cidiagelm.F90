@@ -14,19 +14,20 @@ subroutine diagonal_loop_wyb()  !  for norb_act<>0
 
 use gugaci_global, only: ipae, iseg_downwei, iw_downwei, iw_sta, jd, jpad, jpad_upwei, jpae, js, jt, jv, mxnode, nci_dim, nci_h0, &
                          ndim, ng_sm, norb_all, nu_ad, nu_ae, vdint, vector1, voint, vpotnuc
+use Definitions, only: iwp
 
 implicit none
-integer :: im, ipae_, iwupwei, jaedownwei, jpad_, lr, lr0, ndimsum
+integer(kind=iwp) :: im, ipae_, iwupwei, jaedownwei, jpad_, lr, lr0, ndimsum
 
 do lr0=2,norb_all
   do lr=1,lr0-1
     vdint(lr,lr0) = voint(lr0,lr)-vdint(lr0,lr)-vdint(lr0,lr)   ! 520
-    !write(6,'(2i4,3f14.8)') lr,lr0,voint(lr0,lr),vdint(lr0,lr),vdint(lr,lr0)
+    !write(u6,'(2i4,3f14.8)') lr,lr0,voint(lr0,lr),vdint(lr0,lr),vdint(lr,lr0)
   end do
 end do
-!write(6,*) '               ***** start h-diaelm *****'
+!write(u6,*) '               ***** start h-diaelm *****'
 vector1(1:nci_dim) = vpotnuc
-!wl8 = hnil*(hnil-1)*vmd(lr,lr)*0.5d0+hnil*vo(lr,lr)   ! 800
+!wl8 = hnil*(hnil-1)*vmd(lr,lr)*Half+hnil*vo(lr,lr)   ! 800
 
 ndimsum = 0
 jpae = jv
@@ -56,7 +57,7 @@ do im=1,ng_sm
     call seg_drt()
     iwupwei = jpad_upwei(jpad)
     iw_downwei(jpad,ipae) = ndim
-    !if (jpad >= 26) write(6,*)
+    !if (jpad >= 26) write(u6,*)
     ndimsum = ndimsum+ndim*jaedownwei*iwupwei
     if (ndim == 0) cycle
     call diagonal_act_d()
@@ -113,7 +114,7 @@ outer: do ipae_=1,25
 end do outer
 
 !do i=1,nci_dim
-!  write(6,'(i8,f18.8)') i,vector1(i)
+!  write(u6,'(i8,f18.8)') i,vector1(i)
 !end do
 !call abend()
 
@@ -124,21 +125,23 @@ end subroutine diagonal_loop_wyb
 subroutine diagonal_act_c()
 
 use gugaci_global, only: iy, jb, jeh, jj_sub, jpad, jph, jwh, max_innorb, maxpl, norb_act, norb_dz, norb_inn, th, thh
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: idl, ind1, isq, iwa, je, jeb, jp, jpb, lr, m, me, mh, mp, mpe, mw, ndr(max_innorb)
-real*8 :: vlop0, vlop1, w, ww
-integer, allocatable :: jee(:), jpe(:), jwe(:)
-real*8, allocatable :: te(:), tee(:)
+integer(kind=iwp) :: idl, ind1, isq, iwa, je, jeb, jp, jpb, lr, m, me, mh, mp, mpe, mw, ndr(max_innorb)
+real(kind=wp) :: vlop0, vlop1, w, ww
+integer(kind=iwp), allocatable :: jee(:), jpe(:), jwe(:)
+real(kind=wp), allocatable :: te(:), tee(:)
 
-!write(6,*) '               ***** start h-diaelm *****'
-!write(6,*) jpad,jpae
+!write(u6,*) '               ***** start h-diaelm *****'
+!write(u6,*) jpad,jpae
 allocate(te(maxpl),tee(maxpl),jpe(maxpl),jee(maxpl),jwe(maxpl))
 ndr = 0
 if (norb_act == 0) then
   mh = 1
-  th(1) = 1.d0
-  thh(1) = 1.d0
+  th(1) = One
+  thh(1) = One
   call diagonal_link_dae(mh)
   return
 end if
@@ -165,13 +168,13 @@ do idl=1,4
   call stml(isq,w,ww,mw,ind1-1,jpb)
   vlop0 = w
   vlop1 = ww
-  if ((vlop0 == 0.0d0) .and. (vlop1 == 0.0d0)) cycle
+  if ((vlop0 == Zero) .and. (vlop1 == Zero)) cycle
   mpe = jj_sub(idl,jp)
   iwa = iy(idl,jp)
   call diagonal_link_ad(mpe,iwa,vlop0,vlop1)
 end do
 !***********************************************************************
-!write(6,*) ad(i)
+!write(u6,*) ad(i)
 !***********************************************************************
 lr = norb_dz+1
 
@@ -205,7 +208,7 @@ do
       call stml(isq,w,ww,mw,ind1-1,jeb)
       vlop0 = th(m)*w
       vlop1 = thh(m)*ww
-      if ((vlop0 == 0.0d0) .and. (vlop1 == 0.0d0)) cycle
+      if ((vlop0 == Zero) .and. (vlop1 == Zero)) cycle
       mp = mp+1
       mpe = jj_sub(idl,je)
       iwa = jwh(m)
@@ -215,13 +218,13 @@ do
     end do
   end do
   !*********************************************************************
-  !write(6,*) ad(i)
+  !write(u6,*) ad(i)
   !*********************************************************************
   do m=1,me
     th(m) = te(m)
-    te(m) = 0.0d0
+    te(m) = Zero
     thh(m) = tee(m)
-    tee(m) = 0.0d0
+    tee(m) = Zero
     jwh(m) = jwe(m)
     jwe(m) = 0
     jeh(m) = jee(m)
@@ -233,8 +236,8 @@ do
   if (ndr(lr) < mh) ndr(lr) = mh
 end do
 do m=1,mh
-  th(m) = 0.0d0
-  thh(m) = 0.0d0
+  th(m) = Zero
+  thh(m) = Zero
   jwh(m) = 0
   jph(m) = 0
   jeh(m) = 0
@@ -247,15 +250,17 @@ end subroutine diagonal_act_c
 subroutine diagonal_act_d()
 
 use gugaci_global, only: iy, jb, jeh, jj_sub, jph, jwh, max_innorb, maxpl, no, norb_dz, norb_inn, th, thh, vdint, voint
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: idl, ind1, isq, iwa, jbl, je, jeb, jp, jp0, jp1, jw, lr, lr0, m, me, mh, mp, mpe, mw, ndr(max_innorb)
-real*8 :: vlop0, vlop1, w, wt, ww
-integer, allocatable :: jee(:), jpe(:), jwe(:)
-real*8, allocatable :: te(:), tee(:)
+integer(kind=iwp) :: idl, ind1, isq, iwa, jbl, je, jeb, jp, jp0, jp1, jw, lr, lr0, m, me, mh, mp, mpe, mw, ndr(max_innorb)
+real(kind=wp) :: vlop0, vlop1, w, wt, ww
+integer(kind=iwp), allocatable :: jee(:), jpe(:), jwe(:)
+real(kind=wp), allocatable :: te(:), tee(:)
 
-!write(6,*) '               ***** start h-diaelm *****'
-!write(6,*) '   diagonal_act_d:',jpad,ipae
+!write(u6,*) '               ***** start h-diaelm *****'
+!write(u6,*) '   diagonal_act_d:',jpad,ipae
 allocate(te(maxpl),tee(maxpl),jpe(maxpl),jee(maxpl),jwe(maxpl))
 ndr = 0
 do lr=norb_dz+1,norb_inn
@@ -274,7 +279,7 @@ do lr=norb_dz+1,norb_inn
     end do
     mpe = jj_sub(4,jp)
     if (mpe /= 0) then
-      wt = vdint(lr0,lr0)+2.d0*voint(lr0,lr0)     !idl=4 hnil=2
+      wt = vdint(lr0,lr0)+Two*voint(lr0,lr0)     !idl=4 hnil=2
       jw = iy(4,jp)
       call prodel(3,wt,jp,mpe,jw)
     end if
@@ -306,7 +311,7 @@ outer: do lr0=norb_dz+1,norb_inn
     end do
   end do
   !*********************************************************************
-  !write(6,*) ad(i)
+  !write(u6,*) ad(i)
   !*********************************************************************
   lr = lr0
   if (ndr(lr) < mh) ndr(lr) = mh
@@ -341,25 +346,25 @@ outer: do lr0=norb_dz+1,norb_inn
         call stml(isq,w,ww,mw,ind1-1,jeb)
         vlop0 = th(m)*w
         vlop1 = thh(m)*ww
-        if ((vlop0 == 0.0d0) .and. (vlop1 == 0.0d0)) cycle
+        if ((vlop0 == Zero) .and. (vlop1 == Zero)) cycle
         mp = mp+1
         mpe = jj_sub(idl,je)
         iwa = jwh(m)
         if (idl /= 1) iwa = iy(idl,je)+iwa
-        wt = (vlop0-vlop1)*voint(lr,lr0)-2.d0*vlop0*vdint(lr,lr0)
+        wt = (vlop0-vlop1)*voint(lr,lr0)-Two*vlop0*vdint(lr,lr0)
 
         call prodel(3,wt,jp,mpe,iwa)
         !*****   520  **************************************************
       end do
     end do
     !*******************************************************************
-    !write(6,*) ad(i)
+    !write(u6,*) ad(i)
     !*******************************************************************
     do m=1,me
       th(m) = te(m)
-      te(m) = 0.0d0
+      te(m) = Zero
       thh(m) = tee(m)
-      tee(m) = 0.0d0
+      tee(m) = Zero
       jwh(m) = jwe(m)
       jwe(m) = 0
       jeh(m) = jee(m)
@@ -371,8 +376,8 @@ outer: do lr0=norb_dz+1,norb_inn
     if (ndr(lr) < mh) ndr(lr) = mh
   end do
   do m=1,mh
-    th(m) = 0.0d0
-    thh(m) = 0.0d0
+    th(m) = Zero
+    thh(m) = Zero
     jwh(m) = 0
     jph(m) = 0
     jeh(m) = 0
@@ -385,18 +390,17 @@ end subroutine diagonal_act_d
 
 subroutine diagonal_link_ae(mh)
 
-use gugaci_global, only: ibsm_ext, iesm_ext, ipae, jph, jwh, kk, lsm, ng_sm, nlsm_ext, norb_all, norb_ext, th, thh, vdint, voint
+use gugaci_global, only: ibsm_ext, iesm_ext, ipae, jph, jwh, kk, lsm, ng_sm, nlsm_ext, norb_all, norb_ext, th, thh, v_onevsqtwo, &
+                         v_sqthreevsqtwo, v_sqtwo, vdint, voint
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: mh
-integer :: ima, imae, imb, ip, ityae, iwa, iwe, jp, la, lb, lbend, lbsta, lr0, lra, lrb, ma
-real*8 :: vlop0, vlop1, wg13, wg14, wg38, wg50, wld, wls, wlt, wwg38, wwg50
-real*8, parameter :: dsq2 = 1.414213562373095d0, vsq2 = 0.7071067811865d0
+integer(kind=iwp) :: mh
+integer(kind=iwp) :: ima, imae, imb, ip, ityae, iwa, iwe, jp, la, lb, lbend, lbsta, lr0, lra, lrb, ma
+real(kind=wp) :: vlop0, vlop1, wg13, wg14, wg38, wg50, wld, wls, wlt, wwg38, wwg50
 
-!dsq2 = sqrt(2.d0)
-!vsq2 = 1/sqrt(2.d0)
-!dsq3vsq2 = sqrt(3.d0)/sqrt(2.d0)
 if (ipae == 1) return   !could not link
 ityae = (ipae-1)/8+1
 imae = mod(ipae-1,8)
@@ -408,34 +412,34 @@ do ip=1,mh
   iwe = 0
   jp = jph(ip)
   lr0 = kk(jp)
-  !write(6,*) 'ip,jpe,ind0',ip,jpe,ind0
+  !write(u6,*) 'ip,jpe,ind0',ip,jpe,ind0
   iwa = jwh(ip)
   vlop0 = th(ip)
   vlop1 = thh(ip)
 
-  !wl5 = (vlop0-vlop1)*vo(lr0,lr)-2.0d0*vlop0*vmd(lr0,lr)
-  !wl8 = vlop0*(vo(lr0,lr0)+(vlop0-1)*0.5*vmd(lr0,lr0))
+  !wl5 = (vlop0-vlop1)*vo(lr0,lr)-Two*vlop0*vmd(lr0,lr)
+  !wl8 = vlop0*(vo(lr0,lr0)+(vlop0-1)*Half*vmd(lr0,lr0))
   ! two-index,one-loop 520
   ! 0=<a,j,k,a>:13,14(ss=3),38(tt=2),50(dd=1)
   !link arc_d
   select case (ityae)
     case default ! (1)
       !zz = '  g50  '
-      wg50 = vlop0*vsq2
-      wwg50 = -vlop1*sqrt(3.d0)/sqrt(2.d0)
+      wg50 = vlop0*v_onevsqtwo
+      wwg50 = -vlop1*v_sqthreevsqtwo
       do la=1,norb_ext
         ma = lsm(la)
         if (ma /= imae) cycle
         lra = norb_all-la+1
         iwe = iwe+1
-        wld = (wg50-wwg50)*voint(lra,lr0)-2.d0*wg50*vdint(lra,lr0)
-        !write(6,'(a11,2i3,i6,1x,5f10.4)') zz,lr0,la,jwl,vo(lr0,la),vmd(lr0,la),wg50,wwg50,wl
+        wld = (wg50-wwg50)*voint(lra,lr0)-Two*wg50*vdint(lra,lr0)
+        !write(u6,'(a11,2i3,i6,1x,5f10.4)') zz,lr0,la,jwl,vo(lr0,la),vmd(lr0,la),wg50,wwg50,wl
         call prodel(5,wld,jp,iwa,iwe)
       end do
 
     case (2)
       !zz = '  g38,39  '
-      wg38 = -vlop0*vsq2
+      wg38 = -vlop0*v_onevsqtwo
       wwg38 = vlop1
       do ima=1,ng_sm
         imb = mul_tab(ima,imae)
@@ -448,8 +452,8 @@ do ip=1,mh
           do lb=lbsta,lbend
             lrb = norb_all-lb+1
             iwe = iwe+1
-            wlt = (wg38-wwg38)*(voint(lra,lr0)+voint(lrb,lr0))-2.d0*wg38*(vdint(lra,lr0)+vdint(lrb,lr0))
-            !write(6,*) ' 520 r0,la,lb ',vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
+            wlt = (wg38-wwg38)*(voint(lra,lr0)+voint(lrb,lr0))-Two*wg38*(vdint(lra,lr0)+vdint(lrb,lr0))
+            !write(u6,*) ' 520 r0,la,lb ',vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
 
             call prodel(5,wlt,jp,iwa,iwe)
           end do
@@ -458,7 +462,7 @@ do ip=1,mh
 
     case (3)
       !zz = '  g14,15  '
-      wg14 = -vlop0*vsq2
+      wg14 = -vlop0*v_onevsqtwo
       do ima=1,ng_sm
         imb = mul_tab(ima,imae)
         if (imb > ima) cycle
@@ -472,20 +476,20 @@ do ip=1,mh
           do lb=lbsta,lbend
             lrb = norb_all-lb+1
             iwe = iwe+1
-            wls = wg14*(voint(lra,lr0)+voint(lrb,lr0))-2.d0*wg14*(vdint(lra,lr0)+vdint(lrb,lr0))
+            wls = wg14*(voint(lra,lr0)+voint(lrb,lr0))-Two*wg14*(vdint(lra,lr0)+vdint(lrb,lr0))
             call prodel(5,wls,jp,iwa,iwe)
           end do
         end do
       end do
       if (ipae /= 18) cycle
       !zz = '  g13     '
-      wg13 = -vlop0*dsq2
+      wg13 = -vlop0*v_sqtwo
       do la=1,norb_ext
         lra = norb_all-la+1
         iwe = iwe+1
-        wls = wg13*(voint(lra,lr0)-2.d0*vdint(lra,lr0))
+        wls = wg13*(voint(lra,lr0)-Two*vdint(lra,lr0))
         call prodel(5,wls,jp,iwa,iwe)
-        !write(6,*) ' g13 ',vo(lr0,la),vo(lr0,lb),vmd(lr0,la),vmd(lr0,lb)
+        !write(u6,*) ' g13 ',vo(lr0,la),vo(lr0,lb),vmd(lr0,la),vmd(lr0,lb)
       end do
   end select
 
@@ -499,19 +503,17 @@ end subroutine diagonal_link_ae
 subroutine diagonal_link_ad(mpe,iwa,vlop0,vlop1)
 
 use gugaci_global, only: fg, jb_sys, jpad, jud, just, kk, lsm_inn, norb_dz, norb_frz, ns_sm, pd, pdd, ps1, ps2, ps3, ps4, pt, ptt, &
-                         vdint, voint
+                         v_onevsqtwo, v_sqtwo, vdint, voint
 use Symmetry_Info, only: mul_tab => Mul
+Use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: mpe, iwa
-real*8 :: vlop0, vlop1
-integer :: imad, imd, imi, imij, imj, ityad, iwd, iws, iwt, lr, lra, lri, lrj, lrjsta
-real*8 :: fqi, vl0, vl1, wld, wls, wlt, wlv
-real*8, parameter :: dsq2 = 1.414213562373095d0, vsq2 = 0.7071067811865d0
+integer(kind=iwp) :: mpe, iwa
+real(kind=wp) :: vlop0, vlop1
+integer(kind=iwp) :: imad, imd, imi, imij, imj, ityad, iwd, iws, iwt, lr, lra, lri, lrj, lrjsta
+real(kind=wp) :: fqi, vl0, vl1, wld, wls, wlt, wlv
 
-!dsq2 = sqrt(2.d0)
-!vsq2 = 1/sqrt(2.d0)
-!dsq3vsq2 = sqrt(3.d0)/sqrt(2.d0)
 if (norb_dz == 0) return
 ityad = 1
 if (jpad /= 1) ityad = (jpad-1)/8+2
@@ -525,8 +527,8 @@ select case (ityad)
   case default ! (1)
     ! v: d&r&l(3)
     fqi = -fg
-    vl0 = fqi*dsq2*vlop0
-    wlv = 0.d0
+    vl0 = fqi*v_sqtwo*vlop0
+    wlv = Zero
     !do lr=norb_frz+1,norb_dz
     do lr=1,norb_dz
       wlv = wlv-vl0*vdint(lr,lra)
@@ -542,17 +544,17 @@ select case (ityad)
       iwd = jud(lri)
 
       ! d: d&r&l(2)
-      vl0 = fqi*vsq2*vlop0
+      vl0 = fqi*v_onevsqtwo*vlop0
       vl1 = pd*vlop1
-      wld = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
+      wld = -Two*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
       ! d: d&r&l(3)+c"(2)
-      vl0 = fqi*dsq2*vlop0
+      vl0 = fqi*v_sqtwo*vlop0
       do lr=1,lri-1
-        wld = wld+vl0*(voint(lra,lr)-2.d0*vdint(lra,lr))
+        wld = wld+vl0*(voint(lra,lr)-Two*vdint(lra,lr))
       end do
       ! d: d&r&l(3)
       do lr=lri+1,norb_dz
-        wld = wld+vl0*(voint(lra,lr)-2.d0*vdint(lra,lr))
+        wld = wld+vl0*(voint(lra,lr)-Two*vdint(lra,lr))
       end do
 
       call prodel(4,wld,mpe,iwd,iwa)
@@ -572,11 +574,11 @@ select case (ityad)
 
         ! t: d&r&l(2)
         ! t: d&r&l(2)+c"(2)
-        vl0 = fqi*vsq2*vlop0
+        vl0 = fqi*v_onevsqtwo*vlop0
         vl1 = pt*vlop1
-        wlt = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
-        wlt = wlt-2.0d0*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
-        vl0 = fqi*dsq2*vlop0
+        wlt = -Two*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
+        wlt = wlt-Two*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
+        vl0 = fqi*v_sqtwo*vlop0
         ! t: d&r&l(3)+c"(2)+c"(2)
         do lr=1,lri-1
           wlt = wlt+vl0*vdint(lr,lra)
@@ -602,11 +604,11 @@ select case (ityad)
         iws = just(lri,lri)
         ! s: d&r&l(3)+c"(0)
         ! s: d&r&l(3)
-        vl0 = fqi*dsq2*vlop0
-        wls = 0.d0
+        vl0 = fqi*v_sqtwo*vlop0
+        wls = Zero
         do lr=1,norb_dz
           if (lr == lri) cycle
-          wls = wls+vl0*(voint(lra,lr)-2.d0*vdint(lra,lr))
+          wls = wls+vl0*(voint(lra,lr)-Two*vdint(lra,lr))
         end do
         call prodel(4,wls,mpe,iws,iwa)
       end if
@@ -619,15 +621,15 @@ select case (ityad)
         if (imij /= imad) cycle
         iws = just(lri,lrj)
         ! s1: d&r&l(1)
-        vl0 = fqi*vsq2*vlop0
+        vl0 = fqi*v_onevsqtwo*vlop0
         vl1 = ps1*vlop1
-        wls = -2.0d0*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
+        wls = -Two*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
         ! s4: d&r&l(2)+c"(1)
-        vl0 = fqi*vsq2*vlop0
+        vl0 = fqi*v_onevsqtwo*vlop0
         vl1 = ps4*vlop1
-        wls = wls-2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
+        wls = wls-Two*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
 
-        vl0 = fqi*dsq2*vlop0
+        vl0 = fqi*v_sqtwo*vlop0
         ! s: d&r&l(3)+c"(2)+c"(1)
         do lr=1,lri-1
           wls = wls+vl0*vdint(lr,lra)
@@ -655,16 +657,16 @@ select case (ityad)
         !iws = iws+1
         iws = just(lrj,lri)
         ! s1: d&r&l(1)-c"(2)
-        vl0 = fqi*vsq2*vlop0
+        vl0 = fqi*v_onevsqtwo*vlop0
         vl1 = ps3*vlop1
-        wls = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
+        wls = -Two*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
 
         ! s3: (11)d&r&l(2)
-        vl0 = fqi*vsq2*vlop0
+        vl0 = fqi*v_onevsqtwo*vlop0
         vl1 = ps2*vlop1
-        wls = wls-2.0d0*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
+        wls = wls-Two*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
 
-        vl0 = fqi*dsq2*vlop0
+        vl0 = fqi*v_sqtwo*vlop0
         ! s: d&r&l(3)+c"(1)+c"(2)
         do lr=1,lri-1
           wls = wls+vl0*vdint(lr,lra)
@@ -691,16 +693,16 @@ select case (ityad)
       iwd = jud(lri)
 
       ! dd1: d&r&l(1)
-      vl0 = fqi*vsq2*vlop0
+      vl0 = fqi*v_onevsqtwo*vlop0
       vl1 = pdd*vlop1
       !if ((mpe == 43) .and. (iwd == 1.)) then
-      !  write(6,*)
-      !  write(6,*) lri,lra,vl0,vl1,wld,vlop0,vlop1
+      !  write(u6,*)
+      !  write(u6,*) lri,lra,vl0,vl1,wld,vlop0,vlop1
       !end if
 
-      wld = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
+      wld = -Two*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
 
-      vl0 = fqi*dsq2*vlop0
+      vl0 = fqi*v_sqtwo*vlop0
 
       ! d: d&r&l(3)+c"(1)
       do lr=1,lri-1
@@ -728,11 +730,11 @@ select case (ityad)
 
         ! tt: d&r&l(1)
         ! tt: d&r&l(1)+c"(1)
-        vl0 = fqi*vsq2*vlop0
+        vl0 = fqi*v_onevsqtwo*vlop0
         vl1 = ptt*vlop1
-        wlt = -2.0d0*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
-        wlt = wlt-2.0d0*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
-        vl0 = fqi*dsq2*vlop0
+        wlt = -Two*vl0*vdint(lra,lri)+(vl0-vl1)*voint(lra,lri)
+        wlt = wlt-Two*vl0*vdint(lra,lrj)+(vl0-vl1)*voint(lra,lrj)
+        vl0 = fqi*v_sqtwo*vlop0
         ! t: d&r&l(3)+c"(1)+c"(1)
         do lr=1,lri-1
           wlt = wlt+vl0*vdint(lr,lra)
@@ -758,18 +760,16 @@ end subroutine diagonal_link_ad
 subroutine diagonal_link_dae(mh)
 
 use gugaci_global, only: fg, jb_sys, jpad, jud, just, jwh, lsm_inn, norb_dz, norb_frz, ns_sm, pd, pdd, ps1, ps2, ps3, ps4, pt, &
-                         ptt, th, thh
+                         ptt, th, thh, v_onevsqtwo, v_sqtwo
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: mh
-integer :: imad, imd, imi, imij, imj, ip, ityad, iwa, iwd, iws, iwt, lri, lrj, lrjsta
-real*8 :: fqi, vij0, vij1, vij2, vl0, vlop0, vlop1
-real*8, parameter :: dsq2 = 1.414213562373095d0, vsq2 = 0.7071067811865d0
+integer(kind=iwp) :: mh
+integer(kind=iwp) :: imad, imd, imi, imij, imj, ip, ityad, iwa, iwd, iws, iwt, lri, lrj, lrjsta
+real(kind=wp) :: fqi, vij0, vij1, vij2, vl0, vlop0, vlop1
 
-!dsq2 = sqrt(2.d0)
-!vsq2 = 1/sqrt(2.d0)
-!dsq3vsq2 = sqrt(3.d0)/sqrt(2.d0)
 ityad = 1
 if (jpad /= 1) ityad = (jpad-1)/8+2
 imad = mod(jpad-1,8)
@@ -785,16 +785,16 @@ do ip=1,mh
   select case (ityad)
     case default ! (1)
       !jpad = 1
-      if (abs(vlop0) < 1e-30) cycle
+      if (abs(vlop0) < 1.0e-30_wp) cycle
       fqi = fg
       ! v: d&r&l(3)
       lri = 0
       lrj = 0
       iwd = 0
-      vij0 = 0.d0
-      vij1 = 0.d0
-      vij2 = 0.d0
-      vl0 = fqi*dsq2*vlop0
+      vij0 = Zero
+      vij1 = Zero
+      vij2 = Zero
+      vl0 = fqi*v_sqtwo*vlop0
       call diagonal_call_dae(lri,lrj,iwd,iwa,vij0,vij1,vij2,vl0)
 
     case (2)
@@ -807,12 +807,12 @@ do ip=1,mh
         iwd = jud(lri)
 
         ! d: d&r&l(2)
-        vij0 = fqi*vsq2*vlop0
+        vij0 = fqi*v_onevsqtwo*vlop0
         vij1 = pd*vlop1
-        vij2 = 0.d0
+        vij2 = Zero
         ! d: d&r&l(3)+c"(2)
         ! d: d&r&l(3)
-        vl0 = fqi*dsq2*vlop0
+        vl0 = fqi*v_sqtwo*vlop0
 
         call diagonal_call_dae(lri,lrj,iwd,iwa,vij0,vij1,vij2,vl0)
 
@@ -832,13 +832,13 @@ do ip=1,mh
 
           ! t: d&r&l(2)
           ! t: d&r&l(2)+c"(2)
-          vij0 = fqi*vsq2*vlop0
+          vij0 = fqi*v_onevsqtwo*vlop0
           vij1 = pt*vlop1
           vij2 = vij1
           ! t: d&r&l(3)+c"(2)+c"(2)
           ! t: d&r&l(3)+c"(2)
           ! t: d&r&l(3)
-          vl0 = fqi*dsq2*vlop0
+          vl0 = fqi*v_sqtwo*vlop0
 
           call diagonal_call_dae(lri,lrj,iwt,iwa,vij0,vij1,vij2,vl0)
         end do
@@ -851,12 +851,12 @@ do ip=1,mh
         if (imad == ns_sm) then
           lrj = lri
           iws = just(lri,lri)
-          vij0 = 0.d0
-          vij1 = 0.d0
-          vij2 = 0.d0
+          vij0 = Zero
+          vij1 = Zero
+          vij2 = Zero
           ! s: d&r&l(3)+c"(0)
           ! s: d&r&l(3)
-          vl0 = fqi*dsq2*vlop0
+          vl0 = fqi*v_sqtwo*vlop0
           call diagonal_call_dae(lri,lrj,iws,iwa,vij0,vij1,vij2,vl0)
         end if
         imi = mul_tab(lsm_inn(lri),ns_sm)
@@ -868,13 +868,13 @@ do ip=1,mh
           iws = just(lri,lrj)
           ! s2: d&r&l(2)
           ! s4: d&r&l(2)+c"(1)
-          vij0 = fqi*vsq2*vlop0
+          vij0 = fqi*v_onevsqtwo*vlop0
           vij1 = ps1*vlop1
           vij2 = ps4*vlop1
           ! s: d&r&l(3)+c"(2)+c"(1)
           ! s: d&r&l(3)+c"(1)
           ! s: d&r&l(3)
-          vl0 = fqi*dsq2*vlop0
+          vl0 = fqi*v_sqtwo*vlop0
           call diagonal_call_dae(lri,lrj,iws,iwa,vij0,vij1,vij2,vl0)
         end do
       end do
@@ -890,13 +890,13 @@ do ip=1,mh
           iws = just(lrj,lri)
           ! s1: d&r&l(1)
           ! s3: d&r&l(1)+c"(2)
-          vij0 = fqi*vsq2*vlop0
+          vij0 = fqi*v_onevsqtwo*vlop0
           vij1 = ps2*vlop1
           vij2 = ps3*vlop1
           ! s: d&r&l(3)+c"(1)+c"(2)
           ! s: d&r&l(3)+c"(2)
           ! s: d&r&l(3)
-          vl0 = fqi*dsq2*vlop0
+          vl0 = fqi*v_sqtwo*vlop0
           call diagonal_call_dae(lri,lrj,iws,iwa,vij0,vij1,vij2,vl0)
         end do
       end do
@@ -910,12 +910,12 @@ do ip=1,mh
         iwd = jud(lri)
 
         ! dd1: d&r&l(1)
-        vij0 = fqi*vsq2*vlop0
+        vij0 = fqi*v_onevsqtwo*vlop0
         vij1 = pdd*vlop1
-        vij2 = 0.d0
+        vij2 = Zero
         ! d: d&r&l(3)+c"(1)
         ! d: d&r&l(3)
-        vl0 = fqi*dsq2*vlop0
+        vl0 = fqi*v_sqtwo*vlop0
 
         call diagonal_call_dae(lri,lrj,iwd,iwa,vij0,vij1,vij2,vl0)
 
@@ -932,7 +932,7 @@ do ip=1,mh
           if (imij /= imad) cycle
           iwt = just(lri,lrj)
 
-          vij0 = fqi*vsq2*vlop0
+          vij0 = fqi*v_onevsqtwo*vlop0
           ! tt: d&r&l(1)
           vij1 = ptt*vlop1
           ! tt: d&r&l(1)+c"(1)
@@ -940,7 +940,7 @@ do ip=1,mh
           ! t: d&r&l(3)+c"(1)+c"(1)
           ! t: d&r&l(3)+c"(1)
           ! t: d&r&l(3)
-          vl0 = fqi*dsq2*vlop0
+          vl0 = fqi*v_sqtwo*vlop0
           call diagonal_call_dae(lri,lrj,iwt,iwa,vij0,vij1,vij2,vl0)
         end do
       end do
@@ -954,19 +954,18 @@ end subroutine diagonal_link_dae
 
 subroutine diagonal_call_dae(lri,lrj,iwd,iwa,vij0,vij1,vij2,vl0)
 
-use gugaci_global, only: ibsm_ext, iesm_ext, ipae, jpad, ng_sm, norb_all, norb_dz, norb_ext, vdint, voint
+use gugaci_global, only: ibsm_ext, iesm_ext, ipae, jpad, ng_sm, norb_all, norb_dz, norb_ext, v_onevsqtwo, v_sqthreevsqtwo, &
+                         v_sqtwo, vdint, voint
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, lrj, iwd, iwa
-real*8 :: vij0, vij1, vij2, vl0
-integer :: ima, imae, imb, ityae, iwe, la, lb, lbend, lbsta, lr, lra, lrb
-real*8 :: vd2lalb, vlop0, vlop1, volalb, vovdla, wg13, wg14, wl
-real*8, parameter :: dsq2 = 1.414213562373095d0, dsq3vsq2 = 1.224744871392d0, vsq2 = 0.7071067811865d0
+integer(kind=iwp) :: lri, lrj, iwd, iwa
+real(kind=wp) :: vij0, vij1, vij2, vl0
+integer(kind=iwp) :: ima, imae, imb, ityae, iwe, la, lb, lbend, lbsta, lr, lra, lrb
+real(kind=wp) :: vd2lalb, vlop0, vlop1, volalb, vovdla, wg13, wg14, wl
 
-!dsq2 = sqrt(2.d0)
-!vsq2 = 1/sqrt(2.d0)
-!dsq3vsq2 = sqrt(3.d0)/sqrt(2.d0)
 if (norb_dz == 0) return
 if (ipae == 1) return   !could not link
 ityae = (ipae-1)/8+1
@@ -984,26 +983,26 @@ select case (ityae)
     do la=ibsm_ext(imae),iesm_ext(imae)
       lra = norb_all-la+1
       iwe = iwe+1
-      vlop0 = vl0*vsq2
-      wl = 0.d0
+      vlop0 = vl0*v_onevsqtwo
+      wl = Zero
       do lr=1,norb_dz
         if (lr == lri) cycle
         if (lr == lrj) cycle
         wl = wl+vlop0*vdint(lr,lra)    !db space drl(33)- ext space -
       end do
       if (lri >= lrj) then
-        vlop0 = vij0*vsq2
-        vlop1 = -vij1*dsq3vsq2
-        wl = wl+(vlop0-vlop1)*voint(lra,lri)-2.d0*vlop0*vdint(lra,lri)
-        vlop1 = -vij2*dsq3vsq2
-        wl = wl+(vlop0-vlop1)*voint(lra,lrj)-2.d0*vlop0*vdint(lra,lrj)
-        !write(6,'(a11,2i3,i6,1x,5f10.4)') zz,lr0,la,jwl,vo(lr0,la),vmd(lr0,la),wg50,wwg50,wl
+        vlop0 = vij0*v_onevsqtwo
+        vlop1 = -vij1*v_sqthreevsqtwo
+        wl = wl+(vlop0-vlop1)*voint(lra,lri)-Two*vlop0*vdint(lra,lri)
+        vlop1 = -vij2*v_sqthreevsqtwo
+        wl = wl+(vlop0-vlop1)*voint(lra,lrj)-Two*vlop0*vdint(lra,lrj)
+        !write(u6,'(a11,2i3,i6,1x,5f10.4)') zz,lr0,la,jwl,vo(lr0,la),vmd(lr0,la),wg50,wwg50,wl
       else
-        vlop0 = vij0*vsq2
-        vlop1 = -vij1*dsq3vsq2         !db space (22)drl(11)- ext space -g
-        wl = wl+(vlop0-vlop1)*voint(lra,lrj)-2.d0*vlop0*vdint(lra,lrj)
-        vlop1 = -vij2*dsq3vsq2         !db space drl(22)c"(11)- ext space
-        wl = wl+(vlop0-vlop1)*voint(lra,lri)-2.d0*vlop0*vdint(lra,lri)
+        vlop0 = vij0*v_onevsqtwo
+        vlop1 = -vij1*v_sqthreevsqtwo  !db space (22)drl(11)- ext space -g
+        wl = wl+(vlop0-vlop1)*voint(lra,lrj)-Two*vlop0*vdint(lra,lrj)
+        vlop1 = -vij2*v_sqthreevsqtwo  !db space drl(22)c"(11)- ext space
+        wl = wl+(vlop0-vlop1)*voint(lra,lri)-Two*vlop0*vdint(lra,lri)
       end if
       call prodel(6,wl,iwd,iwa,iwe)
     end do
@@ -1021,31 +1020,31 @@ select case (ityae)
         do lb=lbsta,lbend
           lrb = norb_all-lb+1
           iwe = iwe+1
-          volalb = 0.d0
-          vd2lalb = 0.d0
+          volalb = Zero
+          vd2lalb = Zero
           do lr=1,norb_dz
             if (lr == lri) cycle
             if (lr == lrj) cycle
             volalb = volalb+(voint(lra,lr)+voint(lrb,lr))
-            vd2lalb = vd2lalb-2.d0*(vdint(lra,lr)+vdint(lrb,lr))
+            vd2lalb = vd2lalb-Two*(vdint(lra,lr)+vdint(lrb,lr))
           end do
 
-          vlop0 = -vl0*vsq2
+          vlop0 = -vl0*v_onevsqtwo
           wl = vlop0*(volalb+vd2lalb)
           if (lri >= lrj) then
-            vlop0 = -vij0*vsq2
+            vlop0 = -vij0*v_onevsqtwo
             vlop1 = vij1
-            wl = wl+(vlop0-vlop1)*(voint(lra,lri)+voint(lrb,lri))-2.d0*vlop0*(vdint(lra,lri)+vdint(lrb,lri))
+            wl = wl+(vlop0-vlop1)*(voint(lra,lri)+voint(lrb,lri))-Two*vlop0*(vdint(lra,lri)+vdint(lrb,lri))
             vlop1 = vij2
-            wl = wl+(vlop0-vlop1)*(voint(lra,lrj)+voint(lrb,lrj))-2.d0*vlop0*(vdint(lra,lrj)+vdint(lrb,lrj))
+            wl = wl+(vlop0-vlop1)*(voint(lra,lrj)+voint(lrb,lrj))-Two*vlop0*(vdint(lra,lrj)+vdint(lrb,lrj))
           else
-            vlop0 = -vij0*vsq2
+            vlop0 = -vij0*v_onevsqtwo
             vlop1 = vij1
-            wl = wl+(vlop0-vlop1)*(voint(lra,lrj)+voint(lrb,lrj))-2.d0*vlop0*(vdint(lra,lrj)+vdint(lrb,lrj))
+            wl = wl+(vlop0-vlop1)*(voint(lra,lrj)+voint(lrb,lrj))-Two*vlop0*(vdint(lra,lrj)+vdint(lrb,lrj))
             vlop1 = vij2
-            wl = wl+(vlop0-vlop1)*(voint(lra,lri)+voint(lrb,lri))-2.d0*vlop0*(vdint(lra,lri)+vdint(lrb,lri))
+            wl = wl+(vlop0-vlop1)*(voint(lra,lri)+voint(lrb,lri))-Two*vlop0*(vdint(lra,lri)+vdint(lrb,lri))
           end if
-          !write(6,*) ' 520 r0,la,lb ',vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
+          !write(u6,*) ' 520 r0,la,lb ',vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
 
           call prodel(6,wl,iwd,iwa,iwe)
         end do
@@ -1065,23 +1064,23 @@ select case (ityae)
         do lb=lbsta,lbend
           lrb = norb_all-lb+1
           iwe = iwe+1
-          volalb = 0.d0
-          vd2lalb = 0.d0
+          volalb = Zero
+          vd2lalb = Zero
           do lr=1,norb_dz
             if (lr == lri) cycle
             if (lr == lrj) cycle
             volalb = volalb+(voint(lra,lr)+voint(lrb,lr))
-            vd2lalb = vd2lalb-2.d0*(vdint(lra,lr)+vdint(lrb,lr))
+            vd2lalb = vd2lalb-Two*(vdint(lra,lr)+vdint(lrb,lr))
           end do
 
-          wg14 = -vl0*vsq2
+          wg14 = -vl0*v_onevsqtwo
           wl = wg14*(volalb+vd2lalb)
 
           if ((jpad /= 18) .or. (lri /= lrj)) then
-            wg14 = -vij0*vsq2
-            wl = wl+wg14*(voint(lra,lri)+voint(lrb,lri))-2.d0*wg14*(vdint(lra,lri)+vdint(lrb,lri))
-            wl = wl+wg14*(voint(lra,lrj)+voint(lrb,lrj))-2.d0*wg14*(vdint(lra,lrj)+vdint(lrb,lrj))
-            !write(6,*) ' 520 r0,la,lb ',vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
+            wg14 = -vij0*v_onevsqtwo
+            wl = wl+wg14*(voint(lra,lri)+voint(lrb,lri))-Two*wg14*(vdint(lra,lri)+vdint(lrb,lri))
+            wl = wl+wg14*(voint(lra,lrj)+voint(lrb,lrj))-Two*wg14*(vdint(lra,lrj)+vdint(lrb,lrj))
+            !write(u6,*) ' 520 r0,la,lb ',vo(r0,la),vo(r0,lb),vmd(r0,la),vmd(r0,lb)
           end if
           call prodel(6,wl,iwd,iwa,iwe)
         end do
@@ -1093,20 +1092,20 @@ select case (ityae)
     do la=1,norb_ext
       lra = norb_all-la+1
       iwe = iwe+1
-      vovdla = 0.d0
+      vovdla = Zero
       do lr=1,norb_dz
         if (lr == lri) cycle
         if (lr == lrj) cycle
         vovdla = vovdla+vdint(lr,lra)
       end do
 
-      wg13 = -vl0*dsq2
+      wg13 = -vl0*v_sqtwo
       wl = wg13*vovdla
-      wg13 = -vij0*dsq2
+      wg13 = -vij0*v_sqtwo
       wl = wl+wg13*(vdint(lri,lra)+vdint(lrj,lra))
 
       call prodel(6,wl,iwd,iwa,iwe)
-      !write(6,*) ' g13 ',vo(lr0,la),vo(lr0,lb),vmd(lr0,la),vmd(lr0,lb)
+      !write(u6,*) ' g13 ',vo(lr0,la),vo(lr0,lb),vmd(lr0,la),vmd(lr0,lb)
     end do
 end select
 
@@ -1118,15 +1117,16 @@ subroutine diagonal_dbl()
 
 use gugaci_global, only: ipae, iw_downwei, jb_sys, jpad, jud, just, lsm_inn, norb_dz, norb_frz, ns_sm, nu_ae, vdint, voint
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero, Two, Three, OneHalf
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: ipae_, iwa, iwad, iwd, iwdownv, iws, iws1, iwt, jpad1, jpas, jpat, jpat1, lr, lr0, lrg, lrm, mr, mr0, mrm
-real*8 :: db, w1, wld, wld0, wls, wls1, wlt, wt0
-integer, external :: iwalk_ad
-real*8, parameter :: dzero = 0.d0
+integer(kind=iwp) :: ipae_, iwa, iwad, iwd, iwdownv, iws, iws1, iwt, jpad1, jpas, jpat, jpat1, lr, lr0, lrg, lrm, mr, mr0, mrm
+real(kind=wp) :: db, w1, wld, wld0, wls, wls1, wlt, wt0
+integer(kind=iwp), external :: iwalk_ad
 
 if (norb_dz == 0) return
-wt0 = dzero
+wt0 = Zero
 do lr=1,norb_dz
   wt0 = wt0+voint(lr,lr)+voint(lr,lr)+vdint(lr,lr)
 end do
@@ -1228,11 +1228,11 @@ end do
 !wl8 = 1/2*hnil*(hnil-1)*vmd(lr,lr)+hnil*voint(lr,lr)  !800
 !wl5 = (vlop0-vlop1)*vo(lr0,lr)-2*vlop0*vmd(lr0,lr)
 !wl5 = vlop0*vmd(lr,lr0)-vlop1*vo(lr0,lr)              !2000.11.26
-wt0 = dzero
+wt0 = Zero
 do lr0=2,norb_dz
   do lr=1,lr0-1
     ! vlop0=-2 vlop1=0
-    wt0 = wt0-2.d0*vdint(lr,lr0)
+    wt0 = wt0-Two*vdint(lr,lr0)
   end do
 end do
 jpad = 1
@@ -1303,8 +1303,8 @@ do lr0=norb_frz+1,norb_dz-1
     iwt = iws
     iws1 = just(lr,lr0)
     if (jb_sys == 0) then
-      wls = wt0+3.d0*(voint(lr,lr0)-vdint(lr,lr0))
-      wlt = wt0+voint(lr,lr0)-3.d0*vdint(lr,lr0)
+      wls = wt0+Three*(voint(lr,lr0)-vdint(lr,lr0))
+      wlt = wt0+voint(lr,lr0)-Three*vdint(lr,lr0)
     end if
     ! 2*vo(lr0,lr)-4*vmd(lr0,lr)  w0=-2    w1=0
     !   vo(lr0,lr)+  vmd(lr0,lr)  w0=-1/2  w1=-3/2
@@ -1312,11 +1312,11 @@ do lr0=norb_frz+1,norb_dz-1
     ! - vo(lr0,lr)+  vmd(lr0,lr)  w0=-1/2  w1=1/2
     if (jb_sys > 0) then
       db = jb_sys
-      w1 = -(db+3)/(2.d0*db+2)
-      wls = wt0+(1.50d0-w1)*voint(lr,lr0)-3.d0*vdint(lr,lr0)
-      wlt = wt0+voint(lr,lr0)-3.d0*vdint(lr,lr0)
-      w1 = -(db-1)/(2.d0*db+2)
-      wls1 = wt0+(1.50d0-w1)*voint(lr,lr0)-3.d0*vdint(lr,lr0)
+      w1 = -(db+3)/(Two*db+2)
+      wls = wt0+(OneHalf-w1)*voint(lr,lr0)-Three*vdint(lr,lr0)
+      wlt = wt0+voint(lr,lr0)-Three*vdint(lr,lr0)
+      w1 = -(db-1)/(Two*db+2)
+      wls1 = wt0+(OneHalf-w1)*voint(lr,lr0)-Three*vdint(lr,lr0)
       ! 2*vo(lr0,lr)-4*vmd(lr0,lr)  w0=-2  w1=0
       ! (-1/2-w1)*vo(lr0,lr)+vmd(lr0,lr)
       ! w0=-1/2    w1=-(db-1)/(2*db+2)
@@ -1400,10 +1400,12 @@ subroutine diagonal_ext()
 
 use gugaci_global, only: ibsm_ext, iesm_ext, ipae, lsm, norb_all, norb_ext, vdint, voint
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: im, ima, imb, ipas, ipat, jw, jweis, jws, jws0, jwt, la, laend, lasta, lb, lra, lrb, lrzz, mr, mra
-real*8 :: wld, wls, wlt
+integer(kind=iwp) :: im, ima, imb, ipas, ipat, jw, jweis, jws, jws0, jwt, la, laend, lasta, lb, lra, lrb, lrzz, mr, mra
+real(kind=wp) :: wld, wls, wlt
 
 jws0 = 0
 do mra=1,8
@@ -1433,7 +1435,7 @@ do la=1,norb_ext
   lra = norb_all-la+1
   jweis = jweis+1
   ! (3)_800
-  wls = 2.d0*voint(lra,lra)+vdint(lra,lra)
+  wls = Two*voint(lra,lra)+vdint(lra,lra)
   call prodel(2,wls,0,18,jweis)
 end do
 do im=1,8
@@ -1472,10 +1474,11 @@ end subroutine diagonal_ext
 subroutine prodel(idb,wl,mg1,mg2,mg3)
 
 use gugaci_global, only: log_prod
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: idb, mg1, mg2, mg3
-real*8 :: wl
+integer(kind=iwp) :: idb, mg1, mg2, mg3
+real(kind=wp) :: wl
 
 if (log_prod == 3) then
   call prodel_pt(idb,wl,mg1,mg2,mg3) ! pt1
@@ -1497,12 +1500,13 @@ end subroutine prodel
 subroutine prodel_hd(idb,wl,mg1,mg2,mg3)
 
 use gugaci_global, only: ihy, ipae, iseg_downwei, iw_downwei, iy, jpad, jpad_upwei, jphy, mxnode, nu_ad, vector1
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: idb, mg1, mg2, mg3
-real*8 :: wl
-integer :: ii, in_, isegdownwei, iw, iwa, iwa0, iwad, iwd, iwe, iwupwei, jdbl, jp, jph, jw, jwd, jwnu, jwu, lwnu, mm, mpe
-integer, external :: iwalk_ad
+integer(kind=iwp) :: idb, mg1, mg2, mg3
+real(kind=wp) :: wl
+integer(kind=iwp) :: ii, in_, isegdownwei, iw, iwa, iwa0, iwad, iwd, iwe, iwupwei, jdbl, jp, jph, jw, jwd, jwnu, jwu, lwnu, mm, mpe
+integer(kind=iwp), external :: iwalk_ad
 
 !ndr = 1
 select case (idb)
@@ -1514,7 +1518,7 @@ select case (idb)
     do mm=iwad+1,iwad+isegdownwei
       vector1(mm) = vector1(mm)+wl
       !if (mm == ndr) then
-      !  write(6,'(a8,3i6,2f20.14)') ' in dbl _',mg1,mg2,mg3,wl,vector1(mm)
+      !  write(u6,'(a8,3i6,2f20.14)') ' in dbl _',mg1,mg2,mg3,wl,vector1(mm)
       !end if
     end do
 
@@ -1532,7 +1536,7 @@ select case (idb)
           vector1(mm) = vector1(mm)+wl
           !if(mm == ndr) then
           !  write(nf2,'(a8,3i6,2f20.14)') ' in ext _',mg1,mg2,mg3,wl,vector1(mm)
-          !  write(6,'(a8,3i6,2f20.14)') ' in ext _',mg1,mg2,mg3,wl,vector1(mm)
+          !  write(u6,'(a8,3i6,2f20.14)') ' in ext _',mg1,mg2,mg3,wl,vector1(mm)
           !end if
         end do
       end do
@@ -1558,7 +1562,7 @@ select case (idb)
             mm = iwe+iwad
             vector1(mm) = vector1(mm)+wl
             !if (mm == ndr) then
-            !  write(6,'(a8,3i6,2f20.14)') ' in act _',mg1,mg2,mg3,wl,vector1(mm)
+            !  write(u6,'(a8,3i6,2f20.14)') ' in act _',mg1,mg2,mg3,wl,vector1(mm)
             !end if
           end do
         end do
@@ -1579,7 +1583,7 @@ select case (idb)
         mm = iwe+iwad                  ! iwl=iwalk_ad
         vector1(mm) = vector1(mm)+wl
         !if (mm == ndr) then
-        !  write(6,'(a8,3i6,2f20.14)') ' dbl_act ',mg1,mg2,mg3,wl,vector1(mm)
+        !  write(u6,'(a8,3i6,2f20.14)') ' dbl_act ',mg1,mg2,mg3,wl,vector1(mm)
         !end if
       end do
     end do
@@ -1600,7 +1604,7 @@ select case (idb)
         vector1(mm) = vector1(mm)+wl
         !if (mm == ndr) then
         !  write(nf2,'(a8,3i6,2f20.14)') ' act_ext ',mg1,mg2,mg3,wl,vector1(mm)
-        !  write(6,'(a8,3i6,2f20.14)') ' act_ext ',mg1,mg2,mg3,wl,vector1(mm)
+        !  write(u6,'(a8,3i6,2f20.14)') ' act_ext ',mg1,mg2,mg3,wl,vector1(mm)
         !end if
       end do
     end do
@@ -1615,7 +1619,7 @@ select case (idb)
     vector1(mm) = vector1(mm)+wl
     !if (mm == ndr) then
     !  write(nf2,'(a8,3i6,2f20.14)') ' dbl_ext ',mg1,mg2,mg3,wl,vector1(mm)
-    !  write(6,'(a8,3i6,2f20.14)') ' dbl_ext ',mg1,mg2,mg3,wl,vector1(mm)
+    !  write(u6,'(a8,3i6,2f20.14)') ' dbl_ext ',mg1,mg2,mg3,wl,vector1(mm)
     !end if
 end select
 
@@ -1626,12 +1630,13 @@ end subroutine prodel_hd
 subroutine prodel_pt(idb,wl,mg1,mg2,mg3)
 
 use gugaci_global, only: ihy, ipae, iy, jpad, jpad_upwei, jpae_downwei, jphy, ndim, vector1
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: idb, mg1, mg2, mg3
-real*8 :: wl
-integer :: ii, in_, isegdownwei, iw, iwa, iwa0, iwad, iwd, iwe, iwupwei, jp, jph, jw, jwd, jwnu, jwu, lwnu, mm, mpe
-integer, external :: iwalk_ad
+integer(kind=iwp) :: idb, mg1, mg2, mg3
+real(kind=wp) :: wl
+integer(kind=iwp) :: ii, in_, isegdownwei, iw, iwa, iwa0, iwad, iwd, iwe, iwupwei, jp, jph, jw, jwd, jwnu, jwu, lwnu, mm, mpe
+integer(kind=iwp), external :: iwalk_ad
 
 !if ((jpad == 18) .and. (ipae == 2)) ndr=ndim_h0+1
 
@@ -1646,7 +1651,7 @@ select case (idb)
       vector1(mm) = vector1(mm)+wl
       !if (mm == ndr) then
       !  write(nf2,'(a8,3i6,2f20.14)') ' in dbl _',mg1,mg2,mg3,wl,vector1(mm)
-      !  write(6,'(a8,3i6,2f20.14)') ' in dbl _',mg1,mg2,mg3,wl,vector1(mm)
+      !  write(u6,'(a8,3i6,2f20.14)') ' in dbl _',mg1,mg2,mg3,wl,vector1(mm)
       !end if
     end do
 
@@ -1663,7 +1668,7 @@ select case (idb)
         vector1(mm) = vector1(mm)+wl
         !if (mm == ndr) then
         !  write(nf2,'(a8,3i6,2f20.14)') ' in ext _',mg1,mg2,mg3,wl,vector1(mm)
-        !  write(6,'(a8,3i6,2f20.14)') ' in ext _',mg1,mg2,mg3,wl,vector1(mm)
+        !  write(u6,'(a8,3i6,2f20.14)') ' in ext _',mg1,mg2,mg3,wl,vector1(mm)
         !end if
       end do
     end do
@@ -1689,7 +1694,7 @@ select case (idb)
             vector1(mm) = vector1(mm)+wl
             !if (mm == ndr) then
             !  write(nf2,'(a8,3i6,2f20.14)') ' in act _',mg1,mg2,mg3,wl,vector1(mm)
-            !  write(6,'(a8,3i6,2f20.14)') ' in act _',mg1,mg2,mg3,wl,vector1(mm)
+            !  write(u6,'(a8,3i6,2f20.14)') ' in act _',mg1,mg2,mg3,wl,vector1(mm)
             !end if
           end do
         end do
@@ -1711,7 +1716,7 @@ select case (idb)
         vector1(mm) = vector1(mm)+wl
         !if (mm == ndr) then
         !  write(nf2,'(a8,3i6,2f20.14)') ' dbl_act ',mg1,mg2,mg3,wl,vector1(mm)
-        !  write(6,'(a8,3i6,2f20.14)') ' dbl_act ',mg1,mg2,mg3,wl,vector1(mm)
+        !  write(u6,'(a8,3i6,2f20.14)') ' dbl_act ',mg1,mg2,mg3,wl,vector1(mm)
         !end if
       end do
     end do
@@ -1732,7 +1737,7 @@ select case (idb)
         vector1(mm) = vector1(mm)+wl
         !if (mm == ndr) then
         !  write(nf2,'(a8,3i6,2f20.14)') ' act_ext ',mg1,mg2,mg3,wl,vector1(mm)
-        !  write(6,'(a8,3i6,2f20.14)') ' act_ext ',mg1,mg2,mg3,wl,vector1(mm)
+        !  write(u6,'(a8,3i6,2f20.14)') ' act_ext ',mg1,mg2,mg3,wl,vector1(mm)
         !end if
       end do
     end do
@@ -1747,7 +1752,7 @@ select case (idb)
     vector1(mm) = vector1(mm)+wl
     !if (mm == ndr) then
     !  write(nf2,'(a8,3i6,2f20.14)') ' dbl_ext ',mg1,mg2,mg3,wl,vector1(mm)
-    !  write(6,'(a8,3i6,2f20.14)') ' dbl_ext ',mg1,mg2,mg3,wl,vector1(mm)
+    !  write(u6,'(a8,3i6,2f20.14)') ' dbl_ext ',mg1,mg2,mg3,wl,vector1(mm)
     !end if
 end select
 
@@ -1759,10 +1764,11 @@ subroutine get_jp(ity,nms,jp,id)
 
 use gugaci_global, only: ns_sm
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: ity, nms, jp, id
-integer :: ms
+integer(kind=iwp) :: ity, nms, jp, id
+integer(kind=iwp) :: ms
 
 ms = nms
 if (id == 1) ms = mul_tab(nms,ns_sm)

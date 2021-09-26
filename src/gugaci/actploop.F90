@@ -13,9 +13,10 @@
 subroutine guga_ploop(npl,maxplcon)
 
 use gugaci_global, only: idisk_array, idisk_lp, LuLoop, mhlpmax
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: npl, maxplcon
+integer(kind=iwp) :: npl, maxplcon
 
 maxplcon = 0
 mhlpmax = 0
@@ -40,9 +41,9 @@ call ss_lp_search(npl)
 maxplcon = mhlpmax
 idisk_lp = 0
 call idafile(luloop,1,idisk_array,13,idisk_lp)
-write(6,'(4x,a,i20)') 'Max number of partial loops: ',mhlpmax
-!write(6,*) 'idisk_array'
-!write(6,'(13i8)') idisk_array
+write(u6,'(4x,a,i20)') 'Max number of partial loops: ',mhlpmax
+!write(u6,*) 'idisk_array'
+!write(u6,'(13i8)') idisk_array
 
 return
 
@@ -51,10 +52,11 @@ end subroutine guga_ploop
 subroutine sv_lp_search(npl)
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_sv, mhsum, ng_sm
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: npl
-integer :: iml_
+integer(kind=iwp) :: npl
+integer(kind=iwp) :: iml_
 
 mhsum = 0
 lpblock = 0
@@ -68,7 +70,7 @@ do iml_=1,ng_sm
 end do
 lpblock_sv = lpblock
 npl = npl+mhsum
-write(6,'(a15,2i10)') 'sv:',lpblock,mhsum !,idisk_array(10),idisk_l
+write(u6,'(a15,2i10)') 'sv:',lpblock,mhsum !,idisk_array(10),idisk_l
 
 return
 
@@ -77,10 +79,11 @@ end subroutine sv_lp_search
 subroutine sd_lp_search(npl)
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_sd, mhsum, ng_sm
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: npl
-integer :: iml_, imr_
+integer(kind=iwp) :: npl
+integer(kind=iwp) :: iml_, imr_
 
 mhsum = 0
 lpblock = 0
@@ -96,7 +99,7 @@ do iml_=1,ng_sm
 end do
 lpblock_sd = lpblock
 npl = npl+mhsum
-write(6,'(a15,2i10)') 'sd:',lpblock,mhsum
+write(u6,'(a15,2i10)') 'sd:',lpblock,mhsum
 
 return
 
@@ -105,10 +108,11 @@ end subroutine sd_lp_search
 subroutine st_lp_search(npl)
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_st, mhsum, ng_sm
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: npl
-integer :: iml_, imr_
+integer(kind=iwp) :: npl
+integer(kind=iwp) :: iml_, imr_
 
 mhsum = 0
 lpblock = 0
@@ -124,7 +128,7 @@ do iml_=1,ng_sm
 end do
 lpblock_st = lpblock
 npl = npl+mhsum
-write(6,'(a15,2i10)') 'st:',lpblock,mhsum
+write(u6,'(a15,2i10)') 'st:',lpblock,mhsum
 
 return
 
@@ -133,10 +137,11 @@ end subroutine st_lp_search
 subroutine ss_lp_search(npl)
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_ss, mhsum, ng_sm
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: npl
-integer :: iml_, imr_
+integer(kind=iwp) :: npl
+integer(kind=iwp) :: iml_, imr_
 
 mhsum = 0
 lpblock = 0
@@ -152,7 +157,7 @@ do iml_=1,ng_sm
 end do
 lpblock_ss = lpblock
 npl = npl+mhsum
-write(6,'(a15,2i10)') 'ss:',lpblock,mhsum
+write(u6,'(a15,2i10)') 'ss:',lpblock,mhsum
 
 return
 
@@ -161,10 +166,11 @@ end subroutine ss_lp_search
 subroutine tv_lp_search(npl)
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_tv, mhsum, ng_sm
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: npl
-integer :: iml_
+integer(kind=iwp) :: npl
+integer(kind=iwp) :: iml_
 
 mhsum = 0
 lpblock = 0
@@ -178,7 +184,7 @@ do iml_=1,ng_sm
 end do
 lpblock_tv = lpblock
 npl = npl+mhsum
-write(6,'(a15,2i10)') 'tv:',lpblock,mhsum
+write(u6,'(a15,2i10)') 'tv:',lpblock,mhsum
 
 return
 
@@ -187,10 +193,11 @@ end subroutine tv_lp_search
 subroutine td_lp_search(npl)
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_td, mhsum, ng_sm
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: npl
-integer :: iml_, imr_
+integer(kind=iwp) :: npl
+integer(kind=iwp) :: iml_, imr_
 
 mhsum = 0
 lpblock = 0
@@ -206,7 +213,7 @@ do iml_=1,ng_sm
 end do
 lpblock_td = lpblock
 npl = npl+mhsum
-write(6,'(a15,2i10)') 'td:',lpblock,mhsum
+write(u6,'(a15,2i10)') 'td:',lpblock,mhsum
 
 return
 
@@ -215,10 +222,11 @@ end subroutine td_lp_search
 subroutine tt_lp_search(npl)
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_tt, mhsum, ng_sm
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: npl
-integer :: iml_, imr_
+integer(kind=iwp) :: npl
+integer(kind=iwp) :: iml_, imr_
 
 mhsum = 0
 lpblock = 0
@@ -234,7 +242,7 @@ do iml_=1,ng_sm
 end do
 lpblock_tt = lpblock
 npl = npl+mhsum
-write(6,'(a15,2i10)') 'tt:',lpblock,mhsum
+write(u6,'(a15,2i10)') 'tt:',lpblock,mhsum
 
 return
 
@@ -243,10 +251,11 @@ end subroutine tt_lp_search
 subroutine ts_lp_search(npl)
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_ts, mhsum, ng_sm
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: npl
-integer :: iml_, imr_
+integer(kind=iwp) :: npl
+integer(kind=iwp) :: iml_, imr_
 
 mhsum = 0
 lpblock = 0
@@ -262,7 +271,7 @@ do iml_=1,ng_sm
 end do
 lpblock_ts = lpblock
 npl = npl+mhsum
-write(6,'(a15,2i10)') 'ts:',lpblock,mhsum
+write(u6,'(a15,2i10)') 'ts:',lpblock,mhsum
 
 return
 
@@ -271,10 +280,11 @@ end subroutine ts_lp_search
 subroutine dv_lp_search(npl)
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_dv, mhsum, ng_sm
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: npl
-integer :: iml_
+integer(kind=iwp) :: npl
+integer(kind=iwp) :: iml_
 
 mhsum = 0
 lpblock = 0
@@ -288,7 +298,7 @@ do iml_=1,ng_sm
 end do
 lpblock_dv = lpblock
 npl = npl+mhsum
-write(6,'(a15,2i10)') 'dv:',lpblock,mhsum
+write(u6,'(a15,2i10)') 'dv:',lpblock,mhsum
 
 return
 
@@ -297,10 +307,11 @@ end subroutine dv_lp_search
 subroutine dd_lp_search(npl)
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_dd, mhsum, ng_sm
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: npl
-integer :: iml_, imr_
+integer(kind=iwp) :: npl
+integer(kind=iwp) :: iml_, imr_
 
 mhsum = 0
 lpblock = 0
@@ -316,7 +327,7 @@ do iml_=1,ng_sm
 end do
 lpblock_dd = lpblock
 npl = npl+mhsum
-write(6,'(a15,2i10)') 'dd:',lpblock,mhsum
+write(u6,'(a15,2i10)') 'dd:',lpblock,mhsum
 
 return
 
@@ -325,10 +336,11 @@ end subroutine dd_lp_search
 subroutine dt_lp_search(npl)
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_dt, mhsum, ng_sm
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: npl
-integer :: iml_, imr_
+integer(kind=iwp) :: npl
+integer(kind=iwp) :: iml_, imr_
 
 mhsum = 0
 lpblock = 0
@@ -344,7 +356,7 @@ do iml_=1,ng_sm
 end do
 lpblock_dt = lpblock
 npl = npl+mhsum
-write(6,'(a15,2i10)') 'dt:',lpblock,mhsum
+write(u6,'(a15,2i10)') 'dt:',lpblock,mhsum
 
 return
 
@@ -353,10 +365,11 @@ end subroutine dt_lp_search
 subroutine ds_lp_search(npl)
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_ds, mhsum, ng_sm
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: npl
-integer :: iml_, imr_
+integer(kind=iwp) :: npl
+integer(kind=iwp) :: iml_, imr_
 
 mhsum = 0
 lpblock = 0
@@ -372,7 +385,7 @@ do iml_=1,ng_sm
 end do
 lpblock_ds = lpblock
 npl = npl+mhsum
-write(6,'(a15,2i10)') 'ds:',lpblock,mhsum
+write(u6,'(a15,2i10)') 'ds:',lpblock,mhsum
 
 return
 
@@ -381,10 +394,11 @@ end subroutine ds_lp_search
 subroutine vd_lp_search(npl)
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpblock_vd, mhsum, ng_sm
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: npl
-integer :: imr_
+integer(kind=iwp) :: npl
+integer(kind=iwp) :: imr_
 
 mhsum = 0
 lpblock = 0
@@ -398,7 +412,7 @@ do imr_=1,ng_sm
 end do
 lpblock_vd = lpblock
 npl = npl+mhsum
-write(6,'(a15,2i10)') 'vd:',lpblock,mhsum
+write(u6,'(a15,2i10)') 'vd:',lpblock,mhsum
 
 return
 
@@ -408,10 +422,11 @@ subroutine act_lp_search(id,iptyl,iptyr)
 
 use gugaci_global, only: iml, imr, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, jpae, jpael, map_jplr, ndim, ng_sm, ns_sm, nu_ad, &
                          nu_ae
+use Definitions, only: iwp
 
 implicit none
-integer :: id, iptyl, iptyr
-integer :: ide, ipaer, jml_, jmlend, jmlsta, jmr_, jmrend, jmrsta, jpadr, jpaer, jptyl, jptyr, jptyrend
+integer(kind=iwp) :: id, iptyl, iptyr
+integer(kind=iwp) :: ide, ipaer, jml_, jmlend, jmlsta, jmr_, jmrend, jmrsta, jpadr, jpaer, jptyl, jptyr, jptyrend
 
 call get_jp(iptyl,iml,ipael,0)
 call get_jp(iptyr,imr,ipaer,0)
@@ -478,9 +493,10 @@ subroutine lp_head_in_act_1()      !for dv,td,sd
 use gugaci_global, only: iml, imr, intind_ijka, linelp, log_prod, logic_br, lpblock, lsm_inn, mhlp, ngw2, ngw3, nlg1, nlg2, &
                          norb_dz, norb_frz, norb_inn
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: ijk, imlr, intpos, lma, lmai, lmk, lra, lrai, lraj, lrak, lsmi, lsmij, lsmj, lsmk, mh
+integer(kind=iwp) :: ijk, imlr, intpos, lma, lmai, lmk, lra, lrai, lraj, lrak, lsmi, lsmij, lsmj, lsmk, mh
 
 imlr = mul_tab(iml,imr)
 do lra=norb_dz+1,norb_inn
@@ -610,9 +626,10 @@ subroutine lp_head_in_act_2()      !for vd,dt,ds
 use gugaci_global, only: iml, imr, intind_ijka, linelp, log_prod, logic_br, lpblock, lsm_inn, mhlp, ngw2, ngw3, nlg1, nlg2, &
                          norb_dz, norb_frz, norb_inn
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: ijk, imlr, intpos, lma, lmai, lmk, lra, lrai, lraj, lrak, lrd, lsmi, lsmij, lsmj, lsmk, mh
+integer(kind=iwp) :: ijk, imlr, intpos, lma, lmai, lmk, lra, lrai, lraj, lrak, lrd, lsmi, lsmij, lsmj, lsmk, mh
 
 imlr = mul_tab(iml,imr)
 
@@ -715,10 +732,11 @@ subroutine lp_head_in_act_3(ide)      !for ide=0:dd,tt,ide=1:ss,id
 
 use gugaci_global, only: iml, imr, logic_br, lpblock, lsm_inn, norb_dz, norb_inn
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: ide
-integer :: imlr, lra, lrai, lraj, lsmi, lsmij, lsmj, mh
+integer(kind=iwp) :: ide
+integer(kind=iwp) :: imlr, lra, lrai, lraj, lsmi, lsmij, lsmj, mh
 
 imlr = mul_tab(iml,imr)
 
@@ -765,9 +783,10 @@ subroutine lp_head_in_act_4()
 
 use gugaci_global, only: iml, imr, linelp, log_prod, logic_br, lpblock, lsm_inn, mhlp, nlg1, nlg2, norb_dz, norb_inn
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: imlr, lra, lrai, lraj, lsmi, lsmij, lsmj, mh
+integer(kind=iwp) :: imlr, lra, lrai, lraj, lsmi, lsmij, lsmj, mh
 
 imlr = mul_tab(iml,imr)
 
@@ -823,9 +842,10 @@ subroutine lp_head_in_dbl_1()      !for dv,sd,td
 
 use gugaci_global, only: iml, imr, jml, jmr, logic_br, lpblock, lsm_inn, ngw2, ngw3, norb_dz, norb_frz, norb_inn
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
+integer(kind=iwp) :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
 
 imlr = mul_tab(iml,imr)
 jmlr = mul_tab(jml,jmr)
@@ -938,10 +958,11 @@ end subroutine lp_head_in_dbl_1
 !use gugaci_global, only: iml, imr, jml, jmr, jpadlr, jpadlrel, linelp, logic_br, lsm_inn, mhlp, ngw2, ngw3, nlg1, nlg2, norb_dz, &
 !                         norb_frz, norb_inn
 !use Symmetry_Info, only: mul_tab => Mul
+!use Definitions, only: iwp
 !
 !implicit none
-!integer :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
-!logical :: do_15, do_16
+!integer(kind=iwp) :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
+!logical(kind=iwp) :: do_15, do_16
 !
 !imlr = mul_tab(iml,imr)
 !jmlr = mul_tab(jml,jmr)
@@ -1038,7 +1059,7 @@ end subroutine lp_head_in_dbl_1
 !        nlg1 = lra
 !        nlg2 = 1
 !        call ext_head_in_dbl()
-!        !write(6,*) mh,linelp
+!        !write(u6,*) mh,linelp
 !      end if
 !    end if
 !    logic_br(1) = .true.
@@ -1055,7 +1076,7 @@ end subroutine lp_head_in_dbl_1
 !      nlg1 = lra
 !      nlg2 = 2
 !      call ext_head_in_dbl()
-!      !write(6,*) mh,linelp
+!      !write(u6,*) mh,linelp
 !    end if
 !  end do
 !end if
@@ -1076,7 +1097,7 @@ end subroutine lp_head_in_dbl_1
 !        nlg1 = lra
 !        nlg2 = 1
 !        call ext_head_in_dbl()
-!        !write(6,*) mh,linelp
+!        !write(u6,*) mh,linelp
 !      end if
 !    end if
 !
@@ -1091,7 +1112,7 @@ end subroutine lp_head_in_dbl_1
 !    nlg1 = lra
 !    nlg2 = 2
 !    call ext_head_in_dbl()
-!    !write(6,*) mh,linelp
+!    !write(u6,*) mh,linelp
 !
 !  end do
 !end if
@@ -1105,9 +1126,10 @@ subroutine lp_head_in_dbl_2()      !for vd,dt,ds
 use gugaci_global, only: iml, imr, jml, jmr, linelp, log_prod, logic_br, lpblock, lsm_inn, mhlp, ngw2, ngw3, nlg1, nlg2, norb_dz, &
                          norb_frz, norb_inn
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
+integer(kind=iwp) :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
 
 imlr = mul_tab(iml,imr)
 jmlr = mul_tab(jml,jmr)
@@ -1238,10 +1260,11 @@ end subroutine lp_head_in_dbl_2
 !use gugaci_global, only: iml, imr, jml, jmr, jpadlr, jpadlrel, linelp, logic_br, lsm_inn, mhlp, ngw2, ngw3, nlg1, nlg2, norb_dz, &
 !                         norb_frz, norb_inn
 !use Symmetry_Info, only: mul_tab => Mul
+!use Definitions, only: iwp
 !
 !implicit none
-!integer :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
-!logical :: do_16
+!integer(kind=iwp) :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
+!logical(kind=iwp) :: do_16
 !
 !imlr = mul_tab(iml,imr)
 !jmlr = mul_tab(jml,jmr)
@@ -1365,10 +1388,11 @@ subroutine lp_head_in_dbl_3(ide)      !for ide=0:dd,tt,ide=1:ss,id
 
 use gugaci_global, only: iml, imr, jml, jmr, logic_br, lpblock, lsm_inn, norb_dz, norb_inn
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: ide
-integer :: imlr, jmlr, lend, lra, lsma, lsmact, lsta, mh
+integer(kind=iwp) :: ide
+integer(kind=iwp) :: imlr, jmlr, lend, lra, lsma, lsmact, lsta, mh
 
 imlr = mul_tab(iml,imr)
 jmlr = mul_tab(jml,jmr)
@@ -1430,9 +1454,10 @@ subroutine lp_head_in_dbl_4()
 
 use gugaci_global, only: iml, imr, jml, jmr, logic_br, lpblock, lsm_inn, norb_dz, norb_inn
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: imlr, jmlr, lend, lra, lsma, lsmact, lsta, mh
+integer(kind=iwp) :: imlr, jmlr, lend, lra, lsma, lsmact, lsta, mh
 
 imlr = mul_tab(iml,imr)
 jmlr = mul_tab(jml,jmr)
@@ -1486,10 +1511,11 @@ end subroutine lp_head_in_dbl_4
 !
 !use gugaci_global, only: iml, imr, jml, jmr, jpadlr, jpadlrel, linelp, logic_br, lsm_inn, mhlp, nlg1, nlg2, norb_dz, norb_inn
 !use Symmetry_Info, only: mul_tab => Mul
+!use Definitions, only: iwp
 !
 !implicit none
-!integer :: imlr, jmlr, lend, lra, lsma, lsmact, lsta, mh
-!logical :: do_15
+!integer(kind=iwp) :: imlr, jmlr, lend, lra, lsma, lsmact, lsta, mh
+!logical(kind=iwp) :: do_15
 !
 !imlr = mul_tab(iml,imr)
 !jmlr = mul_tab(jml,jmr)
@@ -1570,9 +1596,10 @@ end subroutine lp_head_in_dbl_4
 !                         lpnew_rwei, mhlp, mhsum, mtype, nlg1, nlg2, norb_dz, norb_inn, ns_sm, nstaval, nvalue, vplpnew_w0, &
 !                         vplpnew_w1
 !use Symmetry_Info, only: mul_tab => Mul
+!use Definitions, only: iwp
 !
 !implicit none
-!integer :: in_, jhyl, jhyr, jph, jpml, jpmr, lg1, lg2, line, m, mh
+!integer(kind=iwp) :: in_, jhyl, jhyr, jph, jpml, jpmr, lg1, lg2, line, m, mh
 !
 !line = linelp
 !mh = mhlp
@@ -1620,10 +1647,11 @@ use gugaci_global, only: idisk_lp, ihy, ihyl, iml, imr, jml, jmr, jpadlr, jphy, 
                          lpnew_lwei, lpnew_rwei, LuLoop, mhlpmax, mhsum, mtype, norb_dz, norb_inn, ns_sm, nstaval, nvalue, &
                          vplpnew_w0, vplpnew_w1
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: line, mh, lg1, lg2
-integer :: idum(1), in_, info(10), jhyl, jhyr, jph, jpml, jpmr, lenw, m
+integer(kind=iwp) :: line, mh, lg1, lg2
+integer(kind=iwp) :: idum(1), in_, info(10), jhyl, jhyr, jph, jpml, jpmr, lenw, m
 
 if (mh > mhlpmax) mhlpmax = mh
 mhsum = mhsum+mh
@@ -1657,7 +1685,7 @@ info(8) = mh
 info(9) = lg1
 info(10) = lg2
 call idafile(luloop,1,info,10,idisk_lp)
-!write(6,*) 'in save_lp, linelp',line,idisk_lp,mh,mtype
+!write(u6,*) 'in save_lp, linelp',line,idisk_lp,mh,mtype
 call ddafile(luloop,1,vplpnew_w0,mtype,idisk_lp)
 call ddafile(luloop,1,vplpnew_w1,mtype,idisk_lp)
 call idafile(luloop,1,nstaval,mtype,idisk_lp)
@@ -1678,7 +1706,7 @@ if (line <= 12) then
   end do
 end if
 if ((line /= 1) .and. (line /= 13)) return
-!write(6,*) 'in read_lp, write coe',idisk_lp,norb_inn-norb_dz
+!write(u6,*) 'in read_lp, write coe',idisk_lp,norb_inn-norb_dz
 ! coe_record
 lenw = norb_inn-norb_dz
 do m=1,mh
@@ -1693,9 +1721,10 @@ subroutine read_lp()
 
 use gugaci_global, only: idisk_lp, ihy, ihyl, iml, imr, jml, jmr, jpadlr, jphy, linelp, lpnew_coe, lpnew_lwei, lpnew_rwei, LuLoop, &
                          mhlp, mtype, ndim, nlg1, nlg2, norb_dz, norb_inn, nstaval, nvalue, vplpnew_w0, vplpnew_w1
+use Definitions, only: iwp
 
 implicit none
-integer :: ihypos, info(10), lenr, m
+integer(kind=iwp) :: ihypos, info(10), lenr, m
 
 call idafile(luloop,2,info,10,idisk_lp)
 linelp = info(1)
@@ -1730,7 +1759,7 @@ if (linelp <= 12) then
   end do
 end if
 if ((linelp /= 1) .and. (linelp /= 13)) return
-!write(6,*) 'in read_lp, read coe',idisk_lp,norb_inn-norb_dz
+!write(u6,*) 'in read_lp, read coe',idisk_lp,norb_inn-norb_dz
 ! coe_read
 lenr = norb_inn-norb_dz
 do m=1,mhlp
@@ -1746,27 +1775,28 @@ subroutine value_sort_ploop(mh,logic_ar,logic_w0,logic_w1)
 use gugaci_global, only: lp_coe, lp_head, lp_lwei, lp_rwei, lpnew_coe, lpnew_head, lpnew_lwei, lpnew_rwei, mtype, norb_dz, &
                          norb_inn, nstaval, nvaltype, nvalue, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: mh
-logical :: logic_ar, logic_w0, logic_w1
-integer :: lr, m, mnew, mty, n, nty
-real*8 :: s_w0, s_w1, w0, w1, zero
-integer, allocatable :: ntype(:)
+integer(kind=iwp) :: mh
+logical(kind=iwp) :: logic_ar, logic_w0, logic_w1
+integer(kind=iwp) :: lr, m, mnew, mty, n, nty
+real(kind=wp) :: s_w0, s_w1, w0, w1
+integer(kind=iwp), allocatable :: ntype(:)
 
 call mma_allocate(ntype,nvaltype,label='nvaltype')
-zero = 0.d0
 nvalue(1:nvaltype) = 0
 ntype(1:mh) = 0
 mtype = 0
 if (.not. logic_w0) then
   do n=1,mh
-    vplp_w0(n) = zero
+    vplp_w0(n) = Zero
   end do
 end if
 if (.not. logic_w1) then
   do n=1,mh
-    vplp_w1(n) = zero
+    vplp_w1(n) = Zero
   end do
 end if
 do n=1,mh
@@ -1775,9 +1805,9 @@ do n=1,mh
   s_w1 = vplp_w1(n)
   mtype = mtype+1
   if (mtype > nvaltype) then
-    write(6,*) ' out of array boundary'
-    write(6,*) ' subroutine value_sort_ploop'
-    write(6,*) ' program stop'
+    write(u6,*) ' out of array boundary'
+    write(u6,*) ' subroutine value_sort_ploop'
+    write(u6,*) ' program stop'
 #   ifndef MOLPRO
     call abend()
 #   endif

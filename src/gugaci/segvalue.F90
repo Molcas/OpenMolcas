@@ -11,30 +11,32 @@
 
 subroutine stermha4(w,ww,ind1,jbr)
 
-implicit none
-real*8 :: w, ww
-integer :: ind1, jbr
-real*8 :: b, fq
-real*8, parameter :: done = 1.0d0, two = 2.0d0
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
-w = 0.0d0
-ww = 0.0d0
+implicit none
+real(kind=wp) :: w, ww
+integer(kind=iwp) :: ind1, jbr
+real(kind=wp) :: b, fq
+
+w = Zero
+ww = Zero
 ! calculate w,ww
-b = dble(jbr)
-if (mod(jbr,2) == 0) fq = done
-if (mod(jbr,2) /= 0) fq = -done
+b = real(jbr,kind=wp)
+if (mod(jbr,2) == 0) fq = One
+if (mod(jbr,2) /= 0) fq = -One
 select case (ind1)
   case default ! (1)
     ! case a&l
     ! case a&r
     w = fq
   case (2)
-    w = done
+    w = One
   case (3)
-    w = sqrt(b/(b+done))
+    w = sqrt(b/(b+One))
   case (4)
-    w = -fq*sqrt((b+two)/(b+done))
-    !if (abs(w) > 1.e-13) then
+    w = -fq*sqrt((b+Two)/(b+One))
+    !if (abs(w) > 1.0e-13_wp) then
 end select
 ww = w
 
@@ -44,31 +46,34 @@ end subroutine stermha4
 
 subroutine stermhd1(w,ww,ind1,jbr)
 
-implicit none
-real*8 :: w, ww
-integer :: ind1, jbr
-real*8 :: b, fq
-real*8, parameter :: done = 1.0d0, three = 3.0d0, two = 2.0d0
+use gugaci_global, only: v_onevsqtwo, v_sqtwo
+use Constants, only: Zero, One, Two, Three
+use Definitions, only: wp, iwp
 
-w = 0.0d0
-ww = 0.0d0
+implicit none
+real(kind=wp) :: w, ww
+integer(kind=iwp) :: ind1, jbr
+real(kind=wp) :: b, fq
+
+w = Zero
+ww = Zero
 ! calculate w,ww
-b = dble(jbr)
-if (mod(jbr,2) == 0) fq = done
-if (mod(jbr,2) /= 0) fq = -done
+b = real(jbr,kind=wp)
+if (mod(jbr,2) == 0) fq = One
+if (mod(jbr,2) /= 0) fq = -One
 select case (ind1)
   case default !(1)
     ! d1: case d&r&l
-    w = -fq/sqrt(two)
-    ww = -fq*sqrt((b-done)/(b+b+two))
+    w = -fq*v_onevsqtwo
+    ww = -fq*sqrt((b-One)/(b+b+Two))
   case (2)
-    ww = -sqrt(b/(b+done))
-    !if (dldr == 2101) ww=(b+two)/(b+done)
+    ww = -sqrt(b/(b+One))
+    !if (dldr == 2101) ww=(b+Two)/(b+One)
   case (3)
-    w = -fq/sqrt(two)
-    ww = fq*sqrt((b+three)/(b+b+two))
+    w = -fq*v_onevsqtwo
+    ww = fq*sqrt((b+Three)/(b+b+Two))
   case (4)
-    w = fq*sqrt(two)
+    w = fq*v_sqtwo
 end select
 
 return
@@ -77,15 +82,18 @@ end subroutine stermhd1
 
 subroutine stermhd5(w,ww)
 
-implicit none
-real*8 :: w, ww
-real*8, parameter :: two = 2.0d0
+use gugaci_global, only: v_sqtwo
+use Constants, only: Zero
+use Definitions, only: wp
 
-w = 0.0d0
-ww = 0.0d0
+implicit none
+real(kind=wp) :: w, ww
+
+w = Zero
+ww = Zero
 ! calculate w,ww
 ! d5: case d&r&r
-w = -sqrt(two)
+w = -v_sqtwo
 
 return
 
@@ -94,22 +102,24 @@ end subroutine stermhd5
 subroutine stermla1(w,ww,ind1,jbr)
 ! case a^l
 
-implicit none
-real*8 :: w, ww
-integer :: ind1, jbr
-real*8 :: b, fq
-real*8 :: done = 1.0d0
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-w = 0.0d0
-ww = 0.0d0
-b = dble(jbr)
-if (mod(jbr,2) == 0) fq = done
-if (mod(jbr,2) /= 0) fq = -done
+implicit none
+real(kind=wp) :: w, ww
+integer(kind=iwp) :: ind1, jbr
+real(kind=wp) :: b, fq
+
+w = Zero
+ww = Zero
+b = real(jbr,kind=wp)
+if (mod(jbr,2) == 0) fq = One
+if (mod(jbr,2) /= 0) fq = -One
 select case (ind1)
   case default ! (1)
     w = -sqrt((b+1)/(b+2))
   case (2)
-    w = -done
+    w = -One
   case (3)
     w = fq*sqrt((b+1)/b)
   case (4)
@@ -124,27 +134,29 @@ end subroutine stermla1
 subroutine stermla2(w,ww,ind1,jbr)
 ! case a^r
 
-implicit none
-real*8 :: w, ww
-integer :: ind1, jbr
-real*8 :: b, fq
-real*8, parameter :: done = 1.0d0, two = 2.0d0
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
-w = 0.0d0
-ww = 0.0d0
+implicit none
+real(kind=wp) :: w, ww
+integer(kind=iwp) :: ind1, jbr
+real(kind=wp) :: b, fq
+
+w = Zero
+ww = Zero
 ! calculate w,ww
-b = dble(jbr)
-if (mod(jbr,2) == 0) fq = done
-if (mod(jbr,2) /= 0) fq = -done
+b = real(jbr,kind=wp)
+if (mod(jbr,2) == 0) fq = One
+if (mod(jbr,2) /= 0) fq = -One
 select case (ind1)
   case default ! (1)
     w = -fq
   case (2)
-    w = -fq*sqrt((b+done)/(b+two))
+    w = -fq*sqrt((b+One)/(b+Two))
   case (3)
-    w = done
+    w = One
   case (4)
-    w = sqrt((b+done)/b)
+    w = sqrt((b+One)/b)
 end select
 ww = w
 
@@ -155,31 +167,34 @@ end subroutine stermla2
 subroutine stermld2(w,ww,ind1,jbr)
 ! d2: case d^r^l
 
-implicit none
-real*8 :: w, ww
-integer :: ind1, jbr
-real*8 :: b, fq
-real*8, parameter :: done = 1.0d0, two = 2.0d0
+use gugaci_global, only: v_onevsqtwo, v_sqtwo
+use Constants, only: Zero, One, Two, Four
+use Definitions, only: wp, iwp
 
-w = 0.0d0
-ww = 0.0d0
+implicit none
+real(kind=wp) :: w, ww
+integer(kind=iwp) :: ind1, jbr
+real(kind=wp) :: b, fq
+
+w = Zero
+ww = Zero
 ! calculate w,ww
-b = dble(jbr)
-if (mod(jbr,2) == 0) fq = done
-if (mod(jbr,2) /= 0) fq = -done
+b = real(jbr,kind=wp)
+if (mod(jbr,2) == 0) fq = One
+if (mod(jbr,2) /= 0) fq = -One
 select case (ind1)
   case (1)
-    ww = -sqrt((b+done)/(b+two))
+    ww = -sqrt((b+One)/(b+Two))
   case default ! (2)
-    w = -fq/sqrt(two)
-    ww = fq*sqrt((b+two)/(b*two))
+    w = -fq*v_onevsqtwo
+    ww = fq*sqrt((b+Two)/(b*Two))
   case (3)
-    w = -fq/sqrt(two)
-    ww = -fq*sqrt(b/(b+b+4.0d0))
+    w = -fq*v_onevsqtwo
+    ww = -fq*sqrt(b/(b+b+Four))
   case (4)
-    w = -fq*sqrt(two)
+    w = -fq*v_sqtwo
   case (5)
-    ww = sqrt((b+done)/b)
+    ww = sqrt((b+One)/b)
 end select
 
 return
@@ -189,12 +204,15 @@ end subroutine stermld2
 subroutine stermld6(w,ww)
 ! d6: case d^r^r
 
-implicit none
-real*8 :: w, ww
-real*8, parameter :: dzero = 0.0d0, two = 2.0d0
+use gugaci_global, only: v_sqtwo
+use Constants, only: Zero
+use Definitions, only: wp
 
-w = -sqrt(two)
-ww = dzero
+implicit none
+real(kind=wp) :: w, ww
+
+w = -v_sqtwo
+ww = Zero
 
 return
 
@@ -203,38 +221,40 @@ end subroutine stermld6
 subroutine segmidc1(w,ww,ind1,jbr)
 ! case c1
 
-implicit none
-real*8 :: w, ww
-integer :: ind1, jbr
-real*8 :: b, fq
-real*8, parameter :: done = 1.0d0, dzero = 0.0d0, three = 3.0d0
+use Constants, only: Zero, One, Three, Four
+use Definitions, only: wp, iwp
 
-b = dble(jbr)
-if (mod(jbr,2) == 0) fq = done
-if (mod(jbr,2) /= 0) fq = -done
-w = dzero
-ww = dzero
+implicit none
+real(kind=wp) :: w, ww
+integer(kind=iwp) :: ind1, jbr
+real(kind=wp) :: b, fq
+
+b = real(jbr,kind=wp)
+if (mod(jbr,2) == 0) fq = One
+if (mod(jbr,2) /= 0) fq = -One
+w = Zero
+ww = Zero
 select case (ind1)
   case default ! (1)
-    w = done
+    w = One
   case (2)
-    w = done
+    w = One
   case (3)
-    w = fq/sqrt((b*b+4.0d0*b+4.0d0))
+    w = fq/sqrt((b*b+Four*b+Four))
   case (4)
-    w = -sqrt((b+done)*(b+three)/(b*b+4.0d0*b+4.0d0))
+    w = -sqrt((b+One)*(b+Three)/(b*b+Four*b+Four))
   case (5)
-    w = -done
+    w = -One
   case (6)
-    w = done
+    w = One
   case (7)
-    w = sqrt((b+done)*(b-done)/(b*b))
+    w = sqrt((b+One)*(b-One)/(b*b))
   case (8)
     w = fq/b
   case (9)
-    w = -done
+    w = -One
   case (10)
-    w = -done
+    w = -One
 end select
 ww = w
 
@@ -245,54 +265,56 @@ end subroutine segmidc1
 subroutine segmidc2(w,ww,ind1,jbr)
 ! case c2
 
-implicit none
-real*8 :: w, ww
-integer :: ind1, jbr
-real*8 :: b, fq
-real*8, parameter :: done = 1.0d0, dzero = 0.0d0, three = 3.0d0, two = 2.0d0
+use Constants, only: Zero, One, Two, Three, Four
+use Definitions, only: wp, iwp
 
-b = dble(jbr)
-if (mod(jbr,2) == 0) fq = done
-if (mod(jbr,2) /= 0) fq = -done
-w = dzero
-ww = dzero
+implicit none
+real(kind=wp) :: w, ww
+integer(kind=iwp) :: ind1, jbr
+real(kind=wp) :: b, fq
+
+b = real(jbr,kind=wp)
+if (mod(jbr,2) == 0) fq = One
+if (mod(jbr,2) /= 0) fq = -One
+w = Zero
+ww = Zero
 select case (ind1)
   case (1)
-    ww = done
+    ww = One
   case (2)
-    ww = -done
+    ww = -One
   case (3)
-    ww = -fq*sqrt(two/((b+two)*(b+three)))
+    ww = -fq*sqrt(Two/((b+Two)*(b+Three)))
   case (4)
-    ww = -sqrt((b+done)*(b+4.0d0)/((b+two)*(b+three)))
+    ww = -sqrt((b+One)*(b+Four)/((b+Two)*(b+Three)))
   case (5)
-    ww = done
+    ww = One
   case default ! (6)
-    w = done
-    ww = done
+    w = One
+    ww = One
   case (7)
-    w = -done
-    ww = -sqrt((b-done)*(b+two)/(b*b+b))
+    w = -One
+    ww = -sqrt((b-One)*(b+Two)/(b*b+b))
   case (8)
-    ww = -fq*sqrt(two/(b*b+three*b+two))
+    ww = -fq*sqrt(Two/(b*b+Three*b+Two))
   case (9)
-    ww = fq*sqrt(two/(b*(b+done)))
+    ww = fq*sqrt(Two/(b*(b+One)))
   case (10)
-    w = -done
-    ww = -sqrt(b*(b+three)/(b*b+three*b+two))
+    w = -One
+    ww = -sqrt(b*(b+Three)/(b*b+Three*b+Two))
   case (11)
-    w = done
-    ww = done
+    w = One
+    ww = One
   case (12)
-    ww = done
+    ww = One
   case (13)
-    ww = -sqrt((b-two)*(b+done)/(b*b-b))
+    ww = -sqrt((b-Two)*(b+One)/(b*b-b))
   case (14)
-    ww = fq*sqrt(two/(b*b-b))
+    ww = fq*sqrt(Two/(b*b-b))
   case (15)
-    ww = -done
+    ww = -One
   case (16)
-    ww = done
+    ww = One
 end select
 
 return
@@ -302,50 +324,52 @@ end subroutine segmidc2
 !subroutine segmidc22(w,ww,ind1,jbr)
 !! case c22
 !
-!implicit none
-!real*8 :: w, ww
-!integer :: ind1, jbr
-!real*8 :: b, fq
-!real*8, parameter :: done = 1.0d0, dzero = 0.0d0, three = 3.0d0, two = 2.0d0
+!use Constants, only: Zero, One, Two, Three, Four
+!use Definitions, only: wp, iwp
 !
-!b = dble(jbr)
-!if (mod(jbr,2) == 0) fq = done
-!if (mod(jbr,2) /= 0) fq = -done
-!w = dzero
-!ww = dzero
+!implicit none
+!real(kind=wp) :: w, ww
+!integer(kind=iwp) :: ind1, jbr
+!real(kind=wp) :: b, fq
+!
+!b = real(jbr,kind=wp)
+!if (mod(jbr,2) == 0) fq = One
+!if (mod(jbr,2) /= 0) fq = -One
+!w = Zero
+!ww = Zero
 !select case (ind1)
 !  case (1)
-!    ww = done
+!    ww = One
 !  case (2)
-!    ww = -done
+!    ww = -One
 !  case (3)
-!    ww = -fq*sqrt(two/((b+two)*(b+three)))
+!    ww = -fq*sqrt(Two/((b+Two)*(b+Three)))
 !  case (4)
-!    ww = -sqrt((b+done)*(b+4.0d0)/((b+two)*(b+three)))
+!    ww = -sqrt((b+One)*(b+Four)/((b+Two)*(b+Three)))
 !  case (5)
-!    ww = done
+!    ww = One
 !  case default ! (6)
-!    w = done
-!    ww = done
+!    w = One
+!    ww = One
 !  case (7)
-!    w = -done
-!    ww = -sqrt((b-done)*(b+two)/(b*b+b))
+!    w = -One
+!    ww = -sqrt((b-One)*(b+Two)/(b*b+b))
 !  case (8)
-!    ww = -fq*sqrt(two/(b*b+three*b+two))
+!    ww = -fq*sqrt(Two/(b*b+Three*b+Two))
 !  case (9)
-!    w = -done
-!    ww = -sqrt(b*(b+three)/(b*b+three*b+two))
+!    w = -One
+!    ww = -sqrt(b*(b+Three)/(b*b+Three*b+Two))
 !  case (10)
-!    w = done
-!    ww = done
+!    w = One
+!    ww = One
 !  case (11)
-!    ww = done
+!    ww = One
 !  case (12)
-!    ww = -sqrt((b-two)*(b+done)/(b*b-b))
+!    ww = -sqrt((b-Two)*(b+One)/(b*b-b))
 !  case (13)
-!    ww = -done
+!    ww = -One
 !  case (14)
-!    ww = done
+!    ww = One
 !end select
 !
 !return
@@ -355,39 +379,42 @@ end subroutine segmidc2
 subroutine segmidb3(w,ww,ind1,jbr)
 ! submid b3(b&l)
 
+use gugaci_global, only: v_onevsqtwo
+use Constants, only: Zero, One, Two, Three, Four
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 :: w, ww
-integer :: ind1, jbr
-real*8 :: b, fq
-real*8, parameter :: done = 1.0d0, dzero = 0.0d0, three = 3.0d0, two = 2.0d0, vtwo = 0.5d0
+real(kind=wp) :: w, ww
+integer(kind=iwp) :: ind1, jbr
+real(kind=wp) :: b, fq
 
 ! calculate w,ww
-b = dble(jbr)
-if (mod(jbr,2) == 0) fq = done
-if (mod(jbr,2) /= 0) fq = -done
-w = dzero
-ww = dzero
+b = real(jbr,kind=wp)
+if (mod(jbr,2) == 0) fq = One
+if (mod(jbr,2) /= 0) fq = -One
+w = Zero
+ww = Zero
 select case (ind1)
   case default ! (1)
-    w = -sqrt(vtwo)
-    ww = -sqrt(b/(b+b+4.0d0))
+    w = -v_onevsqtwo
+    ww = -sqrt(b/(b+b+Four))
   case (2)
-    ww = -fq*sqrt((b+three)/(b+two))
+    ww = -fq*sqrt((b+Three)/(b+Two))
   case (3)
     ww = fq
   case (4)
-    w = sqrt((b+done)/(b+b+4.0d0))
-    ww = sqrt((b+three)/(b+b+4.0d0))
+    w = sqrt((b+One)/(b+b+Four))
+    ww = sqrt((b+Three)/(b+b+Four))
   case (5)
-    ww = -sqrt((b-done)/b)
+    ww = -sqrt((b-One)/b)
   case (6)
-    w = fq*sqrt(vtwo)
-    ww = -fq*sqrt((b+two)/(b+b))
+    w = fq*v_onevsqtwo
+    ww = -fq*sqrt((b+Two)/(b+b))
   case (7)
-    w = -fq*sqrt((b+done)/(b+b))
-    ww = fq*sqrt((b-done)/(b+b))
+    w = -fq*sqrt((b+One)/(b+b))
+    ww = fq*sqrt((b-One)/(b+b))
   case (8)
-    ww = done
+    ww = One
 end select
 
 return
@@ -397,39 +424,42 @@ end subroutine segmidb3
 subroutine segmidb4(w,ww,ind1,jbr)
 ! segmid b4(b&r)
 
+use gugaci_global, only: v_onevsqtwo
+use Constants, only: Zero, One, Two, Three, Four
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 :: w, ww
-integer :: ind1, jbr
-real*8 :: b, fq
-real, parameter :: done = 1.0d0, dzero = 0.0d0, three = 3.0d0, two = 2.0d0, vtwo = 0.5d0
+real(kind=wp) :: w, ww
+integer(kind=iwp) :: ind1, jbr
+real(kind=wp) :: b, fq
 
 ! calculate w,ww
-b = dble(jbr)
-if (mod(jbr,2) == 0) fq = done
-if (mod(jbr,2) /= 0) fq = -done
-w = dzero
-ww = dzero
+b = real(jbr,kind=wp)
+if (mod(jbr,2) == 0) fq = One
+if (mod(jbr,2) /= 0) fq = -One
+w = Zero
+ww = Zero
 select case (ind1)
   case (1)
-    ww = -done
+    ww = -One
   case (2)
-    w = fq*sqrt((b+done)/(b+b+4.0d0))
-    ww = -fq*sqrt((b+three)/(b+b+4.0d0))
+    w = fq*sqrt((b+One)/(b+b+Four))
+    ww = -fq*sqrt((b+Three)/(b+b+Four))
   case (3)
-    w = -fq*sqrt(vtwo)
-    ww = fq*sqrt(b/(b+b+4.0d0))
+    w = -fq*v_onevsqtwo
+    ww = fq*sqrt(b/(b+b+Four))
   case (4)
-    ww = sqrt((b+three)/(b+two))
+    ww = sqrt((b+Three)/(b+Two))
   case default ! (5)
-    w = -sqrt((b+done)/(b+b))
-    ww = -sqrt((b-done)/(b+b))
+    w = -sqrt((b+One)/(b+b))
+    ww = -sqrt((b-One)/(b+b))
   case (6)
     ww = -fq
   case (7)
-    ww = fq*sqrt((b-done)/b)
+    ww = fq*sqrt((b-One)/b)
   case (8)
-    w = sqrt(vtwo)
-    ww = sqrt((b+two)/(b+b))
+    w = v_onevsqtwo
+    ww = sqrt((b+Two)/(b+b))
 end select
 
 return
@@ -439,17 +469,19 @@ end subroutine segmidb4
 subroutine segmidd10(w,ww,ind1,jbr)
 ! segmid d10(d^r&l)
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 :: w, ww
-integer :: ind1, jbr
-real*8 :: fq
-real*8, parameter :: done = 1.0d0, dzero = 0.0d0
+real(kind=wp) :: w, ww
+integer(kind=iwp) :: ind1, jbr
+real(kind=wp) :: fq
 
 ! calculate w,ww
-if (mod(jbr,2) == 0) fq = done
-if (mod(jbr,2) /= 0) fq = -done
-w = dzero
-ww = dzero
+if (mod(jbr,2) == 0) fq = One
+if (mod(jbr,2) /= 0) fq = -One
+w = Zero
+ww = Zero
 select case (ind1)
   case (1)
     w = fq
@@ -464,39 +496,42 @@ end subroutine segmidd10
 subroutine segmidb2(w,ww,ind1,jbr)
 ! segmid b2(b^r)
 
+use gugaci_global, only: v_onevsqtwo
+use Constants, only: Zero, One, Two, Four
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 :: w, ww
-integer :: ind1, jbr
-real*8 :: b, fq
-real*8, parameter :: done = 1.0d0, dzero = 0.0d0, two = 2.0d0, vtwo = 0.5d0
+real(kind=wp) :: w, ww
+integer(kind=iwp) :: ind1, jbr
+real(kind=wp) :: b, fq
 
 ! calculate w,ww
-b = dble(jbr)
-if (mod(jbr,2) == 0) fq = done
-if (mod(jbr,2) /= 0) fq = -done
-w = dzero
-ww = dzero
+b = real(jbr,kind=wp)
+if (mod(jbr,2) == 0) fq = One
+if (mod(jbr,2) /= 0) fq = -One
+w = Zero
+ww = Zero
 select case (ind1)
   case (1)
-    ww = done
+    ww = One
   case (2)
-    ww = -sqrt((b+done)/(b+two))
+    ww = -sqrt((b+One)/(b+Two))
   case default ! (3)
-    w = -sqrt(b/(b+b+two))
-    ww = sqrt((b+two)/(b+b+two))
+    w = -sqrt(b/(b+b+Two))
+    ww = sqrt((b+Two)/(b+b+Two))
   case (4)
-    w = fq*sqrt((b+two)/(b+b+two))
-    ww = fq*sqrt(b/(b+b+two))
+    w = fq*sqrt((b+Two)/(b+b+Two))
+    ww = fq*sqrt(b/(b+b+Two))
   case (5)
-    w = fq*sqrt(vtwo)
-    ww = fq*sqrt((b+two)/(b+b))
+    w = fq*v_onevsqtwo
+    ww = fq*sqrt((b+Two)/(b+b))
   case (6)
-    w = sqrt(vtwo)
-    ww = -sqrt(b/(b+b+4.0d0))
+    w = v_onevsqtwo
+    ww = -sqrt(b/(b+b+Four))
   case (7)
     ww = fq
   case (8)
-    ww = fq*sqrt((b+done)/b)
+    ww = fq*sqrt((b+One)/b)
 end select
 
 return
@@ -506,39 +541,42 @@ end subroutine segmidb2
 subroutine segmidb1(w,ww,ind1,jbr)
 ! segmid b1(b^l)
 
+use gugaci_global, only: v_onevsqtwo
+use Constants, only: Zero, One, Two, Four
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 :: w, ww
-integer :: ind1, jbr
-real*8 :: b, fq
-real*8, parameter :: done = 1.0d0, dzero = 0.0d0, two = 2.0d0, vtwo = 0.5d0
+real(kind=wp) :: w, ww
+integer(kind=iwp) :: ind1, jbr
+real(kind=wp) :: b, fq
 
 ! calculate w,ww
-b = dble(jbr)
-if (mod(jbr,2) == 0) fq = done
-if (mod(jbr,2) /= 0) fq = -done
-w = dzero
-ww = dzero
+b = real(jbr,kind=wp)
+if (mod(jbr,2) == 0) fq = One
+if (mod(jbr,2) /= 0) fq = -One
+w = Zero
+ww = Zero
 select case (ind1)
   case (1)
-    ww = -fq*sqrt((b+done)/(b+two))
+    ww = -fq*sqrt((b+One)/(b+Two))
   case (2)
     ww = -fq
   case default ! (3)
-    w = -sqrt(vtwo)
-    ww = sqrt((b+two)/(b+b))
+    w = -v_onevsqtwo
+    ww = sqrt((b+Two)/(b+b))
   case (4)
-    w = -fq*sqrt(vtwo)
-    ww = -fq*sqrt(b/(b+b+4.0d0))
+    w = -fq*v_onevsqtwo
+    ww = -fq*sqrt(b/(b+b+Four))
   case (5)
-    w = -fq*sqrt(b/(b+b+two))
-    ww = -fq*sqrt((b+two)/(b+b+two))
+    w = -fq*sqrt(b/(b+b+Two))
+    ww = -fq*sqrt((b+Two)/(b+b+Two))
   case (6)
-    w = sqrt((b+two)/(b+b+two))
-    ww = -sqrt(b/(b+b+two))
+    w = sqrt((b+Two)/(b+b+Two))
+    ww = -sqrt(b/(b+b+Two))
   case (7)
-    ww = sqrt((b+done)/b)
+    ww = sqrt((b+One)/b)
   case (8)
-    ww = -done
+    ww = -One
 end select
 
 return
@@ -547,19 +585,22 @@ end subroutine segmidb1
 
 !subroutine stermh(isq,w,ww,ind1,jbr)
 !
+!use gugaci_global, only: v_onevsqtwo, v_sqtwo
+!use Constants, only: Zero, One, Two, Three
+!use Definitions, only: wp, iwp
+!
 !implicit none
-!integer :: isq, ind1, jbr
-!real*8 :: w, ww
-!real*8 :: b, fq
-!real*8, parameter :: done = 1.0d0, dzero = 0.0d0, three = 3.0d0, two = 2.0d0, vtwo = 0.5d0
+!integer(kind=iwp) :: isq, ind1, jbr
+!real(kind=wp) :: w, ww
+!real(kind=wp) :: b, fq
 !
 !isq = 0
-!w = dzero
-!ww = dzero
+!w = Zero
+!ww = Zero
 !! calculate w,ww
-!b = dble(jbr)
-!if (mod(jbr,2) == 0) fq = done
-!if (mod(jbr,2) /= 0) fq = -done
+!b = real(jbr,kind=wp)
+!if (mod(jbr,2) == 0) fq = One
+!if (mod(jbr,2) /= 0) fq = -One
 !select case (ind1)
 !  case default ! (1)
 !    ! case a&l
@@ -568,38 +609,38 @@ end subroutine segmidb1
 !    isq = 1
 !    ww = w
 !  case (2)
-!    w = done
+!    w = One
 !    isq = 1
 !    ww = w
 !  case (3)
 !    ! case d&l&l
 !    ! case d&r&r
-!    w = -sqrt(two)
+!    w = -v_sqtwo
 !    isq = 3
 !  case (4)
 !    ! case d&r&l
-!    w = -fq*sqrt(vtwo)
-!    ww = -fq*sqrt((b-done)/(b+b+two))
+!    w = -fq*v_onevsqtwo
+!    ww = -fq*sqrt((b-One)/(b+b+Two))
 !    isq = 2
 !  case (5)
-!    ww = -sqrt(b/(b+done))
-!    !if (dldr == 2101) ww=(b+two)/(b+done)
+!    ww = -sqrt(b/(b+One))
+!    !if (dldr == 2101) ww=(b+Two)/(b+One)
 !    isq = 2
 !  case (6)
-!    w = sqrt(b/(b+done))
+!    w = sqrt(b/(b+One))
 !    isq = 1
 !    ww = w
 !  case (7)
-!    w = -fq*sqrt((b+two)/(b+done))
-!    !if (abs(w) > 1.e-13) then
+!    w = -fq*sqrt((b+Two)/(b+One))
+!    !if (abs(w) > 1.0e-13_wp) then
 !    isq = 1
 !    ww = w
 !  case (8)
-!    w = -fq*sqrt(vtwo)
-!    ww = fq*sqrt((b+three)/(b+b+two))
+!    w = -fq*v_onevsqtwo
+!    ww = fq*sqrt((b+Three)/(b+b+Two))
 !    isq = 2
 !  case (9)
-!    w = fq*sqrt(two)
+!    w = fq*v_sqtwo
 !    isq = 2
 !end select
 !
@@ -609,32 +650,35 @@ end subroutine segmidb1
 
 subroutine stmh(isq,w,ww,mw,ind1,jbr)
 
+use gugaci_global, only: v_onevsqtwo, v_sqtwo
+use Constants, only: Zero, One, Two, Three
+use Definitions, only: wp, iwp
+
 implicit none
-integer :: isq, mw, ind1, jbr
-real*8 :: w, ww
-real*8 :: b, fq
-real*8 :: done = 1.0d0, dzero = 0.0d0, three = 3.0d0, two = 2.0d0, vtwo = 0.5d0
+integer(kind=iwp) :: isq, mw, ind1, jbr
+real(kind=wp) :: w, ww
+real(kind=wp) :: b, fq
 
 mw = 0
 isq = 0
-w = dzero
-ww = dzero
-! calculate w,ww
-b = dble(jbr)
-if (mod(jbr,2) == 0) fq = done
-if (mod(jbr,2) /= 0) fq = -done
+w = Zero
+ww = Zero
+! calculate w,w
+b = real(jbr,kind=wp)
+if (mod(jbr,2) == 0) fq = One
+if (mod(jbr,2) /= 0) fq = -One
 select case (ind1)
   case default ! (1)
-    w = -fq*sqrt(vtwo)
-    ww = -fq*sqrt((b-done)/(b+b+two))
+    w = -fq*v_onevsqtwo
+    ww = -fq*sqrt((b-One)/(b+b+Two))
   case (2)
-    w = -fq*sqrt(vtwo)
-    ww = fq*sqrt((b+three)/(b+b+two))
+    w = -fq*v_onevsqtwo
+    ww = fq*sqrt((b+Three)/(b+b+Two))
   case (3)
-    w = fq*sqrt(two)
+    w = fq*v_sqtwo
 end select
-if (abs(ww) > 1.d-13) mw = 2
-if (abs(w) > 1.d-13) mw = mw+1
+if (abs(ww) > 1.0e-13_wp) mw = 2
+if (abs(w) > 1.0e-13_wp) mw = mw+1
 isq = 401
 
 return
@@ -643,32 +687,34 @@ end subroutine stmh
 
 subroutine smidc2(isq,w,ww,mw,ind1,jbr)
 
+use Constants, only: Zero, One, Two, Three
+use Definitions, only: wp, iwp
+
 implicit none
-integer :: isq, mw, ind1, jbr
-real*8 :: w, ww
-real*8 :: b
-real*8, parameter :: done = 1.0d0, dzero = 0.0d0, three = 3.0d0, two = 2.0d0
+integer(kind=iwp) :: isq, mw, ind1, jbr
+real(kind=wp) :: w, ww
+real(kind=wp) :: b
 
 ! calculate w,ww
-b = dble(jbr)
-w = dzero
-ww = dzero
+b = real(jbr,kind=wp)
+w = Zero
+ww = Zero
 isq = 0
 mw = 0
 select case (ind1)
   case default ! (1)
     !write(6,*) 'this is case c2'
-    w = done
-    ww = done
+    w = One
+    ww = One
   case (2)
-    w = -done
-    ww = -sqrt((b-done)*(b+two)/(b*b+b))
+    w = -One
+    ww = -sqrt((b-One)*(b+Two)/(b*b+b))
   case (3)
-    w = -done
-    ww = -sqrt(b*(b+three)/(b*b+three*b+two))
+    w = -One
+    ww = -sqrt(b*(b+Three)/(b*b+Three*b+Two))
   case (4)
-    w = done
-    ww = done
+    w = One
+    ww = One
 end select
 isq = 302
 
@@ -678,33 +724,36 @@ end subroutine smidc2
 
 subroutine stml(isq,w,ww,mw,ind1,jbr)
 
+use gugaci_global, only: v_onevsqtwo, v_sqtwo
+use Constants, only: Zero, One, Two, Four
+use Definitions, only: wp, iwp
+
 implicit none
-integer :: isq, mw, ind1, jbr
-real*8 :: w, ww
-real*8 :: b, fq
-real*8, parameter :: done = 1.0d0, dzero = 0.0d0, two = 2.0d0, vtwo = 0.5d0
+integer(kind=iwp) :: isq, mw, ind1, jbr
+real(kind=wp) :: w, ww
+real(kind=wp) :: b, fq
 
 mw = 0
 isq = 0
-w = dzero
-ww = dzero
+w = Zero
+ww = Zero
 ! calculate w,ww
-b = dble(jbr)
-if (mod(jbr,2) == 0) fq = done
-if (mod(jbr,2) /= 0) fq = -done
+b = real(jbr,kind=wp)
+if (mod(jbr,2) == 0) fq = One
+if (mod(jbr,2) /= 0) fq = -One
 select case (ind1)
   case default ! (1)
     ! case d^r^l
-    w = -fq*sqrt(vtwo)
-    ww = fq*sqrt((b+two)/(b*two))
+    w = -fq*v_onevsqtwo
+    ww = fq*sqrt((b+Two)/(b*Two))
   case (2)
-    w = -fq*sqrt(vtwo)
-    ww = -fq*sqrt(b/(b+b+4.0d0))
+    w = -fq*v_onevsqtwo
+    ww = -fq*sqrt(b/(b+b+Four))
   case (3)
-    w = -fq*sqrt(two)
+    w = -fq*v_sqtwo
 end select
-if (abs(ww) > 1.d-13) mw = 2
-if (abs(w) > 1.d-13) mw = mw+1
+if (abs(ww) > 1.0e-13_wp) mw = 2
+if (abs(w) > 1.0e-13_wp) mw = mw+1
 isq = 402
 
 return
@@ -713,17 +762,20 @@ end subroutine stml
 
 subroutine neoc(kcoe,nocc,tcoe)
 
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
+
 implicit none
-integer :: kcoe, nocc
-real*8 :: tcoe
+integer(kind=iwp) :: kcoe, nocc
+real(kind=wp) :: tcoe
 
 nocc = 1
 tcoe = kcoe
 if (kcoe == 0) nocc = 0
-if (kcoe == 100) tcoe = 0.d0
+if (kcoe == 100) tcoe = Zero
 if (kcoe == 200) then
   nocc = 2
-  tcoe = -0.5d0
+  tcoe = -Half
 end if
 
 return

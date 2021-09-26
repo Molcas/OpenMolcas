@@ -10,19 +10,20 @@
 !                                                                      *
 ! Copyright (C) 2007, Bingbing Suo                                     *
 !***********************************************************************
-!  16 apr 2007 - bsuo - revised to use molcas intergrals
+!  16 apr 2007 - bsuo - revised to use molcas integrals
 
 #ifdef MOLPRO
 
 subroutine intrd()
 
 use gugaci_global, only: lsmorb, LuTwoMO, map_orb_order, max_orb, nlsm_all, nlsm_bas, ng_sm, noidx, voint, vpotnuc
-!use file_qininit, only: maxrecord
+use file_qininit, only: maxrecord
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: i, idx, lrcii, lrcij, lri, lrj, lrt, noffset(maxrecord), nc, ni, nidx, nintone, nism, nmob, nsmint
-real*8 :: ecor, xfock(max_orb*(max_orb+1)/2)
+integer(kind=iwp) :: i, idx, lrcii, lrcij, lri, lrj, lrt, noffset(maxrecord), nc, ni, nidx, nintone, nism, nmob, nsmint
+real(kind=wp) :: ecor, xfock(max_orb*(max_orb+1)/2)
 
 nintone = 0
 nmob = 0
@@ -46,8 +47,8 @@ call idafile(Lutwomo,2,noffset,maxrecord,ni)
 call ddafile(Lutwomo,2,vpotnuc,1,ni)
 ! 3rd record, ecore
 call ddafile(Lutwomo,2,ecor,1,ni)  ! effective core energy
-write(6,'(a,1x,f14.8)') ' Nuclear repulsive energy:',vpotnuc
-write(6,'(a,1x,f14.8)') ' Frozen  core energy:     ',ecor
+write(u6,'(a,1x,f14.8)') ' Nuclear repulsive energy:',vpotnuc
+write(u6,'(a,1x,f14.8)') ' Frozen  core energy:     ',ecor
 vpotnuc = vpotnuc+ecor
 ! 4th record, 1e int
 call ddafile(Lutwomo,2,xfock,nintone,ni) ! 1e integrals
@@ -70,15 +71,15 @@ do i=1,ng_sm
         lrcii = lrt
       end if
       voint(lrcii,lrcij) = xfock(nc+nidx)
-      !write(6,'(1x,i3,1x,i3,1x,f18.9)') lrcii,lrcij,xfock(nc+nidx)
+      !write(u6,'(1x,i3,1x,i3,1x,f18.9)') lrcii,lrcij,xfock(nc+nidx)
     end do
   end do
   nidx = nidx+nsmint
 end do
 call readtwoeint_molpro(lutwomo,maxrecord,noffset,nlsm_all,ng_sm,mul_tab,map_orb_order,noidx)
 
-!write(6,*)
-!write(6,*) 'MRCI integrals'
+!write(u6,*)
+!write(u6,*) 'MRCI integrals'
 !do lri=1,406
 !  write(55,'(i8,f16.8)') lri,vector1(lri)
 !end do
@@ -90,16 +91,16 @@ end subroutine intrd
 subroutine readtwoeint_molpro(nft,maxrecord,noffset,norb,ngsm,multab,maporb,noidx)
 
 use gugaci_global, only: max_orb, ntrabuf
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: nft, maxrecord, noffset(maxrecord), norb(8), ngsm, multab(8,8), maporb(max_orb), noidx(8)
-integer :: idisk, idx, iout, ityp, li, lj, lk, ll, lri, lrj, lrk, lrl, nbpq, nbrs, nintb, nop, noq, nor, nos, nsp, nspq, nspqr, &
-           nsq, nsr, nss, nssm, ntj, ntk, ntl
-real*8 :: buff(ntrabuf), val
+integer(kind=iwp) :: nft, maxrecord, noffset(maxrecord), norb(8), ngsm, multab(8,8), maporb(max_orb), noidx(8)
+integer(kind=iwp) :: idisk, idx, iout, ityp, li, lj, lk, ll, lri, lrj, lrk, lrl, nbpq, nbrs, nintb, nop, noq, nor, nos, nsp, nspq, &
+                     nspqr, nsq, nsr, nss, nssm, ntj, ntk, ntl
+real(kind=wp) :: buff(ntrabuf), val
 
 idisk = noffset(5)
-write(6,2000)
-2000 format(/7x,'symmetry',6x,' orbitals',8x,'integrals')
+write(u6,2000)
 do nsp=1,ngsm
   nop = norb(nsp)
   do nsq=1,nsp
@@ -142,8 +143,7 @@ do nsp=1,ngsm
         end if
 
         if (nintb == 0) cycle
-        write(6,2100) nsp,nsq,nsr,nss,nop,noq,nor,nos,nintb
-2100    format(7x,4i2,1x,4i4,2x,3x,i9)
+        write(u6,2100) nsp,nsq,nsr,nss,nop,noq,nor,nos,nintb
 
         idx = 0
         iout = 0
@@ -182,7 +182,7 @@ do nsp=1,ngsm
                 lrk = maporb(lk+noidx(nsq))
                 lrl = maporb(ll+noidx(nsp))
                 !if (ityp /= 2) cycle
-                !write(6,'(9(1x,i2),1x,f18.9)') li,lj,lk,ll,lri,lrj,lrk,lrl,iout,val
+                !write(u6,'(9(1x,i2),1x,f18.9)') li,lj,lk,ll,lri,lrj,lrk,lrl,iout,val
                 call intrw_mol(lri,lrj,lrk,lrl,val)
               end do
             end do
@@ -196,6 +196,9 @@ end do
 
 return
 
+2000 format(/7x,'symmetry',6x,' orbitals',8x,'integrals')
+2100 format(7x,4i2,1x,4i4,2x,3x,i9)
+
 end subroutine readtwoeint_molpro
 
 #else
@@ -205,11 +208,12 @@ subroutine intrd_molcas()
 use gugaci_global, only: FnOneMO, FnTwoMO, lsmorb, LuOneMO, LuTwoMO, map_orb_order, max_orb, ng_sm, nlsm_all, nlsm_bas, noidx, &
                          voint, vpotnuc
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: i, idisk, idx, lrcii, lrcij, lri, lrj, lrt, nc, ni, nidx, nintone, nism, nmob, nsmint
-real*8 :: ecor, xfock(max_orb*(max_orb+1)/2)
-real*8, pointer :: x(:)
+integer(kind=iwp) :: i, idisk, idx, lrcii, lrcij, lri, lrj, lrt, nc, ni, nidx, nintone, nism, nmob, nsmint
+real(kind=wp) :: ecor, xfock(max_orb*(max_orb+1)/2)
+real(kind=wp), pointer :: x(:)
 
 nintone = 0
 nmob = 0
@@ -259,7 +263,7 @@ do i=1,ng_sm
         lrcii = lrt
       end if
       voint(lrcii,lrcij) = xfock(nc+nidx)
-      !write(6,'(1x,i3,1x,i3,1x,f18.9)') lrcii,lrcij,xfock(nc+nidx)
+      !write(u6,'(1x,i3,1x,i3,1x,f18.9)') lrcii,lrcij,xfock(nc+nidx)
     end do
   end do
   nidx = nidx+nsmint
@@ -268,7 +272,7 @@ end do
 call daname(lutwomo,fntwomo)
 call readtwoeint(lutwomo,nlsm_all,ng_sm,mul_tab,map_orb_order,noidx)
 call daclos(lutwomo)
-write(6,*)
+write(u6,*)
 deallocate(x)
 
 return
@@ -278,23 +282,23 @@ end subroutine intrd_molcas
 subroutine readtwoeint(nft,norb,ngsm,multab,maporb,noidx)
 
 use gugaci_global, only: lenintegral, max_orb, ntrabuf, ntratoc
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: nft, norb(8), ngsm, multab(8,8), maporb(max_orb), noidx(8)
-integer :: idisk, idx, iout, lenrd, li, lj, lk, ll, lri, lrj, lrk, lrl, nbpq, nbrs, nintb, nop, noq, nor, nos, nsp, nspq, nspqr, &
-           nsq, nsr, nss, nssm, ntj, ntk, numax, numin
-real*8 :: val
-integer :: itratoc(ntratoc)
-real*8 :: buff(ntrabuf)
+integer(kind=iwp) :: nft, norb(8), ngsm, multab(8,8), maporb(max_orb), noidx(8)
+integer(kind=iwp) :: idisk, idx, iout, lenrd, li, lj, lk, ll, lri, lrj, lrk, lrl, nbpq, nbrs, nintb, nop, noq, nor, nos, nsp, &
+                     nspq, nspqr, nsq, nsr, nss, nssm, ntj, ntk, numax, numin
+real(kind=wp) :: val
+integer(kind=iwp) :: itratoc(ntratoc)
+real(kind=wp) :: buff(ntrabuf)
 
 idisk = 0
 lenrd = ntratoc*lenintegral
-write(6,*) lenrd
+write(u6,*) lenrd
 !call idatard(nft,itratoc,lenrd,idisk)
 call idafile(nft,2,itratoc,ntratoc,idisk)
-!write(6,'(10(1x,i8))') itratoc(1:10)
-write(6,2000)
-2000 format(/7x,'symmetry',6x,' orbitals',8x,'integrals')
+!write(u6,'(10(1x,i8))') itratoc(1:10)
+write(u6,2000)
 do nsp=1,ngsm
   nop = norb(nsp)
   do nsq=1,nsp
@@ -332,8 +336,7 @@ do nsp=1,ngsm
         end if
 
         if (nintb == 0) cycle
-        write(6,2100) nsp,nsq,nsr,nss,nop,noq,nor,nos,nintb
-2100    format(7x,4i2,1x,4i4,2x,3x,i9)
+        write(u6,2100) nsp,nsq,nsr,nss,nop,noq,nor,nos,nintb
 
         idx = 0
         iout = 0
@@ -364,7 +367,7 @@ do nsp=1,ngsm
                 lrj = maporb(ll+noidx(nsq))
                 lrk = maporb(li+noidx(nsr))
                 lrl = maporb(lj+noidx(nss))
-                !write(6,'(9(1x,i2),1x,f18.9)') li,lj,lk,ll,lri,lrj,lrk,lrl,iout,val
+                !write(u6,'(9(1x,i2),1x,f18.9)') li,lj,lk,ll,lri,lrj,lrk,lrl,iout,val
                 call intrw_mol(lri,lrj,lrk,lrl,val)
               end do
             end do
@@ -378,16 +381,21 @@ end do
 
 return
 
+2000 format(/7x,'symmetry',6x,' orbitals',8x,'integrals')
+2100 format(7x,4i2,1x,4i4,2x,3x,i9)
+
 end subroutine readtwoeint
 
 subroutine readtraonehead(nft,ecor,idisk)
 
+use Definitions, only: wp, iwp
+
 implicit none
 #include "Molcas.fh"
-integer :: nft, idisk
-real*8 :: ecor
-integer :: idum(1), lenrd, nbas(8), ncone(64), ndel(8), nfro(8), norb(8)
-real*8 :: dum(1)
+integer(kind=iwp) :: nft, idisk
+real(kind=wp) :: ecor
+integer(kind=iwp) :: idum(1), lenrd, nbas(8), ncone(64), ndel(8), nfro(8), norb(8)
+real(kind=wp) :: dum(1)
 character(len=LenIn8) :: bsbl(maxbfn)
 
 idisk = 0
@@ -404,14 +412,14 @@ lenrd = LenIn8*maxbfn
 call cdafile(nft,2,bsbl,lenrd,idisk)
 
 !#ifdef debug
-!write(6,'(a4,1x,8(2x,i8))') 'ncon',ncone(1:8)
-!write(6,*) 'idisk : ', idisk
-!write(6,'(a4,1x,f18.9)') 'ecor',ecor
-!write(6,'(a4,1x,i8)') 'nsym',nsym
-!write(6,'(a4,1x,8(2x,i8))') 'nbas',nbas(1:8)
-!write(6,'(a4,1x,8(2x,i8))') 'norb',norb(1:8)
-!write(6,'(a4,1x,8(2x,i8))') 'nfro',nfro(1:8)
-!write(6,'(a4,1x,8(2x,i8))') 'ndel',ndel(1:8)
+!write(u6,'(a4,1x,8(2x,i8))') 'ncon',ncone(1:8)
+!write(u6,*) 'idisk : ', idisk
+!write(u6,'(a4,1x,f18.9)') 'ecor',ecor
+!write(u6,'(a4,1x,i8)') 'nsym',nsym
+!write(u6,'(a4,1x,8(2x,i8))') 'nbas',nbas(1:8)
+!write(u6,'(a4,1x,8(2x,i8))') 'norb',norb(1:8)
+!write(u6,'(a4,1x,8(2x,i8))') 'nfro',nfro(1:8)
+!write(u6,'(a4,1x,8(2x,i8))') 'ndel',ndel(1:8)
 !#endif
 
 return
@@ -422,10 +430,12 @@ end subroutine readtraonehead
 
 !subroutine ddatard(nft,xbuff,lend,idisk)
 !
+!use Definitions, only: wp, iwp
+!
 !implicit none
-!integer :: nft, lend, idisk
-!real*8 :: xbuff(lend)
-!integer :: nbas(mxsym), ncone(64), ndel(mxsym), nfro(mxsym), norb(mxsym)
+!integer(kind=iwp) :: nft, lend, idisk
+!real(kind=wp) :: xbuff(lend)
+!integer(kind=iwp) :: nbas(mxsym), ncone(64), ndel(mxsym), nfro(mxsym), norb(mxsym)
 !
 !lenrd = lend*lendbl
 !call idatard(nft,xbuff,lenrd,idisk)
@@ -439,23 +449,26 @@ end subroutine readtraonehead
 !! imul = 0, the file readed is not a multifile
 !! imul = 1, the file readed is a multifile
 !
+!use Definitions, only: iwp, u6
+!
 !implicit none
-!integer :: nft, lbuf, idisk
+!integer(kind=iwp) :: nft, lbuf, idisk
+!integer(kind=iwp) :: imo, ioff, noff, nr
 !character :: ibuf(lbuf)
-!integer, parameter :: min_block_length = 512
+!integer(kind=iwp), parameter :: min_block_length = 512
 !
 !noff = idisk*min_block_length
 !call clseek(nft,noff,nr)
 !if (nr /= noff) then
-!  write(6,*) 'error seek file : ',idisk
+!  write(u6,*) 'error seek file : ',idisk
 !  call abend()
 !end if
 !call cread_molcas(nft,ibuf,lbuf,nr)
 !if(nr /= lbuf) then
-!  write(6,*) 'error read file ',nr
-!  write(6,*) 'nft : ',nft
-!  write(6,*) 'lbuf  : ',lbuf
-!  write(6,*) 'idisk : ',idisk
+!  write(u6,*) 'error read file ',nr
+!  write(u6,*) 'nft : ',nft
+!  write(u6,*) 'lbuf  : ',lbuf
+!  write(u6,*) 'idisk : ',idisk
 !  call abend()
 !else
 !  imo = mod(lbuf,min_block_length)
@@ -465,7 +478,7 @@ end subroutine readtraonehead
 !    ioff = 1+lbuf/min_block_length
 !  end if
 !  idisk = idisk+ioff
-!  !write(6,*) 'ioff ',ioff
+!  !write(u6,*) 'ioff ',ioff
 !end if
 !
 !return
@@ -476,11 +489,13 @@ subroutine intrw_mol(ik,jk,kk,lk,val)
 
 use gugaci_global, only: vdint, vector1, voint
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer :: ik, jk, kk, lk
-real*8 :: val
-integer :: i, ind(4), j, k, l, list, lri, lrj, lrk, lrl, lrn, nt
-integer, external :: list3_all, list4_all
+integer(kind=iwp) :: ik, jk, kk, lk
+real(kind=wp) :: val
+integer(kind=iwp) :: i, ind(4), j, k, l, list, lri, lrj, lrk, lrl, lrn, nt
+integer(kind=iwp), external :: list3_all, list4_all
 
 list = 0
 i = ik
@@ -514,7 +529,7 @@ do i=1,4
   end do
 end do
 
-!write(6,*) ind(1),ind(2),ind(3),ind(4)
+!write(u6,*) ind(1),ind(2),ind(3),ind(4)
 
 if (ind(1) == ind(4)) then   !(iiii)
   vdint(lri,lri) = val
@@ -576,7 +591,7 @@ else if ((lri /= lrj) .and. (lri /= lrk) .and. (lri /= lrl) .and. (lrj /= lrk) .
 
 end if
 
-!write(6,*) 'list=',list
+!write(u6,*) 'list=',list
 
 return
 
@@ -586,10 +601,11 @@ subroutine int_index(numb)
 
 use gugaci_global, only: loij_all, loijk_all, lsm, ncibl_all, ngw2, ngw3, norb_all, norb_number
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: numb
-integer :: i, j, la, lb, lc, ld, lra, lrb, lrc, lrd, lri, lrj, ms, msa, msb, msc, mscd, msd, msob(8), nij, njkl
+integer(kind=iwp) :: numb
+integer(kind=iwp) :: i, j, la, lb, lc, ld, lra, lrb, lrc, lrd, lri, lrj, ms, msa, msb, msc, mscd, msd, msob(8), nij, njkl
 
 msob = 0
 do la=norb_all,1,-1
@@ -599,9 +615,9 @@ do la=norb_all,1,-1
   ncibl_all(la) = msob(ms)
 end do
 
-!write(6,*)
+!write(u6,*)
 !=======================================================================
-!write(6,'(1x,14i3)') (ncibl(i),i=1,14)
+!write(u6,'(1x,14i3)') (ncibl(i),i=1,14)
 
 numb = 1
 do i=1,norb_all-1
@@ -609,11 +625,11 @@ do i=1,norb_all-1
     lri = norb_number(i)
     lrj = norb_number(j)
     if (lsm(lri) /= lsm(lrj)) cycle
-    !write(6,*) 'lri=',lri,'lrj=',lrj
-    !write(6,*) 'lsm(lri)',lsm(lri),'lsm(lrj)',lsm(lrj)
+    !write(u6,*) 'lri=',lri,'lrj=',lrj
+    !write(u6,*) 'lsm(lri)',lsm(lri),'lsm(lrj)',lsm(lrj)
 
     nij = i+ngw2(j)
-    !write(6,*) 'i,j,mij,nij   ',i,j,mij,nij
+    !write(u6,*) 'i,j,mij,nij   ',i,j,mij,nij
     loij_all(nij) = numb
     !do k=1,norb_all
     !  vint_ci(numb) = vfutei(j,k,i,k)
@@ -624,7 +640,7 @@ do i=1,norb_all-1
 
   end do
 end do
-!write(6,*) 'number 3 index',numb
+!write(u6,*) 'number 3 index',numb
 !call abend()
 !=======================================================================
 ! la<lb<lc<ld
@@ -649,9 +665,9 @@ do ld=1,norb_all-3
         if (lsm(lra) /= msa) cycle
         !nolra = nolra+1
         !list = loijk_all(njkl)+3*(nolra-1)
-        !write(6,*) 'ld,lc,lb,la',ld,lc,lb,la,list
+        !write(u6,*) 'ld,lc,lb,la',ld,lc,lb,la,list
 
-        !write(6,'(2x,4i3,2i7)') la,lb,lc,ld,list,numb
+        !write(u6,'(2x,4i3,2i7)') la,lb,lc,ld,list,numb
 
         !vint_ci(numb) = vfutei(la,lc,lb,ld)        !tmp stop
         !vint_ci(numb+1) = vfutei(la,lb,lc,ld)
@@ -671,13 +687,15 @@ end subroutine int_index
 function vfutei(ix,jx,kx,lx)
 
 use gugaci_global, only: vector1
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 :: vfutei
-integer :: ix, jx, kx, lx
-integer :: i, ind(4), j, list, lri, lrj, lrk, lrl, lrn, nt
-real*8 :: val
-integer, external :: list3_all, list4_all
+real(kind=wp) :: vfutei
+integer(kind=iwp) :: ix, jx, kx, lx
+integer(kind=iwp) :: i, ind(4), j, list, lri, lrj, lrk, lrl, lrn, nt
+real(kind=wp) :: val
+integer(kind=iwp), external :: list3_all, list4_all
 
 lri = min(ix,jx)
 lrj = max(ix,jx)
@@ -691,8 +709,8 @@ if (lri > lrk) then
   lrl = lrj
   lrj = lrn
 end if
-val = 0.d0
-!write(6,*) ind(1),ind(2),ind(3),ind(4)
+val = Zero
+!write(u6,*) ind(1),ind(2),ind(3),ind(4)
 if ((lri /= lrl) .and. (lrj == lrk)) then !(ijjl)
   list = list3_all(lri,lrl,lrj)
   val = vector1(list)
@@ -751,11 +769,12 @@ end function vfutei
 function list3_all(i,j,k)
 
 use gugaci_global, only: loij_all, ngw2
+use Definitions, only: iwp
 
 implicit none
-integer :: list3_all
-integer :: i, j, k
-integer :: nij
+integer(kind=iwp) :: list3_all
+integer(kind=iwp) :: i, j, k
+integer(kind=iwp) :: nij
 
 nij = i+ngw2(j)
 list3_all = loij_all(nij)+2*(k-1)
@@ -767,13 +786,14 @@ end function list3_all
 function list4_all(ld,lc,lb,la)
 
 use gugaci_global, only: loijk_all, ncibl_all, ngw2, ngw3
+use Definitions, only: iwp
 
 implicit none
-integer :: list4_all
-integer :: ld, lc, lb, la
-integer :: lra, njkl
+integer(kind=iwp) :: list4_all
+integer(kind=iwp) :: ld, lc, lb, la
+integer(kind=iwp) :: lra, njkl
 
-!write(6,*) 'ld,lc,lb,la',ld,lc,lb,la
+!write(u6,*) 'ld,lc,lb,la',ld,lc,lb,la
 lra = ncibl_all(la)
 njkl = ld+ngw2(lc)+ngw3(lb)
 list4_all = loijk_all(njkl)+3*(lra-1)

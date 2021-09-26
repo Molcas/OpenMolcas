@@ -19,10 +19,11 @@ subroutine arrange_orbital()
 
 use gugaci_global, only: jp2, jp3, logic_assign_actorb, lsm_inn, map_orb_order, max_orb, ng_sm, nlsm_all, norb_all, norb_inn, &
                          norb_number !, norb_dz
+use Definitions, only: iwp
 
 implicit none
-integer :: i, im, iorb, isum2, isum3, j, la, lr, lr_scf, lr_scf0, lra, lsmorbcount(ng_sm), lsmr, map_tmp(max_orb), ms, nim
-logical :: logi_norb_inn(norb_all)
+integer(kind=iwp) :: i, im, iorb, isum2, isum3, j, la, lr, lr_scf, lr_scf0, lra, lsmorbcount(ng_sm), lsmr, map_tmp(max_orb), ms, nim
+logical(kind=iwp) :: logi_norb_inn(norb_all)
 
 logi_norb_inn(1:norb_all) = .false.
 iorb = norb_all

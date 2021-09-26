@@ -14,13 +14,15 @@ subroutine geth0()
 use gugaci_global, only: ecih0, escf, indx, ipae, irf, irfno, jpad, jpadl, jpae, logic_mr, max_h0, max_innorb, max_kspace, &
                          max_ref, max_root, mroot, ndim, ndim_h0, norb_act, nu_ad, nu_ae, vcm, vd, ve, vector1, vector2, vu
                          !, len_str, tmpdir
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: i, ijm, iselcsf_occ(max_innorb,max_ref), kval, l, m, mmspace, mn, ndim0, nxb, nxh
-real*8 :: vad0(max_h0)
+integer(kind=iwp) :: i, ijm, iselcsf_occ(max_innorb,max_ref), kval, l, m, mmspace, mn, ndim0, nxb, nxh
+real(kind=wp) :: vad0(max_h0)
 !character(len=256) :: filename
-real*8, allocatable :: vb1(:), vb2(:)
-real*8, parameter :: dcrita = 0.5d-5
+real(kind=wp), allocatable :: vb1(:), vb2(:)
+real(kind=wp), parameter :: dcrita = 5.0e-6_wp
 
 allocate(vb1(max_h0*max_kspace),vb2(max_h0*max_kspace))
 if (.not. logic_mr) then
@@ -45,9 +47,9 @@ else
   ndim_h0 = ndim
 
   if (mroot > ndim_h0) then
-    write(6,*) '    mroot> ndim_h0, mroot,ndim_h0=',mroot,ndim_h0
+    write(u6,*) '    mroot> ndim_h0, mroot,ndim_h0=',mroot,ndim_h0
     mroot = min(ndim_h0,mroot)
-    write(6,*) '   ',mroot,'roots are calculated'
+    write(u6,*) '   ',mroot,'roots are calculated'
   end if
 
   call copy_to_drtl()
@@ -55,9 +57,9 @@ else
   if (logic_mr) then
     call irfrst(iselcsf_occ)
     if (mroot > ndim_h0) then
-      write(6,*) '    mroot> ndim_h0, mroot,ndim_h0=',mroot,ndim_h0
+      write(u6,*) '    mroot> ndim_h0, mroot,ndim_h0=',mroot,ndim_h0
       mroot = min(ndim_h0,mroot)
-      write(6,*) '   ',mroot,'roots are calculated'
+      write(u6,*) '   ',mroot,'roots are calculated'
     end if
     call minevalue(iselcsf_occ)
   end if
@@ -70,14 +72,14 @@ if (.not. logic_mr) then
 else
   ndim0 = irf
 end if
-write(6,*) '     ================================'
-write(6,*) '         step 1: diagnalization h0   '
-write(6,*) '            ndim_h0=',ndim0
-write(6,*) '     ================================'
+write(u6,*) '     ================================'
+write(u6,*) '         step 1: diagnalization h0   '
+write(u6,*) '            ndim_h0=',ndim0
+write(u6,*) '     ================================'
 
 if (ndim_h0 == 1) then
   ecih0(1) = escf(1)
-  vcm(1) = 1.d0
+  vcm(1) = One
 else
 
   call formh0()   ! for log_mr, ndim_h0 changed to irf in this subroutine
@@ -121,7 +123,7 @@ else
     !vcm(1:mroot*ndim_h0) = vb1(1:mroot*ndim_h0)
     ! save ci vector in h0 into vb2
     !numh0 = nci_h0 !iw_sta(2,1)
-    !vb2(1:numh0*mroot) = 0.d0
+    !vb2(1:numh0*mroot) = Zero
     !if (logic_mr) then
     !  idx1 = 0
     !  idx2 = 0
@@ -140,11 +142,11 @@ else
   deallocate(vcm)
 end if
 
-write(6,*)
+write(u6,*)
 do m=1,mroot
-  write(6,'(5x,a7,i5,f18.8)') ' root,',m,ecih0(m)
+  write(u6,'(5x,a7,i5,f18.8)') ' root,',m,ecih0(m)
 end do
-write(6,*)
+write(u6,*)
 
 !filename = tmpdir(1:len_str)//'/fort7'
 !len = len_str+6
@@ -179,21 +181,23 @@ end subroutine geth0
 subroutine formh0()
 
 use gugaci_global, only: irf, irfno, lenvec, log_prod, logic_mr, max_vector, ndim_h0, vector1, vector2, vint_ci
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: i, iconf1, iconf2, iconfmax, iconfmin, ii, iicc, ir1, ir2, mnh0, mnrh0, num
-real*8, allocatable :: buff(:)
+integer(kind=iwp) :: i, iconf1, iconf2, iconfmax, iconfmin, ii, iicc, ir1, ir2, mnh0, mnrh0, num
+real(kind=wp), allocatable :: buff(:)
 
 num = ndim_h0*(ndim_h0+1)/2
 if (num > max_vector) then
-  write(6,*) ' not enough space to store h0 matrix',num
+  write(u6,*) ' not enough space to store h0 matrix',num
 # ifndef MOLPRO
   call abend()
 # endif
   !call abend()
 end if
 
-vector2(1:lenvec) = 0.d0
+vector2(1:lenvec) = Zero
 log_prod = 2
 call readint(1,vint_ci)
 ! act complete loop
@@ -205,11 +209,11 @@ call ploop_in_act()
 if (logic_mr) then ! rst
   allocate(buff(ndim_h0))
   buff(1:ndim_h0) = vector1(1:ndim_h0)
-  vector1(1:lenvec) = 0.d0
+  vector1(1:lenvec) = Zero
   mnh0 = ndim_h0*(ndim_h0+1)/2
   vector1(1:mnh0) = vector2(1:mnh0)
   mnrh0 = irf*(irf+1)/2
-  vector2(1:mnrh0) = 0.d0
+  vector2(1:mnrh0) = Zero
   do ir1=1,irf
     iconf1 = irfno(ir1)
     ii = ir1*(ir1+1)/2
@@ -233,10 +237,10 @@ else
 end if
 
 !do i=1,ndim_h0
-!  write(6,'(i4,1x,f12.6)') i,vector1(i)
+!  write(u6,'(i4,1x,f12.6)') i,vector1(i)
 !end do
 !call abend()
-write(6,'(a24,i5)') ' dimension of h0 space= ',ndim_h0
+write(u6,'(a24,i5)') ' dimension of h0 space= ',ndim_h0
 log_prod = 1
 
 !open(100,file='h0_new')
@@ -256,15 +260,17 @@ end subroutine formh0
 subroutine basis_2(ndim,vb1,nxb,vad,th,nxh)
 
 use gugaci_global, only: ifrno, indx, logic_mr, max_kspace, mjn, mroot
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: ndim, nxb, nxh
-real*8 :: vb1(max_kspace*ndim), vad(ndim), th(nxh)
-integer :: i, ib, ij, ijb1(mroot), ijh, j, l, m, m0, mief, mjnj
-real*8 :: fenmu, vadi
-real*8, parameter :: dzero = 0.0d0, dcrita = 1.0d-6, epc = 5.0d-3
+integer(kind=iwp) :: ndim, nxb, nxh
+real(kind=wp) :: vb1(max_kspace*ndim), vad(ndim), th(nxh)
+integer(kind=iwp) :: i, ib, ij, ijb1(mroot), ijh, j, l, m, m0, mief, mjnj
+real(kind=wp) :: fenmu, vadi
+real(kind=wp), parameter :: dcrita = 1.0e-6_wp, epc = 5.0e-3_wp
 
-vb1 = 0.d0
+vb1 = Zero
 
 do j=1,mroot
   ij = indx(j)
@@ -274,9 +280,9 @@ do j=1,mroot
     mief = ifrno(mjnj)
   end if
   do l=1,ndim
-    vb1(ij+l) = dzero
+    vb1(ij+l) = Zero
   end do
-  vb1(ij+mief) = 1.0d0
+  vb1(ij+mief) = One
 end do
 
 !=======================================================================
@@ -327,12 +333,13 @@ subroutine minevalue(iselcsf_occ)
 
 use gugaci_global, only: escf, irf, irfno, logic_mr, LuCiDia, max_innorb, max_orb, max_ref, mjn, mroot, nci_dim, nci_h0, norb_act, &
                          norb_all, norb_dz, nwalk, vector1, vector2
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: iselcsf_occ(max_innorb,max_ref)
-integer :: i, ij, io, iwalktmp(0:max_orb), j, jm, l, m, ndimh0
-real*8 :: am
-real*8, parameter :: dzero = 0.0d0
+integer(kind=iwp) :: iselcsf_occ(max_innorb,max_ref)
+integer(kind=iwp) :: i, ij, io, iwalktmp(0:max_orb), j, jm, l, m, ndimh0
+real(kind=wp) :: am
 
 call read_ml(lucidia,1,vector1,nci_dim,1)
 
@@ -344,13 +351,13 @@ if (.not. logic_mr) then
     l = 1
     am = vector2(l)
     do j=1,ndimh0
-      if ((vector2(j) /= dzero) .and. (vector2(j) < am)) then
+      if ((vector2(j) /= Zero) .and. (vector2(j) < am)) then
         l = j
         am = vector2(j)
       end if
     end do
     mjn(i) = l
-    vector2(l) = dzero
+    vector2(l) = Zero
   end do
 else
   do i=1,mroot
@@ -358,13 +365,13 @@ else
     am = vector2(l)
     do j=1,irf
       jm = irfno(j)
-      if ((vector2(jm) /= dzero) .and. (vector2(jm) < am)) then
+      if ((vector2(jm) /= Zero) .and. (vector2(jm) < am)) then
         l = jm
         am = vector2(jm)
       end if
     end do
     mjn(i) = l
-    vector2(l) = dzero
+    vector2(l) = Zero
   end do
 end if
 
@@ -372,7 +379,7 @@ do m=1,mroot
   escf(m) = vector1(mjn(m))
 end do
 
-write(6,*) '   mjn(k) :',mroot
+write(u6,*) '   mjn(k) :',mroot
 do m=1,mroot
   call found_a_config(mjn(m),escf(m),1)
   do i=1,norb_all
@@ -387,24 +394,27 @@ do m=1,mroot
       if (iwalktmp(ij) == 1) iselcsf_occ(io,m) = 1
       if (iwalktmp(ij) == 0) iselcsf_occ(io,m) = 0
     end do
-    !write(6,'(16(i1))') iwalktmp(norb_dz+1:norb_dz+norb_act)
+    !write(u6,'(16(i1))') iwalktmp(norb_dz+1:norb_dz+norb_act)
   end if
-  !write(6 ,'(2x,2i8,f18.8)') m,mjn(m),escf(m)
+  !write(u6 ,'(2x,2i8,f18.8)') m,mjn(m),escf(m)
   !write(nf2,'(2x,2i8,f18.8)') m,mjn(m),escf(m)
 end do
-write(6,*)
+write(u6,*)
 
 end subroutine minevalue
 
 !subroutine orthnor_ab(n,av,bv,id)  !bv:basis, av:vector for orth a
 !
+!use Constants, only: Zero
+!use Definitions, only: wp, iwp, r8
+!
 !implicit none
-!integer :: n, id
-!real*8 :: av(n), bv(n)
-!integer :: i
-!real*8 :: s
-!real*8, parameter :: dcrita = 1.0d-10
-!real*8, external :: ddot_
+!integer(kind=iwp) :: n, id
+!real(kind=wp) :: av(n), bv(n)
+!integer(kind=iwp) :: i
+!real(kind=wp) :: s
+!real(kind=wp), parameter :: dcrita = 1.0e-10_wp
+!real(kind=r8), external :: ddot_
 !
 !if (id == 0) then
 !  ! orthogonalization av,bv
@@ -414,7 +424,7 @@ end subroutine minevalue
 !  end do
 !end if
 !! normalization of av_eigenvector.
-!s = 0.0d0
+!s = Zero
 !s = ddot_(n,av,1,av,1)
 !s = sqrt(s)
 !s = max(s,dcrita)
@@ -428,14 +438,17 @@ end subroutine minevalue
 
 !function ddot_bak(n,dx,dy)
 !
-!implicit none
-!integer :: n
-!real*8 :: dx(n), dy(n)
-!integer :: l
-!real*8 :: ddot_bak
-!real*8 :: s
+!use Constants, only: Zero
+!use Definitions, only: wp, iwp
 !
-!s = 0.0d0
+!implicit none
+!integer(kind=iwp) :: n
+!real(kind=wp) :: dx(n), dy(n)
+!integer(kind=iwp) :: l
+!real(kind=wp) :: ddot_bak
+!real(kind=wp) :: s
+!
+!s = Zero
 !do l=1,n
 !  s = s+dx(l)*dy(l)
 !end do
@@ -448,32 +461,35 @@ end subroutine minevalue
 !subroutine matrmk_1(k)
 !
 !use gugaci_global, only: LuCiTv1, LuCiTv2, nci_dim, vector1, vector2, vp
+!use Constants, only: Zero
+!use Definitions, only: wp, iwp, u6
 !
 !implicit none
-!integer :: i, ibas, ij, il, jbas, l, k
-!real*8 :: vsumtmp
+!integer(kind=iwp) :: i, ibas, ij, il, jbas, l, k
+!real(kind=wp) :: vsumtmp
 !
 !do ibas=1,k
 !  call read_bv(lucitv1,ibas,vector1,nci_dim)
 !  ij = ibas*(ibas-1)/2
 !  do jbas=1,ibas
 !    call read_bv(lucitv2,jbas,vector2,nci_dim)
-!    vsumtmp = 0.d0
+!    vsumtmp = Zero
 !    do l=1,nci_dim
 !      vsumtmp = vsumtmp+vector1(l)*vector2(l)
 !    end do
 !    vp(ij+jbas) = vsumtmp
 !  end do
 !end do
-!write(6,*)
+!write(u6,*)
 !il = 0
 !do l=1,k
-!  write(6,1112) (vp(i),i=il+1,il+l)
+!  write(u6,1112) (vp(i),i=il+1,il+l)
 !  il = il+l
 !end do
-!write(6,*)
+!write(u6,*)
 !
 !return
+!
 !1112 format(2x,20f14.8)
 !
 !end subroutine matrmk_1

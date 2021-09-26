@@ -13,15 +13,14 @@
 subroutine dd_drt_ci_new()
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, imr, int_dd_drl, int_dd_offset, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, &
-                         linelp, lpblock_dd, w0gdd, w1gdd
+                         linelp, lpblock_dd, v_onevsqtwo, v_sqthreevsqtwo, w0gdd, w1gdd
+use Definitions, only: iwp
 
 implicit none
-integer :: jptyl, jptyr, lpb
-real*8, parameter :: vsq2 = 0.7071067811865950d0
+integer(kind=iwp) :: jptyl, jptyr, lpb
 
-w0gdd = vsq2
-!w1gdd = -sq3vsq2
-w1gdd = -sqrt(3.d0)/sqrt(2.d0)
+w0gdd = v_onevsqtwo
+w1gdd = -v_sqthreevsqtwo
 idisk_lp = idisk_array(3)
 
 do lpb=1,lpblock_dd
@@ -51,12 +50,14 @@ use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud
                          lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1, w0_dd, w0_dv, w0_sd, w0_ss, w0_td, w0_tt, w0_vv, w1_dd, w1_ss, w1_st, w1_tt
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lmki, lpok, lr0, lra, lri, lrj, lrk, mpl, ni, nk
-real*8 :: w0dd1, w0dd2, w0dd3, w0dv1, w0sd1, w0sd2, w0sd3, w0sd4, w0ss15, w0ss17, w0ss20, w0td1, w0tt2, w0tt3, w1dd1, w1dd2, &
-          w1ss15, w1ss17, w1tt2
-integer, external :: iwalk_ad
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lmki, lpok, lr0, lra, lri, lrj, lrk, mpl, ni, nk
+real(kind=wp) :: w0dd1, w0dd2, w0dd3, w0dv1, w0sd1, w0sd2, w0sd3, w0sd4, w0ss15, w0ss17, w0ss20, w0td1, w0tt2, w0tt3, w1dd1, &
+                 w1dd2, w1ss15, w1ss17, w1tt2
+integer(kind=iwp), external :: iwalk_ad
 
 LOGIC_DH = .true.
 JMLR = MUL_TAB(JML,JMR)
@@ -101,7 +102,7 @@ select case (LPOK)
           end do
           do MPL=1,MTYPE
             VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
-            VPLP_W1(MPL) = 0.d0
+            VPLP_W1(MPL) = Zero
           end do
           do LRK=1,NORB_DZ
             if (LRK == LR0) cycle
@@ -140,7 +141,7 @@ select case (LPOK)
           ! SS(1-20) Drl(33)-C"(22)-C"(11)-ACT -C"-
           do MPL=1,MTYPE
             VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
-            VPLP_W1(MPL) = 0.d0
+            VPLP_W1(MPL) = Zero
           end do
           do LRK=1,NORB_DZ
             if (LRK == LRI) cycle
@@ -214,13 +215,13 @@ select case (LPOK)
           LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
         end do
         do MPL=1,MTYPE
-          VPLP_W0(MPL) = 0.d0
+          VPLP_W0(MPL) = Zero
           VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(5)
         end do
         call Drl_DD_EXT(LRJ)
         ! ST(2-6) Drl(22)-C"(12)-       ACT -C"-
         do MPL=1,MTYPE
-          VPLP_W0(MPL) = 0.d0
+          VPLP_W0(MPL) = Zero
           VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(6)
         end do
         call Drl_DD_EXT(LRI)
@@ -402,7 +403,7 @@ select case (LPOK)
           call Drl_DD_EXT(LRJ)
           do MPL=1,MTYPE
             VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TT3
-            VPLP_W1(MPL) = 0.d0
+            VPLP_W1(MPL) = Zero
           end do
           do LRK=1,NORB_DZ
             if (LRK == LRI) cycle
@@ -523,7 +524,7 @@ select case (LPOK)
         call Drl_DD_EXT(LRI)
         do MPL=1,MTYPE
           VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD3
-          VPLP_W1(MPL) = 0.d0
+          VPLP_W1(MPL) = Zero
         end do
         ! DD(19-3) (22)Drl(33)-
         ! DD(19-3) Drl(33)-C"(22)-
@@ -637,7 +638,7 @@ select case (LPOK)
     IWDR = 0
     do MPL=1,MTYPE
       VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0_VV
-      VPLP_W1(MPL) = 0.d0
+      VPLP_W1(MPL) = Zero
     end do
     do MPL=1,MHLP
       IWAL = LPNEW_LWEI(MPL)
@@ -659,9 +660,10 @@ end subroutine dd_ext_head_in_dbl
 subroutine DD_ext_head_in_act()
 
 use gugaci_global, only: linelp, logic_dh, nlg1, nlg2
+use Definitions, only: iwp
 
 implicit none
-integer :: lrai, lraj
+integer(kind=iwp) :: lrai, lraj
 
 LOGIC_DH = .false.
 LRAI = NLG1
@@ -684,9 +686,10 @@ subroutine ss_drt_ci_new()
 use gugaci_global, only: idisk_array, idisk_lp, idownwei_g131415, iml, imr, ipae, ipael, iseg_downwei, jml, jmr, jpad, jpadl, &
                          jpadlr, linelp, lpblock_ss, nvalue_space_ss
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: imlr, jptyl, jptyr, lpb
+integer(kind=iwp) :: imlr, jptyl, jptyr, lpb
 
 call external_space_plpmode_value_ss()
 idisk_lp = idisk_array(13)
@@ -721,11 +724,13 @@ use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud
                          lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1, w0_dd, w0_dv, w0_ss, w0_tt, w0_vv, w1_dd, w1_ss, w1_st, w1_tt
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lpok, lr0, lra, lri, lrj, mpl, ni, nk
-real*8 :: w0dd1, w0dd2, w0dd3, w0dv1, w0ss15, w0ss17, w0ss20, w0tt2, w0tt3, w1dd1, w1dd2, w1ss15, w1ss17, w1tt2
-integer, external :: iwalk_ad
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lpok, lr0, lra, lri, lrj, mpl, ni, nk
+real(kind=wp) :: w0dd1, w0dd2, w0dd3, w0dv1, w0ss15, w0ss17, w0ss20, w0tt2, w0tt3, w1dd1, w1dd2, w1ss15, w1ss17, w1tt2
+integer(kind=iwp), external :: iwalk_ad
 
 LOGIC_DH = .true.
 JMLR = MUL_TAB(JML,JMR)
@@ -772,7 +777,7 @@ select case (LPOK)
           end do
           do MPL=1,MTYPE
             VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
-            VPLP_W1(MPL) = 0.d0
+            VPLP_W1(MPL) = Zero
           end do
           call Drl_SS_SUM(LR0,0)
         end do
@@ -808,7 +813,7 @@ select case (LPOK)
           ! SS(1-20) Drl(33)-C"(22)-C"(11)-ACT -C"-
           do MPL=1,MTYPE
             VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
-            VPLP_W1(MPL) = 0.d0
+            VPLP_W1(MPL) = Zero
           end do
           call Drl_SS_SUM(LRI,LRJ)
         end do
@@ -855,13 +860,13 @@ select case (LPOK)
           LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
         end do
         do MPL=1,MTYPE
-          VPLP_W0(MPL) = 0.d0
+          VPLP_W0(MPL) = Zero
           VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(5)
         end do
         call Drl_SS_EXT(LRJ)
         ! ST(2-6) Drl(22)-C"(12)-       ACT -C"-
         do MPL=1,MTYPE
-          VPLP_W0(MPL) = 0.d0
+          VPLP_W0(MPL) = Zero
           VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(6)
         end do
         call Drl_SS_EXT(LRI)
@@ -935,7 +940,7 @@ select case (LPOK)
           call Drl_SS_EXT(LRJ)
           do MPL=1,MTYPE
             VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TT3
-            VPLP_W1(MPL) = 0.d0
+            VPLP_W1(MPL) = Zero
           end do
           ! TT(11-3) Drl(33)-C"(22)-C"(22)-
           ! TT(11-3) (22)Drl(33)-C"(22)-
@@ -1005,7 +1010,7 @@ select case (LPOK)
         call Drl_SS_EXT(LRI)
         do MPL=1,MTYPE
           VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD3
-          VPLP_W1(MPL) = 0.d0
+          VPLP_W1(MPL) = Zero
         end do
         ! DD(19-3) (22)Drl(33)-
         ! DD(19-3) Drl(33)-C"(22)-
@@ -1109,7 +1114,7 @@ select case (LPOK)
     IWDR = 0
     do MPL=1,MTYPE
       VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0_VV
-      VPLP_W1(MPL) = 0.d0
+      VPLP_W1(MPL) = Zero
     end do
     do MPL=1,MHLP
       IWAL = LPNEW_LWEI(MPL)
@@ -1132,9 +1137,10 @@ end subroutine ss_ext_head_in_dbl
 subroutine ss_ext_head_in_act()
 
 use gugaci_global, only: linelp, logic_dh, nlg1, nlg2
+use Definitions, only: iwp
 
 implicit none
-integer :: lrai, lraj
+integer(kind=iwp) :: lrai, lraj
 
 LOGIC_DH = .false.
 LRAI = NLG1
@@ -1157,9 +1163,10 @@ subroutine st_drt_ci_new()
 use gugaci_global, only: idisk_array, idisk_lp, idownwei_g131415, iml, imr, ipae, ipael, iseg_downwei, jml, jmr, jpad, jpadl, &
                          jpadlr, linelp, lpblock_st, nvalue_space_ss
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: imlr, jptyl, jptyr, lpb
+integer(kind=iwp) :: imlr, jptyl, jptyr, lpb
 
 call external_space_plpmode_value_ST()
 idisk_lp = idisk_array(12)
@@ -1193,11 +1200,13 @@ use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud
                          lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1, w0_dd, w0_dv, w0_ss, w0_tt, w1_dd, w1_ss, w1_st, w1_tt
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lpok, lra, lri, lrj, lrk, mpl, ni, nk
-real*8 :: w0dd1, w0dd2, w0dv1, w0ss15, w0ss17, w0ss20, w0tt2, w1dd1, w1dd2, w1ss15, w1ss17, w1tt2
-integer, external :: iwalk_ad
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lpok, lra, lri, lrj, lrk, mpl, ni, nk
+real(kind=wp) :: w0dd1, w0dd2, w0dv1, w0ss15, w0ss17, w0ss20, w0tt2, w1dd1, w1dd2, w1ss15, w1ss17, w1tt2
+integer(kind=iwp), external :: iwalk_ad
 
 LOGIC_DH = .true.
 JMLR = MUL_TAB(JML,JMR)
@@ -1262,7 +1271,7 @@ select case (LPOK)
           ! SS(1-20) Drl(33)-C"(22)-C"(11)-ACT -C"-
           do MPL=1,MTYPE
             VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
-            VPLP_W1(MPL) = 0.d0
+            VPLP_W1(MPL) = Zero
           end do
           do LRK=1,NORB_DZ
             if (LRK == LRI) cycle
@@ -1327,13 +1336,13 @@ select case (LPOK)
           LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
         end do
         do MPL=1,MTYPE
-          VPLP_W0(MPL) = 0.d0
+          VPLP_W0(MPL) = Zero
           VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(5)
         end do
         call Drl_ST_EXT(LRJ)
         ! ST(2-6) Drl(22)-C"(12)-       ACT -C"-
         do MPL=1,MTYPE
-          VPLP_W0(MPL) = 0.d0
+          VPLP_W0(MPL) = Zero
           VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(6)
         end do
         call Drl_ST_EXT(LRI)
@@ -1587,9 +1596,10 @@ end subroutine st_ext_head_in_dbl
 subroutine ST_ext_head_in_act()
 
 use gugaci_global, only: linelp, logic_dh, nlg1, nlg2
+use Definitions, only: iwp
 
 implicit none
-integer :: lrai, lraj
+integer(kind=iwp) :: lrai, lraj
 
 LOGIC_DH = .false.
 LRAI = NLG1
@@ -1612,9 +1622,10 @@ subroutine ts_drt_ci_new()
 use gugaci_global, only: idisk_array, idisk_lp, idownwei_g131415, iml, imr, ipae, ipael, iseg_downwei, jml, jmr, jpad, jpadl, &
                          jpadlr, linelp, lpblock_ts, nvalue_space_ss
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: imlr, jptyl, jptyr, lpb
+integer(kind=iwp) :: imlr, jptyl, jptyr, lpb
 
 call external_space_plpmode_value_TS()
 idisk_lp = idisk_array(9)
@@ -1647,11 +1658,13 @@ use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud
                          lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1, w0_dd, w0_dv, w0_ss, w0_tt, w1_dd, w1_ss, w1_st, w1_tt
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lpok, lra, lri, lrj, lrk, mpl, ni, nk
-real*8 :: w0dd1, w0dd2, w0dv1, w0ss15, w0ss17, w0ss20, w0tt2, w1dd1, w1dd2, w1ss15, w1ss17, w1tt2
-integer, external :: iwalk_ad
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lpok, lra, lri, lrj, lrk, mpl, ni, nk
+real(kind=wp) :: w0dd1, w0dd2, w0dv1, w0ss15, w0ss17, w0ss20, w0tt2, w1dd1, w1dd2, w1ss15, w1ss17, w1tt2
+integer(kind=iwp), external :: iwalk_ad
 
 LOGIC_DH = .true.
 JMLR = MUL_TAB(JML,JMR)
@@ -1716,7 +1729,7 @@ select case (LPOK)
           ! SS(1-20) Drl(33)-C"(22)-C"(11)-ACT -C"-
           do MPL=1,MTYPE
             VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
-            VPLP_W1(MPL) = 0.d0
+            VPLP_W1(MPL) = Zero
           end do
           do LRK=1,NORB_DZ
             if (LRK == LRI) cycle
@@ -1780,13 +1793,13 @@ select case (LPOK)
           LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
         end do
         do MPL=1,MTYPE
-          VPLP_W0(MPL) = 0.d0
+          VPLP_W0(MPL) = Zero
           VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(5)
         end do
         call Drl_TS_EXT(LRJ)
         ! ST(2-6) Drl(22)-C"(12)-       ACT -C"-
         do MPL=1,MTYPE
-          VPLP_W0(MPL) = 0.d0
+          VPLP_W0(MPL) = Zero
           VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(6)
         end do
         call Drl_TS_EXT(LRI)
@@ -2040,9 +2053,10 @@ end subroutine ts_ext_head_in_dbl
 subroutine TS_ext_head_in_act()
 
 use gugaci_global, only: linelp, logic_dh, nlg1, nlg2
+use Definitions, only: iwp
 
 implicit none
-integer :: lrai, lraj
+integer(kind=iwp) :: lrai, lraj
 
 LOGIC_DH = .false.
 LRAI = NLG1
@@ -2065,9 +2079,10 @@ subroutine tt_drt_ci_new()
 use gugaci_global, only: idisk_array, idisk_lp, idownwei_g131415, iml, imr, ipae, ipael, iseg_downwei, jml, jmr, jpad, jpadl, &
                          jpadlr, linelp, lpblock_tt, nvalue_space_ss
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: imlr, jptyl, jptyr, lpb
+integer(kind=iwp) :: imlr, jptyl, jptyr, lpb
 
 call external_space_plpmode_value_tt()
 idisk_lp = idisk_array(8)
@@ -2102,11 +2117,13 @@ use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud
                          lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1, w0_dd, w0_dv, w0_ss, w0_tt, w0_vv, w1_dd, w1_ss, w1_st, w1_tt
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lpok, lr0, lra, lri, lrj, lrk, mpl, ni, nk
-real*8 :: w0dd1, w0dd2, w0dd3, w0dv1, w0ss15, w0ss17, w0ss20, w0tt2, w0tt3, w1dd1, w1dd2, w1ss15, w1ss17, w1tt2
-integer, external :: iwalk_ad
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lpok, lr0, lra, lri, lrj, lrk, mpl, ni, nk
+real(kind=wp) :: w0dd1, w0dd2, w0dd3, w0dv1, w0ss15, w0ss17, w0ss20, w0tt2, w0tt3, w1dd1, w1dd2, w1ss15, w1ss17, w1tt2
+integer(kind=iwp), external :: iwalk_ad
 
 LOGIC_DH = .true.
 JMLR = MUL_TAB(JML,JMR)
@@ -2153,7 +2170,7 @@ select case (LPOK)
           end do
           do MPL=1,MTYPE
             VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
-            VPLP_W1(MPL) = 0.d0
+            VPLP_W1(MPL) = Zero
           end do
           !do lrk=1,norb_dz
           !  if (lrk == lr0) cycle
@@ -2193,7 +2210,7 @@ select case (LPOK)
           ! SS(1-20) Drl(33)-C"(22)-C"(11)-ACT -C"-
           do MPL=1,MTYPE
             VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS20
-            VPLP_W1(MPL) = 0.d0
+            VPLP_W1(MPL) = Zero
           end do
           call Drl_TT_SUM(LRI,LRJ)
         end do
@@ -2254,13 +2271,13 @@ select case (LPOK)
           LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
         end do
         do MPL=1,MTYPE
-          VPLP_W0(MPL) = 0.d0
+          VPLP_W0(MPL) = Zero
           VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(5)
         end do
         call Drl_TT_EXT(LRJ)
         ! ST(2-6) Drl(22)-C"(12)-       ACT -C"-
         do MPL=1,MTYPE
-          VPLP_W0(MPL) = 0.d0
+          VPLP_W0(MPL) = Zero
           VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1_ST(6)
         end do
         call Drl_TT_EXT(LRI)
@@ -2355,7 +2372,7 @@ select case (LPOK)
           ! TT(11-3) (22)(22)Drl(33)-
           do MPL=1,MTYPE
             VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TT3
-            VPLP_W1(MPL) = 0.d0
+            VPLP_W1(MPL) = Zero
           end do
           !do lrk=1,norb_dz
           !  if (lrk == lri) cycle
@@ -2429,7 +2446,7 @@ select case (LPOK)
         ! DD(19-3) Drl(33)-C"(22)-
         do MPL=1,MTYPE
           VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0DD3
-          VPLP_W1(MPL) = 0.d0
+          VPLP_W1(MPL) = Zero
         end do
         call Drl_TT_SUM(LRI,0)
         !do lrk=1,norb_dz
@@ -2537,7 +2554,7 @@ select case (LPOK)
     IWDR = 0
     do MPL=1,MTYPE
       VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0_VV
-      VPLP_W1(MPL) = 0.d0
+      VPLP_W1(MPL) = Zero
     end do
     do MPL=1,MHLP
       IWAL = LPNEW_LWEI(MPL)
@@ -2560,9 +2577,10 @@ end subroutine tt_ext_head_in_dbl
 subroutine TT_ext_head_in_act()
 
 use gugaci_global, only: linelp, logic_dh, nlg1, nlg2
+use Definitions, only: iwp
 
 implicit none
-integer :: lrai, lraj
+integer(kind=iwp) :: lrai, lraj
 
 LOGIC_DH = .false.
 LRAI = NLG1
@@ -2586,10 +2604,11 @@ use gugaci_global, only: ism_g1415, ism_g2g4, logic_g13, logic_g1415, logic_g2g4
                          logic_g35a, logic_g35b, logic_g36a, logic_g36b, lpend34a, lpend34b, lpend35a, lpend35b, lpend36a, &
                          lpend36b, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, lpsta36b
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: ilnodesm, irnodesm, iltype, irtype
-integer :: iii, ilrsm
+integer(kind=iwp) :: ilnodesm, irnodesm, iltype, irtype
+integer(kind=iwp) :: iii, ilrsm
 
 ilrsm = mul_tab(ilnodesm,irnodesm)
 iii = 1      !index to determine lwei rwei iposint and nlinkorb

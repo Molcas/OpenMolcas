@@ -89,10 +89,11 @@ subroutine change_vplp_pointer_arrays()
 
 use gugaci_global, only: lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, &
                          lpnew_rwei, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
+use Definitions, only: wp, iwp
 
 implicit none
-integer, pointer :: iplptmp(:)
-real*8, pointer :: plptmp(:)
+integer(kind=iwp), pointer :: iplptmp(:)
+real(kind=wp), pointer :: plptmp(:)
 
 plptmp => vplp_w0
 vplp_w0 => vplpnew_w0
@@ -127,9 +128,10 @@ end subroutine change_vplp_pointer_arrays
 subroutine change_coe_pointer_arrays()
 
 use gugaci_global, only: lp_coe, lpnew_coe
+use Definitions, only: iwp
 
 implicit none
-integer, pointer :: icoetmp(:,:)
+integer(kind=iwp), pointer :: icoetmp(:,:)
 
 icoetmp => lp_coe
 lp_coe => lpnew_coe
@@ -140,9 +142,10 @@ end subroutine change_coe_pointer_arrays
 subroutine change_br_pointer_arrays()
 
 use gugaci_global, only: logic_br, logic_newbr
+use Definitions, only: iwp
 
 implicit none
-logical, pointer :: logic_brtmp(:)
+logical(kind=iwp), pointer :: logic_brtmp(:)
 
 logic_brtmp => logic_br
 logic_br => logic_newbr

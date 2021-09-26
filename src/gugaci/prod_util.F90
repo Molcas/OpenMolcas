@@ -14,10 +14,11 @@
 subroutine jl_ne_jr(mp,jl,jr,jwl,jwr,lopu)
 
 use gugaci_global, only: iy, iyl, jj_sub, jjl_sub, loputmp
+use Definitions, only: iwp
 
 implicit none
-integer :: mp, jl, jr, jwl, jwr, lopu(4,loputmp)
-integer :: i, idlr, jlp, jrp, jwlp, jwrp, lopi(4,loputmp), lopj(4,loputmp), lpi, lpj, ml, mr, nlp
+integer(kind=iwp) :: mp, jl, jr, jwl, jwr, lopu(4,loputmp)
+integer(kind=iwp) :: i, idlr, jlp, jrp, jwlp, jwrp, lopi(4,loputmp), lopj(4,loputmp), lpi, lpj, ml, mr, nlp
 
 !-----------------------------------------------------------------------
 ! on entry:
@@ -33,7 +34,7 @@ integer :: i, idlr, jlp, jrp, jwlp, jwrp, lopi(4,loputmp), lopj(4,loputmp), lpi,
 !-----------------------------------------------------------------------
 
 ! lopu(1,*)=jwl lopu(2,*)=jwr,lopu(3,*)=jl,lopu(4,*)=jr
-!write(6,*) 'in subroutine jl_ne_jr',jl,jr
+!write(u6,*) 'in subroutine jl_ne_jr',jl,jr
 mp = 0
 lpi = 1
 lopi(1,1) = jwl
@@ -53,7 +54,7 @@ do
     do idlr=1,4
       ml = jjl_sub(idlr,jlp)
       mr = jj_sub(idlr,jrp)
-      !write(6,*) 'ml,mr',ml,mr
+      !write(u6,*) 'ml,mr',ml,mr
       if ((ml == 0) .or. (mr == 0)) cycle
       jwlp = lopi(1,nlp)
       jwrp = lopi(2,nlp)
@@ -88,15 +89,16 @@ subroutine prodab_h0(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
 ! vector2
 
 use gugaci_global, only: ihy, ipae, ipael, iseg_downwei, iw_downwei, iy, jpad, jpad_upwei, jpadl, jphy, loputmp, vector2
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr
-real*8 :: wl
-integer :: ii, in_, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpe, jph, jpl, &
-           jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mntmp, mp, nn
-integer, external :: iwalk_ad
+integer(kind=iwp) :: idb, mg1, mg2, mg3, mg4, mg5, jpr
+real(kind=wp) :: wl
+integer(kind=iwp) :: ii, in_, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpe, &
+                     jph, jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mntmp, mp, nn
+integer(kind=iwp), external :: iwalk_ad
 
-!write(6,*) 'prodab_02 '
+!write(u6,*) 'prodab_02 '
 
 select case (idb)
   case default ! (1)
@@ -120,7 +122,7 @@ select case (idb)
         if (mm > nn) mntmp = mm*(mm-1)/2+nn
         if (nn > mm) mntmp = nn*(nn-1)/2+mm
         vector2(mntmp) = vector2(mntmp)+wl
-        !if (mntmp == 2) write(6,*) '  102',vector2(mntmp),wl
+        !if (mntmp == 2) write(u6,*) '  102',vector2(mntmp),wl
       end do
     end do
     !end do
@@ -162,7 +164,7 @@ select case (idb)
               end if
               vector2(mntmp) = vector2(mntmp)+wl
               if (mntmp == 7) then
-                write(6,*) '  202',vector2(mntmp),wl
+                write(u6,*) '  202',vector2(mntmp),wl
               end if
             end do
           end do
@@ -197,7 +199,7 @@ select case (idb)
             mntmp = nn*(nn-1)/2+mm
           end if
           vector2(mntmp) = vector2(mntmp)+wl
-          !if (mntmp == 2) write(6,*) '  302',vector2(mntmp),wl
+          !if (mntmp == 2) write(u6,*) '  302',vector2(mntmp),wl
         end do
       end do
     end do
@@ -214,15 +216,16 @@ subroutine prodab_h(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
 
 use gugaci_global, only: ihy, indx, ipae, ipael, iseg_downwei, iw_downwei, iy, jpad, jpad_upwei, jpadl, jphy, loputmp, mcroot, &
                          nu_ae, vector1, vector2
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr
-real*8 :: wl
-integer :: ii, in_, ipae_, ipaeend, irot, irtidx, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, &
-           iwr, iwupwei, jpe, jph, jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mp, nn
-integer, external :: iwalk_ad
+integer(kind=iwp) :: idb, mg1, mg2, mg3, mg4, mg5, jpr
+real(kind=wp) :: wl
+integer(kind=iwp) :: ii, in_, ipae_, ipaeend, irot, irtidx, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, &
+                     iwe, iwl, iwr, iwupwei, jpe, jph, jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mp, nn
+integer(kind=iwp), external :: iwalk_ad
 
-!write(6,*) 'prodab_02 ',mcroot,indx(1),iw_downwei(jpad,ipae)
+!write(u6,*) 'prodab_02 ',mcroot,indx(1),iw_downwei(jpad,ipae)
 select case (idb)
   case default ! (1)
     ! in dbl_space
@@ -246,8 +249,8 @@ select case (idb)
           do m=1,lwnu
             mm = mm+1
             nn = nn+1
-            !if ((mm > nci_dim) .or. (nn > nci_dim)) write(6,*) jpad,ipae,iw_downwei(jpad,ipae),iseg_downwei(ipae), &
-            !                                                   jpad_upwei(jpad),iw_sta(jpad,ipae),iwadl,iwadr
+            !if ((mm > nci_dim) .or. (nn > nci_dim)) write(u6,*) jpad,ipae,iw_downwei(jpad,ipae),iseg_downwei(ipae), &
+            !                                                    jpad_upwei(jpad),iw_sta(jpad,ipae),iwadl,iwadr
             vector2(mm) = vector2(mm)+vector1(nn)*wl
             vector2(nn) = vector2(nn)+vector1(mm)*wl
           end do
@@ -339,10 +342,11 @@ end subroutine prodab_h
 subroutine prodab(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
 
 use gugaci_global, only: log_prod
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr
-real*8 :: wl
+integer(kind=iwp) :: idb, mg1, mg2, mg3, mg4, mg5, jpr
+real(kind=wp) :: wl
 
 select case (log_prod)
   case (1)
@@ -364,16 +368,17 @@ subroutine prodab_h0_d(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
 
 use gugaci_global, only: ihy, indx, ipae, ipael, iw_downwei, iy, jpad, jpad_upwei, jpadl, jpae_downwei, jphy, loputmp, mcroot, &
                          vector1, vector2
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr
-real*8 :: wl
-integer :: ii, in_, irot, irtidx, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpaedownwei, &
-           jpe, jph, jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mp, nn
-integer, external :: iwalk_ad
+integer(kind=iwp) :: idb, mg1, mg2, mg3, mg4, mg5, jpr
+real(kind=wp) :: wl
+integer(kind=iwp) :: ii, in_, irot, irtidx, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, &
+                     jpaedownwei, jpe, jph, jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mp, nn
+integer(kind=iwp), external :: iwalk_ad
 
 ! log_prod=2:directly no_formh0
-!write(6,*) 'prodab_h0 '
+!write(u6,*) 'prodab_h0 '
 
 select case (idb)
   case default ! (1)
@@ -392,8 +397,8 @@ select case (idb)
         do m=1,lwnu
           mm = mm+1
           nn = nn+1
-          !if ((mm > nci_dim) .or. (nn > nci_dim)) write(6,*) jpad,ipae,iw_downwei(jpad,ipae),iseg_downwei(ipae), &
-          !                                                   jpad_upwei(jpad),iw_sta(jpad,ipae),iwadl,iwadr
+          !if ((mm > nci_dim) .or. (nn > nci_dim)) write(u6,*) jpad,ipae,iw_downwei(jpad,ipae),iseg_downwei(ipae), &
+          !                                                    jpad_upwei(jpad),iw_sta(jpad,ipae),iwadl,iwadr
           vector2(mm) = vector2(mm)+vector1(nn)*wl
           vector2(nn) = vector2(nn)+vector1(mm)*wl
         end do
@@ -495,16 +500,17 @@ end subroutine prodab_h0_d
 subroutine prodab_h0_t(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
 
 use gugaci_global, only: ihy, ipae, ipael, iw_downwei, iy, jpad, jpad_upwei, jpadl, jpae_downwei, jphy, loputmp, vector2
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: idb, mg1, mg2, mg3, mg4, mg5, jpr
-real*8 :: wl
-integer :: ii, in_, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpaedownwei, jpe, jph, jpl, &
-           jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mnh0, mp, nn
-integer, external :: iwalk_ad
+integer(kind=iwp) :: idb, mg1, mg2, mg3, mg4, mg5, jpr
+real(kind=wp) :: wl
+integer(kind=iwp) :: ii, in_, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpaedownwei, jpe, &
+                     jph, jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mnh0, mp, nn
+integer(kind=iwp), external :: iwalk_ad
 
 ! log_prod=1:traditional formh0
-!write(6,*) 'prodab_h0 '
+!write(u6,*) 'prodab_h0 '
 
 select case (idb)
   case default ! (1)

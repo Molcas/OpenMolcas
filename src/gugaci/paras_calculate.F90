@@ -14,35 +14,37 @@ subroutine paras_calculate()
 use gugaci_global, only: ibsm_ext, iesm_ext, iwt_orb_ext, iwt_sm_s_ext, jb_sys, jroute_sys, maxgdm, ng_sm, nlsm_dbl, nlsm_ext, spin
                          !, n_electron, norb_all, norb_dbl, norb_dz, norb_ext
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: iaend, iaorb, iasta, ibend, iborb, ibsta, icnttmp, ijsm, isma, ismb, isumtmp, iwt_sm_sab(maxgdm), iwttmp, ni, nij, nj
-!integer, parameter :: inlptb_new(156) = [ &
-!                                        ! 1  2  3  4  5  6  7  8  9  10  11  12 13
-!                                        ! a^r=1
-!                                         -1, 0, 0, 0, 0, 0,-7, 0,-9,-10,  0,-12, 0, &
-!                                        ! a^l=2
-!                                          0, 0, 0, 0, 0,-6, 0,-8, 0,  0,-11,  0, 0, &
-!                                        ! b_r=3
-!                                          4, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0, &
-!                                        ! b_l=4
-!                                          5, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0, &
-!                                        ! b^r=5
-!                                          0, 7, 8,10,11, 0, 0, 0, 0,  0,  0,  0, 0, &
-!                                        ! b^l=6
-!                                          0, 0, 9, 0,12, 0, 0, 0, 0,  0,  0,  0, 9, &
-!                                        ! c^'=7
-!                                          1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 3, &
-!                                        ! c^"=8
-!                                          1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,13, &
-!                                        ! d_l^r=9
-!                                          6, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0, &
-!                                        ! d^r^r=10
-!                                          0,-2, 0,-4, 0, 0, 0, 0, 0,  0,  0,  0, 0, &
-!                                        ! d^r^l=11
-!                                          0, 0,-3, 0,-5, 0, 0, 0, 0,  0,  0,  0, 0, &
-!                                        ! c^'" =12
-!                                          1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 0], &
+integer(kind=iwp) :: iaend, iaorb, iasta, ibend, iborb, ibsta, icnttmp, ijsm, isma, ismb, isumtmp, iwt_sm_sab(maxgdm), iwttmp, ni, &
+                     nij, nj
+!integer(kind=iwp), parameter :: inlptb_new(156) = [ &
+!                                                  ! 1  2  3  4  5  6  7  8  9  10  11  12 13
+!                                                  ! a^r=1
+!                                                   -1, 0, 0, 0, 0, 0,-7, 0,-9,-10,  0,-12, 0, &
+!                                                  ! a^l=2
+!                                                    0, 0, 0, 0, 0,-6, 0,-8, 0,  0,-11,  0, 0, &
+!                                                  ! b_r=3
+!                                                    4, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0, &
+!                                                  ! b_l=4
+!                                                    5, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0, &
+!                                                  ! b^r=5
+!                                                    0, 7, 8,10,11, 0, 0, 0, 0,  0,  0,  0, 0, &
+!                                                  ! b^l=6
+!                                                    0, 0, 9, 0,12, 0, 0, 0, 0,  0,  0,  0, 9, &
+!                                                  ! c^'=7
+!                                                    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 3, &
+!                                                  ! c^"=8
+!                                                    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,13, &
+!                                                  ! d_l^r=9
+!                                                    6, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0, &
+!                                                  ! d^r^r=10
+!                                                    0,-2, 0,-4, 0, 0, 0, 0, 0,  0,  0,  0, 0, &
+!                                                  ! d^r^l=11
+!                                                    0, 0,-3, 0,-5, 0, 0, 0, 0,  0,  0,  0, 0, &
+!                                                  ! c^'" =12
+!                                                    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 0], &
 !***********************************************************************
 !   ar      =1 (+a^r)     drr     =2 (+d^rr)   drl     =3 (+d^rl)
 !   arbr    =4 (+d^rr)    arbl    =5 (+d^rl)   ard_l^r =6 (+a^l)
@@ -65,11 +67,11 @@ integer :: iaend, iaorb, iasta, ibend, iborb, ibsta, icnttmp, ijsm, isma, ismb, 
 !                                           0,  0,  0,  0,  0,  9,  3, 13,  0,  0,  0,  0], &
 !                      indord_plptype(12) = [0,0,0,1,1,3,3,1,1,2,2,2]   !severe_new_error_1
 
-!ja_sys = int(n_electron*0.5d0-spin)-norb_dz
+!ja_sys = int(n_electron*Half-spin)-norb_dz
 jb_sys = int(spin+spin)
 !jc_sys = norb_all-ja_sys-jb_sys
 !jsm_sys = ns_sm
-!write(6,'(a9,3(1x,i3))') 'ja,jb,jc ',ja_sys,jb_sys,jc_sys
+!write(u6,'(a9,3(1x,i3))') 'ja,jb,jc ',ja_sys,jb_sys,jc_sys
 !if (jb_sys == jb_sys/2*2) then    ????? 11.2
 !  w0_drl2_44 = v_sqtwo
 !  w0_drl2_1122 = v_onevsqtwo
@@ -163,8 +165,8 @@ do ismb=1,ng_sm
     do iborb=ibsta,ibend
       do iaorb=iasta,min(iaend,iborb-1)
         iwttmp = iwttmp+1
-        !if ((iaorb <= 0) .or. (iaorb > max_extorb)) write(6,*)
-        !if ((iborb <= 0) .or. (iborb > max_extorb)) write(6,*)
+        !if ((iaorb <= 0) .or. (iaorb > max_extorb)) write(u6,*)
+        !if ((iborb <= 0) .or. (iborb > max_extorb)) write(u6,*)
         iwt_orb_ext(iaorb,iborb) = iwttmp
       end do
     end do

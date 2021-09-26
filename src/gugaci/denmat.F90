@@ -12,13 +12,14 @@
 subroutine cidenmat()
 
 use gugaci_global, only: dm1tmp, ican_a, ican_b, LuCiVec, mroot, nci_dim, norb_all, vector1, vector2
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: i, ncount1, ncount2, neigen
-real*8 :: sechc !, x1e(50000)
+integer(kind=iwp) :: i, ncount1, ncount2, neigen
+real(kind=wp) :: sechc !, x1e(50000)
 !character(len=256) :: filename
-!logical :: logic_mulroot
-real*8, parameter :: htoklm = 627.50956d0, zero = 0.0d0
+!logical(kind=iwp) :: logic_mulroot
 
 !=======================================================================
 ! the main subroutine for ci gradient calculations.
@@ -42,7 +43,7 @@ ncount2 = ican_b(ncount1)+ncount1
 !if (ndim <= max_vector) logic_mulroot = .true.
 
 neigen = mroot
-vector1(1:nci_dim) = zero
+vector1(1:nci_dim) = Zero
 
 ! calculated ci density matrix
 ! need debug here, density matrix is saved in vector2, it is too large t
@@ -51,12 +52,12 @@ vector1(1:nci_dim) = zero
 !if (logic_mulroot) then
 !  call read_ml(lucivec,1,vector1,neigen*nci_dim,1)
 !end if
-!write(6,*) 'density matrix',neigen,ncount2
+!write(u6,*) 'density matrix',neigen,ncount2
 ! should we calculated two-electronic density matrix ?
 do i=1,neigen
   call read_ml(lucivec,1,vector1,nci_dim,i)
-  vector2 = zero
-  dm1tmp = 0.d0
+  vector2 = Zero
+  dm1tmp = Zero
   call memcidiag_alloc()
   call diagonal_loop_wyb_g()
   call memcidiag_dealloc()
@@ -74,15 +75,17 @@ end subroutine cidenmat
 !use gugaci_global, only: denm1, denm2, FnOneMO, FnTwoMO, lenintegral, LuCiDen, LuOneMO, LuTwoMO, max_orb, max_root, ng_sm, &
 !                         nlsm_all, nlsm_bas, ntrabuf, ntratoc
 !use Symmetry_Info, only: mul_tab => Mul
+!use Constants, only: Zero, Two, Half
+!use Definitions, only: wp, iwp, u6
 !
 !implicit none
-!integer :: iroot
-!integer :: i, idisk, idisk0, idisk_array(max_root+1), idx, iout, itratoc(ntratoc), lenrd, li, lj, lk, ll, lri, lrj, nbpq, nbrs, &
-!           nc, nc1, nc2, nidx, nintb, nintone, nism, nmob, noidx(8), nop, noq, nor, norb(8), nos, nsmint, nsp, nspq, nspqr, nsq, &
-!           nsr, nss, nssm, ntj, ntk, numax, numin
-!real*8 :: buff(ntrabuf), cienergy, ecor, val, vnuc, xfock(max_orb*(max_orb+1)/2) !, x(1024*1024)
-!real*8, pointer :: x(:)
-!integer, external :: ipair
+!integer(kind=iwp) :: iroot
+!integer(kind=iwp) :: i, idisk, idisk0, idisk_array(max_root+1), idx, iout, itratoc(ntratoc), lenrd, li, lj, lk, ll, lri, lrj, &
+!                     nbpq, nbrs, nc, nc1, nc2, nidx, nintb, nintone, nism, nmob, noidx(8), nop, noq, nor, norb(8), nos, nsmint, &
+!                     nsp, nspq, nspqr, nsq, nsr, nss, nssm, ntj, ntk, numax, numin
+!real(kind=wp) :: buff(ntrabuf), cienergy, ecor, val, vnuc, xfock(max_orb*(max_orb+1)/2) !, x(1024*1024)
+!real(kind=wp), pointer :: x(:)
+!integer(kind=iwp), external :: ipair
 !
 !#ifndef MOLPRO
 !norb = nlsm_all
@@ -115,11 +118,11 @@ end subroutine cidenmat
 !call ddafile(luonemo,2,xfock,nintone,idisk)
 !!call ddatard(nft,xfock,nintone,idisk)
 !call daclos(luonemo)
-!! read one elctron kenetic intergrals
+!! read one electron kinetic integrals
 !!call ddatard(nft,x1e,nintone,idisk)
 !!call cclose_molcas(nft)
 !! write one electron fock matrix into voint
-!cienergy = 0.d0
+!cienergy = Zero
 !nidx = 0
 !nc = 0
 !do i=1,ng_sm
@@ -130,9 +133,9 @@ end subroutine cidenmat
 !    do lrj=1,lri
 !      nc = nc+1
 !      val = xfock(nc)*denm1(nc)
-!      if (lri /= lrj) val = 2.d0*val
+!      if (lri /= lrj) val = Two*val
 !      cienergy = cienergy+val
-!      write(6,'(1x,i3,1x,i3,2(1x,f18.9))') lri+idx,lrj+idx,xfock(nc),denm1(nc)
+!      write(u6,'(1x,i3,1x,i3,2(1x,f18.9))') lri+idx,lrj+idx,xfock(nc),denm1(nc)
 !    end do
 !  end do
 !  nidx = nidx+nsmint
@@ -145,13 +148,12 @@ end subroutine cidenmat
 !
 !call daname(lutwomo,fntwomo)
 !
-!denm2 = 0.d0
+!denm2 = Zero
 !idisk = 0
 !lenrd = ntratoc*lenintegral
-!write(6,*) lenrd
+!write(u6,*) lenrd
 !call idafile(lutwomo,2,itratoc,ntratoc,idisk)
-!write(6,2000)
-!2000 format(/7x,'symmetry',6x,' orbitals',8x,'integrals')
+!write(u6,2000)
 !do nsp=1,ng_sm
 !  nop = norb(nsp)
 !  do nsq=1,nsp
@@ -189,8 +191,7 @@ end subroutine cidenmat
 !        end if
 !
 !        if (nintb == 0) cycle
-!        !write(6,2100) nsp,nsq,nsr,nss,nop,noq,nor,nos,nintb
-!        !2100 format(7x,4i2,1x,4i4,2x,3x,i9)
+!        !write(u6,2100) nsp,nsq,nsr,nss,nop,noq,nor,nos,nintb
 !
 !        iout = 0
 !        call ddafile(lutwomo,2,buff,ntrabuf,idisk)
@@ -216,20 +217,20 @@ end subroutine cidenmat
 !                  iout = 1
 !                end if
 !                idx = idx+1
-!                val = 0.5d0*buff(iout)*denm2(idx)
-!                if (li /= lj) val = 2.d0*val
-!                if (lk /= ll) val = 2.d0*val
+!                val = Half*buff(iout)*denm2(idx)
+!                if (li /= lj) val = Two*val
+!                if (lk /= ll) val = Two*val
 !                nc1 = ipair(li,lj)
 !                nc2 = ipair(lk,ll)
-!                if (nc1 /= nc2) val = 2.d0*val
+!                if (nc1 /= nc2) val = Two*val
 !                cienergy = cienergy+val
-!                !write(6,'(5(1x,i4),2(1x,f18.9))') li,lj,lk,ll,iout,buff(iout),denm2(idx)
+!                !write(u6,'(5(1x,i4),2(1x,f18.9))') li,lj,lk,ll,iout,buff(iout),denm2(idx)
 !              end do
 !            end do
 !          end do
 !        end do
 !        if (idx /= nintb) then
-!          write(6,*) 'in ci_dentest,count error'
+!          write(u6,*) 'in ci_dentest,count error'
 !          call abend()
 !        end if
 !      end do
@@ -238,20 +239,24 @@ end subroutine cidenmat
 !end do
 !
 !call daclos(lutwomo)
-!write(6,'(a11,3(2x,f18.9))') 'ci energy=',cienergy,vnuc,cienergy+vnuc
-!
-!#endif
+!write(u6,'(a11,3(2x,f18.9))') 'ci energy=',cienergy,vnuc,cienergy+vnuc
 !
 !return
+!
+!2000 format(/7x,'symmetry',6x,' orbitals',8x,'integrals')
+!!2100 format(7x,4i2,1x,4i4,2x,3x,i9)
+!
+!#endif
 !
 !end subroutine ci_dentest
 
 subroutine init_canonical()
 
 use gugaci_global, only: ican_a, ican_b, max_orb
+use Definitions, only: iwp
 
 implicit none
-integer :: i, l1, l2
+integer(kind=iwp) :: i, l1, l2
 
 !=======================================================================
 ! calculate the canonical order for index transform
@@ -270,15 +275,16 @@ end subroutine init_canonical
 !subroutine density_scf_frz()
 !
 !use gugaci_global, only: cf, naorbs, norb_frz, p
+!use Constants, only: Zero
+!use Definitions, only: wp, iwp
 !
 !implicit none
-!integer :: i, j, k
-!real*8 :: val
-!real*8, parameter :: four = 4.0d0, one = 1.0d0, two = 2.0d0, zero = 0.0d0
+!integer(kind=iwp) :: i, j, k
+!real(kind=wp) :: val
 !
 !do i=1,naorbs
 !  do j=1,naorbs
-!    val = zero
+!    val = Zero
 !    do k=1,norb_frz
 !      val = val+cf(i,k)*cf(j,k)
 !    end do
@@ -291,12 +297,14 @@ end subroutine init_canonical
 
 subroutine matrix_vector_multi_parallel_drt_g(sechc)
 
-implicit none
-real*8 :: sechc
-real*8 :: sc1, sc2
-real*8, external :: c_time
+use Definitions, only: wp, u6
 
-write(6,*)
+implicit none
+real(kind=wp) :: sechc
+real(kind=wp) :: sc1, sc2
+real(kind=wp), external :: c_time
+
+write(u6,*)
 sc1 = c_time()
 call ext_space_loop_g()
 call inner_space_loop_g()
@@ -315,7 +323,7 @@ call st_drt_ci_new()
 call ss_drt_ci_new()
 sc2 = c_time()
 sechc = sc2-sc1
-!write(6,'(a42,2x,f10.2,2x,a1)') 'End of calculating density',' matrix, takes',sechc,'s'
+!write(u6,'(a42,2x,f10.2,2x,a1)') 'End of calculating density',' matrix, takes',sechc,'s'
 
 return
 
@@ -323,61 +331,63 @@ end subroutine matrix_vector_multi_parallel_drt_g
 
 !subroutine matrix_vector_multi_parallel_prt_g(sechc)
 !
-!implicit none
-!real*8 :: sechc
-!real*8 :: sc1, sc10, sc11, sc12, sc13, sc14, sc15, sc16, sc2, sc3, sc4, sc5, sc6, sc7, sc8, sc9
-!real*8, external :: c_time
+!use Definitions, only: wp, u6
 !
-!write(6,*)
+!implicit none
+!real(kind=wp) :: sechc
+!real(kind=wp) :: sc1, sc10, sc11, sc12, sc13, sc14, sc15, sc16, sc2, sc3, sc4, sc5, sc6, sc7, sc8, sc9
+!real(kind=wp), external :: c_time
+!
+!write(u6,*)
 !sc1 = c_time()
 !call ext_space_loop_g()
 !sc2 = c_time()
-!write(6,'(a16,2x,f10.2,2x,a1)') 'end of ext, takes',sc2-sc1,'s'
+!write(u6,'(a16,2x,f10.2,2x,a1)') 'end of ext, takes',sc2-sc1,'s'
 !call inner_space_loop_g()
 !sc3 = c_time()
-!write(6,'(a16,2x,f10.2,2x,a1)') 'end of inn, takes',sc3-sc2,'s'
+!write(u6,'(a16,2x,f10.2,2x,a1)') 'end of inn, takes',sc3-sc2,'s'
 !call vd_drt_ci_new()
 !sc4 = c_time()
-!write(6,'(a16,2x,f10.2,2x,a1)') 'end of vd , takes',sc4-sc3,'s'
+!write(u6,'(a16,2x,f10.2,2x,a1)') 'end of vd , takes',sc4-sc3,'s'
 !call dv_drt_ci_new()
 !sc5 = c_time()
-!write(6,'(a16,2x,f10.2,2x,a1)') 'end of dv , takes',sc5-sc4,'s'
+!write(u6,'(a16,2x,f10.2,2x,a1)') 'end of dv , takes',sc5-sc4,'s'
 !call dd_drt_ci_new()
 !sc6 = c_time()
-!write(6,'(a16,2x,f10.2,2x,a1)') 'end of dd , takes',sc6-sc5,'s'
+!write(u6,'(a16,2x,f10.2,2x,a1)') 'end of dd , takes',sc6-sc5,'s'
 !call dt_drt_ci_new()
 !sc7 = c_time()
-!write(6,'(a16,2x,f10.2,2x,a1)') 'end of dt , takes',sc7-sc6,'s'
+!write(u6,'(a16,2x,f10.2,2x,a1)') 'end of dt , takes',sc7-sc6,'s'
 !call ds_drt_ci_new()
 !sc8 = c_time()
-!write(6,'(a16,2x,f10.2,2x,a1)') 'end of ds , takes',sc8-sc7,'s'
+!write(u6,'(a16,2x,f10.2,2x,a1)') 'end of ds , takes',sc8-sc7,'s'
 !call tv_drt_ci_new()
 !sc9 = c_time()
-!write(6,'(a16,2x,f10.2,2x,a1)') 'end of tv , takes',sc9-sc8,'s'
+!write(u6,'(a16,2x,f10.2,2x,a1)') 'end of tv , takes',sc9-sc8,'s'
 !call td_drt_ci_new()
 !sc10 = c_time()
-!write(6,'(a16,2x,f10.2,2x,a1)') 'end of td , takes',sc10-sc9,'s'
+!write(u6,'(a16,2x,f10.2,2x,a1)') 'end of td , takes',sc10-sc9,'s'
 !call tt_drt_ci_new()
 !sc11 = c_time()
-!write(6,'(a16,2x,f10.2,2x,a1)') 'end of tt , takes',sc11-sc10,'s'
+!write(u6,'(a16,2x,f10.2,2x,a1)') 'end of tt , takes',sc11-sc10,'s'
 !call ts_drt_ci_new()
 !sc12 = c_time()
-!write(6,'(a16,2x,f10.2,2x,a1)') 'end of ts , takes',sc12-sc11,'s'
+!write(u6,'(a16,2x,f10.2,2x,a1)') 'end of ts , takes',sc12-sc11,'s'
 !call sv_drt_ci_new()
 !sc13 = c_time()
-!write(6,'(a16,2x,f10.2,2x,a1)') 'end of sv , takes',sc13-sc12,'s'
+!write(u6,'(a16,2x,f10.2,2x,a1)') 'end of sv , takes',sc13-sc12,'s'
 !call sd_drt_ci_new_den()
 !sc14 = c_time()
-!write(6,'(a16,2x,f10.2,2x,a1)') 'end of sd , takes',sc14-sc13,'s'
+!write(u6,'(a16,2x,f10.2,2x,a1)') 'end of sd , takes',sc14-sc13,'s'
 !call st_drt_ci_new()
 !sc15 = c_time()
-!write(6,'(a16,2x,f10.2,2x,a1)') 'end of st , takes',sc15-sc14,'s'
+!write(u6,'(a16,2x,f10.2,2x,a1)') 'end of st , takes',sc15-sc14,'s'
 !call ss_drt_ci_new()
 !sc16 = c_time()
-!write(6,'(a16,2x,f10.2,2x,a1)') 'end of ss , takes',sc16-sc15,'s'
+!write(u6,'(a16,2x,f10.2,2x,a1)') 'end of ss , takes',sc16-sc15,'s'
 !sc2 = c_time()
 !sechc = sc2-sc1
-!write(6,'(a16,2x,f10.2,2x,a1)') 'end of run, takes',sechc,'s'
+!write(u6,'(a16,2x,f10.2,2x,a1)') 'end of run, takes',sechc,'s'
 !
 !return
 !
@@ -387,23 +397,24 @@ subroutine ci_density_label_sm(iroot,ncount2)
 
 use gugaci_global, only: denm1, denm2, dm1tmp, LuCiDen, map_orb_order, max_root, maxgdm, ng_sm, nlsm_all, vector2
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero, Two, Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: iroot, ncount2
-integer :: i, ic, idisk, ii, ij, ijm, im, indx_m(maxgdm), idisk_array(max_root+1), j, jc, je, jj, jm, k, kk, kl, klm, km, l, lc, &
-           le, ll, lm, nc0, nc1
-real*8 :: val
-real*8, parameter :: half = 0.5d0, two = 2.0d0, zero = 0.0d0
-integer, external :: ipair
+integer(kind=iwp) :: iroot, ncount2
+integer(kind=iwp) :: i, ic, idisk, ii, ij, ijm, im, indx_m(maxgdm), idisk_array(max_root+1), j, jc, je, jj, jm, k, kk, kl, klm, &
+                     km, l, lc, le, ll, lm, nc0, nc1
+real(kind=wp) :: val
+integer(kind=iwp), external :: ipair
 
 !=======================================================================
 ! transfer the ci density matrices (dm1 and dm2)
 ! based on the gamess save rule.
-!vector1(1:ncount2) = zero
+!vector1(1:ncount2) = Zero
 !vector1(1:ncount2) = vector2(1:ncount2)
-!vector2(1:ncount2) = zero
+!vector2(1:ncount2) = Zero
 
-denm1 = 0.0d0
+denm1 = Zero
 nc0 = 1
 nc1 = 0
 do im=1,ng_sm
@@ -432,7 +443,7 @@ else
 end if
 call ddafile(luciden,1,denm1,nc0,idisk)
 
-denm2 = 0.d0
+denm2 = Zero
 ! label 2-elc den matrix
 ! cycle on symmetry
 do im=1,ng_sm
@@ -474,11 +485,11 @@ do im=1,ng_sm
                 ij = ipair(ii,jj)
                 nc1 = ipair(ij,kl)
 
-                val = vector2(nc1)*half
+                val = vector2(nc1)*Half
                 if ((ii /= jj) .and. (kk /= ll)) then
-                  val = val*half
+                  val = val*Half
                 else if ((ii == jj) .and. (kk == ll) .and. (ii == kk)) then
-                  val = val*two
+                  val = val*Two
                 end if
                 denm2(nc0) = val
               end do

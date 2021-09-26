@@ -28,11 +28,13 @@
 
 subroutine mole_inf()
 
-use gugaci_global, only: cm_cri, logic_calpro, logic_inivec_read, maxciiter, mroot, pror, vthrealp, vthreen, vthreresid !, logic_tdav
+use gugaci_global, only: cm_cri, logic_calpro, logic_inivec_read, maxciiter, mroot, pror, vthrealp, vthreen, vthreresid
+                         !, logic_tdav
+use Definitions, only: wp, iwp, u5, u6
 
 implicit none
-integer, parameter :: ncmd = 9
-integer :: icmd, istatus, jcmd, ntit
+integer(kind=iwp), parameter :: ncmd = 9
+integer(kind=iwp) :: icmd, istatus, jcmd, ntit
 character(len=4) :: command
 character(len=72) :: line
 #ifndef MOLPRO
@@ -41,11 +43,11 @@ character(len=72) :: line
 #ifdef _XIANEST_
 #define _END_ '$END'
 #endif
-logical :: skip
+logical(kind=iwp) :: skip
 character(len=4), parameter :: cmd(ncmd) = ['TITL','NRRO','MAXI','CPRO','PTHR','CONV','PROR','REST',_END_]
 
 #ifndef MOLPRO
-call rdnlst(5,'GUGACI')
+call rdnlst(u5,'GUGACI')
 #endif
 
 ! init some program control logic variables
@@ -53,12 +55,12 @@ call rdnlst(5,'GUGACI')
 !logic_tdav = .true.
 logic_inivec_read = .false.
 logic_calpro = .false.
-cm_cri = 0.05
-pror = 0.0001
+cm_cri = 0.05_wp
+pror = 1.0e-4_wp
 ! set the default convergence threshold
-vthreen = 1.d-8
-vthrealp = 1.d-6
-vthreresid = 1.d-8
+vthreen = 1.0e-8_wp
+vthrealp = 1.0e-6_wp
+vthreresid = 1.0e-8_wp
 mroot = 1
 maxciiter = 30
 ntit = 0
@@ -66,7 +68,7 @@ skip = .false.
 jcmd = 0
 do
   if (.not. skip) then
-    read(5,'(a)',iostat=istatus) line
+    read(u5,'(a)',iostat=istatus) line
     if (istatus < 0) call error(istatus)
     command = line(1:8)
     call upcase(command)
@@ -85,7 +87,7 @@ do
     case (1)
       !---  process title    command -----------------------------------
       do
-        read(5,'(a)',iostat=istatus) line
+        read(u5,'(a)',iostat=istatus) line
         if (istatus < 0) call error(istatus)
         command = line(1:8)
         call upcase(command)
@@ -104,7 +106,7 @@ do
     case (2)
       !---  process nrroot command -------------------------------------
       do
-        read(5,'(a)',iostat=istatus) line
+        read(u5,'(a)',iostat=istatus) line
         if (istatus < 0) call error(istatus)
         if (line(1:1) /= '*') exit
       end do
@@ -114,7 +116,7 @@ do
     case (3)
       !---  process Maxiterations command ------------------------------
       do
-        read(5,'(a)',iostat=istatus) line
+        read(u5,'(a)',iostat=istatus) line
         if (istatus < 0) call error(istatus)
         if (line(1:1) /= '*') exit
       end do
@@ -128,7 +130,7 @@ do
     case (5)
       !---  process Thresh print command -------------------------------
       do
-        read(5,'(a)',iostat=istatus) line
+        read(u5,'(a)',iostat=istatus) line
         if (istatus < 0) call error(istatus)
         if (line(1:1) /= '*') exit
       end do
@@ -138,7 +140,7 @@ do
     case (6)
       !---  process Convergence threshold command ----------------------
       do
-        read(5,'(a)',iostat=istatus) line
+        read(u5,'(a)',iostat=istatus) line
         if (istatus < 0) call error(istatus)
         if (line(1:1) /= '*') exit
       end do
@@ -148,7 +150,7 @@ do
     case (7)
       !---  process print orbital command ------------------------------
       do
-        read(5,'(a)',iostat=istatus) line
+        read(u5,'(a)',iostat=istatus) line
         if (istatus < 0) call error(istatus)
         if (line(1:1) /= '*') exit
       end do
@@ -163,8 +165,8 @@ do
       exit
 
     case default
-      write(6,*) 'input: illegal keyword'
-      write(6,'(a,a)') 'command=',command
+      write(u6,*) 'input: illegal keyword'
+      write(u6,'(a,a)') 'command=',command
 #     ifndef MOLPRO
       call abend()
 #     endif
@@ -180,14 +182,14 @@ contains
 
 subroutine error(code)
 
-  integer :: code
+  integer(kind=iwp) :: code
 
   if (code < 0) then
-    write(6,*) 'input: end of input file encountered'
+    write(u6,*) 'input: end of input file encountered'
   else
-    write(6,*) 'input: error while reading input!'
+    write(u6,*) 'input: error while reading input!'
   end if
-  write(6,'(a,a)') 'last command: ',command
+  write(u6,'(a,a)') 'last command: ',command
 # ifndef MOLPRO
   call abend()
 # endif
@@ -203,10 +205,12 @@ use gugaci_global, only: ibsm_ext, iesm_ext, int_dd_offset, iref_occ, logic_assi
                          norb_act, norb_all, norb_dbl, norb_dz, norb_ext, norb_frz, norb_inn, ns_sm, nstart_act, spin
                          !, logic_mrelcas
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Half
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: i, idisk, idum(1), idx, im, im_lr_sta, iml, imr, imrcas_case, iorb, ispin, itmp, j, l, lr, nact_sm, nlsm_act(maxgdm), &
-           nlsm_inn(maxgdm), lsmtmp(maxgdm), ngsm, ni, norb_all_tmp
+integer(kind=iwp) :: i, idisk, idum(1), idx, im, im_lr_sta, iml, imr, imrcas_case, iorb, ispin, itmp, j, l, lr, nact_sm, &
+                     nlsm_act(maxgdm), nlsm_inn(maxgdm), lsmtmp(maxgdm), ngsm, ni, norb_all_tmp
 
 !open(nf1,file='drt.inp')
 !read(nf1,*)
@@ -247,7 +251,7 @@ call idafile(ludrt,2,nlsm_act,8,idisk)
 call idafile(ludrt,2,nlsm_all,8,idisk)
 ! num. basis
 call idafile(ludrt,2,nlsm_bas,8,idisk)
-spin = (ispin-1)/2.d0
+spin = (ispin-1)*Half
 nlsm_frz(:) = 0
 
 norb_frz = 0
@@ -320,7 +324,7 @@ do ngsm=1,ng_sm
   norb_all_tmp = norb_all_tmp+nlsm_all(ngsm)
 end do
 if (norb_all_tmp /= norb_all) then
-  write(6,*) '  input num.of orbital err! check again!'
+  write(u6,*) '  input num.of orbital err! check again!'
 # ifndef MOLPRO
   call abend()
 # endif
@@ -388,17 +392,17 @@ end do
 #ifdef _DEBUG
 idebug = 1
 if (idebug == 1) then
-  write(6,1001)
-  write(6,1002) norb_all,norb_frz,norb_dz,norb_inn,norb_ext
-  write(6,1002) nlsm_all(1:ng_sm)
-  write(6,1002) nlsm_frz(1:ng_sm)
-  write(6,1002) nlsm_dbl(1:ng_sm)
-  write(6,1002) nlsm_inn(1:ng_sm)
-  write(6,1002) nlsm_ext(1:ng_sm)
-  write(6,*) 'lsm inn, imrcas_case',imrcas_case
-  write(6,1002) lsm_inn(1:norb_inn)
-  write(6,*) 'lsm all',norb_all
-  write(6,1002) (lsm(i),i=norb_all,1,-1)
+  write(u6,1001)
+  write(u6,1002) norb_all,norb_frz,norb_dz,norb_inn,norb_ext
+  write(u6,1002) nlsm_all(1:ng_sm)
+  write(u6,1002) nlsm_frz(1:ng_sm)
+  write(u6,1002) nlsm_dbl(1:ng_sm)
+  write(u6,1002) nlsm_inn(1:ng_sm)
+  write(u6,1002) nlsm_ext(1:ng_sm)
+  write(u6,*) 'lsm inn, imrcas_case',imrcas_case
+  write(u6,1002) lsm_inn(1:norb_inn)
+  write(u6,*) 'lsm all',norb_all
+  write(u6,1002) (lsm(i),i=norb_all,1,-1)
 end if
 1001 format(1x,'all frz dz inn ext')
 1002 format(8(1x,i3))

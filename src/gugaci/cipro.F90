@@ -13,21 +13,23 @@ subroutine cipro()
 
 use gugaci_global, only: denm1, LuCiDen, LuCiMO, max_orb, max_root, maxgdm, mroot, ng_sm, nlsm_all, nlsm_bas, pror
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, parameter :: maxmolcasorb = 5000, maxpro = 50
-integer :: i, icall, idisk, idummy(1), idx_idisk0(64), idx_idisk1(max_root+1), iend, im, iopt, ipc, ipcom(maxpro), iprop, irec, &
-           iroot, irtc, ista, isymlb, nc, nc0, nc1, nc2, nlsm_del(maxgdm), nmo, npro, nsiz
-real*8 :: occ(max_orb), pgauge(3,maxpro), pnuc(maxpro) !, denao(max_orb,max_orb)
+integer(kind=iwp), parameter :: maxmolcasorb = 5000, maxpro = 50
+integer(kind=iwp) :: i, icall, idisk, idummy(1), idx_idisk0(64), idx_idisk1(max_root+1), iend, im, iopt, ipc, ipcom(maxpro), &
+                     iprop, irec, iroot, irtc, ista, isymlb, nc, nc0, nc1, nc2, nlsm_del(maxgdm), nmo, npro, nsiz
+real(kind=wp) :: occ(max_orb), pgauge(3,maxpro), pnuc(maxpro) !, denao(max_orb,max_orb)
 character :: bsbl(2*4*maxmolcasorb)
 character(len=8) :: label, pname(maxpro), ptyp(maxpro)
-real*8, allocatable :: cmo(:), cno(:)
-real*8, pointer :: denao(:), omat(:), vprop(:,:,:)
+real(kind=wp), allocatable :: cmo(:), cno(:)
+real(kind=wp), pointer :: denao(:), omat(:), vprop(:,:,:)
 
 ! mrci nature orbital
 idisk = 0
 call idafile(lucimo,2,idx_idisk0,64,idisk)
-!write(6,*) 'read head'
+!write(u6,*) 'read head'
 idisk = idx_idisk0(2)
 nc = 2*4*maxmolcasorb
 call cdafile(lucimo,2,bsbl,nc,idisk)
@@ -62,9 +64,9 @@ do i=1,100
   if (npro >= maxpro) exit
 end do
 
-!write(6,'(10(1X,a8))') pname(1:npro)
-!write(6,*) ipcom(1:npro)
-!write(6,*) ptyp(1:npro)
+!write(u6,'(10(1X,a8))') pname(1:npro)
+!write(u6,*) ipcom(1:npro)
+!write(u6,*) ptyp(1:npro)
 
 allocate(omat(nc2))
 allocate(denao(nc0))
@@ -88,14 +90,14 @@ do iroot=1,mroot
   call natureorb(nlsm_bas,nlsm_all,nlsm_del,ng_sm,denm1,nc1,cmo,nc0,bsbl,nc,cno,occ,nmo,pror)
 
   ! mulliken population
-  call xflush(6)
-  write(6,'(a,i2)') ' mulliken charges for state nr ',iroot
+  call xflush(u6)
+  write(u6,'(a,i2)') ' mulliken charges for state nr ',iroot
   !call charge(nsym,nbas,name,cno,occ,smat,2,.true.,.true.)
   call charge(ng_sm,nlsm_bas,bsbl,cno,occ,omat,2,.true.,.false.)
-  write(6,*) ' ',('*',i=1,70)
-  call xflush(6)
+  write(u6,*) ' ',('*',i=1,70)
+  call xflush(u6)
   ! transform mo density matrix to ao basis
-  !write(6,'(10i8)') nc0,nmo,nlsm_bas
+  !write(u6,'(10i8)') nc0,nmo,nlsm_bas
   call transden(ng_sm,nlsm_bas,denao,cno,nc0,occ,nmo)
 
   ! calculated properties
@@ -109,23 +111,23 @@ call mma_deallocate(cno)
 ! this code copy from molcas
 if (npro > 0) then
   ! write expectation values:
-  write(6,*)
-  write(6,*) ' expectation values of various operators:'
-  write(6,*) '(note: electronic multipoles include a negative sign.)'
+  write(u6,*)
+  write(u6,*) ' expectation values of various operators:'
+  write(u6,*) '(note: electronic multipoles include a negative sign.)'
   do iprop=1,npro
     if (ptyp(iprop) == 'ANTI') cycle
     do ista=1,mroot,4
       iend = min(ista+3,mroot)
-      write(6,*)
-      write(6,'(1x,a,a8,a,i4)') '   property: ',pname(iprop),'   component:',ipcom(iprop)
-      write(6,'(1x,a,3f16.8)') '    gauge origin:',(pgauge(i,iprop),i=1,3)
-      write(6,'(1x,a,i8,3i16)') '            root:',(i,i=ista,iend)
-      write(6,'(1x,a,4f16.8)') '      electronic:',(vprop(i,i,iprop),i=ista,iend)
-      write(6,'(1x,a,4f16.8)') '         nuclear:',(pnuc(iprop),i=ista,iend)
-      write(6,'(1x,a,4f16.8)') '           total:',(pnuc(iprop)+vprop(i,i,iprop),i=ista,iend)
+      write(u6,*)
+      write(u6,'(1x,a,a8,a,i4)') '   property: ',pname(iprop),'   component:',ipcom(iprop)
+      write(u6,'(1x,a,3f16.8)') '    gauge origin:',(pgauge(i,iprop),i=1,3)
+      write(u6,'(1x,a,i8,3i16)') '            root:',(i,i=ista,iend)
+      write(u6,'(1x,a,4f16.8)') '      electronic:',(vprop(i,i,iprop),i=ista,iend)
+      write(u6,'(1x,a,4f16.8)') '         nuclear:',(pnuc(iprop),i=ista,iend)
+      write(u6,'(1x,a,4f16.8)') '           total:',(pnuc(iprop)+vprop(i,i,iprop),i=ista,iend)
     end do
   end do
-  write(6,*)
+  write(u6,*)
 end if
 
 iopt = 8
@@ -146,24 +148,24 @@ do i=1,100
   if (npro >= maxpro) exit
 end do
 
-!write(6,'(10(1x,a8))') pname(1:npro)
-!write(6,'(10i4)') ipcom(1:npro)
-!write(6,'(10(1x,a8))') ptyp(1:npro)
+!write(u6,'(10(1x,a8))') pname(1:npro)
+!write(u6,'(10i4)') ipcom(1:npro)
+!write(u6,'(10(1x,a8))') ptyp(1:npro)
 
 nsiz = 0
 call Molcas_BinaryOpen_Vanilla(110,'soint.dat')
 do i=1,npro
   if (pname(i)(1:4) /= 'AMFI') cycle
-  omat = 0.d0
+  omat = Zero
   call irdone(irtc,1,pname(i),ipcom(i),idummy,isymlb)
   if (irtc == 0) nsiz = idummy(1)
   call rdone(irtc,0,pname(i),ipcom(i),omat,isymlb)
   if (nsiz > nc2) then
-    write(6,*) 'in subroutine cipro, read so int error'
+    write(u6,*) 'in subroutine cipro, read so int error'
     call abend()
   end if
-  write(6,'(a8,1x,2i4)') 'nsiz=',i,nsiz
-  write(6,'(5(1x,f12.8))') omat(1:nsiz)
+  write(u6,'(a8,1x,2i4)') 'nsiz=',i,nsiz
+  write(u6,'(5(1x,f12.8))') omat(1:nsiz)
   write(110) nsiz
   write(110) omat(1:nsiz)
 end do
@@ -178,13 +180,16 @@ end subroutine cipro
 
 subroutine calprop(ngsm,nsbas,mroot,istate,jstate,nsi,npro,pname,ipcom,ptyp,aden,lmo,vprop,pgauge,pnuc,icall)
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
+
 implicit none
-integer :: ngsm, nsbas(ngsm), mroot, istate, jstate, nsi, npro, ipcom(npro), lmo, icall
+integer(kind=iwp) :: ngsm, nsbas(ngsm), mroot, istate, jstate, nsi, npro, ipcom(npro), lmo, icall
 character(len=8) :: pname(npro), ptyp(npro)
-real*8 :: aden(lmo), vprop(mroot,mroot,npro), pgauge(3,npro), pnuc(npro)
-integer :: i, idummy(1), im, irtc, isymlb, j, nc, nc0, nc1, nsiz
-real*8 :: amat(nsi), pint(nsi+4), sgn, smat(nsi), val
-real*8, external :: ddot_
+real(kind=wp) :: aden(lmo), vprop(mroot,mroot,npro), pgauge(3,npro), pnuc(npro)
+integer(kind=iwp) :: i, idummy(1), im, irtc, isymlb, j, nc, nc0, nc1, nsiz
+real(kind=wp) :: amat(nsi), pint(nsi+4), sgn, smat(nsi), val
+real(kind=r8), external :: ddot_
 
 ! we have two kind of density matrix, symm or anti-symm
 ! compress density matrix
@@ -203,7 +208,7 @@ do im=1,ngsm
     end do
     smat(nc1) = aden(nc0+(i-1)*nsbas(im)+i)
     !smat(nc1) = aden(nc+i,nc+i)
-    amat(nc1) = 0.d0
+    amat(nc1) = Zero
     nc1 = nc1+1
   end do
   nc = nc+nsbas(im)
@@ -222,7 +227,7 @@ do i=1,npro
   call irdone(irtc,1,pname(i),ipcom(i),idummy,isymlb)
   if (irtc == 0) nsiz = idummy(1)
   call rdone(irtc,0,pname(i),ipcom(i),pint,isymlb)
-  !write(6,*) 'nsiz',nsiz
+  !write(u6,*) 'nsiz',nsiz
   if (icall == 0) then
     pgauge(1,i) = pint(nsiz+1)
     pgauge(2,i) = pint(nsiz+2)
@@ -230,17 +235,17 @@ do i=1,npro
     pnuc(i) = pint(nsiz+4)
   end if
   if (isymlb /= 1) then
-    write(6,*) 'error calcualte property,need debug'
+    write(u6,*) 'error calcualte property,need debug'
     call abend()
   end if
-  !write(6,*) 'pop int'
-  !write(6,'(10(1x,f8.5))') pint(1:100)
-  !write(6,*) 'sden '
-  !write(6,'(10(1x,f8.5))') smat(1:100)
+  !write(u6,*) 'pop int'
+  !write(u6,'(10(1x,f8.5))') pint(1:100)
+  !write(u6,*) 'sden '
+  !write(u6,'(10(1x,f8.5))') smat(1:100)
 
   ! calculate and save property
-  sgn = 1.d0
-  if (pname(i)(1:5) == 'MLTPL') sgn = -1.d0
+  sgn = One
+  if (pname(i)(1:5) == 'MLTPL') sgn = -One
   if (ptyp(i)(1:4) == 'HERM') then
     val = sgn*ddot_(nsiz,smat,1,pint,1)
     vprop(istate,jstate,i) = val
@@ -250,7 +255,7 @@ do i=1,npro
     vprop(istate,jstate,i) = val
     vprop(jstate,istate,i) = -val
   end if
-  !write(6,*) nsiz,'val=',val
+  !write(u6,*) nsiz,'val=',val
 end do
 
 icall = 1
@@ -262,22 +267,25 @@ end subroutine calprop
 subroutine transden(ngsm,nsbas,denao,cno,lmo,occ,loc)
 ! calculate density matrix in ao basis
 
-implicit none
-integer :: ngsm, nsbas(ngsm), lmo, loc
-real*8 :: denao(lmo), cno(lmo), occ(loc)
-integer :: i, im, nc, nc0, nc1, ni
-real*8 :: val
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-denao = 0.d0
-!write(6,*) 'occ',nsbas(1:ngsm)
-!write(6,'(10(1x,f8.5))') occ
+implicit none
+integer(kind=iwp) :: ngsm, nsbas(ngsm), lmo, loc
+real(kind=wp) :: denao(lmo), cno(lmo), occ(loc)
+integer(kind=iwp) :: i, im, nc, nc0, nc1, ni
+real(kind=wp) :: val
+
+denao = Zero
+!write(u6,*) 'occ',nsbas(1:ngsm)
+!write(u6,'(10(1x,f8.5))') occ
 nc = 1
 nc0 = 0
 nc1 = 1
 do im=1,ngsm
   ni = nsbas(im)
   if (ni == 0) cycle
-  !write(6,*) nc,ni
+  !write(u6,*) nc,ni
   do i=1,ni
     val = occ(i+nc0)
     call dger(ni,ni,val,cno(nc1),1,cno(nc1),1,denao(nc),ni)

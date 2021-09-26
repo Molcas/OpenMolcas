@@ -14,12 +14,13 @@ subroutine complete_ext_loop()
 ! 26 feb 2007 - revised
 
 use gugaci_global, only: icano_nnend, icano_nnsta, indx, isegdownwei, isegsta, isegupwei, mcroot, value_lpext, vector1, vector2
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: ilpvalue, irot, irtidx, iupwei, lwei, mm, mm0, mmtmp, nn, nntmp
-real*8 :: vetmp, vlptmp, vlptmp1
+integer(kind=iwp) :: ilpvalue, irot, irtidx, iupwei, lwei, mm, mm0, mmtmp, nn, nntmp
+real(kind=wp) :: vetmp, vlptmp, vlptmp1
 
-!write(6,*) ' ext_test '
+!write(u6,*) ' ext_test '
 !return
 do irot=1,mcroot
   irtidx = indx(irot)
@@ -55,10 +56,11 @@ subroutine complete_ext_loop_g()
 
 use gugaci_global, only: dm1tmp, icano_nnend, icano_nnsta, index_lpext, index_lpext1, index_lpext2, isegdownwei, isegsta, &
                          isegupwei, value_lpext, value_lpext1, value_lpext2, vector1, vector2
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: ilpvalue, indexlp, indexlp1, indexlp2, iupwei, lwei, mm, mm0, mmtmp, nn, nntmp
-real*8 :: valuelp, valuelp1, valuelp2
+integer(kind=iwp) :: ilpvalue, indexlp, indexlp1, indexlp2, iupwei, lwei, mm, mm0, mmtmp, nn, nntmp
+real(kind=wp) :: valuelp, valuelp1, valuelp2
 
 lwei = isegsta
 do iupwei=1,isegupwei

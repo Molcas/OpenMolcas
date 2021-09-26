@@ -14,12 +14,13 @@ subroutine drl_bl_ext_ar_new(lin,lrk,lri)
 use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, jphy, jphyl, &
                          log_prod, logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_head, lpnew_lwei, lpnew_rwei, lsm_inn, mtype, &
                          ndim, nstaval, nvalue, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sdplp, w1_sdplp
+use Definitions, only: iwp
 
 implicit none
-integer :: lin, lrk, lri
-integer :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, isma, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
-           lphead
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin, lrk, lri
+integer(kind=iwp) :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, isma, iw0, iwal, iwal0, iwar, iwar0, iwd, &
+                     iwuplwei, lphead
+integer(kind=iwp), external :: iwalk_ad
 
 isma = lsm_inn(lri)
 iwuplwei = jpad_upwei(jpadl)
@@ -109,13 +110,14 @@ subroutine drl_br_ext_al_new(lin,lrk,lri)   !to be revised
 use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, jphy, jphyl, &
                          log_prod, logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_head, lpnew_lwei, lpnew_rwei, lsm_inn, mtype, &
                          ndim, nstaval, nvalue, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sdplp
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, lrk, lri
-integer :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, isma, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
-           lphead, nlp_value
-real*8, parameter :: crl = 1.0d-8
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin, lrk, lri
+integer(kind=iwp) :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, isma, iw0, iwal, iwal0, iwar, iwar0, iwd, &
+                     iwuplwei, lphead, nlp_value
+real(kind=wp), parameter :: crl = 1.0e-8_wp
+integer(kind=iwp), external :: iwalk_ad
 
 iwuplwei = jpad_upwei(jpad)
 ilsegdownwei = iseg_downwei(ipae)
@@ -205,14 +207,15 @@ subroutine ar_bl_br_ext_al_new(lin,intentry,isma,nk)
 use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, jphy, jphyl, &
                          log_prod, logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_head, lpnew_lwei, lpnew_rwei, mtype, ndim, &
                          nstaval, nvalue, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sdplp, w1_sdplp
+use Definitions, only: iwp
 
 implicit none
-integer :: lin, intentry, isma, nk
-integer :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, lphead, &
-           nlp_value
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin, intentry, isma, nk
+integer(kind=iwp) :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
+                     lphead, nlp_value
+integer(kind=iwp), external :: iwalk_ad
 
-!if ((lin == 14) .and. (intentry == 15195) .and. (isma == 1) .and. (jpad == 20) .and. (jpad == jpadl)) write(6,*) 'bbs_tmp'
+!if ((lin == 14) .and. (intentry == 15195) .and. (isma == 1) .and. (jpad == 20) .and. (jpad == jpadl)) write(u6,*) 'bbs_tmp'
 
 iwuplwei = jpad_upwei(jpad)
 ilsegdownwei = iseg_downwei(ipae)
@@ -302,14 +305,15 @@ subroutine ar_drl_ext_al_new(lin,lri,lrk)
 use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, jphy, jphyl, &
                          log_prod, logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_head, lpnew_lwei, lpnew_rwei, lsm_inn, mtype, &
                          ndim, nstaval, nvalue, value_lpext, value_lpext1, vplp_w0, vplpnew_w0, w0_sdplp
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, lri, lrk
-integer :: ihypos, ihyposl, ihyposr, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, isma, iw0, iwal, iwal0, iwar, iwar0, iwd, &
-           iwuplwei, lphead, nlp_value
-real*8 :: w0_sdold, w0multi
-real*8, parameter :: crl = 1.0d-8
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin, lri, lrk
+integer(kind=iwp) :: ihypos, ihyposl, ihyposr, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, isma, iw0, iwal, iwal0, iwar, iwar0, &
+                     iwd, iwuplwei, lphead, nlp_value
+real(kind=wp) :: w0_sdold, w0multi
+real(kind=wp), parameter :: crl = 1.0e-8_wp
+integer(kind=iwp), external :: iwalk_ad
 
 isma = lsm_inn(lri)
 iwuplwei = jpad_upwei(jpad)
@@ -424,13 +428,14 @@ subroutine drr_br_ext_ar(lin,lrk,lri)
 use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, jphy, jphyl, &
                          log_prod, logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_head, lpnew_lwei, lpnew_rwei, lsm_inn, mtype, &
                          ndim, nstaval, nvalue, vplp_w0, vplpnew_w0, w0_sdplp
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, lrk, lri
-integer :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, isma, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
-           lphead, nlp_value
-real*8, parameter :: crl = 1.0d-8
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin, lrk, lri
+integer(kind=iwp) :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, isma, iw0, iwal, iwal0, iwar, iwar0, iwd, &
+                     iwuplwei, lphead, nlp_value
+real(kind=wp), parameter :: crl = 1.0e-8_wp
+integer(kind=iwp), external :: iwalk_ad
 
 isma = lsm_inn(lri)
 iwuplwei = jpad_upwei(jpadl)
@@ -521,12 +526,13 @@ subroutine ar_br_br_ext_ar_new(lin,intentry,isma)
 use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, jphy, jphyl, &
                          log_prod, logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_head, lpnew_lwei, lpnew_rwei, mtype, ndim, &
                          nstaval, nvalue, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sdplp, w1_sdplp
+use Definitions, only: iwp
 
 implicit none
-integer :: lin, intentry, isma
-integer :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, lphead, &
-           nlp_value
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin, intentry, isma
+integer(kind=iwp) :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
+                     lphead, nlp_value
+integer(kind=iwp), external :: iwalk_ad
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
@@ -616,12 +622,13 @@ subroutine ar_bl_bl_ext_ar_new(lin,intentry,isma,nk)
 use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, jphy, jphyl, &
                          log_prod, logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_head, lpnew_lwei, lpnew_rwei, mtype, ndim, &
                          nstaval, nvalue, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sdplp, w1_sdplp
+use Definitions, only: iwp
 
 implicit none
-integer :: lin, intentry, isma, nk
-integer :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, lphead, &
-           nlp_value
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin, intentry, isma, nk
+integer(kind=iwp) :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
+                     lphead, nlp_value
+integer(kind=iwp), external :: iwalk_ad
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
@@ -710,12 +717,13 @@ subroutine drl_br_sum_al_new(lin,lrp,lrq,lri)   !to be revised
 
 use gugaci_global, only: ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, logic_grad, lp_lwei, lp_rwei, lsm_inn, mtype, &
                          norb_dz, nstaval, nvalue, value_lpext, value_lpext1, vplp_w0, w0_sdplp
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, lrp, lrq, lri
-integer :: iiext, ilpend, ilpsta, ilw, iplp, irw, isma, iw0, lrk, nlp_value
-real*8 :: w0_sdold, w0multi
-real*8, parameter :: crl = 1.0d-8
+integer(kind=iwp) :: lin, lrp, lrq, lri
+integer(kind=iwp) :: iiext, ilpend, ilpsta, ilw, iplp, irw, isma, iw0, lrk, nlp_value
+real(kind=wp) :: w0_sdold, w0multi
+real(kind=wp), parameter :: crl = 1.0e-8_wp
 
 if (logic_grad) then
   do lrk=1,norb_dz
@@ -787,12 +795,13 @@ subroutine drl_bl_sum_ar_new(lin,lrp,lrq,lri)
 
 use gugaci_global, only: ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, logic_grad, lp_lwei, lp_rwei, lsm_inn, mtype, &
                          norb_dz, nstaval, nvalue, value_lpext, value_lpext1, vplp_w0, w0_sdplp
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, lrp, lrq, lri
-integer :: iiext, ilpend, ilpsta, ilw, iplp, irw, isma, iw0, lrk, nlp_value
-real*8 :: w0_sdold, w0multi
-real*8, parameter :: crl = 1.0d-8
+integer(kind=iwp) :: lin, lrp, lrq, lri
+integer(kind=iwp) :: iiext, ilpend, ilpsta, ilw, iplp, irw, isma, iw0, lrk, nlp_value
+real(kind=wp) :: w0_sdold, w0multi
+real(kind=wp), parameter :: crl = 1.0e-8_wp
 
 if (logic_grad) then
   do lrk=1,norb_dz
@@ -868,13 +877,16 @@ use gugaci_global, only: ihy, ihyl, ilsegdownwei, iml, imr, ipae, ipael, irsegdo
                          lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, mtype, ndim, nstaval, nvalue, value_lpext, value_lpext1, &
                          vplp_w0, vplpnew_w0, w0_plp, w1_plp
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, lrj, nk
-integer :: ihypos, iiext, ilpend, ilpsta, ilw, imlr, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value
-real*8 :: w0_old, w0multi
-real*8, parameter :: crl = 1.0d-8
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lri, lrj, nk
+integer(kind=iwp) :: ihypos, iiext, ilpend, ilpsta, ilw, imlr, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
+                     nlp_value
+real(kind=wp) :: w0_old, w0multi
+real(kind=wp), parameter :: crl = 1.0e-8_wp
+integer(kind=iwp), external :: iwalk_ad
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
@@ -890,7 +902,7 @@ if (imlr == 1) then
 end if
 
 w0_plp = vplpnew_w0(1)
-w1_plp = 0.d0
+w1_plp = Zero
 if (logic_dh) w0_plp = vplp_w0(1)
 
 if (logic_grad) then
@@ -983,18 +995,20 @@ subroutine ar_bl_ext_st(lri,lrj,nk)     !w0=0
 use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, jphy, &
                          logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, mtype, ndim, nstaval, nvalue, &
                          value_lpext, value_lpext1, vplp_w1, vplpnew_w1, w0_plp, w1_plp
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, lrj, nk
-integer :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value
-real*8 :: w0multi, w1_old
-real*8, parameter :: crl = 1.0d-8
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lri, lrj, nk
+integer(kind=iwp) :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value
+real(kind=wp) :: w0multi, w1_old
+real(kind=wp), parameter :: crl = 1.0e-8_wp
+integer(kind=iwp), external :: iwalk_ad
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
 irsegdownwei = iseg_downwei(ipae)
-w0_plp = 0.d0
+w0_plp = Zero
 w1_plp = vplpnew_w1(1)
 if (logic_dh) w1_plp = vplp_w1(1)
 
@@ -1088,18 +1102,20 @@ subroutine ar_bl_ext_ts(lri,lrj,nk)
 use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, jphy, &
                          logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, mtype, ndim, nstaval, nvalue, &
                          value_lpext, value_lpext1, vplp_w1, vplpnew_w1, w0_plp, w1_plp
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, lrj, nk
-integer :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value
-real*8 :: w0multi, w1_old
-real*8, parameter :: crl = 1.0d-8
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lri, lrj, nk
+integer(kind=iwp) :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value
+real(kind=wp) :: w0multi, w1_old
+real(kind=wp), parameter :: crl = 1.0e-8_wp
+integer(kind=iwp), external :: iwalk_ad
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
 irsegdownwei = iseg_downwei(ipae)
-w0_plp = 0.d0
+w0_plp = Zero
 w1_plp = vplpnew_w1(1)
 if (logic_dh) w1_plp = vplp_w1(1)
 
@@ -1195,11 +1211,12 @@ use gugaci_global, only: ihy, ihyl, ilsegdownwei, iml, imr, ipae, ipael, irsegdo
                          lpnew_lwei, lpnew_rwei, mtype, ndim, nstaval, nvalue, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_plp, &
                          w1_plp
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: lri, lrj, nk
-integer :: ihypos, ilpend, ilpsta, ilw, imlr, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lri, lrj, nk
+integer(kind=iwp) :: ihypos, ilpend, ilpsta, ilw, imlr, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value
+integer(kind=iwp), external :: iwalk_ad
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)

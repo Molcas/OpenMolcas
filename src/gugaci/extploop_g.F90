@@ -41,11 +41,13 @@ subroutine lp_drl_ext_SS_calcuvalue_G(lri,nlp_value)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, logic_g2g4a, ng_sm, norb_number, value_lpext, &
                          value_lpext1, w0_plp, w0g2a, w0g36a, w1_plp, w1g2a, w1g36a
+use Constants, only: Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, nlp_value
-integer :: ibend, ibsta, ira, irb, ivalue, lmb, lra, lrb, nxo
-real*8 :: w0lp, w1lp
+integer(kind=iwp) :: lri, nlp_value
+integer(kind=iwp) :: ibend, ibsta, ira, irb, ivalue, lmb, lra, lrb, nxo
+real(kind=wp) :: w0lp, w1lp
 
 ivalue = 0
 
@@ -66,7 +68,7 @@ if (logic_g2g4a) then
         ! Drl -- B^lA^r =4_3
         call TRANS_IJKL_INTPOS(lra,lrb,lri,lri,NXO)
         index_lpext(ivalue) = NXO
-        value_lpext(ivalue) = -2.0d0*w0lp
+        value_lpext(ivalue) = -Two*w0lp
 
         call TRANS_IJKL_INTPOS(lra,lri,lrb,lri,NXO)
         index_lpext1(ivalue) = NXO
@@ -91,7 +93,7 @@ do lmb=1,ng_sm
 
       call TRANS_IJKL_INTPOS(lra,lrb,lri,lri,NXO)
       index_lpext(ivalue) = NXO
-      value_lpext(ivalue) = -2.0d0*w0lp
+      value_lpext(ivalue) = -Two*w0lp
 
       call TRANS_IJKL_INTPOS(lra,lri,lrb,lri,NXO)
       index_lpext1(ivalue) = NXO
@@ -109,11 +111,13 @@ subroutine lp_drl_ext_ST_calcuvalue_G(lri,nlp_value)
 use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, ism_g1415, logic_g1415, logic_g2g4b, ng_sm, norb_number, &
                          value_lpext, value_lpext1, w1_plp, w1g14a, w1g36a, w1g4b
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, nlp_value
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ira, irb, isma, ismb, ivalue, lmb, lra, lrb, nxo
-real*8 :: w1lp
+integer(kind=iwp) :: lri, nlp_value
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ira, irb, isma, ismb, ivalue, lmb, lra, lrb, nxo
+real(kind=wp) :: w1lp
 
 ivalue = 0
 ! G1415
@@ -124,7 +128,7 @@ if (logic_g1415) then
   ! THE W1LP SHOULD BE MULTIPLED BY TWO,BECAUSE WE JUST USE HALF OF THEM
   ! IS H*C CALCULATIONS, ???
 
-  w1lp = w1lp*2.0D+00
+  w1lp = w1lp*Two
 
   do ismb=1,ng_sm
     isma = mul_tab(ismb,ism_g1415)
@@ -203,11 +207,13 @@ subroutine lp_drl_ext_TT_calcuvalue_G(lri,n1415_value,nlp_value)
 use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, ism_g1415, logic_g1415, ng_sm, norb_number, value_lpext, &
                          value_lpext1, w0_plp, w0g14a, w0g15a, w0g36a, w1_plp, w1g14a, w1g15a, w1g36a
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, n1415_value, nlp_value
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ira, irb, isma, ismb, ivalue, lmb, lra, lrb, nxo
-real*8 :: w014, w015, w0lp, w114, w115, w14lp, w15lp, w1lp
+integer(kind=iwp) :: lri, n1415_value, nlp_value
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ira, irb, isma, ismb, ivalue, lmb, lra, lrb, nxo
+real(kind=wp) :: w014, w015, w0lp, w114, w115, w14lp, w15lp, w1lp
 
 ivalue = 0
 ! G1415
@@ -224,8 +230,8 @@ if (logic_g1415) then
   ! THE W1LP SHOULD BE MULTIPLED BY TWO,BECAUSE WE JUST USE HALF OF THEM
   ! IS H*C CALCULATIONS, ???
 
-  w14lp = w14lp*2.0D+00
-  w15lp = w15lp*2.0D+00
+  w14lp = w14lp*Two
+  w15lp = w15lp*Two
 
   do ismb=1,ng_sm
     isma = mul_tab(ismb,ism_g1415)
@@ -267,7 +273,7 @@ do lmb=1,ng_sm
 
       call TRANS_IJKL_INTPOS(lra,lrb,lri,lri,NXO)
       index_lpext(ivalue) = NXO
-      value_lpext(ivalue) = -2.0d0*w0lp
+      value_lpext(ivalue) = -Two*w0lp
 
       call TRANS_IJKL_INTPOS(lra,lri,lrb,lri,NXO)
       index_lpext1(ivalue) = NXO
@@ -285,11 +291,13 @@ subroutine lp_drl_SUM_TT_calcuvalue_G(lri,n1415_value,nlp_value)
 use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, ism_g1415, logic_g1415, ng_sm, norb_number, value_lpext, &
                          value_lpext1, w0_plp, w0g14a, w0g15a, w0g36a, w1_plp, w1g14a, w1g15a
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, n1415_value, nlp_value
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ira, irb, isma, ismb, ivalue, lmb, lra, lrb, nxo
-real*8 :: w014, w015, w0lp, w114, w115, w14lp, w15lp
+integer(kind=iwp) :: lri, n1415_value, nlp_value
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ira, irb, isma, ismb, ivalue, lmb, lra, lrb, nxo
+real(kind=wp) :: w014, w015, w0lp, w114, w115, w14lp, w15lp
 
 ivalue = 0
 ! G1415
@@ -306,8 +314,8 @@ if (logic_g1415) then
   ! THE W1LP SHOULD BE MULTIPLED BY TWO,BECAUSE WE JUST USE HALF OF THEM
   ! IS H*C CALCULATIONS, ???
 
-  w14lp = w14lp*2.0D+00
-  w15lp = w15lp*2.0D+00
+  w14lp = w14lp*Two
+  w15lp = w15lp*Two
   do ismb=1,ng_sm
     isma = mul_tab(ismb,ism_g1415)
     if (isma > ismb) cycle
@@ -346,7 +354,7 @@ do lmb=1,ng_sm
       ivalue = ivalue+1
       call TRANS_IJKL_INTPOS(lra,lrb,lri,lri,NXO)
       index_lpext(ivalue) = NXO
-      value_lpext(ivalue) = -2.0d0*w0lp
+      value_lpext(ivalue) = -Two*w0lp
       call TRANS_IJKL_INTPOS(lra,lri,lrb,lri,NXO)
       index_lpext1(ivalue) = NXO
       value_lpext1(ivalue) = w0lp
@@ -362,11 +370,13 @@ subroutine lp_drl_ext_TS_calcuvalue_G(lri,nlp_value)
 use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, ism_g1415, logic_g1415, logic_g2g4a, ng_sm, norb_number, &
                          value_lpext, value_lpext1, w1_plp, w1g14a, w1g2a, w1g36a
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, nlp_value
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ira, irb, isma, ismb, ivalue, lmb, lra, lrb, nxo
-real*8 :: w1lp
+integer(kind=iwp) :: lri, nlp_value
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ira, irb, isma, ismb, ivalue, lmb, lra, lrb, nxo
+real(kind=wp) :: w1lp
 
 ivalue = 0
 ! G1415
@@ -377,7 +387,7 @@ if (logic_g1415) then
   ! THE W1LP SHOULD BE MULTIPLED BY TWO,BECAUSE WE JUST USE HALF OF THEM
   ! IS H*C CALCULATIONS, ???
 
-  w1lp = w1lp*2.0D+00
+  w1lp = w1lp*Two
   do ismb=1,ng_sm
     isma = mul_tab(ismb,ism_g1415)
     if (isma > ismb) cycle
@@ -409,10 +419,10 @@ if (logic_g2g4a) then
 
   !valuelptmp1 = w0lp
   !w0lp = w0lp-w1lp
-  !w1lp = -valuelptmp1*2.d0
+  !w1lp = -valuelptmp1*Two
   !valuelptmp1 = ww0lp
   !ww0lp = ww0lp-ww1lp
-  !ww1lp = -valuelptmp1*2.d0
+  !ww1lp = -valuelptmp1*Two
 
   do lmb=1,ng_sm
     ibsta = ibsm_ext(lmb)
@@ -462,11 +472,13 @@ use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, ism_g141
                          w0g15a, w0g2a, w0g2b, w0g36a, w0g36b, w0g4a, w0g4b, w1_plp, w1g14a, w1g15a, w1g2a, w1g2b, w1g36a, w1g36b, &
                          w1g4a, w1g4b
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, lrj, nlp_value
-integer :: ia, iaend, iasta, ib, ibend, ibsta, isma, ismb, ivalue, lra, lrb, lsma, lsmb, lsmi, lsmij, lsmj, nxo
-real*8 :: valuelptmp1, w0lp, w1lp, ww0lp, ww1lp
+integer(kind=iwp) :: lri, lrj, nlp_value
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, isma, ismb, ivalue, lra, lrb, lsma, lsmb, lsmi, lsmij, lsmj, nxo
+real(kind=wp) :: valuelptmp1, w0lp, w1lp, ww0lp, ww1lp
 
 ivalue = 0
 ! G1415
@@ -479,10 +491,10 @@ if (logic_g1415) then
 
   valuelptmp1 = w0lp
   w0lp = w0lp-w1lp
-  w1lp = -valuelptmp1*2.d0
+  w1lp = -valuelptmp1*Two
   valuelptmp1 = ww0lp
   ww0lp = ww0lp-ww1lp
-  ww1lp = -valuelptmp1*2.d0
+  ww1lp = -valuelptmp1*Two
 
   do ismb=1,ng_sm
     isma = mul_tab(ismb,ism_g1415)
@@ -528,7 +540,7 @@ if (logic_g13) then
     value_lpext(ivalue) = w0lp
     call TRANS_IJKL_INTPOS(LRJ,LRI,lra,lra,NXO)
     index_lpext1(ivalue) = NXO
-    value_lpext1(ivalue) = -w0lp*2.d0
+    value_lpext1(ivalue) = -w0lp*Two
 
     ivalue = ivalue+1
     index_lpext(ivalue) = 0
@@ -551,10 +563,10 @@ if (logic_g2g4a) then
 
   valuelptmp1 = w0lp
   w0lp = w0lp-w1lp
-  w1lp = -valuelptmp1*2.d0
+  w1lp = -valuelptmp1*Two
   valuelptmp1 = ww0lp
   ww0lp = ww0lp-ww1lp
-  ww1lp = -valuelptmp1*2.d0
+  ww1lp = -valuelptmp1*Two
 
   do lsmb=1,ng_sm
     lsma = mul_tab(lsmij,lsmb)
@@ -599,10 +611,10 @@ else
 
     valuelptmp1 = w0lp
     w0lp = w0lp-w1lp
-    w1lp = -valuelptmp1*2.d0
+    w1lp = -valuelptmp1*Two
     valuelptmp1 = ww0lp
     ww0lp = ww0lp-ww1lp
-    ww1lp = -valuelptmp1*2.d0
+    ww1lp = -valuelptmp1*Two
 
     do lsmb=1,ng_sm
       lsma = mul_tab(lsmij,lsmb)
@@ -645,7 +657,7 @@ w0lp = w0_plp*w0g36a
 w1lp = w1_plp*w1g36a
 valuelptmp1 = w0lp
 w0lp = w0lp-w1lp
-w1lp = -valuelptmp1*2.d0
+w1lp = -valuelptmp1*Two
 do lsmb=1,ng_sm
   lsma = mul_tab(lsmij,lsmb)
   if (lsma > lsmb) cycle
@@ -675,7 +687,7 @@ w0lp = w0_plp*w0g36b
 w1lp = w1_plp*w1g36b
 valuelptmp1 = w0lp
 w0lp = w0lp-w1lp
-w1lp = -valuelptmp1*2.d0
+w1lp = -valuelptmp1*Two
 do lsmb=1,ng_sm
   lsma = mul_tab(lsmij,lsmb)
   if (lsma > lsmb) cycle
@@ -708,10 +720,11 @@ subroutine lp10_arbrbr_ext_calcuvalue_G(intentry,isma,nlp_value)
 use gugaci_global, only: ibsm_ext, index_lpext, index_lpext1, intind_ijka, lsm_inn, ngw2, ngw3, nlsm_ext, norb_frz, norb_inn, &
                          norb_number, value_lpext, value_lpext1, w0_sdplp, w0_sdplp25, w0g25, w1_sdplp, w1_sdplp25
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: intentry, isma, nlp_value
-integer :: ijk, ira, ivalue, lra, lri, lritmp, lrj, lrjtmp, lrk, lrktmp, lsmi, lsmij, lsmj, lsmk, m_ia, next_sta, nxo
+integer(kind=iwp) :: intentry, isma, nlp_value
+integer(kind=iwp) :: ijk, ira, ivalue, lra, lri, lritmp, lrj, lrjtmp, lrk, lrktmp, lsmi, lsmij, lsmj, lsmk, m_ia, next_sta, nxo
 
 w0_sdplp25 = (w0_sdplp-w1_sdplp)*w0g25
 w1_sdplp25 = (w0_sdplp+w1_sdplp)*w0g25
@@ -758,13 +771,15 @@ subroutine lp11_arblbr_ext_calcuvalue_G(intentry,isma,nlp_value)
 use gugaci_global, only: ibsm_ext, index_lpext, index_lpext1, intind_ijka, lsm_inn, ngw2, ngw3, nlsm_ext, norb_frz, norb_inn, &
                          norb_number, value_lpext, value_lpext1, w0_sdplp, w0_sdplp25, w0g25, w1_sdplp, w1_sdplp25
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Two
+use Definitions, only: iwp
 
 implicit none
-integer :: intentry, isma, nlp_value
-integer :: ijk, ira, ivalue, lra, lri, lritmp, lrj, lrjtmp, lrk, lrktmp, lsmi, lsmij, lsmj, lsmk, m_ia, next_sta, nxo
+integer(kind=iwp) :: intentry, isma, nlp_value
+integer(kind=iwp) :: ijk, ira, ivalue, lra, lri, lritmp, lrj, lrjtmp, lrk, lrktmp, lsmi, lsmij, lsmj, lsmk, m_ia, next_sta, nxo
 
 w0_sdplp25 = (w0_sdplp-w1_sdplp)*w0g25
-w1_sdplp25 = -2.d0*w0_sdplp*w0g25
+w1_sdplp25 = -Two*w0_sdplp*w0g25
 
 outer: do LRITMP=NORB_FRZ+1,norb_inn-2
   lsmi = lsm_inn(LRITMP)
@@ -807,13 +822,15 @@ subroutine lp12_arblbl_ext_calcuvalue_G(intentry,isma,nlp_value)
 use gugaci_global, only: ibsm_ext, index_lpext, index_lpext1, intind_ijka, lsm_inn, ngw2, ngw3, nlsm_ext, norb_frz, norb_inn, &
                          norb_number, value_lpext, value_lpext1, w0_sdplp, w0_sdplp25, w0g25, w1_sdplp, w1_sdplp25
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Two
+use Definitions, only: iwp
 
 implicit none
-integer :: intentry, isma, nlp_value
-integer :: ijk, ira, ivalue, lra, lri, lritmp, lrj, lrjtmp, lrk, lrktmp, lsmi, lsmij, lsmj, lsmk, m_ia, next_sta, nxo
+integer(kind=iwp) :: intentry, isma, nlp_value
+integer(kind=iwp) :: ijk, ira, ivalue, lra, lri, lritmp, lrj, lrjtmp, lrk, lrktmp, lsmi, lsmij, lsmj, lsmk, m_ia, next_sta, nxo
 
 w0_sdplp25 = (w0_sdplp-w1_sdplp)*w0g25
-w1_sdplp25 = -2.d0*w0_sdplp*w0g25
+w1_sdplp25 = -Two*w0_sdplp*w0g25
 
 outer: do LRITMP=NORB_FRZ+1,norb_inn-2
   lsmi = lsm_inn(LRITMP)
@@ -856,14 +873,16 @@ subroutine lp9_drlbl_ext_calcuvalue_G(lri,lrk,isma)
 
 use gugaci_global, only: ibsm_ext, index_lpext, index_lpext1, nlsm_ext, norb_number, value_lpext, value_lpext1, w0_sdplp, &
                          w0_sdplp25, w0g25, w1_sdplp, w1_sdplp25
+use Constants, only: Two
+use Definitions, only: iwp
 
 implicit none
-integer :: lri, lrk, isma
-integer :: ira, ivalue, lra, m_ia, next_sta, nxo
+integer(kind=iwp) :: lri, lrk, isma
+integer(kind=iwp) :: ira, ivalue, lra, m_ia, next_sta, nxo
 
 next_sta = ibsm_ext(isma)-1
 w0_sdplp25 = (w0_sdplp-w1_sdplp)*w0g25
-w1_sdplp25 = -2.d0*w0_sdplp*w0g25
+w1_sdplp25 = -Two*w0_sdplp*w0g25
 
 ivalue = 0
 
@@ -885,10 +904,11 @@ subroutine lp8_drlbr_sum_calcuvalue_G(lri,LRK,isma,nv)
 
 use gugaci_global, only: ibsm_ext, index_lpext, index_lpext1, nlsm_ext, norb_number, value_lpext, value_lpext1, w0_sdplp, &
                          w0_sdplp25, w0g25, w1_sdplp25
+use Definitions, only: iwp
 
 implicit none
-integer :: lri, lrk, isma, nv
-integer :: ira, ivalue, lra, m_ia, next_sta, nxo
+integer(kind=iwp) :: lri, lrk, isma, nv
+integer(kind=iwp) :: ira, ivalue, lra, m_ia, next_sta, nxo
 
 next_sta = ibsm_ext(isma)-1
 
@@ -915,14 +935,16 @@ subroutine lp9_drlbl_sum_calcuvalue_G(lri,LRK,isma,nv)
 
 use gugaci_global, only: ibsm_ext, index_lpext, index_lpext1, nlsm_ext, norb_number, value_lpext, value_lpext1, w0_sdplp, &
                          w0_sdplp25, w0g25, w1_sdplp25
+use Constants, only: Two
+use Definitions, only: iwp
 
 implicit none
-integer :: lri, lrk, isma, nv
-integer :: ira, ivalue, lra, m_ia, next_sta, nxo
+integer(kind=iwp) :: lri, lrk, isma, nv
+integer(kind=iwp) :: ira, ivalue, lra, m_ia, next_sta, nxo
 
 next_sta = ibsm_ext(isma)-1
 w0_sdplp25 = w0_sdplp*w0g25
-w1_sdplp25 = -2.d0*w0_sdplp*w0g25
+w1_sdplp25 = -Two*w0_sdplp*w0g25
 
 ivalue = 0
 do m_ia=1,nlsm_ext(isma)
@@ -944,10 +966,11 @@ subroutine gsd_ext_sequence_G(iltype,ilsm,irsm,lri)
 
 use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iseg_downwei, isegdownwei, m_jc, m_jd, ng_sm
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: iltype, ilsm, irsm, lri
-integer :: ic, icano_nn, icend, icsta, ilnodedownwei, indl, isma, ismb, ismnoded, ismnodes
+integer(kind=iwp) :: iltype, ilsm, irsm, lri
+integer(kind=iwp) :: ic, icano_nn, icend, icsta, ilnodedownwei, indl, isma, ismb, ismnoded, ismnodes
 
 ismnodes = ilsm
 ismnoded = irsm
@@ -1006,10 +1029,11 @@ subroutine lp678_ext_calcuvalue_G(lri,lrk,isma,nlp_value)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, nlsm_ext, norb_number, value_lpext, w0_sdplp, w0_sdplp25, &
                          w0g25
+use Definitions, only: iwp
 
 implicit none
-integer :: lri, lrk, isma, nlp_value
-integer :: ia, iaend, iasta, ilpvalue, lra, nxo
+integer(kind=iwp) :: lri, lrk, isma, nlp_value
+integer(kind=iwp) :: ia, iaend, iasta, ilpvalue, lra, nxo
 
 w0_sdplp25 = w0_sdplp*w0g25
 ilpvalue = 0
@@ -1031,11 +1055,14 @@ subroutine lp_ar_coe_calcuvalue_G(idtu,isma,lri,lrj,nlp_value,lpcoe,nlp_value1)
 
 use gugaci_global, only: ibsm_ext, ican_a, index_lpext3, index_lpext4, index_lpext5, jb_sys, logic_dh, nlsm_ext, norb_dz, &
                          norb_inn, norb_number, value_lpext3, value_lpext4, value_lpext5, w0_sdplp, w0_sdplp25, w0g25
+use Constants, only: Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: idtu, isma, lri, lrj, nlp_value, lpcoe(norb_dz+1:norb_inn), nlp_value1
-integer :: icoe, idorb, ilpvalue, ilpvalue1, iorb, iorbs, ira, kcoe, lend, lra, lsta, m_ia, ndorb, next_sta, nia, nocc, nsorb, nxo
-real*8 :: tcoe
+integer(kind=iwp) :: idtu, isma, lri, lrj, nlp_value, lpcoe(norb_dz+1:norb_inn), nlp_value1
+integer(kind=iwp) :: icoe, idorb, ilpvalue, ilpvalue1, iorb, iorbs, ira, kcoe, lend, lra, lsta, m_ia, ndorb, next_sta, nia, nocc, &
+                     nsorb, nxo
+real(kind=wp) :: tcoe
 
 next_sta = ibsm_ext(isma)-1
 w0_sdplp25 = w0_sdplp*w0g25
@@ -1100,7 +1127,7 @@ if (idtu == 51) then
         value_lpext3(ilpvalue,ilpvalue1) = -w0_sdplp25
         call TRANS_IJKL_INTPOS(LRA,LRI,idorb,idorb,NXO)
         index_lpext4(ilpvalue,ilpvalue1) = NXO
-        value_lpext4(ilpvalue,ilpvalue1) = w0_sdplp25*2.d0
+        value_lpext4(ilpvalue,ilpvalue1) = w0_sdplp25*Two
 
       end do
     end if
@@ -1147,7 +1174,7 @@ if ((idtu == 25) .or. (idtu == 43)) then
       value_lpext3(ilpvalue,ilpvalue1) = -w0_sdplp25
       call TRANS_IJKL_INTPOS(LRA,LRI,idorb,idorb,NXO)
       index_lpext4(ilpvalue,ilpvalue1) = NXO
-      value_lpext4(ilpvalue,ilpvalue1) = w0_sdplp25*2.d0
+      value_lpext4(ilpvalue,ilpvalue1) = w0_sdplp25*Two
     end do
     iorbs = max(norb_dz+1,lri)
     do iorb=iorbs,norb_inn
@@ -1189,7 +1216,7 @@ if (idtu == 26) then
         value_lpext3(ilpvalue,ilpvalue1) = -w0_sdplp25
         call TRANS_IJKL_INTPOS(LRA,LRI,idorb,idorb,NXO)
         index_lpext4(ilpvalue,ilpvalue1) = NXO
-        value_lpext4(ilpvalue,ilpvalue1) = w0_sdplp25*2.d0
+        value_lpext4(ilpvalue,ilpvalue1) = w0_sdplp25*Two
       end do
     end if
     do iorb=norb_dz+1,norb_inn
@@ -1250,7 +1277,7 @@ if ((idtu == 28) .or. (idtu == 46)) then
           value_lpext3(ilpvalue,ilpvalue1) = -w0_sdplp25
           call TRANS_IJKL_INTPOS(LRA,LRI,iorb,iorb,NXO)
           index_lpext4(ilpvalue,ilpvalue1) = NXO
-          value_lpext4(ilpvalue,ilpvalue1) = w0_sdplp25*2.d0
+          value_lpext4(ilpvalue,ilpvalue1) = w0_sdplp25*Two
         end if
       end do
     end if
@@ -1314,7 +1341,7 @@ if ((idtu == 57) .or. (idtu == 29)) then
           value_lpext3(ilpvalue,ilpvalue1) = -w0_sdplp25
           call TRANS_IJKL_INTPOS(LRA,LRI,iorb,iorb,NXO)
           index_lpext4(ilpvalue,ilpvalue1) = NXO
-          value_lpext4(ilpvalue,ilpvalue1) = w0_sdplp25*2.d0
+          value_lpext4(ilpvalue,ilpvalue1) = w0_sdplp25*Two
         end if
       end do
     end if
@@ -1360,7 +1387,7 @@ if ((idtu == 55) .or. (idtu == 73)) then    !(11)(23)=55 (11)(13)=75
       value_lpext3(ilpvalue,ilpvalue1) = -w0_sdplp25
       call TRANS_IJKL_INTPOS(LRA,LRI,idorb,idorb,NXO)
       index_lpext4(ilpvalue,ilpvalue1) = NXO
-      value_lpext4(ilpvalue,ilpvalue1) = w0_sdplp25*2.d0
+      value_lpext4(ilpvalue,ilpvalue1) = w0_sdplp25*Two
     end do
     iorbs = max(norb_dz+1,lri)
     do iorb=iorbs,norb_inn
@@ -1386,11 +1413,13 @@ subroutine lp_arbl_ext_dd_calcuvalue_G(lri,lrj,iml,imr,nlp_value)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, int_dd_drl, logic_g49a, logic_g49b, logic_g50, &
                          norb_number, value_lpext, value_lpext1, w0_plp, w0gdd, w1_plp, w1gdd
+use Constants, only: Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, lrj, iml, imr, nlp_value
-integer :: ira, irb, ivalue, lra, lrb, nlbf, nlef, nrbf, nref, nxo
-real*8 :: valuetmp1, w0lp, w1lp
+integer(kind=iwp) :: lri, lrj, iml, imr, nlp_value
+integer(kind=iwp) :: ira, irb, ivalue, lra, lrb, nlbf, nlef, nrbf, nref, nxo
+real(kind=wp) :: valuetmp1, w0lp, w1lp
 
 nlbf = ibsm_ext(iml)
 nlef = iesm_ext(iml)
@@ -1401,7 +1430,7 @@ w0lp = w0_plp*w0gdd
 w1lp = w1_plp*w1gdd
 valuetmp1 = w0lp
 w0lp = w0lp-w1lp
-w1lp = -valuetmp1*2.d0
+w1lp = -valuetmp1*Two
 ivalue = 0
 ! G50
 if (logic_g50) then
@@ -1498,11 +1527,13 @@ subroutine lp_drl_ext_dd_calcuvalue_G(lri,iml,nlp_value)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, int_dd_drl, logic_g49b, nlsm_ext, norb_number, &
                          value_lpext, value_lpext1, w0_plp, w0gdd, w1_plp, w1gdd
+use Constants, only: Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, iml, nlp_value
-integer :: iaend, iasta, ira, irb, ivalue, jvalue, lra, lrb, mloop, nliml, nxo
-real*8 :: w0lp, w1lp
+integer(kind=iwp) :: lri, iml, nlp_value
+integer(kind=iwp) :: iaend, iasta, ira, irb, ivalue, jvalue, lra, lrb, mloop, nliml, nxo
+real(kind=wp) :: w0lp, w1lp
 
 w0lp = w0_plp*w0gdd
 w1lp = w1_plp*w1gdd
@@ -1517,7 +1548,7 @@ if (logic_g49b) then
     ivalue = ivalue+1
     call TRANS_IJKL_INTPOS(lra,LRI,lra,LRI,NXO)
     index_lpext(ivalue) = NXO
-    value_lpext(ivalue) = -w1lp*2.0d0
+    value_lpext(ivalue) = -w1lp*Two
     index_lpext1(ivalue) = 0
   end do
 end if
@@ -1539,7 +1570,7 @@ do irb=iasta,iaend
 
     call TRANS_IJKL_INTPOS(lra,lrb,LRI,LRI,NXO)
     index_lpext1(ivalue) = NXO
-    value_lpext1(ivalue) = -2.0d0*w0lp
+    value_lpext1(ivalue) = -Two*w0lp
     index_lpext1(jvalue) = index_lpext1(ivalue)
     value_lpext1(jvalue) = value_lpext1(ivalue)
   end do
@@ -1553,11 +1584,12 @@ subroutine lp_arbr_ext_svtv_calcuvalue_G(LRI,LRJ,nlp_value)
 use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, logic_g13, lsm_inn, ng_sm, norb_ext, norb_number, &
                          value_lpext, value_lpext1, w0_plp, w0g13a, w0g36a, w1_plp, w1g36a
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, lrj, nlp_value
-integer :: ic, icend, icsta, id, idend, idsta, ivalue, jc, jd, lrc, lsmc, lsmd, lsmi, lsmij, lsmj, nxo
-real*8 :: valuelptmp1, w0lp, w1lp
+integer(kind=iwp) :: lri, lrj, nlp_value
+integer(kind=iwp) :: ic, icend, icsta, id, idend, idsta, ivalue, jc, jd, lrc, lsmc, lsmd, lsmi, lsmij, lsmj, nxo
+real(kind=wp) :: valuelptmp1, w0lp, w1lp
 
 ivalue = 0
 lsmi = lsm_inn(lri)
@@ -1614,11 +1646,13 @@ subroutine lp_drr_ext_svtv_calcuvalue_G(lri,nlp_value)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, logic_g13, ng_sm, norb_all, norb_inn, norb_number, &
                          value_lpext, w0_plp, w0g13a, w0g36a, w1_plp
+use Constants, only: Two, Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, nlp_value
-integer :: ibend, ibsta, ira, irb, ivalue, lmb, lra, lrb, nxo
-real*8 :: w0lp
+integer(kind=iwp) :: lri, nlp_value
+integer(kind=iwp) :: ibend, ibsta, ira, irb, ivalue, lmb, lra, lrb, nxo
+real(kind=wp) :: w0lp
 
 ivalue = 0
 ! G36a
@@ -1642,11 +1676,11 @@ end do
 if (logic_g13) then
 !=======================================================================
 ! Drr-DRR
-! w0lp=2.0D0*w0lp but not 1.0D0*w0lp is based on that the non-diagonal
+! w0lp=Two*w0lp but not One*w0lp is based on that the non-diagonal
 ! just uses the non-triangle <Ci|H|Cj> which designates that I > J.
 
-  w0lp = 0.5d0*w0_plp*w0g13a
-  w0lp = 2.0d0*w0lp
+  w0lp = Half*w0_plp*w0g13a
+  w0lp = Two*w0lp
   do LRA=NORB_ALL,NORB_INN+1,-1
     ivalue = ivalue+1
     call TRANS_IJKL_INTPOS(LRA,lri,LRA,lri,NXO)

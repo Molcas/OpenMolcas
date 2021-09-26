@@ -15,13 +15,14 @@ subroutine found_a_config(ndl,de,npr)
 use gugaci_global, only: ipae, iseg_downwei, iw_downwei, iw_sta, jd, jpad, jpad_upwei, jpae, js, jt, jv, map_orb_order, max_orb, &
                          mxnode, ndim, ndr, ng_sm, nlsm_frz, noidx, norb_act, norb_all, norb_dz, norb_ext, nu_ad, nu_ae, nwalk
                          !, lsmorb, norb_frz
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: ndl, npr
-real*8 :: de
-integer :: i, im, iwupwei, j, jaedownwei, jpad_, l, ndimsum, ne, no_dz, noi, norbindex(max_orb), norbsymm(max_orb), &
-           norbwalk(max_orb), ns, nst, nwalk_gamess(max_orb)
-real*8 :: sqde
+integer(kind=iwp) :: ndl, npr
+real(kind=wp) :: de
+integer(kind=iwp) :: i, im, iwupwei, j, jaedownwei, jpad_, l, ndimsum, ne, no_dz, noi, norbindex(max_orb), norbsymm(max_orb), &
+                     norbwalk(max_orb), ns, nst, nwalk_gamess(max_orb)
+real(kind=wp) :: sqde
 character(len=18) :: form1
 
 ndr = ndl
@@ -121,10 +122,10 @@ do i=1,nst
   nwalk_gamess(i) = nwalk(nst-i+1)
 end do
 if (npr == 1) then
-  write(6,1000) ndr,de
+  write(u6,1000) ndr,de
 else
   sqde = de*de
-  write(6,1001) ndr,de,sqde
+  write(u6,1001) ndr,de,sqde
 end if
 
 !if (intgen == 1) then
@@ -142,9 +143,9 @@ end if
 !
 !  !write(form1,2010) '(4x,i4,1x,',ng_sm,'(1x','i'
 !  write(form1,1010) '(4x,a4,',j,'(1x,i3))'
-!  write(6,form1) 'norb',(norbindex(i),i=1,j)
-!  write(6,form1) 'sym ',(norbsymm(i),i=1,j)
-!  write(6,form1) 'walk',(norbwalk(i),i=1,j)
+!  write(u6,form1) 'norb',(norbindex(i),i=1,j)
+!  write(u6,form1) 'sym ',(norbsymm(i),i=1,j)
+!  write(u6,form1) 'walk',(norbwalk(i),i=1,j)
 !else
 i = 0
 j = 0
@@ -167,12 +168,13 @@ do im=1,ng_sm
 end do
 
 write(form1,1010) '(4x,a4,',j,'(1x,i3))'
-write(6,form1) 'norb',(norbindex(i),i=1,j)
-write(6,form1) 'sym ',(norbsymm(i),i=1,j)
-write(6,form1) 'walk',(norbwalk(i),i=1,j)
+write(u6,form1) 'norb',(norbindex(i),i=1,j)
+write(u6,form1) 'sym ',(norbsymm(i),i=1,j)
+write(u6,form1) 'walk',(norbwalk(i),i=1,j)
 !end if
 
 return
+
 1000 format(/4x,'csf',i8,6x,'scf energy',f18.8,/)
 1001 format(/4x,'csf',i8,2x,'coef',f10.6,2x,'weight',1x,f8.6/)
 1010 format(a7,i3,a8)
@@ -182,13 +184,14 @@ end subroutine found_a_config
 subroutine config_act()
 
 use gugaci_global, only: iy, jj_sub, no, norb_dz, norb_inn
+use Definitions, only: iwp
 
 implicit none
-integer :: idl, jp, jp0, jp1, jw, lr, lr0, mpe
-!integer :: ndr(max_innorb)
+integer(kind=iwp) :: idl, jp, jp0, jp1, jw, lr, lr0, mpe
+!integer(kind=iwp) :: ndr(max_innorb)
 
-!write(6,*) '               ***** start h-diaelm *****'
-!write(6,*) '   diagonal_act_d:',jpad,ipae
+!write(u6,*) '               ***** start h-diaelm *****'
+!write(u6,*) '   diagonal_act_d:',jpad,ipae
 do lr=norb_dz+1,norb_inn
   jp0 = no(lr-1)+1
   jp1 = no(lr)
@@ -206,7 +209,7 @@ do lr=norb_dz+1,norb_inn
     end do
     mpe = jj_sub(4,jp)
     if (mpe /= 0) then
-      !wt = vdint(lr0,lr0)+2.d0*voint(lr0,lr0)     !idl=4 hnil=2
+      !wt = vdint(lr0,lr0)+Two*voint(lr0,lr0)     !idl=4 hnil=2
       jw = iy(4,jp)
       !call prodel(3,wt,jp,mpe,jw)
       call prodel_conf(3,jp,mpe,jw,lr0,0,3)
@@ -222,10 +225,11 @@ subroutine config_dbl()
 
 use gugaci_global, only: ipae, iw_downwei, jb_sys, jpad, jud, just, lsm_inn, norb_dbl, norb_dz, norb_frz, ns_sm, nu_ae
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: ipae_, iwa, iwad, iwd, iwdownv, iws, iws1, iwt, jpad1, jpas, jpat, jpat1, lr, lr0, mr, mr0
-integer, external :: iwalk_ad
+integer(kind=iwp) :: ipae_, iwa, iwad, iwd, iwdownv, iws, iws1, iwt, jpad1, jpas, jpat, jpat1, lr, lr0, mr, mr0
+integer(kind=iwp), external :: iwalk_ad
 
 if (norb_dbl == 0) return
 do ipae_=1,25
@@ -337,9 +341,10 @@ subroutine config_ext()
 
 use gugaci_global, only: ibsm_ext, iesm_ext, ipae, lsm, norb_ext
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: im, ima, imb, ipas, ipat, jw, jweis, jws, jws0, jwt, la, laend, lasta, lb, lrzz, mr, mra
+integer(kind=iwp) :: im, ima, imb, ipas, ipat, jw, jweis, jws, jws0, jwt, la, laend, lasta, lb, lrzz, mr, mra
 
 jws0 = 0
 do mra=1,8
@@ -368,7 +373,7 @@ do la=1,norb_ext
   !jpd = jd(mra)
   !lra = norb_all-la+1
   jweis = jweis+1
-  !wls = 2.d0*voint(lra,lra)+vdint(lra,lra)
+  !wls = Two*voint(lra,lra)+vdint(lra,lra)
   !call prodel(2,wls,0,18,jweis)
   call prodel_conf(2,0,18,jweis,la,0,4)      !s
 end do
@@ -412,11 +417,12 @@ end subroutine config_ext
 subroutine prodel_conf(idb,mg1,mg2,mg3,lr01,lr02,jpty)
 
 use gugaci_global, only: ihy, ipae, iseg_downwei, iw_downwei, iy, jpad, jpad_upwei, jphy, mxnode, ndr, norb_all, nu_ad, nwalk
+use Definitions, only: iwp
 
 implicit none
-integer :: idb, mg1, mg2, mg3, lr01, lr02, jpty
-integer :: in_, isegdownwei, iw, iwa, iwad, iwd, iwe, iwupwei, jdbl, jp, jph, jw, jwd, jwu, lr1, lr2, lwnu, mm, mpe
-integer, external :: iwalk_ad
+integer(kind=iwp) :: idb, mg1, mg2, mg3, lr01, lr02, jpty
+integer(kind=iwp) :: in_, isegdownwei, iw, iwa, iwad, iwd, iwe, iwupwei, jdbl, jp, jph, jw, jwd, jwu, lr1, lr2, lwnu, mm, mpe
+integer(kind=iwp), external :: iwalk_ad
 
 select case (idb)
   case default ! (1)

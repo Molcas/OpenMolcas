@@ -18,8 +18,10 @@
 !=======================================================================
 subroutine arbl_act_c_link_ext_ab(lin,lri,lrj)
 
+use Definitions, only: iwp
+
 implicit none
-integer :: lin, lri, lrj
+integer(kind=iwp) :: lin, lri, lrj
 
 if (lin == 1) call ar_bl_ext_ss(lri,lrj,1)
 if (lin == 2) call ar_bl_ext_st(lri,lrj,1)
@@ -40,8 +42,10 @@ end subroutine arbl_act_c_link_ext_ab
 !=======================================================================
 subroutine drl_act_c_link_ext_ab(lin,lri)
 
+use Definitions, only: iwp
+
 implicit none
-integer :: lin, lri
+integer(kind=iwp) :: lin, lri
 
 if (lin == 1) call drl_ss_ext(lri)
 if (lin == 2) call drl_st_ext(lri)
@@ -54,8 +58,10 @@ end subroutine drl_act_c_link_ext_ab
 
 subroutine drl_act_c_link_ext_ab_sum(lin,lri,lrj)
 
+use Definitions, only: iwp
+
 implicit none
-integer :: lin, lri, lrj
+integer(kind=iwp) :: lin, lri, lrj
 
 if (lin == 1) call drl_ss_sum(lri,lrj)
 if (lin == 11) call drl_tt_sum(lri,lrj)
@@ -70,12 +76,13 @@ subroutine sd_ar_act_bl_sgt0(lin,lra)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, &
                          mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sd
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, lra
-integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
-real*8 :: w0sd3
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin, lra
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
+real(kind=wp) :: w0sd3
+integer(kind=iwp), external :: iwalk_ad
 
 jmlr = mul_tab(jml,jmr)
 do lri=norb_frz+1,norb_dz
@@ -135,13 +142,15 @@ subroutine ss_arbl_act_c_ext_ab_sgt0(lin)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin
-integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lmk, lmki, lmkj, lri, lrj, lrk, mpl, ni
-real*8 :: w0ss1, w0ss11, w0ss12, w0ss13, w0ss3, w0ss6, w0ss7, w0ss8, w0ss9, w1ss1, w1ss11, w1ss12, w1ss13, w1ss3, w1ss6, w1ss7, &
-          w1ss8, w1ss9
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lmk, lmki, lmkj, lri, lrj, lrk, mpl, ni
+real(kind=wp) :: w0ss1, w0ss11, w0ss12, w0ss13, w0ss3, w0ss6, w0ss7, w0ss8, w0ss9, w1ss1, w1ss11, w1ss12, w1ss13, w1ss3, w1ss6, &
+                 w1ss7, w1ss8, w1ss9
+integer(kind=iwp), external :: iwalk_ad
 
 do lri=norb_frz+1,norb_dz-1
   lmi = lsm_inn(lri)
@@ -326,7 +335,7 @@ do lri=norb_frz+1,norb_dz-1
     end do
     ! ss(1-12) ar(13)-bl(32)-c"(21)- act -c"-
     do mpl=1,mtype
-      vplp_w0(mpl) = 0.d0
+      vplp_w0(mpl) = Zero
       vplp_w1(mpl) = vplpnew_w1(mpl)*w1ss12
     end do
     do lrk=lrj+1,norb_dz
@@ -389,11 +398,13 @@ subroutine ss_drl_act_c_ext_ab_sgt0(lin)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: iwp
 
 implicit none
-integer :: lin
-integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, lrk, mpl
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, lrk, mpl
+integer(kind=iwp), external :: iwalk_ad
 
 do lri=norb_frz+1,norb_dz-1
   lmi = lsm_inn(lri)
@@ -425,7 +436,7 @@ do lri=norb_frz+1,norb_dz-1
     ! ss(1-20) drl(33)-c"(11)-c"(22)-act -c"-
     do mpl=1,mtype
       vplp_w0(mpl) = vplpnew_w0(mpl)*w0_ss(20)
-      vplp_w1(mpl) = 0.d0
+      vplp_w1(mpl) = Zero
     end do
     do lrk=1,norb_dz
       if (lrk == lri) cycle
@@ -451,11 +462,13 @@ subroutine st_drl_act_c_ext_ab_sgt0(lin)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: iwp
 
 implicit none
-integer :: lin
-integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl
+integer(kind=iwp), external :: iwalk_ad
 
 if (jmr /= jml) return
 do lri=norb_frz+1,norb_dz
@@ -473,7 +486,7 @@ do lri=norb_frz+1,norb_dz
       lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
     end do
     do mpl=1,mtype
-      vplp_w0(mpl) = 0.d0
+      vplp_w0(mpl) = Zero
       vplp_w1(mpl) = vplpnew_w1(mpl)*w1_st(7)
     end do
     call drl_act_c_link_ext_ab(lin,lri)
@@ -497,12 +510,14 @@ subroutine st_arbl_act_c_ext_ab_sgt0(lin)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin
-integer :: iwal, iwar, iwdl, iwdr, lmi, lmj, lmk, lmki, lmkj, lri, lrj, lrk, mpl, ni
-real*8 :: w1st3
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lmj, lmk, lmki, lmkj, lri, lrj, lrk, mpl, ni
+real(kind=wp) :: w1st3
+integer(kind=iwp), external :: iwalk_ad
 
 do lri=norb_frz+1,norb_dz-1
   lmi = lsm_inn(lri)
@@ -528,7 +543,7 @@ do lri=norb_frz+1,norb_dz-1
           lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
         end do
         do mpl=1,mtype
-          vplp_w0(mpl) = 0.d0
+          vplp_w0(mpl) = Zero
           vplp_w1(mpl) = -vplpnew_w1(mpl)*w1st3
         end do
         call arbl_act_c_link_ext_ab(lin,lri,lrj)
@@ -550,7 +565,7 @@ do lri=norb_frz+1,norb_dz-1
           lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
         end do
         do mpl=1,mtype
-          vplp_w0(mpl) = 0.d0
+          vplp_w0(mpl) = Zero
           vplp_w1(mpl) = vplpnew_w1(mpl)*w1st3
         end do
         call arbl_act_c_link_ext_ab(lin,lri,lrj)
@@ -574,12 +589,14 @@ subroutine stt_arbl_act_c_ext_ab_sgt1(lin)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_st1
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin
-integer :: iwal, iwar, iwdl, iwdr, lmi, lmj, lmk, lri, lrj, lrk, mpl
-real*8 :: w1st1, w1st2, w1st3, w1st4
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lmj, lmk, lri, lrj, lrk, mpl
+real(kind=wp) :: w1st1, w1st2, w1st3, w1st4
+integer(kind=iwp), external :: iwalk_ad
 
 do lri=norb_frz+1,norb_dz
   lmi = lsm_inn(lri)
@@ -606,7 +623,7 @@ do lri=norb_frz+1,norb_dz
         lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
       end do
       do mpl=1,mtype
-        vplp_w0(mpl) = 0.d0
+        vplp_w0(mpl) = Zero
         vplp_w1(mpl) = vplpnew_w1(mpl)*w1st1
       end do
       call arbl_act_c_link_ext_ab(lin,lri,lrj)
@@ -624,7 +641,7 @@ do lri=norb_frz+1,norb_dz
         lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
       end do
       do mpl=1,mtype
-        vplp_w0(mpl) = 0.d0
+        vplp_w0(mpl) = Zero
         vplp_w1(mpl) = vplpnew_w1(mpl)*w1st2
       end do
       call arbl_act_c_link_ext_ab(lin,lri,lrj)
@@ -642,7 +659,7 @@ do lri=norb_frz+1,norb_dz
           lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
         end do
         do mpl=1,mtype
-          vplp_w0(mpl) = 0.d0
+          vplp_w0(mpl) = Zero
           vplp_w1(mpl) = -vplpnew_w1(mpl)*w1st3
         end do
         call arbl_act_c_link_ext_ab(lin,lri,lrj)
@@ -656,7 +673,7 @@ do lri=norb_frz+1,norb_dz
           lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
         end do
         do mpl=1,mtype
-          vplp_w0(mpl) = 0.d0
+          vplp_w0(mpl) = Zero
           vplp_w1(mpl) = -vplpnew_w1(mpl)*w1st4
         end do
         call arbl_act_c_link_ext_ab(lin,lri,lrj)
@@ -675,7 +692,7 @@ do lri=norb_frz+1,norb_dz
           lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
         end do
         do mpl=1,mtype
-          vplp_w0(mpl) = 0.d0
+          vplp_w0(mpl) = Zero
           vplp_w1(mpl) = vplpnew_w1(mpl)*w1st4
         end do
         call arbl_act_c_link_ext_ab(lin,lri,lrj)
@@ -689,7 +706,7 @@ do lri=norb_frz+1,norb_dz
           lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
         end do
         do mpl=1,mtype
-          vplp_w0(mpl) = 0.d0
+          vplp_w0(mpl) = Zero
           vplp_w1(mpl) = vplpnew_w1(mpl)*w1st3
         end do
         call arbl_act_c_link_ext_ab(lin,lri,lrj)
@@ -712,12 +729,14 @@ subroutine tts_arbl_act_c_ext_ab_sgt1(lin)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_t1s
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin
-integer :: iwal, iwar, iwdl, iwdr, lmi, lmj, lmk, lri, lrj, lrk, mpl
-real*8 :: w1ts1, w1ts2, w1ts3, w1ts4
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lmj, lmk, lri, lrj, lrk, mpl
+real(kind=wp) :: w1ts1, w1ts2, w1ts3, w1ts4
+integer(kind=iwp), external :: iwalk_ad
 
 do lri=norb_frz+1,norb_dz
   lmi = lsm_inn(lri)
@@ -744,14 +763,14 @@ do lri=norb_frz+1,norb_dz
         lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
       end do
       do mpl=1,mtype
-        vplp_w0(mpl) = 0.d0
+        vplp_w0(mpl) = Zero
         vplp_w1(mpl) = vplpnew_w1(mpl)*w1ts1
       end do
       call arbl_act_c_link_ext_ab(lin,lri,lrj)
     end if
     ! t1s(5-2)   (11)ar(13)-bl(32)-
     do mpl=1,mtype
-      vplp_w0(mpl) = 0.d0
+      vplp_w0(mpl) = Zero
       vplp_w1(mpl) = vplpnew_w1(mpl)*w1ts2
     end do
     do lrk=norb_frz+1,lri-1
@@ -769,7 +788,7 @@ do lri=norb_frz+1,norb_dz
     end do
     ! t1s(5-2)   ar(13)-c'(11)-bl(32)-
     do mpl=1,mtype
-      vplp_w0(mpl) = 0.d0
+      vplp_w0(mpl) = Zero
       vplp_w1(mpl) = -vplpnew_w1(mpl)*w1ts2
     end do
     do lrk=lri+1,lrj-1
@@ -787,7 +806,7 @@ do lri=norb_frz+1,norb_dz
     end do
     ! t1s(5-3)   ar(13)-bl(31)-c"(12)-
     do mpl=1,mtype
-      vplp_w0(mpl) = 0.d0
+      vplp_w0(mpl) = Zero
       vplp_w1(mpl) = vplpnew_w1(mpl)*w1ts3
     end do
     do lrk=lrj+1,norb_dz
@@ -805,7 +824,7 @@ do lri=norb_frz+1,norb_dz
     end do
     ! t1s(5-4)   ar(13)-bl(32)-c"(11)-
     do mpl=1,mtype
-      vplp_w0(mpl) = 0.d0
+      vplp_w0(mpl) = Zero
       vplp_w1(mpl) = vplpnew_w1(mpl)*w1ts4
     end do
     do lrk=lrj+1,norb_dz
@@ -836,11 +855,13 @@ subroutine tts_drl_act_c_ext_ab_sgt1(lin)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_t1s
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: iwp
 
 implicit none
-integer :: lin
-integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl
+integer(kind=iwp), external :: iwalk_ad
 
 if (jml /= jmr) return
 do lri=norb_frz+1,norb_dz
@@ -859,7 +880,7 @@ do lri=norb_frz+1,norb_dz
       lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
     end do
     do mpl=1,mtype
-      vplp_w0(mpl) = 0.d0
+      vplp_w0(mpl) = Zero
       vplp_w1(mpl) = vplpnew_w1(mpl)*w1_t1s(5)
     end do
     call drl_act_c_link_ext_ab(lin,lrj)
@@ -873,7 +894,7 @@ do lri=norb_frz+1,norb_dz
       lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
     end do
     do mpl=1,mtype
-      vplp_w0(mpl) = 0.d0
+      vplp_w0(mpl) = Zero
       vplp_w1(mpl) = vplpnew_w1(mpl)*w1_t1s(6)
     end do
     call drl_act_c_link_ext_ab(lin,lri)
@@ -887,7 +908,7 @@ do lri=norb_frz+1,norb_dz
       lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
     end do
     do mpl=1,mtype
-      vplp_w0(mpl) = 0.d0
+      vplp_w0(mpl) = Zero
       vplp_w1(mpl) = vplpnew_w1(mpl)*w1_t1s(7)
     end do
     call drl_act_c_link_ext_ab(lin,lri)
@@ -907,12 +928,13 @@ subroutine sdd_ar_act_bl_sgt0(lin,lra)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, &
                          mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sd1
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, lra
-integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
-real*8 :: w0sd1, w0sd2, w0sd3, w0sd4
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin, lra
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
+real(kind=wp) :: w0sd1, w0sd2, w0sd3, w0sd4
+integer(kind=iwp), external :: iwalk_ad
 
 jmlr = mul_tab(jml,jmr)
 do lri=norb_frz+1,norb_dz
@@ -1026,12 +1048,13 @@ subroutine tttt_arbl_act_c_ext_ab_sgt0(lin)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_t1t1, w1_t1t1
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin
-integer :: iwal, iwar, iwdl, iwdr, lmi, lmj, lmk, lmki, lmkj, lri, lrj, lrk, mpl, ni
-real*8 :: w0tt1, w1tt1
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lmj, lmk, lmki, lmkj, lri, lrj, lrk, mpl, ni
+real(kind=wp) :: w0tt1, w1tt1
+integer(kind=iwp), external :: iwalk_ad
 
 do lri=norb_frz+1,norb_dz-1
   lmi = lsm_inn(lri)
@@ -1120,12 +1143,14 @@ subroutine tttt_drl_act_c_ext_ab_sgt0(lin)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_t1t1, w1_t1t1
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin
-integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl
-real*8 :: w0tt2, w0tt3, w1tt2
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl
+real(kind=wp) :: w0tt2, w0tt3, w1tt2
+integer(kind=iwp), external :: iwalk_ad
 
 w0tt2 = w0_t1t1(2)
 w1tt2 = w1_t1t1(2)
@@ -1154,7 +1179,7 @@ do lri=norb_frz+1,norb_dz-1
     call drl_act_c_link_ext_ab(lin,lrj)
     do mpl=1,mtype
       vplp_w0(mpl) = vplpnew_w0(mpl)*w0tt3
-      vplp_w1(mpl) = 0.d0
+      vplp_w1(mpl) = Zero
     end do
     ! t1t1(12-3)  drl(33)-
     ! t1t1(12-3)  drl(33)-c"(11)-
@@ -1179,12 +1204,13 @@ subroutine ttdd_ar_act_bl_sgt1(lin,lra)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, &
                          mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_t1d1
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, lra
-integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
-real*8 :: w0td1
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin, lra
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
+real(kind=wp) :: w0td1
+integer(kind=iwp), external :: iwalk_ad
 
 jmlr = mul_tab(jml,jmr)
 do lri=norb_frz+1,norb_dz
@@ -1248,12 +1274,13 @@ subroutine d1d1_arbl_act_c_ext_ab_sgt0(lin)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, jud, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_d1d1, w1_d1d1
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin
-integer :: iwal, iwar, iwdl, iwdr, lmi, lmj, lri, lrj, mpl, ni
-real*8 :: w0dd1, w1dd1
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lmj, lri, lrj, mpl, ni
+real(kind=wp) :: w0dd1, w1dd1
+integer(kind=iwp), external :: iwalk_ad
 
 do lri=norb_frz+1,norb_dz-1
   lmi = lsm_inn(lri)
@@ -1297,12 +1324,14 @@ subroutine d1d1_drl_act_c_ext_ab_sgt0(lin)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, jud, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_d1d1, w1_d1d1
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin
-integer :: iwal, iwar, iwdl, iwdr, lmi, lri, lrk, mpl
-real*8 :: w0dd2, w0dd3, w1dd2
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lri, lrk, mpl
+real(kind=wp) :: w0dd2, w0dd3, w1dd2
+integer(kind=iwp), external :: iwalk_ad
 
 if (jml /= jmr) return
 w0dd2 = w0_d1d1(2)
@@ -1327,7 +1356,7 @@ do lri=norb_frz+1,norb_dz
   call drl_act_c_link_ext_ab(lin,lri)
   do mpl=1,mtype
     vplp_w0(mpl) = vplpnew_w0(mpl)*w0dd3
-    vplp_w1(mpl) = 0.d0
+    vplp_w1(mpl) = Zero
   end do
   ! d1d1(20-3) drl(33)-
   ! d1d1(20-3) drl(33)-c"(11)-
@@ -1348,12 +1377,13 @@ subroutine dd1_arbl_act_c_ext_ab_sgt0(lin)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, jud, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_dd1, w1_dd1
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin
-integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lri, lrj, mpl, ni
-real*8 :: w0dd1, w1dd1
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lri, lrj, mpl, ni
+real(kind=wp) :: w0dd1, w1dd1
+integer(kind=iwp), external :: iwalk_ad
 
 jmlr = mul_tab(jml,jmr)
 do lri=norb_frz+1,norb_dz
@@ -1399,12 +1429,13 @@ subroutine d1d_arbl_act_c_ext_ab_sgt0(lin)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, jud, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_d1d, w1_d1d
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin
-integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lri, lrj, mpl, ni
-real*8 :: w0dd1, w1dd1
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lri, lrj, mpl, ni
+real(kind=wp) :: w0dd1, w1dd1
+integer(kind=iwp), external :: iwalk_ad
 
 jmlr = mul_tab(jml,jmr)
 do lri=norb_frz+1,norb_dz-1
@@ -1448,11 +1479,12 @@ subroutine d1d_drl_act_c_ext_ab_sgt0(lin)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, jud, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_d1d, w1_d1d
+use Definitions, only: iwp
 
 implicit none
-integer :: lin
-integer :: iwal, iwar, iwdl, iwdr, lmi, lri, mpl
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lri, mpl
+integer(kind=iwp), external :: iwalk_ad
 
 if (jmr /= jml) return
 do lri=norb_frz+1,norb_dz
@@ -1483,12 +1515,13 @@ subroutine d1v_ar_act_bl_ext_ab_sgt0(lin,lra)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, jud, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_d1v
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, lra
-integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lri, mpl, ni
-real*8 :: w0dv1
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin, lra
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lri, mpl, ni
+real(kind=wp) :: w0dv1
+integer(kind=iwp), external :: iwalk_ad
 
 jmlr = mul_tab(jml,jmr)
 do lri=norb_frz+1,norb_dz
@@ -1519,8 +1552,10 @@ end subroutine d1v_ar_act_bl_ext_ab_sgt0
 
 subroutine ar_br_stv_link_ext_brar(lin,lri,lrj)
 
+use Definitions, only: iwp
+
 implicit none
-integer :: lin, lri, lrj
+integer(kind=iwp) :: lin, lri, lrj
 
 if (lin == 17) call ar_br_tv_ext_br_ar(lri,lrj)
 if (lin == 10) call ar_br_sv_ext_br_ar(lri,lrj)
@@ -1533,12 +1568,13 @@ subroutine sd_ar_act_br_sgt0(lin,lra)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, &
                          mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sd
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, lra
-integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
-real*8 :: w0sd3
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin, lra
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
+real(kind=wp) :: w0sd3
+integer(kind=iwp), external :: iwalk_ad
 
 jmlr = mul_tab(jml,jmr)
 do lri=norb_frz+1,norb_dz
@@ -1581,12 +1617,13 @@ subroutine sdd_ar_act_br_sgt0(lin,lra)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, &
                          mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sd1
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, lra
-integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
-real*8 :: w0sd1, w0sd2, w0sd3, w0sd4
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin, lra
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
+real(kind=wp) :: w0sd1, w0sd2, w0sd3, w0sd4
+integer(kind=iwp), external :: iwalk_ad
 
 jmlr = mul_tab(jml,jmr)
 do lri=norb_frz+1,norb_dz
@@ -1686,12 +1723,13 @@ subroutine ttdd_ar_act_br_sgt1(lin,lra)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, &
                          mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_t1d1
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, lra
-integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
-real*8 :: w0td1
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin, lra
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
+real(kind=wp) :: w0td1
+integer(kind=iwp), external :: iwalk_ad
 
 jmlr = mul_tab(jml,jmr)
 do lri=norb_frz+1,norb_dz
@@ -1750,12 +1788,14 @@ subroutine ttv_arbr_act_c_stv_sgt1(lin)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_t1v
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin
-integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lri, lrj, mpl, ni
-real*8 :: w1
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lri, lrj, mpl, ni
+real(kind=wp) :: w1
+integer(kind=iwp), external :: iwalk_ad
 
 jmlr = mul_tab(jml,jmr)
 do lri=norb_frz+1,norb_dz-1
@@ -1771,7 +1811,7 @@ do lri=norb_frz+1,norb_dz-1
     w1 = w1_t1v
     if (ni == 0) w1 = -w1
     do mpl=1,mtype
-      vplp_w0(mpl) = 0.d0
+      vplp_w0(mpl) = Zero
       vplp_w1(mpl) = vplpnew_w1(mpl)*w1
     end do
     do mpl=1,mhlp
@@ -1794,11 +1834,12 @@ subroutine ss_s_drl_act_c_ext_ab_sgt0(lin)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: lin
-integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl
+integer(kind=iwp), external :: iwalk_ad
 
 if (jml /= jmr) return
 do lri=norb_frz+1,norb_dz-1
@@ -1836,12 +1877,14 @@ subroutine ds_arblbr_act_c1_sgt0(lin)
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, &
                          lpnew_rwei, lsm_inn, mhlp, mtype, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_ds
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin
-integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmd, lmi, lmij, lmj, lrd, lri, lrj, mpl, ni
-real*8 :: w1ds
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin
+integer(kind=iwp) :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmd, lmi, lmij, lmj, lrd, lri, lrj, mpl, ni
+real(kind=wp) :: w1ds
+integer(kind=iwp), external :: iwalk_ad
 
 isma = mul_tab(iml,imr)
 do lri=norb_frz+1,norb_dz
@@ -1869,7 +1912,7 @@ do lri=norb_frz+1,norb_dz
         lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
       end do
       do mpl=1,mtype
-        vplp_w0(mpl) = 0.d0
+        vplp_w0(mpl) = Zero
         vplp_w1(mpl) = vplpnew_w1(mpl)*w1ds
       end do
       call ar_bl_br_ext_al_new(lin,intpos,isma,1)
@@ -1890,12 +1933,13 @@ subroutine sdd_ar_act_dlr_sgt0(lin,lra)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, &
                          mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sd1, w1_sd1
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, lra
-integer :: iwal, iwar, iwdl, iwdr, lmi, lmj, lri, lrj, mpl
-real*8 :: w0sd1, w0sd2, w0sd3, w0sd4, w1sd1, w1sd2, w1sd3, w1sd4
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin, lra
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lmj, lri, lrj, mpl
+real(kind=wp) :: w0sd1, w0sd2, w0sd3, w0sd4, w1sd1, w1sd2, w1sd3, w1sd4
+integer(kind=iwp), external :: iwalk_ad
 
 do lri=norb_frz+1,norb_dz
   lmi = lsm_inn(lri)
@@ -2001,12 +2045,14 @@ end subroutine sdd_ar_act_dlr_sgt0
 !use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
 !                         lpnew_rwei, lsm_inn, mhlp, mtype, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_t1s
 !use Symmetry_Info, only: mul_tab => Mul
+!use Constants, only: Zero
+!use Definitions, only: wp, iwp
 !
 !implicit none
-!integer :: lin, lra
-!integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lmk, lri, lrj, lrk, mpl
-!real*8 :: w1ts1, w1ts2, w1ts3, w1ts4
-!integer, external :: iwalk_ad
+!integer(kind=iwp) :: lin, lra
+!integer(kind=iwp) :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lmk, lri, lrj, lrk, mpl
+!real(kind=wp) :: w1ts1, w1ts2, w1ts3, w1ts4
+!integer(kind=iwp), external :: iwalk_ad
 !
 !isma = mul_tab(iml,imr)
 !do lri=norb_frz+1,norb_dz
@@ -2037,7 +2083,7 @@ end subroutine sdd_ar_act_dlr_sgt0
 !        lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
 !      end do
 !      do mpl=1,mtype
-!        vplp_w0(mpl) = 0.d0
+!        vplp_w0(mpl) = Zero
 !        vplp_w1(mpl) = vplpnew_w1(mpl)*w1ts1
 !      end do
 !      call ar_bl_br_ext_al_new(lin,intpos,isma,1)
@@ -2055,7 +2101,7 @@ end subroutine sdd_ar_act_dlr_sgt0
 !          lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
 !        end do
 !        do mpl=1,mtype
-!          vplp_w0(mpl) = 0.d0
+!          vplp_w0(mpl) = Zero
 !          vplp_w1(mpl) = vplpnew_w1(mpl)*w1ts2
 !        end do
 !        call ar_bl_br_ext_al_new(lin,intpos,isma,1)
@@ -2074,7 +2120,7 @@ end subroutine sdd_ar_act_dlr_sgt0
 !          lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
 !        end do
 !        do mpl=1,mtype
-!          vplp_w0(mpl) = 0.d0
+!          vplp_w0(mpl) = Zero
 !          vplp_w1(mpl) = vplpnew_w1(mpl)*w1ts2
 !        end do
 !        call ar_bl_br_ext_al_new(lin,intpos,isma,1)
@@ -2093,7 +2139,7 @@ end subroutine sdd_ar_act_dlr_sgt0
 !          lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
 !        end do
 !        do mpl=1,mtype
-!          vplp_w0(mpl) = 0.d0
+!          vplp_w0(mpl) = Zero
 !          vplp_w1(mpl) = vplpnew_w1(mpl)*w1ts3
 !        end do
 !        call ar_bl_br_ext_al_new(lin,intpos,isma,1)
@@ -2107,7 +2153,7 @@ end subroutine sdd_ar_act_dlr_sgt0
 !          lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
 !        end do
 !        do mpl=1,mtype
-!          vplp_w0(mpl) = 0.d0
+!          vplp_w0(mpl) = Zero
 !          vplp_w1(mpl) = vplpnew_w1(mpl)*w1ts4
 !        end do
 !        call ar_bl_br_ext_al_new(lin,intpos,isma,1)
@@ -2132,12 +2178,14 @@ subroutine tts_arbl_act_br_sgt1(lin,lra)
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, &
                          lpnew_rwei, lsm_inn, mhlp, mtype, ngw2, ngw3, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_t1s
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, lra
-integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lmk, lri, lrj, lrk, mpl
-real*8 :: w1ts1, w1ts2, w1ts3, w1ts4
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin, lra
+integer(kind=iwp) :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lmk, lri, lrj, lrk, mpl
+real(kind=wp) :: w1ts1, w1ts2, w1ts3, w1ts4
+integer(kind=iwp), external :: iwalk_ad
 
 isma = mul_tab(iml,imr)
 do lri=norb_frz+1,norb_dz
@@ -2168,7 +2216,7 @@ do lri=norb_frz+1,norb_dz
         lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
       end do
       do mpl=1,mtype
-        vplp_w0(mpl) = 0.d0
+        vplp_w0(mpl) = Zero
         vplp_w1(mpl) = vplpnew_w1(mpl)*w1ts1
       end do
       call ar_bl_br_ext_al_new(lin,intpos,isma,1)
@@ -2186,7 +2234,7 @@ do lri=norb_frz+1,norb_dz
           lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
         end do
         do mpl=1,mtype
-          vplp_w0(mpl) = 0.d0
+          vplp_w0(mpl) = Zero
           vplp_w1(mpl) = vplpnew_w1(mpl)*w1ts2
         end do
         call ar_bl_br_ext_al_new(lin,intpos,isma,1)
@@ -2205,7 +2253,7 @@ do lri=norb_frz+1,norb_dz
           lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
         end do
         do mpl=1,mtype
-          vplp_w0(mpl) = 0.d0
+          vplp_w0(mpl) = Zero
           vplp_w1(mpl) = -vplpnew_w1(mpl)*w1ts2
         end do
         call ar_bl_br_ext_al_new(lin,intpos,isma,1)
@@ -2224,7 +2272,7 @@ do lri=norb_frz+1,norb_dz
           lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
         end do
         do mpl=1,mtype
-          vplp_w0(mpl) = 0.d0
+          vplp_w0(mpl) = Zero
           vplp_w1(mpl) = vplpnew_w1(mpl)*w1ts3
         end do
         call ar_bl_br_ext_al_new(lin,intpos,isma,1)
@@ -2238,7 +2286,7 @@ do lri=norb_frz+1,norb_dz
           lp_rwei(mpl) = iwalk_ad(jpad,ipae,iwar,iwdr)
         end do
         do mpl=1,mtype
-          vplp_w0(mpl) = 0.d0
+          vplp_w0(mpl) = Zero
           vplp_w1(mpl) = vplpnew_w1(mpl)*w1ts4
         end do
         call ar_bl_br_ext_al_new(lin,intpos,isma,1)
@@ -2257,12 +2305,13 @@ subroutine sd_ar_act_dlr_sgt0(lin,lra)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, &
                          mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sd
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, lra
-integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
-real*8 :: w0sd3
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin, lra
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
+real(kind=wp) :: w0sd3
+integer(kind=iwp), external :: iwalk_ad
 
 jmlr = mul_tab(jml,jmr)
 do lri=norb_frz+1,norb_dz
@@ -2308,12 +2357,13 @@ use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpa
                          lpnew_rwei, lsm_inn, mhlp, mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sd1, &
                          w1_sd1
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, jk
-integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmk, lri, lrk, mpl
-real*8 :: w0sd1, w0sd2, w0sd3, w0sd4, w1sd1, w1sd2, w1sd3, w1sd4
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin, jk
+integer(kind=iwp) :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmk, lri, lrk, mpl
+real(kind=wp) :: w0sd1, w0sd2, w0sd3, w0sd4, w1sd1, w1sd2, w1sd3, w1sd4
+integer(kind=iwp), external :: iwalk_ad
 
 isma = mul_tab(iml,imr)
 do lri=norb_frz+1,norb_dz
@@ -2418,12 +2468,13 @@ subroutine sd_ar_act_blbr_sgt0(lin,jk)
 use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, &
                          lpnew_rwei, lsm_inn, mhlp, mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sd
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, jk
-integer :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
-real*8 :: w0sd3
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin, jk
+integer(kind=iwp) :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
+real(kind=wp) :: w0sd3
+integer(kind=iwp), external :: iwalk_ad
 
 jmlr = mul_tab(jml,jmr)
 isma = mul_tab(iml,imr)
@@ -2471,12 +2522,13 @@ subroutine sdd_ar_act_c_sd_ext_sgt0(lin)
 use gugaci_global, only: iml, imr, ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, &
                          lsm_inn, mhlp, mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_sd1, w1_sd1
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin
-integer :: isma, iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl, ni
-real*8 :: w0sd1, w0sd2, w0sd3, w0sd4, w1sd1, w1sd3, w1sd4
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin
+integer(kind=iwp) :: isma, iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl, ni
+real(kind=wp) :: w0sd1, w0sd2, w0sd3, w0sd4, w1sd1, w1sd3, w1sd4
+integer(kind=iwp), external :: iwalk_ad
 
 isma = mul_tab(iml,imr)
 do lri=norb_frz+1,norb_dz
@@ -2629,12 +2681,13 @@ subroutine ttdd_ar_act_c_ttdd_ext_sgt1(lin)
 use gugaci_global, only: iml, imr, ipae, ipael, jml, jmr, jpad, jpadl, jud, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, &
                          lsm_inn, mhlp, mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_t1d1, w1_t1d1
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin
-integer :: isma, iwal, iwar, iwdl, iwdr, lmi, lmj, lri, lrj, mpl
-real*8 :: w0td1, w1td1
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lin
+integer(kind=iwp) :: isma, iwal, iwar, iwdl, iwdr, lmi, lmj, lri, lrj, mpl
+real(kind=wp) :: w0td1, w1td1
+integer(kind=iwp), external :: iwalk_ad
 
 isma = mul_tab(iml,imr)
 do lri=norb_frz+1,norb_dz

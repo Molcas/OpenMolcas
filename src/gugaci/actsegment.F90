@@ -18,13 +18,14 @@ subroutine link_b1_at_given_orb(mh,lract)       !b^l:lstep<rstep
 
 use gugaci_global, only: istep_occ, iy, iyl, jb, jj_sub, jjl_sub, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, lpnew_head, &
                          lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: mh, lract
-integer :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, &
-           lpnextrtail, lprtail, lprwei, lprwei0, ni
-real*8 :: w, w0, w1, ww
-integer, parameter :: ismb1(8) = [3,8,34,35,40,44,66,76]
+integer(kind=iwp) :: mh, lract
+integer(kind=iwp) :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
+                     lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, ni
+real(kind=wp) :: w, w0, w1, ww
+integer(kind=iwp), parameter :: ismb1(8) = [3,8,34,35,40,44,66,76]
 
 lpnew = 0
 do iactploop=1,mh
@@ -83,14 +84,15 @@ subroutine link_b2_at_given_orb(mh,lract)        !b^r:lstep>rstep
 
 use gugaci_global, only: istep_occ, iy, iyl, jb, jj_sub, jjl_sub, logic_br, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, &
                          lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: mh, lract
-integer :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, &
-           lpnextrtail, lprtail, lprwei, lprwei0, ni
-real*8 :: w, w0, w1, ww
-logical :: logic_plbr
-integer, parameter :: ismb2(8) = [5,15,37,41,46,47,73,78]
+integer(kind=iwp) :: mh, lract
+integer(kind=iwp) :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
+                     lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, ni
+real(kind=wp) :: w, w0, w1, ww
+logical(kind=iwp) :: logic_plbr
+integer(kind=iwp), parameter :: ismb2(8) = [5,15,37,41,46,47,73,78]
 
 lpnew = 0
 do iactploop=1,mh
@@ -120,7 +122,7 @@ do iactploop=1,mh
         if (ind0 /= ismb2(ni)) cycle
         call segmidb2(w,ww,ni,jbr)
         lpnew = lpnew+1
-        !if (lpnew == 103) write(6,*) 'bbs_tmp'
+        !if (lpnew == 103) write(u6,*) 'bbs_tmp'
         lpnew_head(lpnew) = lphead
         lpnew_ltail(lpnew) = lpnextltail
         lpnew_rtail(lpnew) = lpnextrtail
@@ -152,13 +154,14 @@ subroutine link_b3_at_given_orb(mh,lract)      !b&l:lstep>rstep
 
 use gugaci_global, only: istep_occ, iy, iyl, jb, jj_sub, jjl_sub, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, lpnew_head, &
                          lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: mh, lract
-integer :: iactploop, idb, idocc, ilc, ilstep ,ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, &
-           lpnextrtail, lprtail, lprwei, lprwei0, ni
-real*8 :: w, w0, w1, ww
-integer, parameter :: ismb3(8) = [21,25,30,31,53,57,62,63]
+integer(kind=iwp) :: mh, lract
+integer(kind=iwp) :: iactploop, idb, idocc, ilc, ilstep ,ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
+                     lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, ni
+real(kind=wp) :: w, w0, w1, ww
+integer(kind=iwp), parameter :: ismb3(8) = [21,25,30,31,53,57,62,63]
 
 lpnew = 0
 do iactploop=1,mh
@@ -217,13 +220,14 @@ subroutine link_b4_at_given_orb(mh,lract)         !b&r:lstep<rstep
 
 use gugaci_global, only: istep_occ, iy, iyl, jb, jj_sub, jjl_sub, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, lpnew_head, &
                          lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: mh, lract
-integer :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, &
-           lpnextrtail, lprtail, lprwei, lprwei0, ni
-real*8 :: w, w0, w1, ww
-integer, parameter :: ismb4(8) = [18,19,24,28,50,51,56,60]
+integer(kind=iwp) :: mh, lract
+integer(kind=iwp) :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
+                     lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, ni
+real(kind=wp) :: w, w0, w1, ww
+integer(kind=iwp), parameter :: ismb4(8) = [18,19,24,28,50,51,56,60]
 
 lpnew = 0
 do iactploop=1,mh
@@ -282,13 +286,14 @@ subroutine link_d10_at_given_orb(mh,lract)
 
 use gugaci_global, only: iy, iyl, jb, jj_sub, jjl_sub, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, lpnew_head, lpnew_ltail, &
                          lpnew_lwei, lpnew_rtail, lpnew_rwei, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: mh, lract
-integer :: iactploop, idb, ilstep, ind0, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, lpnextrtail, lprtail, &
-           lprwei, lprwei0, ni
-real*8 :: w, w0, w1, ww
-integer, parameter :: ismd10(2) = [29,61]
+integer(kind=iwp) :: mh, lract
+integer(kind=iwp) :: iactploop, idb, ilstep, ind0, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, lpnextrtail, &
+                     lprtail, lprwei, lprwei0, ni
+real(kind=wp) :: w, w0, w1, ww
+integer(kind=iwp), parameter :: ismd10(2) = [29,61]
 
 lpnew = 0
 do iactploop=1,mh
@@ -342,14 +347,16 @@ subroutine link_c2_to_given_orb(mh,lrsta,lrend)
 use gugaci_global, only: istep_occ, iy, iyl, jb, jj_sub, jjl_sub, jpad, jpadl, logic_br, logic_newbr, lp_head, lp_ltail, lp_lwei, &
                          lp_rtail, lp_rwei, lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, norb_act, norb_dz, &
                          vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
+use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: mh, lrsta, lrend
-integer :: iactploop, idb, ilc, ilstep, ind0, iorb, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, &
-           lpnextrtail, lprtail, lprwei, lprwei0, ni
-real*8 :: w, w0, w1, ww
-logical :: logic_plbr
-integer, parameter :: ismc2(16) = [1,6,7,11,16,33,38,39,42,43,48,65,70,74,75,80]
+integer(kind=iwp) :: mh, lrsta, lrend
+integer(kind=iwp) :: iactploop, idb, ilc, ilstep, ind0, iorb, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
+                     lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, ni
+real(kind=wp) :: w, w0, w1, ww
+logical(kind=iwp) :: logic_plbr
+integer(kind=iwp), parameter :: ismc2(16) = [1,6,7,11,16,33,38,39,42,43,48,65,70,74,75,80]
 
 if ((norb_act == 0) .or. (lrsta == norb_dz+1)) then
   mh = 1
@@ -358,8 +365,8 @@ if ((norb_act == 0) .or. (lrsta == norb_dz+1)) then
   lp_rtail(mh) = jpad
   lp_lwei(mh) = 0
   lp_rwei(mh) = 0
-  vplp_w0(mh) = 1.0d0
-  vplp_w1(mh) = 1.0d0
+  vplp_w0(mh) = One
+  vplp_w1(mh) = One
   !logic_br(mh) = .true.
 end if
 if (norb_act == 0) return
@@ -391,7 +398,7 @@ do iorb=lrsta,lrend
           if (ind0 /= ismc2(ni)) cycle
           call segmidc2(w,ww,ni,jbr)
           lpnew = lpnew+1
-          !if (lpnew == 57) write(6,*) 'bbs_tmp'
+          !if (lpnew == 57) write(u6,*) 'bbs_tmp'
           lpnew_head(lpnew) = lphead
           lpnew_ltail(lpnew) = lpnextltail
           lpnew_rtail(lpnew) = lpnextrtail
@@ -425,13 +432,15 @@ subroutine link_c1_to_given_orb(mh,lrsta,lrend)
 use gugaci_global, only: istep_occ, iy, iyl, jb, jj_sub, jjl_sub, jpad, jpadl, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, &
                          lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, norb_act, norb_dz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1
+use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: mh, lrsta, lrend
-integer :: iactploop, idb, ilc, ilstep, ind0, iorb, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, &
-           lpnextrtail, lprtail, lprwei, lprwei0, ni
-real*8 :: w, w0, w1, ww
-integer, parameter :: ismc1(10) = [17,22,23,27,32,49,54,58,59,64]
+integer(kind=iwp) :: mh, lrsta, lrend
+integer(kind=iwp) :: iactploop, idb, ilc, ilstep, ind0, iorb, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
+                     lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, ni
+real(kind=wp) :: w, w0, w1, ww
+integer(kind=iwp), parameter :: ismc1(10) = [17,22,23,27,32,49,54,58,59,64]
 
 if ((norb_act == 0) .or. (lrsta == norb_dz+1)) then
   mh = 1
@@ -440,8 +449,8 @@ if ((norb_act == 0) .or. (lrsta == norb_dz+1)) then
   lp_rtail(mh) = jpad
   lp_lwei(mh) = 0
   lp_rwei(mh) = 0
-  vplp_w0(mh) = 1.0d0
-  vplp_w1(mh) = 1.0d0
+  vplp_w0(mh) = One
+  vplp_w1(mh) = One
 end if
 if (norb_act == 0) return
 do iorb=lrsta,lrend
@@ -470,7 +479,7 @@ do iorb=lrsta,lrend
           if (ind0 /= ismc1(ni)) cycle
           call segmidc1(w,ww,ni,jbr)
           lpnew = lpnew+1
-          !if (lpnew == 15) write(6,*) 'bbs_tmp'
+          !if (lpnew == 15) write(u6,*) 'bbs_tmp'
           lpnew_head(lpnew) = lphead
           lpnew_ltail(lpnew) = lpnextltail
           lpnew_rtail(lpnew) = lpnextrtail
@@ -499,14 +508,16 @@ subroutine link_c1_to_given_orb_coe(mh,lrsta,lrend)
 use gugaci_global, only: istep_occ, iy, iyl, jb, jj_sub, jjl_sub, jpad, jpadl, lp_coe, lp_head, lp_ltail, lp_lwei, lp_rtail, &
                          lp_rwei, lpnew_coe, lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, norb_act, norb_dz, &
                          vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
+use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: mh, lrsta, lrend
-integer :: iactploop, idb, ilc, ilstep, ind0, iorb, irc, irstep, jbl, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, &
-           lpnextrtail, lprtail, lprwei, lprwei0, lr, ni
-real*8 :: w, w0, w1, ww
-integer, parameter :: ismc1(10) = [17,22,23,27,32,49,54,58,59,64]
-integer, external :: k_coe
+integer(kind=iwp) :: mh, lrsta, lrend
+integer(kind=iwp) :: iactploop, idb, ilc, ilstep, ind0, iorb, irc, irstep, jbl, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
+                     lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, lr, ni
+real(kind=wp) :: w, w0, w1, ww
+integer(kind=iwp), parameter :: ismc1(10) = [17,22,23,27,32,49,54,58,59,64]
+integer(kind=iwp), external :: k_coe
 
 if ((norb_act == 0) .or. (lrsta == norb_dz+1)) then
   mh = 1
@@ -515,8 +526,8 @@ if ((norb_act == 0) .or. (lrsta == norb_dz+1)) then
   lp_rtail(mh) = jpad
   lp_lwei(mh) = 0
   lp_rwei(mh) = 0
-  vplp_w0(mh) = 1.0d0
-  vplp_w1(mh) = 1.0d0
+  vplp_w0(mh) = One
+  vplp_w1(mh) = One
 end if
 if (norb_act == 0) return
 do iorb=lrsta,lrend
@@ -580,12 +591,13 @@ end subroutine link_c1_to_given_orb_coe
 subroutine head_drr_at_given_orb(mh,lri)
 
 use gugaci_global, only: iy, iyl, jj_sub, jjl_sub, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, no, vplp_w0, vplp_w1
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: mh, lri
-integer :: iactploop, ind0, jdl, jdr, jl, jp, jpend, jpsta, jr
-real*8 :: w, ww
-integer, parameter :: ishdrr = 36
+integer(kind=iwp) :: mh, lri
+integer(kind=iwp) :: iactploop, ind0, jdl, jdr, jl, jp, jpend, jpsta, jr
+real(kind=wp) :: w, ww
+integer(kind=iwp), parameter :: ishdrr = 36
 
 iactploop = 0
 jpsta = no(lri-1)+1
@@ -623,12 +635,13 @@ subroutine head_drl_at_given_orb(mh,lri)
 
 use gugaci_global, only: istep_occ, iy, iyl, jb, jj_sub, jjl_sub, logic_br, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, no, &
                          vplp_w0, vplp_w1
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: mh, lri
-integer :: iactploop, ind0, jbr, jdl, jdr, jl, jp, jpend, jpsta, jr, ndl, ndr, ni
-real*8 :: w, ww
-integer, parameter :: ishd1(4) = [38,39,43,48]
+integer(kind=iwp) :: mh, lri
+integer(kind=iwp) :: iactploop, ind0, jbr, jdl, jdr, jl, jp, jpend, jpsta, jr, ndl, ndr, ni
+real(kind=wp) :: w, ww
+integer(kind=iwp), parameter :: ishd1(4) = [38,39,43,48]
 
 jpsta = no(lri-1)+1
 jpend = no(lri)
@@ -676,13 +689,14 @@ subroutine head_ar_at_given_orb(mh,lri)
 
 use gugaci_global, only: istep_occ, iy, iyl, jb, jj_sub, jjl_sub, lp_coe, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, no, &
                          vplp_w0, vplp_w1
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: mh, lri
-integer :: iactploop, ind0, jbr, jd_occ, jdl, jdl_occ, jdr, jdr_occ, jl, jp, jpend, jpsta, jr, ni
-real*8 :: w, ww
-logical :: found
-integer, parameter :: isha4(4) = [34,35,40,44]
+integer(kind=iwp) :: mh, lri
+integer(kind=iwp) :: iactploop, ind0, jbr, jd_occ, jdl, jdl_occ, jdr, jdr_occ, jl, jp, jpend, jpsta, jr, ni
+real(kind=wp) :: w, ww
+logical(kind=iwp) :: found
+integer(kind=iwp), parameter :: isha4(4) = [34,35,40,44]
 
 iactploop = 0
 jpsta = no(lri-1)+1
@@ -712,7 +726,7 @@ do jp=jpsta,jpend
       end do
       if (.not. found) cycle
       iactploop = iactploop+1
-      !if (iactploop == 4) write(6,*) 'bbs_tmp'
+      !if (iactploop == 4) write(u6,*) 'bbs_tmp'
       lp_head(iactploop) = jp
       lp_ltail(iactploop) = jl
       lp_rtail(iactploop) = jr
@@ -737,13 +751,14 @@ subroutine tail_ar_at_given_orb(mh,lract)       !a^r:lstep>rstep
 
 use gugaci_global, only: istep_occ, iy, iyl, ja, jb, jj_sub, jjl_sub, jm, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, &
                          lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: mh, lract
-integer :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, &
-           lpnextrtail, lprtail, lprwei, lprwei0, ni
-real*8 :: w, w0, w1, ww
-integer, parameter :: isla2(4) = [21,31,57,62]
+integer(kind=iwp) :: mh, lract
+integer(kind=iwp) :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
+                     lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, ni
+real(kind=wp) :: w, w0, w1, ww
+integer(kind=iwp), parameter :: isla2(4) = [21,31,57,62]
 
 lpnew = 0
 do iactploop=1,mh
@@ -807,13 +822,14 @@ subroutine tail_al_at_given_orb(mh,lract)       !a^l:lstep<rstep
 
 use gugaci_global, only: istep_occ, iy, iyl, ja, jb, jj_sub, jjl_sub, jm, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, &
                          lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: mh, lract
-integer :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, &
-           lpnextrtail, lprtail, lprwei, lprwei0, ni
-real*8 :: w, w0, w1, ww
-integer, parameter :: isla1(4) = [19,24,50,60]
+integer(kind=iwp) :: mh, lract
+integer(kind=iwp) :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
+                     lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, ni
+real(kind=wp) :: w, w0, w1, ww
+integer(kind=iwp), parameter :: isla1(4) = [19,24,50,60]
 
 lpnew = 0
 do iactploop=1,mh
@@ -877,13 +893,14 @@ subroutine tail_drr_at_given_orb(mh,lract)       !d^r^r(3,0):locc=
 
 use gugaci_global, only: iy, iyl, ja, jb, jj_sub, jjl_sub, jm, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, lpnew_head, &
                          lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: mh, lract
-integer :: iactploop, idb, ilstep, ind0, irstep, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, lpnextrtail, lprtail, &
-           lprwei, lprwei0
-real*8 :: w, w0, w1, ww
-integer, parameter :: isld6 = 45
+integer(kind=iwp) :: mh, lract
+integer(kind=iwp) :: iactploop, idb, ilstep, ind0, irstep, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, lpnextrtail, &
+                     lprtail, lprwei, lprwei0
+real(kind=wp) :: w, w0, w1, ww
+integer(kind=iwp), parameter :: isld6 = 45
 
 lpnew = 0
 do iactploop=1,mh
@@ -938,14 +955,15 @@ subroutine tail_drl_at_given_orb(mh,lract)       !d^r^l:locc=rocc
 
 use gugaci_global, only: istep_occ, iy, iyl, ja, jb, jj_sub, jjl_sub, jm, logic_br, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, &
                          lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: mh, lract
-logical :: logic_plbr
-integer :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstart, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
-           lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, ni
-real*8 :: w, w0, w1, ww
-integer, parameter :: isld2(5) = [7,38,43,48,74]
+integer(kind=iwp) :: mh, lract
+logical(kind=iwp) :: logic_plbr
+integer(kind=iwp) :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstart, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
+                     lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, ni
+real(kind=wp) :: w, w0, w1, ww
+integer(kind=iwp), parameter :: isld2(5) = [7,38,43,48,74]
 
 lpnew = 0
 do iactploop=1,mh

@@ -17,13 +17,14 @@ subroutine gdv_sequence_extspace(ilw,irw)
 ! 26 feb 2007 - revised
 
 use gugaci_global, only: ilsegdownwei, indx, log_prod, mcroot, value_lpext, vector1, vector2
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: ilw, irw
-integer :: iij, irot, irtidx, mm, nn
-real*8 :: valuelp, valuelptmp1, vlptmp
+integer(kind=iwp) :: ilw, irw
+integer(kind=iwp) :: iij, irot, irtidx, mm, nn
+real(kind=wp) :: valuelp, valuelptmp1, vlptmp
 
-!write(6,*) '  dv_test ','  vd_test '
+!write(u6,*) '  dv_test ','  vd_test '
 
 ! mrpt2
 if (log_prod == 3) then
@@ -43,10 +44,10 @@ do irot=1,mcroot
     vector2(mm) = vector2(mm)+valuelptmp1*vlptmp
     valuelp = valuelp+vector1(mm)*vlptmp
     !if ((mm == 86) .and. (nn == 5)) then
-    !  write(6,*) 'dv_test 1 ',vlptmp,vector2(mm)
+    !  write(u6,*) 'dv_test 1 ',vlptmp,vector2(mm)
     !end if
     !if ((mm == 5) .and. (nn == 86)) then
-    !  write(6,*) 'dv_test 2 ',valuelp,vector2(nn)
+    !  write(u6,*) 'dv_test 2 ',valuelp,vector2(nn)
     !end if
   end do
   vector2(nn) = valuelp
@@ -57,11 +58,12 @@ end subroutine gdv_sequence_extspace
 subroutine gdv_sequence_extspace_pt(ilw,irw)  !log_prod=
 
 use gugaci_global, only: ilsegdownwei, value_lpext, vcm, vector2
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: ilw, irw
-integer :: iij, mm, nn
-real*8 :: wl
+integer(kind=iwp) :: ilw, irw
+integer(kind=iwp) :: iij, mm, nn
+real(kind=wp) :: wl
 
 mm = ilw
 nn = irw+1
@@ -70,10 +72,10 @@ do iij=1,ilsegdownwei
   wl = value_lpext(iij)
   vector2(mm) = vector2(mm)+vcm(nn)*wl
   !if ((jpad == 1) .and. (ipae == 2)) then
-  !  write(6,'(a,4i6,3f18.8)') 'dv_test_pt 1 ',jpadl,ipael,mm,nn,wl,vcm(nn),vector2(mm)
+  !  write(u6,'(a,4i6,3f18.8)') 'dv_test_pt 1 ',jpadl,ipael,mm,nn,wl,vcm(nn),vector2(mm)
   !end if
   !if ((jpadl == 1) .and. (ipael == 2)) then
-  !  write(6,'(a,4i6,3f18.8)') 'dv_test_pt 2 ',jpad,ipae,mm,nn,wl,vcm(nn),vector2(mm)
+  !  write(u6,'(a,4i6,3f18.8)') 'dv_test_pt 2 ',jpad,ipae,mm,nn,wl,vcm(nn),vector2(mm)
   !end if
 end do
 
@@ -85,14 +87,14 @@ subroutine gtd_sequence_extspace(iplplweiin,iplprweiin)
 
 use gugaci_global, only: indx, iweista_g25, iweista_g28, logic_g25a, logic_g25b, logic_g28a, mcroot, nint_g25, nint_g28, nwei_g25, &
                          nwei_g28, value_lpext, vector1, vector2
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: iplplweiin, iplprweiin
-integer :: i, ilpvalue, iplplwei, iplprwei, irot, irtidx, itmp, mm, nn, nn0
-real*8 :: vlptmp, vlptmp1, vlptmp2
-real*8, parameter :: v_sqtwo = 1.414213562373095d0
+integer(kind=iwp) :: iplplweiin, iplprweiin
+integer(kind=iwp) :: i, ilpvalue, iplplwei, iplprwei, irot, irtidx, itmp, mm, nn, nn0
+real(kind=wp) :: vlptmp, vlptmp1, vlptmp2
 
-!write(6,*) ' td_test _1/2',' dt_test '
+!write(u6,*) ' td_test _1/2',' dt_test '
 
 do irot=1,mcroot
   irtidx = indx(irot)
@@ -176,14 +178,15 @@ use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, indx, ism_g2g4, i
                          lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, &
                          lpsta36b, mcroot, ng_sm, nvalue_space_ss, value_lpext, vector1, vector2
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: iplplweiin, iplprweiin
-integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, isma, &
-           ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
-real*8 :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
+integer(kind=iwp) :: iplplweiin, iplprweiin
+integer(kind=iwp) :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, &
+                     irwtmp, isma, ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
+real(kind=wp) :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
 
-!write(6,*) ' ss_test 1/2'
+!write(u6,*) ' ss_test 1/2'
 do irot=1,mcroot
   irtidx = indx(irot)
   iplplwei = iplplweiin+irtidx
@@ -380,14 +383,15 @@ use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, indx, ism_g2g4, i
                          lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, &
                          lpsta36b, mcroot, ng_sm, value_lpext, vector1, vector2
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: iplplweiin, iplprweiin
-integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, isma, &
-           ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
-real*8 :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
+integer(kind=iwp) :: iplplweiin, iplprweiin
+integer(kind=iwp) :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, &
+                     irwtmp, isma, ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
+real(kind=wp) :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
 
-!write(6,*) ' ss_test 2/2'
+!write(u6,*) ' ss_test 2/2'
 do irot=1,mcroot
   irtidx = indx(irot)
   iplplwei = iplplweiin+irtidx
@@ -580,13 +584,14 @@ subroutine inn_ext_sv_loop_unpack(ilw,irw)   !,ilsegdownwei)
 ! 26 feb 2007 - revised
 
 use gugaci_global, only: ilsegdownwei, indx, log_prod, mcroot, value_lpext, vector1, vector2
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: ilw, irw
-integer :: iij, irot, irtidx, mm, nn
-real*8 :: valuelp, valuelptmp1
+integer(kind=iwp) :: ilw, irw
+integer(kind=iwp) :: iij, irot, irtidx, mm, nn
+real(kind=wp) :: valuelp, valuelptmp1
 
-!write(6,*) 'sv_test,   tv_test '
+!write(u6,*) 'sv_test,   tv_test '
 if (log_prod == 3) then
   call inn_ext_svloop_unpack_pt(ilw,irw)
   return
@@ -611,11 +616,12 @@ end subroutine inn_ext_sv_loop_unpack
 subroutine inn_ext_svloop_unpack_pt(ilw,irw)
 
 use gugaci_global, only: ilsegdownwei, value_lpext, vcm, vector2
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: ilw, irw
-integer :: iij, mm, nn
-real*8 :: wl
+integer(kind=iwp) :: ilw, irw
+integer(kind=iwp) :: iij, mm, nn
+real(kind=wp) :: wl
 !character(len=16) :: loop_type
 
 !loop_type = ' sv_test_pt, tv_test_pt'
@@ -640,14 +646,15 @@ subroutine inn_ext_tt_loop_unpack(iplplweiin,iplprweiin)
 use gugaci_global, only: idownwei_g131415, indx, logic_g1415, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, &
                          logic_g36b, lpend34a, lpend34b, lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, &
                          lpsta35a, lpsta35b, lpsta36a, lpsta36b, mcroot, nvalue_space_ss, value_lpext, vector1, vector2
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: iplplweiin, iplprweiin
-integer :: i, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, lpend34, lpend35, lpend36, lpsta34, &
-           lpsta35, lpsta36, mm, mm0, nn, nn0
-real*8 :: valuelp, valuelptmp1, valuetmp
+integer(kind=iwp) :: iplplweiin, iplprweiin
+integer(kind=iwp) :: i, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, lpend34, lpend35, lpend36, &
+                     lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0
+real(kind=wp) :: valuelp, valuelptmp1, valuetmp
 
-!write(6,*) '  tt_test 1/2'
+!write(u6,*) '  tt_test 1/2'
 
 do irot=1,mcroot
   irtidx = indx(irot)
@@ -773,14 +780,15 @@ use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, indx, ism_g2g4, i
                          lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, &
                          lpsta36b, mcroot, ng_sm, nvalue_space_ss, value_lpext, vector1, vector2
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: iplplweiin, iplprweiin
-integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, isma, &
-           ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
-real*8 :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
+integer(kind=iwp) :: iplplweiin, iplprweiin
+integer(kind=iwp) :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, &
+                     irwtmp, isma, ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
+real(kind=wp) :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
 
-!write(6,*) '  ts_test 1/2 '
+!write(u6,*) '  ts_test 1/2 '
 
 do irot=1,mcroot
   irtidx = indx(irot)
@@ -985,14 +993,15 @@ use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, indx, ism_g2g4, i
                          lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, &
                          lpsta36b, mcroot, ng_sm, value_lpext, vector1, vector2
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: iplplweiin, iplprweiin
-integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, isma, &
-           ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
-real*8 :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
+integer(kind=iwp) :: iplplweiin, iplprweiin
+integer(kind=iwp) :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, &
+                     irwtmp, isma, ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
+real(kind=wp) :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
 
-!write(6,*) '  ts_test 2/2'
+!write(u6,*) '  ts_test 2/2'
 
 do irot=1,mcroot
   irtidx = indx(irot)
@@ -1198,14 +1207,15 @@ use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, indx, ism_g2g4, i
                          lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, &
                          lpsta36b, mcroot, ng_sm, nvalue_space_ss, value_lpext, vector1, vector2
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: iplplweiin, iplprweiin
-integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, isma, &
-           ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
-real*8 :: valtmp, valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
+integer(kind=iwp) :: iplplweiin, iplprweiin
+integer(kind=iwp) :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, &
+                     irwtmp, isma, ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
+real(kind=wp) :: valtmp, valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
 
-!write(6,*) ' st_test 1/2'
+!write(u6,*) ' st_test 1/2'
 
 do irot=1,mcroot
   irtidx = indx(irot)
@@ -1226,7 +1236,7 @@ do irot=1,mcroot
     end do
   end if
 
-  !write(6,*) 'st_g2g4a',iplplwei,iplprwei,vector2(137)
+  !write(u6,*) 'st_g2g4a',iplplwei,iplprwei,vector2(137)
   ii0 = ii
   if (logic_g2g4a) then
     ii = ii0
@@ -1261,7 +1271,7 @@ do irot=1,mcroot
       end do
     end do
   end if
-  !write(6,*) 'st_g2g4b',iplplwei,iplprwei,vector2(137)
+  !write(u6,*) 'st_g2g4b',iplplwei,iplprwei,vector2(137)
   if (logic_g2g4b) then
     ii = ii0
     mm0 = iplprwei
@@ -1297,7 +1307,7 @@ do irot=1,mcroot
   end if
   ii0 = ii-1
 
-  !write(6,*) 'st_g36a',iplplwei,iplprwei,vector2(137)
+  !write(u6,*) 'st_g36a',iplplwei,iplprwei,vector2(137)
   do icle=1,2
     if (((icle == 1) .and. logic_g36a) .or. ((icle == 2) .and. logic_g36b)) then
       if (icle == 1) then
@@ -1326,7 +1336,7 @@ do irot=1,mcroot
       end do
     end if
 
-    !write(6,*) 'st_g35a',iplplwei,iplprwei,vector2(137)
+    !write(u6,*) 'st_g35a',iplplwei,iplprwei,vector2(137)
     if ((icle == 1) .and. logic_g35a) then
       mm0 = iplplwei
       nn0 = iplprwei
@@ -1369,7 +1379,7 @@ do irot=1,mcroot
       end do
     end if
 
-    !write(6,*) 'st_g34',iplplwei,iplprwei,vector2(137)
+    !write(u6,*) 'st_g34',iplplwei,iplprwei,vector2(137)
     if (((icle == 1) .and. logic_g34a) .or. ((icle == 2) .and. logic_g34b)) then
       if (icle == 1) then
         mm0 = iplplwei
@@ -1416,14 +1426,15 @@ use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, indx, ism_g2g4, i
                          lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, &
                          lpsta36b, mcroot, ng_sm, value_lpext, vector1, vector2
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: iplplweiin, iplprweiin
-integer :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, isma, &
-           ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
-real*8 :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
+integer(kind=iwp) :: iplplweiin, iplprweiin
+integer(kind=iwp) :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, &
+                     irwtmp, isma, ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
+real(kind=wp) :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
 
-!write(6,*) ' st_test 2/2'
+!write(u6,*) ' st_test 2/2'
 
 do irot=1,mcroot
   irtidx = indx(irot)
@@ -1623,15 +1634,16 @@ subroutine gsd_sequence_extspace(iplplweiin,iplprweiin)
 ! 26 feb 2007 - revised
 
 use gugaci_global, only: indx, ivaluesta_g26, iweista_g25, iweista_g26, iweista_g28, logic_g25a, logic_g25b, logic_g26, &
-                         logic_g28a, mcroot, nint_g25, nint_g28, nwei_g25, nwei_g26, nwei_g28, value_lpext, vector1, vector2
+                         logic_g28a, mcroot, nint_g25, nint_g28, nwei_g25, nwei_g26, nwei_g28, v_sqtwo, value_lpext, vector1, &
+                         vector2
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: iplplweiin, iplprweiin
-integer :: i, ilpvalue, iplplwei, iplprwei, irot, irtidx, itmp, mm, nn, nn0
-real*8 :: vlptmp, vlptmp1, vtmp
-real*8, parameter :: v_sqtwo = 1.414213562373095d0
+integer(kind=iwp) :: iplplweiin, iplprweiin
+integer(kind=iwp) :: i, ilpvalue, iplplwei, iplprwei, irot, irtidx, itmp, mm, nn, nn0
+real(kind=wp) :: vlptmp, vlptmp1, vtmp
 
-!write(6,*) '  sd_test 1/2','  ds_test 011'
+!write(u6,*) '  sd_test 1/2','  ds_test 011'
 
 do irot=1,mcroot
   irtidx = indx(irot)
@@ -1723,13 +1735,14 @@ subroutine complete_sd_ar_ext_loop(ilweiin,irweiin,isdownwei)
 ! 26 feb 2007 - revised
 
 use gugaci_global, only: icano_nnend, icano_nnsta, indx, mcroot, value_lpext, vector1, vector2
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: ilweiin, irweiin, isdownwei
-integer :: ilpvalue, ilwei, irot, irtidx, irwei, mm, mm0, mmtmp, nn, nntmp
-real*8 :: vlptmp, vlptmp1
+integer(kind=iwp) :: ilweiin, irweiin, isdownwei
+integer(kind=iwp) :: ilpvalue, ilwei, irot, irtidx, irwei, mm, mm0, mmtmp, nn, nntmp
+real(kind=wp) :: vlptmp, vlptmp1
 
-!write(6,*) 'sd_test 2/2','  td_test_2/2 012'
+!write(u6,*) 'sd_test 2/2','  td_test_2/2 012'
 
 do irot=1,mcroot
   irtidx = indx(irot)
@@ -1764,11 +1777,12 @@ subroutine inn_ext_dd_loop_unpack(iplplweiin,iplprweiin)
 
 use gugaci_global, only: ildownwei_segdd, indx, int_dd_drl, irdownwei_segdd, logic_g49a, logic_g49b, logic_g50, mcroot, &
                          value_lpext, vector1, vector2
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: iplplweiin, iplprweiin
-integer :: i, icle, ii, ildownwei, iplplwei, iplprwei, irdownwei, irot, irtidx, j, mm, mm0, nn
-real*8 :: valuelp, valuelptmp1, valuetmp
+integer(kind=iwp) :: iplplweiin, iplprweiin
+integer(kind=iwp) :: i, icle, ii, ildownwei, iplplwei, iplprwei, irdownwei, irot, irtidx, j, mm, mm0, nn
+real(kind=wp) :: valuelp, valuelptmp1, valuetmp
 
 ! 'dd_test '
 
@@ -1855,15 +1869,16 @@ subroutine inn_ext_tt_drl_loop_unpack(iplplweiin,iplprweiin,n1415)
 use gugaci_global, only: idownwei_g131415, indx, logic_g1415, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, &
                          logic_g36b, lpend34a, lpend34b, lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, &
                          lpsta35a, lpsta35b, lpsta36a, lpsta36b, mcroot, value_lpext, vector1, vector2
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: iplplweiin, iplprweiin, n1415
-integer :: i, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, lpend34, lpend35, lpend36, lpsta34, &
-           lpsta35, lpsta36, mm, mm0, nn, nn0
-real*8 :: valuelp, valuelptmp1, valuetmp
-logical :: logic_g14150, logic_g34b0, logic_g35b0, logic_g36b0
+integer(kind=iwp) :: iplplweiin, iplprweiin, n1415
+integer(kind=iwp) :: i, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, lpend34, lpend35, lpend36, &
+                     lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0
+real(kind=wp) :: valuelp, valuelptmp1, valuetmp
+logical(kind=iwp) :: logic_g14150, logic_g34b0, logic_g35b0, logic_g36b0
 
-!write(6,*) '  tt_test 2/2'
+!write(u6,*) '  tt_test 2/2'
 
 logic_g14150 = logic_g1415
 logic_g36b0 = logic_g36b

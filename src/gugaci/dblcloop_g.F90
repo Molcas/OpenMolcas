@@ -27,17 +27,17 @@ subroutine dbl_space_loop_ijkk_sgezero_g()
 
 use gugaci_global, only: jb_sys, jud, just, lsm_inn, norb_dz, norb_frz, ns_sm
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: One, Two, Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: im, imi, imm, iwdl, iwdr, iwld, iwls, iwlt, iwrd, iwrs, iwrt, jpat, jpdd, jpds, jpds0, jpdt, jpdt1, kij, lmi, lmij, &
-           lmj, lr, lri, lrj, lrm, mij, ni, nxo, nxo_1, nxo_2
-real*8 :: db, vl0_2, vl_0, vl_1, vlp_1, vls0, vls0_2, vls1, vls10_2, vls10_2b, vls1_a, vls_c, vlt0, vlt1, wl, wl0, wl0_1, wl0_2, &
-          wls, wls1, wls1_1, wls1_2, wls2, wls2_1, wls2_2, wls_1, wls_2, wls_a_1, wls_a_2, wls_b, wlt, wlt_1, wlt_2
-!real*8, parameter :: dzero = 0.0d0
+integer(kind=iwp) :: im, imi, imm, iwdl, iwdr, iwld, iwls, iwlt, iwrd, iwrs, iwrt, jpat, jpdd, jpds, jpds0, jpdt, jpdt1, kij, lmi, &
+                     lmij, lmj, lr, lri, lrj, lrm, mij, ni, nxo, nxo_1, nxo_2
+real(kind=wp) :: db, vl0_2, vl_0, vl_1, vlp_1, vls0, vls0_2, vls1, vls10_2, vls10_2b, vls1_a, vls_c, vlt0, vlt1, wl, wl0, wl0_1, &
+                 wl0_2, wls, wls1, wls1_1, wls1_2, wls2, wls2_1, wls2_2, wls_1, wls_2, wls_a_1, wls_a_2, wls_b, wlt, wlt_1, wlt_2
 
 !==============================  g1,2,4,6,7,8 ==========================
 !zz = ' doub_800_v'
-!dzero = 0.0d0
 db = jb_sys
 im = ns_sm
 jpds0 = im+17
@@ -46,13 +46,13 @@ do lri=norb_frz+1,norb_dz-1
   iwdl = just(lri,lri)         !drr(03)-drr(30)
   do lrj=lri+1,norb_dz
     !wl = voint(lrj,lri)          ! vdint(itailorb,iheadorb)
-    !wl = 1.0d0
+    !wl = One
     !=================================
     ! drr-drr
-    ! wl=2.0d0 but not 1.0d0 is based on that the non-diagonal just uses th
+    ! wl=Two but not One is based on that the non-diagonal just uses th
     ! non-triangle <ci|h|cj> which designates that i > j. drr-drr
 
-    wl = 2.0d0
+    wl = Two
     iwdr = just(lrj,lrj)
     call trans_ijkl_intpos(lrj,lri,lrj,lri,nxo)
     call prodab_2(1,0,jpds0,iwdl,iwdr,0,wl,0,nxo)
@@ -70,7 +70,7 @@ if (jb_sys > 0) then
       iwdl = just(lrj,lri)
       iwdr = just(lri,lrj)
       !wl = -vlp_1*voint(lrj,lri)
-      wl = -vlp_1*2.0d0
+      wl = -vlp_1*Two
       !write(nf2,*) 'wl=',wl
       call trans_ijkl_intpos(lrj,lri,lrj,lri,nxo)
       call prodab_2(1,0,jpds,iwdl,iwdr,0,wl,0,nxo)
@@ -90,16 +90,16 @@ do lri=norb_frz+1,norb_dz-1           !frz
     vl_1 = sqrt(db/(db+1))
     if (ni == 0) vl_0 = -vl_0
     if (ni == 0) vl_1 = -vl_1
-    vl0_2 = 1.0d0
+    vl0_2 = One
     vls0_2 = 1/(db+1)
     vls10_2 = sqrt(db*(db+2))/(db+1)
     !if (ni == 1) vl0_2 = -vl0_2
-    vls0 = -0.5d0
+    vls0 = -Half
     vls1 = (db+3)/(2*db+2)
     vls1_a = (db-1)/(2*db+2)
     vls_c = db/(db+1)
-    vlt0 = -0.5d0
-    vlt1 = -0.5d0
+    vlt0 = -Half
+    vlt1 = -Half
     vls10_2b = sqrt(db*(db+2))/(db+1)
     if (ni == 1) then
       vl0_2 = -vl0_2
@@ -115,15 +115,15 @@ do lri=norb_frz+1,norb_dz-1           !frz
       vlt0 = -vlt0
       vlt1 = -vlt1
     end if
-    !wl0 = dzero
-    !wl10 = dzero
+    !wl0 = Zero
+    !wl10 = Zero
     ! for 2,4 the common
     ! ar(23)-c"(33)-ar(10) ar(13)-c"(33)-ar(20)
     ! ar(23)-drl(33)-ar(10)  ar(13)-drl(33)-ar(20)    310
     !======================
     ! for 2 the common
 
-    !wltmp = dzero
+    !wltmp = Zero
     do lr=lri+1,lrj-1
       !list = list3(lri,lrj,lr)
       !wltmp = wltmp+2*vint_ci(list+1)-vint_ci(list)
@@ -154,7 +154,7 @@ do lri=norb_frz+1,norb_dz-1           !frz
     ! neoc(k)*wg43*(vint(list+2)+coe(k)*vint(list+1))
     ! drl(33)-bl(23)-ar(10)
     ! drl(33)-bl(13)-ar(20)
-    !wltmp=dzero
+    !wltmp = Zero
 
     do lr=1,lri-1
       !list = list3(lri,lrj,lr)
@@ -182,7 +182,7 @@ do lri=norb_frz+1,norb_dz-1           !frz
     !wl10 = wl10+vl_1*wltmp
     ! ar(23)-bl(10)-drl(33)
     ! ar(13)-bl(20)-drl(33)
-    !wltmp = dzero
+    !wltmp = Zero
 
     do lr=lrj+1,norb_dz
       !list = list3(lri,lrj,lr)
@@ -209,7 +209,7 @@ do lri=norb_frz+1,norb_dz-1           !frz
     !======================
     ! for 4 the common
 
-    !wltmp = dzero
+    !wltmp = Zero
     do lr=lri+1,lrj-1
       !list = list3(lri,lrj,lr)
       !wltmp = wltmp+2*vint_ci(list+1)-vint_ci(list)
@@ -240,7 +240,7 @@ do lri=norb_frz+1,norb_dz-1           !frz
     ! neoc(k)*wg43*(vint(list+2)+coe(k)*vint(list+1))
     ! drl(33)-bl(23)-ar(10)
     ! drl(33)-bl(13)-ar(20)
-    !wltmp = dzero
+    !wltmp = Zero
 
     do lr=1,lri-1
       !list = list3(lri,lrj,lr)
@@ -268,7 +268,7 @@ do lri=norb_frz+1,norb_dz-1           !frz
     !wl10 = wl10+vl_1*wltmp
     ! ar(23)-bl(10)-drl(33)
     ! ar(13)-bl(20)-drl(33)
-    !wltmp = dzero
+    !wltmp = Zero
 
     do lr=lrj+1,norb_dz
       !list = list3(lri,lrj,lr)
@@ -418,11 +418,11 @@ do lri=norb_frz+1,norb_dz-1           !frz
           ! s  ar(23)-c'(11)-cw(33)-ar(32)   w0=-sqrt(db*(db+2))/(db+1) w1=0
           ! s  ar(13)-c'(21)-cw(33)-ar(32)   w0=1/(db+1) w1=0
           ! s  ar(13)-c'(22)-cw(33)-ar(31)   w0=-sqrt(db*(db+2))/(db+1) w1=0
-          !wlt0 =d zero
-          !wls0 = dzero
-          !wls0_1 = dzero                   ! bbs_tmp
-          !wls0_2 = dzero
-          !wltmp = dzero
+          !wlt0 = Zero
+          !wls0 = Zero
+          !wls0_1 = Zero                   ! bbs_tmp
+          !wls0_2 = Zero
+          !wltmp = Zero
           do lr=lrm+1,lrj-1
             !list = list3(lri,lrj,lr)
             !wltmp = wltmp+2*vint_ci(list+1)-vint_ci(list)
@@ -480,7 +480,7 @@ do lri=norb_frz+1,norb_dz-1           !frz
           ! s  ar(13)-cw(33)-c'(21)-ar(32)      w0=1/(db+1) w1=0
           ! s  ar(13)-cw(33)-c'(22)-ar(31)      w0=-sqrt(db*(db+2))/(db+1) w1=0
 
-          !wltmp = dzero
+          !wltmp = Zero
           do lr=lri+1,lrm-1
             !list = list3(lri,lrj,lr)
             iwls = just(lri,lrm)
@@ -538,7 +538,7 @@ do lri=norb_frz+1,norb_dz-1           !frz
           ! s  drl(33)-bl(13)-c'(21)-ar(32) w0=-1/(db+1)  w1=0
           ! s  drl(33)-bl(13)-c'(22)-ar(31) w0=sqrt(db*(db+2))/(db+1)   w1=0
 
-          !wltmp = dzero
+          !wltmp = Zero
           do lr=1,lri-1
             !list = list3(lri,lrj,lr)
             !wltmp = wltmp+(vint_ci(list)-2*vint_ci(list+1))
@@ -595,7 +595,7 @@ do lri=norb_frz+1,norb_dz-1           !frz
           ! s  ar(13)-c'(21)-br(32)-drl(33) w0=-1/(db+1)  w1=0
           ! s  ar(13)-c'(22)-br(31)-drl(33) w0=sqrt(db*(db+2))/(db+1) w1=0
 
-          !wltmp = dzero
+          !wltmp = Zero
           do lr=lrj+1,norb_dz
             !list = list3(lri,lrj,lr)
             !wltmp = wltmp+(vint_ci(list)-2*vint_ci(list+1))
@@ -804,10 +804,10 @@ do lri=norb_frz+1,norb_dz-1           !frz
     !=========== start  d10_ss(dd,ss,tt)  ==============================
     ! ar(23)-drr(33)-ar(32)  ar(23)-cw(33)-ar(23)
     ! ar(13)-drr(33)-ar(31)  ar(13)-cw(33)-ar(13) w0=1 w1=0
-    !if ((lri == 2) .and. (lrj == 4)) write(6,*) 'bbs_tmp err'
+    !if ((lri == 2) .and. (lrj == 4)) write(u6,*) 'bbs_tmp err'
 
-    !wl0 = dzero
-    !wltmp = dzero
+    !wl0 = Zero
+    !wltmp = Zero
     do lrm=lri+1,lrj-1
       !list = list3(lri,lrj,lrm)
       !wltmp = wltmp+(2*vint_ci(list+1)-vint_ci(list))
@@ -886,7 +886,7 @@ do lri=norb_frz+1,norb_dz-1           !frz
 
     ! drl(33)-bl(23)-ar(32)
     ! drl(33)-bl(13)-ar(31)
-    !wltmp = dzero
+    !wltmp = Zero
     do lrm=1,lri-1
       !list = list3(lri,lrj,lrm)
       !wltmp = wltmp+(vint_ci(list)-2*vint_ci(list+1))
@@ -966,7 +966,7 @@ do lri=norb_frz+1,norb_dz-1           !frz
 
     ! ar(23)-bl(32)-drl(33)
     ! ar(13)-bl(31)-drl(33)
-    !wltmp = dzero
+    !wltmp = Zero
     do lrm=lrj+1,norb_dz
       !list = list3(lri,lrj,lrm)
       !wltmp = wltmp+(vint_ci(list)-2*vint_ci(list+1))
@@ -1287,20 +1287,22 @@ subroutine dbl_space_loop_ijkl_sgezero_g()
 
 use gugaci_global, only: jb_sys, just, lsm_inn, norb_dz, norb_frz, ns_sm
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: im, imi, imij, imik, imil, imj, imk, iml, iwls, iwls1, iwlt, iwrs, iwrs1, iwrt, jpds, jpdt, jpdt1, lri, lrj, lrk, lrl, &
-           ni, nxo, nxo_1, nxo_2
-real*8 :: db, w0, w1, wls1, wls1_1, wls1_2, wls2_1, wls2_2, wls_1, wls_2, wlt_1, wlt_2
+integer(kind=iwp) :: im, imi, imij, imik, imil, imj, imk, iml, iwls, iwls1, iwlt, iwrs, iwrs1, iwrt, jpds, jpdt, jpdt1, lri, lrj, &
+                     lrk, lrl, ni, nxo, nxo_1, nxo_2
+real(kind=wp) :: db, w0, w1, wls1, wls1_1, wls1_2, wls2_1, wls2_2, wls_1, wls_2, wlt_1, wlt_2
 
 !==============================  g11,12  == (v-s)=======================
 !==============================  g41,42  == (v-t)=======================
-wls1 = 0.d0
-!wls2 = 0.d0
-wls1_1 = 0.d0
-wls1_2 = 0.d0
-wls2_1 = 0.d0
-wls2_2 = 0.d0
+wls1 = Zero
+!wls2 = Zero
+wls1_1 = Zero
+wls1_2 = Zero
+wls2_1 = Zero
+wls2_2 = Zero
 db = jb_sys
 do lrl=norb_frz+1,norb_dz-3
   iml = lsm_inn(lrl)
@@ -1326,25 +1328,25 @@ do lrl=norb_frz+1,norb_dz-3
           if (jb_sys == 0) then
             ! w0g11=-1/2, w1g11=-3/2                 === g11 ===
             !wls = vint_ci(list+1)+vint_ci(list+2)
-            wls_1 = 1.0d0
-            wls_2 = 1.0d0
+            wls_1 = One
+            wls_2 = One
 
             ! w0g42=-1/2, w1g42=1/2                  === g42 ===
             !wlt = vint_ci(list+1)-vint_ci(list+2)
-            wlt_1 = 1.0d0
-            wlt_2 = -1.0d0
+            wlt_1 = One
+            wlt_2 = -One
           end if
           if (jb_sys > 0) then
             ! wog11=-1/2, w1g11=-(db+3)/(2*db+2)
             ! ar(23)bl(32)bl(13)ar(31)
             w1 = -(db+3)/(2*db+2)
-            !wls = vint_ci(list+1)+(-0.5d0-w1)*vint_ci(list+2)
-            wls_1 = 1.0d0
-            wls_2 = -0.5d0-w1
+            !wls = vint_ci(list+1)+(-Half-w1)*vint_ci(list+2)
+            wls_1 = One
+            wls_2 = -Half-w1
             ! wog42=-1/2, w1g42=1/2     ar(23)bl(32)bl(23)ar(32)
             !wlt = vint_ci(list+1)-vint_ci(list+2)
-            wlt_1 = 1.0d0
-            wlt_2 = -1.0d0
+            wlt_1 = One
+            wlt_2 = -One
             ! w0=0, w1=-sqrt(db*(db+2)/(db+1))
             ! ar(13)bl(32)bl(23)ar(31)     ar(23)bl(31)bl(13)ar(32)
             w1 = -sqrt(db*(db+2))/(db+1)
@@ -1352,9 +1354,9 @@ do lrl=norb_frz+1,norb_dz-3
             wls1 = -w1
             ! ar(13)bl(31)bl(23)ar(32)      w0=-1/2
             w1 = -(db-1)/(2*db+2)
-            !wls2 = vint_ci(list+1)+(-0.5d0-w1)*vint_ci(list+2)
-            wls2_1 = 1.0d0
-            wls2_2 = -0.5d0-w1
+            !wls2 = vint_ci(list+1)+(-Half-w1)*vint_ci(list+2)
+            wls2_1 = One
+            wls2_2 = -Half-w1
             ! ar(13)bl(31)bl(13)ar(31)
             ! w0=-1/2 w1=1/2
             !wlt1 = wlt
@@ -1408,25 +1410,25 @@ do lrl=norb_frz+1,norb_dz-3
           if (jb_sys == 0) then
             ! w0g11=-1/2 w1g11=-3/2                  === g11 ===
             !wls = vint_ci(list)+vint_ci(list+1)
-            wls_1 = 1.0d0
-            wls_2 = 1.0d0
+            wls_1 = One
+            wls_2 = One
             ! w0g42=-1/2 w1g42=1/2                   === g42 ===
             !wlt = vint_ci(list+1)-vint_ci(list)
-            wlt_1 = 1.0d0
-            wlt_2 = -1.0d0
+            wlt_1 = One
+            wlt_2 = -One
           end if
           if (jb_sys > 0) then
             ! wog11=-1/2 w1g11=-(db+3)/(2*db+2)
             ! ar(23)bl(32)br(31)al(13)
             w1 = -(db+3)/(2*db+2)
-            !wls = (-0.5d0-w1)*vint_ci(list)+vint_ci(list+1)
-            wls_1 = 1.0d0
-            wls_2 = -0.5d0-w1
+            !wls = (-Half-w1)*vint_ci(list)+vint_ci(list+1)
+            wls_1 = One
+            wls_2 = -Half-w1
             ! wog42=-1/2 w1g42=1/2
             ! ar(23)bl(32)br(23)al(32)
             !wlt = vint_ci(list+1)-vint_ci(list)
-            wlt_1 = 1.0d0
-            wlt_2 = -1.0d0
+            wlt_1 = One
+            wlt_2 = -One
             ! w0=0 w1=-sqrt(db*(db+2)/(db+1))
             ! ar(23)bl(31)br(32)al(13)
             w1 = -sqrt(db*(db+2))/(db+1)
@@ -1435,9 +1437,9 @@ do lrl=norb_frz+1,norb_dz-3
             ! ar(13)bl(31)br(32)al(23)
             ! w0=-1/2 w1=-(db-1)/(2*db+2)
             w1 = -(db-1)/(2*db+2)
-            !wls2 = (-0.5d0-w1)*vint_ci(list)+vint_ci(list+1)
-            wls2_1 = 1.0d0
-            wls2_2 = -0.5d0-w1
+            !wls2 = (-Half-w1)*vint_ci(list)+vint_ci(list+1)
+            wls2_1 = One
+            wls2_2 = -Half-w1
           end if
           if (ni == 1) then
             wls_1 = -wls_1
@@ -1486,12 +1488,12 @@ do lrl=norb_frz+1,norb_dz-3
           if (jb_sys == 0) then
             ! w0g12=1, w1g12=0                                === g12 ===
             !wls = vint_ci(list)+vint_ci(list+2)
-            wls_1 = 1.0d0
-            wls_2 = 1.0d0
+            wls_1 = One
+            wls_2 = One
             ! w0g41=0, w1g41=1                                === g41 ===
             !wlt = vint_ci(list)-vint_ci(list+2)
-            wlt_1 = 1.0d0
-            wlt_2 = -1.0d0
+            wlt_1 = One
+            wlt_2 = -One
           end if
           if (jb_sys > 0) then
             w0 = (db+2)/(2*db+2)
@@ -1500,8 +1502,8 @@ do lrl=norb_frz+1,norb_dz-3
             wls_1 = w0+w1
             wls_2 = w0-w1
             !wlt = vint_ci(list)-vint_ci(list+2)
-            wlt_1 = 1.0d0
-            wlt_2 = -1.0d0
+            wlt_1 = One
+            wlt_2 = -One
             w0 = sqrt(db*(db+2))/(2*db+2)
             w1 = -w0
             !wls1 = (w0+w1)*vint_ci(list)+(w0-w1)*vint_ci(list+2)

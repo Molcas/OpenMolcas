@@ -13,9 +13,10 @@ subroutine dbl_upwalk()
 
 use gugaci_global, only: jpad_upwei, jroute_sys, lsm_inn, mxnode, ng_sm, norb_dbl, norb_dz, norb_frz, ns_sm, nu_ad
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: iw, lri, lrj, lsmi, lsmid, lsmij, lsmit, lsmj, no_d, no_t, node
+integer(kind=iwp) :: iw, lri, lrj, lsmi, lsmid, lsmij, lsmit, lsmj, no_d, no_t, node
 
 nu_ad(:) = 0
 jpad_upwei(:) = 0
@@ -101,9 +102,10 @@ subroutine ext_downwalk()
 
 use gugaci_global, only: iseg_downwei, ng_sm, nlsm_ext, norb_ext, nu_ae
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: im, imi, imij, imj, iwmij(8)
+integer(kind=iwp) :: im, imi, imij, imj, iwmij(8)
 
 nu_ae(:) = 0
 nu_ae(1) = 1
@@ -139,10 +141,11 @@ end subroutine ext_downwalk
 subroutine readdrt(ludrt)
 
 use gugaci_global, only: ja, jb, jd, jj, jm, js, jt, jv, kk, no, norb_inn
+use Definitions, only: iwp
 
 implicit none
-integer :: ludrt
-integer :: id, idisk, idx(2)
+integer(kind=iwp) :: ludrt
+integer(kind=iwp) :: id, idisk, idx(2)
 
 idisk = 0
 ! number of nodes
@@ -178,9 +181,10 @@ subroutine dbl_downwalk()
 
 use gugaci_global, only: iseg_downwei, iseg_sta, jud, just, lsm_inn, ng_sm, norb_dbl, norb_dz, norb_frz, ns_sm
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: im, ismi, ismij, ismj, lr0, lri, lrj, nnd, nns, nnt !, lsml(10,10)       !to del
+integer(kind=iwp) :: im, ismi, ismij, ismj, lr0, lri, lrj, nnd, nns, nnt !, lsml(10,10)       !to del
 
 if (norb_dbl == 0) then
   !----------- norb_dbl=0 ----------------------------------------------
@@ -247,8 +251,8 @@ do im=1,ng_sm
     end do
   end do
 end do
-!write(6,*) 'ns_sm',ns_sm
-!write(6,*) just(1:4,1:4)
+!write(u6,*) 'ns_sm',ns_sm
+!write(u6,*) just(1:4,1:4)
 !do i=norb_frz+1,norb_dz                                     !to del
 !  lmi = lsm_inn(i)                                          !to del
 !  do j=norb_frz+1,norb_dz                                   !to del

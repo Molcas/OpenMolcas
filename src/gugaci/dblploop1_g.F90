@@ -14,50 +14,52 @@ subroutine SS_HEAD_DBL_TAIL_ACT_G(LRA)
 use gugaci_global, only: jb_sys, jml, jmr, jpad, jpadl, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w0, &
                          w0_ss, w1, w1_ss
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lra
-integer :: iwdl, iwdr, jmlr, list0, list0_1, list0_2, list0_3, list0_4, list1, list1_1, list1_2, list1_3, list1_4, lmi, lmij, lmj, &
-           lmk, lmki, lmkj, lr0, lri, lrj, lrk, ni
-real*8 :: vlop0, vlop1, w0ss1, w0ss10, w0ss11, w0ss12, w0ss13, w0ss14, w0ss15, w0ss16, w0ss17, w0ss18, w0ss2, w0ss20, w0ss3, &
-           w0ss4, w0ss5, w0ss6, w0ss7, w0ss8, w0ss9, w1ss1, w1ss10, w1ss11, w1ss12, w1ss13, w1ss14, w1ss15, w1ss16, w1ss17, &
-           w1ss18, w1ss2, w1ss3, w1ss4, w1ss5, w1ss6, w1ss7, w1ss8, w1ss9, wl0, wl0_1, wl0_2, wl0_3, wl0_4, wl1, wl1_1, wl1_2, &
-           wl1_3, wl1_4, xwl1_1
+integer(kind=iwp) :: lra
+integer(kind=iwp) :: iwdl, iwdr, jmlr, list0, list0_1, list0_2, list0_3, list0_4, list1, list1_1, list1_2, list1_3, list1_4, lmi, &
+                     lmij, lmj, lmk, lmki, lmkj, lr0, lri, lrj, lrk, ni
+real(kind=wp) :: vlop0, vlop1, w0ss1, w0ss10, w0ss11, w0ss12, w0ss13, w0ss14, w0ss15, w0ss16, w0ss17, w0ss18, w0ss2, w0ss20, &
+                 w0ss3, w0ss4, w0ss5, w0ss6, w0ss7, w0ss8, w0ss9, w1ss1, w1ss10, w1ss11, w1ss12, w1ss13, w1ss14, w1ss15, w1ss16, &
+                 w1ss17, w1ss18, w1ss2, w1ss3, w1ss4, w1ss5, w1ss6, w1ss7, w1ss8, w1ss9, wl0, wl0_1, wl0_2, wl0_3, wl0_4, wl1, &
+                 wl1_1, wl1_2, wl1_3, wl1_4, xwl1_1
 
-w0ss1 = 0.d0
-w1ss1 = 0.d0
-w0ss2 = 0.d0
-w1ss2 = 0.d0
-w0ss3 = 0.d0
-w1ss3 = 0.d0
-w0ss4 = 0.d0
-w1ss4 = 0.d0
-w0ss5 = 0.d0
-w1ss5 = 0.d0
-w0ss6 = 0.d0
-w1ss6 = 0.d0
-w0ss7 = 0.d0
-w1ss7 = 0.d0
-w0ss8 = 0.d0
-w1ss8 = 0.d0
-w0ss9 = 0.d0
-w1ss9 = 0.d0
-w0ss10 = 0.d0
-w1ss10 = 0.d0
-w0ss11 = 0.d0
-w1ss11 = 0.d0
-w0ss12 = 0.d0
-w1ss12 = 0.d0
-w0ss13 = 0.d0
-w1ss13 = 0.d0
-w0ss14 = 0.d0
-w1ss14 = 0.d0
-w0ss15 = 0.d0
-w1ss15 = 0.d0
-w0ss16 = 0.d0
-w1ss16 = 0.d0
-w0ss18 = 0.d0
-w1ss18 = 0.d0
+w0ss1 = Zero
+w1ss1 = Zero
+w0ss2 = Zero
+w1ss2 = Zero
+w0ss3 = Zero
+w1ss3 = Zero
+w0ss4 = Zero
+w1ss4 = Zero
+w0ss5 = Zero
+w1ss5 = Zero
+w0ss6 = Zero
+w1ss6 = Zero
+w0ss7 = Zero
+w1ss7 = Zero
+w0ss8 = Zero
+w1ss8 = Zero
+w0ss9 = Zero
+w1ss9 = Zero
+w0ss10 = Zero
+w1ss10 = Zero
+w0ss11 = Zero
+w1ss11 = Zero
+w0ss12 = Zero
+w1ss12 = Zero
+w0ss13 = Zero
+w1ss13 = Zero
+w0ss14 = Zero
+w1ss14 = Zero
+w0ss15 = Zero
+w1ss15 = Zero
+w0ss16 = Zero
+w1ss16 = Zero
+w0ss18 = Zero
+w1ss18 = Zero
 
 ! SS(1-1)  Ar(01)-Bl(32)-
 ! SS(1-2)  Ar(02)-Bl(31)-
@@ -507,8 +509,8 @@ if ((JML == 1) .and. (JMR == 1)) then
     IWDL = JUST(LR0,LR0)
     IWDR = IWDL
     VLOP0 = W0*W0_SS(20)
-    VLOP1 = 0.d0
-    !WL = 0.D0
+    VLOP1 = Zero
+    !WL = Zero
     do LRK=1,NORB_DZ
       if (LRK == LR0) cycle
       if (LINE == 26) then    !LRK,LRA
@@ -535,13 +537,13 @@ do LRI=NORB_FRZ+1,NORB_DZ
     LMIJ = MUL_TAB(LMI,LMJ)
     if ((LMIJ /= JML) .or. (JML /= JMR)) cycle
     if ((JWL >= JWR) .and. (JB_SYS == 0)) cycle
-    !      WL=0.D0
+    !WL = Zero
     IWDL = JUST(LRI,LRJ)
     IWDR = IWDL
     ! SS(1-15) (22)-Drl(11)-
     VLOP0 = W0*W0SS15
     VLOP1 = W1*W1SS15
-    !WL = 0.D0
+    !WL = Zero
     if (LINE == 26) then    !LRJ,LRA
       call COMP_LOOP_G(9,LRJ,0,0,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,WL1_1,LIST1_1)
     end if
@@ -577,7 +579,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
     ! SS(1-20) (22)Drl(33)-C"(11)-
     ! SS(1-20) Drl(33)-C"(22)-C"(11)-
     VLOP0 = W0*W0SS20
-    VLOP1 = 0.d0
+    VLOP1 = Zero
     do LRK=1,NORB_DZ
       if (LRK == LRI) cycle
       if (LRK == LRJ) cycle
@@ -603,7 +605,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
       ! SS(1-16) (11)-Drl(22)-
       VLOP0 = W0*W0SS16
       VLOP1 = W1*W1SS16
-      !WL = 0.D0
+      !WL = Zero
       if (LINE == 26) then    !LRJ,LRA
         call COMP_LOOP_G(9,LRJ,0,0,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,WL1_1,LIST1_1)
       end if
@@ -639,7 +641,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
       ! SS(1-20) (11)Drl(33)-C"(22)-
       ! SS(1-20) (11)(22)Drl(33)-
       VLOP0 = W0*W0SS20
-      VLOP1 = 0.d0
+      VLOP1 = Zero
       do LRK=1,NORB_DZ
         if (LRK == LRI) cycle
         if (LRK == LRJ) cycle
@@ -671,11 +673,13 @@ subroutine ST_HEAD_DBL_TAIL_ACT_G(LRA)
 
 use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w1, w1_st
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lra
-integer :: iwds, iwdt, jmlr, list0, list0_1, list1, list1_1, lmi, lmij, lmj, lmk, lri, lrj, lrk, ni
-real*8 :: vlop0, vlop1, w1st1, w1st2, w1st3, w1st4, wl0, wl0_1, wl1, wl1_1
+integer(kind=iwp) :: lra
+integer(kind=iwp) :: iwds, iwdt, jmlr, list0, list0_1, list1, list1_1, lmi, lmij, lmj, lmk, lri, lrj, lrk, ni
+real(kind=wp) :: vlop0, vlop1, w1st1, w1st2, w1st3, w1st4, wl0, wl0_1, wl1, wl1_1
 
 ! ST(2-1) Ar(02)-Bl(32)-
 ! ST(2-2) (22)Ar(13)-Bl(32)-
@@ -694,7 +698,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
       IWDT = IWDS
       ! ST(2-5) (22)Drl(12)-
       VLOP1 = W1*W1_ST(5)             !D2-5
-      VLOP0 = 0.d0
+      VLOP0 = Zero
       if (LINE == 26) then    !LRJ,LRA
         call COMP_LOOP_G(9,LRJ,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,WL1,LIST1)
       end if
@@ -710,7 +714,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
 
       ! ST(2-6) Drl(22)-C"(12)-
       VLOP1 = W1*W1_ST(6)             !D2-6
-      VLOP0 = 0.d0
+      VLOP0 = Zero
       if (LINE == 26) then    !LRI,LRA
         call COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,WL1_1,LIST1_1)
       end if
@@ -734,7 +738,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
         IWDS = JUST(LRJ,LRI)
         IWDT = JUST(LRI,LRJ)
         VLOP1 = W1*W1_ST(7)
-        VLOP0 = 0.d0             !D2-6
+        VLOP0 = Zero             !D2-6
         !LIST = LIST3(LRA,LRB,LRI)
         !WL = WL-VLOP1*vint_ci(LIST)    !4.3 Vlop0=0        !!!!!
         if (LINE == 26) then    !LRI,LRA
@@ -772,7 +776,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
       IWDS = JUST(LRI,LRI)
       IWDT = JUST(LRI,LRJ)
       VLOP1 = W1*W1ST1
-      VLOP0 = 0.d0
+      VLOP0 = Zero
       !LIST = LIST4(LRI,LRJ,LRA,LRB)
       if (LINE == 26) then    !LRI,LRJ,LRA
         call COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,WL1,LIST1)
@@ -794,7 +798,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
     ! ST(2-2) (22)Ar(13)-Bl(32)-
     VLOP1 = W1*W1ST2
     !WL = -VLOP1*vint_ci(LIST)    !1.1
-    VLOP0 = 0.d0
+    VLOP0 = Zero
     if (LINE == 26) then    !LRI,LRJ,LRA
       call COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,WL1,LIST1)
     end if
@@ -818,7 +822,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
     ! ST(2-3) Ar(13)-Bl(32)-C'(22)-
     ! ST(2-4) Ar(23)-Bl(32)-C'(12)-
     VLOP1 = W1*W1ST4
-    VLOP0 = 0.d0
+    VLOP0 = Zero
     if (LINE == 26) then    !LRI,LRJ,LRA
       call COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,WL1,LIST1)
     end if
@@ -831,7 +835,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
     !WL = -VLOP1*vint_ci(LIST)    !1.1 VLOP0=0
     if (JB_SYS > 0) then
       VLOP1 = W1*W1ST3
-      VLOP0 = 0.d0
+      VLOP0 = Zero
       if (LINE == 26) then    !LRI,LRJ,LRA
         call COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0_1,LIST0_1,WL1_1,LIST1_1)
       end if
@@ -896,11 +900,13 @@ subroutine TS_HEAD_DBL_TAIL_ACT_G(LRA)
 
 use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w1, w1_ts
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lra
-integer :: iwds, iwdt, list0, list1, lmi, lmij, lmj, lmk, lri, lrj, lrk, ni
-real*8 :: vlop0, vlop1, w1ts1, w1ts2, w1ts3, w1ts4, wl0, wl1
+integer(kind=iwp) :: lra
+integer(kind=iwp) :: iwds, iwdt, list0, list1, lmi, lmij, lmj, lmk, lri, lrj, lrk, ni
+real(kind=wp) :: vlop0, vlop1, w1ts1, w1ts2, w1ts3, w1ts4, wl0, wl1
 
 ! TS(3-1) Ar(23)-Bl(20)-
 ! TS(3-2) (22)Ar(23)-Bl(31)-
@@ -930,7 +936,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
       IWDT = JUST(LRI,LRJ)
       IWDS = JUST(LRJ,LRJ)
       VLOP1 = W1*W1TS1             !D3-1
-      VLOP0 = 0.d0
+      VLOP0 = Zero
       if (LINE == 26) then    !LRI,LRJ,LRA
         call COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,WL1,LIST1)
       end if
@@ -948,7 +954,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
     end if
     !-------------------------------------------------------------------
     VLOP1 = W1*W1TS2             !D3-2
-    VLOP0 = 0.d0
+    VLOP0 = Zero
     if (LINE == 26) then    !LRI,LRJ,LRA
       call COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,WL1,LIST1)
     end if
@@ -986,7 +992,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
     !-------------------------------------------------------------------
     ! TS(3-4) Ar(23)-Bl(32)-C"(21)-
     VLOP1 = W1*W1TS4             !D3-4
-    VLOP0 = 0.d0
+    VLOP0 = Zero
     if (LINE == 26) then    !LRI,LRJ,LRA
       call COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,WL1,LIST1)
     end if
@@ -1012,7 +1018,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
     ! TS(3-3) Ar(23)-Bl(31)-C"(22)-
     if (JB_SYS > 0) then
       VLOP1 = W1*W1TS3             !D3-4
-      VLOP0 = 0.d0
+      VLOP0 = Zero
       if (LINE == 26) then    !LRI,LRJ,LRA
         call COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,WL1,LIST1)
       end if
@@ -1046,11 +1052,13 @@ subroutine STT_HEAD_DBL_TAIL_ACT_G(LRA)
 
 use gugaci_global, only: jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w1, w1_st1
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lra
-integer :: iwdl, iwdr, list0, list1, lmi, lmij, lmj, lmk, lri, lrj, lrk, ni
-real*8 :: vlop0, vlop1, w1st1, w1st2, w1st3, w1st4, wl0, wl1
+integer(kind=iwp) :: lra
+integer(kind=iwp) :: iwdl, iwdr, list0, list1, lmi, lmij, lmj, lmk, lri, lrj, lrk, ni
+real(kind=wp) :: vlop0, vlop1, w1st1, w1st2, w1st3, w1st4, wl0, wl1
 
 ! ST1(4-1) Ar(01)-Bl(31)-
 ! ST1(4-2) (11)Ar(23)-Bl(31)-
@@ -1080,7 +1088,7 @@ do LRI=NORB_FRZ+1,NORB_DZ-1
       IWDL = JUST(LRI,LRI)
       IWDR = JUST(LRI,LRJ)
       VLOP1 = W1*W1ST1
-      VLOP0 = 0.d0
+      VLOP0 = Zero
       if (LINE == 26) then    !LRI,LRJ,LRA
         call COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,WL1,LIST1)
       end if
@@ -1098,7 +1106,7 @@ do LRI=NORB_FRZ+1,NORB_DZ-1
     end if
     ! ST1(4-2) (11)Ar(23)-Bl(31)-
     VLOP1 = W1*W1ST2
-    VLOP0 = 0.d0
+    VLOP0 = Zero
     if (LINE == 26) then    !LRI,LRJ,LRA
       call COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,WL1,LIST1)
     end if
@@ -1120,7 +1128,7 @@ do LRI=NORB_FRZ+1,NORB_DZ-1
       if (LIST1 /= 0) call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
     end do
     VLOP1 = W1*W1ST4
-    VLOP0 = 0.d0
+    VLOP0 = Zero
     if (LINE == 26) then    !LRI,LRJ,LRA
       call COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,WL1,LIST1)
     end if
@@ -1154,7 +1162,7 @@ do LRI=NORB_FRZ+1,NORB_DZ-1
     end do
 
     VLOP1 = W1*W1ST3
-    VLOP0 = 0.d0
+    VLOP0 = Zero
     if (LINE == 26) then    !LRI,LRJ,LRA
       call COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,WL1,LIST1)
     end if
@@ -1197,11 +1205,13 @@ subroutine TTS_HEAD_DBL_TAIL_ACT_G(LRA)
 
 use gugaci_global, only: jml, jmr, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w1, w1_t1s
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lra
-integer :: iwdl, iwdr, list0, list1, lmi, lmij, lmj, lmk, lri, lrj, lrk, ni
-real*8 :: vlop0, vlop1, w1t1s1, w1t1s2, w1t1s3, w1t1s4, w1t1s5, w1t1s6, w1t1s7, wl0, wl1
+integer(kind=iwp) :: lra
+integer(kind=iwp) :: iwdl, iwdr, list0, list1, lmi, lmij, lmj, lmk, lri, lrj, lrk, ni
+real(kind=wp) :: vlop0, vlop1, w1t1s1, w1t1s2, w1t1s3, w1t1s4, w1t1s5, w1t1s6, w1t1s7, wl0, wl1
 
 ! T1S(5-1)   Ar(13)-Bl(10)-
 ! T1S(5-2)   Ar(13)-Bl(32)-
@@ -1237,7 +1247,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
     if ((JML == LMIJ) .and. (JMR == 1)) then
       ! T1S(5-1)   Ar(13)-Bl(10)-
       VLOP1 = W1*W1T1S1
-      VLOP0 = 0.d0
+      VLOP0 = Zero
       if (LINE == 26) then    !LRI,LRJ,LRA
         call COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,WL1,LIST1)
       end if
@@ -1256,7 +1266,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
       if (LIST1 /= 0) call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
     end if
     VLOP1 = W1*W1T1S2
-    VLOP0 = 0.d0
+    VLOP0 = Zero
     if (LINE == 26) then    !LRI,LRJ,LRA
       call COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,WL1,LIST1)
     end if
@@ -1296,7 +1306,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
 
     end do
     VLOP1 = W1*W1T1S3
-    VLOP0 = 0.d0
+    VLOP0 = Zero
     if (LINE == 26) then    !LRI,LRJ,LRA
       call COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,WL1,LIST1)
     end if
@@ -1321,7 +1331,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
 
     end do
     VLOP1 = W1*W1T1S4
-    VLOP0 = 0.d0
+    VLOP0 = Zero
     if (LINE == 26) then    !LRI,LRJ,LRA
       call COMP_LOOP_G(5,LRI,LRJ,LRS,LRA,VLOP0,VLOP1,WL0,LIST0,WL1,LIST1)
     end if
@@ -1346,7 +1356,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
     if ((LMIJ == JML) .and. (LMIJ == JMR)) then
      ! T1S(5-5)   (11)Drl(12)-
       VLOP1 = W1*W1T1S5
-      VLOP0 = 0.d0
+      VLOP0 = Zero
       if (LINE == 26) then    !LRJ,LRA
         call COMP_LOOP_G(9,LRJ,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,WL1,LIST1)
       end if
@@ -1366,7 +1376,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
 
       ! T1S(5-6)   Drl(11)-C"(12)-
       VLOP1 = W1*W1T1S6
-      VLOP0 = 0.d0
+      VLOP0 = Zero
       if (LINE == 26) then    !LRI,LRA
         call COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,WL1,LIST1)
       end if
@@ -1386,7 +1396,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
 
       ! T1S(5-7)   Drl(12)-C"(11)-
       VLOP1 = W1*W1T1S7
-      VLOP0 = 0.d0
+      VLOP0 = Zero
       if (LINE == 26) then    !LRI,LRA
         call COMP_LOOP_G(9,LRI,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,WL1,LIST1)
       end if
@@ -1417,11 +1427,13 @@ subroutine TT_HEAD_DBL_TAIL_ACT_G(LRA)
 use gugaci_global, only: jml, jmr, jpad, jpadl, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_tt, w1, &
                          w1_tt
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lra
-integer :: iwdl, iwdr, jmlr, list0, list1, lmi, lmij, lmj, lmk, lmki, lmkj, lri, lrj, lrk, ni
-real*8 :: vlop0, vlop1, w0tt1, w0tt2, w0tt3, w1tt1, w1tt2, wl0, wl1
+integer(kind=iwp) :: lra
+integer(kind=iwp) :: iwdl, iwdr, jmlr, list0, list1, lmi, lmij, lmj, lmk, lmki, lmkj, lri, lrj, lrk, ni
+real(kind=wp) :: vlop0, vlop1, w0tt1, w0tt2, w0tt3, w1tt1, w1tt2, wl0, wl1
 
 ! TT(11-1) (22)Ar(23)-Bl(32)-
 ! TT(11-1) Ar(23)-C'(22)-Bl(32)-
@@ -1556,7 +1568,7 @@ do LRI=NORB_FRZ+1,NORB_DZ-1
     !WL = WL+WLTMP
     !WL = (VLOP0-VLOP1)*(VOINT(LRB,LRI)+VOINT(LRB,LRJ))
     VLOP0 = W0*W0TT3
-    VLOP1 = 0.d0
+    VLOP1 = Zero
     do LRK=1,NORB_DZ
       if (LRK == LRI) cycle
       if (LRK == LRJ) cycle
@@ -1591,11 +1603,13 @@ subroutine TTTT_HEAD_DBL_TAIL_ACT_G(LRA)
 use gugaci_global, only: jml, jmr, jpad, jpadl, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_t1t1, &
                          w1, w1_t1t1
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lra
-integer :: iwdl, iwdr, list0, list1, lmi, lmij, lmj, lmm, lri, lrj, lrk, lrm, ni
-real*8 :: vlop0, vlop1, w0tt1, w1tt1, wl0, wl1
+integer(kind=iwp) :: lra
+integer(kind=iwp) :: iwdl, iwdr, list0, list1, lmi, lmij, lmj, lmm, lri, lrj, lrk, lrm, ni
+real(kind=wp) :: vlop0, vlop1, w0tt1, w1tt1, wl0, wl1
 
 ! T1T1(12-1)  Ar(13)-Bl(31)-
 ! T1T1(12-1)  Ar(13)-C'(11)-Bl(31)-
@@ -1715,7 +1729,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
       if (LRK == LRI) cycle
       if (LRK == LRJ) cycle
       VLOP0 = W0*W0_T1T1(3)
-      VLOP1 = 0.d0
+      VLOP1 = Zero
       if (LINE == 26) then    !LRK,LRA
         call COMP_LOOP_G(9,LRK,0,0,LRA,VLOP0,VLOP1,WL0,LIST0,WL1,LIST1)
       end if
@@ -1744,11 +1758,13 @@ end subroutine TTTT_HEAD_DBL_TAIL_ACT_G
 subroutine DD_HEAD_DBL_TAIL_ACT_G(LRA)
 
 use gugaci_global, only: jml, jmr, jpel, jper, jud, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_dd, w1, w1_dd
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lra
-integer :: imil, imir, iwdl, iwdr, list0, list1, lril, lrir, lrk, ni
-real*8 :: vlop0, vlop1, w0dd1, w1dd1, wl0, wl1
+integer(kind=iwp) :: lra
+integer(kind=iwp) :: imil, imir, iwdl, iwdr, list0, list1, lril, lrir, lrk, ni
+real(kind=wp) :: vlop0, vlop1, w0dd1, w1dd1, wl0, wl1
 
 ! DD(19-1) Ar(23)-Bl(32)-
 ! DD(19-2) Drl(22)-
@@ -1792,7 +1808,7 @@ do LRIL=NORB_FRZ+1,NORB_DZ
       !call PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
       ! DD(19-3) Drl(33)-
       VLOP0 = W0*W0_DD(3)
-      VLOP1 = 0.d0
+      VLOP1 = Zero
       do LRK=1,NORB_DZ
         if (LRK == LRIL) cycle
         !LIST = LIST3(LRS,LRA,LRK)
@@ -1844,11 +1860,13 @@ end subroutine DD_HEAD_DBL_TAIL_ACT_G
 subroutine DDDD_HEAD_DBL_TAIL_ACT_G(LRA)
 
 use gugaci_global, only: jml, jmr, jpel, jper, jud, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_d1d1, w1, w1_d1d1
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lra
-integer :: imil, imir, iwdl, iwdr, list0, list1, lril, lrir, lrk, ni
-real*8 :: vlop0, vlop1, w0dd1, w1dd1, wl0, wl1
+integer(kind=iwp) :: lra
+integer(kind=iwp) :: imil, imir, iwdl, iwdr, list0, list1, lril, lrir, lrk, ni
+real(kind=wp) :: vlop0, vlop1, w0dd1, w1dd1, wl0, wl1
 
 ! D1D1(20-1) Ar(13)-BL(31)-
 ! D1D1(20-1) Drl(11)-
@@ -1889,7 +1907,7 @@ do LRIL=NORB_FRZ+1,NORB_DZ
       ! D1D1(20-1) Drl(33)-
       ! D1D1(20-1) Drl(33)-C"(11)-
       VLOP0 = W0*W0_D1D1(3)
-      VLOP1 = 0.d0
+      VLOP1 = Zero
       do LRK=1,NORB_DZ
         if (LRK == LRIL) cycle
         if (LINE == 26) then    !LRK,LRA
@@ -1940,11 +1958,13 @@ end subroutine DDDD_HEAD_DBL_TAIL_ACT_G
 subroutine DD1_HEAD_DBL_TAIL_ACT_G(LRA)
 
 use gugaci_global, only: jml, jmr, jpel, jper, jud, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w1, w1_dd1
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lra
-integer :: iwdl, iwdr, list0, list1, lmi, lmj, lri, lrj, ni
-real*8 :: vlop0, vlop1, wl0, wl1
+integer(kind=iwp) :: lra
+integer(kind=iwp) :: iwdl, iwdr, list0, list1, lmi, lmj, lri, lrj, ni
+real(kind=wp) :: vlop0, vlop1, wl0, wl1
 
 do LRI=NORB_FRZ+1,NORB_DZ
   LMI = LSM_INN(LRI)
@@ -1954,7 +1974,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
     LMJ = LSM_INN(LRJ)
     if ((JML /= LMI) .or. (JMR /= LMJ)) cycle
     VLOP1 = W1*W1_DD1
-    VLOP0 = 0.d0
+    VLOP0 = Zero
     NI = mod(LRJ-LRI,2)
     if (NI == 0) then
       VLOP1 = -VLOP1
@@ -1987,11 +2007,13 @@ end subroutine DD1_HEAD_DBL_TAIL_ACT_G
 subroutine D1D_HEAD_DBL_TAIL_ACT_G(LRA)
 
 use gugaci_global, only: jml, jmr, jpel, jper, jud, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w1, w1_d1d
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lra
-integer :: iwdl, iwdr, list0, list1, lmi, lmj, lri, lrj
-real*8 :: vlop0, vlop1, wl0, wl1
+integer(kind=iwp) :: lra
+integer(kind=iwp) :: iwdl, iwdr, list0, list1, lmi, lmj, lri, lrj
+real(kind=wp) :: vlop0, vlop1, wl0, wl1
 
 ! D1D(22-1)   Ar(13)-Bl(32)-
 ! D1D(22-2)   Drl(12)-
@@ -2002,7 +2024,7 @@ do LRI=NORB_FRZ+1,NORB_DZ-1
     LMJ = LSM_INN(LRJ)
     if ((JML /= LMI) .or. (JMR /= LMJ)) cycle
     VLOP1 = W1*W1_D1D(1)
-    VLOP0 = 0.d0
+    VLOP0 = Zero
     if (mod(LRJ-LRI,2) == 0) then
       VLOP1 = -VLOP1
     end if
@@ -2026,7 +2048,7 @@ do LRI=NORB_FRZ+1,NORB_DZ-1
   end do
 end do
 VLOP1 = W1*W1_D1D(2)
-VLOP0 = 0.d0
+VLOP0 = Zero
 do LRI=NORB_FRZ+1,NORB_DZ
   ! D1D(22-2)   Drl(12)-
   LMI = LSM_INN(LRI)
@@ -2059,11 +2081,13 @@ subroutine SV_HEAD_DBL_TAIL_ACT_G(LRA)
 
 use gugaci_global, only: jb_sys, jml, jpel, jper, just, jwl, jwr, line, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_sv, w1, w1_sv
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lra
-integer :: iwdl, iwdr, list0, list1, lmi, lmij, lmj, lri, lrj, ni
-real*8 :: vlop0, vlop1, w0sv1, w0sv2, w1sv1, w1sv2, wl0, wl1
+integer(kind=iwp) :: lra
+integer(kind=iwp) :: iwdl, iwdr, list0, list1, lmi, lmij, lmj, lri, lrj, ni
+real(kind=wp) :: vlop0, vlop1, w0sv1, w0sv2, w1sv1, w1sv2, wl0, wl1
 
 ! SV(10-1) Ar(13)-Br(23)-
 ! SV(10-2) Ar(23)-Br(13)-
@@ -2089,7 +2113,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
     IWDL = JUST(LRI,LRJ)
     if (LRI == LRJ) then
       VLOP0 = W0*W0_SV(3)            !D10-3
-      VLOP1 = 0.d0
+      VLOP1 = Zero
       !WL = VLOP0*VOINT(LRA,LRI)/2
       if (LINE == 25) then    !LRI,LRA
         ! wyb call COMP_LOOP_G(8,LRI,LRG,LRS,LRA,VLOP0,VLOP1,WL)
@@ -2154,12 +2178,13 @@ subroutine SD_HEAD_DBL_TAIL_ACT_G(LRA,LPCOE)
 use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, norb_dz, norb_frz, norb_inn, w0, w0_sd, w1, &
                          w1_sd
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lra, lpcoe(norb_dz+1:norb_inn)
-integer :: iwdl, iwdl1, iwdr, jmlr, kcoe, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc, nxo
-real*8 :: tcoe, vlop0, vlop1, w0sd1, w0sd11, w0sd12, w0sd14, w0sd15, w0sd16, w0sd2, w0sd3, w0sd4, w0sd5, w0sd6, w0sd7, w0sd8, &
-          w0sd9, w1sd10, w1sd11, w1sd2, w1sd5, w1sd6, w1sd7, w1sd8, wl
+integer(kind=iwp) :: lra, lpcoe(norb_dz+1:norb_inn)
+integer(kind=iwp) :: iwdl, iwdl1, iwdr, jmlr, kcoe, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc, nxo
+real(kind=wp) :: tcoe, vlop0, vlop1, w0sd1, w0sd11, w0sd12, w0sd14, w0sd15, w0sd16, w0sd2, w0sd3, w0sd4, w0sd5, w0sd6, w0sd7, &
+                 w0sd8, w0sd9, w1sd10, w1sd11, w1sd2, w1sd5, w1sd6, w1sd7, w1sd8, wl
 
 JMLR = MUL_TAB(JML,JMR)
 ! SD(6-1) A&r(02)-
@@ -2449,7 +2474,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
       call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
       !LIST = LIST3(LRI,LRA,LRJ)
-      !WL = WL+VINT_CI(LIST+1)-(JB_SYS+2)*1.d0*VINT_CI(LIST)
+      !WL = WL+VINT_CI(LIST+1)-(JB_SYS+2)*VINT_CI(LIST)
       WL = VLOP0
       call TRANS_IJKL_INTPOS(LRA,LRI,LRJ,LRJ,NXO)
       call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -2607,12 +2632,13 @@ subroutine SDD_HEAD_DBL_TAIL_ACT_G(LRA,LPCOE)
 use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, norb_dz, norb_frz, norb_inn, w0, w0_sd1, w1, &
                          w1_sd1
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lra, lpcoe(norb_dz+1:norb_inn)
-integer :: iwdl, iwdl1, iwdr, jmlr, kcoe, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc, nxo
-real*8 :: tcoe, vlop0, vlop1, w0sd1, w0sd10, w0sd11, w0sd12, w0sd13, w0sd2, w0sd3, w0sd4, w0sd5, w0sd6, w0sd7, w0sd8, w0sd9, &
-          w1sd10, w1sd2, w1sd3, w1sd4, w1sd5, w1sd6, w1sd7, w1sd8, wl
+integer(kind=iwp) :: lra, lpcoe(norb_dz+1:norb_inn)
+integer(kind=iwp) :: iwdl, iwdl1, iwdr, jmlr, kcoe, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc, nxo
+real(kind=wp) :: tcoe, vlop0, vlop1, w0sd1, w0sd10, w0sd11, w0sd12, w0sd13, w0sd2, w0sd3, w0sd4, w0sd5, w0sd6, w0sd7, w0sd8, &
+                 w0sd9, w1sd10, w1sd2, w1sd3, w1sd4, w1sd5, w1sd6, w1sd7, w1sd8, wl
 
 JMLR = MUL_TAB(JML,JMR)
 ! SD1(8-1) A&r(01)-
@@ -2831,7 +2857,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
       call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
 
       !LIST = LIST3(LRI,LRA,LRJ)
-      !WL = WL+VINT_CI(LIST+1)+JB_SYS*1.d0*VINT_CI(LIST)
+      !WL = WL+VINT_CI(LIST+1)+JB_SYS*VINT_CI(LIST)
       WL = VLOP0
       call TRANS_IJKL_INTPOS(LRA,LRI,LRJ,LRJ,NXO)
       call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER,NXO)
@@ -3046,11 +3072,12 @@ end subroutine SDD_HEAD_DBL_TAIL_ACT_G
 !
 !use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, norb_dz, norb_frz, norb_inn, w0, w0_td, w1, w1_td
 !use Symmetry_Info, only: mul_tab => Mul
+!use Definitions, only: wp, iwp
 !
 !implicit none
-!integer :: lra, lpcoe(norb_dz+1:norb_inn)
-!integer :: iwdl, iwdr, jmlr, kcoe, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc, nxo
-!real*8 :: tcoe, vlop0, vlop1, w0td1, w0td2, w0td3, w0td4, w0td5, w1td2, w1td3, wl
+!integer(kind=iwp) :: lra, lpcoe(norb_dz+1:norb_inn)
+!integer(kind=iwp) :: iwdl, iwdr, jmlr, kcoe, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc, nxo
+!real(kind=wp) :: tcoe, vlop0, vlop1, w0td1, w0td2, w0td3, w0td4, w0td5, w1td2, w1td3, wl
 !
 !JMLR = MUL_TAB(JML,JMR)
 !! TD(13-1) (22)A&(23)
@@ -3264,11 +3291,12 @@ subroutine TTDD_HEAD_DBL_TAIL_ACT_G(LRA,LPCOE)
 
 use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lsm_inn, norb_dz, norb_frz, norb_inn, w0, w0_t1d1, w1, w1_t1d1
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lra, lpcoe(norb_dz+1:norb_inn)
-integer :: iwdl, iwdr, jmlr, kcoe, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc, nxo
-real*8 :: tcoe, vlop0, vlop1, w0td1, w0td2, w0td3, w0td4, w0td5, w1td2, w1td3, wl
+integer(kind=iwp) :: lra, lpcoe(norb_dz+1:norb_inn)
+integer(kind=iwp) :: iwdl, iwdr, jmlr, kcoe, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc, nxo
+real(kind=wp) :: tcoe, vlop0, vlop1, w0td1, w0td2, w0td3, w0td4, w0td5, w1td2, w1td3, wl
 
 JMLR = MUL_TAB(JML,JMR)
 ! T1D1(15-1) (11)A&(13)

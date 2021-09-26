@@ -18,62 +18,65 @@ subroutine hymat_2(maxroot,minspace,ndim,kval,mroot,dcrita,eval,vcm,indx,th,nxh,
 ! in Computers & Chemistry, 4, 55 (1980).
 !***********************************************************************
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
 implicit none
-!integer, parameter :: maxroot = 10, minspace = 40)
-integer :: maxroot, minspace, ndim, kval, mroot, indx(minspace), nxh, nxb
-real*8 :: dcrita, eval(maxroot), vcm(ndim*mroot), th(nxh), vb1(nxb), vb2(nxb), vad(ndim)
-integer :: i, ijb, ijm, ijmb1, indxm, iterat, jib1, jib2, jicm, k, l, m, mmspace, mn, mrsta, mrsta0, mval, nroot
-real*8 :: deff(maxroot), depcc, ecrita(maxroot), eeval(maxroot), residvb(maxroot), tm, valpha(maxroot), vd(minspace), &
-          ve(minspace), vp(minspace*(minspace+1)/2), vu(minspace,minspace), vukm
-real*8, parameter :: depc = 1.0d-7
+!integer(kind=iwp), parameter :: maxroot = 10, minspace = 40)
+integer(kind=iwp) :: maxroot, minspace, ndim, kval, mroot, indx(minspace), nxh, nxb
+real(kind=wp) :: dcrita, eval(maxroot), vcm(ndim*mroot), th(nxh), vb1(nxb), vb2(nxb), vad(ndim)
+integer(kind=iwp) :: i, ijb, ijm, ijmb1, indxm, iterat, jib1, jib2, jicm, k, l, m, mmspace, mn, mrsta, mrsta0, mval, nroot
+real(kind=wp) :: deff(maxroot), depcc, ecrita(maxroot), eeval(maxroot), residvb(maxroot), tm, valpha(maxroot), vd(minspace), &
+                 ve(minspace), vp(minspace*(minspace+1)/2), vu(minspace,minspace), vukm
+real(kind=wp), parameter :: depc = 1.0e-7_wp
 
 !**************************************************************
 
-!write(6,*) 'generate vector vb2 from matrix a and vector vb1'
+!write(u6,*) 'generate vector vb2 from matrix a and vector vb1'
 
 !**************************************************************
 
 ! debugging
-!vb1(1:ndim) = 0.d0
-!vb2(1:ndim) = 0.d0
-!vb1(5) = 1.d0
+!vb1(1:ndim) = Zero
+!vb2(1:ndim) = Zero
+!vb1(5) = One
 !call abprod2(ndim,1,kval,th,nxh,vb1,vb2,nxb,vad)
 !do i=1,ndim
-!  write(6,'(i8,f18.8)') i,vb2(i)
+!  write(u6,'(i8,f18.8)') i,vb2(i)
 !end do
 !call abend()
 
-ecrita = 1.e-8
+ecrita = 1.0e-8_wp
 iterat = 1
 mrsta = 1
 call abprod2(ndim,1,kval,th,nxh,vb1,vb2,nxb,vad)
 call matrmk2(ndim,1,kval,indx,vp,vb1,vb2,nxb)
 
 !=======================================================================
-write(6,*)
+write(u6,*)
 l = 0
 do k=1,kval
-  write(6,1112) (vp(i),i=l+1,l+k)
+  write(u6,1112) (vp(i),i=l+1,l+k)
   l = l+k
 end do
-write(6,*)
+write(u6,*)
 !=======================================================================
 
-!write(6,*) 'diagonalization of matrix p(j,j)'
+!write(u6,*) 'diagonalization of matrix p(j,j)'
 
 !=======================================================================
 do
   iterat = iterat+1
   if (iterat == 200) then
-    write(6,*) ' h0 space fail to converged'
-    write(6,*) ' program stop'
+    write(u6,*) ' h0 space fail to converged'
+    write(u6,*) ' program stop'
     call abend()
   end if
   eeval(1:mroot) = eval(1:mroot)
   call hotred(minspace,kval,vp,vd,ve,vu)
   call qlcm(minspace,kval,vd,ve,vu)
 
-  valpha(mrsta:mroot) = 0.d0
+  valpha(mrsta:mroot) = Zero
   do m=mrsta,mroot
     eval(m) = vd(m)
     do k=1,kval
@@ -90,7 +93,7 @@ do
   !
   !*********************************************************************
   ijm = indx(mrsta)
-  vcm(ijm+1:ndim*mroot) = 0.0d0
+  vcm(ijm+1:ndim*mroot) = Zero
   do k=1,kval
     ijb = indx(k)
     do m=mrsta,mroot
@@ -103,11 +106,10 @@ do
   end do
 
   !do i=1,ndim
-  !  write(6,'(i8,f18.8)') i,vcm(i)
+  !  write(u6,'(i8,f18.8)') i,vcm(i)
   !end do
 
-  write(6,1113) iterat,kval,(m,eval(m),deff(m),m=mrsta,mroot)
-  1113 format(2i3,10(2x,i2,f14.8,f14.8))
+  write(u6,1113) iterat,kval,(m,eval(m),deff(m),m=mrsta,mroot)
 
   nroot = mroot-mrsta+1
 
@@ -124,8 +126,8 @@ do
     !mrsta = mrsta+mrooted
     nroot = mroot-mrsta+1
     if (mrsta > mroot) then
-      write(6,*)
-      write(6,*) mroot,' roots are convegenced,after',iterat,' iterat'
+      write(u6,*)
+      write(u6,*) mroot,' roots are convegenced,after',iterat,' iterat'
       exit
     end if
 
@@ -139,7 +141,7 @@ do
 
     do m=mrsta,kval
       indxm = indx(m)
-      vb1(indxm+1:indxm+ndim) = 0.0d0
+      vb1(indxm+1:indxm+ndim) = Zero
     end do
     do m=mrsta,mroot
       ijm = indx(m)
@@ -154,7 +156,7 @@ do
     ijm = indx(mrsta)
     vb2(ijm+1:ijm+ndim*nroot) = vb1(ijm+1:ijm+ndim*nroot)  ! h*cm-->vb
     vb1(ijm+1:ijm+ndim*nroot) = vcm(ijm+1:ijm+ndim*nroot)  !   cm-->vb
-    residvb(mrsta:mroot) = 0.d0
+    residvb(mrsta:mroot) = Zero
 
     mval = mroot
     do m=mrsta,mroot
@@ -170,11 +172,11 @@ do
       call orthnor(ndim,mval,dcrita,vb1,nxb)
     end do
 
-    vb2(indx(mroot+1)+1:indx(kval+1)) = 0.d0
+    vb2(indx(mroot+1)+1:indx(kval+1)) = Zero
     kval = mroot+nroot
     mval = mroot+1
     mn = mroot*(mroot+1)/2
-    vp(1:mn) = 0.0d0
+    vp(1:mn) = Zero
     mn = 0
     do m=1,mroot
       mn = mn+m
@@ -189,7 +191,7 @@ do
     jib1 = indx(kval)
     jicm = indx(mrsta)
 
-    residvb(mrsta:mroot) = 0.d0
+    residvb(mrsta:mroot) = Zero
     do m=mrsta,mroot
       jib1 = jib1+ndim
       do k=1,kval
@@ -219,15 +221,15 @@ do
   call matrmk2(ndim,mval,kval,indx,vp,vb1,vb2,nxb)
 
   !=====  write out p_matrix ===========================================
-  !write(6,*)
+  !write(u6,*)
   !write(nf2,*)
   !l = 0
   !do k=1,kval
-  !  write(6,1112) (vp(i),i=l+1,l+k)
+  !  write(u6,1112) (vp(i),i=l+1,l+k)
   !  write(nf2,1112) (vp(i),i=l+1,l+k)
   !  l = l+k
   !end do
-  !write(6,*)
+  !write(u6,*)
   !=====  write out p_matrix ===========================================
 
 end do
@@ -237,28 +239,32 @@ do m=1,mroot
   ijm = indx(m)
   vb1(ijm+1:ijm+ndim) = vcm(ijm+1:ijm+ndim)
   !write(nf1) eval(m),(vcm(ijm+i),i=1,ndim)
-  !write(6,'(5(1x,f18.9),1x,i2)') (vcm(ijm+i),i=1,4),vcm(35)
+  !write(u6,'(5(1x,f18.9),1x,i2)') (vcm(ijm+i),i=1,4),vcm(35)
 end do
 
 return
 
 1112 format(2x,20f14.8)
+1113 format(2i3,10(2x,i2,f14.8,f14.8))
 
 end subroutine hymat_2
 
 subroutine matrmk2(n,k1,k2,indx,p,vb1,vb2,nxb)
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
-integer :: n, k1, k2, indx(30), nxb
-real*8 :: p(465), vb1(nxb), vb2(nxb)
-integer :: i, iijj, ij, j, ji, l
+integer(kind=iwp) :: n, k1, k2, indx(30), nxb
+real(kind=wp) :: p(465), vb1(nxb), vb2(nxb)
+integer(kind=iwp) :: i, iijj, ij, j, ji, l
 
 do i=k1,k2
   iijj = i*(i-1)/2
   ij = indx(i)
   do j=1,i
     ji = indx(j)
-    p(iijj+j) = 0.0d0
+    p(iijj+j) = Zero
     !-------------------------------------------------------------------
     do l=1,n
       !-----------------------------------------------------------------
@@ -274,12 +280,13 @@ end subroutine matrmk2
 subroutine abprod2(n,k1,k2,th,nxh,vb1,vb2,nxb,vad)
 
 use gugaci_global, only: indx
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: n, k1, k2, nxh, nxb
-real*8 :: th(nxh), vb1(nxb), vb2(nxb), vad(n)
-integer :: i, ij, j, l, mn
-!real*8, allocatable :: buff(:)
+integer(kind=iwp) :: n, k1, k2, nxh, nxb
+real(kind=wp) :: th(nxh), vb1(nxb), vb2(nxb), vad(n)
+integer(kind=iwp) :: i, ij, j, l, mn
+!real(kind=wp), allocatable :: buff(:)
 
 !allocate(buff(n))
 ij = 0
@@ -308,21 +315,23 @@ end subroutine abprod2
 subroutine orthnor(n,j,dcrita,vb1,nxb)
 
 use gugaci_global, only: indx
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: n, j, nxb
-real*8 :: dcrita, vb1(nxb)
-integer :: i, ij, ji, jm, l
-real*8 :: s, smax1, smax2
+integer(kind=iwp) :: n, j, nxb
+real(kind=wp) :: dcrita, vb1(nxb)
+integer(kind=iwp) :: i, ij, ji, jm, l
+real(kind=wp) :: s, smax1, smax2
 
 ji = indx(j)
 if (j /= 1) then
   jm = j-1
-  smax2 = 1.d10
+  smax2 = huge(smax2)
   do
-    smax1 = 0.0d0
+    smax1 = Zero
     do l=1,jm
-      s = 0.0d0
+      s = Zero
       ij = indx(l)
       do i=1,n
         s = s+vb1(ij+i)*vb1(ji+i)
@@ -335,7 +344,7 @@ if (j /= 1) then
 
     if (smax1 < dcrita) exit
     if (smax1 > smax2) then
-      write(6,*) 'diagonalization procedure is non-convergent.'
+      write(u6,*) 'diagonalization procedure is non-convergent.'
 #     ifndef MOLPRO
       call abend()
 #     endif
@@ -345,7 +354,7 @@ if (j /= 1) then
   end do
 end if
 ! normalization of j-th eigenvector.
-s = 0.0d0
+s = Zero
 do i=1,n
   s = s+vb1(ji+i)*vb1(ji+i)
 end do
@@ -360,16 +369,19 @@ end subroutine orthnor
 
 subroutine norm_a(n,av)  !bv:basis, av:vector for orth and norm
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp, r8
+
 implicit none
-integer :: n
-real*8 :: av(n)
-integer :: i
-real*8 :: s
-real*8, parameter :: dcrita = 1.0d-10
-real*8, external :: ddot_
+integer(kind=iwp) :: n
+real(kind=wp) :: av(n)
+integer(kind=iwp) :: i
+real(kind=wp) :: s
+real(kind=wp), parameter :: dcrita = 1.0e-10_wp
+real(kind=r8), external :: ddot_
 
 ! normalization of av_eigenvector.
-s = 0.0d0
+s = Zero
 s = ddot_(n,av,1,av,1)
 s = sqrt(s)
 s = max(s,dcrita)
@@ -383,12 +395,14 @@ end subroutine norm_a
 
 subroutine orth_ab(n,av,bv)  !bv:basis, av:vector for orth
 
+use Definitions, only: wp, iwp, r8
+
 implicit none
-integer :: n
-real*8 :: av(n), bv(n)
-integer :: i
-real*8 :: s
-real*8, external :: ddot_
+integer(kind=iwp) :: n
+real(kind=wp) :: av(n), bv(n)
+integer(kind=iwp) :: i
+real(kind=wp) :: s
+real(kind=r8), external :: ddot_
 
 ! orthogonalization av,bv
 s = ddot_(n,av,1,bv,1)

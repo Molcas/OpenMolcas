@@ -357,7 +357,7 @@ else
 end if
 nde = 2*norb_dz
 if (nde > n_electron) then
-  write(u6,'(1x,42a)') 'check input date: number of elctrons error'
+  write(u6,'(1x,42a)') 'check input date: number of electrons error'
   write(u6,'(1x,a20,1x,i4)') 'number of electrons ',n_electron
   write(u6,'(1x,a36,1x,i4)') 'number of doubly occupied electrons ',nde
   call abend()

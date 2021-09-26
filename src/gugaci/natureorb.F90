@@ -11,12 +11,15 @@
 
 subroutine natureorb(nsbas,nsall,nsdel,ngsm,den1,lden,cmo,lcmo,bsbl,lenb,cno,occ,nmo,pror)
 
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
+
 implicit none
-integer :: nsbas(8), nsall(8), nsdel(8), ngsm, lden, lcmo, lenb, nmo
-real*8 :: den1(lden), cmo(lcmo), cno(lcmo), occ(nmo), pror
+integer(kind=iwp) :: nsbas(8), nsall(8), nsdel(8), ngsm, lden, lcmo, lenb, nmo
+real(kind=wp) :: den1(lden), cmo(lcmo), cno(lcmo), occ(nmo), pror
 character :: bsbl(lenb)
-integer :: i, im, j, nc, nc0, nc1, nc2, nc3, nc4, nc5, nsfrz(8), nsort(nmo)
-real*8 :: buff(nmo**2), val
+integer(kind=iwp) :: i, im, j, nc, nc0, nc1, nc2, nc3, nc4, nc5, nsfrz(8), nsort(nmo)
+real(kind=wp) :: buff(nmo**2), val
 character(len=128), parameter :: header = 'MRCISD Natural orbital'
 
 nc0 = 1
@@ -43,7 +46,7 @@ do im=1,ngsm
   if (nsbas(im) == 0) cycle
   nsfrz(im) = nsbas(im)-nsall(im)-nsdel(im)
   ! For density matrix, we only have correlated orbital density matrix
-  buff = 0.d0
+  buff = Zero
   nc = nsall(im)*(nsall(im)+1)/2
   ! Diagonalize density matrix in symmetry block im and transform MO
   ! Copy density matrix
@@ -52,7 +55,7 @@ do im=1,ngsm
   call jacob(buff,cno(nc3),nsall(im),nsbas(im))
   ! OCC num from diagonal element
   nc3 = nc0
-  occ(nc3:nc3+nsfrz(im)-1) = 2.d0
+  occ(nc3:nc3+nsfrz(im)-1) = Two
   nc3 = nc3+nsfrz(im)
   do i=1,nsall(im)
     nc = i*(i+1)/2
@@ -61,7 +64,7 @@ do im=1,ngsm
   end do
 
   ! Sort natural orbital in OCC num decreasing order
-  buff = 0.d0
+  buff = Zero
   ! Sort and copy correlated natural orb
   do i=1,nsall(im)
     nsort(i) = i
@@ -80,7 +83,7 @@ do im=1,ngsm
     nsort(i) = nc3
   end do
 
-  buff = 0.d0
+  buff = Zero
   nc3 = nsbas(im)**2
   buff(1:nc3) = cno(nc1:nc1+nc3-1)
   ! Copy sorted orbital
@@ -106,13 +109,13 @@ end do
 !nc0 = 1
 !do im=1,ngsm
 !  if (nsbas(im) == 0) cycle
-!  write(6,*) ' '
-!  write(6,*) 'SYM',im
-!  write(6,'(10(1xf8.4))') occ(nc0:nc0+nsbas(im)-1)
+!  write(u6,*) ' '
+!  write(u6,*) 'SYM',im
+!  write(u6,'(10(1xf8.4))') occ(nc0:nc0+nsbas(im)-1)
 !  nc0 = nc0+nsbas(im)
 !end do
 
-call primo(Header,.true.,.false.,pror,0.d0,ngsm,nsbas,nsbas,bsbl,[val],occ,cno,-1)
+call primo(Header,.true.,.false.,pror,Zero,ngsm,nsbas,nsbas,bsbl,[val],occ,cno,-1)
 
 return
 

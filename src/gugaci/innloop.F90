@@ -29,7 +29,7 @@ call dbl_space_loop()
 call act_space_cloop()
 call act_space_ploop()
 !wsc2 = c_time()
-!write(6,'(2x,2(a5,f12.4))') 'dbl',wsc1-wsc0,'act',wsc2-wsc1
+!write(u6,'(2x,2(a5,f12.4))') 'dbl',wsc1-wsc0,'act',wsc2-wsc1
 
 return
 
@@ -38,9 +38,10 @@ end subroutine inner_space_loop
 subroutine act_space_cloop()        ! one sub_drt
 
 use gugaci_global, only: ipae, jpad, jpae, mxnode, ndim, norb_act, nu_ad, nu_ae
+use Definitions, only: iwp
 
 implicit none
-integer :: ipae_, jpad_
+integer(kind=iwp) :: ipae_, jpad_
 
 if (norb_act == 0) return
 do ipae_=1,25
@@ -64,9 +65,10 @@ end subroutine act_space_cloop
 subroutine act_space_ploop()        ! two sub_drt with same ipae
 
 use gugaci_global, only: ipae, jpad, jpadl, jpae, mxnode, ndim, norb_act, nu_ad, nu_ae
+use Definitions, only: iwp
 
 implicit none
-integer :: ipae_, jpad_, jpadl_
+integer(kind=iwp) :: ipae_, jpad_, jpadl_
 
 if (norb_act == 0) return
 do ipae_=1,25
@@ -85,7 +87,7 @@ do ipae_=1,25
       if (nu_ad(jpad) == 0) cycle
       call seg_drt()
       if (ndim == 0) cycle
-      !if ((ipae == 18) .and. (jpadl == 2) .and. (jpad == 1)) write(6,*)
+      !if ((ipae == 18) .and. (jpadl == 2) .and. (jpad == 1)) write(u6,*)
       call ploop_in_act()
     end do
   end do
@@ -99,9 +101,10 @@ subroutine cloop_in_act()
 
 use gugaci_global, only: logic_br, lsm_inn, norb_dz, norb_inn
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: lmi, lmij, lmj, lmk, lml, lra, lrai, lraj, lrak, lral, lsmij, mh
+integer(kind=iwp) :: lmi, lmij, lmj, lmk, lml, lra, lrai, lraj, lrak, lral, lsmij, mh
 
 do lrai=norb_dz+1,norb_inn-1
   lmi = lsm_inn(lrai)
@@ -114,14 +117,14 @@ do lrai=norb_dz+1,norb_inn-1
     logic_br(1:mh) = .true.
     call link_c2_to_given_orb(mh,lrai+1,lraj-1)
     call tail_drr_at_given_orb(mh,lraj)
-    !write(6,'(6i6)') 8,mh,lrai,lraj,0,0
+    !write(u6,'(6i6)') 8,mh,lrai,lraj,0,0
     if (mh /= 0) call act_cloop(8,mh,lrai,lraj,0,0)
     !-------------------------------------------------------------------
     ! line=9 d&r&l--d^r^l
     call head_drl_at_given_orb(mh,lrai)
     call link_c2_to_given_orb(mh,lrai+1,lraj-1)
     call tail_drl_at_given_orb(mh,lraj)
-    !write(6,'(6i6)') 9,mh,lrai,lraj,0,0
+    !write(u6,'(6i6)') 9,mh,lrai,lraj,0,0
     if (mh /= 0) call act_cloop(9,mh,lrai,lraj,0,0)
     lsmij = mul_tab(lmi,lmj)
     !-------------------------------------------------------------------
@@ -131,7 +134,7 @@ do lrai=norb_dz+1,norb_inn-1
       call head_ar_at_given_orb(mh,lrai)
       call link_c1_to_given_orb_coe(mh,lrai+1,lraj-1)
       call tail_ar_at_given_orb_coe(mh,lraj)
-      !write(6,'(6i6)') 1,mh,lrai,lraj,0,0
+      !write(u6,'(6i6)') 1,mh,lrai,lraj,0,0
       if (mh /= 0) call act_cloop(1,mh,lrai,lraj,0,0)
       !call save_clp(1,mh,lra,0)
       !-----------------------------------------------------------------
@@ -142,7 +145,7 @@ do lrai=norb_dz+1,norb_inn-1
         call link_d10_at_given_orb(mh,lrak)
         call link_c1_to_given_orb(mh,lrak+1,lraj-1)
         call tail_al_at_given_orb(mh,lraj)
-        !write(6,'(6i6)') 2,mh,lrai,lraj,lrak,0
+        !write(u6,'(6i6)') 2,mh,lrai,lraj,lrak,0
         if (mh /= 0) call act_cloop(2,mh,lrai,lraj,lrak,0)
       end do
       !-----------------------------------------------------------------
@@ -154,7 +157,7 @@ do lrai=norb_dz+1,norb_inn-1
         logic_br(1:mh) = .true.
         call link_c2_to_given_orb(mh,lraj+1,lrak-1)
         call tail_drr_at_given_orb(mh,lrak)
-        !write(6,'(6i6)') 3,mh,lrai,lraj,lrak,0
+        !write(u6,'(6i6)') 3,mh,lrai,lraj,lrak,0
         if (mh /= 0) call act_cloop(3,mh,lrai,lraj,lrak,0)
         !---------------------------------------------------------------
         ! line=5 a&r-b&l-d^r^l
@@ -164,7 +167,7 @@ do lrai=norb_dz+1,norb_inn-1
         logic_br(1:mh) = .true.
         call link_c2_to_given_orb(mh,lraj+1,lrak-1)
         call tail_drl_at_given_orb(mh,lrak)
-        !write(6,'(6i6)') 5,mh,lrai,lraj,lrak,0
+        !write(u6,'(6i6)') 5,mh,lrai,lraj,lrak,0
         if (mh /= 0) call act_cloop(5,mh,lrai,lraj,lrak,0)
       end do
       !-----------------------------------------------------------------
@@ -176,7 +179,7 @@ do lrai=norb_dz+1,norb_inn-1
         call link_b2_at_given_orb(mh,lrai)
         call link_c1_to_given_orb(mh,lrai+1,lraj-1)
         call tail_ar_at_given_orb(mh,lraj)
-        !write(6,'(6i6)') 10,mh,lrai,lraj,lrak,0
+        !write(u6,'(6i6)') 10,mh,lrai,lraj,lrak,0
         if (mh /= 0) call act_cloop(10,mh,lrai,lraj,lrak,0)
         !---------------------------------------------------------------
         ! line=11 d&r&l-b^r-a^l
@@ -185,7 +188,7 @@ do lrai=norb_dz+1,norb_inn-1
         call link_b2_at_given_orb(mh,lra)
         call link_c1_to_given_orb(mh,lrai+1,lraj-1)
         call tail_al_at_given_orb(mh,lraj)
-        !write(6,'(6i6)') 11,mh,lrai,lraj,lrak,0
+        !write(u6,'(6i6)') 11,mh,lrai,lraj,lrak,0
         if (mh /= 0) call act_cloop(11,mh,lrai,lraj,lrak,0)
         !---------------------------------------------------------------
         ! line=12 d&r&l-b^l-a^r
@@ -194,7 +197,7 @@ do lrai=norb_dz+1,norb_inn-1
         call link_b1_at_given_orb(mh,lrai)
         call link_c1_to_given_orb(mh,lrai+1,lraj-1)
         call tail_ar_at_given_orb(mh,lraj)
-        !write(6,'(6i6)') 12,mh,lrai,lraj,lrak,0
+        !write(u6,'(6i6)') 12,mh,lrai,lraj,lrak,0
         if (mh /= 0) call act_cloop(12,mh,lrai,lraj,lrak,0)
       end do
     end if
@@ -215,7 +218,7 @@ do lrai=norb_dz+1,norb_inn-1
         call link_b2_at_given_orb(mh,lrak)
         call link_c1_to_given_orb(mh,lrak+1,lral-1)
         call tail_ar_at_given_orb(mh,lral)
-        !write(6,'(6i6)') 4,mh,lrai,lral,lraj,lrak
+        !write(u6,'(6i6)') 4,mh,lrai,lral,lraj,lrak
         if (mh /= 0) call act_cloop(4,mh,lrai,lral,lraj,lrak)
         !---------------------------------------------------------------
         ! line=6  a&r--b&l--b^r--a^l
@@ -227,7 +230,7 @@ do lrai=norb_dz+1,norb_inn-1
         call link_b2_at_given_orb(mh,lrak)
         call link_c1_to_given_orb(mh,lrak+1,lral-1)
         call tail_al_at_given_orb(mh,lral)
-        !write(6,'(6i6)') 6,mh,lrai,lral,lraj,lrak
+        !write(u6,'(6i6)') 6,mh,lrai,lral,lraj,lrak
         if (mh /= 0) call act_cloop(6,mh,lrai,lral,lraj,lrak)
         !---------------------------------------------------------------
         ! line=7 a&r--b&l--b^l--a^r
@@ -239,7 +242,7 @@ do lrai=norb_dz+1,norb_inn-1
         call link_b1_at_given_orb(mh,lrak)
         call link_c1_to_given_orb(mh,lrak+1,lral-1)
         call tail_ar_at_given_orb(mh,lral)
-        !write(6,'(6i6)') 7,mh,lrai,lral,lraj,lrak
+        !write(u6,'(6i6)') 7,mh,lrai,lral,lraj,lrak
         if (mh /= 0) call act_cloop(7,mh,lrai,lral,lraj,lrak)
         !---------------------------------------------------------------
       end do
@@ -254,9 +257,10 @@ end subroutine cloop_in_act
 subroutine ploop_in_act()
 
 use gugaci_global, only: logic_br, norb_dz, norb_inn
+use Definitions, only: iwp
 
 implicit none
-integer :: lrai, lraj, lrak, lral, mh
+integer(kind=iwp) :: lrai, lraj, lrak, lral, mh
 
 !=======================================================================
 do lrai=norb_dz+1,norb_inn
@@ -378,10 +382,11 @@ subroutine lp_act_tail(lin,mh,lrg0,lrs0)
 
 use gugaci_global, only: jpel, jper, jph_, jwl, jwr, line, lpnew_coe, lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, lrg, lrs, &
                          mhlp, norb_dz, norb_inn, vplpnew_w0, vplpnew_w1, w0, w1
+use Definitions, only: iwp
 
 implicit none
-integer :: lin, mh, lrg0, lrs0
-integer :: iorb, lpcoe(norb_dz+1:norb_inn), mhlp_
+integer(kind=iwp) :: lin, mh, lrg0, lrs0
+integer(kind=iwp) :: iorb, lpcoe(norb_dz+1:norb_inn), mhlp_
 
 line = lin
 lrg = lrg0
@@ -412,13 +417,14 @@ subroutine tail_ar_at_given_orb_coe(mh,lract)       !a^r:lstep>rst
 use gugaci_global, only: istep_occ, iy, iyl, ja, jb, jj_sub, jjl_sub, jm, lp_coe, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, &
                          lpnew_coe, lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, norb_dz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: mh, lract
-integer :: iactploop, idb, idocc, ilc, ilstep, ind0, iorb, irc, irstep, jbr, kcoe, lphead, lpltail, lplwei, lplwei0, lpnew, &
-           lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, lr, ni
-real*8 :: w, w0, w1, ww
-integer, parameter :: isla2(4) = [21,31,57,62]
+integer(kind=iwp) :: mh, lract
+integer(kind=iwp) :: iactploop, idb, idocc, ilc, ilstep, ind0, iorb, irc, irstep, jbr, kcoe, lphead, lpltail, lplwei, lplwei0, &
+                     lpnew, lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, lr, ni
+real(kind=wp) :: w, w0, w1, ww
+integer(kind=iwp), parameter :: isla2(4) = [21,31,57,62]
 
 iorb = lract
 lpnew = 0
@@ -486,12 +492,14 @@ subroutine act_cloop(lin,mh,lr0,lr,lrg0,lrs0)
 
 use gugaci_global, only: jpel, jper, jph_, jwl, jwr, line, lpnew_coe, lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, &
                          lpnew_rwei, lrg, lrs, mhlp, norb_dz, norb_inn, vint_ci, voint, vplpnew_w0, vplpnew_w1
+use Constants, only: Two, Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, mh, lr0, lr, lrg0, lrs0
-integer :: l, list, lpcoe(norb_dz+1:norb_inn), kcoe, mhlp_, nocc
-real*8 :: tcoe, vlop0, vlop1, wl
-integer, external :: list3, list4
+integer(kind=iwp) :: lin, mh, lr0, lr, lrg0, lrs0
+integer(kind=iwp) :: l, list, lpcoe(norb_dz+1:norb_inn), kcoe, mhlp_, nocc
+real(kind=wp) :: tcoe, vlop0, vlop1, wl
+integer(kind=iwp), external :: list3, list4
 
 line = lin
 lrg = lrg0
@@ -536,18 +544,18 @@ do mhlp_=1,mh
     case (5)
       !list = list3(lr0,lrg,lr)
       list = list3(lr0,lr,lrg)
-      wl = vlop0*(vint_ci(list)-2.0d0*vint_ci(list+1))-vlop1*vint_ci(list)
+      wl = vlop0*(vint_ci(list)-Two*vint_ci(list+1))-vlop1*vint_ci(list)
 
     case (6)
       list = list4(lr0,lrg,lrs,lr)
-      wl = vlop0*(vint_ci(list)-2*vint_ci(list+1))-vlop1*vint_ci(list)
+      wl = vlop0*(vint_ci(list)-Two*vint_ci(list+1))-vlop1*vint_ci(list)
 
     case (7)
       list = list4(lr0,lrg,lrs,lr)
-      wl = vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1))-vlop1*vint_ci(list+2)
+      wl = vlop0*(vint_ci(list+2)-Two*vint_ci(list+1))-vlop1*vint_ci(list+2)
 
     case (8)
-      wl = vlop0*voint(lr,lr0)*0.5d0
+      wl = vlop0*voint(lr,lr0)*Half
 
     case (9)
       wl = (vlop0-vlop1)*voint(lr,lr0)
@@ -565,7 +573,7 @@ do mhlp_=1,mh
     case (12)
       !list = list3(lrg,lr,lr0)
       list = list3(lr0,lr,lrg)
-      wl = vlop0*(vint_ci(list)-2.0d0*vint_ci(list+1))-vlop1*vint_ci(list)
+      wl = vlop0*(vint_ci(list)-Two*vint_ci(list+1))-vlop1*vint_ci(list)
   end select
   call prodab(2,jph_,jpel,jwl,jwr,0,wl,jper)
 end do
@@ -580,14 +588,16 @@ end subroutine act_cloop
 !                         norb_dz, norb_frz, norb_inn, ns_sm, vint_ci, voint, w0, w0_d1s, w0_d1t1, w0_d1v, w0_ds, w0_dt, w0_dv, &
 !                         w0_td, w0_vv, w1, w1_d1s, w1_d1t1, w1_ds, w1_dt, w1_t1v, w1_td, w1_tv
 !use Symmetry_Info, only: mul_tab => Mul
+!use Constants, only: Zero, Two, Half
+!use Definitions, only: wp, iwp
 !
 !implicit none
-!integer :: lpcoe(norb_dz+1:norb_inn)
-!integer :: imd, imi, imij, imj, itypadl, itypadr, iwdl, iwdr, jmlr, kcoe, l, list, lmd, lmi, lmij, lmj, lpok, lr, lr0, lra, lrd, &
-!           lri, lrj, lrk, ni, nocc
-!real*8 :: tcoe, vlop0, vlop1, w0ds1, w0ds3, w0dv1, w0dv2, w0td1, w0td2, w0td3, w0td4, w0td5, w1ds, w1ds3, w1td2, w1td3, w1tv, wl, &
-!           wl_430
-!integer, external :: list3, list4
+!integer(kind=iwp) :: lpcoe(norb_dz+1:norb_inn)
+!integer(kind=iwp) :: imd, imi, imij, imj, itypadl, itypadr, iwdl, iwdr, jmlr, kcoe, l, list, lmd, lmi, lmij, lmj, lpok, lr, lr0, &
+!                     lra, lrd, lri, lrj, lrk, ni, nocc
+!real(kind=wp) :: tcoe, vlop0, vlop1, w0ds1, w0ds3, w0dv1, w0dv2, w0td1, w0td2, w0td3, w0td4, w0td5, w1ds, w1ds3, w1td2, w1td3, &
+!                 w1tv, wl, wl_430
+!integer(kind=iwp), external :: list3, list4
 !
 !lra = kk(jpel)-1
 !jml = mod((jpadl-1),8)
@@ -652,7 +662,7 @@ end subroutine act_cloop
 !              vlop0 = w0*w0ds3
 !              vlop1 = w1*w1ds3
 !              list = list4(lrd,lri,lrj,lra)
-!              wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)            !1.1
+!              wl = (vlop0-vlop1)*vint_ci(list)-Two*vlop0*vint_ci(list+1)            !1.1
 !              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
 !              if (jb_sys > 0) then
 !                ! ds(7-2) ar(23)-bl(31)-br(32)-         the symmetry problem
@@ -665,7 +675,7 @@ end subroutine act_cloop
 !                vlop0 = w0*w0ds3
 !                vlop1 = w1*w1ds3
 !                list = list4(lrd,lri,lrj,lra)
-!                wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)            !1.1
+!                wl = (vlop0-vlop1)*vint_ci(list)-Two*vlop0*vint_ci(list+1)            !1.1
 !                call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
 !              end if
 !            end do
@@ -722,7 +732,7 @@ end subroutine act_cloop
 !              vlop0 = w0*w0ds3
 !              vlop1 = w1*w1ds3
 !              list = list4(lrd,lri,lrj,lra)
-!              wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)            !1.1
+!              wl = (vlop0-vlop1)*vint_ci(list)-Two*vlop0*vint_ci(list+1)            !1.1
 !              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
 !              if (jb_sys > 0) then
 !                ! d1s(9-2)   ar(13)-bl(31)-br(32)-   the symmetry problem
@@ -735,7 +745,7 @@ end subroutine act_cloop
 !                vlop0 = w0*w0ds3
 !                vlop1 = w1*w1ds3
 !                list = list4(lrd,lri,lrj,lra)
-!                wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)            !1.1
+!                wl = (vlop0-vlop1)*vint_ci(list)-Two*vlop0*vint_ci(list+1)            !1.1
 !                call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
 !              end if
 !            end do
@@ -764,7 +774,7 @@ end subroutine act_cloop
 !                vlop1 = -vlop1
 !              end if
 !              list = list4(lrd,lri,lrj,lra)
-!              wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1) !1.1
+!              wl = (vlop0-vlop1)*vint_ci(list)-Two*vlop0*vint_ci(list+1) !1.1
 !              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
 !            end do
 !          end do
@@ -792,7 +802,7 @@ end subroutine act_cloop
 !                vlop1 = -vlop1
 !              end if
 !              list = list4(lrd,lri,lrj,lra)
-!              wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1) !1.1
+!              wl = (vlop0-vlop1)*vint_ci(list)-Two*vlop0*vint_ci(list+1) !1.1
 !              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
 !            end do
 !          end do
@@ -840,7 +850,7 @@ end subroutine act_cloop
 !            do lr=lri+1,norb_dz
 !              if (lr == lrd) cycle
 !              list = list3(lri,lra,lr)
-!              wl = wl+2*vint_ci(list+1)-vint_ci(list)       !310:neoc=2,coe=
+!              wl = wl+Two*vint_ci(list+1)-vint_ci(list)       !310:neoc=2,coe=
 !            end do
 !            do lrk=norb_dz+1,lra
 !              list = list3(lri,lra,lrk)
@@ -853,7 +863,7 @@ end subroutine act_cloop
 !            vlop0 = -w0*w0td5
 !            do lrk=1,lri-1
 !              list = list3(lri,lra,lrk)
-!              wl = wl-vlop0*(2*vint_ci(list+1)-vint_ci(list))
+!              wl = wl-vlop0*(Two*vint_ci(list+1)-vint_ci(list))
 !            end do
 !            call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
 !          end do
@@ -869,7 +879,7 @@ end subroutine act_cloop
 !            wl = vlop0*(voint(lri,lra)+vint_ci(list))             !310,act_c
 !            do lr=lri+1,norb_dz
 !              list = list3(lri,lra,lr)
-!              wl = wl+vlop0*(2*vint_ci(list+1)-vint_ci(list)) !  310:neoc=2,
+!              wl = wl+vlop0*(Two*vint_ci(list+1)-vint_ci(list)) !  310:neoc=2,
 !            end do
 !            do lrk=norb_dz+1,lra
 !              list = list3(lri,lra,lrk)
@@ -882,13 +892,13 @@ end subroutine act_cloop
 !            vlop0 = w0*w0td4
 !            vlop1 = w1*w0td4
 !            list = list3(lri,lra,lrd)
-!            wl = wl+(vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)
+!            wl = wl+(vlop0-vlop1)*vint_ci(list)-Two*vlop0*vint_ci(list+1)
 !            ! td(13-5) d&rl(33)c"(22)b^l(23)
 !            vlop0 = w0*w0td5
 !            do lrk=1,lri-1
 !              if (lrk == lrd) cycle
 !              list = list3(lri,lra,lrk)
-!              wl = wl+vlop0*(vint_ci(list)-2*vint_ci(list+1))      !4.3
+!              wl = wl+vlop0*(vint_ci(list)-Two*vint_ci(list+1))      !4.3
 !            end do
 !            call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
 !          end do
@@ -931,7 +941,7 @@ end subroutine act_cloop
 !              vlop0 = w0*w0td3                !d6-8
 !              vlop1 = w1*w1td3
 !              list = list4(lri,lrd,lrj,lra)
-!              wl = vlop0*(vint_ci(list+2)-2*vint_ci(list+1))-vlop1*vint_ci(list+2) !1.2
+!              wl = vlop0*(vint_ci(list+2)-Two*vint_ci(list+1))-vlop1*vint_ci(list+2) !1.2
 !              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
 !            end do
 !          end do
@@ -961,7 +971,7 @@ end subroutine act_cloop
 !          do l=lr0+1,norb_dz
 !            list = list3(lr0,lr,l)
 !            nocc = 2
-!            tcoe = -0.5d0
+!            tcoe = -Half
 !            wl = wl+nocc*vlop0*(vint_ci(list+1)+tcoe*vint_ci(list))  !dbl_
 !          end do
 !          do l=norb_dz+1,lr
@@ -970,14 +980,14 @@ end subroutine act_cloop
 !            call neoc(kcoe,nocc,tcoe)
 !            wl = wl+nocc*vlop0*(vint_ci(list+1)+tcoe*vint_ci(list))   !act_c
 !          end do
-!          wl_430 = 0.d0
+!          wl_430 = Zero
 !          w0dv2 = w0_dv(2)
 !          ni = mod(norb_dz-lrd,2)
 !          if (ni == 1) w0dv2 = -w0dv2
 !          do lrk=1,lrd-1
 !            list = list3(lr0,lr,lrk)
 !            vlop0 = w0*w0dv2
-!            wl_430 = wl_430+vlop0*(vint_ci(list)-2*vint_ci(list+1))
+!            wl_430 = wl_430+vlop0*(vint_ci(list)-Two*vint_ci(list+1))
 !          end do
 !          wl = wl+wl_430
 !          !*************************************************************
@@ -1005,7 +1015,7 @@ end subroutine act_cloop
 !          do l=lr0+1,norb_dz
 !            list = list3(lr0,lr,l)
 !            nocc = 2
-!            tcoe = -0.5d0
+!            tcoe = -Half
 !            wl = wl+nocc*vlop0*(vint_ci(list+1)+tcoe*vint_ci(list))  !dbl_
 !          end do
 !          do l=norb_dz+1,lr
@@ -1014,14 +1024,14 @@ end subroutine act_cloop
 !            call neoc(kcoe,nocc,tcoe)
 !            wl = wl+nocc*vlop0*(vint_ci(list+1)+tcoe*vint_ci(list))   !act_c
 !          end do
-!          wl_430 = 0.d0
+!          wl_430 = Zero
 !          w0dv2 = w0_d1v(2)
 !          ni = mod(norb_dz-lrd,2)
 !          if (ni == 1) w0dv2 = -w0dv2
 !          do lrk=1,lrd-1
 !            list = list3(lr0,lr,lrk)
 !            vlop0 = w0*w0dv2
-!            wl_430 = wl_430+vlop0*(vint_ci(list)-2*vint_ci(list+1))
+!            wl_430 = wl_430+vlop0*(vint_ci(list)-Two*vint_ci(list+1))
 !          end do
 !          wl = wl+wl_430
 !          !*************************************************************
@@ -1115,7 +1125,7 @@ end subroutine act_cloop
 !        ! vv(25) drl(33)-
 !        if (jwl == jwr) return
 !        vlop0 = w0*w0_vv             !d25
-!        wl = 0.d0
+!        wl = Zero
 !        iwdl = 0
 !        iwdr = 0
 !        do lri=1,norb_dz
@@ -1214,12 +1224,12 @@ end subroutine act_cloop
 !      case (25)
 !        ! vv(25) drl(33)-
 !        vlop0 = w0*w0_vv             !d25
-!        wl = 0.d0
+!        wl = Zero
 !        iwdl = 0
 !        iwdr = 0
 !        do lrk=1,norb_dz
 !          list = list3(lrs,lra,lrk)
-!          wl = wl+vlop0*(vint_ci(list)-2*vint_ci(list+1))   !4.3 vlop1=0
+!          wl = wl+vlop0*(vint_ci(list)-Two*vint_ci(list+1))   !4.3 vlop1=0
 !        end do
 !        call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
 !
@@ -1266,7 +1276,7 @@ end subroutine act_cloop
 !        ! vv(25) drl(33)-
 !        if (jwl >= jwr) return
 !        vlop0 = w0*w0_vv             !d25
-!        wl = 0.d0
+!        wl = Zero
 !        iwdl = 0
 !        iwdr = 0
 !        do lrk=1,norb_dz
@@ -1362,7 +1372,7 @@ end subroutine act_cloop
 !          vlop0 = w0*w0dv1                !d23-1
 !          vlop1 = w1*w0dv1
 !          list = list3(lrd,lrg,lra)
-!          wl = vlop0*(vint_ci(list)-2*vint_ci(list+1))-vlop1*(vint_ci(list)) !2.2          !!!!!
+!          wl = vlop0*(vint_ci(list)-Two*vint_ci(list+1))-vlop1*(vint_ci(list)) !2.2          !!!!!
 !          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
 !        end do
 !
@@ -1379,7 +1389,7 @@ end subroutine act_cloop
 !          vlop0 = w0*w0dv1                !d23-1
 !          vlop1 = w1*w0dv1
 !          list = list3(lrd,lrg,lra)
-!          wl = vlop0*(vint_ci(list)-2*vint_ci(list+1))-vlop1*(vint_ci(list)) !2.2          !!!!!
+!          wl = vlop0*(vint_ci(list)-Two*vint_ci(list+1))-vlop1*(vint_ci(list)) !2.2          !!!!!
 !          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
 !        end do
 !
@@ -1468,7 +1478,7 @@ end subroutine act_cloop
 !          vlop0 = w0*w0dv1                !d23-1
 !          vlop1 = w1*w0dv1
 !          list = list4(lrd,lrg,lrs,lra)
-!          wl = vlop0*(vint_ci(list)-2*vint_ci(list+1))-vlop1*vint_ci(list) !1.1          !!!!!
+!          wl = vlop0*(vint_ci(list)-Two*vint_ci(list+1))-vlop1*vint_ci(list) !1.1          !!!!!
 !          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
 !        end do
 !
@@ -1485,7 +1495,7 @@ end subroutine act_cloop
 !          vlop0 = w0*w0dv1                !d23-1
 !          vlop1 = w1*w0dv1
 !          list = list4(lrd,lrg,lrs,lra)
-!          wl = vlop0*(vint_ci(list)-2*vint_ci(list+1))-vlop1*vint_ci(list) !1.1          !!!!!
+!          wl = vlop0*(vint_ci(list)-Two*vint_ci(list+1))-vlop1*vint_ci(list) !1.1          !!!!!
 !          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
 !        end do
 !
@@ -1521,7 +1531,7 @@ end subroutine act_cloop
 !          vlop0 = w0*w0dv1                !d23-1
 !          vlop1 = w1*w0dv1
 !          list = list4(lrd,lrg,lrs,lra)
-!          wl = vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1))-vlop1*vint_ci(list+2) !1.2      !!!!!
+!          wl = vlop0*(vint_ci(list+2)-Two*vint_ci(list+1))-vlop1*vint_ci(list+2) !1.2      !!!!!
 !          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
 !        end do
 !
@@ -1538,7 +1548,7 @@ end subroutine act_cloop
 !          vlop0 = w0*w0dv1                !d23-1
 !          vlop1 = w1*w0dv1
 !          list = list4(lrd,lrg,lrs,lra)
-!          wl = vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1))-vlop1*vint_ci(list+2) !1.2      !!!!!
+!          wl = vlop0*(vint_ci(list+2)-Two*vint_ci(list+1))-vlop1*vint_ci(list+2) !1.2      !!!!!
 !          call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
 !        end do
 !
@@ -1605,11 +1615,12 @@ subroutine dbl_td_act_comp(lin,lra)
 
 use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_td, w1
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, lra
-integer :: iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, ni
-real*8 :: vlop0, vlop1, w0td1, wl
+integer(kind=iwp) :: lin, lra
+integer(kind=iwp) :: iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, ni
+real(kind=wp) :: vlop0, vlop1, w0td1, wl
 
 ! td(13-1) (22)a&(23)
 ! td(13-1) a&(23)c'(22)
@@ -1663,11 +1674,12 @@ subroutine dbl_ttdd_act_comp(lin,lra)
 
 use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_t1d1, w1
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, lra
-integer :: iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, ni
-real*8 :: vlop0, vlop1, w0td1, wl
+integer(kind=iwp) :: lin, lra
+integer(kind=iwp) :: iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, ni
+real(kind=wp) :: vlop0, vlop1, w0td1, wl
 
 ! t1d1(15-1)  ar(13)-
 ! t1d1(15-1)  ar(13)-c'(11)-
@@ -1713,11 +1725,13 @@ end subroutine dbl_ttdd_act_comp
 subroutine comp_loop(line,lr0,lrg,lrs,lr,vlop0,vlop1,wl)
 
 use gugaci_global, only: vint_ci, voint
+use Constants, only: Two, Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: line, list, lr0, lrg, lrs, lr
-real*8 :: vlop0, vlop1, wl
-integer, external :: list3, list4
+integer(kind=iwp) :: line, list, lr0, lrg, lrs, lr
+real(kind=wp) :: vlop0, vlop1, wl
+integer(kind=iwp), external :: list3, list4
 
 select case (line)
   case default ! (1)
@@ -1748,18 +1762,18 @@ select case (line)
 
   case (5)
     list = list3(lr0,lrg,lr)
-    wl = vlop0*(vint_ci(list)-2.0d0*vint_ci(list+1))-vlop1*vint_ci(list)
+    wl = vlop0*(vint_ci(list)-Two*vint_ci(list+1))-vlop1*vint_ci(list)
 
   case (6)
     list = list4(lr0,lrg,lrs,lr)
-    wl = vlop0*(vint_ci(list)-2*vint_ci(list+1))-vlop1*vint_ci(list)
+    wl = vlop0*(vint_ci(list)-Two*vint_ci(list+1))-vlop1*vint_ci(list)
 
   case (7)
     list = list4(lr0,lrg,lrs,lr)
-    wl = vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1))-vlop1*vint_ci(list+2)
+    wl = vlop0*(vint_ci(list+2)-Two*vint_ci(list+1))-vlop1*vint_ci(list+2)
 
   case (8)
-    wl = vlop0*voint(lr,lr0)*0.5d0
+    wl = vlop0*voint(lr,lr0)*Half
 
   case (9)
     wl = (vlop0-vlop1)*voint(lr,lr0)
@@ -1774,7 +1788,7 @@ select case (line)
 
   case (12)
     list = list3(lrs,lr,lr0)      ! lrg
-    wl = vlop0*(vint_ci(list)-2.0d0*vint_ci(list+1))-vlop1*vint_ci(list)
+    wl = vlop0*(vint_ci(list)-Two*vint_ci(list+1))-vlop1*vint_ci(list)
 
 end select
 
@@ -1790,11 +1804,12 @@ subroutine dbl_sd_act_comp(lin,lra)
 
 use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_sd, w1
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, lra
-integer :: iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, ni
-real*8 :: vlop0, vlop1, w0sd1, w0sd2, w0sd3, w0sd4, wl
+integer(kind=iwp) :: lin, lra
+integer(kind=iwp) :: iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, ni
+real(kind=wp) :: vlop0, vlop1, w0sd1, w0sd2, w0sd3, w0sd4, wl
 
 jmlr = mul_tab(jml,jmr)
 do lri=norb_frz+1,norb_dz
@@ -1869,11 +1884,12 @@ subroutine dbl_sdd_act_comp(lin,lra)
 
 use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_sd1, w1
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lin, lra
-integer :: iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, ni
-real*8 :: vlop0, vlop1, w0sd1, w0sd2, w0sd3, w0sd4, wl
+integer(kind=iwp) :: lin, lra
+integer(kind=iwp) :: iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, ni
+real(kind=wp) :: vlop0, vlop1, w0sd1, w0sd2, w0sd3, w0sd4, wl
 
 jmlr = mul_tab(jml,jmr)
 do lri=norb_frz+1,norb_dz
@@ -1943,9 +1959,10 @@ end subroutine dbl_sdd_act_comp
 subroutine ext_space_loop()
 
 use gugaci_global, only: iseg_downwei, iseg_sta, iseg_upwei, isegdownwei, isegsta, isegupwei, nu_ae
+use Definitions, only: iwp
 
 implicit none
-integer :: inx, ism
+integer(kind=iwp) :: inx, ism
 
 ism = 0
 do inx=18,25
@@ -1983,10 +2000,11 @@ subroutine g_tt_ext_sequence(ism)
 
 use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iwt_orb_ext, m_jc, m_jd, max_tmpvalue, ng_sm
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: ism
-integer :: ic, ic_sta, icano_nn, icend, id, id_sta, idend, idsta, isma, ismb, ismc, ismd
+integer(kind=iwp) :: ism
+integer(kind=iwp) :: ic, ic_sta, icano_nn, icend, id, id_sta, idend, idsta, isma, ismb, ismc, ismd
 
 icano_nnsta = 2
 icnt_base = 0
@@ -2029,11 +2047,11 @@ do ismd=1,ng_sm
         call g11a11b_t_symaacc(isma,ismd,ic,id)
       end if
       call g36_t_ext(ismc,ic,id)
-      !write(6,*) '  g36',value_lpext(1)
+      !write(u6,*) '  g36',value_lpext(1)
       call g5_t_ext(ismd,ic,id)
-      !write(6,*) '  g5' ,value_lpext(1)
+      !write(u6,*) '  g5' ,value_lpext(1)
       if (ism == 1) call g9_t_ext(ismd,ic,id)
-      !write(6,*) '  g9',value_lpext(1)
+      !write(u6,*) '  g9',value_lpext(1)
       icnt_base = icnt_base+icano_nn-1
     end do
   end do
@@ -2048,14 +2066,16 @@ use gugaci_global, only: jb_sys, jml, jmr, jpad, jpadl, jpel, jper, jud, just, j
                          norb_dz, norb_frz, norb_inn, ns_sm, vint_ci, voint, w0, w0_d1s, w0_d1t1, w0_d1v, w0_ds, w0_dt, w0_dv, &
                          w0_td, w0_vv, w1, w1_d1s, w1_d1t1, w1_ds, w1_dt, w1_t1v, w1_td, w1_tv
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero, Two, Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lpcoe(norb_dz+1:norb_inn)
-integer :: imd, imi, imij, imj, itypadl, itypadr, iwdl, iwdr, jmlr, kcoe, l, list, lmd, lmi, lmij, lmj, lpok, lr, lr0, lra, lrd, &
-           lri, lrj, lrk, ni, nocc
-real*8 :: tcoe, vlop0, vlop1, w0ds1, w0ds2, w0ds3, w0dv1, w0dv2, w0td1, w0td2, w0td3, w0td4, w0td5, w1ds, w1ds2, w1ds3, w1td2, &
-           w1td3, w1tv, wl, wl_430
-integer, external :: list3, list4
+integer(kind=iwp) :: lpcoe(norb_dz+1:norb_inn)
+integer(kind=iwp) :: imd, imi, imij, imj, itypadl, itypadr, iwdl, iwdr, jmlr, kcoe, l, list, lmd, lmi, lmij, lmj, lpok, lr, lr0, &
+                     lra, lrd, lri, lrj, lrk, ni, nocc
+real(kind=wp) :: tcoe, vlop0, vlop1, w0ds1, w0ds2, w0ds3, w0dv1, w0dv2, w0td1, w0td2, w0td3, w0td4, w0td5, w1ds, w1ds2, w1ds3, &
+                 w1td2, w1td3, w1tv, wl, wl_430
+integer(kind=iwp), external :: list3, list4
 
 lra = kk(jpel)-1
 jml = mod((jpadl-1),8)
@@ -2128,14 +2148,14 @@ select case (line)
               iwdr = just(lri,lrj)
               vlop0 = w0*w0ds3
               vlop1 = w1*w1ds3
-              wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)            !1.1
+              wl = (vlop0-vlop1)*vint_ci(list)-Two*vlop0*vint_ci(list+1)            !1.1
               call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
               if (jb_sys > 0) then
                 ! ds(7-2) ar(23)-bl(31)-br(32)-         the symmetry problem
                 iwdr = just(lrj,lri)
                 vlop0 = w0*w0ds2
                 vlop1 = w1*w1ds2
-                wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)            !1.1
+                wl = (vlop0-vlop1)*vint_ci(list)-Two*vlop0*vint_ci(list+1)            !1.1
                 call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
               end if
             end do
@@ -2192,7 +2212,7 @@ select case (line)
               vlop0 = w0*w0ds3
               vlop1 = w1*w1ds3
               list = list4(lrd,lri,lrj,lra)
-              wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)            !1.1
+              wl = (vlop0-vlop1)*vint_ci(list)-Two*vlop0*vint_ci(list+1)            !1.1
               call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
               if (jb_sys > 0) then
                 ! d1s(9-2)   ar(13)-bl(31)-br(32)-   the symmetry problem
@@ -2205,7 +2225,7 @@ select case (line)
                 vlop0 = w0*w0ds3
                 vlop1 = w1*w1ds3
                 list = list4(lrd,lri,lrj,lra)
-                wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)            !1.1
+                wl = (vlop0-vlop1)*vint_ci(list)-Two*vlop0*vint_ci(list+1)            !1.1
                 call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
               end if
             end do
@@ -2233,7 +2253,7 @@ select case (line)
                 vlop1 = -vlop1
               end if
               list = list4(lrd,lri,lrj,lra)
-              wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1) !1.1
+              wl = (vlop0-vlop1)*vint_ci(list)-Two*vlop0*vint_ci(list+1) !1.1
               call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
             end do
           end do
@@ -2261,7 +2281,7 @@ select case (line)
                 vlop1 = -vlop1
               end if
               list = list4(lrd,lri,lrj,lra)
-              wl = (vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1) !1.1
+              wl = (vlop0-vlop1)*vint_ci(list)-Two*vlop0*vint_ci(list+1) !1.1
               call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
             end do
           end do
@@ -2325,7 +2345,7 @@ select case (line)
             do lr=lri+1,norb_dz
               if (lr == lrd) cycle
               list = list3(lri,lra,lr)
-              wl = wl+2*vint_ci(list+1)-vint_ci(list)       !310:neoc=2,coe=
+              wl = wl+Two*vint_ci(list+1)-vint_ci(list)       !310:neoc=2,coe=
             end do
             do lrk=norb_dz+1,lra
               list = list3(lri,lra,lrk)
@@ -2338,7 +2358,7 @@ select case (line)
             vlop0 = -w0*w0td5
             do lrk=1,lri-1
               list = list3(lri,lra,lrk)
-              wl = wl-vlop0*(2*vint_ci(list+1)-vint_ci(list))
+              wl = wl-vlop0*(Two*vint_ci(list+1)-vint_ci(list))
             end do
             call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
           end do
@@ -2354,7 +2374,7 @@ select case (line)
             wl = vlop0*(voint(lri,lra)+vint_ci(list))             !310,act_c
             do lr=lri+1,norb_dz
               list = list3(lri,lra,lr)
-              wl = wl+vlop0*(2*vint_ci(list+1)-vint_ci(list)) !  310:neoc=2,
+              wl = wl+vlop0*(Two*vint_ci(list+1)-vint_ci(list)) !  310:neoc=2,
             end do
             do lrk=norb_dz+1,lra
               list = list3(lri,lra,lrk)
@@ -2367,13 +2387,13 @@ select case (line)
             vlop0 = w0*w0td4
             vlop1 = w1*w0td4
             list = list3(lri,lra,lrd)
-            wl = wl+(vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1)
+            wl = wl+(vlop0-vlop1)*vint_ci(list)-Two*vlop0*vint_ci(list+1)
             ! td(13-5) d&rl(33)c"(22)b^l(23)
             vlop0 = w0*w0td5
             do lrk=1,lri-1
               if (lrk == lrd) cycle
               list = list3(lri,lra,lrk)
-              wl = wl+vlop0*(vint_ci(list)-2*vint_ci(list+1))      !4.3
+              wl = wl+vlop0*(vint_ci(list)-Two*vint_ci(list+1))      !4.3
             end do
             call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
           end do
@@ -2416,7 +2436,7 @@ select case (line)
               vlop0 = w0*w0td3                !d6-8
               vlop1 = w1*w1td3
               list = list4(lri,lrd,lrj,lra)
-              wl = vlop0*(vint_ci(list+2)-2*vint_ci(list+1))-vlop1*vint_ci(list+2) !1.2
+              wl = vlop0*(vint_ci(list+2)-Two*vint_ci(list+1))-vlop1*vint_ci(list+2) !1.2
               call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
             end do
           end do
@@ -2446,7 +2466,7 @@ select case (line)
           do l=lr0+1,norb_dz
             list = list3(lr0,lr,l)
             nocc = 2
-            tcoe = -0.5d0
+            tcoe = -Half
             wl = wl+nocc*vlop0*(vint_ci(list+1)+tcoe*vint_ci(list))  !dbl_
           end do
           do l=norb_dz+1,lr
@@ -2455,14 +2475,14 @@ select case (line)
             call neoc(kcoe,nocc,tcoe)
             wl = wl+nocc*vlop0*(vint_ci(list+1)+tcoe*vint_ci(list))   !act_c
           end do
-          wl_430 = 0.d0
+          wl_430 = Zero
           w0dv2 = w0_dv(2)
           ni = mod(norb_dz-lrd,2)
           if (ni == 1) w0dv2 = -w0dv2
           do lrk=1,lrd-1
             list = list3(lr0,lr,lrk)
             vlop0 = w0*w0dv2
-            wl_430 = wl_430+vlop0*(vint_ci(list)-2*vint_ci(list+1))
+            wl_430 = wl_430+vlop0*(vint_ci(list)-Two*vint_ci(list+1))
           end do
           wl = wl+wl_430
           !*************************************************************
@@ -2490,7 +2510,7 @@ select case (line)
           do l=lr0+1,norb_dz
             list = list3(lr0,lr,l)
             nocc = 2
-            tcoe = -0.5d0
+            tcoe = -Half
             wl = wl+nocc*vlop0*(vint_ci(list+1)+tcoe*vint_ci(list))  !dbl_
           end do
           do l=norb_dz+1,lr
@@ -2499,14 +2519,14 @@ select case (line)
             call neoc(kcoe,nocc,tcoe)
             wl = wl+nocc*vlop0*(vint_ci(list+1)+tcoe*vint_ci(list))   !act_c
           end do
-          wl_430 = 0.d0
+          wl_430 = Zero
           w0dv2 = w0_d1v(2)
           ni = mod(norb_dz-lrd,2)
           if (ni == 1) w0dv2 = -w0dv2
           do lrk=1,lrd-1
             list = list3(lr0,lr,lrk)
             vlop0 = w0*w0dv2
-            wl_430 = wl_430+vlop0*(vint_ci(list)-2*vint_ci(list+1))
+            wl_430 = wl_430+vlop0*(vint_ci(list)-Two*vint_ci(list+1))
           end do
           wl = wl+wl_430
           !*************************************************************
@@ -2599,7 +2619,7 @@ select case (line)
         ! vv(25) drl(33)-
         if (jwl == jwr) return
         vlop0 = w0*w0_vv             !d25
-        wl = 0.d0
+        wl = Zero
         iwdl = 0
         iwdr = 0
         do lri=1,norb_dz
@@ -2696,12 +2716,12 @@ select case (line)
       case (25)
         ! vv(25) drl(33)-
         vlop0 = w0*w0_vv             !d25
-        wl = 0.d0
+        wl = Zero
         iwdl = 0
         iwdr = 0
         do lrk=1,norb_dz
           list = list3(lrs,lra,lrk)
-          wl = wl+vlop0*(vint_ci(list)-2*vint_ci(list+1))   !4.3 vlop1=0
+          wl = wl+vlop0*(vint_ci(list)-Two*vint_ci(list+1))   !4.3 vlop1=0
         end do
         call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
 
@@ -2748,7 +2768,7 @@ select case (line)
         ! vv(25) drl(33)-
         if (jwl >= jwr) return
         vlop0 = w0*w0_vv             !d25
-        wl = 0.d0
+        wl = Zero
         iwdl = 0
         iwdr = 0
         do lrk=1,norb_dz
@@ -2845,7 +2865,7 @@ select case (line)
           vlop0 = w0*w0dv1                !d23-1
           vlop1 = w1*w0dv1
           list = list3(lrd,lrg,lra)
-          wl = vlop0*(vint_ci(list)-2*vint_ci(list+1))-vlop1*(vint_ci(list)) !2.2          !!!!!
+          wl = vlop0*(vint_ci(list)-Two*vint_ci(list+1))-vlop1*(vint_ci(list)) !2.2          !!!!!
           call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
         end do
 
@@ -2862,7 +2882,7 @@ select case (line)
           vlop0 = w0*w0dv1                !d23-1
           vlop1 = w1*w0dv1
           list = list3(lrd,lrg,lra)
-          wl = vlop0*(vint_ci(list)-2*vint_ci(list+1))-vlop1*(vint_ci(list)) !2.2          !!!!!
+          wl = vlop0*(vint_ci(list)-Two*vint_ci(list+1))-vlop1*(vint_ci(list)) !2.2          !!!!!
           call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
         end do
 
@@ -2950,7 +2970,7 @@ select case (line)
           vlop0 = w0*w0dv1                !d23-1
           vlop1 = w1*w0dv1
           list = list4(lrd,lrg,lrs,lra)
-          wl = vlop0*(vint_ci(list)-2*vint_ci(list+1))-vlop1*vint_ci(list) !1.1          !!!!!
+          wl = vlop0*(vint_ci(list)-Two*vint_ci(list+1))-vlop1*vint_ci(list) !1.1          !!!!!
           call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
         end do
 
@@ -2967,7 +2987,7 @@ select case (line)
           vlop0 = w0*w0dv1                !d23-1
           vlop1 = w1*w0dv1
           list = list4(lrd,lrg,lrs,lra)
-          wl = vlop0*(vint_ci(list)-2*vint_ci(list+1))-vlop1*vint_ci(list) !1.1          !!!!!
+          wl = vlop0*(vint_ci(list)-Two*vint_ci(list+1))-vlop1*vint_ci(list) !1.1          !!!!!
           call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
         end do
 
@@ -3003,7 +3023,7 @@ select case (line)
           vlop0 = w0*w0dv1                !d23-1
           vlop1 = w1*w0dv1
           list = list4(lrd,lrg,lrs,lra)
-          wl = vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1))-vlop1*vint_ci(list+2) !1.2      !!!!!
+          wl = vlop0*(vint_ci(list+2)-Two*vint_ci(list+1))-vlop1*vint_ci(list+2) !1.2      !!!!!
           call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
         end do
 
@@ -3020,7 +3040,7 @@ select case (line)
           vlop0 = w0*w0dv1                !d23-1
           vlop1 = w1*w0dv1
           list = list4(lrd,lrg,lrs,lra)
-          wl = vlop0*(vint_ci(list+2)-2.0d0*vint_ci(list+1))-vlop1*vint_ci(list+2) !1.2      !!!!!
+          wl = vlop0*(vint_ci(list+2)-Two*vint_ci(list+1))-vlop1*vint_ci(list+2) !1.2      !!!!!
           call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
         end do
 

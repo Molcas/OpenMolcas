@@ -15,9 +15,10 @@
 !subroutine dd_ext_plpmode(ilnodesm,irnodesm)
 !
 !use gugaci_global, only: logic_g13, logic_g1415, logic_g36a, logic_g36b
+!use Definitions, only: iwp
 !
 !implicit none
-!integer :: ilnodesm, irnodesm
+!integer(kind=iwp) :: ilnodesm, irnodesm
 !
 !logic_g36a = .false.
 !logic_g36b = .false.
@@ -40,12 +41,14 @@ subroutine external_space_plpmode_value_dv()
 
 use gugaci_global, only: w0g25, w0g25a, w1g25a
 
+use Constants, only: One
+
 implicit none
 
 ! sd   lpmode_value
-w0g25 = -1.d0
-w0g25a = -1.d0
-w1g25a = -1.d0
+w0g25 = -One
+w0g25a = -One
+w1g25a = -One
 
 end subroutine external_space_plpmode_value_dv
 
@@ -66,10 +69,11 @@ subroutine g12_t_diffsym(isma,ismb,ismc)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, ip4_abcd_ext_base, iwt_orb_ext, jp2, jp3, m_jc, m_jd, ngw2, nlsm_ext, &
                          value_lpext, vint_ci
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ismb, ismc
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ip2cd, ip3smabc, ipos_intbasetmp, iposint, nsma, num_smab
+integer(kind=iwp) :: isma, ismb, ismc
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ip2cd, ip3smabc, ipos_intbasetmp, iposint, nsma, num_smab
 
 if (isma < ismb) then
   ip3smabc = isma+jp2(ismb)+jp3(ismc)
@@ -116,10 +120,11 @@ subroutine g11a_t_diffsym(isma,ismb,ismc)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, ip4_abcd_ext_base, iwt_orb_ext, jp2, jp3, m_jc, m_jd, nlsm_ext, &
                          value_lpext, vint_ci
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ismb, ismc
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, jcoffset, jdoffset, num_smab
+integer(kind=iwp) :: isma, ismb, ismc
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, jcoffset, jdoffset, num_smab
 
 ipsmabc = isma+jp2(ismc)+jp3(ismb)
 ipos_intbasetmp = ip4_abcd_ext_base(ipsmabc)
@@ -148,10 +153,12 @@ subroutine g11b_t_diffsym(isma,ismb,ismc)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, ip4_abcd_ext_base, iwt_orb_ext, jp2, jp3, m_jc, m_jd, nlsm_ext, &
                          value_lpext, vint_ci
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ismb, ismc
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, jcoffset, jdoffset, num_smab, numint_jc
+integer(kind=iwp) :: isma, ismb, ismc
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, jcoffset, jdoffset, num_smab, &
+                     numint_jc
 
 ipsmabc = ismc+jp2(isma)+jp3(ismb)
 ipos_intbasetmp = ip4_abcd_ext_base(ipsmabc)
@@ -181,11 +188,12 @@ subroutine g1112_t_symaaaa(isma,ic,id)
 
 use gugaci_global, only: ibsm_ext, icnt_base, ip4_abcd_ext_base, iwt_orb_ext, jp2, jp3, m_jc, m_jd, ngw2, ngw3, ngw4, value_lpext, &
                          vint_ci
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ic, id
-integer :: ia, iabcdpos_11b, iasta, ib, ibcdpos_11a, ibcdpos_11b, ibsta, icdpos_11a, icdpos_11b, icdpos_12, ilwei, &
-           ipos_intbasetmp, iposint, ipsmabc, ja, jb
+integer(kind=iwp) :: isma, ic, id
+integer(kind=iwp) :: ia, iabcdpos_11b, iasta, ib, ibcdpos_11a, ibcdpos_11b, ibsta, icdpos_11a, icdpos_11b, icdpos_12, ilwei, &
+                     ipos_intbasetmp, iposint, ipsmabc, ja, jb
 
 ipsmabc = isma+jp2(isma)+jp3(isma)
 ipos_intbasetmp = ip4_abcd_ext_base(ipsmabc)
@@ -239,10 +247,11 @@ subroutine g11a11b_t_symaacc(isma,ismc,ic,id)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, ip4_abcd_ext_base, iwt_orb_ext, jp2, jp3, m_jc, m_jd, ngw2, nlsm_ext, &
                          value_lpext, vint_ci
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ismc, ic, id
-integer :: ia, iaend, iasta, ib, ibdpos, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, ja, num_smab
+integer(kind=iwp) :: isma, ismc, ic, id
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibdpos, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, ja, num_smab
 
 ipsmabc = isma+jp2(isma)+jp3(ismc)
 ipos_intbasetmp = ip4_abcd_ext_base(ipsmabc)
@@ -286,10 +295,11 @@ end subroutine g11a11b_t_symaacc
 subroutine g36_t_ext(ismc,ic,id)
 
 use gugaci_global, only: ibsm_ext, icnt_base, ip2_aa_ext_base, ip3_abd_ext_base, iwt_orb_ext, np3_abd_ext, value_lpext, vint_ci
+use Definitions, only: iwp
 
 implicit none
-integer :: ismc, ic, id
-integer :: ia, iasta, ilwei, ipos_g36, ipos_intbasetmp, iposint
+integer(kind=iwp) :: ismc, ic, id
+integer(kind=iwp) :: ia, iasta, ilwei, ipos_g36, ipos_intbasetmp, iposint
 
 ipos_intbasetmp = ip3_abd_ext_base+(id-1)*np3_abd_ext   !severe_new_
 iasta = ibsm_ext(ismc)
@@ -306,10 +316,11 @@ end subroutine g36_t_ext
 subroutine g5_t_ext(ismd,ic,id)
 
 use gugaci_global, only: ibsm_ext, icnt_base, ip2_aa_ext_base, ip3_abd_ext_base, iwt_orb_ext, np3_abd_ext, value_lpext, vint_ci
+use Definitions, only: iwp
 
 implicit none
-integer :: ismd, ic, id
-integer :: ib, ibsta, ilwei, ipos_g5, ipos_intbasetmp, iposint
+integer(kind=iwp) :: ismd, ic, id
+integer(kind=iwp) :: ib, ibsta, ilwei, ipos_g5, ipos_intbasetmp, iposint
 
 ipos_intbasetmp = ip3_abd_ext_base+(ic-1)*np3_abd_ext
 ibsta = ibsm_ext(ismd)
@@ -325,10 +336,11 @@ end subroutine g5_t_ext
 subroutine g9_t_ext(ismd,ic,id)
 
 use gugaci_global, only: ibsm_ext, icnt_base, ip2_aa_ext_base, ip3_abd_ext_base, iwt_orb_ext, np3_abd_ext, value_lpext, vint_ci
+use Definitions, only: iwp
 
 implicit none
-integer :: ismd, ic, id
-integer :: ia, iasta, ilwei, ipos_g9, ipos_intbasetmp, iposint
+integer(kind=iwp) :: ismd, ic, id
+integer(kind=iwp) :: ia, iasta, ilwei, ipos_g9, ipos_intbasetmp, iposint
 
 ipos_intbasetmp = ip3_abd_ext_base+(ic-1)*np3_abd_ext
 iasta = ibsm_ext(ismd)
@@ -347,11 +359,12 @@ subroutine gsd_determine_extarmode_paras(ismnodes,ismnoded,logic_sd)
 use gugaci_global, only: ibsm_ext, ivaluesta_g26, iweista_g25, iweista_g26, iweista_g28, iwt_orb_ext, iwt_sm_s_ext, logic_g25a, &
                          logic_g25b, logic_g26, logic_g28a, nint_g25, nint_g28, nlsm_ext, nwei_g25, nwei_g26, nwei_g28
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: ismnodes, ismnoded
-logical :: logic_sd
-integer :: iorbid, iorbisd, ismnodesd, numsmd, numsmsd
+integer(kind=iwp) :: ismnodes, ismnoded
+logical(kind=iwp) :: logic_sd
+integer(kind=iwp) :: iorbid, iorbisd, ismnodesd, numsmd, numsmsd
 
 ismnodesd = mul_tab(ismnodes,ismnoded)
 numsmd = nlsm_ext(ismnoded)
@@ -394,10 +407,11 @@ end subroutine gsd_determine_extarmode_paras
 subroutine g_dd_ext_sequence(ism)
 
 use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, norb_number, value_lpext, voint
+use Definitions, only: iwp
 
 implicit none
-integer :: ism
-integer :: ia, iasta, ib, ibend, ibsta, ilwei, lra, lrb
+integer(kind=iwp) :: ism
+integer(kind=iwp) :: ia, iasta, ib, ibend, ibsta, ilwei, lra, lrb
 
 icano_nnsta = 2
 icnt_base = 0
@@ -423,10 +437,11 @@ subroutine g_ss_ext_sequence(ism,itype)
 use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iwt_orb_ext, iwt_sm_s_ext, m_jc, m_jd, &
                          max_tmpvalue, ng_sm, norb_ext
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: ism, itype
-integer :: ic, ic_sta, icano_nn, icend, id, id_sta, idend, idsta, isma, ismb, ismc, ismd
+integer(kind=iwp) :: ism, itype
+integer(kind=iwp) :: ic, ic_sta, icano_nn, icend, id, id_sta, idend, idsta, isma, ismb, ismc, ismd
 
 icano_nnsta = 2
 icnt_base = 0
@@ -496,10 +511,11 @@ subroutine g12_diffsym(isma,ismb,ismc)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, ip4_abcd_ext_base, iwt_orb_ext, jp2, jp3, m_jc, m_jd, ngw2, nlsm_ext, &
                          value_lpext, vint_ci
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ismb, ismc
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ip2cd, ip3smabc, ipos_intbasetmp, iposint, nsma, num_smab
+integer(kind=iwp) :: isma, ismb, ismc
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ip2cd, ip3smabc, ipos_intbasetmp, iposint, nsma, num_smab
 
 if (isma < ismb) then
   ip3smabc = isma+jp2(ismb)+jp3(ismc)
@@ -546,10 +562,11 @@ subroutine g11a_diffsym(isma,ismb,ismc)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, ip4_abcd_ext_base, iwt_orb_ext, jp2, jp3, m_jc, m_jd, nlsm_ext, &
                          value_lpext, vint_ci
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ismb, ismc
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, jcoffset, jdoffset, num_smab
+integer(kind=iwp) :: isma, ismb, ismc
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, jcoffset, jdoffset, num_smab
 
 ipsmabc = isma+jp2(ismc)+jp3(ismb)
 ipos_intbasetmp = ip4_abcd_ext_base(ipsmabc)
@@ -578,10 +595,12 @@ subroutine g11b_diffsym(isma,ismb,ismc)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, ip4_abcd_ext_base, iwt_orb_ext, jp2, jp3, m_jc, m_jd, nlsm_ext, &
                          value_lpext, vint_ci
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ismb, ismc
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, jcoffset, jdoffset, num_smab, numint_jc
+integer(kind=iwp) :: isma, ismb, ismc
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, jcoffset, jdoffset, num_smab, &
+                     numint_jc
 
 ipsmabc = ismc+jp2(isma)+jp3(ismb)
 ipos_intbasetmp = ip4_abcd_ext_base(ipsmabc)
@@ -611,11 +630,12 @@ subroutine g1112_symaaaa(isma,ic,id)
 
 use gugaci_global, only: ibsm_ext, icnt_base, ip4_abcd_ext_base, iwt_orb_ext, jp2, jp3, m_jc, m_jd, ngw2, ngw3, ngw4, value_lpext, &
                          vint_ci
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ic, id
-integer :: ia, iabcdpos_11b, iasta, ib, ibcdpos_11a, ibcdpos_11b, ibsta, icdpos_11a, icdpos_11b, icdpos_12, ilwei, &
-           ipos_intbasetmp, iposint, ipsmabc, ja, jb
+integer(kind=iwp) :: isma, ic, id
+integer(kind=iwp) :: ia, iabcdpos_11b, iasta, ib, ibcdpos_11a, ibcdpos_11b, ibsta, icdpos_11a, icdpos_11b, icdpos_12, ilwei, &
+                     ipos_intbasetmp, iposint, ipsmabc, ja, jb
 
 ipsmabc = isma+jp2(isma)+jp3(isma)
 ipos_intbasetmp = ip4_abcd_ext_base(ipsmabc)
@@ -670,10 +690,11 @@ subroutine g11a11b_symaacc(isma,ismc,ic,id)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, ip4_abcd_ext_base, iwt_orb_ext, jp2, jp3, m_jc, m_jd, ngw2, nlsm_ext, &
                          value_lpext, vint_ci
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ismc, ic, id
-integer :: ia, iaend, iasta, ib, ibdpos, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, ja, num_smab
+integer(kind=iwp) :: isma, ismc, ic, id
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibdpos, ibsta, ilwei, ipos_intbasetmp, iposint, ipsmabc, ja, num_smab
 
 ipsmabc = isma+jp2(isma)+jp3(ismc)
 ipos_intbasetmp = ip4_abcd_ext_base(ipsmabc)
@@ -717,10 +738,11 @@ end subroutine g11a11b_symaacc
 subroutine g10_ext(ismc,ic,id)
 
 use gugaci_global, only: ibsm_ext, icnt_base, ip2_aa_ext_base, ip3_abd_ext_base, iwt_orb_ext, np3_abd_ext, value_lpext, vint_ci
+use Definitions, only: iwp
 
 implicit none
-integer :: ismc, ic, id
-integer :: ia, iasta, ilwei, ipos_g10, ipos_intbasetmp, iposint
+integer(kind=iwp) :: ismc, ic, id
+integer(kind=iwp) :: ia, iasta, ilwei, ipos_g10, ipos_intbasetmp, iposint
 
 ipos_intbasetmp = ip3_abd_ext_base+(id-1)*np3_abd_ext   !severe_new_
 iasta = ibsm_ext(ismc)
@@ -737,10 +759,11 @@ end subroutine g10_ext
 subroutine g5_ext(ismd,ic,id)
 
 use gugaci_global, only: ibsm_ext, icnt_base, ip2_aa_ext_base, ip3_abd_ext_base, iwt_orb_ext, np3_abd_ext, value_lpext, vint_ci
+use Definitions, only: iwp
 
 implicit none
-integer :: ismd, ic, id
-integer :: ib, ibsta, ilwei, ipos_g5, ipos_intbasetmp, iposint
+integer(kind=iwp) :: ismd, ic, id
+integer(kind=iwp) :: ib, ibsta, ilwei, ipos_g5, ipos_intbasetmp, iposint
 
 ipos_intbasetmp = ip3_abd_ext_base+(ic-1)*np3_abd_ext
 ibsta = ibsm_ext(ismd)
@@ -756,10 +779,11 @@ end subroutine g5_ext
 subroutine g9_ext(ismd,ic,id)
 
 use gugaci_global, only: ibsm_ext, icnt_base, ip2_aa_ext_base, ip3_abd_ext_base, iwt_orb_ext, np3_abd_ext, value_lpext, vint_ci
+use Definitions, only: iwp
 
 implicit none
-integer :: ismd, ic, id
-integer :: ia, iasta, ilwei, ipos_g9, ipos_intbasetmp, iposint
+integer(kind=iwp) :: ismd, ic, id
+integer(kind=iwp) :: ia, iasta, ilwei, ipos_g9, ipos_intbasetmp, iposint
 
 ipos_intbasetmp = ip3_abd_ext_base+(ic-1)*np3_abd_ext
 iasta = ibsm_ext(ismd)
@@ -776,12 +800,12 @@ end subroutine g9_ext
 subroutine ext_lp_ab_s1(id)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, ip2_aa_ext_base, ip2_dd_ext_base, ip3_abd_ext_base, ng_sm, ngw2, &
-                         np3_abd_ext, value_lpext, vint_ci
+                         np3_abd_ext, v_sqtwo, value_lpext, vint_ci
+use Definitions, only: iwp
 
 implicit none
-integer :: id
-integer :: ia, iasta, ib, ibend, ibsta, ic, ilwei, ipos_intbasetmp, iposint, iposintaa, ismb
-real*8, parameter :: v_sqtwo = 1.414213562373095d0
+integer(kind=iwp) :: id
+integer(kind=iwp) :: ia, iasta, ib, ibend, ibsta, ic, ilwei, ipos_intbasetmp, iposint, iposintaa, ismb
 
 ipos_intbasetmp = ip3_abd_ext_base+(id-1)*np3_abd_ext
 ilwei = icnt_base
@@ -822,10 +846,11 @@ subroutine g31_diffsym(lri,isma,ismb)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, intind_iabc, iwt_orb_ext, m_jd, nabc, ngw2, ngw3, value_lpext, vint_ci, &
                          w0plp31, w1plp31
+use Definitions, only: iwp
 
 implicit none
-integer :: lri, isma, ismb
-integer :: ia, iabc, iabc0, iaend, iasta, ib, ibend, ibsta, ic, ilwei, iposint
+integer(kind=iwp) :: lri, isma, ismb
+integer(kind=iwp) :: ia, iabc, iabc0, iaend, iasta, ib, ibend, ibsta, ic, ilwei, iposint
 
 iabc0 = (lri-1)*nabc
 ic = m_jd
@@ -852,10 +877,11 @@ subroutine g32a_diffsym(lri,isma,ismb)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, intind_iabc, iwt_orb_ext, m_jd, nabc, ngw2, ngw3, value_lpext, vint_ci, &
                          w0plp32, w1plp32
+use Definitions, only: iwp
 
 implicit none
-integer :: lri, isma, ismb
-integer :: ia, iabc, iabc0, iaend, iasta, ib, ibend, ibsta, ic, ilwei, iposint
+integer(kind=iwp) :: lri, isma, ismb
+integer(kind=iwp) :: ia, iabc, iabc0, iaend, iasta, ib, ibend, ibsta, ic, ilwei, iposint
 
 iabc0 = (lri-1)*nabc
 
@@ -881,10 +907,11 @@ subroutine g32b_diffsym(lri,isma,ismb)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, intind_iabc, iwt_orb_ext, m_jd, nabc, ngw2, ngw3, value_lpext, vint_ci, &
                          w0plp32, w1plp32
+use Definitions, only: iwp
 
 implicit none
-integer :: lri, isma, ismb
-integer :: ia, iabc, iabc0, iaend, iasta, ib, ibend, ibsta, ic, ilwei, iposint
+integer(kind=iwp) :: lri, isma, ismb
+integer(kind=iwp) :: ia, iabc, iabc0, iaend, iasta, ib, ibend, ibsta, ic, ilwei, iposint
 
 iabc0 = (lri-1)*nabc
 
@@ -911,9 +938,10 @@ end subroutine g32b_diffsym
 !subroutine assign_segmode_paras(indl,indr,ilrdivnodesm)
 !
 !use gugaci_global, only: ilsegdownwei, irsegdownwei, iseg_downwei, iseg_sta
+!use Definitions, only: iwp
 !
 !implicit none
-!integer :: indl, indr, ilrdivnodesm
+!integer(kind=iwp) :: indl, indr, ilrdivnodesm
 !
 !ilsegdownwei = iseg_downwei(indl)
 !irsegdownwei = iseg_downwei(indr)
@@ -928,22 +956,23 @@ subroutine external_space_plpmode_value_st()   !tt
 
 use gugaci_global, only: v_sqthree, v_sqthreevsqtwo, w0g14a, w0g15a, w0g2a, w0g2b, w0g34a, w0g34b, w0g35a, w0g35b, w0g36a, w0g36b, &
                          w0g4a, w0g4b, w1g14a, w1g15a, w1g2a, w1g2b, w1g34a, w1g34b, w1g35a, w1g35b, w1g36a, w1g36b, w1g4a, w1g4b
+use Constants, only: Zero
 
 implicit none
 
-w0g36a = 0.d0
-w0g36b = 0.d0
-w0g34a = 0.d0
-w0g34b = 0.d0
-w0g35a = 0.d0
-w0g35b = 0.d0
-w0g2a = 0.d0
-w0g2b = 0.d0
-w0g4a = 0.d0
-w0g4b = 0.d0
-w0g14a = 0.d0
-w0g15a = 0.d0
-!w0g13a = 0.d0
+w0g36a = Zero
+w0g36b = Zero
+w0g34a = Zero
+w0g34b = Zero
+w0g35a = Zero
+w0g35b = Zero
+w0g2a = Zero
+w0g2b = Zero
+w0g4a = Zero
+w0g4b = Zero
+w0g14a = Zero
+w0g15a = Zero
+!w0g13a = Zero
 
 ! st
 w1g36a = v_sqthreevsqtwo
@@ -952,9 +981,9 @@ w1g34a = -w1g36a
 w1g34b = -w1g36a
 w1g35a = w1g36a
 w1g35b = -w1g36a
-w1g2a = 0.d0      !g2a   ab_d
+w1g2a = Zero      !g2a   ab_d
 w1g2b = -v_sqthree   !severe_error
-w1g4a = 0.d0
+w1g4a = Zero
 w1g4b = v_sqthree
 w1g14a = w1g36a
 w1g15a = -w1g36a
@@ -965,21 +994,22 @@ subroutine external_space_plpmode_value_ts()   !tt
 
 use gugaci_global, only: v_onevsqtwo, w0g14a, w0g15a, w0g2a, w0g2b, w0g34a, w0g34b, w0g35a, w0g35b, w0g36a, w0g36b, w0g4a, w0g4b, &
                          w1g14a, w1g15a, w1g2a, w1g2b, w1g34a, w1g34b, w1g35a, w1g35b, w1g36a, w1g36b, w1g4a, w1g4b
+use Constants, only: Zero, One
 
 implicit none
 
-w0g36a = 0.d0
-w0g36b = 0.d0
-w0g34a = 0.d0
-w0g34b = 0.d0
-w0g35a = 0.d0
-w0g35b = 0.d0
-w0g2a = 0.d0
-w0g2b = 0.d0
-w0g4a = 0.d0
-w0g4b = 0.d0
-w0g14a = 0.d0
-w0g15a = 0.d0
+w0g36a = Zero
+w0g36b = Zero
+w0g34a = Zero
+w0g34b = Zero
+w0g35a = Zero
+w0g35b = Zero
+w0g2a = Zero
+w0g2b = Zero
+w0g4a = Zero
+w0g4b = Zero
+w0g14a = Zero
+w0g15a = Zero
 ! ts
 w1g36a = -v_onevsqtwo
 w1g36b = -v_onevsqtwo
@@ -987,10 +1017,10 @@ w1g34a = -w1g36a
 w1g34b = -w1g36a
 w1g35a = -w1g36a   !severe_error
 w1g35b = w1g36a
-w1g2a = 1.d0      !g2a   ab_d
-w1g2b = 0.d0
-w1g4a = -1.d0
-w1g4b = 0.d0
+w1g2a = One       !g2a   ab_d
+w1g2b = Zero
+w1g4a = -One
+w1g4b = Zero
 w1g14a = w1g36a
 w1g15a = -w1g36a
 
@@ -1001,6 +1031,7 @@ subroutine external_space_plpmode_value_ss()   !ss
 use gugaci_global, only: v_onevsqtwo, v_sqtwo, w0g13a, w0g14a, w0g15a, w0g2a, w0g2b, w0g34a, w0g34b, w0g35a, w0g35b, w0g36a, &
                          w0g36b, w0g4a, w0g4b, w1g14a, w1g15a, w1g2a, w1g2b, w1g34a, w1g34b, w1g35a, w1g35b, w1g36a, w1g36b, &
                          w1g4a, w1g4b
+use Constants, only: Zero, One
 
 implicit none
 
@@ -1010,25 +1041,25 @@ w0g34a = w0g36a
 w0g34b = w0g36a
 w0g35a = w0g36a
 w0g35b = w0g36a
-w0g2a = -1.d0
-w0g2b = -1.d0
-w0g4a = -1.d0
-w0g4b = -1.d0
+w0g2a = -One
+w0g2b = -One
+w0g4a = -One
+w0g4b = -One
 w0g14a = w0g36a
 w0g15a = w0g36a
 w0g13a = -v_sqtwo
-w1g36a = 0.d0
-w1g36b = 0.d0
-w1g34a = 0.d0
-w1g34b = 0.d0
-w1g35a = 0.d0
-w1g35b = 0.d0
-w1g2a = 0.d0
-w1g2b = 0.d0
-w1g4a = 0.d0
-w1g4b = 0.d0
-w1g14a = 0.d0
-w1g15a = 0.d0
+w1g36a = Zero
+w1g36b = Zero
+w1g34a = Zero
+w1g34b = Zero
+w1g35a = Zero
+w1g35b = Zero
+w1g2a = Zero
+w1g2b = Zero
+w1g4a = Zero
+w1g4b = Zero
+w1g14a = Zero
+w1g15a = Zero
 
 end subroutine external_space_plpmode_value_ss
 
@@ -1036,6 +1067,7 @@ subroutine external_space_plpmode_value_tt()   !tt
 
 use gugaci_global, only: v_onevsqtwo, w0g14a, w0g15a, w0g2a, w0g2b, w0g34a, w0g34b, w0g35a, w0g35b, w0g36a, w0g36b, w0g4a, w0g4b, &
                          w1g14a, w1g15a, w1g2a, w1g2b, w1g34a, w1g34b, w1g35a, w1g35b, w1g36a, w1g36b, w1g4a, w1g4b
+use Constants, only: Zero, One
 
 implicit none
 
@@ -1045,24 +1077,24 @@ w0g34a = w0g36a
 w0g34b = w0g36a
 w0g35a = -w0g36a
 w0g35b = -w0g36a
-w0g2a = 0.d0
-w0g2b = 0.d0
-w0g4a = 0.d0
-w0g4b = 0.d0
+w0g2a = Zero
+w0g2b = Zero
+w0g4a = Zero
+w0g4b = Zero
 w0g14a = w0g36a
 w0g15a = w0g36a
 !w0g13a = -v_sqtwo
 
-w1g36a = 1.d0
-w1g36b = 1.d0
+w1g36a = One
+w1g36b = One
 w1g34a = w1g36a
 w1g34b = w1g36a
 w1g35a = -w1g36a
 w1g35b = -w1g36a
-w1g2a = 0.d0      !g2a   ab_d
-w1g2b = 0.d0
-w1g4a = 0.d0
-w1g4b = 0.d0
+w1g2a = Zero      !g2a   ab_d
+w1g2b = Zero
+w1g4a = Zero
+w1g4b = Zero
 w1g14a = w1g36a
 w1g15a = w1g36a
 
@@ -1073,6 +1105,7 @@ subroutine external_space_plpmode_value_sd()
 use gugaci_global, only: v_sqtwo, w0g25, w0g25a, w0g26a, w0g27, w0g28a, w0g29, w0g30, w0g31, w0g32, w0plp25, w0plp26, w0plp27, &
                          w0plp28, w0plp29, w0plp30, w0plp31, w0plp32, w1g25a, w1g26a, w1g27, w1g28a, w1g31, w1g32, w1plp27, &
                          w1plp31, w1plp32
+use Constants, only: One
 
 implicit none
 
@@ -1081,17 +1114,17 @@ w0g29 = v_sqtwo
 w0g30 = v_sqtwo
 w0g26a = v_sqtwo
 w1g26a = v_sqtwo
-w0g25 = 1.d0
-w0g25a = 1.d0
-w1g25a = 1.d0
-w0g27 = 1.d0
-w1g27 = -1.d0
-w0g28a = 1.d0
-w1g28a = 1.d0
-w0g31 = 1.d0
-w1g31 = 1.d0
-w0g32 = 1.d0
-w1g32 = -1.d0
+w0g25 = One
+w0g25a = One
+w1g25a = One
+w0g27 = One
+w1g27 = -One
+w0g28a = One
+w1g28a = One
+w0g31 = One
+w1g31 = One
+w0g32 = One
+w1g32 = -One
 
 w0plp25 = w0g25a
 w0plp26 = w0g26a
@@ -1111,25 +1144,26 @@ subroutine external_space_plpmode_value_td()
 
 use gugaci_global, only: w0g25, w0g25a, w0g26a, w0g27, w0g28a, w0g29, w0g30, w0g31, w0g32, w0plp25, w0plp26, w0plp27, w0plp28, &
                          w0plp31, w0plp32, w1g25a, w1g26a, w1g27, w1g28a, w1g31, w1g32, w1plp27, w1plp31, w1plp32
+use Constants, only: Zero, One
 
 implicit none
 
 ! td   lpmode_value
-w0g29 = 0.d0
-w0g30 = 0.d0
-w0g26a = 0.d0
-w1g26a = 0.d0
-w0g25 = 1.d0
-w0g25a = 1.d0
-w1g25a = 1.d0
-w0g27 = -1.d0
-w1g27 = -1.d0
-w0g28a = -1.d0
-w1g28a = -1.d0
-w0g31 = 1.d0
-w1g31 = -1.d0
-w0g32 = -1.d0
-w1g32 = -1.d0
+w0g29 = Zero
+w0g30 = Zero
+w0g26a = Zero
+w1g26a = Zero
+w0g25 = One
+w0g25a = One
+w1g25a = One
+w0g27 = -One
+w1g27 = -One
+w0g28a = -One
+w1g28a = -One
+w0g31 = One
+w1g31 = -One
+w0g32 = -One
+w1g32 = -One
 
 w0plp25 = w0g25a
 w0plp26 = w0g26a
@@ -1146,6 +1180,7 @@ end subroutine external_space_plpmode_value_td
 subroutine external_space_plpmode_value_ds()
 
 use gugaci_global, only: v_onevsqtwo, w0g25, w0g25b, w0g26b, w0g28b, w0plp25, w0plp26, w0plp28, w1g25b, w1g26b, w1g28b
+use Constants, only: One
 
 implicit none
 
@@ -1155,8 +1190,8 @@ w0g25b = -v_onevsqtwo
 w1g25b = -v_onevsqtwo
 w0g28b = -v_onevsqtwo
 w1g28b = -v_onevsqtwo
-w0g26b = -1.d0
-w1g26b = -1.d0
+w0g26b = -One
+w1g26b = -One
 
 w0plp25 = w0g25
 w0plp28 = w0g28b
@@ -1168,6 +1203,8 @@ subroutine external_space_plpmode_value_dt()
 
 use gugaci_global, only: v_sqthreevsqtwo, w0g25, w0g25b, w0g26b, w0g28b, w1g25b, w1g26b, w1g28b
 
+use Constants, only: Zero
+
 implicit none
 
 ! dt   lpmode_value
@@ -1176,8 +1213,8 @@ w0g25b = v_sqthreevsqtwo
 w1g25b = v_sqthreevsqtwo
 w0g28b = -v_sqthreevsqtwo
 w1g28b = -v_sqthreevsqtwo
-w0g26b = 0.d0
-w1g26b = 0.d0
+w0g26b = Zero
+w1g26b = Zero
 
 end subroutine external_space_plpmode_value_dt
 
@@ -1188,10 +1225,11 @@ end subroutine external_space_plpmode_value_dt
 !                         lpend35a, lpend35b, lpend36a, lpend36b, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, lpsta36b, &
 !                         nvalue_space_ss
 !use Symmetry_Info, only: mul_tab => Mul
+!use Definitions, only: iwp
 !
 !implicit none
-!integer :: ilnodesm, irnodesm, iltype, irtype, lptype
-!integer :: iii, ilrsm
+!integer(kind=iwp) :: ilnodesm, irnodesm, iltype, irtype, lptype
+!integer(kind=iwp) :: iii, ilrsm
 !
 !ilrsm = mul_tab(ilnodesm,irnodesm)
 !iii = 1   !index to determine lwei rwei iposint and nlinkorb
@@ -1203,7 +1241,7 @@ end subroutine external_space_plpmode_value_dt
 !logic_g34a = .false.
 !logic_g34b = .false.
 !!if ((ilnodesm == 1) .and. (irnodesm == 3)) then
-!!  write(6,*)
+!!  write(u6,*)
 !!end if
 !
 !! G36b
@@ -1280,10 +1318,11 @@ subroutine do_g36mode(ilrsm,ilnodesm,iii)
 
 use gugaci_global, only: ng_sm
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: ilrsm, ilnodesm, iii
-integer :: isma, ismb, ismlink
+integer(kind=iwp) :: ilrsm, ilnodesm, iii
+integer(kind=iwp) :: isma, ismb, ismlink
 
 do ismb=1,ng_sm
   isma = mul_tab(ismb,ilrsm)
@@ -1299,10 +1338,11 @@ subroutine do_g34mode(ilrsm,ilnodesm,iii)
 
 use gugaci_global, only: ng_sm
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: ilrsm, ilnodesm, iii
-integer :: isma, ismb, ismlink
+integer(kind=iwp) :: ilrsm, ilnodesm, iii
+integer(kind=iwp) :: isma, ismb, ismlink
 
 do ismb=1,ng_sm
   isma = mul_tab(ismb,ilrsm)
@@ -1318,10 +1358,11 @@ subroutine do_g35mode(ilrsm,ilnodesm,iii)
 
 use gugaci_global, only: ng_sm
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: ilrsm, ilnodesm, iii
-integer :: isma, ismb, ismlink
+integer(kind=iwp) :: ilrsm, ilnodesm, iii
+integer(kind=iwp) :: isma, ismb, ismlink
 
 do ismb=1,ng_sm
   isma = mul_tab(ismb,ilrsm)
@@ -1336,10 +1377,11 @@ end subroutine do_g35mode
 subroutine g36_form(isma,ismb,ismlink,iii)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, iwt_orb_ext, lpext_wei
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ismb, ismlink, iii
-integer :: ia, iaend, iasta, ib, ibend, ibsta, icsta, ilinkend, ilinksta, nlinkorb
+integer(kind=iwp) :: isma, ismb, ismlink, iii
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, icsta, ilinkend, ilinksta, nlinkorb
 
 ibsta = ibsm_ext(ismb)
 ibend = iesm_ext(ismb)
@@ -1369,10 +1411,11 @@ end subroutine g36_form
 subroutine g34_form(isma,ismb,ismlink,iii)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, iwt_orb_ext, lpext_wei
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ismb, ismlink, iii
-integer :: iaend, iasta, ib, ibend, ibsta, ilink, ilinkend, ilinksta, naorb
+integer(kind=iwp) :: isma, ismb, ismlink, iii
+integer(kind=iwp) :: iaend, iasta, ib, ibend, ibsta, ilink, ilinkend, ilinksta, naorb
 
 ibsta = ibsm_ext(ismb)
 ibend = iesm_ext(ismb)
@@ -1401,10 +1444,11 @@ end subroutine g34_form
 subroutine g35_form(isma,ismb,ismlink,iii)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, iwt_orb_ext, lpext_wei
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ismb, ismlink, iii
-integer :: iaend, iasta, ib, ibend, ibsta, ilink, ilinkend, ilinksta, naorb
+integer(kind=iwp) :: isma, ismb, ismlink, iii
+integer(kind=iwp) :: iaend, iasta, ib, ibend, ibsta, ilink, ilinkend, ilinksta, naorb
 
 ibsta = ibsm_ext(ismb)
 ibend = iesm_ext(ismb)
@@ -1432,20 +1476,22 @@ end subroutine g35_form
 
 !function ibfunction(ib,istep)
 !
+!use Definitions, only: iwp, u6
+!
 !implicit none
-!integer :: ibfunction
-!integer :: ib, istep
+!integer(kind=iwp) :: ibfunction
+!integer(kind=iwp) :: ib, istep
 !
 !select case (istep)
 !  case (2)
 !    ibfunction = ib-1
 !  case (3)
 !    ibfunction = ib+1
-!  case DEFAULT
+!  case default
 !    ibfunction = ib
 !end select
 !if (ibfunction < 0) then
-!  write(6,*) 'error'
+!  write(u6,*) 'error'
 !end if
 !
 !end function ibfunction
@@ -1454,9 +1500,10 @@ subroutine determine_para_array_for_int1ind()
 
 use gugaci_global, only: ng_sm, ngw2, ngw3, nlsm_ext, norb_ext
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ismab, ismabc, ismb, ismc, nintcount, numa, numb, numc, numint
+integer(kind=iwp) :: isma, ismab, ismabc, ismb, ismc, nintcount, numa, numb, numc, numint
 
 do ismabc=1,ng_sm
   nintcount = 0
@@ -1507,10 +1554,12 @@ subroutine g_dd_ext_sequence_G(ism)
 
 use gugaci_global, only: ibsm_ext, ican_a, icano_nnend, icano_nnsta, icnt_base, iesm_ext, index_lpext, index_lpext1, index_lpext2, &
                          norb_number, value_lpext2
+use Constants, only: One
+use Definitions, only: iwp
 
 implicit none
-integer :: ism
-integer :: ia, iasta, ib, ibend, ibsta, ilwei, lra, lrb, nac
+integer(kind=iwp) :: ism
+integer(kind=iwp) :: ia, iasta, ib, ibend, ibsta, ilwei, lra, lrb, nac
 
 icano_nnsta = 2
 icnt_base = 0
@@ -1528,7 +1577,7 @@ do ib=ibsta,ibend
 
     NAC = ICAN_A(LRA)+LRB
     index_lpext2(ilwei) = NAC
-    value_lpext2(ilwei) = 1.0D+00
+    value_lpext2(ilwei) = One
   end do
 end do
 icano_nnend = ibend-iasta+1
@@ -1540,10 +1589,11 @@ subroutine g_tt_ext_sequence_G(ism)
 
 use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iwt_orb_ext, m_jc, m_jd, max_tmpvalue, ng_sm
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: ism
-integer :: ic, ic_sta, icano_nn, icend, id, id_sta, idend, idsta, isma, ismb, ismc, ismd
+integer(kind=iwp) :: ism
+integer(kind=iwp) :: ic, ic_sta, icano_nn, icend, id, id_sta, idend, idsta, isma, ismb, ismc, ismd
 
 icano_nnsta = 2
 icnt_base = 0
@@ -1601,10 +1651,11 @@ subroutine g_ss_ext_sequence_G(ism,itype)
 use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iwt_orb_ext, iwt_sm_s_ext, m_jc, m_jd, &
                          max_tmpvalue, ng_sm, norb_ext
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: ism, itype
-integer :: ic, ic_sta, icano_nn, icend, id, id_sta, idend, idsta, isma, ismb, ismc, ismd
+integer(kind=iwp) :: ism, itype
+integer(kind=iwp) :: ic, ic_sta, icano_nn, icend, id, id_sta, idend, idsta, isma, ismb, ismc, ismd
 
 icano_nnsta = 2
 icnt_base = 0
@@ -1676,10 +1727,12 @@ subroutine g12_diffsym_G(isma,ismb,ismc,ic,id)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
                          value_lpext, value_lpext1
+use Constants, only: One
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ismb, ismc, ic, id
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
+integer(kind=iwp) :: isma, ismb, ismc, ic, id
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
 
 !write(nf2,*) 'g12_diff'
 lrc = norb_number(ic)
@@ -1698,10 +1751,10 @@ if (isma < ismb) then
       lra = norb_number(ia)
       call TRANS_IJKL_INTPOS(lra,lrc,lrb,lrd,NXO)
       index_lpext(ilwei) = NXO
-      value_lpext(ilwei) = 1.0d+00
+      value_lpext(ilwei) = One
       call TRANS_IJKL_INTPOS(lra,lrd,lrc,lrb,NXO)
       index_lpext1(ilwei) = NXO
-      value_lpext1(ilwei) = 1.0d+00
+      value_lpext1(ilwei) = One
       index_lpext2(ilwei) = 0
       ilwei = ilwei+1
 
@@ -1721,10 +1774,10 @@ else
       lra = norb_number(ia)
       call TRANS_IJKL_INTPOS(lra,lrc,lrb,lrd,NXO)
       index_lpext(ilwei) = NXO
-      value_lpext(ilwei) = 1.0d+00
+      value_lpext(ilwei) = One
       call TRANS_IJKL_INTPOS(lra,lrd,lrc,lrb,NXO)
       index_lpext1(ilwei) = NXO
-      value_lpext1(ilwei) = 1.0d+00
+      value_lpext1(ilwei) = One
       index_lpext2(ilwei) = 0
       ilwei = ilwei+1
     end do
@@ -1740,10 +1793,12 @@ subroutine g11a_diffsym_G(isma,ismb,ismc,ic,id)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
                          value_lpext, value_lpext1
+use Constants, only: One
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ismb, ismc, ic, id
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
+integer(kind=iwp) :: isma, ismb, ismc, ic, id
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
 
 !write(nf2,*) 'g11a_diff'
 lrc = norb_number(ic)
@@ -1761,10 +1816,10 @@ do ib=ibsta,ibend
     lra = norb_number(ia)
     call TRANS_IJKL_INTPOS(lra,lrc,lrb,lrd,NXO)
     index_lpext(ilwei) = NXO
-    value_lpext(ilwei) = 1.0d+00
+    value_lpext(ilwei) = One
     call TRANS_IJKL_INTPOS(lra,lrd,lrb,lrc,NXO)
     index_lpext1(ilwei) = NXO
-    value_lpext1(ilwei) = 1.0d+00
+    value_lpext1(ilwei) = One
     index_lpext2(ilwei) = 0
     ilwei = ilwei+1
   end do
@@ -1779,10 +1834,12 @@ subroutine g11b_diffsym_G(isma,ismb,ismc,ic,id)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
                          value_lpext, value_lpext1
+use Constants, only: One
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ismb, ismc, ic, id
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
+integer(kind=iwp) :: isma, ismb, ismc, ic, id
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
 
 !write(nf2,*) 'g11b_diff'
 lrc = norb_number(ic)
@@ -1799,10 +1856,10 @@ do ib=ibsta,ibend
     lra = norb_number(ia)
     call TRANS_IJKL_INTPOS(lrc,lra,lrb,lrd,NXO)
     index_lpext(ilwei) = NXO
-    value_lpext(ilwei) = 1.0d+00
+    value_lpext(ilwei) = One
     call TRANS_IJKL_INTPOS(lrc,lrb,lra,lrd,NXO)
     index_lpext1(ilwei) = NXO
-    value_lpext1(ilwei) = 1.0d+00
+    value_lpext1(ilwei) = One
     index_lpext2(ilwei) = 0
     ilwei = ilwei+1
   end do
@@ -1817,10 +1874,12 @@ subroutine g1112_symaaaa_G(isma,ic,id)
 
 use gugaci_global, only: ibsm_ext, icnt_base, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, value_lpext, &
                          value_lpext1
+use Constants, only: One
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ic, id
-integer :: ia, iasta, ib, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
+integer(kind=iwp) :: isma, ic, id
+integer(kind=iwp) :: ia, iasta, ib, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
 
 !write(nf2,*) 'g1112_symaaaa'
 lrc = norb_number(ic)
@@ -1836,10 +1895,10 @@ do ib=ibsta,ic-1
     lra = norb_number(ia)
     call TRANS_IJKL_INTPOS(lra,lrc,lrb,lrd,NXO)
     index_lpext(ilwei) = NXO
-    value_lpext(ilwei) = 1.0d+00
+    value_lpext(ilwei) = One
     call TRANS_IJKL_INTPOS(lra,lrd,lrc,lrb,NXO)
     index_lpext1(ilwei) = NXO
-    value_lpext1(ilwei) = 1.0d+00
+    value_lpext1(ilwei) = One
     index_lpext2(ilwei) = 0
     ilwei = ilwei+1
   end do
@@ -1852,10 +1911,10 @@ do ib=ic+1,id-1
     lra = norb_number(ia)
     call TRANS_IJKL_INTPOS(lra,lrc,lrb,lrd,NXO)
     index_lpext(ilwei) = NXO
-    value_lpext(ilwei) = 1.0d+00
+    value_lpext(ilwei) = One
     call TRANS_IJKL_INTPOS(lra,lrd,lrb,lrc,NXO)
     index_lpext1(ilwei) = NXO
-    value_lpext1(ilwei) = 1.0d+00
+    value_lpext1(ilwei) = One
     index_lpext2(ilwei) = 0
     ilwei = ilwei+1
   end do
@@ -1868,10 +1927,10 @@ do ib=ic+2,id-1
     lra = norb_number(ia)
     call TRANS_IJKL_INTPOS(lrc,lra,lrb,lrd,NXO)
     index_lpext(ilwei) = NXO
-    value_lpext(ilwei) = 1.0d+00
+    value_lpext(ilwei) = One
     call TRANS_IJKL_INTPOS(lrc,lrb,lra,lrd,NXO)
     index_lpext1(ilwei) = NXO
-    value_lpext1(ilwei) = 1.0d+00
+    value_lpext1(ilwei) = One
     index_lpext2(ilwei) = 0
     ilwei = ilwei+1
   end do
@@ -1883,10 +1942,12 @@ subroutine g11a11b_symaacc_G(isma,ismc,ic,id)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
                          value_lpext, value_lpext1
+use Constants, only: One
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ismc, ic, id
-integer :: ia, iaend, iasta, ib, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
+integer(kind=iwp) :: isma, ismc, ic, id
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
 
 !write(nf2,*) 'g11a11b_symaacc'
 lrc = norb_number(ic)
@@ -1903,10 +1964,10 @@ do ib=ibsta,id-1
     lra = norb_number(ia)
     call TRANS_IJKL_INTPOS(lra,lrc,lrb,lrd,NXO)
     index_lpext(ilwei) = NXO
-    value_lpext(ilwei) = 1.0d+00
+    value_lpext(ilwei) = One
     call TRANS_IJKL_INTPOS(lra,lrd,lrb,lrc,NXO)
     index_lpext1(ilwei) = NXO
-    value_lpext1(ilwei) = 1.0d+00
+    value_lpext1(ilwei) = One
     index_lpext2(ilwei) = 0
     ilwei = ilwei+1
   end do
@@ -1919,10 +1980,10 @@ do ib=ibsta,id-1
     lra = norb_number(ia)
     call TRANS_IJKL_INTPOS(lrc,lra,lrb,lrd,NXO)
     index_lpext(ilwei) = NXO
-    value_lpext(ilwei) = 1.0d+00
+    value_lpext(ilwei) = One
     call TRANS_IJKL_INTPOS(lrc,lrb,lra,lrd,NXO)
     index_lpext1(ilwei) = NXO
-    value_lpext1(ilwei) = 1.0d+00
+    value_lpext1(ilwei) = One
     index_lpext2(ilwei) = 0
     ilwei = ilwei+1
   end do
@@ -1934,10 +1995,12 @@ subroutine g10_ext_G(ismc,ic,id)
 
 use gugaci_global, only: ibsm_ext, ican_a, icnt_base, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
                          value_lpext, value_lpext1, value_lpext2
+use Constants, only: One
+use Definitions, only: iwp
 
 implicit none
-integer :: ismc, ic, id
-integer :: ia, iasta, ilwei, lra, lrc, lrd, nac, nxo
+integer(kind=iwp) :: ismc, ic, id
+integer(kind=iwp) :: ia, iasta, ilwei, lra, lrc, lrd, nac, nxo
 
 !write(nf2,*) 'g10_ext'
 lrc = norb_number(ic)
@@ -1948,13 +2011,13 @@ do ia=iasta,ic-1
   lra = norb_number(ia)
   call TRANS_IJKL_INTPOS(lra,lrc,lrd,lrd,NXO)
   index_lpext(ilwei) = NXO
-  value_lpext(ilwei) = 1.0d+00
+  value_lpext(ilwei) = One
   call TRANS_IJKL_INTPOS(lra,lrd,lrc,lrd,NXO)
   index_lpext1(ilwei) = NXO
-  value_lpext1(ilwei) = 1.0d+00
+  value_lpext1(ilwei) = One
   NAC = ICAN_A(LRA)+LRC
   index_lpext2(ilwei) = NAC
-  value_lpext2(ilwei) = 1.0d+00
+  value_lpext2(ilwei) = One
   ilwei = ilwei+1
 end do
 
@@ -1964,10 +2027,12 @@ subroutine g5_ext_G(ismd,ic,id)
 
 use gugaci_global, only: ibsm_ext, ican_a, icnt_base, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
                          value_lpext, value_lpext1, value_lpext2
+use Constants, only: One
+use Definitions, only: iwp
 
 implicit none
-integer :: ismd, ic, id
-integer :: ib, ibsta, ilwei, lrb, lrc, lrd, nac, nxo
+integer(kind=iwp) :: ismd, ic, id
+integer(kind=iwp) :: ib, ibsta, ilwei, lrb, lrc, lrd, nac, nxo
 
 !write(nf2,*) 'g5_ext'
 lrc = norb_number(ic)
@@ -1978,13 +2043,13 @@ do ib=max(ic+1,ibsta),id-1
   ilwei = icnt_base+iwt_orb_ext(ic,ib)
   call TRANS_IJKL_INTPOS(lrb,lrd,lrc,lrc,NXO)
   index_lpext(ilwei) = NXO
-  value_lpext(ilwei) = 1.0d+00
+  value_lpext(ilwei) = One
   call TRANS_IJKL_INTPOS(lrb,lrc,lrd,lrc,NXO)
   index_lpext1(ilwei) = NXO
-  value_lpext1(ilwei) = 1.0d+00
+  value_lpext1(ilwei) = One
   NAC = ICAN_A(LRB)+LRD
   index_lpext2(ilwei) = NAC
-  value_lpext2(ilwei) = 1.0d+00
+  value_lpext2(ilwei) = One
 end do
 
 end subroutine g5_ext_G
@@ -1993,10 +2058,12 @@ subroutine g9_ext_G(ismd,ic,id)
 
 use gugaci_global, only: ibsm_ext, ican_a, icnt_base, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
                          value_lpext, value_lpext1, value_lpext2
+use Constants, only: One
+use Definitions, only: iwp
 
 implicit none
-integer :: ismd, ic, id
-integer :: ia, iasta, ilwei, lra, lrc, lrd, nac, nxo
+integer(kind=iwp) :: ismd, ic, id
+integer(kind=iwp) :: ia, iasta, ilwei, lra, lrc, lrd, nac, nxo
 
 !write(nf2,*) 'g9_ext'
 lrc = norb_number(ic)
@@ -2007,13 +2074,13 @@ do ia=iasta,ic-1
   lra = norb_number(ia)
   call TRANS_IJKL_INTPOS(lra,lrd,lrc,lrc,NXO)
   index_lpext(ilwei) = NXO
-  value_lpext(ilwei) = 1.0d+00
+  value_lpext(ilwei) = One
   call TRANS_IJKL_INTPOS(lra,lrc,lrd,lrc,NXO)
   index_lpext1(ilwei) = NXO
-  value_lpext1(ilwei) = 1.0d+00
+  value_lpext1(ilwei) = One
   NAC = ICAN_A(LRA)+LRD
   index_lpext2(ilwei) = NAC
-  value_lpext2(ilwei) = 1.0d+00
+  value_lpext2(ilwei) = One
   ilwei = ilwei+1
 end do
 
@@ -2022,12 +2089,13 @@ end subroutine g9_ext_G
 subroutine ext_lp_ab_s1_G(id)
 
 use gugaci_global, only: ibsm_ext, ican_a, icnt_base, iesm_ext, index_lpext, index_lpext1, index_lpext2, ng_sm, norb_number, &
-                         value_lpext, value_lpext2
+                         v_sqtwo, value_lpext, value_lpext2
+use Constants, only: Two
+use Definitions, only: iwp
 
 implicit none
-integer :: id
-integer :: ia, iasta, ib, ibend, ibsta, ic, ilwei, ismb, lra, lrb, lrc, lrd, nac, nxo
-real*8, parameter :: v_sqtwo = 1.414213562373095d0
+integer(kind=iwp) :: id
+integer(kind=iwp) :: ia, iasta, ib, ibend, ibsta, ic, ilwei, ismb, lra, lrb, lrc, lrd, nac, nxo
 
 !write(nf2,*) 'ext_lp_ab_s1'
 lrd = norb_number(id)
@@ -2066,7 +2134,7 @@ end do
 ! g1
 !=======================================================================
 ! Drr-DRR
-! WL=2.0D0 but not 1.0D0 is based on that the non-diagonal just uses th
+! WL=Two but not One is based on that the non-diagonal just uses th
 ! non-triangle <Ci|H|Cj> which designates that I > J.
 
 do ic=1,id-1
@@ -2074,7 +2142,7 @@ do ic=1,id-1
   ilwei = ilwei+1
   call TRANS_IJKL_INTPOS(lrc,lrd,lrc,lrd,NXO)
   index_lpext(ilwei) = NXO
-  value_lpext(ilwei) = 2.0D+00
+  value_lpext(ilwei) = Two
   index_lpext1(ilwei) = 0
   index_lpext2(ilwei) = 0
 end do
@@ -2085,10 +2153,12 @@ subroutine g12_t_diffsym_G(isma,ismb,ismc,ic,id)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
                          value_lpext, value_lpext1
+use Constants, only: One
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ismb, ismc, ic, id
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
+integer(kind=iwp) :: isma, ismb, ismc, ic, id
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
 
 lrc = norb_number(ic)
 lrd = norb_number(id)
@@ -2106,10 +2176,10 @@ if (isma < ismb) then
       lra = norb_number(ia)
       call TRANS_IJKL_INTPOS(lra,lrc,lrb,lrd,NXO)
       index_lpext(ilwei) = NXO
-      value_lpext(ilwei) = 1.0d+00
+      value_lpext(ilwei) = One
       call TRANS_IJKL_INTPOS(lra,lrd,lrc,lrb,NXO)
       index_lpext1(ilwei) = NXO
-      value_lpext1(ilwei) = -1.0d+00
+      value_lpext1(ilwei) = -One
       index_lpext2(ilwei) = 0
       ilwei = ilwei+1
 
@@ -2129,10 +2199,10 @@ else
       lra = norb_number(ia)
       call TRANS_IJKL_INTPOS(lra,lrc,lrb,lrd,NXO)
       index_lpext(ilwei) = NXO
-      value_lpext(ilwei) = 1.0d+00
+      value_lpext(ilwei) = One
       call TRANS_IJKL_INTPOS(lra,lrd,lrc,lrb,NXO)
       index_lpext1(ilwei) = NXO
-      value_lpext1(ilwei) = -1.0d+00
+      value_lpext1(ilwei) = -One
       index_lpext2(ilwei) = 0
       ilwei = ilwei+1
     end do
@@ -2148,10 +2218,12 @@ subroutine g11a_t_diffsym_G(isma,ismb,ismc,ic,id)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
                          value_lpext, value_lpext1
+use Constants, only: One
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ismb, ismc, ic, id
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
+integer(kind=iwp) :: isma, ismb, ismc, ic, id
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
 
 lrc = norb_number(ic)
 lrd = norb_number(id)
@@ -2168,10 +2240,10 @@ do ib=ibsta,ibend
     lra = norb_number(ia)
     call TRANS_IJKL_INTPOS(lra,lrc,lrb,lrd,NXO)
     index_lpext(ilwei) = NXO
-    value_lpext(ilwei) = 1.0d+00
+    value_lpext(ilwei) = One
     call TRANS_IJKL_INTPOS(lra,lrd,lrb,lrc,NXO)
     index_lpext1(ilwei) = NXO
-    value_lpext1(ilwei) = -1.0d+00
+    value_lpext1(ilwei) = -One
     index_lpext2(ilwei) = 0
     ilwei = ilwei+1
   end do
@@ -2186,10 +2258,12 @@ subroutine g11b_t_diffsym_G(isma,ismb,ismc,ic,id)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
                          value_lpext, value_lpext1
+use Constants, only: One
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ismb, ismc, ic, id
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
+integer(kind=iwp) :: isma, ismb, ismc, ic, id
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
 
 lrc = norb_number(ic)
 lrd = norb_number(id)
@@ -2205,10 +2279,10 @@ do ib=ibsta,ibend
     lra = norb_number(ia)
     call TRANS_IJKL_INTPOS(lrc,lra,lrb,lrd,NXO)
     index_lpext(ilwei) = NXO
-    value_lpext(ilwei) = 1.0d+00
+    value_lpext(ilwei) = One
     call TRANS_IJKL_INTPOS(lrc,lrb,lra,lrd,NXO)
     index_lpext1(ilwei) = NXO
-    value_lpext1(ilwei) = -1.0d+00
+    value_lpext1(ilwei) = -One
     index_lpext2(ilwei) = 0
     ilwei = ilwei+1
   end do
@@ -2223,10 +2297,12 @@ subroutine g1112_t_symaaaa_G(isma,ic,id)
 
 use gugaci_global, only: ibsm_ext, icnt_base, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, value_lpext, &
                          value_lpext1
+use Constants, only: One
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ic, id
-integer :: ia, iasta, ib, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
+integer(kind=iwp) :: isma, ic, id
+integer(kind=iwp) :: ia, iasta, ib, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
 
 lrc = norb_number(ic)
 lrd = norb_number(id)
@@ -2241,10 +2317,10 @@ do ib=ibsta,ic-1
     lra = norb_number(ia)
     call TRANS_IJKL_INTPOS(lra,lrc,lrb,lrd,NXO)
     index_lpext(ilwei) = NXO
-    value_lpext(ilwei) = 1.0d+00
+    value_lpext(ilwei) = One
     call TRANS_IJKL_INTPOS(lra,lrd,lrc,lrb,NXO)
     index_lpext1(ilwei) = NXO
-    value_lpext1(ilwei) = -1.0d+00
+    value_lpext1(ilwei) = -One
     index_lpext2(ilwei) = 0
     ilwei = ilwei+1
   end do
@@ -2257,10 +2333,10 @@ do ib=ic+1,id-1
     lra = norb_number(ia)
     call TRANS_IJKL_INTPOS(lra,lrc,lrb,lrd,NXO)
     index_lpext(ilwei) = NXO
-    value_lpext(ilwei) = 1.0d+00
+    value_lpext(ilwei) = One
     call TRANS_IJKL_INTPOS(lra,lrd,lrb,lrc,NXO)
     index_lpext1(ilwei) = NXO
-    value_lpext1(ilwei) = -1.0d+00
+    value_lpext1(ilwei) = -One
     index_lpext2(ilwei) = 0
     ilwei = ilwei+1
   end do
@@ -2273,10 +2349,10 @@ do ib=ic+2,id-1
     lra = norb_number(ia)
     call TRANS_IJKL_INTPOS(lrc,lra,lrb,lrd,NXO)
     index_lpext(ilwei) = NXO
-    value_lpext(ilwei) = 1.0d+00
+    value_lpext(ilwei) = One
     call TRANS_IJKL_INTPOS(lrc,lrb,lra,lrd,NXO)
     index_lpext1(ilwei) = NXO
-    value_lpext1(ilwei) = -1.0d+00
+    value_lpext1(ilwei) = -One
     index_lpext2(ilwei) = 0
     ilwei = ilwei+1
   end do
@@ -2288,10 +2364,12 @@ subroutine g11a11b_t_symaacc_G(isma,ismc,ic,id)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
                          value_lpext, value_lpext1
+use Constants, only: One
+use Definitions, only: iwp
 
 implicit none
-integer :: isma, ismc, ic, id
-integer :: ia, iaend, iasta, ib, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
+integer(kind=iwp) :: isma, ismc, ic, id
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibsta, ilwei, lra, lrb, lrc, lrd, nxo
 
 lrc = norb_number(ic)
 lrd = norb_number(id)
@@ -2307,10 +2385,10 @@ do ib=ibsta,id-1
     lra = norb_number(ia)
     call TRANS_IJKL_INTPOS(lra,lrc,lrb,lrd,NXO)
     index_lpext(ilwei) = NXO
-    value_lpext(ilwei) = 1.0d+00
+    value_lpext(ilwei) = One
     call TRANS_IJKL_INTPOS(lra,lrd,lrb,lrc,NXO)
     index_lpext1(ilwei) = NXO
-    value_lpext1(ilwei) = -1.0d+00
+    value_lpext1(ilwei) = -One
     index_lpext2(ilwei) = 0
     ilwei = ilwei+1
   end do
@@ -2323,10 +2401,10 @@ do ib=ibsta,id-1
     lra = norb_number(ia)
     call TRANS_IJKL_INTPOS(lrc,lra,lrb,lrd,NXO)
     index_lpext(ilwei) = NXO
-    value_lpext(ilwei) = 1.0d+00
+    value_lpext(ilwei) = One
     call TRANS_IJKL_INTPOS(lrc,lrb,lra,lrd,NXO)
     index_lpext1(ilwei) = NXO
-    value_lpext1(ilwei) = -1.0d+00
+    value_lpext1(ilwei) = -One
     index_lpext2(ilwei) = 0
     ilwei = ilwei+1
   end do
@@ -2338,10 +2416,12 @@ subroutine g36_t_ext_G(ismc,ic,id)
 
 use gugaci_global, only: ibsm_ext, ican_a, icnt_base, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
                          value_lpext, value_lpext1, value_lpext2
+use Constants, only: One
+use Definitions, only: iwp
 
 implicit none
-integer :: ismc, ic, id
-integer :: ia, iasta, ilwei, lra, lrc, lrd, nac, nxo
+integer(kind=iwp) :: ismc, ic, id
+integer(kind=iwp) :: ia, iasta, ilwei, lra, lrc, lrd, nac, nxo
 
 lrc = norb_number(ic)
 lrd = norb_number(id)
@@ -2351,13 +2431,13 @@ do ia=iasta,ic-1
   lra = norb_number(ia)
   call TRANS_IJKL_INTPOS(lra,lrc,lrd,lrd,NXO)
   index_lpext(ilwei) = NXO
-  value_lpext(ilwei) = 1.0d+00
+  value_lpext(ilwei) = One
   call TRANS_IJKL_INTPOS(lra,lrd,lrc,lrd,NXO)
   index_lpext1(ilwei) = NXO
-  value_lpext1(ilwei) = -1.0d+00
+  value_lpext1(ilwei) = -One
   NAC = ICAN_A(LRA)+LRC
   index_lpext2(ilwei) = NAC
-  value_lpext2(ilwei) = 1.0d+00
+  value_lpext2(ilwei) = One
   ilwei = ilwei+1
 end do
 
@@ -2367,10 +2447,12 @@ subroutine g5_t_ext_G(ismd,ic,id)
 
 use gugaci_global, only: ibsm_ext, ican_a, icnt_base, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
                          value_lpext, value_lpext1, value_lpext2
+use Constants, only: One
+use Definitions, only: iwp
 
 implicit none
-integer :: ismd, ic, id
-integer :: ib, ibsta, ilwei, lrb, lrc, lrd, nac, nxo
+integer(kind=iwp) :: ismd, ic, id
+integer(kind=iwp) :: ib, ibsta, ilwei, lrb, lrc, lrd, nac, nxo
 
 lrc = norb_number(ic)
 lrd = norb_number(id)
@@ -2380,13 +2462,13 @@ do ib=max(ic+1,ibsta),id-1
   ilwei = icnt_base+iwt_orb_ext(ic,ib)
   call TRANS_IJKL_INTPOS(lrb,lrd,lrc,lrc,NXO)
   index_lpext(ilwei) = NXO
-  value_lpext(ilwei) = 1.0d+00
+  value_lpext(ilwei) = One
   call TRANS_IJKL_INTPOS(lrb,lrc,lrd,lrc,NXO)
   index_lpext1(ilwei) = NXO
-  value_lpext1(ilwei) = -1.0d+00
+  value_lpext1(ilwei) = -One
   NAC = ICAN_A(LRB)+LRD
   index_lpext2(ilwei) = NAC
-  value_lpext2(ilwei) = 1.0d+00
+  value_lpext2(ilwei) = One
 end do
 
 end subroutine g5_t_ext_G
@@ -2395,10 +2477,12 @@ subroutine g9_t_ext_G(ismd,ic,id)
 
 use gugaci_global, only: ibsm_ext, ican_a, icnt_base, index_lpext, index_lpext1, index_lpext2, iwt_orb_ext, norb_number, &
                          value_lpext, value_lpext1, value_lpext2
+use Constants, only: One
+use Definitions, only: iwp
 
 implicit none
-integer :: ismd, ic, id
-integer :: ia, iasta, ilwei, lra, lrc, lrd, nac, nxo
+integer(kind=iwp) :: ismd, ic, id
+integer(kind=iwp) :: ia, iasta, ilwei, lra, lrc, lrd, nac, nxo
 
 lrc = norb_number(ic)
 lrd = norb_number(id)
@@ -2408,13 +2492,13 @@ do ia=iasta,ic-1
   lra = norb_number(ia)
   call TRANS_IJKL_INTPOS(lra,lrd,lrc,lrc,NXO)
   index_lpext(ilwei) = NXO
-  value_lpext(ilwei) = -1.0d+00
+  value_lpext(ilwei) = -One
   call TRANS_IJKL_INTPOS(lra,lrc,lrd,lrc,NXO)
   index_lpext1(ilwei) = NXO
-  value_lpext1(ilwei) = 1.0d+00
+  value_lpext1(ilwei) = One
   NAC = ICAN_A(LRA)+LRD
   index_lpext2(ilwei) = NAC
-  value_lpext2(ilwei) = -1.0d+00
+  value_lpext2(ilwei) = -One
   ilwei = ilwei+1
 end do
 
@@ -2424,10 +2508,11 @@ subroutine g31_diffsym_G(lri,isma,ismb)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, iwt_orb_ext, m_jd, norb_number, value_lpext, &
                          value_lpext1, w0plp31, w1plp31
+use Definitions, only: iwp
 
 implicit none
-integer :: lri, isma, ismb
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, nxo
+integer(kind=iwp) :: lri, isma, ismb
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, nxo
 
 LRC = norb_number(m_jd)
 
@@ -2461,10 +2546,11 @@ subroutine g32a_diffsym_G(lri,isma,ismb)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, iwt_orb_ext, m_jd, norb_number, value_lpext, &
                          value_lpext1, w0plp32, w1plp32
+use Definitions, only: iwp
 
 implicit none
-integer :: lri, isma, ismb
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, nxo
+integer(kind=iwp) :: lri, isma, ismb
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, nxo
 
 LRC = norb_number(m_jd)
 ibsta = ibsm_ext(ismb)
@@ -2493,10 +2579,11 @@ subroutine g32b_diffsym_G(lri,isma,ismb)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, iwt_orb_ext, m_jd, norb_number, value_lpext, &
                          value_lpext1, w0plp32, w1plp32
+use Definitions, only: iwp
 
 implicit none
-integer :: lri, isma, ismb
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, nxo
+integer(kind=iwp) :: lri, isma, ismb
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ilwei, lra, lrb, lrc, nxo
 
 LRC = norb_number(m_jd)
 ibsta = ibsm_ext(ismb)
@@ -2527,10 +2614,11 @@ subroutine gsd_samesym_aaa_G(lri,isma)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, iwt_orb_ext, m_jd, norb_number, value_lpext, &
                          value_lpext1, w0g28a, w0plp27, w0plp28, w0plp31, w0plp32, w1plp27, w1plp31, w1plp32
+use Definitions, only: iwp
 
 implicit none
-integer :: lri, isma
-integer :: ia, iasta, ib, ibend, ibsta, ic, ilwei, lra, lrb, lrc, nxo
+integer(kind=iwp) :: lri, isma
+integer(kind=iwp) :: ia, iasta, ib, ibend, ibsta, ic, ilwei, lra, lrb, lrc, nxo
 
 ic = m_jd
 lrc = norb_number(ic)
@@ -2631,10 +2719,11 @@ subroutine gsd_diffsamesym_abb_G(lri,isma,ismb)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, iwt_orb_ext, m_jd, norb_number, value_lpext, &
                          value_lpext1, w0g28a, w0plp28, w0plp31, w0plp32, w1plp31, w1plp32
+use Definitions, only: iwp
 
 implicit none
-integer :: lri, isma, ismb
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ic, ilwei, lra, lrb, lrc, nxo
+integer(kind=iwp) :: lri, isma, ismb
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ic, ilwei, lra, lrb, lrc, nxo
 
 ic = m_jd
 lrc = norb_number(ic)
@@ -2701,10 +2790,11 @@ subroutine gsd_diffsamesym_aab_G(lri,isma,ismb)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, index_lpext, index_lpext1, iwt_orb_ext, m_jd, norb_number, value_lpext, &
                          value_lpext1, w0plp27, w0plp32, w1plp27, w1plp32
+use Definitions, only: iwp
 
 implicit none
-integer :: lri, isma, ismb
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ic, ilwei, lra, lrb, lrc, nxo
+integer(kind=iwp) :: lri, isma, ismb
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ic, ilwei, lra, lrb, lrc, nxo
 
 ic = m_jd
 lrc = norb_number(ic)
@@ -2769,10 +2859,11 @@ subroutine gsd_arlp_s1_G(lri)
 
 use gugaci_global, only: icnt_base, index_lpext, index_lpext1, isegdownwei, m_jd, norb_ext, norb_number, value_lpext, w0plp26, &
                          w0plp29, w0plp30
+use Definitions, only: iwp
 
 implicit none
-integer :: lri
-integer :: ic, ilwei, is1orb, lrc, lrk, nxo
+integer(kind=iwp) :: lri
+integer(kind=iwp) :: ic, ilwei, is1orb, lrc, lrk, nxo
 
 ic = m_jd
 lrc = norb_number(ic)

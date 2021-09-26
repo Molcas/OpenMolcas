@@ -12,9 +12,10 @@
 subroutine vd_drt_ci_new()
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, imr, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, linelp, lpblock_vd
+use Definitions, only: iwp
 
 implicit none
-integer :: jptyl, jptyr, lpb
+integer(kind=iwp) :: jptyl, jptyr, lpb
 
 call external_space_plpmode_value_vd()
 
@@ -42,10 +43,12 @@ subroutine vd_ext_head_in_dbl()
 
 use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, linelp, logic_dh, lp_lwei, lp_rwei, lpnew_lwei, &
                          lpnew_rwei, mhlp, mtype, nlg1, nlg2, vplp_w0, vplp_w1, vplpnew_w0, w0_vv
+use Constants, only: Zero
+use Definitions, only: iwp
 
 implicit none
-integer :: iwal, iwar, iwdl, iwdr, jk, lpok, lra, mpl
-integer, external :: iwalk_ad
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jk, lpok, lra, mpl
+integer(kind=iwp), external :: iwalk_ad
 
 logic_dh = .true.
 lpok = jpadlr
@@ -282,7 +285,7 @@ select case (lpok)
       !lra = nlg2
       do mpl=1,mtype
         vplp_w0(mpl) = vplpnew_w0(mpl)*w0_vv
-        vplp_w1(mpl) = 0.d0
+        vplp_w1(mpl) = Zero
       end do
       do mpl=1,mhlp
         iwal = lpnew_lwei(mpl)
@@ -306,9 +309,10 @@ end subroutine vd_ext_head_in_dbl
 subroutine vd_ext_head_in_act()
 
 use gugaci_global, only: imr, linelp, logic_dh, nlg1, nlg2
+use Definitions, only: iwp
 
 implicit none
-integer :: intpos, isma, lri, lrj
+integer(kind=iwp) :: intpos, isma, lri, lrj
 
 logic_dh = .false.
 
@@ -335,11 +339,12 @@ end subroutine vd_ext_head_in_act
 subroutine ds_drt_ci_new()
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, imr, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, linelp, lpblock_ds
+use Definitions, only: iwp
 
 implicit none
-integer :: jptyl, jptyr, lpb
+integer(kind=iwp) :: jptyl, jptyr, lpb
 
-!write(6,*) '  sd_wyb'
+!write(u6,*) '  sd_wyb'
 
 call external_space_plpmode_value_ds()
 
@@ -368,10 +373,12 @@ subroutine ds_ext_head_in_dbl()
 
 use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, linelp, logic_dh, lp_lwei, lp_rwei, lpnew_lwei, &
                          lpnew_rwei, mhlp, mtype, nlg1, nlg2, vplp_w0, vplp_w1, vplpnew_w0, w0_vv
+use Constants, only: Zero
+use Definitions, only: iwp
 
 implicit none
-integer :: iwal, iwar, iwdl, iwdr, jk, lpok, lra, mpl
-integer, external :: iwalk_ad
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jk, lpok, lra, mpl
+integer(kind=iwp), external :: iwalk_ad
 
 logic_dh = .true.
 !jmlr = mul_tab(jml,jmr)
@@ -609,7 +616,7 @@ select case (lpok)
       !lra = nlg2
       do mpl=1,mtype
         vplp_w0(mpl) = vplpnew_w0(mpl)*w0_vv
-        vplp_w1(mpl) = 0.d0
+        vplp_w1(mpl) = Zero
       end do
       do mpl=1,mhlp
         iwal = lpnew_lwei(mpl)
@@ -634,9 +641,10 @@ subroutine ds_ext_head_in_act()
 
 use gugaci_global, only: iml, imr, linelp, logic_dh, nlg1, nlg2
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: intpos, isma, lri, lrj
+integer(kind=iwp) :: intpos, isma, lri, lrj
 
 logic_dh = .false.
 lri = nlg1
@@ -663,11 +671,12 @@ end subroutine ds_ext_head_in_act
 subroutine dt_drt_ci_new()
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, imr, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, linelp, lpblock_dt
+use Definitions, only: iwp
 
 implicit none
-integer :: jptyl, jptyr, lpb
+integer(kind=iwp) :: jptyl, jptyr, lpb
 
-!write(6,*) '  td_wyb'
+!write(u6,*) '  td_wyb'
 call external_space_plpmode_value_dt()
 
 idisk_lp = idisk_array(4)
@@ -695,10 +704,12 @@ subroutine dt_ext_head_in_dbl()
 
 use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, linelp, logic_dh, lp_lwei, lp_rwei, lpnew_lwei, &
                          lpnew_rwei, mhlp, mtype, nlg1, nlg2, vplp_w0, vplp_w1, vplpnew_w0, w0_vv
+use Constants, only: Zero
+use Definitions, only: iwp
 
 implicit none
-integer :: iwal, iwar, iwdl, iwdr, jk, lpok, lra, mpl
-integer, external :: iwalk_ad
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jk, lpok, lra, mpl
+integer(kind=iwp), external :: iwalk_ad
 
 logic_dh = .true.
 !jmlr = mul_tab(jml,jmr)
@@ -936,7 +947,7 @@ select case (lpok)
       !lra = nlg2
       do mpl=1,mtype
         vplp_w0(mpl) = vplpnew_w0(mpl)*w0_vv
-        vplp_w1(mpl) = 0.d0
+        vplp_w1(mpl) = Zero
       end do
       do mpl=1,mhlp
         iwal = lpnew_lwei(mpl)
@@ -961,9 +972,10 @@ subroutine dt_ext_head_in_act()
 
 use gugaci_global, only: iml, imr, linelp, logic_dh, nlg1, nlg2
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: intpos, isma, lri, lrj
+integer(kind=iwp) :: intpos, isma, lri, lrj
 
 logic_dh = .false.
 lri = nlg1

@@ -12,22 +12,23 @@
 ! dbl space partial loop values
 subroutine Value_of_PL_IN_DBL()
 
-use gugaci_global, only: fg, jb_sys, pd, pdd, ps1, ps2, ps3, ps4, pt, ptt, w0_d1d, w0_d1d1, w0_d1s, w0_d1t1, w0_d1v, w0_dd, &
-                         w0_dd1, w0_ds, w0_dt, w0_dv, w0_sd, w0_sd1, w0_ss, w0_sv, w0_t1d1, w0_t1t1, w0_td, w0_tt, w0_vv, w1_d1d, &
-                         w1_d1d1, w1_d1s, w1_d1t1, w1_d1v, w1_dd, w1_dd1, w1_ds, w1_dt, w1_sd, w1_sd1, w1_ss, w1_st, w1_st1, &
-                         w1_sv, w1_t1d1, w1_t1s, w1_t1t1, w1_t1v, w1_td, w1_ts, w1_tt, w1_tv
+use gugaci_global, only: fg, jb_sys, pd, pdd, ps1, ps2, ps3, ps4, pt, ptt, v_onevsqtwo, v_sqtwo, w0_d1d, w0_d1d1, w0_d1s, w0_d1t1, &
+                         w0_d1v, w0_dd, w0_dd1, w0_ds, w0_dt, w0_dv, w0_sd, w0_sd1, w0_ss, w0_sv, w0_t1d1, w0_t1t1, w0_td, w0_tt, &
+                         w0_vv, w1_d1d, w1_d1d1, w1_d1s, w1_d1t1, w1_d1v, w1_dd, w1_dd1, w1_ds, w1_dt, w1_sd, w1_sd1, w1_ss, &
+                         w1_st, w1_st1, w1_sv, w1_t1d1, w1_t1s, w1_t1t1, w1_t1v, w1_td, w1_ts, w1_tt, w1_tv
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: ib
-real*8 :: db, fgsq2, fgvsq2
-real*8, parameter :: dhalf = 0.5d0, done = 1.0d0, dsq2 = 1.414213562373095d0, dzero = 0.0d0, vsq2 = 0.7071067811865d0
+integer(kind=iwp) :: ib
+real(kind=wp) :: db, fgsq2, fgvsq2
 
 DB = JB_SYS
 IB = mod(JB_SYS,2)
-FG = DONE
-if (IB == 1) FG = -DONE
+FG = One
+if (IB == 1) FG = -One
 !-------------------------- diag ---------------------------------------
-! W0=+(-)FG*DSQ2  or  W0=+(-)FG/DSQ2
+! W0=+(-)FG*v_sqtwo  or  W0=+(-)FG/v_sqtwo
 !W1 = -(B_SYS+3)/(2*B_SYS+2)
 !W1_CS21 = -(DB+3)/(2*DB+2)   ! W1  for  D&R&L(2)D^R^L(1)
 !W1_CS12 = -(DB-1)/(2*DB+2)   ! W1  for  D&R&L(1)D^R^L(2)
@@ -45,8 +46,8 @@ if (JB_SYS /= 0) then
 end if
 
 !---------------------- off diag ---------------------------------------
-FGSQ2 = FG*DSQ2
-FGVSQ2 = FG*VSQ2
+FGSQ2 = FG*v_sqtwo
+FGVSQ2 = FG*v_onevsqtwo
 
 ! SS(1-2)  Ar(02)-Bl(31)-
 ! SS(1-4)  Ar(23)-Bl(10)-
@@ -77,7 +78,7 @@ W1_SS(15) = FG*sqrt(DB/(2*DB+4))
 W0_SS(17) = FGVSQ2
 W1_SS(17) = -FG*(DB+3)*sqrt(DB/(2*DB+4))/(DB+1)      !??????
 W0_SS(20) = FGSQ2
-W1_SS(20) = DZERO
+W1_SS(20) = Zero
 
 ! ST(2-1) Ar(02)-Bl(32)-
 ! ST(2-2) (22)Ar(13)-Bl(32)-
@@ -85,11 +86,11 @@ W1_SS(20) = DZERO
 ! ST(2-4) Ar(23)-Bl(32)-C'(12)-
 ! ST(2-5) (22)Drl(12)-
 ! ST(2-6) Drl(22)-C"(12)-
-W1_ST(1) = DONE
+W1_ST(1) = One
 W1_ST(2) = sqrt((DB+1)/(DB+2))
-W1_ST(4) = -1/sqrt((DB+1)*(DB+2))
+W1_ST(4) = -One/sqrt((DB+1)*(DB+2))
 W1_ST(5) = -sqrt((DB+1)/(DB+2))
-W1_ST(6) = 1/sqrt((DB+1)*(DB+2))
+W1_ST(6) = One/sqrt((DB+1)*(DB+2))
 
 ! TS(3-1) Ar(23)-Bl(20)-
 ! TS(3-2) (22)Ar(23)-Bl(31)-
@@ -110,40 +111,40 @@ W1_TS(4) = sqrt((DB+3)/(DB+2))/(DB+1)
 ! SD(6-14) (22)D&r&l(33)B^l(13)
 ! SD(6-14) D&r&l(33)C"(22)B^l(13)
 ! SD(6-16) D&r&l(33)B^l(23)C'(12)
-W0_SD(1) = DONE
-W1_SD(1) = DONE
+W0_SD(1) = One
+W1_SD(1) = One
 W0_SD(2) = sqrt((DB+1)/(DB+2))
 W1_SD(2) = W0_SD(2)
-W0_SD(4) = -1/sqrt((DB+1)*(DB+2))
+W0_SD(4) = -One/sqrt((DB+1)*(DB+2))
 W1_SD(4) = W0_SD(4)
-W0_SD(5) = sqrt((DB+2)/(DB+1))/2
+W0_SD(5) = sqrt((DB+2)/(DB+1))*Half
 W1_SD(5) = DB/(2*sqrt((DB+1)*(DB+2)))
-W0_SD(8) = -sqrt((DB+1)/(DB+2))/2
+W0_SD(8) = -sqrt((DB+1)/(DB+2))*Half
 W1_SD(8) = -(DB+3)/(2*sqrt((DB+1)*(DB+2)))
-W0_SD(9) = -DONE
-W1_SD(9) = DZERO
-W0_SD(11) = -sqrt((DB+1)/(DB+2))/2
+W0_SD(9) = -One
+W1_SD(9) = Zero
+W0_SD(11) = -sqrt((DB+1)/(DB+2))*Half
 W1_SD(11) = (DB+3)/(2*sqrt((DB+1)*(DB+2)))
-W0_SD(12) = -DONE
-W1_SD(12) = DZERO
+W0_SD(12) = -One
+W1_SD(12) = Zero
 W0_SD(14) = -sqrt((DB+1)/(DB+2))
-W1_SD(14) = DZERO
-W0_SD(16) = 1/sqrt((DB+1)*(DB+2))
-W1_SD(16) = DZERO
+W1_SD(14) = Zero
+W0_SD(16) = One/sqrt((DB+1)*(DB+2))
+W1_SD(16) = Zero
 
 ! DS(7-1) Ar(23)-DRl(30)-
 ! DS(7-3) Ar(23)-Bl(32)-BR(31)-
 W0_DS(1) = -sqrt((DB+2)/(DB+1))
-W1_DS(1) = DZERO
-W0_DS(3) = DHALF
+W1_DS(1) = Zero
+W0_DS(3) = Half
 W1_DS(3) = (DB+3)/(2*DB+2)
 
 ! SV(10-2) Ar(23)-Br(13)-
 ! SV(10-3) Drr(03)-
 W0_SV(2) = sqrt((DB+2)/(2*DB+2))
 W1_SV(2) = -sqrt(DB/(2*DB+2))
-W0_SV(3) = -DSQ2
-W1_SV(3) = DZERO
+W0_SV(3) = -v_sqtwo
+W1_SV(3) = Zero
 
 ! TT(11-1) (22)Ar(23)-Bl(32)-
 ! TT(11-1) Ar(23)-C'(22)-Bl(32)-
@@ -158,7 +159,7 @@ W1_TT(1) = FG*sqrt((DB+4)/(2*DB+4))
 W0_TT(2) = FGVSQ2
 W1_TT(2) = -FG*sqrt((DB+4)/(2*DB+4))
 W0_TT(3) = FGSQ2
-W1_TT(3) = DZERO
+W1_TT(3) = Zero
 
 ! TD(13-1) (22)A&(23)
 ! TD(13-1) A&(23)C'(22)
@@ -169,21 +170,21 @@ W1_TT(3) = DZERO
 ! TD(13-5) D&rl(33)C"(22)B^l(23)
 ! TD(13-5) D&rl(33)B^l(23)C'(22)
 W0_TD(1) = FG*sqrt((DB+3)/(DB+2))
-W0_TD(2) = DZERO
+W0_TD(2) = Zero
 W1_TD(2) = W0_TD(1)
-W0_TD(3) = -W0_TD(1)/2
-W1_TD(3) = W0_TD(1)/2
+W0_TD(3) = -W0_TD(1)*Half
+W1_TD(3) = W0_TD(1)*Half
 W0_TD(4) = W0_TD(3)
 W1_TD(4) = W0_TD(3)
 W0_TD(5) = -W0_TD(1)
-W1_TD(5) = DZERO
+W1_TD(5) = Zero
 
 ! DT(14) Ar(23)-Bl(32)-BR(32)-
-W0_DT = -FG/2
-W1_DT = FG/2
+W0_DT = -FG*Half
+W1_DT = FG*Half
 
 ! TV(17) Ar(23)-Br(23)-
-W1_TV = DZERO
+W1_TV = Zero
 W1_TV = -FG*sqrt((DB+3)/(DB+1))
 
 ! DD(19-1) Ar(23)-Bl(32)-
@@ -195,14 +196,14 @@ W1_DD(1) = -FG*sqrt((DB+3)/(2*DB+2))
 W0_DD(2) = -FGVSQ2
 W1_DD(2) = FG*sqrt((DB+3)/(2*DB+2))
 W0_DD(3) = -FGSQ2
-W1_DD(3) = DZERO
+W1_DD(3) = Zero
 
 ! DV(23-1) Ar(23)-
 ! DV(23-2) Drl(33)-BL(23)-
 W0_DV(1) = -FG*sqrt((DB+2)/(DB+1))
 !W1_DV(1) = W0_DV(1)
 W0_DV(2) = FG*sqrt((DB+2)/(DB+1))
-!W1_DV(2) = DZERO
+!W1_DV(2) = Zero
 
 ! VV(25) Drl(33)-
 W0_VV = FGSQ2
@@ -236,15 +237,15 @@ W0_SS(8) = -FGVSQ2*sqrt(DB*(DB+2))/(DB+1)
 W1_SS(8) = FGVSQ2*DB/(DB+1)
 W0_SS(11) = FGVSQ2
 W1_SS(11) = -FG*sqrt((DB+2)/(2*DB))*(DB-1)/(DB+1)
-W0_SS(12) = DZERO
+W0_SS(12) = Zero
 W1_SS(12) = -FGSQ2/(DB+1)
-W0_SS(13) = DZERO
+W0_SS(13) = Zero
 W1_SS(13) = -FGSQ2/(DB+1)
 W0_SS(16) = FGVSQ2
 W1_SS(16) = -FGVSQ2*sqrt((DB+2)/DB)
 W0_SS(18) = FGVSQ2
 W1_SS(18) = FGVSQ2*(DB-1)*sqrt((DB+2)/DB)/(DB+1)
-W0_SS(19) = DZERO
+W0_SS(19) = Zero
 W1_SS(19) = FGSQ2/(DB+1)
 
 ! ST(2-3) Ar(13)-C'(22)-Bl(32)-
@@ -263,17 +264,17 @@ W1_TS(3) = sqrt(DB*(DB+3))/(DB+1)
 ! SD(6-15) D&r&l(33)B^l(13)C'(22)
 W0_SD(3) = -sqrt(DB/(DB+1))
 W1_SD(3) = W0_SD(3)
-W0_SD(6) = sqrt(DB/(DB+1))/2
+W0_SD(6) = sqrt(DB/(DB+1))*Half
 W1_SD(6) = -W0_SD(6)
-W0_SD(7) = DZERO
+W0_SD(7) = Zero
 W1_SD(7) = -sqrt(DB/(DB+1))
-W0_SD(10) = DZERO
+W0_SD(10) = Zero
 W1_SD(10) = sqrt(DB/(DB+1))
 W0_SD(15) = sqrt(DB/(DB+1))
-W1_SD(15) = DZERO
+W1_SD(15) = Zero
 
 ! DS(7-2) Ar(23)-Bl(31)-BR(32)-
-W0_DS(2) = DZERO
+W0_DS(2) = Zero
 W1_DS(2) = sqrt(DB*(DB+2))/(DB+1)
 
 ! SD1(8-1)    Ar(01)-
@@ -299,36 +300,36 @@ W0_SD1(3) = FG/sqrt(DB*(DB+1))
 W1_SD1(3) = W0_SD1(3)
 W0_SD1(4) = -FG*sqrt((DB+2)/(DB+1))
 W1_SD1(4) = W0_SD1(4)
-W0_SD1(5) = FG*sqrt(DB/(DB+1))/2
+W0_SD1(5) = FG*sqrt(DB/(DB+1))*Half
 W1_SD1(5) = FG*(DB+2)/(2*sqrt(DB*(DB+1)))
-W0_SD1(6) = FG*sqrt((DB+2)/(DB+1))/2
+W0_SD1(6) = FG*sqrt((DB+2)/(DB+1))*Half
 W1_SD1(6) = -W0_SD1(6)
-W0_SD1(7) = -FG*sqrt((DB+1)/DB)/2
+W0_SD1(7) = -FG*sqrt((DB+1)/DB)*Half
 W1_SD1(7) = -FG*(DB-1)/(2*sqrt(DB*(DB+1)))
-W0_SD1(8) = DZERO
+W0_SD1(8) = Zero
 W1_SD1(8) = -FG*sqrt((DB+2)/(DB+1))
 W0_SD1(9) = -FG
-W1_SD1(9) = DZERO
-W0_SD1(10) = -FG*sqrt((DB+1)/DB)/2
+W1_SD1(9) = Zero
+W0_SD1(10) = -FG*sqrt((DB+1)/DB)*Half
 W1_SD1(10) = FG*(DB-1)/(2*sqrt(DB*(DB+1)))
 W0_SD1(11) = -FG*sqrt((DB+1)/DB)
-W1_SD1(11) = DZERO
+W1_SD1(11) = Zero
 W0_SD1(12) = -FG/sqrt(DB*(DB+1))
-W1_SD1(12) = DZERO
+W1_SD1(12) = Zero
 W0_SD1(13) = FG*sqrt((DB+2)/(DB+1))
-W1_SD1(13) = DZERO
+W1_SD1(13) = Zero
 
 ! D1S(9-1)    Ar(13)-DlR(30)-
 ! D1S(9-2)    Ar(13)-Bl(31)-BR(32)-
 ! D1S(9-3)    Ar(13)-Bl(32)-BR(31)-
 ! D1S(9-4)    Drl(12)-Br(31)-
 W0_D1S(1) = FG*sqrt(DB/(DB+1))
-W1_D1S(1) = DZERO
-W0_D1S(2) = -FG/2
-W1_D1S(2) = -FG*(DB-1.d0)/(2*DB+2)
-W0_D1S(3) = DZERO
+W1_D1S(1) = Zero
+W0_D1S(2) = -FG*Half
+W1_D1S(2) = -FG*(DB-One)/(2*DB+2)
+W0_D1S(3) = Zero
 W1_D1S(3) = -FG*sqrt(DB*(DB+2))/(DB+1)
-W0_D1S(4) = DZERO
+W0_D1S(4) = Zero
 W1_D1S(4) = FG*sqrt(DB*(DB+2))/(DB+1)
 
 ! SV(10-1) Ar(13)-Br(23)-
@@ -344,17 +345,17 @@ W1_D1D1(1) = FGVSQ2*sqrt((DB-1)/(DB+1))
 W0_D1D1(2) = W0_D1D1(1)
 W1_D1D1(2) = -W1_D1D1(1)
 W0_D1D1(3) = -FGSQ2
-W1_D1D1(3) = DZERO
+W1_D1D1(3) = Zero
 
 ! DD1(21)Ar(23)-Bl(31)-
-W0_DD1 = DZERO
+W0_DD1 = Zero
 W1_DD1 = -sqrt((DB+2)/(DB+1))
 
 ! D1D(22-1)   Ar(13)-Bl(32)-
 ! D1D(22-2)   Drl(12)-
-W0_D1D(1) = DZERO
+W0_D1D(1) = Zero
 W1_D1D(1) = sqrt(DB/(DB+1))
-W0_D1D(2) = DZERO
+W0_D1D(2) = Zero
 W1_D1D(2) = -W1_D1D(1)
 
 ! D1V(24-1)  Ar(13)-
@@ -362,7 +363,7 @@ W1_D1D(2) = -W1_D1D(1)
 W0_D1V(1) = sqrt(DB/(DB+1))
 W1_D1V(1) = W0_D1V(1)
 W0_D1V(2) = -W0_D1V(1)
-W1_D1V(2) = DZERO
+W1_D1V(2) = Zero
 
 !=======================================================================
 if (JB_SYS == 1) return
@@ -373,9 +374,9 @@ if (JB_SYS == 1) return
 ! ST1(4-3) Ar(13)-Bl(31)-C"(21)-
 ! ST1(4-4) Ar(23)-C'(11)-Bl(31)-
 ! ST1(4-4) Ar(23)-Bl(31)-C"(11)-
-W1_ST1(1) = -1.d0
+W1_ST1(1) = -One
 W1_ST1(2) = -sqrt((DB+1)/DB)
-W1_ST1(3) = -1/sqrt(DB*(DB+1))
+W1_ST1(3) = -One/sqrt(DB*(DB+1))
 W1_ST1(4) = sqrt((DB+2)/(DB+1))
 
 ! T1S(5-1)   Ar(13)-Bl(10)-
@@ -407,7 +408,7 @@ W1_T1T1(1) = -FGVSQ2*sqrt((DB-2)/DB)
 W0_T1T1(2) = FGVSQ2
 W1_T1T1(2) = -W1_T1T1(1)
 W0_T1T1(3) = FGSQ2
-W1_T1T1(3) = DZERO
+W1_T1T1(3) = Zero
 
 ! T1D1(15-1)  Ar(13)-
 ! T1D1(15-1)  Ar(13)-C'(11)-
@@ -419,18 +420,18 @@ W1_T1T1(3) = DZERO
 ! T1D1(15-5)  Drl(33)-BL(13)-C'(11)-
 W0_T1D1(1) = sqrt((DB-1)/DB)
 W1_T1D1(1) = W0_T1D1(1)
-W0_T1D1(2) = DZERO
+W0_T1D1(2) = Zero
 W1_T1D1(2) = W0_T1D1(1)
-W0_T1D1(3) = -W0_T1D1(1)/2
-W1_T1D1(3) = W0_T1D1(1)/2
-W0_T1D1(4) = -W0_T1D1(1)/2
+W0_T1D1(3) = -W0_T1D1(1)*Half
+W1_T1D1(3) = W0_T1D1(1)*Half
+W0_T1D1(4) = -W0_T1D1(1)*Half
 W1_T1D1(4) = W0_T1D1(4)
 W0_T1D1(5) = -W0_T1D1(1)
-W1_T1D1(5) = DZERO
+W1_T1D1(5) = Zero
 
 ! D1T1(16) Ar(13)-Bl(31)-BR(31)-
-W0_D1T1 = 0.5d0
-W1_D1T1 = -0.5d0
+W0_D1T1 = Half
+W1_D1T1 = -Half
 
 ! T1V(18) Ar(13)-Br(13)-
 W1_T1V = FG*sqrt((DB-1)/(DB+1))
@@ -442,12 +443,13 @@ subroutine SS2_EXT(LRI,LRJ,NK)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, lrj, nk
-integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, mpl, ni
-real*8 :: w0ss2, w1ss2
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lri, lrj, nk
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, mpl, ni
+real(kind=wp) :: w0ss2, w1ss2
+integer(kind=iwp), external :: iwalk_ad
 
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
@@ -485,12 +487,13 @@ end subroutine SS2_EXT
 !
 !use gugaci_global, only: ipae, ipael, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, mhlp, mtype, vplp_w0, vplp_w1, &
 !                         vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
+!use Definitions, only: wp, iwp
 !
 !implicit none
-!integer :: lri, lrj
-!integer :: iwal, iwar, iwdl, iwdr, mpl, ni
-!real*8 :: w0ss3, w1ss3
-!integer, external :: iwalk_ad
+!integer(kind=iwp) :: lri, lrj
+!integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, mpl, ni
+!real(kind=wp) :: w0ss3, w1ss3
+!integer(kind=iwp), external :: iwalk_ad
 !
 !W0SS3 = W0_SS(3)
 !W1SS3 = W1_SS(3)
@@ -521,12 +524,13 @@ subroutine SS4_EXT(LRI,LRJ,NK)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, lrj, nk
-integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, mpl, ni
-real*8 :: w0ss4, w1ss4
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lri, lrj, nk
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, mpl, ni
+real(kind=wp) :: w0ss4, w1ss4
+integer(kind=iwp), external :: iwalk_ad
 
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
@@ -565,12 +569,13 @@ subroutine SS5_EXT(LRI,LRJ,NK)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, lrj, nk
-integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
-real*8 :: w0ss5, w1ss5
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lri, lrj, nk
+integer(kind=iwp) :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+real(kind=wp) :: w0ss5, w1ss5
+integer(kind=iwp), external :: iwalk_ad
 
 NK = 0
 LMI = LSM_INN(LRI)
@@ -618,12 +623,13 @@ subroutine SS10_EXT(LRI,LRJ,NK)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, lrj, nk
-integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
-real*8 :: w0ss10, w1ss10
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lri, lrj, nk
+integer(kind=iwp) :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+real(kind=wp) :: w0ss10, w1ss10
+integer(kind=iwp), external :: iwalk_ad
 
 NK = 0
 LMI = LSM_INN(LRI)
@@ -671,12 +677,13 @@ subroutine SS14_EXT(LRI,LRJ,NK)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, norb_dz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, lrj, nk
-integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
-real*8 :: w0ss14, w1ss14
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lri, lrj, nk
+integer(kind=iwp) :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+real(kind=wp) :: w0ss14, w1ss14
+integer(kind=iwp), external :: iwalk_ad
 
 NK = 0
 LMI = LSM_INN(LRI)
@@ -724,12 +731,13 @@ subroutine TT1_EXT(LRI,LRJ,NK,IGF)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_tt, w1_tt
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, lrj, nk, igf
-integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
-real*8 :: w0tt1, w1tt1
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lri, lrj, nk, igf
+integer(kind=iwp) :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+real(kind=wp) :: w0tt1, w1tt1
+integer(kind=iwp), external :: iwalk_ad
 
 NK = 0
 LMI = LSM_INN(LRI)
@@ -802,12 +810,14 @@ subroutine TS1_EXT(LRI,LRJ,NK)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          vplp_w0, vplp_w1, vplpnew_w1, w1_ts
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, lrj, nk
-integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, mpl, ni
-real*8 :: w1ts1
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lri, lrj, nk
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, mpl, ni
+real(kind=wp) :: w1ts1
+integer(kind=iwp), external :: iwalk_ad
 
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
@@ -820,7 +830,7 @@ NI = mod(LRJ-LRI,2)
 if (NI == 0) W1TS1 = -W1TS1
 ! TS(3-1) Ar(23)-Bl(20)-
 do MPL=1,MTYPE
-  VPLP_W0(MPL) = 0.d0
+  VPLP_W0(MPL) = Zero
   VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1TS1
 end do
 IWDL = JUST(LRI,LRJ)
@@ -841,12 +851,14 @@ subroutine TS2_EXT(LRI,LRJ,NK,IGF)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_ts
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, lrj, nk, igf
-integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
-real*8 :: w1ts2
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lri, lrj, nk, igf
+integer(kind=iwp) :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+real(kind=wp) :: w1ts2
+integer(kind=iwp), external :: iwalk_ad
 
 NK = 0
 LMI = LSM_INN(LRI)
@@ -882,7 +894,7 @@ if (NI == 0) then
   W1TS2 = -W1TS2
 end if
 do MPL=1,MTYPE
-  VPLP_W0(MPL) = 0.d0
+  VPLP_W0(MPL) = Zero
   VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1TS2
 end do
 NPL = 0
@@ -905,12 +917,14 @@ subroutine TS4_EXT(LRI,LRJ,NK)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, norb_dz, vplp_w0, vplp_w1, vplpnew_w1, w1_ts
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, lrj, nk
-integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
-real*8 :: w1ts4
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lri, lrj, nk
+integer(kind=iwp) :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+real(kind=wp) :: w1ts4
+integer(kind=iwp), external :: iwalk_ad
 
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
@@ -932,7 +946,7 @@ if (NI == 0) then
   W1TS4 = -W1TS4
 end if
 do MPL=1,MTYPE
-  VPLP_W0(MPL) = 0.d0
+  VPLP_W0(MPL) = Zero
   VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1TS4
 end do
 NPL = 0
@@ -955,12 +969,14 @@ subroutine ST1_EXT(LRI,LRJ,NK)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          vplp_w0, vplp_w1, vplpnew_w1, w1_st
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, lrj, nk
-integer :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, mpl, ni
-real*8 :: w1st1
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lri, lrj, nk
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, mpl, ni
+real(kind=wp) :: w1st1
+integer(kind=iwp), external :: iwalk_ad
 
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
@@ -981,7 +997,7 @@ do MPL=1,MHLP
   LP_RWEI(MPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR)
 end do
 do MPL=1,MTYPE
-  VPLP_W0(MPL) = 0.d0
+  VPLP_W0(MPL) = Zero
   VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1ST1
 end do
 
@@ -994,12 +1010,14 @@ subroutine ST2_EXT(LRI,LRJ,NK)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, lrj, nk
-integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
-real*8 :: w1st2
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lri, lrj, nk
+integer(kind=iwp) :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+real(kind=wp) :: w1st2
+integer(kind=iwp), external :: iwalk_ad
 
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
@@ -1022,7 +1040,7 @@ if (NI == 0) then
   W1ST2 = -W1ST2
 end if
 do MPL=1,MTYPE
-  VPLP_W0(MPL) = 0.d0
+  VPLP_W0(MPL) = Zero
   VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1ST2
 end do
 NPL = 0
@@ -1045,12 +1063,14 @@ subroutine ST4_EXT(LRI,LRJ,NK,IGF)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, norb_dz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, lrj, nk, igf
-integer :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
-real*8 :: w1st4
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lri, lrj, nk, igf
+integer(kind=iwp) :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+real(kind=wp) :: w1st4
+integer(kind=iwp), external :: iwalk_ad
 
 NK = 0
 LMI = LSM_INN(LRI)
@@ -1087,7 +1107,7 @@ if (NI == 0) then
   W1ST4 = -W1ST4
 end if
 do MPL=1,MTYPE
-  VPLP_W0(MPL) = 0.d0
+  VPLP_W0(MPL) = Zero
   VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1ST4
 end do
 NPL = 0

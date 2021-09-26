@@ -12,15 +12,15 @@
 subroutine tv_drt_ci_new()
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, linelp, lpblock_tv
+use Definitions, only: iwp
 
 implicit none
-integer :: jptyl, jptyr, lpb
+integer(kind=iwp) :: jptyl, jptyr, lpb
 
-!dsq3 = 1.732050807568877d0
 !iltype = 3
 !irtype = 1
-!w0_d48 = 0.0d0
-!w1_d48 = dsq3
+!w0_d48 = Zero
+!w1_d48 = v_sqthree
 
 idisk_lp = idisk_array(6)
 
@@ -49,11 +49,13 @@ use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud
                          lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1, w0_dv, w0_sd, w0_sv, w0_td, w1_sv, w1_tv
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lpok, lra, lri, lrj, lrk, mpl, ni
-real*8 :: w0, w0sd1, w0sd2, w0sd4, w0sv2, w0td1, w1, w1sv2
-integer, external :: iwalk_ad
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lpok, lra, lri, lrj, lrk, mpl, ni
+real(kind=wp) :: w0, w0sd1, w0sd2, w0sd4, w0sv2, w0td1, w1, w1sv2
+integer(kind=iwp), external :: iwalk_ad
 
 logic_dh = .true.
 lpok = jpadlr
@@ -262,7 +264,7 @@ select case (lpok)
         w1 = w1_tv
         if (ni == 0) w1 = -w1
         do mpl=1,mtype
-          vplp_w0(mpl) = 0.d0
+          vplp_w0(mpl) = Zero
           vplp_w1(mpl) = vplpnew_w1(mpl)*w1
         end do
         do mpl=1,mhlp
@@ -324,9 +326,10 @@ end subroutine tv_ext_head_in_dbl
 subroutine tv_ext_head_in_act()
 
 use gugaci_global, only: linelp, logic_dh, nlg1, nlg2
+use Definitions, only: iwp
 
 implicit none
-integer :: lra, lrai, lraj
+integer(kind=iwp) :: lra, lrai, lraj
 
 logic_dh = .false.
 
@@ -349,15 +352,16 @@ end subroutine tv_ext_head_in_act
 subroutine sv_drt_ci_new()
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, linelp, logic_g13, logic_g36a, &
-                         lpblock_sv, w0g13a, w0g36a, w1g36a
+                         lpblock_sv, v_sqtwo, w0g13a, w0g36a, w1g36a
+use Constants, only: Zero, One
+use Definitions, only: iwp
 
 implicit none
-integer :: jptyl, jptyr, lpb
-real*8, parameter :: dsq2 = 1.414213562373095d0
+integer(kind=iwp) :: jptyl, jptyr, lpb
 
-w0g36a = -1.d0
-w1g36a = 0.d0
-w0g13a = -dsq2
+w0g36a = -One
+w1g36a = Zero
+w0g13a = -v_sqtwo
 
 !iltype = 4
 !irtype = 1
@@ -392,11 +396,13 @@ use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud
                          lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1, w0_dv, w0_sd, w0_sv, w0_td, w1_sv, w1_tv
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lpok, lra, lri, lrj, lrk, mpl, ni
-real*8 :: w0, w0sd1, w0sd2, w0sd4, w0sv2, w0td1, w1, w1sv2
-integer, external :: iwalk_ad
+integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lpok, lra, lri, lrj, lrk, mpl, ni
+real(kind=wp) :: w0, w0sd1, w0sd2, w0sd4, w0sv2, w0td1, w1, w1sv2
+integer(kind=iwp), external :: iwalk_ad
 
 logic_dh = .true.
 lpok = jpadlr
@@ -605,7 +611,7 @@ select case (lpok)
         w1 = w1_tv
         if (ni == 0) w1 = -w1
         do mpl=1,mtype
-          vplp_w0(mpl) = 0.d0
+          vplp_w0(mpl) = Zero
           vplp_w1(mpl) = vplpnew_w1(mpl)*w1
         end do
         do mpl=1,mhlp
@@ -667,9 +673,10 @@ end subroutine sv_ext_head_in_dbl
 subroutine sv_ext_head_in_act()
 
 use gugaci_global, only: linelp, logic_dh, nlg1, nlg2
+use Definitions, only: iwp
 
 implicit none
-integer :: lra, lrai, lraj
+integer(kind=iwp) :: lra, lrai, lraj
 
 logic_dh = .false.
 

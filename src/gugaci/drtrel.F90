@@ -15,9 +15,10 @@ subroutine active_drt()
 
 use gugaci_global, only: iseg_downwei, iseg_sta, iseg_upwei, jd, jj, jpad_upwei, js, jt, jv, LuDrt, max_node, mxnode, nci_dim, &
                          ng_sm, no, norb_act, norb_inn, nu_ad, nu_ae !, logic_mr, logic_mrelcas
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: i, iin(0:max_node), im, iseg_dim(25), jde, jdim, jdn, jds, jji, jp, jpe, jpn, jsim, jtim, ndi
+integer(kind=iwp) :: i, iin(0:max_node), im, iseg_dim(25), jde, jdim, jdn, jds, jji, jp, jpe, jpn, jsim, jtim, ndi
 
 nci_dim = 0
 iseg_dim(:) = 0
@@ -65,8 +66,8 @@ else
   !if (logic_mr) call rst(ndd,indd)         !npp=2
   !if (logic_mrelcas) call rcas(ndd,indd)   !npp=3
 
-  write(6,*) ' '
-  write(6,*) ' now reading distinct row tableau'
+  write(u6,*) ' '
+  write(u6,*) ' now reading distinct row tableau'
   call readdrt(ludrt)
 
   nu_ae(1) = jv
@@ -178,17 +179,17 @@ end if
 
 ! to the end of dbl,act,ext parts
 call dbl_downwalk()
-write(6,*) '  end of drt,nci_dim= ',nci_dim
-!write(6,*) '-----------------------------------------------'
-!write(6,*) '         ci drt-information'
-!write(6,*) '       num.of orbitals:       ',nst
-!write(6,*) '       num.of froz-orbitals:  ',nzst
-!write(6,*) '       num.of active-orbitals:',ndh
-!write(6,*) '       num.of electrons:      ',nel
-!write(6,*) '       multiplicity:          ',mult
-!write(6,*) '       num.of configurations: ',ndime
-!write(6,*) '       symmetry:              ',zm
-!write(6,*) '-----------------------------------------------'
+write(u6,*) '  end of drt,nci_dim= ',nci_dim
+!write(u6,*) '-----------------------------------------------'
+!write(u6,*) '         ci drt-information'
+!write(u6,*) '       num.of orbitals:       ',nst
+!write(u6,*) '       num.of froz-orbitals:  ',nzst
+!write(u6,*) '       num.of active-orbitals:',ndh
+!write(u6,*) '       num.of electrons:      ',nel
+!write(u6,*) '       multiplicity:          ',mult
+!write(u6,*) '       num.of configurations: ',ndime
+!write(u6,*) '       symmetry:              ',zm
+!write(u6,*) '-----------------------------------------------'
 
 return
 
@@ -197,16 +198,17 @@ end subroutine active_drt
 !subroutine rst(id,indd)
 !
 !use gugaci_global, only: LuDrt
+!use Definitions, only: iwp, u6
 !
 !implicit none
-!integer :: id, indd
+!integer(kind=iwp) :: id, indd
 !
-!write(6,*) ' '
-!write(6,*) ' now reading distinct row tableau'
+!write(u6,*) ' '
+!write(u6,*) ' now reading distinct row tableau'
 !call readdrt(ludrt)
 !!open(21,file='fort.drt',form='unformatted')
 !!read(21) id
-!!write(6,*) ' id=',id
+!!write(u6,*) ' id=',id
 !!read(21) ja(1:id),jb(1:id),jm(1:id)
 !!read(21) jj(1:4,0:id)
 !!read(21) kk(0:id)
@@ -227,11 +229,12 @@ end subroutine active_drt
 !
 !use gugaci_global, only: lsm_inn, max_ref, norb_dz, norb_inn, nstart_act, spin
 !use Symmetry_Info, only: mul_tab => Mul
+!use Definitions, only: iwp, u6
 !
 !implicit none
-!integer :: nel, ndj, locu(8,max_ref), nm
-!integer :: i, l1, l2, l3, l4, l5, l6, l7, l8, ldj, lh, lhe, lhs, lhsm(8), lm, lpsum, lscu(0:8,max_ref), m, m1, m2, m3, m4, m5, m6, &
-!           m7, m8, mdj, mys, ne_act, ne_s, nes, npair, nre
+!integer(kind=iwp) :: nel, ndj, locu(8,max_ref), nm
+!integer(kind=iwp) :: i, l1, l2, l3, l4, l5, l6, l7, l8, ldj, lh, lhe, lhs, lhsm(8), lm, lpsum, lscu(0:8,max_ref), m, m1, m2, m3, &
+!                     m4, m5, m6, m7, m8, mdj, mys, ne_act, ne_s, nes, npair, nre
 !
 !ne_act = nel-2*norb_dz
 !ne_s = nint(spin*2)
@@ -330,7 +333,7 @@ end subroutine active_drt
 !end do
 !
 !do nre=1,ndj
-!  write(6,'(5x,i6,8i3)') nre,(locu(i,nre),i=1,8)
+!  write(u6,'(5x,i6,8i3)') nre,(locu(i,nre),i=1,8)
 !end do
 !
 !return
@@ -340,15 +343,16 @@ end subroutine active_drt
 !subroutine rcas(id,indd)
 !
 !use gugaci_global, only: LuDrt
+!use Definitions, only: iwp, u6
 !
 !implicit none
-!integer :: id, indd
+!integer(kind=iwp) :: id, indd
 !
-!write(6,*) ' '
-!write(6,*) ' now reading distinct row tableau'
+!write(u6,*) ' '
+!write(u6,*) ' now reading distinct row tableau'
 !call readdrt(ludrt)
 !
-!!write(6,*) 'bbs debug rcas,kk(27)',kk(27)
+!!write(u6,*) 'bbs debug rcas,kk(27)',kk(27)
 !
 !!open(21,file='fort.drt',form='unformatted')
 !!read(21) id
@@ -371,10 +375,11 @@ end subroutine active_drt
 !subroutine check_rcas3(jk,ind,inb,ndj,locu)
 !
 !use gugaci_global, only: ja, jb, max_node
+!use Definitions, only: iwp
 !
 !implicit none
-!integer :: jk, ind(8,max_node), inb, ndj, locu(8,ndj)
-!integer :: i, iex, iexcit(ndj), lsym(8), m, nsumel
+!integer(kind=iwp) :: jk, ind(8,max_node), inb, ndj, locu(8,ndj)
+!integer(kind=iwp) :: i, iex, iexcit(ndj), lsym(8), m, nsumel
 !
 !inb = 0
 !nsumel = 0
@@ -407,17 +412,19 @@ subroutine irfrst(iselcsf_occ)
 
 use gugaci_global, only: ifrno, iref_occ, irf, irfno, max_innorb, max_orb, max_ref, n_ref, nci_h0, norb_act, norb_all, norb_dz, &
                          nwalk
+use Constants, only: One
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: iselcsf_occ(max_innorb,max_ref)
-integer :: i, icount, icsfocc, icsfwlk, ii, ij, im, iwalktmp(max_orb), j, ndimh0
+integer(kind=iwp) :: iselcsf_occ(max_innorb,max_ref)
+integer(kind=iwp) :: i, icount, icsfocc, icsfwlk, ii, ij, im, iwalktmp(max_orb), j, ndimh0
 
 icsfwlk = 0
 ndimh0 = nci_h0 !iw_sta(2,1)
 icount = 0
 do i=1,n_ref
   outer: do j=1,ndimh0
-    call found_a_config(j,1.0d0,0)
+    call found_a_config(j,One,0)
     do im=1,norb_all
       iwalktmp(im) = nwalk(norb_all-im+1)
     end do
@@ -442,15 +449,16 @@ do i=1,n_ref
     icount = icount+1
     irfno(icount) = j
     ifrno(j) = icount
-    !write(6,2000) iwalktmp(norb_dz+1:norb_dz+norb_act)
-    !write(6,*) 'icount',icount,j
+    !write(u6,2000) iwalktmp(norb_dz+1:norb_dz+norb_act)
+    !write(u6,*) 'icount',icount,j
   end do outer
 end do
 
 irf = icount
-write(6,3000) irf
+write(u6,3000) irf
 
 return
+
 !1000 format(1x,'warnning!the selected csf is not in references states')
 !2000 format(1x,'the selected csf is :',2x,32(i1))
 3000 format(1x,'number of gelfand states in referance space:',1x,i4)
@@ -464,11 +472,13 @@ end subroutine irfrst
 !
 !use gugaci_global, only: ifrno, iref_occ, irf, irfno, max_innorb, max_orb, max_ref, mjn, mroot, n_ref, nci_h0, norb_act, norb_all, &
 !                         norb_dz, nwalk
+!use Constants, only: One
+!use Definitions, only: iwp, u6
 !
 !implicit none
-!integer :: iselcsf_occ(max_innorb,max_ref)
-!integer :: i, icount, icsfocc, icsfwlk, ii, ij, im, io, iocsf, ire, iwalktmp(max_orb), j, ndimh0, nocc
-!logical :: log_exist
+!integer(kind=iwp) :: iselcsf_occ(max_innorb,max_ref)
+!integer(kind=iwp) :: i, icount, icsfocc, icsfwlk, ii, ij, im, io, iocsf, ire, iwalktmp(max_orb), j, ndimh0, nocc
+!logical(kind=iwp) :: log_exist
 !
 !nocc = 0
 !do i=1,mroot
@@ -487,9 +497,9 @@ end subroutine irfrst
 !    if (log_exist) exit
 !  end do outer1
 !  if (.not. log_exist) then
-!    write(6,1000)
-!    write(6,2000) iselcsf_occ(1:norb_act,i)
-!    write(6,*) ' please select this state as reference state'
+!    write(u6,1000)
+!    write(u6,2000) iselcsf_occ(1:norb_act,i)
+!    write(u6,*) ' please select this state as reference state'
 !  end if
 !end do
 !icsfocc = 0
@@ -497,7 +507,7 @@ end subroutine irfrst
 !icount = 0
 !do i=1,n_ref
 !  outer2: do j=1,ndimh0
-!    call found_a_config(j,1.0d0,0)
+!    call found_a_config(j,One,0)
 !    do im=1,norb_all
 !      iwalktmp(im) = nwalk(norb_all-im+1)
 !    end do
@@ -517,8 +527,8 @@ end subroutine irfrst
 !    icount = icount+1
 !    irfno(icount) = j
 !    ifrno(j) = icount
-!    !write(6,2000) iwalktmp(norb_dz+1:norb_dz+norb_act)
-!    !write(6,*) 'icount',icount,j
+!    !write(u6,2000) iwalktmp(norb_dz+1:norb_dz+norb_act)
+!    !write(u6,*) 'icount',icount,j
 !  end do outer2
 !end do
 !
@@ -539,9 +549,10 @@ end subroutine irfrst
 !  end if
 !end do
 !
-!write(6,3000) irf
+!write(u6,3000) irf
 !
 !return
+!
 !1000 format(1x,'warnning!the selected csf is not in references states')
 !2000 format(1x,'the selected csf is :',2x,32(i1))
 !3000 format(1x,'number of gelfand states in referance space:',1x,i4)
@@ -552,11 +563,12 @@ end subroutine irfrst
 !function min_itexcit(indjk)
 !
 !use gugaci_global, only: ndjgrop, ndjmod
+!use Definitions, only: iwp
 !
 !implicit none
-!integer :: min_itexcit
-!integer :: indjk(4)
-!integer :: indexcit, ixcit, lref, ngrop, nj
+!integer(kind=iwp) :: min_itexcit
+!integer(kind=iwp) :: indjk(4)
+!integer(kind=iwp) :: indexcit, ixcit, lref, ngrop, nj
 !! integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
 !! indexcit=  ir1 ir2 ir3 ir4 ir5 ir6 ir7 ir8 ......... ir15
 !
@@ -592,10 +604,11 @@ end subroutine irfrst
 !subroutine njexcit(idcc,indjk,locuk0,n_ref)
 !
 !use gugaci_global, only: ndjgrop, ndjmod
+!use Definitions, only: iwp
 !
 !implicit none
-!integer :: idcc, indjk(4), n_ref, locuk0(n_ref)
-!integer :: indexcit, ixcit, lref, ngrop, nj
+!integer(kind=iwp) :: idcc, indjk(4), n_ref, locuk0(n_ref)
+!integer(kind=iwp) :: indexcit, ixcit, lref, ngrop, nj
 !
 !nj = 0
 !do ngrop=1,ndjgrop-1         !1-(ndjgrop-1) grop

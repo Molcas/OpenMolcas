@@ -13,12 +13,13 @@ subroutine int_sort()
 
 use gugaci_global, only: intind_abkk, intind_iaqq, intspace_abkk, LuCiInt, maxintseg, norb_dz, norb_ext, norb_frz, norb_inn, &
                          viasum_0, viasum_1, vijkk_0sum, vijkk_1sum, vint_ci
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: ia, ia0, idisk, idorbint, idum(1), idx(4), intpos, intposbase, intspace, ivalue, lra, lri, lrk, numb
-real*8 :: etime, stime, time
-real*8, parameter :: zero = 0.0d0
-real*8, external :: c_time
+integer(kind=iwp) :: ia, ia0, idisk, idorbint, idum(1), idx(4), intpos, intposbase, intspace, ivalue, lra, lri, lrk, numb
+real(kind=wp) :: etime, stime, time
+real(kind=wp), external :: c_time
 
 idx = 0
 stime = c_time()
@@ -39,9 +40,9 @@ lra = norb_inn*norb_ext*(norb_ext+1)*norb_ext/2+norb_inn*(norb_inn+1)*norb_inn*n
 if (lra > numb) numb = lra
 
 allocate(vint_ci(numb))
-vint_ci = 0.d0
+vint_ci = Zero
 numb = 0
-write(6,900)
+write(u6,900)
 call int_index(numb)
 #ifdef MOLPRO
 call intrd()
@@ -58,10 +59,10 @@ numb = numb-1
 idum(1) = numb
 call idafile(luciint,1,idum,1,idisk)
 call ddafile(luciint,1,vint_ci,numb,idisk)
-write(6,902) numb
+write(u6,902) numb
 maxintseg = numb
 
-vint_ci = 0.d0
+vint_ci = Zero
 numb = 1
 call int_sort_inn_1(numb)       !_ext_3_1  (iabc and iaqq)
 call int_sort_inn_3(numb)       !_ext_1    (ijka)
@@ -70,14 +71,14 @@ numb = numb-1
 idum(1) = numb
 call idafile(luciint,1,idum,1,idisk)
 call ddafile(luciint,1,vint_ci,numb,idisk)
-write(6,903) numb
+write(u6,903) numb
 if (numb > maxintseg) then
   maxintseg = numb
 end if
 
 ! sum over iaqq
-viasum_0(1:norb_inn,1:norb_ext) = zero
-viasum_1(1:norb_inn,1:norb_ext) = zero
+viasum_0(1:norb_inn,1:norb_ext) = Zero
+viasum_1(1:norb_inn,1:norb_ext) = Zero
 do lri=norb_frz+1,norb_inn
   ia0 = (lri-1)*norb_ext
   do lra=1,norb_ext
@@ -93,7 +94,7 @@ do lri=norb_frz+1,norb_inn
   end do
 end do
 
-vint_ci = 0.d0
+vint_ci = Zero
 numb = 1
 call int_sort_inn_2(numb)   !_ext_2_1  (ijcc, ijab, abkk)
 idx(3) = idisk
@@ -101,7 +102,7 @@ numb = numb-1
 idum(1) = numb
 call idafile(luciint,1,idum,1,idisk)
 call ddafile(luciint,1,vint_ci,numb,idisk)
-write(6,904) numb
+write(u6,904) numb
 if (numb > maxintseg) then
   maxintseg = numb
 end if
@@ -109,8 +110,8 @@ end if
 ! sum over (abkk)
 intspace = intspace_abkk(1)
 intpos = intind_abkk(1)
-vijkk_0sum(1:intspace) = zero
-vijkk_1sum(1:intspace) = zero
+vijkk_0sum(1:intspace) = Zero
+vijkk_1sum(1:intspace) = Zero
 do lrk=1,norb_dz
   do ivalue=1,intspace
     vijkk_0sum(ivalue) = vijkk_0sum(ivalue)+vint_ci(intpos)
@@ -119,7 +120,7 @@ do lrk=1,norb_dz
   end do
 end do
 
-vint_ci = 0.d0
+vint_ci = Zero
 numb = 1
 call int_sort_ext(numb)         !_ext_4_3_2  (abcd,abcc,aabb)
 idx(4) = idisk
@@ -127,7 +128,7 @@ numb = numb-1
 idum(1) = numb
 call idafile(luciint,1,idum,1,idisk)
 call ddafile(luciint,1,vint_ci,numb,idisk)
-write(6,905) numb
+write(u6,905) numb
 if (numb > maxintseg) then
   maxintseg = numb
 end if
@@ -135,12 +136,14 @@ end if
 idisk = 0
 call idafile(luciint,1,idx,4,idisk)
 
-write(6,910)
+write(u6,910)
 deallocate(vint_ci)
 
 etime = c_time()
 time = etime-stime
-write(6,912) time
+write(u6,912) time
+
+return
 
 900 format(1x,'start integral sorting',/,1x,'start reading integral file',/)
 !901 format(1x,'end reading integral file',/)
@@ -157,10 +160,11 @@ end subroutine int_sort
 !
 !use gugaci_global, only: ng_sm, nlsm_all
 !use Symmetry_Info, only: mul_tab => Mul
+!use Definitions, only: iwp, u6
 !
 !implicit none
-!integer :: i, iblktb(5,106), ip, ipq, iq, iqm, ir, irm, is, ism, ispq, ispqr, j, nblock, nint1, nint12, nint2, nintb, npp, npq, &
-!           nrr, nrs
+!integer(kind=iwp) :: i, iblktb(5,106), ip, ipq, iq, iqm, ir, irm, is, ism, ispq, ispqr, j, nblock, nint1, nint12, nint2, nintb, &
+!                     npp, npq, nrr, nrs
 !
 !! ----- 1 - electron integrals -----
 !nint1 = 0
@@ -241,26 +245,29 @@ end subroutine int_sort
 !end do
 !nint12 = nint1+nint2
 !
-!write(6,100) nint1,nint2,nint12
+!write(u6,100) nint1,nint2,nint12
 !!write(12,100) nint1,nint2,nint12
-!100 format(' ',1x/2x,'number of 1-electron integrals  :',i9/2x,'number of 2-electron integrals  :',i9/2x, &
-!           'total number of integrals       :',i9)
-!write(6,200) nint1
+!write(u6,200) nint1
 !!write(12,200) nint1
-!200 format(' ',1x/2x,'1-electron blocks  :   1 to',i8/2x,29(1h*))
-!write(6,300) (j,(iblktb(i,j),i=1,5),j=1,nblock)
+!write(u6,300) (j,(iblktb(i,j),i=1,5),j=1,nblock)
 !!write(12,300) (j,(iblktb(i,j),i=1,5),j=1,nblock)
-!300 format(' ',1x/2x,'2-electron block description  :'/2x,40(1h*)/2x,50(3('(',i3,')',4i2,i8,3x)/2x))
 !
 !return
+!
+!100 format(' ',1x/2x,'number of 1-electron integrals  :',i9/2x,'number of 2-electron integrals  :',i9/2x, &
+!           'total number of integrals       :',i9)
+!200 format(' ',1x/2x,'1-electron blocks  :   1 to',i8/2x,29(1h*))
+!300 format(' ',1x/2x,'2-electron block description  :'/2x,40(1h*)/2x,50(3('(',i3,')',4i2,i8,3x)/2x))
 !
 !end subroutine blocks
 
 !subroutine ff(i,j)
 !
+!use Definitions, only: iwp
+!
 !implicit none
-!integer :: i, j
-!integer :: iq, j0
+!integer(kind=iwp) :: i, j
+!integer(kind=iwp) :: iq, j0
 !
 !i = 0
 !do iq=1,j
@@ -280,12 +287,13 @@ subroutine int_sort_ext(ii)         !_ext_4_3_2
 use gugaci_global, only: ibsm_ext, iesm_ext, ip2_aa_ext_base, ip2_dd_ext_base, ip3_abd_ext_base, ip4_abcd_ext_base, jp2, jp3, &
                          ng_sm, nlsm_ext, norb_ext, norb_number, np3_abd_ext, vint_ci, voint
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: ii
-integer :: ia, iaend, iasta, ib, ibend, ibsta, ic, icend, icsta, id, idend, idsta, isma, ja, jb, lra, lrb, lrc, lrd, lsma, lsmb, &
-           lsmc, lsmcd, lsmd, lsmtmp(8), na
-real*8, external :: vfutei
+integer(kind=iwp) :: ii
+integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ic, icend, icsta, id, idend, idsta, isma, ja, jb, lra, lrb, lrc, lrd, &
+                     lsma, lsmb, lsmc, lsmcd, lsmd, lsmtmp(8), na
+real(kind=wp), external :: vfutei
 
 ! _002_aa_
 ip2_aa_ext_base = ii
@@ -311,8 +319,8 @@ do ib=2,norb_ext
   do ia=1,ib-1
     ja = norb_number(ia)
     vint_ci(ii) = voint(ja,jb)   !(ja,jb|ja,jb)
-    !write(6,'(i2,2x,i2)') ja,jb
-    !write(6,'(2x,a20,i8,f16.8)') '  int_sort_002',ii,vint_ci(ii)
+    !write(u6,'(i2,2x,i2)') ja,jb
+    !write(u6,'(2x,a20,i8,f16.8)') '  int_sort_002',ii,vint_ci(ii)
     ii = ii+1
   end do
 end do
@@ -404,11 +412,12 @@ subroutine int_sort_inn_2(ii)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, intind_abkk, intspace_abkk, lsm_inn, ng_sm, norb_frz, norb_inn, norb_number, vint_ci
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: ii
-integer :: ibend, ibsta, ira, irb, ismab, lmb, lra, lrb, lri, lrj, lsmi, lsmij, lsmj
-real*8, external :: vfutei
+integer(kind=iwp) :: ii
+integer(kind=iwp) :: ibend, ibsta, ira, irb, ismab, lmb, lra, lrb, lri, lrj, lsmi, lsmij, lsmj
+real(kind=wp), external :: vfutei
 
 ! (ijcc,ijab)
 do ismab=1,ng_sm
@@ -438,7 +447,7 @@ do lri=1,norb_inn
         intspace_abkk(lri) = intspace_abkk(lri)+1
         vint_ci(ii) = vfutei(lra,lri,lrb,lri)
         vint_ci(ii+1) = vint_ci(ii)-2*vfutei(lra,lrb,lri,lri)
-        !write(6,'(2x,4i6,i8,3f16.8)')lra,lrb,lri,lri,ii,vint_ci(ii),vint_ci(ii+1)
+        !write(u6,'(2x,4i6,i8,3f16.8)')lra,lrb,lri,lri,ii,vint_ci(ii),vint_ci(ii+1)
         ii = ii+2
       end do
     end do
@@ -454,11 +463,12 @@ subroutine int_ext_2_1(lri,lrj,lsmij,ii)
 use gugaci_global, only: ibsm_ext, iesm_ext, intind_ijab, intind_ijcc, intspace_ijab, intspace_ijcc, ng_sm, ngw2, norb_ext, &
                          norb_frz, norb_number, vint_ci
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, lrj, lsmij, ii
-integer :: ic, icend, icsta, id, idend, idsta, ij, jc, jd, lrc, lsmc, lsmd
-real*8, external :: vfutei
+integer(kind=iwp) :: lri, lrj, lsmij, ii
+integer(kind=iwp) :: ic, icend, icsta, id, idend, idsta, ij, jc, jd, lrc, lsmc, lsmd
+real(kind=wp), external :: vfutei
 
 !write(10,*) '     start intind_ijab',lri,lrj,ii
 ij = lri-norb_frz+ngw2(lrj-norb_frz)
@@ -509,11 +519,12 @@ subroutine int_sort_inn_3(ii)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, intind_ijka, lsm_inn, ngw2, ngw3, norb_frz, norb_inn, norb_number, vint_ci
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: ii
-integer :: ia, iaend, iasta, ijk, ja, lri, lrj, lrk, lsmd, lsmi, lsmij, lsmj, lsmk
-real*8, external :: vfutei
+integer(kind=iwp) :: ii
+integer(kind=iwp) :: ia, iaend, iasta, ijk, ja, lri, lrj, lrk, lsmd, lsmi, lsmij, lsmj, lsmk
+real(kind=wp), external :: vfutei
 
 !write(10,'(2x,a20,i8)') ' int_inn_3_base=',ii
 !write(10,*) '     start intind_ijka',ii
@@ -550,12 +561,13 @@ subroutine int_ext_3_2_1(lri,lsmi,ii)
 use gugaci_global, only: ibsm_ext, iesm_ext, intind_iabc, intind_iaqq, nabc, ng_sm, ngw2, ngw3, norb_ext, norb_inn, norb_number, &
                          vint_ci
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri, lsmi, ii
-integer :: iabc, iabc0, ib, ib0, ibend, ibsta, icend, icsta, idend, idsta, irb, irc, ird, lrb, lrc, lrd, lsmb, lsmbc, lsmc, lsmd, &
-           nb, nc, nd
-real*8, external :: vfutei
+integer(kind=iwp) :: lri, lsmi, ii
+integer(kind=iwp) :: iabc, iabc0, ib, ib0, ibend, ibsta, icend, icsta, idend, idsta, irb, irc, ird, lrb, lrc, lrd, lsmb, lsmbc, &
+                     lsmc, lsmd, nb, nc, nd
+real(kind=wp), external :: vfutei
 
 !write(10,*) '   int_ext_3_2_1'
 iabc0 = (lri-1)*nabc
@@ -613,7 +625,7 @@ do irb=ibsta,ibend
     lrc = norb_number(irc)
     vint_ci(ii) = vfutei(lrb,lrc,lri,lrc)
     vint_ci(ii+1) = vfutei(lrb,lri,lrc,lrc)
-    !write(6,'(2x,4i6,i8,3f16.8)')lrb,lri,lrc,lrc,ii,vint_ci(ii),vint_ci(ii+1)
+    !write(u6,'(2x,4i6,i8,3f16.8)')lrb,lri,lrc,lrc,ii,vint_ci(ii),vint_ci(ii+1)
     ii = ii+2
   end do
 end do
@@ -623,10 +635,11 @@ end subroutine int_ext_3_2_1
 subroutine int_sort_inn_1(ii)
 
 use gugaci_global, only: lsm_inn, norb_frz, norb_inn
+use Definitions, only: iwp
 
 implicit none
-integer :: ii
-integer :: lri, lsmi
+integer(kind=iwp) :: ii
+integer(kind=iwp) :: lri, lsmi
 
 call determine_para_array_for_int1ind()
 
@@ -642,11 +655,12 @@ end subroutine int_sort_inn_1
 function list3(i,j,k)
 
 use gugaci_global, only: loij, ngw2
+use Definitions, only: iwp
 
 implicit none
-integer :: list3
-integer :: i, j, k
-integer :: nij
+integer(kind=iwp) :: list3
+integer(kind=iwp) :: i, j, k
+integer(kind=iwp) :: nij
 
 nij = i+ngw2(j)
 list3 = loij(nij)+2*(k-1)
@@ -658,11 +672,12 @@ end function list3
 function list4(ld,lc,lb,la)
 
 use gugaci_global, only: loijk, ncibl, ngw2, ngw3
+use Definitions, only: iwp
 
 implicit none
-integer :: list4
-integer :: ld, lc, lb, la
-integer :: lra, njkl
+integer(kind=iwp) :: list4
+integer(kind=iwp) :: ld, lc, lb, la
+integer(kind=iwp) :: lra, njkl
 
 lra = ncibl(la)
 njkl = ld+ngw2(lc)+ngw3(lb)
@@ -676,11 +691,12 @@ subroutine int_sort_inn(numb)
 
 use gugaci_global, only: loij, loijk, lsm_inn, ncibl, ngw2, ngw3, norb_inn, vint_ci
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: numb
-integer :: i, j, k, la, lb, lc, ld, lra, ms, msa, msb, msc, mscd, msd, msob(120), nij, njkl, nolra
-real*8, external :: vfutei
+integer(kind=iwp) :: numb
+integer(kind=iwp) :: i, j, k, la, lb, lc, ld, lra, ms, msa, msb, msc, mscd, msd, msob(120), nij, njkl, nolra
+real(kind=wp), external :: vfutei
 
 msob = 0
 do lra=norb_inn,1,-1
@@ -689,7 +705,7 @@ do lra=norb_inn,1,-1
   ncibl(lra) = msob(ms)
 end do
 !=======================================================================
-!write(6,'(1x,14i3)') (ncibl(i),i=1,norb_inn)
+!write(u6,'(1x,14i3)') (ncibl(i),i=1,norb_inn)
 
 numb = 1
 do i=1,norb_inn-1
@@ -701,13 +717,13 @@ do i=1,norb_inn-1
     do k=1,norb_inn
       vint_ci(numb) = vfutei(j,k,i,k)
       vint_ci(numb+1) = vfutei(j,i,k,k)
-      !write(6,'(2x,4i6,i8,3f16.8)') i,j,k,k,numb,vint_ci(numb),vint_ci(numb+1)
+      !write(u6,'(2x,4i6,i8,3f16.8)') i,j,k,k,numb,vint_ci(numb),vint_ci(numb+1)
       numb = numb+2
     end do
   end do
 end do
-!write(6,*) 'num_inn',numb
-!write(6,*) loij(1:8)
+!write(u6,*) 'num_inn',numb
+!write(u6,*) loij(1:8)
 !call abend()
 
 !=======================================================================
@@ -730,7 +746,7 @@ do ld=1,norb_inn-3
         nolra = nolra+1
         !list = loijk(njkl)+3*(nolra-1)
 
-        !write(6,'(2x,4i3,2i7)')  la,lb,lc,ld,list,numb
+        !write(u6,'(2x,4i3,2i7)')  la,lb,lc,ld,list,numb
 
         vint_ci(numb) = vfutei(la,lc,lb,ld)        !tmp stop
         vint_ci(numb+1) = vfutei(la,lb,lc,ld)

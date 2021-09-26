@@ -12,9 +12,10 @@
 subroutine dv_drt_ci_new()
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, imr, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, linelp, lpblock_dv
+use Definitions, only: iwp
 
 implicit none
-integer :: jptyl, jptyr, lpb
+integer(kind=iwp) :: jptyl, jptyr, lpb
 
 call external_space_plpmode_value_dv()
 
@@ -46,12 +47,15 @@ use gugaci_global, only: iml, intind_ijka, ipae, ipael, jb_sys, jml, jmr, jpad, 
                          norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_dv, w0_sd, w0_sv, w0_td, w0_vv, w1_sd, w1_sv, &
                          w1_td, w1_tv
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: ijk, imap_1, intpos, isma, iwal, iwar, iwdl, iwdr, jk, jmlr, lmd, lmi, lmij, lmj, lpok, lra, lrd, lri, lrj, lrk, mpl, ni
-real*8 :: w0, w0sd1, w0sd11, w0sd12, w0sd14, w0sd16, w0sd2, w0sd4, w0sd5, w0sd8, w0sd9, w0sv2, w0td1, w0td2, w0td3, w0td4, w0td5, &
-          w1sd11, w1sd12, w1sd5, w1sd8, w1sd9, w1sv2, w1td2, w1td3, w1td4, w1tv
-integer, external :: iwalk_ad
+integer(kind=iwp) :: ijk, imap_1, intpos, isma, iwal, iwar, iwdl, iwdr, jk, jmlr, lmd, lmi, lmij, lmj, lpok, lra, lrd, lri, lrj, &
+                     lrk, mpl, ni
+real(kind=wp) :: w0, w0sd1, w0sd11, w0sd12, w0sd14, w0sd16, w0sd2, w0sd4, w0sd5, w0sd8, w0sd9, w0sv2, w0td1, w0td2, w0td3, w0td4, &
+                 w0td5, w1sd11, w1sd12, w1sd5, w1sd8, w1sd9, w1sv2, w1td2, w1td3, w1td4, w1tv
+integer(kind=iwp), external :: iwalk_ad
 
 logic_dh = .true.
 isma = iml
@@ -233,7 +237,7 @@ select case (lpok)
             ! sd(6-14) d&r&l(33)c"(22)b^l(13)
             do mpl=1,mtype
               vplp_w0(mpl) = vplpnew_w0(mpl)*w0sd14
-              vplp_w1(mpl) = 0.d0
+              vplp_w1(mpl) = Zero
             end do
             do lrk=1,lrj-1
               if (lrk == lri) cycle
@@ -264,7 +268,7 @@ select case (lpok)
             ! sd(6-16) d&r&l(33)b^l(23)c'(12)
             do mpl=1,mtype
               vplp_w0(mpl) = vplpnew_w0(mpl)*w0sd16
-              vplp_w1(mpl) = 0.d0
+              vplp_w1(mpl) = Zero
             end do
             do lrk=1,lri-1
               call drl_bl_ext_ar_new(23,lrk,lri)
@@ -494,7 +498,7 @@ select case (lpok)
             ! td(13-5) d&rl(33)c"(22)b^l(23)
             do mpl=1,mtype
               vplp_w0(mpl) = vplpnew_w0(mpl)*w0td5
-              vplp_w1(mpl) = 0.d0
+              vplp_w1(mpl) = Zero
             end do
             do lrk=1,lrj-1
               if (lrk == lri) cycle
@@ -525,7 +529,7 @@ select case (lpok)
             ! td(13-5) d&rl(33)b^l(23)c'(22)
             do mpl=1,mtype
               vplp_w0(mpl) = vplpnew_w0(mpl)*w0td5
-              vplp_w1(mpl) = 0.d0
+              vplp_w1(mpl) = Zero
             end do
             do lrk=1,lri-1
               call drl_bl_ext_ar_new(23,lrk,lri)
@@ -638,7 +642,7 @@ select case (lpok)
         iwdl = just(lri,lrj)
         iwdr = 0
         do mpl=1,mtype
-          vplp_w0(mpl) = 0.d0
+          vplp_w0(mpl) = Zero
           vplp_w1(mpl) = vplpnew_w1(mpl)*w1tv
         end do
         do mpl=1,mhlp
@@ -732,7 +736,7 @@ select case (lpok)
         if (ni == 1) w0 = -w0_dv(2)
         do mpl=1,mtype
           vplp_w0(mpl) = vplpnew_w0(mpl)*w0
-          vplp_w1(mpl) = 0.d0
+          vplp_w1(mpl) = Zero
         end do
         do lrk=1,lrd-1
           call drl_bl_ext_ar_new(23,lrk,lrd)
@@ -819,7 +823,7 @@ select case (lpok)
       iwdr = 0
       do mpl=1,mtype
         vplp_w0(mpl) = vplpnew_w0(mpl)*w0_vv
-        vplp_w1(mpl) = 0.d0
+        vplp_w1(mpl) = Zero
       end do
       do mpl=1,mhlp
         iwal = lpnew_lwei(mpl)
@@ -843,9 +847,10 @@ end subroutine dv_ext_head_in_dbl
 subroutine dv_ext_head_in_act()
 
 use gugaci_global, only: iml, linelp, logic_dh, nlg1, nlg2
+use Definitions, only: iwp
 
 implicit none
-integer :: intpos, isma, lri, lrj
+integer(kind=iwp) :: intpos, isma, lri, lrj
 
 logic_dh = .false.
 lri = nlg1
@@ -879,11 +884,12 @@ end subroutine dv_ext_head_in_act
 subroutine sd_drt_ci_new_den()
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, imr, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, linelp, lpblock_sd
+use Definitions, only: iwp
 
 implicit none
-integer :: jptyl, jptyr, lpb
+integer(kind=iwp) :: jptyl, jptyr, lpb
 
-!write(6,*) '  sd_wyb'
+!write(u6,*) '  sd_wyb'
 
 !logic_sd = .true.
 call external_space_plpmode_value_sd()
@@ -913,11 +919,12 @@ end subroutine sd_drt_ci_new_den
 subroutine sd_drt_ci_new()
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, imr, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, linelp, lpblock_sd
+use Definitions, only: iwp
 
 implicit none
-integer :: jptyl, jptyr, lpb
+integer(kind=iwp) :: jptyl, jptyr, lpb
 
-!write(6,*) '  sd_wyb'
+!write(u6,*) '  sd_wyb'
 
 !logic_sd = .true.
 call external_space_plpmode_value_sd()
@@ -951,12 +958,15 @@ use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jb_sys, jml, jmr, j
                          norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_dv, w0_sd, w0_sv, w0_td, w0_vv, w1_sd, w1_sv, &
                          w1_td, w1_tv
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: ijk, imap_1, intpos, isma, iwal, iwar, iwdl, iwdr, jk, jmlr, lmd, lmi, lmij, lmj, lpok, lra, lrd, lri, lrj, lrk, mpl, ni
-real*8 :: w0, w0sd1, w0sd11, w0sd12, w0sd14, w0sd16, w0sd2, w0sd4, w0sd5, w0sd8, w0sd9, w0sv2, w0td1, w0td2, w0td3, w0td4, w0td5, &
-          w1sd11, w1sd12, w1sd5, w1sd8, w1sd9, w1sv2, w1td2, w1td3, w1td4, w1tv
-integer, external :: iwalk_ad
+integer(kind=iwp) :: ijk, imap_1, intpos, isma, iwal, iwar, iwdl, iwdr, jk, jmlr, lmd, lmi, lmij, lmj, lpok, lra, lrd, lri, lrj, &
+                     lrk, mpl, ni
+real(kind=wp) :: w0, w0sd1, w0sd11, w0sd12, w0sd14, w0sd16, w0sd2, w0sd4, w0sd5, w0sd8, w0sd9, w0sv2, w0td1, w0td2, w0td3, w0td4, &
+                 w0td5, w1sd11, w1sd12, w1sd5, w1sd8, w1sd9, w1sv2, w1td2, w1td3, w1td4, w1tv
+integer(kind=iwp), external :: iwalk_ad
 
 logic_dh = .true.
 isma = mul_tab(iml,imr)
@@ -1144,7 +1154,7 @@ select case (lpok)
             ! sd(6-14) d&r&l(33)c"(22)b^l(13)
             do mpl=1,mtype
               vplp_w0(mpl) = vplpnew_w0(mpl)*w0sd14
-              vplp_w1(mpl) = 0.d0
+              vplp_w1(mpl) = Zero
             end do
             do lrk=1,lrj-1
               if (lrk == lri) cycle
@@ -1176,7 +1186,7 @@ select case (lpok)
             ! sd(6-16) d&r&l(33)b^l(23)c'(12)
             do mpl=1,mtype
               vplp_w0(mpl) = vplpnew_w0(mpl)*w0sd16
-              vplp_w1(mpl) = 0.d0
+              vplp_w1(mpl) = Zero
             end do
             do lrk=1,lri-1
               call drl_bl_ext_ar_new(6,lrk,lri)
@@ -1407,7 +1417,7 @@ select case (lpok)
             ! td(13-5) d&rl(33)c"(22)b^l(23)
             do mpl=1,mtype
               vplp_w0(mpl) = vplpnew_w0(mpl)*w0td5
-              vplp_w1(mpl) = 0.d0
+              vplp_w1(mpl) = Zero
             end do
             do lrk=1,lrj-1
               if (lrk == lri) cycle
@@ -1439,7 +1449,7 @@ select case (lpok)
             ! td(13-5) d&rl(33)b^l(23)c'(22)
             do mpl=1,mtype
               vplp_w0(mpl) = vplpnew_w0(mpl)*w0td5
-              vplp_w1(mpl) = 0.d0
+              vplp_w1(mpl) = Zero
             end do
             do lrk=1,lri-1
               call drl_bl_ext_ar_new(6,lrk,lri)
@@ -1554,7 +1564,7 @@ select case (lpok)
         iwdl = just(lri,lrj)
         iwdr = 0
         do mpl=1,mtype
-          vplp_w0(mpl) = 0.d0
+          vplp_w0(mpl) = Zero
           vplp_w1(mpl) = vplpnew_w1(mpl)*w1tv
         end do
         do mpl=1,mhlp
@@ -1649,7 +1659,7 @@ select case (lpok)
         if (ni == 1) w0 = -w0_dv(2)
         do mpl=1,mtype
           vplp_w0(mpl) = vplpnew_w0(mpl)*w0
-          vplp_w1(mpl) = 0.d0
+          vplp_w1(mpl) = Zero
         end do
         do lrk=1,lrd-1
           call drl_bl_ext_ar_new(6,lrk,lrd)
@@ -1739,7 +1749,7 @@ select case (lpok)
       iwdr = 0
       do mpl=1,mtype
         vplp_w0(mpl) = vplpnew_w0(mpl)*w0_vv
-        vplp_w1(mpl) = 0.d0
+        vplp_w1(mpl) = Zero
       end do
       do mpl=1,mhlp
         iwal = lpnew_lwei(mpl)
@@ -1764,9 +1774,10 @@ subroutine sd_ext_head_in_act()
 
 use gugaci_global, only: iml, imr, linelp, logic_dh, nlg1, nlg2
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: intpos, isma, lri, lrj
+integer(kind=iwp) :: intpos, isma, lri, lrj
 
 logic_dh = .false.
 lri = nlg1
@@ -1823,10 +1834,11 @@ subroutine gsd_samesym_aaa(lri,isma)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, intind_iabc, intind_iaqq, iwt_orb_ext, m_jd, nabc, ngw2, ngw3, norb_ext, &
                          norb_number, value_lpext, vint_ci, w0g28a, w0plp27, w0plp28, w0plp31, w0plp32, w1plp27, w1plp31, w1plp32
+use Definitions, only: iwp
 
 implicit none
-integer :: lri, isma
-integer :: ia, ia0, iabc, iabc0, iaqq, iasta, ib, ibend, ibsta, ic, ilwei, intpos, iposint, jcoffset, lrc
+integer(kind=iwp) :: lri, isma
+integer(kind=iwp) :: ia, ia0, iabc, iabc0, iaqq, iasta, ib, ibend, ibsta, ic, ilwei, intpos, iposint, jcoffset, lrc
 
 ia0 = (lri-1)*norb_ext
 iabc0 = (lri-1)*nabc
@@ -1899,10 +1911,11 @@ subroutine gsd_diffsamesym_abb(lri,isma,ismb)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, intind_iabc, intind_iaqq, iwt_orb_ext, m_jc, m_jd, nabc, ngw2, ngw3, &
                          norb_ext, norb_number, value_lpext, vint_ci, w0g28a, w0plp28, w0plp31, w0plp32, w1plp31, w1plp32
+use Definitions, only: iwp
 
 implicit none
-integer :: lri, isma, ismb
-integer :: ia, ia0, iabc, iabc0, iaend, iaqq, iasta, ib, ibend, ibsta, ic, ilwei, intpos, iposint, jb, jcoffset, lrc
+integer(kind=iwp) :: lri, isma, ismb
+integer(kind=iwp) :: ia, ia0, iabc, iabc0, iaend, iaqq, iasta, ib, ibend, ibsta, ic, ilwei, intpos, iposint, jb, jcoffset, lrc
 
 ia0 = (lri-1)*norb_ext
 iabc0 = (lri-1)*nabc
@@ -1959,10 +1972,11 @@ subroutine gsd_diffsamesym_aab(lri,isma,ismb)
 
 use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, intind_iabc, intind_iaqq, iwt_orb_ext, m_jd, nabc, ngw2, ngw3, norb_ext, &
                          norb_number, value_lpext, vint_ci, w0plp27, w0plp32, w1plp27, w1plp32
+use Definitions, only: iwp
 
 implicit none
-integer :: lri, isma, ismb
-integer :: ia, ia0, iabc, iabc0, iaend, iaqq, iasta, ib, ibend, ibsta, ic, ilwei, intpos, iposint, jcoffset, lrc
+integer(kind=iwp) :: lri, isma, ismb
+integer(kind=iwp) :: ia, ia0, iabc, iabc0, iaend, iaqq, iasta, ib, ibend, ibsta, ic, ilwei, intpos, iposint, jcoffset, lrc
 
 ia0 = (lri-1)*norb_ext
 iabc0 = (lri-1)*nabc
@@ -2015,10 +2029,11 @@ subroutine gsd_arlp_s1(lri)
 
 use gugaci_global, only: icnt_base, intind_iaqq, isegdownwei, m_jd, norb_ext, norb_number, value_lpext, vint_ci, w0plp26, w0plp29, &
                          w0plp30
+use Definitions, only: iwp
 
 implicit none
-integer :: lri
-integer :: ia0, iaqq, ic, ilwei, intoffset, intpos, iposint, is1orb, lrk
+integer(kind=iwp) :: lri
+integer(kind=iwp) :: ia0, iaqq, ic, ilwei, intoffset, intpos, iposint, is1orb, lrk
 
 ia0 = (lri-1)*norb_ext
 ic = m_jd
@@ -2057,15 +2072,17 @@ end subroutine gsd_arlp_s1
 subroutine td_drt_ci_new()
 
 use gugaci_global, only: idisk_array, idisk_lp, iml, imr, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, linelp, lpblock_td, w0_sdplp
+use Constants, only: One
+use Definitions, only: iwp
 
 implicit none
-integer :: jptyl, jptyr, lpb
+integer(kind=iwp) :: jptyl, jptyr, lpb
 
-!write(6,*) '  td_wyb'
+!write(u6,*) '  td_wyb'
 
 !logic_sd = .true.
 call external_space_plpmode_value_td()
-w0_sdplp = 1.0d0
+w0_sdplp = One
 call sd_ext_space_w01plp_value()
 
 idisk_lp = idisk_array(7)
@@ -2096,12 +2113,15 @@ use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jb_sys, jml, jmr, j
                          norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_dv, w0_sd, w0_sv, w0_td, w0_vv, w1_sd, w1_sv, &
                          w1_td, w1_tv
 use Symmetry_Info, only: mul_tab => Mul
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: ijk, imap_1, intpos, isma, iwal, iwar, iwdl, iwdr, jk, jmlr, lmd, lmi, lmij, lmj, lpok, lra, lrd, lri, lrj, lrk, mpl, ni
-real*8 :: w0, w0sd1, w0sd11, w0sd12, w0sd14, w0sd16, w0sd2, w0sd4, w0sd5, w0sd8, w0sd9, w0sv2, w0td1, w0td2, w0td3, w0td4, w0td5, &
-          w1sd11, w1sd12, w1sd5, w1sd8, w1sd9, w1sv2, w1td2, w1td3, w1td4, w1tv
-integer, external :: iwalk_ad
+integer(kind=iwp) :: ijk, imap_1, intpos, isma, iwal, iwar, iwdl, iwdr, jk, jmlr, lmd, lmi, lmij, lmj, lpok, lra, lrd, lri, lrj, &
+                     lrk, mpl, ni
+real(kind=wp) :: w0, w0sd1, w0sd11, w0sd12, w0sd14, w0sd16, w0sd2, w0sd4, w0sd5, w0sd8, w0sd9, w0sv2, w0td1, w0td2, w0td3, w0td4, &
+                 w0td5, w1sd11, w1sd12, w1sd5, w1sd8, w1sd9, w1sv2, w1td2, w1td3, w1td4, w1tv
+integer(kind=iwp), external :: iwalk_ad
 
 logic_dh = .true.
 isma = mul_tab(iml,imr)
@@ -2287,7 +2307,7 @@ select case (lpok)
             ! sd(6-14) d&r&l(33)c"(22)b^l(13)
             do mpl=1,mtype
               vplp_w0(mpl) = vplpnew_w0(mpl)*w0sd14
-              vplp_w1(mpl) = 0.d0
+              vplp_w1(mpl) = Zero
             end do
             do lrk=1,lrj-1
               if (lrk == lri) cycle
@@ -2320,7 +2340,7 @@ select case (lpok)
             ! sd(6-16) d&r&l(33)b^l(23)c'(12)
             do mpl=1,mtype
               vplp_w0(mpl) = vplpnew_w0(mpl)*w0sd16
-              vplp_w1(mpl) = 0.d0
+              vplp_w1(mpl) = Zero
             end do
             do lrk=1,lri-1
               call drl_bl_ext_ar_new(13,lrk,lri)
@@ -2551,7 +2571,7 @@ select case (lpok)
             ! td(13-5) d&rl(33)c"(22)b^l(23)
             do mpl=1,mtype
               vplp_w0(mpl) = vplpnew_w0(mpl)*w0td5
-              vplp_w1(mpl) = 0.d0
+              vplp_w1(mpl) = Zero
             end do
             do lrk=1,lrj-1
               if (lrk == lri) cycle
@@ -2583,7 +2603,7 @@ select case (lpok)
             ! td(13-5) d&rl(33)b^l(23)c'(22)
             do mpl=1,mtype
               vplp_w0(mpl) = vplpnew_w0(mpl)*w0td5
-              vplp_w1(mpl) = 0.d0
+              vplp_w1(mpl) = Zero
             end do
             do lrk=1,lri-1
               call drl_bl_ext_ar_new(13,lrk,lri)
@@ -2698,7 +2718,7 @@ select case (lpok)
         iwdl = just(lri,lrj)
         iwdr = 0
         do mpl=1,mtype
-          vplp_w0(mpl) = 0.d0
+          vplp_w0(mpl) = Zero
           vplp_w1(mpl) = vplpnew_w1(mpl)*w1tv
         end do
         do mpl=1,mhlp
@@ -2792,7 +2812,7 @@ select case (lpok)
         if (ni == 1) w0 = -w0_dv(2)
         do mpl=1,mtype
           vplp_w0(mpl) = vplpnew_w0(mpl)*w0
-          vplp_w1(mpl) = 0.d0
+          vplp_w1(mpl) = Zero
         end do
         do lrk=1,lrd-1
           call drl_bl_ext_ar_new(13,lrk,lrd)
@@ -2882,7 +2902,7 @@ select case (lpok)
       iwdr = 0
       do mpl=1,mtype
         vplp_w0(mpl) = vplpnew_w0(mpl)*w0_vv
-        vplp_w1(mpl) = 0.d0
+        vplp_w1(mpl) = Zero
       end do
       do mpl=1,mhlp
         iwal = lpnew_lwei(mpl)
@@ -2907,9 +2927,10 @@ subroutine td_ext_head_in_act()
 
 use gugaci_global, only: iml, imr, linelp, logic_dh, nlg1, nlg2
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: intpos, isma, lri, lrj
+integer(kind=iwp) :: intpos, isma, lri, lrj
 
 logic_dh = .false.
 lri = nlg1
@@ -2945,10 +2966,11 @@ subroutine gsd_ext_sequence(iltype,ilsm,irsm,lri)
 
 use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iseg_downwei, isegdownwei, m_jc, m_jd, ng_sm
 use Symmetry_Info, only: mul_tab => Mul
+use Definitions, only: iwp
 
 implicit none
-integer :: iltype, ilsm, irsm, lri
-integer :: ic, icano_nn, icend, icsta, ilnodedownwei, indl, isma, ismb, ismnoded, ismnodes
+integer(kind=iwp) :: iltype, ilsm, irsm, lri
+integer(kind=iwp) :: ic, icano_nn, icend, icsta, ilnodedownwei, indl, isma, ismb, ismnoded, ismnodes
 
 ismnodes = ilsm
 ismnoded = irsm
@@ -3009,12 +3031,14 @@ subroutine ar_sd_ext_rest(lri)
 use gugaci_global, only: icnt_base, ihy, ihyl, ilsegdownwei, iml, imr, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, &
                          jpadl, jphy, logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, mtype, ndim, nstaval, &
                          nvalue, value_lpext, value_lpext1, vplp_w0, vplpnew_w0, w0_sdplp
+use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri
-integer :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei
-real*8 :: w0_old, w0multi
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lri
+integer(kind=iwp) :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei
+real(kind=wp) :: w0_old, w0multi
+integer(kind=iwp), external :: iwalk_ad
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
@@ -3023,7 +3047,7 @@ irsegdownwei = iseg_downwei(ipae)
 if (logic_grad) then
   call gsd_ext_sequence_g(4,iml,imr,lri)
 
-  w0_old = 1.0d0
+  w0_old = One
   do iw0=1,mtype
     w0_sdplp = vplpnew_w0(iw0)
     if (logic_dh) w0_sdplp = vplp_w0(iw0)
@@ -3061,7 +3085,7 @@ if (logic_grad) then
 else
   call gsd_ext_sequence(4,iml,imr,lri)
 
-  w0_old = 1.0d0
+  w0_old = One
   do iw0=1,mtype
     w0_sdplp = vplpnew_w0(iw0)
     if (logic_dh) w0_sdplp = vplp_w0(iw0)
@@ -3105,12 +3129,14 @@ subroutine ar_td_ext_rest(lri)
 use gugaci_global, only: icnt_base, ihy, ihyl, ilsegdownwei, iml, imr, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, &
                          jpadl, jphy, logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, mtype, ndim, nstaval, &
                          nvalue, value_lpext, value_lpext1, vplp_w0, vplpnew_w0, w0_sdplp
+use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: lri
-integer :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei
-real*8 :: w0_old, w0multi
-integer, external :: iwalk_ad
+integer(kind=iwp) :: lri
+integer(kind=iwp) :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei
+real(kind=wp) :: w0_old, w0multi
+integer(kind=iwp), external :: iwalk_ad
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
@@ -3119,7 +3145,7 @@ irsegdownwei = iseg_downwei(ipae)
 if (logic_grad) then
   call gsd_ext_sequence_g(3,iml,imr,lri)
 
-  w0_old = 1.0d0
+  w0_old = One
   do iw0=1,mtype
     w0_sdplp = vplpnew_w0(iw0)
     if (logic_dh) w0_sdplp = vplp_w0(iw0)
@@ -3158,7 +3184,7 @@ else
 
   call gsd_ext_sequence(3,iml,imr,lri)
 
-  w0_old = 1.0d0
+  w0_old = One
   do iw0=1,mtype
     w0_sdplp = vplpnew_w0(iw0)
     if (logic_dh) w0_sdplp = vplp_w0(iw0)
