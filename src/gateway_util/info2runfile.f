@@ -56,7 +56,7 @@
       Do i=1,nIrrep ! note that in Basis_Info is nBas(0:7)
          nDel(i)=nBas(i-1)-nDel(i)
       End Do
-      Call Put_iArray('nOrb',nDel,nIrrep) ! nDel is corrupted here!
+*      Call Put_iArray('nOrb',nDel,nIrrep) ! nDel is corrupted here!
 *
 *     VarR and VarT
 *
