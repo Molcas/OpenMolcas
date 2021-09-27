@@ -220,7 +220,7 @@ subroutine propagate()
         call rk5(time,densityt)
       case default
         ! check has already been done in read_input.f90
-        write(6,*)'Integration method ',method, ' is not included'
+        write(6,*)'Integration method ',method, ' is not known'
         call abend()
       end select
 !!vk!!    call test_rho(densityt,time)

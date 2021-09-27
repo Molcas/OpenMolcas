@@ -10,12 +10,14 @@
 !                                                                      *
 ! Copyright (C) 2021, Vladislav Kochetov                               *
 !***********************************************************************
+#include "macros.fh"
+
 module rhodyn_utils
   implicit none
 !
 ! module contains some auxiliary routines
 !
-  public:: removeLineAndColumn, mult, dashes, assert
+  public:: removeLineAndColumn, mult, dashes
   interface mult
     module procedure mult_2D, multZ_2D
   end interface
@@ -64,12 +66,12 @@ contains
         transpB_ = .false.
     end if
     m = size(a, merge(1, 2, .not. transpA_))
-    call assert(m == size(c, 1))
+    ASSERT(m == size(c, 1))
     n = size(b, merge(2, 1, .not. transpB_))
-    call assert(n == size(c, 2))
+    ASSERT(n == size(c, 2))
     k1 = size(a, merge(2, 1, .not. transpA_))
     k2 = size(b, merge(1, 2, .not. transpB_))
-    call assert(k1 == k2)
+    ASSERT(k1 == k2)
     k = k1
     call dgemm_(merge('T', 'N', transpA_), merge('T', 'N', transpB_), &
                     m, n, k, 1.d0, a, size(a, 1), b, size(b, 1), &
@@ -93,26 +95,26 @@ contains
           transpB_ = .false.
       end if
       m = size(a, merge(1, 2, .not. transpA_))
-      call assert(m == size(c, 1))
+      ASSERT(m == size(c, 1))
       n = size(b, merge(2, 1, .not. transpB_))
-      call assert(n == size(c, 2))
+      ASSERT(n == size(c, 2))
       k1 = size(a, merge(2, 1, .not. transpA_))
       k2 = size(b, merge(1, 2, .not. transpB_))
-      call assert(k1 == k2)
+      ASSERT(k1 == k2)
       k = k1
       call zgemm_(merge('C', 'N', transpA_), merge('C', 'N', transpB_), &
                       m, n, k, (1.0d0,0.0d0), a, size(a, 1), b, size(b, 1), &
                       (0.0d0,0.0d0), c, size(c, 1))
   end subroutine multZ_2D
 
-  subroutine assert(x)
-    implicit none
-    logical, intent(in):: x
-    if (.not.x) then
-      write(6,*) 'assertion ', x, ' failed'
-      call abend()
-    endif
-  end subroutine assert
+!  subroutine assert(x)
+!    implicit none
+!    logical, intent(in):: x
+!    if (.not.x) then
+!      write(6,*) 'assertion ', x, ' failed'
+!      call abend()
+!    endif
+!  end subroutine assert
 
   subroutine removeLineAndColumnZ(a,remLCarray)
     implicit none
@@ -269,12 +271,12 @@ contains
     m = size(u,1)
     n = size(u,2)
     if (order_) then
-      call assert(m==size(a,1))
+      ASSERT(m==size(a,1))
       allocate(temp(n,m))
       call multZ_2D(u,a,temp,.True.,.False.)
       call multZ_2D(temp,u,b,.False.,.False.)
     else
-      call assert(n==size(a,1))
+      ASSERT(n==size(a,1))
       allocate(temp(m,n))
       call multZ_2D(u,a,temp,.False.,.False.)
       call multZ_2D(temp,u,b,.False.,.True.)
@@ -301,12 +303,12 @@ contains
     m = size(u,1)
     n = size(u,2)
     if (order_) then
-      call assert(m==size(a,1))
+      ASSERT(m==size(a,1))
       allocate(temp(n,m))
       call mult_2D(u,a,temp,.True.,.False.)
       call mult_2D(temp,u,b,.False.,.False.)
     else
-      call assert(n==size(a,1))
+      ASSERT(n==size(a,1))
       allocate(temp(m,n))
       call mult_2D(u,a,temp,.False.,.False.)
       call mult_2D(temp,u,b,.False.,.True.)

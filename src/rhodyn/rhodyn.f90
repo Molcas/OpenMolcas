@@ -12,8 +12,9 @@
 !***********************************************************************
 subroutine rhodyn()
 !***********************************************************************
-!     module rhodyn_data contains common variables declaration
-!     and also comments on their meaning
+!     this routine performs the calls to other subroutines that
+!     collect all data needed for dynamics and the second part is
+!     responsible for dynamics itself
 !***********************************************************************
   use rhodyn_data
   use rhodyn_utils, only: mult, dashes, sortci
@@ -80,7 +81,7 @@ subroutine rhodyn()
     call mma_allocate(a_einstein, lrootstot, lrootstot)
     call mma_allocate(emiss, n_freq)
 
-! Create PREP file for storing intermediate data
+! Create PREP file for storage of intermediate data
     call cre_prep()
 
 ! reading wavefunction expansion from rasscf files
@@ -209,7 +210,7 @@ subroutine rhodyn()
 ! dynamics part starts
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   if (preparation/=3) then
-    ! determine dimension d of propagated matrices
+    ! determine preliminary dimension d of propagated matrices
     select case (basis)
     case ('CSF')
       d = nconftot
@@ -238,25 +239,26 @@ subroutine rhodyn()
       U_CI_compl =dcmplx(U_CI,0d0)
       if (flag_dyson) then
         do i=1,3
-          dipole_basis(:,:,i)=dipole_basis(:,:,i)+alpha*dysamp_bas
+          dipole_basis(:,:,i) = dipole_basis(:,:,i) + alpha*dysamp_bas
         enddo
       endif
-    endif
-! dynamics will be performed internally using matrices
-! of dimension d
-    if (basis=='CSF') then
-      ! call assert(nconftot==Nstate)
-      d = nconftot
-    elseif (basis=='SF'.or.basis=='SO') then
-      if (Nstate==lrootstot) then
-        d = lrootstot
-      elseif (Nstate<lrootstot) then
-        ! not all states were requested for dynamics
-        d = Nstate
-        call cut_matrices()
+    ! dynamics will be performed internally using matrices
+    ! of dimension d
+      if (basis=='CSF') then
+         ! call assert(nconftot==Nstate)
+        d = nconftot
+      elseif (basis=='SF'.or.basis=='SO') then
+        if (Nstate==lrootstot) then
+          d = lrootstot
+        elseif (Nstate<lrootstot) then
+          ! not all states were requested for dynamics
+          d = Nstate
+          call cut_matrices()
+        endif
       endif
     endif
 
+!   construct dissipation operator if requested
     if (flag_diss) then
       call mma_allocate(kab_basis,d,d)
       call mma_allocate(k_bar_basis,d,d)

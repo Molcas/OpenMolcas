@@ -37,8 +37,10 @@ subroutine rhodyn_init()
   initialtime   = 0.0d0/auToFs
   finaltime     = 10.0d0/auToFs
   timestep      = 0.0005d0/auToFs
-  Method        = 'classic_RK4'
+  method        = 'CLASSIC_RK4'
   errorthreshold= 1.0d-06
+! safety parameter for adaptive-size methods can be set to 0.95
+! for acceleration of calculations
   safety        = 0.9
   deltaE        = 50d0/auToCm
   V             = 100d0/auToCm
