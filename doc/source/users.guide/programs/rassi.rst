@@ -529,11 +529,15 @@ Keywords
   spin--orbit eigenstates. This keyword has no effect unless the
   :kword:`SPIN` keyword has been used. Format: see :kword:`PROP` keyword.
 
-  .. xmldoc:: %%Keyword: SOProperty <basic>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SOPROPERTY" APPEAR="SO Properties" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: SOProperty <basic>
+              <HELP>
               Enter a selection of one-electron operators, for which
               matrix elements and expectation values are to be calculated over the
               spin-orbit eigenstates. This keyword has no effect unless the
               SPIN keyword has been used. Format: see PROP keyword.
+              </HELP>
+              </KEYWORD>
 
 :kword:`SPINorbit`
   Spin--orbit interaction matrix elements will be computed. Provided that
