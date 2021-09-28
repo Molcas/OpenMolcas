@@ -1296,7 +1296,7 @@ def test_custom(lines, keyword):
         l += ll
       except:
         return None
-    elif (name == 'PROPERTY'):
+    elif (name in ['PROPERTY', 'SOPROPERTY']):
       try:
         parts = fortran_split_quotes(lines[l])
         n = fortran_int(parts.pop(0))
