@@ -44,7 +44,7 @@
       Logical Do_Grad, Do_MO,Do_TwoEl,PMode
       Logical l_XHol, l_casdft
       Character*4 DFTFOCK
-      Integer nBas(8), nOrb(8)
+      Integer nBas(8), nOrb(8),nDel(8)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -435,9 +435,13 @@ c      Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
          End If
          Call Get_iArray('nBas',nBas,mIrrep)
          Call Get_iArray('nOrb',nOrb,mIrrep)
+         Call Get_iArray('nDel',nDel,mIrrep)
+*         write(6,*)'nDel in drvnq.f'
          nCMO=0
          Do i = 1, mIrrep
-            nCMO = nCMO + nBas(i)*nOrb(i)
+*            write(6,*) nDel(i),nBas(i),nOrb(i)
+            nCMO = nCMO + nBas(i)*(nBas(i)-nDel(i))
+C            nCMO = nCMO + nBas(i)*nOrb(i)
          End Do
          Call GetMem('CMO','Allo','Real',ipCMO,nCMO)
          Call Get_CMO(Work(ipCMO),nCMO)

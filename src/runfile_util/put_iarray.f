@@ -221,10 +221,6 @@
          Call UpCase(CmpLab2)
          If(CmpLab1.eq.CmpLab2) item=i
       End Do
-      IF(item.eq.8) THEN
-       write(6,*)'NORB in Put_IArray'
-       write(6,*)(DATA(I),I=1,8)
-      END IF
 *
 * Do we create a new temporary field?
 *
