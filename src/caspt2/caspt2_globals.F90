@@ -11,8 +11,10 @@
 
 module Caspt2_Globals
 
-  use definitions, only: wp
+  use definitions, only: iwp,wp
 
   Real(kind=wp) :: regularizer
+
+  Integer(kind=iwp) :: RegPower
 
 end module Caspt2_Globals

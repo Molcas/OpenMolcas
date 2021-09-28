@@ -1249,7 +1249,7 @@ CSVC: this routine computes product ALPHA * V1 and adds to V2
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use Caspt2_Globals, only: regularizer
+      use Caspt2_Globals, only: regularizer,RegPower
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -1277,18 +1277,18 @@ C-SVC: get the local vertical stripes of the lg_W vector
           NCOL=jHi-jLo+1
           CALL GA_Access (lg_W,iLo,iHi,jLo,jHi,mW,LDW)
           CALL RESDIA(NROW,NCOL,DBL_MB(mW),LDW,DIN(iLo),
-     &                DIS(jLo),SHIFT,SHIFTI,DOVL,regularizer)
+     &                DIS(jLo),SHIFT,SHIFTI,DOVL,regularizer,RegPower)
           CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
         END IF
         CALL GA_Sync()
         CALL GAdSUM_SCAL(DOVL)
       ELSE
         CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,
-     &                   SHIFT,SHIFTI,DOVL,regularizer)
+     &                   SHIFT,SHIFTI,DOVL,regularizer,RegPower)
       END IF
 #else
       CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,
-     &                 SHIFT,SHIFTI,DOVL,regularizer)
+     &                 SHIFT,SHIFTI,DOVL,regularizer,RegPower)
 #endif
 
       END
@@ -1298,7 +1298,7 @@ C-SVC: get the local vertical stripes of the lg_W vector
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use Caspt2_Globals, only: regularizer
+      use Caspt2_Globals, only: regularizer,RegPower
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -1324,24 +1324,25 @@ C-SVC: get the local vertical stripes of the lg_W vector
           NROW=iHi-iLo+1
           NCOL=jHi-jLo+1
           CALL GA_Access (lg_W,iLo,iHi,jLo,jHi,mW,LDW)
-          CALL SGMDIA(NROW,NCOL,DBL_MB(mW),LDW,
-     &                DIN(iLo),DIS(jLo),SHIFT,SHIFTI,regularizer)
+          CALL SGMDIA(NROW,NCOL,DBL_MB(mW),LDW,DIN(iLo),DIS(jLo),
+     &                SHIFT,SHIFTI,regularizer,RegPower)
           CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
         END IF
         CALL GA_Sync()
       ELSE
         CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,SHIFTI,
-     &              regularizer)
+     &              regularizer,RegPower)
       END IF
 #else
       CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,SHIFTI,
-     &            regularizer)
+     &            regularizer,RegPower)
 #endif
 
       END
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE RESDIA(NROW,NCOL,W,LDW,DIN,DIS,SHIFT,SHIFTI,DOVL,reg)
+      SUBROUTINE RESDIA(NROW,NCOL,W,LDW,DIN,DIS,SHIFT,SHIFTI,DOVL,
+     &   epsilon,ip)
       IMPLICIT REAL*8 (A-H,O-Z)
 
       DIMENSION W(LDW,*),DIN(*),DIS(*)
@@ -1354,8 +1355,9 @@ C-SVC: get the local vertical stripes of the lg_W vector
         ! imaginary denominator shift
         DELINV=DELTA/(DELTA**2+SHIFTI**2)
         ! regularized CASPT2
-        if (reg.gt.0.0d0) then
-          DELINV = DELINV*(1.0 - exp(-reg * DELTA**2))
+        if (epsilon > 0.0d0) then
+          sigma = 1.0d0/epsilon**ip
+          DELINV = DELINV*(1.0 - exp(-sigma * abs(DELTA)**ip))
         end if
         TMP=DELINV*W(I,J)
         DOVL=DOVL+TMP*W(I,J)
@@ -1365,7 +1367,7 @@ C-SVC: get the local vertical stripes of the lg_W vector
       END
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE SGMDIA(NROW,NCOL,W,LDW,DIN,DIS,SHIFT,SHIFTI,reg)
+      SUBROUTINE SGMDIA(NROW,NCOL,W,LDW,DIN,DIS,SHIFT,SHIFTI,epsilon,ip)
       IMPLICIT REAL*8 (A-H,O-Z)
 
       DIMENSION W(LDW,*),DIN(*),DIS(*)
@@ -1377,14 +1379,9 @@ C-SVC: get the local vertical stripes of the lg_W vector
         ! imaginary denominator shift
         DELINV=DELTA+SHIFTI**2/DELTA
         ! regularized CASPT2
-        ! WARNING: if delta is very close to zero numerical problems!
-        if (reg > 0.0d0) then
-          factor = 1.0d0 - exp(-reg * DELTA**2)
-          ! if (factor < 1e-4) then
-          !   write(6,*) 'factor = ',factor
-          ! end if
-          DELINV = DELINV/factor
-
+        if (epsilon > 0.0d0) then
+          sigma = 1.0d0/epsilon**ip
+          DELINV = DELINV/(1.0d0 - exp(-sigma * abs(DELTA)**ip))
         end if
         W(I,J)=DELINV*W(I,J)
         END DO

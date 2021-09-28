@@ -14,7 +14,7 @@ subroutine ProcInp_Caspt2
   use InputData, only: Input
   use definitions, only: iwp
   use output_caspt2, only: iPrGlb,terse,cmpThr,cntThr,dnmThr
-  use Caspt2_Globals, only: regularizer
+  use Caspt2_Globals, only: regularizer,RegPower
 #ifdef _MOLCAS_MPP_
   use Para_Info, only:Is_Real_Par
 #endif
@@ -125,6 +125,11 @@ subroutine ProcInp_Caspt2
       call Quit_OnUserError
     end if
   end if
+  if (Input%RegPower < 1) then
+    call WarningMessage(2,'Keyword REGP must be an integer number > 0.')
+    call Quit_OnUserError
+  end if
+  RegPower = Input%RegPower
 
 ! RHS algorithm selection
 #ifdef _MOLCAS_MPP_

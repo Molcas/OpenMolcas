@@ -11,7 +11,6 @@
       SUBROUTINE H0SPCT
       use output_caspt2, only:iPrGlb,verbose
       use output_caspt2, only:dnmThr,cntThr,cmpThr
-      use Caspt2_Globals, only: regularizer
 #ifdef _MOLCAS_MPP_
       use allgather_wrapper, only : allgather
       USE Para_Info, ONLY: Is_Real_Par

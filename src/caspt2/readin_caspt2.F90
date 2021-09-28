@@ -70,6 +70,8 @@ module InputData
     Real(kind=wp)     :: regularizer = Zero
     ! NONV      use non-variational energy
     Logical(kind=iwp) :: nonvariational = .false.
+    ! REGP      power of regularizer
+    Integer(kind=iwp) :: RegPower = 2
 
     ! several freeze-delete schemes, each of these should active
     ! the general flag below, to indicate additional conversion is
@@ -426,6 +428,11 @@ contains
 
       case ('NONV')
         Input%nonvariational = .true.
+
+      case ('REGP')
+        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+        read (Line,*,IOStat=iError) Input%RegPower
+        if (iError /= 0) call IOError(Line)
 
         ! environment
 
