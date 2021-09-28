@@ -290,12 +290,16 @@ c If PRPR requested, print the spin matrices
       IF (LPRPR) THEN
          Call mma_Allocate(SOPRR,NSS**2,NSOPR,Label='SOPRR')
          Call mma_Allocate(SOPRI,NSS**2,NSOPR,Label='SOPRI')
-         DO ISOPR=1,3
+         DO ICMP=1,3
             SOPRR(:,1)=0.0D0
             SOPRI(:,1)=0.0D0
-            CALL SMMAT(PROP,SOPRR,NSS,0,ISOPR)
+            IF (ICMP.EQ.2) THEN
+              CALL SMMAT(PROP,SOPRI,NSS,0,ICMP)
+            ELSE
+              CALL SMMAT(PROP,SOPRR,NSS,0,ICMP)
+            END IF
             CALL ZTRNSF(NSS,USOR,USOI,SOPRR,SOPRI)
-            CALL PRCMAT3(NSS,SOPRR,SOPRI,ISOPR)
+            CALL PRCMAT3(NSS,SOPRR,SOPRI,ICMP)
          END DO
          Call mma_deallocate(SOPRR)
          Call mma_deallocate(SOPRI)
