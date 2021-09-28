@@ -884,7 +884,6 @@ call mma_Allocate(GradArray,nDisp,nRoots)
 call FZero(GradArray,nDisp*nRoots)
 call mma_Allocate(Grad,nRoots)
 
-      write(6,*)'Gradient Calculation Details'
 iDisp = nLambda
 do i=1,nDisp
 
@@ -927,9 +926,6 @@ do i=1,nDisp
             Grad(iR) = Gradb
           end if
         end if
-       write(6,*) '2', iR,Grada,Gradb,EPlus,Energy_Ref,EMinus,Dsp
-      else
-       write(6,*) '1', iR,Grad(iR),EPlus,EMinus,two*Dsp
       end if
     end do
   end if
