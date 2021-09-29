@@ -994,7 +994,7 @@ do iR=1,nRoots
       TempY = Tmp(2,iAtom)
       TempZ = Tmp(3,iAtom)
       Namei = AtomLbl(iAtom)
-      write(LuWr,'(2X,A,3X,3E14.6E2)') Namei,TempX,TempY,TempZ
+      write(LuWr,'(2X,A,3X,3ES14.6E2)') Namei,TempX,TempY,TempZ
     end do
     write(LuWr,'(2x,A)') '-----------------------------------------------------'
   end if
