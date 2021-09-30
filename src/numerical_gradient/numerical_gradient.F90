@@ -986,17 +986,17 @@ do iR=1,nRoots
   if (iPL >= 2) then
     write(LuWr,*)
     write(LuWr,'(1x,A,I5)') 'Numerical gradient, root ',iR
-    write(LuWr,'(2x,A)') '-----------------------------------------------------'
-    write(LuWr,'(2x,A)') '                  X              Y              Z'
-    write(LuWr,'(2x,A)') '-----------------------------------------------------'
+    write(LuWr,'(2x,A)') '---------------------------------------------'
+    write(LuWr,'(2x,A)') '               X           Y           Z'
+    write(LuWr,'(2x,A)') '---------------------------------------------'
     do iAtom=1,nAtoms
       TempX = Tmp(1,iAtom)
       TempY = Tmp(2,iAtom)
       TempZ = Tmp(3,iAtom)
       Namei = AtomLbl(iAtom)
-      write(LuWr,'(2X,A,3X,3ES14.6E2)') Namei,TempX,TempY,TempZ
+      write(LuWr,'(2X,A,3X,3F12.6)') Namei,TempX,TempY,TempZ
     end do
-    write(LuWr,'(2x,A)') '-----------------------------------------------------'
+    write(LuWr,'(2x,A)') '---------------------------------------------'
   end if
 end do
 call mma_deallocate(Tmp2)
