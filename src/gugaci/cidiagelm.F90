@@ -397,7 +397,7 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mh
+integer(kind=iwp), intent(inout) :: mh
 integer(kind=iwp) :: ima, imae, imb, ip, ityae, iwa, iwe, jp, la, lb, lbend, lbsta, lr0, lra, lrb, ma
 real(kind=wp) :: vlop0, vlop1, wg13, wg14, wg38, wg50, wld, wls, wlt, wwg38, wwg50
 
@@ -509,8 +509,8 @@ Use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mpe, iwa
-real(kind=wp) :: vlop0, vlop1
+integer(kind=iwp), intent(in) :: mpe, iwa
+real(kind=wp), intent(in) :: vlop0, vlop1
 integer(kind=iwp) :: imad, imd, imi, imij, imj, ityad, iwd, iws, iwt, lr, lra, lri, lrj, lrjsta
 real(kind=wp) :: fqi, vl0, vl1, wld, wls, wlt, wlv
 
@@ -766,7 +766,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mh
+integer(kind=iwp), intent(in) :: mh
 integer(kind=iwp) :: imad, imd, imi, imij, imj, ip, ityad, iwa, iwd, iws, iwt, lri, lrj, lrjsta
 real(kind=wp) :: fqi, vij0, vij1, vij2, vl0, vlop0, vlop1
 
@@ -961,8 +961,8 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lri, lrj, iwd, iwa
-real(kind=wp) :: vij0, vij1, vij2, vl0
+integer(kind=iwp), intent(in) :: lri, lrj, iwd, iwa
+real(kind=wp), intent(in) :: vij0, vij1, vij2, vl0
 integer(kind=iwp) :: ima, imae, imb, ityae, iwe, la, lb, lbend, lbsta, lr, lra, lrb
 real(kind=wp) :: vd2lalb, vlop0, vlop1, volalb, vovdla, wg13, wg14, wl
 
@@ -1477,8 +1477,8 @@ use gugaci_global, only: log_prod
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idb, mg1, mg2, mg3
-real(kind=wp) :: wl
+integer(kind=iwp), intent(in) :: idb, mg1, mg2, mg3
+real(kind=wp), intent(in) :: wl
 
 if (log_prod == 3) then
   call prodel_pt(idb,wl,mg1,mg2,mg3) ! pt1
@@ -1503,8 +1503,8 @@ use gugaci_global, only: ihy, ipae, iseg_downwei, iw_downwei, iy, jpad, jpad_upw
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idb, mg1, mg2, mg3
-real(kind=wp) :: wl
+integer(kind=iwp), intent(in) :: idb, mg1, mg2, mg3
+real(kind=wp), intent(in) :: wl
 integer(kind=iwp) :: ii, in_, isegdownwei, iw, iwa, iwa0, iwad, iwd, iwe, iwupwei, jdbl, jp, jph, jw, jwd, jwnu, jwu, lwnu, mm, mpe
 integer(kind=iwp), external :: iwalk_ad
 
@@ -1633,8 +1633,8 @@ use gugaci_global, only: ihy, ipae, iy, jpad, jpad_upwei, jpae_downwei, jphy, nd
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idb, mg1, mg2, mg3
-real(kind=wp) :: wl
+integer(kind=iwp), intent(in) :: idb, mg1, mg2, mg3
+real(kind=wp), intent(in) :: wl
 integer(kind=iwp) :: ii, in_, isegdownwei, iw, iwa, iwa0, iwad, iwd, iwe, iwupwei, jp, jph, jw, jwd, jwnu, jwu, lwnu, mm, mpe
 integer(kind=iwp), external :: iwalk_ad
 
@@ -1767,7 +1767,8 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ity, nms, jp, id
+integer(kind=iwp), intent(in) :: ity, nms, id
+integer(kind=iwp), intent(out) :: jp
 integer(kind=iwp) :: ms
 
 ms = nms

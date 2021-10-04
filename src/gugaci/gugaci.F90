@@ -17,7 +17,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ireturn
+integer(kind=iwp), intent(out) :: ireturn
 integer(kind=iwp) :: maxplcon, mxvec, nc, nc0, nc1, npl
 real(kind=wp) :: sc0, sc1, sc2
 real(kind=wp), external :: c_time
@@ -93,7 +93,7 @@ write(u6,'(a30,i10,f14.2,a1)') '   end of h_diagonal, nci_dim=',nci_dim,sc2-sc1,
 write(u6,*) '==================================================='
 write(u6,*)
 
-call write_ml(lucidia,1,vector1,nci_dim,1)
+call write_ml(lucidia,vector1,nci_dim,1)
 !do i=1,74902
 !  write(21,'(i8,f18.8)') i,vector1(i)
 !end do
@@ -113,7 +113,7 @@ else
   allocate(vector1(nc*(nc+1)/2))
   allocate(vector2(nc*(nc+1)/2))
   vector1 = Zero
-  call read_ml(Lucidia,2,vector1,nci_dim,1)
+  call read_ml(Lucidia,vector1,nci_dim,1)
 end if
 
 vector2(1:nc1) = Zero

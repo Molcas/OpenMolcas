@@ -20,7 +20,7 @@ use gugaci_global, only: ilsegdownwei, indx, log_prod, mcroot, value_lpext, vect
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ilw, irw
+integer(kind=iwp), intent(in) :: ilw, irw
 integer(kind=iwp) :: iij, irot, irtidx, mm, nn
 real(kind=wp) :: valuelp, valuelptmp1, vlptmp
 
@@ -61,7 +61,7 @@ use gugaci_global, only: ilsegdownwei, value_lpext, vcm, vector2
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ilw, irw
+integer(kind=iwp), intent(in) :: ilw, irw
 integer(kind=iwp) :: iij, mm, nn
 real(kind=wp) :: wl
 
@@ -90,7 +90,7 @@ use gugaci_global, only: indx, iweista_g25, iweista_g28, logic_g25a, logic_g25b,
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplweiin, iplprweiin
+integer(kind=iwp), intent(in) :: iplplweiin, iplprweiin
 integer(kind=iwp) :: i, ilpvalue, iplplwei, iplprwei, irot, irtidx, itmp, mm, nn, nn0
 real(kind=wp) :: vlptmp, vlptmp1, vlptmp2
 
@@ -181,7 +181,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplweiin, iplprweiin
+integer(kind=iwp), intent(in) :: iplplweiin, iplprweiin
 integer(kind=iwp) :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, &
                      irwtmp, isma, ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real(kind=wp) :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
@@ -386,7 +386,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplweiin, iplprweiin
+integer(kind=iwp), intent(in) :: iplplweiin, iplprweiin
 integer(kind=iwp) :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, &
                      irwtmp, isma, ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real(kind=wp) :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
@@ -587,7 +587,7 @@ use gugaci_global, only: ilsegdownwei, indx, log_prod, mcroot, value_lpext, vect
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ilw, irw
+integer(kind=iwp), intent(in) :: ilw, irw
 integer(kind=iwp) :: iij, irot, irtidx, mm, nn
 real(kind=wp) :: valuelp, valuelptmp1
 
@@ -619,7 +619,7 @@ use gugaci_global, only: ilsegdownwei, value_lpext, vcm, vector2
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ilw, irw
+integer(kind=iwp), intent(in) :: ilw, irw
 integer(kind=iwp) :: iij, mm, nn
 real(kind=wp) :: wl
 !character(len=16) :: loop_type
@@ -649,7 +649,7 @@ use gugaci_global, only: idownwei_g131415, indx, logic_g1415, logic_g34a, logic_
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplweiin, iplprweiin
+integer(kind=iwp), intent(in) :: iplplweiin, iplprweiin
 integer(kind=iwp) :: i, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, lpend34, lpend35, lpend36, &
                      lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0
 real(kind=wp) :: valuelp, valuelptmp1, valuetmp
@@ -783,7 +783,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplweiin, iplprweiin
+integer(kind=iwp), intent(in) :: iplplweiin, iplprweiin
 integer(kind=iwp) :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, &
                      irwtmp, isma, ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real(kind=wp) :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
@@ -996,7 +996,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplweiin, iplprweiin
+integer(kind=iwp), intent(in) :: iplplweiin, iplprweiin
 integer(kind=iwp) :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, &
                      irwtmp, isma, ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real(kind=wp) :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
@@ -1210,7 +1210,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplweiin, iplprweiin
+integer(kind=iwp), intent(in) :: iplplweiin, iplprweiin
 integer(kind=iwp) :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, &
                      irwtmp, isma, ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real(kind=wp) :: valtmp, valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
@@ -1429,7 +1429,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplweiin, iplprweiin
+integer(kind=iwp), intent(in) :: iplplweiin, iplprweiin
 integer(kind=iwp) :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, &
                      irwtmp, isma, ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real(kind=wp) :: valuelp, valuelp1, valuelp2, valuelptmp1, valuelptmp2, valuetmp
@@ -1639,7 +1639,7 @@ use gugaci_global, only: indx, ivaluesta_g26, iweista_g25, iweista_g26, iweista_
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplweiin, iplprweiin
+integer(kind=iwp), intent(in) :: iplplweiin, iplprweiin
 integer(kind=iwp) :: i, ilpvalue, iplplwei, iplprwei, irot, irtidx, itmp, mm, nn, nn0
 real(kind=wp) :: vlptmp, vlptmp1, vtmp
 
@@ -1738,7 +1738,7 @@ use gugaci_global, only: icano_nnend, icano_nnsta, indx, mcroot, value_lpext, ve
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ilweiin, irweiin, isdownwei
+integer(kind=iwp), intent(in) :: ilweiin, irweiin, isdownwei
 integer(kind=iwp) :: ilpvalue, ilwei, irot, irtidx, irwei, mm, mm0, mmtmp, nn, nntmp
 real(kind=wp) :: vlptmp, vlptmp1
 
@@ -1780,7 +1780,7 @@ use gugaci_global, only: ildownwei_segdd, indx, int_dd_drl, irdownwei_segdd, log
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplweiin, iplprweiin
+integer(kind=iwp), intent(in) :: iplplweiin, iplprweiin
 integer(kind=iwp) :: i, icle, ii, ildownwei, iplplwei, iplprwei, irdownwei, irot, irtidx, j, mm, mm0, nn
 real(kind=wp) :: valuelp, valuelptmp1, valuetmp
 
@@ -1872,7 +1872,7 @@ use gugaci_global, only: idownwei_g131415, indx, logic_g1415, logic_g34a, logic_
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplweiin, iplprweiin, n1415
+integer(kind=iwp), intent(in) :: iplplweiin, iplprweiin, n1415
 integer(kind=iwp) :: i, icle, ii, ii0, iii, iij, ilwtmp, iplplwei, iplprwei, irot, irtidx, irwtmp, lpend34, lpend35, lpend36, &
                      lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0
 real(kind=wp) :: valuelp, valuelptmp1, valuetmp

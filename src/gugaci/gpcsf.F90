@@ -18,8 +18,8 @@ use gugaci_global, only: ipae, iseg_downwei, iw_downwei, iw_sta, jd, jpad, jpad_
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ndl, npr
-real(kind=wp) :: de
+integer(kind=iwp), intent(in) :: ndl, npr
+real(kind=wp), intent(in) :: de
 integer(kind=iwp) :: i, im, iwupwei, j, jaedownwei, jpad_, l, ndimsum, ne, no_dz, noi, norbindex(max_orb), norbsymm(max_orb), &
                      norbwalk(max_orb), ns, nst, nwalk_gamess(max_orb)
 real(kind=wp) :: sqde
@@ -420,7 +420,7 @@ use gugaci_global, only: ihy, ipae, iseg_downwei, iw_downwei, iy, jpad, jpad_upw
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: idb, mg1, mg2, mg3, lr01, lr02, jpty
+integer(kind=iwp), intent(in) :: idb, mg1, mg2, mg3, lr01, lr02, jpty
 integer(kind=iwp) :: in_, isegdownwei, iw, iwa, iwad, iwd, iwe, iwupwei, jdbl, jp, jph, jw, jwd, jwu, lr1, lr2, lwnu, mm, mpe
 integer(kind=iwp), external :: iwalk_ad
 
@@ -446,12 +446,8 @@ select case (idb)
           case (4)
             nwalk(lr1) = 2
             nwalk(lr2) = 1
-            if (lr02 == 0) then
-              nwalk(lr1) = 0
-            end if
-            if (lr01 == 0) then
-              nwalk(lr2) = 0
-            end if
+            if (lr02 == 0) nwalk(lr1) = 0
+            if (lr01 == 0) nwalk(lr2) = 0
           case (5)
             nwalk(lr1) = 1
           case (6)
@@ -491,9 +487,7 @@ select case (idb)
               case (4)
                 nwalk(lr1) = 2
                 nwalk(lr2) = 1
-                if (lr02 == 0) then
-                  nwalk(lr1) = 3
-                end if
+                if (lr02 == 0) nwalk(lr1) = 3
             end select
             exit outer1
           end if

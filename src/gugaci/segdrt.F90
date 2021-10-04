@@ -162,7 +162,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iwalk_ad
-integer(kind=iwp) :: jdbl, jext, iwa, iwd
+integer(kind=iwp), intent(in) :: jdbl, jext, iwa, iwd
 integer(kind=iwp) :: ioff, isegdown, iwup
 
 if (log_prod == 3) then
@@ -190,7 +190,7 @@ end function iwalk_ad
 !
 !implicit none
 !integer(kind=iwp) :: iwalk_ad_mrso
-!integer(kind=iwp) :: jdbl, jext, iwa, iwd
+!integer(kind=iwp), intent(in) :: jdbl, jext, iwa, iwd
 !integer(kind=iwp) :: isegdown, iwup
 !
 !iwup = jpad_upwei(jdbl)
@@ -207,7 +207,8 @@ use gugaci_global, only: iy, jj, jj_sub, jpad, kk, max_node, max_wei, no, norb_d
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: jp, in_, jpihy(max_wei)
+integer(kind=iwp), intent(in) :: jp
+integer(kind=iwp), intent(inout) :: in_, jpihy(max_wei)
 integer(kind=iwp) :: i, idr, iin(0:max_node), j, jpe, jpn, jy, l, lr, nn
 
 iin(0) = 0
@@ -254,7 +255,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: k_coe
-integer(kind=iwp) :: jbl, jbr, iddl, iddr
+integer(kind=iwp), intent(in) :: jbl, jbr, iddl, iddr
 integer(kind=iwp) :: idl, idr
 
 K_COE = 0
@@ -303,7 +304,8 @@ end subroutine copy_to_drtl
 !use Definitions, only: iwp
 !
 !implicit none
-!integer(kind=iwp) :: jp, ity, jp_ms
+!integer(kind=iwp), intent(in) :: jp
+!integer(kind=iwp), intent(out) :: ity, jp_ms
 !integer(kind=iwp) :: jpp
 !
 !if (jp == 1) then
@@ -329,7 +331,8 @@ subroutine get_jpty(jpadlr,jptyl,jptyr)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: jpadlr, jptyl, jptyr
+integer(kind=iwp), intent(in) :: jpadlr
+integer(kind=iwp), intent(out) :: jptyl, jptyr
 
 select case (jpadlr)
   case default ! (1)

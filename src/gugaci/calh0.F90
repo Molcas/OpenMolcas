@@ -55,7 +55,7 @@ else
   call copy_to_drtl()
 
   if (logic_mr) then
-    call irfrst(iselcsf_occ)
+    call irfrst()
     if (mroot > ndim_h0) then
       write(u6,*) '    mroot> ndim_h0, mroot,ndim_h0=',mroot,ndim_h0
       mroot = min(ndim_h0,mroot)
@@ -264,13 +264,14 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ndim, nxb, nxh
-real(kind=wp) :: vb1(max_kspace*ndim), vad(ndim), th(nxh)
+integer(kind=iwp), intent(in) :: ndim, nxb, nxh
+real(kind=wp), intent(out) :: vb1(max_kspace*ndim)
+real(kind=wp), intent(in) :: vad(ndim), th(nxh)
 integer(kind=iwp) :: i, ib, ij, ijb1(mroot), ijh, j, l, m, m0, mief, mjnj
 real(kind=wp) :: fenmu, vadi
 real(kind=wp), parameter :: dcrita = 1.0e-6_wp, epc = 5.0e-3_wp
 
-vb1 = Zero
+vb1(:) = Zero
 
 do j=1,mroot
   ij = indx(j)
@@ -337,11 +338,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iselcsf_occ(max_innorb,max_ref)
+integer(kind=iwp), intent(inout) :: iselcsf_occ(max_innorb,max_ref)
 integer(kind=iwp) :: i, ij, io, iwalktmp(0:max_orb), j, jm, l, m, ndimh0
 real(kind=wp) :: am
 
-call read_ml(lucidia,1,vector1,nci_dim,1)
+call read_ml(lucidia,vector1,nci_dim,1)
 
 vector2(1:nci_dim) = vector1(1:nci_dim)
 ndimh0 = nci_h0 !iw_sta(2,1)
@@ -409,8 +410,9 @@ end subroutine minevalue
 !use Definitions, only: wp, iwp, r8
 !
 !implicit none
-!integer(kind=iwp) :: n, id
-!real(kind=wp) :: av(n), bv(n)
+!integer(kind=iwp), intent(in) :: n, id
+!real(kind=wp), intent(inout) :: av(n)
+!real(kind=wp), intent(in) :: bv(n)
 !integer(kind=iwp) :: i
 !real(kind=wp) :: s
 !real(kind=wp), parameter :: dcrita = 1.0e-10_wp
@@ -442,8 +444,8 @@ end subroutine minevalue
 !use Definitions, only: wp, iwp
 !
 !implicit none
-!integer(kind=iwp) :: n
-!real(kind=wp) :: dx(n), dy(n)
+!integer(kind=iwp), intent(in) :: n
+!real(kind=wp), intent(in) :: dx(n), dy(n)
 !integer(kind=iwp) :: l
 !real(kind=wp) :: ddot_bak
 !real(kind=wp) :: s
@@ -465,14 +467,15 @@ end subroutine minevalue
 !use Definitions, only: wp, iwp, u6
 !
 !implicit none
-!integer(kind=iwp) :: i, ibas, ij, il, jbas, l, k
+!integer(kind=iwp), intent(in) :: k
+!integer(kind=iwp) :: i, ibas, ij, il, jbas, l
 !real(kind=wp) :: vsumtmp
 !
 !do ibas=1,k
-!  call read_bv(lucitv1,ibas,vector1,nci_dim)
+!  call read_ml(lucitv1,vector1,nci_dim,ibas)
 !  ij = ibas*(ibas-1)/2
 !  do jbas=1,ibas
-!    call read_bv(lucitv2,jbas,vector2,nci_dim)
+!    call read_ml(lucitv2,vector2,nci_dim,jbas)
 !    vsumtmp = Zero
 !    do l=1,nci_dim
 !      vsumtmp = vsumtmp+vector1(l)*vector2(l)

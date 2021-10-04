@@ -17,7 +17,8 @@ use gugaci_global, only: iy, iyl, jj_sub, jjl_sub, loputmp
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: mp, jl, jr, jwl, jwr, lopu(4,loputmp)
+integer(kind=iwp), intent(out) :: mp, lopu(4,loputmp)
+integer(kind=iwp), intent(in) :: jl, jr, jwl, jwr
 integer(kind=iwp) :: i, idlr, jlp, jrp, jwlp, jwrp, lopi(4,loputmp), lopj(4,loputmp), lpi, lpj, ml, mr, nlp
 
 !-----------------------------------------------------------------------
@@ -92,8 +93,8 @@ use gugaci_global, only: ihy, ipae, ipael, iseg_downwei, iw_downwei, iy, jpad, j
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: idb, mg1, mg2, mg3, mg4, mg5, jpr
-real(kind=wp) :: wl
+integer(kind=iwp), intent(in) :: idb, mg1, mg2, mg3, mg4, mg5, jpr
+real(kind=wp), intent(in) :: wl
 integer(kind=iwp) :: ii, in_, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpe, &
                      jph, jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mntmp, mp, nn
 integer(kind=iwp), external :: iwalk_ad
@@ -219,8 +220,8 @@ use gugaci_global, only: ihy, indx, ipae, ipael, iseg_downwei, iw_downwei, iy, j
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idb, mg1, mg2, mg3, mg4, mg5, jpr
-real(kind=wp) :: wl
+integer(kind=iwp), intent(in) :: idb, mg1, mg2, mg3, mg4, mg5, jpr
+real(kind=wp), intent(in) :: wl
 integer(kind=iwp) :: ii, in_, ipae_, ipaeend, irot, irtidx, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, &
                      iwe, iwl, iwr, iwupwei, jpe, jph, jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mp, nn
 integer(kind=iwp), external :: iwalk_ad
@@ -345,8 +346,8 @@ use gugaci_global, only: log_prod
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idb, mg1, mg2, mg3, mg4, mg5, jpr
-real(kind=wp) :: wl
+integer(kind=iwp), intent(in) :: idb, mg1, mg2, mg3, mg4, mg5, jpr
+real(kind=wp), intent(in) :: wl
 
 select case (log_prod)
   case (1)
@@ -371,8 +372,8 @@ use gugaci_global, only: ihy, indx, ipae, ipael, iw_downwei, iy, jpad, jpad_upwe
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idb, mg1, mg2, mg3, mg4, mg5, jpr
-real(kind=wp) :: wl
+integer(kind=iwp), intent(in) :: idb, mg1, mg2, mg3, mg4, mg5, jpr
+real(kind=wp), intent(in) :: wl
 integer(kind=iwp) :: ii, in_, irot, irtidx, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, &
                      jpaedownwei, jpe, jph, jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mp, nn
 integer(kind=iwp), external :: iwalk_ad
@@ -503,8 +504,8 @@ use gugaci_global, only: ihy, ipae, ipael, iw_downwei, iy, jpad, jpad_upwei, jpa
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idb, mg1, mg2, mg3, mg4, mg5, jpr
-real(kind=wp) :: wl
+integer(kind=iwp), intent(in) :: idb, mg1, mg2, mg3, mg4, mg5, jpr
+real(kind=wp), intent(in) :: wl
 integer(kind=iwp) :: ii, in_, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpaedownwei, jpe, &
                      jph, jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mnh0, mp, nn
 integer(kind=iwp), external :: iwalk_ad

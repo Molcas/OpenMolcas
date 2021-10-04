@@ -25,11 +25,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: mxvec
+integer(kind=iwp), intent(in) :: mxvec
 integer(kind=iwp) :: i, iciter, id, idxvec(max_iter), iiter, irot, irset, irte, irts, itidx, jiter, kval, l, m, mi, mid, mn, mt, &
                      mtid, mtidx, mtsta, mtsta0, nd, nda, ni, numroot
-real(kind=wp) :: depff, difeci(max_root), diffci, sc0, sc1, sct, scvp, sechc, valpha(max_root), valpha_criterion, vcien(max_root), &
-          vcienold(max_root), venergy, venergy_criterion, vet, vresid(max_root), vresid_criterion, vuim !, vad(max_vector)
+real(kind=wp) :: depff, difeci(max_root), sc0, sc1, sct, scvp, sechc, valpha(max_root), valpha_criterion, vcien(max_root), &
+                 vcienold(max_root), venergy, venergy_criterion, vet, vresid(max_root), vresid_criterion, vuim !, vad(max_vector)
 logical(kind=iwp) :: log_convergence, log_muliter, restart
 real(kind=wp), parameter :: depc = 1.0e-7_wp
                             !, valpha_criterion = 1.0e-7_wp, venergy_criterion = 1.0e-8_wp, vresid_criterion = 1.0e-8_wp
@@ -118,7 +118,7 @@ do
   do while (.not. log_convergence)
     iciter = iciter+1
     sc0 = c_time()
-    call matrmkmul(kval,mtsta,iiter,idxvec,irset)
+    call matrmkmul(mtsta,iiter,idxvec,irset)
     call hotred(max_kspace,kval,vp,vd,ve,vu)
     call qlcm(max_kspace,kval,vd,ve,vu)
     !if (iciter == 3) call abend()
@@ -131,7 +131,7 @@ do
       difeci(m) = abs(vcien(m)-vcienold(m))
     end do
 
-    call compute_residual_vector_mroot(kval,mtsta,iiter,idxvec,vresid,vcien)
+    call compute_residual_vector_mroot(mtsta,iiter,idxvec,vresid,vcien)
     !write(u6,900) iciter
     !write(u6,901)
     if (iciter == 1) then
@@ -155,16 +155,16 @@ do
         if (mtsta == mroot+1) then
           if (log_muliter) then
             log_convergence = .true.
-            call get_eigvector(mtsta0,vcien,valpha,diffci,vresid,mth_eigen,log_muliter)
+            call get_eigvector(mtsta0,vcien,log_muliter)
             return
           else
             if (mth_eigen < numroot) then
-              call get_eigvector(mtsta0,vcien,valpha,diffci,vresid,mth_eigen,log_muliter)
+              call get_eigvector(mtsta0,vcien,log_muliter)
               log_convergence = .false.
               restart = .true.
             else
               log_convergence = .true.
-              call get_eigvector(mtsta0,vcien,valpha,diffci,vresid,mth_eigen,log_muliter)
+              call get_eigvector(mtsta0,vcien,log_muliter)
               return
             end if
           end if
@@ -176,17 +176,17 @@ do
       write(u6,*) ' warning! mrci fail to converged! program stop!'
       write(u6,'(a30,1x,i3)') ' number of converged roots is=',mtsta0
       mtsta0 = mroot
-      call get_eigvector(mtsta0,vcien,valpha,diffci,vresid,mth_eigen,log_muliter)
+      call get_eigvector(mtsta0,vcien,log_muliter)
       return
     end if
 
     if (mtsta /= mtsta0) then
       nd = nci_dim*(mroot-mtsta0+1)
-      call read_ml(lucidia,1,vector2,nd,2)
+      call read_ml(lucidia,vector2,nd,2)
       ! write converged cm into file 7
       do mt=mtsta0,mtsta-1
         mtidx = indx(mt-mtsta0+1)
-        call write_ml(lucivec,1,vector2(mtidx+1:mtidx+nci_dim),nci_dim,mt)
+        call write_ml(lucivec,vector2(mtidx+1:mtidx+nci_dim),nci_dim,mt)
       end do
       nd = (mroot-mtsta0+1)*nci_dim
       vector2(1:nd) = vector1(1:nd)
@@ -208,13 +208,13 @@ do
       nd = mroot*nci_dim
       vector1(1:nd) = Zero
       nd = (mroot-mtsta0+1)*nci_dim
-      call read_ml(lucidia,1,vector2,nd,2)
+      call read_ml(lucidia,vector2,nd,2)
       nda = nci_dim*mroot
-      call read_bv(lucitv1,1,vector1,nda)
+      call read_ml(lucitv1,vector1,nda,1)
       !rewind(7)
       do mt=1,mtsta-1
         mtidx = indx(mt)
-        call read_ml(lucivec,1,vector1(mtidx+1:mtidx+nci_dim),nci_dim,mt)
+        call read_ml(lucivec,vector1(mtidx+1:mtidx+nci_dim),nci_dim,mt)
         !read(7) vector1(mtidx+1:mtidx+nci_dim)
       end do
 
@@ -223,7 +223,7 @@ do
       mtidx = indx(mtsta)
       mid = indx(mtsta-mtsta0+1)
       vector1(mtidx+1:mtidx+nd) = vector2(mid+1:mid+nd)
-      call write_bv(lucitv1,1,vector1,nda)
+      call write_ml(lucitv1,vector1,nda,1)
       do mt=1,mtsta-1
         vet = vcien(mt)
         mtidx = indx(mt)
@@ -242,7 +242,7 @@ do
         end if
         irte = idxvec(jiter)
         nd = (irte-irts+1)*nci_dim
-        call read_bv(lucitv2,jiter,vector2,nd)
+        call read_ml(lucitv2,vector2,nd,jiter)
         do mt=mtsta,mroot
           mtidx = indx(mt)
           do irot=irts,irte
@@ -257,7 +257,7 @@ do
 
       nda = mroot*nci_dim
       vector2(1:nda) = vector1(1:nda)
-      call write_bv(lucitv2,1,vector2,nda)
+      call write_ml(lucitv2,vector2,nda,1)
 
       ! start new trial vector
       nda = nci_dim*mroot
@@ -267,7 +267,7 @@ do
       vector2(1:nd) = vector1(mtidx+1:mtidx+nd)
 
       nd = (mroot-mtsta0+1)*nci_dim
-      call read_ml(lucidia,1,vector1,nd,2)
+      call read_ml(lucidia,vector1,nd,2)
       !rewind(nf22)
       !read(nf22) vector1(1:nd)
       do mt=mtsta,mroot
@@ -286,8 +286,8 @@ do
         end do
       end do
 
-      !call read_bv(nf8,1,vector2,nci_dim)
-      call read_ml(lucidia,1,vector2,nci_dim,1)
+      !call read_ml(nf8,vector2,nci_dim,1)
+      call read_ml(lucidia,vector2,nci_dim,1)
       do mt=mtsta,mroot
         mtidx = indx(mt-mtsta+1)
         do l=1,nci_dim
@@ -312,7 +312,7 @@ do
         end if
       end if
       nd = (mroot-mtsta+1)*nci_dim
-      call write_bv(lucitv1,iiter,vector1,nd)
+      call write_ml(lucitv1,vector1,nd,iiter)
       idxvec(iiter) = kval
       mn = mroot*(mroot+1)/2
       vp(1:mn) = Zero
@@ -327,7 +327,7 @@ do
       !*****************************************************************
       ! compute revised new appoximate vector
       !
-      !call read_ml(lucidia,1,vector2,nci_dim,1)
+      !call read_ml(lucidia,vector2,nci_dim,1)
       !irset=1
       !do mt=mtsta,mroot
       !  mtidx = indx(mt-mtsta+1)
@@ -354,7 +354,7 @@ do
       end if
       idxvec(iiter) = kval
       nd = (mroot-mtsta+1)*nci_dim
-      call write_bv(lucitv1,iiter,vector1,nd)
+      call write_ml(lucitv1,vector1,nd,iiter)
     end if
 
     sc1 = c_time()
@@ -364,7 +364,7 @@ do
     vector2(1:nd) = Zero
     ! start h*c
 
-    call read_ml(lucidia,1,vector2,nci_dim,1)
+    call read_ml(lucidia,vector2,nci_dim,1)
     do mt=mtsta+1,mroot
       mtidx = indx(mt-mtsta+1)
       do l=1,nci_dim
@@ -382,7 +382,7 @@ do
 
     call matrix_vector_multi_parallel_drt(sechc)
     nd = nci_dim*(mroot-mtsta+1)
-    call write_bv(lucitv2,iiter,vector2,nd)
+    call write_ml(lucitv2,vector2,nd,iiter)
 
   end do
   if (.not. restart) exit
@@ -423,44 +423,42 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ndim, mroot, mjn(2*max_root), indx(max_kspace), mth_eigen, ncivec
-real(kind=wp) :: vb1(ncivec*ndim), vb2(ncivec*ndim), vcien(mroot)
-integer(kind=iwp) :: i, idx, ij, j, k, m, mjntm, nf23, numdim
+integer(kind=iwp), intent(in) :: ndim, mroot, mjn(2*max_root), indx(max_kspace), mth_eigen, ncivec
+real(kind=wp), intent(out) :: vb1(ncivec*ndim), vb2(ncivec*ndim)
+real(kind=wp), intent(inout) :: vcien(mroot)
+integer(kind=iwp) :: i, idx, ij, j, k, m, mjntm, nf23
 real(kind=wp) :: sechc, vad, vsum
 
 !write(u6,*) 'indx',indx(1:2*mroot)
-!call read_bv(nf8,1,vb2,ndim)
-call read_ml(lucidia,1,vb2,ndim,1)
+!call read_ml(nf8,vb2,ndim,1)
+call read_ml(lucidia,vb2,ndim,1)
 
 i = mth_eigen
 write(u6,'(2x,2i8,f18.8)') i,mjn(i),vb2(mjn(i)),mth_eigen
 
 ! initialize vb1-vector1 and th-vector2 to zero
-numdim = ndim
-do m=1,numdim
-  vb1(m) = Zero
-  vb2(m) = Zero
-end do
+vb1(1:ndim) = Zero
+vb2(1:ndim) = Zero
 
 j = mth_eigen
 if (.not. logic_inivec_read) then
   ij = indx(1)
   vb1(ij+mjn(j)) = One
 else
-  call read_bv(nf23,j,vb1,ndim)
+  call read_ml(nf23,vb1,ndim,j)
 end if
 !rewind(nf7)
 do i=1,mth_eigen-1
   !read(nf7) vb2(1:ndim)
-  call read_ml(lucivec,1,vb2,ndim,i)
+  call read_ml(lucivec,vb2,ndim,i)
   call orth_ab(ndim,vb1,vb2)
 end do
 call norm_a(ndim,vb1)
 
 write(u6,'(2x,2i8,f18.8)') i,mjn(i),vb1(mjn(i))
 
-call read_ml(lucidia,1,vb2,ndim,1)
-!call read_bv(nf8,1,vb2,ndim)
+call read_ml(lucidia,vb2,ndim,1)
+!call read_ml(nf8,vb2,ndim,1)
 !vcien(1) = vb2(mjn(j))
 do i=1,ndim
   vb2(i) = vb1(i)*vb2(i)
@@ -475,8 +473,8 @@ do i=1,ndim
 end do
 vcien(1) = vsum
 
-call write_bv(lucitv1,1,vb1,ndim)
-call write_bv(lucitv2,1,vb2,ndim)
+call write_ml(lucitv1,vb1,ndim,1)
+call write_ml(lucitv2,vb2,ndim,1)
 
 !write(u6,*) 'bbs debug 2'
 
@@ -495,33 +493,32 @@ mjntm = idx
 !write(u6,*) 'mjn(kk)',idx,vb1(idx),vb2(idx)
 !write(u6,*) 'bbs debug 3'
 
-numdim = ndim
-vb1(1:numdim) = Zero
-vb2(1:numdim) = Zero
+vb1(1:ndim) = Zero
+vb2(1:ndim) = Zero
 
 vb2(mjntm) = One
 !rewind(nf7)
 do i=1,mth_eigen-1
   !read(nf7) vb1(1:ndim)
-  call read_ml(lucivec,1,vb1,ndim,i)
+  call read_ml(lucivec,vb1,ndim,i)
   call orth_ab(ndim,vb2,vb1)
 end do
-call read_bv(lucitv1,1,vb1,ndim)
+call read_ml(lucitv1,vb1,ndim,1)
 call orth_ab(ndim,vb2,vb1)
 call norm_a(ndim,vb2)
 vb1(1:ndim) = vb2(1:ndim)
 
 !write(u6,*) 'bbs debug 4'
-call read_ml(lucidia,1,vb2,ndim,1)
-!call read_bv(nf8,1,vb2,ndim)
+call read_ml(lucidia,vb2,ndim,1)
+!call read_ml(nf8,vb2,ndim,1)
 do i=1,ndim
   vb2(i) = vb1(i)*vb2(i)
 end do
 !write(u6,*) 'bbs debug 5'
 
 call matrix_vector_multi_parallel_drt(sechc)
-call write_bv(lucitv1,2,vb1,ndim)
-call write_bv(lucitv2,2,vb2,ndim)
+call write_ml(lucitv1,vb1,ndim,2)
+call write_ml(lucitv2,vb2,ndim,2)
 !write(u6,*) ' initial vector 5'
 !call abend()
 !write(u6,*) 'bbs debug 6'
@@ -553,14 +550,16 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ndim, mroot, mjn(2*max_root), indx(max_kspace), mth_eigen, ncivec
-real(kind=wp) :: vb1(ncivec*ndim), vb2(ncivec*ndim), vcien(mroot)
+integer(kind=iwp), intent(in) :: ndim, mjn(2*max_root), mth_eigen, ncivec
+integer(kind=iwp), intent(out) :: indx(max_kspace)
+integer(kind=iwp), intent(inout) :: mroot
+real(kind=wp), intent(out) :: vb1(ncivec*ndim), vb2(ncivec*ndim), vcien(mroot)
 integer(kind=iwp) :: i, idx, ij, im, indx0, j, jdx, k, kk, l, m, mjntmp(mroot*2), nf23, numdim
 real(kind=wp) :: sechc, vad, vdia(2*mroot), vdiatmp(2*mroot), vsum
 
-call read_ml(lucidia,1,vb2,ndim,1)
+call read_ml(lucidia,vb2,ndim,1)
 
-!call read_bv(nf8,1,vb2,ndim)
+!call read_ml(nf8,vb2,ndim,1)
 indx(1:max_kspace) = 0
 indx0 = 0
 do i=1,mroot
@@ -582,13 +581,11 @@ if (mth_eigen == 0) then
       vb1(m) = Zero
       vb2(m) = Zero
     end do
-    call read_bv(nf23,1,vb1,numdim)
+    call read_ml(nf23,vb1,numdim,1)
   else
     numdim = ndim*mroot
-    do m=1,numdim
-      vb1(m) = Zero
-      vb2(m) = Zero
-    end do
+    vb1(1:numdim) = Zero
+    vb2(1:numdim) = Zero
     do j=1,mroot
       ij = indx(j)
       vb1(ij+mjn(j)) = One
@@ -600,7 +597,7 @@ else
   if (logic_inivec_read) then
     vb1(1:ndim) = Zero
     vb2(1:ndim) = Zero
-    call read_bv(nf23,mth_eigen,vb1(1),ndim)
+    call read_ml(nf23,vb1(1),ndim,mth_eigen)
   else
     vb1(1:ndim) = Zero
     vb2(1:ndim) = Zero
@@ -616,8 +613,8 @@ end if
 !write(u6,*) ' initial basis vector 0',nf23
 
 if (logic_inivec_read) then
-  call read_ml(lucidia,1,vb2,ndim,1)
-  !call read_bv(nf8,1,vb2,ndim)
+  call read_ml(lucidia,vb2,ndim,1)
+  !call read_ml(nf8,vb2,ndim,1)
   if (mth_eigen == 0) then
     do j=2,mroot
       idx = indx(j)
@@ -661,11 +658,11 @@ else
   call matrix_vector_multi_v(sechc)
 end if
 ! write vector1 and vector2 to fort3 and fort4
-call write_bv(lucitv1,1,vb1,ndim*mroot)
-call write_bv(lucitv2,1,vb2,ndim*mroot)
+call write_ml(lucitv1,vb1,ndim*mroot,1)
+call write_ml(lucitv2,vb2,ndim*mroot,1)
 
-call read_ml(lucidia,1,vb1,ndim,1)
-!call read_bv(nf8,1,vb1,ndim)
+call read_ml(lucidia,vb1,ndim,1)
+!call read_ml(nf8,vb1,ndim,1)
 if (mth_eigen == 0) then
   do kk=mroot+1,2*mroot
     ij = indx(kk-mroot)
@@ -705,10 +702,8 @@ else
 end if
 
 numdim = ndim*mroot
-do m=1,numdim
-  vb1(m) = Zero
-  vb2(m) = Zero
-end do
+vb1(1:numdim) = Zero
+vb2(1:numdim) = Zero
 !write(u6,*) ' initial vector 3',vdia(2),mroot
 
 if (mth_eigen == 0) then
@@ -719,7 +714,7 @@ if (mth_eigen == 0) then
   end do
 
   if (logic_inivec_read) then
-    call read_bv(lucitv1,1,vb2,numdim)
+    call read_ml(lucitv1,vb2,numdim,1)
     do i=mroot+1,2*mroot
       idx = indx(i-mroot)+1
       do j=1,mroot
@@ -738,16 +733,16 @@ else
   vb2(mjntmp(2)) = vdiatmp(2)
 
   if (logic_inivec_read) then
-    call read_bv(lucitv1,mth_eigen,vb2,ndim)
+    call read_ml(lucitv1,vb2,ndim,mth_eigen)
     call orth_ab(ndim,vb1,vb2)
     call norm_a(ndim,vb1)
   end if
 end if
 
 if (logic_inivec_read) then
-  call read_ml(lucidia,1,vb2,ndim,1)
+  call read_ml(lucidia,vb2,ndim,1)
 
-  !call read_bv(nf8,1,vb2,ndim)
+  !call read_ml(nf8,vb2,ndim,1)
   if (mth_eigen == 0) then
     do j=2,mroot
       idx = indx(j)
@@ -774,8 +769,8 @@ else
   call matrix_vector_multi_parallel_drt(sechc)
 end if
 
-call write_bv(lucitv1,2,vb1,ndim*mroot)
-call write_bv(lucitv2,2,vb2,ndim*mroot)
+call write_ml(lucitv1,vb1,ndim*mroot,2)
+call write_ml(lucitv2,vb2,ndim*mroot,2)
 
 return
 !...end of mrcibasis
@@ -804,8 +799,10 @@ end subroutine mrcibasis
 !use Definitions, only: wp, iwp, u6
 !
 !implicit none
-!integer(kind=iwp) :: ndim, mroot, mjn(2*max_root), indx(max_kspace), mth_eigen, ncivec
-!real(kind=wp) :: vb1(ncivec*ndim), vb2(ncivec*ndim), vcien(mroot)
+!integer(kind=iwp), intent(in) :: ndim, mjn(2*max_root), mth_eigen, ncivec
+!integer(kind=iwp), intent(inout) :: mroot
+!integer(kind=iwp), intent(out) :: indx(max_kspace)
+!real(kind=wp), intent(out) :: vb1(ncivec*ndim), vb2(ncivec*ndim), vcien(mroot)
 !integer(kind=iwp) :: i, ij, indx0, ioff, j, kk, m, n, numdim
 !real(kind=wp) :: fenmu, sechc, vadi, vdia(2*mroot)
 !real(kind=wp), allocatable :: diagelement(:)
@@ -813,9 +810,9 @@ end subroutine mrcibasis
 !
 !allocate(diagelement(ndim))
 !
-!call read_ml(lucidia,1,diagelement,ndim,1)
+!call read_ml(lucidia,diagelement,ndim,1)
 !
-!!call read_bv(nf8,1,vb2,ndim)
+!!call read_ml(nf8,vb2,ndim,1)
 !indx(1:max_kspace) = 0
 !indx0 = 0
 !do i=1,mroot
@@ -852,11 +849,11 @@ end subroutine mrcibasis
 !!write(u6,*) ' initial basis vector 0',nf23
 !call matrix_vector_multi_parallel_drt(sechc)
 !! write vector1 and vector2 to fort3 and fort4
-!call write_bv(lucitv1,1,vb1,ndim*mroot)
-!call write_bv(lucitv2,1,vb2,ndim*mroot)
+!call write_ml(lucitv1,vb1,ndim*mroot,1)
+!call write_ml(lucitv2,vb2,ndim*mroot,1)
 !
 !! init second vector
-!!call read_bv(nf8,1,vb1,ndim)
+!!call read_ml(nf8,vb1,ndim,1)
 !if (mth_eigen == 0) then
 !  vb1(1:ndim*mroot) = Zero
 !  do kk=1,mroot
@@ -877,7 +874,7 @@ end subroutine mrcibasis
 !    end do
 !  end do
 !
-!  call read_bv(lucitv1,1,vb2,ndim*mroot)
+!  call read_ml(lucitv1,vb2,ndim*mroot,1)
 !  do m=1,mroot
 !    ! orth with vb1
 !    do n=1,mroot
@@ -909,8 +906,8 @@ end subroutine mrcibasis
 !end do
 !
 !call matrix_vector_multi_parallel_drt(sechc)
-!call write_bv(lucitv1,2,vb1,ndim*mroot)
-!call write_bv(lucitv2,2,vb2,ndim*mroot)
+!call write_ml(lucitv1,vb1,ndim*mroot,2)
+!call write_ml(lucitv2,vb2,ndim*mroot,2)
 !
 !deallocate(diagelement)
 !
@@ -919,7 +916,7 @@ end subroutine mrcibasis
 !
 !end subroutine mrcibasis_init
 
-subroutine get_eigvector(mtsta0,vcien,valpha,diffci,vresid,mtheigen,log_muliter)
+subroutine get_eigvector(mtsta0,vcien,log_muliter)
 
 use gugaci_global, only: cm_cri, ecih0, irfno, logic_mr, LuCiDia, LuCiVec, max_root, mroot, mth_eigen, nci_dim, ndim_h0, vector1, &
                          vector2
@@ -930,20 +927,20 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: mtsta0, mtheigen
-real(kind=wp) :: vcien(max_root), valpha(max_root), diffci, vresid(max_root)
-logical(kind=iwp) :: log_muliter
+integer(kind=iwp), intent(in) :: mtsta0
+real(kind=wp), intent(in) :: vcien(max_root)
+logical(kind=iwp), intent(in) :: log_muliter
 integer(kind=iwp) :: i, j, jr, mt, nc, nd
 real(kind=wp) :: dav1(max_root), de, dedav1, vcml(max_root), vcof !, dav2(max_root), dav3(max_root), remei(max_root)
 
 vector1 = Zero
 nd = nci_dim*(mroot-mtsta0+1)
-call read_ml(lucidia,1,vector2,nd,2)
+call read_ml(lucidia,vector2,nd,2)
 if (log_muliter) then
   nc = 1
   do i=1,mtsta0-1
     !mtidx = indx(i)
-    call read_ml(lucivec,1,vector1(nc:nc+nci_dim-1),nci_dim,i)
+    call read_ml(lucivec,vector1(nc:nc+nci_dim-1),nci_dim,i)
     nc = nc+nci_dim
   end do
   vector1(nc:nc+nd-1) = vector2(1:nd)
@@ -951,14 +948,14 @@ if (log_muliter) then
   ! write eigenvector into fort7
   nc = 1
   do i=1,mroot
-    call write_ml(lucivec,1,vector1(nc:nc+nci_dim-1),nci_dim,i)
+    call write_ml(lucivec,vector1(nc:nc+nci_dim-1),nci_dim,i)
     nc = nc+nci_dim
   end do
   !write(u6,*) 'xxx cof'
   !write(u6,*) vector1(nci_dim+1:nci_dim+5)
   !call abend()
 else
-  call write_ml(lucivec,1,vector2,nci_dim,mth_eigen)
+  call write_ml(lucivec,vector2,nci_dim,mth_eigen)
 end if
 !rewind(nf7)
 
@@ -968,7 +965,7 @@ do mt=1,mroot
   ! do davidson correction
 
   !if (.not. log_muliter) then
-  call read_ml(lucivec,1,vector1,nci_dim,mt)
+  call read_ml(lucivec,vector1,nci_dim,mt)
   !end if
   !mtidx = indx(mt)
   vcml(mt) = Zero
@@ -989,9 +986,9 @@ do mt=1,mroot
   !demei=dedav2*(n_electron*(n_electron-5)+6)/(n_electron*(n_electron-1))
   !demei=dedav2*(n_electron*(n_electron-5)+6)/(n_electron*(n_electron-1))
   dav1(mt) = vcien(mt)-dedav1
-  !dav2(mt)=vcien(mt)-dedav2
-  !dav3(mt)=vcien(mt)-dedav3
-  !remei(mt)=vcien(mt)-demei
+  !dav2(mt) = vcien(mt)-dedav2
+  !dav3(mt) = vcien(mt)-dedav3
+  !remei(mt) = vcien(mt)-demei
 
   write(u6,900)
   !write(u6,901) mt,vcien(mt),dav1(mt),dav2(mt),dav3(mt),remei(mt)
@@ -1037,13 +1034,6 @@ return
 810 format(/,1x,'the main references for root ',i3,/)
 900 format(/1x,'nroot',6x,'ci energy',10x,'dav energy',8x,'coef')
 901 format(1x,i3,2x,2(1x,f18.9),3x,f8.6)
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(valpha)
-  call Unused_real(diffci)
-  call Unused_real_array(vresid)
-  call Unused_integer(mtheigen)
-end if
 !...end of get_eigvector
 
 end subroutine get_eigvector
@@ -1054,7 +1044,7 @@ use gugaci_global, only: log_prod, vint_ci
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: sechc
+real(kind=wp), intent(out) :: sechc
 real(kind=wp) :: sc1, sc2
 real(kind=wp), external :: c_time
 
@@ -1083,7 +1073,7 @@ end subroutine matrix_vector_multi_v
 !use Definitions, only: wp
 !
 !implicit none
-!real(kind=wp) :: sechc
+!real(kind=wp), intent(out) :: sechc
 !real(kind=wp) :: sc1, sc2
 !real(kind=wp), external :: c_time
 !
@@ -1120,7 +1110,7 @@ use gugaci_global, only: log_prod, vint_ci
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: sechc
+real(kind=wp), intent(out) :: sechc
 real(kind=wp) :: sc1, sc2
 real(kind=wp), external :: c_time
 
@@ -1164,7 +1154,7 @@ end subroutine matrix_vector_multi_parallel_drt
 !use Definitions, only: wp, iwp, u6
 !
 !implicit none
-!real(kind=wp) :: sc3
+!real(kind=wp), intent(out) :: sc3
 !integer(kind=iwp) :: mtest
 !real(kind=wp) :: sc1, sc2
 !real(kind=wp), external :: c_time
@@ -1233,7 +1223,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: kval, iiter, msta, idxvec(max_iter)
+integer(kind=iwp), intent(inout) :: kval, iiter
+integer(kind=iwp), intent(in) :: msta, idxvec(max_iter)
 integer(kind=iwp) :: jiter, jren, jrst, l, mt, mtidx, nd, nt, ntidx
 real(kind=wp) :: vsum
 
@@ -1245,7 +1236,7 @@ do jiter=1,iiter
   end if
   jren = idxvec(jiter)
   nd = (jren-jrst+1)*nci_dim
-  call read_bv(lucitv1,jiter,vector2,nd)
+  call read_ml(lucitv1,vector2,nd,jiter)
   do mt=msta,mroot
     mtidx = indx(mt-msta+1)
     do nt=jrst,jren
@@ -1296,7 +1287,8 @@ end subroutine orthog
 !use Definitions, only: wp, iwp
 !
 !implicit none
-!integer(kind=iwp) :: j, n, m, ir
+!integer(kind=iwp), intent(in) :: j, n, m
+!integer(kind=iwp), intent(out) :: ir
 !integer(kind=iwp) :: i, l
 !real(kind=wp) :: vsmax1, vsmax2, vsumtmp
 !real(kind=wp), parameter :: vortho_criterion = 1.0e-8_wp
@@ -1307,7 +1299,7 @@ end subroutine orthog
 !  vsmax1 = Zero
 !  do i=1,j-1
 !    vsumtmp = Zero
-!    call read_bv(lucitv1,i,vector2,n)
+!    call read_ml(lucitv1,vector2,n,i)
 !
 !    do l=1,n
 !      vsumtmp = vsumtmp+vector1(l)*vector2(l)
@@ -1331,8 +1323,8 @@ end subroutine orthog
 !end do
 !
 !do m=1,mth_eigen-1
-!  !call read_bv(nf7,m,vector2,nci_dim)
-!  call read_ml(lucivec,1,vector2,nci_dim,m)
+!  !call read_ml(nf7,vector2,nci_dim,m)
+!  call read_ml(lucivec,vector2,nci_dim,m)
 !  call orth_ab(nci_dim,vector1,vector2)
 !end do
 !call norm_a(nci_dim,vector1)
@@ -1341,7 +1333,7 @@ end subroutine orthog
 !!  vector1(l) = vector1(l)*vsumtmp
 !!end do
 !
-!call write_bv(lucitv1,j,vector1,n)
+!call write_ml(lucitv1,vector1,n,j)
 !
 !end subroutine orthogonalization
 
@@ -1352,7 +1344,7 @@ end subroutine orthog
 !use Definitions, only: wp, iwp
 !
 !implicit none
-!integer(kind=iwp) :: j, n
+!integer(kind=iwp), intent(in) :: j, n
 !integer(kind=iwp) :: i, ij, l
 !real(kind=wp) :: vsumtmp
 !
@@ -1364,7 +1356,7 @@ end subroutine orthog
 !vp(ij+j) = vsumtmp
 !!rewind(nf3)
 !do i=1,j-1
-!  call read_bv(lucitv1,i,vector1,n)
+!  call read_ml(lucitv1,vector1,n,i)
 !
 !  vsumtmp = Zero
 !  do l=1,n
@@ -1372,11 +1364,11 @@ end subroutine orthog
 !  end do
 !  vp(ij+i) = vsumtmp
 !end do
-!call read_bv(lucitv1,i,vector1,n)
+!call read_ml(lucitv1,vector1,n,i)
 !
 !end subroutine compute_vp_matrix
 
-subroutine compute_residual_vector_mroot(kval,mtsta,iiter,idxvec,vresid,vcien)
+subroutine compute_residual_vector_mroot(mtsta,iiter,idxvec,vresid,vcien)
 !***********************************************************************
 ! 2 mar 2007 - revised
 ! calculate residual vector
@@ -1388,8 +1380,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: kval, mtsta, iiter, idxvec(max_kspace)
-real(kind=wp) :: vresid(max_root), vcien(max_root)
+integer(kind=iwp), intent(in) :: mtsta, iiter, idxvec(max_kspace)
+real(kind=wp), intent(inout) :: vresid(max_root)
+real(kind=wp), intent(in) :: vcien(max_root)
 integer(kind=iwp) :: i, ij, irot, irte, irts, itidx, jiter, l, mt, mtidx, nd
 real(kind=wp) :: depc, depcc, vtmp, vuim
 real(kind=wp), allocatable :: diagelement(:)
@@ -1406,7 +1399,7 @@ do jiter=1,iiter
   end if
   irte = idxvec(jiter)
   nd = (irte-irts+1)*nci_dim
-  call read_bv(lucitv1,jiter,vector2,nd)
+  call read_ml(lucitv1,vector2,nd,jiter)
   do mt=mtsta,mroot
     mtidx = indx(mt-mtsta+1)
     do irot=irts,irte
@@ -1421,7 +1414,7 @@ end do
 
 ! present ci vector, second record in lucidia
 nd = nci_dim*(mroot-mtsta+1)
-call write_ml(lucidia,1,vector1,nd,2)
+call write_ml(lucidia,vector1,nd,2)
 
 do mt=mtsta,mroot
   mtidx = indx(mt-mtsta+1)
@@ -1440,7 +1433,7 @@ do jiter=1,iiter
   end if
   irte = idxvec(jiter)
   nd = (irte-irts+1)*nci_dim
-  call read_bv(lucitv2,jiter,vector2,nd)
+  call read_ml(lucitv2,vector2,nd,jiter)
   do mt=mtsta,mroot
     mtidx = indx(mt-mtsta+1)
     do irot=irts,irte
@@ -1454,8 +1447,8 @@ do jiter=1,iiter
 end do
 
 allocate(diagelement(nci_dim))
-call read_ml(lucidia,2,diagelement,nci_dim,1)
-call read_ml(lucidia,2,vector2,nd,2)
+call read_ml(lucidia,diagelement,nci_dim,1)
+call read_ml(lucidia,vector2,nd,2)
 
 ! new approximation vector
 ij = 0
@@ -1475,13 +1468,11 @@ end do
 deallocate(diagelement)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(kval)
 !...end of compute_residule_vector
 
 end subroutine compute_residual_vector_mroot
 
-!subroutine compute_residual_vector(kval,mtsta,iiter,idxvec,vresid,vcien)
+!subroutine compute_residual_vector(mtsta,iiter,idxvec,vresid,vcien)
 !!***********************************************************************
 !! 2 mar 2007 - revised
 !! calculate residual vector
@@ -1493,8 +1484,9 @@ end subroutine compute_residual_vector_mroot
 !use Definitions, only: wp, iwp
 !
 !implicit none
-!integer(kind=iwp) :: kval, mtsta, iiter, idxvec(max_kspace)
-!real(kind=wp) :: vresid(max_root), vcien(max_root)
+!integer(kind=iwp), intent(in) :: mtsta, iiter, idxvec(max_kspace)
+!real(kind=wp), intent(inout) :: vresid(max_root)
+!real(kind=wp), intent(in) :: vcien(max_root)
 !integer(kind=iwp) :: irot, irte, irts, itidx, jiter, l, li, mt, mtidx, nd
 !real(kind=wp) :: venergy, vtmp, vuim
 !
@@ -1509,7 +1501,7 @@ end subroutine compute_residual_vector_mroot
 !  end if
 !  irte = idxvec(jiter)
 !  nd = (irte-irts+1)*nci_dim
-!  call read_bv(lucitv1,jiter,vector2,nd)
+!  call read_ml(lucitv1,vector2,nd,jiter)
 !  do mt=mtsta,mroot
 !    mtidx = indx(mt-mtsta+1)
 !    do irot=irts,irte
@@ -1523,7 +1515,7 @@ end subroutine compute_residual_vector_mroot
 !end do
 !
 !nd = nci_dim*(mroot-mtsta+1)
-!call write_ml(lucidia,1,vector1,nd,2)
+!call write_ml(lucidia,vector1,nd,2)
 !
 !do mt=mtsta,mroot
 !  mtidx = indx(mt-mtsta+1)
@@ -1541,7 +1533,7 @@ end subroutine compute_residual_vector_mroot
 !  end if
 !  irte = idxvec(jiter)
 !  nd = (irte-irts+1)*nci_dim
-!  call read_bv(lucitv2,jiter,vector2,nd)
+!  call read_ml(lucitv2,vector2,nd,jiter)
 !  do mt=mtsta,mroot
 !    mtidx = indx(mt-mtsta+1)
 !    do irot=irts,irte
@@ -1565,8 +1557,6 @@ end subroutine compute_residual_vector_mroot
 !end do
 !
 !return
-!! Avoid unused argument warnings
-!if (.false.) call Unused_integer(kval)
 !!...end of compute_residule_vector
 !
 !end subroutine compute_residual_vector
@@ -1577,7 +1567,7 @@ end subroutine compute_residual_vector_mroot
 !use Definitions, only: iwp, u6
 !
 !implicit none
-!integer(kind=iwp) :: nf
+!integer(kind=iwp), intent(in) :: nf
 !integer(kind=iwp) :: i, j
 !character(len=32) :: refstring
 !
@@ -1606,8 +1596,8 @@ end subroutine compute_residual_vector_mroot
 !
 !implicit none
 !integer(kind=iwp) :: maxind
-!integer(kind=iwp) :: m
-!real(kind=wp) :: vector(m)
+!integer(kind=iwp), intent(in) :: m
+!real(kind=wp), intent(in) :: vector(m)
 !integer(kind=iwp) :: j, l
 !real(kind=wp) :: am
 !
@@ -1624,7 +1614,7 @@ end subroutine compute_residual_vector_mroot
 !
 !end function maxind
 
-subroutine matrmkmul(kval,mtsta,iiter,idxvec,irset)
+subroutine matrmkmul(mtsta,iiter,idxvec,irset)
 !***********************************************************************
 ! 27 feb 2007 - written by suo bing
 ! construct p matrix in b and h*b space
@@ -1638,18 +1628,18 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: kval, mtsta, iiter, idxvec(max_iter), irset
+integer(kind=iwp), intent(in) :: mtsta, iiter, idxvec(max_iter), irset
 integer(kind=iwp) :: i, iidx, iit, ij, irot, jend, jidx, jre, jrot, jrs, l, mend, msta, nd, nroot
 real(kind=wp) :: valsum, vsum
 
 if ((iiter == 2) .and. (irset == 0)) then
   nroot = mroot-mtsta+1
   ! the first iteration
-  call read_bv(lucitv1,1,vector1,nci_dim*mroot)
-  call read_bv(lucitv2,1,vector2,nci_dim*mroot)
+  call read_ml(lucitv1,vector1,nci_dim*mroot,1)
+  call read_ml(lucitv2,vector2,nci_dim*mroot,1)
   do irot=1,mroot+nroot
     if (irot == mroot+1) then
-      call read_bv(lucitv1,2,vector1,nci_dim*mroot)
+      call read_ml(lucitv1,vector1,nci_dim*mroot,2)
     end if
     ij = irot*(irot-1)/2
     if (irot <= mroot) then
@@ -1667,7 +1657,7 @@ if ((iiter == 2) .and. (irset == 0)) then
       vp(ij+jrot) = valsum
     end do
   end do
-  call read_bv(lucitv2,2,vector2,nci_dim*mroot)
+  call read_ml(lucitv2,vector2,nci_dim*mroot,2)
   do irot=mroot+1,mroot+nroot
     ij = irot*(irot-1)/2
     iidx = indx(irot-mroot)
@@ -1692,7 +1682,7 @@ else
     end if
     jre = idxvec(iit)
     nd = (jre-jrs+1)*nci_dim
-    call read_bv(lucitv2,iit,vector2,nd)
+    call read_ml(lucitv2,vector2,nd,iit)
     do jrot=jrs,jre
       jidx = indx(jrot-jrs+1)
       do irot=msta,mend
@@ -1720,8 +1710,6 @@ end if
 !end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(kval)
 !...end of matrmkmul
 
 end subroutine matrmkmul
@@ -1737,7 +1725,7 @@ integer(kind=iwp) :: i
 !rewind(nf7)
 do i=1,mth_eigen-1
   !read(nf7) vector2(1:nci_dim)
-  call read_ml(lucivec,1,vector1,nci_dim,i)
+  call read_ml(lucivec,vector1,nci_dim,i)
   call orth_ab(nci_dim,vector1,vector2)
 end do
 call norm_a(nci_dim,vector1)

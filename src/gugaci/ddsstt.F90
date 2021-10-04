@@ -657,7 +657,7 @@ return
 
 end subroutine dd_ext_head_in_dbl
 
-subroutine DD_ext_head_in_act()
+subroutine dd_ext_head_in_act()
 
 use gugaci_global, only: linelp, logic_dh, nlg1, nlg2
 use Definitions, only: iwp
@@ -679,7 +679,7 @@ end if
 
 return
 
-end subroutine DD_ext_head_in_act
+end subroutine dd_ext_head_in_act
 
 subroutine ss_drt_ci_new()
 
@@ -1593,7 +1593,7 @@ return
 
 end subroutine st_ext_head_in_dbl
 
-subroutine ST_ext_head_in_act()
+subroutine st_ext_head_in_act()
 
 use gugaci_global, only: linelp, logic_dh, nlg1, nlg2
 use Definitions, only: iwp
@@ -1615,7 +1615,7 @@ end if
 
 return
 
-end subroutine ST_ext_head_in_act
+end subroutine st_ext_head_in_act
 
 subroutine ts_drt_ci_new()
 
@@ -2050,7 +2050,7 @@ return
 
 end subroutine ts_ext_head_in_dbl
 
-subroutine TS_ext_head_in_act()
+subroutine ts_ext_head_in_act()
 
 use gugaci_global, only: linelp, logic_dh, nlg1, nlg2
 use Definitions, only: iwp
@@ -2072,7 +2072,7 @@ end if
 
 return
 
-end subroutine TS_ext_head_in_act
+end subroutine ts_ext_head_in_act
 
 subroutine tt_drt_ci_new()
 
@@ -2574,7 +2574,7 @@ return
 
 end subroutine tt_ext_head_in_dbl
 
-subroutine TT_ext_head_in_act()
+subroutine tt_ext_head_in_act()
 
 use gugaci_global, only: linelp, logic_dh, nlg1, nlg2
 use Definitions, only: iwp
@@ -2596,7 +2596,7 @@ end if
 
 return
 
-end subroutine TT_ext_head_in_act
+end subroutine tt_ext_head_in_act
 
 subroutine logicg_st(ilnodesm,irnodesm,iltype,irtype)
 

@@ -23,8 +23,11 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 !integer(kind=iwp), parameter :: maxroot = 10, minspace = 40)
-integer(kind=iwp) :: maxroot, minspace, ndim, kval, mroot, indx(minspace), nxh, nxb
-real(kind=wp) :: dcrita, eval(maxroot), vcm(ndim*mroot), th(nxh), vb1(nxb), vb2(nxb), vad(ndim)
+integer(kind=iwp), intent(in) :: maxroot, minspace, ndim, mroot, indx(minspace), nxh, nxb
+integer(kind=iwp), intent(inout) :: kval
+real(kind=wp), intent(in) :: dcrita, th(nxh), vad(ndim)
+real(kind=wp), intent(inout) :: eval(maxroot), vb1(nxb), vb2(nxb)
+real(kind=wp), intent(out) :: vcm(ndim*mroot)
 integer(kind=iwp) :: i, ijb, ijm, ijmb1, indxm, iterat, jib1, jib2, jicm, k, l, m, mmspace, mn, mrsta, mrsta0, mval, nroot
 real(kind=wp) :: deff(maxroot), depcc, ecrita(maxroot), eeval(maxroot), residvb(maxroot), tm, valpha(maxroot), vd(minspace), &
                  ve(minspace), vp(minspace*(minspace+1)/2), vu(minspace,minspace), vukm
@@ -255,8 +258,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n, k1, k2, indx(30), nxb
-real(kind=wp) :: p(465), vb1(nxb), vb2(nxb)
+integer(kind=iwp), intent(in) :: n, k1, k2, indx(30), nxb
+real(kind=wp), intent(inout) :: p(465)
+real(kind=wp), intent(in) :: vb1(nxb), vb2(nxb)
 integer(kind=iwp) :: i, iijj, ij, j, ji, l
 
 do i=k1,k2
@@ -283,8 +287,9 @@ use gugaci_global, only: indx
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n, k1, k2, nxh, nxb
-real(kind=wp) :: th(nxh), vb1(nxb), vb2(nxb), vad(n)
+integer(kind=iwp), intent(in) :: n, k1, k2, nxh, nxb
+real(kind=wp), intent(in) :: th(nxh), vb1(nxb), vad(n)
+real(kind=wp), intent(inout) :: vb2(nxb)
 integer(kind=iwp) :: i, ij, j, l, mn
 !real(kind=wp), allocatable :: buff(:)
 
@@ -319,8 +324,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n, j, nxb
-real(kind=wp) :: dcrita, vb1(nxb)
+integer(kind=iwp), intent(in) :: n, j, nxb
+real(kind=wp), intent(in) :: dcrita
+real(kind=wp), intent(inout) :: vb1(nxb)
 integer(kind=iwp) :: i, ij, ji, jm, l
 real(kind=wp) :: s, smax1, smax2
 
@@ -373,8 +379,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: av(n)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(inout) :: av(n)
 integer(kind=iwp) :: i
 real(kind=wp) :: s
 real(kind=wp), parameter :: dcrita = 1.0e-10_wp
@@ -398,8 +404,9 @@ subroutine orth_ab(n,av,bv)  !bv:basis, av:vector for orth
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: av(n), bv(n)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(inout) :: av(n)
+real(kind=wp), intent(in) :: bv(n)
 integer(kind=iwp) :: i
 real(kind=wp) :: s
 real(kind=r8), external :: ddot_

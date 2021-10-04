@@ -19,7 +19,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplwei, iplprwei
+integer(kind=iwp), intent(in) :: iplplwei, iplprwei
 integer(kind=iwp) :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, isma, &
                      ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real(kind=wp) :: valuelp, valuelp1
@@ -222,7 +222,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplwei, iplprwei
+integer(kind=iwp), intent(in) :: iplplwei, iplprwei
 integer(kind=iwp) :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, isma, &
                      ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real(kind=wp) :: valuelp, valuelp1
@@ -446,7 +446,7 @@ use gugaci_global, only: idownwei_g131415, index_lpext, index_lpext1, logic_g141
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplwei, iplprwei, n1415
+integer(kind=iwp), intent(in) :: iplplwei, iplprwei, n1415
 integer(kind=iwp) :: i, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, lpend34, lpend35, lpend36, lpsta34, lpsta35, &
                      lpsta36, mm, mm0, nn, nn0
 real(kind=wp) :: valuelp, valuelp1
@@ -609,7 +609,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplwei, iplprwei
+integer(kind=iwp), intent(in) :: iplplwei, iplprwei
 integer(kind=iwp) :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, isma, &
                      ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real(kind=wp) :: valuelp, valuelp1
@@ -837,7 +837,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplwei, iplprwei
+integer(kind=iwp), intent(in) :: iplplwei, iplprwei
 integer(kind=iwp) :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, isma, &
                      ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real(kind=wp) :: valuelp, valuelp1
@@ -1094,7 +1094,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplwei, iplprwei
+integer(kind=iwp), intent(in) :: iplplwei, iplprwei
 integer(kind=iwp) :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, isma, &
                      ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real(kind=wp) :: valuelp, valuelp1
@@ -1370,7 +1370,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplwei, iplprwei
+integer(kind=iwp), intent(in) :: iplplwei, iplprwei
 integer(kind=iwp) :: i, ia, iaend, iasta, ib, ibend, ibsta, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, isma, &
                      ismb, lpend34, lpend35, lpend36, lpsta34, lpsta35, lpsta36, mm, mm0, nn, nn0, nna, nnb
 real(kind=wp) :: valuelp, valuelp1
@@ -1643,7 +1643,7 @@ use gugaci_global, only: idownwei_g131415, index_lpext, index_lpext1, logic_g141
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplwei, iplprwei
+integer(kind=iwp), intent(in) :: iplplwei, iplprwei
 integer(kind=iwp) :: i, icle, ii, ii0, iii, iij, ilwtmp, indexlp, indexlp1, irwtmp, lpend34, lpend35, lpend36, lpsta34, lpsta35, &
                      lpsta36, mm, mm0, nn, nn0
 real(kind=wp) :: valuelp, valuelp1
@@ -1807,7 +1807,7 @@ use gugaci_global, only: index_lpext, index_lpext1, ivaluesta_g26, iweista_g25, 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplwei, iplprwei
+integer(kind=iwp), intent(in) :: iplplwei, iplprwei
 integer(kind=iwp) :: i, ilpvalue, indexlp, indexlp1, itmp, mm, nn, nn0
 real(kind=wp) :: valuelp, valuelp1
 
@@ -1931,7 +1931,7 @@ use gugaci_global, only: index_lpext, index_lpext1, iweista_g25, iweista_g28, lo
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplwei, iplprwei
+integer(kind=iwp), intent(in) :: iplplwei, iplprwei
 integer(kind=iwp) :: i, ilpvalue, indexlp, indexlp1, itmp, mm, nn, nn0
 real(kind=wp) :: valuelp, valuelp1
 
@@ -2034,7 +2034,7 @@ use gugaci_global, only: ilsegdownwei, index_lpext, index_lpext1, value_lpext, v
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ilw, irw
+integer(kind=iwp), intent(in) :: ilw, irw
 integer(kind=iwp) :: iij, indexlp, indexlp1, mm, nn
 real(kind=wp) :: valuelp, valuelp1
 
@@ -2063,7 +2063,7 @@ use gugaci_global, only: icano_nnend, icano_nnsta, index_lpext, index_lpext1, va
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ilwei, irwei, isdownwei
+integer(kind=iwp), intent(in) :: ilwei, irwei, isdownwei
 integer(kind=iwp) :: ilpvalue, indexlp, indexlp1, mm, mm0, mmtmp, nn, nntmp
 real(kind=wp) :: valuelp, valuelp1
 
@@ -2101,7 +2101,7 @@ use gugaci_global, only: dm1tmp, ilsegdownwei, index_lpext3, index_lpext4, index
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ilw, irw, n
+integer(kind=iwp), intent(in) :: ilw, irw, n
 integer(kind=iwp) :: ilpvalue, indexlp2, indexlp3, indexlp4, mm, nii, nn
 real(kind=wp) :: valuelp2, valuelp3, valuelp4
 
@@ -2139,7 +2139,7 @@ use gugaci_global, only: dm1tmp, index_lpext3, index_lpext4, index_lpext5, iweis
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplwei, iplprwei, n
+integer(kind=iwp), intent(in) :: iplplwei, iplprwei, n
 integer(kind=iwp) :: i, ilpvalue, indexlp2, indexlp3, indexlp4, itmp, mm, nii, nn, nn0
 real(kind=wp) :: valuelp2, valuelp3, valuelp4
 
@@ -2263,7 +2263,7 @@ use gugaci_global, only: dm1tmp, index_lpext3, index_lpext4, index_lpext5, ivalu
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplwei, iplprwei, n
+integer(kind=iwp), intent(in) :: iplplwei, iplprwei, n
 integer(kind=iwp) :: i, ilpvalue, indexlp2, indexlp3, indexlp4, itmp, mm, nii, nn, nn0
 real(kind=wp) :: valuelp2, valuelp3, valuelp4
 
@@ -2416,7 +2416,7 @@ use gugaci_global, only: ildownwei_segdd, index_lpext, index_lpext1, int_dd_drl,
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iplplwei, iplprwei
+integer(kind=iwp), intent(in) :: iplplwei, iplprwei
 integer(kind=iwp) :: i, icle, ii, ildownwei, indexlp, indexlp1, irdownwei, j, mm, mm0, nn
 real(kind=wp) :: valuelp, valuelp1
 
@@ -2513,7 +2513,7 @@ use gugaci_global, only: ilsegdownwei, index_lpext, index_lpext1, value_lpext, v
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ilw, irw
+integer(kind=iwp), intent(in) :: ilw, irw
 integer(kind=iwp) :: iij, indexlp, indexlp1, mm, nn
 real(kind=wp) :: valuelp, valuelp1
 
@@ -2548,8 +2548,8 @@ use gugaci_global, only: log_prod
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6, mg7
-real(kind=wp) :: wl
+integer(kind=iwp), intent(in) :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6, mg7
+real(kind=wp), intent(in) :: wl
 
 if (log_prod == 1) call prodab_h_1(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6,mg7)
 if (log_prod == 2) call prodab_h0_1(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6,mg7)
@@ -2565,8 +2565,8 @@ use gugaci_global, only: dm1tmp, ican_a, ihy, ipae, ipael, iseg_downwei, iw_down
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6, mg7
-real(kind=wp) :: wl
+integer(kind=iwp), intent(in) :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6, mg7
+real(kind=wp), intent(in) :: wl
 integer(kind=iwp) :: ii, in_, ipae_, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, &
                      jpe, jph, jpl, jpy, jwd, jwnu, jwu, lp, lwnu, m, mg67, mm, mp, nn
 integer(kind=iwp) :: lopu(4,loputmp)
@@ -2690,8 +2690,8 @@ use gugaci_global, only: dm1tmp, ican_a, ihy, ipae, ipael, iseg_downwei, iw_down
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6, mg7
-real(kind=wp) :: wl
+integer(kind=iwp), intent(in) :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6, mg7
+real(kind=wp), intent(in) :: wl
 integer(kind=iwp) :: ii, in_, ipae_, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, &
                      jpe, jph, jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mg67, mm, mp, nn
 integer(kind=iwp), external :: iwalk_ad
@@ -2812,8 +2812,8 @@ use gugaci_global, only: log_prod
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6
-real(kind=wp) :: wl
+integer(kind=iwp), intent(in) :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6
+real(kind=wp), intent(in) :: wl
 
 if (log_prod == 1) call prodab_h_2(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6)
 if (log_prod == 2) call prodab_h0_2(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr,mg6)
@@ -2829,8 +2829,8 @@ use gugaci_global, only: ihy, ipae, ipael, iseg_downwei, iw_downwei, iy, jpad, j
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6
-real(kind=wp) :: wl
+integer(kind=iwp), intent(in) :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6
+real(kind=wp), intent(in) :: wl
 integer(kind=iwp) :: ii, in_, ipae_, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, &
                      jpe, jph, jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mp, nn
 integer(kind=iwp), external :: iwalk_ad
@@ -2951,8 +2951,8 @@ use gugaci_global, only: ihy, ipae, ipael, iseg_downwei, iw_downwei, iy, jpad, j
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6
-real(kind=wp) :: wl
+integer(kind=iwp), intent(in) :: idb, mg1, mg2, mg3, mg4, mg5, jpr, mg6
+real(kind=wp), intent(in) :: wl
 integer(kind=iwp) :: ii, in_, ipae_, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, &
                      jpe, jph, jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp),  lp, lwnu, m, mm, mntmp, mp, nn
 integer(kind=iwp), external :: iwalk_ad

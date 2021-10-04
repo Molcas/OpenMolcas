@@ -15,8 +15,8 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: w, ww
-integer(kind=iwp) :: ind1, jbr
+real(kind=wp), intent(out) :: w, ww
+integer(kind=iwp), intent(in) :: ind1, jbr
 real(kind=wp) :: b, fq
 
 w = Zero
@@ -51,8 +51,8 @@ use Constants, only: Zero, One, Two, Three
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: w, ww
-integer(kind=iwp) :: ind1, jbr
+real(kind=wp), intent(out) :: w, ww
+integer(kind=iwp), intent(in) :: ind1, jbr
 real(kind=wp) :: b, fq
 
 w = Zero
@@ -87,13 +87,10 @@ use Constants, only: Zero
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: w, ww
+real(kind=wp), intent(out) :: w, ww
 
-w = Zero
-ww = Zero
-! calculate w,ww
-! d5: case d&r&r
 w = -v_sqtwo
+ww = Zero
 
 return
 
@@ -106,12 +103,13 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: w, ww
-integer(kind=iwp) :: ind1, jbr
+real(kind=wp), intent(out) :: w, ww
+integer(kind=iwp), intent(in) :: ind1, jbr
 real(kind=wp) :: b, fq
 
 w = Zero
 ww = Zero
+! calculate w,ww
 b = real(jbr,kind=wp)
 if (mod(jbr,2) == 0) fq = One
 if (mod(jbr,2) /= 0) fq = -One
@@ -138,8 +136,8 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: w, ww
-integer(kind=iwp) :: ind1, jbr
+real(kind=wp), intent(out) :: w, ww
+integer(kind=iwp), intent(in) :: ind1, jbr
 real(kind=wp) :: b, fq
 
 w = Zero
@@ -172,8 +170,8 @@ use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: w, ww
-integer(kind=iwp) :: ind1, jbr
+real(kind=wp), intent(out) :: w, ww
+integer(kind=iwp), intent(in) :: ind1, jbr
 real(kind=wp) :: b, fq
 
 w = Zero
@@ -209,7 +207,7 @@ use Constants, only: Zero
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: w, ww
+real(kind=wp), intent(out) :: w, ww
 
 w = -v_sqtwo
 ww = Zero
@@ -225,15 +223,16 @@ use Constants, only: Zero, One, Three, Four
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: w, ww
-integer(kind=iwp) :: ind1, jbr
+real(kind=wp), intent(out) :: w, ww
+integer(kind=iwp), intent(in) :: ind1, jbr
 real(kind=wp) :: b, fq
 
+w = Zero
+ww = Zero
+! calculate w,ww
 b = real(jbr,kind=wp)
 if (mod(jbr,2) == 0) fq = One
 if (mod(jbr,2) /= 0) fq = -One
-w = Zero
-ww = Zero
 select case (ind1)
   case default ! (1)
     w = One
@@ -269,15 +268,16 @@ use Constants, only: Zero, One, Two, Three, Four
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: w, ww
-integer(kind=iwp) :: ind1, jbr
+real(kind=wp), intent(out) :: w, ww
+integer(kind=iwp), intent(in) :: ind1, jbr
 real(kind=wp) :: b, fq
 
+w = Zero
+ww = Zero
+! calculate w,ww
 b = real(jbr,kind=wp)
 if (mod(jbr,2) == 0) fq = One
 if (mod(jbr,2) /= 0) fq = -One
-w = Zero
-ww = Zero
 select case (ind1)
   case (1)
     ww = One
@@ -328,15 +328,16 @@ end subroutine segmidc2
 !use Definitions, only: wp, iwp
 !
 !implicit none
-!real(kind=wp) :: w, ww
-!integer(kind=iwp) :: ind1, jbr
+!real(kind=wp), intent(out) :: w, ww
+!integer(kind=iwp), intent(in) :: ind1, jbr
 !real(kind=wp) :: b, fq
 !
+!w = Zero
+!ww = Zero
+!! calculate w,ww
 !b = real(jbr,kind=wp)
 !if (mod(jbr,2) == 0) fq = One
 !if (mod(jbr,2) /= 0) fq = -One
-!w = Zero
-!ww = Zero
 !select case (ind1)
 !  case (1)
 !    ww = One
@@ -384,16 +385,16 @@ use Constants, only: Zero, One, Two, Three, Four
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: w, ww
-integer(kind=iwp) :: ind1, jbr
+real(kind=wp), intent(out) :: w, ww
+integer(kind=iwp), intent(in) :: ind1, jbr
 real(kind=wp) :: b, fq
 
+w = Zero
+ww = Zero
 ! calculate w,ww
 b = real(jbr,kind=wp)
 if (mod(jbr,2) == 0) fq = One
 if (mod(jbr,2) /= 0) fq = -One
-w = Zero
-ww = Zero
 select case (ind1)
   case default ! (1)
     w = -v_onevsqtwo
@@ -429,16 +430,16 @@ use Constants, only: Zero, One, Two, Three, Four
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: w, ww
-integer(kind=iwp) :: ind1, jbr
+real(kind=wp), intent(out) :: w, ww
+integer(kind=iwp), intent(in) :: ind1, jbr
 real(kind=wp) :: b, fq
 
+w = Zero
+ww = Zero
 ! calculate w,ww
 b = real(jbr,kind=wp)
 if (mod(jbr,2) == 0) fq = One
 if (mod(jbr,2) /= 0) fq = -One
-w = Zero
-ww = Zero
 select case (ind1)
   case (1)
     ww = -One
@@ -473,15 +474,15 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: w, ww
-integer(kind=iwp) :: ind1, jbr
+real(kind=wp), intent(out) :: w, ww
+integer(kind=iwp), intent(in) :: ind1, jbr
 real(kind=wp) :: fq
 
+w = Zero
+ww = Zero
 ! calculate w,ww
 if (mod(jbr,2) == 0) fq = One
 if (mod(jbr,2) /= 0) fq = -One
-w = Zero
-ww = Zero
 select case (ind1)
   case (1)
     w = fq
@@ -501,16 +502,16 @@ use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: w, ww
-integer(kind=iwp) :: ind1, jbr
+real(kind=wp), intent(out) :: w, ww
+integer(kind=iwp), intent(in) :: ind1, jbr
 real(kind=wp) :: b, fq
 
+w = Zero
+ww = Zero
 ! calculate w,ww
 b = real(jbr,kind=wp)
 if (mod(jbr,2) == 0) fq = One
 if (mod(jbr,2) /= 0) fq = -One
-w = Zero
-ww = Zero
 select case (ind1)
   case (1)
     ww = One
@@ -546,16 +547,16 @@ use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: w, ww
-integer(kind=iwp) :: ind1, jbr
+real(kind=wp), intent(out) :: w, ww
+integer(kind=iwp), intent(in) :: ind1, jbr
 real(kind=wp) :: b, fq
 
+w = Zero
+ww = Zero
 ! calculate w,ww
 b = real(jbr,kind=wp)
 if (mod(jbr,2) == 0) fq = One
 if (mod(jbr,2) /= 0) fq = -One
-w = Zero
-ww = Zero
 select case (ind1)
   case (1)
     ww = -fq*sqrt((b+One)/(b+Two))
@@ -590,8 +591,9 @@ end subroutine segmidb1
 !use Definitions, only: wp, iwp
 !
 !implicit none
-!integer(kind=iwp) :: isq, ind1, jbr
-!real(kind=wp) :: w, ww
+!integer(kind=iwp), intent(out) :: isq
+!real(kind=wp), intent(out) :: w, ww
+!integer(kind=iwp), intent(in) :: ind1, jbr
 !real(kind=wp) :: b, fq
 !
 !isq = 0
@@ -655,8 +657,9 @@ use Constants, only: Zero, One, Two, Three
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: isq, mw, ind1, jbr
-real(kind=wp) :: w, ww
+integer(kind=iwp), intent(out) :: isq, mw
+real(kind=wp), intent(out) :: w, ww
+integer(kind=iwp), intent(in) :: ind1, jbr
 real(kind=wp) :: b, fq
 
 mw = 0
@@ -691,16 +694,17 @@ use Constants, only: Zero, One, Two, Three
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: isq, mw, ind1, jbr
-real(kind=wp) :: w, ww
+integer(kind=iwp), intent(out) :: isq, mw
+real(kind=wp), intent(out) :: w, ww
+integer(kind=iwp), intent(in) :: ind1, jbr
 real(kind=wp) :: b
 
-! calculate w,ww
-b = real(jbr,kind=wp)
 w = Zero
 ww = Zero
 isq = 0
 mw = 0
+! calculate w,ww
+b = real(jbr,kind=wp)
 select case (ind1)
   case default ! (1)
     !write(6,*) 'this is case c2'
@@ -729,8 +733,9 @@ use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: isq, mw, ind1, jbr
-real(kind=wp) :: w, ww
+integer(kind=iwp), intent(out) :: isq, mw
+real(kind=wp), intent(out) :: w, ww
+integer(kind=iwp), intent(in) :: ind1, jbr
 real(kind=wp) :: b, fq
 
 mw = 0
@@ -766,8 +771,9 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: kcoe, nocc
-real(kind=wp) :: tcoe
+integer(kind=iwp), intent(in) :: kcoe
+integer(kind=iwp), intent(out) :: nocc
+real(kind=wp), intent(out) :: tcoe
 
 nocc = 1
 tcoe = kcoe

@@ -144,7 +144,7 @@ use gugaci_global, only: ja, jb, jd, jj, jm, js, jt, jv, kk, no, norb_inn
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ludrt
+integer(kind=iwp), intent(in) :: ludrt
 integer(kind=iwp) :: id, idisk, idx(2)
 
 idisk = 0

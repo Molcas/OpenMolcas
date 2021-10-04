@@ -11,7 +11,7 @@
 
 subroutine cipro()
 
-use gugaci_global, only: denm1, LuCiDen, LuCiMO, max_orb, max_root, maxgdm, mroot, ng_sm, nlsm_all, nlsm_bas, pror
+use gugaci_global, only: denm1, LuCiDen, LuCiMO, max_root, maxgdm, mroot, ng_sm, nlsm_all, nlsm_bas, pror
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -20,10 +20,10 @@ implicit none
 integer(kind=iwp), parameter :: maxmolcasorb = 5000, maxpro = 50
 integer(kind=iwp) :: i, icall, idisk, idummy(1), idx_idisk0(64), idx_idisk1(max_root+1), iend, im, iopt, ipc, ipcom(maxpro), &
                      iprop, irec, iroot, irtc, ista, isymlb, nc, nc0, nc1, nc2, nlsm_del(maxgdm), nmo, npro, nsiz
-real(kind=wp) :: occ(max_orb), pgauge(3,maxpro), pnuc(maxpro) !, denao(max_orb,max_orb)
+real(kind=wp) :: pgauge(3,maxpro), pnuc(maxpro)
 character :: bsbl(2*4*maxmolcasorb)
 character(len=8) :: label, pname(maxpro), ptyp(maxpro)
-real(kind=wp), allocatable :: cmo(:), cno(:)
+real(kind=wp), allocatable :: cmo(:), cno(:), occ(:)
 real(kind=wp), pointer :: denao(:), omat(:), vprop(:,:,:)
 
 ! mrci nature orbital
@@ -72,8 +72,9 @@ allocate(omat(nc2))
 allocate(denao(nc0))
 allocate(vprop(mroot,mroot,npro))
 !allocate(denao(nmo,nmo))
-call mma_allocate(cmo,max_orb**2,label='cmo')
-call mma_allocate(cno,max_orb**2,label='cno')
+call mma_allocate(cmo,nc0,label='cmo')
+call mma_allocate(cno,nc0,label='cno')
+call mma_allocate(occ,nmo,label='occ')
 idisk = idx_idisk0(3)
 call ddafile(lucimo,2,cmo,nc0,idisk)
 ! read overlap matrix
@@ -106,6 +107,7 @@ do iroot=1,mroot
 end do
 call mma_deallocate(cmo)
 call mma_deallocate(cno)
+call mma_deallocate(occ)
 !close(100)
 
 ! this code copy from molcas
@@ -183,10 +185,15 @@ subroutine calprop(ngsm,nsbas,mroot,istate,jstate,nsi,npro,pname,ipcom,ptyp,aden
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ngsm, nsbas(ngsm), mroot, istate, jstate, nsi, npro, ipcom(npro), lmo, icall
-character(len=8) :: pname(npro), ptyp(npro)
-real(kind=wp) :: aden(lmo), vprop(mroot,mroot,npro), pgauge(3,npro), pnuc(npro)
+integer(kind=iwp), intent(in) :: ngsm, nsbas(ngsm), mroot, istate, jstate, nsi, npro, ipcom(npro), lmo
+character(len=8), intent(_IN_) :: pname(npro), ptyp(npro)
+real(kind=wp), intent(in) :: aden(lmo)
+real(kind=wp), intent(inout) :: vprop(mroot,mroot,npro)
+real(kind=wp), intent(inout) :: pgauge(3,npro), pnuc(npro)
+integer(kind=iwp), intent(inout) :: icall
 integer(kind=iwp) :: i, idummy(1), im, irtc, isymlb, j, nc, nc0, nc1, nsiz
 real(kind=wp) :: amat(nsi), pint(nsi+4), sgn, smat(nsi), val
 real(kind=r8), external :: ddot_
@@ -271,12 +278,13 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ngsm, nsbas(ngsm), lmo, loc
-real(kind=wp) :: denao(lmo), cno(lmo), occ(loc)
+integer(kind=iwp), intent(in) :: ngsm, nsbas(ngsm), lmo, loc
+real(kind=wp), intent(out) :: denao(lmo)
+real(kind=wp), intent(in) :: cno(lmo), occ(loc)
 integer(kind=iwp) :: i, im, nc, nc0, nc1, ni
 real(kind=wp) :: val
 
-denao = Zero
+denao(:) = Zero
 !write(u6,*) 'occ',nsbas(1:ngsm)
 !write(u6,'(10(1x,f8.5))') occ
 nc = 1

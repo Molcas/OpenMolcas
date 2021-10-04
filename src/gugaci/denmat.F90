@@ -11,12 +11,12 @@
 
 subroutine cidenmat()
 
-use gugaci_global, only: dm1tmp, ican_a, ican_b, LuCiVec, mroot, nci_dim, norb_all, vector1, vector2
+use gugaci_global, only: dm1tmp, LuCiVec, mroot, nci_dim, vector1, vector2
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: i, ncount1, ncount2, neigen
+integer(kind=iwp) :: i, neigen
 real(kind=wp) :: sechc !, x1e(50000)
 !character(len=256) :: filename
 !logical(kind=iwp) :: logic_mulroot
@@ -35,8 +35,8 @@ call init_canonical()
 !call density_scf_frz()
 !-----------------------------------------------------------------------
 ! calculate the ci reduced one and two electron density matrix
-ncount1 = ican_a(norb_all)+norb_all
-ncount2 = ican_b(ncount1)+ncount1
+!ncount1 = ican_a(norb_all)+norb_all
+!ncount2 = ican_b(ncount1)+ncount1
 
 !logic_mulroot = .false.
 !ndim = mroot*nci_dim
@@ -50,19 +50,19 @@ vector1(1:nci_dim) = Zero
 ! keep it.
 ! read ci vector
 !if (logic_mulroot) then
-!  call read_ml(lucivec,1,vector1,neigen*nci_dim,1)
+!  call read_ml(lucivec,vector1,neigen*nci_dim,1)
 !end if
 !write(u6,*) 'density matrix',neigen,ncount2
 ! should we calculated two-electronic density matrix ?
 do i=1,neigen
-  call read_ml(lucivec,1,vector1,nci_dim,i)
+  call read_ml(lucivec,vector1,nci_dim,i)
   vector2 = Zero
   dm1tmp = Zero
   call memcidiag_alloc()
   call diagonal_loop_wyb_g()
   call memcidiag_dealloc()
   call matrix_vector_multi_parallel_drt_g(sechc)
-  call ci_density_label_sm(i,ncount2)
+  call ci_density_label_sm(i)
   !call ci_dentest(i)
 end do
 
@@ -79,7 +79,7 @@ end subroutine cidenmat
 !use Definitions, only: wp, iwp, u6
 !
 !implicit none
-!integer(kind=iwp) :: iroot
+!integer(kind=iwp), intent(in) :: iroot
 !integer(kind=iwp) :: i, idisk, idisk0, idisk_array(max_root+1), idx, iout, itratoc(ntratoc), lenrd, li, lj, lk, ll, lri, lrj, &
 !                     nbpq, nbrs, nc, nc1, nc2, nidx, nintb, nintone, nism, nmob, noidx(8), nop, noq, nor, norb(8), nos, nsmint, &
 !                     nsp, nspq, nspqr, nsq, nsr, nss, nssm, ntj, ntk, numax, numin
@@ -300,7 +300,7 @@ subroutine matrix_vector_multi_parallel_drt_g(sechc)
 use Definitions, only: wp, u6
 
 implicit none
-real(kind=wp) :: sechc
+real(kind=wp), intent(out) :: sechc
 real(kind=wp) :: sc1, sc2
 real(kind=wp), external :: c_time
 
@@ -334,7 +334,7 @@ end subroutine matrix_vector_multi_parallel_drt_g
 !use Definitions, only: wp, u6
 !
 !implicit none
-!real(kind=wp) :: sechc
+!real(kind=wp), intent(out) :: sechc
 !real(kind=wp) :: sc1, sc10, sc11, sc12, sc13, sc14, sc15, sc16, sc2, sc3, sc4, sc5, sc6, sc7, sc8, sc9
 !real(kind=wp), external :: c_time
 !
@@ -393,7 +393,7 @@ end subroutine matrix_vector_multi_parallel_drt_g
 !
 !end subroutine matrix_vector_multi_parallel_prt_g
 
-subroutine ci_density_label_sm(iroot,ncount2)
+subroutine ci_density_label_sm(iroot)
 
 use gugaci_global, only: denm1, denm2, dm1tmp, LuCiDen, map_orb_order, max_root, maxgdm, ng_sm, nlsm_all, vector2
 use Symmetry_Info, only: mul_tab => Mul
@@ -401,7 +401,7 @@ use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iroot, ncount2
+integer(kind=iwp), intent(in) :: iroot
 integer(kind=iwp) :: i, ic, idisk, ii, ij, ijm, im, indx_m(maxgdm), idisk_array(max_root+1), j, jc, je, jj, jm, k, kk, kl, klm, &
                      km, l, lc, le, ll, lm, nc0, nc1
 real(kind=wp) :: val
@@ -508,7 +508,5 @@ idisk = 0
 call idafile(luciden,1,idisk_array,max_root+1,idisk)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(ncount2)
 
 end subroutine ci_density_label_sm

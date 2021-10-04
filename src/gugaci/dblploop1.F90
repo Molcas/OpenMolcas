@@ -18,7 +18,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lra
+integer(kind=iwp), intent(in) :: lra
 integer(kind=iwp) :: iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lmki, lmkj, lr0, lri, lrj, lrk, ni
 real(kind=wp) :: vlop0, vlop1, w0ss1, w0ss10, w0ss11, w0ss12, w0ss13, w0ss14, w0ss15, w0ss16, w0ss17, w0ss18, w0ss2, w0ss20, &
                  w0ss3, w0ss4, w0ss5, w0ss6, w0ss7, w0ss8, w0ss9, w1ss1, w1ss10, w1ss11, w1ss12, w1ss13, w1ss14, w1ss15, w1ss16, &
@@ -616,7 +616,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lra
+integer(kind=iwp), intent(in) :: lra
 integer(kind=iwp) :: iwds, iwdt, jmlr, lmi, lmij, lmj, lmk, lri, lrj, lrk, ni
 real(kind=wp) :: vlop0, vlop1, w1st1, w1st2, w1st3, w1st4, wl, wl1
 
@@ -807,7 +807,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lra
+integer(kind=iwp), intent(in) :: lra
 integer(kind=iwp) :: iwds, iwdt, lmas, lmi, lmij, lmj, lmk, lri, lrj, lrk, ni
 real(kind=wp) :: vlop0, vlop1, w1ts1, w1ts2, w1ts3, w1ts4, wl
 
@@ -941,7 +941,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lra
+integer(kind=iwp), intent(in) :: lra
 integer(kind=iwp) :: iwdl, iwdr, lmi, lmij, lmj, lmk, lri, lrj, lrk, ni
 real(kind=wp) :: vlop0, vlop1, w1st1, w1st2, w1st3, w1st4, wl
 
@@ -1076,7 +1076,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lra
+integer(kind=iwp), intent(in) :: lra
 integer(kind=iwp) :: iwdl, iwdr, lmi, lmij, lmj, lmk, lri, lrj, lrk, ni
 real(kind=wp) :: vlop0, vlop1, w1t1s1, w1t1s2, w1t1s3, w1t1s4, w1t1s5, w1t1s6, w1t1s7, wl
 
@@ -1268,7 +1268,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lra
+integer(kind=iwp), intent(in) :: lra
 integer(kind=iwp) :: iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lmki, lmkj, lri, lrj, lrk, ni
 real(kind=wp) :: vlop0, vlop1, w0tt1, w0tt2, w0tt3, w1tt1, w1tt2, wl, wltmp
 
@@ -1419,7 +1419,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lra
+integer(kind=iwp), intent(in) :: lra
 integer(kind=iwp) :: iwdl, iwdr, lmi, lmij, lmj, lmm, lri, lrj, lrk, lrm, ni
 real(kind=wp) :: vlop0, vlop1, w0tt1, w1tt1, wl, wltmp
 
@@ -1545,7 +1545,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lra
+integer(kind=iwp), intent(in) :: lra
 integer(kind=iwp) :: imil, imir, iwdl, iwdr, lril, lrir, lrk, ni
 real(kind=wp) :: vlop0, vlop1, w0dd1, w1dd1, wl, wltmp
 
@@ -1636,7 +1636,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lra
+integer(kind=iwp), intent(in) :: lra
 integer(kind=iwp) :: imil, imir, iwdl, iwdr, lril, lrir, lrk, ni
 real(kind=wp) :: vlop0, vlop1, w0dd1, w1dd1, wl, wltmp
 
@@ -1722,7 +1722,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lra
+integer(kind=iwp), intent(in) :: lra
 integer(kind=iwp) :: iwdl, iwdr, lmi, lmj, lri, lrj, ni
 real(kind=wp) :: vlop0, vlop1, wl
 
@@ -1767,7 +1767,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lra
+integer(kind=iwp), intent(in) :: lra
 integer(kind=iwp) :: iwdl, iwdr, lmi, lmj, lri, lrj
 real(kind=wp) :: vlop0, vlop1, wl
 
@@ -1833,7 +1833,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lra
+integer(kind=iwp), intent(in) :: lra
 integer(kind=iwp) :: iwdl, iwdr, lmi, lmij, lmj, lri, lrj, ni
 real(kind=wp) :: vlop0, vlop1, w0sv1, w0sv2, w1sv1, w1sv2, wl
 
@@ -1914,7 +1914,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lra, lpcoe(norb_dz+1:norb_inn)
+integer(kind=iwp), intent(in) :: lra, lpcoe(norb_dz+1:norb_inn)
 integer(kind=iwp) :: iwdl, iwdl1, iwdr, jmlr, kcoe, list, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc
 real(kind=wp) :: tcoe, vlop0, vlop1, w0sd1, w0sd11, w0sd12, w0sd14, w0sd15, w0sd16, w0sd2, w0sd3, w0sd4, w0sd5, w0sd6, w0sd7, &
                  w0sd8, w0sd9, w1sd10, w1sd11, w1sd2, w1sd5, w1sd6, w1sd7, w1sd8, wl
@@ -2214,7 +2214,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lra, lpcoe(norb_dz+1:norb_inn)
+integer(kind=iwp), intent(in) :: lra, lpcoe(norb_dz+1:norb_inn)
 integer(kind=iwp) :: iwdl, iwdl1, iwdr, jmlr, kcoe, list, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc
 real(kind=wp) :: tcoe, vlop0, vlop1, w0sd1, w0sd10, w0sd11, w0sd12, w0sd13, w0sd2, w0sd3, w0sd4, w0sd5, w0sd6, w0sd7, w0sd8, &
                  w0sd9, w1sd10, w1sd2, w1sd3, w1sd4, w1sd5, w1sd6, w1sd7, w1sd8, wl
@@ -2489,7 +2489,7 @@ end subroutine sdd_head_dbl_tail_act
 !use Definitions, only: wp, iwp
 !
 !implicit none
-!integer(kind=iwp) :: lra, lpcoe(norb_dz+1:norb_inn)
+!integer(kind=iwp), intent(in) :: lra, lpcoe(norb_dz+1:norb_inn)
 !integer(kind=iwp) :: iwdl, iwdr, jmlr, kcoe, list, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc
 !real(kind=wp) :: tcoe, vlop0, vlop1, w0td1, w0td2, w0td3, w0td4, w0td5, w1td2, w1td3, wl
 !integer(kind=iwp), external :: list3, list4
@@ -2632,7 +2632,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lra, lpcoe(norb_dz+1:norb_inn)
+integer(kind=iwp), intent(in) :: lra, lpcoe(norb_dz+1:norb_inn)
 integer(kind=iwp) :: iwdl, iwdr, jmlr, kcoe, list, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk,  ni, nocc
 real(kind=wp) :: tcoe, vlop0, vlop1, w0td1, w0td2, w0td3, w0td4, w0td5, w1td2, w1td3, wl
 integer(kind=iwp), external :: list3, list4
@@ -2776,7 +2776,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin
+integer(kind=iwp), intent(in) :: lin
 integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lri, lrj, mpl, ni
 real(kind=wp) :: w0sv1, w1sv1
 integer(kind=iwp), external :: iwalk_ad

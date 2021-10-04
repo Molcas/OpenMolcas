@@ -102,7 +102,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lmi, lmij, lmj, lmk, lml, lra, lrai, lraj, lrak, lral, lsmij, mh
+integer(kind=iwp) :: lmi, lmij, lmj, lmk, lml, lrai, lraj, lrak, lral, lsmij, mh
 
 do lrai=norb_dz+1,norb_inn-1
   lmi = lsm_inn(lrai)
@@ -114,14 +114,14 @@ do lrai=norb_dz+1,norb_inn-1
     call head_drr_at_given_orb(mh,lrai)
     logic_br(1:mh) = .true.
     call link_c2_to_given_orb(mh,lrai+1,lraj-1)
-    call tail_drr_at_given_orb(mh,lraj)
+    call tail_drr_at_given_orb(mh)
     !write(u6,'(6i6)') 8,mh,lrai,lraj,0,0
     if (mh /= 0) call act_cloop_g(8,mh,lrai,lraj,0,0)
     !-------------------------------------------------------------------
     ! line=9 d&r&l--d^r^l
     call head_drl_at_given_orb(mh,lrai)
     call link_c2_to_given_orb(mh,lrai+1,lraj-1)
-    call tail_drl_at_given_orb(mh,lraj)
+    call tail_drl_at_given_orb(mh)
     !write(u6,'(6i6)') 9,mh,lrai,lraj,0,0
     if (mh /= 0) call act_cloop_g(9,mh,lrai,lraj,0,0)
     lsmij = mul_tab(lmi,lmj)
@@ -140,9 +140,9 @@ do lrai=norb_dz+1,norb_inn-1
       do lrak=lrai+1,lraj-1
         call head_ar_at_given_orb(mh,lrai)
         call link_c1_to_given_orb(mh,lrai+1,lrak-1)
-        call link_d10_at_given_orb(mh,lrak)
+        call link_d10_at_given_orb(mh)
         call link_c1_to_given_orb(mh,lrak+1,lraj-1)
-        call tail_al_at_given_orb(mh,lraj)
+        call tail_al_at_given_orb(mh)
         !write(u6,'(6i6)') 2,mh,lrai,lraj,lrak,0
         if (mh /= 0) call act_cloop_g(2,mh,lrai,lraj,lrak,0)
       end do
@@ -151,20 +151,20 @@ do lrai=norb_dz+1,norb_inn-1
       do lrak=lraj+1,norb_inn
         call head_ar_at_given_orb(mh,lrai)
         call link_c1_to_given_orb(mh,lrai+1,lraj-1)
-        call link_b4_at_given_orb(mh,lraj)
+        call link_b4_at_given_orb(mh)
         logic_br(1:mh) = .true.
         call link_c2_to_given_orb(mh,lraj+1,lrak-1)
-        call tail_drr_at_given_orb(mh,lrak)
+        call tail_drr_at_given_orb(mh)
         !write(u6,'(6i6)') 3,mh,lrai,lraj,lrak,0
         if (mh /= 0) call act_cloop_g(3,mh,lrai,lraj,lrak,0)
         !---------------------------------------------------------------
         ! line=5 a&r-b&l-d^r^l
         call head_ar_at_given_orb(mh,lrai)
         call link_c1_to_given_orb(mh,lrai+1,lraj-1)
-        call link_b3_at_given_orb(mh,lraj)
+        call link_b3_at_given_orb(mh)
         logic_br(1:mh) = .true.
         call link_c2_to_given_orb(mh,lraj+1,lrak-1)
-        call tail_drl_at_given_orb(mh,lrak)
+        call tail_drl_at_given_orb(mh)
         !write(u6,'(6i6)') 5,mh,lrai,lraj,lrak,0
         if (mh /= 0) call act_cloop_g(5,mh,lrai,lraj,lrak,0)
       end do
@@ -174,27 +174,27 @@ do lrai=norb_dz+1,norb_inn-1
         call head_drr_at_given_orb(mh,lrak)
         logic_br(1:mh) = .true.
         call link_c2_to_given_orb(mh,lrak+1,lrai-1)
-        call link_b2_at_given_orb(mh,lrai)
+        call link_b2_at_given_orb(mh)
         call link_c1_to_given_orb(mh,lrai+1,lraj-1)
-        call tail_ar_at_given_orb(mh,lraj)
+        call tail_ar_at_given_orb(mh)
         !write(u6,'(6i6)') 10,mh,lrai,lraj,lrak,0
         if (mh /= 0) call act_cloop_g(10,mh,lrai,lraj,lrak,0)
         !---------------------------------------------------------------
         ! line=11 d&r&l-b^r-a^l
         call head_drl_at_given_orb(mh,lrak)
         call link_c2_to_given_orb(mh,lrak+1,lrai-1)
-        call link_b2_at_given_orb(mh,lra)
+        call link_b2_at_given_orb(mh)
         call link_c1_to_given_orb(mh,lrai+1,lraj-1)
-        call tail_al_at_given_orb(mh,lraj)
+        call tail_al_at_given_orb(mh)
         !write(u6,'(6i6)') 11,mh,lrai,lraj,lrak,0
         if (mh /= 0) call act_cloop_g(11,mh,lrai,lraj,lrak,0)
         !---------------------------------------------------------------
         ! line=12 d&r&l-b^l-a^r
         call head_drl_at_given_orb(mh,lrak)
         call link_c2_to_given_orb(mh,lrak+1,lrai-1)
-        call link_b1_at_given_orb(mh,lrai)
+        call link_b1_at_given_orb(mh)
         call link_c1_to_given_orb(mh,lrai+1,lraj-1)
-        call tail_ar_at_given_orb(mh,lraj)
+        call tail_ar_at_given_orb(mh)
         !write(u6,'(6i6)') 12,mh,lrai,lraj,lrak,0
         if (mh /= 0) call act_cloop_g(12,mh,lrai,lraj,lrak,0)
       end do
@@ -210,36 +210,36 @@ do lrai=norb_dz+1,norb_inn-1
         ! line=4  a&r--b&r--b^r--a^r
         call head_ar_at_given_orb(mh,lrai)
         call link_c1_to_given_orb(mh,lrai+1,lraj-1)
-        call link_b4_at_given_orb(mh,lraj)
+        call link_b4_at_given_orb(mh)
         logic_br(1:mh) = .true.
         call link_c2_to_given_orb(mh,lraj+1,lrak-1)
-        call link_b2_at_given_orb(mh,lrak)
+        call link_b2_at_given_orb(mh)
         call link_c1_to_given_orb(mh,lrak+1,lral-1)
-        call tail_ar_at_given_orb(mh,lral)
+        call tail_ar_at_given_orb(mh)
         !  write(u6,'(6i6)') 4,mh,lrai,lral,lraj,lrak
         if (mh /= 0) call act_cloop_g(4,mh,lrai,lral,lraj,lrak)
         !---------------------------------------------------------------
         ! line=6  a&r--b&l--b^r--a^l
         call head_ar_at_given_orb(mh,lrai)
         call link_c1_to_given_orb(mh,lrai+1,lraj-1)
-        call link_b3_at_given_orb(mh,lraj)
+        call link_b3_at_given_orb(mh)
         logic_br(1:mh) = .true.
         call link_c2_to_given_orb(mh,lraj+1,lrak-1)
-        call link_b2_at_given_orb(mh,lrak)
+        call link_b2_at_given_orb(mh)
         call link_c1_to_given_orb(mh,lrak+1,lral-1)
-        call tail_al_at_given_orb(mh,lral)
+        call tail_al_at_given_orb(mh)
         !  write(u6,'(6i6)') 6,mh,lrai,lral,lraj,lrak
         if (mh /= 0) call act_cloop_g(6,mh,lrai,lral,lraj,lrak)
         !---------------------------------------------------------------
         ! line=7 a&r--b&l--b^l--a^r
         call head_ar_at_given_orb(mh,lrai)
         call link_c1_to_given_orb(mh,lrai+1,lraj-1)
-        call link_b3_at_given_orb(mh,lraj)
+        call link_b3_at_given_orb(mh)
         logic_br(1:mh) = .true.
         call link_c2_to_given_orb(mh,lraj+1,lrak-1)
-        call link_b1_at_given_orb(mh,lrak)
+        call link_b1_at_given_orb(mh)
         call link_c1_to_given_orb(mh,lrak+1,lral-1)
-        call tail_ar_at_given_orb(mh,lral)
+        call tail_ar_at_given_orb(mh)
         !  write(u6,'(6i6)') 7,mh,lrai,lral,lraj,lrak
         if (mh /= 0) call act_cloop_g(7,mh,lrai,lral,lraj,lrak)
         !---------------------------------------------------------------
@@ -264,18 +264,18 @@ do lrai=norb_dz+1,norb_inn
   ! line=25 -c"-d^r^r
   logic_br(1) = .true.
   call link_c2_to_given_orb(mh,norb_dz+1,lrai-1)
-  call tail_drr_at_given_orb(mh,lrai)
+  call tail_drr_at_given_orb(mh)
   if (mh /= 0) call lp_act_tail_g(25,mh,0,lrai)
   !---------------------------------------------------------------------
   ! line=26 -c"-d^r^l
   logic_br(1) = .true.
   call link_c2_to_given_orb(mh,norb_dz+1,lrai-1)
-  call tail_drl_at_given_orb(mh,lrai)
+  call tail_drl_at_given_orb(mh)
   if (mh /= 0) call lp_act_tail_g(26,mh,0,lrai)
   !=====================================================================
   ! line=23 -c'-a^l
   call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
-  call tail_al_at_given_orb(mh,lrai)
+  call tail_al_at_given_orb(mh)
   if (mh /= 0) call lp_act_tail_g(23,mh,0,0)
   !---------------------------------------------------------------------
   ! line=24 -c'-a^r
@@ -287,18 +287,18 @@ do lrai=norb_dz+1,norb_inn
     !-------------------------------------------------------------------
     ! line=30 -c'-b&r-d^r^r
     call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
-    call link_b4_at_given_orb(mh,lrai)
+    call link_b4_at_given_orb(mh)
     logic_br(1:mh) = .true.
     call link_c2_to_given_orb(mh,lrai+1,lrak-1)
-    call tail_drr_at_given_orb(mh,lrak)
+    call tail_drr_at_given_orb(mh)
     if (mh /= 0) call lp_act_tail_g(30,mh,lrai,0)
     !-------------------------------------------------------------------
     ! line=31 -c'-b&l-d^r^l
     call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
-    call link_b3_at_given_orb(mh,lrai)
+    call link_b3_at_given_orb(mh)
     logic_br(1:mh) = .true.
     call link_c2_to_given_orb(mh,lrai+1,lrak-1)
-    call tail_drl_at_given_orb(mh,lrak)
+    call tail_drl_at_given_orb(mh)
     if (mh /= 0) call lp_act_tail_g(31,mh,lrai,0)
   end do
   !=====================================================================
@@ -306,9 +306,9 @@ do lrai=norb_dz+1,norb_inn
     !-------------------------------------------------------------------
     ! line=35 -c'-d^r&l-a^l
     call link_c1_to_given_orb(mh,norb_dz+1,lrak-1)
-    call link_d10_at_given_orb(mh,lrak)
+    call link_d10_at_given_orb(mh)
     call link_c1_to_given_orb(mh,lrak+1,lrai-1)
-    call tail_al_at_given_orb(mh,lrai)
+    call tail_al_at_given_orb(mh)
     if (mh /= 0) call lp_act_tail_g(35,mh,lrak,lrak)
   end do
   !=====================================================================
@@ -316,55 +316,55 @@ do lrai=norb_dz+1,norb_inn
     !-------------------------------------------------------------------
     ! line=27 -c"-b^r-a^r
     call link_c2_to_given_orb(mh,norb_dz+1,lrai-1)
-    call link_b2_at_given_orb(mh,lrai)
+    call link_b2_at_given_orb(mh)
     call link_c1_to_given_orb(mh,lrai+1,lraj-1)
-    call tail_ar_at_given_orb(mh,lraj)
+    call tail_ar_at_given_orb(mh)
     if (mh /= 0) call lp_act_tail_g(27,mh,0,lrai)
     !-------------------------------------------------------------------
     ! line=28 -c"-b^l-a^r
     call link_c2_to_given_orb(mh,norb_dz+1,lrai-1)
-    call link_b1_at_given_orb(mh,lrai)
+    call link_b1_at_given_orb(mh)
     call link_c1_to_given_orb(mh,lrai+1,lraj-1)
-    call tail_ar_at_given_orb(mh,lraj)
+    call tail_ar_at_given_orb(mh)
     if (mh /= 0) call lp_act_tail_g(28,mh,0,lrai)
     !-------------------------------------------------------------------
     ! line=29 -c"-b^r-a^l
     call link_c2_to_given_orb(mh,norb_dz+1,lrai-1)
-    call link_b2_at_given_orb(mh,lrai)
+    call link_b2_at_given_orb(mh)
     call link_c1_to_given_orb(mh,lrai+1,lraj-1)
-    call tail_al_at_given_orb(mh,lraj)
+    call tail_al_at_given_orb(mh)
     if (mh /= 0) call lp_act_tail_g(29,mh,0,lrai)
     !-------------------------------------------------------------------
     do lral=lraj+1,norb_inn
       !-----------------------------------------------------------------
       ! line=32 -c'-b&r-c"-b^r-a^r
       call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
-      call link_b4_at_given_orb(mh,lrai)
+      call link_b4_at_given_orb(mh)
       logic_br(1:mh) = .true.
       call link_c2_to_given_orb(mh,lrai+1,lraj-1)
-      call link_b2_at_given_orb(mh,lraj)
+      call link_b2_at_given_orb(mh)
       call link_c1_to_given_orb(mh,lraj+1,lral-1)
-      call tail_ar_at_given_orb(mh,lral)
+      call tail_ar_at_given_orb(mh)
       if (mh /= 0) call lp_act_tail_g(32,mh,lrai,lraj)
       !-----------------------------------------------------------------
       ! line=33 -c'-b&l-c"-b^r-a^l
       call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
-      call link_b3_at_given_orb(mh,lrai)
+      call link_b3_at_given_orb(mh)
       logic_br(1:mh) = .true.
       call link_c2_to_given_orb(mh,lrai+1,lraj-1)
-      call link_b2_at_given_orb(mh,lraj)
+      call link_b2_at_given_orb(mh)
       call link_c1_to_given_orb(mh,lraj+1,lral-1)
-      call tail_al_at_given_orb(mh,lral)
+      call tail_al_at_given_orb(mh)
       if (mh /= 0) call lp_act_tail_g(33,mh,lrai,lraj)
       !-----------------------------------------------------------------
       ! line=34 -c'-b&l-c"-b^l-a^r
       call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
-      call link_b3_at_given_orb(mh,lrai)
+      call link_b3_at_given_orb(mh)
       logic_br(1:mh) = .true.
       call link_c2_to_given_orb(mh,lrai+1,lraj-1)
-      call link_b1_at_given_orb(mh,lraj)
+      call link_b1_at_given_orb(mh)
       call link_c1_to_given_orb(mh,lraj+1,lral-1)
-      call tail_ar_at_given_orb(mh,lral)
+      call tail_ar_at_given_orb(mh)
       if (mh /= 0) call lp_act_tail_g(34,mh,lrai,lraj)
     end do
   end do
@@ -382,7 +382,7 @@ use gugaci_global, only: jpel, jper, jph_, jwl, jwr, line, lpnew_coe, lpnew_ltai
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lin, mh, lrg0, lrs0
+integer(kind=iwp), intent(in) :: lin, mh, lrg0, lrs0
 integer(kind=iwp) :: iorb, lpcoe(norb_dz+1:norb_inn), mhlp_
 
 line = lin
@@ -417,7 +417,7 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin, mh, lr0, lr, lrg0, lrs0
+integer(kind=iwp), intent(in) :: lin, mh, lr0, lr, lrg0, lrs0
 integer(kind=iwp) :: kcoe, l, lpcoe(norb_dz+1:norb_inn), mhlp_, nocc, nxo
 real(kind=wp) :: tcoe, vlop0, vlop1, wl
 
@@ -601,7 +601,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin, lra
+integer(kind=iwp), intent(in) :: lin, lra
 integer(kind=iwp) :: iwdl, iwdr, jmlr, list0, list1, lmi, lmk, lri, lrk, ni
 real(kind=wp) :: vlop0, vlop1, w0td1, wl0, wl1
 
@@ -666,7 +666,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin, lra
+integer(kind=iwp), intent(in) :: lin, lra
 integer(kind=iwp) :: iwdl, iwdr, jmlr, list0, list1, lmi, lmk, lri, lrk, ni
 real(kind=wp) :: vlop0, vlop1, w0td1, wl0, wl1
 
@@ -723,8 +723,10 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: line, lr0, lrg, lrs, lr, list0, list1
-real(kind=wp) :: vlop0, vlop1, wl0, wl1
+integer(kind=iwp), intent(in) :: line, lr0, lrg, lrs, lr
+real(kind=wp), intent(in) :: vlop0, vlop1
+integer(kind=iwp), intent(out) :: list0, list1
+real(kind=wp), intent(out) :: wl0, wl1
 integer(kind=iwp) :: nxo
 
 wl0 = Zero
@@ -880,7 +882,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin, lra
+integer(kind=iwp), intent(in) :: lin, lra
 integer(kind=iwp) :: iwdl, iwdr, jmlr, list0, list1, lmi, lmk, lri, lrk, ni
 real(kind=wp) :: vlop0, vlop1, w0sd1, w0sd2, w0sd3, w0sd4, wl0, wl1
 
@@ -972,7 +974,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin, lra
+integer(kind=iwp), intent(in) :: lin, lra
 integer(kind=iwp) :: iwdl, iwdr, jmlr, list0, list1, lmi, lmk, lri, lrk, ni
 real(kind=wp) :: vlop0, vlop1, w0sd1, w0sd2, w0sd3, w0sd4, wl0, wl1
 
@@ -1103,7 +1105,7 @@ use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lpcoe(norb_dz+1:norb_inn)
+integer(kind=iwp), intent(in) :: lpcoe(norb_dz+1:norb_inn)
 integer(kind=iwp) :: imd, imi, imij, imj, itypadl, itypadr, iwdl, iwdr, jmlr, kcoe, l, lmd, lmi, lmij, lmj, lpok, lr, lr0, lra, &
                      lrd, lri, lrj, lrk, ni, nocc, nxo
 real(kind=wp) :: tcoe, vlop0, vlop1, w0ds1, w0ds2, w0ds3, w0dv1, w0dv2, w0td1, w0td2, w0td3, w0td4, w0td5, w1ds, w1ds2, w1ds3, &

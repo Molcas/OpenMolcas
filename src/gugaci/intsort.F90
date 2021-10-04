@@ -266,7 +266,8 @@ end subroutine int_sort
 !use Definitions, only: iwp
 !
 !implicit none
-!integer(kind=iwp) :: i, j
+!integer(kind=iwp), intent(out) :: i
+!integer(kind=iwp), intent(in) :: j
 !integer(kind=iwp) :: iq, j0
 !
 !i = 0
@@ -290,7 +291,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ii
+integer(kind=iwp), intent(inout) :: ii
 integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ic, icend, icsta, id, idend, idsta, isma, ja, jb, lra, lrb, lrc, lrd, &
                      lsma, lsmb, lsmc, lsmcd, lsmd, lsmtmp(8), na
 real(kind=wp), external :: vfutei
@@ -415,7 +416,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ii
+integer(kind=iwp), intent(inout) :: ii
 integer(kind=iwp) :: ibend, ibsta, ira, irb, ismab, lmb, lra, lrb, lri, lrj, lsmi, lsmij, lsmj
 real(kind=wp), external :: vfutei
 
@@ -466,7 +467,8 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lri, lrj, lsmij, ii
+integer(kind=iwp), intent(in) :: lri, lrj, lsmij
+integer(kind=iwp), intent(inout) :: ii
 integer(kind=iwp) :: ic, icend, icsta, id, idend, idsta, ij, jc, jd, lrc, lsmc, lsmd
 real(kind=wp), external :: vfutei
 
@@ -508,7 +510,9 @@ do lsmc=1,ng_sm
     end do
   end do
 end do
+
 return
+
 end
 
 !===================== ext_2_1 end =====================================
@@ -522,7 +526,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ii
+integer(kind=iwp), intent(inout) :: ii
 integer(kind=iwp) :: ia, iaend, iasta, ijk, ja, lri, lrj, lrk, lsmd, lsmi, lsmij, lsmj, lsmk
 real(kind=wp), external :: vfutei
 
@@ -564,7 +568,8 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lri, lsmi, ii
+integer(kind=iwp), intent(in) :: lri, lsmi
+integer(kind=iwp), intent(inout) :: ii
 integer(kind=iwp) :: iabc, iabc0, ib, ib0, ibend, ibsta, icend, icsta, idend, idsta, irb, irc, ird, lrb, lrc, lrd, lsmb, lsmbc, &
                      lsmc, lsmd, nb, nc, nd
 real(kind=wp), external :: vfutei
@@ -638,7 +643,7 @@ use gugaci_global, only: lsm_inn, norb_frz, norb_inn
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ii
+integer(kind=iwp), intent(inout) :: ii
 integer(kind=iwp) :: lri, lsmi
 
 call determine_para_array_for_int1ind()
@@ -659,7 +664,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: list3
-integer(kind=iwp) :: i, j, k
+integer(kind=iwp), intent(in) :: i, j, k
 integer(kind=iwp) :: nij
 
 nij = i+ngw2(j)
@@ -676,7 +681,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: list4
-integer(kind=iwp) :: ld, lc, lb, la
+integer(kind=iwp), intent(in) :: ld, lc, lb, la
 integer(kind=iwp) :: lra, njkl
 
 lra = ncibl(la)
@@ -694,7 +699,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: numb
+integer(kind=iwp), intent(out) :: numb
 integer(kind=iwp) :: i, j, k, la, lb, lc, ld, lra, ms, msa, msb, msc, mscd, msd, msob(120), nij, njkl, nolra
 real(kind=wp), external :: vfutei
 

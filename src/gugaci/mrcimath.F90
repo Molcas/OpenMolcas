@@ -15,8 +15,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nx, n
-real(kind=wp) :: a(nx*(nx+1)/2), d(nx), e(nx), z(nx,nx)
+integer(kind=iwp), intent(in) :: nx, n
+real(kind=wp), intent(in) :: a(nx*(nx+1)/2)
+real(kind=wp), intent(out) :: d(nx), e(nx), z(nx,nx)
 integer(kind=iwp) :: i, ij, ip, j, jn, k, l
 real(kind=wp) :: f, g, h, hh
 
@@ -129,8 +130,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nx, n
-real(kind=wp) :: d(nx), e(nx), z(nx,nx)
+integer(kind=iwp), intent(in) :: nx, n
+real(kind=wp), intent(inout) :: d(nx), e(nx), z(nx,nx)
 integer(kind=iwp) :: i, j, k, kk, l, ll, m, mm
 real(kind=wp) :: b, c, f, g, h, p, pp, r, s
 

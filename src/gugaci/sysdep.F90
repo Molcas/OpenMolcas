@@ -68,13 +68,13 @@ return
 
 end subroutine deallocate_int_memory
 
-subroutine read_ml(nf,i,bv,n,m)
+subroutine read_ml(nf,bv,n,m)
 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nf, i, n, m
-real(kind=wp) :: bv(n)
+integer(kind=iwp), intent(in) :: nf, n, m
+real(kind=wp), intent(out) :: bv(n)
 integer(kind=iwp) :: idisk, irec(64)
 
 idisk = 0
@@ -91,18 +91,18 @@ call ddafile(nf,2,bv,n,idisk)
 !end select
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(i)
 
 end subroutine read_ml
 
-subroutine write_ml(nf,i,bv,n,m)
+subroutine write_ml(nf,bv,n,m)
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nf, i, n, m
-real(kind=wp) :: bv(n)
+integer(kind=iwp), intent(in) :: nf, n, m
+real(kind=wp), intent(_IN_) :: bv(n)
 integer(kind=iwp) :: idisk, irec(64)
 
 idisk = 0
@@ -130,38 +130,8 @@ call idafile(nf,1,irec,64,idisk)
 !write(u6,*) 'idisk',m,idisk
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(i)
 
 end subroutine write_ml
-
-subroutine write_bv(nf,i,bv,n)
-
-use Definitions, only: wp, iwp
-
-implicit none
-integer(kind=iwp) :: nf, i, n
-real(kind=wp) :: bv(n)
-
-call write_ml(nf,1,bv,n,i)
-
-return
-
-end subroutine write_bv
-
-subroutine read_bv(nf,i,bv,n)
-
-use Definitions, only: wp, iwp
-
-implicit none
-integer(kind=iwp) :: nf, i, n
-real(kind=wp) :: bv(n)
-
-call read_ml(nf,1,bv,n,i)
-
-return
-
-end subroutine read_bv
 
 subroutine readint(ntyp,vintrd)
 ! subroutine used to read divided integrals into main memory
@@ -180,9 +150,11 @@ use gugaci_global, only: LuCiInt
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ntyp
-real(kind=wp) :: vintrd(*)
+integer(kind=iwp), intent(in) :: ntyp
+real(kind=wp), intent(_OUT_) :: vintrd(*)
 integer(kind=iwp) :: idisk, idum(1), idx(4), lenint
 
 idx = 0
@@ -519,7 +491,7 @@ use gugaci_global, only: ihy, iy, jj_sub, jphy, max_node, max_wei
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: icase, lent
+integer(kind=iwp), intent(in) :: icase, lent
 
 allocate(ihy(max_wei),jj_sub(1:4,0:max_node))
 allocate(iy(1:4,0:max_node))
@@ -537,7 +509,7 @@ use gugaci_global, only: ihyl, iyl, jjl_sub, jphyl, max_node, max_wei
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: icase, lent
+integer(kind=iwp), intent(in) :: icase, lent
 
 allocate(ihyl(max_wei),jjl_sub(1:4,0:max_node))
 allocate(iyl(1:4,0:max_node))
@@ -593,7 +565,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: ipair
-integer(kind=iwp) :: i, j
+integer(kind=iwp), intent(in) :: i, j
 
 if (i >= j) then
   ipair = i*(i-1)/2+j

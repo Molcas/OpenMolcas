@@ -21,7 +21,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin
+integer(kind=iwp), intent(in) :: lin
 integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl, ni
 real(kind=wp) :: w1ds
 integer(kind=iwp), external :: iwalk_ad
@@ -66,7 +66,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin
+integer(kind=iwp), intent(in) :: lin
 integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmd, lrd, lri, mpl, ni
 real(kind=wp) :: w0ds1
 integer(kind=iwp), external :: iwalk_ad
@@ -111,7 +111,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin
+integer(kind=iwp), intent(in) :: lin
 integer(kind=iwp) :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmd, lmi, lmij, lmj, lrd, lri, lrj, mpl, ni
 real(kind=wp) :: w0ds2, w0ds3, w1ds2, w1ds3
 integer(kind=iwp), external :: iwalk_ad
@@ -194,7 +194,7 @@ use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lin, lra
+integer(kind=iwp), intent(in) :: lin, lra
 integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, lrk, mpl
 integer(kind=iwp), external :: iwalk_ad
 
@@ -257,7 +257,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin, lra
+integer(kind=iwp), intent(in) :: lin, lra
 integer(kind=iwp) :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, jmlr, lmi, lmij, lmj, lmk, lri, lrj, lrk, mpl, ni
 real(kind=wp) :: w0tt1, w1tt1
 integer(kind=iwp), external :: iwalk_ad
@@ -347,7 +347,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin, lra
+integer(kind=iwp), intent(in) :: lin, lra
 integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
 real(kind=wp) :: w0td1
 integer(kind=iwp), external :: iwalk_ad
@@ -413,7 +413,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin, jk
+integer(kind=iwp), intent(in) :: lin, jk
 integer(kind=iwp) :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
 real(kind=wp) :: w0td1
 integer(kind=iwp), external :: iwalk_ad
@@ -484,7 +484,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin
+integer(kind=iwp), intent(in) :: lin
 integer(kind=iwp) :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmd, lmi, lmij, lmj, lrd, lri, lrj, mpl, ni
 real(kind=wp) :: w0dt, w1dt
 integer(kind=iwp), external :: iwalk_ad
@@ -540,7 +540,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin, lra
+integer(kind=iwp), intent(in) :: lin, lra
 integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lml, lrk, lrl, mpl
 real(kind=wp) :: w0, w1
 integer(kind=iwp), external :: iwalk_ad
@@ -591,7 +591,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin, lra
+integer(kind=iwp), intent(in) :: lin, lra
 integer(kind=iwp) :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lml, lmr, lrl, lrr, mpl, ni
 real(kind=wp) :: w0dd1, w1dd1
 integer(kind=iwp), external :: iwalk_ad
@@ -643,7 +643,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin, jk
+integer(kind=iwp), intent(in) :: lin, jk
 integer(kind=iwp) :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lri, mpl, ni
 real(kind=wp) :: w0dv1
 integer(kind=iwp), external :: iwalk_ad
@@ -687,7 +687,7 @@ use gugaci_global, only: ipae, ipael, jml, jpad, jpadl, jud, lp_lwei, lp_rwei, l
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin, lra
+integer(kind=iwp), intent(in) :: lin, lra
 integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lri, mpl, ni
 real(kind=wp) :: w0dv1
 integer(kind=iwp), external :: iwalk_ad
@@ -728,7 +728,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin, lra
+integer(kind=iwp), intent(in) :: lin, lra
 integer(kind=iwp) :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lml, lmr, lrl, lrr, mpl, ni
 real(kind=wp) :: w1dd1
 integer(kind=iwp), external :: iwalk_ad
@@ -778,7 +778,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin, lra
+integer(kind=iwp), intent(in) :: lin, lra
 integer(kind=iwp) :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lml, lmr, lrl, lrr, mpl, ni
 real(kind=wp) :: w1dd1
 integer(kind=iwp), external :: iwalk_ad
@@ -827,7 +827,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin, lra
+integer(kind=iwp), intent(in) :: lin, lra
 integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lml, lrl, mpl
 real(kind=wp) :: w1
 integer(kind=iwp), external :: iwalk_ad
@@ -2129,7 +2129,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lra
+integer(kind=iwp), intent(in) :: lra
 integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lmki, lri, lrk, mpl, ni
 real(kind=wp) :: w0sd3
 integer(kind=iwp), external :: iwalk_ad
@@ -2179,7 +2179,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lra
+integer(kind=iwp), intent(in) :: lra
 integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lmki, lri, lrk, mpl, ni
 real(kind=wp) :: w0sd1, w0sd2, w0sd3, w0sd4
 integer(kind=iwp), external :: iwalk_ad
@@ -2439,7 +2439,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lra
+integer(kind=iwp), intent(in) :: lra
 integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
 real(kind=wp) :: w0td1
 integer(kind=iwp), external :: iwalk_ad
@@ -2739,7 +2739,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lra
+integer(kind=iwp), intent(in) :: lra
 integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jmlr, lmi, lri, mpl, ni
 real(kind=wp) :: w0dv1
 integer(kind=iwp), external :: iwalk_ad
@@ -2784,7 +2784,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin
+integer(kind=iwp), intent(in) :: lin
 integer(kind=iwp) :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmd, lmi, lmij, lmj, lrd, lri, lrj, lrk, mpl, ni
 real(kind=wp) :: w0sd10, w0sd15, w0sd3, w0sd6, w0sd7, w1sd10, w1sd15, w1sd3, w1sd6, w1sd7
 integer(kind=iwp), external :: iwalk_ad
@@ -2936,7 +2936,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin, jk
+integer(kind=iwp), intent(in) :: lin, jk
 integer(kind=iwp) :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
 real(kind=wp) :: w0sd3
 integer(kind=iwp), external :: iwalk_ad
@@ -2989,7 +2989,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin, jk
+integer(kind=iwp), intent(in) :: lin, jk
 integer(kind=iwp) :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, mpl, ni
 real(kind=wp) :: w0sd3
 integer(kind=iwp), external :: iwalk_ad
@@ -3039,7 +3039,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin, lra
+integer(kind=iwp), intent(in) :: lin, lra
 integer(kind=iwp) :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, lri, lrj, mpl, ni
 real(kind=wp) :: w0sv1, w1sv1
 integer(kind=iwp), external :: iwalk_ad
@@ -3097,7 +3097,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin
+integer(kind=iwp), intent(in) :: lin
 integer(kind=iwp) :: isma, iwal, iwar, iwdl, iwdr, lmd, lrd, lrk, mpl, ni
 real(kind=wp) :: w0
 integer(kind=iwp), external :: iwalk_ad
@@ -3156,7 +3156,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin, jk
+integer(kind=iwp), intent(in) :: lin, jk
 integer(kind=iwp) :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmd, lrd, mpl, ni
 real(kind=wp) :: w0
 integer(kind=iwp), external :: iwalk_ad
@@ -3201,7 +3201,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin, jk
+integer(kind=iwp), intent(in) :: lin, jk
 integer(kind=iwp) :: ijk, intpos, isma, iwal, iwar, iwdl, iwdr, lmd, lrd, mpl, ni
 real(kind=wp) :: w0
 integer(kind=iwp), external :: iwalk_ad
@@ -3245,7 +3245,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lin
+integer(kind=iwp), intent(in) :: lin
 integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lmj, lmk, lmki, lmkj, lri, lrj, lrk, mpl, ni
 real(kind=wp) :: w1ts3
 integer(kind=iwp), external :: iwalk_ad

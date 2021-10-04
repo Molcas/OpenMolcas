@@ -62,8 +62,8 @@
 !use Definitions, only: wp, iwp
 !
 !implicit none
-!integer(kind=iwp) :: ii, jj, kk, ll
-!real(kind=wp) :: val
+!integer(kind=iwp), intent(in) :: ii, jj, kk, ll
+!real(kind=wp), intent(in) :: val
 !integer(kind=iwp) :: lri, lrj, lrk, lrl, lrn, nij, nijkl, nkl
 !
 !!====================================================
@@ -103,7 +103,8 @@ use gugaci_global, only: ican_a, ican_b
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ii, jj, kk, ll, nxo
+integer(kind=iwp), intent(in) :: ii, jj, kk, ll
+integer(kind=iwp), intent(out) :: nxo
 integer(kind=iwp) :: lri, lrj, lrk, lrl, lrn, nij, nkl
 
 !====================================================
@@ -145,21 +146,14 @@ nxo = ican_b(nij)+nkl
 
 end subroutine trans_ijkl_intpos
 
-!subroutine trans_intpos_ijkl(intpos,lijkl)
-!use Definitions, only: iwp
+!subroutine trans_intpos_ijkl()
 !
 !implicit none
-!integer(kind=iwp) :: intpos, lijkl(4)
 !
 !!=========================================================
 !! read the saved two electron mo indices.
 !
 !return
-!! Avoid unused argument warnings
-!if (.false.) then
-!  call Unused_integer(intpos)
-!  call Unused_integer_array(lijkl)
-!end if
 !
 !end subroutine trans_intpos_ijkl
 
@@ -170,7 +164,7 @@ end subroutine trans_ijkl_intpos
 !use Definitions, only: wp, iwp
 !
 !implicit none
-!real(kind=wp) :: x1e(50000)
+!real(kind=wp), intent(in) :: x1e(50000)
 !integer(kind=iwp) :: i, i0, j, j0, k, k0, kl, l, l0, m, mik, mjk, nik, nil, niljk, nimkl, nji, njikl, njk, njmkl, nkl, norbf
 !real(kind=wp) :: dum, dumtmp, fock(n_all,n_all)
 !
@@ -407,7 +401,7 @@ end subroutine trans_ijkl_intpos
 !use Definitions, only: wp, iwp
 !
 !implicit none
-!real(kind=wp) :: x1e(50000)
+!real(kind=wp), intent(in) :: x1e(50000)
 !integer(kind=iwp) :: i, i0, j, j0, k, kl, l, m, mik, mjk, mnik, nik, nimkl, njk, njmkl
 !real(kind=wp) :: dum, dumtmp
 !
@@ -498,7 +492,7 @@ end subroutine trans_ijkl_intpos
 !use Definitions, only: iwp
 !
 !implicit none
-!integer(kind=iwp) :: nx
+!integer(kind=iwp), intent(in) :: nx
 !!character(len=256) :: filename
 !
 !!filename = tmpdir(1:len_str)//'/density'
@@ -510,9 +504,6 @@ end subroutine trans_ijkl_intpos
 !!write(nf22) (vector2(i),i=1,nx)
 !!close(nf22)
 !
-!! Avoid unused argument warnings
-!if (.false.) call Unused_integer(nx)
-!
 !end subroutine writedm2
 !
 !subroutine readdm2(nx)
@@ -523,7 +514,7 @@ end subroutine trans_ijkl_intpos
 !use Definitions, only: iwp
 !
 !implicit none
-!integer(kind=iwp) :: nx
+!integer(kind=iwp), intent(in) :: nx
 !!character(len=256) :: filename
 !
 !vector2(1:nx) = Zero
@@ -1097,8 +1088,8 @@ end subroutine trans_ijkl_intpos
 !use Definitions, only: wp, iwp
 !
 !implicit none
+!real(kind=wp), intent(out) :: dm1_act(naorbs,naorbs)
 !integer(kind=iwp) :: i, j, norbf, np, nq
-!real(kind=wp) :: dm1_act(naorbs,naorbs)
 !
 !norbf = norb_frz+1
 !do i=1,naorbs
@@ -1126,9 +1117,10 @@ end subroutine trans_ijkl_intpos
 !use Definitions, only: wp, iwp
 !
 !implicit none
-!real(kind=wp) :: x1e(50000)
+!real(kind=wp), intent(in) :: x1e(50000)
+!real(kind=wp), intent(out) :: fock(n_all,n_all)
 !integer(kind=iwp) :: i, i0, j, j0, k, k0, nij, nijkk, nik, nikjk, njk, nkk
-!real(kind=wp) :: fock(n_all,n_all), val
+!real(kind=wp) :: val
 !
 !fock(1:n_all,1:n_all) = Zero
 !

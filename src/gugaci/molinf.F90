@@ -182,7 +182,7 @@ contains
 
 subroutine error(code)
 
-  integer(kind=iwp) :: code
+  integer(kind=iwp), intent(in) :: code
 
   if (code < 0) then
     write(u6,*) 'input: end of input file encountered'

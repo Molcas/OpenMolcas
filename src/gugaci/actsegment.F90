@@ -14,14 +14,14 @@
 ! Sep. 28, 2009 -BSuo- Firstly write by YBWang, revised by BSuo
 ! Active space partial loops
 
-subroutine link_b1_at_given_orb(mh,lract)       !b^l:lstep<rstep
+subroutine link_b1_at_given_orb(mh)       !b^l:lstep<rstep
 
 use gugaci_global, only: istep_occ, iy, iyl, jb, jj_sub, jjl_sub, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, lpnew_head, &
                          lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mh, lract
+integer(kind=iwp), intent(inout) :: mh
 integer(kind=iwp) :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
                      lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, ni
 real(kind=wp) :: w, w0, w1, ww
@@ -75,19 +75,17 @@ mh = lpnew
 call change_vplp_pointer_arrays()
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lract)
 
 end subroutine link_b1_at_given_orb
 
-subroutine link_b2_at_given_orb(mh,lract)        !b^r:lstep>rstep
+subroutine link_b2_at_given_orb(mh)        !b^r:lstep>rstep
 
 use gugaci_global, only: istep_occ, iy, iyl, jb, jj_sub, jjl_sub, logic_br, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, &
                          lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mh, lract
+integer(kind=iwp), intent(inout) :: mh
 integer(kind=iwp) :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
                      lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, ni
 real(kind=wp) :: w, w0, w1, ww
@@ -145,19 +143,17 @@ mh = lpnew
 call change_vplp_pointer_arrays()
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lract)
 
 end subroutine link_b2_at_given_orb
 
-subroutine link_b3_at_given_orb(mh,lract)      !b&l:lstep>rstep
+subroutine link_b3_at_given_orb(mh)      !b&l:lstep>rstep
 
 use gugaci_global, only: istep_occ, iy, iyl, jb, jj_sub, jjl_sub, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, lpnew_head, &
                          lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mh, lract
+integer(kind=iwp), intent(inout) :: mh
 integer(kind=iwp) :: iactploop, idb, idocc, ilc, ilstep ,ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
                      lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, ni
 real(kind=wp) :: w, w0, w1, ww
@@ -211,19 +207,17 @@ mh = lpnew
 call change_vplp_pointer_arrays()
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lract)
 
 end subroutine link_b3_at_given_orb
 
-subroutine link_b4_at_given_orb(mh,lract)         !b&r:lstep<rstep
+subroutine link_b4_at_given_orb(mh)         !b&r:lstep<rstep
 
 use gugaci_global, only: istep_occ, iy, iyl, jb, jj_sub, jjl_sub, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, lpnew_head, &
                          lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mh, lract
+integer(kind=iwp), intent(inout) :: mh
 integer(kind=iwp) :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
                      lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, ni
 real(kind=wp) :: w, w0, w1, ww
@@ -277,19 +271,17 @@ mh = lpnew
 call change_vplp_pointer_arrays()
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lract)
 
 end subroutine link_b4_at_given_orb
 
-subroutine link_d10_at_given_orb(mh,lract)
+subroutine link_d10_at_given_orb(mh)
 
 use gugaci_global, only: iy, iyl, jb, jj_sub, jjl_sub, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, lpnew_head, lpnew_ltail, &
                          lpnew_lwei, lpnew_rtail, lpnew_rwei, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mh, lract
+integer(kind=iwp), intent(inout) :: mh
 integer(kind=iwp) :: iactploop, idb, ilstep, ind0, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, lpnextrtail, &
                      lprtail, lprwei, lprwei0, ni
 real(kind=wp) :: w, w0, w1, ww
@@ -337,8 +329,6 @@ mh = lpnew
 call change_vplp_pointer_arrays()
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lract)
 
 end subroutine link_d10_at_given_orb
 
@@ -351,7 +341,8 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mh, lrsta, lrend
+integer(kind=iwp), intent(inout) :: mh
+integer(kind=iwp), intent(in) :: lrsta, lrend
 integer(kind=iwp) :: iactploop, idb, ilc, ilstep, ind0, iorb, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
                      lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, ni
 real(kind=wp) :: w, w0, w1, ww
@@ -436,7 +427,8 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mh, lrsta, lrend
+integer(kind=iwp), intent(inout) :: mh
+integer(kind=iwp), intent(in) :: lrsta, lrend
 integer(kind=iwp) :: iactploop, idb, ilc, ilstep, ind0, iorb, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
                      lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, ni
 real(kind=wp) :: w, w0, w1, ww
@@ -512,7 +504,8 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mh, lrsta, lrend
+integer(kind=iwp), intent(inout) :: mh
+integer(kind=iwp), intent(in) :: lrsta, lrend
 integer(kind=iwp) :: iactploop, idb, ilc, ilstep, ind0, iorb, irc, irstep, jbl, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
                      lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, lr, ni
 real(kind=wp) :: w, w0, w1, ww
@@ -594,7 +587,8 @@ use gugaci_global, only: iy, iyl, jj_sub, jjl_sub, lp_head, lp_ltail, lp_lwei, l
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mh, lri
+integer(kind=iwp), intent(out) :: mh
+integer(kind=iwp), intent(in) :: lri
 integer(kind=iwp) :: iactploop, ind0, jdl, jdr, jl, jp, jpend, jpsta, jr
 real(kind=wp) :: w, ww
 integer(kind=iwp), parameter :: ishdrr = 36
@@ -638,7 +632,8 @@ use gugaci_global, only: istep_occ, iy, iyl, jb, jj_sub, jjl_sub, logic_br, lp_h
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mh, lri
+integer(kind=iwp), intent(out) :: mh
+integer(kind=iwp), intent(in) :: lri
 integer(kind=iwp) :: iactploop, ind0, jbr, jdl, jdr, jl, jp, jpend, jpsta, jr, ndl, ndr, ni
 real(kind=wp) :: w, ww
 integer(kind=iwp), parameter :: ishd1(4) = [38,39,43,48]
@@ -692,7 +687,8 @@ use gugaci_global, only: istep_occ, iy, iyl, jb, jj_sub, jjl_sub, lp_coe, lp_hea
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mh, lri
+integer(kind=iwp), intent(out) :: mh
+integer(kind=iwp), intent(in) :: lri
 integer(kind=iwp) :: iactploop, ind0, jbr, jd_occ, jdl, jdl_occ, jdr, jdr_occ, jl, jp, jpend, jpsta, jr, ni
 real(kind=wp) :: w, ww
 logical(kind=iwp) :: found
@@ -747,14 +743,14 @@ return
 
 end subroutine head_ar_at_given_orb
 
-subroutine tail_ar_at_given_orb(mh,lract)       !a^r:lstep>rstep
+subroutine tail_ar_at_given_orb(mh)       !a^r:lstep>rstep
 
 use gugaci_global, only: istep_occ, iy, iyl, ja, jb, jj_sub, jjl_sub, jm, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, &
                          lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mh, lract
+integer(kind=iwp), intent(inout) :: mh
 integer(kind=iwp) :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
                      lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, ni
 real(kind=wp) :: w, w0, w1, ww
@@ -813,19 +809,17 @@ mh = lpnew
 !call change_vplp_pointer_arrays()
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lract)
 
 end subroutine tail_ar_at_given_orb
 
-subroutine tail_al_at_given_orb(mh,lract)       !a^l:lstep<rstep
+subroutine tail_al_at_given_orb(mh)       !a^l:lstep<rstep
 
 use gugaci_global, only: istep_occ, iy, iyl, ja, jb, jj_sub, jjl_sub, jm, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, &
                          lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mh, lract
+integer(kind=iwp), intent(inout) :: mh
 integer(kind=iwp) :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
                      lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, ni
 real(kind=wp) :: w, w0, w1, ww
@@ -884,19 +878,17 @@ mh = lpnew
 !call change_vplp_pointer_arrays()
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lract)
 
 end subroutine tail_al_at_given_orb
 
-subroutine tail_drr_at_given_orb(mh,lract)       !d^r^r(3,0):locc=
+subroutine tail_drr_at_given_orb(mh)       !d^r^r(3,0):locc=
 
 use gugaci_global, only: iy, iyl, ja, jb, jj_sub, jjl_sub, jm, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, lpnew_head, &
                          lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mh, lract
+integer(kind=iwp), intent(inout) :: mh
 integer(kind=iwp) :: iactploop, idb, ilstep, ind0, irstep, lphead, lpltail, lplwei, lplwei0, lpnew, lpnextltail, lpnextrtail, &
                      lprtail, lprwei, lprwei0
 real(kind=wp) :: w, w0, w1, ww
@@ -946,19 +938,17 @@ mh = lpnew
 !call change_vplp_pointer_arrays()
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lract)
 
 end subroutine tail_drr_at_given_orb
 
-subroutine tail_drl_at_given_orb(mh,lract)       !d^r^l:locc=rocc
+subroutine tail_drl_at_given_orb(mh)       !d^r^l:locc=rocc
 
 use gugaci_global, only: istep_occ, iy, iyl, ja, jb, jj_sub, jjl_sub, jm, logic_br, lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, &
                          lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mh, lract
+integer(kind=iwp), intent(inout) :: mh
 logical(kind=iwp) :: logic_plbr
 integer(kind=iwp) :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstart, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
                      lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, ni
@@ -1021,7 +1011,5 @@ mh = lpnew
 !call change_vplp_pointer_arrays()
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lract)
 
 end subroutine tail_drl_at_given_orb

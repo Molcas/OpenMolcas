@@ -1837,7 +1837,7 @@ use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, intind_iabc, intind_iaqq
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lri, isma
+integer(kind=iwp), intent(in) :: lri, isma
 integer(kind=iwp) :: ia, ia0, iabc, iabc0, iaqq, iasta, ib, ibend, ibsta, ic, ilwei, intpos, iposint, jcoffset, lrc
 
 ia0 = (lri-1)*norb_ext
@@ -1914,7 +1914,7 @@ use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, intind_iabc, intind_iaqq
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lri, isma, ismb
+integer(kind=iwp), intent(in) :: lri, isma, ismb
 integer(kind=iwp) :: ia, ia0, iabc, iabc0, iaend, iaqq, iasta, ib, ibend, ibsta, ic, ilwei, intpos, iposint, jb, jcoffset, lrc
 
 ia0 = (lri-1)*norb_ext
@@ -1975,7 +1975,7 @@ use gugaci_global, only: ibsm_ext, icnt_base, iesm_ext, intind_iabc, intind_iaqq
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lri, isma, ismb
+integer(kind=iwp), intent(in) :: lri, isma, ismb
 integer(kind=iwp) :: ia, ia0, iabc, iabc0, iaend, iaqq, iasta, ib, ibend, ibsta, ic, ilwei, intpos, iposint, jcoffset, lrc
 
 ia0 = (lri-1)*norb_ext
@@ -2032,7 +2032,7 @@ use gugaci_global, only: icnt_base, intind_iaqq, isegdownwei, m_jd, norb_ext, no
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lri
+integer(kind=iwp), intent(in) :: lri
 integer(kind=iwp) :: ia0, iaqq, ic, ilwei, intoffset, intpos, iposint, is1orb, lrk
 
 ia0 = (lri-1)*norb_ext
@@ -2969,7 +2969,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iltype, ilsm, irsm, lri
+integer(kind=iwp), intent(in) :: iltype, ilsm, irsm, lri
 integer(kind=iwp) :: ic, icano_nn, icend, icsta, ilnodedownwei, indl, isma, ismb, ismnoded, ismnodes
 
 ismnodes = ilsm
@@ -3035,7 +3035,7 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lri
+integer(kind=iwp), intent(in) :: lri
 integer(kind=iwp) :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei
 real(kind=wp) :: w0_old, w0multi
 integer(kind=iwp), external :: iwalk_ad
@@ -3133,7 +3133,7 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lri
+integer(kind=iwp), intent(in) :: lri
 integer(kind=iwp) :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei
 real(kind=wp) :: w0_old, w0multi
 integer(kind=iwp), external :: iwalk_ad

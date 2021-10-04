@@ -63,8 +63,8 @@ if (norb_act == 0) then
   end do
 else
   !====================  norb_act<>0 ===================================
-  !if (logic_mr) call rst(ndd,indd)         !npp=2
-  !if (logic_mrelcas) call rcas(ndd,indd)   !npp=3
+  !if (logic_mr) call rst()         !npp=2
+  !if (logic_mrelcas) call rcas()   !npp=3
 
   write(u6,*) ' '
   write(u6,*) ' now reading distinct row tableau'
@@ -195,13 +195,12 @@ return
 
 end subroutine active_drt
 
-!subroutine rst(id,indd)
+!subroutine rst()
 !
 !use gugaci_global, only: LuDrt
-!use Definitions, only: iwp, u6
+!use Definitions, only: u6
 !
 !implicit none
-!integer(kind=iwp) :: id, indd
 !
 !write(u6,*) ' '
 !write(u6,*) ' now reading distinct row tableau'
@@ -217,11 +216,6 @@ end subroutine active_drt
 !!close(21)
 !
 !return
-!! Avoid unused argument warnings
-!if (.false.) then
-!  call Unused_integer(id)
-!  call Unused_integer(indd)
-!end if
 !
 !end subroutine rst
 
@@ -232,7 +226,8 @@ end subroutine active_drt
 !use Definitions, only: iwp, u6
 !
 !implicit none
-!integer(kind=iwp) :: nel, ndj, locu(8,max_ref), nm
+!integer(kind=iwp), intent(in) :: nel, nm
+!integer(kind=iwp), intent(out) :: ndj, locu(8,max_ref)
 !integer(kind=iwp) :: i, l1, l2, l3, l4, l5, l6, l7, l8, ldj, lh, lhe, lhs, lhsm(8), lm, lpsum, lscu(0:8,max_ref), m, m1, m2, m3, &
 !                     m4, m5, m6, m7, m8, mdj, mys, ne_act, ne_s, nes, npair, nre
 !
@@ -340,13 +335,12 @@ end subroutine active_drt
 !
 !end subroutine ref_gfs
 
-!subroutine rcas(id,indd)
+!subroutine rcas()
 !
 !use gugaci_global, only: LuDrt
-!use Definitions, only: iwp, u6
+!use Definitions, only: u6
 !
 !implicit none
-!integer(kind=iwp) :: id, indd
 !
 !write(u6,*) ' '
 !write(u6,*) ' now reading distinct row tableau'
@@ -364,11 +358,6 @@ end subroutine active_drt
 !!close(21)
 !
 !return
-!! Avoid unused argument warnings
-!if (.false.) then
-!  call Unused_integer(id)
-!  call Unused_integer(indd)
-!end if
 !
 !end subroutine rcas
 
@@ -378,7 +367,8 @@ end subroutine active_drt
 !use Definitions, only: iwp
 !
 !implicit none
-!integer(kind=iwp) :: jk, ind(8,max_node), inb, ndj, locu(8,ndj)
+!integer(kind=iwp), intent(in) :: jk, ind(8,max_node), ndj, locu(8,ndj)
+!integer(kind=iwp), intent(out) :: inb
 !integer(kind=iwp) :: i, iex, iexcit(ndj), lsym(8), m, nsumel
 !
 !inb = 0
@@ -406,17 +396,15 @@ end subroutine active_drt
 !
 !end subroutine check_rcas3
 
-subroutine irfrst(iselcsf_occ)
+subroutine irfrst()
 ! ifrno(j)=i
 ! irfno(i)=j no. i ref is no. j cfs in h0
 
-use gugaci_global, only: ifrno, iref_occ, irf, irfno, max_innorb, max_orb, max_ref, n_ref, nci_h0, norb_act, norb_all, norb_dz, &
-                         nwalk
+use gugaci_global, only: ifrno, iref_occ, irf, irfno, max_orb, n_ref, nci_h0, norb_act, norb_all, norb_dz, nwalk
 use Constants, only: One
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: iselcsf_occ(max_innorb,max_ref)
 integer(kind=iwp) :: i, icount, icsfocc, icsfwlk, ii, ij, im, iwalktmp(max_orb), j, ndimh0
 
 icsfwlk = 0
@@ -462,8 +450,6 @@ return
 !1000 format(1x,'warnning!the selected csf is not in references states')
 !2000 format(1x,'the selected csf is :',2x,32(i1))
 3000 format(1x,'number of gelfand states in referance space:',1x,i4)
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(iselcsf_occ)
 !...end of irfrst
 
 end subroutine irfrst
@@ -476,7 +462,7 @@ end subroutine irfrst
 !use Definitions, only: iwp, u6
 !
 !implicit none
-!integer(kind=iwp) :: iselcsf_occ(max_innorb,max_ref)
+!integer(kind=iwp), intent(in) :: iselcsf_occ(max_innorb,max_ref)
 !integer(kind=iwp) :: i, icount, icsfocc, icsfwlk, ii, ij, im, io, iocsf, ire, iwalktmp(max_orb), j, ndimh0, nocc
 !logical(kind=iwp) :: log_exist
 !
@@ -556,7 +542,7 @@ end subroutine irfrst
 !1000 format(1x,'warnning!the selected csf is not in references states')
 !2000 format(1x,'the selected csf is :',2x,32(i1))
 !3000 format(1x,'number of gelfand states in referance space:',1x,i4)
-!!...end of irfrst
+!!...end of irfrst_bak
 !
 !end subroutine irfrst_bak
 
@@ -567,7 +553,7 @@ end subroutine irfrst
 !
 !implicit none
 !integer(kind=iwp) :: min_itexcit
-!integer(kind=iwp) :: indjk(4)
+!integer(kind=iwp), intent(in) :: indjk(4)
 !integer(kind=iwp) :: indexcit, ixcit, lref, ngrop, nj
 !! integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
 !! indexcit=  ir1 ir2 ir3 ir4 ir5 ir6 ir7 ir8 ......... ir15
@@ -607,7 +593,8 @@ end subroutine irfrst
 !use Definitions, only: iwp
 !
 !implicit none
-!integer(kind=iwp) :: idcc, indjk(4), n_ref, locuk0(n_ref)
+!integer(kind=iwp), intent(in) :: idcc, n_ref, locuk0(n_ref)
+!integer(kind=iwp), intent(inout) :: indjk(4)
 !integer(kind=iwp) :: indexcit, ixcit, lref, ngrop, nj
 !
 !nj = 0

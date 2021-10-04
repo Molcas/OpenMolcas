@@ -94,7 +94,7 @@ use gugaci_global, only: max_orb, ntrabuf
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nft, maxrecord, noffset(maxrecord), norb(8), ngsm, multab(8,8), maporb(max_orb), noidx(8)
+integer(kind=iwp), intent(in) :: nft, maxrecord, noffset(maxrecord), norb(8), ngsm, multab(8,8), maporb(max_orb), noidx(8)
 integer(kind=iwp) :: idisk, idx, iout, ityp, li, lj, lk, ll, lri, lrj, lrk, lrl, nbpq, nbrs, nintb, nop, noq, nor, nos, nsp, nspq, &
                      nspqr, nsq, nsr, nss, nssm, ntj, ntk, ntl
 real(kind=wp) :: buff(ntrabuf), val
@@ -285,7 +285,7 @@ use gugaci_global, only: lenintegral, max_orb, ntrabuf, ntratoc
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nft, norb(8), ngsm, multab(8,8), maporb(max_orb), noidx(8)
+integer(kind=iwp), intent(in) :: nft, norb(8), ngsm, multab(8,8), maporb(max_orb), noidx(8)
 integer(kind=iwp) :: idisk, idx, iout, lenrd, li, lj, lk, ll, lri, lrj, lrk, lrl, nbpq, nbrs, nintb, nop, noq, nor, nos, nsp, &
                      nspq, nspqr, nsq, nsr, nss, nssm, ntj, ntk, numax, numin
 real(kind=wp) :: val
@@ -392,8 +392,9 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "Molcas.fh"
-integer(kind=iwp) :: nft, idisk
-real(kind=wp) :: ecor
+integer(kind=iwp), intent(in) :: nft
+real(kind=wp), intent(out) :: ecor
+integer(kind=iwp), intent(out) :: idisk
 integer(kind=iwp) :: idum(1), lenrd, nbas(8), ncone(64), ndel(8), nfro(8), norb(8)
 real(kind=wp) :: dum(1)
 character(len=LenIn8) :: bsbl(maxbfn)
@@ -433,8 +434,9 @@ end subroutine readtraonehead
 !use Definitions, only: wp, iwp
 !
 !implicit none
-!integer(kind=iwp) :: nft, lend, idisk
-!real(kind=wp) :: xbuff(lend)
+!integer(kind=iwp), intent(in) :: nft, lend
+!integer(kind=iwp), intent(inout) :: idisk
+!real(kind=wp), intent(out) :: xbuff(lend)
 !integer(kind=iwp) :: nbas(mxsym), ncone(64), ndel(mxsym), nfro(mxsym), norb(mxsym)
 !
 !lenrd = lend*lendbl
@@ -452,9 +454,10 @@ end subroutine readtraonehead
 !use Definitions, only: iwp, u6
 !
 !implicit none
-!integer(kind=iwp) :: nft, lbuf, idisk
+!integer(kind=iwp), intent(in) :: nft, lbuf
+!integer(kind=iwp), intent(inout) :: idisk
+!character, intent(out) :: ibuf(lbuf)
 !integer(kind=iwp) :: imo, ioff, noff, nr
-!character :: ibuf(lbuf)
 !integer(kind=iwp), parameter :: min_block_length = 512
 !
 !noff = idisk*min_block_length
@@ -492,8 +495,8 @@ use gugaci_global, only: vdint, vector1, voint
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ik, jk, kk, lk
-real(kind=wp) :: val
+integer(kind=iwp), intent(in) :: ik, jk, kk, lk
+real(kind=wp), intent(in) :: val
 integer(kind=iwp) :: i, ind(4), j, k, l, list, lri, lrj, lrk, lrl, lrn, nt
 integer(kind=iwp), external :: list3_all, list4_all
 
@@ -604,7 +607,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: numb
+integer(kind=iwp), intent(out) :: numb
 integer(kind=iwp) :: i, j, la, lb, lc, ld, lra, lrb, lrc, lrd, lri, lrj, ms, msa, msb, msc, mscd, msd, msob(8), nij, njkl
 
 msob = 0
@@ -692,7 +695,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: vfutei
-integer(kind=iwp) :: ix, jx, kx, lx
+integer(kind=iwp), intent(in) :: ix, jx, kx, lx
 integer(kind=iwp) :: i, ind(4), j, list, lri, lrj, lrk, lrl, lrn, nt
 real(kind=wp) :: val
 integer(kind=iwp), external :: list3_all, list4_all
@@ -773,7 +776,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: list3_all
-integer(kind=iwp) :: i, j, k
+integer(kind=iwp), intent(in) :: i, j, k
 integer(kind=iwp) :: nij
 
 nij = i+ngw2(j)
@@ -790,7 +793,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: list4_all
-integer(kind=iwp) :: ld, lc, lb, la
+integer(kind=iwp), intent(in) :: ld, lc, lb, la
 integer(kind=iwp) :: lra, njkl
 
 !write(u6,*) 'ld,lc,lb,la',ld,lc,lb,la

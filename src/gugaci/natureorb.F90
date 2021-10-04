@@ -15,8 +15,9 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nsbas(8), nsall(8), nsdel(8), ngsm, lden, lcmo, lenb, nmo
-real(kind=wp) :: den1(lden), cmo(lcmo), cno(lcmo), occ(nmo), pror
+integer(kind=iwp), intent(in) :: nsbas(8), nsall(8), nsdel(8), ngsm, lden, lcmo, lenb, nmo
+real(kind=wp), intent(in) :: den1(lden), cmo(lcmo), pror
+real(kind=wp), intent(out) :: cno(lcmo), occ(nmo)
 character :: bsbl(lenb)
 integer(kind=iwp) :: i, im, j, nc, nc0, nc1, nc2, nc3, nc4, nc5, nsfrz(8), nsort(nmo)
 real(kind=wp) :: buff(nmo**2), val
@@ -38,7 +39,7 @@ end do
 !close(200)
 
 val = 0
-cno = cmo
+cno(:) = cmo(:)
 nc0 = 1
 nc1 = 1
 nc2 = 1

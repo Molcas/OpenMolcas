@@ -19,7 +19,7 @@ use gugaci_global, only: ihy, ihyl, ildownwei_segdd, ilsegdownwei, iml, imr, ipa
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lri, lrj, nk
+integer(kind=iwp), intent(in) :: lri, lrj, nk
 integer(kind=iwp) :: ihypos, ilpend, ilpsta, ilw, iml0, imr0, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
                      nlp_value
 integer(kind=iwp), external :: iwalk_ad
@@ -104,7 +104,7 @@ use gugaci_global, only: ihy, ihyl, ildownwei_segdd, iml, ipae, ipael, irdownwei
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lri
+integer(kind=iwp), intent(in) :: lri
 integer(kind=iwp) :: ihypos, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value
 integer(kind=iwp), external :: iwalk_ad
 
@@ -196,7 +196,7 @@ use gugaci_global, only: ihy, ihyl, ildownwei_segdd, ilsegdownwei, ipae, ipael, 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lri
+integer(kind=iwp), intent(in) :: lri
 integer(kind=iwp) :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value
 real(kind=wp) :: w0_old, w0multi
 real(kind=wp), parameter :: crl = 1.0e-8_wp
@@ -310,7 +310,7 @@ use gugaci_global, only: ildownwei_segdd, ilsegdownwei, ipae, ipael, irdownwei_s
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lri, lrj
+integer(kind=iwp), intent(in) :: lri, lrj
 integer(kind=iwp) :: iiext, ilpend, ilpsta, ilw, iplp, irw, iw0, lrk, nlp_value
 real(kind=wp) :: w0_old, w0multi
 real(kind=wp), parameter :: crl = 1.0e-8_wp
@@ -393,7 +393,7 @@ use gugaci_global, only: ihy, ihyl, ildownwei_segdd, ilsegdownwei, ipae, ipael, 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lri
+integer(kind=iwp), intent(in) :: lri
 integer(kind=iwp) :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value
 real(kind=wp) :: w1_old, w1multi
 real(kind=wp), parameter :: crl = 1.0e-8_wp
@@ -511,7 +511,7 @@ use gugaci_global, only: ihy, ihyl, ildownwei_segdd, ilsegdownwei, ipae, ipael, 
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lri
+integer(kind=iwp), intent(in) :: lri
 integer(kind=iwp) :: ihypos, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, n1415, nlp_value
 integer(kind=iwp), external :: iwalk_ad
 
@@ -598,7 +598,7 @@ use gugaci_global, only: ildownwei_segdd, ilsegdownwei, ipae, ipael, irdownwei_s
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lri, lrj
+integer(kind=iwp), intent(in) :: lri, lrj
 integer(kind=iwp) :: iiext, ilpend, ilpsta, ilw, iplp, irw, iw0, lrk, n1415, nlp_value
 real(kind=wp) :: w0_old, w0multi
 real(kind=wp), parameter :: crl = 1.0e-8_wp
@@ -683,7 +683,7 @@ use gugaci_global, only: ihy, ihyl, ildownwei_segdd, ilsegdownwei, ipae, ipael, 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lri
+integer(kind=iwp), intent(in) :: lri
 integer(kind=iwp) :: ihypos, iiext, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value
 real(kind=wp) :: w1_old, w1multi
 real(kind=wp), parameter :: crl = 1.0e-8_wp
@@ -798,7 +798,7 @@ use Constants, only: Zero, One
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lri, lrj
+integer(kind=iwp), intent(in) :: lri, lrj
 integer(kind=iwp) :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
                      lphead, nlp_value
 integer(kind=iwp), external :: iwalk_ad
@@ -887,7 +887,7 @@ use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, ise
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lri
+integer(kind=iwp), intent(in) :: lri
 integer(kind=iwp) :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
                      lphead, ndorb, nlp_value
 integer(kind=iwp), external :: iwalk_ad
@@ -976,7 +976,7 @@ use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, ise
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lri
+integer(kind=iwp), intent(in) :: lri
 integer(kind=iwp) :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
                      lphead, ndorb, nlp_value
 integer(kind=iwp), external :: iwalk_ad
@@ -1065,7 +1065,7 @@ use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, ise
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: idtu, isma, lri, lrj
+integer(kind=iwp), intent(in) :: idtu, isma, lri, lrj
 integer(kind=iwp) :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
                      lpcoe(norb_dz+1:norb_inn), lphead, nlp_value, norb, nvalue1
 integer(kind=iwp), external :: iwalk_ad
@@ -1151,7 +1151,7 @@ use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, ise
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: idtu, lri, lrj, isma
+integer(kind=iwp), intent(in) :: idtu, lri, lrj, isma
 integer(kind=iwp) :: ihypos, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
                      lpcoe(norb_dz+1:norb_inn), nlp_value, norb, nvalue1
 integer(kind=iwp), external :: iwalk_ad
@@ -1228,7 +1228,7 @@ use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, ise
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: idtu, lri, lrj, isma
+integer(kind=iwp), intent(in) :: idtu, lri, lrj, isma
 integer(kind=iwp) :: ihypos, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
                      lpcoe(norb_dz+1:norb_inn), nlp_value, norb, nvalue1
 integer(kind=iwp), external :: iwalk_ad
@@ -1305,7 +1305,7 @@ use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, ise
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lri, lrj
+integer(kind=iwp), intent(in) :: lri, lrj
 integer(kind=iwp) :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
                      lphead, nlp_value
 integer(kind=iwp), external :: iwalk_ad

@@ -16,7 +16,7 @@ use gugaci_global, only: idisk_array, idisk_lp, LuLoop, mhlpmax
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: npl, maxplcon
+integer(kind=iwp), intent(out) :: npl, maxplcon
 
 maxplcon = 0
 mhlpmax = 0
@@ -55,7 +55,7 @@ use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpb
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: npl
+integer(kind=iwp), intent(inout) :: npl
 integer(kind=iwp) :: iml_
 
 mhsum = 0
@@ -82,7 +82,7 @@ use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpb
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: npl
+integer(kind=iwp), intent(inout) :: npl
 integer(kind=iwp) :: iml_, imr_
 
 mhsum = 0
@@ -111,7 +111,7 @@ use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpb
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: npl
+integer(kind=iwp), intent(inout) :: npl
 integer(kind=iwp) :: iml_, imr_
 
 mhsum = 0
@@ -140,7 +140,7 @@ use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpb
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: npl
+integer(kind=iwp), intent(inout) :: npl
 integer(kind=iwp) :: iml_, imr_
 
 mhsum = 0
@@ -169,7 +169,7 @@ use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpb
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: npl
+integer(kind=iwp), intent(inout) :: npl
 integer(kind=iwp) :: iml_
 
 mhsum = 0
@@ -196,7 +196,7 @@ use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpb
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: npl
+integer(kind=iwp), intent(inout) :: npl
 integer(kind=iwp) :: iml_, imr_
 
 mhsum = 0
@@ -225,7 +225,7 @@ use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpb
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: npl
+integer(kind=iwp), intent(inout) :: npl
 integer(kind=iwp) :: iml_, imr_
 
 mhsum = 0
@@ -254,7 +254,7 @@ use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpb
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: npl
+integer(kind=iwp), intent(inout) :: npl
 integer(kind=iwp) :: iml_, imr_
 
 mhsum = 0
@@ -283,7 +283,7 @@ use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpb
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: npl
+integer(kind=iwp), intent(inout) :: npl
 integer(kind=iwp) :: iml_
 
 mhsum = 0
@@ -310,7 +310,7 @@ use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpb
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: npl
+integer(kind=iwp), intent(inout) :: npl
 integer(kind=iwp) :: iml_, imr_
 
 mhsum = 0
@@ -339,7 +339,7 @@ use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpb
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: npl
+integer(kind=iwp), intent(inout) :: npl
 integer(kind=iwp) :: iml_, imr_
 
 mhsum = 0
@@ -368,7 +368,7 @@ use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpb
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: npl
+integer(kind=iwp), intent(inout) :: npl
 integer(kind=iwp) :: iml_, imr_
 
 mhsum = 0
@@ -397,7 +397,7 @@ use gugaci_global, only: idisk_array, idisk_lp, iml, imr, lp_count, lpblock, lpb
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: npl
+integer(kind=iwp), intent(inout) :: npl
 integer(kind=iwp) :: imr_
 
 mhsum = 0
@@ -425,7 +425,7 @@ use gugaci_global, only: iml, imr, ipae, ipael, jml, jmr, jpad, jpadl, jpadlr, j
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: id, iptyl, iptyr
+integer(kind=iwp), intent(in) :: id, iptyl, iptyr
 integer(kind=iwp) :: ide, ipaer, jml_, jmlend, jmlsta, jmr_, jmrend, jmrsta, jpadr, jpaer, jptyl, jptyr, jptyrend
 
 call get_jp(iptyl,iml,ipael,0)
@@ -533,10 +533,10 @@ do lrai=norb_dz+1,norb_inn
       ! line=4  a&r--b&r--b^r<-->a^r
       call head_ar_at_given_orb(mh,lrai)
       call link_c1_to_given_orb(mh,lrai+1,lraj-1)
-      call link_b4_at_given_orb(mh,lraj)
+      call link_b4_at_given_orb(mh)
       logic_br(1:mh) = .true.
       call link_c2_to_given_orb(mh,lraj+1,lrak-1)
-      call link_b2_at_given_orb(mh,lrak)
+      call link_b2_at_given_orb(mh)
       call link_c1_to_given_orb(mh,lrak+1,norb_inn)
       if (mh /= 0) then
         call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -554,10 +554,10 @@ do lrai=norb_dz+1,norb_inn
       ! line=7 a&r--b&l--b^l<-->a^r
       call head_ar_at_given_orb(mh,lrai)
       call link_c1_to_given_orb(mh,lrai+1,lraj-1)
-      call link_b3_at_given_orb(mh,lraj)
+      call link_b3_at_given_orb(mh)
       logic_br(1:mh) = .true.
       call link_c2_to_given_orb(mh,lraj+1,lrak-1)
-      call link_b1_at_given_orb(mh,lrak)
+      call link_b1_at_given_orb(mh)
       call link_c1_to_given_orb(mh,lrak+1,norb_inn)
       if (mh == 0) cycle
       call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -582,7 +582,7 @@ do lrai=norb_dz+2,norb_inn
     call head_drr_at_given_orb(mh,lrak)
     logic_br(1:mh) = .true.
     call link_c2_to_given_orb(mh,lrak+1,lrai-1)
-    call link_b2_at_given_orb(mh,lrai)
+    call link_b2_at_given_orb(mh)
     call link_c1_to_given_orb(mh,lrai+1,norb_inn)
     if (mh /= 0) then
       call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -600,7 +600,7 @@ do lrai=norb_dz+2,norb_inn
     ! line=12 d&rl--b^l<-->a^r
     call head_drl_at_given_orb(mh,lrak)
     call link_c2_to_given_orb(mh,lrak+1,lrai-1)
-    call link_b1_at_given_orb(mh,lrai)
+    call link_b1_at_given_orb(mh)
     call link_c1_to_given_orb(mh,lrai+1,norb_inn)
     if (mh == 0) cycle
     call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -640,7 +640,7 @@ do lra=norb_dz+1,norb_inn
     ! line=2 a&r--d&l^r<-->a^l
     call head_ar_at_given_orb(mh,lra)
     call link_c1_to_given_orb(mh,lra+1,lrd-1)
-    call link_d10_at_given_orb(mh,lrd)
+    call link_d10_at_given_orb(mh)
     call link_c1_to_given_orb(mh,lrd+1,norb_inn)
     if (mh == 0) cycle
     call value_sort_ploop(mh,.false.,.true.,.false.)
@@ -677,10 +677,10 @@ do lrai=norb_dz+1,norb_inn
       ! line=6  a&r--b&l--b^r<-->a^l
       call head_ar_at_given_orb(mh,lrai)
       call link_c1_to_given_orb(mh,lrai+1,lraj-1)
-      call link_b3_at_given_orb(mh,lraj)
+      call link_b3_at_given_orb(mh)
       logic_br(1:mh) = .true.
       call link_c2_to_given_orb(mh,lraj+1,lrak-1)
-      call link_b2_at_given_orb(mh,lrak)
+      call link_b2_at_given_orb(mh)
       call link_c1_to_given_orb(mh,lrak+1,norb_inn)
       if (mh == 0) cycle
       call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -706,7 +706,7 @@ do lrai=norb_dz+2,norb_inn
     ! line=11 d&rl--b^r<-->a^l
     call head_drl_at_given_orb(mh,lrak)
     call link_c2_to_given_orb(mh,lrak+1,lrai-1)
-    call link_b2_at_given_orb(mh,lrai)
+    call link_b2_at_given_orb(mh)
     call link_c1_to_given_orb(mh,lrai+1,norb_inn)
     if (mh == 0) cycle
     call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -735,7 +735,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ide
+integer(kind=iwp), intent(in) :: ide
 integer(kind=iwp) :: imlr, lra, lrai, lraj, lsmi, lsmij, lsmj, mh
 
 imlr = mul_tab(iml,imr)
@@ -758,7 +758,7 @@ do lrai=norb_dz+1,norb_inn
     ! line=5 a&r-b&l-
     call head_ar_at_given_orb(mh,lrai)
     call link_c1_to_given_orb(mh,lrai+1,lraj-1)
-    call link_b3_at_given_orb(mh,lraj)
+    call link_b3_at_given_orb(mh)
     logic_br(1:mh) = .true.
     call link_c2_to_given_orb(mh,lraj+1,norb_inn)
     if (mh == 0) cycle
@@ -816,7 +816,7 @@ do lrai=norb_dz+1,norb_inn
     if (lsmij /= imlr) cycle
     call head_ar_at_given_orb(mh,lrai)
     call link_c1_to_given_orb(mh,lrai+1,lraj-1)
-    call link_b4_at_given_orb(mh,lraj)
+    call link_b4_at_given_orb(mh)
     logic_br(1:mh) = .true.
     call link_c2_to_given_orb(mh,lraj+1,norb_inn)
     if (mh == 0) cycle
@@ -873,7 +873,7 @@ do lra=norb_dz+1,norb_inn
   if (jml == jmr) then
     logic_br(1) = .false.
     call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-    call link_b1_at_given_orb(mh,lra)
+    call link_b1_at_given_orb(mh)
     call link_c1_to_given_orb(mh,lra+1,norb_inn)
     if (mh /= 0) then
       call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -883,7 +883,7 @@ do lra=norb_dz+1,norb_inn
   end if
   logic_br(1) = .true.
   call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-  call link_b1_at_given_orb(mh,lra)        !b^l
+  call link_b1_at_given_orb(mh)        !b^l
   call link_c1_to_given_orb(mh,lra+1,norb_inn)
   if (mh /= 0) then
     call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -895,7 +895,7 @@ do lra=norb_dz+1,norb_inn
   if (jml == jmr) then
     logic_br(1) = .false.
     call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-    call link_b2_at_given_orb(mh,lra)
+    call link_b2_at_given_orb(mh)
     call link_c1_to_given_orb(mh,lra+1,norb_inn)
     if (mh /= 0) then
       call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -906,7 +906,7 @@ do lra=norb_dz+1,norb_inn
 
   logic_br(1) = .true.
   call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-  call link_b2_at_given_orb(mh,lra)
+  call link_b2_at_given_orb(mh)
   call link_c1_to_given_orb(mh,lra+1,norb_inn)
   if (mh == 0) cycle
   call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -925,10 +925,10 @@ do lrai=norb_dz+1,norb_inn-1
     jk = ngw2(lrai-norb_frz)+ngw3(lraj-norb_frz)
 
     call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
-    call link_b4_at_given_orb(mh,lrai)        !b&r
+    call link_b4_at_given_orb(mh)        !b&r
     logic_br(1:mh) = .true.
     call link_c2_to_given_orb(mh,lrai+1,lraj-1)
-    call link_b2_at_given_orb(mh,lraj)        !b^r
+    call link_b2_at_given_orb(mh)        !b^r
     call link_c1_to_given_orb(mh,lraj+1,norb_inn)
     if (mh /= 0) then
       call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -937,10 +937,10 @@ do lrai=norb_dz+1,norb_inn-1
     end if
     ! line=22 -b&l-b^l-
     call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
-    call link_b3_at_given_orb(mh,lrai)        !b&l
+    call link_b3_at_given_orb(mh)        !b&l
     logic_br(1:mh) = .true.
     call link_c2_to_given_orb(mh,lrai+1,lraj-1)
-    call link_b1_at_given_orb(mh,lraj)        !b^l
+    call link_b1_at_given_orb(mh)        !b^l
     call link_c1_to_given_orb(mh,lraj+1,norb_inn)
     if (mh == 0) cycle
     call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -1000,10 +1000,10 @@ end subroutine lp_head_in_dbl_1
 !          jk = ngw2(lrai-norb_frz)+ngw3(lraj-norb_frz)
 !
 !          call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
-!          call link_b4_at_given_orb(mh,lrai)        !b&r
+!          call link_b4_at_given_orb(mh)        !b&r
 !          logic_br(1:mh) = .true.
 !          call link_c2_to_given_orb(mh,lrai+1,lraj-1)
-!          call link_b2_at_given_orb(mh,lraj)        !b^r
+!          call link_b2_at_given_orb(mh)        !b^r
 !          call link_c1_to_given_orb(mh,lraj+1,norb_inn)
 !          if (mh /= 0) then
 !            call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -1015,10 +1015,10 @@ end subroutine lp_head_in_dbl_1
 !          end if
 !          ! line=22 -b&l-b^l-
 !          call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
-!          call link_b3_at_given_orb(mh,lrai)        !b&l
+!          call link_b3_at_given_orb(mh)        !b&l
 !          logic_br(1:mh) = .true.
 !          call link_c2_to_given_orb(mh,lrai+1,lraj-1)
-!          call link_b1_at_given_orb(mh,lraj)        !b^l
+!          call link_b1_at_given_orb(mh)        !b^l
 !          call link_c1_to_given_orb(mh,lraj+1,norb_inn)
 !          if (mh == 0) cycle
 !          call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -1050,7 +1050,7 @@ end subroutine lp_head_in_dbl_1
 !    if (jml == jmr) then
 !      logic_br(1) = .false.
 !      call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-!      call link_b1_at_given_orb(mh,lra)
+!      call link_b1_at_given_orb(mh)
 !      call link_c1_to_given_orb(mh,lra+1,norb_inn)
 !      if (mh /= 0) then
 !        call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -1064,7 +1064,7 @@ end subroutine lp_head_in_dbl_1
 !    end if
 !    logic_br(1) = .true.
 !    call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-!    call link_b1_at_given_orb(mh,lra)        !b^l
+!    call link_b1_at_given_orb(mh)        !b^l
 !    call link_c1_to_given_orb(mh,lra+1,norb_inn)
 !    if (mh == 0) then
 !      do_16 = .true.
@@ -1088,7 +1088,7 @@ end subroutine lp_head_in_dbl_1
 !    if (jml == jmr) then
 !      logic_br(1) = .false.
 !      call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-!      call link_b2_at_given_orb(mh,lra)
+!      call link_b2_at_given_orb(mh)
 !      call link_c1_to_given_orb(mh,lra+1,norb_inn)
 !      if (mh /= 0) then
 !        call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -1103,7 +1103,7 @@ end subroutine lp_head_in_dbl_1
 !
 !    logic_br(1) = .true.
 !    call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-!    call link_b2_at_given_orb(mh,lra)
+!    call link_b2_at_given_orb(mh)
 !    call link_c1_to_given_orb(mh,lra+1,norb_inn)
 !    if (mh == 0) cycle
 !    call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -1166,7 +1166,7 @@ do lra=norb_dz+1,norb_inn
     if (jml == jmr) then
       logic_br(1) = .false.
       call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-      call link_b2_at_given_orb(mh,lra)        !b^r
+      call link_b2_at_given_orb(mh)        !b^r
       call link_c1_to_given_orb(mh,lra+1,norb_inn)
       if (mh /= 0) then
         call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -1185,7 +1185,7 @@ do lra=norb_dz+1,norb_inn
 
     logic_br(1) = .true.
     call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-    call link_b2_at_given_orb(mh,lra)        !b^r
+    call link_b2_at_given_orb(mh)        !b^r
     call link_c1_to_given_orb(mh,lra+1,norb_inn)
     if (mh /= 0) then
       call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -1205,7 +1205,7 @@ do lra=norb_dz+1,norb_inn
 
   ! line=19 -d&r^l-
   call link_c1_to_given_orb(mh,norb_dz+1,lra-1)
-  call link_d10_at_given_orb(mh,lra)
+  call link_d10_at_given_orb(mh)
   call link_c1_to_given_orb(mh,lra+1,norb_inn)
   if (mh == 0) cycle
   call value_sort_ploop(mh,.true.,.true.,.true.)
@@ -1231,10 +1231,10 @@ do lrai=norb_dz+1,norb_inn-1
 
     ! line=21 -b&l-b^r-
     call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
-    call link_b3_at_given_orb(mh,lrai)        !b&l
+    call link_b3_at_given_orb(mh)        !b&l
     logic_br(1:mh) = .true.
     call link_c2_to_given_orb(mh,lrai+1,lraj-1)
-    call link_b2_at_given_orb(mh,lraj)        !b^r
+    call link_b2_at_given_orb(mh)        !b^r
     call link_c1_to_given_orb(mh,lraj+1,norb_inn)
     if (mh == 0) cycle
     call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -1279,7 +1279,7 @@ end subroutine lp_head_in_dbl_2
 !      lsma = lsm_inn(lra)
 !      ! line=19 -d&l^r-
 !      call link_c1_to_given_orb(mh,norb_dz+1,lra-1)
-!      call link_d10_at_given_orb(mh,lra)
+!      call link_d10_at_given_orb(mh)
 !      call link_c1_to_given_orb(mh,lra+1,norb_inn)
 !      if (mh == 0) cycle
 !      call value_sort_ploop(mh,.true.,.true.,.true.)
@@ -1301,10 +1301,10 @@ end subroutine lp_head_in_dbl_2
 !
 !        ! line=21 -b&l-b^r-
 !        call link_c1_to_given_orb(mh,norb_dz+1,lrai-1)
-!        call link_b3_at_given_orb(mh,lrai)        !b&l
+!        call link_b3_at_given_orb(mh)        !b&l
 !        logic_br(1:mh) = .true.
 !        call link_c2_to_given_orb(mh,lrai+1,lraj-1)
-!        call link_b2_at_given_orb(mh,lraj)        !b^r
+!        call link_b2_at_given_orb(mh)        !b^r
 !        call link_c1_to_given_orb(mh,lraj+1,norb_inn)
 !        if (mh == 0) cycle
 !        call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -1352,7 +1352,7 @@ end subroutine lp_head_in_dbl_2
 !    if (jml == jmr) then
 !      logic_br(1) = .false.
 !      call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-!      call link_b2_at_given_orb(mh,lra)        !b^r
+!      call link_b2_at_given_orb(mh)        !b^r
 !      call link_c1_to_given_orb(mh,lra+1,norb_inn)
 !      if (mh /= 0) then
 !        call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -1367,7 +1367,7 @@ end subroutine lp_head_in_dbl_2
 !
 !    logic_br(1) = .true.
 !    call link_c2_to_given_orb(mh,norb_dz+1,lra-1)
-!    call link_b2_at_given_orb(mh,lra)        !b^r
+!    call link_b2_at_given_orb(mh)        !b^r
 !    call link_c1_to_given_orb(mh,lra+1,norb_inn)
 !    if (mh == 0) cycle
 !    call value_sort_ploop(mh,.false.,.true.,.true.)
@@ -1391,7 +1391,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ide
+integer(kind=iwp), intent(in) :: ide
 integer(kind=iwp) :: imlr, jmlr, lend, lra, lsma, lsmact, lsta, mh
 
 imlr = mul_tab(iml,imr)
@@ -1429,7 +1429,7 @@ do lra=norb_dz+1,norb_inn
 
   ! line=17 -b&l-
   call link_c1_to_given_orb(mh,norb_dz+1,lra-1)
-  call link_b3_at_given_orb(mh,lra)        !b&l
+  call link_b3_at_given_orb(mh)        !b&l
   logic_br(1:mh) = .true.
   call link_c2_to_given_orb(mh,lra+1,norb_inn)
   if (mh == 0) cycle
@@ -1493,7 +1493,7 @@ do lra=norb_dz+1,norb_inn
 
   ! line=18 -b&r-
   call link_c1_to_given_orb(mh,norb_dz+1,lra-1)
-  call link_b4_at_given_orb(mh,lra)        !b&r
+  call link_b4_at_given_orb(mh)        !b&r
   logic_br(1:mh) = .true.
   call link_c2_to_given_orb(mh,lra+1,norb_inn)
   if (mh == 0) cycle
@@ -1572,7 +1572,7 @@ end subroutine lp_head_in_dbl_4
 !
 !    ! line=18 -b&r-
 !    call link_c1_to_given_orb(mh,norb_dz+1,lra-1)
-!    call link_b4_at_given_orb(mh,lra)        !b&r
+!    call link_b4_at_given_orb(mh)        !b&r
 !    logic_br(1:mh) = .true.
 !    call link_c2_to_given_orb(mh,lra+1,norb_inn)
 !    if (mh == 0) cycle
@@ -1650,7 +1650,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: line, mh, lg1, lg2
+integer(kind=iwp), intent(in) :: line, mh, lg1, lg2
 integer(kind=iwp) :: idum(1), in_, info(10), jhyl, jhyr, jph, jpml, jpmr, lenw, m
 
 if (mh > mhlpmax) mhlpmax = mh
@@ -1779,8 +1779,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: mh
-logical(kind=iwp) :: logic_ar, logic_w0, logic_w1
+integer(kind=iwp), intent(in) :: mh
+logical(kind=iwp), intent(in) :: logic_ar, logic_w0, logic_w1
 integer(kind=iwp) :: lr, m, mnew, mty, n, nty
 real(kind=wp) :: s_w0, s_w1, w0, w1
 integer(kind=iwp), allocatable :: ntype(:)

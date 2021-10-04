@@ -45,7 +45,8 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lri, nlp_value
+integer(kind=iwp), intent(in) :: lri
+integer(kind=iwp), intent(out) :: nlp_value
 integer(kind=iwp) :: ibend, ibsta, ira, irb, ivalue, lmb, lra, lrb, nxo
 real(kind=wp) :: w0lp, w1lp
 
@@ -115,7 +116,8 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lri, nlp_value
+integer(kind=iwp), intent(in) :: lri
+integer(kind=iwp), intent(out) :: nlp_value
 integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ira, irb, isma, ismb, ivalue, lmb, lra, lrb, nxo
 real(kind=wp) :: w1lp
 
@@ -211,7 +213,8 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lri, n1415_value, nlp_value
+integer(kind=iwp), intent(in) :: lri
+integer(kind=iwp), intent(out) :: n1415_value, nlp_value
 integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ira, irb, isma, ismb, ivalue, lmb, lra, lrb, nxo
 real(kind=wp) :: w014, w015, w0lp, w114, w115, w14lp, w15lp, w1lp
 
@@ -295,7 +298,8 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lri, n1415_value, nlp_value
+integer(kind=iwp), intent(in) :: lri
+integer(kind=iwp), intent(out) :: n1415_value, nlp_value
 integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ira, irb, isma, ismb, ivalue, lmb, lra, lrb, nxo
 real(kind=wp) :: w014, w015, w0lp, w114, w115, w14lp, w15lp
 
@@ -374,7 +378,8 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lri, nlp_value
+integer(kind=iwp), intent(in) :: lri
+integer(kind=iwp), intent(out) :: nlp_value
 integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ira, irb, isma, ismb, ivalue, lmb, lra, lrb, nxo
 real(kind=wp) :: w1lp
 
@@ -476,7 +481,8 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lri, lrj, nlp_value
+integer(kind=iwp), intent(in) :: lri, lrj
+integer(kind=iwp), intent(out) :: nlp_value
 integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, isma, ismb, ivalue, lra, lrb, lsma, lsmb, lsmi, lsmij, lsmj, nxo
 real(kind=wp) :: valuelptmp1, w0lp, w1lp, ww0lp, ww1lp
 
@@ -723,7 +729,8 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: intentry, isma, nlp_value
+integer(kind=iwp), intent(in) :: intentry, isma
+integer(kind=iwp), intent(out) :: nlp_value
 integer(kind=iwp) :: ijk, ira, ivalue, lra, lri, lritmp, lrj, lrjtmp, lrk, lrktmp, lsmi, lsmij, lsmj, lsmk, m_ia, next_sta, nxo
 
 w0_sdplp25 = (w0_sdplp-w1_sdplp)*w0g25
@@ -775,7 +782,8 @@ use Constants, only: Two
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: intentry, isma, nlp_value
+integer(kind=iwp), intent(in) :: intentry, isma
+integer(kind=iwp), intent(out) :: nlp_value
 integer(kind=iwp) :: ijk, ira, ivalue, lra, lri, lritmp, lrj, lrjtmp, lrk, lrktmp, lsmi, lsmij, lsmj, lsmk, m_ia, next_sta, nxo
 
 w0_sdplp25 = (w0_sdplp-w1_sdplp)*w0g25
@@ -826,7 +834,8 @@ use Constants, only: Two
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: intentry, isma, nlp_value
+integer(kind=iwp), intent(in) :: intentry, isma
+integer(kind=iwp), intent(out) :: nlp_value
 integer(kind=iwp) :: ijk, ira, ivalue, lra, lri, lritmp, lrj, lrjtmp, lrk, lrktmp, lsmi, lsmij, lsmj, lsmk, m_ia, next_sta, nxo
 
 w0_sdplp25 = (w0_sdplp-w1_sdplp)*w0g25
@@ -877,7 +886,7 @@ use Constants, only: Two
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lri, lrk, isma
+integer(kind=iwp), intent(in) :: lri, lrk, isma
 integer(kind=iwp) :: ira, ivalue, lra, m_ia, next_sta, nxo
 
 next_sta = ibsm_ext(isma)-1
@@ -900,14 +909,15 @@ end do
 
 end subroutine lp9_drlbl_ext_calcuvalue_G
 
-subroutine lp8_drlbr_sum_calcuvalue_G(lri,LRK,isma,nv)
+subroutine lp8_drlbr_sum_calcuvalue_G(lri,lrk,isma,nv)
 
 use gugaci_global, only: ibsm_ext, index_lpext, index_lpext1, nlsm_ext, norb_number, value_lpext, value_lpext1, w0_sdplp, &
                          w0_sdplp25, w0g25, w1_sdplp25
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lri, lrk, isma, nv
+integer(kind=iwp), intent(in) :: lri, lrk, isma
+integer(kind=iwp), intent(out) :: nv
 integer(kind=iwp) :: ira, ivalue, lra, m_ia, next_sta, nxo
 
 next_sta = ibsm_ext(isma)-1
@@ -931,7 +941,7 @@ nv = ivalue
 
 end subroutine lp8_drlbr_sum_calcuvalue_G
 
-subroutine lp9_drlbl_sum_calcuvalue_G(lri,LRK,isma,nv)
+subroutine lp9_drlbl_sum_calcuvalue_G(lri,lrk,isma,nv)
 
 use gugaci_global, only: ibsm_ext, index_lpext, index_lpext1, nlsm_ext, norb_number, value_lpext, value_lpext1, w0_sdplp, &
                          w0_sdplp25, w0g25, w1_sdplp25
@@ -939,7 +949,8 @@ use Constants, only: Two
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lri, lrk, isma, nv
+integer(kind=iwp), intent(in) :: lri, lrk, isma
+integer(kind=iwp), intent(out) :: nv
 integer(kind=iwp) :: ira, ivalue, lra, m_ia, next_sta, nxo
 
 next_sta = ibsm_ext(isma)-1
@@ -969,7 +980,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iltype, ilsm, irsm, lri
+integer(kind=iwp), intent(in) :: iltype, ilsm, irsm, lri
 integer(kind=iwp) :: ic, icano_nn, icend, icsta, ilnodedownwei, indl, isma, ismb, ismnoded, ismnodes
 
 ismnodes = ilsm
@@ -1032,7 +1043,8 @@ use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, nlsm_ext
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lri, lrk, isma, nlp_value
+integer(kind=iwp), intent(in) :: lri, lrk, isma
+integer(kind=iwp), intent(out) :: nlp_value
 integer(kind=iwp) :: ia, iaend, iasta, ilpvalue, lra, nxo
 
 w0_sdplp25 = w0_sdplp*w0g25
@@ -1059,7 +1071,8 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idtu, isma, lri, lrj, nlp_value, lpcoe(norb_dz+1:norb_inn), nlp_value1
+integer(kind=iwp), intent(in) :: idtu, isma, lri, lrj, lpcoe(norb_dz+1:norb_inn)
+integer(kind=iwp), intent(out) :: nlp_value, nlp_value1
 integer(kind=iwp) :: icoe, idorb, ilpvalue, ilpvalue1, iorb, iorbs, ira, kcoe, lend, lra, lsta, m_ia, ndorb, next_sta, nia, nocc, &
                      nsorb, nxo
 real(kind=wp) :: tcoe
@@ -1417,7 +1430,8 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lri, lrj, iml, imr, nlp_value
+integer(kind=iwp), intent(in) :: lri, lrj, iml, imr
+integer(kind=iwp), intent(out) :: nlp_value
 integer(kind=iwp) :: ira, irb, ivalue, lra, lrb, nlbf, nlef, nrbf, nref, nxo
 real(kind=wp) :: valuetmp1, w0lp, w1lp
 
@@ -1531,7 +1545,8 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lri, iml, nlp_value
+integer(kind=iwp), intent(in) :: lri, iml
+integer(kind=iwp), intent(out) :: nlp_value
 integer(kind=iwp) :: iaend, iasta, ira, irb, ivalue, jvalue, lra, lrb, mloop, nliml, nxo
 real(kind=wp) :: w0lp, w1lp
 
@@ -1579,7 +1594,7 @@ nlp_value = jvalue
 
 end subroutine lp_drl_ext_dd_calcuvalue_G
 
-subroutine lp_arbr_ext_svtv_calcuvalue_G(LRI,LRJ,nlp_value)
+subroutine lp_arbr_ext_svtv_calcuvalue_G(lri,lrj,nlp_value)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, logic_g13, lsm_inn, ng_sm, norb_ext, norb_number, &
                          value_lpext, value_lpext1, w0_plp, w0g13a, w0g36a, w1_plp, w1g36a
@@ -1587,7 +1602,8 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lri, lrj, nlp_value
+integer(kind=iwp), intent(in) :: lri, lrj
+integer(kind=iwp), intent(out) :: nlp_value
 integer(kind=iwp) :: ic, icend, icsta, id, idend, idsta, ivalue, jc, jd, lrc, lsmc, lsmd, lsmi, lsmij, lsmj, nxo
 real(kind=wp) :: valuelptmp1, w0lp, w1lp
 
@@ -1650,7 +1666,8 @@ use Constants, only: Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lri, nlp_value
+integer(kind=iwp), intent(in) :: lri
+integer(kind=iwp), intent(out) :: nlp_value
 integer(kind=iwp) :: ibend, ibsta, ira, irb, ivalue, lmb, lra, lrb, nxo
 real(kind=wp) :: w0lp
 
