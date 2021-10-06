@@ -24,7 +24,7 @@ real(kind=wp) :: pgauge(3,maxpro), pnuc(maxpro)
 character :: bsbl(2*4*maxmolcasorb)
 character(len=8) :: label, pname(maxpro), ptyp(maxpro)
 real(kind=wp), allocatable :: cmo(:), cno(:), occ(:)
-real(kind=wp), pointer :: denao(:), omat(:), vprop(:,:,:)
+real(kind=wp), allocatable :: denao(:), omat(:), vprop(:,:,:)
 
 ! mrci nature orbital
 idisk = 0
@@ -68,10 +68,10 @@ end do
 !write(u6,*) ipcom(1:npro)
 !write(u6,*) ptyp(1:npro)
 
-allocate(omat(nc2))
-allocate(denao(nc0))
-allocate(vprop(mroot,mroot,npro))
-!allocate(denao(nmo,nmo))
+call mma_allocate(omat,nc2,label='omat')
+call mma_allocate(denao,nc0,label='denao')
+call mma_allocate(vprop,mroot,mroot,npro,label='vprop')
+!call mma_allocate(denao,nmo,nmo,label='denao')
 call mma_allocate(cmo,nc0,label='cmo')
 call mma_allocate(cno,nc0,label='cno')
 call mma_allocate(occ,nmo,label='occ')
@@ -158,7 +158,7 @@ nsiz = 0
 call Molcas_BinaryOpen_Vanilla(110,'soint.dat')
 do i=1,npro
   if (pname(i)(1:4) /= 'AMFI') cycle
-  omat = Zero
+  omat(:) = Zero
   call irdone(irtc,1,pname(i),ipcom(i),idummy,isymlb)
   if (irtc == 0) nsiz = idummy(1)
   call rdone(irtc,0,pname(i),ipcom(i),omat,isymlb)
@@ -172,9 +172,9 @@ do i=1,npro
   write(110) omat(1:nsiz)
 end do
 close(110)
-deallocate(omat)
-deallocate(denao)
-deallocate(vprop)
+call mma_deallocate(omat)
+call mma_deallocate(denao)
+call mma_deallocate(vprop)
 
 return
 

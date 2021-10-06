@@ -208,12 +208,13 @@ subroutine intrd_molcas()
 use gugaci_global, only: FnOneMO, FnTwoMO, lsmorb, LuOneMO, LuTwoMO, map_orb_order, max_orb, ng_sm, nlsm_all, nlsm_bas, noidx, &
                          voint, vpotnuc
 use Symmetry_Info, only: mul_tab => Mul
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, idisk, idx, lrcii, lrcij, lri, lrj, lrt, nc, ni, nidx, nintone, nism, nmob, nsmint
 real(kind=wp) :: ecor, xfock(max_orb*(max_orb+1)/2)
-real(kind=wp), pointer :: x(:)
+real(kind=wp), allocatable :: x(:)
 
 nintone = 0
 nmob = 0
@@ -229,7 +230,7 @@ do i=1,ng_sm
   lsmorb(ni+1:nidx) = i
   ni = nidx
 end do
-allocate(x(nmob))
+call mma_allocate(x,nmob,label='x')
 call daname(luonemo,fnonemo)
 call readtraonehead(luonemo,ecor,idisk)
 vpotnuc = ecor
@@ -273,7 +274,7 @@ call daname(lutwomo,fntwomo)
 call readtwoeint(lutwomo,nlsm_all,ng_sm,mul_tab,map_orb_order,noidx)
 call daclos(lutwomo)
 write(u6,*)
-deallocate(x)
+call mma_deallocate(x)
 
 return
 

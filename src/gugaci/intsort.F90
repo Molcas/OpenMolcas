@@ -13,6 +13,7 @@ subroutine int_sort()
 
 use gugaci_global, only: intind_abkk, intind_iaqq, intspace_abkk, LuCiInt, maxintseg, norb_dz, norb_ext, norb_frz, norb_inn, &
                          viasum_0, viasum_1, vijkk_0sum, vijkk_1sum, vint_ci
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -39,8 +40,8 @@ end if
 lra = norb_inn*norb_ext*(norb_ext+1)*norb_ext/2+norb_inn*(norb_inn+1)*norb_inn*norb_ext/2
 if (lra > numb) numb = lra
 
-allocate(vint_ci(numb))
-vint_ci = Zero
+call mma_allocate(vint_ci,numb,label='vint_ci')
+vint_ci(:) = Zero
 numb = 0
 write(u6,900)
 call int_index(numb)
@@ -62,7 +63,7 @@ call ddafile(luciint,1,vint_ci,numb,idisk)
 write(u6,902) numb
 maxintseg = numb
 
-vint_ci = Zero
+vint_ci(:) = Zero
 numb = 1
 call int_sort_inn_1(numb)       !_ext_3_1  (iabc and iaqq)
 call int_sort_inn_3(numb)       !_ext_1    (ijka)
@@ -94,7 +95,7 @@ do lri=norb_frz+1,norb_inn
   end do
 end do
 
-vint_ci = Zero
+vint_ci(:) = Zero
 numb = 1
 call int_sort_inn_2(numb)   !_ext_2_1  (ijcc, ijab, abkk)
 idx(3) = idisk
@@ -120,7 +121,7 @@ do lrk=1,norb_dz
   end do
 end do
 
-vint_ci = Zero
+vint_ci(:) = Zero
 numb = 1
 call int_sort_ext(numb)         !_ext_4_3_2  (abcd,abcc,aabb)
 idx(4) = idisk
@@ -137,7 +138,7 @@ idisk = 0
 call idafile(luciint,1,idx,4,idisk)
 
 write(u6,910)
-deallocate(vint_ci)
+call mma_deallocate(vint_ci)
 
 etime = c_time()
 time = etime-stime

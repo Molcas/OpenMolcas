@@ -14,6 +14,7 @@ subroutine geth0()
 use gugaci_global, only: ecih0, escf, indx, ipae, irf, irfno, jpad, jpadl, jpae, logic_mr, max_h0, max_innorb, max_kspace, &
                          max_ref, max_root, mroot, ndim, ndim_h0, norb_act, nu_ad, nu_ae, vcm, vd, ve, vector1, vector2, vu
                          !, len_str, tmpdir
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
@@ -24,7 +25,6 @@ real(kind=wp) :: vad0(max_h0)
 real(kind=wp), allocatable :: vb1(:), vb2(:)
 real(kind=wp), parameter :: dcrita = 5.0e-6_wp
 
-allocate(vb1(max_h0*max_kspace),vb2(max_h0*max_kspace))
 if (.not. logic_mr) then
   call minevalue(iselcsf_occ)
 end if
@@ -84,8 +84,8 @@ else
 
   call formh0()   ! for log_mr, ndim_h0 changed to irf in this subroutine
   !=====================================================================
-  if (associated(vcm)) deallocate(vcm)
-  allocate(vcm(ndim_h0*mroot))
+  if (allocated(vcm)) call mma_deallocate(vcm)
+  call mma_allocate(vcm,ndim_h0*mroot,label='vcm')
 
   if (ndim_h0 <= 30) then
     call hotred(max_kspace,ndim_h0,vector2,vd,ve,vu)
@@ -112,6 +112,8 @@ else
     nxh = ndim_h0*(ndim_h0+1)/2
     nxb = ndim_h0*max_kspace
 
+    call mma_allocate(vb1,max_h0*max_kspace,label='vb1')
+    call mma_allocate(vb2,max_h0*max_kspace,label='vb2')
     call basis_2(ndim_h0,vb1,nxb,vad0,vector2,nxh)
 
     do m=1,mroot
@@ -138,8 +140,10 @@ else
     !else
     !  vb2(1:numh0*mroot) = vb1(1:numh0*mroot)
     !end if
+    call mma_deallocate(vb1)
+    call mma_deallocate(vb2)
   end if
-  deallocate(vcm)
+  call mma_deallocate(vcm)
 end if
 
 write(u6,*)
@@ -181,6 +185,7 @@ end subroutine geth0
 subroutine formh0()
 
 use gugaci_global, only: irf, irfno, lenvec, log_prod, logic_mr, max_vector, ndim_h0, vector1, vector2, vint_ci
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -207,7 +212,7 @@ call ploop_in_act()
 
 ! save the h0 matrix into sracth file 23 to use later
 if (logic_mr) then ! rst
-  allocate(buff(ndim_h0))
+  call mma_allocate(buff,ndim_h0,label='buff')
   buff(1:ndim_h0) = vector1(1:ndim_h0)
   vector1(1:lenvec) = Zero
   mnh0 = ndim_h0*(ndim_h0+1)/2
@@ -228,7 +233,7 @@ if (logic_mr) then ! rst
     end do
   end do
   ndim_h0 = irf
-  deallocate(buff)
+  call mma_deallocate(buff)
 else
   do i=1,ndim_h0   ! rcas
     ii = i*(i-1)/2+i

@@ -291,9 +291,7 @@ integer(kind=iwp), intent(in) :: n, k1, k2, nxh, nxb
 real(kind=wp), intent(in) :: th(nxh), vb1(nxb), vad(n)
 real(kind=wp), intent(inout) :: vb2(nxb)
 integer(kind=iwp) :: i, ij, j, l, mn
-!real(kind=wp), allocatable :: buff(:)
 
-!allocate(buff(n))
 ij = 0
 do j=k1,k2
   ij = indx(j)

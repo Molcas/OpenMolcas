@@ -56,7 +56,7 @@ vector1(1:nci_dim) = Zero
 ! should we calculated two-electronic density matrix ?
 do i=1,neigen
   call read_ml(lucivec,vector1,nci_dim,i)
-  vector2 = Zero
+  vector2(:) = Zero
   dm1tmp = Zero
   call memcidiag_alloc()
   call diagonal_loop_wyb_g()
@@ -75,6 +75,7 @@ end subroutine cidenmat
 !use gugaci_global, only: denm1, denm2, FnOneMO, FnTwoMO, lenintegral, LuCiDen, LuOneMO, LuTwoMO, max_orb, max_root, ng_sm, &
 !                         nlsm_all, nlsm_bas, ntrabuf, ntratoc
 !use Symmetry_Info, only: mul_tab => Mul
+!use stdalloc, only: mma_allocate, mma_deallocate
 !use Constants, only: Zero, Two, Half
 !use Definitions, only: wp, iwp, u6
 !
@@ -84,7 +85,7 @@ end subroutine cidenmat
 !                     nbpq, nbrs, nc, nc1, nc2, nidx, nintb, nintone, nism, nmob, noidx(8), nop, noq, nor, norb(8), nos, nsmint, &
 !                     nsp, nspq, nspqr, nsq, nsr, nss, nssm, ntj, ntk, numax, numin
 !real(kind=wp) :: buff(ntrabuf), cienergy, ecor, val, vnuc, xfock(max_orb*(max_orb+1)/2) !, x(1024*1024)
-!real(kind=wp), pointer :: x(:)
+!real(kind=wp), allocatable :: x(:)
 !integer(kind=iwp), external :: ipair
 !
 !#ifndef MOLPRO
@@ -102,7 +103,7 @@ end subroutine cidenmat
 !  nintone = nintone+nsmint
 !end do
 !
-!allocate(x(nmob))
+!call mma_allocate(x,nmob,label='x')
 !call daname(luonemo,fnonemo)
 !!call copen_molcas(nft,filename,lenstr)
 !call readtraonehead(luonemo,ecor,idisk)
@@ -112,7 +113,7 @@ end subroutine cidenmat
 !!call ddatard(nft,x,nmob,idisk)
 !call ddafile(luonemo,2,x,nmob,idisk)
 !
-!deallocate(x)
+!call mma_deallocate(x)
 !
 !! read one electron fock matrix
 !call ddafile(luonemo,2,xfock,nintone,idisk)

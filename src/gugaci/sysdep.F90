@@ -41,6 +41,7 @@ end subroutine version_info
 subroutine allocate_int_memory()
 
 use gugaci_global, only: maxintseg, vint_ci
+use stdalloc, only: mma_allocate
 use Constants, only: Zero
 
 implicit none
@@ -49,8 +50,8 @@ implicit none
 ! vint_ci(:) pointer to the base address of the memory of integrals
 ! maxintseg  maximum length of the integral segment
 
-allocate(vint_ci(0:maxintseg+1))
-vint_ci = Zero
+call mma_allocate(vint_ci,[0,maxintseg+1],label='vint_ci')
+vint_ci(:) = Zero
 
 return
 
@@ -59,10 +60,11 @@ end subroutine allocate_int_memory
 subroutine deallocate_int_memory()
 
 use gugaci_global, only: vint_ci
+use stdalloc, only: mma_deallocate
 
 implicit none
 
-deallocate(vint_ci)
+call mma_deallocate(vint_ci)
 
 return
 
@@ -310,45 +312,49 @@ end subroutine gugafinalize
 subroutine memdengrad_alloc()
 
 use gugaci_global, only: denm1, denm2, norb_all
+use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nc, ndim
 
 ndim = norb_all*(norb_all+1)/2
-allocate(denm1(ndim))
+call mma_allocate(denm1,ndim,label='denm1')
 nc = ndim*(ndim+1)/2
-allocate(denm2(nc))
+call mma_allocate(denm2,nc,label='denm2')
 
 end subroutine memdengrad_alloc
 
 subroutine memdengrad_free()
 
 use gugaci_global, only: denm1, denm2
+use stdalloc, only: mma_deallocate
 
 implicit none
 
-deallocate(denm1)
-deallocate(denm2)
+call mma_deallocate(denm1)
+call mma_deallocate(denm2)
 
 end subroutine memdengrad_free
 
 subroutine memcidiag_alloc()
 
 use gugaci_global, only: jeh, jph, jwh, maxpl, th, thh
+use stdalloc, only: mma_allocate
+use Constants, only: Zero
 
 implicit none
 
-allocate(jph(maxpl))
-allocate(jeh(maxpl))
-allocate(jwh(maxpl))
-allocate(th(maxpl))
-allocate(thh(maxpl))
-jph = 0
-jeh = 0
-jwh = 0
-th = 0
-thh = 0
+call mma_allocate(jph,maxpl,label='jph')
+call mma_allocate(jeh,maxpl,label='jeh')
+call mma_allocate(jwh,maxpl,label='jwh')
+call mma_allocate(th,maxpl,label='th')
+call mma_allocate(thh,maxpl,label='thh')
+jph(:) = 0
+jeh(:) = 0
+jwh(:) = 0
+th(:) = Zero
+thh(:) = Zero
 
 return
 
@@ -357,14 +363,15 @@ end subroutine memcidiag_alloc
 subroutine memcidiag_dealloc()
 
 use gugaci_global, only: jeh, jph, jwh, th, thh
+use stdalloc, only: mma_deallocate
 
 implicit none
 
-deallocate(jph)
-deallocate(jeh)
-deallocate(jwh)
-deallocate(th)
-deallocate(thh)
+call mma_deallocate(jph)
+call mma_deallocate(jeh)
+call mma_deallocate(jwh)
+call mma_deallocate(th)
+call mma_deallocate(thh)
 
 return
 
@@ -373,30 +380,31 @@ end subroutine memcidiag_dealloc
 subroutine mem_intinnindex_alloc()
 
 use gugaci_global, only: intind_abkk, intind_iabc, intind_iaqq, intind_ijab, intind_ijcc, intind_ijka, intspace_abkk, &
-                         intspace_iabc, intspace_iaqq, intspace_ijab, intspace_ijcc, intspace_ijka, loij, loij_all, loijk, &
+                         intspace_ijab, intspace_ijcc, loij, loij_all, loijk, &
                          loijk_all, nabc, ngw2, ngw3, norb_all, norb_inn, vdint, voint
+use stdalloc, only: mma_allocate
 use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: lent
 
-allocate(loij(50000))
-allocate(loijk(1384150))
-allocate(loij_all(50000))
-allocate(loijk_all(1384150))
+call mma_allocate(loij,50000,label='loij')
+call mma_allocate(loijk,1384150,label='loijk')
+call mma_allocate(loij_all,50000,label='loij_all')
+call mma_allocate(loijk_all,1384150,label='loijk_all')
 loij(1:50000) = 0
 loijk(1:1384150) = 0
 loijk_all(1:50000) = 0
 loijk_all(1:1384150) = 0
 
-allocate(intind_iaqq(50000))
-allocate(intind_abkk(50000))
+call mma_allocate(intind_iaqq,50000,label='intind_iaqq')
+call mma_allocate(intind_abkk,50000,label='intind_abkk')
 lent = norb_inn*nabc+norb_all+ngw2(norb_all)+ngw3(norb_all) !2*norb_ext*norb_ext*norb_ext
-allocate(intind_iabc(lent))
-allocate(intind_ijka(50000))
-allocate(intind_ijcc(50000))
-allocate(intind_ijab(50000))
+call mma_allocate(intind_iabc,lent,label='intind_iabc')
+call mma_allocate(intind_ijka,50000,label='intind_ijka')
+call mma_allocate(intind_ijcc,50000,label='intind_ijcc')
+call mma_allocate(intind_ijab,50000,label='intind_ijab')
 intind_iaqq(1:50000) = 0
 intind_abkk(1:50000) = 0
 intind_iabc(1:lent) = 0
@@ -404,16 +412,10 @@ intind_ijka(1:50000) = 0
 intind_ijcc(1:50000) = 0
 intind_ijab(1:50000) = 0
 
-allocate(intspace_iaqq(50000))
-allocate(intspace_abkk(50000))
-allocate(intspace_iabc(50000))
-allocate(intspace_ijka(50000))
-allocate(intspace_ijcc(50000))
-allocate(intspace_ijab(50000))
-intspace_iaqq(1:50000) = 0
+call mma_allocate(intspace_abkk,50000,label='inspace_abkk')
+call mma_allocate(intspace_ijcc,50000,label='inspace_ijcc')
+call mma_allocate(intspace_ijab,50000,label='inspace_ijab')
 intspace_abkk(1:50000) = 0
-intspace_iabc(1:50000) = 0
-intspace_ijka(1:50000) = 0
 intspace_ijcc(1:50000) = 0
 intspace_ijab(1:50000) = 0
 
@@ -427,28 +429,26 @@ end subroutine mem_intinnindex_alloc
 subroutine mem_intinnindex_dealloc()
 
 use gugaci_global, only: intind_abkk, intind_iabc, intind_iaqq, intind_ijab, intind_ijcc, intind_ijka, intspace_abkk, &
-                         intspace_iabc, intspace_iaqq, intspace_ijab, intspace_ijcc, intspace_ijka, loij, loij_all, loijk, loijk_all
+                         intspace_ijab, intspace_ijcc, loij, loij_all, loijk, loijk_all
+use stdalloc, only: mma_deallocate
 
 implicit none
 
-deallocate(loij)
-deallocate(loijk)
-deallocate(loij_all)
-deallocate(loijk_all)
+call mma_deallocate(loij)
+call mma_deallocate(loijk)
+call mma_deallocate(loij_all)
+call mma_deallocate(loijk_all)
 
-deallocate(intind_iaqq)
-deallocate(intind_abkk)
-deallocate(intind_iabc)
-deallocate(intind_ijka)
-deallocate(intind_ijcc)
-deallocate(intind_ijab)
+call mma_deallocate(intind_iaqq)
+call mma_deallocate(intind_abkk)
+call mma_deallocate(intind_iabc)
+call mma_deallocate(intind_ijka)
+call mma_deallocate(intind_ijcc)
+call mma_deallocate(intind_ijab)
 
-deallocate(intspace_iaqq)
-deallocate(intspace_abkk)
-deallocate(intspace_iabc)
-deallocate(intspace_ijka)
-deallocate(intspace_ijcc)
-deallocate(intspace_ijab)
+call mma_deallocate(intspace_abkk)
+call mma_deallocate(intspace_ijcc)
+call mma_deallocate(intspace_ijab)
 
 return
 
@@ -457,15 +457,20 @@ end subroutine mem_intinnindex_dealloc
 subroutine allocate_casrst()
 
 use gugaci_global, only: ja, jb, jj, jm, kk, max_node
+use stdalloc, only: mma_allocate
 
 implicit none
 
-allocate(ja(max_node),jb(max_node),jm(0:max_node))
-allocate(jj(1:4,0:max_node))
-allocate(kk(0:max_node))
-ja = 0; jb = 0; jm = 0
-jj = 0
-kk = 0
+call mma_allocate(ja,max_node,label='ja')
+call mma_allocate(jb,max_node,label='jb')
+call mma_allocate(jm,[0,max_node],label='jm')
+call mma_allocate(jj,[1,4],[0,max_node],label='jj')
+call mma_allocate(kk,[0,max_node],label='kk')
+ja(:) = 0
+jb(:) = 0
+jm(:) = 0
+jj(:,:) = 0
+kk(:) = 0
 
 return
 
@@ -474,12 +479,15 @@ end subroutine allocate_casrst
 subroutine deallocate_casrst()
 
 use gugaci_global, only: ja, jb, jj, jm, kk
+use stdalloc, only: mma_deallocate
 
 implicit none
 
-deallocate(ja,jb,jm)
-deallocate(jj)
-deallocate(kk)
+call mma_deallocate(ja)
+call mma_deallocate(jb)
+call mma_deallocate(jm)
+call mma_deallocate(jj)
+call mma_deallocate(kk)
 
 return
 
@@ -488,17 +496,19 @@ end subroutine deallocate_casrst
 subroutine allocate_subdrt(icase,lent)
 
 use gugaci_global, only: ihy, iy, jj_sub, jphy, max_node, max_wei
+use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: icase, lent
 
-allocate(ihy(max_wei),jj_sub(1:4,0:max_node))
-allocate(iy(1:4,0:max_node))
+call mma_allocate(ihy,max_wei,label='ihy')
+call mma_allocate(jj_sub,[1,4],[0,max_node],label='jj_sub')
+call mma_allocate(iy,[1,4],[0,max_node],label='iy')
 if (icase == 1) then
-  allocate(jphy(max_node))
+  call mma_allocate(jphy,max_node,label='jphy')
 else
-  allocate(jphy(lent))
+  call mma_allocate(jphy,lent,label='jphy')
 end if
 
 end subroutine allocate_subdrt
@@ -506,17 +516,19 @@ end subroutine allocate_subdrt
 subroutine allocate_subdrtl(icase,lent)
 
 use gugaci_global, only: ihyl, iyl, jjl_sub, jphyl, max_node, max_wei
+use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: icase, lent
 
-allocate(ihyl(max_wei),jjl_sub(1:4,0:max_node))
-allocate(iyl(1:4,0:max_node))
+call mma_allocate(ihyl,max_wei,label='ihyl')
+call mma_allocate(jjl_sub,[1,4],[0,max_node],label='jjl_sub')
+call mma_allocate(iyl,[1,4],[0,max_node],label='iyl')
 if (icase == 1) then
-  allocate(jphyl(max_node))
+  call mma_allocate(jphyl,max_node,label='jphyl')
 else
-  allocate(jphyl(lent))
+  call mma_allocate(jphyl,lent,label='jphyl')
 end if
 
 end subroutine allocate_subdrtl
@@ -524,24 +536,28 @@ end subroutine allocate_subdrtl
 subroutine deallocate_subdrt()
 
 use gugaci_global, only: ihy, iy, jj_sub, jphy
+use stdalloc, only: mma_deallocate
 
 implicit none
 
-deallocate(ihy,jj_sub)
-deallocate(iy)
-deallocate(jphy)
+call mma_deallocate(ihy)
+call mma_deallocate(jj_sub)
+call mma_deallocate(iy)
+call mma_deallocate(jphy)
 
 end subroutine deallocate_subdrt
 
 subroutine deallocate_subdrtl()
 
 use gugaci_global, only: ihyl, iyl, jjl_sub, jphyl
+use stdalloc, only: mma_deallocate
 
 implicit none
 
-deallocate(ihyl,jjl_sub)
-deallocate(iyl)
-deallocate(jphyl)
+call mma_deallocate(ihyl)
+call mma_deallocate(jjl_sub)
+call mma_deallocate(iyl)
+call mma_deallocate(jphyl)
 
 end subroutine deallocate_subdrtl
 

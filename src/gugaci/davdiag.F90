@@ -54,11 +54,11 @@ if (id == 2) then
 
   indx(1) = 0
   indx(2) = nci_dim
-  vector1(1:nci_dim) = Zero
-  vector2(1:nci_dim) = Zero
+  !vector1(1:nci_dim) = Zero
+  !vector2(1:nci_dim) = Zero
   !call cielement()
-  vector1 = Zero
-  vector2 = Zero
+  vector1(:) = Zero
+  vector2(:) = Zero
   vector1(55) = One
   call readint(2,vint_ci)
   call vd_drt_ci_new()
@@ -76,8 +76,8 @@ numroot = mroot
 do
   restart = .false.
   sc0 = c_time()
-  vector1 = Zero
-  vector2 = Zero
+  vector1(:) = Zero
+  vector2(:) = Zero
   if (log_muliter) then
     mcroot = mroot
     call mrcibasis(nci_dim,mroot,mjn,indx,vector1,vector2,vcien,mth_eigen,mroot)
@@ -795,6 +795,7 @@ end subroutine mrcibasis
 !!     vb1   - trial vectors
 !
 !use gugaci_global, only: LuCiDia, LuCiTv1, LuCiTv2, max_kspace, max_root
+!use stdalloc, only: mma_allocate, mma_deallocate
 !use Constants, only: Zero, One
 !use Definitions, only: wp, iwp, u6
 !
@@ -808,7 +809,7 @@ end subroutine mrcibasis
 !real(kind=wp), allocatable :: diagelement(:)
 !real(kind=wp), parameter :: epc = 5.0e-3_wp
 !
-!allocate(diagelement(ndim))
+!call mma_allocate(diagelement,ndim,label='diagelement')
 !
 !call read_ml(lucidia,diagelement,ndim,1)
 !
@@ -909,7 +910,7 @@ end subroutine mrcibasis
 !call write_ml(lucitv1,vb1,ndim*mroot,2)
 !call write_ml(lucitv2,vb2,ndim*mroot,2)
 !
-!deallocate(diagelement)
+!call mma_deallocate(diagelement)
 !
 !return
 !!...end of mrcibasis_init
@@ -933,7 +934,7 @@ logical(kind=iwp), intent(in) :: log_muliter
 integer(kind=iwp) :: i, j, jr, mt, nc, nd
 real(kind=wp) :: dav1(max_root), de, dedav1, vcml(max_root), vcof !, dav2(max_root), dav3(max_root), remei(max_root)
 
-vector1 = Zero
+vector1(:) = Zero
 nd = nci_dim*(mroot-mtsta0+1)
 call read_ml(lucidia,vector2,nd,2)
 if (log_muliter) then
@@ -1376,6 +1377,7 @@ subroutine compute_residual_vector_mroot(mtsta,iiter,idxvec,vresid,vcien)
 !      |ck>=\sigma(vu(i,m)*vector_i),i=1,j
 
 use gugaci_global, only: indx, LuCiDia, LuCiTv1, LuCiTv2, max_kspace, max_root, mroot, nci_dim, vector1, vector2, vu
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -1446,7 +1448,7 @@ do jiter=1,iiter
   end do
 end do
 
-allocate(diagelement(nci_dim))
+call mma_allocate(diagelement,nci_dim,label='diagelement')
 call read_ml(lucidia,diagelement,nci_dim,1)
 call read_ml(lucidia,vector2,nd,2)
 
@@ -1465,7 +1467,7 @@ do mt=mtsta,mroot
   ij = ij+nci_dim
 end do
 
-deallocate(diagelement)
+call mma_deallocate(diagelement)
 
 return
 !...end of compute_residule_vector

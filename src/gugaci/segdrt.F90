@@ -20,10 +20,10 @@ integer(kind=iwp) :: i, ihypos, ij1, in_, iw, j(4), j1, j2, j3, j4, jde, jp, jp0
 integer(kind=iwp), allocatable :: jpihy(:)
 
 jpmax = no(norb_inn+1)
-iy = 0
-ihy = 0
-jj_sub = 0
-jphy = 0
+iy(:,:) = 0
+ihy(:) = 0
+jj_sub(:,:) = 0
+jphy(:) = 0
 
 iy(1,jpad) = 1
 ndim = 0

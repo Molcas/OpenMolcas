@@ -13,6 +13,7 @@ subroutine gugaci(ireturn)
 
 use gugaci_global, only: iw_downwei, iw_sta, lenvec, logic_calpro, logic_grad, LuCiDia, max_node, max_orb, max_vector, mroot, &
                          nci_dim, nci_h0, norb_all, vcm, vector1, vector2
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -54,23 +55,20 @@ end if
 
 call mem_intinnindex_alloc()
 lenvec = nc1
-allocate(vector1(nc1))
+call mma_allocate(vector1,nc1,label='vector1')
 vector1(1:nc1) = Zero
 call int_sort()
-deallocate(vector1)
+call mma_deallocate(vector1)
 
 mxvec = 60000000*10
 if (mroot*nci_dim <= mxvec) then
   nc1 = mroot*nci_dim
-  allocate(vector1(nc1))
-  !allocate(vector2(nc1))
-  lenvec = nc1
 else
   nc1 = nci_dim
-  allocate(vector1(nc1))
-  !allocate(vector2(nc1))
-  lenvec = nc1
 end if
+call mma_allocate(vector1,nc1,label='vector1')
+!call mma_allocate(vector2,nc1,label='vector2')
+lenvec = nc1
 vector1(1:nc1) = Zero
 
 !write(u6,*) '==================================================='
@@ -105,14 +103,14 @@ call allocate_int_memory()
 nc = nci_h0 !iw_sta(2,1)
 nc1 = nc*(nc+1)/2
 
-allocate(vcm(mroot*nci_h0))
+call mma_allocate(vcm,mroot*nci_h0,label='vcm')
 if (nc1 <= lenvec) then
-  allocate(vector2(lenvec))
+  call mma_allocate(vector2,lenvec,label='vector2')
 else
-  deallocate(vector1)
-  allocate(vector1(nc*(nc+1)/2))
-  allocate(vector2(nc*(nc+1)/2))
-  vector1 = Zero
+  call mma_deallocate(vector1)
+  call mma_allocate(vector1,nc*(nc+1)/2,label='vector1')
+  call mma_allocate(vector2,nc*(nc+1)/2,label='vector2')
+  vector1(:) = Zero
   call read_ml(Lucidia,vector1,nci_dim,1)
 end if
 
@@ -122,10 +120,10 @@ call geth0()
 call xflush(u6)
 
 if (nc1 > lenvec) then
-  deallocate(vector1)
-  deallocate(vector2)
-  allocate(vector1(lenvec))
-  allocate(vector2(lenvec))
+  call mma_deallocate(vector1)
+  call mma_deallocate(vector2)
+  call mma_allocate(vector1,lenvec,label='vector1')
+  call mma_allocate(vector2,lenvec,label='vector2')
 end if
 
 sc0 = c_time()
@@ -153,9 +151,9 @@ call xflush(u6)
 write(u6,910) sc2-sc0
 write(u6,*)
 call deallocate_int_memory()
-!deallocate(vcm)
-deallocate(vector1)
-deallocate(vector2)
+if (allocated(vcm)) call mma_deallocate(vcm)
+call mma_deallocate(vector1)
+call mma_deallocate(vector2)
 
 if (logic_calpro) then
   logic_grad = .true.
@@ -163,10 +161,10 @@ if (logic_calpro) then
 
   nc0 = norb_all*(norb_all+1)/2
   nc1 = nc0*(nc0+1)/2
-  allocate(vector1(nci_dim))
-  allocate(vector2(nc1))
-  vector1 = Zero
-  vector2 = Zero
+  call mma_allocate(vector1,nci_dim,label='vector1')
+  call mma_allocate(vector2,nc1,label='vector2')
+  vector1(:) = Zero
+  vector2(:) = Zero
 
   call cidenmat()
 
@@ -174,8 +172,8 @@ if (logic_calpro) then
 # ifndef MOLPRO
   call cipro()
 # endif
-  deallocate(vector1)
-  deallocate(vector2)
+  call mma_deallocate(vector1)
+  call mma_deallocate(vector2)
   call memdengrad_free()
 end if
 

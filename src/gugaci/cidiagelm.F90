@@ -125,6 +125,7 @@ end subroutine diagonal_loop_wyb
 subroutine diagonal_act_c()
 
 use gugaci_global, only: iy, jb, jeh, jj_sub, jpad, jph, jwh, max_innorb, maxpl, norb_act, norb_dz, norb_inn, th, thh
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -136,7 +137,6 @@ real(kind=wp), allocatable :: te(:), tee(:)
 
 !write(u6,*) '               ***** start h-diaelm *****'
 !write(u6,*) jpad,jpae
-allocate(te(maxpl),tee(maxpl),jpe(maxpl),jee(maxpl),jwe(maxpl))
 ndr = 0
 if (norb_act == 0) then
   mh = 1
@@ -178,10 +178,15 @@ end do
 !***********************************************************************
 lr = norb_dz+1
 
+call mma_allocate(te,maxpl,label='te')
+call mma_allocate(tee,maxpl,label='tee')
+call mma_allocate(jpe,maxpl,label='jpe')
+call mma_allocate(jee,maxpl,label='jee')
+call mma_allocate(jwe,maxpl,label='jwe')
 do
   if (lr == norb_inn) then
     if (mh /= 0) call diagonal_link_dae(mh)
-    return
+    exit
   end if
   lr = lr+1
   me = 0
@@ -235,13 +240,19 @@ do
   mh = me
   if (ndr(lr) < mh) ndr(lr) = mh
 end do
-do m=1,mh
-  th(m) = Zero
-  thh(m) = Zero
-  jwh(m) = 0
-  jph(m) = 0
-  jeh(m) = 0
-end do
+!do m=1,mh
+!  th(m) = Zero
+!  thh(m) = Zero
+!  jwh(m) = 0
+!  jph(m) = 0
+!  jeh(m) = 0
+!end do
+
+call mma_deallocate(te)
+call mma_deallocate(tee)
+call mma_deallocate(jpe)
+call mma_deallocate(jee)
+call mma_deallocate(jwe)
 
 return
 
@@ -250,6 +261,7 @@ end subroutine diagonal_act_c
 subroutine diagonal_act_d()
 
 use gugaci_global, only: iy, jb, jeh, jj_sub, jph, jwh, max_innorb, maxpl, no, norb_dz, norb_inn, th, thh, vdint, voint
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
@@ -261,7 +273,6 @@ real(kind=wp), allocatable :: te(:), tee(:)
 
 !write(u6,*) '               ***** start h-diaelm *****'
 !write(u6,*) '   diagonal_act_d:',jpad,ipae
-allocate(te(maxpl),tee(maxpl),jpe(maxpl),jee(maxpl),jwe(maxpl))
 ndr = 0
 do lr=norb_dz+1,norb_inn
   jp0 = no(lr-1)+1
@@ -285,8 +296,13 @@ do lr=norb_dz+1,norb_inn
     end if
   end do
 end do
+call mma_allocate(te,maxpl,label='te')
+call mma_allocate(tee,maxpl,label='tee')
+call mma_allocate(jpe,maxpl,label='jpe')
+call mma_allocate(jee,maxpl,label='jee')
+call mma_allocate(jwe,maxpl,label='jwe')
 ! 520
-outer: do lr0=norb_dz+1,norb_inn
+do lr0=norb_dz+1,norb_inn
   mh = 0
   me = 0
   jp0 = no(lr0-1)+1
@@ -318,7 +334,7 @@ outer: do lr0=norb_dz+1,norb_inn
   do
     if (lr == norb_inn) then
       call diagonal_link_ae(mh)
-      cycle outer
+      exit
     end if
     lr = lr+1
     me = 0
@@ -375,14 +391,20 @@ outer: do lr0=norb_dz+1,norb_inn
     mh = me
     if (ndr(lr) < mh) ndr(lr) = mh
   end do
-  do m=1,mh
-    th(m) = Zero
-    thh(m) = Zero
-    jwh(m) = 0
-    jph(m) = 0
-    jeh(m) = 0
-  end do
-end do outer
+  !do m=1,mh
+  !  th(m) = Zero
+  !  thh(m) = Zero
+  !  jwh(m) = 0
+  !  jph(m) = 0
+  !  jeh(m) = 0
+  !end do
+end do
+
+call mma_deallocate(te)
+call mma_deallocate(tee)
+call mma_deallocate(jpe)
+call mma_deallocate(jee)
+call mma_deallocate(jwe)
 
 return
 

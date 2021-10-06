@@ -75,49 +75,49 @@ logical(kind=iwp) :: logic_assign_actorb, logic_calpro, logic_dh, logic_g13, log
                      logic_g49a, logic_g49b, logic_g50, logic_grad, logic_inivec_read, logic_mr !, logic_mrelcas , logic_tdav
 !character(len=256) :: tmpdir
 character(len=8) :: FnOneMO, FnTwoMO
-integer(kind=iwp), pointer :: ihy(:), ihyl(:), index_lpext(:), index_lpext1(:), index_lpext2(:), intind_abkk(:), intind_iabc(:), &
-                              intind_iaqq(:), intind_ijab(:), intind_ijcc(:), intind_ijka(:), intspace_abkk(:), intspace_iabc(:), &
-                              intspace_iaqq(:), intspace_ijab(:), intspace_ijcc(:), intspace_ijka(:), iy(:,:), iyl(:,:), ja(:), &
-                              jb(:), jeh(:), jj(:,:), jj_sub(:,:), jjl_sub(:,:), jm(:), jph(:), jphy(:), jphyl(:), jwh(:), kk(:), &
-                              loij(:), loij_all(:), loijk(:), loijk_all(:), lp_coe(:,:), lp_head(:), lp_ltail(:), lp_lwei(:), &
-                              lp_rtail(:), lp_rwei(:), lpnew_coe(:,:), lpnew_head(:), lpnew_ltail(:), lpnew_lwei(:), &
-                              lpnew_rtail(:), lpnew_rwei(:)
-real(kind=wp), pointer :: denm1(:), denm2(:), th(:), thh(:), value_lpext(:), value_lpext1(:), value_lpext2(:), vcm(:), vector1(:), &
-                          vector2(:), vint_ci(:), vplp_w0(:), vplp_w1(:), vplpnew_w0(:), vplpnew_w1(:)
-logical(kind=iwp), pointer :: logic_br(:), logic_newbr(:)
+integer(kind=iwp), allocatable :: ihy(:), ihyl(:), index_lpext(:), index_lpext1(:), index_lpext2(:), intind_abkk(:), &
+                                  intind_iabc(:), intind_iaqq(:), intind_ijab(:), intind_ijcc(:), intind_ijka(:), &
+                                  intspace_abkk(:), intspace_ijab(:), intspace_ijcc(:), iy(:,:), iyl(:,:), ja(:), jb(:), jeh(:), &
+                                  jj(:,:), jj_sub(:,:), jjl_sub(:,:), jm(:), jph(:), jphy(:), jphyl(:), jwh(:), kk(:), loij(:), &
+                                  loij_all(:), loijk(:), loijk_all(:), lp_coe(:,:), lp_head(:), lp_ltail(:), lp_lwei(:), &
+                                  lp_rtail(:), lp_rwei(:), lpnew_coe(:,:), lpnew_head(:), lpnew_ltail(:), lpnew_lwei(:), &
+                                  lpnew_rtail(:), lpnew_rwei(:)
+real(kind=wp), allocatable :: denm1(:), denm2(:), th(:), thh(:), value_lpext(:), value_lpext1(:), value_lpext2(:), vcm(:), &
+                              vector1(:), vector2(:), vint_ci(:), vplp_w0(:), vplp_w1(:), vplpnew_w0(:), vplpnew_w1(:)
+logical(kind=iwp), allocatable :: logic_br(:), logic_newbr(:)
 
 public :: cm_cri, denm1, denm2, dm1tmp, ecih0, escf, fg, FnOneMO, FnTwoMO, ibsm_ext, ican_a, ican_b, icano_nnend, icano_nnsta, &
           icnt_base, idisk_array, idisk_lp, idownwei_g131415, iesm_ext, ifrno, ihy, ihyl, ildownwei_segdd, ilsegdownwei, iml, imr, &
           index_lpext, index_lpext1, index_lpext2, index_lpext3, index_lpext4, index_lpext5, indx, int_dd_drl, int_dd_offset, &
-          intind_abkk, intind_iabc, intind_iaqq, intind_ijab, intind_ijcc, intind_ijka, intspace_abkk, intspace_iabc, &
-          intspace_iaqq, intspace_ijab, intspace_ijcc, intspace_ijka, ip2_aa_ext_base, ip2_dd_ext_base, ip3_abd_ext_base, &
-          ip4_abcd_ext_base, ipae, ipael, ipaety, irdownwei_segdd, iref_occ, irf, irfno, irsegdownwei, iseg_downwei, iseg_sta, &
-          iseg_upwei, isegdownwei, isegsta, isegupwei, ism_g1415, ism_g2g4, istep_occ, ivaluesta_g26, iw_downwei, iw_sta, &
-          iweista_g25, iweista_g26, iweista_g28, iwt_orb_ext, iwt_sm_s_ext, iy, iyl, ja, jb, jb_sys, jd, jeh, jj, jj_sub, jjl_sub, &
-          jm, jml, jmr, jp2, jp3, jpad, jpad_upwei, jpadl, jpadlr, jpae, jpae_downwei, jpael, jpel, jper, jph, jph_, jphy, jphyl, &
-          jroute_sys, js, jt, jud, just, jv, jwh, jwl, jwr, kk, lenintegral, lenvec, line, linelp, log_prod, logic_assign_actorb, &
-          logic_br, logic_calpro, logic_dh, logic_g13, logic_g1415, logic_g25a, logic_g25b, logic_g26, logic_g28a, logic_g2g4a, &
-          logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, logic_g49a, logic_g49b, logic_g50, &
-          logic_grad, logic_inivec_read, logic_mr, logic_newbr, loij, loij_all, loijk, loijk_all, loputmp, lp_coe, lp_count, &
-          lp_head, lp_ltail, lp_lwei, lp_rtail, lp_rwei, lpblock, lpblock_dd, lpblock_ds, lpblock_dt, lpblock_dv, lpblock_sd, &
-          lpblock_ss, lpblock_st, lpblock_sv, lpblock_td, lpblock_ts, lpblock_tt, lpblock_tv, lpblock_vd, lpend34a, lpend34b, &
-          lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpnew_coe, lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, &
-          lpnew_rwei, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, lpsta36b, lrg, lrs, lsm, lsm_inn, lsmorb, LuCiDen, &
-          LuCiDia, LuCiInt, LuCiMO, LuCiTv1, LuCiTv2, LuCiVec, LuDrt, LuLoop, LuOneMO, LuTwoMO, m_jc, m_jd, map_jplr, &
-          map_orb_order, max_extorb, max_h0, max_innorb, max_iter, max_kspace, max_node, max_orb, max_ref, max_root, max_tmpvalue, &
-          max_vector, max_wei, maxciiter, maxgdm, maxintseg, maxpl, mcroot, mhlp, mhlpmax, mhsum, mjn, mroot, mth_eigen, mtype, &
-          mxnode, n_ref, nabc, nci_dim, nci_h0, ncibl, ncibl_all, ndim, ndim_h0, ndr, ng_sm, ngw2, ngw3, ngw4, nint_g25, nint_g28, &
-          nlg1, nlg2, nlsm_all, nlsm_bas, nlsm_dbl, nlsm_ext, nlsm_frz, no, nohy, noidx, norb_act, norb_all, norb_dbl, norb_dz, &
-          norb_ext, norb_frz, norb_inn, norb_number, np3_abd_ext, ns_sm, nstart_act, nstaval, ntrabuf, ntratoc, nu_ad, nu_ae, &
-          nvaltype, nvalue, nvalue_space_ss, nwalk, nwei_g25, nwei_g26, nwei_g28, pd, pdd, pror, ps1, ps2, ps3, ps4, pt, ptt, &
-          spin, th, thh, v_onevsqtwo, v_sqthree, v_sqthreevsqtwo, v_sqtwo, value_lpext, value_lpext1, value_lpext2, value_lpext3, &
-          value_lpext4, value_lpext5, vcm, vd, vdint, ve, vector1, vector2, viasum_0, viasum_1, vijkk_0sum, vijkk_1sum, vint_ci, &
-          voint, vp, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, vpotnuc, vthrealp, vthreen, vthreresid, vu, w0, w0_d1d, w0_d1d1, &
-          w0_d1s, w0_d1t1, w0_d1v, w0_dd, w0_dd1, w0_ds, w0_dt, w0_dv, w0_plp, w0_sd, w0_sd1, w0_sdplp, w0_sdplp25, w0_ss, w0_sv, &
-          w0_t1d1, w0_t1t1, w0_td, w0_tt, w0_vv, w0g13a, w0g14a, w0g15a, w0g25, w0g25a, w0g25b, w0g26a, w0g26b, w0g27, w0g28a, &
-          w0g28b, w0g29, w0g2a, w0g2b, w0g30, w0g31, w0g32, w0g34a, w0g34b, w0g35a, w0g35b, w0g36a, w0g36b, w0g4a, w0g4b, w0gdd, &
-          w0plp25, w0plp26, w0plp27, w0plp28, w0plp29, w0plp30, w0plp31, w0plp32, w1, w1_d1d, w1_d1d1, w1_d1s, w1_d1t1, w1_d1v, &
-          w1_dd, w1_dd1, w1_ds, w1_dt, w1_plp, w1_sd, w1_sd1, w1_sdplp, w1_sdplp25, w1_ss, w1_st, w1_st1, w1_sv, w1_t1d1, w1_t1s, &
+          intind_abkk, intind_iabc, intind_iaqq, intind_ijab, intind_ijcc, intind_ijka, intspace_abkk, intspace_ijab, &
+          intspace_ijcc, ip2_aa_ext_base, ip2_dd_ext_base, ip3_abd_ext_base, ip4_abcd_ext_base, ipae, ipael, ipaety, &
+          irdownwei_segdd, iref_occ, irf, irfno, irsegdownwei, iseg_downwei, iseg_sta, iseg_upwei, isegdownwei, isegsta, &
+          isegupwei, ism_g1415, ism_g2g4, istep_occ, ivaluesta_g26, iw_downwei, iw_sta, iweista_g25, iweista_g26, iweista_g28, &
+          iwt_orb_ext, iwt_sm_s_ext, iy, iyl, ja, jb, jb_sys, jd, jeh, jj, jj_sub, jjl_sub, jm, jml, jmr, jp2, jp3, jpad, &
+          jpad_upwei, jpadl, jpadlr, jpae, jpae_downwei, jpael, jpel, jper, jph, jph_, jphy, jphyl, jroute_sys, js, jt, jud, just, &
+          jv, jwh, jwl, jwr, kk, lenintegral, lenvec, line, linelp, log_prod, logic_assign_actorb, logic_br, logic_calpro, &
+          logic_dh, logic_g13, logic_g1415, logic_g25a, logic_g25b, logic_g26, logic_g28a, logic_g2g4a, logic_g2g4b, logic_g34a, &
+          logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, logic_g49a, logic_g49b, logic_g50, logic_grad, &
+          logic_inivec_read, logic_mr, logic_newbr, loij, loij_all, loijk, loijk_all, loputmp, lp_coe, lp_count, lp_head, &
+          lp_ltail, lp_lwei, lp_rtail, lp_rwei, lpblock, lpblock_dd, lpblock_ds, lpblock_dt, lpblock_dv, lpblock_sd, lpblock_ss, &
+          lpblock_st, lpblock_sv, lpblock_td, lpblock_ts, lpblock_tt, lpblock_tv, lpblock_vd, lpend34a, lpend34b, lpend35a, &
+          lpend35b, lpend36a, lpend36b, lpext_wei, lpnew_coe, lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, &
+          lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, lpsta36b, lrg, lrs, lsm, lsm_inn, lsmorb, LuCiDen, LuCiDia, LuCiInt, &
+          LuCiMO, LuCiTv1, LuCiTv2, LuCiVec, LuDrt, LuLoop, LuOneMO, LuTwoMO, m_jc, m_jd, map_jplr, map_orb_order, max_extorb, &
+          max_h0, max_innorb, max_iter, max_kspace, max_node, max_orb, max_ref, max_root, max_tmpvalue, max_vector, max_wei, &
+          maxciiter, maxgdm, maxintseg, maxpl, mcroot, mhlp, mhlpmax, mhsum, mjn, mroot, mth_eigen, mtype, mxnode, n_ref, nabc, &
+          nci_dim, nci_h0, ncibl, ncibl_all, ndim, ndim_h0, ndr, ng_sm, ngw2, ngw3, ngw4, nint_g25, nint_g28, nlg1, nlg2, &
+          nlsm_all, nlsm_bas, nlsm_dbl, nlsm_ext, nlsm_frz, no, nohy, noidx, norb_act, norb_all, norb_dbl, norb_dz, norb_ext, &
+          norb_frz, norb_inn, norb_number, np3_abd_ext, ns_sm, nstart_act, nstaval, ntrabuf, ntratoc, nu_ad, nu_ae, nvaltype, &
+          nvalue, nvalue_space_ss, nwalk, nwei_g25, nwei_g26, nwei_g28, pd, pdd, pror, ps1, ps2, ps3, ps4, pt, ptt, spin, th, thh, &
+          v_onevsqtwo, v_sqthree, v_sqthreevsqtwo, v_sqtwo, value_lpext, value_lpext1, value_lpext2, value_lpext3, value_lpext4, &
+          value_lpext5, vcm, vd, vdint, ve, vector1, vector2, viasum_0, viasum_1, vijkk_0sum, vijkk_1sum, vint_ci, voint, vp, &
+          vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, vpotnuc, vthrealp, vthreen, vthreresid, vu, w0, w0_d1d, w0_d1d1, w0_d1s, &
+          w0_d1t1, w0_d1v, w0_dd, w0_dd1, w0_ds, w0_dt, w0_dv, w0_plp, w0_sd, w0_sd1, w0_sdplp, w0_sdplp25, w0_ss, w0_sv, w0_t1d1, &
+          w0_t1t1, w0_td, w0_tt, w0_vv, w0g13a, w0g14a, w0g15a, w0g25, w0g25a, w0g25b, w0g26a, w0g26b, w0g27, w0g28a, w0g28b, &
+          w0g29, w0g2a, w0g2b, w0g30, w0g31, w0g32, w0g34a, w0g34b, w0g35a, w0g35b, w0g36a, w0g36b, w0g4a, w0g4b, w0gdd, w0plp25, &
+          w0plp26, w0plp27, w0plp28, w0plp29, w0plp30, w0plp31, w0plp32, w1, w1_d1d, w1_d1d1, w1_d1s, w1_d1t1, w1_d1v, w1_dd, &
+          w1_dd1, w1_ds, w1_dt, w1_plp, w1_sd, w1_sd1, w1_sdplp, w1_sdplp25, w1_ss, w1_st, w1_st1, w1_sv, w1_t1d1, w1_t1s, &
           w1_t1t1, w1_t1v, w1_td, w1_ts, w1_tt, w1_tv, w1g14a, w1g15a, w1g25a, w1g25b, w1g26a, w1g26b, w1g27, w1g28a, w1g28b, &
           w1g2a, w1g2b, w1g31, w1g32, w1g34a, w1g34b, w1g35a, w1g35b, w1g36a, w1g36b, w1g4a, w1g4b, w1gdd, w1plp27, w1plp31, w1plp32
 

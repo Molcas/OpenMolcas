@@ -1961,7 +1961,7 @@ do ia=iasta,iaend      !ib-1      !severe_error_1020
   iaqq = ia0+ia
   intpos = intind_iaqq(iaqq)
   iposint = intpos+jcoffset
-  ! value_lpext(ilwei)=(vint_ci(iposint2)+
+  !value_lpext(ilwei) = (vint_ci(iposint2)+
   value_lpext(ilwei) = w0plp28*(vint_ci(iposint)/w0g28a+vint_ci(iposint+1))
   ilwei = ilwei+1
 end do
